@@ -36,16 +36,16 @@ void convert_hmp(char *filename, char *mid_filename) {
     PHYSFS_file *mid_out = PHYSFSX_openWriteBuffered(mid_filename);
 
     if (!mid_out) {
-      fprintf(stderr, "Error could not open: %s for writing: %s\n", mid_filename, PHYSFS_getLastError());
+      con_printf(CON_CRITICAL," could not open: %s for writing: %s\n", mid_filename, PHYSFS_getLastError());
       return;
     }
 
-    if (MIX_MUSIC_DEBUG) printf("convert_hmp: converting %s to %s\n", filename, mid_filename);
+    con_printf(CON_DEBUG,"convert_hmp: converting %s to %s\n", filename, mid_filename);
 
     hmp_in = PHYSFSX_openReadBuffered(filename);
 
     if (!hmp_in) {
-      fprintf(stderr, "Error could not open: %s\n", filename);
+      con_printf(CON_CRITICAL," could not open: %s\n", filename);
       PHYSFS_close(mid_out);
       return;
     }
@@ -56,13 +56,13 @@ void convert_hmp(char *filename, char *mid_filename) {
     PHYSFS_close(hmp_in);
 
     if (err) {
-      fprintf(stderr, "%s\n", err);
+      con_printf(CON_CRITICAL,"%s\n", err);
       PHYSFS_delete(mid_filename);
       return;
     }
   }
   else {
-    if (MIX_MUSIC_DEBUG) printf("convert_hmp: %s already exists\n", mid_filename);
+    con_printf(CON_DEBUG,"convert_hmp: %s already exists\n", mid_filename);
   }
 }
 
@@ -127,7 +127,7 @@ void mix_play_file(char *filename, int loop) {
     Mix_HookMusicFinished(loop == -1 ? music_hook_next : music_hook_stop);
   }
   else {
-    fprintf(stderr, "Music %s could not be loaded\n", real_filename);
+    con_printf(CON_CRITICAL,"Music %s could not be loaded\n", real_filename);
     Mix_HaltMusic();
   }
 }
@@ -168,7 +168,6 @@ void music_hook_next() {
 }
 
 void mix_set_music_volume(int vol) {
-  //printf("mix_set_music_volume %d\n", vol);
   Mix_VolumeMusic(vol);
 }
 

@@ -10,86 +10,12 @@ CONTAINED HEREIN FOR REVENUE-BEARING PURPOSES.  THE END-USER UNDERSTANDS
 AND AGREES TO THE TERMS HEREIN AND ACCEPTS THE SAME BY USE OF THIS FILE.  
 COPYRIGHT 1993-1998 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 */
+
 /*
- * $Source: /cvsroot/dxx-rebirth/d1x-rebirth/editor/medrobot.c,v $
- * $Revision: 1.1.1.1 $
- * $Author: zicodxx $
- * $Date: 2006/03/17 19:45:16 $
- * 
+ *
  * Dialog box to edit robot properties.
- * 
- * $Log: medrobot.c,v $
- * Revision 1.1.1.1  2006/03/17 19:45:16  zicodxx
- * initial import
  *
- * Revision 1.1.1.1  1999/06/14 22:03:56  donut
- * Import of d1x 1.37 source.
- *
- * Revision 2.0  1995/02/27  11:35:59  john
- * Version 2.0! No anonymous unions, Watcom 10.0, with no need
- * for bitmaps.tbl.
- * 
- * Revision 1.46  1995/02/22  15:22:03  allender
- * remove anonyous unions from object structure
- * 
- * Revision 1.45  1994/11/27  23:17:32  matt
- * Made changes for new mprintf calling convention
- * 
- * Revision 1.44  1994/11/14  11:39:57  mike
- * fix default robot behavior
- * 
- * Revision 1.43  1994/11/02  16:18:47  matt
- * Moved draw_model_picture() out of editor, and cleaned up code
- * 
- * Revision 1.42  1994/10/10  17:23:23  mike
- * Verify that not placing too many player objects.
- * 
- * Revision 1.41  1994/10/09  22:04:38  mike
- * Maybe improve, maybe not, robot selection in shift-R menu.
- * 
- * Revision 1.40  1994/09/30  21:49:01  mike
- * Fix stupid shift-R dialog bug which caused lots of mprintf and selecting of object and frustration.
- * 
- * Revision 1.39  1994/09/30  11:51:33  mike
- * Fix boolean logic on an error trap.
- * 
- * Revision 1.38  1994/09/20  14:36:32  mike
- * Clean up Robot dialog.
- * 
- * Revision 1.37  1994/09/12  19:11:56  mike
- * Fix stupid bugs in selecting objects.
- * 
- * Revision 1.36  1994/09/01  17:05:51  matt
- * Don't force redraw if object select fails
- * 
- * Revision 1.35  1994/08/31  19:24:40  mike
- * Fix hang bug when only objects in mine are not robots.
- * 
- * Revision 1.34  1994/08/25  21:56:38  mike
- * IS_CHILD stuff.
- * 
- * Revision 1.33  1994/08/23  16:39:29  mike
- * mode replaced by behavior in ai_info.
- * 
- * Revision 1.32  1994/08/15  23:47:16  mike
- * fix bugs.
- * 
- * Revision 1.31  1994/08/13  17:32:45  mike
- * set to still function.
- * 
- * Revision 1.30  1994/08/09  16:06:02  john
- * Added the ability to place players.  Made old
- * Player variable be ConsoleObject.
- * 
- * Revision 1.29  1994/08/02  16:22:48  matt
- * Finished object editor dialog
- * 
  */
-
-
-#ifdef RCS
-static char rcsid[] = "$Id: medrobot.c,v 1.1.1.1 2006/03/17 19:45:16 zicodxx Exp $";
-#endif
 
 #include <stdlib.h>
 #include <stdio.h>
@@ -100,16 +26,13 @@ static char rcsid[] = "$Id: medrobot.c,v 1.1.1.1 2006/03/17 19:45:16 zicodxx Exp
 #endif
 #include <math.h>
 #include <string.h>
-
 #include "screens.h"
 #include "inferno.h"
 #include "segment.h"
 #include "editor.h"
-
 #include "timer.h"
 #include "objpage.h"
 #include "fix.h"
-#include "mono.h"
 #include "error.h"
 #include "kdefs.h"
 #include	"object.h"
@@ -189,7 +112,6 @@ void call_init_ai_object(object *objp, int behavior)
 			hide_segment = Cursegp-Segments;
 	}
 
-	mprintf((0, "Initializing AI object with hide segment = %i\n", hide_segment));
 	init_ai_object(objp-Objects, behavior, hide_segment);
 
 	if (behavior == AIB_STATION) {
@@ -272,8 +194,6 @@ int RobotPrevType()
 //-------------------------------------------------------------------------
 int med_set_ai_path()
 {
-	mprintf( (0, "med-set-ai-path called -- it does nothing, paths automatically set!\n" ));
-
 	return 1;
 }
 
@@ -437,7 +357,6 @@ int LocalObjectSelectNextinSegment(void)
 
 	if (Cur_object_index != -1) {
 		while (!is_legal_type_for_this_window(Cur_object_index)) {
-			//mprintf((0, "Skipping object #%i of type %i\n", Cur_object_index, Objects[Cur_object_index].type));
 			rval = ObjectSelectNextinSegment();
 			if (first_obj == Cur_object_index)
 				break;
@@ -466,7 +385,6 @@ int LocalObjectSelectNextinMine(void)
 
 	if (Cur_object_index != -1) {
 		while (!is_legal_type_for_this_window(Cur_object_index)) {
-			//mprintf((0, "Skipping object #%i of type %i\n", Cur_object_index, Objects[Cur_object_index].type));
 			ObjectSelectNextInMine();
 			if (Cur_object_index == first_obj)
 				break;
@@ -495,7 +413,6 @@ int LocalObjectSelectPrevinMine(void)
 
 	if (Cur_object_index != -1) {
 		while (!is_legal_type_for_this_window(Cur_object_index)) {
-			//mprintf((0, "Skipping object #%i of type %i\n", Cur_object_index, Objects[Cur_object_index].type));
 			ObjectSelectPrevInMine();
 			if (first_obj == Cur_object_index)
 				break;
@@ -676,7 +593,6 @@ void do_robot_window()
 		if ( Cur_object_index > -1 ) {
 			int	behavior = Objects[Cur_object_index].ctype.ai_info.behavior;
 			if ( !((behavior >= MIN_BEHAVIOR) && (behavior <= MAX_BEHAVIOR))) {
-				mprintf((0, "Object #%i behavior id (%i) out of bounds, setting to AIB_NORMAL.\n", Cur_object_index, behavior));
 				Objects[Cur_object_index].ctype.ai_info.behavior = AIB_NORMAL;
 				behavior = AIB_NORMAL;
 			}
@@ -894,8 +810,6 @@ int do_object_dialog()
 	ui_gadget_calc_keys(MattWindow);
 
 	MattWindow->keyboard_focus_gadget = (UI_GADGET *) InitialMode[0];
-
-	mprintf((0, "X = %08x, Y = %08x, Z = %08x\n", atoi(Xmessage), atoi(Ymessage), atoi(Zmessage)));
 
 	return 1;
 

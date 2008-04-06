@@ -10,25 +10,19 @@ CONTAINED HEREIN FOR REVENUE-BEARING PURPOSES.  THE END-USER UNDERSTANDS
 AND AGREES TO THE TERMS HEREIN AND ACCEPTS THE SAME BY USE OF THIS FILE.  
 COPYRIGHT 1993-1998 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 */
+
 /*
- * 
+ *
  * Functions to save/restore game state.
- * 
+ *
  */
 
-
-#ifdef RCS
-#pragma off (unreferenced)
-static char rcsid[] = "$Id: state.c,v 1.1.1.1 2006/03/17 19:42:43 zicodxx Exp $";
-#pragma on (unreferenced)
-#endif
 
 #include <stdio.h>
 #include <stdlib.h>
 #include <math.h>
 #include <string.h>
 
-#include "mono.h"
 #include "inferno.h"
 #include "segment.h"
 #include "textures.h"
@@ -381,8 +375,6 @@ int state_save_all(int between_levels)
 	}
 #endif
 
-	mprintf(( 0, "CL=%d, NL=%d\n", Current_level_num, Next_level_num ));
-	
 	stop_time();
 
 	if (!state_get_save_file(filename,desc))	{
@@ -776,7 +768,6 @@ RetryObjectLoading:
 				if (!BogusSaturnShit )	{
 					if ( (segnum<0) || (segnum>Highest_segment_index) ) {
 						BogusSaturnShit = 1;
-						mprintf(( 1, "READING BOGUS SATURN VERSION OBJECTS!!! (Object:%d)\n", i ));
 						PHYSFS_seek( fp, ObjectStartLocation );
 						goto RetryObjectLoading;
 					}
@@ -796,7 +787,6 @@ RetryObjectLoading:
 		if (!BogusSaturnShit )	{
 			if ( (Num_walls<0) || (Num_walls>MAX_WALLS) ) {
 				BogusSaturnShit = 1;
-				mprintf(( 1, "READING BOGUS SATURN VERSION OBJECTS!!! (Num_walls)\n" ));
 				PHYSFS_seek( fp, ObjectStartLocation );
 				goto RetryObjectLoading;
 			}
@@ -808,7 +798,6 @@ RetryObjectLoading:
 			for (i=0; i<Num_walls; i++ )	{
 				if ( (Walls[i].segnum<0) || (Walls[i].segnum>Highest_segment_index) || (Walls[i].sidenum<-1) || (Walls[i].sidenum>5) ) {
 					BogusSaturnShit = 1;
-					mprintf(( 1, "READING BOGUS SATURN VERSION OBJECTS!!! (Wall %d)\n", i ));
 					PHYSFS_seek( fp, ObjectStartLocation );
 					goto RetryObjectLoading;
 				}

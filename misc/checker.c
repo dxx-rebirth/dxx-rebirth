@@ -1,19 +1,14 @@
 //added 05/17/99 Matt Mueller - checker stubs for various functions.
 
 /* Needed for CHKR_PREFIX.  */
+#include <SDL/SDL.h>
 #include "checker_api.h"
 #include <setjmp.h>
 #include <glob.h>
 #include <termios.h>
 #include <unistd.h>
 #include <stdio.h>
-
 #include "gr.h"
-
-#ifdef __SDL__
-//#undef _SDL_STATIC_LIB
-#include "SDL.h"
-#endif
 
 void chcksetwritable(char * p, int size)__asm__(CHKR_PREFIX ("chcksetwritable"));
 void chcksetwritable(char * p, int size){
@@ -43,7 +38,6 @@ chkr_stub_glob(const char *pattern, int flags,int errfunc(const char * epath, in
 	return g;
 }
 
-#ifdef __SDL__	   
 int chkr_stub_SDL_VideoModeOK (int width, int height, int bpp, Uint32 flags)__asm__(CHKR_PREFIX ("SDL_VideoModeOK"));
 int chkr_stub_SDL_VideoModeOK (int width, int height, int bpp, Uint32 flags)
 {
@@ -167,7 +161,6 @@ int chkr_stub_SDL_Init(Uint32 flags)__asm__ (CHKR_PREFIX ("SDL_Init"));
 int chkr_stub_SDL_Init(Uint32 flags){
 	return SDL_Init(flags);
 }
-#endif /* __SDL__ */
 
 int chkr_stub_tcflush(int fd, int queue_selector)__asm__ (CHKR_PREFIX ("tcflush"));
 int chkr_stub_tcflush(int fd, int queue_selector){

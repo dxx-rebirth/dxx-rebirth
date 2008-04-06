@@ -10,77 +10,24 @@ CONTAINED HEREIN FOR REVENUE-BEARING PURPOSES.  THE END-USER UNDERSTANDS
 AND AGREES TO THE TERMS HEREIN AND ACCEPTS THE SAME BY USE OF THIS FILE.  
 COPYRIGHT 1993-1998 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 */
+
 /*
- * $Source: /cvsroot/dxx-rebirth/d1x-rebirth/ui/menubar.c,v $
- * $Revision: 1.1.1.1 $
- * $Author: zicodxx $
- * $Date: 2006/03/17 19:39:07 $
- * 
  * .
- * 
- * $Log: menubar.c,v $
- * Revision 1.1.1.1  2006/03/17 19:39:07  zicodxx
- * initial import
  *
- * Revision 1.1.1.1  1999/06/14 22:14:37  donut
- * Import of d1x 1.37 source.
- *
- * Revision 1.10  1994/11/27  14:53:11  matt
- * Took out include of medlisp.h
- * 
- * Revision 1.9  1994/11/18  23:07:28  john
- * Changed a bunch of shorts to ints.
- * 
- * Revision 1.8  1994/05/31  18:18:41  john
- * Fixed bug with F pulling up file menu,
- * 
- * Revision 1.7  1994/05/30  12:03:37  john
- * Fixed bug with Alt+F not getting accepted in state 0.
- * 
- * Revision 1.6  1994/05/25  10:05:54  yuan
- * Tracking down strange bug with do-wall-dialog.
- * 
- * Revision 1.5  1994/05/24  17:52:22  yuan
- * Testing.
- * 
- * Revision 1.4  1994/02/01  13:29:53  john
- * *** empty log message ***
- * 
- * Revision 1.3  1993/12/22  17:26:49  john
- * made it so that you can hold down Alt key and 
- * type menu letters to select an item.
- * 
- * Revision 1.2  1993/12/15  11:18:15  yuan
- * Changed width of menubar to 700 so that we could squeeze
- * in the clock
- * 
- * Revision 1.1  1993/12/07  12:31:09  john
- * Initial revision
- * 
- * 
  */
 
-
-#ifdef RCS
-static char rcsid[] = "$Id: menubar.c,v 1.1.1.1 2006/03/17 19:39:07 zicodxx Exp $";
-#endif
 
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
 #include <ctype.h>
-
 #include "u_mem.h"
 #include "fix.h"
 #include "pstypes.h"
 #include "gr.h"
 #include "ui.h"
 #include "key.h"
-
-#include "mono.h"
-
 #include "func.h"
-
 #include "error.h"
 
 
@@ -716,8 +663,6 @@ void menubar_init( char * file )
 	{
 		if ( buffer[0] == ';' ) continue;
 		
-		//mprintf( 0, "%s\n", buffer );
-				
 		CommaParse( 0, buf1, buffer );
 		menu = atoi( buf1 );
 		CommaParse( 1, buf1, buffer );
@@ -757,11 +702,6 @@ void menubar_init( char * file )
 		{
 			Menu[menu].Item[item].user_function = func_get(buf1, &np);
 
-//			if (!strcmp(buf1,"do-wall-dialog")) {
-//				mprintf( 0, "Found function %s\n", buf1);
-//				mprintf( 0, "User function %s\n", Menu[menu].Item[item].user_function);
-//			}
-				
 			if (Menu[menu].Item[item].user_function==NULL)
 			{
 				Error( "Unknown function, %s, in %s\n", buf1, file );

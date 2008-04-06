@@ -10,46 +10,13 @@ CONTAINED HEREIN FOR REVENUE-BEARING PURPOSES.  THE END-USER UNDERSTANDS
 AND AGREES TO THE TERMS HEREIN AND ACCEPTS THE SAME BY USE OF THIS FILE.  
 COPYRIGHT 1993-1998 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 */
+
 /*
- * $Source: /cvsroot/dxx-rebirth/d1x-rebirth/main/bm.c,v $
- * $Revision: 1.1.1.1 $
- * $Author: zicodxx $
- * $Date: 2006/03/17 19:41:41 $
  *
  * Bitmap and palette loading functions.
  *
- * $Log: bm.c,v $
- * Revision 1.1.1.1  2006/03/17 19:41:41  zicodxx
- * initial import
- *
- * Revision 1.2  1999/10/14 04:48:20  donut
- * alpha fixes, and gl_font args
- *
- * Revision 1.1.1.1  1999/06/14 22:05:21  donut
- * Import of d1x 1.37 source.
- *
- * Revision 2.3  1995/03/14  16:22:04  john
- * Added cdrom alternate directory stuff.
- * 
- * Revision 2.2  1995/03/07  16:51:48  john
- * Fixed robots not moving without edtiro bug.
- * 
- * Revision 2.1  1995/03/06  15:23:06  john
- * New screen techniques.
- * 
- * Revision 2.0  1995/02/27  11:27:05  john
- * New version 2.0, which has no anonymous unions, builds with
- * Watcom 10.0, and doesn't require parsing BITMAPS.TBL.
- * 
- * 
  */
 
-
-#ifdef RCS
-#pragma off (unreferenced)
-static char rcsid[] = "$Id: bm.c,v 1.1.1.1 2006/03/17 19:41:41 zicodxx Exp $";
-#pragma on (unreferenced)
-#endif
 
 #include <stdio.h>
 #include <stdlib.h>
@@ -60,7 +27,6 @@ static char rcsid[] = "$Id: bm.c,v 1.1.1.1 2006/03/17 19:41:41 zicodxx Exp $";
 #include "gr.h"
 #include "bm.h"
 #include "u_mem.h"
-#include "mono.h"
 #include "error.h"
 #include "object.h"
 #include "vclip.h"
@@ -121,9 +87,6 @@ int					First_multi_bitmap_num=-1;
 bitmap_index		ObjBitmaps[MAX_OBJ_BITMAPS];
 ushort				ObjBitmapPtrs[MAX_OBJ_BITMAPS];		// These point back into ObjBitmaps, since some are used twice.
 
-#ifdef FAST_FILE_IO
-#define tmap_info_read_n(ti, n, fp) cfread(ti, TMAP_INFO_SIZE, n, fp)
-#else
 /*
  * reads n tmap_info structs from a CFILE
  */
@@ -140,7 +103,6 @@ int tmap_info_read_n(tmap_info *ti, int n, CFILE *fp)
 	}
 	return i;
 }
-#endif
 
 int player_ship_read(player_ship *ps, CFILE *fp)
 {

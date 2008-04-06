@@ -10,138 +10,33 @@ CONTAINED HEREIN FOR REVENUE-BEARING PURPOSES.  THE END-USER UNDERSTANDS
 AND AGREES TO THE TERMS HEREIN AND ACCEPTS THE SAME BY USE OF THIS FILE.  
 COPYRIGHT 1993-1998 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 */
+
 /*
- * $Source: /cvsroot/dxx-rebirth/d1x-rebirth/editor/mine.c,v $
- * $Revision: 1.1.1.1 $
- * $Author: zicodxx $
- * $Date: 2006/03/17 19:45:37 $
- * 
+ *
  * Mine specific editing functions, such as load_mine, save_mine
- * 
- * $Log: mine.c,v $
- * Revision 1.1.1.1  2006/03/17 19:45:37  zicodxx
- * initial import
  *
- * Revision 1.1.1.1  1999/06/14 22:04:07  donut
- * Import of d1x 1.37 source.
- *
- * Revision 2.0  1995/02/27  11:34:38  john
- * Version 2.0! No anonymous unions, Watcom 10.0, with no need
- * for bitmaps.tbl.
- * 
- * Revision 1.82  1995/01/19  15:19:42  mike
- * New super-compressed registered file format.
- * 
- * Revision 1.81  1994/12/15  16:51:39  mike
- * fix error message.
- * 
- * Revision 1.80  1994/12/09  22:52:27  yuan
- * *** empty log message ***
- * 
- * Revision 1.79  1994/11/27  23:17:14  matt
- * Made changes for new mprintf calling convention
- * 
- * Revision 1.78  1994/11/26  21:48:24  matt
- * Fixed saturation in short light value
- * 
- * Revision 1.77  1994/11/18  09:43:22  mike
- * mprintf and clean up instead of Assert on values which don't fit in a short.
- * 
- * Revision 1.76  1994/11/17  20:37:37  john
- * Added comment to get mike or john.
- * 
- * Revision 1.75  1994/11/17  20:08:51  john
- * Added new compiled level format.
- * 
- * Revision 1.74  1994/11/17  11:39:00  matt
- * Ripped out code to load old mines
- * 
- * Revision 1.73  1994/10/20  12:47:47  matt
- * Replaced old save files (MIN/SAV/HOT) with new LVL files
- * 
- * Revision 1.72  1994/09/23  22:13:58  matt
- * Tooks out references to obsolete structure fields
- * 
- * Revision 1.71  1994/09/22  18:39:40  john
- * *** empty log message ***
- * 
- * Revision 1.70  1994/09/22  18:38:09  john
- * Added better help for locked files.
- * 
- * Revision 1.69  1994/08/01  11:04:44  yuan
- * New materialization centers.
- * 
- * Revision 1.68  1994/06/08  14:29:35  matt
- * Took out support for old mine versions
- * 
- * Revision 1.67  1994/05/27  10:34:37  yuan
- * Added new Dialog boxes for Walls and Triggers.
- * 
- * Revision 1.66  1994/05/23  14:48:08  mike
- * make current segment be add segment.
- * 
- * Revision 1.65  1994/05/17  10:34:52  matt
- * New parm to reset_objects; Num_objects no longer global
- * 
- * Revision 1.64  1994/05/12  14:46:46  mike
- * Load previous mine type.
- * 
- * Revision 1.63  1994/05/06  12:52:13  yuan
- * Adding some gamesave checks...
- * 
- * Revision 1.62  1994/05/05  12:56:32  yuan
- * Fixed a bunch of group bugs.
- * 
- * Revision 1.61  1994/05/03  11:36:55  yuan
- * Fixing mine save.
- * 
- * Revision 1.60  1994/03/19  17:22:14  yuan
- * Wall system implemented until specific features need to be added...
- * (Needs to be hammered on though.)
- * 
- * Revision 1.59  1994/03/17  18:08:32  yuan
- * New wall stuff... Cut out switches....
- * 
- * Revision 1.58  1994/03/15  16:34:15  yuan
- * Fixed bm loader (might have some changes in walls and switches)
- * 
- * Revision 1.57  1994/03/01  18:14:09  yuan
- * Added new walls, switches, and triggers.
- * 
  */
 
-
-#ifdef RCS
-static char rcsid[] = "$Id: mine.c,v 1.1.1.1 2006/03/17 19:45:37 zicodxx Exp $";
-#endif
 
 #include <stdio.h>
 #include <stdlib.h>
 #include <math.h>
 #include <string.h>
-
-#include "mono.h"
 #include "key.h"
 #include "gr.h"
-
 #include "bm.h"			// for MAX_TEXTURES
-
 #include "inferno.h"
 #include "segment.h"
 #include "editor.h"
 #include "error.h"
 #include "textures.h"
 #include "object.h"
-
 #include "gamemine.h"
 #include "gameseg.h"
-
 #include "ui.h"			// Because texpage.h need UI_WINDOW type
 #include "texpage.h"		// For texpage_goto_first
-			 
 #include "medwall.h"
 #include "switch.h"
-
 #include "nocfile.h"
 #include "fuelcen.h"
 
@@ -327,11 +222,9 @@ void dump_fix_as_short( fix value, int nbits, CFILE * SaveFile )
         int_value = (int)(value>>nbits);
 	if( int_value > 0x7fff ) {
 		short_value = 0x7fff;
-		mprintf((1, "Warning: Fix (%8x) won't fit in short.  Saturating to %8x.\n", int_value, short_value<<nbits));
 	}
 	else if( int_value < -0x7fff ) {
 		short_value = -0x7fff;
-		mprintf((1, "Warning: Fix (%8x) won't fit in short.  Saturating to %8x.\n", int_value, short_value<<nbits));
 	}
 	else
 		short_value = (short)int_value;
@@ -346,7 +239,6 @@ void dump_fix_as_ushort( fix value, int nbits, CFILE * SaveFile )
 	ushort short_value;
 
 	if (value < 0) {
-		mprintf((1, "Warning: fix (%8x) is signed...setting to zero.\n", value));
 		Int3();		//hey---show this to Matt
 		value = 0;
 	}
@@ -355,7 +247,6 @@ void dump_fix_as_ushort( fix value, int nbits, CFILE * SaveFile )
 
 	if( int_value > 0xffff ) {
 		short_value = 0xffff;
-		mprintf((1, "Warning: Fix (%8x) won't fit in unsigned short.  Saturating to %8x.\n", int_value, short_value<<nbits));
 	}
 	else
 		short_value = int_value;

@@ -10,176 +10,32 @@ CONTAINED HEREIN FOR REVENUE-BEARING PURPOSES.  THE END-USER UNDERSTANDS
 AND AGREES TO THE TERMS HEREIN AND ACCEPTS THE SAME BY USE OF THIS FILE.  
 COPYRIGHT 1993-1998 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 */
+
 /*
- * $Source: /cvsroot/dxx-rebirth/d1x-rebirth/editor/segment.c,v $
- * $Revision: 1.1.1.1 $
- * $Author: zicodxx $
- * $Date: 2006/03/17 19:45:33 $
  *
  * Interrogation functions for segment data structure.
  *
- * $Log: segment.c,v $
- * Revision 1.1.1.1  2006/03/17 19:45:33  zicodxx
- * initial import
- *
- * Revision 1.2  1999/09/02 13:37:06  sekmu
- * remove warning in editor compile
- *
- * Revision 1.1.1.1  1999/06/14 22:04:21  donut
- * Import of d1x 1.37 source.
- *
- * Revision 2.0  1995/02/27  11:35:21  john
- * Version 2.0! No anonymous unions, Watcom 10.0, with no need
- * for bitmaps.tbl.
- * 
- * Revision 1.191  1995/02/22  15:28:30  allender
- * remove anonymous unions from object structure
- * 
- * Revision 1.190  1995/02/02  02:59:40  yuan
- * Working on exterminating bogus matcen_nums... (harmless though)
- * 
- * Revision 1.189  1995/02/01  16:29:51  yuan
- * Stabilizing triggers and matcens.
- * 
- * Revision 1.188  1995/02/01  11:31:47  yuan
- * Trigger bug fixed.
- * 
- * Revision 1.187  1994/11/27  23:17:24  matt
- * Made changes for new mprintf calling convention
- * 
- * Revision 1.186  1994/11/17  14:48:12  mike
- * validation functions moved from editor to game.
- * 
- * Revision 1.185  1994/10/30  14:13:17  mike
- * rip out local segment stuff.
- * 
- * Revision 1.184  1994/10/27  10:04:24  matt
- * When triangulating, don't use WID() to see if connected, look at children
- * 
- * Revision 1.183  1994/10/26  13:40:23  mike
- * debug code for matt.
- * 
- * Revision 1.182  1994/10/24  16:34:00  mike
- * Force render after mine compress to prevent bugs in segment selection via clicking in 3d window.
- * 
- * Revision 1.181  1994/10/20  18:16:15  mike
- * Initialize ControlCenterTriggers.num_links in create_new_mine.
- * 
- * Revision 1.180  1994/10/18  16:29:14  mike
- * Write function to automatically fix bogus segnums in segment array.
- * 
- * Revision 1.179  1994/10/08  17:10:41  matt
- * Correctly set current_level_num when loading/creating mine in editor
- * 
- * Revision 1.178  1994/09/25  14:17:51  mike
- * Initialize (to 0) Num_robot_centers and Num_open_doors at mine creation.
- * 
- * Revision 1.177  1994/09/20  14:36:06  mike
- * Write function to find overlapping segments.
- * 
- * Revision 1.176  1994/08/25  21:55:57  mike
- * IS_CHILD stuff.
- * 
- * Revision 1.175  1994/08/23  15:28:03  mike
- * Fix peculiarity in med_combine_duplicate_vertices.
- * 
- * Revision 1.174  1994/08/09  16:06:17  john
- * Added the ability to place players.  Made old
- * Player variable be ConsoleObject.
- * 
- * Revision 1.173  1994/08/05  21:18:10  matt
- * Allow two doors to be linked together
- * 
- * Revision 1.172  1994/08/04  19:13:16  matt
- * Changed a bunch of vecmat calls to use multiple-function routines, and to
- * allow the use of C macros for some functions
- * 
- * Revision 1.171  1994/07/22  12:37:00  matt
- * Cleaned up editor/game interactions some more.
- * 
- * Revision 1.170  1994/07/22  11:20:08  mike
- * Set Lsegments validity.
- * 
- * Revision 1.169  1994/07/21  19:02:49  mike
- * lsegment stuff.
- * 
- * Revision 1.168  1994/07/21  13:27:17  matt
- * Ripped out remants of old demo system, and added demo
- * disables object movement and game options from menu.
- * 
- * Revision 1.167  1994/07/19  20:15:48  matt
- * Name for each level now saved in the .SAV file & stored in Current_level_name
- * 
- * Revision 1.166  1994/07/06  12:42:45  john
- * Made generic messages for hostages.
- * 
- * Revision 1.165  1994/06/24  17:04:29  john
- * *** empty log message ***
- * 
- * Revision 1.164  1994/06/15  15:42:40  mike
- * Initialize static_light field in new segments.
- * 
- * Revision 1.163  1994/06/13  17:49:19  mike
- * Fix bug in med_validate_side which was toasting lighting for removable walls.
- * 
- * Revision 1.162  1994/06/13  10:52:20  mike
- * Fix bug in triangulation of sides between connected segments.
- * Was assigning SIDE_IS_02 regardless of how triangulated, was
- * causing physics bugs.
- * 
- * Revision 1.161  1994/06/08  18:14:16  mike
- * Fix triangulation of sides in hallways (ie, where there is no wall),
- * so they get triangulated the same way, so find_new_seg doesn't get
- * stuck in an infinite recursion.
- * 
- * Revision 1.160  1994/06/08  11:44:31  mike
- * Fix bug in normals not being opposite on opposite sides of a segment.
- * Problem occurred due to difference in handling of remainder in signed divide.
- * 
- * Revision 1.159  1994/05/31  19:00:15  yuan
- * Fixed gamestate restore.
- * 
- * Revision 1.158  1994/05/30  20:22:36  yuan
- * New triggers.
- * 
- * Revision 1.157  1994/05/26  19:32:51  mike
- * Add bfs_parse.
- * 
- * Revision 1.156  1994/05/23  14:56:46  mike
- * make current segment be add segment.,
- * 
  */
-
-#ifdef RCS
-static char rcsid[] = "$Id: segment.c,v 1.1.1.1 2006/03/17 19:45:33 zicodxx Exp $";
-#endif
 
 #include <stdio.h>
 #include <stdlib.h>
 #include <math.h>
 #include <string.h>
-
-#include "mono.h"
 #include "key.h"
 #include "gr.h"
-
 #include "inferno.h"
 #include "segment.h"
-// #include "segment2.h"
 #include "editor.h"
 #include "error.h"
 #include "object.h"
-
 #include "gameseg.h"
 #include "render.h"
 #include "game.h"
-
 #include "wall.h"
 #include "switch.h"
 #include "fuelcen.h"
 #include "seguvs.h"
 #include "gameseq.h"
-
 #include "medwall.h"
 #include "hostage.h"
 
@@ -510,7 +366,6 @@ int med_add_vertex(vms_vector *vp)
 		if (Vertex_active[v]) {
 			count++;
 			if (vnear(vp,&Vertices[v])) {
-				// mprintf((0,"[%4i]  ",v));
 				return v;
 			}
 		} else if (free_index == -1)
@@ -611,7 +466,6 @@ int med_set_vertex(int vnum,vms_vector *vp)
 		Vertex_active[vnum] = 1;
 		Num_vertices++;
 		if ((vnum > Highest_vertex_index) && (vnum < NEW_SEGMENT_VERTICES)) {
-			mprintf((0,"Warning -- setting a previously unset vertex, index = %i.\n",vnum));
 			Highest_vertex_index = vnum;
 		}
 	}
@@ -697,7 +551,6 @@ int check_for_degenerate_segment(segment *sp)
 	if (dot > 0)
 		degeneracy_flag = 0;
 	else {
-		mprintf((0, "segment #%i is degenerate due to cross product check.\n", sp-Segments));
 		degeneracy_flag = 1;
 	}
 
@@ -796,7 +649,6 @@ void med_extract_matrix_from_segment(segment *sp,vms_matrix *rotmat)
 	extract_up_vector_from_segment(sp,&upvec);
 
 	if (((forwardvec.x == 0) && (forwardvec.y == 0) && (forwardvec.z == 0)) || ((upvec.x == 0) && (upvec.y == 0) && (upvec.z == 0))) {
-		mprintf((0, "Trapped null vector in med_extract_matrix_from_segment, returning identity matrix.\n"));
 		*rotmat = vmd_identity_matrix;
 		return;
 	}
@@ -1326,7 +1178,6 @@ int med_delete_segment(segment *sp)
 
 	// Don't try to delete if segment doesn't exist.
 	if (sp->segnum == -1) {
-		mprintf((0,"Hey -- you tried to delete a non-existent segment (segnum == -1)\n"));
 		return 1;
 	}
 
@@ -1386,10 +1237,6 @@ int med_delete_segment(segment *sp)
 
 	// If deleted segment contains objects, wipe out all objects
 	if (sp->objects != -1) 	{
-//		if (objnum == Objects[objnum].next) {
-//			mprintf((0, "Warning -- object #%i points to itself.  Setting next to -1.\n", objnum));
-//			Objects[objnum].next = -1;
-//		}
 		for (objnum=sp->objects;objnum!=-1;objnum=Objects[objnum].next) 	{
 
 			//if an object is in the seg, delete it
@@ -1465,9 +1312,6 @@ int med_rotate_segment(segment *seg, vms_matrix *rotmat)
 		
 	// Before deleting the segment, copy its texture maps to New_segment
 	copy_tmaps_to_segment(&New_segment,seg);
-
-	if (med_delete_segment(seg))
-		mprintf((0,"Error in rotation: Unable to delete segment %i\n",seg-Segments));
 
 	if (Curside == WFRONT)
 		Curside = WBACK;
@@ -1667,27 +1511,6 @@ int med_form_joint(segment *seg1, int side1, segment *seg2, int side2)
 
 	set_vertex_counts();
 
-	//	Make sure connection is open, ie renderable.
-//	seg1->sides[side1].render_flag = 0;
-//	seg2->sides[side2].render_flag = 0;
-
-//--// debug -- check all segments, make sure if a children[s] == -1, then side[s].num_faces != 0
-//--{
-//--int seg,side;
-//--for (seg=0; seg<MAX_SEGMENTS; seg++)
-//--	if (Segments[seg].segnum != -1)
-//--		for (side=0; side<MAX_SIDES_PER_SEGMENT; side++)
-//--			if (Segments[seg].children[side] == -1) {
-//--				if (Segments[seg].sides[side].num_faces == 0) {
-//--					mprintf((0,"Error: Segment %i, side %i is not connected, but has 0 faces.\n",seg,side));
-//--					Int3();
-//--				}
-//--			} else if (Segments[seg].sides[side].num_faces != 0) {
-//--				mprintf((0,"Error: Segment %i, side %i is connected, but has %i faces.\n",seg,side,Segments[seg].sides[side].num_faces));
-//--				Int3();
-//--			}
-//--}
-
 	return 0;
 }
 
@@ -1709,7 +1532,6 @@ int med_form_bridge_segment(segment *seg1, int side1, segment *seg2, int side2)
 		return 1;
 
 	bs = &Segments[get_free_segment_number()];
-// mprintf((0,"Forming bridge segment %i from %i to %i\n",bs-Segments,seg1-Segments,seg2-Segments));
 
 	bs->segnum = bs-Segments;
 	bs->objects = -1;
@@ -1751,7 +1573,6 @@ int med_form_bridge_segment(segment *seg1, int side1, segment *seg2, int side2)
 		bs->children[AttachSide] = -1;
                 bs->children[(int) Side_opposite[AttachSide]] = -1;
 		if (med_delete_segment(bs)) {
-			mprintf((0, "Oops, tried to delete bridge segment (because it's degenerate), but couldn't.\n"));
 			Int3();
 		}
 		editor_status("Bridge segment would be degenerate, not created.\n");
@@ -2228,7 +2049,6 @@ void check_for_overlapping_segment(int segnum)
 		if (i != segnum) {
 			masks = get_seg_masks(&segcenter, i, 0, __FILE__, __LINE__);
 			if (masks.centermask == 0) {
-				mprintf((0, "Segment %i center is contained in segment %i\n", segnum, i));
 				continue;
 			}
 
@@ -2239,7 +2059,6 @@ void check_for_overlapping_segment(int segnum)
 				vm_vec_scale_add(&presult, &segcenter, &pdel, (F1_0*15)/16);
 				masks = get_seg_masks(&presult, i, 0, __FILE__, __LINE__);
 				if (masks.centermask == 0) {
-					mprintf((0, "Segment %i near vertex %i is contained in segment %i\n", segnum, v, i));
 					break;
 				}
 			}
@@ -2257,10 +2076,6 @@ void check_for_overlapping_segments(void)
 	med_compress_mine();
 
 	for (i=0; i<=Highest_segment_index; i++) {
-		mprintf((0, "+"));
 		check_for_overlapping_segment(i);
 	}
-
-	mprintf((0, "\nDone!\n"));
 }
-

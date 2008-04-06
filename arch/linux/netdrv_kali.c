@@ -4,6 +4,7 @@
 #include <netinet/in.h> /* for htons & co. */
 #include "netdrv.h"
 #include "ukali.h"
+#include "console.h"
 
 static socket_t KALI_sock;
 
@@ -35,12 +36,12 @@ int KALIGetMyAddress(void)
 
 int KALIOpenSocket(int port)
 {
-	printf("kali: OpenSocket on port(%d)\n", port);
+	con_printf(CON_DEBUG,"kali: OpenSocket on port(%d)\n", port);
 
 	if (!open_sockets) {
 		if (have_empty_address()) {
 			if (KALIGetMyAddress() < 0) {
-				printf("kali: Error communicating with KaliNix\n");
+				con_printf(CON_CRITICAL,"kali: Error communicating with KaliNix\n");
 				return -1;
 			}
 		}
@@ -49,7 +50,7 @@ int KALIOpenSocket(int port)
 		port = dynamic_socket++;
 
 	if ((KALI_sock.fd = KaliOpenSocket(htons(port))) < 0) {
-		printf("kali: OpenSocket Failed on port(%d)\n", port);
+		con_printf(CON_CRITICAL,"kali: OpenSocket Failed on port(%d)\n", port);
 		KALI_sock.fd = -1;
 		return -1;
 	}
@@ -61,13 +62,13 @@ int KALIOpenSocket(int port)
 void KALICloseSocket(void)
 {
 	if (!open_sockets) {
-		printf("kali: close w/o open\n");
+		con_printf(CON_CRITICAL,"kali: close w/o open\n");
 		return;
 	}
-	printf("kali: CloseSocket on port(%d)\n", KALI_sock.socket);
+	con_printf(CON_DEBUG,"kali: CloseSocket on port(%d)\n", KALI_sock.socket);
 	KaliCloseSocket(KALI_sock.fd);
 	if (--open_sockets) {
-		printf("kali: (closesocket) %d sockets left\n", open_sockets);
+		con_printf(CON_URGENT,"kali: (closesocket) %d sockets left\n", open_sockets);
 		return;
 	}
 }

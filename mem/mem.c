@@ -21,14 +21,10 @@ COPYRIGHT 1993-1998 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
-#if 0 // deprecated
-#include <malloc.h>
-#endif
-
 #include "pstypes.h"
-#include "mono.h"
 #include "error.h"
 #include "args.h"
+#include "console.h"
 
 #define MEMSTATS 0
 #define FULL_MEM_CHECKING 1
@@ -85,7 +81,7 @@ void mem_init()
 
 void PrintInfo( int id )
 {
-	fprintf( stderr, "\tBlock '%s' created in %s, line %d.\n", Varname[id], Filename[id], LineNum[id] );
+	con_printf(CON_CRITICAL, "\tBlock '%s' created in %s, line %d.\n", Varname[id], Filename[id], LineNum[id] );
 }
 
 
@@ -97,8 +93,6 @@ void * mem_malloc( unsigned int size, char * var, char * filename, int line, int
 
 	if (Initialized==0)
 		mem_init();
-
-//	printf("malloc: %d %s %d\n", size, filename, line);
 
 #if MEMSTATS
 	{
@@ -117,8 +111,8 @@ void * mem_malloc( unsigned int size, char * var, char * filename, int line, int
 #endif	// end of ifdef memstats
 
 	if ( num_blocks >= MAX_INDEX )	{
-		fprintf( stderr,"\nMEM_OUT_OF_SLOTS: Not enough space in mem.c to hold all the mallocs.\n" );		
-		fprintf( stderr, "\tBlock '%s' created in %s, line %d.\n", var, filename, line );
+		con_printf(CON_CRITICAL,"\nMEM_OUT_OF_SLOTS: Not enough space in mem.c to hold all the mallocs.\n" );		
+		con_printf(CON_CRITICAL, "\tBlock '%s' created in %s, line %d.\n", var, filename, line );
 		Error( "MEM_OUT_OF_SLOTS" );
 	}
 
@@ -128,8 +122,8 @@ void * mem_malloc( unsigned int size, char * var, char * filename, int line, int
 
 	if (id==-1)
 	{
-		fprintf( stderr,"\nMEM_OUT_OF_SLOTS: Not enough space in mem.c to hold all the mallocs.\n" );		
-		fprintf( stderr, "\tBlock '%s' created in %s, line %d.\n", Varname[id], Filename[id], LineNum[id] );
+		con_printf(CON_CRITICAL,"\nMEM_OUT_OF_SLOTS: Not enough space in mem.c to hold all the mallocs.\n" );		
+		con_printf(CON_CRITICAL, "\tBlock '%s' created in %s, line %d.\n", Varname[id], Filename[id], LineNum[id] );
 		Error( "MEM_OUT_OF_SLOTS" );
 	}
 
@@ -138,8 +132,8 @@ void * mem_malloc( unsigned int size, char * var, char * filename, int line, int
 	if (ptr==NULL)
 	{
 		out_of_memory = 1;
-		fprintf( stderr, "\nMEM_OUT_OF_MEMORY: Malloc returned NULL\n" );
-		fprintf( stderr, "\tBlock '%s' created in %s, line %d.\n", Varname[id], Filename[id], LineNum[id] );
+		con_printf(CON_CRITICAL, "\nMEM_OUT_OF_MEMORY: Malloc returned NULL\n" );
+		con_printf(CON_CRITICAL, "\tBlock '%s' created in %s, line %d.\n", Varname[id], Filename[id], LineNum[id] );
 		Error( "MEM_OUT_OF_MEMORY" );
 	}
 
@@ -189,13 +183,13 @@ int mem_check_integrity( int block_number )
 	for (i=0; i<CHECKSIZE; i++ )
 		if (CheckData[i] != CHECKBYTE ) {
 			ErrorCount++;
-			fprintf( stderr, "OA: %p ", &CheckData[i] );
+			con_printf(CON_CRITICAL, "OA: %p ", &CheckData[i] );
 		}
 
 	if (ErrorCount &&  (!out_of_memory))	{
-		fprintf( stderr, "\nMEM_OVERWRITE: Memory after the end of allocated block overwritten.\n" );
+		con_printf(CON_CRITICAL, "\nMEM_OVERWRITE: Memory after the end of allocated block overwritten.\n" );
 		PrintInfo( block_number );
-		fprintf( stderr, "\t%d/%d check bytes were overwritten.\n", ErrorCount, CHECKSIZE );
+		con_printf(CON_CRITICAL, "\t%d/%d check bytes were overwritten.\n", ErrorCount, CHECKSIZE );
 		Int3();
 	}
 
@@ -226,7 +220,7 @@ void mem_free( void * buffer )
 
 	if (buffer==NULL  &&  (!out_of_memory))
 	{
-		fprintf( stderr, "\nMEM_FREE_NULL: An attempt was made to free the null pointer.\n" );
+		con_printf(CON_CRITICAL, "\nMEM_FREE_NULL: An attempt was made to free the null pointer.\n" );
 		Warning( "MEM: Freeing the NULL pointer!" );
 		Int3();
 		return;
@@ -236,7 +230,7 @@ void mem_free( void * buffer )
 
 	if (id==-1 &&  (!out_of_memory))
 	{
-		fprintf( stderr, "\nMEM_FREE_NOMALLOC: An attempt was made to free a ptr that wasn't\nallocated with mem.h included.\n" );
+		con_printf(CON_CRITICAL, "\nMEM_FREE_NOMALLOC: An attempt was made to free a ptr that wasn't\nallocated with mem.h included.\n" );
 		Warning( "MEM: Freeing a non-malloced pointer!" );
 		Int3();
 		return;
@@ -320,7 +314,7 @@ void mem_display_blocks()
 		{
 			numleft++;
 			if (GameArg.DbgShowMemInfo)	{
-				fprintf( stderr, "\nMEM_LEAKAGE: Memory block has not been freed.\n" );
+				con_printf(CON_CRITICAL, "\nMEM_LEAKAGE: Memory block has not been freed.\n" );
 				PrintInfo( i );
 			}
 			mem_free( (void *)MallocBase[i] );
@@ -408,8 +402,8 @@ void * mem_malloc( unsigned int size, char * var, char * filename, int line, int
 #endif	// end of ifdef memstats
 
 	if (size==0)	{
-		fprintf( stderr, "\nMEM_MALLOC_ZERO: Attempting to malloc 0 bytes.\n" );
-		fprintf( stderr, "\tVar %s, file %s, line %d.\n", var, filename, line );
+		con_printf(CON_CRITICAL, "\nMEM_MALLOC_ZERO: Attempting to malloc 0 bytes.\n" );
+		con_printf(CON_CRITICAL, "\tVar %s, file %s, line %d.\n", var, filename, line );
 		Error( "MEM_MALLOC_ZERO" );
 		Int3();
 	}
@@ -417,8 +411,8 @@ void * mem_malloc( unsigned int size, char * var, char * filename, int line, int
 	ptr = malloc( size + CHECKSIZE );
 
 	if (ptr==NULL)	{
-		fprintf( stderr, "\nMEM_OUT_OF_MEMORY: Malloc returned NULL\n" );
-		fprintf( stderr, "\tVar %s, file %s, line %d.\n", var, filename, line );
+		con_printf(CON_CRITICAL, "\nMEM_OUT_OF_MEMORY: Malloc returned NULL\n" );
+		con_printf(CON_CRITICAL, "\tVar %s, file %s, line %d.\n", var, filename, line );
 		Error( "MEM_OUT_OF_MEMORY" );
 		Int3();
 	}
@@ -461,7 +455,7 @@ void mem_free( void * buffer )
 #endif	// end of ifdef memstats
 
 	if (buffer==NULL)	{
-		fprintf( stderr, "\nMEM_FREE_NULL: An attempt was made to free the null pointer.\n" );
+		con_printf(CON_CRITICAL, "\nMEM_FREE_NULL: An attempt was made to free the null pointer.\n" );
 		Warning( "MEM: Freeing the NULL pointer!" );
 		Int3();
 		return;
@@ -493,15 +487,15 @@ void mem_display_blocks()
 #endif	// end of ifdef memstats
 
 	if (BytesMalloced != 0 )	{
-		fprintf( stderr, "\nMEM_LEAKAGE: %d bytes of memory have not been freed.\n", BytesMalloced );
+		con_printf(CON_CRITICAL, "\nMEM_LEAKAGE: %d bytes of memory have not been freed.\n", BytesMalloced );
 	}
 
 	if (GameArg.DbgShowMemInfo)	{
-		fprintf( stderr, "\n\nMEMORY USAGE:\n" );
-		fprintf( stderr, "  %u Kbytes dynamic data\n", (LargestAddress-SmallestAddress+512)/1024 );
-		fprintf( stderr, "  %u Kbytes code/static data.\n", (SmallestAddress-(4*1024*1024)+512)/1024 );
-		fprintf( stderr, "  ---------------------------\n" );
-		fprintf( stderr, "  %u Kbytes required.\n", 	(LargestAddress-(4*1024*1024)+512)/1024 );
+		con_printf(CON_CRITICAL, "\n\nMEMORY USAGE:\n" );
+		con_printf(CON_CRITICAL, "  %u Kbytes dynamic data\n", (LargestAddress-SmallestAddress+512)/1024 );
+		con_printf(CON_CRITICAL, "  %u Kbytes code/static data.\n", (SmallestAddress-(4*1024*1024)+512)/1024 );
+		con_printf(CON_CRITICAL, "  ---------------------------\n" );
+		con_printf(CON_CRITICAL, "  %u Kbytes required.\n", 	(LargestAddress-(4*1024*1024)+512)/1024 );
 	}
 }
 

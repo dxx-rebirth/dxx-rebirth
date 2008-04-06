@@ -10,25 +10,19 @@ CONTAINED HEREIN FOR REVENUE-BEARING PURPOSES.  THE END-USER UNDERSTANDS
 AND AGREES TO THE TERMS HEREIN AND ACCEPTS THE SAME BY USE OF THIS FILE.  
 COPYRIGHT 1993-1998 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 */
+
 /*
  *
  * Save game information
  *
  */
 
-#ifdef RCS
-#pragma off (unreferenced)
-static char rcsid[] = "$Id: gamesave.c,v 1.1.1.1 2006/03/17 19:44:30 zicodxx Exp $";
-#pragma on (unreferenced)
-#endif
-
-
 #include <stdio.h>
 #include <stdlib.h>
 #include <math.h>
 #include <string.h>
 
-#include "mono.h"
+#include "console.h"
 #include "key.h"
 #include "gr.h"
 #include "palette.h"
@@ -189,7 +183,6 @@ int is_real_level(char *filename)
 	if (len < 6)
 		return 0;
 
-	//mprintf((0, "String = [%s]\n", &filename[len-11]));
 	return !strncasecmp(&filename[len-11], "level", 5);
 
 }
@@ -347,7 +340,6 @@ void verify_object( object * obj )	{
 
 			for (i=0;i<N_polygon_models;i++)
 				if (!strcasecmp(Pof_names[i],name)) {		//found it!	
-					// mprintf((0,"Mapping <%s> to %d (was %d)\n",name,i,obj->rtype.pobj_info.model_num));
 					obj->rtype.pobj_info.model_num = i;
 					break;
 				}
@@ -596,7 +588,6 @@ void read_object(object *obj,CFILE *f,int version)
 			else {
 				int xlated_tmo = tmap_xlate_table[tmo];
 				if (xlated_tmo < 0)	{
-					mprintf( (0, "Couldn't find texture for demo object, model_num = %d\n", obj->rtype.pobj_info.model_num));
 					Int3();
 					xlated_tmo = 0;
 				}
@@ -1051,7 +1042,7 @@ int load_game_data(CFILE *LoadFile)
 							Triggers[i].flags = TRIGGER_ILLUSION_OFF;
 							break;
 						default:
-							printf("Warning: unknown trigger type %d (%d)\n", type, i);
+							con_printf(CON_URGENT,"Warning: unknown trigger type %d (%d)\n", type, i);
 					}
 					Triggers[i].num_links = cfile_read_short(LoadFile);
 					Triggers[i].value = cfile_read_int(LoadFile);
@@ -1091,7 +1082,6 @@ int load_game_data(CFILE *LoadFile)
 	{	int	j;
 
 		if (!cfseek( LoadFile, game_fileinfo.matcen_offset,SEEK_SET ))	{
-			// mprintf((0, "Reading %i materialization centers.\n", game_fileinfo.matcen_howmany));
 			for (i=0;i<game_fileinfo.matcen_howmany;i++) {
 				//Assert( sizeof(RobotCenters[i]) == game_fileinfo.matcen_sizeof );
 				matcen_info_read(&RobotCenters[i], LoadFile, game_top_fileinfo.fileinfo_version);
@@ -1101,8 +1091,6 @@ int load_game_data(CFILE *LoadFile)
 					if (Segments[j].special == SEGMENT_IS_ROBOTMAKER)
 						if (Segments[j].matcen_num == i)
 							RobotCenters[i].fuelcen_num = Segments[j].value;
-
-				// mprintf((0, "   %i: flags = %08x\n", i, RobotCenters[i].robot_flags));
 			}
 		}
 	}
@@ -1133,9 +1121,7 @@ int load_game_data(CFILE *LoadFile)
 		for (j=0;j<MAX_SIDES_PER_SEGMENT;j++) {
 			side	*sidep = &Segments[i].sides[j];
 			if ((sidep->wall_num != -1) && (Walls[sidep->wall_num].clip_num != -1)) {
-				//mprintf((0, "Checking Wall %d\n", Segments[i].sides[j].wall_num));
 				if (WallAnims[Walls[sidep->wall_num].clip_num].flags & WCF_TMAP1) {
-					//mprintf((0, "Fixing non-transparent door.\n"));
 					sidep->tmap_num = WallAnims[Walls[sidep->wall_num].clip_num].frames[0];
 					sidep->tmap_num2 = 0;
 				}
@@ -1257,7 +1243,6 @@ int load_level(char * filename_passed)
 
 	if (!LoadFile)	{
 #ifdef EDITOR
-		mprintf((0,"Can't open level file <%s>\n", filename));
 		return 1;
 #else
 		Error("Can't open file <%s>\n",filename);
@@ -1266,14 +1251,8 @@ int load_level(char * filename_passed)
 	
 	strcpy( Gamesave_current_filename, filename );
 
-//	#ifdef NEWDEMO
-//	if ( Newdemo_state == ND_STATE_RECORDING )
-//		newdemo_record_start_demo();
-//	#endif
-
 	sig					= cfile_read_int(LoadFile);
 	Gamesave_current_version = cfile_read_int(LoadFile);
-	mprintf((0, "Gamesave_current_version = %d\n", Gamesave_current_version));
 	minedata_offset		= cfile_read_int(LoadFile);
 	gamedata_offset		= cfile_read_int(LoadFile);
 
@@ -1321,8 +1300,7 @@ int load_level(char * filename_passed)
 			gr_palette_load(gr_palette);
 			nm_messagebox( NULL, 1, "Continue", ErrorMessage );
 			start_time();
-		} else
-			mprintf((1, "Error: %i errors in %s.\n", Errors_in_mine, Level_being_loaded));
+		}
 	}
 	#endif
 	#endif
@@ -1362,35 +1340,6 @@ int load_level(char * filename_passed)
 #ifdef EDITOR
 int get_level_name()
 {
-//NO_UI!!!	UI_WINDOW 				*NameWindow = NULL;
-//NO_UI!!!	UI_GADGET_INPUTBOX	*NameText;
-//NO_UI!!!	UI_GADGET_BUTTON 		*QuitButton;
-//NO_UI!!!
-//NO_UI!!!	// Open a window with a quit button
-//NO_UI!!!	NameWindow = ui_open_window( 20, 20, 300, 110, WIN_DIALOG );
-//NO_UI!!!	QuitButton = ui_add_gadget_button( NameWindow, 150-24, 60, 48, 40, "Done", NULL );
-//NO_UI!!!
-//NO_UI!!!	ui_wprintf_at( NameWindow, 10, 12,"Please enter a name for this mine:" );
-//NO_UI!!!	NameText = ui_add_gadget_inputbox( NameWindow, 10, 30, LEVEL_NAME_LEN, LEVEL_NAME_LEN, Current_level_name );
-//NO_UI!!!
-//NO_UI!!!	NameWindow->keyboard_focus_gadget = (UI_GADGET *)NameText;
-//NO_UI!!!	QuitButton->hotkey = KEY_ENTER;
-//NO_UI!!!
-//NO_UI!!!	ui_gadget_calc_keys(NameWindow);
-//NO_UI!!!
-//NO_UI!!!	while (!QuitButton->pressed && last_keypress!=KEY_ENTER) {
-//NO_UI!!!		ui_mega_process();
-//NO_UI!!!		ui_window_do_gadgets(NameWindow);
-//NO_UI!!!	}
-//NO_UI!!!
-//NO_UI!!!	strcpy( Current_level_name, NameText->text );
-//NO_UI!!!
-//NO_UI!!!	if ( NameWindow!=NULL )	{
-//NO_UI!!!		ui_close_window( NameWindow );
-//NO_UI!!!		NameWindow = NULL;
-//NO_UI!!!	}
-//NO_UI!!!
-
 	newmenu_item m[2];
 
 	m[0].type = NM_TYPE_TEXT; m[0].text = "Please enter a name for this mine:";
@@ -1536,8 +1485,7 @@ int save_level_sub(char * filename, int compiled_version)
 					return 1;
 				}
 				start_time();
-			} else
-				mprintf((1, "Error: %i errors in this mine.  See the 'txm' file.\n", Errors_in_mine));
+			}
 		}
 		convert_name_to_LVL(temp_filename,filename);
 	} else {
@@ -1710,11 +1658,6 @@ void dump_mine_info(void)
 
 		}
 	}
-
-//	mprintf((0, "Smallest uvl = %7.3f %7.3f %7.3f.  Largest uvl = %7.3f %7.3f %7.3f\n", f2fl(min_u), f2fl(min_v), f2fl(min_l), f2fl(max_u), f2fl(max_v), f2fl(max_l)));
-//	mprintf((0, "Static light maximum = %7.3f\n", f2fl(max_sl)));
-//	mprintf((0, "Number of walls: %i\n", Num_walls));
-
 }
 
 #endif

@@ -10,6 +10,7 @@ CONTAINED HEREIN FOR REVENUE-BEARING PURPOSES.  THE END-USER UNDERSTANDS
 AND AGREES TO THE TERMS HEREIN AND ACCEPTS THE SAME BY USE OF THIS FILE.  
 COPYRIGHT 1993-1998 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 */
+
 /*
  *
  * Editor loop for Inferno
@@ -20,10 +21,6 @@ COPYRIGHT 1993-1998 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 
 #define	DIAGNOSTIC_MESSAGE_MAX				90
 #define	EDITOR_STATUS_MESSAGE_DURATION	4		//	Shows for 3+..4 seconds
-
-#ifdef RCS
-static char rcsid[] = "$Id: med.c,v 1.1.1.1 2006/03/17 19:45:19 zicodxx Exp $";
-#endif
 
 #include <stdio.h>
 #include <stdlib.h>
@@ -43,12 +40,10 @@ static char rcsid[] = "$Id: med.c,v 1.1.1.1 2006/03/17 19:45:19 zicodxx Exp $";
 #include "gr.h"
 #include "ui.h"
 #include "editor.h"
-//#include "gamemine.h"
 #include "gamesave.h"
 #include "gameseg.h"
-
+#include "console.h"
 #include "key.h"
-#include "mono.h"
 #include "error.h"
 #include "kfuncs.h"
 #include "macro.h"
@@ -292,7 +287,6 @@ int	GotoGameCommon(int mode) {
 		gamestate_not_restored = 1;
 		save_level("GAMESAVE.LVL");
 		editor_status("Gamestate saved.\n");
-		mprintf((0, "Gamestate saved.\n"));
 	}
 
 	ai_reset_all_paths();
@@ -377,8 +371,6 @@ void medkey_init()
 
 void init_editor()
 {
-	minit();
-
 	ui_init();
 
 	init_med_functions();	// Must be called before medlisp_init
@@ -635,7 +627,6 @@ int DosShell()
 
 	gr_set_mode( SM_ORIGINAL );
 
-	printf( "\n\nType EXIT to return to Inferno" );
 	fflush(stdout);
 
 	key_close();
@@ -975,7 +966,6 @@ int RestoreGameState() {
 	load_level("GAMESAVE.LVL");
 	gamestate_not_restored = 0;
 
-	mprintf((0, "Gamestate restored.\n"));
 	editor_status("Gamestate restored.\n");
 
 	Update_flags |= UF_WORLD_CHANGED;
@@ -1102,8 +1092,6 @@ void editor(void)
 				old_curside = Curside;
 			}
 		}
-
-//		mprintf((0, "%d	", ui_get_idle_seconds() ));
 
 		if ( ui_get_idle_seconds() > COMPRESS_INTERVAL ) 
 			{
@@ -1391,15 +1379,15 @@ void test_fade(void)
 	int	i,c;
 
 	for (c=0; c<256; c++) {
-		printf("%4i: {%3i %3i %3i} ",c,gr_palette[3*c],gr_palette[3*c+1],gr_palette[3*c+2]);
+		con_printf(CON_DEBUG,"%4i: {%3i %3i %3i} ",c,gr_palette[3*c],gr_palette[3*c+1],gr_palette[3*c+2]);
 		for (i=0; i<16; i++) {
 			int col = gr_fade_table[256*i+c];
 
-			printf("[%3i %3i %3i] ",gr_palette[3*col],gr_palette[3*col+1],gr_palette[3*col+2]);
+			con_printf(CON_DEBUG,"[%3i %3i %3i] ",gr_palette[3*col],gr_palette[3*col+1],gr_palette[3*col+2]);
 		}
 		if ( (c%16) == 15)
-			printf("\n");
-		printf("\n");
+			con_printf(CON_DEBUG,"\n");
+		con_printf(CON_DEBUG,"\n");
 	}
 }
 
@@ -1407,23 +1395,23 @@ void dump_stuff(void)
 {
 	int	i,j,prev_color;
 
-	printf("Palette:\n");
+	con_printf(CON_DEBUG,"Palette:\n");
 
 	for (i=0; i<256; i++)
-		printf("%3i: %2i %2i %2i\n",i,gr_palette[3*i],gr_palette[3*i+1],gr_palette[3*i+2]);
+		con_printf(CON_DEBUG,"%3i: %2i %2i %2i\n",i,gr_palette[3*i],gr_palette[3*i+1],gr_palette[3*i+2]);
 
 	for (i=0; i<16; i++) {
-		printf("\nFade table #%i\n",i);
+		con_printf(CON_DEBUG,"\nFade table #%i\n",i);
 		for (j=0; j<256; j++) {
 			int	c = gr_fade_table[i*256 + j];
-			printf("[%3i %2i %2i %2i] ",c, gr_palette[3*c], gr_palette[3*c+1], gr_palette[3*c+2]);
+			con_printf(CON_DEBUG,"[%3i %2i %2i %2i] ",c, gr_palette[3*c], gr_palette[3*c+1], gr_palette[3*c+2]);
 			if ((j % 8) == 7)
-				printf("\n");
+				con_printf(CON_DEBUG,"\n");
 		}
 	}
 
-	printf("Colors indexed by intensity:\n");
-	printf(". = change from previous, * = no change\n");
+	con_printf(CON_DEBUG,"Colors indexed by intensity:\n");
+	con_printf(CON_DEBUG,". = change from previous, * = no change\n");
 	for (j=0; j<256; j++) {
 		printf("%3i: ",j);
 		prev_color = -1;
@@ -1438,11 +1426,10 @@ void dump_stuff(void)
 		printf("  ");
 		for (i=0; i<16; i++) {
 			int	c = gr_fade_table[i*256 + j];
-			printf("[%3i %2i %2i %2i] ", c, gr_palette[3*c], gr_palette[3*c+1], gr_palette[3*c+2]);
+			con_printf(CON_DEBUG,"[%3i %2i %2i %2i] ", c, gr_palette[3*c], gr_palette[3*c+1], gr_palette[3*c+2]);
 		}
-		printf("\n");
+		con_printf(CON_DEBUG,"\n");
 	}
-
 }
 
 

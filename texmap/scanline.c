@@ -10,46 +10,13 @@ CONTAINED HEREIN FOR REVENUE-BEARING PURPOSES.  THE END-USER UNDERSTANDS
 AND AGREES TO THE TERMS HEREIN AND ACCEPTS THE SAME BY USE OF THIS FILE.  
 COPYRIGHT 1993-1998 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 */
+
 /*
- * $Source: /cvsroot/dxx-rebirth/d1x-rebirth/texmap/scanline.c,v $
- * $Revision: 1.1.1.1 $
- * $Author: zicodxx $
- * $Date: 2006/03/17 19:45:56 $
- * 
+ *
  * Routines to draw the texture mapped scanlines.
- * 
- * $Log: scanline.c,v $
- * Revision 1.1.1.1  2006/03/17 19:45:56  zicodxx
- * initial import
  *
- * Revision 1.5  1999/12/08 01:08:10  donut
- * Falk Hueffner's updated fp_tmap, plus my own code to allow runtime selection of tmap routines
- *
- * Revision 1.4  1999/10/18 00:31:01  donut
- * more alpha fixes from Falk Hueffner
- *
- * Revision 1.3  1999/10/14 04:48:21  donut
- * alpha fixes, and gl_font args
- *
- * Revision 1.2  1999/09/21 07:22:40  sekmu
- * remove unused var warning
- *
- * Revision 1.1.1.1  1999/06/14 22:14:08  donut
- * Import of d1x 1.37 source.
- *
- * Revision 1.2  1995/02/20  18:23:39  john
- * Added new module for C versions of inner loops.
- * 
- * Revision 1.1  1995/02/20  17:42:27  john
- * Initial revision
- * 
- * 
  */
 
-
-#ifdef RCS
-static char rcsid[] = "$Id: scanline.c,v 1.1.1.1 2006/03/17 19:45:56 zicodxx Exp $";
-#endif
 
 #include <math.h>
 #include <limits.h>
@@ -59,7 +26,6 @@ static char rcsid[] = "$Id: scanline.c,v 1.1.1.1 2006/03/17 19:45:56 zicodxx Exp
 
 #include "error.h"
 #include "maths.h"
-#include "mono.h"
 #include "gr.h"
 #include "grdef.h"
 #include "texmap.h"
@@ -753,8 +719,6 @@ void c_fp_tmap_scanline_per()
 			if (time > 10 && time < 900) {
 				sum += time;
 				++count;
-				if (count % 10000 == 1)
-					printf("%f %d\n", (double) sum / (double) count, time);
 			}
 #endif
 		}
@@ -1205,8 +1169,6 @@ void select_tmap(char *type){
 		cur_tmap_scanline_shaded=c_tmap_scanline_shaded;
 	}
 	else {
-		if (stricmp(type,"c")!=0)
-			printf("unknown tmap requested, using c tmap\n");
 		cur_tmap_scanline_per=c_tmap_scanline_per;
 		cur_tmap_scanline_per_nolight=c_tmap_scanline_per_nolight;
 		cur_tmap_scanline_lin=c_tmap_scanline_lin;

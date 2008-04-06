@@ -21,7 +21,6 @@ COPYRIGHT 1993-1998 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 #include "gr.h"
 #include "grdef.h"
 #include "rle.h"
-#include "mono.h"
 #include "error.h"
 #include "byteswap.h"
 
@@ -533,8 +532,6 @@ void gr_bm_ubitblt0x_rle(int w, int h, int dx, int dy, int sx, int sy, grs_bitma
 	int i, data_offset;
 	register int y1;
 	unsigned char * sbits;
-	
-	//mprintf( 0, "SVGA RLE!\n" );
 	
 	data_offset = 1;
 	if (src->bm_flags & BM_FLAG_RLE_BIG)

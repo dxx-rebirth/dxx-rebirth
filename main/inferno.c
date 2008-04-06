@@ -37,7 +37,7 @@ static char *__reference[2]={copyright,(char *)__reference};
 #include <time.h>
 #endif
 
-#ifdef __WINDOWS__
+#ifdef _WIN32
 #include <windows.h>
 #endif
 
@@ -99,7 +99,6 @@ static char *__reference[2]={copyright,(char *)__reference};
 #include "gameseq.h"
 #include "timer.h"
 #include "key.h"
-#include "mono.h"
 #include "palette.h"
 #include "bm.h"
 #include "screens.h"
@@ -114,6 +113,7 @@ static char *__reference[2]={copyright,(char *)__reference};
 #include "collide.h"
 #include "newdemo.h"
 #include "joy.h"
+#include "console.h"
 
 
 static const char desc_id_checksum_str[] = DESC_ID_CHKSUM;
@@ -165,9 +165,7 @@ void show_commandline_help()
 #endif // USE SDLMIXER
 
 	printf( "\n Graphics:\n\n");
-	printf( "  -aspect<Y>x<X>     %s\n", "Use specified aspect");
 	printf( "  -hud <n>           %s\n", "Set hud mode.  0=normal 1-3=new");
-        printf( "  -hudlines <n>      %s\n", "Number of hud messages to show");
 	printf( "  -persistentdebris  %s\n", "Enable persistent debris. Works in singleplayer only");
 	printf( "  -lowresfont        %s\n", "Force to use LowRes fonts");
 	printf( "  -noreticle         %s\n", "Disable reticle");
@@ -178,7 +176,6 @@ void show_commandline_help()
 	printf( "  -gl_trilinear      %s\n", "Set gl texture filters to trilinear mipmapping");
 	printf( "  -gl_transparency   %s\n", "Enable transparency effects");
 	printf( "  -gl_reticle <n>    %s\n", "Use OGL reticle 0=never 1=above 320x* 2=always");
-	printf( "  -gl_voodoo         %s\n", "Force fullscreen mode only");
 	printf( "  -gl_fixedfont      %s\n", "Do not scale fonts to current resolution");
 	printf( "  -gl_prshot         %s\n", "Take clean screenshots - no HUD and DXX-Rebirth writing");
 #endif // OGL
@@ -189,7 +186,6 @@ void show_commandline_help()
 	printf( "  -noredundancy      %s\n", "Do not send messages when picking up redundant items in multiplayer");
 	printf( "  -playermessages    %s\n", "View only messages from other players in multi - overrides -noredundancy");
 	printf( "  -ipxnetwork <n>    %s\n", "Use IPX network number <n>");
-	printf( "  -ipxbasesocket <n> %s\n", "Use <n> as offset from normal IPX socket");
 	printf( "  -ip_hostaddr <n>   %s\n", "Use <n> as host ip address");
         printf( "  -ip_baseport <n>   %s\n", "Use <n> as offset from normal port (allows multiple instances of d1x to be run on a single computer)");
 	printf( "  -ip_norelay        %s\n", "Do not relay players with closed port over host and block them (saves traffic)");
@@ -202,6 +198,7 @@ void show_commandline_help()
 
 #ifndef   NDEBUG
 	printf( "\n Debug:\n\n");
+	printf( "  -debug             %s\n", "Enable very verbose output");
 	printf( "  -verbose           %s\n", "Shows initialization steps for tech support");
 	printf( "  -norun             %s\n", "Bail out after initialization");
 	printf( "  -renderstats       %s\n", "Enable renderstats info by default");
@@ -247,6 +244,7 @@ int main(int argc,char *argv[])
 
 	error_init(NULL, NULL);
 	PHYSFSX_init(argc, argv);
+	con_init();  // Initialise the console
 
 	setbuf(stdout, NULL); // unbuffered output via printf
 
@@ -271,15 +269,13 @@ int main(int argc,char *argv[])
 			break;
 	}
 	
-	cfile_init("dxx.zip", 0);
-
 	load_text();
 
-	printf(DESCENT_VERSION "\n"
+	con_printf(CON_NORMAL,DESCENT_VERSION "\n"
 	       "This is a MODIFIED version of DESCENT which is NOT supported by Parallax or\n"
 	       "Interplay. Use at your own risk! Copyright (c) 2005 Christian Beckhaeuser\n");
-	printf("Based on: DESCENT   %s\n", VERSION_NAME);
-	printf("%s\n%s\n",TXT_COPYRIGHT,TXT_TRADEMARK);
+	con_printf(CON_NORMAL,"Based on: DESCENT   %s\n", VERSION_NAME);
+	con_printf(CON_NORMAL,"%s\n%s\n",TXT_COPYRIGHT,TXT_TRADEMARK);
 
 	if (GameArg.SysShowCmdHelp) {
 		show_commandline_help();
@@ -292,29 +288,32 @@ int main(int argc,char *argv[])
 	select_tmap(GameArg.DbgTexMap);
 
 	if (GameArg.DbgVerbose)
-		printf ("%s", TXT_VERBOSE_1);
+		con_printf(CON_VERBOSE,"%s", TXT_VERBOSE_1);
 
 	{
 		char **i, **list;
 
 		list = PHYSFS_getSearchPath();
 		for (i = list; *i != NULL; i++)
-			printf("PHYSFS: [%s] is in the search path.\n", *i);
-		PHYSFS_freeList(list);
-
-		list = PHYSFS_getCdRomDirs();
-		for (i = list; *i != NULL; i++)
-			printf("PHYSFS: cdrom dir [%s] is available.\n", *i);
+			con_printf(CON_VERBOSE, "PHYSFS: [%s] is in the search path.\n", *i);
 		PHYSFS_freeList(list);
 
 		list = PHYSFS_enumerateFiles("");
 		for (i = list; *i != NULL; i++)
-			printf("PHYSFS: * We've got [%s].\n", *i);
+			con_printf(CON_DEBUG, "PHYSFS: * We've got [%s].\n", *i);
 		PHYSFS_freeList(list);
 	}
 
-	if (SDL_Init(SDL_INIT_EVERYTHING/*VIDEO*/)<0)
+	if (cfile_init("dxx.zip", 0))
+		con_printf(CON_NORMAL, "Added dxx.zip for additional content\n");
+
+	if (SDL_Init(SDL_INIT_VIDEO)<0)
 		Error("SDL library initialisation failed: %s.",SDL_GetError());
+
+#ifdef _WIN32
+	freopen( "CON", "w", stdout );
+	freopen( "CON", "w", stderr );
+#endif
 
 	atexit(sdl_close);
 
@@ -338,16 +337,16 @@ int main(int argc,char *argv[])
 #endif
 
 	if (GameArg.DbgVerbose)
-		printf( "\n%s\n\n", TXT_INITIALIZING_GRAPHICS);
+		con_printf( CON_VERBOSE, "\n%s\n\n", TXT_INITIALIZING_GRAPHICS);
 	if ((t=gr_init( SM_ORIGINAL ))!=0)
 		Error(TXT_CANT_INIT_GFX,t);
 	// Load the palette stuff. Returns non-zero if error.
-	mprintf( (0, "Going into graphics mode..." ));
+	con_printf( CON_DEBUG, "Going into graphics mode..." );
 	gr_set_mode(Game_screen_mode);
 
-	mprintf( (0, "\nInitializing palette system..." ));
+	con_printf( CON_DEBUG, "\nInitializing palette system..." );
 	gr_use_palette_table( "PALETTE.256" );
-	mprintf( (0, "\nInitializing font system..." ));
+	con_printf( CON_DEBUG, "\nInitializing font system..." );
 	gamefont_init(); // must load after palette data loaded.
 	songs_play_song( SONG_TITLE, 1 );
 
@@ -356,19 +355,18 @@ int main(int argc,char *argv[])
 	if (GameArg.DbgNoRun)
 		return(0);
 
-	mprintf( (0, "\nInitializing 3d system..." ));
+	con_printf( CON_DEBUG, "\nInitializing 3d system..." );
 	g3_init();
-	mprintf( (0, "\nInitializing texture caching system..." ));
+	con_printf( CON_DEBUG, "\nInitializing texture caching system..." );
 	texmerge_init( 10 );		// 10 cache bitmaps
 
-	mprintf( (0, "\nRunning game...\n" ));
+	con_printf( CON_DEBUG, "\nRunning game...\n" );
 #ifdef SCRIPT
 	script_init();
 #endif
 	set_screen_mode(SCREEN_MENU);
 
 	init_game();
-	set_detail_level_parameters(Detail_level);
 
 	Players[Player_num].callsign[0] = '\0';
 
@@ -425,41 +423,41 @@ int main(int argc,char *argv[])
 	while (Function_mode != FMODE_EXIT)
 	{
 		switch( Function_mode ) {
-		case FMODE_MENU:
-			DoMenu();
+			case FMODE_MENU:
+				DoMenu();
 #ifdef EDITOR
-			if ( Function_mode == FMODE_EDITOR ) {
-				create_new_mine();
-				SetPlayerFromCurseg();
-			}
+				if ( Function_mode == FMODE_EDITOR ) {
+					create_new_mine();
+					SetPlayerFromCurseg();
+				}
 #endif
-		break;
-		case FMODE_GAME:
-			#ifdef EDITOR
+			break;
+			case FMODE_GAME:
+#ifdef EDITOR
 				keyd_editor_mode = 0;
-			#endif
-
-			game();
-
-			if ( Function_mode == FMODE_MENU )
-				songs_play_song( SONG_TITLE, 1 );
-			break;
-		#ifdef EDITOR
-		case FMODE_EDITOR:
-			keyd_editor_mode = 1;
-			editor();
-#ifdef __WATCOMC__
-			_harderr( (void *)descent_critical_error_handler );		// Reinstall game error handler
 #endif
-			if ( Function_mode == FMODE_GAME ) {
-				Game_mode = GM_EDITOR;
-				editor_reset_stuff_on_level();
-				N_players = 1;
-			}
-			break;
-		#endif
-		default:
-			Error("Invalid function mode %d",Function_mode);
+	
+				game();
+	
+				if ( Function_mode == FMODE_MENU )
+					songs_play_song( SONG_TITLE, 1 );
+				break;
+#ifdef EDITOR
+			case FMODE_EDITOR:
+				keyd_editor_mode = 1;
+				editor();
+#ifdef __WATCOMC__
+				_harderr( (void *)descent_critical_error_handler );		// Reinstall game error handler
+#endif
+				if ( Function_mode == FMODE_GAME ) {
+					Game_mode = GM_EDITOR;
+					editor_reset_stuff_on_level();
+					N_players = 1;
+				}
+				break;
+#endif
+			default:
+				Error("Invalid function mode %d",Function_mode);
 		}
 	}
 
@@ -474,7 +472,6 @@ int main(int argc,char *argv[])
 	piggy_close();
 
 	return(0); //presumably successful exit
-
 }
 
 void quit_request()

@@ -16,15 +16,8 @@ COPYRIGHT 1993-1998 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
  *
  */
 
-#ifdef RCS
-static char rcsid[] = "$Id: cntrlcen.c,v 1.1.1.1 2006/03/17 19:42:32 zicodxx Exp $";
-#endif
-
 #include <stdlib.h>
-
 #include "error.h"
-#include "mono.h"
-
 #include "inferno.h"
 #include "cntrlcen.h"
 #include "game.h"
@@ -276,14 +269,13 @@ void init_controlcen_for_level(void)
 		if (objp->type == OBJ_CNTRLCEN)
                  {
 			if (cntrlcen_objnum != -1)
-				mprintf((1, "Warning: Two or more control centers including %i and %i\n", i, cntrlcen_objnum));
+				;
 			else
 				cntrlcen_objnum = i;
                  }
 		if ((objp->type == OBJ_ROBOT) && (Robot_info[objp->id].boss_flag)) {
-//		 	mprintf((0, "Found boss robot %d.\n", objp->id));
 			if (boss_objnum != -1)
-				mprintf((1, "Warning: Two or more bosses including %i and %i\n", i, boss_objnum));
+				;
 			else
 				boss_objnum = i;
 		}
@@ -291,7 +283,6 @@ void init_controlcen_for_level(void)
 
 #ifndef NDEBUG
 	if (cntrlcen_objnum == -1) {
-		mprintf((1, "Warning: No control center.\n"));
 		return;
 	}
 
@@ -302,7 +293,6 @@ void init_controlcen_for_level(void)
         if (boss_objnum != -1) {
 #endif
                 if (cntrlcen_objnum != -1) {        // note link to above!!!
-//			mprintf((0, "Ghosting control center\n"));
 			Objects[cntrlcen_objnum].type = OBJ_GHOST;
 			Objects[cntrlcen_objnum].render_type = RT_NONE;
 			Control_center_present = 0;
@@ -329,7 +319,6 @@ void init_controlcen_for_level(void)
 	Dead_controlcen_object_num = -1;
 }
 
-#ifndef FAST_FILE_IO
 /*
  * reads a control_center_triggers structure from a CFILE
  */
@@ -347,4 +336,3 @@ extern int control_center_triggers_read_n(control_center_triggers *cct, int n, C
 	}
 	return i;
 }
-#endif

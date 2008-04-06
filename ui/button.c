@@ -10,57 +10,12 @@ CONTAINED HEREIN FOR REVENUE-BEARING PURPOSES.  THE END-USER UNDERSTANDS
 AND AGREES TO THE TERMS HEREIN AND ACCEPTS THE SAME BY USE OF THIS FILE.  
 COPYRIGHT 1993-1998 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 */
+
 /*
- * $Source: /cvsroot/dxx-rebirth/d1x-rebirth/ui/button.c,v $
- * $Revision: 1.1.1.1 $
- * $Author: zicodxx $
- * $Date: 2006/03/17 19:39:14 $
  *
  * Routines for manipulating the button gadgets.
  *
- * $Log: button.c,v $
- * Revision 1.1.1.1  2006/03/17 19:39:14  zicodxx
- * initial import
- *
- * Revision 1.1.1.1  1999/06/14 22:14:19  donut
- * Import of d1x 1.37 source.
- *
- * Revision 1.10  1994/11/18  23:07:32  john
- * Changed a bunch of shorts to ints.
- * 
- * Revision 1.9  1994/09/22  18:18:42  john
- * Fixed bug with Enter being pressed when a window opens.
- * 
- * Revision 1.8  1994/06/09  12:18:28  john
- * Took out keyboard flushes.
- * 
- * Revision 1.7  1994/04/22  11:10:11  john
- * *** empty log message ***
- * 
- * Revision 1.6  1993/12/10  14:16:29  john
- * made buttons have 2 user-functions.
- * 
- * Revision 1.5  1993/12/07  12:31:18  john
- * new version.
- * 
- * Revision 1.4  1993/10/26  13:45:56  john
- * *** empty log message ***
- * 
- * Revision 1.3  1993/10/05  17:30:21  john
- * *** empty log message ***
- * 
- * Revision 1.2  1993/09/20  10:34:49  john
- * *** empty log message ***
- * 
- * Revision 1.1  1993/09/20  10:27:15  john
- * Initial revision
- * 
- *
  */
-
-#ifdef RCS
-static char rcsid[] = "$Id: button.c,v 1.1.1.1 2006/03/17 19:39:14 zicodxx Exp $";
-#endif
 
 #include <stdlib.h>
 #include <string.h>
@@ -71,7 +26,6 @@ static char rcsid[] = "$Id: button.c,v 1.1.1.1 2006/03/17 19:39:14 zicodxx Exp $
 #include "gr.h"
 #include "ui.h"
 #include "key.h"
-#include "mono.h"
 
 #define Middle(x) ((2*(x)+1)/4)
 

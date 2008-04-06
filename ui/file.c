@@ -10,47 +10,12 @@ CONTAINED HEREIN FOR REVENUE-BEARING PURPOSES.  THE END-USER UNDERSTANDS
 AND AGREES TO THE TERMS HEREIN AND ACCEPTS THE SAME BY USE OF THIS FILE.  
 COPYRIGHT 1993-1998 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 */
+
 /*
- * $Source: /cvsroot/dxx-rebirth/d1x-rebirth/ui/file.c,v $
- * $Revision: 1.1.1.1 $
- * $Author: zicodxx $
- * $Date: 2006/03/17 19:39:11 $
  *
  * File dialog box stuff.
  *
- * $Log: file.c,v $
- * Revision 1.1.1.1  2006/03/17 19:39:11  zicodxx
- * initial import
- *
- * Revision 1.1.1.1  1999/06/14 22:14:26  donut
- * Import of d1x 1.37 source.
- *
- * Revision 1.6  1994/06/09  12:18:29  john
- * Took out keyboard flushes.
- * 
- * Revision 1.5  1994/04/27  18:30:49  john
- * Fixed bug with enter a directory without a slash on
- * the end not working.
- *  .
- * 
- * Revision 1.4  1994/04/22  11:09:47  john
- * Speed up directory loading by only searching for *. instead of *.*
- * 
- * Revision 1.3  1993/12/07  12:30:18  john
- * new version.
- * 
- * Revision 1.2  1993/10/26  13:46:22  john
- * *** empty log message ***
- * 
- * Revision 1.1  1993/10/06  11:10:23  john
- * Initial revision
- * 
- *
  */
-
-#ifdef RCS
-static char rcsid[] = "$Id: file.c,v 1.1.1.1 2006/03/17 19:39:11 zicodxx Exp $";
-#endif
 
 #include <stdio.h>
 #include <stdlib.h>
@@ -64,15 +29,11 @@ static char rcsid[] = "$Id: file.c,v 1.1.1.1 2006/03/17 19:39:11 zicodxx Exp $";
 #include <sys/types.h>
 #include <sys/stat.h>
 #include <unistd.h>
-
 #include "fix.h"
 #include "pstypes.h"
 #include "gr.h"
 #include "key.h"
-
 #include "ui.h"
-#include "mono.h"
-
 #include "u_mem.h"
 
 char filename_list[300][13];
@@ -511,15 +472,6 @@ int ui_get_filename( char * filename, char * Filespec, char * message  )
 			_splitpath( UserFile->text, drive, dir, fname, ext );
 			sprintf( fullfname, "%s%s", fname, ext );
 
-			//mprintf( 0, "----------------------------\n" );
-			//mprintf( 0, "Full text: '%s'\n", UserFile->text );
-			//mprintf( 0, "Drive: '%s'\n", drive );
-			//mprintf( 0, "Dir: '%s'\n", dir );
-		  	//mprintf( 0, "Filename: '%s'\n", fname );
-			//mprintf( 0, "Extension: '%s'\n", ext );
-			//mprintf( 0, "Full dir: '%s'\n", fulldir );
-			//mprintf( 0, "Full fname: '%s'\n", fname );
-
 			if (strrchr( fullfname, '?' ) || strrchr( fullfname, '*' ) )	
 			{
 				sprintf( fulldir, "%s%s.", drive, dir );
@@ -527,10 +479,6 @@ int ui_get_filename( char * filename, char * Filespec, char * message  )
 				sprintf( fullfname, "%s", Filespec );
 				sprintf( fulldir, "%s", UserFile->text );
 			}
-
-			//mprintf( 0, "----------------------------\n" );
-			//mprintf( 0, "Full dir: '%s'\n", fulldir );
-			//mprintf( 0, "Full fname: '%s'\n", fullfname );
 
 			if (file_chdir( fulldir )==0)
 			{

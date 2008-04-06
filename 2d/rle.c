@@ -25,7 +25,6 @@ static char rcsid[] = "$Id: rle.c,v 1.1.1.1 2006/03/17 19:38:54 zicodxx Exp $";
 #include <stdio.h>
 #include <string.h>
 #include "u_mem.h"
-#include "mono.h"
 #include "gr.h"
 #include "grdef.h"
 #include "error.h"
@@ -461,7 +460,6 @@ int gr_bitmap_rle_compress( grs_bitmap * bmp )
 		else
 			rle_data[y+4] = d;
 	}
-	//mprintf( 0, "Bitmap of size %dx%d, (%d bytes) went down to %d bytes\n", bmp->bm_w, bmp->bm_h, bmp->bm_h*bmp->bm_w, doffset );
 	memcpy( 	rle_data, &doffset, 4 );
 	memcpy( 	bmp->bm_data, rle_data, doffset );
 	d_free(rle_data);
@@ -541,9 +539,6 @@ grs_bitmap * rle_expand_texture( grs_bitmap * bmp )
 			rle_cache[i].last_used = 0;
 		}
 	}
-
-//	if (((rle_counter % 100)==1) && (rle_hits+rle_misses > 0))
-//		mprintf(( 0, "RLE-CACHE %d%%, H:%d, M:%d\n", (rle_misses*100)/(rle_hits+rle_misses), rle_hits, rle_misses ));
 
 	lowest_count = rle_cache[rle_next].last_used;
 	least_recently_used = rle_next;

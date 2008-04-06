@@ -10,48 +10,12 @@ CONTAINED HEREIN FOR REVENUE-BEARING PURPOSES.  THE END-USER UNDERSTANDS
 AND AGREES TO THE TERMS HEREIN AND ACCEPTS THE SAME BY USE OF THIS FILE.  
 COPYRIGHT 1993-1998 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 */
-/*
- * $Source: /cvsroot/dxx-rebirth/d1x-rebirth/maths/vecmat.c,v $
- * $Revision: 1.1.1.1 $
- * $Author: zicodxx $
- * $Date: 2006/03/17 19:45:08 $
- * 
- * C version of vecmat library
- * 
- * $Log: vecmat.c,v $
- * Revision 1.1.1.1  2006/03/17 19:45:08  zicodxx
- * initial import
- *
- * Revision 1.1.1.1  1999/06/14 22:13:42  donut
- * Import of d1x 1.37 source.
- *
- * Revision 1.5  1995/10/30  11:08:16  allender
- * fix check_vec to return if vector is the NULL vector
- *
- * Revision 1.4  1995/09/23  09:38:14  allender
- * removed calls for PPC that are now handled in asm
- *
- * Revision 1.3  1995/08/31  15:50:24  allender
- * fixing up of functions for PPC
- *
- * Revision 1.2  1995/07/05  16:40:21  allender
- * some vecmat stuff might be using isqrt -- commented out
- * for now
- *
- * Revision 1.1  1995/04/17  16:18:02  allender
- * Initial revision
- *
- *
- * --- PC RCS Information ---
- * Revision 1.1  1995/03/08  15:56:50  matt
- * Initial revision
- * 
- * 
- */
 
-#ifdef RCS
-static char rcsid[] = "$Id: vecmat.c,v 1.1.1.1 2006/03/17 19:45:08 zicodxx Exp $";
-#endif
+/*
+ *
+ * C version of vecmat library
+ *
+ */
 
 #include <stdlib.h>
 #include <math.h>			// for sqrt
@@ -62,7 +26,7 @@ static char rcsid[] = "$Id: vecmat.c,v 1.1.1.1 2006/03/17 19:45:08 zicodxx Exp $
 
 //#define USE_ISQRT 1
 
-#ifndef ASM_VECMAT
+#ifdef NO_ASM
 vms_vector vmd_zero_vector = {0,0,0};
 vms_matrix vmd_identity_matrix = {	{ f1_0,0,0 },
 												{ 0,f1_0,0 },

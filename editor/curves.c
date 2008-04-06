@@ -10,21 +10,12 @@ CONTAINED HEREIN FOR REVENUE-BEARING PURPOSES.  THE END-USER UNDERSTANDS
 AND AGREES TO THE TERMS HEREIN AND ACCEPTS THE SAME BY USE OF THIS FILE.  
 COPYRIGHT 1993-1998 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 */
+
 /*
- * $Source: /cvsroot/dxx-rebirth/d1x-rebirth/editor/curves.c,v $
- * $Revision: 1.1.1.1 $
- * $Author: zicodxx $
- * $Date: 2006/03/17 19:45:25 $
  *
  * curve generation stuff
  *
- * 
- *
  */
-
-#ifdef RCS
-static char rcsid[] = "$Id: curves.c,v 1.1.1.1 2006/03/17 19:45:25 zicodxx Exp $";
-#endif
 
 #include <time.h>
 #include <stdio.h>
@@ -32,19 +23,13 @@ static char rcsid[] = "$Id: curves.c,v 1.1.1.1 2006/03/17 19:45:25 zicodxx Exp $
 #include <string.h>
 #include <ctype.h>
 #include <stdarg.h>
-#ifndef __LINUX__
-#include <conio.h>
-#include <dos.h>
-#endif
-
 #include "inferno.h"
-#include "mono.h"
 #include "vecmat.h"
 #include "gr.h"
 #include "key.h"
 #include "editor.h"
 #include "gameseg.h"
-
+#include "console.h"
 #define ONE_OVER_SQRT2 F1_0 * 0.707106781
 #define CURVE_RIGHT 1
 #define CURVE_UP 2
@@ -84,7 +69,7 @@ vms_vector evaluate_curve(vms_equation *coeffs, int degree, fix t) {
     fix t2, t3;
     vms_vector coord;
 
-    if (degree!=3) printf("ERROR: for Hermite Curves degree must be 3\n");
+    if (degree!=3) con_printf(CON_CRITICAL," for Hermite Curves degree must be 3\n");
 
     t2 = fixmul(t,t); t3 = fixmul(t2,t);
 
@@ -100,7 +85,7 @@ fix curve_dist(vms_equation *coeffs, int degree, fix t0, vms_vector *p0, fix dis
 	 vms_vector coord;
     fix t, diff;
 
-    if (degree!=3) printf("ERROR: for Hermite Curves degree must be 3\n");
+    if (degree!=3) con_printf(CON_CRITICAL," for Hermite Curves degree must be 3\n");
 
     for (t=t0;t<1*F1_0;t+=0.001*F1_0) {
         coord = evaluate_curve(coeffs, 3, t);
@@ -115,7 +100,7 @@ fix curve_dist(vms_equation *coeffs, int degree, fix t0, vms_vector *p0, fix dis
 void curve_dir(vms_equation *coeffs, int degree, fix t0, vms_vector *dir) {
     fix t2;
 
-    if (degree!=3) printf("ERROR: for Hermite Curves degree must be 3\n");
+    if (degree!=3) con_printf(CON_CRITICAL," for Hermite Curves degree must be 3\n");
 
     t2 = fixmul(t0,t0);
 
@@ -270,10 +255,6 @@ int generate_curve( fix r1scale, fix r4scale ) {
 			vec_dir = tdest;
 
             vm_vector_2_matrix(&rotmat2,&vec_dir,NULL,NULL);
-//            mprintf(0, "[ [%6.2f %6.2f %6.2f]", f2fl(rotmat2.m1), f2fl(rotmat2.m2), f2fl(rotmat2.m3));
-//           mprintf(0, "  [%6.2f %6.2f %6.2f]", f2fl(rotmat2.m4), f2fl(rotmat2.m5), f2fl(rotmat2.m6));
-//            mprintf(0, "  [%6.2f %6.2f %6.2f] ]\n", f2fl(rotmat2.m7), f2fl(rotmat2.m8), f2fl(rotmat2.m9));
-
             med_rotate_segment( Cursegp, &rotmat2 );
 			prev_point = coord;
             Curside = Side_opposite[AttachSide];
@@ -298,7 +279,6 @@ int generate_curve( fix r1scale, fix r4scale ) {
 
     if ((uangle != 0) && (rangle != 0)) {
         maxscale = CurveNumSegs*F1_0;
-//        mprintf(0, "Banked Curve Generation.. %f.\n", f2fl(maxscale));
         generate_banked_curve(maxscale, coeffs);
     }
 
@@ -335,7 +315,6 @@ void generate_banked_curve(fix maxscale, vms_equation coeffs) {
     if (uangle >= F1_0 * 1/8) uangle -= F1_0 * 1/4;
     if (uangle <= -F1_0 * 1/8) uangle += F1_0 * 1/4;
     if (uangle <= -F1_0 * 1/8) uangle += F1_0 * 1/4;
-//    mprintf(0, "up angle %f\n", f2fl(uangle)*360);
 
     extract_right_vector_from_segment( Cursegp,&b4r4t );
     rangle = vm_vec_delta_ang( &b4r4t, &r4t, &r4 );
@@ -343,7 +322,6 @@ void generate_banked_curve(fix maxscale, vms_equation coeffs) {
     if (rangle >= F1_0/8) rangle -= F1_0/4;
     if (rangle <= -F1_0/8) rangle += F1_0/4;
     if (rangle <= -F1_0/8) rangle += F1_0/4;
-//    mprintf(0, "right angle %f\n", f2fl(rangle)*360);
 
     angle = uangle;
     if (abs(rangle) < abs(uangle)) angle = rangle;
@@ -356,7 +334,6 @@ void generate_banked_curve(fix maxscale, vms_equation coeffs) {
 
     if (maxscale)
         scaled_ang = fixdiv(angle,fixmul(maxscale,MAGIC_NUM));
-    mprintf((0, "scaled angle = %f\n", f2fl(scaled_ang)));
 
     t=0; 
     tvec = r1save;
@@ -381,9 +358,6 @@ void generate_banked_curve(fix maxscale, vms_equation coeffs) {
 			vm_vec_rotate(&tdest,&vec_dir,&rotmat);	// tdest := vec_dir in reference frame of Cursegp
 			vec_dir = tdest;
             vm_vec_ang_2_matrix(&rotmat2,&vec_dir,scaled_ang);
-//            mprintf((0, "[ [%6.2f %6.2f %6.2f]", f2fl(rotmat2.m1), f2fl(rotmat2.m2), f2fl(rotmat2.m3)));
-//            mprintf((0, "  [%6.2f %6.2f %6.2f]", f2fl(rotmat2.m4), f2fl(rotmat2.m5), f2fl(rotmat2.m6)));
-//            mprintf((0, "  [%6.2f %6.2f %6.2f] ]\n", f2fl(rotmat2.m7), f2fl(rotmat2.m8), f2fl(rotmat2.m9)));
 
 			med_rotate_segment( Cursegp, &rotmat2 );
 			prev_point = coord;
@@ -401,7 +375,6 @@ void delete_curve() {
     int i;
 
 	for (i=0; i<CurveNumSegs; i++) {
-//        mprintf((0, "[%d] %d\n", i, CurveSegs[i]->segnum ));
         if (CurveSegs[i]->segnum != -1)
             med_delete_segment(CurveSegs[i]);
     }
@@ -411,7 +384,6 @@ void delete_curve() {
     Curside = OriginalSide;
 	med_create_new_segment_from_cursegp();
     CurveNumSegs = 0;
-//    mprintf((0, "Num_segments %d\n", Num_segments));
 
 	//editor_status("");
 	//warn_if_concave_segments();

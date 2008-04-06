@@ -10,74 +10,18 @@ CONTAINED HEREIN FOR REVENUE-BEARING PURPOSES.  THE END-USER UNDERSTANDS
 AND AGREES TO THE TERMS HEREIN AND ACCEPTS THE SAME BY USE OF THIS FILE.  
 COPYRIGHT 1993-1998 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 */
+
 /*
- * $Source: /cvsroot/dxx-rebirth/d1x-rebirth/2d/scale.c,v $
- * $Revision: 1.1.1.1 $
- * $Author: zicodxx $
- * $Date: 2006/03/17 19:38:55 $
- * 
+ *
  * Routines for scaling a bitmap.
- * 
- * $Log: scale.c,v $
- * Revision 1.1.1.1  2006/03/17 19:38:55  zicodxx
- * initial import
  *
- * Revision 1.1.1.1  1999/06/14 21:57:36  donut
- * Import of d1x 1.37 source.
- *
- * Revision 1.12  1995/03/14  15:14:11  john
- * Increased max scanline length to 640.
- * ..
- * 
- * Revision 1.11  1994/11/27  12:56:39  matt
- * Took out unneeded include of 3d.h
- * 
- * Revision 1.10  1994/11/18  22:50:25  john
- * Changed shorts to ints in parameters.
- * 
- * Revision 1.9  1994/11/09  16:35:02  john
- * First version with working RLE bitmaps.
- * 
- * Revision 1.8  1994/06/09  13:15:17  john
- * *** empty log message ***
- * 
- * Revision 1.7  1994/06/07  11:47:02  john
- * Added back in the fast code for scaling up bitmaps.
- * 
- * Revision 1.6  1994/02/18  15:32:36  john
- * *** empty log message ***
- * 
- * Revision 1.5  1994/01/22  14:35:01  john
- * Added transparency as color index 255.
- * 
- * Revision 1.4  1994/01/17  16:59:12  john
- * once again...
- * 
- * Revision 1.3  1994/01/17  16:51:17  john
- * Added check so we don't draw outsibe
- * the source bitmap's v coordinate... kind
- * of a hack, but works.
- * 
- * Revision 1.2  1994/01/12  18:03:26  john
- * The first iteration of fast scaler..
- * 
- * Revision 1.1  1994/01/11  14:48:42  john
- * Initial revision
- * 
- * 
  */
 
-
-#ifdef RCS
-static char rcsid[] = "$Id: scale.c,v 1.1.1.1 2006/03/17 19:38:55 zicodxx Exp $";
-#endif
 
 #include <math.h>
 #include <limits.h>
 #include <stdio.h>
 #include <stdlib.h>
-
-#include "mono.h"
 #include "fix.h"
 #include "gr.h"
 #include "error.h"
@@ -189,8 +133,6 @@ void scale_bitmap(grs_bitmap *bp, grs_point *vertbuf )
 	Assert( f2i(v0)>=0 );
 	Assert( u1<i2f(bp->bm_w) );
 	Assert( v1<i2f(bp->bm_h) );
-
-	//mprintf( 0, "(%.2f,%.2f) to (%.2f,%.2f) using (%.2f,%.2f) to (%.2f,%.2f)\n", f2fl(clipped_x0), f2fl(clipped_y0), f2fl(clipped_x1), f2fl(clipped_y1), f2fl(clipped_u0), f2fl(clipped_v0), f2fl(clipped_u1), f2fl(clipped_v1) );
 
 	dtemp = f2i(clipped_u1)-f2i(clipped_u0);
 

@@ -377,26 +377,8 @@ void scale_bitmap(grs_bitmap *bp, grs_point *vertbuf )
 	if (dx1<=dx0) return;
 	if (dy1<=dy0) return;
 
-//	Assert( dx0>=0 );
-//	Assert( dy0>=0 );
-//	Assert( dx1<dbp->bm_w );
-//	Assert( dy1<dbp->bm_h );
-//	Assert( f2i(u0)<=f2i(u1) );
-//	Assert( f2i(v0)<=f2i(v1) );
-//	Assert( f2i(u0)>=0 );
-//	Assert( f2i(v0)>=0 );
-//	Assert( u1<i2f(bp->bm_w) );
-//	Assert( v1<i2f(bp->bm_h) );
-//mprintf( 0, "(%.2f,%.2f) to (%.2f,%.2f) using (%.2f,%.2f) to (%.2f,%.2f)\n", f2fl(clipped_x0), f2fl(clipped_y0), f2fl(clipped_x1), f2fl(clipped_y1), f2fl(clipped_u0), f2fl(clipped_v0), f2fl(clipped_u1), f2fl(clipped_v1) );
-
 	dtemp = f2i(clipped_u1)-f2i(clipped_u0);
 
-#if 0
-	if ( bp->bm_flags & BM_FLAG_RLE )
-		scale_bitmap_c_rle(bp, dbp, dx0, dy0, dx1, dy1, clipped_u0, clipped_v0, clipped_u1, clipped_v1  );
-	else
-		scale_bitmap_c(bp, dbp, dx0, dy0, dx1, dy1, clipped_u0, clipped_v0, clipped_u1, clipped_v1  );
-#endif
 	if ( bp->bm_flags & BM_FLAG_RLE )	{
 		if ( (dtemp < (f2i(clipped_x1)-f2i(clipped_x0))) && (dtemp>0) )
 			scale_up_bitmap_rle(bp, dbp, dx0, dy0, dx1, dy1, clipped_u0, clipped_v0, clipped_u1, clipped_v1  );

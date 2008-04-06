@@ -29,7 +29,6 @@ static char rcsid[] = "$Id: titles.c,v 1.2 2006/03/18 23:08:13 michaelstather Ex
 #include "pcx.h"
 #include "u_mem.h"
 #include "joy.h"
-#include "mono.h"
 #include "gamefont.h"
 #include "cfile.h"
 #include "error.h"
@@ -47,6 +46,7 @@ static char rcsid[] = "$Id: titles.c,v 1.2 2006/03/18 23:08:13 michaelstather Ex
 #include "newmenu.h"
 #include "state.h"
 #include "gameseq.h"
+#include "console.h"
 
 #ifdef OGL
 #include "ogl_init.h"
@@ -101,8 +101,6 @@ int show_title_screen( char * filename, int allow_keys )
 	gr_init_bitmap_data (&title_bm);
 
 	if ((pcx_error=pcx_read_bitmap( filename, &title_bm, BM_LINEAR, gr_palette ))!=PCX_ERROR_NONE)	{
-		printf( "File '%s', PCX load error: %s (%i)\n  (No big deal, just no title screen.)\n",filename, pcx_errormsg(pcx_error), pcx_error);
-		mprintf((0, "File '%s', PCX load error: %s (%i)\n  (No big deal, just no title screen.)\n",filename, pcx_errormsg(pcx_error), pcx_error));
 		Int3();
 		gr_free_bitmap_data (&title_bm);
 		return 0;
@@ -518,7 +516,6 @@ int load_briefing_screen( int screen_num )
 	gr_init_bitmap_data(&briefing_bm);
 
 	if ((pcx_error=pcx_read_bitmap( Briefing_screens_LH[screen_num].bs_name, &briefing_bm, BM_LINEAR, gr_palette ))!=PCX_ERROR_NONE) {
-		printf( "File '%s', PCX load error: %s\n  (It's a briefing screen.  Does this cause you pain?)\n",Briefing_screens_LH[screen_num].bs_name, pcx_errormsg(pcx_error));
 		Int3();
 		return 0;
 	}

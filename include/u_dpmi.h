@@ -10,51 +10,11 @@ CONTAINED HEREIN FOR REVENUE-BEARING PURPOSES.  THE END-USER UNDERSTANDS
 AND AGREES TO THE TERMS HEREIN AND ACCEPTS THE SAME BY USE OF THIS FILE.  
 COPYRIGHT 1993-1998 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 */
+
 /*
- * $Source: /cvsroot/dxx-rebirth/d1x-rebirth/include/u_dpmi.h,v $
- * $Revision: 1.1.1.1 $
- * $Author: zicodxx $
- * $Date: 2006/03/17 19:46:39 $
- * 
+ *
  * Prototypes for DPMI services.
- * 
- * $Log: u_dpmi.h,v $
- * Revision 1.1.1.1  2006/03/17 19:46:39  zicodxx
- * initial import
  *
- * Revision 1.1.1.1  1999/06/14 22:02:25  donut
- * Import of d1x 1.37 source.
- *
- * Revision 1.9  1995/01/14  19:20:14  john
- * Added function to set a selector's base address.
- * 
- * Revision 1.8  1994/11/28  20:22:03  john
- * Added some variables that return the amount of available 
- * memory.
- * 
- * Revision 1.7  1994/11/15  18:26:38  john
- * Added verbose flag.
- * 
- * Revision 1.6  1994/11/07  11:35:05  john
- * Added prototype for real_free
- * 
- * Revision 1.5  1994/10/27  19:54:48  john
- * Added unlock region function,.
- * 
- * Revision 1.4  1994/09/27  18:27:56  john
- * Added pragma to make inp,outp,enable,disable intrinsic
- * 
- * Revision 1.3  1994/09/27  11:54:45  john
- * Added DPMI init function.
- * 
- * Revision 1.2  1994/08/24  18:53:51  john
- * Made Cyberman read like normal mouse; added dpmi module; moved
- * mouse from assembly to c. Made mouse buttons return time_down.
- * 
- * Revision 1.1  1994/08/24  10:22:48  john
- * Initial revision
- * 
- * 
  */
 
 #ifndef _DPMI_H

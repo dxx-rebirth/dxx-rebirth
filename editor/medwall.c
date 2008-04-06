@@ -10,215 +10,31 @@ CONTAINED HEREIN FOR REVENUE-BEARING PURPOSES.  THE END-USER UNDERSTANDS
 AND AGREES TO THE TERMS HEREIN AND ACCEPTS THE SAME BY USE OF THIS FILE.  
 COPYRIGHT 1993-1998 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 */
+
 /*
- * $Source: /cvsroot/dxx-rebirth/d1x-rebirth/editor/medwall.c,v $
- * $Revision: 1.1.1.1 $
- * $Author: zicodxx $
- * $Date: 2006/03/17 19:45:52 $
- * 
+ *
  * Created from version 1.11 of main\wall.c
- * 
- * $Log: medwall.c,v $
- * Revision 1.1.1.1  2006/03/17 19:45:52  zicodxx
- * initial import
  *
- * Revision 1.1.1.1  1999/06/14 22:04:04  donut
- * Import of d1x 1.37 source.
- *
- * Revision 2.0  1995/02/27  11:35:47  john
- * Version 2.0! No anonymous unions, Watcom 10.0, with no need
- * for bitmaps.tbl.
- * 
- * Revision 1.71  1995/02/01  16:30:03  yuan
- * Stabilizing triggers and matcens.
- * 
- * Revision 1.70  1995/01/28  15:28:08  yuan
- * Return proper bug description.
- * 
- * Revision 1.69  1995/01/14  19:18:07  john
- * First version of object paging.
- * 
- * Revision 1.68  1995/01/12  12:10:44  yuan
- * Added delete trigger function
- * 
- * Revision 1.67  1994/11/29  16:51:53  yuan
- * Fixed false bogus trigger info.
- * 
- * Revision 1.66  1994/11/27  23:17:29  matt
- * Made changes for new mprintf calling convention
- * 
- * Revision 1.65  1994/11/15  11:59:42  john
- * Changed timing for door to use fixed seconds instead of milliseconds.
- * 
- * Revision 1.64  1994/11/03  10:41:17  yuan
- * Made walls add whichever the previous type was.
- * 
- * Revision 1.63  1994/10/13  13:14:59  yuan
- * Fixed trigger removal bug.
- * 
- * Revision 1.62  1994/10/07  17:43:39  yuan
- * Make validate walls default to 1.
- * 
- * Revision 1.61  1994/10/03  23:40:20  mike
- * Fix hosedness in walls in group copying.
- * 
- * Revision 1.60  1994/09/29  00:20:36  matt
- * Took out reference to unused external wall type
- * 
- * Revision 1.59  1994/09/28  17:32:24  mike
- * Functions to copy walls withing groups.
- * 
- * Revision 1.58  1994/09/28  13:40:46  yuan
- * Fixed control center trigger bug.
- * 
- * Revision 1.57  1994/09/24  12:41:52  matt
- * Took out references to obsolete constants
- * 
- * Revision 1.56  1994/09/23  18:03:55  yuan
- * Finished wall checking code.
- * 
- * Revision 1.55  1994/09/22  14:35:25  matt
- * Made blastable walls work again
- * 
- * Revision 1.54  1994/09/21  16:46:07  yuan
- * Fixed bug that reset wall slot which was just deleted.
- * 
- * Revision 1.53  1994/09/20  18:31:21  yuan
- * Output right Wallnum
- * 
- * Revision 1.52  1994/09/20  18:23:24  yuan
- * Killed the BOGIFYING WALL DRAGON...
- * 
- * There was a problem with triggers being created that had bogus
- * pointers back to their segments.
- * 
- * Revision 1.51  1994/09/20  11:13:11  yuan
- * Delete all bogus walls when checking walls.
- * 
- * Revision 1.50  1994/09/19  23:31:14  yuan
- * Adding wall checking stuff.
- * 
- * Revision 1.49  1994/09/13  21:11:20  matt
- * Added wclips that use tmap1 instead of tmap2, saving lots of merging
- * 
- * Revision 1.48  1994/09/10  13:32:08  matt
- * Made exploding walls a type of blastable walls.
- * Cleaned up blastable walls, making them tmap2 bitmaps.
- * 
- * Revision 1.47  1994/09/10  09:47:47  yuan
- * Added wall checking function.
- * 
- * Revision 1.46  1994/08/26  14:14:56  yuan
- * Fixed wall clip being set to -2 bug.
- * 
- * Revision 1.45  1994/08/25  21:56:26  mike
- * IS_CHILD stuff.
- * 
- * Revision 1.44  1994/08/19  19:30:27  matt
- * Added informative message if wall is already external when making it so.
- * 
- * Revision 1.43  1994/08/17  11:13:46  matt
- * Changed way external walls work
- * 
- * Revision 1.42  1994/08/15  17:47:29  yuan
- * Added external walls
- * 
- * Revision 1.41  1994/08/05  21:18:09  matt
- * Allow two doors to be linked together
- * 
- * Revision 1.40  1994/08/02  14:18:06  mike
- * Clean up dialog boxes.
- * 
- * Revision 1.39  1994/08/01  11:04:33  yuan
- * New materialization centers.
- * 
- * Revision 1.38  1994/07/22  17:19:11  yuan
- * Working on dialog box for refuel/repair/material/control centers.
- * 
- * Revision 1.37  1994/07/20  17:35:33  yuan
- * Added new gold key.
- * 
- * Revision 1.36  1994/07/19  14:31:44  yuan
- * Fixed keys bug.
- * 
- * Revision 1.35  1994/07/18  15:58:31  yuan
- * Hopefully prevent any "Adam door bombouts"
- * 
- * Revision 1.34  1994/07/18  15:48:40  yuan
- * Made minor cosmetic change.
- * 
- * Revision 1.33  1994/07/15  16:09:22  yuan
- * Error checking
- * 
- * Revision 1.32  1994/07/14  16:47:05  yuan
- * Fixed wall dialog for selected dooranims.
- * 
- * Revision 1.31  1994/07/11  15:09:16  yuan
- * Wall anim filenames stored in wclip structure.
- * 
- * Revision 1.30  1994/07/06  10:56:01  john
- * New structures for hostages.
- * 
- * Revision 1.29  1994/07/01  16:35:54  yuan
- * Added key system
- * 
- * Revision 1.28  1994/06/21  18:50:12  john
- * Made ESC key exit dialog.
- * 
- * Revision 1.27  1994/06/20  22:29:59  yuan
- * Fixed crazy runaway trigger bug that Adam found
- * 
- * Revision 1.26  1994/06/01  15:50:25  yuan
- * Added one more door... Needs to be set by bm.c in the future.
- * 
- * Revision 1.25  1994/05/30  20:22:34  yuan
- * New triggers.
- * 
- * Revision 1.24  1994/05/27  10:34:31  yuan
- * Added new Dialog boxes for Walls and Triggers.
- * 
- * Revision 1.23  1994/05/25  18:08:45  yuan
- * Revamping walls and triggers interface.
- * Wall interface complete, but triggers are still in progress.
- * 
- * Revision 1.22  1994/05/18  18:21:56  yuan
- * Fixed delete segment and walls bug.
- * 
- * Revision 1.21  1994/05/11  18:24:29  yuan
- * Oops.. trigger not triggers..
- * 
- * Revision 1.20  1994/05/11  18:23:53  yuan
- * Fixed trigger not set to -1 bug.
- * 
  */
 
-
-#ifdef RCS
-static char rcsid[] = "$Id: medwall.c,v 1.1.1.1 2006/03/17 19:45:52 zicodxx Exp $";
-#endif
 
 #include <stdio.h>
 #include <stdlib.h>
 #include <math.h>
 #include <string.h>
-
 #include "editor/medwall.h"
 #include "inferno.h"
 #include "editor/editor.h"
 #include "segment.h"
 #include "error.h"
 #include "gameseg.h"
-
 #include "textures.h"
 #include "screens.h"
 #include "switch.h"
 #include "editor/eswitch.h"
-
 #include "texmerge.h"
 #include "medrobot.h"
 #include "timer.h"
-#include "mono.h"
-//#include "fuelcen.h"
 #include "key.h"
 #include "ehostage.h"
 #include "centers.h"
@@ -385,12 +201,10 @@ int GotoPrevWall() {
 	if (current_wall >= Num_walls) current_wall = Num_walls-1;
 
 	if (Walls[current_wall].segnum == -1) {
-		mprintf((0, "Trying to goto wall at bogus segnum\n"));
 		return 0;
 	}
 
 	if (Walls[current_wall].sidenum == -1) {
-		mprintf((0, "Trying to goto wall at bogus sidenum\n"));
 		return 0;
 	}
 
@@ -412,12 +226,10 @@ int GotoNextWall() {
 	if (current_wall < 0) current_wall = 0;
 
 	if (Walls[current_wall].segnum == -1) {
-		mprintf((0, "Trying to goto wall at bogus segnum\n"));
 		return 0;
 	}
 
 	if (Walls[current_wall].sidenum == -1) {
-		mprintf((0, "Trying to goto wall at bogus sidenum\n"));
 		return 0;
 	}
 
@@ -652,7 +464,6 @@ void do_wall_window()
 		for (	i=0; i < 4; i++ )	{
 			if ( KeyFlag[i]->flag == 1 ) {
 				Walls[Cursegp->sides[Curside].wall_num].keys = 1<<i;		// Set the ai_state to the cooresponding radio button
-//				mprintf((0, "1<<%d = %d\n", i, 1<<i));
 			}
 		}
 	} else {
@@ -817,7 +628,6 @@ int wall_delete_bogus(short wall_num)
 	int seg, side;
 
 	if ((Walls[wall_num].segnum != -1) && (Walls[wall_num].sidenum != -1)) {
-		mprintf((0,"WALL IS NOT BOGUS.\n"));
 		return 0;
 	}
 
@@ -833,8 +643,6 @@ int wall_delete_bogus(short wall_num)
 		for (side=0;side<MAX_SIDES_PER_SEGMENT;side++)
 			if	(Segments[seg].sides[side].wall_num > wall_num)
 				Segments[seg].sides[side].wall_num--;
-
-	mprintf((0,"BOGUS WALL DELETED!!!!\n"));
 
 	return 1;
 }
@@ -1119,9 +927,6 @@ int bind_wall_to_control_center() {
 	ControlCenterTriggers.side[link_num] = Curside;
 	ControlCenterTriggers.num_links++;
 
-	mprintf((0, "seg %d:side %d linked to control center link_num %d\n",
-				ControlCenterTriggers.seg[link_num], ControlCenterTriggers.side[link_num], link_num)); 
-
 	editor_status("Wall linked to control center");
 
 	return 1;
@@ -1201,14 +1006,11 @@ int check_walls()
 			matcen_num = Segments[seg].matcen_num;
 			if (matcen_num == 0)
 				if (RobotCenters[0].segnum != seg) {
-					mprintf((0,"Fixing Matcen 0\n"));
 				 	Segments[seg].matcen_num = -1;
 				}
 	
 			if (matcen_num > -1)
 				if (RobotCenters[matcen_num].segnum != seg) {
-					mprintf((0,"Matcen [%d] (seg %d) doesn't point back to correct segment %d\n", matcen_num, RobotCenters[matcen_num].segnum, seg));
-					mprintf((0,"Fixing....\n"));
 					RobotCenters[matcen_num].segnum = seg;
 				}
 	
@@ -1217,22 +1019,10 @@ int check_walls()
 					CountedWalls[wall_count].wallnum = Segments[seg].sides[side].wall_num;
 					CountedWalls[wall_count].segnum = seg;
 					CountedWalls[wall_count].sidenum = side;
-	
-					// Check if segnum is bogus
-					if (Walls[Segments[seg].sides[side].wall_num].segnum == -1) {
-						mprintf((0, "Wall %d at seg:side %d:%d is BOGUS\n", Segments[seg].sides[side].wall_num, seg, side));
-					}
-	
-					if (Walls[Segments[seg].sides[side].wall_num].type == WALL_NORMAL) {
-						mprintf((0, "Wall %d at seg:side %d:%d is NORMAL (BAD)\n", Segments[seg].sides[side].wall_num, seg, side));
-					}
-	
 					wall_count++;
 				}
 		}
 
-	mprintf((0,"Wall Count = %d\n", wall_count));
-	
 	if (wall_count != Num_walls) {
 		sprintf( Message, "Num_walls is bogus\nDo you wish to correct it?\n");
 		if (MessageBox( -2, -2, 2, Message, "Yes", "No" )==1) {
@@ -1245,35 +1035,16 @@ int check_walls()
 	for (w=0; w<Num_walls; w++) {
 		if ((Walls[CountedWalls[w].wallnum].segnum != CountedWalls[w].segnum) ||
 			(Walls[CountedWalls[w].wallnum].sidenum != CountedWalls[w].sidenum)) {
-			mprintf((0,"Unmatched walls on wall_num %d\n", CountedWalls[w].wallnum));
 			sprintf( Message, "Unmatched wall detected\nDo you wish to correct it?\n");
 			if (MessageBox( -2, -2, 2, Message, "Yes", "No" )==1) {
 				Walls[CountedWalls[w].wallnum].segnum = CountedWalls[w].segnum;
 				Walls[CountedWalls[w].wallnum].sidenum = CountedWalls[w].sidenum;
 			}
 		}
-
-		if (CountedWalls[w].wallnum >= Num_walls)
-			mprintf((0,"wallnum %d in Segments exceeds Num_walls!\n", CountedWalls[w].wallnum));
-
-		if (Walls[w].segnum == -1) {
-			mprintf((0, "Wall[%d] is BOGUS\n", w));
-			for (seg=0;seg<=Highest_segment_index;seg++) 
-				for (side=0;side<MAX_SIDES_PER_SEGMENT;side++)
-					if (Segments[seg].sides[side].wall_num == w) {
-						mprintf((0, " BOGUS WALL found at seg:side %d:%d\n", seg, side));
-					} 
-		}				
 	}
 
 	trigger_count = 0;
 	for (w1=0; w1<wall_count; w1++) {
-		for (w2=w1+1; w2<wall_count; w2++) 
-			if (CountedWalls[w1].wallnum == CountedWalls[w2].wallnum) {
-				mprintf((0, "Duplicate Walls %d and %d. Wallnum=%d. ", w1, w2, CountedWalls[w1].wallnum));
-				mprintf((0, "Seg1:sides1 %d:%d  ", CountedWalls[w1].segnum, CountedWalls[w1].sidenum));
-				mprintf((0, "Seg2:sides2 %d:%d\n", CountedWalls[w2].segnum, CountedWalls[w2].sidenum));
-			}
 		if (Walls[w1].trigger != -1) trigger_count++;
 	}
 
@@ -1284,39 +1055,6 @@ int check_walls()
 			editor_status("Num_triggers set to %d\n", Num_triggers);
 		}
 	}
-
-	mprintf((0,"Trigger Count = %d\n", trigger_count));
-
-	for (t=0; t<trigger_count; t++) {
-		if (Triggers[t].flags & TRIGGER_MATCEN)
-                 {
-			if (Triggers[t].num_links < 1) 
-				mprintf((0,"No valid links on Matcen Trigger %d\n", t));
-			else
-				for (l=0;l<Triggers[t].num_links;l++) {
-					if (!Segments[Triggers[t].seg[l]].special & SEGMENT_IS_ROBOTMAKER)
-						mprintf((0,"Bogus Matcen trigger detected on Trigger %d, No matcen at seg %d\n", t, Triggers[t].seg[l]));
-				}
-                 }
-
-		if (Triggers[t].flags & TRIGGER_EXIT)
-			if (Triggers[t].num_links != 0)
-				mprintf((0,"Bogus links detected on Exit Trigger %d\n", t));
-
-		if (Triggers[t].flags & TRIGGER_CONTROL_DOORS)
-			for (l=0;l<Triggers[t].num_links;l++) {
-				if (Segments[Triggers[t].seg[l]].sides[Triggers[t].side[l]].wall_num == -1) {
-					mprintf((0,"Bogus Link detected on Door Control Trigger %d, link %d\n", t, l));
-					mprintf((0,"Bogus Link at seg %d, side %d\n", Triggers[t].seg[l], Triggers[t].side[l]));
-				}
-			}
-	}
-
-	for (l=0;l<ControlCenterTriggers.num_links;l++)
-		if (Segments[ControlCenterTriggers.seg[l]].sides[ControlCenterTriggers.side[l]].wall_num == -1) {
-			mprintf((0,"Bogus Link detected on Control Center Trigger, link %d\n", l));
-			mprintf((0,"Bogus Link at seg %d, side %d\n", Triggers[t].seg[l], Triggers[t].side[l]));
-		}
 
 	return 1;
 
@@ -1485,7 +1223,6 @@ void copy_group_walls(int old_group, int new_group)
 
 		for (j=0; j<MAX_SIDES_PER_SEGMENT; j++) {
 			if (Segments[old_seg].sides[j].wall_num != -1) {
-				mprintf((0, "Going to add wall to seg:side = %i:%i\n", new_seg, j));
 				Segments[new_seg].sides[j].wall_num = Num_walls;
 				copy_old_wall_data_to_new(Segments[old_seg].sides[j].wall_num, Num_walls);
 				Walls[Num_walls].segnum = new_seg;

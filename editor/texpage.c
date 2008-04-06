@@ -10,79 +10,17 @@ CONTAINED HEREIN FOR REVENUE-BEARING PURPOSES.  THE END-USER UNDERSTANDS
 AND AGREES TO THE TERMS HEREIN AND ACCEPTS THE SAME BY USE OF THIS FILE.  
 COPYRIGHT 1993-1998 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 */
+
 /*
- * $Source: /cvsroot/dxx-rebirth/d1x-rebirth/editor/texpage.c,v $
- * $Revision: 1.1.1.1 $
- * $Author: zicodxx $
- * $Date: 2006/03/17 19:45:37 $
- * 
+ *
  * Routines for displaying texture pages
- * 
- * $Log: texpage.c,v $
- * Revision 1.1.1.1  2006/03/17 19:45:37  zicodxx
- * initial import
  *
- * Revision 1.1.1.1  1999/06/14 22:04:32  donut
- * Import of d1x 1.37 source.
- *
- * Revision 2.0  1995/02/27  11:34:51  john
- * Version 2.0! No anonymous unions, Watcom 10.0, with no need
- * for bitmaps.tbl.
- * 
- * Revision 1.14  1995/01/14  19:18:02  john
- * First version of object paging.
- * 
- * Revision 1.13  1994/11/27  23:17:15  matt
- * Made changes for new mprintf calling convention
- * 
- * Revision 1.12  1994/11/23  15:49:00  mike
- * fix bug in tmapnum == 0 always getting reassigned.
- * 
- * Revision 1.11  1994/11/23  12:17:34  mike
- * changing texture maps in all mines.
- * 
- * Revision 1.10  1994/11/19  00:04:42  john
- * Changed some shorts to ints.
- * 
- * Revision 1.9  1994/11/16  17:59:36  john
- * Fixed bug with writing to canvas before initing it.
- * 
- * Revision 1.8  1994/11/16  13:15:21  matt
- * Fixed grab bug, and cleaned up code
- * 
- * Revision 1.7  1994/08/05  12:26:37  matt
- * Fixed overplot problem with texture names
- * 
- * Revision 1.6  1994/04/11  12:01:58  yuan
- * Fixed resetting to first texture on page annoyance.
- * 
- * Revision 1.5  1994/04/01  11:15:53  yuan
- * Added objects to objpage. Added buttons for easier tmap scrolling.
- * Objects are selected fully from objpage and add object menu or pad.
- * 
- * Revision 1.4  1994/03/15  16:33:37  yuan
- * Fixed bm loader (might have some changes in walls and switches)
- * 
- * Revision 1.3  1993/12/16  17:25:46  john
- * Moved texture and object selection to texpage and objpage
- * 
- * Revision 1.2  1993/12/16  15:57:39  john
- * moved texture selection stuff to texpage.c
- * 
- * Revision 1.1  1993/12/16  15:06:56  john
- * Initial revision
- * 
- * 
  */
 
 #include <stdlib.h>
 #include <string.h>
 #include <stdio.h>
 #include <stdarg.h>
-
-#ifdef RCS
-static char rcsid[] = "$Id: texpage.c,v 1.1.1.1 2006/03/17 19:45:37 zicodxx Exp $";
-#endif
 
 #include "inferno.h"
 #include "gameseg.h"
@@ -93,9 +31,7 @@ static char rcsid[] = "$Id: texpage.c,v 1.1.1.1 2006/03/17 19:45:37 zicodxx Exp 
 #include "textures.h"		// For NumTextures
 #include "error.h"
 #include "key.h"
-#include "mono.h"
 #include "gamesave.h"
-
 #include "texpage.h"
 #include "piggy.h"
 
@@ -307,12 +243,10 @@ void texpage_do()
 			texpage_show_current();
 
 			if (keyd_pressed[KEY_LSHIFT]) {
-				mprintf((0, "Will replace CurrentTexture (%i) with...(select by pressing Ctrl)\n", CurrentTexture));
 				Replacement_list[Num_replacements].old = CurrentTexture;
 			}
 
 			if (keyd_pressed[KEY_LCTRL]) {
-				mprintf((0, "...Replacement texture for %i is %i\n", Replacement_list[Num_replacements].old, CurrentTexture));
 				Replacement_list[Num_replacements].new = CurrentTexture;
 				Num_replacements++;
 			}
@@ -345,7 +279,6 @@ void do_replacements(void)
 				side	*sidep=&segp->sides[sidenum];
 				if (sidep->tmap_num == old_tmap_num) {
 					sidep->tmap_num = new_tmap_num;
-					// mprintf((0, "Replacing tmap_num on segment:side = %i:%i\n", segnum, sidenum));
 				}
 				if ((sidep->tmap_num2 != 0) && ((sidep->tmap_num2 & 0x3fff) == old_tmap_num)) {
 					if (new_tmap_num == 0) {
@@ -353,7 +286,6 @@ void do_replacements(void)
 									//	the 0th tmap_num2 which is ILLEGAL!
 					} else {
 						sidep->tmap_num2 = new_tmap_num | (sidep->tmap_num2 & 0xc000);
-						// mprintf((0, "Replacing tmap_num2 on segment:side = %i:%i\n", segnum, sidenum));
 					}
 				}
 			}

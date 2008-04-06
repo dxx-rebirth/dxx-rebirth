@@ -22,7 +22,6 @@ COPYRIGHT 1993-1998 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 #include "gr.h"
 #include "stdlib.h"
 #include "bm.h"
-#include "mono.h"
 #include "3d.h"
 #include "segment.h"
 #include "texmap.h"
@@ -68,6 +67,7 @@ COPYRIGHT 1993-1998 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 #include "byteswap.h"
 #include "u_mem.h"
 #include "physfsx.h"
+#include "console.h"
 
 #ifdef EDITOR
 #include "editor/editor.h"
@@ -596,7 +596,6 @@ void nd_read_object(object *obj)
 		else {
 			int xlated_tmo = tmap_xlate_table[tmo];
 			if (xlated_tmo < 0) {
-				//mprintf( (0, "Couldn't find texture for demo object, model_num = %d\n", obj->pobj_info.model_num));
 				Int3();
 				xlated_tmo = 0;
 			}
@@ -2449,7 +2448,6 @@ void interpolate_frame(fix d_play, fix d_recorded)
 	num_cur_objs = Highest_object_index;
 	cur_objs = (object *)d_malloc(sizeof(object) * (num_cur_objs + 1));
 	if (cur_objs == NULL) {
-		mprintf((0,"Couldn't get %d bytes for cur_objs in interpolate_frame\n", sizeof(object) * num_cur_objs));
 		Int3();
 		return;
 	}
@@ -2725,6 +2723,7 @@ void newdemo_playback_one_frame()
 void newdemo_start_recording()
 {
 	Newdemo_size = PHYSFSX_getFreeDiskSpace();
+	con_printf(CON_VERBOSE, "Free space = %d\n", Newdemo_size);
 
 	Newdemo_size -= 100000;
 
@@ -2977,7 +2976,6 @@ void newdemo_start_playback(char * filename)
 	infile = PHYSFSX_openReadBuffered(filename2);
 
 	if (infile==NULL) {
-		mprintf( (0, "Error reading '%s'\n", filename ));
 		return;
 	}
 

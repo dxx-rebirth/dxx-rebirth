@@ -10,6 +10,7 @@ CONTAINED HEREIN FOR REVENUE-BEARING PURPOSES.  THE END-USER UNDERSTANDS
 AND AGREES TO THE TERMS HEREIN AND ACCEPTS THE SAME BY USE OF THIS FILE.  
 COPYRIGHT 1993-1998 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 */
+
 /*
  *
  * contains routine(s) to read in the configuration file which contains
@@ -26,7 +27,7 @@ COPYRIGHT 1993-1998 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 #else
 #include <physfs/physfs.h>
 #endif
-
+#include "config.h"
 #include "pstypes.h"
 #include "game.h"
 #include "digi.h"
@@ -37,33 +38,40 @@ COPYRIGHT 1993-1998 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 #include "mission.h"
 #include "physfsx.h"
 
-char config_last_player[CALLSIGN_LEN+1] = "";
-char config_last_mission[MISSION_NAME_LEN+1] = "";
+struct Cfg GameCfg;
+
 static char *DigiVolumeStr="DigiVolume";
 static char *MidiVolumeStr="MidiVolume";
 static char *ReverseStereoStr="ReverseStereo";
 static char *GammaLevelStr="GammaLevelStr";
-static char *DetailLevelStr="DetailLevelStr";
 static char *LastPlayerStr="LastPlayerStr";
 static char *LastMissionStr="LastMissionStr";
 static char *ResolutionXStr="ResolutionX";
 static char *ResolutionYStr="ResolutionY";
-static int Config_render_width=0, Config_render_height=0;
-
-extern sbyte	Object_complexity, Object_detail, Wall_detail, Wall_render_depth, Debris_amount, SoundChannels;
-
-void set_custom_detail_vars(void);
+static char *AspectXStr="AspectX";
+static char *AspectYStr="AspectY";
+static char *WindowModeStr="WindowMode";
+static char *TexFiltStr="TexFilt";
 
 int ReadConfigFile()
 {
 	PHYSFS_file *infile;
 	char line[80], *token, *value, *ptr;
-	ubyte gamma;
 
-	strcpy( config_last_player, "" );
+	// set defaults
+	GameCfg.DigiVolume = 8;
+	GameCfg.MidiVolume = 8;
+	GameCfg.ReverseStereo = 0;
+	GameCfg.GammaLevel = 0;
+	memset(GameCfg.LastPlayer,0,CALLSIGN_LEN+1);
+	memset(GameCfg.LastMission,0,MISSION_NAME_LEN+1);
+	GameCfg.ResolutionX = 640;
+	GameCfg.ResolutionY = 480;
+	GameCfg.AspectX = 3;
+	GameCfg.AspectY = 4;
+	GameCfg.WindowMode = 0;
+	GameCfg.TexFilt = 0;
 
-	Config_digi_volume = 8;
-	Config_midi_volume = 8;
 	Config_control_type = 0;
 
 	infile = PHYSFSX_openReadBuffered("descent.cfg");
@@ -85,61 +93,51 @@ int ReadConfigFile()
 			if (!value)
 				value = "";
 			if (!strcmp(token, DigiVolumeStr))
-				Config_digi_volume = strtol(value, NULL, 10);
+				GameCfg.DigiVolume = strtol(value, NULL, 10);
 			else if (!strcmp(token, MidiVolumeStr))
-				Config_midi_volume = strtol(value, NULL, 10);
+				GameCfg.MidiVolume = strtol(value, NULL, 10);
 			else if (!strcmp(token, ReverseStereoStr))
-				Config_channels_reversed = strtol(value, NULL, 10);
+				GameCfg.ReverseStereo = strtol(value, NULL, 10);
 			else if (!strcmp(token, GammaLevelStr)) {
-				gamma = strtol(value, NULL, 10);
-				gr_palette_set_gamma( gamma );
-			}
-			else if (!strcmp(token, DetailLevelStr)) {
-				Detail_level = strtol(value, NULL, 10);
-				if (Detail_level == NUM_DETAIL_LEVELS-1) {
-					int count,dummy,oc,od,wd,wrd,da,sc;
-
-					count = sscanf (value, "%d,%d,%d,%d,%d,%d,%d\n",&dummy,&oc,&od,&wd,&wrd,&da,&sc);
-
-					if (count == 7) {
-						Object_complexity = oc;
-						Object_detail = od;
-						Wall_detail = wd;
-						Wall_render_depth = wrd;
-						Debris_amount = da;
-						SoundChannels = sc;
-						set_custom_detail_vars();
-					}
-				}
+				GameCfg.GammaLevel = strtol(value, NULL, 10);
+				gr_palette_set_gamma( GameCfg.GammaLevel );
 			}
 			else if (!strcmp(token, LastPlayerStr))	{
 				char * p;
-				strncpy( config_last_player, value, CALLSIGN_LEN );
-				p = strchr( config_last_player, '\n');
+				strncpy( GameCfg.LastPlayer, value, CALLSIGN_LEN );
+				p = strchr( GameCfg.LastPlayer, '\n');
 				if ( p ) *p = 0;
 			}
 			else if (!strcmp(token, LastMissionStr))	{
 				char * p;
-				strncpy( config_last_mission, value, MISSION_NAME_LEN );
-				p = strchr( config_last_mission, '\n');
+				strncpy( GameCfg.LastMission, value, MISSION_NAME_LEN );
+				p = strchr( GameCfg.LastMission, '\n');
 				if ( p ) *p = 0;
 			}
 			else if (!strcmp(token, ResolutionXStr))
-				Config_render_width = strtol(value, NULL, 10);
+				GameCfg.ResolutionX = strtol(value, NULL, 10);
 			else if (!strcmp(token, ResolutionYStr))
-				Config_render_height = strtol(value, NULL, 10);
+				GameCfg.ResolutionY = strtol(value, NULL, 10);
+			else if (!strcmp(token, AspectXStr))
+				GameCfg.AspectX = strtol(value, NULL, 10);
+			else if (!strcmp(token, AspectYStr))
+				GameCfg.AspectY = strtol(value, NULL, 10);
+			else if (!strcmp(token, WindowModeStr))
+				GameCfg.WindowMode = strtol(value, NULL, 10);
+			else if (!strcmp(token, TexFiltStr))
+				GameCfg.TexFilt = strtol(value, NULL, 10);
 		}
 	}
 
 	PHYSFS_close(infile);
 
-	if ( Config_digi_volume > 8 ) Config_digi_volume = 8;
-	if ( Config_midi_volume > 8 ) Config_midi_volume = 8;
+	if ( GameCfg.DigiVolume > 8 ) GameCfg.DigiVolume = 8;
+	if ( GameCfg.MidiVolume > 8 ) GameCfg.MidiVolume = 8;
 
-	digi_set_volume( (Config_digi_volume*32768)/8, (Config_midi_volume*128)/8 );
+	digi_set_volume( (GameCfg.DigiVolume*32768)/8, (GameCfg.MidiVolume*128)/8 );
 
-	if (Config_render_width >= 320 && Config_render_height >= 200)
-		Game_screen_mode = SM(Config_render_width,Config_render_height);
+	if (GameCfg.ResolutionX >= 320 && GameCfg.ResolutionY >= 200)
+		Game_screen_mode = SM(GameCfg.ResolutionX,GameCfg.ResolutionY);
 
 	return 0;
 }
@@ -147,7 +145,8 @@ int ReadConfigFile()
 int WriteConfigFile()
 {
 	PHYSFS_file *infile;
-	ubyte gamma = gr_palette_get_gamma();
+
+	GameCfg.GammaLevel = gr_palette_get_gamma();
 	
 	infile = PHYSFSX_openWriteBuffered("descent.cfg");
 
@@ -155,19 +154,18 @@ int WriteConfigFile()
 		return 1;
 	}
 
-	PHYSFSX_printf(infile, "%s=%d\n", DigiVolumeStr, Config_digi_volume);
-	PHYSFSX_printf(infile, "%s=%d\n", MidiVolumeStr, Config_midi_volume);
-	PHYSFSX_printf(infile, "%s=%d\n", ReverseStereoStr, Config_channels_reversed);
-	PHYSFSX_printf(infile, "%s=%d\n", GammaLevelStr, gamma);
-	if (Detail_level == NUM_DETAIL_LEVELS-1)
-		PHYSFSX_printf(infile, "%s=%d,%d,%d,%d,%d,%d,%d\n", DetailLevelStr, Detail_level,
-				Object_complexity,Object_detail,Wall_detail,Wall_render_depth,Debris_amount,SoundChannels);
-	else
-		PHYSFSX_printf(infile, "%s=%d\n", DetailLevelStr, Detail_level);
+	PHYSFSX_printf(infile, "%s=%d\n", DigiVolumeStr, GameCfg.DigiVolume);
+	PHYSFSX_printf(infile, "%s=%d\n", MidiVolumeStr, GameCfg.MidiVolume);
+	PHYSFSX_printf(infile, "%s=%d\n", ReverseStereoStr, GameCfg.ReverseStereo);
+	PHYSFSX_printf(infile, "%s=%d\n", GammaLevelStr, GameCfg.GammaLevel);
 	PHYSFSX_printf(infile, "%s=%s\n", LastPlayerStr, Players[Player_num].callsign );
-	PHYSFSX_printf(infile, "%s=%s\n", LastMissionStr, config_last_mission );
+	PHYSFSX_printf(infile, "%s=%s\n", LastMissionStr, GameCfg.LastMission );
 	PHYSFSX_printf(infile, "%s=%i\n", ResolutionXStr, SM_W(Game_screen_mode));
 	PHYSFSX_printf(infile, "%s=%i\n", ResolutionYStr, SM_H(Game_screen_mode));
+	PHYSFSX_printf(infile, "%s=%i\n", AspectXStr, GameCfg.AspectX);
+	PHYSFSX_printf(infile, "%s=%i\n", AspectYStr, GameCfg.AspectY);
+	PHYSFSX_printf(infile, "%s=%i\n", WindowModeStr, GameCfg.WindowMode);
+	PHYSFSX_printf(infile, "%s=%i\n", TexFiltStr, GameCfg.TexFilt);
 
 	PHYSFS_close(infile);
 

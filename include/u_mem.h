@@ -11,6 +11,9 @@ AND AGREES TO THE TERMS HEREIN AND ACCEPTS THE SAME BY USE OF THIS FILE.
 COPYRIGHT 1993-1998 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 */
 
+#ifndef _U_MEM_H
+#define _U_MEM_H
+
 #include <stdlib.h>
 
 #ifdef MACINTOSH
@@ -52,3 +55,5 @@ extern char *strdup(const char *str);
 #define MALLOC( var, type, count )   (var=(type *)malloc((count)*sizeof(type)))
 
 #endif
+
+#endif // _U_MEM_H

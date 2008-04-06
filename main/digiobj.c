@@ -13,10 +13,6 @@ COPYRIGHT 1993-1999 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 */
 
 
-#ifdef RCS
-static char rcsid[] = "$Id: digiobj.c,v 1.1.1.1 2006/03/17 19:55:24 zicodxx Exp $";
-#endif
-
 #ifdef HAVE_CONFIG_H
 #include <conf.h>
 #endif
@@ -25,19 +21,11 @@ static char rcsid[] = "$Id: digiobj.c,v 1.1.1.1 2006/03/17 19:55:24 zicodxx Exp 
 #include <stdio.h>
 #include <fcntl.h> 
 
-#ifdef __MSDOS__
-# include <dos.h>
-# include <bios.h>
-# include <io.h>
-# include <conio.h> 
-#endif
-
 #include <string.h>
 #include <ctype.h>
 
 #include "fix.h"
 #include "object.h"
-#include "mono.h"
 #include "timer.h"
 #include "joy.h"
 #include "digi.h"
@@ -46,15 +34,13 @@ static char rcsid[] = "$Id: digiobj.c,v 1.1.1.1 2006/03/17 19:55:24 zicodxx Exp 
 #include "key.h"
 #include "newdemo.h"
 #include "game.h"
-#ifdef __MSDOS__
-#include "dpmi.h"
-#endif
 #include "error.h"
 #include "wall.h"
 #include "cfile.h"
 #include "piggy.h"
 #include "text.h"
 #include "kconfig.h"
+#include "config.h"
 
 #define SOF_USED				1 		// Set if this sample is used
 #define SOF_PLAYING			2		// Set if this sample is playing on a channel
@@ -155,12 +141,10 @@ void digi_get_sound_loc( vms_matrix * listener, vms_vector * listener_pos, int l
 		path_distance = find_connected_distance(listener_pos, listener_seg, sound_pos, sound_seg, num_search_segs, WID_RENDPAST_FLAG+WID_FLY_FLAG );
 		if ( path_distance > -1 )	{
 			*volume = max_volume - fixdiv(path_distance,max_distance);
-			//mprintf( (0, "Sound path distance %.2f, volume is %d / %d\n", f2fl(distance), *volume, max_volume ));
 			if (*volume > 0 )	{
 				angle_from_ear = vm_vec_delta_ang_norm(&listener->rvec,&vector_to_sound,&listener->uvec);
 				fix_sincos(angle_from_ear,&sinang,&cosang);
-				//mprintf( (0, "volume is %.2f\n", f2fl(*volume) ));
-				if (Config_channels_reversed) cosang *= -1;
+				if (GameCfg.ReverseStereo) cosang *= -1;
 				*pan = (cosang + F1_0)/2;
 			} else {
 				*volume = 0;
@@ -174,10 +158,9 @@ void digi_play_sample_once( int soundno, fix max_volume )
 {
 	int channel;
 
-#ifdef NEWDEMO
 	if ( Newdemo_state == ND_STATE_RECORDING )
 		newdemo_record_sound( soundno );
-#endif
+
 	soundno = digi_xlat_sound(soundno);
 
 	if (soundno < 0 ) return;
@@ -193,10 +176,9 @@ void digi_play_sample_once( int soundno, fix max_volume )
 
 void digi_play_sample( int soundno, fix max_volume )
 {
-#ifdef NEWDEMO
 	if ( Newdemo_state == ND_STATE_RECORDING )
 		newdemo_record_sound( soundno );
-#endif
+
 	soundno = digi_xlat_sound(soundno);
 
 	if (soundno < 0 ) return;
@@ -211,14 +193,13 @@ void digi_play_sample_3d( int soundno, int angle, int volume, int no_dups )
 
 	no_dups = 1;
 
-#ifdef NEWDEMO
 	if ( Newdemo_state == ND_STATE_RECORDING )		{
 		if ( no_dups )
 			newdemo_record_sound_3d_once( soundno, angle, volume );
 		else
 			newdemo_record_sound_3d( soundno, angle, volume );
 	}
-#endif
+
 	soundno = digi_xlat_sound(soundno);
 
 	if (soundno < 0 ) return;
@@ -332,7 +313,7 @@ void digi_start_sound_object(int i)
 // -- MK, 2/22/96 -- 		newdemo_record_sound_3d_once( digi_unxlat_sound(SoundObjects[i].soundnum), SoundObjects[i].pan, SoundObjects[i].volume );
 
 	// only use up to half the sound channels for "permanent" sounts
-	if ((SoundObjects[i].flags & SOF_PERMANENT) && (N_active_sound_objects >= max(1, digi_get_max_channels() / 4)))
+	if ((SoundObjects[i].flags & SOF_PERMANENT) && (N_active_sound_objects >= max(1, digi_max_channels / 4)))
 		return;
 
 	// start the sample playing
@@ -378,18 +359,15 @@ int digi_link_sound_to_object3( int org_soundnum, short objnum, int forever, fix
 		return -1;
 	}
 
-#ifdef NEWDEMO
 	if ( Newdemo_state == ND_STATE_RECORDING )		{
 		newdemo_record_link_sound_to_object3( org_soundnum, objnum, max_volume, max_distance, loop_start, loop_end );
 	}
-#endif
 
 	for (i=0; i<MAX_SOUND_OBJECTS; i++ )
 		if (SoundObjects[i].flags==0)
 			break;
 	
 	if (i==MAX_SOUND_OBJECTS) {
-		mprintf((1, "Too many sound objects!\n" ));
 		return -1;
 	}
 
@@ -474,7 +452,6 @@ int digi_link_sound_to_pos2( int org_soundnum, short segnum, short sidenum, vms_
 			break;
 	
 	if (i==MAX_SOUND_OBJECTS) {
-		mprintf((1, "Too many sound objects!\n" ));
 		return -1;
 	}
 
@@ -547,11 +524,6 @@ void digi_kill_sound_linked_to_segment( int segnum, int sidenum, int soundnum )
 			}
 		}
 	}
-	// If this assert happens, it means that there were 2 sounds
-	// that got deleted. Weird, get John.
-	if ( killed > 1 )	{
-		mprintf( (1, "ERROR: More than 1 sounds were deleted from seg %d\n", segnum ));
-	}
 }
 
 void digi_kill_sound_linked_to_object( int objnum )
@@ -561,11 +533,9 @@ void digi_kill_sound_linked_to_object( int objnum )
 
 	killed = 0;
 
-#ifdef NEWDEMO
 	if ( Newdemo_state == ND_STATE_RECORDING )		{
 		newdemo_record_kill_sound_linked_to_object( objnum );
 	}
-#endif
 
 	for (i=0; i<MAX_SOUND_OBJECTS; i++ )	{
 		if ( (SoundObjects[i].flags & SOF_USED) && (SoundObjects[i].flags & SOF_LINK_TO_OBJ ) )	{
@@ -580,12 +550,6 @@ void digi_kill_sound_linked_to_object( int objnum )
 			}
 		}
 	}
-	// If this assert happens, it means that there were 2 sounds
-	// that got deleted. Weird, get John.
-	if ( killed > 1 )	{
-		mprintf( (1, "ERROR: More than 1 sounds were deleted from object %d\n", objnum ));
-	}
-
 }
 
 //	John's new function, 2/22/96.
@@ -806,7 +770,6 @@ int verify_sound_channel_free( int channel )
 	for (i=0; i<MAX_SOUND_OBJECTS; i++ )	{
 		if ( SoundObjects[i].flags & SOF_USED )	{
 			if ( SoundObjects[i].channel == channel )	{
-				mprintf(( 0, "ERROR STARTING SOUND CHANNEL ON USED SLOT!!\n" ));
 				Int3();	// Get John!
 			}
 		}
@@ -827,9 +790,6 @@ void digi_sound_debug()
 				n_active_sound_objs++;
 		}
 	}
-	mprintf_at(( 0, 0, 0, "DIGI: Active Sound Objects:  %d,%d/%d (%d max)             \n", n_active_sound_objs,N_active_sound_objects, n_sound_objs, MAX_SOUND_OBJECTS ));
-	mprintf_at(( 0, 1, 0, "DIGI: Looping sound:  %s, snd=%d, vol=%d, ch=%d            \n", (digi_looping_sound>-1?"ON":"OFF"), digi_looping_sound, digi_looping_volume, digi_looping_channel  ));
-
 	digi_debug();
 }
 #endif
@@ -876,10 +836,6 @@ void SoundQ_process()
 		SoundQ_end();
 	}
 
-	if ( SoundQ_num > 0 )	{
-		mprintf(( 0, "SQ:%d ", SoundQ_num ));
-	}
-
 	while ( SoundQ_head != SoundQ_tail )	{
 		sound_q * q = &SoundQ[SoundQ_head];
 	
@@ -914,8 +870,6 @@ void digi_start_sound_queued( short soundnum, fix volume )
 		SoundQ[SoundQ_tail].soundnum = soundnum;
 		SoundQ_num++;
 		SoundQ_tail = i;
-	} else {
-		mprintf(( 0, "Sound Q full!\n" ));
 	}
 
 	// Try to start it!

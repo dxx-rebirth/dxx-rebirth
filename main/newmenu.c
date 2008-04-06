@@ -32,7 +32,6 @@ COPYRIGHT 1993-1998 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 #include "error.h"
 #include "pstypes.h"
 #include "gr.h"
-#include "mono.h"
 #include "key.h"
 #include "palette.h"
 #include "game.h"
@@ -685,7 +684,6 @@ int newmenu_do3_real( char * title, char * subtitle, int nitems, newmenu_item * 
 		IsScrollBox=1;
 		h=((MaxOnMenu+(subtitle?1:0))*LINE_SPACING);
 		MaxDisplayable=MaxOnMenu;
-		mprintf ((0,"Hey, this is a scroll box!\n"));
 	}
 	else
 	{
@@ -873,7 +871,6 @@ int newmenu_do3_real( char * title, char * subtitle, int nitems, newmenu_item * 
 				if (IsScrollBox)
 				{
 					LastScrollCheck=-1;
-					mprintf ((0,"Scrolling! Choice=%d\n",choice));
 						
 					if (choice<TopChoice)
 						{ choice=TopChoice; break; }
@@ -881,7 +878,6 @@ int newmenu_do3_real( char * title, char * subtitle, int nitems, newmenu_item * 
 					if (choice-4<ScrollOffset && ScrollOffset > 0)
 					{
 						ScrollOffset--;
-						mprintf ((0,"ScrollOffset=%d\n",ScrollOffset));
 					}
 				}
 				else
@@ -908,7 +904,6 @@ int newmenu_do3_real( char * title, char * subtitle, int nitems, newmenu_item * 
 				if (IsScrollBox)
 				{
 					LastScrollCheck=-1;
-					mprintf ((0,"Scrolling! Choice=%d\n",choice));
 						
 					if (choice==nitems)
 						{ choice--; break; }
@@ -916,7 +911,6 @@ int newmenu_do3_real( char * title, char * subtitle, int nitems, newmenu_item * 
 					if (choice+4>=MaxOnMenu+ScrollOffset && ScrollOffset < nitems-MaxOnMenu)
 					{
 						ScrollOffset++;
-						mprintf ((0,"ScrollOffset=%d\n",ScrollOffset));
 					}
 				}
 				else
@@ -946,12 +940,10 @@ int newmenu_do3_real( char * title, char * subtitle, int nitems, newmenu_item * 
 						item[choice].value = 0;
 					else
 						item[choice].value = 1;
-					mprintf ((0,"ISB=%d MDI=%d SO=%d choice=%d\n",IsScrollBox,MAXDISPLAYABLEITEMS,ScrollOffset,choice));
 					if (IsScrollBox)
 					{
 						if (choice==(MaxOnMenu+ScrollOffset-1) || choice==ScrollOffset)
 						{
-							mprintf ((0,"Special redraw!\n"));
 							LastScrollCheck=-1;
 						}
 					}
@@ -1094,12 +1086,9 @@ int newmenu_do3_real( char * title, char * subtitle, int nitems, newmenu_item * 
 					if (((mx > x1) && (mx < x2)) && ((my > y1) && (my < y2)) ) {
 						choice--;
 						LastScrollCheck=-1;
-						mprintf ((0,"Scrolling! Choice=%d\n",choice));
-								
 						if (choice-4<ScrollOffset && ScrollOffset > 0)
 						{
 							ScrollOffset--;
-							mprintf ((0,"ScrollOffset=%d\n",ScrollOffset));
 						}
 					}
 				}
@@ -1112,12 +1101,9 @@ int newmenu_do3_real( char * title, char * subtitle, int nitems, newmenu_item * 
 					if (((mx > x1) && (mx < x2)) && ((my > y1) && (my < y2)) ) {
 						choice++;
 						LastScrollCheck=-1;
-						mprintf ((0,"Scrolling! Choice=%d\n",choice));
-								
 						if (choice+4>=MaxOnMenu+ScrollOffset && ScrollOffset < nitems-MaxOnMenu)
 						{
 							ScrollOffset++;
-							mprintf ((0,"ScrollOffset=%d\n",ScrollOffset));
 						}
 					}
 				}

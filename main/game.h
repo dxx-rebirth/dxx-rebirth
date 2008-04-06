@@ -61,7 +61,6 @@ extern int ft_preference;
 #define GM_MULTI				38	//        You are in some type of multiplayer game
 
 #define	NDL	                5		//        Number of difficulty levels.
-#define	NUM_DETAIL_LEVELS	6
 
 extern int Game_mode;
 //added 3/24/99 by Owen Evans
@@ -100,7 +99,6 @@ void do_flythrough (object * obj, int first_time);
 
 extern jmp_buf LeaveGame;	// Do a long jump to this when game is over.
 extern int Difficulty_level;	//      Difficulty level in 0..NDL-1, 0 = easiest, NDL-1 = hardest
-extern int Detail_level;	//      Detail level in 0..NUM_DETAIL_LEVELS-1, 0 = boringest, NUM_DETAIL_LEVELS = coolest
 extern int Global_laser_firing_count;
 extern int Global_missile_firing_count;
 extern int Render_depth;

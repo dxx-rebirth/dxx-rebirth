@@ -17,10 +17,6 @@ COPYRIGHT 1993-1998 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
  *
  */
 
-#ifdef RCS
-static char rcsid[] = "$Id: kconfig.c,v 1.1.1.1 2006/03/17 19:44:27 zicodxx Exp $";
-#endif
-
 #define TABLE_CREATION
 
 #include <stdio.h>
@@ -32,7 +28,7 @@ static char rcsid[] = "$Id: kconfig.c,v 1.1.1.1 2006/03/17 19:44:27 zicodxx Exp 
 #include "error.h"
 #include "pstypes.h"
 #include "gr.h"
-#include "mono.h"
+#include "console.h"
 #include "key.h"
 #include "palette.h"
 #include "game.h"
@@ -78,10 +74,7 @@ extern void nm_draw_background1(char * filename);
 
 control_info Controls;
 
-ubyte Config_digi_volume = 16;
-ubyte Config_midi_volume = 16;
 ubyte Config_control_type = 0;
-ubyte Config_channels_reversed = 0;
 ubyte Config_joystick_sensitivity = 8;
 ubyte Config_mouse_sensitivity = 8;
 
@@ -652,16 +645,11 @@ void kconfig_sub(kc_item * items,int nitems, char * title)
 	mouse_state = omouse_state = 0;
 #endif
 
-#ifndef OGL
-	kconfig_sub_draw_table(items,nitems,title);
-	kc_drawitem( &items[citem], 1 );
-#endif
+	nm_draw_background1(NULL);
 
 	while(1)
 	{
 		timer_delay2(20);
-
-#ifdef OGL
 		gr_flip();
 		if (items == kc_d1x)
 			kc_d1x_flag=1;
@@ -669,8 +657,6 @@ void kconfig_sub(kc_item * items,int nitems, char * title)
 			kc_d1x_flag=0;
 		kconfig_sub_draw_table(items,nitems,title);
 		kc_drawitem( &items[citem], 1 );
-#endif
-
 		k = key_inkey();
 
 #ifdef NEWMENU_MOUSE
@@ -993,10 +979,8 @@ void kc_change_key( kc_item * item )
 #endif
 		k = key_inkey();
                 timer_delay(f0_1/10);
-#ifdef OGL
 		gr_flip();
 		kconfig_sub_draw_table(kc_keyboard,NUM_KEY_CONTROLS,"KEYBOARD");
-#endif
 		gr_string( 0x8000, FSPACY(INFO_Y), TXT_PRESS_NEW_KEY );
 		kc_drawquestion( item );
 	
@@ -1024,9 +1008,6 @@ void kc_change_key( kc_item * item )
 	}
 	kc_drawitem( item, 1 );
 	gr_set_fontcolor( BM_XRGB(28,28,28), BM_XRGB(0,0,0) );
-#ifndef OGL
-	kconfig_sub_draw_table(kc_keyboard,NUM_KEY_CONTROLS,"KEYBOARD");
-#endif
 	game_flush_inputs();
 
 }
@@ -1053,10 +1034,8 @@ void kc_change_joybutton( kc_item * item )
 		if (k == KEY_PRINT_SCREEN)
 			save_screen_shot(0);
 
-#ifdef OGL
 		gr_flip();
 		kconfig_sub_draw_table(kc_joystick,NUM_JOYSTICK_CONTROLS,"JOYSTICK");
-#endif
 		gr_string( 0x8000, FSPACY(INFO_Y), TXT_PRESS_NEW_JBUTTON );
 		kc_drawquestion( item );
 
@@ -1076,9 +1055,6 @@ void kc_change_joybutton( kc_item * item )
 		item->value = code;
 	}
 	kc_drawitem( item, 1 );
-#ifndef OGL
-	kconfig_sub_draw_table(kc_joystick,NUM_JOYSTICK_CONTROLS,"JOYSTICK");
-#endif
 	game_flush_inputs();
 }
 
@@ -1103,10 +1079,8 @@ void kc_change_mousebutton( kc_item * item )
 		if (k == KEY_PRINT_SCREEN)
 			save_screen_shot(0);
 
-#ifdef OGL
 		gr_flip();
 		kconfig_sub_draw_table(kc_mouse,NUM_MOUSE_CONTROLS,"MOUSE");
-#endif
 		gr_string( 0x8000, FSPACY(INFO_Y), TXT_PRESS_NEW_MBUTTON );
 		kc_drawquestion( item );
 
@@ -1127,9 +1101,6 @@ void kc_change_mousebutton( kc_item * item )
 		item->value = code;
 	}
 	kc_drawitem( item, 1 );
-#ifndef OGL
-	kconfig_sub_draw_table(kc_mouse,NUM_MOUSE_CONTROLS,"MOUSE");
-#endif
 	game_flush_inputs();
 
 }
@@ -1162,10 +1133,8 @@ void kc_change_joyaxis( kc_item * item )
 		if (k == KEY_PRINT_SCREEN)
 			save_screen_shot(0);
 
-#ifdef OGL
 		gr_flip();
 		kconfig_sub_draw_table(kc_joystick,NUM_JOYSTICK_CONTROLS,"JOYSTICK");
-#endif
 		gr_string( 0x8000, FSPACY(INFO_Y), TXT_MOVE_NEW_JOY_AXIS );
 		kc_drawquestion( item );
 
@@ -1176,7 +1145,7 @@ void kc_change_joyaxis( kc_item * item )
 			{
 				code = i;
 #ifndef NDEBUG
-				printf("Axis Movement detected: Axis %i\n", i);
+				con_printf(CON_DEBUG,"Axis Movement detected: Axis %i\n", i);
 #endif
 			}
 		}
@@ -1194,9 +1163,6 @@ void kc_change_joyaxis( kc_item * item )
 	}
 
 	kc_drawitem( item, 1 );
-#ifndef OGL
-	kconfig_sub_draw_table(kc_joystick,NUM_JOYSTICK_CONTROLS,"JOYSTICK");
-#endif
 	game_flush_inputs();
 
 }
@@ -1226,10 +1192,8 @@ void kc_change_mouseaxis( kc_item * item )
 		if (k == KEY_PRINT_SCREEN)
 			save_screen_shot(0);
 
-#ifdef OGL
 		gr_flip();
 		kconfig_sub_draw_table(kc_mouse,NUM_MOUSE_CONTROLS,"MOUSE");
-#endif
 		gr_string( 0x8000, FSPACY(INFO_Y), TXT_MOVE_NEW_MSE_AXIS );
 		kc_drawquestion( item );
 
@@ -1251,9 +1215,6 @@ void kc_change_mouseaxis( kc_item * item )
 		item->value = code;
 	}
 	kc_drawitem( item, 1 );
-#ifndef OGL
-	kconfig_sub_draw_table(kc_mouse,NUM_MOUSE_CONTROLS,"MOUSE");
-#endif
 	game_flush_inputs();
 }
 
@@ -1276,21 +1237,9 @@ void kc_change_invert( kc_item * item )
 void kconfig(int n, char * title)
 {
 	int i;
-#ifndef OGL
-	grs_bitmap *save_bm;
-#endif
 
 	set_screen_mode( SCREEN_MENU );
-
 	kc_set_controls();
-
-#ifndef OGL
-	//save screen
-	save_bm = gr_create_bitmap( grd_curcanv->cv_bitmap.bm_w, grd_curcanv->cv_bitmap.bm_h );
-	Assert( save_bm != NULL );
-	
-	gr_bm_bitblt(grd_curcanv->cv_bitmap.bm_w, grd_curcanv->cv_bitmap.bm_h, 0, 0, 0, 0, &grd_curcanv->cv_bitmap, save_bm );
-#endif
 
 	switch(n)
     	{
@@ -1309,12 +1258,6 @@ void kconfig(int n, char * title)
 			Int3();
 			return;
     	}
-
-#ifndef OGL
-	//restore screen
-	gr_bm_bitblt(grd_curcanv->cv_bitmap.bm_w, grd_curcanv->cv_bitmap.bm_h, 0, 0, 0, 0, &grd_curcanv->cv_bitmap, save_bm );
-	gr_free_bitmap(save_bm);
-#endif
 
 	reset_cockpit();                //force cockpit redraw next time
 
@@ -1553,7 +1496,6 @@ void controls_read_all()
 		}
 	
 		// From mouse...
-		//mprintf(( 0, "UM: %d, PV: %d\n", use_mouse, kc_mouse[13].value ));
 		if ( (use_mouse)&&(kc_mouse[13].value < 255) )	{
 			if ( !kc_mouse[14].value )		// If not inverted...
 				Controls.pitch_time -= (mouse_axis[kc_mouse[13].value]*Config_mouse_sensitivity)/8;
@@ -1655,7 +1597,6 @@ void controls_read_all()
 //---------- Read heading_time -----------
 
 	if (!slide_on && !bank_on)	{
-		//mprintf((0, "heading: %7.3f %7.3f: %7.3f\n", f2fl(k4), f2fl(k6), f2fl(Controls.heading_time)));
 		kh = 0;
 		k4 = speed_factor*key_down_time( kc_keyboard[4].value );
 		k5 = speed_factor*key_down_time( kc_keyboard[5].value );
@@ -1948,9 +1889,6 @@ void controls_read_all()
 	}
 
 //----------- Clamp values between -FrameTime and FrameTime
-	if (FrameTime > F1_0 )
-		mprintf( (1, "Bogus frame time of %.2f seconds\n", f2fl(FrameTime) ));
-
 	// ZICO - remove clamp for pitch and heading if mouselook on and no multiplayer game
 	if ((Config_control_type != 5) || !GameArg.CtlMouselook || (Game_mode & GM_MULTI) ) {
 		if (Controls.pitch_time > FrameTime/2 ) Controls.pitch_time = FrameTime/2;

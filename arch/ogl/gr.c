@@ -5,7 +5,7 @@
 #include <stdlib.h>
 #include <stdio.h>
 #include <string.h>
-#ifdef __WINDOWS__
+#ifdef _WIN32
 #include <windows.h>
 #endif
 #ifndef macintosh
@@ -29,7 +29,6 @@
 #include "inferno.h"
 #include "screens.h"
 #include "strutil.h"
-#include "mono.h"
 #include "args.h"
 #include "key.h"
 #include "u_mem.h"
@@ -37,12 +36,13 @@
 #include "render.h"
 #include "internal.h"
 #include "physfsx.h"
-
+#include "console.h"
 #if defined(__APPLE__) && defined(__MACH__)
 #include <OpenGL/glu.h>
 #else
 #include <GL/glu.h>
 #endif
+#include "config.h"
 
 int gr_installed = 0;
 int gl_initialized=0;
@@ -53,10 +53,7 @@ int gr_check_fullscreen(void){
 }
 
 void gr_do_fullscreen(int f){
-	if (GameArg.OglVoodooHack)
-		ogl_fullscreen=1;//force fullscreen mode on voodoos.
-	else
-		ogl_fullscreen=f;
+	ogl_fullscreen=f;
 	if (gl_initialized){
 		ogl_do_fullscreen_internal();
 	}
@@ -114,10 +111,10 @@ void ogl_get_verinfo(void){
 	gl_extensions=(const char *)glGetString(GL_EXTENSIONS);
 
 #ifndef NDEBUG
-	printf("gl vendor:%s renderer:%s version:%s extensions:%s\n",gl_vendor,gl_renderer,gl_version,gl_extensions);
+	con_printf(CON_VERBOSE,"gl vendor:%s renderer:%s version:%s extensions:%s\n",gl_vendor,gl_renderer,gl_version,gl_extensions);
 #endif
 
-#ifdef __WINDOWS__
+#ifdef _WIN32
 	dglMultiTexCoord2fARB = (glMultiTexCoord2fARB_fp)wglGetProcAddress("glMultiTexCoord2fARB");
 	dglActiveTextureARB = (glActiveTextureARB_fp)wglGetProcAddress("glActiveTextureARB");
 	dglMultiTexCoord2fSGIS = (glMultiTexCoord2fSGIS_fp)wglGetProcAddress("glMultiTexCoord2fSGIS");
@@ -138,7 +135,7 @@ void ogl_get_verinfo(void){
 #endif
 
 #ifndef NDEBUG
-	printf("gl_intensity4:%i gl_luminance4_alpha4:%i gl_rgba2:%i gl_readpixels:%i gl_gettexlevelparam:%i\n",GameArg.DbgGlIntensity4Ok,GameArg.DbgGlLuminance4Alpha4Ok,GameArg.DbgGlRGBA2Ok,GameArg.DbgGlReadPixelsOk,GameArg.DbgGlGetTexLevelParamOk);
+	con_printf(CON_VERBOSE,"gl_intensity4:%i gl_luminance4_alpha4:%i gl_rgba2:%i gl_readpixels:%i gl_gettexlevelparam:%i\n",GameArg.DbgGlIntensity4Ok,GameArg.DbgGlLuminance4Alpha4Ok,GameArg.DbgGlRGBA2Ok,GameArg.DbgGlReadPixelsOk,GameArg.DbgGlGetTexLevelParamOk);
 #endif
 }
 
@@ -161,7 +158,7 @@ int gr_set_mode(u_int32_t mode)
 	grd_curscreen->sc_mode = mode;
 	grd_curscreen->sc_w = w;
 	grd_curscreen->sc_h = h;
-	grd_curscreen->sc_aspect = fixdiv(grd_curscreen->sc_w*GameArg.GfxAspectX,grd_curscreen->sc_h*GameArg.GfxAspectY);
+	grd_curscreen->sc_aspect = fixdiv(grd_curscreen->sc_w*GameCfg.AspectX,grd_curscreen->sc_h*GameCfg.AspectY);
 	grd_curscreen->sc_canvas.cv_bitmap.bm_x = 0;
 	grd_curscreen->sc_canvas.cv_bitmap.bm_y = 0;
 	grd_curscreen->sc_canvas.cv_bitmap.bm_w = w;
@@ -208,7 +205,7 @@ int ogl_testneedmipmaps(int i){
 
 }
 
-#ifdef __WINDOWS__
+#ifdef _WIN32
 char *OglLibPath="opengl32.dll";
 
 int ogl_rt_loaded=0;
@@ -219,8 +216,6 @@ int ogl_init_load_library(void)
 		retcode = OpenGL_LoadLibrary(true);
 		if(retcode)
 		{
-			mprintf((0,"Opengl loaded ok\n"));
-	
 			if(!glEnd)
 			{
 				Error("Opengl: Functions not imported\n");
@@ -242,16 +237,30 @@ int gr_init(int mode)
 	if (gr_installed==1)
 		return -1;
 
-#ifdef __WINDOWS__
+#ifdef _WIN32
 	ogl_init_load_library();
 #endif
 
-	if (!GameArg.SysWindow || GameArg.OglVoodooHack)
+	if (!GameCfg.WindowMode && !GameArg.SysWindow)
 		gr_toggle_fullscreen();
 
-	GL_needmipmaps=ogl_testneedmipmaps(GameArg.OglTexMinFilt);
+	switch (GameCfg.TexFilt)
+	{
+		case 2:
+			OglTexMagFilt = GL_LINEAR;
+			OglTexMinFilt = GL_LINEAR_MIPMAP_LINEAR;
+			break;
+		case 1:
+			OglTexMagFilt = GL_LINEAR;
+			OglTexMinFilt = GL_LINEAR_MIPMAP_NEAREST;
+			break;
+		default:
+			OglTexMagFilt = GL_NEAREST;
+			OglTexMinFilt = GL_NEAREST;
+			break;
+	}
 
-	mprintf((0,"gr_init: texmagfilt:%x texminfilt:%x needmipmaps=%i\n",GameArg.OglTexMagFilt,GameArg.OglTexMinFilt,GL_needmipmaps));
+	GL_needmipmaps=ogl_testneedmipmaps(OglTexMinFilt);
 
 	ogl_init();//platform specific initialization
 
@@ -293,7 +302,7 @@ void gr_close()
 		d_free(grd_curscreen);
 	}
 	ogl_close_pixel_buffers();
-#ifdef __WINDOWS__
+#ifdef _WIN32
 	if (ogl_rt_loaded)
 		OpenGL_LoadLibrary(false);
 #endif

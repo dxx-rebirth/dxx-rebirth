@@ -10,112 +10,24 @@ CONTAINED HEREIN FOR REVENUE-BEARING PURPOSES.  THE END-USER UNDERSTANDS
 AND AGREES TO THE TERMS HEREIN AND ACCEPTS THE SAME BY USE OF THIS FILE.  
 COPYRIGHT 1993-1998 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 */
+
 /*
- * $Source: /cvsroot/dxx-rebirth/d1x-rebirth/editor/eobject.c,v $
- * $Revision: 1.1.1.1 $
- * $Author: zicodxx $
- * $Date: 2006/03/17 19:45:43 $
- * 
+ *
  * Editor object functions.
- * 
- * $Log: eobject.c,v $
- * Revision 1.1.1.1  2006/03/17 19:45:43  zicodxx
- * initial import
  *
- * Revision 1.1.1.1  1999/06/14 22:03:00  donut
- * Import of d1x 1.37 source.
- *
- * Revision 2.0  1995/02/27  11:35:14  john
- * Version 2.0! No anonymous unions, Watcom 10.0, with no need
- * for bitmaps.tbl.
- * 
- * Revision 1.93  1995/02/22  15:09:04  allender
- * remove anonymous unions from object structure
- * 
- * Revision 1.92  1995/01/12  12:10:32  yuan
- * Added coop object capability.
- * 
- * Revision 1.91  1994/12/20  17:57:02  yuan
- * Multiplayer object stuff.
- * 
- * Revision 1.90  1994/11/27  23:17:49  matt
- * Made changes for new mprintf calling convention
- * 
- * Revision 1.89  1994/11/17  14:48:06  mike
- * validation functions moved from editor to game.
- * 
- * Revision 1.88  1994/11/14  11:40:03  mike
- * fix default robot behavior.
- * 
- * Revision 1.87  1994/10/25  10:51:31  matt
- * Vulcan cannon powerups now contain ammo count
- * 
- * Revision 1.86  1994/10/23  02:11:40  matt
- * Got rid of obsolete hostage_info stuff
- * 
- * Revision 1.85  1994/10/17  21:35:32  matt
- * Added support for new Control Center/Main Reactor
- * 
- * Revision 1.84  1994/10/10  17:23:13  mike
- * Verify that not placing too many player objects.
- * 
- * Revision 1.83  1994/09/24  14:15:35  mike
- * Custom colored object support.
- * 
- * Revision 1.82  1994/09/15  22:58:12  matt
- * Made new objects be oriented to their segment
- * Added keypad function to flip an object upside-down
- * 
- * Revision 1.81  1994/09/01  10:58:41  matt
- * Sizes for powerups now specified in bitmaps.tbl; blob bitmaps now plot
- * correctly if width & height of bitmap are different.
- * 
- * Revision 1.80  1994/08/25  21:58:14  mike
- * Write ObjectSelectPrevInMine and something else, I think...
- * 
- * Revision 1.79  1994/08/16  20:19:54  mike
- * Make STILL default (from CHASE_OBJECT).
- * 
- * Revision 1.78  1994/08/14  23:15:45  matt
- * Added animating bitmap hostages, and cleaned up vclips a bit
- * 
- * Revision 1.77  1994/08/13  14:58:43  matt
- * Finished adding support for miscellaneous objects
- * 
- * Revision 1.76  1994/08/12  22:24:58  matt
- * Generalized polygon objects (such as control center)
- * 
- * Revision 1.75  1994/08/09  16:06:11  john
- * Added the ability to place players.  Made old
- * Player variable be ConsoleObject.
- * 
- * Revision 1.74  1994/08/05  18:18:55  matt
- * Made object rotation have 4x resolution, and SHIFT+rotate do old resolution.
- * 
- * Revision 1.73  1994/08/01  13:30:56  matt
- * Made fvi() check holes in transparent walls, and changed fvi() calling
- * parms to take all input data in query structure.
- * 
  */
 
-
-#ifdef RCS
-static char rcsid[] = "$Id: eobject.c,v 1.1.1.1 2006/03/17 19:45:43 zicodxx Exp $";
-#endif
 
 #include <stdio.h>
 #include <stdlib.h>
 #include <stdarg.h>
 #include <math.h>
 #include <string.h>
-
 #include "inferno.h"
 #include "segment.h"
 #include "editor.h"
-
 #include "objpage.h"
 #include "fix.h"
-#include "mono.h"
 #include "error.h"
 #include "kdefs.h"
 #include	"object.h"
@@ -125,7 +37,6 @@ static char rcsid[] = "$Id: eobject.c,v 1.1.1.1 2006/03/17 19:45:43 zicodxx Exp 
 #include "bm.h"
 #include "3d.h"		//	For g3_point_to_vec
 #include	"fvi.h"
-
 #include "powerup.h"
 #include "fuelcen.h"
 #include "hostage.h"
@@ -144,14 +55,10 @@ void show_objects_in_segment(segment *sp)
 {
 	short		objid;
 
-	mprintf((0,"Objects in segment #%i: ",sp-Segments));
-
 	objid = sp->objects;
 	while (objid != -1) {
-		mprintf((0,"%2i ",objid));
 		objid = Objects[objid].next;
 	}
-	mprintf((0,"\n"));
 }
 
 //returns the number of the first object in a segment, skipping the player
@@ -356,7 +263,7 @@ int place_object(segment *segp, vms_vector *object_pos, int object_type)
 	Cur_object_index = objnum;
 	//Cur_object_seg = Cursegp;
 
-	show_objects_in_segment(Cursegp);		//mprintf the objects
+	show_objects_in_segment(Cursegp);
 
 	Update_flags |= UF_WORLD_CHANGED;
 
@@ -488,8 +395,6 @@ int ObjectSelectNextinSegment(void)
 	if (id != -1)
 		Cur_object_index = get_next_object(objsegp,Cur_object_index);
 
-	//mprintf((0,"Cur_object_index == %i\n", Cur_object_index));
-
 	Update_flags |= UF_WORLD_CHANGED;
 
 	return 1;
@@ -594,8 +499,7 @@ int move_object_within_mine(object * obj, vms_vector *newpos )
 					obj_relink( obj-Objects, segnum);
 				obj->pos = *newpos;
 				return 0;
-			} //else
-				//mprintf((0, "Hit wall seg:side = %i:%i\n", hit_info.hit_seg, hit_info.hit_side));
+			}
 		}
 	}
 
@@ -933,46 +837,6 @@ int ObjectIncreaseHeadingBig()	{return rotate_object(Cur_object_index, 0, 0, (RO
 //					  VxFx + VyFy + VzFz
 
 
-//void print_vec(vms_vector *vec, char *text)
-//{
-//	mprintf((0, "%10s = %9.5f %9.5f %9.5f\n", text, f2fl(vec->x), f2fl(vec->y), f2fl(vec->z)));
-//}
-//
-// void solve(vms_vector *result, vms_vector *E, vms_vector *V, vms_vector *O, vms_vector *F)
-// {
-// 	fix	t, D;
-// 	vms_vector	Fnorm, Vnorm;
-// 	fix			num, denom;
-// 	// float			test_plane;
-// 
-// 	print_vec(E, "E");
-// 	print_vec(V, "V");
-// 	print_vec(O, "O");
-// 	print_vec(F, "F");
-// 
-// 	Fnorm = *F;	vm_vec_normalize(&Fnorm);
-// 	Vnorm = *V;	vm_vec_normalize(&Vnorm);
-// 
-// 	D = (fixmul(O->x, Fnorm.x) + fixmul(O->y, Fnorm.y) + fixmul(O->z, Fnorm.z));
-// 	mprintf((0, "D = %9.5f\n", f2fl(D)));
-// 
-// 	num = fixmul(Fnorm.x, E->x) + fixmul(Fnorm.y, E->y) + fixmul(Fnorm.z, E->z) - D;
-// 	denom = vm_vec_dot(&Vnorm, &Fnorm);
-// 	t = - num/denom;
-// 
-// 	mprintf((0, "num = %9.5f, denom = %9.5f, t = %9.5f\n", f2fl(num), f2fl(denom), f2fl(t)));
-// 
-// 	result->x = E->x + fixmul(t, Vnorm.x);
-// 	result->y = E->y + fixmul(t, Vnorm.y);
-// 	result->z = E->z + fixmul(t, Vnorm.z);
-// 
-// 	print_vec(result, "result");
-// 
-// 	// test_plane = fixmul(result->x, Fnorm.x) + fixmul(result->y, Fnorm.y) + fixmul(result->z, Fnorm.z) - D;
-// 	// if (abs(test_plane) > .001)
-// 	// 	printf("OOPS: test_plane = %9.5f\n", test_plane);
-// }
-
 void move_object_to_position(int objnum, vms_vector *newpos)
 {
 	object	*objp = &Objects[objnum];
@@ -980,7 +844,6 @@ void move_object_to_position(int objnum, vms_vector *newpos)
 	segmasks	result = get_seg_masks(newpos, objp->segnum, objp->size, __FILE__, __LINE__);
 
 	if (result.facemask == 0) {
-		//mprintf((0, "Object #%i moved from (%7.3f %7.3f %7.3f) to (%7.3f %7.3f %7.3f)\n", objnum, f2fl(objp->pos.x), f2fl(objp->pos.y), f2fl(objp->pos.z), f2fl(newpos->x), f2fl(newpos->y), f2fl(newpos->z)));
 		objp->pos = *newpos;
 	} else {
 		if (verify_object_seg(&Objects[objnum], newpos)) {
@@ -1003,7 +866,6 @@ void move_object_to_position(int objnum, vms_vector *newpos)
 				while (viewer_segnum == -1) {
 					vms_vector	temp_vec;
 
-					//mprintf((0, "[towards %7.3f %7.3f %7.3f]\n", f2fl(temp_viewer_obj.pos.x), f2fl(temp_viewer_obj.pos.y), f2fl(temp_viewer_obj.pos.z)));
 					last_outside_pos = temp_viewer_obj.pos;
 
 					vm_vec_avg(&temp_vec, &temp_viewer_obj.pos, newpos);
@@ -1023,7 +885,6 @@ void move_object_to_position(int objnum, vms_vector *newpos)
 
 					vms_vector	temp_vec;
 
-					//mprintf((0, "[away %7.3f %7.3f %7.3f]\n", f2fl(temp_viewer_obj.pos.x), f2fl(temp_viewer_obj.pos.y), f2fl(temp_viewer_obj.pos.z)));
 					last_inside_pos = temp_viewer_obj.pos;
 
 					vm_vec_avg(&temp_vec, &temp_viewer_obj.pos, &last_outside_pos);
@@ -1051,15 +912,12 @@ void move_object_to_position(int objnum, vms_vector *newpos)
 			if (fate == HIT_WALL) {
 				int	new_segnum;
 
-				//mprintf((0, "Hit wall seg:side = %i:%i, point = (%7.3f %7.3f %7.3f)\n", hit_info.hit_seg, hit_info.hit_side, f2fl(hit_info.hit_pnt.x), f2fl(hit_info.hit_pnt.y), f2fl(hit_info.hit_pnt.z)));
 				objp->pos = hit_info.hit_pnt;
 				new_segnum = find_object_seg(objp);
 				Assert(new_segnum != -1);
 				obj_relink(objp-Objects, new_segnum);
-				//mprintf((0, "Object moved from segment %i to %i\n", old_segnum, objp->segnum));
 			} else {
 				editor_status("Attempted to move object out of mine.  Object not moved.");
-				//mprintf((0,"Attempted to move object out of mine.  Object not moved."));
 			}
 		}
 	}
@@ -1091,8 +949,6 @@ void move_object_to_mouse_click_delta(fix delta_distance)
 	ycrd = GameViewBox->b1_drag_y1;
 
 	med_point_2_vec(&_canv_editor_game, &vec_through_screen, xcrd, ycrd);
-
-	//mprintf((0, "Mouse click at %i %i, vector = %7.3f %7.3f %7.3f\n", xcrd, ycrd, f2fl(vec_through_screen.x), f2fl(vec_through_screen.y), f2fl(vec_through_screen.z)));
 
 	move_object_to_vector(&vec_through_screen, delta_distance);
 

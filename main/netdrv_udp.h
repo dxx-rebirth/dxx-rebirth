@@ -11,7 +11,7 @@
 #include <sys/types.h>
 #include <time.h>
 #include <sys/time.h>
-#ifdef __WINDOWS__
+#ifdef _WIN32
 	#include <winsock.h>
 	#include <io.h>
 #else

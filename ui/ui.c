@@ -10,72 +10,23 @@ CONTAINED HEREIN FOR REVENUE-BEARING PURPOSES.  THE END-USER UNDERSTANDS
 AND AGREES TO THE TERMS HEREIN AND ACCEPTS THE SAME BY USE OF THIS FILE.  
 COPYRIGHT 1993-1998 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 */
+
  /*
- * $Source: /cvsroot/dxx-rebirth/d1x-rebirth/ui/ui.c,v $
- * $Revision: 1.1.1.1 $
- * $Author: zicodxx $
- * $Date: 2006/03/17 19:39:06 $
  *
  * UI init and close functions.
  *
- * $Log: ui.c,v $
- * Revision 1.1.1.1  2006/03/17 19:39:06  zicodxx
- * initial import
- *
- * Revision 1.1.1.1  1999/06/14 22:14:42  donut
- * Import of d1x 1.37 source.
- *
- * Revision 1.9  1994/11/13  15:37:18  john
- * Made ui_close not close key and mouse.
- * 
- * Revision 1.8  1994/10/27  09:58:53  john
- * *** empty log message ***
- * 
- * Revision 1.7  1994/10/27  09:43:00  john
- * Fixed colors after removing gr_inverse_table.
- * 
- * Revision 1.6  1994/09/23  14:57:41  john
- * Took out calls to init_mouse and init_keyboard.
- * 
- * Revision 1.5  1993/12/10  14:16:45  john
- * made buttons have 2 user-functions.
- * 
- * Revision 1.4  1993/12/07  12:31:32  john
- * new version.
- * 
- * Revision 1.3  1993/10/26  13:46:12  john
- * *** empty log message ***
- * 
- * Revision 1.2  1993/10/05  17:31:55  john
- * *** empty log message ***
- * 
- * Revision 1.1  1993/09/20  10:35:49  john
- * Initial revision
- * 
- *
  */
-
-#ifdef RCS
-static char rcsid[] = "$Id: ui.c,v 1.1.1.1 2006/03/17 19:39:06 zicodxx Exp $";
-#endif
 
 #include <stdio.h>
 #include <stdlib.h>
 #include <stdarg.h>
 #include <string.h>
-#ifdef __MSDOS__
-#include <dos.h>
-#endif
-
 #include "fix.h"
 #include "pstypes.h"
 #include "gr.h"
 #include "key.h"
 #include "ui.h"
-
 #include "mouse.h"
-
-#include "mono.h"
 
 extern void InstallErrorHandler();
 

@@ -17,25 +17,15 @@ COPYRIGHT 1993-1998 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
  */
 
 
-#ifdef RCS
-#pragma off (unreferenced)
-static char rcsid[] = "$Id: controls.c,v 1.1.1.1 2006/03/17 19:43:28 zicodxx Exp $";
-#pragma on (unreferenced)
-#endif
-
 #include <stdlib.h>
-
-#include "mono.h"
 #include "key.h"
 #include "joy.h"
 #include "timer.h"
 #include "error.h"
-
 #include "inferno.h"
 #include "game.h"
 #include "object.h"
 #include "player.h"
-
 #include "controls.h"
 #include "render.h"
 #include "args.h"
@@ -56,8 +46,6 @@ void read_flying_controls( object * obj )
 	obj->mtype.phys_info.rotthrust.x = Controls.pitch_time;
 	obj->mtype.phys_info.rotthrust.y = Controls.heading_time;
 	obj->mtype.phys_info.rotthrust.z = Controls.bank_time;
-
-//	mprintf( (0, "Rot thrust = %.3f,%.3f,%.3f\n", f2fl(obj->mtype.phys_info.rotthrust.x),f2fl(obj->mtype.phys_info.rotthrust.y), f2fl(obj->mtype.phys_info.rotthrust.z) ));
 
 	afterburner_thrust = 0;
 	if (Players[Player_num].flags & PLAYER_FLAGS_AFTERBURNER)
@@ -93,14 +81,12 @@ void read_flying_controls( object * obj )
 
 		//	Note, you must check for ft < F1_0/2, else you can get an overflow  on the << 15.
 		if ((ft < F1_0/2) && (ft << 15 <= Player_ship->max_thrust)) {
-			mprintf((0, "Preventing divide overflow in controls.c for Max_thrust!\n"));
 			ft = (Player_ship->max_thrust >> 15) + 1;
 		}
 
 		vm_vec_scale( &obj->mtype.phys_info.thrust, fixdiv(Player_ship->max_thrust,ft) );
 
 		if ((ft < F1_0/2) && (ft << 15 <= Player_ship->max_rotthrust)) {
-			mprintf((0, "Preventing divide overflow in controls.c for max_rotthrust!\n"));
 			ft = (Player_ship->max_thrust >> 15) + 1;
 		}
 

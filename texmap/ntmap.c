@@ -10,138 +10,12 @@ CONTAINED HEREIN FOR REVENUE-BEARING PURPOSES.  THE END-USER UNDERSTANDS
 AND AGREES TO THE TERMS HEREIN AND ACCEPTS THE SAME BY USE OF THIS FILE.  
 COPYRIGHT 1993-1998 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 */
-/*
- * $Source: /cvsroot/dxx-rebirth/d1x-rebirth/texmap/ntmap.c,v $
- * $Revision: 1.1.1.1 $
- * $Author: zicodxx $
- * $Date: 2006/03/17 19:46:01 $
- * 
- * Start of conversion to new texture mapper.
- * 
- * $Log: ntmap.c,v $
- * Revision 1.1.1.1  2006/03/17 19:46:01  zicodxx
- * initial import
- *
- * Revision 1.5  1999/12/08 01:03:51  donut
- * allow runtime selection of tmap routines
- *
- * Revision 1.4  1999/10/18 00:31:55  donut
- * allow FP_TMAP to be used without NO_ASM
- *
- * Revision 1.3  1999/08/05 22:53:41  sekmu
- *
- * D3D patch(es) from ADB
- *
- * Revision 1.2  1999/07/07 21:31:09  donut
- * removed unused vars from ntmap_scanline_lighted and slightly optomized it
- *
- * Revision 1.1.1.1  1999/06/14 22:14:06  donut
- * Import of d1x 1.37 source.
- *
- * Revision 1.52  1995/03/14  15:13:06  john
- * Increased MAX_Y_Pointers to 480.
- * 
- * Revision 1.51  1995/02/23  14:25:09  john
- * Added editor tmap.
- * 
- * Revision 1.50  1995/02/20  18:22:58  john
- * Put all the externs in the assembly modules into tmap_inc.asm.
- * Also, moved all the C versions of the inner loops into a new module, 
- * scanline.c.
- * 
- * Revision 1.49  1995/02/20  17:09:11  john
- * Added code so that you can build the tmapper with no assembly!
- * 
- * Revision 1.48  1995/01/06  11:11:30  mike
- * even when not in editor, have 400 lines in texture map scanline table.
- * 
- * Revision 1.47  1994/12/15  16:43:25  matt
- * Took out code only needed by editor
- * 
- * Revision 1.46  1994/12/09  22:35:37  mike
- * fix bug in before call to asm_tmap_scanline_per causing write of pixel onto past right border onto left.
- * 
- * Revision 1.45  1994/12/06  16:31:06  mike
- * fix bug in asm_tmap_scanline_matt interface.
- * 
- * Revision 1.44  1994/12/04  20:37:18  mike
- * *** empty log message ***
- * 
- * Revision 1.43  1994/12/02  23:30:04  mike
- * optimizations.
- * 
- * Revision 1.42  1994/11/30  00:57:43  mike
- * optimizations.
- * 
- * Revision 1.41  1994/11/28  13:34:27  mike
- * optimizations.
- * 
- * Revision 1.40  1994/11/28  01:30:01  mike
- * kill warning.
- * 
- * Revision 1.39  1994/11/28  01:28:59  mike
- * optimizations.
- * 
- * Revision 1.38  1994/11/21  14:08:07  john
- * Took out all multiple instead of divide code.
- * 
- * Revision 1.37  1994/11/19  15:21:52  mike
- * rip out unused code.
- * 
- * Revision 1.36  1994/11/14  11:42:51  mike
- * optimization.
- * 
- * Revision 1.35  1994/11/12  16:41:36  mike
- * *** empty log message ***
- * 
- * Revision 1.34  1994/11/10  21:28:41  mike
- * remove call to init_interface_vars_to_assembler.
- * 
- * Revision 1.33  1994/11/10  11:08:59  mike
- * detail level stuff.
- * 
- * Revision 1.32  1994/11/09  22:55:52  matt
- * Added variable Current_seg_depth for detail level optimization
- * 
- * Revision 1.31  1994/11/09  19:57:31  john
- * Added texture rle caching.
- * 
- * Revision 1.30  1994/11/09  19:54:48  mike
- * Call flat shader if Tmap_flat_flag set.
- * 
- * Revision 1.29  1994/11/02  21:33:31  john
- * Added Burger Bill's optimization, ie.. 2 muls per 8 pixels.
- * 
- * Revision 1.28  1994/11/02  11:32:16  john
- * Added code for c callable inner loop and code to 
- * test dividing out z0.
- * 
- * Revision 1.27  1994/10/28  20:54:32  matt
- * Added error checking
- * 
- * Revision 1.26  1994/10/25  11:20:20  mike
- * fix bug in lighting overflow checking for one scanline tall linear texture maps.
- * 
- * Revision 1.25  1994/08/03  15:40:33  mike
- * Prevent divide overflows, decrease occurrence of precision-caused glitches.
- * 
- * Revision 1.24  1994/07/27  09:31:16  mike
- * Fix concave texture map problem, decrease occurrence of unimportant int 3.
- * 
- * Revision 1.23  1994/06/17  12:23:31  mike
- * Support non-lighted texture maps.
- * 
- * Revision 1.22  1994/06/11  08:10:24  mike
- * Fix mysterious hang bug, lighting value was out of range.
- * 
- * Revision 1.21  1994/06/09  16:10:16  mike
- * Change SC2000 from constant to variable.
- * 
- */
 
-#ifdef RCS
-static char rcsid[] = "$Id: ntmap.c,v 1.1.1.1 2006/03/17 19:46:01 zicodxx Exp $";
-#endif
+/*
+ *
+ * Start of conversion to new texture mapper.
+ *
+ */
 
 #define VESA 0
 #define NUM_TMAPS 16
@@ -155,19 +29,14 @@ static char rcsid[] = "$Id: ntmap.c,v 1.1.1.1 2006/03/17 19:46:01 zicodxx Exp $"
 #include <limits.h>
 #include <stdio.h>
 #include <stdlib.h>
-
-#include "mono.h"
-//#include "maths.h"
 #include "3d.h"
 #include "gr.h"
 #include "error.h"
-//#include "key.h"
-
 #include "texmap.h"
 #include "texmapl.h"
 #include "rle.h"
 #include "scanline.h"
-
+#include "render.h"
 #include "../main/textures.h"
 
 #ifdef EDITOR
@@ -189,7 +58,6 @@ int     Lighting_on=1;                  // initialize to no lighting
 int	Tmap_flat_flag = 0;		//	1 = render texture maps as flat shaded polygons.
 int	Current_seg_depth;		// HACK INTERFACE: how far away the current segment (& thus texture) is
 int	Max_perspective_depth;
-int	Max_linear_depth;
 int	Max_flat_depth;
 
 extern int Window_clip_left, Window_clip_bot, Window_clip_right, Window_clip_top;
@@ -754,9 +622,6 @@ void ntexture_map_lighted(grs_bitmap *srcb, g3ds_tmap *t)
 
 	// We can get lleft or lright out of bounds here because we compute dl_dy using fixed point values,
 	//	but we plot an integer number of scanlines, therefore doing an integer number of additions of the delta.
-
-//if (Break_on_flat)
-//	mprintf(0, "[%i %i %i] ", y, f2i(xleft), f2i(xright));
 
 	ntmap_scanline_lighted(srcb,y,xleft,xright,uleft,uright,vleft,vright,zleft,zright,lleft,lright);
 }

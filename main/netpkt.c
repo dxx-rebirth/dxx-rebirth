@@ -58,7 +58,6 @@ void receive_netplayer_info(ubyte *data, netplayer_info *info, int d1x)
  //edited 03/04/99 Matt Mueller - sub_protocol was being set wrong in non-d1x games.. I still think its screwed somewhere else too though
 	if (d1x){     
 		info->sub_protocol = data[loc]; loc++;
-//		printf ("%i "__FUNCTION__ " name=%s sub_protocol=%i\n",Player_num,info->callsign,info->sub_protocol);
 	}else
 		info->sub_protocol = 0;
 //end edit -MM
@@ -299,7 +298,6 @@ void store_netplayer_info(ubyte *data, netplayer_info *player, int d1x)
 	*data = player->connected;     data++;
 	if (d1x) {
 		*data = player->sub_protocol;  data++;
-//	    printf ("%i "__FUNCTION__ " name=%s sub_protocol=%i\n",Player_num,player->callsign,player->sub_protocol);
 	}
 }
 

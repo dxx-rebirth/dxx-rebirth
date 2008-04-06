@@ -10,121 +10,24 @@ CONTAINED HEREIN FOR REVENUE-BEARING PURPOSES.  THE END-USER UNDERSTANDS
 AND AGREES TO THE TERMS HEREIN AND ACCEPTS THE SAME BY USE OF THIS FILE.  
 COPYRIGHT 1993-1998 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 */
+
 /*
- * $Source: /cvsroot/dxx-rebirth/d1x-rebirth/editor/elight.c,v $
- * $Revision: 1.1.1.1 $
- * $Author: zicodxx $
- * $Date: 2006/03/17 19:45:20 $
- * 
+ *
  * Editor lighting functions.
- * 
- * $Log: elight.c,v $
- * Revision 1.1.1.1  2006/03/17 19:45:20  zicodxx
- * initial import
  *
- * Revision 1.1.1.1  1999/06/14 22:02:55  donut
- * Import of d1x 1.37 source.
- *
- * Revision 2.0  1995/02/27  11:35:16  john
- * Version 2.0! No anonymous unions, Watcom 10.0, with no need
- * for bitmaps.tbl.
- * 
- * Revision 1.21  1994/06/14  16:59:23  mike
- * Fix references to tmap_num2, must strip off orientation bits.
- * 
- * Revision 1.20  1994/05/31  12:31:57  mike
- * fix bug in lighting -- WALL_IS_DOORWAY return value getting ignored,
- * almost never recursively propagated light.
- * 
- * Revision 1.19  1994/05/19  23:35:12  mike
- * Support uv coordinates in range 0..1.0.
- * 
- * Revision 1.18  1994/05/16  12:05:29  john
- * Made texturemap light be a fix from 0 to 1.
- * 
- * Revision 1.17  1994/05/14  18:00:38  matt
- * Got rid of externs in source (non-header) files
- * 
- * Revision 1.16  1994/05/03  11:04:27  mike
- * Add function to select edge.
- * 
- * Revision 1.15  1994/04/20  17:29:11  yuan
- * Fixed bug where tmaps above 256 don't light properly.
- * (duh!)
- * 
- * Revision 1.14  1994/03/22  14:20:46  yuan
- * Made texture map 1 also cast light.  (Cumulative with tmap_num2)
- * 
- * Revision 1.13  1994/03/15  16:34:14  yuan
- * Fixed bm loader (might have some changes in walls and switches)
- * 
- * Revision 1.12  1994/02/22  18:55:10  yuan
- * Ambient lighting "shines" on doors too!
- * 
- * Revision 1.11  1994/02/17  12:05:55  matt
- * Got rid of warnings
- * 
- * Revision 1.10  1994/02/16  22:28:03  mike
- * fix ambient lighting and smoothing.
- * 
- * Revision 1.9  1994/02/14  12:05:42  mike
- * change segment data structure.
- * 
- * Revision 1.8  1994/01/26  17:27:45  yuan
- * Still not perfected ambient lighting
- * 
- * Revision 1.7  1994/01/25  17:58:08  yuan
- * Added ambient lighting, and also added fixing bogus segments
- * functions to the editor... (they don't work fully... need to
- * check out seguvs.c
- * 
- * Revision 1.6  1994/01/24  11:46:10  yuan
- * *** empty log message ***
- * 
- * Revision 1.5  1994/01/24  11:03:05  yuan
- * Set lgiht maximum added... Changes are still in progress
- * 
- * Revision 1.4  1994/01/18  19:16:07  yuan
- * Added assign default to lighting pad.
- * 
- * Revision 1.3  1993/12/17  12:26:00  mike
- * Add functions for setting light values on whole segment at once.
- * 
- * Revision 1.2  1993/12/16  16:56:12  mike
- * Add new texture map lighting control functions.
- * 
- * Revision 1.1  1993/12/16  13:21:50  mike
- * Initial revision
- * 
- * 
  */
 
-
-#ifdef RCS
-static char rcsid[] = "$Id: elight.c,v 1.1.1.1 2006/03/17 19:45:20 zicodxx Exp $";
-#endif
-
 #include <stdio.h>
-//#include <stdlib.h>
-//#include <stdarg.h>
-//#include <math.h>
-//#include <string.h>
-
 #include "inferno.h"
 #include "segment.h"
 #include "editor.h"
 #include "seguvs.h"
-
 #include "wall.h"
-
 #include "textures.h"
-
 #include "fix.h"
-#include "mono.h"
 #include "error.h"
 #include "kdefs.h"
 #include "gameseg.h"
-
 #include "texmap.h"
 
 // -----------------------------------------------------------------------------

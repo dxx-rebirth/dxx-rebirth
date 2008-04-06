@@ -19,8 +19,6 @@ COPYRIGHT 1993-1998 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 #ifndef _NEWDEMO_H
 #define _NEWDEMO_H
 
-#ifdef NEWDEMO
-
 #define ND_STATE_NORMAL				0
 #define ND_STATE_RECORDING			1
 #define ND_STATE_PLAYBACK			2
@@ -111,7 +109,4 @@ extern int newdemo_get_percent_done();
 extern void newdemo_record_link_sound_to_object3( int soundno, short objnum, fix max_volume, fix  max_distance, int loop_start, int loop_end );
 extern int newdemo_find_object( int signature );
 extern void newdemo_record_kill_sound_linked_to_object( int objnum );
-
-#endif
-
 #endif

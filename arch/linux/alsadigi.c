@@ -7,7 +7,6 @@
 #include <pthread.h>
 
 #include "error.h"
-#include "mono.h"
 #include "fix.h"
 #include "vecmat.h"
 #include "gr.h" // needed for piggy.h
@@ -254,7 +253,7 @@ again:
         // Sound buffer underrun
         err = snd_pcm_prepare(snd_devhandle);
         if (err < 0) {
-            fprintf(stderr, "Can't recover from underrun: %s\n",
+            con_printf(CON_CRITICAL, "Can't recover from underrun: %s\n",
                     snd_strerror(err));
         }
    } else if (err == -EAGAIN) {
@@ -262,7 +261,7 @@ again:
    } else if (err != SOUND_BUFFER_SIZE/2) {
         // Each frame has size 2 bytes - hence we expect SOUND_BUFFER_SIZE/2
         // frames to be written.
-        fprintf(stderr, "Unknown err %d: %s\n", err, snd_strerror(err));
+        con_printf(CON_CRITICAL, "Unknown err %d: %s\n", err, snd_strerror(err));
    }
  } 
  return 0;
@@ -284,35 +283,35 @@ int digi_init()
 
  /* Open the ALSA sound device */
  if ((err = snd_pcm_open(&snd_devhandle,device, SND_PCM_STREAM_PLAYBACK, 0)) < 0) {  
-     fprintf(stderr, "open failed: %s\n", snd_strerror( err ));  
+     con_printf(CON_CRITICAL, "open failed: %s\n", snd_strerror( err ));  
      return -1; 
  } 
 
  snd_pcm_hw_params_alloca(&params);
  err = snd_pcm_hw_params_any(snd_devhandle, params);
  if (err < 0) {
-     printf("ALSA: Error %s\n", snd_strerror(err));
+     con_printf(CON_CRITICAL,"ALSA: Error %s\n", snd_strerror(err));
      return -1;
  }
  err = snd_pcm_hw_params_set_access(snd_devhandle, params, SND_PCM_ACCESS_RW_INTERLEAVED);
  if (err < 0) {
-     printf("ALSA: Error %s\n", snd_strerror(err));
+     con_printf(CON_CRITICAL,"ALSA: Error %s\n", snd_strerror(err));
      return -1;
  }
  err = snd_pcm_hw_params_set_format(snd_devhandle, params, SND_PCM_FORMAT_U8);
  if (err < 0) {
-     printf("ALSA: Error %s\n", snd_strerror(err));
+     con_printf(CON_CRITICAL,"ALSA: Error %s\n", snd_strerror(err));
      return -1;
  }
  err = snd_pcm_hw_params_set_channels(snd_devhandle, params, 2);
  if (err < 0) {
-     printf("ALSA: Error %s\n", snd_strerror(err));
+     con_printf(CON_CRITICAL,"ALSA: Error %s\n", snd_strerror(err));
      return -1;
  }
  tmp = 11025;
  err = snd_pcm_hw_params_set_rate_near(snd_devhandle, params, &tmp, NULL);
  if (err < 0) {
-     printf("ALSA: Error %s\n", snd_strerror(err));
+     con_printf(CON_CRITICAL,"ALSA: Error %s\n", snd_strerror(err));
      return -1;
  }
  snd_pcm_hw_params_set_periods(snd_devhandle, params, 3, 0);
@@ -320,7 +319,7 @@ int digi_init()
 
  err = snd_pcm_hw_params(snd_devhandle, params);
  if (err < 0) {
-     printf("ALSA: Error %s\n", snd_strerror(err));
+     con_printf(CON_CRITICAL,"ALSA: Error %s\n", snd_strerror(err));
      return -1;
  }
 
@@ -332,7 +331,7 @@ int digi_init()
  pthread_mutexattr_destroy(&mutexattr);
  
  if (pthread_attr_init(&attr) != 0) {
-  fprintf(stderr, "failed to init attr\n");
+  con_printf(CON_CRITICAL, "failed to init attr\n");
   snd_pcm_close( snd_devhandle ); 
   return -1;
  }
@@ -386,14 +385,12 @@ TryNextChannel:
  {
   if ( (SoundSlots[SampleHandles[next_handle]].volume > digi_volume) && (ntries<digi_max_channels) )
   {
-   //mprintf(( 0, "Not stopping loud sound %d.\n", next_handle ));
    next_handle++;
    if ( next_handle >= digi_max_channels )
     next_handle = 0;
    ntries++;
    goto TryNextChannel;
   }
-  //mprintf(( 0, "[SS:%d]", next_handle ));
   SoundSlots[SampleHandles[next_handle]].playing = 0;
   SampleHandles[next_handle] = -1;
  }
@@ -470,10 +467,9 @@ int digi_start_sound_object(int obj)
 // Volume is max at F1_0.
 void digi_play_sample( int soundno, fix max_volume )
 {
-#ifdef NEWDEMO
 	if ( Newdemo_state == ND_STATE_RECORDING )
 		newdemo_record_sound( soundno );
-#endif
+
 	if (!digi_initialised) return;
 
         if (digi_xlat_sound(soundno) < 0 ) return;
@@ -487,10 +483,8 @@ void digi_play_sample_once( int soundno, fix max_volume )
 {
 	int i;
 
-#ifdef NEWDEMO
 	if ( Newdemo_state == ND_STATE_RECORDING )
 		newdemo_record_sound( soundno );
-#endif
 
 	if (!digi_initialised) return;
 
@@ -508,14 +502,12 @@ void digi_play_sample_3d( int soundno, int angle, int volume, int no_dups ) // V
 {
 	no_dups = 1;
 
-#ifdef NEWDEMO
 	if ( Newdemo_state == ND_STATE_RECORDING )		{
 		if ( no_dups )
 			newdemo_record_sound_3d_once( soundno, angle, volume );
 		else
 			newdemo_record_sound_3d( soundno, angle, volume );
 	}
-#endif
 
 	if (!digi_initialised) return;
         if (digi_xlat_sound(soundno) < 0 ) return;
@@ -546,12 +538,10 @@ void digi_get_sound_loc( vms_matrix * listener, vms_vector * listener_pos, int l
 		path_distance = find_connected_distance(listener_pos, listener_seg, sound_pos, sound_seg, num_search_segs, WID_RENDPAST_FLAG );
 		if ( path_distance > -1 )	{
 			*volume = max_volume - fixdiv(path_distance,max_distance);
-			//mprintf( (0, "Sound path distance %.2f, volume is %d / %d\n", f2fl(distance), *volume, max_volume ));
 			if (*volume > 0 )	{
 				angle_from_ear = vm_vec_delta_ang_norm(&listener->rvec,&vector_to_sound,&listener->uvec);
 				fix_sincos(angle_from_ear,&sinang,&cosang);
-				//mprintf( (0, "volume is %.2f\n", f2fl(*volume) ));
-				if (Config_channels_reversed) cosang *= -1;
+				if (GameCfg.ReverseStereo) cosang *= -1;
 				*pan = (cosang + F1_0)/2;
 			} else {
 				*volume = 0;
@@ -589,7 +579,6 @@ int digi_link_sound_to_object2( int soundnum, short objnum, int forever, fix max
 	           break;
 
 	if (i==MAX_SOUND_OBJECTS) {
-		mprintf((1, "Too many sound objects!\n" ));
 		return -1;
 	}
 
@@ -649,7 +638,6 @@ int digi_link_sound_to_pos2( int soundnum, short segnum, short sidenum, vms_vect
 			break;
 	
 	if (i==MAX_SOUND_OBJECTS) {
-		mprintf((1, "Too many sound objects!\n" ));
 		return -1;
 	}
 
@@ -703,11 +691,6 @@ void digi_kill_sound_linked_to_segment( int segnum, int sidenum, int soundnum )
 			}
 		}
 	}
-	// If this assert happens, it means that there were 2 sounds
-	// that got deleted. Weird, get John.
-	if ( killed > 1 )	{
-		mprintf( (1, "ERROR: More than 1 sounds were deleted from seg %d\n", segnum ));
-	}
 }
 
 void digi_kill_sound_linked_to_object( int objnum )
@@ -730,11 +713,6 @@ void digi_kill_sound_linked_to_object( int objnum )
 				killed++;
 			}
 		}
-	}
-	// If this assert happens, it means that there were 2 sounds
-	// that got deleted. Weird, get John.
-	if ( killed > 1 )	{
-		mprintf( (1, "ERROR: More than 1 sounds were deleted from object %d\n", objnum ));
 	}
 }
 

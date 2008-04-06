@@ -81,18 +81,19 @@ common_sources = [
 'iff/iff.c',
 'main/ai.c',
 'main/aipath.c',
-'main/digiobj.c',
 'main/automap.c',
 'main/bm.c',
 'main/bmread.c',
 'main/cntrlcen.c',
 'main/collide.c',
 'main/config.c',
+'main/console.c',
 'main/controls.c',
 'main/credits.c',
 'main/custom.c',
 'main/d_conv.c',
 'main/d_gamecv.c',
+'main/digiobj.c',
 'main/dumpmine.c',
 'main/effects.c',
 'main/endlevel.c',
@@ -225,7 +226,6 @@ editor_sources = [
 arch_linux_sources = [
 'arch/linux/netdrv_ipx.c',
 'arch/linux/netdrv_kali.c',
-'arch/linux/mono.c',
 'arch/linux/ukali.c'
 ]
 
@@ -233,7 +233,6 @@ arch_linux_sources = [
 arch_win32_sources = [
 'arch/win32/hmpfile.c',
 'arch/win32/netdrv_ipx.c',
-'arch/win32/mono.c',
 ]
 
 # for Mac OS X
@@ -295,7 +294,7 @@ env.ParseConfig('sdl-config --cflags')
 env.ParseConfig('sdl-config --libs')
 env.Append(CPPFLAGS = ['-Wall', '-funsigned-char'])
 env.Append(CPPDEFINES = [('D1XMAJOR', '\\"' + str(D1XMAJOR) + '\\"'), ('D1XMINOR', '\\"' + str(D1XMINOR) + '\\"')])
-env.Append(CPPDEFINES = ['NMONO', 'NETWORK', 'HAVE_NETIPX_IPX_H', '__SDL__', 'SDL_AUDIO', '_REENTRANT'])
+env.Append(CPPDEFINES = ['NETWORK', 'HAVE_NETIPX_IPX_H', '_REENTRANT'])
 env.Append(CPPPATH = ['include', 'main', 'arch/include'])
 generic_libs = ['SDL', 'physfs']
 sdlmixerlib = ['SDL_mixer']
@@ -321,12 +320,12 @@ if os.environ.has_key('LDFLAGS'):
 # windows or *nix?
 if sys.platform == 'win32':
 	print "compiling on Windows"
-	osdef = '__WINDOWS__'
+	osdef = '_WIN32'
 	osasmdef = 'win32'
 	sharepath = ''
-	env.Append(CPPDEFINES = ['__WINDOWS__'])
+	env.Append(CPPDEFINES = ['_WIN32'])
 	env.Append(CPPPATH = ['arch/win32/include'])
-	ogldefines = ['SDL_GL', 'OGL']
+	ogldefines = ['OGL']
 	common_sources += arch_win32_sources
 	ogllibs = ''
 	winlibs = ['glu32', 'wsock32', 'winmm', 'mingw32', 'SDLmain']
@@ -338,7 +337,7 @@ elif sys.platform == 'darwin':
 	sharepath = ''
 	env.Append(CPPDEFINES = ['__unix__'])
 	no_asm = 1
-	ogldefines = ['SDL_GL_VIDEO', 'OGL']
+	ogldefines = ['OGL']
 	common_sources += arch_macosx_sources
 	ogllibs = ''
 	libs = ''
@@ -363,7 +362,7 @@ else:
 	sharepath += '/'
 	env.Append(CPPDEFINES = ['__LINUX__'])
 	env.Append(CPPPATH = ['arch/linux/include'])
-	ogldefines = ['SDL_GL', 'OGL']
+	ogldefines = ['OGL']
 	common_sources += arch_linux_sources
 	ogllibs = ['GL', 'GLU']
 	libs = generic_libs
@@ -379,7 +378,6 @@ if (arm == 1):
 if (sdl_only == 1):
 	print "building with SDL"
 	target = 'd1x-rebirth-sdl'
-	env.Append(CPPDEFINES = ['SDL_VIDEO'])
 	common_sources += arch_sdl_sources
 else:
 	print "building with OpenGL"
@@ -409,7 +407,6 @@ if (profiler == 1):
 # assembler code?
 if (asm == 1) and (sdl_only == 1):
 	print "including: ASSEMBLER"
-	env.Append(CPPDEFINES = ['ASM_VECMAT'])
 	Object(['texmap/tmappent.S', 'texmap/tmapppro.S'], AS='gcc', ASFLAGS='-D' + str(osdef) + ' -c ')
 	env.Replace(AS = 'nasm')
 	env.Append(ASCOM = ' -f ' + str(osasmdef) + ' -d' + str(osdef) + ' -Itexmap/ ')

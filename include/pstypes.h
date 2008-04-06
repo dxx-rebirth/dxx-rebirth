@@ -29,12 +29,12 @@ typedef signed char sbyte;
 
 //define unsigned types;
 typedef unsigned char ubyte;
-#if defined(__WINDOWS__) || defined(macintosh)
+#if defined(_WIN32) || defined(macintosh)
 typedef unsigned short ushort;
 typedef unsigned int uint;
 #endif
 
-#if defined(__WINDOWS__) || defined(__sun__) // platforms missing (u_)int??_t
+#if defined(_WIN32) || defined(__sun__) // platforms missing (u_)int??_t
 # include <SDL/SDL_types.h>
 #elif defined(macintosh) // misses (u_)int??_t and does not like SDL_types.h
 # include <MacTypes.h>
@@ -45,11 +45,11 @@ typedef unsigned int uint;
  typedef UInt32 u_int32_t;
  typedef UInt64 u_int64_t;
 #endif // macintosh
-#if defined(__WINDOWS__) || defined(__sun__) // platforms missing u_int??_t
+#if defined(_WIN32) || defined(__sun__) // platforms missing u_int??_t
  typedef Uint16 u_int16_t;
  typedef Uint32 u_int32_t;
  typedef Uint64 u_int64_t;
-#endif // defined(__WINDOWS__) || defined(__sun__)
+#endif // defined(_WIN32) || defined(__sun__)
 
 #ifdef _MSC_VER
 # include <stdlib.h> // this is where min and max are defined
@@ -61,7 +61,7 @@ typedef unsigned int uint;
 #define max(a,b) (((a)<(b))?(b):(a))
 #endif
 
-#ifdef __WINDOWS__
+#ifdef _WIN32
 # ifndef __MINGW32__
 #  define PATH_MAX _MAX_PATH
 # endif

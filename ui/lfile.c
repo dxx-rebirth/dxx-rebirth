@@ -21,19 +21,12 @@ COPYRIGHT 1993-1998 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 #include <unistd.h>
 #include <dirent.h>
 #include <limits.h>
-
 #include "fix.h"
 #include "pstypes.h"
 #include "gr.h"
 #include "key.h"
-
 #include "ui.h"
-#include "mono.h"
-
-//#include "mem.h"
-//added 05/17/99 Matt Mueller
 #include "u_mem.h"
-//end addition -MM
 
 
 char filename_list[300][13];
@@ -382,15 +375,6 @@ int ui_get_filename( char * filename, char * Filespec, char * message  )
 
                        split_dir_name(UserFile->text, fulldir, fullfname);
                 
-                       //mprintf( 0, "----------------------------\n" );
-                       //mprintf( 0, "Full text: '%s'\n", UserFile->text );
-                       //mprintf( 0, "Drive: '%s'\n", drive );
-                       //mprintf( 0, "Dir: '%s'\n", dir );
-                       //mprintf( 0, "Filename: '%s'\n", fname );
-                       //mprintf( 0, "Extension: '%s'\n", ext );
-                       //mprintf( 0, "Full dir: '%s'\n", fulldir );
-                       //mprintf( 0, "Full fname: '%s'\n", fname );
-
                        if (strrchr( fullfname, '?' ) || strrchr( fullfname, '*' ) ) 
                        {
                                strcat(fulldir, ".");
@@ -398,10 +382,6 @@ int ui_get_filename( char * filename, char * Filespec, char * message  )
                                strcpy( fullfname, Filespec );
                                strcpy( fulldir, UserFile->text );
                        }
-
-                       //mprintf( 0, "----------------------------\n" );
-                       //mprintf( 0, "Full dir: '%s'\n", fulldir );
-                       //mprintf( 0, "Full fname: '%s'\n", fullfname );
 
                        if (file_chdir( fulldir )==0)
                        {

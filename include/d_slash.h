@@ -3,7 +3,7 @@
 #ifndef _D_SLASH
 #define _D_SLASH
 
-#ifdef __WINDOWS__
+#ifdef _WIN32
 #define USEDSLASH '\\'
 #define CHANGESLASH '/'
 #else

@@ -10,61 +10,13 @@ CONTAINED HEREIN FOR REVENUE-BEARING PURPOSES.  THE END-USER UNDERSTANDS
 AND AGREES TO THE TERMS HEREIN AND ACCEPTS THE SAME BY USE OF THIS FILE.  
 COPYRIGHT 1993-1998 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 */
+
 /*
- * $Source: /cvsroot/dxx-rebirth/d1x-rebirth/maths/fixc.c,v $
- * $Revision: 1.1.1.1 $
- * $Author: zicodxx $
- * $Date: 2006/03/17 19:45:09 $
- * 
+ *
  * C version of fixed point library
- * 
- * $Log: fixc.c,v $
- * Revision 1.1.1.1  2006/03/17 19:45:09  zicodxx
- * initial import
  *
- * Revision 1.3  1999/10/18 00:31:01  donut
- * more alpha fixes from Falk Hueffner
- *
- * Revision 1.2  1999/08/05 22:53:41  sekmu
- *
- * D3D patch(es) from ADB
- *
- * Revision 1.1.1.1  1999/06/14 22:13:35  donut
- * Import of d1x 1.37 source.
- *
- * Revision 1.7  1995/09/22  14:08:16  allender
- * fixed fix_atan2 to work correctly with doubles
- *
- * Revision 1.6  1995/08/31  15:43:49  allender
- * *** empty log message ***
- *
- * Revision 1.5  1995/07/05  16:15:15  allender
- * make fixmuldiv use doubles for PPC implementation
- *
- * Revision 1.4  1995/05/15  13:57:36  allender
- * make fixmuldiv compile when compiling under 68k
- *
- * Revision 1.3  1995/05/11  13:02:59  allender
- * some routines are now in assembly
- *
- * Revision 1.2  1995/05/04  20:04:45  allender
- * use MPW fixdiv if compiling with MPW (why did I do this?)
- *
- * Revision 1.1  1995/04/17  11:37:54  allender
- * Initial revision
- *
- *
- * --- PC RCS Info ---
- * Revision 1.1  1995/03/08  18:55:09  matt
- * Initial revision
- * 
- * 
  */
 
-
-#ifdef RCS
-static char rcsid[] = "$Id: fixc.c,v 1.1.1.1 2006/03/17 19:45:09 zicodxx Exp $";
-#endif
 
 #include <stdlib.h>
 #include <math.h>
@@ -557,15 +509,11 @@ fix fix_isqrt( fix a )
 		cnt++;
 	}
 
-	//printf( "Count = %d (%d>>%d)\n", cnt, b, (cnt+1)/2 );
 	r = isqrt_guess_table[b] >> ((cnt+1)/2);
-
-	//printf( "Initial r = %d\n", r );
 
 	for (i=0; i<3; i++ )	{
 		int old_r = r;
 		r = fixmul( ( (3*65536) - fixmul(fixmul(r,r),a) ), r) / 2;
-		//printf( "r %d  = %d\n", i, r );
 		if ( old_r >= r ) return (r+old_r)/2;
 	}
 

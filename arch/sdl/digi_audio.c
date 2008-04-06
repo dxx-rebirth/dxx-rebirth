@@ -17,13 +17,12 @@
 #include <SDL/SDL.h>
 #include <digi_audio.h>
 
-#ifdef __WINDOWS__
+#ifdef _WIN32
 #include "hmpfile.h"
 #endif
 
 #include "pstypes.h"
 #include "error.h"
-#include "mono.h"
 #include "fix.h"
 #include "vecmat.h"
 #include "gr.h"
@@ -133,7 +132,7 @@ struct sound_slot {
 
 static SDL_AudioSpec WaveSpec;
 
-static int digi_max_channels = 16;
+int digi_max_channels = 16;
 
 static int next_channel = 0;
 
@@ -272,7 +271,6 @@ int digi_audio_start_sound(short soundnum, fix volume, int pan, int looping, int
 			next_channel = 0;
 		if (next_channel == starting_channel)
 		{
-			mprintf((1, "OUT OF SOUND CHANNELS!!!\n"));
 			return -1;
 		}
 	}
@@ -433,7 +431,7 @@ void digi_audio_end_sound(int channel)
 	SoundSlots[channel].persistent = 0;
 }
 
-#ifdef __WINDOWS__
+#ifdef _WIN32
 hmp_file *hmp = NULL;
 static int digi_midi_song_playing = 0;
 #endif
@@ -441,7 +439,7 @@ static int digi_midi_song_playing = 0;
 // MIDI stuff follows.
 void digi_audio_set_midi_volume( int mvolume )
 {
-#ifdef __WINDOWS__
+#ifdef _WIN32
 	int mm_volume;
 
 	if (mvolume < 0)
@@ -462,7 +460,7 @@ void digi_audio_set_midi_volume( int mvolume )
 
 void digi_audio_play_midi_song( char * filename, char * melodic_bank, char * drum_bank, int loop )
 {
-#ifdef __WINDOWS__
+#ifdef _WIN32
 	if (GameArg.SndNoMusic)
 		return;
 
@@ -477,8 +475,6 @@ void digi_audio_play_midi_song( char * filename, char * melodic_bank, char * dru
 		digi_midi_song_playing = 1;
 		digi_set_midi_volume(midi_volume);
 	}
-	else
-		printf("hmp_open failed\n");
 #endif
 }
 
@@ -490,7 +486,7 @@ void digi_audio_stop_current_song()
         sprintf(buf,"s");
         send_ipc(buf);
 #endif
-#ifdef __WINDOWS__
+#ifdef _WIN32
 	if (digi_midi_song_playing)
 	{
 		hmp_close(hmp);
@@ -516,8 +512,5 @@ void digi_audio_debug()
 		if (digi_is_channel_playing(i))
 			n_voices++;
 	}
-
-	mprintf_at((0, 2, 0, "DIGI: Active Sound Channels: %d/%d (HMI says %d/32)      ", n_voices, digi_max_channels, -1));
-	//mprintf_at((0, 3, 0, "DIGI: Number locked sounds:  %d                          ", digi_total_locks ));
 }
 #endif

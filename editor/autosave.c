@@ -10,6 +10,7 @@ CONTAINED HEREIN FOR REVENUE-BEARING PURPOSES.  THE END-USER UNDERSTANDS
 AND AGREES TO THE TERMS HEREIN AND ACCEPTS THE SAME BY USE OF THIS FILE.  
 COPYRIGHT 1993-1998 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 */
+
 /*
  *
  * Autosave system:
@@ -17,10 +18,6 @@ COPYRIGHT 1993-1998 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
  *
  */
 
-
-#ifdef RCS
-static char rcsid[] = "$Id: autosave.c,v 1.1.1.1 2006/03/17 19:45:34 zicodxx Exp $";
-#endif
 
 #include <stdio.h>
 #include <stdlib.h>
@@ -36,7 +33,6 @@ static char rcsid[] = "$Id: autosave.c,v 1.1.1.1 2006/03/17 19:45:34 zicodxx Exp
 
 #include "inferno.h"
 #include "editor.h"
-#include "mono.h"
 #include "u_mem.h"
 #include "ui.h"
 #include "strutil.h"
@@ -106,7 +102,6 @@ void autosave_mine(char *name) {
 	    ext = strstr(savename, ".MIN");
 	    sprintf( ext, ".M%d", Autosave_count );
 	
-	    //mprintf( 0, "Autosave: %s\n", savename );
 	    med_save_mine( savename );
 	    Autosave_count++;
 	    if (undo_count > 0) undo_count--;
@@ -202,38 +197,5 @@ void TimedAutosave(char *name)
 int undo( void ) {
 	Int3();
 	return 2;
-
-//@@    char *loadname, *ext;
-//@@    if (undo_count == 0) original = Autosave_count;
-//@@
-//@@	 if (!Autosave_flag) 
-//@@		 return 2;
-//@@
-//@@    if (Autosave_numfiles > 1) {
-//@@
-//@@        MALLOC(loadname, char, 128);
-//@@
-//@@        strcpy ( loadname, mine_filename );
-//@@        strupr( loadname );
-//@@        if ( !strcmp(loadname, "*.MIN") ) strcpy(loadname, "TEMP.MIN");
-//@@
-//@@        undo_count++;
-//@@        Autosave_count = original - undo_count;
-//@@        if (Autosave_count < 0) Autosave_count = Autosave_count+10;
-//@@        Autosave_numfiles--;
-//@@        //mprintf(0, "u=%d  a=%d  o=%d  num=%d\n", undo_count, Autosave_count, original, Autosave_numfiles);
-//@@
-//@@        ext = strstr(loadname, ".MIN");
-//@@        if (Autosave_count == 0) sprintf( ext, ".M9" );
-//@@            else sprintf( ext, ".M%d", Autosave_count-1 );
-//@@        //mprintf( 0, "Loading: %s\n", loadname );
-//@@        med_load_mine( loadname );
-//@@
-//@@        free(loadname);
-//@@        return 0;
-//@@     }
-//@@     else return 1;
-//@@     //diagnostic_message("Can't undo\n");
-
 }
 

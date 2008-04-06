@@ -1,4 +1,3 @@
-/* $Id: error.c,v 1.1.1.1 2006/03/17 19:58:51 zicodxx Exp $ */
 /*
 THE COMPUTER CODE CONTAINED HEREIN IS THE SOLE PROPERTY OF PARALLAX
 SOFTWARE CORPORATION ("PARALLAX").  PARALLAX, IN DISTRIBUTING THE CODE TO
@@ -21,10 +20,6 @@ COPYRIGHT 1993-1998 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 #include <conf.h>
 #endif
 
-#ifdef RCS
-static char rcsid[] = "$Id: error.c,v 1.1.1.1 2006/03/17 19:58:51 zicodxx Exp $";
-#endif
-
 #include <stdio.h>
 #include <stdlib.h>
 #include <stdarg.h>
@@ -32,7 +27,6 @@ static char rcsid[] = "$Id: error.c,v 1.1.1.1 2006/03/17 19:58:51 zicodxx Exp $"
 
 #include "pstypes.h"
 #include "console.h"
-#include "mono.h"
 #include "error.h"
 
 #define MAX_MSG_LEN 256
@@ -49,7 +43,7 @@ char warn_message[MAX_MSG_LEN];
 //takes string in register, calls printf with string on stack
 void warn_printf(char *s)
 {
-	printf("%s\n",s);
+	con_printf(CON_URGENT,"%s\n",s);
 }
 
 void (*warn_func)(char *s)=warn_printf;
@@ -101,7 +95,7 @@ void print_exit_message(void)
 			ParamText(exit_message, "\p", "\p", "\p");
 			StopAlert(ERROR_ALERT, nil);
 #else
-			printf("%s\n",exit_message);
+			con_printf(CON_CRITICAL,"%s\n",exit_message);
 #endif
 		}
 	}
@@ -119,6 +113,7 @@ void Error(char *fmt,...)
 #endif
 	va_start(arglist,fmt);
 	vsprintf(exit_message+strlen(exit_message),fmt,arglist);
+	con_printf(CON_CRITICAL,"%s",exit_message);
 	va_end(arglist);
 
 	Int3();
@@ -140,9 +135,9 @@ void Warning(char *fmt,...)
 
 	va_start(arglist,fmt);
 	vsprintf(warn_message+strlen(warn_message),fmt,arglist);
+	con_printf(CON_URGENT,"%s",warn_message);
 	va_end(arglist);
 
-	mprintf((0, "%s\n", warn_message));
 	(*warn_func)(warn_message);
 
 }

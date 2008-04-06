@@ -10,150 +10,25 @@ CONTAINED HEREIN FOR REVENUE-BEARING PURPOSES.  THE END-USER UNDERSTANDS
 AND AGREES TO THE TERMS HEREIN AND ACCEPTS THE SAME BY USE OF THIS FILE.  
 COPYRIGHT 1993-1998 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 */
- /*
- * $Source: /cvsroot/dxx-rebirth/d1x-rebirth/editor/seguvs.c,v $
- * $Revision: 1.1.1.1 $
- * $Author: zicodxx $
- * $Date: 2006/03/17 19:45:42 $
- * 
+
+/*
+ *
  * u,v coordinate computation for segment faces
- * 
- * $Log: seguvs.c,v $
- * Revision 1.1.1.1  2006/03/17 19:45:42  zicodxx
- * initial import
  *
- * Revision 1.1.1.1  1999/06/14 22:04:31  donut
- * Import of d1x 1.37 source.
- *
- * Revision 2.1  1995/05/08  10:49:34  mike
- * fix lighting bug: oblong segments could be very dark.
- * 
- * Revision 2.0  1995/02/27  11:36:37  john
- * Version 2.0. Ansi-fied.
- * 
- * Revision 1.84  1994/11/27  23:17:18  matt
- * Made changes for new mprintf calling convention
- * 
- * Revision 1.83  1994/11/17  14:48:02  mike
- * validation functions moved from editor to game.
- * 
- * Revision 1.82  1994/10/15  19:08:26  mike
- * Disable exhaustive search mprintfs in find_point_seg during lighting.
- * 
- * Revision 1.81  1994/08/25  21:55:50  mike
- * IS_CHILD stuff.
- * 
- * Revision 1.80  1994/08/04  19:13:22  matt
- * Changed a bunch of vecmat calls to use multiple-function routines, and to
- * allow the use of C macros for some functions
- * 
- * Revision 1.79  1994/08/03  10:31:33  mike
- * Texture map propagation without uv assignment.
- * 
- * Revision 1.78  1994/08/01  13:31:12  matt
- * Made fvi() check holes in transparent walls, and changed fvi() calling
- * parms to take all input data in query structure.
- * 
- * Revision 1.77  1994/07/08  14:31:24  matt
- * New parms for FVI
- * 
- * Revision 1.76  1994/06/23  14:01:04  mike
- * Fix cache bug which caused some vertices to not get light, mainly
- * noticeable at joints which had doors.
- * 
- * Revision 1.75  1994/06/22  17:33:11  mike
- * Make position of light (which is always towards center of segment from
- * actual light panel) constant, not dependent on segment size, which fixes
- * bug of dark light panels in very large segments.
- * 
- * Revision 1.74  1994/06/21  18:58:18  mike
- * Fix stupid bug in light propagation, was using wrong vector in fvi caching.
- * 
- * Revision 1.73  1994/06/20  11:20:24  mike
- * Fix stupid lighting bug introduced when I went to cached fvi results.
- * 
- * Revision 1.72  1994/06/19  16:26:37  mike
- * Speed up lighting by storing and hashing fvi results.
- * 
- * Revision 1.71  1994/06/17  16:05:56  mike
- * Support optional quick lighting propagation: no find_vector_intersection.
- * 
- * Revision 1.70  1994/06/15  15:42:30  mike
- * Propagate static_light.
- * 
- * Revision 1.69  1994/06/14  16:59:37  mike
- * Fix references to tmap_num2, must strip off orientation bits.
- * 
- * Revision 1.68  1994/06/09  09:58:58  matt
- * Moved find_vector_intersection() from physics.c to new file fvi.c
- * 
- * 
- * Revision 1.67  1994/06/08  18:14:02  mike
- * mprintf a dot in light casting.
- * 
- * Revision 1.66  1994/06/08  14:37:45  mike
- * double static light value in going from value (a short) to static_light (a fix).
- * 
- * Revision 1.65  1994/06/08  14:29:44  matt
- * Added static_light field to segment structure, and padded side struct
- * to be longword aligned.
- * 
- * Revision 1.64  1994/06/08  11:45:24  mike
- * New, supercool, superslow lighting function.
- * 
- * Revision 1.63  1994/06/07  09:38:11  mike
- * Make lighting function yet better by calling find_vector_intersection.
- * 
- * Revision 1.62  1994/06/06  13:14:33  mike
- * Make illusory walls cast light.
- * 
- * Revision 1.61  1994/06/05  20:39:47  mike
- * Add new distance and dot product based lighting function.
- * 
- * Revision 1.60  1994/05/31  12:31:18  mike
- * fix bugs in lighting, though it's not perfect, will be changing all
- * lighting to be distance based.  Bug had to do with not handling one
- * of the return values from WALL_IS_DOORWAY, so assuming light couldn't
- * be recursively propagated almost all the time.
- * 
- * Revision 1.59  1994/05/19  23:35:26  mike
- * Support uv coordinates in range 0..1.0.
- * 
- * Revision 1.58  1994/05/19  12:10:21  matt
- * Use new vecmat macros and globals
- * 
- * Revision 1.57  1994/05/04  19:15:53  mike
- * Error checking for degenerate segments.
- * 
- * Revision 1.56  1994/05/03  11:02:34  mike
- * Change how default texture map assignment works; now pixels are constant size.
- * 
- * Revision 1.55  1994/04/28  23:25:26  yuan
- * Obliterated warnings.
- * 
  */
 
-
-#ifdef RCS
-static char rcsid[] = "$Id: seguvs.c,v 1.1.1.1 2006/03/17 19:45:42 zicodxx Exp $";
-#endif
 
 #include <stdio.h>
 #include <stdlib.h>
 #include <stdarg.h>
 #include <math.h>
 #include <string.h>
-
 #include "inferno.h"
 #include "segment.h"
 #include "editor/editor.h"
-
 #include "gameseg.h"
-
 #include "fix.h"
-#include "mono.h"
 #include "error.h"
-
 #include "wall.h"
 #include "editor/kdefs.h"
 #include "bm.h"		//	Needed for TmapInfo
@@ -326,7 +201,6 @@ void set_average_light_on_side(segment *segp, int sidenum)
 
 	if (!IS_CHILD(segp->children[sidenum]))
 		for (v=0; v<4; v++) {
-//			mprintf((0,"Vertex %i\n", segp->verts[Side_to_verts[side][v]]));
 			set_average_light_at_vertex(segp->verts[Side_to_verts[sidenum][v]]);
 		}
 
@@ -425,7 +299,7 @@ void set_average_light_on_all_fast(void)
 
 }
 
-extern int Doing_lighting_hack_flag;	//	If set, don't mprintf warning messages in gameseg.c/find_point_seg
+extern int Doing_lighting_hack_flag;
 int set_average_light_on_all(void)
 {
 //	set_average_light_on_all_fast();
@@ -546,7 +420,7 @@ void check_lighting_side(segment *sp, int sidenum)
 
 	for (v=0; v<4; v++)
 		if ((sidep->uvls[v].l > F1_0*16) || (sidep->uvls[v].l < 0))
-			Int3(); //mprintf(0,"Bogus lighting value in segment %i, side %i, vert %i = %x\n",sp-Segments, side, v, sidep->uvls[v].l);
+			Int3();
 }
 
 void check_lighting_segment(segment *segp)
@@ -688,7 +562,6 @@ void assign_uvs_to_side(segment *segp, int sidenum, uvl *uva, uvl *uvb, int va, 
 	// Assign u,v scale to a unit length right vector.
 	fmag = zhypot(uvhi.v - uvlo.v,uvhi.u - uvlo.u);
 	if (fmag < 64) {		// this is a fix, so 64 = 1/1024
-		mprintf((0,"Warning: fmag = %7.3f, using approximate u,v values\n",f2fl(fmag)));
 		ruvmag.u = F1_0*256;
 		ruvmag.v = F1_0*256;
 		fuvmag.u = F1_0*256;
@@ -713,7 +586,6 @@ void assign_uvs_to_side(segment *segp, int sidenum, uvl *uva, uvl *uvb, int va, 
 	vm_vec_sub(&rvec,&Vertices[v3],&Vertices[v0]);
 
 	if (((fvec.x == 0) && (fvec.y == 0) && (fvec.z == 0)) || ((rvec.x == 0) && (rvec.y == 0) && (rvec.z == 0))) {
-		mprintf((1, "Trapped null vector in assign_uvs_to_side, using identity matrix.\n"));
 		rotmat = vmd_identity_matrix;
 	} else
 		vm_vector_2_matrix(&rotmat,&fvec,0,&rvec);
@@ -721,7 +593,6 @@ void assign_uvs_to_side(segment *segp, int sidenum, uvl *uva, uvl *uvb, int va, 
 	rvec = rotmat.rvec; vm_vec_negate(&rvec);
 	fvec = rotmat.fvec;
 
-	// mprintf((0, "va = %i, vb = %i\n", va, vb));
 	mag01 = vm_vec_dist(&Vertices[v1],&Vertices[v0]);
 	if ((va == 0) || (va == 2))
 		mag01 = fixmul(mag01, Stretch_scale_x);
@@ -998,8 +869,6 @@ void get_side_ids(segment *base_seg, segment *con_seg, int base_side, int con_si
 		}
 	}
 
-// mprintf((0,"side %3i adjacent to side %3i\n",*base_common_side,*con_common_side));
-
 	Assert((*base_common_side != -1) && (*con_common_side != -1));
 }
 
@@ -1120,7 +989,6 @@ void fix_bogus_uvs_on_side1(segment *sp, int sidenum, int uvonly_flag)
 	side	*sidep = &sp->sides[sidenum];
 
 	if ((sidep->uvls[0].u == 0) && (sidep->uvls[1].u == 0) && (sidep->uvls[2].u == 0)) {
-		mprintf((0,"Found bogus segment %i, side %i\n", sp-Segments, sidenum));
 		med_propagate_tmaps_to_back_side(sp, sidenum, uvonly_flag);
 	}
 }
@@ -1204,7 +1072,6 @@ void med_propagate_tmaps_to_segments(segment *base_seg,segment *con_seg, int uv_
 {
 	int		s;
 
-// mprintf((0,"Propagating segments from %i to %i\n",base_seg-Segments,con_seg-Segments));
 	for (s=0; s<MAX_SIDES_PER_SEGMENT; s++)
 		if (base_seg->children[s] == con_seg-Segments)
 			propagate_tmaps_to_segment_sides(base_seg, s, con_seg, find_connect_side(base_seg, con_seg), uv_only_flag);
@@ -1276,8 +1143,6 @@ void cast_light_from_side(segment *segp, int light_side, fix light_intensity, in
 
 	compute_segment_center(&segment_center, segp);
 
-//mprintf((0, "From [%i %i %7.3f]:  ", segp-Segments, light_side, f2fl(light_intensity)));
-
 	//	Do for four lights, one just inside each corner of side containing light.
 	for (lightnum=0; lightnum<4; lightnum++) {
 		int			light_vertex_num, i;
@@ -1318,7 +1183,6 @@ void cast_light_from_side(segment *segp, int light_side, fix light_intensity, in
 						side			*rsidep = &rsegp->sides[sidenum];
 						vms_vector	*side_normalp = &rsidep->normals[0];	//	kinda stupid? always use vector 0.
 
-//mprintf((0, "[%i %i], ", rsegp-Segments, sidenum));
 						for (vertnum=0; vertnum<4; vertnum++) {
 							fix			distance_to_point, light_at_point, light_dot;
 							vms_vector	vert_location, vector_to_light;
@@ -1361,7 +1225,6 @@ void cast_light_from_side(segment *segp, int light_side, fix light_intensity, in
 										while (1) {
 											if (hashp->flag) {
 												if ((hashp->vector.x == vector_to_light.x) && (hashp->vector.y == vector_to_light.y) && (hashp->vector.z == vector_to_light.z)) {
-//mprintf((0, "{CACHE %4x} ", hash_value));
 													hit_type = hashp->hit_type;
 													Hash_hits++;
 													break;
@@ -1372,7 +1235,6 @@ void cast_light_from_side(segment *segp, int light_side, fix light_intensity, in
 													hashp = &fvi_cache[hash_value];
 												}
 											} else {
-//mprintf((0, "\nH:%04x ", hash_value));
 												fvi_query fq;
 
 												Hash_calcs++;
@@ -1394,12 +1256,10 @@ void cast_light_from_side(segment *segp, int light_side, fix light_intensity, in
 										}
 									} else
 										hit_type = HIT_NONE;
-//mprintf((0, "hit=%i ", hit_type));
 									switch (hit_type) {
 										case HIT_NONE:
 											light_at_point = fixmul(light_at_point, light_intensity);
 											rsidep->uvls[vertnum].l += light_at_point;
-//mprintf((0, "(%5.2f) ", f2fl(light_at_point)));
 											if (rsidep->uvls[vertnum].l > F1_0)
 												rsidep->uvls[vertnum].l = F1_0;
 											break;
@@ -1422,8 +1282,6 @@ void cast_light_from_side(segment *segp, int light_side, fix light_intensity, in
 		}	//	end for (segnum=0...
 
 	}	//	end for (lightnum=0...
-
-//mprintf((0, "\n"));
 }
 
 
@@ -1537,7 +1395,6 @@ void calim_process_all_lights(int quick_light)
 
 	for (segnum=0; segnum<=Highest_segment_index; segnum++) {
 		segment	*segp = &Segments[segnum];
-		mprintf((0, "."));
 		for (sidenum=0; sidenum<MAX_SIDES_PER_SEGMENT; sidenum++) {
 			// if (!IS_CHILD(segp->children[sidenum])) {
 			if (WALL_IS_DOORWAY(segp, sidenum) != WID_NO_WALL) {

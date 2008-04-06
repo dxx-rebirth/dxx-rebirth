@@ -19,7 +19,6 @@ COPYRIGHT 1993-1998 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 
 #include "game.h"
 #include "weapon.h"
-#include "mono.h"
 #include "player.h"
 #include "gauges.h"
 #include "error.h"
@@ -153,7 +152,6 @@ void InitWeaponOrdering ()
 
 void CyclePrimary ()
 {
-	mprintf ((0,"Cycling primary!\n"));
 	Cycling=1;
 	auto_select_weapon (0);
 	Cycling=0;
@@ -161,7 +159,6 @@ void CyclePrimary ()
 
 void CycleSecondary ()
 {
-	mprintf ((0,"Cycling secondary!\n"));
 	Cycling=1;
 	auto_select_weapon (1);
 	Cycling=0;
@@ -485,7 +482,6 @@ int POrderList (int num)
 	for (i=0;i<MAX_PRIMARY_WEAPONS+1;i++)
 	if (PrimaryOrder[i]==num)
 	{
-		mprintf ((0,"Primary %d has priority of %d!\n",num,i));
 		return (i);
 	}
 	Error ("Primary Weapon is not in order list!!!");
@@ -498,10 +494,8 @@ int SOrderList (int num)
 	for (i=0;i<MAX_SECONDARY_WEAPONS+1;i++)
 		if (SecondaryOrder[i]==num)
 		{
-			mprintf ((0,"Secondary %d has priority of %d!\n",num,i));
 			return (i);
 		}
-	mprintf ((0,"Error! Secondary Num=%d\n",num));
 	Error ("Secondary Weapon is not in order list!!!");
 }
 

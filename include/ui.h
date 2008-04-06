@@ -10,55 +10,10 @@ CONTAINED HEREIN FOR REVENUE-BEARING PURPOSES.  THE END-USER UNDERSTANDS
 AND AGREES TO THE TERMS HEREIN AND ACCEPTS THE SAME BY USE OF THIS FILE.  
 COPYRIGHT 1993-1998 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 */
+
 /*
- * $Source: /cvsroot/dxx-rebirth/d1x-rebirth/include/ui.h,v $
- * $Revision: 1.1.1.1 $
- * $Author: zicodxx $
- * $Date: 2006/03/17 19:46:09 $
  *
  * Header file for user interface
- *
- * $Log: ui.h,v $
- * Revision 1.1.1.1  2006/03/17 19:46:09  zicodxx
- * initial import
- *
- * Revision 1.1.1.1  1999/06/14 22:02:24  donut
- * Import of d1x 1.37 source.
- *
- * Revision 1.11  1994/11/18  23:07:33  john
- * Changed a bunch of shorts to ints.
- * 
- * Revision 1.10  1994/05/14  17:44:36  matt
- * Added extern.
- * 
- * Revision 1.9  1994/05/14  17:20:33  matt
- * Added externs
- * 
- * Revision 1.8  1994/02/01  13:29:56  john
- * *** empty log message ***
- * 
- * Revision 1.7  1994/01/10  16:25:03  john
- * Fixed bug in 800x600 mode with restoring
- * bogus font.
- * 
- * Revision 1.6  1993/12/10  14:22:30  john
- * Made buttons have up to 2 keys/functions.
- * 
- * Revision 1.5  1993/12/07  12:30:11  john
- * new version.
- * 
- * Revision 1.4  1993/10/26  13:46:15  john
- * *** empty log message ***
- * 
- * Revision 1.3  1993/10/07  11:23:30  john
- * *** empty log message ***
- * 
- * Revision 1.2  1993/10/05  17:31:15  john
- * *** empty log message ***
- * 
- * Revision 1.1  1993/09/20  10:36:36  john
- * Initial revision
- * 
  *
  */
 

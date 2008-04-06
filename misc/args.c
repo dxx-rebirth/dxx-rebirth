@@ -10,6 +10,7 @@ CONTAINED HEREIN FOR REVENUE-BEARING PURPOSES.  THE END-USER UNDERSTANDS
 AND AGREES TO THE TERMS HEREIN AND ACCEPTS THE SAME BY USE OF THIS FILE.  
 COPYRIGHT 1993-1998 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 */
+
 /*
  *
  * Functions for accessing arguments.
@@ -26,7 +27,6 @@ COPYRIGHT 1993-1998 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 #include "args.h"
 #include "game.h"
 #include "gauges.h"
-
 #ifdef OGL
 #if defined(__APPLE__) && defined(__MACH__)
 #include <OpenGL/glu.h>
@@ -48,10 +48,6 @@ void ReadCmdArgs(void);
 int FindArg(char * s)
 {
 	int i;
-
-#ifndef NDEBUG
-	printf("FindArg: %s\n",s);
-#endif
 
 	for (i=0; i<Num_args; i++ )
 		if (! strcasecmp( Args[i], s))
@@ -137,8 +133,6 @@ void ReadCmdArgs(void)
 	if (GameArg.SysMaxFPS <= 0 || GameArg.SysMaxFPS > MAXIMUM_FPS)
 		GameArg.SysMaxFPS = MAXIMUM_FPS;
 
-	GameArg.SysMissionDir 		= get_str_arg("-missiondir", "missions/");
-
 	GameArg.SysHogDir = get_str_arg("-hogdir", NULL);
 	if (GameArg.SysHogDir == NULL)
 		GameArg.SysNoHogDir = FindArg("-nohogdir");
@@ -171,24 +165,9 @@ void ReadCmdArgs(void)
 
 	// Graphics Options
 
-	if ((t=FindResArg("aspect", &y, &x)))
-	{
-		GameArg.GfxAspectY = y;
-		GameArg.GfxAspectX = x;
-	}
-	else
-	{
-		GameArg.GfxAspectY = 4;
-		GameArg.GfxAspectX = 3;
-	}
-
 	GameArg.GfxGaugeHudMode = get_int_arg("-hud", 0);
 	if (GameArg.GfxGaugeHudMode <= 0 || GameArg.GfxGaugeHudMode > GAUGE_HUD_NUMMODES-1)
 		GameArg.GfxGaugeHudMode = 0;
-
-	GameArg.GfxHudMaxNumDisp = get_int_arg("-hudlines", 3);
-	if (GameArg.GfxHudMaxNumDisp <= 0 || GameArg.GfxHudMaxNumDisp > HUD_MAX_NUM)
-		GameArg.GfxHudMaxNumDisp = 3;
 
 	GameArg.GfxPersistentDebris 	= FindArg("-persistentdebris");
 	GameArg.GfxHiresFNTAvailable	= !FindArg("-lowresfont");
@@ -197,24 +176,7 @@ void ReadCmdArgs(void)
 #ifdef OGL
 	// OpenGL Options
 
-	if (FindArg("-gl_trilinear"))
-	{
-		GameArg.OglTexMagFilt = GL_LINEAR;
-		GameArg.OglTexMinFilt = GL_LINEAR_MIPMAP_LINEAR;
-	}
-	else if (FindArg("-gl_mipmap"))
-	{
-		GameArg.OglTexMagFilt = GL_LINEAR;
-		GameArg.OglTexMinFilt = GL_LINEAR_MIPMAP_NEAREST;
-	}
-	else
-	{
-		GameArg.OglTexMagFilt = GL_NEAREST;
-		GameArg.OglTexMinFilt = GL_NEAREST;
-	}
-
 	GameArg.OglAlphaEffects 	= FindArg("-gl_transparency");
-	GameArg.OglVoodooHack 		= FindArg("-gl_voodoo");
 	GameArg.OglFixedFont 		= FindArg("-gl_fixedfont");
 	GameArg.OglReticle		= get_int_arg("-gl_reticle", 0);
 	GameArg.OglPrShot		= FindArg("-gl_prshot");
@@ -237,7 +199,10 @@ void ReadCmdArgs(void)
 
 	// Debug Options
 
-	GameArg.DbgVerbose 		= FindArg("-verbose");
+	if (FindArg("-debug"))		GameArg.DbgVerbose = CON_DEBUG;
+	else if (FindArg("-verbose"))	GameArg.DbgVerbose = CON_VERBOSE;
+	else				GameArg.DbgVerbose = CON_NORMAL;
+
 	GameArg.DbgNoRun 		= FindArg("-norun");
 	GameArg.DbgRenderStats 		= FindArg("-renderstats");
 	GameArg.DbgAltTex 		= get_str_arg("-text", NULL);

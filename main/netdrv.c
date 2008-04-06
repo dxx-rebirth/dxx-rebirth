@@ -34,7 +34,7 @@ COPYRIGHT 1993-1998 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 #include "args.h"
 #include "text.h"
 #include "network.h"
-#include "mono.h"
+#include "console.h"
 #include "netdrv.h"
 #include "checker.h"
 
@@ -90,7 +90,7 @@ void NetDrvClose()
 {
 	if (NetDrvInstalled)
 	{
-#ifdef __WINDOWS__
+#ifdef _WIN32
 		WSACleanup();
 #endif
 		driver->CloseSocket();
@@ -113,7 +113,7 @@ int NetDrvInit( int socket_number )
 	if (!driver)
 		return -1;
 
-#ifdef __WINDOWS__
+#ifdef _WIN32
 	WORD wVersionRequested;
 	WSADATA wsaData;
 
@@ -130,7 +130,7 @@ int NetDrvInit( int socket_number )
 		unsigned long n = strtol(GameArg.MplIpxNetwork, NULL, 16);
 		MyAddress[0] = n >> 24; MyAddress[1] = (n >> 16) & 255;
 		MyAddress[2] = (n >> 8) & 255; MyAddress[3] = n & 255;
-		printf("IPX: Using network %08x\n", (unsigned int)n);
+		con_printf(CON_VERBOSE,"IPX: Using network %08x\n", (unsigned int)n);
 	}
 
 	if (driver->OpenSocket(socket_number))
@@ -155,7 +155,7 @@ int NetDrvSet(int arg)
 
 	int NetDrvErr;
 
-	if (GameArg.DbgVerbose) printf( "\n%s ", TXT_INITIALIZING_NETWORK);
+	con_printf(CON_VERBOSE, "\n%s ", TXT_INITIALIZING_NETWORK);
 
 	switch (arg)
 	{
@@ -179,7 +179,7 @@ int NetDrvSet(int arg)
 
 	if ((NetDrvErr=NetDrvInit(IPX_DEFAULT_SOCKET))==0)
 	{
-		if (GameArg.DbgVerbose) printf( "%s %d.\n", TXT_IPX_CHANNEL, IPX_DEFAULT_SOCKET );
+		con_printf(CON_VERBOSE, "%s %d.\n", TXT_IPX_CHANNEL, IPX_DEFAULT_SOCKET );
 		Network_active = 1;
 	}
 	else
@@ -187,20 +187,20 @@ int NetDrvSet(int arg)
 		switch (NetDrvErr)
 		{
 			case 3:
-				if (GameArg.DbgVerbose) printf( "%s\n", TXT_NO_NETWORK);
+				con_printf(CON_VERBOSE, "%s\n", TXT_NO_NETWORK);
 				break;
 			case -2:
-				if (GameArg.DbgVerbose) printf( "%s 0x%x.\n", TXT_SOCKET_ERROR, IPX_DEFAULT_SOCKET);
+				con_printf(CON_VERBOSE, "%s 0x%x.\n", TXT_SOCKET_ERROR, IPX_DEFAULT_SOCKET);
 				break;
 			case -4:
-				if (GameArg.DbgVerbose) printf( "%s\n", TXT_MEMORY_IPX );
+				con_printf(CON_VERBOSE, "%s\n", TXT_MEMORY_IPX );
 				break;
 			default:
-				if (GameArg.DbgVerbose) printf( "%s %d", TXT_ERROR_IPX, NetDrvErr );
+				con_printf(CON_VERBOSE, "%s %d", TXT_ERROR_IPX, NetDrvErr );
 				break;
 		}
 
-		if (GameArg.DbgVerbose) printf( "%s\n",TXT_NETWORK_DISABLED);
+		con_printf(CON_VERBOSE, "%s\n",TXT_NETWORK_DISABLED);
 		Network_active = 0;		// Assume no network
 	}
 
@@ -226,7 +226,6 @@ int NetDrvGetPacketData( ubyte * data )
 		{
 			if (!memcmp(rd.src_network, MyAddress, 10))
 			{
-				mprintf((0,"dumped my own packet\n"));
 				continue;	/* don't get own pkts */
 			}
 

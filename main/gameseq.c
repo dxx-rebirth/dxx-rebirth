@@ -10,6 +10,7 @@ CONTAINED HEREIN FOR REVENUE-BEARING PURPOSES.  THE END-USER UNDERSTANDS
 AND AGREES TO THE TERMS HEREIN AND ACCEPTS THE SAME BY USE OF THIS FILE.  
 COPYRIGHT 1993-1998 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 */
+
 /*
  *
  * Routines for EndGame, EndLevel, etc.
@@ -35,7 +36,6 @@ COPYRIGHT 1993-1998 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 #include "physics.h"
 #include "error.h"
 #include "joy.h"
-#include "mono.h"
 #include "iff.h"
 #include "pcx.h"
 #include "timer.h"
@@ -193,10 +193,8 @@ gameseq_init_network_players()
 			if ( (!(Game_mode & GM_MULTI_COOP) && ((Objects[i].type == OBJ_PLAYER)||(Objects[i].type==OBJ_GHOST))) ||
 	           ((Game_mode & GM_MULTI_COOP) && ((j == 0) || ( Objects[i].type==OBJ_COOP ))) )
 			{
-				mprintf((0, "Created Cooperative multiplayer object\n"));
 				Objects[i].type=OBJ_PLAYER;
 #endif
-				mprintf((0, "Player init %d is ship %d.\n", k, j));
 				Player_init[k].pos = Objects[i].pos;
 				Player_init[k].orient = Objects[i].orient;
 				Player_init[k].segnum = Objects[i].segnum;
@@ -212,15 +210,6 @@ gameseq_init_network_players()
 		}
 	}
 	NumNetPlayerPositions = k;
-
-#ifndef NDEBUG
-	if ( ((Game_mode & GM_MULTI_COOP) && (NumNetPlayerPositions != 4)) ||
-		  (!(Game_mode & GM_MULTI_COOP) && (NumNetPlayerPositions != 8)) )
-	{
-		mprintf((1, "--NOT ENOUGH MULTIPLAYER POSITIONS IN THIS MINE!--\n"));
-		//Int3(); // Not enough positions!!
-	}
-#endif
 }
 
 void gameseq_remove_unused_players()
@@ -236,9 +225,6 @@ void gameseq_remove_unused_players()
 		{
 			if ((!Players[i].connected) || (i >= N_players))
 			{
-				#ifndef NDEBUG
-//				mprintf((0, "Ghosting player ship %d.\n", i+1));
-				#endif
 				multi_make_player_ghost(i);
 			}
 		}
@@ -246,9 +232,6 @@ void gameseq_remove_unused_players()
 	else
 #endif
 	{		// Note link to above if!!!
-		#ifndef NDEBUG
-		mprintf((0, "Removing player objects numbered %d-%d.\n", 1, NumNetPlayerPositions));
-		#endif
 		for (i=1; i < NumNetPlayerPositions; i++)
 		{
 			obj_delete(Players[i].objnum);
@@ -645,9 +628,9 @@ int RegisterPlayer()
 		//----------------------------------------------------------------
 
 		// Read the last player's name from config file, not lastplr.txt
-		strncpy( Players[Player_num].callsign, config_last_player, CALLSIGN_LEN );
+		strncpy( Players[Player_num].callsign, GameCfg.LastPlayer, CALLSIGN_LEN );
 
-		if (config_last_player[0]==0)
+		if (GameCfg.LastPlayer[0]==0)
 			allow_abort_flag = 0;
         }
 
@@ -1191,10 +1174,6 @@ void StartNewLevelSub(int level_num, int page_in_textures)
 
 	Assert(Function_mode == FMODE_GAME);
 
-	#ifndef NDEBUG
-	mprintf((0, "Player_num = %d, N_players = %d.\n", Player_num, N_players)); // DEBUG
-	#endif
-
 	HUD_clear_messages();
 
 	automap_clear_visited();
@@ -1255,9 +1234,6 @@ void StartNewLevelSub(int level_num, int page_in_textures)
 #ifdef NETWORK
 	if (Network_rejoined == 1)
 	{
-		#ifndef NDEBUG
-		mprintf((0, "Restarting - joining in random location.\n"));
-		#endif
 		Network_rejoined = 0;
 		StartLevel(1);
 	}
@@ -1301,19 +1277,7 @@ void InitPlayerPosition(int random)
 
 		d_srand(clock());
 
-#ifndef NDEBUG
-		if (NumNetPlayerPositions != MAX_NUM_NET_PLAYERS)
-		{
-			mprintf((1, "WARNING: There are only %d start positions!\n"));
-			//Int3();
-		}
-#endif
-
 		do {
-			if (trys > 0)	
-			{
-				mprintf((0, "Can't start in location %d because its too close to player %d\n", NewPlayer, closest ));
-			}
 			trys++;
 			NewPlayer = d_rand() % NumNetPlayerPositions;
 
@@ -1323,19 +1287,16 @@ void InitPlayerPosition(int random)
 			for (i=0; i<N_players; i++ )	{
 				if ( (i!=Player_num) && (Objects[Players[i].objnum].type == OBJ_PLAYER) )	{
 					dist = find_connected_distance(&Objects[Players[i].objnum].pos, Objects[Players[i].objnum].segnum, &Player_init[NewPlayer].pos, Player_init[NewPlayer].segnum, 5, WID_FLY_FLAG );
-//					mprintf((0, "Distance from start location %d to player %d is %f.\n", NewPlayer, i, f2fl(dist)));
 					if ( (dist < closest_dist) && (dist >= 0) )	{
 						closest_dist = dist;
 						closest = i;
 					}
 				}
 			}
-			mprintf((0, "Closest from pos %d is %f to plr %d.\n", NewPlayer, f2fl(closest_dist), closest));
 		} while ( (closest_dist<i2f(10*20)) && (trys<MAX_NUM_NET_PLAYERS*2) );
 	} 
 #endif
 	else {
-		mprintf((0, "Starting position is not being changed.\n"));
 		goto done; // If deathmatch and not random, positions were already determined by sync packet
 	}
 	Assert(NewPlayer >= 0);
@@ -1343,8 +1304,6 @@ void InitPlayerPosition(int random)
 
 	ConsoleObject->pos = Player_init[NewPlayer].pos;
 	ConsoleObject->orient = Player_init[NewPlayer].orient;
-
-	mprintf((0, "Re-starting in location %d of %d.\n", NewPlayer+1, NumNetPlayerPositions));
 
  	obj_relink(ConsoleObject-Objects,Player_init[NewPlayer].segnum);
 

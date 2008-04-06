@@ -9,7 +9,6 @@
 
 #include "pstypes.h"
 #include "error.h"
-#include "mono.h" 	 
 #include "fix.h" 	 
 #include "vecmat.h" 	 
 #include "gr.h" 	 
@@ -19,11 +18,10 @@
 #include "wall.h" 	 
 #include "newdemo.h" 	 
 #include "kconfig.h"
-
+#include "console.h"
 #include <stdlib.h>
 #include <stdio.h>
 #include <string.h>
-
 #include <digi.h>
 #include <digi_audio.h>
 
@@ -61,7 +59,7 @@ void digi_select_system(int n) {
 	switch (n) {
 #ifdef USE_SDLMIXER
 	case SDLMIXER_SYSTEM:
-	printf("Using SDL_mixer library\n");
+	con_printf(CON_NORMAL,"Using SDL_mixer library\n");
 	fptr_init = digi_mixer_init;
 	fptr_close = digi_mixer_close;
 	fptr_reset = digi_mixer_reset;
@@ -85,7 +83,7 @@ void digi_select_system(int n) {
 #endif
 	case SDLAUDIO_SYSTEM:
 	default:
-	printf("Using plain old SDL audio\n");
+	con_printf(CON_NORMAL,"Using plain old SDL audio\n");
         fptr_init = digi_audio_init;
         fptr_close = digi_audio_close;
         fptr_reset = digi_audio_reset;
@@ -112,8 +110,8 @@ void digi_select_system(int n) {
 /* Common digi functions */
 #ifndef NDEBUG
 static int digi_initialised = 0;
-static int digi_max_channels = 16;
 #endif
+extern int digi_max_channels;
 int digi_sample_rate = SAMPLE_RATE_11K;
 int digi_volume = SOUND_MAX_VOLUME;
 int midi_volume = SOUND_MAX_VOLUME;
@@ -144,8 +142,6 @@ int  digi_find_channel(int soundno) { return fptr_find_channel(soundno); }
 int  digi_is_sound_playing(int soundno) { return fptr_is_sound_playing(soundno); }
 int  digi_is_channel_playing(int channel) { return fptr_is_channel_playing(channel); }
 void digi_stop_all_channels() { fptr_stop_all_channels(); }
-void digi_set_max_channels(int n) { }
-int  digi_get_max_channels() { return 0; }
 void digi_set_digi_volume(int dvolume) { fptr_set_digi_volume(dvolume); }
 
 void digi_play_midi_song(char * filename, char * melodic_bank, char * drum_bank, int loop ) { fptr_play_midi_song(filename, melodic_bank, drum_bank, loop); }
@@ -169,8 +165,6 @@ void digi_debug()
 			n_voices++; 	 
         } 	 
 	  	 
-        mprintf_at((0, 2, 0, "DIGI: Active Sound Channels: %d/%d (HMI says %d/32)      ", n_voices, digi_max_channels, -1)); 	 
-	//mprintf_at((0, 3, 0, "DIGI: Number locked sounds:  %d                          ", digi_total_locks )); 	 
-} 	 
+}
 #endif
 

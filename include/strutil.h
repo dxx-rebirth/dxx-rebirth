@@ -4,7 +4,7 @@
 #if defined(macintosh)
 extern int stricmp(const char *s1, const char *s2);
 extern int strnicmp(const char *s1, const char *s2, int n);
-#elif !defined(__WINDOWS__)
+#elif !defined(_WIN32)
 # include <string.h>
 # define stricmp(a,b) strcasecmp(a,b)
 # define strnicmp(a,b,c) strncasecmp(a,b,c)
@@ -17,7 +17,7 @@ extern int strnicmp(const char *s1, const char *s2, int n);
 # define strrev _strrev
 #endif
 
-#ifndef __WINDOWS__
+#ifndef _WIN32
 #ifndef __DJGPP__
 void strupr( char *s1 );
 void strlwr( char *s1 );

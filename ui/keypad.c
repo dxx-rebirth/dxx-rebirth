@@ -10,6 +10,7 @@ CONTAINED HEREIN FOR REVENUE-BEARING PURPOSES.  THE END-USER UNDERSTANDS
 AND AGREES TO THE TERMS HEREIN AND ACCEPTS THE SAME BY USE OF THIS FILE.  
 COPYRIGHT 1993-1998 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 */
+
 #include <stdlib.h>
 #include <stdio.h>
 #ifndef __LINUX__
@@ -19,16 +20,11 @@ COPYRIGHT 1993-1998 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 #endif
 #include <string.h>
 #include <math.h>
-
 #include "fix.h"
 #include "pstypes.h"
 #include "gr.h"
 #include "key.h"
-
-#include "mono.h"
-
 #include "ui.h"
-
 #include "u_mem.h"
 #include "func.h"
 #include "error.h"

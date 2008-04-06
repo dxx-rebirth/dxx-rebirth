@@ -10,23 +10,12 @@ CONTAINED HEREIN FOR REVENUE-BEARING PURPOSES.  THE END-USER UNDERSTANDS
 AND AGREES TO THE TERMS HEREIN AND ACCEPTS THE SAME BY USE OF THIS FILE.  
 COPYRIGHT 1993-1998 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 */
-/*	 
- * $Source: /cvsroot/dxx-rebirth/d1x-rebirth/main/laser.c,v $
- * $Revision: 1.1.1.1 $
- * $Author: zicodxx $
- * $Date: 2006/03/17 19:42:14 $
- * 
- * This will contain the laser code
- * 
- * Revision 1.1  1993/11/29  17:19:02  john
- * Initial revision
- * 
- * 
- */
 
-#ifdef RCS
-static char rcsid[] = "$Id: laser.c,v 1.1.1.1 2006/03/17 19:42:14 zicodxx Exp $";
-#endif
+/*
+ *
+ * This will contain the laser code
+ *
+ */
 
 #include <stdlib.h>
 #include <time.h>
@@ -40,7 +29,6 @@ static char rcsid[] = "$Id: laser.c,v 1.1.1.1 2006/03/17 19:42:14 zicodxx Exp $"
 #include "fvi.h"
 #include "segpoint.h"
 #include "error.h"
-#include "mono.h"
 #include "key.h"
 #include "texmap.h"
 #include "textures.h"
@@ -252,7 +240,6 @@ int Laser_create_new( vms_vector * direction, vms_vector * position, int segnum,
 	objnum = obj_create( OBJ_WEAPON, weapon_type, segnum, position, NULL, laser_radius, CT_WEAPON, MT_PHYSICS, rtype );
 
 	if ( objnum < 0 ) 	{
-		mprintf((1, "Can't create laser - Out of objects!\n" ));
 		Int3();
 		return -1;
 	}
@@ -368,12 +355,10 @@ int Laser_create_new( vms_vector * direction, vms_vector * position, int segnum,
 	 	vm_vec_scale_add( &end_pos, &obj->pos, direction, Laser_offset+(laser_length/2) );
 		end_segnum = find_point_seg(&end_pos, obj->segnum);
 		if (end_segnum != obj->segnum) {
-			// mprintf(0, "Warning: Laser tip not in same segment as player.\n");
 			if (end_segnum != -1) {
 				obj->pos = end_pos;
 				obj_relink(obj-Objects, end_segnum);
-			} else
-				mprintf((0, "Warning: Laser tip outside mine.  Laser not being moved to end of gun.\n"));
+			}
 		} else
 			obj->pos = end_pos;
 	}
@@ -423,8 +408,6 @@ int Laser_create_new( vms_vector * direction, vms_vector * position, int segnum,
 	if ((obj->type == OBJ_WEAPON) && (obj->id == FLARE_ID))
                 obj->lifeleft += (d_rand()-16384) << 2;           //      add in -2..2 seconds
 
-//	mprintf( 0, "Weapon speed = %.1f (%.1f)\n", f2fl(Weapon_info[obj->id].speed[Difficulty_level] + parent_speed), f2fl(parent_speed) );
-
 	return objnum;
 }
 
@@ -454,7 +437,6 @@ int Laser_create_new_easy( vms_vector * direction, vms_vector * position, int pa
 
 	fate = find_vector_intersection(&fq, &hit_data);
 	if (fate != HIT_NONE  || hit_data.hit_seg==-1) {
-		mprintf((1, "Warning: Laser from parent=%i stuck in wall or object, didn't fire!\n", parent));
 		return -1;
 	}
 
@@ -529,8 +511,6 @@ int object_is_trackable(int track_goal, object *tracker)
 	vm_vec_normalize_quick(&vector_to_goal);
 	dot = vm_vec_dot(&vector_to_goal, &tracker->orient.fvec);
 
-	// mprintf((0, "object_is_trackable: [%3i] %7.3f, min = %7.3f\n", track_goal, f2fl(dot), f2fl(Min_trackable_dot)));
- 
 	if (dot >= Min_trackable_dot) {
 		int	rval;
 		//	dot is in legal range, now see if object is visible
@@ -595,12 +575,9 @@ int find_homing_object(vms_vector *curpos, object *tracker)
 				vm_vec_normalize_quick(&vec_to_curobj);
 				dot = vm_vec_dot(&vec_to_curobj, &tracker->orient.fvec);
 
-				// mprintf(0, "Object %i: dist = %7.3f, dot = %7.3f\n", objnum, f2fl(dist), f2fl(dot));
-
 				//	Note: This uses the constant, not-scaled-by-frametime value, because it is only used
 				//	to determine if an object is initially trackable.  find_homing_object is called on subsequent
 				//	frames to determine if the object remains trackable.
-				// mprintf((0, "find_homing_object:  [%3i] %7.3f, min = %7.3f\n", curobjp-Objects, f2fl(dot), f2fl(MIN_TRACKABLE_DOT)));
 				if (dot > MIN_TRACKABLE_DOT) {
 					if (dot > max_dot) {
 						if (object_to_object_visibility(tracker, &Objects[objnum], FQ_TRANSWALL)) {
@@ -612,8 +589,6 @@ int find_homing_object(vms_vector *curpos, object *tracker)
 			}
 		}
 	}
-
-	// mprintf(0, "Selecting object #%i\n=n", best_objnum);
 
 	return best_objnum;
 }
@@ -700,35 +675,7 @@ int find_homing_object_complete(vms_vector *curpos, object *tracker, int track_o
                    }
 //end rewrite - Victor Rachels
 
-//added/killed on 9/30/98 by Victor Rachels to remove unnescessary compares
-//-killed-                if ( dist < MAX_TRACKABLE_DIST ) {
-//-killed-                        vm_vec_normalize_quick(&vec_to_curobj);
-//-killed-                        dot = vm_vec_dot(&vec_to_curobj, &tracker->orient.fvec);
-//-killed-                        //      Note: This uses the constant, not-scaled-by-frametime value, because it is only used
-//-killed-                        //      to determine if an object is initially trackable.  find_homing_object is called on subsequent
-//-killed-                        //      frames to determine if the object remains trackable.
-//-killed-                        // mprintf((0, "fho_complete:        [%3i] %7.3f, min = %7.3f\n", curobjp-Objects, f2fl(dot), f2fl(MIN_TRACKABLE_DOT)));
-//-killed-                        if (dot > MIN_TRACKABLE_DOT) {
-//-killed-                                //mprintf(0,
-//-killed-                                //hud_message(MSGC_GAME_FEEDBACK, "Object %i: dist = %7.3f bdist = %7.3f, dot = %7.3f\n", objnum, f2fl(dist), f2fl(best_dist), f2fl(dot) );
-//-killed-                                if (dot > max_dot) {
-//-killed-                                        if (object_to_object_visibility(tracker, &Objects[objnum], FQ_TRANSWALL))
-//-killed-//added on 8/14/98 by Victor Rachels to change numbering tracking
-//-killed-                                                 if(dist < best_dist)
-//-killed-                                                  {
-//-killed-                                                   max_dot = dot;
-//-killed-                                                   best_dist = dist;
-//-killed-//end addition - Victor Rachels
-//-killed-                                                   best_objnum = objnum;
-//-killed-                                                  }
-//-killed-
-//-killed-                                }
-//-killed-                        }
-//-killed-                }
-//end this kill - Victor Rachels
 	}
-
-//	mprintf((0, "Selecting object #%i in find_homing_object_complete\n\n", best_objnum));
 
 	return best_objnum;
 }
@@ -785,9 +732,6 @@ int track_track_goal(int track_goal, object *tracker)
 		return rval;
 	}
 
-//if (track_goal != -1)
-// mprintf((0, "Object %i not tracking anything.\n", tracker-Objects));
-
 	return -1;
 }
 
@@ -839,17 +783,12 @@ void Laser_player_fire_spread_delay(object *obj, int laser_type, int gun_num, fi
 		return;
 	
 	if (Fate==HIT_WALL) {
-		if (delay_time)
-			mprintf((0, "Your DELAYED laser is stuck thru a wall!\n" ));
-		else
-			mprintf((0, "Your laser is stuck thru a wall!\n" ));
 		return;		
 	}
 
 	if (Fate==HIT_OBJECT) {
 //		if ( Objects[hit_data.hit_object].type == OBJ_ROBOT )
 //			Objects[hit_data.hit_object].flags |= OF_SHOULD_BE_DEAD;
-		mprintf((0, "Your laser is stuck in an object!\n" ));
 //		if ( Objects[hit_data.hit_object].type != OBJ_POWERUP )
 //			return;		
 	//as of 12/6/94, we don't care if the laser is stuck in an object. We
@@ -894,7 +833,6 @@ void Laser_player_fire_spread_delay(object *obj, int laser_type, int gun_num, fi
 			Objects[objnum].ctype.laser_info.track_goal = Network_laser_track;
 		}
 		#endif
-//		mprintf((0, "Selecting object #%i in find_homing_object_complete\n", Network_laser_track));
 	}
 }
 
@@ -1058,7 +996,6 @@ void Laser_do_weapon_sequence(object *obj)
 
 			//	If it's time to do tracking, then it's time to grow up, stop bouncing and start exploding!.
 			if ((obj->id == ROBOT_SMART_HOMING_ID) || (obj->id == PLAYER_SMART_HOMING_ID)) {
-				// if (obj->mtype.phys_info.flags & PF_BOUNCE) mprintf(0, "Debouncing smart child %i\n", obj-Objects);
 				obj->mtype.phys_info.flags &= ~PF_BOUNCE;
 			}
 
@@ -1084,10 +1021,10 @@ void Laser_do_weapon_sequence(object *obj)
 					vm_vec_sub(&vector_to_object, &Objects[track_goal].pos, &obj->pos);
 			
 					// we need normalized exact vectors here
-					vm_vec_normalize_quick (&vector_to_object);
+					vm_vec_normalize (&vector_to_object);
 					temp_vec = obj->mtype.phys_info.velocity;
 					// gives magnitude
-					speed = vm_vec_normalize_quick (&temp_vec);
+					speed = vm_vec_normalize (&temp_vec);
 					// homing missile speeds : insane - 0x005a
 					max_speed = Weapon_info[obj->id].speed[Difficulty_level];
 		
@@ -1162,7 +1099,6 @@ void Laser_do_weapon_sequence(object *obj)
 								absdot = F1_0/4;
 							lifelost = fixmul(absdot*16, FrameTime);
 							obj->lifeleft -= lifelost;
-							// mprintf((0, "Missile %3i, dot = %7.3f life lost = %7.3f, life left = %7.3f\n", obj-Objects, f2fl(dot), f2fl(lifelost), f2fl(obj->lifeleft)));
 						}
 						//added 8/14/98 by Victor Rachels to make homers lose life while going straight, too
 						obj->lifeleft -= fixmul(F1_0, FrameTime);
@@ -1233,7 +1169,6 @@ int do_laser_firing_player(void)
 		if	((plp->energy >= energy_used) || ((Primary_weapon == VULCAN_INDEX) && (plp->primary_ammo[Primary_weapon] >= ammo_used)) ) {
 			int	laser_level, flags;
 
-//mprintf(0, ".");
                         //added/moved on 8/16/98 by Victor Rachels (also from Arne de Bruijn) to fix EBlB
                         Last_laser_fired_time = GameTime;
                         //end move - Victor Rachels
@@ -1272,8 +1207,6 @@ int do_laser_firing_player(void)
 		} else
                    break;  //      Couldn't fire weapon, so abort.
 	}
-
-//mprintf(0, "  fires = %i\n", rval);
 
 	Global_laser_firing_count = 0;	
 
@@ -1351,8 +1284,6 @@ int do_laser_firing(int objnum, int weapon_num, int level, int flags, int nfires
 		case FUSION_INDEX: {
 			vms_vector	force_vec;
 
-//			mprintf((0, "Fusion multiplier %f.\n", f2fl(Fusion_charge)));
-
 			Laser_player_fire( objp, FUSION_ID, 0, 1, 0);
 			Laser_player_fire( objp, FUSION_ID, 1, 1, 0);
 
@@ -1384,7 +1315,6 @@ int do_laser_firing(int objnum, int weapon_num, int level, int flags, int nfires
 	#ifdef NETWORK
 	if ((Game_mode & GM_MULTI) && (objnum == Players[Player_num].objnum))
 	{
-//		mprintf((0, "Flags on fire: %d.\n", flags));
 		Network_laser_fired = nfires;
 		Network_laser_gun = weapon_num;
 		Network_laser_flags = flags;
@@ -1488,7 +1418,6 @@ void create_smart_children(object *objp)
 						objlist[numobjs].dist = dist;
 						numobjs++;
 						if (numobjs >= MAX_OBJDISTS) {
-							mprintf((0, "Warning -- too many objects near smart bomb explosion.  See laser.c.\n"));
 							numobjs = MAX_OBJDISTS;
 							break;
 						}
@@ -1504,11 +1433,9 @@ void create_smart_children(object *objp)
 				if (parent_type == OBJ_PLAYER) {
 					int	hobjnum;
 					hobjnum = create_homing_missile(objp, -1, PLAYER_SMART_HOMING_ID, make_sound);
-					// mprintf((0, "Object #%i is a PLAYER smart blob.\n", hobjnum));
 				} else {
 					int	hobjnum;
 					hobjnum = create_homing_missile(objp, -1, ROBOT_SMART_HOMING_ID, make_sound);
-					// mprintf((0, "Object #%i is a robot smart blob.\n", hobjnum));
 				}
 				make_sound = 0;
 			}
@@ -1517,11 +1444,9 @@ void create_smart_children(object *objp)
 				if (parent_type == OBJ_PLAYER) {
 					int	hobjnum;
                                         hobjnum = create_homing_missile(objp, objlist[(d_rand() * numobjs) >> 15].objnum, PLAYER_SMART_HOMING_ID, make_sound);
-					// mprintf((0, "Object #%i is a PLAYER smart blob.\n", hobjnum));
 				} else {
 					int	hobjnum;
                                         hobjnum = create_homing_missile(objp, objlist[(d_rand() * numobjs) >> 15].objnum, ROBOT_SMART_HOMING_ID, make_sound);
-					// mprintf((0, "Object #%i is a robot smart blob.\n", hobjnum));
 				}
 				make_sound = 0;
 			}
@@ -1676,7 +1601,7 @@ void net_missile_firing(int player, int gun, int flags)
 			break;
 
 		default:
-			mprintf((0,"net_missing_firing(): Unknown missile weapon type.\n"));
+			break;
 	}
 	
 }

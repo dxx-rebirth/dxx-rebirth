@@ -1,4 +1,3 @@
-/* $Id: hmiplay.c,v 1.1.1.1 2006/03/17 19:40:45 zicodxx Exp $ */
 /*
  * HMI midi playing routines by Jani Frilander
  *
@@ -96,8 +95,6 @@ void seqbuf_dump()
 	      
 void my_quit()
 {
-//	printf("goodbye\n");//#####
-//	exit(0);
 }
 
 int seq_init()
@@ -125,7 +122,7 @@ int seq_init()
 	
 	if(nrsynths < 1 && nrmidis < 1)
 	{
-		printf("No synth or midi device!\n");
+		con_printf(CON_URGENT,"No synth or midi device!\n");
 		return -1;
 	}
 	
@@ -561,7 +558,7 @@ int do_track_event(unsigned char *data, int *pos)
 
 void send_ipc(char *message)
 {
-	printf ("sendipc %s\n", message);
+	con_printf(CON_DEBUG,"sendipc %s\n", message);
 	if (ipc_queue_id<0)
 	{
 		ipc_queue_id=msgget ((key_t) ('l'<<24) | ('d'<<16) | ('e'<<8) | 's', 
@@ -603,12 +600,12 @@ int do_ipc(int qid, struct msgbuf *buf, int flags)
 	 case 0:
 		break;
 	 default:
-		printf ("do_ipc %s\n", buf->mtext);//##########3
+		con_printf(CON_DEBUG,"do_ipc %s\n", buf->mtext);//##########3
 		switch (buf->mtext[0])
 		{
 		case 'v':
 			volume = (double)(atof(buf->mtext + 1) / 128.0);
-			printf("vol %f->%f\n", last_volume, volume);
+			con_printf(CON_DEBUG,"vol %f->%f\n", last_volume, volume);
 			if (last_volume <= 0 && volume > 0)
 			{
 				buf->mtext[0] = 'p'; // start playing again if volume raised above 0
@@ -636,7 +633,7 @@ int do_ipc(int qid, struct msgbuf *buf, int flags)
 				data=d_realloc(data,(size_t) l);
 				cfread(data, l, 1, fptr);
 				cfclose(fptr);
-				printf ("good. fpr=%p l=%i data=%p\n", fptr, l, data);//##########3
+				con_printf(CON_DEBUG, "good. fpr=%p l=%i data=%p\n", fptr, l, data);//##########3
 				stop = 0;
 			}
 			else
@@ -672,7 +669,7 @@ void play_hmi (void * arg)
 	
 	Track_info *t_info;
 
-	printf ("play_hmi\n");
+	con_printf(CON_DEBUG,"play_hmi\n");
 	
 	stop = 0;
 	ipc_read=0;
@@ -746,7 +743,7 @@ void play_hmi (void * arg)
 			}
 			
 			if (low_dtime < 0)
-				printf("Serious warning: d_time negative!!!!!!\n");
+				con_printf(CON_URGENT,"Serious warning: d_time negative!!!!!!\n");
 			
 			csec = 0.86 * low_dtime;
 			
@@ -769,7 +766,7 @@ void play_hmi (void * arg)
 			
 			if (t_info[low_chunk].status == 3)
 			{
-				printf("Error playing data in chunk %d\n",low_chunk);
+				con_printf(CON_URGENT,"Error playing data in chunk %d\n",low_chunk);
 				t_info[low_chunk].status = STOPPED;
 			}
 			

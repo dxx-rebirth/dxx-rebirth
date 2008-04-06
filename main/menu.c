@@ -10,23 +10,12 @@ CONTAINED HEREIN FOR REVENUE-BEARING PURPOSES.  THE END-USER UNDERSTANDS
 AND AGREES TO THE TERMS HEREIN AND ACCEPTS THE SAME BY USE OF THIS FILE.  
 COPYRIGHT 1993-1998 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 */
+
 /*
- * $Source: /cvsroot/dxx-rebirth/d1x-rebirth/main/menu.c,v $
- * $Revision: 1.1.1.1 $
- * $Author: zicodxx $
- * $Date: 2006/03/17 19:43:27 $
  *
  * Inferno main menu.
  *
- * 
- *
  */
-
-#ifdef RCS
-#pragma off (unreferenced)
-static char rcsid[] = "$Id: menu.c,v 1.1.1.1 2006/03/17 19:43:27 zicodxx Exp $";
-#pragma on (unreferenced)
-#endif
 
 #include <time.h>
 #include <stdio.h>
@@ -46,7 +35,6 @@ static char rcsid[] = "$Id: menu.c,v 1.1.1.1 2006/03/17 19:43:27 zicodxx Exp $";
 #include "error.h"
 #include "bm.h"
 #include "screens.h"
-#include "mono.h"
 #include "joy.h"
 #include "vecmat.h"
 #include "effects.h"
@@ -86,7 +74,6 @@ static char rcsid[] = "$Id: menu.c,v 1.1.1.1 2006/03/17 19:43:27 zicodxx Exp $";
 #endif
 
 void do_option(int select);
-void do_detail_level_menu_custom(void);
 void do_multi_player_menu();
 void do_new_game_menu();
 void do_load_game_menu();
@@ -393,176 +380,9 @@ int do_difficulty_menu()
 			write_player_file();
 		}
 		Difficulty_level = s;
-		mprintf((0, "%s %s %i\n", TXT_DIFFICULTY_LEVEL, TXT_SET_TO, Difficulty_level));
 		return 1;
 	}
 	return 0;
-}
-
-int	Max_debris_objects, Max_objects_onscreen_detailed;
-int	Max_linear_depth_objects;
-
-sbyte	Object_complexity=2, Object_detail=2;
-sbyte	Wall_detail=2, Wall_render_depth=2, Debris_amount=2, SoundChannels = 2;
-
-sbyte	Render_depths[NUM_DETAIL_LEVELS-1] =								{ 6,  9, 12, 15, 20};
-sbyte	Max_perspective_depths[NUM_DETAIL_LEVELS-1] =					{ 1,  2,  3,  5,  8};
-sbyte	Max_linear_depths[NUM_DETAIL_LEVELS-1] =							{ 3,  5,  7, 10, 17};
-sbyte	Max_linear_depths_objects[NUM_DETAIL_LEVELS-1] =				{ 1,  2,  3,  5, 12};
-sbyte	Max_debris_objects_list[NUM_DETAIL_LEVELS-1] =					{ 2,  4,  7, 10, 15};
-sbyte	Max_objects_onscreen_detailed_list[NUM_DETAIL_LEVELS-1] =	{ 2,  4,  7, 10, 15};
-sbyte	Smts_list[NUM_DETAIL_LEVELS-1] =										{ 2,  4,  8, 16, 50};	//	threshold for models to go to lower detail model, gets multiplied by obj->size
-sbyte	Max_sound_channels[NUM_DETAIL_LEVELS-1] =							{ 2,  4,  8, 12, 16};
-
-//	-----------------------------------------------------------------------------
-//	Set detail level based stuff.
-//	Note: Highest detail level (detail_level == NUM_DETAIL_LEVELS-1) is custom detail level.
-void set_detail_level_parameters(int detail_level)
-{
-	Assert((detail_level >= 0) && (detail_level < NUM_DETAIL_LEVELS));
-
-	if (detail_level < NUM_DETAIL_LEVELS-1) {
-		Render_depth = Render_depths[detail_level];
-		Max_perspective_depth = Max_perspective_depths[detail_level];
-		Max_linear_depth = Max_linear_depths[detail_level];
-		Max_linear_depth_objects = Max_linear_depths_objects[detail_level];
-
-		Max_debris_objects = Max_debris_objects_list[detail_level];
-		Max_objects_onscreen_detailed = Max_objects_onscreen_detailed_list[detail_level];
-
-		Simple_model_threshhold_scale = Smts_list[detail_level];
-
-		digi_set_max_channels( Max_sound_channels[ detail_level ] );
-
-		//	Set custom menu defaults.
-		Object_complexity = detail_level;
-		Wall_render_depth = detail_level;
-		Object_detail = detail_level;
-		Wall_detail = detail_level;
-		Debris_amount = detail_level;
-		SoundChannels = detail_level;
-
-	}
-}
-
-//	-----------------------------------------------------------------------------
-void do_detail_level_menu(void)
-{
-	int s;
-	newmenu_item m[7];
-
-	m[0].type=NM_TYPE_MENU; m[0].text=MENU_DETAIL_TEXT(0);
-	m[1].type=NM_TYPE_MENU; m[1].text=MENU_DETAIL_TEXT(1);
-	m[2].type=NM_TYPE_MENU; m[2].text=MENU_DETAIL_TEXT(2);
-	m[3].type=NM_TYPE_MENU; m[3].text=MENU_DETAIL_TEXT(3);
-	m[4].type=NM_TYPE_MENU; m[4].text=MENU_DETAIL_TEXT(4);
-	m[5].type=NM_TYPE_TEXT; m[5].text="";
-	m[6].type=NM_TYPE_MENU; m[6].text=MENU_DETAIL_TEXT(5);
-
-	s = newmenu_do1( NULL, TXT_DETAIL_LEVEL , NDL+2, m, NULL, Detail_level);
-
-	if (s > -1 )	{
-		switch (s)	{
-			case 0:
-			case 1:
-			case 2:
-			case 3:
-			case 4:
-				Detail_level = s;
-				mprintf((0, "Detail level set to %i\n", Detail_level));
-				set_detail_level_parameters(Detail_level);
-				break;
-			case 6:
-				Detail_level = 5;
-				do_detail_level_menu_custom();
-				break;
-		}
-	}
-
-}
-
-//	-----------------------------------------------------------------------------
-void do_detail_level_menu_custom_menuset(int nitems, newmenu_item * items, int *last_key, int citem )
-{
-	nitems = nitems;
-	*last_key = *last_key;
-	citem = citem;
-
-	Object_complexity = items[0].value;
-	Object_detail = items[1].value;
-	Wall_detail = items[2].value;
-	Wall_render_depth = items[3].value;
-	Debris_amount = items[4].value;
-	SoundChannels = items[5].value;
-
-}
-
-void set_custom_detail_vars(void)
-{
-	Render_depth = Render_depths[Wall_render_depth];
-
-	Max_perspective_depth = Max_perspective_depths[Wall_detail];
-	Max_linear_depth = Max_linear_depths[Wall_detail];
-
-	Max_debris_objects = Max_debris_objects_list[Debris_amount];
-
-	Max_objects_onscreen_detailed = Max_objects_onscreen_detailed_list[Object_complexity];
-	Simple_model_threshhold_scale = Smts_list[Object_complexity];
-	Max_linear_depth_objects = Max_linear_depths_objects[Object_detail];
-
-	digi_set_max_channels( Max_sound_channels[ SoundChannels ] );
-}
-
-//	-----------------------------------------------------------------------------
-void do_detail_level_menu_custom(void)
-{
-	int	s=0;
-	newmenu_item m[7];
-
-	do {
-		m[0].type = NM_TYPE_SLIDER;
-		m[0].text = TXT_OBJ_COMPLEXITY;
-		m[0].value = Object_complexity;
-		m[0].min_value = 0;
-		m[0].max_value = NDL-1;
-
-		m[1].type = NM_TYPE_SLIDER;
-		m[1].text = TXT_OBJ_DETAIL;
-		m[1].value = Object_detail;
-		m[1].min_value = 0;
-		m[1].max_value = NDL-1;
-
-		m[2].type = NM_TYPE_SLIDER;
-		m[2].text = TXT_WALL_DETAIL;
-		m[2].value = Wall_detail;
-		m[2].min_value = 0;
-		m[2].max_value = NDL-1;
-
-		m[3].type = NM_TYPE_SLIDER;
-		m[3].text = TXT_WALL_RENDER_DEPTH;
-		m[3].value = Wall_render_depth;
-		m[3].min_value = 0;
-		m[3].max_value = NDL-1;
-
-		m[4].type = NM_TYPE_SLIDER;
-		m[4].text= TXT_DEBRIS_AMOUNT;
-		m[4].value = Debris_amount;
-		m[4].min_value = 0;
-		m[4].max_value = NDL-1;
-
-		m[5].type = NM_TYPE_SLIDER;
-		m[5].text= TXT_SOUND_CHANNELS;
-		m[5].value = SoundChannels;
-		m[5].min_value = 0;
-		m[5].max_value = NDL-1;
-
-		m[6].type = NM_TYPE_TEXT;
-		m[6].text= TXT_LO_HI;
-
-		s = newmenu_do1( NULL, TXT_DETAIL_CUSTOM, 7, m, do_detail_level_menu_custom_menuset, s);
-	} while (s > -1);
-
-	set_custom_detail_vars();
 }
 
 extern char *get_level_file(int level_num);
@@ -702,12 +522,12 @@ void change_res_poll()
 
 void change_res()
 {
-	newmenu_item m[12];
-	u_int32_t modes[12];
+	newmenu_item m[13];
+	u_int32_t modes[13];
 	int i = 0, mc = 0, num_presets = 0;
-	char customres[16];
+	char customres[16], aspect[16];
 	int fullscreenc;
-	u_int32_t screen_mode = 0;
+	u_int32_t screen_mode = 0, aspect_mode = 0;
 	int screen_width = 0;
 	int screen_height = 0;
 	SDL_Rect **sdlmode = SDL_ListModes(NULL, SDL_FULLSCREEN|SDL_HWSURFACE);
@@ -730,6 +550,11 @@ void change_res()
 	m[mc].type = NM_TYPE_RADIO; m[mc].text = "custom:"; m[mc].value = (i == mc); m[mc].group = 0; modes[mc] = 0; mc++;
 	sprintf(customres, "%ix%i", SM_W(Game_screen_mode), SM_H(Game_screen_mode));
 	m[mc].type = NM_TYPE_INPUT; m[mc].text = customres; m[mc].text_len = 11; modes[mc] = 0; mc++;
+
+	m[mc].type = NM_TYPE_TEXT; m[mc].text = "aspect:"; mc++;
+	sprintf(aspect, "%ix%i", GameCfg.AspectY, GameCfg.AspectX);
+	m[mc].type = NM_TYPE_INPUT; m[mc].text = aspect; m[mc].text_len = 11; modes[mc] = 0; mc++;
+
 	fullscreenc = mc; m[mc].type = NM_TYPE_CHECK; m[mc].text = "Fullscreen"; m[mc].value = gr_check_fullscreen(); mc++;
 
 	i = newmenu_do1(NULL, "Screen Resolution", mc, m, &change_res_poll, 0);
@@ -738,20 +563,31 @@ void change_res()
 	{
 		gr_toggle_fullscreen();
 		Game_screen_mode = -1;
+		GameCfg.WindowMode = !m[fullscreenc].value;
 	}
 
 	for (i = 0; (m[i].value == 0) && (i < num_presets); i++);
 
 	if (modes[i]==0)
 	{
-		char *h = strchr(customres, 'x');
-		if (!h)
+		if (!strchr(customres, 'x'))
 			return;
-		screen_mode = SM(atoi(customres), atoi(h+1));
+		screen_mode = SM(atoi(customres), atoi(strchr(customres, 'x')+1));
 	}
 	else
 	{
 		screen_mode = modes[i];
+	}
+
+	if (strchr(aspect, 'x'))
+	{
+		aspect_mode = SM(atoi(aspect), atoi(strchr(aspect, 'x')+1));
+		if (GameCfg.AspectY != SM_W(aspect_mode) || GameCfg.AspectX != SM_H(aspect_mode))
+		{
+			GameCfg.AspectY = SM_W(aspect_mode);
+			GameCfg.AspectX = SM_H(aspect_mode);
+			gr_set_mode(Game_screen_mode);
+		}
 	}
 
 	screen_width = SM_W(screen_mode);
@@ -862,14 +698,14 @@ void sound_menuset(int nitems, newmenu_item * items, int *last_key, int citem )
 	nitems=nitems;
 	*last_key = *last_key;
 
-	if ( Config_digi_volume != items[0].value )     {
-		Config_digi_volume = items[0].value;
-		digi_set_digi_volume( (Config_digi_volume*32768)/8 );
+	if ( GameCfg.DigiVolume != items[0].value )     {
+		GameCfg.DigiVolume = items[0].value;
+		digi_set_digi_volume( (GameCfg.DigiVolume*32768)/8 );
 		digi_play_sample_once( SOUND_DROP_BOMB, F1_0 );
 	}
-	if (Config_midi_volume != items[1].value )   {
- 		Config_midi_volume = items[1].value;
-		digi_set_midi_volume( (Config_midi_volume*128)/8 );
+	if (GameCfg.MidiVolume != items[1].value )   {
+ 		GameCfg.MidiVolume = items[1].value;
+		digi_set_midi_volume( (GameCfg.MidiVolume*128)/8 );
 	}
 
 	citem++; //kill warning
@@ -881,14 +717,14 @@ void do_sound_menu()
 	int i = 0;
 
 	do {
-		m[0].type = NM_TYPE_SLIDER; m[0].text=TXT_FX_VOLUME; m[0].value=Config_digi_volume; m[0].min_value=0; m[0].max_value=8; 
-		m[1].type =NM_TYPE_SLIDER; m[1].text=TXT_MUSIC_VOLUME; m[1].value=Config_midi_volume; m[1].min_value=0; m[1].max_value=8;
+		m[0].type = NM_TYPE_SLIDER; m[0].text=TXT_FX_VOLUME; m[0].value=GameCfg.DigiVolume; m[0].min_value=0; m[0].max_value=8; 
+		m[1].type =NM_TYPE_SLIDER; m[1].text=TXT_MUSIC_VOLUME; m[1].value=GameCfg.MidiVolume; m[1].min_value=0; m[1].max_value=8;
 		m[2].type = NM_TYPE_TEXT; m[2].text="";
-		m[3].type = NM_TYPE_CHECK; m[3].text=TXT_REVERSE_STEREO; m[3].value=Config_channels_reversed; 
+		m[3].type = NM_TYPE_CHECK; m[3].text=TXT_REVERSE_STEREO; m[3].value=GameCfg.ReverseStereo; 
 
 		i = newmenu_do1( NULL, "Sound Effects & Music", sizeof(m)/sizeof(*m), m, sound_menuset, i );
 
-		Config_channels_reversed = m[3].value;
+		GameCfg.ReverseStereo = m[3].value;
 
 	} while( i>-1 );
 }
@@ -905,7 +741,7 @@ void options_menuset(int nitems, newmenu_item * items, int *last_key, int citem 
 
 void do_options_menu()
 {
-	newmenu_item m[11];
+	newmenu_item m[10];
 	int i = 0;
 
 	do {
@@ -919,27 +755,25 @@ void do_options_menu()
 		m[ 4].min_value = 0;
 		m[ 4].max_value = 16;
 
-		m[ 5].type = NM_TYPE_MENU;   m[ 5].text=TXT_DETAIL_LEVELS;
-		m[ 6].type = NM_TYPE_MENU;   m[ 6].text="Screen resolution...";
+		m[ 5].type = NM_TYPE_MENU;   m[ 5].text="Screen resolution...";
 
-		m[ 7].type = NM_TYPE_TEXT;   m[ 7].text="";
-		m[ 8].type = NM_TYPE_MENU;   m[ 8].text="Primary autoselect ordering...";
-		m[ 9].type = NM_TYPE_MENU;   m[ 9].text="Secondary autoselect ordering...";
-		m[10].type = NM_TYPE_CHECK;  m[10].text="Ship auto-leveling";
-		m[10].value=Auto_leveling_on;
+		m[ 6].type = NM_TYPE_TEXT;   m[ 6].text="";
+		m[ 7].type = NM_TYPE_MENU;   m[ 7].text="Primary autoselect ordering...";
+		m[ 8].type = NM_TYPE_MENU;   m[ 8].text="Secondary autoselect ordering...";
+		m[ 9].type = NM_TYPE_CHECK;  m[ 9].text="Ship auto-leveling";
+		m[ 9].value=Auto_leveling_on;
 
 		i = newmenu_do1( NULL, TXT_OPTIONS, sizeof(m)/sizeof(*m), m, options_menuset, i );
 			
 		switch(i)       {
 			case  0: do_sound_menu();		break;
 			case  2: input_config();		break;
-			case  5: do_detail_level_menu(); 	break;
-			case  6: change_res();			break;
-			case  8: ReorderPrimary();		break;
-			case  9: ReorderSecondary();		break;
+			case  5: change_res();			break;
+			case  7: ReorderPrimary();		break;
+			case  8: ReorderSecondary();		break;
 		}
 
-		Auto_leveling_on = m[10].value;
+		Auto_leveling_on = m[ 9].value;
 
 	} while( i>-1 );
 

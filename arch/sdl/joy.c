@@ -137,7 +137,7 @@ int joy_init()
 	char temp[10];
 
 	if (SDL_Init(SDL_INIT_JOYSTICK) < 0) {
-		printf("sdl-joystick: initialisation failed: %s.",SDL_GetError());
+		con_printf(CON_NORMAL, "sdl-joystick: initialisation failed: %s.",SDL_GetError());
 		return 0;
 	}
 
@@ -147,9 +147,9 @@ int joy_init()
 
 	n = SDL_NumJoysticks();
 
-	printf("sdl-joystick: found %d joysticks\n", n);
+	con_printf(CON_NORMAL, "sdl-joystick: found %d joysticks\n", n);
 	for (i = 0; i < n; i++) {
-		printf("sdl-joystick %d: %s\n", i, SDL_JoystickName(i));
+		con_printf(CON_NORMAL, "sdl-joystick %d: %s\n", i, SDL_JoystickName(i));
 		SDL_Joysticks[num_joysticks].handle = SDL_JoystickOpen(i);
 		if (SDL_Joysticks[num_joysticks].handle) {
 			joy_present = 1;
@@ -178,9 +178,9 @@ int joy_init()
 				SDL_Joysticks[num_joysticks].n_hats = MAX_HATS_PER_JOYSTICK;
 			}
 
-			printf("sdl-joystick: %d axes\n", SDL_Joysticks[num_joysticks].n_axes);
-			printf("sdl-joystick: %d buttons\n", SDL_Joysticks[num_joysticks].n_buttons);
-			printf("sdl-joystick: %d hats\n", SDL_Joysticks[num_joysticks].n_hats);
+			con_printf(CON_NORMAL, "sdl-joystick: %d axes\n", SDL_Joysticks[num_joysticks].n_axes);
+			con_printf(CON_NORMAL, "sdl-joystick: %d buttons\n", SDL_Joysticks[num_joysticks].n_buttons);
+			con_printf(CON_NORMAL, "sdl-joystick: %d hats\n", SDL_Joysticks[num_joysticks].n_hats);
 
 			for (j=0; j < SDL_Joysticks[num_joysticks].n_axes; j++)
 			{
@@ -211,10 +211,10 @@ int joy_init()
 			num_joysticks++;
 		}
 		else
-			printf("sdl-joystick: initialization failed!\n");
+			con_printf(CON_NORMAL, "sdl-joystick: initialization failed!\n");
 
-		printf("sdl-joystick: %d axes (total)\n", Joystick.n_axes);
-		printf("sdl-joystick: %d buttons (total)\n", Joystick.n_buttons);
+		con_printf(CON_NORMAL, "sdl-joystick: %d axes (total)\n", Joystick.n_axes);
+		con_printf(CON_NORMAL, "sdl-joystick: %d buttons (total)\n", Joystick.n_buttons);
 	}
 
 	joy_num_axes = Joystick.n_axes;
@@ -415,37 +415,4 @@ int joy_get_scaled_reading( int raw, int axis_num )
 	
 	return x;
 #endif
-}
-
-typedef struct Button_info {
-	ubyte		ignore;
-	ubyte		state;
-	ubyte		last_state;
-	int		timedown;
-	ubyte		downcount;
-	ubyte		upcount;
-} Button_info;
-
-typedef struct Joy_info {
-	int			joyid;
-	ubyte			present_mask;
-	ubyte			slow_read;
-	int			max_timer;
-	int			read_count;
-	ubyte			last_value;
-	Button_info		buttons[JOY_MAX_BUTTONS];
-	int			axis_min[JOY_NUM_AXES];    //changed 
-	int			axis_center[JOY_NUM_AXES]; //changed --orulz
-	int			axis_max[JOY_NUM_AXES];    //changed 
-} Joy_info;
-
-Joy_info joystick;
-
-void joy_set_btn_values( int btn, int state, fix timedown, int downcount, int upcount )
-{
-	joystick.buttons[btn].ignore = 1;
-	joystick.buttons[btn].state = state;
-	joystick.buttons[btn].timedown = fixmuldiv( timedown, 1193180, 65536 );
-	joystick.buttons[btn].downcount = downcount;
-	joystick.buttons[btn].upcount = upcount;
 }

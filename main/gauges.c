@@ -29,7 +29,6 @@ COPYRIGHT 1993-1998 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 #include "physics.h"
 #include "error.h"
 #include "menu.h"
-#include "mono.h"
 #include "collide.h"
 #include "newdemo.h"
 #include "player.h"
@@ -1314,9 +1313,7 @@ void sb_show_lives()
 
 #ifndef RELEASE
 
-#ifdef PIGGY_USE_PAGING
 extern int Piggy_bitmap_cache_next;
-#endif
 
 void show_time()
 {

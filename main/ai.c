@@ -17,16 +17,12 @@ COPYRIGHT 1993-1998 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
  *
  */
 
-#ifdef RCS
-static char rcsid[] = "$Id: ai.c,v 1.1.1.1 2006/03/17 19:41:40 zicodxx Exp $";
-#endif
-
 #include <stdio.h>
 #include <stdlib.h>
 
 #include "inferno.h"
 #include "game.h"
-#include "mono.h"
+#include "console.h"
 #include "3d.h"
 
 #include "object.h"
@@ -326,31 +322,6 @@ ubyte	john_cheats_2[2*JOHN_CHEATS_SIZE_2] = { 	KEY_P ^ 0x00 ^ 0x43, 0x66,
 																KEY_Y ^ 0x40 ^ 0x43, 0x0, 
 																KEY_S ^ 0x50 ^ 0x43 };
 
-// ---------------------------------------------------------
-//	On entry, N_robot_types had darn sure better be set.
-//	Mallocs N_robot_types robot_info structs into global Robot_info.
-void init_ai_system(void)
-{
-#if 0
-	int	i;
-
-	mprintf((0, "Trying to malloc %i bytes for Robot_info.\n", N_robot_types * sizeof(*Robot_info)));
-	Robot_info = (robot_info *) malloc( N_robot_types * sizeof(*Robot_info) );
-	mprintf((0, "Robot_info = %i\n", Robot_info));
-
-	for (i=0; i<N_robot_types; i++) {
-		Robot_info[i].field_of_view = F1_0/2;
-		Robot_info[i].firing_wait = F1_0;
-		Robot_info[i].turn_time = F1_0*2;
-		Robot_info[i].fire_power = F1_0;
-		Robot_info[i].shield = F1_0/2;
-		Robot_info[i].max_speed = F1_0*10;
-		Robot_info[i].always_0xabcd = 0xabcd;
-	}
-#endif
-
-}
-
 void john_cheat_func_1(int key)
 {
 	if (!Cheats_enabled)
@@ -401,9 +372,7 @@ void init_ai_object(int objnum, int behavior, int hide_segment)
 
 #ifdef DEST_SAT
 		if (!(Game_mode & GM_MULTI) && Robot_info[objp->id].boss_flag) {
-			mprintf((0, "Current_level_num = %i, Last_level = %i\n", Current_level_num, Last_level));
 			if (Current_level_num != Last_level) {
-				mprintf((0, "Removing boss, object num = %i\n", objnum));
 				objp->id = 0;
 				objp->flags |= OF_SHOULD_BE_DEAD;
 			}
@@ -411,11 +380,9 @@ void init_ai_object(int objnum, int behavior, int hide_segment)
 #endif
 
 	if (behavior == 0) {
-		// mprintf((0, "Behavior of 0 for object #%i, bashing to AIB_NORMAL.\n", objnum));
 		behavior = AIB_NORMAL;
 		objp->ctype.ai_info.behavior = behavior;
 	}
-	// mprintf((0, "Initializing object #%i\n", objnum));
 
 	//	mode is now set from the Robot dialog, so this should get overwritten.
 	ailp->mode = AIM_STILL;
@@ -426,7 +393,6 @@ void init_ai_object(int objnum, int behavior, int hide_segment)
 		aip->behavior = behavior;
 		ailp->mode = ai_behavior_to_mode(aip->behavior);
 	} else if (!((aip->behavior >= MIN_BEHAVIOR) && (aip->behavior <= MAX_BEHAVIOR))) {
-		mprintf((0, "[obj %i -> normal] ", objnum));
 		aip->behavior = AIB_NORMAL;
 	}
 
@@ -579,13 +545,10 @@ void set_rotvel_and_saturate(fix *dest, fix delta)
 {
 	if ((delta ^ *dest) < 0) {
 		if (abs(delta) < F1_0/8) {
-			// mprintf((0, "D"));
 			*dest = delta/4;
 		} else
-			// mprintf((0, "d"));
 			*dest = delta;
 	} else {
-		// mprintf((0, "!"));
 		*dest = delta;
 	}
 }
@@ -622,39 +585,11 @@ void ai_turn_towards_vector(vms_vector *goal_vector, object *objp, fix rate)
 		vm_vec_add2(&new_fvec, &objp->orient.fvec);
 		mag = vm_vec_normalize_quick(&new_fvec);
 		if (mag < F1_0/256) {
-			mprintf((1, "Degenerate vector in ai_turn_towards_vector (mag = %7.3f)\n", f2fl(mag)));
 			new_fvec = *goal_vector;		//	if degenerate vector, go right to goal
 		}
 	}
 
-//	//	Every 8th time, do a correct matrix create, 7/8 time, do a quick one.
-//      if (d_rand() < 0x1000)
-		vm_vector_2_matrix(&objp->orient, &new_fvec, NULL, &objp->orient.rvec);
-//	else
-//		vm_vector_2_matrix_norm(&objp->orient, &new_fvec, NULL, &objp->orient.rvec);
-
-//--{
-//--vms_vector tvec;
-//--fix mag;
-//--tvec = objp->orient.fvec;
-//--mag = vm_vec_mag(&tvec);
-//--mprintf((0, "mags = %7.3f ", f2fl(mag)));
-//--
-//--tvec = objp->orient.uvec;
-//--mag = vm_vec_mag(&tvec);
-//--mprintf((0, "%7.3f ", f2fl(mag)));
-//--
-//--tvec = objp->orient.rvec;
-//--mag = vm_vec_mag(&tvec);
-//--mprintf((0, "%7.3f\n", f2fl(mag)));
-//--}
-//--simpler, but buggy:	//	The cross product of the forward vector with the right vector is the up vector
-//--simpler, but buggy:	vm_vec_cross(&new_uvec, &new_fvec, &objp->orient.rvec);
-//--simpler, but buggy:	vm_vec_cross(&new_rvec, &new_uvec, &new_fvec);
-//--simpler, but buggy:
-//--simpler, but buggy:	objp->orient.fvec = new_fvec;
-//--simpler, but buggy:	objp->orient.rvec = new_rvec;
-//--simpler, but buggy:	objp->orient.uvec = new_uvec;
+	vm_vector_2_matrix(&objp->orient, &new_fvec, NULL, &objp->orient.rvec);
 }
 
 // --------------------------------------------------------------------------------------------------------------------
@@ -757,7 +692,6 @@ void john_cheat_func_4(int key)
                                                 hud_message(MSGC_GAME_FEEDBACK, TXT_ROBOT_PAINTING_ON, Ugly_robot_texture );
 						Ugly_robot_cheat = 0xBADA55;
 					}
-					mprintf((0, "Paint value = %i\n", Ugly_robot_texture));
 					john_cheats_index_4 = 0;
 				}
 			} else
@@ -787,7 +721,7 @@ int player_is_visible_from_object(object *objp, vms_vector *pos, fix field_of_vi
 		if (segnum == -1) {
 			fq.startseg = objp->segnum;
 			*pos = objp->pos;
-			mprintf((1, "Object %i, gun is outside mine, moving towards center.\n", objp-Objects));
+			con_printf(CON_DEBUG, "Object %i, gun is outside mine, moving towards center.\n", objp-Objects);
 			move_towards_segment_center(objp);
 		} else
 			fq.startseg = segnum;
@@ -806,16 +740,12 @@ int player_is_visible_from_object(object *objp, vms_vector *pos, fix field_of_vi
 
 	if ((Hit_type == HIT_NONE) || ((Hit_type == HIT_OBJECT) && (Hit_data.hit_object == Players[Player_num].objnum))) {
 		dot = vm_vec_dot(vec_to_player, &objp->orient.fvec);
-		// mprintf((0, "Fvec = [%5.2f %5.2f %5.2f], vec_to_player = [%5.2f %5.2f %5.2f], dot = %7.3f\n", f2fl(objp->orient.fvec.x), f2fl(objp->orient.fvec.y), f2fl(objp->orient.fvec.z), f2fl(vec_to_player->x), f2fl(vec_to_player->y), f2fl(vec_to_player->z), f2fl(dot)));
 		if (dot > field_of_view - (Overall_agitation << 9)) {
-			// mprintf((0, "I can see you!\n"));
 			return 2;
 		} else {
-			// mprintf((0, "Damn, I could see you if I were looking...\n"));
 			return 1;
 		}
 	} else {
-		// mprintf((0, " ** Where are you? **\n"));
 		return 0;
 	}
 }
@@ -839,7 +769,6 @@ int do_silly_animation(object *objp)
 	attack_type = Robot_info[robot_type].attack_type;
 
 	if (num_guns == 0) {
-		// mprintf((0, "Object #%i of type #%i has 0 guns.\n", objp-Objects, robot_type));
 		return 0;
 	}
 
@@ -973,7 +902,7 @@ void ai_frame_animation(object *objp)
 
 #ifndef NDEBUG
 if (Ai_animation_test) {
-	printf("%i: [%7.3f %7.3f %7.3f]  [%7.3f %7.3f %7.3f]\n", joint, f2fl(curangp->p), f2fl(curangp->b), f2fl(curangp->h), f2fl(goalangp->p), f2fl(goalangp->b), f2fl(goalangp->h));
+	con_printf(CON_DEBUG, "%i: [%7.3f %7.3f %7.3f]  [%7.3f %7.3f %7.3f]\n", joint, f2fl(curangp->p), f2fl(curangp->b), f2fl(curangp->h), f2fl(goalangp->p), f2fl(goalangp->b), f2fl(goalangp->h));
 }
 #endif
 		delta_to_goal = goalangp->p - curangp->p;
@@ -1159,11 +1088,6 @@ void ai_fire_laser_at_player(object *obj, vms_vector *fire_point)
 		}
 	}
 
-//#ifndef NDEBUG
-//	if (robptr->boss_flag)
-//		mprintf((0, "Boss (%i) fires!\n", obj-Objects));
-//#endif
-
 	Laser_create_new_easy( &fire_vec, fire_point, obj-Objects, robptr->weapon_type, 1);
 
 #ifndef SHAREWARE
@@ -1204,12 +1128,10 @@ void move_towards_vector(object *objp, vms_vector *vec_goal)
 	if (dot < 3*F1_0/4) {
 		//	This funny code is supposed to slow down the robot and move his velocity towards his direction
 		//	more quickly than the general code
-		//-! mprintf((0, "Th  "));
 		pptr->velocity.x = pptr->velocity.x/2 + fixmul(vec_goal->x, FrameTime*32);
 		pptr->velocity.y = pptr->velocity.y/2 + fixmul(vec_goal->y, FrameTime*32);
 		pptr->velocity.z = pptr->velocity.z/2 + fixmul(vec_goal->z, FrameTime*32);
 	} else {
-		//-! mprintf((0, "Tn  "));
 		pptr->velocity.x += fixmul(vec_goal->x, FrameTime*64) * (Difficulty_level+5)/4;
 		pptr->velocity.y += fixmul(vec_goal->y, FrameTime*64) * (Difficulty_level+5)/4;
 		pptr->velocity.z += fixmul(vec_goal->z, FrameTime*64) * (Difficulty_level+5)/4;
@@ -1485,65 +1407,14 @@ void make_random_vector(vms_vector *vec)
 	vm_vec_normalize_quick(vec);
 }
 
-#ifndef NDEBUG
-void mprintf_animation_info(object *objp)
-{
-	ai_static	*aip = &objp->ctype.ai_info;
-	ai_local		*ailp = &Ai_local_info[objp-Objects];
-
-	if (!Ai_info_enabled)
-		return;
-
-	mprintf((0, "Goal = "));
-
-	switch (aip->GOAL_STATE) {
-		case AIS_NONE:	mprintf((0, "NONE "));	break;
-		case AIS_REST:	mprintf((0, "REST "));	break;
-		case AIS_SRCH:	mprintf((0, "SRCH "));	break;
-		case AIS_LOCK:	mprintf((0, "LOCK "));	break;
-		case AIS_FLIN:	mprintf((0, "FLIN "));	break;
-		case AIS_FIRE:	mprintf((0, "FIRE "));	break;
-		case AIS_RECO:	mprintf((0, "RECO "));	break;
-		case AIS_ERR_:	mprintf((0, "ERR_ "));	break;
-	}
-
-	mprintf((0, " Cur = "));
-
-	switch (aip->CURRENT_STATE) {
-		case AIS_NONE:	mprintf((0, "NONE "));	break;
-		case AIS_REST:	mprintf((0, "REST "));	break;
-		case AIS_SRCH:	mprintf((0, "SRCH "));	break;
-		case AIS_LOCK:	mprintf((0, "LOCK "));	break;
-		case AIS_FLIN:	mprintf((0, "FLIN "));	break;
-		case AIS_FIRE:	mprintf((0, "FIRE "));	break;
-		case AIS_RECO:	mprintf((0, "RECO "));	break;
-		case AIS_ERR_:	mprintf((0, "ERR_ "));	break;
-	}
-
-	mprintf((0, " Aware = "));
-
-	switch (ailp->player_awareness_type) {
-		case AIE_FIRE: mprintf((0, "FIRE ")); break;
-		case AIE_HITT: mprintf((0, "HITT ")); break;
-		case AIE_COLL: mprintf((0, "COLL ")); break;
-		case AIE_HURT: mprintf((0, "HURT ")); break;
-	}
-
-	mprintf((0, "Next fire = %6.3f, Time = %6.3f\n", f2fl(ailp->next_fire), f2fl(ailp->player_awareness_time)));
-
-}
-#endif
-
 //	-------------------------------------------------------------------------------------------------------------------
 int	Break_on_object = -1;
 
 void do_firing_stuff(object *obj, int player_visibility, vms_vector *vec_to_player)
 {
-//mprintf((0, "!"));
 	if (player_visibility >= 1) {
 		//	Now, if in robot's field of view, lock onto player
 		fix	dot = vm_vec_dot(&obj->orient.fvec, vec_to_player);
-//mprintf((0, "dot = %8x ", dot));
 		if ((dot >= 7*F1_0/8) || (Players[Player_num].flags & PLAYER_FLAGS_CLOAKED)) {
 			ai_static	*aip = &obj->ctype.ai_info;
 			ai_local		*ailp = &Ai_local_info[obj-Objects];
@@ -1633,7 +1504,6 @@ void compute_vis_and_vec(object *objp, vms_vector *pos, ai_local *ailp, vms_vect
 			// *player_visibility = 2;
 
 			if ((ailp->next_misc_sound_time < GameTime) && (ailp->next_fire < F1_0) && (dist < F1_0*20)) {
-				mprintf((0, "ANGRY! "));
                                 ailp->next_misc_sound_time = GameTime + (d_rand() + F1_0) * (7 - Difficulty_level) / 1;
 				digi_link_sound_to_pos( robptr->see_sound, objp->segnum, 0, pos, 0 , Robot_sound_volume);
 			}
@@ -1641,7 +1511,7 @@ void compute_vis_and_vec(object *objp, vms_vector *pos, ai_local *ailp, vms_vect
 			//	Compute expensive stuff -- vec_to_player and player_visibility
 			vm_vec_normalized_dir_quick(vec_to_player, &Believed_player_pos, pos);
 			if ((vec_to_player->x == 0) && (vec_to_player->y == 0) && (vec_to_player->z == 0)) {
-				mprintf((0, "Warning: Player and robot at exactly the same location.\n"));
+				con_printf(CON_DEBUG, "Warning: Player and robot at exactly the same location.\n");
 				vec_to_player->x = F1_0;
 			}
 			*player_visibility = player_is_visible_from_object(objp, pos, robptr->field_of_view[Difficulty_level], vec_to_player);
@@ -1660,20 +1530,17 @@ void compute_vis_and_vec(object *objp, vms_vector *pos, ai_local *ailp, vms_vect
 			if (!Player_exploded && (ailp->previous_visibility != *player_visibility) && (*player_visibility == 2)) {
 				if (ailp->previous_visibility == 0) {
 					if (ailp->time_player_seen + F1_0/2 < GameTime) {
-						// mprintf((0, "SEE! "));
 						digi_link_sound_to_pos( robptr->see_sound, objp->segnum, 0, pos, 0 , Robot_sound_volume);
 						ailp->time_player_sound_attacked = GameTime;
                                                 ailp->next_misc_sound_time = GameTime + F1_0 + d_rand()*4;
 					}
 				} else if (ailp->time_player_sound_attacked + F1_0/4 < GameTime) {
-					// mprintf((0, "ANGRY! "));
 					digi_link_sound_to_pos( robptr->attack_sound, objp->segnum, 0, pos, 0 , Robot_sound_volume);
 					ailp->time_player_sound_attacked = GameTime;
 				}
 			} 
 
 			if ((*player_visibility == 2) && (ailp->next_misc_sound_time < GameTime)) {
-				// mprintf((0, "ATTACK! "));
                                 ailp->next_misc_sound_time = GameTime + (d_rand() + F1_0) * (7 - Difficulty_level) / 2;
 				digi_link_sound_to_pos( robptr->attack_sound, objp->segnum, 0, pos, 0 , Robot_sound_volume);
 			}
@@ -1721,7 +1588,7 @@ void move_object_to_legal_spot(object *objp)
 	}
 
 	// Int3();		//	Darn you John, you done it again!  (But contact Mike)
-	mprintf((0, "Note: Killing robot #%i because he's badly stuck outside the mine.\n", objp-Objects));
+	con_printf(CON_DEBUG, "Note: Killing robot #%i because he's badly stuck outside the mine.\n", objp-Objects);
 
 	apply_damage_to_robot(objp, objp->shields*2, objp-Objects);
 }
@@ -1743,9 +1610,9 @@ void move_towards_segment_center(object *objp)
 	if (dist_to_center < objp->size) {
 		//	Center is nearer than the distance we want to move, so move to center.
 		objp->pos = segment_center;
-		mprintf((0, "Object #%i moved to center of segment #%i (%7.3f %7.3f %7.3f)\n", objp-Objects, objp->segnum, f2fl(objp->pos.x), f2fl(objp->pos.y), f2fl(objp->pos.z)));
+		con_printf(CON_DEBUG, "Object #%i moved to center of segment #%i (%7.3f %7.3f %7.3f)\n", objp-Objects, objp->segnum, f2fl(objp->pos.x), f2fl(objp->pos.y), f2fl(objp->pos.z));
 		if (object_intersects_wall(objp)) {
-			mprintf((0, "Object #%i still illegal, trying trickier move.\n"));
+			con_printf(CON_DEBUG, "Object #%i still illegal, trying trickier move.\n");
 			move_object_to_legal_spot(objp);
 		}
 	} else {
@@ -1758,7 +1625,7 @@ void move_towards_segment_center(object *objp)
 			objp->pos = segment_center;
 			move_object_to_legal_spot(objp);
 		}
-		mprintf((0, "Obj %i moved twrds seg %i (%6.2f %6.2f %6.2f), dists: [%6.2f %6.2f]\n", objp-Objects, objp->segnum, f2fl(objp->pos.x), f2fl(objp->pos.y), f2fl(objp->pos.z), f2fl(vm_vec_dist_quick(&objp->pos, &segment_center)), f2fl(vm_vec_dist_quick(&objp->pos, &segment_center))));
+		con_printf(CON_DEBUG, "Obj %i moved twrds seg %i (%6.2f %6.2f %6.2f), dists: [%6.2f %6.2f]\n", objp-Objects, objp->segnum, f2fl(objp->pos.x), f2fl(objp->pos.y), f2fl(objp->pos.z), f2fl(vm_vec_dist_quick(&objp->pos, &segment_center)), f2fl(vm_vec_dist_quick(&objp->pos, &segment_center)));
 	}
 
 }
@@ -1819,24 +1686,6 @@ int openable_doors_in_segment(object *objp)
 
 }
 
-//--unused-- //	-----------------------------------------------------------------------------------------------------------
-//--unused-- //	For all doors this guy can open in his segment, open them.
-//--unused-- void ai_open_doors_in_segment(object *objp)
-//--unused-- {
-//--unused-- 	int	i;
-//--unused-- 	int	segnum = objp->segnum;
-//--unused-- 
-//--unused-- 	for (i=0; i<MAX_SIDES_PER_SEGMENT; i++)
-//--unused-- 		if (Segments[segnum].sides[i].wall_num != -1) {
-//--unused-- 			int	wall_num = Segments[segnum].sides[i].wall_num;
-//--unused-- 			if ((Walls[wall_num].type == WALL_DOOR) && (Walls[wall_num].keys == KEY_NONE) && (Walls[wall_num].state == WALL_DOOR_CLOSED))
-//--unused-- 				if (door_openable_by_robot(objp, wall_num)) {
-//--unused-- 					mprintf((0, "Trying to open door at segment %i, side %i\n", segnum, i));
-//--unused-- 					wall_open_door(&Segments[segnum], i);
-//--unused-- 				}
-//--unused-- 		}
-//--unused-- }
-
 // --------------------------------------------------------------------------------------------------------------------
 //	Return true if a special object (player or control center) is in this segment.
 int special_object_in_seg(int segnum)
@@ -1847,7 +1696,6 @@ int special_object_in_seg(int segnum)
 
 	while (objnum != -1) {
 		if ((Objects[objnum].type == OBJ_PLAYER) || (Objects[objnum].type == OBJ_CNTRLCEN)) {
-			mprintf((0, "Special object of type %i in segment %i\n", Objects[objnum].type, segnum));
 			return 1;
 		} else
 			objnum = Objects[objnum].next;
@@ -1915,7 +1763,6 @@ int create_gated_robot( int segnum, int object_id)
 				count++;
 
 	if (count > 2*Difficulty_level + 3) {
-		// mprintf((0, "Cannot gate in a robot until you kill one.\n"));
 		Last_gate_time = GameTime - 3*Gate_interval/4;
 		return 0;
 	}
@@ -1925,7 +1772,6 @@ int create_gated_robot( int segnum, int object_id)
 
 	//	See if legal to place object here.  If not, move about in segment and try again.
 	if (check_object_object_intersection(&object_pos, objsize, segp)) {
-		// mprintf((0, "Can't get in because object collides with something.\n"));
 		Last_gate_time = GameTime - 3*Gate_interval/4;
 		return 0;
 	}
@@ -1933,12 +1779,11 @@ int create_gated_robot( int segnum, int object_id)
 	objnum = obj_create(OBJ_ROBOT, object_id, segnum, &object_pos, &vmd_identity_matrix, objsize, CT_AI, MT_PHYSICS, RT_POLYOBJ);
 
 	if ( objnum < 0 ) {
-		// mprintf((1, "Can't get object to gate in robot.  Not gating in.\n"));
 		Last_gate_time = GameTime - 3*Gate_interval/4;
 		return 0;
 	}
 
-	mprintf((0, "Gating in object %i in segment %i\n", objnum, segp-Segments));
+	con_printf(CON_DEBUG, "Gating in object %i in segment %i\n", objnum, segp-Segments);
 
 	#ifdef NETWORK
 	Net_create_objnums[0] = objnum; // A convenient global to get objnum back to caller for multiplayer
@@ -1995,29 +1840,6 @@ int gate_in_robot(int type, int segnum)
 }
 
 #endif
-
-//// --------------------------------------------------------------------------------------------------------------------
-////	Return true if some distance function of vertices implies segment is too small for object.
-//int segment_too_small_for_object(object *objp, segment *segp)
-//{
-//	int	i;
-//	fix	threshold_distance;
-//
-//	threshold_distance = objp->size*2;
-//
-//	for (i=1; i<MAX_VERTICES_PER_SEGMENT; i++)
-//		if (vm_vec_dist_quick(&Vertices[segp->verts[i]], &Vertices[segp->verts[i-1]]) < threshold_distance) {
-//#ifndef NDEBUG
-//			fix dist = vm_vec_dist_quick(&Vertices[segp->verts[i]], &Vertices[segp->verts[i-1]]);
-//#endif
-//			mprintf((0, "Seg %i too small for obj %i (sz=%7.3f), verts %i, %i only %7.3f apart\n", segp-Segments, objp-Objects, f2fl(objp->size), segp->verts[i], segp->verts[i-1], f2fl(dist)));
-//			return 1;
-//		}
-//
-//	return 0;
-//}
-
-//--unused-- int	Shown_all_segments=0;
 
 // --------------------------------------------------------------------------------------------------------------------
 int boss_fits_in_seg(object *boss_objp, int segnum)
@@ -2122,7 +1944,6 @@ void init_boss_segments(short segptr[], int *num_segs, int size_check)
 							Selected_segs[N_selected_segs++] = segp->children[sidenum];
 							#endif
 							if (*num_segs >= MAX_BOSS_TELEPORT_SEGS) {
-								mprintf((1, "Warning: Too many boss teleport segments.  Found %i after searching %i/%i segments.\n", MAX_BOSS_TELEPORT_SEGS, segp->children[sidenum], Highest_segment_index+1));
 								tail = head;
 							}
 						}
@@ -2172,9 +1993,6 @@ void teleport_boss(object *objp)
 	digi_link_sound_to_pos( Vclip[VCLIP_MORPHING_ROBOT].sound_num, rand_segnum, 0, &objp->pos, 0 , F1_0);
 	digi_kill_sound_linked_to_object( objp-Objects);
 	digi_link_sound_to_object2( SOUND_BOSS_SHARE_SEE, objp-Objects, 1, F1_0, F1_0*512 );	//	F1_0*512 means play twice as loud
-	#ifndef NDEBUG
-	mprintf((0, "Boss teleported to segment %i\n", rand_segnum));
-	#endif
 
 	//	After a teleport, boss can fire right away.
 	Ai_local_info[objp-Objects].next_fire = 0;
@@ -2208,7 +2026,6 @@ void do_boss_dying_frame(object *objp)
 
 	if (Boss_dying_start_time + BOSS_DEATH_DURATION - BOSS_DEATH_SOUND_DURATION < GameTime) {
 		if (!Boss_dying_sound_playing) {
-			mprintf((0, "Starting boss death sound!\n"));
 			Boss_dying_sound_playing = 1;
 			digi_link_sound_to_object2( SOUND_BOSS_SHARE_DIE, objp-Objects, 0, F1_0*4, F1_0*1024 );	//	F1_0*512 means play twice as loud
                 } else if (d_rand() < FrameTime*16)
@@ -2274,7 +2091,6 @@ void do_boss_stuff(object *objp)
 
 #ifndef NDEBUG
 	if (objp->shields != Prev_boss_shields) {
-		mprintf((0, "Boss shields = %7.3f, object %i\n", f2fl(objp->shields), objp-Objects));
 		Prev_boss_shields = objp->shields;
 	}
 #endif
@@ -2437,12 +2253,11 @@ void ai_do_actual_firing_stuff(object *obj, ai_static *aip, ai_local *ailp, robo
 								return;
 							do_ai_robot_hit_attack(obj, ConsoleObject, &obj->pos);
 						} else {
-							// mprintf((0, "Green won't fire: Too far: dist = %7.3f, threshold = %7.3f\n", f2fl(dist_to_player), f2fl(obj->size + ConsoleObject->size + F1_0*2)));
 							return;
 						}
 					} else {
 						if ((gun_point->x == 0) && (gun_point->y == 0) && (gun_point->z == 0)) {
-							; //mprintf((0, "Would like to fire gun, but gun not selected.\n"));
+							;
 						} else {
 							if (!ai_multiplayer_awareness(obj, ROBOT_FIRE_AGITATION))
 								return;
@@ -2522,8 +2337,6 @@ void do_ai_frame(object *obj)
 	if ((aip->behavior == AIB_RUN_FROM) && (ailp->mode != AIM_RUN_FROM_OBJECT))
 		Int3();	//	This is peculiar.  Behavior is run from, but mode is not.  Contact Mike.
 
-	mprintf_animation_info((obj));
-
 	if (Ai_animation_test) {
 		if (aip->GOAL_STATE == aip->CURRENT_STATE) {
 			aip->GOAL_STATE++;
@@ -2531,7 +2344,6 @@ void do_ai_frame(object *obj)
 				aip->GOAL_STATE = AIS_REST;
 		}
 
-		mprintf((0, "Frame %4i, current = %i, goal = %i\n", FrameCount, aip->CURRENT_STATE, aip->GOAL_STATE));
 		object_animates = do_silly_animation(obj);
 		if (object_animates)
 			ai_frame_animation(obj);
@@ -2548,12 +2360,8 @@ void do_ai_frame(object *obj)
 
 	Believed_player_pos = Ai_cloak_info[objnum & (MAX_AI_CLOAK_INFO-1)].last_position;
 
-	// mprintf((0, "Object %i: behavior = %02x, mode = %i, awareness = %i, time = %7.3f\n", obj-Objects, aip->behavior, ailp->mode, ailp->player_awareness_type, f2fl(ailp->player_awareness_time)));
-	// mprintf((0, "Object %i: behavior = %02x, mode = %i, awareness = %i, cur=%i, goal=%i\n", obj-Objects, aip->behavior, ailp->mode, ailp->player_awareness_type, aip->CURRENT_STATE, aip->GOAL_STATE));
-
 //	Assert((aip->behavior >= MIN_BEHAVIOR) && (aip->behavior <= MAX_BEHAVIOR));
 	if (!((aip->behavior >= MIN_BEHAVIOR) && (aip->behavior <= MAX_BEHAVIOR))) {
-		// mprintf((0, "Object %i behavior is %i, setting to AIB_NORMAL, fix in editor!\n", objnum, aip->behavior));
 		aip->behavior = AIB_NORMAL;
 	}
 
@@ -2585,22 +2393,14 @@ void do_ai_frame(object *obj)
 
 	dist_to_player = vm_vec_dist_quick(&Believed_player_pos, &obj->pos);
 
-//--!-- 	mprintf((0, "%2i: %s, [vel = %5.1f %5.1f %5.1f] spd = %4.1f dtp=%5.1f ", objnum, mode_text[ailp->mode], f2fl(obj->mtype.phys_info.velocity.x), f2fl(obj->mtype.phys_info.velocity.y), f2fl(obj->mtype.phys_info.velocity.z), f2fl(vm_vec_mag(&obj->mtype.phys_info.velocity)), f2fl(dist_to_player)));
-//--!-- 	if (ailp->mode == AIM_FOLLOW_PATH) {
-//--!-- 		mprintf((0, "gseg = %i\n", Point_segs[aip->hide_index+aip->cur_path_index].segnum));
-//--!-- 	} else
-//--!-- 		mprintf((0, "\n"));
-
 	//	If this robot can fire, compute visibility from gun position.
 	//	Don't want to compute visibility twice, as it is expensive.  (So is call to calc_gun_point).
 	if ((ailp->next_fire <= 0) && (dist_to_player < F1_0*200) && (robptr->n_guns) && !(robptr->attack_type)) {
 		calc_gun_point(&gun_point, obj, aip->CURRENT_GUN);
 		vis_vec_pos = gun_point;
-		// mprintf((0, "Visibility = %i, computed from gun #%i\n", player_visibility, aip->CURRENT_GUN));
 	} else {
 		vis_vec_pos = obj->pos;
 		vm_vec_zero(&gun_point);
-		// mprintf((0, "Visibility = %i, computed from center.\n", player_visibility));
 	}
 
 	//	- -  - -  - -  - -  - -  - -  - -  - -  - -  - -  - -  - -  - -  - -  - -  - -  - -
@@ -2609,7 +2409,6 @@ void do_ai_frame(object *obj)
 		if (Overall_agitation > 70) {
                         if ((dist_to_player < F1_0*200) && (d_rand() < FrameTime/4)) {
                                 if (d_rand() * (Overall_agitation - 40) > F1_0*5) {
-					// -- mprintf((0, "(1) Object #%i going from still to path in frame %i.\n", objnum, FrameCount));
 					create_path_to_player(obj, 4 + Overall_agitation/8 + Difficulty_level, 1);
 					// -- show_path_and_other(obj);
 					return;
@@ -2628,7 +2427,6 @@ void do_ai_frame(object *obj)
 		if (ailp->consecutive_retries > 3) {
 			switch (ailp->mode) {
 				case AIM_CHASE_OBJECT:
-					// -- mprintf((0, "(2) Object #%i, retries while chasing, creating path to player in frame %i\n", objnum, FrameCount));
 					create_path_to_player(obj, 4 + Overall_agitation/8 + Difficulty_level, 1);
 					break;
 				case AIM_STILL:
@@ -2636,7 +2434,6 @@ void do_ai_frame(object *obj)
 						attempt_to_resume_path(obj);
 					break;	
 				case AIM_FOLLOW_PATH:
-						// mprintf((0, "Object %i following path got %i retries in frame %i\n", obj-Objects, ailp->consecutive_retries, FrameCount));
 					if (Game_mode & GM_MULTI)
 						ailp->mode = AIM_STILL;
 					else
@@ -2655,7 +2452,6 @@ void do_ai_frame(object *obj)
 					obj->mtype.phys_info.velocity.x = 0;
 					obj->mtype.phys_info.velocity.y = 0;
 					obj->mtype.phys_info.velocity.z = 0;
-					// -- mprintf((0, "Hiding, yet creating path to player.\n"));
 					if (Overall_agitation > (50 - Difficulty_level*4))
 						create_path_to_player(obj, 4 + Overall_agitation/8, 1);
 					else {
@@ -2756,20 +2552,12 @@ void do_ai_frame(object *obj)
 		object_animates = do_silly_animation(obj);
 		if (object_animates)
 			ai_frame_animation(obj);
-		//mprintf((0, "Object %i: goal=%i, current=%i\n", obj-Objects, obj->ctype.ai_info.GOAL_STATE, obj->ctype.ai_info.CURRENT_STATE));
 	} else {
 		//	If Object is supposed to animate, but we don't let it animate due to distance, then
 		//	we must change its state, else it will never update.
 		aip->CURRENT_STATE = aip->GOAL_STATE;
 		object_animates = 0;		//	If we're not doing the animation, then should pretend it doesn't animate.
 	}
-
-//Processed_this_frame++;
-//if (FrameCount != LastFrameCount) {
-//	LastFrameCount = FrameCount;
-//	mprintf((0, "Processed in frame %i = %i robots\n", FrameCount-1, Processed_this_frame));
-//	Processed_this_frame = 0;
-//}
 
 	switch (Robot_info[obj->id].boss_flag) {
 		case 0:
@@ -2829,9 +2617,6 @@ void do_ai_frame(object *obj)
 		#endif
 	}
 
-// -- 	if ((aip->behavior == AIB_STATION) && (ailp->mode == AIM_FOLLOW_PATH) && (aip->hide_segment != obj->segnum))
-// -- 		mprintf((0, "[%i] ", obj-Objects));
-
 	//	Reset time since processed, but skew objects so not everything processed synchronously, else
 	//	we get fast frames with the occasional very slow frame.
 	// AI_proc_time = ailp->time_since_processed;
@@ -2890,13 +2675,11 @@ void do_ai_frame(object *obj)
 
 			//	@mk, 12/27/94, structure here was strange.  Would do both clauses of what are now this if/then/else.  Used to be if/then, if/then.
 			if ((player_visibility < 2) && (previous_visibility == 2)) { // this is redundant: mk, 01/15/95: && (ailp->mode == AIM_CHASE_OBJECT)) {
-				// mprintf((0, "I used to be able to see the player!\n"));
 				if (!ai_multiplayer_awareness(obj, 53)) {
 					if (maybe_ai_do_actual_firing_stuff(obj, aip))
 						ai_do_actual_firing_stuff(obj, aip, ailp, robptr, &vec_to_player, dist_to_player, &gun_point, player_visibility, object_animates);
 					return;
 				}
-				// -- mprintf((0, "(3) Object #%i going from chase to player path in frame %i.\n", objnum, FrameCount));
 				create_path_to_player(obj, 8, 1);
 				// -- show_path_and_other(obj);
 				ai_multi_send_robot_position(objnum, -1);
@@ -2905,7 +2688,6 @@ void do_ai_frame(object *obj)
 				//	This has one desirable benefit of avoiding physics retries.
 				if (aip->behavior == AIB_STATION) {
 					ailp->goal_segment = aip->hide_segment;
-					// -- mprintf((0, "(1) Object #%i going from chase to STATION in frame %i.\n", objnum, FrameCount));
 					create_path_to_station(obj, 15);
 					// -- show_path_and_other(obj);
 				} else
@@ -2917,7 +2699,6 @@ void do_ai_frame(object *obj)
 				if (player_visibility) {
                                         if (d_rand() < FrameTime*player_visibility) {
                                                 if (dist_to_player/256 < d_rand()*player_visibility) {
-							// mprintf((0, "Object %i searching for player.\n", obj-Objects));
 							aip->GOAL_STATE = AIS_SRCH;
 							aip->CURRENT_STATE = AIS_SRCH;
 						}
@@ -2938,7 +2719,6 @@ void do_ai_frame(object *obj)
 						ai_do_actual_firing_stuff(obj, aip, ailp, robptr, &vec_to_player, dist_to_player, &gun_point, player_visibility, object_animates);
 					return;
 				}
-				// -- mprintf((0, "(4) Object #%i going from chase to player path in frame %i.\n", objnum, FrameCount));
 				create_path_to_player(obj, 10, 1);
 				// -- show_path_and_other(obj);
 				ai_multi_send_robot_position(objnum, -1);
@@ -3027,7 +2807,6 @@ void do_ai_frame(object *obj)
 			if (aip->behavior == AIB_STATION)
 				if (Point_segs[aip->hide_index + aip->path_length - 1].segnum == aip->hide_segment) {
 					anger_level = 64;
-					// mprintf((0, "Object %i, station, lowering anger to 64.\n"));
 				}
 
 			compute_vis_and_vec(obj, &vis_vec_pos, ailp, &vec_to_player, &player_visibility, robptr, &visibility_and_vec_computed);
@@ -3138,7 +2917,6 @@ void do_ai_frame(object *obj)
 					//	This has one desirable benefit of avoiding physics retries.
 					if (aip->behavior == AIB_STATION) {
 						ailp->goal_segment = aip->hide_segment;
-						// -- mprintf((0, "(2) Object #%i going from STILL to STATION in frame %i.\n", objnum, FrameCount));
 						create_path_to_station(obj, 15);
 						// -- show_path_and_other(obj);
 					}
@@ -3164,7 +2942,6 @@ void do_ai_frame(object *obj)
 		}
 
 		default:
-			mprintf((0, "Unknown mode = %i in robot %i, behavior = %i\n", ailp->mode, obj-Objects, aip->behavior));
 			ailp->mode = AIM_CHASE_OBJECT;
 			break;
 	}		// end:	switch (ailp->mode) {
@@ -3181,7 +2958,6 @@ void do_ai_frame(object *obj)
 	//	- -  - -  - -  - -  - -  - -  - -  - -  - -  - -  - -  - -  - -  - -  - -  - -  - -
 	if (!object_animates) {
 		aip->CURRENT_STATE = aip->GOAL_STATE;
-		// mprintf((0, "Setting current to goal (%i) because object doesn't animate.\n", aip->GOAL_STATE));
 	}
 
 	Assert(ailp->player_awareness_type <= AIE_MAX);
@@ -3230,16 +3006,13 @@ void do_ai_frame(object *obj)
 				if (dot >= F1_0/2)
 					if (aip->GOAL_STATE == AIS_REST)
 						aip->GOAL_STATE = AIS_SRCH;
-				//mprintf((0, "State = none, goal = %i.\n", aip->GOAL_STATE));
 				break;
 			case	AIS_REST:
 				if (aip->GOAL_STATE == AIS_REST) {
 					compute_vis_and_vec(obj, &vis_vec_pos, ailp, &vec_to_player, &player_visibility, robptr, &visibility_and_vec_computed);
 					if ((ailp->next_fire <= 0) && (player_visibility)) {
-						// mprintf((0, "Setting goal state to fire from rest.\n"));
 						aip->GOAL_STATE = AIS_FIRE;
 					}
-					//mprintf((0, "State = rest, goal = %i.\n", aip->GOAL_STATE));
 				}
 				break;
 			case	AIS_SRCH:
@@ -3303,10 +3076,8 @@ void do_ai_frame(object *obj)
 				}
 				break;
 			case	AIS_FLIN:
-				// mprintf((0, "State = flinch, goal = %i.\n", aip->GOAL_STATE));
 				break;
 			default:
-				mprintf((1, "Unknown mode for AI object #%i\n", objnum));
 				aip->GOAL_STATE = AIS_REST;
 				aip->CURRENT_STATE = AIS_REST;
 				break;
@@ -3525,81 +3296,13 @@ void do_ai_frame_all(void)
 #endif
 
 	set_player_awareness_all();
-
-//	if ((FrameCount & 0x07) == 0)
-//		mprintf((0, "[%i] ", Overall_agitation));
 }
-
-//--unused-- //	----------------------------------------------------------------------------------
-//--unused-- //	Reset various state information for a new life.
-//--unused-- //	Probably not going to be called for a new game because for that an entire object
-//--unused-- //	gets reloaded.
-//--unused-- void reset_ai_states(object *objp)
-//--unused-- {
-//--unused-- 	int		i;
-//--unused-- 	//ai_static	*aip = &objp->ctype.ai_info;
-//--unused-- 	ai_local		*ailp = &Ai_local_info[objp-Objects];
-//--unused-- 
-//--unused-- 	ailp->wait_time = 0;
-//--unused-- 	ailp->next_fire = 0;
-//--unused-- 	ailp->player_awareness_type = 0;
-//--unused-- 	for (i=0; i<MAX_SUBMODELS; i++) {
-//--unused-- 		ailp->goal_angles[i].p = 0;		ailp->goal_angles[i].b = 0;		ailp->goal_angles[i].h = 0;
-//--unused-- 		ailp->delta_angles[i].p = 0;	ailp->delta_angles[i].b = 0;	ailp->delta_angles[i].h = 0;
-//--unused-- 		ailp->goal_state[i] = 0;
-//--unused-- 		ailp->achieved_state[i] = 0;
-//--unused-- 	}
-//--unused-- }
 
 //	Initializations to be performed for all robots for a new level.
 void init_robots_for_level(void)
 {
 	Overall_agitation = 0;
 }
-
-// int ai_save_state( FILE * fp )
-// {
-//  char buffer[1024]; // That should be enough for us...
-//  char *ptr=buffer;
-//  int i;
-// 
-//  d_export_int(buffer, Ai_initialized);
-//  d_export_int(buffer+SIZEOF_INT, Overall_agitation);
-//  fwrite(buffer, SIZEOF_INT, 2, fp);
-// 
-//  for (i=0; i<MAX_OBJECTS; i++)
-//  {
-//    d_export_ai_local(buffer, &Ai_local_info[i]);
-//    fwrite(buffer, SIZEOF_AI_LOCAL, 1, fp);
-//  }
-//  for (i=0; i<MAX_POINT_SEGS; i++)
-//  {
-//    d_export_point_seg(buffer, &Point_segs[i]);
-//    fwrite(buffer, SIZEOF_POINT_SEG, 1, fp);
-//  }
-//  for (i=0; i<MAX_AI_CLOAK_INFO; i++)
-//  {
-//    d_export_fix(buffer,Ai_cloak_info[i].last_time);
-//    d_export_vms_vector(buffer + SIZEOF_FIX, &Ai_cloak_info[i].last_position);
-//    fwrite(buffer, SIZEOF_FIX + SIZEOF_VMS_VECTOR, 1, fp);
-//  }
-//  d_export_fix(ptr, Boss_cloak_start_time);      ptr+=SIZEOF_FIX;
-//  d_export_fix(ptr, Boss_cloak_end_time);        ptr+=SIZEOF_FIX;
-//  d_export_fix(ptr, Last_teleport_time);         ptr+=SIZEOF_FIX;
-//  d_export_fix(ptr, Boss_teleport_interval);     ptr+=SIZEOF_FIX;
-//  d_export_fix(ptr, Boss_cloak_interval);        ptr+=SIZEOF_FIX;
-//  d_export_fix(ptr, Boss_cloak_duration);        ptr+=SIZEOF_FIX;
-//  d_export_fix(ptr, Last_gate_time);             ptr+=SIZEOF_FIX;
-//  d_export_fix(ptr, Gate_interval);              ptr+=SIZEOF_FIX;
-//  d_export_fix(ptr, Boss_dying_start_time);      ptr+=SIZEOF_FIX;
-//  d_export_int(ptr, Boss_dying);                 ptr+=SIZEOF_INT;
-//  d_export_int(ptr, Boss_dying_sound_playing);   ptr+=SIZEOF_INT;
-//  d_export_int(ptr, Boss_hit_this_frame);        ptr+=SIZEOF_INT;
-//  d_export_int(ptr, Boss_been_hit);
-//  fwrite(buffer, (SIZEOF_FIX * 9) + (SIZEOF_INT * 4), 1, fp);
-// 
-//  return 1;
-// }
 
 int ai_save_state(PHYSFS_file *fp)
 {
@@ -3625,57 +3328,6 @@ int ai_save_state(PHYSFS_file *fp)
 	return 1;
 }
 
-// int ai_restore_state( FILE * fp )
-// {
-//  // Enough storage space to last us.
-//  char buffer[1024];
-//  char *ptr=buffer;
-//  int i;
-// 
-//  fread(buffer,SIZEOF_INT,2,fp);
-//  Ai_initialized = d_import_int(buffer);
-//  Overall_agitation = d_import_int(buffer+SIZEOF_INT);
-// 
-//  for (i=0; i<MAX_OBJECTS; i++)
-//  {
-//    fread(buffer, SIZEOF_AI_LOCAL, 1, fp);
-//    d_import_ai_local(&Ai_local_info[i], buffer);
-//  }
-// 
-//  for (i=0; i<MAX_POINT_SEGS; i++)
-//  {
-//    fread(buffer, SIZEOF_POINT_SEG, 1, fp);
-//    d_import_point_seg(&Point_segs[i], buffer);
-//  }
-//  for (i=0; i<MAX_AI_CLOAK_INFO; i++)
-//  {
-//    // This struct is local to ai.c, so we handle it internally here.
-//    // It is only ever read here, and only ever stored above.
-//    fread(buffer, SIZEOF_FIX + SIZEOF_VMS_VECTOR, 1, fp);
-//    Ai_cloak_info[i].last_time = d_import_fix(buffer);
-//    d_import_vms_vector(&Ai_cloak_info[i].last_position, buffer + SIZEOF_FIX);
-//  }
-// 
-//  fread(buffer,SIZEOF_FIX,9,fp);
-//  Boss_cloak_start_time = d_import_fix(ptr);  ptr += SIZEOF_FIX;
-//  Boss_cloak_end_time = d_import_fix(ptr);    ptr += SIZEOF_FIX;
-//  Last_teleport_time = d_import_fix(ptr);     ptr += SIZEOF_FIX;
-//  Boss_teleport_interval = d_import_fix(ptr); ptr += SIZEOF_FIX;
-//  Boss_cloak_interval = d_import_fix(ptr);    ptr += SIZEOF_FIX;
-//  Boss_cloak_duration = d_import_fix(ptr);    ptr += SIZEOF_FIX;
-//  Last_gate_time = d_import_fix(ptr);         ptr += SIZEOF_FIX;
-//  Gate_interval = d_import_fix(ptr);          ptr += SIZEOF_FIX;
-//  Boss_dying_start_time = d_import_fix(ptr);  ptr = buffer;
-// 
-//  fread(buffer,SIZEOF_INT,4,fp);
-//  Boss_dying = d_import_int(ptr);                ptr+=SIZEOF_INT;
-//  Boss_dying_sound_playing = d_import_int(ptr);  ptr+=SIZEOF_INT;
-//  Boss_hit_this_frame = d_import_int(ptr);       ptr+=SIZEOF_INT;
-//  Boss_been_hit = d_import_int(ptr);
-// 
-//  return 1;
-// }
-
 int ai_restore_state(PHYSFS_file *fp, int version)
 {
 	PHYSFS_read(fp, &Ai_initialized, sizeof(int), 1);
@@ -3699,15 +3351,3 @@ int ai_restore_state(PHYSFS_file *fp, int version)
 
 	return 1;
 }
-
-// -- void show_path_and_other(object *objp )
-// -- {
-// -- 	int			i;
-// -- 	ai_static	*aip = &objp->ctype.ai_info;
-
-// -- 	for (i=0; i<aip->path_length; i++)
-// -- 		mprintf((0, "%2i ", Point_segs[aip->hide_index+i].segnum));
-// -- 	mprintf((0, "[pl: %i cur: st: %i]\n", ConsoleObject->segnum, objp->segnum, aip->hide_segment));
-
-// -- }
-

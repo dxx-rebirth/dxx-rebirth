@@ -10,6 +10,7 @@ CONTAINED HEREIN FOR REVENUE-BEARING PURPOSES.  THE END-USER UNDERSTANDS
 AND AGREES TO THE TERMS HEREIN AND ACCEPTS THE SAME BY USE OF THIS FILE.  
 COPYRIGHT 1993-1998 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 */
+
 /*
  *
  * Routines for recording/playing/saving macros
@@ -17,25 +18,18 @@ COPYRIGHT 1993-1998 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
  */
 
 
-#pragma off (unreferenced)
-static char rcsid[] = "$Id: macro.c,v 1.1.1.1 2006/03/17 19:45:24 zicodxx Exp $";
-#pragma on (unreferenced)
-
 #include <stdio.h>
 #include <stdlib.h>
 #include <stdarg.h>
 #include <math.h>
 #include <string.h>
-
 #include "inferno.h"
 #include "segment.h"
 #include "editor.h"
-
 #include "gr.h"
 #include "ui.h"
 #include "key.h"
 #include "fix.h"
-#include "mono.h"
 #include "3d.h"
 #include "mouse.h"
 #include "bm.h"

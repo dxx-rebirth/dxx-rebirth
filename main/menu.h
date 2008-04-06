@@ -24,12 +24,8 @@ COPYRIGHT 1993-1998 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 //returns number of item chosen
 extern int DoMenu();
 extern void do_options_menu();
-
-extern void set_detail_level_parameters(int detail_level);
-
 extern char *menu_difficulty_text[];
 extern int Player_default_difficulty;
-extern int Max_debris_objects;
 extern int Auto_leveling_on;
 
 #define Menu_pcx_name (((SWIDTH>=640&&SHEIGHT>=480) && cfexist("menuh.pcx"))?"menuh.pcx":"menu.pcx")

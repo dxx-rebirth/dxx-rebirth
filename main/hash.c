@@ -10,32 +10,21 @@ CONTAINED HEREIN FOR REVENUE-BEARING PURPOSES.  THE END-USER UNDERSTANDS
 AND AGREES TO THE TERMS HEREIN AND ACCEPTS THE SAME BY USE OF THIS FILE.  
 COPYRIGHT 1993-1998 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 */
+
 /*
  *
  * Functions to do hash table lookup.
  *
  */
 
-#ifdef RCS
-#pragma off (unreferenced)
-static char rcsid[] = "$Id: hash.c,v 1.1.1.1 2006/03/17 19:43:14 zicodxx Exp $";
-#pragma on (unreferenced)
-#endif
-
 #include <stdlib.h>
 #include <stdio.h>
 #include <string.h>
-
 #include "error.h"
-#include "mono.h"
 #include "hash.h"
 #include "key.h"
-//added 05/17/99 Matt Mueller 
 #include "u_mem.h"
-//end addition -MM
-//added 6/15/99 Owen Evans
 #include "strutil.h"
-//end end addition -OE
 
 	
 int hashtable_init( hashtable *ht, int size )	{
@@ -113,18 +102,12 @@ int hashtable_search( hashtable *ht, char *key )	{
 void hashtable_insert( hashtable *ht, char *key, int value )	{
 	int i,j,k;
 
-//	mprintf( 0, "Inserting '%s' into hash table\n", key );
-//	key_getch();
-
 	strlwr( key );
 	k = hashtable_getkey( key );
 	i = 0;
 
 	while(i < ht->size)	{
 		j = (k+(i++)) & ht->and_mask;
-//		Assert( j < ht->size );
-//		mprintf( 0, "Word '%s' (%d) at level %d has value of %d\n", key, k, i-1, j );
-//		mprintf( 0, "ht->key[%d]=%.8x\n", j, ht->key[j] );
 		if ( ht->key[j] == NULL )	{
 			ht->nitems++;
 			ht->key[j] = key;

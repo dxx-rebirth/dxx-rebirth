@@ -10,31 +10,23 @@ CONTAINED HEREIN FOR REVENUE-BEARING PURPOSES.  THE END-USER UNDERSTANDS
 AND AGREES TO THE TERMS HEREIN AND ACCEPTS THE SAME BY USE OF THIS FILE.  
 COPYRIGHT 1993-1998 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 */
-/*
- * 
- * Functions to load & save player games
- * 
- */
 
-#ifdef RCS
-#pragma off (unreferenced)
-static char rcsid[] = "$Id: playsave.c,v 1.1.1.1 2006/03/17 19:42:10 zicodxx Exp $";
-#pragma on (unreferenced)
-#endif
+/*
+ *
+ * Functions to load & save player games
+ *
+ */
 
 #include <stdio.h>
 #include <string.h>
 #include <errno.h>
 #include <limits.h>
-
 #if !(defined(__APPLE__) && defined(__MACH__))
 #include <physfs.h>
 #else
 #include <physfs/physfs.h>
 #endif
-
 #include "error.h"
-
 #include "gameseq.h"
 #include "player.h"
 #include "playsave.h"
@@ -47,7 +39,6 @@ static char rcsid[] = "$Id: playsave.c,v 1.1.1.1 2006/03/17 19:42:10 zicodxx Exp
 #include "menu.h"
 #include "config.h"
 #include "text.h"
-#include "mono.h"
 #include "state.h"
 #include "u_mem.h"
 #include "network.h"

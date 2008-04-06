@@ -10,41 +10,13 @@ CONTAINED HEREIN FOR REVENUE-BEARING PURPOSES.  THE END-USER UNDERSTANDS
 AND AGREES TO THE TERMS HEREIN AND ACCEPTS THE SAME BY USE OF THIS FILE.
 COPYRIGHT 1993-1998 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 */
+
 /*
- * $Source: /cvsroot/dxx-rebirth/d1x-rebirth/main/songs.c,v $
- * $Revision: 1.1.1.1 $
- * $Author: zicodxx $
- * $Date: 2006/03/17 19:42:37 $
  *
  * Routines to manage the songs in Descent.
  *
- * $Log: songs.c,v $
- * Revision 1.1.1.1  2006/03/17 19:42:37  zicodxx
- * initial import
- *
- * Revision 1.1.1.1  1999/06/14 22:11:34  donut
- * Import of d1x 1.37 source.
- *
- * Revision 2.1  1995/05/02  16:15:21  john
- * Took out printf.
- *
- * Revision 2.0  1995/02/27  11:27:13  john
- * New version 2.0, which has no anonymous unions, builds with
- * Watcom 10.0, and doesn't require parsing BITMAPS.TBL.
- *
- * Revision 1.2  1995/02/11  12:42:12  john
- * Added new song method, with FM bank switching..
- *
- * Revision 1.1  1995/02/11  10:20:33  john
- * Initial revision
- *
- *
  */
 
-
-#ifdef RCS
-static char rcsid[] = "$Id: songs.c,v 1.1.1.1 2006/03/17 19:42:37 zicodxx Exp $";
-#endif
 
 #include <stdio.h>
 #include <stdlib.h>
@@ -53,7 +25,6 @@ static char rcsid[] = "$Id: songs.c,v 1.1.1.1 2006/03/17 19:42:37 zicodxx Exp $"
 #include "error.h"
 #include "pstypes.h"
 #include "songs.h"
-#include "mono.h"
 #include "cfile.h"
 #include "digi.h"
 
@@ -73,7 +44,6 @@ void songs_init()
 	if ( fp == NULL )	{
 		int i;
 		
-		//printf("Using Shareware songs only\n");
 		for (i = 0; i < SONG_LEVEL_MUSIC + NUM_GAME_SONGS; i++) {
 			strcpy(Songs[i].melodic_bank_file, "melodic.bnk");
 			strcpy(Songs[i].drum_bank_file, "drum.bnk");
@@ -104,10 +74,7 @@ void songs_init()
 		if (p) *p = '\0';
 		if ( strlen( inputline ) )	{
 			Assert( i < MAX_SONGS );
-			//edit 05/18/99 Matt Mueller - added maximum field width
 			sscanf( inputline, "%15s %15s %15s", Songs[i].filename, Songs[i].melodic_bank_file, Songs[i].drum_bank_file );
-			//end edit -MM
-			//printf( "%d. '%s' '%s' '%s'\n",i,  Songs[i].filename, Songs[i].melodic_bank_file, Songs[i].drum_bank_file );
 			i++;
 		}
 	}

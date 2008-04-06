@@ -5,7 +5,6 @@
 #include <winsock.h>
 #include <wsipx.h>
 #include "netdrv.h"
-#include "mono.h"
 
 static socket_t IPX_sock;
 
@@ -35,7 +34,7 @@ static int IPXOpenSocket(int port)
 	sock = socket(AF_IPX, SOCK_DGRAM, NSPROTO_IPX);
 
 	if (sock == -1) {
-		mprintf((1,"IPX: could not open IPX socket.\n"));
+		con_printf(CON_URGENT,"IPX: could not open IPX socket.\n"));
 		return -1;
 	}
 
@@ -43,7 +42,7 @@ static int IPXOpenSocket(int port)
 	/* Permit broadcast output */
 	if (setsockopt(sock, SOL_SOCKET, SO_BROADCAST,(const char *)&opt, sizeof(opt)) == -1)
 	{
-		mprintf((1,"IPX: could not set socket option for broadcast.\n"));
+		con_printf(CON_URGENT,"IPX: could not set socket option for broadcast.\n"));
 		return -1;
 	}
 
@@ -56,7 +55,7 @@ static int IPXOpenSocket(int port)
 	/* now bind to this port */
 	if (bind(sock, (struct sockaddr *) &ipxs, sizeof(ipxs)) == -1)
 	{
-		mprintf((1,"IPX: could not bind socket to address\n"));
+		con_printf(CON_URGENT,"IPX: could not bind socket to address\n"));
 		closesocket( sock );
 		return -1;
 	}
@@ -64,7 +63,7 @@ static int IPXOpenSocket(int port)
 	len = sizeof(ipxs2);
 	if (getsockname(sock,(struct sockaddr *)&ipxs2,&len) < 0)
 	{
-		mprintf((1,"IPX: could not get socket name in IPXOpenSocket\n"));
+		con_printf(CON_URGENT,"IPX: could not get socket name in IPXOpenSocket\n"));
 		closesocket( sock );
 		return -1;
 	}
@@ -72,7 +71,7 @@ static int IPXOpenSocket(int port)
 	if (port == 0)
 	{
 		port = htons(ipxs2.sa_socket);
-		mprintf((1,"IPX: opened dynamic socket %04x\n", port));
+		con_printf(CON_URGENT,"IPX: opened dynamic socket %04x\n", port));
 	}
 
 	memcpy(MyAddress, ipxs2.sa_netnum, 4);
@@ -89,7 +88,7 @@ static int IPXOpenSocket(int port)
 static void IPXCloseSocket(void)
 {
 	/* now close the file descriptor for the socket, and free it */
-	mprintf((1,"IPX: closing file descriptor on socket %x\n", IPX_sock.socket));
+	con_printf(CON_URGENT,"IPX: closing file descriptor on socket %x\n", IPX_sock.socket));
 	closesocket(IPX_sock.fd);
 	WSACleanup();
 }

@@ -10,6 +10,7 @@ CONTAINED HEREIN FOR REVENUE-BEARING PURPOSES.  THE END-USER UNDERSTANDS
 AND AGREES TO THE TERMS HEREIN AND ACCEPTS THE SAME BY USE OF THIS FILE.  
 COPYRIGHT 1993-1998 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 */
+
 /*
  *
  * Routines stripped from med.c for segment selection
@@ -17,25 +18,15 @@ COPYRIGHT 1993-1998 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
  */
 
 
-#ifdef RCS
-static char rcsid[] = "$Id: medsel.c,v 1.1.1.1 2006/03/17 19:45:54 zicodxx Exp $";
-#endif
-
 #include <stdio.h>
 #include <stdlib.h>
 #include <stdarg.h>
 #include <string.h>
-#ifdef __MSDOS__
-#include <process.h>
-#endif
-
 #include "gr.h"
 #include "ui.h"
 #include "key.h"
-#include "mono.h"
 #include "error.h"
 #include "u_mem.h"
-
 #include "inferno.h"
 #include "editor.h"
 #include "segment.h"

@@ -9,7 +9,7 @@
 
 #include "pstypes.h"
 
-#ifdef __WINDOWS__
+#ifdef _WIN32
 #include <winsock.h>
 #else
 #include <netinet/in.h> /* for htons & co. */

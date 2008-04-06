@@ -26,7 +26,6 @@ COPYRIGHT 1993-1998 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 #include "error.h"
 #include "pstypes.h"
 #include "gr.h"
-#include "mono.h"
 #include "key.h"
 #include "palette.h"
 #include "game.h"

@@ -10,11 +10,8 @@ CONTAINED HEREIN FOR REVENUE-BEARING PURPOSES.  THE END-USER UNDERSTANDS
 AND AGREES TO THE TERMS HEREIN AND ACCEPTS THE SAME BY USE OF THIS FILE.  
 COPYRIGHT 1993-1998 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 */
+
 /*
- * $Source: /cvsroot/dxx-rebirth/d1x-rebirth/main/inferno.h,v $
- * $Revision: 1.1.1.1 $
- * $Author: zicodxx $
- * $Date: 2006/03/17 19:44:37 $
  *
  * Header file for Inferno.  Should be included in all source files. 
  *
@@ -22,8 +19,6 @@ COPYRIGHT 1993-1998 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 
 #ifndef _INFERNO_H
 #define _INFERNO_H
-
-#include	"settings.h"	//include personal settings
 
 /**
  **	Constants
@@ -59,6 +54,3 @@ extern char *start_with_mission_name;
 extern int MacHog;
 
 #endif
-
-
- 

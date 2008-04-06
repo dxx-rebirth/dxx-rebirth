@@ -10,104 +10,12 @@ CONTAINED HEREIN FOR REVENUE-BEARING PURPOSES.  THE END-USER UNDERSTANDS
 AND AGREES TO THE TERMS HEREIN AND ACCEPTS THE SAME BY USE OF THIS FILE.  
 COPYRIGHT 1993-1998 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 */
+
 /*
- * $Source: /cvsroot/dxx-rebirth/d1x-rebirth/editor/kfuncs.c,v $
- * $Revision: 1.1.1.1 $
- * $Author: zicodxx $
- * $Date: 2006/03/17 19:45:14 $
- * 
  * .
- * 
- * $Log: kfuncs.c,v $
- * Revision 1.1.1.1  2006/03/17 19:45:14  zicodxx
- * initial import
  *
- * Revision 1.1.1.1  1999/06/14 22:03:23  donut
- * Import of d1x 1.37 source.
- *
- * Revision 2.1  1995/03/08  16:07:23  yuan
- * Added segment sizing default functions.
- * 
- * Revision 2.0  1995/02/27  11:34:45  john
- * Version 2.0! No anonymous unions, Watcom 10.0, with no need
- * for bitmaps.tbl.
- * 
- * Revision 1.112  1995/01/12  12:10:31  yuan
- * Added coop object capability.
- * 
- * Revision 1.111  1994/11/27  23:17:16  matt
- * Made changes for new mprintf calling convention
- * 
- * Revision 1.110  1994/11/23  12:17:22  mike
- * bind retmap functions.
- * 
- * Revision 1.109  1994/11/19  15:20:54  mike
- * rip out unused code and data.
- * 
- * Revision 1.108  1994/11/17  11:39:02  matt
- * Ripped out code to load old mines
- * 
- * Revision 1.107  1994/10/27  10:06:12  mike
- * kill macro stuff.
- * 
- * Revision 1.106  1994/10/18  15:31:43  mike
- * Bind mine correction function to test keypad, key=1.
- * 
- * Revision 1.105  1994/09/26  23:22:06  matt
- * Added functions to keep player's starting position from getting messed up
- * 
- * Revision 1.104  1994/09/24  14:15:41  mike
- * Custom colored object support.
- * 
- * Revision 1.103  1994/09/23  18:03:54  yuan
- * Finished wall checking code.
- * 
- * Revision 1.102  1994/09/22  19:03:52  mike
- * Test function test_shortpos on ctrl-keypad3
- * 
- * Revision 1.101  1994/09/20  14:35:56  mike
- * Bind functions to keypad 2, 3.
- * 
- * Revision 1.100  1994/09/15  22:58:10  matt
- * Made new objects be oriented to their segment
- * Added keypad function to flip an object upside-down
- * 
- * Revision 1.99  1994/09/14  16:50:50  yuan
- * Added load mine only function
- * 
- * Revision 1.98  1994/08/25  21:57:52  mike
- * IS_CHILD stuff.
- * 
- * Revision 1.97  1994/08/16  18:10:52  yuan
- * Maded C place you in the center of a segment.
- * 
- * Revision 1.96  1994/08/15  17:48:01  yuan
- * Added external walls.
- * 
- * Revision 1.95  1994/08/13  17:32:38  mike
- * test function.
- * 
- * Revision 1.94  1994/08/05  21:17:57  matt
- * Allow two doors to be linked together
- * 
- * Revision 1.93  1994/08/05  18:18:52  matt
- * Made object rotation have 4x resolution, and SHIFT+rotate do old resolution.
- * 
- * Revision 1.92  1994/08/03  10:31:06  mike
- * Add texture map propagation without uv assignment.
- * 
- * Revision 1.91  1994/08/02  14:17:00  mike
- * Clean up dialog boxes, add one for Matt.
- * 
- * Revision 1.90  1994/07/30  17:04:47  mike
- * Bind key for max_depth on path testing.
- * 
  */
 
-
-#ifdef RCS
-static char rcsid[] = "$Id: kfuncs.c,v 1.1.1.1 2006/03/17 19:45:14 zicodxx Exp $";
-#endif
 
 #include <stdlib.h>
 
@@ -118,7 +26,6 @@ static char rcsid[] = "$Id: kfuncs.c,v 1.1.1.1 2006/03/17 19:45:14 zicodxx Exp $
 #include "editor/editor.h"
 #include "error.h"
 #include "slew.h"
-#include "mono.h"
 #include "gamesave.h"
 #include "editor/eobject.h"
 #include "editor/medwall.h"
@@ -144,12 +51,6 @@ extern void do_replacements_all(void);
 
 int Test1() 
 {
-//	{ int i;
-//		for (i=Highest_segment_index+1; i<MAX_SEGMENTS; i++)
-//			Segments[i].segnum = -1;
-//	}
-
-	mprintf((0, "Initializing replacement list.\n"));
 	init_replacements();
 
 	return 0;
@@ -157,10 +58,6 @@ int Test1()
 
 int Test2() 
 {
-//	mprintf((0, "\nCalling check_for_overlapping_segments.\n"));
-//	check_for_overlapping_segments();
-
-	mprintf((0, "Going to do texture replacements.\n"));
 	do_replacements();
 
 	return 0;
@@ -177,7 +74,6 @@ int Test3()
 	//	If you don't want to do this, set eip to the return statement
 	//	and continue.
 
-	mprintf((0, "Going to do texture replacements.\n"));
 	do_replacements_all();
 
 	return 0;

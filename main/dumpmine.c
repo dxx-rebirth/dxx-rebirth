@@ -1,121 +1,17 @@
 /*
- * $Source: /cvsroot/dxx-rebirth/d1x-rebirth/main/dumpmine.c,v $
- * $Revision: 1.1.1.1 $
- * $Author: zicodxx $
- * $Date: 2006/03/17 19:41:58 $
- * 
+ *
  * Functions to dump text description of mine.
  * An editor-only function, called at mine load time.
  * To be read by a human to verify the correctness and completeness of a mine.
- * 
- * $Log: dumpmine.c,v $
- * Revision 1.1.1.1  2006/03/17 19:41:58  zicodxx
- * initial import
  *
- * Revision 1.2  1999/09/02 13:32:42  sekmu
- * remove warning in editor compile
- *
- * Revision 1.1.1.1  1999/06/14 22:06:02  donut
- * Import of d1x 1.37 source.
- *
- * Revision 2.1  1995/04/06  12:21:50  mike
- * Add texture map information to txm files.
- * 
- * Revision 2.0  1995/02/27  11:26:41  john
- * New version 2.0, which has no anonymous unions, builds with
- * Watcom 10.0, and doesn't require parsing BITMAPS.TBL.
- * 
- * Revision 1.24  1995/01/23  15:34:43  mike
- * New diagnostic code, levels.all stuff.
- * 
- * Revision 1.23  1994/12/20  17:56:36  yuan
- * Multiplayer object capability.
- * 
- * Revision 1.22  1994/11/27  23:12:19  matt
- * Made changes for new mprintf calling convention
- * 
- * Revision 1.21  1994/11/23  12:19:04  mike
- * move out level names, stick in gamesave.
- * 
- * Revision 1.20  1994/11/21  16:54:36  mike
- * oops.
- * 
- * 
- * Revision 1.19  1994/11/20  22:12:55  mike
- * Lotsa new stuff in this fine debug file.
- * 
- * Revision 1.18  1994/11/17  14:58:09  mike
- * moved segment validation functions from editor to main.
- * 
- * Revision 1.17  1994/11/15  21:43:02  mike
- * texture usage system.
- * 
- * Revision 1.16  1994/11/15  12:45:59  mike
- * debug code for dumping texture info.
- * 
- * Revision 1.15  1994/11/14  20:47:50  john
- * Attempted to strip out all the code in the game 
- * directory that uses any ui code.
- * 
- * Revision 1.14  1994/10/14  17:33:38  mike
- * Fix error reporting for number of multiplayer objects in mine.
- * 
- * Revision 1.13  1994/10/14  13:37:46  mike
- * Forgot parameter in fprintf, was getting bogus number of excess keys.
- * 
- * Revision 1.12  1994/10/12  08:05:33  mike
- * Detect keys contained in objects for error checking (txm file).
- * 
- * Revision 1.11  1994/10/10  17:02:08  mike
- * fix fix.
- * 
- * Revision 1.10  1994/10/10  17:00:37  mike
- * Add checking for proper number of players.
- * 
- * Revision 1.9  1994/10/03  23:37:19  mike
- * Adapt to clear and rational understanding of matcens as related to fuelcens as related to something that might work.
- * 
- * Revision 1.8  1994/09/30  17:15:29  mike
- * Fix error message, was telling bogus filename.
- * 
- * Revision 1.7  1994/09/30  11:50:55  mike
- * More diagnostics.
- * 
- * Revision 1.6  1994/09/28  17:31:19  mike
- * More error checking.
- * 
- * Revision 1.5  1994/09/28  11:14:05  mike
- * Better checking on bogus walls.
- * 
- * Revision 1.4  1994/09/28  09:23:50  mike
- * Change some Error messages to Warnings.
- * 
- * Revision 1.3  1994/09/27  17:08:31  mike
- * More mine validation stuff.
- * 
- * Revision 1.2  1994/09/27  15:43:22  mike
- * The amazing code to tell you everything and more about our mines!
- * 
- * Revision 1.1  1994/09/27  10:51:15  mike
- * Initial revision
- * 
- * 
  */
 
 
-#ifdef RCS
-#pragma off (unreferenced)
-static char rcsid[] = "$Id: dumpmine.c,v 1.1.1.1 2006/03/17 19:41:58 zicodxx Exp $";
-#pragma on (unreferenced)
-#endif
-
 #include <stdio.h>
-//#include <stdlib.h>
-//#include <math.h>
 #include <string.h>
 #include <stdarg.h>
 
-#include "mono.h"
+#include "console.h"
 #include "key.h"
 #include "gr.h"
 #include "palette.h"
@@ -195,7 +91,7 @@ void err_printf(FILE *my_file, char * format, ... )
 	vsprintf(message,format,args);
 	va_end(args);
 
-	mprintf((1, "%s", message));
+	con_printf(CON_CRITICAL, "%s", message);
 	fprintf(my_file, "%s", message);
 	Errors_in_mine++;
 }
@@ -209,7 +105,7 @@ void warning_printf(FILE *my_file, char * format, ... )
 	vsprintf(message,format,args);
 	va_end(args);
 
-	mprintf((0, "%s", message));
+	con_printf(CON_URGENT, "%s", message);
 	fprintf(my_file, "%s", message);
 }
 
@@ -647,8 +543,6 @@ void write_game_text_file(char *filename)
 
 	Errors_in_mine = 0;
 
-	// mprintf((0, "Writing text file for mine [%s]\n", filename));
-
 	namelen = strlen(filename);
 
 	Assert (namelen > 4);
@@ -657,8 +551,6 @@ void write_game_text_file(char *filename)
 
 	strcpy(my_filename, filename);
 	strcpy( &my_filename[namelen-4], ".txm");
-
-	// mprintf((0, "Writing text file [%s]\n", my_filename));
 
 	my_file = fopen( my_filename, "wt" );
 
@@ -791,7 +683,6 @@ void determine_used_textures_level(int load_level_flag, int shareware_flag, int 
                                  }
                                 else
                                  {
-mprintf((0,"bogus texture seg:%d, side:%d, num=%d, max=%d\n", segnum, sidenum, sidep->tmap_num, max_tmap));
 					Int3(); //	Error, bogus texture map.  Should not be greater than max_tmap.
                                  }
                          }
@@ -971,13 +862,11 @@ void say_totals_all(void)
 	}
 
 	for (i=0; i<NUM_SHAREWARE_LEVELS; i++) {
-		mprintf((0, "Level %i\n", i+1));
 		load_level(Shareware_level_names[i]);
 		say_totals(my_file, Shareware_level_names[i]);
 	}
 
 	for (i=0; i<NUM_REGISTERED_LEVELS; i++) {
-		mprintf((0, "Level %i\n", i+1+NUM_SHAREWARE_LEVELS));
 		load_level(Registered_level_names[i]);
 		say_totals(my_file, Registered_level_names[i]);
 	}

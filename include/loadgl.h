@@ -4,7 +4,7 @@
 #define __LOADGL_H__
 
 #ifndef WIN32
-#ifdef __WINDOWS__
+#ifdef _WIN32
 #define WIN32
 #endif
 #endif

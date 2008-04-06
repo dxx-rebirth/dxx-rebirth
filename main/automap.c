@@ -39,7 +39,6 @@ COPYRIGHT 1993-1999 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 #include "object.h"
 #include "vclip.h"
 #include "game.h"
-#include "mono.h"
 #include "polyobj.h"
 #include "sounds.h"
 #include "player.h"
@@ -79,8 +78,6 @@ COPYRIGHT 1993-1999 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 #define EF_GRATE    16  // A grate... draw it all the time.
 #define EF_NO_FADE  32  // An edge that doesn't fade with distance
 #define EF_TOO_FAR  64  // An edge that is too far away
-
-void modex_printf(int x,int y,char *s,grs_font *font,int color);
 
 typedef struct Edge_info {
 	short verts[2];     // 4 bytes
@@ -382,9 +379,6 @@ void do_automap( int key_code )	{
 
 	Max_edges = min(MAX_EDGES_FROM_VERTS(Num_vertices),MAX_EDGES);	//make maybe smaller than max
 
-	mprintf( (0, "Num_vertices=%d, Max_edges=%d, (MAX:%d)\n", Num_vertices, Max_edges, MAX_EDGES ));
-	mprintf( (0, "Allocated %d K for automap edge list\n", (sizeof(Edge_info)+sizeof(short))*Max_edges/1024 ));
-
 	gr_set_current_canvas(NULL);
 
 	automap_build_edge_list();
@@ -562,7 +556,6 @@ void do_automap( int key_code )	{
 
 #ifdef OGL
 		gr_free_bitmap_data(&Automap_background);
-		mprintf( (0, "Automap background memory freed\n" ));
 #endif
 
 	game_flush_inputs();
@@ -578,8 +571,6 @@ void adjust_segment_limit(int SegmentLimit)
 	int i,e1;
 	Edge_info * e;
 
-	mprintf(( 0, "Seglimit: %d\n", SegmentLimit ));
-	
 	for (i=0; i<=Highest_edge_index; i++ )	{
 		e = &Edges[i];
 		e->flags |= EF_TOO_FAR;
@@ -1035,5 +1026,4 @@ void automap_build_edge_list()
 				break;
 		}
 	}
-	mprintf( (0, "Automap used %d / %d edges\n", Num_edges, Max_edges  ));
 }

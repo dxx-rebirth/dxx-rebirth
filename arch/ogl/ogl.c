@@ -11,7 +11,7 @@
 #endif
 
 //#include <stdio.h>
-#ifdef __WINDOWS__
+#ifdef _WIN32
 #include <windows.h>
 #include <stddef.h>
 #endif
@@ -33,7 +33,7 @@
 #include "texmap.h"
 #include "palette.h"
 #include "rle.h"
-#include "mono.h"
+#include "console.h"
 #include "u_mem.h"
 #ifdef HAVE_LIBPNG
 #include "pngfile.h"
@@ -56,7 +56,7 @@
 
 //change to 1 for lots of spew.
 #if 0
-#define glmprintf(a) mprintf(a)
+#define glmprintf(0,a) con_printf(CON_DEBUG, a)
 #else
 #define glmprintf(a)
 #endif
@@ -65,7 +65,7 @@
 #define M_PI 3.14159
 #endif
 
-#if defined(__WINDOWS__) || (defined(__APPLE__) && defined(__MACH__)) || defined(__sun__) || defined(macintosh)
+#if defined(_WIN32) || (defined(__APPLE__) && defined(__MACH__)) || defined(__sun__) || defined(macintosh)
 #define cosf(a) cos(a)
 #define sinf(a) sin(a)
 #endif
@@ -73,6 +73,8 @@
 unsigned char *ogl_pal=gr_palette;
 
 int GL_needmipmaps=0;
+float OglTexMagFilt=GL_NEAREST;
+float OglTexMinFilt=GL_NEAREST;
 int active_texture_unit=0;
 
 int last_width=-1,last_height=-1;
@@ -671,11 +673,11 @@ bool g3_draw_poly(int nv,g3s_point **pointlist)
 }
 
 void gr_upoly_tmap(int nverts, int *vert ){
-		mprintf((0,"gr_upoly_tmap: unhandled\n"));//should never get called
+		glmprintf((0,"gr_upoly_tmap: unhandled\n"));//should never get called
 }
 
 void draw_tmap_flat(grs_bitmap *bm,int nv,g3s_point **vertlist){
-		mprintf((0,"draw_tmap_flat: unhandled\n"));//should never get called
+		glmprintf((0,"draw_tmap_flat: unhandled\n"));//should never get called
 }
 
 extern void (*tmap_drawer_ptr)(grs_bitmap *bm,int nv,g3s_point **vertlist);
@@ -709,7 +711,7 @@ bool g3_draw_tmap(int nv,g3s_point **pointlist,g3s_uvl *uvl_list,grs_bitmap *bm)
 		}
 		glEnd();
 	}else{
-		mprintf((0,"g3_draw_tmap: unhandled tmap_drawer %p\n",tmap_drawer_ptr));
+		glmprintf((0,"g3_draw_tmap: unhandled tmap_drawer %p\n",tmap_drawer_ptr));
 	}
 
 	return 0;
@@ -956,10 +958,6 @@ void ogl_start_frame(void){
 	glLoadIdentity();//clear matrix
 }
 
-#ifndef NMONO
-void merge_textures_stats(void);
-#endif
-
 void ogl_end_frame(void){
 	OGL_VIEWPORT(0,0,grd_curscreen->sc_w,grd_curscreen->sc_h);
 	glMatrixMode(GL_PROJECTION);
@@ -1179,7 +1177,7 @@ int tex_format_verify(ogl_texture *tex){
 				tex->format=GL_RGBA;
 				break;
 			default:
-				mprintf((0,"...no tex format to fall back on\n"));
+				glmprintf((0,"...no tex format to fall back on\n"));
 				return 1;
 		}
 		glmprintf((0,"...falling back to %x\n",tex->internalformat));
@@ -1292,8 +1290,8 @@ int ogl_loadtexture (unsigned char *data, int dxo, int dyo, ogl_texture *tex, in
 	OGL_BINDTEXTURE(tex->handle);
 	glTexEnvi (GL_TEXTURE_ENV, GL_TEXTURE_ENV_MODE, GL_MODULATE);
 	if (tex->wantmip){
-		glTexParameteri (GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GameArg.OglTexMagFilt);
-		glTexParameteri (GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GameArg.OglTexMinFilt);
+		glTexParameteri (GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, OglTexMagFilt);
+		glTexParameteri (GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, OglTexMinFilt);
 		}
 	else{
 		glTexParameteri (GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_NEAREST);
@@ -1339,7 +1337,7 @@ void ogl_loadbmtexture_f(grs_bitmap *bm, int flags)
 		sprintf(filename, "textures/%s.png", bitmapname);
 		if (read_png(filename, &pdata))
 		{
-			printf("%s: %ux%ux%i p=%i(%i) c=%i a=%i chans=%i\n", filename, pdata.width, pdata.height, pdata.depth, pdata.paletted, pdata.num_palette, pdata.color, pdata.alpha, pdata.channels);
+			con_printf(CON_DEBUG,"%s: %ux%ux%i p=%i(%i) c=%i a=%i chans=%i\n", filename, pdata.width, pdata.height, pdata.depth, pdata.paletted, pdata.num_palette, pdata.color, pdata.alpha, pdata.channels);
 			if (pdata.depth == 8 && pdata.color)
 			{
 				if (bm->gltexture == NULL)
@@ -1352,7 +1350,7 @@ void ogl_loadbmtexture_f(grs_bitmap *bm, int flags)
 			}
 			else
 			{
-				printf("%s: unsupported texture format: must be rgb, rgba, or paletted, and depth 8\n", filename);
+				con_printf(CON_DEBUG,"%s: unsupported texture format: must be rgb, rgba, or paletted, and depth 8\n", filename);
 				d_free(pdata.data);
 				if (pdata.palette)
 					d_free(pdata.palette);

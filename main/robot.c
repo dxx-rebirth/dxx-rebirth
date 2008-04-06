@@ -10,107 +10,19 @@ CONTAINED HEREIN FOR REVENUE-BEARING PURPOSES.  THE END-USER UNDERSTANDS
 AND AGREES TO THE TERMS HEREIN AND ACCEPTS THE SAME BY USE OF THIS FILE.  
 COPYRIGHT 1993-1998 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 */
+
 /*
- * $Source: /cvsroot/dxx-rebirth/d1x-rebirth/main/robot.c,v $
- * $Revision: 1.1.1.1 $
- * $Author: zicodxx $
- * $Date: 2006/03/17 19:42:17 $
- * 
+ *
  * Code for handling robots
- * 
- * $Log: robot.c,v $
- * Revision 1.1.1.1  2006/03/17 19:42:17  zicodxx
- * initial import
  *
- * Revision 1.1.1.1  1999/06/14 22:11:28  donut
- * Import of d1x 1.37 source.
- *
- * Revision 2.1  1995/03/07  16:52:02  john
- * Fixed robots not moving without edtiro bug.
- * 
- * Revision 2.0  1995/02/27  11:31:11  john
- * New version 2.0, which has no anonymous unions, builds with
- * Watcom 10.0, and doesn't require parsing BITMAPS.TBL.
- * 
- * Revision 1.19  1995/02/22  13:58:09  allender
- * remove anonymous unions from object structure
- * 
- * Revision 1.18  1995/01/27  11:17:06  rob
- * Avoid problems with illegal gun num.
- * 
- * Revision 1.17  1994/11/19  15:15:02  mike
- * remove unused code and data
- * 
- * Revision 1.16  1994/11/05  16:41:31  adam
- * upped MAX_ROBOT_JOINTS
- * 
- * Revision 1.15  1994/09/26  15:29:29  matt
- * Allow morphing objects to fire
- * 
- * Revision 1.14  1994/06/20  14:31:02  matt
- * Don't include joint zero in animation data
- * 
- * Revision 1.13  1994/06/10  14:39:58  matt
- * Increased limit of robot joints
- * 
- * Revision 1.12  1994/06/10  10:59:18  matt
- * Do error checking on list of angles
- * 
- * Revision 1.11  1994/06/09  16:21:32  matt
- * Took out special-case and test code.
- * 
- * Revision 1.10  1994/06/07  13:21:14  matt
- * Added support for new chunk-based POF files, with robot animation data.
- * 
- * Revision 1.9  1994/06/01  17:58:24  mike
- * Greater flinch effect.
- * 
- * Revision 1.8  1994/06/01  14:59:25  matt
- * Fixed calc_gun_position(), which was rotating the wrong way for the
- * object orientation.
- * 
- * Revision 1.7  1994/06/01  12:44:04  matt
- * Added flinch state for test robot
- * 
- * Revision 1.6  1994/05/31  19:17:24  matt
- * Fixed test robot angles
- * 
- * Revision 1.5  1994/05/30  19:43:50  mike
- * Call set_test_robot.
- * 
- * 
- * Revision 1.4  1994/05/30  00:02:44  matt
- * Got rid of robot render type, and generally cleaned up polygon model
- * render objects.
- * 
- * Revision 1.3  1994/05/29  18:46:15  matt
- * Added stuff for getting robot animation info for different states
- * 
- * Revision 1.2  1994/05/26  21:09:15  matt
- * Moved robot stuff out of polygon model and into robot_info struct
- * Made new file, robot.c, to deal with robots
- * 
- * Revision 1.1  1994/05/26  18:02:04  matt
- * Initial revision
- * 
- * 
  */
 
 
-#ifdef RCS
-#pragma off (unreferenced)
-static char rcsid[] = "$Id: robot.c,v 1.1.1.1 2006/03/17 19:42:17 zicodxx Exp $";
-#pragma on (unreferenced)
-#endif
-
 #include "error.h"
-
 #include "inferno.h"
-
 #include "robot.h"
 #include "object.h"
 #include "polyobj.h"
-#include "mono.h"
 
 int	N_robot_types = 0;
 int	N_robot_joints = 0;
@@ -190,7 +102,6 @@ void calc_gun_point(vms_vector *gun_point,object *obj,int gun_num)
 
 	if (gun_num >= r->n_guns)
 	{
-		mprintf((1, "Bashing gun num %d to 0.\n", gun_num));
 		Int3();
 		gun_num = 0;
 	}
@@ -263,20 +174,6 @@ void set_robot_state(object *obj,int state)
 	}
 }
 
-#include "mono.h"
-
-//--unused-- int cur_state=0;
-
-//--unused-- test_anim_states()
-//--unused-- {
-//--unused-- 	set_robot_state(&Objects[1],cur_state);
-//--unused-- 
-//--unused-- 	mprintf(0,"Robot in state %d\n",cur_state);
-//--unused-- 
-//--unused-- 	cur_state = (cur_state+1)%N_ANIM_STATES;
-//--unused-- 
-//--unused-- }
-
 //set the animation angles for this robot.  Gun fields of robot info must
 //be filled in.
 void robot_set_angles(robot_info *r,polymodel *pm,vms_angvec angs[N_ANIM_STATES][MAX_SUBMODELS])
@@ -300,18 +197,13 @@ void robot_set_angles(robot_info *r,polymodel *pm,vms_angvec angs[N_ANIM_STATES]
 
 	for (g=0;g<r->n_guns+1;g++) {
 
-		//mprintf(0,"Gun %d:\n",g);
-
 		for (state=0;state<N_ANIM_STATES;state++) {
-
-			//mprintf(0," State %d:\n",state);
 
 			r->anim_states[g][state].n_joints = 0;
 			r->anim_states[g][state].offset = N_robot_joints;
 
 			for (m=0;m<pm->n_models;m++) {
 				if (gun_nums[m] == g) {
-					//mprintf(0,"  Joint %d: %x %x %x\n",m,angs[state][m].pitch,angs[state][m].bank,angs[state][m].head);
 					Robot_joints[N_robot_joints].jointnum = m;
 					Robot_joints[N_robot_joints].angles = angs[state][m];
 					r->anim_states[g][state].n_joints++;
@@ -324,7 +216,6 @@ void robot_set_angles(robot_info *r,polymodel *pm,vms_angvec angs[N_ANIM_STATES]
 
 }
 
-#ifndef FAST_FILE_IO
 /*
  * reads n robot_info structs from a CFILE
  */
@@ -403,4 +294,3 @@ int jointpos_read_n(jointpos *jp, int n, CFILE *fp)
 	}
 	return i;
 }
-#endif

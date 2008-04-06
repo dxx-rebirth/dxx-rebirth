@@ -97,14 +97,10 @@ extern void init_controlcen_for_level(void);
 extern void do_controlcen_destroyed_stuff(object *objp);
 extern void do_controlcen_dead_frame(void);
 
-#ifdef FAST_FILE_IO
-#define control_center_triggers_read_n(cct, n, fp) cfread(cct, sizeof(control_center_triggers), n, fp)
-#else
 /*
  * reads n control_center_triggers structs from a CFILE
  */
 extern int control_center_triggers_read_n(control_center_triggers *cct, int n, CFILE *fp);
-#endif
 
 #endif
  

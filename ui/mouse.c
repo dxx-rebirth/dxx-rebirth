@@ -10,63 +10,20 @@ CONTAINED HEREIN FOR REVENUE-BEARING PURPOSES.  THE END-USER UNDERSTANDS
 AND AGREES TO THE TERMS HEREIN AND ACCEPTS THE SAME BY USE OF THIS FILE.  
 COPYRIGHT 1993-1998 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 */
+
 /*
- * $Source: /cvsroot/dxx-rebirth/d1x-rebirth/ui/mouse.c,v $
- * $Revision: 1.1.1.1 $
- * $Author: zicodxx $
- * $Date: 2006/03/17 19:39:11 $
  *
  * Mouse interface routines.
  *
- * $Log: mouse.c,v $
- * Revision 1.1.1.1  2006/03/17 19:39:11  zicodxx
- * initial import
- *
- * Revision 1.1.1.1  1999/06/14 22:14:39  donut
- * Import of d1x 1.37 source.
- *
- * Revision 1.8  1995/03/06  17:54:17  john
- * fixed bug with mouse color being wrong.
- * 
- * Revision 1.7  1994/09/23  14:57:52  john
- * Took out calls to init_mouse and init_keyboard.
- * 
- * Revision 1.6  1994/04/22  11:10:06  john
- * *** empty log message ***
- * 
- * Revision 1.5  1993/12/07  12:30:44  john
- * new version.
- * 
- * Revision 1.4  1993/10/26  13:46:04  john
- * *** empty log message ***
- * 
- * Revision 1.3  1993/10/05  17:55:27  matt
- * Changed default pointer
- * 
- * Revision 1.2  1993/10/05  17:31:33  john
- * *** empty log message ***
- * 
- * Revision 1.1  1993/09/20  10:35:25  john
- * Initial revision
- * 
- *
  */
 
-#ifdef RCS
-static char rcsid[] = "$Id: mouse.c,v 1.1.1.1 2006/03/17 19:39:11 zicodxx Exp $";
-#endif
-
 #include <stdlib.h>
-#ifdef __SDL__
 #include <SDL/SDL.h>
-#endif
-
 #include "u_mem.h"
 #include "fix.h"
 #include "pstypes.h"
 #include "gr.h"
 #include "mouse.h"
-
 #include "ui.h"
 #include "timer.h"
 

@@ -10,53 +10,20 @@ CONTAINED HEREIN FOR REVENUE-BEARING PURPOSES.  THE END-USER UNDERSTANDS
 AND AGREES TO THE TERMS HEREIN AND ACCEPTS THE SAME BY USE OF THIS FILE.  
 COPYRIGHT 1993-1998 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 */
+
 /*
- * $Source: /cvsroot/dxx-rebirth/d1x-rebirth/ui/radio.c,v $
- * $Revision: 1.1.1.1 $
- * $Author: zicodxx $
- * $Date: 2006/03/17 19:39:06 $
  *
  * Radio box gadget stuff.
  *
- * $Log: radio.c,v $
- * Revision 1.1.1.1  2006/03/17 19:39:06  zicodxx
- * initial import
- *
- * Revision 1.1.1.1  1999/06/14 22:14:41  donut
- * Import of d1x 1.37 source.
- *
- * Revision 1.5  1994/04/22  11:10:15  john
- * *** empty log message ***
- * 
- * Revision 1.4  1993/12/07  12:29:40  john
- * new version.
- * 
- * Revision 1.3  1993/10/26  13:46:39  john
- * *** empty log message ***
- * 
- * Revision 1.2  1993/10/05  17:31:42  john
- * *** empty log message ***
- * 
- * Revision 1.1  1993/09/20  10:35:36  john
- * Initial revision
- * 
- *
  */
-
-#ifdef RCS
-static char rcsid[] = "$Id: radio.c,v 1.1.1.1 2006/03/17 19:39:06 zicodxx Exp $";
-#endif
 
 #include <stdlib.h>
 #include <string.h>
-
 #include "fix.h"
 #include "pstypes.h"
 #include "gr.h"
 #include "ui.h"
 #include "key.h"
-
-#include "mono.h"
 
 #define Middle(x) ((2*(x)+1)/4)
 
@@ -78,10 +45,10 @@ void ui_draw_radio( UI_GADGET_RADIO * radio )
 		if (radio->position == 0 )
 		{
 			ui_draw_box_out( 0, 0, radio->width-1, radio->height-1 );
-			ui_string_centered(  Middle(radio->width), Middle(radio->height), "þ" );
+			ui_string_centered(  Middle(radio->width), Middle(radio->height), "ï¿½" );
 		} else {
 			ui_draw_box_in( 0, 0, radio->width-1, radio->height-1 );
-			ui_string_centered(  Middle(radio->width)+1, Middle(radio->height)+1, "þ" );
+			ui_string_centered(  Middle(radio->width)+1, Middle(radio->height)+1, "ï¿½" );
 		}
 
 		if (CurWindow->keyboard_focus_gadget == (UI_GADGET *)radio)

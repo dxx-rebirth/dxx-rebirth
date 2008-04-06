@@ -30,8 +30,6 @@ static char rcsid[] = "$Id: collide.c,v 1.1.1.1 2006/03/17 19:41:32 zicodxx Exp 
 #include "gr.h"
 #include "stdlib.h"
 #include "bm.h"
-//#include "error.h"
-#include "mono.h"
 #include "3d.h"
 #include "segment.h"
 #include "texmap.h"
@@ -98,7 +96,6 @@ void collide_robot_and_wall( object * robot, fix hitspeed, short hitseg, short h
 		int	wall_num = Segments[hitseg].sides[hitwall].wall_num;
 		if (wall_num != -1) {
 			if ((Walls[wall_num].type == WALL_DOOR) && (Walls[wall_num].keys == KEY_NONE) && (Walls[wall_num].state == WALL_DOOR_CLOSED) && !(Walls[wall_num].flags & WALL_DOOR_LOCKED)) {
-				mprintf((0, "Trying to open door at segment %i, side %i\n", hitseg, hitwall));
 				wall_open_door(&Segments[hitseg], hitwall);
 			}
 		}
@@ -139,8 +136,6 @@ void apply_force_damage(object *obj,fix force,object *other_obj)
 		return;		//already exploding or dead
 
 	damage = fixdiv(force,obj->mtype.phys_info.mass) / 8;
-
-//mprintf((0,"obj %d, damage=%x\n",obj-Objects,damage));
 
 	switch (obj->type) {
 
@@ -325,7 +320,6 @@ void scrape_object_on_wall(object *obj, short hitseg, short hitside, vms_vector 
 
 			if (obj->id==Player_num) {
 				fix d;
-				//mprintf((0, "Scraped segment #%3i, side #%i\n", hitseg, hitside));
 				if ((d=TmapInfo[Segments[hitseg].sides[hitside].tmap_num].damage) > 0) {
 					vms_vector	hit_dir, rand_vec;
 					fix damage = fixmul(d,FrameTime);
@@ -411,16 +405,12 @@ int check_effect_blowup(segment *seg,int side,vms_vector *pnt)
 
 				}
 
-				//mprintf((0,"u,v = %x,%x   x,y=%x,%x",u,v,x,y));
-
 				
 				if (bm->bm_flags & BM_FLAG_RLE)
 					bm = rle_expand_texture(bm);
 
 				if (gr_gpixel (bm, x, y) != 255) {		//not trans, thus on effect
 					int vc,sound_num;
-
-					//mprintf((0,"  HIT!\n"));
 
 					if (Newdemo_state == ND_STATE_RECORDING)
 						newdemo_record_effect_blowup( seg-Segments, side, pnt);
@@ -442,8 +432,6 @@ int check_effect_blowup(segment *seg,int side,vms_vector *pnt)
 						new_ec = &Effects[Effects[ec].dest_eclip];
 						bm_num = new_ec->changing_wall_texture;
 
-						mprintf((0,"bm_num = %d\n",bm_num));
-
 						new_ec->time_left = new_ec->vc.frame_time;
 						new_ec->frame_count = 0;
 						new_ec->segnum = seg-Segments;
@@ -462,9 +450,6 @@ int check_effect_blowup(segment *seg,int side,vms_vector *pnt)
 
 					return 1;		//blew up!
 				}
-				//else
-				//	mprintf((0,"\n"));
-
 			}
 
 	return 0;		//didn't blow up
@@ -484,13 +469,6 @@ void collide_weapon_and_wall( object * weapon, fix hitspeed, short hitseg, short
 	int blew_up;
 	int wall_type;
 	int playernum;
-
-	#ifndef NDEBUG
-	if (keyd_pressed[KEY_LAPOSTRO])
-		if (weapon->ctype.laser_info.parent_num == Players[Player_num].objnum)
-			if (weapon->id < 4)
-				mprintf((0, "Your laser hit at segment = %i, side = %i\n", hitseg, hitwall));
-	#endif
 
 	if (weapon->mtype.phys_info.flags & PF_BOUNCE)
 		return;
@@ -578,7 +556,6 @@ void collide_weapon_and_wall( object * weapon, fix hitspeed, short hitseg, short
 						break;
 				}
 			} // else
-				//mprintf((0, "Weapon %i hits wall, but has silent bit set.\n", weapon-Objects));
 		} // else {
 			//	if (weapon->lifeleft <= 0)
 			//	weapon->flags |= OF_SHOULD_BE_DEAD;
@@ -641,11 +618,6 @@ void collide_debris_and_wall( object * debris, fix hitspeed, short hitseg, short
 
 //	-------------------------------------------------------------------------------------------------------------------
 void collide_robot_and_robot( object * robot1, object * robot2, vms_vector *collision_point ) { 
-//	mprintf((0, "Coll: [%2i %4i %4i %4i] [%2i %4i %4i %4i] at [%4i %4i %4i]", 
-//		robot1-Objects, f2i(robot1->pos.x), f2i(robot1->pos.y), f2i(robot1->pos.z),
-//		robot2-Objects, f2i(robot2->pos.x), f2i(robot2->pos.y), f2i(robot2->pos.z),
-//		f2i(collision_point->x), f2i(collision_point->y), f2i(collision_point->z)));
-
 	bump_two_objects(robot1, robot2, 1);
 	return; 
 }
@@ -722,7 +694,6 @@ void apply_damage_to_controlcen(object *controlcen, fix damage, short who)
 
 	whotype = Objects[who].type;
 	if (whotype != OBJ_PLAYER) {
-		mprintf((0, "Damage to control center by object of type %i prevented by MK!\n", whotype));
 		return;
 	}
 
@@ -925,14 +896,7 @@ void collide_robot_and_weapon( object * robot, object * weapon, vms_vector *coll
 			return;
 		else
 			weapon->ctype.laser_info.last_hitobj = robot-Objects;
-
-		// mprintf((0, "weapon #%i with power %i hits robot #%i.\n", weapon - Objects, f2i(weapon->shields), robot - Objects));
 	}
-
-//	if (weapon->ctype.laser_info.multiplier)
-//		mprintf((0, "Weapon #%3i hit object %3i in frame %4i: multiplier = %7.3f, power = %i\n", weapon-Objects, robot-Objects, FrameCount, f2fl(weapon->ctype.laser_info.multiplier), f2i(weapon->shields)));
-
-//mprintf((0, "weapon #%i hits robot #%i.\n", weapon - Objects, robot - Objects));
 
 	if (weapon->ctype.laser_info.parent_signature == robot->signature)
 		return;
@@ -1095,7 +1059,6 @@ void drop_pow_count(object *obj, int *pow_count)
 		if ((Game_mode & GM_NETWORK) &&
                     (Netgame.protocol_version == MULTI_PROTO_D1X_VER))
                  {
-                   mprintf((1, "want %d start %d now %d\n", count, powerup_start_level[i], powerup_in_level[i]));
                     if (multi_allow_powerup_mask[i])
                      { // only check 'important' powerups (no shield,energy,conc)
                        int pow_max = max(powerup_start_level[i] - powerup_in_level[i], 0);
@@ -1106,7 +1069,6 @@ void drop_pow_count(object *obj, int *pow_count)
                            // create dummy Net_create_objnums entries to keep objnums in sync
                             if (Net_create_loc >= MAX_NET_CREATE_OBJECTS)
                              {
-                               mprintf( (0, "Not enough slots to drop all powerups!\n" ));
                                return;
                              }
                            Net_create_objnums[Net_create_loc++] = -1;
@@ -1144,7 +1106,6 @@ void drop_pow_count(object *obj, int *pow_count)
 						count -= VULCAN_WEAPON_AMMO_AMOUNT;
 					if (count > 0 && (pow_count[POW_VULCAN_WEAPON] == 0 || (Game_mode & GM_MULTI))) {
 						if (count > 200) {
-							mprintf((0, "Surprising amount of vulcan ammo: %d bullets.\n", count));
 							count = 200;
 						}
 						call_object_create_egg(obj, (count + VULCAN_AMMO_AMOUNT - 1) / VULCAN_AMMO_AMOUNT, OBJ_POWERUP, POW_VULCAN_AMMO);
@@ -1178,139 +1139,6 @@ void drop_player_eggs(object *player)
 		drop_pow_count(player, pow_count);
 	}
 }
-//added/killed on 10/1/98 by Victor Rachels to get rid of that stupid #if 1
-//-killed-int maybe_drop_primary_weapon_egg(object *player, int weapon_flag, int powerup_num)
-//-killed-{
-//-killed-        if (Players[player->id].primary_weapon_flags & weapon_flag)
-//-killed-                return call_object_create_egg(player, 1, OBJ_POWERUP, powerup_num);
-//-killed-        else
-//-killed-                return -1;
-//-killed-}
-//-killed-
-//-killed-void maybe_drop_secondary_weapon_egg(object *player, int weapon_flag, int powerup_num, int count)
-//-killed-{
-//-killed-        if (Players[player->id].secondary_weapon_flags & weapon_flag) {
-//-killed-                int     i, max_count;
-//-killed-
-//-killed-                max_count = min(count, 3);
-//-killed-                for (i=0; i<max_count; i++)
-//-killed-                        call_object_create_egg(player, 1, OBJ_POWERUP, powerup_num);
-//-killed-        }
-//-killed-}
-//-killed-
-//-killed-void drop_player_eggs(object *player)
-//-killed-{
-//-killed-//      mprintf((0, "In drop_player_eggs...\n"));
-//-killed-
-//-killed-        if ((player->type == OBJ_PLAYER) || (player->type == OBJ_GHOST)) {
-//-killed-                int     num_missiles = 1;
-//-killed-                int     pnum = player->id;
-//-killed-                int     objnum;
-//-killed-
-//-killed-                // Seed the random number generator so in net play the eggs will always
-//-killed-                // drop the same way
-//-killed-                #ifdef NETWORK
-//-killed-                if (Game_mode & GM_MULTI) 
-//-killed-                {
-//-killed-                        Net_create_loc = 0;
-//-killed-                        d_srand(5483L);
-//-killed-                }
-//-killed-                #endif
-//-killed-
-//-killed-                //      If the player dies and he has powerful lasers, create the powerups here.
-//-killed-
-//-killed-                if (Players[pnum].laser_level >= 1)
-//-killed-                        call_object_create_egg(player, (Players[pnum].laser_level), OBJ_POWERUP, POW_LASER);
-//-killed-
-//-killed-                //      Drop quad laser if appropos
-//-killed-                if (Players[pnum].flags & PLAYER_FLAGS_QUAD_LASERS)
-//-killed-                        call_object_create_egg(player, 1, OBJ_POWERUP, POW_QUAD_FIRE);
-//-killed-
-//-killed-                if (Players[pnum].flags & PLAYER_FLAGS_CLOAKED)
-//-killed-                        call_object_create_egg(player, 1, OBJ_POWERUP, POW_CLOAK);
-//-killed-
-//-killed-                //      Drop the primary weapons
-//-killed-                objnum = maybe_drop_primary_weapon_egg(player, HAS_VULCAN_FLAG, POW_VULCAN_WEAPON);
-//-killed-                if (objnum!=-1)
-//-killed-                 {
-//-killed-//added/changed on 8/27/98 by Victor Rachels from Matt Mueller
-//-killed-//                        Objects[objnum].ctype.powerup_info.count = Players[pnum].primary_ammo[VULCAN_INDEX];
-//-killed-                 if (Game_mode & GM_MULTI)
-//-killed-                  {
-//-killed-                   Objects[objnum].ctype.powerup_info.count = VULCAN_WEAPON_AMMO_AMOUNT;
-//-killed-                   Players[pnum].primary_ammo[VULCAN_INDEX]-= VULCAN_WEAPON_AMMO_AMOUNT;
-//-killed-                  } else
-//-killed-                     Objects[objnum].ctype.powerup_info.count = Players[pnum].primary_ammo[VULCAN_INDEX];
-//-killed-//end this section edit - Victor Rachels from Matt Mueller
-//-killed-                 }
-//-killed-                maybe_drop_primary_weapon_egg(player, HAS_SPREADFIRE_FLAG, POW_SPREADFIRE_WEAPON);
-//-killed-                maybe_drop_primary_weapon_egg(player, HAS_PLASMA_FLAG, POW_PLASMA_WEAPON);
-//-killed-                maybe_drop_primary_weapon_egg(player, HAS_FUSION_FLAG, POW_FUSION_WEAPON);
-//-killed-
-//-killed-                //      Drop the secondary weapons
-//-killed-                //      Note, proximity weapon only comes in packets of 4.  So drop n/2, but a max of 3 (handled inside maybe_drop..)  Make sense?
-//-killed-                maybe_drop_secondary_weapon_egg(player, HAS_PROXIMITY_FLAG, POW_PROXIMITY_WEAPON, (Players[player->id].secondary_ammo[PROXIMITY_INDEX]+2)/4);
-//-killed-                maybe_drop_secondary_weapon_egg(player, HAS_SMART_FLAG, POW_SMARTBOMB_WEAPON, Players[player->id].secondary_ammo[SMART_INDEX]);
-//-killed-                maybe_drop_secondary_weapon_egg(player, HAS_MEGA_FLAG, POW_MEGA_WEAPON, Players[player->id].secondary_ammo[MEGA_INDEX]);
-//-killed-
-//-killed-                num_missiles = Players[pnum].secondary_ammo[HOMING_INDEX];
-//-killed-                if (num_missiles > 6)
-//-killed-                        num_missiles = 6;
-//-killed-                call_object_create_egg(player, num_missiles/4, OBJ_POWERUP, POW_HOMING_AMMO_4);
-//-killed-                call_object_create_egg(player, num_missiles%4, OBJ_POWERUP, POW_HOMING_AMMO_1);
-//-killed-
-//-killed-                //      If player has vulcan ammo, but no vulcan cannon, drop the ammo.
-//-killed-//added/changed on 8/27/98 by Victor Rachels from Matt Mueller
-//-killed-//              if (!(Players[player->id].primary_weapon_flags & HAS_VULCAN_FLAG)) {
-//-killed-                if (!(Players[player->id].primary_weapon_flags & HAS_VULCAN_FLAG)||(Game_mode & GM_MULTI)) {
-//-killed-//end change - Victor Rachels from Matt Mueller
-//-killed-                        int     amount = Players[player->id].primary_ammo[VULCAN_INDEX];
-//-killed-                        if (amount > 200) {
-//-killed-                                mprintf((0, "Surprising amount of vulcan ammo: %i bullets.\n", amount));
-//-killed-                                amount = 200;
-//-killed-                        }
-//-killed-                        while (amount > 0) {
-//-killed-                                call_object_create_egg(player, 1, OBJ_POWERUP, POW_VULCAN_AMMO);
-//-killed-                                amount -= VULCAN_AMMO_AMOUNT;
-//-killed-                        }
-//-killed-                }
-//-killed-
-//-killed-                //      Drop the player's missiles.
-//-killed-                num_missiles = Players[pnum].secondary_ammo[CONCUSSION_INDEX];
-//-killed-                if (num_missiles > 4)
-//-killed-                        num_missiles = 4;
-//-killed-
-//-killed-                call_object_create_egg(player, num_missiles/4, OBJ_POWERUP, POW_MISSILE_4);
-//-killed-                call_object_create_egg(player, num_missiles%4, OBJ_POWERUP, POW_MISSILE_1);
-//-killed-
-//-killed-                //      Always drop a shield and energy powerup.
-//-killed-                if (Game_mode & GM_MULTI) {
-//-killed-                        call_object_create_egg(player, 1, OBJ_POWERUP, POW_SHIELD_BOOST);
-//-killed-                        call_object_create_egg(player, 1, OBJ_POWERUP, POW_ENERGY);
-//-killed-                }
-//-killed-
-//-killed-//--            //      Drop all the keys.
-//-killed-//--            if (Players[Player_num].flags & PLAYER_FLAGS_BLUE_KEY) {
-//-killed-//--                    player->contains_count = 1;
-//-killed-//--                    player->contains_type = OBJ_POWERUP;
-//-killed-//--                    player->contains_id = POW_KEY_BLUE;
-//-killed-//--                    object_create_egg(player);
-//-killed-//--            }
-//-killed-//--            if (Players[Player_num].flags & PLAYER_FLAGS_RED_KEY) {
-//-killed-//--                    player->contains_count = 1;
-//-killed-//--                    player->contains_type = OBJ_POWERUP;
-//-killed-//--                    player->contains_id = POW_KEY_RED;
-//-killed-//--                    object_create_egg(player);
-//-killed-//--            }
-//-killed-//--            if (Players[Player_num].flags & PLAYER_FLAGS_GOLD_KEY) {
-//-killed-//--                    player->contains_count = 1;
-//-killed-//--                    player->contains_type = OBJ_POWERUP;
-//-killed-//--                    player->contains_id = POW_KEY_GOLD;
-//-killed-//--                    object_create_egg(player);
-//-killed-//--            }
-//-killed-        }
-//-killed-}
-
 
 void apply_damage_to_player(object *player, object *killer, fix damage)
 {
@@ -1669,8 +1497,6 @@ void collide_two_objects( object * A, object * B, vms_vector *collision_point )
 	int collision_type;	
 		
 	collision_type = COLLISION_OF(A->type,B->type);
-
-	//mprintf( (0, "Object %d of type %d collided with object %d of type %d\n", A-Objects,A->type, B-Objects, B->type ));
 
 	switch( collision_type )	{
 	NO_SAME_COLLISION( OBJ_FIREBALL, OBJ_FIREBALL,   collide_fireball_and_fireball )

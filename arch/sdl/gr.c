@@ -12,6 +12,7 @@
 #include "vers_id.h"
 #include "gamefont.h"
 #include "args.h"
+#include "config.h"
 
 int sdl_video_flags = SDL_SWSURFACE | SDL_HWPALETTE | SDL_DOUBLEBUF;
 
@@ -74,7 +75,7 @@ int gr_set_mode(u_int32_t mode)
 	grd_curscreen->sc_mode = mode;
 	grd_curscreen->sc_w = w;
 	grd_curscreen->sc_h = h;
-	grd_curscreen->sc_aspect = fixdiv(grd_curscreen->sc_w*GameArg.GfxAspectX,grd_curscreen->sc_h*GameArg.GfxAspectY);
+	grd_curscreen->sc_aspect = fixdiv(grd_curscreen->sc_w*GameCfg.AspectX,grd_curscreen->sc_h*GameCfg.AspectY);
 	grd_curscreen->sc_canvas.cv_bitmap.bm_x = 0;
 	grd_curscreen->sc_canvas.cv_bitmap.bm_y = 0;
 	grd_curscreen->sc_canvas.cv_bitmap.bm_w = w;
@@ -118,7 +119,7 @@ int gr_init(int mode)
 	MALLOC( grd_curscreen,grs_screen,1 );
 	memset( grd_curscreen, 0, sizeof(grs_screen));
 
-	if (!GameArg.SysWindow)
+	if (!GameCfg.WindowMode && !GameArg.SysWindow)
 	     sdl_video_flags|=SDL_FULLSCREEN;
 
 	//added 05/19/99 Matt Mueller - make HW surface optional

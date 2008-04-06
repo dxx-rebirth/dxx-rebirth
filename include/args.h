@@ -10,6 +10,7 @@ CONTAINED HEREIN FOR REVENUE-BEARING PURPOSES.  THE END-USER UNDERSTANDS
 AND AGREES TO THE TERMS HEREIN AND ACCEPTS THE SAME BY USE OF THIS FILE.  
 COPYRIGHT 1993-1998 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 */
+
 /*
  *
  * Prototypes for accessing arguments.
@@ -40,7 +41,6 @@ typedef struct Arg
 	int SysFPSIndicator;
 	int SysUseNiceFPS;
 	int SysMaxFPS;
-	char *SysMissionDir;
 	char *SysHogDir;
 	int SysNoHogDir;
 	int SysUsePlayersDir;
@@ -59,21 +59,15 @@ typedef struct Arg
 	int SndSdlMixer;
 	char *SndExternalMusic;
 	char *SndJukebox;
-	float GfxAspectX;
-	float GfxAspectY;
-	int GfxGaugeHudMode;
-	int GfxHudMaxNumDisp;
+	int GfxGaugeHudMode; // MOVE
 	int GfxHiresFNTAvailable;
-	int GfxPersistentDebris;
-	int GfxNoReticle;
+	int GfxPersistentDebris;// MOVE
+	int GfxNoReticle;// MOVE
 #ifdef OGL
-	int OglTexMagFilt;
-	int OglTexMinFilt;
-	int OglAlphaEffects;
-	int OglReticle;
-	int OglVoodooHack;
+	int OglAlphaEffects;// MOVE
+	int OglReticle;// MOVE
 	int OglFixedFont;
-	int OglPrShot;
+	int OglPrShot;// MOVE
 #endif
 	int EdiNoBm;
 	int MplGameProfile;

@@ -275,7 +275,9 @@ void load_text()
 				continue;
 			}
 			else
+			{
 				Error("Not enough strings in text file - expecting %d (or at least %d), found %d",N_TEXT_STRINGS,N_TEXT_STRINGS_SHAREWARE,i);
+			}
 		}
 		
 		if ( tptr ) *tptr++ = 0;

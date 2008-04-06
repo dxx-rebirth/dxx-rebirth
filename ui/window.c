@@ -10,66 +10,22 @@ CONTAINED HEREIN FOR REVENUE-BEARING PURPOSES.  THE END-USER UNDERSTANDS
 AND AGREES TO THE TERMS HEREIN AND ACCEPTS THE SAME BY USE OF THIS FILE.  
 COPYRIGHT 1993-1998 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 */
+
 /*
- * $Source: /cvsroot/dxx-rebirth/d1x-rebirth/ui/window.c,v $
- * $Revision: 1.1.1.1 $
- * $Author: zicodxx $
- * $Date: 2006/03/17 19:39:12 $
  *
  * Windowing functions and controller.
  *
- * $Log: window.c,v $
- * Revision 1.1.1.1  2006/03/17 19:39:12  zicodxx
- * initial import
- *
- * Revision 1.1.1.1  1999/06/14 22:14:46  donut
- * Import of d1x 1.37 source.
- *
- * Revision 1.8  1994/11/18  23:21:46  john
- * Fixed big with prev.
- * 
- * Revision 1.7  1994/11/18  23:21:06  john
- * Changed some shorts to int.
- * 
- * Revision 1.6  1994/06/09  12:18:12  john
- * Took out keyboard flushes.
- * 
- * Revision 1.5  1994/01/18  11:00:36  john
- * added ui_get_idle_seconds.
- * 
- * Revision 1.4  1993/12/07  12:30:33  john
- * new version.
- * 
- * Revision 1.3  1993/10/26  13:46:08  john
- * *** empty log message ***
- * 
- * Revision 1.2  1993/10/05  17:31:46  john
- * *** empty log message ***
- * 
- * Revision 1.1  1993/09/20  10:35:44  john
- * Initial revision
- * 
- *
  */
 
-#ifdef RCS
-static char rcsid[] = "$Id: window.c,v 1.1.1.1 2006/03/17 19:39:12 zicodxx Exp $";
-#endif
 #include <stdlib.h>
 #include <stdio.h>
 #include <stdarg.h>
-#ifdef __MSDOS__
-#include <dos.h>
-#endif
-
 #include "u_mem.h"
 #include "fix.h"
 #include "pstypes.h"
 #include "gr.h"
 #include "ui.h"
 #include "key.h"
-
-#include "mono.h"
 #include "mouse.h"
 #include "timer.h"
 
@@ -167,13 +123,10 @@ int ui_play_events_fast( int NumberOfEvents, UI_EVENT * buffer )
 	keyd_last_released= 0;
 	keyd_last_pressed= 0;
 
-	//mprintf( 0, "Before: ", i );
 	for (i=0; i<256; i++ )
 	{
-		//if (keyd_pressed[i]) mprintf( 0, "%d ", i );
 		SavedState[i] = keyd_pressed[i];
 	}
-	//mprintf( 0, "\n" );
 	_enable();
 	key_flush();
 	return 0;
@@ -361,13 +314,10 @@ void restore_state()
 {
 	int i;
 	_disable();
-	//mprintf( 0, "After: " );
 	for (i=0; i<256; i++ )
 	{
-		//if (SavedState[i]) mprintf( 0, "%d ", i );
 		keyd_pressed[i] = SavedState[i];
 	}
-	//mprintf( 0, "\n" );
 	_enable();
 }
 
@@ -439,7 +389,6 @@ void ui_mega_process()
 				EventBuffer[ui_event_counter].type = 1;
 				EventBuffer[ui_event_counter].data = ((MouseDY & 0xFFFF) << 16) | (MouseDX & 0xFFFF);
 				ui_event_counter++;
-				//mprintf( 0, "EVENT:%d, Mouse moved %d,%d\n", ui_event_counter, MouseDX, MouseDY );
 			} else {
 				Record = 0;
 			}
@@ -456,7 +405,6 @@ void ui_mega_process()
 				EventBuffer[ui_event_counter].type = 2;
 				EventBuffer[ui_event_counter].data = MouseButtons;
 				ui_event_counter++;
-				//mprintf( 0, "EVENT:%d, Mouse buttons changed %d\n", ui_event_counter, MouseButtons );
 			} else {
 				Record = 0;
 			}
@@ -477,7 +425,6 @@ void ui_mega_process()
 				EventBuffer[ui_event_counter].type = 3;
 				EventBuffer[ui_event_counter].data = k;
 				ui_event_counter++;
-				//mprintf( 0, "EVENT:%d, Key %d pressed\n", ui_event_counter, k );
 			} else {
 				Record = 0;
 			}
@@ -497,7 +444,6 @@ void ui_mega_process()
 				EventBuffer[ui_event_counter].type = 4;
 				EventBuffer[ui_event_counter].data = k;
 				ui_event_counter++;
-				//mprintf( 0, "EVENT:%d, Key %d released\n", ui_event_counter, k );
 			} else {
 				Record = 0;
 			}
@@ -521,7 +467,6 @@ void ui_mega_process()
 				EventBuffer[ui_event_counter].type = 5;
 				EventBuffer[ui_event_counter].data = last_keypress;
 				ui_event_counter++;
-				//mprintf( 0, "EVENT:%d, Keypressed %d\n", ui_event_counter, last_keypress );
 			} else {
 				Record = 0;
 			}
@@ -556,7 +501,6 @@ void ui_mega_process()
 		
 		if (key_inkey() == KEY_F12 )
 		{
-			//mprintf( 0, "Playing stopped.\n" );
 			restore_state();
 			Record = 0;
 			break;

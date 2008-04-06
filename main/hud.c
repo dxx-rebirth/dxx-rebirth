@@ -17,15 +17,10 @@ COPYRIGHT 1993-1998 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
  */
 
 
-#ifdef RCS
-static char rcsid[] = "$Id: hud.c,v 1.1.1.1 2006/03/17 19:42:04 zicodxx Exp $";
-#endif
-
 #include <stdio.h>
 #include <string.h>
 #include <stdlib.h>
 #include <stdarg.h>
-#include <time.h>
 
 #include "hudmsg.h"
 #include "inferno.h"
@@ -35,7 +30,6 @@ static char rcsid[] = "$Id: hud.c,v 1.1.1.1 2006/03/17 19:42:04 zicodxx Exp $";
 #include "physics.h"
 #include "error.h"
 #include "menu.h"
-#include "mono.h"
 #include "collide.h"
 #include "newdemo.h"
 #include "player.h"
@@ -45,6 +39,7 @@ static char rcsid[] = "$Id: hud.c,v 1.1.1.1 2006/03/17 19:42:04 zicodxx Exp $";
 #include "text.h"
 #include "args.h"
 #include "strutil.h"
+#include "console.h"
 
 int hud_first = 0;
 int hud_last = 0;
@@ -151,13 +146,10 @@ int HUD_init_message_va(char * format, va_list args)
 	int temp, i;
 	char *message = NULL;
 	char *last_message=NULL;
-	time_t t;
-	struct tm *lt;
 
 	if ( (hud_last < 0) || (hud_last >= HUD_MAX_NUM))
 		Int3(); // Get Rob!!
 
-	// -- mprintf((0, "message timer: %7.3f\n", f2fl(HUD_message_timer)));
 	message = &HUD_messages[hud_last][0];
 	vsprintf(message,format,args);
 
@@ -185,11 +177,8 @@ int HUD_init_message_va(char * format, va_list args)
 	}
 
 	temp = (hud_last+1) % HUD_MAX_NUM;
+
 	if ( temp==hud_first )	{
-		hud_first= (hud_first+1) % HUD_MAX_NUM;
-		hud_last--;
-	}
-	if ( HUD_nmessages>=GameArg.GfxHudMaxNumDisp){
 		// If too many messages, remove oldest message to make room
 		hud_first = (hud_first+1) % HUD_MAX_NUM;
 		HUD_nmessages--;
@@ -206,19 +195,16 @@ int HUD_init_message_va(char * format, va_list args)
 		if (last_message && !strcmp(&HUD_messages[i][0],message) && (!strnicmp("You already",message,11) || !stricmp("your laser is maxed out!",message)))
 			return 0;
 
-	t=time(NULL);
-	lt=localtime(&t);
-	
-	printf("%02i:%02i:%02i %s\n",lt->tm_hour,lt->tm_min,lt->tm_sec,message);
+	if (HUD_color == -1)
+		HUD_color = BM_XRGB(0,28,0);
+	con_printf(CON_HUD, "%s\n", message);
 
 	hud_last = temp;
 	// Check if memory has been overwritten at this point.
 	if (strlen(message) >= HUD_MESSAGE_LENGTH)
 		Error( "Your message to HUD is too long.  Limit is %i characters.\n", HUD_MESSAGE_LENGTH);
-	#ifdef NEWDEMO
 	if (Newdemo_state == ND_STATE_RECORDING )
 		newdemo_record_hud_message( message );
-	#endif
 	HUD_message_timer = F1_0*3;		// 1 second per 5 characters
 	HUD_nmessages++;
 

@@ -55,10 +55,6 @@ typedef struct	{
 	ubyte		filler[60];
 } PCXHeader;
 
-
-#ifdef FAST_FILE_IO
-#define PCXHeader_read_n(ph, n, fp) cfread(ph, sizeof(PCXHeader), n, fp)
-#else
 /*
  * reads n PCXHeader structs from a CFILE
  */
@@ -85,7 +81,6 @@ int PCXHeader_read_n(PCXHeader *ph, int n, CFILE *fp)
 	}
 	return i;
 }
-#endif
 
 int pcx_read_bitmap( char * filename, grs_bitmap * bmp,int bitmap_type ,ubyte * palette )
 {

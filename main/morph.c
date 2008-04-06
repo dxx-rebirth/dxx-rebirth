@@ -10,131 +10,12 @@ CONTAINED HEREIN FOR REVENUE-BEARING PURPOSES.  THE END-USER UNDERSTANDS
 AND AGREES TO THE TERMS HEREIN AND ACCEPTS THE SAME BY USE OF THIS FILE.  
 COPYRIGHT 1993-1998 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 */
+
 /*
- * $Source: /cvsroot/dxx-rebirth/d1x-rebirth/main/morph.c,v $
- * $Revision: 1.1.1.1 $
- * $Author: zicodxx $
- * $Date: 2006/03/17 19:43:14 $
- * 
+ *
  * Morphing code
- * 
- * $Log: morph.c,v $
- * Revision 1.1.1.1  2006/03/17 19:43:14  zicodxx
- * initial import
  *
- * Revision 1.1.1.1  1999/06/14 22:08:59  donut
- * Import of d1x 1.37 source.
- *
- * Revision 2.1  1995/02/27  18:26:33  john
- * Fixed bug that was caused by externing Polygon_models, and I had
- * changed the type of it in polyobj.c, thus causing page faults.
- * 
- * Revision 2.0  1995/02/27  11:27:44  john
- * New version 2.0, which has no anonymous unions, builds with
- * Watcom 10.0, and doesn't require parsing BITMAPS.TBL.
- * 
- * Revision 1.35  1995/02/22  14:45:37  allender
- * remove anonymous unions from object structure
- * 
- * Revision 1.34  1995/01/14  19:16:52  john
- * First version of new bitmap paging code.
- * 
- * Revision 1.33  1995/01/03  20:38:36  john
- * Externed MAX_MORPH_OBJECTS
- * 
- * Revision 1.32  1994/11/17  15:34:04  matt
- * Attempt #4 to fix morph bug
- * 
- * Revision 1.31  1994/11/15  10:57:14  matt
- * Tried again to fix morph
- * 
- * Revision 1.30  1994/11/14  14:06:45  matt
- * Fixed stupid bug
- * 
- * Revision 1.29  1994/11/14  11:55:13  matt
- * Added divide overflow check
- * 
- * Revision 1.28  1994/09/26  17:28:14  matt
- * Made new multiple-object morph code work with the demo system
- * 
- * Revision 1.27  1994/09/26  15:39:56  matt
- * Allow multiple simultaneous morphing objects
- * 
- * Revision 1.26  1994/09/11  22:44:59  mike
- * quick on vecmat function.
- * 
- * Revision 1.25  1994/08/26  15:36:00  matt
- * Made eclips usable on more than one object at a time
- * 
- * Revision 1.24  1994/07/25  00:02:46  matt
- * Various changes to accomodate new 3d, which no longer takes point numbers
- * as parms, and now only takes pointers to points.
- * 
- * Revision 1.23  1994/07/12  12:39:58  matt
- * Revamped physics system
- * 
- * Revision 1.22  1994/06/28  11:54:51  john
- * Made newdemo system record/play directly to/from disk, so
- * we don't need the 4 MB buffer anymore.
- * 
- * Revision 1.21  1994/06/27  15:53:01  john
- * #define'd out the newdemo stuff
- * 
- * 
- * Revision 1.20  1994/06/16  14:30:19  matt
- * Moved morph record data call to reder routine
- * 
- * Revision 1.19  1994/06/16  13:57:23  matt
- * Added support for morphing objects in demos
- * 
- * Revision 1.18  1994/06/16  12:24:23  matt
- * Made robot lighting not mess with Lighting_on so robots now night
- * according to this variable.
- * 
- * Revision 1.17  1994/06/14  16:55:01  matt
- * Got rid of physics_object speed field
- * 
- * Revision 1.16  1994/06/08  21:16:29  matt
- * Made objects spin while morphing
- * 
- * Revision 1.15  1994/06/08  18:21:53  matt
- * Made morphing objects light correctly
- * 
- * Revision 1.14  1994/06/07  16:50:49  matt
- * Made object lighting work correctly; changed name of Ambient_light to
- * Dynamic_light; cleaned up polygobj object rendering a little.
- * 
- * Revision 1.13  1994/06/01  16:33:59  yuan
- * Fixed bug.
- * 
- * 
- * Revision 1.12  1994/06/01  16:29:08  matt
- * If morph_frame called on object this isn't the morph object, kill it.
- * 
- * Revision 1.11  1994/06/01  12:46:34  matt
- * Added needed include
- * 
- * Revision 1.10  1994/05/31  22:12:41  matt
- * Set lighting for morph objects
- * Don't let another object start morph while one is morphing, unless
- * that one dies.
- * 
- * Revision 1.9  1994/05/31  18:49:53  john
- * Took out debugging printf's that Matt left in.
- * 
- * Revision 1.8  1994/05/30  22:50:22  matt
- * Added morph effect for robots
- * 
- * 
- * 
  */
-
-
-#ifdef RCS
-#pragma off (unreferenced)
-static char rcsid[] = "$Id: morph.c,v 1.1.1.1 2006/03/17 19:43:14 zicodxx Exp $";
-#pragma on (unreferenced)
-#endif
 
 #include <stdio.h>
 #include <stdlib.h>
@@ -142,7 +23,6 @@ static char rcsid[] = "$Id: morph.c,v 1.1.1.1 2006/03/17 19:43:14 zicodxx Exp $"
 
 #include "texmap.h"
 #include "error.h"
-
 #include "inferno.h"
 #include "morph.h"
 #include "polyobj.h"
@@ -150,8 +30,6 @@ static char rcsid[] = "$Id: morph.c,v 1.1.1.1 2006/03/17 19:43:14 zicodxx Exp $"
 #include "lighting.h"
 #include "newdemo.h"
 #include "piggy.h"
-
-#include "mono.h"
 #include "bm.h"
 
 morph_data morph_objects[MAX_MORPH_OBJECTS];
@@ -161,12 +39,10 @@ morph_data *find_morph_data(object *obj)
 {
 	int i;
 
-	#ifdef NEWDEMO
 	if (Newdemo_state == ND_STATE_PLAYBACK) {
 		morph_objects[0].obj = obj;
 		return &morph_objects[0];
 	}
-	#endif
 
 	for (i=0;i<MAX_MORPH_OBJECTS;i++)
 		if (morph_objects[i].obj == obj)
@@ -223,8 +99,6 @@ void init_points(polymodel *pm,vms_vector *box_size,int submodel_num,morph_data 
 	ushort *data,type;
 	int i;
 
-	//printf("initing %d ",submodel_num);
-
 	data = (ushort *) &pm->model_data[pm->submodel_ptrs[submodel_num]];
 
 	type = *data++;
@@ -280,9 +154,6 @@ void init_points(polymodel *pm,vms_vector *box_size,int submodel_num,morph_data 
 		vp++; i++;
 
 	}
-
-	//printf("npoints = %d\n",n_morphing_points[submodel_num]);
-
 }
 
 void update_points(polymodel *pm,int submodel_num,morph_data *md)
@@ -291,8 +162,6 @@ void update_points(polymodel *pm,int submodel_num,morph_data *md)
 	vms_vector *vp;
 	ushort *data,type;
 	int i;
-
-	//printf("updating %d ",submodel_num);
 
 	data = (ushort *) &pm->model_data[pm->submodel_ptrs[submodel_num]];
 
@@ -325,8 +194,6 @@ void update_points(polymodel *pm,int submodel_num,morph_data *md)
                  }
 		vp++; i++;
 	}
-
-	//printf("npoints = %d\n",n_morphing_points[submodel_num]);
 }
 
 
@@ -345,12 +212,6 @@ void do_morph_frame(object *obj)
 	}
 
 	pm = &Polygon_models[md->obj->rtype.pobj_info.model_num];
-
-	//printf("morph_frame active = ");
-	//for (i=0;i<pm->n_models;i++)
-	//	printf("%d ",submodel_active[i]);
-	//printf("\n");
-
 
 	for (i=0;i<pm->n_models;i++)
 		if (md->submodel_active[i]==1) {
@@ -512,7 +373,6 @@ void draw_model(polymodel *pm,int submodel_num,vms_angvec *anim_angles,fix light
 				texture_list[i] = &GameBitmaps[ObjBitmaps[ObjBitmapPtrs[pm->first_texture+i]].index];
 			}
 
-#ifdef PIGGY_USE_PAGING			
 			// Make sure the textures for this object are paged in...
 			piggy_page_flushed = 0;
 			for (i=0;i<pm->n_textures;i++)	
@@ -526,8 +386,6 @@ void draw_model(polymodel *pm,int submodel_num,vms_angvec *anim_angles,fix light
 			}
 			// Make sure that they can all fit in memory.
 			Assert( piggy_page_flushed == 0 );
-#endif
-
 
 			g3_draw_morphing_model(&pm->model_data[pm->submodel_ptrs[submodel_num]],texture_list,anim_angles,light,&md->morph_vecs[md->submodel_startpoints[submodel_num]]);
 
@@ -572,9 +430,6 @@ void draw_morph_object(object *obj)
 
 	g3_done_instance();
 
-	#ifdef NEWDEMO
 	if (Newdemo_state == ND_STATE_RECORDING)
 		newdemo_record_morph_frame(md);
-	#endif
-
 }

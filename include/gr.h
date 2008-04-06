@@ -57,6 +57,18 @@ typedef struct _grs_font {
 } 
 old_grs_font;
 
+//these are control characters that have special meaning in the font code
+
+#define CC_COLOR        1   //next char is new foreground color
+#define CC_LSPACING     2   //next char specifies line spacing
+#define CC_UNDERLINE    3   //next char is underlined
+
+//now have string versions of these control characters (can concat inside a string)
+
+#define CC_COLOR_S      "\x1"   //next char is new foreground color
+#define CC_LSPACING_S   "\x2"   //next char specifies line spacing
+#define CC_UNDERLINE_S  "\x3"   //next char is underlined
+
 #define BM_LINEAR   0
 
 #define BM_FLAG_TRANSPARENT         1
@@ -437,39 +449,10 @@ extern void build_colormap_good( ubyte * palette, ubyte * colormap, int * freq )
 extern void gr_flip(void);
 extern void gr_set_draw_buffer(int buf);
 
-//added 05/19/99 Matt Mueller - graphics locking stuff
-#if (defined(TEST_GR_LOCK) || defined(GR_LOCK))
-extern int gr_testlocklevel;
-#define gr_dotestlock() gr_testlocklevel++
-#define gr_dotestunlock() gr_testlocklevel--
-#endif
-
-#if (defined(TEST_GR_LOCK) && defined(GR_LOCK))
-#include "mono.h"
-#define gr_testlock() {if (gr_testlocklevel<=0) mprintf((0, "gr_testlock: NOT locked at " __FILE__ ":%i\n",__LINE__));}
-#define gr_testunlock() {if (gr_testlocklevel>0) mprintf((0, "gr_testunlock: LOCKED at " __FILE__ ":%i\n",__LINE__));}
-#else 
-#define gr_dotestlock()
-#define gr_dotestunlock()
-#define gr_testlock()
-#define gr_testunlock()
-#endif
-
-#ifdef GR_LOCK
-inline void gr_dolock(const char *file,int line);
-#define gr_lock() gr_dolock(__FILE__,__LINE__)
-inline void gr_dounlock(void);
-#define gr_unlock() gr_dounlock()
-#else
-#define gr_lock() {gr_dotestlock();}
-#define gr_unlock() {gr_dotestunlock();}
-#endif
-//end addition -MM
-
-#endif //!_GR_H
-
 int gr_check_fullscreen(void);//must return 0 if windowed, 1 if fullscreen
 int gr_toggle_fullscreen(void);//returns state after toggling (ie, same as if you had called check_fullscreen immediatly after)
 
 //make this a define, since its used in several places
 #define KEYS_GR_TOGGLE_FULLSCREEN KEY_CTRLED+KEY_SHIFTED+KEY_PADENTER: case KEY_ALTED+KEY_CTRLED+KEY_PADENTER: case KEY_ALTED+KEY_SHIFTED+KEY_PADENTER: case KEY_ALTED+KEY_ENTER
+
+#endif //!_GR_H

@@ -40,7 +40,6 @@ COPYRIGHT 1993-1998 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 #include "physics.h"
 #include "error.h"
 #include "joy.h"
-#include "mono.h"
 #include "iff.h"
 #include "pcx.h"
 #include "timer.h"
@@ -100,6 +99,7 @@ COPYRIGHT 1993-1998 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 #include "fvi.h"
 //MD2211
 #include "jukebox.h"
+#include "console.h"
 
 extern void change_res();
 extern void write_player_file();
@@ -202,7 +202,6 @@ void speedtest_init(void)
 	Speedtest_segnum = 0;
 	Speedtest_sidenum = 0;
 	Speedtest_frame_start = FrameCount;
-	mprintf((0, "Starting speedtest.  Will be %i frames.  Each . = 10 frames.\n", Highest_segment_index+1));
 }
 
 void speedtest_frame(void)
@@ -219,16 +218,9 @@ void speedtest_frame(void)
 	vm_vec_normalized_dir_quick(&view_dir, &center_point, &Viewer->pos);
 	vm_vector_2_matrix(&Viewer->orient, &view_dir, NULL, NULL);
 
-	if (((FrameCount - Speedtest_frame_start) % 10) == 0)
-		mprintf((0, "."));
-
 	Speedtest_segnum++;
 
 	if (Speedtest_segnum > Highest_segment_index) {
-		mprintf((0, "\nSpeedtest done:  %i frames, %7.3f seconds, %7.3f frames/second.\n",
-			FrameCount-Speedtest_frame_start,
-			f2fl(timer_get_fixed_seconds() - Speedtest_start_time),
-			(float) (FrameCount-Speedtest_frame_start) / f2fl(timer_get_fixed_seconds() - Speedtest_start_time)));
 		Speedtest_count--;
 		if (Speedtest_count == 0)
 			Speedtest_on = 0;
@@ -252,8 +244,6 @@ void init_game()
 	hostage_init();
 
 	init_special_effects();
-
-	init_ai_system();
 
 	init_gauge_canvases();
 
@@ -785,7 +775,6 @@ void calc_frame_time()
 
 #ifndef NDEBUG
 	if (!(((FrameTime > 0) && (FrameTime <= F1_0)) || (Function_mode == FMODE_EDITOR) || (Newdemo_state == ND_STATE_PLAYBACK))) {
-		mprintf((1,"Bad FrameTime - value = %x\n",FrameTime));
 		if (FrameTime == 0)
 		{
 			FrameTime = 1;
@@ -1021,6 +1010,8 @@ void game_do_render_frame(int flip)
         if (netplayerinfo_on)
 		show_netplayerinfo();
 #endif
+	con_show();
+
 	if (flip)
 		gr_flip();
 }
@@ -1209,7 +1200,6 @@ void do_invulnerable_stuff(void)
 			if (Game_mode & GM_MULTI)
 				multi_send_play_sound(SOUND_INVULNERABILITY_OFF, F1_0);
 #endif
-			mprintf((0, " --- You have been DE-INVULNERABLEIZED! ---\n"));
 		}
 	}
 }
@@ -1455,28 +1445,28 @@ int do_game_pause()
 
 void show_help()
 {
+	int nitems = 0;
 	newmenu_item m[25];
-	int mc = 0;
 
-	m[mc].type = NM_TYPE_TEXT; m[mc].text = TXT_HELP_ESC; mc++;
-	m[mc].type = NM_TYPE_TEXT; m[mc].text = TXT_HELP_F2; mc++;
-	m[mc].type = NM_TYPE_TEXT; m[mc].text = "Alt-F2/F3\t  SAVE/LOAD GAME"; mc++;
-	m[mc].type = NM_TYPE_TEXT; m[mc].text = "F3\t  SWITCH COCKPIT MODES"; mc++;
-	m[mc].type = NM_TYPE_TEXT; m[mc].text = TXT_HELP_F5; mc++;
-	m[mc].type = NM_TYPE_TEXT; m[mc].text = "ALT-F7\t  SWITCH HUD MODES"; mc++;
-	m[mc].type = NM_TYPE_TEXT; m[mc].text = TXT_HELP_PAUSE; mc++;
-	m[mc].type = NM_TYPE_TEXT; m[mc].text = TXT_HELP_PRTSCN; mc++;
-	m[mc].type = NM_TYPE_TEXT; m[mc].text = TXT_HELP_1TO5; mc++;
-	m[mc].type = NM_TYPE_TEXT; m[mc].text = TXT_HELP_6TO10; mc++;
-	m[mc].type = NM_TYPE_TEXT; m[mc].text = ""; mc++;
-	m[mc].type = NM_TYPE_TEXT; m[mc].text = "MULTIPLAYER:"; mc++;
-	m[mc].type = NM_TYPE_TEXT; m[mc].text = "ALT-F4\t  SHOW RETICLE NAMES"; mc++;
-	m[mc].type = NM_TYPE_TEXT; m[mc].text = "F7\t  SHOW KILL LIST"; mc++;
-	m[mc].type = NM_TYPE_TEXT; m[mc].text = "F8\t  SEND MESSAGE"; mc++;
-	m[mc].type = NM_TYPE_TEXT; m[mc].text = "F8 to F12\t  SEND MACRO"; mc++;
-	m[mc].type = NM_TYPE_TEXT; m[mc].text = "SHIFT-F8 to SHIFT-F12\t  DEFINE MACRO"; mc++;
-	m[mc].type = NM_TYPE_TEXT; m[mc].text = "PAUSE\t  SHOW NETGAME INFORMATION"; mc++;
-	newmenu_dotiny( NULL, TXT_KEYS, mc, m, NULL );
+	m[nitems].type = NM_TYPE_TEXT; m[nitems++].text = TXT_HELP_ESC;
+	m[nitems].type = NM_TYPE_TEXT; m[nitems++].text = "SHIFT-ESC\t  SHOW GAME LOG";
+	m[nitems].type = NM_TYPE_TEXT; m[nitems++].text = TXT_HELP_F2;
+	m[nitems].type = NM_TYPE_TEXT; m[nitems++].text = "Alt-F2/F3\t  SAVE/LOAD GAME";
+	m[nitems].type = NM_TYPE_TEXT; m[nitems++].text = "F3\t  SWITCH COCKPIT MODES";
+	m[nitems].type = NM_TYPE_TEXT; m[nitems++].text = TXT_HELP_F5;
+	m[nitems].type = NM_TYPE_TEXT; m[nitems++].text = "ALT-F7\t  SWITCH HUD MODES";
+	m[nitems].type = NM_TYPE_TEXT; m[nitems++].text = TXT_HELP_PAUSE;
+	m[nitems].type = NM_TYPE_TEXT; m[nitems++].text = TXT_HELP_PRTSCN;
+	m[nitems].type = NM_TYPE_TEXT; m[nitems++].text = TXT_HELP_1TO5;
+	m[nitems].type = NM_TYPE_TEXT; m[nitems++].text = TXT_HELP_6TO10;
+	m[nitems].type = NM_TYPE_TEXT; m[nitems++].text = "";
+	m[nitems].type = NM_TYPE_TEXT; m[nitems++].text = "MULTIPLAYER:";
+	m[nitems].type = NM_TYPE_TEXT; m[nitems++].text = "ALT-F4\t  SHOW RETICLE NAMES";
+	m[nitems].type = NM_TYPE_TEXT; m[nitems++].text = "F7\t  TOGGLE KILL LIST";
+	m[nitems].type = NM_TYPE_TEXT; m[nitems++].text = "F8\t  SEND MESSAGE";
+	m[nitems].type = NM_TYPE_TEXT; m[nitems++].text = "(SHIFT-)F8 to F12\t  (DEFINE)SEND MACRO";
+	m[nitems].type = NM_TYPE_TEXT; m[nitems++].text = "PAUSE\t  SHOW NETGAME INFORMATION";
+	newmenu_dotiny( NULL, TXT_KEYS, nitems, m, NULL );
 }
 
 void show_newdemo_help()
@@ -1695,12 +1685,6 @@ void game()
 			Automap_flag = 0;
 			Config_menu_flag = 0;
 
-			if ( ConsoleObject != &Objects[Players[Player_num].objnum] )
-			  {
-			    mprintf ((0,"Player_num=%d objnum=%d",Player_num,Players[Player_num].objnum));
-			    //Assert( ConsoleObject == &Objects[Players[Player_num].objnum] );
-			  }
-
                         GameLoop( 1, 1 );               // Do game loop with rendering and reading controls.
 
 			if (Config_menu_flag)	{
@@ -1792,6 +1776,22 @@ void close_game()
 	clear_warn_func(game_show_warning);     //don't use this func anymore
 }
 
+fix newdemo_single_frame_time;
+
+void update_vcr_state(void)
+{
+	if ((keyd_pressed[KEY_LSHIFT] || keyd_pressed[KEY_RSHIFT]) && keyd_pressed[KEY_RIGHT])
+		Newdemo_vcr_state = ND_STATE_FASTFORWARD;
+	else if ((keyd_pressed[KEY_LSHIFT] || keyd_pressed[KEY_RSHIFT]) && keyd_pressed[KEY_LEFT])
+		Newdemo_vcr_state = ND_STATE_REWINDING;
+	else if (!(keyd_pressed[KEY_LCTRL] || keyd_pressed[KEY_RCTRL]) && keyd_pressed[KEY_RIGHT] && ((timer_get_fixed_seconds() - newdemo_single_frame_time) >= F1_0))
+		Newdemo_vcr_state = ND_STATE_ONEFRAMEFORWARD;
+	else if (!(keyd_pressed[KEY_LCTRL] || keyd_pressed[KEY_RCTRL]) && keyd_pressed[KEY_LEFT] && ((timer_get_fixed_seconds() - newdemo_single_frame_time) >= F1_0))
+		Newdemo_vcr_state = ND_STATE_ONEFRAMEBACKWARD;
+	else if ((Newdemo_vcr_state == ND_STATE_FASTFORWARD) || (Newdemo_vcr_state == ND_STATE_REWINDING))
+		Newdemo_vcr_state = ND_STATE_PLAYBACK;
+}
+
 ubyte exploding_flag = 0;
 extern void dump_used_textures_all();
 int ostate_p=0;
@@ -1821,8 +1821,7 @@ void HandleDeathKey(int key)
 	}
 
 	//don't abort death sequence for netgame join/refuse keys
-	if (	(key == KEY_ALTED + KEY_1) ||
-			(key == KEY_ALTED + KEY_2))
+	if ( Game_mode & GM_MULTI && ((key == KEY_ALTED + KEY_1) || (key == KEY_ALTED + KEY_2) || key == KEY_F6))
 		Death_sequence_aborted  = 0;
 
 	if (Death_sequence_aborted)
@@ -1847,18 +1846,12 @@ void HandleEndlevelKey(int key)
 		Int3();
 }
 
-static fix newdemo_single_frame_time;
-
 void HandleDemoKey(int key)
 {
 	switch (key) {
 
 		case KEY_DEBUGGED + KEY_I:
 			Newdemo_do_interpolate = !Newdemo_do_interpolate;
-			if (Newdemo_do_interpolate)
-				mprintf ((0, "demo playback interpolation now on\n"));
-			else
-				mprintf ((0, "demo playback interpolation now off\n"));
 		break;
 #ifndef NDEBUG
 		case KEY_DEBUGGED + KEY_K: {
@@ -2226,14 +2219,22 @@ void HandleGameKey(int key)
 		case KEYS_GR_TOGGLE_FULLSCREEN:
 				gr_toggle_fullscreen();
 				break;
-		case KEY_SHIFTED + KEY_ESC: //quick exit
-#ifdef EDITOR
-			if (! SafetyCheck()) break;
-			close_editor_screen();
-#endif
+#if 1
+		case KEY_SHIFTED + KEY_ESC:
+// 			con_show();
+			break;
+
+#else
+		case KEY_SHIFTED + KEY_ESC:     //quick exit
+			#ifdef EDITOR
+				if (! SafetyCheck()) break;
+				close_editor_screen();
+			#endif
+
 			Game_aborted=1;
 			Function_mode=FMODE_EXIT;
 			break;
+#endif
 		case KEY_ALTED+KEY_F2:	if (!Player_is_dead) state_save_all( 0 );		break;	// 0 means not between levels.
 		case KEY_ALTED+KEY_F3:	if (!Player_is_dead) state_restore_all(1);		break;
 
@@ -2303,9 +2304,7 @@ void HandleGameKey(int key)
 #endif
 				ai_do_cloak_stuff();
 				Players[Player_num].cloak_time = (GameTime+CLOAK_TIME_MAX>i2f(0x7fff-600)?GameTime-i2f(0x7fff-600):GameTime);
-				mprintf((0, "You are cloaked!\n"));
-			} else
-				mprintf((0, "You are DE-cloaked!\n"));
+			}
 			break;
 		case KEY_DEBUGGED+KEY_R:
 			Robot_firing_enabled = !Robot_firing_enabled;
@@ -2329,7 +2328,6 @@ void HandleGameKey(int key)
 		case KEY_DEBUGGED+KEY_O: toggle_outline_mode(); break;
 		case KEY_DEBUGGED+KEY_T:
 			*Toggle_var = !*Toggle_var;
-			mprintf((0, "Variable at %08x set to %i\n", Toggle_var, *Toggle_var));
 			break;
 		case KEY_DEBUGGED + KEY_L:
 			if (++Lighting_on >= 2) Lighting_on = 0; break;
@@ -2341,10 +2339,8 @@ void HandleGameKey(int key)
 		case KEY_DEBUGGED + KEY_M:
 			Debug_spew = !Debug_spew;
 			if (Debug_spew) {
-				mopen( 0, 8, 1, 78, 16, "Debug Spew");
 				hud_message( MSGC_GAME_FEEDBACK, "Debug Spew: ON" );
 			} else {
-				mclose( 0 );
 				hud_message( MSGC_GAME_FEEDBACK, "Debug Spew: OFF" );
 			}
 			break;
@@ -2442,34 +2438,34 @@ void ReadControls()
 	int key;
 	fix key_time;
 
-		Player_fired_laser_this_frame=-1;
+	Player_fired_laser_this_frame=-1;
 
 #ifndef NDEBUG
-		if (Speedtest_on)
-			speedtest_frame();
+	if (Speedtest_on)
+		speedtest_frame();
 #endif
 
-		if (!Endlevel_sequence) {  // && !Player_is_dead  //this was taken out of the if statement by WraithX
+	if (!Endlevel_sequence && !con_render) {  // && !Player_is_dead  //this was taken out of the if statement by WraithX
 
-				if ( (Newdemo_state == ND_STATE_PLAYBACK)
-					#ifdef NETWORK
-					|| multi_sending_message || multi_defining_message
-					#endif
-					) 	// WATCH OUT!!! WEIRD CODE ABOVE!!!
-					memset( &Controls, 0, sizeof(control_info) );
-				else
-					controls_read_all();		//NOTE LINK TO ABOVE!!!
+		if ( (Newdemo_state == ND_STATE_PLAYBACK)
+#ifdef NETWORK
+			|| multi_sending_message || multi_defining_message
+#endif
+			) 	// WATCH OUT!!! WEIRD CODE ABOVE!!!
+			memset( &Controls, 0, sizeof(control_info) );
+		else
+			controls_read_all();		//NOTE LINK TO ABOVE!!!
 
-			check_rear_view();
+		check_rear_view();
 
-			// If automap key pressed, enable automap unless you are in network mode, control center destroyed and < 10 seconds left
-			if ( Controls.automap_down_count && !((Game_mode & GM_MULTI) && Fuelcen_control_center_destroyed && (Fuelcen_seconds_left < 10)))
-				Automap_flag = 1;
+		// If automap key pressed, enable automap unless you are in network mode, control center destroyed and < 10 seconds left
+		if ( Controls.automap_down_count && !((Game_mode & GM_MULTI) && Fuelcen_control_center_destroyed && (Fuelcen_seconds_left < 10)))
+			Automap_flag = 1;
 
 			do_weapon_stuff();
                 }
 
-	if (Player_exploded) {
+	if (Player_exploded && !con_render) {
 
 		if (exploding_flag==0)  {
 			exploding_flag = 1;			// When player starts exploding, clear all input devices...
@@ -2498,40 +2494,35 @@ void ReadControls()
 		exploding_flag=0;
 	}
 
-		if (Newdemo_state == ND_STATE_PLAYBACK )	{
-			if ((keyd_pressed[KEY_LSHIFT] || keyd_pressed[KEY_RSHIFT]) && keyd_pressed[KEY_RIGHT])
-				Newdemo_vcr_state = ND_STATE_FASTFORWARD;
-			else if ((keyd_pressed[KEY_LSHIFT] || keyd_pressed[KEY_RSHIFT]) && keyd_pressed[KEY_LEFT])
-				Newdemo_vcr_state = ND_STATE_REWINDING;
-			else if (!(keyd_pressed[KEY_LCTRL] || keyd_pressed[KEY_RCTRL]) && keyd_pressed[KEY_RIGHT] && ((timer_get_fixed_seconds() - newdemo_single_frame_time) >= F1_0))
-				Newdemo_vcr_state = ND_STATE_ONEFRAMEFORWARD;
-			else if (!(keyd_pressed[KEY_LCTRL] || keyd_pressed[KEY_RCTRL]) && keyd_pressed[KEY_LEFT] && ((timer_get_fixed_seconds() - newdemo_single_frame_time) >= F1_0))
-				Newdemo_vcr_state = ND_STATE_ONEFRAMEBACKWARD;
-			else if ((Newdemo_vcr_state == ND_STATE_FASTFORWARD) || (Newdemo_vcr_state == ND_STATE_REWINDING))
-				Newdemo_vcr_state = ND_STATE_PLAYBACK;
-		}
+	if (Newdemo_state == ND_STATE_PLAYBACK )
+		update_vcr_state();
 
-		while ((key=key_inkey_time(&key_time)) != 0)	{
+	while ((key=key_inkey_time(&key_time)) != 0)	{
+		if (con_events(key))
+		{
+			game_flush_inputs();
+			continue;
+		}
 #ifdef NETWORK
-			if ( (Game_mode&GM_MULTI) && (multi_sending_message || multi_defining_message ))	{
-				multi_message_input_sub( key );
-				continue;		//get next key
-			}
+		if ( (Game_mode&GM_MULTI) && (multi_sending_message || multi_defining_message ))	{
+			multi_message_input_sub( key );
+			continue;		//get next key
+		}
 #endif
 
-			if (Player_is_dead)
-				HandleDeathKey(key);
+		if (Player_is_dead)
+			HandleDeathKey(key);
 
-			if (Endlevel_sequence)
-				HandleEndlevelKey(key);
-			else if (Newdemo_state == ND_STATE_PLAYBACK )
-				HandleDemoKey(key);
-			else
-			{
-				FinalCheatsKey(key);
-				HandleGameKey(key);
-			}
+		if (Endlevel_sequence)
+			HandleEndlevelKey(key);
+		else if (Newdemo_state == ND_STATE_PLAYBACK )
+			HandleDemoKey(key);
+		else
+		{
+			FinalCheatsKey(key);
+			HandleGameKey(key);
 		}
+	}
 }
 
 #ifndef	NDEBUG
@@ -2584,8 +2575,6 @@ void GameLoop(int RenderFlag, int ReadControlsFlag )
 			game_render_frame();
 		}
 
-//		mprintf(0,"Velocity %2.2f\n", f2fl(vm_vec_mag(&ConsoleObject->phys_info.velocity)));
-
 		calc_frame_time();
 
 		dead_player_frame();
@@ -2601,7 +2590,6 @@ void GameLoop(int RenderFlag, int ReadControlsFlag )
 
 		if (GameTime < 0 || GameTime > i2f(0x7fff - 600)) {
 			GameTime = FrameTime;	//wrap when goes negative, or ~9hrs
-			mprintf((0,"GameTime reset to 0\n"));
 		}
 
 		digi_sync_sounds();
@@ -2795,7 +2783,6 @@ int mark_player_path_to_segment(int segnum)
 	Last_level_path_created = Current_level_num;
 
 	if (create_path_points(objp, objp->segnum, segnum, Point_segs_free_ptr, &player_path_length, 100, 0, 0, -1) == -1) {
-		mprintf((0, "Unable to form path of length %i for myself\n", 100));
 		return 0;
 	}
 
@@ -2803,7 +2790,6 @@ int mark_player_path_to_segment(int segnum)
 	Point_segs_free_ptr += player_path_length;
 
 	if (Point_segs_free_ptr - Point_segs + MAX_PATH_LENGTH*2 > MAX_POINT_SEGS) {
-		mprintf((1, "Can't create path.  Not enough point_segs.\n"));
 		ai_reset_all_paths();
 		return 0;
 	}
@@ -2814,7 +2800,6 @@ int mark_player_path_to_segment(int segnum)
 		object		*obj;
 
 		segnum = Point_segs[player_hide_index+i].segnum;
-		mprintf((0, "%3i ", segnum));
 		seg_center = Point_segs[player_hide_index+i].point;
 
 		objnum = obj_create( OBJ_POWERUP, POW_ENERGY, segnum, &seg_center, &vmd_identity_matrix, Powerup_info[POW_ENERGY].size, CT_POWERUP, MT_NONE, RT_POWERUP);
@@ -2829,8 +2814,6 @@ int mark_player_path_to_segment(int segnum)
 		obj->rtype.vclip_info.framenum = 0;
 		obj->lifeleft = F1_0*100 + d_rand() * 4;
 	}
-
-	mprintf((0, "\n"));
 	return 1;
 }
 
@@ -2843,7 +2826,6 @@ int create_special_path(void)
 	for (i=0; i<=Highest_segment_index; i++)
 		for (j=0; j<MAX_SIDES_PER_SEGMENT; j++)
 			if (Segments[i].children[j] == -2) {
-				mprintf((0, "Exit at segment %i\n", i));
 				return mark_player_path_to_segment(i);
 			}
 
@@ -2862,19 +2844,13 @@ void show_free_objects(void)
 		int	i;
 		int	count=0;
 
-		mprintf((0, "Highest_object_index = %3i, MAX_OBJECTS = %3i, now used = ", Highest_object_index, MAX_OBJECTS));
-
 		for (i=0; i<=Highest_object_index; i++)
 			if (Objects[i].type != OBJ_NONE)
 				count++;
 
-		mprintf((0, "%3i", count));
-
 		if (count > Max_obj_count_mike) {
 			Max_obj_count_mike = count;
-			mprintf((0, " ***"));
 		}
-		mprintf((0, "\n"));
 	}
 }
 
@@ -2908,7 +2884,6 @@ void fill_func(char *start, char *end, char value)
 {
 	char	*i;
 
-	mprintf((0, "Filling from %p to %p\n", start, end));
 	for (i=start; i<end; i++)
 		*i = value;
 

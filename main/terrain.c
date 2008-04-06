@@ -17,12 +17,6 @@ COPYRIGHT 1993-1998 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
  *
  */
 
-#ifdef RCS
-#pragma off (unreferenced)
-static char rcsid[] = "$Id: terrain.c,v 1.1.1.1 2006/03/17 19:44:03 zicodxx Exp $";
-#pragma on (unreferenced)
-#endif
-
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
@@ -33,8 +27,6 @@ static char rcsid[] = "$Id: terrain.c,v 1.1.1.1 2006/03/17 19:44:03 zicodxx Exp 
 #include "texmap.h"
 #include "iff.h"
 #include "u_mem.h"
-#include "mono.h"
-
 #include "inferno.h"
 #include "textures.h"
 #include "object.h"
@@ -209,8 +201,6 @@ void render_terrain(vms_vector *org_point,int org_2dx,int org_2dy)
 	viewer_i = vm_vec_dot(&tv,&surface_orient.rvec) / GRID_SCALE;
 	viewer_j = vm_vec_dot(&tv,&surface_orient.fvec) / GRID_SCALE;
 
-//mprintf((0,"viewer_i,j = %d,%d\n",viewer_i,viewer_j));
-
 	g3_rotate_point(&last_p,&start_point);
 	save_p_low = last_p;
 
@@ -347,7 +337,6 @@ void load_terrain(char *filename)
 
 	iff_error = iff_read_bitmap(filename,&height_bitmap,BM_LINEAR,NULL);
 	if (iff_error != IFF_NO_ERROR) {
-		mprintf((1, "File %s - IFF error: %s",filename,iff_errormsg(iff_error)));
 		Error("File %s - IFF error: %s",filename,iff_errormsg(iff_error));
 	}
 
@@ -462,8 +451,6 @@ void build_light_table()
 
 			if (l < min_l)
 				min_l = l;
-
-			//printf("light %2d,%2d = %8x\n",i,j,l);
 		}
 
 	for (i=1;i<grid_w;i++)
@@ -482,9 +469,6 @@ void build_light_table()
 				l2--;
 
 			LIGHT(i,j) = l2>>8;
-
-			//printf("light %2d,%2d = %4x\n",i,j,l2>>8);
-
 		}
 }
 
