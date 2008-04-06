@@ -1,4 +1,3 @@
-/* $Id: inferno.c,v 1.1.1.1 2006/03/17 19:57:28 zicodxx Exp $ */
 /*
 THE COMPUTER CODE CONTAINED HEREIN IS THE SOLE PROPERTY OF PARALLAX
 SOFTWARE CORPORATION ("PARALLAX").  PARALLAX, IN DISTRIBUTING THE CODE TO
@@ -53,7 +52,6 @@ char copyright[] = "DESCENT II  COPYRIGHT (C) 1994-1996 PARALLAX SOFTWARE CORPOR
 #include "gr.h"
 #include "fix.h"
 #include "vecmat.h"
-#include "mono.h"
 #include "key.h"
 #include "timer.h"
 #include "3d.h"
@@ -177,8 +175,6 @@ void print_commandline_help()
 #endif // USE SDLMIXER
 
 	printf( "\n Graphics:\n\n");
-	printf( "  -menu<X>x<Y>       %s\n", "Set menu-resolution to <X> by <Y> instead of game-resolution");
-	printf( "  -aspect<Y>x<X>     %s\n", "use specified aspect");
 	printf( "  -hud <n>           %s\n", "Set hud mode.  0=normal 1-3=new");
 	printf( "  -persistentdebris  %s\n", "Enable persistent debris. Works in singleplayer only");
 	printf( "  -lowresfont        %s\n", "Force to use LowRes fonts");
@@ -192,7 +188,6 @@ void print_commandline_help()
 	printf( "  -gl_trilinear      %s\n", "Set gl texture filters to trilinear mipmapping");
 	printf( "  -gl_transparency   %s\n", "Enable transparency effects");
 	printf( "  -gl_reticle <n>    %s\n", "Use OGL reticle 0=never 1=above 320x* 2=always");
-	printf( "  -gl_voodoo         %s\n", "Force fullscreen mode only");
 	printf( "  -gl_fixedfont      %s\n", "Do not scale fonts to current resolution");
 	printf( "  -gl_prshot         %s\n", "Take clean screenshots - no HUD and DXX-Rebirth writing");
 #endif // OGL
@@ -204,7 +199,6 @@ void print_commandline_help()
 	printf( "  -noredundancy      %s\n", "Do not send messages when picking up redundant items in multi");
 	printf( "  -playermessages    %s\n", "View only messages from other players in multi - overrides -noredundancy");
 	printf( "  -ipxnetwork <n>    %s\n", "Use IPX network number <n>");
-	printf( "  -ipxbasesocket <n> %s\n", "Use <n> as offset from normal IPX socket");
 	printf( "  -ip_hostaddr <n>   %s\n", "Use <n> as host ip address");
         printf( "  -ip_baseport <n>   %s\n", "Use <n> as offset from normal port (allows multiple instances of d1x to be run on a single computer)");
 	printf( "  -ip_norelay        %s\n", "Do not relay players with closed port over host and block them (saves traffic)");
@@ -271,13 +265,10 @@ int main(int argc, char *argv[])
 {
 	int t;
 
-	con_init();  // Initialise the console
 	mem_init();
-
 	error_init(NULL, NULL);
 	PHYSFSX_init(argc, argv);
-
-	con_threshold.value = (float)GameArg.DbgVerbose;
+	con_init();  // Initialise the console
 
 	if (! cfile_init("descent2.hog", 1)) {
 		if (! cfile_init("d2demo.hog", 1))
@@ -326,9 +317,9 @@ int main(int argc, char *argv[])
 		return(0);
 	}
 
-	con_printf(CON_NORMAL, "\n");
-	con_printf(CON_NORMAL, TXT_HELP, PROGNAME);		//help message has %s for program name
-	con_printf(CON_NORMAL, "\n");
+	printf("\n");
+	printf(TXT_HELP, PROGNAME);		//help message has %s for program name
+	printf("\n");
 
 	{
 		char **i, **list;
@@ -336,11 +327,6 @@ int main(int argc, char *argv[])
 		list = PHYSFS_getSearchPath();
 		for (i = list; *i != NULL; i++)
 			con_printf(CON_VERBOSE, "PHYSFS: [%s] is in the search path.\n", *i);
-		PHYSFS_freeList(list);
-
-		list = PHYSFS_getCdRomDirs();
-		for (i = list; *i != NULL; i++)
-			con_printf(CON_VERBOSE, "PHYSFS: cdrom dir [%s] is available.\n", *i);
 		PHYSFS_freeList(list);
 
 		list = PHYSFS_enumerateFiles("");
@@ -351,6 +337,11 @@ int main(int argc, char *argv[])
 
 	if (SDL_Init(SDL_INIT_VIDEO)<0)
 		Error("SDL library initialisation failed: %s.",SDL_GetError());
+
+#ifdef _WIN32
+	freopen( "CON", "w", stdout );
+	freopen( "CON", "w", stderr );
+#endif
 
 	atexit(sdl_close);
 
@@ -475,52 +466,52 @@ int main(int argc, char *argv[])
 	while (Function_mode != FMODE_EXIT)
 	{
 		switch( Function_mode )	{
-		case FMODE_MENU:
-			set_screen_mode(SCREEN_MENU);
-			#ifdef EDITOR
-			if (GameArg.EdiAutoLoad) {
-				strcpy((char *)&Level_names[0], Auto_file);
-				LoadLevel(1, 1);
-				Function_mode = FMODE_EXIT;
-				break;
-			}
-			#endif
-
-			DoMenu();
-			#ifdef EDITOR
-			if ( Function_mode == FMODE_EDITOR )	{
-				create_new_mine();
-				SetPlayerFromCurseg();
-				load_palette(NULL,1,0);
-			}
-			#endif
-			break;
-		case FMODE_GAME:
-			#ifdef EDITOR
-				keyd_editor_mode = 0;
-			#endif
-
-			game();
-
-			if ( Function_mode == FMODE_MENU )
-				songs_play_song( SONG_TITLE, 1 );
-			break;
-		#ifdef EDITOR
-		case FMODE_EDITOR:
-			keyd_editor_mode = 1;
-			editor();
-#ifdef __WATCOMC__
-			_harderr( (void*)descent_critical_error_handler );		// Reinstall game error handler
+			case FMODE_MENU:
+				set_screen_mode(SCREEN_MENU);
+#ifdef EDITOR
+				if (GameArg.EdiAutoLoad) {
+					strcpy((char *)&Level_names[0], Auto_file);
+					LoadLevel(1, 1);
+					Function_mode = FMODE_EXIT;
+					break;
+				}
 #endif
-			if ( Function_mode == FMODE_GAME ) {
-				Game_mode = GM_EDITOR;
-				editor_reset_stuff_on_level();
-				N_players = 1;
-			}
-			break;
-		#endif
-		default:
-			Error("Invalid function mode %d",Function_mode);
+	
+				DoMenu();
+#ifdef EDITOR
+				if ( Function_mode == FMODE_EDITOR )	{
+					create_new_mine();
+					SetPlayerFromCurseg();
+					load_palette(NULL,1,0);
+				}
+#endif
+				break;
+			case FMODE_GAME:
+#ifdef EDITOR
+					keyd_editor_mode = 0;
+#endif
+	
+				game();
+	
+				if ( Function_mode == FMODE_MENU )
+					songs_play_song( SONG_TITLE, 1 );
+				break;
+#ifdef EDITOR
+			case FMODE_EDITOR:
+				keyd_editor_mode = 1;
+				editor();
+#ifdef __WATCOMC__
+				_harderr( (void*)descent_critical_error_handler );		// Reinstall game error handler
+#endif
+				if ( Function_mode == FMODE_GAME ) {
+					Game_mode = GM_EDITOR;
+					editor_reset_stuff_on_level();
+					N_players = 1;
+				}
+				break;
+#endif
+			default:
+				Error("Invalid function mode %d",Function_mode);
 		}
 	}
 

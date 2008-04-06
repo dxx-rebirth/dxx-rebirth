@@ -1,4 +1,3 @@
-/* $Id: scale.c,v 1.1.1.1 2006/03/17 19:51:59 zicodxx Exp $ */
 /*
 THE COMPUTER CODE CONTAINED HEREIN IS THE SOLE PROPERTY OF PARALLAX
 SOFTWARE CORPORATION ("PARALLAX").  PARALLAX, IN DISTRIBUTING THE CODE TO
@@ -21,16 +20,10 @@ COPYRIGHT 1993-1998 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 #include <conf.h>
 #endif
 
-#ifdef RCS
-static char rcsid[] = "$Id: scale.c,v 1.1.1.1 2006/03/17 19:51:59 zicodxx Exp $";
-#endif
-
 #include <math.h>
 #include <limits.h>
 #include <stdio.h>
 #include <stdlib.h>
-
-#include "mono.h"
 #include "fix.h"
 #include "gr.h"
 #include "error.h"
@@ -142,8 +135,6 @@ void scale_bitmap(grs_bitmap *bp, grs_point *vertbuf ,int orientation)
 	Assert( f2i(v0)>=0 );
 	Assert( u1<i2f(bp->bm_w) );
 	Assert( v1<i2f(bp->bm_h) );
-
-	//mprintf( 0, "(%.2f,%.2f) to (%.2f,%.2f) using (%.2f,%.2f) to (%.2f,%.2f)\n", f2fl(clipped_x0), f2fl(clipped_y0), f2fl(clipped_x1), f2fl(clipped_y1), f2fl(clipped_u0), f2fl(clipped_v0), f2fl(clipped_u1), f2fl(clipped_v1) );
 
 	dtemp = f2i(clipped_u1)-f2i(clipped_u0);
 

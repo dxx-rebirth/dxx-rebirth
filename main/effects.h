@@ -69,13 +69,9 @@ void stop_effect(int effect_num);
 //restart a stopped effect
 void restart_effect(int effect_num);
 
-#ifdef FAST_FILE_IO
-#define eclip_read_n(ec, n, fp) cfread(ec, sizeof(eclip), n, fp)
-#else
 /*
  * reads n eclip structs from a CFILE
  */
 extern int eclip_read_n(eclip *ec, int n, CFILE *fp);
-#endif
 
 #endif /* _EFFECTS_H */

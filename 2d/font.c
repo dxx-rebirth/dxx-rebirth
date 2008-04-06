@@ -36,11 +36,11 @@ COPYRIGHT 1993-1999 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 #include "grdef.h"
 #include "error.h"
 #include "cfile.h"
-#include "mono.h"
 #include "byteswap.h"
 #include "bitmap.h"
 #include "makesig.h"
 #include "gamefont.h"
+#include "console.h"
 #ifdef OGL
 #include "ogl_init.h"
 #endif
@@ -147,13 +147,13 @@ int gr_message_color_level=1;
 		text_ptr++; \
 		if (*text_ptr){ \
 			if (gr_message_color_level >= *(text_ptr-1)) \
-				grd_curcanv->cv_font_fg_color = *text_ptr; \
+				grd_curcanv->cv_font_fg_color = (unsigned char)*text_ptr; \
 			text_ptr++; \
 		} \
 	} \
 	else if ((*text_ptr >= 0x04) && (*text_ptr <= 0x06)){ \
 		if (gr_message_color_level >= *text_ptr - 3) \
-			grd_curcanv->cv_font_fg_color=orig_color; \
+			grd_curcanv->cv_font_fg_color=(unsigned char)orig_color; \
 		text_ptr++; \
 	}
 
@@ -198,7 +198,7 @@ int gr_internal_string0(int x, int y, char *s )
 				}
 
 				if (*text_ptr == CC_COLOR) {
-					grd_curcanv->cv_font_fg_color = *(text_ptr+1);
+					grd_curcanv->cv_font_fg_color = (unsigned char)*(text_ptr+1);
 					text_ptr += 2;
 					continue;
 				}
@@ -314,7 +314,7 @@ int gr_internal_string0m(int x, int y, char *s )
 				}
 
 				if (*text_ptr == CC_COLOR) {
-					grd_curcanv->cv_font_fg_color = *(text_ptr+1);
+					grd_curcanv->cv_font_fg_color = (unsigned char)*(text_ptr+1);
 					text_ptr += 2;
 					continue;
 				}
@@ -435,7 +435,7 @@ int gr_internal_color_string(int x, int y, char *s )
 			if (*text_ptr == '\n' )
 			{
 				next_row = &text_ptr[1];
-				yy += grd_curcanv->cv_font->ft_h;
+				yy += grd_curcanv->cv_font->ft_h+FSPACY(1);
 				break;
 			}
 
@@ -498,7 +498,6 @@ void ogl_font_choose_size(grs_font * font,int gap,int *rw,int *rh){
 			if (tries)
 				w=pow2ize(w+1);
 			if(tries>3){
-				mprintf((0,"failed to fit (%ix%i, %ic)\n",w,h,nc));
 				break;
 			}
 			nc=0;
@@ -526,7 +525,6 @@ void ogl_font_choose_size(grs_font * font,int gap,int *rw,int *rh){
 		}while(nc!=nchars);
 		if (nc!=nchars)
 			continue;
-		mprintf((0,"fit: %ix%i  %i tries\n",w,h,tries));
 
 		if (w*h==smallest){//this gives squarer sizes priority (ie, 128x128 would be better than 512*32)
 			if (w>=h){
@@ -550,8 +548,6 @@ void ogl_font_choose_size(grs_font * font,int gap,int *rw,int *rh){
 	}
 	if (smallr<=0)
 		Error("couldn't fit font?\n");
-	mprintf((0,"using %ix%i\n",*rw,*rh));
-	
 }
 
 void ogl_init_font(grs_font * font){
@@ -574,21 +570,15 @@ void ogl_init_font(grs_font * font){
 	ogl_init_texture(font->ft_parent_bitmap.gltexture = ogl_get_free_texture(), tw, th, oglflags); // have to init the gltexture here so the subbitmaps will find it.
 
 	font->ft_bitmaps=(grs_bitmap*)d_malloc( nchars * sizeof(grs_bitmap));
-	mprintf((0,"ogl_init_font %s, %s, nchars=%i, (%ix%i tex)\n",(font->ft_flags & FT_PROPORTIONAL)?"proportional":"fixedwidth",(font->ft_flags & FT_COLOR)?"color":"mono",nchars,tw,th));
-	//	s[1]=0;
 	h=font->ft_h;
-	//	sleep(5);
 
 	for(i=0;i<nchars;i++){
-		//		s[0]=font->ft_minchar+i;
-		//		gr_get_string_size(s,&w,&h,&aw);
 		if (font->ft_flags & FT_PROPORTIONAL)
 			w=font->ft_widths[i];
 		else
 			w=font->ft_w;
-//		mprintf((0,"char %i(%ix%i): ",i,w,h));
 		if (w<1 || w>256){
-			mprintf((0,"grr\n"));continue;
+			continue;
 		}
 		if (curx+w+gap>tw){
 			cury+=h+gap;
@@ -669,7 +659,7 @@ int ogl_internal_string(int x, int y, char *s )
 			if (*text_ptr == '\n' )
 			{
 				next_row = &text_ptr[1];
-				yy += FONTSCALE_Y(grd_curcanv->cv_font->ft_h);
+				yy += FONTSCALE_Y(grd_curcanv->cv_font->ft_h)+FSPACY(1);
 				break;
 			}
 
@@ -743,7 +733,6 @@ int gr_string(int x, int y, char *s )
 
 	if ( clipped & 2 )	{
 		// Completely clipped...
-		mprintf( (1, "Text '%s' at (%d,%d) is off screen!\n", s, x, y ));
 		return 0;
 	}
 
@@ -804,7 +793,7 @@ void gr_get_string_size(char *s, int *string_width, int *string_height, int *ave
 			while (*s == '\n')
 			{
 				s++;
-				*string_height += FONTSCALE_Y(grd_curcanv->cv_font->ft_h);
+				*string_height += FONTSCALE_Y(grd_curcanv->cv_font->ft_h)+FSPACY(1);
 				*string_width = 0;
 			}
 

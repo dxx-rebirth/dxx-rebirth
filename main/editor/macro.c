@@ -1,4 +1,3 @@
-/* $Id: macro.c,v 1.1.1.1 2006/03/17 19:58:21 zicodxx Exp $ */
 /*
 THE COMPUTER CODE CONTAINED HEREIN IS THE SOLE PROPERTY OF PARALLAX
 SOFTWARE CORPORATION ("PARALLAX").  PARALLAX, IN DISTRIBUTING THE CODE TO
@@ -18,10 +17,6 @@ COPYRIGHT 1993-1998 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
  *
  */
 
-#ifdef RCS
-static char rcsid[] = "$Id: macro.c,v 1.1.1.1 2006/03/17 19:58:21 zicodxx Exp $";
-#endif
-
 #ifdef HAVE_CONFIG_H
 #include "conf.h"
 #endif
@@ -31,24 +26,19 @@ static char rcsid[] = "$Id: macro.c,v 1.1.1.1 2006/03/17 19:58:21 zicodxx Exp $"
 #include <stdarg.h>
 #include <math.h>
 #include <string.h>
-
 #include "inferno.h"
 #include "segment.h"
 #include "editor.h"
-
 #include "gr.h"
 #include "ui.h"
 #include "key.h"
 #include "fix.h"
-#include "mono.h"
 #include "3d.h"
 #include "mouse.h"
 #include "bm.h"
 #include "error.h"
 #include "medlisp.h"
-
 #include "kdefs.h"
-
 #include "u_mem.h"
 
 #define MAX_NUM_EVENTS 10000

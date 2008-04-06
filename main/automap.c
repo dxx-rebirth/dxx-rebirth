@@ -1,4 +1,3 @@
-/* $Id: automap.c,v 1.1.1.1 2006/03/17 19:56:52 zicodxx Exp $ */
 /*
 THE COMPUTER CODE CONTAINED HEREIN IS THE SOLE PROPERTY OF PARALLAX
 SOFTWARE CORPORATION ("PARALLAX").  PARALLAX, IN DISTRIBUTING THE CODE TO
@@ -38,7 +37,6 @@ COPYRIGHT 1993-1999 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 #include "object.h"
 #include "vclip.h"
 #include "game.h"
-#include "mono.h"
 #include "polyobj.h"
 #include "sounds.h"
 #include "player.h"
@@ -572,9 +570,6 @@ void do_automap( int key_code )	{
 
 	Max_edges = min(MAX_EDGES_FROM_VERTS(Num_vertices),MAX_EDGES); //make maybe smaller than max
 
-	mprintf( (0, "Num_vertices=%d, Max_edges=%d, (MAX:%d)\n", Num_vertices, Max_edges, MAX_EDGES ));
-	mprintf( (0, "Allocated %d K for automap edge list\n", (sizeof(Edge_info)+sizeof(short))*Max_edges/1024 ));
-
 	gr_set_current_canvas(NULL);
 
 	automap_build_edge_list();
@@ -807,7 +802,6 @@ void do_automap( int key_code )	{
 
 #ifdef OGL
 	gr_free_bitmap_data(&Automap_background);
-	mprintf( (0, "Automap background memory freed\n" ));
 #endif
 
 	game_flush_inputs();
@@ -826,8 +820,6 @@ void adjust_segment_limit(int SegmentLimit)
 	int i,e1;
 	Edge_info * e;
 
-	mprintf(( 0, "Seglimit: %d\n", SegmentLimit ));
-	
 	for (i=0; i<=Highest_edge_index; i++ )	{
 		e = &Edges[i];
 		e->flags |= EF_TOO_FAR;
@@ -1135,15 +1127,12 @@ void add_segment_edges(segment *seg)
 				if (Walls[seg->sides[sn].wall_num].keys == KEY_BLUE) {
 					no_fade = 1;
 					color = Wall_door_blue;
-					//mprintf((0, "Seg %i, side %i has BLUE wall\n", segnum, sn));
 				} else if (Walls[seg->sides[sn].wall_num].keys == KEY_GOLD) {
 					no_fade = 1;
 					color = Wall_door_gold;
-					//mprintf((0, "Seg %i, side %i has GOLD wall\n", segnum, sn));
 				} else if (Walls[seg->sides[sn].wall_num].keys == KEY_RED) {
 					no_fade = 1;
 					color = Wall_door_red;
-					//mprintf((0, "Seg %i, side %i has RED wall\n", segnum, sn));
 				} else if (!(WallAnims[Walls[seg->sides[sn].wall_num].clip_num].flags & WCF_HIDDEN)) {
 					int	connected_seg = seg->children[sn];
 					if (connected_seg != -1) {
@@ -1299,7 +1288,6 @@ void automap_build_edge_list()
 				break;
 		}
 	}	
-	mprintf( (0, "Automap used %d / %d edges\n", Num_edges, Max_edges  ));
 }
 
 char Marker_input [40];

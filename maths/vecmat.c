@@ -1,4 +1,3 @@
-/* $Id: vecmat.c,v 1.1.1.1 2006/03/17 19:59:00 zicodxx Exp $ */
 /*
 THE COMPUTER CODE CONTAINED HEREIN IS THE SOLE PROPERTY OF PARALLAX
 SOFTWARE CORPORATION ("PARALLAX").  PARALLAX, IN DISTRIBUTING THE CODE TO
@@ -22,10 +21,6 @@ COPYRIGHT 1993-1998 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 #include <conf.h>
 #endif
 
-#ifdef RCS
-static char rcsid[] = "$Id: vecmat.c,v 1.1.1.1 2006/03/17 19:59:00 zicodxx Exp $";
-#endif
-
 #include <stdlib.h>
 #include <math.h>           // for sqrt
 
@@ -35,7 +30,7 @@ static char rcsid[] = "$Id: vecmat.c,v 1.1.1.1 2006/03/17 19:59:00 zicodxx Exp $
 
 //#define USE_ISQRT 1
 
-#ifndef ASM_VECMAT
+#ifdef NO_ASM
 vms_vector vmd_zero_vector = {0, 0, 0};
 vms_matrix vmd_identity_matrix = { { f1_0, 0, 0 },
                                    { 0, f1_0, 0 },
@@ -158,7 +153,6 @@ vms_vector *vm_vec_scale2(vms_vector *dest,fix n,fix d)
 {
 #if 1 // DPH: Kludge: this was overflowing a lot, so I made it use the FPU.
 	float nd;
-//	printf("scale n=%d d=%d\n",n,d);
 	nd = f2fl(n) / f2fl(d);
 	dest->x = fl2f( f2fl(dest->x) * nd);
 	dest->y = fl2f( f2fl(dest->y) * nd);

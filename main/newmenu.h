@@ -85,7 +85,6 @@ extern int newmenu_do3(char *title, char *subtitle, int nitems, newmenu_item *it
 	mm[7].type=NM_TYPE_PERCENT; mm[7].value=50; mm[7].text="Volume";
 
 	mmn = newmenu_do("Descent", "Sample Menu", 8, mm, NULL );
-	mprintf( 0, "Menu returned: %d\n", mmn );
 }
 
 */
@@ -103,9 +102,6 @@ void nm_restore_background(int x, int y, int w, int h);
 
 // Returns 0 if no file selected, else filename is filled with selected file.
 int newmenu_get_filename(char *title, char *filespec, char *filename, int allow_abort_flag);
-
-// in menu.c
-extern int Max_linear_depth_objects;
 
 extern char *Newmenu_allowed_chars;
 

@@ -61,9 +61,6 @@ typedef struct {
 
 #define PCXHEADER_SIZE 128
 
-#ifdef FAST_FILE_IO
-#define PCXHeader_read_n(ph, n, fp) cfread(ph, sizeof(PCXHeader), n, fp)
-#else
 /*
  * reads n PCXHeader structs from a CFILE
  */
@@ -90,7 +87,6 @@ int PCXHeader_read_n(PCXHeader *ph, int n, CFILE *fp)
 	}
 	return i;
 }
-#endif
 
 int pcx_get_dimensions( char *filename, int *width, int *height)
 {
@@ -111,49 +107,6 @@ int pcx_get_dimensions( char *filename, int *width, int *height)
 
 	return PCX_ERROR_NONE;
 }
-
-#ifdef MACINTOSH
-int pcx_read_bitmap_palette( char *filename, ubyte *palette)
-{
-	PCXHeader header;
-	CFILE * PCXfile;
-	ubyte data;
-	int i;
-
-	PCXfile = cfopen( filename , "rb" );
-	if ( !PCXfile )
-		return PCX_ERROR_OPENING;
-
-	// read 128 char PCX header
-	if (PCXHeader_read_n( &header, 1, PCXfile )!=1)	{
-		cfclose( PCXfile );
-		return PCX_ERROR_NO_HEADER;
-	}
-	// Is it a 256 color PCX file?
-	if ((header.Manufacturer != 10)||(header.Encoding != 1)||(header.Nplanes != 1)||(header.BitsPerPixel != 8)||(header.Version != 5))	{
-		cfclose( PCXfile );
-		return PCX_ERROR_WRONG_VERSION;
-	}
-
-	// Read the extended palette at the end of PCX file
-	// Read in a character which should be 12 to be extended palette file
-
-	if (palette != NULL) {
-		cfseek( PCXfile, -768, SEEK_END );
-		cfread( palette, 3, 256, PCXfile );
-		cfseek( PCXfile, PCXHEADER_SIZE, SEEK_SET );
-		for (i=0; i<768; i++ )
-			palette[i] >>= 2;
-#ifdef MACINTOSH
-		for (i = 0; i < 3; i++) {
-			data = palette[i];
-			palette[i] = palette[765+i];
-			palette[765+i] = data;
-		}
-#endif
-	}
-}
-#endif
 
 int pcx_read_bitmap( char * filename, grs_bitmap * bmp,int bitmap_type ,ubyte * palette )
 {

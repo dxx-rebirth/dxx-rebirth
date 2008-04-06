@@ -1,4 +1,3 @@
-/* $Id: ibitblt.c,v 1.1.1.1 2006/03/17 19:52:02 zicodxx Exp $ */
 /*
 THE COMPUTER CODE CONTAINED HEREIN IS THE SOLE PROPERTY OF PARALLAX
 SOFTWARE CORPORATION ("PARALLAX").  PARALLAX, IN DISTRIBUTING THE CODE TO
@@ -28,10 +27,6 @@ COPYRIGHT 1993-1999 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 
 #ifdef HAVE_CONFIG_H
 #include <conf.h>
-#endif
-
-#ifdef RCS
-static char rcsid[] = "$Id: ibitblt.c,v 1.1.1.1 2006/03/17 19:52:02 zicodxx Exp $";
 #endif
 
 #ifdef __MSDOS__ //ndef MACINTOSH
@@ -365,8 +360,6 @@ int gr_ibitblt_find_code_size_sub( grs_bitmap * mask_bmp, int sx, int sy, int sw
 	}
 	Code_counter++;     // for return
 
-	//printf( "Code will be %d bytes\n", Code_counter );
-
 	Code_counter += 16; // for safety was 16
 
 	return Code_counter;
@@ -481,8 +474,6 @@ ubyte	*gr_ibitblt_create_mask_sub( grs_bitmap * mask_bmp, int sx, int sy, int sw
 
 	if ( Code_pointer >= &code[code_size-1] )
 		Error( "ibitblt overwrote allocated code block\n" );
-
-	//printf( "Code is %d bytes\n", Code_pointer - code );
 
 	return code;
 }

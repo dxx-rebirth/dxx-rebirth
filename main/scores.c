@@ -30,7 +30,6 @@ COPYRIGHT 1993-1999 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 #include "error.h"
 #include "pstypes.h"
 #include "gr.h"
-#include "mono.h"
 #include "key.h"
 #include "palette.h"
 #include "game.h"
@@ -92,11 +91,7 @@ char * get_scores_filename()
 		return scores_filename;
 	}
 #endif
-	#ifdef MACINTOSH		// put the high scores into the data folder
-	sprintf( scores_filename, ":Data:%s", SCORES_FILENAME );
-	#else
 	sprintf( scores_filename, "%s", SCORES_FILENAME );
-	#endif
 	return scores_filename;
 }
 

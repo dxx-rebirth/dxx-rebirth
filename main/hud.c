@@ -26,10 +26,8 @@ COPYRIGHT 1993-1999 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 #include <stdio.h>
 #include <string.h>
 #include <stdlib.h>
-#include <time.h>
 
 #include "hudmsg.h"
-
 #include "pstypes.h"
 #include "u_mem.h"
 #include "strutil.h"
@@ -40,14 +38,11 @@ COPYRIGHT 1993-1999 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 #include "gauges.h"
 #include "physics.h"
 #include "error.h"
-
 #include "menu.h"           // For the font.
-#include "mono.h"
 #include "collide.h"
 #include "newdemo.h"
 #include "player.h"
 #include "gamefont.h"
-
 #include "wall.h"
 #include "screens.h"
 #include "text.h"
@@ -165,18 +160,10 @@ int HUD_init_message_va(char * format, va_list args)
 	int temp, i;
 	char *message = NULL;
 	char *last_message=NULL;
-#if 0
-	int temp2;
-	char *cleanmessage;
-#endif
-	char con_message[HUD_MESSAGE_LENGTH + 3];
-	time_t t;
-	struct tm *lt;
 
 	if ( (hud_last < 0) || (hud_last >= HUD_MAX_NUM))
 		Int3(); // Get Rob!!
 
-	// -- mprintf((0, "message timer: %7.3f\n", f2fl(HUD_message_timer)));
 	message = &HUD_messages[hud_last][0];
 	vsprintf(message,format,args);
 
@@ -222,27 +209,16 @@ int HUD_init_message_va(char * format, va_list args)
 		if (last_message && !strcmp(&HUD_messages[i][0],message) && (!strnicmp("You already",message,11) || !stricmp("your laser is maxed out!",message) || !stricmp("super laser maxed out!",message)))
 			return 0;
 
-	t=time(NULL);
-	lt=localtime(&t);
-
-	/* Produce a colorised version and send it to the console */
-	printf("%02i:%02i:%02i ",lt->tm_hour,lt->tm_min,lt->tm_sec);
 	if (HUD_color == -1)
 		HUD_color = BM_XRGB(0,28,0);
-	con_message[0] = CC_COLOR;
-	con_message[1] = HUD_color;
-	con_message[2] = '\0';
-	strcat(con_message, message);
-	con_printf(CON_NORMAL, "%s\n", con_message);
+	con_printf(CON_HUD, "%s\n", message);
 
 	hud_last = temp;
 	// Check if memory has been overwritten at this point.
 	if (strlen(message) >= HUD_MESSAGE_LENGTH)
 		Error( "Your message to HUD is too long.  Limit is %i characters.\n", HUD_MESSAGE_LENGTH);
-	#ifdef NEWDEMO
 	if (Newdemo_state == ND_STATE_RECORDING )
 		newdemo_record_hud_message( message );
-	#endif
 	HUD_message_timer = F1_0*3;		// 1 second per 5 characters
 	HUD_nmessages++;
 
@@ -290,14 +266,6 @@ void player_dead_message(void)
 		gr_printf(0x8000, GHEIGHT-LINE_SPACING, TXT_PRESS_ANY_KEY);
 	}
 }
-
-// void say_afterburner_status(void)
-// {
-// 	if (Players[Player_num].flags & PLAYER_FLAGS_AFTERBURNER)
-// 		HUD_init_message("Afterburner engaged.");
-// 	else
-// 		HUD_init_message("Afterburner disengaged.");
-// }
 
 void hud_message(int class, char *format, ...)
 {

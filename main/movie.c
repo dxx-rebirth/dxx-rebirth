@@ -183,8 +183,6 @@ void MovieShowFrame(ubyte *buf, uint bufw, uint bufh, uint sx, uint sy, uint w, 
 	}
 	memcpy(old_pal,gr_palette,768);
 
-	//mprintf((0,"MovieShowFrame %d,%d  %d,%d  %d,%d  %d,%d\n",bufw,bufh,sx,sy,w,h,dstx,dsty));
-
 	Assert(bufw == w && bufh == h);
 
 	source_bm.bm_x = source_bm.bm_y = 0;
@@ -216,8 +214,6 @@ void MovieSetPalette(unsigned char *p, unsigned start, unsigned count)
 {
 	if (count == 0)
 		return;
-
-	//mprintf((0,"SetPalette p=%x, start=%d, count=%d\n",p,start,count));
 
 	//Color 0 should be black, and we get color 255
 	Assert(start>=1 && start+count-1<=254);

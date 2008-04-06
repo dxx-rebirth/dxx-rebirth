@@ -1,4 +1,3 @@
-/* $Id: gamerend.c,v 1.1.1.1 2006/03/17 19:57:07 zicodxx Exp $ */
 /*
 THE COMPUTER CODE CONTAINED HEREIN IS THE SOLE PROPERTY OF PARALLAX
 SOFTWARE CORPORATION ("PARALLAX").  PARALLAX, IN DISTRIBUTING THE CODE TO
@@ -22,10 +21,6 @@ COPYRIGHT 1993-1999 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 #include <conf.h>
 #endif
 
-#ifdef RCS
-static char rcsid[] = "$Id: gamerend.c,v 1.1.1.1 2006/03/17 19:57:07 zicodxx Exp $";
-#endif
-
 #include <stdio.h>
 #include <string.h>
 #include <stdlib.h>
@@ -34,7 +29,6 @@ static char rcsid[] = "$Id: gamerend.c,v 1.1.1.1 2006/03/17 19:57:07 zicodxx Exp
 #include "console.h"
 #include "inferno.h"
 #include "error.h"
-#include "mono.h"
 #include "gr.h"
 #include "palette.h"
 #include "ibitblt.h"
@@ -387,8 +381,6 @@ void render_countdown_gauge()
 
 void game_draw_hud_stuff()
 {
-	//mprintf ((0,"Linear is %d!\n",LinearSVGABuffer));
-	
 	#ifndef NDEBUG
 	if (Debug_pause) {
 		gr_set_curfont( MEDIUM1_FONT);
@@ -719,7 +711,6 @@ extern int force_cockpit_redraw;
 void draw_guided_crosshair(void);
 void update_cockpits(int force_redraw);
 
-
 //render a frame for the game
 void game_render_frame_mono(int flip)
 {
@@ -790,7 +781,7 @@ void game_render_frame_mono(int flip)
 		show_netplayerinfo();
 #endif
 
-	con_update();
+	con_show();
 
 	if (flip)
 		gr_flip();

@@ -1,4 +1,3 @@
-/* $Id: piggy.h,v 1.1.1.1 2006/03/17 19:57:24 zicodxx Exp $ */
 /*
 THE COMPUTER CODE CONTAINED HEREIN IS THE SOLE PROPERTY OF PARALLAX
 SOFTWARE CORPORATION ("PARALLAX").  PARALLAX, IN DISTRIBUTING THE CODE TO
@@ -79,10 +78,9 @@ extern digi_sound GameSounds[MAX_SOUND_FILES];
 extern grs_bitmap GameBitmaps[MAX_BITMAP_FILES];
 
 
-#ifdef PIGGY_USE_PAGING
-	extern void piggy_bitmap_page_in( bitmap_index bmp );
-	extern void piggy_bitmap_page_out_all();
-	extern int piggy_page_flushed;
+extern void piggy_bitmap_page_in( bitmap_index bmp );
+extern void piggy_bitmap_page_out_all();
+extern int piggy_page_flushed;
 
 /* Make GNUC use static inline function as #define with backslash continuations causes problems with dos linefeeds */
 # ifdef __GNUC__
@@ -101,11 +99,7 @@ do {					\
 		piggy_bitmap_page_in( bmp ); \
 	}				\
 } while(0)
-/*		mprintf(( 0, "Paging in '%s' from file '%s', line %d\n", #bmp, __FILE__,__LINE__ ));	\ */
 # endif /* __GNUC__ */
-#else
-# define PIGGY_PAGE_IN(bmp)
-#endif
 
 void piggy_read_sounds();
 
@@ -118,10 +112,6 @@ void load_bitmap_replacements(char *level_name);
 //if descent.pig exists, loads descent 1 texture bitmaps
 void load_d1_bitmap_replacements();
 
-#ifdef FAST_FILE_IO
-#define bitmap_index_read(bi, fp) cfread(bi, sizeof(bitmap_index), 1, fp)
-#define bitmap_index_read_n(bi, n, fp) cfread(bi, sizeof(bitmap_index), n, fp)
-#else
 /*
  * reads a bitmap_index structure from a CFILE
  */
@@ -131,7 +121,6 @@ void bitmap_index_read(bitmap_index *bi, CFILE *fp);
  * reads n bitmap_index structs from a CFILE
  */
 int bitmap_index_read_n(bitmap_index *bi, int n, CFILE *fp);
-#endif // FAST_FILE_IO
 
 /*
  * Find and load the named bitmap from descent.pig

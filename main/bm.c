@@ -1,4 +1,3 @@
-/* $Id: bm.c,v 1.1.1.1 2006/03/17 19:54:47 zicodxx Exp $ */
 /*
 THE COMPUTER CODE CONTAINED HEREIN IS THE SOLE PROPERTY OF PARALLAX
 SOFTWARE CORPORATION ("PARALLAX").  PARALLAX, IN DISTRIBUTING THE CODE TO
@@ -31,7 +30,6 @@ COPYRIGHT 1993-1999 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 #include "gr.h"
 #include "bm.h"
 #include "u_mem.h"
-#include "mono.h"
 #include "error.h"
 #include "object.h"
 #include "vclip.h"
@@ -57,6 +55,7 @@ COPYRIGHT 1993-1999 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 #include "cntrlcen.h"
 #include "makesig.h"
 #include "interp.h"
+#include "console.h"
 
 ubyte Sounds[MAX_SOUNDS];
 ubyte AltSounds[MAX_SOUNDS];
@@ -92,9 +91,6 @@ int             N_ObjBitmaps;
 bitmap_index    ObjBitmaps[MAX_OBJ_BITMAPS];
 ushort          ObjBitmapPtrs[MAX_OBJ_BITMAPS];     // These point back into ObjBitmaps, since some are used twice.
 
-#ifdef FAST_FILE_IO
-#define tmap_info_read_n(ti, n, fp) cfread(ti, TMAP_INFO_SIZE, n, fp)
-#else
 /*
  * reads n tmap_info structs from a CFILE
  */
@@ -116,7 +112,6 @@ int tmap_info_read_n(tmap_info *ti, int n, CFILE *fp)
 	}
 	return i;
 }
-#endif
 
 int tmap_info_read_n_d1(tmap_info *ti, int n, CFILE *fp)
 {

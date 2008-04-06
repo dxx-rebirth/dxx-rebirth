@@ -1,4 +1,3 @@
-/* $Id: ai2.c,v 1.1.1.1 2006/03/17 19:55:06 zicodxx Exp $ */
 /*
 THE COMPUTER CODE CONTAINED HEREIN IS THE SOLE PROPERTY OF PARALLAX
 SOFTWARE CORPORATION ("PARALLAX").  PARALLAX, IN DISTRIBUTING THE CODE TO
@@ -22,17 +21,12 @@ COPYRIGHT 1993-1999 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 #include <conf.h>
 #endif
 
-#ifdef RCS
-static char rcsid[] = "$Id: ai2.c,v 1.1.1.1 2006/03/17 19:55:06 zicodxx Exp $";
-#endif
-
 #include <stdio.h>
 #include <stdlib.h>
 #include <time.h>
 
 #include "inferno.h"
 #include "game.h"
-#include "mono.h"
 #include "3d.h"
 
 #include "u_mem.h"
@@ -94,31 +88,6 @@ short	Boss_teleport_segs[MAX_BOSS_TELEPORT_SEGS];
 int	Num_boss_gate_segs;
 short	Boss_gate_segs[MAX_BOSS_TELEPORT_SEGS];
 
-// ---------------------------------------------------------
-//	On entry, N_robot_types had darn sure better be set.
-//	Mallocs N_robot_types robot_info structs into global Robot_info.
-void init_ai_system(void)
-{
-#if 0
-	int	i;
-
-	mprintf((0, "Trying to malloc %i bytes for Robot_info.\n", N_robot_types * sizeof(*Robot_info)));
-	Robot_info = (robot_info *) d_malloc( N_robot_types * sizeof(*Robot_info) );
-	mprintf((0, "Robot_info = %i\n", Robot_info));
-
-	for (i=0; i<N_robot_types; i++) {
-		Robot_info[i].field_of_view = F1_0/2;
-		Robot_info[i].firing_wait = F1_0;
-		Robot_info[i].turn_time = F1_0*2;
-		// -- Robot_info[i].fire_power = F1_0;
-		// -- Robot_info[i].shield = F1_0/2;
-		Robot_info[i].max_speed = F1_0*10;
-		Robot_info[i].always_0xabcd = 0xabcd;
-	}
-#endif
-
-}
-
 // ---------------------------------------------------------------------------------------------------------------------
 //	Given a behavior, set initial mode.
 int ai_behavior_to_mode(int behavior)
@@ -155,11 +124,9 @@ void init_ai_object(int objnum, int behavior, int hide_segment)
 	robot_info	*robptr = &Robot_info[objp->id];
 
 	if (behavior == 0) {
-		// mprintf((0, "Behavior of 0 for object #%i, bashing to AIB_NORMAL.\n", objnum));
 		behavior = AIB_NORMAL;
 		aip->behavior = behavior;
 	}
-	// mprintf((0, "Initializing object #%i\n", objnum));
 
 	//	mode is now set from the Robot dialog, so this should get overwritten.
 	ailp->mode = AIM_STILL;
@@ -170,7 +137,6 @@ void init_ai_object(int objnum, int behavior, int hide_segment)
 		aip->behavior = behavior;
 		ailp->mode = ai_behavior_to_mode(aip->behavior);
 	} else if (!((aip->behavior >= MIN_BEHAVIOR) && (aip->behavior <= MAX_BEHAVIOR))) {
-		mprintf((0, "[obj %i -> normal] ", objnum));
 		aip->behavior = AIB_NORMAL;
 	}
 
@@ -241,7 +207,6 @@ void create_buddy_bot(void)
 			break;
 
 	if (buddy_id == N_robot_types) {
-		mprintf((0, "Can't create Buddy.  No 'companion' bot found in Robot_info!\n"));
 		return;
 	}
 
@@ -271,7 +236,6 @@ void init_boss_segments(short segptr[], int *num_segs, int size_check, int one_w
 
 
 if (size_check)
-	mprintf((0, "Boss fits in segments:\n"));
 	//	See if there is a boss.  If not, quick out.
 	for (i=0; i<=Highest_object_index; i++)
 		if ((Objects[i].type == OBJ_ROBOT) && (Robot_info[Objects[i].id].boss_flag)) {
@@ -298,7 +262,6 @@ if (size_check)
 		seg_queue[head++] = original_boss_seg;
 
 		segptr[(*num_segs)++] = original_boss_seg;
-		mprintf((0, "%4i ", original_boss_seg));
 		#ifdef EDITOR
 		Selected_segs[N_selected_segs++] = original_boss_seg;
 		#endif
@@ -336,12 +299,10 @@ if (size_check)
 	
 						if ((!size_check) || boss_fits_in_seg(boss_objp, segp->children[sidenum])) {
 							segptr[(*num_segs)++] = segp->children[sidenum];
-							if (size_check) mprintf((0, "%4i ", segp->children[sidenum]));
 							#ifdef EDITOR
 							Selected_segs[N_selected_segs++] = segp->children[sidenum];
 							#endif
 							if (*num_segs >= MAX_BOSS_TELEPORT_SEGS) {
-								mprintf((1, "Warning: Too many boss teleport segments.  Found %i after searching %i/%i segments.\n", MAX_BOSS_TELEPORT_SEGS, segp->children[sidenum], Highest_segment_index+1));
 								tail = head;
 							}
 						}
@@ -458,13 +419,10 @@ void set_rotvel_and_saturate(fix *dest, fix delta)
 {
 	if ((delta ^ *dest) < 0) {
 		if (abs(delta) < F1_0/8) {
-			// mprintf((0, "D"));
 			*dest = delta/4;
 		} else
-			// mprintf((0, "d"));
 			*dest = delta;
 	} else {
-		// mprintf((0, "!"));
 		*dest = delta;
 	}
 }
@@ -507,7 +465,6 @@ void ai_turn_towards_vector(vms_vector *goal_vector, object *objp, fix rate)
 		vm_vec_add2(&new_fvec, &objp->orient.fvec);
 		mag = vm_vec_normalize_quick(&new_fvec);
 		if (mag < F1_0/256) {
-			mprintf((1, "Degenerate vector in ai_turn_towards_vector (mag = %7.3f)\n", f2fl(mag)));
 			new_fvec = *goal_vector;		//	if degenerate vector, go right to goal
 		}
 	}
@@ -579,11 +536,9 @@ int player_is_visible_from_object(object *objp, vms_vector *pos, fix field_of_vi
 		if (segnum == -1) {
 			fq.startseg = objp->segnum;
 			*pos = objp->pos;
-			mprintf((1, "Object %i, gun is outside mine, moving towards center.\n", objp-Objects));
 			move_towards_segment_center(objp);
 		} else {
 			if (segnum != objp->segnum) {
-				// -- mprintf((0, "Warning: Robot's gun tip not in same segment as robot center, frame %i.\n", FrameCount));
 				objp->ctype.ai_info.SUB_FLAGS |= SUB_FLAGS_GUNSEG;
 			}
 			fq.startseg = segnum;
@@ -604,7 +559,6 @@ int player_is_visible_from_object(object *objp, vms_vector *pos, fix field_of_vi
 	// -- when we stupidly checked objects -- if ((Hit_type == HIT_NONE) || ((Hit_type == HIT_OBJECT) && (Hit_data.hit_object == Players[Player_num].objnum))) {
 	if (Hit_type == HIT_NONE) {
 		dot = vm_vec_dot(vec_to_player, &objp->orient.fvec);
-		// mprintf((0, "Fvec = [%5.2f %5.2f %5.2f], vec_to_player = [%5.2f %5.2f %5.2f], dot = %7.3f\n", f2fl(objp->orient.fvec.x), f2fl(objp->orient.fvec.y), f2fl(objp->orient.fvec.z), f2fl(vec_to_player->x), f2fl(vec_to_player->y), f2fl(vec_to_player->z), f2fl(dot)));
 		if (dot > field_of_view - (Overall_agitation << 9)) {
 			return 2;
 		} else {
@@ -634,7 +588,6 @@ int do_silly_animation(object *objp)
 	attack_type = Robot_info[robot_type].attack_type;
 
 	if (num_guns == 0) {
-		// mprintf((0, "Object #%i of type #%i has 0 guns.\n", objp-Objects, robot_type));
 		return 0;
 	}
 
@@ -1068,8 +1021,6 @@ void ai_fire_laser_at_player(object *obj, vms_vector *fire_point, int gun_num, v
 		}
 	}
 
-	// -- mprintf((0, "Firing from gun #%i at time = %7.3f\n", gun_num, f2fl(GameTime)));
-
 	//	Set position to fire at based on difficulty level and robot's aiming ability
 	aim = FIRE_K*F1_0 - (FIRE_K-1)*(robptr->aim << 8);	//	F1_0 in bitmaps.tbl = same as used to be.  Worst is 50% more error.
 
@@ -1423,56 +1374,6 @@ void make_random_vector(vms_vector *vec)
 	vm_vec_normalize_quick(vec);
 }
 
-#ifndef NDEBUG
-void mprintf_animation_info(object *objp)
-{
-	ai_static	*aip = &objp->ctype.ai_info;
-	ai_local		*ailp = &Ai_local_info[objp-Objects];
-
-	if (!Ai_info_enabled)
-		return;
-
-	mprintf((0, "Goal = "));
-
-	switch (aip->GOAL_STATE) {
-		case AIS_NONE:	mprintf((0, "NONE "));	break;
-		case AIS_REST:	mprintf((0, "REST "));	break;
-		case AIS_SRCH:	mprintf((0, "SRCH "));	break;
-		case AIS_LOCK:	mprintf((0, "LOCK "));	break;
-		case AIS_FLIN:	mprintf((0, "FLIN "));	break;
-		case AIS_FIRE:	mprintf((0, "FIRE "));	break;
-		case AIS_RECO:	mprintf((0, "RECO "));	break;
-		case AIS_ERR_:	mprintf((0, "ERR_ "));	break;
-	
-	}
-
-	mprintf((0, " Cur = "));
-
-	switch (aip->CURRENT_STATE) {
-		case AIS_NONE:	mprintf((0, "NONE "));	break;
-		case AIS_REST:	mprintf((0, "REST "));	break;
-		case AIS_SRCH:	mprintf((0, "SRCH "));	break;
-		case AIS_LOCK:	mprintf((0, "LOCK "));	break;
-		case AIS_FLIN:	mprintf((0, "FLIN "));	break;
-		case AIS_FIRE:	mprintf((0, "FIRE "));	break;
-		case AIS_RECO:	mprintf((0, "RECO "));	break;
-		case AIS_ERR_:	mprintf((0, "ERR_ "));	break;
-	}
-
-	mprintf((0, " Aware = "));
-
-	switch (ailp->player_awareness_type) {
-		case AIE_FIRE: mprintf((0, "FIRE ")); break;
-		case AIE_HITT: mprintf((0, "HITT ")); break;
-		case AIE_COLL: mprintf((0, "COLL ")); break;
-		case AIE_HURT: mprintf((0, "HURT ")); break;
-	}
-
-	mprintf((0, "Next fire = %6.3f, Time = %6.3f\n", f2fl(ailp->next_fire), f2fl(ailp->player_awareness_time)));
-
-}
-#endif
-
 //	-------------------------------------------------------------------------------------------------------------------
 int	Break_on_object = -1;
 
@@ -1527,13 +1428,11 @@ void do_ai_robot_hit(object *objp, int type)
 					r = d_rand();
 					//	1/8 time, charge player, 1/4 time create path, rest of time, do nothing
 					if (r < 4096) {
-						// -- mprintf((0, "Still guy switching to Station, creating path to player."));
 						create_path_to_player(objp, 10, 1);
 						objp->ctype.ai_info.behavior = AIB_STATION;
 						objp->ctype.ai_info.hide_segment = objp->segnum;
 						Ai_local_info[objp-Objects].mode = AIM_CHASE_OBJECT;
 					} else if (r < 4096+8192) {
-						// -- mprintf((0, "Still guy creating n segment path."));
 						create_n_segment_path(objp, d_rand()/8192 + 2, -1);
 						Ai_local_info[objp-Objects].mode = AIM_FOLLOW_PATH;
 					}
@@ -1584,7 +1483,6 @@ void compute_vis_and_vec(object *objp, vms_vector *pos, ai_local *ailp, vms_vect
 			// *player_visibility = 2;
 
 			if ((ailp->next_misc_sound_time < GameTime) && ((ailp->next_fire < F1_0) || (ailp->next_fire2 < F1_0)) && (dist < F1_0*20)) {
-				// mprintf((0, "ANGRY! "));
 				ailp->next_misc_sound_time = GameTime + (d_rand() + F1_0) * (7 - Difficulty_level) / 1;
 				digi_link_sound_to_pos( robptr->see_sound, objp->segnum, 0, pos, 0 , Robot_sound_volume);
 			}
@@ -1592,7 +1490,6 @@ void compute_vis_and_vec(object *objp, vms_vector *pos, ai_local *ailp, vms_vect
 			//	Compute expensive stuff -- vec_to_player and player_visibility
 			vm_vec_normalized_dir_quick(vec_to_player, &Believed_player_pos, pos);
 			if ((vec_to_player->x == 0) && (vec_to_player->y == 0) && (vec_to_player->z == 0)) {
-				// -- mprintf((0, "Warning: Player and robot at exactly the same location.\n"));
 				vec_to_player->x = F1_0;
 			}
 			*player_visibility = player_is_visible_from_object(objp, pos, robptr->field_of_view[Difficulty_level], vec_to_player);
@@ -1611,31 +1508,19 @@ void compute_vis_and_vec(object *objp, vms_vector *pos, ai_local *ailp, vms_vect
 			if ((ailp->previous_visibility != *player_visibility) && (*player_visibility == 2)) {
 				if (ailp->previous_visibility == 0) {
 					if (ailp->time_player_seen + F1_0/2 < GameTime) {
-						// -- mprintf((0, "SEE! "));
-						// -- if (Player_exploded)
-						// -- 	digi_link_sound_to_pos( robptr->taunt_sound, objp->segnum, 0, pos, 0 , Robot_sound_volume);
-						// -- else
-							digi_link_sound_to_pos( robptr->see_sound, objp->segnum, 0, pos, 0 , Robot_sound_volume);
+						digi_link_sound_to_pos( robptr->see_sound, objp->segnum, 0, pos, 0 , Robot_sound_volume);
 						ailp->time_player_sound_attacked = GameTime;
 						ailp->next_misc_sound_time = GameTime + F1_0 + d_rand()*4;
 					}
 				} else if (ailp->time_player_sound_attacked + F1_0/4 < GameTime) {
-					// -- mprintf((0, "ANGRY! "));
-					// -- if (Player_exploded)
-					// -- 	digi_link_sound_to_pos( robptr->taunt_sound, objp->segnum, 0, pos, 0 , Robot_sound_volume);
-					// -- else
-						digi_link_sound_to_pos( robptr->attack_sound, objp->segnum, 0, pos, 0 , Robot_sound_volume);
+					digi_link_sound_to_pos( robptr->attack_sound, objp->segnum, 0, pos, 0 , Robot_sound_volume);
 					ailp->time_player_sound_attacked = GameTime;
 				}
 			} 
 
 			if ((*player_visibility == 2) && (ailp->next_misc_sound_time < GameTime)) {
-				// -- mprintf((0, "ATTACK! "));
 				ailp->next_misc_sound_time = GameTime + (d_rand() + F1_0) * (7 - Difficulty_level) / 2;
-				// -- if (Player_exploded)
-				// -- 	digi_link_sound_to_pos( robptr->taunt_sound, objp->segnum, 0, pos, 0 , Robot_sound_volume);
-				// -- else
-					digi_link_sound_to_pos( robptr->attack_sound, objp->segnum, 0, pos, 0 , Robot_sound_volume);
+				digi_link_sound_to_pos( robptr->attack_sound, objp->segnum, 0, pos, 0 , Robot_sound_volume);
 			}
 			ailp->previous_visibility = *player_visibility;
 		}
@@ -1690,7 +1575,6 @@ void move_object_to_legal_spot(object *objp)
 		Int3();		//	Note: Boss is poking outside mine.  Will try to resolve.
 		teleport_boss(objp);
 	} else {
-		mprintf((0, "Note: Killing robot #%i because he's badly stuck outside the mine.\n", objp-Objects));
 		apply_damage_to_robot(objp, objp->shields*2, objp-Objects);
 	}
 }
@@ -1712,9 +1596,7 @@ void move_towards_segment_center(object *objp)
 	if (dist_to_center < objp->size) {
 		//	Center is nearer than the distance we want to move, so move to center.
 		objp->pos = segment_center;
-		mprintf((0, "Object #%i moved to center of segment #%i (%7.3f %7.3f %7.3f)\n", objp-Objects, objp->segnum, f2fl(objp->pos.x), f2fl(objp->pos.y), f2fl(objp->pos.z)));
 		if (object_intersects_wall(objp)) {
-			mprintf((0, "Object #%i still illegal, trying trickier move.\n"));
 			move_object_to_legal_spot(objp);
 		}
 	} else {
@@ -1727,7 +1609,6 @@ void move_towards_segment_center(object *objp)
 			objp->pos = segment_center;
 			move_object_to_legal_spot(objp);
 		}
-		// -- mprintf((0, "Obj %i moved twrds seg %i (%6.2f %6.2f %6.2f), dists: [%6.2f %6.2f]\n", objp-Objects, objp->segnum, f2fl(objp->pos.x), f2fl(objp->pos.y), f2fl(objp->pos.z), f2fl(vm_vec_dist_quick(&objp->pos, &segment_center)), f2fl(vm_vec_dist_quick(&objp->pos, &segment_center))));
 	}
 
 }
@@ -1874,42 +1755,6 @@ int openable_doors_in_segment(int segnum)
 
 }
 
-// -- // --------------------------------------------------------------------------------------------------------------------
-// -- //	Return true if a special object (player or control center) is in this segment.
-// -- int special_object_in_seg(int segnum)
-// -- {
-// -- 	int	objnum;
-// -- 
-// -- 	objnum = Segments[segnum].objects;
-// -- 
-// -- 	while (objnum != -1) {
-// -- 		if ((Objects[objnum].type == OBJ_PLAYER) || (Objects[objnum].type == OBJ_CNTRLCEN)) {
-// -- 			mprintf((0, "Special object of type %i in segment %i\n", Objects[objnum].type, segnum));
-// -- 			return 1;
-// -- 		} else
-// -- 			objnum = Objects[objnum].next;
-// -- 	}
-// -- 
-// -- 	return 0;
-// -- }
-
-// -- // --------------------------------------------------------------------------------------------------------------------
-// -- //	Randomly select a segment attached to *segp, reachable by flying.
-// -- int get_random_child(int segnum)
-// -- {
-// -- 	int	sidenum;
-// -- 	segment	*segp = &Segments[segnum];
-// -- 
-// -- 	sidenum = (rand() * 6) >> 15;
-// -- 
-// -- 	while (!(WALL_IS_DOORWAY(segp, sidenum) & WID_FLY_FLAG))
-// -- 		sidenum = (rand() * 6) >> 15;
-// -- 
-// -- 	segnum = segp->children[sidenum];
-// -- 
-// -- 	return segnum;
-// -- }
-
 // --------------------------------------------------------------------------------------------------------------------
 //	Return true if placing an object of size size at pos *pos intersects a (player or robot or control center) in segment *segp.
 int check_object_object_intersection(vms_vector *pos, fix size, segment *segp)
@@ -1954,7 +1799,6 @@ int create_gated_robot( int segnum, int object_id, vms_vector *pos)
 				count++;
 
 	if (count > 2*Difficulty_level + 6) {
-		//mprintf((0, "Cannot gate in a robot until you kill one.\n"));
 		Last_gate_time = GameTime - 3*Gate_interval/4;
 		return -1;
 	}
@@ -1967,7 +1811,6 @@ int create_gated_robot( int segnum, int object_id, vms_vector *pos)
 
 	//	See if legal to place object here.  If not, move about in segment and try again.
 	if (check_object_object_intersection(&object_pos, objsize, segp)) {
-		//mprintf((0, "Can't get in because object collides with something.\n"));
 		Last_gate_time = GameTime - 3*Gate_interval/4;
 		return -1;
 	}
@@ -1975,12 +1818,9 @@ int create_gated_robot( int segnum, int object_id, vms_vector *pos)
 	objnum = obj_create(OBJ_ROBOT, object_id, segnum, &object_pos, &vmd_identity_matrix, objsize, CT_AI, MT_PHYSICS, RT_POLYOBJ);
 
 	if ( objnum < 0 ) {
-		// mprintf((1, "Can't get object to gate in robot.  Not gating in.\n"));
 		Last_gate_time = GameTime - 3*Gate_interval/4;
 		return -1;
 	}
-
-	//mprintf((0, "Gating in object %i in segment %i\n", objnum, segp-Segments));
 
 	Objects[objnum].lifeleft = F1_0*30;	//	Gated in robots only live 30 seconds.
 
@@ -2049,7 +1889,6 @@ int boss_spew_robot(object *objp, vms_vector *pos)
 
 	segnum = find_point_seg(pos, objp->segnum);
 	if (segnum == -1) {
-		mprintf((0, "Tried to spew a bot outside the mine!  Aborting!\n"));
 		return -1;
 	}	
 
@@ -2146,8 +1985,6 @@ void teleport_boss(object *objp)
 	rand_segnum = Boss_teleport_segs[rand_index];
 	Assert((rand_segnum >= 0) && (rand_segnum <= Highest_segment_index));
 
-	//mprintf((0, "Frame %i: Boss teleporting to segment #%i, pos = {%8x %8x %8x}.\n", FrameCount, rand_segnum, objp->pos.x, objp->pos.y, objp->pos.z));
-
 #ifdef NETWORK
 	if (Game_mode & GM_MULTI)
 		multi_send_boss_actions(objp-Objects, 1, rand_segnum, 0);
@@ -2211,7 +2048,6 @@ int do_robot_dying_frame(object *objp, fix start_time, fix roll_duration, sbyte 
 
 	if (start_time + roll_duration - sound_duration < GameTime) {
 		if (!*dying_sound_playing) {
-			mprintf((0, "Starting death sound!\n"));
 			*dying_sound_playing = 1;
 			digi_link_sound_to_object2( death_sound, objp-Objects, 0, sound_scale, sound_scale*256 );	//	F1_0*512 means play twice as loud
 		} else if (d_rand() < FrameTime*16)
@@ -2316,7 +2152,6 @@ void do_boss_stuff(object *objp, int player_visibility)
 
 #ifndef NDEBUG
 	if (objp->shields != Prev_boss_shields) {
-		mprintf((0, "Boss shields = %7.3f, object %i\n", f2fl(objp->shields), objp-Objects));
 		Prev_boss_shields = objp->shields;
 	}
 #endif
@@ -2475,12 +2310,11 @@ void ai_do_actual_firing_stuff(object *obj, ai_static *aip, ai_local *ailp, robo
 								return;
 							do_ai_robot_hit_attack(obj, ConsoleObject, &obj->pos);
 						} else {
-							// mprintf((0, "Green won't fire: Too far: dist = %7.3f, threshold = %7.3f\n", f2fl(dist_to_player), f2fl(obj->size + ConsoleObject->size + F1_0*2)));
 							return;
 						}
 					} else {
 						if ((gun_point->x == 0) && (gun_point->y == 0) && (gun_point->z == 0)) {
-							; //mprintf((0, "Would like to fire gun, but gun not selected.\n"));
+							;
 						} else {
 							if (!ai_multiplayer_awareness(obj, ROBOT_FIRE_AGITATION))
 								return;
@@ -2570,12 +2404,11 @@ void ai_do_actual_firing_stuff(object *obj, ai_static *aip, ai_local *ailp, robo
 								return;
 							do_ai_robot_hit_attack(obj, ConsoleObject, &obj->pos);
 						} else {
-							// mprintf((0, "Green won't fire: Too far: dist = %7.3f, threshold = %7.3f\n", f2fl(dist_to_player), f2fl(obj->size + ConsoleObject->size + F1_0*2)));
 							return;
 						}
 					} else {
 						if ((gun_point->x == 0) && (gun_point->y == 0) && (gun_point->z == 0)) {
-							; //mprintf((0, "Would like to fire gun, but gun not selected.\n"));
+							;
 						} else {
 							if (!ai_multiplayer_awareness(obj, ROBOT_FIRE_AGITATION))
 								return;

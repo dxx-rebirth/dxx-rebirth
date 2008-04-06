@@ -1,4 +1,3 @@
-/* $Id: iff.c,v 1.1.1.1 2006/03/17 19:52:26 zicodxx Exp $ */
 /*
 THE COMPUTER CODE CONTAINED HEREIN IS THE SOLE PROPERTY OF PARALLAX
 SOFTWARE CORPORATION ("PARALLAX").  PARALLAX, IN DISTRIBUTING THE CODE TO
@@ -20,10 +19,6 @@ COPYRIGHT 1993-1999 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 
 #ifdef HAVE_CONFIG_H
 #include <conf.h>
-#endif
-
-#ifdef RCS
-static char rcsid[] = "$Id: iff.c,v 1.1.1.1 2006/03/17 19:52:26 zicodxx Exp $";
 #endif
 
 #define COMPRESS		1	//do the RLE or not? (for debugging mostly)
@@ -92,16 +87,6 @@ ubyte iff_has_transparency;	// 0=no transparency, 1=iff_transparent_color is val
 #define tiny_sig MAKE_SIG('T','I','N','Y')
 #define anim_sig MAKE_SIG('A','N','I','M')
 #define dlta_sig MAKE_SIG('D','L','T','A')
-
-#ifndef NDEBUG
-//void printsig(int32_t s)
-//{
-//	char *t=(char *) &s;
-//
-///*  printf("%c%c%c%c",*(&s+3),*(&s+2),*(&s+1),s);*/
-//	printf("%c%c%c%c",t[3],t[2],t[1],t[0]);
-//}
-#endif
 
 int32_t get_sig(PHYSFS_file *f)
 {
@@ -204,11 +189,6 @@ int parse_body(PHYSFS_file *ifile,long len,iff_bitmap_header *bmheader)
 	else if (bmheader->compression == cmpByteRun1)
 		for (wid_cnt=width,plane=0; PHYSFS_tell(ifile) < end_pos && p<data_end;) {
 			unsigned char c;
-
-//			if (old_cnt-cnt > 2048) {
-//              printf(".");
-//				old_cnt=cnt;
-//			}
 
 			if (wid_cnt == end_cnt) {
 				wid_cnt = width;
@@ -333,14 +313,9 @@ int parse_delta(PHYSFS_file *ifile,long len,iff_bitmap_header *bmheader)
 //  the buffer pointed to by raw_data is stuffed with a pointer to bitplane pixel data
 void skip_chunk(PHYSFS_file *ifile,long len)
 {
-	//int c,i;
 	int ilen;
 	ilen = (len+1) & ~1;
 
-//printf( "Skipping %d chunk\n", ilen );
-
-//	for (i=0; i<ilen; i++ )
-//		c = cfgetc(ifile);
 	cfseek(ifile,ilen,SEEK_CUR);
 }
 
@@ -354,10 +329,6 @@ int iff_parse_ilbm_pbm(PHYSFS_file *ifile,long form_type,iff_bitmap_header *bmhe
 	start_pos = PHYSFS_tell(ifile);
 	end_pos = start_pos-4+form_len;
 
-//      printf(" %ld ",form_len);
-//      printsig(form_type);
-//      printf("\n");
-
 			if (form_type == pbm_sig)
 				bmheader->type = TYPE_PBM;
 			else
@@ -367,17 +338,11 @@ int iff_parse_ilbm_pbm(PHYSFS_file *ifile,long form_type,iff_bitmap_header *bmhe
 
 				if (PHYSFS_readSBE32(ifile, &len)==EOF) break;
 
-//              printf(" ");
-//              printsig(sig);
-//              printf(" %ld\n",len);
-
 				switch (sig) {
 
 					case bmhd_sig: {
 						int ret;
 						int save_w=bmheader->w,save_h=bmheader->h;
-
-						//printf("Parsing header\n");
 
 						ret = parse_bmhd(ifile,len,bmheader);
 
@@ -421,7 +386,6 @@ int iff_parse_ilbm_pbm(PHYSFS_file *ifile,long form_type,iff_bitmap_header *bmhe
 						int ncolors=(int) (len/3),cnum;
 						unsigned char r,g,b;
 
-						//printf("Parsing RGB map\n");
 						for (cnum=0;cnum<ncolors;cnum++) {
 							r=cfgetc(ifile);
 							g=cfgetc(ifile);
@@ -442,7 +406,6 @@ int iff_parse_ilbm_pbm(PHYSFS_file *ifile,long form_type,iff_bitmap_header *bmhe
 					case body_sig:
 					{
 						int r;
-						//printf("Parsing body\n");
 						if ((r=parse_body(ifile,len,bmheader))!=IFF_NO_ERROR)
 							return r;
 						break;
@@ -717,8 +680,6 @@ int write_pal(PHYSFS_file *ofile,iff_bitmap_header *bitmap_header)
 //	PHYSFS_writeSBE32(sizeof(pal_entry) * n_colors,ofile);
 	PHYSFS_writeSBE32(ofile, 3 * n_colors);
 
-//printf("new write pal %d %d\n",3,n_colors);
-
 	for (i=0; i<256; i++) {
 		unsigned char r,g,b;
 		r = bitmap_header->palette[i].r * 4 + (bitmap_header->palette[i].r?3:0);
@@ -728,9 +689,6 @@ int write_pal(PHYSFS_file *ofile,iff_bitmap_header *bitmap_header)
 		PHYSFSX_writeU8(ofile, g);
 		PHYSFSX_writeU8(ofile, b);
 	}
-
-//printf("write pal %d %d\n",sizeof(pal_entry),n_colors);
-//	fwrite(bitmap_header->palette,sizeof(pal_entry),n_colors,ofile);
 
 	return IFF_NO_ERROR;
 }
@@ -903,8 +861,6 @@ int write_pbm(PHYSFS_file *ofile,iff_bitmap_header *bitmap_header,int compressio
 	long raw_size = EVEN(bitmap_header->w) * bitmap_header->h;
 	long body_size,tiny_size,pbm_size = 4 + BMHD_SIZE + 8 + EVEN(raw_size) + sizeof(pal_entry)*(1<<bitmap_header->nplanes)+8;
 	long save_pos;
-
-//printf("write_pbm\n");
 
 	put_sig(form_sig,ofile);
 	save_pos = PHYSFS_tell(ofile);

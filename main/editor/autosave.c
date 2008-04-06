@@ -1,4 +1,3 @@
-/* $Id: autosave.c,v 1.1.1.1 2006/03/17 19:58:31 zicodxx Exp $ */
 /*
 THE COMPUTER CODE CONTAINED HEREIN IS THE SOLE PROPERTY OF PARALLAX
 SOFTWARE CORPORATION ("PARALLAX").  PARALLAX, IN DISTRIBUTING THE CODE TO
@@ -19,10 +18,6 @@ COPYRIGHT 1993-1998 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
  *
  */
 
-#ifdef RCS
-static char rcsid[] = "$Id: autosave.c,v 1.1.1.1 2006/03/17 19:58:31 zicodxx Exp $";
-#endif
-
 #ifdef HAVE_CONFIG_H
 #include "conf.h"
 #endif
@@ -32,16 +27,12 @@ static char rcsid[] = "$Id: autosave.c,v 1.1.1.1 2006/03/17 19:58:31 zicodxx Exp
 #include <stdarg.h>
 #include <math.h>
 #include <string.h>
-#ifdef __MSDOS__
-#include <process.h>
-#endif
 #include <time.h>
 
 #include "error.h"
 
 #include "inferno.h"
 #include "editor.h"
-#include "mono.h"
 #include "u_mem.h"
 #include "ui.h"
 
@@ -110,7 +101,6 @@ void autosave_mine(char *name) {
 	    ext = strstr(savename, ".MIN");
 	    sprintf( ext, ".M%d", Autosave_count );
 	
-	    //mprintf( 0, "Autosave: %s\n", savename );
 	    med_save_mine( savename );
 	    Autosave_count++;
 	    if (undo_count > 0) undo_count--;
@@ -206,38 +196,5 @@ void TimedAutosave(char *name)
 int undo( void ) {
 	Int3();
 	return 2;
-
-//@@    char *loadname, *ext;
-//@@    if (undo_count == 0) original = Autosave_count;
-//@@
-//@@	 if (!Autosave_flag) 
-//@@		 return 2;
-//@@
-//@@    if (Autosave_numfiles > 1) {
-//@@
-//@@        MALLOC(loadname, char, PATH_MAX);
-//@@
-//@@        strcpy ( loadname, mine_filename );
-//@@        strupr( loadname );
-//@@        if ( !strcmp(loadname, "*.MIN") ) strcpy(loadname, "TEMP.MIN");
-//@@
-//@@        undo_count++;
-//@@        Autosave_count = original - undo_count;
-//@@        if (Autosave_count < 0) Autosave_count = Autosave_count+10;
-//@@        Autosave_numfiles--;
-//@@        //mprintf(0, "u=%d  a=%d  o=%d  num=%d\n", undo_count, Autosave_count, original, Autosave_numfiles);
-//@@
-//@@        ext = strstr(loadname, ".MIN");
-//@@        if (Autosave_count == 0) sprintf( ext, ".M9" );
-//@@            else sprintf( ext, ".M%d", Autosave_count-1 );
-//@@        //mprintf( 0, "Loading: %s\n", loadname );
-//@@        med_load_mine( loadname );
-//@@
-//@@        d_free(loadname);
-//@@        return 0;
-//@@     }
-//@@     else return 1;
-//@@     //diagnostic_message("Can't undo\n");
-
 }
 

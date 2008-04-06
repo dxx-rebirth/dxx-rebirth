@@ -1,4 +1,3 @@
-/* $Id: medwall.c,v 1.1.1.1 2006/03/17 19:58:48 zicodxx Exp $ */
 /*
 THE COMPUTER CODE CONTAINED HEREIN IS THE SOLE PROPERTY OF PARALLAX
 SOFTWARE CORPORATION ("PARALLAX").  PARALLAX, IN DISTRIBUTING THE CODE TO
@@ -18,10 +17,6 @@ COPYRIGHT 1993-1998 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
  *
  */
 
-#ifdef RCS
-static char rcsid[] = "$Id: medwall.c,v 1.1.1.1 2006/03/17 19:58:48 zicodxx Exp $";
-#endif
-
 #ifdef HAVE_CONFIG_H
 #include "conf.h"
 #endif
@@ -30,23 +25,19 @@ static char rcsid[] = "$Id: medwall.c,v 1.1.1.1 2006/03/17 19:58:48 zicodxx Exp 
 #include <stdlib.h>
 #include <math.h>
 #include <string.h>
-
 #include "editor/medwall.h"
 #include "inferno.h"
 #include "editor/editor.h"
 #include "segment.h"
 #include "error.h"
 #include "gameseg.h"
-
 #include "textures.h"
 #include "screens.h"
 #include "switch.h"
 #include "editor/eswitch.h"
-
 #include "texmerge.h"
 #include "medrobot.h"
 #include "timer.h"
-#include "mono.h"
 #include "cntrlcen.h"
 #include "key.h"
 #include "ehostage.h"
@@ -216,12 +207,10 @@ int GotoPrevWall() {
 	if (current_wall >= Num_walls) current_wall = Num_walls-1;
 
 	if (Walls[current_wall].segnum == -1) {
-		mprintf((0, "Trying to goto wall at bogus segnum\n"));
 		return 0;
 	}
 
 	if (Walls[current_wall].sidenum == -1) {
-		mprintf((0, "Trying to goto wall at bogus sidenum\n"));
 		return 0;
 	}
 
@@ -243,12 +232,10 @@ int GotoNextWall() {
 	if (current_wall < 0) current_wall = 0;
 
 	if (Walls[current_wall].segnum == -1) {
-		mprintf((0, "Trying to goto wall at bogus segnum\n"));
 		return 0;
 	}
 
 	if (Walls[current_wall].sidenum == -1) {
-		mprintf((0, "Trying to goto wall at bogus sidenum\n"));
 		return 0;
 	}
 
@@ -475,7 +462,6 @@ void do_wall_window()
 		for (	i=0; i < 4; i++ )	{
 			if ( KeyFlag[i]->flag == 1 ) {
 				Walls[Cursegp->sides[Curside].wall_num].keys = 1<<i;		// Set the ai_state to the cooresponding radio button
-//				mprintf((0, "1<<%d = %d\n", i, 1<<i));
 			}
 		}
 	} else {
@@ -639,7 +625,6 @@ int wall_delete_bogus(short wall_num)
 	int seg, side;
 
 	if ((Walls[wall_num].segnum != -1) && (Walls[wall_num].sidenum != -1)) {
-		mprintf((0,"WALL IS NOT BOGUS.\n"));
 		return 0;
 	}
 
@@ -655,8 +640,6 @@ int wall_delete_bogus(short wall_num)
 		for (side=0;side<MAX_SIDES_PER_SEGMENT;side++)
 			if	(Segments[seg].sides[side].wall_num > wall_num)
 				Segments[seg].sides[side].wall_num--;
-
-	mprintf((0,"BOGUS WALL DELETED!!!!\n"));
 
 	return 1;
 }
@@ -941,9 +924,6 @@ int bind_wall_to_control_center() {
 	ControlCenterTriggers.side[link_num] = Curside;
 	ControlCenterTriggers.num_links++;
 
-	mprintf((0, "seg %d:side %d linked to control center link_num %d\n",
-				ControlCenterTriggers.seg[link_num], ControlCenterTriggers.side[link_num], link_num)); 
-
 	editor_status("Wall linked to control center");
 
 	return 1;
@@ -1011,7 +991,7 @@ int wall_unlink_door()
 int check_walls() 
 {
 	int w, seg, side, wall_count, trigger_count;
-	int w1, w2, t, l;
+	int w1;
 	count_wall CountedWalls[MAX_WALLS];
 	char Message[DIAGNOSTIC_MESSAGE_MAX];
 	int matcen_num;
@@ -1023,14 +1003,11 @@ int check_walls()
 			matcen_num = Segment2s[seg].matcen_num;
 			if (matcen_num == 0)
 				if (RobotCenters[0].segnum != seg) {
-					mprintf((0,"Fixing Matcen 0\n"));
 				 	Segment2s[seg].matcen_num = -1;
 				}
 	
 			if (matcen_num > -1)
 				if (RobotCenters[matcen_num].segnum != seg) {
-					mprintf((0,"Matcen [%d] (seg %d) doesn't point back to correct segment %d\n", matcen_num, RobotCenters[matcen_num].segnum, seg));
-					mprintf((0,"Fixing....\n"));
 					RobotCenters[matcen_num].segnum = seg;
 				}
 	
@@ -1039,22 +1016,10 @@ int check_walls()
 					CountedWalls[wall_count].wallnum = Segments[seg].sides[side].wall_num;
 					CountedWalls[wall_count].segnum = seg;
 					CountedWalls[wall_count].sidenum = side;
-	
-					// Check if segnum is bogus
-					if (Walls[Segments[seg].sides[side].wall_num].segnum == -1) {
-						mprintf((0, "Wall %d at seg:side %d:%d is BOGUS\n", Segments[seg].sides[side].wall_num, seg, side));
-					}
-	
-					if (Walls[Segments[seg].sides[side].wall_num].type == WALL_NORMAL) {
-						mprintf((0, "Wall %d at seg:side %d:%d is NORMAL (BAD)\n", Segments[seg].sides[side].wall_num, seg, side));
-					}
-	
 					wall_count++;
 				}
 		}
 
-	mprintf((0,"Wall Count = %d\n", wall_count));
-	
 	if (wall_count != Num_walls) {
 		sprintf( Message, "Num_walls is bogus\nDo you wish to correct it?\n");
 		if (MessageBox( -2, -2, 2, Message, "Yes", "No" )==1) {
@@ -1067,35 +1032,16 @@ int check_walls()
 	for (w=0; w<Num_walls; w++) {
 		if ((Walls[CountedWalls[w].wallnum].segnum != CountedWalls[w].segnum) ||
 			(Walls[CountedWalls[w].wallnum].sidenum != CountedWalls[w].sidenum)) {
-			mprintf((0,"Unmatched walls on wall_num %d\n", CountedWalls[w].wallnum));
 			sprintf( Message, "Unmatched wall detected\nDo you wish to correct it?\n");
 			if (MessageBox( -2, -2, 2, Message, "Yes", "No" )==1) {
 				Walls[CountedWalls[w].wallnum].segnum = CountedWalls[w].segnum;
 				Walls[CountedWalls[w].wallnum].sidenum = CountedWalls[w].sidenum;
 			}
 		}
-
-		if (CountedWalls[w].wallnum >= Num_walls)
-			mprintf((0,"wallnum %d in Segments exceeds Num_walls!\n", CountedWalls[w].wallnum));
-
-		if (Walls[w].segnum == -1) {
-			mprintf((0, "Wall[%d] is BOGUS\n", w));
-			for (seg=0;seg<=Highest_segment_index;seg++) 
-				for (side=0;side<MAX_SIDES_PER_SEGMENT;side++)
-					if (Segments[seg].sides[side].wall_num == w) {
-						mprintf((0, " BOGUS WALL found at seg:side %d:%d\n", seg, side));
-					} 
-		}				
 	}
 
 	trigger_count = 0;
 	for (w1=0; w1<wall_count; w1++) {
-		for (w2=w1+1; w2<wall_count; w2++) 
-			if (CountedWalls[w1].wallnum == CountedWalls[w2].wallnum) {
-				mprintf((0, "Duplicate Walls %d and %d. Wallnum=%d. ", w1, w2, CountedWalls[w1].wallnum));
-				mprintf((0, "Seg1:sides1 %d:%d  ", CountedWalls[w1].segnum, CountedWalls[w1].sidenum));
-				mprintf((0, "Seg2:sides2 %d:%d\n", CountedWalls[w2].segnum, CountedWalls[w2].sidenum));
-			}
 		if (Walls[w1].trigger != -1) trigger_count++;
 	}
 
@@ -1106,39 +1052,6 @@ int check_walls()
 			editor_status("Num_triggers set to %d\n", Num_triggers);
 		}
 	}
-
-	mprintf((0,"Trigger Count = %d\n", trigger_count));
-
-	for (t=0; t<trigger_count; t++) {
-		if (Triggers[t].flags & TRIGGER_MATCEN)
-                 {
-			if (Triggers[t].num_links < 1) 
-				mprintf((0,"No valid links on Matcen Trigger %d\n", t));
-			else
-				for (l=0;l<Triggers[t].num_links;l++) {
-					if (!Segment2s[Triggers[t].seg[l]].special & SEGMENT_IS_ROBOTMAKER)
-						mprintf((0,"Bogus Matcen trigger detected on Trigger %d, No matcen at seg %d\n", t, Triggers[t].seg[l]));
-				}
-                 }
-
-		if (Triggers[t].flags & TRIGGER_EXIT)
-			if (Triggers[t].num_links != 0)
-				mprintf((0,"Bogus links detected on Exit Trigger %d\n", t));
-
-		if (Triggers[t].flags & TRIGGER_CONTROL_DOORS)
-			for (l=0;l<Triggers[t].num_links;l++) {
-				if (Segments[Triggers[t].seg[l]].sides[Triggers[t].side[l]].wall_num == -1) {
-					mprintf((0,"Bogus Link detected on Door Control Trigger %d, link %d\n", t, l));
-					mprintf((0,"Bogus Link at seg %d, side %d\n", Triggers[t].seg[l], Triggers[t].side[l]));
-				}
-			}
-	}
-
-	for (l=0;l<ControlCenterTriggers.num_links;l++)
-		if (Segments[ControlCenterTriggers.seg[l]].sides[ControlCenterTriggers.side[l]].wall_num == -1) {
-			mprintf((0,"Bogus Link detected on Control Center Trigger, link %d\n", l));
-			mprintf((0,"Bogus Link at seg %d, side %d\n", Triggers[t].seg[l], Triggers[t].side[l]));
-		}
 
 	return 1;
 
@@ -1307,7 +1220,6 @@ void copy_group_walls(int old_group, int new_group)
 
 		for (j=0; j<MAX_SIDES_PER_SEGMENT; j++) {
 			if (Segments[old_seg].sides[j].wall_num != -1) {
-				mprintf((0, "Going to add wall to seg:side = %i:%i\n", new_seg, j));
 				Segments[new_seg].sides[j].wall_num = Num_walls;
 				copy_old_wall_data_to_new(Segments[old_seg].sides[j].wall_num, Num_walls);
 				Walls[Num_walls].segnum = new_seg;

@@ -75,8 +75,6 @@ extern	int	Lighting_on;
 
 // HACK INTERFACE: how far away the current segment (& thus texture) is
 extern	int	Current_seg_depth;		
-extern	int	Max_perspective_depth;		//	Deepest segment at which perspective interpolation will be used.
-extern	int	Max_linear_depth;				//	Deepest segment at which linear interpolation will be used.
 extern	int	Max_flat_depth;				//	Deepest segment at which flat shading will be used. (If not flat shading, then what?)
 
 //	These are pointers to texture maps.  If you want to render texture map #7, then you will render

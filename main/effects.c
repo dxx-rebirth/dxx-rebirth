@@ -1,4 +1,3 @@
-/* $Id: effects.c,v 1.1.1.1 2006/03/17 19:57:04 zicodxx Exp $ */
 /*
 THE COMPUTER CODE CONTAINED HEREIN IS THE SOLE PROPERTY OF PARALLAX
 SOFTWARE CORPORATION ("PARALLAX").  PARALLAX, IN DISTRIBUTING THE CODE TO
@@ -23,10 +22,6 @@ COPYRIGHT 1993-1999 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 #include <conf.h>
 #endif
 
-#ifdef RCS
-static char rcsid[] = "$Id: effects.c,v 1.1.1.1 2006/03/17 19:57:04 zicodxx Exp $";
-#endif
-
 #include <stdio.h>
 #include <stdlib.h>
 #include <stdarg.h>
@@ -38,7 +33,6 @@ static char rcsid[] = "$Id: effects.c,v 1.1.1.1 2006/03/17 19:57:04 zicodxx Exp 
 #include "vclip.h"
 #include "effects.h"
 #include "bm.h"
-#include "mono.h"
 #include "u_mem.h"
 #include "textures.h"
 #include "cntrlcen.h"
@@ -177,7 +171,6 @@ void restart_effect(int effect_num)
 	//Assert(Effects[effect_num].bm_ptr != -1);
 }
 
-#ifndef FAST_FILE_IO
 /*
  * reads n eclip structs from a CFILE
  */
@@ -203,4 +196,3 @@ int eclip_read_n(eclip *ec, int n, CFILE *fp)
 	}
 	return i;
 }
-#endif

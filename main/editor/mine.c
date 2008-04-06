@@ -1,4 +1,3 @@
-/* $Id: mine.c,v 1.1.1.1 2006/03/17 19:58:35 zicodxx Exp $ */
 /*
 THE COMPUTER CODE CONTAINED HEREIN IS THE SOLE PROPERTY OF PARALLAX
 SOFTWARE CORPORATION ("PARALLAX").  PARALLAX, IN DISTRIBUTING THE CODE TO
@@ -18,10 +17,6 @@ COPYRIGHT 1993-1998 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
  *
  */
 
-#ifdef RCS
-static char rcsid[] = "$Id: mine.c,v 1.1.1.1 2006/03/17 19:58:35 zicodxx Exp $";
-#endif
-
 #ifdef HAVE_CONFIG_H
 #include "conf.h"
 #endif
@@ -30,32 +25,24 @@ static char rcsid[] = "$Id: mine.c,v 1.1.1.1 2006/03/17 19:58:35 zicodxx Exp $";
 #include <stdlib.h>
 #include <math.h>
 #include <string.h>
-
 #include "physfsx.h"
 #include "nocfile.h"
-#include "mono.h"
 #include "key.h"
 #include "gr.h"
-
 #include "bm.h"			// for MAX_TEXTURES
-
 #include "inferno.h"
 #include "segment.h"
 #include "editor.h"
 #include "error.h"
 #include "textures.h"
 #include "object.h"
-
 #include "gamemine.h"
 #include "gamesave.h"
 #include "gameseg.h"
-
 #include "ui.h"			// Because texpage.h need UI_WINDOW type
 #include "texpage.h"		// For texpage_goto_first
-			 
 #include "medwall.h"
 #include "switch.h"
-
 #include "fuelcen.h"
 
 #define REMOVE_EXT(s)  (*(strchr( (s), '.' ))='\0')
@@ -502,11 +489,9 @@ void dump_fix_as_short( fix value, int nbits, PHYSFS_file *SaveFile )
         int_value = (int)(value>>nbits);
 	if( int_value > 0x7fff ) {
 		short_value = 0x7fff;
-		mprintf((1, "Warning: Fix (%8x) won't fit in short.  Saturating to %8x.\n", int_value, short_value<<nbits));
 	}
 	else if( int_value < -0x7fff ) {
 		short_value = -0x7fff;
-		mprintf((1, "Warning: Fix (%8x) won't fit in short.  Saturating to %8x.\n", int_value, short_value<<nbits));
 	}
 	else
 		short_value = (short)int_value;
@@ -521,7 +506,6 @@ void dump_fix_as_ushort( fix value, int nbits, PHYSFS_file *SaveFile )
 	ushort short_value;
 
 	if (value < 0) {
-		mprintf((1, "Warning: fix (%8x) is signed...setting to zero.\n", value));
 		Int3();		//hey---show this to Matt
 		value = 0;
 	}
@@ -530,7 +514,6 @@ void dump_fix_as_ushort( fix value, int nbits, PHYSFS_file *SaveFile )
 
 	if( int_value > 0xffff ) {
 		short_value = 0xffff;
-		mprintf((1, "Warning: Fix (%8x) won't fit in unsigned short.  Saturating to %8x.\n", int_value, short_value<<nbits));
 	}
 	else
 		short_value = int_value;

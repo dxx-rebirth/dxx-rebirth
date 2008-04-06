@@ -1,4 +1,3 @@
-/* $Id: songs.c,v 1.1.1.1 2006/03/17 19:55:35 zicodxx Exp $ */
 /*
 THE COMPUTER CODE CONTAINED HEREIN IS THE SOLE PROPERTY OF PARALLAX
 SOFTWARE CORPORATION ("PARALLAX").  PARALLAX, IN DISTRIBUTING THE CODE TO
@@ -36,7 +35,6 @@ COPYRIGHT 1993-1999 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 #include "pstypes.h"
 #include "args.h"
 #include "songs.h"
-#include "mono.h"
 #include "cfile.h"
 #include "digi.h"
 #include "rbaudio.h"
@@ -100,7 +98,6 @@ void songs_init()
 						Songs[i].filename,
 						Songs[i].melodic_bank_file,
 						Songs[i].drum_bank_file );
-				//printf( "%d. '%s' '%s' '%s'\n",i,Songs[i].filename,Songs[i].melodic_bank_file,Songs[i].drum_bank_file );
 				i++;
 			}
 		}
@@ -120,7 +117,7 @@ void songs_init()
 
 			if (RBAEnabled())
 			{
-				set_redbook_volume(Config_redbook_volume);
+				set_redbook_volume(GameCfg.RedbookVolume);
 				RBARegisterCD();
 			}
 		}
@@ -133,7 +130,7 @@ void songs_init()
 //stop the redbook, so we can read off the CD
 void songs_stop_redbook(void)
 {
-	int old_volume = Config_redbook_volume*REDBOOK_VOLUME_SCALE/8;
+	int old_volume = GameCfg.RedbookVolume*REDBOOK_VOLUME_SCALE/8;
 	fix old_time = timer_get_fixed_seconds();
 
 	if (Redbook_playing) {		//fade out volume
@@ -175,7 +172,7 @@ void reinit_redbook()
 
 	if (RBAEnabled())
 	{
-		set_redbook_volume(Config_redbook_volume);
+		set_redbook_volume(GameCfg.RedbookVolume);
 		RBARegisterCD();
 		force_rb_register=0;
 	}
@@ -253,10 +250,8 @@ int songs_haved2_cd()
 	case D2_VERTIGO2_DISCID:
 	case D2_MAC_DISCID:
 	case D2_IPLAY_DISCID:
-		printf("Found D2 CD! discid: %x\n", discid);
 		return 1;
 	default:
-		printf("Unknown CD! discid: %x\n", discid);
 		return 0;
 	}
 }
@@ -352,8 +347,6 @@ void songs_play_level_song( int levelnum )
 
 		//try to play redbook
 
-		mprintf((0,"n_tracks = %d\n",n_tracks));
-
 		play_redbook_track(REDBOOK_FIRST_LEVEL_TRACK + (songnum % (n_tracks-REDBOOK_FIRST_LEVEL_TRACK+1)),1);
 	}
 
@@ -376,7 +369,7 @@ void songs_check_redbook_repeat()
 	static fix last_check_time;
 	fix current_time;
 
-	if (!Redbook_playing || Config_redbook_volume==0) return;
+	if (!Redbook_playing || GameCfg.RedbookVolume==0) return;
 
 	current_time = timer_get_fixed_seconds();
 	if (current_time < last_check_time || (current_time - last_check_time) >= F2_0) {

@@ -1,4 +1,3 @@
-/* $Id: fixc.c,v 1.1.1.1 2006/03/17 19:59:02 zicodxx Exp $ */
 /*
 THE COMPUTER CODE CONTAINED HEREIN IS THE SOLE PROPERTY OF PARALLAX
 SOFTWARE CORPORATION ("PARALLAX").  PARALLAX, IN DISTRIBUTING THE CODE TO
@@ -20,10 +19,6 @@ COPYRIGHT 1993-1998 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 
 #ifdef HAVE_CONFIG_H
 #include <conf.h>
-#endif
-
-#ifdef RCS
-static char rcsid[] = "$Id: fixc.c,v 1.1.1.1 2006/03/17 19:59:02 zicodxx Exp $";
 #endif
 
 #include <stdlib.h>
@@ -529,15 +524,11 @@ fix fix_isqrt( fix a )
 		cnt++;
 	}
 
-	//printf( "Count = %d (%d>>%d)\n", cnt, b, (cnt+1)/2 );
 	r = isqrt_guess_table[b] >> ((cnt+1)/2);
-
-	//printf( "Initial r = %d\n", r );
 
 	for (i=0; i<3; i++ )	{
 		int old_r = r;
 		r = fixmul( ( (3*65536) - fixmul(fixmul(r,r),a) ), r) / 2;
-		//printf( "r %d  = %d\n", i, r );
 		if ( old_r >= r ) return (r+old_r)/2;
 	}
 

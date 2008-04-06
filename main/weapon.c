@@ -1,4 +1,3 @@
-/* $Id: weapon.c,v 1.1.1.1 2006/03/17 19:57:36 zicodxx Exp $ */
 /*
 THE COMPUTER CODE CONTAINED HEREIN IS THE SOLE PROPERTY OF PARALLAX
 SOFTWARE CORPORATION ("PARALLAX").  PARALLAX, IN DISTRIBUTING THE CODE TO
@@ -22,10 +21,6 @@ COPYRIGHT 1993-1999 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 #include <conf.h>
 #endif
 
-#ifdef RCS
-static char rcsid[] = "$Id: weapon.c,v 1.1.1.1 2006/03/17 19:57:36 zicodxx Exp $";
-#endif
-
 #include <stdlib.h>
 #include <stdio.h>
 #include <string.h>
@@ -33,7 +28,6 @@ static char rcsid[] = "$Id: weapon.c,v 1.1.1.1 2006/03/17 19:57:36 zicodxx Exp $
 #include "game.h"
 #include "laser.h"
 #include "weapon.h"
-#include "mono.h"
 #include "player.h"
 #include "gauges.h"
 #include "error.h"
@@ -237,7 +231,6 @@ void InitWeaponOrdering ()
 
 void CyclePrimary ()
 {
-	mprintf ((0,"Cycling primary!\n"));
 	Cycling=1;
 	auto_select_weapon (0);
 	Cycling=0;
@@ -245,7 +238,6 @@ void CyclePrimary ()
 
 void CycleSecondary ()
 {
-	mprintf ((0,"Cycling secondary!\n"));
 	Cycling=1;
 	auto_select_weapon (1);
 	Cycling=0;
@@ -517,41 +509,6 @@ void auto_select_weapon(int weapon_type)
 
 }
 
-#ifndef RELEASE
-
-//	----------------------------------------------------------------------------------------
-//	Show player which weapons he has, how much ammo...
-//	Looks like a debug screen now because it writes to mono screen, but that will change...
-void show_weapon_status(void)
-{
-	int	i;
-
-	for (i=0; i<MAX_PRIMARY_WEAPONS; i++) {
-		if (Players[Player_num].primary_weapon_flags & (1 << i))
-			mprintf((0, "HAVE"));
-		else
-			mprintf((0, "    "));
-
-		mprintf((0, "  Weapon: %20s, charges: %4i\n", PRIMARY_WEAPON_NAMES(i), Players[Player_num].primary_ammo[i]));
-	}
-
-	mprintf((0, "\n"));
-	for (i=0; i<MAX_SECONDARY_WEAPONS; i++) {
-		if (Players[Player_num].secondary_weapon_flags & (1 << i))
-			mprintf((0, "HAVE"));
-		else
-			mprintf((0, "    "));
-
-		mprintf((0, "  Weapon: %20s, charges: %4i\n", SECONDARY_WEAPON_NAMES(i), Players[Player_num].secondary_ammo[i]));
-	}
-
-	mprintf((0, "\n"));
-	mprintf((0, "\n"));
-
-}
-
-#endif
-
 //	---------------------------------------------------------------------
 //called when one of these weapons is picked up
 //when you pick up a secondary, you always get the weapon & ammo for it
@@ -671,7 +628,6 @@ int POrderList (int num)
 	for (i=0;i<MAX_PRIMARY_WEAPONS+1;i++)
 	if (PrimaryOrder[i]==num)
 	{
-		mprintf ((0,"Primary %d has priority of %d!\n",num,i));
 		return (i);
 	}
 	Error ("Primary Weapon is not in order list!!!");
@@ -684,10 +640,8 @@ int SOrderList (int num)
 	for (i=0;i<MAX_SECONDARY_WEAPONS+1;i++)
 		if (SecondaryOrder[i]==num)
 		{
-			mprintf ((0,"Secondary %d has priority of %d!\n",num,i));
 			return (i);
 		}
-	mprintf ((0,"Error! Secondary Num=%d\n",num));
 	Error ("Secondary Weapon is not in order list!!!");
 }
 
@@ -718,7 +672,6 @@ int pick_up_primary(int weapon_index)
 		select_weapon(weapon_index,0,0,1);
 
 	PALETTE_FLASH_ADD(7,14,21);
-	mprintf ((0,"Weapon index: %d\n",weapon_index));
 	
    if (weapon_index!=LASER_INDEX)
    	HUD_init_message("%s!",PRIMARY_WEAPON_NAMES(weapon_index));
@@ -1021,8 +974,6 @@ void process_super_mines_frame(void)
 										fvi_info		hit_data;
 										int			fate;
 
-										mprintf((0, "Expensive proxmine collision check.  Frame %i\n", FrameCount));
-
 										fq.startseg = Objects[i].segnum;
 										fq.p0						= &Objects[i].pos;
 										fq.p1						= &Objects[j].pos;
@@ -1080,7 +1031,6 @@ int spit_powerup(object *spitter, int id,int seed)
 	{	
 		if (Net_create_loc >= MAX_NET_CREATE_OBJECTS)
 		{
-			mprintf( (0, "WEAPON:Not enough slots to drop all powerups!\n" ));
 			return (-1);
 		}
 	}
@@ -1089,7 +1039,6 @@ int spit_powerup(object *spitter, int id,int seed)
 	objnum = obj_create( OBJ_POWERUP, id, spitter->segnum, &new_pos, &vmd_identity_matrix, Powerup_info[id].size, CT_POWERUP, MT_PHYSICS, RT_POWERUP);
 
 	if (objnum < 0 ) {
-		mprintf((1, "Can't create object in object_create_egg.  Aborting.\n"));
 		Int3();
 		return objnum;
 	}

@@ -37,6 +37,8 @@ COPYRIGHT 1993-1998 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 typedef SAMPLE digi_sound;
 #else
 typedef struct digi_sound       {
+        int bits;
+        int freq;
 	int length;
 	ubyte * data;
 } digi_sound;

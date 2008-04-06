@@ -1,4 +1,3 @@
-/* $Id: morph.c,v 1.1.1.1 2006/03/17 19:55:54 zicodxx Exp $ */
 /*
 THE COMPUTER CODE CONTAINED HEREIN IS THE SOLE PROPERTY OF PARALLAX
 SOFTWARE CORPORATION ("PARALLAX").  PARALLAX, IN DISTRIBUTING THE CODE TO
@@ -22,10 +21,6 @@ COPYRIGHT 1993-1999 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 #include <conf.h>
 #endif
 
-#ifdef RCS
-static char rcsid[] = "$Id: morph.c,v 1.1.1.1 2006/03/17 19:55:54 zicodxx Exp $";
-#endif
-
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
@@ -35,7 +30,6 @@ static char rcsid[] = "$Id: morph.c,v 1.1.1.1 2006/03/17 19:55:54 zicodxx Exp $"
 #include "gr.h"
 #include "texmap.h"
 #include "error.h"
-
 #include "inferno.h"
 #include "morph.h"
 #include "polyobj.h"
@@ -43,8 +37,6 @@ static char rcsid[] = "$Id: morph.c,v 1.1.1.1 2006/03/17 19:55:54 zicodxx Exp $"
 #include "lighting.h"
 #include "newdemo.h"
 #include "piggy.h"
-
-#include "mono.h"
 #include "bm.h"
 #include "interp.h"
 
@@ -55,12 +47,10 @@ morph_data *find_morph_data(object *obj)
 {
 	int i;
 
-	#ifdef NEWDEMO
 	if (Newdemo_state == ND_STATE_PLAYBACK) {
 		morph_objects[0].obj = obj;
 		return &morph_objects[0];
 	}
-	#endif
 
 	for (i=0;i<MAX_MORPH_OBJECTS;i++)
 		if (morph_objects[i].obj == obj)
@@ -116,8 +106,6 @@ void init_points(polymodel *pm,vms_vector *box_size,int submodel_num,morph_data 
 	vms_vector *vp;
 	ushort *data,type;
 	int i;
-
-	//printf("initing %d ",submodel_num);
 
 	data = (ushort *) &pm->model_data[pm->submodel_ptrs[submodel_num]];
 
@@ -175,8 +163,6 @@ void init_points(polymodel *pm,vms_vector *box_size,int submodel_num,morph_data 
 
 	}
 
-	//printf("npoints = %d\n",n_morphing_points[submodel_num]);
-
 }
 
 void update_points(polymodel *pm,int submodel_num,morph_data *md)
@@ -185,8 +171,6 @@ void update_points(polymodel *pm,int submodel_num,morph_data *md)
 	vms_vector *vp;
 	ushort *data,type;
 	int i;
-
-	//printf("updating %d ",submodel_num);
 
 	data = (ushort *) &pm->model_data[pm->submodel_ptrs[submodel_num]];
 
@@ -221,8 +205,6 @@ void update_points(polymodel *pm,int submodel_num,morph_data *md)
 
 		vp++; i++;
 	}
-
-	//printf("npoints = %d\n",n_morphing_points[submodel_num]);
 }
 
 
@@ -241,12 +223,6 @@ void do_morph_frame(object *obj)
 	}
 
 	pm = &Polygon_models[md->obj->rtype.pobj_info.model_num];
-
-	//printf("morph_frame active = ");
-	//for (i=0;i<pm->n_models;i++)
-	//	printf("%d ",submodel_active[i]);
-	//printf("\n");
-
 
 	for (i=0;i<pm->n_models;i++)
 		if (md->submodel_active[i]==1) {
@@ -408,7 +384,6 @@ void draw_model(polymodel *pm,int submodel_num,vms_angvec *anim_angles,fix light
 				texture_list[i] = &GameBitmaps[ObjBitmaps[ObjBitmapPtrs[pm->first_texture+i]].index];
 			}
 
-#ifdef PIGGY_USE_PAGING			
 			// Make sure the textures for this object are paged in...
 			piggy_page_flushed = 0;
 			for (i=0;i<pm->n_textures;i++)	
@@ -422,8 +397,6 @@ void draw_model(polymodel *pm,int submodel_num,vms_angvec *anim_angles,fix light
 			}
 			// Make sure that they can all fit in memory.
 			Assert( piggy_page_flushed == 0 );
-#endif
-
 
 			g3_draw_morphing_model(&pm->model_data[pm->submodel_ptrs[submodel_num]],texture_list,anim_angles,light,&md->morph_vecs[md->submodel_startpoints[submodel_num]]);
 
@@ -468,10 +441,6 @@ void draw_morph_object(object *obj)
 
 	g3_done_instance();
 
-	#ifdef NEWDEMO
 	if (Newdemo_state == ND_STATE_RECORDING)
 		newdemo_record_morph_frame(md);
-	#endif
-
 }
-

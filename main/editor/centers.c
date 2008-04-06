@@ -1,4 +1,3 @@
-/* $Id: centers.c,v 1.1.1.1 2006/03/17 19:58:22 zicodxx Exp $ */
 /*
 THE COMPUTER CODE CONTAINED HEREIN IS THE SOLE PROPERTY OF PARALLAX
 SOFTWARE CORPORATION ("PARALLAX").  PARALLAX, IN DISTRIBUTING THE CODE TO
@@ -18,10 +17,6 @@ COPYRIGHT 1993-1998 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
  *
  */
 
-#ifdef RCS
-static char rcsid[] = "$Id: centers.c,v 1.1.1.1 2006/03/17 19:58:22 zicodxx Exp $";
-#endif
-
 #ifdef HAVE_CONFIG_H
 #include "conf.h"
 #endif
@@ -36,11 +31,9 @@ static char rcsid[] = "$Id: centers.c,v 1.1.1.1 2006/03/17 19:58:22 zicodxx Exp 
 #include "inferno.h"
 #include "segment.h"
 #include "editor.h"
-
 #include "timer.h"
 #include "objpage.h"
 #include "fix.h"
-#include "mono.h"
 #include "error.h"
 #include "kdefs.h"
 #include	"object.h"
@@ -144,8 +137,6 @@ void do_centers_window()
 		Assert(Curseg2p->special < MAX_CENTER_TYPES);
 		ui_radio_set_value(CenterFlag[Curseg2p->special], 1);
 
-		mprintf((0, "Curseg2p->matcen_num = %i\n", Curseg2p->matcen_num));
-
 		//	Read materialization center robot bit flags
 		for (i = 0; i < 2; i++)
 		{
@@ -192,13 +183,11 @@ void do_centers_window()
 				if (!(robot_flags & (1 << robot_index)))
 				{
 					robot_flags |= (1 << robot_index);
-					mprintf((0, "Segment %i, matcen = %i, robot_flags[%d] = %d\n", Cursegp - Segments, Curseg2p->matcen_num, i, robot_flags));
 				}
 			}
 			else if (robot_flags & 1 << robot_index)
 			{
 				robot_flags &= ~(1 << robot_index);
-				mprintf((0, "Segment %i, matcen = %i, robot_flags[%d] = %d\n", Cursegp - Segments, Curseg2p->matcen_num, i, robot_flags));
 			}
 		}
 

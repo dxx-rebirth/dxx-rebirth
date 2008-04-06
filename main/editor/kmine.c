@@ -1,4 +1,3 @@
-/* $Id: kmine.c,v 1.1.1.1 2006/03/17 19:58:18 zicodxx Exp $ */
 /*
 THE COMPUTER CODE CONTAINED HEREIN IS THE SOLE PROPERTY OF PARALLAX
 SOFTWARE CORPORATION ("PARALLAX").  PARALLAX, IN DISTRIBUTING THE CODE TO
@@ -18,10 +17,6 @@ COPYRIGHT 1993-1998 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
  *
  */
 
-#ifdef RCS
-static char rcsid[] = "$Id: kmine.c,v 1.1.1.1 2006/03/17 19:58:18 zicodxx Exp $";
-#endif
-
 #ifdef HAVE_CONFIG_H
 #include "conf.h"
 #endif
@@ -29,23 +24,18 @@ static char rcsid[] = "$Id: kmine.c,v 1.1.1.1 2006/03/17 19:58:18 zicodxx Exp $"
 #include <string.h>
 #include <stdio.h>
 #include <stdlib.h>
-
 #include "error.h"
 #include "strutil.h"
-
 #include "nocfile.h"
-
 #include "inferno.h"
 #include "editor.h"
 #include "ui.h"
 #include "texpage.h"		// For texpage_goto_first
 #include "segment.h"
-#include "mono.h"
 #include "kdefs.h"
 #include "info.h"
 #include "game.h"
 #include "gameseq.h"
-
 #include "object.h"
 
 #define MINESAVE_CRIPPLED	0
@@ -193,57 +183,6 @@ int med_load_situation(char * filename)
 	Int3();
 
 	return 1;
-//@@	CFILE * LoadFile;
-//@@	char	mine_name[MAX_NAME_LENGTH];
-//@@	char	dir_name[_MAX_DIR];
-//@@	char	mine_path[MAX_NAME_LENGTH];
-//@@	vms_vector	pos;
-//@@	fix	mat[9];
-//@@
-//@@	LoadFile = cfopen( filename, "rt" );
-//@@	if (!LoadFile)	{
-//@@		char  ErrorMessage[200];
-//@@
-//@@		sprintf( ErrorMessage, "ERROR: Unable to open %s\n", filename );
-//@@		MessageBox( -2, -2, 1, ErrorMessage, "Ok" );
-//@@		return 1;
-//@@	}
-//@@
-//@@	fscanf(LoadFile, "%s", &mine_name);
-//@@	mprintf((0, "Mine name = [%s]\n", mine_name));
-//@@
-//@@	_splitpath(filename,mine_path,dir_name,NULL,NULL);
-//@@	strcat(mine_path,dir_name);
-//@@	strcat(mine_path,mine_name);
-//@@
-//@@	mprintf((0, "Mine path = [%s]\n", mine_path));
-//@@
-//@@	med_load_mine(mine_path);
-//@@
-//@@	fscanf(LoadFile, "%x %x %x", &pos.x, &pos.y, &pos.z);
-//@@	mprintf((0, "Load Position = %8x %8x %8x\n", pos.x, pos.y, pos.z));
-//@@	mprintf((0, "\n"));
-//@@
-//@@	fscanf(LoadFile, "%x %x %x", &mat[0], &mat[1], &mat[2]);
-//@@	mprintf((0, "%8x %8x %8x\n", mat[0], mat[1], mat[2]));
-//@@
-//@@	fscanf(LoadFile, "%x %x %x", &mat[3], &mat[4], &mat[5]);
-//@@	mprintf((0, "%8x %8x %8x\n", mat[3], mat[4], mat[5]));
-//@@
-//@@	fscanf(LoadFile, "%x %x %x", &mat[6], &mat[7], &mat[8]);
-//@@	mprintf((0, "%8x %8x %8x\n", mat[6], mat[7], mat[8]));
-//@@	mprintf((0, "\n"));
-//@@
-//@@	fscanf(LoadFile, "%i\n", &ConsoleObject->segnum);
-//@@
-//@@	cfclose( LoadFile );
-//@@
-//@@	ConsoleObject->pos = pos;
-//@@	ConsoleObject->orient.m1 = mat[0];	ConsoleObject->orient.m2 = mat[1];	ConsoleObject->orient.m3 = mat[2];
-//@@	ConsoleObject->orient.m4 = mat[3];	ConsoleObject->orient.m5 = mat[4];	ConsoleObject->orient.m6 = mat[5];
-//@@	ConsoleObject->orient.m7 = mat[6];	ConsoleObject->orient.m8 = mat[7];	ConsoleObject->orient.m9 = mat[8];
-//@@
-//@@	return 0;
 }
 
 //	-----------------------------------------------------------------------------
@@ -276,14 +215,6 @@ int med_save_situation(char * filename)
         fprintf(SaveFile, "%8x %8x %8x\n",(unsigned int) ConsoleObject->orient.fvec.x,(unsigned int) ConsoleObject->orient.fvec.y,(unsigned int) ConsoleObject->orient.fvec.z);
 	fprintf(SaveFile, "%i\n", ConsoleObject->segnum);
 
-	mprintf((0, "Save Position = %8x %8x %8x\n", ConsoleObject->pos.x, ConsoleObject->pos.y, ConsoleObject->pos.z));
-	mprintf((0, "\n"));
-
-	mprintf((0, "%8x %8x %8x\n", ConsoleObject->orient.rvec.x, ConsoleObject->orient.rvec.y, ConsoleObject->orient.rvec.z));
-	mprintf((0, "%8x %8x %8x\n", ConsoleObject->orient.uvec.x, ConsoleObject->orient.uvec.y, ConsoleObject->orient.uvec.z));
-	mprintf((0, "%8x %8x %8x\n", ConsoleObject->orient.fvec.x, ConsoleObject->orient.fvec.y, ConsoleObject->orient.fvec.z));
-	mprintf((0, "\n"));
-
 	cfclose( SaveFile);
 
 	return 1;
@@ -295,7 +226,6 @@ int SaveSituation(void)
 	if (ui_get_filename( sit_filename, "*.SIT", "Save Situation" )) {
 		set_extension(sit_filename, "MIN");
 		if (med_save_mine(sit_filename)) {
-			mprintf((0, "Unable to save mine in SaveSituation.\n"));
 			return 0;
 		}
 

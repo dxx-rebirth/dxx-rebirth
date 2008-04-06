@@ -91,6 +91,8 @@ int load_palette(char *name,int used_for_level,int no_change_screen)
 			gr_palette_load(gr_palette);
 
 		newmenu_close(); // palette changed! free menu!
+		gr_remap_color_fonts();
+		gr_remap_mono_fonts();
 
 		Color_0_31_0 = -1;		//for gauges
 		HUD_color = -1;

@@ -1,4 +1,3 @@
-/* $Id: render.c,v 1.1.1.1 2006/03/17 19:54:53 zicodxx Exp $ */
 /*
 THE COMPUTER CODE CONTAINED HEREIN IS THE SOLE PROPERTY OF PARALLAX
 SOFTWARE CORPORATION ("PARALLAX").  PARALLAX, IN DISTRIBUTING THE CODE TO
@@ -31,7 +30,6 @@ COPYRIGHT 1993-1999 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 #include "error.h"
 #include "bm.h"
 #include "texmap.h"
-#include "mono.h"
 #include "render.h"
 #include "game.h"
 #include "object.h"
@@ -65,6 +63,14 @@ COPYRIGHT 1993-1999 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 #include "editor/editor.h"
 #endif
 
+// (former) "detail level" values
+int Render_depth = 20; //how many segments deep to render
+int Max_perspective_depth = 8; // Deepest segment at which perspective interpolation will be used.
+int Max_linear_depth = 50; // Deepest segment at which linear interpolation will be used.
+int Max_linear_depth_objects = 20;
+int Simple_model_threshhold_scale = 50; // switch to simpler model when the object has depth greater than this value times its radius.
+int Max_debris_objects = 15; // How many debris objects to create
+
 //used for checking if points have been rotated
 int	Clear_window_color=-1;
 int	Clear_window=2;	// 1 = Clear whole background window, 2 = clear view portals into rest of world, 0 = no clear
@@ -88,14 +94,6 @@ fix Render_zoom = 0xB000;
 
 #ifndef NDEBUG
 ubyte object_rendered[MAX_OBJECTS];
-#endif
-
-#define DEFAULT_RENDER_DEPTH 16
-int Render_depth=DEFAULT_RENDER_DEPTH;		//how many segments deep to render
-#ifdef OGL
-int	Detriangulation_on = 0;					// 1 = allow rendering of triangulated side as a quad, 0 = don't allow
-#else
-int	Detriangulation_on = 1;
 #endif
 
 #ifdef EDITOR
@@ -314,12 +312,9 @@ void render_face(int segnum, int sidenum, int nv, short *vp, int tmap1, int tmap
 	// -- Using new headlight system...face_light = -vm_vec_dot(&Viewer->orient.fvec,norm);
 
 	if (tmap1 >= NumTextures) {
-		mprintf((0,"Invalid tmap number %d, NumTextures=%d, changing to 0\n",tmap1,NumTextures));
-
-	#ifndef RELEASE
+#ifndef RELEASE
 		Int3();
-	#endif
-
+#endif
 		Segments[segnum].sides[sidenum].tmap_num = 0;
 	}
 
@@ -567,7 +562,7 @@ void render_side(segment *segp, int sidenum)
 		}
 
 		//	Determine whether to detriangulate side: (speed hack, assumes Tulate_min_ratio == F1_0*2, should fixmul(min_dot, Tulate_min_ratio))
-		if (Detriangulation_on && ((min_dot+F1_0/256 > max_dot) || ((Viewer->segnum != segp-Segments) &&  (min_dot > Tulate_min_dot) && (max_dot < min_dot*2)))) {
+		if (DETRIANGULATION && ((min_dot+F1_0/256 > max_dot) || ((Viewer->segnum != segp-Segments) &&  (min_dot > Tulate_min_dot) && (max_dot < min_dot*2)))) {
 			fix	n0_dot_n1;
 
 			//	The other detriangulation code doesn't deal well with badly non-planar sides.
@@ -683,7 +678,6 @@ void do_render_object(int objnum, int window_num)
 			// A nice fat hack: keeps the player ship from showing up in the
 			// small extra view when guiding a missile in the big window
 			
-			mprintf ((0,"Returning from render_object prematurely...\n"));
   			return; 
 		}
 	 }
@@ -742,8 +736,6 @@ void do_render_object(int objnum, int window_num)
 		g3d_interp_outline = save_3d_outline;
 	#endif
 
-
-	//DEBUG mprintf( (0, "%d ", objnum ));
 
 }
 
@@ -837,11 +829,6 @@ void render_segment(int segnum, int window_num)
 
 	if (! cc.and) {		//all off screen?
 
-//mprintf( (0, "!"));
-		//DEBUG mprintf( (0, "[Segment %d: ", segnum ));
-
-		// set_segment_local_light_value(segnum,INITIAL_LOCAL_LIGHT);
-
       if (Viewer->type!=OBJ_ROBOT)
   	   	Automap_visited[segnum]=1;
 
@@ -861,8 +848,6 @@ void render_segment(int segnum, int window_num)
 			do_render_object(objnum, window_num);
 	}
 	#endif
-
-	//DEBUG mprintf( (0, "]\n", segnum ));
 
 }
 
@@ -1308,8 +1293,6 @@ void add_obj_to_seglist(int objnum,int listnum)
 
 	//first, find a slot
 
-//mprintf((0,"adding obj %d to %d",objnum,listnum));
-
 	do {
 
 		for (i=0;render_obj_list[checkn][i] >= 0;i++);
@@ -1328,9 +1311,6 @@ void add_obj_to_seglist(int objnum,int listnum)
 		}
 
 	} while (marker != -1);
-
-//mprintf((0,"  slot %d,%d",checkn,i));
-
 
 	//now we have found a slot.  put object in it
 
@@ -1357,8 +1337,6 @@ void add_obj_to_seglist(int objnum,int listnum)
 		render_obj_list[lookn][1] = -1;
 
 	}
-
-//mprintf((0,"  added!\n"));
 
 }
 #ifdef __sun__
@@ -1491,8 +1469,6 @@ void build_object_lists(int n_segs)
 {
 	int nn;
 
-//mprintf((0,"build n_segs=%d",n_segs));
-
 	for (nn=0;nn<MAX_RENDER_SEGS+N_EXTRA_OBJ_LISTS;nn++)
 		render_obj_list[nn][0] = -1;
 
@@ -1500,8 +1476,6 @@ void build_object_lists(int n_segs)
 		int segnum;
 
 		segnum = Render_list[nn];
-
-//mprintf((0,"nn=%d seg=%d ",nn,segnum));
 
 		if (segnum != -1) {
 			int objnum;
@@ -1520,7 +1494,6 @@ void build_object_lists(int n_segs)
 				new_segnum = segnum;
 				list_pos = nn;
 
-//mprintf((0,"objnum=%d ",objnum));
 				if (obj->type != OBJ_CNTRLCEN && !(obj->type==OBJ_ROBOT && obj->id==65))		//don't migrate controlcen
 				do {
 					segmasks m;
@@ -1542,7 +1515,6 @@ void build_object_lists(int n_segs)
 		
 									for (checknp=list_pos;checknp--;)
 										if (Render_list[checknp] == child) {
-//mprintf((0,"mig from %d to %d ",new_segnum,child));
 											new_segnum = child;
 											list_pos = checknp;
 											did_migrate = 1;
@@ -1560,15 +1532,11 @@ void build_object_lists(int n_segs)
 		}
 	}
 
-//mprintf((0,"done build "));
-
 	//now that there's a list for each segment, sort the items in those lists
 	for (nn=0;nn<n_segs;nn++) {
 		int segnum;
 
 		segnum = Render_list[nn];
-
-//mprintf((0,"nn=%d seg=%d ",nn,segnum));
 
 		if (segnum != -1) {
 			int t,lookn,i,n;
@@ -1679,28 +1647,19 @@ void render_frame(fix eye_offset, int window_num)
 {
 	int start_seg_num;
 
-//Total_num_tmaps_drawn += Num_tmaps_drawn;
-//if ((FrameCount > 0) && (Total_num_tmaps_drawn))
-//	mprintf((0, "Frame: %4i, total = %6i, Avg = %7.3f, Avgpix=%7.3f\n", Num_tmaps_drawn, Total_num_tmaps_drawn, (float) Total_num_tmaps_drawn/FrameCount, (float) Total_pixels/Total_num_tmaps_drawn));
-//Num_tmaps_drawn = 0;
-
 	if (Endlevel_sequence) {
 		render_endlevel_frame(eye_offset);
 		FrameCount++;
 		return;
 	}
 
-#ifdef NEWDEMO
 	if ( Newdemo_state == ND_STATE_RECORDING && eye_offset >= 0 )	{
      
-	  //	mprintf ((0,"Objnum=%d objtype=%d objid=%d\n",Viewer-Objects,Viewer->type,Viewer->id));
-		
       if (RenderingType==0)
    		newdemo_record_start_frame(FrameCount, FrameTime );
       if (RenderingType!=255)
    		newdemo_record_viewer_object(Viewer);
 	}
-#endif
   
    //Here:
 
@@ -1992,7 +1951,7 @@ void build_segment_list(int start_seg_num, int window_num)
 							Render_list[lcnt] = ch;
 							Seg_depth[lcnt] = l;
 							lcnt++;
-							if (lcnt >= MAX_RENDER_SEGS) {mprintf((0,"Too many segs in render list!!\n")); goto done_list;}
+							if (lcnt >= MAX_RENDER_SEGS) {goto done_list;}
 							visited[ch] = 1;
 
 							#ifndef NDEBUG
@@ -2008,7 +1967,7 @@ no_add:
 						Render_list[lcnt] = ch;
 						Seg_depth[lcnt] = l;
 						lcnt++;
-						if (lcnt >= MAX_RENDER_SEGS) {mprintf((0,"Too many segs in render list!!\n")); goto done_list;}
+						if (lcnt >= MAX_RENDER_SEGS) {goto done_list;}
 						visited[ch] = 1;
 					}
 				}
@@ -2151,8 +2110,6 @@ void render_mine(int start_seg_num,fix eye_offset, int window_num)
 				Window_clip_bot   = render_windows[nn].bot;
 			}
 
-			//mprintf((0," %d",segnum));
-
 			render_segment(segnum, window_num);
 			visited[segnum]=255;
 
@@ -2171,18 +2128,11 @@ void render_mine(int start_seg_num,fix eye_offset, int window_num)
 
 				listnum = nn;
 
-				//mprintf((0,"render objs seg %d",segnum));
-
 				for (objnp=0;render_obj_list[listnum][objnp]!=-1;)	{
 					int ObjNumber = render_obj_list[listnum][objnp];
 
 					if (ObjNumber >= 0) {
 
-						//mprintf( (0, "Type: %d\n", Objects[ObjNumber].type ));
-	
-						//if (Objects[ObjNumber].type == OBJ_FIREBALL && n_expl_objs<5)	{
-						//	expl_objs[n_expl_objs++] = ObjNumber;
-	 					//} else
 						#ifdef LASER_HACK
 						if ( 	(Objects[ObjNumber].type==OBJ_WEAPON) && 								//if its a weapon
 								(Objects[ObjNumber].lifeleft==Laser_max_time ) && 	//  and its in it's first frame
@@ -2191,7 +2141,6 @@ void render_mine(int start_seg_num,fix eye_offset, int window_num)
 								((Viewer-Objects)==Objects[ObjNumber].laser_info.parent_num)	//  and it's parent is the viewer
 						   )		{
 							Hack_laser_list[Hack_nlasers++] = ObjNumber;								//then make it draw after everything else.
-							//mprintf( (0, "O%d ", ObjNumber ));
 						} else	
 						#endif
 							do_render_object(ObjNumber, window_num);	// note link to above else
@@ -2207,11 +2156,6 @@ void render_mine(int start_seg_num,fix eye_offset, int window_num)
 
 				}
 
-				//for (i=0;i<n_expl_objs;i++)
-				//	do_render_object(expl_objs[i], window_num);
-
-				//mprintf((0,"done seg %d\n",segnum));
-
 				Max_linear_depth = save_linear_depth;
 
 			}
@@ -2219,13 +2163,10 @@ void render_mine(int start_seg_num,fix eye_offset, int window_num)
 		}
 	}
 
-	//mprintf((0,"\n"));
-
 								
 #ifdef LASER_HACK								
 	// Draw the hacked lasers last
 	for (i=0; i < Hack_nlasers; i++ )	{
-		//mprintf( (0, "D%d ", Hack_laser_list[i] ));
 		do_render_object(Hack_laser_list[i], window_num);
 	}
 #endif
@@ -2280,8 +2221,6 @@ int find_seg_side_face(short x,short y,int *seg,int *side,int *face,int *poly)
 	*side = found_side;
 	*face = found_face;
 	*poly = found_poly;
-
-//	mprintf((0,"found seg=%d, side=%d, face=%d, poly=%d\n",found_seg,found_side,found_face,found_poly));
 
 	return (found_seg!=-1);
 

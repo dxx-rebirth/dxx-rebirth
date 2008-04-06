@@ -1,8 +1,6 @@
-/* $Id: console.c,v 1.1.1.1 2006/03/17 19:55:36 zicodxx Exp $ */
 /*
  *
- * Code for controlling the console
- *
+ * Game console
  *
  */
 
@@ -14,163 +12,64 @@
 #include <stdlib.h>
 #include <stdarg.h>
 #include <string.h>
-#ifndef _WIN32_WCE
-#include <fcntl.h>
-#endif
-#include <ctype.h>
-
+#include <time.h>
 #include <SDL/SDL.h>
-#ifdef CONSOLE
-#include "CON_console.h"
-#endif
-
-#include "pstypes.h"
-#include "u_mem.h"
-#include "error.h"
 #include "console.h"
-#include "cmd.h"
+#include "args.h"
 #include "gr.h"
+#include "physfsx.h"
 #include "gamefont.h"
-#include "pcx.h"
-#include "cfile.h"
+#include "key.h"
+#include "vers_id.h"
+#include "timer.h"
 
-#ifndef __MSDOS__
-int text_console_enabled = 1;
-#else
-int isvga();
-#define text_console_enabled (!isvga())
-#endif
+PHYSFS_file *gamelog_fp=NULL;
+struct console_buffer con_buffer[CON_LINES_MAX];
+int con_render=0;
+static int con_scroll_offset=0;
 
-cvar_t *cvar_vars = NULL;
-
-/* Console specific cvars */
-/* How discriminating we are about which messages are displayed */
-cvar_t con_threshold = {"con_threshold", "0",};
-
-/* Private console stuff */
-#define CON_NUM_LINES 40
-#if 0
-#define CON_LINE_LEN 40
-static char con_display[40][40];
-static int  con_line; /* Current display line */
-#endif
-
-#ifdef CONSOLE
-static int con_initialized;
-
-ConsoleInformation *Console;
-
-void con_parse(ConsoleInformation *console, char *command);
-
-
-/* ======
- * con_free - Free the console.
- * ======
- */
-void con_free(void)
+void con_add_buffer_line(int priority, char *buffer)
 {
-	if (con_initialized)
-		CON_Free(Console);
-	con_initialized = 0;
-}
-#endif
+	int i=0;
 
+	/* shift con_buffer for one line */
+	for (i=1; i<CON_LINES_MAX; i++)
+	{
+		con_buffer[i-1].priority=con_buffer[i].priority;
+		memcpy(&con_buffer[i-1].line,&con_buffer[i].line,CON_LINE_LENGTH);
+	}
+	memset(con_buffer[CON_LINES_MAX-1].line,'\0',sizeof(CON_LINE_LENGTH));
+	con_buffer[CON_LINES_MAX-1].priority=priority;
 
-/* ======
- * con_init - Initialise the console.
- * ======
- */
-int con_init(void)
-{
-	/* Initialise the cvars */
-	cvar_registervariable (&con_threshold);
-	return 0;
+	memcpy(&con_buffer[CON_LINES_MAX-1].line,buffer,CON_LINE_LENGTH);
+	for (i=0; i<CON_LINE_LENGTH; i++)
+	{
+		con_buffer[CON_LINES_MAX-1].line[i]=buffer[i];
+		if (buffer[strlen(buffer)-1] == '\n')
+			con_buffer[CON_LINES_MAX-1].line[strlen(buffer)-1]='\0';
+	}
 }
 
-#ifdef CONSOLE
-
-#define CON_BG_HIRES (cfexist("scoresb.pcx")?"scoresb.pcx":"scores.pcx")
-#define CON_BG_LORES (cfexist("scores.pcx")?"scores.pcx":"scoresb.pcx") // Mac datafiles only have scoresb.pcx
-#define CON_BG ((SWIDTH>=640)?CON_BG_HIRES:CON_BG_LORES)
-
-void con_background(char *filename)
-{
-	int pcx_error;
-	grs_bitmap bmp;
-	ubyte pal[256*3];
-
-	gr_init_bitmap_data(&bmp);
-	pcx_error = pcx_read_bitmap(filename, &bmp, BM_LINEAR, pal);
-	Assert(pcx_error == PCX_ERROR_NONE);
-	gr_remap_bitmap_good(&bmp, pal, -1, -1);
-	CON_Background(Console, &bmp);
-	gr_free_bitmap_data(&bmp);
-}
-
-
-void con_init_real(void)
-{
-	Console = CON_Init(GAME_FONT, grd_curscreen, CON_NUM_LINES, 0, 0, SWIDTH, SHEIGHT / 2);
-
-	Assert(Console);
-
-	CON_SetExecuteFunction(Console, con_parse);
-
-	con_background(CON_BG);
-
-	con_initialized = 1;
-
-	atexit(con_free);
-}
-#endif
-
-
-void con_resize(void)
-{
-#ifdef CONSOLE
-	if (!con_initialized)
-		con_init_real();
-
-	CON_Font(Console, GAME_FONT, BM_XRGB(63, 63, 63), -1);
-	CON_Resize(Console, 0, 0, SWIDTH, SHEIGHT / 2);
-	con_background(CON_BG);
-#endif
-}
-
-/* ======
- * con_printf - Print a message to the console.
- * ======
- */
 void con_printf(int priority, char *fmt, ...)
 {
 	va_list arglist;
-	char buffer[2048];
+	char buffer[CON_LINE_LENGTH];
 
-	if (priority <= ((int)con_threshold.value))
+	memset(buffer,'\0',CON_LINE_LENGTH);
+
+	if (priority <= ((int)GameArg.DbgVerbose))
 	{
+		char *p1, *p2;
+
 		va_start (arglist, fmt);
 		vsprintf (buffer,  fmt, arglist);
 		va_end (arglist);
 
-#ifdef CONSOLE
-		if (con_initialized)
-			CON_Out(Console, buffer);
-#endif
-
-/*		for (i=0; i<l; i+=CON_LINE_LEN,con_line++)
-		{
-			memcpy(con_display, &buffer[i], min(80, l-i));
-		}*/
-
-		if (text_console_enabled)
-		{
-			/* Produce a sanitised version and send it to the console */
-			char *p1, *p2;
-
-			p1 = p2 = buffer;
-			do
-				switch (*p1)
-				{
+		/* Produce a sanitised version and send it to the console */
+		p1 = p2 = buffer;
+		do
+			switch (*p1)
+			{
 				case CC_COLOR:
 				case CC_LSPACING:
 					p1++;
@@ -179,136 +78,134 @@ void con_printf(int priority, char *fmt, ...)
 					break;
 				default:
 					*p2++ = *p1++;
-				}
-			while (*p1);
-			*p2 = 0;
+			}
+		while (*p1);
+		*p2 = 0;
 
-			printf(buffer);
+		/* add given string to con_buffer */
+		con_add_buffer_line(priority, buffer);
+
+		/* Print output to stdout */
+		printf(buffer);
+
+		/* Print output to gamelog.txt */
+		if (gamelog_fp)
+		{
+			struct tm *lt;
+			time_t t;
+			t=time(NULL);
+			lt=localtime(&t);
+			PHYSFSX_printf(gamelog_fp,"%02i:%02i:%02i ",lt->tm_hour,lt->tm_min,lt->tm_sec);
+			PHYSFSX_printf(gamelog_fp,"%s",buffer);
 		}
 	}
 }
 
-/* ======
- * con_update - Check for new console input. If it's there, use it.
- * ======
- */
-void con_update(void)
+void con_show(void)
 {
-#if 0
-	char buffer[CMD_MAX_LENGTH], *t;
+	int i=0, y;
+	static float con_size=0;
+	static fix next_resize_time=0;
+	int done=0;
 
-	/* Check for new input */
-	t = fgets(buffer, sizeof(buffer), stdin);
-	if (t == NULL) return;
+	if (con_render)
+	{
+		if (con_size < CON_LINES_ONSCREEN && next_resize_time <= timer_get_fixed_seconds())
+		{
+			con_size++;
+			next_resize_time=timer_get_fixed_seconds()+(F1_0/70);
+		}
+	}
+	else
+	{
+		if (con_size > 0 && next_resize_time <= timer_get_fixed_seconds())
+		{
+			con_size--;
+			next_resize_time=timer_get_fixed_seconds()+(F1_0/70);
+		}
+	}
 
-	cmd_parse(buffer);
-#endif
-	con_draw();
+	if (!con_size)
+		return;
+
+	gr_set_curfont(GAME_FONT);
+	gr_setcolor(0);
+	Gr_scanline_darkening_level = 1*7;
+	gr_rect(0,0,SWIDTH,(LINE_SPACING*(con_size))+FSPACY(1));
+	Gr_scanline_darkening_level = GR_FADE_LEVELS;
+	y=FSPACY(1)+(LINE_SPACING*con_size);
+	i+=con_scroll_offset;
+	while (!done)
+	{
+		int w,h,aw;
+
+		switch (con_buffer[CON_LINES_MAX-1-i].priority)
+		{
+			case CON_CRITICAL:
+				gr_set_fontcolor(BM_XRGB(28,0,0),-1);
+				break;
+			case CON_URGENT:
+				gr_set_fontcolor(BM_XRGB(54,54,0),-1);
+				break;
+			case CON_DEBUG:
+			case CON_VERBOSE:
+				gr_set_fontcolor(BM_XRGB(14,14,14),-1);
+				break;
+			case CON_HUD:
+				gr_set_fontcolor(BM_XRGB(0,28,0),-1);
+				break;
+			default:
+				gr_set_fontcolor(255,-1);
+				break;
+		}
+		gr_get_string_size(con_buffer[CON_LINES_MAX-1-i].line,&w,&h,&aw);
+		y-=h+FSPACY(1);
+		gr_printf(FSPACX(1),y,"%s",con_buffer[CON_LINES_MAX-1-i].line);
+		i++;
+
+		if (y<=0 || CON_LINES_MAX-1-i <= 0 || i < 0)
+			done=1;
+	}
+	gr_setcolor(0);
+	gr_rect(0,0,SWIDTH,LINE_SPACING);
+	gr_set_fontcolor(255,-1);
+	gr_printf(FSPACX(1),FSPACY(1),"%s LOG", DESCENT_VERSION);
+	gr_printf(SWIDTH-FSPACX(110),FSPACY(1),"PAGE-UP/DOWN TO SCROLL");
 }
-
 
 int con_events(int key)
 {
-#ifdef CONSOLE
-	return CON_Events(key);
-#else
-	return key;
-#endif
-}
-
-
-/* ======
- * cvar_registervariable - Register a CVar
- * ======
- */
-void cvar_registervariable (cvar_t *cvar)
-{
-	cvar_t *ptr;
-
-	Assert(cvar != NULL);
-
-	cvar->next = NULL;
-	cvar->value = strtod(cvar->string, (char **) NULL);
-
-	if (cvar_vars == NULL)
+	switch (key)
 	{
-		cvar_vars = cvar;
-	} else
-	{
-		for (ptr = cvar_vars; ptr->next != NULL; ptr = ptr->next) ;
-		ptr->next = cvar;
+		case KEY_PAGEUP:
+			con_scroll_offset+=CON_SCROLL_OFFSET;
+			if (con_scroll_offset >= CON_LINES_MAX-1)
+				con_scroll_offset = CON_LINES_MAX-1;
+			while (con_buffer[CON_LINES_MAX-1-con_scroll_offset].line[0]=='\0')
+				con_scroll_offset--;
+			return 1;
+		case KEY_PAGEDOWN:
+			con_scroll_offset-=CON_SCROLL_OFFSET;
+			if (con_scroll_offset<0)
+				con_scroll_offset=0;
+			return 1;
+		case KEY_SHIFTED + KEY_ESC:
+			con_render=!con_render;
+			return 1;
 	}
+	return 0;
 }
 
-/* ======
- * cvar_set - Set a CVar's value
- * ======
- */
-void cvar_set (char *cvar_name, char *value)
+void con_close(void)
 {
-	cvar_t *ptr;
-
-	for (ptr = cvar_vars; ptr != NULL; ptr = ptr->next)
-		if (!strcmp(cvar_name, ptr->name)) break;
-
-	if (ptr == NULL) return; // If we didn't find the cvar, give up
-
-	ptr->value = strtod(value, (char **) NULL);
+	if (gamelog_fp)
+		PHYSFS_close(gamelog_fp);
 }
 
-/* ======
- * cvar() - Get a CVar's value
- * ======
- */
-float cvar (char *cvar_name)
+void con_init(void)
 {
-	cvar_t *ptr;
+	memset(con_buffer,0,sizeof(con_buffer));
 
-	for (ptr = cvar_vars; ptr != NULL; ptr = ptr->next)
-		if (!strcmp(cvar_name, ptr->name)) break;
-
-	if (ptr == NULL) return 0.0; // If we didn't find the cvar, give up
-
-	return ptr->value;
+	gamelog_fp = PHYSFSX_openWriteBuffered("gamelog.txt");
+	atexit(con_close);
 }
-
-
-/* ==========================================================================
- * DRAWING
- * ==========================================================================
- */
-void con_draw(void)
-{
-#ifdef CONSOLE
-	CON_DrawConsole(Console);
-#else
-#if 0
-	char buffer[CON_LINE_LEN+1];
-	int i,j;
-	for (i = con_line, j=0; j < 20; i = (i+1) % CON_NUM_LINES, j++)
-	{
-		memcpy(buffer, con_display[i], CON_LINE_LEN);
-		buffer[CON_LINE_LEN] = 0;
-		gr_string(1,j*10,buffer);
-	}
-#endif
-#endif
-}
-
-void con_show(void)
-{
-#ifdef CONSOLE
-	if (!con_initialized)
-		con_init_real();
-
-	CON_Show(Console);
-	CON_Topmost(Console);
-#endif
-}
-
-#ifdef CONSOLE
-void con_parse(ConsoleInformation *console, char *command)
-{
-	cmd_parse(command);
-}
-#endif

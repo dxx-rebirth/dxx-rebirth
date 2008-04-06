@@ -1,4 +1,3 @@
-/* $Id: titles.c,v 1.1.1.1 2006/03/17 19:57:46 zicodxx Exp $ */
 /*
 THE COMPUTER CODE CONTAINED HEREIN IS THE SOLE PROPERTY OF PARALLAX
 SOFTWARE CORPORATION ("PARALLAX").  PARALLAX, IN DISTRIBUTING THE CODE TO
@@ -34,10 +33,6 @@ COPYRIGHT 1993-1999 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 #include "ogl_init.h"
 #endif
 
-#ifdef MACINTOSH
-#include <Events.h>
-#endif
-
 #include "pstypes.h"
 #include "timer.h"
 #include "key.h"
@@ -47,7 +42,6 @@ COPYRIGHT 1993-1999 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 #include "pcx.h"
 #include "u_mem.h"
 #include "joy.h"
-#include "mono.h"
 #include "gamefont.h"
 #include "cfile.h"
 #include "error.h"
@@ -66,7 +60,7 @@ COPYRIGHT 1993-1999 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 #include "movie.h"
 #include "menu.h"
 #include "mouse.h"
-
+#include "console.h"
 
 void set_briefing_fontcolor ();
 int get_new_message_num(char **message);
@@ -178,8 +172,6 @@ int show_title_screen( char * filename, int allow_keys, int from_hog_only )
 
 	title_bm.bm_data=NULL;
 	if ((pcx_error=pcx_read_bitmap( filename, &title_bm, BM_LINEAR, gr_palette ))!=PCX_ERROR_NONE)	{
-		printf( "File '%s', PCX load error: %s (%i)\n  (No big deal, just no title screen.)\n",filename, pcx_errormsg(pcx_error), pcx_error);
-		mprintf((0, "File '%s', PCX load error: %s (%i)\n  (No big deal, just no title screen.)\n",filename, pcx_errormsg(pcx_error), pcx_error));
 		Error( "Error loading briefing screen <%s>, PCX load error: %s (%i)\n",filename, pcx_errormsg(pcx_error), pcx_error);
 	}
 
@@ -407,7 +399,6 @@ void init_char_pos(int x, int y)
 {
 	Briefing_text_x = x;
 	Briefing_text_y = y;
-	mprintf ((0,"Setting init x=%d y=%d\n",x,y));
 }
 
 grs_canvas	*Robot_canv = NULL;
@@ -636,7 +627,6 @@ int load_briefing_screen( char *fname )
 	strcpy (CurBriefScreenName,fname);
 
 	if ((pcx_error = pcx_read_bitmap( fname, &briefing_bm, BM_LINEAR,gr_palette))!=PCX_ERROR_NONE)   {
-		printf( "File '%s', PCX load error: %s (%i)\n  (It's a briefing screen.  Does this cause you pain?)\n",fname, pcx_errormsg(pcx_error), pcx_error);
 		Error( "Error loading briefing screen <%s>, PCX load error: %s (%i)\n",fname, pcx_errormsg(pcx_error), pcx_error);
 	}
 
@@ -769,7 +759,6 @@ int show_briefing(int screen_num, char *message)
 	hum_channel  = digi_start_sound( digi_xlat_sound(SOUND_BRIEFING_HUM), F1_0/2, 0xFFFF/2, 1, -1, -1, -1 );
 	#endif
 
-	// mprintf((0, "Going to print message [%s] at x=%i, y=%i\n", message, x, y));
 	gr_set_curfont( GAME_FONT );
 
 	if (EMULATING_D1) {
@@ -840,7 +829,6 @@ int show_briefing(int screen_num, char *message)
 					if (RobotPlaying) {
 						RotateRobot();
 						set_briefing_fontcolor ();
-						mprintf ((0,"Robot playing is %d!!!",RobotPlaying));
 					}
 				}
 				prev_ch = 10;                           // read to eoln
@@ -868,7 +856,6 @@ int show_briefing(int screen_num, char *message)
 			} else if (ch=='A') {
 				LineAdjustment=1-LineAdjustment;
 			} else if (ch=='Z') {
-				//mprintf ((0,"Got a Z!\n"));
 				GotZ=1;
 				DumbAdjust=1;
 				i=0;
@@ -1186,20 +1173,16 @@ int load_screen_text(char *filename, char **buf)
 			*ptr = '\0';
 		strcat(nfilename, ".txb");
 		if ((ifile = cfopen(nfilename, "rb")) == NULL) {
-			mprintf ((0,"can't open %s!\n",nfilename));
          		return (0);
 				//Error("Cannot open file %s or %s", filename, nfilename);
 		}
 
-		mprintf ((0,"reading...\n"));
 		have_binary = 1;
 
 		len = cfilelength(ifile);
 		MALLOC(*buf, char, len+500);
-		mprintf ((0,"len=%d\n",len));
 		for (x=0, i=0; i < len; i++, x++) {
 			cfread (*buf+x,1,1,ifile);
-			//  mprintf ((0,"%c",*(*buf+x)));
 			if (*(*buf+x)==13)
 				x--;
 		}
@@ -1210,7 +1193,6 @@ int load_screen_text(char *filename, char **buf)
 		MALLOC(*buf, char, len+500);
 		for (x=0, i=0; i < len; i++, x++) {
 			cfread (*buf+x,1,1,tfile);
-			// mprintf ((0,"%c",*(*buf+x)));
 			if (*(*buf+x)==13)
 				x--;
 		}
@@ -1306,8 +1288,6 @@ void do_briefing_screens(char *filename,int level_num)
 
 	#endif
 
-	mprintf ((0,"Trying briefing screen <%s>\n",filename));
-
 	if (!filename || !*filename)
 		return;
 
@@ -1324,8 +1304,6 @@ void do_briefing_screens(char *filename,int level_num)
 	set_screen_mode( SCREEN_MOVIE );
 
 	gr_set_current_canvas(NULL);
-
-	mprintf ((0,"Playing briefing screen <%s>, level %d\n",filename,level_num));
 
 	key_flush();
 

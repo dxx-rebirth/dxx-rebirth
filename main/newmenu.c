@@ -42,7 +42,6 @@ COPYRIGHT 1993-1999 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 #include "pstypes.h"
 #include "gr.h"
 #include "grdef.h"
-#include "mono.h"
 #include "songs.h"
 #include "key.h"
 #include "palette.h"
@@ -744,7 +743,6 @@ int newmenu_do4( char * title, char * subtitle, int nitems, newmenu_item * item,
 		IsScrollBox=1;
 		h=((MaxOnMenu+(subtitle?1:0))*LINE_SPACING);
 		MaxDisplayable=MaxOnMenu;
-		mprintf ((0,"Hey, this is a scroll box!\n"));
 	}
 	else
 	{
@@ -773,8 +771,6 @@ int newmenu_do4( char * title, char * subtitle, int nitems, newmenu_item * item,
 		twidth = ( tw - w )/2;
 		w = tw;
 	}
-
-	mprintf(( 0, "Right offset = %d\n", right_offset ));
 
 	// Find min point of menu border
 	w += BORDERX*2;
@@ -850,8 +846,6 @@ int newmenu_do4( char * title, char * subtitle, int nitems, newmenu_item * item,
 	mouse_state = omouse_state = 0;
 	newmenu_show_cursor();
 #endif
-
-	mprintf ((0,"Set to true!\n"));
 
 	while(!done)	{
 		timer_delay2(20);
@@ -942,15 +936,12 @@ int newmenu_do4( char * title, char * subtitle, int nitems, newmenu_item * item,
 				if (IsScrollBox)
 				{
 					LastScrollCheck=-1;
-					mprintf ((0,"Scrolling! Choice=%d\n",choice));
-						
 					if (choice<TopChoice)
 						{ choice=TopChoice; break; }
 			
 					if (choice-4<ScrollOffset && ScrollOffset > 0)
 					{
 						ScrollOffset--;
-						mprintf ((0,"ScrollOffset=%d\n",ScrollOffset));
 					}
 				}
 				else
@@ -979,15 +970,13 @@ int newmenu_do4( char * title, char * subtitle, int nitems, newmenu_item * item,
 				if (IsScrollBox)
 				{
 					LastScrollCheck=-1;
-					mprintf ((0,"Scrolling! Choice=%d\n",choice));
-						
+
 					if (choice==nitems)
 						{ choice--; break; }
 		
 					if (choice+4>=MaxOnMenu+ScrollOffset && ScrollOffset < nitems-MaxOnMenu)
 					{
 						ScrollOffset++;
-						mprintf ((0,"ScrollOffset=%d\n",ScrollOffset));
 					}
 				}
 				else
@@ -1018,12 +1007,10 @@ int newmenu_do4( char * title, char * subtitle, int nitems, newmenu_item * item,
 						item[choice].value = 0;
 					else
 						item[choice].value = 1;
-					mprintf ((0,"ISB=%d MDI=%d SO=%d choice=%d\n",IsScrollBox,MAXDISPLAYABLEITEMS,ScrollOffset,choice));
 					if (IsScrollBox)
 					{
 						if (choice==(MaxOnMenu+ScrollOffset-1) || choice==ScrollOffset)
 						{
-							mprintf ((0,"Special redraw!\n"));
 							LastScrollCheck=-1;
 						}
 					}
@@ -1173,12 +1160,9 @@ int newmenu_do4( char * title, char * subtitle, int nitems, newmenu_item * item,
 					if (((mx > x1) && (mx < x2)) && ((my > y1) && (my < y2)) ) {
 						choice--;
 						LastScrollCheck=-1;
-						mprintf ((0,"Scrolling! Choice=%d\n",choice));
-
 						if (choice-4<ScrollOffset && ScrollOffset > 0)
 						{
 							ScrollOffset--;
-							mprintf ((0,"ScrollOffset=%d\n",ScrollOffset));
 						}
 					}
 				}
@@ -1191,12 +1175,9 @@ int newmenu_do4( char * title, char * subtitle, int nitems, newmenu_item * item,
 					if (((mx > x1) && (mx < x2)) && ((my > y1) && (my < y2)) ) {
 						choice++;
 						LastScrollCheck=-1;
-						mprintf ((0,"Scrolling! Choice=%d\n",choice));
-
 						if (choice+4>=MaxOnMenu+ScrollOffset && ScrollOffset < nitems-MaxOnMenu)
 						{
 							ScrollOffset++;
-							mprintf ((0,"ScrollOffset=%d\n",ScrollOffset));
 						}
 					}
 				}

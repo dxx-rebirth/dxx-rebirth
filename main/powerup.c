@@ -1,4 +1,3 @@
-/* $Id: powerup.c,v 1.1.1.1 2006/03/17 19:54:48 zicodxx Exp $ */
 /*
 THE COMPUTER CODE CONTAINED HEREIN IS THE SOLE PROPERTY OF PARALLAX
 SOFTWARE CORPORATION ("PARALLAX").  PARALLAX, IN DISTRIBUTING THE CODE TO
@@ -31,21 +30,16 @@ COPYRIGHT 1993-1999 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 #include "vecmat.h"
 #include "gr.h"
 #include "3d.h"
-#include "mono.h"
 #include "error.h"
-
 #include "inferno.h"
 #include "object.h"
 #include "game.h"
 #include "key.h"
-
 #include "fireball.h"
 #include "powerup.h"
 #include "gauges.h"
-
 #include "sounds.h"
 #include "player.h"
-
 #include "wall.h"
 #include "text.h"
 #include "weapon.h"
@@ -55,10 +49,8 @@ COPYRIGHT 1993-1999 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 #include "lighting.h"
 #include "controls.h"
 #include "kconfig.h"
-
 #include "newdemo.h"
 #include "escort.h"
-
 #ifdef EDITOR
 #include "gr.h"	//	for powerup outline drawing
 #include "editor/editor.h"
@@ -115,8 +107,6 @@ void draw_blob_outline(void)
 
 	gr_setcolor(BM_XRGB(63, 63, 63));
 
-	mprintf((0, "[%7.3f %7.3f]  [%7.3f %7.3f]  [%7.3f %7.3f]\n", f2fl(blob_vertices[0]), f2fl(blob_vertices[1]), f2fl(blob_vertices[2]), f2fl(blob_vertices[3]), f2fl(blob_vertices[4]), f2fl(blob_vertices[5]) ));
-
 	gr_line(blob_vertices[0], blob_vertices[1], blob_vertices[2], blob_vertices[3]);
 	gr_line(blob_vertices[2], blob_vertices[3], blob_vertices[4], blob_vertices[5]);
 	gr_line(blob_vertices[4], blob_vertices[5], v3x, v3y);
@@ -141,34 +131,6 @@ void draw_powerup(object *obj)
 
 }
 
-//void mprintf_powerup_info(void)
-//{
-//	int		i;
-//mprintf((0, "Powerup: %s\n", text));
-//for (i=0; i<5; i++) {
-//	char	has_text[12];
-//
-//	if (Players[Player_num].primary_weapon_flags & (1 << i))
-//		strcpy(has_text,"PRESENT");
-//	else
-//		strcpy(has_text,"NOPE   ");
-//	has_text[8] = 0;
-//
-//	mprintf((0, "Weapon %i = %s, ammo = %6i, name = %s\n", i, has_text, Players[Player_num].primary_ammo[i], Primary_weapon_names[i]));
-//}
-//
-//for (i=0; i<5; i++) {
-//	char	has_text[12];
-//
-//	if (Players[Player_num].secondary_weapon_flags & (1 << i))
-//		strcpy(has_text,"PRESENT");
-//	else
-//		strcpy(has_text,"NOPE   ");
-//
-//	mprintf((0, "Weapon %i = %s, ammo = %6i, name = %s\n", i, has_text, Players[Player_num].secondary_ammo[i], Secondary_weapon_names[i]));
-//}
-//}
-
 void powerup_basic(int redadd, int greenadd, int blueadd, int score, char *format, ...)
 {
 	char		text[120];
@@ -181,8 +143,6 @@ void powerup_basic(int redadd, int greenadd, int blueadd, int score, char *forma
 	PALETTE_FLASH_ADD(redadd,greenadd,blueadd);
 
 	HUD_init_message(text);
-
-	//mprintf_powerup_info();
 
 	add_points_to_score(score);
 
@@ -709,7 +669,6 @@ int do_powerup(object *obj)
 
 }
 
-#ifndef FAST_FILE_IO
 /*
  * reads n powerup_type_info structs from a CFILE
  */
@@ -725,4 +684,3 @@ extern int powerup_type_info_read_n(powerup_type_info *pti, int n, CFILE *fp)
 	}
 	return i;
 }
-#endif

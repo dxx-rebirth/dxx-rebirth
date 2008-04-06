@@ -1,4 +1,3 @@
-/* $Id: switch.c,v 1.1.1.1 2006/03/17 19:55:25 zicodxx Exp $ */
 /*
 THE COMPUTER CODE CONTAINED HEREIN IS THE SOLE PROPERTY OF PARALLAX
 SOFTWARE CORPORATION ("PARALLAX").  PARALLAX, IN DISTRIBUTING THE CODE TO
@@ -22,10 +21,6 @@ COPYRIGHT 1993-1999 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 #include <conf.h>
 #endif
 
-#ifdef RCS
-static char rcsid[] = "$Id: switch.c,v 1.1.1.1 2006/03/17 19:55:25 zicodxx Exp $";
-#endif
-
 #include <stdio.h>
 #include <stdlib.h>
 #include <math.h>
@@ -39,7 +34,6 @@ static char rcsid[] = "$Id: switch.c,v 1.1.1.1 2006/03/17 19:55:25 zicodxx Exp $
 #include "segment.h"
 #include "error.h"
 #include "gameseg.h"
-#include "mono.h"
 #include "wall.h"
 #include "texmap.h"
 #include "fuelcen.h"
@@ -96,13 +90,9 @@ void do_link(sbyte trigger_num)
 {
 	int i;
 
-	mprintf((0, "Door link!\n"));
-
 	if (trigger_num != -1) {
 		for (i=0;i<Triggers[trigger_num].num_links;i++) {
 			wall_toggle(&Segments[Triggers[trigger_num].seg[i]], Triggers[trigger_num].side[i]);
-			mprintf((0," trigger_num %d : seg %d, side %d\n",
-				trigger_num, Triggers[trigger_num].seg[i], Triggers[trigger_num].side[i]));
   		}
   	}
 }
@@ -111,8 +101,6 @@ void do_link(sbyte trigger_num)
 void do_close_door(sbyte trigger_num)
 {
 	int i;
-
-	mprintf((0, "Door close!\n"));
 
 	if (trigger_num != -1) {
 		for (i=0;i<Triggers[trigger_num].num_links;i++)
@@ -125,8 +113,6 @@ void do_close_door(sbyte trigger_num)
 int do_light_on(sbyte trigger_num)
 {
 	int i,ret=0;
-
-	mprintf((0, "Lighting on!\n"));
 
 	if (trigger_num != -1) {
 		for (i=0;i<Triggers[trigger_num].num_links;i++) {
@@ -152,8 +138,6 @@ int do_light_off(sbyte trigger_num)
 {
 	int i,ret=0;
 
-	mprintf((0, "Lighting off!\n"));
-
 	if (trigger_num != -1) {
 		for (i=0;i<Triggers[trigger_num].num_links;i++) {
 			int segnum,sidenum;
@@ -177,8 +161,6 @@ void do_unlock_doors(sbyte trigger_num)
 {
 	int i;
 
-	mprintf((0, "Door unlock!\n"));
-
 	if (trigger_num != -1) {
 		for (i=0;i<Triggers[trigger_num].num_links;i++) {
 			Walls[Segments[Triggers[trigger_num].seg[i]].sides[Triggers[trigger_num].side[i]].wall_num].flags &= ~WALL_DOOR_LOCKED;
@@ -195,7 +177,6 @@ int door_is_wall_switched(int wall_num)
 	for (t=0; t<Num_triggers; t++) {
 		for (i=0; i<Triggers[t].num_links; i++) {
 			if (Segments[Triggers[t].seg[i]].sides[Triggers[t].side[i]].wall_num == wall_num) {
-				mprintf((0, "Wall #%i is keyed to trigger #%i, link #%i\n", wall_num, t, i));
 				return t;
 			}
 	  	}
@@ -220,8 +201,6 @@ void do_lock_doors(sbyte trigger_num)
 {
 	int i;
 
-	mprintf((0, "Door lock!\n"));
-
 	if (trigger_num != -1) {
 		for (i=0;i<Triggers[trigger_num].num_links;i++) {
 			Walls[Segments[Triggers[trigger_num].seg[i]].sides[Triggers[trigger_num].side[i]].wall_num].flags |= WALL_DOOR_LOCKED;
@@ -233,8 +212,6 @@ void do_lock_doors(sbyte trigger_num)
 int do_change_walls(sbyte trigger_num)
 {
 	int i,ret=0;
-
-	mprintf((0, "Wall remove!\n"));
 
 	if (trigger_num != -1) {
 		for (i=0;i<Triggers[trigger_num].num_links;i++) {
@@ -280,8 +257,6 @@ int do_change_walls(sbyte trigger_num)
 			switch (Triggers[trigger_num].type) {
 	
 				case TT_OPEN_WALL:
-					mprintf((0,"Open wall\n"));
-
 					if ((TmapInfo[segp->sides[side].tmap_num].flags & TMI_FORCE_FIELD)) {
 						vms_vector pos;
 						compute_center_point_on_side(&pos, segp, side );
@@ -302,8 +277,6 @@ int do_change_walls(sbyte trigger_num)
 					break;
 
 				case TT_CLOSE_WALL:
-					mprintf((0,"Close wall\n"));
-
 					if ((TmapInfo[segp->sides[side].tmap_num].flags & TMI_FORCE_FIELD)) {
 						vms_vector pos;
 						compute_center_point_on_side(&pos, segp, side );
@@ -317,7 +290,6 @@ int do_change_walls(sbyte trigger_num)
 					break;
 
 				case TT_ILLUSORY_WALL:
-					mprintf((0,"Illusory wall\n"));
 					Walls[segp->sides[side].wall_num].type = new_wall_type;
 					if (cside > -1 && csegp->sides[cside].wall_num > -1)
 						Walls[csegp->sides[cside].wall_num].type = new_wall_type;
@@ -353,13 +325,9 @@ void do_matcen(sbyte trigger_num)
 {
 	int i;
 
-	mprintf((0, "Matcen link!\n"));
-
 	if (trigger_num != -1) {
 		for (i=0;i<Triggers[trigger_num].num_links;i++) {
 			trigger_matcen(Triggers[trigger_num].seg[i] );
-			mprintf((0," trigger_num %d : seg %d\n",
-				trigger_num, Triggers[trigger_num].seg[i]));
   		}
   	}
 }
@@ -369,13 +337,9 @@ void do_il_on(sbyte trigger_num)
 {
 	int i;
 
-	mprintf((0, "Illusion ON\n"));
-
 	if (trigger_num != -1) {
 		for (i=0;i<Triggers[trigger_num].num_links;i++) {
 			wall_illusion_on(&Segments[Triggers[trigger_num].seg[i]], Triggers[trigger_num].side[i]);
-			mprintf((0," trigger_num %d : seg %d, side %d\n",
-				trigger_num, Triggers[trigger_num].seg[i], Triggers[trigger_num].side[i]));
   		}
   	}
 }
@@ -384,8 +348,6 @@ void do_il_off(sbyte trigger_num)
 {
 	int i;
 	
-	mprintf((0, "Illusion OFF\n"));
-
 	if (trigger_num != -1) {
 		for (i=0;i<Triggers[trigger_num].num_links;i++) {
 			vms_vector	cp;
@@ -393,9 +355,6 @@ void do_il_off(sbyte trigger_num)
 			int			side = Triggers[trigger_num].side[i];
 
 			wall_illusion_off(seg, side);
-
-			mprintf((0," trigger_num %d : seg %d, side %d\n",
-				trigger_num, Triggers[trigger_num].seg[i], Triggers[trigger_num].side[i]));
 
 			compute_center_point_on_side(&cp, seg, side );
 			digi_link_sound_to_pos( SOUND_WALL_REMOVED, seg-Segments, side, &cp, 0, F1_0 );
@@ -423,8 +382,6 @@ int check_trigger_sub(int trigger_num, int pnum,int shot)
 {
 	trigger *trig = &Triggers[trigger_num];
 
-	mprintf ((0,"trignum=%d type=%d shot=%d\n",trigger_num,trig->type,shot));
-
 	if (trig->flags & TF_DISABLED)
 		return 1;		//1 means don't send trigger hit to other players
 
@@ -443,7 +400,6 @@ int check_trigger_sub(int trigger_num, int pnum,int shot)
 			
 			if (Current_level_num > 0) {
 				start_endlevel_sequence();
-				mprintf((0,"WOOHOO! (leaving the mine!)\n"));
 			} else if (Current_level_num < 0) {
 				if ((Players[Player_num].shields < 0) || Player_is_dead)
 					break;
@@ -508,13 +464,6 @@ int check_trigger_sub(int trigger_num, int pnum,int shot)
 			digi_stop_all();		//kill the sounds
 
 			digi_play_sample( SOUND_SECRET_EXIT, F1_0 );
-			mprintf((0,"Exiting to secret level\n"));
-
-			// -- BOGUS -- IMPOSSIBLE -- if (Game_mode & GM_MULTI)
-			// -- BOGUS -- IMPOSSIBLE -- 	multi_send_endlevel_start(1);
-			// -- BOGUS -- IMPOSSIBLE --
-			// -- BOGUS -- IMPOSSIBLE -- if (Game_mode & GM_NETWORK)
-			// -- BOGUS -- IMPOSSIBLE -- 	network_do_frame(1, 1);
 
 			EnterSecretLevel();
 			Control_center_destroyed = 0;
@@ -524,7 +473,6 @@ int check_trigger_sub(int trigger_num, int pnum,int shot)
 		}
 
 		case TT_OPEN_DOOR:
-			mprintf((0,"D"));
 			do_link(trigger_num);
 			print_trigger_message (pnum,trigger_num,shot,"Door%s opened!");
 			
@@ -536,14 +484,12 @@ int check_trigger_sub(int trigger_num, int pnum,int shot)
 			break;
 
 		case TT_UNLOCK_DOOR:
-			mprintf((0,"D"));
 			do_unlock_doors(trigger_num);
 			print_trigger_message (pnum,trigger_num,shot,"Door%s unlocked!");
 			
 			break;
 	
 		case TT_LOCK_DOOR:
-			mprintf((0,"D"));
 			do_lock_doors(trigger_num);
 			print_trigger_message (pnum,trigger_num,shot,"Door%s locked!");
 
@@ -580,13 +526,11 @@ int check_trigger_sub(int trigger_num, int pnum,int shot)
 			break;
 	
 		case TT_ILLUSION_ON:
-			mprintf((0,"I"));
 			do_il_on(trigger_num);
 			print_trigger_message (pnum,trigger_num,shot,"Illusion%s on!");
 			break;
 	
 		case TT_ILLUSION_OFF:
-			mprintf((0,"i"));
 			do_il_off(trigger_num);
 			print_trigger_message (pnum,trigger_num,shot,"Illusion%s off!");
 			break;
@@ -618,8 +562,6 @@ void check_trigger(segment *seg, short side, short objnum,int shot)
 	//segment *csegp;
  	//short cside;
 
-//	mprintf(0,"T");
-
 	if ((objnum == Players[Player_num].objnum) || ((Objects[objnum].type == OBJ_ROBOT) && (Robot_info[Objects[objnum].id].companion))) {
 
 		if ( Newdemo_state == ND_STATE_RECORDING )
@@ -633,30 +575,8 @@ void check_trigger(segment *seg, short side, short objnum,int shot)
 		if (trigger_num == -1)
 			return;
 
-		//##if ( Newdemo_state == ND_STATE_PLAYBACK ) {
-		//##	if (Triggers[trigger_num].type == TT_EXIT) {
-		//##		start_endlevel_sequence();
-		//##	}
-		//##	//return;
-		//##}
-
 		if (check_trigger_sub(trigger_num, Player_num,shot))
 			return;
-
-		//@@if (Triggers[trigger_num].flags & TRIGGER_ONE_SHOT) {
-		//@@	Triggers[trigger_num].flags &= ~TRIGGER_ON;
-		//@@
-		//@@	csegp = &Segments[seg->children[side]];
-		//@@	cside = find_connect_side(seg, csegp);
-		//@@	Assert(cside != -1);
-		//@@
-		//@@	wall_num = csegp->sides[cside].wall_num;
-		//@@	if ( wall_num == -1 ) return;
-		//@@	
-		//@@	ctrigger_num = Walls[wall_num].trigger;
-		//@@
-		//@@	Triggers[ctrigger_num].flags &= ~TRIGGER_ON;
-		//@@}
 
 #ifdef NETWORK
 		if (Game_mode & GM_MULTI)
@@ -674,7 +594,6 @@ void triggers_frame_process()
 			Triggers[i].time -= FrameTime;
 }
 
-#ifndef FAST_FILE_IO
 /*
  * reads a v29_trigger structure from a CFILE
  */
@@ -730,7 +649,6 @@ extern void trigger_read(trigger *t, CFILE *fp)
 	for (i=0; i<MAX_WALLS_PER_LINK; i++ )
 		t->side[i] = cfile_read_short(fp);
 }
-#endif
 
 void trigger_write(trigger *t, short version, PHYSFS_file *fp)
 {

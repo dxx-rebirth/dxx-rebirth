@@ -27,7 +27,7 @@ COPYRIGHT 1993-1999 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 #include <string.h>		// for memset()
 
 #include "inferno.h"
-#include "mono.h"
+#include "console.h"
 #include "fix.h"
 #include "vecmat.h"
 #include "gr.h"
@@ -411,12 +411,12 @@ void buddy_message(char * format, ... )
 			vsprintf(new_format, format, args);
 			va_end(args);
 
-			gb_str[0] = 1;
+			gb_str[0] = CC_COLOR;
 			gb_str[1] = BM_XRGB(28, 0, 0);
 			strcpy(&gb_str[2], guidebot_name);
 			t = strlen(gb_str);
 			gb_str[t] = ':';
-			gb_str[t+1] = 1;
+			gb_str[t+1] = CC_COLOR;
 			gb_str[t+2] = BM_XRGB(0, 31, 0);
 			gb_str[t+3] = 0;
 
@@ -562,40 +562,6 @@ void set_escort_special_goal(int special_key)
 	Escort_goal_object = ESCORT_GOAL_UNSPECIFIED;
 }
 
-// -- old, pre-bfs, way -- //	-----------------------------------------------------------------------------
-// -- old, pre-bfs, way -- //	Return object of interest.
-// -- old, pre-bfs, way -- int exists_in_mine(int objtype, int objid)
-// -- old, pre-bfs, way -- {
-// -- old, pre-bfs, way -- 	int	i;
-// -- old, pre-bfs, way -- 
-// -- old, pre-bfs, way -- 	mprintf((0, "exists_in_mine, type == %i, id == %i\n", objtype, objid));
-// -- old, pre-bfs, way -- 
-// -- old, pre-bfs, way -- 	if (objtype == FUELCEN_CHECK) {
-// -- old, pre-bfs, way -- 		for (i=0; i<=Highest_segment_index; i++)
-// -- old, pre-bfs, way -- 			if (Segments[i].special == SEGMENT_IS_FUELCEN)
-// -- old, pre-bfs, way -- 				return i;
-// -- old, pre-bfs, way -- 	} else {
-// -- old, pre-bfs, way -- 		for (i=0; i<=Highest_object_index; i++) {
-// -- old, pre-bfs, way -- 			if (Objects[i].type == objtype) {
-// -- old, pre-bfs, way -- 				//	Don't find escort robots if looking for robot!
-// -- old, pre-bfs, way -- 				if ((Objects[i].type == OBJ_ROBOT) && (Robot_info[Objects[i].id].companion))
-// -- old, pre-bfs, way -- 					continue;
-// -- old, pre-bfs, way -- 
-// -- old, pre-bfs, way -- 				if (objid == -1) {
-// -- old, pre-bfs, way -- 					if ((objtype == OBJ_POWERUP) && (Objects[i].id != POW_KEY_BLUE) && (Objects[i].id != POW_KEY_GOLD) && (Objects[i].id != POW_KEY_RED))
-// -- old, pre-bfs, way -- 						return i;
-// -- old, pre-bfs, way -- 					else
-// -- old, pre-bfs, way -- 						return i;
-// -- old, pre-bfs, way -- 				} else if (Objects[i].id == objid)
-// -- old, pre-bfs, way -- 					return i;
-// -- old, pre-bfs, way -- 			}
-// -- old, pre-bfs, way -- 		}
-// -- old, pre-bfs, way -- 	}
-// -- old, pre-bfs, way -- 
-// -- old, pre-bfs, way -- 	return -1;
-// -- old, pre-bfs, way -- 
-// -- old, pre-bfs, way -- }
-
 //	-----------------------------------------------------------------------------
 //	Return id of boss.
 int get_boss_id(void)
@@ -662,8 +628,6 @@ int exists_in_mine(int start_seg, int objtype, int objid, int special)
 	int	segindex, segnum;
 	short	bfs_list[MAX_SEGMENTS];
 	int	length;
-
-//	mprintf((0, "exists_in_mine, type == %i, id == %i\n", objtype, objid));
 
 	create_bfs_list(start_seg, bfs_list, &length, MAX_SEGMENTS);
 
@@ -852,7 +816,6 @@ void escort_create_path_to_goal(object *objp)
 		}
 	}
 
-	// -- mprintf((0, "Creating path from escort to goal #%i in segment #%i.\n", Escort_goal_object, goal_seg));
 	if ((Escort_goal_index < 0) && (Escort_goal_index != -3)) {	//	I apologize for this statement -- MK, 09/22/95
 		if (Escort_goal_index == -1) {
 			Last_buddy_message_time = 0;	//	Force this message to get through.
@@ -991,8 +954,6 @@ int maybe_buddy_fire_mega(int objnum)
 		return 0;
 	}
 
-	mprintf((0, "Buddy firing mega in frame %i\n", FrameCount));
-
 	buddy_message("GAHOOGA!");
 
 	weapon_objnum = Laser_create_new_easy( &buddy_objp->orient.fvec, &buddy_objp->pos, objnum, MEGA_ID, 1);
@@ -1018,8 +979,6 @@ int maybe_buddy_fire_smart(int objnum)
 
 	if (!object_to_object_visibility(buddy_objp, objp, FQ_TRANSWALL))
 		return 0;
-
-	mprintf((0, "Buddy firing smart missile in frame %i\n", FrameCount));
 
 	buddy_message("WHAMMO!");
 
@@ -1097,14 +1056,11 @@ void do_escort_frame(object *objp, fix dist_to_player, int player_visibility)
 		if (dist_to_player > F1_0*100)
 			aip->SKIP_AI_COUNT = (F1_0/4)/FrameTime;
 
-	// -- mprintf((0, "%10s: Dist to player = %7.3f, segnum = %4i\n", mode_text[ailp->mode], f2fl(dist_to_player), objp->segnum));
-
 	//	AIM_WANDER has been co-opted for buddy behavior (didn't want to modify aistruct.h)
 	//	It means the object has been told to get lost and has come to the end of its path.
 	//	If the player is now visible, then create a path.
 	if (ailp->mode == AIM_WANDER)
 		if (player_visibility) {
-			// -- mprintf((0, "Buddy: Going from wander to path following!\n"));
 			create_n_segment_path(objp, 16 + d_rand() * 16, -1);
 			aip->path_length = polish_path(objp, &Point_segs[aip->hide_index], aip->path_length);
 		}
@@ -1112,13 +1068,10 @@ void do_escort_frame(object *objp, fix dist_to_player, int player_visibility)
 	if (Escort_special_goal == ESCORT_GOAL_SCRAM) {
 		if (player_visibility)
 			if (Escort_last_path_created + F1_0*3 < GameTime) {
-				mprintf((0, "Frame %i: Buddy creating new scram path.\n", FrameCount));
 				create_n_segment_path(objp, 10 + d_rand() * 16, ConsoleObject->segnum);
 				Escort_last_path_created = GameTime;
 			}
 
-		// -- Int3();
-		// -- mprintf((0, "Buddy: Seg = %3i, dist = %7.3f\n", objp->segnum, f2fl(dist_to_player)));
 		return;
 	}
 
@@ -1146,7 +1099,6 @@ void do_escort_frame(object *objp, fix dist_to_player, int player_visibility)
 			max_len = 3;
 		create_path_to_player(objp, max_len, 1);	//	MK!: Last parm used to be 1!
 		aip->path_length = polish_path(objp, &Point_segs[aip->hide_index], aip->path_length);
-		// -- mprintf((0, "Creating path to player, length = %i\n", aip->path_length));
 		ailp->mode = AIM_GOTO_PLAYER;
 	}	else if (GameTime - Buddy_last_seen_player > MAX_ESCORT_TIME_AWAY) {
 		//	This is to prevent buddy from looking for a goal, which he will do because we only allow path creation once/second.
@@ -1156,10 +1108,8 @@ void do_escort_frame(object *objp, fix dist_to_player, int player_visibility)
 		ailp->mode = AIM_GOTO_OBJECT;		//	May look stupid to be before path creation, but ai_door_is_openable uses mode to determine what doors can be got through
 		escort_create_path_to_goal(objp);
 		aip->path_length = polish_path(objp, &Point_segs[aip->hide_index], aip->path_length);
-		// mprintf((0, "Creating path to goal, length = %i\n", aip->path_length));
 		if (aip->path_length < 3) {
 			create_n_segment_path(objp, 5, Believed_player_seg);
-			// mprintf((0, "Path to goal has length %i, just wandering...\n", aip->path_length));
 		}
 		ailp->mode = AIM_GOTO_OBJECT;
 	} else if (Escort_goal_object == ESCORT_GOAL_UNSPECIFIED) {
@@ -1168,15 +1118,12 @@ void do_escort_frame(object *objp, fix dist_to_player, int player_visibility)
 			ailp->mode = AIM_GOTO_OBJECT;		//	May look stupid to be before path creation, but ai_door_is_openable uses mode to determine what doors can be got through
 			escort_create_path_to_goal(objp);
 			aip->path_length = polish_path(objp, &Point_segs[aip->hide_index], aip->path_length);
-			// mprintf((0, "Creating path to goal, length = %i\n", aip->path_length));
 			if (aip->path_length < 3) {
 				create_n_segment_path(objp, 5, Believed_player_seg);
-				// mprintf((0, "Path to goal has length %i, just wandering...\n", aip->path_length));
 			}
 			ailp->mode = AIM_GOTO_OBJECT;
 		}
-	} else
-		; // mprintf((0, "!"));
+	}
 
 }
 
@@ -1195,8 +1142,6 @@ void do_snipe_frame(object *objp, fix dist_to_player, int player_visibility, vms
 	if (dist_to_player > F1_0*500)
 		return;
 
-	// -- mprintf((0, "Mode: %10s, Dist: %7.3f\n", mode_text[ailp->mode], f2fl(dist_to_player)));
-
 	switch (ailp->mode) {
 		case AIM_SNIPE_WAIT:
 			if ((dist_to_player > F1_0*50) && (ailp->next_action_time > 0))
@@ -1206,7 +1151,6 @@ void do_snipe_frame(object *objp, fix dist_to_player, int player_visibility, vms
 
 			connected_distance = find_connected_distance(&objp->pos, objp->segnum, &Believed_player_pos, Believed_player_seg, 30, WID_FLY_FLAG);
 			if (connected_distance < F1_0*500) {
-				// -- mprintf((0, "Object #%i entering attack mode.\n", objnum));
 				create_path_to_player(objp, 30, 1);
 				ailp->mode = AIM_SNIPE_ATTACK;
 				ailp->next_action_time = SNIPE_ATTACK_TIME;	//	have up to 10 seconds to find player.
@@ -1218,12 +1162,10 @@ void do_snipe_frame(object *objp, fix dist_to_player, int player_visibility, vms
 			if (ailp->next_action_time < 0) {
 				ailp->mode = AIM_SNIPE_WAIT;
 				ailp->next_action_time = SNIPE_WAIT_TIME;
-				// -- mprintf((0, "Object #%i going from retreat to wait.\n", objnum));
 			} else if ((player_visibility == 0) || (ailp->next_action_time > SNIPE_ABORT_RETREAT_TIME)) {
 				ai_follow_path(objp, player_visibility, player_visibility, vec_to_player);
 				ailp->mode = AIM_SNIPE_RETREAT_BACKWARDS;
 			} else {
-				// -- mprintf((0, "Object #%i going from retreat to fire.\n", objnum));
 				ailp->mode = AIM_SNIPE_FIRE;
 				ailp->next_action_time = SNIPE_FIRE_TIME/2;
 			}
@@ -1231,11 +1173,9 @@ void do_snipe_frame(object *objp, fix dist_to_player, int player_visibility, vms
 
 		case AIM_SNIPE_ATTACK:
 			if (ailp->next_action_time < 0) {
-				// -- mprintf((0, "Object #%i timed out from attack to retreat mode.\n", objnum));
 				ailp->mode = AIM_SNIPE_RETREAT;
 				ailp->next_action_time = SNIPE_WAIT_TIME;
 			} else {
-				// -- mprintf((0, "Object #%i attacking: visibility = %i\n", player_visibility));
 				ai_follow_path(objp, player_visibility, player_visibility, vec_to_player);
 				if (player_visibility) {
 					ailp->mode = AIM_SNIPE_FIRE;
@@ -1248,7 +1188,6 @@ void do_snipe_frame(object *objp, fix dist_to_player, int player_visibility, vms
 		case AIM_SNIPE_FIRE:
 			if (ailp->next_action_time < 0) {
 				ai_static	*aip = &objp->ctype.ai_info;
-				// -- mprintf((0, "Object #%i going from fire to retreat.\n", objnum));
 				create_n_segment_path(objp, 10 + d_rand()/2048, ConsoleObject->segnum);
 				aip->path_length = polish_path(objp, &Point_segs[aip->hide_index], aip->path_length);
 				if (d_rand() < 8192)
@@ -1290,7 +1229,6 @@ int choose_thief_recreation_segment(void)
 	}
 
 	if (segnum == -1) {
-		mprintf((1, "Warning: Unable to find a connected segment for thief recreation.\n"));
 		return (d_rand() * Highest_segment_index) >> 15;
 	} else
 		return segnum;
@@ -1328,8 +1266,6 @@ void do_thief_frame(object *objp, fix dist_to_player, int player_visibility, vms
 	ai_local		*ailp = &Ai_local_info[objnum];
 	fix			connected_distance;
 
-	// -- mprintf((0, "%10s: Action Time: %7.3f\n", mode_text[ailp->mode], f2fl(ailp->next_action_time)));
-
 	if ((Current_level_num < 0) && (Re_init_thief_time < GameTime)) {
 		if (Re_init_thief_time > GameTime - F1_0*2)
 			init_thief_for_level();
@@ -1344,19 +1280,13 @@ void do_thief_frame(object *objp, fix dist_to_player, int player_visibility, vms
 
 	switch (ailp->mode) {
 		case AIM_THIEF_WAIT:
-			// -- mprintf((0, "WAIT\n"));
-
 			if (ailp->player_awareness_type >= PA_PLAYER_COLLISION) {
 				ailp->player_awareness_type = 0;
-				// -- mprintf((0, "Thief: Awareness = %i ", ailp->player_awareness_type));
-
-				// -- mprintf((0, "ATTACK\n"));
 				create_path_to_player(objp, 30, 1);
 				ailp->mode = AIM_THIEF_ATTACK;
 				ailp->next_action_time = THIEF_ATTACK_TIME/2;
 				return;
 			} else if (player_visibility) {
-				// -- mprintf((0, "RETREAT\n"));
 				create_n_segment_path(objp, 15, ConsoleObject->segnum);
 				ailp->mode = AIM_THIEF_RETREAT;
 				return;
@@ -1369,7 +1299,6 @@ void do_thief_frame(object *objp, fix dist_to_player, int player_visibility, vms
 
 			connected_distance = find_connected_distance(&objp->pos, objp->segnum, &Believed_player_pos, Believed_player_seg, 30, WID_FLY_FLAG);
 			if (connected_distance < F1_0*500) {
-				// -- mprintf((0, "Thief creating path to player.\n", objnum));
 				create_path_to_player(objp, 30, 1);
 				ailp->mode = AIM_THIEF_ATTACK;
 				ailp->next_action_time = THIEF_ATTACK_TIME;	//	have up to 10 seconds to find player.
@@ -1378,8 +1307,6 @@ void do_thief_frame(object *objp, fix dist_to_player, int player_visibility, vms
 			break;
 
 		case AIM_THIEF_RETREAT:
-			// -- mprintf((0, "RETREAT\n"));
-
 			if (ailp->next_action_time < 0) {
 				ailp->mode = AIM_THIEF_WAIT;
 				ailp->next_action_time = Thief_wait_times[Difficulty_level];
@@ -1393,7 +1320,6 @@ void do_thief_frame(object *objp, fix dist_to_player, int player_visibility, vms
 
 						//	If path is real short, try again, allowing to go through player's segment
 						if (aip->path_length < 4) {
-							// -- mprintf((0, "Thief is cornered.  Willing to fly through player.\n"));
 							create_n_segment_path(objp, 10, -1);
 						} else if (objp->shields* 4 < Robot_info[objp->id].strength) {
 							//	If robot really low on hits, will run through player with even longer path
@@ -1403,7 +1329,6 @@ void do_thief_frame(object *objp, fix dist_to_player, int player_visibility, vms
 						}
 
 						ailp->mode = AIM_THIEF_RETREAT;
-						// -- mprintf((0, "Thief creating new RETREAT path.\n"));
 					}
 				} else
 					ailp->mode = AIM_THIEF_RETREAT;
@@ -1416,12 +1341,9 @@ void do_thief_frame(object *objp, fix dist_to_player, int player_visibility, vms
 		//	Note: When thief successfully steals something, his action time is forced negative and his mode is changed
 		//			to retreat to get him out of attack mode.
 		case AIM_THIEF_ATTACK:
-			// -- mprintf((0, "ATTACK\n"));
-
 			if (ailp->player_awareness_type >= PA_PLAYER_COLLISION) {
 				ailp->player_awareness_type = 0;
 				if (d_rand() > 8192) {
-					// --- mprintf((0, "RETREAT!!\n"));
 					create_n_segment_path(objp, 10, ConsoleObject->segnum);
 					Ai_local_info[objp-Objects].next_action_time = Thief_wait_times[Difficulty_level]/2;
 					Ai_local_info[objp-Objects].mode = AIM_THIEF_RETREAT;
@@ -1431,7 +1353,6 @@ void do_thief_frame(object *objp, fix dist_to_player, int player_visibility, vms
 				ailp->next_action_time = F1_0;
 				create_path_to_player(objp, 100, 0);
 				ailp->mode = AIM_THIEF_ATTACK;
-				// -- mprintf((0, "Creating path to player.\n"));
 			} else {
 				if (player_visibility && (dist_to_player < F1_0*100)) {
 					//	If the player is close to looking at the thief, thief shall run away.
@@ -1458,8 +1379,6 @@ void do_thief_frame(object *objp, fix dist_to_player, int player_visibility, vms
 			break;
 
 		default:
-			mprintf ((0,"Thief mode (broken) = %d\n",ailp->mode));
-			// -- Int3();	//	Oops, illegal mode for thief behavior.
 			ailp->mode = AIM_THIEF_ATTACK;
 			ailp->next_action_time = F1_0;
 			break;
@@ -1475,7 +1394,6 @@ int maybe_steal_flag_item(int player_num, int flagval)
 		if (d_rand() < THIEF_PROBABILITY) {
 			int	powerup_index=-1;
 			Players[player_num].flags &= (~flagval);
-			// -- mprintf((0, "You lost your %4x capability!\n", flagval));
 			switch (flagval) {
 				case PLAYER_FLAGS_INVULNERABLE:
 					powerup_index = POW_INVULNERABILITY;
@@ -1679,8 +1597,6 @@ int attempt_to_steal_item(object *objp, int player_num)
 		} else
 			break;
 	}
-	// -- mprintf((0, "%i items were stolen!\n", rval));
-
 	create_n_segment_path(objp, 10, ConsoleObject->segnum);
 	Ai_local_info[objp-Objects].next_action_time = Thief_wait_times[Difficulty_level]/2;
 	Ai_local_info[objp-Objects].mode = AIM_THIEF_RETREAT;
@@ -1721,10 +1637,6 @@ void init_thief_for_level(void)
 void drop_stolen_items(object *objp)
 {
 	int	i;
-
-        mprintf ((0,"Dropping thief items!\n"));
-
-	// -- compress_stolen_items();
 
 	for (i=0; i<MAX_STOLEN_ITEMS; i++) {
 		if (Stolen_items[i] != 255)

@@ -1,4 +1,3 @@
-/* $Id: endlevel.c,v 1.1.1.1 2006/03/17 19:55:20 zicodxx Exp $ */
 /*
 THE COMPUTER CODE CONTAINED HEREIN IS THE SOLE PROPERTY OF PARALLAX
 SOFTWARE CORPORATION ("PARALLAX").  PARALLAX, IN DISTRIBUTING THE CODE TO
@@ -22,10 +21,6 @@ COPYRIGHT 1993-1999 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 #include <conf.h>
 #endif
 
-#ifdef RCS
-static char rcsid[] = "$Id: endlevel.c,v 1.1.1.1 2006/03/17 19:55:20 zicodxx Exp $";
-#endif
-
 //#define SLEW_ON 1
 
 //#define _MARK_ON
@@ -44,7 +39,7 @@ static char rcsid[] = "$Id: endlevel.c,v 1.1.1.1 2006/03/17 19:55:20 zicodxx Exp
 #include "error.h"
 #include "palette.h"
 #include "iff.h"
-#include "mono.h"
+#include "console.h"
 #include "texmap.h"
 #include "fvi.h"
 #include "u_mem.h"
@@ -469,9 +464,6 @@ int chase_angles(vms_angvec *cur_angles,vms_angvec *desired_angles)
 	delta_angs.p = desired_angles->p - cur_angles->p;
 	delta_angs.h = desired_angles->h - cur_angles->h;
 	delta_angs.b = desired_angles->b - cur_angles->b;
-//delta_angs.b = 0;
-
-//printf("chasing angles...desired = %x %x %x, cur = %x %x %x   ",desired_angles->p,desired_angles->b,desired_angles->h,cur_angles->p,cur_angles->b,cur_angles->h);
 
 	total_delta = abs(delta_angs.p) + abs(delta_angs.b) + abs(delta_angs.h);
 
@@ -482,15 +474,10 @@ int chase_angles(vms_angvec *cur_angles,vms_angvec *desired_angles)
 	alt_delta_angs.p = desired_angles->p - alt_angles.p;
 	alt_delta_angs.h = desired_angles->h - alt_angles.h;
 	alt_delta_angs.b = desired_angles->b - alt_angles.b;
-//alt_delta_angs.b = 0;
 
 	alt_total_delta = abs(alt_delta_angs.p) + abs(alt_delta_angs.b) + abs(alt_delta_angs.h);
 
-//printf("Total delta = %x, alt total_delta = %x\n",total_delta,alt_total_delta);
-
 	if (alt_total_delta < total_delta) {
-		//mprintf((0,"FLIPPING ANGLES!\n"));
-		//printf("FLIPPING ANGLES!\n");
 		*cur_angles = alt_angles;
 		delta_angs = alt_delta_angs;
 	}
@@ -711,7 +698,6 @@ void do_endlevel_frame()
 					                    CT_NONE,MT_NONE,RT_NONE);
 
 					if (objnum == -1) { //can't get object, so abort
-						mprintf((1, "Can't get object for endlevel sequence.  Aborting endlevel sequence.\n"));
 						stop_endlevel_sequence();
 						return;
 					}
@@ -839,7 +825,6 @@ void do_endlevel_frame()
 					return;
 				}
 
-				//mprintf((0,"Switching to pan...\n"));
 				#endif		//SHORT_SEQUENCE
 				#endif		//SLEW_ON
 
@@ -876,9 +861,6 @@ void do_endlevel_frame()
 				vm_vector_2_matrix(&ConsoleObject->orient,&tvec,&surface_orient.uvec,NULL);
 
 				desired_fly_speed *= 2;
-
-				//mprintf((0,"Switching to chase...\n"));
-
 			}
 			#endif
 

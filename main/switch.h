@@ -114,11 +114,6 @@ extern void check_trigger(segment *seg, short side, short objnum,int shot);
 extern int check_trigger_sub(int trigger_num, int player_num,int shot);
 extern void triggers_frame_process();
 
-#ifdef FAST_FILE_IO
-#define v29_trigger_read(t, fp) cfread(t, sizeof(v29_trigger), 1, fp)
-#define v30_trigger_read(t, fp) cfread(t, sizeof(v30_trigger), 1, fp)
-#define trigger_read(t, fp) cfread(t, sizeof(trigger), 1, fp)
-#else
 /*
  * reads a v29_trigger structure from a CFILE
  */
@@ -133,7 +128,6 @@ extern void v30_trigger_read(v30_trigger *t, CFILE *fp);
  * reads a trigger structure from a CFILE
  */
 extern void trigger_read(trigger *t, CFILE *fp);
-#endif
 
 extern void trigger_write(trigger *t, short version, PHYSFS_file *fp);
 

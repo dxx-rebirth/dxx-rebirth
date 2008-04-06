@@ -22,12 +22,12 @@
 
 #include "pstypes.h"
 #include "error.h"
-#include "mono.h"
 #include "sounds.h"
 #include "digi.h"
 #include "digi_mixer.h"
 #include "digi_mixer_music.h"
 #include "jukebox.h"
+#include "console.h"
 
 #include "fix.h"
 #include "gr.h" // needed for piggy.h
@@ -66,12 +66,12 @@ Mix_Chunk SoundChunks[MAX_SOUNDS];
 
 /* Initialise audio */
 int digi_mixer_init() {
-  if (MIX_DIGI_DEBUG) printf("digi_init %d (SDL_Mixer)\n", MAX_SOUNDS);
+  if (MIX_DIGI_DEBUG) con_printf(CON_DEBUG,"digi_init %d (SDL_Mixer)\n", MAX_SOUNDS);
   if (SDL_InitSubSystem(SDL_INIT_AUDIO) < 0) Error("SDL audio initialisation failed: %s.", SDL_GetError());
 
   if (Mix_OpenAudio(SAMPLE_RATE_44K, MIX_OUTPUT_FORMAT, MIX_OUTPUT_CHANNELS, SOUND_BUFFER_SIZE)) {
     //edited on 10/05/98 by Matt Mueller - should keep running, just with no sound.
-    printf("\nError: Couldn't open audio: %s\n", SDL_GetError());
+    con_printf(CON_URGENT,"\nError: Couldn't open audio: %s\n", SDL_GetError());
     return 1;
   }
 
@@ -90,7 +90,7 @@ int digi_mixer_init() {
 
 /* Shut down audio */
 void digi_mixer_close() {
-  if (MIX_DIGI_DEBUG) printf("digi_close (SDL_Mixer)\n");
+  if (MIX_DIGI_DEBUG) con_printf(CON_DEBUG,"digi_close (SDL_Mixer)\n");
   if (!digi_initialised) return;
   digi_initialised = 0;
   Mix_CloseAudio();
@@ -114,13 +114,13 @@ void mixdigi_convert_sound(int i) {
   if (SoundChunks[i].abuf) return; //proceed only if not converted yet
 
   if (data) {
-    if (MIX_DIGI_DEBUG) printf("converting %d (%d)\n", i, dlen);
+    if (MIX_DIGI_DEBUG) con_printf(CON_DEBUG,"converting %d (%d)\n", i, dlen);
     SDL_BuildAudioCVT(&cvt, AUDIO_U8, 1, GameArg.SndDigiSampleRate, out_format, out_channels, out_freq);
 
     cvt.buf = malloc(dlen * cvt.len_mult);
     cvt.len = dlen;
     memcpy(cvt.buf, data, dlen);
-    if (SDL_ConvertAudio(&cvt)) printf("conversion of %d failed\n", i);
+    if (SDL_ConvertAudio(&cvt)) con_printf(CON_DEBUG,"conversion of %d failed\n", i);
 
     SoundChunks[i].abuf = cvt.buf;
     SoundChunks[i].alen = dlen * cvt.len_mult;
@@ -142,7 +142,7 @@ int digi_mixer_start_sound(short soundnum, fix volume, int pan, int looping, int
 
   mixdigi_convert_sound(soundnum);
 
-  if (MIX_DIGI_DEBUG) printf("digi_start_sound %d, volume %d, pan %d (start=%d, end=%d)\n", soundnum, mix_vol, mix_pan, loop_start, loop_end);
+  if (MIX_DIGI_DEBUG) con_printf(CON_DEBUG,"digi_start_sound %d, volume %d, pan %d (start=%d, end=%d)\n", soundnum, mix_vol, mix_pan, loop_start, loop_end);
 
   channel = Mix_PlayChannel(-1, &(SoundChunks[soundnum]), mix_loop);
   Mix_SetPanning(channel, 255-mix_pan, mix_pan);
@@ -164,7 +164,7 @@ void digi_mixer_set_channel_pan(int channel, int pan) {
 
 void digi_mixer_stop_sound(int channel) {
   if (!digi_initialised) return;
-  if (MIX_DIGI_DEBUG) printf("digi_stop_sound %d\n", channel);
+  if (MIX_DIGI_DEBUG) con_printf(CON_DEBUG,"digi_stop_sound %d\n", channel);
   Mix_HaltChannel(channel);
 }
 

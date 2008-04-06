@@ -1,4 +1,3 @@
-/* $Id: gamemine.c,v 1.1.1.1 2006/03/17 19:56:56 zicodxx Exp $ */
 /*
 THE COMPUTER CODE CONTAINED HEREIN IS THE SOLE PROPERTY OF PARALLAX
 SOFTWARE CORPORATION ("PARALLAX").  PARALLAX, IN DISTRIBUTING THE CODE TO
@@ -22,9 +21,6 @@ COPYRIGHT 1993-1999 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 #include <conf.h>
 #endif
 
-#ifdef RCS
-static char rcsid[] = "$Id: gamemine.c,v 1.1.1.1 2006/03/17 19:56:56 zicodxx Exp $";
-#endif
 
 #include <stdio.h>
 #include <stdlib.h>
@@ -32,8 +28,6 @@ static char rcsid[] = "$Id: gamemine.c,v 1.1.1.1 2006/03/17 19:56:56 zicodxx Exp
 #include <string.h>
 
 #include "pstypes.h"
-#include "mono.h"
-
 #include "inferno.h"
 #include "segment.h"
 #include "textures.h"
@@ -43,21 +37,16 @@ static char rcsid[] = "$Id: gamemine.c,v 1.1.1.1 2006/03/17 19:56:56 zicodxx Exp
 #include "error.h"
 #include "gameseg.h"
 #include "switch.h"
-
 #include "game.h"
 #include "newmenu.h"
-
 #ifdef EDITOR
 #include "editor/editor.h"
 #endif
-
 #include "cfile.h"
 #include "fuelcen.h"
-
 #include "hash.h"
 #include "key.h"
 #include "piggy.h"
-
 #include "byteswap.h"
 #include "gamesave.h"
 
@@ -550,7 +539,6 @@ int load_mine_data(CFILE *LoadFile)
 		Error( "Error reading mine_fileinfo in gamemine.c" );
 
 	if (mine_top_fileinfo.fileinfo_version < 18) {
-		mprintf((1, "Old version, setting shake intensity to 0.\n"));
 		Level_shake_frequency = 0;
 		Level_shake_duration = 0;
 		Secret_return_segment = 0;
@@ -638,8 +626,6 @@ int load_mine_data(CFILE *LoadFile)
 	
 			tmap_xlate_table[j] = hashtable_search( &ht,old_tmap_list[j]);
 			if (tmap_xlate_table[j]	< 0 )	{
-				//tmap_xlate_table[j] = 0;
-				// mprintf( (0, "Couldn't find texture '%s'\n", old_tmap_list[j] ));
 				;
 			}
 			if (tmap_xlate_table[j] != j ) translate = 1;
@@ -652,10 +638,7 @@ int load_mine_data(CFILE *LoadFile)
 			for (i=0; i<MAX_TEXTURES; i++ )
 				if (tmap_times_used[i])
 					count++;
-			mprintf( (0, "This mine has %d unique textures in it (~%d KB)\n", count, (count*4096) /1024 ));
 		}
-	
-		// -- mprintf( (0, "Translate=%d\n", translate ));
 	
 		hashtable_free( &ht );
 	}
@@ -665,7 +648,6 @@ int load_mine_data(CFILE *LoadFile)
 	// New check added to make sure we don't read in too many vertices.
 	if ( mine_fileinfo.vertex_howmany > MAX_VERTICES )
 		{
-		mprintf((0, "Num vertices exceeds maximum.  Loading MAX %d vertices\n", MAX_VERTICES));
 		mine_fileinfo.vertex_howmany = MAX_VERTICES;
 		}
 
@@ -690,7 +672,6 @@ int load_mine_data(CFILE *LoadFile)
 
 	// New check added to make sure we don't read in too many segments.
 	if ( mine_fileinfo.segment_howmany > MAX_SEGMENTS ) {
-		mprintf((0, "Num segments exceeds maximum.  Loading MAX %d segments\n", MAX_SEGMENTS));
 		mine_fileinfo.segment_howmany = MAX_SEGMENTS;
 		mine_fileinfo.segment2_howmany = MAX_SEGMENTS;
 	}
@@ -767,7 +748,6 @@ int load_mine_data(CFILE *LoadFile)
 					Segments[i].sides[j].tmap_num = tmap_xlate_table[tmap_xlate];
 					if ((WALL_IS_DOORWAY(&Segments[i],j) & WID_RENDER_FLAG))
 						if (Segments[i].sides[j].tmap_num < 0)	{
-							mprintf( (0, "Couldn't find texture '%s' for Segment %d, side %d\n", old_tmap_list[tmap_xlate],i,j));
 							Int3();
 							Segments[i].sides[j].tmap_num = NumTextures-1;
 						}
@@ -778,7 +758,6 @@ int load_mine_data(CFILE *LoadFile)
 
 						if ((WALL_IS_DOORWAY(&Segments[i],j) & WID_RENDER_FLAG))
 							if (xlated_tmap <= 0)	{
-								mprintf( (0, "Couldn't find texture '%s' for Segment %d, side %d\n", old_tmap_list[tmap_xlate],i,j));
 								Int3();
 								Segments[i].sides[j].tmap_num2 = NumTextures-1;
 							}
@@ -972,9 +951,6 @@ int load_mine_data_compiled(CFILE *LoadFile)
 
 	//=============================== Reading part ==============================
 	compiled_version = cfile_read_byte(LoadFile);
-	//Assert( compiled_version==COMPILED_MINE_VERSION );
- 	if (compiled_version!=COMPILED_MINE_VERSION)
-		mprintf((0,"compiled mine version=%i\n", compiled_version)); //many levels have "wrong" versions.  Theres no point in aborting because of it, I think.
 
 	if (New_file_format_load)
 		Num_vertices = cfile_read_short(LoadFile);

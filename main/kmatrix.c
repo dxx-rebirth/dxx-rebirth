@@ -1,4 +1,3 @@
-/* $Id: kmatrix.c,v 1.1.1.1 2006/03/17 19:57:28 zicodxx Exp $ */
 /*
 THE COMPUTER CODE CONTAINED HEREIN IS THE SOLE PROPERTY OF PARALLAX
 SOFTWARE CORPORATION ("PARALLAX").  PARALLAX, IN DISTRIBUTING THE CODE TO
@@ -31,7 +30,6 @@ COPYRIGHT 1993-1999 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 #include "error.h"
 #include "pstypes.h"
 #include "gr.h"
-#include "mono.h"
 #include "key.h"
 #include "palette.h"
 #include "game.h"
@@ -613,7 +611,6 @@ void kmatrix_view(int network)
             // Check timeout for idle players
             if (timer_get_approx_seconds() > LastPacketTime[i]+ENDLEVEL_IDLE_TIME)
             {
-              mprintf((0, "idle timeout for player %d.\n", i));
               Players[i].connected = 0;
               network_send_endlevel_sub(i);
             }

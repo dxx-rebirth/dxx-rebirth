@@ -1,4 +1,3 @@
-/* $Id: fvi.c,v 1.1.1.1 2006/03/17 19:55:08 zicodxx Exp $ */
 /*
 THE COMPUTER CODE CONTAINED HEREIN IS THE SOLE PROPERTY OF PARALLAX
 SOFTWARE CORPORATION ("PARALLAX").  PARALLAX, IN DISTRIBUTING THE CODE TO
@@ -28,16 +27,9 @@ COPYRIGHT 1993-1999 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
-
-#ifdef MACINTOSH
-#include <Memory.h>
-#endif
-
 #include "pstypes.h"
 #include "u_mem.h"
 #include "error.h"
-#include "mono.h"
-
 #include "inferno.h"
 #include "fvi.h"
 #include "segment.h"
@@ -84,10 +76,6 @@ int find_plane_line_intersection(vms_vector *new_pnt,vms_vector *plane_pnt,vms_v
 		     (-num>>15)>=den)) ||	//will overflow (large negative)
 		  (den<0 && num<den))		//frac greater than one
 		return 0;
-
-//if (num>0) {mprintf(1,"HEY! num>0 in FVI!!!"); return 0;}
-//??	Assert(num>=0);
-//    Assert(num >= den);
 
 	//do check for potenial overflow
 	{
@@ -516,13 +504,6 @@ int check_vector_to_sphere_1(vms_vector *intp,vms_vector *p0,vms_vector *p1,vms_
 		}
 
 		vm_vec_scale_add(intp,p0,&dn,int_dist);         //calc intersection point
-
-//		{
-//			fix dd = vm_vec_dist(intp,sphere_pos);
-//			Assert(dd == sphere_rad);
-//			mprintf(0,"dd=%x, rad=%x, delta=%x\n",dd,sphere_rad,dd-sphere_rad);
-//		}
-
 
 		return int_dist;
 	}
@@ -1057,12 +1038,6 @@ int fvi_sub(vms_vector *intp,int *ints,vms_vector *p0,int startseg,vms_vector *p
 									else
 										fvi_hit_seg2 = startseg;
 
-									//@@else	 {
-									//@@	mprintf( 0, "Warning on line 991 in physics.c\n" );
-									//@@	hit_seg = startseg;             //hit in this segment
-									//@@	//Int3();
-									//@@}
-
 									fvi_hit_seg = hit_seg;
 									fvi_hit_side =  side;
 									fvi_hit_side_seg = startseg;
@@ -1167,14 +1142,11 @@ void find_hitpoint_uv(fix *u,fix *v,fix *l,vms_vector *pnt,segment *seg,int side
 	fix k0,k1;
 	int i;
 
-	//mprintf(0,"\ncheck_trans_wall  vec=%x,%x,%x\n",pnt->x,pnt->y,pnt->z);
-
 	//do lasers pass through illusory walls?
 
 	//when do I return 0 & 1 for non-transparent walls?
 
 	if (segnum < 0 || segnum > Highest_segment_index) {
-		mprintf((0,"Bad segnum (%d) in find_hitpoint_uv()\n",segnum));
 		*u = *v = 0;
 		return;
 	}
@@ -1226,17 +1198,11 @@ void find_hitpoint_uv(fix *u,fix *v,fix *l,vms_vector *pnt,segment *seg,int side
 	//@@checkv.i = checkp.i - p1.i;
 	//@@checkv.j = checkp.j - p1.j;
 
-	//mprintf(0," vec0   = %x,%x  ",vec0.i,vec0.j);
-	//mprintf(0," vec1   = %x,%x  ",vec1.i,vec1.j);
-	//mprintf(0," checkv = %x,%x\n",checkv.i,checkv.j);
-
 	k1 = -fixdiv(cross(&checkp,&vec0) + cross(&vec0,&p1),cross(&vec0,&vec1));
 	if (abs(vec0.i) > abs(vec0.j))
 		k0 = fixdiv(fixmul(-k1,vec1.i) + checkp.i - p1.i,vec0.i);
 	else
 		k0 = fixdiv(fixmul(-k1,vec1.j) + checkp.j - p1.j,vec0.j);
-
-	//mprintf(0," k0,k1  = %x,%x\n",k0,k1);
 
 	for (i=0;i<3;i++)
 		uvls[i] = side->uvls[vertnum_list[facenum*3+i]];
@@ -1246,8 +1212,6 @@ void find_hitpoint_uv(fix *u,fix *v,fix *l,vms_vector *pnt,segment *seg,int side
 
 	if (l)
 		*l = uvls[1].l + fixmul( k0,uvls[0].l - uvls[1].l) + fixmul(k1,uvls[2].l - uvls[1].l);
-
-	//mprintf(0," u,v    = %x,%x\n",*u,*v);
 }
 
 //check if a particular point on a wall is a transparent pixel
@@ -1279,8 +1243,6 @@ int check_trans_wall(vms_vector *pnt,segment *seg,int sidenum,int facenum)
 //note: the line above had -v, but that was wrong, so I changed it.  if
 //something doesn't work, and you want to make it negative again, you
 //should figure out what's going on.
-
-	//mprintf(0," bmx,y  = %d,%d, color=%x\n",bmx,bmy,bm->bm_data[bmy*64+bmx]);
 
 	return (bm->bm_data[bmy*bm->bm_w+bmx] == TRANSPARENCY_COLOR);
 }

@@ -1,4 +1,3 @@
-/* $Id: vclip.c,v 1.1.1.1 2006/03/17 19:56:30 zicodxx Exp $ */
 /*
 THE COMPUTER CODE CONTAINED HEREIN IS THE SOLE PROPERTY OF PARALLAX
 SOFTWARE CORPORATION ("PARALLAX").  PARALLAX, IN DISTRIBUTING THE CODE TO
@@ -23,14 +22,8 @@ COPYRIGHT 1993-1999 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 #include <conf.h>
 #endif
 
-#ifdef RCS
-static char rcsid[] = "$Id: vclip.c,v 1.1.1.1 2006/03/17 19:56:30 zicodxx Exp $";
-#endif
-
 #include <stdlib.h>
-
 #include "error.h"
-
 #include "inferno.h"
 #include "vclip.h"
 #include "weapon.h"
@@ -71,8 +64,6 @@ void draw_weapon_vclip(object *obj)
 	int	vclip_num;
 	fix	modtime,play_time;
 
-	//mprintf( 0, "[Drawing obj %d type %d fireball size %x]\n", obj-Objects, Weapon_info[obj->id].weapon_vclip, obj->size );
-
 	Assert(obj->type == OBJ_WEAPON);
 
 	vclip_num = Weapon_info[obj->id].weapon_vclip;
@@ -109,7 +100,6 @@ void draw_weapon_vclip(object *obj)
 
 }
 
-#ifndef FAST_FILE_IO
 /*
  * reads n vclip structs from a CFILE
  */
@@ -129,4 +119,3 @@ int vclip_read_n(vclip *vc, int n, CFILE *fp)
 	}
 	return i;
 }
-#endif

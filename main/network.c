@@ -1,4 +1,3 @@
-/* $Id: network.c,v 1.1.1.1 2006/03/17 19:56:24 zicodxx Exp $ */
 /*
 THE COMPUTER CODE CONTAINED HEREIN IS THE SOLE PROPERTY OF PARALLAX
 SOFTWARE CORPORATION ("PARALLAX").  PARALLAX, IN DISTRIBUTING THE CODE TO
@@ -22,10 +21,6 @@ COPYRIGHT 1993-1999 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 #include <conf.h>
 #endif
 
-#ifdef RCS
-static char rcsid[] = "$Id: network.c,v 1.1.1.1 2006/03/17 19:56:24 zicodxx Exp $";
-#endif
-
 #define PATCH12
 
 #include <stdio.h>
@@ -36,7 +31,6 @@ static char rcsid[] = "$Id: network.c,v 1.1.1.1 2006/03/17 19:56:24 zicodxx Exp 
 #include "strutil.h"
 #include "args.h"
 #include "timer.h"
-#include "mono.h"
 #include "newmenu.h"
 #include "key.h"
 #include "gauges.h"
@@ -321,11 +315,7 @@ network_init(void)
 	network_flush();
 
 	Netgame.PacketsPerSec=10;
-	mprintf ((0,"Will send %d packets per second",Netgame.PacketsPerSec));
-
 	Netgame.ShortPackets=1;
-	mprintf ((0,"Will send short packets.\n"));
-
 }
 
 int
@@ -395,7 +385,6 @@ network_endlevel_poll2( int nitems, newmenu_item * menus, int * key, int citem )
 		t1 = timer_get_approx_seconds();
 	}
 
-//   mprintf ((0,"Trying to listen!\n"));
 	network_listen();
 
 	for (i = 0; i < N_players; i++)
@@ -490,19 +479,16 @@ can_join_netgame(netgame_info *game,AllNetPlayers_info *people)
 
 	if (game->game_status != NETSTAT_PLAYING)
 	{
-		mprintf ((0,"Error: Can't join because game_status !=NETSTAT_PLAYING\n"));
 		return 0;
 	}
 
 	if (game->version_major==0 && Version_major>0)
 	{
-		mprintf ((0,"Error:Can't join because version majors don't match!\n"));
 		return (0);
 	}
 
 	if (game->version_major>0 && Version_major==0)
 	{
-		mprintf ((0,"Error:Can't join because version majors2 don't match!\n"));
 		return (0);
 	}
 
@@ -528,7 +514,6 @@ can_join_netgame(netgame_info *game,AllNetPlayers_info *people)
 
 	if (people==NULL)
 	{
-		mprintf ((0,"Error! Can't join because people==NULL!\n"));
 		return 0;
 	}
 	
@@ -544,7 +529,6 @@ can_join_netgame(netgame_info *game,AllNetPlayers_info *people)
 	if (i != num_players)
 		return 1;
  
-	mprintf ((0,"Error: Can't join because at end of list!\n"));
 	return 0;
 }
 
@@ -684,7 +668,6 @@ void network_welcome_player(sequence_packet *their)
 
 	if ((Endlevel_sequence) || (Control_center_destroyed))
 	{
-		mprintf((0, "Ignored request from new player to join during endgame.\n"));
 		network_dump_player(their->player.network.ipx.server,their->player.network.ipx.node, DUMP_ENDLEVEL);
 		return; 
 	}
@@ -699,7 +682,6 @@ void network_welcome_player(sequence_packet *their)
 
 	if (their->player.connected != Current_level_num)
 	{
-		mprintf((0, "Dumping player due to old level number.\n"));
 		network_dump_player(their->player.network.ipx.server, their->player.network.ipx.node, DUMP_LEVEL);
 		return;
 	}
@@ -779,7 +761,6 @@ void network_welcome_player(sequence_packet *their)
 		
 		if (Players[player_num].connected)
 		{
-			mprintf((0, "Extra REQUEST from player ignored.\n"));
 			return;
 		}
 
@@ -894,10 +875,7 @@ void network_process_monitor_vector(int vector)
 				if (vector & (1 << count))
 				{
 					seg->sides[j].tmap_num2 = bm | (tm&0xc000);
-				//      mprintf((0, "Monitor %d blown up.\n", count));
 				}
-				//else
-				  //    mprintf((0, "Monitor %d intact.\n", count));
 				count++;
 				Assert(count < 32);
 			}
@@ -928,9 +906,6 @@ int network_create_monitor_vector(void)
 		}
 	}               
 		
-//	for (i = 0; i < num_blown_bitmaps; i++)
-//		mprintf((0, "Blown bitmap #%d = %d.\n", i, blown_bitmaps[i]));
-
 	for (i=0; i <= Highest_segment_index; i++)
 	{
 		int tm, ec;
@@ -942,7 +917,6 @@ int network_create_monitor_vector(void)
 				if ( ((ec = TmapInfo[tm&0x3fff].eclip_num) != -1) &&
 					  (Effects[ec].dest_bm_num != -1) )
 				{
-				//      mprintf((0, "Monitor %d intact.\n", monitor_num));
 					monitor_num++;
 					Assert(monitor_num < 32);
 				}
@@ -952,7 +926,6 @@ int network_create_monitor_vector(void)
 					{
 						if ((tm&0x3fff) == blown_bitmaps[k])
 						{
-							//mprintf((0, "Monitor %d destroyed.\n", monitor_num));
 							vector |= (1 << monitor_num);
 							monitor_num++;
 							Assert(monitor_num < 32);
@@ -963,7 +936,6 @@ int network_create_monitor_vector(void)
 			}
 		}
 	}
-  //	mprintf((0, "Final monitor vector %x.\n", vector));
 	return(vector);
 }
 
@@ -973,7 +945,6 @@ void network_stop_resync(sequence_packet *their)
 			(!memcmp(Network_player_rejoining.player.network.ipx.server, their->player.network.ipx.server, 4)) &&
 		(!stricmp(Network_player_rejoining.player.callsign, their->player.callsign)) )
 	{
-		mprintf((0, "Aborting resync for player %s.\n", their->player.callsign));
 		Network_send_objects = 0;
 		Network_sending_extras=0;
 		Network_rejoined=0;
@@ -1085,7 +1056,6 @@ void network_send_objects(void)
 
 				frame_num++;
 				// Send count so other side can make sure he got them all
-				mprintf((0, "Sent %d objects.\n", obj_count));
 				object_buffer[0] = PID_OBJECT_DATA;
 				object_buffer[1] = 1;
 				object_buffer[2] = frame_num;
@@ -1095,7 +1065,6 @@ void network_send_objects(void)
 
 				// Send sync packet which tells the player who he is and to start!
 				network_send_rejoin_sync(player_num);
-				mprintf ((0,"VerfiyPlayerJoined is now set to %d\n",player_num));
 				VerifyPlayerJoined=player_num;
 
 				// Turn off send object mode
@@ -1166,8 +1135,6 @@ void network_send_rejoin_sync(int player_num)
 	Netgame.level_time = Players[Player_num].time_level;
 	Netgame.monitor_vector = network_create_monitor_vector();
 
-	mprintf((0, "Sending rejoin sync packet!!!\n"));
-
 	send_internetwork_full_netgame_packet(Network_player_rejoining.player.network.ipx.server, Network_player_rejoining.player.network.ipx.node);
 	send_netplayers_packet(Network_player_rejoining.player.network.ipx.server, Network_player_rejoining.player.network.ipx.node);
 
@@ -1178,8 +1145,6 @@ void resend_sync_due_to_packet_loss_for_allender ()
 {
 	int i,j;
 	
-	mprintf ((0,"I'm resending a sync packet! VPJ=%d\n",VerifyPlayerJoined));
-
 	network_update_netgame();
 
 	// Fill in the kill list
@@ -1213,8 +1178,6 @@ void network_add_player(sequence_packet *p)
 {
 	int i;
 	
-	mprintf((0, "Got add player request!\n"));
-
 	for (i=0; i<N_players; i++ )    {
 		if ( !memcmp( NetPlayers.players[i].network.ipx.node, p->player.network.ipx.node, 6) && !memcmp(NetPlayers.players[i].network.ipx.server, p->player.network.ipx.server, 4)) 
 			return;         // already got them
@@ -1240,7 +1203,6 @@ void network_add_player(sequence_packet *p)
 
 	// Broadcast updated info
 
-	mprintf ((0,"sending_game_info!\n"));
 	network_send_game_info(NULL);
 }
 
@@ -1302,7 +1264,6 @@ network_send_game_list_request()
 
 	sequence_packet me;
 
-	mprintf((0, "Sending game_list request.\n"));
 	memset(&me, 0, sizeof(sequence_packet));
 	me.type = PID_GAME_LIST;
 	memcpy( me.player.callsign, Players[Player_num].callsign, CALLSIGN_LEN+1 );
@@ -1319,7 +1280,6 @@ void network_send_all_info_request(char type,int which_security)
 
 	sequence_packet me;
 
-	mprintf((0, "Sending all_info request.\n"));
 	memset(&me, 0, sizeof(sequence_packet));
 	me.Security=which_security;
 	me.type = type;
@@ -1457,7 +1417,6 @@ network_send_endlevel_short_sub(int from_player_num,int to_player)
 
 	if ((to_player != Player_num) && (to_player!=from_player_num) && (Players[to_player].connected))
 	{
-		mprintf((0, "Sending short endlevel packet to %s.\n",Players[to_player].callsign));
 		NetDrvSendPacketData((ubyte *)&end, sizeof(endlevel_info_short), NetPlayers.players[to_player].network.ipx.server, NetPlayers.players[to_player].network.ipx.node,Players[to_player].net_address);
 	}
 }
@@ -1472,8 +1431,6 @@ network_send_game_info(sequence_packet *their)
 	char old_type, old_status;
 	fix timevar;
 	int i;
-
-	mprintf((0, "Sending game info.\n"));
 
 	network_update_netgame(); // Update the values in the netgame struct
 
@@ -1515,8 +1472,6 @@ void network_send_lite_info(sequence_packet *their,int extended)
 	// Send game info to someone who requested it
 
 	char old_type, old_status,oldstatus;
-
-	mprintf((0, "Sending lite game info.\n"));
 
 	network_update_netgame(); // Update the values in the netgame struct
 
@@ -1578,8 +1533,6 @@ void network_send_netgame_update()
 	char old_type, old_status;
 	int i;
 
-	mprintf((0, "Sending updated game info.\n"));
-
 	network_update_netgame(); // Update the values in the netgame struct
 
 	old_type = Netgame.type;
@@ -1614,8 +1567,6 @@ int network_send_request(void)
 	      break;
 
 	Assert(i < MAX_NUM_NET_PLAYERS);
-
-	mprintf((0, "Sending game enroll request to player %d (%s). Serv=%x Node=%x Level=%d\n", i, Players[i].callsign,NetPlayers.players[i].network.ipx.server,NetPlayers.players[i].network.ipx.node,Netgame.levelnum));
 
 	My_Seq.type = PID_REQUEST;
 	My_Seq.player.connected = Current_level_num;
@@ -1659,7 +1610,6 @@ void network_process_gameinfo(ubyte *data)
 
 	if (i == MAX_ACTIVE_NETGAMES)
 	{
-		mprintf((0, "Too many netgames.\n"));
 		return;
 	}
 	
@@ -1675,7 +1625,6 @@ void network_process_gameinfo(ubyte *data)
 
 	if (Active_games[i].numplayers == 0)
 	{
-		mprintf ((0,"DELETING THIS GAME!!!\n"));       
 		// Delete this game
 		for (j = i; j < num_active_games-1; j++)
 		{
@@ -1708,7 +1657,6 @@ void network_process_lite_info(ubyte *data, int extended)
 
 	if (i == MAX_ACTIVE_NETGAMES)
 	{
-		mprintf((0, "Too many netgames.\n"));
 		return;
 	}
 	
@@ -1737,7 +1685,6 @@ void network_process_lite_info(ubyte *data, int extended)
 
 	if (Active_games[i].numplayers == 0)
 	{
-		mprintf ((0,"DELETING THIS GAME!!!\n"));     
 		// Delete this game
 		for (j = i; j < num_active_games-1; j++)
 		{
@@ -1753,8 +1700,6 @@ void network_process_dump(sequence_packet *their)
 
 	char temp[40];
 	int i;
-
-	mprintf((0, "Dumped by player %s, type %d.\n", their->player.callsign, their->player.connected));
 
 	if (their->player.connected!=7)
 	{
@@ -1794,8 +1739,6 @@ void network_process_request(sequence_packet *their)
 	// Player is ready to receieve a sync packet
 	int i;
 
-	mprintf((0, "Player %s ready for sync.\n", their->player.callsign));
-
 	for (i = 0; i < N_players; i++) {
 		if (!memcmp(their->player.network.ipx.server, NetPlayers.players[i].network.ipx.server, 4) && !memcmp(their->player.network.ipx.node, NetPlayers.players[i].network.ipx.node, 6) && (!stricmp(their->player.callsign, NetPlayers.players[i].callsign))) {
 			Players[i].connected = 1;
@@ -1828,22 +1771,17 @@ void network_process_packet(ubyte *data, int length )
 			break;
 
 		case PID_PLAYERSINFO:
-			mprintf ((0,"Got a PID_PLAYERSINFO!\n"));
-	
 			if (Network_status==NETSTAT_WAITING)
 			{
 				receive_netplayers_packet(data, &TempPlayersBase);
 	
 				if (TempPlayersBase.Security!=Netgame.Security)
 				{
-				mprintf ((0,"Bad security for PLAYERSINFO\n"));
 				break;
 				}	
 			
-				mprintf ((0,"Got a waiting PID_PLAYERSINFO!\n"));
 				if (length!=ALLNETPLAYERSINFO_SIZE)
 				{
-					mprintf ((0,"Invalid size for netplayers packet!\n"));
 					return;
 				}
 	
@@ -1858,7 +1796,6 @@ void network_process_packet(ubyte *data, int length )
 		case PID_LITE_INFO:
 			if (length != LITE_INFO_SIZE) // probably we get extended info
 				{
-				mprintf ((0,"WARNING! Recieved invalid size for PID_LITE_INFO\n"));
 				return;
 				}
 		
@@ -1870,7 +1807,6 @@ void network_process_packet(ubyte *data, int length )
 		case PID_LITE_INFO_D2X:
 			if (length != sizeof(netgame_info)) // probably we get extended info
 				{
-				mprintf ((0,"WARNING! Recieved invalid size for PID_LITE_INFO\n"));
 				return;
 				}
 		
@@ -1883,11 +1819,9 @@ void network_process_packet(ubyte *data, int length )
 			// Someone wants a list of games
 			if (length != SEQUENCE_PACKET_SIZE)
 			{
-				mprintf ((0,"WARNING! Recieved invalid size for PID_GAME_LIST\n"));
 				return;
 			}
 					
-			mprintf((0, "Got a PID_GAME_LIST!\n"));
 			if ((Network_status == NETSTAT_PLAYING) || (Network_status == NETSTAT_STARTING) || (Network_status == NETSTAT_ENDLEVEL))
 				if (network_i_am_master())
 					network_send_lite_info(their,0);
@@ -1898,7 +1832,6 @@ void network_process_packet(ubyte *data, int length )
 			// Someone wants a list of games
 			if (length != SEQUENCE_PACKET_SIZE)
 			{
-				mprintf ((0,"WARNING! Recieved invalid size for PID_GAME_LIST\n"));
 				return;
 			}
 				
@@ -1911,7 +1844,6 @@ void network_process_packet(ubyte *data, int length )
 		case PID_SEND_ALL_GAMEINFO:
 			if (length != SEQUENCE_PACKET_SIZE)
 			{
-				mprintf ((0,"WARNING! Recieved invalid size for PID_SEND_ALL_GAMEINFO\n"));
 				return;
 			}
 	
@@ -1921,27 +1853,20 @@ void network_process_packet(ubyte *data, int length )
 			break;
 		
 		case PID_ADDPLAYER:
-			mprintf( (0, "Got NEWPLAYER message from %s.\n", their->player.callsign));
-			
 			if (length != SEQUENCE_PACKET_SIZE)
 			{
-				mprintf ((0,"WARNING! Recieved invalid size for PID_ADDPLAYER\n"));
 				return;
 			}
 
-			mprintf( (0, "Got NEWPLAYER message from %s.\n", their->player.callsign));
 			network_new_player(their);
 
 			break;
 		case PID_REQUEST:
 			if (length != SEQUENCE_PACKET_SIZE)
 			{
-				mprintf ((0,"WARNING! Recieved invalid size for PID_REQUEST\n"));
 				return;
 			}
 
-			mprintf( (0, "Got REQUEST from '%s'\n", their->player.callsign ));
-	
 			if (Network_status == NETSTAT_STARTING) 
 			{
 				// Someone wants to join our game!
@@ -1967,7 +1892,6 @@ void network_process_packet(ubyte *data, int length )
 	
 			if (length != SEQUENCE_PACKET_SIZE)
 			{
-				mprintf ((0,"WARNING! Recieved invalid size for PID_DUMP\n"));
 				return;
 			}
 	
@@ -1979,7 +1903,6 @@ void network_process_packet(ubyte *data, int length )
 	
 			if (length != SEQUENCE_PACKET_SIZE)
 			{
-				mprintf ((0,"WARNING! Recieved invalid size for PID_QUIT_JOINING\n"));
 				return;
 			}
 			if (Network_status == NETSTAT_STARTING)
@@ -1991,15 +1914,12 @@ void network_process_packet(ubyte *data, int length )
 
 		case PID_SYNC:
 	
-			mprintf ((0,"Got a sync packet! Network_status=%d\n",NETSTAT_WAITING));
-	
 			if (Network_status == NETSTAT_WAITING)
 			{
 				receive_full_netgame_packet(data, &TempNetInfo);
 	
 				if (TempNetInfo.Security!=Netgame.Security)
 				{
-					mprintf ((0,"Bad security on sync packet.\n"));
 					break;
 				}
 	
@@ -2045,20 +1965,14 @@ void network_process_packet(ubyte *data, int length )
 		case PID_ENDLEVEL:
 			if ((Network_status == NETSTAT_ENDLEVEL) || (Network_status == NETSTAT_PLAYING))
 				network_read_endlevel_packet(data);
-			else
-				mprintf((0, "Junked endlevel packet.\n"));
 			break;
 
 		case PID_ENDLEVEL_SHORT:
 			if ((Network_status == NETSTAT_ENDLEVEL) || (Network_status == NETSTAT_PLAYING))
 				network_read_endlevel_short_packet(data);
-			else
-				mprintf((0, "Junked short endlevel packet!\n"));
 			break;
 	
 		case PID_GAME_UPDATE:
-			mprintf ((0,"Got a GAME_UPDATE!\n"));
-				
 			if (Network_status==NETSTAT_PLAYING)
 			{
 				receive_lite_netgame_packet(data, &TempNetInfo);
@@ -2096,18 +2010,15 @@ void network_process_packet(ubyte *data, int length )
 	
 			if (length != SEQUENCE_PACKET_SIZE)
 			{
-				mprintf ((0,"WARNING! Recieved invalid size for PID_GAME_PLAYERS\n"));
 				return;
 			}
 				
-			mprintf((0, "Got a PID_GAME_PLAYERS!\n"));
 			if ((Network_status == NETSTAT_PLAYING) || (Network_status == NETSTAT_STARTING) || (Network_status == NETSTAT_ENDLEVEL))
 				if (network_i_am_master() && their->Security==Netgame.Security)
 					network_send_player_names(their);
 			break;
 	
 		default:
-			mprintf((0, "Ignoring invalid packet type.\n"));
 			Int3(); // Invalid network packet type, see ROB
 			break;
 	}
@@ -2121,7 +2032,6 @@ void dump_segments()
 	fp = PHYSFS_openWrite("test.dmp");
 	PHYSFS_write(fp, Segments, sizeof(segment), Highest_segment_index + 1);
 	PHYSFS_close(fp);
-	mprintf( (0, "SS=%d\n", sizeof(segment) ));
 }
 #endif
 
@@ -2164,8 +2074,6 @@ network_read_endlevel_packet( ubyte *data )
 		Countdown_seconds_left = end->seconds_left;
 
 	LastPacketTime[playernum] = timer_get_approx_seconds();
-
-//      mprintf((0, "Got endlevel packet from player %d.\n", playernum));
 }
 
 void
@@ -2190,7 +2098,6 @@ network_read_endlevel_short_packet( ubyte *data )
 
 	if ((Network_status == NETSTAT_PLAYING) && (end->connected != 0))
 	 {
-		//mprintf ((0,"Returning early for short_endlevel\n"));
 		return; // Only accept disconnect packets if we're not out of the level yet
 	 }
 
@@ -2216,8 +2123,6 @@ network_verify_objects(int remote, int local)
 {
 	int i;
 	int nplayers, got_controlcen=0;
-
-   mprintf ((0,"NETWORK:remote=%d local=%d\n",remote,local));
 
 	if ((remote-local) > 10)
 		return(-1);
@@ -2261,8 +2166,6 @@ network_read_object_packet( ubyte *data )
 	
 	frame_num++;
 
-//      mprintf((0, "Object packet %d (remote #%d) contains %d objects.\n", frame_num, remote_frame_num, nobj));
-
 	for (i = 0; i < nobj; i++)
 	{
 		objnum = INTEL_SHORT( *(short *)(data+loc) );                   loc += 2;
@@ -2272,8 +2175,6 @@ network_read_object_packet( ubyte *data )
 		if (objnum == -1) 
 		{
 			// Clear object array
-			mprintf((0, "Clearing object array.\n"));
-
 			init_objects();
 			Network_rejoined = 1;
 			my_pnum = obj_owner;
@@ -2290,8 +2191,6 @@ network_read_object_packet( ubyte *data )
 				network_pack_objects();
 				mode = 0;
 			}
-			mprintf((0, "Objnum -2 found in frame local %d remote %d.\n", frame_num, remote_frame_num));
-			mprintf((0, "Got %d objects, expected %d.\n", object_count, remote_objnum));
 			if (remote_objnum != object_count) {
 				Int3();
 			}
@@ -2308,7 +2207,6 @@ network_read_object_packet( ubyte *data )
 		{
 			if (frame_num != remote_frame_num)
 				Int3();
-		  	mprintf ((0,"Got a type 3 object packet!\n"));
 			object_count++;
 			if ((obj_owner == my_pnum) || (obj_owner == -1)) 
 			{
@@ -2379,7 +2277,6 @@ void network_sync_poll( int nitems, newmenu_item * menus, int * key, int citem )
 		
 		t1 = timer_get_approx_seconds();
 
-		mprintf((0, "Re-sending join request.\n"));
 		i = network_send_request();
 		if (i < 0)
 			*key = -2;
@@ -2435,7 +2332,6 @@ void network_start_poll( int nitems, newmenu_item * menus, int * key, int citem 
 	{
 		digi_play_sample (SOUND_HUD_MESSAGE,F1_0);
 
-      mprintf ((0,"More players are printed!"));
 		if (GameArg.MplNoRankings)
 	      sprintf( menus[N_players-1].text, "%d. %-20s", N_players,NetPlayers.players[N_players-1].callsign );
 		else
@@ -2794,8 +2690,6 @@ void network_read_sync_packet( netgame_info * sp, int rsinit)
 	Difficulty_level = sp->difficulty;
 	Network_status = sp->game_status;
 
-	mprintf((1, "Netgame.checksum = %d, calculated checksum = %d.\n", Netgame.segments_checksum, my_segments_checksum));
-
 	if (Netgame.segments_checksum != my_segments_checksum)
 	{
 		Network_status = NETSTAT_MENU;
@@ -2819,7 +2713,6 @@ void network_read_sync_packet( netgame_info * sp, int rsinit)
 		if ( (!memcmp( TempPlayersInfo->players[i].network.ipx.node, My_Seq.player.network.ipx.node, 6 )) && (!stricmp( TempPlayersInfo->players[i].callsign, temp_callsign)) ) {
 			if (Player_num!=-1) {
 				Int3(); // Hey, we've found ourselves twice
-				mprintf ((0,"Hey, we've found ourselves twice!\n"));
 				Network_status = NETSTAT_MENU;
 				return; 
 			}
@@ -2853,7 +2746,6 @@ void network_read_sync_packet( netgame_info * sp, int rsinit)
 	}
 
 	if ( Player_num < 0 )   {
-		mprintf ((0,"Bad Player_num, resetting to NETSTAT_MENU!\n"));
 		Network_status = NETSTAT_MENU;
 		return;
 	}
@@ -2883,7 +2775,6 @@ void network_read_sync_packet( netgame_info * sp, int rsinit)
 
 	Objects[Players[Player_num].objnum].type = OBJ_PLAYER;
 
-	mprintf ((0,"Changing to NETSTAT_PLAYING!\n"));
 	Network_status = NETSTAT_PLAYING;
 	Function_mode = FMODE_GAME;
 	multi_sort_kill_list();
@@ -3135,8 +3026,6 @@ abort:
 		NetPlayers.players[i].rank=0;
 	}
 
-	mprintf ((0,"Select teams: Game mode is %d\n",Netgame.gamemode));
-
 	if (Netgame.gamemode == NETGAME_TEAM_ANARCHY ||
 	    Netgame.gamemode == NETGAME_CAPTURE_FLAG ||
 		 Netgame.gamemode == NETGAME_TEAM_HOARD)
@@ -3152,8 +3041,6 @@ network_start_game()
 	int i;
 
 	Assert( FRAME_INFO_SIZE < MAX_DATA_SIZE );
-	mprintf((0, "Using frame_info len %d, max %d.\n", FRAME_INFO_SIZE, MAX_DATA_SIZE));
-
 	if ( !Network_active )
 	{
 		nm_messagebox(NULL, 1, TXT_OK, TXT_IPX_NOT_FOUND );
@@ -3266,15 +3153,10 @@ void network_join_poll( int nitems, newmenu_item * menus, int * key, int citem )
 
 		if (IPX_Socket != osocket )         {
 			sprintf( menus[0].text, "\t%s %+d (PgUp/PgDn to change)", TXT_CURRENT_IPX_SOCKET, IPX_Socket );
-			mprintf(( 0, "Changing to socket %d\n", IPX_Socket ));
 			network_listen();
-			mprintf ((0,"netgood 1!\n"));
 			NetDrvChangeDefaultSocket( IPX_DEFAULT_SOCKET + IPX_Socket );
-			mprintf ((0,"netgood 2!\n"));
 			restart_net_searching(menus);
-			mprintf ((0,"netgood 3!\n"));
 			network_send_game_list_request();
-			mprintf ((0,"netgood 4!\n"));
 			return;
 		}
 	}
@@ -3299,7 +3181,6 @@ void network_join_poll( int nitems, newmenu_item * menus, int * key, int citem )
 		digi_play_sample (SOUND_HUD_MESSAGE,F1_0);
 
 	Network_games_changed = 0;
-	mprintf ((0,"JOIN POLL: I'm looking at %d games!\n",num_active_games));
 
 	// Copy the active games data into the menu options
 	for (i = 0; i < num_active_games; i++)
@@ -3364,7 +3245,6 @@ void network_join_poll( int nitems, newmenu_item * menus, int * key, int citem )
 		else if (game_status == NETSTAT_PLAYING)
 		{
 			join_status=can_join_netgame(&Active_games[i],NULL);
-			//		 mprintf ((0,"Joinstatus=%d\n",join_status));
 
 			if (join_status==1)
 				sprintf (menus[i+2].text,"%d.\t%s \t%s \t  %d/%d \t%s \t %s \t%s",
@@ -3425,7 +3305,6 @@ network_wait_for_sync(void)
 	{
 		sequence_packet me;
 
-		mprintf((0, "Aborting join.\n"));
 		memset(&me, 0, sizeof(sequence_packet));
 		me.type = PID_QUIT_JOINING;
 		memcpy( me.player.callsign, Players[Player_num].callsign, CALLSIGN_LEN+1 );
@@ -3486,10 +3365,6 @@ network_wait_for_requests(void)
 
 	m[0].type=NM_TYPE_TEXT; m[0].text = TXT_NET_LEAVE;
 
-	mprintf((0, "Entered wait_for_requests : N_players = %d.\n", N_players));
-
-	for (choice = 0; choice < N_players; choice++)
-		mprintf((0, "Players[%d].connected = %d.\n", choice, Players[choice].connected));
 
 	Network_status = NETSTAT_WAITING;
 	network_flush();
@@ -3529,8 +3404,6 @@ network_level_sync(void)
 {
 	int result;
 
-	mprintf((0, "Player %d entering network_level_sync.\n", Player_num));
-	
 	MySyncPackInitialized = 0;
 
 	network_flush(); // Flush any old packets
@@ -3734,96 +3607,6 @@ remenu:
 		goto remenu;
 	}
 
-// 	// Choice has been made and looks legit
-// 	if (Active_games[choice].game_status == NETSTAT_ENDLEVEL)
-// 	{
-// 		nm_messagebox(TXT_SORRY, 1, TXT_OK, TXT_NET_GAME_BETWEEN2);
-// 		goto remenu;
-// 	}
-// 
-// 	if (Active_games[choice].protocol_version != MULTI_PROTO_VERSION)
-// 	{
-// 		if (Active_games[choice].protocol_version == 3) {
-// 			#ifndef SHAREWARE
-// 				nm_messagebox(TXT_SORRY, 1, TXT_OK, "Your version of Descent 2\nis incompatible with the\nDemo version");
-// 			#endif
-// 		}
-// 		else if (Active_games[choice].protocol_version == 4) {
-// 			#ifdef SHAREWARE
-// 				nm_messagebox(TXT_SORRY, 1, TXT_OK, "This Demo version of\nDescent 2 is incompatible\nwith the full commercial version");
-// 			#endif
-// 		}
-// 		else
-// 			nm_messagebox(TXT_SORRY, 1, TXT_OK, TXT_VERSION_MISMATCH);
-// 
-// 		goto remenu;
-// 	}
-// 
-// #ifndef SHAREWARE
-// 	{
-// 		// Check for valid mission name
-// 		mprintf((0, "Loading mission:%s.\n", Active_games[choice].mission_name));
-// 		if (!load_mission_by_name(Active_games[choice].mission_name))
-// 		{
-// 			nm_messagebox(NULL, 1, TXT_OK, TXT_MISSION_NOT_FOUND);
-// 			goto remenu;
-// 		}
-// 
-// 		if (is_D2_OEM)
-// 			My_Seq.player.version_minor|=NETWORK_OEM;
-// 	}
-// #endif
-// 
-// 	if (is_D2_OEM)
-// 	{
-// 		if (Active_games[choice].levelnum>8)
-// 		{
-// 				nm_messagebox(NULL, 1, TXT_OK, "This OEM version only supports\nthe first 8 levels!");
-// 				goto remenu;
-// 		}
-// 	}
-// 
-// 	if (is_MAC_SHARE)
-// 	{
-// 		if (Active_games[choice].levelnum > 4)
-// 		{
-// 			nm_messagebox(NULL, 1, TXT_OK, "This SHAREWARE version only supports\nthe first 4 levels!");
-// 			goto remenu;
-// 		}
-// 	}
-// 
-// 	if (!network_wait_for_all_info (choice))
-// 	{
-// 		  nm_messagebox (TXT_SORRY,1,TXT_OK,"There was a join error!");
-// 		  Network_status = NETSTAT_BROWSING; // We are looking at a game menu
-// 		  goto remenu;
-// 	}
-// 
-// 	Network_status = NETSTAT_BROWSING; // We are looking at a game menu
-//  
-// 	if (!can_join_netgame(&Active_games[choice],&ActiveNetPlayers[choice]))
-// 	{
-// 		if (Active_games[choice].numplayers == Active_games[choice].max_numplayers)
-// 			nm_messagebox(TXT_SORRY, 1, TXT_OK, TXT_GAME_FULL);
-// 		else
-// 			nm_messagebox(TXT_SORRY, 1, TXT_OK, TXT_IN_PROGRESS);
-// 		goto remenu;
-// 	}
-// 
-// 	// Choice is valid, prepare to join in
-// 
-// 	memcpy(&Netgame, &Active_games[choice], sizeof(netgame_info));
-// 	memcpy (&NetPlayers,&ActiveNetPlayers[choice],sizeof(AllNetPlayers_info));
-// 
-// 	Difficulty_level = Netgame.difficulty;
-// 	MaxNumNetPlayers = Netgame.max_numplayers;
-// 	change_playernum_to(1);
-// 
-// 	network_set_game_mode(Netgame.gamemode);
-// 
-// 	network_AdjustMaxDataSize ();
-// 
-// 	StartNewLevel(Netgame.levelnum, 0);
 	if (show_game_stats(choice)==0)
 		goto remenu;
 
@@ -3914,11 +3697,8 @@ void network_do_big_wait(int choice)
 			case PID_GAME_INFO:
 				receive_full_netgame_packet(data, &TempNetInfo);
 
-				mprintf ((0,"This is %s game with a security of %d\n",TempNetInfo.game_name,TempNetInfo.Security));
-		
 				if (TempNetInfo.Security !=SecurityCheck)
 				{
-					mprintf ((0,"Bad security on big_wait...rejecting.\n"));	
 					break;
 				}
 						
@@ -3926,8 +3706,6 @@ void network_do_big_wait(int choice)
 				{
 					if (TempPlayersInfo->Security==TempNetInfo.Security)
 					{
-						mprintf ((0,"EQUAL !: Game=%d Players=%d ",TempPlayersInfo->Security,TempNetInfo.Security));
-	
 						if (TempPlayersInfo->Security==SecurityCheck)
 						{
 							memcpy (&Active_games[choice],(ubyte *)&TempNetInfo,sizeof(netgame_info));
@@ -3943,7 +3721,6 @@ void network_do_big_wait(int choice)
 	
 					if (network_wait_for_playerinfo())
 					{
-						mprintf ((0,"HUH? Game=%d Player=%d\n",NetSecurityNum,TempPlayersInfo->Security));
 						memcpy (&Active_games[choice],(ubyte *)&TempNetInfo,sizeof(netgame_info));
 						memcpy (&ActiveNetPlayers[choice],TempPlayersInfo,sizeof(AllNetPlayers_info));
 						SecurityCheck=-1;
@@ -3955,7 +3732,6 @@ void network_do_big_wait(int choice)
 				break;
 
 			case PID_PLAYERSINFO:
-				mprintf ((0,"Got a PID_PLAYERSINFO!\n"));
 #ifndef WORDS_BIGENDIAN
 				temp_info=(AllNetPlayers_info *)data;
 #else
@@ -3997,8 +3773,7 @@ void network_leave_game()
 		N_players=0;
 		network_send_game_info(NULL);
 		N_players=nsave;
-		
-		mprintf ((0,"HEY! I'm master and I've left.\n"));
+	
 	}
 
 	Players[Player_num].connected = 0;	
@@ -4032,9 +3807,6 @@ void network_listen()
 	
 	if (!Network_active) return;
 
-	if (!(Game_mode & GM_NETWORK) && (Function_mode == FMODE_GAME))
-		mprintf((0, "Calling network_listen() when not in net game.\n"));
-
 	WaitingForPlayerInfo=1;
 	NetSecurityFlag=NETSECURITY_OFF;
 
@@ -4060,11 +3832,6 @@ int network_wait_for_playerinfo()
 #endif
 
 	if (!Network_active) return(0);
-
-	if (!(Game_mode & GM_NETWORK) && (Function_mode == FMODE_GAME))
-	{
-		mprintf((0, "Calling network_wait_for_playerinfo() when not in net game.\n"));
-	}
 
 	if (Network_status==NETSTAT_PLAYING)
 	{
@@ -4093,7 +3860,6 @@ int network_wait_for_playerinfo()
 			{
 				if (NetSecurityNum==TempInfo->Security)
 				{
-					mprintf ((0,"HEYEQUAL: Player=%d Game=%d\n",TempInfo->Security,NetSecurityNum));
 					memcpy (&TempPlayersBase,(ubyte *)TempInfo,sizeof(AllNetPlayers_info));
 					TempPlayersInfo=&TempPlayersBase;
 					NetSecurityFlag=NETSECURITY_OFF;
@@ -4106,8 +3872,6 @@ int network_wait_for_playerinfo()
 			}
 			else
 			{
-				mprintf ((0,"I'm original!\n"));
-			
 				NetSecurityNum=TempInfo->Security;
 				NetSecurityFlag=NETSECURITY_WAIT_FOR_GAMEINFO;
 				
@@ -4148,12 +3912,8 @@ void network_send_data( ubyte * ptr, int len, int urgent )
 		check = ptr[0];
 		network_do_frame(1, 0);
 		if (MySyncPack.data_size != 0) {
-			mprintf((0, "%d bytes were added to data by network_do_frame!\n", MySyncPack.data_size));
 			Int3();
 		}
-//              Int3();         // Trying to send too much!
-//              return;
-		mprintf((0, "Packet overflow, sending additional packet, type %d len %d.\n", ptr[0], len));
 		Assert(check == ptr[0]);
 	}
 
@@ -4500,7 +4260,6 @@ void network_read_pdata_packet(frame_info *pd )
 	if (VerifyPlayerJoined!=-1 && TheirPlayernum==VerifyPlayerJoined)
 	{
 		// Hurray! Someone really really got in the game (I think).
-		mprintf ((0,"Hurray! VPJ (%d) reset!\n",VerifyPlayerJoined));
 		VerifyPlayerJoined=-1;
 	}
  
@@ -4530,7 +4289,6 @@ void network_read_pdata_packet(frame_info *pd )
 
 	if ((sbyte)pd->level_num != Current_level_num)
 	{
-		mprintf((0, "Got frame packet from player %d wrong level %d!\n", pd->playernum, pd->level_num));
 		return;
 	}
 
@@ -4547,11 +4305,6 @@ void network_read_pdata_packet(frame_info *pd )
 		missed_packets = pd->numpackets-Players[TheirPlayernum].n_packets_got;
 		if ((pd->numpackets-Players[TheirPlayernum].n_packets_got)>0)
 			TotalMissedPackets += pd->numpackets-Players[TheirPlayernum].n_packets_got;
-
-			if ( missed_packets > 0 )       
-				mprintf(( 0, "Missed %d packets from player #%d (%d total)\n", pd->numpackets-Players[TheirPlayernum].n_packets_got, TheirPlayernum, missed_packets ));
-			else
-				mprintf( (0, "Got %d late packets from player #%d (%d total)\n", Players[TheirPlayernum].n_packets_got-pd->numpackets, TheirPlayernum, missed_packets ));
 
 		Players[TheirPlayernum].n_packets_got = pd->numpackets;
 	}
@@ -4673,7 +4426,6 @@ void network_read_pdata_short_packet(short_frame_info *pd )
 	if (VerifyPlayerJoined!=-1 && TheirPlayernum==VerifyPlayerJoined)
 	{
 		// Hurray! Someone really really got in the game (I think).
-		mprintf ((0,"Hurray! VPJ (%d) reset!\n",VerifyPlayerJoined));
 		VerifyPlayerJoined=-1;
 	}
 
@@ -4690,7 +4442,6 @@ void network_read_pdata_short_packet(short_frame_info *pd )
 
 	if ((sbyte)new_pd.level_num != Current_level_num)
 	{
-		mprintf((0, "Got frame packet from player %d wrong level %d!\n", new_pd.playernum, new_pd.level_num));
 		return;
 	}
 
@@ -4707,11 +4458,6 @@ void network_read_pdata_short_packet(short_frame_info *pd )
 		missed_packets = new_pd.numpackets-Players[TheirPlayernum].n_packets_got;
 		if ((new_pd.numpackets-Players[TheirPlayernum].n_packets_got)>0)
 			TotalMissedPackets += new_pd.numpackets-Players[TheirPlayernum].n_packets_got;
-
-		if ( missed_packets > 0 )       
-			mprintf( (0, "Missed %d packets from player #%d (%d total)\n", new_pd.numpackets-Players[TheirPlayernum].n_packets_got, TheirPlayernum, missed_packets ));
-		else
-			mprintf( (0, "Got %d late packets from player #%d (%d total)\n", Players[TheirPlayernum].n_packets_got-new_pd.numpackets, TheirPlayernum, missed_packets ));
 
 		Players[TheirPlayernum].n_packets_got = new_pd.numpackets;
 	}
@@ -4860,6 +4606,7 @@ void network_more_game_options ()
 	char PlayText[80],KillText[80],srinvul[50],packstring[5],socket_string[5];
 	newmenu_item m[21];
 
+	sprintf (socket_string,"%d",IPX_Socket);
 	sprintf (packstring,"%d",Netgame.PacketsPerSec);
 	
 	opt_difficulty = opt;
@@ -4939,8 +4686,6 @@ menu:
 		nm_messagebox(TXT_ERROR, 1, TXT_OK, "Packet value out of range\nSetting value to 2");
 		Netgame.PacketsPerSec=2;
 	}
-
-	mprintf ((0,"Hey! Sending out %d packets per second\n",Netgame.PacketsPerSec));
 
 	if (NetDrvType() != NETPROTO_UDP)
 	{
@@ -5064,7 +4809,6 @@ void network_handle_ping_return (ubyte pnum)
 {
 	if (PingLaunchTime[pnum]==0 || pnum>=N_players)
 	{
-		mprintf ((0,"Got invalid PING RETURN from %s!\n",Players[pnum].callsign));
 		return;
 	}
 
@@ -5170,7 +4914,6 @@ void DoRefuseStuff (sequence_packet *their)
 			if (Game_mode & GM_TEAM)
 			{
 				new_player_num=GetNewPlayerNumber (their);
-				mprintf ((0,"Newplayernum=%d\n",new_player_num));
 	
 				Assert (RefuseTeam==1 || RefuseTeam==2);        
 			
@@ -5239,7 +4982,6 @@ void network_send_extras ()
 
    if (!network_i_am_master())
 	 {
-	  mprintf ((0,"Hey! I'm not the master and I was gonna send info!\n"));
 	 // Int3();     
 	 // Network_sending_extras=0;
 	 // return;
@@ -5303,10 +5045,7 @@ void network_process_naked_pdata (char *data,int len)
    int pnum=data[1]; 
    Assert (data[0]=PID_NAKED_PDATA);
 
-//   mprintf ((0,"Processing a naked packet of %d length.\n",len));
-
 	if (pnum < 0) {
-	   mprintf ((0,"Naked packet is bad!\n"));
 		Int3(); // This packet is bogus!!
 		return;
 	}
@@ -5359,7 +5098,6 @@ int GetMyNetRanking ()
   if (rank>8)
 	rank=8;
  
-  mprintf ((0,"Rank is %d (%s)\n",rank+1,RankStrings[rank+1]));
   return (rank+1);
  }
 
@@ -5394,8 +5132,6 @@ void network_process_names_return (ubyte *data)
    
    if (NamesInfoSecurity!=(*(int *)(data+1)))
 	 {
-	  mprintf ((0,"Bad security on names return!\n"));
-	  mprintf ((0,"NIS=%d data=%d\n",NamesInfoSecurity,(*(int *)(data+1))));
 	  return;
 	 }
 
@@ -5441,8 +5177,6 @@ void network_process_names_return (ubyte *data)
 	 {
 	  l=data[count++];
 
-     mprintf ((0,"%s\n",data+count));
-
 	  for (t=0;t<CALLSIGN_LEN+1;t++)
 		 temp[t]=data[count++];	  
      if (GameArg.MplNoRankings)	
@@ -5474,7 +5208,6 @@ void network_send_player_names (sequence_packet *their)
 
   if (!their)
    {
-    mprintf ((0,"Got a player name without a return address! Get Jason\n"));
 	 return;
 	}
 
@@ -5487,8 +5220,6 @@ void network_send_player_names (sequence_packet *their)
 	  goto sendit;
 	 }
  
-   mprintf ((0,"RealSec=%d DS=%d\n",Netgame.Security,*(int *)(buf+1)));
-  
    for (i=0;i<N_players;i++)
 	 if (Players[i].connected)
 		numconnected++;
@@ -5550,7 +5281,6 @@ void network_info_req( int nitems, newmenu_item * menus, int * key, int citem )
 	if (nextsend<curtime)
 	{
 		nextsend=curtime+F1_0*3;
-		mprintf((0, "Sending game_list request.\n"));
 		memset(&me, 0, sizeof(sequence_packet));
 		memcpy( me.player.callsign, Players[Player_num].callsign, CALLSIGN_LEN+1 );
 		memcpy( me.player.network.ipx.node, NetDrvGetMyLocalAddress(), 6 );

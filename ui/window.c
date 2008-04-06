@@ -1,4 +1,3 @@
-/* $Id: window.c,v 1.1.1.1 2006/03/17 19:52:20 zicodxx Exp $ */
 /*
 THE COMPUTER CODE CONTAINED HEREIN IS THE SOLE PROPERTY OF PARALLAX
 SOFTWARE CORPORATION ("PARALLAX").  PARALLAX, IN DISTRIBUTING THE CODE TO
@@ -12,10 +11,6 @@ AND AGREES TO THE TERMS HEREIN AND ACCEPTS THE SAME BY USE OF THIS FILE.
 COPYRIGHT 1993-1999 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 */
 
-#ifdef RCS
-static char rcsid[] = "$Id: window.c,v 1.1.1.1 2006/03/17 19:52:20 zicodxx Exp $";
-#endif
-
 #ifdef HAVE_CONFIG_H
 #include "conf.h"
 #endif
@@ -23,13 +18,8 @@ static char rcsid[] = "$Id: window.c,v 1.1.1.1 2006/03/17 19:52:20 zicodxx Exp $
 #include <stdlib.h>
 #include <stdio.h>
 #include <stdarg.h>
-#ifdef __MSDOS__
- #include <dos.h>
-#else
  #define _disable()
  #define _enable()
-#endif
-
 #include "u_mem.h"
 #include "fix.h"
 #include "pstypes.h"
@@ -37,8 +27,6 @@ static char rcsid[] = "$Id: window.c,v 1.1.1.1 2006/03/17 19:52:20 zicodxx Exp $
 #include "ui.h"
 #include "key.h"
 #include "timer.h"
-
-#include "mono.h"
 #include "mouse.h"
 
 
@@ -131,13 +119,10 @@ int ui_play_events_fast( int NumberOfEvents, UI_EVENT * buffer )
 	keyd_last_released= 0;
 	keyd_last_pressed= 0;
 
-	//mprintf( 0, "Before: ", i );
 	for (i=0; i<256; i++ )
 	{
-		//if (keyd_pressed[i]) mprintf( 0, "%d ", i );
 		SavedState[i] = keyd_pressed[i];
 	}
-	//mprintf( 0, "\n" );
 	_enable();
 	key_flush();
 	return 0;
@@ -325,13 +310,10 @@ void restore_state()
 {
 	int i;
 	_disable();
-	//mprintf( 0, "After: " );
 	for (i=0; i<256; i++ )
 	{
-		//if (SavedState[i]) mprintf( 0, "%d ", i );
 		keyd_pressed[i] = SavedState[i];
 	}
-	//mprintf( 0, "\n" );
 	_enable();
 }
 
@@ -403,7 +385,6 @@ void ui_mega_process()
 				EventBuffer[ui_event_counter].type = 1;
 				EventBuffer[ui_event_counter].data = ((MouseDY & 0xFFFF) << 16) | (MouseDX & 0xFFFF);
 				ui_event_counter++;
-				//mprintf( 0, "EVENT:%d, Mouse moved %d,%d\n", ui_event_counter, MouseDX, MouseDY );
 			} else {
 				Record = 0;
 			}
@@ -420,7 +401,6 @@ void ui_mega_process()
 				EventBuffer[ui_event_counter].type = 2;
 				EventBuffer[ui_event_counter].data = MouseButtons;
 				ui_event_counter++;
-				//mprintf( 0, "EVENT:%d, Mouse buttons changed %d\n", ui_event_counter, MouseButtons );
 			} else {
 				Record = 0;
 			}
@@ -441,7 +421,6 @@ void ui_mega_process()
 				EventBuffer[ui_event_counter].type = 3;
 				EventBuffer[ui_event_counter].data = k;
 				ui_event_counter++;
-				//mprintf( 0, "EVENT:%d, Key %d pressed\n", ui_event_counter, k );
 			} else {
 				Record = 0;
 			}
@@ -461,7 +440,6 @@ void ui_mega_process()
 				EventBuffer[ui_event_counter].type = 4;
 				EventBuffer[ui_event_counter].data = k;
 				ui_event_counter++;
-				//mprintf( 0, "EVENT:%d, Key %d released\n", ui_event_counter, k );
 			} else {
 				Record = 0;
 			}
@@ -485,7 +463,6 @@ void ui_mega_process()
 				EventBuffer[ui_event_counter].type = 5;
 				EventBuffer[ui_event_counter].data = last_keypress;
 				ui_event_counter++;
-				//mprintf( 0, "EVENT:%d, Keypressed %d\n", ui_event_counter, last_keypress );
 			} else {
 				Record = 0;
 			}
@@ -520,7 +497,6 @@ void ui_mega_process()
 		
 		if (key_inkey() == KEY_F12 )
 		{
-			//mprintf( 0, "Playing stopped.\n" );
 			restore_state();
 			Record = 0;
 			break;

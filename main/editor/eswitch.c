@@ -1,4 +1,3 @@
-/* $Id: eswitch.c,v 1.1.1.1 2006/03/17 19:58:20 zicodxx Exp $ */
 /*
 THE COMPUTER CODE CONTAINED HEREIN IS THE SOLE PROPERTY OF PARALLAX
 SOFTWARE CORPORATION ("PARALLAX").  PARALLAX, IN DISTRIBUTING THE CODE TO
@@ -18,10 +17,6 @@ COPYRIGHT 1993-1998 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
  *
  */
 
-#ifdef RCS
-static char rcsid[] = "$Id: eswitch.c,v 1.1.1.1 2006/03/17 19:58:20 zicodxx Exp $";
-#endif
-
 #ifdef HAVE_CONFIG_H
 #include "conf.h"
 #endif
@@ -37,12 +32,9 @@ static char rcsid[] = "$Id: eswitch.c,v 1.1.1.1 2006/03/17 19:58:20 zicodxx Exp 
 #include "segment.h"
 #include "error.h"
 #include "gameseg.h"
-#include "mono.h"
 #include "wall.h"
 #include "medwall.h"
-
 #include "screens.h"
-
 #include "textures.h"
 #include "texmerge.h"
 #include "medrobot.h"
@@ -207,9 +199,6 @@ int bind_matcen_to_trigger() {
 	Triggers[trigger_num].seg[link_num] = Cursegp - Segments;
 	Triggers[trigger_num].num_links++;
 
-	mprintf((0, "seg %d linked to link_num %d\n",
-				Triggers[trigger_num].seg[link_num], link_num)); 
-
 	editor_status("Matcen linked to trigger");
 
 	return 1;
@@ -261,9 +250,6 @@ int bind_wall_to_trigger() {
 	Triggers[trigger_num].side[link_num] = Curside;
 	Triggers[trigger_num].num_links++;
 
-	mprintf((0, "seg %d:side %d linked to link_num %d\n",
-				Triggers[trigger_num].seg[link_num], Triggers[trigger_num].side[link_num], link_num)); 
-
 	editor_status("Wall linked to trigger");
 
 	return 1;
@@ -298,7 +284,6 @@ int remove_trigger(segment *seg, short side)
 {    	
 	if (seg->sides[side].wall_num == -1)
 	{
-		mprintf((0, "Can't remove trigger from wall_num -1\n"));	
 		return 0;
 	}
 

@@ -1,4 +1,3 @@
-/* $Id: laser.c,v 1.1.1.1 2006/03/17 19:55:16 zicodxx Exp $ */
 /*
 THE COMPUTER CODE CONTAINED HEREIN IS THE SOLE PROPERTY OF PARALLAX
 SOFTWARE CORPORATION ("PARALLAX").  PARALLAX, IN DISTRIBUTING THE CODE TO
@@ -22,10 +21,6 @@ COPYRIGHT 1993-1999 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 #include <conf.h>
 #endif
 
-#ifdef RCS
-char laser_rcsid[] = "$Id: laser.c,v 1.1.1.1 2006/03/17 19:55:16 zicodxx Exp $";
-#endif
-
 #include <stdlib.h>
 #include <stdio.h>
 #include <time.h>
@@ -40,7 +35,6 @@ char laser_rcsid[] = "$Id: laser.c,v 1.1.1.1 2006/03/17 19:55:16 zicodxx Exp $";
 #include "fvi.h"
 #include "segpoint.h"
 #include "error.h"
-#include "mono.h"
 #include "key.h"
 #include "texmap.h"
 #include "textures.h"
@@ -338,8 +332,6 @@ void delete_old_omega_blobs(object *parent_objp)
 					obj_delete(i);
 					count++;
 				}
-
-	mprintf((0, "%i Omega blobs deleted in frame %i\n", count, FrameCount));
 }
 
 // ---------------------------------------------------------------------------------
@@ -581,7 +573,6 @@ void do_omega_stuff(object *parent_objp, vms_vector *firing_pos, object *weapon_
 		vm_vec_scale_add(&goal_pos, firing_pos, &perturbed_fvec, MAX_OMEGA_DIST);
 		fq.startseg = firing_segnum;
 		if (fq.startseg == -1) {
-			mprintf((1, "Trying to fire Omega Cannon, but gun is outside mine.  Aborting!\n"));
 			return;
 		}
 		fq.p0						= firing_pos;
@@ -627,7 +618,6 @@ int Laser_create_new( vms_vector * direction, vms_vector * position, int segnum,
 	objnum = create_weapon_object(weapon_type,segnum,position);
 
 	if ( objnum < 0 ) {
-		mprintf((1, "Can't create laser - Out of objects!\n" ));
 		return -1;
 	}
 
@@ -754,12 +744,10 @@ int Laser_create_new( vms_vector * direction, vms_vector * position, int segnum,
 	 	vm_vec_scale_add( &end_pos, &obj->pos, direction, Laser_offset+(laser_length/2) );
 		end_segnum = find_point_seg(&end_pos, obj->segnum);
 		if (end_segnum != obj->segnum) {
-			// mprintf(0, "Warning: Laser tip not in same segment as player.\n");
 			if (end_segnum != -1) {
 				obj->pos = end_pos;
 				obj_relink(obj-Objects, end_segnum);
-			} else
-				mprintf((0, "Warning: Laser tip outside mine.  Laser not being moved to end of gun.\n"));
+			}
 		} else
 			obj->pos = end_pos;
 	}
@@ -800,8 +788,6 @@ int Laser_create_new( vms_vector * direction, vms_vector * position, int segnum,
 	if ((obj->type == OBJ_WEAPON) && (obj->id == FLARE_ID))
 		obj->lifeleft += (d_rand()-16384) << 2;		//	add in -2..2 seconds
 
-	//	mprintf( 0, "Weapon speed = %.1f (%.1f)\n", f2fl(Weapon_info[obj->id].speed[Difficulty_level] + parent_speed), f2fl(parent_speed) );
-
 	return objnum;
 }
 
@@ -831,7 +817,6 @@ int Laser_create_new_easy( vms_vector * direction, vms_vector * position, int pa
 
 	fate = find_vector_intersection(&fq, &hit_data);
 	if (fate != HIT_NONE  || hit_data.hit_seg==-1) {
-		mprintf((1, "Warning: Laser from parent=%i stuck in wall or object, didn't fire!\n", parent));
 		return -1;
 	}
 
@@ -910,23 +895,16 @@ int object_is_trackable(int track_goal, object *tracker, fix *dot)
 	*dot = vm_vec_dot(&vector_to_goal, &tracker->orient.fvec);
 
 	if ((*dot < Min_trackable_dot) && (*dot > F1_0*9/10)) {
-		// -- mprintf((0, "."));
 		vm_vec_normalize(&vector_to_goal);
 		*dot = vm_vec_dot(&vector_to_goal, &tracker->orient.fvec);
 	}
 
-//mprintf((0, " OIT: dot=%5.2f ", f2fl(dot)));
-
-	// mprintf((0, "object_is_trackable: [%3i] %7.3f, min = %7.3f\n", track_goal, f2fl(dot), f2fl(Min_trackable_dot)));
- 
 	if (*dot >= Min_trackable_dot) {
 		int	rval;
 		//	dot is in legal range, now see if object is visible
 		rval =  object_to_object_visibility(tracker, objp, FQ_TRANSWALL);
-//mprintf((0, " TRACK "));
 		return rval;
 	} else {
-//mprintf((0, " LOST! "));
 		return 0;
 	}
 
@@ -998,7 +976,6 @@ int find_homing_object(vms_vector *curpos, object *tracker)
 
 			//	Couldn't find suitable view from this frame, so do complete search.
 			if (window_num == -1) {
-				mprintf((0, "Note: Calling find_homing_object_complete because no suitable rendered window.\n"));
 				return call_find_homing_object_complete(tracker, curpos);
 			}
 
@@ -1032,12 +1009,9 @@ int find_homing_object(vms_vector *curpos, object *tracker)
 				if (dist < max_trackable_dist) {
 					dot = vm_vec_dot(&vec_to_curobj, &tracker->orient.fvec);
 
-					// mprintf(0, "Object %i: dist = %7.3f, dot = %7.3f\n", objnum, f2fl(dist), f2fl(dot));
-
 					//	Note: This uses the constant, not-scaled-by-frametime value, because it is only used
 					//	to determine if an object is initially trackable.  find_homing_object is called on subsequent
 					//	frames to determine if the object remains trackable.
-					// mprintf((0, "find_homing_object:  [%3i] %7.3f, min = %7.3f\n", curobjp-Objects, f2fl(dot), f2fl(MIN_TRACKABLE_DOT)));
 					if (dot > cur_min_trackable_dot) {
 						if (dot > max_dot) {
 							if (object_to_object_visibility(tracker, &Objects[objnum], FQ_TRANSWALL)) {
@@ -1061,8 +1035,6 @@ int find_homing_object(vms_vector *curpos, object *tracker)
 			}
 		}
 	}
-
-	// mprintf(0, "Selecting object #%i\n=n", best_objnum);
 
 	return best_objnum;
 }
@@ -1147,9 +1119,7 @@ int find_homing_object_complete(vms_vector *curpos, object *tracker, int track_o
 			//	Note: This uses the constant, not-scaled-by-frametime value, because it is only used
 			//	to determine if an object is initially trackable.  find_homing_object is called on subsequent
 			//	frames to determine if the object remains trackable.
-			// mprintf((0, "fho_complete:        [%3i] %7.3f, min = %7.3f\n", curobjp-Objects, f2fl(dot), f2fl(MIN_TRACKABLE_DOT)));
 			if (dot > min_trackable_dot) {
-				// mprintf(0, "Object %i: dist = %7.3f, dot = %7.3f\n", objnum, f2fl(dist), f2fl(dot));
 				if (dot > max_dot) {
 					if (object_to_object_visibility(tracker, &Objects[objnum], FQ_TRANSWALL)) {
 						max_dot = dot;
@@ -1160,8 +1130,6 @@ int find_homing_object_complete(vms_vector *curpos, object *tracker, int track_o
 		}
 
 	}
-
-	// -- mprintf((0, "Selecting object #%i in find_homing_object_complete\n\n", best_objnum));
 
 	return best_objnum;
 }
@@ -1174,7 +1142,6 @@ int track_track_goal(int track_goal, object *tracker, fix *dot)
 {
 	//	Every 8 frames for each object, scan all objects.
 	if (object_is_trackable(track_goal, tracker, dot) && ((((tracker-Objects) ^ FrameCount) % 8) != 0)) {
-		//mprintf((0, "ttg: QO"));
 		return track_goal;
 	} else if ((((tracker-Objects) ^ FrameCount) % 4) == 0) {
 		int	rval = -2;
@@ -1223,9 +1190,6 @@ int track_track_goal(int track_goal, object *tracker, fix *dot)
 		Assert(rval != -2);		//	This means it never got set which is bad!  Contact Mike.
 		return rval;
 	}
-
-//if (track_goal != -1)
-// mprintf((0, "Object %i not tracking anything.\n", tracker-Objects));
 
 	return -1;
 }
@@ -1279,17 +1243,12 @@ void Laser_player_fire_spread_delay(object *obj, int laser_type, int gun_num, fi
 		return;
 	
 	if (Fate==HIT_WALL) {
-		if (delay_time)
-			mprintf((0, "Your DELAYED laser is stuck thru a wall!\n" ));
-		else
-			mprintf((0, "Your laser is stuck thru a wall!\n" ));
 		return;		
 	}
 
 	if (Fate==HIT_OBJECT) {
 //		if ( Objects[hit_data.hit_object].type == OBJ_ROBOT )
 //			Objects[hit_data.hit_object].flags |= OF_SHOULD_BE_DEAD;
-		mprintf((0, "Your laser is stuck in an object!\n" ));
 //		if ( Objects[hit_data.hit_object].type != OBJ_POWERUP )
 //			return;		
 	//as of 12/6/94, we don't care if the laser is stuck in an object. We
@@ -1314,7 +1273,6 @@ void Laser_player_fire_spread_delay(object *obj, int laser_type, int gun_num, fi
 
 #ifdef NETWORK
 	if (laser_type==GUIDEDMISS_ID && Multi_is_guided) {
-		mprintf ((0,"Guided missile %s activated!\n",Players[obj->id].callsign));
 		Guided_missile[obj->id]=&Objects[objnum];
 	}
 
@@ -1361,7 +1319,6 @@ void Laser_player_fire_spread_delay(object *obj, int laser_type, int gun_num, fi
 			Objects[objnum].ctype.laser_info.track_goal = Network_laser_track;
 		}
 		#endif
-//		mprintf((0, "Selecting object #%i in find_homing_object_complete\n", Network_laser_track));
 	}
 }
 
@@ -1522,32 +1479,6 @@ void Laser_do_weapon_sequence(object *obj)
 		vm_vec_scale(&obj->mtype.phys_info.velocity, Weapon_info[obj->id].speed[Difficulty_level]);
 	}
 
-// -- 	//	The Super Spreadfire (Helix) blobs travel in a sinusoidal path.  That is accomplished
-// -- 	//	by modifying velocity (direction) in the frame interval.
-// -- 	if (obj->id == SSPREADFIRE_ID) {
-// -- 		fix	age, sinval, cosval;
-// -- 		vms_vector	p, newp;
-// -- 		fix	speed;
-// -- 
-// -- 		speed = vm_vec_mag_quick(&obj->phys_info.velocity);
-// -- 
-// -- 		age = Weapon_info[obj->id].lifetime - obj->lifeleft;
-// -- 
-// -- 		fix_fast_sincos(age, &sinval, &cosval);
-// -- 
-// -- 		//	Note: Below code assumes x=1, y=0.  Need to scale this for values around a circle for 5 helix positions.
-// -- 		p.x = cosval << 3;
-// -- 		p.y = sinval << 3;
-// -- 		p.z = 0;
-// -- 
-// -- 		vm_vec_rotate(&newp, &p, &obj->orient);
-// -- 
-// -- 		vm_vec_add(&goal_point, &obj->pos, &newp);
-// -- 
-// -- 		vm_vec_sub(&vec_to_goal, &goal_point, obj
-// -- 	}
-
-
 	//	For homing missiles, turn towards target. (unless it's the guided missile)
 	if (Weapon_info[obj->id].homing_flag && !(obj->id==GUIDEDMISS_ID && obj->ctype.laser_info.parent_type==OBJ_PLAYER && obj==Guided_missile[Objects[obj->ctype.laser_info.parent_num].id] && obj->signature==Guided_missile[Objects[obj->ctype.laser_info.parent_num].id]->signature))
 	{
@@ -1560,18 +1491,13 @@ void Laser_do_weapon_sequence(object *obj)
 
 			int	track_goal = obj->ctype.laser_info.track_goal;
 
-			//mprintf((0, "%5i: mtd=%5.2f", FrameCount, f2fl(Min_trackable_dot)));
-
 			//	If it's time to do tracking, then it's time to grow up, stop bouncing and start exploding!.
 			if ((obj->id == ROBOT_SMART_MINE_HOMING_ID) || (obj->id == ROBOT_SMART_HOMING_ID) || (obj->id == SMART_MINE_HOMING_ID) || (obj->id == PLAYER_SMART_HOMING_ID) || (obj->id == EARTHSHAKER_MEGA_ID)) {
-				// if (obj->mtype.phys_info.flags & PF_BOUNCE) mprintf(0, "Debouncing smart child %i\n", obj-Objects);
 				obj->mtype.phys_info.flags &= ~PF_BOUNCE;
 			}
 
 			//	Make sure the object we are tracking is still trackable.
 			track_goal = track_track_goal(track_goal, obj, &dot);
-
-			//mprintf((0, " after ttg=%3i ", track_goal));
 
 			if (track_goal == Players[Player_num].objnum) {
 				fix	dist_to_player;
@@ -1641,7 +1567,6 @@ void Laser_do_weapon_sequence(object *obj)
 					}
 	
 					// -- dot = vm_vec_dot(&temp_vec, &vector_to_object);
-	//mprintf((0, " dot=%5.2f ", f2fl(dot)));
 					vm_vec_add2(&temp_vec, &vector_to_object);
 					//	The boss' smart children track better...
 					if (Weapon_info[obj->id].render_type != WEAPON_RENDER_POLYMODEL)
@@ -1659,7 +1584,6 @@ void Laser_do_weapon_sequence(object *obj)
 					
 						lifelost = fixmul(absdot*32, FrameTime);
 						obj->lifeleft -= lifelost;
-						// -- mprintf((0, "Missile %3i, dot = %7.3f life lost = %7.3f, life left = %7.3f\n", obj-Objects, f2fl(dot), f2fl(lifelost), f2fl(obj->lifeleft)));
 					}
 	
 					//	Only polygon objects have visible orientation, so only they should turn.
@@ -1668,8 +1592,6 @@ void Laser_do_weapon_sequence(object *obj)
 				}
 			}
 		}
-
-//mprintf((0, "\n"));
 	}
 
 	//	Make sure weapon is not moving faster than allowed speed.
@@ -1751,7 +1673,6 @@ if (Zbonkers) {
 		if	((plp->energy >= energy_used) && (primary_ammo >= ammo_used)) {
 			int	laser_level, flags;
 
-//mprintf(0, ".");
 			if (Laser_rapid_fire!=0xBADA55)
 				Next_laser_fire_time += Weapon_info[weapon_index].fire_wait;
 			else
@@ -1796,136 +1717,11 @@ if (Zbonkers) {
 			break;	//	Couldn't fire weapon, so abort.
 		}
 	}
-//mprintf(0, "  fires = %i\n", rval);
 
 	Global_laser_firing_count = 0;	
 
 	return rval;
 }
-
-// -- #define	MAX_LIGHTNING_DISTANCE	(F1_0*300)
-// -- #define	MAX_LIGHTNING_BLOBS		16
-// -- #define	LIGHTNING_BLOB_DISTANCE	(MAX_LIGHTNING_DISTANCE/MAX_LIGHTNING_BLOBS)
-// -- 
-// -- #define	LIGHTNING_BLOB_ID			13
-// -- 
-// -- #define	LIGHTNING_TIME		(F1_0/4)
-// -- #define	LIGHTNING_DELAY	(F1_0/8)
-// -- 
-// -- int	Lightning_gun_num = 1;
-// -- 
-// -- fix	Lightning_start_time = -F1_0*10, Lightning_last_time;
-// -- 
-// -- //	--------------------------------------------------------------------------------------------------
-// -- //	Return -1 if failed to create at least one blob.  Else return index of last blob created.
-// -- int create_lightning_blobs(vms_vector *direction, vms_vector *start_pos, int start_segnum, int parent)
-// -- {
-// -- 	int			i;
-// -- 	fvi_query	fq;
-// -- 	fvi_info		hit_data;
-// -- 	vms_vector	end_pos;
-// -- 	vms_vector	norm_dir;
-// -- 	int			fate;
-// -- 	int			num_blobs;
-// -- 	vms_vector	tvec;
-// -- 	fix			dist_to_hit_point;
-// -- 	vms_vector	point_pos, delta_pos;
-// -- 	int			objnum;
-// -- 	vms_vector	*gun_pos;
-// -- 	vms_matrix	m;
-// -- 	vms_vector	gun_pos2;
-// -- 
-// -- 	if (Players[Player_num].energy > F1_0)
-// -- 		Players[Player_num].energy -= F1_0;
-// -- 
-// -- 	if (Players[Player_num].energy <= F1_0) {
-// -- 		Players[Player_num].energy = 0;	
-// -- 		auto_select_weapon(0);
-// -- 		return -1;
-// -- 	}
-// -- 
-// -- 	norm_dir = *direction;
-// -- 
-// -- 	vm_vec_normalize_quick(&norm_dir);
-// -- 	vm_vec_scale_add(&end_pos, start_pos, &norm_dir, MAX_LIGHTNING_DISTANCE);
-// -- 
-// -- 	fq.p0						= start_pos;
-// -- 	fq.startseg				= start_segnum;
-// -- 	fq.p1						= &end_pos;
-// -- 	fq.rad					= 0;
-// -- 	fq.thisobjnum			= parent;
-// -- 	fq.ignore_obj_list	= NULL;
-// -- 	fq.flags					= FQ_TRANSWALL | FQ_CHECK_OBJS;
-// -- 
-// -- 	fate = find_vector_intersection(&fq, &hit_data);
-// -- 	if (hit_data.hit_seg == -1) {
-// -- 		mprintf((1, "Warning: Lightning bolt has hit seg of -1.\n"));
-// -- 		return -1;
-// -- 	}
-// -- 
-// -- 	dist_to_hit_point = vm_vec_mag(vm_vec_sub(&tvec, &hit_data.hit_pnt, start_pos));
-// -- 	num_blobs = dist_to_hit_point/LIGHTNING_BLOB_DISTANCE;
-// -- 
-// -- 	if (num_blobs > MAX_LIGHTNING_BLOBS)
-// -- 		num_blobs = MAX_LIGHTNING_BLOBS;
-// -- 
-// -- 	if (num_blobs < MAX_LIGHTNING_BLOBS/4)
-// -- 		num_blobs = MAX_LIGHTNING_BLOBS/4;
-// -- 
-// -- 	// Find the initial position of the laser
-// -- 	gun_pos = &Player_ship->gun_points[Lightning_gun_num];
-// -- 	vm_copy_transpose_matrix(&m,&Objects[parent].orient);
-// -- 	vm_vec_rotate(&gun_pos2, gun_pos, &m);
-// -- 	vm_vec_add(&point_pos, &Objects[parent].pos, &gun_pos2);
-// -- 
-// -- 	delta_pos = norm_dir;
-// -- 	vm_vec_scale(&delta_pos, dist_to_hit_point/num_blobs);
-// -- 
-// -- 	for (i=0; i<num_blobs; i++) {
-// -- 		int			point_seg;
-// -- 		object		*obj;
-// -- 
-// -- 		vm_vec_add2(&point_pos, &delta_pos);
-// -- 		point_seg = find_point_seg(&point_pos, start_segnum);
-// -- 		if (point_seg == -1)	//	Hey, we thought we were creating points on a line, but we left the mine!
-// -- 			continue;
-// -- 
-// -- 		objnum = Laser_create_new( direction, &point_pos, point_seg, parent, LIGHTNING_BLOB_ID, 0 );
-// -- 
-// -- 		if ( objnum < 0 ) 	{
-// -- 			mprintf((1, "Can't create lightning blob - Out of objects!\n" ));
-// -- 			Int3();
-// -- 			return -1;
-// -- 		}
-// -- 
-// -- 		obj = &Objects[objnum];
-// -- 
-// -- 		digi_play_sample( Weapon_info[obj->id].flash_sound, F1_0 );
-// -- 
-// -- 		// -- vm_vec_scale( &obj->mtype.phys_info.velocity, F1_0/2);
-// -- 
-// -- 		obj->lifeleft = (LIGHTNING_TIME + LIGHTNING_DELAY)/2;
-// -- 
-// -- 	}
-// -- 
-// -- 	return objnum;
-// -- 
-// -- }
-// -- 
-// -- //	--------------------------------------------------------------------------------------------------
-// -- //	Lightning Cannon.
-// -- //	While being fired, creates path of blobs forward from player until it hits something.
-// -- //	Up to MAX_LIGHTNING_BLOBS blobs, spaced LIGHTNING_BLOB_DISTANCE units apart.
-// -- //	When the player releases the firing key, the blobs move forward.
-// -- void lightning_frame(void)
-// -- {
-// -- 	if ((GameTime - Lightning_start_time < LIGHTNING_TIME) && (GameTime - Lightning_start_time > 0)) {
-// -- 		if (GameTime - Lightning_last_time > LIGHTNING_DELAY) {
-// -- 			create_lightning_blobs(&ConsoleObject->orient.fvec, &ConsoleObject->pos, ConsoleObject->segnum, ConsoleObject-Objects);
-// -- 			Lightning_last_time = GameTime;
-// -- 		}
-// -- 	}
-// -- }
 
 //	--------------------------------------------------------------------------------------------------
 //	Object "objnum" fires weapon "weapon_num" of level "level".  (Right now (9/24/94) level is used only for type 0 laser.
@@ -1996,8 +1792,6 @@ int do_laser_firing(int objnum, int weapon_num, int level, int flags, int nfires
 
 		case FUSION_INDEX: {
 			vms_vector	force_vec;
-
-//			mprintf((0, "Fusion multiplier %f.\n", f2fl(Fusion_charge)));
 
 			Laser_player_fire( objp, FUSION_ID, 0, 1, 0);
 			Laser_player_fire( objp, FUSION_ID, 1, 1, 0);
@@ -2094,7 +1888,6 @@ int do_laser_firing(int objnum, int weapon_num, int level, int flags, int nfires
 #ifdef NETWORK
 	if ((Game_mode & GM_MULTI) && (objnum == Players[Player_num].objnum))
 	{
-		// mprintf((0, "Flags on fire: %d.\n", flags));
 		Network_laser_fired = nfires;
 		Network_laser_gun = weapon_num;
 		Network_laser_flags = flags;
@@ -2220,7 +2013,6 @@ void create_smart_children(object *objp, int num_smart_children)
 						objlist[numobjs] = objnum;
 						numobjs++;
 						if (numobjs >= MAX_OBJDISTS) {
-							mprintf((0, "Warning -- too many objects near smart bomb explosion.  See laser.c.\n"));
 							numobjs = MAX_OBJDISTS;
 							break;
 						}

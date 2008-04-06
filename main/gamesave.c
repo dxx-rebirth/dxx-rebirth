@@ -1,4 +1,3 @@
-/* $Id: gamesave.c,v 1.1.1.1 2006/03/17 19:57:19 zicodxx Exp $ */
 /*
 THE COMPUTER CODE CONTAINED HEREIN IS THE SOLE PROPERTY OF PARALLAX
 SOFTWARE CORPORATION ("PARALLAX").  PARALLAX, IN DISTRIBUTING THE CODE TO
@@ -22,21 +21,15 @@ COPYRIGHT 1993-1999 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 #include <conf.h>
 #endif
 
-#ifdef RCS
-char gamesave_rcsid[] = "$Id: gamesave.c,v 1.1.1.1 2006/03/17 19:57:19 zicodxx Exp $";
-#endif
-
 #include <stdio.h>
 #include <string.h>
-
 #include "pstypes.h"
 #include "strutil.h"
-#include "mono.h"
+#include "console.h"
 #include "key.h"
 #include "gr.h"
 #include "palette.h"
 #include "newmenu.h"
-
 #include "inferno.h"
 #ifdef EDITOR
 #include "editor/editor.h"
@@ -48,8 +41,6 @@ char gamesave_rcsid[] = "$Id: gamesave.c,v 1.1.1.1 2006/03/17 19:57:19 zicodxx E
 #include "wall.h"
 #include "gamemine.h"
 #include "robot.h"
-
-
 #include "cfile.h"
 #include "bm.h"
 #include "menu.h"
@@ -166,7 +157,6 @@ int is_real_level(char *filename)
 	if (len < 6)
 		return 0;
 
-	//mprintf((0, "String = [%s]\n", &filename[len-11]));
 	return !strnicmp(&filename[len-11], "level", 5);
 
 }
@@ -240,7 +230,6 @@ void verify_object( object * obj )	{
 
 			for (i=0;i<N_polygon_models;i++)
 				if (!stricmp(Pof_names[i],name)) {		//found it!	
-					// mprintf((0,"Mapping <%s> to %d (was %d)\n",name,i,obj->rtype.pobj_info.model_num));
 					obj->rtype.pobj_info.model_num = i;
 					break;
 				}
@@ -266,9 +255,6 @@ void verify_object( object * obj )	{
 				}
 			  PowerupsInMine[obj->id]++;
 		     MaxPowerupsAllowed[obj->id]++;
-			  mprintf ((0,"PowerupLimiter: ID=%d\n",obj->id));
-			  if (obj->id>MAX_POWERUP_TYPES)
-				mprintf ((1,"POWERUP: Overwriting array bounds!! Get JL!\n"));
 		 	}
 #endif
 
@@ -513,7 +499,6 @@ void read_object(object *obj,CFILE *f,int version)
 			else {
 				int xlated_tmo = tmap_xlate_table[tmo];
 				if (xlated_tmo < 0)	{
-					mprintf( (0, "Couldn't find texture for demo object, model_num = %d\n", obj->rtype.pobj_info.model_num));
 					Int3();
 					xlated_tmo = 0;
 				}
@@ -981,7 +966,6 @@ int load_game_data(CFILE *LoadFile)
 
 	//================ READ MATERIALOGRIFIZATIONATORS INFO ===============
 
-	// mprintf((0, "Reading %i materialization centers.\n", game_fileinfo.matcen_howmany));
 	for (i = 0; i < Num_robot_centers; i++) {
 		if (game_top_fileinfo_version < 27) {
 			old_matcen_info m;
@@ -1000,14 +984,12 @@ int load_game_data(CFILE *LoadFile)
 			if (Segment2s[j].special == SEGMENT_IS_ROBOTMAKER)
 				if (Segment2s[j].matcen_num == i)
 					RobotCenters[i].fuelcen_num = Segment2s[j].value;
-			// mprintf((0, "   %i: flags = %08x\n", i, RobotCenters[i].robot_flags));
 	}
 
 	//================ READ DL_INDICES INFO ===============
 
 	for (i = 0; i < Num_static_lights; i++) {
 		if (game_top_fileinfo_version < 29) {
-			mprintf((0, "Warning: Old mine version.  Not reading Dl_indices info.\n"));
 			Int3();	//shouldn't be here!!!
 		} else
 			dl_index_read(&Dl_indices[i], LoadFile);
@@ -1020,7 +1002,7 @@ int load_game_data(CFILE *LoadFile)
 
 	for (i = 0; i < num_delta_lights; i++) {
 		if (game_top_fileinfo_version < 29) {
-			mprintf((0, "Warning: Old mine version.  Not reading delta light info.\n"));
+			;
 		} else
 			delta_light_read(&Delta_lights[i], LoadFile);
 	}
@@ -1050,9 +1032,7 @@ int load_game_data(CFILE *LoadFile)
 		for (j=0;j<MAX_SIDES_PER_SEGMENT;j++) {
 			side	*sidep = &Segments[i].sides[j];
 			if ((sidep->wall_num != -1) && (Walls[sidep->wall_num].clip_num != -1)) {
-				//mprintf((0, "Checking Wall %d\n", Segments[i].sides[j].wall_num));
 				if (WallAnims[Walls[sidep->wall_num].clip_num].flags & WCF_TMAP1) {
-					//mprintf((0, "Fixing non-transparent door.\n"));
 					sidep->tmap_num = WallAnims[Walls[sidep->wall_num].clip_num].frames[0];
 					sidep->tmap_num2 = 0;
 				}
@@ -1070,7 +1050,6 @@ int load_game_data(CFILE *LoadFile)
 	//go through all walls, killing references to invalid triggers
 	for (i=0;i<Num_walls;i++)
 		if (Walls[i].trigger >= Num_triggers) {
-			mprintf((0,"Removing reference to invalid trigger %d from wall %d\n",Walls[i].trigger,i));
 			Walls[i].trigger = -1;	//kill trigger
 		}
 
@@ -1085,7 +1064,6 @@ int load_game_data(CFILE *LoadFile)
 
 	#ifdef EDITOR
 		if (w == Num_walls) {
-			mprintf((0,"Removing unreferenced trigger %d\n",i));
 			remove_trigger_num(i);
 		}
 		else
@@ -1263,7 +1241,6 @@ int load_level(char * filename_passed)
 
 	if (!LoadFile)	{
 		#ifdef EDITOR
-			mprintf((0,"Can't open level file <%s>\n", filename));
 			return 1;
 		#else
 			Error("Can't open file <%s>\n",filename);
@@ -1272,14 +1249,8 @@ int load_level(char * filename_passed)
 
 	strcpy( Gamesave_current_filename, filename );
 
-//	#ifdef NEWDEMO
-//	if ( Newdemo_state == ND_STATE_RECORDING )
-//		newdemo_record_start_demo();
-//	#endif
-
 	sig                      = cfile_read_int(LoadFile);
 	Gamesave_current_version = cfile_read_int(LoadFile);
-	mprintf((0, "Gamesave_current_version = %d\n", Gamesave_current_version));
 	minedata_offset          = cfile_read_int(LoadFile);
 	gamedata_offset          = cfile_read_int(LoadFile);
 
@@ -1376,22 +1347,6 @@ int load_level(char * filename_passed)
 
 	set_ambient_sound_flags();
 
-	#if 0	//def EDITOR
-	write_game_text_file(filename);
-	if (Errors_in_mine) {
-		if (is_real_level(filename)) {
-			char  ErrorMessage[200];
-
-			sprintf( ErrorMessage, "Warning: %i errors in %s!\n", Errors_in_mine, Level_being_loaded );
-			stop_time();
-			gr_palette_load(gr_palette);
-			nm_messagebox( NULL, 1, "Continue", ErrorMessage );
-			start_time();
-		} else
-			mprintf((1, "Error: %i errors in %s.\n", Errors_in_mine, Level_being_loaded));
-	}
-	#endif
-
 	#ifdef EDITOR
 	//If a Descent 1 level and the Descent 1 pig isn't present, pretend it's a Descent 2 level.
 	if ((Function_mode == FMODE_EDITOR) && (Gamesave_current_version <= 3) && !d1_pig_present)
@@ -1425,35 +1380,6 @@ int load_level(char * filename_passed)
 #ifdef EDITOR
 int get_level_name()
 {
-//NO_UI!!!	UI_WINDOW 				*NameWindow = NULL;
-//NO_UI!!!	UI_GADGET_INPUTBOX	*NameText;
-//NO_UI!!!	UI_GADGET_BUTTON 		*QuitButton;
-//NO_UI!!!
-//NO_UI!!!	// Open a window with a quit button
-//NO_UI!!!	NameWindow = ui_open_window( 20, 20, 300, 110, WIN_DIALOG );
-//NO_UI!!!	QuitButton = ui_add_gadget_button( NameWindow, 150-24, 60, 48, 40, "Done", NULL );
-//NO_UI!!!
-//NO_UI!!!	ui_wprintf_at( NameWindow, 10, 12,"Please enter a name for this mine:" );
-//NO_UI!!!	NameText = ui_add_gadget_inputbox( NameWindow, 10, 30, LEVEL_NAME_LEN, LEVEL_NAME_LEN, Current_level_name );
-//NO_UI!!!
-//NO_UI!!!	NameWindow->keyboard_focus_gadget = (UI_GADGET *)NameText;
-//NO_UI!!!	QuitButton->hotkey = KEY_ENTER;
-//NO_UI!!!
-//NO_UI!!!	ui_gadget_calc_keys(NameWindow);
-//NO_UI!!!
-//NO_UI!!!	while (!QuitButton->pressed && last_keypress!=KEY_ENTER) {
-//NO_UI!!!		ui_mega_process();
-//NO_UI!!!		ui_window_do_gadgets(NameWindow);
-//NO_UI!!!	}
-//NO_UI!!!
-//NO_UI!!!	strcpy( Current_level_name, NameText->text );
-//NO_UI!!!
-//NO_UI!!!	if ( NameWindow!=NULL )	{
-//NO_UI!!!		ui_close_window( NameWindow );
-//NO_UI!!!		NameWindow = NULL;
-//NO_UI!!!	}
-//NO_UI!!!
-
 	newmenu_item m[2];
 
 	m[0].type = NM_TYPE_TEXT; m[0].text = "Please enter a name for this mine:";
@@ -1576,11 +1502,6 @@ int save_game_data(PHYSFS_file *SaveFile)
 	//================ SAVE MATERIALIZATION CENTER TRIGGER INFO ===============
 
 	matcen_offset = PHYSFS_tell(SaveFile);
-	// mprintf((0, "Writing %i materialization centers\n", game_fileinfo.matcen_howmany));
-	// { int i;
-	// for (i=0; i<game_fileinfo.matcen_howmany; i++)
-	// 	mprintf((0, "   %i: robot_flags = %08x\n", i, RobotCenters[i].robot_flags));
-	// }
 	for (i = 0; i < Num_robot_centers; i++)
 		matcen_info_write(&RobotCenters[i], game_top_fileinfo_version, SaveFile);
 
@@ -1650,8 +1571,7 @@ int save_level_sub(char * filename, int compiled_version)
 					return 1;
 				}
 				start_time();
-			} else
-				mprintf((1, "Error: %i errors in this mine.  See the 'txm' file.\n", Errors_in_mine));
+			}
 		}
 //		change_filename_extension(temp_filename,filename,".LVL");
 	}
@@ -1837,11 +1757,6 @@ void dump_mine_info(void)
 
 		}
 	}
-
-//	mprintf((0, "Smallest uvl = %7.3f %7.3f %7.3f.  Largest uvl = %7.3f %7.3f %7.3f\n", f2fl(min_u), f2fl(min_v), f2fl(min_l), f2fl(max_u), f2fl(max_v), f2fl(max_l)));
-//	mprintf((0, "Static light maximum = %7.3f\n", f2fl(max_sl)));
-//	mprintf((0, "Number of walls: %i\n", Num_walls));
-
 }
 
 #endif

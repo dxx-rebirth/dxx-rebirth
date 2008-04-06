@@ -1,5 +1,9 @@
 D2X-Rebirth Changelog
 
+20080406
+--------
+d2x.ini, SConstruct, main/config.c, main/config.h, main/console.c, main/console.h + various: Implemented Console-style game logging system to print graphics, to stdout and gamelog.txt; Added structure to keep values for descent.cfg; Added aspect and Texture Filtering to descent.cfg; Removed mono code - printing important stuff over console; Removed some obsolete or very common defines; Code cleanup and small fixes
+
 20080227
 --------
 d2x-rebirth.xcodeproj, main/bmread.c, main/piggy.c: allow external sound files to be put in 'Sounds' folder, update Xcode project

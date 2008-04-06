@@ -1,4 +1,3 @@
-/* $Id: game.c,v 1.1.1.1 2006/03/17 19:55:53 zicodxx Exp $ */
 /*
 THE COMPUTER CODE CONTAINED HEREIN IS THE SOLE PROPERTY OF PARALLAX
 SOFTWARE CORPORATION ("PARALLAX").  PARALLAX, IN DISTRIBUTING THE CODE TO
@@ -22,24 +21,12 @@ COPYRIGHT 1993-1999 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 #include <conf.h>
 #endif
 
-#ifdef RCS
-char game_rcsid[] = "$Id: game.c,v 1.1.1.1 2006/03/17 19:55:53 zicodxx Exp $";
-#endif
-
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
 #include <stdarg.h>
 #include <ctype.h>
 #include <time.h>
-
-#ifdef MACINTOSH
-#include <Files.h>
-#include <StandardFile.h>
-#include <Quickdraw.h>
-#include <Script.h>
-#include <Strings.h>
-#endif
 
 #ifdef OGL
 #include "ogl_init.h"
@@ -55,7 +42,6 @@ char game_rcsid[] = "$Id: game.c,v 1.1.1.1 2006/03/17 19:55:53 zicodxx Exp $";
 #include "physics.h"
 #include "error.h"
 #include "joy.h"
-#include "mono.h"
 #include "iff.h"
 #include "pcx.h"
 #include "timer.h"
@@ -246,15 +232,11 @@ void init_game()
 
 	init_special_effects();
 
-	init_ai_system();
-
 	init_gauge_canvases();
 
 	init_exploding_walls();
 
 	Clear_window = 2;		//	do portal only window clear.
-
-	set_detail_level_parameters(Detail_level);
 }
 
 
@@ -457,9 +439,6 @@ int set_screen_mode(int sm)
 
 			reset_cockpit();
 			init_cockpit();
-	
-			con_resize();
-	
 			break;
 #ifdef EDITOR
 		case SCREEN_EDITOR:
@@ -574,7 +553,6 @@ void calc_frame_time()
 
 	#ifndef NDEBUG
 	if (!(((FrameTime > 0) && (FrameTime <= F1_0)) || (Function_mode == FMODE_EDITOR) || (Newdemo_state == ND_STATE_PLAYBACK))) {
-		mprintf((1,"Bad FrameTime - value = %x\n",FrameTime));
 		if (FrameTime == 0)
 			Int3();	//	Call Mike or Matt or John!  Your interrupts are probably trashed!
 	}
@@ -840,7 +818,6 @@ void do_cloak_stuff(void)
 	int i;
 	for (i = 0; i < N_players; i++)
 		if (Players[i].flags & PLAYER_FLAGS_CLOAKED) {
-			// mprintf(0, "Cloak time left: %7.3f\n", f2fl(CLOAK_TIME_MAX - (GameTime - Players[Player_num].cloak_time)));
 			if (Players[Player_num].cloak_time+CLOAK_TIME_MAX-GameTime < 0 &&
 				Players[Player_num].cloak_time+CLOAK_TIME_MAX-GameTime > -F1_0*2)
 			{
@@ -854,7 +831,6 @@ void do_cloak_stuff(void)
 					if ( Newdemo_state == ND_STATE_PLAYBACK )
 						multi_send_decloak(); // For demo recording
 					#endif
-//					mprintf((0, " --- You have been DE-CLOAKED! ---\n"));
 				}
 			}
 		}
@@ -880,7 +856,6 @@ void do_invulnerable_stuff(void)
 					maybe_drop_net_powerup(POW_INVULNERABILITY);
 				}
 				#endif
-				mprintf((0, " --- You have been DE-INVULNERABLEIZED! ---\n"));
 			}
 			FakingInvul=0;
 		}
@@ -894,20 +869,6 @@ fix Last_afterburner_charge = 0;
 #define AFTERBURNER_LOOP_END		((GameArg.SndDigiSampleRate==SAMPLE_RATE_22K)?48452:(48452/2))		//25776
 
 int	Ab_scale = 4;
-
-//@@//	------------------------------------------------------------------------------------
-//@@void afterburner_shake(void)
-//@@{
-//@@	int	rx, rz;
-//@@
-//@@	rx = (Ab_scale * fixmul(d_rand() - 16384, F1_0/8 + (((GameTime + 0x4000)*4) & 0x3fff)))/16;
-//@@	rz = (Ab_scale * fixmul(d_rand() - 16384, F1_0/2 + ((GameTime*4) & 0xffff)))/16;
-//@@
-//@@	// -- mprintf((0, "AB: %8x %8x\n", rx, rz));
-//@@	ConsoleObject->mtype.phys_info.rotvel.x += rx;
-//@@	ConsoleObject->mtype.phys_info.rotvel.z += rz;
-//@@
-//@@}
 
 //	------------------------------------------------------------------------------------
 #ifdef NETWORK
@@ -942,7 +903,6 @@ void do_afterburner_stuff(void)
 			if (Game_mode & GM_MULTI)
 			 	multi_send_sound_function (0,0);
 #endif
-			mprintf((0,"Killing afterburner sound\n"));
 		}
 	}
 
@@ -978,8 +938,6 @@ void PALETTE_FLASH_ADD(int _dr,int _dg,int _db)
 	PaletteRedAdd += _dr;
 	PaletteGreenAdd += _dg;
 	PaletteBlueAdd += _db;
-
-	// -- mprintf((0, "Palette add: %3i %3i %3i\n", PaletteRedAdd, PaletteGreenAdd, PaletteBlueAdd));
 
 	if (Flash_effect)
 		maxval = 60;
@@ -1066,8 +1024,6 @@ void diminish_palette_towards_normal(void)
 		newdemo_record_palette_effect(PaletteRedAdd, PaletteGreenAdd, PaletteBlueAdd);
 
 	gr_palette_step_up( PaletteRedAdd, PaletteGreenAdd, PaletteBlueAdd );
-
-	//mprintf(0, "%2i %2i %2i\n", PaletteRedAdd, PaletteGreenAdd, PaletteBlueAdd);
 }
 
 int	Redsave, Bluesave, Greensave;
@@ -1125,7 +1081,6 @@ int allowed_to_fire_flare(void)
 
 int allowed_to_fire_missile(void)
 {
-// mprintf(0, "Next fire = %7.3f, Cur time = %7.3f\n", f2fl(Next_missile_fire_time), f2fl(GameTime));
 	//	Make sure enough time has elapsed to fire missile, but if it looks like it will
 	//	be a long while before missile can be fired, then there must be some mistake!
 	if (Next_missile_fire_time > GameTime)
@@ -1152,6 +1107,7 @@ void show_help()
 	newmenu_item m[30];
 
 	m[nitems].type = NM_TYPE_TEXT; m[nitems++].text = TXT_HELP_ESC;
+	m[nitems].type = NM_TYPE_TEXT; m[nitems++].text = "SHIFT-ESC\t  SHOW GAME LOG";
 	m[nitems].type = NM_TYPE_TEXT; m[nitems++].text = TXT_HELP_F2;
 	m[nitems].type = NM_TYPE_TEXT; m[nitems++].text = "Alt-F2/F3\t  SAVE/LOAD GAME";
 	m[nitems].type = NM_TYPE_TEXT; m[nitems++].text = "F3\t  SWITCH COCKPIT MODES";
@@ -1167,15 +1123,14 @@ void show_help()
 	m[nitems].type = NM_TYPE_TEXT; m[nitems++].text = "Alt-Shift-F4\t  Rename GuideBot";
 	m[nitems].type = NM_TYPE_TEXT; m[nitems++].text = "Shift-F5/F6\t  Drop primary/secondary";
 	m[nitems].type = NM_TYPE_TEXT; m[nitems++].text = "Shift-number\t  GuideBot commands";
-	m[nitems].type = NM_TYPE_TEXT; m[nitems].text = ""; nitems++;
-	m[nitems].type = NM_TYPE_TEXT; m[nitems].text = "MULTIPLAYER:"; nitems++;
-	m[nitems].type = NM_TYPE_TEXT; m[nitems].text = "ALT-0\t  DROP FLAG"; nitems++;
-	m[nitems].type = NM_TYPE_TEXT; m[nitems].text = "ALT-F4\t  SHOW RETICLE NAMES"; nitems++;
-	m[nitems].type = NM_TYPE_TEXT; m[nitems].text = "F7\t  SHOW KILL LIST"; nitems++;
-	m[nitems].type = NM_TYPE_TEXT; m[nitems].text = "F8\t  SEND MESSAGE"; nitems++;
-	m[nitems].type = NM_TYPE_TEXT; m[nitems].text = "F8 to F12\t  SEND MACRO"; nitems++;
-	m[nitems].type = NM_TYPE_TEXT; m[nitems].text = "SHIFT-F8 to SHIFT-F12\t  DEFINE MACRO"; nitems++;
-	m[nitems].type = NM_TYPE_TEXT; m[nitems].text = "PAUSE\t  SHOW NETGAME INFORMATION"; nitems++;
+	m[nitems].type = NM_TYPE_TEXT; m[nitems++].text = "";
+	m[nitems].type = NM_TYPE_TEXT; m[nitems++].text = "MULTIPLAYER:";
+	m[nitems].type = NM_TYPE_TEXT; m[nitems++].text = "ALT-0\t  DROP FLAG";
+	m[nitems].type = NM_TYPE_TEXT; m[nitems++].text = "ALT-F4\t  SHOW RETICLE NAMES";
+	m[nitems].type = NM_TYPE_TEXT; m[nitems++].text = "F7\t  TOGGLE KILL LIST";
+	m[nitems].type = NM_TYPE_TEXT; m[nitems++].text = "F8\t  SEND MESSAGE";
+	m[nitems].type = NM_TYPE_TEXT; m[nitems++].text = "(SHIFT-)F8 to F12\t  (DEFINE)SEND MACRO";
+	m[nitems].type = NM_TYPE_TEXT; m[nitems++].text = "PAUSE\t  SHOW NETGAME INFORMATION";
 
 	full_palette_save();
 
@@ -1415,12 +1370,6 @@ void game()
 			Automap_flag = 0;
 			Config_menu_flag = 0;
 
-			if ( ConsoleObject != &Objects[Players[Player_num].objnum] )
-			  {
-			    mprintf ((0,"Player_num=%d objnum=%d",Player_num,Players[Player_num].objnum));
-			    //Assert( ConsoleObject == &Objects[Players[Player_num].objnum] );
-			  }
-
 			player_shields = Players[Player_num].shields;
 
 			ExtGameStatus=GAMESTAT_RUNNING;
@@ -1605,8 +1554,6 @@ void flush_movie_buffer()
 
 	stop_time();
 
-	mprintf((0,"Flushing movie buffer..."));
-
 	Movie_bm.bm_data = Movie_frame_buffer;
 
 	for (f=0;f<Movie_frame_counter;f++) {
@@ -1614,14 +1561,9 @@ void flush_movie_buffer()
 		__Movie_frame_num++;
 		pcx_write_bitmap(savename,&Movie_bm,Movie_pal);
 		Movie_bm.bm_data += MOVIE_FRAME_SIZE;
-
-		if (f % 5 == 0)
-			mprintf((0,"%3d/%3d\10\10\10\10\10\10\10",f,Movie_frame_counter));
 	}
 
 	Movie_frame_counter=0;
-
-	mprintf((0,"done   \n"));
 
 	start_time();
 }
@@ -1811,9 +1753,6 @@ void GameLoop(int RenderFlag, int ReadControlsFlag )
 
 		}
 
-
-		//mprintf(0,"Velocity %2.2f\n", f2fl(vm_vec_mag(&ConsoleObject->phys_info.velocity)));
-
 		calc_frame_time();
 
 		dead_player_frame();
@@ -1836,12 +1775,8 @@ void GameLoop(int RenderFlag, int ReadControlsFlag )
 
 		GameTime += FrameTime;
 
-		if (f2i(GameTime)/10 != f2i(GameTime-FrameTime)/10)
-			mprintf((0,"Gametime = %d secs\n",f2i(GameTime)));
-
 		if (GameTime < 0 || GameTime > i2f(0x7fff - 600)) {
 			GameTime = FrameTime;	//wrap when goes negative, or ~9hrs
-			mprintf((0,"GameTime reset to 0\n"));
 		}
 
 #ifdef NETWORK
@@ -2125,8 +2060,6 @@ int add_flicker(int segnum, int sidenum, fix delay, unsigned long mask)
 	int l;
 	flickering_light *f;
 
-	mprintf((0,"add_flicker: %d:%d %x %x\n",segnum,sidenum,delay,mask));
-
 	//see if there's already an entry for this seg/side
 
 	f = Flickering_lights;
@@ -2285,7 +2218,6 @@ int mark_player_path_to_segment(int segnum)
 	Last_level_path_created = Current_level_num;
 
 	if (create_path_points(objp, objp->segnum, segnum, Point_segs_free_ptr, &player_path_length, 100, 0, 0, -1) == -1) {
-		mprintf((0, "Unable to form path of length %i for myself\n", 100));
 		return 0;
 	}
 
@@ -2293,7 +2225,6 @@ int mark_player_path_to_segment(int segnum)
 	Point_segs_free_ptr += player_path_length;
 
 	if (Point_segs_free_ptr - Point_segs + MAX_PATH_LENGTH*2 > MAX_POINT_SEGS) {
-		mprintf((1, "Can't create path.  Not enough point_segs.\n"));
 		ai_reset_all_paths();
 		return 0;
 	}
@@ -2304,7 +2235,6 @@ int mark_player_path_to_segment(int segnum)
 		object		*obj;
 
 		segnum = Point_segs[player_hide_index+i].segnum;
-		mprintf((0, "%3i ", segnum));
 		seg_center = Point_segs[player_hide_index+i].point;
 
 		objnum = obj_create( OBJ_POWERUP, POW_ENERGY, segnum, &seg_center, &vmd_identity_matrix, Powerup_info[POW_ENERGY].size, CT_POWERUP, MT_NONE, RT_POWERUP);
@@ -2320,7 +2250,6 @@ int mark_player_path_to_segment(int segnum)
 		obj->lifeleft = F1_0*100 + d_rand() * 4;
 	}
 
-	mprintf((0, "\n"));
 	return 1;
 }
 
@@ -2333,7 +2262,6 @@ int create_special_path(void)
 	for (i=0; i<=Highest_segment_index; i++)
 		for (j=0; j<MAX_SIDES_PER_SEGMENT; j++)
 			if (Segments[i].children[j] == -2) {
-				mprintf((0, "Exit at segment %i\n", i));
 				return mark_player_path_to_segment(i);
 			}
 
@@ -2353,22 +2281,14 @@ void show_free_objects(void)
 		int	i;
 		int	count=0;
 
-		mprintf((0, "Highest_object_index = %3i, MAX_OBJECTS = %3i, now used = ", Highest_object_index, MAX_OBJECTS));
-
 		for (i=0; i<=Highest_object_index; i++)
 			if (Objects[i].type != OBJ_NONE)
 				count++;
 
-		mprintf((0, "%3i", count));
-
 		if (count > Max_obj_count_mike) {
 			Max_obj_count_mike = count;
-			mprintf((0, " ***"));
 		}
-
-		mprintf((0, "\n"));
 	}
-
 }
 
 #endif

@@ -1,4 +1,3 @@
-/* $Id: eobject.c,v 1.1.1.1 2006/03/17 19:58:41 zicodxx Exp $ */
 /*
 THE COMPUTER CODE CONTAINED HEREIN IS THE SOLE PROPERTY OF PARALLAX
 SOFTWARE CORPORATION ("PARALLAX").  PARALLAX, IN DISTRIBUTING THE CODE TO
@@ -18,10 +17,6 @@ COPYRIGHT 1993-1998 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
  *
  */
 
-#ifdef RCS
-static char rcsid[] = "$Id: eobject.c,v 1.1.1.1 2006/03/17 19:58:41 zicodxx Exp $";
-#endif
-
 #ifdef HAVE_CONFIG_H
 #include "conf.h"
 #endif
@@ -38,7 +33,6 @@ static char rcsid[] = "$Id: eobject.c,v 1.1.1.1 2006/03/17 19:58:41 zicodxx Exp 
 
 #include "objpage.h"
 #include "fix.h"
-#include "mono.h"
 #include "error.h"
 #include "kdefs.h"
 #include	"object.h"
@@ -68,14 +62,10 @@ void show_objects_in_segment(segment *sp)
 {
 	short		objid;
 
-	mprintf((0,"Objects in segment #%i: ",sp-Segments));
-
 	objid = sp->objects;
 	while (objid != -1) {
-		mprintf((0,"%2i ",objid));
 		objid = Objects[objid].next;
 	}
-	mprintf((0,"\n"));
 }
 
 //returns the number of the first object in a segment, skipping the player
@@ -267,7 +257,7 @@ int place_object(segment *segp, vms_vector *object_pos, short object_type, short
 	Cur_object_index = objnum;
 	//Cur_object_seg = Cursegp;
 
-	show_objects_in_segment(Cursegp);		//mprintf the objects
+	show_objects_in_segment(Cursegp);
 
 	Update_flags |= UF_WORLD_CHANGED;
 
@@ -401,8 +391,6 @@ int ObjectSelectNextinSegment(void)
 	if (id != -1)
 		Cur_object_index = get_next_object(objsegp,Cur_object_index);
 
-	//mprintf((0,"Cur_object_index == %i\n", Cur_object_index));
-
 	Update_flags |= UF_WORLD_CHANGED;
 
 	return 1;
@@ -508,8 +496,7 @@ int move_object_within_mine(object * obj, vms_vector *newpos )
 					obj_relink( obj-Objects, segnum);
 				obj->pos = *newpos;
 				return 0;
-			} //else
-				//mprintf((0, "Hit wall seg:side = %i:%i\n", hit_info.hit_seg, hit_info.hit_side));
+			}
 		}
 	}
 
@@ -846,47 +833,6 @@ int ObjectIncreaseHeadingBig()	{return rotate_object(Cur_object_index, 0, 0, (RO
 //			t = - ----------------------
 //					  VxFx + VyFy + VzFz
 
-
-//void print_vec(vms_vector *vec, char *text)
-//{
-//	mprintf((0, "%10s = %9.5f %9.5f %9.5f\n", text, f2fl(vec->x), f2fl(vec->y), f2fl(vec->z)));
-//}
-//
-// void solve(vms_vector *result, vms_vector *E, vms_vector *V, vms_vector *O, vms_vector *F)
-// {
-// 	fix	t, D;
-// 	vms_vector	Fnorm, Vnorm;
-// 	fix			num, denom;
-// 	// float			test_plane;
-// 
-// 	print_vec(E, "E");
-// 	print_vec(V, "V");
-// 	print_vec(O, "O");
-// 	print_vec(F, "F");
-// 
-// 	Fnorm = *F;	vm_vec_normalize(&Fnorm);
-// 	Vnorm = *V;	vm_vec_normalize(&Vnorm);
-// 
-// 	D = (fixmul(O->x, Fnorm.x) + fixmul(O->y, Fnorm.y) + fixmul(O->z, Fnorm.z));
-// 	mprintf((0, "D = %9.5f\n", f2fl(D)));
-// 
-// 	num = fixmul(Fnorm.x, E->x) + fixmul(Fnorm.y, E->y) + fixmul(Fnorm.z, E->z) - D;
-// 	denom = vm_vec_dot(&Vnorm, &Fnorm);
-// 	t = - num/denom;
-// 
-// 	mprintf((0, "num = %9.5f, denom = %9.5f, t = %9.5f\n", f2fl(num), f2fl(denom), f2fl(t)));
-// 
-// 	result->x = E->x + fixmul(t, Vnorm.x);
-// 	result->y = E->y + fixmul(t, Vnorm.y);
-// 	result->z = E->z + fixmul(t, Vnorm.z);
-// 
-// 	print_vec(result, "result");
-// 
-// 	// test_plane = fixmul(result->x, Fnorm.x) + fixmul(result->y, Fnorm.y) + fixmul(result->z, Fnorm.z) - D;
-// 	// if (abs(test_plane) > .001)
-// 	// 	printf("OOPS: test_plane = %9.5f\n", test_plane);
-// }
-
 void move_object_to_position(int objnum, vms_vector *newpos)
 {
 	object	*objp = &Objects[objnum];
@@ -894,7 +840,6 @@ void move_object_to_position(int objnum, vms_vector *newpos)
 	segmasks result = get_seg_masks(newpos, objp->segnum, objp->size, __FILE__, __LINE__);
 
 	if (result.facemask == 0) {
-		//mprintf((0, "Object #%i moved from (%7.3f %7.3f %7.3f) to (%7.3f %7.3f %7.3f)\n", objnum, f2fl(objp->pos.x), f2fl(objp->pos.y), f2fl(objp->pos.z), f2fl(newpos->x), f2fl(newpos->y), f2fl(newpos->z)));
 		objp->pos = *newpos;
 	} else {
 		if (verify_object_seg(&Objects[objnum], newpos)) {
@@ -917,7 +862,6 @@ void move_object_to_position(int objnum, vms_vector *newpos)
 				while (viewer_segnum == -1) {
 					vms_vector	temp_vec;
 
-					//mprintf((0, "[towards %7.3f %7.3f %7.3f]\n", f2fl(temp_viewer_obj.pos.x), f2fl(temp_viewer_obj.pos.y), f2fl(temp_viewer_obj.pos.z)));
 					last_outside_pos = temp_viewer_obj.pos;
 
 					vm_vec_avg(&temp_vec, &temp_viewer_obj.pos, newpos);
@@ -937,7 +881,6 @@ void move_object_to_position(int objnum, vms_vector *newpos)
 
 					vms_vector	temp_vec;
 
-					//mprintf((0, "[away %7.3f %7.3f %7.3f]\n", f2fl(temp_viewer_obj.pos.x), f2fl(temp_viewer_obj.pos.y), f2fl(temp_viewer_obj.pos.z)));
 					last_inside_pos = temp_viewer_obj.pos;
 
 					vm_vec_avg(&temp_vec, &temp_viewer_obj.pos, &last_outside_pos);
@@ -965,15 +908,12 @@ void move_object_to_position(int objnum, vms_vector *newpos)
 			if (fate == HIT_WALL) {
 				int	new_segnum;
 
-				//mprintf((0, "Hit wall seg:side = %i:%i, point = (%7.3f %7.3f %7.3f)\n", hit_info.hit_seg, hit_info.hit_side, f2fl(hit_info.hit_pnt.x), f2fl(hit_info.hit_pnt.y), f2fl(hit_info.hit_pnt.z)));
 				objp->pos = hit_info.hit_pnt;
 				new_segnum = find_object_seg(objp);
 				Assert(new_segnum != -1);
 				obj_relink(objp-Objects, new_segnum);
-				//mprintf((0, "Object moved from segment %i to %i\n", old_segnum, objp->segnum));
 			} else {
 				editor_status("Attempted to move object out of mine.  Object not moved.");
-				//mprintf((0,"Attempted to move object out of mine.  Object not moved."));
 			}
 		}
 	}
@@ -1005,8 +945,6 @@ void move_object_to_mouse_click_delta(fix delta_distance)
 	ycrd = GameViewBox->b1_drag_y1;
 
 	med_point_2_vec(&_canv_editor_game, &vec_through_screen, xcrd, ycrd);
-
-	//mprintf((0, "Mouse click at %i %i, vector = %7.3f %7.3f %7.3f\n", xcrd, ycrd, f2fl(vec_through_screen.x), f2fl(vec_through_screen.y), f2fl(vec_through_screen.z)));
 
 	move_object_to_vector(&vec_through_screen, delta_distance);
 

@@ -1,4 +1,3 @@
-/* $Id: ksegsize.c,v 1.1.1.1 2006/03/17 19:58:46 zicodxx Exp $ */
 /*
 THE COMPUTER CODE CONTAINED HEREIN IS THE SOLE PROPERTY OF PARALLAX
 SOFTWARE CORPORATION ("PARALLAX").  PARALLAX, IN DISTRIBUTING THE CODE TO
@@ -18,19 +17,12 @@ COPYRIGHT 1993-1998 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
  *
  */
 
-#ifdef RCS
-static char rcsid[] = "$Id: ksegsize.c,v 1.1.1.1 2006/03/17 19:58:46 zicodxx Exp $";
-#endif
-
 #ifdef HAVE_CONFIG_H
 #include "conf.h"
 #endif
-
 #include <stdlib.h>
-
 #include "inferno.h"
 #include "editor.h"
-#include "mono.h"
 #include "error.h"
 #include "segment.h"
 #include "gameseg.h"
@@ -68,7 +60,6 @@ void validate_modified_segments(void)
 		if (modified_segments[v]) {
 			int	s;
 
-			// mprintf(0, "Validating segment #%04i\n", v);
 			validate_segment(&Segments[v]);
 			for (s=0; s<MAX_SIDES_PER_SEGMENT; s++) {
 				Num_tilings = 1;
@@ -228,7 +219,6 @@ int segsize_common(int dimension, fix amount)
 
 	if (Degenerate_segment_found) {
 		Degenerate_segment_found = 0;
-		// mprintf(0, "Applying scale would create degenerate segments.  Aborting scale.\n");
 		editor_status("Applying scale would create degenerate segments.  Aborting scale.");
 		med_scale_segment_new(Cursegp, dimension, -amount);
 		return 1;

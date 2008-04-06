@@ -12,6 +12,7 @@
 #include "digi_mixer_music.h"
 #include "jukebox.h"
 #include "error.h"
+#include "console.h"
 
 #define JUKEBOX_ARG "-jukebox"
 #define MUSIC_HUDMSG_MAXLEN 40
@@ -82,10 +83,10 @@ void jukebox_load() {
 				}
 				if (count)
 				{
-					printf("Jukebox: %d music file(s) found in %s\n", count, GameArg.SndJukebox);
+					con_printf(CON_DEBUG,"Jukebox: %d music file(s) found in %s\n", count, GameArg.SndJukebox);
 					jukebox_loaded = 1;
 				}
-				else { printf("Jukebox music could not be found!\n"); }
+				else { con_printf(CON_DEBUG,"Jukebox music could not be found!\n"); }
 			}
 			else
 				{ Int3(); }	// should at least find a directory in some search path, otherwise how did D2X load?
@@ -94,7 +95,7 @@ void jukebox_load() {
 				free(files);
 		}
 	}
-	else { printf("Jukebox already loaded\n"); }
+	else { con_printf(CON_DEBUG,"Jukebox already loaded\n"); }
 }
 
 void jukebox_play() {
@@ -153,11 +154,11 @@ void jukebox_list() {
 	dl_item *curr;
 	if (!jukebox_loaded) return;
 	if (dl_is_empty(JukeboxSongs)) {
-		printf("* No songs have been found\n");
+		con_printf(CON_DEBUG,"* No songs have been found\n");
 	}
 	else {
 		for (curr = JukeboxSongs->first; curr != NULL; curr = curr->next) {
-			printf("* %s\n", (char *) curr->data);
+			con_printf(CON_DEBUG,"* %s\n", (char *) curr->data);
 		}
 	}
 }

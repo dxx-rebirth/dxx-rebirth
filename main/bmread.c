@@ -35,7 +35,6 @@ COPYRIGHT 1993-1999 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 #include "bm.h"
 #include "gamepal.h"
 #include "u_mem.h"
-#include "mono.h"
 #include "error.h"
 #include "object.h"
 #include "vclip.h"
@@ -199,7 +198,6 @@ bitmap_index bm_load_sub(int skip, char * filename )
 	bitmap_num.index = 0;
 
 	if (skip) {
-		//mprintf( 0, "Skipping registered-only bitmap '%s'\n", filename );
 		return bitmap_num;
 	}
 
@@ -207,7 +205,6 @@ bitmap_index bm_load_sub(int skip, char * filename )
 
 	bitmap_num=piggy_find_bitmap( fname );
 	if (bitmap_num.index)	{
-		//mprintf(( 0, "Found bitmap '%s' in pig!\n", fname ));
 		return bitmap_num;
 	}
 
@@ -215,7 +212,6 @@ bitmap_index bm_load_sub(int skip, char * filename )
 	iff_error = iff_read_bitmap(filename,new,BM_LINEAR,newpal);
 	new->bm_handle=0;
 	if (iff_error != IFF_NO_ERROR)		{
-		mprintf((1, "File %s - IFF error: %s",filename,iff_errormsg(iff_error)));
 		Error("File <%s> - IFF error: %s, line %d",filename,iff_errormsg(iff_error),linenum);
 	}
 
@@ -226,7 +222,6 @@ bitmap_index bm_load_sub(int skip, char * filename )
 
 	new->avg_color = compute_average_pixel(new);
 
-	// -- mprintf((0, "N" ));
 	bitmap_num = piggy_register_bitmap( new, fname, 0 );
 	d_free( new );
 	return bitmap_num;
@@ -247,7 +242,6 @@ void ab_load(int skip, char * filename, bitmap_index bmp[], int *nframes )
 
 	if (skip) {
 		Assert( bogus_bitmap_initialized != 0 );
-		mprintf(( 0, "Skipping registered-only animation '%s'\n", filename ));
 		bmp[0].index = 0;		//index of bogus bitmap==0 (I think)		//&bogus_bitmap;
 		*nframes = 1;
 		return;
@@ -262,7 +256,6 @@ void ab_load(int skip, char * filename, bitmap_index bmp[], int *nframes )
 		if ( !bi.index )	
 			break;
 		bmp[i] = bi;
-		//mprintf(( 0, "Found animation frame %d, %s, in piggy file\n", i, tempname ));
 	}
 
 	if (i) {
@@ -276,7 +269,6 @@ void ab_load(int skip, char * filename, bitmap_index bmp[], int *nframes )
 //	iff_error = iff_read_animbrush(filename,bm,MAX_BITMAPS_PER_BRUSH,nframes,&newpal);
    iff_error = iff_read_animbrush(filename,bm,MAX_BITMAPS_PER_BRUSH,nframes,newpal);
 	if (iff_error != IFF_NO_ERROR)	{
-		mprintf((1,"File %s - IFF error: %s",filename,iff_errormsg(iff_error)));
 		Error("File <%s> - IFF error: %s, line %d",filename,iff_errormsg(iff_error),linenum);
 	}
 
@@ -293,12 +285,7 @@ void ab_load(int skip, char * filename, bitmap_index bmp[], int *nframes )
 		new_bmp = piggy_register_bitmap( bm[i], tempname, 0 );
 		d_free( bm[i] );
 		bmp[i] = new_bmp;
-		if (!i)
-			mprintf((0, "Registering %s in piggy file.", tempname ));
-		else
-			mprintf((0, "."));
 	}
-	mprintf((0, "\n"));
 }
 
 int ds_load(int skip, char * filename )	{
@@ -309,7 +296,6 @@ int ds_load(int skip, char * filename )	{
 	char rawname[100];
 
 	if (skip) {
-		//mprintf( 0, "Skipping registered-only sound '%s'\n", filename );
 		return 0;	//don't know what I should return here		//&bogus_sound;
 	}
 
@@ -330,10 +316,7 @@ int ds_load(int skip, char * filename )	{
 		cfclose(cfp);
 		new.bits = 8;
 		new.freq = 11025;
-		// -- mprintf( (0, "S" ));
-		// -- mprintf( (0, "<%s>", rawname ));
 	} else {
-		mprintf( (1, "Warning: Couldn't find '%s'\n", filename ));
 		return 255;
 	}
 	i = piggy_register_sound( &new, fname, 0 );
@@ -459,8 +442,6 @@ int gamedata_read_tbl(int pc_shareware)
 		WallAnims[i].num_frames = -1;
 	Num_wall_anims = 0;
 
-	setbuf(stdout, NULL);	// unbuffered output via printf
-
 	if (Installed)
 		return 1;
 
@@ -481,7 +462,6 @@ int gamedata_read_tbl(int pc_shareware)
 			char *t;
 			for (t=inputline;*t && *t!='\n';t++)
 				if (! (*t==' ' || *t=='\t')) {
-					mprintf((1,"Suspicious: line %d of BITMAPS.TBL starts with whitespace\n",linenum));
 					break;
 				}
 		}
@@ -648,7 +628,6 @@ int gamedata_read_tbl(int pc_shareware)
 		for (i=used=0; i<num_sounds; i++ )
 			if (Sounds[i] != 255)
 				used++;
-		mprintf((0,"Sound slots used: %d of %d, highest index %d\n",used,MAX_SOUNDS,num_sounds));
 
 		//make sure all alt sounds refer to valid main sounds
 		for (i=used=0; i<num_sounds; i++ ) {
@@ -675,12 +654,11 @@ void verify_textures()
 	for (i=0; i<Num_tmaps; i++ )	{
 		bmp = &GameBitmaps[Textures[i].index];
 		if ( (bmp->bm_w!=64)||(bmp->bm_h!=64)||(bmp->bm_rowsize!=64) )	{
-			mprintf( (1, "ERROR: Texture '%s' isn't 64x64 !\n", TmapInfo[i].filename ));
 			j++;
 		}
 	}
 	if (j)
-		Error("%d textures were not 64x64.  See mono screen for list.",j);
+		Error("%d textures were not 64x64.",j);
 
 	for (i=0;i<Num_effects;i++)
 		if (Effects[i].changing_object_texture != -1)
@@ -811,7 +789,6 @@ void bm_read_eclip(int skip)
 
 		ab_load(skip, arg, bm, &Effects[clip_num].vc.num_frames );
 
-		//printf("EC%d.", clip_num);
 		Effects[clip_num].vc.play_time = fl2f(play_time);
 		Effects[clip_num].vc.frame_time = Effects[clip_num].vc.play_time/Effects[clip_num].vc.num_frames;
 
@@ -959,7 +936,6 @@ void bm_read_wclip(int skip)
 		abm_flag = 0;
 		ab_load(0, arg, bm, &nframes );
 		WallAnims[clip_num].num_frames = nframes;
-		//printf("WC");
 		WallAnims[clip_num].play_time = fl2f(play_time);
 		//WallAnims[clip_num].frame_time = fl2f(play_time)/nframes;
 		WallAnims[clip_num].open_sound = wall_open_sound;
@@ -974,7 +950,6 @@ void bm_read_wclip(int skip)
 		set_lighting_flag(&GameBitmaps[bm[clip_count].index].bm_flags);
 
 		for (clip_count=0;clip_count < WallAnims[clip_num].num_frames; clip_count++)	{
-			//printf("%d", clip_count);
 			Textures[texture_count] = bm[clip_count];
 			set_lighting_flag(&GameBitmaps[bm[clip_count].index].bm_flags);
 			WallAnims[clip_num].frames[clip_count] = texture_count;
@@ -1024,7 +999,6 @@ void bm_read_vclip(int skip)
 			rod_flag=0;
 			Vclip[clip_num].flags |= VF_ROD;
 		}			
-		//printf("VC");
 		Vclip[clip_num].play_time = fl2f(play_time);
 		Vclip[clip_num].frame_time = fl2f(play_time)/Vclip[clip_num].num_frames;
 		Vclip[clip_num].light_value = fl2f(vlighting);
@@ -1032,7 +1006,6 @@ void bm_read_vclip(int skip)
 		set_lighting_flag(&GameBitmaps[bm[clip_count].index].bm_flags);
 
 		for (clip_count=0;clip_count < Vclip[clip_num].num_frames; clip_count++) {
-			//printf("%d", clip_count);
 			set_lighting_flag(&GameBitmaps[bm[clip_count].index].bm_flags);
 			Vclip[clip_num].frames[clip_count] = bm[clip_count];
 		}
@@ -1075,7 +1048,6 @@ void adjust_field_of_view(fix *fovp)
 	for (i=0; i<NDL; i++) {
 		ff = - f2fl(fovp[i]);
 		if (ff > 179) {
-			mprintf((1, "Warning: Bogus field of view (%7.3f).  Must be in 0..179.\n", ff));
 			ff = 179;
 		}
 		ff = ff/360;
@@ -1268,7 +1240,6 @@ void bm_read_robot(int skip)
 			} else if (!stricmp( arg, "lighting" ))	{
 				lighting = fl2f(atof(equal_ptr));
 				if ( (lighting < 0) || (lighting > F1_0 )) {
-					mprintf( (1, "In bitmaps.tbl, lighting value of %.2f is out of range 0..1.\n", f2fl(lighting)));
 					Error( "In bitmaps.tbl, lighting value of %.2f is out of range 0..1.\n", f2fl(lighting));
 				}
 			} else if (!stricmp( arg, "weapon_type" )) {
@@ -1362,7 +1333,6 @@ void bm_read_robot(int skip)
 				Assert(n_models < MAX_MODEL_VARIANTS);
 			} else {
 				Int3();
-				mprintf( (1, "Invalid parameter, %s=%s in bitmaps.tbl\n", arg, equal_ptr ));
 			}		
 		} else {			// Must be a texture specification...
 			load_polymodel_bitmap(skip, arg);
@@ -1394,7 +1364,6 @@ void bm_read_robot(int skip)
 	}
 
 	if ((glow > i2f(15)) || (glow < 0) || (glow != 0 && glow < 0x1000)) {
-		mprintf((0,"Invalid glow value %x for robot %d\n",glow,N_robot_types));
 		Int3();
 	}
 
@@ -1498,14 +1467,12 @@ void bm_read_reactor(void)
 			} else if (!stricmp( arg, "lighting" ))	{
 				lighting = fl2f(atof(equal_ptr));
 				if ( (lighting < 0) || (lighting > F1_0 )) {
-					mprintf( (1, "In bitmaps.tbl, lighting value of %.2f is out of range 0..1.\n", f2fl(lighting)));
 					Error( "In bitmaps.tbl, lighting value of %.2f is out of range 0..1.\n", f2fl(lighting));
 				}
 			} else if (!stricmp( arg, "strength" )) {
 				strength = fl2f(atof(equal_ptr));
 			} else {
 				Int3();
-				mprintf( (1, "Invalid parameter, %s=%s in bitmaps.tbl\n", arg, equal_ptr ));
 			}		
 		} else {			// Must be a texture specification...
 			load_polymodel_bitmap(0, arg);
@@ -1557,7 +1524,6 @@ void bm_read_marker()
 			equal_ptr++;
 
 			// if we have john=cool, arg is 'john' and equal_ptr is 'cool'
-			mprintf( (1, "Invalid parameter, %s=%s in bitmaps.tbl\n", arg, equal_ptr ));
 			Int3();
 
 		} else {			// Must be a texture specification...
@@ -1575,7 +1541,7 @@ void bm_read_marker()
 void bm_read_exitmodel()
 {
 	char *model_name, *model_name_dead=NULL;
-	int first_bitmap_num, first_bitmap_num_dead, n_normal_bitmaps;
+	int first_bitmap_num=0, first_bitmap_num_dead=0, n_normal_bitmaps;
 	char *equal_ptr;
 	short model_num;
 
@@ -1601,7 +1567,6 @@ void bm_read_exitmodel()
 				first_bitmap_num_dead=N_ObjBitmapPtrs;
 			} else {
 				Int3();
-				mprintf( (1, "Invalid parameter, %s=%s in bitmaps.tbl\n", arg, equal_ptr ));
 			}		
 		} else {			// Must be a texture specification...
 			load_polymodel_bitmap(0, arg);
@@ -1691,7 +1656,6 @@ void bm_read_player_ship(void)
 				Player_ship->expl_vclip_num=atoi(equal_ptr);
 			else {
 				Int3();
-				mprintf( (1, "Invalid parameter, %s=%s in bitmaps.tbl\n", arg, equal_ptr ));
 			}		
 		}
 		else if (!stricmp( arg, "multi_textures" )) {
@@ -2042,7 +2006,6 @@ void bm_read_weapon(int skip, int unused_flag)
 				}
 			} else {
 				Int3();
-				mprintf( (1, "Invalid parameter, %s=%s in bitmaps.tbl\n", arg, equal_ptr ));
 			}		
 		} else {			// Must be a texture specification...
 			grs_bitmap *bm;
@@ -2080,16 +2043,7 @@ void bm_read_weapon(int skip, int unused_flag)
 		Assert(n_models);
 		Weapon_info[n].model_num_inner = load_polygon_model(pof_file_inner,first_bitmap_num[1]-first_bitmap_num[0],first_bitmap_num[0],NULL);
 	}
-
-	if ((Weapon_info[n].ammo_usage == 0) && (Weapon_info[n].energy_usage == 0))
-		mprintf((1, "Warning: Weapon %i has ammo and energy usage of 0.\n", n));
-
-// -- render type of none is now legal --	Assert( Weapon_info[n].render_type != WEAPON_RENDER_NONE );
 }
-
-
-
-
 
 // ------------------------------------------------------------------------------
 #define DEFAULT_POWERUP_SIZE i2f(3)
@@ -2139,11 +2093,9 @@ void bm_read_powerup(int unused_flag)
 				Powerup_info[n].size = fl2f(atof(equal_ptr));
 			} else {
 				Int3();
-				mprintf( (1, "Invalid parameter, %s=%s in bitmaps.tbl\n", arg, equal_ptr ));
 			}		
 		} else {			// Must be a texture specification...
 			Int3();
-			mprintf( (1, "Invalid argument, %s in bitmaps.tbl\n", arg ));
 		}
 		arg = strtok( NULL, space );
 	}
@@ -2174,12 +2126,10 @@ void bm_read_hostage()
 
 			else {
 				Int3();
-				mprintf( (1, "Invalid parameter, %s=%s in bitmaps.tbl\n", arg, equal_ptr ));
 			}
 
 		} else {
 			Int3();
-			mprintf( (1, "Invalid argument, %s in bitmaps.tbl at line %d\n", arg, linenum ));
 		}
 		arg = strtok( NULL, space );
 	}

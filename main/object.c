@@ -1,4 +1,3 @@
-/* $Id: object.c,v 1.1.1.1 2006/03/17 19:56:43 zicodxx Exp $ */
 /*
 THE COMPUTER CODE CONTAINED HEREIN IS THE SOLE PROPERTY OF PARALLAX
 SOFTWARE CORPORATION ("PARALLAX").  PARALLAX, IN DISTRIBUTING THE CODE TO
@@ -30,8 +29,6 @@ COPYRIGHT 1993-1999 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 #include "gr.h"
 #include "stdlib.h"
 #include "bm.h"
-//#include "error.h"
-#include "mono.h"
 #include "3d.h"
 #include "segment.h"
 #include "texmap.h"
@@ -715,7 +712,6 @@ void render_object(object *obj)
 
 	if ( obj->type==OBJ_NONE )	{
 		#ifndef NDEBUG
-		mprintf( (1, "ERROR!!!! Bogus obj %d in seg %d is rendering!\n", obj-Objects, obj->segnum ));
 		Int3();
 		#endif
 		return;
@@ -760,7 +756,6 @@ void render_object(object *obj)
 		default: Error("Unknown render_type <%d>",obj->render_type);
  	}
 
-	#ifdef NEWDEMO
 	if ( obj->render_type != RT_NONE )
 		if ( Newdemo_state == ND_STATE_RECORDING ) {
 			if (!WasRecorded[obj-Objects]) {
@@ -768,73 +763,10 @@ void render_object(object *obj)
 				WasRecorded[obj-Objects]=1;
 			}
 		}
-	#endif
 
 	Max_linear_depth = mld_save;
 
 }
-
-//--unused-- void object_toggle_lock_targets()	{
-//--unused-- 	Object_draw_lock_boxes ^= 1;
-//--unused-- }
-
-//091494: //draw target boxes for nearby robots
-//091494: void object_render_targets()
-//091494: {
-//091494: 	g3s_point pt;
-//091494: 	ubyte codes;
-//091494: 	int i;
-//091494: 	int radius,x,y;
-//091494:
-//091494: 	if (Object_draw_lock_boxes==0)
-//091494: 		return;
-//091494:
-//091494: 	for (i=0; i<Object_num_close; i++ )	{
-//091494: 			
-//091494: 		codes = g3_rotate_point(&pt, &Object_close_ones[i]->pos );
-//091494: 		if ( !(codes & CC_BEHIND) )	{
-//091494: 			g3_project_point(&pt);
-//091494: 			if (pt.p3_flags & PF_PROJECTED)	{
-//091494: 				x = f2i(pt.p3_sx);
-//091494: 				y = f2i(pt.p3_sy);
-//091494: 				radius = f2i(fixdiv((grd_curcanv->cv_bitmap.bm_w*Object_close_ones[i]->size)/8,pt.z));
-//091494: 				gr_setcolor( BM_XRGB(0,31,0) );
-//091494: 				gr_box(x-radius,y-radius,x+radius,y+radius);
-//091494: 			}
-//091494: 		}
-//091494: 	}
-//091494: 	Object_num_close=0;
-//091494: }
-//--unused-- //draw target boxes for nearby robots
-//--unused-- void object_render_id(object * obj)
-//--unused-- {
-//--unused-- 	g3s_point pt;
-//--unused-- 	ubyte codes;
-//--unused-- 	int x,y;
-//--unused-- 	int w, h, aw;
-//--unused-- 	char s[20], *s1;
-//--unused--
-//--unused-- 	s1 = network_get_player_name( obj-Objects );
-//--unused--
-//--unused-- 	if (s1)
-//--unused-- 		sprintf( s, "%s", s1 );
-//--unused-- 	else
-//--unused-- 		sprintf( s, "<%d>", obj->id );
-//--unused--
-//--unused-- 	codes = g3_rotate_point(&pt, &obj->pos );
-//--unused-- 	if ( !(codes & CC_BEHIND) )	{
-//--unused-- 		g3_project_point(&pt);
-//--unused-- 		if (pt.p3_flags & PF_PROJECTED)	{
-//--unused-- 			gr_get_string_size( s, &w, &h, &aw );
-//--unused-- 			x = f2i(pt.p3_sx) - w/2;
-//--unused-- 			y = f2i(pt.p3_sy) - h/2;
-//--unused-- 			if ( x>= 0 && y>=0 && (x+w)<=grd_curcanv->cv_bitmap.bm_w && (y+h)<grd_curcanv->cv_bitmap.bm_h )	{
-//--unused-- 				gr_set_fontcolor( BM_XRGB(0,31,0), -1 );
-//--unused-- 				gr_string( x, y, s );
-//--unused-- 			}
-//--unused-- 		}
-//--unused-- 	}
-//--unused-- }
 
 void check_and_fix_matrix(vms_matrix *m);
 
@@ -991,13 +923,11 @@ void remove_incorrect_objects()
 			count++;
 			#ifndef NDEBUG
 			if ( count > MAX_OBJECTS )	{
-				mprintf((1, "Object list in segment %d is circular.\n", segnum ));
 				Int3();
 			}
 			#endif
 			if (Objects[objnum].segnum != segnum )	{
 				#ifndef NDEBUG
-				mprintf((0, "Removing object %d from segment %d.\n", objnum, segnum ));
 				Int3();
 				#endif
 				johns_obj_unlink(segnum,objnum);
@@ -1028,7 +958,6 @@ int check_duplicate_objects()
 			count = search_all_segments_for_object( i );
 			if ( count > 1 )	{
 				#ifndef NDEBUG
-				mprintf((1, "Object %d is in %d segments!\n", i, count ));
 				Int3();
 				#endif
 				remove_all_objects_but( Objects[i].segnum,  i );
@@ -1125,13 +1054,9 @@ int obj_allocate(void)
 		int	num_freed;
 
 		num_freed = free_object_slots(MAX_OBJECTS-10);
-		mprintf((0, " *** Freed %i objects in frame %i\n", num_freed, FrameCount));
 	}
 
 	if ( num_objects >= MAX_OBJECTS ) {
-		#ifndef NDEBUG
-		mprintf((1, "Object creation failed - too many objects!\n" ));
-		#endif
 		return -1;
 	}
 
@@ -1219,14 +1144,12 @@ int free_object_slots(int num_used)
 	original_num_to_free = num_to_free;
 
 	if (num_to_free > olind) {
-		mprintf((1, "Warning: Asked to free %i objects, but can only free %i.\n", num_to_free, olind));
 		num_to_free = olind;
 	}
 
 	for (i=0; i<num_to_free; i++)
 		if (Objects[obj_list[i]].type == OBJ_DEBRIS) {
 			num_to_free--;
-			mprintf((0, "Freeing   DEBRIS object %3i\n", obj_list[i]));
 			Objects[obj_list[i]].flags |= OF_SHOULD_BE_DEAD;
 		}
 
@@ -1236,7 +1159,6 @@ int free_object_slots(int num_used)
 	for (i=0; i<num_to_free; i++)
 		if (Objects[obj_list[i]].type == OBJ_FIREBALL  &&  Objects[obj_list[i]].ctype.expl_info.delete_objnum==-1) {
 			num_to_free--;
-			mprintf((0, "Freeing FIREBALL object %3i\n", obj_list[i]));
 			Objects[obj_list[i]].flags |= OF_SHOULD_BE_DEAD;
 		}
 
@@ -1255,7 +1177,6 @@ int free_object_slots(int num_used)
 	for (i=0; i<num_to_free; i++)
 		if ((Objects[obj_list[i]].type == OBJ_WEAPON) && (Objects[obj_list[i]].id != FLARE_ID)) {
 			num_to_free--;
-			mprintf((0, "Freeing   WEAPON object %3i\n", obj_list[i]));
 			Objects[obj_list[i]].flags |= OF_SHOULD_BE_DEAD;
 		}
 
@@ -1282,9 +1203,6 @@ int obj_create(ubyte type,ubyte id,int segnum,vms_vector *pos,
 
 	if (get_seg_masks(pos, segnum, 0, __FILE__, __LINE__).centermask != 0)
 		if ((segnum=find_point_seg(pos,segnum))==-1) {
-			#ifndef NDEBUG
-			mprintf((0,"Bad segnum in obj_create (type=%d)\n",type));
-			#endif
 			return -1;		//don't create this object
 		}
 
@@ -1369,11 +1287,6 @@ int obj_create(ubyte type,ubyte id,int segnum,vms_vector *pos,
 	if (obj->control_type == CT_EXPLOSION)
 		obj->ctype.expl_info.next_attach = obj->ctype.expl_info.prev_attach = obj->ctype.expl_info.attach_parent = -1;
 
-	#ifndef NDEBUG
-	if (print_object_info)	
-		mprintf( (0, "Created object %d of type %d\n", objnum, obj->type ));
-	#endif
-
 	if (obj->type == OBJ_DEBRIS)
 		Debris_object_count++;
 
@@ -1428,10 +1341,8 @@ void obj_delete(int objnum)
 	if (obj->type==OBJ_WEAPON && obj->id==GUIDEDMISS_ID && obj->ctype.laser_info.parent_type==OBJ_PLAYER)
 	{
 		pnum=Objects[obj->ctype.laser_info.parent_num].id;
-		mprintf ((0,"Deleting a guided missile! Player %d\n\n",pnum));
 
 		if (pnum!=Player_num) {
-			mprintf ((0,"deleting missile that belongs to %d (%s)!\n",pnum,Players[pnum].callsign));
 			Guided_missile[pnum]=NULL;
 		}
 		else if (Newdemo_state==ND_STATE_RECORDING)
@@ -1447,10 +1358,6 @@ void obj_delete(int objnum)
 
 	if (obj->attached_obj != -1)		//detach all objects from this
 		obj_detach_all(obj);
-
-	#if !defined(NDEBUG) && !defined(NMONO)
-	if (print_object_info) mprintf( (0, "Deleting object %d of type %d\n", objnum, Objects[objnum].type ));
-	#endif
 
 	if (obj->type == OBJ_DEBRIS)
 		Debris_object_count--;
@@ -1583,11 +1490,9 @@ void dead_player_frame(void)
 			// this next line was changed by WraithX, instead of CT_FLYING, it was CT_NONE: instead of MT_PHYSICS, it was MT_NONE.
 			objnum = obj_create(OBJ_CAMERA, 0, player->segnum, &player->pos, &player->orient, 0, CT_FLYING, MT_PHYSICS, RT_NONE);
 
-			mprintf((0, "Creating new dead player camera.\n"));
 			if (objnum != -1)
 				Viewer = Dead_player_camera = &Objects[objnum];
 			else {
-				mprintf((1, "Can't create dead player camera.\n"));
 				Int3();
 			}
 		}		
@@ -1773,7 +1678,6 @@ void start_player_death_sequence(object *player)
 	if (objnum != -1)
 		Viewer = Dead_player_camera = &Objects[objnum];
 	else {
-		mprintf((1, "Can't create dead player camera.\n"));
 		Int3();
 		Dead_player_camera = Viewer;
 	}
@@ -1837,11 +1741,7 @@ void obj_relink(int objnum,int newsegnum)
 	obj_unlink(objnum);
 
 	obj_link(objnum,newsegnum);
-	
-#ifndef NDEBUG
-	if (get_seg_masks(&Objects[objnum].pos, Objects[objnum].segnum, 0, __FILE__, __LINE__).centermask != 0)
-		mprintf((1, "obj_relink violates seg masks.\n"));
-#endif
+
 }
 
 //process a continuously-spinning object
@@ -1923,10 +1823,6 @@ void object_move_one( object * obj )
 
 		case CT_FLYING:
 
-			#if !defined(NDEBUG) && !defined(NMONO)
-			if (print_object_info>1) mprintf( (0, "Moving player object #%d\n", obj-Objects ));
-			#endif
-
 			read_flying_controls( obj );
 
 			break;
@@ -1942,10 +1838,6 @@ void object_move_one( object * obj )
 		case CT_AI:
 			//NOTE LINK TO CT_MORPH ABOVE!!!
 			if (Game_suspended & SUSP_ROBOTS) return;
-#if !defined(NDEBUG) && !defined(NMONO)
-			if (print_object_info>1)
-				mprintf( (0, "AI: Moving robot object #%d\n",obj-Objects ));
-#endif
 			do_ai_frame(obj);
 			break;
 
@@ -2024,12 +1916,6 @@ void object_move_one( object * obj )
 				connect_side = find_connect_side(&Segments[phys_seglist[i+1]], &Segments[phys_seglist[i]]);
 				if (connect_side != -1)
 					check_trigger(&Segments[phys_seglist[i]], connect_side, obj-Objects,0);
-				#ifndef NDEBUG
-				else {	// segments are not directly connected, so do binary subdivision until you find connected segments.
-					mprintf((1, "UNCONNECTED SEGMENTS %d,%d\n",phys_seglist[i+1],phys_seglist[i]));
-					// -- Unnecessary, MK, 09/04/95 -- Int3();
-				}
-				#endif
 
 				//maybe we've gone on to the next level.  if so, bail!
 #ifdef NETWORK
@@ -2133,11 +2019,6 @@ void object_move_all()
 {
 	int i;
 	object *objp;
-
-// -- mprintf((0, "Frame %i: %i/%i objects used.\n", FrameCount, num_objects, MAX_OBJECTS));
-
-//	check_duplicate_objects();
-//	remove_incorrect_objects();
 
 	if (Highest_object_index > Max_used_objects)
 		free_object_slots(Max_used_objects);		//	Free all possible object slots.
@@ -2278,7 +2159,6 @@ fix_object_segs()
 	for (i=0;i<=Highest_object_index;i++)
 		if (Objects[i].type != OBJ_NONE)
 			if (update_object_seg(&Objects[i]) == 0) {
-				mprintf((1,"Cannot find segment for object %d in fix_object_segs()\n"));
 				Int3();
 				compute_segment_center(&Objects[i].pos,&Segments[Objects[i].segnum]);
 			}
@@ -2332,17 +2212,8 @@ void clear_transient_objects(int clear_all)
 			 obj->type == OBJ_DEBRIS ||
 			 obj->type == OBJ_DEBRIS ||
 			 (obj->type!=OBJ_NONE && obj->flags & OF_EXPLODING)) {
-
-			#ifndef NDEBUG
-			if (Objects[objnum].lifeleft > i2f(2))
-				mprintf((0,"Note: Clearing object %d (type=%d, id=%d) with lifeleft=%x\n",objnum,Objects[objnum].type,Objects[objnum].id,Objects[objnum].lifeleft));
-			#endif
 			obj_delete(objnum);
 		}
-		#ifndef NDEBUG
-		 else if (Objects[objnum].type!=OBJ_NONE && Objects[objnum].lifeleft < i2f(2))
-			mprintf((0,"Note: NOT clearing object %d (type=%d, id=%d) with lifeleft=%x\n",objnum,Objects[objnum].type,Objects[objnum].id,Objects[objnum].lifeleft));
-		#endif
 }
 
 //attaches an object, such as a fireball, to another object, such as a robot
@@ -2441,7 +2312,6 @@ void wake_up_rendered_objects(object *viewer, int window_num)
 
 	//	Make sure that we are processing current data.
 	if (FrameCount != Window_rendered_data[window_num].frame) {
-		mprintf((1, "Warning: Called wake_up_rendered_objects with a bogus window.\n"));
 		return;
 	}
 

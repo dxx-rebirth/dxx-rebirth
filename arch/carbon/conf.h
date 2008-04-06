@@ -17,9 +17,6 @@
 /* Define if you want to build the editor */
 /* #undef EDITOR */
 
-/* Define for faster i/o on little-endian cpus */
-/* #undef FAST_FILE_IO */
-
 /* Define if you want a GGI build */
 /* #undef GGI */
 
@@ -107,9 +104,6 @@
 
         /* General defines */
 #define VERSION_NAME PACKAGE_STRING
-#define NMONO 1
-#define PIGGY_USE_PAGING 1
-#define NEWDEMO 1
 
 #if defined(__APPLE__) && defined(__MACH__)
 #define __unix__
@@ -166,21 +160,11 @@
 #   define SVGALIB_VIDEO 1
 #  else
 #   define SDL_INPUT 1
-#   ifdef OGL
-#    define SDL_GL_VIDEO 1
-#   else
-#    define SDL_VIDEO 1
-#   endif
 #  endif
 # endif
 #endif
 
 #ifdef macintosh
 # define SDL_INPUT 1
-# ifdef OGL
-#  define SDL_GL_VIDEO 1
-# else
-#  define SDL_VIDEO 1
-# endif
 #endif
 

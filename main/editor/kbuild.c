@@ -1,4 +1,3 @@
-/* $Id: kbuild.c,v 1.1.1.1 2006/03/17 19:58:23 zicodxx Exp $ */
 /*
 THE COMPUTER CODE CONTAINED HEREIN IS THE SOLE PROPERTY OF PARALLAX
 SOFTWARE CORPORATION ("PARALLAX").  PARALLAX, IN DISTRIBUTING THE CODE TO
@@ -18,21 +17,14 @@ COPYRIGHT 1993-1998 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
  *
  */
 
-#ifdef RCS
-static char rcsid[] = "$Id: kbuild.c,v 1.1.1.1 2006/03/17 19:58:23 zicodxx Exp $";
-#endif
-
 #ifdef HAVE_CONFIG_H
 #include "conf.h"
 #endif
-
 #include <string.h>
-
 #include "inferno.h"
 #include "editor/editor.h"
 #include "gameseg.h"
 #include "gamesave.h"
-#include "mono.h"
 
 //  ---------- Create a bridge segment between current segment/side and marked segment/side ----------
 int CreateBridge()

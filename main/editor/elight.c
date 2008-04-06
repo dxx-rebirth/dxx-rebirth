@@ -1,4 +1,3 @@
-/* $Id: elight.c,v 1.1.1.1 2006/03/17 19:58:18 zicodxx Exp $ */
 /*
 THE COMPUTER CODE CONTAINED HEREIN IS THE SOLE PROPERTY OF PARALLAX
 SOFTWARE CORPORATION ("PARALLAX").  PARALLAX, IN DISTRIBUTING THE CODE TO
@@ -18,35 +17,21 @@ COPYRIGHT 1993-1998 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
  *
  */
 
-#ifdef RCS
-static char rcsid[] = "$Id: elight.c,v 1.1.1.1 2006/03/17 19:58:18 zicodxx Exp $";
-#endif
-
 #ifdef HAVE_CONFIG_H
 #include "conf.h"
 #endif
 
 #include <stdio.h>
-//#include <stdlib.h>
-//#include <stdarg.h>
-//#include <math.h>
-//#include <string.h>
-
 #include "inferno.h"
 #include "segment.h"
 #include "editor.h"
 #include "seguvs.h"
-
 #include "wall.h"
-
 #include "textures.h"
-
 #include "fix.h"
-#include "mono.h"
 #include "error.h"
 #include "kdefs.h"
 #include "gameseg.h"
-
 #include "texmap.h"
 
 // -----------------------------------------------------------------------------

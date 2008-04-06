@@ -41,12 +41,13 @@
 #include "inferno.h"
 #include "screens.h"
 #include "strutil.h"
-#include "mono.h"
 #include "args.h"
 #include "key.h"
 #include "physfsx.h"
 #include "internal.h"
 #include "render.h"
+#include "console.h"
+#include "config.h"
 
 #if defined(__APPLE__) && defined(__MACH__)
 #include <OpenGL/glu.h>
@@ -63,10 +64,7 @@ int gr_check_fullscreen(void){
 }
 
 void gr_do_fullscreen(int f){
-	if (GameArg.OglVoodooHack)
-		ogl_fullscreen=1;//force fullscreen mode on voodoos.
-	else
-		ogl_fullscreen=f;
+	ogl_fullscreen=f;
 	if (gl_initialized){
 		ogl_do_fullscreen_internal();
 	}
@@ -74,6 +72,8 @@ void gr_do_fullscreen(int f){
 
 int gr_toggle_fullscreen(void){
 	gr_do_fullscreen(!ogl_fullscreen);
+	gr_remap_color_fonts();
+	gr_remap_mono_fonts();
 
 	if (gl_initialized && Screen_mode != SCREEN_GAME) // update viewing values for menus
 	{
@@ -186,7 +186,7 @@ int gr_set_mode(u_int32_t mode)
 	grd_curscreen->sc_mode = mode;
 	grd_curscreen->sc_w = w;
 	grd_curscreen->sc_h = h;
-	grd_curscreen->sc_aspect = fixdiv(grd_curscreen->sc_w*GameArg.GfxAspectX,grd_curscreen->sc_h*GameArg.GfxAspectY);
+	grd_curscreen->sc_aspect = fixdiv(grd_curscreen->sc_w*GameCfg.AspectX,grd_curscreen->sc_h*GameCfg.AspectY);
 	grd_curscreen->sc_canvas.cv_bitmap.bm_x = 0;
 	grd_curscreen->sc_canvas.cv_bitmap.bm_y = 0;
 	grd_curscreen->sc_canvas.cv_bitmap.bm_w = w;
@@ -204,6 +204,8 @@ int gr_set_mode(u_int32_t mode)
 
 	ogl_init_state();
 	gamefont_choose_game_font(w,h);
+	gr_remap_color_fonts();
+	gr_remap_mono_fonts();
 
 	return 0;
 }
@@ -246,8 +248,6 @@ int ogl_init_load_library(void)
 		retcode = OpenGL_LoadLibrary(true);
 		if(retcode)
 		{
-			mprintf((0,"Opengl loaded ok\n"));
-	
 			if(!glEnd)
 			{
 				Error("Opengl: Functions not imported\n");
@@ -273,12 +273,26 @@ int gr_init(int mode)
 	ogl_init_load_library();
 #endif
 
-	if (!GameArg.SysWindow)
+	if (!GameCfg.WindowMode && !GameArg.SysWindow)
 		gr_toggle_fullscreen();
 
-	GL_needmipmaps=ogl_testneedmipmaps(GameArg.OglTexMinFilt);
+	switch (GameCfg.TexFilt)
+	{
+		case 2:
+			OglTexMagFilt = GL_LINEAR;
+			OglTexMinFilt = GL_LINEAR_MIPMAP_LINEAR;
+			break;
+		case 1:
+			OglTexMagFilt = GL_LINEAR;
+			OglTexMinFilt = GL_LINEAR_MIPMAP_NEAREST;
+			break;
+		default:
+			OglTexMagFilt = GL_NEAREST;
+			OglTexMinFilt = GL_NEAREST;
+			break;
+	}
 
-	mprintf((0,"gr_init: texmagfilt:%x texminfilt:%x needmipmaps=%i\n",GameArg.OglTexMagFilt,GameArg.OglTexMinFilt,GL_needmipmaps));
+	GL_needmipmaps=ogl_testneedmipmaps(OglTexMinFilt);
 
 	ogl_init();//platform specific initialization
 
@@ -441,7 +455,6 @@ void gr_palette_load( ubyte *pal )
 	}
 
 	gr_palette_step_up(0, 0, 0); // make ogl_setbrightness_internal get run so that menus get brightened too.
-
 	init_computed_colors();
 }
 

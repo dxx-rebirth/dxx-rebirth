@@ -1,4 +1,3 @@
-/* $Id: fixseg.c,v 1.1.1.1 2006/03/17 19:58:31 zicodxx Exp $ */
 /*
 THE COMPUTER CODE CONTAINED HEREIN IS THE SOLE PROPERTY OF PARALLAX
 SOFTWARE CORPORATION ("PARALLAX").  PARALLAX, IN DISTRIBUTING THE CODE TO
@@ -18,10 +17,6 @@ COPYRIGHT 1993-1998 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
  *
  */
 
-#ifdef RCS
-static char rcsid[] = "$Id: fixseg.c,v 1.1.1.1 2006/03/17 19:58:31 zicodxx Exp $";
-#endif
-
 #ifdef HAVE_CONFIG_H
 #include "conf.h"
 #endif
@@ -30,14 +25,10 @@ static char rcsid[] = "$Id: fixseg.c,v 1.1.1.1 2006/03/17 19:58:31 zicodxx Exp $
 #include <stdlib.h>
 #include <math.h>
 #include <string.h>
-
-#include "mono.h"
 #include "key.h"
 #include "gr.h"
-
 #include "inferno.h"
 #include "segment.h"
-//#include "segment2.h"
 #include	"editor.h"
 #include "error.h"
 #include "gameseg.h"
@@ -55,7 +46,6 @@ void gaussj(fix **a, int n, fix **b, int m)
 	fix	big, dum, pivinv, temp;
 
 	if (n > 4) {
-		mprintf((0,"Error -- array too large in gaussj.\n"));
 		Int3();
 	}
 
@@ -74,7 +64,6 @@ void gaussj(fix **a, int n, fix **b, int m)
 							icol = k;
 						}
 					} else if (ipiv[k] > 1) {
-						mprintf((0,"Error: Singular matrix-1\n"));
 						Int3();
 					}
 				}
@@ -99,7 +88,6 @@ void gaussj(fix **a, int n, fix **b, int m)
 		indxr[i] = irow;
 		indxc[i] = icol;
 		if (a[icol][icol] == 0) {
-			mprintf((0,"Error: Singular matrix-2\n"));
 			Int3();
 		}
 		pivinv = fixdiv(F1_0, a[icol][icol]);

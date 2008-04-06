@@ -34,7 +34,7 @@ COPYRIGHT 1993-1998 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 #include "args.h"
 #include "text.h"
 #include "network.h"
-#include "mono.h"
+#include "console.h"
 #include "netdrv.h"
 #include "checker.h"
 
@@ -130,7 +130,7 @@ int NetDrvInit( int socket_number )
 		unsigned long n = strtol(GameArg.MplIpxNetwork, NULL, 16);
 		MyAddress[0] = n >> 24; MyAddress[1] = (n >> 16) & 255;
 		MyAddress[2] = (n >> 8) & 255; MyAddress[3] = n & 255;
-		printf("IPX: Using network %08x\n", (unsigned int)n);
+		con_printf(CON_DEBUG,"IPX: Using network %08x\n", (unsigned int)n);
 	}
 
 	if (driver->OpenSocket(socket_number))
@@ -226,7 +226,6 @@ int NetDrvGetPacketData( ubyte * data )
 		{
 			if (!memcmp(rd.src_network, MyAddress, 10))
 			{
-				mprintf((0,"dumped my own packet\n"));
 				continue;	/* don't get own pkts */
 			}
 

@@ -1,4 +1,3 @@
-/* $Id: cntrlcen.c,v 1.1.1.1 2006/03/17 19:55:32 zicodxx Exp $ */
 /*
 THE COMPUTER CODE CONTAINED HEREIN IS THE SOLE PROPERTY OF PARALLAX
 SOFTWARE CORPORATION ("PARALLAX").  PARALLAX, IN DISTRIBUTING THE CODE TO
@@ -22,20 +21,14 @@ COPYRIGHT 1993-1999 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 #include <conf.h>
 #endif
 
-#ifdef RCS
-static char rcsid[] = "$Id: cntrlcen.c,v 1.1.1.1 2006/03/17 19:55:32 zicodxx Exp $";
-#endif
 
 #include <stdlib.h>
 #include <stdio.h>
 #if !defined(_WIN32) && !defined(macintosh)
 #include <unistd.h>
 #endif
-
 #include "pstypes.h"
 #include "error.h"
-#include "mono.h"
-
 #include "inferno.h"
 #include "cntrlcen.h"
 #include "game.h"
@@ -263,7 +256,6 @@ void do_controlcen_destroyed_stuff(object *objp)
 
 		rval = !PHYSFS_delete(SECRETC_FILENAME);
 
-		mprintf((0, "Deleting secret.sgc, return value = %i\n", rval));
 	}
 
 	if (Base_control_center_explosion_time != DEFAULT_CONTROL_CENTER_EXPLOSION_TIME)
@@ -440,15 +432,14 @@ void init_controlcen_for_level(void)
 		if (objp->type == OBJ_CNTRLCEN)
 		{
 			if (cntrlcen_objnum != -1)
-				mprintf((1, "Warning: Two or more control centers including %i and %i\n", i, cntrlcen_objnum));
+				;
 			else
 				cntrlcen_objnum = i;
 		}
 
 		if ((objp->type == OBJ_ROBOT) && (Robot_info[objp->id].boss_flag)) {
-//		 	mprintf((0, "Found boss robot %d.\n", objp->id));
 			if (boss_objnum != -1)
-				mprintf((1, "Warning: Two or more bosses including %i and %i\n", i, boss_objnum));
+				;
 			else
 				boss_objnum = i;
 		}
@@ -456,14 +447,12 @@ void init_controlcen_for_level(void)
 
 #ifndef NDEBUG
 	if (cntrlcen_objnum == -1) {
-		mprintf((1, "Warning: No control center.\n"));
 		return;
 	}
 #endif
 
 	if ( (boss_objnum != -1) && !((Game_mode & GM_MULTI) && !(Game_mode & GM_MULTI_ROBOTS)) ) {
 		if (cntrlcen_objnum != -1) {
-//			mprintf((0, "Ghosting control center\n"));
 			Objects[cntrlcen_objnum].type = OBJ_GHOST;
 			Objects[cntrlcen_objnum].render_type = RT_NONE;
 			Control_center_present = 0;
@@ -499,14 +488,12 @@ void init_controlcen_for_level(void)
 
 void special_reactor_stuff(void)
 {
-	mprintf((0, "Mucking with reactor countdown time.\n"));
 	if (Control_center_destroyed) {
 		Countdown_timer += i2f(Base_control_center_explosion_time + (NDL-1-Difficulty_level)*Base_control_center_explosion_time/(NDL-1));
 		Total_countdown_time = f2i(Countdown_timer)+2;	//	Will prevent "Self destruct sequence activated" message from replaying.
 	}
 }
 
-#ifndef FAST_FILE_IO
 /*
  * reads n reactor structs from a CFILE
  */
@@ -542,7 +529,6 @@ extern int control_center_triggers_read_n(control_center_triggers *cct, int n, C
 	}
 	return i;
 }
-#endif
 
 int control_center_triggers_write(control_center_triggers *cct, PHYSFS_file *fp)
 {

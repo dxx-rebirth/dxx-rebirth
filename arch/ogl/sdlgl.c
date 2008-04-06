@@ -14,6 +14,7 @@
 #include "error.h"
 #include "u_mem.h"
 #include "args.h"
+#include "config.h"
 
 static int curx=-1,cury=-1,curfull=0;
 

@@ -1,4 +1,3 @@
-/* $Id: piggy.c,v 1.1.1.1 2006/03/17 19:57:23 zicodxx Exp $ */
 /*
 THE COMPUTER CODE CONTAINED HEREIN IS THE SOLE PROPERTY OF PARALLAX
 SOFTWARE CORPORATION ("PARALLAX").  PARALLAX, IN DISTRIBUTING THE CODE TO
@@ -23,11 +22,6 @@ COPYRIGHT 1993-1999 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 #include <conf.h>
 #endif
 
-#ifdef RCS
-static char rcsid[] = "$Id: piggy.c,v 1.1.1.1 2006/03/17 19:57:23 zicodxx Exp $";
-#endif
-
-
 #include <stdio.h>
 #include <string.h>
 
@@ -38,7 +32,6 @@ static char rcsid[] = "$Id: piggy.c,v 1.1.1.1 2006/03/17 19:57:23 zicodxx Exp $"
 #include "grdef.h"
 #include "u_mem.h"
 #include "iff.h"
-#include "mono.h"
 #include "error.h"
 #include "sounds.h"
 #include "songs.h"
@@ -61,14 +54,7 @@ static char rcsid[] = "$Id: piggy.c,v 1.1.1.1 2006/03/17 19:57:23 zicodxx Exp $"
 #include "newmenu.h"
 #include "byteswap.h"
 #include "makesig.h"
-
-#ifndef MACINTOSH
-//	#include "unarj.h"
-#else
-	#include <Strings.h>		// MacOS Toolbox header
-	#include <Files.h>
-	#include <unistd.h>
-#endif
+#include "console.h"
 
 //#define NO_DUMP_SOUNDS        1   //if set, dump bitmaps but not sounds
 
@@ -170,10 +156,6 @@ typedef struct DiskSoundHeader {
 	int offset;
 } __pack__ DiskSoundHeader;
 
-#ifdef FAST_FILE_IO
-#define DiskBitmapHeader_read(dbh, fp) cfread(dbh, sizeof(DiskBitmapHeader), 1, fp)
-#define DiskSoundHeader_read(dsh, fp) cfread(dsh, sizeof(DiskSoundHeader), 1, fp)
-#else
 /*
  * reads a DiskBitmapHeader structure from a CFILE
  */
@@ -199,7 +181,6 @@ void DiskSoundHeader_read(DiskSoundHeader *dsh, CFILE *fp)
 	dsh->data_length = cfile_read_int(fp);
 	dsh->offset = cfile_read_int(fp);
 }
-#endif // FAST_FILE_IO
 
 /*
  * reads a descent 1 DiskBitmapHeader structure from a CFILE
@@ -835,7 +816,6 @@ void piggy_new_pigfile(char *pigname)
 				iff_error = iff_read_animbrush(abmname,bm,MAX_BITMAPS_PER_BRUSH,&nframes,newpal);
 
 				if (iff_error != IFF_NO_ERROR)  {
-					mprintf((1,"File %s - IFF error: %s",abmname,iff_errormsg(iff_error)));
 					Error("File %s - IFF error: %s",abmname,iff_errormsg(iff_error));
 				}
 			
@@ -873,7 +853,6 @@ void piggy_new_pigfile(char *pigname)
 
 					GameBitmaps[i+fnum] = *bm[fnum];
 
-					// -- mprintf( (0, "U" ));
 					d_free( bm[fnum] );
 				}
 
@@ -894,7 +873,6 @@ void piggy_new_pigfile(char *pigname)
 
 				new->bm_handle=0;
 				if (iff_error != IFF_NO_ERROR)          {
-					mprintf((1, "File %s - IFF error: %s",bbmname,iff_errormsg(iff_error)));
 					Error("File %s - IFF error: %s",bbmname,iff_errormsg(iff_error));
 				}
 
@@ -926,8 +904,6 @@ void piggy_new_pigfile(char *pigname)
 				GameBitmaps[i] = *new;
 	
 				d_free( new );
-
-				// -- mprintf( (0, "U" ));
 			}
 		}
 
@@ -1002,11 +978,6 @@ int read_hamfile()
 
 		bm_read_all(ham_fp);
 		cfread( GameBitmapXlat, sizeof(ushort)*MAX_BITMAP_FILES, 1, ham_fp );
-		// no swap here?
-		//for (i = 0; i < MAX_BITMAP_FILES; i++) {
-			//GameBitmapXlat[i] = INTEL_SHORT(GameBitmapXlat[i]);
-			//printf("GameBitmapXlat[%d] = %d\n", i, GameBitmapXlat[i]);
-		//}
 	}
 	#endif
 
@@ -1041,17 +1012,11 @@ int read_hamfile()
 			if (piggy_is_needed(i))
 #endif		// note link to if.
 				sbytes += sndh.length;
-			//mprintf(( 0, "%d bytes of sound\n", sbytes ));
 		}
 
 		SoundBits = d_malloc( sbytes + 16 );
 		if ( SoundBits == NULL )
 			Error( "Not enough memory to load sounds\n" );
-
-		mprintf(( 0, "\nBitmaps: %d KB   Sounds: %d KB\n", Piggy_bitmap_cache_size/1024, sbytes/1024 ));
-
-		//	piggy_read_sounds(ham_fp);
-
 	}
 
 	cfclose(ham_fp);
@@ -1091,8 +1056,6 @@ int read_sndfile()
 	sound_start = cftell(snd_fp);
 	size = cfilelength(snd_fp) - sound_start;
 	length = size;
-	mprintf( (0, "\nReading data (%d KB) ", size/1024 ));
-
 	header_size = N_sounds*sizeof(DiskSoundHeader);
 
 	//Read sounds
@@ -1110,16 +1073,11 @@ int read_sndfile()
 		if (piggy_is_needed(i))
 		#endif		// note link to if.
 		sbytes += sndh.length;
-		//mprintf(( 0, "%d bytes of sound\n", sbytes ));
 	}
 
 	SoundBits = d_malloc( sbytes + 16 );
 	if ( SoundBits == NULL )
 		Error( "Not enough memory to load sounds\n" );
-
-	mprintf(( 0, "\nBitmaps: %d KB   Sounds: %d KB\n", Piggy_bitmap_cache_size/1024, sbytes/1024 ));
-
-//	piggy_read_sounds(snd_fp);
 
 	cfclose(snd_fp);
 
@@ -1170,7 +1128,6 @@ int properties_init(void)
 
 // 	atexit(piggy_close);
 
-	mprintf ((0,"HamOk=%d SndOk=%d\n",ham_ok,snd_ok));
 	return (ham_ok && snd_ok);               //read ok
 }
 
@@ -1221,8 +1178,6 @@ void piggy_read_sounds(void)
 	}
 
 	cfclose(fp);
-
-	mprintf(( 0, "\nActual Sound usage: %d KB\n", sbytes/1024 ));
 
 }
 
@@ -1419,7 +1374,6 @@ void piggy_bitmap_page_out_all()
 		}
 	}
 
-	mprintf(( 0, "Flushing piggy bitmap cache\n" ));
 }
 
 void piggy_load_level_data()
@@ -1441,17 +1395,13 @@ void piggy_write_pigfile(char *filename)
 	FILE *fp1,*fp2;
 	char tname[FILENAME_LEN];
 
-	// -- mprintf( (0, "Paging in all piggy bitmaps..." ));
 	for (i=0; i < Num_bitmap_files; i++ )   {
 		bitmap_index bi;
 		bi.index = i;
 		PIGGY_PAGE_IN( bi );
 	}
-	// -- mprintf( (0, "\n" ));
 
 	piggy_close_file();
-
-	// -- mprintf( (0, "Creating %s...",filename ));
 
 	pig_fp = fopen( filename, "wb" );       //open PIG file
 	Assert( pig_fp!=NULL );
@@ -1532,8 +1482,6 @@ void piggy_write_pigfile(char *filename)
 			other_bitmap = piggy_find_bitmap( subst_name );
 			GameBitmapXlat[i] = other_bitmap.index;
 			bmh.flags |= BM_FLAG_PAGED_OUT;
-			//mprintf(( 0, "Skipping bitmap %d\n", i ));
-			//mprintf(( 0, "Marking '%s' as substitutible\n", AllBitmaps[i].name ));
 		} else  {
 			bmh.flags &= ~BM_FLAG_PAGED_OUT;
 		}
@@ -1543,7 +1491,6 @@ void piggy_write_pigfile(char *filename)
 
 	fclose(pig_fp);
 
-	mprintf( (0, " Dumped %d assorted bitmaps.\n", Num_bitmap_files ));
 	fprintf( fp1, " Dumped %d assorted bitmaps.\n", Num_bitmap_files );
 
 	fclose(fp1);
@@ -1580,8 +1527,6 @@ void piggy_dump_all()
 
 	if (Must_write_hamfile || Num_bitmap_files_new) {
 
-		mprintf( (0, "Creating %s...",DEFAULT_HAMFILE_REGISTERED));
-	
 		ham_fp = fopen( DEFAULT_HAMFILE_REGISTERED, "wb" );                       //open HAM file
 		Assert( ham_fp!=NULL );
 	
@@ -1605,12 +1550,10 @@ void piggy_dump_all()
 		fwrite( GameBitmapXlat, sizeof(ushort)*MAX_BITMAP_FILES, 1, ham_fp );
 	
 		fclose(ham_fp);
-		mprintf( (0, "\n" ));
 	}
 	
 	if (Num_sound_files_new) {
 
-		mprintf( (0, "Creating %s...",DEFAULT_HAMFILE_REGISTERED));
 		// Now dump sound file
 		ham_fp = fopen( DEFAULT_SNDFILE, "wb" );
 		Assert( ham_fp!=NULL );
@@ -1619,8 +1562,6 @@ void piggy_dump_all()
 		write_int(SNDFILE_VERSION,ham_fp);
 
 		fwrite( &Num_sound_files, sizeof(int), 1, ham_fp );
-	
-		mprintf( (0, "\nDumping sounds..." ));
 	
 		sound_data_start = ftell(ham_fp);
 		sound_data_start += Num_sound_files*sizeof(DiskSoundHeader);
@@ -1648,11 +1589,9 @@ void piggy_dump_all()
 		}
 
 		fclose(ham_fp);
-		mprintf( (0, "\n" ));
 	}
 
 	fprintf( fp1, "Total sound size: %d bytes\n", data_offset-sound_data_start);
-	mprintf( (0, " Dumped %d assorted sounds.\n", Num_sound_files ));
 	fprintf( fp1, " Dumped %d assorted sounds.\n", Num_sound_files );
 
 	fclose(fp1);
@@ -2279,8 +2218,6 @@ bitmap_index read_extra_bitmap_d1_pig(char *name)
 	return bitmap_num;
 }
 
-
-#ifndef FAST_FILE_IO
 /*
  * reads a bitmap_index structure from a CFILE
  */
@@ -2300,4 +2237,3 @@ int bitmap_index_read_n(bitmap_index *bi, int n, CFILE *fp)
 		bi[i].index = cfile_read_short(fp);
 	return i;
 }
-#endif // FAST_FILE_IO

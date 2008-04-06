@@ -1,4 +1,3 @@
-/* $Id: polyobj.h,v 1.1.1.1 2006/03/17 19:56:36 zicodxx Exp $ */
 /*
 THE COMPUTER CODE CONTAINED HEREIN IS THE SOLE PROPERTY OF PARALLAX
 SOFTWARE CORPORATION ("PARALLAX").  PARALLAX, IN DISTRIBUTING THE CODE TO
@@ -57,13 +56,8 @@ typedef struct polymodel {
 // array of pointers to polygon objects
 extern polymodel Polygon_models[];
 
-// switch to simpler model when the object has depth
-// greater than this value times its radius.
-extern int Simple_model_threshhold_scale;
-
 // how many polygon objects there are
 extern int N_polygon_models;
-
 
 // array of names of currently-loaded models
 extern char Pof_names[MAX_POLYGON_MODELS][13];
@@ -96,10 +90,6 @@ extern grs_bitmap *texture_list[MAX_POLYOBJ_TEXTURES];
 extern bitmap_index texture_list_index[MAX_POLYOBJ_TEXTURES];
 extern g3s_point robot_points[];
 
-#ifdef FAST_FILE_IO
-#define polymodel_read(pm, fp) cfread(pm, sizeof(polymodel), 1, fp)
-#define polymodel_read_n(pm, n, fp) cfread(pm, sizeof(polymodel), n, fp)
-#else
 /*
  * reads a polymodel structure from a CFILE
  */
@@ -109,7 +99,6 @@ extern void polymodel_read(polymodel *pm, CFILE *fp);
  * reads n polymodel structs from a CFILE
  */
 extern int polymodel_read_n(polymodel *pm, int n, CFILE *fp);
-#endif
 
 /*
  * routine which allocates, reads, and inits a polymodel's model_data

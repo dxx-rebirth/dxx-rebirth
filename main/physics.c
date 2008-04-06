@@ -1,4 +1,3 @@
-/* $Id: physics.c,v 1.1.1.1 2006/03/17 19:55:30 zicodxx Exp $ */
 /*
 THE COMPUTER CODE CONTAINED HEREIN IS THE SOLE PROPERTY OF PARALLAX
 SOFTWARE CORPORATION ("PARALLAX").  PARALLAX, IN DISTRIBUTING THE CODE TO
@@ -23,15 +22,10 @@ COPYRIGHT 1993-1999 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 #include <conf.h>
 #endif
 
-#ifdef RCS
-static char rcsid[] = "$Id: physics.c,v 1.1.1.1 2006/03/17 19:55:30 zicodxx Exp $";
-#endif
-
 #include <stdio.h>
 #include <stdlib.h>
 
 #include "joy.h"
-#include "mono.h"
 #include "error.h"
 
 #include "inferno.h"
@@ -273,7 +267,6 @@ void do_physics_sim_rot(object *obj)
 
 	}
 
-	//mprintf( (0, "Rot vel = %.3f,%.3f,%.3f\n", f2fl(obj->mtype.phys_info.rotvel.x),f2fl(obj->mtype.phys_info.rotvel.y), f2fl(obj->mtype.phys_info.rotvel.z) ));
 
 	//now rotate object
 
@@ -366,23 +359,10 @@ void do_physics_sim(object *obj)
 	//debug_obj = obj;
 
 #ifdef EXTRA_DEBUG
-	if (obj == debug_obj) {
-		printf("object %d:\n  start pos = %x %x %x\n",objnum,XYZ(&obj->pos));
-		printf("  thrust = %x %x %x\n",XYZ(&obj->mtype.phys_info.thrust));
-		printf("  sim_time = %x\n",sim_time);
-	}
-
 	//check for correct object segment
 	if(!get_seg_masks(&obj->pos, obj->segnum, 0, __FILE__, __LINE__).centermask == 0)
 	{
-#ifndef NDEBUG
-		mprintf((0,"Warning: object %d not in given seg!\n",objnum));
-#endif
-		//Int3();  Removed by Rob 10/5/94
 		if (!update_object_seg(obj)) {
-#ifndef NDEBUG
-			mprintf((0,"Warning: can't find seg for object %d - moving\n",objnum));
-#endif
 			if (!(Game_mode & GM_MULTI))
 				Int3();
 			compute_segment_center(&obj->pos,&Segments[obj->segnum]);
@@ -399,8 +379,6 @@ void do_physics_sim(object *obj)
 
 		//if uses thrust, cannot have zero drag
 	Assert(!(obj->mtype.phys_info.flags&PF_USES_THRUST) || obj->mtype.phys_info.drag!=0);
-
-	//mprintf((0,"thrust=%x  speed=%x\n",vm_vec_mag(&obj->mtype.phys_info.thrust),vm_vec_mag(&obj->mtype.phys_info.velocity)));
 
 	//do thrust & drag
 	
@@ -445,21 +423,12 @@ void do_physics_sim(object *obj)
 		}
 	}
 
-#ifdef EXTRA_DEBUG
-	if (obj == debug_obj)
-		printf("  velocity = %x %x %x\n",XYZ(&obj->mtype.phys_info.velocity));
-#endif
-
 	do {
 		try_again = 0;
 
 		//Move the object
 		vm_vec_copy_scale(&frame_vec, &obj->mtype.phys_info.velocity, sim_time);
 
-#ifdef EXTRA_DEBUG
-		if (obj == debug_obj)
-			printf("  pass %d, frame_vec = %x %x %x\n",count,XYZ(&frame_vec));
-#endif
 
 		if ( (frame_vec.x==0) && (frame_vec.y==0) && (frame_vec.z==0) )	
 			break;
@@ -477,19 +446,7 @@ void do_physics_sim(object *obj)
 
 		vm_vec_add(&new_pos,&obj->pos,&frame_vec);
 
-#ifdef EXTRA_DEBUG
-		if (obj == debug_obj)
-			printf("   desired_pos  = %x %x %x\n",XYZ(&new_pos));
-#endif
-
 		ignore_obj_list[n_ignore_objs] = -1;
-
-#ifdef EXTRA_DEBUG
-		if (obj == debug_obj) {
-			printf("   FVI parms: p0 = %8x %8x %8x, segnum=%x, size=%x\n",XYZ(&obj->pos),obj->segnum,obj->size);
-			printf("              p1 = %8x %8x %8x\n",XYZ(&new_pos));
-		}
-#endif
 
 		fq.p0						= &obj->pos;
 		fq.startseg				= obj->segnum;
@@ -519,7 +476,6 @@ void do_physics_sim(object *obj)
 
 #ifndef NDEBUG
 		if (fate == HIT_BAD_P0) {
-			mprintf((0,"Warning: Bad p0 in physics!  Object = %i, type = %i [%s]\n", obj-Objects, obj->type, Object_type_names[obj->type]));
 			Int3();
 		}
 #endif
@@ -534,25 +490,12 @@ void do_physics_sim(object *obj)
 				phys_seglist[n_phys_segs++] = hit_info.seglist[i++];
 		}
 
-#ifdef EXTRA_DEBUG
-		if (obj == debug_obj)
-			printf("   fate  = %d, hit_pnt = %8x %8x %8x\n",fate,XYZ(&hit_info.hit_pnt));;
-#endif
-
 		ipos = hit_info.hit_pnt;
 		iseg = hit_info.hit_seg;
 		WallHitSide = hit_info.hit_side;
 		WallHitSeg = hit_info.hit_side_seg;
 
 		if (iseg==-1) {		//some sort of horrible error
-#ifndef NDEBUG
-			mprintf((1,"iseg==-1 in physics!  Object = %i, type = %i (%s)\n", obj-Objects, obj->type, Object_type_names[obj->type]));
-#endif
-			//Int3();
-			//compute_segment_center(&ipos,&Segments[obj->segnum]);
-			//ipos.x += objnum;
-			//iseg = obj->segnum;
-			//fate = HIT_NONE;
 			if (obj->type == OBJ_WEAPON)
 				obj->flags |= OF_SHOULD_BE_DEAD;
 			break;
@@ -568,11 +511,6 @@ void do_physics_sim(object *obj)
 
 		// update object's position and segment number
 		obj->pos = ipos;
-
-#ifdef EXTRA_DEBUG
-		if (obj == debug_obj)
-			printf("   new pos = %x %x %x\n",XYZ(&obj->pos));
-#endif
 
 		if ( iseg != obj->segnum )
 			obj_relink(objnum, iseg );
@@ -612,13 +550,6 @@ void do_physics_sim(object *obj)
 
 				//don't change position or sim_time
 
-//				mprintf((0,"Obj %d moved backwards\n",obj-Objects));
-
-#ifdef EXTRA_DEBUG
-				if (obj == debug_obj)
-					printf("   Warning: moved backwards!\n");
-#endif
-
 				obj->pos = save_pos;
 		
 				//iseg = obj->segnum;		//don't change segment
@@ -629,9 +560,6 @@ void do_physics_sim(object *obj)
 			}
 			else {
 
-				//if (obj == debug_obj)
-				//	printf("   moved_vec = %x %x %x\n",XYZ(&moved_vec));
-			
 				attempted_dist = vm_vec_mag(&frame_vec);
 
 				sim_time = fixmuldiv(sim_time,attempted_dist-actual_dist,attempted_dist);
@@ -639,24 +567,12 @@ void do_physics_sim(object *obj)
 				moved_time = old_sim_time - sim_time;
 
 				if (sim_time < 0 || sim_time>old_sim_time) {
-#ifndef NDEBUG
-					mprintf((0,"Bogus sim_time = %x, old = %x\n",sim_time,old_sim_time));
-					if (obj == debug_obj)
-						printf("   Bogus sim_time = %x, old = %x, attempted_dist = %x, actual_dist = %x\n",sim_time,old_sim_time,attempted_dist,actual_dist);
-					//Int3(); Removed by Rob
-#endif
 					sim_time = old_sim_time;
 					//WHY DOES THIS HAPPEN??
 
 					moved_time = 0;
 				}
 			}
-
-#ifdef EXTRA_DEBUG
-			if (obj == debug_obj)
-				printf("   new sim_time = %x\n",sim_time);
-#endif
-
 		}
 
 
@@ -690,7 +606,6 @@ void do_physics_sim(object *obj)
 
 					if (!forcefield_bounce && (obj->mtype.phys_info.flags & PF_STICK)) {		//stop moving
 
-						// mprintf((0, "Object %i stuck at %i:%i\n", obj-Objects, WallHitSeg, WallHitSide));
 						add_stuck_object(obj, WallHitSeg, WallHitSide);
 
 						vm_vec_zero(&obj->mtype.phys_info.velocity);
@@ -704,8 +619,6 @@ void do_physics_sim(object *obj)
 						//velocity vector
 
 						wall_part = vm_vec_dot(&hit_info.hit_wallnorm,&obj->mtype.phys_info.velocity);
-
-//						mprintf((0, "%d", f2i(vm_vec_mag(&hit_info.hit_wallnorm)) ));
 
 						if (forcefield_bounce || (obj->mtype.phys_info.flags & PF_BOUNCE)) {		//bounce off wall
 							wall_part *= 2;	//Subtract out wall part twice to achieve bounce
@@ -729,11 +642,6 @@ void do_physics_sim(object *obj)
 
 						vm_vec_scale_add2(&obj->mtype.phys_info.velocity,&hit_info.hit_wallnorm,-wall_part);
 
-//						mprintf((0, "Velocity at bounce time = %d\n", f2i(vm_vec_mag(&obj->mtype.phys_info.velocity))));
-
-						//if (obj==ConsoleObject)
-						//	mprintf((0,"player vel = %x\n",vm_vec_mag_quick(&obj->mtype.phys_info.velocity)));
-
 						if (check_vel) {
 							fix vel = vm_vec_mag_quick(&obj->mtype.phys_info.velocity);
 
@@ -743,13 +651,6 @@ void do_physics_sim(object *obj)
 
 						if (bounced && obj->type == OBJ_WEAPON)
 							vm_vector_2_matrix(&obj->orient,&obj->mtype.phys_info.velocity,&obj->orient.uvec,NULL);
-
-#ifdef EXTRA_DEBUG
-						if (obj == debug_obj) {
-							printf("   sliding - wall_norm %x %x %x %x\n",wall_part,XYZ(&hit_info.hit_wallnorm));
-							printf("   wall_part %x, new velocity = %x %x %x\n",wall_part,XYZ(&obj->mtype.phys_info.velocity));
-						}
-#endif
 
 						try_again = 1;
 					}
@@ -803,7 +704,6 @@ void do_physics_sim(object *obj)
 #ifndef NDEBUG
 			case HIT_BAD_P0:
 				Int3();		// Unexpected collision type: start point not in specified segment.
-				mprintf((0,"Warning: Bad p0 in physics!!!\n"));
 				break;
 			default:
 				// Unknown collision type returned from find_vector_intersection!!
@@ -962,13 +862,10 @@ void physics_set_rotvel_and_saturate(fix *dest, fix delta)
 {
 	if ((delta ^ *dest) < 0) {
 		if (abs(delta) < F1_0/8) {
-			// mprintf((0, "D"));
 			*dest = delta/4;
 		} else
-			// mprintf((0, "d"));
 			*dest = delta;
 	} else {
-		// mprintf((0, "!"));
 		*dest = delta;
 	}
 }
@@ -1064,7 +961,6 @@ void phys_apply_rot(object *obj,vms_vector *force_vec)
 					if ( (d_rand() * 2) < (tval & 0xffff))
 						addval++;
 					obj->ctype.ai_info.SKIP_AI_COUNT += addval;
-					// -- mk: too much stuff making hard to see my debug messages...mprintf((0, "FrameTime = %7.3f, addval = %i\n", f2fl(FrameTime), addval));
 				}
 			}
 		} else {

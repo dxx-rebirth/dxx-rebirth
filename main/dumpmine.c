@@ -1,4 +1,3 @@
-/* $Id: dumpmine.c,v 1.1.1.1 2006/03/17 19:54:55 zicodxx Exp $ */
 /*
 THE COMPUTER CODE CONTAINED HEREIN IS THE SOLE PROPERTY OF PARALLAX
 SOFTWARE CORPORATION ("PARALLAX").  PARALLAX, IN DISTRIBUTING THE CODE TO
@@ -24,17 +23,13 @@ COPYRIGHT 1993-1999 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 #include <conf.h>
 #endif
 
-#ifdef RCS
-static char rcsid[] = "$Id: dumpmine.c,v 1.1.1.1 2006/03/17 19:54:55 zicodxx Exp $";
-#endif
-
 #include <stdio.h>
 #include <string.h>
 #include <stdarg.h>
 #include <errno.h>
 
 #include "pstypes.h"
-#include "mono.h"
+#include "console.h"
 #include "key.h"
 #include "gr.h"
 #include "palette.h"
@@ -105,7 +100,7 @@ void err_printf(FILE *my_file, char * format, ... )
 	vsprintf(message,format,args);
 	va_end(args);
 
-	mprintf((1, "%s", message));
+	con_printf(CON_CRITICAL, "%s", message);
 	fprintf(my_file, "%s", message);
 	Errors_in_mine++;
 }
@@ -119,7 +114,7 @@ void warning_printf(FILE *my_file, char * format, ... )
 	vsprintf(message,format,args);
 	va_end(args);
 
-	mprintf((0, "%s", message));
+	con_printf(CON_URGENT, "%s", message);
 	fprintf(my_file, "%s", message);
 }
 
@@ -554,8 +549,6 @@ void write_game_text_file(char *filename)
 
 	Errors_in_mine = 0;
 
-	// mprintf((0, "Writing text file for mine [%s]\n", filename));
-
 	namelen = strlen(filename);
 
 	Assert (namelen > 4);
@@ -565,10 +558,7 @@ void write_game_text_file(char *filename)
 	strcpy(my_filename, filename);
 	strcpy( &my_filename[namelen-4], ".txm");
 
-	// mprintf((0, "Writing text file [%s]\n", my_filename));
-
 	my_file = fopen( my_filename, "wt" );
-	// -- mprintf((1, "Fileno = %i\n", fileno(my_file)));
 
 	if (!my_file)	{
 		char  ErrorMessage[200];
@@ -615,7 +605,6 @@ void write_game_text_file(char *filename)
 
 { int r;
 	r = fclose(my_file);
-	mprintf((1, "Close value = %i\n", r));
 	if (r)
 		Int3();
 }
@@ -786,7 +775,6 @@ void determine_used_textures_level(int load_level_flag, int shareware_flag, int 
 			for (i=0; i<po->n_textures; i++) {
 
 				int	tli = ObjBitmaps[ObjBitmapPtrs[po->first_texture+i]].index;
-				// -- mprintf((0, "%s  ", AllBitmaps[ObjBitmaps[ObjBitmapPtrs[po->first_texture+i]].index].name));
 
 				if ((tli < MAX_BITMAP_FILES) && (tli >= 0)) {
 					tmap_buf[tli]++;
@@ -1025,7 +1013,6 @@ void say_totals_all(void)
 	FILE	*my_file;
 
 	my_file = fopen( "levels.all", "wt" );
-	// -- mprintf((1, "Fileno = %i\n", fileno(my_file)));
 
 	if (!my_file)	{
 		char  ErrorMessage[200];
@@ -1040,25 +1027,11 @@ void say_totals_all(void)
 	}
 
 	for (i=First_dump_level; i<=Last_dump_level; i++) {
-		mprintf((0, "Level %i\n", i+1));
 		load_level(Adam_level_names[i]);
 		say_totals(my_file, Adam_level_names[i]);
 	}
 
-//--05/17/95--	for (i=0; i<NUM_SHAREWARE_LEVELS; i++) {
-//--05/17/95--		mprintf((0, "Level %i\n", i+1));
-//--05/17/95--		load_level(Shareware_level_names[i]);
-//--05/17/95--		say_totals(my_file, Shareware_level_names[i]);
-//--05/17/95--	}
-//--05/17/95--
-//--05/17/95--	for (i=0; i<NUM_REGISTERED_LEVELS; i++) {
-//--05/17/95--		mprintf((0, "Level %i\n", i+1+NUM_SHAREWARE_LEVELS));
-//--05/17/95--		load_level(Registered_level_names[i]);
-//--05/17/95--		say_totals(my_file, Registered_level_names[i]);
-//--05/17/95--	}
-
 	fclose(my_file);
-
 }
 
 void dump_used_textures_level(FILE *my_file, int level_num)
@@ -1100,7 +1073,6 @@ void dump_used_textures_all(void)
 say_totals_all();
 
 	my_file = fopen( "textures.dmp", "wt" );
-	// -- mprintf((1, "Fileno = %i\n", fileno(my_file)));
 
 	if (!my_file)	{
 		char  ErrorMessage[200];

@@ -17,9 +17,7 @@
 #include <unistd.h>
 #include <errno.h>
 #include "netdrv.h"
-#include "mono.h"
-
-#define n_printf(format, args...) mprintf((1, format, ## args))
+#include "console.h"
 
 static socket_t IPX_sock;
 
@@ -34,7 +32,7 @@ static int IPXGetMyAddress( void )
 	sock=socket(AF_IPX,SOCK_DGRAM,PF_IPX);
 	if(sock==-1)
 	{
-		n_printf("IPX: could not open socket in GetMyAddress\n");
+		con_printf(CON_URGENT,"IPX: could not open socket in GetMyAddress\n");
 		return(-1);
 	}
 	
@@ -45,7 +43,7 @@ static int IPXGetMyAddress( void )
 	
 	if(bind(sock,(struct sockaddr *)&ipxs,sizeof(ipxs))==-1)
 	{
-		n_printf("IPX: could bind to network 0 in GetMyAddress\n");
+		con_printf(CON_URGENT,"IPX: could bind to network 0 in GetMyAddress\n");
 		close( sock );
 		return(-1);
 	}
@@ -53,7 +51,7 @@ static int IPXGetMyAddress( void )
 	len = sizeof(ipxs2);
 	if (getsockname(sock,(struct sockaddr *)&ipxs2,&len) < 0)
 	{
-		n_printf("IPX: could not get socket name in GetMyAddress\n");
+		con_printf(CON_URGENT,"IPX: could not get socket name in GetMyAddress\n");
 		close( sock );
 		return(-1);
 	}
@@ -78,7 +76,7 @@ static int IPXOpenSocket(int port)
 	/* do a socket call, then bind to this port */
 	sock = socket(AF_IPX, SOCK_DGRAM, PF_IPX);
 	if (sock == -1) {
-		n_printf("IPX: could not open IPX socket.\n");
+		con_printf(CON_URGENT,"IPX: could not open IPX socket.\n");
 		return -1;
 	}
 
@@ -86,7 +84,7 @@ static int IPXOpenSocket(int port)
 	/* Permit broadcast output */
 	if (setsockopt(sock, SOL_SOCKET, SO_BROADCAST, &opt, sizeof(opt)) == -1)
 	{
-		n_printf("IPX: could not set socket option for broadcast.\n");
+		con_printf(CON_URGENT,"IPX: could not set socket option for broadcast.\n");
 		return -1;
 	}
 
@@ -99,7 +97,7 @@ static int IPXOpenSocket(int port)
 	/* now bind to this port */
 	if (bind(sock, (struct sockaddr *) &ipxs, sizeof(ipxs)) == -1)
 	{
-		n_printf("IPX: could not bind socket to address\n");
+		con_printf(CON_URGENT,"IPX: could not bind socket to address\n");
 		close( sock );
 		return -1;
 	}
@@ -109,14 +107,14 @@ static int IPXOpenSocket(int port)
 		len = sizeof(ipxs2);
 		if (getsockname(sock,(struct sockaddr *)&ipxs2,&len) < 0)
 		{
-			n_printf("IPX: could not get socket name in IPXOpenSocket\n");
+			con_printf(CON_URGENT,"IPX: could not get socket name in IPXOpenSocket\n");
 			close( sock );
 			return -1;
 		}
 		else
 		{
 			port = htons(ipxs2.sipx_port);
-			n_printf("IPX: opened dynamic socket %04x\n", port);
+			con_printf(CON_URGENT,"IPX: opened dynamic socket %04x\n", port);
 		}
 	}
 
@@ -131,7 +129,7 @@ static int IPXOpenSocket(int port)
 static void IPXCloseSocket(void)
 {
 	/* now close the file descriptor for the socket, and free it */
-	n_printf("IPX: closing file descriptor on socket %x\n", IPX_sock.socket);
+	con_printf(CON_URGENT,"IPX: closing file descriptor on socket %x\n", IPX_sock.socket);
 	close(IPX_sock.fd);
 }
 

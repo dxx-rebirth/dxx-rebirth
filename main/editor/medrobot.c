@@ -1,4 +1,3 @@
-/* $Id: medrobot.c,v 1.1.1.1 2006/03/17 19:58:14 zicodxx Exp $ */
 /*
 THE COMPUTER CODE CONTAINED HEREIN IS THE SOLE PROPERTY OF PARALLAX
 SOFTWARE CORPORATION ("PARALLAX").  PARALLAX, IN DISTRIBUTING THE CODE TO
@@ -18,21 +17,12 @@ COPYRIGHT 1993-1998 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
  *
  */
 
-#ifdef RCS
-static char rcsid[] = "$Id: medrobot.c,v 1.1.1.1 2006/03/17 19:58:14 zicodxx Exp $";
-#endif
-
 #ifdef HAVE_CONFIG_H
 #include "conf.h"
 #endif
 
 #include <stdlib.h>
 #include <stdio.h>
-#ifdef __MSDOS__
-#include <conio.h>
-#include <direct.h>
-#include <dos.h>
-#endif
 #include <math.h>
 #include <string.h>
 
@@ -40,11 +30,9 @@ static char rcsid[] = "$Id: medrobot.c,v 1.1.1.1 2006/03/17 19:58:14 zicodxx Exp
 #include "inferno.h"
 #include "segment.h"
 #include "editor.h"
-
 #include "timer.h"
 #include "objpage.h"
 #include "fix.h"
-#include "mono.h"
 #include "error.h"
 #include "kdefs.h"
 #include	"object.h"
@@ -92,7 +80,6 @@ void call_init_ai_object(object *objp, int behavior)
 			hide_segment = Cursegp-Segments;
 	}
 
-	mprintf((0, "Initializing AI object with hide segment = %i\n", hide_segment));
 	init_ai_object(objp-Objects, behavior, hide_segment);
 
 	if (behavior == AIB_STATION) {
@@ -175,8 +162,6 @@ int RobotPrevType()
 //-------------------------------------------------------------------------
 int med_set_ai_path()
 {
-	mprintf( (0, "med-set-ai-path called -- it does nothing, paths automatically set!\n" ));
-
 	return 1;
 }
 
@@ -340,7 +325,6 @@ int LocalObjectSelectNextinSegment(void)
 
 	if (Cur_object_index != -1) {
 		while (!is_legal_type_for_this_window(Cur_object_index)) {
-			//mprintf((0, "Skipping object #%i of type %i\n", Cur_object_index, Objects[Cur_object_index].type));
 			rval = ObjectSelectNextinSegment();
 			if (first_obj == Cur_object_index)
 				break;
@@ -369,7 +353,6 @@ int LocalObjectSelectNextinMine(void)
 
 	if (Cur_object_index != -1) {
 		while (!is_legal_type_for_this_window(Cur_object_index)) {
-			//mprintf((0, "Skipping object #%i of type %i\n", Cur_object_index, Objects[Cur_object_index].type));
 			ObjectSelectNextInMine();
 			if (Cur_object_index == first_obj)
 				break;
@@ -398,7 +381,6 @@ int LocalObjectSelectPrevinMine(void)
 
 	if (Cur_object_index != -1) {
 		while (!is_legal_type_for_this_window(Cur_object_index)) {
-			//mprintf((0, "Skipping object #%i of type %i\n", Cur_object_index, Objects[Cur_object_index].type));
 			ObjectSelectPrevInMine();
 			if (first_obj == Cur_object_index)
 				break;
@@ -576,7 +558,6 @@ void do_robot_window()
 		if ( Cur_object_index > -1 ) {
 			int	behavior = Objects[Cur_object_index].ctype.ai_info.behavior;
 			if ( !((behavior >= MIN_BEHAVIOR) && (behavior <= MAX_BEHAVIOR))) {
-				mprintf((0, "Object #%i behavior id (%i) out of bounds, setting to AIB_NORMAL.\n", Cur_object_index, behavior));
 				Objects[Cur_object_index].ctype.ai_info.behavior = AIB_NORMAL;
 				behavior = AIB_NORMAL;
 			}
@@ -780,8 +761,6 @@ int do_object_dialog()
 	ui_gadget_calc_keys(MattWindow);
 
 	MattWindow->keyboard_focus_gadget = (UI_GADGET *) InitialMode[0];
-
-	mprintf((0, "X = %08x, Y = %08x, Z = %08x\n", atoi(Xmessage), atoi(Ymessage), atoi(Zmessage)));
 
 	return 1;
 

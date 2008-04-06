@@ -1,4 +1,3 @@
-/* $Id: gameseg.c,v 1.1.1.1 2006/03/17 19:57:50 zicodxx Exp $ */
 /*
 THE COMPUTER CODE CONTAINED HEREIN IS THE SOLE PROPERTY OF PARALLAX
 SOFTWARE CORPORATION ("PARALLAX").  PARALLAX, IN DISTRIBUTING THE CODE TO
@@ -30,7 +29,7 @@ COPYRIGHT 1993-1999 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 #include "inferno.h"
 #include "game.h"
 #include "error.h"
-#include "mono.h"
+#include "console.h"
 #include "vecmat.h"
 #include "gameseg.h"
 #include "wall.h"
@@ -38,10 +37,6 @@ COPYRIGHT 1993-1999 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 #include "bm.h"
 #include "fvi.h"
 #include "byteswap.h"
-
-#ifdef RCS
-static char rcsid[] = "$Id: gameseg.c,v 1.1.1.1 2006/03/17 19:57:50 zicodxx Exp $";
-#endif
 
 // How far a point can be from a plane, and still be "in" the plane
 #define PLANE_DIST_TOLERANCE	250
@@ -609,14 +604,8 @@ int check_norms(int segnum,int sidenum,int facenum,int csegnum,int csidenum,int 
 	n0 = &Segments[segnum].sides[sidenum].normals[facenum];
 	n1 = &Segments[csegnum].sides[csidenum].normals[cfacenum];
 
-	if (n0->x != -n1->x  ||  n0->y != -n1->y  ||  n0->z != -n1->z) {
-		mprintf((0,"Seg %x, side %d, norm %d doesn't match seg %x, side %d, norm %d:\n"
-				"   %8x %8x %8x\n"
-				"   %8x %8x %8x (negated)\n",
-				segnum,sidenum,facenum,csegnum,csidenum,cfacenum,
-				n0->x,n0->y,n0->z,-n1->x,-n1->y,-n1->z));
+	if (n0->x != -n1->x  ||  n0->y != -n1->y  ||  n0->z != -n1->z)
 		return 1;
-	}
 	else
 		return 0;
 }
@@ -650,7 +639,6 @@ int check_segment_connections(void)
 				csidenum = find_connect_side(seg,cseg);
 
 				if (csidenum == -1) {
-					mprintf((0,"Could not find connected side for seg %x back to seg %x, side %d\n",csegnum,segnum,sidenum));
 					errors = 1;
 					continue;
 				}
@@ -660,7 +648,6 @@ int check_segment_connections(void)
 				create_abs_vertex_lists(&con_num_faces, con_vertex_list, csegnum, csidenum, __FILE__, __LINE__);
 
 				if (con_num_faces != num_faces) {
-					mprintf((0,"Seg %x, side %d: num_faces (%d) mismatch with seg %x, side %d (%d)\n",segnum,sidenum,num_faces,csegnum,csidenum,con_num_faces));
 					errors = 1;
 				}
 				else
@@ -674,12 +661,6 @@ int check_segment_connections(void)
 							 vertex_list[1] != con_vertex_list[(t+3)%4] ||
 							 vertex_list[2] != con_vertex_list[(t+2)%4] ||
 							 vertex_list[3] != con_vertex_list[(t+1)%4]) {
-							mprintf((0,"Seg %x, side %d: vertex list mismatch with seg %x, side %d\n"
-									"  %x %x %x %x\n"
-									"  %x %x %x %x\n",
-									segnum,sidenum,csegnum,csidenum,
-									vertex_list[0],vertex_list[1],vertex_list[2],vertex_list[3],
-									con_vertex_list[0],con_vertex_list[1],con_vertex_list[2],con_vertex_list[3]));
 							errors = 1;
 						}
 						else
@@ -695,13 +676,6 @@ int check_segment_connections(void)
 								 vertex_list[2] != con_vertex_list[0] ||
 								 vertex_list[3] != con_vertex_list[5] ||
 								 vertex_list[5] != con_vertex_list[3]) {
-								mprintf((0,"Seg %x, side %d: vertex list mismatch with seg %x, side %d\n"
-										"  %x %x %x  %x %x %x\n"
-										"  %x %x %x  %x %x %x\n",
-										segnum,sidenum,csegnum,csidenum,
-										vertex_list[0],vertex_list[1],vertex_list[2],vertex_list[3],vertex_list[4],vertex_list[5],
-										con_vertex_list[0],con_vertex_list[1],con_vertex_list[2],con_vertex_list[3],con_vertex_list[4],con_vertex_list[5]));
-								mprintf((0,"Changing seg:side %4i:%i from %i to %i\n", csegnum, csidenum, Segments[csegnum].sides[csidenum].type, 5-Segments[csegnum].sides[csidenum].type));
 								Segments[csegnum].sides[csidenum].type = 5-Segments[csegnum].sides[csidenum].type;
 							} else {
 								errors |= check_norms(segnum,sidenum,0,csegnum,csidenum,0);
@@ -716,13 +690,6 @@ int check_segment_connections(void)
 								 vertex_list[5] != con_vertex_list[0] ||
 								 vertex_list[2] != con_vertex_list[3] ||
 								 vertex_list[3] != con_vertex_list[2]) {
-								mprintf((0,"Seg %x, side %d: vertex list mismatch with seg %x, side %d\n"
-										"  %x %x %x  %x %x %x\n"
-										"  %x %x %x  %x %x %x\n",
-										segnum,sidenum,csegnum,csidenum,
-										vertex_list[0],vertex_list[1],vertex_list[2],vertex_list[3],vertex_list[4],vertex_list[5],
-										con_vertex_list[0],con_vertex_list[1],con_vertex_list[2],con_vertex_list[3],con_vertex_list[4],vertex_list[5]));
-								mprintf((0,"Changing seg:side %4i:%i from %i to %i\n", csegnum, csidenum, Segments[csegnum].sides[csidenum].type, 5-Segments[csegnum].sides[csidenum].type));
 								Segments[csegnum].sides[csidenum].type = 5-Segments[csegnum].sides[csidenum].type;
 							} else {
 								errors |= check_norms(segnum,sidenum,0,csegnum,csidenum,1);
@@ -733,8 +700,6 @@ int check_segment_connections(void)
 			}
 		}
 	}
-
-	// mprintf((0,"\n DONE \n"));
 
 	return errors;
 
@@ -762,7 +727,6 @@ int trace_segs(vms_vector *p0, int oldsegnum, int recursion_count)
 
 	if (recursion_count >= Num_segments) {
 		con_printf (CON_DEBUG, "trace_segs: Segment not found\n");
-		mprintf ((0,"trace_segs (gameseg.c): Error: infinite loop\n"));
 		return -1;
 	}
 	if (recursion_count == 0)
@@ -827,13 +791,9 @@ int find_point_seg(vms_vector *p,int segnum)
 	//	slowing down lighting, and in about 98% of cases, it would just return -1 anyway.
 	//	Matt: This really should be fixed, though.  We're probably screwing up our lighting in a few places.
 	if (!Doing_lighting_hack_flag) {
-		mprintf((1,"Warning: doing exhaustive search to find point segment (%i times)\n", ++Exhaustive_count));
-
 		for (newseg=0;newseg <= Highest_segment_index;newseg++)
 			if (get_seg_masks(p, newseg, 0, __FILE__, __LINE__).centermask == 0)
 				return newseg;
-
-		mprintf((1,"Warning: could not find point segment (%i times)\n", ++Exhaustive_failed_count));
 
 		return -1;		//no segment found
 	} else
@@ -950,8 +910,6 @@ void add_to_fcd_cache(int seg0, int seg1, int depth, fix dist)
 
 		if (Fcd_index >= MAX_FCD_CACHE)
 			Fcd_index = 0;
-
-		// -- mprintf((0, "Adding seg0=%i, seg1=%i to cache.\n", seg0, seg1));
 	} else {
 		//	If it's in the cache, remove it.
 		int	i;
@@ -990,7 +948,6 @@ fix find_connected_distance(vms_vector *p0, int seg0, vms_vector *p1, int seg1, 
 #endif	
 
 	if (max_depth > MAX_LOC_POINT_SEGS-2) {
-		mprintf((1, "Warning: In find_connected_distance, max_depth = %i, limited to %i\n", max_depth, MAX_LOC_POINT_SEGS-2));
 		max_depth = MAX_LOC_POINT_SEGS-2;
 	}
 
@@ -1002,7 +959,6 @@ fix find_connected_distance(vms_vector *p0, int seg0, vms_vector *p1, int seg1, 
 		if ((conn_side = find_connect_side(&Segments[seg0], &Segments[seg1])) != -1) {
 			if (WALL_IS_DOORWAY(&Segments[seg1], conn_side) & wid_flag) {
 				Connected_segment_distance = 1;
-				//mprintf((0, "\n"));
 				return vm_vec_dist_quick(p0, p1);
 			}
 		}
@@ -1018,7 +974,6 @@ fix find_connected_distance(vms_vector *p0, int seg0, vms_vector *p1, int seg1, 
 	for (i=0; i<MAX_FCD_CACHE; i++)
 		if ((Fcd_cache[i].seg0 == seg0) && (Fcd_cache[i].seg1 == seg1)) {
 			Connected_segment_distance = Fcd_cache[i].csd;
-			// -- mprintf((0, "In cache, seg0=%i, seg1=%i.  Returning.\n", seg0, seg1));
 			return Fcd_cache[i].dist;
 		}
 
@@ -1177,21 +1132,6 @@ void create_shortpos(shortpos *spp, object *objp, int swap_bytes)
 		spp->vely = INTEL_SHORT(spp->vely);
 		spp->velz = INTEL_SHORT(spp->velz);
 	}
-//	mprintf((0, "Matrix: %08x %08x %08x    %08x %08x %08x\n", objp->orient.m1,objp->orient.m2,objp->orient.m3,
-//					spp->bytemat[0] << MATRIX_PRECISION,spp->bytemat[1] << MATRIX_PRECISION,spp->bytemat[2] << MATRIX_PRECISION));
-//
-//	mprintf((0, "        %08x %08x %08x    %08x %08x %08x\n", objp->orient.m4,objp->orient.m5,objp->orient.m6,
-//					spp->bytemat[3] << MATRIX_PRECISION,spp->bytemat[4] << MATRIX_PRECISION,spp->bytemat[5] << MATRIX_PRECISION));
-//
-//	mprintf((0, "        %08x %08x %08x    %08x %08x %08x\n", objp->orient.m7,objp->orient.m8,objp->orient.m9,
-//					spp->bytemat[6] << MATRIX_PRECISION,spp->bytemat[7] << MATRIX_PRECISION,spp->bytemat[8] << MATRIX_PRECISION));
-//
-//	mprintf((0, "Positn: %08x %08x %08x    %08x %08x %08x\n", objp->pos.x, objp->pos.y, objp->pos.z,
-//		 (spp->xo << RELPOS_PRECISION) + Vertices[Segments[segnum].verts[0]].x,
-//		 (spp->yo << RELPOS_PRECISION) + Vertices[Segments[segnum].verts[0]].y,
-//		 (spp->zo << RELPOS_PRECISION) + Vertices[Segments[segnum].verts[0]].z));
-//	mprintf((0, "Segment: %3i    %3i\n", objp->segnum, spp->segment));
-
 }
 
 void extract_shortpos(object *objp, shortpos *spp, int swap_bytes)
@@ -1235,29 +1175,7 @@ void extract_shortpos(object *objp, shortpos *spp, int swap_bytes)
 
 	obj_relink(objp-Objects, segnum);
 
-//	mprintf((0, "Matrix: %08x %08x %08x    %08x %08x %08x\n", objp->orient.m1,objp->orient.m2,objp->orient.m3,
-//					spp->bytemat[0],spp->bytemat[1],spp->bytemat[2]));
-//
-//	mprintf((0, "        %08x %08x %08x    %08x %08x %08x\n", objp->orient.m4,objp->orient.m5,objp->orient.m6,
-//					spp->bytemat[3],spp->bytemat[4],spp->bytemat[5]));
-//
-//	mprintf((0, "        %08x %08x %08x    %08x %08x %08x\n", objp->orient.m7,objp->orient.m8,objp->orient.m9,
-//					spp->bytemat[6],spp->bytemat[7],spp->bytemat[8]));
-//
-//	mprintf((0, "Positn: %08x %08x %08x    %08x %08x %08x\n", objp->pos.x, objp->pos.y, objp->pos.z,
-//			(spp->xo << RELPOS_PRECISION) + Vertices[Segments[segnum].verts[0]].x, (spp->yo << RELPOS_PRECISION) + Vertices[Segments[segnum].verts[0]].y, (spp->zo << RELPOS_PRECISION) + Vertices[Segments[segnum].verts[0]].z));
-//	mprintf((0, "Segment: %3i    %3i\n", objp->segnum, spp->segment));
-
 }
-
-//--unused-- void test_shortpos(void)
-//--unused-- {
-//--unused-- 	shortpos	spp;
-//--unused--
-//--unused-- 	create_shortpos(&spp, &Objects[0]);
-//--unused-- 	extract_shortpos(&Objects[0], &spp);
-//--unused--
-//--unused-- }
 
 //	-----------------------------------------------------------------------------
 //	Segment validation functions.
@@ -1504,24 +1422,6 @@ void create_walls_on_side(segment *sp, int sidenum)
 	vm_vec_normal(&vn, &Vertices[vm0], &Vertices[vm1], &Vertices[vm2]);
 	dist_to_plane = abs(vm_dist_to_plane(&Vertices[vm3], &vn, &Vertices[vm0]));
 
-//if ((sp-Segments == 0x7b) && (sidenum == 3)) {
-//	mprintf((0, "Verts = %3i %3i %3i %3i, negate flag = %3i, dist = %8x\n", vm0, vm1, vm2, vm3, negate_flag, dist_to_plane));
-//	mprintf((0, "  Normal = %8x %8x %8x\n", vn.x, vn.y, vn.z));
-//	mprintf((0, "   Vert %3i = [%8x %8x %8x]\n", vm0, Vertices[vm0].x, Vertices[vm0].y, Vertices[vm0].z));
-//	mprintf((0, "   Vert %3i = [%8x %8x %8x]\n", vm1, Vertices[vm1].x, Vertices[vm1].y, Vertices[vm1].z));
-//	mprintf((0, "   Vert %3i = [%8x %8x %8x]\n", vm2, Vertices[vm2].x, Vertices[vm2].y, Vertices[vm2].z));
-//	mprintf((0, "   Vert %3i = [%8x %8x %8x]\n", vm3, Vertices[vm3].x, Vertices[vm3].y, Vertices[vm3].z));
-//}
-
-//if ((sp-Segments == 0x86) && (sidenum == 5)) {
-//	mprintf((0, "Verts = %3i %3i %3i %3i, negate flag = %3i, dist = %8x\n", vm0, vm1, vm2, vm3, negate_flag, dist_to_plane));
-//	mprintf((0, "  Normal = %8x %8x %8x\n", vn.x, vn.y, vn.z));
-//	mprintf((0, "   Vert %3i = [%8x %8x %8x]\n", vm0, Vertices[vm0].x, Vertices[vm0].y, Vertices[vm0].z));
-//	mprintf((0, "   Vert %3i = [%8x %8x %8x]\n", vm1, Vertices[vm1].x, Vertices[vm1].y, Vertices[vm1].z));
-//	mprintf((0, "   Vert %3i = [%8x %8x %8x]\n", vm2, Vertices[vm2].x, Vertices[vm2].y, Vertices[vm2].z));
-//	mprintf((0, "   Vert %3i = [%8x %8x %8x]\n", vm3, Vertices[vm3].x, Vertices[vm3].y, Vertices[vm3].z));
-//}
-
 	if (negate_flag)
 		vm_vec_negate(&vn);
 
@@ -1621,11 +1521,6 @@ int find_ncache_element( int segnum, int sidenum, int face_flags )
 	uint i;
 
 	if (!ncache_initialized) ncache_init();
-
-#ifdef CACHE_DEBUG
-	if (((++ncache_counter % 5000)==1) && (ncache_hits+ncache_misses > 0))
-		mprintf(( 0, "NCACHE %d%% missed, H:%d, M:%d\n", (ncache_misses*100)/(ncache_hits+ncache_misses), ncache_hits, ncache_misses ));
-#endif
 
 	i = ((segnum<<2) ^ sidenum) & CACHE_MASK;
 
@@ -1820,26 +1715,11 @@ void validate_segment_all(void)
 
 	#ifdef EDITOR
 	{
-		int said=0;
 		for (s=Highest_segment_index+1; s<MAX_SEGMENTS; s++)
 			if (Segments[s].segnum != -1) {
-				if (!said) {
-					mprintf((0, "Segment %i has invalid segnum.  Bashing to -1.  Silently bashing all others...", s));
-				}
-				said++;
 				Segments[s].segnum = -1;
 			}
-
-		if (said)
-			mprintf((0, "%i fixed.\n", said));
 	}
-	#endif
-
-	#ifndef NDEBUG
-	#ifndef COMPACT_SEGS
-// 	if (check_segment_connections()) // ZICO - FIXME - disabled. will fail with 4D levels.
-// 		Int3();		//Get Matt, si vous plait.
-	#endif
 	#endif
 }
 
@@ -2038,7 +1918,6 @@ void change_light(int segnum, int sidenum, int dir)
 int subtract_light(int segnum, int sidenum)
 {
 	if (Light_subtracted[segnum] & (1 << sidenum)) {
-		//mprintf((0, "Warning: Trying to subtract light from a source twice!\n"));
 		return 0;
 	}
 
@@ -2054,7 +1933,6 @@ int subtract_light(int segnum, int sidenum)
 int add_light(int segnum, int sidenum)
 {
 	if (!(Light_subtracted[segnum] & (1 << sidenum))) {
-		//mprintf((0, "Warning: Trying to add light which has never been subtracted!\n"));
 		return 0;
 	}
 

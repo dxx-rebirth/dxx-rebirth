@@ -1,4 +1,3 @@
-/* $Id: robot.c,v 1.1.1.1 2006/03/17 19:55:18 zicodxx Exp $ */
 /*
 THE COMPUTER CODE CONTAINED HEREIN IS THE SOLE PROPERTY OF PARALLAX
 SOFTWARE CORPORATION ("PARALLAX").  PARALLAX, IN DISTRIBUTING THE CODE TO
@@ -22,17 +21,12 @@ COPYRIGHT 1993-1999 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 #ifdef HAVE_CONFIG_H
 #include <conf.h>
 #endif
-
 #include <stdio.h>
-
 #include "error.h"
-
 #include "inferno.h"
-
 #include "robot.h"
 #include "object.h"
 #include "polyobj.h"
-#include "mono.h"
 
 int	N_robot_types = 0;
 int	N_robot_joints = 0;
@@ -111,12 +105,8 @@ void calc_gun_point(vms_vector *gun_point,object *obj,int gun_num)
 
 	if (gun_num >= r->n_guns)
 	{
-		mprintf((1, "Bashing gun num %d to 0.\n", gun_num));
-		//Int3();
 		gun_num = 0;
 	}
-
-//	Assert(gun_num < r->n_guns);
 
 	pnt = r->gun_points[gun_num];
 	mn = r->gun_submodels[gun_num];
@@ -184,20 +174,6 @@ void set_robot_state(object *obj,int state)
 	}
 }
 
-#include "mono.h"
-
-//--unused-- int cur_state=0;
-
-//--unused-- test_anim_states()
-//--unused-- {
-//--unused-- 	set_robot_state(&Objects[1],cur_state);
-//--unused--
-//--unused-- 	mprintf(0,"Robot in state %d\n",cur_state);
-//--unused--
-//--unused-- 	cur_state = (cur_state+1)%N_ANIM_STATES;
-//--unused--
-//--unused-- }
-
 //set the animation angles for this robot.  Gun fields of robot info must
 //be filled in.
 void robot_set_angles(robot_info *r,polymodel *pm,vms_angvec angs[N_ANIM_STATES][MAX_SUBMODELS])
@@ -221,18 +197,13 @@ void robot_set_angles(robot_info *r,polymodel *pm,vms_angvec angs[N_ANIM_STATES]
 
 	for (g=0;g<r->n_guns+1;g++) {
 
-		//mprintf(0,"Gun %d:\n",g);
-
 		for (state=0;state<N_ANIM_STATES;state++) {
-
-			//mprintf(0," State %d:\n",state);
 
 			r->anim_states[g][state].n_joints = 0;
 			r->anim_states[g][state].offset = N_robot_joints;
 
 			for (m=0;m<pm->n_models;m++) {
 				if (gun_nums[m] == g) {
-					//mprintf(0,"  Joint %d: %x %x %x\n",m,angs[state][m].pitch,angs[state][m].bank,angs[state][m].head);
 					Robot_joints[N_robot_joints].jointnum = m;
 					Robot_joints[N_robot_joints].angles = angs[state][m];
 					r->anim_states[g][state].n_joints++;
@@ -245,7 +216,6 @@ void robot_set_angles(robot_info *r,polymodel *pm,vms_angvec angs[N_ANIM_STATES]
 
 }
 
-#ifndef FAST_FILE_IO
 /*
  * reads n jointlist structs from a CFILE
  */
@@ -362,4 +332,3 @@ int jointpos_read_n(jointpos *jp, int n, CFILE *fp)
 	}
 	return i;
 }
-#endif

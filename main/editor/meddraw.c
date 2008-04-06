@@ -1,4 +1,3 @@
-/* $Id: meddraw.c,v 1.1.1.1 2006/03/17 19:58:25 zicodxx Exp $ */
 /*
 THE COMPUTER CODE CONTAINED HEREIN IS THE SOLE PROPERTY OF PARALLAX
 SOFTWARE CORPORATION ("PARALLAX").  PARALLAX, IN DISTRIBUTING THE CODE TO
@@ -18,10 +17,6 @@ COPYRIGHT 1993-1998 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
  *
  */
 
-#ifdef RCS
-static char rcsid[] = "$Id: meddraw.c,v 1.1.1.1 2006/03/17 19:58:25 zicodxx Exp $";
-#endif
-
 #ifdef HAVE_CONFIG_H
 #include "conf.h"
 #endif
@@ -30,10 +25,6 @@ static char rcsid[] = "$Id: meddraw.c,v 1.1.1.1 2006/03/17 19:58:25 zicodxx Exp 
 #include <stdlib.h>
 #include <stdarg.h>
 #include <string.h>
-#ifdef __MSDOS__
-#include <process.h>
-#endif
-
 #include "inferno.h"
 #include "segment.h"
 #include "segpoint.h"
@@ -41,18 +32,14 @@ static char rcsid[] = "$Id: meddraw.c,v 1.1.1.1 2006/03/17 19:58:25 zicodxx Exp 
 #include "gr.h"
 #include "ui.h"
 #include "editor/editor.h"
-
 #include "wall.h"
 #include "switch.h"
-
 #include "key.h"
-#include "mono.h"
 #include "error.h"
 #include "medlisp.h"
 #include "u_mem.h"
 #include "render.h"
 #include "game.h"
-//#include "slew.h"
 #include "kdefs.h"
 #include "func.h"
 #include "textures.h"
@@ -353,7 +340,6 @@ void add_edge(int v0,int v1,ubyte type)
 
 	seg_edge *e;
 
-//mprintf(0, "Verts = %2i %2i, type = %i ", v0, v1, type);
 	if (v0 > v1) swap(v0,v1);
 
 	found = find_edge(v0,v1,&e);
@@ -367,7 +353,6 @@ void add_edge(int v0,int v1,ubyte type)
 			edge_list[used_list[n_used]].face_count++;
 		else if (type == ET_NOTFACING)
 			edge_list[used_list[n_used]].backface_count++;
-//mprintf(0, "Facing count = %i, Not facing count = %i\n", edge_list[used_list[n_used]].face_count, edge_list[used_list[n_used]].backface_count);
 		n_used++;
 	} else {
 		if (type < e->type)
@@ -376,7 +361,6 @@ void add_edge(int v0,int v1,ubyte type)
 			edge_list[found].face_count++;
 		else if (type == ET_NOTFACING)
 			edge_list[found].backface_count++;
-//mprintf(0, "Facing count = %i, Not facing count = %i\n", edge_list[found].face_count, edge_list[found].backface_count);
 	}
 }
 
@@ -816,24 +800,13 @@ void draw_world(grs_canvas *screen_canvas,editor_view *v,segment *mine_ptr,int d
 #if DOUBLE_BUFFER
 	grs_canvas temp_canvas;
 
-//	mprintf(0, "\n");
-
-//	if ( screen_canvas == LargeViewBox->canvas ) {
-//		CurrentBigCanvas ^= 1;
-//
-//		gr_set_current_canvas( BigCanvas[CurrentBigCanvas] );
-//
-//	} else {
 		gr_init_sub_canvas(&temp_canvas,canv_offscreen,0,0,
 			screen_canvas->cv_bitmap.bm_w,screen_canvas->cv_bitmap.bm_h);
 
 		gr_set_current_canvas(&temp_canvas);
-//	}
 #else
 	gr_set_current_canvas(screen_canvas);
 #endif
-
-	//mprintf(0, "\n");
 
 	ui_mouse_hide();
 

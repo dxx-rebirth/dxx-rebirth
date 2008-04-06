@@ -23,15 +23,13 @@ COPYRIGHT 1993-1999 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 #include <conf.h>
 #endif
 
-char ai_rcsid[] = "$Id: ai.c,v 1.1.1.1 2006/03/17 19:54:45 zicodxx Exp $";
-
 #include <stdio.h>
 #include <stdlib.h>
 #include <time.h>
 
 #include "inferno.h"
 #include "game.h"
-#include "mono.h"
+#include "console.h"
 #include "3d.h"
 
 #include "object.h"
@@ -291,16 +289,12 @@ void make_nearby_robot_snipe(void)
 				if ((objp->ctype.ai_info.behavior != AIB_SNIPE) && (objp->ctype.ai_info.behavior != AIB_RUN_FROM) && !Robot_info[objp->id].boss_flag && !robptr->companion) {
 					objp->ctype.ai_info.behavior = AIB_SNIPE;
 					Ai_local_info[objnum].mode = AIM_SNIPE_ATTACK;
-					mprintf((0, "Making robot #%i go into snipe mode!\n", objnum));
 					return;
 				}
 			}
 			objnum = objp->next;
 		}
 	}
-
-	mprintf((0, "Couldn't find a robot to make snipe!\n"));
-
 }
 
 int Ai_last_missile_camera;
@@ -357,8 +351,6 @@ void do_ai_frame(object *obj)
 	if ((aip->behavior == AIB_RUN_FROM) && (ailp->mode != AIM_RUN_FROM_OBJECT))
 		Int3(); // This is peculiar.  Behavior is run from, but mode is not.  Contact Mike.
 
-	mprintf_animation_info((obj));
-
 	if (!Do_ai_flag)
 		return;
 
@@ -367,12 +359,8 @@ void do_ai_frame(object *obj)
 			Int3(); // Contact Mike: This is a debug break
 #endif
 
-	//mprintf((0, "Object %i: behavior = %02x, mode = %i, awareness = %i, time = %7.3f\n", obj-Objects, aip->behavior, ailp->mode, ailp->player_awareness_type, f2fl(ailp->player_awareness_time)));
-	//mprintf((0, "Object %i: behavior = %02x, mode = %i, awareness = %i, cur=%i, goal=%i\n", obj-Objects, aip->behavior, ailp->mode, ailp->player_awareness_type, aip->CURRENT_STATE, aip->GOAL_STATE));
-
 	//Assert((aip->behavior >= MIN_BEHAVIOR) && (aip->behavior <= MAX_BEHAVIOR));
 	if (!((aip->behavior >= MIN_BEHAVIOR) && (aip->behavior <= MAX_BEHAVIOR))) {
-		//mprintf((0, "Object %i behavior is %i, setting to AIB_NORMAL, fix in editor!\n", objnum, aip->behavior));
 		aip->behavior = AIB_NORMAL;
 	}
 
@@ -443,8 +431,6 @@ _exit_cheat:
 		}
 	}
 	dist_to_player = vm_vec_dist_quick(&Believed_player_pos, &obj->pos);
-	//if (robptr->companion)
-	//	mprintf((0, "%3i: %3i %8.3f %8s %8s [%3i %4i]\n", objnum, obj->segnum, f2fl(dist_to_player), mode_text[ailp->mode], behavior_text[aip->behavior-0x80], aip->hide_index, aip->path_length));
 
 	// If this robot can fire, compute visibility from gun position.
 	// Don't want to compute visibility twice, as it is expensive.  (So is call to calc_gun_point).
@@ -459,22 +445,14 @@ _exit_cheat:
 	} else {
 		vis_vec_pos = obj->pos;
 		vm_vec_zero(&gun_point);
-		//mprintf((0, "Visibility = %i, computed from center.\n", player_visibility));
 	}
 
-// MK: Debugging, July 26, 1995!
-// if (objnum == 1)
-// {
-// 	compute_vis_and_vec(obj, &vis_vec_pos, ailp, &vec_to_player, &player_visibility, robptr, &visibility_and_vec_computed);
-// 	mprintf((0, "Frame %i: dist=%7.3f, vecdot = %7.3f, mode=%i\n", FrameCount, f2fl(dist_to_player), f2fl(vm_vec_dot(&vec_to_player, &obj->orient.fvec)), ailp->mode));
-// }
 	// - -  - -  - -  - -  - -  - -  - -  - -  - -  - -  - -  - -  - -  - -  - 
 	// Occasionally make non-still robots make a path to the player.  Based on agitation and distance from player.
 	if ((aip->behavior != AIB_SNIPE) && (aip->behavior != AIB_RUN_FROM) && (aip->behavior != AIB_STILL) && !(Game_mode & GM_MULTI) && (robptr->companion != 1) && (robptr->thief != 1))
 		if (Overall_agitation > 70) {
 			if ((dist_to_player < F1_0*200) && (d_rand() < FrameTime/4)) {
 				if (d_rand() * (Overall_agitation - 40) > F1_0*5) {
-					// -- mprintf((0, "(1) Object #%i going from still to path in frame %i.\n", objnum, FrameCount));
 					create_path_to_player(obj, 4 + Overall_agitation/8 + Difficulty_level, 1);
 					return;
 				}
@@ -493,14 +471,12 @@ _exit_cheat:
 		if (ailp->consecutive_retries > 3) {
 			switch (ailp->mode) {
 				case AIM_GOTO_PLAYER:
-					// -- mprintf((0, "Buddy stuck going to player...\n"));
 					// -- Buddy_got_stuck = 1;
 					move_towards_segment_center(obj);
 					create_path_to_player(obj, 100, 1);
 					// -- Buddy_got_stuck = 0;
 					break;
 				case AIM_GOTO_OBJECT:
-					// -- mprintf((0, "Buddy stuck going to object...\n"));
 					Escort_goal_object = ESCORT_GOAL_UNSPECIFIED;
 					//if (obj->segnum == ConsoleObject->segnum) {
 					//	if (Point_segs[aip->hide_index + aip->cur_path_index].segnum == obj->segnum)
@@ -509,7 +485,6 @@ _exit_cheat:
 					//}
 					break;
 				case AIM_CHASE_OBJECT:
-					// -- mprintf((0, "(2) Object #%i, retries while chasing, creating path to player in frame %i\n", objnum, FrameCount));
 					create_path_to_player(obj, 4 + Overall_agitation/8 + Difficulty_level, 1);
 					break;
 				case AIM_STILL:
@@ -519,7 +494,6 @@ _exit_cheat:
 						attempt_to_resume_path(obj);
 					break;
 				case AIM_FOLLOW_PATH:
-					// mprintf((0, "Object %i following path got %i retries in frame %i\n", obj-Objects, ailp->consecutive_retries, FrameCount));
 					if (Game_mode & GM_MULTI) {
 						ailp->mode = AIM_STILL;
 					} else
@@ -534,7 +508,6 @@ _exit_cheat:
 					ailp->mode = AIM_RUN_FROM_OBJECT;
 					break;
 				case AIM_BEHIND:
-					mprintf((0, "Hiding robot (%i) collided much.\n", obj-Objects));
 					move_towards_segment_center(obj);
 					obj->mtype.phys_info.velocity.x = 0;
 					obj->mtype.phys_info.velocity.y = 0;
@@ -620,18 +593,14 @@ _exit_cheat:
 		rval = d_rand();
 		sval = (dist_to_player * (Difficulty_level+1))/64;
 
-		// -- mprintf((0, "Object #%3i: dist = %7.3f, rval = %8x, sval = %8x", obj-Objects, f2fl(dist_to_player), rval, sval));
 		if ((fixmul(rval, sval) < FrameTime) || (Players[Player_num].flags & PLAYER_FLAGS_HEADLIGHT_ON)) {
 			ailp->player_awareness_type = PA_PLAYER_COLLISION;
 			ailp->player_awareness_time = F1_0*3;
 			compute_vis_and_vec(obj, &vis_vec_pos, ailp, &vec_to_player, &player_visibility, robptr, &visibility_and_vec_computed);
 			if (player_visibility == 1) {
 				player_visibility = 2;
-				// -- mprintf((0, "...SWITCH!"));
 			}
 		}
-
-		// -- mprintf((0, "\n"));
 	}
 
 
@@ -645,7 +614,6 @@ _exit_cheat:
 		object_animates = do_silly_animation(obj);
 		if (object_animates)
 			ai_frame_animation(obj);
-		//mprintf((0, "Object %i: goal=%i, current=%i\n", obj-Objects, obj->ctype.ai_info.GOAL_STATE, obj->ctype.ai_info.CURRENT_STATE));
 	} else {
 		// If Object is supposed to animate, but we don't let it animate due to distance, then
 		// we must change its state, else it will never update.
@@ -659,7 +627,7 @@ _exit_cheat:
 
 	case 1:
 	case 2:
-		mprintf((1, "Warning: D1 boss detected.  Not supported!\n"));
+		// FIXME!!!!
 		break;
 
 	default:
@@ -698,8 +666,6 @@ _exit_cheat:
 				if (dist_to_player > F1_0*250)  // station guys not at home always processed until 250 units away.
 					return;
 			} else if ((!ailp->previous_visibility) && ((dist_to_player >> 7) > ailp->time_since_processed)) {  // 128 units away (6.4 segments) processed after 1 second.
-				if (robptr->thief)
-					mprintf((0, "T"));
 				return;
 			}
 #ifndef NDEBUG
@@ -793,7 +759,6 @@ _exit_cheat:
 
 			if ((dobjp->type == OBJ_WEAPON) && (dobjp->signature == obj->ctype.ai_info.danger_laser_signature)) {
 				fix circle_distance;
-				// -- mprintf((0, "Evading!  "));
 				circle_distance = robptr->circle_distance[Difficulty_level] + ConsoleObject->size;
 				ai_move_relative_to_player(obj, ailp, dist_to_player, &vec_to_player, circle_distance, 1, player_visibility);
 			}
@@ -808,10 +773,8 @@ _exit_cheat:
 			else if (openable_doors_in_segment(Point_segs[aip->hide_index + aip->cur_path_index + 2*aip->PATH_DIR].segnum) != -1)
 				do_stuff = 1;
 			else if ((ailp->mode == AIM_GOTO_PLAYER) && (dist_to_player < 3*MIN_ESCORT_DISTANCE/2) && (vm_vec_dot(&ConsoleObject->orient.fvec, &vec_to_player) > -F1_0/4)) {
-				// mprintf((0, "Firing at player because dot = %7.3f\n", f2fl(vm_vec_dot(&ConsoleObject->orient.fvec, &vec_to_player))));
 				do_stuff = 1;
-			} else
-				; // mprintf((0, "Not Firing at player because dot = %7.3f, dist = %7.3f\n", f2fl(vm_vec_dot(&ConsoleObject->orient.fvec, &vec_to_player)), f2fl(dist_to_player)));
+			}
 
 			if (do_stuff) {
 				Laser_create_new_easy( &obj->orient.fvec, &obj->pos, obj-Objects, FLARE_ID, 1);
@@ -861,13 +824,11 @@ _exit_cheat:
 
 			// @mk, 12/27/94, structure here was strange.  Would do both clauses of what are now this if/then/else.  Used to be if/then, if/then.
 			if ((player_visibility < 2) && (previous_visibility == 2)) { // this is redundant: mk, 01/15/95: && (ailp->mode == AIM_CHASE_OBJECT)) {
-				// -- mprintf((0, "I used to be able to see the player!\n"));
 				if (!ai_multiplayer_awareness(obj, 53)) {
 					if (maybe_ai_do_actual_firing_stuff(obj, aip))
 						ai_do_actual_firing_stuff(obj, aip, ailp, robptr, &vec_to_player, dist_to_player, &gun_point, player_visibility, object_animates, aip->CURRENT_GUN);
 					return;
 				}
-				// -- mprintf((0, "(3) Object #%i going from chase to player path in frame %i.\n", objnum, FrameCount));
 				create_path_to_player(obj, 8, 1);
 				ai_multi_send_robot_position(objnum, -1);
 			} else if ((player_visibility == 0) && (dist_to_player > F1_0*80) && (!(Game_mode & GM_MULTI))) {
@@ -876,7 +837,6 @@ _exit_cheat:
 				// This has one desirable benefit of avoiding physics retries.
 				if (aip->behavior == AIB_STATION) {
 					ailp->goal_segment = aip->hide_segment;
-					// -- mprintf((0, "(1) Object #%i going from chase to STATION in frame %i.\n", objnum, FrameCount));
 					create_path_to_station(obj, 15);
 				} // -- this looks like a dumb thing to do...robots following paths far away from you! else create_n_segment_path(obj, 5, -1);
 				break;
@@ -886,7 +846,6 @@ _exit_cheat:
 				if (player_visibility) {
 					if (d_rand() < FrameTime*player_visibility) {
 						if (dist_to_player/256 < d_rand()*player_visibility) {
-							// mprintf((0, "Object %i searching for player.\n", obj-Objects));
 							aip->GOAL_STATE = AIS_SRCH;
 							aip->CURRENT_STATE = AIS_SRCH;
 						}
@@ -907,9 +866,6 @@ _exit_cheat:
 						ai_do_actual_firing_stuff(obj, aip, ailp, robptr, &vec_to_player, dist_to_player, &gun_point, player_visibility, object_animates, aip->CURRENT_GUN);
 					return;
 				}
-				// -- bad idea, robots charge player they've never seen! -- mprintf((0, "(4) Object #%i going from chase to player path in frame %i.\n", objnum, FrameCount));
-				// -- bad idea, robots charge player they've never seen! -- create_path_to_player(obj, 10, 1);
-				// -- bad idea, robots charge player they've never seen! -- ai_multi_send_robot_position(objnum, -1);
 			} else if ((aip->CURRENT_STATE != AIS_REST) && (aip->GOAL_STATE != AIS_REST)) {
 				if (!ai_multiplayer_awareness(obj, 70)) {
 					if (maybe_ai_do_actual_firing_stuff(obj, aip))
@@ -1008,7 +964,6 @@ _exit_cheat:
 			if (aip->behavior == AIB_STATION)
 				if (Point_segs[aip->hide_index + aip->path_length - 1].segnum == aip->hide_segment) {
 					anger_level = 64;
-					// mprintf((0, "Object %i, station, lowering anger to 64.\n"));
 				}
 
 			compute_vis_and_vec(obj, &vis_vec_pos, ailp, &vec_to_player, &player_visibility, robptr, &visibility_and_vec_computed);
@@ -1073,16 +1028,13 @@ _exit_cheat:
 				if (dot > 0) {          // Remember, we're interested in the rear vector dot being < 0.
 					goal_vector = ConsoleObject->orient.fvec;
 					vm_vec_negate(&goal_vector);
-					// -- mprintf((0, "Goal is BEHIND\n"));
 				} else {
 					fix dot;
 					dot = vm_vec_dot(&ConsoleObject->orient.rvec, &vec_to_player);
 					goal_vector = ConsoleObject->orient.rvec;
 					if (dot > 0) {
 						vm_vec_negate(&goal_vector);
-						// -- mprintf((0, "Goal is LEFT\n"));
-					} else
-						; // -- mprintf((0, "Goal is RIGHT\n"));
+					}
 				}
 
 				vm_vec_scale(&goal_vector, 2*(ConsoleObject->size + obj->size + (((objnum*4 + FrameCount) & 63) << 12)));
@@ -1158,7 +1110,6 @@ _exit_cheat:
 					// This has one desirable benefit of avoiding physics retries.
 					if (aip->behavior == AIB_STATION) {
 						ailp->goal_segment = aip->hide_segment;
-						// -- mprintf((0, "(2) Object #%i going from STILL to STATION in frame %i.\n", objnum, FrameCount));
 						create_path_to_station(obj, 15);
 					}
 					break;
@@ -1207,7 +1158,6 @@ _exit_cheat:
 			break;
 
 		default:
-			mprintf((0, "Unknown mode = %i in robot %i, behavior = %i\n", ailp->mode, obj-Objects, aip->behavior));
 			ailp->mode = AIM_CHASE_OBJECT;
 			break;
 	}       // end: switch (ailp->mode) {
@@ -1227,7 +1177,6 @@ _exit_cheat:
 	// - -  - -  - -  - -  - -  - -  - -  - -  - -  - -  - -  - -  - -  - -  -
 	if (!object_animates) {
 		aip->CURRENT_STATE = aip->GOAL_STATE;
-		// mprintf((0, "Setting current to goal (%i) because object doesn't animate.\n", aip->GOAL_STATE));
 	}
 
 	Assert(ailp->player_awareness_type <= AIE_MAX);
@@ -1281,7 +1230,6 @@ _exit_cheat:
 			if (aip->GOAL_STATE == AIS_REST) {
 				compute_vis_and_vec(obj, &vis_vec_pos, ailp, &vec_to_player, &player_visibility, robptr, &visibility_and_vec_computed);
 				if (ready_to_fire(robptr, ailp) && (player_visibility)) {
-					// mprintf((0, "Setting goal state to fire from rest.\n"));
 					aip->GOAL_STATE = AIS_FIRE;
 				}
 			}
@@ -1340,10 +1288,8 @@ _exit_cheat:
 			}
 			break;
 		case AIS_FLIN:
-			// mprintf((0, "State = flinch, goal = %i.\n", aip->GOAL_STATE));
 			break;
 		default:
-			mprintf((1, "Unknown mode for AI object #%i\n", objnum));
 			aip->GOAL_STATE = AIS_REST;
 			aip->CURRENT_STATE = AIS_REST;
 			break;
@@ -1682,13 +1628,6 @@ int ai_restore_state(PHYSFS_file *fp, int version)
 
 		if (Num_boss_teleport_segs)
 			PHYSFS_read(fp, Boss_teleport_segs, sizeof(Boss_teleport_segs[0]), Num_boss_teleport_segs);
-	} else {
-		// -- Num_boss_teleport_segs = 1;
-		// -- Num_boss_gate_segs = 1;
-		// -- Boss_teleport_segs[0] = 0;
-		// -- Boss_gate_segs[0] = 0;
-		// Note: Maybe better to leave alone...will probably be ok.
-		mprintf((1, "Warning: If you fight the boss, he might teleport to segment #0!\n"));
 	}
 
 	return 1;

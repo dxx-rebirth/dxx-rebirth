@@ -5,6 +5,7 @@
 #include <string.h>
 
 #include "decoders.h"
+#include "console.h"
 
 static unsigned short *backBuf1, *backBuf2;
 static int lookup_initialized;
@@ -52,9 +53,9 @@ void decodeFrame16(unsigned char *pFrame, unsigned char *pMap, int mapRemain, un
 
 			/*
 			  if (FramePtr < backBuf1)
-			  fprintf(stderr, "danger!  pointing out of bounds below after dispatch decoder: %d, %d (1) [%x]\n", i, j, (*pMap) & 0xf);
+			  con_printf(CON_CRITICAL, "danger!  pointing out of bounds below after dispatch decoder: %d, %d (1) [%x]\n", i, j, (*pMap) & 0xf);
 			  else if (FramePtr >= backBuf1 + g_width*g_height)
-			  fprintf(stderr, "danger!  pointing out of bounds above after dispatch decoder: %d, %d (1) [%x]\n", i, j, (*pMap) & 0xf);
+			  con_printf(CON_CRITICAL, "danger!  pointing out of bounds above after dispatch decoder: %d, %d (1) [%x]\n", i, j, (*pMap) & 0xf);
 			*/
 
 			op = ((*pMap) >> 4) & 0xf;
@@ -62,9 +63,9 @@ void decodeFrame16(unsigned char *pFrame, unsigned char *pMap, int mapRemain, un
 
 			/*
 			  if (FramePtr < backBuf1)
-			  fprintf(stderr, "danger!  pointing out of bounds below after dispatch decoder: %d, %d (2) [%x]\n", i, j, (*pMap) >> 4);
+			  con_printf(CON_CRITICAL, "danger!  pointing out of bounds below after dispatch decoder: %d, %d (2) [%x]\n", i, j, (*pMap) >> 4);
 			  else if (FramePtr >= backBuf1 + g_width*g_height)
-			  fprintf(stderr, "danger!  pointing out of bounds above after dispatch decoder: %d, %d (2) [%x]\n", i, j, (*pMap) >> 4);
+			  con_printf(CON_CRITICAL, "danger!  pointing out of bounds above after dispatch decoder: %d, %d (2) [%x]\n", i, j, (*pMap) >> 4);
 			*/
 
             ++pMap;
@@ -75,7 +76,7 @@ void decodeFrame16(unsigned char *pFrame, unsigned char *pMap, int mapRemain, un
     }
 
     if ((length-(pData-pOrig)) != 0) {
-    	fprintf(stderr, "DEBUG: junk left over: %d,%d,%d\n", (int)(pData-pOrig), length, (int)(length-(pData-pOrig)));
+    	con_printf(CON_CRITICAL, "DEBUG: junk left over: %d,%d,%d\n", (int)(pData-pOrig), length, (int)(length-(pData-pOrig)));
     }
 }
 
@@ -369,7 +370,7 @@ static void dispatchDecoder16(unsigned short **pFrame, unsigned char codeType, u
 		*pDataRemain -= 2;
 		break;
 	case 0x6:
-		fprintf(stderr, "STUB: encoding 6 not tested\n");
+		con_printf(CON_CRITICAL, "STUB: encoding 6 not tested\n");
 		for (i=0; i<2; i++)
 		{
 			*pFrame += 16;

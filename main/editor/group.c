@@ -1,4 +1,3 @@
-/* $Id: group.c,v 1.1.1.1 2006/03/17 19:58:46 zicodxx Exp $ */
 /*
 THE COMPUTER CODE CONTAINED HEREIN IS THE SOLE PROPERTY OF PARALLAX
 SOFTWARE CORPORATION ("PARALLAX").  PARALLAX, IN DISTRIBUTING THE CODE TO
@@ -18,10 +17,6 @@ COPYRIGHT 1993-1998 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
  *
  */
 
-#ifdef RCS
-static char rcsid[] = "$Id: group.c,v 1.1.1.1 2006/03/17 19:58:46 zicodxx Exp $";
-#endif
-
 #ifdef HAVE_CONFIG_H
 #include "conf.h"
 #endif
@@ -29,18 +24,15 @@ static char rcsid[] = "$Id: group.c,v 1.1.1.1 2006/03/17 19:58:46 zicodxx Exp $"
 #include <stdio.h>
 #include <string.h>
 
-#include "mono.h"
 #include "gr.h"
 #include "nocfile.h"
 #include "ui.h"
-
 #include "inferno.h"
 #include "segment.h"
 #include "editor/editor.h"
 #include "error.h"
 #include "gamemine.h"
 #include "gameseg.h"
-
 #include "bm.h"				// For MAX_TEXTURES.
 #include "textures.h"
 #include "hash.h"
@@ -389,7 +381,6 @@ void med_rotate_group(vms_matrix *rotmat, short *group_seglist, int group_size, 
 		while (objnum != -1) {
 			vms_vector	tv, tv1;
 
-			mprintf((0, "%2i ", objnum));
 			vm_vec_sub(&tv1,&Objects[objnum].pos,&rotate_center);
 			vm_vec_rotate(&tv,&tv1,rotmat);
 			vm_vec_add(&Objects[objnum].pos, &tv, &rotate_center);
@@ -423,7 +414,6 @@ void cgl_aux(segment *segp, short *seglistp, int *num_segs, short *ignore_list, 
 			return;
 
 	if ((segp-Segments < 0) || (segp-Segments >= MAX_SEGMENTS)) {
-		mprintf((0,"Warning -- invalid segment index = %i, max = %i\n",segp-Segments,MAX_SEGMENTS));
 		Int3();
 	}
 
@@ -488,7 +478,6 @@ void duplicate_group(sbyte *vertex_ids, short *segment_ids, int num_segments)
 			if (Objects[objnum].type != OBJ_PLAYER) {
 				int new_obj_id;
 				new_obj_id = obj_create_copy(objnum, &Objects[objnum].pos, new_segment_id);
-				mprintf((0, "Object #%i in segment #%i copied to object #%i, segment #%i: new_obj->segnum = %i\n", objnum, Objects[objnum].segnum, new_obj_id, new_segment_id, Objects[new_obj_id].segnum));
 			}
 			objnum = Objects[objnum].next;
 		}
@@ -603,19 +592,6 @@ int med_copy_group(int delta_flag, segment *base_seg, int base_side, segment *gr
 				in_vertex_list[Segments[GroupList[new_current_group].segments[s]].verts[v]] = 1;
 	}
 
-	//	Show which objects are in which segments before group copy.
-	// for (s=0; s<=Highest_segment_index; s++) {
-		// int	objnum = Segments[s].objects;
-
-		// mprintf((0, "Before: Segment #%2i contains objects ", s));
-
-		// while (objnum != -1) {
-		// 	mprintf((0, "%2i ",objnum));
-		// 	objnum = Objects[objnum].next;
-		// }
-		// mprintf((0, "\n"));
-	// }
-
 	// Given a list of vertex indices (indicated by !0 in in_vertex_list) and segment indices (in list GroupList[current_group].segments, there
 	//	are GroupList[current_group].num_segments segments), copy all segments and vertices
 	//	Return updated lists of vertices and segments in in_vertex_list and GroupList[current_group].segments
@@ -634,12 +610,10 @@ int med_copy_group(int delta_flag, segment *base_seg, int base_side, segment *gr
 
 	// Breaking connections between segments in the current group and segments not in the group.
 	for (s=0; s<GroupList[new_current_group].num_segments; s++) {
-		mprintf((0, "[%3i %3i] ", GroupList[new_current_group].segments[s], GroupList[current_group].segments[s]));
 		segp = &Segments[GroupList[new_current_group].segments[s]];
 		for (c=0; c<MAX_SIDES_PER_SEGMENT; c++) 
 			if (IS_CHILD(segp->children[c])) {
 				if (!in_group(segp->children[c], new_current_group)) {
-					mprintf((0, "2: Breaking connection at seg:side = %i:%i\n", segp-Segments, c));
 					segp->children[c] = -1;
 					validate_segment_side(segp,c);					// we have converted a connection to a side so validate the segment
 				}
@@ -818,15 +792,11 @@ int med_move_group(int delta_flag, segment *base_seg, int base_side, segment *gr
 		int	segnum = GroupList[current_group].segments[s];
 		int	objnum = Segments[segnum].objects;
 
-		// mprintf((0, "Translating objects in segment #%2i by [%7.3f %7.3f %7.3f]: ", segnum, f2fl(srcv.x), f2fl(srcv.y), f2fl(srcv.z)));
-
 		while (objnum != -1) {
-			mprintf((0, "%2i ", objnum));
 			vm_vec_sub2(&Objects[objnum].pos, &srcv);
 			objnum = Objects[objnum].next;
 		}
 	}
-	// mprintf((0, "\n"));
 
 	//	Now, rotate segments in group so orientation of group_seg is same as base_seg.
 	med_create_group_rotation_matrix(&rotmat, delta_flag, group_seg, group_side, base_seg, base_side, orient_matrix, orientation);
@@ -967,14 +937,11 @@ void delete_segment_from_group(int segment_num, int group_num)
 			break;
 		}
 
-	//mprintf((0, "segment_num=%d delseg_index=%d\n", segment_num, del_seg_index)); 
-	
 	if (IS_CHILD(del_seg_index)) {
 		for (g=del_seg_index;g<GroupList[group_num].num_segments-1;g++) { 
 			GroupList[group_num].segments[g] = GroupList[group_num].segments[g+1];
 			}
 		GroupList[group_num].num_segments--;
-		//mprintf((0, "num_segments=%d\n\n", GroupList[group_num].num_segments));
 		Segments[segment_num].group = -1;		
 		}
 
@@ -1021,7 +988,6 @@ int rotate_segment_new(vms_angvec *pbh)
 	child_save = Cursegp->children[newseg_side];	// save connection we are about to sever
 	Cursegp->children[newseg_side] = -1;			// sever connection
 	create_group_list(Cursegp, GroupList[ROT_GROUP].segments, &GroupList[ROT_GROUP].num_segments, Selected_segs, 0);       // create list of segments in group
-	//mprintf((0, "NumSegs = %d\n", GroupList[ROT_GROUP].num_segments));
 	Cursegp->children[newseg_side] = child_save;	// restore severed connection
 	GroupList[ROT_GROUP].segments[0] = newseg;
 
@@ -1340,7 +1306,6 @@ int med_load_group( char *filename, short *vertex_ids, short *segment_ids, int *
 				if (cfread( &tvert, sizeof(tvert),1,LoadFile )!=1)
 					Error( "Error reading tvert in group.c" );
 				vertex_ids[i] = med_create_duplicate_vertex( &tvert ); 
-				//mprintf((0, "vertex %d created from original %d\n", vertex_ids[i], i));
 			}
 
 		}
@@ -1420,8 +1385,6 @@ int med_load_group( char *filename, short *vertex_ids, short *segment_ids, int *
 	for (i=0;i<NumTextures;i++)	{
 		temptr = strchr(TmapInfo[i].filename, '.');
 		if (temptr) *temptr = '\0';
-//		mprintf( (0, "Texture %d is '%s'\n", i, TmapInfo[i].filename ));
-//		key_getch();
 		hashtable_insert( &ht, TmapInfo[i].filename, i );
 	}
 
@@ -1526,7 +1489,6 @@ int SaveGroup()
 			GroupList[current_group].vertices[v++] = i;
 		}
 	GroupList[current_group].num_vertices = v;
-	//mprintf((0, "Saving %d vertices, %d segments\n", GroupList[current_group].num_vertices, GroupList[current_group].num_segments));
 	med_save_group("TEMP.GRP", GroupList[current_group].vertices, GroupList[current_group].segments,
 		GroupList[current_group].num_vertices, GroupList[current_group].num_segments);
    if (ui_get_filename( group_filename, "*.GRP", "SAVE GROUP" ))
@@ -1564,7 +1526,6 @@ int LoadGroup()
       checkforgrpext(group_filename);
       med_load_group(group_filename, GroupList[current_group].vertices, GroupList[current_group].segments,
 					 &GroupList[current_group].num_vertices, &GroupList[current_group].num_segments) ;
-		//mprintf((0, "Loaded %d vertices, %d segments\n", GroupList[current_group].num_vertices, GroupList[current_group].num_segments));
 		
 	if (!med_move_group(0, Cursegp, Curside, Groupsegp[current_group], Groupside[current_group], &vmd_identity_matrix, 0)) {
 		autosave_mine(mine_filename);
@@ -1811,26 +1772,10 @@ int SubtractFromGroup(void)
 
 	current_group = (current_group + 1) % MAX_GROUPS;
 
-//	if (num_groups < MAX_GROUPS) {
-//		current_group = num_groups;
-//		num_groups++;
-//	} else
-//		current_group = 0;
-
-	// mprintf((0, "Old group: "));
-	// for (s=0; s<GroupList[original_group].num_segments; s++)
-	// 	mprintf((0, "%3i ", GroupList[original_group].segments[s]));
-	// mprintf((0, "\n"));
-	
 	//	Create a list of segments to copy.
 	GroupList[current_group].num_segments = 0;
 	create_group_list(Markedsegp, GroupList[current_group].segments, &GroupList[current_group].num_segments, Selected_segs, N_selected_segs);
 
-	// mprintf((0, "New group: "));
-	// for (s=0; s<GroupList[current_group].num_segments; s++)
-	//	mprintf((0, "%3i ", GroupList[current_group].segments[s]));
-	// mprintf((0, "\n"));
-	
 	//	Now, scan the two groups, forming a group which consists of only those segments common to the two groups.
 	gp = GroupList[current_group].segments;
 	cur_num_segs = GroupList[current_group].num_segments;
@@ -1853,13 +1798,10 @@ int SubtractFromGroup(void)
 
 	//	Go through mine and seg group number of all segments which are in group
 	//	All segments which were subtracted from group get group set to -1.
-	mprintf((0, "In segments: "));
 	for (s=0; s<cur_num_segs; s++) {
 		Segments[GroupList[current_group].segments[s]].group = current_group;
-		mprintf((0, "%2i ", GroupList[current_group].segments[s]));
 	}
 
-	mprintf((0, "\nRemoved segments: "));
 	for (s=0; s<=Highest_segment_index; s++) {
 		int	t;
 		if (Segments[s].group == current_group) {
@@ -1868,15 +1810,9 @@ int SubtractFromGroup(void)
 					break;
 			if (s == cur_num_segs) {
 				Segments[s].group = -1;
-				mprintf((0, "%2i ", s));
 			}
 		}
 	}
-
-	// mprintf((0, "Combined group: "));
-	// for (s=0; s<GroupList[current_group].num_segments; s++)
-	//	mprintf((0, "%3i ", GroupList[current_group].segments[s]));
-	// mprintf((0, "\n\n"));
 
 	GroupList[current_group].num_segments = cur_num_segs;
 
@@ -1952,8 +1888,6 @@ int DeleteGroup( void )
 	autosave_mine(mine_filename);
 		
 	if (num_groups==0) return 0;
-
-	//mprintf((0, "num_segments = %d\n", GroupList[current_group].num_segments));
 
 	numsegs = GroupList[current_group].num_segments;
 	

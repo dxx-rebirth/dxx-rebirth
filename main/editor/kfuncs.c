@@ -1,4 +1,3 @@
-/* $Id: kfuncs.c,v 1.5 2006/03/05 12:19:57 chris Exp $ */
 /*
 THE COMPUTER CODE CONTAINED HEREIN IS THE SOLE PROPERTY OF PARALLAX
 SOFTWARE CORPORATION ("PARALLAX").  PARALLAX, IN DISTRIBUTING THE CODE TO
@@ -18,16 +17,11 @@ COPYRIGHT 1993-1998 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
  *
  */
 
-#ifdef RCS
-static char rcsid[] = "$Id: kfuncs.c,v 1.5 2006/03/05 12:19:57 chris Exp $";
-#endif
-
 #ifdef HAVE_CONFIG_H
 #include "conf.h"
 #endif
 
 #include <stdlib.h>
-
 #include "inferno.h"
 #include "func.h"
 #include "editor/kdefs.h"
@@ -35,7 +29,6 @@ static char rcsid[] = "$Id: kfuncs.c,v 1.5 2006/03/05 12:19:57 chris Exp $";
 #include "editor/editor.h"
 #include "error.h"
 #include "slew.h"
-#include "mono.h"
 #include "gamesave.h"
 #include "editor/eobject.h"
 #include "editor/medwall.h"
@@ -60,12 +53,6 @@ extern void do_replacements_all(void);
 
 int Test1() 
 {
-//	{ int i;
-//		for (i=Highest_segment_index+1; i<MAX_SEGMENTS; i++)
-//			Segments[i].segnum = -1;
-//	}
-
-	mprintf((0, "Initializing replacement list.\n"));
 	init_replacements();
 
 	return 0;
@@ -73,10 +60,6 @@ int Test1()
 
 int Test2() 
 {
-//	mprintf((0, "\nCalling check_for_overlapping_segments.\n"));
-//	check_for_overlapping_segments();
-
-	mprintf((0, "Going to do texture replacements.\n"));
 	do_replacements();
 
 	return 0;
@@ -93,7 +76,6 @@ int Test3()
 	//	If you don't want to do this, set eip to the return statement
 	//	and continue.
 
-	mprintf((0, "Going to do texture replacements.\n"));
 	do_replacements_all();
 
 	return 0;

@@ -1,4 +1,3 @@
-/* $Id: lighting.c,v 1.1.1.1 2006/03/17 19:56:00 zicodxx Exp $ */
 /*
 THE COMPUTER CODE CONTAINED HEREIN IS THE SOLE PROPERTY OF PARALLAX
 SOFTWARE CORPORATION ("PARALLAX").  PARALLAX, IN DISTRIBUTING THE CODE TO
@@ -22,10 +21,6 @@ COPYRIGHT 1993-1999 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 #include <conf.h>
 #endif
 
-#ifdef RCS
-static char rcsid[] = "$Id: lighting.c,v 1.1.1.1 2006/03/17 19:56:00 zicodxx Exp $";
-#endif
-
 #include <stdio.h>
 #include <string.h>	// for memset()
 
@@ -35,7 +30,6 @@ static char rcsid[] = "$Id: lighting.c,v 1.1.1.1 2006/03/17 19:56:00 zicodxx Exp
 #include "inferno.h"
 #include "segment.h"
 #include "error.h"
-#include "mono.h"
 #include "render.h"
 #include "game.h"
 #include "vclip.h"
@@ -75,8 +69,6 @@ int lighting_cache_visible(int vertnum, int segnum, int objnum, vms_vector *obj_
 
 	cache_frame = cache_val >> 1;
 	cache_vis = cache_val & 1;
-
-//mprintf((0, "%i %i %5i %i ", vertnum, segnum, cache_frame, cache_vis));
 
 Cache_lookups++;
 	if ((cache_frame == 0) || (cache_frame + Lighting_frame_delta <= FrameCount)) {
@@ -122,10 +114,8 @@ Cache_lookups++;
 			}
 		}
 		Lighting_cache[((segnum << LIGHTING_CACHE_SHIFT) ^ vertnum) & (LIGHTING_CACHE_SIZE-1)] = apply_light + (FrameCount << 1);
-//mprintf((0, "%i\n", apply_light));
 		return apply_light;
 	} else {
-//mprintf((0, "\n"));
 Cache_hits++;
 		return cache_vis;
 	}	
@@ -306,7 +296,6 @@ fix compute_light_intensity(int objnum)
 			   s+=F1_0; 
 				s>>=1;
 			   hoardlight=fixmul (s,hoardlight);
-		 //     mprintf ((0,"Hoardlight is %f!\n",f2fl(hoardlight)));
 		      return (hoardlight);
 			  }
 			else
@@ -380,9 +369,6 @@ void set_dynamic_light(void)
 
 	if (!Do_dynamic_light)
 		return;
-
-//if (Use_fvi_lighting)
-//	mprintf((0, "hits = %8i, misses = %8i, lookups = %8i, hit ratio = %7.4f\n", Cache_hits, Cache_lookups - Cache_hits, Cache_lookups, (float) Cache_hits / Cache_lookups));
 
 	memset(render_vertex_flags, 0, Highest_vertex_index+1);
 

@@ -25,7 +25,6 @@ profiler = int(ARGUMENTS.get('profiler', 0))
 sdl_only = int(ARGUMENTS.get('sdl_only', 0))
 asm = int(ARGUMENTS.get('asm', 0))
 editor = int(ARGUMENTS.get('editor', 0))
-console = int(ARGUMENTS.get('console',0))
 sdlmixer = int(ARGUMENTS.get('sdlmixer', 0))
 arm = int(ARGUMENTS.get('arm', 0))
 ipv6 = int(ARGUMENTS.get('ipv6', 0))
@@ -89,7 +88,6 @@ common_sources = [
 'main/ai.c',
 'main/ai2.c',
 'main/aipath.c',
-'main/digiobj.c',
 'main/automap.c',
 'main/bm.c',
 'main/cntrlcen.c',
@@ -99,6 +97,7 @@ common_sources = [
 'main/controls.c',
 'main/credits.c',
 'main/crypt.c',
+'main/digiobj.c',
 'main/dumpmine.c',
 'main/effects.c',
 'main/endlevel.c',
@@ -237,7 +236,6 @@ editor_sources = [
 arch_linux_sources = [
 'arch/linux/netdrv_ipx.c',
 'arch/linux/netdrv_kali.c',
-'arch/linux/mono.c',
 'arch/linux/ukali.c'
 ]
 
@@ -256,7 +254,6 @@ if (sdlmixer == 1):
 arch_win32_sources = [
 'arch/win32/hmpfile.c',
 'arch/win32/netdrv_ipx.c',
-'arch/win32/mono.c'
 ]
 
 # for Mac OS X
@@ -303,11 +300,11 @@ noasm_sources = [
 env = Environment(ENV = os.environ)
 env.ParseConfig('sdl-config --cflags')
 env.ParseConfig('sdl-config --libs')
-env.Append(CPPFLAGS = ['-Wall'])
+env.Append(CPPFLAGS = ['-Wall', '-funsigned-char'])
 env.Append(CPPDEFINES = [('D2XMAJOR', '\\"' + str(D2XMAJOR) + '\\"'), ('D2XMINOR', '\\"' + str(D2XMINOR) + '\\"')])
 #env.Append(CPPDEFINES = [('VERSION', '\\"' + str(VERSION) + '\\"')])
 #env.Append(CPPDEFINES = [('USE_SDLMIXER', sdlmixer)])
-env.Append(CPPDEFINES = ['NMONO', 'PIGGY_USE_PAGING', 'NETWORK', 'HAVE_NETIPX_IPX_H', 'NEWDEMO', '_REENTRANT'])
+env.Append(CPPDEFINES = ['NETWORK', 'HAVE_NETIPX_IPX_H', '_REENTRANT'])
 env.Append(CPPPATH = ['include', 'main', 'arch/include'])
 generic_libs = ['SDL', 'physfs']
 sdlmixerlib = ['SDL_mixer']
@@ -339,7 +336,7 @@ if sys.platform == 'win32':
 	sharepath = ''
 	env.Append(CPPDEFINES = ['_WIN32', 'HAVE_STRUCT_TIMEVAL', 'NATIVE_IPX'])
 	env.Append(CPPPATH = ['arch/win32/include'])
-	ogldefines = ['SDL_GL_VIDEO', 'OGL']
+	ogldefines = ['OGL']
 	common_sources += arch_win32_sources
 	ogllibs = ''
 	winlibs = ['glu32', 'wsock32', 'winmm', 'mingw32', 'SDLmain']
@@ -352,7 +349,7 @@ elif sys.platform == 'darwin':
 	env.Append(CPPDEFINES = ['HAVE_STRUCT_TIMESPEC', 'HAVE_STRUCT_TIMEVAL', '__unix__'])
 	asm = 0
 	env.Append(CPPPATH = ['arch/linux/include'])
-	ogldefines = ['SDL_GL_VIDEO', 'OGL']
+	ogldefines = ['OGL']
 	common_sources += arch_macosx_sources
 	ogllibs = ''
 	libs = ''
@@ -377,7 +374,7 @@ else:
 	sharepath += '/'
 	env.Append(CPPDEFINES = ['__LINUX__', 'NATIVE_IPX', 'KALINIX', 'HAVE_STRUCT_TIMESPEC', 'HAVE_STRUCT_TIMEVAL'])
 	env.Append(CPPPATH = ['arch/linux/include'])
-	ogldefines = ['SDL_GL_VIDEO', 'OGL']
+	ogldefines = ['OGL']
 	common_sources += arch_linux_sources
 	ogllibs = ['GL', 'GLU']
 	libs = generic_libs
@@ -393,7 +390,6 @@ if (arm == 1):
 if (sdl_only == 1):
 	print "building with SDL"
 	target = 'd2x-rebirth-sdl'
-	env.Append(CPPDEFINES = ['SDL_VIDEO'])
 	common_sources += arch_sdl_sources
 else:
 	print "building with OpenGL"
@@ -423,7 +419,6 @@ if (profiler == 1):
 # assembler code?
 if (asm == 1) and (sdl_only == 1):
 	print "including: ASSEMBLER"
-	env.Append(CPPDEFINES = ['ASM_VECMAT'])
 	Object(['texmap/tmappent.S', 'texmap/tmapppro.S'], AS='gcc', ASFLAGS='-D' + str(osdef) + ' -c ')
 	env.Replace(AS = 'nasm')
 	env.Append(ASCOM = ' -f ' + str(osasmdef) + ' -d' + str(osdef) + ' -Itexmap/ ')
@@ -437,11 +432,6 @@ if (editor == 1):
 	env.Append(CPPDEFINES = ['EDITOR'])
 	env.Append(CPPPATH = ['include/editor'])
 	common_sources += editor_sources
-
-#console?
-if (console == 1):
-	env.Append(CPPDEFINES = ['CONSOLE'])
-	common_sources += ['main/cmd.c', 'console/CON_console.c']
 
 # IPv6 compability?
 if (ipv6 == 1):
@@ -480,7 +470,6 @@ Help(PROGRAM_NAME + ', SConstruct file help:' +
 	'asm=1'           use ASSEMBLER code (only with sdl_only=1, requires NASM and x86)
 	'debug=1'         build DEBUG binary which includes asserts, debugging output, cheats and more output
 	'profiler=1'      do profiler build
-	'console=1'       build with console support !EXPERIMENTAL!
 	'editor=1'        build editor !EXPERIMENTAL!
 	'arm=1'           compile for ARM architecture
 	'ipv6=1'          enables IPv6 copability (not compatible to non-IPv6 build)

@@ -1,4 +1,3 @@
-/* $Id: polyobj.c,v 1.1.1.1 2006/03/17 19:56:36 zicodxx Exp $ */
 /*
 THE COMPUTER CODE CONTAINED HEREIN IS THE SOLE PROPERTY OF PARALLAX
 SOFTWARE CORPORATION ("PARALLAX").  PARALLAX, IN DISTRIBUTING THE CODE TO
@@ -23,30 +22,18 @@ COPYRIGHT 1993-1999 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 #include <conf.h>
 #endif
 
-#ifdef RCS
-static char rcsid[] = "$Id: polyobj.c,v 1.1.1.1 2006/03/17 19:56:36 zicodxx Exp $";
-#endif
-
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
 
-// -- I hate this warning in make depend! -- #ifdef DRIVE
-// -- I hate this warning in make depend! -- #include "drive.h"
-// -- I hate this warning in make depend! -- #else
 #include "inferno.h"
-// -- I hate this warning in make depend! -- #endif
-
 #include "polyobj.h"
-
 #include "vecmat.h"
 #include "interp.h"
 #include "error.h"
-#include "mono.h"
 #include "u_mem.h"
 #include "args.h"
 #include "byteswap.h"
-
 #ifndef DRIVE
 #include "texmap.h"
 #include "bm.h"
@@ -56,6 +43,7 @@ static char rcsid[] = "$Id: polyobj.c,v 1.1.1.1 2006/03/17 19:56:36 zicodxx Exp 
 #include "cfile.h"
 #include "piggy.h"
 #endif
+#include "render.h"
 
 #ifdef OGL
 #include "ogl_init.h"
@@ -326,8 +314,6 @@ polymodel *read_model_file(polymodel *pm,char *filename,robot_info *r)
 			case ID_OHDR: {		//Object header
 				vms_vector pmmin,pmmax;
 
-				//con_printf(DEBUG_LEVEL, "Got chunk OHDR, len=%d\n",len);
-
 				pm->n_models = pof_read_int(model_buf);
 				pm->rad = pof_read_int(model_buf);
 
@@ -343,8 +329,6 @@ polymodel *read_model_file(polymodel *pm,char *filename,robot_info *r)
 				int n;
 
 				anim_flag++;
-
-				//con_printf(DEBUG_LEVEL, "Got chunk SOBJ, len=%d\n",len);
 
 				n = pof_read_short(model_buf);
 
@@ -366,8 +350,6 @@ polymodel *read_model_file(polymodel *pm,char *filename,robot_info *r)
 			
 			#ifndef DRIVE
 			case ID_GUNS: {		//List of guns on this object
-
-				//con_printf(DEBUG_LEVEL, "Got chunk GUNS, len=%d\n",len);
 
 				if (r) {
 					int i;
@@ -406,8 +388,6 @@ polymodel *read_model_file(polymodel *pm,char *filename,robot_info *r)
 			}
 			
 			case ID_ANIM:		//Animation data
-				//con_printf(DEBUG_LEVEL, "Got chunk ANIM, len=%d\n",len);
-
 				anim_flag++;
 
 				if (r) {
@@ -435,21 +415,15 @@ polymodel *read_model_file(polymodel *pm,char *filename,robot_info *r)
 				int n;
 				char name_buf[128];
 
-				//con_printf(DEBUG_LEVEL, "Got chunk TXTR, len=%d\n",len);
-
 				n = pof_read_short(model_buf);
-				//con_printf(DEBUG_LEVEL, "  num textures = %d\n",n);
 				while (n--) {
 					pof_read_string(name_buf,128,model_buf);
-					//con_printf(DEBUG_LEVEL, "<%s>\n",name_buf);
 				}
 
 				break;
 			}
 			
 			case ID_IDTA:		//Interpreter data
-				//con_printf(DEBUG_LEVEL, "Got chunk IDTA, len=%d\n",len);
-
 				pm->model_data = d_malloc(len);
 				pm->model_data_size = len;
 
@@ -458,7 +432,6 @@ polymodel *read_model_file(polymodel *pm,char *filename,robot_info *r)
 				break;
 
 			default:
-				//con_printf(DEBUG_LEVEL, "Unknown chunk <%c%c%c%c>, len = %d\n",id,id>>8,id>>16,id>>24,len);
 				pof_cfseek(model_buf,len,SEEK_CUR);
 				break;
 
@@ -522,8 +495,6 @@ int read_model_guns(char *filename,vms_vector *gun_points, vms_vector *gun_dirs,
 
 		if (id == ID_GUNS) {		//List of guns on this object
 
-			//con_printf(DEBUG_LEVEL, "Got chunk GUNS, len=%d\n",len);
-
 			int i;
 
 			n_guns = pof_read_int(model_buf);
@@ -561,9 +532,6 @@ void free_model(polymodel *po)
 
 grs_bitmap *texture_list[MAX_POLYOBJ_TEXTURES];
 bitmap_index texture_list_index[MAX_POLYOBJ_TEXTURES];
-
-int Simple_model_threshhold_scale=5;		//switch when this times radius far away
-
 
 //draw a polygon model
 
@@ -607,7 +575,6 @@ void draw_polygon_model(vms_vector *pos,vms_matrix *orient,vms_angvec *anim_angl
 		}
    }
 
-#ifdef PIGGY_USE_PAGING
 	// Make sure the textures for this object are paged in...
 	piggy_page_flushed = 0;
 	for (i=0;i<po->n_textures;i++)	
@@ -621,7 +588,6 @@ void draw_polygon_model(vms_vector *pos,vms_matrix *orient,vms_angvec *anim_angl
 	}
 	// Make sure that they can all fit in memory.
 	Assert( piggy_page_flushed == 0 );
-#endif
 
 	g3_start_instance_matrix(pos,orient);
 
@@ -720,12 +686,7 @@ void polyobj_find_min_max(polymodel *pm)
 	
 			vp++;
 		}
-
-//		printf("Submodel %d:  (%8x,%8x) (%8x,%8x) (%8x,%8x)\n",m,mn->x,mx->x,mn->y,mx->y,mn->z,mx->z);
 	}
-
-//	printf("Whole model: (%8x,%8x) (%8x,%8x) (%8x,%8x)\n",big_mn->x,big_mx->x,big_mn->y,big_mx->y,big_mn->z,big_mx->z);
-
 }
 
 extern short highest_texture_num;	//from the 3d
@@ -745,10 +706,6 @@ int load_polygon_model(char *filename,int n_textures,grs_bitmap ***textures)
 
 	Assert(N_polygon_models < MAX_POLYGON_MODELS);
 	Assert(n_textures < MAX_POLYOBJ_TEXTURES);
-
-	//	MK was real tired of those useless, slow mprintfs...
-	if (N_polygon_models > MAX_POLYGON_MODELS - 10)
-		mprintf(( 0, "Used %d/%d polygon model slots\n", N_polygon_models+1, MAX_POLYGON_MODELS ));
 
 	Assert(strlen(filename) <= 12);
 	strcpy(Pof_names[N_polygon_models],filename);
@@ -813,7 +770,6 @@ void draw_model_picture(int mn,vms_angvec *orient_angles)
 	g3_end_frame();
 }
 
-#ifndef FAST_FILE_IO
 /*
  * reads a polymodel structure from a CFILE
  */
@@ -882,8 +838,6 @@ extern int polymodel_read_n(polymodel *pm, int n, CFILE *fp)
 	}
 	return i;
 }
-#endif
-
 
 /*
  * routine which allocates, reads, and inits a polymodel's model_data

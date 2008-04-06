@@ -1,4 +1,3 @@
-/* $Id: args.h,v 1.1.1.1 2006/03/17 20:01:30 zicodxx Exp $ */
 /*
 THE COMPUTER CODE CONTAINED HEREIN IS THE SOLE PROPERTY OF PARALLAX
 SOFTWARE CORPORATION ("PARALLAX").  PARALLAX, IN DISTRIBUTING THE CODE TO
@@ -11,6 +10,7 @@ CONTAINED HEREIN FOR REVENUE-BEARING PURPOSES.  THE END-USER UNDERSTANDS
 AND AGREES TO THE TERMS HEREIN AND ACCEPTS THE SAME BY USE OF THIS FILE.
 COPYRIGHT 1993-1998 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 */
+
 /*
  *
  * Prototypes for accessing arguments.
@@ -65,22 +65,17 @@ typedef struct Arg
 	int SndSdlMixer;
 	char *SndExternalMusic;
 	char *SndJukebox;
-	float GfxAspectX;
-	float GfxAspectY;
-	int GfxGaugeHudMode;
-	int GfxPersistentDebris;
+	int GfxGaugeHudMode;// MOVE
+	int GfxPersistentDebris;// MOVE
 	int GfxHiresGFXAvailable;
 	int GfxHiresFNTAvailable;
 	int GfxMovieHires;
 	int GfxMovieSubtitles;
 #ifdef OGL
-	int OglTexMagFilt;
-	int OglTexMinFilt;
-	int OglAlphaEffects;
-	int OglReticle;
-	int OglVoodooHack;
+	int OglAlphaEffects;// MOVE
+	int OglReticle;// MOVE
 	int OglFixedFont;
-	int OglPrShot;
+	int OglPrShot;// MOVE
 #endif
 	int MplGameProfile;
 	int MplNoRankings;

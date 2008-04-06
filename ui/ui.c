@@ -1,4 +1,3 @@
- /* $Id: ui.c,v 1.1.1.1 2006/03/17 19:52:13 zicodxx Exp $ */
 /*
 THE COMPUTER CODE CONTAINED HEREIN IS THE SOLE PROPERTY OF PARALLAX
 SOFTWARE CORPORATION ("PARALLAX").  PARALLAX, IN DISTRIBUTING THE CODE TO
@@ -12,10 +11,6 @@ AND AGREES TO THE TERMS HEREIN AND ACCEPTS THE SAME BY USE OF THIS FILE.
 COPYRIGHT 1993-1999 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 */
 
-#ifdef RCS
-static char rcsid[] = "$Id: ui.c,v 1.1.1.1 2006/03/17 19:52:13 zicodxx Exp $";
-#endif
-
 #ifdef HAVE_CONFIG_H
 #include "conf.h"
 #endif
@@ -24,16 +19,12 @@ static char rcsid[] = "$Id: ui.c,v 1.1.1.1 2006/03/17 19:52:13 zicodxx Exp $";
 #include <stdlib.h>
 #include <stdarg.h>
 #include <string.h>
-
 #include "fix.h"
 #include "pstypes.h"
 #include "gr.h"
 #include "key.h"
 #include "ui.h"
-
 #include "mouse.h"
-
-#include "mono.h"
 
 static int Initialized = 0;
 

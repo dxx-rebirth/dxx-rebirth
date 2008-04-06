@@ -1,4 +1,3 @@
-/* $Id: gameseq.c,v 1.1.1.1 2006/03/17 19:57:54 zicodxx Exp $ */
 /*
 THE COMPUTER CODE CONTAINED HEREIN IS THE SOLE PROPERTY OF PARALLAX
 SOFTWARE CORPORATION ("PARALLAX").  PARALLAX, IN DISTRIBUTING THE CODE TO
@@ -23,10 +22,6 @@ COPYRIGHT 1993-1999 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 #include <conf.h>
 #endif
 
-#ifdef RCS
-char gameseq_rcsid[] = "$Id: gameseq.c,v 1.1.1.1 2006/03/17 19:57:54 zicodxx Exp $";
-#endif
-
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
@@ -47,7 +42,6 @@ char gameseq_rcsid[] = "$Id: gameseq.c,v 1.1.1.1 2006/03/17 19:57:54 zicodxx Exp
 #include "physics.h"
 #include "error.h"
 #include "joy.h"
-#include "mono.h"
 #include "iff.h"
 #include "pcx.h"
 #include "timer.h"
@@ -226,9 +220,7 @@ gameseq_init_network_players()
 			if ( (!(Game_mode & GM_MULTI_COOP) && ((Objects[i].type == OBJ_PLAYER)||(Objects[i].type==OBJ_GHOST))) ||
 	           ((Game_mode & GM_MULTI_COOP) && ((j == 0) || ( Objects[i].type==OBJ_COOP ))) )
 			{
-				// -- mprintf((0, "Created Cooperative multiplayer object\n"));
 				Objects[i].type=OBJ_PLAYER;
-				// -- mprintf((0, "Player init %d is ship %d.\n", k, j));
 				Player_init[k].pos = Objects[i].pos;
 				Player_init[k].orient = Objects[i].orient;
 				Player_init[k].segnum = Objects[i].segnum;
@@ -247,14 +239,6 @@ gameseq_init_network_players()
 	}
 	NumNetPlayerPositions = k;
 
-#ifndef NDEBUG
-	if ( ((Game_mode & GM_MULTI_COOP) && (NumNetPlayerPositions != 4)) ||
-		  (!(Game_mode & GM_MULTI_COOP) && (NumNetPlayerPositions != 8)) )
-	{
-		mprintf((1, "--NOT ENOUGH MULTIPLAYER POSITIONS IN THIS MINE!--\n"));
-		//Int3(); // Not enough positions!!
-	}
-#endif
 #ifdef NETWORK
  	if (is_D2_OEM && (Game_mode & GM_MULTI) && PLAYING_BUILTIN_MISSION && Current_level_num==8)
 	 {
@@ -291,9 +275,6 @@ void gameseq_remove_unused_players()
 		{
 			if ((!Players[i].connected) || (i >= N_players))
 			{
-				#ifndef NDEBUG
-//				mprintf((0, "Ghosting player ship %d.\n", i+1));
-				#endif
 				multi_make_player_ghost(i);
 			}
 		}
@@ -301,9 +282,6 @@ void gameseq_remove_unused_players()
 	else
 #endif
 	{		// Note link to above if!!!
-		#ifndef NDEBUG
-		// -- mprintf((0, "Removing player objects numbered %d-%d.\n", 1, NumNetPlayerPositions));
-		#endif
 		for (i=1; i < NumNetPlayerPositions; i++)
 		{
 			obj_delete(Players[i].objnum);
@@ -722,9 +700,9 @@ int RegisterPlayer()
 		//----------------------------------------------------------------
 
 		// Read the last player's name from config file, not lastplr.txt
-		strncpy( Players[Player_num].callsign, config_last_player, CALLSIGN_LEN );
+		strncpy( Players[Player_num].callsign, GameCfg.LastPlayer, CALLSIGN_LEN );
 
-		if (config_last_player[0]==0)
+		if (GameCfg.LastPlayer[0]==0)
 			allow_abort_flag = 0;
 	}
 
@@ -927,8 +905,6 @@ void DoEndLevelScoreGlitz(int network)
 
 	set_screen_mode(SCREEN_MENU);		//go into menu mode
 
-	mprintf((0,"DoEndLevelScoreGlitz\n"));
-
 	//	Compute level player is on, deal with secret levels (negative numbers)
 	mine_level = Players[Player_num].level;
 	if (mine_level < 0)
@@ -972,7 +948,6 @@ void DoEndLevelScoreGlitz(int network)
 	} else
 		endgame_points = is_last_level = 0;
 
-	mprintf((0,"adding bonus points\n"));
 	add_bonus_points_to_score(skill_points + energy_points + shield_points + hostage_points + all_hostage_points + endgame_points);
 
 	c = 0;
@@ -1002,8 +977,6 @@ void DoEndLevelScoreGlitz(int network)
 
 	Assert(c <= N_GLITZITEMS);
 
-	mprintf((0,"doing menu\n"));
-
 #ifdef NETWORK
 	if ( network && (Game_mode & GM_NETWORK) )
 		newmenu_do2(NULL, title, c, m, (void (*))network_endlevel_poll2, 0, STARS_BACKGROUND);
@@ -1011,8 +984,6 @@ void DoEndLevelScoreGlitz(int network)
 #endif
 		// NOTE LINK TO ABOVE!!!
 		newmenu_do2(NULL, title, c, m, NULL, 0, STARS_BACKGROUND);
-
-	mprintf((0,"done DoEndLevelScoreGlitz\n"));
 }
 
 //	-----------------------------------------------------------------------------------------------------
@@ -1167,12 +1138,6 @@ void StartNewLevelSecret(int level_num, int page_in_textures)
 			sprintf(text_str, "Secret level already destroyed.\nAdvancing to level %i.", Current_level_num+1);
 			do_secret_message(text_str);
 			return;
-
-			// -- //	If file doesn't exist, it's because reactor was destroyed.
-			// -- mprintf((0, "secret.sgc doesn't exist.  Advancing to next level.\n"));
-			// -- // -- StartNewLevel(Secret_level_table[-Current_level_num-1]+1, 0);
-			// -- StartNewLevel(Secret_level_table[-Current_level_num-1]+1, 0);
-			// -- return;
 		}
 	}
 
@@ -1325,8 +1290,6 @@ void show_order_form();
 //called when the player has finished the last level
 void DoEndGame(void)
 {
-	mprintf((0,"DoEndGame\n"));
-
 	Function_mode = FMODE_MENU;
 	if ((Newdemo_state == ND_STATE_RECORDING) || (Newdemo_state == ND_STATE_PAUSED))
 		newdemo_stop_recording();
@@ -1353,9 +1316,7 @@ void DoEndGame(void)
 			else
 			{
 				songs_play_song( SONG_ENDGAME, 0 );
-				mprintf((0,"doing briefing\n"));
 				do_briefing_screens("ending2.tex",1);
-				mprintf((0,"briefing done\n"));
 			}
 		}
    } else if (!(Game_mode & GM_MULTI)) {    //not multi
@@ -1406,8 +1367,6 @@ void AdvanceLevel(int secret_flag)
 	int result;
 #endif
 
-	mprintf((0,"AdvanceLevel\n"));
-
 	Assert(!secret_flag);
 
 	if (Current_level_num != Last_level) {
@@ -1442,8 +1401,6 @@ void AdvanceLevel(int secret_flag)
 
 	if (Current_level_num == Last_level) {		//player has finished the game!
 		
-		mprintf((0,"Finished last level!\n"));
-
 		DoEndGame();
 
 	} else {
@@ -1734,9 +1691,6 @@ void StartNewLevelSub(int level_num, int page_in_textures, int secret_flag)
 #ifdef NETWORK
 	if (Network_rejoined == 1)
 	{
-		#ifndef NDEBUG
-		mprintf((0, "Restarting - joining in random location.\n"));
-		#endif
 		Network_rejoined = 0;
 		StartLevel(1);
 	}
@@ -1760,8 +1714,6 @@ void bash_to_shield (int i,char *s)
 	int type=Objects[i].id;
 #endif
 
-	mprintf((0, "Bashing %s object #%i to shield.\n",s, i));
-
 #ifdef NETWORK
 	PowerupsInMine[type]=MaxPowerupsAllowed[type]=0;
 #endif
@@ -1775,8 +1727,6 @@ void bash_to_shield (int i,char *s)
 void filter_objects_from_level()
  {
   int i;
-
-  mprintf ((0,"Highest object index=%d\n",Highest_object_index));
 
   for (i=0;i<=Highest_object_index;i++)
 	{
@@ -1870,7 +1820,6 @@ void maybe_set_first_secret_visit(int level_num)
 	for (i=0; i<N_secret_levels; i++) {
 		if (Secret_level_table[i] == level_num) {
 			First_secret_visit = 1;
-			mprintf((0, "Bashing First_secret_visit to 1 because entering level %i.\n", level_num));
 		}
 	}
 }
@@ -1909,19 +1858,7 @@ void InitPlayerPosition(int random_flag)
 
 		d_srand(clock());
 
-#ifndef NDEBUG
-		if (NumNetPlayerPositions != MAX_NUM_NET_PLAYERS)
-		{
-			mprintf((1, "WARNING: There are only %d start positions!\n"));
-			//Int3();
-		}
-#endif
-
 		do {
-			if (trys > 0)	
-			{
-				mprintf((0, "Can't start in location %d because its too close to player %d\n", NewPlayer, closest ));
-			}
 			trys++;
 
 			NewPlayer = d_rand() % NumNetPlayerPositions;
@@ -1932,7 +1869,6 @@ void InitPlayerPosition(int random_flag)
 			for (i=0; i<N_players; i++ )	{
 				if ( (i!=Player_num) && (Objects[Players[i].objnum].type == OBJ_PLAYER) )	{
 					dist = find_connected_distance(&Objects[Players[i].objnum].pos, Objects[Players[i].objnum].segnum, &Player_init[NewPlayer].pos, Player_init[NewPlayer].segnum, 10, WID_FLY_FLAG );	//	Used to be 5, search up to 10 segments
-					// -- mprintf((0, "Distance from start location %d to player %d is %f.\n", NewPlayer, i, f2fl(dist)));
 					if ( (dist < closest_dist) && (dist >= 0) )	{
 						closest_dist = dist;
 						closest = i;
@@ -1940,11 +1876,9 @@ void InitPlayerPosition(int random_flag)
 				}
 			}
 
-			// -- mprintf((0, "Closest from pos %d is %f to plr %d.\n", NewPlayer, f2fl(closest_dist), closest));
 		} while ( (closest_dist<i2f(15*20)) && (trys<MAX_NUM_NET_PLAYERS*2) );
 	}
 	else {
-		mprintf((0, "Starting position is not being changed.\n"));
 		goto done; // If deathmatch and not random, positions were already determined by sync packet
 	}
 	Assert(NewPlayer >= 0);
@@ -1953,10 +1887,6 @@ void InitPlayerPosition(int random_flag)
 
 	ConsoleObject->pos = Player_init[NewPlayer].pos;
 	ConsoleObject->orient = Player_init[NewPlayer].orient;
-// -- mprintf((0, "Pos set to %8x %8x %8x\n", ConsoleObject->pos.x, ConsoleObject->pos.y, ConsoleObject->pos.z));
-
-	// -- mprintf((0, "Re-starting in location %d of %d.\n", NewPlayer+1, NumNetPlayerPositions));
-
  	obj_relink(ConsoleObject-Objects,Player_init[NewPlayer].segnum);
 
 #ifdef NETWORK

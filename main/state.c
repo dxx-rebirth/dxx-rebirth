@@ -1,4 +1,3 @@
-/* $Id: state.c,v 1.1.1.1 2006/03/17 19:55:39 zicodxx Exp $ */
 /*
 THE COMPUTER CODE CONTAINED HEREIN IS THE SOLE PROPERTY OF PARALLAX
 SOFTWARE CORPORATION ("PARALLAX").  PARALLAX, IN DISTRIBUTING THE CODE TO
@@ -22,10 +21,6 @@ COPYRIGHT 1993-1999 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 #include <conf.h>
 #endif
 
-#ifdef WINDOWS
-#include "desw.h"
-#endif
-
 #include <stdio.h>
 #include <stdlib.h>
 #include <math.h>
@@ -36,10 +31,6 @@ COPYRIGHT 1993-1999 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 #ifndef _WIN32_WCE
 #include <errno.h>
 #endif
-#ifdef MACINTOSH
-#include <Files.h>
-#endif
-
 #ifdef OGL
 # ifdef _MSC_VER
 #  include <windows.h>
@@ -53,7 +44,6 @@ COPYRIGHT 1993-1999 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 #endif
 
 #include "pstypes.h"
-#include "mono.h"
 #include "inferno.h"
 #include "segment.h"
 #include "textures.h"
@@ -365,12 +355,9 @@ int state_save_all(int between_levels, int secret_save, char *filename_override)
 	if (Final_boss_is_dead)		//don't allow save while final boss is dying
 		return 0;
 
-	mprintf(( 0, "CL=%d, NL=%d\n", Current_level_num, Next_level_num ));
-	
 	//	If this is a secret save and the control center has been destroyed, don't allow
 	//	return to the base level.
 	if (secret_save && (Control_center_destroyed)) {
-		mprintf((0, "Deleting secret.sgb so player can't return to base level.\n"));
 		PHYSFS_delete(SECRETB_FILENAME);
 		return 0;
 	}
@@ -408,18 +395,14 @@ int state_save_all(int between_levels, int secret_save, char *filename_override)
 
 			sprintf(temp_fname, GameArg.SysUsePlayersDir? "Players/%csecret.sgc" : "%csecret.sgc", fc);
 
-			mprintf((0, "Trying to copy secret.sgc to %s.\n", temp_fname));
-
 			if (PHYSFS_exists(temp_fname))
 			{
-				mprintf((0, "Deleting file %s\n", temp_fname));
 				if (!PHYSFS_delete(temp_fname))
 					Error("Cannot delete file <%s>: %s", temp_fname, PHYSFS_getLastError());
 			}
 
 			if (PHYSFS_exists(SECRETC_FILENAME))
 			{
-				mprintf((0, "Copying secret.sgc to %s.\n", temp_fname));
 				rval = copy_file(SECRETC_FILENAME, temp_fname);
 				Assert(rval == 0);	//	Oops, error copying secret.sgc to temp_fname!
 			}
@@ -520,7 +503,6 @@ int state_save_all_sub(char *filename, char *desc, int between_levels)
 	PHYSFS_write(fp, &between_levels, sizeof(int), 1);
 
 // Save the mission info...
-        mprintf ((0, "HEY! Mission name is %s\n", Current_mission_filename));
 	PHYSFS_write(fp, Current_mission_filename, 9 * sizeof(char), 1);
 
 //Save level info
@@ -745,11 +727,8 @@ int state_restore_all(int in_game, int secret_restore, char *filename_override)
 			
 			sprintf(temp_fname, GameArg.SysUsePlayersDir? "Players/%csecret.sgc" : "%csecret.sgc", fc);
 
-			mprintf((0, "Trying to copy %s to secret.sgc.\n", temp_fname));
-
 			if (PHYSFS_exists(temp_fname))
 			{
-				mprintf((0, "Copying %s to secret.sgc\n", temp_fname));
 				rval = copy_file(temp_fname, SECRETC_FILENAME);
 				Assert(rval == 0);	//	Oops, error copying temp_fname to secret.sgc!
 			} else
@@ -831,7 +810,6 @@ int state_restore_all_sub(char *filename, int secret_restore)
 
 // Read the mission info...
 	PHYSFS_read(fp, mission, sizeof(char) * 9, 1);
-        mprintf ((0,"Missionname to load = %s\n",mission));
 
 	if (!load_mission_by_name( mission ))	{
 		nm_messagebox( NULL, 1, "Ok", "Error!\nUnable to load mission\n'%s'\n", mission );
@@ -1105,7 +1083,6 @@ int state_restore_all_sub(char *filename, int secret_restore)
 	if (!secret_restore) {
 		if (version >= 20) {
 			PHYSFS_read(fp, &First_secret_visit, sizeof(First_secret_visit), 1);
-			mprintf((0, "File: [%s] Read First_secret_visit: New value = %i\n", filename, First_secret_visit));
 		} else
 			First_secret_visit = 1;
 	} else

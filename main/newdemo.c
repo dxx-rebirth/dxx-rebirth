@@ -49,8 +49,6 @@ COPYRIGHT 1993-1999 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 #include "gr.h"
 #include "stdlib.h"
 #include "bm.h"
-//#include "error.h"
-#include "mono.h"
 #include "3d.h"
 #include "segment.h"
 #include "texmap.h"
@@ -105,6 +103,7 @@ COPYRIGHT 1993-1999 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 #ifdef EDITOR
 #include "editor/editor.h"
 #endif
+#include "console.h"
 
 #ifdef MACINTOSH
 #pragma global_optimizer off        // pretty much sucks...need to look into this
@@ -646,7 +645,6 @@ void nd_read_object(object *obj)
 		else {
 			int xlated_tmo = tmap_xlate_table[tmo];
 			if (xlated_tmo < 0) {
-				//mprintf( (0, "Couldn't find texture for demo object, model_num = %d\n", obj->pobj_info.model_num));
 				Int3();
 				xlated_tmo = 0;
 			}
@@ -1659,7 +1657,6 @@ int newdemo_read_frame_information()
 			nd_read_byte (&WhichWindow);
 			if (WhichWindow&15)
 			{
-				//mprintf ((0,"Reading extra!\n"));
 				nd_read_object (&extraobj);
 				if (nd_bad_read)
 				{
@@ -1672,7 +1669,6 @@ int newdemo_read_frame_information()
 			}
 			else
 			{
-				//mprintf ((0,"Reading viewer!\n"));
 				//Viewer=&Objects[0];
 				nd_read_object(Viewer);
 
@@ -1816,8 +1812,6 @@ int newdemo_read_frame_information()
 			if (nd_bad_read) { done = -1; break; }
 			if (Newdemo_vcr_state != ND_STATE_PAUSED)
 			{
-				mprintf ((0,"EVENT TRIGGER! shot=%d\n",shot));
-
 				if (Triggers[Walls[Segments[segnum].sides[side].wall_num].trigger].type == TT_SECRET_EXIT) {
 					int truth;
 
@@ -2667,7 +2661,6 @@ void interpolate_frame(fix d_play, fix d_recorded)
 	num_cur_objs = Highest_object_index;
 	cur_objs = (object *)d_malloc(sizeof(object) * (num_cur_objs + 1));
 	if (cur_objs == NULL) {
-		mprintf((0,"Couldn't get %d bytes for cur_objs in interpolate_frame\n", sizeof(object) * num_cur_objs));
 		Int3();
 		return;
 	}
@@ -2970,13 +2963,11 @@ void newdemo_playback_one_frame()
 			return;
 		}
 		else {
-			//mprintf ((0, "*"));
 			if (newdemo_read_frame_information() == -1) {
 				newdemo_stop_playback();
 				return;
 			}
 			if (playback_style == SKIP_PLAYBACK) {
-				//mprintf ((0, "."));
 				while (nd_playback_total > nd_recorded_total) {
 					if (newdemo_read_frame_information() == -1) {
 						newdemo_stop_playback();
@@ -3254,7 +3245,6 @@ void newdemo_start_playback(char * filename)
 	infile = PHYSFSX_openReadBuffered(filename2);
 
 	if (infile==NULL) {
-		mprintf( (0, "Error reading '%s'\n", filename ));
 		return;
 	}
 

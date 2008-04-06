@@ -1,4 +1,3 @@
-/* $Id: fireball.c,v 1.1.1.1 2006/03/17 19:54:35 zicodxx Exp $ */
 /*
 THE COMPUTER CODE CONTAINED HEREIN IS THE SOLE PROPERTY OF PARALLAX
 SOFTWARE CORPORATION ("PARALLAX").  PARALLAX, IN DISTRIBUTING THE CODE TO
@@ -36,7 +35,6 @@ COPYRIGHT 1993-1999 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 #include "object.h"
 #include "vclip.h"
 #include "game.h"
-#include "mono.h"
 #include "polyobj.h"
 #include "sounds.h"
 #include "player.h"
@@ -82,13 +80,10 @@ object *object_create_explosion_sub(object *objp, short segnum, vms_vector * pos
 					CT_EXPLOSION,MT_NONE,RT_FIREBALL);
 
 	if (objnum < 0 ) {
-		mprintf((1, "Can't create object in object_create_explosion_sub.\n"));
 		return NULL;
 	}
 
 	obj = &Objects[objnum];
-
-	//mprintf( 0, "Fireball created at %d, %d, %d\n", obj->pos.x, obj->pos.y, obj->pos.z );
 
 	//now set explosion-specific data
 
@@ -218,7 +213,6 @@ object *object_create_explosion_sub(object *objp, short segnum, vms_vector * pos
 									if (force > F1_0) {
 										Flash_effect = fe;
 										PALETTE_FLASH_ADD(PK1 + f2i(PK2*force), PK1 + f2i(PK2*force), PK1 + f2i(PK2*force));
-										mprintf((0, "force = %7.3f, adding %i\n", f2fl(force), PK1 + f2i(PK2*force)));
 									}
 								}
 
@@ -246,15 +240,13 @@ object *object_create_explosion_sub(object *objp, short segnum, vms_vector * pos
 								Int3();	//	Illegal object type
 						}	// end switch
 					} else {
-						; // mprintf((0, "No badass: robot=%2i, dist=%7.3f, maxdistance=%7.3f .\n", i, f2fl(dist), f2fl(maxdistance)));
+						;
 					}	// end if (object_to_object_visibility...
 				}	// end if (dist < maxdistance)
 			}
 			obj0p++;
 		}	// end for
 	}	// end if (maxdamage...
-
-//	mprintf(0, "\n");
 
 	return obj;
 
@@ -348,7 +340,6 @@ object *object_create_debris(object *parent, int subobj_num)
 				CT_DEBRIS,MT_PHYSICS,RT_POLYOBJ);
 
 	if ((objnum < 0 ) && (Highest_object_index >= MAX_OBJECTS-1) && !PERSISTENT_DEBRIS) {
-		mprintf((1, "Can't create object in object_create_debris.\n"));
 //		Int3(); // this happens often and is normal :-)
 		return NULL;
 	}
@@ -394,8 +385,6 @@ object *object_create_debris(object *parent, int subobj_num)
 
 void draw_fireball(object *obj)
 {
-	//mprintf( 0, "[Drawing obj %d type %d fireball size %x]\n", obj-Objects, obj->id, obj->size );
-
 	if ( obj->lifeleft > 0 )
 		draw_vclip_object(obj,obj->lifeleft,0, obj->id);
 
@@ -438,8 +427,6 @@ int pick_connected_segment(object *objp, int max_depth)
 	sbyte   depth[MAX_SEGMENTS];
 	sbyte   side_rand[MAX_SIDES_PER_SEGMENT];
 
-//	mprintf((0, "Finding a segment %i segments away from segment %i: ", max_depth, objp->segnum));
-
 	memset(visited, 0, Highest_segment_index+1);
 	memset(depth, 0, Highest_segment_index+1);
 	memset(seg_queue,0,QUEUE_SIZE*2);
@@ -471,7 +458,6 @@ int pick_connected_segment(object *objp, int max_depth)
 		int		ind1, ind2, temp;
 
 		if (cur_depth >= max_depth) {
-//			mprintf((0, "selected segment %i\n", seg_queue[tail]));
 			return seg_queue[tail];
 		}
 
@@ -520,8 +506,6 @@ int pick_connected_segment(object *objp, int max_depth)
 
 		cur_depth = depth[seg_queue[tail]];
 	}
-
-	mprintf((0, "...failed at depth %i, returning -1\n", cur_depth));
 	return -1;
 }
 
@@ -542,8 +526,6 @@ int choose_drop_segment()
 	int	player_seg;
 	vms_vector tempv,*player_pos;
 
-	mprintf((0,"choose_drop_segment:"));
-
 	d_srand(timer_get_fixed_seconds());
 
 	cur_drop_depth = BASE_NET_DROP_DEPTH + ((d_rand() * BASE_NET_DROP_DEPTH*2) >> 15);
@@ -562,26 +544,21 @@ int choose_drop_segment()
 		if (count == N_players) {
 			//if can't valid non-player person, use the player
 			pnum = Player_num;
-
-			//mprintf((1, "Warning: choose_drop_segment: Couldn't find legal drop segment because no connected players.\n"));
-			//return (d_rand() * Highest_segment_index) >> 15;
 		}
 
 		segnum = pick_connected_segment(&Objects[Players[pnum].objnum], cur_drop_depth);
-		mprintf((0," %d",segnum));
 		if (segnum == -1)
 		{
 			cur_drop_depth--;
 			continue;
 		}
 		if (Segment2s[segnum].special == SEGMENT_IS_CONTROLCEN)
-			{segnum = -1; mprintf((0,"C")); }
+			{segnum = -1;}
 		else {	//don't drop in any children of control centers
 			int i;
 			for (i=0;i<6;i++) {
 				int ch = Segments[segnum].children[i];
 				if (IS_CHILD(ch) && Segment2s[ch].special == SEGMENT_IS_CONTROLCEN) {
-					mprintf((0,"c"));
 					segnum = -1;
 					break;
 				}
@@ -592,7 +569,6 @@ int choose_drop_segment()
 		if (segnum != -1) {
 			compute_segment_center(&tempv, &Segments[segnum]);
 			if (find_connected_distance(player_pos,player_seg,&tempv,segnum,-1,WID_FLY_FLAG) < i2f(20)*cur_drop_depth) {
-				mprintf((0,"D"));
 				segnum = -1;
 			}
 		}
@@ -600,11 +576,7 @@ int choose_drop_segment()
 		cur_drop_depth--;
 	}
 
-	if (segnum != -1)
-		mprintf((0," dist=%x\n",find_connected_distance(player_pos,player_seg,&tempv,segnum,-1,WID_FLY_FLAG)));
-
 	if (segnum == -1) {
-		mprintf((1, "Warning: Unable to find a connected segment.  Picking a random one.\n"));
 		return (d_rand() * Highest_segment_index) >> 15;
 	} else
 		return segnum;
@@ -657,7 +629,6 @@ void maybe_drop_net_powerup(int powerup_type)
 		obj_relink(objnum, segnum);
 
 		object_create_explosion(segnum, &new_pos, i2f(5), VCLIP_POWERUP_DISAPPEARANCE );
-//		mprintf(0, "Creating net powerup in segment %i at %7.3f %7.3f %7.3f\n", segnum, f2fl(new_pos.x), f2fl(new_pos.y), f2fl(new_pos.z));
 	}
 }
 #endif
@@ -722,7 +693,6 @@ void maybe_replace_powerup_with_energy(object *del_obj)
 
 	if (del_obj->contains_id == POW_CLOAK) {
 		if (weapon_nearby(del_obj, del_obj->contains_id)) {
-			mprintf((0, "Bashing cloak into nothing because there's one nearby.\n"));
 			del_obj->contains_count = 0;
 		}
 		return;
@@ -775,7 +745,6 @@ void maybe_replace_powerup_with_energy(object *del_obj)
 	//	If this robot was gated in by the boss and it now contains energy, make it contain nothing,
 	//	else the room gets full of energy.
 	if ( (del_obj->matcen_creator == BOSS_GATE_MATCEN_NUM) && (del_obj->contains_id == POW_ENERGY) && (del_obj->contains_type == OBJ_POWERUP) ) {
-		mprintf((0, "Converting energy powerup to nothing because robot %i gated in by boss.\n", del_obj-Objects));
 		del_obj->contains_count = 0;
 	}
 
@@ -829,7 +798,6 @@ int drop_powerup(int type, int id, int num, vms_vector *init_vel, vms_vector *po
 				{	
 					if (Net_create_loc >= MAX_NET_CREATE_OBJECTS)
 					{
-					 	mprintf( (1, "Not enough slots to drop all powerups!\n" ));
 						return (-1);
 					}
 					if ((Game_mode & GM_NETWORK) && Network_status == NETSTAT_ENDLEVEL)
@@ -839,7 +807,6 @@ int drop_powerup(int type, int id, int num, vms_vector *init_vel, vms_vector *po
 				objnum = obj_create( type, id, segnum, &new_pos, &vmd_identity_matrix, Powerup_info[id].size, CT_POWERUP, MT_PHYSICS, RT_POWERUP);
 
 				if (objnum < 0 ) {
-					mprintf((1, "Can't create object in object_create_egg.  Aborting.\n"));
 					Int3();
 					return objnum;
 				}
@@ -854,9 +821,6 @@ int drop_powerup(int type, int id, int num, vms_vector *init_vel, vms_vector *po
 				obj = &Objects[objnum];
 
 				obj->mtype.phys_info.velocity = new_velocity;
-
-//				mprintf(0, "Created powerup, object #%i, velocity = %7.3f %7.3f %7.3f\n", objnum, f2fl(new_velocity.x), f2fl(new_velocity.y), f2fl(new_velocity.z));
-//				mprintf(0, "                             pos = x=%d y=%d z=%d\n", obj->pos.x, obj->pos.y, obj->pos.z);
 
 				obj->mtype.phys_info.drag = 512;	//1024;
 				obj->mtype.phys_info.mass = F1_0;
@@ -913,7 +877,6 @@ int drop_powerup(int type, int id, int num, vms_vector *init_vel, vms_vector *po
 				objnum = obj_create(OBJ_ROBOT, id, segnum, &new_pos, &vmd_identity_matrix, Polygon_models[Robot_info[id].model_num].rad, CT_AI, MT_PHYSICS, RT_POLYOBJ);
 
 				if ( objnum < 0 ) {
-					mprintf((1, "Can't create object in object_create_egg, robots.  Aborting.\n"));
 					Int3();
 					return objnum;
 				}
@@ -989,24 +952,20 @@ int object_create_egg(object *objp)
 			if (objp->contains_id == POW_SHIELD_BOOST) {
 				if (Players[Player_num].shields >= i2f(100)) {
 					if (d_rand() > 16384) {
-						mprintf((0, "Not dropping shield!\n"));
 						return -1;
 					}
 				} else  if (Players[Player_num].shields >= i2f(150)) {
 					if (d_rand() > 8192) {
-						mprintf((0, "Not dropping shield!\n"));
 						return -1;
 					}
 				}
 			} else if (objp->contains_id == POW_ENERGY) {
 				if (Players[Player_num].energy >= i2f(100)) {
 					if (d_rand() > 16384) {
-						mprintf((0, "Not dropping energy!\n"));
 						return -1;
 					}
 				} else  if (Players[Player_num].energy >= i2f(150)) {
 					if (d_rand() > 8192) {
-						mprintf((0, "Not dropping energy!\n"));
 						return -1;
 					}
 				}
@@ -1125,7 +1084,6 @@ void explode_object(object *hitobj,fix delay_time)
 	
 		if (objnum < 0 ) {
 			maybe_delete_object(hitobj);		//no explosion, die instantly
-			mprintf((1,"Couldn't start explosion, deleting object now\n"));
 			Int3();
 			return;
 		}
@@ -1154,7 +1112,6 @@ void explode_object(object *hitobj,fix delay_time)
 	
 		if (! expl_obj) {
 			maybe_delete_object(hitobj);		//no explosion, die instantly
-			mprintf((0,"Couldn't start explosion, deleting object now\n"));
 			return;
 		}
 
@@ -1195,8 +1152,6 @@ void do_explosion_sequence(object *obj)
 {
 	Assert(obj->control_type == CT_EXPLOSION);
 
-	//mprintf( 0, "Object %d life left is %d\n", obj-Objects, obj->lifeleft );
-
 	//See if we should die of old age
 	if (obj->lifeleft <= 0 ) 	{	// We died of old age
 		obj->flags |= OF_SHOULD_BE_DEAD;
@@ -1210,7 +1165,6 @@ void do_explosion_sequence(object *obj)
 		vms_vector *spawn_pos;
 
 		if ((obj->ctype.expl_info.delete_objnum < 0) || (obj->ctype.expl_info.delete_objnum > Highest_object_index)) {
-			mprintf((0, "Illegal value for delete_objnum in fireball.c\n"));
 			Int3(); // get Rob, please... thanks
 			return;
 		}
@@ -1260,13 +1214,6 @@ void do_explosion_sequence(object *obj)
 			digi_link_sound_to_pos( Robot_info[del_obj->id].exp2_sound_num, del_obj->segnum, 0, spawn_pos, 0, F1_0 );
 			//PLAY_SOUND_3D( Robot_info[del_obj->id].exp2_sound_num, spawn_pos, del_obj->segnum  );
 
-		// mprintf( 0, "Spawned an explosion of type %d\n", Robot_info[del_obj->id].exp2_vclip_num );
-
-		//mprintf( 0, "Object %d spawned.\n", obj-Objects );
-		//mprintf( 0, "Explosion at %d,%d,%d\n", obj->pos.x, obj->pos.y, obj->pos.z );
-		//mprintf( 0, "Explosion at %d,%d,%d\n", obj->pos.x, obj->pos.y, obj->pos.z );
-		//mprintf( 0, "Spawned exp at %d,%d,%d\n", expl_obj->pos.x, expl_obj->pos.y, expl_obj->pos.z );
-
 		obj->ctype.expl_info.spawn_time = -1;
 
 		//make debris
@@ -1291,7 +1238,6 @@ void do_explosion_sequence(object *obj)
 		}
 		else {
 			maybe_delete_object(del_obj);
-			mprintf((0,"Couldn't create secondary explosion, deleting object now\n"));
 		}
 
 	}
@@ -1331,7 +1277,6 @@ void explode_wall(int segnum,int sidenum)
 	for (i=0;i<MAX_EXPLODING_WALLS && expl_wall_list[i].segnum != -1;i++);
 
 	if (i==MAX_EXPLODING_WALLS) {		//didn't find slot.
-		mprintf((0,"Couldn't find free slot for exploding wall!\n"));
 		Int3();
 		return;
 	}
@@ -1391,8 +1336,6 @@ void do_exploding_wall_frame()
 			new_count = f2i(EXPL_WALL_TOTAL_FIREBALLS * fixmul(newfrac,newfrac));
 
 			//n = new_count - old_count;
-
-//			mprintf(0,"Creating %d new explosions\n",new_count-old_count);
 
 			//now create all the next explosions
 

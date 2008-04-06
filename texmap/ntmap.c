@@ -1,4 +1,3 @@
-/* $Id: ntmap.c,v 1.1.1.1 2006/03/17 20:00:02 zicodxx Exp $ */
 /*
 THE COMPUTER CODE CONTAINED HEREIN IS THE SOLE PROPERTY OF PARALLAX
 SOFTWARE CORPORATION ("PARALLAX").  PARALLAX, IN DISTRIBUTING THE CODE TO
@@ -22,10 +21,6 @@ COPYRIGHT 1993-1998 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 #include <conf.h>
 #endif
 
-#ifdef RCS
-static char rcsid[] = "$Id: ntmap.c,v 1.1.1.1 2006/03/17 20:00:02 zicodxx Exp $";
-#endif
-
 #define VESA 0
 #define NUM_TMAPS 16
 
@@ -40,7 +35,7 @@ static char rcsid[] = "$Id: ntmap.c,v 1.1.1.1 2006/03/17 20:00:02 zicodxx Exp $"
 #include "gr.h"
 #include "3d.h"
 #include "error.h"
-
+#include "render.h"
 #include "texmap.h"
 #include "texmapl.h"
 #include "rle.h"
@@ -65,7 +60,6 @@ int     Lighting_on=1;                  // initialize to no lighting
 int	Tmap_flat_flag = 0;		//	1 = render texture maps as flat shaded polygons.
 int	Current_seg_depth;		// HACK INTERFACE: how far away the current segment (& thus texture) is
 int	Max_perspective_depth;
-int	Max_linear_depth;
 int	Max_flat_depth;
 
 extern int Window_clip_left, Window_clip_bot, Window_clip_right, Window_clip_top;
@@ -627,9 +621,6 @@ void ntexture_map_lighted(grs_bitmap *srcb, g3ds_tmap *t)
 
 	// We can get lleft or lright out of bounds here because we compute dl_dy using fixed point values,
 	//	but we plot an integer number of scanlines, therefore doing an integer number of additions of the delta.
-
-//if (Break_on_flat)
-//	mprintf(0, "[%i %i %i] ", y, f2i(xleft), f2i(xright));
 
 	ntmap_scanline_lighted(srcb,y,xleft,xright,uleft,uright,vleft,vright,zleft,zright,lleft,lright);
 }

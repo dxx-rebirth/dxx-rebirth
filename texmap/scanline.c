@@ -1,4 +1,3 @@
-/* $Id: scanline.c,v 1.1.1.1 2006/03/17 19:59:55 zicodxx Exp $ */
 /*
 THE COMPUTER CODE CONTAINED HEREIN IS THE SOLE PROPERTY OF PARALLAX
 SOFTWARE CORPORATION ("PARALLAX").  PARALLAX, IN DISTRIBUTING THE CODE TO
@@ -22,18 +21,12 @@ COPYRIGHT 1993-1998 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 #include <conf.h>
 #endif
 
-#ifdef RCS
-static char rcsid[] = "$Id: scanline.c,v 1.1.1.1 2006/03/17 19:59:55 zicodxx Exp $";
-#endif
-
 #include <math.h>
 #include <limits.h>
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
-
 #include "maths.h"
-#include "mono.h"
 #include "gr.h"
 #include "grdef.h"
 #include "texmap.h"
@@ -1089,8 +1082,6 @@ void select_tmap(char *type)
 		cur_tmap_scanline_shaded=c_tmap_scanline_shaded;
 	}
 	else {
-		if (stricmp(type,"c")!=0)
-			printf("unknown tmap requested, using c tmap\n");
 		cur_tmap_scanline_per=c_tmap_scanline_per;
 		cur_tmap_scanline_per_nolight=c_tmap_scanline_per_nolight;
 		cur_tmap_scanline_lin=c_tmap_scanline_lin;

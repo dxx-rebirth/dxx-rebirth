@@ -1,4 +1,3 @@
-/* $Id: editor.h,v 1.1.1.1 2006/03/17 19:58:11 zicodxx Exp $ */
 /*
 THE COMPUTER CODE CONTAINED HEREIN IS THE SOLE PROPERTY OF PARALLAX
 SOFTWARE CORPORATION ("PARALLAX").  PARALLAX, IN DISTRIBUTING THE CODE TO
@@ -424,7 +423,7 @@ extern	void assign_default_uvs_to_side(segment *segp,int side);
 extern	void med_assign_uvs_to_side(segment *con_seg, int con_common_side, segment *base_seg, int base_common_side, int abs_id1, int abs_id2);
 
 // Debug -- show a matrix.
-//	type: 0 --> mprintf, 1 --> printf
+//	type: 1 --> printf
 //	*s = string to display
 //	*mp = matrix to display
 extern	void show_matrix(char *s,vms_matrix *mp,int type);

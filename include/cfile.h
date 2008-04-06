@@ -35,6 +35,7 @@ COPYRIGHT 1993-1999 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 #include "physfsx.h"
 #include "strutil.h"
 #include "ignorecase.h"
+#include "console.h"
 
 #define CFILE            PHYSFS_file
 #define cfopen(f,m)      PHYSFSX_openReadBuffered(f)
@@ -206,7 +207,7 @@ static inline int cfile_read_int(PHYSFS_file *file)
 
 	if (!PHYSFS_readSLE32(file, &i))
 	{
-		fprintf(stderr, "Error reading int in cfile_read_int()");
+		con_printf(CON_CRITICAL,"Error reading int in cfile_read_int()");
 		exit(1);
 	}
 
@@ -219,7 +220,7 @@ static inline short cfile_read_short(PHYSFS_file *file)
 
 	if (!PHYSFS_readSLE16(file, &s))
 	{
-		fprintf(stderr, "Error reading short in cfile_read_short()");
+		con_printf(CON_CRITICAL,"Error reading short in cfile_read_short()");
 		exit(1);
 	}
 
@@ -232,7 +233,7 @@ static inline sbyte cfile_read_byte(PHYSFS_file *file)
 
 	if (PHYSFS_read(file, &b, sizeof(b), 1) != 1)
 	{
-		fprintf(stderr, "Error reading byte in cfile_read_byte()");
+		con_printf(CON_CRITICAL,"Error reading byte in cfile_read_byte()");
 		exit(1);
 	}
 
@@ -245,7 +246,7 @@ static inline fix cfile_read_fix(PHYSFS_file *file)
 
 	if (!PHYSFS_readSLE32(file, &f))
 	{
-		fprintf(stderr, "Error reading fix in cfile_read_fix()");
+		con_printf(CON_CRITICAL,"Error reading fix in cfile_read_fix()");
 		exit(1);
 	}
 
@@ -258,7 +259,7 @@ static inline fixang cfile_read_fixang(PHYSFS_file *file)
 
 	if (!PHYSFS_readSLE16(file, &f))
 	{
-		fprintf(stderr, "Error reading fixang in cfile_read_fixang()");
+		con_printf(CON_CRITICAL,"Error reading fixang in cfile_read_fixang()");
 		exit(1);
 	}
 

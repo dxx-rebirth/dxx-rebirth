@@ -1,4 +1,3 @@
-/* $Id: ai.h,v 1.1.1.1 2006/03/17 19:54:46 zicodxx Exp $ */
 /*
 THE COMPUTER CODE CONTAINED HEREIN IS THE SOLE PROPERTY OF PARALLAX
 SOFTWARE CORPORATION ("PARALLAX").  PARALLAX, IN DISTRIBUTING THE CODE TO
@@ -80,7 +79,6 @@ extern void init_ai_object(int objnum, int initial_mode, int hide_segment);
 extern void update_player_awareness(object *objp, fix new_awareness);
 extern void create_awareness_event(object *objp, int type);         // object *objp can create awareness of player, amount based on "type"
 extern void do_ai_frame_all(void);
-extern void init_ai_system(void);
 extern void reset_ai_states(object *objp);
 extern int create_path_points(object *objp, int start_seg, int end_seg, point_seg *point_segs, short *num_points, int max_depth, int random_flag, int safety_flag, int avoid_seg);
 extern void create_all_paths(void);
@@ -293,8 +291,6 @@ extern char behavior_text[6][9];
 extern char state_text[8][5];
 
 extern int Do_ai_flag, Break_on_object;
-
-extern void mprintf_animation_info(object *objp);
 
 #endif //ifndef NDEBUG
 

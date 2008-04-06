@@ -3,7 +3,7 @@
 #ifndef _D_IO_H
 #define _D_IO_H
 
-#if (defined(__MSDOS__) && !defined(__DJGPP__)) || defined(__WINDOWS__)
+#if (defined(__MSDOS__) && !defined(__DJGPP__)) || defined(_WIN32)
 #include <io.h>
 #else
 #include <unistd.h>

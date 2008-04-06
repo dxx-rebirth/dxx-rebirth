@@ -1,4 +1,3 @@
-/* $Id: segment.c,v 1.1.1.1 2006/03/17 19:58:29 zicodxx Exp $ */
 /*
 THE COMPUTER CODE CONTAINED HEREIN IS THE SOLE PROPERTY OF PARALLAX
 SOFTWARE CORPORATION ("PARALLAX").  PARALLAX, IN DISTRIBUTING THE CODE TO
@@ -26,22 +25,16 @@ COPYRIGHT 1993-1998 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 #include <stdlib.h>
 #include <math.h>
 #include <string.h>
-
-#include "mono.h"
 #include "key.h"
 #include "gr.h"
-
 #include "inferno.h"
 #include "segment.h"
-// #include "segment2.h"
 #include "editor.h"
 #include "error.h"
 #include "object.h"
-
 #include "gameseg.h"
 #include "render.h"
 #include "game.h"
-
 #include "wall.h"
 #include "switch.h"
 #include "fuelcen.h"
@@ -379,7 +372,6 @@ int med_add_vertex(vms_vector *vp)
 		if (Vertex_active[v]) {
 			count++;
 			if (vnear(vp,&Vertices[v])) {
-				// mprintf((0,"[%4i]  ",v));
 				return v;
 			}
 		} else if (free_index == -1)
@@ -480,7 +472,6 @@ int med_set_vertex(int vnum,vms_vector *vp)
 		Vertex_active[vnum] = 1;
 		Num_vertices++;
 		if ((vnum > Highest_vertex_index) && (vnum < NEW_SEGMENT_VERTICES)) {
-			mprintf((0,"Warning -- setting a previously unset vertex, index = %i.\n",vnum));
 			Highest_vertex_index = vnum;
 		}
 	}
@@ -566,7 +557,6 @@ int check_for_degenerate_segment(segment *sp)
 	if (dot > 0)
 		degeneracy_flag = 0;
 	else {
-		mprintf((0, "segment #%i is degenerate due to cross product check.\n", sp-Segments));
 		degeneracy_flag = 1;
 	}
 
@@ -665,7 +655,6 @@ void med_extract_matrix_from_segment(segment *sp,vms_matrix *rotmat)
 	extract_up_vector_from_segment(sp,&upvec);
 
 	if (((forwardvec.x == 0) && (forwardvec.y == 0) && (forwardvec.z == 0)) || ((upvec.x == 0) && (upvec.y == 0) && (upvec.z == 0))) {
-		mprintf((0, "Trapped null vector in med_extract_matrix_from_segment, returning identity matrix.\n"));
 		*rotmat = vmd_identity_matrix;
 		return;
 	}
@@ -1197,7 +1186,6 @@ int med_delete_segment(segment *sp)
 
 	// Don't try to delete if segment doesn't exist.
 	if (sp->segnum == -1) {
-		mprintf((0,"Hey -- you tried to delete a non-existent segment (segnum == -1)\n"));
 		return 1;
 	}
 
@@ -1257,10 +1245,6 @@ int med_delete_segment(segment *sp)
 
 	// If deleted segment contains objects, wipe out all objects
 	if (sp->objects != -1) 	{
-//		if (objnum == Objects[objnum].next) {
-//			mprintf((0, "Warning -- object #%i points to itself.  Setting next to -1.\n", objnum));
-//			Objects[objnum].next = -1;
-//		}
 		for (objnum=sp->objects;objnum!=-1;objnum=Objects[objnum].next) 	{
 
 			//if an object is in the seg, delete it
@@ -1336,9 +1320,6 @@ int med_rotate_segment(segment *seg, vms_matrix *rotmat)
 		
 	// Before deleting the segment, copy its texture maps to New_segment
 	copy_tmaps_to_segment(&New_segment,seg);
-
-	if (med_delete_segment(seg))
-		mprintf((0,"Error in rotation: Unable to delete segment %i\n",seg-Segments));
 
 	if (Curside == WFRONT)
 		Curside = WBACK;
@@ -1538,27 +1519,6 @@ int med_form_joint(segment *seg1, int side1, segment *seg2, int side2)
 
 	set_vertex_counts();
 
-	//	Make sure connection is open, ie renderable.
-//	seg1->sides[side1].render_flag = 0;
-//	seg2->sides[side2].render_flag = 0;
-
-//--// debug -- check all segments, make sure if a children[s] == -1, then side[s].num_faces != 0
-//--{
-//--int seg,side;
-//--for (seg=0; seg<MAX_SEGMENTS; seg++)
-//--	if (Segments[seg].segnum != -1)
-//--		for (side=0; side<MAX_SIDES_PER_SEGMENT; side++)
-//--			if (Segments[seg].children[side] == -1) {
-//--				if (Segments[seg].sides[side].num_faces == 0) {
-//--					mprintf((0,"Error: Segment %i, side %i is not connected, but has 0 faces.\n",seg,side));
-//--					Int3();
-//--				}
-//--			} else if (Segments[seg].sides[side].num_faces != 0) {
-//--				mprintf((0,"Error: Segment %i, side %i is connected, but has %i faces.\n",seg,side,Segments[seg].sides[side].num_faces));
-//--				Int3();
-//--			}
-//--}
-
 	return 0;
 }
 
@@ -1580,7 +1540,6 @@ int med_form_bridge_segment(segment *seg1, int side1, segment *seg2, int side2)
 		return 1;
 
 	bs = &Segments[get_free_segment_number()];
-// mprintf((0,"Forming bridge segment %i from %i to %i\n",bs-Segments,seg1-Segments,seg2-Segments));
 
 	bs->segnum = bs-Segments;
 	bs->objects = -1;
@@ -1622,7 +1581,6 @@ int med_form_bridge_segment(segment *seg1, int side1, segment *seg2, int side2)
 		bs->children[AttachSide] = -1;
                 bs->children[(int) Side_opposite[AttachSide]] = -1;
 		if (med_delete_segment(bs)) {
-			mprintf((0, "Oops, tried to delete bridge segment (because it's degenerate), but couldn't.\n"));
 			Int3();
 		}
 		editor_status("Bridge segment would be degenerate, not created.\n");
@@ -2106,7 +2064,6 @@ void check_for_overlapping_segment(int segnum)
 		if (i != segnum) {
 			masks = get_seg_masks(&segcenter, i, 0, __FILE__, __LINE__);
 			if (masks.centermask == 0) {
-				mprintf((0, "Segment %i center is contained in segment %i\n", segnum, i));
 				continue;
 			}
 
@@ -2117,7 +2074,6 @@ void check_for_overlapping_segment(int segnum)
 				vm_vec_scale_add(&presult, &segcenter, &pdel, (F1_0*15)/16);
 				masks = get_seg_masks(&presult, i, 0, __FILE__, __LINE__);
 				if (masks.centermask == 0) {
-					mprintf((0, "Segment %i near vertex %i is contained in segment %i\n", segnum, v, i));
 					break;
 				}
 			}
@@ -2135,10 +2091,6 @@ void check_for_overlapping_segments(void)
 	med_compress_mine();
 
 	for (i=0; i<=Highest_segment_index; i++) {
-		mprintf((0, "+"));
 		check_for_overlapping_segment(i);
 	}
-
-	mprintf((0, "\nDone!\n"));
 }
-

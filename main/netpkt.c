@@ -21,16 +21,11 @@ COPYRIGHT 1993-1999 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 #include <conf.h>
 #endif
 
-#ifdef RCS
-static char rcsid[] = "$Id: netmisc.c,v 1.1.1.1 2006/03/17 19:55:46 zicodxx Exp $";
-#endif
-
 #include <stdio.h>
 #include <string.h>
 
 #include "inferno.h"
 #include "pstypes.h"
-#include "mono.h"
 #include "netdrv.h"
 
 #ifdef WORDS_BIGENDIAN

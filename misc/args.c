@@ -1,4 +1,3 @@
-/* $Id: args.c,v 1.1.1.1 2006/03/17 19:58:51 zicodxx Exp $ */
 /*
 THE COMPUTER CODE CONTAINED HEREIN IS THE SOLE PROPERTY OF PARALLAX
 SOFTWARE CORPORATION ("PARALLAX").  PARALLAX, IN DISTRIBUTING THE CODE TO
@@ -22,13 +21,8 @@ COPYRIGHT 1993-1998 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 #include <conf.h>
 #endif
 
-#ifdef RCS
-static char rcsid[] = "$Id: args.c,v 1.1.1.1 2006/03/17 19:58:51 zicodxx Exp $";
-#endif
-
 #include <stdlib.h>
 #include <string.h>
-
 #include "physfsx.h"
 #include "args.h"
 #include "u_mem.h"
@@ -37,7 +31,7 @@ static char rcsid[] = "$Id: args.c,v 1.1.1.1 2006/03/17 19:58:51 zicodxx Exp $";
 #include "digi.h"
 #include "game.h"
 #include "gauges.h"
-
+#include "console.h"
 #ifdef OGL
 #if defined(__APPLE__) && defined(__MACH__)
 #include <OpenGL/glu.h>
@@ -59,10 +53,6 @@ void ReadCmdArgs(void);
 int FindArg(char *s)
 {
 	int i;
-
-#ifndef NDEBUG
-	printf("FindArg: %s\n",s);
-#endif
 
 	for (i=0; i<Num_args; i++ )
 		if (! stricmp( Args[i], s))
@@ -183,17 +173,6 @@ void ReadCmdArgs(void)
 
 	// Graphics Options
 
-	if ((t=FindResArg("aspect", &y, &x)))
-	{
-		GameArg.GfxAspectY = y;
-		GameArg.GfxAspectX = x;
-	}
-	else
-	{
-		GameArg.GfxAspectY = 4;
-		GameArg.GfxAspectX = 3;
-	}
-
 	GameArg.GfxGaugeHudMode = get_int_arg("-hud", 0);
 	if (GameArg.GfxGaugeHudMode <= 0 || GameArg.GfxGaugeHudMode > GAUGE_HUD_NUMMODES-1)
 		GameArg.GfxGaugeHudMode = 0;
@@ -207,24 +186,7 @@ void ReadCmdArgs(void)
 #ifdef OGL
 	// OpenGL Options
 
-	if (FindArg("-gl_trilinear"))
-	{
-		GameArg.OglTexMagFilt = GL_LINEAR;
-		GameArg.OglTexMinFilt = GL_LINEAR_MIPMAP_LINEAR;
-	}
-	else if (FindArg("-gl_mipmap"))
-	{
-		GameArg.OglTexMagFilt = GL_LINEAR;
-		GameArg.OglTexMinFilt = GL_LINEAR_MIPMAP_NEAREST;
-	}
-	else
-	{
-		GameArg.OglTexMagFilt = GL_NEAREST;
-		GameArg.OglTexMinFilt = GL_NEAREST;
-	}
-
 	GameArg.OglAlphaEffects 	= FindArg("-gl_transparency");
-	GameArg.OglVoodooHack 		= FindArg("-gl_voodoo");
 	GameArg.OglFixedFont 		= FindArg("-gl_fixedfont");
 	GameArg.OglReticle		= get_int_arg("-gl_reticle", 0);
 	GameArg.OglPrShot		= FindArg("-gl_prshot");
@@ -251,9 +213,9 @@ void ReadCmdArgs(void)
 
 	// Debug Options
 
-	if (FindArg("-debug"))		GameArg.DbgVerbose = 2;
-	else if (FindArg("-verbose"))	GameArg.DbgVerbose = 1;
-	else				GameArg.DbgVerbose = 0;
+	if (FindArg("-debug"))		GameArg.DbgVerbose = CON_DEBUG;
+	else if (FindArg("-verbose"))	GameArg.DbgVerbose = CON_VERBOSE;
+	else				GameArg.DbgVerbose = CON_NORMAL;
 
 	GameArg.DbgNoRun 		= FindArg("-norun");
 	GameArg.DbgRenderStats 		= FindArg("-renderstats");

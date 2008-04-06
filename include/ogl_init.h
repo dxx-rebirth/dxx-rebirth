@@ -64,6 +64,8 @@ void ogl_init_shared_palette(void);
 
 extern int gl_initialized;
 extern int GL_needmipmaps;
+extern float OglTexMagFilt;
+extern float OglTexMinFilt;
 
 extern int active_texture_unit;
 void ogl_setActiveTexture(int t);

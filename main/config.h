@@ -1,4 +1,3 @@
-/* $Id: config.h,v 1.1.1.1 2006/03/17 19:55:48 zicodxx Exp $ */
 /*
 THE COMPUTER CODE CONTAINED HEREIN IS THE SOLE PROPERTY OF PARALLAX
 SOFTWARE CORPORATION ("PARALLAX").  PARALLAX, IN DISTRIBUTING THE CODE TO
@@ -23,37 +22,31 @@ COPYRIGHT 1993-1999 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 #define _CONFIG_H
 
 #include "player.h"
+#include "mission.h"
+
+typedef struct Cfg
+{
+	ubyte DigiVolume;
+	ubyte MidiVolume;
+	ubyte RedbookVolume;
+	int ReverseStereo;
+	int GammaLevel;
+	char LastPlayer[CALLSIGN_LEN+1];
+	char LastMission[MISSION_NAME_LEN+1];
+	int ResolutionX;
+	int ResolutionY;
+	int AspectX;
+	int AspectY;
+	int WindowMode;
+	int TexFilt;
+} __attribute__ ((packed)) Cfg;
+
+extern struct Cfg GameCfg;
 
 extern int ReadConfigFile(void);
 extern int WriteConfigFile(void);
 
-extern char config_last_player[CALLSIGN_LEN+1];
-
-extern char config_last_mission[];
-
-extern ubyte Config_digi_volume;
-extern ubyte Config_midi_volume;
-#ifdef MACINTOSH
-typedef struct ConfigInfoStruct
-{
-	ubyte	mDoNotDisplayOptions;
-	ubyte	mUse11kSounds;
-	ubyte	mDisableSound;
-	ubyte	mDisableMIDIMusic;
-	ubyte	mChangeResolution;
-	ubyte	mDoNotPlayMovies;
-	ubyte	mUserChoseQuit;
-	ubyte	mGameMonitor;
-	ubyte	mAcceleration;				// allow RAVE level acceleration
-	ubyte	mInputSprockets;			// allow use of Input Sprocket devices
-} ConfigInfo;
-
-extern ConfigInfo gConfigInfo;
-extern ubyte Config_master_volume;
-#endif
-extern ubyte Config_redbook_volume;
 extern ubyte Config_control_type;
-extern ubyte Config_channels_reversed;
 extern ubyte Config_joystick_sensitivity;
 extern ubyte Config_mouse_sensitivity;
 extern int joy_deadzone;

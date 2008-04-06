@@ -1,4 +1,3 @@
-/* $Id: texmerge.c,v 1.1.1.1 2006/03/17 19:54:57 zicodxx Exp $ */
 /*
 THE COMPUTER CODE CONTAINED HEREIN IS THE SOLE PROPERTY OF PARALLAX
 SOFTWARE CORPORATION ("PARALLAX").  PARALLAX, IN DISTRIBUTING THE CODE TO
@@ -28,7 +27,6 @@ COPYRIGHT 1993-1999 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 #include "error.h"
 #include "game.h"
 #include "textures.h"
-#include "mono.h"
 #include "rle.h"
 #include "piggy.h"
 
@@ -123,13 +121,6 @@ grs_bitmap * texmerge_get_cached_bitmap( int tmap_bottom, int tmap_top )
 	int lowest_frame_count;
 	int least_recently_used;
 
-//	if ( ((FrameCount % 1000)==0) && ((cache_hits+cache_misses)>0) && (!info_printed) )	{
-//		mprintf( 0, "Texmap caching:  %d hits, %d misses. (Missed=%d%%)\n", cache_hits, cache_misses, (cache_misses*100)/(cache_hits+cache_misses)  );
-//		info_printed = 1;
-//	} else {
-//		info_printed = 0;
-//	}
-
 	bitmap_top = &GameBitmaps[Textures[tmap_top&0x3FFF].index];
 	bitmap_bottom = &GameBitmaps[Textures[tmap_bottom].index];
 	
@@ -154,7 +145,6 @@ grs_bitmap * texmerge_get_cached_bitmap( int tmap_bottom, int tmap_top )
 	cache_misses++;
 
 	// Make sure the bitmaps are paged in...
-#ifdef PIGGY_USE_PAGING
 	piggy_page_flushed = 0;
 
 	PIGGY_PAGE_IN(Textures[tmap_top&0x3FFF]);
@@ -166,7 +156,6 @@ grs_bitmap * texmerge_get_cached_bitmap( int tmap_bottom, int tmap_top )
 		PIGGY_PAGE_IN(Textures[tmap_bottom]);
 	}
 	Assert( piggy_page_flushed == 0 );
-#endif
 
 #ifdef OGL
         ogl_freebmtexture(Cache[least_recently_used].bitmap);
@@ -201,14 +190,8 @@ void merge_textures_new( int type, grs_bitmap * bottom_bmp, grs_bitmap * top_bmp
 	if ( bottom_bmp->bm_flags & BM_FLAG_RLE )
 		bottom_bmp = rle_expand_texture(bottom_bmp);
 
-//	Assert( bottom_bmp != top_bmp );
-
 	top_data = top_bmp->bm_data;
 	bottom_data = bottom_bmp->bm_data;
-
-//	Assert( bottom_data != top_data );
-
-	// mprintf( 0, "Type=%d\n", type );
 
 	switch( type )	{
 	case 0:
@@ -241,16 +224,9 @@ void merge_textures_super_xparent( int type, grs_bitmap * bottom_bmp, grs_bitmap
 	if ( bottom_bmp->bm_flags & BM_FLAG_RLE )
 		bottom_bmp = rle_expand_texture(bottom_bmp);
 
-//	Assert( bottom_bmp != top_bmp );
-
 	top_data = top_bmp->bm_data;
 	bottom_data = bottom_bmp->bm_data;
 
-//	Assert( bottom_data != top_data );
-
-	//mprintf( 0, "SuperX remapping type=%d\n", type );
-	//Int3();
-	 
 	switch( type )	{
 		case 0:
 			// Normal

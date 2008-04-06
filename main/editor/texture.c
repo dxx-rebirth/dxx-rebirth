@@ -1,4 +1,3 @@
-/* $Id: texture.c,v 1.1.1.1 2006/03/17 19:58:41 zicodxx Exp $ */
 /*
 THE COMPUTER CODE CONTAINED HEREIN IS THE SOLE PROPERTY OF PARALLAX
 SOFTWARE CORPORATION ("PARALLAX").  PARALLAX, IN DISTRIBUTING THE CODE TO
@@ -18,10 +17,6 @@ COPYRIGHT 1993-1998 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
  *
  */
 
-#ifdef RCS
-static char rcsid[] = "$Id: texture.c,v 1.1.1.1 2006/03/17 19:58:41 zicodxx Exp $";
-#endif
-
 #ifdef HAVE_CONFIG_H
 #include "conf.h"
 #endif
@@ -31,14 +26,11 @@ static char rcsid[] = "$Id: texture.c,v 1.1.1.1 2006/03/17 19:58:41 zicodxx Exp 
 #include <stdarg.h>
 #include <math.h>
 #include <string.h>
-
 #include "inferno.h"
 #include "segment.h"
 #include "seguvs.h"
 #include "editor.h"
-
 #include "fix.h"
-#include "mono.h"
 #include "error.h"
 #include "kdefs.h"
 

@@ -1,4 +1,3 @@
-/* $Id: u_mem.h,v 1.1.1.1 2006/03/17 20:01:31 zicodxx Exp $ */
 /*
 THE COMPUTER CODE CONTAINED HEREIN IS THE SOLE PROPERTY OF PARALLAX
 SOFTWARE CORPORATION ("PARALLAX").  PARALLAX, IN DISTRIBUTING THE CODE TO
@@ -11,6 +10,9 @@ CONTAINED HEREIN FOR REVENUE-BEARING PURPOSES.  THE END-USER UNDERSTANDS
 AND AGREES TO THE TERMS HEREIN AND ACCEPTS THE SAME BY USE OF THIS FILE.
 COPYRIGHT 1993-1999 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 */
+
+#ifndef _U_MEM_H
+#define _U_MEM_H
 
 #include <stdlib.h>
 
@@ -53,3 +55,5 @@ extern char *strdup(const char *str);
 #define MALLOC( var, type, count )   (var=(type *)malloc((count)*sizeof(type)))
 
 #endif
+
+#endif // _U_MEM_H

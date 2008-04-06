@@ -1,4 +1,3 @@
-/* $Id: vclip.h,v 1.1.1.1 2006/03/17 19:56:30 zicodxx Exp $ */
 /*
 THE COMPUTER CODE CONTAINED HEREIN IS THE SOLE PROPERTY OF PARALLAX
 SOFTWARE CORPORATION ("PARALLAX").  PARALLAX, IN DISTRIBUTING THE CODE TO
@@ -60,13 +59,9 @@ extern vclip Vclip[VCLIP_MAXNUM];
 void draw_vclip_object(object *obj, fix timeleft, int lighted, int vclip_num);
 extern void draw_weapon_vclip(object *obj);
 
-#ifdef FAST_FILE_IO
-#define vclip_read_n(vc, n, fp) cfread(vc, sizeof(vclip), n, fp)
-#else
 /*
  * reads n vclip structs from a CFILE
  */
 extern int vclip_read_n(vclip *vc, int n, CFILE *fp);
-#endif
 
 #endif /* _VCLIP_H */

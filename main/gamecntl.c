@@ -40,7 +40,6 @@ COPYRIGHT 1993-1999 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 #include "physics.h"
 #include "error.h"
 #include "joy.h"
-#include "mono.h"
 #include "iff.h"
 #include "pcx.h"
 #include "timer.h"
@@ -681,8 +680,7 @@ void HandleDeathKey(int key)
 	}
 
 	//don't abort death sequence for netgame join/refuse keys
-	if (	(key == KEY_ALTED + KEY_1) ||
-			(key == KEY_ALTED + KEY_2))
+	if ( Game_mode & GM_MULTI && ((key == KEY_ALTED + KEY_1) || (key == KEY_ALTED + KEY_2) || key == KEY_F6))
 		Death_sequence_aborted  = 0;
 
 	if (Death_sequence_aborted)
@@ -767,10 +765,6 @@ void HandleDemoKey(int key)
 			break;
 		case KEY_DEBUGGED + KEY_I:
 			Newdemo_do_interpolate = !Newdemo_do_interpolate;
-			if (Newdemo_do_interpolate)
-				mprintf ((0, "demo playback interpolation now on\n"));
-			else
-				mprintf ((0, "demo playback interpolation now off\n"));
 			break;
 		case KEY_DEBUGGED + KEY_K: {
 			int how_many, c;
@@ -950,7 +944,6 @@ dump_door_debugging_info()
 }
 #endif
 
-
 //this is for system-level keys, such as help, etc.
 //returns 1 if screen changed
 int HandleSystemKey(int key)
@@ -971,14 +964,14 @@ int HandleSystemKey(int key)
 				Function_mode = FMODE_MENU;
 				break;
 
-			case KEY_SHIFTED + KEY_ESC: //quick exit
-#ifdef EDITOR
-				if (! SafetyCheck()) break;
-				close_editor_screen();
-#endif
-				Game_aborted=1;
-				Function_mode=FMODE_EXIT;
-				break;
+// 			case KEY_SHIFTED + KEY_ESC: //quick exit
+// #ifdef EDITOR
+// 				if (! SafetyCheck()) break;
+// 				close_editor_screen();
+// #endif
+// 				Game_aborted=1;
+// 				Function_mode=FMODE_EXIT;
+// 				break;
 
 // fleshed these out because F1 and F2 aren't sequenctial keycodes on mac -- MWA
 
@@ -994,12 +987,7 @@ int HandleSystemKey(int key)
 
 	switch (key) {
 
-#if 1
-		case KEY_SHIFTED + KEY_ESC:
-			con_show();
-			break;
-
-#else
+#if 0
 		case KEY_SHIFTED + KEY_ESC:     //quick exit
 			#ifdef EDITOR
 				if (! SafetyCheck()) break;
@@ -1611,8 +1599,6 @@ void HandleTestKey(int key)
 {
 	switch (key) {
 
-		case KEY_DEBUGGED+KEY_0:	show_weapon_status();   break;
-
 		#ifdef SHOW_EXIT_PATH
 		case KEY_DEBUGGED+KEY_1:	create_special_path();  break;
 		#endif
@@ -1663,10 +1649,7 @@ void HandleTestKey(int key)
 					#endif
 					ai_do_cloak_stuff();
 					Players[Player_num].cloak_time = (GameTime+CLOAK_TIME_MAX>i2f(0x7fff-600)?GameTime-i2f(0x7fff-600):GameTime);
-					mprintf((0, "You are cloaked!\n"));
-				} else
-					mprintf((0, "You are DE-cloaked!\n"));
-//				}
+				}
 			break;
 
 
@@ -1728,7 +1711,6 @@ void HandleTestKey(int key)
 	#endif
 		case KEY_DEBUGGED+KEY_T:
 			*Toggle_var = !*Toggle_var;
-			mprintf((0, "Variable at %08x set to %i\n", Toggle_var, *Toggle_var));
 			break;
 		case KEY_DEBUGGED + KEY_L:
 			if (++Lighting_on >= 2) Lighting_on = 0; break;
@@ -1752,10 +1734,8 @@ void HandleTestKey(int key)
 		case KEY_DEBUGGED + KEY_M:
 			Debug_spew = !Debug_spew;
 			if (Debug_spew) {
-				mopen( 0, 8, 1, 78, 16, "Debug Spew");
 				HUD_init_message( "Debug Spew: ON" );
 			} else {
-				mclose( 0 );
 				HUD_init_message( "Debug Spew: OFF" );
 			}
 			break;
@@ -1858,7 +1838,6 @@ void HandleTestKey(int key)
 
 		case KEY_DEBUGGED+KEY_ALTED+KEY_F5:
 			GameTime = i2f(0x7fff - 840);		//will overflow in 14 minutes
-			mprintf((0,"GameTime bashed to %d secs\n",f2i(GameTime)));
 			break;
 
 		case KEY_DEBUGGED+KEY_SHIFTED+KEY_B:
@@ -2270,8 +2249,6 @@ void speedtest_init(void)
 	Speedtest_segnum = 0;
 	Speedtest_sidenum = 0;
 	Speedtest_frame_start = FrameCount;
-
-	mprintf((0, "Starting speedtest.  Will be %i frames.  Each . = 10 frames.\n", Highest_segment_index+1));
 }
 
 void speedtest_frame(void)
@@ -2288,9 +2265,6 @@ void speedtest_frame(void)
 	vm_vec_normalized_dir_quick(&view_dir, &center_point, &Viewer->pos);
 	vm_vector_2_matrix(&Viewer->orient, &view_dir, NULL, NULL);
 
-	if (((FrameCount - Speedtest_frame_start) % 10) == 0)
-		mprintf((0, "."));
-
 	Speedtest_segnum++;
 
 	if (Speedtest_segnum > Highest_segment_index) {
@@ -2301,7 +2275,6 @@ void speedtest_frame(void)
 			f2fl(timer_get_fixed_seconds() - Speedtest_start_time),
 			(float) (FrameCount-Speedtest_frame_start) / f2fl(timer_get_fixed_seconds() - Speedtest_start_time));
 
-		mprintf((0, "%s", msg));
 		HUD_init_message(msg);
 
 		Speedtest_count--;
@@ -2341,10 +2314,6 @@ void play_test_sound()
 
 #endif  //ifndef NDEBUG
 
-
-
-
-
 void ReadControls()
 {
 	int key;
@@ -2353,7 +2322,7 @@ void ReadControls()
 
 	Player_fired_laser_this_frame=-1;
 
-	if (!Endlevel_sequence) // && !Player_is_dead  //this was taken out of the if statement by WraithX
+	if (!Endlevel_sequence && !con_render)  //this was taken out of the if statement by WraithX
 	{
 
 			if ( (Newdemo_state == ND_STATE_PLAYBACK) || (DefiningMarkerMessage)
@@ -2363,11 +2332,7 @@ void ReadControls()
 				)	 // WATCH OUT!!! WEIRD CODE ABOVE!!!
 				memset( &Controls, 0, sizeof(control_info) );
 			else
-				#ifdef WINDOWS
-					controls_read_all_win();
-				#else
-					controls_read_all();		//NOTE LINK TO ABOVE!!!
-				#endif
+					controls_read_all();
 
 		check_rear_view();
 
@@ -2379,7 +2344,7 @@ void ReadControls()
 
 	}
 
-	if (Player_exploded) { //Player_is_dead && (ConsoleObject->flags & OF_EXPLODING) ) {
+	if (Player_exploded && !con_render) { //Player_is_dead && (ConsoleObject->flags & OF_EXPLODING) ) {
 
 		if (exploding_flag==0)  {
 			exploding_flag = 1;			// When player starts exploding, clear all input devices...
@@ -2430,6 +2395,11 @@ void ReadControls()
 		update_vcr_state();
 
 	while ((key=key_inkey_time(&key_time)) != 0)    {
+		if (con_events(key))
+		{
+			game_flush_inputs();
+			continue;
+		}
 
 		if (DefiningMarkerMessage)
 		 {
@@ -2453,11 +2423,6 @@ void ReadControls()
 		#endif
 		#endif
 
-#ifdef CONSOLE
-		if(!con_events(key))
-			continue;
-#endif
-
 		if (Player_is_dead)
 			HandleDeathKey(key);
 
@@ -2480,8 +2445,7 @@ void ReadControls()
 			HandleTestKey(key);
 			#endif
 		}
-	}
-
+}
 
 //	if ((Players[Player_num].flags & PLAYER_FLAGS_CONVERTER) && keyd_pressed[KEY_F8] && (keyd_pressed[KEY_LALT] || keyd_pressed[KEY_RALT]))
   //		transfer_energy_to_shield(key_down_time(KEY_F8));

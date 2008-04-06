@@ -1,4 +1,3 @@
-/* $Id: collide.c,v 1.1.1.1 2006/03/17 19:54:41 zicodxx Exp $ */
 /*
 THE COMPUTER CODE CONTAINED HEREIN IS THE SOLE PROPERTY OF PARALLAX
 SOFTWARE CORPORATION ("PARALLAX").  PARALLAX, IN DISTRIBUTING THE CODE TO
@@ -31,8 +30,6 @@ COPYRIGHT 1993-1999 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 #include "gr.h"
 #include "stdlib.h"
 #include "bm.h"
-//#include "error.h"
-#include "mono.h"
 #include "3d.h"
 #include "segment.h"
 #include "texmap.h"
@@ -102,7 +99,6 @@ void collide_robot_and_wall( object * robot, fix hitspeed, short hitseg, short h
 		int	wall_num = Segments[hitseg].sides[hitwall].wall_num;
 		if (wall_num != -1) {
 			if ((Walls[wall_num].type == WALL_DOOR) && (Walls[wall_num].keys == KEY_NONE) && (Walls[wall_num].state == WALL_DOOR_CLOSED) && !(Walls[wall_num].flags & WALL_DOOR_LOCKED)) {
-				// -- mprintf((0, "Trying to open door at segment %i, side %i\n", hitseg, hitwall));
 				wall_open_door(&Segments[hitseg], hitwall);
 			// -- Changed from this, 10/19/95, MK: Don't want buddy getting stranded from player
 			//-- } else if ((Robot_info[robot->id].companion == 1) && (Walls[wall_num].type == WALL_DOOR) && (Walls[wall_num].keys != KEY_NONE) && (Walls[wall_num].state == WALL_DOOR_CLOSED) && !(Walls[wall_num].flags & WALL_DOOR_LOCKED)) {
@@ -161,8 +157,6 @@ void apply_force_damage(object *obj,fix force,object *other_obj)
 
 	if ((other_obj->type == OBJ_PLAYER) && Monster_mode)
 		damage = 0x7fffffff;
-
-//mprintf((0,"obj %d, damage=%x\n",obj-Objects,damage));
 
 	switch (obj->type) {
 
@@ -447,8 +441,6 @@ void scrape_object_on_wall(object *obj, short hitseg, short hitside, vms_vector 
 			if (obj->id==Player_num) {
 				int type;
 
-				//mprintf((0, "Scraped segment #%3i, side #%i\n", hitseg, hitside));
-
 				if ((type=check_volatile_wall(obj,hitseg,hitside,hitpt))!=0) {
 					vms_vector	hit_dir, rand_vec;
 
@@ -559,8 +551,6 @@ int check_effect_blowup(segment *seg,int side,vms_vector *pnt, object *blower, i
 					case 0xc000:	t=x; x=y; y=bm->bm_h-t-1; break;
 				}
 
-				//mprintf((0,"u,v = %x,%x   x,y=%x,%x",u,v,x,y));
-			
 				if (bm->bm_flags & BM_FLAG_RLE)
 					bm = rle_expand_texture(bm);
 			}
@@ -575,8 +565,6 @@ int check_effect_blowup(segment *seg,int side,vms_vector *pnt, object *blower, i
 			   	if (!(ec!=-1 && db!=-1 && !(Effects[ec].flags&EF_ONE_SHOT)))
 				   	return(0);
 #endif
-
-				//mprintf((0,"  HIT!\n"));
 
 				//note: this must get called before the texture changes, 
 				//because we use the light value of the texture to change
@@ -610,8 +598,6 @@ int check_effect_blowup(segment *seg,int side,vms_vector *pnt, object *blower, i
 					
 						new_ec = &Effects[Effects[ec].dest_eclip];
 						bm_num = new_ec->changing_wall_texture;
-
-						mprintf((0,"bm_num = %d\n",bm_num));
 
 						new_ec->time_left = new_ec->vc.frame_time;
 						new_ec->frame_count = 0;
@@ -663,15 +649,13 @@ int ok_to_do_omega_damage(object *weapon)
 		return 1;
 
 	if (Objects[parent_num].signature != parent_sig)
-		mprintf((0, "Parent of omega blob not consistent with object information.\n"));
+		;
 	else {
 		fix	dist = vm_vec_dist_quick(&Objects[parent_num].pos, &weapon->pos);
 
 		if (dist > MAX_OMEGA_DIST) {
-			// -- mprintf((0, "Not doing damage in frame %i, too far away.\n", FrameCount));
 			return 0;
-		} else
-			; // -- mprintf((0, "*** Doing damage in frame %i ***\n", FrameCount));
+		}
 	}
 
 	return 1;
@@ -702,9 +686,7 @@ void collide_weapon_and_wall( object * weapon, fix hitspeed, short hitseg, short
 		fix	dot;
 
 		dot = vm_vec_dot(&weapon->orient.fvec, &Segments[hitseg].sides[hitwall].normals[0]);
-		mprintf((0, "Guided missile dot = %7.3f\n", f2fl(dot)));
 		if (dot < -F1_0/6) {
-			mprintf((0, "Guided missile loses bounciness.\n"));
 			weapon->mtype.phys_info.flags &= ~PF_BOUNCE;
 		}
 	}
@@ -727,7 +709,6 @@ void collide_weapon_and_wall( object * weapon, fix hitspeed, short hitseg, short
 	if (keyd_pressed[KEY_LAPOSTRO])
 		if (weapon->ctype.laser_info.parent_num == Players[Player_num].objnum) {
 			//	MK: Real pain when you need to know a seg:side and you've got quad lasers.
-			mprintf((0, "Your laser hit at segment = %i, side = %i\n", hitseg, hitwall));
 			HUD_init_message("Hit at segment = %i, side = %i", hitseg, hitwall);
 			if (weapon->id < 4)
 				subtract_light(hitseg, hitwall);
@@ -798,7 +779,6 @@ void collide_weapon_and_wall( object * weapon, fix hitspeed, short hitseg, short
 
 		//	New by MK: If powerful badass, explode as badass, not due to lava, fixes megas being wimpy in lava.
 		if (wi->damage_radius >= VOLATILE_WALL_DAMAGE_RADIUS/2) {
-			// -- mprintf((0, "Big weapon doing badass in lava instead.\n"));
 			explode_badass_weapon(weapon,hitpt);
 		} else {
 			object_create_badass_explosion( weapon, hitseg, hitpt, 
@@ -917,7 +897,6 @@ void collide_weapon_and_wall( object * weapon, fix hitspeed, short hitseg, short
 						break;
 				}
 			} // else
-				//mprintf((0, "Weapon %i hits wall, but has silent bit set.\n", weapon-Objects));
 		} // else {
 			//	if (weapon->lifeleft <= 0)
 			//	weapon->flags |= OF_SHOULD_BE_DEAD;
@@ -981,11 +960,6 @@ void collide_debris_and_wall( object * debris, fix hitspeed, short hitseg, short
 
 //	-------------------------------------------------------------------------------------------------------------------
 void collide_robot_and_robot( object * robot1, object * robot2, vms_vector *collision_point ) { 
-//	mprintf((0, "Coll: [%2i %4i %4i %4i] [%2i %4i %4i %4i] at [%4i %4i %4i]", 
-//		robot1-Objects, f2i(robot1->pos.x), f2i(robot1->pos.y), f2i(robot1->pos.z),
-//		robot2-Objects, f2i(robot2->pos.x), f2i(robot2->pos.y), f2i(robot2->pos.z),
-//		f2i(collision_point->x), f2i(collision_point->y), f2i(collision_point->z)));
-
 	bump_two_objects(robot1, robot2, 1);
 	return; 
 }
@@ -1098,7 +1072,6 @@ void apply_damage_to_controlcen(object *controlcen, fix damage, short who)
 
 	whotype = Objects[who].type;
 	if (whotype != OBJ_PLAYER) {
-		mprintf((0, "Damage to control center by object of type %i prevented by MK!\n", whotype));
 		return;
 	}
 
@@ -1164,8 +1137,6 @@ void collide_player_and_controlcen( object * controlcen, object * playerobj, vms
 
 void collide_player_and_marker( object * marker, object * playerobj, vms_vector *collision_point )
 { 
-   mprintf ((0,"Collided with marker %d!\n",marker->id));
-
 	if (playerobj->id==Player_num) {
 		int drawn;
 
@@ -1500,8 +1471,6 @@ int do_boss_weapon_collision(object *robot, object *weapon, vms_vector *collisio
 		vm_vec_sub(&tvec1, collision_point, &robot->pos);
 		vm_vec_normalize_quick(&tvec1);	//	Note, if BOSS_INVULNERABLE_DOT is close to F1_0 (in magnitude), then should probably use non-quick version.
 		dot = vm_vec_dot(&tvec1, &robot->orient.fvec);
-		mprintf((0, "Boss hit vec dot = %7.3f\n", f2fl(dot)));
-
 		if (dot > Boss_invulnerable_dot) {
 			int	new_obj;
 			int	segnum;
@@ -1607,8 +1576,6 @@ void collide_robot_and_weapon( object * robot, object * weapon, vms_vector *coll
 			return;
 		else
 			weapon->ctype.laser_info.last_hitobj = robot-Objects;
-
-		// mprintf((0, "weapon #%i with power %i hits robot #%i.\n", weapon - Objects, f2i(weapon->shields), robot - Objects));
 	}
 
 	if (weapon->ctype.laser_info.parent_signature == robot->signature)
@@ -1849,8 +1816,6 @@ void drop_missile_1_or_4(object *playerobj,int missile_index)
 
 void drop_player_eggs(object *playerobj)
 {
-//	mprintf((0, "In drop_player_eggs...\n"));
-
 	if ((playerobj->type == OBJ_PLAYER) || (playerobj->type == OBJ_GHOST)) {
 		int	rthresh;
 		int	pnum = playerobj->id;
@@ -1950,8 +1915,6 @@ void drop_player_eggs(object *playerobj)
 			
 			int max_count,i;
 
-			mprintf ((0,"HOARD MODE: Dropping %d orbs\n",Players[pnum].secondary_ammo[PROXIMITY_INDEX]));
-	
 			max_count = min(Players[pnum].secondary_ammo[PROXIMITY_INDEX], 12);
 			for (i=0; i<max_count; i++)
 				call_object_create_egg(playerobj, 1, OBJ_POWERUP, POW_HOARD_ORB);
@@ -2006,7 +1969,6 @@ void drop_player_eggs(object *playerobj)
 		if (!(Players[playerobj->id].primary_weapon_flags & HAS_VULCAN_FLAG)) {
 			int	amount = Players[playerobj->id].primary_ammo[VULCAN_INDEX];
 			if (amount > 200) {
-				mprintf((0, "Surprising amount of vulcan ammo: %i bullets.\n", amount));
 				amount = 200;
 			}
 			while (amount > 0) {
@@ -2133,22 +2095,6 @@ void apply_damage_to_player(object *playerobj, object *killer, fix damage)
 				if (killer && (killer->type == OBJ_ROBOT) && (Robot_info[killer->id].companion))
 					Buddy_sorry_time = GameTime;
 		}
-// -- removed, 09/06/95, MK --  else if (Players[Player_num].shields < LOSE_WEAPON_THRESHOLD) {
-// -- removed, 09/06/95, MK -- 			int	randnum = d_rand();
-// -- removed, 09/06/95, MK -- 
-// -- removed, 09/06/95, MK -- 			if (fixmul(Players[Player_num].shields, randnum) < damage/4) {
-// -- removed, 09/06/95, MK -- 				if (d_rand() > 20000) {
-// -- removed, 09/06/95, MK -- 					destroy_secondary_weapon(Secondary_weapon);
-// -- removed, 09/06/95, MK -- 				} else if (Primary_weapon == 0) {
-// -- removed, 09/06/95, MK -- 					if (Players[Player_num].flags & PLAYER_FLAGS_QUAD_LASERS)
-// -- removed, 09/06/95, MK -- 						destroy_primary_weapon(MAX_PRIMARY_WEAPONS);	//	This means to destroy quad laser.
-// -- removed, 09/06/95, MK -- 					else if (Players[Player_num].laser_level > 0)
-// -- removed, 09/06/95, MK -- 						destroy_primary_weapon(Primary_weapon);
-// -- removed, 09/06/95, MK -- 				} else
-// -- removed, 09/06/95, MK -- 					destroy_primary_weapon(Primary_weapon);
-// -- removed, 09/06/95, MK -- 			} else
-// -- removed, 09/06/95, MK -- 				; // mprintf((0, "%8x > %8x, so don't lose weapon.\n", fixmul(Players[Player_num].shields, randnum), damage/4));
-// -- removed, 09/06/95, MK -- 		}
 
 		playerobj->shields = Players[Player_num].shields;		//mirror
 
@@ -2508,8 +2454,6 @@ void collide_two_objects( object * A, object * B, vms_vector *collision_point )
 	int collision_type;	
 		
 	collision_type = COLLISION_OF(A->type,B->type);
-
-	//mprintf( (0, "Object %d of type %d collided with object %d of type %d\n", A-Objects,A->type, B-Objects, B->type ));
 
 	switch( collision_type )	{
 	NO_SAME_COLLISION( OBJ_FIREBALL, OBJ_FIREBALL,   collide_fireball_and_fireball )

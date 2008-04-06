@@ -37,7 +37,6 @@ COPYRIGHT 1993-1999 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 #include "gameseq.h"
 #include "titles.h"
 #include "songs.h"
-#include "mono.h"
 #include "error.h"
 #include "config.h"
 #include "newmenu.h"
@@ -285,8 +284,6 @@ int read_mission_file(mle *mission, char *filename, int location)
 	char filename2[100];
 	CFILE *mfile;
 
-	//printf("reading: %s\n", filename);
-
 	switch (location) {
 		case ML_MISSIONDIR:
 			strcpy(filename2,MISSION_DIR);
@@ -480,7 +477,6 @@ void add_missions_to_list(mle *mission_list, char *path, char *rel_path, int ana
 		
 		if (num_missions >= MAX_MISSIONS)
 		{
-			mprintf((0, "Warning: more missions than d2x can handle\n"));
 			break;
 		}
 
@@ -498,7 +494,6 @@ void promote (mle *mission_list, char * mission_name, int * top_place)
 	strcpy(name, mission_name);
 	if ((t = strchr(name,'.')) != NULL)
 		*t = 0; //kill extension
-	//printf("promoting: %s\n", name);
 	for (i = *top_place; i < num_missions; i++)
 		if (!stricmp(mission_list[i].filename, name)) {
 			//swap mission positions
@@ -649,8 +644,6 @@ int load_mission(mle *mission)
 		}
 	}
 
-	mprintf(( 0, "Loading mission %s\n", Current_mission_filename ));
-
 	//read mission from file
 
 	switch (mission->location) {
@@ -718,7 +711,6 @@ int load_mission(mle *mission)
 					;
 
 			cfile_init(bufp, 0);
-			mprintf((0, "Hog file override = [%s]\n", bufp));
 		}
 		else if (istok(buf,"briefing")) {
 			if ((v = get_value(buf)) != NULL) {
@@ -835,7 +827,7 @@ int select_mission(int anarchy_mode, char *message)
         default_mission = 0;
         for (i = 0; i < num_missions; i++) {
             m[i] = mission_list[i].mission_name;
-            if ( !stricmp( m[i], config_last_mission ) )
+            if ( !stricmp( m[i], GameCfg.LastMission ) )
                 default_mission = i;
         }
 
@@ -843,7 +835,7 @@ int select_mission(int anarchy_mode, char *message)
 
         if (new_mission_num >= 0) {
 			// Chose a mission
-			strcpy(config_last_mission, m[new_mission_num]  );
+			strcpy(GameCfg.LastMission, m[new_mission_num]  );
 	
 			if (!load_mission(mission_list + new_mission_num)) {
 				nm_messagebox( NULL, 1, TXT_OK, TXT_MISSION_ERROR);

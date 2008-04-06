@@ -27,10 +27,6 @@ COPYRIGHT 1993-1998 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 #include <stdio.h>
 #include <stdarg.h>
 
-#ifdef RCS
-static char rcsid[] = "$Id: texpage.c,v 1.1.1.1 2006/03/17 19:58:35 zicodxx Exp $";
-#endif
-
 #include "inferno.h"
 #include "gameseg.h"
 #include "screens.h"			// For GAME_SCREEN?????
@@ -40,7 +36,6 @@ static char rcsid[] = "$Id: texpage.c,v 1.1.1.1 2006/03/17 19:58:35 zicodxx Exp 
 #include "textures.h"		// For NumTextures
 #include "error.h"
 #include "key.h"
-#include "mono.h"
 #include "gamesave.h"
 #include "mission.h"
 
@@ -246,12 +241,10 @@ void texpage_do()
 			texpage_show_current();
 
 			if (keyd_pressed[KEY_LSHIFT]) {
-				mprintf((0, "Will replace CurrentTexture (%i) with...(select by pressing Ctrl)\n", CurrentTexture));
 				Replacement_list[Num_replacements].old = CurrentTexture;
 			}
 
 			if (keyd_pressed[KEY_LCTRL]) {
-				mprintf((0, "...Replacement texture for %i is %i\n", Replacement_list[Num_replacements].old, CurrentTexture));
 				Replacement_list[Num_replacements].new = CurrentTexture;
 				Num_replacements++;
 			}
@@ -284,7 +277,6 @@ void do_replacements(void)
 				side	*sidep=&segp->sides[sidenum];
 				if (sidep->tmap_num == old_tmap_num) {
 					sidep->tmap_num = new_tmap_num;
-					// mprintf((0, "Replacing tmap_num on segment:side = %i:%i\n", segnum, sidenum));
 				}
 				if ((sidep->tmap_num2 != 0) && ((sidep->tmap_num2 & 0x3fff) == old_tmap_num)) {
 					if (new_tmap_num == 0) {
@@ -292,7 +284,6 @@ void do_replacements(void)
 									//	the 0th tmap_num2 which is ILLEGAL!
 					} else {
 						sidep->tmap_num2 = new_tmap_num | (sidep->tmap_num2 & 0xc000);
-						// mprintf((0, "Replacing tmap_num2 on segment:side = %i:%i\n", segnum, sidenum));
 					}
 				}
 			}

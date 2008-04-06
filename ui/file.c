@@ -1,4 +1,3 @@
-/* $Id: file.c,v 1.1.1.1 2006/03/17 19:52:17 zicodxx Exp $ */
 /*
 THE COMPUTER CODE CONTAINED HEREIN IS THE SOLE PROPERTY OF PARALLAX
 SOFTWARE CORPORATION ("PARALLAX").  PARALLAX, IN DISTRIBUTING THE CODE TO
@@ -11,10 +10,6 @@ CONTAINED HEREIN FOR REVENUE-BEARING PURPOSES.  THE END-USER UNDERSTANDS
 AND AGREES TO THE TERMS HEREIN AND ACCEPTS THE SAME BY USE OF THIS FILE.
 COPYRIGHT 1993-1999 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 */
-
-#ifdef RCS
-static char rcsid[] = "$Id: file.c,v 1.1.1.1 2006/03/17 19:52:17 zicodxx Exp $";
-#endif
 
 #include <stdlib.h>
 #include <string.h>
@@ -29,10 +24,7 @@ static char rcsid[] = "$Id: file.c,v 1.1.1.1 2006/03/17 19:52:17 zicodxx Exp $";
 #include "gr.h"
 #include "key.h"
 #include "strutil.h"
-
 #include "ui.h"
-#include "mono.h"
-
 #include "u_mem.h"
 
 int file_sort_func(char **e0, char **e1)
@@ -286,9 +278,7 @@ int ui_get_filename( char * filename, char * Filespec, char * message  )
 	
 				strcpy(ViewDir, filename);
 	
-				//mprintf( 0, "----------------------------\n" );
-				//mprintf( 0, "Full dir: '%s'\n", ViewDir );
-	
+
 				PHYSFS_freeList(filename_list);
 				filename_list = file_getfilelist(&NumFiles, Filespec, ViewDir);
 				if (!filename_list)

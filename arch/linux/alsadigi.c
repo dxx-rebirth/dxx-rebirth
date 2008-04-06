@@ -1,4 +1,3 @@
-/* $Id: alsadigi.c,v 1.1.1.1 2006/03/17 19:53:46 zicodxx Exp $ */
 /*
  *
  * ALSA digital audio support
@@ -12,7 +11,6 @@
 #include <pthread.h>
 
 #include "error.h"
-#include "mono.h"
 #include "fix.h"
 #include "vecmat.h"
 #include "gr.h" // needed for piggy.h
@@ -212,7 +210,7 @@ void *mixer_thread(void *data)
 			err = snd_pcm_prepare(snd_devhandle);
 			if (err < 0)
 			{
-				fprintf(stderr, "Can't recover from underrun: %s\n", snd_strerror(err));
+				con_printf(CON_CRITICAL, "Can't recover from underrun: %s\n", snd_strerror(err));
 			}
 		}
 		else if (err == -EAGAIN)
@@ -223,7 +221,7 @@ void *mixer_thread(void *data)
 		{
 			// Each frame has size 2 bytes - hence we expect SOUND_BUFFER_SIZE/2
 			// frames to be written.
-			fprintf(stderr, "Unknown err %d: %s\n", err, snd_strerror(err));
+			con_printf(CON_CRITICAL, "Unknown err %d: %s\n", err, snd_strerror(err));
 		}
 	}
 	return 0;
@@ -246,7 +244,7 @@ int digi_init()
  /* Open the ALSA sound device */
 	if ((err = snd_pcm_open(&snd_devhandle, device, SND_PCM_STREAM_PLAYBACK)) < 0)
 	{
-     fprintf(stderr, "open failed: %s\n", snd_strerror( err ));  
+     con_printf(CON_CRITICAL, "open failed: %s\n", snd_strerror( err ));  
      return -1; 
 	}
 
@@ -254,32 +252,32 @@ int digi_init()
 	err = snd_pcm_hw_params_any(snd_devhandle, params);
 	if (err < 0)
 	{
-		printf("ALSA: Error %s\n", snd_strerror(err));
+		con_printf(CON_CRITICAL,"ALSA: Error %s\n", snd_strerror(err));
 		return -1;
 	}
 	err = snd_pcm_hw_params_set_access(snd_devhandle, params, SND_PCM_ACCESS_RW_INTERLEAVED);
 	if (err < 0)
 	{
-		printf("ALSA: Error %s\n", snd_strerror(err));
+		con_printf(CON_CRITICAL,"ALSA: Error %s\n", snd_strerror(err));
 		return -1;
 	}
 	err = snd_pcm_hw_params_set_format(snd_devhandle, params, SND_PCM_FORMAT_U8);
 	if (err < 0)
 	{
-		printf("ALSA: Error %s\n", snd_strerror(err));
+		con_printf(CON_CRITICAL,"ALSA: Error %s\n", snd_strerror(err));
 		return -1;
 	}
 	err = snd_pcm_hw_params_set_channels(snd_devhandle, params, 2);
 	if (err < 0)
 	{
-		printf("ALSA: Error %s\n", snd_strerror(err));
+		con_printf(CON_CRITICAL,"ALSA: Error %s\n", snd_strerror(err));
 		return -1;
 	}
 	tmp = 11025;
 	err = snd_pcm_hw_params_set_rate_near(snd_devhandle, params, &tmp, NULL);
 	if (err < 0)
 	{
-		printf("ALSA: Error %s\n", snd_strerror(err));
+		con_printf(CON_CRITICAL,"ALSA: Error %s\n", snd_strerror(err));
 		return -1;
 	}
 	snd_pcm_hw_params_set_periods(snd_devhandle, params, 3, 0);
@@ -288,7 +286,7 @@ int digi_init()
 	err = snd_pcm_hw_params(snd_devhandle, params);
 	if (err < 0)
 	{
-		printf("ALSA: Error %s\n", snd_strerror(err));
+		con_printf(CON_CRITICAL,"ALSA: Error %s\n", snd_strerror(err));
 		return -1;
 	}
 
@@ -300,7 +298,7 @@ int digi_init()
  pthread_mutexattr_destroy(&mutexattr);
  
  if (pthread_attr_init(&attr) != 0) {
-  fprintf(stderr, "failed to init attr\n");
+  con_printf(CON_CRITICAL, "failed to init attr\n");
   snd_pcm_close( snd_devhandle ); 
   return -1;
  }
@@ -369,7 +367,6 @@ int digi_start_sound(short soundnum, fix volume, int pan, int looping, int loop_
 			next_channel = 0;
 		if (next_channel == starting_channel)
 		{
-			mprintf((1, "OUT OF SOUND CHANNELS!!!\n"));
 			UNLOCK();
 			return -1;
 		}
@@ -453,7 +450,6 @@ void digi_set_volume(int dvolume, int mvolume)
 {
 	digi_set_digi_volume(dvolume);
 	digi_set_midi_volume(mvolume);
-//	mprintf(( 1, "Volume: 0x%x and 0x%x\n", digi_volume, midi_volume ));
 }
 
 int digi_is_sound_playing(int soundno)

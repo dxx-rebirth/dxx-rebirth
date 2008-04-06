@@ -1,4 +1,3 @@
-/* $Id: paging.c,v 1.1.1.1 2006/03/17 19:55:16 zicodxx Exp $ */
 /*
 THE COMPUTER CODE CONTAINED HEREIN IS THE SOLE PROPERTY OF PARALLAX
 SOFTWARE CORPORATION ("PARALLAX").  PARALLAX, IN DISTRIBUTING THE CODE TO
@@ -24,17 +23,12 @@ COPYRIGHT 1993-1999 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 
 //#define PSX_BUILD_TOOLS
 
-#ifdef RCS
-static char rcsid[] = "$Id: paging.c,v 1.1.1.1 2006/03/17 19:55:16 zicodxx Exp $";
-#endif
-
 #include <stdio.h>
 #include <stdlib.h>
 #include <math.h>
 #include <string.h>
 
 #include "pstypes.h"
-#include "mono.h"
 #include "inferno.h"
 #include "segment.h"
 #include "textures.h"
@@ -164,8 +158,6 @@ sbyte super_boss_gate_type_list[13] = {0, 1, 8, 9, 10, 11, 12, 15, 16, 18, 19, 2
 void paging_touch_robot( int robot_index )
 {
 	int i;
-
-	//mprintf((0, "Robot %d loading...", robot_index));
 
 	// Page in robot_index
 	paging_touch_model(Robot_info[robot_index].model_num);
@@ -351,7 +343,6 @@ void paging_touch_all()
 	
 	stop_time();
 
-	mprintf(( 0, "Loading all textures in mine..." ));
 	for (s=0; s<=Highest_segment_index; s++)	{
 		paging_touch_segment( &Segments[s] );
 	}	
@@ -421,8 +412,6 @@ void paging_touch_all()
 				Used[Textures[i].index] > 0 &&
 				TmapInfo[i].destroyed > 0 && TmapInfo[i].destroyed < MAX_BITMAP_FILES) {
 				Used[Textures[TmapInfo[i].destroyed].index] += 1;
-				mprintf((0, "HERE %d ", Textures[TmapInfo[i].destroyed].index));
-
 				PIGGY_PAGE_IN(Textures[TmapInfo[i].destroyed]);
 
 			}
@@ -476,12 +465,7 @@ void paging_touch_all()
 	}
 #endif
 
-	mprintf(( 0, "done\n" ));
-
-//@@	clear_boxed_message();
-
 	start_time();
 	reset_cockpit();		//force cockpit redraw next time
-
 }
 

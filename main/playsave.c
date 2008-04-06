@@ -1,4 +1,3 @@
-/* $Id: playsave.c,v 1.24 2005/07/30 01:50:17 chris Exp $ */
 /*
 THE COMPUTER CODE CONTAINED HEREIN IS THE SOLE PROPERTY OF PARALLAX
 SOFTWARE CORPORATION ("PARALLAX").  PARALLAX, IN DISTRIBUTING THE CODE TO
@@ -53,7 +52,6 @@ COPYRIGHT 1993-1999 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 #include "menu.h"
 #include "config.h"
 #include "text.h"
-#include "mono.h"
 #include "state.h"
 #include "gauges.h"
 #include "screens.h"
@@ -442,7 +440,6 @@ int read_player_file()
 		if (swap)
 			i = SWAPINT(i);
 #ifdef NETWORK
-		mprintf ((0,"Reading: lifetime checksum is %d\n",i));
 		if (i!=get_lifetime_checksum (Netlife_kills,Netlife_killed))
 		{
 			Netlife_kills=0; Netlife_killed=0;
@@ -557,7 +554,7 @@ int get_highest_level(void)
 //write out player's saved games.  returns errno (0 == no error)
 int write_player_file()
 {
-	char filename[FILENAME_LEN];
+	char filename[32];
 	PHYSFS_file *file;
 	int i;
 
@@ -634,7 +631,6 @@ int write_player_file()
 		PHYSFS_writeULE32(file, Netlife_kills);
 		PHYSFS_writeULE32(file, Netlife_killed);
 		i=get_lifetime_checksum (Netlife_kills,Netlife_killed);
-		mprintf ((0,"Writing: Lifetime checksum is %d\n",i));
 #else
 		PHYSFS_writeULE32(file, 0);
 		PHYSFS_writeULE32(file, 0);

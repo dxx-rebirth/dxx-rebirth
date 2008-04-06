@@ -39,6 +39,7 @@
 #include "decoders.h"
 #include "libmve.h"
 #include "args.h"
+#include "console.h"
 
 #define MVE_OPCODE_ENDOFSTREAM          0x00
 #define MVE_OPCODE_ENDOFCHUNK           0x01
@@ -93,7 +94,7 @@ static unsigned int unhandled_chunks[32*256];
 static int default_seg_handler(unsigned char major, unsigned char minor, unsigned char *data, int len, void *context)
 {
 	unhandled_chunks[major<<8|minor]++;
-	//fprintf(stderr, "unknown chunk type %02x/%02x\n", major, minor);
+	//con_printf(CON_CRITICAL, "unknown chunk type %02x/%02x\n", major, minor);
 	return 1;
 }
 
@@ -268,7 +269,7 @@ static void mve_audio_callback(void *userdata, unsigned char *stream, int len)
 	if (mve_audio_bufhead == mve_audio_buftail)
 		return /* 0 */;
 
-	//fprintf(stderr, "+ <%d (%d), %d, %d>\n", mve_audio_bufhead, mve_audio_curbuf_curpos, mve_audio_buftail, len);
+	//con_printf(CON_CRITICAL, "+ <%d (%d), %d, %d>\n", mve_audio_bufhead, mve_audio_curbuf_curpos, mve_audio_buftail, len);
 
 	while (mve_audio_bufhead != mve_audio_buftail                                           /* while we have more buffers  */
 		   &&  len > (mve_audio_buflens[mve_audio_bufhead]-mve_audio_curbuf_curpos))        /* and while we need more data */
@@ -290,7 +291,7 @@ static void mve_audio_callback(void *userdata, unsigned char *stream, int len)
 		mve_audio_curbuf_curpos = 0;
 	}
 
-	//fprintf(stderr, "= <%d (%d), %d, %d>: %d\n", mve_audio_bufhead, mve_audio_curbuf_curpos, mve_audio_buftail, len, total);
+	//con_printf(CON_CRITICAL, "= <%d (%d), %d, %d>: %d\n", mve_audio_bufhead, mve_audio_curbuf_curpos, mve_audio_buftail, len, total);
 	/*    return total; */
 
 	if (len != 0                                                                        /* ospace remaining  */
@@ -316,7 +317,7 @@ static void mve_audio_callback(void *userdata, unsigned char *stream, int len)
 		}
 	}
 
-	//fprintf(stderr, "- <%d (%d), %d, %d>\n", mve_audio_bufhead, mve_audio_curbuf_curpos, mve_audio_buftail, len);
+	//con_printf(CON_CRITICAL, "- <%d (%d), %d, %d>\n", mve_audio_bufhead, mve_audio_curbuf_curpos, mve_audio_buftail, len);
 }
 #endif
 
@@ -367,8 +368,8 @@ static int create_audiobuf_handler(unsigned char major, unsigned char minor, uns
 	}
 
 	if (!GameArg.SndSdlMixer) {
-		fprintf(stderr, "creating audio buffers:\n");
-		fprintf(stderr, "sample rate = %d, stereo = %d, bitsize = %d, compressed = %d\n",
+		con_printf(CON_CRITICAL, "creating audio buffers:\n");
+		con_printf(CON_CRITICAL, "sample rate = %d, stereo = %d, bitsize = %d, compressed = %d\n",
 				sample_rate, stereo, bitsize ? 16 : 8, compressed);
 	}
 
@@ -383,11 +384,11 @@ static int create_audiobuf_handler(unsigned char major, unsigned char minor, uns
 	// MD2211: if using SDL_Mixer, we never reinit the sound system
 	if (!GameArg.SndSdlMixer) {
 		if (SDL_OpenAudio(mve_audio_spec, NULL) >= 0) {
-			fprintf(stderr, "   success\n");
+			con_printf(CON_CRITICAL, "   success\n");
 			mve_audio_canplay = 1;
 		}
 		else {
-			fprintf(stderr, "   failure : %s\n", SDL_GetError());
+			con_printf(CON_CRITICAL, "   failure : %s\n", SDL_GetError());
 			mve_audio_canplay = 0;
 		}
 	}
@@ -490,7 +491,7 @@ static int audio_data_handler(unsigned char major, unsigned char minor, unsigned
 				memcpy(cvt.buf, mve_audio_buffers[mve_audio_buftail], nsamp);
 
 				// do the conversion
-				if (SDL_ConvertAudio(&cvt)) printf("audio conversion failed!\n");
+				if (SDL_ConvertAudio(&cvt)) con_printf(CON_DEBUG,"audio conversion failed!\n");
 
 				// copy back to the audio buffer
 				mve_free(mve_audio_buffers[mve_audio_buftail]); // free the old audio buffer
@@ -504,7 +505,7 @@ static int audio_data_handler(unsigned char major, unsigned char minor, unsigned
 				mve_audio_buftail = 0;
 
 			if (mve_audio_buftail == mve_audio_bufhead)
-				fprintf(stderr, "d'oh!  buffer ring overrun (%d)\n", mve_audio_bufhead);
+				con_printf(CON_CRITICAL, "d'oh!  buffer ring overrun (%d)\n", mve_audio_bufhead);
 		}
 
 		if (mve_audio_playing)
@@ -571,7 +572,7 @@ static int create_videobuf_handler(unsigned char major, unsigned char minor, uns
 	memset(g_vBackBuf1, 0, g_width * g_height * 4);
 
 #ifdef DEBUG
-	fprintf(stderr, "DEBUG: w,h=%d,%d count=%d, tc=%d\n", w, h, count, truecolor);
+	con_printf(CON_CRITICAL, "DEBUG: w,h=%d,%d count=%d, tc=%d\n", w, h, count, truecolor);
 #endif
 
 	g_truecolor = truecolor;

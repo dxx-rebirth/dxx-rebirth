@@ -1,4 +1,3 @@
-/* $Id: curves.c,v 1.1.1.1 2006/03/17 19:58:22 zicodxx Exp $ */
 /*
 THE COMPUTER CODE CONTAINED HEREIN IS THE SOLE PROPERTY OF PARALLAX
 SOFTWARE CORPORATION ("PARALLAX").  PARALLAX, IN DISTRIBUTING THE CODE TO
@@ -18,10 +17,6 @@ COPYRIGHT 1993-1998 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
  *
  */
 
-#ifdef RCS
-static char rcsid[] = "$Id: curves.c,v 1.1.1.1 2006/03/17 19:58:22 zicodxx Exp $";
-#endif
-
 #ifdef HAVE_CONFIG_H
 #include "conf.h"
 #endif
@@ -32,19 +27,13 @@ static char rcsid[] = "$Id: curves.c,v 1.1.1.1 2006/03/17 19:58:22 zicodxx Exp $
 #include <string.h>
 #include <ctype.h>
 #include <stdarg.h>
-#ifdef __MSDOS__
-#include <conio.h>
-#include <dos.h>
-#endif
-
 #include "inferno.h"
-#include "mono.h"
 #include "vecmat.h"
 #include "gr.h"
 #include "key.h"
 #include "editor.h"
 #include "gameseg.h"
-
+#include "console.h"
 #define ONE_OVER_SQRT2 F1_0 * 0.707106781
 #define CURVE_RIGHT 1
 #define CURVE_UP 2
@@ -84,7 +73,7 @@ vms_vector evaluate_curve(vms_equation *coeffs, int degree, fix t) {
     fix t2, t3;
     vms_vector coord;
 
-    if (degree!=3) printf("ERROR: for Hermite Curves degree must be 3\n");
+    if (degree!=3) con_printf(CON_CRITICAL," for Hermite Curves degree must be 3\n");
 
     t2 = fixmul(t,t); t3 = fixmul(t2,t);
 
@@ -100,7 +89,7 @@ fix curve_dist(vms_equation *coeffs, int degree, fix t0, vms_vector *p0, fix dis
 	 vms_vector coord;
     fix t, diff;
 
-    if (degree!=3) printf("ERROR: for Hermite Curves degree must be 3\n");
+    if (degree!=3) con_printf(CON_CRITICAL," for Hermite Curves degree must be 3\n");
 
     for (t=t0;t<1*F1_0;t+=0.001*F1_0) {
         coord = evaluate_curve(coeffs, 3, t);
@@ -115,7 +104,7 @@ fix curve_dist(vms_equation *coeffs, int degree, fix t0, vms_vector *p0, fix dis
 void curve_dir(vms_equation *coeffs, int degree, fix t0, vms_vector *dir) {
     fix t2;
 
-    if (degree!=3) printf("ERROR: for Hermite Curves degree must be 3\n");
+    if (degree!=3) con_printf(CON_CRITICAL," for Hermite Curves degree must be 3\n");
 
     t2 = fixmul(t0,t0);
 
@@ -270,9 +259,6 @@ int generate_curve( fix r1scale, fix r4scale ) {
 			vec_dir = tdest;
 
             vm_vector_2_matrix(&rotmat2,&vec_dir,NULL,NULL);
-//            mprintf(0, "[ [%6.2f %6.2f %6.2f]", f2fl(rotmat2.m1), f2fl(rotmat2.m2), f2fl(rotmat2.m3));
-//           mprintf(0, "  [%6.2f %6.2f %6.2f]", f2fl(rotmat2.m4), f2fl(rotmat2.m5), f2fl(rotmat2.m6));
-//            mprintf(0, "  [%6.2f %6.2f %6.2f] ]\n", f2fl(rotmat2.m7), f2fl(rotmat2.m8), f2fl(rotmat2.m9));
 
             med_rotate_segment( Cursegp, &rotmat2 );
 			prev_point = coord;
@@ -298,7 +284,6 @@ int generate_curve( fix r1scale, fix r4scale ) {
 
     if ((uangle != 0) && (rangle != 0)) {
         maxscale = CurveNumSegs*F1_0;
-//        mprintf(0, "Banked Curve Generation.. %f.\n", f2fl(maxscale));
         generate_banked_curve(maxscale, coeffs);
     }
 
@@ -335,7 +320,6 @@ void generate_banked_curve(fix maxscale, vms_equation coeffs) {
     if (uangle >= F1_0 * 1/8) uangle -= F1_0 * 1/4;
     if (uangle <= -F1_0 * 1/8) uangle += F1_0 * 1/4;
     if (uangle <= -F1_0 * 1/8) uangle += F1_0 * 1/4;
-//    mprintf(0, "up angle %f\n", f2fl(uangle)*360);
 
     extract_right_vector_from_segment( Cursegp,&b4r4t );
     rangle = vm_vec_delta_ang( &b4r4t, &r4t, &r4 );
@@ -343,7 +327,6 @@ void generate_banked_curve(fix maxscale, vms_equation coeffs) {
     if (rangle >= F1_0/8) rangle -= F1_0/4;
     if (rangle <= -F1_0/8) rangle += F1_0/4;
     if (rangle <= -F1_0/8) rangle += F1_0/4;
-//    mprintf(0, "right angle %f\n", f2fl(rangle)*360);
 
     angle = uangle;
     if (abs(rangle) < abs(uangle)) angle = rangle;
@@ -356,7 +339,6 @@ void generate_banked_curve(fix maxscale, vms_equation coeffs) {
 
     if (maxscale)
         scaled_ang = fixdiv(angle,fixmul(maxscale,MAGIC_NUM));
-    mprintf((0, "scaled angle = %f\n", f2fl(scaled_ang)));
 
     t=0; 
     tvec = r1save;
@@ -381,9 +363,6 @@ void generate_banked_curve(fix maxscale, vms_equation coeffs) {
 			vm_vec_rotate(&tdest,&vec_dir,&rotmat);	// tdest := vec_dir in reference frame of Cursegp
 			vec_dir = tdest;
             vm_vec_ang_2_matrix(&rotmat2,&vec_dir,scaled_ang);
-//            mprintf((0, "[ [%6.2f %6.2f %6.2f]", f2fl(rotmat2.m1), f2fl(rotmat2.m2), f2fl(rotmat2.m3)));
-//            mprintf((0, "  [%6.2f %6.2f %6.2f]", f2fl(rotmat2.m4), f2fl(rotmat2.m5), f2fl(rotmat2.m6)));
-//            mprintf((0, "  [%6.2f %6.2f %6.2f] ]\n", f2fl(rotmat2.m7), f2fl(rotmat2.m8), f2fl(rotmat2.m9)));
 
 			med_rotate_segment( Cursegp, &rotmat2 );
 			prev_point = coord;
@@ -401,7 +380,6 @@ void delete_curve() {
     int i;
 
 	for (i=0; i<CurveNumSegs; i++) {
-//        mprintf((0, "[%d] %d\n", i, CurveSegs[i]->segnum ));
         if (CurveSegs[i]->segnum != -1)
             med_delete_segment(CurveSegs[i]);
     }
@@ -411,103 +389,7 @@ void delete_curve() {
     Curside = OriginalSide;
 	med_create_new_segment_from_cursegp();
     CurveNumSegs = 0;
-//    mprintf((0, "Num_segments %d\n", Num_segments));
 
 	//editor_status("");
 	//warn_if_concave_segments();
 }
-
-/*
-void main() {
-    vms_vector p1;
-    vms_vector p4;
-    vms_vector r1;
-    vms_vector r4;
-    vms_equation coeffs;
-    float x, y, z;
-    vms_vector test, test2, tvec;
-    fix t, t0;
-    fix distance, dist;
-    int key;
-
-
-    key_init();
-    printf("Enter p1 (x,y,z): ");
-    scanf("%f %f %f", &x, &y, &z);
-    p1.x = x*F1_0; p1.y = y*F1_0; p1.z = z*F1_0;
-    printf("Enter p4 (x,y,z): ");
-    scanf("%f %f %f", &x, &y, &z);
-    p4.x = x*F1_0; p4.y = y*F1_0; p4.z = z*F1_0;
-    printf("Enter r1 <x,y,z>: ");
-    scanf("%f %f %f", &x, &y, &z);
-    r1.x = x*F1_0; r1.y = y*F1_0; r1.z = z*F1_0;
-    printf("Enter r4 <x,y,z>: ");
-    scanf("%f %f %f", &x, &y, &z);
-    r4.x = x*F1_0; r4.y = y*F1_0; r4.z = z*F1_0;
-
-    create_curve( &p1, &p4, &r1, &r4, &coeffs );
-
-    printf("\nQ(t) = ");
-    printf("x [%6.3f %6.3f %6.3f %6.3f]\n", f2fl(coeffs.n.x3), f2fl(coeffs.n.x2), f2fl(coeffs.n.x1), f2fl(coeffs.n.x0));
-    printf("       y [%6.3f %6.3f %6.3f %6.3f]\n", f2fl(coeffs.n.y3), f2fl(coeffs.n.y2), f2fl(coeffs.n.y1), f2fl(coeffs.n.y0));
-    printf("       z [%6.3f %6.3f %6.3f %6.3f]\n", f2fl(coeffs.n.z3), f2fl(coeffs.n.z2), f2fl(coeffs.n.z1), f2fl(coeffs.n.z0));
-
-    printf("\nChecking direction vectors.\n");
-
-    for (t=0*F1_0;t<1*F1_0;t+=0.1*F1_0) {
-        curve_dir(&coeffs, 3, t, &test);
-        printf(" t = %.3f  dir = <%6.3f, %6.3f, %6.3f >\n", f2fl(t), f2fl(test.x), f2fl(test.y), f2fl(test.z) );
-    }
-
-    printf("\nChecking distance function.\n");
-    printf("Enter a distance: ");
-    scanf("%f", &x);
-    distance = x*F1_0;
-    printf("Enter a (0<t<1) value: ");
-    scanf("%f", &y);
-    t0 = y*F1_0;
-
-    gr_init(15);  // 800x600 mode
-    plot_parametric(&coeffs, 0*F1_0, 1*F1_0, 0.05*F1_0);
-
-    test = evaluate_curve(&coeffs, 3, t0);
-    t = curve_dist(&coeffs, 3, t0, &test, distance);
-    test2 = evaluate_curve(&coeffs, 3, t);
-
-    dist = vm_vec_mag(vm_vec_sub(&tvec, &test, &test2));
-
-    if (t != -1*F1_0) {
-        gr_setcolor(14);
-        gr_rect(  74+f2fl(test.x), 289-f2fl(test.z),  76+f2fl(test.x), 291-f2fl(test.z) );
-        gr_rect(  74+f2fl(test.x), 559-f2fl(test.y),  76+f2fl(test.x), 561-f2fl(test.y) );
-        gr_rect( 474+f2fl(test.z), 559-f2fl(test.y), 476+f2fl(test.z), 561-f2fl(test.y) );
-        gr_setcolor(13);
-        gr_rect(  74+f2fl(test2.x), 289-f2fl(test2.z),  76+f2fl(test2.x), 291-f2fl(test2.z) );
-        gr_rect(  74+f2fl(test2.x), 559-f2fl(test2.y),  76+f2fl(test2.x), 561-f2fl(test2.y) );
-        gr_rect( 474+f2fl(test2.z), 559-f2fl(test2.y), 476+f2fl(test2.z), 561-f2fl(test2.y) );
-    }
-
-    key = -1;
-    while (1)
-        if (key == KEY_ESC) break;
-        else key = key_getch();
-
-    gr_close();
-    key_close();
-
-    if (t == -1*F1_0) {
-        printf("From t=%.3f to t=1.000, ", f2fl(t0));
-        printf("two points separated by the distance %.3f\n do not exist on this curve.\n", x);
-    }
-    else {
-        printf("\nThe distance between points at:\n");
-        printf(" t0 = %.3f  ( %6.3f,%6.3f,%6.3f ) and\n", f2fl(t0), f2fl(test.x), f2fl(test.y), f2fl(test.z));
-        printf(" t  = %.3f  ( %6.3f,%6.3f,%6.3f ) is:\n", f2fl(t), f2fl(test2.x), f2fl(test2.y), f2fl(test2.z));
-        printf(" expected: %.3f\n", x);
-        printf("  actual : %.3f\n", f2fl(dist) );
-    }
-
-}
-*/
-
-

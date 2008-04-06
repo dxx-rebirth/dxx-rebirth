@@ -28,6 +28,7 @@
 #include "vers_id.h"
 #include "args.h"
 #include "gamefont.h"
+#include "config.h"
 
 #ifdef _WIN32_WCE // should really be checking for "Pocket PC" somehow
 # define LANDSCAPE
@@ -180,7 +181,7 @@ int gr_set_mode(u_int32_t mode)
 	grd_curscreen->sc_mode = mode;
 	grd_curscreen->sc_w = w;
 	grd_curscreen->sc_h = h;
-	grd_curscreen->sc_aspect = fixdiv(grd_curscreen->sc_w*GameArg.GfxAspectX,grd_curscreen->sc_h*GameArg.GfxAspectY);
+	grd_curscreen->sc_aspect = fixdiv(grd_curscreen->sc_w*GameCfg.AspectX,grd_curscreen->sc_h*GameCfg.AspectY);
 	grd_curscreen->sc_canvas.cv_bitmap.bm_x = 0;
 	grd_curscreen->sc_canvas.cv_bitmap.bm_y = 0;
 	grd_curscreen->sc_canvas.cv_bitmap.bm_w = w;
@@ -200,6 +201,8 @@ int gr_set_mode(u_int32_t mode)
 
 	gamefont_choose_game_font(w,h);
 	gr_palette_load(gr_palette);
+	gr_remap_color_fonts();
+	gr_remap_mono_fonts();
 
 	return 0;
 }
@@ -209,6 +212,8 @@ int gr_check_fullscreen(void){
 }
 
 int gr_toggle_fullscreen(void){
+	gr_remap_color_fonts();
+	gr_remap_mono_fonts();
 	sdl_video_flags^=SDL_FULLSCREEN;
 	SDL_WM_ToggleFullScreen(screen);
 	return (sdl_video_flags & SDL_FULLSCREEN)?1:0;
@@ -229,7 +234,7 @@ int gr_init(int mode)
 	memset( grd_curscreen, 0, sizeof(grs_screen));
 
 
-	if (!GameArg.SysWindow)
+	if (!GameCfg.WindowMode && !GameArg.SysWindow)
 	     sdl_video_flags|=SDL_FULLSCREEN;
 
 	//added 05/19/99 Matt Mueller - make HW surface optional
@@ -361,7 +366,8 @@ void gr_palette_load( ubyte *pal )
  SDL_SetColors(screen, colors, 0, 256);
 // SDL_FillRect(screen, NULL, SDL_MapRGB(screen->format, 0, 0, 0));
  init_computed_colors();
- gr_remap_color_fonts();
+	gr_remap_color_fonts();
+	gr_remap_mono_fonts();
 }
 
 void gr_palette_read(ubyte * pal)

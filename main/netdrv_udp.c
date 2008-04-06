@@ -324,7 +324,7 @@ int UDPDnsFillAddr(char *host, int hostlen, int port, int portlen, struct _socka
 
 	if (!he)
 	{
-		con_printf (CON_URGENT,"UDPDnsFillAddr (gethostbyname) failed\n");
+		con_printf(CON_URGENT,"UDPDnsFillAddr (gethostbyname) failed\n");
 		nm_messagebox(TXT_ERROR,1,TXT_OK,"Could not resolve address");
 		return -1;
 	}
@@ -337,7 +337,7 @@ int UDPDnsFillAddr(char *host, int hostlen, int port, int portlen, struct _socka
 #else
 	if ((he = gethostbyname (host)) == NULL) // get the host info
 	{
-		con_printf (CON_URGENT,"UDPDnsFillAddr (gethostbyname) failed\n");
+		con_printf(CON_URGENT,"UDPDnsFillAddr (gethostbyname) failed\n");
 		nm_messagebox(TXT_ERROR,1,TXT_OK,"Could not resolve address");
 		return -1;
 	}
@@ -411,7 +411,7 @@ int UDPOpenSocket(int port)
 	struct _sockaddr sAddr;   // my address information
 	
 	if ((UDP_sock = socket (_af, SOCK_DGRAM, 0)) == -1) {
-		con_printf (CON_URGENT,"UDPOpenSocket: socket creation failed\n");
+		con_printf(CON_URGENT,"UDPOpenSocket: socket creation failed\n");
 		nm_messagebox(TXT_ERROR,1,TXT_OK,"Could not create socket");
 		return -1;
 	}
@@ -431,7 +431,7 @@ int UDPOpenSocket(int port)
 	memset (&(sAddr.sin_zero), '\0', 8); // zero the rest of the struct
 	
 	if (bind (UDP_sock, (struct sockaddr *) &sAddr, sizeof (struct sockaddr)) == -1) {
-		con_printf (CON_URGENT,"UDPOpenSocket: bind name to socket failed\n");
+		con_printf(CON_URGENT,"UDPOpenSocket: bind name to socket failed\n");
 		nm_messagebox(TXT_ERROR,1,TXT_OK,"Could not bind name to socket");
 		return -1;
 	}
@@ -474,7 +474,7 @@ int UDPOpenSocket(int port)
 	
 		if ((UDP_sock = socket (sres->ai_family, SOCK_DGRAM, 0)) < 0)
 		{
-			con_printf (CON_URGENT,"UDPOpenSocket: socket creation failed\n");
+			con_printf(CON_URGENT,"UDPOpenSocket: socket creation failed\n");
 			nm_messagebox(TXT_ERROR,1,TXT_OK,"Could not create socket");
 			freeaddrinfo (res);
 			return -1;
@@ -482,7 +482,7 @@ int UDPOpenSocket(int port)
 	
 		if ((err = bind (UDP_sock, sres->ai_addr, sres->ai_addrlen)) < 0)
 		{
-			con_printf (CON_URGENT,"UDPOpenSocket: bind name to socket failed\n");
+			con_printf(CON_URGENT,"UDPOpenSocket: bind name to socket failed\n");
 			nm_messagebox(TXT_ERROR,1,TXT_OK,"Could not bind name to socket");
 			close (UDP_sock);
 			freeaddrinfo (res);
@@ -493,7 +493,7 @@ int UDPOpenSocket(int port)
 	}
 	else {
 		UDP_sock = -1;
-		con_printf (CON_URGENT,"UDPOpenSocket (getaddrinfo):%s\n", gai_strerror (err));
+		con_printf(CON_URGENT,"UDPOpenSocket (getaddrinfo):%s\n", gai_strerror (err));
 		nm_messagebox(TXT_ERROR,1,TXT_OK,"Could not get address information:\n%s",gai_strerror (err));
 	}
 #endif

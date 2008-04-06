@@ -24,6 +24,7 @@
 #include "error.h"
 #include "args.h"
 #include "rbaudio.h"
+#include "console.h"
 
 static SDL_CD *s_cd = NULL;
 static int initialised = 0;
@@ -99,7 +100,7 @@ void RBASetVolume(int volume)
 	level = volume * 3;
 
 	if ((level<0) || (level>255)) {
-		fprintf(stderr, "illegal volume value (allowed values 0-255)\n");
+		con_printf(CON_CRITICAL, "illegal volume value (allowed values 0-255)\n");
 		return;
 	}
 
@@ -109,7 +110,7 @@ void RBASetVolume(int volume)
 		= volctrl.channel3
 		= level;
 	if ( ioctl(cdfile, CDROMVOLCTRL, &volctrl) == -1 ) {
-		fprintf(stderr, "CDROMVOLCTRL ioctl failed\n");
+		con_printf(CON_CRITICAL, "CDROMVOLCTRL ioctl failed\n");
 		return;
 	}
 #endif

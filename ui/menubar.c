@@ -1,4 +1,3 @@
-/* $Id: menubar.c,v 1.1.1.1 2006/03/17 19:52:15 zicodxx Exp $ */
 /*
 THE COMPUTER CODE CONTAINED HEREIN IS THE SOLE PROPERTY OF PARALLAX
 SOFTWARE CORPORATION ("PARALLAX").  PARALLAX, IN DISTRIBUTING THE CODE TO
@@ -12,10 +11,6 @@ AND AGREES TO THE TERMS HEREIN AND ACCEPTS THE SAME BY USE OF THIS FILE.
 COPYRIGHT 1993-1999 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 */
 
-#ifdef RCS
-static char rcsid[] = "$Id: menubar.c,v 1.1.1.1 2006/03/17 19:52:15 zicodxx Exp $";
-#endif
-
 #ifdef HAVE_CONFIG_H
 #include "conf.h"
 #endif
@@ -23,7 +18,6 @@ static char rcsid[] = "$Id: menubar.c,v 1.1.1.1 2006/03/17 19:52:15 zicodxx Exp 
 #include <stdlib.h>
 #include <string.h>
 #include <ctype.h>
-
 #include "u_mem.h"
 #include "fix.h"
 #include "pstypes.h"
@@ -31,11 +25,7 @@ static char rcsid[] = "$Id: menubar.c,v 1.1.1.1 2006/03/17 19:52:15 zicodxx Exp 
 #include "ui.h"
 #include "key.h"
 #include "cfile.h"
-
-#include "mono.h"
-
 #include "func.h"
-
 #include "error.h"
 
 
@@ -679,8 +669,6 @@ void menubar_init( char * file )
 	{
 		if ( buffer[0] == ';' ) continue;
 		
-		//mprintf( 0, "%s\n", buffer );
-				
 		CommaParse( 0, buf1, buffer );
 		menu = atoi( buf1 );
 		if (menu >= MAXMENUS)
@@ -728,11 +716,6 @@ void menubar_init( char * file )
 		{
 			Menu[menu].Item[item].user_function = func_get(buf1, &np);
 
-//			if (!strcmp(buf1,"do-wall-dialog")) {
-//				mprintf( 0, "Found function %s\n", buf1);
-//				mprintf( 0, "User function %s\n", Menu[menu].Item[item].user_function);
-//			}
-				
 			if (Menu[menu].Item[item].user_function==NULL)
 			{
 				Error( "Unknown function, %s, in %s\n", buf1, file );

@@ -31,7 +31,6 @@ COPYRIGHT 1993-1998 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 #include "grdef.h"
 #include "cfile.h"
 #include "error.h"
-#include "mono.h"
 #include "fix.h"
 #include "palette.h"
 

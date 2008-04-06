@@ -1,4 +1,3 @@
-/* $Id: wall.h,v 1.1.1.1 2006/03/17 19:56:48 zicodxx Exp $ */
 /*
 THE COMPUTER CODE CONTAINED HEREIN IS THE SOLE PROPERTY OF PARALLAX
 SOFTWARE CORPORATION ("PARALLAX").  PARALLAX, IN DISTRIBUTING THE CODE TO
@@ -263,14 +262,7 @@ void start_wall_cloak(segment *seg, int side);
 void start_wall_decloak(segment *seg, int side);
 
 extern int wclip_read_n_d1(wclip *wc, int n, CFILE *fp);
-#ifdef FAST_FILE_IO
-#define wclip_read_n(wc, n, fp) cfread(wc, sizeof(wclip), n, fp)
-#define v16_wall_read(w, fp) cfread(w, sizeof(v16_wall), 1, fp)
-#define v19_wall_read(w, fp) cfread(w, sizeof(v19_wall), 1, fp)
-#define wall_read(w, fp) cfread(w, sizeof(wall), 1, fp)
-#define v19_door_read(d, fp) cfread(d, sizeof(v19_door), 1, fp)
-#define active_door_read(d, fp) cfread(d, sizeof(active_door), 1, fp)
-#else
+
 /*
  * reads n wclip structs from a CFILE
  */
@@ -300,7 +292,6 @@ extern void v19_door_read(v19_door *d, CFILE *fp);
  * reads an active_door structure from a CFILE
  */
 extern void active_door_read(active_door *ad, CFILE *fp);
-#endif
 
 extern void wall_write(wall *w, short version, PHYSFS_file *fp);
 

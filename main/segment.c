@@ -1,4 +1,3 @@
-/* $Id: segment.c,v 1.1.1.1 2006/03/17 19:55:55 zicodxx Exp $ */
 
 /*
  *
@@ -14,11 +13,6 @@
 #include "segment.h"
 #include "cfile.h"
 
-#ifdef RCS
-static char rcsid[] = "$Id: segment.c,v 1.1.1.1 2006/03/17 19:55:55 zicodxx Exp $";
-#endif
-
-#ifndef FAST_FILE_IO
 /*
  * reads a segment2 structure from a CFILE
  */
@@ -56,7 +50,6 @@ void dl_index_read(dl_index *di, CFILE *fp)
 	di->count = cfile_read_byte(fp);
 	di->index = cfile_read_short(fp);
 }
-#endif
 
 void segment2_write(segment2 *s2, PHYSFS_file *fp)
 {

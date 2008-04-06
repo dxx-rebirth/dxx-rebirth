@@ -1,4 +1,3 @@
-/* $Id: objpage.c,v 1.1.1.1 2006/03/17 19:58:49 zicodxx Exp $ */
 /*
 THE COMPUTER CODE CONTAINED HEREIN IS THE SOLE PROPERTY OF PARALLAX
 SOFTWARE CORPORATION ("PARALLAX").  PARALLAX, IN DISTRIBUTING THE CODE TO
@@ -18,31 +17,19 @@ COPYRIGHT 1993-1998 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
  *
  */
 
-#ifdef RCS
-static char rcsid[] = "$Id: objpage.c,v 1.1.1.1 2006/03/17 19:58:49 zicodxx Exp $";
-#endif
-
-// Num_robot_types -->  N_polygon_models
-// Cur_robot_type --> Cur_robot_type
-// Texture[Cur_robot_type]->bitmap  ---> robot_bms[robot_bm_nums[ Cur_robot_type ] ] 
-
 #ifdef HAVE_CONFIG_H
 #include "conf.h"
 #endif
 
 #include <stdlib.h>
 #include <stdio.h>
-
-
 #include "inferno.h"
 #include "screens.h"			// For GAME_SCREEN?????
 #include "editor.h"			// For TMAP_CURBOX??????
 #include "gr.h"				// For canves, font stuff
 #include "ui.h"				// For UI_GADGET stuff
 #include "object.h"			// For robot_bms
-#include "mono.h"				// For debugging
 #include "error.h"
-
 #include "objpage.h"
 #include "bm.h"
 #include "player.h"
@@ -55,32 +42,6 @@ static UI_GADGET_USERBOX * ObjBox[OBJS_PER_PAGE];
 static UI_GADGET_USERBOX * ObjCurrent;
 
 static int ObjectPage = 0;
-
-//static char Description[8][20] = { "Pig", "Star", "Little\nJosh", "Big\nJosh", "Flying\nPig", "Flying\nStar", 
-//"Little\nFlying\nJosh", "Big\nFlying\nJosh" };
-
-//static grs_canvas * ObjnameCanvas;
-//static char object_filename[13];
-
-//static void objpage_print_name( char name[13] ) {
-//	 short w,h,aw;
-//
-//    gr_set_current_canvas( ObjnameCanvas );
-//    gr_get_string_size( name, &w, &h, &aw );
-//    gr_string( 0, 0, name );			  
-//	 //gr_set_fontcolor( CBLACK, CWHITE );
-//}
-
-//static void objpage_display_name( char *format, ... ) {
-//	va_list ap;
-//
-//	va_start(ap, format);
-//   vsprintf(object_filename, format, ap);
-//	va_end(ap);
-//
-//   objpage_print_name(object_filename);
-//		
-//}
 
 #include "vecmat.h"
 #include "3d.h"

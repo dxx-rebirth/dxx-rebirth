@@ -1,4 +1,3 @@
-/* $Id: wall.c,v 1.1.1.1 2006/03/17 19:56:48 zicodxx Exp $ */
 /*
 THE COMPUTER CODE CONTAINED HEREIN IS THE SOLE PROPERTY OF PARALLAX
 SOFTWARE CORPORATION ("PARALLAX").  PARALLAX, IN DISTRIBUTING THE CODE TO
@@ -22,17 +21,12 @@ COPYRIGHT 1993-1999 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 #include <conf.h>
 #endif
 
-#ifdef RCS
-static char rcsid[] = "$Id: wall.c,v 1.1.1.1 2006/03/17 19:56:48 zicodxx Exp $";
-#endif
-
 #include <stdio.h>
 #include <stdlib.h>
 #include <math.h>
 #include <string.h>
 
 #include "pstypes.h"
-#include "mono.h"
 #include "gr.h"
 #include "wall.h"
 #include "switch.h"
@@ -229,7 +223,6 @@ void wall_reset(segment *seg, int side)
 	i = seg->sides[side].wall_num;
 
 	if (i==-1) {
-		mprintf((0, "Resetting Illegal Wall\n"));
 		return;
 	}
 
@@ -321,7 +314,6 @@ void wall_damage(segment *seg, int side, fix damage)
 	int a, i, n, cwall_num;
 
 	if (seg->sides[side].wall_num == -1) {
-		mprintf((0, "Damaging illegal wall\n"));
 		return;
 	}
 
@@ -929,7 +921,6 @@ void do_door_close(int door_num)
 		side = w->sidenum;
 	
 		if (seg->sides[side].wall_num == -1) {
-			mprintf((0, "Trying to do_door_close on Illegal wall\n"));
 			return;
 		}
 	
@@ -996,7 +987,6 @@ void wall_illusion_off(segment *seg, int side)
 	Assert(cside != -1);
 
 	if (seg->sides[side].wall_num == -1) {
-		mprintf((0, "Trying to shut off illusion illegal wall\n"));
 		return;
 	}
 
@@ -1020,7 +1010,6 @@ void wall_illusion_on(segment *seg, int side)
 	Assert(cside != -1);
 
 	if (seg->sides[side].wall_num == -1) {
-		mprintf((0, "Trying to turn on illusion illegal wall\n"));
 		return;
 	}
 
@@ -1149,7 +1138,6 @@ void wall_toggle(segment *seg, int side)
 	wall_num = seg->sides[side].wall_num;
 
 	if (wall_num == -1) {
-	 	mprintf((0, "Illegal wall_toggle\n"));
 		return;
 	}
 
@@ -1172,7 +1160,6 @@ void reset_walls()
 	int i;
 
 	if (Num_walls < 0) {
-		mprintf((0, "Illegal Num_walls\n"));
 		return;
 	}
 
@@ -1393,13 +1380,10 @@ void add_stuck_object(object *objp, int segnum, int sidenum)
 				Stuck_objects[i].wallnum = wallnum;
 				Stuck_objects[i].objnum = objp-Objects;
 				Stuck_objects[i].signature = objp->signature;
-				// mprintf((0, "Added wall %i at index %i\n", wallnum, i));
 				Num_stuck_objects++;
 				break;
 			}
 		}
-		if (i == MAX_STUCK_OBJECTS)
-			mprintf((1, "Warning: Unable to add object %i which got stuck in wall %i to Stuck_objects\n", objp-Objects, wallnum));
 	}
 
 
@@ -1446,9 +1430,7 @@ void kill_stuck_objects(int wallnum)
 		if (Stuck_objects[i].wallnum == wallnum) {
 			if (Objects[Stuck_objects[i].objnum].type == OBJ_WEAPON) {
 				Objects[Stuck_objects[i].objnum].lifeleft = F1_0/8;
-			} else
-				mprintf((1, "Warning: Stuck object of type %i, expected to be of type %i, see wall.c\n", Objects[Stuck_objects[i].objnum].type, OBJ_WEAPON));
-				// Int3();	//	What?  This looks bad.  Object is not a weapon and it is stuck in a wall!
+			}
 			Stuck_objects[i].wallnum = -1;
 		} else if (Stuck_objects[i].wallnum != -1) {
 			Num_stuck_objects++;
@@ -1607,7 +1589,6 @@ int wclip_read_n_d1(wclip *wc, int n, CFILE *fp)
 	return i;
 }
 
-#ifndef FAST_FILE_IO
 /*
  * reads a wclip structure from a CFILE
  */
@@ -1704,7 +1685,6 @@ extern void active_door_read(active_door *ad, CFILE *fp)
 	ad->back_wallnum[1] = cfile_read_short(fp);
 	ad->time = cfile_read_fix(fp);
 }
-#endif
 
 void wall_write(wall *w, short version, CFILE *fp)
 {

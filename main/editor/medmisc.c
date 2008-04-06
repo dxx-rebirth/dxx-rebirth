@@ -1,4 +1,3 @@
-/* $Id: medmisc.c,v 1.1.1.1 2006/03/17 19:58:32 zicodxx Exp $ */
 /*
 THE COMPUTER CODE CONTAINED HEREIN IS THE SOLE PROPERTY OF PARALLAX
 SOFTWARE CORPORATION ("PARALLAX").  PARALLAX, IN DISTRIBUTING THE CODE TO
@@ -18,10 +17,6 @@ COPYRIGHT 1993-1998 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
  *
  */
 
-#ifdef RCS
-static char rcsid[] = "$Id: medmisc.c,v 1.1.1.1 2006/03/17 19:58:32 zicodxx Exp $";
-#endif
-
 #ifdef HAVE_CONFIG_H
 #include "conf.h"
 #endif
@@ -30,28 +25,19 @@ static char rcsid[] = "$Id: medmisc.c,v 1.1.1.1 2006/03/17 19:58:32 zicodxx Exp 
 #include <stdlib.h>
 #include <stdarg.h>
 #include <string.h>
-#ifdef __MSDOS__
-#include <process.h>
-#endif
-
 #include "gr.h"
 #include "ui.h"
 #include "3d.h"
-
 #include "u_mem.h"
 #include "error.h"
-#include "mono.h"
 #include "key.h"
 #include "func.h"
-
 #include "inferno.h"
 #include "editor/editor.h"
 #include "segment.h"
-
 #include "render.h"
 #include "screens.h"
 #include "object.h"
-
 #include "texpage.h"		// For texpage_goto_first
 #include "meddraw.h"		// For draw_World
 #include "game.h"
@@ -555,7 +541,6 @@ void set_view_target_from_segment(segment *sp)
 
 	if (Funky_chase_mode)
 		{
-		mprintf((0, "Trying to set chase mode\n"));
 		//set_chase_matrix(sp);
 		}
 	else {
@@ -570,20 +555,3 @@ void set_view_target_from_segment(segment *sp)
 	Update_flags |= UF_VIEWPOINT_MOVED;
 
 }
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-

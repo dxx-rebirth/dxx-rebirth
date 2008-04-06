@@ -1,4 +1,3 @@
-/* $Id: info.c,v 1.1.1.1 2006/03/17 19:58:31 zicodxx Exp $ */
 /*
 THE COMPUTER CODE CONTAINED HEREIN IS THE SOLE PROPERTY OF PARALLAX
 SOFTWARE CORPORATION ("PARALLAX").  PARALLAX, IN DISTRIBUTING THE CODE TO
@@ -18,10 +17,6 @@ COPYRIGHT 1993-1998 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
  *
  */
 
-#ifdef RCS
-static char rcsid[] = "$Id: info.c,v 1.1.1.1 2006/03/17 19:58:31 zicodxx Exp $";
-#endif
-
 #ifdef HAVE_CONFIG_H
 #include "conf.h"
 #endif
@@ -29,27 +24,21 @@ static char rcsid[] = "$Id: info.c,v 1.1.1.1 2006/03/17 19:58:31 zicodxx Exp $";
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
-
 #ifdef DO_MEMINFO
 #include <i86.h>
 #include <malloc.h>
 #endif
-
 #include "inferno.h"
 #include "segment.h"
 #include "gr.h"
 #include "ui.h"
 #include "editor.h"
-
-#include "mono.h"
 #include "error.h"
 #include "textures.h"
 #include "object.h"
 #include "ai.h"
-
 #include "texpage.h"		// Textue selection paging stuff
 #include "objpage.h"		// Object selection paging stuff
-
 #include "wall.h"
 #include "switch.h"
 
