@@ -150,6 +150,8 @@ void nm_draw_background(int x1, int y1, int x2, int y2 )
 
 	if ( x1 < 0 ) x1 = 0;
 	if ( y1 < 0 ) y1 = 0;
+	if ( x2 > SWIDTH - 1) x2 = SWIDTH - 1;
+	if ( y2 > SHEIGHT - 1) y2 = SHEIGHT - 1;
 
 	w = x2-x1;
 	h = y2-y1;

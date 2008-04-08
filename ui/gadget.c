@@ -58,6 +58,7 @@ static char rcsid[] = "$Id: gadget.c,v 1.1.1.1 2006/03/17 19:39:14 zicodxx Exp $
 #include "pstypes.h"
 #include "gr.h"
 #include "ui.h"
+#include "error.h"
 
 #include "key.h"
 
@@ -68,7 +69,7 @@ UI_GADGET * ui_gadget_add( UI_WINDOW * wnd, short kind, short x1, short y1, shor
 	UI_GADGET * gadget;
 
 	gadget = (UI_GADGET *)d_malloc( sizeof(UI_GADGET) );
-	if (gadget==NULL) exit(1);
+	if (gadget==NULL) Error("Could not create gadget: Out of memory");
 
 	if (wnd->gadget == NULL )
 	{

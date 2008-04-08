@@ -587,7 +587,7 @@ void verify_textures()
 			j++;
 		} 
 	}
-	if (j) exit(1);
+	if (j) Error("There are game textures that are not 64x64");
 }
 
 //--unused-- void dump_all_transparent_textures()

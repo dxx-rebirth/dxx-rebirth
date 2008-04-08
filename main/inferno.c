@@ -226,6 +226,12 @@ void show_commandline_help()
 	printf( "\n\n");
 }
 
+void error_messagebox(char *s)
+{
+	error_init(NULL, NULL);	// don't try to show a messagebox if there's an error with showing one!
+	nm_messagebox( TXT_SORRY, 1, TXT_OK, s );
+}
+
 void sdl_close()
 {
 	SDL_Quit();
@@ -355,6 +361,8 @@ int main(int argc,char *argv[])
 	if (GameArg.DbgNoRun)
 		return(0);
 
+	error_init(error_messagebox, NULL);
+
 	con_printf( CON_DEBUG, "\nInitializing 3d system..." );
 	g3_init();
 	con_printf( CON_DEBUG, "\nInitializing texture caching system..." );
@@ -469,6 +477,7 @@ int main(int argc,char *argv[])
 	#endif
 #endif
 
+	error_init(NULL, NULL);		// clear error func (won't have newmenu stuff loaded)
 	piggy_close();
 
 	return(0); //presumably successful exit

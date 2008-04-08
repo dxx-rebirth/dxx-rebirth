@@ -87,17 +87,7 @@ void print_exit_message(void)
 		{
 			(*ErrorPrintFunc)(exit_message);
 		}
-		else
-		{
-#if (defined(MACINTOSH) && defined(NDEBUG) && defined(RELEASE))
-			c2pstr(exit_message);
-			ShowCursor();
-			ParamText(exit_message, "\p", "\p", "\p");
-			StopAlert(ERROR_ALERT, nil);
-#else
-			con_printf(CON_CRITICAL,"%s\n",exit_message);
-#endif
-		}
+		con_printf(CON_CRITICAL,"\n%s\n",exit_message);
 	}
 }
 
@@ -106,11 +96,7 @@ void Error(char *fmt,...)
 {
 	va_list arglist;
 
-#if (defined(MACINTOSH) && defined(NDEBUG) && defined(RELEASE))
 	strcpy(exit_message,"Error: "); // don't put the new line in for dialog output
-#else
-	strcpy(exit_message,"\nError: ");
-#endif
 	va_start(arglist,fmt);
 	vsprintf(exit_message+strlen(exit_message),fmt,arglist);
 	con_printf(CON_CRITICAL,"%s",exit_message);
@@ -118,7 +104,7 @@ void Error(char *fmt,...)
 
 	Int3();
 
-	if (!err_initialized) print_exit_message();
+	/*if (!err_initialized)*/ print_exit_message();
 
 	exit(1);
 }
@@ -148,7 +134,7 @@ int error_init(void (*func)(char *), char *fmt, ...)
 	va_list arglist;
 	int len;
 
-	atexit(print_exit_message);		//last thing at exit is print message
+	//atexit(print_exit_message);		//last thing at exit is print message CHRIS: Removed to allow newmenu dialog
 
 	ErrorPrintFunc = func;          // Set Error Print Functions
 
