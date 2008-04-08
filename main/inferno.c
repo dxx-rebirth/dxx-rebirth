@@ -241,6 +241,11 @@ void print_commandline_help()
 	printf( "\n\n");
 }
 
+void error_messagebox(char *s)
+{
+	nm_messagebox( TXT_SORRY, 1, TXT_OK, s );
+}
+
 void sdl_close()
 {
 	SDL_Quit();
@@ -410,6 +415,8 @@ int main(int argc, char *argv[])
 	if (GameArg.DbgNoRun)
 		return(0);
 
+	error_init(error_messagebox, NULL);
+	
 	con_printf( CON_DEBUG, "\nInitializing 3d system..." );
 	g3_init();
 
@@ -519,6 +526,7 @@ int main(int argc, char *argv[])
 
 	show_order_form();
 
+	error_init(NULL, NULL);		// clear error func (won't have newmenu stuff loaded)
 	piggy_close();
 
 	return(0);		//presumably successful exit

@@ -207,7 +207,7 @@ static inline int cfile_read_int(PHYSFS_file *file)
 
 	if (!PHYSFS_readSLE32(file, &i))
 	{
-		con_printf(CON_CRITICAL,"Error reading int in cfile_read_int()");
+		Error("Error reading int in cfile_read_int()");
 		exit(1);
 	}
 
@@ -220,7 +220,7 @@ static inline short cfile_read_short(PHYSFS_file *file)
 
 	if (!PHYSFS_readSLE16(file, &s))
 	{
-		con_printf(CON_CRITICAL,"Error reading short in cfile_read_short()");
+		Error("Error reading short in cfile_read_short()");
 		exit(1);
 	}
 
@@ -233,7 +233,7 @@ static inline sbyte cfile_read_byte(PHYSFS_file *file)
 
 	if (PHYSFS_read(file, &b, sizeof(b), 1) != 1)
 	{
-		con_printf(CON_CRITICAL,"Error reading byte in cfile_read_byte()");
+		Error("Error reading byte in cfile_read_byte()");
 		exit(1);
 	}
 
@@ -246,7 +246,7 @@ static inline fix cfile_read_fix(PHYSFS_file *file)
 
 	if (!PHYSFS_readSLE32(file, &f))
 	{
-		con_printf(CON_CRITICAL,"Error reading fix in cfile_read_fix()");
+		Error("Error reading fix in cfile_read_fix()");
 		exit(1);
 	}
 
@@ -259,7 +259,7 @@ static inline fixang cfile_read_fixang(PHYSFS_file *file)
 
 	if (!PHYSFS_readSLE16(file, &f))
 	{
-		con_printf(CON_CRITICAL,"Error reading fixang in cfile_read_fixang()");
+		Error("Error reading fixang in cfile_read_fixang()");
 		exit(1);
 	}
 

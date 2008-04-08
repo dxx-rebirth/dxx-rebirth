@@ -28,7 +28,7 @@ COPYRIGHT 1993-1999 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 #include "key.h"
 #include "timer.h"
 #include "mouse.h"
-
+#include "error.h"
 
 #define W_BACKGROUND    (wnd->background )
 #define W_X             (wnd->x)
@@ -201,7 +201,7 @@ UI_WINDOW * ui_open_window( short x, short y, short w, short h, int flags )
 	int sw, sh, req_w, req_h;
 
 	wnd = (UI_WINDOW *) d_malloc(sizeof(UI_WINDOW));
-	if (wnd==NULL) exit(1);
+	if (wnd==NULL) Error("Could not create window: Out of memory");
 
 	W_NEXT = NULL;
 	W_PREV = NULL;
