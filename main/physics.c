@@ -729,14 +729,17 @@ void do_physics_sim(object *obj)
 	//explained it.  I think maybe it only needs to be done if the object
 	//is sliding, but I don't know
 	if (!obj_stopped && !bounced)	{	//Set velocity from actual movement
+		static fix last_bump=0;
 		vms_vector moved_vec;
-
 		vm_vec_sub(&moved_vec,&obj->pos,&start_pos);
 		vm_vec_copy_scale(&obj->mtype.phys_info.velocity,&moved_vec,fixdiv(f1_0,FrameTime));
 
 #ifdef BUMP_HACK
-		if (obj==ConsoleObject && (obj->mtype.phys_info.velocity.x==0 && obj->mtype.phys_info.velocity.y==0 && obj->mtype.phys_info.velocity.z==0) &&
-			  !(obj->mtype.phys_info.thrust.x==0 && obj->mtype.phys_info.thrust.y==0 && obj->mtype.phys_info.thrust.z==0) && fate == HIT_WALL) {
+		if (
+			obj==ConsoleObject && (obj->mtype.phys_info.velocity.x==0 && obj->mtype.phys_info.velocity.y==0 && obj->mtype.phys_info.velocity.z==0) &&
+			!(obj->mtype.phys_info.thrust.x==0 && obj->mtype.phys_info.thrust.y==0 && obj->mtype.phys_info.thrust.z==0) 
+			&& (GameTime > last_bump+(F1_0/33) || GameTime < last_bump) )
+		{
 			vms_vector center,bump_vec;
 
 			//bump player a little towards center of segment to unstick
@@ -753,6 +756,7 @@ void do_physics_sim(object *obj)
 			//if moving away from seg, might move out of seg, so update
 			if (Segment2s[obj->segnum].special == SEGMENT_IS_CONTROLCEN)
 				update_object_seg(obj);
+			last_bump=GameTime;
 		}
 #endif
 	}

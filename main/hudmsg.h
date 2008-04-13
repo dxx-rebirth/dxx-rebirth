@@ -1,12 +1,4 @@
-/* $Id: hudmsg.h,v 1.1.1.1 2006/03/17 19:55:20 zicodxx Exp $ */
-
-/*
- *
- * d1x style hud - not implemented yet
- * hud_message and message class definitions
- *
- */
-
+// hud_message and message class definitions
 #ifndef _HUD_MSG_H
 #define _HUD_MSG_H
 
@@ -23,24 +15,16 @@
 #define MSGC_WEAPON_EMPTY	1024 // No weapons (no primary weapons available)
 #define MSGC_WEAPON_SELECT	2048 // Manual weapon selection
 #define MSGC_UNKNOWN		4096 // Unknown: External control interface message
-#define MSGC_DEBUG		    8192 // Unknown: External control interface message
+#define MSGC_DEBUG		8192 // Unknown: External control interface message
 
 #define MSGC_NOREDUNDANCY	(~(MSGC_PICKUP_TOOMUCH | MSGC_PICKUP_ALREADY))
 #define MSGC_PLAYERMESSAGES	(~(MSGC_PICKUP_TOOMUCH | MSGC_PICKUP_ALREADY | MSGC_PICKUP_OK))
 
 #define HUD_MESSAGE_LENGTH	150
-#define HUD_MAX_NUM 4 // 80 //max to display in scrollback mode (and as such, the max to store, period)
-
-extern int HUD_max_num_disp;
+#define HUD_MAX_NUM		4
 
 extern int MSG_Playermessages;
 extern int MSG_Noredundancy;
-
-//killed 11/01/98 -MM
-//added on 10/04/98 by Matt Mueller to allow hud message logging
-//extern int HUD_log_messages;
-//end addition -MM
-//end kill -MM
 
 #ifdef __GNUC__
 extern void hud_message(int class, char *format, ...)
