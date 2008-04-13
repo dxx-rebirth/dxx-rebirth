@@ -21,18 +21,10 @@
 #define MSGC_PLAYERMESSAGES	(~(MSGC_PICKUP_TOOMUCH | MSGC_PICKUP_ALREADY | MSGC_PICKUP_OK))
 
 #define HUD_MESSAGE_LENGTH	150
-#define HUD_MAX_NUM 80 //max to display in scrollback mode (and as such, the max to store, period)
-
-extern int HUD_max_num_disp;
+#define HUD_MAX_NUM		4
 
 extern int MSG_Playermessages;
 extern int MSG_Noredundancy;
-
-//killed 11/01/98 -MM
-//added on 10/04/98 by Matt Mueller to allow hud message logging
-//extern int HUD_log_messages;
-//end addition -MM
-//end kill -MM
 
 #ifdef __GNUC__
 extern void hud_message(int class, char *format, ...)

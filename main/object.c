@@ -1186,7 +1186,6 @@ void obj_delete(int objnum)
 
 int		Player_is_dead = 0;			//	If !0, then player is dead, but game continues so he can watch.
 object	*Dead_player_camera = NULL;	//	Object index of object watching deader.
-fix		Player_time_of_death;		//	Time at which player died.
 object	*Viewer_save;
 int		Player_flags_save;
 int		Player_exploded = 0;
@@ -1282,20 +1281,19 @@ extern int get_explosion_vclip(object *obj,int stage);
 //	------------------------------------------------------------------------------------------------------------------
 void dead_player_frame(void)
 {
-	fix	time_dead;
+	static fix	time_dead = 0;
 	vms_vector	fvec;
 
 	if (Player_is_dead)
-           {
-		time_dead = GameTime - Player_time_of_death;
+        {
+		time_dead += FrameTime;
 
 		//	If unable to create camera at time of death, create now.
 		if (Dead_player_camera == Viewer_save) {
 			int		objnum;
 			object	*player = &Objects[Players[Player_num].objnum];
 
-                  //this next line was changed by WraithX, instead of CT_FLYING, it was CT_NONE: instead of MT_PHYSICS, it was MT_NONE.
-			objnum = obj_create(OBJ_CAMERA, 0, player->segnum, &player->pos, &player->orient, 0, CT_FLYING, MT_PHYSICS, RT_NONE);
+			objnum = obj_create(OBJ_CAMERA, 0, player->segnum, &player->pos, &player->orient, 0, CT_NONE, MT_NONE, RT_NONE);
 
 			if (objnum != -1)
 				Viewer = Dead_player_camera = &Objects[objnum];
@@ -1390,6 +1388,8 @@ void dead_player_frame(void)
                   DoPlayerDead();         //kill_player();
                  }
 	}
+	else
+		time_dead = 0;
 }
 
 int Killed_in_frame = -1;
@@ -1430,9 +1430,7 @@ void start_player_death_sequence(object *player)
 	vm_vec_zero(&player->mtype.phys_info.rotthrust);  //this line commented by WraithX
 	vm_vec_zero(&player->mtype.phys_info.thrust);
 
-	Player_time_of_death = GameTime;
-	//this next line was changed by WraithX, instead of CT_FLYING, it was CT_NONE: instead of MT_PHYSICS, it was MT_NONE.
-	objnum = obj_create(OBJ_CAMERA, 0, player->segnum, &player->pos, &player->orient, 0, CT_FLYING, MT_PHYSICS, RT_NONE);
+	objnum = obj_create(OBJ_CAMERA, 0, player->segnum, &player->pos, &player->orient, 0, CT_NONE, MT_NONE, RT_NONE);
 	Viewer_save = Viewer;
 	if (objnum != -1)
 		Viewer = Dead_player_camera = &Objects[objnum];
@@ -1452,7 +1450,7 @@ void start_player_death_sequence(object *player)
 
 	player->flags &= ~OF_SHOULD_BE_DEAD;
 //	Players[Player_num].flags |= PLAYER_FLAGS_INVULNERABLE;
-	player->control_type = CT_FLYING;  //change from CT_NONE to CT_FLYING by WraithX
+	player->control_type = CT_NONE;
 	player->shields = F1_0*1000;
 
 	PALETTE_FLASH_SET(0,0,0);

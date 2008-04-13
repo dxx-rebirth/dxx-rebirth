@@ -676,20 +676,24 @@ void do_physics_sim(object *obj)
 	}
 
 	if (! obj_stopped)	{	//Set velocity from actual movement
+		static fix last_bump=0;
 		vms_vector moved_vec;
 		vm_vec_sub(&moved_vec,&obj->pos,&start_pos);
 		vm_vec_copy_scale(&obj->mtype.phys_info.velocity,&moved_vec,fixdiv(f1_0,FrameTime));
 
 #ifdef BUMP_HACK
-		if (obj==ConsoleObject && (obj->mtype.phys_info.velocity.x==0 && obj->mtype.phys_info.velocity.y==0 && obj->mtype.phys_info.velocity.z==0) &&
-			  !(obj->mtype.phys_info.thrust.x==0 && obj->mtype.phys_info.thrust.y==0 && obj->mtype.phys_info.thrust.z==0) && fate == HIT_WALL) {
+		if (
+			obj==ConsoleObject && (obj->mtype.phys_info.velocity.x==0 && obj->mtype.phys_info.velocity.y==0 && obj->mtype.phys_info.velocity.z==0) &&
+			!(obj->mtype.phys_info.thrust.x==0 && obj->mtype.phys_info.thrust.y==0 && obj->mtype.phys_info.thrust.z==0) 
+			&& (GameTime > last_bump+(F1_0/33) || GameTime < last_bump) )
+		{
 			vms_vector center,bump_vec;
 
 			//bump player a little towards center of segment to unstick
-
 			compute_segment_center(&center,&Segments[obj->segnum]);
 			vm_vec_normalized_dir_quick(&bump_vec,&center,&obj->pos);
 			vm_vec_scale_add2(&obj->pos,&bump_vec,obj->size/5);
+			last_bump=GameTime;
 		}
 #endif
 	}

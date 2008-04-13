@@ -4,6 +4,7 @@ D1X-Rebirth Changelog
 --------
 include/args.h, main/newmenu.c, main/collide.h, main/network.c, main/multi.c, main/multi.h, main/inferno.c, main/menu.c, main/menu.h, main/playsave.c, main/playsave.h, main/object.c, main/hud.c, main/weapon.c, main/hostage.c, main/newdemo.c, main/config.c, main/gameseq.c, main/endlevel.c, main/ai.h, main/game.c, main/gauges.c, main/game.h, main/kconfig.c, main/kconfig.h, misc/args.c, d1x.ini, arch/ogl/ogl.c, arch/ogl/gr.c, arch/sdl/joy.c, arch/include/joy.h: Added structure for values saved in PLR/PLX files; Added most common command-line options to options menu
 main/laser.c, main/menu.c, main/playsave.c: Reverted homers turn_radius again to respect higher difficulty levels; Added PRShot to menus; Fixed typo in OglAlphaEffects saving
+main/collide.c, main/hudmsg.h, main/object.c, main/physics.c: Fixing collision bugs; Cleaning hudmsg.h; Solving death sequence timer without GameTime and removed another global
 
 20080408
 --------

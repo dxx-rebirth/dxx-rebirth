@@ -625,16 +625,15 @@ void collide_robot_and_robot( object * robot1, object * robot2, vms_vector *coll
 void collide_robot_and_controlcen( object * obj1, object * obj2, vms_vector *collision_point )
 {
 
-// 	if (obj1->type == OBJ_ROBOT) {
-// 		vms_vector	hitvec;
-// 		vm_vec_normalize_quick(vm_vec_sub(&hitvec, &obj2->pos, &obj1->pos));
-// 		bump_one_object(obj1, &hitvec, 0);
-// 	} else {
-// 		vms_vector	hitvec;
-// 		vm_vec_normalize_quick(vm_vec_sub(&hitvec, &obj1->pos, &obj2->pos));
-// 		bump_one_object(obj2, &hitvec, 0);
-// 	}
-	bump_two_objects(obj1, obj2, 0);
+	if (obj1->type == OBJ_ROBOT) {
+		vms_vector	hitvec;
+		vm_vec_normalize_quick(vm_vec_sub(&hitvec, &obj2->pos, &obj1->pos));
+		bump_one_object(obj1, &hitvec, 0);
+	} else {
+		vms_vector	hitvec;
+		vm_vec_normalize_quick(vm_vec_sub(&hitvec, &obj1->pos, &obj2->pos));
+		bump_one_object(obj2, &hitvec, 0);
+	}
 }
 
 //##void collide_robot_and_hostage( object * robot, object * hostage, vms_vector *collision_point ) { 
