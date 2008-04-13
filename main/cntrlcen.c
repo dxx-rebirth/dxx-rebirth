@@ -123,8 +123,6 @@ int calc_best_gun(int num_guns, vms_vector *gun_pos, vms_vector *gun_dir, vms_ve
 
 }
 
-extern fix Player_time_of_death;		//	object.c
-
 int	Dead_controlcen_object_num=-1;
 
 //how long to blow up on insane
@@ -282,6 +280,7 @@ int	Last_time_cc_vis_check = 0;
 void do_controlcen_frame(object *obj)
 {
 	int			best_gun_num;
+	static fix controlcen_death_silence = 0;
 
 	//	If a boss level, then Control_center_present will be 0.
 	if (!Control_center_present)
@@ -350,7 +349,12 @@ void do_controlcen_frame(object *obj)
 
 	}
 
-	if ((Control_center_next_fire_time < 0) && !(Player_is_dead && (GameTime > Player_time_of_death+F1_0*2))) {
+	if (Player_is_dead)
+		controlcen_death_silence += FrameTime;
+	else
+		controlcen_death_silence = 0;
+
+	if ((Control_center_next_fire_time < 0) && !(controlcen_death_silence > F1_0*2)) {
 		if (Players[Player_num].flags & PLAYER_FLAGS_CLOAKED)
 			best_gun_num = calc_best_gun(N_controlcen_guns, Gun_pos, Gun_dir, &Believed_player_pos);
 		else
