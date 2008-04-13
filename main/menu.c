@@ -704,7 +704,7 @@ void do_sound_menu()
 
 void do_graphics_menu()
 {
-	newmenu_item m[8];
+	newmenu_item m[9];
 	int i = 0, j = 0;
 
 	do {
@@ -716,6 +716,7 @@ void do_graphics_menu()
 		m[5].type = NM_TYPE_TEXT;   m[5].text="";
 		m[6].type = NM_TYPE_CHECK;  m[6].text="Transparency Effects"; m[6].value = PlayerCfg.OglAlphaEffects;
 		m[7].type = NM_TYPE_CHECK;  m[7].text="Vectorial Reticle";    m[7].value = PlayerCfg.OglReticle;
+		m[8].type = NM_TYPE_CHECK;  m[8].text="Screenshots w/o HUD";  m[8].value = PlayerCfg.OglPRShot;
 
 		m[GameCfg.TexFilt+2].value=1;
 
@@ -726,6 +727,7 @@ void do_graphics_menu()
 				GameCfg.TexFilt = j;
 		PlayerCfg.OglAlphaEffects = m[6].value;
 		PlayerCfg.OglReticle = m[7].value;
+		PlayerCfg.OglPRShot = m[8].value;
 
 	} while( i>-1 );
 }
