@@ -1,5 +1,9 @@
 D2X-Rebirth Changelog
 
+20080413
+--------
+include/args.h, main/newmenu.c, main/collide.h, main/network.c, main/multi.c, main/multi.h, main/inferno.c, main/menu.c, main/menu.h, main/playsave.c, main/playsave.h, main/object.c, main/hud.c, main/weapon.c, main/newdemo.c, main/config.c, main/config.h, main/gamerend.c, main/gameseq.c, main/escort.c, main/escort.h, main/endlevel.c, main/powerup.c, main/powerup.h, main/automap.c, main/game.c, main/gauges.c, main/game.h, main/kconfig.c, main/gauges.h, main/kconfig.h, main/gamecntl.c, misc/args.c, d2x.ini, arch/ogl/ogl.c, arch/ogl/gr.c, arch/sdl/joy.c: Added structure for values saved in PLR/PLX files; Added most common command-line options to options menu
+
 20080408
 --------
 d2x-rebirth.xcodeproj, include/cfile.h, main/inferno.c, main/newmenu.c, misc/error.c, ui/gadget.c, ui/window.c: show a messagebox if there's an error and graphics are initialised, update Xcode project

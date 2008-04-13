@@ -131,7 +131,6 @@ int	redbook_volume = 255;
 //	External Variables ---------------------------------------------------------
 
 extern int	Speedtest_on;			 // Speedtest global adapted from game.c
-extern int Guided_in_big_window;
 extern char WaitForRefuseAnswer,RefuseThisPlayer,RefuseTeam;
 extern ubyte Newdemo_flying_guided;
 
@@ -147,8 +146,6 @@ extern int	Speedtest_count;
 extern int	Global_missile_firing_count;
 extern int	Automap_flag;
 extern int	Config_menu_flag;
-extern int  EscortHotKeys;
-
 
 extern int	Game_aborted;
 extern int	*Toggle_var;
@@ -549,7 +546,7 @@ void do_show_netgame_help()
       if (!GameArg.MplNoRankings)
 		 {
 			if (i==Player_num)
-				sprintf (mtext[num],"%s%s (%d/%d)",RankStrings[NetPlayers.players[i].rank],Players[i].callsign,Netlife_kills,Netlife_killed); 
+				sprintf (mtext[num],"%s%s (%d/%d)",RankStrings[NetPlayers.players[i].rank],Players[i].callsign,PlayerCfg.NetlifeKills,PlayerCfg.NetlifeKilled); 
 			else
 				sprintf (mtext[num],"%s%s %d/%d",RankStrings[NetPlayers.players[i].rank],Players[i].callsign,kill_matrix[Player_num][i],
 							kill_matrix[i][Player_num]); 
@@ -562,7 +559,7 @@ void do_show_netgame_help()
 	
   sprintf (mtext[num]," "); num++;
 
-  eff=(int)((float)((float)Netlife_kills/((float)Netlife_killed+(float)Netlife_kills))*100.0);
+  eff=(int)((float)((float)PlayerCfg.NetlifeKills/((float)PlayerCfg.NetlifeKilled+(float)PlayerCfg.NetlifeKills))*100.0);
 
   if (eff<0)
 	eff=0;
@@ -801,13 +798,13 @@ int select_next_window_function(int w)
 {
 	Assert(w==0 || w==1);
 
-	switch (Cockpit_3d_view[w]) {
+	switch (PlayerCfg.Cockpit3DView[w]) {
 		case CV_NONE:
-			Cockpit_3d_view[w] = CV_REAR;
+			PlayerCfg.Cockpit3DView[w] = CV_REAR;
 			break;
 		case CV_REAR:
 			if (find_escort()) {
-				Cockpit_3d_view[w] = CV_ESCORT;
+				PlayerCfg.Cockpit3DView[w] = CV_ESCORT;
 				break;
 			}
 			//if no ecort, fall through
@@ -818,11 +815,11 @@ int select_next_window_function(int w)
 		case CV_COOP:
 			Marker_viewer_num[w] = -1;
 			if ((Game_mode & GM_MULTI_COOP) || (Game_mode & GM_TEAM)) {
-				Cockpit_3d_view[w] = CV_COOP;
+				PlayerCfg.Cockpit3DView[w] = CV_COOP;
 				while (1) {
 					Coop_view_player[w]++;
 					if (Coop_view_player[w] == N_players) {
-						Cockpit_3d_view[w] = CV_MARKER;
+						PlayerCfg.Cockpit3DView[w] = CV_MARKER;
 						goto case_marker;
 					}
 					if (Coop_view_player[w]==Player_num)
@@ -839,17 +836,17 @@ int select_next_window_function(int w)
 		case CV_MARKER:
 		case_marker:;
 			if ((Game_mode & GM_MULTI) && !(Game_mode & GM_MULTI_COOP) && Netgame.Allow_marker_view) {	//anarchy only
-				Cockpit_3d_view[w] = CV_MARKER;
+				PlayerCfg.Cockpit3DView[w] = CV_MARKER;
 				if (Marker_viewer_num[w] == -1)
 					Marker_viewer_num[w] = Player_num * 2;
 				else if (Marker_viewer_num[w] == Player_num * 2)
 					Marker_viewer_num[w]++;
 				else
-					Cockpit_3d_view[w] = CV_NONE;
+					PlayerCfg.Cockpit3DView[w] = CV_NONE;
 			}
 			else
 #endif
-				Cockpit_3d_view[w] = CV_NONE;
+				PlayerCfg.Cockpit3DView[w] = CV_NONE;
 			break;
 	}
 	write_player_file();
@@ -1023,7 +1020,7 @@ int HandleSystemKey(int key)
 		MAC(case KEY_COMMAND+KEY_3:)
 
 		case KEY_F3:
-			if (!(Guided_missile[Player_num] && Guided_missile[Player_num]->type==OBJ_WEAPON && Guided_missile[Player_num]->id==GUIDEDMISS_ID && Guided_missile[Player_num]->signature==Guided_missile_sig[Player_num] && Guided_in_big_window))
+			if (!(Guided_missile[Player_num] && Guided_missile[Player_num]->type==OBJ_WEAPON && Guided_missile[Player_num]->id==GUIDEDMISS_ID && Guided_missile[Player_num]->signature==Guided_missile_sig[Player_num] && PlayerCfg.GuidedInBigWindow))
 			{
 				toggle_cockpit();	screen_changed=1;
 			}
@@ -1402,7 +1399,7 @@ void HandleGameKey(int key)
 		case KEY_8 + KEY_SHIFTED:
 		case KEY_9 + KEY_SHIFTED:
 		case KEY_0 + KEY_SHIFTED:
-			if (EscortHotKeys)
+			if (PlayerCfg.EscortHotKeys)
 			{
 				if (!(Game_mode & GM_MULTI))
 					set_escort_special_goal(key);
@@ -1412,7 +1409,8 @@ void HandleGameKey(int key)
 			}
 
 		case KEY_ALTED+KEY_F7:
-			GameArg.GfxGaugeHudMode=(GameArg.GfxGaugeHudMode+1)%GAUGE_HUD_NUMMODES;
+			PlayerCfg.HudMode=(PlayerCfg.HudMode+1)%GAUGE_HUD_NUMMODES;
+			write_player_file();
 			break;
 
 #ifdef NETWORK
@@ -1609,7 +1607,7 @@ void HandleTestKey(int key)
 
 #ifdef NETWORK
 	case KEY_DEBUGGED+KEY_ALTED+KEY_D:
-			Netlife_kills=4000; Netlife_killed=5;
+			PlayerCfg.NetlifeKills=4000; PlayerCfg.NetlifeKilled=5;
 			multi_add_lifetime_kills();
 			break;
 #endif
@@ -1996,12 +1994,12 @@ void FinalCheats(int key)
 	 do_cheat_penalty();
 	 Buddy_dude_cheat = !Buddy_dude_cheat;
 	 if (Buddy_dude_cheat) {
-		HUD_init_message ("%s gets angry!",guidebot_name);
-		strcpy(guidebot_name,"Wingnut");
+		HUD_init_message ("%s gets angry!",PlayerCfg.GuidebotName);
+		strcpy(PlayerCfg.GuidebotName,"Wingnut");
 	 }
 	 else {
-		strcpy(guidebot_name,real_guidebot_name);
-		HUD_init_message ("%s calms down",guidebot_name);
+		strcpy(PlayerCfg.GuidebotName,PlayerCfg.GuidebotNameReal);
+		HUD_init_message ("%s calms down",PlayerCfg.GuidebotName);
 	 }
   }
 

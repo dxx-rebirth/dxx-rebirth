@@ -191,7 +191,6 @@ extern int Network_laser_gun;
 extern int Network_laser_fired;
 extern int Network_laser_level;
 extern int Network_laser_flags;
-extern int Netlife_kills,Netlife_killed;
 
 extern int message_length[MULTI_MAX_TYPE+1];
 extern char multibuf[MAX_MULTI_MESSAGE_LEN+4];
@@ -215,7 +214,6 @@ extern fix Show_kill_list_timer;
 // Used to send network messages
 
 extern char Network_message[MAX_MESSAGE_LEN];
-extern char Network_message_macro[4][MAX_MESSAGE_LEN];
 extern int Network_message_reciever;
 
 // Which player 'owns' each local object for network purposes

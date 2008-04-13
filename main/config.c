@@ -48,7 +48,6 @@ COPYRIGHT 1993-1999 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 
 struct Cfg GameCfg;
 
-ubyte Config_control_type = 0;
 ubyte Config_joystick_sensitivity = 8;
 
 static char *DigiVolumeStr = "DigiVolume";
@@ -84,8 +83,6 @@ int ReadConfigFile()
 	GameCfg.AspectY = 4;
 	GameCfg.WindowMode = 0;
 	GameCfg.TexFilt = 0;
-
-	Config_control_type = 0;
 
 	infile = PHYSFSX_openReadBuffered("descent.cfg");
 

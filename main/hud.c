@@ -48,6 +48,7 @@ COPYRIGHT 1993-1999 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 #include "text.h"
 #include "laser.h"
 #include "args.h"
+#include "playsave.h"
 
 int hud_first = 0;
 int hud_last = 0;
@@ -67,7 +68,7 @@ int     MSG_Noredundancy = 0;
 // ----------------------------------------------------------------------------
 void clear_background_messages(void)
 {
-	if (((Cockpit_mode == CM_STATUS_BAR) || (Cockpit_mode == CM_FULL_SCREEN)) && (Last_msg_ycrd != -1) && (Screen_3d_window.cv_bitmap.bm_y >= 6)) {
+	if (((PlayerCfg.CockpitMode == CM_STATUS_BAR) || (PlayerCfg.CockpitMode == CM_FULL_SCREEN)) && (Last_msg_ycrd != -1) && (Screen_3d_window.cv_bitmap.bm_y >= 6)) {
 		grs_canvas	*canv_save = grd_curcanv;
 
 		gr_set_current_canvas(NULL);
@@ -93,7 +94,6 @@ void HUD_clear_messages()
 }
 
 
-extern int Guided_in_big_window;
 extern int max_window_h, max_window_w;
 
 // ----------------------------------------------------------------------------
@@ -132,7 +132,7 @@ void HUD_render_message_frame()
 		y = FSPACY(1);
 
 		if (Guided_missile[Player_num] && Guided_missile[Player_num]->type==OBJ_WEAPON && Guided_missile[Player_num]->id==GUIDEDMISS_ID &&
-		Guided_missile[Player_num]->signature==Guided_missile_sig[Player_num] && Guided_in_big_window)
+		Guided_missile[Player_num]->signature==Guided_missile_sig[Player_num] && PlayerCfg.GuidedInBigWindow)
 			y+=LINE_SPACING;
 
 		for (i=0; i<HUD_nmessages; i++ )	{

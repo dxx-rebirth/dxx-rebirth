@@ -147,12 +147,12 @@ void show_framerate()
 
 	if (frame_time_total) {
 		int y=GHEIGHT;
-		if (Cockpit_mode==CM_FULL_SCREEN) {
+		if (PlayerCfg.CockpitMode==CM_FULL_SCREEN) {
 			if (Game_mode & GM_MULTI)
 				y -= LINE_SPACING * 10;
 			else
 				y -= LINE_SPACING * 5;
-		} else if (Cockpit_mode == CM_STATUS_BAR) {
+		} else if (PlayerCfg.CockpitMode == CM_STATUS_BAR) {
 			if (Game_mode & GM_MULTI)
 				y -= LINE_SPACING * 6;
 			else
@@ -279,7 +279,7 @@ void show_netplayerinfo()
 	gr_set_fontcolor(255,-1);
 
 	// additional information about game - hoard, ranking
-	eff=(int)((float)((float)Netlife_kills/((float)Netlife_killed+(float)Netlife_kills))*100.0);
+	eff=(int)((float)((float)PlayerCfg.NetlifeKills/((float)PlayerCfg.NetlifeKilled+(float)PlayerCfg.NetlifeKills))*100.0);
 	if (eff<0)
 		eff=0;
 
@@ -292,7 +292,7 @@ void show_netplayerinfo()
 	}
 	else if (!GameArg.MplNoRankings)
 	{
-		gr_printf(0x8000,y,"Your lifetime efficiency of %d%% (%d/%d)",eff,Netlife_kills,Netlife_killed);
+		gr_printf(0x8000,y,"Your lifetime efficiency of %d%% (%d/%d)",eff,PlayerCfg.NetlifeKills,PlayerCfg.NetlifeKilled);
 		y+=LINE_SPACING;
 		if (eff<60)
 			gr_printf(0x8000,y,"is %s your ranking.",eff_strings[eff/10]);
@@ -419,28 +419,28 @@ void game_draw_hud_stuff()
 
 		y = GHEIGHT-(LINE_SPACING*2);
 
-		if (Cockpit_mode == CM_FULL_COCKPIT)
+		if (PlayerCfg.CockpitMode == CM_FULL_COCKPIT)
 			y = grd_curcanv->cv_bitmap.bm_h / 1.2 ;
-		if (Cockpit_mode != CM_REAR_VIEW)
+		if (PlayerCfg.CockpitMode != CM_REAR_VIEW)
 			gr_printf(0x8000, y, message );
 	}
 
 	render_countdown_gauge();
 
 	// this should be made part of hud code some day
-	if ( Player_num > -1 && Viewer->type==OBJ_PLAYER && Viewer->id==Player_num && Cockpit_mode != CM_REAR_VIEW)	{
+	if ( Player_num > -1 && Viewer->type==OBJ_PLAYER && Viewer->id==Player_num && PlayerCfg.CockpitMode != CM_REAR_VIEW)	{
 		int	x = FSPACX(1);
 		int	y = grd_curcanv->cv_bitmap.bm_h;
 
 		gr_set_curfont( GAME_FONT );
 		gr_set_fontcolor( BM_XRGB(0, 31, 0), -1 );
 		if (Cruise_speed > 0) {
-			if (Cockpit_mode==CM_FULL_SCREEN) {
+			if (PlayerCfg.CockpitMode==CM_FULL_SCREEN) {
 				if (Game_mode & GM_MULTI)
 					y -= LINE_SPACING * 10;
 				else
 					y -= LINE_SPACING * 5;
-			} else if (Cockpit_mode == CM_STATUS_BAR) {
+			} else if (PlayerCfg.CockpitMode == CM_STATUS_BAR) {
 				if (Game_mode & GM_MULTI)
 					y -= LINE_SPACING * 6;
 				else
@@ -456,7 +456,7 @@ void game_draw_hud_stuff()
 		}
 	}
 
-	if (GameArg.SysFPSIndicator && Cockpit_mode != CM_REAR_VIEW)
+	if (GameArg.SysFPSIndicator && PlayerCfg.CockpitMode != CM_REAR_VIEW)
 		show_framerate();
 
 	draw_hud();
@@ -545,7 +545,6 @@ void game_expand_bitmap( grs_bitmap * bmp, uint flags )
 }
 
 extern int SW_drawn[2], SW_x[2], SW_y[2], SW_w[2], SW_h[2];
-extern int Guided_in_big_window;
 ubyte RenderingType=0;
 ubyte DemoDoingRight=0,DemoDoingLeft=0;
 extern ubyte DemoDoRight,DemoDoLeft;
@@ -554,8 +553,6 @@ extern object DemoRightExtra,DemoLeftExtra;
 char DemoWBUType[]={0,WBU_GUIDED,WBU_MISSILE,WBU_REAR,WBU_ESCORT,WBU_MARKER,0};
 char DemoRearCheck[]={0,0,0,1,0,0,0};
 char *DemoExtraMessage[]={"PLAYER","GUIDED","MISSILE","REAR","GUIDE-BOT","MARKER","SHIP"};
-
-extern char guidebot_name[];
 
 void show_extra_views()
 {
@@ -598,7 +595,7 @@ void show_extra_views()
 
 	if (Guided_missile[Player_num] && Guided_missile[Player_num]->type==OBJ_WEAPON && Guided_missile[Player_num]->id==GUIDEDMISS_ID && Guided_missile[Player_num]->signature==Guided_missile_sig[Player_num]) 
 	{
-		if (Guided_in_big_window)
+		if (PlayerCfg.GuidedInBigWindow)
 		{
 			RenderingType=6+(1<<4);
 			do_cockpit_window_view(1,Viewer,0,WBU_MISSILE,"SHIP");
@@ -614,7 +611,7 @@ void show_extra_views()
 	else {
 
 		if (Guided_missile[Player_num]) {		//used to be active
-			if (!Guided_in_big_window)
+			if (!PlayerCfg.GuidedInBigWindow)
 				do_cockpit_window_view(1,NULL,0,WBU_STATIC,NULL);
 			Guided_missile[Player_num] = NULL;
 		}
@@ -624,7 +621,7 @@ void show_extra_views()
 			static int mv_sig=-1;
 			if (mv_sig == -1)
 				mv_sig = Missile_viewer->signature;
-			if (Missile_view_enabled && Missile_viewer->type!=OBJ_NONE && Missile_viewer->signature == mv_sig) {
+			if (PlayerCfg.MissileViewEnabled && Missile_viewer->type!=OBJ_NONE && Missile_viewer->signature == mv_sig) {
   				RenderingType=2+(1<<4);
 				do_cockpit_window_view(1,Missile_viewer,0,WBU_MISSILE,"MISSILE");
 				did_missile_view=1;
@@ -644,7 +641,7 @@ void show_extra_views()
 			continue;		//if showing missile view in right window, can't show anything else
 
 		//show special views if selected
-		switch (Cockpit_3d_view[w]) {
+		switch (PlayerCfg.Cockpit3DView[w]) {
 			case CV_NONE:
 				RenderingType=255;
 				do_cockpit_window_view(w,NULL,0,WBU_WEAPON,NULL);
@@ -664,11 +661,11 @@ void show_extra_views()
 				buddy = find_escort();
 				if (buddy == NULL) {
 					do_cockpit_window_view(w,NULL,0,WBU_WEAPON,NULL);
-					Cockpit_3d_view[w] = CV_NONE;
+					PlayerCfg.Cockpit3DView[w] = CV_NONE;
 				}
 				else {
 					RenderingType=4+(w<<4);
-					do_cockpit_window_view(w,buddy,0,WBU_ESCORT,guidebot_name);
+					do_cockpit_window_view(w,buddy,0,WBU_ESCORT,PlayerCfg.GuidebotName);
 				}
 				break;
 			}
@@ -682,7 +679,7 @@ void show_extra_views()
 					do_cockpit_window_view(w,&Objects[Players[Coop_view_player[w]].objnum],0,WBU_COOP,Players[Coop_view_player[w]].callsign);
 				else {
 					do_cockpit_window_view(w,NULL,0,WBU_WEAPON,NULL);
-					Cockpit_3d_view[w] = CV_NONE;
+					PlayerCfg.Cockpit3DView[w] = CV_NONE;
 				}
 				break;
 			}
@@ -691,7 +688,7 @@ void show_extra_views()
 				char label[10];
 				RenderingType=5+(w<<4);
 				if (Marker_viewer_num[w] == -1 || MarkerObject[Marker_viewer_num[w]] == -1) {
-					Cockpit_3d_view[w] = CV_NONE;
+					PlayerCfg.Cockpit3DView[w] = CV_NONE;
 					break;
 				}
 				sprintf(label,"Marker %d",Marker_viewer_num[w]+1);
@@ -718,14 +715,14 @@ void game_render_frame_mono(int flip)
 	
 	gr_set_current_canvas(&Screen_3d_window);
 	
-	if (Guided_missile[Player_num] && Guided_missile[Player_num]->type==OBJ_WEAPON && Guided_missile[Player_num]->id==GUIDEDMISS_ID && Guided_missile[Player_num]->signature==Guided_missile_sig[Player_num] && Guided_in_big_window) {
+	if (Guided_missile[Player_num] && Guided_missile[Player_num]->type==OBJ_WEAPON && Guided_missile[Player_num]->id==GUIDEDMISS_ID && Guided_missile[Player_num]->signature==Guided_missile_sig[Player_num] && PlayerCfg.GuidedInBigWindow) {
 		object *viewer_save = Viewer;
 
-		if (Cockpit_mode==CM_FULL_COCKPIT)
+		if (PlayerCfg.CockpitMode==CM_FULL_COCKPIT)
 		{
 			 BigWindowSwitch=1;
 			 force_cockpit_redraw=1;
-			 Cockpit_mode=CM_STATUS_BAR;
+			 PlayerCfg.CockpitMode=CM_STATUS_BAR;
 			 return;
 		}
 
@@ -753,7 +750,7 @@ void game_render_frame_mono(int flip)
 		if (BigWindowSwitch)
 		{
 			force_cockpit_redraw=1;
-			Cockpit_mode=CM_FULL_COCKPIT;
+			PlayerCfg.CockpitMode=CM_FULL_COCKPIT;
 			BigWindowSwitch=0;
 			return;
 		}
@@ -767,7 +764,7 @@ void game_render_frame_mono(int flip)
 
 	show_extra_views();		//missile view, buddy bot, etc.
 
-	if (Cockpit_mode==CM_FULL_COCKPIT || Cockpit_mode==CM_STATUS_BAR)
+	if (PlayerCfg.CockpitMode==CM_FULL_COCKPIT || PlayerCfg.CockpitMode==CM_STATUS_BAR)
 		render_gauges();
 
 	gr_set_current_canvas(&Screen_3d_window);
@@ -794,7 +791,7 @@ void toggle_cockpit()
 	if (Rear_view)
 		return;
 
-	switch (Cockpit_mode)
+	switch (PlayerCfg.CockpitMode)
 	{
 		case CM_FULL_COCKPIT:
 			new_mode = CM_STATUS_BAR;
@@ -822,13 +819,13 @@ void update_cockpits(int force_redraw)
 
 	grs_bitmap *bm;
 
-	PIGGY_PAGE_IN(cockpit_bitmap[Cockpit_mode+(HIRESMODE?(Num_cockpits/2):0)]);
-	bm=&GameBitmaps[cockpit_bitmap[Cockpit_mode+(HIRESMODE?(Num_cockpits/2):0)].index];
+	PIGGY_PAGE_IN(cockpit_bitmap[PlayerCfg.CockpitMode+(HIRESMODE?(Num_cockpits/2):0)]);
+	bm=&GameBitmaps[cockpit_bitmap[PlayerCfg.CockpitMode+(HIRESMODE?(Num_cockpits/2):0)].index];
 
 	//Redraw the on-screen cockpit bitmaps
 	if (VR_render_mode != VR_NONE )	return;
 
-	switch( Cockpit_mode )	{
+	switch( PlayerCfg.CockpitMode )	{
 		case CM_FULL_COCKPIT:
 			gr_set_current_canvas(NULL);
 			bm->bm_flags |= BM_FLAG_COCKPIT_TRANSPARENT;
@@ -868,12 +865,12 @@ void update_cockpits(int force_redraw)
 
 	gr_set_current_canvas(NULL);
 
-	if (Cockpit_mode != last_drawn_cockpit || force_redraw )
-		last_drawn_cockpit = Cockpit_mode;
+	if (PlayerCfg.CockpitMode != last_drawn_cockpit || force_redraw )
+		last_drawn_cockpit = PlayerCfg.CockpitMode;
 	else
 		return;
 
-	if (Cockpit_mode==CM_FULL_COCKPIT || Cockpit_mode==CM_STATUS_BAR)
+	if (PlayerCfg.CockpitMode==CM_FULL_COCKPIT || PlayerCfg.CockpitMode==CM_STATUS_BAR)
 		init_gauges();
 
 }

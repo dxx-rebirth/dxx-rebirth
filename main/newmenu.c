@@ -71,6 +71,7 @@ COPYRIGHT 1993-1999 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 #include "strutil.h"
 #include "vers_id.h"
 #include "timer.h"
+#include "playsave.h"
 
 #ifdef OGL
 #include "ogl_init.h"
@@ -542,7 +543,7 @@ int check_button_press()
 {
 	int i;
 
-	switch (Config_control_type) {
+	switch (PlayerCfg.ControlType) {
 	case	CONTROL_JOYSTICK:
 	case	CONTROL_FLIGHTSTICK_PRO:
 	case	CONTROL_THRUSTMASTER_FCS:
@@ -567,7 +568,7 @@ int check_button_press()
 
 		break;
 	default:
-		Error("Bad control type (Config_control_type):%i",Config_control_type);
+		Error("Bad control type (PlayerCfg.ControlType):%i",PlayerCfg.ControlType);
 	}
 
 	return 0;

@@ -160,7 +160,6 @@ grs_canvas	VR_editor_canvas;						//  The canvas that the editor writes to.
 
 int Debug_pause=0;				//John's debugging pause system
 
-int Cockpit_mode=CM_FULL_COCKPIT;		//set game.h for values
 static int	old_cockpit_mode=-1;
 
 int force_cockpit_redraw=0;
@@ -278,12 +277,12 @@ void init_cockpit()
 		VR_screen_flags = VRF_ALLOW_COCKPIT;
 	}
 
-	if ((!(VR_screen_flags & VRF_ALLOW_COCKPIT) && (Cockpit_mode==CM_FULL_COCKPIT || Cockpit_mode==CM_STATUS_BAR || Cockpit_mode==CM_REAR_VIEW)) || ( VR_render_mode != VR_NONE ) || ( Screen_mode == SCREEN_EDITOR ))
-		Cockpit_mode = CM_FULL_SCREEN;
+	if ((!(VR_screen_flags & VRF_ALLOW_COCKPIT) && (PlayerCfg.CockpitMode==CM_FULL_COCKPIT || PlayerCfg.CockpitMode==CM_STATUS_BAR || PlayerCfg.CockpitMode==CM_REAR_VIEW)) || ( VR_render_mode != VR_NONE ) || ( Screen_mode == SCREEN_EDITOR ))
+		PlayerCfg.CockpitMode = CM_FULL_SCREEN;
 
 	gr_set_current_canvas(NULL);
 
-	switch( Cockpit_mode ) {
+	switch( PlayerCfg.CockpitMode ) {
 	case CM_FULL_COCKPIT:
 		game_init_render_sub_buffers(0, 0, grd_curscreen->sc_w,(grd_curscreen->sc_h*2)/3); 
 		break;
@@ -310,7 +309,7 @@ void init_cockpit()
 	}
 
 	if (Newdemo_state==ND_STATE_RECORDING) {
-		newdemo_record_cockpit_change(Cockpit_mode);
+		newdemo_record_cockpit_change(PlayerCfg.CockpitMode);
 	}
 
 	gr_set_current_canvas(NULL);
@@ -319,8 +318,8 @@ void init_cockpit()
 //selects a given cockpit (or lack of one).  See types in game.h
 void select_cockpit(int mode)
 {
-	if (mode != Cockpit_mode) {		//new mode
-		Cockpit_mode=mode;
+	if (mode != PlayerCfg.CockpitMode) {		//new mode
+		PlayerCfg.CockpitMode=mode;
 		init_cockpit();
 	}
 }
@@ -1172,7 +1171,7 @@ void check_rear_view()
 
 		if (Rear_view) {
 			Rear_view = 0;
-			if (Cockpit_mode==CM_REAR_VIEW) {
+			if (PlayerCfg.CockpitMode==CM_REAR_VIEW) {
 				select_cockpit(old_cockpit_mode);
 			}
 			if (Newdemo_state == ND_STATE_RECORDING)
@@ -1189,8 +1188,8 @@ void check_rear_view()
 				leave_mode = 0; // means wait for another key
 				entry_time = timer_get_fixed_seconds();
 			}
-			if (Cockpit_mode == CM_FULL_COCKPIT) {
-				old_cockpit_mode = Cockpit_mode;
+			if (PlayerCfg.CockpitMode == CM_FULL_COCKPIT) {
+				old_cockpit_mode = PlayerCfg.CockpitMode;
 				select_cockpit(CM_REAR_VIEW);
 			}
 			if (Newdemo_state == ND_STATE_RECORDING)
@@ -1205,11 +1204,11 @@ void check_rear_view()
 		}
 		else {
 
-			//@@if (leave_mode==1 && Cockpit_mode==CM_REAR_VIEW) {
+			//@@if (leave_mode==1 && PlayerCfg.CockpitMode==CM_REAR_VIEW) {
 
 			if (leave_mode==1 && Rear_view) {
 				Rear_view = 0;
-				if (Cockpit_mode==CM_REAR_VIEW) {
+				if (PlayerCfg.CockpitMode==CM_REAR_VIEW) {
 					select_cockpit(old_cockpit_mode);
 				}
 				if (Newdemo_state == ND_STATE_RECORDING)
@@ -1227,7 +1226,7 @@ void reset_rear_view(void)
 
 	Rear_view = 0;
 
-	if (!(Cockpit_mode == CM_FULL_COCKPIT || Cockpit_mode == CM_STATUS_BAR || Cockpit_mode == CM_FULL_SCREEN)) {
+	if (!(PlayerCfg.CockpitMode == CM_FULL_COCKPIT || PlayerCfg.CockpitMode == CM_STATUS_BAR || PlayerCfg.CockpitMode == CM_FULL_SCREEN)) {
 		if (!(old_cockpit_mode == CM_FULL_COCKPIT || old_cockpit_mode == CM_STATUS_BAR || old_cockpit_mode == CM_FULL_SCREEN))
 			old_cockpit_mode = CM_FULL_COCKPIT;
 		select_cockpit(old_cockpit_mode);
@@ -1511,11 +1510,8 @@ extern	int	Do_appearance_effect;
 
 object *Missile_viewer=NULL;
 
-int Missile_view_enabled = 1;
-
 int Marker_viewer_num[2]={-1,-1};
 int Coop_view_player[2]={-1,-1};
-int Cockpit_3d_view[2]={CV_NONE,CV_NONE};
 
 //returns ptr to escort robot, or NULL
 object *find_escort()

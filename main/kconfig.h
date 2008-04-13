@@ -151,16 +151,14 @@ extern void kconfig(int n, char *title);
 #define NUM_D2X_CONTROLS    20
 #define MAX_D2X_CONTROLS    40
 
-extern ubyte kconfig_d2x_settings[MAX_D2X_CONTROLS];
-extern ubyte default_kconfig_d2x_settings[MAX_D2X_CONTROLS];
+extern ubyte DefaultKeySettingsD2X[MAX_D2X_CONTROLS];
 
 #define NUM_KEY_CONTROLS    57
 #define NUM_JOYSTICK_CONTROLS  56
 #define NUM_MOUSE_CONTROLS  30
 #define MAX_CONTROLS        60		// there are actually 48, so this leaves room for more
 
-extern ubyte kconfig_settings[CONTROL_MAX_TYPES][MAX_CONTROLS];
-extern ubyte default_kconfig_settings[CONTROL_MAX_TYPES][MAX_CONTROLS];
+extern ubyte DefaultKeySettings[CONTROL_MAX_TYPES][MAX_CONTROLS];
 
 extern char *control_text[CONTROL_MAX_TYPES];
 

@@ -55,6 +55,7 @@ COPYRIGHT 1993-1999 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 #include "gr.h"	//	for powerup outline drawing
 #include "editor/editor.h"
 #endif
+#include "playsave.h"
 
 int N_powerup_types = 0;
 powerup_type_info Powerup_info[MAX_POWERUP_TYPES];
@@ -229,7 +230,6 @@ extern char GetKeyValue(char);
 extern void check_to_use_primary(int);
 extern void multi_send_got_flag (char);
 
-int Headlight_active_default=1;	//is headlight on when picked up?
 extern int PlayerMessage;
 
 //	returns true if powerup consumed
@@ -598,9 +598,9 @@ int do_powerup(object *obj)
 				multi_send_play_sound(Powerup_info[obj->id].hit_sound, F1_0);
 #endif
 				digi_play_sample( Powerup_info[obj->id].hit_sound, F1_0 );
-				sprintf(msg,"HEADLIGHT BOOST! (Headlight is %s)",Headlight_active_default?"ON":"OFF");
+				sprintf(msg,"HEADLIGHT BOOST! (Headlight is %s)",PlayerCfg.HeadlightActiveDefault?"ON":"OFF");
 				powerup_basic(15, 0, 15, 0, msg );
-				if (Headlight_active_default)
+				if (PlayerCfg.HeadlightActiveDefault)
 					Players[Player_num].flags |= PLAYER_FLAGS_HEADLIGHT_ON;
 				used=1;
 #ifdef NETWORK

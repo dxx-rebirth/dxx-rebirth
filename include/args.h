@@ -65,17 +65,12 @@ typedef struct Arg
 	int SndSdlMixer;
 	char *SndExternalMusic;
 	char *SndJukebox;
-	int GfxGaugeHudMode;// MOVE
-	int GfxPersistentDebris;// MOVE
 	int GfxHiresGFXAvailable;
 	int GfxHiresFNTAvailable;
 	int GfxMovieHires;
 	int GfxMovieSubtitles;
 #ifdef OGL
-	int OglAlphaEffects;// MOVE
-	int OglReticle;// MOVE
 	int OglFixedFont;
-	int OglPrShot;// MOVE
 #endif
 	int MplGameProfile;
 	int MplNoRankings;

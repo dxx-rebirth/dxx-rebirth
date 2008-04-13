@@ -38,8 +38,6 @@ extern fix Next_missile_fire_time;  // Time at which player can next fire his se
 extern fix Laser_delay_time;        // Delay between laser fires.
 extern int Cheats_enabled;
 
-extern int Missile_view_enabled;
-
 extern object *Missile_viewer;
 
 #define CV_NONE     0
@@ -48,7 +46,6 @@ extern object *Missile_viewer;
 #define CV_COOP     3
 #define CV_MARKER   4
 
-extern int Cockpit_3d_view[2];      // left & right
 extern int Coop_view_player[2];     // left & right
 extern int Marker_viewer_num[2];    // left & right
 
@@ -156,7 +153,6 @@ extern void save_screen_shot(int automap_flag);
 #define CM_FULL_SCREEN      3   // full screen, no cockpit (w/ reticle)
 #define CM_LETTERBOX        4   // half-height window (for cutscenes)
 
-extern int Cockpit_mode;        // what sort of cockpit or window is up?
 extern int Game_window_w,       // width and height of player's game window
            Game_window_h;
 

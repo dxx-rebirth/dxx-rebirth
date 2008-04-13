@@ -21,17 +21,61 @@ COPYRIGHT 1993-1999 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 #ifndef _PLAYSAVE_H
 #define _PLAYSAVE_H
 
+#include "kconfig.h"
+#include "mission.h"
+#include "weapon.h"
+#include "multi.h"
+#include "escort.h"
+
 #define N_SAVE_SLOTS    10
 #define GAME_NAME_LEN   25      // +1 for terminating zero = 26
+
+typedef struct hli {
+	char	Shortname[9];
+	ubyte	LevelNum;
+} hli;
+
+// FIXME!!! NOW THINK AGAIN IF ALL NEW PARTS ARE SOMEHOW ACCESSIBLE FROM MENUS!!!
+typedef struct player_config
+{
+	ubyte ControlType;
+	ubyte PrimaryOrder[MAX_PRIMARY_WEAPONS+1];
+	ubyte SecondaryOrder[MAX_SECONDARY_WEAPONS+1];
+	ubyte KeySettings[CONTROL_MAX_TYPES][MAX_CONTROLS];
+	ubyte KeySettingsD2X[MAX_D2X_CONTROLS];
+	int DefaultDifficulty;
+	int AutoLeveling;
+	short NHighestLevels;
+	hli HighestLevels[MAX_MISSIONS];
+	ubyte MouseSensitivity;
+	ubyte JoystickSensitivity;
+	int JoystickDeadzone;
+	int CockpitMode;
+	int Cockpit3DView[2];
+	char NetworkMessageMacro[4][MAX_MESSAGE_LEN];
+	int NetlifeKills;
+	int NetlifeKilled;
+	ubyte ReticleOn;
+	int MissileViewEnabled;
+	int HeadlightActiveDefault;
+	int GuidedInBigWindow;
+	char GuidebotName[GUIDEBOT_NAME_LEN+1];
+	char GuidebotNameReal[GUIDEBOT_NAME_LEN+1];
+	int HudMode;
+	int EscortHotKeys;
+	int PersistentDebris;
+	int OglAlphaEffects;
+	int OglReticle;
+	int OglPRShot;
+} __attribute__ ((packed)) player_config;
+
+extern struct player_config PlayerCfg;
 
 #ifndef EZERO
 #define EZERO 0
 #endif
 
 extern int Default_leveling_on;
-
-// update the player's highest level.  returns errno (0 == no error)
-int update_player_file();
 
 // Used to save kconfig values to disk.
 int write_player_file();

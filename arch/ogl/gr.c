@@ -48,6 +48,7 @@
 #include "render.h"
 #include "console.h"
 #include "config.h"
+#include "playsave.h"
 
 #if defined(__APPLE__) && defined(__MACH__)
 #include <OpenGL/glu.h>
@@ -546,7 +547,7 @@ void save_screen_shot(int automap_flag)
 	if (!automap_flag)
 		hud_message(MSGC_GAME_FEEDBACK,message);
 
-	if (!automap_flag && GameArg.OglPrShot && Function_mode == FMODE_GAME)
+	if (!automap_flag && PlayerCfg.OglPRShot && Function_mode == FMODE_GAME)
 	{
 		render_frame(0,0);
 		gr_set_curfont(MEDIUM2_FONT);

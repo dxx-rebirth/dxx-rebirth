@@ -35,9 +35,6 @@ extern void d2x_options_menu();
 #define STARS_BACKGROUND ((HIRESMODE && cfexist("starsb.pcx"))?"starsb.pcx":cfexist("stars.pcx")?"stars.pcx":"starsb.pcx")
 
 extern char *menu_difficulty_text[];
-extern int Player_default_difficulty;
-extern int Auto_leveling_on;
-extern int Missile_view_enabled;
 extern int Escort_view_enabled;
 extern int Cockpit_rear_view;
 

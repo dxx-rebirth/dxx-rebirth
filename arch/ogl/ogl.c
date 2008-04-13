@@ -51,6 +51,7 @@
 #include "byteswap.h"
 #include "endlevel.h"
 #include "gauges.h"
+#include "playsave.h"
 
 //change to 1 for lots of spew.
 #if 0
@@ -776,7 +777,7 @@ bool g3_draw_bitmap(vms_vector *pos,fix width,fix height,grs_bitmap *bm, int ori
 	glBegin(GL_QUADS);
 
 	// Define alpha by looking for object TYPE or ID. We do this here so we have it seperated from the rest of the code.
-	if (GameArg.OglAlphaEffects && // if -gl_transparency draw following bitmaps
+	if (PlayerCfg.OglAlphaEffects && // if -gl_transparency draw following bitmaps
 		(obj->type==OBJ_FIREBALL || // all types of explosions and energy-effects
 		(obj->type==OBJ_WEAPON && (obj->id != PROXIMITY_ID && obj->id != SUPERPROX_ID)) || // weapon fire except bombs
 		obj->id==POW_EXTRA_LIFE || // extra life

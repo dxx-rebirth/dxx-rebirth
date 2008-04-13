@@ -527,8 +527,6 @@ void DoGameOver()
 
 }
 
-extern void do_save_game_menu();
-
 //update various information about the player
 void update_player_stats()
 {
@@ -690,12 +688,14 @@ int RegisterPlayer()
 		//---------------------------------------------------------------------
 		// Set default config options in case there is no config file
 		// kc_keyboard, kc_joystick, kc_mouse are statically defined.
-		Config_joystick_sensitivity = 8;
-		Config_mouse_sensitivity = 8;
-		Config_control_type =CONTROL_NONE;
+		PlayerCfg.JoystickSensitivity = 8;
+		PlayerCfg.MouseSensitivity = 8;
+		PlayerCfg.ControlType =CONTROL_NONE;
 		for (i=0; i<CONTROL_MAX_TYPES; i++ )
 			for (j=0; j<MAX_CONTROLS; j++ )
-				kconfig_settings[i][j] = default_kconfig_settings[i][j];
+				PlayerCfg.KeySettings[i][j] = DefaultKeySettings[i][j];
+		for(i=0; i<MAX_D2X_CONTROLS; i++)
+			PlayerCfg.KeySettingsD2X[i]=DefaultKeySettingsD2X[i];
 		kc_set_controls();
 		//----------------------------------------------------------------
 
@@ -723,8 +723,6 @@ do_menu_again:
 
 	if (read_player_file() != EZERO)
 		goto do_menu_again;
-
-	Auto_leveling_on = Default_leveling_on;
 
 	WriteConfigFile();		// Update lastplr
 

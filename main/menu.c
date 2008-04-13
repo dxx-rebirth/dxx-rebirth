@@ -118,14 +118,6 @@ extern int Speedtest_on;
 #define Speedtest_on 0
 #endif
 
-void do_sound_menu();
-void do_toggles_menu();
-
-int Player_default_difficulty; // Last difficulty level chosen by the player
-int Auto_leveling_on = 1;
-int Guided_in_big_window = 0;
-int EscortHotKeys=1;
-
 // Function Prototypes added after LINTING
 void do_option(int select);
 void do_new_game_menu(void);
@@ -405,7 +397,7 @@ int do_difficulty_menu()
 	if (s > -1 )    {
 		if (s != Difficulty_level)
 		{
-			Player_default_difficulty = s;
+			PlayerCfg.DefaultDifficulty = s;
 			write_player_file();
 		}
 		Difficulty_level = s;
@@ -457,7 +449,7 @@ try_again:
 		}
 	}
 
-	Difficulty_level = Player_default_difficulty;
+	Difficulty_level = PlayerCfg.DefaultDifficulty;
 
 	if (!do_difficulty_menu())
 		return;
@@ -583,19 +575,19 @@ void change_res()
 void input_menuset(int nitems, newmenu_item * items, int *last_key, int citem )
 {
 	int i;
-	int oc_type = Config_control_type;
+	int oc_type = PlayerCfg.ControlType;
 
 	nitems = nitems;
 	last_key = last_key;
 	citem = citem;		
 
 	for (i=0; i<4; i++ )
-		if (items[i].value) Config_control_type = i;
+		if (items[i].value) PlayerCfg.ControlType = i;
 
-        if (Config_control_type == 2) Config_control_type = CONTROL_MOUSE;
-        if (Config_control_type == 3) Config_control_type = CONTROL_JOYMOUSE;
+        if (PlayerCfg.ControlType == 2) PlayerCfg.ControlType = CONTROL_MOUSE;
+        if (PlayerCfg.ControlType == 3) PlayerCfg.ControlType = CONTROL_JOYMOUSE;
 
-	if (oc_type != Config_control_type) {
+	if (oc_type != PlayerCfg.ControlType) {
 		kc_set_controls();
 	}
 }
@@ -616,33 +608,33 @@ void input_config()
 	m[7].type = NM_TYPE_MENU;   m[7].text = "CUSTOMIZE WEAPON KEYS";
 	m[8].type = NM_TYPE_TEXT;   m[8].text = "";
 	m[9].type = NM_TYPE_TEXT;   m[9].text = "Joystick";
-	m[10].type = NM_TYPE_SLIDER; m[10].text="Sensitivity"; m[10].value=Config_joystick_sensitivity; m[10].min_value = 0; m[10].max_value = 16;
-	m[11].type = NM_TYPE_SLIDER; m[11].text="Joystick Deadzone"; m[11].value=joy_deadzone; m[11].min_value=0; m[11].max_value = 16;
+	m[10].type = NM_TYPE_SLIDER; m[10].text="Sensitivity"; m[10].value=PlayerCfg.JoystickSensitivity; m[10].min_value = 0; m[10].max_value = 16;
+	m[11].type = NM_TYPE_SLIDER; m[11].text="Joystick Deadzone"; m[11].value=PlayerCfg.JoystickDeadzone; m[11].min_value=0; m[11].max_value = 16;
 	m[12].type = NM_TYPE_TEXT;   m[12].text = "Mouse";
-	m[13].type = NM_TYPE_SLIDER; m[13].text="Sensitivity"; m[13].value=Config_mouse_sensitivity; m[13].min_value = 0; m[13].max_value = 16;
+	m[13].type = NM_TYPE_SLIDER; m[13].text="Sensitivity"; m[13].value=PlayerCfg.MouseSensitivity; m[13].min_value = 0; m[13].max_value = 16;
 
 
 	do {
 
-		i = Config_control_type;
+		i = PlayerCfg.ControlType;
 		if (i == CONTROL_MOUSE) i = 2;
 		if (i==CONTROL_JOYMOUSE) i = 3;
 		m[i].value = 1;
 
 		i1 = newmenu_do1(NULL, TXT_CONTROLS, nitems, m, input_menuset, i1);
 
-		Config_joystick_sensitivity = m[10].value;
-		joy_deadzone = m[11].value;
-		Config_mouse_sensitivity = m[13].value;
+		PlayerCfg.JoystickSensitivity = m[10].value;
+		PlayerCfg.JoystickDeadzone = m[11].value;
+		PlayerCfg.MouseSensitivity = m[13].value;
 
 		for (j = 0; j <= 3; j++)
 			if (m[j].value)
-				Config_control_type = j;
-		i = Config_control_type;
-		if (Config_control_type == 2)
-			Config_control_type = CONTROL_MOUSE;
-		if (Config_control_type == 3)
-			Config_control_type = CONTROL_JOYMOUSE;
+				PlayerCfg.ControlType = j;
+		i = PlayerCfg.ControlType;
+		if (PlayerCfg.ControlType == 2)
+			PlayerCfg.ControlType = CONTROL_MOUSE;
+		if (PlayerCfg.ControlType == 3)
+			PlayerCfg.ControlType = CONTROL_JOYMOUSE;
 
 		switch (i1) {
 		case 5:
@@ -658,50 +650,6 @@ void input_config()
 
 	} while (i1>-1);
 
-}
-
-void do_options_menu()
-{
-	newmenu_item m[10];
-	int i = 0;
-
-	do {
-		m[ 0].type = NM_TYPE_MENU;   m[ 0].text="Sound effects & music...";
-		m[ 1].type = NM_TYPE_TEXT;   m[ 1].text="";
-#if defined(MACINTOSH) && defined(APPLE_DEMO)
-		m[ 2].type = NM_TYPE_TEXT;   m[ 2].text="";
-#else
-		m[ 2].type = NM_TYPE_MENU;   m[ 2].text=TXT_CONTROLS_;
-#endif
-		m[ 3].type = NM_TYPE_TEXT;   m[ 3].text="";
-
-		m[ 4].type = NM_TYPE_SLIDER;
-		m[ 4].text = TXT_BRIGHTNESS;
-		m[ 4].value = gr_palette_get_gamma();
-		m[ 4].min_value = 0;
-		m[ 4].max_value = 16;
-
-		m[ 5].type = NM_TYPE_MENU;   m[ 5].text="Screen resolution...";
-
-		m[ 6].type = NM_TYPE_TEXT;   m[ 6].text="";
-		m[ 7].type = NM_TYPE_MENU;   m[ 7].text="Primary autoselect ordering...";
-		m[ 8].type = NM_TYPE_MENU;   m[ 8].text="Secondary autoselect ordering...";
-		m[ 9].type = NM_TYPE_MENU;   m[ 9].text="Toggles...";
-
-		i = newmenu_do1( NULL, TXT_OPTIONS, sizeof(m)/sizeof(*m), m, options_menuset, i );
-			
-		switch(i)       {
-			case  0: do_sound_menu();		break;
-			case  2: input_config();		break;
-			case  5: change_res();			break;
-			case  7: ReorderPrimary();		break;
-			case  8: ReorderSecondary();		break;
-			case  9: do_toggles_menu();		break;
-		}
-
-	} while( i>-1 );
-
-	write_player_file();
 }
 
 void set_redbook_volume(int volume);
@@ -738,14 +686,14 @@ void sound_menuset(int nitems, newmenu_item * items, int *last_key, int citem )
 
 void do_sound_menu()
 {
-   newmenu_item m[4];
+	newmenu_item m[4];
 	int i = 0;
 
 	do {
 		m[ 0].type = NM_TYPE_SLIDER; m[ 0].text=TXT_FX_VOLUME; m[0].value=GameCfg.DigiVolume;m[0].min_value=0; m[0].max_value=8; 
 		m[ 1].type = NM_TYPE_SLIDER; m[ 1].text=(GameArg.SndEnableRedbook?"CD music volume":"MIDI music volume"); m[1].value=(GameArg.SndEnableRedbook?GameCfg.RedbookVolume:GameCfg.MidiVolume);m[1].min_value=0; m[1].max_value=8;
 		m[ 2].type = NM_TYPE_TEXT; m[ 2].text="";
-		m[ 3].type = NM_TYPE_CHECK;  m[ 3].text=TXT_REVERSE_STEREO; m[3].value=GameCfg.ReverseStereo; 
+		m[ 3].type = NM_TYPE_CHECK;  m[ 3].text=TXT_REVERSE_STEREO; m[3].value=GameCfg.ReverseStereo;
 
 		i = newmenu_do1( NULL, "Sound Effects & Music", sizeof(m)/sizeof(*m), m, sound_menuset, i );
 
@@ -754,41 +702,59 @@ void do_sound_menu()
 	} while( i>-1 );
 }
 
+void do_graphics_menu()
+{
+	newmenu_item m[8];
+	int i = 0, j = 0;
+
+	do {
+		m[0].type = NM_TYPE_TEXT;   m[0].text="Texture Filtering:";
+		m[1].type = NM_TYPE_TEXT;   m[1].text=" (Requires Game Restart)";
+		m[2].type = NM_TYPE_RADIO;  m[2].text = "None (Classical)";   m[2].value = 0; m[2].group = 0;
+		m[3].type = NM_TYPE_RADIO;  m[3].text = "Bilinear";           m[3].value = 0; m[3].group = 0;
+		m[4].type = NM_TYPE_RADIO;  m[4].text = "Trilinear";          m[4].value = 0; m[4].group = 0;
+		m[5].type = NM_TYPE_TEXT;   m[5].text="";
+		m[6].type = NM_TYPE_CHECK;  m[6].text="Transparency Effects"; m[6].value = PlayerCfg.OglAlphaEffects;
+		m[7].type = NM_TYPE_CHECK;  m[7].text="Vectorial Reticle";    m[7].value = PlayerCfg.OglReticle;
+
+		m[GameCfg.TexFilt+2].value=1;
+
+		i = newmenu_do1( NULL, "Graphics Options", sizeof(m)/sizeof(*m), m, NULL, i );
+
+		for (j = 0; j <= 2; j++)
+			if (m[j+2].value)
+				GameCfg.TexFilt = j;
+		PlayerCfg.OglAlphaEffects = m[6].value;
+		PlayerCfg.OglReticle = m[7].value;
+
+	} while( i>-1 );
+}
+
 #define ADD_CHECK(n,txt,v)  do { m[n].type=NM_TYPE_CHECK; m[n].text=txt; m[n].value=v;} while (0)
 
-void do_toggles_menu()
+void do_misc_menu()
 {
-#define N_TOGGLE_ITEMS 6
-	newmenu_item m[N_TOGGLE_ITEMS];
+	newmenu_item m[7];
 	int i = 0;
 
 	do {
-		#if defined(MACINTOSH) && defined(USE_ISP)
-			if (ISpEnabled())
-			{
-				m[0].type = NM_TYPE_TEXT; m[0].text = "";
-			}
-			else
-			{
-				ADD_CHECK(0, "Ship auto-leveling", Auto_leveling_on);
-			}
-		#else 
-			ADD_CHECK(0, "Ship auto-leveling", Auto_leveling_on);
-		#endif
-		ADD_CHECK(1, "Show reticle", Reticle_on);
-		ADD_CHECK(2, "Missile view", Missile_view_enabled);
-		ADD_CHECK(3, "Headlight on when picked up", Headlight_active_default );
-		ADD_CHECK(4, "Show guided missile in main display", Guided_in_big_window );
-		ADD_CHECK(5, "Escort robot hot keys",EscortHotKeys);
+		ADD_CHECK(0, "Ship auto-leveling", PlayerCfg.AutoLeveling);
+		ADD_CHECK(1, "Show reticle", PlayerCfg.ReticleOn);
+		ADD_CHECK(2, "Missile view", PlayerCfg.MissileViewEnabled);
+		ADD_CHECK(3, "Headlight on when picked up", PlayerCfg.HeadlightActiveDefault );
+		ADD_CHECK(4, "Show guided missile in main display", PlayerCfg.GuidedInBigWindow );
+		ADD_CHECK(5, "Escort robot hot keys",PlayerCfg.EscortHotKeys);
+		ADD_CHECK(6, "Persistent Debris",PlayerCfg.PersistentDebris);
 
-		i = newmenu_do1( NULL, "Toggles", N_TOGGLE_ITEMS, m, NULL, i );
+		i = newmenu_do1( NULL, "Gameplay Options", sizeof(m)/sizeof(*m), m, NULL, i );
 			
-		Auto_leveling_on			= m[0].value;
-		Reticle_on					= m[1].value;
-		Missile_view_enabled    	= m[2].value;
-		Headlight_active_default	= m[3].value;
-		Guided_in_big_window		= m[4].value;
-		EscortHotKeys				= m[5].value;
+		PlayerCfg.AutoLeveling		= m[0].value;
+		PlayerCfg.ReticleOn		= m[1].value;
+		PlayerCfg.MissileViewEnabled   	= m[2].value;
+		PlayerCfg.HeadlightActiveDefault= m[3].value;
+		PlayerCfg.GuidedInBigWindow	= m[4].value;
+		PlayerCfg.EscortHotKeys		= m[5].value;
+		PlayerCfg.PersistentDebris	= m[6].value;
 
 	} while( i>-1 );
 
@@ -865,3 +831,49 @@ void do_ip_manual_join_menu()
 	} while( choice > -1 );
 }
 #endif // NETWORK
+
+void do_options_menu()
+{
+	newmenu_item m[11];
+	int i = 0;
+
+	do {
+		m[ 0].type = NM_TYPE_MENU;   m[ 0].text="Sound effects & music...";
+		m[ 1].type = NM_TYPE_TEXT;   m[ 1].text="";
+		m[ 2].type = NM_TYPE_MENU;   m[ 2].text=TXT_CONTROLS_;
+		m[ 3].type = NM_TYPE_TEXT;   m[ 3].text="";
+
+		m[ 4].type = NM_TYPE_SLIDER;
+		m[ 4].text = TXT_BRIGHTNESS;
+		m[ 4].value = gr_palette_get_gamma();
+		m[ 4].min_value = 0;
+		m[ 4].max_value = 16;
+
+		m[ 5].type = NM_TYPE_MENU;   m[ 5].text="Screen resolution...";
+#ifdef OGL
+		m[ 6].type = NM_TYPE_MENU;   m[ 6].text="Graphics Options...";
+#else
+		m[ 6].type = NM_TYPE_TEXT;   m[ 6].text="";
+#endif
+
+		m[ 7].type = NM_TYPE_TEXT;   m[ 7].text="";
+		m[ 8].type = NM_TYPE_MENU;   m[ 8].text="Primary autoselect ordering...";
+		m[ 9].type = NM_TYPE_MENU;   m[ 9].text="Secondary autoselect ordering...";
+		m[10].type = NM_TYPE_MENU;   m[10].text="Gameplay Options...";
+
+		i = newmenu_do1( NULL, TXT_OPTIONS, sizeof(m)/sizeof(*m), m, options_menuset, i );
+			
+		switch(i)       {
+			case  0: do_sound_menu();		break;
+			case  2: input_config();		break;
+			case  5: change_res();			break;
+			case  6: do_graphics_menu();		break;
+			case  8: ReorderPrimary();		break;
+			case  9: ReorderSecondary();		break;
+			case 10: do_misc_menu();		break;
+		}
+
+	} while( i>-1 );
+
+	write_player_file();
+}

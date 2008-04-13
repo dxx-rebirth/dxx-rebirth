@@ -126,8 +126,6 @@ char *get_str_arg(char *arg_name, char *default_value) {
 // All FindArg calls should be here to keep the code clean
 void ReadCmdArgs(void)
 {
-	int t = 0, x = 0, y = 0;
-
 	// System Options
 
 	GameArg.SysShowCmdHelp 		= (FindArg( "-help" ) || FindArg( "-h" ) || FindArg( "-?" ) || FindArg( "?" ));
@@ -173,11 +171,6 @@ void ReadCmdArgs(void)
 
 	// Graphics Options
 
-	GameArg.GfxGaugeHudMode = get_int_arg("-hud", 0);
-	if (GameArg.GfxGaugeHudMode <= 0 || GameArg.GfxGaugeHudMode > GAUGE_HUD_NUMMODES-1)
-		GameArg.GfxGaugeHudMode = 0;
-
-	GameArg.GfxPersistentDebris 	= FindArg("-persistentdebris");
 	GameArg.GfxHiresGFXAvailable	= !FindArg("-lowresgraphics");
 	GameArg.GfxHiresFNTAvailable	= !FindArg("-lowresfont");
 	GameArg.GfxMovieHires 		= !FindArg( "-lowresmovies" );
@@ -186,10 +179,7 @@ void ReadCmdArgs(void)
 #ifdef OGL
 	// OpenGL Options
 
-	GameArg.OglAlphaEffects 	= FindArg("-gl_transparency");
 	GameArg.OglFixedFont 		= FindArg("-gl_fixedfont");
-	GameArg.OglReticle		= get_int_arg("-gl_reticle", 0);
-	GameArg.OglPrShot		= FindArg("-gl_prshot");
 #endif
 
 	// Multiplayer Options

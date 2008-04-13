@@ -104,6 +104,7 @@ COPYRIGHT 1993-1999 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 #include "editor/editor.h"
 #endif
 #include "console.h"
+#include "playsave.h"
 
 #ifdef MACINTOSH
 #pragma global_optimizer off        // pretty much sucks...need to look into this
@@ -1892,8 +1893,8 @@ int newdemo_read_frame_information()
 		case ND_EVENT_START_GUIDED:
 			Newdemo_flying_guided=1;
 			if ((Newdemo_vcr_state == ND_STATE_PLAYBACK) || (Newdemo_vcr_state == ND_STATE_FASTFORWARD) || (Newdemo_vcr_state == ND_STATE_ONEFRAMEFORWARD)) {
-				saved_guided_cockpit = Cockpit_mode;
-				if (Cockpit_mode == CM_FULL_COCKPIT && 1)
+				saved_guided_cockpit = PlayerCfg.CockpitMode;
+				if (PlayerCfg.CockpitMode == CM_FULL_COCKPIT && 1)
 					select_cockpit(CM_STATUS_BAR);
 			} else if ((Newdemo_vcr_state == ND_STATE_REWINDING) || (Newdemo_vcr_state == ND_STATE_ONEFRAMEBACKWARD)) {
 				Newdemo_flying_guided=0;
@@ -1904,8 +1905,8 @@ int newdemo_read_frame_information()
 			Newdemo_flying_guided=0;
 			if ((Newdemo_vcr_state == ND_STATE_REWINDING) || (Newdemo_vcr_state == ND_STATE_ONEFRAMEBACKWARD)) {
 				Newdemo_flying_guided=1;
-				saved_guided_cockpit = Cockpit_mode;
-				if (Cockpit_mode == CM_FULL_COCKPIT && 1)
+				saved_guided_cockpit = PlayerCfg.CockpitMode;
+				if (PlayerCfg.CockpitMode == CM_FULL_COCKPIT && 1)
 					select_cockpit(CM_STATUS_BAR);
 			} else if ((Newdemo_vcr_state == ND_STATE_PLAYBACK) || (Newdemo_vcr_state == ND_STATE_FASTFORWARD) || (Newdemo_vcr_state == ND_STATE_ONEFRAMEFORWARD)) {
 				select_cockpit(saved_guided_cockpit);
@@ -2064,7 +2065,7 @@ int newdemo_read_frame_information()
 
 		case ND_EVENT_LETTERBOX:
 			if ((Newdemo_vcr_state == ND_STATE_PLAYBACK) || (Newdemo_vcr_state == ND_STATE_FASTFORWARD) || (Newdemo_vcr_state == ND_STATE_ONEFRAMEFORWARD)) {
-				saved_letter_cockpit = Cockpit_mode;
+				saved_letter_cockpit = PlayerCfg.CockpitMode;
 				select_cockpit(CM_LETTERBOX);
 			} else if ((Newdemo_vcr_state == ND_STATE_REWINDING) || (Newdemo_vcr_state == ND_STATE_ONEFRAMEBACKWARD))
 				select_cockpit(saved_letter_cockpit);
@@ -2077,8 +2078,8 @@ int newdemo_read_frame_information()
 		}
 		case ND_EVENT_REARVIEW:
 			if ((Newdemo_vcr_state == ND_STATE_PLAYBACK) || (Newdemo_vcr_state == ND_STATE_FASTFORWARD) || (Newdemo_vcr_state == ND_STATE_ONEFRAMEFORWARD)) {
-				saved_rearview_cockpit = Cockpit_mode;
-				if (Cockpit_mode == CM_FULL_COCKPIT)
+				saved_rearview_cockpit = PlayerCfg.CockpitMode;
+				if (PlayerCfg.CockpitMode == CM_FULL_COCKPIT)
 					select_cockpit(CM_REAR_VIEW);
 				Rear_view=1;
 			} else if ((Newdemo_vcr_state == ND_STATE_REWINDING) || (Newdemo_vcr_state == ND_STATE_ONEFRAMEBACKWARD)) {
@@ -2091,7 +2092,7 @@ int newdemo_read_frame_information()
 
 		case ND_EVENT_RESTORE_COCKPIT:
 			if ((Newdemo_vcr_state == ND_STATE_REWINDING) || (Newdemo_vcr_state == ND_STATE_ONEFRAMEBACKWARD)) {
-				saved_letter_cockpit = Cockpit_mode;
+				saved_letter_cockpit = PlayerCfg.CockpitMode;
 				select_cockpit(CM_LETTERBOX);
 			} else if ((Newdemo_vcr_state == ND_STATE_PLAYBACK) || (Newdemo_vcr_state == ND_STATE_FASTFORWARD) || (Newdemo_vcr_state == ND_STATE_ONEFRAMEFORWARD))
 				select_cockpit(saved_letter_cockpit);
@@ -2100,8 +2101,8 @@ int newdemo_read_frame_information()
 
 		case ND_EVENT_RESTORE_REARVIEW:
 			if ((Newdemo_vcr_state == ND_STATE_REWINDING) || (Newdemo_vcr_state == ND_STATE_ONEFRAMEBACKWARD)) {
-				saved_rearview_cockpit = Cockpit_mode;
-				if (Cockpit_mode == CM_FULL_COCKPIT)
+				saved_rearview_cockpit = PlayerCfg.CockpitMode;
+				if (PlayerCfg.CockpitMode == CM_FULL_COCKPIT)
 					select_cockpit(CM_REAR_VIEW);
 				Rear_view=1;
 			} else if ((Newdemo_vcr_state == ND_STATE_PLAYBACK) || (Newdemo_vcr_state == ND_STATE_FASTFORWARD) || (Newdemo_vcr_state == ND_STATE_ONEFRAMEFORWARD)) {
@@ -3269,7 +3270,7 @@ void newdemo_start_playback(char * filename)
 
 	Newdemo_state = ND_STATE_PLAYBACK;
 	Newdemo_vcr_state = ND_STATE_PLAYBACK;
-	Newdemo_old_cockpit = Cockpit_mode;
+	Newdemo_old_cockpit = PlayerCfg.CockpitMode;
 	Newdemo_size = PHYSFS_fileLength(infile);
 	nd_bad_read = 0;
 	Newdemo_at_eof = 0;
@@ -3277,8 +3278,8 @@ void newdemo_start_playback(char * filename)
 	Newdemo_players_cloaked = 0;
 	playback_style = NORMAL_PLAYBACK;
 	Function_mode = FMODE_GAME;
-	Cockpit_3d_view[0] = CV_NONE;       //turn off 3d views on cockpit
-	Cockpit_3d_view[1] = CV_NONE;       //turn off 3d views on cockpit
+	PlayerCfg.Cockpit3DView[0] = CV_NONE;       //turn off 3d views on cockpit
+	PlayerCfg.Cockpit3DView[1] = CV_NONE;       //turn off 3d views on cockpit
 	HUD_clear_messages();
 	newdemo_playback_one_frame();       // this one loads new level
 	newdemo_playback_one_frame();       // get all of the objects to renderb game
@@ -3293,7 +3294,7 @@ void newdemo_stop_playback()
 	change_playernum_to(0);             //this is reality
 #endif
 	strncpy(Players[Player_num].callsign, nd_save_callsign, CALLSIGN_LEN);
-	Cockpit_mode = Newdemo_old_cockpit;
+	PlayerCfg.CockpitMode = Newdemo_old_cockpit;
 	Rear_view=0;
 	Game_mode = GM_GAME_OVER;
 	Function_mode = FMODE_MENU;

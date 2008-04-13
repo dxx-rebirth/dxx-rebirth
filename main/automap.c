@@ -69,6 +69,7 @@ COPYRIGHT 1993-1999 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 #include "switch.h"
 #include "automap.h"
 #include "cntrlcen.h"
+#include "playsave.h"
 
 #define EF_USED     1   // This edge is used
 #define EF_DEFINING 2   // A structure defining edge that should always draw.
@@ -269,8 +270,6 @@ void DropMarker (int player_marker_num)
 
 }
 
-extern char guidebot_name[];
-
 void DropBuddyMarker(object *objp)
 {
 	int marker_num;
@@ -280,7 +279,7 @@ void DropBuddyMarker(object *objp)
 	if (marker_num > NUM_MARKERS-1)
 		marker_num = NUM_MARKERS-1;
 
-	sprintf(MarkerMessage[marker_num], "RIP: %s",guidebot_name);
+	sprintf(MarkerMessage[marker_num], "RIP: %s",PlayerCfg.GuidebotName);
 
 	MarkerPoint[marker_num] = objp->pos;
 

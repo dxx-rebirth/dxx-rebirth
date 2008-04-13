@@ -44,7 +44,7 @@ COPYRIGHT 1993-1999 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 #include "fvi.h"
 #include "u_mem.h"
 #include "sounds.h"
-
+#include "playsave.h"
 #include "inferno.h"
 #include "endlevel.h"
 #include "object.h"
@@ -407,7 +407,7 @@ void start_rendered_endlevel_sequence()
 
 	}
 
-	cockpit_mode_save = Cockpit_mode;
+	cockpit_mode_save = PlayerCfg.CockpitMode;
 
 	#ifdef NETWORK
 	if (Game_mode & GM_MULTI) {

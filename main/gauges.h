@@ -35,7 +35,6 @@ extern bitmap_index Gauges[MAX_GAUGE_BMS];      // Array of all gauge bitmaps.
 extern bitmap_index Gauges_hires[MAX_GAUGE_BMS];    // hires gauges
 
 // Flags for gauges/hud stuff
-extern ubyte Reticle_on;
 
 extern void init_gauge_canvases();
 extern void close_gauge_canvases();

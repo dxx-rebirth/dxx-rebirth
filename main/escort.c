@@ -110,9 +110,6 @@ int	Last_buddy_key;
 
 fix	Last_buddy_message_time;
 
-char guidebot_name[GUIDEBOT_NAME_LEN+1] = "GUIDE-BOT";
-char real_guidebot_name[GUIDEBOT_NAME_LEN+1] = "GUIDE-BOT";
-
 void init_buddy_for_level(void)
 {
 	int	i;
@@ -380,14 +377,14 @@ void change_guidebot_name()
 	char text[GUIDEBOT_NAME_LEN+1]="";
 	int item;
 
-	strcpy(text,guidebot_name);
+	strcpy(text,PlayerCfg.GuidebotName);
 
 	m.type=NM_TYPE_INPUT; m.text_len = GUIDEBOT_NAME_LEN; m.text = text;
 	item = newmenu_do( NULL, "Enter Guide-bot name:", 1, &m, NULL );
 
 	if (item != -1) {
-		strcpy(guidebot_name,text);
-		strcpy(real_guidebot_name,text);
+		strcpy(PlayerCfg.GuidebotName,text);
+		strcpy(PlayerCfg.GuidebotNameReal,text);
 		write_player_file();
 	}
 }
@@ -413,7 +410,7 @@ void buddy_message(char * format, ... )
 
 			gb_str[0] = CC_COLOR;
 			gb_str[1] = BM_XRGB(28, 0, 0);
-			strcpy(&gb_str[2], guidebot_name);
+			strcpy(&gb_str[2], PlayerCfg.GuidebotName);
 			t = strlen(gb_str);
 			gb_str[t] = ':';
 			gb_str[t+1] = CC_COLOR;
@@ -478,7 +475,7 @@ void set_escort_special_goal(int special_key)
 
 			for (i=0; i<=Highest_object_index; i++)
 				if ((Objects[i].type == OBJ_ROBOT) && Robot_info[Objects[i].id].companion) {
-					HUD_init_message("%s has not been released.",guidebot_name);
+					HUD_init_message("%s has not been released.",PlayerCfg.GuidebotName);
 					break;
 				}
 			if (i == Highest_object_index+1)
@@ -1683,7 +1680,7 @@ void do_escort_menu(void)
 	ok_for_buddy_to_talk();	//	Needed here or we might not know buddy can talk when he can.
 
 	if (!Buddy_allowed_to_talk) {
-		HUD_init_message("%s has not been released",guidebot_name);
+		HUD_init_message("%s has not been released",PlayerCfg.GuidebotName);
 		return;
 	}
 

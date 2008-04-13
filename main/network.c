@@ -178,8 +178,6 @@ int num_active_games = 0;
 int PacketsPerSec=10;
 int MaxXDataSize=NET_XDATA_SIZE;
 
-int     Netlife_kills=0, Netlife_killed=0;
-
 int     Network_debug=0;
 int     Network_active=0;
 
@@ -2444,7 +2442,7 @@ int network_get_game_params()
 	Netgame.KillGoal=0;
 	Netgame.PlayTimeAllowed=0;
 	Netgame.Allow_marker_view=1;
-	Netgame.difficulty=Player_default_difficulty;
+	Netgame.difficulty=PlayerCfg.DefaultDifficulty;
 	Netgame.max_numplayers=MaxNumNetPlayers;
 	sprintf( Netgame.game_name, "%s%s", Players[Player_num].callsign, TXT_S_GAME );
 
@@ -5077,12 +5075,12 @@ int GetMyNetRanking ()
   int rank;
   int eff;
 
-  if (Netlife_kills+Netlife_killed==0)
+  if (PlayerCfg.NetlifeKills+PlayerCfg.NetlifeKilled==0)
   	 return (1);
  
-  rank=(int) (((float)Netlife_kills/3000.0)*8.0);
+  rank=(int) (((float)PlayerCfg.NetlifeKills/3000.0)*8.0);
  
-  eff=(int)((float)((float)Netlife_kills/((float)Netlife_killed+(float)Netlife_kills))*100.0);
+  eff=(int)((float)((float)PlayerCfg.NetlifeKills/((float)PlayerCfg.NetlifeKilled+(float)PlayerCfg.NetlifeKills))*100.0);
 
   if (rank>8)
    rank=8;
