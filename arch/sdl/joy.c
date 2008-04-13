@@ -20,13 +20,13 @@
 #include "event.h"
 #include "text.h"
 #include "u_mem.h"
+#include "playsave.h"
 
 extern char *joybutton_text[]; //from kconfig.c
 extern char *joyaxis_text[]; //from kconfig.c
 
 char joy_present = 0;
 int num_joysticks = 0;
-int joy_deadzone = 0;
 int joy_num_axes = 0;
 
 struct joybutton {
@@ -379,7 +379,7 @@ int joy_get_scaled_reading( int raw, int axis_num )
 #if 1
 	int x, d;
 
-	d =  (joy_deadzone) * 6;
+	d =  (PlayerCfg.JoystickDeadzone) * 6;
 	if (((raw/256) > (-1*d)) && ((raw/256) < d))
 		x = 0;
 	else
@@ -409,7 +409,7 @@ int joy_get_scaled_reading( int raw, int axis_num )
 	if ( x > 127 )
 		x = 127;
 	
-	d =  (joy_deadzone) * 6;
+	d =  (PlayerCfg.JoystickDeadzone) * 6;
 	if ((x > (-1*d)) && (x < d))
 		x = 0;
 	

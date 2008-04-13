@@ -217,7 +217,6 @@ extern fix Show_kill_list_timer;
 // Used to send network messages
 
 extern char	Network_message[MAX_MESSAGE_LEN];
-extern char Network_message_macro[4][MAX_MESSAGE_LEN];
 extern int Network_message_reciever;
 
 // Used to map network to local object numbers
@@ -304,12 +303,7 @@ void change_playernum_to(int new_pnum);
 
 extern uint multi_allow_powerup;
 
-extern void HUD_init_message(char * format, ...);
-
-//added on 10/15/98 by Victor Rachels to add effeciency stuff
-extern int multi_kills_stat;
-extern int multi_deaths_stat;
-//end this section addition
+extern int HUD_init_message(char * format, ...);
 
 #endif
 

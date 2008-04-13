@@ -107,7 +107,6 @@ int   Network_laser_flags; // Special flags for the shot
 int   Network_laser_level; // What level
 short	Network_laser_track; // Who is it tracking?
 char	Network_message[MAX_MESSAGE_LEN];
-char  Network_message_macro[4][MAX_MESSAGE_LEN];
 int	Network_message_reciever=-1;
 int	sorted_kills[MAX_NUM_NET_PLAYERS];
 short kill_matrix[MAX_NUM_NET_PLAYERS][MAX_NUM_NET_PLAYERS];
@@ -961,13 +960,13 @@ multi_send_macro(int key)
 			Int3();
 	}
 
-	if (!Network_message_macro[key][0])
+	if (!PlayerCfg.NetworkMessageMacro[key][0])
 	{
 		hud_message(MSGC_GAME_FEEDBACK, TXT_NO_MACRO);
 		return;
 	}
 
-	snprintf(Network_message, MAX_MESSAGE_LEN, "%s", Network_message_macro[key]);
+	snprintf(Network_message, MAX_MESSAGE_LEN, "%s", PlayerCfg.NetworkMessageMacro[key]);
 
 //added/replaced on 11/10/98 by Victor Rachels to make macros act like normal msgs
         multi_send_message_end();
@@ -1072,7 +1071,7 @@ void multi_define_macro_end()
 {
 	Assert( multi_defining_message > 0 );
 
-	strcpy( Network_message_macro[multi_defining_message-1], Network_message );
+	strcpy( PlayerCfg.NetworkMessageMacro[multi_defining_message-1], Network_message );
 	write_player_file();
 
 	multi_message_index = 0;

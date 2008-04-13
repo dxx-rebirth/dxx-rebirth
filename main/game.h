@@ -173,7 +173,6 @@ extern void save_screen_shot (int automap_flag);
 #define CM_FULL_SCREEN		3	//full screen, no cockpit (w/ reticle)
 #define CM_LETTERBOX			4	//half-height window (for cutscenes)
 
-extern int Cockpit_mode;	//what sort of cockpit or window is up?
 extern int Game_window_w,	//width and height of player's game window
   Game_window_h, max_window_h;
 

@@ -55,6 +55,7 @@ COPYRIGHT 1993-1998 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 #include "vers_id.h"
 #include "automap.h"
 #include "menu.h"
+#include "playsave.h"
 
 #ifdef OGL
 #include "ogl_init.h"
@@ -458,7 +459,7 @@ int check_button_press()
 {
 	int i;
 
-	switch (Config_control_type) {
+	switch (PlayerCfg.ControlType) {
 	case	CONTROL_JOYSTICK:
 		for (i=0; i<4; i++ )	
 	 		if (joy_get_button_down_cnt(i)>0) return 1;
@@ -473,7 +474,7 @@ int check_button_press()
 	case	CONTROL_NONE: //keyboard only
 		break;
 	default:
-		Error("Bad control type (Config_control_type):%i",Config_control_type);
+		Error("Bad control type (PlayerCfg.ControlType):%i",PlayerCfg.ControlType);
 	}
 
 	return 0;

@@ -25,8 +25,6 @@ COPYRIGHT 1993-1998 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 extern int DoMenu();
 extern void do_options_menu();
 extern char *menu_difficulty_text[];
-extern int Player_default_difficulty;
-extern int Auto_leveling_on;
 
 #define Menu_pcx_name (((SWIDTH>=640&&SHEIGHT>=480) && cfexist("menuh.pcx"))?"menuh.pcx":"menu.pcx")
 

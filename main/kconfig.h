@@ -68,18 +68,12 @@ void kconfig_sense_init();
 extern control_info Controls;
 extern void controls_read_all();
 extern void kconfig(int n, char * title );
-extern ubyte Config_control_type;
-extern ubyte Config_joystick_sensitivity;
-extern ubyte Config_mouse_sensitivity;
-extern ubyte kconfig_d1x_settings[MAX_D1X_CONTROLS];
-extern ubyte default_kconfig_d1x_settings[MAX_D1X_CONTROLS];
-extern ubyte kconfig_settings[CONTROL_MAX_TYPES][MAX_CONTROLS];
-extern ubyte default_kconfig_settings[CONTROL_MAX_TYPES][MAX_CONTROLS];
+extern ubyte DefaultKeySettingsD1X[MAX_D1X_CONTROLS];
+extern ubyte DefaultKeySettings[CONTROL_MAX_TYPES][MAX_CONTROLS];
 extern char *control_text[CONTROL_MAX_TYPES];
 extern void kc_set_controls();
 extern void reset_cruise(void);
 extern int kconfig_is_axes_used(int axis);
-extern void HUD_init_message(char * format, ...);
 extern int isJoyRotationKey(int test_key);       //tells if "test_key" is setup for rotation on the joy
 extern int isMouseRotationKey(int test_key);     //tells if "test_key" is setup for rotation on the mouse
 extern int isKeyboardRotationKey(int test_key);  //tells if "test_key" is setup for rotation on the keyboard

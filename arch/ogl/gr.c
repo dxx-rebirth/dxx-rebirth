@@ -43,6 +43,7 @@
 #include <GL/glu.h>
 #endif
 #include "config.h"
+#include "playsave.h"
 
 int gr_installed = 0;
 int gl_initialized=0;
@@ -513,7 +514,7 @@ void save_screen_shot(int automap_flag)
 	if (!automap_flag)
 		hud_message(MSGC_GAME_FEEDBACK,message);
 
-	if (!automap_flag && GameArg.OglPrShot && Function_mode == FMODE_GAME)
+	if (!automap_flag && PlayerCfg.OglPRShot && Function_mode == FMODE_GAME)
 	{
 		render_frame(0);
 		gr_set_curfont(MEDIUM2_FONT);

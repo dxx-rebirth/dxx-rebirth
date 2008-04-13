@@ -20,8 +20,60 @@ COPYRIGHT 1993-1998 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 #ifndef _PLAYSAVE_H
 #define _PLAYSAVE_H
 
+#include "kconfig.h"
+#include "mission.h"
+#include "weapon.h"
+#include "multi.h"
+
 #define N_SAVE_SLOTS		10
 #define GAME_NAME_LEN	25		//+1 for terminating zero = 26
+
+// NOTE: Obsolete structure - only kept for compability of the plr file
+typedef struct saved_game {
+	char		name[GAME_NAME_LEN+1];		//extra char for terminating zero
+	player	player;
+	int		difficulty_level;		//which level game is played at
+	int		primary_weapon;		//which weapon selected
+	int		secondary_weapon;		//which weapon selected
+	int		cockpit_mode;			//which cockpit mode selected
+	int		window_w,window_h;	//size of player's window
+	int		next_level_num;		//which level we're going to
+	int		auto_leveling_on;		//does player have autoleveling on?
+} __pack__ saved_game;
+
+typedef struct hli {
+	char	Shortname[9];
+	ubyte	LevelNum;
+} hli;
+
+// FIXME!!! NOW THINK AGAIN IF ALL NEW PARTS ARE SOMEHOW ACCESSIBLE FROM MENUS!!!
+typedef struct player_config
+{
+	ubyte ControlType;
+	ubyte PrimaryOrder[MAX_PRIMARY_WEAPONS+1];
+	ubyte SecondaryOrder[MAX_SECONDARY_WEAPONS+1];
+	ubyte KeySettings[CONTROL_MAX_TYPES][MAX_CONTROLS];
+	ubyte KeySettingsD1X[MAX_D1X_CONTROLS];
+	int DefaultDifficulty;
+	int AutoLeveling;
+	short NHighestLevels;
+	hli HighestLevels[MAX_MISSIONS];
+	ubyte MouseSensitivity;
+	ubyte JoystickSensitivity;
+	int JoystickDeadzone;
+	int CockpitMode;
+	char NetworkMessageMacro[4][MAX_MESSAGE_LEN];
+	int NetlifeKills;
+	int NetlifeKilled;
+	ubyte ReticleOn;
+	int HudMode;
+	int PersistentDebris;
+	int OglAlphaEffects;
+	int OglReticle;
+	int OglPRShot;
+} __attribute__ ((packed)) player_config;
+
+extern struct player_config PlayerCfg;
 
 extern int Default_leveling_on;
 
@@ -30,25 +82,10 @@ extern int Default_leveling_on;
 #define EZERO 0
 #endif
 
-//fills in a list of pointers to strings describing saved games
-//returns the number of non-empty slots
-//returns -1 if this is a new player
-int get_game_list(char *game_text[N_SAVE_SLOTS]);
-
-//returns errno (0 == no error)
-int save_player_game(int slot_num,char *text);
-
-//returns errno (0 == no error)
-int load_player_game(int slot_num);
-
-//update the player's highest level.  returns errno (0 == no error)
-int update_player_file();
-
 //Used to save kconfig values to disk.
 int write_player_file();
 
 int new_player_config();
-void init_game_list();
 
 int read_player_file();
 
@@ -58,11 +95,6 @@ void set_highest_level(int levelnum);
 //gets the player's highest level from the file for this mission
 int get_highest_level(void);
 
-// returns 1 if player exists (.plr file exists), 0 otherwise
-int player_exists(const char *callsign);
-
-//added on 10/15/98 by Victor Rachels to add lifetime effeciency
 void plyr_read_stats();
 void plyr_save_stats();
-//end this section addition - Victor Rachels
 #endif

@@ -76,7 +76,6 @@ COPYRIGHT 1993-1998 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 void do_option(int select);
 void do_multi_player_menu();
 void do_new_game_menu();
-void do_load_game_menu();
 void do_ip_manual_join_menu();
 
 #define MENU_NEW_GAME            0
@@ -119,9 +118,6 @@ extern int last_joy_time;		//last time the joystick was used
 extern void newmenu_close();
 extern void ReorderPrimary();
 extern void ReorderSecondary();
-
-int Player_default_difficulty; // Last difficulty level chosen by the player
-int Auto_leveling_on = 0;
 
 void autodemo_menu_check(int nitems, newmenu_item * items, int *last_key, int citem )
 {
@@ -376,7 +372,7 @@ int do_difficulty_menu()
 	if (s > -1 )	{
 		if (s != Difficulty_level)
 		{	
-			Player_default_difficulty = s;
+			PlayerCfg.DefaultDifficulty = s;
 			write_player_file();
 		}
 		Difficulty_level = s;
@@ -430,85 +426,12 @@ try_again:
 		}
 	}
 
-	Difficulty_level = Player_default_difficulty;
+	Difficulty_level = PlayerCfg.DefaultDifficulty;
 
 	if (!do_difficulty_menu())
 		return;
 
 	StartNewGame(new_level_num);
-
-}
-
-void do_load_game_menu()
-{
-	newmenu_item m[N_SAVE_SLOTS];
-	char *saved_text[N_SAVE_SLOTS];
-	int i,choice;
-
-	get_game_list(saved_text);
-
-	for (i=0;i<N_SAVE_SLOTS;i++) {
-
-		if (saved_text[i][0]) {
-			m[i].type = NM_TYPE_MENU;
-			m[i].text = saved_text[i];
-		}
-		else {
-			m[i].type = NM_TYPE_TEXT;
-			m[i].text = TXT_EMPTY;
-		}
-	}
-
-	choice = newmenu_do( NULL, TXT_LOAD_GAME, N_SAVE_SLOTS, m, NULL );
-
-	if (choice != -1) {
-		int ret;
-
-		if ((ret=load_player_game(choice)) == EZERO)
-			ResumeSavedGame(Players[Player_num].level);
-		else {
-			newmenu_item m1[3];
-
-			m1[0].type = NM_TYPE_TEXT;  m1[0].text = strerror(ret);
-			m1[1].type = NM_TYPE_TEXT;  m1[1].text = "";
-			m1[2].type = NM_TYPE_TEXT;  m1[2].text = TXT_ENTER_TO_CONT;
-
-			newmenu_do( NULL, TXT_ERR_LOADING_GAME, 3, m1, NULL );
-
-		}
-	}
-}
-
-void do_save_game_menu()
-{
-	newmenu_item m[N_SAVE_SLOTS];
-	char *saved_text_ptrs[N_SAVE_SLOTS];
-	char menu_text[N_SAVE_SLOTS][GAME_NAME_LEN+1];		//+1 for terminating zero
-	int i,choice;
-
-	get_game_list(saved_text_ptrs);
-
-	for (i=0;i<N_SAVE_SLOTS;i++) {
-
-		strcpy(menu_text[i],saved_text_ptrs[i]);
-
-		m[i].type = NM_TYPE_INPUT_MENU;
-		m[i].text_len = GAME_NAME_LEN;
-		m[i].text = menu_text[i];
-
-		if (!menu_text[i][0])
-			strcpy(menu_text[i],TXT_EMPTY);
-
-	}
-
-	choice = newmenu_do( NULL, TXT_SAVE_GAME_SLOTS, N_SAVE_SLOTS, m, NULL );
-
-	if (choice != -1) {
-		int ret;
-
-		if ((ret=save_player_game(choice,m[choice].text)) != EZERO)
-			nm_messagebox( NULL,1, TXT_CONTINUE,"%s\n%s\n\n", TXT_SAVE_ERROR, strerror(ret));
-	}
 
 }
 
@@ -616,19 +539,19 @@ void change_res()
 void input_menuset(int nitems, newmenu_item * items, int *last_key, int citem )
 {
 	int i;
-	int oc_type = Config_control_type;
+	int oc_type = PlayerCfg.ControlType;
 
 	nitems = nitems;
 	last_key = last_key;
 	citem = citem;		
 
 	for (i=0; i<4; i++ )
-		if (items[i].value) Config_control_type = i;
+		if (items[i].value) PlayerCfg.ControlType = i;
 
-        if (Config_control_type == 2) Config_control_type = CONTROL_MOUSE;
-        if (Config_control_type == 3) Config_control_type = CONTROL_JOYMOUSE;
+        if (PlayerCfg.ControlType == 2) PlayerCfg.ControlType = CONTROL_MOUSE;
+        if (PlayerCfg.ControlType == 3) PlayerCfg.ControlType = CONTROL_JOYMOUSE;
 
-	if (oc_type != Config_control_type) {
+	if (oc_type != PlayerCfg.ControlType) {
 		kc_set_controls();
 	}
 }
@@ -649,33 +572,33 @@ void input_config()
 	m[7].type = NM_TYPE_MENU;   m[7].text = "CUSTOMIZE WEAPON KEYS";
 	m[8].type = NM_TYPE_TEXT;   m[8].text = "";
 	m[9].type = NM_TYPE_TEXT;   m[9].text = "Joystick";
-	m[10].type = NM_TYPE_SLIDER; m[10].text="Sensitivity"; m[10].value=Config_joystick_sensitivity; m[10].min_value = 0; m[10].max_value = 16;
-	m[11].type = NM_TYPE_SLIDER; m[11].text="Joystick Deadzone"; m[11].value=joy_deadzone; m[11].min_value=0; m[11].max_value = 16;
+	m[10].type = NM_TYPE_SLIDER; m[10].text="Sensitivity"; m[10].value=PlayerCfg.JoystickSensitivity; m[10].min_value = 0; m[10].max_value = 16;
+	m[11].type = NM_TYPE_SLIDER; m[11].text="Joystick Deadzone"; m[11].value=PlayerCfg.JoystickDeadzone; m[11].min_value=0; m[11].max_value = 16;
 	m[12].type = NM_TYPE_TEXT;   m[12].text = "Mouse";
-	m[13].type = NM_TYPE_SLIDER; m[13].text="Sensitivity"; m[13].value=Config_mouse_sensitivity; m[13].min_value = 0; m[13].max_value = 16;
+	m[13].type = NM_TYPE_SLIDER; m[13].text="Sensitivity"; m[13].value=PlayerCfg.MouseSensitivity; m[13].min_value = 0; m[13].max_value = 16;
 
 
 	do {
 
-		i = Config_control_type;
+		i = PlayerCfg.ControlType;
 		if (i == CONTROL_MOUSE) i = 2;
 		if (i==CONTROL_JOYMOUSE) i = 3;
 		m[i].value = 1;
 
 		i1 = newmenu_do1(NULL, TXT_CONTROLS, nitems, m, input_menuset, i1);
 
-		Config_joystick_sensitivity = m[10].value;
-		joy_deadzone = m[11].value;
-		Config_mouse_sensitivity = m[13].value;
+		PlayerCfg.JoystickSensitivity = m[10].value;
+		PlayerCfg.JoystickDeadzone = m[11].value;
+		PlayerCfg.MouseSensitivity = m[13].value;
 
 		for (j = 0; j <= 3; j++)
 			if (m[j].value)
-				Config_control_type = j;
-		i = Config_control_type;
-		if (Config_control_type == 2)
-			Config_control_type = CONTROL_MOUSE;
-		if (Config_control_type == 3)
-			Config_control_type = CONTROL_JOYMOUSE;
+				PlayerCfg.ControlType = j;
+		i = PlayerCfg.ControlType;
+		if (PlayerCfg.ControlType == 2)
+			PlayerCfg.ControlType = CONTROL_MOUSE;
+		if (PlayerCfg.ControlType == 3)
+			PlayerCfg.ControlType = CONTROL_JOYMOUSE;
 
 		switch (i1) {
 		case 5:
@@ -691,6 +614,34 @@ void input_config()
 
 	} while (i1>-1);
 
+}
+
+void do_graphics_menu()
+{
+	newmenu_item m[8];
+	int i = 0, j = 0;
+
+	do {
+		m[0].type = NM_TYPE_TEXT;   m[0].text="Texture Filtering:";
+		m[1].type = NM_TYPE_TEXT;   m[1].text=" (Requires Game Restart)";
+		m[2].type = NM_TYPE_RADIO;  m[2].text = "None (Classical)";   m[2].value = 0; m[2].group = 0;
+		m[3].type = NM_TYPE_RADIO;  m[3].text = "Bilinear";           m[3].value = 0; m[3].group = 0;
+		m[4].type = NM_TYPE_RADIO;  m[4].text = "Trilinear";          m[4].value = 0; m[4].group = 0;
+		m[5].type = NM_TYPE_TEXT;   m[5].text="";
+		m[6].type = NM_TYPE_CHECK;  m[6].text="Transparency Effects"; m[6].value = PlayerCfg.OglAlphaEffects;
+		m[7].type = NM_TYPE_CHECK;  m[7].text="Vectorial Reticle";    m[7].value = PlayerCfg.OglReticle;
+
+		m[GameCfg.TexFilt+2].value=1;
+
+		i = newmenu_do1( NULL, "Graphics Options", sizeof(m)/sizeof(*m), m, NULL, i );
+
+		for (j = 0; j <= 2; j++)
+			if (m[j+2].value)
+				GameCfg.TexFilt = j;
+		PlayerCfg.OglAlphaEffects = m[6].value;
+		PlayerCfg.OglReticle = m[7].value;
+
+	} while( i>-1 );
 }
 
 void sound_menuset(int nitems, newmenu_item * items, int *last_key, int citem )
@@ -739,45 +690,26 @@ void options_menuset(int nitems, newmenu_item * items, int *last_key, int citem 
 	}
 }
 
-void do_options_menu()
+#define ADD_CHECK(n,txt,v)  do { m[n].type=NM_TYPE_CHECK; m[n].text=txt; m[n].value=v;} while (0)
+
+void do_misc_menu()
 {
-	newmenu_item m[10];
+	newmenu_item m[3];
 	int i = 0;
 
 	do {
-		m[ 0].type = NM_TYPE_MENU;   m[ 0].text="Sound effects & music...";
-		m[ 1].type = NM_TYPE_TEXT;   m[ 1].text="";
-		m[ 2].type = NM_TYPE_MENU;   m[ 2].text=TXT_CONTROLS_;
-		m[ 3].type = NM_TYPE_TEXT;   m[ 3].text="";
-		m[ 4].type = NM_TYPE_SLIDER;
-		m[ 4].text = TXT_BRIGHTNESS;
-		m[ 4].value = gr_palette_get_gamma();
-		m[ 4].min_value = 0;
-		m[ 4].max_value = 16;
+		ADD_CHECK(0, "Ship auto-leveling", PlayerCfg.AutoLeveling);
+		ADD_CHECK(1, "Show reticle", PlayerCfg.ReticleOn);
+		ADD_CHECK(2, "Persistent Debris",PlayerCfg.PersistentDebris);
 
-		m[ 5].type = NM_TYPE_MENU;   m[ 5].text="Screen resolution...";
-
-		m[ 6].type = NM_TYPE_TEXT;   m[ 6].text="";
-		m[ 7].type = NM_TYPE_MENU;   m[ 7].text="Primary autoselect ordering...";
-		m[ 8].type = NM_TYPE_MENU;   m[ 8].text="Secondary autoselect ordering...";
-		m[ 9].type = NM_TYPE_CHECK;  m[ 9].text="Ship auto-leveling";
-		m[ 9].value=Auto_leveling_on;
-
-		i = newmenu_do1( NULL, TXT_OPTIONS, sizeof(m)/sizeof(*m), m, options_menuset, i );
+		i = newmenu_do1( NULL, "Gameplay Options", sizeof(m)/sizeof(*m), m, NULL, i );
 			
-		switch(i)       {
-			case  0: do_sound_menu();		break;
-			case  2: input_config();		break;
-			case  5: change_res();			break;
-			case  7: ReorderPrimary();		break;
-			case  8: ReorderSecondary();		break;
-		}
-
-		Auto_leveling_on = m[ 9].value;
+		PlayerCfg.AutoLeveling		= m[0].value;
+		PlayerCfg.ReticleOn		= m[1].value;
+		PlayerCfg.PersistentDebris	= m[2].value;
 
 	} while( i>-1 );
 
-	write_player_file();
 }
 
 #ifdef NETWORK
@@ -851,3 +783,49 @@ void do_ip_manual_join_menu()
 	} while( choice > -1 );
 }
 #endif
+
+void do_options_menu()
+{
+	newmenu_item m[11];
+	int i = 0;
+
+	do {
+		m[ 0].type = NM_TYPE_MENU;   m[ 0].text="Sound effects & music...";
+		m[ 1].type = NM_TYPE_TEXT;   m[ 1].text="";
+		m[ 2].type = NM_TYPE_MENU;   m[ 2].text=TXT_CONTROLS_;
+		m[ 3].type = NM_TYPE_TEXT;   m[ 3].text="";
+		m[ 4].type = NM_TYPE_SLIDER;
+		m[ 4].text = TXT_BRIGHTNESS;
+		m[ 4].value = gr_palette_get_gamma();
+		m[ 4].min_value = 0;
+		m[ 4].max_value = 16;
+
+		m[ 5].type = NM_TYPE_MENU;   m[ 5].text="Screen resolution...";
+#ifdef OGL
+		m[ 6].type = NM_TYPE_MENU;   m[ 6].text="Graphics Options...";
+#else
+		m[ 6].type = NM_TYPE_TEXT;   m[ 6].text="";
+#endif
+
+		m[ 7].type = NM_TYPE_TEXT;   m[ 7].text="";
+		m[ 8].type = NM_TYPE_MENU;   m[ 8].text="Primary autoselect ordering...";
+		m[ 9].type = NM_TYPE_MENU;   m[ 9].text="Secondary autoselect ordering...";
+		m[10].type = NM_TYPE_MENU;   m[10].text="Gameplay Options...";
+
+		i = newmenu_do1( NULL, TXT_OPTIONS, sizeof(m)/sizeof(*m), m, options_menuset, i );
+			
+		switch(i)       {
+			case  0: do_sound_menu();		break;
+			case  2: input_config();		break;
+			case  5: change_res();			break;
+			case  6: do_graphics_menu();		break;
+			case  8: ReorderPrimary();		break;
+			case  9: ReorderSecondary();		break;
+			case 10: do_misc_menu();		break;
+		}
+
+	} while( i>-1 );
+
+	write_player_file();
+}
+

@@ -40,6 +40,7 @@ COPYRIGHT 1993-1998 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 #include "args.h"
 #include "strutil.h"
 #include "console.h"
+#include "playsave.h"
 
 int hud_first = 0;
 int hud_last = 0;
@@ -58,7 +59,7 @@ int     MSG_Noredundancy = 0;
 // ----------------------------------------------------------------------------
 void clear_background_messages(void)
 {
-	if (((Cockpit_mode == CM_STATUS_BAR) || (Cockpit_mode == CM_FULL_SCREEN)) && (Last_msg_ycrd != -1) && (Screen_3d_window.cv_bitmap.bm_y >= 6)) {
+	if (((PlayerCfg.CockpitMode == CM_STATUS_BAR) || (PlayerCfg.CockpitMode == CM_FULL_SCREEN)) && (Last_msg_ycrd != -1) && (Screen_3d_window.cv_bitmap.bm_y >= 6)) {
 		grs_canvas	*canv_save = grd_curcanv;
 
 		gr_set_current_canvas(NULL);

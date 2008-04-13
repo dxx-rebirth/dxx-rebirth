@@ -68,6 +68,7 @@ COPYRIGHT 1993-1998 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 #include "robot.h"
 
 #include "gameseq.h"
+#include "playsave.h"
 
 #ifdef EDITOR
 #include "editor/editor.h"
@@ -1440,7 +1441,7 @@ void start_player_death_sequence(object *player)
 		Dead_player_camera = Viewer;
 	}
 
-	cockpit_mode_save = Cockpit_mode;
+	cockpit_mode_save = PlayerCfg.CockpitMode;
 	select_cockpit(CM_LETTERBOX);
 	if (Newdemo_state == ND_STATE_RECORDING)
 		newdemo_record_letterbox();
@@ -1657,7 +1658,7 @@ void object_move_all()
 
 	obj_delete_all_that_should_be_dead();
 
-	if (Auto_leveling_on)
+	if (PlayerCfg.AutoLeveling)
 		ConsoleObject->mtype.phys_info.flags |= PF_LEVELLING;
 	else
 		ConsoleObject->mtype.phys_info.flags &= ~PF_LEVELLING;

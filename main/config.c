@@ -72,8 +72,6 @@ int ReadConfigFile()
 	GameCfg.WindowMode = 0;
 	GameCfg.TexFilt = 0;
 
-	Config_control_type = 0;
-
 	infile = PHYSFSX_openReadBuffered("descent.cfg");
 
 	if (infile == NULL) {

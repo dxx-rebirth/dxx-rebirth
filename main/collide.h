@@ -20,6 +20,8 @@ COPYRIGHT 1993-1998 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 #ifndef _COLLIDE_H
 #define _COLLIDE_H
 
+#include "playsave.h"
+
 void collide_init();
 void collide_two_objects( object * A, object * B, vms_vector *collision_point );
 void collide_object_with_wall( object * A, fix hitspeed, short hitseg, short hitwall, vms_vector * hitpt );
@@ -30,7 +32,7 @@ extern int apply_damage_to_robot(object *robot, fix damage, int killer_objnum);
 
 extern int Immaterial;
 
-#define PERSISTENT_DEBRIS (GameArg.GfxPersistentDebris && !(Game_mode & GM_MULTI)) // no persistent debris in multi
+#define PERSISTENT_DEBRIS (PlayerCfg.PersistentDebris && !(Game_mode & GM_MULTI)) // no persistent debris in multi
 
 extern void collide_player_and_weapon( object * player, object * weapon, vms_vector *collision_point );
 extern void collide_player_and_materialization_center(object *objp);

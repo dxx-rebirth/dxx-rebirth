@@ -96,5 +96,4 @@ extern void ai_init_boss_for_ship(void);
 extern int Boss_been_hit;
 extern fix AI_proc_time;
 
-extern void HUD_init_message(char * format, ... );
 #endif

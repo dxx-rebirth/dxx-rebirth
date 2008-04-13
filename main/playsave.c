@@ -31,11 +31,9 @@ COPYRIGHT 1993-1998 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 #include "player.h"
 #include "playsave.h"
 #include "joy.h"
-#include "kconfig.h"
 #include "digi.h"
 #include "newmenu.h"
 #include "palette.h"
-#include "multi.h"
 #include "menu.h"
 #include "config.h"
 #include "text.h"
@@ -49,106 +47,63 @@ COPYRIGHT 1993-1998 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 #include "physfsx.h"
 #include "newdemo.h"
 
-#define SAVE_FILE_ID			0x44504c52 /* 'DPLR' */
-
-//this is for version 5 and below
-typedef struct save_info_v5 {
-	int	id;
-	short	saved_game_version,player_struct_version;
-	int 	highest_level;
-	int	default_difficulty_level;
-	int	default_leveling_on;
-} __pack__ save_info_v5;
-
-//this is for version 6 and above 
-typedef struct save_info {
-	int	id;
-	short	saved_game_version,player_struct_version;
-	int	n_highest_levels;				//how many highest levels are saved
-	int	default_difficulty_level;
-	int	default_leveling_on;
-} __pack__ save_info;
-
-typedef struct hli {
-	char	shortname[9];
-	ubyte	level_num;
-} __pack__ hli;
-
-int n_highest_levels;
-hli highest_levels[MAX_MISSIONS];
-extern ubyte SecondaryOrder[],PrimaryOrder[];
-extern void InitWeaponOrdering();
-
-#define SAVED_GAME_VERSION		8		//increment this every time saved_game struct changes
-
 //version 5 -> 6: added new highest level information
 //version 6 -> 7: stripped out the old saved_game array.
 //version 7 -> 8: readded the old saved_game array since this is needed
 //                for shareware saved games
-
 //the shareware is level 4
 
-#define COMPATIBLE_SAVED_GAME_VERSION		4
-#define COMPATIBLE_PLAYER_STRUCT_VERSION	16
+#define SAVE_FILE_ID 0x44504c52 /* 'DPLR' */
+#define SAVED_GAME_VERSION 8 //increment this every time saved_game struct changes
+#define COMPATIBLE_SAVED_GAME_VERSION 4
+#define COMPATIBLE_PLAYER_STRUCT_VERSION 16
 
-typedef struct saved_game {
-	char		name[GAME_NAME_LEN+1];		//extra char for terminating zero
-	player	player;
-	int		difficulty_level;		//which level game is played at
-	int		primary_weapon;		//which weapon selected
-	int		secondary_weapon;		//which weapon selected
-	int		cockpit_mode;			//which cockpit mode selected
-	int		window_w,window_h;	//size of player's window
-	int		next_level_num;		//which level we're going to
-	int		auto_leveling_on;		//does player have autoleveling on?
-} __pack__ saved_game;
-
+struct player_config PlayerCfg;
 saved_game saved_games[N_SAVE_SLOTS];
-
-int Default_leveling_on=1;
-
-void init_game_list()
-{
-	int i;
-
-	for (i=0;i<N_SAVE_SLOTS;i++)
-		saved_games[i].name[0] = 0;
-}
+extern void InitWeaponOrdering();
 
 int new_player_config()
 {
-	int i,j,control_choice;
+	int i,j;
 	int mct=CONTROL_MAX_TYPES;
- 
+
+	for (i=0;i<N_SAVE_SLOTS;i++)
+		saved_games[i].name[0] = 0;
+
 	mct--;
 
-	InitWeaponOrdering ();		//setup default weapon priorities 
-
-	control_choice = Config_control_type;	// Assume keyboard
+	PlayerCfg.ControlType=CONTROL_NONE; // Assume keyboard
+	InitWeaponOrdering (); //setup default weapon priorities
 
 	for (i=0;i<CONTROL_MAX_TYPES; i++ )
 		for (j=0;j<MAX_CONTROLS; j++ )
-			kconfig_settings[i][j] = default_kconfig_settings[i][j];
+			PlayerCfg.KeySettings[i][j] = DefaultKeySettings[i][j];
 	for(i=0; i < MAX_D1X_CONTROLS; i++)
-		kconfig_d1x_settings[i] = default_kconfig_d1x_settings[i];
+		PlayerCfg.KeySettingsD1X[i] = DefaultKeySettingsD1X[i];
 	kc_set_controls();
 
-	Config_control_type = control_choice;
-
-	Player_default_difficulty = 1;
-	Auto_leveling_on = Default_leveling_on = 1;
-	n_highest_levels = 1;
-	highest_levels[0].shortname[0] = 0;	//no name for mission 0
-	highest_levels[0].level_num = 1;	//was highest level in old struct
-	Config_joystick_sensitivity = 8;
-	Config_mouse_sensitivity = 8;
+	PlayerCfg.DefaultDifficulty = 1;
+	PlayerCfg.AutoLeveling = 1;
+	PlayerCfg.NHighestLevels = 1;
+	PlayerCfg.HighestLevels[0].Shortname[0] = 0; //no name for mission 0
+	PlayerCfg.HighestLevels[0].LevelNum = 1; //was highest level in old struct
+	PlayerCfg.JoystickSensitivity = 8;
+	PlayerCfg.MouseSensitivity = 8;
+	PlayerCfg.CockpitMode = CM_FULL_COCKPIT;
+	PlayerCfg.ReticleOn = 1;
+	PlayerCfg.HudMode = 0;
+	PlayerCfg.PersistentDebris = 0;
+	PlayerCfg.OglAlphaEffects = 0;
+	PlayerCfg.OglReticle = 0;
+	PlayerCfg.OglPRShot = 0;
 
 	// Default taunt macros
 	#ifdef NETWORK
-	strcpy(Network_message_macro[0], TXT_DEF_MACRO_1);
-	strcpy(Network_message_macro[1], TXT_DEF_MACRO_2);
-	strcpy(Network_message_macro[2], TXT_DEF_MACRO_3);
-	strcpy(Network_message_macro[3], TXT_DEF_MACRO_4);
+	strcpy(PlayerCfg.NetworkMessageMacro[0], TXT_DEF_MACRO_1);
+	strcpy(PlayerCfg.NetworkMessageMacro[1], TXT_DEF_MACRO_2);
+	strcpy(PlayerCfg.NetworkMessageMacro[2], TXT_DEF_MACRO_3);
+	strcpy(PlayerCfg.NetworkMessageMacro[3], TXT_DEF_MACRO_4);
+	PlayerCfg.NetlifeKills=0; PlayerCfg.NetlifeKilled=0;
 	#endif
 	
 	return 1;
@@ -160,15 +115,8 @@ int read_player_d1x(char *filename)
 	int rc = 0;
 	char line[60],*word;
 	int Stop=0;
-	int i;
 
 	plyr_read_stats();
-
-	// set defaults for when nothing is specified
-// 	InitWeaponOrdering ();		//setup default weapon priorities 
-
-	for(i=0;i<MAX_D1X_CONTROLS;i++)
-		kconfig_d1x_settings[i] = default_kconfig_d1x_settings[i];
 
 	f = PHYSFSX_openReadBuffered(filename);
 	if(!f || PHYSFS_eof(f) ) 
@@ -192,12 +140,12 @@ int read_player_d1x(char *filename)
 				if(!strcmp(word,"PRIMARY"))
 				{
 					sscanf(line,"0x%x,0x%x,0x%x,0x%x,0x%x,0x%x",&wo0, &wo1, &wo2, &wo3, &wo4, &wo5);
-					PrimaryOrder[0]=wo0; PrimaryOrder[1]=wo1; PrimaryOrder[2]=wo2; PrimaryOrder[3]=wo3; PrimaryOrder[4]=wo4; PrimaryOrder[5]=wo5;
+					PlayerCfg.PrimaryOrder[0]=wo0; PlayerCfg.PrimaryOrder[1]=wo1; PlayerCfg.PrimaryOrder[2]=wo2; PlayerCfg.PrimaryOrder[3]=wo3; PlayerCfg.PrimaryOrder[4]=wo4; PlayerCfg.PrimaryOrder[5]=wo5;
 				}
 				else if(!strcmp(word,"SECONDARY"))
 				{
 					sscanf(line,"0x%x,0x%x,0x%x,0x%x,0x%x,0x%x",&wo0, &wo1, &wo2, &wo3, &wo4, &wo5);
-					SecondaryOrder[0]=wo0; SecondaryOrder[1]=wo1; SecondaryOrder[2]=wo2; SecondaryOrder[3]=wo3; SecondaryOrder[4]=wo4; SecondaryOrder[5]=wo5;
+					PlayerCfg.SecondaryOrder[0]=wo0; PlayerCfg.SecondaryOrder[1]=wo1; PlayerCfg.SecondaryOrder[2]=wo2; PlayerCfg.SecondaryOrder[3]=wo3; PlayerCfg.SecondaryOrder[4]=wo4; PlayerCfg.SecondaryOrder[5]=wo5;
 				}
 				d_free(word);
 				cfgets(line,50,f);
@@ -220,8 +168,8 @@ int read_player_d1x(char *filename)
 					i=(i-1)*2;
 		
 				sscanf(line,"0x%x,0x%x",&kc1,&kc2);
-				kconfig_d1x_settings[i]   = kc1;
-				kconfig_d1x_settings[i+1] = kc2;
+				PlayerCfg.KeySettingsD1X[i]   = kc1;
+				PlayerCfg.KeySettingsD1X[i+1] = kc2;
 				d_free(word);
 				cfgets(line,50,f);
 				word=splitword(line,'=');
@@ -240,14 +188,14 @@ int read_player_d1x(char *filename)
 				if(!strcmp(word,"CYCLE PRIMARY"))
 				{
 					sscanf(line,"0x%x,0x%x",&kc1,&kc2);
-					kconfig_d1x_settings[20]=kc1;
-					kconfig_d1x_settings[21]=kc2;
+					PlayerCfg.KeySettingsD1X[20]=kc1;
+					PlayerCfg.KeySettingsD1X[21]=kc2;
 				}
 				else if(!strcmp(word,"CYCLE SECONDARY"))
 				{
 					sscanf(line,"0x%x,0x%x",&kc1,&kc2);
-					kconfig_d1x_settings[22]=kc1;
-					kconfig_d1x_settings[23]=kc2;
+					PlayerCfg.KeySettingsD1X[22]=kc1;
+					PlayerCfg.KeySettingsD1X[23]=kc2;
 				}
 				d_free(word);
 				cfgets(line,50,f);
@@ -265,7 +213,7 @@ int read_player_d1x(char *filename)
 			while(!strstr(word,"END") && !PHYSFS_eof(f))
 			{
 				if(!strcmp(word,"DEADZONE"))
-					sscanf(line,"%i",&joy_deadzone);
+					sscanf(line,"%i",&PlayerCfg.JoystickDeadzone);
 				d_free(word);
 				cfgets(line,50,f);
 				word=splitword(line,'=');
@@ -285,7 +233,7 @@ int read_player_d1x(char *filename)
 				{
 					int tmp;
 					sscanf(line,"%i",&tmp);
-					Config_mouse_sensitivity = (ubyte) tmp;
+					PlayerCfg.MouseSensitivity = (ubyte) tmp;
 				}
 				d_free(word);
 				cfgets(line,50,f);
@@ -303,7 +251,49 @@ int read_player_d1x(char *filename)
 			while(!strstr(word,"END") && !PHYSFS_eof(f))
 			{
 				if(!strcmp(word,"MODE"))
-					sscanf(line,"%i",&Cockpit_mode);
+					sscanf(line,"%i",&PlayerCfg.CockpitMode);
+				else if(!strcmp(word,"HUD"))
+					sscanf(line,"%i",&PlayerCfg.HudMode);
+				d_free(word);
+				cfgets(line,50,f);
+				word=splitword(line,'=');
+				strupr(word);
+			}
+		}
+		else if (strstr(word,"TOGGLES"))
+		{
+			d_free(word);
+			cfgets(line,50,f);
+			word=splitword(line,'=');
+			strupr(word);
+	
+			while(!strstr(word,"END") && !PHYSFS_eof(f))
+			{
+				if(!strcmp(word,"RETICLE"))
+					sscanf(line,"%i",(int*)&PlayerCfg.ReticleOn);
+				else if(!strcmp(word,"PERSISTENTDEBRIS"))
+					sscanf(line,"%i",&PlayerCfg.PersistentDebris);
+				d_free(word);
+				cfgets(line,50,f);
+				word=splitword(line,'=');
+				strupr(word);
+			}
+		}
+		else if (strstr(word,"OPENGL"))
+		{
+			d_free(word);
+			cfgets(line,50,f);
+			word=splitword(line,'=');
+			strupr(word);
+	
+			while(!strstr(word,"END") && !PHYSFS_eof(f))
+			{
+				if(!strcmp(word,"OGLALPHAEFFECTS"))
+					sscanf(line,"%i",&PlayerCfg.OglAlphaEffects);
+				else if(!strcmp(word,"OGLRETICLE"))
+					sscanf(line,"%i",&PlayerCfg.OglReticle);
+				else if(!strcmp(word,"OGLPRSHOT"))
+					sscanf(line,"%i",&PlayerCfg.OglPRShot);
 				d_free(word);
 				cfgets(line,50,f);
 				word=splitword(line,'=');
@@ -339,6 +329,7 @@ char effcode1[]="d1xrocks_SKCORX!D";
 char effcode2[]="AObe)7Rn1 -+/zZ'0";
 char effcode3[]="aoeuidhtnAOEUIDH6";
 char effcode4[]="'/.;]<{=,+?|}->[3";
+
 unsigned char * decode_stat(unsigned char *p,int *v,char *effcode)
 {
 	unsigned char c;int neg,i,I;
@@ -417,12 +408,9 @@ void plyr_read_stats_v(int *k, int *d){
 		PHYSFS_close(f);
 }
 
-int multi_kills_stat=0;
-int multi_deaths_stat=0;
-
 void plyr_read_stats()
 {
-	plyr_read_stats_v(&multi_kills_stat,&multi_deaths_stat);
+	plyr_read_stats_v(&PlayerCfg.NetlifeKills,&PlayerCfg.NetlifeKilled);
 }
 
 void plyr_save_stats()
@@ -435,14 +423,14 @@ void plyr_save_stats()
 	kills=0;
 	deaths=0;
 	
-	kills=multi_kills_stat;
-	deaths=multi_deaths_stat;
+	kills=PlayerCfg.NetlifeKills;
+	deaths=PlayerCfg.NetlifeKilled;
 	
 	sprintf(filename,GameArg.SysUsePlayersDir?"Players/%s.eff":"%s.eff",Players[Player_num].callsign);
 	f = PHYSFSX_openWriteBuffered(filename);
 
 	if(!f)
-	return; //broken!
+		return; //broken!
 	
 	PHYSFSX_printf(f,"kills:%i\n",kills);
 	PHYSFSX_printf(f,"deaths:%i\n",deaths);
@@ -509,33 +497,43 @@ int write_player_d1x(char *filename)
 	{
 		PHYSFSX_printf(fout,"[D1X Options]\n");
 		PHYSFSX_printf(fout,"[weapon reorder]\n");
-		PHYSFSX_printf(fout,"primary=0x%x,0x%x,0x%x,0x%x,0x%x,0x%x\n",PrimaryOrder[0], PrimaryOrder[1], PrimaryOrder[2],PrimaryOrder[3], PrimaryOrder[4], PrimaryOrder[5]);
-		PHYSFSX_printf(fout,"secondary=0x%x,0x%x,0x%x,0x%x,0x%x,0x%x\n",SecondaryOrder[0], SecondaryOrder[1], SecondaryOrder[2],SecondaryOrder[3], SecondaryOrder[4], SecondaryOrder[5]);
+		PHYSFSX_printf(fout,"primary=0x%x,0x%x,0x%x,0x%x,0x%x,0x%x\n",PlayerCfg.PrimaryOrder[0], PlayerCfg.PrimaryOrder[1], PlayerCfg.PrimaryOrder[2],PlayerCfg.PrimaryOrder[3], PlayerCfg.PrimaryOrder[4], PlayerCfg.PrimaryOrder[5]);
+		PHYSFSX_printf(fout,"secondary=0x%x,0x%x,0x%x,0x%x,0x%x,0x%x\n",PlayerCfg.SecondaryOrder[0], PlayerCfg.SecondaryOrder[1], PlayerCfg.SecondaryOrder[2],PlayerCfg.SecondaryOrder[3], PlayerCfg.SecondaryOrder[4], PlayerCfg.SecondaryOrder[5]);
 		PHYSFSX_printf(fout,"[end]\n");
 		PHYSFSX_printf(fout,"[weapon keys]\n");
-		PHYSFSX_printf(fout,"1=0x%x,0x%x\n",kconfig_d1x_settings[0],kconfig_d1x_settings[1]);
-		PHYSFSX_printf(fout,"2=0x%x,0x%x\n",kconfig_d1x_settings[2],kconfig_d1x_settings[3]);
-		PHYSFSX_printf(fout,"3=0x%x,0x%x\n",kconfig_d1x_settings[4],kconfig_d1x_settings[5]);
-		PHYSFSX_printf(fout,"4=0x%x,0x%x\n",kconfig_d1x_settings[6],kconfig_d1x_settings[7]);
-		PHYSFSX_printf(fout,"5=0x%x,0x%x\n",kconfig_d1x_settings[8],kconfig_d1x_settings[9]);
-		PHYSFSX_printf(fout,"6=0x%x,0x%x\n",kconfig_d1x_settings[10],kconfig_d1x_settings[11]);
-		PHYSFSX_printf(fout,"7=0x%x,0x%x\n",kconfig_d1x_settings[12],kconfig_d1x_settings[13]);
-		PHYSFSX_printf(fout,"8=0x%x,0x%x\n",kconfig_d1x_settings[14],kconfig_d1x_settings[15]);
-		PHYSFSX_printf(fout,"9=0x%x,0x%x\n",kconfig_d1x_settings[16],kconfig_d1x_settings[17]);
-		PHYSFSX_printf(fout,"0=0x%x,0x%x\n",kconfig_d1x_settings[18],kconfig_d1x_settings[19]);
+		PHYSFSX_printf(fout,"1=0x%x,0x%x\n",PlayerCfg.KeySettingsD1X[0],PlayerCfg.KeySettingsD1X[1]);
+		PHYSFSX_printf(fout,"2=0x%x,0x%x\n",PlayerCfg.KeySettingsD1X[2],PlayerCfg.KeySettingsD1X[3]);
+		PHYSFSX_printf(fout,"3=0x%x,0x%x\n",PlayerCfg.KeySettingsD1X[4],PlayerCfg.KeySettingsD1X[5]);
+		PHYSFSX_printf(fout,"4=0x%x,0x%x\n",PlayerCfg.KeySettingsD1X[6],PlayerCfg.KeySettingsD1X[7]);
+		PHYSFSX_printf(fout,"5=0x%x,0x%x\n",PlayerCfg.KeySettingsD1X[8],PlayerCfg.KeySettingsD1X[9]);
+		PHYSFSX_printf(fout,"6=0x%x,0x%x\n",PlayerCfg.KeySettingsD1X[10],PlayerCfg.KeySettingsD1X[11]);
+		PHYSFSX_printf(fout,"7=0x%x,0x%x\n",PlayerCfg.KeySettingsD1X[12],PlayerCfg.KeySettingsD1X[13]);
+		PHYSFSX_printf(fout,"8=0x%x,0x%x\n",PlayerCfg.KeySettingsD1X[14],PlayerCfg.KeySettingsD1X[15]);
+		PHYSFSX_printf(fout,"9=0x%x,0x%x\n",PlayerCfg.KeySettingsD1X[16],PlayerCfg.KeySettingsD1X[17]);
+		PHYSFSX_printf(fout,"0=0x%x,0x%x\n",PlayerCfg.KeySettingsD1X[18],PlayerCfg.KeySettingsD1X[19]);
 		PHYSFSX_printf(fout,"[end]\n");
 		PHYSFSX_printf(fout,"[cycle keys]\n");
-		PHYSFSX_printf(fout,"cycle primary=0x%x,0x%x\n",kconfig_d1x_settings[20],kconfig_d1x_settings[21]);
-		PHYSFSX_printf(fout,"cycle secondary=0x%x,0x%x\n",kconfig_d1x_settings[22],kconfig_d1x_settings[23]);
+		PHYSFSX_printf(fout,"cycle primary=0x%x,0x%x\n",PlayerCfg.KeySettingsD1X[20],PlayerCfg.KeySettingsD1X[21]);
+		PHYSFSX_printf(fout,"cycle secondary=0x%x,0x%x\n",PlayerCfg.KeySettingsD1X[22],PlayerCfg.KeySettingsD1X[23]);
 		PHYSFSX_printf(fout,"[end]\n");
 		PHYSFSX_printf(fout,"[joystick]\n");
-		PHYSFSX_printf(fout,"deadzone=%i\n",joy_deadzone);
+		PHYSFSX_printf(fout,"deadzone=%i\n",PlayerCfg.JoystickDeadzone);
 		PHYSFSX_printf(fout,"[end]\n");
 		PHYSFSX_printf(fout,"[mouse]\n");
-		PHYSFSX_printf(fout,"sensitivity=%d\n",Config_mouse_sensitivity);
+		PHYSFSX_printf(fout,"sensitivity=%d\n",PlayerCfg.MouseSensitivity);
 		PHYSFSX_printf(fout,"[end]\n");
 		PHYSFSX_printf(fout,"[cockpit]\n");
-		PHYSFSX_printf(fout,"mode=%i\n",(Cockpit_mode==1?0:Cockpit_mode));
+		PHYSFSX_printf(fout,"mode=%i\n",(PlayerCfg.CockpitMode==1?0:PlayerCfg.CockpitMode));
+		PHYSFSX_printf(fout,"hud=%i\n",PlayerCfg.HudMode);
+		PHYSFSX_printf(fout,"[end]\n");
+		PHYSFSX_printf(fout,"[toggles]\n");
+		PHYSFSX_printf(fout,"reticle=%i\n",PlayerCfg.ReticleOn);
+		PHYSFSX_printf(fout,"persistentdebris=%i\n",PlayerCfg.PersistentDebris);
+		PHYSFSX_printf(fout,"[end]\n");
+		PHYSFSX_printf(fout,"[opengl]\n");
+		PHYSFSX_printf(fout,"oglaplhaeffects=%i\n",PlayerCfg.OglAlphaEffects);
+		PHYSFSX_printf(fout,"oglreticle=%i\n",PlayerCfg.OglReticle);
+		PHYSFSX_printf(fout,"oglprshot=%i\n",PlayerCfg.OglPRShot);
 		PHYSFSX_printf(fout,"[end]\n");
 		PHYSFSX_printf(fout,"[plx version]\n");
 		PHYSFSX_printf(fout,"plx version=%s\n",D1X_VERSION);
@@ -559,10 +557,8 @@ int read_player_file()
 {
 	char filename[32];
 	PHYSFS_file *file;
-	save_info info;
-	int errno_ret = EZERO;
-	int player_file_size;
-	int shareware_file = -1;
+	int errno_ret = EZERO, player_file_size, shareware_file = -1, id = 0;
+	short saved_game_version, player_struct_version;
 
 	Assert(Player_num>=0 && Player_num<MAX_PLAYERS);
 
@@ -575,6 +571,8 @@ int read_player_file()
 	if (!file) {
 		return errno;
 	}
+
+	new_player_config(); // Set defaults!
 
 	// Unfortunatly d1x has been writing both shareware and registered
 	// player files with a saved_game_version of 7 and 8, whereas the
@@ -589,32 +587,27 @@ int read_player_file()
 	PHYSFS_seek(file, 0);
 	player_file_size = PHYSFS_fileLength(file);
 
-	if (PHYSFS_read(file,&info,sizeof(info),1) != 1) {
-		errno_ret = errno;
-		PHYSFS_close(file);
-		return errno_ret;
-	}
-	info.id = INTEL_INT(info.id);
-	info.saved_game_version = INTEL_SHORT(info.saved_game_version);
-	info.player_struct_version = INTEL_SHORT(info.player_struct_version);
-	info.n_highest_levels = INTEL_INT(info.n_highest_levels);
-	info.default_difficulty_level = INTEL_INT(info.default_difficulty_level);
-	info.default_leveling_on = INTEL_INT(info.default_leveling_on);
+	PHYSFS_readSLE32(file, &id);
+	saved_game_version = cfile_read_short(file);
+	player_struct_version = cfile_read_short(file);
+	PlayerCfg.NHighestLevels = cfile_read_int(file);
+	PlayerCfg.DefaultDifficulty = cfile_read_int(file);
+	PlayerCfg.AutoLeveling = cfile_read_int(file);
 
-	if (info.id!=SAVE_FILE_ID) {
+	if (id!=SAVE_FILE_ID) {
 		nm_messagebox(TXT_ERROR, 1, TXT_OK, "Invalid player file");
 		PHYSFS_close(file);
 		return -1;
 	}
 
-	if (info.saved_game_version<COMPATIBLE_SAVED_GAME_VERSION || info.player_struct_version<COMPATIBLE_PLAYER_STRUCT_VERSION) {
+	if (saved_game_version<COMPATIBLE_SAVED_GAME_VERSION || player_struct_version<COMPATIBLE_PLAYER_STRUCT_VERSION) {
 		nm_messagebox(TXT_ERROR, 1, TXT_OK, TXT_ERROR_PLR_VERSION);
 		PHYSFS_close(file);
 		return -1;
 	}
 
 	/* determine if we're dealing with a shareware or registered playerfile */
-	switch (info.saved_game_version)
+	switch (saved_game_version)
 	{
 		case 4:
 			shareware_file = 1;
@@ -625,26 +618,26 @@ int read_player_file()
 			break;
 		case 7:
 			/* version 7 doesn't have the saved games array */
-			if ((player_file_size - (sizeof(hli)*info.n_highest_levels)) == (2212 - sizeof(saved_games)))
+			if ((player_file_size - (sizeof(hli)*PlayerCfg.NHighestLevels)) == (2212 - sizeof(saved_games)))
 				shareware_file = 1;
-			if ((player_file_size - (sizeof(hli)*info.n_highest_levels)) == (2252 - sizeof(saved_games)))
+			if ((player_file_size - (sizeof(hli)*PlayerCfg.NHighestLevels)) == (2252 - sizeof(saved_games)))
 				shareware_file = 0;
 			break;
 		case 8:
-			if ((player_file_size - (sizeof(hli)*info.n_highest_levels)) == 2212)
+			if ((player_file_size - (sizeof(hli)*PlayerCfg.NHighestLevels)) == 2212)
 				shareware_file = 1;
-			if ((player_file_size - (sizeof(hli)*info.n_highest_levels)) == 2252)
+			if ((player_file_size - (sizeof(hli)*PlayerCfg.NHighestLevels)) == 2252)
 				shareware_file = 0;
 			/* d1x-rebirth v0.31 to v0.42 broke things by adding stuff to the
 			   player struct without thinking (sigh) */
-			if ((player_file_size - (sizeof(hli)*info.n_highest_levels)) == (2212 + 2*sizeof(int)))
+			if ((player_file_size - (sizeof(hli)*PlayerCfg.NHighestLevels)) == (2212 + 2*sizeof(int)))
 			{
 
 				shareware_file = 1;
 				/* skip the cruft added to the player_info struct */
 				PHYSFS_seek(file, PHYSFS_tell(file)+2*sizeof(int));
 			}
-			if ((player_file_size - (sizeof(hli)*info.n_highest_levels)) == (2252 + 2*sizeof(int)))
+			if ((player_file_size - (sizeof(hli)*PlayerCfg.NHighestLevels)) == (2252 + 2*sizeof(int)))
 			{
 				shareware_file = 0;
 				/* skip the cruft added to the player_info struct */
@@ -658,38 +651,30 @@ int read_player_file()
 		return -1;
 	}
 
-	if (info.saved_game_version <= 5) {
+	if (saved_game_version <= 5) {
 
 		//deal with old-style highest level info
 
-		n_highest_levels = 1;
-
-		highest_levels[0].shortname[0] = 0;							//no name for mission 0
-		highest_levels[0].level_num = info.n_highest_levels;	//was highest level in old struct
+		PlayerCfg.HighestLevels[0].Shortname[0] = 0;							//no name for mission 0
+		PlayerCfg.HighestLevels[0].LevelNum = PlayerCfg.NHighestLevels;	//was highest level in old struct
 
 		//This hack allows the player to start on level 8 if he's made it to
 		//level 7 on the shareware.  We do this because the shareware didn't
 		//save the information that the player finished level 7, so the most
 		//we know is that he made it to level 7.
-		if (info.n_highest_levels==7)
-			highest_levels[0].level_num = 8;
+		if (PlayerCfg.NHighestLevels==7)
+			PlayerCfg.HighestLevels[0].LevelNum = 8;
 		
 	}
 	else {	//read new highest level info
-
-		n_highest_levels = info.n_highest_levels;
-
-		if (PHYSFS_read(file,highest_levels,sizeof(hli),n_highest_levels) != n_highest_levels) {
+		if (PHYSFS_read(file,PlayerCfg.HighestLevels,sizeof(hli),PlayerCfg.NHighestLevels) != PlayerCfg.NHighestLevels) {
 			errno_ret = errno;
 			PHYSFS_close(file);
 			return errno_ret;
 		}
 	}
 
-	Player_default_difficulty = info.default_difficulty_level;
-	Default_leveling_on = info.default_leveling_on;
-
-	if ( info.saved_game_version != 7 ) {	// Read old & SW saved games.
+	if ( saved_game_version != 7 ) {	// Read old & SW saved games.
 		if (PHYSFS_read(file,saved_games,sizeof(saved_games),1) != 1) {
 			errno_ret = errno;
 			PHYSFS_close(file);
@@ -700,58 +685,38 @@ int read_player_file()
 	//read taunt macros
 	{
 		int i;
-		#if defined SHAREWARE && defined NETWORK
-		for (i = 0; i < 4; i++)
-		{
-			if (PHYSFS_read(Network_message_macro[i], MAX_MESSAGE_LEN, 1) != 1)
-				{errno_ret = errno; break;}
-			/* if this is not a shareware file, make sure what we've
-			   read is 0 terminated and skip the 10 additional bytes
-			   of the registered version */
-			if (!shareware_file)
-			{
-				Network_message_macro[i][MAX_MESSAGE_LEN-1] = 0;
-				PHYSFS_seek(file, PHYSFS_tell(file)+10);
-			}
-		}
-		#else
 		int len = shareware_file? 25:35;
 
 		#ifdef NETWORK
 		for (i = 0; i < 4; i++)
-			if (PHYSFS_read(file, Network_message_macro[i], len, 1) != 1)
+			if (PHYSFS_read(file, PlayerCfg.NetworkMessageMacro[i], len, 1) != 1)
 				{errno_ret = errno; break;}
 		#else
 		i = 0;
 		PHYSFS_seek( file, PHYSFS_tell(file)+4*len );
 		#endif
-		#endif
 	}
-
-
 
 	//read kconfig data
 	{
-        //        if (fread( kconfig_settings, MAX_CONTROLS*CONTROL_MAX_TYPES, 1, file )!=1)
-        //                errno_ret=errno;
-                int i,j;
-                 for(i=0;i<CONTROL_MAX_TYPES;i++)
-                  for(j=0;j<MAX_NOND1X_CONTROLS;j++)
-                   if(PHYSFS_read(file, &kconfig_settings[i][j], sizeof(ubyte),1)!=1)
-                    errno_ret=errno;
-                if(errno_ret == EZERO)
-                {
-                if (PHYSFS_read(file, &Config_control_type, sizeof(ubyte), 1 )!=1)
-			errno_ret=errno;
-		else if (PHYSFS_read(file, &Config_joystick_sensitivity, sizeof(ubyte), 1 )!=1)
-			errno_ret=errno;
+		int i,j;
+		for(i=0;i<CONTROL_MAX_TYPES;i++)
+			for(j=0;j<MAX_NOND1X_CONTROLS;j++)
+				if(PHYSFS_read(file, &PlayerCfg.KeySettings[i][j], sizeof(ubyte),1)!=1)
+					errno_ret=errno;
+		if(errno_ret == EZERO)
+		{
+			if (PHYSFS_read(file, &PlayerCfg.ControlType, sizeof(ubyte), 1 )!=1)
+				errno_ret=errno;
+			else if (PHYSFS_read(file, &PlayerCfg.JoystickSensitivity, sizeof(ubyte), 1 )!=1)
+				errno_ret=errno;
                 }
 	}
 
 	if (!PHYSFS_close(file) && errno_ret==EZERO)
 		errno_ret = errno;
 
-	if ( info.saved_game_version != 7 ) 	{
+	if ( saved_game_version != 7 ) 	{
 		int i, found=0;
 		
 		Assert( N_SAVE_SLOTS == 10 );
@@ -789,27 +754,22 @@ int find_hli_entry()
 {
 	int i;
 
-#ifdef SHAREWARE
-	return 0;
-#else
-
-	for (i=0;i<n_highest_levels;i++)
-		if (!stricmp(highest_levels[i].shortname, Current_mission_filename))
+	for (i=0;i<PlayerCfg.NHighestLevels;i++)
+		if (!stricmp(PlayerCfg.HighestLevels[i].Shortname, Current_mission_filename))
 			break;
 
-	if (i==n_highest_levels) {		//not found.  create entry
+	if (i==PlayerCfg.NHighestLevels) { //not found. create entry
 
 		if (i==MAX_MISSIONS)
-			i--;		//take last entry
+			i--; //take last entry
 		else
-			n_highest_levels++;
+			PlayerCfg.NHighestLevels++;
 
-		strcpy(highest_levels[i].shortname, Current_mission_filename);
-		highest_levels[i].level_num			= 0;
+		strcpy(PlayerCfg.HighestLevels[i].Shortname, Current_mission_filename);
+		PlayerCfg.HighestLevels[i].LevelNum = 0;
 	}
 
 	return i;
-#endif
 }
 
 //set a new highest level for player for this mission
@@ -823,8 +783,8 @@ void set_highest_level(int levelnum)
 
 	i = find_hli_entry();
 
-	if (levelnum > highest_levels[i].level_num)
-		highest_levels[i].level_num = levelnum;
+	if (levelnum > PlayerCfg.HighestLevels[i].LevelNum)
+		PlayerCfg.HighestLevels[i].LevelNum = levelnum;
 
 	write_player_file();
 }
@@ -833,20 +793,20 @@ void set_highest_level(int levelnum)
 int get_highest_level(void)
 {
 	int i;
-	int highest_saturn_level			= 0;
+	int highest_saturn_level = 0;
 	read_player_file();
 #ifndef SHAREWARE
 #ifndef SATURN
 	if (strlen(Current_mission_filename)==0 )	{
-		for (i=0;i<n_highest_levels;i++)
-			if (!stricmp(highest_levels[i].shortname, "DESTSAT")) 	//	Destination Saturn.
-		 		highest_saturn_level			= highest_levels[i].level_num; 
+		for (i=0;i<PlayerCfg.NHighestLevels;i++)
+			if (!stricmp(PlayerCfg.HighestLevels[i].Shortname, "DESTSAT")) // Destination Saturn.
+				highest_saturn_level = PlayerCfg.HighestLevels[i].LevelNum;
 	}
 #endif
 #endif
-   i			= highest_levels[find_hli_entry()].level_num;
+	i = PlayerCfg.HighestLevels[find_hli_entry()].LevelNum;
 	if ( highest_saturn_level > i )
-   	i			= highest_saturn_level;
+		i = highest_saturn_level;
 	return i;
 }
 
@@ -856,21 +816,12 @@ int write_player_file()
 {
 	char filename[32];
 	PHYSFS_file *file;
-	save_info info;
 	int errno_ret;
 
 	if ( Newdemo_state == ND_STATE_PLAYBACK )
 		return -1;
 
 	errno_ret = WriteConfigFile();
-
-	info.id = INTEL_INT(SAVE_FILE_ID);
-	info.saved_game_version = INTEL_SHORT(SAVED_GAME_VERSION);
-	info.player_struct_version = INTEL_SHORT(PLAYER_STRUCT_VERSION);
-	info.default_difficulty_level = INTEL_INT(Player_default_difficulty);
-	info.default_leveling_on = INTEL_INT(Auto_leveling_on);
-
-	info.n_highest_levels = INTEL_INT(n_highest_levels);
 
         sprintf(filename, GameArg.SysUsePlayersDir? "Players/%.8s.plx" : "%.8s.plx", Players[Player_num].callsign);
 	write_player_d1x(filename);
@@ -881,16 +832,16 @@ int write_player_file()
 	if (!file)
 		return errno;
 
+	PHYSFS_writeULE32(file, SAVE_FILE_ID);
+	PHYSFS_writeULE16(file, SAVED_GAME_VERSION);
+	PHYSFS_writeULE16(file, PLAYER_STRUCT_VERSION);
+	PHYSFS_writeSLE32(file, PlayerCfg.NHighestLevels);
+	PHYSFS_writeSLE32(file, PlayerCfg.DefaultDifficulty);
+	PHYSFS_writeSLE32(file, PlayerCfg.AutoLeveling);
 	errno_ret = EZERO;
 
-	if (PHYSFS_write( file, &info,sizeof(info),1) != 1) {
-		errno_ret = errno;
-		PHYSFS_close(file);
-		return errno_ret;
-	}
-
 	//write higest level info
-	if ((PHYSFS_write( file, highest_levels, sizeof(hli), n_highest_levels) != n_highest_levels)) {
+	if ((PHYSFS_write( file, PlayerCfg.HighestLevels, sizeof(hli), PlayerCfg.NHighestLevels) != PlayerCfg.NHighestLevels)) {
 		errno_ret = errno;
 		PHYSFS_close(file);
 		return errno_ret;
@@ -903,7 +854,7 @@ int write_player_file()
 	}
 
 	#ifdef NETWORK
-	if ((PHYSFS_write( file, Network_message_macro, MAX_MESSAGE_LEN, 4) != 4)) {
+	if ((PHYSFS_write( file, PlayerCfg.NetworkMessageMacro, MAX_MESSAGE_LEN, 4) != 4)) {
 		errno_ret = errno;
 		PHYSFS_close(file);
 		return errno_ret;
@@ -914,21 +865,19 @@ int write_player_file()
 
 	//write kconfig info
 	{
-//                if (PHYSFS_write( file,  kconfig_settings, MAX_CONTROLS*CONTROL_MAX_TYPES, 1, file )!=1)
-//                        errno_ret=errno;
 		int i,j;
 		for(i=0;i<CONTROL_MAX_TYPES;i++) {
 			for(j=0;j<MAX_NOND1X_CONTROLS;j++) {
-				if(PHYSFS_write( file,  &kconfig_settings[i][j], sizeof(kconfig_settings[i][j]), 1)!=1)
+				if(PHYSFS_write( file,  &PlayerCfg.KeySettings[i][j], sizeof(PlayerCfg.KeySettings[i][j]), 1)!=1)
 					errno_ret=errno;
 			}
 		}
 	
 		if(errno_ret == EZERO)
 		{
-			if (PHYSFS_write( file,  &Config_control_type, sizeof(ubyte), 1 )!=1)
+			if (PHYSFS_write( file,  &PlayerCfg.ControlType, sizeof(ubyte), 1 )!=1)
 				errno_ret=errno;
-			else if (PHYSFS_write( file,  &Config_joystick_sensitivity, sizeof(ubyte), 1 )!=1)
+			else if (PHYSFS_write( file,  &PlayerCfg.JoystickSensitivity, sizeof(ubyte), 1 )!=1)
 				errno_ret=errno;
 		}
 	}
@@ -942,95 +891,4 @@ int write_player_file()
 	}
 
 	return errno_ret;
-
-}
-
-//returns errno (0 == no error)
-int save_player_game(int slot_num,char *text)
-{
-	int ret;
-
-	if ((ret=read_player_file()) != EZERO)
-		if (ret != ENOENT)		//if file doesn't exist, that's ok
-			return ret;
-
-	Assert(slot_num < N_SAVE_SLOTS);
-
-	strcpy(saved_games[slot_num].name,text);
-
-	saved_games[slot_num].player = Players[Player_num];
-
-	saved_games[slot_num].difficulty_level	= Difficulty_level;
-	saved_games[slot_num].auto_leveling_on	= Auto_leveling_on;
-	saved_games[slot_num].primary_weapon	= Primary_weapon;
-	saved_games[slot_num].secondary_weapon	= Secondary_weapon;
-	// now saved in PLX file
-	saved_games[slot_num].cockpit_mode		= 0;
-	// here Game_window_w(h should follow, but we don't use it anymore
-	saved_games[slot_num].window_w			= 0;
-	saved_games[slot_num].window_h			= 0;
-	saved_games[slot_num].next_level_num	= Next_level_num;
-
-	return write_player_file();
-}
-
-
-//returns errno (0 == no error)
-int load_player_game(int slot_num)
-{
-	char save_callsign[CALLSIGN_LEN+1];
-	int ret;
-
-	Assert(slot_num < N_SAVE_SLOTS);
-
-	if ((ret=read_player_file()) != EZERO)
-		return ret;
-
-	Assert(saved_games[slot_num].name[0] != 0);
-
-	strcpy(save_callsign,Players[Player_num].callsign);
-	Players[Player_num] = saved_games[slot_num].player;
-	strcpy(Players[Player_num].callsign,save_callsign);
-
-	Difficulty_level	= saved_games[slot_num].difficulty_level;
-	Auto_leveling_on	= saved_games[slot_num].auto_leveling_on;
-	Primary_weapon		= saved_games[slot_num].primary_weapon;
-	Secondary_weapon	= saved_games[slot_num].secondary_weapon;
-
-	Players[Player_num].level = saved_games[slot_num].next_level_num;
-
-	return EZERO;
-}
-
-//fills in a list of pointers to strings describing saved games
-//returns the number of non-empty slots
-//returns -1 if this is a new player
-int get_game_list(char *game_text[N_SAVE_SLOTS])
-{
-	int i,count,ret;
-
-	ret = read_player_file();
-
-	for (i=count=0;i<N_SAVE_SLOTS;i++) {
-		if (game_text)
-			game_text[i] = saved_games[i].name;
-
-		if (saved_games[i].name[0])
-			count++;
-	}
-
-	return (ret==EZERO)?count:-1;		//-1 means new file was created
-
-}
-
-//update the player's highest level.  returns errno (0 == no error)
-int update_player_file()
-{
-	int ret;
-
-	if ((ret=read_player_file()) != EZERO)
-		if (ret != ENOENT)		//if file doesn't exist, that's ok
-			return ret;
-
-	return write_player_file();
 }

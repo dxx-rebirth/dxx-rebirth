@@ -58,6 +58,7 @@ COPYRIGHT 1993-1998 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 #include "multipow.h"
 #include "vers_id.h"
 #include "gamefont.h"
+#include "playsave.h"
 
 void network_send_rejoin_sync(int player_num);
 void network_update_netgame(void);
@@ -1948,7 +1949,7 @@ int network_get_game_params()
 	restrict_mode=0;
 	MaxNumNetPlayers = MAX_NUM_NET_PLAYERS;
 	sprintf( Netgame.game_name, "%s%s", Players[Player_num].callsign, TXT_S_GAME );
-	Netgame.difficulty=Player_default_difficulty;
+	Netgame.difficulty=PlayerCfg.DefaultDifficulty;
 	Netgame.max_numplayers=MaxNumNetPlayers;
 	Netgame.protocol_version = MULTI_PROTO_VERSION;
 	Netgame.flags = NETFLAG_DOPOWERUP | // enable all powerups
@@ -2240,8 +2241,8 @@ void network_read_sync_packet( ubyte * data, int d1x )
 //end this section kill
 //end this section addition/edit - VR
 //added/edited on 11/12/98 by Victor Rachels to hopefully fix eff
-        multi_kills_stat -= Players[Player_num].net_kills_total;
-        multi_deaths_stat -= Players[Player_num].net_killed_total;
+        PlayerCfg.NetlifeKills -= Players[Player_num].net_kills_total;
+        PlayerCfg.NetlifeKilled -= Players[Player_num].net_killed_total;
 //end this section addition - VR
 
 #ifndef SHAREWARE

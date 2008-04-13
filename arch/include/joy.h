@@ -85,7 +85,6 @@ extern void joy_close();
 
 extern char joy_installed;
 extern char joy_present;
-extern int joy_deadzone;
 
 //==========================================================================
 // The actual number of available axes.  If the arch can't set this

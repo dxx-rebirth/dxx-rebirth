@@ -1,5 +1,9 @@
 D1X-Rebirth Changelog
 
+20080413
+--------
+include/args.h, main/newmenu.c, main/collide.h, main/network.c, main/multi.c, main/multi.h, main/inferno.c, main/menu.c, main/menu.h, main/playsave.c, main/playsave.h, main/object.c, main/hud.c, main/weapon.c, main/hostage.c, main/newdemo.c, main/config.c, main/gameseq.c, main/endlevel.c, main/ai.h, main/game.c, main/gauges.c, main/game.h, main/kconfig.c, main/kconfig.h, misc/args.c, d1x.ini, arch/ogl/ogl.c, arch/ogl/gr.c, arch/sdl/joy.c, arch/include/joy.h: Added structure for values saved in PLR/PLX files; Added most common command-line options to options menu
+
 20080408
 --------
 d1x-rebirth.xcodeproj, include/cfile.h, main/bmread.c, main/inferno.c, main/newmenu.c, misc/error.c, ui/gadget.c, ui/window.c: show a messagebox if there's an error and graphics are initialised, update Xcode project

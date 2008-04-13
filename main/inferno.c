@@ -165,19 +165,9 @@ void show_commandline_help()
 #endif // USE SDLMIXER
 
 	printf( "\n Graphics:\n\n");
-	printf( "  -hud <n>           %s\n", "Set hud mode.  0=normal 1-3=new");
-	printf( "  -persistentdebris  %s\n", "Enable persistent debris. Works in singleplayer only");
 	printf( "  -lowresfont        %s\n", "Force to use LowRes fonts");
-	printf( "  -noreticle         %s\n", "Disable reticle");
-
 #ifdef    OGL
-	printf( "\n OpenGL:\n\n");
-	printf( "  -gl_mipmap         %s\n", "Set gl texture filters to \"standard\" options for mipmapping");
-	printf( "  -gl_trilinear      %s\n", "Set gl texture filters to trilinear mipmapping");
-	printf( "  -gl_transparency   %s\n", "Enable transparency effects");
-	printf( "  -gl_reticle <n>    %s\n", "Use OGL reticle 0=never 1=above 320x* 2=always");
 	printf( "  -gl_fixedfont      %s\n", "Do not scale fonts to current resolution");
-	printf( "  -gl_prshot         %s\n", "Take clean screenshots - no HUD and DXX-Rebirth writing");
 #endif // OGL
 
 #ifdef    NETWORK

@@ -28,6 +28,7 @@ COPYRIGHT 1993-1998 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 #include "newdemo.h"
 #include "multi.h"
 #include "newmenu.h"
+#include "playsave.h"
 
 // Convert primary weapons to indices in Weapon_info array.
 ubyte Primary_weapon_to_weapon_info[MAX_PRIMARY_WEAPONS] = {0, 11, 12, 13, 14};
@@ -41,8 +42,6 @@ int POrderList (int num);
 int SOrderList (int num);
 ubyte DefaultPrimaryOrder[] = { 4, 3, 2, 1, 0, 255 };
 ubyte DefaultSecondaryOrder[] = { 4, 3, 1, 0, 255, 2 };
-ubyte PrimaryOrder[] = { 4, 3, 2, 1, 0, 255 };
-ubyte SecondaryOrder[] = { 4, 3, 1, 0, 255, 2 };
 extern ubyte MenuReordering;
 ubyte Cycling=0;
 
@@ -145,9 +144,9 @@ void InitWeaponOrdering ()
   int i;
 
   for (i=0;i<MAX_PRIMARY_WEAPONS+1;i++)
-	PrimaryOrder[i]=DefaultPrimaryOrder[i];
+	PlayerCfg.PrimaryOrder[i]=DefaultPrimaryOrder[i];
   for (i=0;i<MAX_SECONDARY_WEAPONS+1;i++)
-	SecondaryOrder[i]=DefaultSecondaryOrder[i];
+	PlayerCfg.SecondaryOrder[i]=DefaultSecondaryOrder[i];
  }	
 
 void CyclePrimary ()
@@ -319,10 +318,10 @@ void auto_select_weapon(int weapon_type)
 	
 				//	Hack alert!  Because the fusion uses 0 energy at the end (it's got the weird chargeup)
 				//	it looks like it takes 0 to fire, but it doesn't, so never auto-select.
-				// if (PrimaryOrder[cur_weapon] == FUSION_INDEX)
+				// if (PlayerCfg.PrimaryOrder[cur_weapon] == FUSION_INDEX)
 				//	continue;
 
-				if (PrimaryOrder[cur_weapon] == Primary_weapon) {
+				if (PlayerCfg.PrimaryOrder[cur_weapon] == Primary_weapon) {
 					if (!Cycling)
 					{
 						HUD_init_message(TXT_NO_PRIMARY);
@@ -334,8 +333,8 @@ void auto_select_weapon(int weapon_type)
 
 					try_again = 0;			// Tried all weapons!
 
-				} else if (PrimaryOrder[cur_weapon]!=255 && player_has_weapon(PrimaryOrder[cur_weapon], 0) == HAS_ALL) {
-					select_weapon(PrimaryOrder[cur_weapon], 0, 1, 1 );
+				} else if (PlayerCfg.PrimaryOrder[cur_weapon]!=255 && player_has_weapon(PlayerCfg.PrimaryOrder[cur_weapon], 0) == HAS_ALL) {
+					select_weapon(PlayerCfg.PrimaryOrder[cur_weapon], 0, 1, 1 );
 					try_again = 0;
 				}
 			}
@@ -374,15 +373,15 @@ void auto_select_weapon(int weapon_type)
 				if (cur_weapon==MAX_SECONDARY_WEAPONS)
 					cur_weapon = 0;
 
-				if (SecondaryOrder[cur_weapon] == Secondary_weapon) {
+				if (PlayerCfg.SecondaryOrder[cur_weapon] == Secondary_weapon) {
 					if (!Cycling)
 						HUD_init_message("No secondary weapons available!");
 					else
 						select_weapon (Secondary_weapon,1,0,1);
 
 					try_again = 0;				// Tried all weapons!
-				} else if (player_has_weapon(SecondaryOrder[cur_weapon], 1) == HAS_ALL) {
-					select_weapon(SecondaryOrder[cur_weapon], 1, 1, 1 );
+				} else if (player_has_weapon(PlayerCfg.SecondaryOrder[cur_weapon], 1) == HAS_ALL) {
+					select_weapon(PlayerCfg.SecondaryOrder[cur_weapon], 1, 1, 1 );
 					try_again = 0;
 				}
 			}
@@ -440,18 +439,18 @@ void ReorderPrimary ()
 	for (i=0;i<MAX_PRIMARY_WEAPONS+1;i++)
 	{
 		m[i].type=NM_TYPE_MENU;
-		if (PrimaryOrder[i]==255)
+		if (PlayerCfg.PrimaryOrder[i]==255)
 			m[i].text="--- Never Autoselect below ---";
 		else
-			m[i].text=(char *)PRIMARY_WEAPON_NAMES(PrimaryOrder[i]);
-		m[i].value=PrimaryOrder[i];
+			m[i].text=(char *)PRIMARY_WEAPON_NAMES(PlayerCfg.PrimaryOrder[i]);
+		m[i].value=PlayerCfg.PrimaryOrder[i];
 	}
 	MenuReordering=1;
 	i = newmenu_do("Reorder Primary","Shift+Up/Down arrow to move item", i, m, NULL);
 	MenuReordering=0;
 	
 	for (i=0;i<MAX_PRIMARY_WEAPONS+1;i++)
-		PrimaryOrder[i]=m[i].value;
+		PlayerCfg.PrimaryOrder[i]=m[i].value;
 }
 
 void ReorderSecondary ()
@@ -462,17 +461,17 @@ void ReorderSecondary ()
 	for (i=0;i<MAX_SECONDARY_WEAPONS+1;i++)
 	{
 		m[i].type=NM_TYPE_MENU;
-		if (SecondaryOrder[i]==255)
+		if (PlayerCfg.SecondaryOrder[i]==255)
 			m[i].text="--- Never Autoselect below ---";
 		else
-			m[i].text=(char *)SECONDARY_WEAPON_NAMES(SecondaryOrder[i]);
-		m[i].value=SecondaryOrder[i];
+			m[i].text=(char *)SECONDARY_WEAPON_NAMES(PlayerCfg.SecondaryOrder[i]);
+		m[i].value=PlayerCfg.SecondaryOrder[i];
 	}
 	MenuReordering=1;
 	i = newmenu_do("Reorder Secondary","Shift+Up/Down arrow to move item", i, m, NULL);
 	MenuReordering=0;
 	for (i=0;i<MAX_SECONDARY_WEAPONS+1;i++)
-		SecondaryOrder[i]=m[i].value;
+		PlayerCfg.SecondaryOrder[i]=m[i].value;
 }
 
 int POrderList (int num)
@@ -480,7 +479,7 @@ int POrderList (int num)
 	int i;
 
 	for (i=0;i<MAX_PRIMARY_WEAPONS+1;i++)
-	if (PrimaryOrder[i]==num)
+	if (PlayerCfg.PrimaryOrder[i]==num)
 	{
 		return (i);
 	}
@@ -492,7 +491,7 @@ int SOrderList (int num)
 	int i;
 
 	for (i=0;i<MAX_SECONDARY_WEAPONS+1;i++)
-		if (SecondaryOrder[i]==num)
+		if (PlayerCfg.SecondaryOrder[i]==num)
 		{
 			return (i);
 		}

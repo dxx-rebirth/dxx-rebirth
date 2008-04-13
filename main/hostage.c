@@ -35,6 +35,7 @@ COPYRIGHT 1993-1998 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 #include "newdemo.h"
 #include "text.h"
 #include "piggy.h"
+#include "playsave.h"
 
 //------------- Globaly used hostage variables --------------------------------------------------
 int 					N_hostage_types = 0;			  				// Number of hostage types
@@ -105,7 +106,7 @@ void start_hostage_clip()
 //add this hostage's clip to the queue
 void queue_hostage_clip(int hostage_num)
 {
-	if ((Cockpit_mode!=CM_FULL_COCKPIT && Cockpit_mode!=CM_STATUS_BAR) || N_hostage_clips>=MAX_HOSTAGE_CLIPS)
+	if ((PlayerCfg.CockpitMode!=CM_FULL_COCKPIT && PlayerCfg.CockpitMode!=CM_STATUS_BAR) || N_hostage_clips>=MAX_HOSTAGE_CLIPS)
 		return;		//no cockpit, or queue is full
 
 	Hostage_queue[N_hostage_clips] = hostage_num;

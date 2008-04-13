@@ -100,9 +100,9 @@ COPYRIGHT 1993-1998 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 //MD2211
 #include "jukebox.h"
 #include "console.h"
+#include "playsave.h"
 
 extern void change_res();
-extern void write_player_file();
 extern void newmenu_close();
 
 #define	SHOW_EXIT_PATH	1
@@ -155,7 +155,6 @@ grs_canvas		*VR_offscreen_menu = NULL; // The offscreen data buffer for menus
 //end additions -- adb
 
 int	Debug_pause=0; //John's debugging pause system
-int	Cockpit_mode=CM_FULL_COCKPIT; //set game.h for values
 static int	old_cockpit_mode=-1;
 int	force_cockpit_redraw=0;
 int	netplayerinfo_on=0;
@@ -283,20 +282,19 @@ u_int32_t Game_screen_mode = SM(640,480);
 
 int last_drawn_cockpit = -1;
 extern void ogl_loadbmtexture(grs_bitmap *bm);
-extern void write_player_file();
 extern int Rear_view;
 
 // This actually renders the new cockpit onto the screen.
 void update_cockpits(int force_redraw)
 {
 	grs_bitmap * bm;
-	PIGGY_PAGE_IN(cockpit_bitmap[Cockpit_mode]);
-	bm = &GameBitmaps[cockpit_bitmap[Cockpit_mode].index];
+	PIGGY_PAGE_IN(cockpit_bitmap[PlayerCfg.CockpitMode]);
+	bm = &GameBitmaps[cockpit_bitmap[PlayerCfg.CockpitMode].index];
 
 	//Redraw the on-screen cockpit bitmaps
 	if (VR_render_mode != VR_NONE )	return;
 
-	switch( Cockpit_mode )	{
+	switch( PlayerCfg.CockpitMode )	{
 		case CM_FULL_COCKPIT:
 			gr_set_current_canvas(NULL);
 			bm->bm_flags |= BM_FLAG_COCKPIT_TRANSPARENT;
@@ -331,12 +329,12 @@ void update_cockpits(int force_redraw)
 
 	gr_set_current_canvas(NULL);
 
-	if (Cockpit_mode != last_drawn_cockpit || force_redraw )
-		last_drawn_cockpit = Cockpit_mode;
+	if (PlayerCfg.CockpitMode != last_drawn_cockpit || force_redraw )
+		last_drawn_cockpit = PlayerCfg.CockpitMode;
 	else
 		return;
 
-	if (Cockpit_mode==CM_FULL_COCKPIT || Cockpit_mode==CM_STATUS_BAR)
+	if (PlayerCfg.CockpitMode==CM_FULL_COCKPIT || PlayerCfg.CockpitMode==CM_STATUS_BAR)
 		init_gauges();
 }
 
@@ -352,20 +350,20 @@ void init_cockpit()
 		return;
 
 	if (( Screen_mode == SCREEN_EDITOR ) || ( VR_render_mode != VR_NONE ))
-		Cockpit_mode = CM_FULL_SCREEN;
+		PlayerCfg.CockpitMode = CM_FULL_SCREEN;
 
 #ifndef OGL
-	if ( Game_screen_mode != (HiresGFXAvailable? SM(640,480) : SM(320,200)) && Cockpit_mode != CM_LETTERBOX) {
-		Cockpit_mode = CM_FULL_SCREEN;
+	if ( Game_screen_mode != (HiresGFXAvailable? SM(640,480) : SM(320,200)) && PlayerCfg.CockpitMode != CM_LETTERBOX) {
+		PlayerCfg.CockpitMode = CM_FULL_SCREEN;
 	}
 #endif
 
 #ifdef D1XD3D
-	Cockpit_mode = CM_STATUS_BAR;
+	PlayerCfg.CockpitMode = CM_STATUS_BAR;
 #endif
 	gr_set_current_canvas(NULL);
 
-	switch( Cockpit_mode )	{
+	switch( PlayerCfg.CockpitMode )	{
 	case CM_FULL_COCKPIT:
 		game_init_render_sub_buffers(0, 0, SWIDTH, (SHEIGHT*2)/3);
 		break;
@@ -399,8 +397,8 @@ void init_cockpit()
 //selects a given cockpit (or lack of one).  See types in game.h
 void select_cockpit(int mode)
 {
-	if (mode != Cockpit_mode) { //new mode
-		Cockpit_mode=mode;
+	if (mode != PlayerCfg.CockpitMode) { //new mode
+		PlayerCfg.CockpitMode=mode;
 		init_cockpit();
 	}
 }
@@ -421,7 +419,7 @@ void toggle_cockpit()
 	if (Rear_view)
 		return;
 
-	switch (Cockpit_mode)
+	switch (PlayerCfg.CockpitMode)
 	{
 		case CM_FULL_COCKPIT:
 			new_mode = CM_STATUS_BAR;
@@ -587,12 +585,12 @@ void show_framerate()
 
 	if (frame_time_total) {
 		int y=GHEIGHT;
-		if (Cockpit_mode==CM_FULL_SCREEN) {
+		if (PlayerCfg.CockpitMode==CM_FULL_SCREEN) {
 			if (Game_mode & GM_MULTI)
 				y -= LINE_SPACING * 10;
 			else
 				y -= LINE_SPACING * 4;
-		} else if (Cockpit_mode == CM_STATUS_BAR) {
+		} else if (PlayerCfg.CockpitMode == CM_STATUS_BAR) {
 			if (Game_mode & GM_MULTI)
 				y -= LINE_SPACING * 6;
 			else
@@ -942,28 +940,28 @@ void game_draw_hud_stuff()
 
 		y = GHEIGHT-(LINE_SPACING*2);
 
-		if (Cockpit_mode == CM_FULL_COCKPIT)
+		if (PlayerCfg.CockpitMode == CM_FULL_COCKPIT)
 			y = grd_curcanv->cv_bitmap.bm_h / 1.2 ;
-		if (Cockpit_mode != CM_REAR_VIEW)
+		if (PlayerCfg.CockpitMode != CM_REAR_VIEW)
 			gr_printf(0x8000, y, message );
 	}
 
 	render_countdown_gauge();
 
 	// this should be made part of hud code some day
-	if ( Player_num > -1 && Viewer->type==OBJ_PLAYER && Viewer->id==Player_num && Cockpit_mode != CM_REAR_VIEW)	{
+	if ( Player_num > -1 && Viewer->type==OBJ_PLAYER && Viewer->id==Player_num && PlayerCfg.CockpitMode != CM_REAR_VIEW)	{
 		int	x = FSPACX(1);
 		int	y = grd_curcanv->cv_bitmap.bm_h;
 
 		gr_set_curfont( GAME_FONT );
 		gr_set_fontcolor( BM_XRGB(0, 31, 0), -1 );
 		if (Cruise_speed > 0) {
-			if (Cockpit_mode==CM_FULL_SCREEN) {
+			if (PlayerCfg.CockpitMode==CM_FULL_SCREEN) {
 				if (Game_mode & GM_MULTI)
 					y -= LINE_SPACING * 10;
 				else
 					y -= LINE_SPACING * 5;
-			} else if (Cockpit_mode == CM_STATUS_BAR) {
+			} else if (PlayerCfg.CockpitMode == CM_STATUS_BAR) {
 				if (Game_mode & GM_MULTI)
 					y -= LINE_SPACING * 6;
 				else
@@ -979,7 +977,7 @@ void game_draw_hud_stuff()
 		}
 	}
 
-	if (GameArg.SysFPSIndicator && Cockpit_mode != CM_REAR_VIEW)
+	if (GameArg.SysFPSIndicator && PlayerCfg.CockpitMode != CM_REAR_VIEW)
 		show_framerate();
 
 	draw_hud();
@@ -1000,7 +998,7 @@ void game_do_render_frame(int flip)
 
 	update_cockpits(0);
 
-	if (Cockpit_mode==CM_FULL_COCKPIT || Cockpit_mode==CM_STATUS_BAR)
+	if (PlayerCfg.CockpitMode==CM_FULL_COCKPIT || PlayerCfg.CockpitMode==CM_STATUS_BAR)
 		render_gauges();
 
 	gr_set_current_canvas(&Screen_3d_window);
@@ -1500,7 +1498,7 @@ void check_rear_view()
 
 		if (Rear_view) {
 			Rear_view = 0;
-			if (Cockpit_mode==CM_REAR_VIEW) {
+			if (PlayerCfg.CockpitMode==CM_REAR_VIEW) {
 				select_cockpit(old_cockpit_mode);
 			}
 			if (Newdemo_state == ND_STATE_RECORDING)
@@ -1510,8 +1508,8 @@ void check_rear_view()
 			Rear_view = 1;
 			leave_mode = 0;		//means wait for another key
 			entry_time = timer_get_fixed_seconds();
-			if (Cockpit_mode == CM_FULL_COCKPIT) {
-				old_cockpit_mode = Cockpit_mode;
+			if (PlayerCfg.CockpitMode == CM_FULL_COCKPIT) {
+				old_cockpit_mode = PlayerCfg.CockpitMode;
 				select_cockpit(CM_REAR_VIEW);
 			}
 			if (Newdemo_state == ND_STATE_RECORDING)
@@ -1527,7 +1525,7 @@ void check_rear_view()
 		{
 			if (leave_mode==1 && Rear_view) {
 				Rear_view = 0;
-				if (Cockpit_mode==CM_REAR_VIEW) {
+				if (PlayerCfg.CockpitMode==CM_REAR_VIEW) {
 					select_cockpit(old_cockpit_mode);
 				}
 				if (Newdemo_state == ND_STATE_RECORDING)
@@ -1545,7 +1543,7 @@ void reset_rear_view(void)
 
 	Rear_view = 0;
 
-	if (Cockpit_mode == CM_REAR_VIEW)
+	if (PlayerCfg.CockpitMode == CM_REAR_VIEW)
 		select_cockpit(old_cockpit_mode);
 
 }
@@ -1737,8 +1735,8 @@ void game()
 
 	if(Game_mode & GM_MULTI)
 	{
-		multi_kills_stat += Players[Player_num].net_kills_total;
-		multi_deaths_stat += Players[Player_num].net_killed_total;
+		PlayerCfg.NetlifeKills += Players[Player_num].net_kills_total;
+		PlayerCfg.NetlifeKilled += Players[Player_num].net_killed_total;
 	}
 #endif
 	digi_stop_all();
@@ -2193,7 +2191,8 @@ void HandleGameKey(int key)
 			break;
 #endif
 		case KEY_ALTED+KEY_F7:
-			GameArg.GfxGaugeHudMode=(GameArg.GfxGaugeHudMode+1)%GAUGE_HUD_NUMMODES;
+			PlayerCfg.HudMode=(PlayerCfg.HudMode+1)%GAUGE_HUD_NUMMODES;
+			write_player_file();
 			break;
 #ifdef NETWORK
 		case KEY_F8:

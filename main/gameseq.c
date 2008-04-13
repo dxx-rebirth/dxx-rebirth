@@ -453,8 +453,6 @@ void DoGameOver()
 
 }
 
-extern void do_save_game_menu();
-
 //update various information about the player
 void update_player_stats()
 {
@@ -596,8 +594,6 @@ try_again:
 	strncpy(Players[Player_num].callsign, text, CALLSIGN_LEN);
 	strlwr(Players[Player_num].callsign);
 
-	init_game_list();				//init to defaults
-
 	write_player_file();
 
 	return 1;
@@ -614,16 +610,14 @@ int RegisterPlayer()
 		//---------------------------------------------------------------------
 		// Set default config options in case there is no config file
 		// kc_keyboard, kc_joystick, kc_mouse are statically defined.
-		Config_joystick_sensitivity = 8;
-		Config_mouse_sensitivity = 8;
-		Config_control_type =CONTROL_NONE;
+		PlayerCfg.JoystickSensitivity = 8;
+		PlayerCfg.MouseSensitivity = 8;
+		PlayerCfg.ControlType =CONTROL_NONE;
 		for (i=0; i<CONTROL_MAX_TYPES; i++ )
 			for (j=0; j<MAX_CONTROLS; j++ )
-				kconfig_settings[i][j] = default_kconfig_settings[i][j];
-                //added on 2/4/99 by Victor Rachels for new keys
-                 for(i=0; i<MAX_D1X_CONTROLS; i++)
-                  kconfig_d1x_settings[i]=default_kconfig_d1x_settings[i];
-                //end this section addition - VR
+				PlayerCfg.KeySettings[i][j] = DefaultKeySettings[i][j];
+		for(i=0; i<MAX_D1X_CONTROLS; i++)
+			PlayerCfg.KeySettingsD1X[i]=DefaultKeySettingsD1X[i];
 		kc_set_controls();
 		//----------------------------------------------------------------
 
@@ -652,8 +646,6 @@ do_menu_again:
 	}
 
 	read_player_file();
-
-	Auto_leveling_on = Default_leveling_on;
 
 	WriteConfigFile();		// Update lastplr
 
