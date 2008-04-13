@@ -531,7 +531,7 @@ int write_player_d1x(char *filename)
 		PHYSFSX_printf(fout,"persistentdebris=%i\n",PlayerCfg.PersistentDebris);
 		PHYSFSX_printf(fout,"[end]\n");
 		PHYSFSX_printf(fout,"[opengl]\n");
-		PHYSFSX_printf(fout,"oglaplhaeffects=%i\n",PlayerCfg.OglAlphaEffects);
+		PHYSFSX_printf(fout,"oglalphaeffects=%i\n",PlayerCfg.OglAlphaEffects);
 		PHYSFSX_printf(fout,"oglreticle=%i\n",PlayerCfg.OglReticle);
 		PHYSFSX_printf(fout,"oglprshot=%i\n",PlayerCfg.OglPRShot);
 		PHYSFSX_printf(fout,"[end]\n");

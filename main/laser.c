@@ -1016,7 +1016,7 @@ void Laser_do_weapon_sequence(object *obj)
 				{
 					fix turn_radius;
 
-					turn_radius = 0x0018 * F1_0;
+					turn_radius = 0x0024 * F1_0;
 
 					vm_vec_sub(&vector_to_object, &Objects[track_goal].pos, &obj->pos);
 			

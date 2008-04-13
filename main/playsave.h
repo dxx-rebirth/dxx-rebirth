@@ -46,7 +46,6 @@ typedef struct hli {
 	ubyte	LevelNum;
 } hli;
 
-// FIXME!!! NOW THINK AGAIN IF ALL NEW PARTS ARE SOMEHOW ACCESSIBLE FROM MENUS!!!
 typedef struct player_config
 {
 	ubyte ControlType;
