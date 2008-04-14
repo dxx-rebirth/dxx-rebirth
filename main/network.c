@@ -2143,8 +2143,11 @@ void network_read_sync_packet( ubyte * data, int d1x )
 #ifdef WORDS_BIGENDIAN
 	netgame_info tmp_info;
 
-	receive_d1x_netgame_packet((ubyte *)sp, &tmp_info);
-	sp = &tmp_info;
+	if (data)
+	{
+		receive_d1x_netgame_packet((ubyte *)sp, &tmp_info);
+		sp = &tmp_info;
+	}
 #endif
 	
 	// This function is now called by all people entering the netgame.
