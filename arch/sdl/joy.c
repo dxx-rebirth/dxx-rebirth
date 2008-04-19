@@ -333,6 +333,7 @@ void joy_flush()
 	for (i = 0; i < Joystick.n_buttons; i++) {
 		Joystick.buttons[i].time_went_down = 0;
 		Joystick.buttons[i].num_downs = 0;
+		Joystick.buttons[i].state = SDL_RELEASED;
 	}
 	
 }

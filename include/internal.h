@@ -17,7 +17,6 @@ void ogl_vivify_texture_list_internal(void);
 extern int ogl_brightness_ok;
 extern int ogl_brightness_r, ogl_brightness_g, ogl_brightness_b;
 extern int ogl_fullscreen;
-void ogl_do_fullscreen_internal(void);
 
 extern int GL_TEXTURE_2D_enabled;
 #define OGL_ENABLE2(a,f) {if (a ## _enabled!=1) {f;a ## _enabled=1;}}

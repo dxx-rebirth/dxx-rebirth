@@ -10,13 +10,6 @@ extern int strnicmp(const char *s1, const char *s2, int n);
 # define strnicmp(a,b,c) strncasecmp(a,b,c)
 #endif
 
-#ifdef _WIN32_WCE
-# define stricmp _stricmp
-# define strnicmp _strnicmp
-# define strlwr _strlwr
-# define strrev _strrev
-#endif
-
 #ifndef _WIN32
 #ifndef __DJGPP__
 void strupr( char *s1 );

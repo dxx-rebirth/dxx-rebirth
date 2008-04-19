@@ -202,7 +202,6 @@
 		676AC2C20668A939007173EB /* timer.c in Sources */ = {isa = PBXBuildFile; fileRef = 67B441DD06687A0200DF26D8 /* timer.c */; };
 		676AC2C30668A939007173EB /* gr.c in Sources */ = {isa = PBXBuildFile; fileRef = 676AC04E0668A814007173EB /* gr.c */; };
 		676AC2C40668A939007173EB /* ogl.c in Sources */ = {isa = PBXBuildFile; fileRef = 676AC0510668A814007173EB /* ogl.c */; };
-		676AC2C50668A939007173EB /* sdlgl.c in Sources */ = {isa = PBXBuildFile; fileRef = 676AC0520668A814007173EB /* sdlgl.c */; };
 		676AC2C70668A939007173EB /* iff.c in Sources */ = {isa = PBXBuildFile; fileRef = 67B4420006687A9E00DF26D8 /* iff.c */; };
 		676AC2CD0668A939007173EB /* ai.c in Sources */ = {isa = PBXBuildFile; fileRef = 67B446CF06687CF400DF26D8 /* ai.c */; };
 		676AC2CF0668A939007173EB /* aipath.c in Sources */ = {isa = PBXBuildFile; fileRef = 67B446D206687CF400DF26D8 /* aipath.c */; };
@@ -371,7 +370,6 @@
 		676032F9066B39CE008A67A3 /* kmatrix.c */ = {isa = PBXFileReference; fileEncoding = 30; lastKnownFileType = sourcecode.c.c; path = kmatrix.c; sourceTree = "<group>"; };
 		676AC04E0668A814007173EB /* gr.c */ = {isa = PBXFileReference; fileEncoding = 30; lastKnownFileType = sourcecode.c.c; path = gr.c; sourceTree = "<group>"; };
 		676AC0510668A814007173EB /* ogl.c */ = {isa = PBXFileReference; fileEncoding = 30; lastKnownFileType = sourcecode.c.c; path = ogl.c; sourceTree = "<group>"; };
-		676AC0520668A814007173EB /* sdlgl.c */ = {isa = PBXFileReference; fileEncoding = 30; lastKnownFileType = sourcecode.c.c; path = sdlgl.c; sourceTree = "<group>"; };
 		676AC31D0668A939007173EB /* d1xgl.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = d1xgl.app; sourceTree = BUILT_PRODUCTS_DIR; };
 		6791CE4F0668852C00056A5A /* byteswap.h */ = {isa = PBXFileReference; fileEncoding = 30; lastKnownFileType = sourcecode.c.h; path = byteswap.h; sourceTree = "<group>"; };
 		6791CE500668852C00056A5A /* rle.h */ = {isa = PBXFileReference; fileEncoding = 30; lastKnownFileType = sourcecode.c.h; path = rle.h; sourceTree = "<group>"; };
@@ -862,7 +860,6 @@
 			children = (
 				676AC04E0668A814007173EB /* gr.c */,
 				676AC0510668A814007173EB /* ogl.c */,
-				676AC0520668A814007173EB /* sdlgl.c */,
 			);
 			name = ogl;
 			path = arch/ogl;
@@ -1712,7 +1709,6 @@
 				676AC2B70668A939007173EB /* setup.c in Sources */,
 				676AC2C30668A939007173EB /* gr.c in Sources */,
 				676AC2C40668A939007173EB /* ogl.c in Sources */,
-				676AC2C50668A939007173EB /* sdlgl.c in Sources */,
 				676AC2BA0668A939007173EB /* digi.c in Sources */,
 				676AC2BB0668A939007173EB /* event.c in Sources */,
 				676AC2BD0668A939007173EB /* joy.c in Sources */,

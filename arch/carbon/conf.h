@@ -35,9 +35,6 @@
 /* Define for a "release" build */
 /* #undef RELEASE */
 
-/* Define if you have the SDL_image library */
-/* #undef SDL_IMAGE */
-
 /* Define this to be the shared game directory root */
 #define SHAREPATH ""
 #define DESCENT_DATA_PATH SHAREPATH

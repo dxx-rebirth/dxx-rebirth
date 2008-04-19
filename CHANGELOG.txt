@@ -1,5 +1,9 @@
 D1X-Rebirth Changelog
 
+20080419
+--------
+include/ogl_init.h, include/gr.h, include/strutil.h, include/internal.h, main/network.c, main/menu.c, main/game.c, d1x-rebirth.xcodeproj/project.pbxproj, SConstruct, arch/ogl/ogl.c, arch/ogl/gr.c, arch/sdl/joy.c, arch/sdl/gr.c, arch/carbon/conf.h: Made joy_flush also resetting button state; Improved glReticle; Implemented Fallback resolution if SDL may fail; Code cleanup
+
 20080414
 --------
 main/network.c: fix network bug where it got confused about the Function_mode and gave up

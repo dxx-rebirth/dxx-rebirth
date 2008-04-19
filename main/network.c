@@ -1952,8 +1952,7 @@ int network_get_game_params()
 	Netgame.difficulty=PlayerCfg.DefaultDifficulty;
 	Netgame.max_numplayers=MaxNumNetPlayers;
 	Netgame.protocol_version = MULTI_PROTO_VERSION;
-	Netgame.flags = NETFLAG_DOPOWERUP | // enable all powerups
-		NETFLAG_SHORTPACKETS;
+	Netgame.flags = NETFLAG_DOPOWERUP; // enable all powerups
 	Netgame.protocol_version = MULTI_PROTO_D1X_VER;
 
 	if (GameArg.MplGameProfile)

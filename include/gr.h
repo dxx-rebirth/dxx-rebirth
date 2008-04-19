@@ -183,7 +183,6 @@ void gr_close();
 // 10=Error allocating selector for A0000h
 // 11=Not a valid mode support by gr.lib
 // Returns one of the above without setting mode
-int gr_check_mode(u_int32_t mode);
 int gr_set_mode(u_int32_t mode);
 
 

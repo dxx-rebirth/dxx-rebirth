@@ -503,7 +503,8 @@ int circle_list_init(int nsides,int type,int mode) {
 float bright_g[4]={	32.0/256,	255.0/256,	32.0/256,	1.0};
 float dark_g[4]={	32.0/256,	138.0/256,	32.0/256,	0.6};
 
-void ogl_draw_reticle(int cross,int primary,int secondary){
+void ogl_draw_reticle(int cross,int primary,int secondary)
+{
 	float scale=(float)grd_curscreen->sc_h/(float)grd_curscreen->sc_h;
 
 	glPushMatrix();
@@ -512,7 +513,8 @@ void ogl_draw_reticle(int cross,int primary,int secondary){
 	glLineWidth(SWIDTH/320);
 	OGL_DISABLE(TEXTURE_2D);
 	glDisable(GL_CULL_FACE);
-	if (!cross_lh[cross]){
+	if (!cross_lh[cross])
+	{
 		cross_lh[cross]=glGenLists(1);
 		glNewList(cross_lh[cross], GL_COMPILE_AND_EXECUTE);
 		glBegin(GL_LINES);
@@ -524,14 +526,12 @@ void ogl_draw_reticle(int cross,int primary,int secondary){
 		else
 			glColor4fv(dark_g);
 		glVertex2f(-2.0,0.0);
-
 		//cross bottom left
 		glColor4fv(dark_g);
 		glVertex2f(-3.0,-4.0);
 		if (cross)
 			glColor4fv(bright_g);
 		glVertex2f(-2.0,-3.0);
-
 		//cross top right
 		glColor4fv(dark_g);
 		glVertex2f(4.0,2.0);
@@ -540,20 +540,20 @@ void ogl_draw_reticle(int cross,int primary,int secondary){
 		else
 			glColor4fv(dark_g);
 		glVertex2f(2.0,0.0);
-
 		//cross bottom right
 		glColor4fv(dark_g);
 		glVertex2f(3.0,-4.0);
 		if (cross)
 			glColor3fv(bright_g);
 		glVertex2f(2.0,-3.0);
-
 		glEnd();
 		glEndList();
-	}else
+	}
+	else
 		glCallList(cross_lh[cross]);
 
-	if (!primary_lh[primary]){
+	if (!primary_lh[primary])
+	{
 		primary_lh[primary]=glGenLists(1);
 		glNewList(primary_lh[primary], GL_COMPILE_AND_EXECUTE);
 		//left primary bar
@@ -565,12 +565,22 @@ void ogl_draw_reticle(int cross,int primary,int secondary){
 		glVertex3f( -5.5f,  -5.0f, 0.0f);
 		glVertex3f( -6.5f,  -7.5f, 0.0f);
 		glColor4fv(dark_g);
-		glVertex3f(-15.0f, -9.5f, 0.0f);
-		glVertex3f(-15.0f, -8.5f, 0.0f);
+		glVertex3f( -10.0f, -8.7f, 0.0f);
+		glVertex3f( -10.0f, -7.0f, 0.0f);
+		glEnd();
+		glBegin(GL_POLYGON);
+		glColor4fv(dark_g);
+		glVertex3f( -10.0f, -8.7f, 0.0f);
+		glVertex3f( -10.0f, -7.0f, 0.0f);
+		if (primary!=2)
+			glColor4fv(dark_g);
+		else
+			glColor4fv(bright_g);
+		glVertex3f( -15.0f, -8.5f, 0.0f);
+		glVertex3f( -15.0f, -9.5f, 0.0f);
 		glEnd();
 		//right primary bar
 		glBegin(GL_POLYGON);
-
 		if (primary==0)
 			glColor4fv(dark_g);
 		else
@@ -578,14 +588,28 @@ void ogl_draw_reticle(int cross,int primary,int secondary){
 		glVertex3f( 5.5f,  -5.0f, 0.0f);
 		glVertex3f( 6.5f,  -7.5f, 0.0f);
 		glColor4fv(dark_g);
-		glVertex3f(15.0f, -9.5f, 0.0f);
-		glVertex3f(15.0f, -8.5f, 0.0f);
+		glVertex3f( 10.0f, -8.7f, 0.0f);
+		glVertex3f( 10.0f, -7.0f, 0.0f);
 		glEnd();
+		glBegin(GL_POLYGON);
+		glColor4fv(dark_g);
+		glVertex3f( 10.0f, -8.7f, 0.0f);
+		glVertex3f( 10.0f, -7.0f, 0.0f);
+		if (primary!=2)
+			glColor4fv(dark_g);
+		else
+			glColor4fv(bright_g);
+		glVertex3f( 15.0f, -8.5f, 0.0f);
+		glVertex3f( 15.0f, -9.5f, 0.0f);
+		glEnd();
+
 		glEndList();
-	}else
+	}
+	else
 		glCallList(primary_lh[primary]);
 
-	if (!secondary_lh[secondary]){
+	if (!secondary_lh[secondary])
+	{
 		secondary_lh[secondary]=glGenLists(1);
 		glNewList(secondary_lh[secondary], GL_COMPILE_AND_EXECUTE);
 		if (secondary<=2){
@@ -601,7 +625,9 @@ void ogl_draw_reticle(int cross,int primary,int secondary){
 			else
 				glColor4fv(bright_g);
 			ogl_drawcircle2(16,GL_LINE_LOOP,2.0,10.0,2.0,-2.0);
-		}else{
+		}
+		else
+		{
 			//bottom/middle secondary
 			if (secondary!=4)
 				glColor4fv(dark_g);
@@ -610,7 +636,8 @@ void ogl_draw_reticle(int cross,int primary,int secondary){
 			ogl_drawcircle2(16,GL_LINE_LOOP,2.0,0.0,2.0,-8.0);
 		}
 		glEndList();
-	}else
+	}
+	else
 		glCallList(secondary_lh[secondary]);
 
 	glPopMatrix();
@@ -939,6 +966,7 @@ void ogl_start_frame(void){
 	OGL_VIEWPORT(grd_curcanv->cv_bitmap.bm_x,grd_curcanv->cv_bitmap.bm_y,Canvas_width,Canvas_height);
 	glClearColor(0.0, 0.0, 0.0, 0.0);
 
+	glLineWidth(SWIDTH<640?1:SWIDTH/640);
 	glEnable(GL_BLEND);
 	glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
 
@@ -1042,9 +1070,11 @@ void ogl_filltexbuf(unsigned char *data, GLubyte *texp, int truewidth, int width
 		Error("Texture is too big: %ix%i", width, height);
 
 	i=0;
-	for (y=0;y<theight;y++){
+	for (y=0;y<theight;y++)
+	{
 		i=dxo+truewidth*(y+dyo);
-		for (x=0;x<twidth;x++){
+		for (x=0;x<twidth;x++)
+		{
 			if (x<width && y<height)
 			{
 				if (data_format)
@@ -1070,22 +1100,22 @@ void ogl_filltexbuf(unsigned char *data, GLubyte *texp, int truewidth, int width
 			{
 				switch (type)
 				{
-				case GL_LUMINANCE_ALPHA:
-					(*(texp++)) = 255;
-					(*(texp++)) = 0;
-					break;
-				case GL_RGBA:
-					(*(texp++)) = 255;
-					(*(texp++)) = 255;
-					(*(texp++)) = 255;
-					(*(texp++)) = 0; // transparent pixel
-					break;
-				case GL_COLOR_INDEX:
-					(*(texp++)) = c;
-					break;
-				default:
-					Error("ogl_filltexbuf unhandled super-transparent texformat\n");
-					break;
+					case GL_LUMINANCE_ALPHA:
+						(*(texp++)) = 255;
+						(*(texp++)) = 0;
+						break;
+					case GL_RGBA:
+						(*(texp++)) = 255;
+						(*(texp++)) = 255;
+						(*(texp++)) = 255;
+						(*(texp++)) = 0; // transparent pixel
+						break;
+					case GL_COLOR_INDEX:
+						(*(texp++)) = c;
+						break;
+					default:
+						Error("ogl_filltexbuf unhandled super-transparent texformat\n");
+						break;
 				}
 			}
 			else if (((c == 255 && (bm_flags & BM_FLAG_TRANSPARENT)) || c == 256) || 
@@ -1096,7 +1126,8 @@ void ogl_filltexbuf(unsigned char *data, GLubyte *texp, int truewidth, int width
 					)
 				)
 			{
-				switch (type){
+				switch (type)
+				{
 					case GL_LUMINANCE:
 						(*(texp++))=0;
 						break;
@@ -1122,8 +1153,11 @@ void ogl_filltexbuf(unsigned char *data, GLubyte *texp, int truewidth, int width
 						Error("ogl_filltexbuf unknown texformat\n");
 						break;
 				}
-			}else{
-				switch (type){
+			}
+			else
+			{
+				switch (type)
+				{
 					case GL_LUMINANCE://these could prolly be done to make the intensity based upon the intensity of the resulting color, but its not needed for anything (yet?) so no point. :)
 						(*(texp++))=255;
 						break;

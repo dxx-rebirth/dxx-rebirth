@@ -2218,22 +2218,7 @@ void HandleGameKey(int key)
 		case KEYS_GR_TOGGLE_FULLSCREEN:
 				gr_toggle_fullscreen();
 				break;
-#if 1
-		case KEY_SHIFTED + KEY_ESC:
-// 			con_show();
-			break;
 
-#else
-		case KEY_SHIFTED + KEY_ESC:     //quick exit
-			#ifdef EDITOR
-				if (! SafetyCheck()) break;
-				close_editor_screen();
-			#endif
-
-			Game_aborted=1;
-			Function_mode=FMODE_EXIT;
-			break;
-#endif
 		case KEY_ALTED+KEY_F2:	if (!Player_is_dead) state_save_all( 0 );		break;	// 0 means not between levels.
 		case KEY_ALTED+KEY_F3:	if (!Player_is_dead) state_restore_all(1);		break;
 
@@ -2472,19 +2457,11 @@ void ReadControls()
 		} else {
 			int i;
 
-			for (i=0; i<4; i++ )
-				if (isJoyRotationKey(i) != 1)
-				{
-					if (joy_get_button_down_cnt(i)>0) Death_sequence_aborted = 1;
-				}
+			for (i=0; i < JOY_MAX_BUTTONS; i++ )
+				if (joy_get_button_down_cnt(i) > 0) Death_sequence_aborted = 1;
 
-			for (i = 0; i < 3; i++)
-				// the following "if" added by WraithX, 4/17/00
-				if (isMouseRotationKey(i) != 1)
-				{
-					if (mouse_button_down_count(i) > 0)
-						Death_sequence_aborted = 1;
-				}// end "if" added by WraithX
+			for (i = 0; i < MOUSE_MAX_BUTTONS; i++)
+				if (mouse_button_down_count(i) > 0) Death_sequence_aborted = 1;
 
 			if (Death_sequence_aborted)
 				game_flush_inputs();
