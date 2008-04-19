@@ -961,15 +961,6 @@ int HandleSystemKey(int key)
 				Function_mode = FMODE_MENU;
 				break;
 
-// 			case KEY_SHIFTED + KEY_ESC: //quick exit
-// #ifdef EDITOR
-// 				if (! SafetyCheck()) break;
-// 				close_editor_screen();
-// #endif
-// 				Game_aborted=1;
-// 				Function_mode=FMODE_EXIT;
-// 				break;
-
 // fleshed these out because F1 and F2 aren't sequenctial keycodes on mac -- MWA
 
 			MAC(case KEY_COMMAND+KEY_SHIFTED+KEY_1:)
@@ -983,18 +974,6 @@ int HandleSystemKey(int key)
 		}
 
 	switch (key) {
-
-#if 0
-		case KEY_SHIFTED + KEY_ESC:     //quick exit
-			#ifdef EDITOR
-				if (! SafetyCheck()) break;
-				close_editor_screen();
-			#endif
-
-			Game_aborted=1;
-			Function_mode=FMODE_EXIT;
-			break;
-#endif
 
 		MAC( case KEY_COMMAND+KEY_P: )
 		case KEY_PAUSE: 
@@ -2349,38 +2328,12 @@ void ReadControls()
 			game_flush_inputs();
 		} else {
 			int i;
-			//if (key_down_count(KEY_BACKSP))
-			//	Int3();
-			//if (key_down_count(KEY_PRINT_SCREEN))
-			//	save_screen_shot(0);
 
-#ifndef MACINTOSH
-			for (i = 0; i < 4; i++)
-				// the following "if" added by WraithX, 4/17/00
-				if (isJoyRotationKey(i) != 1)
-				{
-					if (joy_get_button_down_cnt(i) > 0)
-						Death_sequence_aborted = 1;
-				}// end "if" added by WraithX
-#else
-			if (joy_get_any_button_down_cnt() > 0)
-				Death_sequence_aborted = 1;
-#endif
-			for (i = 0; i < 3; i++)
-				// the following "if" added by WraithX, 4/17/00
-				if (isMouseRotationKey(i) != 1)
-				{
-					if (mouse_button_down_count(i) > 0)
-						Death_sequence_aborted = 1;
-				}// end "if" added by WraithX
+			for (i=0; i < JOY_MAX_BUTTONS; i++ )
+				if (joy_get_button_down_cnt(i) > 0) Death_sequence_aborted = 1;
 
-			//for (i = 0; i < 256; i++)
-			//	// the following "if" added by WraithX, 4/17/00
-			//	if (isKeyboardRotationKey(i) != 1)
-			//	{
-			//		if (!key_isfunc(i) && !key_ismod(i) && key_down_count(i) > 0)
-			//			Death_sequence_aborted = 1;
-			//	}// end "if" added by WraithX
+			for (i = 0; i < MOUSE_MAX_BUTTONS; i++)
+				if (mouse_button_down_count(i) > 0) Death_sequence_aborted = 1;
 
 			if (Death_sequence_aborted)
 				game_flush_inputs();

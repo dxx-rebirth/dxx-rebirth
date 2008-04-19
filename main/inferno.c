@@ -360,14 +360,6 @@ int main(int argc, char *argv[])
 
 	Lighting_on = 1;
 
-	#ifdef EDITOR
-	if (gr_check_mode(SM(800, 600)) != 0)
-	{
-		con_printf(CON_NORMAL, "The editor will not be available, press any key to start game...\n" );
-		Function_mode = FMODE_MENU;
-	}
-	#endif
-
 	con_printf (CON_VERBOSE, "%s", TXT_VERBOSE_1);
 	ReadConfigFile();
 

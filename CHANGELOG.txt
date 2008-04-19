@@ -1,5 +1,9 @@
 D2X-Rebirth Changelog
 
+20080419
+--------
+include/ogl_init.h, include/gr.h, include/strutil.h, include/internal.h, main/network.c, main/inferno.c, main/menu.c, main/movie.c, main/playsave.c, main/state.c, main/newdemo.c, main/gamecntl.c, d2x-rebirth.xcodeproj/project.pbxproj, misc/strutil.c, SConstruct, arch/ogl/ogl.c, arch/ogl/gr.c, arch/sdl/joy.c, arch/sdl/gr.c, arch/carbon/conf.h, libmve/mve_main.c, libmve/mveplay.c: Made joy_flush also resetting button state; Improved glReticle; Implemented Fallback resolution if SDL may fail; Code cleanup
+
 20080413
 --------
 include/args.h, main/newmenu.c, main/collide.h, main/network.c, main/multi.c, main/multi.h, main/inferno.c, main/menu.c, main/menu.h, main/playsave.c, main/playsave.h, main/object.c, main/hud.c, main/weapon.c, main/newdemo.c, main/config.c, main/config.h, main/gamerend.c, main/gameseq.c, main/escort.c, main/escort.h, main/endlevel.c, main/powerup.c, main/powerup.h, main/automap.c, main/game.c, main/gauges.c, main/game.h, main/kconfig.c, main/gauges.h, main/kconfig.h, main/gamecntl.c, misc/args.c, d2x.ini, arch/ogl/ogl.c, arch/ogl/gr.c, arch/sdl/joy.c: Added structure for values saved in PLR/PLX files; Added most common command-line options to options menu

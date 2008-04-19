@@ -1,4 +1,3 @@
-/* $Id: strutil.c,v 1.1.1.1 2006/03/17 19:58:51 zicodxx Exp $ */
 /*
 THE COMPUTER CODE CONTAINED HEREIN IS THE SOLE PROPERTY OF PARALLAX
 SOFTWARE CORPORATION ("PARALLAX").  PARALLAX, IN DISTRIBUTING THE CODE TO
@@ -152,7 +151,7 @@ void change_filename_extension( char *dest, char *src, char *ext )
 	strcpy(p+1,ext);
 }
 
-#if !defined(__MSDOS__) && !(defined(_WIN32) && !defined(_WIN32_WCE))
+#if !(defined(_WIN32))
 void _splitpath(char *name, char *drive, char *path, char *base, char *ext)
 {
 	char *s, *p;
@@ -202,23 +201,5 @@ void _splitpath(char *name, char *drive, char *path, char *base, char *ext)
 		
 	if (ext)
 		strcpy(ext, p);		
-}
-#endif
-
-#if 0
-void main()
-{
-	char drive[10], path[50], name[16], ext[5];
-	
-	drive[0] = path[0] = name[0] = ext[0] = '\0';
-	_splitpath("f:\\tmp\\x.out", drive, path, name, ext);
-	drive[0] = path[0] = name[0] = ext[0] = '\0';
-	_splitpath("tmp\\x.out", drive, path, name, ext);
-	drive[0] = path[0] = name[0] = ext[0] = '\0';
-	_splitpath("f:\\tmp\\a.out", NULL, NULL, name, NULL);
-	drive[0] = path[0] = name[0] = ext[0] = '\0';
-	_splitpath("tmp\\*.dem", drive, path, NULL, NULL);
-	drive[0] = path[0] = name[0] = ext[0] = '\0';
-	_splitpath(".\\tmp\\*.dem", drive, path, NULL, NULL);
 }
 #endif

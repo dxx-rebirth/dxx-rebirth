@@ -70,12 +70,7 @@ extern float OglTexMinFilt;
 extern int active_texture_unit;
 void ogl_setActiveTexture(int t);
 
-int ogl_check_mode(int x, int y); // check if mode is valid
 int ogl_init_window(int x, int y);//create a window/switch modes/etc
-void ogl_destroy_window(void);//destroy window/etc
-void ogl_init(void);//one time initialization
-void ogl_close(void);//one time shutdown
-
 
 #define OGL_FLAG_MIPMAP (1 << 0)
 #define OGL_FLAG_NOCOLOR (1 << 1)

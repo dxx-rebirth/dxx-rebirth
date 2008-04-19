@@ -1,4 +1,3 @@
-/* $Id: strutil.h,v 1.1.1.1 2006/03/17 20:01:28 zicodxx Exp $ */
 /*
 THE COMPUTER CODE CONTAINED HEREIN IS THE SOLE PROPERTY OF PARALLAX
 SOFTWARE CORPORATION ("PARALLAX").  PARALLAX, IN DISTRIBUTING THE CODE TO
@@ -24,13 +23,6 @@ COPYRIGHT 1993-1999 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 # define strnicmp(a,b,c) strncasecmp(a,b,c)
 #endif
 
-#ifdef _WIN32_WCE
-# define stricmp _stricmp
-# define strnicmp _strnicmp
-# define strlwr _strlwr
-# define strrev _strrev
-#endif
-
 #ifndef _WIN32
 #ifndef __DJGPP__
 void strupr( char *s1 );
@@ -46,7 +38,7 @@ void removeext(const char *filename, char *out);
 //give a filename a new extension, doesn't work with paths.
 extern void change_filename_extension( char *dest, char *src, char *new_ext );
 
-#if !defined(__MSDOS__) && !(defined(_WIN32) && !defined(_WIN32_WCE))
+#if !(defined(_WIN32))
 void _splitpath(char *name, char *drive, char *path, char *base, char *ext);
 #endif
 

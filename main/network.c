@@ -313,7 +313,7 @@ network_init(void)
 	network_flush();
 
 	Netgame.PacketsPerSec=10;
-	Netgame.ShortPackets=1;
+	Netgame.ShortPackets=0;
 }
 
 int

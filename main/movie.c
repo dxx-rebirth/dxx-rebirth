@@ -1,4 +1,3 @@
-/* $Id: movie.c,v 1.1.1.1 2006/03/17 19:55:55 zicodxx Exp $ */
 /*
 THE COMPUTER CODE CONTAINED HEREIN IS THE SOLE PROPERTY OF PARALLAX
 SOFTWARE CORPORATION ("PARALLAX").  PARALLAX, IN DISTRIBUTING THE CODE TO
@@ -22,17 +21,11 @@ COPYRIGHT 1993-1999 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 #include <conf.h>
 #endif
 
-#ifdef RCS
-static char rcsid[] = "$Id: movie.c,v 1.1.1.1 2006/03/17 19:55:55 zicodxx Exp $";
-#endif
-
 #include <string.h>
 #ifndef macintosh
-# ifndef _WIN32_WCE
-#  include <sys/types.h>
-#  include <sys/stat.h>
-#  include <fcntl.h>
-# endif
+# include <sys/types.h>
+# include <sys/stat.h>
+# include <fcntl.h>
 # ifndef _MSC_VER
 #  include <unistd.h>
 # endif

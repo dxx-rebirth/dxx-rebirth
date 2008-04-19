@@ -3,9 +3,6 @@
 #include <conf.h>
 #endif
 
-#ifndef __MSDOS__
-#define AUDIO
-#endif
 //#define DEBUG
 
 #include <string.h>
@@ -111,14 +108,12 @@ static int end_movie_handler(unsigned char major, unsigned char minor, unsigned 
  * timer handlers
  *************************/
 
-#if !defined(HAVE_STRUCT_TIMEVAL) || !HAVE_STRUCT_TIMEVAL // ifdef _WIN32_WCE
-#if !_WIN32 // ZICO - we don`t want timeval in win32
+#if !defined(HAVE_STRUCT_TIMEVAL) || !HAVE_STRUCT_TIMEVAL
 struct timeval
 {
 	long tv_sec;
 	long tv_usec;
 };
-#endif
 #endif
 
 /*

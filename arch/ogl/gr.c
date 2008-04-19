@@ -28,7 +28,7 @@
 #endif
 
 #include <errno.h>
-
+#include <SDL/SDL.h>
 #include "hudmsg.h"
 #include "game.h"
 #include "text.h"
@@ -49,6 +49,7 @@
 #include "console.h"
 #include "config.h"
 #include "playsave.h"
+#include "vers_id.h"
 
 #if defined(__APPLE__) && defined(__MACH__)
 #include <OpenGL/glu.h>
@@ -59,19 +60,61 @@
 int gr_installed = 0;
 int gl_initialized=0;
 int ogl_fullscreen;
+static int curx=-1,cury=-1,curfull=0;
 
-int gr_check_fullscreen(void){
+void ogl_swap_buffers_internal(void)
+{
+	SDL_GL_SwapBuffers();
+}
+
+int ogl_init_window(int x, int y)
+{
+	if (gl_initialized){
+		if (x==curx && y==cury && curfull==ogl_fullscreen)
+			return 0;
+#ifdef __LINUX__ // Windows, at least, seems to need to reload every time.
+		if (ogl_fullscreen || curfull)
+#endif
+			ogl_smash_texture_list_internal();//if we are or were fullscreen, changing vid mode will invalidate current textures
+	}
+	SDL_WM_SetCaption(DESCENT_VERSION, "Descent II");
+
+	if (!SDL_SetVideoMode(x, y, GameArg.DbgGlBpp, SDL_OPENGL | (ogl_fullscreen ? SDL_FULLSCREEN : 0)))
+	{
+		Error("Could not set %dx%dx%d opengl video mode: %s\n", x, y, GameArg.DbgGlBpp, SDL_GetError());
+	}
+	SDL_ShowCursor(0);
+
+	curx=x;cury=y;curfull=ogl_fullscreen;
+	gl_initialized=1;
+
+	return 0;
+}
+
+int gr_check_fullscreen(void)
+{
 	return ogl_fullscreen;
 }
 
-void gr_do_fullscreen(int f){
+void gr_do_fullscreen(int f)
+{
 	ogl_fullscreen=f;
-	if (gl_initialized){
-		ogl_do_fullscreen_internal();
+	if (gl_initialized)
+	{
+		if (!SDL_VideoModeOK(curx, cury, GameArg.DbgGlBpp, SDL_OPENGL | (ogl_fullscreen?SDL_FULLSCREEN:0)))
+		{
+			con_printf(CON_URGENT,"Cannot set %ix%i. Fallback to 640x480\n",curx,cury);
+			curx=640;
+			cury=480;
+			Game_screen_mode=SM(curx,cury);
+		}
+	
+		ogl_init_window(curx,cury);
 	}
 }
 
-int gr_toggle_fullscreen(void){
+int gr_toggle_fullscreen(void)
+{
 	gr_do_fullscreen(!ogl_fullscreen);
 	gr_remap_color_fonts();
 	gr_remap_mono_fonts();
@@ -93,7 +136,8 @@ int gr_toggle_fullscreen(void){
 extern void ogl_init_pixel_buffers(int w, int h);
 extern void ogl_close_pixel_buffers(void);
 
-void ogl_init_state(void){
+void ogl_init_state(void)
+{
 	/* select clearing (background) color   */
 	glClearColor(0.0, 0.0, 0.0, 0.0);
 
@@ -135,45 +179,31 @@ void ogl_get_verinfo(void)
 #endif
 
 	//add driver specific hacks here.  whee.
-	if ((stricmp(gl_renderer,"Mesa NVIDIA RIVA 1.0\n")==0 || stricmp(gl_renderer,"Mesa NVIDIA RIVA 1.2\n")==0) && stricmp(gl_version,"1.2 Mesa 3.0")==0){
+	if ((stricmp(gl_renderer,"Mesa NVIDIA RIVA 1.0\n")==0 || stricmp(gl_renderer,"Mesa NVIDIA RIVA 1.2\n")==0) && stricmp(gl_version,"1.2 Mesa 3.0")==0)
+	{
 		GameArg.DbgGlIntensity4Ok=0;//ignores alpha, always black background instead of transparent.
 		GameArg.DbgGlReadPixelsOk=0;//either just returns all black, or kills the X server entirely
 		GameArg.DbgGlGetTexLevelParamOk=0;//returns random data..
 	}
-	if (stricmp(gl_vendor,"Matrox Graphics Inc.")==0){
+	if (stricmp(gl_vendor,"Matrox Graphics Inc.")==0)
+	{
 		//displays garbage. reported by
 		//  redomen@crcwnet.com (render="Matrox G400" version="1.1.3 5.52.015")
 		//  orulz (Matrox G200)
 		GameArg.DbgGlIntensity4Ok=0;
 	}
 #ifdef macintosh
-	if (stricmp(gl_renderer,"3dfx Voodoo 3")==0){ // strangely, includes Voodoo 2
+	if (stricmp(gl_renderer,"3dfx Voodoo 3")==0) // strangely, includes Voodoo 2
 		GameArg.DbgGlGetTexLevelParamOk=0; // Always returns 0
-	}
 #endif
 
 	con_printf(CON_VERBOSE, "gl_intensity4:%i gl_luminance4_alpha4:%i gl_rgba2:%i gl_readpixels:%i gl_gettexlevelparam:%i\n", GameArg.DbgGlIntensity4Ok, GameArg.DbgGlLuminance4Alpha4Ok, GameArg.DbgGlRGBA2Ok, GameArg.DbgGlReadPixelsOk, GameArg.DbgGlGetTexLevelParamOk);
 }
 
-
-int gr_check_mode(u_int32_t mode)
-{
-	int w, h;
-
-	w = SM_W(mode);
-	h = SM_H(mode);
-	return ogl_check_mode(w, h); // platform specific code
-}
-
-
 int gr_set_mode(u_int32_t mode)
 {
 	unsigned int w, h;
 	char *gr_bm_data;
-
-#ifdef NOGRAPH
-	return 0;
-#endif
 
 	if (mode<=0)
 		return 0;
@@ -181,6 +211,13 @@ int gr_set_mode(u_int32_t mode)
 	w=SM_W(mode);
 	h=SM_H(mode);
 
+	if (!SDL_VideoModeOK(w, h, GameArg.DbgGlBpp, SDL_OPENGL | (ogl_fullscreen?SDL_FULLSCREEN:0)))
+	{
+		con_printf(CON_URGENT,"Cannot set %ix%i. Fallback to 640x480\n",w,h);
+		w=640;
+		h=480;
+		Game_screen_mode=mode=SM(w,h);
+	}
 
 	gr_bm_data=(char *)grd_curscreen->sc_canvas.cv_bitmap.bm_data;//since we use realloc, we want to keep this pointer around.
 	memset( grd_curscreen, 0, sizeof(grs_screen));
@@ -198,11 +235,8 @@ int gr_set_mode(u_int32_t mode)
 	gr_set_current_canvas(NULL);
 	
 	ogl_init_window(w,h);//platform specific code
-
 	ogl_get_verinfo();
-
 	OGL_VIEWPORT(0,0,w,h);
-
 	ogl_init_state();
 	gamefont_choose_game_font(w,h);
 	gr_remap_color_fonts();
@@ -212,10 +246,12 @@ int gr_set_mode(u_int32_t mode)
 }
 
 #define GLstrcmptestr(a,b) if (stricmp(a,#b)==0 || stricmp(a,"GL_" #b)==0)return GL_ ## b;
-int ogl_atotexfilti(char *a,int min){
+int ogl_atotexfilti(char *a,int min)
+{
 	GLstrcmptestr(a,NEAREST);
 	GLstrcmptestr(a,LINEAR);
-	if (min){//mipmaps are valid only for the min filter
+	if (min)
+	{//mipmaps are valid only for the min filter
 		GLstrcmptestr(a,NEAREST_MIPMAP_NEAREST);
 		GLstrcmptestr(a,NEAREST_MIPMAP_LINEAR);
 		GLstrcmptestr(a,LINEAR_MIPMAP_NEAREST);
@@ -224,8 +260,10 @@ int ogl_atotexfilti(char *a,int min){
 	Error("unknown/invalid texture filter %s\n",a);
 }
 
-int ogl_testneedmipmaps(int i){
-	switch (i){
+int ogl_testneedmipmaps(int i)
+{
+	switch (i)
+	{
 		case GL_NEAREST:
 		case GL_LINEAR:
 			return 0;
@@ -245,7 +283,8 @@ int ogl_rt_loaded=0;
 int ogl_init_load_library(void)
 {
 	int retcode=0;
-	if (!ogl_rt_loaded){
+	if (!ogl_rt_loaded)
+	{
 		retcode = OpenGL_LoadLibrary(true);
 		if(retcode)
 		{
@@ -253,7 +292,9 @@ int ogl_init_load_library(void)
 			{
 				Error("Opengl: Functions not imported\n");
 			}
-		}else{
+		}
+		else
+		{
 			Error("Opengl: error loading %s\n", OglLibPath);
 		}
 		ogl_rt_loaded=1;
@@ -295,7 +336,13 @@ int gr_init(int mode)
 
 	GL_needmipmaps=ogl_testneedmipmaps(OglTexMinFilt);
 
-	ogl_init();//platform specific initialization
+	SDL_GL_SetAttribute(SDL_GL_DEPTH_SIZE, 16);
+	SDL_GL_SetAttribute(SDL_GL_STENCIL_SIZE,0);
+	SDL_GL_SetAttribute(SDL_GL_ACCUM_RED_SIZE,0);
+	SDL_GL_SetAttribute(SDL_GL_ACCUM_GREEN_SIZE,0);
+	SDL_GL_SetAttribute(SDL_GL_ACCUM_BLUE_SIZE,0);
+	SDL_GL_SetAttribute(SDL_GL_ACCUM_ALPHA_SIZE,0);
+	SDL_GL_SetAttribute(SDL_GL_DOUBLEBUFFER,1);
 
 	ogl_init_texture_list_internal();
 		
@@ -305,9 +352,7 @@ int gr_init(int mode)
 
 	// Set the mode.
 	if ((retcode=gr_set_mode(mode)))
-	{
 		return retcode;
-	}
 
 	grd_curscreen->sc_canvas.cv_color = 0;
 	grd_curscreen->sc_canvas.cv_drawmode = 0;
@@ -329,8 +374,14 @@ void gr_close()
 {
 	ogl_brightness_r = ogl_brightness_g = ogl_brightness_b = 0;
 
-	ogl_close();//platform specific code
-	if (grd_curscreen){
+	if (gl_initialized)
+	{
+		ogl_smash_texture_list_internal();
+		SDL_ShowCursor(1);
+	}
+
+	if (grd_curscreen)
+	{
 		if (grd_curscreen->sc_canvas.cv_bitmap.bm_data)
 			d_free(grd_curscreen->sc_canvas.cv_bitmap.bm_data);
 		d_free(grd_curscreen);
@@ -341,8 +392,10 @@ void gr_close()
 		OpenGL_LoadLibrary(false);
 #endif
 }
+
 extern int r_upixelc;
-void ogl_upixelc(int x, int y, int c){
+void ogl_upixelc(int x, int y, int c)
+{
 	r_upixelc++;
 	OGL_DISABLE(TEXTURE_2D);
 	glPointSize(grd_curscreen->sc_w/320);
@@ -352,7 +405,8 @@ void ogl_upixelc(int x, int y, int c){
 	glEnd();
 }
 
-void ogl_urect(int left,int top,int right,int bot){
+void ogl_urect(int left,int top,int right,int bot)
+{
 	GLfloat xo,yo,xf,yf;
 	int c=COLOR;
 	
@@ -374,7 +428,8 @@ void ogl_urect(int left,int top,int right,int bot){
 	glEnd();
 }
 
-void ogl_ulinec(int left,int top,int right,int bot,int c){
+void ogl_ulinec(int left,int top,int right,int bot,int c)
+{
 	GLfloat xo,yo,xf,yf;
 
 	xo = (left + grd_curcanv->cv_bitmap.bm_x + 0.5) / (float)last_width;
@@ -394,14 +449,17 @@ void ogl_ulinec(int left,int top,int right,int bot,int c){
 GLfloat last_r=0, last_g=0, last_b=0;
 int do_pal_step=0;
 
-void ogl_do_palfx(void){
+void ogl_do_palfx(void)
+{
 	OGL_DISABLE(TEXTURE_2D);
 
-	if (do_pal_step){
+	if (do_pal_step)
+	{
 		glEnable(GL_BLEND);
 		glBlendFunc(GL_ONE,GL_ONE);
 		glColor3f(last_r,last_g,last_b);
-	}else
+	}
+	else
 		return;
 
 	glBegin(GL_QUADS);
@@ -450,9 +508,11 @@ void gr_palette_load( ubyte *pal )
 {
 	int i;
 
-	for (i=0; i<768; i++ ) {
+	for (i=0; i<768; i++ )
+	{
 		gr_current_pal[i] = pal[i];
-		if (gr_current_pal[i] > 63) gr_current_pal[i] = 63;
+		if (gr_current_pal[i] > 63)
+			gr_current_pal[i] = 63;
 	}
 
 	gr_palette_step_up(0, 0, 0); // make ogl_setbrightness_internal get run so that menus get brightened too.
@@ -462,22 +522,26 @@ void gr_palette_load( ubyte *pal )
 void gr_palette_read(ubyte * pal)
 {
 	int i;
-	for (i=0; i<768; i++ ) {
+	for (i=0; i<768; i++ )
+	{
 		pal[i]=gr_current_pal[i];
-		if (pal[i] > 63) pal[i] = 63;
+		if (pal[i] > 63)
+			pal[i] = 63;
 	}
 }
 
 #define GL_BGR_EXT 0x80E0
 
-typedef struct {
+typedef struct
+{
       unsigned char TGAheader[12];
       unsigned char header[6];
 } TGA_header;
 
 //writes out an uncompressed RGB .tga file
 //if we got really spiffy, we could optionally link in libpng or something, and use that.
-void write_bmp(char *savename,int w,int h,unsigned char *buf){
+void write_bmp(char *savename,int w,int h,unsigned char *buf)
+{
 	PHYSFS_file* TGAFile;
 	TGA_header TGA;
 	GLbyte HeightH,HeightL,WidthH,WidthL;
@@ -537,8 +601,6 @@ void save_screen_shot(int automap_flag)
 
 	do
 	{
-		if (savenum == 9999)
-			savenum = 0;
 		sprintf(savename, "%sscrn%04d.tga",SCRNS_DIR, savenum++);
 	} while (PHYSFS_exists(savename));
 
@@ -549,6 +611,7 @@ void save_screen_shot(int automap_flag)
 
 	if (!automap_flag && PlayerCfg.OglPRShot && Function_mode == FMODE_GAME)
 	{
+		gr_set_current_canvas(NULL);
 		render_frame(0,0);
 		gr_set_curfont(MEDIUM2_FONT);
 		gr_printf(SWIDTH-FSPACX(92),SHEIGHT-LINE_SPACING,"DXX-Rebirth\n");

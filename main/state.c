@@ -28,9 +28,7 @@ COPYRIGHT 1993-1999 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 #if !defined(_MSC_VER) && !defined(macintosh)
 #include <unistd.h>
 #endif
-#ifndef _WIN32_WCE
 #include <errno.h>
-#endif
 #ifdef OGL
 # ifdef _MSC_VER
 #  include <windows.h>

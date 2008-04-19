@@ -165,7 +165,6 @@ int gr_init(int mode);
 // the video mode changes.
 int gr_init_screen(int mode, int w, int h, int x, int y, int rowsize, ubyte *data);
 
-int gr_check_mode(u_int32_t mode);
 int gr_set_mode(u_int32_t mode);
 
 extern void gr_pal_setblock( int start, int number, unsigned char * pal );

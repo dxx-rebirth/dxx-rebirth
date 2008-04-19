@@ -488,7 +488,6 @@ void change_res()
 	u_int32_t screen_mode = 0, aspect_mode = 0;
 	int screen_width = 0;
 	int screen_height = 0;
-	SDL_Rect **sdlmode = SDL_ListModes(NULL, SDL_FULLSCREEN|SDL_HWSURFACE);
 
 	m[mc].type = NM_TYPE_RADIO; m[mc].text = "320x200"; m[mc].value = (Game_screen_mode == SM(320,200)); m[mc].group = 0; modes[mc] = SM(320,200); mc++;
 	m[mc].type = NM_TYPE_RADIO; m[mc].text = "640x480"; m[mc].value = (Game_screen_mode == SM(640,480)); m[mc].group = 0; modes[mc] = SM(640,480); mc++;
@@ -553,11 +552,6 @@ void change_res()
 
 	if (Game_screen_mode == screen_mode)
 		return;
-
-	if (screen_width > sdlmode[0]->w || screen_height > sdlmode[0]->h) {
-		if (!nm_messagebox( TXT_WARNING, 2, "NO", "YES", "Could not verify selected\nscreen resolution.\nThe game may crash.\nDo you really want to proceed?" ))
-			return;
-	}
 
 	if (screen_width < 320 || screen_height < 200) {
 		nm_messagebox( TXT_WARNING, 1, "OK", "Entered resolution is too small.\nReverting ..." );

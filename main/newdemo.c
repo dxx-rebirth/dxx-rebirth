@@ -27,9 +27,7 @@ COPYRIGHT 1993-1999 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 #include <stdio.h>
 #include <stdarg.h>
 #include <string.h> // for memset
-#ifndef _WIN32_WCE
 #include <errno.h>
-#endif
 #include <ctype.h>      /* for isdigit */
 #include <limits.h>
 #ifdef __unix__
@@ -3003,11 +3001,7 @@ void newdemo_start_recording()
 	Newdemo_state = ND_STATE_RECORDING;
 	outfile = PHYSFSX_openWriteBuffered(DEMO_FILENAME);
 
-#if !defined(MACINTOSH) && !defined(_WIN32_WCE)
-	if (outfile == NULL && errno == ENOENT) {   //dir doesn't exist?
-#else
 	if (outfile == NULL) {                      //dir doesn't exist and no errno on mac!
-#endif
 		PHYSFS_mkdir(DEMO_DIR); //try making directory
 		outfile = PHYSFSX_openWriteBuffered(DEMO_FILENAME);
 	}
