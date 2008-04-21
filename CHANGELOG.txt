@@ -3,6 +3,7 @@ D1X-Rebirth Changelog
 20080421
 --------
 main/console.c, main/custom.c, main/inferno.c, main/menu.c, main/gamesave.c, main/config.c, main/config.h, main/game.c, misc/args.c, d1x.ini, arch/ogl/gr.c, arch/sdl/timer.c, arch/win32/netdrv_ipx.c: Reworked timer_delay2() and calc_frame_time() to be more accurate and CPU-friendly; -nicefps replayced by -nonicefps to disable sleeping for calc_frame_time; Implemented VSync via SDL; Fixed compilation issues; Code cleanup
+main/console.c: Hack to force DOS-style newlines for _WIN32 in gamelog.txt
 
 20080419
 --------
