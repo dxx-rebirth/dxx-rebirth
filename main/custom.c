@@ -230,7 +230,8 @@ int load_pigpog(char *pogname) {
     ubyte *p;
     CFILE *f;
     struct custom_info *custom_info, *cip;
-    int i, j, x, rc = -1;
+    int i, j, rc = -1;
+    unsigned int x = 0;
 
     if (!(f = cfopen((char *)pogname, "rb")))
 	return -1; // pog file doesn't exist

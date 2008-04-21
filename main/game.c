@@ -154,7 +154,6 @@ grs_canvas		VR_editor_canvas; //  The canvas that the editor writes to.
 grs_canvas		*VR_offscreen_menu = NULL; // The offscreen data buffer for menus
 //end additions -- adb
 
-int	Debug_pause=0; //John's debugging pause system
 static int	old_cockpit_mode=-1;
 int	force_cockpit_redraw=0;
 int	netplayerinfo_on=0;
@@ -163,10 +162,6 @@ int	Dummy_var;
 int	*Toggle_var = &Dummy_var;
 #ifdef EDITOR
 char	faded_in;
-#endif
-
-#ifndef NDEBUG //these only exist if debugging
-fix	fixed_frametime=0; //if non-zero, set frametime to this
 #endif
 
 int	Game_suspended=0; //if non-zero, nothing moves but player
@@ -756,30 +751,21 @@ void reset_time()
 
 void calc_frame_time()
 {
+	static u_int32_t FrameStart=0;
+	u_int32_t FrameLoop=0;
 	fix timer_value,last_frametime = FrameTime;
 
-	timer_value = timer_get_fixed_seconds();
-	FrameTime = timer_value - last_timer_value;
-
-	// sleep for one frame to free CPU cycles if GameArg.SysUseNiceFPS is active.
-	if (GameArg.SysUseNiceFPS)
-		timer_delay2(GameArg.SysMaxFPS);
-
-	while (FrameTime < f1_0 / GameArg.SysMaxFPS)
+	while (FrameLoop < 1000/GameArg.SysMaxFPS)
 	{
-		timer_value = timer_get_fixed_seconds();
-		FrameTime = timer_value - last_timer_value;
+		if (GameArg.SysUseNiceFPS)
+			SDL_Delay(1);
+		FrameLoop=SDL_GetTicks()-FrameStart;
 	}
 
-#ifndef NDEBUG
-	if (!(((FrameTime > 0) && (FrameTime <= F1_0)) || (Function_mode == FMODE_EDITOR) || (Newdemo_state == ND_STATE_PLAYBACK))) {
-		if (FrameTime == 0)
-		{
-			FrameTime = 1;
-		}
+	FrameStart=SDL_GetTicks();
 
-	}
-#endif
+	timer_value = i2f(FrameStart/1000) | fixdiv(i2f(FrameStart % 1000),i2f(1000));
+	FrameTime = timer_value - last_timer_value;
 
 	if ( Game_turbo_mode )
 		FrameTime *= 2;
@@ -788,26 +774,6 @@ void calc_frame_time()
 
 	if (FrameTime < 0)				//if bogus frametime...
 		FrameTime = last_frametime;		//...then use time from last frame
-
-#ifndef NDEBUG
-	if (fixed_frametime) FrameTime = fixed_frametime;
-#endif
-
-#ifndef NDEBUG
-	// Pause here!!!
-	if ( Debug_pause )      {
-		int c;
-		c = 0;
-		while( c==0 )
-			c = key_peekkey();
-
-		if ( c == KEY_P )       {
-			Debug_pause = 0;
-			c = key_inkey();
-		}
-		last_timer_value = timer_get_fixed_seconds();
-	}
-#endif
 }
 
 void move_player_2_segment(segment *seg,int side)
@@ -899,14 +865,6 @@ extern fix Cruise_speed;
 
 void game_draw_hud_stuff()
 {
-	#ifndef NDEBUG
-	if (Debug_pause) {
-		gr_set_curfont( GAME_FONT );
-		gr_set_fontcolor( BM_XRGB(31, 31, 31), -1 );
-		gr_printf( 0x8000, (SHEIGHT/10), "Debug Pause - Press P to exit" );
-	}
-	#endif
-
 	#ifdef CROSSHAIR
 	if ( Viewer->type == OBJ_PLAYER )
 		laser_do_crosshair(Viewer);
@@ -2354,7 +2312,6 @@ void HandleGameKey(int key)
 			break;
 		case KEY_DEBUGGED+KEY_COMMA: Render_zoom = fixmul(Render_zoom,62259); break;
 		case KEY_DEBUGGED+KEY_PERIOD: Render_zoom = fixmul(Render_zoom,68985); break;
-		case KEY_DEBUGGED+KEY_P+KEY_SHIFTED: Debug_pause = 1; break;
 		case KEY_DEBUGGED+KEY_F8: speedtest_init(); Speedtest_count = 1;	break;
 		case KEY_DEBUGGED+KEY_F9: speedtest_init(); Speedtest_count = 10;	break;
 		case KEY_DEBUGGED+KEY_D:

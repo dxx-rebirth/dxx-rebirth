@@ -96,7 +96,7 @@ void con_printf(int priority, char *fmt, ...)
 			t=time(NULL);
 			lt=localtime(&t);
 			PHYSFSX_printf(gamelog_fp,"%02i:%02i:%02i ",lt->tm_hour,lt->tm_min,lt->tm_sec);
-			PHYSFSX_printf(gamelog_fp,"%s",buffer);
+			PHYSFSX_printf(gamelog_fp,"%s\n",buffer);
 		}
 	}
 }

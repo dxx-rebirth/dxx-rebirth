@@ -1057,23 +1057,7 @@ int load_game_data(CFILE *LoadFile)
 	}
 
 	//================ READ CONTROL CENTER TRIGGER INFO ===============
-
-	if (game_fileinfo.control_offset > -1)
-	{
-		if (!cfseek( LoadFile, game_fileinfo.control_offset,SEEK_SET ))	{
-			for (i=0;i<game_fileinfo.control_howmany;i++)
-				if ( sizeof(ControlCenterTriggers) == game_fileinfo.control_sizeof )	{
-					if (control_center_triggers_read_n(&ControlCenterTriggers, 1, LoadFile)!=1)
-                                                Error( "Error reading ControlCenterTriggers %i in gamesave.c", i);
-				} else {
-					ControlCenterTriggers.num_links = cfile_read_short( LoadFile );
-					for (j=0; j<MAX_WALLS_PER_LINK; j++ );
-						ControlCenterTriggers.seg[j] = cfile_read_short( LoadFile );
-					for (j=0; j<MAX_WALLS_PER_LINK; j++ );
-						ControlCenterTriggers.side[j] = cfile_read_short( LoadFile );
-				}
-		}
-	}
+	control_center_triggers_read_n(&ControlCenterTriggers, 1, LoadFile);
 
 
 	//================ READ MATERIALOGRIFIZATIONATORS INFO ===============

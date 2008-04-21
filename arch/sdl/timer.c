@@ -1,8 +1,6 @@
-/* $Id: timer.c,v 1.1.1.1 2006/03/17 19:53:40 zicodxx Exp $ */
 /*
  *
  * SDL library timer functions
- *
  *
  */
 
@@ -36,19 +34,14 @@ void timer_delay(fix seconds)
 // Replacement for timer_delay which considers calc time the program needs between frames (not reentrant)
 void timer_delay2(int fps)
 {
-	static u_int32_t last_render_time=0;
+	static u_int32_t FrameStart=0;
+	u_int32_t FrameLoop=0;
 
-	if (last_render_time > SDL_GetTicks()) // Fallback for SDL_GetTicks() wraparound
-		last_render_time = 0;
-	else
+	while (FrameLoop < 1000/fps)
 	{
-		int FrameDelay = (1000/fps) // ms to pause between frames for desired FPS rate
-				 - (SDL_GetTicks()-last_render_time)/(F1_0/1000) // Substract the time the game needs to do it's operations
-				 - 10; // Substract 10ms inaccuracy due to OS scheduling
-
-		if (FrameDelay > 0)
-			SDL_Delay(FrameDelay);
-	
-		last_render_time = SDL_GetTicks();
+		SDL_Delay(1);
+		FrameLoop=SDL_GetTicks()-FrameStart;
 	}
+
+	FrameStart=SDL_GetTicks();
 }
