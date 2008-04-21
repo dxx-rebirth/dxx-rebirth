@@ -1,5 +1,9 @@
 D2X-Rebirth Changelog
 
+20080421
+--------
+main/console.c, main/inferno.c, main/menu.c, main/config.c, main/config.h, main/gamerend.c, main/game.c, main/gamecntl.c, misc/args.c, d2x.ini, arch/ogl/gr.c, arch/sdl/timer.c, arch/win32/netdrv_ipx.c: Reworked timer_delay2() and calc_frame_time() to be more accurate and CPU-friendly; -nicefps replayced by -nonicefps to disable sleeping for calc_frame_time; Implemented VSync via SDL; Fixed compilation issues; Code cleanup
+
 20080419
 --------
 include/ogl_init.h, include/gr.h, include/strutil.h, include/internal.h, main/network.c, main/inferno.c, main/menu.c, main/movie.c, main/playsave.c, main/state.c, main/newdemo.c, main/gamecntl.c, d2x-rebirth.xcodeproj/project.pbxproj, misc/strutil.c, SConstruct, arch/ogl/ogl.c, arch/ogl/gr.c, arch/sdl/joy.c, arch/sdl/gr.c, arch/carbon/conf.h, libmve/mve_main.c, libmve/mveplay.c: Made joy_flush also resetting button state; Improved glReticle; Implemented Fallback resolution if SDL may fail; Code cleanup

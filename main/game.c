@@ -158,8 +158,6 @@ grs_canvas	VR_render_buffer[2];					//  Two offscreen buffers for left/right eye
 grs_canvas	VR_render_sub_buffer[2];			//  Two sub buffers for left/right eyes.
 grs_canvas	VR_editor_canvas;						//  The canvas that the editor writes to.
 
-int Debug_pause=0;				//John's debugging pause system
-
 static int	old_cockpit_mode=-1;
 
 int force_cockpit_redraw=0;
@@ -173,12 +171,6 @@ int	*Toggle_var = &Dummy_var;
 #ifdef EDITOR
 //flag for whether initial fade-in has been done
 char faded_in;
-#endif
-
-#ifndef NDEBUG                          //these only exist if debugging
-
-fix fixed_frametime=0;          //if non-zero, set frametime to this
-
 #endif
 
 int Game_suspended=0;           //if non-zero, nothing moves but player
@@ -535,59 +527,29 @@ int Movie_fixed_frametime;
 
 void calc_frame_time()
 {
+	static u_int32_t FrameStart=0;
+	u_int32_t FrameLoop=0;
 	fix timer_value,last_frametime = FrameTime;
 
-	timer_value = timer_get_fixed_seconds();
-	FrameTime = timer_value - last_timer_value;
-
-	// sleep for one frame to free CPU cycles if GameArg.SysUseNiceFPS is active.
-	if (GameArg.SysUseNiceFPS)
-		timer_delay2(GameArg.SysMaxFPS);
-
-	while (FrameTime < f1_0 / GameArg.SysMaxFPS)
+	while (FrameLoop < 1000/GameArg.SysMaxFPS)
 	{
-		timer_value = timer_get_fixed_seconds();
-		FrameTime = timer_value - last_timer_value;
+		if (GameArg.SysUseNiceFPS)
+			SDL_Delay(1);
+		FrameLoop=SDL_GetTicks()-FrameStart;
 	}
 
-	#ifndef NDEBUG
-	if (!(((FrameTime > 0) && (FrameTime <= F1_0)) || (Function_mode == FMODE_EDITOR) || (Newdemo_state == ND_STATE_PLAYBACK))) {
-		if (FrameTime == 0)
-			Int3();	//	Call Mike or Matt or John!  Your interrupts are probably trashed!
-	}
-	#endif
+	FrameStart=SDL_GetTicks();
+
+	timer_value = i2f(FrameStart/1000) | fixdiv(i2f(FrameStart % 1000),i2f(1000));
+	FrameTime = timer_value - last_timer_value;
 
 	if ( Game_turbo_mode )
 		FrameTime *= 2;
 
 	last_timer_value = timer_value;
 
-	if (FrameTime < 0)						//if bogus frametime...
+	if (FrameTime < 0)				//if bogus frametime...
 		FrameTime = last_frametime;		//...then use time from last frame
-
-	#ifndef NDEBUG
-	if (fixed_frametime) FrameTime = fixed_frametime;
-	#endif
-
-	#ifndef NDEBUG
-	// Pause here!!!
-	if ( Debug_pause )      {
-		int c;
-		c = 0;
-		while( c==0 )
-			c = key_peekkey();
-
-		if ( c == KEY_P )       {
-			Debug_pause = 0;
-			c = key_inkey();
-		}
-		last_timer_value = timer_get_fixed_seconds();
-	}
-	#endif
-
-	#if Arcade_mode
-		FrameTime /= 2;
-	#endif
 }
 
 //--unused-- int Auto_flythrough=0;  //if set, start flythough automatically

@@ -66,11 +66,6 @@ COPYRIGHT 1993-1999 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 extern fix Cruise_speed;
 extern int LinearSVGABuffer;
 
-
-#ifndef NDEBUG
-extern int Debug_pause;				//John's debugging pause system
-#endif
-
 #ifndef RELEASE
 extern int Saving_movie_frames;
 #else
@@ -381,14 +376,6 @@ void render_countdown_gauge()
 
 void game_draw_hud_stuff()
 {
-	#ifndef NDEBUG
-	if (Debug_pause) {
-		gr_set_curfont( MEDIUM1_FONT);
-		gr_set_fontcolor(BM_XRGB(31, 31, 31), -1 );
-		gr_printf( 0x8000, (SHEIGHT/10), "Debug Pause - Press P to exit" );
-	}
-	#endif
-
 	#ifndef NDEBUG
 	draw_window_label();
 	#endif

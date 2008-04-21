@@ -343,6 +343,7 @@ int gr_init(int mode)
 	SDL_GL_SetAttribute(SDL_GL_ACCUM_BLUE_SIZE,0);
 	SDL_GL_SetAttribute(SDL_GL_ACCUM_ALPHA_SIZE,0);
 	SDL_GL_SetAttribute(SDL_GL_DOUBLEBUFFER,1);
+	SDL_GL_SetAttribute(SDL_GL_SWAP_CONTROL,GameCfg.VSync);
 
 	ogl_init_texture_list_internal();
 		

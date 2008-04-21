@@ -104,9 +104,6 @@ COPYRIGHT 1993-1999 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 
 #define SHOW_EXIT_PATH  1
 
-#define Arcade_mode 0
-
-
 #ifdef EDITOR
 #include "editor/editor.h"
 #endif
@@ -153,7 +150,6 @@ extern int	*Toggle_var;
 extern int	Physics_cheat_flag;
 
 extern int	Debug_spew;
-extern int	Debug_pause;
 
 extern fix	Show_view_text_timer;
 
@@ -682,7 +678,7 @@ void HandleDeathKey(int key)
 
 	if (Death_sequence_aborted)
 		game_flush_inputs();
-
+// 
 }
 
 void HandleDemoKey(int key)
@@ -1754,23 +1750,6 @@ void HandleTestKey(int key)
 
 		case KEY_DEBUGGED+KEY_COMMA: Render_zoom = fixmul(Render_zoom,62259); break;
 		case KEY_DEBUGGED+KEY_PERIOD: Render_zoom = fixmul(Render_zoom,68985); break;
-
-		case KEY_DEBUGGED+KEY_P+KEY_SHIFTED: Debug_pause = 1; break;
-
-		//case KEY_F7: {
-		//	char mystr[30];
-		//	sprintf(mystr,"mark %i start",Mark_count);
-		//	_MARK_(mystr);
-		//	break;
-		//}
-		//case KEY_SHIFTED+KEY_F7: {
-		//	char mystr[30];
-		//	sprintf(mystr,"mark %i end",Mark_count);
-		//	Mark_count++;
-		//	_MARK_(mystr);
-		//	break;
-		//}
-
 
 		#ifndef NDEBUG
 		case KEY_DEBUGGED+KEY_F8: speedtest_init(); Speedtest_count = 1;	 break;
