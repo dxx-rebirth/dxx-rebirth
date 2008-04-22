@@ -64,6 +64,7 @@ static char *AspectYStr="AspectY";
 static char *WindowModeStr="WindowMode";
 static char *TexFiltStr="TexFilt";
 static char *VSyncStr="VSync";
+static char *MultisampleStr="Multisample";
 
 int ReadConfigFile()
 {
@@ -85,6 +86,7 @@ int ReadConfigFile()
 	GameCfg.WindowMode = 0;
 	GameCfg.TexFilt = 0;
 	GameCfg.VSync = 0;
+	GameCfg.Multisample = 0;
 
 	infile = PHYSFSX_openReadBuffered("descent.cfg");
 
@@ -142,6 +144,8 @@ int ReadConfigFile()
 				GameCfg.TexFilt = strtol(value, NULL, 10);
 			else if (!strcmp(token, VSyncStr))
 				GameCfg.VSync = strtol(value, NULL, 10);
+			else if (!strcmp(token, MultisampleStr))
+				GameCfg.Multisample = strtol(value, NULL, 10);
 		}
 	}
 
@@ -185,6 +189,7 @@ int WriteConfigFile()
 	PHYSFSX_printf(infile, "%s=%i\n", WindowModeStr, GameCfg.WindowMode);
 	PHYSFSX_printf(infile, "%s=%i\n", TexFiltStr, GameCfg.TexFilt);
 	PHYSFSX_printf(infile, "%s=%i\n", VSyncStr, GameCfg.VSync);
+	PHYSFSX_printf(infile, "%s=%i\n", MultisampleStr, GameCfg.Multisample);
 
 	PHYSFS_close(infile);
 

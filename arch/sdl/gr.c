@@ -108,6 +108,10 @@ int gr_toggle_fullscreen(void)
 	return (sdl_video_flags & SDL_FULLSCREEN)?1:0;
 }
 
+void gr_set_attributes(void)
+{
+}
+
 int gr_init(int mode)
 {
 	int retcode;

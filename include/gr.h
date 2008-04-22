@@ -166,6 +166,7 @@ int gr_init(int mode);
 int gr_init_screen(int mode, int w, int h, int x, int y, int rowsize, ubyte *data);
 
 int gr_set_mode(u_int32_t mode);
+void gr_set_attributes(void);
 
 extern void gr_pal_setblock( int start, int number, unsigned char * pal );
 extern void gr_pal_getblock( int start, int number, unsigned char * pal );

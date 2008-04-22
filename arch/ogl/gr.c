@@ -303,21 +303,8 @@ int ogl_init_load_library(void)
 }
 #endif
 
-int gr_init(int mode)
+void gr_set_attributes(void)
 {
-	int retcode;
-
- 	// Only do this function once!
-	if (gr_installed==1)
-		return -1;
-
-#ifdef _WIN32
-	ogl_init_load_library();
-#endif
-
-	if (!GameCfg.WindowMode && !GameArg.SysWindow)
-		gr_toggle_fullscreen();
-
 	switch (GameCfg.TexFilt)
 	{
 		case 2:
@@ -344,9 +331,38 @@ int gr_init(int mode)
 	SDL_GL_SetAttribute(SDL_GL_ACCUM_ALPHA_SIZE,0);
 	SDL_GL_SetAttribute(SDL_GL_DOUBLEBUFFER,1);
 	SDL_GL_SetAttribute(SDL_GL_SWAP_CONTROL,GameCfg.VSync);
+	if (GameCfg.Multisample)
+	{
+		SDL_GL_SetAttribute(SDL_GL_MULTISAMPLEBUFFERS, 1);
+		SDL_GL_SetAttribute(SDL_GL_MULTISAMPLESAMPLES, 4);
+	}
+	else
+	{
+		SDL_GL_SetAttribute(SDL_GL_MULTISAMPLEBUFFERS, 0);
+		SDL_GL_SetAttribute(SDL_GL_MULTISAMPLESAMPLES, 0);
+	}
+	ogl_smash_texture_list_internal();
+}
+
+int gr_init(int mode)
+{
+	int retcode;
+
+ 	// Only do this function once!
+	if (gr_installed==1)
+		return -1;
+
+#ifdef _WIN32
+	ogl_init_load_library();
+#endif
+
+	if (!GameCfg.WindowMode && !GameArg.SysWindow)
+		gr_toggle_fullscreen();
+
+	gr_set_attributes();
 
 	ogl_init_texture_list_internal();
-		
+
 	MALLOC( grd_curscreen,grs_screen,1 );
 	memset( grd_curscreen, 0, sizeof(grs_screen));
 	grd_curscreen->sc_canvas.cv_bitmap.bm_data = NULL;
