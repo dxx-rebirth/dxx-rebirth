@@ -342,6 +342,8 @@ void gr_set_attributes(void)
 		SDL_GL_SetAttribute(SDL_GL_MULTISAMPLESAMPLES, 0);
 	}
 	ogl_smash_texture_list_internal();
+	gr_remap_color_fonts();
+	gr_remap_mono_fonts();
 }
 
 int gr_init(int mode)
