@@ -617,28 +617,29 @@ void do_graphics_menu()
 
 	do {
 		m[0].type = NM_TYPE_TEXT;   m[0].text="Texture Filtering:";
-		m[1].type = NM_TYPE_TEXT;   m[1].text=" (requires restart)";
-		m[2].type = NM_TYPE_RADIO;  m[2].text = "None (Classical)";       m[2].value = 0; m[2].group = 0;
-		m[3].type = NM_TYPE_RADIO;  m[3].text = "Bilinear";               m[3].value = 0; m[3].group = 0;
-		m[4].type = NM_TYPE_RADIO;  m[4].text = "Trilinear";              m[4].value = 0; m[4].group = 0;
-		m[5].type = NM_TYPE_TEXT;   m[5].text="";
-		m[6].type = NM_TYPE_CHECK;  m[6].text="Transparency Effects";     m[6].value = PlayerCfg.OglAlphaEffects;
-		m[7].type = NM_TYPE_CHECK;  m[7].text="Vectorial Reticle";        m[7].value = PlayerCfg.OglReticle;
-		m[8].type = NM_TYPE_CHECK;  m[8].text="Screenshots w/o HUD";      m[8].value = PlayerCfg.OglPRShot;
-		m[9].type = NM_TYPE_CHECK;  m[9].text="VSync (requires restart)"; m[9].value = GameCfg.VSync;
+		m[1].type = NM_TYPE_RADIO;  m[1].text = "None (Classical)";       m[1].value = 0; m[1].group = 0;
+		m[2].type = NM_TYPE_RADIO;  m[2].text = "Bilinear";               m[2].value = 0; m[2].group = 0;
+		m[3].type = NM_TYPE_RADIO;  m[3].text = "Trilinear";              m[3].value = 0; m[3].group = 0;
+		m[4].type = NM_TYPE_TEXT;   m[4].text="";
+		m[5].type = NM_TYPE_CHECK;  m[5].text="Transparency Effects";     m[5].value = PlayerCfg.OglAlphaEffects;
+		m[6].type = NM_TYPE_CHECK;  m[6].text="Vectorial Reticle";        m[6].value = PlayerCfg.OglReticle;
+		m[7].type = NM_TYPE_CHECK;  m[7].text="Screenshots w/o HUD";      m[7].value = PlayerCfg.OglPRShot;
+		m[8].type = NM_TYPE_CHECK;  m[8].text="VSync";                    m[8].value = GameCfg.VSync;
+		m[9].type = NM_TYPE_CHECK;  m[9].text="4x multisampling";         m[9].value = GameCfg.Multisample;
 
-		m[GameCfg.TexFilt+2].value=1;
+		m[GameCfg.TexFilt+1].value=1;
 
 		i = newmenu_do1( NULL, "Graphics Options", sizeof(m)/sizeof(*m), m, NULL, i );
 
 		for (j = 0; j <= 2; j++)
-			if (m[j+2].value)
+			if (m[j+1].value)
 				GameCfg.TexFilt = j;
-		PlayerCfg.OglAlphaEffects = m[6].value;
-		PlayerCfg.OglReticle = m[7].value;
-		PlayerCfg.OglPRShot = m[8].value;
-		GameCfg.VSync = m[9].value;
-
+		PlayerCfg.OglAlphaEffects = m[5].value;
+		PlayerCfg.OglReticle = m[6].value;
+		PlayerCfg.OglPRShot = m[7].value;
+		GameCfg.VSync = m[8].value;
+		GameCfg.Multisample = m[9].value;
+		gr_set_attributes();
 	} while( i>-1 );
 }
 

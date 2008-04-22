@@ -184,7 +184,7 @@ void gr_close();
 // 11=Not a valid mode support by gr.lib
 // Returns one of the above without setting mode
 int gr_set_mode(u_int32_t mode);
-
+void gr_set_attributes(void);
 
 //=========================================================================
 // Canvas functions:
