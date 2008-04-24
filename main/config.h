@@ -41,7 +41,7 @@ typedef struct Cfg
 	int TexFilt;
 	int VSync;
 	int Multisample;
-} __attribute__ ((packed)) Cfg;
+} __pack__ Cfg;
 
 extern struct Cfg GameCfg;
 

@@ -1529,7 +1529,7 @@ void newmenu_file_sort( int n, char *list )
 void delete_player_saved_games(char * name)
 {
 	int i;
-	char filename[FILENAME_LEN + (GameArg.SysUsePlayersDir?9:1)];
+	char filename[FILENAME_LEN + 9];
 
 	for (i=0;i<10; i++)
 	{
@@ -1600,7 +1600,7 @@ ReadFileNames:
 
 		if (NumFiles < MAX_FILES)
 		{
-			snprintf(&filenames[NumFiles*(FILENAME_LEN+1)],FILENAME_LEN,*f);
+			strncpy(&filenames[NumFiles*(FILENAME_LEN+1)],*f,FILENAME_LEN);
 			if (player_mode)
 			{
 				char *p;

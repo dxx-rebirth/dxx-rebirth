@@ -3233,7 +3233,7 @@ void newdemo_start_playback(char * filename)
 			return;
 
 		// if in random mode, PhysFS may look for all possible files, so check if filename actually points to be a demo file...
-		if (strncasecmp(".dem",&filename2[strlen(filename2)-4],4))
+		if (strnicmp(".dem",&filename2[strlen(filename2)-4],4))
 			return;
 	}
 

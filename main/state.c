@@ -192,7 +192,7 @@ int state_get_savegame_filename(char * fname, char * dsc, char * caption )
 	PHYSFS_file * fp;
 	int i, choice, version, nsaves;
 	newmenu_item m[NUM_SAVES+1];
-	char filename[NUM_SAVES][FILENAME_LEN + (GameArg.SysUsePlayersDir?9:1)];
+	char filename[NUM_SAVES][FILENAME_LEN + 9];
 	char desc[NUM_SAVES][DESC_LENGTH + 16];
 	char id[5];
 	int valid;

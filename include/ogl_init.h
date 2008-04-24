@@ -25,6 +25,9 @@ int ogl_init_load_library(void);
 #define GL_GLEXT_PROTOTYPES
 #include <GL/gl.h>
 #endif
+# ifndef GL_CLAMP_TO_EDGE	// hack for Mac OS 9, others?
+#  define GL_CLAMP_TO_EDGE GL_CLAMP
+# endif
 #endif
 
 #ifndef GL_VERSION_1_1

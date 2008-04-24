@@ -55,10 +55,8 @@ SrcFiles        =  ¶
 				  :3d:rod.c ¶
 				  :3d:setup.c ¶
 				  :arch:carbon:SDL_main.c ¶
-				  :arch:linux:mono.c ¶
 				  :arch:ogl:gr.c ¶
 				  :arch:ogl:ogl.c ¶
-				  :arch:ogl:sdlgl.c ¶
 				  :arch:sdl:digi.c ¶
 				  :arch:sdl:digi_audio.c ¶
 				  :arch:sdl:digi_mixer.c ¶
@@ -67,7 +65,6 @@ SrcFiles        =  ¶
 				  :arch:sdl:gr.c ¶
 				  :arch:sdl:joy.c ¶
 				  :arch:sdl:jukebox.c ¶
-				  :arch:sdl:joydefs.c ¶
 				  :arch:sdl:key.c ¶
 				  :arch:sdl:mouse.c ¶
 				  :arch:sdl:rbaudio.c ¶
@@ -83,7 +80,6 @@ SrcFiles        =  ¶
 				  :main:aipath.c ¶
 				  :main:automap.c ¶
 				  :main:bm.c ¶
-				  :main:cmd.c ¶
 				  :main:cntrlcen.c ¶
 				  :main:collide.c ¶
 				  :main:config.c ¶
@@ -112,7 +108,6 @@ SrcFiles        =  ¶
 				  :main:hud.c ¶
 				  :main:inferno.c ¶
 				  :main:kconfig.c ¶
-				  :main:kludge.c ¶
 #				  :main:kmatrix.c ¶
 				  :main:laser.c ¶
 				  :main:lighting.c ¶
@@ -174,8 +169,7 @@ SrcFiles        =  ¶
 
 OpenGLObjects    =  ¶
 				  "{ObjDir}gr.c.x" ¶
-				  "{ObjDir}ogl.c.x" ¶
-				  "{ObjDir}sdlgl.c.x"
+				  "{ObjDir}ogl.c.x"
 
 SDLVideoObjects    =  ¶
 				  "{ObjDir}SDL:gr.c.x"
@@ -210,7 +204,6 @@ GeneralObjects    =  ¶
 				  "{ObjDir}rod.c.x" ¶
 				  "{ObjDir}setup.c.x" ¶
 				  "{ObjDir}SDL_main.c.x" ¶
-				  "{ObjDir}mono.c.x" ¶
 				  "{ObjDir}digi.c.x" ¶
 				  {ObjDir}digi_audio.c.x ¶
 				  {ObjDir}digi_mixer.c.x ¶
@@ -218,7 +211,6 @@ GeneralObjects    =  ¶
 				  {ObjDir}jukebox.c.x ¶
 				  "{ObjDir}event.c.x" ¶
 				  "{ObjDir}joy.c.x" ¶
-				  "{ObjDir}joydefs.c.x" ¶
 				  "{ObjDir}key.c.x" ¶
 				  "{ObjDir}mouse.c.x" ¶
 				  "{ObjDir}rbaudio.c.x" ¶
@@ -234,7 +226,6 @@ GeneralObjects    =  ¶
 				  "{ObjDir}aipath.c.x" ¶
 				  "{ObjDir}automap.c.x" ¶
 				  "{ObjDir}bm.c.x" ¶
-				  "{ObjDir}cmd.c.x" ¶
 				  "{ObjDir}cntrlcen.c.x" ¶
 				  "{ObjDir}collide.c.x" ¶
 				  "{ObjDir}config.c.x" ¶
@@ -263,7 +254,6 @@ GeneralObjects    =  ¶
 				  "{ObjDir}hud.c.x" ¶
 				  "{ObjDir}inferno.c.x" ¶
 				  "{ObjDir}kconfig.c.x" ¶
-				  "{ObjDir}kludge.c.x" ¶
 #				  "{ObjDir}kmatrix.c.x" ¶
 				  "{ObjDir}laser.c.x" ¶
 				  "{ObjDir}lighting.c.x" ¶
@@ -407,10 +397,8 @@ directories Ä
 "{ObjDir}rod.c.x"  Ä  :3d:rod.c
 "{ObjDir}setup.c.x"  Ä  :3d:setup.c
 "{ObjDir}SDL_main.c.x"  Ä  :arch:carbon:SDL_main.c
-"{ObjDir}mono.c.x"  Ä  :arch:linux:mono.c
 "{ObjDir}gr.c.x"  Ä  :arch:ogl:gr.c
 "{ObjDir}ogl.c.x"  Ä  :arch:ogl:ogl.c
-"{ObjDir}sdlgl.c.x"  Ä  :arch:ogl:sdlgl.c
 "{ObjDir}digi.c.x"  Ä  :arch:sdl:digi.c
 "{ObjDir}digi_audio.c.x"  Ä  :arch:sdl:digi_audio.c
 "{ObjDir}digi_mixer.c.x"  Ä  :arch:sdl:digi_mixer.c
@@ -418,7 +406,6 @@ directories Ä
 "{ObjDir}event.c.x"  Ä  :arch:sdl:event.c
 "{ObjDir}SDL:gr.c.x"  Ä  :arch:sdl:gr.c
 "{ObjDir}joy.c.x"  Ä  :arch:sdl:joy.c
-"{ObjDir}joydefs.c.x"  Ä  :arch:sdl:joydefs.c
 "{ObjDir}jukebox.c.x"  Ä  :arch:sdl:jukebox.c
 "{ObjDir}key.c.x"  Ä  :arch:sdl:key.c
 "{ObjDir}mouse.c.x"  Ä  :arch:sdl:mouse.c
@@ -435,7 +422,6 @@ directories Ä
 "{ObjDir}aipath.c.x"  Ä  :main:aipath.c
 "{ObjDir}automap.c.x"  Ä  :main:automap.c
 "{ObjDir}bm.c.x"  Ä  :main:bm.c
-"{ObjDir}cmd.c.x"  Ä  :main:cmd.c
 "{ObjDir}cntrlcen.c.x"  Ä  :main:cntrlcen.c
 "{ObjDir}collide.c.x"  Ä  :main:collide.c
 "{ObjDir}config.c.x"  Ä  :main:config.c
@@ -464,7 +450,6 @@ directories Ä
 "{ObjDir}hud.c.x"  Ä  :main:hud.c
 "{ObjDir}inferno.c.x"  Ä  :main:inferno.c
 "{ObjDir}kconfig.c.x"  Ä  :main:kconfig.c
-"{ObjDir}kludge.c.x"  Ä  :main:kludge.c
 #"{ObjDir}kmatrix.c.x"  Ä  :main:kmatrix.c
 "{ObjDir}laser.c.x"  Ä  :main:laser.c
 "{ObjDir}lighting.c.x"  Ä  :main:lighting.c

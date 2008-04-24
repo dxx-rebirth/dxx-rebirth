@@ -66,7 +66,7 @@ typedef struct player_config
 	int OglAlphaEffects;
 	int OglReticle;
 	int OglPRShot;
-} __attribute__ ((packed)) player_config;
+} __pack__ player_config;
 
 extern struct player_config PlayerCfg;
 
