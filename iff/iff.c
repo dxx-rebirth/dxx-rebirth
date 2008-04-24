@@ -89,7 +89,7 @@ ubyte iff_has_transparency;	// 0=no transparency, 1=iff_transparent_color is val
 
 int32_t get_sig(PHYSFS_file *f)
 {
-	int32_t s;
+	int s;
 
 	PHYSFS_readSBE32(f, &s);
 	return s;

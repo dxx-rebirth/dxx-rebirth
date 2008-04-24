@@ -183,7 +183,7 @@ int is_real_level(char *filename)
 	if (len < 6)
 		return 0;
 
-	return !strncasecmp(&filename[len-11], "level", 5);
+	return !strnicmp(&filename[len-11], "level", 5);
 
 }
 
@@ -339,7 +339,7 @@ void verify_object( object * obj )	{
 			char *name = Save_pof_names[obj->rtype.pobj_info.model_num];
 
 			for (i=0;i<N_polygon_models;i++)
-				if (!strcasecmp(Pof_names[i],name)) {		//found it!	
+				if (!stricmp(Pof_names[i],name)) {		//found it!	
 					obj->rtype.pobj_info.model_num = i;
 					break;
 				}

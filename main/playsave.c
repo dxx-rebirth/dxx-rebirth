@@ -860,7 +860,16 @@ int write_player_file()
 		return errno_ret;
 	}
 	#else
-	PHYSFS_seek( file, PHYSFS_tell(file)+MAX_MESSAGE_LEN * 4 );
+	{
+		//PHYSFS_seek( file, PHYSFS_tell(file)+MAX_MESSAGE_LEN * 4 );	// Seeking is bad for Mac OS 9
+		char dummy[MAX_MESSAGE_LEN][4];
+		
+		if ((PHYSFS_write( file, dummy, MAX_MESSAGE_LEN, 4) != 4)) {
+			errno_ret = errno;
+			PHYSFS_close(file);
+			return errno_ret;
+		}
+	}
 	#endif
 
 	//write kconfig info

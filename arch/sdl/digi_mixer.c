@@ -126,27 +126,28 @@ void mixdigi_convert_sound(int i) {
 // Volume 0-F1_0
 int digi_mixer_start_sound(short soundnum, fix volume, int pan, int looping, int loop_start, int loop_end, int soundobj)
 {
+  int mix_vol = fix2byte(fixmul(digi_volume, volume));
+  int mix_pan = fix2byte(pan);
+  int mix_loop = looping * -1;
+  int channel;
+
   if (!digi_initialised) return -1;
   Assert(GameSounds[soundnum].data != (void *)-1);
 
   mixdigi_convert_sound(soundnum);
 
-  int mix_vol = fix2byte(fixmul(digi_volume, volume));
-  int mix_pan = fix2byte(pan);
-  int mix_loop = looping * -1;
-
   if (MIX_DIGI_DEBUG) con_printf(CON_DEBUG,"digi_start_sound %d, volume %d, pan %d (start=%d, end=%d)\n", soundnum, mix_vol, mix_pan, loop_start, loop_end);
 
-  int channel = Mix_PlayChannel(-1, &(SoundChunks[soundnum]), mix_loop);
-  Mix_SetPanning(channel, 255-mix_pan, mix_pan);
-  Mix_SetDistance(channel, 255-mix_vol);
+  	channel = Mix_PlayChannel(-1, &(SoundChunks[soundnum]), mix_loop);
+ 	Mix_SetPanning(channel, 255-mix_pan, mix_pan);
+  	Mix_SetDistance(channel, 255-mix_vol);
 
   return channel;
 }
 
 void digi_mixer_set_channel_volume(int channel, int volume) {
-  if (!digi_initialised) return;
   int mix_vol = fix2byte(volume);
+  if (!digi_initialised) return;
   Mix_SetDistance(channel, 255-mix_vol);
 }
 

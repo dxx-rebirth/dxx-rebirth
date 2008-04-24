@@ -66,7 +66,9 @@ COPYRIGHT 1993-1998 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 #include "cfile.h"
 #include "gauges.h"
 #include "hudmsg.h" //for HUD_max_num_disp
+#ifdef NETWORK
 #include "netdrv.h"
+#endif
 
 
 #ifdef EDITOR

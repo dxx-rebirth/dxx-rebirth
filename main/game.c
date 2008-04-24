@@ -21,14 +21,6 @@ COPYRIGHT 1993-1998 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 #include <stdlib.h>
 #include <string.h>
 #include <stdarg.h>
-#ifndef _MSC_VER
-#include <unistd.h>
-#else
-#ifndef macintosh
-#include <io.h>
-#define access(a,b) _access(a,b)
-#endif
-#endif
 #include <SDL/SDL.h>
 #ifdef OGL
 #include "ogl_init.h"
@@ -2127,9 +2119,11 @@ void HandleGameKey(int key)
 		case KEY_F2:				Config_menu_flag = 1;	break;
 		case KEY_F3:				toggle_cockpit();       break;
 
+#ifdef NETWORK
 		case KEY_ALTED + KEY_F4:
 			Show_reticle_name = (Show_reticle_name+1)%2;
 			break;
+#endif
 		case KEY_F5:
 				if ( Newdemo_state == ND_STATE_RECORDING )
 					newdemo_stop_recording();

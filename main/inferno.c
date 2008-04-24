@@ -29,7 +29,7 @@ static char *__reference[2]={copyright,(char *)__reference};
 #include <limits.h>
 #include <SDL/SDL.h>
 
-#if !defined(_MSC_VER) || !defined(macintosh)
+#if !defined(_MSC_VER) && !defined(macintosh)
 #include <unistd.h>
 #endif
 

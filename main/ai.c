@@ -67,7 +67,6 @@ COPYRIGHT 1993-1998 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 #endif
 #endif
 
-#include "d_gamecv.h"
 //added 05/17/99 Matt Mueller
 #include "u_mem.h"
 //end addition -MM

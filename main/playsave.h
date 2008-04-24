@@ -20,10 +20,12 @@ COPYRIGHT 1993-1998 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 #ifndef _PLAYSAVE_H
 #define _PLAYSAVE_H
 
+#include "pstypes.h"
 #include "kconfig.h"
 #include "mission.h"
 #include "weapon.h"
 #include "multi.h"
+#include "player.h"
 
 #define N_SAVE_SLOTS		10
 #define GAME_NAME_LEN	25		//+1 for terminating zero = 26
@@ -31,7 +33,7 @@ COPYRIGHT 1993-1998 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 // NOTE: Obsolete structure - only kept for compability of the plr file
 typedef struct saved_game {
 	char		name[GAME_NAME_LEN+1];		//extra char for terminating zero
-	player	player;
+	struct player	player;
 	int		difficulty_level;		//which level game is played at
 	int		primary_weapon;		//which weapon selected
 	int		secondary_weapon;		//which weapon selected
@@ -70,7 +72,7 @@ typedef struct player_config
 	int OglAlphaEffects;
 	int OglReticle;
 	int OglPRShot;
-} __attribute__ ((packed)) player_config;
+} __pack__ player_config;
 
 extern struct player_config PlayerCfg;
 

@@ -991,7 +991,7 @@ int newmenu_do3_real( char * title, char * subtitle, int nitems, newmenu_item * 
 		case KEY_PADENTER:
 			if ( (choice>-1) && (item[choice].type==NM_TYPE_INPUT_MENU) && (item[choice].group==0))	{
 				item[choice].group = 1;
-				if ( !strncasecmp( item[choice].saved_text, TXT_EMPTY, strlen(TXT_EMPTY) ) )	{
+				if ( !strnicmp( item[choice].saved_text, TXT_EMPTY, strlen(TXT_EMPTY) ) )	{
 					item[choice].text[0] = 0;
 					item[choice].value = -1;
 				} else {	
@@ -1193,7 +1193,7 @@ int newmenu_do3_real( char * title, char * subtitle, int nitems, newmenu_item * 
 
 		if ( !done && !mouse_state && omouse_state && (choice>-1) && (item[choice].type==NM_TYPE_INPUT_MENU) && (item[choice].group==0))	{
 			item[choice].group = 1;
-			if ( !strncasecmp( item[choice].saved_text, TXT_EMPTY, strlen(TXT_EMPTY) ) )	{
+			if ( !strnicmp( item[choice].saved_text, TXT_EMPTY, strlen(TXT_EMPTY) ) )	{
 				item[choice].text[0] = 0;
 				item[choice].value = -1;
 			} else {
@@ -1453,7 +1453,7 @@ void newmenu_file_sort( int n, char *list )
 void delete_player_saved_games(char * name)
 {
 	int i;
-	char filename[FILENAME_LEN + (GameArg.SysUsePlayersDir?9:1)];
+	char filename[FILENAME_LEN + 9];
 
 	for (i=0;i<10; i++)
 	{
@@ -1524,7 +1524,7 @@ ReadFileNames:
 
 		if (NumFiles < MAX_FILES)
 		{
-			snprintf(&filenames[NumFiles*(FILENAME_LEN+1)],FILENAME_LEN,*f);
+			strncpy(&filenames[NumFiles*(FILENAME_LEN+1)],*f,FILENAME_LEN);
 			if (player_mode)
 			{
 				char *p;

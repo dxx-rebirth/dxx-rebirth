@@ -50,7 +50,7 @@ int FindArg(char * s)
 	int i;
 
 	for (i=0; i<Num_args; i++ )
-		if (! strcasecmp( Args[i], s))
+		if (! stricmp( Args[i], s))
 			return i;
 
 	return 0;

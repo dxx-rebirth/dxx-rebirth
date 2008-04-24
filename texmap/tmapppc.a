@@ -1,0 +1,1099 @@
+# -- tmap_per.1 =  8.88, 6/27/95
+# -- tmap_per.3 =  8.99, 6/27/95
+# -- tmap_per.4 =  9.10, 6/28/95
+
+# -- Make more use of r0 and other volatile registers.
+# -- Use fewer registers and only save/restore what's necessary.
+# -- Use stmw instead of all the stws in epilog, prolog.
+# -- mtctr loads "magical" counter register, then use bdnz _label
+# -- Superopt from Freeware guys, ftp from prep.ai.mit.edu, look in /pub/gnu or something like that.
+# -- At DoEndPixels, you write up to 15 slow pixels.  Do chunks of 4.
+
+#  Macro added by allender 6/21/95 -- found in MPW PPC assembler examples.  This macro
+#  used at beginning of routine should export all appropriate symbols and set us up
+#  properly for debug information
+
+	MACRO
+	MakeFunction &fnName
+		EXPORT &fnName[DS]
+ 		EXPORT .&fnName[PR]
+		
+		TC &fnName[TC], &fnName[DS]
+			
+		CSECT &fnName[DS]
+			DC.L .&fnName[PR]
+ 			DC.L TOC[tc0]
+		
+		FUNCTION .&fnName[PR]	
+		CSECT .&fnName[PR]
+		
+	ENDM
+
+# -------------------------------------------------------------
+# Plot one pixel
+# Lighting, No Transparency.
+	macro
+	ppc_pix_l
+
+	mr	eax, V0
+	rlwimi	eax, U0, 26, 16, 21	# Now, eax has v:u, but it's 10 bits too high and garbage above it
+	rlwinm	eax, eax, 22, 20, 31	# Shift right 10 bits, mask out high garbage (preserve only low 12 bits)
+	
+	lbzx	tr2, eax, es	# get source pixel
+
+	add	U0, U0, edx	# u0 = u0 + du
+	rlwimi	tr2, tr0, 24, 16, 23	# mask lighting value (%bh) above pixel value (%al)
+	add	V0, V0, esi	# v0 = v0 + dv
+
+	lbzx	eax, r3, tr2	# xlate lighting:pixel through lighting tables
+	stb	eax, 0(edi)	# {change this to stbu eax 1(edi) and kill the addi below}
+	addi	edi, edi, 1	
+
+	add	tr0, tr0, tr1	# fx_l += fx_dl_dx
+
+	endm
+
+# -------------------------------------------------------------
+# Plot one pixel
+# Lighting & Transparency.
+	macro
+	ppc_pix_lt
+
+	mr	eax, V0
+	rlwimi	eax, U0, 26, 16, 21	# Now, eax has v:u, but it's 10 bits too high and garbage above it
+	rlwinm	eax, eax, 22, 20, 31	# Shift right 10 bits, mask out high garbage (preserve only low 12 bits)
+	
+	lbzx	tr2, eax, es	# get source pixel
+
+	add	U0, U0, edx	# u0 = u0 + du
+	cmpwi	cr0, tr2, 0xff
+#	cmpwi	cr0, tr2, 0x0
+	add	V0, V0, esi	# v0 = v0 + dv
+
+	beq	@skip
+
+	rlwimi	tr2, tr0, 24, 16, 23	# mask lighting value (%bh) above pixel value (%al)
+	lbzx	eax, r3, tr2	# xlate lighting:pixel through lighting tables
+	stb	eax, 0(edi)
+@skip:	addi	edi, edi, 1
+	add	tr0, tr0, tr1	# fx_l += fx_dl_dx
+	endm
+
+# -------------------------------------------------------------
+# Plot one pixel
+# No Lighting & Transparency.
+	macro
+	ppc_pix_t
+
+	mr	eax, V0
+	rlwimi	eax, U0, 26, 16, 21	# Now, eax has v:u, but it's 10 bits too high and garbage above it
+	rlwinm	eax, eax, 22, 20, 31	# Shift right 10 bits, mask out high garbage (preserve only low 12 bits)
+	
+	lbzx	tr2, eax, es	# get source pixel
+
+	add	U0, U0, edx	# u0 = u0 + du
+	cmpwi	cr0, tr2, 0xff
+	add	V0, V0, esi	# v0 = v0 + dv
+
+	beq	@skip
+
+	rlwimi	tr2, tr0, 24, 16, 23	# mask lighting value (%bh) above pixel value (%al)
+	stb	tr2, 0(edi)
+@skip:	addi	edi, edi, 1
+	endm
+
+# -------------------------------------------------------------
+# Plot one pixel
+# Lighting & Transparency.
+# Decrements r_num_left_over.  If goes 0, branches to _none_to_do.
+#  Added by allender 6/21/95 -- need TOC stuff to access global variables.  We could
+#   probably help ourselves immensly if we used paramaters were possible.
+
+
+	toc
+		tc	gr_fade_table[TC], gr_fade_table
+		tc	write_buffer[TC], write_buffer
+		tc	window_left[TC], window_left
+		tc	window_right[TC], window_right
+		tc	window_top[TC], window_top
+		tc	window_bottom[TC], window_bottom
+		tc	window_width[TC], window_width
+		tc	bytes_per_row[TC], bytes_per_row
+		tc	window_height[TC], window_height
+		tc	y_pointers[TC], y_pointers
+
+		tc per2_flag[TC], per2_flag
+		tc tmap_flat_cthru_table[TC], tmap_flat_cthru_table
+		tc tmap_flat_color[TC], tmap_flat_color
+		tc tmap_flat_shade_value[TC], tmap_flat_shade_value
+		tc dither_intensity_lighting[TC], dither_intensity_lighting
+		tc Lighting_on[TC], Lighting_on
+		tc pixel_data_selector[TC], pixel_data_selector
+		tc gr_fade_table_selector[TC], gr_fade_table_selector
+		tc Transparency_on[TC], Transparency_on
+		tc fx_u[TC], fx_u
+		tc fx_v[TC], fx_v
+		tc fx_z[TC], fx_z
+		tc fx_l[TC], fx_l
+		tc fx_du_dx[TC], fx_du_dx
+		tc fx_dv_dx[TC], fx_dv_dx
+		tc fx_dz_dx[TC], fx_dz_dx
+		tc fx_dl_dx[TC], fx_dl_dx
+		tc fx_y[TC], fx_y
+		tc fx_xleft[TC], fx_xleft
+		tc fx_xright[TC], fx_xright
+		tc pixptr[TC], pixptr
+		
+#  Added by allender 6/21/95 -- use the handy constants to set up the space to save on
+#  the stack
+
+linkageArea:	set	24	; constant comes from the PowerPC Runtime Architecture Document
+CalleesParams:	set	32	; always leave space for GPR's 3-10
+CalleesLocalVars:	set	0	; none
+numGPRs:	set	19	; num volitile GPR's (GPR's 13-31) used
+numFPRs:	set	0	; num volitile FPR's (FPR's 14-31) used
+stack_pad:	set	12	; padding to maintain quadword alignment
+
+spaceToSave:	set linkageArea + CalleesParams + CalleesLocalVars + 4*numGPRs + 8*numFPRs + stack_pad
+
+	MakeFunction asm_tmap_scanline_per
+	align	4
+
+#	include	'tmap_inc.a'
+	import	gr_fade_table
+	import	write_buffer
+	import	window_left
+	import	window_right
+	import	window_top
+	import	window_bottom
+	import	window_width
+	import	bytes_per_row
+	import	window_height
+	import	y_pointers
+
+#_lighting_tables	equ	_gr_fade_table
+#write_buffer	equ	_write_buffer
+
+#max_window_width	equ	320
+#num_iters	=	max_window_width
+#
+#  if num_iters and 1
+#num_iters = num_iters + 1
+#  endif
+
+	import per2_flag
+	import tmap_flat_cthru_table
+	import tmap_flat_color
+	import tmap_flat_shade_value
+	import dither_intensity_lighting
+	import Lighting_on
+	import pixel_data_selector
+	import gr_fade_table_selector
+	import Transparency_on
+	import fx_u
+	import fx_v
+	import fx_z
+	import fx_l
+	import fx_du_dx
+	import fx_dv_dx
+	import fx_dz_dx
+	import fx_dl_dx
+	import fx_y
+	import fx_xleft
+	import fx_xright
+	import pixptr
+
+#	include	('stdhdr.s')
+
+#MWA -- not used		num_left_over	.long	0
+
+# We don't pass any parameters, so we use those registers.
+r_num_left_over: equ	r4
+
+# PowerPC equates for 80x86 compatibility
+eax:	equ	r13
+ebx:	equ	r14
+ecx:	equ	r15
+edx:	equ	r16
+ebp:	equ	r17
+esi:	equ	r18
+edi:	equ	r19
+
+es:	equ	r20
+
+tr0:	equ	r21
+tr1:	equ	r22
+tr2:	equ	r23
+
+r_loop_count:	equ	r24
+
+U0:	equ	r25
+U1:	equ	r26
+V0:	equ	r27
+V1:	equ	r28
+
+DU1:	equ	r29
+DV1:	equ	r30
+DZ1:	equ	r31
+
+#MWA	csect	texmap
+
+# --------------------------------------------------------------------------------------------------
+# Enter:
+#	_xleft	fixed point left x coordinate
+#	_xright	fixed point right x coordinate
+#	_y	fixed point y coordinate
+#	_pixptr	address of source pixel map
+#	_u	fixed point initial u coordinate
+#	_v	fixed point initial v coordinate
+#	_z	fixed point initial z coordinate
+#	_du_dx	fixed point du/dx
+#	_dv_dx	fixed point dv/dx
+#	_dz_dx	fixed point dz/dx
+
+#   for (x = (int) xleft# x <= (int) xright# x++) {
+#      _setcolor(read_pixel_from_tmap(srcb,((int) (u/z)) & 63,((int) (v/z)) & 63))#
+#      _setpixel(x,y)#
+#
+#      u += du_dx;
+#      v += dv_dx;
+#      z += dz_dx;
+#   }
+
+	align	4	# 
+#asm_tmap_scanline_per_:
+	
+# Prolog
+# 1. Save the contents of the Link Register if necessary.  (I think it is not.)
+# 2. Save the nonvolatile contents of the Condition Register to be used.
+# 3. Save the contents of the nonvolatile floating-point registers to be used.  (None to be used as of 6/20/95.)
+# 4. Save the contents of the nonvolatile general-purpose registers to be used.
+# 5. Store the current stack pointer (or back chain) and decrement the stack pointer by the size of the stack frame.
+
+; PROLOGUE - called routine's responsibilities
+	mflr	r0					; Get link register
+	stw	r0, 8(SP)			; Store the link resgister on the stack
+	stw	r31, -4(sp)
+	stw	r30, -8(sp)
+	stw	r29, -12(sp)
+	stw	r28, -16(sp)
+	stw	r27, -20(sp)
+	stw	r26, -24(sp)
+	stw	r25, -28(sp)
+	stw	r24, -32(sp)
+	stw	r23, -36(sp)
+	stw	r22, -40(sp)
+	stw	r21, -44(sp)
+	stw	r20, -48(sp)
+	stw	r19, -52(sp)
+	stw	r18, -56(sp)
+	stw	r17, -60(sp)
+	stw	r16, -64(sp)
+	stw	r15, -68(sp)
+	stw	r14, -72(sp)
+	stw	r13, -76(sp)
+	stwu	SP, -spaceToSave(SP); skip over the stack space where the caller		
+									; might have saved stuff
+
+#---------------------------- setup for loop ---------------------------------
+# Setup for loop:	_loop_count  iterations = (int) xright - (int) xleft
+#	esi	source pixel pointer = pixptr
+#	edi	initial row pointer = y*320+x
+# NOTE: fx_xright and fx_xleft changed from fix to int by mk on 12/01/94.
+
+	lwz	es, pixptr[TC](RTOC)
+	lwzx	es, r0, es
+
+# set edi = address of first pixel to modify
+	lwz	edi, fx_y[TC](RTOC)	#	mov	edi,_fx_y
+	lwzx	edi, r0, edi
+	slwi	edi, edi, 2	#	mov	edi,_y_pointers[edi*4]
+
+	lwz	r3, y_pointers[TC](RTOC)
+	lwzx	edi, r3, edi
+
+	lwz	ebx, fx_xleft[TC](RTOC)	#	mov	ebx,_fx_xleft
+	lwzx	ebx, r0, ebx
+	mr.	ebx, ebx	#	test	ebx, ebx
+	bgt	ebx_ok	#	jns	ebx_ok
+	xor	ebx, ebx, ebx	#	xor	ebx, ebx
+ebx_ok:
+	lwz	tr0, write_buffer[TC](RTOC)	# add	edi,write_buffer
+	add	edi, edi, ebx	#	add	edi,ebx
+	lwzx	tr0, r0, tr0
+	add	edi, edi, tr0
+	
+# set _loop_count = # of iterations
+	lwz	eax, fx_xright[TC](RTOC)	#	mov	eax,_fx_xright
+	lwzx	eax, r0, eax
+	sub.	eax, eax, ebx	#	sub	eax,ebx
+	mr	r_loop_count, eax
+	blt	_none_to_do	#	js	_none_to_do
+
+# lighting values are passed in fixed point, but need to be in 8 bit integer, 8 bit fraction so we can easily
+# get the integer by reading %bh
+# (Not on the PowerPC and we could use the precision!)
+###	lwz	tr0, fx_l[TC](RTOC)	#	sar	_fx_l, 8
+###	lwzx	tr1, r0, tr0
+###	srawi	tr1, tr1, 8
+###	stwx	tr1, r0, tr0
+###
+###	lwz	tr0, fx_dl_dx[TC](RTOC)	#	sar	_fx_dl_dx,8
+###	lwzx	tr1, r0, tr0
+###	srawi.	tr1, tr1, 8
+###	bge	dl_dx_ok	#	jns	dl_dx_ok
+###	addi	tr1, tr1, 1	# inc	_fx_dl_dx	# round towards 0 for negative deltas
+###dl_dx_ok:
+###	stwx	tr1, r0, tr0
+
+# set initial values
+	lwz	ebx, fx_u[TC](RTOC)	#	mov	ebx,_fx_u
+	lwzx	ebx, r0, ebx
+	lwz	ebp, fx_v[TC](RTOC)	# mov	ebp,_fx_v
+	lwzx	ebp, r0, ebp
+	lwz	ecx, fx_z[TC](RTOC)	# mov	ecx,_fx_z
+	lwzx	ecx, r0, ecx
+
+	lwz	tr0, fx_dv_dx[TC](RTOC)	
+	lwzx	DV1, r0, tr0
+	lwz	tr0, fx_du_dx[TC](RTOC)	
+	lwzx	DU1, r0, tr0
+	lwz	tr0, fx_dz_dx[TC](RTOC)	
+	lwzx	DZ1, r0, tr0
+
+	lwz	tr0, per2_flag[TC](RTOC)	#	test	_per2_flag,-1
+	lwzx	tr0, r0, tr0
+	mr.	tr0, tr0
+  	lwz	tr0, Lighting_on[TC](RTOC)	#	test	_Lighting_on, -1
+	beq	tmap_slow	#	je	tmap_loop
+
+  	lwzx	tr0, r0, tr0	#	test	_Lighting_on, -1
+  	mr.	tr0, tr0
+	beq	tmap_loop_fast_nolight	#	je	tmap_loop_fast_nolight
+  	b	tmap_loop_fast	#	jmp	tmap_loop_fast
+
+#================ PERSPECTIVE TEXTURE MAP INNER LOOPS ========================
+#
+# Usage in loop:	eax	division, pixel value
+#	ebx	u
+#	ecx	z
+#	edx	division
+#	ebp	v
+#	esi	source pixel pointer
+#	edi	destination pixel pointer
+
+#-------------------- NORMAL PERSPECTIVE TEXTURE MAP LOOP -----------------
+
+tmap_slow_from_fast:
+	mr	r_loop_count, r_num_left_over
+
+tmap_slow:
+	lwz	tr0, Lighting_on[TC](RTOC)	#	test	_Lighting_on, -1
+	lwzx	tr0, r0, tr0
+	mr.	tr0, tr0
+	beq	tmap_slow_NoLight	#	je	NoLight1
+
+	lwz	tr0, fx_l[TC](RTOC)	
+	lwzx	esi, r0, tr0	# use esi for lighting value
+
+	lwz	tr0, fx_dl_dx[TC](RTOC)	
+	lwzx	tr2, r0, tr0	# tr2 is delta lighting value
+
+	lwz	r3, gr_fade_table[TC](RTOC)	# r3 is fade table pointer
+
+	lwz	tr0, Transparency_on[TC](RTOC)
+	lwzx	tr0, r0, tr0
+	mr.	tr0, tr0
+	beq	tmap_slow_no_transparency
+
+# ---------- Yes transparency.  Yes lighting. ----------
+tmap_loop0:
+	divw	tr0, ebp, ecx	# compute v coordinate
+	divw	tr1, ebx, ecx	# compute u coordinate
+	andi.	tr1, tr1, 0x3f
+	rlwimi	tr1, tr0, 6, 20, 25
+	lbzx	tr1, es, tr1	# mov	al, es:[ebx]	# get pixel from source bitmap
+
+	rlwimi	tr1, esi, 24, 16, 23	# mask lighting value (%bh) above pixel value (%al)
+	lbzx	tr1, r3, tr1	# xlate lighting:pixel through lighting tables
+	add	esi, esi, tr2	# update lighting value
+
+	cmpwi	cr0, tr1, 0xff	#	check for transparency
+	beq	skip1	#	je	skip1
+
+	stb	tr1, 0(edi)	#	mov	[edi],al
+skip1:	addi	edi, edi, 1	# inc	edi
+	
+	add.	ecx, ecx, DZ1	#	add	ecx,_fx_dz_dx
+	add	ebp, ebp, DV1	#	add	ebp,_fx_dv_dx
+	add	ebx, ebx, DU1	# add	esi,_fx_du_dx
+	beq	_div_0_abort	# je	_div_0_abort	# would be dividing by 0, so abort
+
+	addic.	r_loop_count, r_loop_count, -1	# dec	_loop_count
+	bge	tmap_loop0	# jns	tmap_loop0
+
+_none_to_do:	
+#  added by allender 6/21/95 -- from MPW example and PPC developers book
+; EPILOGUE - return sequence		
+		addic	SP,SP,spaceToSave		; Reset the stack pointer
+		lwz		r31, -4(sp)
+		lwz		r30, -8(sp)
+		lwz		r29, -12(sp)
+		lwz		r28, -16(sp)
+		lwz		r27, -20(sp)
+		lwz		r26, -24(sp)
+		lwz		r25, -28(sp)
+		lwz		r24, -32(sp)
+		lwz		r23, -36(sp)
+		lwz		r22, -40(sp)
+		lwz		r21, -44(sp)
+		lwz		r20, -48(sp)
+		lwz		r19, -52(sp)
+		lwz		r18, -56(sp)
+		lwz		r17, -60(sp)
+		lwz		r16, -64(sp)
+		lwz		r15, -68(sp)
+		lwz		r14, -72(sp)
+		lwz		r13, -76(sp)
+		lwz		r0, 8(sp)
+		mtlr	r0						; Reset the link register
+		blr								; return via the link register
+
+# We detected a z=0 condition, which seems pretty bogus, don't you think?
+# So, we abort, but maybe we want to know about it.
+_div_0_abort:	b	_none_to_do
+
+# ---------- No transparency.  Yes lighting. ----------
+
+tmap_slow_no_transparency:
+tmap_loop0a:	divw	tr0, ebp, ecx	# compute v coordinate
+	divw	tr1, ebx, ecx	# compute u coordinate
+	andi.	tr1, tr1, 0x3f	# get u coordinate in 0..63
+	rlwimi	tr1, tr0, 6, 20, 25	# pack together v:u in low 12 bits
+	lbzx	tr1, es, tr1	# Read source pixel.
+	rlwimi	tr1, esi, 24, 16, 23	# mask lighting value (%bh) above pixel value (%al)
+	lbzx	tr1, r3, tr1	# xlate lighting:pixel through lighting tables
+	add	esi, esi, tr2	# update lighting value
+
+	stb	tr1, 0(edi)	#	mov	[edi],al
+	addi	edi, edi, 1	# inc	edi
+	
+	add.	ecx, ecx, DZ1	#	add	ecx,_fx_dz_dx
+	add	ebp, ebp, DV1	#	add	ebp,_fx_dv_dx
+	add	ebx, ebx, DU1	# add	esi,_fx_du_dx
+	beq	_div_0_abort	# je	_div_0_abort	# would be dividing by 0, so abort
+
+	addic.	r_loop_count, r_loop_count, -1	# dec	_loop_count
+	bge	tmap_loop0a	# jns	tmap_loop0
+	b	_none_to_do
+
+# ---------- Yes transparency.  No lighting. ----------
+# (Note: We don't know for sure there is lighting, but, except for debugging, if we aren't lighting, we _do_ have transparency.)
+tmap_slow_NoLight:
+tmap_loop0_nolight:
+	divw	tr0, ebp, ecx	# compute v coordinate
+	divw	tr1, ebx, ecx	# compute u coordinate
+	andi.	tr1, tr1, 0x3f
+	rlwimi	tr1, tr0, 6, 20, 25
+	lbzx	tr1, es, tr1	# mov	al, es:[ebx]	# get pixel from source bitmap
+
+	cmpwi	cr0, tr1, 0xff	#	check for transparency
+#	cmpwi	cr0, tr1, 0x0	#	check for transparency
+	beq	skip1a	#	je	skip1
+
+	stb	tr1, 0(edi)	#	mov	[edi],al
+skip1a:	addi	edi, edi, 1	# inc	edi
+	
+	add.	ecx, ecx, DZ1	#	add	ecx,_fx_dz_dx
+	add	ebp, ebp, DV1	#	add	ebp,_fx_dv_dx
+	add	ebx, ebx, DU1	# add	esi,_fx_du_dx
+	beq	_div_0_abort	# je	_div_0_abort	# would be dividing by 0, so abort
+
+	addic.	r_loop_count, r_loop_count, -1	# dec	_loop_count
+	bge	tmap_loop0_nolight	# jns	tmap_loop0
+
+	b	_none_to_do
+
+#-------------------------- PER/4 TMAPPER ----------------
+# 
+#	x = x1
+#	U0 = u/w# V0 = v/w#
+#	while ( 1 )
+#		u += du_dx*4# v+= dv_dx*4
+#		U1 = u/w# V1 = v/w#
+#		DUDX = (U1-U0)/4# DVDX = (V1-V0)/4#
+#
+#	# Pixel 0
+#		pixels = texmap[V0*64+U0]#
+#		U0 += DUDX# V0 += DVDX
+#	# Pixel 1
+#		pixels = (pixels<<8)+texmap[V0*64+U0]#
+#		U0 += DUDX# V0 += DVDX
+#	# Pixel 2
+#		pixels = (pixels<<8)+texmap[V0*64+U0]#
+#		U0 += DUDX# V0 += DVDX
+#	# Pixel 3
+#		pixels = (pixels<<8)+texmap[V0*64+U0]#
+#
+#		screen[x] = pixel
+#		x += 4#
+#		U0 = U1# V0 = V1 
+
+# Note: If you change NBITS, you must change the number of calls to the ppc_pix macros.
+NBITS:	equ	4	# 2^NBITS pixels plotted per divide
+NBITS_mask:	equ	15	# 2^NBITS-1
+NBITS_shl_minus_2:	equ	4	# 2 ^ (NBITS-2)
+ZSHIFT:	equ	4	# precision used in PDIV macro
+DIV_SHIFT:	equ	4	# Used to be 8...overflowed, smaller less likely to overflow
+
+	export	tmap_loop_fast
+
+# -------------------------------------- Start of Getting Dword Aligned ----------------------------------------------
+#	ebx	fx_u
+#	ebp	fx_v
+#	esi	fx_l
+#	r3	gr_fade_table
+tmap_loop_fast:
+	lwz	esi, fx_l[TC](RTOC)	
+	lwz	r3, gr_fade_table[TC](RTOC)
+	lwz	tr2, fx_dl_dx[TC](RTOC)
+	lwzx	esi, r0, esi
+	lwzx	tr2, r0, tr2
+
+# This is a hack!  If we allow zero pixels to be plotted for alignment, the code later hangs.
+	andi.	tr0, edi, 3	# DEBUG HACK!!
+	beq	skip_test	# DEBUG HACK!!
+
+NotDwordAligned1:
+	andi.	tr0, edi, 3	#	test	edi, 11b
+	beq	DwordAligned1	#	jz	DwordAligned1
+skip_test:			# DEBUG HACK!!
+	divw	tr0, ebp, ecx	# tr0: v coodinate
+	divw	tr1, ebx, ecx	# tr1: u coordinate
+	rlwimi	tr1, tr0, 6, 20, 25	# get v:u in low 12 bits, but garbage above
+	andi.	tr1, tr1, 0xfff	# preserve only 12 bit index
+
+	add	esi, esi, tr2	# fx_l += fx_dl_dx
+
+	lbzx	tr1, es, tr1	# mov	al, es:[ebx]	# get pixel from source bitmap
+
+	rlwimi	tr1, esi, 24, 16, 23	# mask lighting value (%bh) above pixel value (%al)
+	lbzx	tr0, tr1, r3	# xlate lighting:pixel through lighting tables
+
+	cmpwi	cr0, tr0, 0xff	# transparent pixel?
+	beq	skip2	#	yes, skip
+
+	stb	tr0, 0(edi)	#	mov	[edi],al
+skip2:	addi	edi, edi, 1	# inc	edi
+	
+# update deltas
+	add.	ecx, ecx, DZ1	#	add	ecx,_fx_dz_dx
+	add	ebx, ebx, DU1	#	add	esi,_fx_du_dx
+	add	ebp, ebp, DV1	#	add	ebp,_fx_dv_dx
+	beq	_div_0_abort	#	je	_div_0_abort	# would be dividing by 0, so abort
+
+	addic.	r_loop_count, r_loop_count, -1	# dec	_loop_count
+	bge	NotDwordAligned1
+
+	b	_none_to_do
+
+# -------------------------------------- End of Getting Dword Aligned ----------------------------------------------
+
+DwordAligned1:
+	addi	r_loop_count, r_loop_count, 1
+	andi.	r_num_left_over, r_loop_count, NBITS_mask
+	srwi.	r_loop_count, r_loop_count, NBITS
+	beq	tmap_slow_from_fast
+
+# compute initial u, v coordinates
+	slwi	eax, ebp, DIV_SHIFT
+	divw	V0, eax, ecx
+	slwi	V0, V0, 16 - DIV_SHIFT
+
+	slwi	eax, ebx, DIV_SHIFT
+	divw	U0, eax, ecx
+	slwi	U0, U0, 16 - DIV_SHIFT
+
+# Set deltas to NPIXS pixel increments
+	lwz	tr0, fx_du_dx[TC](RTOC)	
+	lwzx	tr1, r0, tr0
+	slwi	DU1, tr1, NBITS
+
+	lwz	tr0, fx_dv_dx[TC](RTOC)	
+	lwzx	tr1, r0, tr0
+	slwi	DV1, tr1, NBITS
+
+	lwz	tr0, fx_dz_dx[TC](RTOC)	
+	lwzx	tr1, r0, tr0
+	slwi	DZ1, tr1, NBITS
+
+# LIGHTING CODE
+	lwz	tr0, fx_l[TC](RTOC)	#	mov	ebx, _fx_l
+	lwzx	tr0, r0, tr0	#	mov	ebx, _fx_l
+
+	lwz	tr1, fx_dl_dx[TC](RTOC)	#	mov	ebp, _fx_dl_dx
+	lwzx	tr1, r0, tr1	#	mov	ebp, _fx_dl_dx
+
+# Inside this loop, tr0 = fx_l, tr1 = fx_dl_dx
+
+TopOfLoop4:
+	add.	ecx, ecx, DZ1	# add	ecx, DZ1
+	add	ebx, ebx, DU1	#	add	ebx, DU1
+	add	ebp, ebp, DV1	# add	ebp, DV1
+	beq	_div_0_abort	# would be dividing by 0, so abort
+
+# Find fixed U1, V1
+	slwi	eax, ebx, DIV_SHIFT
+	divw	U1, eax, ecx
+
+	slwi	eax, ebp, DIV_SHIFT
+	divw	V1, eax, ecx
+
+	slwi	U1, U1, 16 - DIV_SHIFT
+	slwi	V1, V1, 16 - DIV_SHIFT
+
+# PPC: Make %esi be dv, %edx be du
+	sub	esi, V1, V0
+	sub	edx, U1, U0
+	srawi	esi, esi, NBITS
+	srawi	edx, edx, NBITS
+
+	lwz	eax, Transparency_on[TC](RTOC)	# test	_Transparency_on,-1
+	lwzx	eax, r0, eax	# test	_Transparency_on,-1
+	mr.	eax, eax
+	bne	yes_trans1	# je	no_trans1
+
+# Plot 16 pixels. (2^NBITS)
+
+	li	r5, 4	# do 4 times...
+	mtctr	r5
+
+	subi	edi, edi, 1
+
+# -----------------------------------------------
+pix_loop1:
+	mr	eax, V0
+	rlwimi	eax, U0, 26, 16, 21	# Now, eax has v:u, but it's 10 bits too high and garbage above it
+	rlwinm	eax, eax, 22, 20, 31	# Shift right 10 bits, mask out high garbage (preserve only low 12 bits)
+	
+	add	U0, U0, edx	# u0 = u0 + du
+	lbzx	tr2, eax, es	# get source pixel
+
+	add	V0, V0, esi	# v0 = v0 + dv
+	rlwimi	tr2, tr0, 24, 16, 23	# mask lighting value (%bh) above pixel value (%al)
+
+	lbzx	r6, r3, tr2	# xlate lighting:pixel through lighting tables
+
+
+# -----------------------------------------------
+	mr	eax, V0
+	add	tr0, tr0, tr1	# fx_l += fx_dl_dx
+	rlwimi	eax, U0, 26, 16, 21	# Now, eax has v:u, but it's 10 bits too high and garbage above it
+	rlwinm	eax, eax, 22, 20, 31	# Shift right 10 bits, mask out high garbage (preserve only low 12 bits)
+	stbu	r6, 1(edi)	# {change this to stbu eax 1(edi) and kill the addi below}
+
+	add	U0, U0, edx	# u0 = u0 + du
+	lbzx	tr2, eax, es	# get source pixel
+
+	add	V0, V0, esi	# v0 = v0 + dv
+	rlwimi	tr2, tr0, 24, 16, 23	# mask lighting value (%bh) above pixel value (%al)
+
+	lbzx	r6, r3, tr2	# xlate lighting:pixel through lighting tables
+	add	tr0, tr0, tr1	# fx_l += fx_dl_dx
+
+
+# -----------------------------------------------
+	mr	eax, V0
+	rlwimi	eax, U0, 26, 16, 21	# Now, eax has v:u, but it's 10 bits too high and garbage above it
+	rlwinm	eax, eax, 22, 20, 31	# Shift right 10 bits, mask out high garbage (preserve only low 12 bits)
+	stbu	r6, 1(edi)	# {change this to stbu eax 1(edi) and kill the addi below}
+
+	add	U0, U0, edx	# u0 = u0 + du
+	lbzx	tr2, eax, es	# get source pixel
+
+	add	V0, V0, esi	# v0 = v0 + dv
+	rlwimi	tr2, tr0, 24, 16, 23	# mask lighting value (%bh) above pixel value (%al)
+
+	lbzx	r6, r3, tr2	# xlate lighting:pixel through lighting tables
+	add	tr0, tr0, tr1	# fx_l += fx_dl_dx
+
+
+# -----------------------------------------------
+	mr	eax, V0
+	rlwimi	eax, U0, 26, 16, 21	# Now, eax has v:u, but it's 10 bits too high and garbage above it
+	rlwinm	eax, eax, 22, 20, 31	# Shift right 10 bits, mask out high garbage (preserve only low 12 bits)
+	stbu	r6, 1(edi)	# {change this to stbu eax 1(edi) and kill the addi below}
+
+	add	U0, U0, edx	# u0 = u0 + du
+	lbzx	tr2, eax, es	# get source pixel
+
+	add	V0, V0, esi	# v0 = v0 + dv
+	rlwimi	tr2, tr0, 24, 16, 23	# mask lighting value (%bh) above pixel value (%al)
+
+	lbzx	r6, r3, tr2	# xlate lighting:pixel through lighting tables
+	add	tr0, tr0, tr1	# fx_l += fx_dl_dx
+
+
+# -----------------------------------------------
+
+	stbu	r6, 1(edi)	# {change this to stbu eax 1(edi) and kill the addi below}
+	bdnz	pix_loop1
+
+	addi	edi, edi, 1
+
+cont1:
+	addic.	r_loop_count, r_loop_count, -1
+	mr	U0, U1
+	mr	V0, V1
+	bne	TopOfLoop4
+
+EndOfLoop4:
+	mr.	r_num_left_over, r_num_left_over
+	beq	_none_to_do
+	b	DoEndPixels
+
+; -------------------------------------------------------
+yes_trans1:
+# Plot 16 pixels. (2^NBITS)
+	ppc_pix_lt
+	ppc_pix_lt
+	ppc_pix_lt
+	ppc_pix_lt
+
+	ppc_pix_lt
+	ppc_pix_lt
+	ppc_pix_lt
+	ppc_pix_lt
+
+	ppc_pix_lt
+	ppc_pix_lt
+	ppc_pix_lt
+	ppc_pix_lt
+
+	ppc_pix_lt
+	ppc_pix_lt
+	ppc_pix_lt
+	ppc_pix_lt
+
+	b+	cont1
+
+# ----------------------------------------- Start of LeftOver Pixels ------------------------------------------
+DoEndPixels:
+# This is the stuff to determine whether to use the slower, but more accurate, leftover pixel stuff.
+
+	add.	ecx, ecx, DZ1	# add	ecx, DZ1
+	add	ebx, ebx, DU1	#	add	ebx, DU1
+	add	ebp, ebp, DV1	# add	ebp, DV1
+	beq	_div_0_abort	# je	_div_0_abort
+	bgt+	dep_cont	# jns	dep_cont
+
+# z went negative.
+# this can happen because we added DZ1 to the current z, but dz1 represents dz for perhaps 16 pixels
+# though we might only plot one more pixel.
+
+# Instead of converting the ugly code below, I'm just going to abort if z went negative.
+# It hardly ever does and we shipped shareware that way...
+
+  b _none_to_do
+
+dep_cont:
+	slwi	eax, ebx, DIV_SHIFT
+	divw	U1, eax, ecx
+	slwi	U1, U1, 16 - DIV_SHIFT
+
+	slwi	eax, ebp, DIV_SHIFT
+	divw	V1, eax, ecx
+	slwi	V1, V1, 16 - DIV_SHIFT
+
+	sub	esi, V1, V0
+	sub	edx, U1, U0
+	srawi	esi, esi, NBITS
+	srawi	edx, edx, NBITS
+
+leftover_loop:	mr	eax, V0
+	rlwimi	eax, U0, 26, 16, 21	# Now, eax has v:u, but it's 10 bits too high and garbage above it
+	rlwinm	eax, eax, 22, 20, 31	# Shift right 10 bits, mask out high garbage (preserve only low 12 bits)
+	
+	lbzx	tr2, eax, es	# get source pixel
+
+	add	U0, U0, edx	# u0 = u0 + du
+	add	V0, V0, esi	# v0 = v0 + dv
+	cmpwi	cr0, tr2, 0xff	# transparent pixel?
+#	cmpwi	cr0, tr2, 0x0	# transparent pixel?
+	add	tr0, tr0, tr1	# fx_l += fx_dl_dx
+
+	beq	skipa1
+
+	rlwimi	tr2, tr0, 24, 16, 23	# mask lighting value (%bh) above pixel value (%al)
+	lbzx	eax, r3, tr2	# xlate lighting:pixel through lighting tables
+	stb	eax, 0(edi)
+skipa1:	addi	edi, edi, 1
+
+ 	addic.	r_num_left_over, r_num_left_over, -1
+	bne	leftover_loop
+
+	b	_none_to_do	# jmp	_none_to_do
+
+nol_tmap_slow_from_fast:
+	mr	r_loop_count, r_num_left_over
+
+# ---------- Yes transparency.  No lighting. ----------
+# (Note: We don't know for sure there is lighting, but, except for debugging, if we aren't lighting, we _do_ have transparency.)
+nol_tmap_slow_NoLight:
+nol_tmap_loop0_nolight:
+	divw	tr0, ebp, ecx	# compute v coordinate
+	divw	tr1, ebx, ecx	# compute u coordinate
+	andi.	tr1, tr1, 0x3f
+	rlwimi	tr1, tr0, 6, 20, 25
+	lbzx	tr1, es, tr1	# mov	al, es:[ebx]	# get pixel from source bitmap
+
+	cmpwi	cr0, tr1, 0xff	#	check for transparency
+	beq	nol_skip1a	#	je	skip1
+
+	stb	tr1, 0(edi)	#	mov	[edi],al
+nol_skip1a:	addi	edi, edi, 1	# inc	edi
+	
+	add.	ecx, ecx, DZ1	#	add	ecx,_fx_dz_dx
+	add	ebp, ebp, DV1	#	add	ebp,_fx_dv_dx
+	add	ebx, ebx, DU1	# add	esi,_fx_du_dx
+	beq	_div_0_abort	# je	_div_0_abort	# would be dividing by 0, so abort
+
+	addic.	r_loop_count, r_loop_count, -1	# dec	_loop_count
+	bge	nol_tmap_loop0_nolight	# jns	tmap_loop0
+
+	b	_none_to_do
+
+	export	tmap_loop_fast_nolight
+
+# -------------------------------------- Start of Getting Dword Aligned ----------------------------------------------
+#	ebx	fx_u
+#	ebp	fx_v
+#	esi	fx_l
+#	r3	gr_fade_table
+tmap_loop_fast_nolight:
+
+# This is a hack!  If we allow zero pixels to be plotted for alignment, the code later hangs.
+	andi.	tr0, edi, 3	# DEBUG HACK!!
+	beq	nol_skip_test	# DEBUG HACK!!
+
+nol_NotDwordAligned1:
+	andi.	tr0, edi, 3	#	test	edi, 11b
+	beq	nol_DwordAligned1	#	jz	DwordAligned1
+nol_skip_test:			# DEBUG HACK!!
+	divw	tr0, ebp, ecx	# tr0: v coodinate
+	divw	tr1, ebx, ecx	# tr1: u coordinate
+	rlwimi	tr1, tr0, 6, 20, 25	# get v:u in low 12 bits, but garbage above
+	andi.	tr1, tr1, 0xfff	# preserve only 12 bit index
+
+	lbzx	tr1, es, tr1	# mov	al, es:[ebx]	# get pixel from source bitmap
+
+	cmpwi	cr0, tr1, 0xff	# transparent pixel?
+	beq	nol_skip2	#	yes, skip
+
+	stb	tr1, 0(edi)	#	mov	[edi],al
+nol_skip2:	addi	edi, edi, 1	# inc	edi
+	
+# update deltas
+	add.	ecx, ecx, DZ1	#	add	ecx,_fx_dz_dx
+	add	ebx, ebx, DU1	#	add	esi,_fx_du_dx
+	add	ebp, ebp, DV1	#	add	ebp,_fx_dv_dx
+	beq	_div_0_abort	#	je	_div_0_abort	# would be dividing by 0, so abort
+
+	addic.	r_loop_count, r_loop_count, -1	# dec	_loop_count
+	bge	nol_NotDwordAligned1
+
+	b	_none_to_do
+
+# -------------------------------------- End of Getting Dword Aligned ----------------------------------------------
+
+nol_DwordAligned1:
+	addi	r_loop_count, r_loop_count, 1
+	andi.	r_num_left_over, r_loop_count, NBITS_mask
+	srwi.	r_loop_count, r_loop_count, NBITS
+	beq	nol_tmap_slow_from_fast
+
+# compute initial u, v coordinates
+	slwi	eax, ebp, DIV_SHIFT
+	divw	V0, eax, ecx
+	slwi	V0, V0, 16 - DIV_SHIFT
+
+	slwi	eax, ebx, DIV_SHIFT
+	divw	U0, eax, ecx
+	slwi	U0, U0, 16 - DIV_SHIFT
+
+# Set deltas to NPIXS pixel increments
+	lwz	tr0, fx_du_dx[TC](RTOC)	
+	lwzx	tr1, r0, tr0
+	slwi	DU1, tr1, NBITS
+
+	lwz	tr0, fx_dv_dx[TC](RTOC)	
+	lwzx	tr1, r0, tr0
+	slwi	DV1, tr1, NBITS
+
+	lwz	tr0, fx_dz_dx[TC](RTOC)	
+	lwzx	tr1, r0, tr0
+	slwi	DZ1, tr1, NBITS
+
+nol_TopOfLoop4:
+	add.	ecx, ecx, DZ1	# add	ecx, DZ1
+	add	ebx, ebx, DU1	#	add	ebx, DU1
+	add	ebp, ebp, DV1	# add	ebp, DV1
+	beq	_div_0_abort	# would be dividing by 0, so abort
+
+# Find fixed U1, V1
+	slwi	eax, ebx, DIV_SHIFT
+	divw	U1, eax, ecx
+
+	slwi	eax, ebp, DIV_SHIFT
+	divw	V1, eax, ecx
+
+	slwi	U1, U1, 16 - DIV_SHIFT
+	slwi	V1, V1, 16 - DIV_SHIFT
+
+# PPC: Make %esi be dv, %edx be du
+	sub	esi, V1, V0
+	sub	edx, U1, U0
+	srawi	esi, esi, NBITS
+	srawi	edx, edx, NBITS
+
+	lwz	eax, Transparency_on[TC](RTOC)	# test	_Transparency_on,-1
+	lwzx	eax, r0, eax	# test	_Transparency_on,-1
+	mr.	eax, eax
+	bne	nol_yes_trans1	# je	no_trans1
+
+# Plot 16 pixels. (2^NBITS)
+
+	li	r5, 4	# do 4 times...
+	mtctr	r5
+
+	subi	edi, edi, 1
+
+# -----------------------------------------------
+nol_pix_loop1:
+	mr	eax, V0
+	rlwimi	eax, U0, 26, 16, 21	# Now, eax has v:u, but it's 10 bits too high and garbage above it
+	rlwinm	eax, eax, 22, 20, 31	# Shift right 10 bits, mask out high garbage (preserve only low 12 bits)
+	
+	add	U0, U0, edx	# u0 = u0 + du
+	lbzx	r6, eax, es	# get source pixel
+
+	add	V0, V0, esi	# v0 = v0 + dv
+
+# -----------------------------------------------
+	mr	eax, V0
+	rlwimi	eax, U0, 26, 16, 21	# Now, eax has v:u, but it's 10 bits too high and garbage above it
+	rlwinm	eax, eax, 22, 20, 31	# Shift right 10 bits, mask out high garbage (preserve only low 12 bits)
+	stbu	r6, 1(edi)	# {change this to stbu eax 1(edi) and kill the addi below}
+
+	add	U0, U0, edx	# u0 = u0 + du
+	lbzx	r6, eax, es	# get source pixel
+
+	add	V0, V0, esi	# v0 = v0 + dv
+
+# -----------------------------------------------
+	mr	eax, V0
+	rlwimi	eax, U0, 26, 16, 21	# Now, eax has v:u, but it's 10 bits too high and garbage above it
+	rlwinm	eax, eax, 22, 20, 31	# Shift right 10 bits, mask out high garbage (preserve only low 12 bits)
+	stbu	r6, 1(edi)	# {change this to stbu eax 1(edi) and kill the addi below}
+
+	add	U0, U0, edx	# u0 = u0 + du
+	lbzx	r6, eax, es	# get source pixel
+
+	add	V0, V0, esi	# v0 = v0 + dv
+
+# -----------------------------------------------
+	mr	eax, V0
+	rlwimi	eax, U0, 26, 16, 21	# Now, eax has v:u, but it's 10 bits too high and garbage above it
+	rlwinm	eax, eax, 22, 20, 31	# Shift right 10 bits, mask out high garbage (preserve only low 12 bits)
+	stbu	r6, 1(edi)	# {change this to stbu eax 1(edi) and kill the addi below}
+
+	add	U0, U0, edx	# u0 = u0 + du
+	lbzx	r6, eax, es	# get source pixel
+
+	add	V0, V0, esi	# v0 = v0 + dv
+
+# -----------------------------------------------
+
+	stbu	r6, 1(edi)	# {change this to stbu eax 1(edi) and kill the addi below}
+	bdnz	nol_pix_loop1
+
+	addi	edi, edi, 1
+
+nol_cont1:
+	addic.	r_loop_count, r_loop_count, -1
+	mr	U0, U1
+	mr	V0, V1
+	bne	nol_TopOfLoop4
+
+nol_EndOfLoop4:
+	mr.	r_num_left_over, r_num_left_over
+	beq	_none_to_do
+	b	nol_DoEndPixels
+
+; -------------------------------------------------------
+nol_yes_trans1:
+# Plot 16 pixels. (2^NBITS)
+	ppc_pix_t
+	ppc_pix_t
+	ppc_pix_t
+	ppc_pix_t
+
+	ppc_pix_t
+	ppc_pix_t
+	ppc_pix_t
+	ppc_pix_t
+
+	ppc_pix_t
+	ppc_pix_t
+	ppc_pix_t
+	ppc_pix_t
+
+	ppc_pix_t
+	ppc_pix_t
+	ppc_pix_t
+	ppc_pix_t
+
+	b+	nol_cont1
+
+# ----------------------------------------- Start of LeftOver Pixels ------------------------------------------
+nol_DoEndPixels:
+# This is the stuff to determine whether to use the slower, but more accurate, leftover pixel stuff.
+
+	add.	ecx, ecx, DZ1	# add	ecx, DZ1
+	add	ebx, ebx, DU1	#	add	ebx, DU1
+	add	ebp, ebp, DV1	# add	ebp, DV1
+	beq	_div_0_abort	# je	_div_0_abort
+	blt	_none_to_do
+
+	slwi	eax, ebx, DIV_SHIFT
+	divw	U1, eax, ecx
+	slwi	U1, U1, 16 - DIV_SHIFT
+
+	slwi	eax, ebp, DIV_SHIFT
+	divw	V1, eax, ecx
+	slwi	V1, V1, 16 - DIV_SHIFT
+
+	sub	esi, V1, V0
+	sub	edx, U1, U0
+	srawi	esi, esi, NBITS
+	srawi	edx, edx, NBITS
+
+nol_leftover_loop:	mr	eax, V0
+	rlwimi	eax, U0, 26, 16, 21	# Now, eax has v:u, but it's 10 bits too high and garbage above it
+	rlwinm	eax, eax, 22, 20, 31	# Shift right 10 bits, mask out high garbage (preserve only low 12 bits)
+	
+	lbzx	tr2, eax, es	# get source pixel
+
+	add	U0, U0, edx	# u0 = u0 + du
+	add	V0, V0, esi	# v0 = v0 + dv
+	cmpwi	cr0, tr2, 0xff	# transparent pixel?
+
+	beq	nol_skipa1
+
+	stb	tr2, 0(edi)
+nol_skipa1:	addi	edi, edi, 1
+
+ 	addic.	r_num_left_over, r_num_left_over, -1
+	bne	nol_leftover_loop
+
+	b	_none_to_do	# jmp	_none_to_do

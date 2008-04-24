@@ -78,12 +78,13 @@ extern int dpmi_modify_selector_base( ushort selector, void * address );
 extern int dpmi_modify_selector_limit( ushort selector, int size  );
 
 
-#ifndef __GNUC__
-// Sets the PM handler. Returns 0 if succssful
-extern int dpmi_set_pm_handler(unsigned intnum, void far * isr );
+#if defined(__GNUC__) || defined(_MSC_VER) || defined(macintosh)
+# define _far
 #else
-extern int dpmi_set_pm_handler(unsigned intnum, void * isr );
+# define _far far
 #endif
+// Sets the PM handler. Returns 0 if succssful
+extern int dpmi_set_pm_handler(unsigned intnum, void _far * isr );
 
 extern unsigned int dpmi_virtual_memory;
 extern unsigned int dpmi_available_memory;

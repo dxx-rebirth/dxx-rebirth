@@ -1,5 +1,9 @@
 D1X-Rebirth Changelog
 
+20080424
+--------
+arch/sdl/digi_mixer.c, D1X.make, iff/iff.c, include/args.h, include/ogl_init.h, include/u_dpmi.h, main/ai.c, main/bmread.c, main/config.h, main/game.c, main/gamesave.c, main/gameseq.c, main/hash.c, main/inferno.c, main/menu.c, main/newdemo.c, main/newmenu.c, main/piggy.c, main/playsave.c, main/playsave.h, main/state.c, main/titles.c, misc/args.c, texmap/tmapppc.a: get it to work for Mac OS 9
+
 20080422
 --------
 arch/ogl/gr.c, arch/sdl/gr.c, include/gr.h, main/config.c, main/config.h, main/menu.c: Added function gr_set_attributes to change Options like Texture Filtering and SDL_GL attributes while runtime (if supported); Added 4x Multisample support

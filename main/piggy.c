@@ -1072,7 +1072,7 @@ int piggy_is_gauge_bitmap( char * base_name )
 {
 	int i;
 	for (i=0; i<NUM_GAUGE_BITMAPS; i++ )	{
-		if ( !strcasecmp( base_name, gauge_bitmap_names[i] ))	
+		if ( !stricmp( base_name, gauge_bitmap_names[i] ))	
 			return 1;
 	}
 

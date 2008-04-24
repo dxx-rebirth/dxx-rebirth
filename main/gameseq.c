@@ -92,7 +92,9 @@ COPYRIGHT 1993-1998 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 #include "mission.h"
 #include "state.h"
 #include "songs.h"
+#ifdef NETWORK
 #include "netpkt.h"
+#endif
 #include "strutil.h"
 
 #ifdef EDITOR

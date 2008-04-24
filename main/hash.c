@@ -93,7 +93,7 @@ int hashtable_search( hashtable *ht, char *key )	{
 		j = (k+(i++)) & ht->and_mask;
 		if ( ht->key[j] == NULL )
 			return -1;
-		if (!strcasecmp(ht->key[j], key ))
+		if (!stricmp(ht->key[j], key ))
 			return ht->value[j];
 	}
 	return -1;
@@ -113,7 +113,7 @@ void hashtable_insert( hashtable *ht, char *key, int value )	{
 			ht->key[j] = key;
 			ht->value[j] = value;
 			return;
-		} else if (!strcasecmp( key, ht->key[j] ))	{
+		} else if (!stricmp( key, ht->key[j] ))	{
 			return;
 		}
 	}

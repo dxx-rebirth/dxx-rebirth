@@ -726,7 +726,7 @@ void bm_read_eclip(int skip)
 		strcpy(short_name,dest_bm);
 		REMOVE_DOTS(short_name);
 		for (i=0;i<texture_count;i++)
-			if (!strcasecmp(TmapInfo[i].filename,short_name))
+			if (!stricmp(TmapInfo[i].filename,short_name))
 				break;
 		if (i==texture_count) {
 			Textures[texture_count] = bm_load_sub(skip, dest_bm);
@@ -1092,54 +1092,54 @@ void bm_read_robot(int skip)
 			*equal_ptr='\0';
 			equal_ptr++;
 			// if we have john=cool, arg is 'john' and equal_ptr is 'cool'
-			if (!strcasecmp( arg, "exp1_vclip" ))	{
+			if (!stricmp( arg, "exp1_vclip" ))	{
 				exp1_vclip_num = atoi(equal_ptr);
-			} else if (!strcasecmp( arg, "exp2_vclip" ))	{
+			} else if (!stricmp( arg, "exp2_vclip" ))	{
 				exp2_vclip_num = atoi(equal_ptr);
-			} else if (!strcasecmp( arg, "exp1_sound" ))	{
+			} else if (!stricmp( arg, "exp1_sound" ))	{
 				exp1_sound_num = atoi(equal_ptr);
-			} else if (!strcasecmp( arg, "exp2_sound" ))	{
+			} else if (!stricmp( arg, "exp2_sound" ))	{
 				exp2_sound_num = atoi(equal_ptr);
-			} else if (!strcasecmp( arg, "lighting" ))	{
+			} else if (!stricmp( arg, "lighting" ))	{
 				lighting = fl2f(atof(equal_ptr));
 				if ( (lighting < 0) || (lighting > F1_0 )) {
 					Error( "In bitmaps.tbl, lighting value of %.2f is out of range 0..1.\n", f2fl(lighting));
 				}
-			} else if (!strcasecmp( arg, "weapon_type" )) {
+			} else if (!stricmp( arg, "weapon_type" )) {
 				weapon_type = atoi(equal_ptr);
-			} else if (!strcasecmp( arg, "strength" )) {
+			} else if (!stricmp( arg, "strength" )) {
 				strength = i2f(atoi(equal_ptr));
-			} else if (!strcasecmp( arg, "mass" )) {
+			} else if (!stricmp( arg, "mass" )) {
 				mass = fl2f(atof(equal_ptr));
-			} else if (!strcasecmp( arg, "drag" )) {
+			} else if (!stricmp( arg, "drag" )) {
 				drag = fl2f(atof(equal_ptr));
-			} else if (!strcasecmp( arg, "contains_id" )) {
+			} else if (!stricmp( arg, "contains_id" )) {
 				contains_id = atoi(equal_ptr);
-			} else if (!strcasecmp( arg, "contains_type" )) {
+			} else if (!stricmp( arg, "contains_type" )) {
 				contains_type = atoi(equal_ptr);
-			} else if (!strcasecmp( arg, "contains_count" )) {
+			} else if (!stricmp( arg, "contains_count" )) {
 				contains_count = atoi(equal_ptr);
-			} else if (!strcasecmp( arg, "contains_prob" )) {
+			} else if (!stricmp( arg, "contains_prob" )) {
 				contains_prob = atoi(equal_ptr);
-			} else if (!strcasecmp( arg, "cloak_type" )) {
+			} else if (!stricmp( arg, "cloak_type" )) {
 				cloak_type = atoi(equal_ptr);
-			} else if (!strcasecmp( arg, "attack_type" )) {
+			} else if (!stricmp( arg, "attack_type" )) {
 				attack_type = atoi(equal_ptr);
-			} else if (!strcasecmp( arg, "boss" )) {
+			} else if (!stricmp( arg, "boss" )) {
 				boss_flag = atoi(equal_ptr);
-			} else if (!strcasecmp( arg, "score_value" )) {
+			} else if (!stricmp( arg, "score_value" )) {
 				score_value = atoi(equal_ptr);
-			} else if (!strcasecmp( arg, "see_sound" )) {
+			} else if (!stricmp( arg, "see_sound" )) {
 				see_sound = atoi(equal_ptr);
-			} else if (!strcasecmp( arg, "attack_sound" )) {
+			} else if (!stricmp( arg, "attack_sound" )) {
 				attack_sound = atoi(equal_ptr);
-			} else if (!strcasecmp( arg, "claw_sound" )) {
+			} else if (!stricmp( arg, "claw_sound" )) {
 				claw_sound = atoi(equal_ptr);
-			} else if (!strcasecmp( arg, "name" )) {
+			} else if (!stricmp( arg, "name" )) {
 				Assert(strlen(equal_ptr) < ROBOT_NAME_LENGTH);	//	Oops, name too long.
 				strcpy(name, &equal_ptr[1]);
 				name[strlen(name)-1] = 0;
-			} else if (!strcasecmp( arg, "simple_model" )) {
+			} else if (!stricmp( arg, "simple_model" )) {
 				model_name[n_models] = equal_ptr;
 				first_bitmap_num[n_models] = N_ObjBitmapPtrs;
 				n_models++;
@@ -1238,27 +1238,27 @@ void bm_read_object(int skip)
 
 			// if we have john=cool, arg is 'john' and equal_ptr is 'cool'
 
-			if (!strcasecmp(arg,"type")) {
-				if (!strcasecmp(equal_ptr,"controlcen"))
+			if (!stricmp(arg,"type")) {
+				if (!stricmp(equal_ptr,"controlcen"))
 					type = OL_CONTROL_CENTER;
-				else if (!strcasecmp(equal_ptr,"clutter"))
+				else if (!stricmp(equal_ptr,"clutter"))
 					type = OL_CLUTTER;
-				else if (!strcasecmp(equal_ptr,"exit"))
+				else if (!stricmp(equal_ptr,"exit"))
 					type = OL_EXIT;
 			}
-			else if (!strcasecmp( arg, "exp_vclip" ))	{
+			else if (!stricmp( arg, "exp_vclip" ))	{
 				explosion_vclip_num = atoi(equal_ptr);
-			} else if (!strcasecmp( arg, "dead_pof" ))	{
+			} else if (!stricmp( arg, "dead_pof" ))	{
 				model_name_dead = equal_ptr;
 				first_bitmap_num_dead=N_ObjBitmapPtrs;
-			} else if (!strcasecmp( arg, "exp_sound" ))	{
+			} else if (!stricmp( arg, "exp_sound" ))	{
 				explosion_sound_num = atoi(equal_ptr);
-			} else if (!strcasecmp( arg, "lighting" ))	{
+			} else if (!stricmp( arg, "lighting" ))	{
 				lighting = fl2f(atof(equal_ptr));
 				if ( (lighting < 0) || (lighting > F1_0 )) {
 					Error( "In bitmaps.tbl, lighting value of %.2f is out of range 0..1.\n", f2fl(lighting));
 				}
-			} else if (!strcasecmp( arg, "strength" )) {
+			} else if (!stricmp( arg, "strength" )) {
 				strength = fl2f(atof(equal_ptr));
 			}
 		} else {			// Must be a texture specification...
@@ -1327,12 +1327,12 @@ void bm_read_player_ship(int skip)
 
 			// if we have john=cool, arg is 'john' and equal_ptr is 'cool'
 
-			if (!strcasecmp( arg, "model" )) {
+			if (!stricmp( arg, "model" )) {
 				Assert(n_models==0);
 				model_name[0] = equal_ptr;
 				first_bitmap_num[0] = N_ObjBitmapPtrs;
 				n_models = 1;
-			} else if (!strcasecmp( arg, "simple_model" )) {
+			} else if (!stricmp( arg, "simple_model" )) {
 				model_name[n_models] = equal_ptr;
 				first_bitmap_num[n_models] = N_ObjBitmapPtrs;
 				n_models++;
@@ -1340,28 +1340,28 @@ void bm_read_player_ship(int skip)
 				if (First_multi_bitmap_num!=-1 && last_multi_bitmap_num==-1)
 					last_multi_bitmap_num=N_ObjBitmapPtrs;
 			}
-			else if (!strcasecmp( arg, "mass" ))
+			else if (!stricmp( arg, "mass" ))
 				Player_ship->mass = fl2f(atof(equal_ptr));
-			else if (!strcasecmp( arg, "drag" ))
+			else if (!stricmp( arg, "drag" ))
 				Player_ship->drag = fl2f(atof(equal_ptr));
-//			else if (!strcasecmp( arg, "low_thrust" ))
+//			else if (!stricmp( arg, "low_thrust" ))
 //				Player_ship->low_thrust = fl2f(atof(equal_ptr));
-			else if (!strcasecmp( arg, "max_thrust" ))
+			else if (!stricmp( arg, "max_thrust" ))
 				Player_ship->max_thrust = fl2f(atof(equal_ptr));
-			else if (!strcasecmp( arg, "reverse_thrust" ))
+			else if (!stricmp( arg, "reverse_thrust" ))
 				Player_ship->reverse_thrust = fl2f(atof(equal_ptr));
-			else if (!strcasecmp( arg, "brakes" ))
+			else if (!stricmp( arg, "brakes" ))
 				Player_ship->brakes = fl2f(atof(equal_ptr));
-			else if (!strcasecmp( arg, "wiggle" ))
+			else if (!stricmp( arg, "wiggle" ))
 				Player_ship->wiggle = fl2f(atof(equal_ptr));
-			else if (!strcasecmp( arg, "max_rotthrust" ))
+			else if (!stricmp( arg, "max_rotthrust" ))
 				Player_ship->max_rotthrust = fl2f(atof(equal_ptr));
-			else if (!strcasecmp( arg, "dying_pof" ))
+			else if (!stricmp( arg, "dying_pof" ))
 				model_name_dying = equal_ptr;
-			else if (!strcasecmp( arg, "expl_vclip_num" ))
+			else if (!stricmp( arg, "expl_vclip_num" ))
 				Player_ship->expl_vclip_num=atoi(equal_ptr);
 		}
-		else if (!strcasecmp( arg, "multi_textures" )) {
+		else if (!stricmp( arg, "multi_textures" )) {
 
 			First_multi_bitmap_num = N_ObjBitmapPtrs;
 			first_bitmap_num[n_models] = N_ObjBitmapPtrs;
@@ -1564,108 +1564,108 @@ void bm_read_weapon(int skip, int unused_flag)
 			*equal_ptr='\0';
 			equal_ptr++;
 			// if we have john=cool, arg is 'john' and equal_ptr is 'cool'
-			if (!strcasecmp( arg, "laser_bmp" ))	{
+			if (!stricmp( arg, "laser_bmp" ))	{
 				// Load bitmap with name equal_ptr
 
 				Weapon_info[n].bitmap = bm_load_sub(skip, equal_ptr);		//load_polymodel_bitmap(equal_ptr);
 				Weapon_info[n].render_type = WEAPON_RENDER_LASER;
 
-			} else if (!strcasecmp( arg, "blob_bmp" ))	{
+			} else if (!stricmp( arg, "blob_bmp" ))	{
 				// Load bitmap with name equal_ptr
 
 				Weapon_info[n].bitmap = bm_load_sub(skip, equal_ptr);		//load_polymodel_bitmap(equal_ptr);
 				Weapon_info[n].render_type = WEAPON_RENDER_BLOB;
 
-			} else if (!strcasecmp( arg, "weapon_vclip" ))	{
+			} else if (!stricmp( arg, "weapon_vclip" ))	{
 				// Set vclip to play for this weapon.
 				Weapon_info[n].bitmap.index = 0;
 				Weapon_info[n].render_type = WEAPON_RENDER_VCLIP;
 				Weapon_info[n].weapon_vclip = atoi(equal_ptr);
 
-			} else if (!strcasecmp( arg, "none_bmp" )) {
+			} else if (!stricmp( arg, "none_bmp" )) {
 				Weapon_info[n].bitmap = bm_load_sub(skip, equal_ptr);
 				Weapon_info[n].render_type = WEAPON_RENDER_NONE;
 
-			} else if (!strcasecmp( arg, "weapon_pof" ))	{
+			} else if (!stricmp( arg, "weapon_pof" ))	{
 				// Load pof file
 				Assert(n_models==0);
 				model_name[0] = equal_ptr;
 				first_bitmap_num[0] = N_ObjBitmapPtrs;
 				n_models=1;
-			} else if (!strcasecmp( arg, "simple_model" )) {
+			} else if (!stricmp( arg, "simple_model" )) {
 				model_name[n_models] = equal_ptr;
 				first_bitmap_num[n_models] = N_ObjBitmapPtrs;
 				n_models++;
-			} else if (!strcasecmp( arg, "weapon_pof_inner" ))	{
+			} else if (!stricmp( arg, "weapon_pof_inner" ))	{
 				// Load pof file
 				pof_file_inner = equal_ptr;
-			} else if (!strcasecmp( arg, "strength" )) {
+			} else if (!stricmp( arg, "strength" )) {
 				for (i=0; i<NDL-1; i++) {
 					Weapon_info[n].strength[i] = i2f(atoi(equal_ptr));
 					equal_ptr = strtok(NULL, space);
 				}
 				Weapon_info[n].strength[i] = i2f(atoi(equal_ptr));
-			} else if (!strcasecmp( arg, "mass" )) {
+			} else if (!stricmp( arg, "mass" )) {
 				Weapon_info[n].mass = fl2f(atof(equal_ptr));
-			} else if (!strcasecmp( arg, "drag" )) {
+			} else if (!stricmp( arg, "drag" )) {
 				Weapon_info[n].drag = fl2f(atof(equal_ptr));
-			} else if (!strcasecmp( arg, "thrust" )) {
+			} else if (!stricmp( arg, "thrust" )) {
 				Weapon_info[n].thrust = fl2f(atof(equal_ptr));
-			} else if (!strcasecmp( arg, "matter" )) {
+			} else if (!stricmp( arg, "matter" )) {
 				Weapon_info[n].matter = atoi(equal_ptr);
-			} else if (!strcasecmp( arg, "bounce" )) {
+			} else if (!stricmp( arg, "bounce" )) {
 				Weapon_info[n].bounce = atoi(equal_ptr);
-			} else if (!strcasecmp( arg, "speed" )) {
+			} else if (!stricmp( arg, "speed" )) {
 				for (i=0; i<NDL-1; i++) {
 					Weapon_info[n].speed[i] = i2f(atoi(equal_ptr));
 					equal_ptr = strtok(NULL, space);
 				}
 				Weapon_info[n].speed[i] = i2f(atoi(equal_ptr));
-			} else if (!strcasecmp( arg, "flash_vclip" ))	{
+			} else if (!stricmp( arg, "flash_vclip" ))	{
 				Weapon_info[n].flash_vclip = atoi(equal_ptr);
-			} else if (!strcasecmp( arg, "flash_sound" ))	{
+			} else if (!stricmp( arg, "flash_sound" ))	{
 				Weapon_info[n].flash_sound = atoi(equal_ptr);
-			} else if (!strcasecmp( arg, "flash_size" ))	{
+			} else if (!stricmp( arg, "flash_size" ))	{
 				Weapon_info[n].flash_size = fl2f(atof(equal_ptr));
-			} else if (!strcasecmp( arg, "blob_size" ))	{
+			} else if (!stricmp( arg, "blob_size" ))	{
 				Weapon_info[n].blob_size = fl2f(atof(equal_ptr));
-			} else if (!strcasecmp( arg, "robot_hit_vclip" ))	{
+			} else if (!stricmp( arg, "robot_hit_vclip" ))	{
 				Weapon_info[n].robot_hit_vclip = atoi(equal_ptr);
-			} else if (!strcasecmp( arg, "robot_hit_sound" ))	{
+			} else if (!stricmp( arg, "robot_hit_sound" ))	{
 				Weapon_info[n].robot_hit_sound = atoi(equal_ptr);
-			} else if (!strcasecmp( arg, "wall_hit_vclip" ))	{
+			} else if (!stricmp( arg, "wall_hit_vclip" ))	{
 				Weapon_info[n].wall_hit_vclip = atoi(equal_ptr);
-			} else if (!strcasecmp( arg, "wall_hit_sound" ))	{
+			} else if (!stricmp( arg, "wall_hit_sound" ))	{
 				Weapon_info[n].wall_hit_sound = atoi(equal_ptr);
-			} else if (!strcasecmp( arg, "impact_size" ))	{
+			} else if (!stricmp( arg, "impact_size" ))	{
 				Weapon_info[n].impact_size = fl2f(atof(equal_ptr));
-			} else if (!strcasecmp( arg, "lighted" ))	{
+			} else if (!stricmp( arg, "lighted" ))	{
 				lighted = atoi(equal_ptr);
-			} else if (!strcasecmp( arg, "lw_ratio" ))	{
+			} else if (!stricmp( arg, "lw_ratio" ))	{
 				Weapon_info[n].po_len_to_width_ratio = fl2f(atof(equal_ptr));
-			} else if (!strcasecmp( arg, "lightcast" ))	{
+			} else if (!stricmp( arg, "lightcast" ))	{
 				Weapon_info[n].light = fl2f(atof(equal_ptr));
-			} else if (!strcasecmp( arg, "persistent" ))	{
+			} else if (!stricmp( arg, "persistent" ))	{
 				Weapon_info[n].persistent = atoi(equal_ptr);
-			} else if (!strcasecmp(arg, "energy_usage" )) {
+			} else if (!stricmp(arg, "energy_usage" )) {
 				Weapon_info[n].energy_usage = fl2f(atof(equal_ptr));
-			} else if (!strcasecmp(arg, "ammo_usage" )) {
+			} else if (!stricmp(arg, "ammo_usage" )) {
 				Weapon_info[n].ammo_usage = atoi(equal_ptr);
-			} else if (!strcasecmp(arg, "fire_wait" )) {
+			} else if (!stricmp(arg, "fire_wait" )) {
 				Weapon_info[n].fire_wait = fl2f(atof(equal_ptr));
-			} else if (!strcasecmp(arg, "fire_count" )) {
+			} else if (!stricmp(arg, "fire_count" )) {
 				Weapon_info[n].fire_count = atoi(equal_ptr);
-			} else if (!strcasecmp(arg, "damage_radius" )) {
+			} else if (!stricmp(arg, "damage_radius" )) {
 				Weapon_info[n].damage_radius = fl2f(atof(equal_ptr));
-//--01/19/95, mk--			} else if (!strcasecmp(arg, "damage_force" )) {
+//--01/19/95, mk--			} else if (!stricmp(arg, "damage_force" )) {
 //--01/19/95, mk--				Weapon_info[n].damage_force = fl2f(atof(equal_ptr));
-			} else if (!strcasecmp(arg, "lifetime" )) {
+			} else if (!stricmp(arg, "lifetime" )) {
 				Weapon_info[n].lifetime = fl2f(atof(equal_ptr));
-			} else if (!strcasecmp(arg, "destroyable" )) {
+			} else if (!stricmp(arg, "destroyable" )) {
 				Weapon_info[n].destroyable = atoi(equal_ptr);
-			} else if (!strcasecmp(arg, "picture" )) {
+			} else if (!stricmp(arg, "picture" )) {
 				Weapon_info[n].picture = bm_load_sub(skip, equal_ptr);
-			} else if (!strcasecmp(arg, "homing" )) {
+			} else if (!stricmp(arg, "homing" )) {
 				Weapon_info[n].homing_flag = !!atoi(equal_ptr);
 			}
 		} else {			// Must be a texture specification...
@@ -1744,17 +1744,17 @@ void bm_read_powerup(int unused_flag)
 			*equal_ptr='\0';
 			equal_ptr++;
 			// if we have john=cool, arg is 'john' and equal_ptr is 'cool'
-			if (!strcasecmp( arg, "vclip_num" ))	{
+			if (!stricmp( arg, "vclip_num" ))	{
 				Powerup_info[n].vclip_num = atoi(equal_ptr);
-			} else if (!strcasecmp( arg, "light" ))	{
+			} else if (!stricmp( arg, "light" ))	{
 				Powerup_info[n].light = fl2f(atof(equal_ptr));
-			} else if (!strcasecmp( arg, "hit_sound" ))	{
+			} else if (!stricmp( arg, "hit_sound" ))	{
 				Powerup_info[n].hit_sound = atoi(equal_ptr);
-			} else if (!strcasecmp( arg, "name" )) {
+			} else if (!stricmp( arg, "name" )) {
 				Assert(strlen(equal_ptr) < POWERUP_NAME_LENGTH);	//	Oops, name too long.
 				strcpy(Powerup_names[n], &equal_ptr[1]);
 				Powerup_names[n][strlen(Powerup_names[n])-1] = 0;
-			} else if (!strcasecmp( arg, "size" ))	{
+			} else if (!stricmp( arg, "size" ))	{
 				Powerup_info[n].size = fl2f(atof(equal_ptr));
 			}
 		}
@@ -1786,7 +1786,7 @@ void bm_read_hostage()
 			*equal_ptr='\0';
 			equal_ptr++;
 
-			if (!strcasecmp( arg, "vclip_num" ))
+			if (!stricmp( arg, "vclip_num" ))
 				Hostage_vclip_num[n] = atoi(equal_ptr);
 		}
 
@@ -1817,11 +1817,11 @@ void bm_read_hostage_face(int skip, int pc_shareware)
 
 			// if we have john=cool, arg is 'john' and equal_ptr is 'cool'
 
-			if (!strcasecmp( arg, "clip_num" ))	{
+			if (!stricmp( arg, "clip_num" ))	{
 				clip_num = atoi(equal_ptr);
-			} else if (!strcasecmp( arg, "time" ))	{
+			} else if (!stricmp( arg, "time" ))	{
 				time = fl2f(atof(equal_ptr));
-			} else if (!strcasecmp( arg, "sound_num" ))	{
+			} else if (!stricmp( arg, "sound_num" ))	{
 				sound_num = atoi(equal_ptr);
 			}
 		}
