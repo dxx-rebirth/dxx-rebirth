@@ -207,6 +207,8 @@ void con_close(void)
 {
 	if (gamelog_fp)
 		PHYSFS_close(gamelog_fp);
+	
+	gamelog_fp = NULL;
 }
 
 void con_init(void)

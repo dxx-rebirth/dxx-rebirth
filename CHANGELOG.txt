@@ -1,5 +1,9 @@
 D1X-Rebirth Changelog
 
+20080427
+--------
+main/console.c: make sure it doesn't try to write to gamelog.txt after it's closed
+
 20080424
 --------
 arch/sdl/digi_mixer.c, D1X.make, iff/iff.c, include/args.h, include/ogl_init.h, include/u_dpmi.h, main/ai.c, main/bmread.c, main/config.h, main/game.c, main/gamesave.c, main/gameseq.c, main/hash.c, main/inferno.c, main/menu.c, main/newdemo.c, main/newmenu.c, main/piggy.c, main/playsave.c, main/playsave.h, main/state.c, main/titles.c, misc/args.c, texmap/tmapppc.a: get it to work for Mac OS 9
