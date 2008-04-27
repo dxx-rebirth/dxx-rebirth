@@ -1,5 +1,9 @@
 D2X-Rebirth Changelog
 
+20080427
+--------
+main/console.c: make sure it doesn't try to write to gamelog.txt after it's closed
+
 20080424
 --------
 D2X.make, d2x-rebirth.xcodeproj, iff/iff.c, include/ogl_init.h, main/config.h, main/newdemo.c, main/newmenu.c, main/playsave.h, main/state.c: get it to build on Mac OS 9 again
