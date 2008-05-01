@@ -76,8 +76,6 @@ void mix_play_music(char *filename, int loop) {
   char music_title[16];
   char *basedir = "Music";
 
-  loop *= -1; 
-
   // Quick hack to filter out the .hmp extension
   for (i=0; !got_end; i++) {
     switch (filename[i]) {
@@ -116,6 +114,10 @@ void mix_play_file(char *filename, int loop) {
 
   PHYSFSX_getRealPath(filename, real_filename); // build absolute path
 
+  // If loop, builtin music (MIDI) should loop (-1) while in jukebox it should only play once and proceed to next track (1) or stop after track (0)
+  if (!jukebox_is_loaded() && loop)
+    loop = -1;
+
   if ((current_music = Mix_LoadMUS(real_filename))) {
     if (Mix_PlayingMusic()) {
       // Fade-in effect sounds cleaner if we're already playing something
@@ -124,7 +126,8 @@ void mix_play_file(char *filename, int loop) {
     else {
       Mix_PlayMusic(current_music, loop);
     }
-    Mix_HookMusicFinished(loop == -1 ? music_hook_next : music_hook_stop);
+
+    Mix_HookMusicFinished(loop == 1 ? music_hook_next : music_hook_stop);
   }
   else {
     con_printf(CON_CRITICAL,"Music %s could not be loaded\n", real_filename);

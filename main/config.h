@@ -40,6 +40,8 @@ typedef struct Cfg
 	int TexFilt;
 	int VSync;
 	int Multisample;
+	int JukeboxOn;
+	char JukeboxPath[PATH_MAX+1];
 } __pack__ Cfg;
 
 extern struct Cfg GameCfg;

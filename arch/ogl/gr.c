@@ -66,7 +66,7 @@ int ogl_init_window(int x, int y)
 #endif
 			ogl_smash_texture_list_internal();//if we are or were fullscreen, changing vid mode will invalidate current textures
 	}
-	SDL_WM_SetCaption(DESCENT_VERSION, "Descent II");
+	SDL_WM_SetCaption(DESCENT_VERSION, "Descent");
 
 	if (!SDL_SetVideoMode(x, y, GameArg.DbgGlBpp, SDL_OPENGL | (ogl_fullscreen ? SDL_FULLSCREEN : 0)))
 	{
@@ -156,9 +156,7 @@ void ogl_get_verinfo(void)
 	gl_version=(const char *)glGetString(GL_VERSION);
 	gl_extensions=(const char *)glGetString(GL_EXTENSIONS);
 
-#ifndef NDEBUG
-	con_printf(CON_VERBOSE,"gl vendor:%s renderer:%s version:%s extensions:%s\n",gl_vendor,gl_renderer,gl_version,gl_extensions);
-#endif
+	con_printf(CON_VERBOSE, "OpenGL: vendor: %s\nOpenGL: renderer: %s\nOpenGL: version: %s\n",gl_vendor,gl_renderer,gl_version);
 
 #ifdef _WIN32
 	dglMultiTexCoord2fARB = (glMultiTexCoord2fARB_fp)wglGetProcAddress("glMultiTexCoord2fARB");

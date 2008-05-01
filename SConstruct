@@ -283,8 +283,7 @@ arch_sdlmixer = [
 ]
 
 if (sdlmixer == 1):
-        arch_linux_sources += arch_sdlmixer
-	arch_macosx_sources += arch_sdlmixer
+        common_sources += arch_sdlmixer
 
 
 # flags and stuff for all platforms

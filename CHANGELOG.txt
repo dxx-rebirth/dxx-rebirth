@@ -1,5 +1,9 @@
 D1X-Rebirth Changelog
 
+20080502
+--------
+include/args.h, main/inferno.c, main/menu.c, main/songs.c, main/config.c, main/config.h, main/game.c, misc/args.c, SConstruct, d1x.ini, arch/ogl/gr.c, arch/sdl/digi_mixer.c, arch/sdl/digi_mixer_music.c, arch/sdl/jukebox.c, arch/win32/hmpfile.c, arch/include/jukebox.h: Extended Jukebox capabilities for looping and continous playing and added jukebox_free() which allows calling jukebox_load() being able to load a new directory; Added Jukebox options to sound options menu; Removed loop hack for Windows MIDI playback; SDL_mixer implementation can now be used for Windows build as well
+
 20080427
 --------
 main/console.c: make sure it doesn't try to write to gamelog.txt after it's closed

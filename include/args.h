@@ -58,9 +58,8 @@ typedef struct Arg
 	int CtlGrabMouse;
 	int SndNoSound;
 	int SndNoMusic;
-	int SndSdlMixer;
+	int SndDisableSdlMixer;
 	char *SndExternalMusic;
-	char *SndJukebox;
 	int GfxHiresFNTAvailable;
 #ifdef OGL
 	int OglFixedFont;

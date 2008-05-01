@@ -119,13 +119,9 @@ void songs_init()
 	cfclose(fp);
 }
 
-int loop;
-
 void songs_play_song( int songnum, int repeat )
 {
 	if ( !Songs_initialized ) songs_init();
-
-	loop=repeat;
 
 	digi_play_midi_song( Songs[songnum].filename, Songs[songnum].melodic_bank_file, Songs[songnum].drum_bank_file, repeat );
 }

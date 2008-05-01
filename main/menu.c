@@ -665,18 +665,28 @@ void sound_menuset(int nitems, newmenu_item * items, int *last_key, int citem )
 
 void do_sound_menu()
 {
-	newmenu_item m[4];
+	newmenu_item m[7];
 	int i = 0;
 
 	do {
 		m[0].type = NM_TYPE_SLIDER; m[0].text=TXT_FX_VOLUME; m[0].value=GameCfg.DigiVolume; m[0].min_value=0; m[0].max_value=8; 
-		m[1].type =NM_TYPE_SLIDER; m[1].text=TXT_MUSIC_VOLUME; m[1].value=GameCfg.MidiVolume; m[1].min_value=0; m[1].max_value=8;
+		m[1].type = NM_TYPE_SLIDER; m[1].text="music volume"; m[1].value=GameCfg.MidiVolume; m[1].min_value=0; m[1].max_value=8;
 		m[2].type = NM_TYPE_TEXT; m[2].text="";
-		m[3].type = NM_TYPE_CHECK; m[3].text=TXT_REVERSE_STEREO; m[3].value=GameCfg.ReverseStereo; 
+		m[3].type = NM_TYPE_CHECK; m[3].text=TXT_REVERSE_STEREO; m[3].value=GameCfg.ReverseStereo;
+#ifdef USE_SDLMIXER
+		m[4].type = NM_TYPE_CHECK; m[4].text="use jukebox in game"; m[4].value=GameCfg.JukeboxOn;
+		m[5].type = NM_TYPE_TEXT; m[5].text="path to music for jukebox:";
+		m[6].type = NM_TYPE_INPUT; m[6].text = GameCfg.JukeboxPath; m[6].text_len = PATH_MAX;
+#endif
 
 		i = newmenu_do1( NULL, "Sound Effects & Music", sizeof(m)/sizeof(*m), m, sound_menuset, i );
 
 		GameCfg.ReverseStereo = m[3].value;
+#ifdef USE_SDLMIXER
+		GameCfg.JukeboxOn = m[4].value;
+		if (Function_mode == FMODE_GAME)
+			songs_play_level_song( Current_level_num );
+#endif
 
 	} while( i>-1 );
 }
