@@ -169,9 +169,8 @@ void print_commandline_help()
 	printf( "  -redbook           %s\n", "Enable redbook audio support");
 #endif //  !defined(SHAREWARE) || ( defined(SHAREWARE) && defined(APPLE_DEMO) )
 #ifdef    USE_SDLMIXER
-	printf( "  -sdlmixer          %s\n", "Sound output via SDL_mixer");
+	printf( "  -nosdlmixer        %s\n", "Disable Sound output via SDL_mixer");
 	printf( "  -music_ext <s>     %s\n", "Play music files with extension <s> (i.e. mp3, ogg)");
-	printf( "  -jukebox <s>       %s\n", "Play music files out of path <s>");
 #endif // USE SDLMIXER
 
 	printf( "\n Graphics:\n\n");
@@ -266,6 +265,9 @@ int main(int argc, char *argv[])
 	PHYSFSX_init(argc, argv);
 	con_init();  // Initialise the console
 
+	con_printf (CON_VERBOSE, "%s", TXT_VERBOSE_1);
+	ReadConfigFile();
+
 	if (! cfile_init("descent2.hog", 1)) {
 		if (! cfile_init("d2demo.hog", 1))
 		{
@@ -343,10 +345,7 @@ int main(int argc, char *argv[])
 
 	key_init();
 
-	digi_select_system(
-		GameArg.SndSdlMixer || GameArg.SndExternalMusic || GameArg.SndJukebox ?
-		SDLMIXER_SYSTEM : SDLAUDIO_SYSTEM
-	);
+	digi_select_system( GameArg.SndDisableSdlMixer ? SDLAUDIO_SYSTEM : SDLMIXER_SYSTEM );
 	if (!GameArg.SndNoSound)
 		digi_init();
 
@@ -359,9 +358,6 @@ int main(int argc, char *argv[])
 	select_tmap(GameArg.DbgTexMap);
 
 	Lighting_on = 1;
-
-	con_printf (CON_VERBOSE, "%s", TXT_VERBOSE_1);
-	ReadConfigFile();
 
 	con_printf(CON_VERBOSE, "\n%s\n\n", TXT_INITIALIZING_GRAPHICS);
 

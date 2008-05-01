@@ -147,7 +147,9 @@ int PlayMovie(const char *filename, int must_have)
 	songs_stop_all();
 
 	// MD2211: if using SDL_Mixer, we never reinit the sound system
-	if (!GameArg.SndSdlMixer)
+#ifdef USE_SDLMIXER
+	if (GameArg.SndDisableSdlMixer)
+#endif
 		digi_close();
 
 	// Start sound
@@ -156,7 +158,11 @@ int PlayMovie(const char *filename, int must_have)
 	ret = RunMovie(name, GameArg.GfxMovieHires, must_have, -1, -1);
 
 	// MD2211: if using SDL_Mixer, we never reinit the sound system
-	if (!GameArg.SndNoSound && !GameArg.SndSdlMixer)
+	if (!GameArg.SndNoSound
+#ifdef USE_SDLMIXER
+		&& GameArg.SndDisableSdlMixer
+#endif
+	)
 		digi_init();
 
 	Screen_mode = -1;		//force screen reset

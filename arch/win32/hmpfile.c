@@ -297,8 +297,6 @@ static void reset_tracks(struct hmp_file *hmp)
 	hmp->cur_time=0;
 }
 
-extern int loop;
-
 static void _stdcall midi_callback(HMIDISTRM hms, UINT uMsg, DWORD dwUser, DWORD dw1, DWORD dw2) {
 	MIDIHDR *mhdr;
 	hmp_file *hmp;
@@ -316,7 +314,7 @@ static void _stdcall midi_callback(HMIDISTRM hms, UINT uMsg, DWORD dwUser, DWORD
 
 	if (!hmp->stop) {
 		while (fill_buffer(hmp) == HMP_EOF) {
-			if (loop)
+			if (hmp->bLoop)
 				hmp->stop = 0;
 			else
 				hmp->stop = 1;

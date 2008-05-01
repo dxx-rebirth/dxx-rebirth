@@ -163,8 +163,7 @@ void ReadCmdArgs(void)
 	GameArg.SndEnableRedbook 	= FindArg("-redbook");
 
 #ifdef USE_SDLMIXER
-	GameArg.SndSdlMixer 		= FindArg("-sdlmixer");
-	GameArg.SndJukebox 		= get_str_arg("-jukebox", NULL);
+	GameArg.SndDisableSdlMixer 	= FindArg("-nosdlmixer");
 	GameArg.SndExternalMusic 	= get_str_arg("-music_ext", NULL);
 #endif
 

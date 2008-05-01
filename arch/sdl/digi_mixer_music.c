@@ -24,12 +24,8 @@
 
 Mix_Music *current_music = NULL;
 
-void music_done() {
-  Mix_HaltMusic();
-  Mix_FreeMusic(current_music);
-  current_music = NULL;
-  jukebox_stop_hook();
-}
+void music_hook_stop();
+void music_hook_next();
 
 void convert_hmp(char *filename, char *mid_filename) {
 
@@ -80,8 +76,6 @@ void mix_play_music(char *filename, int loop) {
   char music_title[16];
   char *basedir = "Music";
 
-  loop *= -1; 
-
   // Quick hack to filter out the .hmp extension
   for (i=0; !got_end; i++) {
     switch (filename[i]) {
@@ -120,6 +114,10 @@ void mix_play_file(char *filename, int loop) {
 
   PHYSFSX_getRealPath(filename, real_filename); // build absolute path
 
+  // If loop, builtin music (MIDI) should loop (-1) while in jukebox it should only play once and proceed to next track (1) or stop after track (0)
+  if (!jukebox_is_loaded() && loop)
+    loop = -1;
+
   if ((current_music = Mix_LoadMUS(real_filename))) {
     if (Mix_PlayingMusic()) {
       // Fade-in effect sounds cleaner if we're already playing something
@@ -128,7 +126,8 @@ void mix_play_file(char *filename, int loop) {
     else {
       Mix_PlayMusic(current_music, loop);
     }
-    Mix_HookMusicFinished(music_done);
+
+    Mix_HookMusicFinished(loop == 1 ? music_hook_next : music_hook_stop);
   }
   else {
     con_printf(CON_CRITICAL,"Music %s could not be loaded\n", real_filename);
@@ -136,8 +135,42 @@ void mix_play_file(char *filename, int loop) {
   }
 }
 
+
+/*
+ *  See if a music file exists, taking into account possible -music_ext option
+ */
+
+int mix_music_exists(char *filename)
+{
+	char rel_filename[32];	// just the filename of the actual music file used
+	char music_file[16];
+	char *basedir = "Music";
+
+	if (GameArg.SndExternalMusic)
+	{
+		change_filename_extension(music_file, filename, GameArg.SndExternalMusic);
+		sprintf(rel_filename, "%s/%s", basedir, music_file);
+		return PHYSFS_exists(rel_filename);
+	}
+
+	return PHYSFS_exists(filename);
+}
+
+// What to do when stopping song playback
+void music_hook_stop() {
+  Mix_HaltMusic();
+  Mix_FreeMusic(current_music);
+  current_music = NULL;
+  jukebox_hook_stop();
+}
+
+// What to do when going to next song / looping
+void music_hook_next() {
+  music_hook_stop();
+  jukebox_hook_next();
+}
+
 void mix_set_music_volume(int vol) {
-  //printf("mix_set_music_volume %d\n", vol);
   Mix_VolumeMusic(vol);
 }
 

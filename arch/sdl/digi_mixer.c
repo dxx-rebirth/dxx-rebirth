@@ -82,6 +82,7 @@ int digi_mixer_init() {
   jukebox_load();
   //jukebox_list();
 
+  atexit(jukebox_free);
   atexit(digi_close);
   digi_initialised = 1;
 
@@ -211,15 +212,14 @@ int digi_mixer_get_max_channels() { return digi_max_channels; }
 
 // MIDI stuff follows.
 
-#ifndef _WIN32
-
 void digi_mixer_play_midi_song(char * filename, char * melodic_bank, char * drum_bank, int loop ) {
   mix_set_music_volume(midi_volume);
+  jukebox_load(); // update jukebox state
 
   // quick hack to check if filename begins with "game" -- MD2211
   if (jukebox_is_loaded() && strstr(filename, "game") == filename) {
     // use jukebox
-    jukebox_play();
+    jukebox_play(loop);
   }
   else { 
     // standard song playback
@@ -230,7 +230,6 @@ void digi_mixer_stop_current_song() {
   jukebox_stop();
   mix_stop_music();
 }
-#endif
 
 void digi_mixer_pause_midi() {}
 void digi_mixer_resume_midi() {}

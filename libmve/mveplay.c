@@ -23,13 +23,11 @@
 # endif // macintosh
 #endif // _WIN32
 
-#if defined(AUDIO)
 #include <SDL/SDL.h>
 #ifdef USE_SDLMIXER
 #include <SDL/SDL_mixer.h>
 #endif
 #include "digi.h"
-#endif
 
 #include "mvelib.h"
 #include "mve_audio.h"
@@ -241,7 +239,6 @@ static void do_timer_wait(void)
 /*************************
  * audio handlers
  *************************/
-#ifdef AUDIO
 #define TOTAL_AUDIO_BUFFERS 64
 
 static int audiobuf_created = 0;
@@ -314,11 +311,9 @@ static void mve_audio_callback(void *userdata, unsigned char *stream, int len)
 
 	//con_printf(CON_CRITICAL, "- <%d (%d), %d, %d>\n", mve_audio_bufhead, mve_audio_curbuf_curpos, mve_audio_buftail, len);
 }
-#endif
 
 static int create_audiobuf_handler(unsigned char major, unsigned char minor, unsigned char *data, int len, void *context)
 {
-#ifdef AUDIO
 	int flags;
 	int sample_rate;
 	int desired_buffer;
@@ -362,7 +357,7 @@ static int create_audiobuf_handler(unsigned char major, unsigned char minor, uns
 		format = AUDIO_U8;
 	}
 
-	if (!GameArg.SndSdlMixer) {
+	if (GameArg.SndDisableSdlMixer) {
 		con_printf(CON_CRITICAL, "creating audio buffers:\n");
 		con_printf(CON_CRITICAL, "sample rate = %d, stereo = %d, bitsize = %d, compressed = %d\n",
 				sample_rate, stereo, bitsize ? 16 : 8, compressed);
@@ -377,7 +372,7 @@ static int create_audiobuf_handler(unsigned char major, unsigned char minor, uns
 	mve_audio_spec->userdata = NULL;
 
 	// MD2211: if using SDL_Mixer, we never reinit the sound system
-	if (!GameArg.SndSdlMixer) {
+	if (GameArg.SndDisableSdlMixer) {
 		if (SDL_OpenAudio(mve_audio_spec, NULL) >= 0) {
 			con_printf(CON_CRITICAL, "   success\n");
 			mve_audio_canplay = 1;
@@ -398,17 +393,15 @@ static int create_audiobuf_handler(unsigned char major, unsigned char minor, uns
 
 	memset(mve_audio_buffers, 0, sizeof(mve_audio_buffers));
 	memset(mve_audio_buflens, 0, sizeof(mve_audio_buflens));
-#endif
 
 	return 1;
 }
 
 static int play_audio_handler(unsigned char major, unsigned char minor, unsigned char *data, int len, void *context)
 {
-#ifdef AUDIO
 	if (mve_audio_canplay  &&  !mve_audio_playing  &&  mve_audio_bufhead != mve_audio_buftail)
 	{
-		if (!GameArg.SndSdlMixer)
+		if (GameArg.SndDisableSdlMixer)
 			SDL_PauseAudio(0);
 #ifdef USE_SDLMIXER
 		else
@@ -416,13 +409,11 @@ static int play_audio_handler(unsigned char major, unsigned char minor, unsigned
 #endif			
 		mve_audio_playing = 1;
 	}
-#endif
 	return 1;
 }
 
 static int audio_data_handler(unsigned char major, unsigned char minor, unsigned char *data, int len, void *context)
 {
-#ifdef AUDIO
 
 #ifdef USE_SDLMIXER
 	// MD2211: for audio conversion
@@ -471,7 +462,7 @@ static int audio_data_handler(unsigned char major, unsigned char minor, unsigned
 
 			// MD2211: the following block does on-the-fly audio conversion for SDL_mixer
 #ifdef USE_SDLMIXER
-			if (GameArg.SndSdlMixer) {
+			if (!GameArg.SndDisableSdlMixer) {
 				// build converter: in = MVE format, out = SDL_mixer output
 				Mix_QuerySpec(&out_freq, &out_format, &out_channels); // get current output settings
 
@@ -506,7 +497,6 @@ static int audio_data_handler(unsigned char major, unsigned char minor, unsigned
 		if (mve_audio_playing)
 			SDL_UnlockAudio();
 	}
-#endif
 
 	return 1;
 }
@@ -775,17 +765,14 @@ int MVE_rmStepMovie()
 
 void MVE_rmEndMovie()
 {
-#ifdef AUDIO
 	int i;
-#endif
 
 	timer_stop();
 	timer_created = 0;
 
-#ifdef AUDIO
 	if (mve_audio_canplay) {
 		// MD2211: if using SDL_Mixer, we never reinit sound, hence never close it
-		if (!GameArg.SndSdlMixer) {
+		if (GameArg.SndDisableSdlMixer) {
 			SDL_CloseAudio();
 		}
 		mve_audio_canplay = 0;
@@ -808,7 +795,6 @@ void MVE_rmEndMovie()
 		mve_free(mve_audio_spec);
 	mve_audio_spec=NULL;
 	audiobuf_created = 0;
-#endif
 
 	mve_free(g_vBuffers);
 	g_vBuffers = NULL;
@@ -830,7 +816,5 @@ void MVE_rmHoldMovie()
 
 void MVE_sndInit(int x)
 {
-#ifdef AUDIO
 	mve_audio_enabled = (x == -1 ? 0 : 1);
-#endif
 }

@@ -13,8 +13,8 @@
 #include "jukebox.h"
 #include "error.h"
 #include "console.h"
+#include "config.h"
 
-#define JUKEBOX_ARG "-jukebox"
 #define MUSIC_HUDMSG_MAXLEN 40
 #define JUKEBOX_HUDMSG_PLAYING "Now playing:"
 #define JUKEBOX_HUDMSG_STOPPED "Jukebox stopped"
@@ -59,52 +59,73 @@ char *select_next_song(dl_list *list) {
 	return ret;
 }
 
+void jukebox_free()
+{
+	if (JukeboxSongs == NULL)
+		return;
+
+	while (JukeboxSongs->first!=NULL)
+	{
+		dl_remove(JukeboxSongs,JukeboxSongs->first);
+	}
+	d_free(JukeboxSongs);
+	jukebox_loaded = 0;
+}
+
 /* Loads music file names from a given directory */
 void jukebox_load() {
 	int count = 0;
 	char **files;
 	char *music_exts[] = { ".mp3", ".ogg", ".wav", ".aif", NULL };
+	static char curpath[PATH_MAX+1];
 
-	if (!jukebox_loaded) {
-		if (GameArg.SndJukebox) {
-			// Adding as a mount point is an option, but wouldn't work for older versions of PhysicsFS
-			PHYSFS_addToSearchPath(GameArg.SndJukebox, 1);
-
-			JukeboxSongs = dl_init();
-			files = PHYSFSX_findFiles("", music_exts);
-
-			if (files != NULL && *files != NULL) {
-				char **i;
-
-				for (i=files; *i!=NULL; i++)
-				{
-					dl_add(JukeboxSongs, *i);
-					count++;
-				}
-				if (count)
-				{
-					con_printf(CON_DEBUG,"Jukebox: %d music file(s) found in %s\n", count, GameArg.SndJukebox);
-					jukebox_loaded = 1;
-				}
-				else { con_printf(CON_DEBUG,"Jukebox music could not be found!\n"); }
-			}
-			else
-				{ Int3(); }	// should at least find a directory in some search path, otherwise how did D2X load?
-
-			if (files != NULL)
-				free(files);
-		}
+	if (memcmp(curpath,GameCfg.JukeboxPath,PATH_MAX) || !GameCfg.JukeboxOn)
+	{
+		PHYSFS_removeFromSearchPath(curpath);
+		jukebox_free();
 	}
-	else { con_printf(CON_DEBUG,"Jukebox already loaded\n"); }
+
+	if (jukebox_loaded)
+		return;
+
+	if (GameCfg.JukeboxOn) {
+		// Adding as a mount point is an option, but wouldn't work for older versions of PhysicsFS
+		PHYSFS_addToSearchPath(GameCfg.JukeboxPath, 1);
+
+		JukeboxSongs = dl_init();
+		files = PHYSFSX_findFiles("", music_exts);
+
+		if (files != NULL && *files != NULL) {
+			char **i;
+
+			for (i=files; *i!=NULL; i++)
+			{
+				dl_add(JukeboxSongs, *i);
+				count++;
+			}
+			if (count)
+			{
+				con_printf(CON_DEBUG,"Jukebox: %d music file(s) found in %s\n", count, GameCfg.JukeboxPath);
+				memcpy(curpath,GameCfg.JukeboxPath,PATH_MAX);
+				jukebox_loaded = 1;
+			}
+			else { con_printf(CON_DEBUG,"Jukebox music could not be found!\n"); }
+		}
+		else
+			{ Int3(); }	// should at least find a directory in some search path, otherwise how did D2X load?
+
+		if (files != NULL)
+			free(files);
+	}
 }
 
-void jukebox_play() {
+void jukebox_play(int loop) {
 	char *music_filename;
 
 	if (!jukebox_loaded) return;
 	music_filename = (char *) JukeboxSongs->current->data;
 
-	mix_play_file(music_filename, 0);
+	mix_play_file(music_filename, loop);
 
 	// Formatting a pretty message
 	if (strlen(music_filename) >= MUSIC_HUDMSG_MAXLEN) {
@@ -126,7 +147,11 @@ void jukebox_stop() {
 	jukebox_playing = 0;
 }
 
-void jukebox_stop_hook() {
+void jukebox_hook_stop() {
+	if (!jukebox_loaded) return;
+}
+
+void jukebox_hook_next() {
 	if (!jukebox_loaded) return;
 	if (jukebox_playing)	jukebox_next();
 }
@@ -134,13 +159,13 @@ void jukebox_stop_hook() {
 void jukebox_next() {
 	if (!jukebox_loaded) return;
 	select_next_song(JukeboxSongs);
-	if (jukebox_playing) jukebox_play();
+	if (jukebox_playing) jukebox_play(1);
 }
 
 void jukebox_prev() {
 	if (!jukebox_loaded) return;
 	select_prev_song(JukeboxSongs);
-	if (jukebox_playing) jukebox_play();
+	if (jukebox_playing) jukebox_play(1);
 }
 
 char *jukebox_current() {

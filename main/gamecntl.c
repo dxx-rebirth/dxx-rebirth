@@ -1175,7 +1175,7 @@ int HandleSystemKey(int key)
 		 * ==============================================
 		 */
 		case KEY_ALTED + KEY_SHIFTED + KEY_F9:
-			jukebox_play();
+			jukebox_play(1);
 			break;
 		case KEY_ALTED + KEY_SHIFTED + KEY_F10:
 			jukebox_stop();

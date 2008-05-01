@@ -248,7 +248,7 @@ arch_sdlmixer = [
 ]
 
 if (sdlmixer == 1):
-        arch_linux_sources += arch_sdlmixer
+        common_sources += arch_sdlmixer
 
 # for windows
 arch_win32_sources = [

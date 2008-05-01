@@ -4,10 +4,11 @@
  */
 
 #include <stdlib.h>
+#include "u_mem.h"
 #include "dl_list.h"
 
 dl_list *dl_init() {
-	dl_list *list = malloc(sizeof(dl_list));
+	dl_list *list = d_malloc(sizeof(dl_list));
 	list->first = NULL;
 	list->last = NULL;
 	list->current = NULL;
@@ -16,7 +17,7 @@ dl_list *dl_init() {
 
 void dl_add(dl_list *list, void *data) {
 	dl_item *item;
-	item = malloc(sizeof(dl_item));
+	item = d_malloc(sizeof(dl_item));
 	item->data = data;
 	item->prev = list->last;
 	item->next = NULL;
@@ -40,7 +41,7 @@ void dl_remove(dl_list *list, dl_item *item) {
 	if (list->last == item) list->last = item->prev;
 	else item->next->prev = item->prev;
 
-	free(item);
+	d_free(item);
 }
 
 int dl_is_empty(dl_list *list) {
