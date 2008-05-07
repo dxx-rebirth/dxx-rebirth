@@ -379,15 +379,6 @@ void key_handler(SDL_KeyboardEvent *event)
 
 	keyd_ascii = font_table[event->keysym.unicode];
 
-char test[1];
-
-test[0]=keyd_ascii;
-
-printf("%s %i\n",test, event->keysym.unicode);
-
-// 	if (keyd_ascii == 255)
-// 		keyd_ascii = event->keysym.sym;
-
 	//=====================================================
 	//Here a translation from win keycodes to mac keycodes!
 	//=====================================================
