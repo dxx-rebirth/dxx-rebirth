@@ -1252,6 +1252,7 @@ void multi_send_message_end()
 
 	multi_message_index = 0;
 	multi_sending_message = 0;
+	game_flush_inputs();
 }
 
 void multi_define_macro_end()
@@ -1263,6 +1264,7 @@ void multi_define_macro_end()
 
 	multi_message_index = 0;
 	multi_defining_message = 0;
+	game_flush_inputs();
 }
 
 void multi_message_input_sub()
