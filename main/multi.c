@@ -1078,32 +1078,35 @@ void multi_define_macro_end()
 	multi_defining_message = 0;
 }
 
-void multi_message_input_sub( int key )
+void multi_message_input_sub()
 {
-	switch( key )	{
-	case KEY_F8:
-	case KEY_ESC:
-		multi_sending_message = 0;
-		multi_defining_message = 0;
-		game_flush_inputs();
-		break;
-	case KEY_LEFT:
-	case KEY_BACKSP:
-	case KEY_PAD4:
-		if (multi_message_index > 0)
-			multi_message_index--;
-		Network_message[multi_message_index] = 0;
-		break;
-	case KEY_ENTER:
-		if ( multi_sending_message )	
-			multi_send_message_end();
-		else if ( multi_defining_message )
-			multi_define_macro_end();
-		game_flush_inputs();
-		break;
-	default:
-		if ( key > 0 )	{
-			int ascii = key_to_ascii(key);
+	int key = key_inkey();
+
+	switch( key )
+	{
+		case KEY_F8:
+		case KEY_ESC:
+			multi_sending_message = 0;
+			multi_defining_message = 0;
+			game_flush_inputs();
+			break;
+		case KEY_LEFT:
+		case KEY_BACKSP:
+		case KEY_PAD4:
+			if (multi_message_index > 0)
+				multi_message_index--;
+			Network_message[multi_message_index] = 0;
+			break;
+		case KEY_ENTER:
+			if ( multi_sending_message )	
+				multi_send_message_end();
+			else if ( multi_defining_message )
+				multi_define_macro_end();
+			game_flush_inputs();
+			break;
+		default:
+		{
+			int ascii = key_to_ascii();
 			if ((ascii < 255 ) && (ascii != 37))	{
 				if (multi_message_index < MAX_MESSAGE_LEN-2 )	{
 					Network_message[multi_message_index++] = ascii;

@@ -32,6 +32,7 @@ volatile unsigned char 	keyd_last_pressed;
 volatile unsigned char 	keyd_last_released;
 volatile unsigned char	keyd_pressed[256];
 volatile int		keyd_time_when_last_pressed;
+volatile int		keyd_ascii;
 
 typedef struct Key_info {
 	ubyte		state;			// state of key 1 == down, 0 == up
@@ -60,7 +61,7 @@ typedef struct key_props {
 } key_props;
 
 key_props key_properties[256] = {
-{ "",       255,    255,    -1                 },
+{ "",       255,    255,    -1                 }, // 0
 { "ESC",    255,    255,    SDLK_ESCAPE        },
 { "1",      '1',    '!',    SDLK_1             },
 { "2",      '2',    '@',    SDLK_2             },
@@ -70,7 +71,7 @@ key_props key_properties[256] = {
 { "6",      '6',    '^',    SDLK_6             },
 { "7",      '7',    '&',    SDLK_7             },
 { "8",      '8',    '*',    SDLK_8             },
-{ "9",      '9',    '(',    SDLK_9             },
+{ "9",      '9',    '(',    SDLK_9             }, // 10
 { "0",      '0',    ')',    SDLK_0             },
 { "-",      '-',    '_',    SDLK_MINUS         },
 { "=",      '=',    '+',    SDLK_EQUALS        },
@@ -80,7 +81,7 @@ key_props key_properties[256] = {
 { "W",      'w',    'W',    SDLK_w             },
 { "E",      'e',    'E',    SDLK_e             },
 { "R",      'r',    'R',    SDLK_r             },
-{ "T",      't',    'T',    SDLK_t             },
+{ "T",      't',    'T',    SDLK_t             }, // 20
 { "Y",      'y',    'Y',    SDLK_y             },
 { "U",      'u',    'U',    SDLK_u             },
 { "I",      'i',    'I',    SDLK_i             },
@@ -88,11 +89,9 @@ key_props key_properties[256] = {
 { "P",      'p',    'P',    SDLK_p             },
 { "[",      '[',    '{',    SDLK_LEFTBRACKET   },
 { "]",      ']',    '}',    SDLK_RIGHTBRACKET  },
-//edited 06/08/99 Matt Mueller - set to correct key_text
-{ "",      255,    255,    SDLK_RETURN        },
-//end edit -MM
+{ "ENTER",  255,    255,    SDLK_RETURN        },
 { "LCTRL",  255,    255,    SDLK_LCTRL         },
-{ "A",      'a',    'A',    SDLK_a             },
+{ "A",      'a',    'A',    SDLK_a             }, // 30
 { "S",      's',    'S',    SDLK_s             },
 { "D",      'd',    'D',    SDLK_d             },
 { "F",      'f',    'F',    SDLK_f             },
@@ -101,13 +100,9 @@ key_props key_properties[256] = {
 { "J",      'j',    'J',    SDLK_j             },
 { "K",      'k',    'K',    SDLK_k             },
 { "L",      'l',    'L',    SDLK_l             },
-//edited 06/08/99 Matt Mueller - set to correct sym
-{ ";",      ';',    ':',    SDLK_SEMICOLON         },
-//end edit -MM
-{ "'",      '\'',   '"',    SDLK_QUOTE         },
-//edited 06/08/99 Matt Mueller - set to correct sym
+{ ";",      ';',    ':',    SDLK_SEMICOLON     },
+{ "'",      '\'',   '"',    SDLK_QUOTE         }, // 40
 { "`",      '`',    '~',    SDLK_BACKQUOTE     },
-//end edit -MM
 { "LSHFT",  255,    255,    SDLK_LSHIFT        },
 { "\\",     '\\',   '|',    SDLK_BACKSLASH     },
 { "Z",      'z',    'Z',    SDLK_z             },
@@ -116,19 +111,17 @@ key_props key_properties[256] = {
 { "V",      'v',    'V',    SDLK_v             },
 { "B",      'b',    'B',    SDLK_b             },
 { "N",      'n',    'N',    SDLK_n             },
-{ "M",      'm',    'M',    SDLK_m             },
-//edited 06/08/99 Matt Mueller - set to correct syms
-{ ",",      ',',    '<',    SDLK_COMMA	},
-{ ".",      '.',    '>',    SDLK_PERIOD	},
-{ "/",      '/',    '?',    SDLK_SLASH	},
-//end edit -MM
-{ "RSHFT",  255,    255,    SDLK_RSHIFT	},
+{ "M",      'm',    'M',    SDLK_m             }, // 50
+{ ",",      ',',    '<',    SDLK_COMMA         },
+{ ".",      '.',    '>',    SDLK_PERIOD        },
+{ "/",      '/',    '?',    SDLK_SLASH         },
+{ "RSHFT",  255,    255,    SDLK_RSHIFT        },
 { "PAD*",   '*',    255,    SDLK_KP_MULTIPLY   },
 { "LALT",   255,    255,    SDLK_LALT          },
 { "SPC",    ' ',    ' ',    SDLK_SPACE         },
 { "CPSLK",  255,    255,    SDLK_CAPSLOCK      },
 { "F1",     255,    255,    SDLK_F1            },
-{ "F2",     255,    255,    SDLK_F2            },
+{ "F2",     255,    255,    SDLK_F2            }, // 60
 { "F3",     255,    255,    SDLK_F3            },
 { "F4",     255,    255,    SDLK_F4            },
 { "F5",     255,    255,    SDLK_F5            },
@@ -138,7 +131,7 @@ key_props key_properties[256] = {
 { "F9",     255,    255,    SDLK_F9            },
 { "F10",    255,    255,    SDLK_F10           },
 { "NMLCK",  255,    255,    SDLK_NUMLOCK       },
-{ "SCLK",   255,    255,    SDLK_SCROLLOCK     },
+{ "SCLK",   255,    255,    SDLK_SCROLLOCK     }, // 70
 { "PAD7",   255,    255,    SDLK_KP7           },
 { "PAD8",   255,    255,    SDLK_KP8           },
 { "PAD9",   255,    255,    SDLK_KP9           },
@@ -148,7 +141,7 @@ key_props key_properties[256] = {
 { "PAD6",   255,    255,    SDLK_KP6           },
 { "PAD+",   255,    255,    SDLK_KP_PLUS       },
 { "PAD1",   255,    255,    SDLK_KP1           },
-{ "PAD2",   255,    255,    SDLK_KP2           },
+{ "PAD2",   255,    255,    SDLK_KP2           }, // 80
 { "PAD3",   255,    255,    SDLK_KP3           },
 { "PAD0",   255,    255,    SDLK_KP0           },
 { "PAD.",   255,    255,    SDLK_KP_PERIOD     },
@@ -158,17 +151,17 @@ key_props key_properties[256] = {
 { "F11",    255,    255,    SDLK_F11           },
 { "F12",    255,    255,    SDLK_F12           },
 { "",       255,    255,    -1                 },	
+{ "",       255,    255,    -1                 }, // 90
 { "",       255,    255,    -1                 },
 { "",       255,    255,    -1                 },
 { "",       255,    255,    -1                 },
 { "",       255,    255,    -1                 },
 { "",       255,    255,    -1                 },
 { "",       255,    255,    -1                 },
+{ "PAUSE",  255,    255,    SDLK_PAUSE         },
 { "",       255,    255,    -1                 },
-//edited 06/08/99 Matt Mueller - add pause ability
-{ "PAUSE",       255,    255,    SDLK_PAUSE                 },
-//end edit -MM
 { "",       255,    255,    -1                 },
+{ "",       255,    255,    -1                 }, // 100
 { "",       255,    255,    -1                 },
 { "",       255,    255,    -1                 },
 { "",       255,    255,    -1                 },
@@ -178,6 +171,7 @@ key_props key_properties[256] = {
 { "",       255,    255,    -1                 },
 { "",       255,    255,    -1                 },
 { "",       255,    255,    -1                 },
+{ "",       255,    255,    -1                 }, // 110
 { "",       255,    255,    -1                 },
 { "",       255,    255,    -1                 },
 { "",       255,    255,    -1                 },
@@ -187,6 +181,7 @@ key_props key_properties[256] = {
 { "",       255,    255,    -1                 },
 { "",       255,    255,    -1                 },
 { "",       255,    255,    -1                 },
+{ "",       255,    255,    -1                 }, // 120
 { "",       255,    255,    -1                 },
 { "",       255,    255,    -1                 },
 { "",       255,    255,    -1                 },
@@ -196,6 +191,7 @@ key_props key_properties[256] = {
 { "",       255,    255,    -1                 },
 { "",       255,    255,    -1                 },
 { "",       255,    255,    -1                 },
+{ "",       255,    255,    -1                 }, // 130
 { "",       255,    255,    -1                 },
 { "",       255,    255,    -1                 },
 { "",       255,    255,    -1                 },
@@ -205,6 +201,7 @@ key_props key_properties[256] = {
 { "",       255,    255,    -1                 },
 { "",       255,    255,    -1                 },
 { "",       255,    255,    -1                 },
+{ "",       255,    255,    -1                 }, // 140
 { "",       255,    255,    -1                 },
 { "",       255,    255,    -1                 },
 { "",       255,    255,    -1                 },
@@ -214,29 +211,27 @@ key_props key_properties[256] = {
 { "",       255,    255,    -1                 },
 { "",       255,    255,    -1                 },
 { "",       255,    255,    -1                 },
+{ "",       255,    255,    -1                 }, // 150
 { "",       255,    255,    -1                 },
 { "",       255,    255,    -1                 },
 { "",       255,    255,    -1                 },
 { "",       255,    255,    -1                 },
 { "",       255,    255,    -1                 },
+{ "PAD",    255,    255,    SDLK_KP_ENTER      },
+{ "RCTRL",  255,    255,    SDLK_RCTRL         },
 { "",       255,    255,    -1                 },
 { "",       255,    255,    -1                 },
+{ "",       255,    255,    -1                 }, // 160
 { "",       255,    255,    -1                 },
 { "",       255,    255,    -1                 },
 { "",       255,    255,    -1                 },
 { "",       255,    255,    -1                 },
-{ "ENTER",   255,    255,    SDLK_RETURN      },//{ "",       255,    255,    -1                 },
-//edited 06/08/99 Matt Mueller - set to correct key_text
-{ "PAD",   255,    255,    SDLK_KP_ENTER      },
-//end edit -MM
-//edited 06/08/99 Matt Mueller - set to correct sym
-{ "RCTRL",  255,    255,    SDLK_RCTRL            },
-//end edit -MM
 { "",       255,    255,    -1                 },
 { "",       255,    255,    -1                 },
 { "",       255,    255,    -1                 },
 { "",       255,    255,    -1                 },
 { "",       255,    255,    -1                 },
+{ "",       255,    255,    -1                 }, // 170
 { "",       255,    255,    -1                 },
 { "",       255,    255,    -1                 },
 { "",       255,    255,    -1                 },
@@ -246,27 +241,17 @@ key_props key_properties[256] = {
 { "",       255,    255,    -1                 },
 { "",       255,    255,    -1                 },
 { "",       255,    255,    -1                 },
-{ "",       255,    255,    -1                 },
-{ "",       255,    255,    -1                 },
-{ "",       255,    255,    -1                 },
-{ "",       255,    255,    -1                 },
-{ "",       255,    255,    -1                 },
-{ "",       255,    255,    -1                 },
-{ "",       255,    255,    -1                 },
-{ "",       255,    255,    -1                 },
-{ "",       255,    255,    -1                 },
+{ "",       255,    255,    -1                 }, // 180
 { "PAD/",   255,    255,    SDLK_KP_DIVIDE     },
 { "",       255,    255,    -1                 },
-//edited 06/08/99 Matt Mueller - add printscreen ability
-{ "PRSCR",       255,    255,    SDLK_PRINT                 },
-//end edit -MM
+{ "PRSCR",  255,    255,    SDLK_PRINT         },
 { "RALT",   255,    255,    SDLK_RALT          },
 { "",       255,    255,    -1                 },
 { "",       255,    255,    -1                 },
 { "",       255,    255,    -1                 },
 { "",       255,    255,    -1                 },
 { "",       255,    255,    -1                 },
-{ "",       255,    255,    -1                 },
+{ "",       255,    255,    -1                 }, // 190
 { "",       255,    255,    -1                 },
 { "",       255,    255,    -1                 },
 { "",       255,    255,    -1                 },
@@ -276,26 +261,27 @@ key_props key_properties[256] = {
 { "",       255,    255,    -1                 },
 { "",       255,    255,    -1                 },
 { "HOME",   255,    255,    SDLK_HOME          },
-//edited 06/08/99 Matt Mueller - set to correct key_text
-{ "UP",		255,    255,    SDLK_UP            },
-//end edit -MM
+{ "UP",     255,    255,    SDLK_UP            }, // 200
 { "PGUP",   255,    255,    SDLK_PAGEUP        },
 { "",       255,    255,    -1                 },
-//edited 06/08/99 Matt Mueller - set to correct key_text
-{ "LEFT",	255,    255,    SDLK_LEFT          },
-//end edit -MM
+{ "LEFT",   255,    255,    SDLK_LEFT          },
 { "",       255,    255,    -1                 },
-//edited 06/08/99 Matt Mueller - set to correct key_text
-{ "RIGHT",	255,    255,    SDLK_RIGHT         },
-//end edit -MM
+{ "RIGHT",  255,    255,    SDLK_RIGHT         },
 { "",       255,    255,    -1                 },
-//edited 06/08/99 Matt Mueller - set to correct key_text
 { "END",    255,    255,    SDLK_END           },
-//end edit -MM
-{ "DOWN",	255,    255,    SDLK_DOWN          },
-{ "PGDN",	255,    255,    SDLK_PAGEDOWN      },
-{ "INS",	255,    255,    SDLK_INSERT        },
-{ "DEL",	255,    255,    SDLK_DELETE        },
+{ "DOWN",   255,    255,    SDLK_DOWN          },
+{ "PGDN",   255,    255,    SDLK_PAGEDOWN      },
+{ "INS",    255,    255,    SDLK_INSERT        }, // 210
+{ "DEL",    255,    255,    SDLK_DELETE        },
+{ "",       255,    255,    -1                 },
+{ "",       255,    255,    -1                 },
+{ "",       255,    255,    -1                 },
+{ "",       255,    255,    -1                 },
+{ "",       255,    255,    -1                 },
+{ "",       255,    255,    -1                 },
+{ "",       255,    255,    -1                 },
+{ "",       255,    255,    -1                 },
+{ "",       255,    255,    -1                 }, // 220
 { "",       255,    255,    -1                 },
 { "",       255,    255,    -1                 },
 { "",       255,    255,    -1                 },
@@ -305,6 +291,7 @@ key_props key_properties[256] = {
 { "",       255,    255,    -1                 },
 { "",       255,    255,    -1                 },
 { "",       255,    255,    -1                 },
+{ "",       255,    255,    -1                 }, // 230
 { "",       255,    255,    -1                 },
 { "",       255,    255,    -1                 },
 { "",       255,    255,    -1                 },
@@ -314,6 +301,7 @@ key_props key_properties[256] = {
 { "",       255,    255,    -1                 },
 { "",       255,    255,    -1                 },
 { "",       255,    255,    -1                 },
+{ "",       255,    255,    -1                 }, // 240
 { "",       255,    255,    -1                 },
 { "",       255,    255,    -1                 },
 { "",       255,    255,    -1                 },
@@ -323,23 +311,41 @@ key_props key_properties[256] = {
 { "",       255,    255,    -1                 },
 { "",       255,    255,    -1                 },
 { "",       255,    255,    -1                 },
+{ "",       255,    255,    -1                 }, // 250
 { "",       255,    255,    -1                 },
 { "",       255,    255,    -1                 },
 { "",       255,    255,    -1                 },
 { "",       255,    255,    -1                 },
-{ "",       255,    255,    -1                 },
-{ "",       255,    255,    -1                 },
-{ "",       255,    255,    -1                 },
-{ "",       255,    255,    -1                 },
-{ "",       255,    255,    -1                 },
-{ "",       255,    255,    -1                 },
-{ "",       255,    255,    -1                 },
-{ "",       255,    255,    -1                 },
-{ "",       255,    255,    -1                 },
-{ "",       255,    255,    -1                 },
-{ "",       255,    255,    -1                 },
-{ "",       255,    255,    -1                 },
-{ "",       255,    255,    -1                 },
+{ "",       255,    255,    -1                 }, // 255
+};
+
+static char font_table[256] = {
+	255,  255,  255,  255,  255,  '.',  255,  255, 255,   255,
+	255,  255,  ' ',  255,  '.',  '.',  '[',  ']',  '0',  '1',
+	'2',  '3',  '4',  '5',  '6',  '7',  '8',  '9',  '.',  '<',
+	'=',  '>',  ' ',  '!',  '"',  '#',  '$',  '%',  '&', '\'',
+	'(',  ')',  '*',  '+',  ',',  '-',  '.',  '/',  '0',  '1',
+	'2',  '3',  '4',  '5',  '6',  '7',  '8',  '9',  ':',  ';',
+	'<',  '=',  '>',  '?',  '@',  'A',  'B',  'C',  'D',  'E',
+	'F',  'G',  'H',  'I',  'J',  'K',  'L',  'M',  'N',  'O',
+	'P',  'Q',  'R',  'S',  'T',  'U',  'V',  'W',  'X',  'Y',
+	'Z',  '[',  '\\', ']',  '^',  '_',  '`',  'a',  'b',  'c',
+	'd',  'e',  'f',  'g',  'h',  'i',  'j',  'k',  'l',  'm',
+	'n',  'o',  'p',  'q',  'r',  's',  't',  'u',  'v',  'w',
+	'x',  'y',  'z',  '{',  '|',  '}',  '~',  '<',  '<',  '=',
+	'>',  255,  255,  '.',  255,  255,  255,  255,  ' ',  255,
+	' ',  '>',  '.',  '.',  '[',  ']',  '0',  '1',  '2',  '3',
+	'4',  '5',  '6',  '7',  '8',  '9',  '.',  '<',  '=',  '>',
+	' ',  '!',  '"',  255,  '$',  '%',  '&', '\'',  '(',  ')',
+	'*',  '+',  ',',  '-',  '.',  '/',  '0',  '1',  '2',  '3',
+	'4',  '5',  '6',  '7',  '8',  '9',  ':',  ';',  '<',  '=',
+	'>',  '?',  '@',  'A',  'B',  'C',  'D',  'E',  'F',  'G',
+	'H',  'I',  'J',  'K',  'L',  'M',  'N',  'O',  'P',  'Q',
+	'R',  'S',  'T',  'U',  'V',  'W',  'X',  'Y',  'Z',  '[',
+	'\\', ']',  '^',  '_',  '`',  'a',  'b',  'c',  'd',  'e',
+	'f',  'g',  'h',  'i',  'j',  'k',  'l',  'm',  'n',  'o',
+	'p',  'q',  'r',  's',  't',  'u',  'v',  'w',  'x',  'y',
+	'z',  '{',  '|',  '}',  '~',  '<'
 };
 
 char *key_text[256];
@@ -348,17 +354,16 @@ void key_buid_key_text(void)
 {
 }
 
-unsigned char key_to_ascii(int keycode )
+unsigned char key_to_ascii()
 {
-	int shifted;
+	static int last_ascii = 0;
+	
+	if (last_ascii == keyd_ascii)
+		return 255;
+	
+	last_ascii = keyd_ascii;
 
-	shifted = keycode & KEY_SHIFTED;
-	keycode &= 0xFF;
-
-	if (shifted)
-		return key_properties[keycode].shifted_ascii_value;
-	else
-		return key_properties[keycode].ascii_value;
+	return keyd_ascii;
 }
 
 void key_handler(SDL_KeyboardEvent *event)
@@ -371,6 +376,18 @@ void key_handler(SDL_KeyboardEvent *event)
         event_key = event->keysym.sym;
 
         key_state = (event->state == SDL_PRESSED); //  !(wInfo & KF_UP);
+
+	keyd_ascii = font_table[event->keysym.unicode];
+
+char test[1];
+
+test[0]=keyd_ascii;
+
+printf("%s %i\n",test, event->keysym.unicode);
+
+// 	if (keyd_ascii == 255)
+// 		keyd_ascii = event->keysym.sym;
+
 	//=====================================================
 	//Here a translation from win keycodes to mac keycodes!
 	//=====================================================
@@ -441,6 +458,7 @@ void key_init()
   if (Installed) return;
 
   Installed=1;
+  SDL_EnableUNICODE(1);
 
   keyd_time_when_last_pressed = timer_get_fixed_seconds();
   keyd_buffer_type = 1;

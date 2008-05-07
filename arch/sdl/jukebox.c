@@ -59,7 +59,7 @@ char *select_next_song(dl_list *list) {
 	return ret;
 }
 
-void jukebox_free()
+void jukebox_unload()
 {
 	if (JukeboxSongs == NULL)
 		return;
@@ -82,7 +82,7 @@ void jukebox_load() {
 	if (memcmp(curpath,GameCfg.JukeboxPath,PATH_MAX) || !GameCfg.JukeboxOn)
 	{
 		PHYSFS_removeFromSearchPath(curpath);
-		jukebox_free();
+		jukebox_unload();
 	}
 
 	if (jukebox_loaded)

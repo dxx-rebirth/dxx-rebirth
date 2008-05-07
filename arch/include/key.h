@@ -55,7 +55,7 @@ extern int key_inkey();     // Gets key if one, other returns 0.
 extern int key_inkey_time(fix *time);     // Same as inkey, but returns the time the key was pressed down.
 extern int key_peekkey();   // Same as inkey, but doesn't remove key from buffer.
 
-extern unsigned char key_to_ascii(int keycode );
+extern unsigned char key_to_ascii();
 
 extern void key_debug();    // Does an INT3
 
@@ -86,7 +86,7 @@ extern char * key_text[256];
 #define KEY_SHIFTED     0x100
 #define KEY_ALTED       0x200
 #define KEY_CTRLED      0x400
-#define KEY_DEBUGGED		0x800
+#define KEY_DEBUGGED	0x800
 
 #define KEY_0           0x0B
 #define KEY_1           0x02

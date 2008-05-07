@@ -1,7 +1,7 @@
 #ifndef __JUKEBOX_H__
 #define __JUKEBOX_H__
 
-void jukebox_free();
+void jukebox_unload();
 void jukebox_load();
 void jukebox_play(int loop);
 void jukebox_stop();

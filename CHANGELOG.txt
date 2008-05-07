@@ -1,5 +1,9 @@
 D1X-Rebirth Changelog
 
+20080507
+--------
+include/args.h, main/newmenu.c, main/multi.c, main/multi.h, main/inferno.c, main/menu.c, main/netdrv_udp.c, main/game.c, misc/args.c, d1x.ini, ui/inputbox.c, ui/menubar.c, arch/sdl/digi_mixer.c, arch/sdl/jukebox.c, arch/sdl/key.c, arch/include/jukebox.h, arch/include/key.h: Return unicode characters in key_to_ascii for non-EN keyboard layouts; Fixed sound menu issue if not compiled with SDL_mixer; switched -ip_norelay to -ip_relay since it's not tested enough; Renamed jukebox_free() to jukebox_unload() to stay with naming-convention
+
 20080502
 --------
 include/args.h, main/inferno.c, main/menu.c, main/songs.c, main/config.c, main/config.h, main/game.c, misc/args.c, SConstruct, d1x.ini, arch/ogl/gr.c, arch/sdl/digi_mixer.c, arch/sdl/digi_mixer_music.c, arch/sdl/jukebox.c, arch/win32/hmpfile.c, arch/include/jukebox.h: Extended Jukebox capabilities for looping and continous playing and added jukebox_free() which allows calling jukebox_load() being able to load a new directory; Added Jukebox options to sound options menu; Removed loop hack for Windows MIDI playback; SDL_mixer implementation can now be used for Windows build as well

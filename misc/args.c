@@ -178,7 +178,7 @@ void ReadCmdArgs(void)
 	GameArg.MplIpxNetwork 		= get_str_arg("-ipxnetwork", NULL);
 	GameArg.MplIpHostAddr 		= get_str_arg("-ip_hostaddr", "");
 	GameArg.MplIpBasePort 		= get_int_arg("-ip_baseport", 0);
-	GameArg.MplIpNoRelay	 	= FindArg("-ip_norelay");
+	GameArg.MplIpRelay	 	= FindArg("-ip_relay");
 
 	// Editor Options
 

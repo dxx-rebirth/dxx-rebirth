@@ -665,7 +665,11 @@ void sound_menuset(int nitems, newmenu_item * items, int *last_key, int citem )
 
 void do_sound_menu()
 {
+#ifdef USE_SDLMIXER
 	newmenu_item m[7];
+#else
+	newmenu_item m[4];
+#endif
 	int i = 0;
 
 	do {

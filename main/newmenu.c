@@ -1213,7 +1213,7 @@ int newmenu_do3_real( char * title, char * subtitle, int nitems, newmenu_item * 
 						item[choice].value--;
 					item[choice].text[item[choice].value] = 0;
 				} else {
-					ascii = key_to_ascii(k);
+					ascii = key_to_ascii();
 					if ((ascii < 255 ) && (item[choice].value < item[choice].text_len ))
 					{
 						int allowed;

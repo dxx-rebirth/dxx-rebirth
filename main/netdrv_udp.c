@@ -201,7 +201,7 @@ int UDPHandshakeFrame(struct _sockaddr *sAddr, char *inbuf)
 			{
  				if (UDPPeers[checkid].hstimeout > 10)
  				{
-					if (!GameArg.MplIpNoRelay)
+					if (GameArg.MplIpRelay)
 					{
 						con_printf(CON_NORMAL,"Relaying Client #%i\n",checkid);
 						UDPPeers[checkid].relay=1;
