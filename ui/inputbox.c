@@ -143,7 +143,7 @@ void ui_inputbox_do( UI_GADGET_INPUTBOX * inputbox, int keypress )
 			if (inputbox->first_time) inputbox->first_time = 0;
 			break;
 		default:
-			ascii = key_to_ascii(keypress);
+			ascii = key_to_ascii();
 			if ((ascii < 255 ) && (inputbox->position < inputbox->length-2))
 			{
 				if (inputbox->first_time) {

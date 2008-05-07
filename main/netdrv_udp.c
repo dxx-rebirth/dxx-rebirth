@@ -154,7 +154,7 @@ void UDPReceiveCFG(char *text, struct _sockaddr *sAddr)
 
 // Handshaking between clients
 // Here the HOST will motivate existing clients to connect to a new one
-// If all went good, client can join, if not host will relay this client if !GameArg.MplIpNoRelay or being dumped
+// If all went good, client can join, if not host will relay this client if GameArg.MplIpRelay or being dumped
 int UDPHandshakeFrame(struct _sockaddr *sAddr, char *inbuf)
 {
 	int i,checkid=-1;
@@ -202,7 +202,7 @@ int UDPHandshakeFrame(struct _sockaddr *sAddr, char *inbuf)
 			{
  				if (UDPPeers[checkid].hstimeout > 10)
  				{
-					if (!GameArg.MplIpNoRelay)
+					if (GameArg.MplIpRelay)
 					{
 						con_printf(CON_NORMAL,"Relaying Client #%i\n",checkid);
 						UDPPeers[checkid].relay=1;

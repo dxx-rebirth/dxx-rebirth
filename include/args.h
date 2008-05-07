@@ -78,7 +78,7 @@ typedef struct Arg
 	const char *MplIpxNetwork;
 	char *MplIpHostAddr;
 	int MplIpBasePort;
-	int MplIpNoRelay;
+	int MplIpRelay;
 	char *EdiAutoLoad;
 	int EdiSaveHoardData;
 	int EdiMacData; // also used for some read routines in non-editor build

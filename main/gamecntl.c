@@ -161,7 +161,7 @@ extern ubyte DefiningMarkerMessage;
 extern void CyclePrimary();
 extern void CycleSecondary();
 extern void InitMarkerInput();
-extern void MarkerInputMessage (int);
+extern void MarkerInputMessage();
 extern int	allowed_to_fire_missile(void);
 extern int	allowed_to_fire_flare(void);
 extern void	check_rear_view(void);
@@ -2324,25 +2324,20 @@ void ReadControls()
 	if (Newdemo_state == ND_STATE_PLAYBACK )
 		update_vcr_state();
 
+	if (DefiningMarkerMessage)
+		MarkerInputMessage();
+
+#ifdef NETWORK
+	if ( (Game_mode & GM_MULTI) && (multi_sending_message || multi_defining_message) )
+		multi_message_input_sub();
+#endif
+
 	while ((key=key_inkey_time(&key_time)) != 0)    {
 		if (con_events(key))
 		{
 			game_flush_inputs();
 			continue;
 		}
-
-		if (DefiningMarkerMessage)
-		 {
-			MarkerInputMessage (key);
-			continue;
-		 }
-
-		#ifdef NETWORK
-		if ( (Game_mode&GM_MULTI) && (multi_sending_message || multi_defining_message ))	{
-			multi_message_input_sub( key );
-			continue;		//get next key
-		}
-		#endif
 
 		#ifndef RELEASE
 		#ifdef NETWORK

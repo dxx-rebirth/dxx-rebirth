@@ -1328,41 +1328,43 @@ void InitMarkerInput ()
 	MarkerBeingDefined = i;
 }
 
-void MarkerInputMessage (int key)
+void MarkerInputMessage()
 {
-	switch( key )	{
-	case KEY_F8:
-	case KEY_ESC:
-		DefiningMarkerMessage = 0;
-		game_flush_inputs();
-		break;
-	case KEY_LEFT:
-	case KEY_BACKSP:
-	case KEY_PAD4:
-		if (Marker_index > 0)
-			Marker_index--;
-		Marker_input[Marker_index] = 0;
-		break;
-	case KEY_ENTER:
-		strcpy (MarkerMessage[(Player_num*2)+MarkerBeingDefined],Marker_input);
-		if (Game_mode & GM_MULTI)
-		 strcpy (MarkerOwner[(Player_num*2)+MarkerBeingDefined],Players[Player_num].callsign);
-		DropMarker(MarkerBeingDefined);
-		LastMarkerDropped = MarkerBeingDefined;
-		game_flush_inputs();
-		DefiningMarkerMessage = 0;
-		break;
-	default:
-		if ( key > 0 )
+	int key = key_inkey();
+
+	switch( key )
+	{
+		case KEY_F8:
+		case KEY_ESC:
+			DefiningMarkerMessage = 0;
+			game_flush_inputs();
+			break;
+		case KEY_LEFT:
+		case KEY_BACKSP:
+		case KEY_PAD4:
+			if (Marker_index > 0)
+				Marker_index--;
+			Marker_input[Marker_index] = 0;
+			break;
+		case KEY_ENTER:
+			strcpy (MarkerMessage[(Player_num*2)+MarkerBeingDefined],Marker_input);
+			if (Game_mode & GM_MULTI)
+			strcpy (MarkerOwner[(Player_num*2)+MarkerBeingDefined],Players[Player_num].callsign);
+			DropMarker(MarkerBeingDefined);
+			LastMarkerDropped = MarkerBeingDefined;
+			game_flush_inputs();
+			DefiningMarkerMessage = 0;
+			break;
+		default:
 		{
-			int ascii = key_to_ascii(key);
+			int ascii = key_to_ascii();
 			if ((ascii < 255 ))
 				if (Marker_index < 38 )
 				{
 					Marker_input[Marker_index++] = ascii;
 					Marker_input[Marker_index] = 0;
 				}
+			break;
 		}
-		break;
 	}
 }

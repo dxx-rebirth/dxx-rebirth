@@ -1828,7 +1828,7 @@ ReadFileNames:
 		
 		default:	
 			{
-				int ascii = key_to_ascii(key);
+				int ascii = key_to_ascii();
 				if ( ascii < 255 )	{
 					int cc,cc1;
 					cc=cc1=citem+1;

@@ -237,7 +237,6 @@ int do_powerup(object *obj)
 {
 	int used=0;
 	int special_used=0;		//for when hitting vulcan cannon gets vulcan ammo
-	char temp_string[50];
 	int id=obj->id;
 
 	if ((Player_is_dead) || (ConsoleObject->type == OBJ_GHOST) || (Players[Player_num].shields < 0))
@@ -514,14 +513,7 @@ int do_powerup(object *obj)
 					used = pick_up_energy();
 			} else {
 				Players[Player_num].flags |= PLAYER_FLAGS_CONVERTER;
-// DPH: anyone know what the hell this is supposed to do? it's always true =)
-/*				if ((GetKeyValue(54))<255)
-				 {*/
-					sprintf (temp_string,"Energy->Shield converter! (Press %c to use)",key_to_ascii(GetKeyValue(54)));
-			    	powerup_basic(15, 0, 15, 0, temp_string);
-/*				 }
-			   else
-			    	powerup_basic(15, 0, 15, 0, "Energy -> shield converter!"); */
+			    	powerup_basic(15, 0, 15, 0, "Energy -> shield converter!");
 
 
 				used=1;
