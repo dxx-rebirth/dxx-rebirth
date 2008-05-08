@@ -47,6 +47,7 @@ COPYRIGHT 1993-1998 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 #include "newmenu.h"
 #include "u_mem.h"
 #include "piggy.h"
+#include "mission.h"
 
 #ifdef OGL
 #include "ogl_init.h"
@@ -341,22 +342,34 @@ void render_face(int segnum, int sidenum, int nv, short *vp, int tmap1, int tmap
 
 
 #ifdef OGL
-	/* HACK: Level 19 has an unwanted 4D room. Let's use this stupid hack to disguise it. */
-	if (Current_level_num==19 && segnum >= 512 && segnum <=528)
-		glDepthFunc(GL_ALWAYS);
+
 #endif
 
 #ifdef EDITOR
 	if ((Render_only_bottom) && (sidenum == WBOTTOM))
+	{
 		g3_draw_tmap(nv,pointlist,uvl_copy,&GameBitmaps[Textures[Bottom_bitmap_num].index]);
+	}
 	else
 #endif
+	{
 #ifdef OGL
-		if (bm2){
+		/* HACK: Level 19 has an unwanted 4D room. Let's use this stupid hack to disguise it. */
+		if ( !memcmp("Descent: First Strike",Current_mission_longname,MISSION_NAME_LEN+1) && Current_level_num==19 && segnum >= 522 && segnum <=528 )
+		{
+			glDepthFunc(GL_ALWAYS);
+		}
+	
+		if (bm2)
+		{
 			g3_draw_tmap_2(nv,pointlist,uvl_copy,bm,bm2,((tmap2&0xC000)>>14) & 3);
-		}else
+		}
+		else
 #endif
+		{
 			g3_draw_tmap(nv,pointlist,uvl_copy,bm);
+		}
+	}
 
 	#ifndef NDEBUG
 	if (Outline_mode) draw_outline(nv, pointlist);
