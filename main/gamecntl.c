@@ -1873,7 +1873,7 @@ void FinalCheats(int key)
   int i;
   char *cryptstring;
 
-  key=key_to_ascii(key);
+  key=keyd_ascii;
 
   for (i=0;i<15;i++)
    CheatBuffer[i]=CheatBuffer[i+1];

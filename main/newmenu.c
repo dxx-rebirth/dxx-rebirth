@@ -1287,7 +1287,7 @@ int newmenu_do4( char * title, char * subtitle, int nitems, newmenu_item * item,
 						item[choice].value--;
 					item[choice].text[item[choice].value] = 0;
 				} else {
-					ascii = key_to_ascii(k);
+					ascii = key_to_ascii();
 					if ((ascii < 255 ) && (item[choice].value < item[choice].text_len ))
 					{
 						int allowed;
@@ -1312,7 +1312,7 @@ int newmenu_do4( char * title, char * subtitle, int nitems, newmenu_item * item,
 			}
 			else if ((item[choice].type!=NM_TYPE_INPUT) && (item[choice].type!=NM_TYPE_INPUT_MENU) )
 			{
-				ascii = key_to_ascii(k);
+				ascii = key_to_ascii();
 				if (ascii < 255 ) {
 					int choice1 = choice;
 					ascii = toupper(ascii);
@@ -2131,8 +2131,8 @@ int newmenu_listbox1( char * title, int nitems, char * items[], int allow_abort_
 			break;
 
 		default:	
-			if ( key > 0 )	{
-				int ascii = key_to_ascii(key);
+			{
+				int ascii = key_to_ascii();
 				if ( ascii < 255 )	{
 					int cc,cc1;
 					cc=cc1=citem+1;

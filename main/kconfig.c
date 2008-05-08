@@ -1356,21 +1356,6 @@ fix	LastReadTime = 0;
 
 fix	joy_axis[JOY_MAX_AXES];
 
-fix Next_toggle_time[3]={0,0,0};
-
-int allowed_to_toggle(int i)
-{
-  //used for keeping tabs of when its ok to toggle headlight,primary,and secondary
- 
-	if (Next_toggle_time[i] > GameTime)
-		if (Next_toggle_time[i] < GameTime + (F1_0/8))	//	In case time is bogus, never wait > 1 second.
-			return 0;
-
-	Next_toggle_time[i] = GameTime + (F1_0/8);
-
-	return 1;
-}
-
 #ifdef D2X_KEYS
 int d2x_joystick_ostate[20]={0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0};
 #endif

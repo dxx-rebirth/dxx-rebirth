@@ -354,10 +354,10 @@ void key_buid_key_text(void)
 {
 }
 
-unsigned char key_to_ascii()
+unsigned char key_to_ascii(void)
 {
 	static int last_ascii = 0;
-	
+
 	if (last_ascii == keyd_ascii)
 		return 255;
 	
@@ -492,6 +492,7 @@ void key_flush()
 		key_data.keys[i].timehelddown = 0;
 		key_data.keys[i].counter = 0;
 	}
+	keyd_ascii=255;
 }
 
 int add_one(int n)

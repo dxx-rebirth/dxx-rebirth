@@ -1,5 +1,9 @@
 D2X-Rebirth Changelog
 
+20080508
+--------
+main/newmenu.c, main/multi.c, main/kconfig.c, main/gamecntl.c, arch/sdl/key.c, arch/include/key.h: Some code improvements and small fixes
+
 20080507
 --------
 include/args.h, main/newmenu.c, main/multi.c, main/multi.h, main/inferno.c, main/menu.c, main/netdrv_udp.c, main/powerup.c, main/automap.c, main/gamecntl.c, misc/args.c, d2x.ini, ui/inputbox.c, ui/menubar.c, arch/sdl/digi_mixer.c, arch/sdl/jukebox.c, arch/sdl/key.c,arch/include/jukebox.h, arch/include/key.h: Return unicode characters in key_to_ascii for non-EN keyboard layouts; Fixed sound menu issue if not compiled with SDL_mixer; switched -ip_norelay to -ip_relay since it's not tested enough; Renamed jukebox_free() to jukebox_unload() to stay with naming-convention
