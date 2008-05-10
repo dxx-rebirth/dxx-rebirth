@@ -1,5 +1,9 @@
 D2X-Rebirth Changelog
 
+20080510
+--------
+main/playsave.c: use atoi instead of sscanf for plx reading, so the setting for showing the reticle is read properly on big endian computers
+
 20080508
 --------
 main/newmenu.c, main/multi.c, main/kconfig.c, main/gamecntl.c, arch/sdl/key.c, arch/include/key.h: Some code improvements and small fixes
