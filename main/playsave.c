@@ -213,7 +213,7 @@ int read_player_d1x(char *filename)
 			while(!strstr(word,"END") && !PHYSFS_eof(f))
 			{
 				if(!strcmp(word,"DEADZONE"))
-					sscanf(line,"%i",&PlayerCfg.JoystickDeadzone);
+					PlayerCfg.JoystickDeadzone = atoi(line);
 				d_free(word);
 				cfgets(line,50,f);
 				word=splitword(line,'=');
@@ -230,11 +230,7 @@ int read_player_d1x(char *filename)
 			while(!strstr(word,"END") && !PHYSFS_eof(f))
 			{
 				if(!strcmp(word,"SENSITIVITY"))
-				{
-					int tmp;
-					sscanf(line,"%i",&tmp);
-					PlayerCfg.MouseSensitivity = (ubyte) tmp;
-				}
+					PlayerCfg.MouseSensitivity = atoi(line);
 				d_free(word);
 				cfgets(line,50,f);
 				word=splitword(line,'=');
@@ -251,9 +247,9 @@ int read_player_d1x(char *filename)
 			while(!strstr(word,"END") && !PHYSFS_eof(f))
 			{
 				if(!strcmp(word,"MODE"))
-					sscanf(line,"%i",&PlayerCfg.CockpitMode);
+					PlayerCfg.CockpitMode = atoi(line);
 				else if(!strcmp(word,"HUD"))
-					sscanf(line,"%i",&PlayerCfg.HudMode);
+					PlayerCfg.HudMode = atoi(line);
 				d_free(word);
 				cfgets(line,50,f);
 				word=splitword(line,'=');
@@ -270,9 +266,9 @@ int read_player_d1x(char *filename)
 			while(!strstr(word,"END") && !PHYSFS_eof(f))
 			{
 				if(!strcmp(word,"RETICLE"))
-					sscanf(line,"%i",(int*)&PlayerCfg.ReticleOn);
+					PlayerCfg.ReticleOn = atoi(line);
 				else if(!strcmp(word,"PERSISTENTDEBRIS"))
-					sscanf(line,"%i",&PlayerCfg.PersistentDebris);
+					PlayerCfg.PersistentDebris = atoi(line);
 				d_free(word);
 				cfgets(line,50,f);
 				word=splitword(line,'=');
@@ -289,11 +285,11 @@ int read_player_d1x(char *filename)
 			while(!strstr(word,"END") && !PHYSFS_eof(f))
 			{
 				if(!strcmp(word,"OGLALPHAEFFECTS"))
-					sscanf(line,"%i",&PlayerCfg.OglAlphaEffects);
+					PlayerCfg.OglAlphaEffects = atoi(line);
 				else if(!strcmp(word,"OGLRETICLE"))
-					sscanf(line,"%i",&PlayerCfg.OglReticle);
+					PlayerCfg.OglReticle = atoi(line);
 				else if(!strcmp(word,"OGLPRSHOT"))
-					sscanf(line,"%i",&PlayerCfg.OglPRShot);
+					PlayerCfg.OglPRShot = atoi(line);
 				d_free(word);
 				cfgets(line,50,f);
 				word=splitword(line,'=');
