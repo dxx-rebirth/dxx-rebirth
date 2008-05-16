@@ -857,7 +857,7 @@ void network_send_objects(void)
 		{
 			obj_count = 0;
 			Network_send_object_mode = 0;
-			*(short *)(object_buffer+loc) = -1;	loc += 2;
+			*(short *)(object_buffer+loc) = INTEL_SHORT(-1);	loc += 2;
 			object_buffer[loc] = player_num; 		loc += 1;
 													loc += 2; // Placeholder for remote_objnum, not used here
 			Network_send_objnum = 0;
@@ -885,10 +885,11 @@ void network_send_objects(void)
 			remote_objnum = objnum_local_to_remote((short)i, &owner);
 			Assert(owner == object_owner[i]);
 
-			*(short *)(object_buffer+loc) = i;								loc += 2;
+			*(short *)(object_buffer+loc) = INTEL_SHORT(i);								loc += 2;
 			object_buffer[loc] = owner;											loc += 1;
-			*(short *)(object_buffer+loc) = remote_objnum; 				loc += 2;
+			*(short *)(object_buffer+loc) = INTEL_SHORT(remote_objnum); 				loc += 2;
 			memcpy(object_buffer+loc, &Objects[i], sizeof(object));	loc += sizeof(object);
+			swap_object((object *)&object_buffer[loc]);
 		}
 
 		if (obj_count_frame) // Send any objects we've buffered
@@ -921,8 +922,8 @@ void network_send_objects(void)
 				object_buffer[0] = PID_OBJECT_DATA;
 				object_buffer[1] = 1;
 				object_buffer[2] = frame_num;
-				*(short *)(object_buffer+3) = -2;	
-				*(short *)(object_buffer+6) = obj_count;
+				*(short *)(object_buffer+3) = INTEL_SHORT(-2);	
+				*(short *)(object_buffer+6) = INTEL_SHORT(obj_count);
 				//OLD NetDrvSendPacketData(object_buffer, 8, &Network_player_rejoining.player.node);
 				NetDrvSendInternetworkPacketData(object_buffer, 8, Network_player_rejoining.player.server, Network_player_rejoining.player.node);
 			
@@ -1149,8 +1150,8 @@ network_send_endlevel_sub(int player_num)
 	end.type 		= PID_ENDLEVEL;
 	end.player_num = player_num;
 	end.connected	= Players[player_num].connected;
-	end.kills		= Players[player_num].net_kills_total;
-	end.killed		= Players[player_num].net_killed_total;
+	end.kills       = INTEL_SHORT(Players[player_num].net_kills_total);
+	end.killed      = INTEL_SHORT(Players[player_num].net_killed_total);
 	memcpy(end.kill_matrix, kill_matrix[player_num], MAX_PLAYERS*sizeof(short));
 	//added 05/18/99 Matt Mueller - it doesn't use the rest, but we should at least initialize it :)
 	memset(end.kill_matrix[1], 0, (MAX_PLAYERS-1)*MAX_PLAYERS*sizeof(short));
@@ -1175,7 +1176,7 @@ network_send_endlevel_sub(int player_num)
 	{	
 		if ((i != Player_num) && (i!=player_num) && (Players[i].connected))
 		{
-			send_endlevel_packet(&end, Netgame.players[i].server, Netgame.players[i].node, Players[i].net_address);
+			NetDrvSendPacketData((ubyte *)&end, sizeof(endlevel_info), Netgame.players[i].server, Netgame.players[i].node, Players[i].net_address);
 		}
 	}
 }
@@ -1464,7 +1465,7 @@ network_read_endlevel_packet( ubyte *data )
 	// Special packet for end of level syncing
 
 	int playernum;
-	endlevel_info *end;
+	endlevel_info *end = (endlevel_info *)data;
 #ifdef WORDS_BIGENDIAN
 	int i, j;
 
@@ -1474,10 +1475,6 @@ network_read_endlevel_packet( ubyte *data )
 	end->kills = INTEL_SHORT(end->kills);
 	end->killed = INTEL_SHORT(end->killed);
 #endif
-
-	endlevel_info end_data;
-	end = &end_data;
-	receive_endlevel_packet(data, &end_data);
 
 	playernum = end->player_num;
 	
@@ -1556,9 +1553,9 @@ network_read_object_packet( ubyte *data )
 
 	for (i = 0; i < nobj; i++)
 	{
-		objnum = *(short *)(data+loc);			loc += 2;
-		obj_owner = data[loc];						loc += 1;
-		remote_objnum = *(short *)(data+loc);	loc += 2;
+		objnum = INTEL_SHORT(*(short *)(data+loc));			loc += 2;
+		obj_owner = data[loc];								loc += 1;
+		remote_objnum = INTEL_SHORT(*(short *)(data+loc));	loc += 2;
 
 		if (objnum == -1) 
 		{
@@ -1622,7 +1619,9 @@ network_read_object_packet( ubyte *data )
 					obj_unlink(objnum);
 				Assert(obj->segnum == -1);
 				Assert(objnum < MAX_OBJECTS);
-				memcpy(obj,data+loc,sizeof(object));		loc += sizeof(object);
+				memcpy(obj,data+loc,sizeof(object));
+				swap_object(obj);
+				loc += sizeof(object);
 				segnum = obj->segnum;
 				obj->next = obj->prev = obj->segnum = -1;
 				obj->attached_obj = -1;
@@ -2139,15 +2138,6 @@ void network_read_sync_packet( ubyte * data, int d1x )
 	netgame_info *sp = &Netgame;
 
 	char temp_callsign[CALLSIGN_LEN+1];
-#ifdef WORDS_BIGENDIAN
-	netgame_info tmp_info;
-
-	if (data)
-	{
-		receive_d1x_netgame_packet((ubyte *)sp, &tmp_info);
-		sp = &tmp_info;
-	}
-#endif
 	
 	// This function is now called by all people entering the netgame.
 
@@ -3436,9 +3426,9 @@ void network_read_pdata_packet(ubyte *data, int short_packet)
 
 	//------------ Read the player's ship's object info ----------------------
 	if (short_packet == 1) {
-		extract_shortpos(TheirObj, (shortpos *)(data + 4),0);
+		extract_shortpos(TheirObj, (shortpos *)(data + 4),1);
 	} else if (short_packet == 2) {
-		extract_shortpos(TheirObj, (shortpos *)(data + 2),0);
+		extract_shortpos(TheirObj, (shortpos *)(data + 2),1);
 	} else {
 		TheirObj->pos				= pd->obj_pos;
 		TheirObj->orient			= pd->obj_orient;

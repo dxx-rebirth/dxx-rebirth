@@ -17,30 +17,103 @@ COPYRIGHT 1993-1998 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 
 #include <string.h>
 #include "pstypes.h"
+//FIXME: Certain combinations of players having and not having the editor will cause the segment checksum code to fail.
+#ifdef WORDS_BIGENDIAN
+
+#include "byteswap.h"
+#include "segment.h"
+#include "gameseg.h"
+
+// routine to calculate the checksum of the segments.  We add these specialized routines
+// since the current way is byte order dependent.
+
+void mac_do_checksum_calc(ubyte *b, int len, unsigned int *s1, unsigned int *s2)
+{
+
+	while(len--) {
+		*s1 += *b++;
+		if (*s1 >= 255) *s1 -= 255;
+		*s2 += *s1;
+	}
+}
+
+ushort mac_calc_segment_checksum()
+{
+	int i, j, k;
+	unsigned int sum1,sum2;
+	short s;
+	int t;
+
+	sum1 = sum2 = 0;
+	for (i = 0; i < Highest_segment_index + 1; i++) {
+		for (j = 0; j < MAX_SIDES_PER_SEGMENT; j++) {
+			mac_do_checksum_calc((unsigned char *)&(Segments[i].sides[j].type), 1, &sum1, &sum2);
+			mac_do_checksum_calc(&(Segments[i].sides[j].pad), 1, &sum1, &sum2);
+			s = INTEL_SHORT(Segments[i].sides[j].wall_num);
+			mac_do_checksum_calc((ubyte *)&s, 2, &sum1, &sum2);
+			s = INTEL_SHORT(Segments[i].sides[j].tmap_num);
+			mac_do_checksum_calc((ubyte *)&s, 2, &sum1, &sum2);
+			s = INTEL_SHORT(Segments[i].sides[j].tmap_num2);
+			mac_do_checksum_calc((ubyte *)&s, 2, &sum1, &sum2);
+			for (k = 0; k < 4; k++) {
+				t = INTEL_INT(((int)Segments[i].sides[j].uvls[k].u));
+				mac_do_checksum_calc((ubyte *)&t, 4, &sum1, &sum2);
+				t = INTEL_INT(((int)Segments[i].sides[j].uvls[k].v));
+				mac_do_checksum_calc((ubyte *)&t, 4, &sum1, &sum2);
+				t = INTEL_INT(((int)Segments[i].sides[j].uvls[k].l));
+				mac_do_checksum_calc((ubyte *)&t, 4, &sum1, &sum2);
+			}
+			for (k = 0; k < 2; k++) {
+				t = INTEL_INT(((int)Segments[i].sides[j].normals[k].x));
+				mac_do_checksum_calc((ubyte *)&t, 4, &sum1, &sum2);
+				t = INTEL_INT(((int)Segments[i].sides[j].normals[k].y));
+				mac_do_checksum_calc((ubyte *)&t, 4, &sum1, &sum2);
+				t = INTEL_INT(((int)Segments[i].sides[j].normals[k].z));
+				mac_do_checksum_calc((ubyte *)&t, 4, &sum1, &sum2);
+			}
+		}
+		for (j = 0; j < MAX_SIDES_PER_SEGMENT; j++) {
+			s = INTEL_SHORT(Segments[i].children[j]);
+			mac_do_checksum_calc((ubyte *)&s, 2, &sum1, &sum2);
+		}
+		for (j = 0; j < MAX_VERTICES_PER_SEGMENT; j++) {
+			s = INTEL_SHORT(Segments[i].verts[j]);
+			mac_do_checksum_calc((ubyte *)&s, 2, &sum1, &sum2);
+		}
+		s = INTEL_SHORT(Segments[i].objects);
+		mac_do_checksum_calc((ubyte *)&s, 2, &sum1, &sum2);
+		mac_do_checksum_calc((unsigned char *)&(Segments[i].special), 1, &sum1, &sum2);
+		mac_do_checksum_calc((unsigned char *)&(Segments[i].matcen_num), 1, &sum1, &sum2);
+		s = INTEL_SHORT(Segments[i].value);
+		mac_do_checksum_calc((ubyte *)&s, 2, &sum1, &sum2);
+		t = INTEL_INT(((int)Segments[i].static_light));
+		mac_do_checksum_calc((ubyte *)&t, 4, &sum1, &sum2);
+#ifndef EDITOR
+		s = INTEL_SHORT(Segments[i].pad);	// necessary? If this isn't set to 0 it won't work Intel-Intel anyway.
+		mac_do_checksum_calc((ubyte *)&s, 2, &sum1, &sum2);
+#endif
+	}
+	sum2 %= 255;
+	return ((sum1<<8)+ sum2);
+}
+
+// this routine totally and completely relies on the fact that the network
+//  checksum must be calculated on the segments!!!!!
+
+ushort netmisc_calc_checksum(void * vptr, int len)
+{
+	vptr = vptr;
+	len = len;
+	return mac_calc_segment_checksum();
+}
+#endif
+
 #include "multi.h"
 #include "network.h"
 #include "object.h"
 #include "powerup.h"
 #include "error.h"
 #include "netpkt.h"
-
-// Calculates the checksum of a block of memory.
-unsigned short netmisc_calc_checksum( void * vptr, int len )
-{
-	ubyte * ptr = (ubyte *)vptr;
-	unsigned int sum1,sum2;
-
-	sum1 = sum2 = 0;
-
-	while(len--)	{
-		sum1 += *ptr++;
-		if (sum1 >= 255 ) sum1 -= 255;
-		sum2 += sum1;
-	}
-	sum2 %= 255;
-	
-	return ((sum1<<8)+ sum2);
-}
 
 void receive_netplayer_info(ubyte *data, netplayer_info *info, int d1x)
 {
@@ -580,19 +653,19 @@ void send_frameinfo_packet(ubyte *server, ubyte *node, ubyte *address, int short
 		out_buffer[loc] = Player_num; loc++;
 		out_buffer[loc] = pl_obj->render_type; loc++;
                 out_buffer[loc] = Current_level_num; loc++;
-                create_shortpos((shortpos *)(out_buffer + loc), pl_obj,0);
+                create_shortpos((shortpos *)(out_buffer + loc), pl_obj,1);
                 loc += 9+2*3+2+2*3; // go past shortpos structure
-                *(ushort *)(out_buffer + loc) = MySyncPack.data_size; loc += 2;
+                PUT_INTEL_SHORT(out_buffer + loc, MySyncPack.data_size); loc += 2;
                 memcpy(out_buffer + loc, MySyncPack.data, MySyncPack.data_size);
                 loc += MySyncPack.data_size;
         } else if (short_packet == 2) {
 		loc = 0;
 		out_buffer[loc] = PID_PDATA_SHORT2; loc++;
                 out_buffer[loc] = MySyncPack.numpackets & 255; loc++;
-                create_shortpos((shortpos *)(out_buffer + loc), pl_obj,0);
+                create_shortpos((shortpos *)(out_buffer + loc), pl_obj,1);
                 loc += 9+2*3+2+2*3; // go past shortpos structure
                 tmpus = MySyncPack.data_size | (Player_num << 12) | (pl_obj->render_type << 15);
-                *(ushort *)(out_buffer + loc) = tmpus; loc += 2;
+                PUT_INTEL_SHORT(out_buffer + loc, tmpus); loc += 2;
                 out_buffer[loc] = Current_level_num; loc++;
                 memcpy(out_buffer + loc, MySyncPack.data, MySyncPack.data_size);
                 loc += MySyncPack.data_size;
@@ -758,7 +831,7 @@ void receive_frameinfo_packet(ubyte *data, frame_info *info, int short_packet)
                 info->obj_render_type = data[loc]; loc++;
                 info->level_num = data[loc]; loc++;
                 loc += 9+2*3+2+2*3; // skip shortpos structure
-                info->data_size = *(ushort *)(data + loc); loc+=2;
+                info->data_size = GET_INTEL_SHORT(data + loc); loc+=2;
                 memcpy(info->data, &(data[loc]), info->data_size);
         } else if (short_packet == 2) {
 		ushort tmpus;
@@ -767,7 +840,7 @@ void receive_frameinfo_packet(ubyte *data, frame_info *info, int short_packet)
                 info->type = data[loc];         loc++;
                 info->numpackets = data[loc];   loc++;
                 loc += 9+2*3+2+2*3; // skip shortpos structure
-                tmpus = *(ushort *)(data + loc); loc+=2;
+                tmpus = GET_INTEL_SHORT(data + loc); loc+=2;
                 info->data_size = tmpus & 0xfff;
                 info->playernum = (tmpus >> 12) & 7;
                 info->obj_render_type = tmpus >> 15;
@@ -1032,5 +1105,27 @@ void swap_object(object *obj)
 
 }
 
+#ifndef WORDS_BIGENDIAN
+
+
+// Calculates the checksum of a block of memory.
+ushort netmisc_calc_checksum(void * vptr, int len)
+{
+	ubyte *ptr = (ubyte *)vptr;
+	unsigned int sum1,sum2;
+
+	sum1 = sum2 = 0;
+
+	while(len--) {
+		sum1 += *ptr++;
+		if (sum1 >= 255) sum1 -= 255;
+		sum2 += sum1;
+	}
+	sum2 %= 255;
+
+	return ((sum1<<8)+ sum2);
+}
+
+#endif /* WORDS_BIGENDIAN */
 
 #endif //ifdef NETWORK

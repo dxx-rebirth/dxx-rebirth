@@ -1,5 +1,9 @@
 D1X-Rebirth Changelog
 
+20080516
+--------
+main/multi.c, main/multibot.c, main/netpkt.c, main/network.c: fix remaining endian bugs in network code, now it works on the Mac
+
 20080510
 --------
 main/playsave.c: use atoi instead of sscanf for plx reading, so the setting for showing the reticle is read properly on big endian computers

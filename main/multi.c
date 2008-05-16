@@ -1190,8 +1190,8 @@ multi_do_fire(char *buf)
 	pnum = buf[1];
 	weapon = (int)buf[2];	
 	flags = buf[4];
-	Network_laser_track = *(short *)(buf+6);
-	
+	Network_laser_track = GET_INTEL_SHORT(buf + 6);
+
 	Assert (pnum < N_players);
 
 //added on 03/05/99 Matt Mueller - add POS_FIRE capability
@@ -1312,7 +1312,7 @@ multi_do_reappear(char *buf)
 {
 	short objnum;
 
-	objnum = *(short *)(buf+1);
+	objnum = GET_INTEL_SHORT(buf + 1);
 
 	Assert(objnum >= 0);
 
@@ -1395,8 +1395,8 @@ multi_do_player_explode(char *buf)
 	Players[pnum].secondary_ammo[SMART_INDEX] = buf[count]; 	count++;
 	Players[pnum].secondary_ammo[MEGA_INDEX] = buf[count];		count++;
 	Players[pnum].secondary_ammo[PROXIMITY_INDEX] = buf[count]; count++;
-	Players[pnum].primary_ammo[VULCAN_INDEX] = *(ushort *)(buf+count); count += 2;
-        Players[pnum].flags = *(uint *)(buf+count);                                             count += 4;
+	Players[pnum].primary_ammo[VULCAN_INDEX] = GET_INTEL_SHORT(buf + count); count += 2;
+	Players[pnum].flags = GET_INTEL_INT(buf + count);               count += 4;
 
 	objp = Objects+Players[pnum].objnum;
 
@@ -1426,9 +1426,12 @@ multi_do_player_explode(char *buf)
 
 	for (i = 0; i < remote_created; i++)
 	{
-		if ((i < Net_create_loc) && (*(short *)(buf+count) > 0) &&
+		short s;
+
+		s = GET_INTEL_SHORT(buf + count);
+		if ((i < Net_create_loc) && (s > 0) &&
 		    (Net_create_objnums[i] > 0))
-			map_objnum_local_to_remote((short)Net_create_objnums[i], *(short *)(buf+count), pnum);
+			map_objnum_local_to_remote((short)Net_create_objnums[i], s, pnum);
 		count += 2;
 	}
 	for (i = remote_created; i < Net_create_loc; i++) {
@@ -1473,7 +1476,7 @@ multi_do_kill(char *buf)
 	killed = objnum_remote_to_local(*(short *)(buf+count), (sbyte)buf[count+2]);
 	count += 3;
 #endif
-	killer = *(short *)(buf+count); 
+	killer = GET_INTEL_SHORT(buf + count);
 	if (killer > 0)
 		killer = objnum_remote_to_local(killer, (sbyte)buf[count+2]);
 
@@ -1497,7 +1500,7 @@ void multi_do_controlcen_destroy(char *buf)
 	sbyte who;
 	short objnum;
 
-	objnum = *(short *)(buf+1);
+	objnum = GET_INTEL_SHORT(buf + 1);
 	who = buf[3];
 
 	if (Fuelcen_control_center_destroyed != 1) 
@@ -1559,7 +1562,7 @@ multi_do_remobj(char *buf)
 	short local_objnum;
 	sbyte obj_owner; // which remote list is it entered in
 
-	objnum = *(short *)(buf+1);
+	objnum = GET_INTEL_SHORT(buf + 1);
 	obj_owner = buf[3];
 
 	Assert(objnum >= 0);
@@ -1667,7 +1670,7 @@ multi_do_door_open(char *buf)
 	segnum = *(int *)(buf+1);
 	side = *(short *)(buf+5);
 #else
-	segnum = *(short *)(buf+1);
+	segnum = GET_INTEL_SHORT(buf + 1);
 	side = buf[3];
 	
 #endif
@@ -1726,8 +1729,8 @@ multi_do_controlcen_fire(char *buf)
 	to_target.y = (fix)INTEL_INT((int)to_target.y);
 	to_target.z = (fix)INTEL_INT((int)to_target.z);
 #endif
-	gun_num = buf[count];			count += 1;
-	objnum = *(short *)(buf+count);		count += 2;
+	gun_num = buf[count];                       count += 1;
+	objnum = GET_INTEL_SHORT(buf + count);      count += 2;
 
  	Laser_create_new_easy(&to_target, &Gun_pos[gun_num], objnum, CONTROLCEN_WEAPON_NUM, 1);
 }
@@ -1748,8 +1751,8 @@ multi_do_create_powerup(char *buf)
 
 	pnum = buf[count++];
 	powerup_type = buf[count++];
-	segnum = *(short *)(buf+count); count+=2;
-	objnum = *(short *)(buf+count); count+=2;
+	segnum = GET_INTEL_SHORT(buf + count); count += 2;
+	objnum = GET_INTEL_SHORT(buf + count); count += 2;
 
 	if ((segnum < 0) || (segnum > Highest_segment_index)) {
 		Int3();
@@ -1826,10 +1829,13 @@ multi_do_score(char *buf)
 		return;
 	}
 
-	if (Newdemo_state == ND_STATE_RECORDING)
-		newdemo_record_multi_score(pnum, *(int *)(buf+2));
+	if (Newdemo_state == ND_STATE_RECORDING) {
+		int score;
+		score = GET_INTEL_INT(buf + 2);
+		newdemo_record_multi_score(pnum, score);
+	}
 
-	Players[pnum].score = *(int *)(buf+2);
+	Players[pnum].score = GET_INTEL_INT(buf + 2);
 
 	multi_sort_kill_list();
 }
@@ -1861,8 +1867,8 @@ void multi_do_hostage_door_status(char *buf)
 	int wallnum; 
 	fix hps;
 
-	wallnum = *(short *)(buf+count);		count += 2;
-	hps = *(fix *)(buf+count);		count += 4;
+	wallnum = GET_INTEL_SHORT(buf + count);     count += 2;
+	hps = GET_INTEL_INT(buf + count);           count += 4;
 
 	if ((wallnum < 0) || (wallnum > Num_walls) || (hps < 0) || (Walls[wallnum].type != WALL_BLASTABLE))
 	{
@@ -2121,7 +2127,7 @@ void multi_send_fire(int pl)
   multibuf[3] = (char)Network_laser_level;
   multibuf[4] = (char)Network_laser_flags;
   multibuf[5] = (char)Network_laser_fired;
-  *(short *)(multibuf+6) = Network_laser_track;
+  PUT_INTEL_SHORT(multibuf+6, Network_laser_track);
       multibuf[0] = (char)MULTI_FIRE;
       multi_send_data(multibuf, 8, 1);
 
@@ -2140,7 +2146,7 @@ multi_send_destroy_controlcen(int objnum, int player)
 		hud_message(MSGC_MULTI_INFO, TXT_CONTROL_DESTROYED);
 
 	multibuf[0] = (char)MULTI_CONTROLCEN;
-	*(ushort *)(multibuf+1) = objnum;
+	PUT_INTEL_SHORT(multibuf+1, objnum);
 	multibuf[3] = player;
    multi_send_data(multibuf, 4, 2);
 }
@@ -2226,9 +2232,9 @@ multi_send_player_explode(char type)
         multibuf[count++] = (char)Players[Player_num].secondary_ammo[SMART_INDEX];
         multibuf[count++] = (char)Players[Player_num].secondary_ammo[MEGA_INDEX];
         multibuf[count++] = (char)Players[Player_num].secondary_ammo[PROXIMITY_INDEX];
-        *(ushort *)(multibuf+count) = (ushort)Players[Player_num].primary_ammo[VULCAN_INDEX];
+        PUT_INTEL_SHORT(multibuf+count, Players[Player_num].primary_ammo[VULCAN_INDEX] );
         count += 2;
-        *(uint *)(multibuf+count) = (uint)Players[Player_num].flags;
+        PUT_INTEL_INT(multibuf+count, Players[Player_num].flags );
         count += 4;
 
 	multibuf[count++] = Net_create_loc;
@@ -2239,14 +2245,14 @@ multi_send_player_explode(char type)
 	
 	for (i = 0; i < Net_create_loc; i++)
 	{
-		*(short *)(multibuf+count) = (short)Net_create_objnums[i]; count += 2;
-
 		if (Net_create_objnums[i] <= 0) {
 			#if 0 // Now legal, happens if there are too much powerups in mine
 			Int3(); // Illegal value in created egg object numbers
 			#endif
 			continue;
 		}
+
+		PUT_INTEL_SHORT(multibuf+count, Net_create_objnums[i]); count += 2;
 
 		// We created these objs so our local number = the network number
 		map_objnum_local_to_local((short)Net_create_objnums[i]);
@@ -2289,8 +2295,8 @@ void
 multi_send_reappear()
 {
 	multibuf[0] = (char)MULTI_REAPPEAR;
-	*(short *)(multibuf+1) = Players[Player_num].objnum;
-	
+	PUT_INTEL_SHORT(multibuf+1, Players[Player_num].objnum);
+
 	multi_send_data(multibuf, 3, 3);
 }
 
@@ -2339,11 +2345,15 @@ multi_send_kill(int objnum)
 
 	Assert(Objects[objnum].id == Player_num);
 	killer_objnum = Players[Player_num].killer_objnum;
-	if (killer_objnum > -1)
-		*(short *)(multibuf+count) = (short)objnum_local_to_remote(killer_objnum, (sbyte *)&multibuf[count+2]);
+	if (killer_objnum > -1) {
+		short s;		// do it with variable since INTEL_SHORT won't work on return val from function.
+
+		s = (short)objnum_local_to_remote(killer_objnum, (sbyte *)&multibuf[count+2]);
+		PUT_INTEL_SHORT(multibuf+count, s);
+	}
 	else
 	{
-		*(short *)(multibuf+count) = -1;
+		PUT_INTEL_SHORT(multibuf+count, -1);
 		multibuf[count+2] = (char)-1;
 	}
 	count += 3;
@@ -2369,7 +2379,7 @@ multi_send_remobj(int objnum)
 
 	remote_objnum = objnum_local_to_remote((short)objnum, &obj_owner);
 
-	*(short *)(multibuf+1) = remote_objnum; // Map to network objnums
+	PUT_INTEL_SHORT(multibuf+1, remote_objnum); // Map to network objnums
 
 	multibuf[3] = obj_owner;	
 
@@ -2429,7 +2439,7 @@ multi_send_door_open(int segnum, int side)
 	*(short *)(multibuf+5) = (short)side;
 	multi_send_data(multibuf, 7, 1);
 #else
-	*(short *)(multibuf+1) = (short)segnum;
+	PUT_INTEL_SHORT(multibuf+1, segnum );
 	multibuf[3] = (sbyte)side;
 	multi_send_data(multibuf, 4, 1);
 #endif
@@ -2573,7 +2583,7 @@ multi_send_score(void)
 		multi_sort_kill_list();
 		multibuf[count] = MULTI_SCORE;			count += 1;
 		multibuf[count] = Player_num;				count += 1;
-		*(int *)(multibuf+count) = Players[Player_num].score;  count += 4;
+		PUT_INTEL_INT(multibuf+count, Players[Player_num].score);  count += 4;
 		multi_send_data(multibuf, count, 0);
 	}
 }	
@@ -2616,9 +2626,9 @@ multi_send_hostage_door_status(int wallnum)
 	
 	Assert(Walls[wallnum].type == WALL_BLASTABLE);
 
-	multibuf[count] = MULTI_HOSTAGE_DOOR;		count += 1;
-	*(short *)(multibuf+count) = wallnum;		count += 2;
-	*(fix *)(multibuf+count) = Walls[wallnum].hps; 	count += 4;
+	multibuf[count] = MULTI_HOSTAGE_DOOR;           count += 1;
+	PUT_INTEL_SHORT(multibuf+count, wallnum );           count += 2;
+	PUT_INTEL_INT(multibuf+count, Walls[wallnum].hps );  count += 4;
 
 	multi_send_data(multibuf, count, 0);
 }
@@ -2835,55 +2845,69 @@ void change_playernum_to( int new_Player_num )
 
 void extract_netplayer_stats( netplayer_stats *ps, player * pd )
 {
-        ps->flags = pd->flags;                                                                 // Powerup flags, see below...
-        ps->energy = pd->energy;                                                               // Amount of energy remaining.
-        ps->shields = pd->shields;                                                             // shields remaining (protection) 
-        ps->lives = pd->lives;                                                                 // Lives remaining, 0 = game over.
-        ps->laser_level = pd->laser_level;                                                     // Current level of the laser.
-        ps->primary_weapon_flags=pd->primary_weapon_flags;                                     // bit set indicates the player has this weapon.
-        ps->secondary_weapon_flags=pd->secondary_weapon_flags;                                 // bit set indicates the player has this weapon.
-        memcpy( ps->primary_ammo, pd->primary_ammo, MAX_PRIMARY_WEAPONS*sizeof(short) );       // How much ammo of each type.
-	memcpy( ps->secondary_ammo, pd->secondary_ammo, MAX_SECONDARY_WEAPONS*sizeof(short) ); // How much ammo of each type.
-        ps->last_score=pd->last_score;                                                         // Score at beginning of current level.
-        ps->score=pd->score;                                                                   // Current score.
-        ps->cloak_time=pd->cloak_time;                                                         // Time cloaked
-        ps->homing_object_dist=pd->homing_object_dist;                                         // Distance of nearest homing object.
-        ps->invulnerable_time=pd->invulnerable_time;                                           // Time invulnerable
-        ps->net_killed_total=pd->net_killed_total;                                             // Number of times killed total
-        ps->net_kills_total=pd->net_kills_total;                                               // Number of net kills total
-        ps->num_kills_level=pd->num_kills_level;                                               // Number of kills this level
-        ps->num_kills_total=pd->num_kills_total;                                               // Number of kills total
-        ps->num_robots_level=pd->num_robots_level;                                             // Number of initial robots this level
-        ps->num_robots_total=pd->num_robots_total;                                             // Number of robots total
-        ps->hostages_rescued_total=pd->hostages_rescued_total;                                 // Total number of hostages rescued.
-        ps->hostages_total=pd->hostages_total;                                                 // Total number of hostages.
-        ps->hostages_on_board=pd->hostages_on_board;                                           // Number of hostages on ship.
+	int i;
+
+	ps->flags = INTEL_INT(pd->flags);                                   // Powerup flags, see below...
+	ps->energy = (fix)INTEL_INT(pd->energy);                            // Amount of energy remaining.
+	ps->shields = (fix)INTEL_INT(pd->shields);                          // shields remaining (protection)
+	ps->lives = pd->lives;                                              // Lives remaining, 0 = game over.
+	ps->laser_level = pd->laser_level;                                  // Current level of the laser.
+	ps->primary_weapon_flags=pd->primary_weapon_flags;                  // bit set indicates the player has this weapon.
+	ps->secondary_weapon_flags=pd->secondary_weapon_flags;              // bit set indicates the player has this weapon.
+	for (i = 0; i < MAX_PRIMARY_WEAPONS; i++)
+		ps->primary_ammo[i] = INTEL_SHORT(pd->primary_ammo[i]);
+	for (i = 0; i < MAX_SECONDARY_WEAPONS; i++)
+		ps->secondary_ammo[i] = INTEL_SHORT(pd->secondary_ammo[i]);
+
+	//memcpy( ps->primary_ammo, pd->primary_ammo, MAX_PRIMARY_WEAPONS*sizeof(short) );        // How much ammo of each type.
+	//memcpy( ps->secondary_ammo, pd->secondary_ammo, MAX_SECONDARY_WEAPONS*sizeof(short) ); // How much ammo of each type.
+
+	ps->last_score=INTEL_INT(pd->last_score);                           // Score at beginning of current level.
+	ps->score=INTEL_INT(pd->score);                                     // Current score.
+	ps->cloak_time=(fix)INTEL_INT(pd->cloak_time);                      // Time cloaked
+	ps->homing_object_dist=(fix)INTEL_INT(pd->homing_object_dist);      // Distance of nearest homing object.
+	ps->invulnerable_time=(fix)INTEL_INT(pd->invulnerable_time);        // Time invulnerable
+	ps->net_killed_total=INTEL_SHORT(pd->net_killed_total);             // Number of times killed total
+	ps->net_kills_total=INTEL_SHORT(pd->net_kills_total);               // Number of net kills total
+	ps->num_kills_level=INTEL_SHORT(pd->num_kills_level);               // Number of kills this level
+	ps->num_kills_total=INTEL_SHORT(pd->num_kills_total);               // Number of kills total
+	ps->num_robots_level=INTEL_SHORT(pd->num_robots_level);             // Number of initial robots this level
+	ps->num_robots_total=INTEL_SHORT(pd->num_robots_total);             // Number of robots total
+	ps->hostages_rescued_total=INTEL_SHORT(pd->hostages_rescued_total); // Total number of hostages rescued.
+	ps->hostages_total=INTEL_SHORT(pd->hostages_total);                 // Total number of hostages.
+	ps->hostages_on_board=pd->hostages_on_board;                        // Number of hostages on ship.
 }
 
 void use_netplayer_stats( player * ps, netplayer_stats *pd )
 {
-        ps->flags = pd->flags;                                                                 // Powerup flags, see below...
-        ps->energy = pd->energy;                                                               // Amount of energy remaining.
-        ps->shields = pd->shields;                                                             // shields remaining (protection) 
-        ps->lives = pd->lives;                                                                 // Lives remaining, 0 = game over.
-        ps->laser_level = pd->laser_level;                                                     // Current level of the laser.
-        ps->primary_weapon_flags=pd->primary_weapon_flags;                                     // bit set indicates the player has this weapon.
-        ps->secondary_weapon_flags=pd->secondary_weapon_flags;                                 // bit set indicates the player has this weapon.
-        memcpy( ps->primary_ammo, pd->primary_ammo, MAX_PRIMARY_WEAPONS*sizeof(short) );       // How much ammo of each type.
-	memcpy( ps->secondary_ammo, pd->secondary_ammo, MAX_SECONDARY_WEAPONS*sizeof(short) ); // How much ammo of each type.
-        ps->last_score=pd->last_score;                                                         // Score at beginning of current level.
-        ps->score=pd->score;                                                                   // Current score.
-        ps->cloak_time=pd->cloak_time;                                                         // Time cloaked
-        ps->homing_object_dist=pd->homing_object_dist;                                         // Distance of nearest homing object.
-        ps->invulnerable_time=pd->invulnerable_time;                                           // Time invulnerable
-        ps->net_killed_total=pd->net_killed_total;                                             // Number of times killed total
-        ps->net_kills_total=pd->net_kills_total;                                               // Number of net kills total
-        ps->num_kills_level=pd->num_kills_level;                                               // Number of kills this level
-        ps->num_kills_total=pd->num_kills_total;                                               // Number of kills total
-        ps->num_robots_level=pd->num_robots_level;                                             // Number of initial robots this level
-        ps->num_robots_total=pd->num_robots_total;                                             // Number of robots total
-        ps->hostages_rescued_total=pd->hostages_rescued_total;                                 // Total number of hostages rescued.
-        ps->hostages_total=pd->hostages_total;                                                 // Total number of hostages.
-        ps->hostages_on_board=pd->hostages_on_board;                                           // Number of hostages on ship.
+	int i;
+
+	ps->flags = INTEL_INT(pd->flags);                       // Powerup flags, see below...
+	ps->energy = (fix)INTEL_INT((int)pd->energy);           // Amount of energy remaining.
+	ps->shields = (fix)INTEL_INT((int)pd->shields);         // shields remaining (protection)
+	ps->lives = pd->lives;                                  // Lives remaining, 0 = game over.
+	ps->laser_level = pd->laser_level;                      // Current level of the laser.
+	ps->primary_weapon_flags=pd->primary_weapon_flags;      // bit set indicates the player has this weapon.
+	ps->secondary_weapon_flags=pd->secondary_weapon_flags;  // bit set indicates the player has this weapon.
+	for (i = 0; i < MAX_PRIMARY_WEAPONS; i++)
+		ps->primary_ammo[i] = INTEL_SHORT(pd->primary_ammo[i]);
+	for (i = 0; i < MAX_SECONDARY_WEAPONS; i++)
+		ps->secondary_ammo[i] = INTEL_SHORT(pd->secondary_ammo[i]);
+	//memcpy( ps->primary_ammo, pd->primary_ammo, MAX_PRIMARY_WEAPONS*sizeof(short) );  // How much ammo of each type.
+	//memcpy( ps->secondary_ammo, pd->secondary_ammo, MAX_SECONDARY_WEAPONS*sizeof(short) ); // How much ammo of each type.
+	ps->last_score = INTEL_INT(pd->last_score);             // Score at beginning of current level.
+	ps->score = INTEL_INT(pd->score);                       // Current score.
+	ps->cloak_time = (fix)INTEL_INT((int)pd->cloak_time);   // Time cloaked
+	ps->homing_object_dist = (fix)INTEL_INT((int)pd->homing_object_dist); // Distance of nearest homing object.
+	ps->invulnerable_time = (fix)INTEL_INT((int)pd->invulnerable_time); // Time invulnerable
+	ps->net_killed_total = INTEL_SHORT(pd->net_killed_total); // Number of times killed total
+	ps->net_kills_total = INTEL_SHORT(pd->net_kills_total); // Number of net kills total
+	ps->num_kills_level = INTEL_SHORT(pd->num_kills_level); // Number of kills this level
+	ps->num_kills_total = INTEL_SHORT(pd->num_kills_total); // Number of kills total
+	ps->num_robots_level = INTEL_SHORT(pd->num_robots_level); // Number of initial robots this level
+	ps->num_robots_total = INTEL_SHORT(pd->num_robots_total); // Number of robots total
+	ps->hostages_rescued_total = INTEL_SHORT(pd->hostages_rescued_total); // Total number of hostages rescued.
+	ps->hostages_total = INTEL_SHORT(pd->hostages_total);   // Total number of hostages.
+	ps->hostages_on_board=pd->hostages_on_board;            // Number of hostages on ship.
 }
 #endif
