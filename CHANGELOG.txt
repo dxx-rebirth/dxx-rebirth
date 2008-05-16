@@ -3,6 +3,7 @@ D1X-Rebirth Changelog
 20080516
 --------
 main/multi.c, main/multibot.c, main/netpkt.c, main/network.c: fix remaining endian bugs in network code, now it works on the Mac
+d1x.ini, include/args.h, main/config.c, main/config.h, main/inferno.c, main/menu.c, misc/args.c: remember the last IP address entered for UDP instead of parsing -ip_hostaddr
 
 20080510
 --------
