@@ -817,8 +817,8 @@ void do_ip_manual_join_menu()
 	int old_game_mode;
 	char buf[128]="";
 
-	if (GameArg.MplIpHostAddr) {
-		sprintf(buf,"%s",GameArg.MplIpHostAddr);
+	if (*GameCfg.MplIpHostAddr) {
+		sprintf(buf,"%s",GameCfg.MplIpHostAddr);
 
 		for (j=0; buf[j] != '\0'; j++) {
 			switch (buf[j]) {
@@ -841,7 +841,10 @@ void do_ip_manual_join_menu()
 		}
 
 		if (old_game_mode != Game_mode)
+		{
+			strncpy(GameCfg.MplIpHostAddr, buf, 128);
 			break;		// leave menu
+		}
 	} while( choice > -1 );
 }
 #endif // NETWORK

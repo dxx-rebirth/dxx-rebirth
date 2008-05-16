@@ -43,6 +43,7 @@ typedef struct Cfg
 	int Multisample;
 	int JukeboxOn;
 	char JukeboxPath[PATH_MAX+1];
+	char MplIpHostAddr[128];
 } __pack__ Cfg;
 
 extern struct Cfg GameCfg;

@@ -189,7 +189,6 @@ void print_commandline_help()
 	printf( "  -noredundancy      %s\n", "Do not send messages when picking up redundant items in multi");
 	printf( "  -playermessages    %s\n", "View only messages from other players in multi - overrides -noredundancy");
 	printf( "  -ipxnetwork <n>    %s\n", "Use IPX network number <n>");
-	printf( "  -ip_hostaddr <n>   %s\n", "Use <n> as host ip address");
         printf( "  -ip_baseport <n>   %s\n", "Use <n> as offset from normal port (allows multiple instances of d1x to be run on a single computer)");
 	printf( "  -ip_relay          %s\n", "Relay players with closed port over host (increases traffic and lag)");
 #endif // NETWORK
