@@ -47,12 +47,22 @@ static inline void PHYSFSX_init(int argc, char *argv[])
 	char *path = NULL;
 	char fullPath[PATH_MAX + 5];
 #endif
+#ifdef macintosh	// Mac OS 9
+	char base_dir[PATH_MAX];
+	
+	strcpy(base_dir, PHYSFS_getBaseDir());
+	if (strstr(base_dir, ".app:Contents:MacOSClassic:"))	// the Mac OS 9 program is still in the .app bundle
+		strncat(base_dir, ":::", PATH_MAX - 1 - strlen(base_dir));	// go outside the .app bundle (the lazy way)
+	PHYSFS_setWriteDir(base_dir);
+#else
+#define base_dir PHYSFS_getBaseDir()
+#endif
 
 	PHYSFS_init(argv[0]);
 	PHYSFS_permitSymbolicLinks(1);
 
-#if defined(__APPLE__) && defined(__MACH__)	// others?
-	chdir(PHYSFS_getBaseDir());	// make sure relative hogdir and userdir paths work
+#if (defined(__APPLE__) && defined(__MACH__)) || defined(macintosh)	// others?
+	chdir(base_dir);	// make sure relative hogdir and userdir paths work
 #endif
 
 #if defined(__unix__)
@@ -106,22 +116,13 @@ static inline void PHYSFSX_init(int argc, char *argv[])
 	PHYSFS_addToSearchPath(PHYSFS_getWriteDir(), 1);
 #endif
 
-	PHYSFS_addToSearchPath(PHYSFS_getBaseDir(), 1);
+	PHYSFS_addToSearchPath(base_dir, 1);
 	InitArgs( argc,argv );
-	PHYSFS_removeFromSearchPath(PHYSFS_getBaseDir());
+	PHYSFS_removeFromSearchPath(base_dir);
 
 	if (!PHYSFS_getWriteDir())
 	{
-#ifdef macintosh	// Mac OS 9
-		char base_dir[PATH_MAX];
-		
-		strcpy(base_dir, PHYSFS_getBaseDir());
-		if (strstr(base_dir, ".app:Contents:MacOSClassic:"))	// the Mac OS 9 program is still in the .app bundle
-			strncat(base_dir, ":::", PATH_MAX - 1 - strlen(base_dir));	// go outside the .app bundle (the lazy way)
 		PHYSFS_setWriteDir(base_dir);
-#else
-		PHYSFS_setWriteDir(PHYSFS_getBaseDir());
-#endif
 		if (!PHYSFS_getWriteDir())
 			Error("can't set write dir\n");
 		else

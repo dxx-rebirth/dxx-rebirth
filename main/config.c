@@ -79,7 +79,7 @@ int ReadConfigFile()
 	GameCfg.VSync = 0;
 	GameCfg.Multisample = 0;
 	GameCfg.JukeboxOn = 0;
-	memset(GameCfg.JukeboxPath,0,PATH_MAX+1);
+	strncpy(GameCfg.JukeboxPath, "Jukebox", PATH_MAX+1);	// maybe include this directory with the binary
 	memset(GameCfg.MplIpHostAddr, 0, 128);
 
 	infile = PHYSFSX_openReadBuffered("descent.cfg");
