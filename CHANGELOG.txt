@@ -1,5 +1,9 @@
 D2X-Rebirth Changelog
 
+20080518
+--------
+include/physfsx.h, main/config.c: set "Jukebox" as the default jukebox path, for Mac OS 9 look for d2x.ini outside the app bundle
+
 20080516
 --------
 d2x.ini, include/args.h, main/config.c, main/config.h, main/inferno.c, main/menu.c, misc/args.c: remember the last IP address entered for UDP instead of parsing -ip_hostaddr
