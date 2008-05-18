@@ -1120,55 +1120,6 @@ int HandleSystemKey(int key)
 			change_guidebot_name();
 			break;
 
-		case KEY_MINUS + KEY_ALTED:     songs_goto_prev_song(); break;
-		case KEY_EQUAL + KEY_ALTED:     songs_goto_next_song(); break;
-
-		#ifdef MACINTOSH
-		
-		case KEY_COMMAND+KEY_M:
-			#if !defined(SHAREWARE) || defined(APPLE_DEMO)
-			if ( (Game_mode & GM_MULTI) )		// don't process in multiplayer games
-				break;
-
-			key_close();		// no processing of keys with keyboard handler.. jeez				
-			stop_time();
-			show_boxed_message ("Mounting CD\nESC to quit", 0);	
-			RBAMountDisk();		// OS has totaly control of the CD.
-			if (Function_mode == FMODE_MENU)
-				songs_play_song(SONG_TITLE,1);
-			else if (Function_mode == FMODE_GAME)
-				songs_play_level_song( Current_level_num );
-			key_init();
-			start_time();
-			#endif
-			
-			break;
-
-		case KEY_COMMAND+KEY_E:
-			songs_stop_redbook();
-			RBAEjectDisk();
-			break;
-
-		case KEY_COMMAND+KEY_RIGHT:
-			songs_goto_next_song();
-			break;
-		case KEY_COMMAND+KEY_LEFT:
-			songs_goto_prev_song();
-			break;
-		case KEY_COMMAND+KEY_UP:
-			songs_play_level_song(1);
-			break;
-		case KEY_COMMAND+KEY_DOWN:
-			songs_stop_redbook();
-			break;
-
-		case KEY_COMMAND+KEY_Q:
-			if ( !(Game_mode & GM_MULTI) )
-				macintosh_quit();
-			break;
-		#endif
-
-
 #ifdef USE_SDLMIXER
 		/*
 		 * Jukebox hotkeys -- MD2211, 2007
@@ -1181,49 +1132,30 @@ int HandleSystemKey(int key)
 			jukebox_stop();
 			break;
 		case KEY_ALTED + KEY_SHIFTED + KEY_F11:
-			jukebox_prev();
+			if (GameCfg.JukeboxOn)
+				jukebox_prev();
+			else
+				songs_goto_prev_song();
 			break;
 		case KEY_ALTED + KEY_SHIFTED + KEY_F12:
-			jukebox_next();
+			if (GameCfg.JukeboxOn)
+				jukebox_next();
+			else
+				songs_goto_next_song();
+			break;
+#else
+		case KEY_ALTED + KEY_SHIFTED + KEY_F11:
+			songs_goto_prev_song();
+			break;
+		case KEY_ALTED + KEY_SHIFTED + KEY_F12:
+			songs_goto_next_song();
 			break;
 #endif
 
-
-//added 8/23/99 by Matt Mueller for hot key res/fullscreen changing, and menu access
-#if 0
-		case KEY_CTRLED+KEY_SHIFTED+KEY_PADMULTIPLY:
-		case KEY_ALTED+KEY_CTRLED+KEY_PADMULTIPLY:
-		case KEY_ALTED+KEY_SHIFTED+KEY_PADMULTIPLY:
-			change_res();
-			break;
-		case KEY_CTRLED+KEY_SHIFTED+KEY_PADMINUS:
-		case KEY_ALTED+KEY_CTRLED+KEY_PADMINUS:
-		case KEY_ALTED+KEY_SHIFTED+KEY_PADMINUS:
-			//lower res 
-			//should we just cycle through the list that is displayed in the res change menu?
-			// what if their card/X/etc can't handle that mode? hrm. 
-			//well, the quick access to the menu is good enough for now.
-			break;
-		case KEY_CTRLED+KEY_SHIFTED+KEY_PADPLUS:
-		case KEY_ALTED+KEY_CTRLED+KEY_PADPLUS:
-		case KEY_ALTED+KEY_SHIFTED+KEY_PADPLUS:
-			//increase res
-			break;
-#endif
 		case KEY_ALTED+KEY_ENTER:
 		case KEY_ALTED+KEY_PADENTER:
 			gr_toggle_fullscreen();
 			break;
-//end addition -MM
-			
-//added 11/01/98 Matt Mueller
-#if 0
-		case KEY_CTRLED+KEY_ALTED+KEY_LAPOSTRO:
-			toggle_hud_log();
-			break;
-#endif
-//end addition -MM
-
 		default:
 			break;
 

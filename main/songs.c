@@ -340,22 +340,13 @@ void songs_play_level_song( int levelnum )
 	}
 
 	if (GameArg.SndEnableRedbook && RBAEnabled() && (n_tracks = RBAGetNumberOfTracks()) > 1) {
-
 		//try to play redbook
-
 		play_redbook_track(REDBOOK_FIRST_LEVEL_TRACK + (songnum % (n_tracks-REDBOOK_FIRST_LEVEL_TRACK+1)),1);
 	}
 
 	if (! Redbook_playing) {			//not playing redbook, so play midi
-
 		songnum = SONG_FIRST_LEVEL_SONG + (songnum % NumLevelSongs);
-
-		#ifndef MACINTOSH
-			digi_play_midi_song( Songs[songnum].filename, Songs[songnum].melodic_bank_file, Songs[songnum].drum_bank_file, 1 );
-		#else
-			digi_play_midi_song( songnum, 1 );
-		#endif
-
+		digi_play_midi_song( Songs[songnum].filename, Songs[songnum].melodic_bank_file, Songs[songnum].drum_bank_file, 1 );
 	}
 }
 
