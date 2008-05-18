@@ -89,10 +89,10 @@ COPYRIGHT 1993-1998 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 #include "timer.h"
 #include "vers_id.h"
 #include "fvi.h"
-//MD2211
 #include "jukebox.h"
 #include "console.h"
 #include "playsave.h"
+#include "config.h"
 
 extern void change_res();
 extern void newmenu_close();
@@ -1407,6 +1407,10 @@ void show_help()
 	m[nitems].type = NM_TYPE_TEXT; m[nitems++].text = TXT_HELP_PRTSCN;
 	m[nitems].type = NM_TYPE_TEXT; m[nitems++].text = TXT_HELP_1TO5;
 	m[nitems].type = NM_TYPE_TEXT; m[nitems++].text = TXT_HELP_6TO10;
+#ifdef USE_SDLMIXER
+	m[nitems].type = NM_TYPE_TEXT; m[nitems++].text = "Shift-F9/F10\t  Play/Pause Jukebox";
+	m[nitems].type = NM_TYPE_TEXT; m[nitems++].text = "Shift-F11/F12\t  Previous/Next Song";
+#endif
 	m[nitems].type = NM_TYPE_TEXT; m[nitems++].text = "";
 	m[nitems].type = NM_TYPE_TEXT; m[nitems++].text = "MULTIPLAYER:";
 	m[nitems].type = NM_TYPE_TEXT; m[nitems++].text = "ALT-F4\t  SHOW RETICLE NAMES";
@@ -2186,10 +2190,23 @@ void HandleGameKey(int key)
 			jukebox_stop();
 			break;
 		case KEY_ALTED + KEY_SHIFTED + KEY_F11:
-			jukebox_prev();
+			if (GameCfg.JukeboxOn)
+				jukebox_prev();
+			else
+				songs_goto_prev_song();
 			break;
 		case KEY_ALTED + KEY_SHIFTED + KEY_F12:
-			jukebox_next();
+			if (GameCfg.JukeboxOn)
+				jukebox_next();
+			else
+				songs_goto_next_song();
+			break;
+#else
+		case KEY_ALTED + KEY_SHIFTED + KEY_F11:
+			songs_goto_prev_song();
+			break;
+		case KEY_ALTED + KEY_SHIFTED + KEY_F12:
+			songs_goto_next_song();
 			break;
 #endif
 

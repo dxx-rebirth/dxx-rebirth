@@ -126,6 +126,8 @@ void songs_play_song( int songnum, int repeat )
 	digi_play_midi_song( Songs[songnum].filename, Songs[songnum].melodic_bank_file, Songs[songnum].drum_bank_file, repeat );
 }
 
+int current_song_level;
+
 void songs_play_level_song( int levelnum )
 {
 	int songnum;
@@ -137,6 +139,8 @@ void songs_play_level_song( int levelnum )
 	if (cGameSongsAvailable < 1)
 		return;
 
+	current_song_level = levelnum;
+
 	if (levelnum < 0)
 		songnum = (-levelnum) % cGameSongsAvailable;
 	else
@@ -144,4 +148,17 @@ void songs_play_level_song( int levelnum )
 
 	songnum += SONG_LEVEL_MUSIC;
 	digi_play_midi_song( Songs[songnum].filename, Songs[songnum].melodic_bank_file, Songs[songnum].drum_bank_file, 1 );
+}
+
+//goto the next level song
+void songs_goto_next_song()
+{
+	songs_play_level_song(current_song_level+1);
+}
+
+//goto the previous level song
+void songs_goto_prev_song()
+{
+	if (current_song_level > 1)
+		songs_play_level_song(current_song_level-1);
 }

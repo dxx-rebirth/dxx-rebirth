@@ -3,6 +3,7 @@ D1X-Rebirth Changelog
 20080518
 --------
 include/physfsx.h, main/config.c: set "Jukebox" as the default jukebox path, for Mac OS 9 look for d1x.ini outside the app bundle
+main/game.c, main/songs.c: Reworked keys for song changing a bit; Added Song control keys to help menu
 
 20080516
 --------
