@@ -3,6 +3,7 @@ D2X-Rebirth Changelog
 20080519
 --------
 main/gamecntl.c: If a key combo is called which uses key of default wepaon binding, flush inputs
+main/mission.c, main/mission.h: Added support for another registered D1 HOG with different patching order... damn you PARALLAX!
 
 20080518
 --------

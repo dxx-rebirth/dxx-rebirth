@@ -31,6 +31,7 @@ COPYRIGHT 1993-1999 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 #define D1_MISSION_FILENAME             "descent"
 #define D1_MISSION_NAME                 "Descent: First Strike"
 #define D1_MISSION_HOGSIZE              6856701 // v1.4 - 1.5
+#define D1_MISSION_HOGSIZE2             6856183 // v1.4 - 1.5 - different patch-way
 #define D1_10_MISSION_HOGSIZE           7261423 // v1.0
 #define D1_MAC_MISSION_HOGSIZE          7456179
 #define D1_OEM_MISSION_NAME             "Destination Saturn"
