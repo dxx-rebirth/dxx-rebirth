@@ -1,5 +1,9 @@
 D1X-Rebirth Changelog
 
+20080519
+--------
+main/mission.c, main/mission.h: Added support for another registered D1 HOG with different patching order... damn you PARALLAX!
+
 20080518
 --------
 include/physfsx.h, main/config.c: set "Jukebox" as the default jukebox path, for Mac OS 9 look for d1x.ini outside the app bundle

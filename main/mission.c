@@ -299,6 +299,7 @@ void add_d1_builtin_mission_to_list(mle *mission)
 		Int3();
 		// fall through
 	case D1_MISSION_HOGSIZE:
+	case D1_MISSION_HOGSIZE2:
 	case D1_10_MISSION_HOGSIZE:
 	case D1_MAC_MISSION_HOGSIZE:
 		mission->filename = d_strdup(D1_MISSION_FILENAME);
