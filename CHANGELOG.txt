@@ -3,6 +3,7 @@ D1X-Rebirth Changelog
 20080519
 --------
 main/mission.c, main/mission.h: Added support for another registered D1 HOG with different patching order... damn you PARALLAX!
+d1x.ini, arch/sdl/digi_mixer.c, include/args.h, main/gamefont.c, main/inferno.c, misc/args.c: Added -nomusic ability for SDL_mixer API; Added -gl_fontfixwidth to scale fonts with fixed aspect on widescreen resolutions, scaled to height
 
 20080518
 --------
