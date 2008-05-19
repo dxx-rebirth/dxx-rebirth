@@ -1,5 +1,9 @@
 D1X-Rebirth Changelog
 
+20080520
+--------
+main/kconfig.c: Decreasing divisor for mouse axis reading - making mouse sensitivity practically much higher
+
 20080519
 --------
 main/mission.c, main/mission.h: Added support for another registered D1 HOG with different patching order... damn you PARALLAX!

@@ -29,6 +29,10 @@
 #include "jukebox.h"
 #include "console.h"
 
+#include "fix.h"
+#include "gr.h" // needed for piggy.h
+#include "piggy.h"
+
 #define MIX_DIGI_DEBUG 0
 #define MIX_OUTPUT_FORMAT	AUDIO_S16
 #define MIX_OUTPUT_CHANNELS	2
