@@ -213,6 +213,9 @@ int digi_mixer_get_max_channels() { return digi_max_channels; }
 // MIDI stuff follows.
 
 void digi_mixer_play_midi_song(char * filename, char * melodic_bank, char * drum_bank, int loop ) {
+  if (GameArg.SndNoMusic)
+    return;
+
   mix_set_music_volume(midi_volume);
   jukebox_load(); // update jukebox state
 

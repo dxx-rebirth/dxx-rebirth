@@ -4,6 +4,7 @@ D2X-Rebirth Changelog
 --------
 main/gamecntl.c: If a key combo is called which uses key of default wepaon binding, flush inputs
 main/mission.c, main/mission.h: Added support for another registered D1 HOG with different patching order... damn you PARALLAX!
+d2x.ini, arch/sdl/digi_mixer.c, include/args.h, main/gamefont.c, main/inferno.c, misc/args.c: Added -nomusic ability for SDL_mixer API; Added -gl_fontfixwidth to scale fonts with fixed aspect on widescreen resolutions, scaled to height
 
 20080518
 --------
