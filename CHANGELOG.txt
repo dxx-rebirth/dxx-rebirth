@@ -1,5 +1,9 @@
 D2X-Rebirth Changelog
 
+20080519
+--------
+main/gamecntl.c: If a key combo is called which uses key of default wepaon binding, flush inputs
+
 20080518
 --------
 include/physfsx.h, main/config.c: set "Jukebox" as the default jukebox path, for Mac OS 9 look for d2x.ini outside the app bundle

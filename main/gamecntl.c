@@ -1312,6 +1312,7 @@ void HandleGameKey(int key)
 					set_escort_special_goal(key);
 				else
 					HUD_init_message ("No Guide-Bot in Multiplayer!");
+				game_flush_inputs();
 				break;
 			}
 
@@ -1335,6 +1336,7 @@ void HandleGameKey(int key)
 					RefuseThisPlayer=1;
 					HUD_init_message ("Player accepted!");
 					RefuseTeam=1;
+					game_flush_inputs();
 				}
 			break;
 		case KEY_ALTED + KEY_2:
@@ -1343,6 +1345,7 @@ void HandleGameKey(int key)
 					RefuseThisPlayer=1;
 					HUD_init_message ("Player accepted!");
 					RefuseTeam=2;
+					game_flush_inputs();
 				}
 			break;
 #endif
@@ -1368,6 +1371,7 @@ void HandleGameKey(int key)
 #ifdef NETWORK
 			case KEY_0 + KEY_ALTED:
 				DropFlag ();
+				game_flush_inputs();
 				break;
 #endif
 	
