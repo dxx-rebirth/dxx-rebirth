@@ -30,7 +30,7 @@ Currently, the following variables are supported:
 
 'sharepath=DIR'   (non-Mac OS *NIX only) use DIR for shared game data. (default: /usr/local/share/games/d1x-rebirth)
 'sdl_only=1'      don't include OpenGL, use SDL-only instead
-'sdlmixer=1'      (*NIX only) use SDL_Mixer for sound (includes external music support)
+'sdlmixer=1'      use SDL_Mixer for sound (includes external music support)
 'shareware=1'     build SHAREWARE version
 'asm=1'           use ASSEMBLER code (only with sdl_only=1, requires NASM and x86)
 'debug=1'         build DEBUG binary which includes asserts, debugging output, cheats and more output
@@ -105,10 +105,9 @@ Supported content:
     *
       HiRes Briefing Images and Fonts
       Available at:
-      http://www.dxx-rebirth.de/download/dxx/res/d1x-rebirth_hires-briefings_v2.zip
-      http://www.dxx-rebirth.de/download/dxx/res/d1x-rebirth_hires-fonts.zip
-      To add those, copy them to subdirectory ‘hires/’.
-      HiRes Briefings will be used automatically, HiRes Fonts can be activated with command-line switch ‘-hiresfont’.
+      http://www.dxx-rebirth.de/download/dxx/res/d1x-rebirth-hires/dxx.zip
+      To add those, copy the ZIP file to the D1X-Rebirth directory or - on *NIX systems - into Sharepath or ~/.d1x-rebirth.
+      HiRes Briefings and fonts will be used automatically.
       The Mac data files are already hires.
 
     *

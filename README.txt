@@ -39,7 +39,9 @@ For example:
     *
       Record and play demos
     *
-      OpenGL functions and Eyecandy like trilinear filtering, Transparency effects etc.
+      OpenGL functions and Eyecandy like Trilinear filtering, Transparency effects etc.
+    *
+      MP3/OGG/AIF/WAV Jukebox Support
     *
       everything else you know from DESCENT
     *
