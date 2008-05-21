@@ -1,5 +1,9 @@
 D1X-Rebirth Changelog
 
+20080522
+--------
+main/menu.c: Added a new set of preset resolutions
+
 20080521
 --------
 arch/ogl/gr.c, arch/sdl/mouse.c, main/game.h: Make Screenshots over backbuffer; Implmented filtered mouse delta reading
