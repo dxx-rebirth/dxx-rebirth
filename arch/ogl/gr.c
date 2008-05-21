@@ -613,13 +613,14 @@ void save_screen_shot(int automap_flag)
 		render_frame(0);
 		gr_set_curfont(MEDIUM2_FONT);
 		gr_printf(SWIDTH-FSPACX(92),SHEIGHT-LINE_SPACING,"DXX-Rebirth\n");
+		ogl_do_palfx();
+		glReadBuffer(GL_BACK);
 	}
 	else
 	{
-		game_do_render_frame(0);
+		glReadBuffer(GL_FRONT);
 	}
-	ogl_do_palfx();
-	glReadBuffer(GL_BACK);
+
 	buf = d_malloc(grd_curscreen->sc_w*grd_curscreen->sc_h*3);
 	write_bmp(savename,grd_curscreen->sc_w,grd_curscreen->sc_h,buf);
 	d_free(buf);

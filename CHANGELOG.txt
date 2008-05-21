@@ -6,7 +6,7 @@ main/menu.c: Added a new set of preset resolutions
 
 20080521
 --------
-arch/ogl/gr.c, arch/sdl/mouse.c, main/game.h: Make Screenshots over backbuffer; Implmented filtered mouse delta reading
+arch/ogl/gr.c, arch/sdl/mouse.c, main/game.h: Implmented filtered mouse delta reading
 SConstruct, INSTALL.txt, README.txt: Updated docs
 
 20080520
