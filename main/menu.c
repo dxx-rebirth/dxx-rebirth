@@ -480,8 +480,8 @@ void change_res_poll()
 
 void change_res()
 {
-	newmenu_item m[13];
-	u_int32_t modes[13];
+	newmenu_item m[14];
+	u_int32_t modes[14];
 	int i = 0, mc = 0, num_presets = 0;
 	char customres[16], aspect[16];
 	int fullscreenc;
@@ -491,12 +491,13 @@ void change_res()
 
 	m[mc].type = NM_TYPE_RADIO; m[mc].text = "320x200"; m[mc].value = (Game_screen_mode == SM(320,200)); m[mc].group = 0; modes[mc] = SM(320,200); mc++;
 	m[mc].type = NM_TYPE_RADIO; m[mc].text = "640x480"; m[mc].value = (Game_screen_mode == SM(640,480)); m[mc].group = 0; modes[mc] = SM(640,480); mc++;
-	m[mc].type = NM_TYPE_RADIO; m[mc].text = "320x400"; m[mc].value = (Game_screen_mode == SM(320,400)); m[mc].group = 0; modes[mc] = SM(320,400); mc++;
-	m[mc].type = NM_TYPE_RADIO; m[mc].text = "640x400"; m[mc].value = (Game_screen_mode == SM(640,400)); m[mc].group = 0; modes[mc] = SM(640,400); mc++;
 	m[mc].type = NM_TYPE_RADIO; m[mc].text = "800x600"; m[mc].value = (Game_screen_mode == SM(800,600)); m[mc].group = 0; modes[mc] = SM(800,600); mc++;
 	m[mc].type = NM_TYPE_RADIO; m[mc].text = "1024x768"; m[mc].value = (Game_screen_mode == SM(1024,768)); m[mc].group = 0; modes[mc] = SM(1024,768); mc++;
+	m[mc].type = NM_TYPE_RADIO; m[mc].text = "1280x800"; m[mc].value = (Game_screen_mode == SM(1280,800)); m[mc].group = 0; modes[mc] = SM(1280,800); mc++;
 	m[mc].type = NM_TYPE_RADIO; m[mc].text = "1280x1024"; m[mc].value = (Game_screen_mode == SM(1280,1024)); m[mc].group = 0; modes[mc] = SM(1280,1024); mc++;
-	m[mc].type = NM_TYPE_RADIO; m[mc].text = "1600x1200"; m[mc].value = (Game_screen_mode == SM(1600,1200)); m[mc].group = 0; modes[mc] = SM(1600,1200); mc++; // ZICO - added res
+	m[mc].type = NM_TYPE_RADIO; m[mc].text = "1440x900"; m[mc].value = (Game_screen_mode == SM(1440,900)); m[mc].group = 0; modes[mc] = SM(1440,900); mc++;
+	m[mc].type = NM_TYPE_RADIO; m[mc].text = "1600x1200"; m[mc].value = (Game_screen_mode == SM(1600,1200)); m[mc].group = 0; modes[mc] = SM(1600,1200); mc++;
+	m[mc].type = NM_TYPE_RADIO; m[mc].text = "1920x1200"; m[mc].value = (Game_screen_mode == SM(1920,1200)); m[mc].group = 0; modes[mc] = SM(1920,1200); mc++;
 	
 	num_presets = mc;
 	m[mc].value=0; // make sure we count and reach the right selection
