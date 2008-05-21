@@ -465,7 +465,7 @@ Help(PROGRAM_NAME + ', SConstruct file help:' +
 	
 	'sharepath=DIR'   (non-Mac OS *NIX only) use DIR for shared game data. (default: /usr/local/share/games/d2x-rebirth)
 	'sdl_only=1'      don't include OpenGL, use SDL-only instead
-	'sdlmixer=1'      (*NIX only) use SDL_Mixer for sound (includes external music support)
+	'sdlmixer=1'      use SDL_Mixer for sound (includes external music support)
 	'asm=1'           use ASSEMBLER code (only with sdl_only=1, requires NASM and x86)
 	'debug=1'         build DEBUG binary which includes asserts, debugging output, cheats and more output
 	'profiler=1'      do profiler build

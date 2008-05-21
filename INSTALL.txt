@@ -30,11 +30,10 @@ Currently, the following variables are supported:
 
 'sharepath=DIR'   (non-Mac OS *NIX only) use DIR for shared game data. (default: /usr/local/share/games/d2x-rebirth)
 'sdl_only=1'      don't include OpenGL, use SDL-only instead
-'sdlmixer=1'      (*NIX only) use SDL_Mixer for sound (includes external music support)
+'sdlmixer=1'      use SDL_Mixer for sound (includes external music support)
 'asm=1'           use ASSEMBLER code (only with sdl_only=1, requires NASM and x86)
 'debug=1'         build DEBUG binary which includes asserts, debugging output, cheats and more output
 'profiler=1'      do profiler build
-'console=1'       build with console support !EXPERIMENTAL!
 'editor=1'        build editor !EXPERIMENTAL!
 'arm=1'           compile for ARM architecture
 
@@ -68,7 +67,7 @@ Needed files
 
 Since D2X-Rebirth is a Sourceport of the Descent2-Engine you will need the Game-Content data files to run the game.
 
-For non-Mac OS *NIX all data files need to be copied to the Sharepath, which is (if not specified with the SCons ‘sharepath’-variable) /usr/local/share/games/d1x-rebirth/. For all other systems the data files go in the folder containing the application, as with the original version. For *NIX systems (including Mac OS X) there is also the option of placing them in a folder you specify using d2x.ini (see end).
+For non-Mac OS *NIX all data files need to be copied to the Sharepath, which is (if not specified with the SCons ‘sharepath’-variable) /usr/local/share/games/d2x-rebirth/. For all other systems the data files go in the folder containing the application, as with the original version. For *NIX systems (including Mac OS X) there is also the option of placing them in a folder you specify using d2x.ini (see end).
 
 Following files are needed to run the game:
 
