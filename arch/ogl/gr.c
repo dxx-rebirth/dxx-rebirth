@@ -45,6 +45,7 @@
 #include "config.h"
 #include "playsave.h"
 #include "vers_id.h"
+#include "gr.h"
 
 int gr_installed = 0;
 int gl_initialized=0;
@@ -585,8 +586,7 @@ void save_screen_shot(int automap_flag)
 	char savename[13+sizeof(SCRNS_DIR)];
 	unsigned char *buf;
 	
-	if (!GameArg.DbgGlReadPixelsOk)
-	{
+	if (!GameArg.DbgGlReadPixelsOk){
 		if (!automap_flag)
 			hud_message(MSGC_GAME_FEEDBACK,"glReadPixels not supported on your configuration");
 		return;
@@ -602,7 +602,7 @@ void save_screen_shot(int automap_flag)
 		sprintf(savename, "%sscrn%04d.tga",SCRNS_DIR, savenum++);
 	} while (PHYSFS_exists(savename));
 
-	sprintf( message, "%s '%s'", TXT_DUMPING_SCREEN, savename );
+	sprintf( message, "%s 'scrn%04d.tga'", TXT_DUMPING_SCREEN, savenum-1 );
 
 	if (!automap_flag)
 		hud_message(MSGC_GAME_FEEDBACK,message);
@@ -613,12 +613,13 @@ void save_screen_shot(int automap_flag)
 		render_frame(0);
 		gr_set_curfont(MEDIUM2_FONT);
 		gr_printf(SWIDTH-FSPACX(92),SHEIGHT-LINE_SPACING,"DXX-Rebirth\n");
-		glReadBuffer(GL_BACK);
 	}
 	else
 	{
-		glReadBuffer(GL_FRONT);
+		game_do_render_frame(0);
 	}
+	ogl_do_palfx();
+	glReadBuffer(GL_BACK);
 	buf = d_malloc(grd_curscreen->sc_w*grd_curscreen->sc_h*3);
 	write_bmp(savename,grd_curscreen->sc_w,grd_curscreen->sc_h,buf);
 	d_free(buf);

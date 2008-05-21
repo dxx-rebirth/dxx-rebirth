@@ -218,6 +218,7 @@ extern grs_canvas VR_screen_sub_pages[2];	//  Two sub pages of VRAM if paging is
 extern grs_canvas *VR_offscreen_menu;		// The offscreen data buffer for menus
 
 void game_init_render_buffers (int render_max_w, int render_max_h, int render_method);
+void game_do_render_frame(int flip);
 extern int Allow_primary_cycle;
 extern int Allow_secondary_cycle;
 
