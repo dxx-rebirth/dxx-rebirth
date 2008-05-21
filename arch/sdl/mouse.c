@@ -125,24 +125,24 @@ void mouse_get_delta( int *dx, int *dy, int *dz )
 	Mouse.delta_time += FrameTime;
 	if (Mouse.delta_time >= F1_0/30)
 	{
-		SDL_GetRelativeMouseState( Mouse.delta_x, Mouse.delta_y );
-		*dz = old_delta_dz = Mouse.delta_z;
+		SDL_GetRelativeMouseState( &Mouse.delta_x, &Mouse.delta_y );
+		*dz = old_delta_z = Mouse.delta_z;
 		Mouse.delta_z = 0;
 		Mouse.delta_time = 0;
 	}
 	else
 	{
-		*dx = old_delta_dx;
-		*dy = old_delta_dy;
-		*dz = old_delta_dz;
+		*dx = old_delta_x;
+		*dy = old_delta_y;
+		*dz = old_delta_z;
 	}
 
 	// filter delta
-	*dx = (Mouse.delta_x + old_delta_dx) * 0.5;
-	*dy = (Mouse.delta_y + old_delta_dy) * 0.5;
+	*dx = (Mouse.delta_x + old_delta_x) * 0.5;
+	*dy = (Mouse.delta_y + old_delta_y) * 0.5;
 
-	old_delta_dx = Mouse.delta_x;
-	old_delta_dy = Mouse.delta_y;
+	old_delta_x = Mouse.delta_x;
+	old_delta_y = Mouse.delta_y;
 }
 
 int mouse_get_btns()
