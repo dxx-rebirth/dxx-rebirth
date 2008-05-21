@@ -50,6 +50,7 @@
 #include "config.h"
 #include "playsave.h"
 #include "vers_id.h"
+#include "game.h"
 
 #if defined(__APPLE__) && defined(__MACH__)
 #include <OpenGL/glu.h>
@@ -623,7 +624,7 @@ void save_screen_shot(int automap_flag)
 		sprintf(savename, "%sscrn%04d.tga",SCRNS_DIR, savenum++);
 	} while (PHYSFS_exists(savename));
 
-	sprintf( message, "%s '%s'", TXT_DUMPING_SCREEN, savename );
+	sprintf( message, "%s 'scrn%04d.tga'", TXT_DUMPING_SCREEN, savenum-1 );
 
 	if (!automap_flag)
 		hud_message(MSGC_GAME_FEEDBACK,message);
@@ -634,12 +635,13 @@ void save_screen_shot(int automap_flag)
 		render_frame(0,0);
 		gr_set_curfont(MEDIUM2_FONT);
 		gr_printf(SWIDTH-FSPACX(92),SHEIGHT-LINE_SPACING,"DXX-Rebirth\n");
-		glReadBuffer(GL_BACK);
 	}
 	else
 	{
-		glReadBuffer(GL_FRONT);
+		game_render_frame_mono(0);
 	}
+	ogl_do_palfx();
+	glReadBuffer(GL_BACK);
 	buf = d_malloc(grd_curscreen->sc_w*grd_curscreen->sc_h*3);
 	write_bmp(savename,grd_curscreen->sc_w,grd_curscreen->sc_h,buf);
 	d_free(buf);

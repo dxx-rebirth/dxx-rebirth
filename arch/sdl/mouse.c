@@ -79,8 +79,6 @@ void mouse_button_handler(SDL_MouseButtonEvent *mbe)
 
 void mouse_motion_handler(SDL_MouseMotionEvent *mme)
 {
-	Mouse.delta_x += mme->xrel;
-	Mouse.delta_y += mme->yrel;
 	Mouse.x += mme->xrel;
 	Mouse.y += mme->yrel;
 }
@@ -120,19 +118,29 @@ void mouse_get_pos( int *x, int *y, int *z )
 
 void mouse_get_delta( int *dx, int *dy, int *dz )
 {
+	static int old_delta_x = 0, old_delta_y = 0, old_delta_z = 0;
+
 	Mouse.delta_time += FrameTime;
-	event_poll();
-	*dx = Mouse.delta_x;
-	*dy = Mouse.delta_y;
-	*dz = Mouse.delta_z;
-	// reset all ~33ms
 	if (Mouse.delta_time >= F1_0/30)
 	{
-		Mouse.delta_x = 0;
-		Mouse.delta_y = 0;
+		SDL_GetRelativeMouseState( Mouse.delta_x, Mouse.delta_y );
+		*dz = old_delta_dz = Mouse.delta_z;
 		Mouse.delta_z = 0;
 		Mouse.delta_time = 0;
 	}
+	else
+	{
+		*dx = old_delta_dx;
+		*dy = old_delta_dy;
+		*dz = old_delta_dz;
+	}
+
+	// filter delta
+	*dx = (Mouse.delta_x + old_delta_dx) * 0.5;
+	*dy = (Mouse.delta_y + old_delta_dy) * 0.5;
+
+	old_delta_dx = Mouse.delta_x;
+	old_delta_dy = Mouse.delta_y;
 }
 
 int mouse_get_btns()

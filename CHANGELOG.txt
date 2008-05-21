@@ -1,5 +1,9 @@
 D2X-Rebirth Changelog
 
+20080521
+--------
+arch/ogl/gr.c, arch/sdl/mouse.c, main/game.h: Make Screenshots over backbuffer; Implmented filtered mouse delta reading
+
 20080520
 --------
 main/kconfig.c: Decreasing divisor for mouse axis reading - making mouse sensitivity practically much higher

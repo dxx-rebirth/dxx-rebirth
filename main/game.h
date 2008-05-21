@@ -223,4 +223,6 @@ void flickering_light_read(flickering_light *fl, CFILE *fp);
 
 void flickering_light_write(flickering_light *fl, PHYSFS_file *fp);
 
+
+void game_render_frame_mono(int flip);
 #endif /* _GAME_H */
