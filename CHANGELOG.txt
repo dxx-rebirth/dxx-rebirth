@@ -1,5 +1,9 @@
 D2X-Rebirth Changelog
 
+20080524
+--------
+main/gr.c: give render_frame call both arguments (compiler error)
+
 20080522
 --------
 main/menu.c: Added a new set of preset resolutions
