@@ -478,7 +478,7 @@ int do_game_pause()
 	reset_cockpit();
 	palette_restore();
 	start_time();
-	if (GameArg.SndEnableRedbook)
+	if (GameCfg.SndEnableRedbook)
 		RBAResume();
 	digi_resume_all();
 

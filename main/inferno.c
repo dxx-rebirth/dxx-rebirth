@@ -165,9 +165,6 @@ void print_commandline_help()
 	printf( "  -nosound           %s\n", "Disables sound output");
 	printf( "  -nomusic           %s\n", "Disables music output");
 	printf( "  -sound11k          %s\n", "Use 11KHz sounds");
-#if       !defined(SHAREWARE) || ( defined(SHAREWARE) && defined(APPLE_DEMO) )
-	printf( "  -redbook           %s\n", "Enable redbook audio support");
-#endif //  !defined(SHAREWARE) || ( defined(SHAREWARE) && defined(APPLE_DEMO) )
 #ifdef    USE_SDLMIXER
 	printf( "  -nosdlmixer        %s\n", "Disable Sound output via SDL_mixer");
 	printf( "  -music_ext <s>     %s\n", "Play music files with extension <s> (i.e. mp3, ogg)");

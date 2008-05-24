@@ -2,7 +2,8 @@ D2X-Rebirth Changelog
 
 20080524
 --------
-main/gr.c: give render_frame call both arguments (compiler error)
+main/gr.c: Give render_frame call both arguments (compiler error)
+arch/sdl/jukebox.c, arch/sdl/rbaudio.c, d2x.ini, include/args.h, main/config.c, main/config.h, main/gamecntl.c, main/inferno.c, main/menu.c, main/songs.c, misc/args.c: Allow audio CD support to be turned on in the menus, fix associated bugs
 
 20080522
 --------

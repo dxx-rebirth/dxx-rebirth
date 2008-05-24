@@ -141,9 +141,10 @@ void jukebox_play(int loop) {
 }
 
 void jukebox_stop() {
-	if (!jukebox_loaded) return;
+	//if (!jukebox_loaded) return;	// since this function is also used for stopping MIDI
 	mix_stop_music();
-	hud_message(MSGC_GAME_FEEDBACK, JUKEBOX_HUDMSG_STOPPED);
+	if (jukebox_playing)
+		hud_message(MSGC_GAME_FEEDBACK, JUKEBOX_HUDMSG_STOPPED);
 	jukebox_playing = 0;
 }
 

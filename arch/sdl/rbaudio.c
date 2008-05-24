@@ -64,7 +64,7 @@ void RBAInit()
 
 int RBAEnabled()
 {
-	return 1;
+	return initialised;
 }
 
 void RBARegisterCD()

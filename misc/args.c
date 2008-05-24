@@ -160,7 +160,6 @@ void ReadCmdArgs(void)
 	GameArg.SndNoSound 		= FindArg("-nosound");
 	GameArg.SndNoMusic 		= FindArg("-nomusic");
 	GameArg.SndDigiSampleRate 	= (FindArg("-sound11k") ? SAMPLE_RATE_11K : SAMPLE_RATE_22K);
-	GameArg.SndEnableRedbook 	= FindArg("-redbook");
 
 #ifdef USE_SDLMIXER
 	GameArg.SndDisableSdlMixer 	= FindArg("-nosdlmixer");

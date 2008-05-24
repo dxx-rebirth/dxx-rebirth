@@ -27,8 +27,8 @@ COPYRIGHT 1993-1999 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 typedef struct Cfg
 {
 	ubyte DigiVolume;
-	ubyte MidiVolume;
-	ubyte RedbookVolume;
+	ubyte MusicVolume;
+	int SndEnableRedbook;
 	int ReverseStereo;
 	int GammaLevel;
 	char LastPlayer[CALLSIGN_LEN+1];

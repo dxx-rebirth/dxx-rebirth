@@ -111,13 +111,13 @@ void songs_init()
 
 	//	RBA Hook
 	#if !defined(SHAREWARE) || ( defined(SHAREWARE) && defined(APPLE_DEMO) )
-		if (GameArg.SndEnableRedbook)
+		if (GameCfg.SndEnableRedbook)
 		{
 			RBAInit();
 
 			if (RBAEnabled())
 			{
-				set_redbook_volume(GameCfg.RedbookVolume);
+				set_redbook_volume(GameCfg.MusicVolume);
 				RBARegisterCD();
 			}
 		}
@@ -130,7 +130,7 @@ void songs_init()
 //stop the redbook, so we can read off the CD
 void songs_stop_redbook(void)
 {
-	int old_volume = GameCfg.RedbookVolume*REDBOOK_VOLUME_SCALE/8;
+	int old_volume = GameCfg.MusicVolume*REDBOOK_VOLUME_SCALE/8;
 	fix old_time = timer_get_fixed_seconds();
 
 	if (Redbook_playing) {		//fade out volume
@@ -172,7 +172,7 @@ void reinit_redbook()
 
 	if (RBAEnabled())
 	{
-		set_redbook_volume(GameCfg.RedbookVolume);
+		set_redbook_volume(GameCfg.MusicVolume);
 		RBARegisterCD();
 		force_rb_register=0;
 	}
@@ -186,7 +186,7 @@ int play_redbook_track(int tracknum,int keep_playing)
 {
 	Redbook_playing = 0;
 
-	if (!RBAEnabled() && GameArg.SndEnableRedbook)
+	if (!RBAEnabled() && GameCfg.SndEnableRedbook)
 		reinit_redbook();
 
 	if (force_rb_register) {
@@ -194,7 +194,7 @@ int play_redbook_track(int tracknum,int keep_playing)
 		force_rb_register = 0;
 	}
 
-	if (RBAEnabled()) {
+	if (GameCfg.SndEnableRedbook && RBAEnabled()) {
 		int num_tracks = RBAGetNumberOfTracks();
 		if (tracknum <= num_tracks)
 			if (RBAPlayTracks(tracknum,keep_playing?num_tracks:tracknum))  {
@@ -233,7 +233,7 @@ int songs_haved2_cd()
 {
 	int discid;
 
-	if (!GameArg.SndEnableRedbook)
+	if (!GameCfg.SndEnableRedbook)
 		return 0;
 
 	discid = RBAGetDiscID();
@@ -331,7 +331,7 @@ void songs_play_level_song( int levelnum )
 
 	songnum = (levelnum>0)?(levelnum-1):(-levelnum);
 
-	if (!RBAEnabled() && GameArg.SndEnableRedbook)
+	if (!RBAEnabled() && GameCfg.SndEnableRedbook)
 		reinit_redbook();
 
 	if (force_rb_register) {
@@ -339,7 +339,7 @@ void songs_play_level_song( int levelnum )
 		force_rb_register = 0;
 	}
 
-	if (GameArg.SndEnableRedbook && RBAEnabled() && (n_tracks = RBAGetNumberOfTracks()) > 1) {
+	if (GameCfg.SndEnableRedbook && RBAEnabled() && (n_tracks = RBAGetNumberOfTracks()) > 1) {
 		//try to play redbook
 		play_redbook_track(REDBOOK_FIRST_LEVEL_TRACK + (songnum % (n_tracks-REDBOOK_FIRST_LEVEL_TRACK+1)),1);
 	}
@@ -356,7 +356,7 @@ void songs_check_redbook_repeat()
 	static fix last_check_time;
 	fix current_time;
 
-	if (!Redbook_playing || GameCfg.RedbookVolume==0) return;
+	if (!Redbook_playing || GameCfg.MusicVolume==0) return;
 
 	current_time = timer_get_fixed_seconds();
 	if (current_time < last_check_time || (current_time - last_check_time) >= F2_0) {

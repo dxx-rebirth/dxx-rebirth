@@ -61,7 +61,6 @@ typedef struct Arg
 	int SndNoSound;
 	int SndNoMusic;
 	int SndDigiSampleRate;
-	int SndEnableRedbook;
 	int SndDisableSdlMixer;
 	char *SndExternalMusic;
 	int GfxHiresGFXAvailable;
