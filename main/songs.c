@@ -27,10 +27,31 @@ COPYRIGHT 1993-1998 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 #include "songs.h"
 #include "cfile.h"
 #include "digi.h"
+#include "rbaudio.h"
+#include "config.h"
+#include "timer.h"
 
 song_info Songs[MAX_SONGS];
 int Songs_initialized = 0;
 int cGameSongsAvailable = 0;
+
+//0 if redbook is no playing, else the track number
+static int Redbook_playing = 0;
+
+#ifndef MACINTOSH
+#define REDBOOK_VOLUME_SCALE  (255/3)		//255 is MAX
+#else
+#define REDBOOK_VOLUME_SCALE	(255)
+#endif
+
+//takes volume in range 0..8
+void set_redbook_volume(int volume)
+{
+#ifndef MACINTOSH
+	RBASetVolume(0);		// makes the macs sound really funny
+#endif
+	RBASetVolume(volume*REDBOOK_VOLUME_SCALE/8);
+}
 
 void songs_init()
 {
@@ -117,13 +138,130 @@ void songs_init()
 	cGameSongsAvailable = i - SONG_LEVEL_MUSIC;
 	Songs_initialized = 1;
 	cfclose(fp);
+	
+	//	RBA Hook
+#if !defined(SHAREWARE) || ( defined(SHAREWARE) && defined(APPLE_DEMO) )
+	if (GameCfg.SndEnableRedbook)
+	{
+		RBAInit();
+		
+		if (RBAEnabled())
+		{
+			set_redbook_volume(GameCfg.MusicVolume);
+			RBARegisterCD();
+		}
+	}
+	atexit(RBAStop);    // stop song on exit
+#endif	// endof ifndef SHAREWARE, ie ifdef SHAREWARE
 }
+
+#define FADE_TIME (f1_0/2)
+
+//stop the redbook, so we can read off the CD
+void songs_stop_redbook(void)
+{
+	int old_volume = GameCfg.MusicVolume*REDBOOK_VOLUME_SCALE/8;
+	fix old_time = timer_get_fixed_seconds();
+	
+	if (Redbook_playing) {		//fade out volume
+		int new_volume;
+		do {
+			fix t = timer_get_fixed_seconds();
+			
+			new_volume = fixmuldiv(old_volume,(FADE_TIME - (t-old_time)),FADE_TIME);
+			
+			if (new_volume < 0)
+				new_volume = 0;
+			
+			RBASetVolume(new_volume);
+			
+		} while (new_volume > 0);
+	}
+	
+	RBAStop();              	// Stop CD, if playing
+	
+	RBASetVolume(old_volume);	//restore volume
+	
+	Redbook_playing = 0;		
+	
+}
+
+//stop any songs - midi or redbook - that are currently playing
+void songs_stop_all(void)
+{
+	digi_stop_current_song();	// Stop midi song, if playing
+	
+	songs_stop_redbook();			// Stop CD, if playing
+}
+
+int force_rb_register=0;
+
+void reinit_redbook()
+{
+	RBAInit();
+	
+	if (RBAEnabled())
+	{
+		set_redbook_volume(GameCfg.MusicVolume);
+		RBARegisterCD();
+		force_rb_register=0;
+	}
+}
+
+
+//returns 1 if track started sucessfully
+//start at tracknum.  if keep_playing set, play to end of disc.  else
+//play only specified track
+int play_redbook_track(int tracknum,int keep_playing)
+{
+	Redbook_playing = 0;
+	
+	if (!RBAEnabled() && GameCfg.SndEnableRedbook)
+		reinit_redbook();
+	
+	if (force_rb_register) {
+		RBARegisterCD();			//get new track list for new CD
+		force_rb_register = 0;
+	}
+	
+	if (GameCfg.SndEnableRedbook && RBAEnabled()) {
+		int num_tracks = RBAGetNumberOfTracks();
+		if (tracknum <= num_tracks)
+			if (RBAPlayTracks(tracknum,keep_playing?num_tracks:tracknum))  {
+				Redbook_playing = tracknum;
+			}
+	}
+		
+		return (Redbook_playing != 0);
+}
+
+#define REDBOOK_FIRST_LEVEL_TRACK	  6
+#define REDBOOK_ENDLEVEL_TRACK		  4
+#define REDBOOK_ENDGAME_TRACK         14
 
 void songs_play_song( int songnum, int repeat )
 {
 	if ( !Songs_initialized ) songs_init();
 
-	digi_play_midi_song( Songs[songnum].filename, Songs[songnum].melodic_bank_file, Songs[songnum].drum_bank_file, repeat );
+	//stop any music already playing
+	
+	songs_stop_all();
+	
+	if (force_rb_register) {
+		RBARegisterCD();			//get new track list for new CD
+		force_rb_register = 0;
+	}
+	
+	// The endgame track is the last track...
+	if (songnum < SONG_ENDGAME)
+		play_redbook_track(songnum + 2,0);
+	else if (songnum == SONG_ENDGAME)
+		play_redbook_track(REDBOOK_ENDGAME_TRACK,0);
+	else if (songnum > SONG_ENDGAME)
+		play_redbook_track(songnum + 1,0);
+	
+	if (!Redbook_playing)		//not playing redbook, so play midi
+		digi_play_midi_song( Songs[songnum].filename, Songs[songnum].melodic_bank_file, Songs[songnum].drum_bank_file, repeat );
 }
 
 int current_song_level;
@@ -131,11 +269,14 @@ int current_song_level;
 void songs_play_level_song( int levelnum )
 {
 	int songnum;
+	int n_tracks;
 
 	Assert( levelnum != 0 );
 
 	if ( !Songs_initialized ) songs_init();
 
+	songs_stop_all();
+	
 	if (cGameSongsAvailable < 1)
 		return;
 
@@ -146,19 +287,65 @@ void songs_play_level_song( int levelnum )
 	else
 		songnum = (levelnum-1) % cGameSongsAvailable;
 
-	songnum += SONG_LEVEL_MUSIC;
-	digi_play_midi_song( Songs[songnum].filename, Songs[songnum].melodic_bank_file, Songs[songnum].drum_bank_file, 1 );
+	if (!RBAEnabled() && GameCfg.SndEnableRedbook)
+		reinit_redbook();
+	
+	if (force_rb_register) {
+		RBARegisterCD();			//get new track list for new CD
+		force_rb_register = 0;
+	}
+	
+	if (GameCfg.SndEnableRedbook && RBAEnabled() && (n_tracks = RBAGetNumberOfTracks()) > 1) {
+		
+		//try to play redbook
+		
+		play_redbook_track(REDBOOK_FIRST_LEVEL_TRACK + (songnum % (n_tracks-REDBOOK_FIRST_LEVEL_TRACK+1)),0);
+	}
+	
+	if (! Redbook_playing) {			//not playing redbook, so play midi
+		songnum += SONG_LEVEL_MUSIC;
+		digi_play_midi_song( Songs[songnum].filename, Songs[songnum].melodic_bank_file, Songs[songnum].drum_bank_file, 1 );
+	}
+}
+
+//this should be called regularly to check for redbook restart
+//ideally, this would be handled by a hook
+void songs_check_redbook_repeat()
+{
+	static fix last_check_time;
+	fix current_time;
+	
+	if (!Redbook_playing || GameCfg.MusicVolume==0) return;
+	
+	current_time = timer_get_fixed_seconds();
+	if (current_time < last_check_time || (current_time - last_check_time) >= F2_0) {
+		if (!RBAPeekPlayStatus() && (Redbook_playing != REDBOOK_ENDLEVEL_TRACK)) {
+			stop_time();
+			play_redbook_track(Redbook_playing, 0);
+			start_time();
+		}
+		last_check_time = current_time;
+	}
 }
 
 //goto the next level song
 void songs_goto_next_song()
 {
+	if (Redbook_playing) 		//get correct track
+		current_song_level = RBAGetTrackNum() - REDBOOK_FIRST_LEVEL_TRACK + 1;
+	
 	songs_play_level_song(current_song_level+1);
+	
 }
 
 //goto the previous level song
 void songs_goto_prev_song()
 {
+	if (Redbook_playing) 		//get correct track
+		current_song_level = RBAGetTrackNum() - REDBOOK_FIRST_LEVEL_TRACK + 1;
+	
 	if (current_song_level > 1)
 		songs_play_level_song(current_song_level-1);
+	
 }
+

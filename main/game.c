@@ -48,6 +48,7 @@ COPYRIGHT 1993-1998 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 #include "gameseg.h"
 #include "wall.h"
 #include "ai.h"
+#include "rbaudio.h"
 #include "hostage.h"
 #include "fuelcen.h"
 #include "switch.h"
@@ -71,6 +72,8 @@ COPYRIGHT 1993-1998 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 #include "powerup.h"
 #include "fireball.h"
 #include "controls.h"
+#include "songs.h"
+#include "config.h"
 #include "newmenu.h"
 #include "network.h"
 #include "gamefont.h"
@@ -1343,6 +1346,7 @@ int do_game_pause()
 #endif
 
 	digi_pause_all();
+	RBAPause();
 	stop_time();
 	game_flush_inputs();
 	gr_palette_load( gr_palette );
@@ -1386,6 +1390,8 @@ int do_game_pause()
 	game_flush_inputs();
 	reset_cockpit();
 	start_time();
+	if (GameCfg.SndEnableRedbook)
+		RBAResume();
 	digi_resume_all();
 
 	return key;
@@ -1637,8 +1643,11 @@ void game()
 			Automap_flag = 0;
 			Config_menu_flag = 0;
 
-                        GameLoop( 1, 1 );               // Do game loop with rendering and reading controls.
+			GameLoop( 1, 1 );               // Do game loop with rendering and reading controls.
 
+			//see if redbook song needs to be restarted
+			songs_check_redbook_repeat();	// Handle RedBook Audio Repeating.
+			
 			if (Config_menu_flag)	{
 				if (!(Game_mode&GM_MULTI)) palette_save();
 				do_options_menu();
@@ -2107,6 +2116,9 @@ void FinalCheatsKey(int key)
 	}
 }
 
+void songs_goto_next_song();
+void songs_goto_prev_song();
+
 void HandleGameKey(int key)
 {
 	switch (key) {
@@ -2178,6 +2190,55 @@ void HandleGameKey(int key)
 		case KEY_ALTED+KEY_F2:	if (!Player_is_dead) state_save_all( 0 );		break;	// 0 means not between levels.
 		case KEY_ALTED+KEY_F3:	if (!Player_is_dead) state_restore_all(1);		break;
 
+		case KEY_MINUS + KEY_ALTED:     songs_goto_prev_song(); break;
+		case KEY_EQUAL + KEY_ALTED:     songs_goto_next_song(); break;
+			
+#ifdef MACINTOSH
+			
+		case KEY_COMMAND+KEY_M:
+#if !defined(SHAREWARE) || defined(APPLE_DEMO)
+			if ( (Game_mode & GM_MULTI) )		// don't process in multiplayer games
+				break;
+			
+			key_close();		// no processing of keys with keyboard handler.. jeez				
+			stop_time();
+			show_boxed_message ("Mounting CD\nESC to quit", 0);	
+			RBAMountDisk();		// OS has totaly control of the CD.
+			if (Function_mode == FMODE_MENU)
+				songs_play_song(SONG_TITLE,1);
+			else if (Function_mode == FMODE_GAME)
+				songs_play_level_song( Current_level_num );
+				key_init();
+			start_time();
+#endif
+			
+			break;
+			
+		case KEY_COMMAND+KEY_E:
+			songs_stop_redbook();
+			RBAEjectDisk();
+			break;
+			
+		case KEY_COMMAND+KEY_RIGHT:
+			songs_goto_next_song();
+			break;
+		case KEY_COMMAND+KEY_LEFT:
+			songs_goto_prev_song();
+			break;
+		case KEY_COMMAND+KEY_UP:
+			songs_play_level_song(1);
+			break;
+		case KEY_COMMAND+KEY_DOWN:
+			songs_stop_redbook();
+			break;
+			
+		case KEY_COMMAND+KEY_Q:
+			if ( !(Game_mode & GM_MULTI) )
+				macintosh_quit();
+			break;
+#endif
+			
+			
 #ifdef USE_SDLMIXER
 		/*
 		 * Jukebox hotkeys -- MD2211, 2007

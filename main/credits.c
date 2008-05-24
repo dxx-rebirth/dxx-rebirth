@@ -164,6 +164,9 @@ void credits_show()
 
 			timer_delay2(25);
 		
+			//see if redbook song needs to be restarted
+			songs_check_redbook_repeat();
+			
 			k = key_inkey();
 
 			if (k == KEY_PRINT_SCREEN) {

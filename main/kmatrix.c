@@ -43,6 +43,7 @@ COPYRIGHT 1993-1998 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 #include "joy.h"
 #include "timer.h"
 #include "text.h"
+#include "songs.h"
 #include "multi.h"
 #include "kmatrix.h"
 #include "gauges.h"
@@ -222,6 +223,9 @@ void kmatrix_view(int network)
 		for (i=0; i<3; i++ )	
 			if (mouse_button_down_count(i)>0) done=1;
 
+		//see if redbook song needs to be restarted
+		songs_check_redbook_repeat();
+		
 		k = key_inkey();
 		switch( k )	{
 			case KEY_ENTER:

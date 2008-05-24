@@ -64,6 +64,7 @@ COPYRIGHT 1993-1999 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 #include "endlevel.h"
 #include "text.h"
 #include "gauges.h"
+#include "songs.h"
 #include "powerup.h"
 #include "network.h" 
 #include "newmenu.h"
@@ -445,6 +446,9 @@ void do_automap( int key_code )	{
 			c = 0;
 		}
 
+		//see if redbook song needs to be restarted
+		songs_check_redbook_repeat();
+		
 		while( (c=key_inkey()) )	{
 			switch( c ) {
 #ifndef NDEBUG

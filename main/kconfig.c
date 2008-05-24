@@ -39,6 +39,7 @@ COPYRIGHT 1993-1998 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 #include "mouse.h"
 #include "kconfig.h"
 #include "gauges.h"
+#include "songs.h"
 #include "render.h"
 #include "digi.h"
 #include "newmenu.h"
@@ -651,6 +652,10 @@ void kconfig_sub(kc_item * items,int nitems, char * title)
 			kc_d1x_flag=0;
 		kconfig_sub_draw_table(items,nitems,title);
 		kc_drawitem( &items[citem], 1 );
+
+		//see if redbook song needs to be restarted
+		songs_check_redbook_repeat();
+		
 		k = key_inkey();
 
 #ifdef NEWMENU_MOUSE

@@ -78,5 +78,14 @@ extern song_info Songs[];
 void songs_play_song( int songnum, int repeat );
 void songs_play_level_song( int levelnum );
 
+// stop the redbook, so we can read off the CD
+void songs_stop_redbook(void);
+
+// stop any songs - midi or redbook - that are currently playing
+void songs_stop_all(void);
+
+// this should be called regularly to check for redbook restart
+void songs_check_redbook_repeat(void);
+
 #endif
  

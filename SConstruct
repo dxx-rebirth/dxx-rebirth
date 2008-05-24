@@ -75,6 +75,7 @@ common_sources = [
 'arch/sdl/joy.c',
 'arch/sdl/key.c',
 'arch/sdl/mouse.c',
+'arch/sdl/rbaudio.c',
 'arch/sdl/timer.c',
 'arch/sdl/digi.c',
 'arch/sdl/digi_audio.c',

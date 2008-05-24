@@ -1,5 +1,9 @@
 D1X-Rebirth Changelog
 
+20080524
+--------
+arch/sdl/jukebox.c, arch/sdl/rbaudio.c, d1x-rebirth.xcodeproj, include/rbaudio.h, main/automap.c, main/config.c, main/config.h, main/credits.c, main/game.c, main/kconfig.c, main/kmatrix.c, main/menu.c, main/network.c, main/newmenu.c, main/scores.c, main/songs.c, main/songs.h, SConstruct: Add audio CD support to D1X, fix associated bugs
+
 20080522
 --------
 main/menu.c: Added a new set of preset resolutions

@@ -313,6 +313,8 @@
 		EBC652140890D6DF004FCAA3 /* func.h in Headers */ = {isa = PBXBuildFile; fileRef = EBC652120890D6DF004FCAA3 /* func.h */; };
 		EBC6525C0890F79B004FCAA3 /* nocfile.h in Headers */ = {isa = PBXBuildFile; fileRef = EBC6525B0890F79B004FCAA3 /* nocfile.h */; };
 		EBC6525D0890F79B004FCAA3 /* nocfile.h in Headers */ = {isa = PBXBuildFile; fileRef = EBC6525B0890F79B004FCAA3 /* nocfile.h */; };
+		EBCE794D0DE59565008D8F82 /* rbaudio.c in Sources */ = {isa = PBXBuildFile; fileRef = EBCE794C0DE59565008D8F82 /* rbaudio.c */; };
+		EBCE794E0DE59565008D8F82 /* rbaudio.c in Sources */ = {isa = PBXBuildFile; fileRef = EBCE794C0DE59565008D8F82 /* rbaudio.c */; };
 		EBEEB0AE0D2A2AEE00FF39B4 /* bitmap.h in Headers */ = {isa = PBXBuildFile; fileRef = EBEEB0AA0D2A2AEE00FF39B4 /* bitmap.h */; };
 		EBEEB0AF0D2A2AEE00FF39B4 /* clip.h in Headers */ = {isa = PBXBuildFile; fileRef = EBEEB0AB0D2A2AEE00FF39B4 /* clip.h */; };
 		EBEEB0B00D2A2AEE00FF39B4 /* linear.h in Headers */ = {isa = PBXBuildFile; fileRef = EBEEB0AC0D2A2AEE00FF39B4 /* linear.h */; };
@@ -661,6 +663,8 @@
 		EBC6520F0890D6B7004FCAA3 /* ui.h */ = {isa = PBXFileReference; fileEncoding = 30; lastKnownFileType = sourcecode.c.h; path = ui.h; sourceTree = "<group>"; };
 		EBC652120890D6DF004FCAA3 /* func.h */ = {isa = PBXFileReference; fileEncoding = 30; lastKnownFileType = sourcecode.c.h; path = func.h; sourceTree = "<group>"; };
 		EBC6525B0890F79B004FCAA3 /* nocfile.h */ = {isa = PBXFileReference; fileEncoding = 30; lastKnownFileType = sourcecode.c.h; path = nocfile.h; sourceTree = "<group>"; };
+		EBCE794C0DE59565008D8F82 /* rbaudio.c */ = {isa = PBXFileReference; fileEncoding = 30; lastKnownFileType = sourcecode.c.c; path = rbaudio.c; sourceTree = "<group>"; };
+		EBCE79500DE59587008D8F82 /* rbaudio.h */ = {isa = PBXFileReference; fileEncoding = 30; lastKnownFileType = sourcecode.c.h; path = rbaudio.h; sourceTree = "<group>"; };
 		EBEEB0AA0D2A2AEE00FF39B4 /* bitmap.h */ = {isa = PBXFileReference; fileEncoding = 30; lastKnownFileType = sourcecode.c.h; path = bitmap.h; sourceTree = "<group>"; };
 		EBEEB0AB0D2A2AEE00FF39B4 /* clip.h */ = {isa = PBXFileReference; fileEncoding = 30; lastKnownFileType = sourcecode.c.h; path = clip.h; sourceTree = "<group>"; };
 		EBEEB0AC0D2A2AEE00FF39B4 /* linear.h */ = {isa = PBXFileReference; fileEncoding = 30; lastKnownFileType = sourcecode.c.h; path = linear.h; sourceTree = "<group>"; };
@@ -794,7 +798,7 @@
 			name = Products;
 			sourceTree = "<group>";
 		};
-		29B97314FDCFA39411CA2CEA /* d2x */ = {
+		29B97314FDCFA39411CA2CEA /* d1x */ = {
 			isa = PBXGroup;
 			children = (
 				670E3796066C50C30085B671 /* CHANGELOG.txt */,
@@ -806,7 +810,7 @@
 				675ED123066B196700E42AA7 /* d1x-Info.plist */,
 				67F6FEEA066B13D900443922 /* d1xgl-Info.plist */,
 			);
-			name = d2x;
+			name = d1x;
 			sourceTree = "<group>";
 		};
 		29B97315FDCFA39411CA2CEA /* Other Sources */ = {
@@ -940,6 +944,7 @@
 				EB92BE5F0CDD693C0045A32C /* jukebox.c */,
 				67B441D906687A0200DF26D8 /* key.c */,
 				67B441DB06687A0200DF26D8 /* mouse.c */,
+				EBCE794C0DE59565008D8F82 /* rbaudio.c */,
 				67B441DD06687A0200DF26D8 /* timer.c */,
 			);
 			name = sdl;
@@ -1205,6 +1210,7 @@
 				6791CF620668885500056A5A /* pcx.h */,
 				EBAC99500D4250320017D4BC /* physfsx.h */,
 				EBEEB1BD0D2A423E00FF39B4 /* pstypes.h */,
+				EBCE79500DE59587008D8F82 /* rbaudio.h */,
 				6791CE500668852C00056A5A /* rle.h */,
 				6791D1550668903B00056A5A /* strio.h */,
 				6791D0A306688AB900056A5A /* strutil.h */,
@@ -1479,7 +1485,7 @@
 			);
 			name = d1x;
 			productInstallPath = "$(HOME)/Applications";
-			productName = d2x;
+			productName = d1x;
 			productReference = EB1283BE0D59D94800A991A3 /* d1x.app */;
 			productType = "com.apple.product-type.application";
 		};
@@ -1497,7 +1503,7 @@
 			dependencies = (
 			);
 			name = d1xgl;
-			productName = d2xgl;
+			productName = d1xgl;
 			productReference = 676AC31D0668A939007173EB /* d1xgl.app */;
 			productType = "com.apple.product-type.application";
 		};
@@ -1508,7 +1514,7 @@
 			isa = PBXProject;
 			buildConfigurationList = EBBAD49E0B2D0F7E00080BBF /* Build configuration list for PBXProject "d1x-rebirth" */;
 			hasScannedForEncodings = 1;
-			mainGroup = 29B97314FDCFA39411CA2CEA /* d2x */;
+			mainGroup = 29B97314FDCFA39411CA2CEA /* d1x */;
 			projectDirPath = "";
 			targets = (
 				676AC1BF0668A938007173EB /* d1x */,
@@ -1671,6 +1677,7 @@
 				EBC58E720D489E19007C8ABF /* args.c in Sources */,
 				EB3319FD0D5335E600C799B0 /* netdrv_udp.c in Sources */,
 				EB331A0C0D53578800C799B0 /* snddecom.c in Sources */,
+				EBCE794D0DE59565008D8F82 /* rbaudio.c in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -1805,6 +1812,7 @@
 				EB3319850D50A6B200C799B0 /* bmread.c in Sources */,
 				EB33198F0D50A70600C799B0 /* snddecom.c in Sources */,
 				EB3319FF0D5335E600C799B0 /* netdrv_udp.c in Sources */,
+				EBCE794E0DE59565008D8F82 /* rbaudio.c in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -1888,9 +1896,9 @@
 					main,
 					arch/sdl/include,
 				);
-				INFOPLIST_FILE = "d2x-Info.plist";
+				INFOPLIST_FILE = "d1x-Info.plist";
 				INSTALL_PATH = "$(USER_APPS_DIR)";
-				PRODUCT_NAME = d2x;
+				PRODUCT_NAME = d1x;
 				WARNING_CFLAGS = "-Wall";
 			};
 			name = Default;

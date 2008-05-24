@@ -233,6 +233,7 @@ int DoMenu()
 	return main_menu_choice;
 }
 
+extern int cGameSongsAvailable;
 extern void show_order_form(void);	// John didn't want this in inferno.h so I just externed it.
 
 //returns flag, true means quit menu
@@ -284,10 +285,10 @@ void do_option ( int select)
 				int i;
 				char * m[MAX_SONGS];
 
-				for (i=0;i<MAX_SONGS;i++) {
+				for (i=0;i<SONG_LEVEL_MUSIC+cGameSongsAvailable;i++) {
 					m[i] = Songs[i].filename;
 				}
-				i = newmenu_listbox( "Select Song", MAX_SONGS, m, 1, NULL );
+				i = newmenu_listbox( "Select Song", SONG_LEVEL_MUSIC+cGameSongsAvailable, m, 1, NULL );
 
 				if ( i > -1 )	{
 					songs_play_song( i, 0 );
@@ -349,6 +350,7 @@ void do_option ( int select)
 			do_options_menu();
 			break;
 		case MENU_SHOW_CREDITS:
+			songs_stop_all();
 			credits_show();
 			break;
 		default:
@@ -646,6 +648,8 @@ void do_graphics_menu()
 	} while( i>-1 );
 }
 
+void set_redbook_volume(int volume);
+
 void sound_menuset(int nitems, newmenu_item * items, int *last_key, int citem )
 {
 	nitems=nitems;
@@ -656,42 +660,65 @@ void sound_menuset(int nitems, newmenu_item * items, int *last_key, int citem )
 		digi_set_digi_volume( (GameCfg.DigiVolume*32768)/8 );
 		digi_play_sample_once( SOUND_DROP_BOMB, F1_0 );
 	}
-	if (GameCfg.MidiVolume != items[1].value )   {
- 		GameCfg.MidiVolume = items[1].value;
-		digi_set_midi_volume( (GameCfg.MidiVolume*128)/8 );
+	if (GameCfg.MusicVolume != items[1].value )   {
+		GameCfg.MusicVolume = items[1].value;
+		if (GameCfg.SndEnableRedbook)
+			set_redbook_volume(GameCfg.MusicVolume);
+		else
+			digi_set_midi_volume( (GameCfg.MusicVolume*128)/8 );
 	}
-
+	
 	citem++; //kill warning
 }
 
 void do_sound_menu()
 {
 #ifdef USE_SDLMIXER
-	newmenu_item m[7];
+	newmenu_item m[9];
 #else
-	newmenu_item m[4];
+	newmenu_item m[6];
 #endif
 	int i = 0;
+	int nitems;
 
 	do {
-		m[0].type = NM_TYPE_SLIDER; m[0].text=TXT_FX_VOLUME; m[0].value=GameCfg.DigiVolume; m[0].min_value=0; m[0].max_value=8; 
-		m[1].type = NM_TYPE_SLIDER; m[1].text="music volume"; m[1].value=GameCfg.MidiVolume; m[1].min_value=0; m[1].max_value=8;
-		m[2].type = NM_TYPE_TEXT; m[2].text="";
-		m[3].type = NM_TYPE_CHECK; m[3].text=TXT_REVERSE_STEREO; m[3].value=GameCfg.ReverseStereo;
-#ifdef USE_SDLMIXER
-		m[4].type = NM_TYPE_CHECK; m[4].text="use jukebox in game"; m[4].value=GameCfg.JukeboxOn;
-		m[5].type = NM_TYPE_TEXT; m[5].text="path to music for jukebox:";
-		m[6].type = NM_TYPE_INPUT; m[6].text = GameCfg.JukeboxPath; m[6].text_len = PATH_MAX;
-#endif
+		if (GameCfg.SndEnableRedbook && GameCfg.JukeboxOn)
+			GameCfg.JukeboxOn = 0;
 
-		i = newmenu_do1( NULL, "Sound Effects & Music", sizeof(m)/sizeof(*m), m, sound_menuset, i );
+		nitems = 0;
 
-		GameCfg.ReverseStereo = m[3].value;
+		m[nitems].type = NM_TYPE_SLIDER; m[nitems].text=TXT_FX_VOLUME; m[nitems].value=GameCfg.DigiVolume; m[nitems].min_value=0; m[nitems++].max_value=8; 
+		m[nitems].type = NM_TYPE_SLIDER; m[nitems].text="music volume"; m[nitems].value=GameCfg.MusicVolume; m[nitems].min_value=0; m[nitems++].max_value=8;
+		m[nitems].type = NM_TYPE_TEXT; m[nitems++].text="";
+		m[nitems].type = NM_TYPE_RADIO; m[nitems].text = "MIDI Music enabled (default)"; m[nitems].value = (!GameCfg.SndEnableRedbook && !GameCfg.JukeboxOn); m[nitems].group = 0; nitems++;
+		m[nitems].type = NM_TYPE_RADIO;  m[nitems].text="CD Music enabled"; m[nitems].value=GameCfg.SndEnableRedbook; m[nitems].group = 0; nitems++;
 #ifdef USE_SDLMIXER
-		GameCfg.JukeboxOn = m[4].value;
-		if (Function_mode == FMODE_GAME)
-			songs_play_level_song( Current_level_num );
+		m[nitems].type = NM_TYPE_RADIO; m[nitems].text="jukebox enabled in game"; m[nitems].value=GameCfg.JukeboxOn; m[nitems].group = 0; nitems++;
+		m[nitems].type = NM_TYPE_TEXT; m[nitems++].text="path to music for jukebox:";
+		m[nitems].type = NM_TYPE_INPUT; m[nitems].text = GameCfg.JukeboxPath; m[nitems++].text_len = PATH_MAX;
 #endif
+		m[nitems].type = NM_TYPE_CHECK;  m[nitems].text=TXT_REVERSE_STEREO; m[nitems++].value=GameCfg.ReverseStereo;
+		
+		i = newmenu_do1( NULL, "Sound Effects & Music", nitems, m, sound_menuset, i );
+
+		GameCfg.ReverseStereo = m[nitems - 1].value;
+		if ((GameCfg.SndEnableRedbook != m[4].value)
+#ifdef USE_SDLMIXER
+			|| (GameCfg.JukeboxOn != m[5].value)
+#endif
+			)
+		{
+			int restart_menu_music = GameCfg.SndEnableRedbook != m[4].value;
+
+			GameCfg.SndEnableRedbook = m[4].value;
+#ifdef USE_SDLMIXER
+			GameCfg.JukeboxOn = m[5].value;
+#endif
+			if (Function_mode == FMODE_GAME)
+				songs_play_level_song( Current_level_num );
+			else if (restart_menu_music)
+				songs_play_song(SONG_TITLE, 1);
+		}
 
 	} while( i>-1 );
 }

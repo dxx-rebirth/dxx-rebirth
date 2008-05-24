@@ -41,7 +41,8 @@ COPYRIGHT 1993-1998 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 struct Cfg GameCfg;
 
 static char *DigiVolumeStr="DigiVolume";
-static char *MidiVolumeStr="MidiVolume";
+static char *MusicVolumeStr="MidiVolume";
+static char *SndEnableRedbookStr = "RedbookEnabled";
 static char *ReverseStereoStr="ReverseStereo";
 static char *GammaLevelStr="GammaLevelStr";
 static char *LastPlayerStr="LastPlayerStr";
@@ -65,7 +66,8 @@ int ReadConfigFile()
 
 	// set defaults
 	GameCfg.DigiVolume = 8;
-	GameCfg.MidiVolume = 8;
+	GameCfg.MusicVolume = 8;
+	GameCfg.SndEnableRedbook = 0;
 	GameCfg.ReverseStereo = 0;
 	GameCfg.GammaLevel = 0;
 	memset(GameCfg.LastPlayer,0,CALLSIGN_LEN+1);
@@ -102,8 +104,10 @@ int ReadConfigFile()
 				value = "";
 			if (!strcmp(token, DigiVolumeStr))
 				GameCfg.DigiVolume = strtol(value, NULL, 10);
-			else if (!strcmp(token, MidiVolumeStr))
-				GameCfg.MidiVolume = strtol(value, NULL, 10);
+			else if (!strcmp(token, MusicVolumeStr))
+				GameCfg.MusicVolume = strtol(value, NULL, 10);
+			else if (!strcmp(token, SndEnableRedbookStr))
+				GameCfg.SndEnableRedbook = strtol(value, NULL, 10);
 			else if (!strcmp(token, ReverseStereoStr))
 				GameCfg.ReverseStereo = strtol(value, NULL, 10);
 			else if (!strcmp(token, GammaLevelStr)) {
@@ -158,9 +162,9 @@ int ReadConfigFile()
 	PHYSFS_close(infile);
 
 	if ( GameCfg.DigiVolume > 8 ) GameCfg.DigiVolume = 8;
-	if ( GameCfg.MidiVolume > 8 ) GameCfg.MidiVolume = 8;
+	if ( GameCfg.MusicVolume > 8 ) GameCfg.MusicVolume = 8;
 
-	digi_set_volume( (GameCfg.DigiVolume*32768)/8, (GameCfg.MidiVolume*128)/8 );
+	digi_set_volume( (GameCfg.DigiVolume*32768)/8, (GameCfg.MusicVolume*128)/8 );
 
 	if (GameCfg.ResolutionX >= 320 && GameCfg.ResolutionY >= 200)
 		Game_screen_mode = SM(GameCfg.ResolutionX,GameCfg.ResolutionY);
@@ -181,7 +185,8 @@ int WriteConfigFile()
 	}
 
 	PHYSFSX_printf(infile, "%s=%d\n", DigiVolumeStr, GameCfg.DigiVolume);
-	PHYSFSX_printf(infile, "%s=%d\n", MidiVolumeStr, GameCfg.MidiVolume);
+	PHYSFSX_printf(infile, "%s=%d\n", MusicVolumeStr, GameCfg.MusicVolume);
+	PHYSFSX_printf(infile, "%s=%d\n", SndEnableRedbookStr, GameCfg.SndEnableRedbook);
 	PHYSFSX_printf(infile, "%s=%d\n", ReverseStereoStr, GameCfg.ReverseStereo);
 	PHYSFSX_printf(infile, "%s=%d\n", GammaLevelStr, GameCfg.GammaLevel);
 	PHYSFSX_printf(infile, "%s=%s\n", LastPlayerStr, Players[Player_num].callsign );

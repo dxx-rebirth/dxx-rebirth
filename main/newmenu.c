@@ -32,6 +32,7 @@ COPYRIGHT 1993-1998 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 #include "error.h"
 #include "pstypes.h"
 #include "gr.h"
+#include "songs.h"
 #include "key.h"
 #include "palette.h"
 #include "game.h"
@@ -825,6 +826,9 @@ int newmenu_do3_real( char * title, char * subtitle, int nitems, newmenu_item * 
 		mouse_state = mouse_button_state(0);
 #endif
 
+		//see if redbook song needs to be restarted
+		songs_check_redbook_repeat();
+		
 		k = key_inkey();
 
 		switch( k )
@@ -1637,6 +1641,9 @@ ReadFileNames:
 		mouse2_state = mouse_button_state(1);
 #endif
 
+		//see if redbook song needs to be restarted
+		songs_check_redbook_repeat();
+		
 		key = key_inkey();
 
 		switch(key)	{
@@ -1974,6 +1981,9 @@ int newmenu_listbox1( char * title, int nitems, char * items[], int allow_abort_
 		mouse_state = mouse_button_state(0);
 #endif
 
+		//see if redbook song needs to be restarted
+		songs_check_redbook_repeat();
+		
 		key = key_inkey();
 
 		if ( listbox_callback )
