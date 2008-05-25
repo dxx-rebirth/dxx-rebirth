@@ -1,5 +1,9 @@
 D1X-Rebirth Changelog
 
+20080825
+--------
+arch/sdl/digi_mixer.c, arch/sdl/jukebox.c, main/kconfig.c, main/morph.h: Set sound distance to 0 for HUD sound taunts; Making Jukebox not crash if -nosound is enabled (should stop Jukebox since no digi system enabled); Lowered mouse axis speed a bit again; Increasing MAX_VECS to 5000
+
 20080524
 --------
 arch/sdl/jukebox.c, arch/sdl/rbaudio.c, d1x-rebirth.xcodeproj, include/rbaudio.h, main/automap.c, main/config.c, main/config.h, main/credits.c, main/game.c, main/kconfig.c, main/kmatrix.c, main/menu.c, main/network.c, main/newmenu.c, main/scores.c, main/songs.c, main/songs.h, SConstruct: Add audio CD support to D1X, fix associated bugs
