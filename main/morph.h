@@ -1,4 +1,3 @@
-/* $Id: morph.h,v 1.1.1.1 2006/03/17 19:55:54 zicodxx Exp $ */
 /*
 THE COMPUTER CODE CONTAINED HEREIN IS THE SOLE PROPERTY OF PARALLAX
 SOFTWARE CORPORATION ("PARALLAX").  PARALLAX, IN DISTRIBUTING THE CODE TO
@@ -24,7 +23,7 @@ COPYRIGHT 1993-1999 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 
 #include "object.h"
 
-#define MAX_VECS 200
+#define MAX_VECS 5000
 
 typedef struct morph_data {
 	object *obj;                                // object which is morphing

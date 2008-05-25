@@ -147,7 +147,10 @@ int digi_mixer_start_sound(short soundnum, fix volume, int pan, int looping, int
 
   channel = Mix_PlayChannel(-1, &(SoundChunks[soundnum]), mix_loop);
   Mix_SetPanning(channel, 255-mix_pan, mix_pan);
-  Mix_SetDistance(channel, 255-mix_vol);
+  if (volume > F1_0)
+    Mix_SetDistance(channel, 0);
+  else
+    Mix_SetDistance(channel, 255-mix_vol);
 
   return channel;
 }

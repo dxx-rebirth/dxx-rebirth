@@ -1,5 +1,9 @@
 D2X-Rebirth Changelog
 
+20080825
+--------
+arch/sdl/digi_mixer.c, arch/sdl/jukebox.c, main/kconfig.c, main/morph.h: Set sound distance to 0 for HUD sound taunts; Making Jukebox not crash if -nosound is enabled (should stop Jukebox since no digi system enabled); Lowered mouse axis speed a bit again; Increasing MAX_VECS to 5000
+
 20080524
 --------
 main/gr.c: Give render_frame call both arguments (compiler error)

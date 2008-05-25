@@ -1429,8 +1429,8 @@ void controls_read_all()
 	if (CONTROL_USING_MOUSE) {
 		//---------  Read Mouse -----------
 		mouse_get_delta( &dx, &dy, &dz );
-		mouse_axis[0] = (dx*FrameTime)/10;
-		mouse_axis[1] = (dy*FrameTime)/10;
+		mouse_axis[0] = (dx*FrameTime)/25;
+		mouse_axis[1] = (dy*FrameTime)/25;
 		mouse_axis[2] = (dz*FrameTime);
 		mouse_buttons = mouse_get_btns();
 		use_mouse=1;

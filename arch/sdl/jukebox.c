@@ -85,7 +85,7 @@ void jukebox_load() {
 		jukebox_unload();
 	}
 
-	if (jukebox_loaded)
+	if (jukebox_loaded || GameArg.SndNoSound)
 		return;
 
 	if (GameCfg.JukeboxOn) {
