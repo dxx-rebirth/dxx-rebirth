@@ -48,16 +48,8 @@ void RBAInit()
 		return;
 	}
 
-	if (SDL_CDNumDrives() == 0)
-	{
-		Warning("No cdrom drives found!\n");
-		return;
-	}
-	s_cd = SDL_CDOpen(0);
-	if (s_cd == NULL) {
-		Warning("Could not open cdrom for redbook audio!\n");
-		return;
-	}
+	RBARegisterCD();
+
 	atexit(RBAExit);
 	initialised = 1;
 }
@@ -69,7 +61,40 @@ int RBAEnabled()
 
 void RBARegisterCD()
 {
+	int num_cds;
+	int i,j;
 
+	if (s_cd && CD_INDRIVE(SDL_CDStatus(s_cd)))
+		return;
+
+	num_cds = SDL_CDNumDrives();
+	if (num_cds < 1)
+	{
+		Warning("No cdrom drives found!\n");
+		return;
+	}
+	
+	for (i = 0; i < num_cds; i++)
+	{
+		s_cd = SDL_CDOpen(i);
+		
+		if (s_cd && CD_INDRIVE(SDL_CDStatus(s_cd)))
+		{
+			for (j = 0; j < s_cd->numtracks; j++)
+			{
+				if (s_cd->track[j].type == SDL_AUDIO_TRACK)
+					break;
+			}
+			
+			if (j != s_cd->numtracks)
+				break;	// we've found an audio CD
+		}
+	}
+	if (i == num_cds)
+	{
+		Warning("Could not open cdrom for redbook audio!\n");
+		return;
+	}
 }
 
 int RBAPlayTrack(int a)

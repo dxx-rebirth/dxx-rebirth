@@ -1,6 +1,10 @@
 D1X-Rebirth Changelog
 
-20080825
+20080528
+--------
+arch/sdl/rbaudio.c, main/songs.c: allow an audio CD to be played if it's inserted after D1X is launched, hopefully find the first audio CD if multiple CDs are inserted
+
+20080525
 --------
 arch/sdl/digi_mixer.c, arch/sdl/jukebox.c, main/kconfig.c, main/morph.h: Set sound distance to 0 for HUD sound taunts; Making Jukebox not crash if -nosound is enabled (should stop Jukebox since no digi system enabled); Lowered mouse axis speed a bit again; Increasing MAX_VECS to 5000
 
