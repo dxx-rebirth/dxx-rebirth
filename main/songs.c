@@ -186,7 +186,7 @@ int play_redbook_track(int tracknum,int keep_playing)
 {
 	Redbook_playing = 0;
 
-	if (!RBAEnabled() && GameCfg.SndEnableRedbook)
+	if ((RBAGetNumberOfTracks() < 1) && GameCfg.SndEnableRedbook)
 		reinit_redbook();
 
 	if (force_rb_register) {
@@ -331,7 +331,7 @@ void songs_play_level_song( int levelnum )
 
 	songnum = (levelnum>0)?(levelnum-1):(-levelnum);
 
-	if (!RBAEnabled() && GameCfg.SndEnableRedbook)
+	if ((RBAGetNumberOfTracks() < 2) && GameCfg.SndEnableRedbook)
 		reinit_redbook();
 
 	if (force_rb_register) {
