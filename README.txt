@@ -51,12 +51,22 @@ For example:
 See INSTALL.txt.
 
 
-3. Legal stuff
+3. Multiplayer
+
+DXX-Rebirth supports Multiplayer over (obsoleted) IPX and UDP/IP.
+Using UDP/IP works over LAN and Internet. Since the Networking code of the Descent Engine is Peer-to-Peer, it is necessary for
+all players (Host and Clients) to open port UDP 31017.
+Clients can put an offset to this port by using '-ip_baseport OFFSET'.
+Hosts can also use option '-ip_relay' to route players with closed ports. Use this with caution. It will increase Lag and Ping drastically.
+UDP/IP also supports IPv6 by compiling the game with the designated flag. Please note IPv4- and IPv6-builds cannot play together.
+
+
+4. Legal stuff
 
 See COPYING.txt
 
 
-4. Contact
+5. Contact
 
 http://www.dxx-rebirth.de/
 zicodxx [at] yahoo [dot] de

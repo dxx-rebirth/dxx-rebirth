@@ -431,11 +431,6 @@ void digi_audio_end_sound(int channel)
 	SoundSlots[channel].persistent = 0;
 }
 
-#ifdef _WIN32
-hmp_file *hmp = NULL;
-static int digi_midi_song_playing = 0;
-#endif
-
 // MIDI stuff follows.
 void digi_audio_set_midi_volume( int mvolume )
 {

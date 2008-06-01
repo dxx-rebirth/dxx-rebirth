@@ -2269,11 +2269,8 @@ void ReadControls()
 #endif
 
 	while ((key=key_inkey_time(&key_time)) != 0)    {
-		if (con_events(key))
-		{
+		if (con_events(key) && con_render)
 			game_flush_inputs();
-			continue;
-		}
 
 		#ifndef RELEASE
 		#ifdef NETWORK

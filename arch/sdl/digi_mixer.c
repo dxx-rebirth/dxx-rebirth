@@ -33,6 +33,10 @@
 #include "gr.h" // needed for piggy.h
 #include "piggy.h"
 
+#ifdef _WIN32
+#include "hmpfile.h"
+#endif
+
 #define MIX_DIGI_DEBUG 0
 #define MIX_OUTPUT_FORMAT	AUDIO_S16
 #define MIX_OUTPUT_CHANNELS	2
@@ -184,6 +188,23 @@ void digi_mixer_set_digi_volume( int dvolume )
 }
 
 void digi_mixer_set_midi_volume( int mvolume ) {
+#ifdef _WIN32
+  int mm_volume;
+
+  if (mvolume < 0)
+    midi_volume = 0;
+  else if (mvolume > 127)
+    midi_volume = 127;
+  else
+    midi_volume = mvolume;
+
+  // scale up from 0-127 to 0-0xffff
+  mm_volume = (midi_volume << 1) | (midi_volume & 1);
+  mm_volume |= (mm_volume << 8);
+
+  if (hmp)
+    midiOutSetVolume((HMIDIOUT)hmp->hmidi, mm_volume | mm_volume << 16);
+#endif
   midi_volume = mvolume;
   if (!digi_initialised) return;
   mix_set_music_volume(mvolume);
@@ -229,10 +250,30 @@ void digi_mixer_play_midi_song(char * filename, char * melodic_bank, char * drum
   }
   else { 
     // standard song playback
-    mix_play_music(filename, loop);
+#ifdef _WIN32
+    if (!GameArg.SndExternalMusic)
+    {
+      if ((hmp = hmp_open(filename)))
+      {
+        hmp_play(hmp,loop);
+        digi_midi_song_playing = 1;
+        digi_set_midi_volume(midi_volume);
+      }
+    }
+    else
+#endif
+      mix_play_music(filename, loop);
   }
 }
 void digi_mixer_stop_current_song() {
+#ifdef _WIN32
+  if (digi_midi_song_playing)
+  {
+    hmp_close(hmp);
+    hmp = NULL;
+    digi_midi_song_playing = 0;
+  }
+#endif
   jukebox_stop();
   mix_stop_music();
 }

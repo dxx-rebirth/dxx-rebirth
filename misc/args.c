@@ -90,7 +90,8 @@ int FindResArg(char *prefix, int *sw, int *sh)
 void AppendIniArgs(void)
 {
 	PHYSFS_file *f;
-	char *line,*word;
+	char *line, *token;
+	char separator[] = " ";
 
 	f = PHYSFSX_openReadBuffered(INI_FILENAME);
 	
@@ -98,14 +99,18 @@ void AppendIniArgs(void)
 		while(!PHYSFS_eof(f) && Num_args < MAX_ARGS)
 		{
 			line=fgets_unlimited(f);
-			word=splitword(line,' ');
-			
-			Args[Num_args++] = d_strdup(word);
-			
-			if(line)
-				Args[Num_args++] = d_strdup(line);
-			
-			d_free(line); d_free(word);
+
+			token = strtok(line, separator);        /* first token in current line */
+			if (token)
+				Args[Num_args++] = d_strdup(token);
+			while( token != NULL )
+			{
+				token = strtok(NULL, separator);        /* next tokens in current line */
+				if (token)
+					Args[Num_args++] = d_strdup(token);
+			}
+
+			d_free(line);
 		}
 		PHYSFS_close(f);
 	}
@@ -147,6 +152,7 @@ void ReadCmdArgs(void)
 	GameArg.SysWindow 		= FindArg("-window");
 	GameArg.SysNoMovies 		= FindArg("-nomovies");
 	GameArg.SysAutoDemo 		= FindArg("-autodemo");
+	GameArg.SysNoRedundancy 	= FindArg("-noredundancy");
 
 	// Control Options
 
@@ -185,7 +191,6 @@ void ReadCmdArgs(void)
 
 	GameArg.MplGameProfile 		= FindArg("-mprofile");
 	GameArg.MplNoRankings 		= FindArg("-norankings");
-	GameArg.MplNoRedundancy 	= FindArg("-noredundancy");
 	GameArg.MplPlayerMessages 	= FindArg("-playermessages");
 	GameArg.MplIpxNetwork 		= get_str_arg("-ipxnetwork", NULL);
 	GameArg.MplIpBasePort 		= get_int_arg("-ip_baseport", 0);

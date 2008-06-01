@@ -176,7 +176,7 @@ int HUD_init_message_va(char * format, va_list args)
 
 	// Added by Leighton
 
-   if ((Game_mode & GM_MULTI) && GameArg.MplNoRedundancy)
+   if (GameArg.SysNoRedundancy)
 	 if (!strnicmp ("You already",message,11) || !stricmp("your laser is maxed out!",message) || !stricmp("super laser maxed out!",message))
 		return 0;
 

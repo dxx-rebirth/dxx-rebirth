@@ -51,4 +51,7 @@ hmp_file *hmp_open(const char *filename);
 int hmp_play(hmp_file *hmp, int bLoop);
 void hmp_close(hmp_file *hmp);
 
+extern hmp_file *hmp;
+extern int digi_midi_song_playing;
+
 #endif

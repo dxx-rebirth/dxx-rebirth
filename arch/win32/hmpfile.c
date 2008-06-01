@@ -15,6 +15,8 @@
 #endif
 
 extern void PumpMessages(void);
+hmp_file *hmp = NULL;
+int digi_midi_song_playing = 0;
 
 hmp_file *hmp_open(const char *filename) {
 	int i;

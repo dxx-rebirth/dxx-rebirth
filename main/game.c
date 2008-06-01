@@ -1085,8 +1085,8 @@ void show_help()
 	m[nitems].type = NM_TYPE_TEXT; m[nitems++].text = "Shift-F5/F6\t  Drop primary/secondary";
 	m[nitems].type = NM_TYPE_TEXT; m[nitems++].text = "Shift-number\t  GuideBot commands";
 #ifdef USE_SDLMIXER
-	m[nitems].type = NM_TYPE_TEXT; m[nitems++].text = "Shift-F9/F10\t  Play/Pause Jukebox";
-	m[nitems].type = NM_TYPE_TEXT; m[nitems++].text = "Shift-F11/F12\t  Previous/Next Song";
+	m[nitems].type = NM_TYPE_TEXT; m[nitems++].text = "Alt-Shift-F9/F10\t  Play/Pause Jukebox";
+	m[nitems].type = NM_TYPE_TEXT; m[nitems++].text = "Alt-Shift-F11/F12\t  Previous/Next Song";
 #endif
 	m[nitems].type = NM_TYPE_TEXT; m[nitems++].text = "";
 	m[nitems].type = NM_TYPE_TEXT; m[nitems++].text = "MULTIPLAYER:";
