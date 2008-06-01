@@ -298,8 +298,8 @@ int main(int argc,char *argv[])
 		PHYSFS_freeList(list);
 	}
 
-	if (cfile_init("dxx.zip", 0))
-		con_printf(CON_NORMAL, "Added dxx.zip for additional content\n");
+	if (cfile_init("d1xrdata.zip", 0))
+		con_printf(CON_NORMAL, "Added d1xrdata.zip for additional content\n");
 
 	if (SDL_Init(SDL_INIT_VIDEO)<0)
 		Error("SDL library initialisation failed: %s.",SDL_GetError());

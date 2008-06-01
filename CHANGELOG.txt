@@ -1,5 +1,9 @@
 D1X-Rebirth Changelog
 
+20080602
+--------
+main/inferno.c: Added d1xrdata.zip for custom data
+
 20080601
 --------
 include/args.h, main/inferno.c, main/hud.c, main/game.c, main/gamecntl.c, misc/args.c, d2x.ini, README.txt, arch/sdl/digi_mixer.c, arch/sdl/digi_mixer_music.c, arch/sdl/digi_audio.c, arch/win32/include/hmpfile.h, arch/win32/hmpfile.c: Using Windows code to play HMP files on Windows build; Fixed Jukebox keys in help screen; Allow -noredundancy in Singleplayer; Fixed processing of Console keys if Console is not active; Added Multiplayer hints to README; Made INI wrapping safer and more accurate
