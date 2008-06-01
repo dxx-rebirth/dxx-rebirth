@@ -52,6 +52,7 @@ typedef struct Arg
 	int SysWindow;
 	int SysAutoDemo;
 	int SysNoTitles;
+	int SysNoRedundancy;
 	int CtlNoMouse;
 	int CtlNoJoystick;
 	int CtlMouselook;
@@ -67,7 +68,6 @@ typedef struct Arg
 #endif
 	int EdiNoBm;
 	int MplGameProfile;
-	int MplNoRedundancy;
 	int MplPlayerMessages;
 	const char *MplIpxNetwork;
 	int MplIpBasePort;

@@ -1414,8 +1414,8 @@ void show_help()
 	m[nitems].type = NM_TYPE_TEXT; m[nitems++].text = TXT_HELP_1TO5;
 	m[nitems].type = NM_TYPE_TEXT; m[nitems++].text = TXT_HELP_6TO10;
 #ifdef USE_SDLMIXER
-	m[nitems].type = NM_TYPE_TEXT; m[nitems++].text = "Shift-F9/F10\t  Play/Pause Jukebox";
-	m[nitems].type = NM_TYPE_TEXT; m[nitems++].text = "Shift-F11/F12\t  Previous/Next Song";
+	m[nitems].type = NM_TYPE_TEXT; m[nitems++].text = "Alt-Shift-F9/F10\t  Play/Pause Jukebox";
+	m[nitems].type = NM_TYPE_TEXT; m[nitems++].text = "Alt-Shift-F11/F12\t  Previous/Next Song";
 #endif
 	m[nitems].type = NM_TYPE_TEXT; m[nitems++].text = "";
 	m[nitems].type = NM_TYPE_TEXT; m[nitems++].text = "MULTIPLAYER:";
@@ -2508,11 +2508,9 @@ void ReadControls()
 #endif
 
 	while ((key=key_inkey_time(&key_time)) != 0)	{
-		if (con_events(key))
-		{
+		if (con_events(key) && con_render)
 			game_flush_inputs();
-			continue;
-		}
+
 		if (Player_is_dead)
 			HandleDeathKey(key);
 

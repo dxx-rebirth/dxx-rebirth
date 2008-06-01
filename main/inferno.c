@@ -148,6 +148,7 @@ void show_commandline_help()
 	printf( "  -autodemo          %s\n", "Start in demo mode");
 	printf( "  -notitles          %s\n", "Skip title screens");
 	printf( "  -window            %s\n", "Run the game in a window");
+	printf( "  -noredundancy      %s\n", "Do not send messages when picking up redundant items");
 
 	printf( "\n Controls:\n\n");
 	printf( "  -nomouse           %s\n", "Deactivate mouse");
@@ -173,7 +174,6 @@ void show_commandline_help()
 #ifdef    NETWORK
 	printf( "\n Multiplayer:\n\n");
 	printf( "  -mprofile          %s\n", "Enable multiplayer game profiles");
-	printf( "  -noredundancy      %s\n", "Do not send messages when picking up redundant items in multiplayer");
 	printf( "  -playermessages    %s\n", "View only messages from other players in multi - overrides -noredundancy");
 	printf( "  -ipxnetwork <n>    %s\n", "Use IPX network number <n>");
         printf( "  -ip_baseport <n>   %s\n", "Use <n> as offset from normal port (allows multiple instances of d1x to be run on a single computer)");
