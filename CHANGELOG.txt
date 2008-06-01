@@ -1,5 +1,13 @@
 D2X-Rebirth Changelog
 
+20080602
+--------
+arch/sdl/jukebox.c: Only stop music at jukebox_stop() if MIDI jukebox_loaded - otherwise user can stop Jukebox with keys but not start it again
+
+20080601
+--------
+include/args.h, main/inferno.c, main/hud.c, main/game.c, main/gamecntl.c, misc/args.c, d2x.ini, README.txt, arch/sdl/digi_mixer.c, arch/sdl/digi_mixer_music.c, arch/sdl/digi_audio.c, arch/win32/include/hmpfile.h, arch/win32/hmpfile.c: Using Windows code to play HMP files on Windows build; Fixed Jukebox keys in help screen; Allow -noredundancy in Singleplayer; Fixed processing of Console keys if Console is not active; Added Multiplayer hints to README; Made INI wrapping safer and more accurate
+
 20080528
 --------
 arch/sdl/rbaudio.c, main/songs.c: allow an audio CD to be played if it's inserted after D2X is launched, hopefully find the first audio CD if multiple CDs are inserted
