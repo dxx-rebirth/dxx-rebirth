@@ -20,7 +20,6 @@
 
 #define MIX_MUSIC_DEBUG 0
 #define MUSIC_FADE_TIME 500 //milliseconds
-#define MUSIC_EXTENSION_ARG "-music_ext"
 
 Mix_Music *current_music = NULL;
 
@@ -118,7 +117,9 @@ void mix_play_file(char *filename, int loop) {
   if (!jukebox_is_loaded() && loop)
     loop = -1;
 
-  if ((current_music = Mix_LoadMUS(real_filename))) {
+  current_music = Mix_LoadMUS(real_filename);
+
+  if (current_music) {
     if (Mix_PlayingMusic()) {
       // Fade-in effect sounds cleaner if we're already playing something
       Mix_FadeInMusic(current_music, loop, MUSIC_FADE_TIME);
@@ -159,8 +160,11 @@ int mix_music_exists(char *filename)
 // What to do when stopping song playback
 void music_hook_stop() {
   Mix_HaltMusic();
-  Mix_FreeMusic(current_music);
-  current_music = NULL;
+  if (current_music)
+  {
+     Mix_FreeMusic(current_music);
+     current_music = NULL;
+  }
   jukebox_hook_stop();
 }
 

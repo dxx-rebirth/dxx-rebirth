@@ -446,9 +446,6 @@ int read_player_file()
 				PlayerCfg.Cockpit3DView[1] = SWAPINT(PlayerCfg.Cockpit3DView[1]);
 			}
 		}
-
-		kc_set_controls();
-
 	}
 
 	if (player_file_version>=22)
@@ -520,6 +517,7 @@ int read_player_file()
 	filename[strlen(filename) - 4] = 0;
 	strcat(filename, ".plx");
 	read_player_d2x(filename);
+	kc_set_controls();
 
 	return EZERO;
 

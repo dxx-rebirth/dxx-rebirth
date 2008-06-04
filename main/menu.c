@@ -704,7 +704,7 @@ void do_sound_menu()
 		GameCfg.ReverseStereo = m[nitems - 1].value;
 		if ((GameCfg.SndEnableRedbook != m[4].value)
 #ifdef USE_SDLMIXER
-			|| (GameCfg.JukeboxOn != m[5].value)
+			|| (GameCfg.JukeboxOn != m[5].value) || (GameCfg.JukeboxOn)
 #endif
 			)
 		{

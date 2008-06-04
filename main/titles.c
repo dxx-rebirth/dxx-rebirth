@@ -190,7 +190,7 @@ int show_title_screen( char * filename, int allow_keys, int from_hog_only )
 			gr_free_bitmap_data (&title_bm);
 			break;
 		}
-		timer_delay2(20);
+		timer_delay2(50);
         }
 
 	gr_free_bitmap_data (&title_bm);

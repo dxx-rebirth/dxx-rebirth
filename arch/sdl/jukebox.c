@@ -5,6 +5,7 @@
 
 #include <stdlib.h>
 #include <string.h>
+#include <SDL/SDL_mixer.h>
 #include "physfsx.h"
 #include "args.h"
 #include "dl_list.h"
@@ -146,6 +147,21 @@ void jukebox_stop() {
 	if (jukebox_playing)
 		hud_message(MSGC_GAME_FEEDBACK, JUKEBOX_HUDMSG_STOPPED);
 	jukebox_playing = 0;
+}
+
+void jukebox_pause_resume() {
+	if (!jukebox_loaded) return;
+
+	if (Mix_PausedMusic())
+	{
+		Mix_ResumeMusic();
+		hud_message(MSGC_GAME_FEEDBACK, "Jukebox playback resumed");
+	}
+	else
+	{
+		Mix_PauseMusic();
+		hud_message(MSGC_GAME_FEEDBACK, "Jukebox playback paused");
+	}
 }
 
 void jukebox_hook_stop() {

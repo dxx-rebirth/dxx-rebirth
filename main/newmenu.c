@@ -851,7 +851,7 @@ int newmenu_do4( char * title, char * subtitle, int nitems, newmenu_item * item,
 #endif
 
 	while(!done)	{
-		timer_delay2(20);
+		timer_delay2(50);
 
 		gr_flip();
 
@@ -1702,7 +1702,7 @@ ReadFileNames:
 #endif
 
 	while(!done)	{
-		timer_delay2(20);
+		timer_delay2(50);
 
 		ocitem = citem;
 		ofirst_item = first_item;
@@ -2050,7 +2050,7 @@ int newmenu_listbox1( char * title, int nitems, char * items[], int allow_abort_
 	newmenu_show_cursor();
 
 	while(!done)	{
-		timer_delay2(20);
+		timer_delay2(50);
 		gr_flip();
 #ifdef OGL
 		nm_draw_background1(NULL);

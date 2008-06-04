@@ -354,7 +354,7 @@ void kmatrix_redraw()
   int i, pcx_error, color;
   int sorted[MAX_NUM_NET_PLAYERS];
 
-  pcx_error = pcx_read_fullscr(STARS_BACKGROUND, NULL);
+  pcx_error = pcx_read_fullscr(STARS_BACKGROUND, gr_palette);
   Assert(pcx_error == PCX_ERROR_NONE);
 
   if (Game_mode & GM_MULTI_COOP)
@@ -473,10 +473,10 @@ void kmatrix_view(int network)
 
   while(!done)
   {
-		timer_delay2(20);
+		timer_delay2(50);
 		kmatrix_redraw();
       kmatrix_kills_changed = 0;
-      for (i=0; i<4; i++ )
+      for (i=0; i<JOY_MAX_BUTTONS; i++ )
         if (joy_get_button_down_cnt(i)>0)
         {
           if (is_D2_OEM)
@@ -497,7 +497,7 @@ void kmatrix_view(int network)
             network_send_endlevel_packet();
           break;
         }
-        for (i=0; i<3; i++ )
+        for (i=0; i<MOUSE_MAX_BUTTONS; i++ )
           if (mouse_button_down_count(i)>0)
           {
             if (is_D2_OEM)

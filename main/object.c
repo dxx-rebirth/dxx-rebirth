@@ -1603,6 +1603,8 @@ void dead_player_frame(void)
 			DoPlayerDead();		//kill_player();
 		}
 	}
+	else
+		time_dead = 0;
 }
 
 

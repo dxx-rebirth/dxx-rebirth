@@ -5305,7 +5305,7 @@ void show_game_rules(int choice)
 
 	while(!done)	{
 		network_info_req( 0, NULL, 0, 0 );
-		timer_delay2(20);
+		timer_delay2(50);
 		gr_set_current_canvas(NULL);
 #ifdef OGL
 		gr_flip();

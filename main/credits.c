@@ -42,11 +42,11 @@ COPYRIGHT 1993-1999 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 #include "cfile.h"
 #include "text.h"
 #include "songs.h"
+#include "menu.h"
 
 #define ROW_SPACING			(SHEIGHT / 17)
 #define NUM_LINES			20 //14
 #define CREDITS_FILE			(cfexist("credits.txb")?"credits.tex":(cfexist("ocredits.txb")?"ocredits.tex":"mcredits.tex"))
-#define CREDITS_BACKGROUND_FILENAME	(((HIRESMODE) && cfexist("starsb.pcx"))?"starsb.pcx":"stars.pcx")
 #ifdef SHAREWARE
 #define ALLOWED_CHAR			'S'
 #else
@@ -94,7 +94,7 @@ void credits_show()
 	gr_use_palette_table( "credits.256" );
 	backdrop.bm_data=NULL;
 
-	pcx_error = pcx_read_bitmap(CREDITS_BACKGROUND_FILENAME,&backdrop, BM_LINEAR,backdrop_palette);
+	pcx_error = pcx_read_bitmap(STARS_BACKGROUND,&backdrop, BM_LINEAR,backdrop_palette);
 	if (pcx_error != PCX_ERROR_NONE)		{
 		cfclose(file);
 		return;

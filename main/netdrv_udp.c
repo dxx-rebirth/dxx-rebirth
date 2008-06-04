@@ -272,7 +272,7 @@ void UDPPacketRelay(char *text, int len, struct _sockaddr *sAddr)
 		return;
 
 	// Relay PDATA packets only
-	if (text[4] != PID_PDATA)
+	if (text[0] != PID_PDATA)
 		return;
 
 	// Check if sender is a relay client and store ID if so
@@ -589,7 +589,7 @@ int UDPReceivePacket(char *text, int len, struct recv_data *rd)
 
 		// Seems someone wants to enter the game actually.
 		// If I am host, init handshakes! if not sccessful, return 0 and never process this player's request signal - cool thing, eh?
-		if (text[4] == PID_REQUEST && myid == 0)
+		if (text[0] == PID_REQUEST && myid == 0)
 			if (!UDPHandshakeFrame(&sAddr,text))
 				return 0;
 				

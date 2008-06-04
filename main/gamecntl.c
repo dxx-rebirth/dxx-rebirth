@@ -444,11 +444,12 @@ int do_game_pause()
 	else
 	  	sprintf(msg,"PAUSE\n\nSkill level:  %s\nHostages on board:  %d\n",(*(&TXT_DIFFICULTY_1 + (Difficulty_level))),Players[Player_num].hostages_on_board);
 	Game_paused=1;
+	set_screen_mode(SCREEN_MENU);
 	show_boxed_message(msg, 1);
 
 	while (Game_paused) 
 	{
-		timer_delay2(20);
+		timer_delay2(50);
 #ifdef OGL
 		show_boxed_message(msg, 1);
 #endif
@@ -468,6 +469,10 @@ int do_game_pause()
 				break;
 			case KEY_PAUSE:
 				Game_paused=0;
+				break;
+			case KEY_ALTED+KEY_ENTER:
+			case KEY_ALTED+KEY_PADENTER:
+				gr_toggle_fullscreen();
 				break;
 			default:
 				break;
@@ -1125,11 +1130,8 @@ int HandleSystemKey(int key)
 		 * Jukebox hotkeys -- MD2211, 2007
 		 * ==============================================
 		 */
-		case KEY_ALTED + KEY_SHIFTED + KEY_F9:
-			jukebox_play(1);
-			break;
 		case KEY_ALTED + KEY_SHIFTED + KEY_F10:
-			jukebox_stop();
+			jukebox_pause_resume();
 			break;
 		case KEY_ALTED + KEY_SHIFTED + KEY_F11:
 			if (GameCfg.JukeboxOn)
@@ -1155,6 +1157,7 @@ int HandleSystemKey(int key)
 		case KEY_ALTED+KEY_ENTER:
 		case KEY_ALTED+KEY_PADENTER:
 			gr_toggle_fullscreen();
+			game_flush_inputs();
 			break;
 		default:
 			break;
