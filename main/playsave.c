@@ -553,7 +553,7 @@ int read_player_file()
 {
 	char filename[32];
 	PHYSFS_file *file;
-	int errno_ret = EZERO, player_file_size, shareware_file = -1, id = 0;
+	int player_file_size, shareware_file = -1, id = 0;
 	short saved_game_version, player_struct_version;
 
 	Assert(Player_num>=0 && Player_num<MAX_PLAYERS);
@@ -564,9 +564,8 @@ int read_player_file()
 
 	file = PHYSFSX_openReadBuffered(filename);
 
-	if (!file) {
-		return errno;
-	}
+	if (!file)
+		goto read_player_file_failed;
 
 	new_player_config(); // Set defaults!
 
@@ -663,19 +662,13 @@ int read_player_file()
 		
 	}
 	else {	//read new highest level info
-		if (PHYSFS_read(file,PlayerCfg.HighestLevels,sizeof(hli),PlayerCfg.NHighestLevels) != PlayerCfg.NHighestLevels) {
-			errno_ret = errno;
-			PHYSFS_close(file);
-			return errno_ret;
-		}
+		if (PHYSFS_read(file,PlayerCfg.HighestLevels,sizeof(hli),PlayerCfg.NHighestLevels) != PlayerCfg.NHighestLevels)
+			goto read_player_file_failed;
 	}
 
 	if ( saved_game_version != 7 ) {	// Read old & SW saved games.
-		if (PHYSFS_read(file,saved_games,sizeof(saved_games),1) != 1) {
-			errno_ret = errno;
-			PHYSFS_close(file);
-			return errno_ret;
-		}
+		if (PHYSFS_read(file,saved_games,sizeof(saved_games),1) != 1)
+			goto read_player_file_failed;
 	}
 
 	//read taunt macros
@@ -686,7 +679,7 @@ int read_player_file()
 		#ifdef NETWORK
 		for (i = 0; i < 4; i++)
 			if (PHYSFS_read(file, PlayerCfg.NetworkMessageMacro[i], len, 1) != 1)
-				{errno_ret = errno; break;}
+				goto read_player_file_failed;
 		#else
 		i = 0;
 		PHYSFS_seek( file, PHYSFS_tell(file)+4*len );
@@ -699,18 +692,12 @@ int read_player_file()
 		for(i=0;i<CONTROL_MAX_TYPES;i++)
 			for(j=0;j<MAX_NOND1X_CONTROLS;j++)
 				if(PHYSFS_read(file, &PlayerCfg.KeySettings[i][j], sizeof(ubyte),1)!=1)
-					errno_ret=errno;
-		if(errno_ret == EZERO)
-		{
-			if (PHYSFS_read(file, &PlayerCfg.ControlType, sizeof(ubyte), 1 )!=1)
-				errno_ret=errno;
-			else if (PHYSFS_read(file, &PlayerCfg.JoystickSensitivity, sizeof(ubyte), 1 )!=1)
-				errno_ret=errno;
-                }
+					goto read_player_file_failed;
+		if (PHYSFS_read(file, &PlayerCfg.ControlType, sizeof(ubyte), 1 )!=1)
+			goto read_player_file_failed;
+		else if (PHYSFS_read(file, &PlayerCfg.JoystickSensitivity, sizeof(ubyte), 1 )!=1)
+			goto read_player_file_failed;
 	}
-
-	if (!PHYSFS_close(file) && errno_ret==EZERO)
-		errno_ret = errno;
 
 	if ( saved_game_version != 7 ) 	{
 		int i, found=0;
@@ -732,16 +719,22 @@ int read_player_file()
 			write_player_file();
 	}
 
+	if (!PHYSFS_close(file))
+		goto read_player_file_failed;
+
 	filename[strlen(filename) - 4] = 0;
 	strcat(filename, ".plx");
 	read_player_d1x(filename);
+	kc_set_controls();
 
-	if (errno_ret==EZERO)	{
-		kc_set_controls();
-	}
+	return EZERO;
 
-	return errno_ret;
+ read_player_file_failed:
+	nm_messagebox(TXT_ERROR, 1, TXT_OK, "%s\n\n%s", "Error reading PLR file", PHYSFS_getLastError());
+	if (file)
+		PHYSFS_close(file);
 
+	return -1;
 }
 
 //finds entry for this level in table.  if not found, returns ptr to 

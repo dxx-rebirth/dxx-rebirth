@@ -345,7 +345,7 @@ newmenu:
 menu:
 	sprintf(text, "%s\n%s", TXT_WAITING, TXT_ESC_ABORT);
 
-	choice=newmenu_do3(NULL, text, N_players+1, m, network_endlevel_poll, 0, "STARS.PCX", 300*(SWIDTH/320), 160*(SHEIGHT/200));
+	choice=newmenu_do3(NULL, text, N_players+1, m, network_endlevel_poll, 0, STARS_BACKGROUND, 300*(SWIDTH/320), 160*(SHEIGHT/200));
 
 	if (choice==-1) {
 		newmenu_item m2[2];
@@ -3653,7 +3653,7 @@ void show_game_rules(int choice)
 
 	while(!done)	{
 		network_info_req( 0, NULL, 0, 0 );
-		timer_delay2(20);
+		timer_delay2(50);
 		gr_set_current_canvas(NULL);
 #ifdef OGL
 		gr_flip();

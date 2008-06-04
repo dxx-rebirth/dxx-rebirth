@@ -44,10 +44,10 @@ static char rcsid[] = "$Id: credits.c,v 1.1.1.1 2006/03/17 19:44:11 zicodxx Exp 
 #include "cfile.h"
 #include "songs.h"
 #include "text.h"
+#include "menu.h"
 
 #define ROW_SPACING			(SHEIGHT/17)
 #define NUM_LINES			20 //14
-#define CREDITS_BACKGROUND_FILENAME	(((SWIDTH>=640&&SHEIGHT>=480) && cfexist("starsb.pcx"))?"starsb.pcx":"stars.pcx")
 #define CREDITS_FILE 			"credits.tex"
 
 //if filename passed is NULL, show normal credits
@@ -84,7 +84,7 @@ void credits_show()
 	set_screen_mode(SCREEN_MENU);
 	backdrop.bm_data=NULL;
 
-	pcx_error = pcx_read_bitmap(CREDITS_BACKGROUND_FILENAME,&backdrop, BM_LINEAR,backdrop_palette);
+	pcx_error = pcx_read_bitmap(STARS_BACKGROUND,&backdrop, BM_LINEAR,backdrop_palette);
 	if (pcx_error != PCX_ERROR_NONE)		{
 		cfclose(file);
 		return;

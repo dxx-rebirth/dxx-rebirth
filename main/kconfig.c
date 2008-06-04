@@ -644,7 +644,7 @@ void kconfig_sub(kc_item * items,int nitems, char * title)
 
 	while(1)
 	{
-		timer_delay2(20);
+		timer_delay2(50);
 		gr_flip();
 		if (items == kc_d1x)
 			kc_d1x_flag=1;

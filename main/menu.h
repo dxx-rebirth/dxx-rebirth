@@ -27,5 +27,6 @@ extern void do_options_menu();
 extern char *menu_difficulty_text[];
 
 #define Menu_pcx_name (((SWIDTH>=640&&SHEIGHT>=480) && cfexist("menuh.pcx"))?"menuh.pcx":"menu.pcx")
+#define STARS_BACKGROUND (((SWIDTH>=640&&SHEIGHT>=480) && cfexist("starsb.pcx"))?"starsb.pcx":"stars.pcx")
 
 #endif

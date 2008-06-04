@@ -1868,8 +1868,8 @@ void sb_draw_energy_bar(int energy)
 
 	erase_height = HUD_SCALE_Y((100 - energy) * SB_ENERGY_GAUGE_H / 100);
 	gr_setcolor( 0 );
-	for (i=0;i<=erase_height;i++)
-		gr_uline( i2f(HUD_SCALE_X(SB_ENERGY_GAUGE_X)), i2f(HUD_SCALE_Y(SB_ENERGY_GAUGE_Y)+i), i2f(HUD_SCALE_X(SB_ENERGY_GAUGE_X+(SB_ENERGY_GAUGE_W))), i2f(HUD_SCALE_Y(SB_ENERGY_GAUGE_Y)+i) );
+	for (i=0;i<erase_height;i++)
+		gr_uline( i2f(HUD_SCALE_X(SB_ENERGY_GAUGE_X-1)), i2f(HUD_SCALE_Y(SB_ENERGY_GAUGE_Y)+i), i2f(HUD_SCALE_X(SB_ENERGY_GAUGE_X+(SB_ENERGY_GAUGE_W))), i2f(HUD_SCALE_Y(SB_ENERGY_GAUGE_Y)+i) );
 
 	gr_set_current_canvas( NULL );
 

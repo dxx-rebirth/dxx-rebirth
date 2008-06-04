@@ -1357,11 +1357,12 @@ int do_game_pause()
 	else
 	  	sprintf(msg,"PAUSE\n\nSkill level:  %s\nHostages on board:  %d\n",(*(&TXT_DIFFICULTY_1 + (Difficulty_level))),Players[Player_num].hostages_on_board);
 	Game_paused=1;
+	set_screen_mode(SCREEN_MENU);
 	show_boxed_message(msg, 1);
 
 	while (Game_paused) 
 	{
-		timer_delay2(20);
+		timer_delay2(50);
 #ifdef OGL
 		show_boxed_message(msg, 1);
 #endif
@@ -1381,6 +1382,10 @@ int do_game_pause()
 				break;
 			case KEY_PAUSE:
 				Game_paused=0;
+				break;
+			case KEY_ALTED+KEY_ENTER:
+			case KEY_ALTED+KEY_PADENTER:
+				gr_toggle_fullscreen();
 				break;
 			default:
 				break;
@@ -1414,7 +1419,7 @@ void show_help()
 	m[nitems].type = NM_TYPE_TEXT; m[nitems++].text = TXT_HELP_1TO5;
 	m[nitems].type = NM_TYPE_TEXT; m[nitems++].text = TXT_HELP_6TO10;
 #ifdef USE_SDLMIXER
-	m[nitems].type = NM_TYPE_TEXT; m[nitems++].text = "Alt-Shift-F9/F10\t  Play/Pause Jukebox";
+	m[nitems].type = NM_TYPE_TEXT; m[nitems++].text = "Alt-Shift-F10\t  Play/Pause Jukebox";
 	m[nitems].type = NM_TYPE_TEXT; m[nitems++].text = "Alt-Shift-F11/F12\t  Previous/Next Song";
 #endif
 	m[nitems].type = NM_TYPE_TEXT; m[nitems++].text = "";
@@ -2185,6 +2190,7 @@ void HandleGameKey(int key)
 
 		case KEYS_GR_TOGGLE_FULLSCREEN:
 				gr_toggle_fullscreen();
+				game_flush_inputs();
 				break;
 
 		case KEY_ALTED+KEY_F2:	if (!Player_is_dead) state_save_all( 0 );		break;	// 0 means not between levels.
@@ -2244,11 +2250,8 @@ void HandleGameKey(int key)
 		 * Jukebox hotkeys -- MD2211, 2007
 		 * ==============================================
 		 */
-		case KEY_ALTED + KEY_SHIFTED + KEY_F9:
-			jukebox_play(1);
-			break;
 		case KEY_ALTED + KEY_SHIFTED + KEY_F10:
-			jukebox_stop();
+			jukebox_pause_resume();
 			break;
 		case KEY_ALTED + KEY_SHIFTED + KEY_F11:
 			if (GameCfg.JukeboxOn)

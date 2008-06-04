@@ -370,7 +370,7 @@ ReshowScores:
 	looper = 0;
 
 	while(!done)	{
-		timer_delay2(20);
+		timer_delay2(50);
 		gr_set_current_canvas(NULL);
 		gr_flip();
 #ifdef OGL
