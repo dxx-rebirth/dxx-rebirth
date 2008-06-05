@@ -1,5 +1,9 @@
 D2X-Rebirth Changelog
 
+20080605
+--------
+INSTALL.txt, arch/sdl/digi_mixer.c, arch/sdl/jukebox.c: Small doc update; Improved SDL_mixer / Jukebox handling if no resource (sound) is available
+
 20080604
 --------
 main/newmenu.c, main/network.c, main/menu.c, main/netdrv_udp.c, main/playsave.c, main/titles.c, main/object.c, main/kmatrix.c, main/scores.c, main/game.c, main/gauges.c, main/kconfig.c, main/gamecntl.c, main/credits.c, arch/sdl/digi_mixer_music.c, arch/sdl/jukebox.c, arch/include/jukebox.h: Generally increasing Menu rendering from 20 to 50 FPS; Allowed Fullscreen toggle in Pause menu and correctly releasing mouse; Fixed broken Death sequence timer; Fixed incorrect data offset for UDP player relay; Fixed crash in Multiplayer summary; Reworked player loading a little bit, making sure kconfig controls are all set; Some small Status bar correction; Implemented real Pause/Reume for Jukebox via SDL_mixer
