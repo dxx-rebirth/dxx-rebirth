@@ -105,7 +105,7 @@ Supported content:
     *
       HiRes Briefing Images and Fonts
       Available at:
-      http://www.dxx-rebirth.de/download/dxx/res/d1x-rebirth-hires/dxx.zip
+      http://www.dxx-rebirth.de/download/dxx/res/d1xrdata.zip
       To add those, copy the ZIP file to the D1X-Rebirth directory or - on *NIX systems - into Sharepath or ~/.d1x-rebirth.
       HiRes Briefings and fonts will be used automatically.
       The Mac data files are already hires.
