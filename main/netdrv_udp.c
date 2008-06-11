@@ -203,7 +203,7 @@ int UDPHandshakeFrame(struct _sockaddr *sAddr, char *inbuf)
  				{
 					if (GameArg.MplIpRelay)
 					{
-						con_printf(CON_NORMAL,"Relaying Client #%i\n",checkid);
+						con_printf(CON_NORMAL,"UDP: Relaying Client #%i over Host\n",checkid);
 						UDPPeers[checkid].relay=1;
 						memset(UDPPeers[checkid].hs_list,1,MAX_CONNECTIONS);
 						return 1;
@@ -222,7 +222,6 @@ int UDPHandshakeFrame(struct _sockaddr *sAddr, char *inbuf)
 	return 1;
 }
 
-// Check if we got got Disconnect signal by player. If Yes, remove it. 
 // Check if we got data from sAddr within the last 10 seconds (NETWORK_TIMEOUT). If yes, update timestamp of peer, otherwise remove it.
 void UDPCheckDisconnect(struct _sockaddr *sAddr, char *text)
 {
@@ -234,20 +233,8 @@ void UDPCheckDisconnect(struct _sockaddr *sAddr, char *text)
 		// Find the player we got the packet from
 		if (!memcmp(sAddr,(struct _sockaddr *)&UDPPeers[i].addr,sizeof(struct _sockaddr)))
 		{
-			// Player has left -> PID ENDLEVEL and !connected-flag
-			if (text[0]==PID_ENDLEVEL && text[2] == CONNECT_DISCONNECTED)
-			{
-				UDPPeers[i].valid=0;
-				UDPPeers[i].timestamp=0;
-				memset(UDPPeers[i].hs_list,0,MAX_CONNECTIONS);
-				UDPPeers[i].hstimeout=0;
-				UDPPeers[i].relay=0;
-			}
-			else
-			{
-				// Update timestamp
-				UDPPeers[i].timestamp=timer_get_fixed_seconds();
-			}
+			// Update timestamp
+			UDPPeers[i].timestamp=timer_get_fixed_seconds();
 		}
 		else if (UDPPeers[i].valid && UDPPeers[i].timestamp + NETWORK_TIMEOUT <= timer_get_fixed_seconds())
 		{
@@ -270,8 +257,8 @@ void UDPPacketRelay(char *text, int len, struct _sockaddr *sAddr)
 	if (myid)
 		return;
 
-	// Relay PDATA packets only
-	if (text[0] != PID_PDATA && text[0] != PID_PDATA_SHORT2)
+	// Never relay PING packets
+	if (text[0] == PID_PING_SEND || text[0] == PID_PING_RETURN)
 		return;
 
 	// Check if sender is a relay client and store ID if so

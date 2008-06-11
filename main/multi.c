@@ -702,7 +702,7 @@ void multi_compute_kill(int killer, int killed)
 
 void multi_do_frame(void)
 {
-	if (!(Game_mode & GM_MULTI))
+	if (!(Game_mode & GM_MULTI) || Newdemo_state == ND_STATE_PLAYBACK)
 	{
 		Int3();
 		return;

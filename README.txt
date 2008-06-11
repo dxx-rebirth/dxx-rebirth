@@ -60,6 +60,7 @@ Using UDP/IP works over LAN and Internet. Since the Networking code of the Desce
 all players (Host and Clients) to open port UDP 31017.
 Clients can put an offset to this port by using '-ip_baseport OFFSET'.
 Hosts can also use option '-ip_relay' to route players with closed ports. Use this with caution. It will increase Lag and Ping drastically.
+Also game summary will not refresh correctly for relay-players until Host has escaped the level as well.
 UDP/IP also supports IPv6 by compiling the game with the designated flag. Please note IPv4- and IPv6-builds cannot play together.
 
 
