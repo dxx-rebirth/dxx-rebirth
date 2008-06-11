@@ -801,7 +801,7 @@ multi_do_frame(void)
 	static int lasttime=0;
 	int i;
 
-	if (!(Game_mode & GM_MULTI))
+	if (!(Game_mode & GM_MULTI) || Newdemo_state == ND_STATE_PLAYBACK)
 	{
 		Int3();
 		return;

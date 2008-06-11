@@ -196,7 +196,7 @@ int state_get_savegame_filename(char * fname, char * dsc, char * caption )
 	char desc[NUM_SAVES][DESC_LENGTH + 16];
 	char id[5];
 	int valid;
-	int state_default_item = 0;
+	static int state_default_item = 0;
 
 	nsaves=0;
 	m[0].type = NM_TYPE_TEXT; m[0].text = "\n\n\n\n";

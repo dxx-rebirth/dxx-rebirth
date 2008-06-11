@@ -542,17 +542,6 @@ network_disconnect_player(int playernum)
 		return;
 	}
 
-	if (playernum==0 && NetDrvType() == NETPROTO_UDP) // Host has left - Quit game!
-	{
-		Function_mode = FMODE_MENU;
-		nm_messagebox(NULL, 1, TXT_OK, "Game was closed by host!");
-		multi_quit_game = 1;
-		multi_leave_menu = 1;
-		multi_reset_stuff();
-		longjmp(LeaveGame,1);  // because the other crap didn't work right
-		return;
-	}
-
 	Players[playernum].connected = 0;
    NetPlayers.players[playernum].connected = 0;
    if (VerifyPlayerJoined==playernum)
@@ -565,6 +554,17 @@ network_disconnect_player(int playernum)
 		newdemo_record_multi_disconnect(playernum);
 
 	multi_strip_robots(playernum);
+
+	if (playernum==0 && NetDrvType() == NETPROTO_UDP) // Host has left - Quit game!
+	{
+		Function_mode = FMODE_MENU;
+		nm_messagebox(NULL, 1, TXT_OK, "Game was closed by host!");
+		Function_mode = FMODE_GAME;
+		multi_quit_game = 1;
+		multi_leave_menu = 1;
+		multi_reset_stuff();
+		Function_mode = FMODE_MENU;
+	}
 }
 		
 void
