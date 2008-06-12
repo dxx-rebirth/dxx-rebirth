@@ -76,6 +76,7 @@ int digi_mixer_init() {
   if (Mix_OpenAudio(SAMPLE_RATE_44K, MIX_OUTPUT_FORMAT, MIX_OUTPUT_CHANNELS, SOUND_BUFFER_SIZE)) {
     //edited on 10/05/98 by Matt Mueller - should keep running, just with no sound.
     con_printf(CON_URGENT,"\nError: Couldn't open audio: %s\n", SDL_GetError());
+    GameArg.SndNoSound = 1;
     return 1;
   }
 
