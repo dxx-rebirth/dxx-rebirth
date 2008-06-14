@@ -309,7 +309,7 @@ void add_d1_builtin_mission_to_list(mle *mission)
 	}
 
 	mission->anarchy_only_flag = 0;
-	mission->builtin_hogsize = 0;
+	mission->builtin_hogsize = size;
 	mission->path = mission->filename;
 	num_missions++;
 }

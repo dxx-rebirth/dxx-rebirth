@@ -165,6 +165,7 @@ fix nd_playback_total;
 fix nd_recorded_total;
 fix nd_recorded_time;
 sbyte playback_style;
+sbyte First_time_playback=1;
 fix JasonPlaybackTotal=0;
 
 extern int digi_link_sound_to_object3( int org_soundnum, short objnum, int forever, fix max_volume, fix  max_distance, int loop_start, int loop_end );
@@ -2934,6 +2935,7 @@ void newdemo_start_playback(char * filename)
 #ifdef NETWORK
 	change_playernum_to(0);
 #endif
+	First_time_playback=1;
 	JasonPlaybackTotal=0;
 
 	if (filename)
@@ -3106,10 +3108,10 @@ void DoJasonInterpolate (fix recorded_time)
 
 	JasonPlaybackTotal+=FrameTime;
 
-	if (recorded_time > 0)
+	if (!First_time_playback)
 	{
-		// get the difference between the recorded time and the playback time
 		the_delay=(recorded_time - FrameTime);
+
 		if (the_delay < f0_0)
 		{
 			while (JasonPlaybackTotal > nd_recorded_total)
@@ -3120,4 +3122,5 @@ void DoJasonInterpolate (fix recorded_time)
 				}
 		}
 	}
+	First_time_playback=0;
 }

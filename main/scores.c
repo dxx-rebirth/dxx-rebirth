@@ -142,10 +142,9 @@ void scores_read()
 
 void scores_write()
 {
-	FILE * fp;
-	int i;
+	PHYSFS_file *fp;
 
-	fp = fopen( get_scores_filename(), "wb" );
+	fp = PHYSFS_openWrite(get_scores_filename());
 	if (fp==NULL) {
 		nm_messagebox( TXT_WARNING, 1, TXT_OK, "%s\n'%s'", TXT_UNABLE_TO_OPEN, get_scores_filename()  );
 		return;
@@ -155,31 +154,8 @@ void scores_write()
 	Scores.signature[1]='H';
 	Scores.signature[2]='S';
 	Scores.version = VERSION_NUMBER;
-	fwrite( Scores.signature, 3, 1, fp);
-	fwrite( &(Scores.version), 1, 1, fp);
-	fwrite( Scores.cool_saying, COOL_MESSAGE_LEN, 1, fp);
-	for (i = 0; i < MAX_HIGH_SCORES; i++) {
-		Scores.stats[i].score = INTEL_INT(Scores.stats[i].score);
-		Scores.stats[i].kill_ratio = INTEL_SHORT(Scores.stats[i].kill_ratio);
-		Scores.stats[i].hostage_ratio = INTEL_SHORT(Scores.stats[i].hostage_ratio);
-		Scores.stats[i].seconds = INTEL_INT(Scores.stats[i].seconds);
-
-		fwrite( Scores.stats[i].name, CALLSIGN_LEN+1, 1, fp);
-		fwrite( &(Scores.stats[i].score), 4, 1, fp);
-		fwrite( &(Scores.stats[i].starting_level), 1, 1, fp);
-		fwrite( &(Scores.stats[i].ending_level), 1, 1, fp);
-		fwrite( &(Scores.stats[i].diff_level), 1, 1, fp);
-		fwrite( &(Scores.stats[i].kill_ratio), 2, 1, fp);
-		fwrite( &(Scores.stats[i].hostage_ratio), 2, 1, fp);
-		fwrite( &(Scores.stats[i].seconds), 4, 1, fp);
-
-		Scores.stats[i].score = INTEL_INT(Scores.stats[i].score);
-		Scores.stats[i].kill_ratio = INTEL_SHORT(Scores.stats[i].kill_ratio);
-		Scores.stats[i].hostage_ratio = INTEL_SHORT(Scores.stats[i].hostage_ratio);
-		Scores.stats[i].seconds = INTEL_INT(Scores.stats[i].seconds);
-
-	}
-	fclose(fp);
+	PHYSFS_write(fp, &Scores,sizeof(all_scores), 1);
+	PHYSFS_close(fp);
 }
 
 void int_to_string( int number, char *dest )

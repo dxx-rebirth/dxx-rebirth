@@ -896,7 +896,7 @@ void PlayerFinishedLevel(int secret_flag)
 		m[0].type = NM_TYPE_TEXT;
 		m[0].text = " ";			//TXT_SECRET_EXIT;
 
-		newmenu_do2(NULL, TXT_SECRET_EXIT, 1, m, NULL, 0, "MENU.PCX");
+		newmenu_do2(NULL, TXT_SECRET_EXIT, 1, m, NULL, 0, Menu_pcx_name);
 	}
 #endif
 
