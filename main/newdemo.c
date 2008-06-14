@@ -205,6 +205,7 @@ fix nd_playback_total;
 fix nd_recorded_total;
 fix nd_recorded_time;
 sbyte playback_style;
+sbyte First_time_playback=1;
 fix JasonPlaybackTotal=0;
 
 
@@ -3196,6 +3197,7 @@ void newdemo_start_playback(char * filename)
 #ifdef NETWORK
 	change_playernum_to(0);
 #endif
+	First_time_playback=1;
 	JasonPlaybackTotal=0;
 	Newdemo_flying_guided=0;
 
@@ -3399,7 +3401,7 @@ void DoJasonInterpolate (fix recorded_time)
 
 	JasonPlaybackTotal+=FrameTime;
 
-	if (recorded_time > 0)
+	if (!First_time_playback)
 	{
 		the_delay=(recorded_time - FrameTime);
 
@@ -3413,6 +3415,7 @@ void DoJasonInterpolate (fix recorded_time)
 				}
 		}
 	}
+	First_time_playback=0;
 }
 
 #ifdef MACINTOSH

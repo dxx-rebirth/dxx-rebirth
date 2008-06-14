@@ -1,5 +1,9 @@
 D2X-Rebirth Changelog
 
+20080615
+--------
+main/newdemo.c: Better call for DoJasonInterpolate in demo code (hopefully)
+
 20080612
 --------
 README.txt, main/collide.c, main/multi.c, main/netdrv_udp.c, main/network.c, main/state.c: Improved Player relay for Endlevel status; Fixed leaving when UDP hosts leaves; Fixed multi_frame_calling while demos since demos can be Game_mode & GM_MULTI; Re-added lost collision fix between robots and reactor; Made state_defaut_item static so selected state slot stays selected
