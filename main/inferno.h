@@ -20,6 +20,12 @@ COPYRIGHT 1993-1998 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 #ifndef _INFERNO_H
 #define _INFERNO_H
 
+#if MACINTOSH
+#define MAC(x) x
+#else
+#define MAC(x)
+#endif
+
 /**
  **	Constants
  **/

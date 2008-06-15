@@ -30,7 +30,6 @@ typedef struct _RBACHANNELCTL {
 #else
    extern void RBAInit(ubyte cd_drive_num);	//drive a == 0, drive b == 1
 #endif
-extern void RBARegisterCD(void);
 extern long RBAGetDeviceStatus(void);
 extern int RBAPlayTrack(int track);
 extern int RBAPlayTracks(int first, int last);	//plays tracks first through last, inclusive
@@ -38,6 +37,7 @@ extern int RBACheckMediaChange();
 extern long	RBAGetHeadLoc(int *min, int *sec, int *frame);
 extern int	RBAPeekPlayStatus(void);
 extern void RBAStop(void);
+extern void RBAEjectDisk(void);
 extern void RBASetStereoAudio(RBACHANNELCTL *channels);
 extern void RBASetQuadAudio(RBACHANNELCTL *channels);
 extern void RBAGetAudioInfo(RBACHANNELCTL *channels);
@@ -49,6 +49,7 @@ extern void RBAEnable(void);
 extern int	RBAGetNumberOfTracks(void);
 extern void	RBAPause();
 extern int	RBAResume();
+extern int	RBAPauseResume();
 
 //return the track number currently playing.  Useful if RBAPlayTracks() 
 //is called.  Returns 0 if no track playing, else track number

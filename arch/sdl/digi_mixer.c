@@ -278,7 +278,8 @@ void digi_mixer_stop_current_song() {
     digi_midi_song_playing = 0;
   }
 #endif
-  jukebox_stop(); //stops jukebox as well as standard music
+  jukebox_stop();
+  mix_stop_music();
 }
 
 void digi_mixer_pause_midi() {}

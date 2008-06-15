@@ -1402,10 +1402,16 @@ int do_game_pause()
 	return key;
 }
 
+#ifdef USE_SDLMIXER
+#define EXT_MUSIC_TEXT "Jukebox/Audio CD"
+#else
+#define EXT_MUSIC_TEXT "Audio CD"
+#endif
+
 void show_help()
 {
 	int nitems = 0;
-	newmenu_item m[25];
+	newmenu_item m[26];
 
 	m[nitems].type = NM_TYPE_TEXT; m[nitems++].text = TXT_HELP_ESC;
 	m[nitems].type = NM_TYPE_TEXT; m[nitems++].text = "SHIFT-ESC\t  SHOW GAME LOG";
@@ -1418,10 +1424,9 @@ void show_help()
 	m[nitems].type = NM_TYPE_TEXT; m[nitems++].text = TXT_HELP_PRTSCN;
 	m[nitems].type = NM_TYPE_TEXT; m[nitems++].text = TXT_HELP_1TO5;
 	m[nitems].type = NM_TYPE_TEXT; m[nitems++].text = TXT_HELP_6TO10;
-#ifdef USE_SDLMIXER
-	m[nitems].type = NM_TYPE_TEXT; m[nitems++].text = "Alt-Shift-F10\t  Play/Pause Jukebox";
+	m[nitems].type = NM_TYPE_TEXT; m[nitems++].text = "Alt-Shift-F9\t  Eject Audio CD";
+	m[nitems].type = NM_TYPE_TEXT; m[nitems++].text = "Alt-Shift-F10\t  Play/Pause " EXT_MUSIC_TEXT;
 	m[nitems].type = NM_TYPE_TEXT; m[nitems++].text = "Alt-Shift-F11/F12\t  Previous/Next Song";
-#endif
 	m[nitems].type = NM_TYPE_TEXT; m[nitems++].text = "";
 	m[nitems].type = NM_TYPE_TEXT; m[nitems++].text = "MULTIPLAYER:";
 	m[nitems].type = NM_TYPE_TEXT; m[nitems++].text = "ALT-F4\t  SHOW RETICLE NAMES";
@@ -2196,84 +2201,50 @@ void HandleGameKey(int key)
 		case KEY_ALTED+KEY_F2:	if (!Player_is_dead) state_save_all( 0 );		break;	// 0 means not between levels.
 		case KEY_ALTED+KEY_F3:	if (!Player_is_dead) state_restore_all(1);		break;
 
-		case KEY_MINUS + KEY_ALTED:     songs_goto_prev_song(); break;
-		case KEY_EQUAL + KEY_ALTED:     songs_goto_next_song(); break;
-			
-#ifdef MACINTOSH
-			
-		case KEY_COMMAND+KEY_M:
-#if !defined(SHAREWARE) || defined(APPLE_DEMO)
-			if ( (Game_mode & GM_MULTI) )		// don't process in multiplayer games
-				break;
-			
-			key_close();		// no processing of keys with keyboard handler.. jeez				
-			stop_time();
-			show_boxed_message ("Mounting CD\nESC to quit", 0);	
-			RBAMountDisk();		// OS has totaly control of the CD.
-			if (Function_mode == FMODE_MENU)
-				songs_play_song(SONG_TITLE,1);
-			else if (Function_mode == FMODE_GAME)
-				songs_play_level_song( Current_level_num );
-				key_init();
-			start_time();
-#endif
-			
-			break;
-			
-		case KEY_COMMAND+KEY_E:
+		/*
+		 * Jukebox hotkeys -- MD2211, 2007
+		 * Now for all music
+		 * ==============================================
+		 */
+		case KEY_ALTED + KEY_SHIFTED + KEY_F9:
+		MAC(case KEY_COMMAND+KEY_E:)
 			songs_stop_redbook();
 			RBAEjectDisk();
 			break;
 			
-		case KEY_COMMAND+KEY_RIGHT:
-			songs_goto_next_song();
-			break;
-		case KEY_COMMAND+KEY_LEFT:
-			songs_goto_prev_song();
-			break;
-		case KEY_COMMAND+KEY_UP:
-			songs_play_level_song(1);
-			break;
-		case KEY_COMMAND+KEY_DOWN:
-			songs_stop_redbook();
+		case KEY_ALTED + KEY_SHIFTED + KEY_F10:
+		MAC(case KEY_COMMAND+KEY_UP:)
+		MAC(case KEY_COMMAND+KEY_DOWN:)
+			if (GameCfg.SndEnableRedbook && !RBAPauseResume())
+			{
+				if (Function_mode == FMODE_GAME)
+					songs_play_level_song( Current_level_num );
+				else if (Function_mode == FMODE_MENU)
+					songs_play_song(SONG_TITLE, 1);
+			}
+#ifdef USE_SDLMIXER
+			jukebox_pause_resume();
+#endif
 			break;
 			
+		case KEY_MINUS + KEY_ALTED:
+		case KEY_ALTED + KEY_SHIFTED + KEY_F11:
+		MAC(case KEY_COMMAND+KEY_LEFT:)
+			songs_goto_prev_song();
+			break;
+		case KEY_EQUAL + KEY_ALTED:
+		case KEY_ALTED + KEY_SHIFTED + KEY_F12:
+		MAC(case KEY_COMMAND+KEY_RIGHT:)
+			songs_goto_next_song();
+			break;
+			
+#ifdef MACINTOSH
 		case KEY_COMMAND+KEY_Q:
 			if ( !(Game_mode & GM_MULTI) )
 				macintosh_quit();
 			break;
 #endif
 			
-			
-#ifdef USE_SDLMIXER
-		/*
-		 * Jukebox hotkeys -- MD2211, 2007
-		 * ==============================================
-		 */
-		case KEY_ALTED + KEY_SHIFTED + KEY_F10:
-			jukebox_pause_resume();
-			break;
-		case KEY_ALTED + KEY_SHIFTED + KEY_F11:
-			if (GameCfg.JukeboxOn)
-				jukebox_prev();
-			else
-				songs_goto_prev_song();
-			break;
-		case KEY_ALTED + KEY_SHIFTED + KEY_F12:
-			if (GameCfg.JukeboxOn)
-				jukebox_next();
-			else
-				songs_goto_next_song();
-			break;
-#else
-		case KEY_ALTED + KEY_SHIFTED + KEY_F11:
-			songs_goto_prev_song();
-			break;
-		case KEY_ALTED + KEY_SHIFTED + KEY_F12:
-			songs_goto_next_song();
-			break;
-#endif
-
 		//use function keys for window sizing
 
 		//	================================================================================================

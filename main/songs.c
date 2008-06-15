@@ -30,6 +30,7 @@ COPYRIGHT 1993-1998 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 #include "rbaudio.h"
 #include "config.h"
 #include "timer.h"
+#include "jukebox.h"
 
 song_info Songs[MAX_SONGS];
 int Songs_initialized = 0;
@@ -144,12 +145,7 @@ void songs_init()
 	if (GameCfg.SndEnableRedbook)
 	{
 		RBAInit();
-		
-		if (RBAEnabled())
-		{
-			set_redbook_volume(GameCfg.MusicVolume);
-			RBARegisterCD();
-		}
+		set_redbook_volume(GameCfg.MusicVolume);
 	}
 	atexit(RBAStop);    // stop song on exit
 #endif	// endof ifndef SHAREWARE, ie ifdef SHAREWARE
@@ -194,18 +190,10 @@ void songs_stop_all(void)
 	songs_stop_redbook();			// Stop CD, if playing
 }
 
-int force_rb_register=0;
-
 void reinit_redbook()
 {
 	RBAInit();
-	
-	if (RBAEnabled())
-	{
-		set_redbook_volume(GameCfg.MusicVolume);
-		RBARegisterCD();
-		force_rb_register=0;
-	}
+	set_redbook_volume(GameCfg.MusicVolume);
 }
 
 
@@ -216,15 +204,10 @@ int play_redbook_track(int tracknum,int keep_playing)
 {
 	Redbook_playing = 0;
 	
-	if ((RBAGetNumberOfTracks() < 1) && GameCfg.SndEnableRedbook)
+	if (!RBAEnabled() && GameCfg.SndEnableRedbook)
 		reinit_redbook();
 	
-	if (force_rb_register) {
-		RBARegisterCD();			//get new track list for new CD
-		force_rb_register = 0;
-	}
-	
-	if (GameCfg.SndEnableRedbook && RBAEnabled()) {
+	if (GameCfg.SndEnableRedbook) {
 		int num_tracks = RBAGetNumberOfTracks();
 		if (tracknum <= num_tracks)
 			if (RBAPlayTracks(tracknum,keep_playing?num_tracks:tracknum))  {
@@ -246,11 +229,6 @@ void songs_play_song( int songnum, int repeat )
 	//stop any music already playing
 	
 	songs_stop_all();
-	
-	if (force_rb_register) {
-		RBARegisterCD();			//get new track list for new CD
-		force_rb_register = 0;
-	}
 	
 	// The endgame track is the last track...
 	if (songnum < SONG_ENDGAME)
@@ -287,15 +265,7 @@ void songs_play_level_song( int levelnum )
 	else
 		songnum = (levelnum-1) % cGameSongsAvailable;
 
-	if ((RBAGetNumberOfTracks() < 2) && GameCfg.SndEnableRedbook)
-		reinit_redbook();
-	
-	if (force_rb_register) {
-		RBARegisterCD();			//get new track list for new CD
-		force_rb_register = 0;
-	}
-	
-	if (GameCfg.SndEnableRedbook && RBAEnabled() && (n_tracks = RBAGetNumberOfTracks()) > 1) {
+	if (GameCfg.SndEnableRedbook) {
 		
 		//try to play redbook
 		
@@ -333,6 +303,13 @@ void songs_goto_next_song()
 {
 	if (Redbook_playing) 		//get correct track
 		current_song_level = RBAGetTrackNum() - REDBOOK_FIRST_LEVEL_TRACK + 1;
+#ifdef USE_SDLMIXER
+	else if (GameCfg.JukeboxOn)
+	{
+		jukebox_next();
+		return;
+	}
+#endif
 	
 	songs_play_level_song(current_song_level+1);
 	
@@ -343,6 +320,13 @@ void songs_goto_prev_song()
 {
 	if (Redbook_playing) 		//get correct track
 		current_song_level = RBAGetTrackNum() - REDBOOK_FIRST_LEVEL_TRACK + 1;
+#ifdef USE_SDLMIXER
+	else if (GameCfg.JukeboxOn)
+	{
+		jukebox_prev();
+		return;
+	}
+#endif
 	
 	if (current_song_level > 1)
 		songs_play_level_song(current_song_level-1);
