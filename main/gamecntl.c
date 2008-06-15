@@ -55,6 +55,7 @@ COPYRIGHT 1993-1999 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 #include "gameseg.h"
 #include "wall.h"
 #include "ai.h"
+#include "rbaudio.h"
 #include "digi.h"
 #include "ibitblt.h"
 #include "u_mem.h"
@@ -69,6 +70,7 @@ COPYRIGHT 1993-1999 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 #include "automap.h"
 #include "text.h"
 #include "powerup.h"
+#include "songs.h"
 #include "newmenu.h"
 #ifdef NETWORK
 #include "network.h"
