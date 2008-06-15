@@ -31,7 +31,7 @@ static int initialised = 0;
 
 void RBAExit()
 {
-	if (initialised)
+	if (s_cd)
 	{
 		SDL_CDStop(s_cd);
 		SDL_CDClose(s_cd);
@@ -40,6 +40,9 @@ void RBAExit()
 
 void RBAInit()
 {
+	int num_cds;
+	int i,j;
+	
 	if (initialised) return;
 
 	if (SDL_Init(SDL_INIT_CDROM) < 0)
@@ -48,34 +51,20 @@ void RBAInit()
 		return;
 	}
 
-	RBARegisterCD();
-
-	atexit(RBAExit);
-	initialised = 1;
-}
-
-int RBAEnabled()
-{
-	return initialised;
-}
-
-void RBARegisterCD()
-{
-	int num_cds;
-	int i,j;
-
-	if (s_cd && CD_INDRIVE(SDL_CDStatus(s_cd)))
-		return;
-
 	num_cds = SDL_CDNumDrives();
 	if (num_cds < 1)
 	{
 		Warning("No cdrom drives found!\n");
+#if defined(__APPLE__) || defined(macintosh)
+		SDL_QuitSubSystem(SDL_INIT_CDROM);	// necessary for rescanning CDROMs
+#endif
 		return;
 	}
 	
 	for (i = 0; i < num_cds; i++)
 	{
+		if (s_cd)
+			SDL_CDClose(s_cd);
 		s_cd = SDL_CDOpen(i);
 		
 		if (s_cd && CD_INDRIVE(SDL_CDStatus(s_cd)))
@@ -89,17 +78,36 @@ void RBARegisterCD()
 			if (j != s_cd->numtracks)
 				break;	// we've found an audio CD
 		}
+		else if (s_cd == NULL)
+			Warning("Could not open cdrom %i for redbook audio:%s\n", i, SDL_GetError());
 	}
+	
 	if (i == num_cds)
 	{
-		Warning("Could not open cdrom for redbook audio!\n");
+		Warning("No audio CDs found\n");
+		if (s_cd)	// if there's no audio CD, say that there's no redbook and hence play MIDI instead
+		{
+			SDL_CDClose(s_cd);
+			s_cd = NULL;
+		}
+#if defined(__APPLE__) || defined(macintosh)
+		SDL_QuitSubSystem(SDL_INIT_CDROM);	// necessary for rescanning CDROMs
+#endif
 		return;
 	}
+	
+	atexit(RBAExit);
+	initialised = 1;
+}
+
+int RBAEnabled()
+{
+	return initialised;
 }
 
 int RBAPlayTrack(int a)
 {
-	if (!initialised) return -1;
+	if (!s_cd) return -1;
 
 	if (CD_INDRIVE(SDL_CDStatus(s_cd)) ) {
 		SDL_CDPlayTracks(s_cd, a-1, 0, 0, 0);
@@ -109,8 +117,18 @@ int RBAPlayTrack(int a)
 
 void RBAStop()
 {
-	if (!initialised) return;
+	if (!s_cd) return;
 	SDL_CDStop(s_cd);
+}
+
+void RBAEjectDisk()
+{
+	if (!s_cd) return;
+	SDL_CDEject(s_cd);	// play nothing until it tries to load a song
+#if defined(__APPLE__) || defined(macintosh)
+	SDL_QuitSubSystem(SDL_INIT_CDROM);	// necessary for rescanning CDROMs
+#endif
+	initialised = 0;
 }
 
 void RBASetVolume(int volume)
@@ -119,7 +137,7 @@ void RBASetVolume(int volume)
 	int cdfile, level;
 	struct cdrom_volctrl volctrl;
 
-	if (!initialised) return;
+	if (!s_cd) return;
 
 	cdfile = s_cd->id;
 	level = volume * 3;
@@ -143,20 +161,34 @@ void RBASetVolume(int volume)
 
 void RBAPause()
 {
-	if (!initialised) return;
+	if (!s_cd) return;
 	SDL_CDPause(s_cd);
 }
 
 int RBAResume()
 {
-	if (!initialised) return -1;
+	if (!s_cd) return -1;
 	SDL_CDResume(s_cd);
+	return 1;
+}
+
+int RBAPauseResume()
+{
+	if (!s_cd) return 0;
+
+	if (SDL_CDStatus(s_cd) == CD_PLAYING)
+		SDL_CDPause(s_cd);
+	else if (SDL_CDStatus(s_cd) == CD_PAUSED)
+		SDL_CDResume(s_cd);
+	else
+		return 0;
+
 	return 1;
 }
 
 int RBAGetNumberOfTracks()
 {
-	if (!initialised) return -1;
+	if (!s_cd) return -1;
 	SDL_CDStatus(s_cd);
 	return s_cd->numtracks;
 }
@@ -164,7 +196,7 @@ int RBAGetNumberOfTracks()
 // plays tracks first through last, inclusive
 int RBAPlayTracks(int first, int last)
 {
-	if (!initialised)
+	if (!s_cd)
 		return 0;
 
 	if (CD_INDRIVE(SDL_CDStatus(s_cd)))
@@ -178,7 +210,7 @@ int RBAPlayTracks(int first, int last)
 // is called.  Returns 0 if no track playing, else track number
 int RBAGetTrackNum()
 {
-	if (!initialised)
+	if (!s_cd)
 		return 0;
 
 	if (SDL_CDStatus(s_cd) != CD_PLAYING)
@@ -189,7 +221,15 @@ int RBAGetTrackNum()
 
 int RBAPeekPlayStatus()
 {
-	return (SDL_CDStatus(s_cd) == CD_PLAYING);
+	if (!s_cd)
+		return 0;
+
+	if (SDL_CDStatus(s_cd) == CD_PLAYING)
+		return 1;
+	else if (SDL_CDStatus(s_cd) == CD_PAUSED)	// hack so it doesn't keep restarting paused music
+		return -1;
+	
+	return 0;
 }
 
 static int cddb_sum(int n)
@@ -213,7 +253,7 @@ unsigned long RBAGetDiscID()
 {
 	int i, t = 0, n = 0;
 
-	if (!initialised)
+	if (!s_cd)
 		return 0;
 
 	/* For backward compatibility this algorithm must not change */

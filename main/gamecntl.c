@@ -1125,35 +1125,50 @@ int HandleSystemKey(int key)
 			change_guidebot_name();
 			break;
 
-#ifdef USE_SDLMIXER
-		/*
-		 * Jukebox hotkeys -- MD2211, 2007
-		 * ==============================================
-		 */
+			/*
+			 * Jukebox hotkeys -- MD2211, 2007
+			 * Now for all music
+			 * ==============================================
+			 */
+		case KEY_ALTED + KEY_SHIFTED + KEY_F9:
+		MAC(case KEY_COMMAND+KEY_E:)
+			songs_stop_redbook();
+			RBAEjectDisk();
+			break;
+			
 		case KEY_ALTED + KEY_SHIFTED + KEY_F10:
+		MAC(case KEY_COMMAND+KEY_UP:)
+		MAC(case KEY_COMMAND+KEY_DOWN:)
+			if (GameCfg.SndEnableRedbook && !RBAPauseResume())
+			{
+				if (Function_mode == FMODE_GAME)
+					songs_play_level_song( Current_level_num );
+				else if (Function_mode == FMODE_MENU)
+					songs_play_song(SONG_TITLE, 1);
+			}
+#ifdef USE_SDLMIXER
 			jukebox_pause_resume();
+#endif
 			break;
+			
+		case KEY_MINUS + KEY_ALTED:
 		case KEY_ALTED + KEY_SHIFTED + KEY_F11:
-			if (GameCfg.JukeboxOn)
-				jukebox_prev();
-			else
-				songs_goto_prev_song();
-			break;
-		case KEY_ALTED + KEY_SHIFTED + KEY_F12:
-			if (GameCfg.JukeboxOn)
-				jukebox_next();
-			else
-				songs_goto_next_song();
-			break;
-#else
-		case KEY_ALTED + KEY_SHIFTED + KEY_F11:
+		MAC(case KEY_COMMAND+KEY_LEFT:)
 			songs_goto_prev_song();
 			break;
+		case KEY_EQUAL + KEY_ALTED:
 		case KEY_ALTED + KEY_SHIFTED + KEY_F12:
+		MAC(case KEY_COMMAND+KEY_RIGHT:)
 			songs_goto_next_song();
 			break;
+			
+#ifdef MACINTOSH
+		case KEY_COMMAND+KEY_Q:
+			if ( !(Game_mode & GM_MULTI) )
+				macintosh_quit();
+			break;
 #endif
-
+			
 		case KEY_ALTED+KEY_ENTER:
 		case KEY_ALTED+KEY_PADENTER:
 			gr_toggle_fullscreen();
