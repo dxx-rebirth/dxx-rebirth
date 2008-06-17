@@ -218,9 +218,57 @@ int play_redbook_track(int tracknum,int keep_playing)
 		return (Redbook_playing != 0);
 }
 
-#define REDBOOK_FIRST_LEVEL_TRACK	  6
+/*
+ * This list may not be exhaustive!!
+ */
+#define D1_MAC_OEM_DISCID       0xde0feb0e // Descent CD that came with the Mac Performa 6400, hope mine isn't scratched [too much]
+
+#define REDBOOK_FIRST_LEVEL_TRACK	  (songs_haved1_cd()?6:1)
 #define REDBOOK_ENDLEVEL_TRACK		  4
 #define REDBOOK_ENDGAME_TRACK         14
+
+// songs_haved1_cd returns 1 if the descent 1 Mac CD is in the drive and
+// 0 otherwise
+
+#if 1
+int songs_haved1_cd()
+{
+	int discid;
+	
+	if (!GameCfg.SndEnableRedbook)
+		return 0;
+	
+	discid = RBAGetDiscID();
+	
+	switch (discid) {
+		case D1_MAC_OEM_DISCID:	// Doesn't work with your Mac Descent CD? Please tell!
+			return 1;
+		default:
+			return 0;
+	}
+}
+#else
+int songs_haved1_cd()
+{
+	char temp[128],cwd[128];
+	
+	getcwd(cwd, 128);
+	
+	strcpy(temp,CDROM_dir);
+	
+#ifndef MACINTOSH		//for PC, strip of trailing slash
+	if (temp[strlen(temp)-1] == '\\')
+		temp[strlen(temp)-1] = 0;
+#endif
+	
+	if ( !chdir(temp) ) {
+		chdir(cwd);
+		return 1;
+	}
+	
+	return 0;
+}
+#endif
 
 void songs_play_song( int songnum, int repeat )
 {
@@ -265,11 +313,14 @@ void songs_play_level_song( int levelnum )
 	else
 		songnum = (levelnum-1) % cGameSongsAvailable;
 
-	if (GameCfg.SndEnableRedbook) {
+	if (!RBAEnabled() && GameCfg.SndEnableRedbook)	// need this to determine if we currently have the official CD
+		reinit_redbook();
+	
+	if (RBAEnabled() && GameCfg.SndEnableRedbook) {
 		
 		//try to play redbook
 		
-		play_redbook_track(REDBOOK_FIRST_LEVEL_TRACK + (songnum % (n_tracks-REDBOOK_FIRST_LEVEL_TRACK+1)),0);
+		play_redbook_track(REDBOOK_FIRST_LEVEL_TRACK + (songnum % (n_tracks-REDBOOK_FIRST_LEVEL_TRACK+1)),!songs_haved1_cd());
 	}
 	
 	if (! Redbook_playing) {			//not playing redbook, so play midi

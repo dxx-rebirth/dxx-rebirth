@@ -1,5 +1,9 @@
 D1X-Rebirth Changelog
 
+20080617
+--------
+main/songs.c: start at track 1 and continue playing audio CD if it's not the original Mac one (this is how it worked before)
+
 20080615
 --------
 main/gameseq.c, main/mission.c, main/newdemo.c, main/scores.c: Fixed scores write (wasn't PhysFS); Fixed PLAYING_BUILTING_MISSION in D1X; Better call for DoJasonInterpolate in demo code (hopefully)
