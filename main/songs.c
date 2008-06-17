@@ -309,7 +309,10 @@ void songs_play_level_song( int levelnum )
 
 	songnum = (levelnum>0)?(levelnum-1):(-levelnum);
 
-	if (GameCfg.SndEnableRedbook) {
+	if (!RBAEnabled() && GameCfg.SndEnableRedbook)	// need this to determine if we currently have the official CD
+		reinit_redbook();
+	
+	if (RBAEnabled() && GameCfg.SndEnableRedbook) {
 		//try to play redbook
 		play_redbook_track(REDBOOK_FIRST_LEVEL_TRACK + (songnum % (n_tracks-REDBOOK_FIRST_LEVEL_TRACK+1)),1);
 	}

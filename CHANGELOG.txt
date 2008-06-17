@@ -1,5 +1,9 @@
 D2X-Rebirth Changelog
 
+20080617
+--------
+main/songs.c: make sure it knows whether an audio CD just inserted is the official one
+
 20080615
 --------
 main/newdemo.c: Better call for DoJasonInterpolate in demo code (hopefully)
