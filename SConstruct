@@ -9,7 +9,7 @@ PROGRAM_NAME = 'D2X-Rebirth'
 
 # version number
 D2XMAJOR = 0
-D2XMINOR = 53
+D2XMINOR = 54
 
 # installation path
 PREFIX = '/usr/local/'
