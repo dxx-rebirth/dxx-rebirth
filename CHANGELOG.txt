@@ -1,5 +1,9 @@
 D2X-Rebirth Changelog
 
+20080628
+--------
+main/collide.c: Do not apply new bump_two_objects() when companion object colliding with controlcen due to inability of companion to find alternatives
+
 20080617
 --------
 main/songs.c: make sure it knows whether an audio CD just inserted is the official one
