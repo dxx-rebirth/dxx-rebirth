@@ -315,6 +315,8 @@ void songs_play_level_song( int levelnum )
 
 	if (!RBAEnabled() && GameCfg.SndEnableRedbook)	// need this to determine if we currently have the official CD
 		reinit_redbook();
+
+	n_tracks = RBAGetNumberOfTracks();
 	
 	if (RBAEnabled() && GameCfg.SndEnableRedbook) {
 		
