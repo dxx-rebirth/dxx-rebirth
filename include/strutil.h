@@ -15,8 +15,9 @@ COPYRIGHT 1993-1999 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 #define _STRUTILS_H
 
 #if defined(macintosh)
- extern int stricmp(const char *str1, const char *str2);
- extern int strnicmp(const char *str1, const char *str2, int n);
+extern void snprintf(char *out_string, int size, char * format, ... );
+extern int stricmp(const char *str1, const char *str2);
+extern int strnicmp(const char *str1, const char *str2, int n);
 #elif !defined(_WIN32)
 # include <string.h>
 # define stricmp(a,b) strcasecmp(a,b)
