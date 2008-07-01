@@ -2,6 +2,7 @@
 //declaration" warnings for the string functions in Linux
 
 #if defined(macintosh)
+extern void snprintf(char *out_string, int size, char * format, ... );
 extern int stricmp(const char *s1, const char *s2);
 extern int strnicmp(const char *s1, const char *s2, int n);
 #elif !defined(_WIN32)

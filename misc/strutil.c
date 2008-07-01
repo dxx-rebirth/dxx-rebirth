@@ -21,11 +21,29 @@ COPYRIGHT 1993-1998 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 #include <stdlib.h>
 #include <string.h>
 #include <ctype.h>
+#include <stdarg.h>
 
 #include "u_mem.h"
 #include "inferno.h"
+#include "error.h"
 
 #ifdef macintosh
+void snprintf(char *out_string, int size, char * format, ... )
+{
+	va_list		args;
+	char		buf[1024];
+	
+	va_start(args, format );
+	vsprintf(buf,format,args);
+	va_end(args);
+
+	// Hack! Don't know any other [simple] way to do this, but I doubt it would ever exceed 1024 long.
+	Assert(strlen(buf) < 1024);
+	Assert(size < 1024);
+
+	strncpy(out_string, buf, size);
+}
+
 # if defined(NDEBUG)
 char *strdup(const char *str)
 {
