@@ -15,7 +15,11 @@
 	<key>CFBundleSignature</key>
 	<string>DCT2</string>
 	<key>CFBundleVersion</key>
-	<string>0.5.3</string>
+	<string>0.5.4</string>
+	<key>CSResourcesFileMapped</key>
+	<false/>
+	<key>LSPrefersCarbon</key>
+	<true/>
 	<key>NSMainNibFile</key>
 	<string>MainMenu</string>
 	<key>NSPrincipalClass</key>

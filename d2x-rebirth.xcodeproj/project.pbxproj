@@ -342,6 +342,7 @@
 		67F6FED3066B13B400443922 /* SDLMain.m in Sources */ = {isa = PBXBuildFile; fileRef = 67F6FED1066B13B400443922 /* SDLMain.m */; };
 		67F6FED4066B13B400443922 /* SDLMain.h in Headers */ = {isa = PBXBuildFile; fileRef = 67F6FED0066B13B400443922 /* SDLMain.h */; };
 		67F6FED5066B13B400443922 /* SDLMain.m in Sources */ = {isa = PBXBuildFile; fileRef = 67F6FED1066B13B400443922 /* SDLMain.m */; };
+		EB380D360E16886300EBD9AD /* InfoPlist.strings in Resources */ = {isa = PBXBuildFile; fileRef = 089C165CFE840E0CC02AAC07 /* InfoPlist.strings */; };
 		EB92BE600CDD693C0045A32C /* digi_audio.c in Sources */ = {isa = PBXBuildFile; fileRef = EB92BE5C0CDD693C0045A32C /* digi_audio.c */; };
 		EB92BE610CDD693C0045A32C /* digi_mixer_music.c in Sources */ = {isa = PBXBuildFile; fileRef = EB92BE5D0CDD693C0045A32C /* digi_mixer_music.c */; };
 		EB92BE620CDD693C0045A32C /* digi_mixer.c in Sources */ = {isa = PBXBuildFile; fileRef = EB92BE5E0CDD693C0045A32C /* digi_mixer.c */; };
@@ -1679,6 +1680,7 @@
 			buildActionMask = 2147483647;
 			files = (
 				EBAEB74C0BF4A86F00FC6E13 /* d2x-rebirth.icns in Resources */,
+				EB380D360E16886300EBD9AD /* InfoPlist.strings in Resources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -2093,23 +2095,15 @@
 				FRAMEWORK_SEARCH_PATHS = "$(HOME)/Library/Frameworks";
 				GCC_ENABLE_FIX_AND_CONTINUE = NO;
 				GCC_PREPROCESSOR_DEFINITIONS = (
-					no_cpp_precomp,
 					USE_SDLMIXER,
 					OGL,
 					NDEBUG,
 					RELEASE,
 				);
-				GCC_VERSION_i386 = 4.0;
-				GCC_VERSION_ppc = 3.3;
 				HEADER_SEARCH_PATHS = main;
 				INFOPLIST_FILE = "d2xgl-Info.plist";
 				INSTALL_PATH = "$(USER_APPS_DIR)";
-				MACOSX_DEPLOYMENT_TARGET_i386 = 10.4;
-				MACOSX_DEPLOYMENT_TARGET_ppc = 10.2;
-				OTHER_CFLAGS_i386 = "";
-				OTHER_CFLAGS_ppc = "";
 				PRODUCT_NAME = d2xgl;
-				SDKROOT_i386 = /Developer/SDKs/MacOSX10.4u.sdk;
 				WARNING_CFLAGS = "-Wall";
 				ZERO_LINK = NO;
 			};
@@ -2226,8 +2220,8 @@
 				MACOSX_DEPLOYMENT_TARGET_i386 = 10.4;
 				MACOSX_DEPLOYMENT_TARGET_ppc = 10.2;
 				SDKROOT = /Developer/SDKs/MacOSX10.2.8.sdk;
-				SDKROOT_i386 = /Developer/SDKs/MacOSX10.2.8.sdk;
-				SDKROOT_ppc = /Developer/SDKs/MacOSX10.4u.sdk;
+				SDKROOT_i386 = /Developer/SDKs/MacOSX10.4u.sdk;
+				SDKROOT_ppc = /Developer/SDKs/MacOSX10.2.8.sdk;
 			};
 			name = Deployment;
 		};
