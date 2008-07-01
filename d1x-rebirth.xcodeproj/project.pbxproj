@@ -41,7 +41,6 @@
 		676AC1E00668A938007173EB /* strutil.h in Headers */ = {isa = PBXBuildFile; fileRef = 6791D0A306688AB900056A5A /* strutil.h */; };
 		676AC1E10668A938007173EB /* iff.h in Headers */ = {isa = PBXBuildFile; fileRef = 6791D0BD06688AE800056A5A /* iff.h */; };
 		676AC1E50668A938007173EB /* strio.h in Headers */ = {isa = PBXBuildFile; fileRef = 6791D1550668903B00056A5A /* strio.h */; };
-		676AC1E90668A938007173EB /* InfoPlist.strings in Resources */ = {isa = PBXBuildFile; fileRef = 089C165CFE840E0CC02AAC07 /* InfoPlist.strings */; };
 		676AC1EC0668A938007173EB /* 2dsline.c in Sources */ = {isa = PBXBuildFile; fileRef = 67B44139066878B300DF26D8 /* 2dsline.c */; };
 		676AC1ED0668A938007173EB /* bitblt.c in Sources */ = {isa = PBXBuildFile; fileRef = 67B4413A066878B300DF26D8 /* bitblt.c */; };
 		676AC1EE0668A938007173EB /* bitmap.c in Sources */ = {isa = PBXBuildFile; fileRef = 67B4413B066878B300DF26D8 /* bitmap.c */; };
@@ -279,6 +278,8 @@
 		EB3319FF0D5335E600C799B0 /* netdrv_udp.c in Sources */ = {isa = PBXBuildFile; fileRef = EB3319FB0D5335E500C799B0 /* netdrv_udp.c */; };
 		EB331A000D5335E600C799B0 /* netdrv_udp.h in Headers */ = {isa = PBXBuildFile; fileRef = EB3319FC0D5335E600C799B0 /* netdrv_udp.h */; };
 		EB331A0C0D53578800C799B0 /* snddecom.c in Sources */ = {isa = PBXBuildFile; fileRef = EBEEB2680D2B364300FF39B4 /* snddecom.c */; };
+		EB380D7D0E168B1900EBD9AD /* InfoPlist.strings in Resources */ = {isa = PBXBuildFile; fileRef = EB380D7B0E168B1900EBD9AD /* InfoPlist.strings */; };
+		EB380D7E0E168B1900EBD9AD /* InfoPlist.strings in Resources */ = {isa = PBXBuildFile; fileRef = EB380D7B0E168B1900EBD9AD /* InfoPlist.strings */; };
 		EB92BE600CDD693C0045A32C /* digi_audio.c in Sources */ = {isa = PBXBuildFile; fileRef = EB92BE5C0CDD693C0045A32C /* digi_audio.c */; };
 		EB92BE610CDD693C0045A32C /* digi_mixer_music.c in Sources */ = {isa = PBXBuildFile; fileRef = EB92BE5D0CDD693C0045A32C /* digi_mixer_music.c */; };
 		EB92BE620CDD693C0045A32C /* digi_mixer.c in Sources */ = {isa = PBXBuildFile; fileRef = EB92BE5E0CDD693C0045A32C /* digi_mixer.c */; };
@@ -360,7 +361,6 @@
 /* End PBXBuildFile section */
 
 /* Begin PBXFileReference section */
-		089C165DFE840E0CC02AAC07 /* English */ = {isa = PBXFileReference; fileEncoding = 10; lastKnownFileType = text.plist.strings; name = English; path = English.lproj/InfoPlist.strings; sourceTree = "<group>"; };
 		1058C7A1FEA54F0111CA2CBB /* Cocoa.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = Cocoa.framework; path = /System/Library/Frameworks/Cocoa.framework; sourceTree = "<absolute>"; };
 		670E3796066C50C30085B671 /* CHANGELOG.txt */ = {isa = PBXFileReference; fileEncoding = 30; lastKnownFileType = text; path = CHANGELOG.txt; sourceTree = "<group>"; };
 		6710AAFE066B2D6100DB0F68 /* SDL.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = SDL.framework; path = /Library/Frameworks/SDL.framework; sourceTree = "<absolute>"; };
@@ -580,6 +580,7 @@
 		EB3319F20D53351600C799B0 /* ogl_init.h */ = {isa = PBXFileReference; fileEncoding = 30; lastKnownFileType = sourcecode.c.h; path = ogl_init.h; sourceTree = "<group>"; };
 		EB3319FB0D5335E500C799B0 /* netdrv_udp.c */ = {isa = PBXFileReference; fileEncoding = 30; lastKnownFileType = sourcecode.c.c; path = netdrv_udp.c; sourceTree = "<group>"; };
 		EB3319FC0D5335E600C799B0 /* netdrv_udp.h */ = {isa = PBXFileReference; fileEncoding = 30; lastKnownFileType = sourcecode.c.h; path = netdrv_udp.h; sourceTree = "<group>"; };
+		EB380D7C0E168B1900EBD9AD /* English */ = {isa = PBXFileReference; fileEncoding = 10; lastKnownFileType = text.plist.strings; name = English; path = English.lproj/InfoPlist.strings; sourceTree = "<group>"; };
 		EB9181090DABA47B0010CB39 /* console.h */ = {isa = PBXFileReference; fileEncoding = 30; lastKnownFileType = sourcecode.c.h; path = console.h; sourceTree = "<group>"; };
 		EB92BE5C0CDD693C0045A32C /* digi_audio.c */ = {isa = PBXFileReference; fileEncoding = 30; lastKnownFileType = sourcecode.c.c; path = digi_audio.c; sourceTree = "<group>"; };
 		EB92BE5D0CDD693C0045A32C /* digi_mixer_music.c */ = {isa = PBXFileReference; fileEncoding = 30; lastKnownFileType = sourcecode.c.c; path = digi_mixer_music.c; sourceTree = "<group>"; };
@@ -836,7 +837,7 @@
 			isa = PBXGroup;
 			children = (
 				EBAEB74B0BF4A86F00FC6E13 /* d1x-rebirth.icns */,
-				089C165CFE840E0CC02AAC07 /* InfoPlist.strings */,
+				EB380D7B0E168B1900EBD9AD /* InfoPlist.strings */,
 			);
 			name = Resources;
 			sourceTree = "<group>";
@@ -1528,9 +1529,9 @@
 			isa = PBXResourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
-				676AC1E90668A938007173EB /* InfoPlist.strings in Resources */,
 				675ED149066B198A00E42AA7 /* d1x-Info.plist in Resources */,
 				EB9E8DF30D66C2570099B0B5 /* d1x-rebirth.icns in Resources */,
+				EB380D7E0E168B1900EBD9AD /* InfoPlist.strings in Resources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -1539,6 +1540,7 @@
 			buildActionMask = 2147483647;
 			files = (
 				EBAEB74C0BF4A86F00FC6E13 /* d1x-rebirth.icns in Resources */,
+				EB380D7D0E168B1900EBD9AD /* InfoPlist.strings in Resources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -1819,10 +1821,10 @@
 /* End PBXSourcesBuildPhase section */
 
 /* Begin PBXVariantGroup section */
-		089C165CFE840E0CC02AAC07 /* InfoPlist.strings */ = {
+		EB380D7B0E168B1900EBD9AD /* InfoPlist.strings */ = {
 			isa = PBXVariantGroup;
 			children = (
-				089C165DFE840E0CC02AAC07 /* English */,
+				EB380D7C0E168B1900EBD9AD /* English */,
 			);
 			name = InfoPlist.strings;
 			sourceTree = "<group>";
@@ -1868,7 +1870,7 @@
 					RELEASE,
 					USE_SDLMIXER,
 				);
-				GCC_TREAT_WARNINGS_AS_ERRORS = YES;
+				GCC_TREAT_WARNINGS_AS_ERRORS = NO;
 				HEADER_SEARCH_PATHS = (
 					include,
 					main,
@@ -1938,13 +1940,12 @@
 				FRAMEWORK_SEARCH_PATHS = "$(HOME)/Library/Frameworks";
 				GCC_ENABLE_FIX_AND_CONTINUE = NO;
 				GCC_PREPROCESSOR_DEFINITIONS = (
-					no_cpp_precomp,
 					OGL,
 					NDEBUG,
 					RELEASE,
 					USE_SDLMIXER,
 				);
-				GCC_TREAT_WARNINGS_AS_ERRORS = YES;
+				GCC_TREAT_WARNINGS_AS_ERRORS = NO;
 				HEADER_SEARCH_PATHS = (
 					include,
 					main,
@@ -2011,9 +2012,9 @@
 				MACOSX_DEPLOYMENT_TARGET = 10.1;
 				MACOSX_DEPLOYMENT_TARGET_i386 = 10.4;
 				MACOSX_DEPLOYMENT_TARGET_ppc = 10.2;
-				SDKROOT = /Developer/SDKs/MacOSX10.4u.sdk;
-				SDKROOT_i386 = /Developer/SDKs/MacOSX10.2.8.sdk;
-				SDKROOT_ppc = /Developer/SDKs/MacOSX10.4u.sdk;
+				SDKROOT = /Developer/SDKs/MacOSX10.2.8.sdk;
+				SDKROOT_i386 = /Developer/SDKs/MacOSX10.4u.sdk;
+				SDKROOT_ppc = /Developer/SDKs/MacOSX10.2.8.sdk;
 			};
 			name = Deployment;
 		};

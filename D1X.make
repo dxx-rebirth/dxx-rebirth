@@ -67,6 +67,7 @@ SrcFiles        =  ¶
 				  :arch:sdl:jukebox.c ¶
 				  :arch:sdl:key.c ¶
 				  :arch:sdl:mouse.c ¶
+				  :arch:sdl:rbaudio.c ¶
 				  :arch:sdl:timer.c ¶
 				  :iff:iff.c ¶
 				  :main:ai.c ¶
@@ -205,6 +206,7 @@ GeneralObjects    =  ¶
 				  {ObjDir}jukebox.c.x ¶
 				  {ObjDir}key.c.x ¶
 				  {ObjDir}mouse.c.x ¶
+				  {ObjDir}rbaudio.c.x ¶
 				  {ObjDir}timer.c.x ¶
 				  {ObjDir}iff.c.x ¶
 				  {ObjDir}ai.c.x ¶
@@ -392,6 +394,7 @@ directories Ä
 {ObjDir}jukebox.c.x	Ä	:arch:sdl:jukebox.c
 {ObjDir}key.c.x	Ä	:arch:sdl:key.c
 {ObjDir}mouse.c.x	Ä	:arch:sdl:mouse.c
+{ObjDir}rbaudio.c.x	Ä	:arch:sdl:rbaudio.c
 {ObjDir}timer.c.x	Ä	:arch:sdl:timer.c
 {ObjDir}iff.c.x	Ä	:iff:iff.c
 {ObjDir}ai.c.x	Ä	:main:ai.c
