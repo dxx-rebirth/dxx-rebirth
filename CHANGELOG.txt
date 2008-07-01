@@ -5,6 +5,7 @@ D2X-Rebirth Changelog
 arch/carbon/conf.h, d2x-Info.plist, d2xgl-Info.plist, d2x-rebirth.xcodeproj, English.lproj/InfoPlist.strings: Increment version number for Mac, ensure Get Info strings copy to bundle, use correct Mac OS X SDKs
 include/strutil.h, misc/strutil.c: Add snprintf for Mac OS 9
 main/songs.c: Make sure the right audio CD track is played when starting a level
+include/physfsx.h, main/config.c: No using chdir for Mac OS 9 - it doesn't have it
 
 20080628
 --------

@@ -49,19 +49,20 @@ static inline void PHYSFSX_init(int argc, char *argv[])
 #endif
 #ifdef macintosh	// Mac OS 9
 	char base_dir[PATH_MAX];
-	
-	strcpy(base_dir, PHYSFS_getBaseDir());
-	if (strstr(base_dir, ".app:Contents:MacOSClassic:"))	// the Mac OS 9 program is still in the .app bundle
-		strncat(base_dir, ":::", PATH_MAX - 1 - strlen(base_dir));	// go outside the .app bundle (the lazy way)
-	PHYSFS_setWriteDir(base_dir);
 #else
 #define base_dir PHYSFS_getBaseDir()
 #endif
-
+	
 	PHYSFS_init(argv[0]);
 	PHYSFS_permitSymbolicLinks(1);
 
-#if (defined(__APPLE__) && defined(__MACH__)) || defined(macintosh)	// others?
+#ifdef macintosh
+	strcpy(base_dir, PHYSFS_getBaseDir());
+	if (strstr(base_dir, ".app:Contents:MacOSClassic:"))	// the Mac OS 9 program is still in the .app bundle
+		strncat(base_dir, ":::", PATH_MAX - 1 - strlen(base_dir));	// go outside the .app bundle (the lazy way)
+#endif
+
+#if (defined(__APPLE__) && defined(__MACH__))	// others?
 	chdir(base_dir);	// make sure relative hogdir and userdir paths work
 #endif
 
@@ -124,7 +125,7 @@ static inline void PHYSFSX_init(int argc, char *argv[])
 	{
 		PHYSFS_setWriteDir(base_dir);
 		if (!PHYSFS_getWriteDir())
-			Error("can't set write dir\n");
+			Error("can't set write dir: %s\n", PHYSFS_getLastError());
 		else
 			PHYSFS_addToSearchPath(PHYSFS_getWriteDir(), 0);
 	}
