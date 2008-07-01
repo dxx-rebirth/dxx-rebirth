@@ -81,7 +81,11 @@ int ReadConfigFile()
 	GameCfg.VSync = 0;
 	GameCfg.Multisample = 0;
 	GameCfg.JukeboxOn = 0;
+#ifndef macintosh	// Mac OS 9 binary is in .app bundle
 	strncpy(GameCfg.JukeboxPath, "Jukebox", PATH_MAX+1);	// maybe include this directory with the binary
+#else
+	strncpy(GameCfg.JukeboxPath, "::::Jukebox", PATH_MAX+1);
+#endif
 	memset(GameCfg.MplIpHostAddr, 0, 128);
 
 	infile = PHYSFSX_openReadBuffered("descent.cfg");
