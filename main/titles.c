@@ -504,6 +504,34 @@ int show_char_delay(char the_char, int delay, int robot_num, int cursor_flag)
 	return w;
 }
 
+ubyte baldguy_cheat = 0;
+static ubyte bald_guy_cheat_index = 0;
+char new_baldguy_pcx[] = "btexture.xxx";
+
+#define	BALD_GUY_CHEAT_SIZE	7
+#define NEW_END_GUY1	1
+#define NEW_END_GUY2	3
+
+ubyte	bald_guy_cheat_1[BALD_GUY_CHEAT_SIZE] = { KEY_B ^ 0xF0 ^ 0xab, 
+	KEY_A ^ 0xE0 ^ 0xab, 
+	KEY_L ^ 0xD0 ^ 0xab, 
+	KEY_D ^ 0xC0 ^ 0xab, 
+	KEY_G ^ 0xB0 ^ 0xab, 
+	KEY_U ^ 0xA0 ^ 0xab,
+	KEY_Y ^ 0x90 ^ 0xab };
+
+void bald_guy_cheat(int key)
+{
+	if (key == (bald_guy_cheat_1[bald_guy_cheat_index] ^ (0xf0 - (bald_guy_cheat_index << 4)) ^ 0xab)) {
+		bald_guy_cheat_index++;
+		if (bald_guy_cheat_index == BALD_GUY_CHEAT_SIZE)	{
+			baldguy_cheat = 1;
+			bald_guy_cheat_index = 0;
+		}
+	} else
+		bald_guy_cheat_index = 0;
+}
+
 //	-----------------------------------------------------------------------------
 //	loads a briefing screen
 int load_briefing_screen( int screen_num )
@@ -515,6 +543,10 @@ int load_briefing_screen( int screen_num )
 
 	gr_init_bitmap_data(&briefing_bm);
 
+	if ( ((screen_num == NEW_END_GUY1) || (screen_num == NEW_END_GUY2)) && baldguy_cheat) {
+		if ( bald_guy_load(new_baldguy_pcx, &briefing_bm, BM_LINEAR, gr_palette) == 0)
+			return 0;
+	}
 	if ((pcx_error=pcx_read_bitmap( Briefing_screens_LH[screen_num].bs_name, &briefing_bm, BM_LINEAR, gr_palette ))!=PCX_ERROR_NONE) {
 		Int3();
 		return 0;
@@ -1161,3 +1193,4 @@ void do_end_game(void)
 #endif
 
 }
+

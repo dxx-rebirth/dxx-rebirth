@@ -2123,6 +2123,7 @@ void FinalCheatsKey(int key)
 	
 		john_cheat_func_3(key);
 		john_cheat_func_4(key);
+		bald_guy_cheat(key);
 	}
 }
 

@@ -1,5 +1,9 @@
 D1X-Rebirth Changelog
 
+20080715
+--------
+2d/pcx.c, include/pcx.h, main/game.c, main/titles.c, main/titles.h: Add BALDGUY cheat for Mac data (see if anyone finds it ;-) )
+
 20080701
 --------
 arch/carbon/conf.h, D1X.make, d1x-Info.plist, d1xgl-Info.plist, d1x-rebirth.xcodeproj, English.lproj/InfoPlist.strings: Increment version number for Mac, update MPW makefile, ensure Get Info strings copy to bundle, use correct Mac OS X SDKs
