@@ -1,5 +1,9 @@
 D1X-Rebirth Changelog
 
+20080720
+--------
+include/netdrv.h, main/netdrv_udp.c, main/netdrv_udp.h, main/netdrv.c, arch/linux/netdrv_ipx.c, arch/linux/netdrv_kali.c, arch/win32/netdrv_ipx.c: Fixed IPX default socket (typo); Using function pointer for IPX-based sockets instead of globals
+
 20080715
 --------
 2d/pcx.c, include/pcx.h, main/game.c, main/titles.c, main/titles.h: Add BALDGUY cheat for Mac data (see if anyone finds it ;-) )

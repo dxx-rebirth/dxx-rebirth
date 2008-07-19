@@ -64,7 +64,7 @@ extern netgame_info Active_games[MAX_ACTIVE_NETGAMES];
 extern void network_init(void);
 extern int network_do_join_game(netgame_info *jgame);
 extern int get_and_show_netgame_info(ubyte *server, ubyte *node, ubyte *net_address);
-extern int UDPReceivePacket(char *text, int len, struct recv_data *rd);
-extern int UDPgeneral_PacketReady(void);
+extern int UDPReceivePacket(socket_t *unused, char *text, int len, struct recv_data *rd);
+extern int UDPgeneral_PacketReady(socket_t *unused);
 
 #endif

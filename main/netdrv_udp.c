@@ -377,7 +377,7 @@ int UDPConnectManual(char *textaddr)
 		sendto (UDP_sock, outbuf, sizeof(outbuf), 0, (struct sockaddr *) &HostAddr, sizeof(struct _sockaddr));
 		timer_delay2(10);
 		// ... and wait for answer
-		UDPReceivePacket(inbuf,6,NULL);
+		UDPReceivePacket(NULL,inbuf,6,NULL);
 	}
 
 	
@@ -388,7 +388,7 @@ int UDPConnectManual(char *textaddr)
 }
 
 // Open socket
-int UDPOpenSocket(int port)
+int UDPOpenSocket(socket_t *unused, int port)
 {
 	int i;
 
@@ -500,7 +500,7 @@ int UDPOpenSocket(int port)
 
 
 // Closes an existing udp socket
-void UDPCloseSocket(void)
+void UDPCloseSocket(socket_t *unused)
 {
 	int i;
 
@@ -529,7 +529,7 @@ void UDPCloseSocket(void)
 
 // Send text to someone
 // This function get's IPXHeader as address. The first byte in this header represents the UDPPeers ID, so sAddr can be assigned.
-static int UDPSendPacket(IPXPacket_t *IPXHeader, ubyte *text, int len)
+static int UDPSendPacket(socket_t *unused, IPXPacket_t *IPXHeader, ubyte *text, int len)
 {
 	// check if Header is in a sane range for UDPPeers
 	if (IPXHeader->Destination.Node[0] >= MAX_CONNECTIONS)
@@ -544,7 +544,7 @@ static int UDPSendPacket(IPXPacket_t *IPXHeader, ubyte *text, int len)
 // Gets some text
 // Returns 0 if nothing on there
 // rd can safely be ignored here
-int UDPReceivePacket(char *text, int len, struct recv_data *rd)
+int UDPReceivePacket(socket_t *unused, char *text, int len, struct recv_data *rd)
 {
 	unsigned int clen = sizeof (struct _sockaddr), msglen = 0;
 	struct _sockaddr sAddr;
@@ -552,7 +552,7 @@ int UDPReceivePacket(char *text, int len, struct recv_data *rd)
 	if (UDP_sock == -1)
 		return -1;
 
-	if (UDPgeneral_PacketReady())
+	if (UDPgeneral_PacketReady(NULL))
 	{
 		msglen = recvfrom (UDP_sock, text, len, 0, (struct sockaddr *) &sAddr, &clen);
 
@@ -584,7 +584,7 @@ int UDPReceivePacket(char *text, int len, struct recv_data *rd)
 	return msglen;
 }
 
-int UDPgeneral_PacketReady(void)
+int UDPgeneral_PacketReady(socket_t *unused)
 {
 	fd_set set;
 	struct timeval tv;

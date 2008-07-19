@@ -55,11 +55,11 @@ struct recv_data {
 };
 
 struct net_driver {
-	int (*OpenSocket)(int port);
-	void (*CloseSocket)(void);
-	int (*SendPacket)(IPXPacket_t *IPXHeader, ubyte *data, int dataLen);
-	int (*ReceivePacket)(char *buffer, int bufsize, struct recv_data *rec);
-	int (*PacketReady)(void);
+	int (*OpenSocket)(socket_t *sk, int port);
+	void (*CloseSocket)(socket_t *mysock);
+	int (*SendPacket)(socket_t *mysock, IPXPacket_t *IPXHeader, ubyte *data, int dataLen);
+	int (*ReceivePacket)(socket_t *s, char *buffer, int bufsize, struct recv_data *rec);
+	int (*PacketReady)(socket_t *s);
 	int usepacketnum;//we can save 4 bytes
 	int type; // type of driver (NETPROTO_*). Can be used to make driver-specific rules in other parts of the multiplayer code.
 };
