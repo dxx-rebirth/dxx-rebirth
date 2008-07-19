@@ -63,7 +63,7 @@ extern sequence_packet My_Seq;
 extern void network_init(void);
 extern int network_do_join_game();
 extern int get_and_show_netgame_info(ubyte *server, ubyte *node, ubyte *net_address);
-extern int UDPReceivePacket(char *text, int len, struct recv_data *rd);
-extern int UDPgeneral_PacketReady(void);
+extern int UDPReceivePacket(socket_t *unused, char *text, int len, struct recv_data *rd);
+extern int UDPgeneral_PacketReady(socket_t *unused);
 
 #endif

@@ -6,8 +6,6 @@
 #include "ukali.h"
 #include "console.h"
 
-static socket_t KALI_sock;
-
 static int open_sockets = 0;
 static int dynamic_socket = 0x401;
 
@@ -34,7 +32,7 @@ int KALIGetMyAddress(void)
 	return 0;
 }
 
-int KALIOpenSocket(int port)
+int KALIOpenSocket(socket_t *sk, int port)
 {
 	con_printf(CON_DEBUG,"kali: OpenSocket on port(%d)\n", port);
 
@@ -49,53 +47,53 @@ int KALIOpenSocket(int port)
 	if (!port)
 		port = dynamic_socket++;
 
-	if ((KALI_sock.fd = KaliOpenSocket(htons(port))) < 0) {
+	if ((sk->fd = KaliOpenSocket(htons(port))) < 0) {
 		con_printf(CON_CRITICAL,"kali: OpenSocket Failed on port(%d)\n", port);
-		KALI_sock.fd = -1;
+		sk->fd = -1;
 		return -1;
 	}
 	open_sockets++;
-	KALI_sock.socket = port;
+	sk->socket = port;
 	return 0;
 }
 
-void KALICloseSocket(void)
+void KALICloseSocket(socket_t *mysock)
 {
 	if (!open_sockets) {
 		con_printf(CON_CRITICAL,"kali: close w/o open\n");
 		return;
 	}
-	con_printf(CON_DEBUG,"kali: CloseSocket on port(%d)\n", KALI_sock.socket);
-	KaliCloseSocket(KALI_sock.fd);
+	con_printf(CON_DEBUG,"kali: CloseSocket on port(%d)\n", mysock->socket);
+	KaliCloseSocket(mysock->fd);
 	if (--open_sockets) {
 		con_printf(CON_URGENT,"kali: (closesocket) %d sockets left\n", open_sockets);
 		return;
 	}
 }
 
-int KALISendPacket(IPXPacket_t *IPXHeader, u_char *data, int dataLen)
+int KALISendPacket(socket_t *mysock, IPXPacket_t *IPXHeader, u_char *data, int dataLen)
 {
 	kaliaddr_ipx toaddr;
 	int i;
  
 	memcpy(toaddr.sa_nodenum, IPXHeader->Destination.Node, sizeof(toaddr.sa_nodenum));
-	toaddr.sa_socket=htons(KALI_sock.socket);
+	toaddr.sa_socket=htons(mysock->socket);
 
-	if ((i = KaliSendPacket(KALI_sock.fd, (char *)data, dataLen, &toaddr)) < 0)
+	if ((i = KaliSendPacket(mysock->fd, (char *)data, dataLen, &toaddr)) < 0)
 		return -1;
 
 	return i;
 }
 
-int KALIReceivePacket(char *outbuf, int outbufsize, struct recv_data *rd)
+int KALIReceivePacket(socket_t *s, char *outbuf, int outbufsize, struct recv_data *rd)
 {
 	int size;
 	kaliaddr_ipx fromaddr;
 
-	if ((size = KaliReceivePacket(KALI_sock.fd, outbuf, outbufsize, &fromaddr)) < 0)
+	if ((size = KaliReceivePacket(s->fd, outbuf, outbufsize, &fromaddr)) < 0)
 		return -1;
 
-	rd->dst_socket = KALI_sock.socket;
+	rd->dst_socket = s->socket;
 	rd->src_socket = ntohs(fromaddr.sa_socket);
 	memcpy(rd->src_node, fromaddr.sa_nodenum, sizeof(fromaddr.sa_nodenum));
 	memset(rd->src_network, 0, 4);
@@ -104,9 +102,9 @@ int KALIReceivePacket(char *outbuf, int outbufsize, struct recv_data *rd)
 	return size;
 }
 
-static int KALIgeneral_PacketReady(void)
+static int KALIgeneral_PacketReady(socket_t *s)
 {
-	return NetDrvGeneralPacketReady(KALI_sock.fd);
+	return NetDrvGeneralPacketReady(s->fd);
 }
 
 struct net_driver netdrv_kali = {

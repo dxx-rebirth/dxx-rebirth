@@ -19,8 +19,6 @@
 #include "netdrv.h"
 #include "console.h"
 
-static socket_t IPX_sock;
-
 static int IPXGetMyAddress( void )
 {
 	int sock;
@@ -65,7 +63,7 @@ static int IPXGetMyAddress( void )
 	return(0);
 }
 
-static int IPXOpenSocket(int port)
+static int IPXOpenSocket(socket_t *sk, int port)
 {
 	int sock;			/* sock here means Linux socket handle */
 	int opt;
@@ -118,22 +116,22 @@ static int IPXOpenSocket(int port)
 		}
 	}
 
-	IPX_sock.fd = sock;
-	IPX_sock.socket = port;
+	sk->fd = sock;
+	sk->socket = port;
 
 	IPXGetMyAddress();
 
 	return 0;
 }
 
-static void IPXCloseSocket(void)
+static void IPXCloseSocket(socket_t *mysock)
 {
 	/* now close the file descriptor for the socket, and free it */
-	con_printf(CON_URGENT,"IPX: closing file descriptor on socket %x\n", IPX_sock.socket);
-	close(IPX_sock.fd);
+	con_printf(CON_URGENT,"IPX: closing file descriptor on socket %x\n", mysock->socket);
+	close(mysock->fd);
 }
 
-static int IPXSendPacket(IPXPacket_t *IPXHeader, u_char *data, int dataLen)
+static int IPXSendPacket(socket_t *mysock, IPXPacket_t *IPXHeader, u_char *data, int dataLen)
 {
 	struct sockaddr_ipx ipxs;
 	
@@ -147,33 +145,33 @@ static int IPXSendPacket(IPXPacket_t *IPXHeader, u_char *data, int dataLen)
 	}
 
 	memcpy(&ipxs.sipx_node, IPXHeader->Destination.Node, 6);
-	ipxs.sipx_port=htons(IPX_sock.socket);
+	ipxs.sipx_port=htons(mysock->socket);
 	ipxs.sipx_type = IPXHeader->PacketType;
 
-	return sendto(IPX_sock.fd, data, dataLen, 0, (struct sockaddr *) &ipxs, sizeof(ipxs));
+	return sendto(mysock->fd, data, dataLen, 0, (struct sockaddr *) &ipxs, sizeof(ipxs));
 }
 
-static int IPXReceivePacket(char *buffer, int bufsize, struct recv_data *rd)
+static int IPXReceivePacket(socket_t *s, char *buffer, int bufsize, struct recv_data *rd)
 {
 	socklen_t sz;
 	int size;
 	struct sockaddr_ipx ipxs;
  
 	sz = sizeof(ipxs);
-	if ((size = recvfrom(IPX_sock.fd, buffer, bufsize, 0, (struct sockaddr *) &ipxs, &sz)) <= 0)
+	if ((size = recvfrom(s->fd, buffer, bufsize, 0, (struct sockaddr *) &ipxs, &sz)) <= 0)
 	     return size;
 	memcpy(rd->src_network, &ipxs.sipx_network, 4);
 	memcpy(rd->src_node, ipxs.sipx_node, 6);
 	rd->src_socket = ipxs.sipx_port;
-	rd->dst_socket = IPX_sock.socket;
+	rd->dst_socket = s->socket;
 	rd->pkt_type = ipxs.sipx_type;
 
 	return size;
 }
 
-static int IPXgeneral_PacketReady(void)
+static int IPXgeneral_PacketReady(socket_t *s)
 {
-	return NetDrvGeneralPacketReady(IPX_sock.fd);
+	return NetDrvGeneralPacketReady(s->fd);
 }
 
 struct net_driver netdrv_ipx = {

@@ -1,5 +1,9 @@
 D2X-Rebirth Changelog
 
+20080720
+--------
+include/netdrv.h, main/netdrv_udp.c, main/netdrv_udp.h, main/netdrv.c, arch/linux/netdrv_ipx.c, arch/linux/netdrv_kali.c, arch/win32/netdrv_ipx.c: Fixed IPX default socket (typo); Using function pointer for IPX-based sockets instead of globals
+
 20080701
 --------
 arch/carbon/conf.h, d2x-Info.plist, d2xgl-Info.plist, d2x-rebirth.xcodeproj, English.lproj/InfoPlist.strings: Increment version number for Mac, ensure Get Info strings copy to bundle, use correct Mac OS X SDKs

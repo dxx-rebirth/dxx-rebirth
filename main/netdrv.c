@@ -53,6 +53,7 @@ typedef struct user_address {
 	ubyte address[6];
 } user_address;
 
+socket_t socket_data;
 #define MAX_USERS 64
 int Ipx_num_users = 0;
 user_address Ipx_users[MAX_USERS];
@@ -93,7 +94,7 @@ void NetDrvClose()
 #ifdef _WIN32
 		WSACleanup();
 #endif
-		driver->CloseSocket();
+		driver->CloseSocket(&socket_data);
 	}
 
 	NetDrvInstalled = 0;
@@ -133,7 +134,7 @@ int NetDrvInit( int socket_number )
 		con_printf(CON_DEBUG,"IPX: Using network %08x\n", (unsigned int)n);
 	}
 
-	if (driver->OpenSocket(socket_number))
+	if (driver->OpenSocket(&socket_data, socket_number))
 	{
 		return -3;
 	}
@@ -220,9 +221,9 @@ int NetDrvGetPacketData( ubyte * data )
 
 	memset(rd.src_network,1,4);
 
-	while (driver->PacketReady())
+	while (driver->PacketReady(&socket_data))
 	{
-		if ((size = driver->ReceivePacket(buf, MAX_IPX_DATA, &rd)) > 4)
+		if ((size = driver->ReceivePacket(&socket_data, buf, MAX_IPX_DATA, &rd)) > 4)
 		{
 			if (!memcmp(rd.src_network, MyAddress, 10))
 			{
@@ -260,10 +261,10 @@ void NetDrvSendPacketData( ubyte * data, int datasize, ubyte *network, ubyte *ad
 		*(uint *)buf = ipx_packetnum++;
 
 		memcpy(buf + 4, data, datasize);
-		driver->SendPacket(&ipx_header, buf, datasize + 4);
+		driver->SendPacket(&socket_data, &ipx_header, buf, datasize + 4);
 	}
 	else
-		driver->SendPacket(&ipx_header, data, datasize);//we can save 4 bytes
+		driver->SendPacket(&socket_data, &ipx_header, data, datasize);//we can save 4 bytes
 }
 
 void NetDrvGetLocalTarget( ubyte * server, ubyte * node, ubyte * local_target )
@@ -341,9 +342,9 @@ int NetDrvChangeDefaultSocket( ushort socket_number )
 	if ( !NetDrvInstalled )
 		return -3;
 
-	driver->CloseSocket();
+	driver->CloseSocket(&socket_data);
 
-	if (driver->OpenSocket(socket_number))
+	if (driver->OpenSocket(&socket_data, socket_number))
 	{
 		return -3;
 	}
