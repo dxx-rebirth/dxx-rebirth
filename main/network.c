@@ -165,7 +165,7 @@ int  network_wait_for_all_info(int choice);
 void network_AdjustMaxDataSize();
 void network_do_big_wait(int choice);
 void network_send_extras();
-void network_read_pdata_packet(frame_info *pd);
+void network_read_pdata_packet(ubyte *data);
 void network_read_pdata_short_packet(short_frame_info *pd);
 
 void ClipRank(ubyte *rank);
@@ -4070,6 +4070,7 @@ void network_do_frame(int force, int listen)
 			{
 				int send_data_size, i;
 				
+				MySyncPack.numpackets					= Players[0].n_packets_sent++;
 				MySyncPack.type                                 = PID_PDATA;
 				MySyncPack.playernum                    = Player_num;
 				MySyncPack.obj_render_type              = Objects[objnum].render_type;
@@ -4082,40 +4083,12 @@ void network_do_frame(int force, int listen)
 				
 				send_data_size = MySyncPack.data_size;                  // do this so correct size data is sent
 
-#ifdef WORDS_BIGENDIAN                        // do the swap stuff
-				MySyncPack.obj_segnum = INTEL_SHORT(MySyncPack.obj_segnum);
-				MySyncPack.obj_pos.x = INTEL_INT((int)MySyncPack.obj_pos.x);
-				MySyncPack.obj_pos.y = INTEL_INT((int)MySyncPack.obj_pos.y);
-				MySyncPack.obj_pos.z = INTEL_INT((int)MySyncPack.obj_pos.z);
-				
-				MySyncPack.obj_orient.rvec.x = INTEL_INT((int)MySyncPack.obj_orient.rvec.x);
-				MySyncPack.obj_orient.rvec.y = INTEL_INT((int)MySyncPack.obj_orient.rvec.y);
-				MySyncPack.obj_orient.rvec.z = INTEL_INT((int)MySyncPack.obj_orient.rvec.z);
-				MySyncPack.obj_orient.uvec.x = INTEL_INT((int)MySyncPack.obj_orient.uvec.x);
-				MySyncPack.obj_orient.uvec.y = INTEL_INT((int)MySyncPack.obj_orient.uvec.y);
-				MySyncPack.obj_orient.uvec.z = INTEL_INT((int)MySyncPack.obj_orient.uvec.z);
-				MySyncPack.obj_orient.fvec.x = INTEL_INT((int)MySyncPack.obj_orient.fvec.x);
-				MySyncPack.obj_orient.fvec.y = INTEL_INT((int)MySyncPack.obj_orient.fvec.y);
-				MySyncPack.obj_orient.fvec.z = INTEL_INT((int)MySyncPack.obj_orient.fvec.z);
-				
-				MySyncPack.phys_velocity.x = INTEL_INT((int)MySyncPack.phys_velocity.x);
-				MySyncPack.phys_velocity.y = INTEL_INT((int)MySyncPack.phys_velocity.y);
-				MySyncPack.phys_velocity.z = INTEL_INT((int)MySyncPack.phys_velocity.z);
-			
-				MySyncPack.phys_rotvel.x = INTEL_INT((int)MySyncPack.phys_rotvel.x);
-				MySyncPack.phys_rotvel.y = INTEL_INT((int)MySyncPack.phys_rotvel.y);
-				MySyncPack.phys_rotvel.z = INTEL_INT((int)MySyncPack.phys_rotvel.z);
-				
-				MySyncPack.data_size = INTEL_SHORT(MySyncPack.data_size);
-#endif
-
-				MySyncPack.numpackets = INTEL_INT(Players[0].n_packets_sent++);
 // 				NetDrvSendGamePacket((ubyte*)&MySyncPack, sizeof(frame_info) - MaxXDataSize + send_data_size);
 				for(i=0; i<N_players; i++)
 				{
 					if(Players[i].connected && (i != Player_num))
 					{
-						NetDrvSendPacketData((ubyte*)&MySyncPack, sizeof(frame_info) - MaxXDataSize + send_data_size, NetPlayers.players[i].network.ipx.server, NetPlayers.players[i].network.ipx.node,Players[i].net_address);
+						send_frameinfo_packet(&MySyncPack, NetPlayers.players[i].network.ipx.server, NetPlayers.players[i].network.ipx.node,Players[i].net_address);
 					}
 				}
 			}
@@ -4209,43 +4182,19 @@ void network_process_pdata (char *data)
   if (Netgame.ShortPackets)
 	network_read_pdata_short_packet ((short_frame_info *)data);
   else
-	network_read_pdata_packet ((frame_info *)data);
+	network_read_pdata_packet ((ubyte *) data);
  }
 
-void network_read_pdata_packet(frame_info *pd )
+void network_read_pdata_packet(ubyte *data )
 {
 	int TheirPlayernum;
 	int TheirObjnum;
 	object * TheirObj = NULL;
-	
-// frame_info should be aligned...for mac, make the necessary adjustments
-#ifdef WORDS_BIGENDIAN
-	pd->numpackets = INTEL_INT(pd->numpackets);
-	pd->obj_pos.x = INTEL_INT(pd->obj_pos.x);
-	pd->obj_pos.y = INTEL_INT(pd->obj_pos.y);
-	pd->obj_pos.z = INTEL_INT(pd->obj_pos.z);
+	frame_info *pd;
+	frame_info frame_data;
 
-	pd->obj_orient.rvec.x = (fix)INTEL_INT((int)pd->obj_orient.rvec.x);
-	pd->obj_orient.rvec.y = (fix)INTEL_INT((int)pd->obj_orient.rvec.y);
-	pd->obj_orient.rvec.z = (fix)INTEL_INT((int)pd->obj_orient.rvec.z);
-	pd->obj_orient.uvec.x = (fix)INTEL_INT((int)pd->obj_orient.uvec.x);
-	pd->obj_orient.uvec.y = (fix)INTEL_INT((int)pd->obj_orient.uvec.y);
-	pd->obj_orient.uvec.z = (fix)INTEL_INT((int)pd->obj_orient.uvec.z);
-	pd->obj_orient.fvec.x = (fix)INTEL_INT((int)pd->obj_orient.fvec.x);
-	pd->obj_orient.fvec.y = (fix)INTEL_INT((int)pd->obj_orient.fvec.y);
-	pd->obj_orient.fvec.z = (fix)INTEL_INT((int)pd->obj_orient.fvec.z);
-
-	pd->phys_velocity.x = (fix)INTEL_INT((int)pd->phys_velocity.x);
-	pd->phys_velocity.y = (fix)INTEL_INT((int)pd->phys_velocity.y);
-	pd->phys_velocity.z = (fix)INTEL_INT((int)pd->phys_velocity.z);
-
-	pd->phys_rotvel.x = (fix)INTEL_INT((int)pd->phys_rotvel.x);
-	pd->phys_rotvel.y = (fix)INTEL_INT((int)pd->phys_rotvel.y);
-	pd->phys_rotvel.z = (fix)INTEL_INT((int)pd->phys_rotvel.z);
-	
-	pd->obj_segnum = INTEL_SHORT(pd->obj_segnum);
-	pd->data_size = INTEL_SHORT(pd->data_size);
-#endif
+	pd = &frame_data;
+	receive_frameinfo_packet(data, &frame_data);
 
 	TheirPlayernum = pd->playernum;
 	TheirObjnum = Players[pd->playernum].objnum;

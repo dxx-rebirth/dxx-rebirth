@@ -3846,12 +3846,12 @@ void multi_send_active_door (int i)
 	memcpy ((char *)(&multibuf[3]),&ActiveDoors[(int)i],sizeof(struct active_door));
 	count += sizeof(active_door);
 #else
-	*(int *)(multibuf + count) = INTEL_INT(ActiveDoors[i].n_parts);                 count += 4;
-	*(short *)(multibuf + count) = INTEL_SHORT(ActiveDoors[i].front_wallnum[0]);    count += 2;
-	*(short *)(multibuf + count) = INTEL_SHORT(ActiveDoors[i].front_wallnum[1]);    count += 2;
-	*(short *)(multibuf + count) = INTEL_SHORT(ActiveDoors[i].back_wallnum[0]);     count += 2;
-	*(short *)(multibuf + count) = INTEL_SHORT(ActiveDoors[i].back_wallnum[1]);     count += 2;
-	*(int *)(multibuf + count) = INTEL_INT(ActiveDoors[i].time);                    count += 4;
+	PUT_INTEL_INT(multibuf + count, ActiveDoors[i].n_parts);                 count += 4;
+	PUT_INTEL_SHORT(multibuf + count, ActiveDoors[i].front_wallnum[0]);    count += 2;
+	PUT_INTEL_SHORT(multibuf + count, ActiveDoors[i].front_wallnum[1]);    count += 2;
+	PUT_INTEL_SHORT(multibuf + count, ActiveDoors[i].back_wallnum[0]);     count += 2;
+	PUT_INTEL_SHORT(multibuf + count, ActiveDoors[i].back_wallnum[1]);     count += 2;
+	PUT_INTEL_INT(multibuf + count, ActiveDoors[i].time);                    count += 4;
 #endif
 	//multi_send_data (multibuf,sizeof(struct active_door)+3,1);
 	multi_send_data (multibuf,count,1);

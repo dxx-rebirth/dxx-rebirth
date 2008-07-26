@@ -39,8 +39,6 @@ extern int netmisc_apply_diff(void *block1, void *diff_buffer, int diff_size);
 
 // some mac only routines to deal with incorrectly aligned network structures
 
-void receive_netplayer_info(ubyte *data, AllNetPlayers_info *info);
-
 void receive_netplayers_packet(ubyte *data, AllNetPlayers_info *pinfo);
 void send_netplayers_packet(ubyte *server, ubyte *node);
 #define send_broadcast_netplayers_packet() \
@@ -71,6 +69,9 @@ void receive_netgame_packet(ubyte *data, netgame_info *netgame, int lite_flag);
 	receive_netgame_packet(data, netgame, 0)
 #define receive_lite_netgame_packet(data, netgame) \
 	receive_netgame_packet(data, netgame, 1)
+
+void send_frameinfo_packet(frame_info *info, ubyte *server, ubyte *node, ubyte *net_address);
+void receive_frameinfo_packet(ubyte *data, frame_info *info);
 
 void swap_object(object *obj);
 
@@ -106,6 +107,12 @@ void swap_object(object *obj);
 	memcpy((ubyte *)(netgame), data, sizeof(netgame_info))
 #define receive_lite_netgame_packet(data, netgame) \
 	memcpy((ubyte *)(netgame), data, sizeof(lite_info))
+
+#define send_frameinfo_packet(info, server, node, net_address) \
+	NetDrvSendPacketData((ubyte *)info, sizeof(frame_info) - MaxXDataSize + info->data_size, server, node, net_address)
+#define receive_frameinfo_packet(data, info) \
+	do { memcpy((ubyte *)(info), data, sizeof(frame_info) - MaxXDataSize); \
+		memcpy((info)->data, &data[sizeof(frame_info) - MaxXDataSize], (info)->data_size); } while(0)
 
 #define swap_object(obj)
 
