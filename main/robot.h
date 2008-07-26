@@ -137,3 +137,4 @@ extern int robot_info_read_n(robot_info *ri, int n, CFILE *fp);
 extern int jointpos_read_n(jointpos *jp, int n, CFILE *fp);
 
 #endif
+

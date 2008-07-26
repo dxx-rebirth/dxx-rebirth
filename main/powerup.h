@@ -147,3 +147,4 @@ extern int may_create_powerup(int powerup);
 extern int powerup_type_info_read_n(powerup_type_info *pti, int n, CFILE *fp);
 
 #endif /* _POWERUP_H */
+

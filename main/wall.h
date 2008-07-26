@@ -264,3 +264,4 @@ extern void v19_door_read(v19_door *d, CFILE *fp);
 extern void active_door_read(active_door *ad, CFILE *fp);
 
 #endif
+

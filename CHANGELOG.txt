@@ -2,6 +2,12 @@ D1X-Rebirth Changelog
 
 20080726
 --------
+main/{console.c, wall.h, powerup.h, robot.h}: Fixed harmless warnings on no new line at end of source
+main/{config.c, config.h, menu.c, include/tracker/tracker.h, tracker/client/tracker_client.c: Added beginnings of game tracker feature. Available only in debug mode for now.
+SConstruct: Cleaned up build system a bit with prettier build messages, added a feature or two, and included tracker source
+
+20080726
+--------
 d1x-rebirth.xcodeproj, main/netpkt.c, main/netpkt.h: Make network endian code more consistent with D2X, use PUT/GET_INTEL macros more, remove redundant no_cpp_precomp macro
 
 20080720

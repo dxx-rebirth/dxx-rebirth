@@ -68,6 +68,7 @@ COPYRIGHT 1993-1998 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 #include "hudmsg.h" //for HUD_max_num_disp
 #ifdef NETWORK
 #include "netdrv.h"
+#include "tracker/tracker.h"
 #endif
 
 
@@ -80,36 +81,46 @@ void do_multi_player_menu();
 void do_new_game_menu();
 void do_ip_manual_join_menu();
 
-#define MENU_NEW_GAME            0
-#define MENU_GAME                1
-#define MENU_EDITOR              2
-#define MENU_VIEW_SCORES         3
-#define MENU_QUIT                4
-#define MENU_LOAD_GAME           5
-#define MENU_SAVE_GAME           6
-#define MENU_DEMO_PLAY           8
-#define MENU_LOAD_LEVEL          9
-#define MENU_START_NETGAME      10
-#define MENU_JOIN_NETGAME       11
-#define MENU_CONFIG             13
-#define MENU_REJOIN_NETGAME     14
-#define MENU_DIFFICULTY         15
-#define MENU_HELP               19
-#define MENU_NEW_PLAYER         20
-#ifdef NETWORK
-#define MENU_MULTIPLAYER        21
-#endif
-#define MENU_SHOW_CREDITS       23
-#define MENU_ORDER_INFO         24
-#define MENU_PLAY_SONG          25
-#ifdef NETWORK
-#define MENU_START_IPX_NETGAME  26
-#define MENU_JOIN_IPX_NETGAME   27
-#define MENU_START_UDP_NETGAME  28 // UDP/IP support
-#define MENU_JOIN_UDP_NETGAME   29
-#define MENU_START_KALI_NETGAME 30 // Kali support
-#define MENU_JOIN_KALI_NETGAME  31
-#endif
+// Menu IDs...
+enum MENUS
+{
+    MENU_NEW_GAME = 0,
+    MENU_GAME,
+    MENU_EDITOR,
+    MENU_VIEW_SCORES,
+    MENU_QUIT,
+    MENU_LOAD_GAME,
+    MENU_SAVE_GAME,
+    MENU_DEMO_PLAY,
+    MENU_LOAD_LEVEL,
+    MENU_START_NETGAME,
+    MENU_JOIN_NETGAME,
+    MENU_CONFIG,
+    MENU_REJOIN_NETGAME,
+    MENU_DIFFICULTY,
+    MENU_HELP,
+    MENU_NEW_PLAYER,
+    
+    // Only if networking is enabled...
+    #ifdef NETWORK
+        MENU_MULTIPLAYER,
+    #endif
+
+    MENU_SHOW_CREDITS,
+    MENU_ORDER_INFO,
+    MENU_PLAY_SONG,
+
+    // Only if networking is enabled...
+    #ifdef NETWORK
+    MENU_START_IPX_NETGAME,
+    MENU_JOIN_IPX_NETGAME,
+    MENU_BROWSE_UDP_NETGAME, // UDP/IP support
+    MENU_START_UDP_NETGAME,
+    MENU_JOIN_UDP_NETGAME,
+    MENU_START_KALI_NETGAME, // Kali support
+    MENU_JOIN_KALI_NETGAME,
+    #endif
+};
 
 //ADD_ITEM("Start netgame...", MENU_START_NETGAME, -1 );
 //ADD_ITEM("Send net message...", MENU_SEND_NET_MESSAGE, -1 );
@@ -333,6 +344,19 @@ void do_option ( int select)
 			else // MENU_JOIN_*_NETGAME
 				network_join_game();
 			break;
+
+        // Browse the available UDP/IP games by contacting tracker...
+        case MENU_BROWSE_UDP_NETGAME:
+        {
+            // Initialize UDP/IP network subsystem for this platform...
+            NetDrvSet(NETPROTO_UDP);
+            
+            // Invoke the browse UDP/IP network game GUI...
+            TrackerBrowseMenu();
+            
+            // Done...
+            break;
+        }
 
 		case MENU_START_UDP_NETGAME:
 			NetDrvSet(NETPROTO_UDP);
@@ -771,6 +795,7 @@ void do_multi_player_menu()
 		ADD_ITEM("Start IPX Netgame", MENU_START_IPX_NETGAME, -1);
 		ADD_ITEM("Join IPX Netgame\n", MENU_JOIN_IPX_NETGAME, -1);
 #endif //HAVE_NETIPX_IPX_H
+        ADD_ITEM("Browse UDP/IP Netgames", MENU_BROWSE_UDP_NETGAME, -1);
 		ADD_ITEM("Start UDP/IP Netgame", MENU_START_UDP_NETGAME, -1);
 		ADD_ITEM("Join UDP/IP Netgame\n", MENU_JOIN_UDP_NETGAME, -1);
 #ifdef __LINUX__

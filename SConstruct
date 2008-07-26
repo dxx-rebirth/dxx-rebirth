@@ -10,6 +10,8 @@ PROGRAM_NAME = 'D1X-Rebirth'
 # version number
 D1XMAJOR = 0
 D1XMINOR = 54
+D1XSVN   = os.popen('svnversion .').read()[:-1]
+D1XSVN   = D1XSVN.split(':')[-1]
 
 # installation path
 PREFIX = '/usr/local/'
@@ -35,7 +37,7 @@ if (micro > 0):
 else:
 	D1XMICRO = 0
 
-VERSION_STRING = ' v' + str(D1XMAJOR) + '.' + str(D1XMINOR)
+VERSION_STRING = ' v' + str(D1XMAJOR) + '.' + str(D1XMINOR) + " svn " + str(D1XSVN)
 if (D1XMICRO):
 	VERSION_STRING += '.' + str(D1XMICRO)
 
@@ -160,7 +162,8 @@ common_sources = [
 'misc/strio.c',
 'misc/strutil.c',
 'texmap/ntmap.c',
-'texmap/scanline.c'
+'texmap/scanline.c',
+'tracker/client/tracker_client.c'
 ]
 
 # for editor
@@ -286,9 +289,17 @@ arch_sdlmixer = [
 if (sdlmixer == 1):
         common_sources += arch_sdlmixer
 
-
-# flags and stuff for all platforms
+# Acquire environment object...
 env = Environment(ENV = os.environ)
+
+# Prettier build messages......
+env["CCCOMSTR"]     = "Compiling $SOURCE ..."
+env["CXXCOMSTR"]    = "Compiling $SOURCE ..."
+env["LINKCOMSTR"]   = "Linking $TARGET ..."
+env["ARCOMSTR"]     = "Archiving $TARGET ..."
+env["RANLIBCOMSTR"] = "Indexing $TARGET ..."
+
+# Flags and stuff for all platforms...
 env.ParseConfig('sdl-config --cflags')
 env.ParseConfig('sdl-config --libs')
 env.Append(CPPFLAGS = ['-Wall', '-funsigned-char'])

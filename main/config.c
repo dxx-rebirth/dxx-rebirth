@@ -37,6 +37,7 @@ COPYRIGHT 1993-1998 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 #include "player.h"
 #include "mission.h"
 #include "physfsx.h"
+#include "tracker/tracker.h"
 
 struct Cfg GameCfg;
 
@@ -58,6 +59,7 @@ static char *MultisampleStr="Multisample";
 static char *JukeboxOnStr="JukeboxOn";
 static char *JukeboxPathStr="JukeboxPath";
 static char *IPHostAddrStr="IPHostAddr";
+static char *TrackerServerStr="TrackerServer";
 
 int ReadConfigFile()
 {
@@ -86,7 +88,10 @@ int ReadConfigFile()
 #else
 	strncpy(GameCfg.JukeboxPath, "::::Jukebox", PATH_MAX+1);
 #endif
-	memset(GameCfg.MplIpHostAddr, 0, 128);
+	memset(GameCfg.MplIpHostAddr, '\x0', sizeof(GameCfg.MplIpHostAddr));
+	
+	// Default tracker server in case one is not found in configuration file...
+	strcpy(GameCfg.TrackerServer, TRACKER_DEFAULT_SERVER);
 
 	infile = PHYSFSX_openReadBuffered("descent.cfg");
 
@@ -160,6 +165,21 @@ int ReadConfigFile()
 				p = strchr( GameCfg.MplIpHostAddr, '\n');
 				if ( p ) *p = 0;
 			}
+			
+			// Loading tracker server...
+			else if(strcmp(token, TrackerServerStr) == 0 && strlen(value) > 1)
+			{
+			    // Store the tracker server from config into memory...
+			    strncpy(GameCfg.TrackerServer, value, 
+                        sizeof(GameCfg.TrackerServer) - 1);
+			    
+			    // Terminate string at line feed...
+			    char *pszTemp = strchr(GameCfg.TrackerServer, '\n');
+			        
+			        // Terminate...
+			        if(pszTemp)
+			           *pszTemp = '\x0';
+			}
 		}
 	}
 
@@ -193,8 +213,8 @@ int WriteConfigFile()
 	PHYSFSX_printf(infile, "%s=%d\n", SndEnableRedbookStr, GameCfg.SndEnableRedbook);
 	PHYSFSX_printf(infile, "%s=%d\n", ReverseStereoStr, GameCfg.ReverseStereo);
 	PHYSFSX_printf(infile, "%s=%d\n", GammaLevelStr, GameCfg.GammaLevel);
-	PHYSFSX_printf(infile, "%s=%s\n", LastPlayerStr, Players[Player_num].callsign );
-	PHYSFSX_printf(infile, "%s=%s\n", LastMissionStr, GameCfg.LastMission );
+	PHYSFSX_printf(infile, "%s=%s\n", LastPlayerStr, Players[Player_num].callsign);
+	PHYSFSX_printf(infile, "%s=%s\n", LastMissionStr, GameCfg.LastMission);
 	PHYSFSX_printf(infile, "%s=%i\n", ResolutionXStr, SM_W(Game_screen_mode));
 	PHYSFSX_printf(infile, "%s=%i\n", ResolutionYStr, SM_H(Game_screen_mode));
 	PHYSFSX_printf(infile, "%s=%i\n", AspectXStr, GameCfg.AspectX);
@@ -204,8 +224,9 @@ int WriteConfigFile()
 	PHYSFSX_printf(infile, "%s=%i\n", VSyncStr, GameCfg.VSync);
 	PHYSFSX_printf(infile, "%s=%i\n", MultisampleStr, GameCfg.Multisample);
 	PHYSFSX_printf(infile, "%s=%i\n", JukeboxOnStr, GameCfg.JukeboxOn);
-	PHYSFSX_printf(infile, "%s=%s\n", JukeboxPathStr, GameCfg.JukeboxPath );
-	PHYSFSX_printf(infile, "%s=%s\n", IPHostAddrStr, GameCfg.MplIpHostAddr );
+	PHYSFSX_printf(infile, "%s=%s\n", JukeboxPathStr, GameCfg.JukeboxPath);
+	PHYSFSX_printf(infile, "%s=%s\n", IPHostAddrStr, GameCfg.MplIpHostAddr);
+	PHYSFSX_printf(infile, "%s=%s\n", TrackerServerStr, GameCfg.TrackerServer);
 
 	PHYSFS_close(infile);
 
