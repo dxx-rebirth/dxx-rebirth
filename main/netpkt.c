@@ -16,7 +16,12 @@ COPYRIGHT 1993-1998 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 #ifdef NETWORK
 
 #include <string.h>
+
+#include "inferno.h"
 #include "pstypes.h"
+#include "netpkt.h"
+#include "netdrv.h"
+
 //FIXME: Certain combinations of players having and not having the editor will cause the segment checksum code to fail.
 #ifdef WORDS_BIGENDIAN
 
@@ -108,17 +113,37 @@ ushort netmisc_calc_checksum(void * vptr, int len)
 }
 #endif
 
+// following are routine for macintosh only that will swap the elements of
+// structures send through the networking code.  The structures and
+// this code must be kept in total sync
+
 #include "multi.h"
+#ifdef NETWORK
 #include "network.h"
+#endif
 #include "object.h"
 #include "powerup.h"
 #include "error.h"
-#include "netpkt.h"
 
-void receive_netplayer_info(ubyte *data, netplayer_info *info, int d1x)
+ubyte out_buffer[MAX_DATA_SIZE];    // used for tmp netgame packets as well as sending object data
+
+void put_netplayer_info(ubyte *data, netplayer_info *player, int d1x)
+{
+	memcpy(data, player->callsign, CALLSIGN_LEN); data += CALLSIGN_LEN;
+	if (!d1x) *(data++) = 0;
+	memcpy(data, player->server, 4);		      data += 4;
+	memcpy(data, player->node, 6);			      data += 6;
+	PUT_INTEL_SHORT(data, player->socket);		  data += 2;
+	*data = player->connected;                    data++;
+	if (d1x) {
+		*data = player->sub_protocol;             data++;
+	}
+}
+
+void get_netplayer_info(ubyte *data, netplayer_info *info, int d1x)
 {
 	int loc = 0;
-	
+
 	memcpy(info->callsign, &(data[loc]), CALLSIGN_LEN);	      loc += CALLSIGN_LEN;
 	info->callsign[CALLSIGN_LEN] = 0;
 	if (!d1x) loc++;
@@ -127,31 +152,23 @@ void receive_netplayer_info(ubyte *data, netplayer_info *info, int d1x)
 	memcpy(&(info->socket), &(data[loc]), 2);				  loc += 2;
 //MWA  don't think we need to swap this because we need it in high order	info->socket = INTEL_SHORT(info->socket);
 	info->connected = data[loc]; loc++;
-	#ifndef SHAREWARE
  //edited 03/04/99 Matt Mueller - sub_protocol was being set wrong in non-d1x games.. I still think its screwed somewhere else too though
 	if (d1x){     
 		info->sub_protocol = data[loc]; loc++;
 	}else
 		info->sub_protocol = 0;
 //end edit -MM
-	#endif
 }
 
 void send_sequence_packet(sequence_packet seq, ubyte *server, ubyte *node, ubyte *net_address)
 {
-	short tmps;
 	int loc;
 
 	loc = 0;
 	memset(out_buffer, 0, sizeof(out_buffer));
-	out_buffer[0] = seq.type;			loc++;
-	memcpy(&(out_buffer[loc]), seq.player.callsign, CALLSIGN_LEN+1);		loc += CALLSIGN_LEN+1;
-	memcpy(&(out_buffer[loc]), seq.player.server, 4);	  loc += 4;
-	memcpy(&(out_buffer[loc]), seq.player.node, 6); 	  loc += 6;
-	tmps = INTEL_SHORT(seq.player.socket);
-	memcpy(&(out_buffer[loc]), &tmps, 2);		loc += 2;
-	out_buffer[loc] = seq.player.connected;	loc++;
-	out_buffer[loc] = MULTI_PROTO_D1X_MINOR; loc++;
+	out_buffer[0] = seq.type;                                       loc++;
+	put_netplayer_info(&(out_buffer[loc]), &seq.player, 0);         loc += sizeof(netplayer_info);
+	out_buffer[loc] = MULTI_PROTO_D1X_MINOR;						loc++;
 
 	if (net_address != NULL)	
 		NetDrvSendPacketData( out_buffer, loc, server, node, net_address);
@@ -164,25 +181,20 @@ void send_sequence_packet(sequence_packet seq, ubyte *server, ubyte *node, ubyte
 void receive_sequence_packet(ubyte *data, sequence_packet *seq)
 {
 	int loc = 0;
-	
-	seq->type = data[0];				loc++;
-	receive_netplayer_info(&(data[loc]), &(seq->player), 0);
-}
 
+	seq->type = data[0];                        loc++;
+	get_netplayer_info(&(data[loc]), &(seq->player), 0);
+}
 
 void send_netgame_packet(ubyte *server, ubyte *node)
 {
-	uint tmpi;
-	ushort tmps;
 	int i, j;
 	int loc = 0;
 	
-#ifndef SHAREWARE
 	if (Netgame.protocol_version == MULTI_PROTO_D1X_VER) {
 		send_d1x_netgame_packet(server, node);
 		return;
 	}
-#endif
 	memset(out_buffer, 0, MAX_DATA_SIZE);
 	out_buffer[loc] = Netgame.type; loc++;
 	memcpy(&(out_buffer[loc]), Netgame.game_name, NETGAME_NAME_LEN+1); loc += (NETGAME_NAME_LEN+1);
@@ -194,11 +206,7 @@ void send_netgame_packet(ubyte *server, ubyte *node)
 	out_buffer[loc] = Netgame.max_numplayers; loc++;
 	out_buffer[loc] = Netgame.game_flags; loc++;
 	for (i = 0; i < MAX_PLAYERS; i++) {
-		memcpy(&(out_buffer[loc]), Netgame.players[i].callsign, CALLSIGN_LEN+1);	loc += CALLSIGN_LEN+1;
-		memcpy(&(out_buffer[loc]), Netgame.players[i].server, 4);				  loc += 4;
-		memcpy(&(out_buffer[loc]), Netgame.players[i].node, 6); 					  loc += 6;
-		memcpy(&(out_buffer[loc]), &(Netgame.players[i].socket), 2);				  loc += 2;
-		memcpy(&(out_buffer[loc]), &(Netgame.players[i].connected), 1);				loc++;
+		put_netplayer_info(&(out_buffer[loc]), &Netgame.players[i], 0); loc += sizeof(netplayer_info);
 	}
 	if (Netgame.protocol_version == MULTI_PROTO_D1X_VER) {
 		for (i = 0; i < MAX_PLAYERS; i++) {
@@ -206,59 +214,44 @@ void send_netgame_packet(ubyte *server, ubyte *node)
 		}
 	} else {
 		for (i = 0; i < MAX_PLAYERS; i++) {
-			tmpi = INTEL_INT(Netgame.locations[i]);
-			memcpy(&(out_buffer[loc]), &tmpi, 4); loc += 4; 		// SWAP HERE!!!
+			PUT_INTEL_INT(out_buffer + loc, Netgame.locations[i]);  loc += 4; 		// SWAP HERE!!!
 		}
 	}
 
 	for (i = 0; i < MAX_PLAYERS; i++) {
 		for (j = 0; j < MAX_PLAYERS; j++) {
-			tmps = INTEL_SHORT(Netgame.kills[i][j]);
-			memcpy(&(out_buffer[loc]), &tmps, 2); loc += 2;			// SWAP HERE!!!
+			PUT_INTEL_SHORT(out_buffer + loc, Netgame.kills[i][j]); loc += 2;   // SWAP HERE!!!
 		}
 	}
 
-	tmpi = INTEL_INT(Netgame.levelnum);
-	memcpy(&(out_buffer[loc]), &tmpi, 4); loc += 4;				// SWAP_HERE
+	PUT_INTEL_INT(out_buffer + loc, Netgame.levelnum);              loc += 4;				// SWAP_HERE
 	out_buffer[loc] = Netgame.protocol_version; loc++;
 	out_buffer[loc] = Netgame.team_vector; loc++;
-	tmps = INTEL_SHORT(Netgame.segments_checksum);
-	memcpy(&(out_buffer[loc]), &tmps, 2); loc += 2;				// SWAP_HERE
-	tmps = INTEL_SHORT(Netgame.team_kills[0]);
-	memcpy(&(out_buffer[loc]), &tmps, 2); loc += 2;				// SWAP_HERE
-	tmps = INTEL_SHORT(Netgame.team_kills[1]);
-	memcpy(&(out_buffer[loc]), &tmps, 2); loc += 2;				// SWAP_HERE
+	PUT_INTEL_SHORT(out_buffer + loc, Netgame.segments_checksum);   loc += 2;   // SWAP_HERE
+	PUT_INTEL_SHORT(out_buffer + loc, Netgame.team_kills[0]);       loc += 2;   // SWAP_HERE
+	PUT_INTEL_SHORT(out_buffer + loc, Netgame.team_kills[1]);       loc += 2;   // SWAP_HERE
 	for (i = 0; i < MAX_PLAYERS; i++) {
-		tmps = INTEL_SHORT(Netgame.killed[i]);
-		memcpy(&(out_buffer[loc]), &tmps, 2); loc += 2;			// SWAP HERE!!!
+		PUT_INTEL_SHORT(out_buffer + loc, Netgame.killed[i]);       loc += 2;   // SWAP HERE!!!
 	}
 	for (i = 0; i < MAX_PLAYERS; i++) {
-		tmps = INTEL_SHORT(Netgame.player_kills[i]);
-		memcpy(&(out_buffer[loc]), &tmps, 2); loc += 2;			// SWAP HERE!!!
+		PUT_INTEL_SHORT(out_buffer + loc, Netgame.player_kills[i]); loc += 2;   // SWAP HERE!!!
 	}
 
-#ifndef SHAREWARE
-	tmpi = INTEL_INT(Netgame.level_time);
-	memcpy(&(out_buffer[loc]), &tmpi, 4); loc += 4;				// SWAP_HERE
-	tmpi = INTEL_INT(Netgame.control_invul_time);
-	memcpy(&(out_buffer[loc]), &tmpi, 4); loc += 4;				// SWAP_HERE
-	tmpi = INTEL_INT(Netgame.monitor_vector);
-	memcpy(&(out_buffer[loc]), &tmpi, 4); loc += 4;				// SWAP_HERE
+	PUT_INTEL_INT(out_buffer + loc, Netgame.level_time);            loc += 4;   // SWAP_HERE
+	PUT_INTEL_INT(out_buffer + loc, Netgame.control_invul_time);    loc += 4;   // SWAP_HERE
+	PUT_INTEL_INT(out_buffer + loc, Netgame.monitor_vector);        loc += 4;   // SWAP_HERE
 	for (i = 0; i < 8; i++) {
-		tmpi = INTEL_INT(Netgame.player_score[i]);
-		memcpy(&(out_buffer[loc]), &tmpi, 4); loc += 4;				// SWAP_HERE
+		PUT_INTEL_INT(out_buffer + loc, Netgame.player_score[i]);   loc += 4;				// SWAP_HERE
 	}
 	for (i = 0; i < 8; i++) {
-		memcpy(&(out_buffer[loc]), &(Netgame.player_flags[i]), 1); loc++;
+		out_buffer[loc] = Netgame.player_flags[i];                  loc++;
 	}
-	memcpy(&(out_buffer[loc]), Netgame.mission_name, 9); loc += 9;
+	memcpy(&(out_buffer[loc]), Netgame.mission_name, 9);            loc += 9;
 	memcpy(&(out_buffer[loc]), Netgame.mission_title, MISSION_NAME_LEN+1); loc += (MISSION_NAME_LEN+1);
 	if (Netgame.protocol_version == MULTI_PROTO_D1X_VER) {
-	    out_buffer[loc] = Netgame.packets_per_sec; loc++;
-	    tmpi = INTEL_INT(Netgame.flags);
-	    memcpy(&out_buffer[loc], &tmpi, 4); loc += 4;
+	    out_buffer[loc] = Netgame.packets_per_sec;                  loc++;
+	    PUT_INTEL_INT(out_buffer + loc, Netgame.flags);             loc += 4;
         }
-#endif
 
 	if (server == NULL)
 		NetDrvSendBroadcastPacketData(out_buffer, loc);
@@ -270,12 +263,10 @@ void receive_netgame_packet(ubyte *data, netgame_info *netgame, int d1x)
 {
 	int i, j;
 	int loc = 0;
-#ifndef SHAREWARE
 	if (d1x) {
 		receive_d1x_netgame_packet(data, netgame);
 		return;
 	}
-#endif
 
 	netgame->type = data[loc];	loc++;
 	memcpy(netgame->game_name, &(data[loc]), NETGAME_NAME_LEN+1); loc += (NETGAME_NAME_LEN+1);
@@ -287,7 +278,7 @@ void receive_netgame_packet(ubyte *data, netgame_info *netgame, int d1x)
 	netgame->max_numplayers = data[loc]; loc++;
 	netgame->game_flags = data[loc]; loc++;
 	for (i = 0; i < MAX_PLAYERS; i++) {
-		receive_netplayer_info(&(data[loc]), &(netgame->players[i]), 0);
+		get_netplayer_info(&(data[loc]), &(netgame->players[i]), 0);
 		loc += NETPLAYER_ORIG_SIZE;
 	}
 #if 0
@@ -330,7 +321,6 @@ void receive_netgame_packet(ubyte *data, netgame_info *netgame, int d1x)
 		netgame->player_kills[i] = INTEL_SHORT(netgame->player_kills[i]);
 	}
 
-#ifndef SHAREWARE
 	memcpy(&(netgame->level_time), &(data[loc]), 4); loc += 4;				// SWAP_HERE
 	netgame->level_time = INTEL_INT(netgame->level_time);
 	memcpy(&(netgame->control_invul_time), &(data[loc]), 4); loc += 4;				// SWAP_HERE
@@ -357,21 +347,6 @@ void receive_netgame_packet(ubyte *data, netgame_info *netgame, int d1x)
 	    netgame->flags = INTEL_INT(netgame->flags);
 	}
 #endif
-#endif
-}
-
-#ifndef SHAREWARE
-void store_netplayer_info(ubyte *data, netplayer_info *player, int d1x)
-{
-	memcpy(data, player->callsign, CALLSIGN_LEN);	   data += CALLSIGN_LEN;
-	if (!d1x) *(data++) = 0;
-	memcpy(data, player->server, 4);		   data += 4;
-	memcpy(data, player->node, 6);			   data += 6;
-	memcpy(data, &player->socket, 2);		 data += 2;
-	*data = player->connected;     data++;
-	if (d1x) {
-		*data = player->sub_protocol;  data++;
-	}
 }
 
 void send_d1x_netgame_packet(ubyte *server, ubyte *node)
@@ -408,7 +383,7 @@ void send_d1x_netgame_packet(ubyte *server, ubyte *node)
 		out_buffer[loc] = j; loc++; /* numconnected */
 		if (master == -1)   /* should not happen, but... */
 			master = Player_num; 
-		store_netplayer_info(&(out_buffer[loc]), &Netgame.players[master], 1); loc += NETPLAYER_D1X_SIZE;
+		put_netplayer_info(&(out_buffer[loc]), &Netgame.players[master], 1); loc += NETPLAYER_D1X_SIZE;
 		//added 4/18/99 Matt Mueller - send .flags as well, so 'I' can show them
 		tmpi = INTEL_INT(Netgame.flags);
 		memcpy(&out_buffer[loc], &tmpi, 4); loc += 4;
@@ -417,7 +392,7 @@ void send_d1x_netgame_packet(ubyte *server, ubyte *node)
 		out_buffer[loc] = Netgame.numplayers; loc++;
 		out_buffer[loc] = NETPLAYER_D1X_SIZE; loc++; // sizeof netplayer struct
 		for (i = 0; i < MAX_PLAYERS; i++) {
-			store_netplayer_info(&(out_buffer[loc]), &Netgame.players[i], 1);
+			put_netplayer_info(&(out_buffer[loc]), &Netgame.players[i], 1);
 			loc += NETPLAYER_D1X_SIZE;
 		}
 		memcpy(&(out_buffer[loc]), Netgame.team_name[0], CALLSIGN_LEN); loc += CALLSIGN_LEN;
@@ -496,7 +471,7 @@ void receive_d1x_netgame_packet(ubyte *data, netgame_info *netgame) {
 		j = netgame->numplayers = data[loc]; loc++;
 		for (i = 0; i < j; i++)
 			netgame->players[i].connected = 1;
-		receive_netplayer_info(&(data[loc]), &(netgame->players[0]), 1);loc += NETPLAYER_D1X_SIZE;
+		get_netplayer_info(&(data[loc]), &(netgame->players[0]), 1);loc += NETPLAYER_D1X_SIZE;
 		//added 4/18/99 Matt Mueller - send .flags as well, so 'I' can show them
 		if (netgame->subprotocol>=1){
 			memcpy(&netgame->flags, &data[loc], 4); loc += 4;
@@ -510,7 +485,7 @@ void receive_d1x_netgame_packet(ubyte *data, netgame_info *netgame) {
 		    netgame->protocol_version = 0; return;
 		}
 		for (i = 0; i < MAX_PLAYERS; i++) {
-			receive_netplayer_info(&(data[loc]), &(netgame->players[i]), 1);
+			get_netplayer_info(&(data[loc]), &(netgame->players[i]), 1);
 			loc += j;
 		}
 		memcpy(netgame->team_name[0], &(data[loc]), CALLSIGN_LEN); loc += CALLSIGN_LEN;
@@ -556,168 +531,65 @@ void receive_d1x_netgame_packet(ubyte *data, netgame_info *netgame) {
 		netgame->flags = INTEL_INT(netgame->flags);
 	}
 }
-#endif
 
 void send_frameinfo_packet(ubyte *server, ubyte *node, ubyte *address, int short_packet)
 {
-	int loc, tmpi;
-	short tmps;
-#ifndef SHAREWARE
+	int loc;
 	ushort tmpus;
-#endif
 	object *pl_obj = &Objects[Players[Player_num].objnum];
 	
 	loc = 0;
 	memset(out_buffer, 0, MAX_DATA_SIZE);
-#ifdef SHAREWARE
-	out_buffer[0] = PID_PDATA;		loc++;
-	tmpi = INTEL_INT(MySyncPack.numpackets);
-	memcpy(&(out_buffer[loc]), &tmpi, 4);	loc += 4;
-	tmps = INTEL_SHORT(Players[Player_num].objnum);
-	memcpy(&(out_buffer[loc]), &tmps, 2);	loc += 2;
-	out_buffer[loc] = Player_num; loc++;
-	tmps = INTEL_SHORT(pl_obj->segnum);
-	memcpy(&(out_buffer[loc]), &tmps, 2);	loc += 2;
-
-	tmpi = INTEL_INT((int)pl_obj->pos.x);
-	memcpy(&(out_buffer[loc]), &tmpi, 4);	loc += 4;
-	tmpi = INTEL_INT((int)pl_obj->pos.y);
-	memcpy(&(out_buffer[loc]), &tmpi, 4);	loc += 4;
-	tmpi = INTEL_INT((int)pl_obj->pos.z);
-	memcpy(&(out_buffer[loc]), &tmpi, 4);	loc += 4;
-	
-	tmpi = INTEL_INT((int)pl_obj->orient.rvec.x);
-	memcpy(&(out_buffer[loc]), &tmpi, 4);	loc += 4;
-	tmpi = INTEL_INT((int)pl_obj->orient.rvec.y);
-	memcpy(&(out_buffer[loc]), &tmpi, 4);	loc += 4;
-	tmpi = INTEL_INT((int)pl_obj->orient.rvec.z);
-	memcpy(&(out_buffer[loc]), &tmpi, 4);	loc += 4;
-	tmpi = INTEL_INT((int)pl_obj->orient.uvec.x);
-	memcpy(&(out_buffer[loc]), &tmpi, 4);	loc += 4;
-	tmpi = INTEL_INT((int)pl_obj->orient.uvec.y);
-	memcpy(&(out_buffer[loc]), &tmpi, 4);	loc += 4;
-	tmpi = INTEL_INT((int)pl_obj->orient.uvec.z);
-	memcpy(&(out_buffer[loc]), &tmpi, 4);	loc += 4;
-	tmpi = INTEL_INT((int)pl_obj->orient.fvec.x);
-	memcpy(&(out_buffer[loc]), &tmpi, 4);	loc += 4;
-	tmpi = INTEL_INT((int)pl_obj->orient.fvec.y);
-	memcpy(&(out_buffer[loc]), &tmpi, 4);	loc += 4;
-	tmpi = INTEL_INT((int)pl_obj->orient.fvec.z);
-	memcpy(&(out_buffer[loc]), &tmpi, 4);	loc += 4;
-	
-	tmpi = INTEL_INT((int)pl_obj->mtype.phys_info.velocity.x);
-	memcpy(&(out_buffer[loc]), &tmpi, 4);	loc += 4;
-	tmpi = INTEL_INT((int)pl_obj->mtype.phys_info.velocity.y);
-	memcpy(&(out_buffer[loc]), &tmpi, 4);	loc += 4;
-	tmpi = INTEL_INT((int)pl_obj->mtype.phys_info.velocity.z);
-	memcpy(&(out_buffer[loc]), &tmpi, 4);	loc += 4;
-	tmpi = INTEL_INT((int)pl_obj->mtype.phys_info.thrust.x);
-	memcpy(&(out_buffer[loc]), &tmpi, 4);	loc += 4;
-	tmpi = INTEL_INT((int)pl_obj->mtype.phys_info.thrust.y);
-	memcpy(&(out_buffer[loc]), &tmpi, 4);	loc += 4;
-	tmpi = INTEL_INT((int)pl_obj->mtype.phys_info.thrust.z);
-	memcpy(&(out_buffer[loc]), &tmpi, 4);	loc += 4;
-	tmpi = INTEL_INT((int)pl_obj->mtype.phys_info.mass);
-	memcpy(&(out_buffer[loc]), &tmpi, 4);	loc += 4;
-	tmpi = INTEL_INT((int)pl_obj->mtype.phys_info.drag);
-	memcpy(&(out_buffer[loc]), &tmpi, 4);	loc += 4;
-	tmpi = INTEL_INT((int)pl_obj->mtype.phys_info.brakes);
-	memcpy(&(out_buffer[loc]), &tmpi, 4);	loc += 4;
-	tmpi = INTEL_INT((int)pl_obj->mtype.phys_info.rotvel.x);
-	memcpy(&(out_buffer[loc]), &tmpi, 4);	loc += 4;
-	tmpi = INTEL_INT((int)pl_obj->mtype.phys_info.rotvel.y);
-	memcpy(&(out_buffer[loc]), &tmpi, 4);	loc += 4;
-	tmpi = INTEL_INT((int)pl_obj->mtype.phys_info.rotvel.z);
-	memcpy(&(out_buffer[loc]), &tmpi, 4);	loc += 4;
-	tmpi = INTEL_INT((int)pl_obj->mtype.phys_info.rotthrust.x);
-	memcpy(&(out_buffer[loc]), &tmpi, 4);	loc += 4;
-	tmpi = INTEL_INT((int)pl_obj->mtype.phys_info.rotthrust.y);
-	memcpy(&(out_buffer[loc]), &tmpi, 4);	loc += 4;
-	tmpi = INTEL_INT((int)pl_obj->mtype.phys_info.rotthrust.z);
-	memcpy(&(out_buffer[loc]), &tmpi, 4);	loc += 4;
-	tmps = INTEL_SHORT((short)pl_obj->mtype.phys_info.turnroll);
-	memcpy(&(out_buffer[loc]), &tmps, 2);	loc += 2;
-	tmps = INTEL_SHORT(pl_obj->mtype.phys_info.flags);
-	memcpy(&(out_buffer[loc]), &tmps, 2);	loc += 2;
-	
-	out_buffer[loc] = pl_obj->render_type; loc++;
-	out_buffer[loc] = Current_level_num; loc++;
-	tmps = INTEL_SHORT(MySyncPack.data_size);
-	memcpy(&(out_buffer[loc]), &tmps, 2);	loc += 2;
-	memcpy(&(out_buffer[loc]), MySyncPack.data, MySyncPack.data_size);
-	loc += MySyncPack.data_size;
-#else
 	if (short_packet == 1) {
 		loc = 0;
 		out_buffer[loc] = PID_SHORTPDATA; loc++;
 		out_buffer[loc] = Player_num; loc++;
 		out_buffer[loc] = pl_obj->render_type; loc++;
-                out_buffer[loc] = Current_level_num; loc++;
-                create_shortpos((shortpos *)(out_buffer + loc), pl_obj,1);
-                loc += 9+2*3+2+2*3; // go past shortpos structure
-                PUT_INTEL_SHORT(out_buffer + loc, MySyncPack.data_size); loc += 2;
-                memcpy(out_buffer + loc, MySyncPack.data, MySyncPack.data_size);
-                loc += MySyncPack.data_size;
-        } else if (short_packet == 2) {
+		out_buffer[loc] = Current_level_num; loc++;
+		create_shortpos((shortpos *)(out_buffer + loc), pl_obj,1);
+		loc += 9+2*3+2+2*3; // go past shortpos structure
+		PUT_INTEL_SHORT(out_buffer + loc, MySyncPack.data_size); loc += 2;
+		memcpy(out_buffer + loc, MySyncPack.data, MySyncPack.data_size);
+		loc += MySyncPack.data_size;
+	} else if (short_packet == 2) {
 		loc = 0;
 		out_buffer[loc] = PID_PDATA_SHORT2; loc++;
-                out_buffer[loc] = MySyncPack.numpackets & 255; loc++;
-                create_shortpos((shortpos *)(out_buffer + loc), pl_obj,1);
-                loc += 9+2*3+2+2*3; // go past shortpos structure
-                tmpus = MySyncPack.data_size | (Player_num << 12) | (pl_obj->render_type << 15);
-                PUT_INTEL_SHORT(out_buffer + loc, tmpus); loc += 2;
-                out_buffer[loc] = Current_level_num; loc++;
-                memcpy(out_buffer + loc, MySyncPack.data, MySyncPack.data_size);
-                loc += MySyncPack.data_size;
+		out_buffer[loc] = MySyncPack.numpackets & 255; loc++;
+		create_shortpos((shortpos *)(out_buffer + loc), pl_obj,1);
+		loc += 9+2*3+2+2*3; // go past shortpos structure
+		tmpus = MySyncPack.data_size | (Player_num << 12) | (pl_obj->render_type << 15);
+		PUT_INTEL_SHORT(out_buffer + loc, tmpus); loc += 2;
+		out_buffer[loc] = Current_level_num; loc++;
+		memcpy(out_buffer + loc, MySyncPack.data, MySyncPack.data_size);
+		loc += MySyncPack.data_size;
 	} else {
 		out_buffer[0] = PID_PDATA;		loc++;	loc += 3;		// skip three for pad byte
-		tmpi = INTEL_INT(MySyncPack.numpackets);
-		memcpy(&(out_buffer[loc]), &tmpi, 4);	loc += 4;
+		PUT_INTEL_INT(&(out_buffer[loc]), MySyncPack.numpackets);					loc += 4;
 
-		tmpi = INTEL_INT((int)pl_obj->pos.x);
-		memcpy(&(out_buffer[loc]), &tmpi, 4);	loc += 4;
-		tmpi = INTEL_INT((int)pl_obj->pos.y);
-		memcpy(&(out_buffer[loc]), &tmpi, 4);	loc += 4;
-		tmpi = INTEL_INT((int)pl_obj->pos.z);
-		memcpy(&(out_buffer[loc]), &tmpi, 4);	loc += 4;
-
-		tmpi = INTEL_INT((int)pl_obj->orient.rvec.x);
-		memcpy(&(out_buffer[loc]), &tmpi, 4);	loc += 4;
-		tmpi = INTEL_INT((int)pl_obj->orient.rvec.y);
-		memcpy(&(out_buffer[loc]), &tmpi, 4);	loc += 4;
-		tmpi = INTEL_INT((int)pl_obj->orient.rvec.z);
-		memcpy(&(out_buffer[loc]), &tmpi, 4);	loc += 4;
-		tmpi = INTEL_INT((int)pl_obj->orient.uvec.x);
-		memcpy(&(out_buffer[loc]), &tmpi, 4);	loc += 4;
-		tmpi = INTEL_INT((int)pl_obj->orient.uvec.y);
-		memcpy(&(out_buffer[loc]), &tmpi, 4);	loc += 4;
-		tmpi = INTEL_INT((int)pl_obj->orient.uvec.z);
-		memcpy(&(out_buffer[loc]), &tmpi, 4);	loc += 4;
-		tmpi = INTEL_INT((int)pl_obj->orient.fvec.x);
-		memcpy(&(out_buffer[loc]), &tmpi, 4);	loc += 4;
-		tmpi = INTEL_INT((int)pl_obj->orient.fvec.y);
-		memcpy(&(out_buffer[loc]), &tmpi, 4);	loc += 4;
-		tmpi = INTEL_INT((int)pl_obj->orient.fvec.z);
-		memcpy(&(out_buffer[loc]), &tmpi, 4);	loc += 4;
-
-		tmpi = INTEL_INT((int)pl_obj->mtype.phys_info.velocity.x);
-		memcpy(&(out_buffer[loc]), &tmpi, 4);	loc += 4;
-		tmpi = INTEL_INT((int)pl_obj->mtype.phys_info.velocity.y);
-		memcpy(&(out_buffer[loc]), &tmpi, 4);	loc += 4;
-		tmpi = INTEL_INT((int)pl_obj->mtype.phys_info.velocity.z);
-		memcpy(&(out_buffer[loc]), &tmpi, 4);	loc += 4;
-
-		tmpi = INTEL_INT((int)pl_obj->mtype.phys_info.rotvel.x);
-		memcpy(&(out_buffer[loc]), &tmpi, 4);	loc += 4;
-		tmpi = INTEL_INT((int)pl_obj->mtype.phys_info.rotvel.y);
-		memcpy(&(out_buffer[loc]), &tmpi, 4);	loc += 4;
-		tmpi = INTEL_INT((int)pl_obj->mtype.phys_info.rotvel.z);
-		memcpy(&(out_buffer[loc]), &tmpi, 4);	loc += 4;
-
-		tmps = INTEL_SHORT(pl_obj->segnum);
-		memcpy(&(out_buffer[loc]), &tmps, 2);	loc += 2;
-		tmps = INTEL_SHORT(MySyncPack.data_size);
-		memcpy(&(out_buffer[loc]), &tmps, 2);	loc += 2;
+		PUT_INTEL_INT(&(out_buffer[loc]), (int)pl_obj->pos.x);						loc += 4;
+		PUT_INTEL_INT(&(out_buffer[loc]), (int)pl_obj->pos.y);						loc += 4;
+		PUT_INTEL_INT(&(out_buffer[loc]), (int)pl_obj->pos.z);						loc += 4;
+		
+		PUT_INTEL_INT(&(out_buffer[loc]), (int)pl_obj->orient.rvec.x);				loc += 4;
+		PUT_INTEL_INT(&(out_buffer[loc]), (int)pl_obj->orient.rvec.y);				loc += 4;
+		PUT_INTEL_INT(&(out_buffer[loc]), (int)pl_obj->orient.rvec.z);				loc += 4;
+		PUT_INTEL_INT(&(out_buffer[loc]), (int)pl_obj->orient.uvec.x);				loc += 4;
+		PUT_INTEL_INT(&(out_buffer[loc]), (int)pl_obj->orient.uvec.y);				loc += 4;
+		PUT_INTEL_INT(&(out_buffer[loc]), (int)pl_obj->orient.uvec.z);				loc += 4;
+		PUT_INTEL_INT(&(out_buffer[loc]), (int)pl_obj->orient.fvec.x);				loc += 4;
+		PUT_INTEL_INT(&(out_buffer[loc]), (int)pl_obj->orient.fvec.y);				loc += 4;
+		PUT_INTEL_INT(&(out_buffer[loc]), (int)pl_obj->orient.fvec.z);				loc += 4;
+		
+		PUT_INTEL_INT(&(out_buffer[loc]), (int)pl_obj->mtype.phys_info.velocity.x);	loc += 4;
+		PUT_INTEL_INT(&(out_buffer[loc]), (int)pl_obj->mtype.phys_info.velocity.y);	loc += 4;
+		PUT_INTEL_INT(&(out_buffer[loc]), (int)pl_obj->mtype.phys_info.velocity.z);	loc += 4;
+		
+		PUT_INTEL_INT(&(out_buffer[loc]), (int)pl_obj->mtype.phys_info.rotvel.x);	loc += 4;
+		PUT_INTEL_INT(&(out_buffer[loc]), (int)pl_obj->mtype.phys_info.rotvel.y);	loc += 4;
+		PUT_INTEL_INT(&(out_buffer[loc]), (int)pl_obj->mtype.phys_info.rotvel.z);	loc += 4;
+		
+		PUT_INTEL_SHORT(&(out_buffer[loc]), pl_obj->segnum);						loc += 2;
+		PUT_INTEL_SHORT(&(out_buffer[loc]), MySyncPack.data_size);					loc += 2;
 
 		out_buffer[loc] = Player_num; loc++;
 		out_buffer[loc] = pl_obj->render_type; loc++;
@@ -725,7 +597,6 @@ void send_frameinfo_packet(ubyte *server, ubyte *node, ubyte *address, int short
 		memcpy(&(out_buffer[loc]), MySyncPack.data, MySyncPack.data_size);
 		loc += MySyncPack.data_size;
 	}
-#endif
 #if 0 // adb: not possible (always array passed)
 	if (address == NULL)
                 NetDrvSendInternetworkPacketData( out_buffer, loc, server, node );
@@ -738,224 +609,68 @@ void receive_frameinfo_packet(ubyte *data, frame_info *info, int short_packet)
 {
 	int loc;
 	
-#ifdef SHAREWARE
-	loc = 0;
-
-	info->type = data[0];							loc++;
-	memcpy(&(info->numpackets), &(data[loc]), 4);	loc += 4;
-	info->numpackets = INTEL_INT(info->numpackets);
-	memcpy(&(info->objnum), &(data[loc]), 2);		loc += 2;
-	info->objnum = INTEL_SHORT(info->objnum);
-	info->playernum = data[loc];					loc++;
-
-	memcpy(&(info->obj_segnum), &(data[loc]), 2);	loc += 2;
-	info->obj_segnum = INTEL_SHORT(info->obj_segnum);
-
-	memcpy(&(info->obj_pos.x), &(data[loc]), 4);	loc += 4;
-	info->obj_pos.x = (fix)INTEL_INT((int)info->obj_pos.x);
-	memcpy(&(info->obj_pos.y), &(data[loc]), 4);	loc += 4;
-	info->obj_pos.y = (fix)INTEL_INT((int)info->obj_pos.y);
-	memcpy(&(info->obj_pos.z), &(data[loc]), 4);	loc += 4;
-	info->obj_pos.z = (fix)INTEL_INT((int)info->obj_pos.z);
-
-	memcpy(&(info->obj_orient.rvec.x), &(data[loc]), 4);	loc += 4;
-	info->obj_orient.rvec.x = (fix)INTEL_INT((int)info->obj_orient.rvec.x);
-	memcpy(&(info->obj_orient.rvec.y), &(data[loc]), 4);	loc += 4;
-	info->obj_orient.rvec.y = (fix)INTEL_INT((int)info->obj_orient.rvec.y);
-	memcpy(&(info->obj_orient.rvec.z), &(data[loc]), 4);	loc += 4;
-	info->obj_orient.rvec.z = (fix)INTEL_INT((int)info->obj_orient.rvec.z);
-	memcpy(&(info->obj_orient.uvec.x), &(data[loc]), 4);	loc += 4;
-	info->obj_orient.uvec.x = (fix)INTEL_INT((int)info->obj_orient.uvec.x);
-	memcpy(&(info->obj_orient.uvec.y), &(data[loc]), 4);	loc += 4;
-	info->obj_orient.uvec.y = (fix)INTEL_INT((int)info->obj_orient.uvec.y);
-	memcpy(&(info->obj_orient.uvec.z), &(data[loc]), 4);	loc += 4;
-	info->obj_orient.uvec.z = (fix)INTEL_INT((int)info->obj_orient.uvec.z);
-	memcpy(&(info->obj_orient.fvec.x), &(data[loc]), 4);	loc += 4;
-	info->obj_orient.fvec.x = (fix)INTEL_INT((int)info->obj_orient.fvec.x);
-	memcpy(&(info->obj_orient.fvec.y), &(data[loc]), 4);	loc += 4;
-	info->obj_orient.fvec.y = (fix)INTEL_INT((int)info->obj_orient.fvec.y);
-	memcpy(&(info->obj_orient.fvec.z), &(data[loc]), 4);	loc += 4;
-	info->obj_orient.fvec.z = (fix)INTEL_INT((int)info->obj_orient.fvec.z);
-	
-	memcpy(&(info->obj_phys_info.velocity.x), &(data[loc]), 4);	loc += 4;
-	info->obj_phys_info.velocity.x = (fix)INTEL_INT((int)info->obj_phys_info.velocity.x);
-	memcpy(&(info->obj_phys_info.velocity.y), &(data[loc]), 4);	loc += 4;
-	info->obj_phys_info.velocity.y = (fix)INTEL_INT((int)info->obj_phys_info.velocity.y);
-	memcpy(&(info->obj_phys_info.velocity.z), &(data[loc]), 4);	loc += 4;
-	info->obj_phys_info.velocity.z = (fix)INTEL_INT((int)info->obj_phys_info.velocity.z);
-
-	memcpy(&(info->obj_phys_info.thrust.x), &(data[loc]), 4);	loc += 4;
-	info->obj_phys_info.thrust.x = (fix)INTEL_INT((int)info->obj_phys_info.thrust.x);
-	memcpy(&(info->obj_phys_info.thrust.y), &(data[loc]), 4);	loc += 4;
-	info->obj_phys_info.thrust.y = (fix)INTEL_INT((int)info->obj_phys_info.thrust.y);
-	memcpy(&(info->obj_phys_info.thrust.z), &(data[loc]), 4);	loc += 4;
-	info->obj_phys_info.thrust.z = (fix)INTEL_INT((int)info->obj_phys_info.thrust.z);
-
-	memcpy(&(info->obj_phys_info.mass), &(data[loc]), 4);	loc += 4;
-	info->obj_phys_info.mass = (fix)INTEL_INT((int)info->obj_phys_info.mass);
-	memcpy(&(info->obj_phys_info.drag), &(data[loc]), 4);	loc += 4;
-	info->obj_phys_info.drag = (fix)INTEL_INT((int)info->obj_phys_info.drag);
-	memcpy(&(info->obj_phys_info.brakes), &(data[loc]), 4); loc += 4;
-	info->obj_phys_info.brakes = (fix)INTEL_INT((int)info->obj_phys_info.brakes);
-
-	memcpy(&(info->obj_phys_info.rotvel.x), &(data[loc]), 4);	loc += 4;
-	info->obj_phys_info.rotvel.x = (fix)INTEL_INT((int)info->obj_phys_info.rotvel.x);
-	memcpy(&(info->obj_phys_info.rotvel.y), &(data[loc]), 4);	loc += 4;
-	info->obj_phys_info.rotvel.y = (fix)INTEL_INT((int)info->obj_phys_info.rotvel.y);
-	memcpy(&(info->obj_phys_info.rotvel.z), &(data[loc]), 4);	loc += 4;
-	info->obj_phys_info.rotvel.z = (fix)INTEL_INT((int)info->obj_phys_info.rotvel.z);
-
-	memcpy(&(info->obj_phys_info.rotthrust.x), &(data[loc]), 4);	loc += 4;
-	info->obj_phys_info.rotthrust.x = (fix)INTEL_INT((int)info->obj_phys_info.rotthrust.x);
-	memcpy(&(info->obj_phys_info.rotthrust.y), &(data[loc]), 4);	loc += 4;
-	info->obj_phys_info.rotthrust.y = (fix)INTEL_INT((int)info->obj_phys_info.rotthrust.y);
-	memcpy(&(info->obj_phys_info.rotthrust.z), &(data[loc]), 4);	loc += 4;
-	info->obj_phys_info.rotthrust.z = (fix)INTEL_INT((int)info->obj_phys_info.rotthrust.z);
-
-	memcpy(&(info->obj_phys_info.turnroll), &(data[loc]), 2);	loc += 2;
-	info->obj_phys_info.turnroll = (fixang)INTEL_SHORT((short)info->obj_phys_info.turnroll);
-
-	memcpy(&(info->obj_phys_info.flags), &(data[loc]), 2);	loc += 2;
-	info->obj_phys_info.flags = (ushort)INTEL_SHORT(info->obj_phys_info.flags);
-
-	info->obj_render_type = data[loc];		loc++;
-	info->level_num = data[loc];			loc++;	
-	memcpy( &(info->data_size), &(data[loc]), 2);	loc += 2;
-	info->data_size = INTEL_SHORT(info->data_size);
-	memcpy(info->data, &(data[loc]), info->data_size);
-#else
 	if (short_packet == 1) {
 		loc = 0;
-                info->type = data[loc]; loc++;
-                info->playernum = data[loc]; loc++;
-                info->obj_render_type = data[loc]; loc++;
-                info->level_num = data[loc]; loc++;
-                loc += 9+2*3+2+2*3; // skip shortpos structure
-                info->data_size = GET_INTEL_SHORT(data + loc); loc+=2;
-                memcpy(info->data, &(data[loc]), info->data_size);
-        } else if (short_packet == 2) {
+		info->type = data[loc]; loc++;
+		info->playernum = data[loc]; loc++;
+		info->obj_render_type = data[loc]; loc++;
+		info->level_num = data[loc]; loc++;
+		loc += 9+2*3+2+2*3; // skip shortpos structure
+		info->data_size = GET_INTEL_SHORT(data + loc); loc+=2;
+		memcpy(info->data, &(data[loc]), info->data_size);
+	} else if (short_packet == 2) {
 		ushort tmpus;
 
-                loc = 0;
-                info->type = data[loc];         loc++;
-                info->numpackets = data[loc];   loc++;
-                loc += 9+2*3+2+2*3; // skip shortpos structure
-                tmpus = GET_INTEL_SHORT(data + loc); loc+=2;
-                info->data_size = tmpus & 0xfff;
-                info->playernum = (tmpus >> 12) & 7;
-                info->obj_render_type = tmpus >> 15;
-                info->numpackets |= Players[info->playernum].n_packets_got & (~255);
-                if (info->numpackets - Players[info->playernum].n_packets_got > 224)
-                        info->numpackets -= 256;
-                else if (Players[info->playernum].n_packets_got - info->numpackets > 128)
-                        info->numpackets += 256;
-                info->level_num = data[loc];    loc++;
-                memcpy(info->data, &(data[loc]), info->data_size);
+		loc = 0;
+		info->type = data[loc];         loc++;
+		info->numpackets = data[loc];   loc++;
+		loc += 9+2*3+2+2*3; // skip shortpos structure
+		tmpus = GET_INTEL_SHORT(data + loc); loc+=2;
+		info->data_size = tmpus & 0xfff;
+		info->playernum = (tmpus >> 12) & 7;
+		info->obj_render_type = tmpus >> 15;
+		info->numpackets |= Players[info->playernum].n_packets_got & (~255);
+		if (info->numpackets - Players[info->playernum].n_packets_got > 224)
+			info->numpackets -= 256;
+		else if (Players[info->playernum].n_packets_got - info->numpackets > 128)
+			info->numpackets += 256;
+		info->level_num = data[loc];    loc++;
+		memcpy(info->data, &(data[loc]), info->data_size);
 	} else {
 		loc = 0;
 		info->type = data[loc]; 		loc++;	loc += 3;		// skip three for pad byte
-		memcpy(&(info->numpackets), &(data[loc]), 4);	loc += 4;
-		info->numpackets = INTEL_INT(info->numpackets);
-
-		memcpy(&(info->obj_pos.x), &(data[loc]), 4);	loc += 4;
-		info->obj_pos.x = INTEL_INT((int)info->obj_pos.x);
-		memcpy(&(info->obj_pos.y), &(data[loc]), 4);	loc += 4;
-		info->obj_pos.y = INTEL_INT((int)info->obj_pos.y);
-		memcpy(&(info->obj_pos.z), &(data[loc]), 4);	loc += 4;
-		info->obj_pos.z = INTEL_INT((int)info->obj_pos.z);
-	
-		memcpy(&(info->obj_orient.rvec.x), &(data[loc]), 4);	loc += 4;
-		info->obj_orient.rvec.x = INTEL_INT((int)info->obj_orient.rvec.x);
-		memcpy(&(info->obj_orient.rvec.y), &(data[loc]), 4);	loc += 4;
-		info->obj_orient.rvec.y = INTEL_INT((int)info->obj_orient.rvec.y);
-		memcpy(&(info->obj_orient.rvec.z), &(data[loc]), 4);	loc += 4;
-		info->obj_orient.rvec.z = INTEL_INT((int)info->obj_orient.rvec.z);
-		memcpy(&(info->obj_orient.uvec.x), &(data[loc]), 4);	loc += 4;
-		info->obj_orient.uvec.x = INTEL_INT((int)info->obj_orient.uvec.x);
-		memcpy(&(info->obj_orient.uvec.y), &(data[loc]), 4);	loc += 4;
-		info->obj_orient.uvec.y = INTEL_INT((int)info->obj_orient.uvec.y);
-		memcpy(&(info->obj_orient.uvec.z), &(data[loc]), 4);	loc += 4;
-		info->obj_orient.uvec.z = INTEL_INT((int)info->obj_orient.uvec.z);
-		memcpy(&(info->obj_orient.fvec.x), &(data[loc]), 4);	loc += 4;
-		info->obj_orient.fvec.x = INTEL_INT((int)info->obj_orient.fvec.x);
-		memcpy(&(info->obj_orient.fvec.y), &(data[loc]), 4);	loc += 4;
-		info->obj_orient.fvec.y = INTEL_INT((int)info->obj_orient.fvec.y);
-		memcpy(&(info->obj_orient.fvec.z), &(data[loc]), 4);	loc += 4;
-		info->obj_orient.fvec.z = INTEL_INT((int)info->obj_orient.fvec.z);
-
-		memcpy(&(info->phys_velocity.x), &(data[loc]), 4);	loc += 4;
-		info->phys_velocity.x = INTEL_INT((int)info->phys_velocity.x);
-		memcpy(&(info->phys_velocity.y), &(data[loc]), 4);	loc += 4;
-		info->phys_velocity.y = INTEL_INT((int)info->phys_velocity.y);
-		memcpy(&(info->phys_velocity.z), &(data[loc]), 4);	loc += 4;
-		info->phys_velocity.z = INTEL_INT((int)info->phys_velocity.z);
-
-		memcpy(&(info->phys_rotvel.x), &(data[loc]), 4);	loc += 4;
-		info->phys_rotvel.x = INTEL_INT((int)info->phys_rotvel.x);
-		memcpy(&(info->phys_rotvel.y), &(data[loc]), 4);	loc += 4;
-		info->phys_rotvel.y = INTEL_INT((int)info->phys_rotvel.y);
-		memcpy(&(info->phys_rotvel.z), &(data[loc]), 4);	loc += 4;
-		info->phys_rotvel.z = INTEL_INT((int)info->phys_rotvel.z);
-	
-		memcpy(&(info->obj_segnum), &(data[loc]), 2);	loc += 2;
-		info->obj_segnum = INTEL_SHORT(info->obj_segnum);
-		memcpy(&(info->data_size), &(data[loc]), 2);	loc += 2;
-		info->data_size = INTEL_SHORT(info->data_size);
-	
+		info->numpackets = GET_INTEL_INT(&(data[loc]));			loc += 4;
+		
+		info->obj_pos.x = GET_INTEL_INT(&(data[loc]));			loc += 4;
+		info->obj_pos.y = GET_INTEL_INT(&(data[loc]));			loc += 4;
+		info->obj_pos.z = GET_INTEL_INT(&(data[loc]));			loc += 4;
+		
+		info->obj_orient.rvec.x = GET_INTEL_INT(&(data[loc]));	loc += 4;
+		info->obj_orient.rvec.y = GET_INTEL_INT(&(data[loc]));	loc += 4;
+		info->obj_orient.rvec.z = GET_INTEL_INT(&(data[loc]));	loc += 4;
+		info->obj_orient.uvec.x = GET_INTEL_INT(&(data[loc]));	loc += 4;
+		info->obj_orient.uvec.y = GET_INTEL_INT(&(data[loc]));	loc += 4;
+		info->obj_orient.uvec.z = GET_INTEL_INT(&(data[loc]));	loc += 4;
+		info->obj_orient.fvec.x = GET_INTEL_INT(&(data[loc]));	loc += 4;
+		info->obj_orient.fvec.y = GET_INTEL_INT(&(data[loc]));	loc += 4;
+		info->obj_orient.fvec.z = GET_INTEL_INT(&(data[loc]));	loc += 4;
+		
+		info->phys_velocity.x = GET_INTEL_INT(&(data[loc]));	loc += 4;
+		info->phys_velocity.y = GET_INTEL_INT(&(data[loc]));	loc += 4;
+		info->phys_velocity.z = GET_INTEL_INT(&(data[loc]));	loc += 4;
+		
+		info->phys_rotvel.x = GET_INTEL_INT(&(data[loc]));		loc += 4;
+		info->phys_rotvel.y = GET_INTEL_INT(&(data[loc]));		loc += 4;
+		info->phys_rotvel.z = GET_INTEL_INT(&(data[loc]));		loc += 4;
+		
+		info->obj_segnum = GET_INTEL_SHORT(&(data[loc]));		loc += 2;
+		info->data_size = GET_INTEL_SHORT(&(data[loc]));		loc += 2;
+		
 		info->playernum = data[loc];		loc++;
 		info->obj_render_type = data[loc];	loc++;
 		info->level_num = data[loc];		loc++;
 		memcpy(info->data, &(data[loc]), info->data_size);
 	}
-#endif
-}
-
-void send_endlevel_packet(endlevel_info *info, ubyte *server, ubyte *node, ubyte *address)
-{
-	int i, j;
-	int loc = 0;
-	ushort tmps;
-	
-	memset(out_buffer, 0, MAX_DATA_SIZE);
-	out_buffer[loc] = info->type;			loc++;
-	out_buffer[loc] = info->player_num;		loc++;
-	out_buffer[loc] = info->connected;		loc++;
-	for (i = 0; i < MAX_PLAYERS; i++) {
-		for (j = 0; j < MAX_PLAYERS; j++) {
-			tmps = INTEL_SHORT(info->kill_matrix[i][j]);
-			memcpy(&(out_buffer[loc]), &tmps, 2);
-			loc += 2;
-		}
-	}
-	tmps = INTEL_SHORT(info->kills);
-	memcpy(&(out_buffer[loc]), &tmps, 2);  loc += 2;
-	tmps = INTEL_SHORT(info->killed);
-	memcpy(&(out_buffer[loc]), &tmps, 2);  loc += 2;
-	out_buffer[loc] = info->seconds_left; loc++;	
-
-	NetDrvSendPacketData( out_buffer, loc, server, node, address);
-}
-
-void receive_endlevel_packet(ubyte *data, endlevel_info *info)
-{
-	int i, j;
-	int loc = 0;
-
-	info->type = data[loc];						loc++;
-	info->player_num = data[loc];				loc++;
-	info->connected = data[loc];				loc++;
-
-	for (i = 0; i < MAX_PLAYERS; i++) {
-		for (j = 0; j < MAX_PLAYERS; j++) {
-			memcpy(&(info->kill_matrix[i][j]), &(data[loc]), 2);	loc += 2;
-			info->kill_matrix[i][j] = INTEL_SHORT(info->kill_matrix[i][j]);
-		}
-	}
-	memcpy(&(info->kills), &(data[loc]), 2);  loc += 2;
-	info->kills = INTEL_SHORT(info->kills);
-	memcpy(&(info->killed), &(data[loc]), 2);  loc += 2;
-	info->killed = INTEL_SHORT(info->killed);
-	info->seconds_left = data[loc];
 }
 
 void swap_object(object *obj)

@@ -1,5 +1,9 @@
 D1X-Rebirth Changelog
 
+20080726
+--------
+d1x-rebirth.xcodeproj, main/netpkt.c, main/netpkt.h: Make network endian code more consistent with D2X, use PUT/GET_INTEL macros more, remove redundant no_cpp_precomp macro
+
 20080720
 --------
 include/netdrv.h, main/netdrv_udp.c, main/netdrv_udp.h, main/netdrv.c, arch/linux/netdrv_ipx.c, arch/linux/netdrv_kali.c, arch/win32/netdrv_ipx.c: Fixed IPX default socket (typo); Using function pointer for IPX-based sockets instead of globals
