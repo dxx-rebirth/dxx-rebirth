@@ -24,7 +24,7 @@
 #define _TRACKER_H
 
 // The default game tracker server address...
-#define TRACKER_DEFAULT_SERVER "SomeServer.org"
+#define TRACKER_DEFAULT_SERVER "FigureThisOutLater"
 
 // Don't bother with any of this if networking support isn't enabled...
 #ifdef NETWORK

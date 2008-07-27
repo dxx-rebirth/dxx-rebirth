@@ -428,7 +428,20 @@ void nd_read_object(object *obj)
 
 	nd_read_byte((sbyte *) &(obj->id));
 	nd_read_byte((sbyte *) &(obj->flags));
-	nd_read_short((short *)&(obj->signature));
+	nd_read_short((short *)&(obj->signature)); 
+
+	    /* This doesn't make sense, since the object signature is supposed to 
+	       be an int, but a short is probably half the size on many platforms.
+	       The problem then is that probably only half the signature will be
+	       initialized. This is definitely not portable.
+
+	       See the typedef struct object's signature field in object.h to see
+	       what I mean. The compiler warning with my gcc 4.2.3 seems to be 
+	       warranted. 
+	       
+	       Kip (kip@thevertigo.com)
+	    */
+
 	nd_read_shortpos(obj);
 
 	obj->attached_obj = -1;
