@@ -1,0 +1,24 @@
+DXX-Rebirth Tracker Protocol:
+
+    Purpose:            Establish dialogue without advertising vernacular in use
+                        via port scanner.
+    Server State:       Awaiting_Greeting
+    Client:             MATERIAL <protocol version >= 1>
+    Server:             DEFENDER | (disconnect)
+    Server Next State:  Awaiting_User_Agent
+
+    Purpose:            Find out what they are connecting with and determine
+                        whether it is permitted or not.
+    Server State:       Awaiting_User_Agent
+    Client:             USERAGENT <d1x-rebirth|d2x-rebirth> <major> <minor>
+    Server:             OK | FAIL [reason] (disconnect)
+    Server Next State:  Refreshing | (n/a)
+
+    Purpose:            Send client available netgame list.
+    Server State:       Refreshing
+    Client:             (null)
+    Server:             GAME <ip_address>:<port> "<description>"\n
+                        GAME <ip_address>:<port> "<description>"\n
+                        GAME <ip_address>:<port> "<description>"\n
+                        ...
+

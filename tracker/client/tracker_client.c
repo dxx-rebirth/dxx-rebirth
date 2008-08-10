@@ -20,18 +20,55 @@
 */
 
 // Includes...
+#include <config.h>
 #include "dl_list.h"
 #include "error.h"
+#include <errno.h>
+#include <netdb.h>
 #include "netdrv.h"
 #include "newmenu.h"
 #include <SDL.h>
 #include <SDL/SDL_thread.h>
 #include "text.h"
 #include "tracker/tracker.h"
+#include <sys/fcntl.h>
+#include <sys/socket.h>
+#include <sys/unistd.h>
 #include "u_mem.h"
 
 // Maximum number of games to list...
 #define TRACKER_MAX_GAMES   64
+
+// Truth...
+#ifndef TRUE
+#define TRUE 1
+#endif
+
+// Falsity...
+#ifndef FALSE
+#define FALSE !TRUE
+#endif
+
+// Private functions...
+
+    // Tracker communication thread...
+    static int TrackerCommunicationThread(void *pThreadData);
+
+    // Receive a message from tracker, returning non-zero if ok...
+    static int TrackerReceive(
+        int Socket, char *pszBuffer, unsigned int const unSize);
+
+    // Transmit a message to tracker, returning non-zero if ok...
+    static int TrackerSend(
+        int Socket, char const *pszMessage, unsigned int const unSize);
+
+    // Convert ASCII address or hostname into a socket address...
+    static struct in_addr *TrackerStringToAddress(
+        char const *pszAddress, struct in_addr *pAddressBuffer);
+
+    // Callback to update menu GUI...
+    static void TrackerUpdateBrowseMenuCallback(
+        int nItems, newmenu_item *pMenuItems, int *nLastKey, int nCurrentItem);
 
 // Current status states...
 typedef enum
@@ -140,20 +177,120 @@ static void TrackerUpdateBrowseMenuCallback(
 // Tracker communication thread...
 static int TrackerCommunicationThread(void *pThreadData)
 {
-    /* Test code to make sure GUI is working the way I plan */
+    // Variables...
+    int                 Socket                  = 0;
+    struct in_addr      ServerAddress;
+    struct sockaddr_in  ServerSocketAddress;
+    int                 nStatus                 = 0;
 
-    SDL_Delay(1000);
 
     // Initializing...
-    SDL_LockMutex(TrackerData.pMutex);
-    TrackerData.State = Initializing;
-    SDL_UnlockMutex(TrackerData.pMutex);
+        
+        // Update GUI...
+        SDL_LockMutex(TrackerData.pMutex);
+        TrackerData.State = Initializing;
+        SDL_UnlockMutex(TrackerData.pMutex);
+        
+        // Allocate socket...
+        Socket = socket(PF_INET, SOCK_STREAM, 0);
+        
+            // Failed...
+            if(Socket < 0)
+                Error("Unable to allocate socket.");
+
+        // Switch to non-blocking...
+        if(fcntl(Socket, F_SETFL, O_NONBLOCK) != 0)
+        {
+            // Cleanup and abort...
+            close(Socket);
+            Error("Unable to switch to non-blocking mode.");
+        }
+
+    // Connecting...
+        
+        // Update GUI...
+        SDL_LockMutex(TrackerData.pMutex);
+        TrackerData.State = Connecting;
+        SDL_UnlockMutex(TrackerData.pMutex);
+        
+        // Clear out server address...
+        memset(&ServerAddress, 0, sizeof(struct sockaddr_in));
+        
+        // Resolve address and check for error...
+        if(!TrackerStringToAddress(GameCfg.TrackerServer, &ServerAddress))
+        {
+            // Cleanup...
+            close(Socket);
+            
+            // Alert user...
+            Error("Unable to contact game tracker.");
+            
+            // Done...
+            return 0;
+        }
     
-    SDL_Delay(1000);
-    SDL_LockMutex(TrackerData.pMutex);
-    TrackerData.State = Connecting;
-    SDL_UnlockMutex(TrackerData.pMutex);
-    
+        // Initialize socket address...
+        memset(&ServerSocketAddress, 0, sizeof(struct in_addr));
+        ServerSocketAddress.sin_family      = AF_INET;
+        ServerSocketAddress.sin_port        = htons(TRACKER_PORT);
+        ServerSocketAddress.sin_addr.s_addr = ServerAddress.s_addr;
+
+        // Connect...
+        while(TRUE)
+        {
+            // Try to connect...
+            nStatus = connect(Socket, (struct sockaddr *) &ServerSocketAddress, 
+                sizeof(ServerSocketAddress));
+
+            // Connect completed...
+            if(nStatus >= 0)
+                break;
+            
+            // Something else happened...
+            switch(errno)
+            {
+                // Connection already in progress...
+                case EINPROGRESS:
+                {
+                    // User triggered an abort...
+                    if(TrackerData.AbortRequested)
+                    {
+                        // Cleanup...
+                        close(Socket);
+
+                        // Abort...
+                        return 0;
+                    }
+
+                    // Don't spin the clock...
+                    SDL_Delay(50);
+                    
+                    // Give it some more time...
+                    continue;
+                }
+                
+                // Some other unknown error...
+                default:
+                {
+                    // Cleanup...
+                    close(Socket);
+                    
+                    // Alert user...
+                    Error("Unknown error while connecting to tracker.");
+                    
+                    // Done...
+                    return 0;                
+                }
+            }
+        }
+
+    // Refresh...
+
+        // Update GUI...
+        SDL_LockMutex(TrackerData.pMutex);
+        TrackerData.State = Refreshing;
+        SDL_UnlockMutex(TrackerData.pMutex);
+        
     while(1)
     {
         SDL_Delay(1000);
@@ -168,6 +305,9 @@ static int TrackerCommunicationThread(void *pThreadData)
         TrackerData.State = Refreshing;
         SDL_UnlockMutex(TrackerData.pMutex);
     }
+
+    // Cleanup...
+    close(Socket);
 
     // Stubbed...
     return 0;
@@ -253,5 +393,145 @@ void TrackerBrowseMenu()
     // User hit escape... (or something else unexpected)
     if(nMenuReturn < 0)
         return;
+}
+
+// Receive a message from tracker, returning non-zero if everything went ok...
+static int TrackerReceive(
+    int Socket, char *pszBuffer, unsigned int const unSize)
+{
+    // Variables...
+    unsigned int    unReceived  = 0;
+    int             nStatus     = 0;
+
+    // Not enough space to retrieve anything...
+    if(unSize < 1)
+        return FALSE;
+
+    // Clear receive buffer...
+    memset(pszBuffer, 0, unSize);
+
+    // Receive loop...
+    while(unReceived < unSize)
+    {
+        // Try to receive some data...
+        nStatus = recv(Socket, &pszBuffer[unReceived], 1, 0);
+
+            // An error occurred...
+            if(nStatus < 0)
+            {
+                // What happened?
+                switch(errno)
+                {
+                    // We were asked to try receiving again...
+                    case EAGAIN:
+                    {
+                        // User aborted...
+                        if(TrackerData.AbortRequested)
+                            return FALSE;
+                    }
+                    
+                    // Some other error...
+                    default:
+                        return FALSE;
+                }
+            }
+
+            // Tracker closed connection on us...
+            else if(nStatus == 0)
+                return FALSE;
+
+            // Received a byte...
+            else
+            {
+                // Update counter...
+                unReceived += nStatus;
+                
+                // This is the end of a server message...
+                if(pszBuffer[unReceived] == '\n')
+                    return TRUE;
+            }
+    }
+    
+    // Ran out of space...
+    return FALSE;
+}
+
+// Transmit a message to tracker, returning non-zero if everything went ok...
+static int TrackerSend(
+    int Socket, char const *pszMessage, unsigned int const unSize)
+{
+    // Variables...
+    unsigned int    unSent      = 0;
+    unsigned int    unRemaining = unSize;
+    int             nStatus     = 0;
+
+    // Keep trying to send data until none left to send...
+    while(unSent < unSize)
+    {
+        // Transmit...
+        nStatus = send(Socket, &pszMessage[unSent], unRemaining, 0);
+        
+        // Something interesting happened...
+        if(nStatus < 0)
+        {
+            // What?
+            switch(errno)
+            {
+                // We were asked to try sending again...
+                case EAGAIN:
+                {
+                    // User aborted...
+                    if(TrackerData.AbortRequested)
+                        return FALSE;
+                }
+                
+                // Some other error...
+                default:
+                    return FALSE;
+            }
+        }
+
+        // Update counters...
+        unSent      += nStatus;
+        unRemaining -= nStatus;
+    }
+
+    // Done...
+    return TRUE;
+}
+
+// Convert ASCII address or hostname into a socket address...
+static struct in_addr *TrackerStringToAddress(
+    char const *pszAddress, struct in_addr *pAddressBuffer)
+{
+    // Variables...
+    struct hostent *pHostList = NULL;
+    
+    // Clear address...
+    memset(pAddressBuffer, 0, sizeof(struct in_addr));
+
+    // Is this an IP address?
+    pAddressBuffer->s_addr = inet_addr(pszAddress);
+        
+        // Yes, use the new in_addr format...
+        if(pAddressBuffer->s_addr != -1)
+             return pAddressBuffer;
+
+    // No, it's probably a host name. Try and resolve...
+    pHostList = gethostbyname(pszAddress);
+    
+        // Lookup successfull...
+        if(pHostList != NULL)
+        {
+            // Store first address...
+            memcpy(pAddressBuffer, (struct in_addr *) *pHostList->h_addr_list, 
+                   sizeof(struct in_addr));
+            
+            // Return to caller...
+            return pAddressBuffer;
+        }
+    
+    // Unknown or DNS down...
+    return NULL;
 }
 
