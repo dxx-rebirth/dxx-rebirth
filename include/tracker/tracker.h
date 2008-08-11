@@ -24,7 +24,7 @@
 #define _TRACKER_H
 
 // The default game tracker server address...
-#define TRACKER_DEFAULT_SERVER "FigureThisOutLater"
+#define TRACKER_DEFAULT_SERVER "localhost"
 
 // Tracker port...
 #define TRACKER_PORT 7988

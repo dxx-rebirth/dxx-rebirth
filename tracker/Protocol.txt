@@ -22,3 +22,5 @@ DXX-Rebirth Tracker Protocol:
                         GAME <ip_address>:<port> "<description>"\n
                         ...
 
+                        MSG anything here can be displayed as a popup box
+

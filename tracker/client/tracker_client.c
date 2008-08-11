@@ -20,7 +20,9 @@
 */
 
 // Includes...
+#include <key.h>
 #include <config.h>
+#include <arpa/inet.h>
 #include "dl_list.h"
 #include "error.h"
 #include <errno.h>
@@ -58,17 +60,22 @@
     static int TrackerReceive(
         int Socket, char *pszBuffer, unsigned int const unSize);
 
-    // Transmit a message to tracker, returning non-zero if ok...
+    // Transmit a message to tracker, returning non-zero if ok. If unSize is
+    //  zero, assumes null terminated string in pszMessage...
     static int TrackerSend(
-        int Socket, char const *pszMessage, unsigned int const unSize);
+        int Socket, char const *pszMessage, unsigned int unSize);
 
     // Convert ASCII address or hostname into a socket address...
     static struct in_addr *TrackerStringToAddress(
         char const *pszAddress, struct in_addr *pAddressBuffer);
 
+    // Toggle the error flag and error message. Needed for showing errors from
+    //  secondary threads...
+    static void TrackerThreadSetError(char const *pszError);
+
     // Callback to update menu GUI...
     static void TrackerUpdateBrowseMenuCallback(
-        int nItems, newmenu_item *pMenuItems, int *nLastKey, int nCurrentItem);
+        int nItems, newmenu_item *pMenuItems, int *pnLastKey, int nCurrentItem);
 
 // Current status states...
 typedef enum
@@ -95,15 +102,35 @@ struct
     // Toggle to tell tracker thread to gracefuly exit...
     unsigned char   AbortRequested;
 
+    // An error was detected...
+    unsigned char   ErrorDetected;
+    char            szError[256];
+
 }TrackerData;
 
 
 // Callback to update menu GUI...
 static void TrackerUpdateBrowseMenuCallback(
-    int nItems, newmenu_item *pMenuItems, int *nLastKey, int nCurrentItem)
+    int nItems, newmenu_item *pMenuItems, int *pnLastKey, int nCurrentItem)
 {
     // Lock the tracker mutex...
     SDL_LockMutex(TrackerData.pMutex);
+
+    // An error was detected, display it...
+    if(TrackerData.ErrorDetected)
+    {
+        // Display the error message...
+        nm_messagebox(NULL, 1, TXT_OK, TrackerData.szError);
+
+        // Unlock the tracker mutex...
+        SDL_UnlockMutex(TrackerData.pMutex);
+
+        // Menu should disappear now...
+       *pnLastKey = KEY_ESC;
+
+        // Done...
+        return;
+    }
 
     // Abort requested...
     if(TrackerData.AbortRequested)
@@ -112,6 +139,9 @@ static void TrackerUpdateBrowseMenuCallback(
         nItems = 1;
         pMenuItems[0].type  = NM_TYPE_TEXT;
         pMenuItems[0].text  = "Aborting, please wait...";
+
+        // Unlock the tracker mutex...
+        SDL_UnlockMutex(TrackerData.pMutex);
 
         // Done...
         return;
@@ -182,7 +212,7 @@ static int TrackerCommunicationThread(void *pThreadData)
     struct in_addr      ServerAddress;
     struct sockaddr_in  ServerSocketAddress;
     int                 nStatus                 = 0;
-
+    char                szBuffer[1024]          = {0};
 
     // Initializing...
         
@@ -196,14 +226,25 @@ static int TrackerCommunicationThread(void *pThreadData)
         
             // Failed...
             if(Socket < 0)
-                Error("Unable to allocate socket.");
+            {
+                // Set error...
+                TrackerThreadSetError("Unable to allocate socket.");
+                
+                // Abort...
+                return 0;
+            }
 
         // Switch to non-blocking...
         if(fcntl(Socket, F_SETFL, O_NONBLOCK) != 0)
         {
-            // Cleanup and abort...
+            // Cleanup...
             close(Socket);
-            Error("Unable to switch to non-blocking mode.");
+            
+            // Set error and abort...
+            TrackerThreadSetError("Unable to switch to non-blocking mode.");
+            
+            // Abort...
+            return 0;
         }
 
     // Connecting...
@@ -214,7 +255,7 @@ static int TrackerCommunicationThread(void *pThreadData)
         SDL_UnlockMutex(TrackerData.pMutex);
         
         // Clear out server address...
-        memset(&ServerAddress, 0, sizeof(struct sockaddr_in));
+        memset(&ServerAddress, 0, sizeof(struct in_addr));
         
         // Resolve address and check for error...
         if(!TrackerStringToAddress(GameCfg.TrackerServer, &ServerAddress))
@@ -222,15 +263,15 @@ static int TrackerCommunicationThread(void *pThreadData)
             // Cleanup...
             close(Socket);
             
-            // Alert user...
-            Error("Unable to contact game tracker.");
+            // Set error...
+            TrackerThreadSetError("Unable to contact game tracker.");
             
-            // Done...
+            // Abort...
             return 0;
         }
     
         // Initialize socket address...
-        memset(&ServerSocketAddress, 0, sizeof(struct in_addr));
+        memset(&ServerSocketAddress, 0, sizeof(struct sockaddr_in));
         ServerSocketAddress.sin_family      = AF_INET;
         ServerSocketAddress.sin_port        = htons(TRACKER_PORT);
         ServerSocketAddress.sin_addr.s_addr = ServerAddress.s_addr;
@@ -243,7 +284,7 @@ static int TrackerCommunicationThread(void *pThreadData)
                 sizeof(ServerSocketAddress));
 
             // Connect completed...
-            if(nStatus >= 0)
+            if(nStatus == 0)
                 break;
             
             // Something else happened...
@@ -269,28 +310,92 @@ static int TrackerCommunicationThread(void *pThreadData)
                     continue;
                 }
                 
+                // Connection refused...
+                case ECONNREFUSED:
+                {
+                    // Cleanup...
+                    close(Socket);
+
+                    // Alert user...
+                    TrackerThreadSetError("Tracker refused connection.");
+                    
+                    // Done...
+                    return 0;
+                }
+                
                 // Some other unknown error...
                 default:
                 {
                     // Cleanup...
                     close(Socket);
-                    
+
                     // Alert user...
-                    Error("Unknown error while connecting to tracker.");
+                    TrackerThreadSetError("Unknown tracker error.");
                     
                     // Done...
-                    return 0;                
+                    return 0;
                 }
             }
         }
 
-    // Refresh...
+    // Update GUI...
+    SDL_LockMutex(TrackerData.pMutex);
+    TrackerData.State = Refreshing;
+    SDL_UnlockMutex(TrackerData.pMutex);
 
-        // Update GUI...
-        SDL_LockMutex(TrackerData.pMutex);
-        TrackerData.State = Refreshing;
-        SDL_UnlockMutex(TrackerData.pMutex);
+    // Handshake...
+    if(!TrackerSend(Socket, "MATERIAL\n", 0) ||
+       !TrackerReceive(Socket, szBuffer, sizeof(szBuffer)) ||
+       strcmp(szBuffer, "DEFENDER\n") ||
+       !TrackerSend(Socket, 
+            "USERAGENT " PROGRAM_NAME " " D1XMAJOR " " D1XMINOR "\n", 0) ||
+       !TrackerReceive(Socket, szBuffer, sizeof(szBuffer)))
+    {
+        // Cleanup...
+        close(Socket);
         
+        // Alert user...
+        TrackerThreadSetError("Tracker handshake failed.");
+        
+        // Done...
+        return 0;
+    }
+    
+    // Check if user agent was not accepted...
+    if(strncmp(szBuffer, "FAIL", strlen("FAIL")) == 0)
+    {
+        // Cleanup...
+        close(Socket);
+        
+        // Alert user with server message, if any...
+        if(strlen(szBuffer) > strlen("FAIL\n"))
+            TrackerThreadSetError(&szBuffer[strlen("FAIL") + 1]);
+        
+        // Otherwise, use default...
+        else
+            TrackerThreadSetError("Your client was not accepted.");
+
+        // Done...
+        return 0;
+    }
+
+    // Chomp user agent accepted...
+    if(!TrackerReceive(Socket, szBuffer, sizeof(szBuffer)) ||
+       strcmp(szBuffer, "OK\n") != 0)
+    {
+        // Cleanup...
+        close(Socket);
+        
+        // Alert user...
+        TrackerThreadSetError("Tracker sent garbage.");
+
+        // Done...
+        return 0;
+    }
+
+    /*
+        TODO: Perform actual game receive loop here.
+    */
     while(1)
     {
         SDL_Delay(1000);
@@ -351,6 +456,10 @@ void TrackerBrowseMenu()
         
         // Abort flag...
         TrackerData.AbortRequested = 0;
+        
+        // Error stuff...
+        TrackerData.ErrorDetected = 0;
+        strcpy(TrackerData.szError, "");
 
     // Launch the communication thread...
     pCommunicationThread = SDL_CreateThread(TrackerCommunicationThread, NULL);
@@ -377,7 +486,7 @@ void TrackerBrowseMenu()
     // Destroy the mutex...
     SDL_DestroyMutex(TrackerData.pMutex);
     TrackerData.pMutex = NULL;
-    
+
     // Cleanup the game list if allocated...
     if(TrackerData.GameList)
     {
@@ -428,6 +537,10 @@ static int TrackerReceive(
                         // User aborted...
                         if(TrackerData.AbortRequested)
                             return FALSE;
+
+                        // Try again in a bit...
+                        SDL_Delay(100);
+                        continue;
                     }
                     
                     // Some other error...
@@ -442,13 +555,13 @@ static int TrackerReceive(
 
             // Received a byte...
             else
-            {
-                // Update counter...
-                unReceived += nStatus;
-                
+            {              
                 // This is the end of a server message...
                 if(pszBuffer[unReceived] == '\n')
                     return TRUE;
+
+                // Update counter...
+                unReceived += nStatus;
             }
     }
     
@@ -456,14 +569,23 @@ static int TrackerReceive(
     return FALSE;
 }
 
-// Transmit a message to tracker, returning non-zero if everything went ok...
+// Transmit a message to tracker, returning non-zero if ok. If unSize is zero, 
+//  assumes null terminated string in pszMessage...
 static int TrackerSend(
-    int Socket, char const *pszMessage, unsigned int const unSize)
+    int Socket, char const *pszMessage, unsigned int unSize)
 {
     // Variables...
     unsigned int    unSent      = 0;
-    unsigned int    unRemaining = unSize;
+    unsigned int    unRemaining = 0;
     int             nStatus     = 0;
+
+    // Size not specified, so must be null terminated string...
+    if(!unSize)
+        unRemaining = unSize = strlen(pszMessage);
+    
+    // Size already specified...
+    else
+        unRemaining = unSize;
 
     // Keep trying to send data until none left to send...
     while(unSent < unSize)
@@ -533,5 +655,23 @@ static struct in_addr *TrackerStringToAddress(
     
     // Unknown or DNS down...
     return NULL;
+}
+
+// Toggle the error flag and error message. Needed for showing errors from
+//  secondary threads...
+static void TrackerThreadSetError(char const *pszError)
+{
+    // Lock resources...
+    SDL_LockMutex(TrackerData.pMutex);
+
+    // Toggle error and abort flag...
+    TrackerData.AbortRequested  = TRUE;
+    TrackerData.ErrorDetected   = TRUE;
+    
+    // Store error message...
+    strcpy(TrackerData.szError, pszError);
+
+    // Unlock resources...
+    SDL_UnlockMutex(TrackerData.pMutex);
 }
 

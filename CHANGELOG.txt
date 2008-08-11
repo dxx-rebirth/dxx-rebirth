@@ -1,5 +1,10 @@
 D1X-Rebirth Changelog
 
+20080810
+--------
+include/tracker/{tracker.h, Protocol.txt, client/tracker_client.c, server/tracker_server.c}: More work on tracker.
+SConstruct: Added PROGRAM_NAME to list of CPPDEFINES. Needed for tracker protocol's useragent submission.
+
 20080727
 --------
 2d/pcx.c: Fixed a compiler warning
