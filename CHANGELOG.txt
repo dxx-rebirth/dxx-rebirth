@@ -1,5 +1,10 @@
 D1X-Rebirth Changelog
 
+20080812
+--------
+tracker/Protocol.txt: More thought on tracker protocol.
+tracker/{server/tracker_server.c, client/tracker_client.c}: More work on tracker code base.
+
 20080810
 --------
 include/tracker/{tracker.h, Protocol.txt, client/tracker_client.c, server/tracker_server.c}: More work on tracker.

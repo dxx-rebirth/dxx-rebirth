@@ -14,13 +14,13 @@ DXX-Rebirth Tracker Protocol:
     Server:             OK | FAIL [reason] (disconnect)
     Server Next State:  Refreshing | (n/a)
 
-    Purpose:            Send client available netgame list.
+    Purpose:            Send client latest game data.
     Server State:       Refreshing
     Client:             (null)
-    Server:             GAME <ip_address>:<port> "<description>"\n
-                        GAME <ip_address>:<port> "<description>"\n
-                        GAME <ip_address>:<port> "<description>"\n
-                        ...
-
-                        MSG anything here can be displayed as a popup box
+    Server:             GAME_ADD <address>:<port> "<description>"
+                        GAME_ADD <address>:<port> "<description>"
+                        GAME_REM "<description>"
+                        GAME_ADD <address>:<port> "<description>"
+                        ALERT anything here can be displayed as a popup box
+    Notes:              The preceding server lines may arrive in any order.
 

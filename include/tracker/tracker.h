@@ -23,14 +23,14 @@
 #ifndef _TRACKER_H
 #define _TRACKER_H
 
+// Don't bother with any of this if networking support isn't enabled...
+#ifdef NETWORK
+
 // The default game tracker server address...
 #define TRACKER_DEFAULT_SERVER "localhost"
 
 // Tracker port...
 #define TRACKER_PORT 7988
-
-// Don't bother with any of this if networking support isn't enabled...
-#ifdef NETWORK
 
 // Invoke the browse UDP/IP network game GUI...
 void TrackerBrowseMenu();

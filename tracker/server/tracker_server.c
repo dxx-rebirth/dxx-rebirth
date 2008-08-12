@@ -32,8 +32,8 @@
 #include <errno.h>
 
 /* 
-    Note: This is all just test driver for protocol. Consider nothing here to be
-          persistent.
+    Note: This is all just TEST driver for protocol. Consider nothing here to 
+    even remotely resemble the actual server code.
 */
 
 #define ECHO_PORT          (2002)
@@ -172,19 +172,29 @@ int main(int argc, char *argv[]) {
 	    exit(EXIT_FAILURE);
 	}
 
-    while (Readline(conn_s, buffer, MAX_LINE-1) > 0 && errno != EINTR)
-    {
-	    //Writeline(conn_s, buffer, strlen(buffer));
-	    printf("Received: %s", buffer);
-	    
-	    // Read something to send from stdout...
-	    printf("Send: ");
-	    fgets(buffer, MAX_LINE, stdin);
-	    
-	    // Transmit it and check for error...
-	    if(Writeline(conn_s, buffer, strlen(buffer)) < 0)
-	        break;
-	}
+    if(!Readline(conn_s, buffer, MAX_LINE-1) ||
+       strcmp(buffer, "MATERIAL\n") ||
+       !Writeline(conn_s, "DEFENDER\n", strlen("DEFENDER\n")) || 
+       !Readline(conn_s, buffer, MAX_LINE-1) ||
+       !Writeline(conn_s, "OK\n", strlen("OK\n")))
+        exit(EXIT_FAILURE);
+
+    printf("Uploading game list to client...");
+
+    strcpy(buffer, "GAME_ADD 12.34.56.78:7988 \"Dicky Chow's game.\"\n");
+    if(!Writeline(conn_s, buffer, strlen(buffer)))
+        exit(EXIT_FAILURE);
+
+    strcpy(buffer, "GAME_ADD 23.45.67.89:7943 \"Kip's game.\"\n");
+    if(!Writeline(conn_s, buffer, strlen(buffer)))
+        exit(EXIT_FAILURE);
+        
+    strcpy(buffer, "GAME_ADD 21.54.16.29:7943 \"Christian's game.\"\n");
+    if(!Writeline(conn_s, buffer, strlen(buffer)))
+        exit(EXIT_FAILURE);
+
+    printf("done.\nHit enter to close connection and quit.");
+    getchar();
 
 	/*  Close the connected socket  */
 

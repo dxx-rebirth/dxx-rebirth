@@ -26,6 +26,7 @@
 #include "dl_list.h"
 #include "error.h"
 #include <errno.h>
+#include <multi.h>
 #include <netdb.h>
 #include "netdrv.h"
 #include "newmenu.h"
@@ -86,6 +87,20 @@ typedef enum
     Refreshing,     /* Refreshing */
 
 }TrackerState;
+
+// TrackerNetGame structure...
+typedef struct
+{
+    // Name / description...
+    char            szDescription[NETGAME_NAME_LEN + 1];
+    
+    // Hostname / IP address...
+    char            szAddress[128];
+    
+    // Port...
+    unsigned short  usPort;
+
+}TrackerNetGame;
 
 // Tracker data used to communicate with communication thread...
 struct
@@ -213,6 +228,7 @@ static int TrackerCommunicationThread(void *pThreadData)
     struct sockaddr_in  ServerSocketAddress;
     int                 nStatus                 = 0;
     char                szBuffer[1024]          = {0};
+    TrackerNetGame     *pCurrentGame            = NULL;
 
     // Initializing...
         
@@ -338,11 +354,6 @@ static int TrackerCommunicationThread(void *pThreadData)
             }
         }
 
-    // Update GUI...
-    SDL_LockMutex(TrackerData.pMutex);
-    TrackerData.State = Refreshing;
-    SDL_UnlockMutex(TrackerData.pMutex);
-
     // Handshake...
     if(!TrackerSend(Socket, "MATERIAL\n", 0) ||
        !TrackerReceive(Socket, szBuffer, sizeof(szBuffer)) ||
@@ -379,9 +390,8 @@ static int TrackerCommunicationThread(void *pThreadData)
         return 0;
     }
 
-    // Chomp user agent accepted...
-    if(!TrackerReceive(Socket, szBuffer, sizeof(szBuffer)) ||
-       strcmp(szBuffer, "OK\n") != 0)
+    // Chomp user agent accepted and send ready...
+    if(strcmp(szBuffer, "OK\n") != 0)
     {
         // Cleanup...
         close(Socket);
@@ -393,20 +403,63 @@ static int TrackerCommunicationThread(void *pThreadData)
         return 0;
     }
 
-    /*
-        TODO: Perform actual game receive loop here.
-    */
-    while(1)
-    {
-        SDL_Delay(1000);
-        
-        SDL_LockMutex(TrackerData.pMutex);
+    // Update GUI...
+    SDL_LockMutex(TrackerData.pMutex);
+    TrackerData.State = Refreshing;
+    SDL_UnlockMutex(TrackerData.pMutex);
 
-        if(TrackerData.AbortRequested)
+    // Keep refreshing until we can't anymore...
+    while(!TrackerData.AbortRequested)
+    {
+        // Receive a line and check for error...
+        if(!TrackerReceive(Socket, szBuffer, sizeof(szBuffer)))
         {
-            return 0;
+            // Alert user...
+            TrackerThreadSetError("Lost connection with tracker.");
+            
+            // Abort...
+            break;
         }
 
+        // Process notification...
+
+            // Server wants us to add a game to our list...
+            if(strncmp(szBuffer, "GAME_ADD ", strlen("GAME_ADD ")) == 0)
+            {
+                // Allocate a new game structure...
+                pCurrentGame = d_malloc(sizeof(TrackerNetGame));
+
+                // Initialize it...
+                memset(pCurrentGame, '\x0', sizeof(TrackerNetGame));
+                
+                // Store in game list...
+                dl_add(TrackerData.GameList, pCurrentGame);
+            }
+            
+            // Server wants us to remove a game from our list...
+            else if(strncmp(szBuffer, "GAME_REM ", strlen("GAME_REM ")) == 0)
+            {
+puts("Removing game...");
+            }
+            
+            // Server wants us to display an alert...
+            else if(strncmp(szBuffer, "ALERT ", strlen("ALERT ")) == 0)
+            {
+puts("Alert...");
+            }
+            
+            // Unknown...
+            else
+            {
+                // Alert user...
+                TrackerThreadSetError("Received unknown notification.");
+
+                // Abort...
+                break;
+            }
+
+        // Lock tracker data...        
+        SDL_LockMutex(TrackerData.pMutex);
         TrackerData.State = Refreshing;
         SDL_UnlockMutex(TrackerData.pMutex);
     }
@@ -492,7 +545,14 @@ void TrackerBrowseMenu()
     {
 	    // Free each node...
 	    while(TrackerData.GameList->first)
+	    {
+		    // Free the node's data first...
+		    d_free(TrackerData.GameList->first->data);
+		    TrackerData.GameList->first->data = NULL;
+		    
+		    // Now the node...
 		    dl_remove(TrackerData.GameList, TrackerData.GameList->first);
+        }
 
         // Free the list itself...
 	    d_free(TrackerData.GameList);
