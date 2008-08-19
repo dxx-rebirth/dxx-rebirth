@@ -36,8 +36,8 @@
     even remotely resemble the actual server code.
 */
 
-#define ECHO_PORT          (2002)
-#define MAX_LINE           (1000)
+#define TRACKER_PORT        (7988)
+#define MAX_LINE            (1000)
 
 #ifndef PG_SOCK_HELP
 #define PG_SOCK_HELP
@@ -124,15 +124,15 @@ int main(int argc, char *argv[]) {
     if ( argc == 2 ) {
 	port = strtol(argv[1], &endptr, 0);
 	if ( *endptr ) {
-	    fprintf(stderr, "ECHOSERV: Invalid port number.\n");
+	    fprintf(stderr, "TRACKER: Invalid port number.\n");
 	    exit(EXIT_FAILURE);
 	}
     }
     else if ( argc < 2 ) {
-	port = ECHO_PORT;
+	port = TRACKER_PORT;
     }
     else {
-	fprintf(stderr, "ECHOSERV: Invalid arguments.\n");
+	fprintf(stderr, "TRACKER: Invalid arguments.\n");
 	exit(EXIT_FAILURE);
     }
 
@@ -140,7 +140,7 @@ int main(int argc, char *argv[]) {
     /*  Create the listening socket  */
 
     if ( (list_s = socket(AF_INET, SOCK_STREAM, 0)) < 0 ) {
-	fprintf(stderr, "ECHOSERV: Error creating listening socket.\n");
+	fprintf(stderr, "TRACKER: Error creating listening socket.\n");
 	exit(EXIT_FAILURE);
     }
 
@@ -167,6 +167,8 @@ int main(int argc, char *argv[]) {
 	exit(EXIT_FAILURE);
     }
 
+    printf("Test server ready...\n");
+
 	if ( (conn_s = accept(list_s, NULL, NULL) ) < 0 ) {
 	    fprintf(stderr, "Error calling accept()\n");
 	    exit(EXIT_FAILURE);
@@ -181,15 +183,15 @@ int main(int argc, char *argv[]) {
 
     printf("Uploading game list to client...");
 
-    strcpy(buffer, "GAME_ADD 12.34.56.78:7988 \"Dicky Chow's game.\"\n");
+    strcpy(buffer, "GAME_ADD 12.34.56.78 7988 \"Dicky Chow.\"\n");
     if(!Writeline(conn_s, buffer, strlen(buffer)))
         exit(EXIT_FAILURE);
 
-    strcpy(buffer, "GAME_ADD 23.45.67.89:7943 \"Kip's game.\"\n");
+    strcpy(buffer, "GAME_ADD 23.45.67.89 7943 \"Kip's game.\"\n");
     if(!Writeline(conn_s, buffer, strlen(buffer)))
         exit(EXIT_FAILURE);
         
-    strcpy(buffer, "GAME_ADD 21.54.16.29:7943 \"Christian's game.\"\n");
+    strcpy(buffer, "GAME_ADD 21.54.16.29 7943 \"Christian's.\"\n");
     if(!Writeline(conn_s, buffer, strlen(buffer)))
         exit(EXIT_FAILURE);
 
@@ -200,7 +202,7 @@ int main(int argc, char *argv[]) {
 
 	if ( close(conn_s) < 0 )
 	{
-	    fprintf(stderr, "ECHOSERV: Error calling close()\n");
+	    fprintf(stderr, "TRACKER: Error calling close()\n");
 	    exit(EXIT_FAILURE);
     }
     

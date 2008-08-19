@@ -18,12 +18,14 @@ typedef struct {
 	struct dl_list_elem *first;
 	struct dl_list_elem *last;
 	struct dl_list_elem *current;
+	unsigned int         size;
 } dl_list;
 
 dl_list *dl_init();
 void dl_add(dl_list *, void *);
 void dl_remove(dl_list *, dl_item *);
-int dl_is_empty(dl_list *);
+int dl_is_empty(dl_list const *);
+int dl_size(dl_list const *);
 int dl_forward(dl_list *);
 int dl_backward(dl_list *);
 

@@ -12,6 +12,7 @@ dl_list *dl_init() {
 	list->first = NULL;
 	list->last = NULL;
 	list->current = NULL;
+	list->size = 0;
 	return list;
 }
 
@@ -30,6 +31,7 @@ void dl_add(dl_list *list, void *data) {
 		list->current = item;
 	}
 	list->last = item;
+	list->size++;
 }
 
 void dl_remove(dl_list *list, dl_item *item) {
@@ -42,10 +44,15 @@ void dl_remove(dl_list *list, dl_item *item) {
 	else item->next->prev = item->prev;
 
 	d_free(item);
+	list->size--;
 }
 
-int dl_is_empty(dl_list *list) {
+int dl_is_empty(dl_list const *list) {
 	return (list->first == NULL);
+}
+
+int dl_size(dl_list const *list) {
+    return list->size;
 }
 
 int dl_forward(dl_list *list) {

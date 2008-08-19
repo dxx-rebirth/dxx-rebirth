@@ -1,5 +1,11 @@
 D1X-Rebirth Changelog
 
+20080818
+--------
+misc/dl_list.c, include/dl_list.h: Added dl_size(dl_list const *) and some minor const correctness.
+tracker/Protocol.txt: More thought on tracker protocol.
+tracker/{server/tracker_server.c, client/tracker_client.c}: More work on tracker code base.
+
 20080812
 --------
 tracker/Protocol.txt: More thought on tracker protocol.

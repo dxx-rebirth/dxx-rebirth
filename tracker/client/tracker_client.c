@@ -61,6 +61,9 @@
     static int TrackerReceive(
         int Socket, char *pszBuffer, unsigned int const unSize);
 
+    // Remove the game if we have it locally tracked...
+    static void TrackerRemoveGame(char const *pszDescription);
+
     // Transmit a message to tracker, returning non-zero if ok. If unSize is
     //  zero, assumes null terminated string in pszMessage...
     static int TrackerSend(
@@ -128,6 +131,10 @@ struct
 static void TrackerUpdateBrowseMenuCallback(
     int nItems, newmenu_item *pMenuItems, int *pnLastKey, int nCurrentItem)
 {
+    // Variables...
+    TrackerNetGame *pCurrentGame        = NULL;
+    unsigned int    unCurrentMenuItem   = 0;
+
     // Lock the tracker mutex...
     SDL_LockMutex(TrackerData.pMutex);
 
@@ -205,10 +212,40 @@ static void TrackerUpdateBrowseMenuCallback(
         // Refreshing...
         case Refreshing:
         {
-            // Update the status...
+            // Add the status item and separator...
             nItems = 1;
 	        pMenuItems[0].type  = NM_TYPE_TEXT;
 	        pMenuItems[0].text  = "Refreshing...";
+
+            // We have games received, use them instead...
+            if(dl_size(TrackerData.GameList) > 0)
+            {
+                // We'll use that many menu items to list each tracked game...
+                nItems = dl_size(TrackerData.GameList);
+
+                // Populate GUI with game list...
+
+                    // Seek to beginning of game list...
+                    TrackerData.GameList->current = TrackerData.GameList->first;
+                    
+                    // Start filling in menu items from beginning...
+                    unCurrentMenuItem = 0;
+
+                    // Add each game...
+                    do
+                    {
+                        // Extract entry...
+                        pCurrentGame = (TrackerNetGame *) TrackerData.GameList->current->data;
+                        
+                        // Fill in menu item...
+                        pMenuItems[unCurrentMenuItem].type  = NM_TYPE_MENU;
+                        pMenuItems[unCurrentMenuItem].text  = pCurrentGame->szDescription;
+
+                        // Move to next menu item slot...
+                        unCurrentMenuItem++;
+                    }
+                    while(dl_forward(TrackerData.GameList));
+            }
 
             // Done...
             break;
@@ -223,12 +260,13 @@ static void TrackerUpdateBrowseMenuCallback(
 static int TrackerCommunicationThread(void *pThreadData)
 {
     // Variables...
-    int                 Socket                  = 0;
+    int                 Socket                              = 0;
     struct in_addr      ServerAddress;
     struct sockaddr_in  ServerSocketAddress;
-    int                 nStatus                 = 0;
-    char                szBuffer[1024]          = {0};
-    TrackerNetGame     *pCurrentGame            = NULL;
+    int                 nStatus                             = 0;
+    char                szBuffer[1024]                      = {0};
+    TrackerNetGame     *pCurrentGame                        = NULL;
+    char                szDescription[NETGAME_NAME_LEN + 1] = {0};
 
     // Initializing...
         
@@ -429,17 +467,45 @@ static int TrackerCommunicationThread(void *pThreadData)
                 // Allocate a new game structure...
                 pCurrentGame = d_malloc(sizeof(TrackerNetGame));
 
-                // Initialize it...
+                // Clear it...
                 memset(pCurrentGame, '\x0', sizeof(TrackerNetGame));
-                
+
+                // Parse it and check for error...
+                /* GAME_ADD <address>:<port> "<description>" */
+                if(sscanf(szBuffer, "GAME_ADD %s %hu \"%15[^\"]s", 
+                    pCurrentGame->szAddress,
+                    &pCurrentGame->usPort,
+                    pCurrentGame->szDescription) < 3)
+                {
+                    // Alert user...
+                    TrackerThreadSetError("Tracker list contained garbage.");
+                    
+                    // Abort...
+                    break;
+                }
+
                 // Store in game list...
+                SDL_LockMutex(TrackerData.pMutex);
                 dl_add(TrackerData.GameList, pCurrentGame);
+                SDL_UnlockMutex(TrackerData.pMutex);
             }
             
             // Server wants us to remove a game from our list...
             else if(strncmp(szBuffer, "GAME_REM ", strlen("GAME_REM ")) == 0)
             {
-puts("Removing game...");
+                // Parse it and check for error...
+                /* GAME_REM "<description>" */
+                if(sscanf(szBuffer, "GAME_REM \"%[^\"]s", szDescription) != 1)
+                {
+                    // Alert user...
+                    TrackerThreadSetError("Tracker sent garbage.");
+                    
+                    // Abort...
+                    break;
+                }
+
+                // Remove the game if we have it locally tracked...
+                TrackerRemoveGame(szDescription);
             }
             
             // Server wants us to display an alert...
@@ -627,6 +693,47 @@ static int TrackerReceive(
     
     // Ran out of space...
     return FALSE;
+}
+
+// Remove the game if we have it locally tracked...
+static void TrackerRemoveGame(char const *pszDescription)
+{
+    // Variables...
+    TrackerNetGame *pCurrentGame    = NULL;
+
+    // Lock resources...
+    SDL_LockMutex(TrackerData.pMutex);
+    
+    // List is empty, so nothing to remove...
+    if(dl_is_empty(TrackerData.GameList))
+        return;
+
+    // Seek to beginning of game list...
+    TrackerData.GameList->current = TrackerData.GameList->first;
+
+    // Search for the game...
+    do
+    {
+        // Extract entry...
+        pCurrentGame = (TrackerNetGame *) TrackerData.GameList->current->data;
+        
+        // Match...
+        if(strcmp(pCurrentGame->szDescription, pszDescription) == 0)
+        {
+            // Remove game...
+            dl_remove(TrackerData.GameList, TrackerData.GameList->current);
+            
+            // Unlock resources...
+            SDL_UnlockMutex(TrackerData.pMutex);
+
+            // Done...
+            return;
+        }
+    }
+    while(dl_forward(TrackerData.GameList));
+
+    // Unlock resources...
+    SDL_UnlockMutex(TrackerData.pMutex);
 }
 
 // Transmit a message to tracker, returning non-zero if ok. If unSize is zero, 
