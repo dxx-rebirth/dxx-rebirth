@@ -990,7 +990,6 @@ void collide_robot_and_player( object * robot, object * playerobj, vms_vector *c
 { 
 	int	steal_attempt = 0;
 	int	collision_seg;
-	static fix last_play_time=0;
 
 	if (robot->flags&OF_EXPLODING)
 		return;
@@ -1033,10 +1032,8 @@ void collide_robot_and_player( object * robot, object * playerobj, vms_vector *c
 	// A "steal" sound was added and it was getting obscured by the bump. -AP 10/3/95
 	//	Changed by MK to make this sound unless the robot stole.
 	if ((!steal_attempt) && !Robot_info[robot->id].energy_drain)
-		if (last_play_time + (F1_0/10) < GameTime || last_play_time > GameTime) {
-			last_play_time = GameTime;
+		if (FixedStep & EPS4)
 			digi_link_sound_to_pos( SOUND_ROBOT_HIT_PLAYER, playerobj->segnum, 0, collision_point, 0, F1_0 );
-		}
 
 	bump_two_objects(robot, playerobj, 1);
 	return; 
@@ -1119,17 +1116,13 @@ void apply_damage_to_controlcen(object *controlcen, fix damage, short who)
 
 void collide_player_and_controlcen( object * controlcen, object * playerobj, vms_vector *collision_point )
 { 
-	static fix last_play_time=0;
-
 	if (playerobj->id == Player_num) {
 		Control_center_been_hit = 1;
 		ai_do_cloak_stuff();				//	In case player cloaked, make control center know where he is.
 	}
 
-	if (last_play_time + (F1_0/50) < GameTime || last_play_time > GameTime) {
-		last_play_time = GameTime;
+	if (FixedStep & EPS4)
 		digi_link_sound_to_pos( SOUND_ROBOT_HIT_PLAYER, playerobj->segnum, 0, collision_point, 0, F1_0 );
-	}
 
 	bump_two_objects(controlcen, playerobj, 1);
 
@@ -1761,11 +1754,9 @@ void collide_hostage_and_player( object * hostage, object * player, vms_vector *
 //##}
 
 void collide_player_and_player( object * player1, object * player2, vms_vector *collision_point ) {
-	static fix last_play_time=0;
-	if (last_play_time + (F1_0/50) < GameTime || last_play_time > GameTime) {
-		last_play_time = GameTime;
+	if (FixedStep & EPS4)
 		digi_link_sound_to_pos( SOUND_ROBOT_HIT_PLAYER, player1->segnum, 0, collision_point, 0, F1_0 );
-	}
+
 	bump_two_objects(player1, player2, 1);
 	return;
 }
@@ -2308,7 +2299,8 @@ void collide_player_and_powerup( object * playerobj, object * powerup, vms_vecto
 //##}
 
 void collide_player_and_clutter( object * playerobj, object * clutter, vms_vector *collision_point ) { 
-	digi_link_sound_to_pos( SOUND_ROBOT_HIT_PLAYER, playerobj->segnum, 0, collision_point, 0, F1_0 );
+	if (FixedStep & EPS4)
+		digi_link_sound_to_pos( SOUND_ROBOT_HIT_PLAYER, playerobj->segnum, 0, collision_point, 0, F1_0 );
 	bump_two_objects(clutter, playerobj, 1);
 	return; 
 }

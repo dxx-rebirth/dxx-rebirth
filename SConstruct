@@ -405,7 +405,7 @@ if (sdlmixer == 1) and (sys.platform != 'darwin'):
 # debug?
 if (debug == 1):
 	print "including: DEBUG"
-	env.Append(CPPFLAGS = ['-g'])
+	env.Append(CPPFLAGS = ['-g', '-fstack-protector-all'])
 else:
 	env.Append(CPPDEFINES = ['NDEBUG', 'RELEASE'])
 	env.Append(CPPFLAGS = ['-O2'])

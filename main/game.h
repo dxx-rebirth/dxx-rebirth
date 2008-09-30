@@ -1,4 +1,3 @@
-/* $Id: game.h,v 1.1.1.1 2006/03/17 19:55:53 zicodxx Exp $ */
 /*
 THE COMPUTER CODE CONTAINED HEREIN IS THE SOLE PROPERTY OF PARALLAX
 SOFTWARE CORPORATION ("PARALLAX").  PARALLAX, IN DISTRIBUTING THE CODE TO
@@ -26,17 +25,27 @@ COPYRIGHT 1993-1999 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 #include "vecmat.h"
 #include "object.h"
 
-#define MAXIMUM_FPS 80
+#ifdef NDEBUG
+#define MAXIMUM_FPS 200
+#else
+#define MAXIMUM_FPS 1000
+#endif
 
 // from mglobal.c
-extern fix FrameTime;               // time in seconds since last frame
-extern fix GameTime;                // time in game (sum of FrameTime)
-extern int FrameCount;              // how many frames rendered
+extern fix FrameTime;           // time in seconds since last frame
+extern fix GameTime;            // time in game (sum of FrameTime)
+extern int FrameCount;          // how many frames rendered
+extern int FixedStep;		//fixed time bytes stored here
 extern fix Next_laser_fire_time;    // Time at which player can next fire his selected laser.
 extern fix Last_laser_fired_time;
 extern fix Next_missile_fire_time;  // Time at which player can next fire his selected missile.
 extern fix Laser_delay_time;        // Delay between laser fires.
 extern int Cheats_enabled;
+
+// bits for FixedStep
+#define EPS4	1
+#define EPS20	2
+#define EPS30	4
 
 extern object *Missile_viewer;
 

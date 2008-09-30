@@ -10,7 +10,7 @@
 #include "pstypes.h"
 #include "fix.h"
 
-#define MOUSE_MAX_BUTTONS       8
+#define MOUSE_MAX_BUTTONS       16
 #define Z_SENSITIVITY		100
 #define MBTN_LEFT		0
 #define MBTN_RIGHT		1
@@ -23,6 +23,12 @@
 #define MBTN_BANK_RIGHT		8
 #define MBTN_HEAD_LEFT		9
 #define MBTN_HEAD_RIGHT		10
+#define MBTN_11			11
+#define MBTN_12			12
+#define MBTN_13			13
+#define MBTN_14			14
+#define MBTN_15			15
+#define MBTN_16			16
 #define MOUSE_LBTN		1
 #define MOUSE_RBTN		2
 #define MOUSE_MBTN		4

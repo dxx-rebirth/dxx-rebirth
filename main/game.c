@@ -125,15 +125,8 @@ COPYRIGHT 1993-1999 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 extern void ReadControls(void);		// located in gamecntl.c
 extern void do_final_boss_frame(void);
 
-int	Speedtest_on = 0;
-
 #ifndef NDEBUG
 int	Mark_count = 0;                 // number of debugging marks set
-int	Speedtest_start_time;
-int	Speedtest_segnum;
-int	Speedtest_sidenum;
-int	Speedtest_frame_start;
-int	Speedtest_count=0;				//	number of times to do the debug test.
 #endif
 
 static fix last_timer_value=0;
@@ -511,37 +504,60 @@ void game_flush_inputs()
 	memset(&Controls,0,sizeof(control_info));
 }
 
+/*
+    Calculates several - common used - timesteps and stores into FixedStep
+*/
+void FixedStepCalc()
+{
+	int StepRes = 0;
+	static fix Timer4 = 0, Timer20 = 0, Timer30 = 0;
+
+	Timer4 += FrameTime;
+	if (Timer4 >= F1_0/4)
+	{
+		StepRes |= EPS4;
+		Timer4 = 0 + (Timer4-F1_0/4);
+	}
+
+	Timer20 += FrameTime;
+	if (Timer20 >= F1_0/20)
+	{
+		StepRes |= EPS20;
+		Timer20 = 0 + (Timer20-F1_0/20);
+	}
+	
+	Timer30 += FrameTime;
+	if (Timer30 >= F1_0/30)
+	{
+		StepRes |= EPS30;
+		Timer30 = 0 + (Timer30-F1_0/30);
+	}
+	
+	FixedStep = StepRes;
+}
+
 void reset_time()
 {
 	last_timer_value = timer_get_fixed_seconds();
-
 }
-
-#ifndef RELEASE
-extern int Saving_movie_frames;
-int Movie_fixed_frametime;
-#else
-#define Saving_movie_frames	0
-#define Movie_fixed_frametime	0
-#endif
 
 void calc_frame_time()
 {
-	static u_int32_t FrameStart=0;
-	u_int32_t FrameLoop=0;
 	fix timer_value,last_frametime = FrameTime;
 
-	while (FrameLoop < 1000/GameArg.SysMaxFPS)
-	{
-		if (GameArg.SysUseNiceFPS)
-			SDL_Delay(1);
-		FrameLoop=SDL_GetTicks()-FrameStart;
-	}
-
-	FrameStart=SDL_GetTicks();
-
-	timer_value = i2f(FrameStart/1000) | fixdiv(i2f(FrameStart % 1000),i2f(1000));
+	timer_value = timer_get_fixed_seconds();
 	FrameTime = timer_value - last_timer_value;
+
+	if (!GameCfg.VSync)
+	{
+		while (FrameTime < (f1_0 / GameArg.SysMaxFPS))
+		{
+			if (GameArg.SysUseNiceFPS)
+				timer_delay(f1_0 / GameArg.SysMaxFPS - FrameTime);
+			timer_value = timer_get_fixed_seconds();
+			FrameTime = timer_value - last_timer_value;
+		}
+	}
 
 	if ( Game_turbo_mode )
 		FrameTime *= 2;
@@ -549,7 +565,26 @@ void calc_frame_time()
 	last_timer_value = timer_value;
 
 	if (FrameTime < 0)				//if bogus frametime...
-		FrameTime = last_frametime;		//...then use time from last frame
+		FrameTime = (last_frametime==0?1:last_frametime);		//...then use time from last frame
+		
+	GameTime += FrameTime;
+
+	if (GameTime < 0 || GameTime > i2f(0x7fff - 600))
+		GameTime = FrameTime;	//wrap when goes negative, or ~9hrs
+		
+	FixedStepCalc();
+	
+	static int hey=0, i=0, j=0, k=0;
+	
+	if (FixedStep & EPS4) i++;
+	if (FixedStep & EPS20) j++;
+	if (FixedStep & EPS30) k++;
+	if (hey +1000 <= SDL_GetTicks())
+	{
+		printf("%i %i %i \n",i,j,k);
+		i=j=k=0;
+		hey=SDL_GetTicks();
+	}
 }
 
 //--unused-- int Auto_flythrough=0;  //if set, start flythough automatically
@@ -1465,16 +1500,9 @@ void close_game()
 
 extern void kconfig_center_headset();
 
-
-#ifndef	NDEBUG
-void	speedtest_frame(void);
-int	Debug_slowdown=0;
-#endif
-
 #ifdef EDITOR
 extern void player_follow_path(object *objp);
 extern void check_create_player_path(void);
-
 #endif
 
 extern	int	Do_appearance_effect;
@@ -1499,110 +1527,6 @@ object *find_escort()
 
 extern void process_super_mines_frame(void);
 extern void do_seismic_stuff(void);
-
-#ifndef RELEASE
-int Saving_movie_frames=0;
-int __Movie_frame_num=0;
-
-#define MAX_MOVIE_BUFFER_FRAMES 250
-#define MOVIE_FRAME_SIZE	(320 * 200)
-
-ubyte *Movie_frame_buffer;
-int Movie_frame_counter;
-ubyte Movie_pal[768];
-char movie_path[50] = ".\\";
-
-grs_bitmap Movie_bm;
-
-void flush_movie_buffer()
-{
-	char savename[128];
-	int f;
-
-	stop_time();
-
-	Movie_bm.bm_data = Movie_frame_buffer;
-
-	for (f=0;f<Movie_frame_counter;f++) {
-		sprintf(savename, "%sfrm%04d.pcx",movie_path,__Movie_frame_num);
-		__Movie_frame_num++;
-		pcx_write_bitmap(savename,&Movie_bm,Movie_pal);
-		Movie_bm.bm_data += MOVIE_FRAME_SIZE;
-	}
-
-	Movie_frame_counter=0;
-
-	start_time();
-}
-
-void toggle_movie_saving()
-{
-	int exit;
-
-	Saving_movie_frames = !Saving_movie_frames;
-
-	if (Saving_movie_frames) {
-		newmenu_item m[1];
-
-		m[0].type=NM_TYPE_INPUT; m[0].text_len = 50; m[0].text = movie_path;
-		exit = newmenu_do( NULL, "Directory for movie frames?" , 1, &(m[0]), NULL );
-
-		if (exit==-1) {
-			Saving_movie_frames = 0;
-			return;
-		}
-
-		while (isspace(movie_path[strlen(movie_path)-1]))
-			movie_path[strlen(movie_path)-1] = 0;
-		if (movie_path[strlen(movie_path)-1]!='\\' && movie_path[strlen(movie_path)-1]!=':')
-			strcat(movie_path,"\\");
-
-
-		if (!Movie_frame_buffer) {
-			Movie_frame_buffer = d_malloc(MAX_MOVIE_BUFFER_FRAMES * MOVIE_FRAME_SIZE);
-			if (!Movie_frame_buffer) {
-				Int3();
-				Saving_movie_frames=0;
-			}
-
-			Movie_frame_counter=0;
-
-			Movie_bm.bm_x = Movie_bm.bm_y = 0;
-			Movie_bm.bm_w = 320;
-			Movie_bm.bm_h = 200;
-			Movie_bm.bm_type = BM_LINEAR;
-			Movie_bm.bm_flags = 0;
-			Movie_bm.bm_rowsize = 320;
-			Movie_bm.bm_handle = 0;
-
-			gr_palette_read(Movie_pal);		//get actual palette from the hardware
-
-			if (Newdemo_state == ND_STATE_PLAYBACK)
-				Newdemo_do_interpolate = 0;
-		}
-	}
-	else {
-		flush_movie_buffer();
-
-		if (Newdemo_state == ND_STATE_PLAYBACK)
-			Newdemo_do_interpolate = 1;
-	}
-
-}
-
-void save_movie_frame()
-{
-	memcpy(Movie_frame_buffer+Movie_frame_counter*MOVIE_FRAME_SIZE,grd_curscreen->sc_canvas.cv_bitmap.bm_data,MOVIE_FRAME_SIZE);
-
-	Movie_frame_counter++;
-
-	if (Movie_frame_counter == MAX_MOVIE_BUFFER_FRAMES)
-		flush_movie_buffer();
-
-}
-
-#endif
-
 extern int Level_shake_duration;
 
 //if water or fire level, make occasional sound
@@ -1641,199 +1565,168 @@ void flicker_lights();
 
 void GameLoop(int RenderFlag, int ReadControlsFlag )
 {
-	#ifndef	NDEBUG
-	//	Used to slow down frame rate for testing things.
-	//	RenderFlag = 1; // DEBUG
-	if (Debug_slowdown) {
-		int	h, i, j=0;
-
-		for (h=0; h<Debug_slowdown; h++)
-			for (i=0; i<1000; i++)
-				j += i;
+	if (RenderFlag) {
+		if (force_cockpit_redraw) {			//screen need redrawing?
+			init_cockpit();
+			force_cockpit_redraw=0;
+		}
+		game_render_frame();
 	}
-	#endif
 
-		update_player_stats();
-		diminish_palette_towards_normal();		//	Should leave palette effect up for as long as possible by putting right before render.
-		do_afterburner_stuff();
-		do_cloak_stuff();
-		do_invulnerable_stuff();
-		remove_obsolete_stuck_objects();
-		init_ai_frame();
-		do_final_boss_frame();
-		// -- lightning_frame();
-		// -- recharge_energy_frame();
+	calc_frame_time();
 
-		if ((Players[Player_num].flags & PLAYER_FLAGS_HEADLIGHT) && (Players[Player_num].flags & PLAYER_FLAGS_HEADLIGHT_ON)) {
-			static int turned_off=0;
-			Players[Player_num].energy -= (FrameTime*3/8);
-			if (Players[Player_num].energy < i2f(10)) {
-				if (!turned_off) {
-					Players[Player_num].flags &= ~PLAYER_FLAGS_HEADLIGHT_ON;
-					turned_off = 1;
-#ifdef NETWORK
-					if (Game_mode & GM_MULTI)
-						multi_send_flags(Player_num);		
-#endif
-				}
-			}
-			else
-				turned_off = 0;
+	if (ReadControlsFlag)
+		ReadControls();
+	else
+		memset(&Controls, 0, sizeof(Controls));
 
-			if (Players[Player_num].energy <= 0) {
-				Players[Player_num].energy = 0;
+	update_player_stats();
+	diminish_palette_towards_normal();		//	Should leave palette effect up for as long as possible by putting right before render.
+	do_afterburner_stuff();
+	do_cloak_stuff();
+	do_invulnerable_stuff();
+	remove_obsolete_stuck_objects();
+	init_ai_frame();
+	do_final_boss_frame();
+
+	if ((Players[Player_num].flags & PLAYER_FLAGS_HEADLIGHT) && (Players[Player_num].flags & PLAYER_FLAGS_HEADLIGHT_ON)) {
+		static int turned_off=0;
+		Players[Player_num].energy -= (FrameTime*3/8);
+		if (Players[Player_num].energy < i2f(10)) {
+			if (!turned_off) {
 				Players[Player_num].flags &= ~PLAYER_FLAGS_HEADLIGHT_ON;
+				turned_off = 1;
 #ifdef NETWORK
 				if (Game_mode & GM_MULTI)
 					multi_send_flags(Player_num);		
 #endif
 			}
 		}
-
-
-		#ifdef EDITOR
-		check_create_player_path();
-		player_follow_path(ConsoleObject);
-		#endif
-
-		#ifdef NETWORK
-		if (Game_mode & GM_MULTI)
-        {
-         multi_do_frame();
-         if (Netgame.PlayTimeAllowed && ThisLevelTime>=i2f((Netgame.PlayTimeAllowed*5*60)))
-             multi_check_for_killgoal_winner();
-        }
-
-		#endif
-
-		if (RenderFlag) {
-			if (force_cockpit_redraw) {			//screen need redrawing?
-				init_cockpit();
-				force_cockpit_redraw=0;
-			}
-			game_render_frame();
-// 			show_extra_views();		//missile view, buddy bot, etc.
-			#ifndef RELEASE
-			if (Saving_movie_frames)
-				save_movie_frame();
-			#endif
-
-		}
-
-		calc_frame_time();
-
-		dead_player_frame();
-		if (Newdemo_state != ND_STATE_PLAYBACK)
-			do_controlcen_dead_frame();
-
-		process_super_mines_frame();
-		do_seismic_stuff();
-		do_ambient_sounds();
-
-		#ifndef NDEBUG
-		if (Speedtest_on)
-			speedtest_frame();
-		#endif
-
-		if (ReadControlsFlag)
-			ReadControls();
 		else
-			memset(&Controls, 0, sizeof(Controls));
+			turned_off = 0;
 
-		GameTime += FrameTime;
-
-		if (GameTime < 0 || GameTime > i2f(0x7fff - 600)) {
-			GameTime = FrameTime;	//wrap when goes negative, or ~9hrs
-		}
-
+		if (Players[Player_num].energy <= 0) {
+			Players[Player_num].energy = 0;
+			Players[Player_num].flags &= ~PLAYER_FLAGS_HEADLIGHT_ON;
 #ifdef NETWORK
-      if ((Game_mode & GM_MULTI) && Netgame.PlayTimeAllowed)
-          ThisLevelTime +=FrameTime;
+			if (Game_mode & GM_MULTI)
+				multi_send_flags(Player_num);		
+#endif
+		}
+	}
+
+
+#ifdef EDITOR
+	check_create_player_path();
+	player_follow_path(ConsoleObject);
 #endif
 
-		digi_sync_sounds();
+#ifdef NETWORK
+	if (Game_mode & GM_MULTI)
+	{
+		multi_do_frame();
+		if (Netgame.PlayTimeAllowed && ThisLevelTime>=i2f((Netgame.PlayTimeAllowed*5*60)))
+			multi_check_for_killgoal_winner();
+	}
+#endif
 
-		if (Endlevel_sequence) {
-			do_endlevel_frame();
-			powerup_grab_cheat_all();
-			do_special_effects();
-			return;					//skip everything else
+	dead_player_frame();
+	if (Newdemo_state != ND_STATE_PLAYBACK)
+		do_controlcen_dead_frame();
+
+	process_super_mines_frame();
+	do_seismic_stuff();
+	do_ambient_sounds();
+
+#ifdef NETWORK
+	if ((Game_mode & GM_MULTI) && Netgame.PlayTimeAllowed)
+		ThisLevelTime +=FrameTime;
+#endif
+
+	digi_sync_sounds();
+
+	if (Endlevel_sequence) {
+		do_endlevel_frame();
+		powerup_grab_cheat_all();
+		do_special_effects();
+		return;					//skip everything else
+	}
+
+	if (Newdemo_state != ND_STATE_PLAYBACK)
+		do_exploding_wall_frame();
+	if ((Newdemo_state != ND_STATE_PLAYBACK) || (Newdemo_vcr_state != ND_STATE_PAUSED)) {
+		do_special_effects();
+		wall_frame_process();
+		triggers_frame_process();
+	}
+
+
+	if (Control_center_destroyed)	{
+		if (Newdemo_state==ND_STATE_RECORDING )
+			newdemo_record_control_center_destroyed();
+	}
+
+	flash_frame();
+
+	if ( Newdemo_state == ND_STATE_PLAYBACK )	{
+		newdemo_playback_one_frame();
+		if ( Newdemo_state != ND_STATE_PLAYBACK )		{
+			longjmp( LeaveGame, 0 );		// Go back to menu
 		}
+	} else
+	{ // Note the link to above!
 
-		if (Newdemo_state != ND_STATE_PLAYBACK)
-			do_exploding_wall_frame();
-		if ((Newdemo_state != ND_STATE_PLAYBACK) || (Newdemo_vcr_state != ND_STATE_PAUSED)) {
-			do_special_effects();
-			wall_frame_process();
-			triggers_frame_process();
-		}
+		Players[Player_num].homing_object_dist = -1;		//	Assume not being tracked.  Laser_do_weapon_sequence modifies this.
 
+		object_move_all();
+		powerup_grab_cheat_all();
 
-		if (Control_center_destroyed)	{
-			if (Newdemo_state==ND_STATE_RECORDING )
-				newdemo_record_control_center_destroyed();
-		}
+		if (Endlevel_sequence)	//might have been started during move
+			return;
 
-		flash_frame();
+		fuelcen_update_all();
 
-		if ( Newdemo_state == ND_STATE_PLAYBACK )	{
-			newdemo_playback_one_frame();
-			if ( Newdemo_state != ND_STATE_PLAYBACK )		{
-				longjmp( LeaveGame, 0 );		// Go back to menu
-			}
-		} else
-		{ // Note the link to above!
+		do_ai_frame_all();
 
-			Players[Player_num].homing_object_dist = -1;		//	Assume not being tracked.  Laser_do_weapon_sequence modifies this.
+		if (allowed_to_fire_laser())
+			FireLaser();				// Fire Laser!
 
-			object_move_all();
-			powerup_grab_cheat_all();
+		if (Auto_fire_fusion_cannon_time) {
+			if (Primary_weapon != FUSION_INDEX)
+				Auto_fire_fusion_cannon_time = 0;
+			else if (GameTime + FrameTime/2 >= Auto_fire_fusion_cannon_time) {
+				Auto_fire_fusion_cannon_time = 0;
+				Global_laser_firing_count = 1;
+			} else if (FixedStep & EPS20) {
+				vms_vector	rand_vec;
+				fix			bump_amount;
 
-			if (Endlevel_sequence)	//might have been started during move
-				return;
-
-			fuelcen_update_all();
-
-			do_ai_frame_all();
-
-			if (allowed_to_fire_laser())
-				FireLaser();				// Fire Laser!
-
-			if (Auto_fire_fusion_cannon_time) {
-				if (Primary_weapon != FUSION_INDEX)
-					Auto_fire_fusion_cannon_time = 0;
-				else if (GameTime + FrameTime/2 >= Auto_fire_fusion_cannon_time) {
-					Auto_fire_fusion_cannon_time = 0;
-					Global_laser_firing_count = 1;
-				} else {
-					vms_vector	rand_vec;
-					fix			bump_amount;
-
-					Global_laser_firing_count = 0;
-
-					ConsoleObject->mtype.phys_info.rotvel.x += (d_rand() - 16384)/8;
-					ConsoleObject->mtype.phys_info.rotvel.z += (d_rand() - 16384)/8;
-					make_random_vector(&rand_vec);
-
-					bump_amount = F1_0*4;
-
-					if (Fusion_charge > F1_0*2)
-						bump_amount = Fusion_charge*4;
-
-					bump_one_object(ConsoleObject, &rand_vec, bump_amount);
-				}
-			}
-
-			if (Global_laser_firing_count) {
-				//	Don't cap here, gets capped in Laser_create_new and is based on whether in multiplayer mode, MK, 3/27/95
-				// if (Fusion_charge > F1_0*2)
-				// 	Fusion_charge = F1_0*2;
-				Global_laser_firing_count -= do_laser_firing_player();	//do_laser_firing(Players[Player_num].objnum, Primary_weapon);
-			}
-
-			if (Global_laser_firing_count < 0)
 				Global_laser_firing_count = 0;
+
+				ConsoleObject->mtype.phys_info.rotvel.x += (d_rand() - 16384)/8;
+				ConsoleObject->mtype.phys_info.rotvel.z += (d_rand() - 16384)/8;
+
+				make_random_vector(&rand_vec);
+
+				bump_amount = F1_0*4;
+
+				if (Fusion_charge > F1_0*2)
+					bump_amount = Fusion_charge*4;
+
+				bump_one_object(ConsoleObject, &rand_vec, bump_amount);
+			}
+			else
+			{
+				Global_laser_firing_count = 0;
+			}
 		}
+
+		if (Global_laser_firing_count)
+			Global_laser_firing_count -= do_laser_firing_player();
+
+		if (Global_laser_firing_count < 0)
+			Global_laser_firing_count = 0;
+	}
 
 	if (Do_appearance_effect) {
 		create_player_appearance_effect(ConsoleObject);
@@ -1846,15 +1739,11 @@ void GameLoop(int RenderFlag, int ReadControlsFlag )
 			FakingInvul=1;
 		}
 #endif
-			
 	}
 
 	omega_charge_frame();
 	slide_textures();
 	flicker_lights();
-
-	//!!hoard_light_pulse();		//do cool hoard light pulsing
-
 }
 
 //!!extern int Goal_blue_segnum,Goal_red_segnum;

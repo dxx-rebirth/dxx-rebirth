@@ -66,12 +66,6 @@ COPYRIGHT 1993-1999 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 extern fix Cruise_speed;
 extern int LinearSVGABuffer;
 
-#ifndef RELEASE
-extern int Saving_movie_frames;
-#else
-#define Saving_movie_frames 0
-#endif
-
 extern void newmenu_close();
 int netplayerinfo_on=0;
 

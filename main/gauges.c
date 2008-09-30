@@ -2501,12 +2501,6 @@ void hud_show_kill_list()
 }
 #endif
 
-#ifndef RELEASE
-extern int Saving_movie_frames;
-#else
-#define Saving_movie_frames 0
-#endif
-
 //returns true if viewer can see object
 int see_object(int objnum)
 {
@@ -2639,13 +2633,13 @@ void show_HUD_names()
 void draw_hud()
 {
 	//	Show score so long as not in rearview
-	if ( !Rear_view && PlayerCfg.CockpitMode!=CM_REAR_VIEW && PlayerCfg.CockpitMode!=CM_STATUS_BAR && !Saving_movie_frames) {
+	if ( !Rear_view && PlayerCfg.CockpitMode!=CM_REAR_VIEW && PlayerCfg.CockpitMode!=CM_STATUS_BAR) {
 		hud_show_score();
 		if (score_time)
 			hud_show_score_added();
 	}
 
-	if ( !Rear_view && PlayerCfg.CockpitMode!=CM_REAR_VIEW && !Saving_movie_frames) 
+	if ( !Rear_view && PlayerCfg.CockpitMode!=CM_REAR_VIEW) 
 		hud_show_timer_count();
 
 	//	Show other stuff if not in rearview or letterbox.
@@ -2658,8 +2652,7 @@ void draw_hud()
 			hud_show_shield();
 			hud_show_afterburner();
 			hud_show_weapons();
-			if (!Saving_movie_frames)
-				hud_show_keys();
+			hud_show_keys();
 			hud_show_cloak_invuln();
 
 			if ( ( Newdemo_state==ND_STATE_RECORDING ) && ( Players[Player_num].flags != old_flags )) {
@@ -2670,7 +2663,7 @@ void draw_hud()
 
 		#ifdef NETWORK
 		#ifndef RELEASE
-		if (!(Game_mode&GM_MULTI && Show_kill_list) && !Saving_movie_frames)
+		if (!(Game_mode&GM_MULTI && Show_kill_list))
 			show_time();
 		#endif
 		#endif
@@ -2687,10 +2680,9 @@ void draw_hud()
 			hud_show_orbs();
 
 #endif
-		if (!Saving_movie_frames)
-			HUD_render_message_frame();
+		HUD_render_message_frame();
 
-		if (PlayerCfg.CockpitMode!=CM_STATUS_BAR && !Saving_movie_frames)
+		if (PlayerCfg.CockpitMode!=CM_STATUS_BAR)
 			hud_show_lives();
 
 		#ifdef NETWORK

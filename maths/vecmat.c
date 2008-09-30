@@ -168,6 +168,7 @@ vms_vector *vm_vec_scale2(vms_vector *dest,fix n,fix d)
 
 fix vm_vec_dotprod(vms_vector *v0,vms_vector *v1)
 {
+#if 0
 	quadint q;
 
 	q.low = q.high = 0;
@@ -177,10 +178,19 @@ fix vm_vec_dotprod(vms_vector *v0,vms_vector *v1)
 	fixmulaccum(&q,v0->z,v1->z);
 
 	return fixquadadjust(&q);
+#else
+	long long p =
+		  (long long) v0->x * v1->x
+		+ (long long) v0->y * v1->y
+		+ (long long) v0->z * v1->z;
+	/* Convert back to fix and return. */
+	return p >> 16;
+#endif
 }
 
 fix vm_vec_dot3(fix x,fix y,fix z,vms_vector *v)
 {
+#if 0
 	quadint q;
 
 	q.low = q.high = 0;
@@ -190,6 +200,14 @@ fix vm_vec_dot3(fix x,fix y,fix z,vms_vector *v)
 	fixmulaccum(&q,z,v->z);
 
 	return fixquadadjust(&q);
+#else
+	long long p =
+		  (long long) x * v->x
+		+ (long long) y * v->y
+		+ (long long) z * v->z;
+	/* Convert back to fix and return. */
+	return p >> 16;
+#endif
 }
 
 //returns magnitude of a vector

@@ -109,7 +109,7 @@ void swap_object(object *obj);
 	memcpy((ubyte *)(netgame), data, sizeof(lite_info))
 
 #define send_frameinfo_packet(info, server, node, net_address) \
-	NetDrvSendPacketData((ubyte *)info, sizeof(frame_info) - MaxXDataSize + info->data_size, server, node, net_address)
+	NetDrvSendPacketData((ubyte *)info, sizeof(frame_info) - MaxXDataSize + (info)->data_size, server, node, net_address)
 #define receive_frameinfo_packet(data, info) \
 	do { memcpy((ubyte *)(info), data, sizeof(frame_info) - MaxXDataSize); \
 		memcpy((info)->data, &data[sizeof(frame_info) - MaxXDataSize], (info)->data_size); } while(0)

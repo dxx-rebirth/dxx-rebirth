@@ -111,13 +111,6 @@ COPYRIGHT 1993-1999 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 
 #define ADD_ITEM(t,value,key)  do { m[num_options].type=NM_TYPE_MENU; m[num_options].text=t; menu_choice[num_options]=value;num_options++; } while (0)
 
-//unused - extern int last_joy_time;               //last time the joystick was used
-#ifndef NDEBUG
-extern int Speedtest_on;
-#else
-#define Speedtest_on 0
-#endif
-
 // Function Prototypes added after LINTING
 void do_option(int select);
 void do_new_game_menu(void);

@@ -40,6 +40,7 @@ fix GameTime = 0;			//	Time in game, in seconds
 
 //How many frames we've rendered
 int FrameCount = 0;
+int FixedStep;		//fixed time bytes stored here
 
 //	This is the global mine which create_new_mine returns.
 segment	Segments[MAX_SEGMENTS];

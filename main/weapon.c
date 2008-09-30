@@ -795,13 +795,16 @@ void rock_the_mine_frame(void)
 				rx = fixmul(d_rand() - 16384, 3*F1_0/16 + (F1_0*(16-fc))/32);
 				rz = fixmul(d_rand() - 16384, 3*F1_0/16 + (F1_0*(16-fc))/32);
 
-				ConsoleObject->mtype.phys_info.rotvel.x += rx;
-				ConsoleObject->mtype.phys_info.rotvel.z += rz;
+				if (FixedStep & EPS20)
+				{
+					ConsoleObject->mtype.phys_info.rotvel.x += rx;
+					ConsoleObject->mtype.phys_info.rotvel.z += rz;
 
-				//	Shake the buddy!
-				if (Buddy_objnum != -1) {
-					Objects[Buddy_objnum].mtype.phys_info.rotvel.x += rx*4;
-					Objects[Buddy_objnum].mtype.phys_info.rotvel.z += rz*4;
+					//	Shake the buddy!
+					if (Buddy_objnum != -1) {
+						Objects[Buddy_objnum].mtype.phys_info.rotvel.x += rx*4;
+						Objects[Buddy_objnum].mtype.phys_info.rotvel.z += rz*4;
+					}
 				}
 
 				//	Shake a guided missile!
@@ -887,13 +890,16 @@ void seismic_disturbance_frame(void)
 			rx = fixmul(d_rand() - 16384, 3*F1_0/16 + (F1_0*(16-fc))/32);
 			rz = fixmul(d_rand() - 16384, 3*F1_0/16 + (F1_0*(16-fc))/32);
 
-			ConsoleObject->mtype.phys_info.rotvel.x += rx;
-			ConsoleObject->mtype.phys_info.rotvel.z += rz;
+			if (FixedStep & EPS20)
+			{
+				ConsoleObject->mtype.phys_info.rotvel.x += rx;
+				ConsoleObject->mtype.phys_info.rotvel.z += rz;
 
-			//	Shake the buddy!
-			if (Buddy_objnum != -1) {
-				Objects[Buddy_objnum].mtype.phys_info.rotvel.x += rx*4;
-				Objects[Buddy_objnum].mtype.phys_info.rotvel.z += rz*4;
+				//	Shake the buddy!
+				if (Buddy_objnum != -1) {
+					Objects[Buddy_objnum].mtype.phys_info.rotvel.x += rx*4;
+					Objects[Buddy_objnum].mtype.phys_info.rotvel.z += rz*4;
+				}
 			}
 
 			//	Shake a guided missile!

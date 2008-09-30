@@ -129,17 +129,11 @@ int	redbook_volume = 255;
 
 //	External Variables ---------------------------------------------------------
 
-extern int	Speedtest_on;			 // Speedtest global adapted from game.c
 extern char WaitForRefuseAnswer,RefuseThisPlayer,RefuseTeam;
 extern ubyte Newdemo_flying_guided;
 
 #ifndef NDEBUG
 extern int	Mark_count;
-extern int	Speedtest_start_time;
-extern int	Speedtest_segnum;
-extern int	Speedtest_sidenum;
-extern int	Speedtest_frame_start;
-extern int	Speedtest_count;
 #endif
 
 extern int	Global_missile_firing_count;
@@ -188,9 +182,6 @@ void HandleGameKey(int key);
 int HandleSystemKey(int key);
 void HandleTestKey(int key);
 void HandleVRKey(int key);
-
-void speedtest_init(void);
-void speedtest_frame(void);
 void advance_sound(void);
 void play_test_sound(void);
 
@@ -1521,7 +1512,6 @@ void kill_buddy(void)
 			}
 }
 
-void toggle_movie_saving(void);
 extern char Language[];
 
 void HandleTestKey(int key)
@@ -1708,9 +1698,6 @@ void HandleTestKey(int key)
 		case KEY_DEBUGGED+KEY_PERIOD: Render_zoom = fixmul(Render_zoom,68985); break;
 
 		#ifndef NDEBUG
-		case KEY_DEBUGGED+KEY_F8: speedtest_init(); Speedtest_count = 1;	 break;
-		case KEY_DEBUGGED+KEY_F9: speedtest_init(); Speedtest_count = 10;	 break;
-
 		case KEY_DEBUGGED+KEY_D:
 			if ((GameArg.DbgUseDoubleBuffer = !GameArg.DbgUseDoubleBuffer)!=0)
 				init_cockpit();
@@ -1735,16 +1722,6 @@ void HandleTestKey(int key)
 				do_briefing_screens(text,1);
 				reset_cockpit();
 			}
-			break;
-		}
-
-		case KEY_DEBUGGED+KEY_F5:
-			toggle_movie_saving();
-			break;
-
-		case KEY_DEBUGGED+KEY_SHIFTED+KEY_F5: {
-			extern int Movie_fixed_frametime;
-			Movie_fixed_frametime = !Movie_fixed_frametime;
 			break;
 		}
 
@@ -2154,51 +2131,6 @@ void do_cheat_menu()
 //	Testing functions ----------------------------------------------------------
 
 #ifndef NDEBUG
-void speedtest_init(void)
-{
-	Speedtest_start_time = timer_get_fixed_seconds();
-	Speedtest_on = 1;
-	Speedtest_segnum = 0;
-	Speedtest_sidenum = 0;
-	Speedtest_frame_start = FrameCount;
-}
-
-void speedtest_frame(void)
-{
-	vms_vector	view_dir, center_point;
-
-	Speedtest_sidenum=Speedtest_segnum % MAX_SIDES_PER_SEGMENT;
-
-	compute_segment_center(&Viewer->pos, &Segments[Speedtest_segnum]);
-	Viewer->pos.x += 0x10;		Viewer->pos.y -= 0x10;		Viewer->pos.z += 0x17;
-
-	obj_relink(Viewer-Objects, Speedtest_segnum);
-	compute_center_point_on_side(&center_point, &Segments[Speedtest_segnum], Speedtest_sidenum);
-	vm_vec_normalized_dir_quick(&view_dir, &center_point, &Viewer->pos);
-	vm_vector_2_matrix(&Viewer->orient, &view_dir, NULL, NULL);
-
-	Speedtest_segnum++;
-
-	if (Speedtest_segnum > Highest_segment_index) {
-		char    msg[128];
-
-		sprintf(msg, "\nSpeedtest done:  %i frames, %7.3f seconds, %7.3f frames/second.\n",
-			FrameCount-Speedtest_frame_start,
-			f2fl(timer_get_fixed_seconds() - Speedtest_start_time),
-			(float) (FrameCount-Speedtest_frame_start) / f2fl(timer_get_fixed_seconds() - Speedtest_start_time));
-
-		HUD_init_message(msg);
-
-		Speedtest_count--;
-		if (Speedtest_count == 0)
-			Speedtest_on = 0;
-		else
-			speedtest_init();
-	}
-
-}
-
-
 //	Sounds for testing
 
 int test_sound_num = 0;
