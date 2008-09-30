@@ -548,15 +548,12 @@ void calc_frame_time()
 	timer_value = timer_get_fixed_seconds();
 	FrameTime = timer_value - last_timer_value;
 
-	if (!GameCfg.VSync)
+	while (FrameTime < f1_0 / (GameCfg.VSync?MAXIMUM_FPS:GameArg.SysMaxFPS))
 	{
-		while (FrameTime < (f1_0 / GameArg.SysMaxFPS))
-		{
-			if (GameArg.SysUseNiceFPS)
-				timer_delay(f1_0 / GameArg.SysMaxFPS - FrameTime);
-			timer_value = timer_get_fixed_seconds();
-			FrameTime = timer_value - last_timer_value;
-		}
+		if (GameArg.SysUseNiceFPS && !GameCfg.VSync)
+			timer_delay(f1_0 / GameArg.SysMaxFPS - FrameTime);
+		timer_value = timer_get_fixed_seconds();
+		FrameTime = timer_value - last_timer_value;
 	}
 
 	if ( Game_turbo_mode )
