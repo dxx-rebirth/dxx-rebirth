@@ -550,8 +550,11 @@ void controlcen_proc( FuelCenter * controlcen )
 	fc = Fuelcen_seconds_left;
 	if (fc > 16)
 		fc = 16;
-	ConsoleObject->mtype.phys_info.rotvel.x += fixmul(d_rand() - 16384, 3*F1_0/16 + (F1_0*(16-fc))/32);
-	ConsoleObject->mtype.phys_info.rotvel.z += fixmul(d_rand() - 16384, 3*F1_0/16 + (F1_0*(16-fc))/32);
+	if (FixedStep & EPS20)
+	{
+		ConsoleObject->mtype.phys_info.rotvel.x += fixmul(d_rand() - 16384, 3*F1_0/16 + (F1_0*(16-fc))/32);
+		ConsoleObject->mtype.phys_info.rotvel.z += fixmul(d_rand() - 16384, 3*F1_0/16 + (F1_0*(16-fc))/32);
+	}
 	//	Hook in the rumble sound effect here.
 
 	old_time = controlcen->Timer;
@@ -675,8 +678,7 @@ fix fuelcen_give_fuel(segment *segp, fix MaxAmountCanTake )
 //				Station[segp->value].Capacity -= amount;
 //			}
 
-		// check if sound should be played, and consider GameTime wraparound.
-		// (I hope I got this right -- adb)
+
 		if (last_play_time + REFUEL_SOUND_DELAY < GameTime || last_play_time > GameTime)
 		{
 			last_play_time = GameTime;

@@ -316,6 +316,7 @@ void do_physics_sim(object *obj)
 	vms_vector save_p0,save_p1;
 	physics_info *pi;
 	int orig_segnum = obj->segnum;
+	fix PhysTime = (FrameTime<F1_0/30?F1_0/30:FrameTime);
 
 	Assert(obj->movement_type == MT_PHYSICS);
 
@@ -338,7 +339,12 @@ void do_physics_sim(object *obj)
 
 	disable_new_fvi_stuff = (obj->type != OBJ_PLAYER);
 
-	sim_time = FrameTime;
+	/* As this engine was not designed for that high FPS as we intend, we use F1_0/30 max. for sim_time to ensure
+	   scaling and dot products stay accurate and reliable. The object position intended for this frame will be scaled down later,
+	   after the main collision-loop is done.
+	   This won't make collision results be equal in all FPS settings, but hopefully more accurate, the higher our FPS are.
+	*/
+	sim_time = PhysTime; //FrameTime;
 
 	//debug_obj = obj;
 
@@ -365,35 +371,37 @@ void do_physics_sim(object *obj)
         Assert(!(obj->mtype.phys_info.flags&PF_USES_THRUST) || obj->mtype.phys_info.drag!=0);
 
 	//do thrust & drag
-	
-        if ((drag = obj->mtype.phys_info.drag) != 0) {
+	// NOTE: this always must be dependent on FrameTime, if sim_time differs!
+	if ((drag = obj->mtype.phys_info.drag) != 0) {
 
 		int count;
 		vms_vector accel;
-		fix r,k;
+		fix r,k,have_accel;
 
-		count = sim_time / FT;
-		r = sim_time % FT;
+		count = FrameTime / FT;
+		r = FrameTime % FT;
 		k = fixdiv(r,FT);
 
 		if (obj->mtype.phys_info.flags & PF_USES_THRUST) {
 
 			vm_vec_copy_scale(&accel,&obj->mtype.phys_info.thrust,fixdiv(f1_0,obj->mtype.phys_info.mass));
+			have_accel = (accel.x || accel.y || accel.z);
 
 			while (count--) {
+				if (have_accel)
+					vm_vec_add2(&obj->mtype.phys_info.velocity,&accel);
 
-				vm_vec_add2(&obj->mtype.phys_info.velocity,&accel);
-
-                                vm_vec_scale(&obj->mtype.phys_info.velocity,f1_0-drag);
+				vm_vec_scale(&obj->mtype.phys_info.velocity,f1_0-drag);
 			}
 
 			//do linear scale on remaining bit of time
 
 			vm_vec_scale_add2(&obj->mtype.phys_info.velocity,&accel,k);
-
-			vm_vec_scale(&obj->mtype.phys_info.velocity,f1_0-fixmul(k,drag));
+			if (drag)
+				vm_vec_scale(&obj->mtype.phys_info.velocity,f1_0-fixmul(k,drag));
 		}
-		else {
+		else if (drag)
+		{
 			fix total_drag=f1_0;
 
 			while (count--)
@@ -403,7 +411,7 @@ void do_physics_sim(object *obj)
 
 			total_drag = fixmul(total_drag,f1_0-fixmul(k,drag));
 
-                        vm_vec_scale(&obj->mtype.phys_info.velocity,total_drag);
+			vm_vec_scale(&obj->mtype.phys_info.velocity,total_drag);
 		}
 	}
 
@@ -564,8 +572,8 @@ void do_physics_sim(object *obj)
 
 			case HIT_WALL:		{
 				vms_vector moved_v;
-				fix hit_speed,wall_part;
-	
+				fix hit_speed=0, wall_part=0;
+
 				// Find hit speed	
 
 				vm_vec_sub(&moved_v,&obj->pos,&save_pos);
@@ -663,7 +671,6 @@ void do_physics_sim(object *obj)
 				break;
 #endif
 		}
-
 	} while ( try_again );
 
 	//	Pass retry count info to AI.
@@ -675,17 +682,28 @@ void do_physics_sim(object *obj)
 		}
 	}
 
-	if (! obj_stopped)	{	//Set velocity from actual movement
-		static fix last_bump=0;
+	// As sim_time may not base on FrameTime, scale actual object position to get accurate movement
+	if (PhysTime/FrameTime > 0)
+	{
+		obj->pos.x = start_pos.x + ((obj->pos.x - start_pos.x) / ((float)PhysTime/FrameTime));
+		obj->pos.y = start_pos.y + ((obj->pos.y - start_pos.y) / ((float)PhysTime/FrameTime));
+		obj->pos.z = start_pos.z + ((obj->pos.z - start_pos.z) / ((float)PhysTime/FrameTime));
+	}
+
+	// After collision with objects and walls, set velocity from actual movement
+	if (!obj_stopped && ((fate == HIT_WALL) || (fate == HIT_BAD_P0)))	{	
 		vms_vector moved_vec;
 		vm_vec_sub(&moved_vec,&obj->pos,&start_pos);
 		vm_vec_copy_scale(&obj->mtype.phys_info.velocity,&moved_vec,fixdiv(f1_0,FrameTime));
 
 #ifdef BUMP_HACK
+		/*
+		    FIXME: Instead of judging by velocity and thrust, we just need to know *if* we are stuck into the wall
+			   and "bump" back by the value saying how far we are in already.
+		*/
 		if (
 			obj==ConsoleObject && (obj->mtype.phys_info.velocity.x==0 && obj->mtype.phys_info.velocity.y==0 && obj->mtype.phys_info.velocity.z==0) &&
-			!(obj->mtype.phys_info.thrust.x==0 && obj->mtype.phys_info.thrust.y==0 && obj->mtype.phys_info.thrust.z==0) 
-			&& (GameTime > last_bump+(F1_0/33) || GameTime < last_bump) )
+			!(obj->mtype.phys_info.thrust.x==0 && obj->mtype.phys_info.thrust.y==0 && obj->mtype.phys_info.thrust.z==0))
 		{
 			vms_vector center,bump_vec;
 
@@ -693,7 +711,6 @@ void do_physics_sim(object *obj)
 			compute_segment_center(&center,&Segments[obj->segnum]);
 			vm_vec_normalized_dir_quick(&bump_vec,&center,&obj->pos);
 			vm_vec_scale_add2(&obj->pos,&bump_vec,obj->size/5);
-			last_bump=GameTime;
 		}
 #endif
 	}
@@ -733,10 +750,10 @@ void do_physics_sim(object *obj)
 
 #ifdef COMPACT_SEGS
 					{
-					vms_vector _vn;
-					get_side_normal(&Segments[orig_segnum], sidenum, 0, &_vn );
-					dist = vm_dist_to_plane(&start_pos, &_vn, &Vertices[vertnum]);
-					vm_vec_scale_add(&obj->pos,&start_pos,&_vn,obj->size-dist);
+						vms_vector _vn;
+						get_side_normal(&Segments[orig_segnum], sidenum, 0, &_vn );
+						dist = vm_dist_to_plane(&start_pos, &_vn, &Vertices[vertnum]);
+						vm_vec_scale_add(&obj->pos,&start_pos,&_vn,obj->size-dist);
 					}
 #else
 					dist = vm_dist_to_plane(&start_pos, &s->normals[0], &Vertices[vertnum]);
@@ -768,8 +785,6 @@ void do_physics_sim(object *obj)
 		}
 	}
 //--WE ALWYS WANT THIS IN, MATT AND MIKE DECISION ON 12/10/94, TWO MONTHS AFTER FINAL 	#endif
-
-
 }
 
 //Applies an instantaneous force on an object, resulting in an instantaneous

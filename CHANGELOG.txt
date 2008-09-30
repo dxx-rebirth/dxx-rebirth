@@ -1,5 +1,9 @@
 D1X-Rebirth Changelog
 
+20080930
+--------
+main/console.c, main/collide.c, main/mglobal.c, main/multi.c, main/inferno.c, main/physics.c, main/aipath.c, main/render.c, main/fuelcen.c, main/ai.c, main/game.c, main/game.h, SConstruct, d1x.ini, maths/vecmat.c, arch/sdl/timer.c, arch/sdl/mouse.c, arch/sdl/digi.c, arch/sdl/digi_audio.c, arch/include/mouse.h: Added new function to calculate common timesteps; Increased MAXIMUM_FPS to 200 for release and 1000 for debug; Used fixed sim_time for do_physics_sim and Interpolating to ensure collisions stay accurate at high FPS; New code and faster code for dot products by The_Lion; Disabled Nice-FPS and common Frame-Loop if VSync is active; More accurate delta timer for mouse (consider overhead); Added SDL_(Un)LockAudio for old SDL Audio interface; General support for up to 16 mouse buttons; Code cleanup; Made some AI movement and Player shaking FPS-independent
+
 20080818
 --------
 misc/dl_list.c, include/dl_list.h: Added dl_size(dl_list const *) and some minor const correctness.

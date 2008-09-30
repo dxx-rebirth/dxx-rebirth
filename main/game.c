@@ -97,9 +97,6 @@ COPYRIGHT 1993-1998 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 #include "playsave.h"
 #include "config.h"
 
-extern void change_res();
-extern void newmenu_close();
-
 #define	SHOW_EXIT_PATH	1
 
 #define key_isfunc(k) (((k&0xff)>=KEY_F1 && (k&0xff)<=KEY_F10) || (k&0xff)==KEY_F11 || (k&0xff)==KEY_F12)
@@ -111,20 +108,14 @@ extern void newmenu_close();
 
 void game_init_render_sub_buffers( int x, int y, int w, int h );
 void GameLoop(int RenderFlag, int ReadControlsFlag );
+void FireLaser(void);
 void powerup_grab_cheat_all(void);
 
-int	Speedtest_on = 0;
 #if !defined(NDEBUG) || defined(EDITOR)
 int	Mark_count = 0; // number of debugging marks set
 #endif
-#ifndef NDEBUG
-int	Speedtest_start_time;
-int	Speedtest_segnum;
-int	Speedtest_sidenum;
-int	Speedtest_frame_start;
-int	Speedtest_count=0; // number of times to do the debug test.
-#endif
-static	fix last_timer_value=0;
+
+static fix last_timer_value=0;
 
 ubyte new_cheats[]= {	KEY_B^0xaa, KEY_B^0xaa, KEY_B^0xaa, KEY_F^0xaa, KEY_A^0xaa,
 			KEY_U^0xaa, KEY_I^0xaa, KEY_R^0xaa, KEY_L^0xaa, KEY_H^0xaa,
@@ -165,6 +156,7 @@ void	fill_background(int x,int y,int w,int h,int dx,int dy);
 fix	Auto_fire_fusion_cannon_time = 0;
 fix	Fusion_charge = 0;
 fix	Fusion_next_sound_time = 0;
+fix	Fusion_last_sound_time = 0;
 int	Debug_spew = 1;
 int	Game_turbo_mode = 0;
 int	Game_mode = GM_GAME_OVER;
@@ -182,43 +174,6 @@ extern void CycleSecondary();
 #define BACKGROUND_NAME "statback.pcx"
 
 //	==============================================================================================
-
-#ifndef NDEBUG
-void speedtest_init(void)
-{
-	Speedtest_start_time = timer_get_fixed_seconds();
-	Speedtest_on = 1;
-	Speedtest_segnum = 0;
-	Speedtest_sidenum = 0;
-	Speedtest_frame_start = FrameCount;
-}
-
-void speedtest_frame(void)
-{
-	vms_vector	view_dir, center_point;
-
-	Speedtest_sidenum=Speedtest_segnum % MAX_SIDES_PER_SEGMENT;
-
-	compute_segment_center(&Viewer->pos, &Segments[Speedtest_segnum]);
-	Viewer->pos.x += 0x10;		Viewer->pos.y -= 0x10;		Viewer->pos.z += 0x17;
-
-	obj_relink(Viewer-Objects, Speedtest_segnum);
-	compute_center_point_on_side(&center_point, &Segments[Speedtest_segnum], Speedtest_sidenum);
-	vm_vec_normalized_dir_quick(&view_dir, &center_point, &Viewer->pos);
-	vm_vector_2_matrix(&Viewer->orient, &view_dir, NULL, NULL);
-
-	Speedtest_segnum++;
-
-	if (Speedtest_segnum > Highest_segment_index) {
-		Speedtest_count--;
-		if (Speedtest_count == 0)
-			Speedtest_on = 0;
-		else
-			speedtest_init();
-	}
-}
-
-#endif
 
 //this is called once per game
 void init_game()
@@ -327,8 +282,6 @@ void update_cockpits(int force_redraw)
 	if (PlayerCfg.CockpitMode==CM_FULL_COCKPIT || PlayerCfg.CockpitMode==CM_STATUS_BAR)
 		init_gauges();
 }
-
-extern void change_res_poll();
 
 //initialize the various canvases on the game screen
 //called every time the screen mode or cockpit changes
@@ -739,6 +692,38 @@ void game_flush_inputs()
 	memset(&Controls,0,sizeof(control_info));
 }
 
+/*
+    Calculates several - common used - timesteps and stores into FixedStep
+*/
+void FixedStepCalc()
+{
+	int StepRes = 0;
+	static fix Timer4 = 0, Timer20 = 0, Timer30 = 0;
+
+	Timer4 += FrameTime;
+	if (Timer4 >= F1_0/4)
+	{
+		StepRes |= EPS4;
+		Timer4 = 0 - (Timer4-F1_0/4);
+	}
+
+	Timer20 += FrameTime;
+	if (Timer20 >= F1_0/20)
+	{
+		StepRes |= EPS20;
+		Timer20 = 0 - (Timer20-F1_0/20);
+	}
+	
+	Timer30 += FrameTime;
+	if (Timer30 >= F1_0/30)
+	{
+		StepRes |= EPS30;
+		Timer30 = 0 - (Timer30-F1_0/30);
+	}
+	
+	FixedStep = StepRes;
+}
+
 void reset_time()
 {
 	last_timer_value = timer_get_fixed_seconds();
@@ -746,21 +731,21 @@ void reset_time()
 
 void calc_frame_time()
 {
-	static u_int32_t FrameStart=0;
-	u_int32_t FrameLoop=0;
 	fix timer_value,last_frametime = FrameTime;
 
-	while (FrameLoop < 1000/GameArg.SysMaxFPS)
-	{
-		if (GameArg.SysUseNiceFPS)
-			SDL_Delay(1);
-		FrameLoop=SDL_GetTicks()-FrameStart;
-	}
-
-	FrameStart=SDL_GetTicks();
-
-	timer_value = i2f(FrameStart/1000) | fixdiv(i2f(FrameStart % 1000),i2f(1000));
+	timer_value = timer_get_fixed_seconds();
 	FrameTime = timer_value - last_timer_value;
+
+	if (!GameCfg.VSync)
+	{
+		while (FrameTime < f1_0 / GameArg.SysMaxFPS)
+		{
+			if (GameArg.SysUseNiceFPS)
+				timer_delay(f1_0 / GameArg.SysMaxFPS - FrameTime);
+			timer_value = timer_get_fixed_seconds();
+			FrameTime = timer_value - last_timer_value;
+		}
+	}
 
 	if ( Game_turbo_mode )
 		FrameTime *= 2;
@@ -768,7 +753,14 @@ void calc_frame_time()
 	last_timer_value = timer_value;
 
 	if (FrameTime < 0)				//if bogus frametime...
-		FrameTime = last_frametime;		//...then use time from last frame
+		FrameTime = (last_frametime==0?1:last_frametime);		//...then use time from last frame
+		
+	GameTime += FrameTime;
+
+	if (GameTime < 0 || GameTime > i2f(0x7fff - 600))
+		GameTime = FrameTime;	//wrap when goes negative, or ~9hrs
+
+	FixedStepCalc();
 }
 
 void move_player_2_segment(segment *seg,int side)
@@ -969,9 +961,10 @@ void game_do_render_frame(int flip)
 
 void game_render_frame()
 {
-	set_screen_mode( SCREEN_GAME );
+	set_screen_mode(SCREEN_GAME);
 	play_homing_warning();
         game_do_render_frame(GameArg.DbgUseDoubleBuffer);
+	FrameCount++;
 }
 
 void do_photos();
@@ -2359,8 +2352,6 @@ void HandleGameKey(int key)
 			break;
 		case KEY_DEBUGGED+KEY_COMMA: Render_zoom = fixmul(Render_zoom,62259); break;
 		case KEY_DEBUGGED+KEY_PERIOD: Render_zoom = fixmul(Render_zoom,68985); break;
-		case KEY_DEBUGGED+KEY_F8: speedtest_init(); Speedtest_count = 1;	break;
-		case KEY_DEBUGGED+KEY_F9: speedtest_init(); Speedtest_count = 10;	break;
 		case KEY_DEBUGGED+KEY_D:
 			if ((GameArg.DbgUseDoubleBuffer = !GameArg.DbgUseDoubleBuffer)!=0)
 				init_cockpit();
@@ -2427,11 +2418,6 @@ void ReadControls()
 	fix key_time;
 
 	Player_fired_laser_this_frame=-1;
-
-#ifndef NDEBUG
-	if (Speedtest_on)
-		speedtest_frame();
-#endif
 
 	if (!Endlevel_sequence && !con_render) {  // && !Player_is_dead  //this was taken out of the if statement by WraithX
 
@@ -2501,10 +2487,6 @@ void ReadControls()
 	}
 }
 
-#ifndef	NDEBUG
-int	Debug_slowdown=0;
-#endif
-
 #ifdef EDITOR
 extern	void player_follow_path(object *objp);
 extern	void check_create_player_path(void);
@@ -2513,182 +2495,176 @@ extern	int Do_appearance_effect;
 
 void GameLoop(int RenderFlag, int ReadControlsFlag )
 {
-	static int desc_dead_countdown=100;   /*  used if player shouldn't be playing */
-
-#ifndef	NDEBUG
-	if (Debug_slowdown) {
-		int h, i, j=0;
-		for (h=0; h<Debug_slowdown; h++)
-			for (i=0; i<1000; i++)
-				j += i;
+	if (RenderFlag) {
+		if (force_cockpit_redraw) {    //screen need redrawing?
+			init_cockpit();
+			force_cockpit_redraw=0;
+		}
+		game_render_frame();
 	}
-#endif
+	
+	calc_frame_time();
+	
+	if (ReadControlsFlag)
+		ReadControls();
+	else
+		memset(&Controls, 0, sizeof(Controls));
 
-		if (desc_id_exit_num) {			// are we supposed to be checking
-			if (!(--desc_dead_countdown))	// if so, at zero, then pull the plug
-				Error ("Loading overlay -- error number: %d\n", (int)desc_id_exit_num);
-		}
-
-		update_player_stats();
-		diminish_palette_towards_normal();		//	Should leave palette effect up for as long as possible by putting right before render.
-		do_cloak_stuff();
-		do_invulnerable_stuff();
-		remove_obsolete_stuck_objects();
+	update_player_stats();
+	diminish_palette_towards_normal();		//	Should leave palette effect up for as long as possible by putting right before render.
+	do_cloak_stuff();
+	do_invulnerable_stuff();
+	remove_obsolete_stuck_objects();
 #ifdef EDITOR
-		check_create_player_path();
-		player_follow_path(ConsoleObject);
+	check_create_player_path();
+	player_follow_path(ConsoleObject);
 #endif
 #ifdef NETWORK
-		if (Game_mode & GM_MULTI)
-			multi_do_frame();
+	if (Game_mode & GM_MULTI)
+		multi_do_frame();
 #endif
 
-		if (RenderFlag) {
-			if (force_cockpit_redraw) {    //screen need redrawing?
-				init_cockpit();
-				force_cockpit_redraw=0;
-			}
-			game_render_frame();
+	dead_player_frame();
+	if (Newdemo_state != ND_STATE_PLAYBACK)
+		do_controlcen_dead_frame();
+
+	digi_sync_sounds();
+
+	if (Endlevel_sequence) {
+		do_endlevel_frame();
+		powerup_grab_cheat_all();
+		do_special_effects();
+		return; //skip everything else
+	}
+
+	if (Newdemo_state != ND_STATE_PLAYBACK)
+		do_exploding_wall_frame();
+	if ((Newdemo_state != ND_STATE_PLAYBACK) || (Newdemo_vcr_state != ND_STATE_PAUSED)) {
+		do_special_effects();
+		wall_frame_process();
+		triggers_frame_process();
+	}
+
+	if (Fuelcen_control_center_destroyed) {
+		if (Newdemo_state==ND_STATE_RECORDING )
+			newdemo_record_control_center_destroyed();
+		flash_frame();
+	}
+
+	if ( Newdemo_state == ND_STATE_PLAYBACK ) {
+		newdemo_playback_one_frame();
+		if ( Newdemo_state != ND_STATE_PLAYBACK ) 	{
+			longjmp( LeaveGame, 1 ); // Go back to menu
 		}
+	}
+	else
+	{ // Note the link to above!
 
-		calc_frame_time();
+		Players[Player_num].homing_object_dist = -1; // Assume not being tracked.  Laser_do_weapon_sequence modifies this.
+		object_move_all();
+		powerup_grab_cheat_all();
 
-		dead_player_frame();
-		if (Newdemo_state != ND_STATE_PLAYBACK)
-			do_controlcen_dead_frame();
+		if (Endlevel_sequence)	//might have been started during move
+			return;
 
-		if (ReadControlsFlag)
-			ReadControls();
-		else
-			memset(&Controls, 0, sizeof(Controls));
+		fuelcen_update_all();
+		do_ai_frame_all();
 
-		GameTime += FrameTime;
+		if (allowed_to_fire_laser())
+			FireLaser();
 
-		if (GameTime < 0 || GameTime > i2f(0x7fff - 600)) {
-			GameTime = FrameTime;	//wrap when goes negative, or ~9hrs
-		}
+		if (Auto_fire_fusion_cannon_time) {
+			if (Primary_weapon != FUSION_INDEX)
+				Auto_fire_fusion_cannon_time = 0;
+			else if (GameTime + FrameTime/2 >= Auto_fire_fusion_cannon_time) {
+				Auto_fire_fusion_cannon_time = 0;
+				Global_laser_firing_count = 1;
+			} else if (FixedStep & EPS20) {
+				vms_vector	rand_vec;
+				fix			bump_amount;
 
-		digi_sync_sounds();
-
-		if (Endlevel_sequence) {
-			do_endlevel_frame();
-			powerup_grab_cheat_all();
-			do_special_effects();
-			return; //skip everything else
-		}
-
-		if (Newdemo_state != ND_STATE_PLAYBACK)
-			do_exploding_wall_frame();
-		if ((Newdemo_state != ND_STATE_PLAYBACK) || (Newdemo_vcr_state != ND_STATE_PAUSED)) {
-			do_special_effects();
-			wall_frame_process();
-			triggers_frame_process();
-		}
-
-		if (Fuelcen_control_center_destroyed) {
-                        if (Newdemo_state==ND_STATE_RECORDING )
-				newdemo_record_control_center_destroyed();
-			flash_frame();
-		}
-
-		if ( Newdemo_state == ND_STATE_PLAYBACK ) {
-			newdemo_playback_one_frame();
-			if ( Newdemo_state != ND_STATE_PLAYBACK ) 	{
-				longjmp( LeaveGame, 1 ); // Go back to menu
-			}
-		}
-		else
-		{ // Note the link to above!
-
-			Players[Player_num].homing_object_dist = -1; // Assume not being tracked.  Laser_do_weapon_sequence modifies this.
-                        object_move_all();
-			powerup_grab_cheat_all();
-
-			if (Endlevel_sequence)	//might have been started during move
-				return;
-
-			fuelcen_update_all();
-			do_ai_frame_all();
-
-			if (allowed_to_fire_laser()) {
-				Global_laser_firing_count = Weapon_info[Primary_weapon_to_weapon_info[Primary_weapon]].fire_count * (Controls.fire_primary_state || Controls.fire_primary_down_count);
-				if ((Primary_weapon == FUSION_INDEX) && (Global_laser_firing_count)) {
-					if ((Players[Player_num].energy < F1_0*2) && (Auto_fire_fusion_cannon_time == 0)) {
-						Global_laser_firing_count = 0;
-					} else {
-						if (Fusion_charge == 0)
-							Players[Player_num].energy -= F1_0*2;
-
-						Fusion_charge += FrameTime;
-						Players[Player_num].energy -= FrameTime;
-
-						if (Players[Player_num].energy <= 0) {
-							Players[Player_num].energy = 0;
-							Auto_fire_fusion_cannon_time = GameTime -1;				//	Fire now!
-						} else
-							Auto_fire_fusion_cannon_time = GameTime + FrameTime/2 + 1;		//	Fire the fusion cannon at this time in the future.
-
-						if (Fusion_charge < F1_0*2)
-							PALETTE_FLASH_ADD(Fusion_charge >> 11, 0, Fusion_charge >> 11);
-						else
-							PALETTE_FLASH_ADD(Fusion_charge >> 11, Fusion_charge >> 11, 0);
-
-						if (Fusion_next_sound_time < GameTime) {
-							if (Fusion_charge > F1_0*2) {
-								digi_play_sample( 11, F1_0 );
-#ifdef NETWORK
-								if(Game_mode & GM_MULTI)
-									multi_send_play_sound(11, F1_0);
-#endif
-								apply_damage_to_player(ConsoleObject, ConsoleObject, d_rand() * 4);
-							} else {
-								create_awareness_event(ConsoleObject, PA_WEAPON_ROBOT_COLLISION);
-								digi_play_sample( SOUND_FUSION_WARMUP, F1_0 );
-								#ifdef NETWORK
-								if (Game_mode & GM_MULTI)
-									multi_send_play_sound(SOUND_FUSION_WARMUP, F1_0);
-								#endif
-							}
-							Fusion_next_sound_time = GameTime + F1_0/8 + d_rand()/4;
-						}
-					}
-				}
-			}
-
-			if (Auto_fire_fusion_cannon_time) {
-				if (Primary_weapon != FUSION_INDEX)
-					Auto_fire_fusion_cannon_time = 0;
-				else if (GameTime + FrameTime/2 >= Auto_fire_fusion_cannon_time) {
-					Auto_fire_fusion_cannon_time = 0;
-					Global_laser_firing_count = 1;
-				} else {
-					vms_vector	rand_vec;
-					fix			bump_amount;
-
-					Global_laser_firing_count = 0;
-
-					ConsoleObject->mtype.phys_info.rotvel.x += (d_rand() - 16384)/8;
-					ConsoleObject->mtype.phys_info.rotvel.z += (d_rand() - 16384)/8;
-					make_random_vector(&rand_vec);
-
-					bump_amount = F1_0*4;
-
-					if (Fusion_charge > F1_0*2)
-						bump_amount = Fusion_charge*4;
-
-					bump_one_object(ConsoleObject, &rand_vec, bump_amount);
-				}
-			}
-
-			if (Global_laser_firing_count)
-				Global_laser_firing_count -= do_laser_firing_player();  //do_laser_firing(Players[Player_num].objnum, Primary_weapon);
-			if (Global_laser_firing_count < 0)
 				Global_laser_firing_count = 0;
+
+				ConsoleObject->mtype.phys_info.rotvel.x += (d_rand() - 16384)/8;
+				ConsoleObject->mtype.phys_info.rotvel.z += (d_rand() - 16384)/8;
+
+				make_random_vector(&rand_vec);
+
+				bump_amount = F1_0*4;
+
+				if (Fusion_charge > F1_0*2)
+					bump_amount = Fusion_charge*4;
+
+				bump_one_object(ConsoleObject, &rand_vec, bump_amount);
+			}
+			else
+			{
+				Global_laser_firing_count = 0;
+			}
 		}
+
+		if (Global_laser_firing_count)
+			Global_laser_firing_count -= do_laser_firing_player();  //do_laser_firing(Players[Player_num].objnum, Primary_weapon);
+		if (Global_laser_firing_count < 0)
+			Global_laser_firing_count = 0;
+	}
 
 	if (Do_appearance_effect) {
 		create_player_appearance_effect(ConsoleObject);
 		Do_appearance_effect = 0;
+	}
+}
+
+//	-----------------------------------------------------------------------------
+//	Fire Laser:  Registers a laser fire, and performs special stuff for the fusion
+//				    cannon.
+void FireLaser()
+{
+	Global_laser_firing_count = Weapon_info[Primary_weapon_to_weapon_info[Primary_weapon]].fire_count * (Controls.fire_primary_state || Controls.fire_primary_down_count);
+	if ((Primary_weapon == FUSION_INDEX) && (Global_laser_firing_count)) {
+		if ((Players[Player_num].energy < F1_0*2) && (Auto_fire_fusion_cannon_time == 0)) {
+			Global_laser_firing_count = 0;
+		} else {
+			if (Fusion_charge == 0)
+				Players[Player_num].energy -= F1_0*2;
+
+			Fusion_charge += FrameTime;
+			Players[Player_num].energy -= FrameTime;
+
+			if (Players[Player_num].energy <= 0) {
+				Players[Player_num].energy = 0;
+				Auto_fire_fusion_cannon_time = GameTime -1;				//	Fire now!
+			} else
+				Auto_fire_fusion_cannon_time = GameTime + FrameTime/2 + 1;		//	Fire the fusion cannon at this time in the future.
+
+			if (Fusion_charge < F1_0*2)
+				PALETTE_FLASH_ADD(Fusion_charge >> 11, 0, Fusion_charge >> 11);
+			else
+				PALETTE_FLASH_ADD(Fusion_charge >> 11, Fusion_charge >> 11, 0);
+				
+			if (GameTime < Fusion_last_sound_time)		//gametime has wrapped
+				Fusion_next_sound_time = Fusion_last_sound_time = GameTime;
+
+			if (Fusion_next_sound_time < GameTime) {
+				if (Fusion_charge > F1_0*2) {
+					digi_play_sample( 11, F1_0 );
+#ifdef NETWORK
+					if(Game_mode & GM_MULTI)
+						multi_send_play_sound(11, F1_0);
+#endif
+					apply_damage_to_player(ConsoleObject, ConsoleObject, d_rand() * 4);
+				} else {
+					create_awareness_event(ConsoleObject, PA_WEAPON_ROBOT_COLLISION);
+					digi_play_sample( SOUND_FUSION_WARMUP, F1_0 );
+					#ifdef NETWORK
+					if (Game_mode & GM_MULTI)
+						multi_send_play_sound(SOUND_FUSION_WARMUP, F1_0);
+					#endif
+				}
+				Fusion_last_sound_time = GameTime;
+				Fusion_next_sound_time = GameTime + F1_0/8 + d_rand()/4;
+			}
+		}
 	}
 }
 

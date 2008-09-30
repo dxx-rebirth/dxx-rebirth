@@ -12,6 +12,7 @@
 
 #include "maths.h"
 #include "timer.h"
+#include "config.h"
 
 fix timer_get_approx_seconds(void)
 {
@@ -36,6 +37,9 @@ void timer_delay2(int fps)
 {
 	static u_int32_t FrameStart=0;
 	u_int32_t FrameLoop=0;
+
+	if (GameCfg.VSync)
+		return;
 
 	while (FrameLoop < 1000/fps)
 	{

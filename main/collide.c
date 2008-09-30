@@ -642,8 +642,6 @@ void collide_robot_and_controlcen( object * obj1, object * obj2, vms_vector *col
 //##}
 
 void collide_robot_and_player( object * robot, object * player, vms_vector *collision_point ) { 
-	static fix last_play_time=0;
-
 	if (player->id == Player_num) {
 		create_awareness_event(player, PA_PLAYER_COLLISION);			// object robot can attract attention to player
 		do_ai_robot_hit_attack(robot, player, collision_point);
@@ -655,12 +653,11 @@ void collide_robot_and_player( object * robot, object * player, vms_vector *coll
 		multi_robot_request_change(robot, player->id);
 #endif
 #endif
-	if (last_play_time + (F1_0/50) < GameTime || last_play_time > GameTime) {
-		last_play_time = GameTime;
+	if (FixedStep & EPS4)
 		digi_link_sound_to_pos( SOUND_ROBOT_HIT_PLAYER, player->segnum, 0, collision_point, 0, F1_0 );
-	}
 
 	bump_two_objects(robot, player, 1);
+
 	return; 
 }
 
@@ -741,17 +738,13 @@ void apply_damage_to_controlcen(object *controlcen, fix damage, short who)
 
 void collide_player_and_controlcen( object * controlcen, object * player, vms_vector *collision_point )
 { 
-	static fix last_play_time=0;
-
 	if (player->id == Player_num) {
 		Control_center_been_hit = 1;
 		ai_do_cloak_stuff();				//	In case player cloaked, make control center know where he is.
 	}
 
-	if (last_play_time + (F1_0/50) < GameTime || last_play_time > GameTime) {
-		last_play_time = GameTime;
+	if (FixedStep & EPS4)
 		digi_link_sound_to_pos( SOUND_ROBOT_HIT_PLAYER, player->segnum, 0, collision_point, 0, F1_0 );
-	}
 
 	bump_two_objects(controlcen, player, 1);
 
@@ -1021,11 +1014,9 @@ void collide_hostage_and_player( object * hostage, object * player, vms_vector *
 //##}
 
 void collide_player_and_player( object * player1, object * player2, vms_vector *collision_point ) { 
-	static fix last_play_time=0;
-	if (last_play_time + (F1_0/50) < GameTime || last_play_time > GameTime) {
-		last_play_time = GameTime + (F1_0/10);
+	if (FixedStep & EPS4)
 		digi_link_sound_to_pos( SOUND_ROBOT_HIT_PLAYER, player1->segnum, 0, collision_point, 0, F1_0 );
-	}
+
 	bump_two_objects(player1, player2, 1);
 	return;
 }
@@ -1370,8 +1361,10 @@ void collide_player_and_powerup( object * player, object * powerup, vms_vector *
 //##	return; 
 //##}
 
-void collide_player_and_clutter( object * player, object * clutter, vms_vector *collision_point ) { 
-	digi_link_sound_to_pos( SOUND_ROBOT_HIT_PLAYER, player->segnum, 0, collision_point, 0, F1_0 );
+void collide_player_and_clutter( object * player, object * clutter, vms_vector *collision_point ) {
+	if (FixedStep & EPS4) 
+		digi_link_sound_to_pos( SOUND_ROBOT_HIT_PLAYER, player->segnum, 0, collision_point, 0, F1_0 );
+
 	bump_two_objects(clutter, player, 1);
 	return; 
 }

@@ -1186,7 +1186,7 @@ void move_around_player(object *objp, vms_vector *vec_to_player, int fast_flag)
 			count++;
 		}
 
-	dir = (FrameCount + (count+1) * (objnum*8 + objnum*4 + objnum)) & dir_change;
+	dir = (/*FrameCount*/(GameTime/2000==0?1:GameTime/2000) + (count+1) * (objnum*8 + objnum*4 + objnum)) & dir_change;
 	dir >>= (4+count);
 
 	Assert((dir >= 0) && (dir <= 3));

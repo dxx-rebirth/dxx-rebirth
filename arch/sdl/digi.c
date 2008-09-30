@@ -127,7 +127,12 @@ void digi_set_sample_rate(int r) { digi_sample_rate = r; }
 
 /* Stub functions */
 
-int  digi_init() { return fptr_init(); }
+int  digi_init()
+{ 
+	digi_init_sounds();
+	return fptr_init();
+}
+
 void digi_close() { fptr_close(); }
 void digi_reset() { fptr_reset(); }
 

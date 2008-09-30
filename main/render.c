@@ -1463,8 +1463,6 @@ void render_frame(fix eye_offset)
 		draw_3d_reticle(eye_offset);
 
 	g3_end_frame();
-
-	FrameCount++;		//we have rendered a frame
 }
 
 int first_terminal_seg;

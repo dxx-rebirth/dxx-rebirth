@@ -21,7 +21,7 @@
 #include "gamefont.h"
 #include "key.h"
 #include "vers_id.h"
-#include "timer.h"
+#include "game.h"
 
 PHYSFS_file *gamelog_fp=NULL;
 struct console_buffer con_buffer[CON_LINES_MAX];
@@ -112,23 +112,20 @@ void con_show(void)
 {
 	int i=0, y;
 	static float con_size=0;
-	static fix next_resize_time=0;
 	int done=0;
 
 	if (con_render)
 	{
-		if (con_size < CON_LINES_ONSCREEN && next_resize_time <= timer_get_fixed_seconds())
+		if (con_size < CON_LINES_ONSCREEN && FixedStep & EPS30)
 		{
 			con_size++;
-			next_resize_time=timer_get_fixed_seconds()+(F1_0/70);
 		}
 	}
 	else
 	{
-		if (con_size > 0 && next_resize_time <= timer_get_fixed_seconds())
+		if (con_size > 0 && FixedStep & EPS30)
 		{
 			con_size--;
-			next_resize_time=timer_get_fixed_seconds()+(F1_0/70);
 		}
 	}
 

@@ -138,7 +138,7 @@ void show_commandline_help()
 	printf( "\n System Options:\n\n");
 	printf( "  -fps               %s\n", "Enable FPS indicator by default");
 	printf( "  -nonicefps         %s\n", "Don't free CPU-cycles");
-	printf( "  -maxfps <n>        %s\n", "Set maximum framerate (1-80)");
+	printf( "  -maxfps <n>        %s\n", "Set maximum framerate (1-200)");
 	printf( "  -hogdir <s>        %s\n", "Set shared data directory to <dir>");
 	printf( "  -nohogdir          %s\n", "Don't try to use shared data directory");
 	printf( "  -use_players_dir   %s\n", "Put player files and saved games in Players subdirectory");
@@ -221,11 +221,6 @@ void error_messagebox(char *s)
 	nm_messagebox( TXT_SORRY, 1, TXT_OK, s );
 }
 
-void sdl_close()
-{
-	SDL_Quit();
-}
-
 extern void vfx_set_palette_sub(ubyte *);
 int MacHog = 0;	// using a Mac hogfile?
 #define PROGNAME argv[0]
@@ -301,15 +296,15 @@ int main(int argc,char *argv[])
 	if (cfile_init("d1xrdata.zip", 0))
 		con_printf(CON_NORMAL, "Added d1xrdata.zip for additional content\n");
 
+	// following three lines are arch-code - but do we have to move it just for that?
 	if (SDL_Init(SDL_INIT_VIDEO)<0)
 		Error("SDL library initialisation failed: %s.",SDL_GetError());
+	atexit(SDL_Quit);
 
 #ifdef _WIN32
 	freopen( "CON", "w", stdout );
 	freopen( "CON", "w", stderr );
 #endif
-
-	atexit(sdl_close);
 
 	key_init();
 
