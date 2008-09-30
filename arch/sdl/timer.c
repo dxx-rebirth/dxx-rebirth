@@ -38,12 +38,10 @@ void timer_delay2(int fps)
 	static u_int32_t FrameStart=0;
 	u_int32_t FrameLoop=0;
 
-	if (GameCfg.VSync)
-		return;
-
-	while (FrameLoop < 1000/fps)
+	while (FrameLoop < 1000/(GameCfg.VSync?MAXIMUM_FPS:fps))
 	{
-		SDL_Delay(1);
+		if (!GameCfg.VSync)
+			SDL_Delay(1);
 		FrameLoop=SDL_GetTicks()-FrameStart;
 	}
 
