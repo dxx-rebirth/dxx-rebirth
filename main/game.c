@@ -570,18 +570,6 @@ void calc_frame_time()
 		GameTime = FrameTime;	//wrap when goes negative, or ~9hrs
 		
 	FixedStepCalc();
-	
-	static int hey=0, i=0, j=0, k=0;
-	
-	if (FixedStep & EPS4) i++;
-	if (FixedStep & EPS20) j++;
-	if (FixedStep & EPS30) k++;
-	if (hey +1000 <= SDL_GetTicks())
-	{
-		printf("%i %i %i \n",i,j,k);
-		i=j=k=0;
-		hey=SDL_GetTicks();
-	}
 }
 
 //--unused-- int Auto_flythrough=0;  //if set, start flythough automatically

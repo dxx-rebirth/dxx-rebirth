@@ -735,6 +735,16 @@ void do_physics_sim(object *obj)
 		obj->pos.x = start_pos.x + ((obj->pos.x - start_pos.x) / ((float)PhysTime/FrameTime));
 		obj->pos.y = start_pos.y + ((obj->pos.y - start_pos.y) / ((float)PhysTime/FrameTime));
 		obj->pos.z = start_pos.z + ((obj->pos.z - start_pos.z) / ((float)PhysTime/FrameTime));
+		//check for and update correct object segment
+		if(!get_seg_masks(&obj->pos, obj->segnum, 0, __FILE__, __LINE__).centermask == 0)
+		{
+			if (!update_object_seg(obj)) {
+				if (!(Game_mode & GM_MULTI))
+					Int3();
+				compute_segment_center(&obj->pos,&Segments[obj->segnum]);
+				obj->pos.x += objnum;
+			}
+		}
 	}
 
 	// After collision with objects and walls, set velocity from actual movement
