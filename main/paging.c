@@ -174,9 +174,12 @@ void paging_touch_object( object * obj )
 		case RT_NONE:	break;		//doesn't render, like the player
 
 		case RT_POLYOBJ:
-			paging_touch_model(obj->rtype.pobj_info.model_num);
+			if ( obj->rtype.pobj_info.tmap_override != -1 )
+				PIGGY_PAGE_IN( Textures[obj->rtype.pobj_info.tmap_override] );
+			else
+				paging_touch_model(obj->rtype.pobj_info.model_num);
 			break;
-
+			
 		case RT_POWERUP: 
 			if ( obj->rtype.vclip_info.vclip_num > -1 )
 				paging_touch_vclip(&Vclip[obj->rtype.vclip_info.vclip_num]);

@@ -3,6 +3,7 @@ D1X-Rebirth Changelog
 20081004
 --------
 d1x-rebirth.xcodeproj, arch/carbon/conf.h, tracker/client/tracker_client.c: Keep Xcode project up-to-date, look in 'SDL' directory for SDL.h
+main/paging.c: Page in overriding robot textures, like D2X-Rebirth
 
 20081001
 --------
