@@ -14,6 +14,8 @@
 /* d2x micro version */
 #define D1XMICRO "4"
 
+#define PROGRAM_NAME "D1X-Rebirth"
+
 /* Define if you want to build the editor */
 /* #undef EDITOR */
 

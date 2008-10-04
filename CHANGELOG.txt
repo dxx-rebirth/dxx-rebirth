@@ -1,5 +1,9 @@
 D1X-Rebirth Changelog
 
+20081004
+--------
+d1x-rebirth.xcodeproj, arch/carbon/conf.h, tracker/client/tracker_client.c: Keep Xcode project up-to-date, look in 'SDL' directory for SDL.h
+
 20081001
 --------
 main/physics.c: Update object segment after object position interpolation. This is always done in DEBUG, but not in RELEASE, where further movement would break at segment check

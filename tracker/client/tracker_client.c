@@ -30,7 +30,7 @@
 #include <netdb.h>
 #include "netdrv.h"
 #include "newmenu.h"
-#include <SDL.h>
+#include <SDL/SDL.h>
 #include <SDL/SDL_thread.h>
 #include "text.h"
 #include "tracker/tracker.h"
