@@ -51,7 +51,7 @@ static char rcsid[] = "$Id: credits.c,v 1.1.1.1 2006/03/17 19:44:11 zicodxx Exp 
 #define CREDITS_FILE 			"credits.tex"
 
 //if filename passed is NULL, show normal credits
-void credits_show()
+void credits_show(char *credits_filename)
 {
 	CFILE * file;
 	int i, j, l, done;
@@ -73,9 +73,21 @@ void credits_show()
 
 	sprintf(filename, "%s", CREDITS_FILE);
 	have_bin_file = 0;
-	file = cfopen( "credits.tex", "rb" );
+	if (credits_filename) {
+		strcpy(filename,credits_filename);
+		have_bin_file = 1;
+	}
+	file = cfopen( filename, "rb" );
 	if (file == NULL) {
-		file = cfopen("credits.txb", "rb");
+		char nfile[32];
+		
+		if (credits_filename)
+			return;		//ok to not find special filename
+
+		tempp = strchr(filename, '.');
+		*tempp = '\0';
+		sprintf(nfile, "%s.txb", filename);
+		file = cfopen(nfile, "rb");
 		if (file == NULL)
 			Error("Missing CREDITS.TEX and CREDITS.TXB file\n");
 		have_bin_file = 1;

@@ -1224,17 +1224,13 @@ int do_laser_firing(int objnum, int weapon_num, int level, int flags, int nfires
 {
 	object	*objp = &Objects[objnum];
 
-	// The Laser_offset is used to "jitter" the laser fire so that lasers don't always appear
-	// right in front of your face.   I put it here instead of laser_create_new because I want
-	// both of the dual laser beams to be fired from the same distance.
-
-//added/changed on 8/14/98 by Victor Rachels to fix fire-through-door bug
-//        Laser_offset = ((F1_0*2)*(d_rand()%10))/10;
-        Laser_offset = 0;
-//end add/change - Victor Rachels
-
 	switch (weapon_num) {
 		case LASER_INDEX: {
+			// The Laser_offset is used to "jitter" the laser fire so that lasers don't always appear
+			// right in front of your face.   I put it here instead of laser_create_new because I want
+			// both of the dual laser beams to be fired from the same distance.
+			Laser_offset = ((F1_0*2)*(d_rand()%8))/8;
+
 			Laser_player_fire( objp, level, 0, 1, 0);
 			Laser_player_fire( objp, level, 1, 0, 0);
 
@@ -1493,7 +1489,6 @@ static void do_missile_firing_all(int drop_bomb)
 				break;
 
 			case PROXIMITY_INDEX:
-                                Laser_offset = F1_0 * -1 * 3;
 				proximity ++;
 				if (proximity == 4)
 				{

@@ -568,15 +568,15 @@ int get_message_num(char **message)
 {
 	int	num=0;
 
-	while (**message == ' ')
+	while (strlen(*message) > 0 && **message == ' ')
 		(*message)++;
 
-	while ((**message >= '0') && (**message <= '9')) {
+	while (strlen(*message) > 0 && (**message >= '0') && (**message <= '9')) {
 		num = 10*num + **message-'0';
 		(*message)++;
 	}
 
-	while (*(*message)++ != 10) // Get and drop eoln
+	while (strlen(*message) > 0 && *(*message)++ != 10) // Get and drop eoln
 		;
 
 	return num;
@@ -615,17 +615,17 @@ void title_save_game()
 //	-----------------------------------------------------------------------------
 void get_message_name(char **message, char *result)
 {
-	while (**message == ' ')
+	while (strlen(*message) > 0 && **message == ' ')
 		(*message)++;
 
-	while ((**message != ' ') && (**message != 10)) {
+	while (strlen(*message) > 0 && (**message != ' ') && (**message != 10)) {
 		if (**message != 13)
 			*result++ = **message;
 		(*message)++;
 	}
 
 	if (**message != 10)
-		while (*(*message)++ != 10) // Get and drop eoln
+		while (strlen(*message) > 0 && *(*message)++ != 10) // Get and drop eoln
 			;
 
 	*result = 0;
@@ -972,18 +972,20 @@ void load_screen_text(char *filename, char **buf)
 		have_binary = 1;
 
 		len = cfilelength(ifile);
-		MALLOC(*buf,char, len);
+		MALLOC(*buf,char, len+1);
 		cfread(*buf, 1, len, ifile);
 		cfclose(ifile);
 	} else {
 		len = cfilelength(tfile);
-		MALLOC(*buf, char, len);
+		MALLOC(*buf, char, len+1);
 		cfread(*buf, 1, len, tfile);
 		cfclose(tfile);
 	}
 
 	if (have_binary)
 		decode_text(*buf, len);
+
+	*(*buf+len)='\0';
 }
 
 //-----------------------------------------------------------------------------

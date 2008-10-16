@@ -149,6 +149,7 @@ char nd_save_callsign[CALLSIGN_LEN+1];
 int Newdemo_state = 0;
 int Newdemo_vcr_state = 0;
 int Newdemo_start_frame = -1;
+int Newdemo_frame_number = -1;
 unsigned int Newdemo_size;
 int Newdemo_num_written;
 int Newdemo_old_cockpit;
@@ -159,7 +160,7 @@ sbyte Newdemo_players_cloaked;
 sbyte Newdemo_warning_given = 0;
 sbyte Newdemo_cntrlcen_destroyed = 0;
 static sbyte nd_bad_read;
-int NewdemoFrameCount, TotalFrames;
+int NewdemoFrameCount;
 short frame_bytes_written = 0;
 fix nd_playback_total;
 fix nd_recorded_total;
@@ -167,6 +168,7 @@ fix nd_recorded_time;
 sbyte playback_style;
 sbyte First_time_playback=1;
 fix JasonPlaybackTotal=0;
+int Newdemo_show_percentage=1;
 
 extern int digi_link_sound_to_object3( int org_soundnum, short objnum, int forever, fix max_volume, fix  max_distance, int loop_start, int loop_end );
 
@@ -174,7 +176,13 @@ PHYSFS_file *infile;
 PHYSFS_file *outfile = NULL;
 
 int newdemo_get_percent_done()	{
-	return (NewdemoFrameCount*100)/TotalFrames;
+	if ( Newdemo_state == ND_STATE_PLAYBACK ) {
+		return (PHYSFS_tell(infile) * 100) / Newdemo_size;
+	}
+	if ( Newdemo_state == ND_STATE_RECORDING ) {
+		return PHYSFS_tell(outfile);
+	}
+	return 0;
 }
 
 #define VEL_PRECISION 12
@@ -860,13 +868,13 @@ void newdemo_record_start_demo()
 	nd_write_int(Players[Player_num].flags); // be sure players flags are set
 	nd_write_byte((sbyte)Primary_weapon);
 	nd_write_byte((sbyte)Secondary_weapon);
-	Newdemo_start_frame = FrameCount;
+	Newdemo_start_frame = Newdemo_frame_number = 0;
 	newdemo_set_new_level(Current_level_num);
 	start_time();
 
 }
 
-void newdemo_record_start_frame(int frame_number, fix frame_time )
+void newdemo_record_start_frame(fix frame_time )
 {
 	if (Newdemo_no_space) {
 		newdemo_stop_playback();
@@ -888,14 +896,13 @@ void newdemo_record_start_frame(int frame_number, fix frame_time )
 		RecordFrame=1;
 	
 		stop_time();
-		frame_number -= Newdemo_start_frame;
-	
-		Assert(frame_number >= 0 );
+		Newdemo_frame_number -= Newdemo_start_frame;
 
 		nd_write_byte(ND_EVENT_START_FRAME);
 		nd_write_short(frame_bytes_written - 1); // from previous frame
 		frame_bytes_written=3;
-		nd_write_int(frame_number);
+		nd_write_int(Newdemo_frame_number);
+		Newdemo_frame_number++;
 		nd_write_int(frame_time);
 		start_time();
 	}
@@ -1310,10 +1317,10 @@ void newdemo_set_new_level(int level_num)
 
 int newdemo_read_demo_start(int rnd_demo)
 {
-        sbyte version, game_type, c;
-	ubyte energy, shield;
+        sbyte version=0, game_type=0, c=0;
+	ubyte energy=0, shield=0;
         char text[128];
-        sbyte i, laser_level;
+        sbyte i=0, laser_level=0;
         char current_mission[9];
 
 	Rear_view=0;
@@ -2277,28 +2284,27 @@ void newdemo_goto_beginning()
 }
 
 #ifdef SHAREWARE
-void newdemo_goto_end(int FrameCountOnly)
+void newdemo_goto_end()
 {
-	short frame_length;
-	sbyte level;
-	int i;
+	short frame_length=0;
+	sbyte level=0;
+	int i=0;
 
 	cfseek(infile, -2, SEEK_END);
 	nd_read_byte(&level);
 
-	if (!FrameCountOnly)
-		if ((level < Last_secret_level) || (level > Last_level)) {
-			newmenu_item m[3];
-	
-			m[ 0].type = NM_TYPE_TEXT; m[ 0].text = TXT_CANT_PLAYBACK;
-			m[ 1].type = NM_TYPE_TEXT; m[ 1].text = TXT_LEVEL_CANT_LOAD;
-			m[ 2].type = NM_TYPE_TEXT; m[ 2].text = TXT_DEMO_OLD_CORRUPT;
-			newmenu_do( NULL, NULL, sizeof(m)/sizeof(*m), m, NULL );
-			newdemo_stop_playback();
-			return;
-		}
+	if ((level < Last_secret_level) || (level > Last_level)) {
+		newmenu_item m[3];
 
-	if (level != Current_level_num && !FrameCountOnly)	{
+		m[ 0].type = NM_TYPE_TEXT; m[ 0].text = TXT_CANT_PLAYBACK;
+		m[ 1].type = NM_TYPE_TEXT; m[ 1].text = TXT_LEVEL_CANT_LOAD;
+		m[ 2].type = NM_TYPE_TEXT; m[ 2].text = TXT_DEMO_OLD_CORRUPT;
+		newmenu_do( NULL, NULL, sizeof(m)/sizeof(*m), m, NULL );
+		newdemo_stop_playback();
+		return;
+	}
+
+	if (level != Current_level_num)	{
 		LoadLevel(level);
 		piggy_load_level_data();
 	}
@@ -2317,35 +2323,33 @@ void newdemo_goto_end(int FrameCountOnly)
 	nd_read_int(&NewdemoFrameCount); // get the frame count
 	NewdemoFrameCount--;
 	cfseek(infile, 4, SEEK_CUR);
-	if (!FrameCountOnly)
-		newdemo_read_frame_information(); // then the frame information
+	newdemo_read_frame_information(); // then the frame information
 	Newdemo_vcr_state = ND_STATE_PAUSED;
 	return;
 }
 #else
-void newdemo_goto_end(int FrameCountOnly)
+void newdemo_goto_end()
 {
-	short frame_length, byte_count, bshort;
-	sbyte level, bbyte, laser_level;
-	ubyte energy, shield;
-	int i, loc, bint;
+	short frame_length=0, byte_count=0, bshort=0;
+	sbyte level=0, bbyte=0, laser_level=0;
+	ubyte energy=0, shield=0;
+	int i=0, loc=0, bint=0;
 
 	cfseek(infile, -2, SEEK_END);
 	nd_read_byte(&level);
 
-	if (!FrameCountOnly)
-		if ((level < Last_secret_level) || (level > Last_level)) {
-			newmenu_item m[3];
-	
-			m[ 0].type = NM_TYPE_TEXT; m[ 0].text = TXT_CANT_PLAYBACK;
-			m[ 1].type = NM_TYPE_TEXT; m[ 1].text = TXT_LEVEL_CANT_LOAD;
-			m[ 2].type = NM_TYPE_TEXT; m[ 2].text = TXT_DEMO_OLD_CORRUPT;
-			newmenu_do( NULL, NULL, sizeof(m)/sizeof(*m), m, NULL );
-			newdemo_stop_playback();
-			return;
-		}
+	if ((level < Last_secret_level) || (level > Last_level)) {
+		newmenu_item m[3];
 
-	if (level != Current_level_num && !FrameCountOnly)	{
+		m[ 0].type = NM_TYPE_TEXT; m[ 0].text = TXT_CANT_PLAYBACK;
+		m[ 1].type = NM_TYPE_TEXT; m[ 1].text = TXT_LEVEL_CANT_LOAD;
+		m[ 2].type = NM_TYPE_TEXT; m[ 2].text = TXT_DEMO_OLD_CORRUPT;
+		newmenu_do( NULL, NULL, sizeof(m)/sizeof(*m), m, NULL );
+		newdemo_stop_playback();
+		return;
+	}
+
+	if (level != Current_level_num)	{
 		LoadLevel(level);
 		piggy_load_level_data();
 	}
@@ -2408,8 +2412,7 @@ void newdemo_goto_end(int FrameCountOnly)
 	NewdemoFrameCount--;
 	cfseek(infile, 4, SEEK_CUR);
 	Newdemo_vcr_state = ND_STATE_PLAYBACK;
-	if (!FrameCountOnly)
-		newdemo_read_frame_information(); // then the frame information
+	newdemo_read_frame_information(); // then the frame information
 	Newdemo_vcr_state = ND_STATE_PAUSED;
 	return;
 }
@@ -2752,12 +2755,11 @@ void newdemo_start_recording()
 	Newdemo_num_written = 0;
 	Newdemo_no_space=0;
 	Newdemo_state = ND_STATE_RECORDING;
-	outfile = PHYSFSX_openWriteBuffered(DEMO_FILENAME);
 
-	if (outfile == NULL && errno == ENOENT) {   //dir doesn't exist?
+	if (!cfexist(DEMO_DIR)) //dir doesn't exist?
 		PHYSFS_mkdir(DEMO_DIR); //try making directory
-		outfile = PHYSFSX_openWriteBuffered(DEMO_FILENAME);
-	}
+
+	outfile = PHYSFSX_openWriteBuffered(DEMO_FILENAME);
 
 	if (outfile == NULL)
 	{
@@ -3003,11 +3005,6 @@ void newdemo_start_playback(char * filename)
 	Players[Player_num].lives=0;
 	Viewer = ConsoleObject = &Objects[0];   // play properly as if console player
 
-	// read last frame information and save last FrameCount
-	newdemo_goto_end(1);
-	TotalFrames=NewdemoFrameCount;
-	PHYSFS_seek(infile, 0);
-
 	if (newdemo_read_demo_start(rnd_demo)) {
 		PHYSFS_close(infile);
 		return;
@@ -3077,7 +3074,7 @@ void newdemo_strip_frames(char *outname, int bytes_to_strip)
 		newdemo_stop_playback();
 		return;
 	}
-	newdemo_goto_end(0);
+	newdemo_goto_end();
 	trailer_start = PHYSFS_tell(infile);
 	PHYSFS_seek(infile, PHYSFS_tell(infile) + 11);
 	bytes_back = 0;

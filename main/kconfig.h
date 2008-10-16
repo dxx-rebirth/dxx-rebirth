@@ -56,7 +56,7 @@ typedef struct control_info {
 #define CONTROL_GRAVIS_GAMEPAD 4
 #define CONTROL_CYBERMAN 6
 
-#define NUM_D1X_CONTROLS 28
+#define NUM_D1X_CONTROLS 24
 #define MAX_D1X_CONTROLS 40
 #define NUM_KEY_CONTROLS 46
 #define NUM_JOYSTICK_CONTROLS 44

@@ -332,22 +332,20 @@ void wall_open_door(segment *seg, int side)
 {
 	wall *w;
 	active_door *d;
-	int Connectside;
+	int Connectside=0, wall_num=0, cwall_num=0;
 	segment *csegp;
 
 	Assert(seg->sides[side].wall_num != -1); 	//Opening door on illegal wall
 
 	w = &Walls[seg->sides[side].wall_num];
-
+	wall_num = w - Walls;
 	//kill_stuck_objects(seg->sides[side].wall_num);
 
-	if (w->state == WALL_DOOR_OPENING)		//already opening
+	if ((w->state == WALL_DOOR_OPENING) ||		//already opening
+		 (w->state == WALL_DOOR_WAITING))	//open, waiting to close
 		return;
 
-	if (w->state == WALL_DOOR_WAITING)		//open, waiting to close
-		return;
-
-	if (w->state != WALL_DOOR_CLOSED) {		//reuse door
+	if (w->state == WALL_DOOR_CLOSING) {		//closing, so reuse door
 
 		int i;
 	
@@ -357,10 +355,14 @@ void wall_open_door(segment *seg, int side)
 
 			d = &ActiveDoors[i];
 	
-			if (d->front_wallnum[0]==w-Walls || d->back_wallnum[0]==w-Walls || (d->n_parts==2 && (d->front_wallnum[1]==w-Walls || d->back_wallnum[1]==w-Walls)))
+			if (d->front_wallnum[0]==w-Walls || d->back_wallnum[0]==wall_num ||
+				 (d->n_parts==2 && (d->front_wallnum[1]==wall_num || d->back_wallnum[1]==wall_num)))
 				break;
-		} 
+		}
 
+		if (i>=Num_open_doors && (Game_mode & GM_MULTI))	
+				goto FastFix;
+		
 		Assert(i<Num_open_doors);				//didn't find door!
 		Assert( d!=NULL ); // Get John!
 
@@ -371,33 +373,38 @@ void wall_open_door(segment *seg, int side)
 	
 	}
 	else {											//create new door
+		Assert(w->state == WALL_DOOR_CLOSED);
+		FastFix:
 		d = &ActiveDoors[Num_open_doors];
 		d->time = 0;
 		Num_open_doors++;
 		Assert( Num_open_doors < MAX_DOORS );
 	}
 
+
 	w->state = WALL_DOOR_OPENING;
 
 	// So that door can't be shot while opening
 	csegp = &Segments[seg->children[side]];
 	Connectside = find_connect_side(seg, csegp);
-	Assert(Connectside != -1);
-
-	Walls[csegp->sides[Connectside].wall_num].state = WALL_DOOR_OPENING;
-
-	//kill_stuck_objects(csegp->sides[Connectside].wall_num);
-
-	d->front_wallnum[0] = seg->sides[side].wall_num;
-	d->back_wallnum[0] = csegp->sides[Connectside].wall_num;
+	if (Connectside >= 0)
+	{
+		cwall_num = csegp->sides[Connectside].wall_num;
+		if (cwall_num > -1)
+		{
+			Walls[cwall_num].state = WALL_DOOR_OPENING;
+			d->back_wallnum[0] = cwall_num;
+		}
+		d->front_wallnum[0] = seg->sides[side].wall_num;
+	}
+	else
+		con_printf(CON_URGENT, "Illegal Connectside %i in wall_open_door. Trying to hop over. Please check your level!\n", side);
 
 	Assert( seg-Segments != -1);
 
-#ifndef SHAREWARE
 	if (Newdemo_state == ND_STATE_RECORDING) {
 		newdemo_record_door_opening(seg-Segments, side);
 	}
-#endif
 
 	if (w->linked_wall != -1) {
 		wall *w2;
@@ -406,7 +413,7 @@ void wall_open_door(segment *seg, int side)
 		w2		= &Walls[w->linked_wall];
 		seg2	= &Segments[w2->segnum];
 
-		//Assert(w2->linked_wall == seg->sides[side].wall_num);
+		Assert(w2->linked_wall == seg->sides[side].wall_num);
 		//Assert(!(w2->flags & WALL_DOOR_OPENING  ||  w2->flags & WALL_DOOR_OPENED));
 
 		w2->state = WALL_DOOR_OPENING;
@@ -414,11 +421,12 @@ void wall_open_door(segment *seg, int side)
 		csegp = &Segments[seg2->children[w2->sidenum]];
 		Connectside = find_connect_side(seg2, csegp);
 		Assert(Connectside != -1);
-		Walls[csegp->sides[Connectside].wall_num].state = WALL_DOOR_OPENING;
+		if (cwall_num > -1)
+			Walls[cwall_num].state = WALL_DOOR_OPENING;
 
 		d->n_parts = 2;
 		d->front_wallnum[1] = w->linked_wall;
-		d->back_wallnum[1] = csegp->sides[Connectside].wall_num;
+		d->back_wallnum[1] = cwall_num;
 	}
 	else
 		d->n_parts = 1;
@@ -485,7 +493,9 @@ void do_door_open(int door_num)
 	int p;
 	active_door *d;
 
-	Assert(door_num != -1);		//Trying to do_door_open on illegal door
+// 	Assert(door_num != -1);		//Trying to do_door_open on illegal door
+	if (door_num == -1)
+		return;
 	
 	d = &ActiveDoors[door_num];
 
@@ -503,7 +513,12 @@ void do_door_open(int door_num)
 		seg = &Segments[w->segnum];
 		side = w->sidenum;
 	
-		Assert(seg->sides[side].wall_num != -1);		//Trying to do_door_open on illegal wall
+// 		Assert(seg->sides[side].wall_num != -1);		//Trying to do_door_open on illegal wall
+		if (seg->sides[side].wall_num == -1)
+		{
+			con_printf(CON_URGENT, "Trying to do_door_open on illegal wall %i. Please check your level!\n",side);
+			continue;
+		}
 	
 		csegp = &Segments[seg->children[side]];
 		Connectside = find_connect_side(seg, csegp);

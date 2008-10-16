@@ -375,7 +375,7 @@ void do_option ( int select)
 			break;
 		case MENU_SHOW_CREDITS:
 			songs_stop_all();
-			credits_show();
+			credits_show(NULL);
 			break;
 		default:
 			Error("Unknown option %d in do_option",select);
@@ -488,7 +488,7 @@ void change_res()
 	m[mc].type = NM_TYPE_RADIO; m[mc].text = "1024x768"; m[mc].value = (Game_screen_mode == SM(1024,768)); m[mc].group = 0; modes[mc] = SM(1024,768); mc++;
 	m[mc].type = NM_TYPE_RADIO; m[mc].text = "1280x800"; m[mc].value = (Game_screen_mode == SM(1280,800)); m[mc].group = 0; modes[mc] = SM(1280,800); mc++;
 	m[mc].type = NM_TYPE_RADIO; m[mc].text = "1280x1024"; m[mc].value = (Game_screen_mode == SM(1280,1024)); m[mc].group = 0; modes[mc] = SM(1280,1024); mc++;
-	m[mc].type = NM_TYPE_RADIO; m[mc].text = "1440x900"; m[mc].value = (Game_screen_mode == SM(1440,900)); m[mc].group = 0; modes[mc] = SM(1440,900); mc++;
+	m[mc].type = NM_TYPE_RADIO; m[mc].text = "1440x990"; m[mc].value = (Game_screen_mode == SM(1440,990)); m[mc].group = 0; modes[mc] = SM(1440,990); mc++;
 	m[mc].type = NM_TYPE_RADIO; m[mc].text = "1600x1200"; m[mc].value = (Game_screen_mode == SM(1600,1200)); m[mc].group = 0; modes[mc] = SM(1600,1200); mc++;
 	m[mc].type = NM_TYPE_RADIO; m[mc].text = "1920x1200"; m[mc].value = (Game_screen_mode == SM(1920,1200)); m[mc].group = 0; modes[mc] = SM(1920,1200); mc++;
 
@@ -581,9 +581,9 @@ void input_menuset(int nitems, newmenu_item * items, int *last_key, int citem )
 
 void input_config()
 {
-	newmenu_item m[14];
+	newmenu_item m[17];
 	int i, i1 = 5, j;
-	int nitems = 14;
+	int nitems = 17;
 
 	m[0].type = NM_TYPE_RADIO;  m[0].text = "KEYBOARD"; m[0].value = 0; m[0].group = 0;
 	m[1].type = NM_TYPE_RADIO;  m[1].text = "JOYSTICK"; m[1].value = 0; m[1].group = 0;
@@ -595,10 +595,13 @@ void input_config()
 	m[7].type = NM_TYPE_MENU;   m[7].text = "CUSTOMIZE WEAPON KEYS";
 	m[8].type = NM_TYPE_TEXT;   m[8].text = "";
 	m[9].type = NM_TYPE_TEXT;   m[9].text = "Joystick";
-	m[10].type = NM_TYPE_SLIDER; m[10].text="Sensitivity"; m[10].value=PlayerCfg.JoystickSensitivity; m[10].min_value = 0; m[10].max_value = 16;
-	m[11].type = NM_TYPE_SLIDER; m[11].text="Joystick Deadzone"; m[11].value=PlayerCfg.JoystickDeadzone; m[11].min_value=0; m[11].max_value = 16;
-	m[12].type = NM_TYPE_TEXT;   m[12].text = "Mouse";
-	m[13].type = NM_TYPE_SLIDER; m[13].text="Sensitivity"; m[13].value=PlayerCfg.MouseSensitivity; m[13].min_value = 0; m[13].max_value = 16;
+	m[10].type = NM_TYPE_SLIDER; m[10].text="X Sensitivity"; m[10].value=PlayerCfg.JoystickSensitivityX; m[10].min_value = 0; m[10].max_value = 16;
+	m[11].type = NM_TYPE_SLIDER; m[11].text="Y Sensitivity"; m[11].value=PlayerCfg.JoystickSensitivityY; m[11].min_value = 0; m[11].max_value = 16;
+	m[12].type = NM_TYPE_SLIDER; m[12].text="Deadzone"; m[12].value=PlayerCfg.JoystickDeadzone; m[12].min_value=0; m[12].max_value = 16;
+	m[13].type = NM_TYPE_TEXT;   m[13].text = "";
+	m[14].type = NM_TYPE_TEXT;   m[14].text = "Mouse";
+	m[15].type = NM_TYPE_SLIDER; m[15].text="X Sensitivity"; m[15].value=PlayerCfg.MouseSensitivityX; m[15].min_value = 0; m[15].max_value = 16;
+	m[16].type = NM_TYPE_SLIDER; m[16].text="Y Sensitivity"; m[16].value=PlayerCfg.MouseSensitivityY; m[16].min_value = 0; m[16].max_value = 16;
 
 
 	do {
@@ -610,9 +613,11 @@ void input_config()
 
 		i1 = newmenu_do1(NULL, TXT_CONTROLS, nitems, m, input_menuset, i1);
 
-		PlayerCfg.JoystickSensitivity = m[10].value;
-		PlayerCfg.JoystickDeadzone = m[11].value;
-		PlayerCfg.MouseSensitivity = m[13].value;
+		PlayerCfg.JoystickSensitivityX = m[10].value;
+		PlayerCfg.JoystickSensitivityY = m[11].value;
+		PlayerCfg.JoystickDeadzone = m[12].value;
+		PlayerCfg.MouseSensitivityX = m[15].value;
+		PlayerCfg.MouseSensitivityY = m[16].value;
 
 		for (j = 0; j <= 3; j++)
 			if (m[j].value)

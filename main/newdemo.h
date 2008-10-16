@@ -19,15 +19,14 @@ COPYRIGHT 1993-1998 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 #ifndef _NEWDEMO_H
 #define _NEWDEMO_H
 
-#define ND_STATE_NORMAL				0
-#define ND_STATE_RECORDING			1
-#define ND_STATE_PLAYBACK			2
-#define ND_STATE_PAUSED				3
-#define ND_STATE_REWINDING			4	 
+#define ND_STATE_NORMAL			0
+#define ND_STATE_RECORDING		1
+#define ND_STATE_PLAYBACK		2
+#define ND_STATE_PAUSED			3
+#define ND_STATE_REWINDING		4
 #define ND_STATE_FASTFORWARD		5
 #define ND_STATE_ONEFRAMEFORWARD	6
 #define ND_STATE_ONEFRAMEBACKWARD	7
-#define ND_STATE_PRINTSCREEN		8
 
 #define DEMO_DIR                "demos/"
 
@@ -37,10 +36,11 @@ extern int NewdemoFrameCount;
 
 extern int Newdemo_vcr_state;
 extern sbyte Newdemo_do_interpolate;
+extern int Newdemo_show_percentage;
 
 // Functions called during recording process...
 extern void newdemo_record_start_demo();
-extern void newdemo_record_start_frame(int frame_number, fix frame_time );
+extern void newdemo_record_start_frame(fix frame_time );
 extern void newdemo_record_render_object(object * obj);
 extern void newdemo_record_viewer_object(object * obj);
 extern void newdemo_record_sound_3d( int soundno, int angle, int volume );

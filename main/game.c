@@ -359,7 +359,7 @@ void toggle_cockpit()
 {
 	int new_mode=CM_FULL_SCREEN;
 
-	if (Rear_view)
+	if (Rear_view || Player_is_dead)
 		return;
 
 	switch (PlayerCfg.CockpitMode)
@@ -743,6 +743,7 @@ void calc_frame_time()
 		timer_value = timer_get_fixed_seconds();
 		FrameTime = timer_value - last_timer_value;
 	}
+	FrameTime = (FrameTime + last_frametime) * 0.5;
 
 	if ( Game_turbo_mode )
 		FrameTime *= 2;
@@ -867,7 +868,7 @@ void game_draw_hud_stuff()
 		int y;
 
 		if (Newdemo_state == ND_STATE_PLAYBACK) {
-			if (Newdemo_vcr_state != ND_STATE_PRINTSCREEN) {
+			if (Newdemo_show_percentage) {
 			  	sprintf(message, "%s (%d%%%% %s)", TXT_DEMO_PLAYBACK, newdemo_get_percent_done(), TXT_DONE);
 			} else {
 				sprintf (message, " ");
@@ -1429,9 +1430,13 @@ void show_help()
 
 void show_newdemo_help()
 {
-	newmenu_item m[8];
+	newmenu_item m[12];
 	int mc = 0;
 
+	m[mc].type = NM_TYPE_TEXT; m[mc].text = "ESC\t  QUIT DEMO PLAYBACK"; mc++;
+	m[mc].type = NM_TYPE_TEXT; m[mc].text = TXT_HELP_F2; mc++;
+	m[mc].type = NM_TYPE_TEXT; m[mc].text = "F3\t  SWITCH COCKPIT MODES"; mc++;
+	m[mc].type = NM_TYPE_TEXT; m[mc].text = "F4\t  TOGGLE PERCENTAGE DISPLAY"; mc++;
 	m[mc].type = NM_TYPE_TEXT; m[mc].text = "UP\t  PLAY"; mc++;
 	m[mc].type = NM_TYPE_TEXT; m[mc].text = "DOWN\t  PAUSE"; mc++;
 	m[mc].type = NM_TYPE_TEXT; m[mc].text = "RIGHT\t  ONE FRAME FORWARD"; mc++;
@@ -1446,11 +1451,11 @@ void show_newdemo_help()
 //temp function until Matt cleans up game sequencing
 extern void temp_reset_stuff_on_level();
 
+#define LEAVE_TIME 0x4000		//how long until we decide key is down	(Used to be 0x4000)
+
 //deal with rear view - switch it on, or off, or whatever
 void check_rear_view()
 {
-	#define LEAVE_TIME 0x4000		//how long until we decide key is down	(Used to be 0x4000)
-
 	static int leave_mode;
 	static fix entry_time;
 
@@ -1655,6 +1660,7 @@ void game()
 			}
 
 			if (Automap_flag) {
+				game_flush_inputs();
 				do_automap(0);
 				Screen_mode=-1; set_screen_mode(SCREEN_GAME);
 				init_cockpit();
@@ -1741,13 +1747,13 @@ fix newdemo_single_frame_time;
 
 void update_vcr_state(void)
 {
-	if ((keyd_pressed[KEY_LSHIFT] || keyd_pressed[KEY_RSHIFT]) && keyd_pressed[KEY_RIGHT])
+	if ((keyd_pressed[KEY_LSHIFT] || keyd_pressed[KEY_RSHIFT]) && keyd_pressed[KEY_RIGHT] && FixedStep & EPS20)
 		Newdemo_vcr_state = ND_STATE_FASTFORWARD;
-	else if ((keyd_pressed[KEY_LSHIFT] || keyd_pressed[KEY_RSHIFT]) && keyd_pressed[KEY_LEFT])
+	else if ((keyd_pressed[KEY_LSHIFT] || keyd_pressed[KEY_RSHIFT]) && keyd_pressed[KEY_LEFT] && FixedStep & EPS20)
 		Newdemo_vcr_state = ND_STATE_REWINDING;
-	else if (!(keyd_pressed[KEY_LCTRL] || keyd_pressed[KEY_RCTRL]) && keyd_pressed[KEY_RIGHT] && ((timer_get_fixed_seconds() - newdemo_single_frame_time) >= F1_0))
+	else if (!(keyd_pressed[KEY_LCTRL] || keyd_pressed[KEY_RCTRL]) && keyd_pressed[KEY_RIGHT] && ((GameTime - newdemo_single_frame_time) >= F1_0) && FixedStep & EPS20)
 		Newdemo_vcr_state = ND_STATE_ONEFRAMEFORWARD;
-	else if (!(keyd_pressed[KEY_LCTRL] || keyd_pressed[KEY_RCTRL]) && keyd_pressed[KEY_LEFT] && ((timer_get_fixed_seconds() - newdemo_single_frame_time) >= F1_0))
+	else if (!(keyd_pressed[KEY_LCTRL] || keyd_pressed[KEY_RCTRL]) && keyd_pressed[KEY_LEFT] && ((GameTime - newdemo_single_frame_time) >= F1_0) && FixedStep & EPS20)
 		Newdemo_vcr_state = ND_STATE_ONEFRAMEBACKWARD;
 	else if ((Newdemo_vcr_state == ND_STATE_FASTFORWARD) || (Newdemo_vcr_state == ND_STATE_REWINDING))
 		Newdemo_vcr_state = ND_STATE_PLAYBACK;
@@ -1841,8 +1847,9 @@ void HandleDemoKey(int key)
 		break;
 #endif
 		case KEY_F1:	show_newdemo_help();	break;
-		case KEY_F3:	toggle_cockpit();	break;
 		case KEY_F2:	Config_menu_flag = 1;	break;
+		case KEY_F3:	toggle_cockpit();	break;
+		case KEY_F4:	Newdemo_show_percentage = !Newdemo_show_percentage; break;
 		case KEY_F7:
 #ifdef NETWORK
 			Show_kill_list = (Show_kill_list+1) % ((Game_mode & GM_TEAM) ? 4 : 3);
@@ -1861,11 +1868,11 @@ void HandleDemoKey(int key)
 			Newdemo_vcr_state = ND_STATE_PAUSED;
 		break;
 		case KEY_LEFT:
-			newdemo_single_frame_time = timer_get_fixed_seconds();
+			newdemo_single_frame_time = GameTime;
 			Newdemo_vcr_state = ND_STATE_ONEFRAMEBACKWARD;
 		break;
 		case KEY_RIGHT:
-			newdemo_single_frame_time = timer_get_fixed_seconds();
+			newdemo_single_frame_time = GameTime;
 			Newdemo_vcr_state = ND_STATE_ONEFRAMEFORWARD;
 		break;
 		case KEY_CTRLED + KEY_RIGHT:
@@ -1877,19 +1884,20 @@ void HandleDemoKey(int key)
 		case KEY_PAUSE:
 			do_game_pause();
 		break;
-		case KEY_PRINT_SCREEN: {
+		case KEY_PRINT_SCREEN:
+		{
 			int old_state;
-			old_state = Newdemo_vcr_state;
-			Newdemo_vcr_state = ND_STATE_PRINTSCREEN;
+			old_state = Newdemo_show_percentage;
+			Newdemo_show_percentage = 0;
 			game_do_render_frame(GameArg.DbgUseDoubleBuffer);
 			save_screen_shot(0);
-			Newdemo_vcr_state = old_state;
+			Newdemo_show_percentage = old_state;
 			break;
+		}
 		case KEYS_GR_TOGGLE_FULLSCREEN:
 			gr_toggle_fullscreen();
 			break;
 		break;
-		}
 	}
 }
 
@@ -2190,7 +2198,7 @@ void HandleGameKey(int key)
 				break;
 
 		case KEY_ALTED+KEY_F2:	if (!Player_is_dead) state_save_all( 0 );		break;	// 0 means not between levels.
-		case KEY_ALTED+KEY_F3:	if (!Player_is_dead) state_restore_all(1);		break;
+		case KEY_ALTED+KEY_F3:	state_restore_all(1);		break;
 
 		/*
 		 * Jukebox hotkeys -- MD2211, 2007

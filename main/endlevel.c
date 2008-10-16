@@ -1381,7 +1381,11 @@ try_again:
 
 				iff_error = iff_read_bitmap(p,&terrain_bm_instance,BM_LINEAR,pal);
 				if (iff_error != IFF_NO_ERROR) {
-					Error("File %s - IFF error: %s",p,iff_errormsg(iff_error));
+					con_printf(CON_DEBUG, "Can't load exit terrain from file %s: IFF error: %s\n",
+                                                p, iff_errormsg(iff_error));
+					endlevel_data_loaded = 0; // won't be able to play endlevel sequence
+					cfclose(ifile);
+					return;
 				}
 
 				terrain_bitmap = &terrain_bm_instance;
@@ -1414,7 +1418,11 @@ try_again:
 
 				iff_error = iff_read_bitmap(p,&satellite_bm_instance,BM_LINEAR,pal);
 				if (iff_error != IFF_NO_ERROR) {
-					Error("File %s - IFF error: %s",p,iff_errormsg(iff_error));
+					con_printf(CON_DEBUG, "Can't load exit satellite from file %s: IFF error: %s\n",
+                                                p, iff_errormsg(iff_error));
+					endlevel_data_loaded = 0; // won't be able to play endlevel sequence
+					cfclose(ifile);
+					return;
 				}
 
 				satellite_bitmap = &satellite_bm_instance;

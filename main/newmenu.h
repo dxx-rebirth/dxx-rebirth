@@ -148,6 +148,9 @@ int nm_messagebox_fixedfont( char *title, int nchoices, ... );
 #define SLIDER_MIDDLE		"…"		// 133
 #define SLIDER_MARKER		"†"		// 134
 
+//should be called whenever the palette changes
+extern void newmenu_close();
+
 #define NEWMENU_MOUSE
 
 #  include <SDL/SDL.h>

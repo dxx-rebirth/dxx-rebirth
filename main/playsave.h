@@ -59,8 +59,10 @@ typedef struct player_config
 	int AutoLeveling;
 	short NHighestLevels;
 	hli HighestLevels[MAX_MISSIONS];
-	ubyte MouseSensitivity;
-	ubyte JoystickSensitivity;
+	ubyte MouseSensitivityX;
+	ubyte MouseSensitivityY;
+	ubyte JoystickSensitivityX;
+	ubyte JoystickSensitivityY;
 	int JoystickDeadzone;
 	int CockpitMode;
 	char NetworkMessageMacro[4][MAX_MESSAGE_LEN];

@@ -604,25 +604,10 @@ try_again:
 //Inputs the player's name, without putting up the background screen
 int RegisterPlayer()
 {
-	int i,j;
 	char filename[14];
 	int allow_abort_flag = 1;
 
         if ( Players[Player_num].callsign[0] == 0 )     {
-		//---------------------------------------------------------------------
-		// Set default config options in case there is no config file
-		// kc_keyboard, kc_joystick, kc_mouse are statically defined.
-		PlayerCfg.JoystickSensitivity = 8;
-		PlayerCfg.MouseSensitivity = 8;
-		PlayerCfg.ControlType =CONTROL_NONE;
-		for (i=0; i<CONTROL_MAX_TYPES; i++ )
-			for (j=0; j<MAX_CONTROLS; j++ )
-				PlayerCfg.KeySettings[i][j] = DefaultKeySettings[i][j];
-		for(i=0; i<MAX_D1X_CONTROLS; i++)
-			PlayerCfg.KeySettingsD1X[i]=DefaultKeySettingsD1X[i];
-		kc_set_controls();
-		//----------------------------------------------------------------
-
 		// Read the last player's name from config file, not lastplr.txt
 		strncpy( Players[Player_num].callsign, GameCfg.LastPlayer, CALLSIGN_LEN );
 
@@ -1141,7 +1126,7 @@ void StartNewLevelSub(int level_num, int page_in_textures)
 
 	if (Newdemo_state == ND_STATE_RECORDING) {
 		newdemo_set_new_level(level_num);
-		newdemo_record_start_frame(FrameCount, FrameTime );
+		newdemo_record_start_frame(FrameTime );
 	}
 
 	if (Game_mode & GM_MULTI)

@@ -122,7 +122,7 @@ void nm_draw_background1(char * filename)
 		gr_palette_load( gr_palette );
 		show_fullscr(&nm_background1);
 
-		if (!strcmp(filename,Menu_pcx_name) && Function_mode != FMODE_GAME)
+		if (!strcmp(filename,Menu_pcx_name))
 			nm_draw_copyright();
 	}
 }
@@ -455,32 +455,6 @@ void strip_end_whitespace( char * text )
 	}
 }
 
-//returns 1 if a control device button has been pressed
-int check_button_press()
-{
-	int i;
-
-	switch (PlayerCfg.ControlType) {
-	case	CONTROL_JOYSTICK:
-		for (i=0; i<4; i++ )	
-	 		if (joy_get_button_down_cnt(i)>0) return 1;
-		break;
-	case	CONTROL_MOUSE:
-	case	CONTROL_JOYMOUSE:
-#ifndef NEWMENU_MOUSE   // don't allow mouse to continue from menu
-		for (i=0; i<3; i++ )	
-			if (mouse_button_down_count(i)>0) return 1;
-		break;
-#endif
-	case	CONTROL_NONE: //keyboard only
-		break;
-	default:
-		Error("Bad control type (PlayerCfg.ControlType):%i",PlayerCfg.ControlType);
-	}
-
-	return 0;
-}
-
 #ifdef NEWMENU_MOUSE
 ubyte Hack_DblClick_MenuMode=0;
 #endif
@@ -532,7 +506,7 @@ int newmenu_do3_real( char * title, char * subtitle, int nitems, newmenu_item * 
 	int all_text=0; //set true if all text items
 	int sound_stopped=0, time_stopped=0;
 	int MaxOnMenu=MAXDISPLAYABLEITEMS;
-	int TopChoice,IsScrollBox=0;   // Is this a scrolling box? Set to false at init
+	int IsScrollBox=0;   // Is this a scrolling box? Set to false at init
 	char *Temp,TempVal;
 #ifdef NEWMENU_MOUSE
 	int mouse_state, omouse_state, dblclick_flag=0;
@@ -546,12 +520,12 @@ int newmenu_do3_real( char * title, char * subtitle, int nitems, newmenu_item * 
 
         MaxDisplayable=nitems;
 
-	if ( Function_mode == FMODE_GAME )	{
+	if ( Function_mode == FMODE_GAME && !((Game_mode & GM_MULTI) && (Newdemo_state != ND_STATE_PLAYBACK))) {
 		digi_pause_all();
 		sound_stopped = 1;
 	}
 
-	if (!((Game_mode & GM_MULTI) && (Function_mode == FMODE_GAME) && (!Endlevel_sequence)) )
+	if (!(((Game_mode & GM_MULTI) && (Newdemo_state != ND_STATE_PLAYBACK)) && (Function_mode == FMODE_GAME) && (!Endlevel_sequence)) )
 	{
 		time_stopped = 1;
 		stop_time();
@@ -774,7 +748,7 @@ int newmenu_do3_real( char * title, char * subtitle, int nitems, newmenu_item * 
 		}
 	}
 	done = 0;
-	TopChoice=choice;
+
 	// Clear mouse, joystick to clear button presses.
 	game_flush_inputs();
 
@@ -862,8 +836,6 @@ int newmenu_do3_real( char * title, char * subtitle, int nitems, newmenu_item * 
 			k = -1;
 			done = 1;
 		}
-		if (check_button_press())
-			done = 1;
 				
 		old_choice = choice;
 	
@@ -879,8 +851,8 @@ int newmenu_do3_real( char * title, char * subtitle, int nitems, newmenu_item * 
 				{
 					LastScrollCheck=-1;
 						
-					if (choice<TopChoice)
-						{ choice=TopChoice; break; }
+					if (choice<0)
+						{ choice=0; break; }
 			
 					if (choice-4<ScrollOffset && ScrollOffset > 0)
 					{
@@ -968,7 +940,7 @@ int newmenu_do3_real( char * title, char * subtitle, int nitems, newmenu_item * 
 			}
 			break;
 		case KEY_SHIFTED+KEY_UP:
-			if (MenuReordering && choice!=TopChoice)
+			if (MenuReordering && choice!=0)
 			{
 				Temp=item[choice].text;
 				TempVal=item[choice].value;

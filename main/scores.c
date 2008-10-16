@@ -330,6 +330,7 @@ void scores_view(int citem)
 	int w = FSPACX(290), h = FSPACY(170);
 
 	gr_palette_load( gr_palette );
+	newmenu_close();
 
 ReshowScores:
 	scores_read();
@@ -350,7 +351,7 @@ ReshowScores:
 		gr_set_current_canvas(NULL);
 		gr_flip();
 #ifdef OGL
-		nm_draw_background1(NULL);
+		nm_draw_background1(Menu_pcx_name);
 #endif
 		nm_draw_background(((SWIDTH-w)/2)-BORDERX,((SHEIGHT-h)/2)-BORDERY,((SWIDTH-w)/2)+w+BORDERX,((SHEIGHT-h)/2)+h+BORDERY);
 

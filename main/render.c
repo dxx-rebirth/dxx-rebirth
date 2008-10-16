@@ -258,7 +258,7 @@ extern int Current_level_num;
 //	tmap1, tmap2 are texture map ids.  tmap2 is the pasty one.
 void render_face(int segnum, int sidenum, int nv, short *vp, int tmap1, int tmap2, uvl *uvlp, vms_vector *norm)
 {
-	fix		face_light;
+// 	fix		face_light;
 	grs_bitmap	*bm;
 #ifdef OGL
 	grs_bitmap	*bm2=NULL;
@@ -277,7 +277,7 @@ void render_face(int segnum, int sidenum, int nv, short *vp, int tmap1, int tmap
 		pointlist[i] = &Segment_points[vp[i]];
 	}
 
-	face_light = -vm_vec_dot(&Viewer->orient.fvec,norm);
+// 	face_light = -vm_vec_dot(&Viewer->orient.fvec,norm);
 
 	if (tmap1 >= NumTextures) {
 		Int3();
@@ -317,7 +317,7 @@ void render_face(int segnum, int sidenum, int nv, short *vp, int tmap1, int tmap
 	{
 		int i;
 
-		face_light = fixmul(face_light,reflect);
+// 		face_light = fixmul(face_light,reflect);
 
 		for (i=0;i<nv;i++) {
 
@@ -331,7 +331,7 @@ void render_face(int segnum, int sidenum, int nv, short *vp, int tmap1, int tmap
 			uvl_copy[i].l += Dynamic_light[vp[i]];
 
 			//add in light from player's headlight
-			uvl_copy[i].l += compute_headlight_light(&Segment_points[vp[i]].p3_vec,face_light);
+// 			uvl_copy[i].l += compute_headlight_light(&Segment_points[vp[i]].p3_vec,face_light);
 
 			//saturate at max value
 			if (uvl_copy[i].l > MAX_LIGHT)
@@ -1381,6 +1381,8 @@ extern int Total_pixels;
 
 int Rear_view=0;
 
+void start_lighting_frame(object *viewer);
+
 #ifdef JOHN_ZOOM
 fix Zoom_factor=F1_0;
 #endif
@@ -1397,10 +1399,12 @@ void render_frame(fix eye_offset)
 
 	if ( Newdemo_state == ND_STATE_RECORDING )	{
 		if (eye_offset >= 0 )	{
-			newdemo_record_start_frame(FrameCount, FrameTime );
+			newdemo_record_start_frame(FrameTime );
 			newdemo_record_viewer_object(Viewer);
 		}
 	}
+
+	start_lighting_frame(Viewer);		//this is for ugly light-smoothing hack
 
 	g3_start_frame();
 
