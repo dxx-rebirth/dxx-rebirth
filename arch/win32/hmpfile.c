@@ -30,7 +30,7 @@ hmp_file *hmp_open(const char *filename) {
 	if (!(fp = cfopen((char *)filename, "rb")))
 		return NULL;
 
-	hmp = malloc(sizeof(hmp_file));
+	hmp = d_malloc(sizeof(hmp_file));
 	if (!hmp) {
 		cfclose(fp);
 		return NULL;
@@ -69,7 +69,7 @@ hmp_file *hmp_open(const char *filename) {
 
 		hmp->trks[i].len = data;
 
-		if (!(p = hmp->trks[i].data = malloc(data)))
+		if (!(p = hmp->trks[i].data = d_malloc(data)))
 			goto err;
 
 #if 0
@@ -107,7 +107,7 @@ void hmp_stop(hmp_file *hmp) {
 	while ((mhdr = hmp->evbuf)) {
 		midiOutUnprepareHeader((HMIDIOUT)hmp->hmidi, mhdr, sizeof(MIDIHDR));
 		hmp->evbuf = mhdr->lpNext;
-		free(mhdr);
+		d_free(mhdr);
 	}
 
 	if (hmp->hmidi) {
@@ -122,8 +122,8 @@ void hmp_close(hmp_file *hmp) {
 	hmp_stop(hmp);
 	for (i = 0; i < hmp->num_trks; i++)
 		if (hmp->trks[i].data)
-			free(hmp->trks[i].data);
-	free(hmp);
+			d_free(hmp->trks[i].data);
+	d_free(hmp);
 }
 
 /*
@@ -274,7 +274,7 @@ static int setup_buffers(hmp_file *hmp) {
 
 	lastbuf = NULL;
 	for (i = 0; i < HMP_BUFFERS; i++) {
-		if (!(buf = malloc(HMP_BUFSIZE + sizeof(MIDIHDR))))
+		if (!(buf = d_malloc(HMP_BUFSIZE + sizeof(MIDIHDR))))
 			return HMP_OUT_OF_MEM;
 		memset(buf, 0, sizeof(MIDIHDR));
 		buf->lpData = (unsigned char *)buf + sizeof(MIDIHDR);

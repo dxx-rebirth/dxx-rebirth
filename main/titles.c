@@ -83,8 +83,6 @@ int	Briefing_text_colors[MAX_BRIEFING_COLORS];
 int	Current_color = 0;
 int	Erase_color;
 
-extern int check_button_press();
-
 #ifdef MACINTOSH
 extern void macintosh_quit(void);
 #endif
@@ -112,8 +110,6 @@ int local_key_inkey(void)
 		return 0;				//say no key pressed
 	}
 
-	if (check_button_press())		//joystick or mouse button pressed?
-		rval = KEY_SPACEBAR;
 	else if (mouse_button_state(0))
 		rval = KEY_SPACEBAR;
 
@@ -142,9 +138,6 @@ int local_key_inkey(void)
 		save_screen_shot(0);
 		return 0;				//say no key pressed
 	}
-
-	if (check_button_press())		//joystick or mouse button pressed?
-		rval = KEY_SPACEBAR;
 
 	#ifdef MACINTOSH
 	if ( rval == KEY_Q+KEY_COMMAND )
@@ -651,15 +644,15 @@ int get_message_num(char **message)
 {
 	int	num=0;
 
-	while (**message == ' ')
+	while (strlen(*message) > 0 && **message == ' ')
 		(*message)++;
 
-	while ((**message >= '0') && (**message <= '9')) {
+	while (strlen(*message) > 0 && (**message >= '0') && (**message <= '9')) {
 		num = 10*num + **message-'0';
 		(*message)++;
 	}
 
-	while (*(*message)++ != 10)		//	Get and drop eoln
+	while (strlen(*message) > 0 && *(*message)++ != 10)		//	Get and drop eoln
 		;
 
 	return num;
@@ -668,17 +661,17 @@ int get_message_num(char **message)
 //-----------------------------------------------------------------------------
 void get_message_name(char **message, char *result)
 {
-	while (**message == ' ')
+	while (strlen(*message) > 0 && **message == ' ')
 		(*message)++;
 
-	while ((**message != ' ') && (**message != 10)) {
+	while (strlen(*message) > 0 && (**message != ' ') && (**message != 10)) {
 		if (**message != '\n')
 			*result++ = **message;
 		(*message)++;
 	}
 
 	if (**message != 10)
-		while (*(*message)++ != 10)		//	Get and drop eoln
+		while (strlen(*message) > 0 && *(*message)++ != 10)		//	Get and drop eoln
 			;
 
 	*result = 0;
@@ -1180,30 +1173,28 @@ int load_screen_text(char *filename, char **buf)
 		have_binary = 1;
 
 		len = cfilelength(ifile);
-		MALLOC(*buf, char, len+500);
+		MALLOC(*buf, char, len+1);
 		for (x=0, i=0; i < len; i++, x++) {
 			cfread (*buf+x,1,1,ifile);
 			if (*(*buf+x)==13)
 				x--;
 		}
-
 		cfclose(ifile);
 	} else {
 		len = cfilelength(tfile);
-		MALLOC(*buf, char, len+500);
+		MALLOC(*buf, char, len+1);
 		for (x=0, i=0; i < len; i++, x++) {
 			cfread (*buf+x,1,1,tfile);
 			if (*(*buf+x)==13)
 				x--;
 		}
-
-
-		//cfread(*buf, 1, len, tfile);
 		cfclose(tfile);
 	}
 
 	if (have_binary)
 		decode_text(*buf, len);
+
+	*(*buf+len)='\0';
 
 	return (1);
 }
@@ -1373,10 +1364,10 @@ int get_new_message_num(char **message)
 {
 	int	num=0;
 
-	while (**message == ' ')
+	while (strlen(*message) > 0 && **message == ' ')
 		(*message)++;
 
-	while ((**message >= '0') && (**message <= '9')) {
+	while (strlen(*message) > 0 && (**message >= '0') && (**message <= '9')) {
 		num = 10*num + **message-'0';
 		(*message)++;
 	}

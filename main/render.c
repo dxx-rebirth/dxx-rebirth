@@ -1656,7 +1656,7 @@ void render_frame(fix eye_offset, int window_num)
 	if ( Newdemo_state == ND_STATE_RECORDING && eye_offset >= 0 )	{
      
       if (RenderingType==0)
-   		newdemo_record_start_frame(FrameCount, FrameTime );
+   		newdemo_record_start_frame(FrameTime );
       if (RenderingType!=255)
    		newdemo_record_viewer_object(Viewer);
 	}

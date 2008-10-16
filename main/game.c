@@ -555,6 +555,7 @@ void calc_frame_time()
 		timer_value = timer_get_fixed_seconds();
 		FrameTime = timer_value - last_timer_value;
 	}
+	FrameTime = (FrameTime + last_frametime) * 0.5;
 
 	if ( Game_turbo_mode )
 		FrameTime *= 2;
@@ -1131,9 +1132,13 @@ void show_help()
 
 void show_newdemo_help()
 {
-	newmenu_item m[8];
+	newmenu_item m[12];
 	int mc = 0;
 
+	m[mc].type = NM_TYPE_TEXT; m[mc].text = "ESC\t  QUIT DEMO PLAYBACK"; mc++;
+	m[mc].type = NM_TYPE_TEXT; m[mc].text = TXT_HELP_F2; mc++;
+	m[mc].type = NM_TYPE_TEXT; m[mc].text = "F3\t  SWITCH COCKPIT MODES"; mc++;
+	m[mc].type = NM_TYPE_TEXT; m[mc].text = "F4\t  TOGGLE PERCENTAGE DISPLAY"; mc++;
 	m[mc].type = NM_TYPE_TEXT; m[mc].text = "UP\t  PLAY"; mc++;
 	m[mc].type = NM_TYPE_TEXT; m[mc].text = "DOWN\t  PAUSE"; mc++;
 	m[mc].type = NM_TYPE_TEXT; m[mc].text = "RIGHT\t  ONE FRAME FORWARD"; mc++;
@@ -1150,7 +1155,7 @@ void show_newdemo_help()
 //temp function until Matt cleans up game sequencing
 extern void temp_reset_stuff_on_level();
 
-fix Rear_view_leave_time = 0x4000;   // how long until we decide key is down (Used to be 0x4000)
+#define LEAVE_TIME 0x4000		//how long until we decide key is down	(Used to be 0x4000)
 
 //deal with rear view - switch it on, or off, or whatever
 void check_rear_view()
@@ -1170,7 +1175,7 @@ void check_rear_view()
 		}
 		else {
 			Rear_view = 1;
-			if (Rear_view_leave_time <= 0)
+			if (LEAVE_TIME <= 0)
 			{
 				leave_mode = 1; // set leave mode on here otherwise we will always have to hold for at least 1 frame to get leave_mode on
 			}
@@ -1190,7 +1195,7 @@ void check_rear_view()
 	else
 		if (Controls.rear_view_down_state) {
 
-			if (leave_mode == 0 && (timer_get_fixed_seconds() - entry_time) > Rear_view_leave_time)
+			if (leave_mode == 0 && (timer_get_fixed_seconds() - entry_time) > LEAVE_TIME)
 				leave_mode = 1;
 		}
 		else {
@@ -1379,6 +1384,7 @@ void game()
 			}
 
 			if (Automap_flag) {
+				game_flush_inputs();
 				do_automap(0);
 				Screen_mode=-1; set_screen_mode(SCREEN_GAME);
 				init_cockpit();

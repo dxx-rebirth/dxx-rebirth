@@ -385,7 +385,7 @@ void game_draw_hud_stuff()
 		int y;
 
 		if (Newdemo_state == ND_STATE_PLAYBACK) {
-			if (Newdemo_vcr_state != ND_STATE_PRINTSCREEN) {
+			if (Newdemo_show_percentage) {
 			  	sprintf(message, "%s (%d%%%% %s)", TXT_DEMO_PLAYBACK, newdemo_get_percent_done(), TXT_DONE);
 			} else {
 				sprintf (message, " ");
@@ -769,7 +769,7 @@ void toggle_cockpit()
 {
 	int new_mode=CM_FULL_SCREEN;
 
-	if (Rear_view)
+	if (Rear_view || Player_is_dead)
 		return;
 
 	switch (PlayerCfg.CockpitMode)

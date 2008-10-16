@@ -48,8 +48,6 @@ COPYRIGHT 1993-1999 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 
 struct Cfg GameCfg;
 
-ubyte Config_joystick_sensitivity = 8;
-
 static char *DigiVolumeStr = "DigiVolume";
 static char *MusicVolumeStr = "MidiVolume";
 static char *SndEnableRedbookStr = "RedbookEnabled";

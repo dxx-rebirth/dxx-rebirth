@@ -1,4 +1,3 @@
-/* $Id: credits.h,v 1.1.1.1 2006/03/17 19:56:57 zicodxx Exp $ */
 /*
 THE COMPUTER CODE CONTAINED HEREIN IS THE SOLE PROPERTY OF PARALLAX
 SOFTWARE CORPORATION ("PARALLAX").  PARALLAX, IN DISTRIBUTING THE CODE TO
@@ -11,18 +10,15 @@ CONTAINED HEREIN FOR REVENUE-BEARING PURPOSES.  THE END-USER UNDERSTANDS
 AND AGREES TO THE TERMS HEREIN AND ACCEPTS THE SAME BY USE OF THIS FILE.
 COPYRIGHT 1993-1999 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 */
-
 /*
  *
  * Prototypes for the credit sequence.
  *
  */
 
-
 #ifndef _CREDITS_H
 #define _CREDITS_H
 
-//if filename passed is NULL, show normal credits
-void credits_show();
+void credits_show(char *credits_filename);
 
-#endif /* _CREDITS_H */
+#endif

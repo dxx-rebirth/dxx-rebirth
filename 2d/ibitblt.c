@@ -399,7 +399,7 @@ ubyte	*gr_ibitblt_create_mask_sub( grs_bitmap * mask_bmp, int sx, int sy, int sw
 	else
 		code_size = gr_ibitblt_find_code_size( mask_bmp, sx, sy, sw, sh, srowsize );
 
-	code = malloc( code_size );
+	code = d_malloc( code_size );
 	if ( code == NULL )
 		return NULL;
 
@@ -637,7 +637,7 @@ void gr_ibitblt_find_hole_size(grs_bitmap *mask_bmp, int *minx, int *miny, int *
 	*maxy = 0;
 
 	if (scanline == NULL)
-		scanline = (double *)malloc(sizeof(double) * (MAX_WIDTH / sizeof(double)));
+		scanline = (double *)d_malloc(sizeof(double) * (MAX_WIDTH / sizeof(double)));
 
 	for (y = 0; y < mask_bmp->bm_h; y++) {
 		for (x = 0; x < mask_bmp->bm_w; x++) {

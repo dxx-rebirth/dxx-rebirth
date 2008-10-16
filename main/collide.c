@@ -976,7 +976,7 @@ void collide_robot_and_controlcen( object * obj1, object * obj2, vms_vector *col
 // 		vm_vec_normalize_quick(vm_vec_sub(&hitvec, &obj1->pos, &obj2->pos));
 // 		bump_one_object(obj2, &hitvec, 0);
 // 	}
-	if (!Robot_info[obj1->id].companion && !Robot_info[obj2->id].companion)
+	if (!(Robot_info[obj1->id].companion || Robot_info[obj1->id].thief) && !(Robot_info[obj2->id].companion || Robot_info[obj2->id].thief))
 		bump_two_objects(obj1, obj2, 0);
 }
 

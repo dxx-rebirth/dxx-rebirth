@@ -240,13 +240,13 @@ fix newdemo_single_frame_time;
 
 void update_vcr_state(void)
 {
-	if ((keyd_pressed[KEY_LSHIFT] || keyd_pressed[KEY_RSHIFT]) && keyd_pressed[KEY_RIGHT])
+	if ((keyd_pressed[KEY_LSHIFT] || keyd_pressed[KEY_RSHIFT]) && keyd_pressed[KEY_RIGHT] && FixedStep & EPS20)
 		Newdemo_vcr_state = ND_STATE_FASTFORWARD;
-	else if ((keyd_pressed[KEY_LSHIFT] || keyd_pressed[KEY_RSHIFT]) && keyd_pressed[KEY_LEFT])
+	else if ((keyd_pressed[KEY_LSHIFT] || keyd_pressed[KEY_RSHIFT]) && keyd_pressed[KEY_LEFT] && FixedStep & EPS20)
 		Newdemo_vcr_state = ND_STATE_REWINDING;
-	else if (!(keyd_pressed[KEY_LCTRL] || keyd_pressed[KEY_RCTRL]) && keyd_pressed[KEY_RIGHT] && ((timer_get_fixed_seconds() - newdemo_single_frame_time) >= F1_0))
+	else if (!(keyd_pressed[KEY_LCTRL] || keyd_pressed[KEY_RCTRL]) && keyd_pressed[KEY_RIGHT] && ((GameTime - newdemo_single_frame_time) >= F1_0) && FixedStep & EPS20)
 		Newdemo_vcr_state = ND_STATE_ONEFRAMEFORWARD;
-	else if (!(keyd_pressed[KEY_LCTRL] || keyd_pressed[KEY_RCTRL]) && keyd_pressed[KEY_LEFT] && ((timer_get_fixed_seconds() - newdemo_single_frame_time) >= F1_0))
+	else if (!(keyd_pressed[KEY_LCTRL] || keyd_pressed[KEY_RCTRL]) && keyd_pressed[KEY_LEFT] && ((GameTime - newdemo_single_frame_time) >= F1_0) && FixedStep & EPS20)
 		Newdemo_vcr_state = ND_STATE_ONEFRAMEBACKWARD;
 	else if ((Newdemo_vcr_state == ND_STATE_FASTFORWARD) || (Newdemo_vcr_state == ND_STATE_REWINDING))
 		Newdemo_vcr_state = ND_STATE_PLAYBACK;
@@ -683,15 +683,14 @@ void HandleDemoKey(int key)
 {
 	switch (key) {
 		case KEY_F1:	show_newdemo_help();	break;
+		MAC(case KEY_COMMAND+KEY_2:)
+		case KEY_F2:		Config_menu_flag = 1; break;
 		case KEY_F3:
 				
 			 if (!Newdemo_flying_guided)
 				toggle_cockpit();
 			 break;
-
-		MAC(case KEY_COMMAND+KEY_2:)
-		case KEY_F2:		Config_menu_flag = 1; break;
-
+		case KEY_F4:	Newdemo_show_percentage = !Newdemo_show_percentage; break;
 		MAC(case KEY_COMMAND+KEY_7:)
 		case KEY_F7:
 			#ifdef NETWORK
@@ -708,11 +707,11 @@ void HandleDemoKey(int key)
 			Newdemo_vcr_state = ND_STATE_PAUSED;
 			break;
 		case KEY_LEFT:
-			newdemo_single_frame_time = timer_get_fixed_seconds();
+			newdemo_single_frame_time = GameTime;
 			Newdemo_vcr_state = ND_STATE_ONEFRAMEBACKWARD;
 			break;
 		case KEY_RIGHT:
-			newdemo_single_frame_time = timer_get_fixed_seconds();
+			newdemo_single_frame_time = GameTime;
 			Newdemo_vcr_state = ND_STATE_ONEFRAMEFORWARD;
 			break;
 		case KEY_CTRLED + KEY_RIGHT:
@@ -728,14 +727,14 @@ void HandleDemoKey(int key)
 			break;
 
 		MAC(case KEY_COMMAND + KEY_SHIFTED + KEY_3:)
-		case KEY_PRINT_SCREEN: {
+		case KEY_PRINT_SCREEN:
+		{
 			int old_state;
-
-			old_state = Newdemo_vcr_state;
-			Newdemo_vcr_state = ND_STATE_PRINTSCREEN;
+			old_state = Newdemo_show_percentage;
+			Newdemo_show_percentage = 0;
 			game_render_frame_mono(GameArg.DbgUseDoubleBuffer);
 			save_screen_shot(0);
-			Newdemo_vcr_state = old_state;
+			Newdemo_show_percentage = old_state;
 			break;
 		}
 		case KEY_ALTED+KEY_ENTER:
@@ -1100,7 +1099,7 @@ int HandleSystemKey(int key)
 		MAC(case KEY_COMMAND+KEY_O:)
 		MAC(case KEY_COMMAND+KEY_ALTED+KEY_3:)
 		case KEY_ALTED+KEY_F3:
-			if (!Player_is_dead && !((Game_mode & GM_MULTI) && !(Game_mode & GM_MULTI_COOP))) {
+			if (!((Game_mode & GM_MULTI) && !(Game_mode & GM_MULTI_COOP))) {
 				full_palette_save();
 				state_restore_all(1, 0, NULL);
 			}

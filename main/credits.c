@@ -46,7 +46,7 @@ COPYRIGHT 1993-1999 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 
 #define ROW_SPACING			(SHEIGHT / 17)
 #define NUM_LINES			20 //14
-#define CREDITS_FILE			(cfexist("credits.txb")?"credits.tex":(cfexist("ocredits.txb")?"ocredits.tex":"mcredits.tex"))
+#define CREDITS_FILE    		(cfexist("mcredits.tex")?"mcredits.tex":cfexist("ocredits.tex")?"ocredits.tex":"credits.tex")
 #ifdef SHAREWARE
 #define ALLOWED_CHAR			'S'
 #else
@@ -54,7 +54,7 @@ COPYRIGHT 1993-1999 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 #endif
 
 //if filename passed is NULL, show normal credits
-void credits_show()
+void credits_show(char *credits_filename)
 {
 	CFILE * file;
 	int i, j, l, done;
@@ -76,11 +76,17 @@ void credits_show()
 
 	sprintf(filename, "%s", CREDITS_FILE);
 	have_bin_file = 0;
-
+	if (credits_filename) {
+		strcpy(filename,credits_filename);
+		have_bin_file = 1;
+	}
 	file = cfopen( filename, "rb" );
 	if (file == NULL) {
 		char nfile[32];
 		
+		if (credits_filename)
+			return;		//ok to not find special filename
+
 		tempp = strchr(filename, '.');
 		*tempp = '\0';
 		sprintf(nfile, "%s.txb", filename);
