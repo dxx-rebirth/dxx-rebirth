@@ -130,7 +130,7 @@ int gr_toggle_fullscreen(void)
 		glEnable(GL_BLEND);
 		glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
 	}
-
+	GameCfg.WindowMode = !ogl_fullscreen;
 	return ogl_fullscreen;
 }
 

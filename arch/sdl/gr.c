@@ -105,6 +105,7 @@ int gr_toggle_fullscreen(void)
 	gr_remap_mono_fonts();
 	sdl_video_flags^=SDL_FULLSCREEN;
 	SDL_WM_ToggleFullScreen(screen);
+	GameCfg.WindowMode = (sdl_video_flags & SDL_FULLSCREEN)?0:1;
 	return (sdl_video_flags & SDL_FULLSCREEN)?1:0;
 }
 

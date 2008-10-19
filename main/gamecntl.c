@@ -1160,12 +1160,6 @@ int HandleSystemKey(int key)
 				macintosh_quit();
 			break;
 #endif
-			
-		case KEY_ALTED+KEY_ENTER:
-		case KEY_ALTED+KEY_PADENTER:
-			gr_toggle_fullscreen();
-			game_flush_inputs();
-			break;
 		default:
 			break;
 

@@ -1033,10 +1033,6 @@ int show_briefing(int screen_num, char *message)
 		if ((key_check == KEY_SPACEBAR) || (key_check == KEY_ENTER))
 			delay_count = 0;
 
-		if ((key_check == KEY_ALTED+KEY_ENTER) ||
-			(key_check == KEY_ALTED+KEY_PADENTER))
-			gr_toggle_fullscreen();
-
 		if (Briefing_text_x > bsp->text_ulx + bsp->text_width) {
 			Briefing_text_x = bsp->text_ulx;
 			Briefing_text_y += bsp->text_uly;
