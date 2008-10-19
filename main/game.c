@@ -1894,9 +1894,11 @@ void HandleDemoKey(int key)
 			Newdemo_show_percentage = old_state;
 			break;
 		}
-		case KEYS_GR_TOGGLE_FULLSCREEN:
+		case KEY_ALTED+KEY_ENTER:
+		case KEY_ALTED+KEY_PADENTER:
 			gr_toggle_fullscreen();
 			break;
+
 		break;
 	}
 }
@@ -2191,11 +2193,6 @@ void HandleGameKey(int key)
 #endif
 		case KEY_PAUSE:			do_game_pause(); 	break;
 		case KEY_PRINT_SCREEN: 		save_screen_shot(0);	break;
-
-		case KEYS_GR_TOGGLE_FULLSCREEN:
-				gr_toggle_fullscreen();
-				game_flush_inputs();
-				break;
 
 		case KEY_ALTED+KEY_F2:	if (!Player_is_dead) state_save_all( 0 );		break;	// 0 means not between levels.
 		case KEY_ALTED+KEY_F3:	state_restore_all(1);		break;

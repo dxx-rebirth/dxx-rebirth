@@ -977,7 +977,8 @@ int newmenu_do3_real( char * title, char * subtitle, int nitems, newmenu_item * 
 				done = 1;
 			break;
 
-		case KEYS_GR_TOGGLE_FULLSCREEN:
+		case KEY_ALTED+KEY_ENTER:
+		case KEY_ALTED+KEY_PADENTER:
 			gr_toggle_fullscreen();
 			break;
 
@@ -2008,7 +2009,8 @@ int newmenu_listbox1( char * title, int nitems, char * items[], int allow_abort_
 			done = 1;
 			break;
 
-		case KEYS_GR_TOGGLE_FULLSCREEN:
+		case KEY_ALTED+KEY_ENTER:
+		case KEY_ALTED+KEY_PADENTER:
 			gr_toggle_fullscreen();
 			break;
 

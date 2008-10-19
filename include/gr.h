@@ -451,7 +451,4 @@ extern void gr_set_draw_buffer(int buf);
 int gr_check_fullscreen(void);//must return 0 if windowed, 1 if fullscreen
 int gr_toggle_fullscreen(void);//returns state after toggling (ie, same as if you had called check_fullscreen immediatly after)
 
-//make this a define, since its used in several places
-#define KEYS_GR_TOGGLE_FULLSCREEN KEY_CTRLED+KEY_SHIFTED+KEY_PADENTER: case KEY_ALTED+KEY_CTRLED+KEY_PADENTER: case KEY_ALTED+KEY_SHIFTED+KEY_PADENTER: case KEY_ALTED+KEY_ENTER
-
 #endif //!_GR_H
