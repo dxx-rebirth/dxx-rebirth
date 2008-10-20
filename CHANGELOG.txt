@@ -1,5 +1,9 @@
 D1X-Rebirth Changelog
 
+20081020
+--------
+main/menu.c: resolution 1440x960 to 1440x900 - typo
+
 20081019
 --------
 arch/sdl/gr.c, arch/ogl/gr.c, include/gr.h, main/game.c, main/menu.c, main/newmenu.c: Setting Fullscreen toggle setting the GameCfg value at each change, not only in change_res(); Do not allow the toggle while playing since ALT-GR+ENTER could be used as game-keys; Reorganized Resolutions menu to automatically calculate aspect ratio for preset resolutions and making custom fields exclusive

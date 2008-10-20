@@ -489,7 +489,7 @@ void change_res()
 	m[mc].type = NM_TYPE_RADIO; m[mc].text = "1024x768 (4x3)"; m[mc].value = (Game_screen_mode == SM(1024,768)); m[mc].group = 0; modes[mc] = SM(1024,768); mc++;
 	m[mc].type = NM_TYPE_RADIO; m[mc].text = "1280x800 (16x10)"; m[mc].value = (Game_screen_mode == SM(1280,800)); m[mc].group = 0; modes[mc] = SM(1280,800); mc++;
 	m[mc].type = NM_TYPE_RADIO; m[mc].text = "1280x1024 (5x4)"; m[mc].value = (Game_screen_mode == SM(1280,1024)); m[mc].group = 0; modes[mc] = SM(1280,1024); mc++;
-	m[mc].type = NM_TYPE_RADIO; m[mc].text = "1440x960 (3x2)"; m[mc].value = (Game_screen_mode == SM(1440,960)); m[mc].group = 0; modes[mc] = SM(1440,960); mc++;
+	m[mc].type = NM_TYPE_RADIO; m[mc].text = "1440x900 (16x10)"; m[mc].value = (Game_screen_mode == SM(1440,900)); m[mc].group = 0; modes[mc] = SM(1440,900); mc++;
 	m[mc].type = NM_TYPE_RADIO; m[mc].text = "1600x1200 (4x3)"; m[mc].value = (Game_screen_mode == SM(1600,1200)); m[mc].group = 0; modes[mc] = SM(1600,1200); mc++;
 	m[mc].type = NM_TYPE_RADIO; m[mc].text = "1920x1200 (16x10)"; m[mc].value = (Game_screen_mode == SM(1920,1200)); m[mc].group = 0; modes[mc] = SM(1920,1200); mc++;
 	num_presets = mc;
