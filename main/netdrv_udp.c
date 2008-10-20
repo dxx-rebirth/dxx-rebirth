@@ -30,9 +30,10 @@
 #include "key.h"
 #include "text.h"
 
-int UDP_sock;
+int UDP_sock = -1;
 unsigned int myid=0; // My personal ID which I will get from host and will be used for IPX-Node
 struct peer_list UDPPeers[MAX_CONNECTIONS]; // The Peer list.
+void UDPCloseSocket(socket_t *unused);
 
 // Receive Configuration: Exchanging Peers, doing Handshakes, etc.
 void UDPReceiveCFG(char *text, struct _sockaddr *sAddr)
@@ -394,14 +395,26 @@ int UDPOpenSocket(socket_t *unused, int port)
 {
 	int i;
 
+	// close stale socket
+	if( UDP_sock != -1 )
+		UDPCloseSocket(NULL);
+
 #ifdef _WIN32
 	struct _sockaddr sAddr;   // my address information
+	int reuse_on = -1;
+
+	memset( &sAddr, '\0', sizeof( sAddr ) );
 	
 	if ((UDP_sock = socket (_af, SOCK_DGRAM, 0)) == -1) {
 		con_printf(CON_URGENT,"UDPOpenSocket: socket creation failed\n");
 		nm_messagebox(TXT_ERROR,1,TXT_OK,"Could not create socket");
 		return -1;
 	}
+
+	// this is pretty annoying in win32. Not doing that will lead to 
+	// "Could not bind name to socket" errors. It may be suitable for other
+	// socket implementations, too
+	(void)setsockopt( UDP_sock, SOL_SOCKET, SO_REUSEADDR, (const char *) &reuse_on, sizeof( reuse_on ));
 
 #ifdef IPv6
 	sAddr.sin6_family = _pf; // host byte order
@@ -417,9 +430,11 @@ int UDPOpenSocket(socket_t *unused, int port)
 	
 	memset (&(sAddr.sin_zero), '\0', 8); // zero the rest of the struct
 	
-	if (bind (UDP_sock, (struct sockaddr *) &sAddr, sizeof (struct sockaddr)) == -1) {
+	if (bind (UDP_sock, (struct sockaddr *) &sAddr, sizeof (struct sockaddr)) == -1) 
+	{      
 		con_printf(CON_URGENT,"UDPOpenSocket: bind name to socket failed\n");
 		nm_messagebox(TXT_ERROR,1,TXT_OK,"Could not bind name to socket");
+		UDPCloseSocket(NULL);
 		return -1;
 	}
 #else
@@ -471,7 +486,7 @@ int UDPOpenSocket(socket_t *unused, int port)
 		{
 			con_printf(CON_URGENT,"UDPOpenSocket: bind name to socket failed\n");
 			nm_messagebox(TXT_ERROR,1,TXT_OK,"Could not bind name to socket");
-			close (UDP_sock);
+			UDPCloseSocket(NULL);
 			freeaddrinfo (res);
 			return -1;
 		}

@@ -842,6 +842,17 @@ void do_ip_manual_join_menu()
 		}
 	}
 
+	if (*GameArg.MplIpHostAddr) {
+		sprintf(buf,"%s",GameArg.MplIpHostAddr);
+
+		for (j=0; buf[j] != '\0'; j++) {
+			switch (buf[j]) {
+				case ' ':
+					buf[j] = '\0';
+			}
+		}
+	}
+
 	do {
 		old_game_mode = Game_mode;
 		num_options = 0;
