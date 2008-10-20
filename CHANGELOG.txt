@@ -3,6 +3,7 @@ D1X-Rebirth Changelog
 20081020
 --------
 main/menu.c: resolution 1440x960 to 1440x900 - typo
+d1x.ini, include/args.h, main/inferno.c, main/menu.c, main/netdrv_udp.c, main/network.c, misc/args.c: Readded -ip_hostaddr optional to the value stored in descent.cfg for automated program starts or whatever; Fix by Locate: Correctly close UDP sockets on Win32; Fix by Locate: Ability to select Secret levels on Multiplayer in D1X again which was broken in r619
 
 20081019
 --------

@@ -2057,12 +2057,18 @@ menu:
 
 		Netgame.levelnum = atoi(slevel);
 
-		if ((Netgame.levelnum < 1) || (Netgame.levelnum > Last_level))
+		if (!strnicmp(slevel, "s", 1))
+			Netgame.levelnum = -atoi(slevel+1);
+		else
+			Netgame.levelnum = atoi(slevel);
+
+		if ((Netgame.levelnum < Last_secret_level) || (Netgame.levelnum > Last_level) || (Netgame.levelnum == 0))
 		{
 			nm_messagebox(TXT_ERROR, 1, TXT_OK, TXT_LEVEL_OUT_RANGE );
 			sprintf(slevel, "1");
 			goto menu;
 		}
+
 		if ( m[opt_mode].value )
 			Netgame.gamemode = NETGAME_ANARCHY;
 
@@ -3746,7 +3752,14 @@ int show_game_stats(int choice)
 	else
 		info+=sprintf(info,Active_games[choice].mission_title);
 
-	info+=sprintf (info," - Lvl %i",Active_games[choice].levelnum);
+   if( Active_games[choice].levelnum >= 0 )
+   {
+	   info+=sprintf (info," - Lvl %i",Active_games[choice].levelnum);
+   }
+   else
+   {
+      info+=sprintf (info," - Lvl S%i",(Active_games[choice].levelnum*-1));
+   }
 #endif
 	info+=sprintf (info,"\n\nDifficulty: %s",MENU_DIFFICULTY_TEXT(Active_games[choice].difficulty));
 	info+=sprintf (info,"\nGame Mode: %s",NetworkModeNames[Active_games[choice].gamemode]);

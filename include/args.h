@@ -72,6 +72,7 @@ typedef struct Arg
 	const char *MplIpxNetwork;
 	int MplIpBasePort;
 	int MplIpRelay;
+	char *MplIpHostAddr;
 	int DbgVerbose;
 	int DbgNoRun;
 	int DbgRenderStats;
