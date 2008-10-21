@@ -1,5 +1,9 @@
 D1X-Rebirth Changelog
 
+20081021
+--------
+iff/iff.c, main/inferno.c: Fix some gcc 4.0 warnings (-wall flag)
+
 20081020
 --------
 main/menu.c: resolution 1440x960 to 1440x900 - typo

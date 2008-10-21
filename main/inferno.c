@@ -116,7 +116,6 @@ static char *__reference[2]={copyright,(char *)__reference};
 #include "console.h"
 
 
-static const char desc_id_checksum_str[] = DESC_ID_CHKSUM;
 char desc_id_exit_num = 0;
 int Function_mode=FMODE_MENU; //game or editor?
 int Screen_mode=-1; //game screen or editor screen?
