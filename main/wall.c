@@ -358,7 +358,7 @@ void wall_open_door(segment *seg, int side)
 {
 	wall *w;
 	active_door *d;
-	int Connectside, wall_num, cwall_num;
+	int Connectside, wall_num, cwall_num = -1;
 	segment *csegp;
 
 	Assert(seg->sides[side].wall_num != -1); 	//Opening door on illegal wall

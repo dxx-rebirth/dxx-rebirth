@@ -946,7 +946,7 @@ int iff_write_bitmap(char *ofilename,grs_bitmap *bm,ubyte *palette)
 //returns iff error codes
 int iff_read_animbrush(char *ifilename,grs_bitmap **bm_list,int max_bitmaps,int *n_bitmaps,ubyte *palette)
 {
-	int ret;			//return code
+	int ret = IFF_NO_ERROR;			//return code
 	PHYSFS_file *ifile;
 	iff_bitmap_header bmheader;
 	int sig,form_len;
