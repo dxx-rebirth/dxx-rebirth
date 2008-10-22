@@ -52,7 +52,7 @@
 typedef struct peer_list
 {
 	struct _sockaddr addr; // real address information about this peer
-	int valid; // 1 = client connected / 2 = client ready for handshaking
+	int valid; // 1 = client connected / 2 = client ready for handshaking / 3 = client done with handshake and fully joined
 	fix timestamp; // time of received packet - used for timeout
 	char hs_list[MAX_CONNECTIONS]; // list to store all handshake results from clients assigned to this peer
 	int hstimeout; // counts the number of tries the client tried to connect - if reached 10, client put to relay if allowed

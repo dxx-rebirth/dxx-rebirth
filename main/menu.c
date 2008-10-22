@@ -483,6 +483,7 @@ void change_res()
 	u_int32_t screen_mode = 0, aspect_mode = 0;
 
 	// the list of pre-defined resolutions
+	// TODO: You know, since we currently have SDL, we could use it to build a list of supported resolutions
 	m[mc].type = NM_TYPE_RADIO; m[mc].text = "320x200 (16x10)"; m[mc].value = (Game_screen_mode == SM(320,200)); m[mc].group = 0; modes[mc] = SM(320,200); mc++;
 	m[mc].type = NM_TYPE_RADIO; m[mc].text = "640x480 (4x3)"; m[mc].value = (Game_screen_mode == SM(640,480)); m[mc].group = 0; modes[mc] = SM(640,480); mc++;
 	m[mc].type = NM_TYPE_RADIO; m[mc].text = "800x600 (4x3)"; m[mc].value = (Game_screen_mode == SM(800,600)); m[mc].group = 0; modes[mc] = SM(800,600); mc++;
@@ -519,10 +520,7 @@ void change_res()
 
 	// now check for fullscreen toggle and apply if necessary
 	if (m[fullscreenc].value != gr_check_fullscreen())
-	{
 		gr_toggle_fullscreen();
-		Game_screen_mode = -1;
-	}
 
 	// check which preset field was selected
 	for (i = 0; (m[i].value == 0) && (i < num_presets); i++);

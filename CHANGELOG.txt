@@ -1,5 +1,9 @@
 D2X-Rebirth Changelog
 
+20081022
+--------
+main/menu.c, main/netdrv_udp.c, main/netdrv_udp.h: Removing reset of Game_screen_mode while change_res Fullscreen toggle (wtf is the point?); Adding a third valid state for UDP peers so we can get more order in handshaking process - should fix problem when two clients join (and shake) simultaniously
+
 20081021
 --------
 iff/iff.c, main/wall.c: Fix some gcc 4.0 warnings (-wall flag)
