@@ -169,6 +169,7 @@ int UDPHandshakeFrame(struct _sockaddr *sAddr, char *inbuf)
 		{
 			checkid=i;
 			UDPPeers[checkid].valid=2;
+			break;
 		}
 	}
 
@@ -181,7 +182,7 @@ int UDPHandshakeFrame(struct _sockaddr *sAddr, char *inbuf)
 	// send Handshake init to all valid players except the new one (checkid)
 	for (i=1; i<MAX_CONNECTIONS; i++)
 	{
-		if (UDPPeers[i].valid>1 && i != checkid  && !UDPPeers[i].relay && UDPPeers[i].hs_list[0] && memcmp(sAddr,(struct sockaddr*)&UDPPeers[i].addr,sizeof(struct _sockaddr)))
+		if (UDPPeers[i].valid == 3 && i != checkid  && !UDPPeers[i].relay && memcmp(sAddr,(struct sockaddr*)&UDPPeers[i].addr,sizeof(struct _sockaddr)))
 		{
 			char outbuf[6+sizeof(struct _sockaddr)];
 
@@ -193,10 +194,14 @@ int UDPHandshakeFrame(struct _sockaddr *sAddr, char *inbuf)
 		}
 	}
 
+	// check if that client is already fully joined
+	if (UDPPeers[checkid].valid == 3)
+		return 1;
+
 	// Now check if Handshake was successful on requesting player - if not, return 0
 	for (i=1; i<MAX_CONNECTIONS; i++)
 	{
-		if (UDPPeers[i].valid>1 && memcmp(sAddr,(struct _sockaddr *)&UDPPeers[i].addr,sizeof(struct _sockaddr)))
+		if (UDPPeers[i].valid == 3 && memcmp(sAddr,(struct _sockaddr *)&UDPPeers[i].addr,sizeof(struct _sockaddr)))
 		{
 			if (UDPPeers[checkid].hs_list[i] != 1 && !UDPPeers[i].relay)
 			{
@@ -207,6 +212,7 @@ int UDPHandshakeFrame(struct _sockaddr *sAddr, char *inbuf)
 						con_printf(CON_NORMAL,"UDP: Relaying Client #%i over Host\n",checkid);
 						UDPPeers[checkid].relay=1;
 						memset(UDPPeers[checkid].hs_list,1,MAX_CONNECTIONS);
+						UDPPeers[checkid].valid=3;
 						return 1;
 					}
  				}
@@ -219,6 +225,7 @@ int UDPHandshakeFrame(struct _sockaddr *sAddr, char *inbuf)
 	// Set all vals to true since this could be the first client in our list that had no need to Handshake.
 	// However in that case this should be true for the next client joning
 	memset(UDPPeers[checkid].hs_list,1,MAX_CONNECTIONS);
+	UDPPeers[checkid].valid=3;
 
 	return 1;
 }
