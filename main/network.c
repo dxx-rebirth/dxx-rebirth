@@ -4775,6 +4775,8 @@ void network_ping_all()
 	int i;
 	static fix PingTime=0;
 
+	PingTable[Player_num] = -1; // Set mine to fancy -1 because I am super fast! Weeee
+
 	if (PingTime+(F1_0*3)<GameTime || PingTime > GameTime)
 	{
 		for (i=0; i<MAX_PLAYERS; i++)
