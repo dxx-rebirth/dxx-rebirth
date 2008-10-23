@@ -711,6 +711,12 @@ void multi_do_frame(void)
 #endif	
 
 	network_do_frame(0, 1);
+
+	if (multi_quit_game && !multi_in_menu)
+	{
+		multi_quit_game = 0;
+		longjmp(LeaveGame, 0);
+	}
 }
 
 //edit 03/04/99 Matt Mueller - some debug code.. ignore if you wish.

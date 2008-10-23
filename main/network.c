@@ -1298,7 +1298,6 @@ void network_process_dump(sequence_packet *their)
           multi_leave_menu = 1;
           multi_reset_stuff();
 
-          longjmp(LeaveGame,1);  // because the other crap didn't work right
           return;
 	}
 	// End addition by GF
@@ -3531,6 +3530,8 @@ void network_ping_all()
 {
 	int i;
 	static fix PingTime=0;
+
+	PingTable[Player_num] = -1; // Set mine to fancy -1 because I am super fast! Weeee
 
 	if (PingTime+(F1_0*3)<GameTime || PingTime > GameTime)
 	{

@@ -1,5 +1,9 @@
 D1X-Rebirth Changelog
 
+20081023
+--------
+main/multi.c, main/network.c: Fixed handling for multi_quit_game; Always keep setting -1 for ping table entry of current player so just not to use any previous entry
+
 20081022
 --------
 main/menu.c, main/netdrv_udp.c, main/netdrv_udp.h: Removing reset of Game_screen_mode while change_res Fullscreen toggle (wtf is the point?); Adding a third valid state for UDP peers so we can get more order in handshaking process - should fix problem when two clients join (and shake) simultaniously
