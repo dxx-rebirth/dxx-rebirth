@@ -2,7 +2,7 @@
 __________/ D1X-Rebirth /
 
 
-http://www.dxx-rebirth.de
+http://www.dxx-rebirth.com
 
 
 0. Introduction
@@ -71,5 +71,5 @@ See COPYING.txt
 
 5. Contact
 
-http://www.dxx-rebirth.de/
+http://www.dxx-rebirth.com/
 zicodxx [at] yahoo [dot] de
