@@ -554,10 +554,10 @@ void change_res()
 	// clean up and apply everything
 	newmenu_close();
 	set_screen_mode(SCREEN_MENU);
-	gr_set_mode(Game_screen_mode);
 	if (Game_screen_mode != screen_mode)
 	{
 		Game_screen_mode = screen_mode;
+		gr_set_mode(Game_screen_mode);
 		game_init_render_buffers(SM_W(screen_mode), SM_H(screen_mode), VR_NONE, 0);
 	}
 }

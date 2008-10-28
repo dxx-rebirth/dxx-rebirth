@@ -3,6 +3,7 @@ D2X-Rebirth Changelog
 20081028
 --------
 arch/ogl.c, include/gr.h, main/game.c, main/gamerend.c, main/gauges.c, main/gauges.h, main/newmenu.c: Removed hack for Cockpit-window transparencies and added function to decode and add alpha to the bitmap directly (now works in non-OGL as well); Using sub-bitmaps for Cockpit-windows and menu backgrounds; Cleaned old bkg stuff from menu GUI
+main/gamerend.c, main/manu.c, main/newmenu.c: Fixes for my last revisions: More reliable check for cockpit_decode_alpha, more reliable check is newmenu sub-bitmap needs to be re-created, call gr_set_mode() in change_res() with correct Game_screen_mode
 
 20081023
 --------
