@@ -629,19 +629,7 @@ void save_screen_shot(int automap_flag)
 	if (!automap_flag)
 		hud_message(MSGC_GAME_FEEDBACK,message);
 
-	if (!automap_flag && PlayerCfg.OglPRShot && Function_mode == FMODE_GAME)
-	{
-		gr_set_current_canvas(NULL);
-		render_frame(0, 0);
-		gr_set_curfont(MEDIUM2_FONT);
-		gr_printf(SWIDTH-FSPACX(92),SHEIGHT-LINE_SPACING,"DXX-Rebirth\n");
-		ogl_do_palfx();
-		glReadBuffer(GL_BACK);
-	}
-	else
-	{
-		glReadBuffer(GL_FRONT);
-	}
+	glReadBuffer(GL_FRONT);
 
 	buf = d_malloc(grd_curscreen->sc_w*grd_curscreen->sc_h*3);
 	write_bmp(savename,grd_curscreen->sc_w,grd_curscreen->sc_h,buf);

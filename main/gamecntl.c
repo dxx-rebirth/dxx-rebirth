@@ -729,12 +729,24 @@ void HandleDemoKey(int key)
 		MAC(case KEY_COMMAND + KEY_SHIFTED + KEY_3:)
 		case KEY_PRINT_SCREEN:
 		{
-			int old_state;
-			old_state = Newdemo_show_percentage;
-			Newdemo_show_percentage = 0;
-			game_render_frame_mono(GameArg.DbgUseDoubleBuffer);
-			save_screen_shot(0);
-			Newdemo_show_percentage = old_state;
+			if (PlayerCfg.PRShot)
+			{
+				gr_set_current_canvas(NULL);
+				render_frame(0, 0);
+				gr_set_curfont(MEDIUM2_FONT);
+				gr_printf(SWIDTH-FSPACX(92),SHEIGHT-LINE_SPACING,"DXX-Rebirth\n");
+				gr_flip();
+				save_screen_shot(0);
+			}
+			else
+			{
+				int old_state;
+				old_state = Newdemo_show_percentage;
+				Newdemo_show_percentage = 0;
+				game_render_frame_mono(GameArg.DbgUseDoubleBuffer);
+				save_screen_shot(0);
+				Newdemo_show_percentage = old_state;
+			}
 			break;
 		}
 		case KEY_ALTED+KEY_ENTER:
@@ -974,7 +986,19 @@ int HandleSystemKey(int key)
 
 
 		MAC(case KEY_COMMAND + KEY_SHIFTED + KEY_3:)
-		case KEY_PRINT_SCREEN:  save_screen_shot(0);		break;
+		case KEY_PRINT_SCREEN:
+		{
+			if (PlayerCfg.PRShot)
+			{
+				gr_set_current_canvas(NULL);
+				render_frame(0, 0);
+				gr_set_curfont(MEDIUM2_FONT);
+				gr_printf(SWIDTH-FSPACX(92),SHEIGHT-LINE_SPACING,"DXX-Rebirth\n");
+				gr_flip();
+			}
+			save_screen_shot(0);
+			break;
+		}
 
 		MAC(case KEY_COMMAND+KEY_1:)
 		case KEY_F1:					show_help();			break;

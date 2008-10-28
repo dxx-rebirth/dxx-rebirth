@@ -86,6 +86,8 @@ int sphereh=0;
 int cross_lh[2]={0,0};
 int primary_lh[3]={0,0,0};
 int secondary_lh[5]={0,0,0,0,0};
+int r_polyc,r_tpolyc,r_bitmapc,r_ubitbltc,r_upixelc;
+#define f2glf(x) (f2fl(x))
 
 #define OGL_BINDTEXTURE(a) glBindTexture(GL_TEXTURE_2D, a);
 
@@ -212,11 +214,15 @@ ogl_texture* ogl_get_free_texture(void){
 	Error("OGL: texture list full!\n");
 }
 
-int ogl_texture_stats(void){
+void ogl_texture_stats(void)
+{
 	int used = 0, usedother = 0, usedidx = 0, usedrgb = 0, usedrgba = 0;
 	int databytes = 0, truebytes = 0, datatexel = 0, truetexel = 0, i;
 	int prio0=0,prio1=0,prio2=0,prio3=0,prioh=0;
+	GLint idx, r, g, b, a, dbl, depth;
+	int res, colorsize, depthsize;
 	ogl_texture* t;
+
 	for (i=0;i<OGL_TEXTURE_LIST_SIZE;i++){
 		t=&ogl_texture_list[i];
 		if (t->handle>0){
@@ -240,30 +246,25 @@ int ogl_texture_stats(void){
 				usedother++;
 		}
 	}
-	if (GameArg.DbgRenderStats)
-	{
-		GLint idx, r, g, b, a, dbl, depth;
-		int res, colorsize, depthsize;
 
-		res = SWIDTH * SHEIGHT;
-		glGetIntegerv(GL_INDEX_BITS, &idx);
-		glGetIntegerv(GL_RED_BITS, &r);
-		glGetIntegerv(GL_GREEN_BITS, &g);
-		glGetIntegerv(GL_BLUE_BITS, &b);
-		glGetIntegerv(GL_ALPHA_BITS, &a);
-		glGetIntegerv(GL_DOUBLEBUFFER, &dbl);
-		dbl += 1;
-		glGetIntegerv(GL_DEPTH_BITS, &depth);
-		gr_set_curfont( GAME_FONT );
-		gr_set_fontcolor( BM_XRGB(31,0,0),-1 );
-		colorsize = (idx * res * dbl) / 8;
-		depthsize = res * depth / 8;
-		gr_printf(FSPACX(2), LINE_SPACING*2, "%i(%i,%i,%i,%i) %iK(%iK wasted) (%i postcachedtex)", used, usedrgba, usedrgb, usedidx, usedother, truebytes / 1024, (truebytes - databytes) / 1024, r_texcount - r_cachedtexcount);
-		gr_printf(FSPACX(2), LINE_SPACING*3, "%ibpp(r%i,g%i,b%i,a%i)x%i=%iK depth%i=%iK", idx, r, g, b, a, dbl, colorsize / 1024, depth, depthsize / 1024);
-		gr_printf(FSPACX(2), LINE_SPACING*4, "total=%iK", (colorsize + depthsize + truebytes) / 1024);
-	}
-
-	return truebytes;
+	res = SWIDTH * SHEIGHT;
+	glGetIntegerv(GL_INDEX_BITS, &idx);
+	glGetIntegerv(GL_RED_BITS, &r);
+	glGetIntegerv(GL_GREEN_BITS, &g);
+	glGetIntegerv(GL_BLUE_BITS, &b);
+	glGetIntegerv(GL_ALPHA_BITS, &a);
+	glGetIntegerv(GL_DOUBLEBUFFER, &dbl);
+	dbl += 1;
+	glGetIntegerv(GL_DEPTH_BITS, &depth);
+	gr_set_current_canvas(NULL);
+	gr_set_curfont( GAME_FONT );
+	gr_set_fontcolor( BM_XRGB(255,255,255),-1 );
+	colorsize = (idx * res * dbl) / 8;
+	depthsize = res * depth / 8;
+	gr_printf(FSPACX(2),FSPACY(1),"%i flat %i tex %i sprites %i bitmaps",r_polyc,r_tpolyc,r_bitmapc);
+	gr_printf(FSPACX(2), FSPACY(1)+LINE_SPACING, "%i(%i,%i,%i,%i) %iK(%iK wasted) (%i postcachedtex)", used, usedrgba, usedrgb, usedidx, usedother, truebytes / 1024, (truebytes - databytes) / 1024, r_texcount - r_cachedtexcount);
+	gr_printf(FSPACX(2), FSPACY(1)+(LINE_SPACING*2), "%ibpp(r%i,g%i,b%i,a%i)x%i=%iK depth%i=%iK", idx, r, g, b, a, dbl, colorsize / 1024, depth, depthsize / 1024);
+	gr_printf(FSPACX(2), FSPACY(1)+(LINE_SPACING*3), "total=%iK", (colorsize + depthsize + truebytes) / 1024);
 }
 
 void ogl_bindbmtex(grs_bitmap *bm){
@@ -450,9 +451,6 @@ void ogl_cache_level_textures(void)
 	glmprintf((0,"finished caching\n"));
 	r_cachedtexcount = r_texcount;
 }
-
-int r_polyc,r_tpolyc,r_bitmapc,r_ubitmapc,r_ubitbltc,r_upixelc;
-#define f2glf(x) (f2fl(x))
 
 bool g3_draw_line(g3s_point *p0,g3s_point *p1)
 {
@@ -857,7 +855,6 @@ bool ogl_ubitmapm_c(int x, int y,grs_bitmap *bm,int c)
 {
 	GLfloat xo,yo,xf,yf;
 	GLfloat u1,u2,v1,v2;
-	r_ubitmapc++;
 	x+=grd_curcanv->cv_bitmap.bm_x;
 	y+=grd_curcanv->cv_bitmap.bm_y;
 	xo=x/(float)last_width;
@@ -958,7 +955,7 @@ bool ogl_ubitblt(int w,int h,int dx,int dy, int sx, int sy, grs_bitmap * src, gr
 GLubyte *pixels = NULL;
 
 void ogl_start_frame(void){
-	r_polyc=0;r_tpolyc=0;r_bitmapc=0;r_ubitmapc=0;r_ubitbltc=0;r_upixelc=0;
+	r_polyc=0;r_tpolyc=0;r_bitmapc=0;r_ubitbltc=0;r_upixelc=0;
 
 	OGL_VIEWPORT(grd_curcanv->cv_bitmap.bm_x,grd_curcanv->cv_bitmap.bm_y,Canvas_width,Canvas_height);
 	glClearColor(0.0, 0.0, 0.0, 0.0);
@@ -998,7 +995,7 @@ void ogl_end_frame(void){
 void gr_flip(void)
 {
 	if (GameArg.DbgRenderStats)
-		gr_printf(FSPACX(2),LINE_SPACING*1,"%i flat %i tex %i sprites %i bitmaps",r_polyc,r_tpolyc,r_bitmapc,r_ubitmapc);
+		ogl_texture_stats();
 
 	ogl_do_palfx();
 	ogl_swap_buffers_internal();
@@ -1447,7 +1444,6 @@ bool ogl_ubitmapm_cs(int x, int y,int dw, int dh, grs_bitmap *bm,int c, int scal
 	GLfloat xo,yo,xf,yf;
 	GLfloat u1,u2,v1,v2;
 	GLdouble h,a;
-	r_ubitmapc++;
 	x+=grd_curcanv->cv_bitmap.bm_x;
 	y+=grd_curcanv->cv_bitmap.bm_y;
 	xo=x/(float)last_width;
@@ -1463,7 +1459,6 @@ bool ogl_ubitmapm_cs(int x, int y,int dw, int dh, grs_bitmap *bm,int c, int scal
 		dh = grd_curcanv->cv_bitmap.bm_h;
 	else if (dh == 0)
 		dh = bm->bm_h;
-	r_ubitmapc++;
 
 	a = (double) grd_curscreen->sc_w / (double) grd_curscreen->sc_h;
 	h = (double) scale / (double) F1_0;

@@ -135,6 +135,9 @@ int gr_init(int mode)
 	if (GameArg.DbgSdlHWSurface)
 		sdl_video_flags|=SDL_HWSURFACE;
 
+	if (GameArg.DbgSdlASyncBlit)
+		sdl_video_flags|=SDL_ASYNCBLIT;
+
 	// Set the mode.
 	if ((retcode=gr_set_mode(mode)))
 		return retcode;

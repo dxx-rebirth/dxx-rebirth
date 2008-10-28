@@ -667,25 +667,15 @@ end:
 
 #endif
 
-//automap_flag is now unused, since we just check if the screen we're
-//writing to is modex
-//if called from automap, current canvas is set to visible screen
 #ifndef OGL
 void save_screen_shot(int automap_flag)
 {
-	fix t1;
 	char message[100];
 	grs_canvas *screen_canv=&grd_curscreen->sc_canvas;
-	grs_font *save_font;
 	static int savenum=0;
-	static int stereo_savenum=0;
-	grs_canvas *temp_canv,*temp_canv2,*save_canv;
-        char savename[FILENAME_LEN+sizeof(SCRNS_DIR)],savename2[FILENAME_LEN];
+	grs_canvas *temp_canv,*save_canv;
+        char savename[FILENAME_LEN+sizeof(SCRNS_DIR)];
 	ubyte pal[768];
-	int w,h,aw,x,y;
-	int stereo=0;
-
-	temp_canv2=NULL;
 
 	stop_time();
 
@@ -693,76 +683,30 @@ void save_screen_shot(int automap_flag)
 		PHYSFS_mkdir(SCRNS_DIR); //try making directory
 
 	save_canv = grd_curcanv;
-
-	if ( VR_render_mode != VR_NONE && !automap_flag && Function_mode==FMODE_GAME && Screen_mode==SCREEN_GAME)
-		stereo = 1;
-
-	if ( stereo ) {
-		temp_canv = gr_create_canvas(VR_render_buffer[0].cv_bitmap.bm_w,VR_render_buffer[0].cv_bitmap.bm_h);
-		gr_set_current_canvas(temp_canv);
-		gr_ubitmap(0,0,&VR_render_buffer[0].cv_bitmap);
-
-		temp_canv2 = gr_create_canvas(VR_render_buffer[1].cv_bitmap.bm_w,VR_render_buffer[1].cv_bitmap.bm_h);
-		gr_set_current_canvas(temp_canv2);
-		gr_ubitmap(0,0,&VR_render_buffer[1].cv_bitmap);
-	}
-	else {
-		temp_canv = gr_create_canvas(screen_canv->cv_bitmap.bm_w,screen_canv->cv_bitmap.bm_h);
-		gr_set_current_canvas(temp_canv);
-		gr_ubitmap(0,0,&screen_canv->cv_bitmap);
-	}
+	temp_canv = gr_create_canvas(screen_canv->cv_bitmap.bm_w,screen_canv->cv_bitmap.bm_h);
+	gr_set_current_canvas(temp_canv);
+	gr_ubitmap(0,0,&screen_canv->cv_bitmap);
 
 	gr_set_current_canvas(save_canv);
 
-	if ( savenum > 99 ) savenum = 0;
-	if ( stereo_savenum > 99 ) stereo_savenum = 0;
-
-	if ( stereo ) {
-		sprintf(savename,"left%02d.pcx",stereo_savenum);
-		sprintf(savename2,"right%02d.pcx",stereo_savenum);
-		if (VR_eye_switch) {char t[FILENAME_LEN]; strcpy(t,savename); strcpy(savename,savename2); strcpy(savename2,t);}
-		stereo_savenum++;
-		sprintf( message, "%s '%s' & '%s'", TXT_DUMPING_SCREEN, savename, savename2 );
-	}
-	else {
-		sprintf(savename,"%sscreen%02d.pcx",SCRNS_DIR,savenum++);
-		sprintf( message, "%s '%s'", TXT_DUMPING_SCREEN, savename );
-	}
+	do
+	{
+		sprintf(savename, "%sscrn%04d.pcx",SCRNS_DIR, savenum++);
+	} while (PHYSFS_exists(savename));
+	sprintf( message, "%s 'scrn%04d.pcx'", TXT_DUMPING_SCREEN, savenum-1 );
 
 	gr_set_current_canvas(NULL);
-	save_font = grd_curcanv->cv_font;
-	gr_set_curfont(GAME_FONT);
-	gr_set_fontcolor(BM_XRGB(0,31,0),-1);
-	gr_get_string_size(message,&w,&h,&aw);
 
-	//I changed how these coords were calculated for the high-res automap. -MT
-	x = (GWIDTH-w)/2;
-	y = (GHEIGHT-h)/2;
-
-	gr_setcolor(gr_find_closest_color_current(0,0,0));
-	gr_rect(x-2,y-2,x+w+2,y+h+2);
-	gr_printf(x,y,message);
-	gr_set_curfont(save_font);
-
-	t1 = timer_get_fixed_seconds() + F1_0;
+	if (!automap_flag)
+		hud_message(MSGC_GAME_FEEDBACK,message);
 
 	gr_palette_read(pal);		//get actual palette from the hardware
 	pcx_write_bitmap(savename,&temp_canv->cv_bitmap,pal);
-	if ( stereo )
-		pcx_write_bitmap(savename2,&temp_canv2->cv_bitmap,pal);
-
-	while ( timer_get_fixed_seconds() < t1 );		// Wait so that messag stays up at least 1 second.
-
 	gr_set_current_canvas(screen_canv);
-
-	if (grd_curcanv->cv_bitmap.bm_type!=BM_MODEX && !stereo)
-		gr_ubitmap(0,0,&temp_canv->cv_bitmap);
-
+	gr_ubitmap(0,0,&temp_canv->cv_bitmap);
 	gr_free_canvas(temp_canv);
-	if ( stereo )
-		gr_free_canvas(temp_canv2);
-
 	gr_set_current_canvas(save_canv);
+
 	key_flush();
 	start_time();
 }

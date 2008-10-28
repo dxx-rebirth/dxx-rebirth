@@ -65,9 +65,9 @@ typedef struct player_config
 	int HudMode;
 	int EscortHotKeys;
 	int PersistentDebris;
+	int PRShot;
 	int OglAlphaEffects;
 	int OglReticle;
-	int OglPRShot;
 } __pack__ player_config;
 
 extern struct player_config PlayerCfg;

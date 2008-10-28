@@ -725,7 +725,7 @@ void do_sound_menu()
 
 void do_graphics_menu()
 {
-	newmenu_item m[10];
+	newmenu_item m[9];
 	int i = 0, j = 0;
 
 	do {
@@ -736,9 +736,8 @@ void do_graphics_menu()
 		m[4].type = NM_TYPE_TEXT;   m[4].text="";
 		m[5].type = NM_TYPE_CHECK;  m[5].text="Transparency Effects";     m[5].value = PlayerCfg.OglAlphaEffects;
 		m[6].type = NM_TYPE_CHECK;  m[6].text="Vectorial Reticle";        m[6].value = PlayerCfg.OglReticle;
-		m[7].type = NM_TYPE_CHECK;  m[7].text="Screenshots w/o HUD";      m[7].value = PlayerCfg.OglPRShot;
-		m[8].type = NM_TYPE_CHECK;  m[8].text="VSync";                    m[8].value = GameCfg.VSync;
-		m[9].type = NM_TYPE_CHECK;  m[9].text="4x multisampling";         m[9].value = GameCfg.Multisample;
+		m[7].type = NM_TYPE_CHECK;  m[7].text="VSync";                    m[7].value = GameCfg.VSync;
+		m[8].type = NM_TYPE_CHECK;  m[8].text="4x multisampling";         m[8].value = GameCfg.Multisample;
 
 		m[GameCfg.TexFilt+1].value=1;
 
@@ -749,9 +748,8 @@ void do_graphics_menu()
 				GameCfg.TexFilt = j;
 		PlayerCfg.OglAlphaEffects = m[5].value;
 		PlayerCfg.OglReticle = m[6].value;
-		PlayerCfg.OglPRShot = m[7].value;
-		GameCfg.VSync = m[8].value;
-		GameCfg.Multisample = m[9].value;
+		GameCfg.VSync = m[7].value;
+		GameCfg.Multisample = m[8].value;
 		gr_set_attributes();
 	} while( i>-1 );
 }
@@ -760,7 +758,7 @@ void do_graphics_menu()
 
 void do_misc_menu()
 {
-	newmenu_item m[7];
+	newmenu_item m[8];
 	int i = 0;
 
 	do {
@@ -771,8 +769,9 @@ void do_misc_menu()
 		ADD_CHECK(4, "Show guided missile in main display", PlayerCfg.GuidedInBigWindow );
 		ADD_CHECK(5, "Escort robot hot keys",PlayerCfg.EscortHotKeys);
 		ADD_CHECK(6, "Persistent Debris",PlayerCfg.PersistentDebris);
+		ADD_CHECK(7, "Screenshots w/o HUD",PlayerCfg.PRShot);
 
-		i = newmenu_do1( NULL, "Gameplay Options", sizeof(m)/sizeof(*m), m, NULL, i );
+		i = newmenu_do1( NULL, "Misc Options", sizeof(m)/sizeof(*m), m, NULL, i );
 			
 		PlayerCfg.AutoLeveling		= m[0].value;
 		PlayerCfg.ReticleOn		= m[1].value;
@@ -781,6 +780,7 @@ void do_misc_menu()
 		PlayerCfg.GuidedInBigWindow	= m[4].value;
 		PlayerCfg.EscortHotKeys		= m[5].value;
 		PlayerCfg.PersistentDebris	= m[6].value;
+		PlayerCfg.PRShot 		= m[7].value;
 
 	} while( i>-1 );
 
@@ -899,7 +899,7 @@ void do_options_menu()
 		m[ 7].type = NM_TYPE_TEXT;   m[ 7].text="";
 		m[ 8].type = NM_TYPE_MENU;   m[ 8].text="Primary autoselect ordering...";
 		m[ 9].type = NM_TYPE_MENU;   m[ 9].text="Secondary autoselect ordering...";
-		m[10].type = NM_TYPE_MENU;   m[10].text="Gameplay Options...";
+		m[10].type = NM_TYPE_MENU;   m[10].text="Misc Options...";
 
 		i = newmenu_do1( NULL, TXT_OPTIONS, sizeof(m)/sizeof(*m), m, options_menuset, i );
 			

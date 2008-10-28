@@ -100,6 +100,7 @@ typedef struct Arg
 	int DbgGlGetTexLevelParamOk;
 #else
 	int DbgSdlHWSurface;
+	int DbgSdlASyncBlit;
 #endif
 } __pack__ Arg;
 
