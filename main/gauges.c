@@ -300,12 +300,7 @@ COPYRIGHT 1993-1999 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 
 bitmap_index Gauges[MAX_GAUGE_BMS];   // Array of all gauge bitmaps.
 bitmap_index Gauges_hires[MAX_GAUGE_BMS];   // hires gauges
-grs_canvas *Canv_LeftEnergyGauge = NULL;
-grs_canvas *Canv_AfterburnerGauge = NULL;
-grs_canvas *Canv_SBEnergyGauge = NULL;
-grs_canvas *Canv_SBAfterburnerGauge = NULL;
-grs_canvas *Canv_RightEnergyGauge = NULL;
-grs_canvas *Canv_NumericalGauge = NULL;
+grs_bitmap *WinBoxOverlay[2] = { NULL, NULL }; // Overlay subbitmaps for both weapon boxes
 
 /* Use static inline function under GCC to avoid CR/LF issues */
 #ifdef __GNUC__
@@ -1617,35 +1612,10 @@ void add_bonus_points_to_score(int points)
 	}
 }
 
-#include "key.h"
-
-void init_gauge_canvases()
+void close_gauges()
 {
-	grs_font *save_font = grd_curcanv->cv_font;
-
-	gr_set_curfont(GAME_FONT);
-
-	PAGE_IN_GAUGE( SB_GAUGE_ENERGY );
-	PAGE_IN_GAUGE( GAUGE_AFTERBURNER );
-
-	Canv_LeftEnergyGauge	= gr_create_sub_canvas( grd_curcanv, LEFT_ENERGY_GAUGE_X, LEFT_ENERGY_GAUGE_Y, LEFT_ENERGY_GAUGE_W, LEFT_ENERGY_GAUGE_H );
-	Canv_SBEnergyGauge		= gr_create_sub_canvas( grd_curcanv, SB_ENERGY_GAUGE_X, SB_ENERGY_GAUGE_Y, SB_ENERGY_GAUGE_W, SB_ENERGY_GAUGE_H );
-	Canv_SBAfterburnerGauge	= gr_create_sub_canvas( grd_curcanv, SB_AFTERBURNER_GAUGE_X, SB_AFTERBURNER_GAUGE_Y, SB_AFTERBURNER_GAUGE_W, SB_AFTERBURNER_GAUGE_H );
-	Canv_RightEnergyGauge	= gr_create_sub_canvas( grd_curcanv, RIGHT_ENERGY_GAUGE_X, RIGHT_ENERGY_GAUGE_Y, RIGHT_ENERGY_GAUGE_W, RIGHT_ENERGY_GAUGE_H );
-	Canv_NumericalGauge		= gr_create_sub_canvas( grd_curcanv, NUMERICAL_GAUGE_X, NUMERICAL_GAUGE_Y, NUMERICAL_GAUGE_W, NUMERICAL_GAUGE_H );
-	Canv_AfterburnerGauge	= gr_create_sub_canvas( grd_curcanv, AFTERBURNER_GAUGE_X, AFTERBURNER_GAUGE_Y, AFTERBURNER_GAUGE_W, AFTERBURNER_GAUGE_H );
-
-	gr_set_curfont(save_font);
-}
-
-void close_gauge_canvases()
-{
-	gr_free_sub_canvas( Canv_LeftEnergyGauge );
-	gr_free_sub_canvas( Canv_SBEnergyGauge );
-	gr_free_sub_canvas( Canv_SBAfterburnerGauge );
-	gr_free_sub_canvas( Canv_RightEnergyGauge );
-	gr_free_sub_canvas( Canv_NumericalGauge );
-	gr_free_sub_canvas( Canv_AfterburnerGauge );
+	gr_free_sub_bitmap(WinBoxOverlay[0]);
+	gr_free_sub_bitmap(WinBoxOverlay[1]);
 }
 
 void init_gauges()
@@ -1672,6 +1642,11 @@ void init_gauges()
 	cloak_fade_state = 0;
 
 	weapon_box_user[0] = weapon_box_user[1] = WBU_WEAPON;
+
+	gr_free_sub_bitmap(WinBoxOverlay[0]);
+	gr_free_sub_bitmap(WinBoxOverlay[1]);
+	WinBoxOverlay[0] = gr_create_sub_bitmap(&GameBitmaps[cockpit_bitmap[PlayerCfg.CockpitMode+(HIRESMODE?(Num_cockpits/2):0)].index],(PRIMARY_W_BOX_LEFT),(PRIMARY_W_BOX_TOP),(PRIMARY_W_BOX_RIGHT-PRIMARY_W_BOX_LEFT+2),(PRIMARY_W_BOX_BOT-PRIMARY_W_BOX_TOP+2));
+	WinBoxOverlay[1] = gr_create_sub_bitmap(&GameBitmaps[cockpit_bitmap[PlayerCfg.CockpitMode+(HIRESMODE?(Num_cockpits/2):0)].index],(SECONDARY_W_BOX_LEFT),(SECONDARY_W_BOX_TOP),(SECONDARY_W_BOX_RIGHT-SECONDARY_W_BOX_LEFT+2),(SECONDARY_W_BOX_BOT-SECONDARY_W_BOX_TOP+2));
 }
 
 void draw_energy_bar(int energy)
@@ -1999,6 +1974,12 @@ void draw_weapon_info(int weapon_type,int weapon_num,int laser_level)
 			hud_show_weapons_mode(1,1,2,(PlayerCfg.CockpitMode==CM_STATUS_BAR?SB_SECONDARY_AMMO_X:SECONDARY_AMMO_X)+FSPACX(12),(PlayerCfg.CockpitMode==CM_STATUS_BAR?SB_SECONDARY_AMMO_Y:SECONDARY_AMMO_Y));
 		}
 	}
+
+	if (PlayerCfg.CockpitMode == CM_FULL_COCKPIT)
+	{
+		hud_bitblt(HUD_SCALE_X(PRIMARY_W_BOX_LEFT),HUD_SCALE_Y(PRIMARY_W_BOX_TOP),WinBoxOverlay[0]);
+		hud_bitblt(HUD_SCALE_X(SECONDARY_W_BOX_LEFT),HUD_SCALE_Y(SECONDARY_W_BOX_TOP),WinBoxOverlay[1]);
+	}
 }
 
 void draw_ammo_info(int x,int y,int ammo_count,int primary)
@@ -2201,7 +2182,6 @@ void sb_draw_afterburner()
 	int erase_height, w, h, aw, i;
 	char ab_str[3] = "AB";
 
-	//gr_set_current_canvas( Canv_SBAfterburnerGauge );
 	PAGE_IN_GAUGE( SB_GAUGE_AFTERBURNER );
 	hud_bitblt(HUD_SCALE_X(SB_AFTERBURNER_GAUGE_X), HUD_SCALE_Y(SB_AFTERBURNER_GAUGE_Y), &GameBitmaps[GET_GAUGE_INDEX(SB_GAUGE_AFTERBURNER)]);
 
@@ -2699,30 +2679,14 @@ void draw_hud()
 	}
 }
 
-extern short *BackBuffer;
-
 //print out some player statistics
 void render_gauges()
 {
-	static int old_display_mode = -2;
 	int energy = f2ir(Players[Player_num].energy);
 	int shields = f2ir(Players[Player_num].shields);
 	int cloak = ((Players[Player_num].flags&PLAYER_FLAGS_CLOAKED) != 0);
  
 	Assert(PlayerCfg.CockpitMode==CM_FULL_COCKPIT || PlayerCfg.CockpitMode==CM_STATUS_BAR);
-
-// check to see if our display mode has changed since last render time --
-// if so, then we need to make new gauge canvases.
-// Also make the first gauge canvases here, in the game,
-// because they are [now] sub-canvases.
-
-  
-	if (old_display_mode != HIRESMODE)
-	{
-		close_gauge_canvases();
-		init_gauge_canvases();
-		old_display_mode = HIRESMODE;
-	}
 
 	if (shields < 0 ) shields = 0;
 
@@ -2736,9 +2700,7 @@ void render_gauges()
 	draw_weapon_boxes();
 
 	if (PlayerCfg.CockpitMode == CM_FULL_COCKPIT) {
-#ifdef OGL
-		hud_bitblt (0, 0, &GameBitmaps[cockpit_bitmap[PlayerCfg.CockpitMode+(HIRESMODE?(Num_cockpits/2):0)].index]);
-#endif
+
 		if (Newdemo_state == ND_STATE_RECORDING && (energy != old_energy))
 		{
 			newdemo_record_player_energy(old_energy, energy);
@@ -3015,4 +2977,10 @@ abort:;
 	Viewer = viewer_save;
 
 	Rear_view = rear_view_save;
+
+	if (PlayerCfg.CockpitMode == CM_FULL_COCKPIT)
+	{
+		hud_bitblt(HUD_SCALE_X(PRIMARY_W_BOX_LEFT),HUD_SCALE_Y(PRIMARY_W_BOX_TOP),WinBoxOverlay[0]);
+		hud_bitblt(HUD_SCALE_X(SECONDARY_W_BOX_LEFT),HUD_SCALE_Y(SECONDARY_W_BOX_TOP),WinBoxOverlay[1]);
+	}
 }

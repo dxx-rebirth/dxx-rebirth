@@ -216,8 +216,6 @@ void init_game()
 
 	init_special_effects();
 
-	init_gauge_canvases();
-
 	init_exploding_walls();
 
 	Clear_window = 2;		//	do portal only window clear.
@@ -1478,7 +1476,7 @@ void close_game()
 		VR_offscreen_buffer = NULL;
 	}
 
-	close_gauge_canvases();
+	close_gauges();
 
 	restore_effect_bitmap_icons();
 

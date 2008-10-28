@@ -54,6 +54,8 @@ COPYRIGHT 1993-1999 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 #include "automap.h"
 #include "mission.h"
 #include "gameseq.h"
+#include "byteswap.h"
+#include "rle.h"
 
 #ifdef NETWORK
 #include "network.h"
@@ -743,11 +745,8 @@ void game_render_frame_mono(int flip)
 
 	update_cockpits(0);
 
-	show_extra_views();		//missile view, buddy bot, etc.
-
 	if (PlayerCfg.CockpitMode==CM_FULL_COCKPIT || PlayerCfg.CockpitMode==CM_STATUS_BAR)
 		render_gauges();
-
 	gr_set_current_canvas(&Screen_3d_window);
 	if (!no_draw_hud)
 		game_draw_hud_stuff();
@@ -758,6 +757,8 @@ void game_render_frame_mono(int flip)
         if (netplayerinfo_on)
 		show_netplayerinfo();
 #endif
+
+	show_extra_views();		//missile view, buddy bot, etc.
 
 	con_show();
 
@@ -793,6 +794,56 @@ void toggle_cockpit()
 int last_drawn_cockpit = -1;
 extern void ogl_loadbmtexture(grs_bitmap *bm);
 
+// Decode cockpit bitmap and add alpha fields to weapon boxes (as it should have always been) so we later can render sub bitmaps over the window canvases
+void cockpit_decode_alpha(grs_bitmap *bm)
+{
+	unsigned char decodebuf[1024*1024];
+	int i=0,x=0,y=0;
+	static grs_bitmap *cur=NULL;
+
+	// check if we processed this bitmap already
+	if (cur==bm)
+		return;
+	cur=bm;
+
+	// decode the bitmap
+	if (bm->bm_flags & BM_FLAG_RLE){
+		unsigned char * dbits;
+		unsigned char * sbits;
+		int i, data_offset;
+
+		data_offset = 1;
+		if (bm->bm_flags & BM_FLAG_RLE_BIG)
+			data_offset = 2;
+
+		sbits = &bm->bm_data[4 + (bm->bm_h * data_offset)];
+		dbits = decodebuf;
+
+		for (i=0; i < bm->bm_h; i++ )    {
+			gr_rle_decode(sbits,dbits);
+			if ( bm->bm_flags & BM_FLAG_RLE_BIG )
+				sbits += (int)INTEL_SHORT(*((short *)&(bm->bm_data[4+(i*data_offset)])));
+			else
+				sbits += (int)bm->bm_data[4+i];
+			dbits += bm->bm_w;
+		}
+		bm->bm_data=decodebuf;
+	}
+	bm->bm_flags &= ~BM_FLAG_RLE;
+	bm->bm_flags &= ~BM_FLAG_RLE_BIG;
+
+	// add alpha color to the pixels which are inside the window box spans
+	for (y=0;y<bm->bm_h;y++)
+	{
+		for (x=0;x<bm->bm_w;x++)
+		{
+			if (y >= (HIRESMODE?364:151) && y <= (HIRESMODE?469:193) && ((x >= WinBoxLeft[y-(HIRESMODE?364:151)].l && x <= WinBoxLeft[y-(HIRESMODE?364:151)].r) ||  (x >=WinBoxRight[y-(HIRESMODE?364:151)].l && x <= WinBoxRight[y-(HIRESMODE?364:151)].r)))
+				bm->bm_data[i]=TRANSPARENCY_COLOR;
+			i++;
+		}
+	}
+}
+
 // This actually renders the new cockpit onto the screen.
 void update_cockpits(int force_redraw)
 {
@@ -809,7 +860,7 @@ void update_cockpits(int force_redraw)
 	switch( PlayerCfg.CockpitMode )	{
 		case CM_FULL_COCKPIT:
 			gr_set_current_canvas(NULL);
-			bm->bm_flags |= BM_FLAG_COCKPIT_TRANSPARENT;
+			cockpit_decode_alpha(bm);
 #ifdef OGL
 			ogl_ubitmapm_cs (0, 0, -1, -1, bm, 255, F1_0);
 #else

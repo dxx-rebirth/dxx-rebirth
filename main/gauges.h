@@ -36,9 +36,6 @@ extern bitmap_index Gauges_hires[MAX_GAUGE_BMS];    // hires gauges
 
 // Flags for gauges/hud stuff
 
-extern void init_gauge_canvases();
-extern void close_gauge_canvases();
-
 extern void show_score();
 extern void show_score_added();
 extern void add_points_to_score();
@@ -46,6 +43,7 @@ extern void add_bonus_points_to_score();
 
 void render_gauges(void);
 void init_gauges(void);
+void close_gauges(void);
 extern void check_erase_message(void);
 
 extern void HUD_render_message_frame();
