@@ -123,7 +123,7 @@ Supported content:
 
     *
       Language Packs
-      German translation: http://www.dxx-rebirth.de/download/dxx/res/D2XBDE01.zip
+      German translation: http://www.dxx-rebirth.com/download/dxx/res/D2XBDE01.zip
       Copy the txb-files to the Sharepath (non-Mac OS *NIX)/program directory (otherwise). Will be activated automatically
 
 
