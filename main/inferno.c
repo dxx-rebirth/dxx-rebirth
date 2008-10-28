@@ -205,7 +205,8 @@ void show_commandline_help()
 	printf( "  -gl_readpixels_ok <n> %s\n", "Override DbgGlReadPixelsOk - Default: 1");
 	printf( "  -gl_gettexlevelparam_ok <n> %s\n", "Override DbgGlGetTexLevelParamOk - Default: 1");
 #else
-	printf( "  -hwsurface         %s\n", "Use HW Surface");
+	printf( "  -hwsurface         %s\n", "Use SDL HW Surface");
+	printf( "  -asyncblit         %s\n", "Use queued blits over SDL. Can speed up rendering");
 #endif // OGL
 
 #endif // NDEBUG

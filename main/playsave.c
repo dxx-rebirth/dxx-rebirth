@@ -95,9 +95,9 @@ int new_player_config()
 	PlayerCfg.ReticleOn = 1;
 	PlayerCfg.HudMode = 0;
 	PlayerCfg.PersistentDebris = 0;
+	PlayerCfg.PRShot = 0;
 	PlayerCfg.OglAlphaEffects = 0;
 	PlayerCfg.OglReticle = 0;
-	PlayerCfg.OglPRShot = 0;
 
 	// Default taunt macros
 	#ifdef NETWORK
@@ -277,6 +277,8 @@ int read_player_d1x(char *filename)
 					PlayerCfg.ReticleOn = atoi(line);
 				else if(!strcmp(word,"PERSISTENTDEBRIS"))
 					PlayerCfg.PersistentDebris = atoi(line);
+				else if(!strcmp(word,"PRSHOT"))
+					PlayerCfg.PRShot = atoi(line);
 				d_free(word);
 				cfgets(line,50,f);
 				word=splitword(line,'=');
@@ -296,8 +298,6 @@ int read_player_d1x(char *filename)
 					PlayerCfg.OglAlphaEffects = atoi(line);
 				else if(!strcmp(word,"OGLRETICLE"))
 					PlayerCfg.OglReticle = atoi(line);
-				else if(!strcmp(word,"OGLPRSHOT"))
-					PlayerCfg.OglPRShot = atoi(line);
 				d_free(word);
 				cfgets(line,50,f);
 				word=splitword(line,'=');
@@ -536,11 +536,11 @@ int write_player_d1x(char *filename)
 		PHYSFSX_printf(fout,"[toggles]\n");
 		PHYSFSX_printf(fout,"reticle=%i\n",PlayerCfg.ReticleOn);
 		PHYSFSX_printf(fout,"persistentdebris=%i\n",PlayerCfg.PersistentDebris);
+		PHYSFSX_printf(fout,"prshot=%i\n",PlayerCfg.PRShot);
 		PHYSFSX_printf(fout,"[end]\n");
 		PHYSFSX_printf(fout,"[opengl]\n");
 		PHYSFSX_printf(fout,"oglalphaeffects=%i\n",PlayerCfg.OglAlphaEffects);
 		PHYSFSX_printf(fout,"oglreticle=%i\n",PlayerCfg.OglReticle);
-		PHYSFSX_printf(fout,"oglprshot=%i\n",PlayerCfg.OglPRShot);
 		PHYSFSX_printf(fout,"[end]\n");
 		PHYSFSX_printf(fout,"[plx version]\n");
 		PHYSFSX_printf(fout,"plx version=%s\n",D1X_VERSION);

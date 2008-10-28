@@ -1021,19 +1021,12 @@ void level_with_floor();
 #ifndef OGL
 void save_screen_shot(int automap_flag)
 {
-	fix t1;
 	char message[100];
 	grs_canvas *screen_canv=&grd_curscreen->sc_canvas;
-	grs_font *save_font;
 	static int savenum=0;
-	static int stereo_savenum=0;
-	grs_canvas *temp_canv,*temp_canv2,*save_canv;
-        char savename[FILENAME_LEN+sizeof(SCRNS_DIR)],savename2[FILENAME_LEN];
+	grs_canvas *temp_canv,*save_canv;
+        char savename[FILENAME_LEN+sizeof(SCRNS_DIR)];
 	ubyte pal[768];
-	int w,h,aw,x,y;
-	int stereo=0;
-
-	temp_canv2=NULL;
 
 	stop_time();
 
@@ -1041,77 +1034,30 @@ void save_screen_shot(int automap_flag)
 		PHYSFS_mkdir(SCRNS_DIR); //try making directory
 
 	save_canv = grd_curcanv;
-
-	if ( VR_render_mode != VR_NONE && !automap_flag && Function_mode==FMODE_GAME && Screen_mode==SCREEN_GAME)
-		stereo = 1;
-
-	if ( stereo ) {
-		temp_canv = gr_create_canvas(VR_render_buffer[0].cv_bitmap.bm_w,VR_render_buffer[0].cv_bitmap.bm_h);
-		gr_set_current_canvas(temp_canv);
-		gr_ubitmap(0,0,&VR_render_buffer[0].cv_bitmap);
-
-		temp_canv2 = gr_create_canvas(VR_render_buffer[1].cv_bitmap.bm_w,VR_render_buffer[1].cv_bitmap.bm_h);
-		gr_set_current_canvas(temp_canv2);
-		gr_ubitmap(0,0,&VR_render_buffer[1].cv_bitmap);
-	}
-	else {
-		temp_canv = gr_create_canvas(screen_canv->cv_bitmap.bm_w,screen_canv->cv_bitmap.bm_h);
-		gr_set_current_canvas(temp_canv);
-		gr_ubitmap(0,0,&screen_canv->cv_bitmap);
-	}
+	temp_canv = gr_create_canvas(screen_canv->cv_bitmap.bm_w,screen_canv->cv_bitmap.bm_h);
+	gr_set_current_canvas(temp_canv);
+	gr_ubitmap(0,0,&screen_canv->cv_bitmap);
 
 	gr_set_current_canvas(save_canv);
 
-	if ( savenum > 99 ) savenum = 0;
-	if ( stereo_savenum > 99 ) stereo_savenum = 0;
-
-	if ( stereo ) {
-		sprintf(savename,"left%02d.pcx",stereo_savenum);
-		sprintf(savename2,"right%02d.pcx",stereo_savenum);
-		//if (VR_eye_switch) {char t[FILENAME_LEN]; strcpy(t,savename); strcpy(savename,savename2); strcpy(savename2,t);}
-		stereo_savenum++;
-		sprintf( message, "%s '%s' & '%s'", TXT_DUMPING_SCREEN, savename, savename2 );
-	}
-	else {
-		sprintf(savename,"%sscreen%02d.pcx",SCRNS_DIR,savenum++);
-		sprintf( message, "%s '%s'", TXT_DUMPING_SCREEN, savename );
-	}
+	do
+	{
+		sprintf(savename, "%sscrn%04d.pcx",SCRNS_DIR, savenum++);
+	} while (PHYSFS_exists(savename));
+	sprintf( message, "%s 'scrn%04d.pcx'", TXT_DUMPING_SCREEN, savenum-1 );
 
 	gr_set_current_canvas(NULL);
 
-	save_font = grd_curcanv->cv_font;
-	gr_set_curfont(GAME_FONT);
-	gr_set_fontcolor(BM_XRGB(0,31,0),-1);
-	gr_get_string_size(message,&w,&h,&aw);
-
-	//I changed how these coords were calculated for the high-res automap. -MT
-	x = (grd_curcanv->cv_bitmap.bm_w-w)/2;
-	y = (grd_curcanv->cv_bitmap.bm_h-h)/2;
-
-	gr_setcolor(gr_find_closest_color_current(0,0,0));
-	gr_rect(x-2,y-2,x+w+2,y+h+2);
-	gr_printf(x,y,message);
-	gr_set_curfont(save_font);
-
-	t1 = timer_get_fixed_seconds() + F1_0;
+	if (!automap_flag)
+		hud_message(MSGC_GAME_FEEDBACK,message);
 
 	gr_palette_read(pal);		//get actual palette from the hardware
 	pcx_write_bitmap(savename,&temp_canv->cv_bitmap,pal);
-	if ( stereo )
-		pcx_write_bitmap(savename2,&temp_canv2->cv_bitmap,pal);
-
-	while ( timer_get_fixed_seconds() < t1 );		// Wait so that messag stays up at least 1 second.
-
 	gr_set_current_canvas(screen_canv);
-
-	if (!stereo)
-		gr_ubitmap(0,0,&temp_canv->cv_bitmap);
-
+	gr_ubitmap(0,0,&temp_canv->cv_bitmap);
 	gr_free_canvas(temp_canv);
-	if ( stereo )
-		gr_free_canvas(temp_canv2);
-
 	gr_set_current_canvas(save_canv);
+
 	key_flush();
 	start_time();
 }
@@ -1936,12 +1882,24 @@ void HandleDemoKey(int key)
 		break;
 		case KEY_PRINT_SCREEN:
 		{
-			int old_state;
-			old_state = Newdemo_show_percentage;
-			Newdemo_show_percentage = 0;
-			game_do_render_frame(GameArg.DbgUseDoubleBuffer);
-			save_screen_shot(0);
-			Newdemo_show_percentage = old_state;
+			if (PlayerCfg.PRShot)
+			{
+				gr_set_current_canvas(NULL);
+				render_frame(0);
+				gr_set_curfont(MEDIUM2_FONT);
+				gr_printf(SWIDTH-FSPACX(92),SHEIGHT-LINE_SPACING,"DXX-Rebirth\n");
+				gr_flip();
+				save_screen_shot(0);
+			}
+			else
+			{
+				int old_state;
+				old_state = Newdemo_show_percentage;
+				Newdemo_show_percentage = 0;
+				game_do_render_frame(GameArg.DbgUseDoubleBuffer);
+				save_screen_shot(0);
+				Newdemo_show_percentage = old_state;
+			}
 			break;
 		}
 		case KEY_ALTED+KEY_ENTER:
@@ -2242,7 +2200,19 @@ void HandleGameKey(int key)
 			break;		// redefine taunt macros
 #endif
 		case KEY_PAUSE:			do_game_pause(); 	break;
-		case KEY_PRINT_SCREEN: 		save_screen_shot(0);	break;
+		case KEY_PRINT_SCREEN:
+		{
+			if (PlayerCfg.PRShot)
+			{
+				gr_set_current_canvas(NULL);
+				render_frame(0);
+				gr_set_curfont(MEDIUM2_FONT);
+				gr_printf(SWIDTH-FSPACX(92),SHEIGHT-LINE_SPACING,"DXX-Rebirth\n");
+				gr_flip();
+			}
+			save_screen_shot(0);
+			break;
+		}
 
 		case KEY_ALTED+KEY_F2:	if (!Player_is_dead) state_save_all( 0 );		break;	// 0 means not between levels.
 		case KEY_ALTED+KEY_F3:	state_restore_all(1);		break;

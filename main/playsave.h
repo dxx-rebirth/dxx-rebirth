@@ -71,9 +71,9 @@ typedef struct player_config
 	ubyte ReticleOn;
 	int HudMode;
 	int PersistentDebris;
+	int PRShot;
 	int OglAlphaEffects;
 	int OglReticle;
-	int OglPRShot;
 } __pack__ player_config;
 
 extern struct player_config PlayerCfg;
