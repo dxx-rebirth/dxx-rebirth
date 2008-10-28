@@ -10,6 +10,8 @@ PROGRAM_NAME = 'D2X-Rebirth'
 # version number
 D2XMAJOR = 0
 D2XMINOR = 54
+D2XSVN   = os.popen('svnversion .').read()[:-1]
+D2XSVN   = D2XSVN.split(':')[-1]
 
 # installation path
 PREFIX = '/usr/local/'
@@ -35,7 +37,7 @@ if (micro > 0):
 else:
 	D2XMICRO = 0
 
-VERSION_STRING = ' v' + str(D2XMAJOR) + '.' + str(D2XMINOR)
+VERSION_STRING = ' v' + str(D2XMAJOR) + '.' + str(D2XMINOR) + " svn " + str(D2XSVN)
 if (D2XMICRO):
 	VERSION_STRING += '.' + str(D2XMICRO)
 
@@ -295,12 +297,21 @@ noasm_sources = [
 'maths/vecmat.c'
 ]
 
-# flags and stuff for all platforms
+# Acquire environment object...
 env = Environment(ENV = os.environ)
+ 
+# Prettier build messages......
+env["CCCOMSTR"]     = "Compiling $SOURCE ..."
+env["CXXCOMSTR"]    = "Compiling $SOURCE ..."
+env["LINKCOMSTR"]   = "Linking $TARGET ..."
+env["ARCOMSTR"]     = "Archiving $TARGET ..."
+env["RANLIBCOMSTR"] = "Indexing $TARGET ..."
+
+# flags and stuff for all platforms
 env.ParseConfig('sdl-config --cflags')
 env.ParseConfig('sdl-config --libs')
 env.Append(CPPFLAGS = ['-Wall', '-funsigned-char'])
-env.Append(CPPDEFINES = [('D2XMAJOR', '\\"' + str(D2XMAJOR) + '\\"'), ('D2XMINOR', '\\"' + str(D2XMINOR) + '\\"')])
+env.Append(CPPDEFINES = [('PROGRAM_NAME', '\\"' + str(PROGRAM_NAME) + '\\"'), ('D2XMAJOR', '\\"' + str(D2XMAJOR) + '\\"'), ('D2XMINOR', '\\"' + str(D2XMINOR) + '\\"')])
 #env.Append(CPPDEFINES = [('VERSION', '\\"' + str(VERSION) + '\\"')])
 #env.Append(CPPDEFINES = [('USE_SDLMIXER', sdlmixer)])
 env.Append(CPPDEFINES = ['NETWORK', 'HAVE_NETIPX_IPX_H', '_REENTRANT'])

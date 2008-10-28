@@ -77,34 +77,36 @@ COPYRIGHT 1993-1999 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 
 //char *menu_difficulty_text[] = { "Trainee", "Rookie", "Fighter", "Hotshot", "Insane" };
 
-#define MENU_NEW_GAME                   0
-#define MENU_GAME                       1 
-#define MENU_EDITOR                     2
-#define MENU_VIEW_SCORES                3
-#define MENU_QUIT                       4
-#define MENU_LOAD_GAME                  5
-#define MENU_SAVE_GAME                  6
-#define MENU_DEMO_PLAY                  8
-#define MENU_LOAD_LEVEL                 9
-#define MENU_START_IPX_NETGAME          10
-#define MENU_JOIN_IPX_NETGAME           11
-#define MENU_CONFIG                     13
-#define MENU_REJOIN_NETGAME             14
-#define MENU_DIFFICULTY                 15
-#define MENU_HELP                       19
-#define MENU_NEW_PLAYER                 20
-#define MENU_MULTIPLAYER                21
-#define MENU_SHOW_CREDITS               23
-#define MENU_ORDER_INFO                 24
-#define MENU_PLAY_SONG                  25
-//#define MENU_START_TCP_NETGAME          26 // TCP/IP support was planned in Descent II,
-//#define MENU_JOIN_TCP_NETGAME           27 // but never realized.
-#define MENU_START_APPLETALK_NETGAME    28
-#define MENU_JOIN_APPLETALK_NETGAME     29
-#define MENU_START_UDP_NETGAME          30 // UDP/IP support copied from d1x
-#define MENU_JOIN_UDP_NETGAME           31
-#define MENU_START_KALI_NETGAME         32 // Kali support copied from d1x
-#define MENU_JOIN_KALI_NETGAME          33
+// Menu IDs...
+enum MENUS
+{
+    MENU_NEW_GAME = 0,
+    MENU_GAME,
+    MENU_EDITOR,
+    MENU_VIEW_SCORES,
+    MENU_QUIT,
+    MENU_LOAD_GAME,
+    MENU_SAVE_GAME,
+    MENU_DEMO_PLAY,
+    MENU_LOAD_LEVEL,
+    MENU_START_IPX_NETGAME,
+    MENU_JOIN_IPX_NETGAME,
+    MENU_CONFIG,
+    MENU_REJOIN_NETGAME,
+    MENU_DIFFICULTY,
+    MENU_HELP,
+    MENU_NEW_PLAYER,
+    MENU_MULTIPLAYER,
+    MENU_SHOW_CREDITS,
+    MENU_ORDER_INFO,
+    MENU_PLAY_SONG,
+    MENU_START_APPLETALK_NETGAME,
+    MENU_JOIN_APPLETALK_NETGAME,
+    MENU_START_UDP_NETGAME,
+    MENU_JOIN_UDP_NETGAME,
+    MENU_START_KALI_NETGAME,
+    MENU_JOIN_KALI_NETGAME,
+};
 
 //ADD_ITEM("Start netgame...", MENU_START_NETGAME, -1 );
 //ADD_ITEM("Send net message...", MENU_SEND_NET_MESSAGE, -1 );

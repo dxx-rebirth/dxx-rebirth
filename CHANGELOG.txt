@@ -6,6 +6,7 @@ arch/ogl.c, include/gr.h, main/game.c, main/gamerend.c, main/gauges.c, main/gaug
 main/gamerend.c, main/manu.c, main/newmenu.c: Fixes for my last revisions: More reliable check for cockpit_decode_alpha, more reliable check is newmenu sub-bitmap needs to be re-created, call gr_set_mode() in change_res() with correct Game_screen_mode
 INSTALL.txt, README.txt: Docs update: We moved from www.dxx-rebirth.de to www.dxx-rebirth.com!
 arch/sdl/gr.c, arch/ogl/gr.c, arch/ogl/ogl.c, include/args.h, main/game.c, main/gamecntl.c, main/inferno.c, main/menu.c, main/playsave.c, main/playsave.h, misc/args.c: Cleanup: Renderstats; Made PRShot a non-OpenGL-related feature and added to Misc Options; Added command for SDL_ASYNCBLIT to command-line args
+SConstruct, include/dl_list.h, main/config.c, main/console.c, main/menu.c, main/robot.h, misc/dl_list.c: Revisited Kip's non-Tracker changes and implemented to D2X: Prettier SConstruct output, Forgotten newlines at end of files, Improvement in dl_list code, Revamped menu GUI defines; I am NOT HAPPY I have to do these changes seperately!!!
 
 20081023
 --------

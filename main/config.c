@@ -95,7 +95,7 @@ int ReadConfigFile()
 #else
 	strncpy(GameCfg.JukeboxPath, "::::Jukebox", PATH_MAX+1);
 #endif
-	memset(GameCfg.MplIpHostAddr, 0, 128);
+	memset(GameCfg.MplIpHostAddr, '\x0', sizeof(GameCfg.MplIpHostAddr));
 
 	infile = PHYSFSX_openReadBuffered("descent.cfg");
 
@@ -202,8 +202,8 @@ int WriteConfigFile()
 	PHYSFSX_printf(infile, "%s=%d\n", SndEnableRedbookStr, GameCfg.SndEnableRedbook);
 	PHYSFSX_printf(infile, "%s=%d\n", ReverseStereoStr, GameCfg.ReverseStereo);
 	PHYSFSX_printf(infile, "%s=%d\n", GammaLevelStr, GameCfg.GammaLevel);
-	PHYSFSX_printf(infile, "%s=%s\n", LastPlayerStr, Players[Player_num].callsign );
-	PHYSFSX_printf(infile, "%s=%s\n", LastMissionStr, GameCfg.LastMission );
+	PHYSFSX_printf(infile, "%s=%s\n", LastPlayerStr, Players[Player_num].callsign);
+	PHYSFSX_printf(infile, "%s=%s\n", LastMissionStr, GameCfg.LastMission);
 	PHYSFSX_printf(infile, "%s=%i\n", ResolutionXStr, SM_W(Game_screen_mode));
 	PHYSFSX_printf(infile, "%s=%i\n", ResolutionYStr, SM_H(Game_screen_mode));
 	PHYSFSX_printf(infile, "%s=%i\n", AspectXStr, GameCfg.AspectX);
@@ -213,8 +213,8 @@ int WriteConfigFile()
 	PHYSFSX_printf(infile, "%s=%i\n", VSyncStr, GameCfg.VSync);
 	PHYSFSX_printf(infile, "%s=%i\n", MultisampleStr, GameCfg.Multisample);
 	PHYSFSX_printf(infile, "%s=%i\n", JukeboxOnStr, GameCfg.JukeboxOn);
-	PHYSFSX_printf(infile, "%s=%s\n", JukeboxPathStr, GameCfg.JukeboxPath );
-	PHYSFSX_printf(infile, "%s=%s\n", IPHostAddrStr, GameCfg.MplIpHostAddr );
+	PHYSFSX_printf(infile, "%s=%s\n", JukeboxPathStr, GameCfg.JukeboxPath);
+	PHYSFSX_printf(infile, "%s=%s\n", IPHostAddrStr, GameCfg.MplIpHostAddr);
 
 	PHYSFS_close(infile);
 
