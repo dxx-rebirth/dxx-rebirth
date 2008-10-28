@@ -234,12 +234,11 @@ void cockpit_decode_alpha(grs_bitmap *bm)
 {
 	unsigned char decodebuf[1024*1024];
 	int i=0,x=0,y=0;
-	static grs_bitmap *cur=NULL;
+	static ubyte *cur=NULL;
 
 	// check if we processed this bitmap already
-	if (cur==bm)
+	if (cur==bm->bm_data)
 		return;
-	cur=bm;
 
 	// decode the bitmap
 	if (bm->bm_flags & BM_FLAG_RLE){
@@ -277,6 +276,7 @@ void cockpit_decode_alpha(grs_bitmap *bm)
 			i++;
 		}
 	}
+	cur=bm->bm_data;
 }
 
 // This actually renders the new cockpit onto the screen.
