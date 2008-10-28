@@ -77,7 +77,6 @@ old_grs_font;
 #define BM_FLAG_RLE                 8   // A run-length encoded bitmap.
 #define BM_FLAG_PAGED_OUT           16  // This bitmap's data is paged out.
 #define BM_FLAG_RLE_BIG             32  // for bitmaps that RLE to > 255 per row (i.e. cockpits)
-#define BM_FLAG_COCKPIT_TRANSPARENT 64  // for cockpit - render black parts as alpha
 
 typedef struct _grs_bitmap {
 	short       bm_x,bm_y;      // Offset from parent's origin

@@ -34,9 +34,6 @@ COPYRIGHT 1993-1998 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 
 extern bitmap_index Gauges[MAX_GAUGE_BMS_MAC];   // Array of all gauge bitmaps.
 
-extern void init_gauge_canvases();
-extern void close_gauge_canvases();
-
 extern void show_score();
 extern void show_score_added();
 extern void add_points_to_score();
@@ -44,6 +41,7 @@ extern void add_bonus_points_to_score();
 
 void render_gauges(void);
 void init_gauges(void);
+void close_gauges(void);
 extern void check_erase_message(void);
 
 // Call to flash a message on the HUD

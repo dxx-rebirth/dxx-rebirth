@@ -1,5 +1,9 @@
 D1X-Rebirth Changelog
 
+20081028
+--------
+arch/ogl.c, include/gr.h, main/game.c, main/gauges.c, main/gauges.h, main/newmenu.c: Removed hack for Cockpit-window transparencies and added function to decode and add alpha to the bitmap directly (now works in non-OGL as well); Using sub-bitmaps for Cockpit-windows and menu backgrounds; Cleaned old bkg stuff from menu GUI
+
 20081023
 --------
 main/multi.c, main/network.c: Fixed handling for multi_quit_game; Always keep setting -1 for ping table entry of current player so just not to use any previous entry

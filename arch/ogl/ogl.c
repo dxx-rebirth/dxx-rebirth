@@ -1118,13 +1118,7 @@ void ogl_filltexbuf(unsigned char *data, GLubyte *texp, int truewidth, int width
 						break;
 				}
 			}
-			else if (((c == 255 && (bm_flags & BM_FLAG_TRANSPARENT)) || c == 256) || 
-					((bm_flags & BM_FLAG_COCKPIT_TRANSPARENT) && 
-						(y >= (HIRESMODE?364:151) && y <= (HIRESMODE?469:193) && 
-						 ((x >= WinBoxLeft[y-(HIRESMODE?364:151)].l && x <= WinBoxLeft[y-(HIRESMODE?364:151)].r) ||  (x >= WinBoxRight[y-(HIRESMODE?364:151)].l && x <= WinBoxRight[y-(HIRESMODE?364:151)].r))
-						)
-					)
-				)
+			else if ((c == 255 && (bm_flags & BM_FLAG_TRANSPARENT)) || c == 256)
 			{
 				switch (type)
 				{

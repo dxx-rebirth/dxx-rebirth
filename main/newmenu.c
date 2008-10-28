@@ -62,13 +62,8 @@ COPYRIGHT 1993-1998 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 #include "ogl_init.h"
 #endif
 
-typedef struct bkg {
-	grs_canvas * menu_canvas;
-	grs_bitmap * saved;			// The background under the menu.
-	grs_bitmap * background;
-} bkg;
-
 grs_bitmap nm_background, nm_background1;
+grs_bitmap *nm_background_sub;
 ubyte SurfingNet=0;
 ubyte MenuReordering=0;
 
@@ -80,7 +75,10 @@ extern void game_do_render_frame(int flip);
 
 void newmenu_close()	{
 	if (nm_background.bm_data)
+	{
+		gr_free_sub_bitmap(nm_background_sub);
 		gr_free_bitmap_data (&nm_background);
+	}
 	if (nm_background1.bm_data)
 		gr_free_bitmap_data (&nm_background1);
 }
@@ -134,10 +132,9 @@ void nm_draw_background1(char * filename)
 // Draws the frame background for menus
 void nm_draw_background(int x1, int y1, int x2, int y2 )
 {
-	int w,h;
+	int w,h,init_sub=0;
 	float BGScaleX=((float)SWIDTH/320),BGScaleY=((float)SHEIGHT/200);
 	grs_canvas *tmp,*old;
-	grs_bitmap bg;
 
 	if (nm_background.bm_data == NULL)
 	{
@@ -148,6 +145,7 @@ void nm_draw_background(int x1, int y1, int x2, int y2 )
 		pcx_error = pcx_read_bitmap(MENU_BACKGROUND_BITMAP,&nm_background,BM_LINEAR,background_palette);
 		Assert(pcx_error == PCX_ERROR_NONE);
 		gr_remap_bitmap_good( &nm_background, background_palette, -1, -1 );
+		init_sub=1;
 	}
 
 	if ( x1 < 0 ) x1 = 0;
@@ -160,16 +158,14 @@ void nm_draw_background(int x1, int y1, int x2, int y2 )
 
 	old=grd_curcanv;
 	tmp=gr_create_sub_canvas(old,x1,y1,w,h);
-	gr_init_sub_bitmap(&bg,&nm_background,0,0,w*(((float) nm_background.bm_w)/SWIDTH),h*(((float) nm_background.bm_h)/SHEIGHT));
 	gr_set_current_canvas(tmp);
-
 	gr_palette_load( gr_palette );
 
-#ifdef OGL
-	ogl_ubitblt_i(grd_curcanv->cv_bitmap.bm_w,grd_curcanv->cv_bitmap.bm_h,0,0, bg.bm_w, bg.bm_h, 0, 0, &bg, &grd_curcanv->cv_bitmap, 1);
-#else
-	show_fullscr( &bg );
-#endif
+	show_fullscr( &nm_background ); // show so we load all necessary data for the sub-bitmap
+	if (init_sub)
+		nm_background_sub = gr_create_sub_bitmap(&nm_background,0,0,w*(((float) nm_background.bm_w)/SWIDTH),h*(((float) nm_background.bm_h)/SHEIGHT));
+	show_fullscr( nm_background_sub );
+
 	gr_set_current_canvas(old);
 	gr_free_sub_canvas(tmp);
 
@@ -184,7 +180,7 @@ void nm_draw_background(int x1, int y1, int x2, int y2 )
 }
 
 // Draw a left justfied string
-void nm_string( bkg * b, int w1,int x, int y, char * s )
+void nm_string( int w1,int x, int y, char * s )
 {
 	int w,h,aw,tx=0,t=0,i;
 	char *p,*s1,*s2,measure[2];
@@ -241,7 +237,7 @@ void nm_string( bkg * b, int w1,int x, int y, char * s )
 
 
 // Draw a slider and it's string
-void nm_string_slider( bkg * b, int w1,int x, int y, char * s )
+void nm_string_slider( int w1,int x, int y, char * s )
 {
 	int w,h,aw;
         char *p,*s1=0;
@@ -265,11 +261,10 @@ void nm_string_slider( bkg * b, int w1,int x, int y, char * s )
 }
 
 // Draw a left justfied string with black background.
-void nm_string_black( bkg * b, int w1,int x, int y, char * s )
+void nm_string_black( int w1,int x, int y, char * s )
 {
 	int w,h,aw;
 	gr_get_string_size(s, &w, &h, &aw  );
-	b = b;
 	if (w1 == 0) w1 = w;
 
 	gr_setcolor( BM_XRGB(5,5,5));
@@ -283,7 +278,7 @@ void nm_string_black( bkg * b, int w1,int x, int y, char * s )
 }
 
 // Draw a right justfied string
-void nm_rstring( bkg * b,int w1,int x, int y, char * s )
+void nm_rstring( int w1,int x, int y, char * s )
 {
 	int w,h,aw;
 	gr_get_string_size(s, &w, &h, &aw  );
@@ -324,7 +319,7 @@ void update_cursor( newmenu_item *item, int ScrollOffset)
 
 }
 
-void nm_string_inputbox( bkg *b, int w, int x, int y, char * text, int current )
+void nm_string_inputbox( int w, int x, int y, char * text, int current )
 {
 	int w1,h1,aw;
 
@@ -337,14 +332,14 @@ void nm_string_inputbox( bkg *b, int w, int x, int y, char * text, int current )
 	}
 	if ( *text == 0 )
 		w1 = 0;
-	nm_string_black( b, w, x, y, text );
+	nm_string_black( w, x, y, text );
 
 	if ( current )	{
 		gr_string( x+w1, y, CURSOR_STRING );
 	}
 }
 
-void draw_item( bkg * b, newmenu_item *item, int is_current, int tiny )
+void draw_item( newmenu_item *item, int is_current, int tiny )
 {
 	if (tiny)
 	{
@@ -367,7 +362,7 @@ void draw_item( bkg * b, newmenu_item *item, int is_current, int tiny )
 	switch( item->type )	{
 		case NM_TYPE_TEXT:
 		case NM_TYPE_MENU:
-			nm_string( b, item->w, item->x, item->y, item->text );
+			nm_string( item->w, item->x, item->y, item->text );
 			break;
 		case NM_TYPE_SLIDER:	{
 			int i,j;
@@ -381,40 +376,40 @@ void draw_item( bkg * b, newmenu_item *item, int is_current, int tiny )
 			
 			item->saved_text[item->value+1+strlen(item->text)+1] = SLIDER_MARKER[0];
 			
-			nm_string_slider( b, item->w, item->x, item->y, item->saved_text );
+			nm_string_slider( item->w, item->x, item->y, item->saved_text );
 			}
 			break;
 		case NM_TYPE_INPUT_MENU:
 			if ( item->group==0 )		{
-				nm_string( b, item->w, item->x, item->y, item->text );
+				nm_string( item->w, item->x, item->y, item->text );
 			} else {
-				nm_string_inputbox( b, item->w, item->x, item->y, item->text, is_current );
+				nm_string_inputbox( item->w, item->x, item->y, item->text, is_current );
 			}
 			break;
 		case NM_TYPE_INPUT:
-			nm_string_inputbox( b, item->w, item->x, item->y, item->text, is_current );
+			nm_string_inputbox( item->w, item->x, item->y, item->text, is_current );
 			break;
 		case NM_TYPE_CHECK:
-			nm_string( b, item->w, item->x, item->y, item->text );
+			nm_string( item->w, item->x, item->y, item->text );
 			if (item->value)
-				nm_rstring( b,item->right_offset,item->x, item->y, CHECKED_CHECK_BOX );
+				nm_rstring( item->right_offset,item->x, item->y, CHECKED_CHECK_BOX );
 			else														  
-				nm_rstring( b,item->right_offset,item->x, item->y, NORMAL_CHECK_BOX );
+				nm_rstring( item->right_offset,item->x, item->y, NORMAL_CHECK_BOX );
 			break;
 		case NM_TYPE_RADIO:
-			nm_string( b, item->w, item->x, item->y, item->text );
+			nm_string( item->w, item->x, item->y, item->text );
 			if (item->value)
-				nm_rstring( b,item->right_offset, item->x, item->y, CHECKED_RADIO_BOX );
+				nm_rstring( item->right_offset, item->x, item->y, CHECKED_RADIO_BOX );
 			else
-				nm_rstring( b,item->right_offset, item->x, item->y, NORMAL_RADIO_BOX );
+				nm_rstring( item->right_offset, item->x, item->y, NORMAL_RADIO_BOX );
 			break;
 		case NM_TYPE_NUMBER:	{
 			char text[10];
 			if (item->value < item->min_value) item->value=item->min_value;
 			if (item->value > item->max_value) item->value=item->max_value;
-			nm_string( b, item->w, item->x, item->y, item->text );
+			nm_string( item->w, item->x, item->y, item->text );
 			sprintf( text, "%d", item->value );
-			nm_rstring( b,item->right_offset,item->x, item->y, text );
+			nm_rstring( item->right_offset,item->x, item->y, text );
 			}
 			break;
 	}
@@ -498,11 +493,10 @@ int newmenu_do3_real( char * title, char * subtitle, int nitems, newmenu_item * 
 	int old_keyd_repeat, done;
 	int  choice,old_choice,i,j,x,y,w,h,aw, tw, th, twidth,fm,right_offset;
 	int k, nmenus, nothers,ScrollOffset=0,LastScrollCheck=-1,MaxDisplayable,sx,sy;
-	grs_canvas * save_canvas;
+	grs_canvas *menu_canvas, *save_canvas;
 	grs_font * save_font;
 	int string_width, string_height, average_width;
 	int ty;
-	bkg bg;
 	int all_text=0; //set true if all text items
 	int sound_stopped=0, time_stopped=0;
 	int MaxOnMenu=MAXDISPLAYABLEITEMS;
@@ -696,8 +690,8 @@ int newmenu_do3_real( char * title, char * subtitle, int nitems, newmenu_item * 
 	nm_draw_background1( filename );
 
 	// Save the background of the display
-	bg.menu_canvas = gr_create_sub_canvas( &grd_curscreen->sc_canvas, x, y, w, h );
-	gr_set_current_canvas( bg.menu_canvas );
+	menu_canvas = gr_create_sub_canvas( &grd_curscreen->sc_canvas, x, y, w, h );
+	gr_set_current_canvas( menu_canvas );
 
 	ty = BORDERY;
 
@@ -769,7 +763,7 @@ int newmenu_do3_real( char * title, char * subtitle, int nitems, newmenu_item * 
 		if (filename == NULL)
 			nm_draw_background(x-(IsScrollBox?FSPACX(5):0),y,x+w,y+h);
 
-		gr_set_current_canvas( bg.menu_canvas );
+		gr_set_current_canvas( menu_canvas );
 
 		if ( title )	{
 			gr_set_curfont(HUGE_FONT);
@@ -1281,11 +1275,11 @@ int newmenu_do3_real( char * title, char * subtitle, int nitems, newmenu_item * 
 	
 		}
 
-		gr_set_current_canvas(bg.menu_canvas);
+		gr_set_current_canvas(menu_canvas);
 		for (i=ScrollOffset; i<MaxDisplayable+ScrollOffset; i++ )
 		{
 			item[i].y-=(LINE_SPACING*ScrollOffset);
-			draw_item( &bg, &item[i], (i==choice && !all_text),TinyMode );
+			draw_item( &item[i], (i==choice && !all_text),TinyMode );
 #ifdef NEWMENU_MOUSE
 			newmenu_show_cursor();
 #endif
@@ -1306,17 +1300,17 @@ int newmenu_do3_real( char * title, char * subtitle, int nitems, newmenu_item * 
 						
 			
 				if (ScrollOffset!=0)
-					nm_rstring( &bg, FSPACX(11), sx, sy, UP_ARROW_MARKER );
+					nm_rstring( FSPACX(11), sx, sy, UP_ARROW_MARKER );
 				else
-					nm_rstring( &bg, FSPACX(11), sx, sy, "  " );
+					nm_rstring( FSPACX(11), sx, sy, "  " );
 		
 				sy=item[ScrollOffset+MaxDisplayable-1].y-(LINE_SPACING*ScrollOffset);
 				sx=item[ScrollOffset+MaxDisplayable-1].x-FSPACX(11);
 			
 				if (ScrollOffset+MaxDisplayable<nitems)
-					nm_rstring( &bg, FSPACX(11), sx, sy, DOWN_ARROW_MARKER );
+					nm_rstring( FSPACX(11), sx, sy, DOWN_ARROW_MARKER );
 				else
-					nm_rstring( &bg, FSPACX(11), sx, sy, "  " );
+					nm_rstring( FSPACX(11), sx, sy, "  " );
 		
 			}
 		
@@ -1325,7 +1319,7 @@ int newmenu_do3_real( char * title, char * subtitle, int nitems, newmenu_item * 
 
 	newmenu_hide_cursor();
 
-	gr_free_sub_canvas( bg.menu_canvas );
+	gr_free_sub_canvas( menu_canvas );
 	gr_set_current_canvas( NULL );
 	grd_curcanv->cv_font	= save_font;
 	gr_set_current_canvas( save_canvas );
@@ -1887,7 +1881,6 @@ int newmenu_listbox1( char * title, int nitems, char * items[], int allow_abort_
 	int done, ocitem,citem, ofirst_item, first_item, key, redraw;
 	int old_keyd_repeat = keyd_repeat;
 	int box_w, height, box_x, box_y, title_height;
-	bkg bg;
 #ifdef NEWMENU_MOUSE
 	int mx, my, mz, x1, x2, y1, y2, mouse_state, omouse_state;	//, dblclick_flag;
 #endif
@@ -1922,8 +1915,6 @@ int newmenu_listbox1( char * title, int nitems, char * items[], int allow_abort_
 	if ( box_y < title_height )
 		box_y = title_height;
 
-	bg.saved = NULL;
-	bg.background = gr_create_bitmap(grd_curcanv->cv_bitmap.bm_w, grd_curcanv->cv_bitmap.bm_h);
 	done = 0;
 	citem = default_item;
 	if ( citem < 0 ) citem = 0;
@@ -2105,9 +2096,6 @@ int newmenu_listbox1( char * title, int nitems, char * items[], int allow_abort_
 	}
 	newmenu_hide_cursor();
 	keyd_repeat = old_keyd_repeat;
-
-	if ( bg.background != &VR_offscreen_buffer->cv_bitmap )
-		gr_free_bitmap(bg.background);
 
 	return citem;
 }
