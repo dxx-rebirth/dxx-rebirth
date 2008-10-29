@@ -3,6 +3,7 @@ D1X-Rebirth Changelog
 20081029
 --------
 2d/font.c, main/gamefont.c, main/gamefont.h, main/menu.c: Scale fonts by float values and filter them if texture filtering is on; Another fix for the code flow in change_res() as the check for minimal custom resolution always failed
+main/collide.c: Yet another check for collide sounds as FixedStep is not necessarily true if the actual collision happens
 
 20081028
 --------
