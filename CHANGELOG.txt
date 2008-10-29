@@ -1,5 +1,9 @@
 D1X-Rebirth Changelog
 
+20081030
+--------
+INSTALL.txt, README.txt: Docs update: Infos about Jukebox over SDL_mixer, SDL_mixer is not experimental anymore, yet another .de->.com change
+
 20081029
 --------
 2d/font.c, main/gamefont.c, main/gamefont.h, main/menu.c: Scale fonts by float values and filter them if texture filtering is on; Another fix for the code flow in change_res() as the check for minimal custom resolution always failed

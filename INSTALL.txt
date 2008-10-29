@@ -38,7 +38,7 @@ Currently, the following variables are supported:
 'editor=1'        build editor !EXPERIMENTAL!
 'arm=1'           compile for ARM architecture
 
-‘sdlmixer’ as well as ‘editor’ are currently *not* supported and may not work.
+‘editor’ is currently *not* supported and will not work.
 
 To compile the source, type:
 
@@ -119,6 +119,11 @@ Supported content:
       German translation: http://www.dxx-rebirth.com/download/dxx/res/D1XBDE01.zip
       Copy the txb-files to the Sharepath (non-Mac OS *NIX)/program directory (otherwise). Will be activated automatically
 
+    *
+      Custom Music (like MP3 or OGG)
+      Custom Music can be played either used via the Jukebox by specifying the path to your music in the Sound Options menu.
+      Please note that all custom music has to be in 44Khz format.
+
 
 Launching the program
 
@@ -158,4 +163,4 @@ Thanks to PhysFS, on *NIX systems data files can also go in here. In addition, d
 
 Appendix
 
-http://DXX-Rebirth.de
+http://DXX-Rebirth.com
