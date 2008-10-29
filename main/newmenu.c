@@ -1116,7 +1116,7 @@ int newmenu_do4( char * title, char * subtitle, int nitems, newmenu_item * item,
 				if (ScrollOffset != 0) {
 					gr_get_string_size(UP_ARROW_MARKER, &arrow_width, &arrow_height, &aw);
 					x2 = grd_curcanv->cv_bitmap.bm_x + item[ScrollOffset].x-FSPACX(13);
-		          		y1 = grd_curcanv->cv_bitmap.bm_y + item[ScrollOffset].y-(LINE_SPACING*ScrollOffset);
+		          		y1 = grd_curcanv->cv_bitmap.bm_y + item[ScrollOffset].y-(((int)LINE_SPACING)*ScrollOffset);
 					x1 = x2 - arrow_width;
 					y2 = y1 + arrow_height;
 					if (((mx > x1) && (mx < x2)) && ((my > y1) && (my < y2)) ) {
@@ -1131,7 +1131,7 @@ int newmenu_do4( char * title, char * subtitle, int nitems, newmenu_item * item,
 				if (ScrollOffset+MaxDisplayable<nitems) {
 					gr_get_string_size(DOWN_ARROW_MARKER, &arrow_width, &arrow_height, &aw);
 					x2 = grd_curcanv->cv_bitmap.bm_x + item[ScrollOffset+MaxDisplayable-1].x-FSPACX(13);
-					y1 = grd_curcanv->cv_bitmap.bm_y + item[ScrollOffset+MaxDisplayable-1].y-(LINE_SPACING*ScrollOffset);
+					y1 = grd_curcanv->cv_bitmap.bm_y + item[ScrollOffset+MaxDisplayable-1].y-(((int)LINE_SPACING)*ScrollOffset);
 					x1 = x2 - arrow_width;
 					y2 = y1 + arrow_height;
 					if (((mx > x1) && (mx < x2)) && ((my > y1) && (my < y2)) ) {
@@ -1344,12 +1344,12 @@ int newmenu_do4( char * title, char * subtitle, int nitems, newmenu_item * item,
 		// Redraw everything...
 		for (i=ScrollOffset; i<MaxDisplayable+ScrollOffset; i++ )
 		{
-			item[i].y-=(LINE_SPACING*ScrollOffset);
+			item[i].y-=(((int)LINE_SPACING)*ScrollOffset);
 			draw_item( &item[i], (i==choice && !all_text),TinyMode );
 #ifdef NEWMENU_MOUSE
 			newmenu_show_cursor();
 #endif
-			item[i].y+=(LINE_SPACING*ScrollOffset);
+			item[i].y+=(((int)LINE_SPACING)*ScrollOffset);
 
 			if (i==choice && (item[i].type==NM_TYPE_INPUT || (item[i].type==NM_TYPE_INPUT_MENU && item[i].group)))
 				update_cursor( &item[i],ScrollOffset);
@@ -1360,7 +1360,7 @@ int newmenu_do4( char * title, char * subtitle, int nitems, newmenu_item * item,
 			LastScrollCheck=ScrollOffset;
 			gr_set_curfont(MEDIUM2_FONT);
 					
-			sy=item[ScrollOffset].y-(LINE_SPACING*ScrollOffset);
+			sy=item[ScrollOffset].y-(((int)LINE_SPACING)*ScrollOffset);
 			sx=item[ScrollOffset].x-FSPACX(11);
 					
 		
@@ -1369,7 +1369,7 @@ int newmenu_do4( char * title, char * subtitle, int nitems, newmenu_item * item,
 			else
 				nm_rstring( FSPACX(11), sx, sy, "  " );
 	
-			sy=item[ScrollOffset+MaxDisplayable-1].y-(LINE_SPACING*ScrollOffset);
+			sy=item[ScrollOffset+MaxDisplayable-1].y-(((int)LINE_SPACING)*ScrollOffset);
 			sx=item[ScrollOffset+MaxDisplayable-1].x-FSPACX(11);
 		
 			if (ScrollOffset+MaxDisplayable<nitems)
