@@ -43,12 +43,12 @@ COPYRIGHT 1993-1998 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 
 #define MAX_FONTS 5
 
-extern int FNTScaleX, FNTScaleY;
+extern float FNTScaleX, FNTScaleY;
 
 // add (scaled) spacing to given font coordinate
-#define FSPACX(x)	((x)*(FNTScaleX*(GAME_FONT->ft_w/7)))
-#define FSPACY(y)	((y)*(FNTScaleY*(GAME_FONT->ft_h/5)))
-#define LINE_SPACING    (FNTScaleY*(grd_curcanv->cv_font->ft_h+(GAME_FONT->ft_h/5)))
+#define FSPACX(x)	((float)(x)*(FNTScaleX*(GAME_FONT->ft_w/7)))
+#define FSPACY(y)	((float)(y)*(FNTScaleY*(GAME_FONT->ft_h/5)))
+#define LINE_SPACING    ((float)FNTScaleY*(grd_curcanv->cv_font->ft_h+(GAME_FONT->ft_h/5)))
 
 extern grs_font *Gamefonts[MAX_FONTS];
 

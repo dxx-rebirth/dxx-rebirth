@@ -1,5 +1,9 @@
 D1X-Rebirth Changelog
 
+20081029
+--------
+2d/font.c, main/gamefont.c, main/gamefont.h, main/menu.c: Scale fonts by float values and filter them if texture filtering is on; Another fix for the code flow in change_res() as the check for minimal custom resolution always failed
+
 20081028
 --------
 arch/ogl.c, include/gr.h, main/game.c, main/gauges.c, main/gauges.h, main/newmenu.c: Removed hack for Cockpit-window transparencies and added function to decode and add alpha to the bitmap directly (now works in non-OGL as well); Using sub-bitmaps for Cockpit-windows and menu backgrounds; Cleaned old bkg stuff from menu GUI

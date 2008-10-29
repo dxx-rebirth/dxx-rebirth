@@ -48,7 +48,7 @@ char * Gamefont_filenames_h[] = {
 grs_font *Gamefonts[MAX_FONTS];
 
 int Gamefont_installed=0;
-int FNTScaleX = 1, FNTScaleY = 1;
+float FNTScaleX = 1, FNTScaleY = 1;
 
 //code to allow variable GAME_FONT, added 10/7/99 Matt Mueller - updated 11/18/99 to handle all fonts, not just GFONT_SMALL
 //	take scry into account? how/when?
@@ -113,14 +113,14 @@ void gamefont_choose_game_font(int scrx,int scry){
 #ifdef OGL
 	if (!GameArg.OglFixedFont)
 	{
+		FNTScaleX = (float)scrx/font_conf[gf].font[m].x;
+		FNTScaleY = (float)scry/font_conf[gf].font[m].y;
 		if (GameArg.OglFixedFontWidth)
 		{
-			FNTScaleX = FNTScaleY = scry/font_conf[gf].font[m].y;
-		}
-		else
-		{
-			FNTScaleX = scrx/font_conf[gf].font[m].x;
-			FNTScaleY = scry/font_conf[gf].font[m].y;
+			if (FNTScaleY < FNTScaleX)
+				FNTScaleX = FNTScaleY;
+			else if (FNTScaleX < FNTScaleY)
+				FNTScaleY = FNTScaleX;
 		}
 	}
 #endif

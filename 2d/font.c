@@ -37,8 +37,8 @@ COPYRIGHT 1993-1998 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 #endif
 #include "console.h"
 
-#define FONTSCALE_X(x) ((x)*(FNTScaleX))
-#define FONTSCALE_Y(x) ((x)*(FNTScaleY))
+#define FONTSCALE_X(x) ((float)(x)*(FNTScaleX))
+#define FONTSCALE_Y(x) ((float)(x)*(FNTScaleY))
 
 #define BITS_TO_BYTES(x)    (((x)+7)>>3)
 
@@ -530,18 +530,18 @@ void ogl_font_choose_size(grs_font * font,int gap,int *rw,int *rh){
 		Error("couldn't fit font?\n");
 }
 
-void ogl_init_font(grs_font * font){
-	int oglflags = OGL_FLAG_ALPHA;
+void ogl_init_font(grs_font * font)
+{
+	int oglflags = OGL_FLAG_ALPHA | OGL_FLAG_MIPMAP;
 	int	nchars = font->ft_maxchar-font->ft_minchar+1;
 	int i,w,h,tw,th,x,y,curx=0,cury=0;
 	unsigned char *fp;
-	//	char data[32*32*4];
 	ubyte *data;
-	int gap=0;//having a gap just wastes ram, since we don't filter text textures at all.
-	//	char s[2];
+	int gap=1; // x/y offset between the chars so we can filter
+
 	ogl_font_choose_size(font,gap,&tw,&th);
 	data=d_malloc(tw*th);
-	memset(data, 0, tw * th);
+	memset(data, TRANSPARENCY_COLOR, tw * th); // map the whole data with transparency so we won't have borders if using gap
 	gr_init_bitmap(&font->ft_parent_bitmap,BM_LINEAR,0,0,tw,th,tw,data);
 	gr_set_transparent(&font->ft_parent_bitmap, 1);
 
@@ -552,36 +552,62 @@ void ogl_init_font(grs_font * font){
 	font->ft_bitmaps=(grs_bitmap*)d_malloc( nchars * sizeof(grs_bitmap));
 	h=font->ft_h;
 
-	for(i=0;i<nchars;i++){
+	for(i=0;i<nchars;i++)
+	{
 		if (font->ft_flags & FT_PROPORTIONAL)
 			w=font->ft_widths[i];
 		else
 			w=font->ft_w;
 
-		if (w<1 || w>256){
+		if (w<1 || w>256)
 			continue;
-		}
-		if (curx+w+gap>tw){
+
+		if (curx+w+gap>tw)
+		{
 			cury+=h+gap;
 			curx=0;
 		}
+
 		if (cury+h>th)
 			Error("font doesn't really fit (%i/%i)?\n",i,nchars);
-		if (font->ft_flags & FT_COLOR) {
+
+		if (font->ft_flags & FT_COLOR)
+		{
 			if (font->ft_flags & FT_PROPORTIONAL)
 				fp = font->ft_chars[i];
 			else
 				fp = font->ft_data + i * w*h;
 			for (y=0;y<h;y++)
-				for (x=0;x<w;x++){
+			{
+				for (x=0;x<w;x++)
+				{
 					font->ft_parent_bitmap.bm_data[curx+x+(cury+y)*tw]=fp[x+y*w];
-				}
+					// Let's call this a HACK:
+					// If we filter the fonts, the sliders will be messed up as the border pixels will have an
+					// alpha value while filtering. So the slider bitmaps will not look "connected".
+					// To prevent this, duplicate the first/last pixel-row with a 1-pixel offset.
+					if (gap && i >= 99 && i <= 102)
+					{
+						// See which bitmaps need left/right shifts:
+						// 99  = SLIDER_LEFT - shift RIGHT
+						// 100 = SLIDER_RIGHT - shift LEFT
+						// 101 = SLIDER_MIDDLE - shift LEFT+RIGHT
+						// 102 = SLIDER_MARKER - shift RIGHT
 
-			//			gr_init_bitmap(&font->ft_bitmaps[i],BM_LINEAR,0,0,w,h,w,font->);
-		}else{
+						// shift left border
+						if (x==0 && i != 99 && i != 102)
+							font->ft_parent_bitmap.bm_data[(curx+x+(cury+y)*tw)-1]=fp[x+y*w];
+
+						// shift right border
+						if (x==w-1 && i != 100)
+							font->ft_parent_bitmap.bm_data[(curx+x+(cury+y)*tw)+1]=fp[x+y*w];
+					}
+				}
+			}
+		}
+		else
+		{
 			int BitMask,bits=0,white=gr_find_closest_color(63,63,63);
-			//			if (w*h>sizeof(data))
-			//				Error("ogl_init_font: toobig\n");
 			if (font->ft_flags & FT_PROPORTIONAL)
 				fp = font->ft_chars[i];
 			else
@@ -604,7 +630,6 @@ void ogl_init_font(grs_font * font){
 			}
 		}
 		gr_init_sub_bitmap(&font->ft_bitmaps[i],&font->ft_parent_bitmap,curx,cury,w,h);
-
 		curx+=w+gap;
 	}
 	ogl_loadbmtexture_f(&font->ft_parent_bitmap, oglflags);
@@ -655,7 +680,7 @@ int ogl_internal_string(int x, int y, char *s )
 				}
 				continue;
 			}
-			
+
 			if (grd_curcanv->cv_font->ft_flags&FT_COLOR)
 				ogl_ubitmapm_cs(xx,yy,FONTSCALE_X(grd_curcanv->cv_font->ft_widths[letter]),FONTSCALE_Y(grd_curcanv->cv_font->ft_h),&grd_curcanv->cv_font->ft_bitmaps[letter],-1,F1_0);
 			else{
