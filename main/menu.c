@@ -532,12 +532,12 @@ void change_res()
 		if (!strchr(customres, 'x'))
 			return;
 
+		screen_mode = SM(atoi(customres), atoi(strchr(customres, 'x')+1));
 		if (SM_W(screen_mode) < 320 || SM_H(screen_mode) < 200) // oh oh - the resolution is too small. Revert!
 		{
 			nm_messagebox( TXT_WARNING, 1, "OK", "Entered resolution is too small.\nReverting ..." );
 			return;
 		}
-		screen_mode = SM(atoi(customres), atoi(strchr(customres, 'x')+1));
 		if (strchr(aspect, 'x')) // we even have a custom aspect set up
 		{
 			aspect_mode = SM(atoi(aspect), atoi(strchr(aspect, 'x')+1));

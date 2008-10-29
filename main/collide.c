@@ -85,9 +85,16 @@ COPYRIGHT 1993-1999 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 
 #define STANDARD_EXPL_DELAY (f1_0/4)
 
-//##void collide_fireball_and_wall(object *fireball,fix hitspeed, short hitseg, short hitwall, vms_vector * hitpt)	{
-//##	return; 
-//##}
+int check_collision_sound_exec()
+{
+	static int last_play_time=0;
+	if (last_play_time + (F1_0/3) < GameTime || last_play_time > GameTime)
+	{
+		last_play_time = GameTime;
+		return 1;
+	}
+	return 0;
+}
 
 //	-------------------------------------------------------------------------------------------------------------
 //	The only reason this routine is called (as of 10/12/94) is so Brain guys can open doors.
@@ -1032,7 +1039,7 @@ void collide_robot_and_player( object * robot, object * playerobj, vms_vector *c
 	// A "steal" sound was added and it was getting obscured by the bump. -AP 10/3/95
 	//	Changed by MK to make this sound unless the robot stole.
 	if ((!steal_attempt) && !Robot_info[robot->id].energy_drain)
-		if (FixedStep & EPS4)
+		if (check_collision_sound_exec())
 			digi_link_sound_to_pos( SOUND_ROBOT_HIT_PLAYER, playerobj->segnum, 0, collision_point, 0, F1_0 );
 
 	bump_two_objects(robot, playerobj, 1);
@@ -1121,7 +1128,7 @@ void collide_player_and_controlcen( object * controlcen, object * playerobj, vms
 		ai_do_cloak_stuff();				//	In case player cloaked, make control center know where he is.
 	}
 
-	if (FixedStep & EPS4)
+	if (check_collision_sound_exec())
 		digi_link_sound_to_pos( SOUND_ROBOT_HIT_PLAYER, playerobj->segnum, 0, collision_point, 0, F1_0 );
 
 	bump_two_objects(controlcen, playerobj, 1);
@@ -1754,7 +1761,7 @@ void collide_hostage_and_player( object * hostage, object * player, vms_vector *
 //##}
 
 void collide_player_and_player( object * player1, object * player2, vms_vector *collision_point ) {
-	if (FixedStep & EPS4)
+	if (check_collision_sound_exec())
 		digi_link_sound_to_pos( SOUND_ROBOT_HIT_PLAYER, player1->segnum, 0, collision_point, 0, F1_0 );
 
 	bump_two_objects(player1, player2, 1);
@@ -2299,7 +2306,7 @@ void collide_player_and_powerup( object * playerobj, object * powerup, vms_vecto
 //##}
 
 void collide_player_and_clutter( object * playerobj, object * clutter, vms_vector *collision_point ) { 
-	if (FixedStep & EPS4)
+	if (check_collision_sound_exec())
 		digi_link_sound_to_pos( SOUND_ROBOT_HIT_PLAYER, playerobj->segnum, 0, collision_point, 0, F1_0 );
 	bump_two_objects(clutter, playerobj, 1);
 	return; 
