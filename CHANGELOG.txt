@@ -4,6 +4,7 @@ D1X-Rebirth Changelog
 --------
 2d/font.c, main/gamefont.c, main/gamefont.h, main/menu.c: Scale fonts by float values and filter them if texture filtering is on; Another fix for the code flow in change_res() as the check for minimal custom resolution always failed
 main/collide.c: Yet another check for collide sounds as FixedStep is not necessarily true if the actual collision happens
+main/newmenu.c: Cast LINE_SPACING to integer for menu Scrollbox usages - fixing scrolling issues with non-integer-scaled font sizes
 
 20081028
 --------
