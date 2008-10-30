@@ -185,8 +185,7 @@ void show_commandline_help()
 	printf( "  -nobm              %s\n", "Don't load BITMAPS.TBL and BITMAPS.BIN - use internal data");
 #endif // EDITOR
 
-#ifndef   NDEBUG
-	printf( "\n Debug:\n\n");
+	printf( "\n Debug (use only if you know what you're doing):\n\n");
 	printf( "  -debug             %s\n", "Enable very verbose output");
 	printf( "  -verbose           %s\n", "Shows initialization steps for tech support");
 	printf( "  -norun             %s\n", "Bail out after initialization");
@@ -208,8 +207,6 @@ void show_commandline_help()
 	printf( "  -hwsurface         %s\n", "Use SDL HW Surface");
 	printf( "  -asyncblit         %s\n", "Use queued blits over SDL. Can speed up rendering");
 #endif // OGL
-
-#endif // NDEBUG
 
 	printf( "\n Help:\n\n");
 	printf( "  -help, -h, -?, ?   %s\n", "View this help screen");
