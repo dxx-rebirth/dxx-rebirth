@@ -667,13 +667,16 @@ void do_graphics_menu()
 
 		i = newmenu_do1( NULL, "Graphics Options", sizeof(m)/sizeof(*m), m, NULL, i );
 
+		if (GameCfg.VSync != m[7].value || GameCfg.Multisample != m[8].value)
+			nm_messagebox( NULL, 1, TXT_OK, "To apply VSync or 4x Multisample\nyou need to restart the program");
+
 		for (j = 0; j <= 2; j++)
 			if (m[j+1].value)
 				GameCfg.TexFilt = j;
 		PlayerCfg.OglAlphaEffects = m[5].value;
 		PlayerCfg.OglReticle = m[6].value;
 		GameCfg.VSync = m[7].value;
-		GameCfg.Multisample = m[7].value;
+		GameCfg.Multisample = m[8].value;
 		gr_set_attributes();
 	} while( i>-1 );
 }
