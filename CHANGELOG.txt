@@ -4,6 +4,7 @@ D2X-Rebirth Changelog
 --------
 INSTALL.txt, README.txt: Docs update: Infos about Jukebox over SDL_mixer, SDL_mixer is not experimental anymore, yet another .de->.com change
 d2x.ini, main/inferno.c: Show debug help screen options in release build as well as some might be actually useful for players
+main/menu.c: Add a messagebox informing to restart the game if either VSync or 4x Multisampling has been (de)selected
 
 20081029
 --------
