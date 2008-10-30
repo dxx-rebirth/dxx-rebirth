@@ -3,6 +3,7 @@ D2X-Rebirth Changelog
 20081030
 --------
 INSTALL.txt, README.txt: Docs update: Infos about Jukebox over SDL_mixer, SDL_mixer is not experimental anymore, yet another .de->.com change
+d2x.ini, main/inferno.c: Show debug help screen options in release build as well as some might be actually useful for players
 
 20081029
 --------

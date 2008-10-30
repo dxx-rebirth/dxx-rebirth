@@ -199,8 +199,7 @@ void print_commandline_help()
 	printf( "  -hoarddata         %s\n", "Make the hoard ham file from some files, then exit");
 #endif // EDITOR
 
-#ifndef   NDEBUG
-	printf( "\n Debug:\n\n");
+	printf( "\n Debug (use only if you know what you're doing):\n\n");
 	printf( "  -debug             %s\n", "Enable very verbose output");
 	printf( "  -verbose           %s\n", "Shows initialization steps for tech support");
 	printf( "  -norun             %s\n", "Bail out after initialization");
@@ -219,11 +218,9 @@ void print_commandline_help()
 	printf( "  -gl_readpixels_ok <n> %s\n", "Override DbgGlReadPixelsOk - Default: 1");
 	printf( "  -gl_gettexlevelparam_ok <n> %s\n", "Override DbgGlGetTexLevelParamOk - Default: 1");
 #else
-	printf( "  -hwsurface         %s\n", "Use HW Surface");
+	printf( "  -hwsurface         %s\n", "Use SDL HW Surface");
 	printf( "  -asyncblit         %s\n", "Use queued blits over SDL. Can speed up rendering");
 #endif
-
-#endif // NDEBUG
 
 	printf( "\n Help:\n\n");
 	printf( "  -help, -h, -?, ?   %s\n", "View this help screen");
