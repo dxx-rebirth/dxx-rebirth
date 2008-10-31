@@ -202,7 +202,7 @@ void kmatrix_redraw()
 
 void kmatrix_view(int network)
 {
-	int i, k, done;
+	int k, done;
 	fix entry_time = timer_get_approx_seconds();
 	//edit 05/18/99 Matt Mueller - should be initialized.
 	int key=0;
@@ -217,11 +217,6 @@ void kmatrix_view(int network)
 	while(!done)	{
 		timer_delay2(50);
 		kmatrix_redraw();
-
-		for (i=0; i<JOY_MAX_BUTTONS; i++ )	
-			if (joy_get_button_down_cnt(i)>0) done=1;
-		for (i=0; i<MOUSE_MAX_BUTTONS; i++ )	
-			if (mouse_button_down_count(i)>0) done=1;
 
 		//see if redbook song needs to be restarted
 		songs_check_redbook_repeat();

@@ -2485,14 +2485,17 @@ void ReadControls()
 	if (Newdemo_state == ND_STATE_PLAYBACK )
 		update_vcr_state();
 
-#ifdef NETWORK
-	if ( (Game_mode & GM_MULTI) && (multi_sending_message || multi_defining_message) )
-		multi_message_input_sub();
-#endif
-
 	while ((key=key_inkey_time(&key_time)) != 0)	{
 		if (con_events(key) && con_render)
 			game_flush_inputs();
+
+#ifdef NETWORK
+		if ( (Game_mode & GM_MULTI) && (multi_sending_message || multi_defining_message) )
+		{
+			multi_message_input_sub(key);
+			continue;
+		}
+#endif
 
 		if (Player_is_dead)
 			HandleDeathKey(key);

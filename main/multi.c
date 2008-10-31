@@ -962,14 +962,11 @@ multi_send_macro(int key)
 		return;
 	}
 
-	snprintf(Network_message, MAX_MESSAGE_LEN, "%s", PlayerCfg.NetworkMessageMacro[key]);
+	strcpy(Network_message, PlayerCfg.NetworkMessageMacro[key]);
+	Network_message_reciever = 100;
 
-//added/replaced on 11/10/98 by Victor Rachels to make macros act like normal msgs
-        multi_send_message_end();
-//-replaced-        Network_message_reciever = 100;
-//-replaced-        hud_message(MSGC_GAME_FEEDBACK, "%s '%s'", TXT_SENDING, Network_message);
-//-replaced-        multi_message_feedback();
-//end this section change - VR
+	HUD_init_message("%s '%s'", TXT_SENDING, Network_message);
+	multi_message_feedback();
 
 }
 
@@ -1076,10 +1073,8 @@ void multi_define_macro_end()
 	game_flush_inputs();
 }
 
-void multi_message_input_sub()
+void multi_message_input_sub(int key)
 {
-	int key = key_inkey();
-
 	switch( key )
 	{
 		case KEY_F8:
@@ -1103,8 +1098,8 @@ void multi_message_input_sub()
 			game_flush_inputs();
 			break;
 		default:
-		{
-			int ascii = key_to_ascii();
+		if (key > 0) {
+			int ascii = key_to_ascii(key);
 			if ((ascii < 255 ) && (ascii != 37))	{
 				if (multi_message_index < MAX_MESSAGE_LEN-2 )	{
 					Network_message[multi_message_index++] = ascii;

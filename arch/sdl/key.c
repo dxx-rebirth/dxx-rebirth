@@ -21,6 +21,7 @@
 #include "timer.h"
 
 #define KEY_BUFFER_SIZE 16
+#define UNICODE
 
 static unsigned char Installed = 0;
 
@@ -32,7 +33,6 @@ volatile unsigned char 	keyd_last_pressed;
 volatile unsigned char 	keyd_last_released;
 volatile unsigned char	keyd_pressed[256];
 volatile int		keyd_time_when_last_pressed;
-volatile int		keyd_ascii;
 
 typedef struct Key_info {
 	ubyte		state;			// state of key 1 == down, 0 == up
@@ -56,338 +56,347 @@ static keyboard key_data;
 typedef struct key_props {
 	char *key_text;
 	unsigned char ascii_value;
-	unsigned char shifted_ascii_value;
 	SDLKey sym;
 } key_props;
 
 key_props key_properties[256] = {
-{ "",       255,    255,    -1                 }, // 0
-{ "ESC",    255,    255,    SDLK_ESCAPE        },
-{ "1",      '1',    '!',    SDLK_1             },
-{ "2",      '2',    '@',    SDLK_2             },
-{ "3",      '3',    '#',    SDLK_3             },
-{ "4",      '4',    '$',    SDLK_4             },
-{ "5",      '5',    '%',    SDLK_5             },
-{ "6",      '6',    '^',    SDLK_6             },
-{ "7",      '7',    '&',    SDLK_7             },
-{ "8",      '8',    '*',    SDLK_8             },
-{ "9",      '9',    '(',    SDLK_9             }, // 10
-{ "0",      '0',    ')',    SDLK_0             },
-{ "-",      '-',    '_',    SDLK_MINUS         },
-{ "=",      '=',    '+',    SDLK_EQUALS        },
-{ "BSPC",   255,    255,    SDLK_BACKSPACE     },
-{ "TAB",    255,    255,    SDLK_TAB           },
-{ "Q",      'q',    'Q',    SDLK_q             },
-{ "W",      'w',    'W',    SDLK_w             },
-{ "E",      'e',    'E',    SDLK_e             },
-{ "R",      'r',    'R',    SDLK_r             },
-{ "T",      't',    'T',    SDLK_t             }, // 20
-{ "Y",      'y',    'Y',    SDLK_y             },
-{ "U",      'u',    'U',    SDLK_u             },
-{ "I",      'i',    'I',    SDLK_i             },
-{ "O",      'o',    'O',    SDLK_o             },
-{ "P",      'p',    'P',    SDLK_p             },
-{ "[",      '[',    '{',    SDLK_LEFTBRACKET   },
-{ "]",      ']',    '}',    SDLK_RIGHTBRACKET  },
-{ "ENTER",  255,    255,    SDLK_RETURN        },
-{ "LCTRL",  255,    255,    SDLK_LCTRL         },
-{ "A",      'a',    'A',    SDLK_a             }, // 30
-{ "S",      's',    'S',    SDLK_s             },
-{ "D",      'd',    'D',    SDLK_d             },
-{ "F",      'f',    'F',    SDLK_f             },
-{ "G",      'g',    'G',    SDLK_g             },
-{ "H",      'h',    'H',    SDLK_h             },
-{ "J",      'j',    'J',    SDLK_j             },
-{ "K",      'k',    'K',    SDLK_k             },
-{ "L",      'l',    'L',    SDLK_l             },
-{ ";",      ';',    ':',    SDLK_SEMICOLON     },
-{ "'",      '\'',   '"',    SDLK_QUOTE         }, // 40
-{ "`",      '`',    '~',    SDLK_BACKQUOTE     },
-{ "LSHFT",  255,    255,    SDLK_LSHIFT        },
-{ "\\",     '\\',   '|',    SDLK_BACKSLASH     },
-{ "Z",      'z',    'Z',    SDLK_z             },
-{ "X",      'x',    'X',    SDLK_x             },
-{ "C",      'c',    'C',    SDLK_c             },
-{ "V",      'v',    'V',    SDLK_v             },
-{ "B",      'b',    'B',    SDLK_b             },
-{ "N",      'n',    'N',    SDLK_n             },
-{ "M",      'm',    'M',    SDLK_m             }, // 50
-{ ",",      ',',    '<',    SDLK_COMMA         },
-{ ".",      '.',    '>',    SDLK_PERIOD        },
-{ "/",      '/',    '?',    SDLK_SLASH         },
-{ "RSHFT",  255,    255,    SDLK_RSHIFT        },
-{ "PAD*",   '*',    255,    SDLK_KP_MULTIPLY   },
-{ "LALT",   255,    255,    SDLK_LALT          },
-{ "SPC",    ' ',    ' ',    SDLK_SPACE         },
-{ "CPSLK",  255,    255,    SDLK_CAPSLOCK      },
-{ "F1",     255,    255,    SDLK_F1            },
-{ "F2",     255,    255,    SDLK_F2            }, // 60
-{ "F3",     255,    255,    SDLK_F3            },
-{ "F4",     255,    255,    SDLK_F4            },
-{ "F5",     255,    255,    SDLK_F5            },
-{ "F6",     255,    255,    SDLK_F6            },
-{ "F7",     255,    255,    SDLK_F7            },
-{ "F8",     255,    255,    SDLK_F8            },
-{ "F9",     255,    255,    SDLK_F9            },
-{ "F10",    255,    255,    SDLK_F10           },
-{ "NMLCK",  255,    255,    SDLK_NUMLOCK       },
-{ "SCLK",   255,    255,    SDLK_SCROLLOCK     }, // 70
-{ "PAD7",   255,    255,    SDLK_KP7           },
-{ "PAD8",   255,    255,    SDLK_KP8           },
-{ "PAD9",   255,    255,    SDLK_KP9           },
-{ "PAD-",   255,    255,    SDLK_KP_MINUS      },
-{ "PAD4",   255,    255,    SDLK_KP4           },
-{ "PAD5",   255,    255,    SDLK_KP5           },
-{ "PAD6",   255,    255,    SDLK_KP6           },
-{ "PAD+",   255,    255,    SDLK_KP_PLUS       },
-{ "PAD1",   255,    255,    SDLK_KP1           },
-{ "PAD2",   255,    255,    SDLK_KP2           }, // 80
-{ "PAD3",   255,    255,    SDLK_KP3           },
-{ "PAD0",   255,    255,    SDLK_KP0           },
-{ "PAD.",   255,    255,    SDLK_KP_PERIOD     },
-{ "",       255,    255,    -1                 },
-{ "",       255,    255,    -1                 },
-{ "",       255,    255,    -1                 },
-{ "F11",    255,    255,    SDLK_F11           },
-{ "F12",    255,    255,    SDLK_F12           },
-{ "",       255,    255,    -1                 },	
-{ "",       255,    255,    -1                 }, // 90
-{ "",       255,    255,    -1                 },
-{ "",       255,    255,    -1                 },
-{ "",       255,    255,    -1                 },
-{ "",       255,    255,    -1                 },
-{ "",       255,    255,    -1                 },
-{ "",       255,    255,    -1                 },
-{ "PAUSE",  255,    255,    SDLK_PAUSE         },
-{ "",       255,    255,    -1                 },
-{ "",       255,    255,    -1                 },
-{ "",       255,    255,    -1                 }, // 100
-{ "",       255,    255,    -1                 },
-{ "",       255,    255,    -1                 },
-{ "",       255,    255,    -1                 },
-{ "",       255,    255,    -1                 },
-{ "",       255,    255,    -1                 },
-{ "",       255,    255,    -1                 },
-{ "",       255,    255,    -1                 },
-{ "",       255,    255,    -1                 },
-{ "",       255,    255,    -1                 },
-{ "",       255,    255,    -1                 }, // 110
-{ "",       255,    255,    -1                 },
-{ "",       255,    255,    -1                 },
-{ "",       255,    255,    -1                 },
-{ "",       255,    255,    -1                 },
-{ "",       255,    255,    -1                 },
-{ "",       255,    255,    -1                 },
-{ "",       255,    255,    -1                 },
-{ "",       255,    255,    -1                 },
-{ "",       255,    255,    -1                 },
-{ "",       255,    255,    -1                 }, // 120
-{ "",       255,    255,    -1                 },
-{ "",       255,    255,    -1                 },
-{ "",       255,    255,    -1                 },
-{ "",       255,    255,    -1                 },
-{ "",       255,    255,    -1                 },
-{ "",       255,    255,    -1                 },
-{ "",       255,    255,    -1                 },
-{ "",       255,    255,    -1                 },
-{ "",       255,    255,    -1                 },
-{ "",       255,    255,    -1                 }, // 130
-{ "",       255,    255,    -1                 },
-{ "",       255,    255,    -1                 },
-{ "",       255,    255,    -1                 },
-{ "",       255,    255,    -1                 },
-{ "",       255,    255,    -1                 },
-{ "",       255,    255,    -1                 },
-{ "",       255,    255,    -1                 },
-{ "",       255,    255,    -1                 },
-{ "",       255,    255,    -1                 },
-{ "",       255,    255,    -1                 }, // 140
-{ "",       255,    255,    -1                 },
-{ "",       255,    255,    -1                 },
-{ "",       255,    255,    -1                 },
-{ "",       255,    255,    -1                 },
-{ "",       255,    255,    -1                 },
-{ "",       255,    255,    -1                 },
-{ "",       255,    255,    -1                 },
-{ "",       255,    255,    -1                 },
-{ "",       255,    255,    -1                 },
-{ "",       255,    255,    -1                 }, // 150
-{ "",       255,    255,    -1                 },
-{ "",       255,    255,    -1                 },
-{ "",       255,    255,    -1                 },
-{ "",       255,    255,    -1                 },
-{ "",       255,    255,    -1                 },
-{ "PAD",    255,    255,    SDLK_KP_ENTER      },
-{ "RCTRL",  255,    255,    SDLK_RCTRL         },
-{ "",       255,    255,    -1                 },
-{ "",       255,    255,    -1                 },
-{ "",       255,    255,    -1                 }, // 160
-{ "",       255,    255,    -1                 },
-{ "",       255,    255,    -1                 },
-{ "",       255,    255,    -1                 },
-{ "",       255,    255,    -1                 },
-{ "",       255,    255,    -1                 },
-{ "",       255,    255,    -1                 },
-{ "",       255,    255,    -1                 },
-{ "",       255,    255,    -1                 },
-{ "",       255,    255,    -1                 },
-{ "",       255,    255,    -1                 }, // 170
-{ "",       255,    255,    -1                 },
-{ "",       255,    255,    -1                 },
-{ "",       255,    255,    -1                 },
-{ "",       255,    255,    -1                 },
-{ "",       255,    255,    -1                 },
-{ "",       255,    255,    -1                 },
-{ "",       255,    255,    -1                 },
-{ "",       255,    255,    -1                 },
-{ "",       255,    255,    -1                 },
-{ "",       255,    255,    -1                 }, // 180
-{ "PAD/",   255,    255,    SDLK_KP_DIVIDE     },
-{ "",       255,    255,    -1                 },
-{ "PRSCR",  255,    255,    SDLK_PRINT         },
-{ "RALT",   255,    255,    SDLK_RALT          },
-{ "",       255,    255,    -1                 },
-{ "",       255,    255,    -1                 },
-{ "",       255,    255,    -1                 },
-{ "",       255,    255,    -1                 },
-{ "",       255,    255,    -1                 },
-{ "",       255,    255,    -1                 }, // 190
-{ "",       255,    255,    -1                 },
-{ "",       255,    255,    -1                 },
-{ "",       255,    255,    -1                 },
-{ "",       255,    255,    -1                 },
-{ "",       255,    255,    -1                 },
-{ "",       255,    255,    -1                 },
-{ "",       255,    255,    -1                 },
-{ "",       255,    255,    -1                 },
-{ "HOME",   255,    255,    SDLK_HOME          },
-{ "UP",     255,    255,    SDLK_UP            }, // 200
-{ "PGUP",   255,    255,    SDLK_PAGEUP        },
-{ "",       255,    255,    -1                 },
-{ "LEFT",   255,    255,    SDLK_LEFT          },
-{ "",       255,    255,    -1                 },
-{ "RIGHT",  255,    255,    SDLK_RIGHT         },
-{ "",       255,    255,    -1                 },
-{ "END",    255,    255,    SDLK_END           },
-{ "DOWN",   255,    255,    SDLK_DOWN          },
-{ "PGDN",   255,    255,    SDLK_PAGEDOWN      },
-{ "INS",    255,    255,    SDLK_INSERT        }, // 210
-{ "DEL",    255,    255,    SDLK_DELETE        },
-{ "",       255,    255,    -1                 },
-{ "",       255,    255,    -1                 },
-{ "",       255,    255,    -1                 },
-{ "",       255,    255,    -1                 },
-{ "",       255,    255,    -1                 },
-{ "",       255,    255,    -1                 },
-{ "",       255,    255,    -1                 },
-{ "",       255,    255,    -1                 },
-{ "",       255,    255,    -1                 }, // 220
-{ "",       255,    255,    -1                 },
-{ "",       255,    255,    -1                 },
-{ "",       255,    255,    -1                 },
-{ "",       255,    255,    -1                 },
-{ "",       255,    255,    -1                 },
-{ "",       255,    255,    -1                 },
-{ "",       255,    255,    -1                 },
-{ "",       255,    255,    -1                 },
-{ "",       255,    255,    -1                 },
-{ "",       255,    255,    -1                 }, // 230
-{ "",       255,    255,    -1                 },
-{ "",       255,    255,    -1                 },
-{ "",       255,    255,    -1                 },
-{ "",       255,    255,    -1                 },
-{ "",       255,    255,    -1                 },
-{ "",       255,    255,    -1                 },
-{ "",       255,    255,    -1                 },
-{ "",       255,    255,    -1                 },
-{ "",       255,    255,    -1                 },
-{ "",       255,    255,    -1                 }, // 240
-{ "",       255,    255,    -1                 },
-{ "",       255,    255,    -1                 },
-{ "",       255,    255,    -1                 },
-{ "",       255,    255,    -1                 },
-{ "",       255,    255,    -1                 },
-{ "",       255,    255,    -1                 },
-{ "",       255,    255,    -1                 },
-{ "",       255,    255,    -1                 },
-{ "",       255,    255,    -1                 },
-{ "",       255,    255,    -1                 }, // 250
-{ "",       255,    255,    -1                 },
-{ "",       255,    255,    -1                 },
-{ "",       255,    255,    -1                 },
-{ "",       255,    255,    -1                 },
-{ "",       255,    255,    -1                 }, // 255
+{ "",       255,    -1                 }, // 0
+{ "ESC",    255,    SDLK_ESCAPE        },
+{ "1",      '1',    SDLK_1             },
+{ "2",      '2',    SDLK_2             },
+{ "3",      '3',    SDLK_3             },
+{ "4",      '4',    SDLK_4             },
+{ "5",      '5',    SDLK_5             },
+{ "6",      '6',    SDLK_6             },
+{ "7",      '7',    SDLK_7             },
+{ "8",      '8',    SDLK_8             },
+{ "9",      '9',    SDLK_9             }, // 10
+{ "0",      '0',    SDLK_0             },
+{ "-",      '-',    SDLK_MINUS         },
+{ "=",      '=',    SDLK_EQUALS        },
+{ "BSPC",   255,    SDLK_BACKSPACE     },
+{ "TAB",    255,    SDLK_TAB           },
+{ "Q",      'q',    SDLK_q             },
+{ "W",      'w',    SDLK_w             },
+{ "E",      'e',    SDLK_e             },
+{ "R",      'r',    SDLK_r             },
+{ "T",      't',    SDLK_t             }, // 20
+{ "Y",      'y',    SDLK_y             },
+{ "U",      'u',    SDLK_u             },
+{ "I",      'i',    SDLK_i             },
+{ "O",      'o',    SDLK_o             },
+{ "P",      'p',    SDLK_p             },
+{ "[",      '[',    SDLK_LEFTBRACKET   },
+{ "]",      ']',    SDLK_RIGHTBRACKET  },
+{ "ENTER",  255,    SDLK_RETURN        },
+{ "LCTRL",  255,    SDLK_LCTRL         },
+{ "A",      'a',    SDLK_a             }, // 30
+{ "S",      's',    SDLK_s             },
+{ "D",      'd',    SDLK_d             },
+{ "F",      'f',    SDLK_f             },
+{ "G",      'g',    SDLK_g             },
+{ "H",      'h',    SDLK_h             },
+{ "J",      'j',    SDLK_j             },
+{ "K",      'k',    SDLK_k             },
+{ "L",      'l',    SDLK_l             },
+{ ";",      ';',    SDLK_SEMICOLON     },
+{ "'",      '\'',   SDLK_QUOTE         }, // 40
+{ "`",      '`',    SDLK_BACKQUOTE     },
+{ "LSHFT",  255,    SDLK_LSHIFT        },
+{ "\\",     '\\',   SDLK_BACKSLASH     },
+{ "Z",      'z',    SDLK_z             },
+{ "X",      'x',    SDLK_x             },
+{ "C",      'c',    SDLK_c             },
+{ "V",      'v',    SDLK_v             },
+{ "B",      'b',    SDLK_b             },
+{ "N",      'n',    SDLK_n             },
+{ "M",      'm',    SDLK_m             }, // 50
+{ ",",      ',',    SDLK_COMMA         },
+{ ".",      '.',    SDLK_PERIOD        },
+{ "/",      '/',    SDLK_SLASH         },
+{ "RSHFT",  255,    SDLK_RSHIFT        },
+{ "PAD*",   '*',    SDLK_KP_MULTIPLY   },
+{ "LALT",   255,    SDLK_LALT          },
+{ "SPC",    ' ',    SDLK_SPACE         },
+{ "CPSLK",  255,    SDLK_CAPSLOCK      },
+{ "F1",     255,    SDLK_F1            },
+{ "F2",     255,    SDLK_F2            }, // 60
+{ "F3",     255,    SDLK_F3            },
+{ "F4",     255,    SDLK_F4            },
+{ "F5",     255,    SDLK_F5            },
+{ "F6",     255,    SDLK_F6            },
+{ "F7",     255,    SDLK_F7            },
+{ "F8",     255,    SDLK_F8            },
+{ "F9",     255,    SDLK_F9            },
+{ "F10",    255,    SDLK_F10           },
+{ "NMLCK",  255,    SDLK_NUMLOCK       },
+{ "SCLK",   255,    SDLK_SCROLLOCK     }, // 70
+{ "PAD7",   255,    SDLK_KP7           },
+{ "PAD8",   255,    SDLK_KP8           },
+{ "PAD9",   255,    SDLK_KP9           },
+{ "PAD-",   255,    SDLK_KP_MINUS      },
+{ "PAD4",   255,    SDLK_KP4           },
+{ "PAD5",   255,    SDLK_KP5           },
+{ "PAD6",   255,    SDLK_KP6           },
+{ "PAD+",   255,    SDLK_KP_PLUS       },
+{ "PAD1",   255,    SDLK_KP1           },
+{ "PAD2",   255,    SDLK_KP2           }, // 80
+{ "PAD3",   255,    SDLK_KP3           },
+{ "PAD0",   255,    SDLK_KP0           },
+{ "PAD.",   255,    SDLK_KP_PERIOD     },
+{ "",       255,    -1                 },
+{ "",       255,    -1                 },
+{ "",       255,    -1                 },
+{ "F11",    255,    SDLK_F11           },
+{ "F12",    255,    SDLK_F12           },
+{ "",       255,    -1                 },	
+{ "",       255,    -1                 }, // 90
+{ "",       255,    -1                 },
+{ "",       255,    -1                 },
+{ "",       255,    -1                 },
+{ "",       255,    -1                 },
+{ "",       255,    -1                 },
+{ "",       255,    -1                 },
+{ "PAUSE",  255,    SDLK_PAUSE         },
+{ "",       255,    -1                 },
+{ "",       255,    -1                 },
+{ "",       255,    -1                 }, // 100
+{ "",       255,    -1                 },
+{ "",       255,    -1                 },
+{ "",       255,    -1                 },
+{ "",       255,    -1                 },
+{ "",       255,    -1                 },
+{ "",       255,    -1                 },
+{ "",       255,    -1                 },
+{ "",       255,    -1                 },
+{ "",       255,    -1                 },
+{ "",       255,    -1                 }, // 110
+{ "",       255,    -1                 },
+{ "",       255,    -1                 },
+{ "",       255,    -1                 },
+{ "",       255,    -1                 },
+{ "",       255,    -1                 },
+{ "",       255,    -1                 },
+{ "",       255,    -1                 },
+{ "",       255,    -1                 },
+{ "",       255,    -1                 },
+{ "",       255,    -1                 }, // 120
+{ "",       255,    -1                 },
+{ "",       255,    -1                 },
+{ "",       255,    -1                 },
+{ "",       255,    -1                 },
+{ "",       255,    -1                 },
+{ "",       255,    -1                 },
+{ "",       255,    -1                 },
+{ "",       255,    -1                 },
+{ "",       255,    -1                 },
+{ "",       255,    -1                 }, // 130
+{ "",       255,    -1                 },
+{ "",       255,    -1                 },
+{ "",       255,    -1                 },
+{ "",       255,    -1                 },
+{ "",       255,    -1                 },
+{ "",       255,    -1                 },
+{ "",       255,    -1                 },
+{ "",       255,    -1                 },
+{ "",       255,    -1                 },
+{ "",       255,    -1                 }, // 140
+{ "",       255,    -1                 },
+{ "",       255,    -1                 },
+{ "",       255,    -1                 },
+{ "",       255,    -1                 },
+{ "",       255,    -1                 },
+{ "",       255,    -1                 },
+{ "",       255,    -1                 },
+{ "",       255,    -1                 },
+{ "",       255,    -1                 },
+{ "",       255,    -1                 }, // 150
+{ "",       255,    -1                 },
+{ "",       255,    -1                 },
+{ "",       255,    -1                 },
+{ "",       255,    -1                 },
+{ "",       255,    -1                 },
+{ "PAD",    255,    SDLK_KP_ENTER      },
+{ "RCTRL",  255,    SDLK_RCTRL         },
+{ "",       255,    -1                 },
+{ "",       255,    -1                 },
+{ "",       255,    -1                 }, // 160
+{ "",       255,    -1                 },
+{ "",       255,    -1                 },
+{ "",       255,    -1                 },
+{ "",       255,    -1                 },
+{ "",       255,    -1                 },
+{ "",       255,    -1                 },
+{ "",       255,    -1                 },
+{ "",       255,    -1                 },
+{ "",       255,    -1                 },
+{ "",       255,    -1                 }, // 170
+{ "",       255,    -1                 },
+{ "",       255,    -1                 },
+{ "",       255,    -1                 },
+{ "",       255,    -1                 },
+{ "",       255,    -1                 },
+{ "",       255,    -1                 },
+{ "",       255,    -1                 },
+{ "",       255,    -1                 },
+{ "",       255,    -1                 },
+{ "",       255,    -1                 }, // 180
+{ "PAD/",   255,    SDLK_KP_DIVIDE     },
+{ "",       255,    -1                 },
+{ "PRSCR",  255,    SDLK_PRINT         },
+{ "RALT",   255,    SDLK_RALT          },
+{ "",       255,    -1                 },
+{ "",       255,    -1                 },
+{ "",       255,    -1                 },
+{ "",       255,    -1                 },
+{ "",       255,    -1                 },
+{ "",       255,    -1                 }, // 190
+{ "",       255,    -1                 },
+{ "",       255,    -1                 },
+{ "",       255,    -1                 },
+{ "",       255,    -1                 },
+{ "",       255,    -1                 },
+{ "",       255,    -1                 },
+{ "",       255,    -1                 },
+{ "",       255,    -1                 },
+{ "HOME",   255,    SDLK_HOME          },
+{ "UP",     255,    SDLK_UP            }, // 200
+{ "PGUP",   255,    SDLK_PAGEUP        },
+{ "",       255,    -1                 },
+{ "LEFT",   255,    SDLK_LEFT          },
+{ "",       255,    -1                 },
+{ "RIGHT",  255,    SDLK_RIGHT         },
+{ "",       255,    -1                 },
+{ "END",    255,    SDLK_END           },
+{ "DOWN",   255,    SDLK_DOWN          },
+{ "PGDN",   255,    SDLK_PAGEDOWN      },
+{ "INS",    255,    SDLK_INSERT        }, // 210
+{ "DEL",    255,    SDLK_DELETE        },
+{ "",       255,    -1                 },
+{ "",       255,    -1                 },
+{ "",       255,    -1                 },
+{ "",       255,    -1                 },
+{ "",       255,    -1                 },
+{ "",       255,    -1                 },
+{ "",       255,    -1                 },
+{ "",       255,    -1                 },
+{ "",       255,    -1                 }, // 220
+{ "",       255,    -1                 },
+{ "",       255,    -1                 },
+{ "",       255,    -1                 },
+{ "",       255,    -1                 },
+{ "",       255,    -1                 },
+{ "",       255,    -1                 },
+{ "",       255,    -1                 },
+{ "",       255,    -1                 },
+{ "",       255,    -1                 },
+{ "",       255,    -1                 }, // 230
+{ "",       255,    -1                 },
+{ "",       255,    -1                 },
+{ "",       255,    -1                 },
+{ "",       255,    -1                 },
+{ "",       255,    -1                 },
+{ "!",      '!',    SDLK_EXCLAIM       },
+{ "@",      '@',    SDLK_AT            },
+{ "#",      '#',    SDLK_HASH          },
+{ "$",      '$',    SDLK_DOLLAR        },
+{ "%",      '%',    -1                 }, // 240
+{ "^",      '^',    SDLK_CARET         },
+{ "&",      '&',    SDLK_AMPERSAND     },
+{ "(",      '(',    SDLK_LEFTPAREN     },
+{ ")",      ')',    SDLK_RIGHTPAREN    },
+{ "_",      '_',    SDLK_UNDERSCORE    },
+{ "+",      '+',    SDLK_PLUS          },
+{ "{",      '{',    -1                 },
+{ "}",      '}',    -1                 },
+{ ":",      ':',    SDLK_COLON         },
+{ "\"",     '"',    SDLK_QUOTEDBL      }, // 250
+{ "~",      '~',    -1                 },
+{ "|",      '|',    -1                 },
+{ "<",      '<',    SDLK_LESS          },
+{ ">",      '>',    SDLK_GREATER       },
+{ "?",      '?',    SDLK_QUESTION      }, // 255
 };
 
-static char font_table[256] = {
-	255,  255,  255,  255,  255,  '.',  255,  255, 255,   255,
-	255,  255,  ' ',  255,  '.',  '.',  '[',  ']',  '0',  '1',
-	'2',  '3',  '4',  '5',  '6',  '7',  '8',  '9',  '.',  '<',
-	'=',  '>',  ' ',  '!',  '"',  '#',  '$',  '%',  '&', '\'',
-	'(',  ')',  '*',  '+',  ',',  '-',  '.',  '/',  '0',  '1',
-	'2',  '3',  '4',  '5',  '6',  '7',  '8',  '9',  ':',  ';',
-	'<',  '=',  '>',  '?',  '@',  'A',  'B',  'C',  'D',  'E',
-	'F',  'G',  'H',  'I',  'J',  'K',  'L',  'M',  'N',  'O',
-	'P',  'Q',  'R',  'S',  'T',  'U',  'V',  'W',  'X',  'Y',
-	'Z',  '[',  '\\', ']',  '^',  '_',  '`',  'a',  'b',  'c',
-	'd',  'e',  'f',  'g',  'h',  'i',  'j',  'k',  'l',  'm',
-	'n',  'o',  'p',  'q',  'r',  's',  't',  'u',  'v',  'w',
-	'x',  'y',  'z',  '{',  '|',  '}',  '~',  '<',  '<',  '=',
-	'>',  255,  255,  '.',  255,  255,  255,  255,  ' ',  255,
-	' ',  '>',  '.',  '.',  '[',  ']',  '0',  '1',  '2',  '3',
-	'4',  '5',  '6',  '7',  '8',  '9',  '.',  '<',  '=',  '>',
-	' ',  '!',  '"',  255,  '$',  '%',  '&', '\'',  '(',  ')',
-	'*',  '+',  ',',  '-',  '.',  '/',  '0',  '1',  '2',  '3',
-	'4',  '5',  '6',  '7',  '8',  '9',  ':',  ';',  '<',  '=',
-	'>',  '?',  '@',  'A',  'B',  'C',  'D',  'E',  'F',  'G',
-	'H',  'I',  'J',  'K',  'L',  'M',  'N',  'O',  'P',  'Q',
-	'R',  'S',  'T',  'U',  'V',  'W',  'X',  'Y',  'Z',  '[',
-	'\\', ']',  '^',  '_',  '`',  'a',  'b',  'c',  'd',  'e',
-	'f',  'g',  'h',  'i',  'j',  'k',  'l',  'm',  'n',  'o',
-	'p',  'q',  'r',  's',  't',  'u',  'v',  'w',  'x',  'y',
-	'z',  '{',  '|',  '}',  '~',  '<'
+// As UNICODE chars have no RELEASED state, we save each one together with the symbol assigned to it.
+// If a symbol is RELEASED, check the list and we know which unicode we just released! 
+// This way we almost "emulate" the RELEASED state for UNICODE chars.
+int sym2unimap[KEY_BUFFER_SIZE][2] =
+{
+	{ -1, -1 },
+	{ -1, -1 },
+	{ -1, -1 },
+	{ -1, -1 },
+	{ -1, -1 },
+	{ -1, -1 },
+	{ -1, -1 },
+	{ -1, -1 },
+	{ -1, -1 },
+	{ -1, -1 },
+	{ -1, -1 },
+	{ -1, -1 },
+	{ -1, -1 },
+	{ -1, -1 },
+	{ -1, -1 },
+	{ -1, -1 },
 };
 
 char *key_text[256];
 
-void key_buid_key_text(void)
+unsigned char key_to_ascii(int keycode)
 {
-}
-
-unsigned char key_to_ascii(void)
-{
-	static int last_ascii = 0;
-	
-	if (last_ascii == keyd_ascii)
-		return 255;
-	
-	last_ascii = keyd_ascii;
-
-	return keyd_ascii;
+	keycode &= 0xFF;
+	return key_properties[keycode].ascii_value;
 }
 
 void key_handler(SDL_KeyboardEvent *event)
 {
 	ubyte state;
-	int i, keycode, event_key, key_state;
+	int i, keycode, event_keysym=-1, event_keyuni=-1, key_state;
 	Key_info *key;
 	unsigned char temp;
 
-        event_key = event->keysym.sym;
+	// Read SDLK symbol and state
+        event_keysym = event->keysym.sym;
 
-        key_state = (event->state == SDL_PRESSED); //  !(wInfo & KF_UP);
+	// Read unicode
+	if (event->keysym.unicode > 0)
+	{
+		event_keyuni = event->keysym.unicode;
+		// Now add the UNICODE char to our map (see comment on sym2unimap declaration)
+		for (i = 0; i < KEY_BUFFER_SIZE; i++)
+		{
+			if (sym2unimap[i][0] == -1)
+			{
+				sym2unimap[i][0] = event_keyuni;
+				sym2unimap[i][1] = event_keysym;
+				break;
+			}
+		}
+	}
+	else // UNICODE reported as 0 - now check which one!
+	{
+		for (i = 0; i < KEY_BUFFER_SIZE; i++)
+		{
+			if (event_keysym == sym2unimap[i][1])
+			{
+				event_keyuni = sym2unimap[i][0];
+				sym2unimap[i][0] = sym2unimap[i][1] = -1; 
+			}
+		}
+	}
+        key_state = (event->state == SDL_PRESSED);
 
-	keyd_ascii = font_table[event->keysym.unicode];
-
-	//=====================================================
-	//Here a translation from win keycodes to mac keycodes!
 	//=====================================================
 
 	for (i = 255; i >= 0; i--) {
 
 		keycode = i;
 		key = &(key_data.keys[keycode]);
-                if (key_properties[i].sym == event_key)
+
+		if (key_properties[i].ascii_value == event_keyuni && key_properties[i].ascii_value != 255)
+			state = key_state;
+		else if ((event_keyuni == -1 || event_keyuni == event_keysym) && key_properties[i].sym == event_keysym)
 			state = key_state;
 		else
 			state = key->last_state;
@@ -433,34 +442,33 @@ void key_handler(SDL_KeyboardEvent *event)
 			}
 		}
 		key->last_state = state;
-
 	}
 }
 
 void key_close()
 {
- Installed = 0;
+      Installed = 0;
 }
 
 void key_init()
 {
-  int i;
-  
-  if (Installed) return;
+	int i;
+	
+	if (Installed) return;
 
-  Installed=1;
-  SDL_EnableUNICODE(1);
+	Installed=1;
+	SDL_EnableUNICODE(1);
 
-  keyd_time_when_last_pressed = timer_get_fixed_seconds();
-  keyd_buffer_type = 1;
-  keyd_repeat = 1;
-  
-  for(i=0; i<256; i++)
-     key_text[i] = key_properties[i].key_text;
-     
-  // Clear the keyboard array
-  key_flush();
-  atexit(key_close);
+	keyd_time_when_last_pressed = timer_get_fixed_seconds();
+	keyd_buffer_type = 1;
+	keyd_repeat = 1;
+	
+	for(i=0; i<256; i++)
+		key_text[i] = key_properties[i].key_text;
+	  
+	// Clear the keyboard array
+	key_flush();
+	atexit(key_close);
 }
 
 void key_flush()
@@ -479,6 +487,12 @@ void key_flush()
 		key_data.time_pressed[i] = 0;
 	}
 
+	//Clear the unicode map
+	for (i=0; i<KEY_BUFFER_SIZE; i++ )	{
+		sym2unimap[i][0] = -1;
+		sym2unimap[i][1] = -1;
+	}
+
 //use gettimeofday here:
 	curtime = timer_get_fixed_seconds();
 
@@ -492,14 +506,14 @@ void key_flush()
 		key_data.keys[i].timehelddown = 0;
 		key_data.keys[i].counter = 0;
 	}
-	keyd_ascii=255;
 }
 
 int add_one(int n)
 {
- n++;
- if ( n >= KEY_BUFFER_SIZE ) n=0;
- return n;
+	n++;
+	if ( n >= KEY_BUFFER_SIZE )
+		n=0;
+	return n;
 }
 
 int key_checkch()

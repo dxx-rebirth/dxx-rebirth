@@ -1,5 +1,9 @@
 D1X-Rebirth Changelog
 
+20081031
+--------
+arch/include/key.h, arch/sdl/key.c, main/game.c, main/kmatrix.c, main/multi.c, main/multi.h, main/newmenu.c, main/scores.c, ui/inputbox.c, main/menubar.c: Always use printable UNICODE characters for the key_handler and included routine to assign key symbols to UNICODE so we get an equivalent of a Key-Released state which we need for the Keyboard buffer; Removed the shifted_ascii_value field from key_props and stored all usable characters in seperate rows; Improves Text input and makes keyboard mapping independent from keyboard layout without breaking any compability
+
 20081030
 --------
 INSTALL.txt, README.txt: Docs update: Infos about Jukebox over SDL_mixer, SDL_mixer is not experimental anymore, yet another .de->.com change

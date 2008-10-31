@@ -197,7 +197,7 @@ int menu_match_keypress( MENU * menu, int keypress )
 	
 	keypress &= 0xFF;
 
-	c = key_to_ascii();
+	c = key_to_ascii(keypress);
 			
 	for (i=0; i< menu->NumItems; i++ )
 	{

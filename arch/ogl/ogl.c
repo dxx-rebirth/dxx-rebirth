@@ -507,7 +507,7 @@ void ogl_draw_reticle(int cross,int primary,int secondary)
 	glPushMatrix();
 	glTranslatef((grd_curcanv->cv_bitmap.bm_w/2+grd_curcanv->cv_bitmap.bm_x)/(float)last_width,1.0-(grd_curcanv->cv_bitmap.bm_h/2+grd_curcanv->cv_bitmap.bm_y)/(float)last_height,0);
 	glScalef(scale/320.0,scale/200.0,scale);//the positions are based upon the standard reticle at 320x200 res.
-	glLineWidth(SWIDTH/320);
+	glLineWidth(SHEIGHT/240);
 	OGL_DISABLE(TEXTURE_2D);
 	glDisable(GL_CULL_FACE);
 	if (!cross_lh[cross])
@@ -962,7 +962,7 @@ void ogl_start_frame(void){
 	OGL_VIEWPORT(grd_curcanv->cv_bitmap.bm_x,grd_curcanv->cv_bitmap.bm_y,Canvas_width,Canvas_height);
 	glClearColor(0.0, 0.0, 0.0, 0.0);
 
-	glLineWidth(SWIDTH<640?1:SWIDTH/640);
+	glLineWidth(SHEIGHT/480);
 	glEnable(GL_BLEND);
 	glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
 

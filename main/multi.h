@@ -231,7 +231,7 @@ extern int multi_quit_game;
 
 extern int multi_sending_message;
 extern int multi_defining_message;
-extern void multi_message_input_sub();
+extern void multi_message_input_sub(int key);
 extern void multi_send_message_start();
 extern void multi_message_feedback();
 
