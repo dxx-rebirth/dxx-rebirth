@@ -157,7 +157,7 @@ extern ubyte DefiningMarkerMessage;
 extern void CyclePrimary();
 extern void CycleSecondary();
 extern void InitMarkerInput();
-extern void MarkerInputMessage();
+extern void MarkerInputMessage(int key);
 extern int	allowed_to_fire_missile(void);
 extern int	allowed_to_fire_flare(void);
 extern void	check_rear_view(void);
@@ -1823,7 +1823,7 @@ void FinalCheats(int key)
   int i;
   char *cryptstring;
 
-  key=keyd_ascii;
+   key=key_to_ascii(key);
 
   for (i=0;i<15;i++)
    CheatBuffer[i]=CheatBuffer[i+1];
@@ -2229,17 +2229,23 @@ void ReadControls()
 	if (Newdemo_state == ND_STATE_PLAYBACK )
 		update_vcr_state();
 
-	if (DefiningMarkerMessage)
-		MarkerInputMessage();
-
-#ifdef NETWORK
-	if ( (Game_mode & GM_MULTI) && (multi_sending_message || multi_defining_message) )
-		multi_message_input_sub();
-#endif
-
 	while ((key=key_inkey_time(&key_time)) != 0)    {
 		if (con_events(key) && con_render)
 			game_flush_inputs();
+
+		if (DefiningMarkerMessage)
+		{
+			MarkerInputMessage(key);
+			continue;
+		}
+
+#ifdef NETWORK
+		if ( (Game_mode & GM_MULTI) && (multi_sending_message || multi_defining_message) )
+		{
+			multi_message_input_sub(key);
+			continue;
+		}
+#endif
 
 		#ifndef RELEASE
 		#ifdef NETWORK

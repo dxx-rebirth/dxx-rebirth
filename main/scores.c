@@ -411,11 +411,6 @@ ReshowScores:
 				scores_draw_item( citem, &Scores.stats[citem] );
 		}
 
-		for (i=0; i<4; i++ )	
-			if (joy_get_button_down_cnt(i)>0) done=1;
-		for (i=0; i<3; i++ )	
-			if (mouse_button_down_count(i)>0) done=1;
-
 		//see if redbook song needs to be restarted
 		songs_check_redbook_repeat();
 

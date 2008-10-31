@@ -476,48 +476,6 @@ void kmatrix_view(int network)
 		timer_delay2(50);
 		kmatrix_redraw();
       kmatrix_kills_changed = 0;
-      for (i=0; i<JOY_MAX_BUTTONS; i++ )
-        if (joy_get_button_down_cnt(i)>0)
-        {
-          if (is_D2_OEM)
-          {
-            if (Current_level_num==8)
-            {
-              Players[Player_num].connected=0;
-              if (network)
-                network_send_endlevel_packet();
-              multi_leave_game();
-              Kmatrix_nomovie_message=0;
-              longjmp(LeaveGame, 0);
-              return;
-            }
-          }
-          Players[Player_num].connected=7;
-          if (network)
-            network_send_endlevel_packet();
-          break;
-        }
-        for (i=0; i<MOUSE_MAX_BUTTONS; i++ )
-          if (mouse_button_down_count(i)>0)
-          {
-            if (is_D2_OEM)
-            {
-              if (Current_level_num==8)
-              {
-                Players[Player_num].connected=0;
-                if (network)
-                  network_send_endlevel_packet();
-                multi_leave_game();
-                Kmatrix_nomovie_message=0;
-                longjmp(LeaveGame, 0);
-                return;
-              }
-            }
-            Players[Player_num].connected=7;
-            if (network)
-              network_send_endlevel_packet();
-              break;
-          }
 
       //see if redbook song needs to be restarted
       songs_check_redbook_repeat();

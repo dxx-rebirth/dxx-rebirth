@@ -1267,10 +1267,8 @@ void multi_define_macro_end()
 	game_flush_inputs();
 }
 
-void multi_message_input_sub()
+void multi_message_input_sub(int key)
 {
-	int key = key_inkey();
-
 	switch( key )
 	{
 		case KEY_F8:
@@ -1294,8 +1292,8 @@ void multi_message_input_sub()
 			game_flush_inputs();
 			break;
 		default:
-		{
-			int ascii = key_to_ascii();
+		if (key > 0) {
+			int ascii = key_to_ascii(key);
 			if ((ascii < 255 ) && (ascii != 37))     {
 				if (multi_message_index < MAX_MESSAGE_LEN-2 )   {
 					Network_message[multi_message_index++] = ascii;
