@@ -945,6 +945,7 @@ int read_hamfile()
 	CFILE * ham_fp = NULL;
 	int ham_id;
 	int sound_offset = 0;
+	int shareware = 0;
 
 	ham_fp = PHYSFSX_openDataFile(DEFAULT_HAMFILE_REGISTERED);
 	
@@ -954,6 +955,11 @@ int read_hamfile()
 	if (ham_fp == NULL) {
 		Must_write_hamfile = 1;
 		return 0;
+	}
+	else
+	{
+		shareware = 1;
+		GameArg.SndDigiSampleRate = SAMPLE_RATE_11K;
 	}
 
 	//make sure ham is valid type file & is up-to-date
@@ -969,15 +975,26 @@ int read_hamfile()
 	}
 #endif
 
-	if (Piggy_hamfile_version < 3) // hamfile contains sound info
+	if (Piggy_hamfile_version < 3) // hamfile contains sound info, probably PC demo
+	{
 		sound_offset = cfile_read_int(ham_fp);
+		
+		if (shareware) // deal with interactive PC demo
+		{
+			GameArg.GfxHiresGFXAvailable = 0;
+			//GameArg.GfxHiresFNTAvailable = 0;		// fonts are in the hog
+			GameArg.SysLowMem = 1;
+		}
+	}
 
 	#if 1 //ndef EDITOR
 	{
-		//int i;
+		int i;
 
 		bm_read_all(ham_fp);
-		cfread( GameBitmapXlat, sizeof(ushort)*MAX_BITMAP_FILES, 1, ham_fp );
+		//cfread( GameBitmapXlat, sizeof(ushort)*MAX_BITMAP_FILES, 1, ham_fp );
+		for (i = 0; i < MAX_BITMAP_FILES; i++)
+			GameBitmapXlat[i] = cfile_read_short(ham_fp);
 	}
 	#endif
 

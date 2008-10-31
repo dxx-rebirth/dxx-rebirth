@@ -1,5 +1,9 @@
 D2X-Rebirth Changelog
 
+20081031
+--------
+main/bm.c, main/inferno.c, main/piggy.c: Allow hires Mac demo graphics, fix endian issue with reading GameBitmapXlat (fixing crash on PowerPC Macs using PC demo), put a return on the end of an error message
+
 20081030
 --------
 INSTALL.txt, README.txt: Docs update: Infos about Jukebox over SDL_mixer, SDL_mixer is not experimental anymore, yet another .de->.com change

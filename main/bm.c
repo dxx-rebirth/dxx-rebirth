@@ -140,7 +140,7 @@ int gamedata_init()
 		// but *may* be useful for loading Descent 1 Shareware texture properties.
 		if (!gamedata_read_tbl(0))
 #endif
-			Error("Cannot open ham file");
+			Error("Cannot open ham file\n");
 
 #ifdef EDITOR
 	gamedata_read_tbl(0);	// doesn't matter if it doesn't find it, given the ham file exists

@@ -272,13 +272,6 @@ int main(int argc, char *argv[])
 				  "\tIn a subdirectory called 'Data'\n"
 				  "Or use the -hogdir option to specify an alternate location.");
 		}
-		else // deal with interactive demo
-		{
-			GameArg.GfxHiresGFXAvailable = 0;
-			GameArg.GfxHiresFNTAvailable = 0;
-			GameArg.SysLowMem = 1;
-			GameArg.SndDigiSampleRate = SAMPLE_RATE_11K;
-		}
 	}
 
 	load_text();
