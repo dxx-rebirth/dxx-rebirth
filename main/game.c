@@ -232,7 +232,6 @@ extern int Rear_view;
 // Decode cockpit bitmap and add alpha fields to weapon boxes (as it should have always been) so we later can render sub bitmaps over the window canvases
 void cockpit_decode_alpha(grs_bitmap *bm)
 {
-	unsigned char decodebuf[1024*1024];
 	int i=0,x=0,y=0;
 	static ubyte *cur=NULL;
 
@@ -242,6 +241,7 @@ void cockpit_decode_alpha(grs_bitmap *bm)
 
 	// decode the bitmap
 	if (bm->bm_flags & BM_FLAG_RLE){
+		static unsigned char cockpitbuf[1024*1024];
 		unsigned char * dbits;
 		unsigned char * sbits;
 		int i, data_offset;
@@ -251,7 +251,7 @@ void cockpit_decode_alpha(grs_bitmap *bm)
 			data_offset = 2;
 
 		sbits = &bm->bm_data[4 + (bm->bm_h * data_offset)];
-		dbits = decodebuf;
+		dbits = cockpitbuf;
 
 		for (i=0; i < bm->bm_h; i++ )    {
 			gr_rle_decode(sbits,dbits);
@@ -261,7 +261,7 @@ void cockpit_decode_alpha(grs_bitmap *bm)
 				sbits += (int)bm->bm_data[4+i];
 			dbits += bm->bm_w;
 		}
-		bm->bm_data=decodebuf;
+		bm->bm_data=cockpitbuf;
 	}
 	bm->bm_flags &= ~BM_FLAG_RLE;
 	bm->bm_flags &= ~BM_FLAG_RLE_BIG;
