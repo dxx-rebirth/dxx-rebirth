@@ -994,7 +994,11 @@ int read_hamfile()
 		bm_read_all(ham_fp);
 		//cfread( GameBitmapXlat, sizeof(ushort)*MAX_BITMAP_FILES, 1, ham_fp );
 		for (i = 0; i < MAX_BITMAP_FILES; i++)
+		{
 			GameBitmapXlat[i] = cfile_read_short(ham_fp);
+			if (PHYSFS_eof(ham_fp))
+				break;
+		}
 	}
 	#endif
 
@@ -1907,6 +1911,8 @@ void bm_read_d1_tmap_nums(CFILE *d1pig)
 		d1_index = cfile_read_short(d1pig);
 		Assert(d1_index >= 0 && d1_index < D1_MAX_TMAP_NUM);
 		d1_tmap_nums[d1_index] = i;
+		if (PHYSFS_eof(d1pig))
+			break;
 	}
 	atexit(free_d1_tmap_nums);
 }

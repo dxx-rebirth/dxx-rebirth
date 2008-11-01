@@ -347,9 +347,12 @@ void update_cursor( newmenu_item *item, int ScrollOffset)
 
 	Assert(item->type==NM_TYPE_INPUT_MENU || item->type==NM_TYPE_INPUT);
 	gr_get_string_size(" ", &w, &h, &aw  );
+	// even with variable char widths and a box that goes over the whole screen, we maybe never get more than 75 chars on the line
+	if (strlen(text)>75)
+		text+=strlen(text)-75;
 	while( *text )	{
 		gr_get_string_size(text, &w, &h, &aw  );
-		if ( w > item->w-10 )
+		if ( w > item->w-FSPACX(10) )
 			text++;
 		else
 			break;
@@ -370,9 +373,12 @@ void nm_string_inputbox( int w, int x, int y, char * text, int current )
 {
 	int w1,h1,aw;
 
+	// even with variable char widths and a box that goes over the whole screen, we maybe never get more than 75 chars on the line
+	if (strlen(text)>75)
+		text+=strlen(text)-75;
 	while( *text )	{
 		gr_get_string_size(text, &w1, &h1, &aw  );
-		if ( w1 > w-10 )
+		if ( w1 > w-FSPACX(10) )
 			text++;
 		else
 			break;
@@ -899,7 +905,11 @@ int newmenu_do4( char * title, char * subtitle, int nitems, newmenu_item * item,
 				{
 					LastScrollCheck=-1;
 					if (choice<0)
-						{ choice=0; break; }
+					{
+						choice=nitems-1;
+						ScrollOffset = nitems-MaxOnMenu;
+						break;
+					}
 			
 					if (choice-4<ScrollOffset && ScrollOffset > 0)
 					{
@@ -927,14 +937,18 @@ int newmenu_do4( char * title, char * subtitle, int nitems, newmenu_item * item,
 		// ((0,"Pressing down! IsScrollBox=%d",IsScrollBox));
 			if (all_text) break;
 			do {
-					choice++;
+				choice++;
 	
 				if (IsScrollBox)
 				{
 					LastScrollCheck=-1;
 
 					if (choice==nitems)
-						{ choice--; break; }
+					{ 
+						choice=0;
+						ScrollOffset=0;
+						break;
+					}
 		
 					if (choice+4>=MaxOnMenu+ScrollOffset && ScrollOffset < nitems-MaxOnMenu)
 					{
@@ -944,7 +958,7 @@ int newmenu_do4( char * title, char * subtitle, int nitems, newmenu_item * item,
 				else
 				{
 					if (choice < 0 ) choice=nitems-1;
-						if (choice >= nitems ) choice=0;
+					if (choice >= nitems ) choice=0;
 				}
 
 			} while ( item[choice].type==NM_TYPE_TEXT );
@@ -1111,15 +1125,21 @@ int newmenu_do4( char * title, char * subtitle, int nitems, newmenu_item * item,
 			
 			// check possible scrollbar stuff first
 			if (IsScrollBox) {
-				int arrow_width, arrow_height, aw;
-				
+				int arrow_width, arrow_height, aw, ScrollAllow=0, time=timer_get_fixed_seconds();
+				static fix ScrollTime=0;
+				if (ScrollTime + F1_0/5 < time || time < ScrollTime)
+				{
+					ScrollTime = time;
+					ScrollAllow = 1;
+				}
+
 				if (ScrollOffset != 0) {
 					gr_get_string_size(UP_ARROW_MARKER, &arrow_width, &arrow_height, &aw);
 					x2 = grd_curcanv->cv_bitmap.bm_x + item[ScrollOffset].x-FSPACX(13);
 		          		y1 = grd_curcanv->cv_bitmap.bm_y + item[ScrollOffset].y-(((int)LINE_SPACING)*ScrollOffset);
 					x1 = x2 - arrow_width;
 					y2 = y1 + arrow_height;
-					if (((mx > x1) && (mx < x2)) && ((my > y1) && (my < y2)) ) {
+					if (((mx > x1) && (mx < x2)) && ((my > y1) && (my < y2)) && ScrollAllow) {
 						choice--;
 						LastScrollCheck=-1;
 						if (choice-4<ScrollOffset && ScrollOffset > 0)
@@ -1134,7 +1154,7 @@ int newmenu_do4( char * title, char * subtitle, int nitems, newmenu_item * item,
 					y1 = grd_curcanv->cv_bitmap.bm_y + item[ScrollOffset+MaxDisplayable-1].y-(((int)LINE_SPACING)*ScrollOffset);
 					x1 = x2 - arrow_width;
 					y2 = y1 + arrow_height;
-					if (((mx > x1) && (mx < x2)) && ((my > y1) && (my < y2)) ) {
+					if (((mx > x1) && (mx < x2)) && ((my > y1) && (my < y2)) && ScrollAllow) {
 						choice++;
 						LastScrollCheck=-1;
 						if (choice+4>=MaxOnMenu+ScrollOffset && ScrollOffset < nitems-MaxOnMenu)

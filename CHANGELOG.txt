@@ -1,5 +1,9 @@
 D2X-Rebirth Changelog
 
+20081101
+--------
+main/config.c, main/menu.c, main/newmenu.c, main/piggy.c: Fixed possible overflows in Jukebox Path; Menu GUI improvements: Correct inputbox scaling for font widths, a little performance boost when determinating string-part to show in inputbox, make it possible to flip over from first/last menu entry to last/first even if it's a ScrollBox, Scrolling via Maousebutton now works with delay; Made reading for Piggy data always break up in loops when reached end of file instead of provoking possible error if *data-count < max-data-count*
+
 20081031
 --------
 main/bm.c, main/inferno.c, main/piggy.c: Allow hires Mac demo graphics, fix endian issue with reading GameBitmapXlat (fixing crash on PowerPC Macs using PC demo), put a return on the end of an error message

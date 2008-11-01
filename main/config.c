@@ -70,7 +70,7 @@ static char *IPHostAddrStr="IPHostAddr";
 int ReadConfigFile()
 {
 	PHYSFS_file *infile;
-	char line[80], *token, *value, *ptr;
+	char line[PATH_MAX+50], *token, *value, *ptr;
 
 	// set defaults
 	GameCfg.DigiVolume = 8;
@@ -105,7 +105,7 @@ int ReadConfigFile()
 
 	while (!PHYSFS_eof(infile))
 	{
-		memset(line, 0, 80);
+		memset(line, 0, PATH_MAX+50);
 		PHYSFSX_gets(infile, line);
 		ptr = &(line[0]);
 		while (isspace(*ptr))
