@@ -728,7 +728,7 @@ void do_sound_menu()
 #ifdef USE_SDLMIXER
 		m[nitems].type = NM_TYPE_RADIO; m[nitems].text="jukebox enabled in game"; m[nitems].value=GameCfg.JukeboxOn; m[nitems].group = 0; nitems++;
 		m[nitems].type = NM_TYPE_TEXT; m[nitems++].text="path to music for jukebox:";
-		m[nitems].type = NM_TYPE_INPUT; m[nitems].text = GameCfg.JukeboxPath; m[nitems++].text_len = PATH_MAX;
+		m[nitems].type = NM_TYPE_INPUT; m[nitems].text = GameCfg.JukeboxPath; m[nitems++].text_len = NM_MAX_TEXT_LEN-1;
 #endif
 		m[nitems].type = NM_TYPE_CHECK;  m[nitems].text=TXT_REVERSE_STEREO; m[nitems++].value=GameCfg.ReverseStereo;
 		

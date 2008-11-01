@@ -1,5 +1,9 @@
 D1X-Rebirth Changelog
 
+20081101
+--------
+main/config.c, main/menu.c, main/newmenu.c, main/piggy.c: Fixed possible overflows in Jukebox Path; Menu GUI improvements: Correct inputbox scaling for font widths, a little performance boost when determinating string-part to show in inputbox, make it possible to flip over from first/last menu entry to last/first even if it's a ScrollBox, Scrolling via Maousebutton now works with delay; Made reading for Piggy data always break up in loops when reached end of file instead of provoking possible error if *data-count < max-data-count*
+
 20081031
 --------
 arch/include/key.h, arch/sdl/key.c, main/game.c, main/kmatrix.c, main/multi.c, main/multi.h, main/newmenu.c, main/scores.c, ui/inputbox.c, main/menubar.c: Always use printable UNICODE characters for the key_handler and included routine to assign key symbols to UNICODE so we get an equivalent of a Key-Released state which we need for the Keyboard buffer; Removed the shifted_ascii_value field from key_props and stored all usable characters in seperate rows; Improves Text input and makes keyboard mapping independent from keyboard layout without breaking any compability

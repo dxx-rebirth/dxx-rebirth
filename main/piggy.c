@@ -436,7 +436,11 @@ int properties_init()
 	{
 		properties_read_cmp( Piggy_fp );	// Note connection to above if!!!
 		for (i = 0; i < MAX_BITMAP_FILES; i++)
+		{
 			GameBitmapXlat[i] = cfile_read_short(Piggy_fp);
+			if (PHYSFS_eof(Piggy_fp))
+				break;
+		}
 		retval = 0;	// don't run gamedata_read_tbl
 	}
 	else
