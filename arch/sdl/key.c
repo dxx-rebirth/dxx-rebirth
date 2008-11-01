@@ -21,7 +21,6 @@
 #include "timer.h"
 
 #define KEY_BUFFER_SIZE 16
-#define UNICODE
 
 static unsigned char Installed = 0;
 
@@ -359,10 +358,10 @@ void key_handler(SDL_KeyboardEvent *event)
 	// Read SDLK symbol and state
         event_keysym = event->keysym.sym;
 
-	// Read unicode
-	if (event->keysym.unicode > 0)
+	// Read (latin) unicode
+	if (event->keysym.unicode > 31)
 	{
-		event_keyuni = event->keysym.unicode;
+		event_keyuni = tolower(event->keysym.unicode);
 		// Now add the UNICODE char to our map (see comment on sym2unimap declaration)
 		for (i = 0; i < KEY_BUFFER_SIZE; i++)
 		{
@@ -387,10 +386,10 @@ void key_handler(SDL_KeyboardEvent *event)
 	}
         key_state = (event->state == SDL_PRESSED);
 
+
 	//=====================================================
 
 	for (i = 255; i >= 0; i--) {
-
 		keycode = i;
 		key = &(key_data.keys[keycode]);
 
