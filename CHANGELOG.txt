@@ -4,6 +4,7 @@ D2X-Rebirth Changelog
 --------
 main/config.c, main/menu.c, main/newmenu.c, main/piggy.c: Fixed possible overflows in Jukebox Path; Menu GUI improvements: Correct inputbox scaling for font widths, a little performance boost when determinating string-part to show in inputbox, make it possible to flip over from first/last menu entry to last/first even if it's a ScrollBox, Scrolling via Maousebutton now works with delay; Made reading for Piggy data always break up in loops when reached end of file instead of provoking possible error if *data-count < max-data-count*
 arch/sdl/key.c: Make sure that if we use UNICODE, we always take non-control type chars and - as we only want lowercase letters - convert chars if shift is pressed
+arch/ogl/ogl.c. main/game.c: I always forget glLineWidth takes previous setting if arg is <=0; Made the decodebuffer for cockpit static as the bitmap data pointer points to it
 
 20081031
 --------
