@@ -1597,6 +1597,18 @@ void move_object_to_legal_spot(object *objp)
 //	If segment center is nearer than 2 radii, move it to center.
 void move_towards_segment_center(object *objp)
 {
+/* ZICO's change of 20081103:
+   Make move to segment center smoother by using move_towards vector.
+   Bot's should not jump around and maybe even intersect with each other!
+   In case it breaks something what I do not see, yet, old code is still there. */
+#if 1
+	int		segnum = objp->segnum;
+	vms_vector	vec_to_center, segment_center;
+
+	compute_segment_center(&segment_center, &Segments[segnum]);
+	vm_vec_normalized_dir_quick(&vec_to_center, &segment_center, &objp->pos);
+	move_towards_vector(objp, &vec_to_center);
+#else
 	int			segnum = objp->segnum;
 	fix			dist_to_center;
 	vms_vector	segment_center, goal_dir;
@@ -1609,9 +1621,7 @@ void move_towards_segment_center(object *objp)
 	if (dist_to_center < objp->size) {
 		//	Center is nearer than the distance we want to move, so move to center.
 		objp->pos = segment_center;
-		con_printf(CON_DEBUG, "Object #%i moved to center of segment #%i (%7.3f %7.3f %7.3f)\n", objp-Objects, objp->segnum, f2fl(objp->pos.x), f2fl(objp->pos.y), f2fl(objp->pos.z));
 		if (object_intersects_wall(objp)) {
-			con_printf(CON_DEBUG, "Object #%i still illegal, trying trickier move.\n");
 			move_object_to_legal_spot(objp);
 		}
 	} else {
@@ -1624,9 +1634,8 @@ void move_towards_segment_center(object *objp)
 			objp->pos = segment_center;
 			move_object_to_legal_spot(objp);
 		}
-		con_printf(CON_DEBUG, "Obj %i moved twrds seg %i (%6.2f %6.2f %6.2f), dists: [%6.2f %6.2f]\n", objp-Objects, objp->segnum, f2fl(objp->pos.x), f2fl(objp->pos.y), f2fl(objp->pos.z), f2fl(vm_vec_dist_quick(&objp->pos, &segment_center)), f2fl(vm_vec_dist_quick(&objp->pos, &segment_center)));
 	}
-
+#endif
 }
 
 //	-----------------------------------------------------------------------------------------------------------
