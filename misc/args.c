@@ -214,7 +214,7 @@ void ReadCmdArgs(void)
 	GameArg.DbgGlGetTexLevelParamOk = get_int_arg("-gl_gettexlevelparam_ok", 1);
 #else
 	GameArg.DbgSdlHWSurface = FindArg("-hwsurface");
-	GameArg.DbgASyncBlit = FindArg("-asyncblit");
+	GameArg.DbgSdlASyncBlit = FindArg("-asyncblit");
 #endif
 }
 
