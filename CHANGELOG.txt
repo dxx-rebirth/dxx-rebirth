@@ -3,6 +3,7 @@ D2X-Rebirth Changelog
 20081103
 --------
 misc/args.c: Fixed Typo
+main/ai2.c, main/collide.c: Made move_towards_segment_center() use move_towards_vector() instead of just changing object position suddenly - smoother; Changed back the robot:controlcen collision back to original - the AI just relies to often on no-damage collisions, especially when our segment suddenly is a controlcen
 
 20081101
 --------

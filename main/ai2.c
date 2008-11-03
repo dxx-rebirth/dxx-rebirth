@@ -1584,6 +1584,18 @@ void move_object_to_legal_spot(object *objp)
 //	If segment center is nearer than 2 radii, move it to center.
 void move_towards_segment_center(object *objp)
 {
+/* ZICO's change of 20081103:
+   Make move to segment center smoother by using move_towards vector.
+   Bot's should not jump around and maybe even intersect with each other!
+   In case it breaks something what I do not see, yet, old code is still there. */
+#if 1
+	int		segnum = objp->segnum;
+	vms_vector	vec_to_center, segment_center;
+
+	compute_segment_center(&segment_center, &Segments[segnum]);
+	vm_vec_normalized_dir_quick(&vec_to_center, &segment_center, &objp->pos);
+	move_towards_vector(objp, &vec_to_center, 1);
+#else
 	int			segnum = objp->segnum;
 	fix			dist_to_center;
 	vms_vector	segment_center, goal_dir;
@@ -1610,7 +1622,7 @@ void move_towards_segment_center(object *objp)
 			move_object_to_legal_spot(objp);
 		}
 	}
-
+#endif
 }
 
 extern	int	Buddy_objnum;
