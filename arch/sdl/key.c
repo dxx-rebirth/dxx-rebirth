@@ -217,8 +217,8 @@ key_props key_properties[256] = {
 { "",       255,    -1                 },
 { "PAD",    255,    SDLK_KP_ENTER      },
 { "RCTRL",  255,    SDLK_RCTRL         },
-{ "",       255,    -1                 },
-{ "",       255,    -1                 },
+{ "LCMD",   255,    SDLK_LMETA         },
+{ "RCMD",   255,    SDLK_RMETA         },
 { "",       255,    -1                 }, // 160
 { "",       255,    -1                 },
 { "",       255,    -1                 },
@@ -359,7 +359,7 @@ void key_handler(SDL_KeyboardEvent *event)
         event_keysym = event->keysym.sym;
 
 	// Read (latin) unicode
-	if (event->keysym.unicode > 31)
+	if (event->keysym.unicode > 31 && event->keysym.unicode < 255)
 	{
 		event_keyuni = tolower(event->keysym.unicode);
 		// Now add the UNICODE char to our map (see comment on sym2unimap declaration)
@@ -373,7 +373,7 @@ void key_handler(SDL_KeyboardEvent *event)
 			}
 		}
 	}
-	else // UNICODE reported as 0 - now check which one!
+	else // no valid UNICODE - possibly 0 - see if we remove it from the list
 	{
 		for (i = 0; i < KEY_BUFFER_SIZE; i++)
 		{

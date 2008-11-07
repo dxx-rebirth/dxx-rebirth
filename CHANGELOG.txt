@@ -1,5 +1,9 @@
 D1X-Rebirth Changelog
 
+20081107
+--------
+arch/sdl/key.c: Only read UNICODE values from 31 to 254 to make sure we do not read any non-printable characters and prefer the keysym that way; Added left and right Command Key for MAC Keyboards
+
 20081103
 --------
 misc/args.c: Fixed Typo
