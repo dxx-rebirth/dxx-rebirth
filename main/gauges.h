@@ -42,6 +42,7 @@ extern void add_bonus_points_to_score();
 void render_gauges(void);
 void init_gauges(void);
 void close_gauges(void);
+void cockpit_decode_alpha(grs_bitmap *bm);
 extern void check_erase_message(void);
 
 // Call to flash a message on the HUD
@@ -72,7 +73,7 @@ typedef struct {
 
 extern rgb player_rgb[];
 
-#define GAUGE_HUD_NUMMODES 4
+#define GAUGE_HUD_NUMMODES 3
 
 typedef struct span {
 	int l,r;

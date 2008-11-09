@@ -174,7 +174,6 @@ void ReadCmdArgs(void)
 	// OpenGL Options
 
 	GameArg.OglFixedFont 		= FindArg("-gl_fixedfont");
-	GameArg.OglFixedFontWidth	= FindArg("-gl_fontfixwidth");
 #endif
 
 	// Multiplayer Options

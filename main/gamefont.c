@@ -115,13 +115,11 @@ void gamefont_choose_game_font(int scrx,int scry){
 	{
 		FNTScaleX = (float)scrx/font_conf[gf].font[m].x;
 		FNTScaleY = (float)scry/font_conf[gf].font[m].y;
-		if (GameArg.OglFixedFontWidth)
-		{
-			if (FNTScaleY < FNTScaleX)
-				FNTScaleX = FNTScaleY;
-			else if (FNTScaleX < FNTScaleY)
-				FNTScaleY = FNTScaleX;
-		}
+		// keep proportions
+		if (FNTScaleY < FNTScaleX)
+			FNTScaleX = FNTScaleY;
+		else if (FNTScaleX < FNTScaleY)
+			FNTScaleY = FNTScaleX;
 	}
 #endif
 		gamefont_loadfont(gf,m);

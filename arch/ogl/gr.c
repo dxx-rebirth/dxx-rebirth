@@ -51,6 +51,7 @@ int gr_installed = 0;
 int gl_initialized=0;
 int ogl_fullscreen=0;
 static int curx=-1,cury=-1,curfull=0;
+int linedotscale=1; // scalar of glLinewidth and glPointSize - only calculated once when resolution changes
 
 void ogl_swap_buffers_internal(void)
 {
@@ -62,13 +63,10 @@ int ogl_init_window(int x, int y)
 	if (gl_initialized){
 		if (x==curx && y==cury && curfull==ogl_fullscreen)
 			return 0;
-#ifdef __LINUX__ // Windows, at least, seems to need to reload every time.
-		if (ogl_fullscreen || curfull)
-#endif
-			ogl_smash_texture_list_internal();//if we are or were fullscreen, changing vid mode will invalidate current textures
+		ogl_smash_texture_list_internal();//if we are or were fullscreen, changing vid mode will invalidate current textures
 	}
-	SDL_WM_SetCaption(DESCENT_VERSION, "Descent");
 
+	SDL_WM_SetCaption(DESCENT_VERSION, "Descent");
 	if (!SDL_SetVideoMode(x, y, GameArg.DbgGlBpp, SDL_OPENGL | (ogl_fullscreen ? SDL_FULLSCREEN : 0)))
 	{
 		Error("Could not set %dx%dx%d opengl video mode: %s\n", x, y, GameArg.DbgGlBpp, SDL_GetError());
@@ -76,8 +74,10 @@ int ogl_init_window(int x, int y)
 	SDL_ShowCursor(0);
 
 	curx=x;cury=y;curfull=ogl_fullscreen;
-	gl_initialized=1;
+	
+	linedotscale = ((x/640<y/480?x/640:y/480)<1?1:(x/640<y/480?x/640:y/480));
 
+	gl_initialized=1;
 	return 0;
 }
 
@@ -398,7 +398,7 @@ void ogl_upixelc(int x, int y, int c)
 	r_upixelc++;
 
 	OGL_DISABLE(TEXTURE_2D);
-	glPointSize(grd_curscreen->sc_w/320);
+	glPointSize(linedotscale);
 	glBegin(GL_POINTS);
 	glColor3f(CPAL2Tr(c),CPAL2Tg(c),CPAL2Tb(c));
 	glVertex2f((x+grd_curcanv->cv_bitmap.bm_x)/(float)last_width,1.0-(y+grd_curcanv->cv_bitmap.bm_y)/(float)last_height);

@@ -64,7 +64,6 @@ typedef struct Arg
 	int GfxHiresFNTAvailable;
 #ifdef OGL
 	int OglFixedFont;
-	int OglFixedFontWidth;
 #endif
 	int EdiNoBm;
 	int MplGameProfile;
