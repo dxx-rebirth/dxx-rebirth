@@ -70,7 +70,6 @@ typedef struct Arg
 	int GfxMovieSubtitles;
 #ifdef OGL
 	int OglFixedFont;
-	int OglFixedFontWidth;
 #endif
 	int MplGameProfile;
 	int MplNoRankings;

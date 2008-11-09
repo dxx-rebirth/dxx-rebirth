@@ -44,6 +44,7 @@ extern void add_bonus_points_to_score();
 void render_gauges(void);
 void init_gauges(void);
 void close_gauges(void);
+void cockpit_decode_alpha(grs_bitmap *bm);
 extern void check_erase_message(void);
 
 extern void HUD_render_message_frame();
@@ -97,7 +98,7 @@ void do_cockpit_window_view(int win, object *viewer, int rear_view_flag, int use
 void calculate_sub_view_window_bounds(int inSubWindowNum, TQARect* outBoundsRect);
 #endif
 
-#define GAUGE_HUD_NUMMODES 4
+#define GAUGE_HUD_NUMMODES 3
 
 typedef struct span {
 	int l,r;

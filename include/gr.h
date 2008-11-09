@@ -215,6 +215,12 @@ void gr_clear_canvas(int color);
 //=========================================================================
 // Bitmap functions:
 
+// these are the two workhorses, the others just use these
+extern void gr_init_bitmap( grs_bitmap *bm, int mode, int x, int y, int w, int h, int bytesperline, unsigned char * data );
+extern void gr_init_sub_bitmap (grs_bitmap *bm, grs_bitmap *bmParent, int x, int y, int w, int h );
+
+extern void gr_init_bitmap_alloc( grs_bitmap *bm, int mode, int x, int y, int w, int h, int bytesperline);
+
 // Allocate a bitmap and its pixel data buffer.
 grs_bitmap *gr_create_bitmap(int w,int h);
 

@@ -556,12 +556,9 @@ void change_res()
 	// clean up and apply everything
 	newmenu_close();
 	set_screen_mode(SCREEN_MENU);
-	if (Game_screen_mode != screen_mode)
-	{
-		Game_screen_mode = screen_mode;
-		gr_set_mode(Game_screen_mode);
-		game_init_render_buffers(SM_W(screen_mode), SM_H(screen_mode), VR_NONE, 0);
-	}
+	Game_screen_mode = screen_mode;
+	gr_set_mode(Game_screen_mode);
+	game_init_render_buffers(SM_W(screen_mode), SM_H(screen_mode), VR_NONE, 0);
 }
 
 void input_menuset(int nitems, newmenu_item * items, int *last_key, int citem )

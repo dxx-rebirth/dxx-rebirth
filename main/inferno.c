@@ -178,7 +178,6 @@ void print_commandline_help()
 	printf( "  -subtitles         %s\n", "Turn on movie subtitles");
 #ifdef    OGL
 	printf( "  -gl_fixedfont      %s\n", "Do not scale fonts to current resolution");
-	printf( "  -gl_fontfixwidth   %s\n", "Scale fonts with fixed width for widescreen resolutions");
 #endif // OGL
 
 #ifdef    NETWORK

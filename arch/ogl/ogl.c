@@ -87,6 +87,7 @@ int cross_lh[2]={0,0};
 int primary_lh[3]={0,0,0};
 int secondary_lh[5]={0,0,0,0,0};
 int r_polyc,r_tpolyc,r_bitmapc,r_ubitbltc,r_upixelc;
+extern int linedotscale;
 #define f2glf(x) (f2fl(x))
 
 #define OGL_BINDTEXTURE(a) glBindTexture(GL_TEXTURE_2D, a);
@@ -501,12 +502,24 @@ float dark_g[4]={	32.0/256,	138.0/256,	32.0/256,	0.6};
 
 void ogl_draw_reticle(int cross,int primary,int secondary)
 {
-	float scale=(float)grd_curscreen->sc_h/(float)grd_curscreen->sc_h;
+	fix size=320;
+	float scale = ((float)SWIDTH/SHEIGHT);
 
 	glPushMatrix();
 	glTranslatef((grd_curcanv->cv_bitmap.bm_w/2+grd_curcanv->cv_bitmap.bm_x)/(float)last_width,1.0-(grd_curcanv->cv_bitmap.bm_h/2+grd_curcanv->cv_bitmap.bm_y)/(float)last_height,0);
-	glScalef(scale/320.0,scale/200.0,scale);//the positions are based upon the standard reticle at 320x200 res.
-	glLineWidth(SHEIGHT<240?1:SHEIGHT/240);
+
+	if (scale >= 1)
+	{
+		size/=scale;
+		glScalef(f2glf(size),f2glf(size*scale),f2glf(size));
+	}
+	else
+	{
+		size*=scale;
+		glScalef(f2glf(size/scale),f2glf(size),f2glf(size));
+	}
+
+	glLineWidth(linedotscale*2);
 	OGL_DISABLE(TEXTURE_2D);
 	glDisable(GL_CULL_FACE);
 	if (!cross_lh[cross])
@@ -641,14 +654,24 @@ void ogl_draw_reticle(int cross,int primary,int secondary)
 
 int g3_draw_sphere(g3s_point *pnt,fix rad){
 	int c;
+	float scale = ((float)grd_curcanv->cv_bitmap.bm_w/grd_curcanv->cv_bitmap.bm_h);
+
 	c=grd_curcanv->cv_color;
 	OGL_DISABLE(TEXTURE_2D);
 	glDisable(GL_CULL_FACE);
 	glColor3f(CPAL2Tr(c),CPAL2Tg(c),CPAL2Tb(c));
 	glPushMatrix();
 	glTranslatef(f2glf(pnt->p3_vec.x),f2glf(pnt->p3_vec.y),-f2glf(pnt->p3_vec.z));
-	rad/=((float)grd_curcanv->cv_bitmap.bm_w/grd_curcanv->cv_bitmap.bm_h);
-	glScalef(f2glf(rad),f2glf(rad*((float)grd_curcanv->cv_bitmap.bm_w/grd_curcanv->cv_bitmap.bm_h)),f2glf(rad));
+	if (scale >= 1)
+	{
+		rad/=scale;
+		glScalef(f2glf(rad),f2glf(rad*scale),f2glf(rad));
+	}
+	else
+	{
+		rad*=scale;
+		glScalef(f2glf(rad/scale),f2glf(rad),f2glf(rad));
+	}
 	if (!sphereh) sphereh=circle_list_init(20,GL_POLYGON,GL_COMPILE_AND_EXECUTE);
 	else glCallList(sphereh);
 	glPopMatrix();
@@ -960,7 +983,7 @@ void ogl_start_frame(void){
 	OGL_VIEWPORT(grd_curcanv->cv_bitmap.bm_x,grd_curcanv->cv_bitmap.bm_y,Canvas_width,Canvas_height);
 	glClearColor(0.0, 0.0, 0.0, 0.0);
 
-	glLineWidth(SHEIGHT<480?1:SHEIGHT/480);
+	glLineWidth(linedotscale);
 	glEnable(GL_BLEND);
 	glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
 
