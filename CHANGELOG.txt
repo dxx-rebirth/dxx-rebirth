@@ -1,5 +1,9 @@
 D2X-Rebirth Changelog
 
+20081110
+--------
+main/credits.c, main/inferno.c, main/menu.c, main/newmenu.c: Small Cleanup: Using timer_delay for credits timer as timer_delay2 would respect VSync and change speed of the Credits scrolling; Cleaned that Start/Join Netgame cases up a bit; Removed the excessive use of atexit in newmenu... more to come
+
 20081109
 --------
 include/args.h, include/gr.h, main/gamefont.c, main/inferno.c, main/menu.c, main/gamerend.c, main/gauges.c, main/gauges.h, misc/args.c, d2x.ini, arch/ogl/ogl.c, arch/ogl/gr.c: Always keep aspect scaling (lowest scalar of width and height) for fonts, lines, dots, spheres, reticle and non-Cockpit-/Statusbar-related HUD-elements; Moved the Cockpit alpha decoding to gauges.c and created a seperate bitmap for the alpha fields and create subbitmaps from this one - more memory but this way we do not modify the cockpit bitmap itself

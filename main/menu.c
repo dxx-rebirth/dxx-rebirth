@@ -334,21 +334,21 @@ void do_option ( int select)
 
 #ifdef NETWORK
 		case MENU_START_IPX_NETGAME:
-		case MENU_JOIN_IPX_NETGAME:
-		case MENU_START_KALI_NETGAME:
-		case MENU_JOIN_KALI_NETGAME:
-			switch (select & ~0x1) {
-				case MENU_START_IPX_NETGAME: NetDrvSet(NETPROTO_IPX); break;
-				case MENU_START_KALI_NETGAME: NetDrvSet(NETPROTO_KALINIX); break;
-				default: Int3();
-			}
-
-			if ((select & 0x1) == 0) // MENU_START_*_NETGAME
-				network_start_game();
-			else // MENU_JOIN_*_NETGAME
-				network_join_game();
+			NetDrvSet(NETPROTO_IPX);
+			network_start_game();
 			break;
-
+		case MENU_JOIN_IPX_NETGAME:
+			NetDrvSet(NETPROTO_IPX);
+			network_join_game();
+			break;
+		case MENU_START_KALI_NETGAME:
+			NetDrvSet(NETPROTO_KALINIX);
+			network_start_game();
+			break;
+		case MENU_JOIN_KALI_NETGAME:
+			NetDrvSet(NETPROTO_KALINIX);
+			network_join_game();
+			break;
 		case MENU_START_UDP_NETGAME:
 			NetDrvSet(NETPROTO_UDP);
 			network_start_game();
