@@ -293,10 +293,9 @@ int main(int argc,char *argv[])
 	if (cfile_init("d1xrdata.zip", 0))
 		con_printf(CON_NORMAL, "Added d1xrdata.zip for additional content\n");
 
-	// following three lines are arch-code - but do we have to move it just for that?
+	// following lines are arch-code - but do we have to move it just for that?
 	if (SDL_Init(SDL_INIT_VIDEO)<0)
 		Error("SDL library initialisation failed: %s.",SDL_GetError());
-	atexit(SDL_Quit);
 
 #ifdef _WIN32
 	freopen( "CON", "w", stdout );
@@ -455,7 +454,9 @@ int main(int argc,char *argv[])
 #endif
 
 	error_init(NULL, NULL);		// clear error func (won't have newmenu stuff loaded)
+	newmenu_close();
 	piggy_close();
+	SDL_Quit();
 
 	return(0); //presumably successful exit
 }

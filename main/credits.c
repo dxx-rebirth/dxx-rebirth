@@ -174,7 +174,7 @@ void credits_show(char *credits_filename)
 				y += ROW_SPACING;
 			}
 
-			timer_delay2(25);
+			timer_delay(F1_0/25);
 		
 			//see if redbook song needs to be restarted
 			songs_check_redbook_repeat();
