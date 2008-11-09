@@ -2,7 +2,7 @@ D1X-Rebirth Changelog
 
 20081109
 --------
-include/args.h, main/inferno.c, main/gamefont.c, main/menu.c, main/gamefont.h, main/game.c, main/gauges.c, main/gauges.h, misc/args.c, d1x.ini, arch/ogl/ogl.c, arch/ogl/gr.c: Always keep aspect scaling (lowest scalar of width and height) for fonts, lines, dots, spheres, reticle and non-Cockpit-/Statusbar-related HUD-elements; Moved the Cockpit alpha decoding to gauges.c and created a seperate bitmap for the alpha fields and create subbitmaps from this one - more memory but this way we do not modify the cockpit bitmap itself
+include/args.h, main/inferno.c, main/gamefont.c, main/menu.c, main/game.c, main/gauges.c, main/gauges.h, misc/args.c, d1x.ini, arch/ogl/ogl.c, arch/ogl/gr.c: Always keep aspect scaling (lowest scalar of width and height) for fonts, lines, dots, spheres, reticle and non-Cockpit-/Statusbar-related HUD-elements; Moved the Cockpit alpha decoding to gauges.c and created a seperate bitmap for the alpha fields and create subbitmaps from this one - more memory but this way we do not modify the cockpit bitmap itself
 
 20081107
 --------
