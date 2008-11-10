@@ -28,6 +28,7 @@ COPYRIGHT 1993-1998 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 #include "pstypes.h"
 #include "console.h"
 #include "error.h"
+#include "inferno.h"
 
 #define MAX_MSG_LEN 256
 
@@ -96,6 +97,7 @@ void Error(char *fmt,...)
 {
 	va_list arglist;
 
+	Function_mode = FMODE_EXIT;
 	strcpy(exit_message,"Error: "); // don't put the new line in for dialog output
 	va_start(arglist,fmt);
 	vsprintf(exit_message+strlen(exit_message),fmt,arglist);
