@@ -3,6 +3,7 @@ D2X-Rebirth Changelog
 20081110
 --------
 main/credits.c, main/inferno.c, main/menu.c, main/newmenu.c: Small Cleanup: Using timer_delay for credits timer as timer_delay2 would respect VSync and change speed of the Credits scrolling; Cleaned that Start/Join Netgame cases up a bit; Removed the excessive use of atexit in newmenu... more to come
+misc/error.c: When Error() is called, set Function_mode to FMODE_EXIT... basically to prevent the messagebox would try to render the game in background if the Error would happen while mission loading
 
 20081109
 --------
