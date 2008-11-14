@@ -578,10 +578,6 @@ mle *build_mission_list(int anarchy_mode)
 		      sizeof(*mission_list),
 		      (int (*)( const void *, const void * ))ml_sort_func);
 
-	//load_mission(0);   //set built-in mission as default
-
-    atexit(free_mission);
-
 	return mission_list;
 }
 

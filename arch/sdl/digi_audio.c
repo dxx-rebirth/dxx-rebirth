@@ -212,7 +212,6 @@ int digi_audio_init()
 	}
 	SDL_PauseAudio(0);
 	
-	atexit(digi_close);
 	digi_initialised = 1;
 	return 0;
 }

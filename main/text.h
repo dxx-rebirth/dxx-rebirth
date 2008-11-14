@@ -685,5 +685,6 @@ extern char *Text_string[];
 void decode_text_line(char *text_line); // decryption for bitmaps.tbl
 void decode_text(char *text, int len);  // decryption for briefings, etc.
 void load_text(void);
+void free_text();
 
 #endif /* _TEXT_H */

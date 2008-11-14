@@ -156,6 +156,9 @@ typedef struct DiskSoundHeader {
 	int offset;
 } __pack__ DiskSoundHeader;
 
+void free_bitmap_replacements();
+void free_d1_tmap_nums();
+
 /*
  * reads a DiskBitmapHeader structure from a CFILE
  */
@@ -1147,8 +1150,6 @@ int properties_init(void)
 	if (Piggy_hamfile_version >= 3)
 		snd_ok = read_sndfile();
 
-// 	atexit(piggy_close);
-
 	return (ham_ok && snd_ok);               //read ok
 }
 
@@ -1643,6 +1644,8 @@ void piggy_close()
 	hashtable_free( &AllBitmapsNames );
 	hashtable_free( &AllDigiSndNames );
 
+	free_bitmap_replacements();
+	free_d1_tmap_nums();
 }
 
 int piggy_does_bitmap_exist_slow( char * name )
@@ -1799,8 +1802,6 @@ void load_bitmap_replacements(char *level_name)
 
 		texmerge_flush();       //for re-merging with new textures
 	}
-
-	atexit(free_bitmap_replacements);
 }
 
 /* calculate table to translate d1 bitmaps to current palette,
@@ -1914,7 +1915,6 @@ void bm_read_d1_tmap_nums(CFILE *d1pig)
 		if (PHYSFS_eof(d1pig))
 			break;
 	}
-	atexit(free_d1_tmap_nums);
 }
 
 void remove_char( char * s, char c )
@@ -1974,7 +1974,6 @@ void read_d1_tmap_nums_from_hog(CFILE *d1_pig)
 	MALLOC(d1_tmap_nums, short, D1_MAX_TMAP_NUM);
 	for (i = 0; i < D1_MAX_TMAP_NUM; i++)
 		d1_tmap_nums[i] = -1;
-	atexit(free_d1_tmap_nums);
 
 	while (cfgets (inputline, LINEBUF_SIZE, bitmaps)) {
 		char *arg;
@@ -2110,7 +2109,6 @@ void load_d1_bitmap_replacements()
 		Warning(D1_PIG_LOAD_FAILED);
 		return;
 	}
-	atexit(free_bitmap_replacements);
 
 	next_bitmap = Bitmap_replacement_data;
 

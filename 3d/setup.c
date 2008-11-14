@@ -40,16 +40,6 @@ static char rcsid[] = "$Id: setup.c,v 1.1.1.1 2006/03/17 19:52:10 zicodxx Exp $"
 #include "texmap.h"  // for init_interface_vars_to_assembler()
 #endif
 
-//initialize the 3d system
-void g3_init(void)
-{
-//	div0_init(DM_ERROR);
-	atexit(g3_close);
-}
-
-//close down the 3d system
-void g3_close(void) {}
-
 //start the frame
 void g3_start_frame(void)
 {

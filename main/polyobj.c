@@ -735,9 +735,6 @@ int load_polygon_model(char *filename,int n_textures,grs_bitmap ***textures)
 void init_polygon_models()
 {
 	N_polygon_models = 0;
-
-	atexit((void (*)())free_polygon_models);
-
 }
 
 //compare against this size when figuring how far to place eye for picture

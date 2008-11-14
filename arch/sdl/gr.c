@@ -150,7 +150,6 @@ int gr_init(int mode)
 	gr_set_current_canvas( &grd_curscreen->sc_canvas );
 
 	gr_installed = 1;
-	atexit(gr_close);
 
 	return 0;
 }

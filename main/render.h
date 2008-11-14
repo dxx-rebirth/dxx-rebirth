@@ -84,13 +84,6 @@ extern short Render_list[MAX_RENDER_SEGS];
 extern int Render_only_bottom;
 #endif
 
-
-// Set the following to turn on player head turning
-extern int Use_player_head_angles;
-
-// If the above flag is set, these angles specify the orientation of the head
-extern vms_angvec Player_head_angles;
-
 //
 // Routines for conditionally rotating & projecting points
 //

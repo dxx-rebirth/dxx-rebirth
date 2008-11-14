@@ -466,7 +466,6 @@ void key_init()
 	  
 	// Clear the keyboard array
 	key_flush();
-	atexit(key_close);
 }
 
 void key_flush()

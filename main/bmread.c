@@ -607,8 +607,6 @@ int gamedata_read_tbl(int pc_shareware)
 
 	cfclose( InfoFile );
 
-	atexit(bm_close);
-
 	Assert(N_robot_types == Num_robot_ais);		//should be one ai info per robot
 
 	verify_textures();
@@ -677,33 +675,6 @@ void bm_read_alias()
 	t = strtok( NULL, space );  strncpy(alias_list[Num_aliases].file_name,t,sizeof(alias_list[Num_aliases].file_name));
 
 	Num_aliases++;
-}
-
-//--unused-- void dump_all_transparent_textures()
-//--unused-- {
-//--unused-- 	FILE * fp;
-//--unused-- 	int i,j,k;
-//--unused-- 	ubyte * p;
-//--unused-- 	fp = fopen( "XPARENT.LST", "wt" );
-//--unused-- 	for (i=0; i<Num_tmaps; i++ )	{
-//--unused-- 		k = 0;
-//--unused-- 		p = Textures[i]->bm_data;
-//--unused-- 		for (j=0; j<64*64; j++ )
-//--unused-- 			if ( (*p++)==255 ) k++;
-//--unused-- 		if ( k )	{
-//--unused-- 			fprintf( fp, "'%s' has %d transparent pixels\n", TmapInfo[i].filename, k );
-//--unused-- 		}				
-//--unused-- 	}
-//--unused-- 	fclose(fp);	
-//--unused-- }
-
-
-void bm_close()
-{
-	if (Installed)
-	{
-		Installed=0;
- 	}
 }
 
 void set_lighting_flag(sbyte *bp)

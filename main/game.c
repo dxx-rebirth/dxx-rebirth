@@ -60,7 +60,6 @@ COPYRIGHT 1993-1999 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 #include "ai.h"
 #include "fuelcen.h"
 #include "digi.h"
-#include "ibitblt.h"
 #include "u_mem.h"
 #include "palette.h"
 #include "morph.h"
@@ -210,8 +209,6 @@ extern char Marker_input[];
 //this is called once per game
 void init_game()
 {
-	atexit(close_game);             //for cleanup
-
 	init_objects();
 
 	init_special_effects();

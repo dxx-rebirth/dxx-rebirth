@@ -1,4 +1,3 @@
-/* $Id: endlevel.h,v 1.1.1.1 2006/03/17 19:55:20 zicodxx Exp $ */
 /*
 THE COMPUTER CODE CONTAINED HEREIN IS THE SOLE PROPERTY OF PARALLAX
 SOFTWARE CORPORATION ("PARALLAX").  PARALLAX, IN DISTRIBUTING THE CODE TO
@@ -14,7 +13,7 @@ COPYRIGHT 1993-1999 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 
 /*
  *
- * Header for newfile.c
+ * Header for endlevel.c
  *
  */
 
@@ -31,6 +30,7 @@ void render_endlevel_frame(fix eye_offset);
 
 void render_external_scene();
 void draw_exit_model();
+void free_endlevel_data();
 void init_endlevel();
 
 extern grs_bitmap *terrain_bitmap;  //*satellite_bitmap,*station_bitmap,

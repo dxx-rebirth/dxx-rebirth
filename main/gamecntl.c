@@ -57,7 +57,6 @@ COPYRIGHT 1993-1999 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 #include "ai.h"
 #include "rbaudio.h"
 #include "digi.h"
-#include "ibitblt.h"
 #include "u_mem.h"
 #include "palette.h"
 #include "morph.h"

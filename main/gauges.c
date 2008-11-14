@@ -2725,7 +2725,7 @@ void draw_hud()
 			show_time();
 		#endif
 		#endif
-		if (PlayerCfg.ReticleOn && PlayerCfg.CockpitMode != CM_LETTERBOX && (!Use_player_head_angles))
+		if (PlayerCfg.ReticleOn && PlayerCfg.CockpitMode != CM_LETTERBOX)
 			show_reticle();
 
 #ifdef NETWORK

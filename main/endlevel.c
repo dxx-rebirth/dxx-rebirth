@@ -257,6 +257,9 @@ free_endlevel_data()
 
 	if (satellite_bm_instance.bm_data)
 		d_free(satellite_bm_instance.bm_data);
+
+	free_light_table();
+	free_height_array();
 }
 
 void init_endlevel()
@@ -281,8 +284,6 @@ void init_endlevel()
 //!!	destroyed_exit_modelnum = load_polygon_model("exit01d.pof",1,exit_bitmap_list,NULL);
 
 	generate_starfield();
-
-	atexit(free_endlevel_data);
 
 	terrain_bm_instance.bm_data = satellite_bm_instance.bm_data = NULL;
 }

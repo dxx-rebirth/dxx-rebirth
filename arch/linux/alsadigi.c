@@ -308,7 +308,6 @@ int digi_init()
  pthread_create(&thread_id,&attr,mixer_thread,NULL);
  pthread_attr_destroy(&attr);
 
- atexit(digi_close);
  digi_initialised = 1;
  return 0;
 }

@@ -1,4 +1,3 @@
-/* $Id: terrain.h,v 1.1.1.1 2006/03/17 19:56:48 zicodxx Exp $ */
 /*
 THE COMPUTER CODE CONTAINED HEREIN IS THE SOLE PROPERTY OF PARALLAX
 SOFTWARE CORPORATION ("PARALLAX").  PARALLAX, IN DISTRIBUTING THE CODE TO
@@ -22,6 +21,8 @@ COPYRIGHT 1993-1999 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 #ifndef _TERRAIN_H
 #define _TERRAIN_H
 
+void free_light_table();
+void free_height_array();
 void load_terrain(char *filename);
 void render_terrain(vms_vector *org, int org_i, int org_j);
 

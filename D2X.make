@@ -35,7 +35,6 @@ SrcFiles        =  ¶
 				  :2d:disc.c ¶
 				  :2d:font.c ¶
 				  :2d:gpixel.c ¶
-				  :2d:ibitblt.c ¶
 				  :2d:line.c ¶
 				  :2d:palette.c ¶
 				  :2d:pcx.c ¶
@@ -184,7 +183,6 @@ GeneralObjects    =  ¶
 				  "{ObjDir}disc.c.x" ¶
 				  "{ObjDir}font.c.x" ¶
 				  "{ObjDir}gpixel.c.x" ¶
-				  "{ObjDir}ibitblt.c.x" ¶
 				  "{ObjDir}line.c.x" ¶
 				  "{ObjDir}palette.c.x" ¶
 				  "{ObjDir}pcx.c.x" ¶
@@ -377,7 +375,6 @@ directories Ä
 "{ObjDir}disc.c.x"  Ä  :2d:disc.c
 "{ObjDir}font.c.x"  Ä  :2d:font.c
 "{ObjDir}gpixel.c.x"  Ä  :2d:gpixel.c
-"{ObjDir}ibitblt.c.x"  Ä  :2d:ibitblt.c
 "{ObjDir}line.c.x"  Ä  :2d:line.c
 "{ObjDir}palette.c.x"  Ä  :2d:palette.c
 "{ObjDir}pcx.c.x"  Ä  :2d:pcx.c

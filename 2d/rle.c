@@ -528,7 +528,6 @@ void rle_cache_init()
 		Assert( rle_cache[i].expanded_bitmap != NULL );
 	}
 	rle_cache_initialized = 1;
-	atexit( rle_cache_close );
 }
 
 void rle_cache_flush()

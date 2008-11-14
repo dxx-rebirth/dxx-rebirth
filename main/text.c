@@ -120,8 +120,6 @@ void load_text()
 
 		MALLOC(text,char,len);
 
-		atexit(free_text);
-
 		cfread(text,1,len,ifile);
 
 		cfclose(ifile);
@@ -133,8 +131,6 @@ void load_text()
 		len = cfilelength(tfile);
 
 		MALLOC(text,char,len);
-
-		atexit(free_text);
 
 		//fread(text,1,len,tfile);
 		p = text;

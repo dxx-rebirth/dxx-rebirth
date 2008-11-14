@@ -1,4 +1,3 @@
-/* $Id: bm.h,v 1.1.1.1 2006/03/17 19:54:48 zicodxx Exp $ */
 /*
 THE COMPUTER CODE CONTAINED HEREIN IS THE SOLE PROPERTY OF PARALLAX
 SOFTWARE CORPORATION ("PARALLAX").  PARALLAX, IN DISTRIBUTING THE CODE TO
@@ -71,8 +70,10 @@ extern int Dead_modelnums[];
 extern int Marker_model_num;
 
 // Initializes the palette, bitmap system...
+void gamedata_close();
 int gamedata_init();
 void bm_close();
+void bm_free_extra_objbitmaps();
 
 // Initializes the Texture[] array of bmd_bitmap structures.
 void init_textures();

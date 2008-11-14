@@ -31,7 +31,6 @@ COPYRIGHT 1993-1999 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 #include "error.h"
 #include "gr.h"
 #include "palette.h"
-#include "ibitblt.h"
 #include "bm.h"
 #include "player.h"
 #include "render.h"

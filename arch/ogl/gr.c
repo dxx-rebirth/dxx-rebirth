@@ -385,8 +385,6 @@ int gr_init(int mode)
 
 	gr_installed = 1;
 	
-	atexit(gr_close);
-
 	return 0;
 }
 
