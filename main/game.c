@@ -55,7 +55,6 @@ COPYRIGHT 1993-1998 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 #include "digi.h"
 #include "gamesave.h"
 #include "scores.h"
-#include "ibitblt.h"
 #include "u_mem.h"
 #include "palette.h"
 #include "morph.h"
@@ -180,8 +179,6 @@ void init_game()
 {
 	ubyte pal[256*3];
 	int pcx_error;
-
-	atexit(close_game); //for cleanup
 
 	init_objects();
 

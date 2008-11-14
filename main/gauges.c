@@ -2316,7 +2316,7 @@ void draw_hud()
 			show_time();
 #endif
 #endif
-		if (PlayerCfg.CockpitMode != CM_LETTERBOX && (!Use_player_head_angles) && PlayerCfg.ReticleOn)
+		if (PlayerCfg.CockpitMode != CM_LETTERBOX && PlayerCfg.ReticleOn)
 			show_reticle();
 		HUD_render_message_frame();
 

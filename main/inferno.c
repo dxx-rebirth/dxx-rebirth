@@ -115,7 +115,6 @@ static char *__reference[2]={copyright,(char *)__reference};
 #include "joy.h"
 #include "console.h"
 
-
 char desc_id_exit_num = 0;
 int Function_mode=FMODE_MENU; //game or editor?
 int Screen_mode=-1; //game screen or editor screen?
@@ -126,11 +125,11 @@ unsigned int descent_critical_errcode = 0;
 int HiresGFXAvailable = 0;
 
 void mem_init(void);
+extern void arch_init(void);
 
 #ifdef EDITOR
 int Inferno_is_800x600_available = 0;
 #endif
-extern void d_mouse_init(void);
 
 void show_commandline_help()
 {
@@ -218,14 +217,11 @@ void error_messagebox(char *s)
 	nm_messagebox( TXT_SORRY, 1, TXT_OK, s );
 }
 
-extern void vfx_set_palette_sub(ubyte *);
 int MacHog = 0;	// using a Mac hogfile?
 #define PROGNAME argv[0]
 
 int main(int argc,char *argv[])
 {
-	int t;
-
 	mem_init();
 
 	error_init(NULL, NULL);
@@ -293,35 +289,17 @@ int main(int argc,char *argv[])
 	if (cfile_init("d1xrdata.zip", 0))
 		con_printf(CON_NORMAL, "Added d1xrdata.zip for additional content\n");
 
-	// following lines are arch-code - but do we have to move it just for that?
-	if (SDL_Init(SDL_INIT_VIDEO)<0)
-		Error("SDL library initialisation failed: %s.",SDL_GetError());
+	arch_init();
 
 #ifdef _WIN32
 	freopen( "CON", "w", stdout );
 	freopen( "CON", "w", stderr );
 #endif
 
-	key_init();
-
-	digi_select_system( GameArg.SndDisableSdlMixer ? SDLAUDIO_SYSTEM : SDLMIXER_SYSTEM );
-	if (!GameArg.SndNoSound)
-		digi_init();
-	
-	if (!GameArg.CtlNoMouse)
-		d_mouse_init();
-
-	if (!GameArg.CtlNoJoystick)
-		joy_init();
-
 #ifdef NETWORK
 	control_invul_time = 0;
 #endif
 
-	if (GameArg.DbgVerbose)
-		con_printf( CON_VERBOSE, "\n%s\n\n", TXT_INITIALIZING_GRAPHICS);
-	if ((t=gr_init( SM_ORIGINAL ))!=0)
-		Error(TXT_CANT_INIT_GFX,t);
 	// Load the palette stuff. Returns non-zero if error.
 	con_printf( CON_DEBUG, "Going into graphics mode..." );
 	gr_set_mode(Game_screen_mode);
@@ -339,15 +317,10 @@ int main(int argc,char *argv[])
 
 	error_init(error_messagebox, NULL);
 
-	con_printf( CON_DEBUG, "\nInitializing 3d system..." );
-	g3_init();
 	con_printf( CON_DEBUG, "\nInitializing texture caching system..." );
 	texmerge_init( 10 );		// 10 cache bitmaps
 
 	con_printf( CON_DEBUG, "\nRunning game...\n" );
-#ifdef SCRIPT
-	script_init();
-#endif
 	set_screen_mode(SCREEN_MENU);
 
 	init_game();
@@ -430,9 +403,6 @@ int main(int argc,char *argv[])
 			case FMODE_EDITOR:
 				keyd_editor_mode = 1;
 				editor();
-#ifdef __WATCOMC__
-				_harderr( (void *)descent_critical_error_handler );		// Reinstall game error handler
-#endif
 				if ( Function_mode == FMODE_GAME ) {
 					Game_mode = GM_EDITOR;
 					editor_reset_stuff_on_level();
@@ -446,17 +416,20 @@ int main(int argc,char *argv[])
 	}
 
 	WriteConfigFile();
-
-#ifndef ROCKWELL_CODE
-        #ifdef SHAREWARE
-                show_order_form();
-	#endif
+#ifdef SHAREWARE
+	show_order_form();
 #endif
 
+	con_printf( CON_DEBUG, "\nCleanup...\n" );
 	error_init(NULL, NULL);		// clear error func (won't have newmenu stuff loaded)
+	close_game();
+	texmerge_close();
+	gamedata_close();
+	gamefont_close();
+	free_text();
+	args_exit();
 	newmenu_close();
-	piggy_close();
-	SDL_Quit();
+	free_mission();
 
 	return(0); //presumably successful exit
 }

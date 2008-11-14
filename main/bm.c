@@ -50,6 +50,7 @@ COPYRIGHT 1993-1998 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 #include "fuelcen.h"
 #include "endlevel.h"
 #include "cntrlcen.h"
+#include "rle.h"
 
 #ifdef EDITOR
 #include "editor/texpage.h"
@@ -119,6 +120,14 @@ int player_ship_read(player_ship *ps, CFILE *fp)
 	for (i = 0; i < N_PLAYER_GUNS; i++)
 		cfile_read_vector(&ps->gun_points[i], fp);
 	return i;
+}
+
+void gamedata_close()
+{
+	free_polygon_models();
+	free_endlevel_data();
+	rle_cache_close();
+	piggy_close();
 }
 
 //-----------------------------------------------------------------

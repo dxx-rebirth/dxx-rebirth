@@ -218,7 +218,6 @@ int joy_init()
 	}
 
 	joy_num_axes = Joystick.n_axes;
-	atexit(joy_close);
 
 	return joy_present;
 }

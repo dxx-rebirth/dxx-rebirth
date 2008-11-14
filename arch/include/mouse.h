@@ -46,7 +46,7 @@ COPYRIGHT 1993-1998 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 #define MOUSE_MBTN		4
 
 extern void mouse_flush();	// clears all mice events...
-extern void mouse_close();
+extern void d_mouse_init(void);
 extern void mouse_get_pos( int *x, int *y, int *z );
 extern void mouse_get_delta( int *dx, int *dy, int *dz );
 extern int mouse_get_btns();

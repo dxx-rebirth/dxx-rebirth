@@ -67,16 +67,6 @@ static char rcsid[] = "$Id: setup.c,v 1.1.1.1 2006/03/17 19:39:03 zicodxx Exp $"
 #include "ogl_init.h"
 #endif
 
-//initialize the 3d system
-void g3_init(void)
-{
-//	div0_init(DM_ERROR);
-	atexit(g3_close);
-}
-
-//close down the 3d system
-void g3_close(void) {}
-
 extern void init_interface_vars_to_assembler(void);
 
 //start the frame

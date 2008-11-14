@@ -96,7 +96,6 @@ void RBAInit()
 		return;
 	}
 	
-	atexit(RBAExit);
 	initialised = 1;
 }
 

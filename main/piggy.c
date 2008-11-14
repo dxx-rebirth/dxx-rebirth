@@ -139,60 +139,6 @@ void DiskSoundHeader_read(DiskSoundHeader *dsh, CFILE *fp)
 
 static int SoundCompressed[ MAX_SOUND_FILES ];
 
-//#define BUILD_PSX_DATA 1
-
-#ifdef BUILD_PSX_DATA
-FILE * count_file = NULL;
-
-int num_good=0,num_bad=0;
-int num_good64=0,num_bad64=0;
-
-void close_count_file()
-{
- 	if ( count_file )	{
-		fprintf( count_file,"Good = %d\n", num_good );
-		fprintf( count_file,"Bad = %d\n", num_bad );
-		fprintf( count_file,"64Good = %d\n", num_good64 );
-		fprintf( count_file,"64Bad = %d\n", num_bad64 );
-		fclose(count_file);
-		count_file=NULL;
-	}
-}
-
-void count_colors( int bnum, grs_bitmap * bmp )
-{
-	int i,j,colors;
-	ushort n[256];
-
-	quantize_colors( bnum, bmp );
-
-	if ( count_file == NULL )	{
-		atexit( close_count_file );
-		count_file = fopen( "bitmap.cnt", "wt" );
-	}
-	for (i=0; i<256; i++ )
-		n[i] = 0;
-
-	
-	for (j = 0; j < bmp->bm_h; j++)
-		for (i = 0; i < bmp->bm_w; i++)
-			n [gr_gpixel (bmp, i, j)] ++;
-
-	colors = 0;
-	for (i=0; i<256; i++ )
-		if (n[i]) colors++;
-
-	if ( colors > 16 )	{
-		if ( (bmp->bm_w==64) && (bmp->bm_h==64) ) num_bad64++;
-		num_bad++;
-		fprintf( count_file, "Bmp has %d colors (%d x %d)\n", colors, bmp->bm_w, bmp->bm_h );
-	} else {
-		if ( (bmp->bm_w==64) && (bmp->bm_h==64) ) num_good64++;
-		num_good++;
-	}
-}
-#endif
-
 void swap_0_255(grs_bitmap *bmp)
 {
 	int i;
@@ -342,8 +288,6 @@ int properties_init()
 
 	hashtable_init( &AllBitmapsNames, MAX_BITMAP_FILES );
 	hashtable_init( &AllDigiSndNames, MAX_SOUND_FILES );
-
-// 	atexit(piggy_close);
 
 	if (GameArg.SndNoSound)
 	{
@@ -541,8 +485,6 @@ int properties_init()
 		Error( "Not enough memory to load DESCENT.PIG bitmaps\n" );
 	Piggy_bitmap_cache_data = BitmapBits;	
 	Piggy_bitmap_cache_next = 0;
-	
-	atexit(piggy_close_file);
 
 	return retval;
 }
@@ -1037,6 +979,7 @@ void piggy_close()
 	int i;
 
 	custom_close();
+	piggy_close_file();
 
 //added ifndef on 10/04/98 by Matt Mueller to fix crash on exit bug -- killed 2000/02/06 since they don't seem to cause crash anymore.  heh.
 //#ifndef __LINUX__
@@ -1054,7 +997,6 @@ void piggy_close()
 	
 	hashtable_free( &AllBitmapsNames );
 	hashtable_free( &AllDigiSndNames );
-
 }
 
 int piggy_does_bitmap_exist_slow( char * name )

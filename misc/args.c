@@ -241,6 +241,4 @@ void InitArgs( int argc,char **argv )
 
 	AppendIniArgs();
 	ReadCmdArgs();
-
-	atexit(args_exit);
 }

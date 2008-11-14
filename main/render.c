@@ -142,81 +142,6 @@ void draw_outline(int nverts,g3s_point **pointlist)
 }
 #endif
 
-grs_canvas * reticle_canvas = NULL;
-
-void free_reticle_canvas()
-{
-	gr_free_canvas (reticle_canvas);
-	reticle_canvas = NULL;
-}
-
-extern void show_reticle();
-
-// Draw the reticle in 3D for head tracking
-void draw_3d_reticle(fix eye_offset)
-{
-	g3s_point 	reticle_points[4];
-	g3s_uvl		uvl[4];
-	g3s_point	*pointlist[4];
-	int 			i;
-	vms_vector v1, v2;
-	grs_canvas *saved_canvas;
-	int saved_interp_method;
-
-//	if (!Use_player_head_angles) return;
-	
-	for (i=0; i<4; i++ )	{
-		pointlist[i] = &reticle_points[i];
-		uvl[i].l = MAX_LIGHT;
-	}
-	uvl[0].u = 0; uvl[0].v = 0;
-	uvl[1].u = F1_0; uvl[1].v = 0;
-	uvl[2].u = F1_0; uvl[2].v = F1_0;
-	uvl[3].u = 0; uvl[3].v = F1_0;
-
-	vm_vec_scale_add( &v1, &Viewer->pos, &Viewer->orient.fvec, F1_0*4 );
-	vm_vec_scale_add2(&v1,&Viewer->orient.rvec,eye_offset);
-
-	vm_vec_scale_add( &v2, &v1, &Viewer->orient.rvec, -F1_0*1 );
-	vm_vec_scale_add2( &v2, &Viewer->orient.uvec, F1_0*1 );
-	g3_rotate_point(&reticle_points[0],&v2);
-
-	vm_vec_scale_add( &v2, &v1, &Viewer->orient.rvec, +F1_0*1 );
-	vm_vec_scale_add2( &v2, &Viewer->orient.uvec, F1_0*1 );
-	g3_rotate_point(&reticle_points[1],&v2);
-
-	vm_vec_scale_add( &v2, &v1, &Viewer->orient.rvec, +F1_0*1 );
-	vm_vec_scale_add2( &v2, &Viewer->orient.uvec, -F1_0*1 );
-	g3_rotate_point(&reticle_points[2],&v2);
-
-	vm_vec_scale_add( &v2, &v1, &Viewer->orient.rvec, -F1_0*1 );
-	vm_vec_scale_add2( &v2, &Viewer->orient.uvec, -F1_0*1 );
-	g3_rotate_point(&reticle_points[3],&v2);
-
-	if ( reticle_canvas == NULL )	{
-		reticle_canvas = gr_create_canvas(64,64);
-		if ( !reticle_canvas )
-			Error( "Couldn't malloc reticle_canvas" );
-		atexit( free_reticle_canvas );
-#ifdef BITMAP_SELECTOR
-		reticle_canvas->cv_bitmap.bm_selector = 0;
-#endif
-		gr_set_transparent (&reticle_canvas->cv_bitmap, 1);
-	}
-
-	saved_canvas = grd_curcanv;
-	gr_set_current_canvas(reticle_canvas);
-	gr_clear_canvas( 255 );		// Clear to Xparent
-	show_reticle();
-	gr_set_current_canvas(saved_canvas);
-	
-	saved_interp_method=Interpolation_method;
-	Interpolation_method	= 3;		// The best, albiet slowest.
-	g3_draw_tmap(4,pointlist,uvl,&reticle_canvas->cv_bitmap);
-	Interpolation_method	= saved_interp_method;
-}
-
-
 fix flash_scale;
 
 #define FLASH_CYCLE_RATE f1_0
@@ -1427,13 +1352,7 @@ void render_frame(fix eye_offset)
 	if (start_seg_num==-1)
 		start_seg_num = Viewer->segnum;
 
-	if (Viewer==ConsoleObject && Use_player_head_angles) {
-		vms_matrix headm,viewm;
-		vm_angles_2_matrix(&headm,&Player_head_angles);
-		vm_matrix_x_matrix(&viewm,&Viewer->orient,&headm);
-		g3_set_view_matrix(&Viewer_eye,&viewm,Render_zoom);
-	//@@} else if ((Cockpit_mode==CM_REAR_VIEW) && (Viewer==ConsoleObject)) {
-	} else if (Rear_view && (Viewer==ConsoleObject)) {
+	if (Rear_view && (Viewer==ConsoleObject)) {
 		vms_matrix headm,viewm;
 		Player_head_angles.p = Player_head_angles.b = 0;
 		Player_head_angles.h = 0x7fff;
@@ -1462,9 +1381,6 @@ void render_frame(fix eye_offset)
 	}
 
 	render_mine(start_seg_num,eye_offset);
-
-	if (Use_player_head_angles ) 
-		draw_3d_reticle(eye_offset);
 
 	g3_end_frame();
 }

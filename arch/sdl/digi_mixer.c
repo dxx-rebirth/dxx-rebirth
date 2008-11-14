@@ -89,8 +89,6 @@ int digi_mixer_init() {
   jukebox_load();
   //jukebox_list();
 
-  atexit(jukebox_unload);
-  atexit(digi_close);
   digi_initialised = 1;
 
   return 0;

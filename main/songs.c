@@ -147,7 +147,6 @@ void songs_init()
 		RBAInit();
 		set_redbook_volume(GameCfg.MusicVolume);
 	}
-	atexit(RBAStop);    // stop song on exit
 #endif	// endof ifndef SHAREWARE, ie ifdef SHAREWARE
 }
 

@@ -222,7 +222,6 @@ void load_text()
 
 //edited 05/17/99 Matt Mueller - malloc an extra byte, and null terminate.
 		MALLOC(text,char,len+1);
-		atexit((void (*)())free_text);
 
 		cfread(text,1,len,ifile);
 		text[len]=0;
@@ -237,8 +236,6 @@ void load_text()
 
 //edited 05/17/99 Matt Mueller - malloc an extra byte, and null terminate.
 		MALLOC(text,char,len+1);
-
-		atexit((void (*)())free_text);
 
 		//fread(text,1,len,tfile);
 		p = text;

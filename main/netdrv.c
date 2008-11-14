@@ -111,6 +111,8 @@ void NetDrvClose()
 //		-5 if error with getting internetwork address
 int NetDrvInit( int socket_number )
 {
+	static int cleanup = 0;
+
 	if (!driver)
 		return -1;
 
@@ -145,7 +147,9 @@ int NetDrvInit( int socket_number )
 
 	NetDrvInstalled = 1;
 
-	atexit(NetDrvClose);
+	if (!cleanup)
+		atexit(NetDrvClose);
+	cleanup = 1;
 
 	return 0;
 }

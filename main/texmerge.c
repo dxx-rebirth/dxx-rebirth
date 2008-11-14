@@ -82,7 +82,6 @@ int texmerge_init(int num_cached_textures)
 		Cache[i].bottom_bmp = NULL;
 		Cache[i].orient = -1;
 	}
-	atexit( texmerge_close );
 
 	return 1;
 }

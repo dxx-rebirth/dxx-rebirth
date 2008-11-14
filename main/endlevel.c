@@ -155,6 +155,9 @@ void free_endlevel_data()
 {
 	gr_free_bitmap_data (&terrain_bm_instance);
 	gr_free_bitmap_data (&satellite_bm_instance);
+
+	free_light_table();
+	free_height_array();
 }
 
 void init_endlevel()
@@ -179,8 +182,6 @@ void init_endlevel()
 //!!	destroyed_exit_modelnum = load_polygon_model("exit01d.pof",1,exit_bitmap_list,NULL);
 
 	generate_starfield();
-
-	atexit(free_endlevel_data);
 
 	gr_init_bitmap_data (&terrain_bm_instance);
 	gr_init_bitmap_data (&satellite_bm_instance);

@@ -10,45 +10,12 @@ CONTAINED HEREIN FOR REVENUE-BEARING PURPOSES.  THE END-USER UNDERSTANDS
 AND AGREES TO THE TERMS HEREIN AND ACCEPTS THE SAME BY USE OF THIS FILE.  
 COPYRIGHT 1993-1998 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 */
+
 /*
- * $Source: /cvsroot/dxx-rebirth/d1x-rebirth/main/endlevel.h,v $
- * $Revision: 1.1.1.1 $
- * $Author: zicodxx $
- * $Date: 2006/03/17 19:42:21 $
  * 
- * Header for newfile.c
- * 
- * $Log: endlevel.h,v $
- * Revision 1.1.1.1  2006/03/17 19:42:21  zicodxx
- * initial import
- *
- * Revision 1.1.1.1  1999/06/14 22:12:16  donut
- * Import of d1x 1.37 source.
- *
- * Revision 2.0  1995/02/27  11:31:37  john
- * New version 2.0, which has no anonymous unions, builds with
- * Watcom 10.0, and doesn't require parsing BITMAPS.TBL.
- * 
- * Revision 1.5  1994/12/06  13:24:55  matt
- * Made exit model come out of bitmaps.tbl
- * 
- * Revision 1.4  1994/11/19  12:41:35  matt
- * Added system to read endlevel data from file, and to make it work
- * with any exit tunnel.
- * 
- * Revision 1.3  1994/10/30  20:09:20  matt
- * For endlevel: added big explosion at tunnel exit; made lights in tunnel 
- * go out; made more explosions on walls.
- * 
- * Revision 1.2  1994/08/19  20:09:38  matt
- * Added end-of-level cut scene with external scene
- * 
- * Revision 1.1  1994/08/15  19:18:47  matt
- * Initial revision
- * 
+ * Header for endlevel.c
  * 
  */
-
 
 
 #ifndef _OUTSIDE_H
@@ -63,6 +30,7 @@ void render_external_scene();
 void render_endlevel_frame(fix eye_offset);
 void do_endlevel_frame();
 void draw_exit_model();
+void free_endlevel_data();
 void init_endlevel();
 void stop_endlevel_sequence();
 

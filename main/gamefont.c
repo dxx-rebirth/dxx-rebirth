@@ -169,8 +169,6 @@ void gamefont_init()
 	}
 
 	gamefont_choose_game_font(grd_curscreen->sc_canvas.cv_bitmap.bm_w,grd_curscreen->sc_canvas.cv_bitmap.bm_h);
-	
-	atexit( gamefont_close );
 }
 
 
