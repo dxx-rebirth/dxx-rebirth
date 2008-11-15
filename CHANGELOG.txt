@@ -1,5 +1,9 @@
 D1X-Rebirth Changelog
 
+20081115
+--------
+arch/sdl/digi_audio.c: include/error.h, main/console.c, main/inferno.c: Added other SDL_(Un)LockAudio statements to protect the audio_mixcallback function - making that hopefully stable on multicores; Resetting warn_func at quit_request so we do not accidently show any menu; Open gamelog.txt unbuffered
+
 20081114
 --------
 include/args.h, include/3d.h, include/rle.h, include/rbaudio.h, main/text.c, main/text.h, main/bm.c, main/gamefont.c, main/inferno.c, main/bm.c, main/bmread.c, main/piggy.c, main/render.c, main/render.h, main/songs.c, main/gameseq.c, main/gamerend.c, main/netdrv.c, main/endlevel.c, main/endlevel.h, main/terrain.c, main/terrain.h, main/polyobj.c, main/polyobj.h, main/game.c, main/gauges.c, main/texmerge.c, main/mission.c, main/mission.h, misc/args.c, 2d/rle.c, 3d/setup.c, SConstruct, D1X.make, arch/linux/alsadigi.c, arch/ogl/gr.c, arch/sdl/digi_mixer.c, arch/sdl/joy.c, arch/sdl/init.c, arch/sdl/rbaudio.c, arch/sdl/gr.c, arch/sdl/key.c, arch/sdl/digi_audio.c, arch/include/mouse.h: Using a clean flow for closing game data at the end of main() instead of using atexit; Now only use atexit for SDL stuff, error, mem, console (and editor which we do later); Small Cleanup
