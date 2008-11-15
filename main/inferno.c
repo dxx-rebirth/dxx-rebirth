@@ -473,5 +473,6 @@ int main(int argc, char *argv[])
 
 void quit_request()
 {
+	set_warn_func(warn_printf);
 	exit(0);
 }
