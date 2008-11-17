@@ -2430,30 +2430,30 @@ void ReadControls()
 	if (Newdemo_state == ND_STATE_PLAYBACK )
 		update_vcr_state();
 
-	while ((key=key_inkey_time(&key_time)) != 0)	{
-		if (con_events(key) && con_render)
-			game_flush_inputs();
+	key=key_inkey();
+	
+	if (con_events(key) && con_render)
+		return;
 
 #ifdef NETWORK
-		if ( (Game_mode & GM_MULTI) && (multi_sending_message || multi_defining_message) )
-		{
-			multi_message_input_sub(key);
-			continue;
-		}
+	if ( (Game_mode & GM_MULTI) && (multi_sending_message || multi_defining_message) )
+	{
+		multi_message_input_sub(key);
+		return;
+	}
 #endif
 
-		if (Player_is_dead)
-			HandleDeathKey(key);
+	if (Player_is_dead)
+		HandleDeathKey(key);
 
-		if (Endlevel_sequence)
-			HandleEndlevelKey(key);
-		else if (Newdemo_state == ND_STATE_PLAYBACK )
-			HandleDemoKey(key);
-		else
-		{
-			FinalCheatsKey(key);
-			HandleGameKey(key);
-		}
+	if (Endlevel_sequence)
+		HandleEndlevelKey(key);
+	else if (Newdemo_state == ND_STATE_PLAYBACK )
+		HandleDemoKey(key);
+	else
+	{
+		FinalCheatsKey(key);
+		HandleGameKey(key);
 	}
 }
 

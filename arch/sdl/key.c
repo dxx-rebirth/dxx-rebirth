@@ -20,8 +20,6 @@
 #include "key.h"
 #include "timer.h"
 
-#define KEY_BUFFER_SIZE 16
-
 static unsigned char Installed = 0;
 
 //-------- Variable accessed by outside functions ---------
@@ -32,6 +30,7 @@ volatile unsigned char 	keyd_last_pressed;
 volatile unsigned char 	keyd_last_released;
 volatile unsigned char	keyd_pressed[256];
 volatile int		keyd_time_when_last_pressed;
+unsigned char		unicode_frame_buffer[KEY_BUFFER_SIZE] = { '\0', '\0', '\0', '\0', '\0', '\0', '\0', '\0', '\0', '\0', '\0', '\0', '\0', '\0', '\0', '\0' };
 
 typedef struct Key_info {
 	ubyte		state;			// state of key 1 == down, 0 == up
@@ -295,97 +294,79 @@ key_props key_properties[256] = {
 { "",       255,    -1                 },
 { "",       255,    -1                 },
 { "",       255,    -1                 },
-{ "!",      '!',    SDLK_EXCLAIM       },
-{ "@",      '@',    SDLK_AT            },
-{ "#",      '#',    SDLK_HASH          },
-{ "$",      '$',    SDLK_DOLLAR        },
-{ "%",      '%',    -1                 }, // 240
-{ "^",      '^',    SDLK_CARET         },
-{ "&",      '&',    SDLK_AMPERSAND     },
-{ "(",      '(',    SDLK_LEFTPAREN     },
-{ ")",      ')',    SDLK_RIGHTPAREN    },
-{ "_",      '_',    SDLK_UNDERSCORE    },
-{ "+",      '+',    SDLK_PLUS          },
-{ "{",      '{',    -1                 },
-{ "}",      '}',    -1                 },
-{ ":",      ':',    SDLK_COLON         },
-{ "\"",     '"',    SDLK_QUOTEDBL      }, // 250
-{ "~",      '~',    -1                 },
-{ "|",      '|',    -1                 },
-{ "<",      '<',    SDLK_LESS          },
-{ ">",      '>',    SDLK_GREATER       },
-{ "?",      '?',    SDLK_QUESTION      }, // 255
-};
-
-// As UNICODE chars have no RELEASED state, we save each one together with the symbol assigned to it.
-// If a symbol is RELEASED, check the list and we know which unicode we just released! 
-// This way we almost "emulate" the RELEASED state for UNICODE chars.
-int sym2unimap[KEY_BUFFER_SIZE][2] =
-{
-	{ -1, -1 },
-	{ -1, -1 },
-	{ -1, -1 },
-	{ -1, -1 },
-	{ -1, -1 },
-	{ -1, -1 },
-	{ -1, -1 },
-	{ -1, -1 },
-	{ -1, -1 },
-	{ -1, -1 },
-	{ -1, -1 },
-	{ -1, -1 },
-	{ -1, -1 },
-	{ -1, -1 },
-	{ -1, -1 },
-	{ -1, -1 },
+{ "",       255,    -1                 },
+{ "",       255,    -1                 },
+{ "",       255,    -1                 },
+{ "",       255,    -1                 },
+{ "",       255,    -1                 }, // 240
+{ "",       255,    -1                 },
+{ "",       255,    -1                 },
+{ "",       255,    -1                 },
+{ "",       255,    -1                 },
+{ "",       255,    -1                 },
+{ "",       255,    -1                 },
+{ "",       255,    -1                 },
+{ "",       255,    -1                 },
+{ "",       255,    -1                 },
+{ "",       255,    -1                 }, // 250
+{ "",       255,    -1                 },
+{ "",       255,    -1                 },
+{ "",       255,    -1                 },
+{ "",       255,    -1                 },
+{ "",       255,    -1                 }, // 255
 };
 
 char *key_text[256];
 
-unsigned char key_to_ascii(int keycode)
+unsigned char key_ascii()
 {
-	keycode &= 0xFF;
-	return key_properties[keycode].ascii_value;
+	static unsigned char unibuffer[KEY_BUFFER_SIZE] = { '\0', '\0', '\0', '\0', '\0', '\0', '\0', '\0', '\0', '\0', '\0', '\0', '\0', '\0', '\0', '\0' };
+	int i=0, offset=0, count=0;
+	
+	offset=strlen((const char*)unibuffer);
+
+	// move temporal chars from unicode_frame_buffer to empty space behind last unibuffer char (if any)
+	for (i=offset; i < KEY_BUFFER_SIZE; i++)
+		if (unicode_frame_buffer[count] != '\0')
+		{
+			unibuffer[i]=unicode_frame_buffer[count];
+			unicode_frame_buffer[count]='\0';
+			count++;
+		}
+
+	// unibuffer is not empty. store first char, remove it, shift all chars one step left and then print our char
+	if (unibuffer[0] != '\0')
+	{
+		unsigned char retval = unibuffer[0];
+		unsigned char unibuffer_shift[KEY_BUFFER_SIZE];
+		memset(unibuffer_shift,'\0',sizeof(unsigned char)*KEY_BUFFER_SIZE);
+		memcpy(unibuffer_shift,unibuffer+1,sizeof(unsigned char)*(KEY_BUFFER_SIZE-1));
+		memcpy(unibuffer,unibuffer_shift,sizeof(unsigned char)*KEY_BUFFER_SIZE);
+		return retval;
+	}
+	else
+		return 255;
 }
 
-void key_handler(SDL_KeyboardEvent *event)
+void key_handler(SDL_KeyboardEvent *event, int counter)
 {
 	ubyte state;
-	int i, keycode, event_keysym=-1, event_keyuni=-1, key_state;
+	int i, keycode, event_keysym=-1, key_state;
 	Key_info *key;
 	unsigned char temp;
 
 	// Read SDLK symbol and state
         event_keysym = event->keysym.sym;
-
-	// Read (latin) unicode
-	if (event->keysym.unicode > 31 && event->keysym.unicode < 255)
-	{
-		event_keyuni = tolower(event->keysym.unicode);
-		// Now add the UNICODE char to our map (see comment on sym2unimap declaration)
-		for (i = 0; i < KEY_BUFFER_SIZE; i++)
-		{
-			if (sym2unimap[i][0] == -1)
-			{
-				sym2unimap[i][0] = event_keyuni;
-				sym2unimap[i][1] = event_keysym;
-				break;
-			}
-		}
-	}
-	else // no valid UNICODE - possibly 0 - see if we remove it from the list
-	{
-		for (i = 0; i < KEY_BUFFER_SIZE; i++)
-		{
-			if (event_keysym == sym2unimap[i][1])
-			{
-				event_keyuni = sym2unimap[i][0];
-				sym2unimap[i][0] = sym2unimap[i][1] = -1; 
-			}
-		}
-	}
         key_state = (event->state == SDL_PRESSED);
 
+	// fill the unicode frame-related unicode buffer 
+	if (key_state && event->keysym.unicode > 31 && event->keysym.unicode < 255)
+		for (i = 0; i < KEY_BUFFER_SIZE; i++)
+			if (unicode_frame_buffer[i] == '\0')
+			{
+				unicode_frame_buffer[i] = event->keysym.unicode;
+				break;
+			}
 
 	//=====================================================
 
@@ -393,9 +374,7 @@ void key_handler(SDL_KeyboardEvent *event)
 		keycode = i;
 		key = &(key_data.keys[keycode]);
 
-		if (key_properties[i].ascii_value == event_keyuni && key_properties[i].ascii_value != 255)
-			state = key_state;
-		else if ((event_keyuni == -1 || event_keyuni == event_keysym) && key_properties[i].sym == event_keysym)
+		if (key_properties[i].sym == event_keysym)
 			state = key_state;
 		else
 			state = key->last_state;
@@ -483,12 +462,7 @@ void key_flush()
 	for (i=0; i<KEY_BUFFER_SIZE; i++ )	{
 		key_data.keybuffer[i] = 0;
 		key_data.time_pressed[i] = 0;
-	}
-
-	//Clear the unicode map
-	for (i=0; i<KEY_BUFFER_SIZE; i++ )	{
-		sym2unimap[i][0] = -1;
-		sym2unimap[i][1] = -1;
+		unicode_frame_buffer[i] = '\0';
 	}
 
 //use gettimeofday here:

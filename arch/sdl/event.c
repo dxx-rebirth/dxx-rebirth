@@ -12,6 +12,7 @@
 
 #include <stdio.h>
 #include <stdlib.h>
+#include "key.h"
 
 #include <SDL/SDL.h>
 
@@ -27,11 +28,15 @@ static int initialised=0;
 void event_poll()
 {
 	SDL_Event event;
+	int clean_uniframe=1;
 
 	while (SDL_PollEvent(&event)) {
 		switch(event.type) {
 			case SDL_KEYDOWN:
 			case SDL_KEYUP:
+				if (clean_uniframe)
+					memset(unicode_frame_buffer,'\0',sizeof(unsigned char)*KEY_BUFFER_SIZE);
+				clean_uniframe=0;
 				key_handler((SDL_KeyboardEvent *)&event);
 				break;
 			case SDL_MOUSEBUTTONDOWN:

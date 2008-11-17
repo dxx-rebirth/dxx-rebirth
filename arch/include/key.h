@@ -23,6 +23,8 @@ COPYRIGHT 1993-1999 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 #include "pstypes.h"
 #include "fix.h"
 
+#define KEY_BUFFER_SIZE 16
+
 //==========================================================================
 // This installs the int9 vector and initializes the keyboard in buffered
 // ASCII mode. key_close simply undoes that.
@@ -43,6 +45,9 @@ extern unsigned char keyd_editor_mode;
 // Time in seconds when last key was pressed...
 extern volatile int keyd_time_when_last_pressed;
 
+// Stores Unicode values registered in one event_loop call
+unsigned char unicode_frame_buffer[KEY_BUFFER_SIZE];
+
 //==========================================================================
 // These are the "buffered" keypress routines.  Use them by setting the
 // "keyd_buffer_type" variable.
@@ -55,7 +60,7 @@ extern int key_inkey();     // Gets key if one, other returns 0.
 extern int key_inkey_time(fix *time);     // Same as inkey, but returns the time the key was pressed down.
 extern int key_peekkey();   // Same as inkey, but doesn't remove key from buffer.
 
-extern unsigned char key_to_ascii(int keycode);
+extern unsigned char key_ascii();
 
 extern void key_debug();    // Does an INT3
 
