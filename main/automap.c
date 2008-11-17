@@ -1354,8 +1354,8 @@ void MarkerInputMessage(int key)
 			DefiningMarkerMessage = 0;
 			break;
 		default:
-		if (key > 0) {
-			int ascii = key_to_ascii(key);
+		{
+			int ascii = key_ascii();
 			if ((ascii < 255 ))
 				if (Marker_index < 38 )
 				{

@@ -1822,7 +1822,7 @@ void FinalCheats(int key)
   int i;
   char *cryptstring;
 
-   key=key_to_ascii(key);
+   key=key_ascii();
 
   for (i=0;i<15;i++)
    CheatBuffer[i]=CheatBuffer[i+1];
@@ -2228,58 +2228,55 @@ void ReadControls()
 	if (Newdemo_state == ND_STATE_PLAYBACK )
 		update_vcr_state();
 
-	while ((key=key_inkey_time(&key_time)) != 0)    {
-		if (con_events(key) && con_render)
-			game_flush_inputs();
+	key=key_inkey();
 
-		if (DefiningMarkerMessage)
-		{
-			MarkerInputMessage(key);
-			continue;
-		}
+	if (con_events(key) && con_render)
+		return;
+
+	if (DefiningMarkerMessage)
+	{
+		MarkerInputMessage(key);
+		return;
+	}
 
 #ifdef NETWORK
-		if ( (Game_mode & GM_MULTI) && (multi_sending_message || multi_defining_message) )
-		{
-			multi_message_input_sub(key);
-			continue;
-		}
+	if ( (Game_mode & GM_MULTI) && (multi_sending_message || multi_defining_message) )
+	{
+		multi_message_input_sub(key);
+		return;
+	}
 #endif
 
+	#ifndef RELEASE
+	#ifdef NETWORK
+	if ((key&KEY_DEBUGGED)&&(Game_mode&GM_MULTI))   {
+		Network_message_reciever = 100;		// Send to everyone...
+		sprintf( Network_message, "%s %s", TXT_I_AM_A, TXT_CHEATER);
+	}
+	#endif
+	#endif
+
+	if (Player_is_dead)
+		HandleDeathKey(key);
+
+	if (Endlevel_sequence)
+		HandleEndlevelKey(key);
+	else if (Newdemo_state == ND_STATE_PLAYBACK ) {
+		HandleDemoKey(key);
+
 		#ifndef RELEASE
-		#ifdef NETWORK
-		if ((key&KEY_DEBUGGED)&&(Game_mode&GM_MULTI))   {
-			Network_message_reciever = 100;		// Send to everyone...
-			sprintf( Network_message, "%s %s", TXT_I_AM_A, TXT_CHEATER);
-		}
+		HandleTestKey(key);
 		#endif
+	} else {
+		FinalCheats(key);
+
+		HandleSystemKey(key);
+		HandleVRKey(key);
+		HandleGameKey(key);
+
+		#ifndef RELEASE
+		HandleTestKey(key);
 		#endif
-
-		if (Player_is_dead)
-			HandleDeathKey(key);
-
-		if (Endlevel_sequence)
-			HandleEndlevelKey(key);
-		else if (Newdemo_state == ND_STATE_PLAYBACK ) {
-			HandleDemoKey(key);
-
-			#ifndef RELEASE
-			HandleTestKey(key);
-			#endif
-		} else {
-			FinalCheats(key);
-
-			HandleSystemKey(key);
-			HandleVRKey(key);
-			HandleGameKey(key);
-
-			#ifndef RELEASE
-			HandleTestKey(key);
-			#endif
-		}
-}
-
-//	if ((Players[Player_num].flags & PLAYER_FLAGS_CONVERTER) && keyd_pressed[KEY_F8] && (keyd_pressed[KEY_LALT] || keyd_pressed[KEY_RALT]))
-  //		transfer_energy_to_shield(key_down_time(KEY_F8));
+	}
 }
 
