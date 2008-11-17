@@ -1,5 +1,9 @@
 D1X-Rebirth Changelog
 
+20081118
+--------
+main/console.c: When printing Gamelog, make sure canvas is NULL
+
 20081115
 --------
 arch/sdl/digi_audio.c: include/error.h, main/console.c, main/inferno.c: Added other SDL_(Un)LockAudio statements to protect the audio_mixcallback function - making that hopefully stable on multicores; Resetting warn_func at quit_request so we do not accidently show any menu; Open gamelog.txt unbuffered
