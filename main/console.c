@@ -132,6 +132,7 @@ void con_show(void)
 	if (!con_size)
 		return;
 
+	gr_set_current_canvas(NULL);
 	gr_set_curfont(GAME_FONT);
 	gr_setcolor(0);
 	Gr_scanline_darkening_level = 1*7;
