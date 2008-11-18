@@ -1824,6 +1824,8 @@ void FinalCheats(int key)
 
    key=key_ascii();
 
+	if (key == 255) return;
+
   for (i=0;i<15;i++)
    CheatBuffer[i]=CheatBuffer[i+1];
 
@@ -2177,7 +2179,6 @@ void play_test_sound()
 void ReadControls()
 {
 	int key;
-	fix key_time;
 	static ubyte exploding_flag=0;
 
 	Player_fired_laser_this_frame=-1;

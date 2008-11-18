@@ -4,6 +4,7 @@ D2X-Rebirth Changelog
 --------
 main/console.c: When printing Gamelog, make sure canvas is NULL
 main/newmenu.c, main/multi.c, main/automap.c, main/gamecntl.c, ui/inputbox.c, ui/menubar.c, arch/sdl/event.c, arch/sdl/key.c, arch/include/key.h: Yet another UNICODE overhaul - Using seperate buffer for UNICODE chars and only use it in key_ascii() while still using keysyms for the rest of the program so we do not screw up readings by key values altered by modifers - possibly still room to optimize
+main/gamecntl.c: Fixed cheats!
 
 20081115
 --------
