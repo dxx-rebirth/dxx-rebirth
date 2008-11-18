@@ -1858,6 +1858,8 @@ void HandleDemoKey(int key)
 
 void FinalCheatsKey(int key)
 {
+	if (key == 0) return;
+	
 	if (!(Game_mode&GM_MULTI) && key == cheat_enable_keys[cheat_enable_index]) {
 		if (++cheat_enable_index == CHEAT_ENABLE_LENGTH) {
 			hud_message(MSGC_GAME_CHEAT, TXT_CHEATS_ENABLED);
@@ -2382,7 +2384,6 @@ void do_weapon_stuff()
 void ReadControls()
 {
 	int key;
-	fix key_time;
 
 	Player_fired_laser_this_frame=-1;
 
