@@ -438,7 +438,7 @@ void draw_automap(int flip)
 	gr_set_fontcolor(BM_XRGB(20, 20, 20), -1);
 	gr_printf((SWIDTH/10.666), (SHEIGHT/1.126), TXT_TURN_SHIP);
 	gr_printf((SWIDTH/10.666), (SHEIGHT/1.083), TXT_SLIDE_UPDOWN);
-	gr_printf((SWIDTH/10.666), (SHEIGHT/1.043), TXT_VIEWING_DISTANCE);
+	gr_printf((SWIDTH/10.666), (SHEIGHT/1.043), "F9/F10 Changes viewing distance");
 
 	gr_set_current_canvas(&Automap_view);
 
@@ -664,13 +664,13 @@ void do_automap( int key_code )	{
 				break;
 #endif
 
-			case KEY_MINUS:
+			case KEY_F9:
 				if (SegmentLimit > 1) 		{
 					SegmentLimit--;
 					adjust_segment_limit(SegmentLimit);
 				}
 				break;
-			case KEY_EQUAL:
+			case KEY_F10:
 				if (SegmentLimit < Max_segments_away) 	{
 					SegmentLimit++;
 					adjust_segment_limit(SegmentLimit);
