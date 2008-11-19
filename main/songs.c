@@ -60,8 +60,6 @@ void songs_init()
 	char inputline[80+1];
 	CFILE * fp;
 
-	if ( Songs_initialized ) return;
-
 	fp = cfopen( "descent.sng", "rb" );
 	if ( fp == NULL )	{
 		int i;
@@ -139,6 +137,8 @@ void songs_init()
 	cGameSongsAvailable = i - SONG_LEVEL_MUSIC;
 	Songs_initialized = 1;
 	cfclose(fp);
+	
+	if ( Songs_initialized ) return;
 	
 	//	RBA Hook
 #if !defined(SHAREWARE) || ( defined(SHAREWARE) && defined(APPLE_DEMO) )
@@ -271,7 +271,7 @@ int songs_haved1_cd()
 
 void songs_play_song( int songnum, int repeat )
 {
-	if ( !Songs_initialized ) songs_init();
+	songs_init();
 
 	//stop any music already playing
 	
@@ -298,7 +298,7 @@ void songs_play_level_song( int levelnum )
 
 	Assert( levelnum != 0 );
 
-	if ( !Songs_initialized ) songs_init();
+	songs_init();
 
 	songs_stop_all();
 	
