@@ -1707,7 +1707,7 @@ int ostate_s=0;
 
 void HandleDeathKey(int key)
 {
-	if (Player_exploded && !key_isfunc(key) && !key_ismod(key))
+	if (Player_exploded && !key_isfunc(key) && !key_ismod(key) && key)
 		Death_sequence_aborted  = 1;		//Any key but func or modifier aborts
 
 	if (key==KEY_PRINT_SCREEN) {

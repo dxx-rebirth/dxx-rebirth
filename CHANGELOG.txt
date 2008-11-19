@@ -1,5 +1,9 @@
 D1X-Rebirth Changelog
 
+20081119
+--------
+main/game.c: Actually demand ANY valid key to abort the Death sequence
+
 20081118
 --------
 main/console.c: When printing Gamelog, make sure canvas is NULL
