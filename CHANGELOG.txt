@@ -3,6 +3,7 @@ D2X-Rebirth Changelog
 20081119
 --------
 main/gamecntl.c: Actually demand ANY valid key to abort the Death sequence
+main/songs.c: Do a songs_init() each time a song is played and try to read a new descent.sng - supporting descent.sng files in hog archives
 
 20081118
 --------

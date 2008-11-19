@@ -81,8 +81,6 @@ void songs_init()
 	char inputline[80+1];
 	CFILE * fp;
 
-	if ( Songs_initialized ) return;
-
 	if (cfexist("descent.sng")) {   // mac (demo?) datafiles don't have the .sng file
 		fp = cfopen( "descent.sng", "rb" );
 		if ( fp == NULL )
@@ -107,6 +105,8 @@ void songs_init()
 			Error("Must have at least %d songs",SONG_FIRST_LEVEL_SONG+1);
 		cfclose(fp);
 	}
+
+	if ( Songs_initialized ) return;
 
 	Songs_initialized = 1;
 
@@ -266,8 +266,7 @@ void songs_play_song( int songnum, int repeat )
 	//Assert(songnum != SONG_ENDLEVEL && songnum != SONG_ENDGAME);	//not in full version
 	#endif
 
-	if ( !Songs_initialized )
-		songs_init();
+	songs_init();
 
 	//stop any music already playing
 
@@ -299,8 +298,7 @@ void songs_play_level_song( int levelnum )
 
 	Assert( levelnum != 0 );
 
-	if ( !Songs_initialized )
-		songs_init();
+	songs_init();
 
 	songs_stop_all();
 
