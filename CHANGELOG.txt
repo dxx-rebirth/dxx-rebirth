@@ -1,5 +1,9 @@
 D2X-Rebirth Changelog
 
+20081119
+--------
+main/gamecntl.c: Actually demand ANY valid key to abort the Death sequence
+
 20081118
 --------
 main/console.c: When printing Gamelog, make sure canvas is NULL
