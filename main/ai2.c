@@ -304,6 +304,8 @@ if (size_check)
 							#endif
 							if (*num_segs >= MAX_BOSS_TELEPORT_SEGS) {
 								tail = head;
+								sidenum=MAX_SIDES_PER_SEGMENT;
+								break;
 							}
 						}
 					}
@@ -1996,7 +1998,11 @@ void teleport_boss(object *objp)
 	rand_index = (d_rand() * Num_boss_teleport_segs) >> 15;	
 	rand_segnum = Boss_teleport_segs[rand_index];
 	Assert((rand_segnum >= 0) && (rand_segnum <= Highest_segment_index));
-
+int i;
+printf("LIST_START\n");
+for (i=0; i<Num_boss_teleport_segs;i++)
+printf("%i - index %i\n",Boss_teleport_segs[i],i);
+printf("LIST END\n");
 #ifdef NETWORK
 	if (Game_mode & GM_MULTI)
 		multi_send_boss_actions(objp-Objects, 1, rand_segnum, 0);
