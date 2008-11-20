@@ -3,6 +3,7 @@ D1X-Rebirth Changelog
 20081120
 --------
 main/ai.c: When we reached MAX_BOSS_TELEPORT_SEGS in init_boss_segments, make sure we also escape out of the for-loop - otherwise we still might overflow 
+main/ai.c, main/object.c: Some timer-Failsafe in robot/boss dying frames; Fixed logical flaw in create_small_fireball_on_object() closing out sound effects on robots
 
 20081119
 --------

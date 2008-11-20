@@ -2043,7 +2043,8 @@ void do_boss_dying_frame(object *objp)
         } else if (d_rand() < FrameTime*8)
                 create_small_fireball_on_object(objp, (F1_0/2 + d_rand()) * 8, 1);
 
-	if (Boss_dying_start_time + BOSS_DEATH_DURATION < GameTime) {
+	if (Boss_dying_start_time + BOSS_DEATH_DURATION < GameTime || GameTime+(F1_0*2) < Boss_dying_start_time) {
+		Boss_dying_start_time=GameTime; // make sure following only happens one time!
 		do_controlcen_destroyed_stuff(NULL);
 		explode_object(objp, F1_0/4);
 		digi_link_sound_to_object2(SOUND_BADASS_EXPLOSION, objp-Objects, 0, F2_0, F1_0*512);
