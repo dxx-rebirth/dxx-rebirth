@@ -953,16 +953,18 @@ int read_hamfile()
 	ham_fp = PHYSFSX_openDataFile(DEFAULT_HAMFILE_REGISTERED);
 	
 	if (!ham_fp)
+	{
 		ham_fp = PHYSFSX_openDataFile(DEFAULT_HAMFILE_SHAREWARE);
+		if (ham_fp)
+		{
+			shareware = 1;
+			GameArg.SndDigiSampleRate = SAMPLE_RATE_11K;
+		}
+	}
 
 	if (ham_fp == NULL) {
 		Must_write_hamfile = 1;
 		return 0;
-	}
-	else
-	{
-		shareware = 1;
-		GameArg.SndDigiSampleRate = SAMPLE_RATE_11K;
 	}
 
 	//make sure ham is valid type file & is up-to-date

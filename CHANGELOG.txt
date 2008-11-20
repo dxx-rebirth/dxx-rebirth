@@ -3,6 +3,7 @@ D2X-Rebirth Changelog
 20081120
 --------
 main/ai2.c: When we reached MAX_BOSS_TELEPORT_SEGS in init_boss_segments, make sure we also escape out of the for-loop - otherwise we still might overflow 
+main/piggy.c: Corrected a small logical mistake in Shareware-HAM recognition
 
 20081119
 --------
