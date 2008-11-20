@@ -1953,6 +1953,8 @@ void init_boss_segments(short segptr[], int *num_segs, int size_check)
 							#endif
 							if (*num_segs >= MAX_BOSS_TELEPORT_SEGS) {
 								tail = head;
+								sidenum=MAX_SIDES_PER_SEGMENT;
+								break;
 							}
 						}
 					}
