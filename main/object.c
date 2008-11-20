@@ -657,7 +657,7 @@ void create_small_fireball_on_object(object *objp, fix size_scale, int sound_fla
 			fix	vol = F1_0/2;
 			if (objp->type == OBJ_ROBOT)
 				vol *= 2;
-			else if (sound_flag)
+			if (sound_flag)
 				digi_link_sound_to_object(SOUND_EXPLODING_WALL, objp-Objects, 0, vol);
 		}
 	}

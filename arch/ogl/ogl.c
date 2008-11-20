@@ -827,7 +827,7 @@ bool g3_draw_bitmap(vms_vector *pos,fix width,fix height,grs_bitmap *bm, int ori
 	// Define alpha by looking for object TYPE or ID. We do this here so we have it seperated from the rest of the code.
 	if (PlayerCfg.OglAlphaEffects && // if -gl_transparency draw following bitmaps
 		(obj->type==OBJ_FIREBALL || // all types of explosions and energy-effects
-		(obj->type==OBJ_WEAPON && (obj->id != PROXIMITY_ID && obj->id != SUPERPROX_ID)) || // weapon fire except bombs
+		(obj->type==OBJ_WEAPON && (obj->id != PROXIMITY_ID && obj->id != SUPERPROX_ID && obj->id != ROBOT_SUPERPROX_ID && obj->id != PMINE_ID)) || // weapon fire except bombs
 		obj->id==POW_EXTRA_LIFE || // extra life
 		obj->id==POW_ENERGY || // energy powerup
 		obj->id==POW_SHIELD_BOOST || // shield boost

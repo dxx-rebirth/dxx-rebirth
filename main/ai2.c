@@ -2069,7 +2069,7 @@ int do_robot_dying_frame(object *objp, fix start_time, fix roll_duration, sbyte 
 	} else if (d_rand() < FrameTime*8)
 		create_small_fireball_on_object(objp, (F1_0/2 + d_rand()) * (16 * expl_scale/F1_0)/8, 1);
 
-	if (start_time + roll_duration < GameTime)
+	if (start_time + roll_duration < GameTime || GameTime+(F1_0*2) < start_time)
 		return 1;
 	else
 		return 0;
@@ -2092,6 +2092,7 @@ void do_boss_dying_frame(object *objp)
 	rval = do_robot_dying_frame(objp, Boss_dying_start_time, BOSS_DEATH_DURATION, &Boss_dying_sound_playing, Robot_info[objp->id].deathroll_sound, F1_0*4, F1_0*4);
 
 	if (rval) {
+		Boss_dying_start_time=GameTime; // make sure following only happens one time!
 		do_controlcen_destroyed_stuff(NULL);
 		explode_object(objp, F1_0/4);
 		digi_link_sound_to_object2(SOUND_BADASS_EXPLOSION, objp-Objects, 0, F2_0, F1_0*512);
@@ -2110,6 +2111,7 @@ int do_any_robot_dying_frame(object *objp)
 		rval = do_robot_dying_frame(objp, objp->ctype.ai_info.dying_start_time, min(death_roll/2+1,6)*F1_0, &objp->ctype.ai_info.dying_sound_playing, Robot_info[objp->id].deathroll_sound, death_roll*F1_0/8, death_roll*F1_0/2);
 
 		if (rval) {
+			objp->ctype.ai_info.dying_start_time = GameTime; // make sure following only happens one time!
 			explode_object(objp, F1_0/4);
 			digi_link_sound_to_object2(SOUND_BADASS_EXPLOSION, objp-Objects, 0, F2_0, F1_0*512);
 			if ((Current_level_num < 0) && (Robot_info[objp->id].thief))
