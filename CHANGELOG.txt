@@ -1,5 +1,9 @@
 D2X-Rebirth Changelog
 
+20081122
+--------
+main/kconfig.c: Completly forgot to make mouse axis values static so they can be used in intervals - shame on me!
+
 20081121
 --------
 main/gamecntl.c, main/gauges.c: Do not allow to restore games while player is dead... again - to much trouble right now; Solving small display issue when fading out weapons which ran out of ammo

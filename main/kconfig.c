@@ -1375,7 +1375,7 @@ void controls_read_all()
 {
 	int i;
 	int slide_on, bank_on;
-	int dx, dy, dz;
+	static int dx, dy, dz;
 	fix ctime;
 	fix mouse_axis[3] = {0,0,0};
 	int raw_joy_axis[JOY_MAX_AXES];
