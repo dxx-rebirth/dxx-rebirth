@@ -3,6 +3,7 @@ D2X-Rebirth Changelog
 20081121
 --------
 main/gamecntl.c, main/gauges.c: Do not allow to restore games while player is dead... again - to much trouble right now; Solving small display issue when fading out weapons which ran out of ammo
+main/render.c: Increasing Render_depth to max. if OGL build (we probably should get rid of these variables, but may still be handy for non-3D-accellerated build optimisations)
 
 20081120
 --------

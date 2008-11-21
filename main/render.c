@@ -64,7 +64,11 @@ COPYRIGHT 1993-1999 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 #endif
 
 // (former) "detail level" values
+#ifdef OGL
+int Render_depth = MAX_RENDER_SEGS; //how many segments deep to render
+#else
 int Render_depth = 20; //how many segments deep to render
+#endif
 int Max_perspective_depth = 8; // Deepest segment at which perspective interpolation will be used.
 int Max_linear_depth = 50; // Deepest segment at which linear interpolation will be used.
 int Max_linear_depth_objects = 20;
