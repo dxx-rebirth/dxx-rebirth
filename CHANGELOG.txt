@@ -3,6 +3,7 @@ D1X-Rebirth Changelog
 20081121
 --------
 main/game.c: Do not allow to restore games while player is dead... again - to much trouble right now
+main/render.c: Increasing Render_depth to max. if OGL build (we probably should get rid of these variables, but may still be handy for non-3D-accellerated build optimisations)
 
 20081120
 --------
