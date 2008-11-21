@@ -1122,7 +1122,7 @@ int HandleSystemKey(int key)
 		MAC(case KEY_COMMAND+KEY_O:)
 		MAC(case KEY_COMMAND+KEY_ALTED+KEY_3:)
 		case KEY_ALTED+KEY_F3:
-			if (!((Game_mode & GM_MULTI) && !(Game_mode & GM_MULTI_COOP))) {
+			if (!Player_is_dead && !((Game_mode & GM_MULTI) && !(Game_mode & GM_MULTI_COOP))) {
 				full_palette_save();
 				state_restore_all(1, 0, NULL);
 			}

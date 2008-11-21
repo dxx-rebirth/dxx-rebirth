@@ -2088,6 +2088,14 @@ void draw_weapon_box(int weapon_type,int weapon_num)
 		weapon_box_states[weapon_type] = WS_FADING_OUT;
 		weapon_box_fade_values[weapon_type]=i2f(GR_FADE_LEVELS-1);
 	}
+	
+	if (old_weapon[weapon_type] == -1)
+	{
+		draw_weapon_info(weapon_type,weapon_num,Players[Player_num].laser_level);
+		old_weapon[weapon_type] = weapon_num;
+		old_ammo_count[weapon_type]=-1;
+		weapon_box_states[weapon_type] = WS_SET;
+	}
 		
 	if (weapon_box_states[weapon_type] == WS_FADING_OUT) {
 		draw_weapon_info(weapon_type,old_weapon[weapon_type],old_laser_level);
@@ -2124,7 +2132,8 @@ void draw_weapon_box(int weapon_type,int weapon_num)
 		old_laser_level = Players[Player_num].laser_level;
 	}
 
-	if (weapon_box_states[weapon_type] != WS_SET) {		//fade gauge
+	if (weapon_box_states[weapon_type] != WS_SET)		//fade gauge
+	{
 		int fade_value = f2i(weapon_box_fade_values[weapon_type]);
 		int boxofs = (PlayerCfg.CockpitMode==CM_STATUS_BAR)?SB_PRIMARY_BOX:COCKPIT_PRIMARY_BOX;
 		

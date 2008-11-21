@@ -1,5 +1,9 @@
 D2X-Rebirth Changelog
 
+20081121
+--------
+main/gamecntl.c, main/gauges.c: Do not allow to restore games while player is dead... again - to much trouble right now; Solving small display issue when fading out weapons which ran out of ammo
+
 20081120
 --------
 main/ai2.c: When we reached MAX_BOSS_TELEPORT_SEGS in init_boss_segments, make sure we also escape out of the for-loop - otherwise we still might overflow 
