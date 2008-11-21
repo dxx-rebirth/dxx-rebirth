@@ -2162,7 +2162,7 @@ void HandleGameKey(int key)
 		}
 
 		case KEY_ALTED+KEY_F2:	if (!Player_is_dead) state_save_all( 0 );		break;	// 0 means not between levels.
-		case KEY_ALTED+KEY_F3:	state_restore_all(1);		break;
+		case KEY_ALTED+KEY_F3:	if (!Player_is_dead) state_restore_all(1);		break;
 
 		/*
 		 * Jukebox hotkeys -- MD2211, 2007

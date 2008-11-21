@@ -1,5 +1,9 @@
 D1X-Rebirth Changelog
 
+20081121
+--------
+main/game.c: Do not allow to restore games while player is dead... again - to much trouble right now
+
 20081120
 --------
 main/ai.c: When we reached MAX_BOSS_TELEPORT_SEGS in init_boss_segments, make sure we also escape out of the for-loop - otherwise we still might overflow 
