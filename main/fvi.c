@@ -18,8 +18,6 @@ COPYRIGHT 1993-1998 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
  */
 
 
-#define NEW_FVI_STUFF 1
-
 #include <stdlib.h>
 #include <string.h>
 #include "error.h"
@@ -352,12 +350,6 @@ int check_line_to_line(fix *t1,fix *t2,vms_vector *p1,vms_vector *v1,vms_vector 
 	return 1;		//found point
 }
 
-#ifdef NEW_FVI_STUFF
-int disable_new_fvi_stuff=0;
-#else
-#define disable_new_fvi_stuff 1
-#endif
-
 //this version is for when the start and end positions both poke through
 //the plane of a side.  In this case, we must do checks against the edge
 //of faces
@@ -372,9 +364,6 @@ int special_check_line_to_face(vms_vector *newp,vms_vector *p0,vms_vector *p1,se
 	vms_vector *edge_v0,*edge_v1,edge_vec;
 	struct side *s=&seg->sides[side];
 	vms_vector closest_point_edge,closest_point_move;
-
-	if (disable_new_fvi_stuff)
-		return check_line_to_face(newp,p0,p1,seg,side,facenum,nv,rad);
 
 	//calc some basic stuff
  
@@ -914,14 +903,12 @@ int fvi_sub(vms_vector *intp,int *ints,vms_vector *p0,int startseg,vms_vector *p
 
 					//did we go through this wall/door?
 
-					//#ifdef NEW_FVI_STUFF
 					if (startmask & bit)		//start was also though.  Do extra check
 						face_hit_type = special_check_line_to_face( &hit_point,
 										p0,p1,seg,side,
 										face,
 										((num_faces==1)?4:3),rad);
 					else
-					//#endif
 						//NOTE LINK TO ABOVE!!
 						face_hit_type = check_line_to_face( &hit_point,
 										p0,p1,seg,side,

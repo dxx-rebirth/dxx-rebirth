@@ -1,5 +1,9 @@
 D1X-Rebirth Changelog
 
+20081122
+--------
+main/fvi.c, main/pysics.c: Took out the "disable_new_fvi"-hack. After all we do not need that specific optimisation anymore and also without it we can have more accurate collisions with non-player objects. After playtesting for a while let's just do this.
+
 20081121
 --------
 main/game.c: Do not allow to restore games while player is dead... again - to much trouble right now
