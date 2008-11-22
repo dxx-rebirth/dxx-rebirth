@@ -3,6 +3,7 @@ D2X-Rebirth Changelog
 20081122
 --------
 main/kconfig.c: Completly forgot to make mouse axis values static so they can be used in intervals - shame on me!
+main/fvi.c, main/pysics.c: Took out the "disable_new_fvi"-hack. After all we do not need that specific optimisation anymore and also without it we can have more accurate collisions with non-player objects. After playtesting for a while let's just do this.
 
 20081121
 --------

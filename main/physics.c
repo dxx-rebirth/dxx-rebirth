@@ -208,7 +208,6 @@ int	Dont_move_ai_objects=0;
 
 #define FT (f1_0/64)
 
-extern int disable_new_fvi_stuff;
 //	-----------------------------------------------------------------------------------------------------------
 // add rotational velocity & acceleration
 void do_physics_sim_rot(object *obj)
@@ -352,8 +351,6 @@ void do_physics_sim(object *obj)
 	objnum = obj-Objects;
 
 	n_phys_segs = 0;
-
-	disable_new_fvi_stuff = (obj->type != OBJ_PLAYER);
 
 	/* As this engine was not designed for that high FPS as we intend, we use F1_0/30 max. for sim_time to ensure
 	   scaling and dot products stay accurate and reliable. The object position intended for this frame will be scaled down later,
