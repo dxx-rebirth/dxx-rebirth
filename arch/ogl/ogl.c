@@ -818,6 +818,7 @@ bool g3_draw_bitmap(vms_vector *pos,fix width,fix height,grs_bitmap *bm, int ori
 	OGL_ENABLE(TEXTURE_2D);
 	ogl_bindbmtex(bm);
 	ogl_texwrap(bm->gltexture,GL_CLAMP_TO_EDGE);
+	glDepthMask(GL_FALSE);
 
 	if (Endlevel_sequence)
 		glDepthFunc(GL_ALWAYS);
@@ -833,7 +834,10 @@ bool g3_draw_bitmap(vms_vector *pos,fix width,fix height,grs_bitmap *bm, int ori
 		obj->id==POW_SHIELD_BOOST || // shield boost
 		obj->id==POW_CLOAK || // cloak
 		obj->id==POW_INVULNERABILITY)) // invulnerability
+	{
+		glBlendFunc(GL_SRC_ALPHA,GL_ONE);
 		glColor4f(1.0,1.0,1.0,0.6); // ... with 0.6 alpha
+	}
 	else
 		glColor3f(1.0,1.0,1.0);
 	width = fixmul(width,Matrix_scale.x);	
@@ -864,12 +868,13 @@ bool g3_draw_bitmap(vms_vector *pos,fix width,fix height,grs_bitmap *bm, int ori
 				break;
 		}
 
-		if (obj->id == 5 && obj->type == 1) // create small z-Offset for missile explodihg effect - prevents ugly wall-clipping
+		if (obj->id == 5 && obj->type == 1) // create small z-Offset for missile exploding effect - prevents ugly wall-clipping
 			pv.z -= F1_0;
 
 		glVertex3f(f2glf(pv.x),f2glf(pv.y),-f2glf(pv.z));
 	}
 	glEnd();
+	glDepthMask(GL_TRUE);
 
 	return 0;
 }
