@@ -1524,9 +1524,13 @@ void DoPlayerDead()
 				set_pos_from_return_segment();
 				Players[Player_num].lives--;						//	re-lose the life, Players[Player_num].lives got written over in restore.
 			} else {
-				advancing_to_level_message();
-				StartNewLevel(Entered_from_level+1, 0);
-				init_player_stats_new_ship();	//	New, MK, 05/29/96!, fix bug with dying in secret level, advance to next level, keep powerups!
+				if (Entered_from_level == Last_level)
+					DoEndGame();
+				else {
+					advancing_to_level_message();
+					StartNewLevel(Entered_from_level+1, 0);
+					init_player_stats_new_ship();	//	New, MK, 05/29/96!, fix bug with dying in secret level, advance to next level, keep powerups!
+				}
 			}
 		} else {
 
@@ -1547,9 +1551,13 @@ void DoPlayerDead()
 			Players[Player_num].lives--;						//	re-lose the life, Players[Player_num].lives got written over in restore.
 		} else {
 			died_in_mine_message(); // Give them some indication of what happened
-			advancing_to_level_message();
-			StartNewLevel(Entered_from_level+1, 0);
-			init_player_stats_new_ship();
+			if (Entered_from_level == Last_level)
+				DoEndGame();
+			else {
+				advancing_to_level_message();
+				StartNewLevel(Entered_from_level+1, 0);
+				init_player_stats_new_ship();	//	New, MK, 05/29/96!, fix bug with dying in secret level, advance to next level, keep powerups!
+			}
 		}
 	} else {
 		init_player_stats_new_ship();
