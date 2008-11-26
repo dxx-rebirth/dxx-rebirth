@@ -1,5 +1,9 @@
 D1X-Rebirth Changelog
 
+20081126
+--------
+arch/ogl/ogl.c: Deactivated depth writing fo g3_draw_bitmap() sprites to prevent rendering errors when clipped in some cases
+
 20081122
 --------
 main/fvi.c, main/pysics.c: Took out the "disable_new_fvi"-hack. After all we do not need that specific optimisation anymore and also without it we can have more accurate collisions with non-player objects. After playtesting for a while let's just do this.
