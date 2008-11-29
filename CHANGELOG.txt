@@ -1,5 +1,9 @@
 D2X-Rebirth Changelog
 
+20081129
+--------
+main/state.c: Fixed the Birthday Bug: Correctly re-compute static_light when restoring a game - finally
+
 20081126
 --------
 main/gameseq.c: Fixed logical code flow error when player dies in a secret level entered after base level destroyed which is also the last level
