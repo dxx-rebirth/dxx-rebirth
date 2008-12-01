@@ -1,5 +1,9 @@
 D1X-Rebirth Changelog
 
+20081201
+--------
+main/kconfig.c: Restored vertical_thrust_time behaviour combined with slide_on to be inverted - respecting user's wishes
+
 20081126
 --------
 arch/ogl/ogl.c: Deactivated depth writing fo g3_draw_bitmap() sprites to prevent rendering errors when clipped in some cases
