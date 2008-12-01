@@ -1606,9 +1606,9 @@ void controls_read_all()
 			// From joystick...
 			if ((use_joystick)&&( kc_joystick[13].value < 255 ))	{
 				if ( !kc_joystick[14].value )		// If not inverted...
-					Controls.vertical_thrust_time -= (joy_axis[kc_joystick[13].value]*PlayerCfg.JoystickSensitivityY)/8;
-				else
 					Controls.vertical_thrust_time += (joy_axis[kc_joystick[13].value]*PlayerCfg.JoystickSensitivityY)/8;
+				else
+					Controls.vertical_thrust_time -= (joy_axis[kc_joystick[13].value]*PlayerCfg.JoystickSensitivityY)/8;
 			}
 		
 			// From mouse...

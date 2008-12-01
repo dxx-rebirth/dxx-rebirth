@@ -1,5 +1,9 @@
 D2X-Rebirth Changelog
 
+20081201
+--------
+main/kconfig.c: Restored vertical_thrust_time behaviour combined with slide_on to be inverted - respecting user's wishes
+
 20081129
 --------
 main/state.c: Fixed the Birthday Bug: Correctly re-compute static_light when restoring a game - finally
