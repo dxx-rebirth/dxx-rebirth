@@ -16,11 +16,7 @@ COPYRIGHT 1993-1999 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 
 #include <stdlib.h>
 
-#ifdef MACINTOSH
-extern ubyte virtual_memory_on;
-#endif
-
-#if !defined(NDEBUG) || defined(MACINTOSH)		// mac always gets this stuff.
+#if !defined(NDEBUG)
 
 void mem_display_blocks();
 extern void * mem_malloc( unsigned int size, char * var, char * file, int line, int fill_zero );

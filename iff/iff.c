@@ -573,22 +573,7 @@ int iff_parse_bitmap(PHYSFS_file *ifile, grs_bitmap *bm, int bitmap_type, sbyte 
 
 	copy_iff_to_grs(bm,&bmheader);
 
-#ifndef MACINTOSH
 	if (palette) memcpy(palette,&bmheader.palette,sizeof(bmheader.palette));
-#else
-//	if (palette) memcpy(palette,&bmheader.palette, 768);			// pal_entry is 4 bytes on mac
-	if (palette) {
-		ubyte *c;
-		int i;
-		
-		c = palette;
-		for (i = 0; i < 256; i++) {
-			*c++ = bmheader.palette[i].r;
-			*c++ = bmheader.palette[i].g;
-			*c++ = bmheader.palette[i].b;
-		}
-	}
-#endif
 
 	//Now do post-process if required
 

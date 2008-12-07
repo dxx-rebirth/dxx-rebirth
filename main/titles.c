@@ -83,10 +83,6 @@ int	Briefing_text_colors[MAX_BRIEFING_COLORS];
 int	Current_color = 0;
 int	Erase_color;
 
-#ifdef MACINTOSH
-extern void macintosh_quit(void);
-#endif
-
 // added by Jan Bobrowski for variable-size menu screen
 static int rescale_x(int x)
 {
@@ -98,7 +94,6 @@ static int rescale_y(int y)
 	return y * GHEIGHT / 200;
 }
 
-#ifndef MACINTOSH
 int local_key_inkey(void)
 {
 	int	rval;
@@ -113,40 +108,8 @@ int local_key_inkey(void)
 	else if (mouse_button_state(0))
 		rval = KEY_SPACEBAR;
 
-	#ifdef MACINTOSH
-	if ( rval == KEY_Q+KEY_COMMAND )
-		macintosh_quit();
-	#endif
-
 	return rval;
 }
-#else
-int local_key_inkey(void)
-{
-	EventRecord event;
-	int	rval;
-
-	if (!GetOSEvent(everyEvent, &event))
-		return 0;
-
-	if (event.what != keyDown)
-		return 0;
-
-	rval = (int)((event.message & keyCodeMask) >> 8);
-
-	if (rval == KEY_PRINT_SCREEN) {
-		save_screen_shot(0);
-		return 0;				//say no key pressed
-	}
-
-	#ifdef MACINTOSH
-	if ( rval == KEY_Q+KEY_COMMAND )
-		macintosh_quit();
-	#endif
-
-	return rval;
-}
-#endif
 
 int show_title_screen( char * filename, int allow_keys, int from_hog_only )
 {

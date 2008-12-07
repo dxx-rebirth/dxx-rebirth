@@ -409,8 +409,10 @@ void key_handler(SDL_KeyboardEvent *event, int counter)
 				keycode |= KEY_ALTED;
 			if ( keyd_pressed[KEY_LCTRL] || keyd_pressed[KEY_RCTRL])
 				keycode |= KEY_CTRLED;
-                        if ( keyd_pressed[KEY_DELETE] )
-                                keycode |= KEY_DEBUGGED;
+			if ( keyd_pressed[KEY_DELETE] )
+				keycode |= KEY_DEBUGGED;
+			if ( keyd_pressed[KEY_LMETA] || keyd_pressed[KEY_RMETA])
+					keycode |= KEY_METAED;
 			temp = key_data.keytail+1;
 			if ( temp >= KEY_BUFFER_SIZE ) temp=0;
 			if (temp!=key_data.keyhead)	{

@@ -104,10 +104,6 @@ COPYRIGHT 1993-1999 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 #include "console.h"
 #include "playsave.h"
 
-#ifdef MACINTOSH
-#pragma global_optimizer off        // pretty much sucks...need to look into this
-#endif
-
 void DoJasonInterpolate (fix recorded_time);
 extern int init_hoard_data();
 
@@ -2992,7 +2988,7 @@ void newdemo_start_recording()
 
 	if ((Newdemo_size+100000) <  2000000000) {
 		if (((int)(Newdemo_size)) < 500000) {
-#ifndef MACINTOSH
+#if !(defined(__APPLE__) || defined(macintosh))
 			nm_messagebox(NULL, 1, TXT_OK, TXT_DEMO_NO_SPACE);
 #else
 			nm_messagebox(NULL, 1, TXT_OK, "Not enough space on current\ndrive to start demo recording.");
@@ -3415,8 +3411,4 @@ void DoJasonInterpolate (fix recorded_time)
 	}
 	First_time_playback=0;
 }
-
-#ifdef MACINTOSH
-#pragma global_optimizer reset
-#endif
 

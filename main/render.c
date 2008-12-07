@@ -90,11 +90,7 @@ vms_vector Viewer_eye;  //valid during render
 
 int	N_render_segs;
 
-#ifndef MACINTOSH
 fix Render_zoom = 0x9000;					//the player's zoom factor
-#else
-fix Render_zoom = 0xB000;
-#endif
 
 #ifndef NDEBUG
 ubyte object_rendered[MAX_OBJECTS];
@@ -1532,7 +1528,7 @@ void build_object_lists(int n_segs)
 
 
 			//now call qsort
-		#if defined(__WATCOMC__) || defined(MACINTOSH)
+		#if defined(__WATCOMC__)
 			qsort(sort_list,n_sort_items,sizeof(*sort_list),
 				   sort_func);
 		#else

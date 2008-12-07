@@ -33,7 +33,7 @@ COPYRIGHT 1993-1999 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 #define WIN(x)
 #endif
 
-#ifdef MACINTOSH
+#if defined(__APPLE__) || defined(macintosh)
 #define MAC(x) x
 #else
 #define MAC(x)
@@ -72,8 +72,8 @@ extern int Screen_mode;			// editor screen or game screen?
 // The version number of the game
 extern ubyte Version_major, Version_minor;
 
-#ifdef MACINTOSH
-extern ubyte Version_fix;
+#if defined(__APPLE__) || defined(macintosh)
+extern void macintosh_quit(void);	// dialog-style quit function
 #endif
 
 #endif

@@ -92,12 +92,6 @@ extern rgb player_rgb[];
 // the top of the window.
 void do_cockpit_window_view(int win, object *viewer, int rear_view_flag, int user, char *label);
 
-#ifdef MACINTOSH
-# include "QuickDraw.h"
-# include "RAVE.h"
-void calculate_sub_view_window_bounds(int inSubWindowNum, TQARect* outBoundsRect);
-#endif
-
 #define GAUGE_HUD_NUMMODES 3
 
 typedef struct span {

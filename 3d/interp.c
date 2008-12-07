@@ -148,13 +148,6 @@ void swap_polygon_model_data(ubyte *data)
 				vms_vector_swap(vp(p + 4));
 				vms_vector_swap(vp(p + 16));
 				short_swap(wp(p+28));
-#ifdef MACINTOSH
-				// swap the colors 0 and 255 here!!!!
-				if (w(p+28) == 0)
-					w(p+28) = 255;
-				else if (w(p+28) == 255)
-					w(p+28) = 0;
-#endif
 				for (i=0; i < n; i++)
 					short_swap(wp(p + 30 + (i * 2)));
 				p += 30 + ((n&~1)+1)*2;

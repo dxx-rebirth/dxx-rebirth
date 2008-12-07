@@ -83,9 +83,6 @@ COPYRIGHT 1993-1999 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 #include "playsave.h"
 #include "movie.h"
 #include "scores.h"
-#ifdef MACINTOSH
-#include "songs.h"
-#endif
 
 #include "multi.h"
 #include "desc_id.h"
@@ -184,12 +181,8 @@ void HandleVRKey(int key);
 void advance_sound(void);
 void play_test_sound(void);
 
-#ifdef MACINTOSH
-extern void macintosh_quit(void);	// dialog-style quit function
-#endif
-
 #define key_isfunc(k) (((k&0xff)>=KEY_F1 && (k&0xff)<=KEY_F10) || (k&0xff)==KEY_F11 || (k&0xff)==KEY_F12)
-#define key_ismod(k)  ((k&0xff)==KEY_LALT || (k&0xff)==KEY_RALT || (k&0xff)==KEY_LSHIFT || (k&0xff)==KEY_RSHIFT || (k&0xff)==KEY_LCTRL || (k&0xff)==KEY_RCTRL)
+#define key_ismod(k)  ((k&0xff)==KEY_LALT || (k&0xff)==KEY_RALT || (k&0xff)==KEY_LSHIFT || (k&0xff)==KEY_RSHIFT || (k&0xff)==KEY_LCTRL || (k&0xff)==KEY_RCTRL || (k&0xff)==KEY_LMETA || (k&0xff)==KEY_RMETA)
 
 // Functions ------------------------------------------------------------------
 
@@ -592,21 +585,18 @@ void do_show_netgame_help()
 void HandleEndlevelKey(int key)
 {
 
-	#ifdef MACINTOSH
+#ifdef macintosh
 	if ( key == (KEY_COMMAND + KEY_SHIFTED + KEY_3) )
 		save_screen_shot(0);
-
-	if ( key == KEY_COMMAND+KEY_Q && !(Game_mode & GM_MULTI) )
-		macintosh_quit();
-	#endif
+#endif
 
 	if (key==KEY_PRINT_SCREEN)
 		save_screen_shot(0);
 
-	#ifdef MACINTOSH
+#if defined(__APPLE__) || defined(macintosh)
 	if ( key == (KEY_COMMAND+KEY_P) )
 		key = do_game_pause();
-	#endif
+#endif
 	if (key == KEY_PAUSE)
 		key = do_game_pause();		//so esc from pause will end level
 
@@ -632,27 +622,30 @@ void HandleDeathKey(int key)
 	if (Player_exploded && !key_isfunc(key) && !key_ismod(key) && key)
 		Death_sequence_aborted  = 1;		//Any key but func or modifier aborts
 
-	#ifdef MACINTOSH
+#ifdef macintosh
 	if ( key == (KEY_COMMAND + KEY_SHIFTED + KEY_3) ) {
 //		save_screen_shot(0);
 		Death_sequence_aborted  = 0;		// Clear because code above sets this for any key.
 	}
+#endif
 
-	if ( key == KEY_COMMAND+KEY_Q && !(Game_mode & GM_MULTI) )
-		macintosh_quit();
-	#endif
+#if defined(__APPLE__) || defined(macintosh)
+	if (key == KEY_COMMAND+KEY_Q)
+		//macintosh_quit();
+		Death_sequence_aborted  = 0;		// Clear because code above sets this for any key.
+#endif
 
 	if (key==KEY_PRINT_SCREEN) {
 //		save_screen_shot(0);
 		Death_sequence_aborted  = 0;		// Clear because code above sets this for any key.
 	}
 
-	#ifdef MACINTOSH
+#if defined(__APPLE__) || defined(macintosh)
 	if ( key == (KEY_COMMAND+KEY_P) ) {
 //		key = do_game_pause();
 		Death_sequence_aborted  = 0;		// Clear because code above sets this for any key.
 	}
-	#endif
+#endif
 
 	if (key == KEY_PAUSE)   {
 //		key = do_game_pause();		//so esc from pause will end level
@@ -681,14 +674,17 @@ void HandleDeathKey(int key)
 void HandleDemoKey(int key)
 {
 	switch (key) {
+		MAC(case KEY_COMMAND+KEY_1:)
 		case KEY_F1:	show_newdemo_help();	break;
 		MAC(case KEY_COMMAND+KEY_2:)
 		case KEY_F2:		Config_menu_flag = 1; break;
+		MAC(case KEY_COMMAND+KEY_3:)
 		case KEY_F3:
 				
 			 if (!Newdemo_flying_guided)
 				toggle_cockpit();
 			 break;
+		MAC(case KEY_COMMAND+KEY_4:)
 		case KEY_F4:	Newdemo_show_percentage = !Newdemo_show_percentage; break;
 		MAC(case KEY_COMMAND+KEY_7:)
 		case KEY_F7:
@@ -725,7 +721,9 @@ void HandleDemoKey(int key)
 			do_game_pause();
 			break;
 
-		MAC(case KEY_COMMAND + KEY_SHIFTED + KEY_3:)
+#ifdef macintosh
+		case KEY_COMMAND + KEY_SHIFTED + KEY_3:
+#endif
 		case KEY_PRINT_SCREEN:
 		{
 			if (PlayerCfg.PRShot)
@@ -752,13 +750,6 @@ void HandleDemoKey(int key)
 		case KEY_ALTED+KEY_PADENTER:
 			gr_toggle_fullscreen();
 			break;
-
-		#ifdef MACINTOSH
-		case KEY_COMMAND+KEY_Q:
-			if ( !(Game_mode & GM_MULTI) )
-				macintosh_quit();
-			break;
-		#endif
 
 		#ifndef NDEBUG
 		case KEY_BACKSP:
@@ -984,7 +975,9 @@ int HandleSystemKey(int key)
 			do_game_pause();				break;
 
 
-		MAC(case KEY_COMMAND + KEY_SHIFTED + KEY_3:)
+#ifdef macintosh
+		case KEY_COMMAND + KEY_SHIFTED + KEY_3:
+#endif
 		case KEY_PRINT_SCREEN:
 		{
 			if (PlayerCfg.PRShot)
@@ -1061,7 +1054,7 @@ int HandleSystemKey(int key)
 			#endif
 			break;		// send taunt macros
 
-		#ifdef MACINTOSH
+#if defined(__APPLE__) || defined(macintosh)
 		case KEY_9 + KEY_COMMAND:
 			multi_send_macro(KEY_F9);
 			break;
@@ -1074,7 +1067,7 @@ int HandleSystemKey(int key)
 		case KEY_2 + KEY_COMMAND + KEY_CTRLED:
 			multi_send_macro(KEY_F12);
 			break;
-		#endif
+#endif
 
 		case KEY_SHIFTED + KEY_F9:
 		case KEY_SHIFTED + KEY_F10:
@@ -1085,7 +1078,7 @@ int HandleSystemKey(int key)
 			#endif
 			break;		// redefine taunt macros
 
-		#ifdef MACINTOSH
+#if defined(__APPLE__) || defined(macintosh)
 		case KEY_9 + KEY_SHIFTED + KEY_COMMAND:
 			multi_define_macro(KEY_F9);
 			break;
@@ -1098,8 +1091,7 @@ int HandleSystemKey(int key)
 		case KEY_2 + KEY_SHIFTED + KEY_COMMAND + KEY_CTRLED:
 			multi_define_macro(KEY_F12);
 			break;
-		#endif
-
+#endif
 
 		MAC(case KEY_COMMAND+KEY_S:)
 		MAC(case KEY_COMMAND+KEY_ALTED+KEY_2:)
@@ -1177,10 +1169,9 @@ int HandleSystemKey(int key)
 			songs_goto_next_song();
 			break;
 			
-#ifdef MACINTOSH
+#if defined(__APPLE__) || defined(macintosh)
 		case KEY_COMMAND+KEY_Q:
-			if ( !(Game_mode & GM_MULTI) )
-				macintosh_quit();
+			macintosh_quit();
 			break;
 #endif
 		default:
@@ -1282,7 +1273,7 @@ void HandleGameKey(int key)
 {
 	switch (key) {
 
-		#if defined(MACINTOSH)  && !defined(RELEASE)
+		#if (defined(__APPLE__) || defined(macintosh))  && !defined(RELEASE)
 		case KEY_COMMAND+KEY_F:	GameArg.SysFPSIndicator = !GameArg.SysFPSIndicator; break;
 		#endif
 #ifndef D2X_KEYS // weapon selection handled in controls_read_all, d1x-style
@@ -1344,6 +1335,7 @@ void HandleGameKey(int key)
 			}
 
 		case KEY_ALTED+KEY_F7:
+		MAC(case KEY_COMMAND+KEY_ALTED+KEY_7:)
 			PlayerCfg.HudMode=(PlayerCfg.HudMode+1)%GAUGE_HUD_NUMMODES;
 			write_player_file();
 			break;

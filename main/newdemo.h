@@ -31,11 +31,7 @@ COPYRIGHT 1993-1999 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 #define ND_STATE_ONEFRAMEFORWARD    6
 #define ND_STATE_ONEFRAMEBACKWARD   7
 
-#ifndef MACINTOSH
 #define DEMO_DIR                "demos/"
-#else
-#define DEMO_DIR                ":Demos:"
-#endif
 
 // Gives state of recorder
 extern int Newdemo_state;

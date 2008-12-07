@@ -155,22 +155,10 @@ int pcx_read_bitmap( char * filename, grs_bitmap * bmp,int bitmap_type ,ubyte * 
 						cfclose( PCXfile );
 						return PCX_ERROR_READING;
 					}
-#ifdef MACINTOSH
-					if (data == 0)
-						data = 255;
-					else if (data == 255)
-						data = 0;
-#endif
 					memset( pixdata, data, count );
 					pixdata += count;
 					col += count;
 				} else {
-#ifdef MACINTOSH
-					if (data == 0)
-						data = 255;
-					else if (data == 255)
-						data = 0;
-#endif
 					*pixdata++ = data;
 					col++;
 				}
@@ -211,13 +199,6 @@ int pcx_read_bitmap( char * filename, grs_bitmap * bmp,int bitmap_type ,ubyte * 
 				}
 				for (i=0; i<768; i++ )
 					palette[i] >>= 2;
-#ifdef MACINTOSH
-				for (i = 0; i < 3; i++) {
-					data = palette[i];
-					palette[i] = palette[765+i];
-					palette[765+i] = data;
-				}
-#endif
 			}
 		} else {
 			cfclose( PCXfile );

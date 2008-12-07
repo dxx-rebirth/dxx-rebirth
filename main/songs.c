@@ -45,9 +45,7 @@ COPYRIGHT 1993-1999 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 song_info Songs[MAX_NUM_SONGS];
 int Songs_initialized = 0;
 
-#ifndef MACINTOSH
 int Num_songs;
-#endif
 
 extern void digi_stop_current_song();
 
@@ -58,18 +56,12 @@ static int Redbook_playing = 0;
 
 extern int CD_blast_mixer();
 
-#ifndef MACINTOSH
 #define REDBOOK_VOLUME_SCALE  (255/3)		//255 is MAX
-#else
-#define REDBOOK_VOLUME_SCALE	(255)
-#endif
 
 //takes volume in range 0..8
 void set_redbook_volume(int volume)
 {
-	#ifndef MACINTOSH
-	RBASetVolume(0);		// makes the macs sound really funny
-	#endif
+	RBASetVolume(0);
 	RBASetVolume(volume*REDBOOK_VOLUME_SCALE/8);
 }
 
@@ -280,12 +272,7 @@ void songs_play_song( int songnum, int repeat )
 		play_redbook_track(REDBOOK_CREDITS_TRACK,0);
 
 	if (!Redbook_playing) {		//not playing redbook, so play midi
-
-		#ifndef MACINTOSH
-			digi_play_midi_song( Songs[songnum].filename, Songs[songnum].melodic_bank_file, Songs[songnum].drum_bank_file, repeat );
-		#else
-			digi_play_midi_song(songnum, repeat);
-		#endif
+		digi_play_midi_song( Songs[songnum].filename, Songs[songnum].melodic_bank_file, Songs[songnum].drum_bank_file, repeat );
 	}
 }
 

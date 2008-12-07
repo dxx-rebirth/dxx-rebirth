@@ -24,16 +24,16 @@ COPYRIGHT 1993-1999 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 #include "pstypes.h"
 #include "fix.h"
 
-#if defined(MACINTOSH) || defined(MACDATA)
+#if defined(MACDATA)
 #error native mac data currently not supported
 #define SWAP_0_255              // swap black and white
 #define TRANSPARENCY_COLOR  0   // palette entry of transparency color -- 0 on the mac
 #define TRANSPARENCY_COLOR_STR  "0"
-#else /* defined(MACINTOSH) || defined(MACDATA) */
+#else /* defined(MACDATA) */
 /* #undef  SWAP_0_255 */        // no swapping for PC people
 #define TRANSPARENCY_COLOR  255 // palette entry of transparency color -- 255 on the PC
 #define TRANSPARENCY_COLOR_STR  "255"
-#endif /* defined(MACINTOSH) || defined(MACDATA) */
+#endif /* defined(MACDATA) */
 
 #define GR_FADE_LEVELS 34
 #define GR_ACTUAL_FADE_LEVELS 32
@@ -107,11 +107,7 @@ typedef struct _grs_bitmap {
 #endif /* def OGL */
 } grs_bitmap;
 
-#ifndef MACINTOSH
 #define SCRNS_DIR "screenshots/"
-#else
-#define SCRNS_DIR ":Screenshots:"
-#endif
 
 //font structure
 typedef struct _grs_font {

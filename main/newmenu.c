@@ -1055,15 +1055,14 @@ int newmenu_do4( char * title, char * subtitle, int nitems, newmenu_item * item,
 			}
 			break;
 
-		MAC(case KEY_COMMAND+KEY_SHIFTED+KEY_3:)
+#ifdef macintosh
+		case KEY_COMMAND+KEY_SHIFTED+KEY_3:
+#endif
 		case KEY_PRINT_SCREEN:
-			MAC(newmenu_hide_cursor());
 			save_screen_shot(0);
-			MAC(newmenu_show_cursor());
-			MAC(key_flush());
 			break;
 
-		#ifndef NDEBUG
+#ifndef NDEBUG
 		case KEY_BACKSP:	
 			if ( (choice>-1) && (item[choice].type!=NM_TYPE_INPUT)&&(item[choice].type!=NM_TYPE_INPUT_MENU))
 				Int3(); 
@@ -1655,11 +1654,7 @@ ReadFileNames:
 	if ( !player_mode )	{
 		newmenu_file_sort( NumFiles, filenames );
 	} else {
-		#if defined(MACINTOSH) && defined(APPLE_DEMO)
-		newmenu_file_sort( NumFiles, filenames );
-		#else
 		newmenu_file_sort( NumFiles-1, &filenames[(FILENAME_LEN+1)] );		// Don't sort first one!
-		#endif
 		for ( i=0; i<NumFiles; i++ )	{
 			if (!stricmp(Players[Player_num].callsign, &filenames[i*(FILENAME_LEN+1)]) )	{
 #ifdef NEWMENU_MOUSE
@@ -1704,20 +1699,14 @@ ReadFileNames:
 		key = key_inkey();
 
 		switch(key)	{
-		MAC(case KEY_COMMAND+KEY_SHIFTED+KEY_3:)
+#ifdef macintosh
+		case KEY_COMMAND+KEY_SHIFTED+KEY_3:
+#endif
 		case KEY_PRINT_SCREEN:
-			MAC(newmenu_hide_cursor());
 			save_screen_shot(0);
-			
-			MAC(newmenu_show_cursor());
-			MAC(key_flush());
 			break;
 
 		case KEY_CTRLED+KEY_D:
-			#if defined(MACINTOSH) && defined(APPLE_DEMO)
-			break;
-			#endif
-
 			if ( ((player_mode)&&(citem>0)) || ((demo_mode)&&(citem>=0)) )	{
 				int x = 1;
 				newmenu_hide_cursor();
@@ -1802,7 +1791,7 @@ ReadFileNames:
 		case KEY_ALTED+KEY_PADENTER:
 			gr_toggle_fullscreen();
 			break;
-		
+			
 		default:	
 			{
 				int ascii = key_ascii();
@@ -1926,7 +1915,6 @@ ReadFileNames:
 #endif
 
 ExitFileMenuEarly:
-	MAC(newmenu_hide_cursor());
 	if ( citem > -1 )	{
 		strncpy( filename, (&filenames[citem*(FILENAME_LEN+1)])+((player_mode && filenames[citem*(FILENAME_LEN+1)]=='$')?1:0), FILENAME_LEN );
 		exit_value = 1;
@@ -2056,13 +2044,11 @@ int newmenu_listbox1( char * title, int nitems, char * items[], int allow_abort_
 		}
 
 		switch(key)	{
-		MAC(case KEY_COMMAND+KEY_SHIFTED+KEY_3:)
+#ifdef macintosh
+		case KEY_COMMAND+KEY_SHIFTED+KEY_3:
+#endif
 		case KEY_PRINT_SCREEN: 		
-			MAC(newmenu_hide_cursor());
 			save_screen_shot(0); 
-			
-			MAC(newmenu_show_cursor());
-			MAC(key_flush());
 			break;
 		case KEY_HOME:
 		case KEY_PAD7:

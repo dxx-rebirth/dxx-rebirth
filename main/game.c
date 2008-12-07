@@ -586,84 +586,6 @@ void move_player_2_segment(segment *seg,int side)
 void do_photos();
 void level_with_floor();
 
-// mac routine to drop contents of screen to a pict file using copybits
-// save a PICT to a file
-#ifdef MACINTOSH
-
-void SavePictScreen(int multiplayer)
-{
-	OSErr err;
-	int parid, i, count;
-	char *pfilename, filename[50], buf[512], cwd[FILENAME_MAX];
-	short fd;
-	FSSpec spec;
-	PicHandle pict_handle;
-	static int multi_count = 0;
-	StandardFileReply sf_reply;
-	
-// dump the contents of the GameWindow into a picture using copybits
-
-	pict_handle = OpenPicture(&GameWindow->portRect);
-	if (pict_handle == NULL)
-		return;
-		
-	CopyBits(&GameWindow->portBits, &GameWindow->portBits, &GameWindow->portRect, &GameWindow->portRect, srcBic, NULL);
-	ClosePicture();
-
-// get the cwd to restore with chdir when done -- this keeps the mac world sane
-	if (!getcwd(cwd, FILENAME_MAX))
-		Int3();
-// create the fsspec
-
-	sprintf(filename, "screen%d", multi_count++);
-	pfilename = c2pstr(filename);
-	if (!multiplayer) {
-		show_cursor();
-		StandardPutFile("\pSave PICT as:", pfilename, &sf_reply);
-		if (!sf_reply.sfGood)
-			goto end;
-		memcpy( &spec, &(sf_reply.sfFile), sizeof(FSSpec) );
-		if (sf_reply.sfReplacing)
-			FSpDelete(&spec);
-		err = FSpCreate( &spec, 'ttxt', 'PICT', smSystemScript );
-		if (err)
-			goto end;
-	} else {
-//		parid = GetAppDirId();
-		err = FSMakeFSSpec(0, 0, pfilename, &spec);
-		if (err == nsvErr)
-			goto end;
-		if (err != fnfErr)
-			FSpDelete(&spec);
-		err = FSpCreate(&spec, 'ttxt', 'PICT', smSystemScript);
-		if (err != 0)
-			goto end;
-	}
-
-// write the PICT file
-	if ( FSpOpenDF(&spec, fsRdWrPerm, &fd) )
-		goto end;
-	memset(buf, 0, sizeof(buf));
-	count = 512;
-	if ( FSWrite(fd, &count, buf) )
-		goto end;
-	count = GetHandleSize((Handle)pict_handle);
-	HLock((Handle)pict_handle);
-	if ( FSWrite(fd, &count, *pict_handle) ) {
-		FSClose(fd);
-		FSpDelete(&spec);
-	}
-
-end:
-	HUnlock((Handle)pict_handle);
-	DisposeHandle((Handle)pict_handle);
-	FSClose(fd);
-	hide_cursor();
-	chdir(cwd);
-}
-
-#endif
-
 #ifndef OGL
 void save_screen_shot(int automap_flag)
 {
@@ -1031,17 +953,25 @@ extern int newmenu_dotiny2( char * title, char * subtitle, int nitems, newmenu_i
 void show_help()
 {
 	int nitems = 0;
-	newmenu_item m[31];
+	newmenu_item m[33];
 
 	m[nitems].type = NM_TYPE_TEXT; m[nitems++].text = TXT_HELP_ESC;
 	m[nitems].type = NM_TYPE_TEXT; m[nitems++].text = "SHIFT-ESC\t  SHOW GAME LOG";
 	m[nitems].type = NM_TYPE_TEXT; m[nitems++].text = TXT_HELP_F2;
+#if !(defined(__APPLE__) || defined(macintosh))
 	m[nitems].type = NM_TYPE_TEXT; m[nitems++].text = "Alt-F2/F3\t  SAVE/LOAD GAME";
+#else
+	m[nitems].type = NM_TYPE_TEXT; m[nitems++].text = "Alt-F2/F3 (\x85-s/o)\t  SAVE/LOAD GAME";
+#endif
 	m[nitems].type = NM_TYPE_TEXT; m[nitems++].text = "F3\t  SWITCH COCKPIT MODES";
 	m[nitems].type = NM_TYPE_TEXT; m[nitems++].text = TXT_HELP_F4;
 	m[nitems].type = NM_TYPE_TEXT; m[nitems++].text = TXT_HELP_F5;
 	m[nitems].type = NM_TYPE_TEXT; m[nitems++].text = "ALT-F7\t  SWITCH HUD MODES";
+#if !(defined(__APPLE__) || defined(macintosh))
 	m[nitems].type = NM_TYPE_TEXT; m[nitems++].text = TXT_HELP_PAUSE;
+#else
+	m[nitems].type = NM_TYPE_TEXT; m[nitems++].text = "Pause (\x85-P)\t  Pause";
+#endif
 	m[nitems].type = NM_TYPE_TEXT; m[nitems++].text = TXT_HELP_PRTSCN;
 	m[nitems].type = NM_TYPE_TEXT; m[nitems++].text = TXT_HELP_1TO5;
 	m[nitems].type = NM_TYPE_TEXT; m[nitems++].text = TXT_HELP_6TO10;
@@ -1050,9 +980,15 @@ void show_help()
 	m[nitems].type = NM_TYPE_TEXT; m[nitems++].text = "Alt-Shift-F4\t  Rename GuideBot";
 	m[nitems].type = NM_TYPE_TEXT; m[nitems++].text = "Shift-F5/F6\t  Drop primary/secondary";
 	m[nitems].type = NM_TYPE_TEXT; m[nitems++].text = "Shift-number\t  GuideBot commands";
+#if !(defined(__APPLE__) || defined(macintosh))
 	m[nitems].type = NM_TYPE_TEXT; m[nitems++].text = "Alt-Shift-F9\t  Eject Audio CD";
 	m[nitems].type = NM_TYPE_TEXT; m[nitems++].text = "Alt-Shift-F10\t  Play/Pause " EXT_MUSIC_TEXT;
 	m[nitems].type = NM_TYPE_TEXT; m[nitems++].text = "Alt-Shift-F11/F12\t  Previous/Next Song";
+#else
+	m[nitems].type = NM_TYPE_TEXT; m[nitems++].text = "\x85-E\t  Eject Audio CD";
+	m[nitems].type = NM_TYPE_TEXT; m[nitems++].text = "\x85-Up/Down\t  Play/Pause " EXT_MUSIC_TEXT;
+	m[nitems].type = NM_TYPE_TEXT; m[nitems++].text = "\x85-Left/Right\t  Previous/Next Song";
+#endif
 	m[nitems].type = NM_TYPE_TEXT; m[nitems++].text = "";
 	m[nitems].type = NM_TYPE_TEXT; m[nitems++].text = "MULTIPLAYER:";
 	m[nitems].type = NM_TYPE_TEXT; m[nitems++].text = "ALT-0\t  DROP FLAG";
@@ -1061,6 +997,10 @@ void show_help()
 	m[nitems].type = NM_TYPE_TEXT; m[nitems++].text = "F8\t  SEND MESSAGE";
 	m[nitems].type = NM_TYPE_TEXT; m[nitems++].text = "(SHIFT-)F8 to F12\t  (DEFINE)SEND MACRO";
 	m[nitems].type = NM_TYPE_TEXT; m[nitems++].text = "PAUSE\t  SHOW NETGAME INFORMATION";
+#if (defined(__APPLE__) || defined(macintosh))
+	m[nitems].type = NM_TYPE_TEXT; m[nitems++].text = "";
+	m[nitems].type = NM_TYPE_TEXT; m[nitems++].text = "(Use \x85-# for F#. e.g. \x85-1 for F1)";
+#endif
 
 	full_palette_save();
 
@@ -1071,7 +1011,7 @@ void show_help()
 
 void show_newdemo_help()
 {
-	newmenu_item m[12];
+	newmenu_item m[14];
 	int mc = 0;
 
 	m[mc].type = NM_TYPE_TEXT; m[mc].text = "ESC\t  QUIT DEMO PLAYBACK"; mc++;
@@ -1086,6 +1026,10 @@ void show_newdemo_help()
 	m[mc].type = NM_TYPE_TEXT; m[mc].text = "SHIFT-LEFT\t  FAST BACKWARD"; mc++;
 	m[mc].type = NM_TYPE_TEXT; m[mc].text = "CTRL-RIGHT\t  JUMP TO END"; mc++;
 	m[mc].type = NM_TYPE_TEXT; m[mc].text = "CTRL-LEFT\t  JUMP TO START"; mc++;
+#if (defined(__APPLE__) || defined(macintosh))
+	m[mc].type = NM_TYPE_TEXT; m[mc].text = ""; mc++;
+	m[mc].type = NM_TYPE_TEXT; m[mc].text = "(Use \x85-# for F#. e.g. \x85-1 for F1)"; mc++;
+#endif
 	full_palette_save();
 	newmenu_dotiny2( NULL, "DEMO PLAYBACK CONTROLS", mc, m, NULL );
 	palette_restore();

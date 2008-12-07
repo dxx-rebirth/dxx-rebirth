@@ -41,7 +41,6 @@
 		676AC1CA0668A938007173EB /* u_dpmi.h in Headers */ = {isa = PBXBuildFile; fileRef = 6791CF090668878F00056A5A /* u_dpmi.h */; };
 		676AC1CB0668A938007173EB /* cfile.h in Headers */ = {isa = PBXBuildFile; fileRef = 6791CF20066887CE00056A5A /* cfile.h */; };
 		676AC1CC0668A938007173EB /* makesig.h in Headers */ = {isa = PBXBuildFile; fileRef = 6791CF2D066887E500056A5A /* makesig.h */; };
-		676AC1CD0668A938007173EB /* ibitblt.h in Headers */ = {isa = PBXBuildFile; fileRef = 6791CF35066887FE00056A5A /* ibitblt.h */; };
 		676AC1CE0668A938007173EB /* fix.h in Headers */ = {isa = PBXBuildFile; fileRef = 6791CF420668881F00056A5A /* fix.h */; };
 		676AC1CF0668A938007173EB /* palette.h in Headers */ = {isa = PBXBuildFile; fileRef = 6791CF4E0668883900056A5A /* palette.h */; };
 		676AC1D00668A938007173EB /* pcx.h in Headers */ = {isa = PBXBuildFile; fileRef = 6791CF620668885500056A5A /* pcx.h */; };
@@ -74,7 +73,6 @@
 		676AC1F20668A938007173EB /* disc.c in Sources */ = {isa = PBXBuildFile; fileRef = 67B44141066878B300DF26D8 /* disc.c */; };
 		676AC1F30668A938007173EB /* font.c in Sources */ = {isa = PBXBuildFile; fileRef = 67B44142066878B300DF26D8 /* font.c */; };
 		676AC1F40668A938007173EB /* gpixel.c in Sources */ = {isa = PBXBuildFile; fileRef = 67B44143066878B300DF26D8 /* gpixel.c */; };
-		676AC1F50668A938007173EB /* ibitblt.c in Sources */ = {isa = PBXBuildFile; fileRef = 67B44144066878B300DF26D8 /* ibitblt.c */; };
 		676AC1F60668A938007173EB /* line.c in Sources */ = {isa = PBXBuildFile; fileRef = 67B44145066878B300DF26D8 /* line.c */; };
 		676AC1F70668A938007173EB /* palette.c in Sources */ = {isa = PBXBuildFile; fileRef = 67B44148066878B300DF26D8 /* palette.c */; };
 		676AC1F80668A938007173EB /* pcx.c in Sources */ = {isa = PBXBuildFile; fileRef = 67B44149066878B300DF26D8 /* pcx.c */; };
@@ -199,7 +197,6 @@
 		676AC2810668A939007173EB /* gr.h in Headers */ = {isa = PBXBuildFile; fileRef = 67B44914066880C400DF26D8 /* gr.h */; };
 		676AC2820668A939007173EB /* grdef.h in Headers */ = {isa = PBXBuildFile; fileRef = 67B44915066880C400DF26D8 /* grdef.h */; };
 		676AC2830668A939007173EB /* hash.h in Headers */ = {isa = PBXBuildFile; fileRef = 6791D12906688EB500056A5A /* hash.h */; };
-		676AC2840668A939007173EB /* ibitblt.h in Headers */ = {isa = PBXBuildFile; fileRef = 6791CF35066887FE00056A5A /* ibitblt.h */; };
 		676AC2850668A939007173EB /* iff.h in Headers */ = {isa = PBXBuildFile; fileRef = 6791D0BD06688AE800056A5A /* iff.h */; };
 		676AC2860668A939007173EB /* interp.h in Headers */ = {isa = PBXBuildFile; fileRef = 6791CFC50668893B00056A5A /* interp.h */; };
 		676AC2870668A939007173EB /* libmve.h in Headers */ = {isa = PBXBuildFile; fileRef = 6791D0D106688B1100056A5A /* libmve.h */; };
@@ -228,7 +225,6 @@
 		676AC2A20668A939007173EB /* disc.c in Sources */ = {isa = PBXBuildFile; fileRef = 67B44141066878B300DF26D8 /* disc.c */; };
 		676AC2A30668A939007173EB /* font.c in Sources */ = {isa = PBXBuildFile; fileRef = 67B44142066878B300DF26D8 /* font.c */; };
 		676AC2A40668A939007173EB /* gpixel.c in Sources */ = {isa = PBXBuildFile; fileRef = 67B44143066878B300DF26D8 /* gpixel.c */; };
-		676AC2A50668A939007173EB /* ibitblt.c in Sources */ = {isa = PBXBuildFile; fileRef = 67B44144066878B300DF26D8 /* ibitblt.c */; };
 		676AC2A60668A939007173EB /* line.c in Sources */ = {isa = PBXBuildFile; fileRef = 67B44145066878B300DF26D8 /* line.c */; };
 		676AC2A70668A939007173EB /* palette.c in Sources */ = {isa = PBXBuildFile; fileRef = 67B44148066878B300DF26D8 /* palette.c */; };
 		676AC2A80668A939007173EB /* pcx.c in Sources */ = {isa = PBXBuildFile; fileRef = 67B44149066878B300DF26D8 /* pcx.c */; };
@@ -342,6 +338,8 @@
 		67F6FED3066B13B400443922 /* SDLMain.m in Sources */ = {isa = PBXBuildFile; fileRef = 67F6FED1066B13B400443922 /* SDLMain.m */; };
 		67F6FED4066B13B400443922 /* SDLMain.h in Headers */ = {isa = PBXBuildFile; fileRef = 67F6FED0066B13B400443922 /* SDLMain.h */; };
 		67F6FED5066B13B400443922 /* SDLMain.m in Sources */ = {isa = PBXBuildFile; fileRef = 67F6FED1066B13B400443922 /* SDLMain.m */; };
+		EB28D9A30ECEAF1C00E68E9B /* init.c in Sources */ = {isa = PBXBuildFile; fileRef = EB28D9A20ECEAF1C00E68E9B /* init.c */; };
+		EB28D9A40ECEAF1C00E68E9B /* init.c in Sources */ = {isa = PBXBuildFile; fileRef = EB28D9A20ECEAF1C00E68E9B /* init.c */; };
 		EB380D360E16886300EBD9AD /* InfoPlist.strings in Resources */ = {isa = PBXBuildFile; fileRef = 089C165CFE840E0CC02AAC07 /* InfoPlist.strings */; };
 		EB92BE600CDD693C0045A32C /* digi_audio.c in Sources */ = {isa = PBXBuildFile; fileRef = EB92BE5C0CDD693C0045A32C /* digi_audio.c */; };
 		EB92BE610CDD693C0045A32C /* digi_mixer_music.c in Sources */ = {isa = PBXBuildFile; fileRef = EB92BE5D0CDD693C0045A32C /* digi_mixer_music.c */; };
@@ -422,7 +420,6 @@
 		6791CF090668878F00056A5A /* u_dpmi.h */ = {isa = PBXFileReference; fileEncoding = 30; lastKnownFileType = sourcecode.c.h; path = u_dpmi.h; sourceTree = "<group>"; };
 		6791CF20066887CE00056A5A /* cfile.h */ = {isa = PBXFileReference; fileEncoding = 30; lastKnownFileType = sourcecode.c.h; path = cfile.h; sourceTree = "<group>"; };
 		6791CF2D066887E500056A5A /* makesig.h */ = {isa = PBXFileReference; fileEncoding = 30; lastKnownFileType = sourcecode.c.h; path = makesig.h; sourceTree = "<group>"; };
-		6791CF35066887FE00056A5A /* ibitblt.h */ = {isa = PBXFileReference; fileEncoding = 30; lastKnownFileType = sourcecode.c.h; path = ibitblt.h; sourceTree = "<group>"; };
 		6791CF420668881F00056A5A /* fix.h */ = {isa = PBXFileReference; fileEncoding = 30; lastKnownFileType = sourcecode.c.h; path = fix.h; sourceTree = "<group>"; };
 		6791CF4E0668883900056A5A /* palette.h */ = {isa = PBXFileReference; fileEncoding = 30; lastKnownFileType = sourcecode.c.h; path = palette.h; sourceTree = "<group>"; };
 		6791CF620668885500056A5A /* pcx.h */ = {isa = PBXFileReference; fileEncoding = 30; lastKnownFileType = sourcecode.c.h; path = pcx.h; sourceTree = "<group>"; };
@@ -454,7 +451,6 @@
 		67B44141066878B300DF26D8 /* disc.c */ = {isa = PBXFileReference; fileEncoding = 30; lastKnownFileType = sourcecode.c.c; path = disc.c; sourceTree = "<group>"; };
 		67B44142066878B300DF26D8 /* font.c */ = {isa = PBXFileReference; fileEncoding = 30; lastKnownFileType = sourcecode.c.c; path = font.c; sourceTree = "<group>"; };
 		67B44143066878B300DF26D8 /* gpixel.c */ = {isa = PBXFileReference; fileEncoding = 30; lastKnownFileType = sourcecode.c.c; path = gpixel.c; sourceTree = "<group>"; };
-		67B44144066878B300DF26D8 /* ibitblt.c */ = {isa = PBXFileReference; fileEncoding = 30; lastKnownFileType = sourcecode.c.c; path = ibitblt.c; sourceTree = "<group>"; };
 		67B44145066878B300DF26D8 /* line.c */ = {isa = PBXFileReference; fileEncoding = 30; lastKnownFileType = sourcecode.c.c; path = line.c; sourceTree = "<group>"; };
 		67B44148066878B300DF26D8 /* palette.c */ = {isa = PBXFileReference; fileEncoding = 30; lastKnownFileType = sourcecode.c.c; path = palette.c; sourceTree = "<group>"; };
 		67B44149066878B300DF26D8 /* pcx.c */ = {isa = PBXFileReference; fileEncoding = 30; lastKnownFileType = sourcecode.c.c; path = pcx.c; sourceTree = "<group>"; };
@@ -644,6 +640,7 @@
 		EB0421040A341042002CC961 /* ai.h */ = {isa = PBXFileReference; fileEncoding = 30; lastKnownFileType = sourcecode.c.h; path = ai.h; sourceTree = "<group>"; };
 		EB0421050A341042002CC961 /* controls.h */ = {isa = PBXFileReference; fileEncoding = 30; lastKnownFileType = sourcecode.c.h; path = controls.h; sourceTree = "<group>"; };
 		EB0421060A341042002CC961 /* config.h */ = {isa = PBXFileReference; fileEncoding = 30; lastKnownFileType = sourcecode.c.h; path = config.h; sourceTree = "<group>"; };
+		EB28D9A20ECEAF1C00E68E9B /* init.c */ = {isa = PBXFileReference; fileEncoding = 30; lastKnownFileType = sourcecode.c.c; path = init.c; sourceTree = "<group>"; };
 		EB92BE110CDD68200045A32C /* digi_audio.h */ = {isa = PBXFileReference; fileEncoding = 30; lastKnownFileType = sourcecode.c.h; path = digi_audio.h; sourceTree = "<group>"; };
 		EB92BE120CDD68200045A32C /* digi_mixer_music.h */ = {isa = PBXFileReference; fileEncoding = 30; lastKnownFileType = sourcecode.c.h; path = digi_mixer_music.h; sourceTree = "<group>"; };
 		EB92BE130CDD68200045A32C /* digi_mixer.h */ = {isa = PBXFileReference; fileEncoding = 30; lastKnownFileType = sourcecode.c.h; path = digi_mixer.h; sourceTree = "<group>"; };
@@ -967,7 +964,6 @@
 				67B44141066878B300DF26D8 /* disc.c */,
 				67B44142066878B300DF26D8 /* font.c */,
 				67B44143066878B300DF26D8 /* gpixel.c */,
-				67B44144066878B300DF26D8 /* ibitblt.c */,
 				67B44145066878B300DF26D8 /* line.c */,
 				67B44148066878B300DF26D8 /* palette.c */,
 				67B44149066878B300DF26D8 /* pcx.c */,
@@ -1024,6 +1020,7 @@
 				67B441D306687A0200DF26D8 /* digi.c */,
 				67B441D406687A0200DF26D8 /* event.c */,
 				67B441D506687A0200DF26D8 /* gr.c */,
+				EB28D9A20ECEAF1C00E68E9B /* init.c */,
 				67B441D706687A0200DF26D8 /* joy.c */,
 				EB92BE5F0CDD693C0045A32C /* jukebox.c */,
 				67B441D906687A0200DF26D8 /* key.c */,
@@ -1291,7 +1288,6 @@
 				67B44915066880C400DF26D8 /* grdef.h */,
 				6791D12906688EB500056A5A /* hash.h */,
 				EB92BE690CDD69830045A32C /* hmp2mid.h */,
-				6791CF35066887FE00056A5A /* ibitblt.h */,
 				EBAFC248088E4C17006329AD /* ignorecase.h */,
 				6791D0BD06688AE800056A5A /* iff.h */,
 				EBB9E5480D8E83F2003466E6 /* internal.h */,
@@ -1492,7 +1488,6 @@
 				676AC1CA0668A938007173EB /* u_dpmi.h in Headers */,
 				676AC1CB0668A938007173EB /* cfile.h in Headers */,
 				676AC1CC0668A938007173EB /* makesig.h in Headers */,
-				676AC1CD0668A938007173EB /* ibitblt.h in Headers */,
 				676AC1CE0668A938007173EB /* fix.h in Headers */,
 				676AC1CF0668A938007173EB /* palette.h in Headers */,
 				676AC1D00668A938007173EB /* pcx.h in Headers */,
@@ -1548,7 +1543,6 @@
 				676AC2810668A939007173EB /* gr.h in Headers */,
 				676AC2820668A939007173EB /* grdef.h in Headers */,
 				676AC2830668A939007173EB /* hash.h in Headers */,
-				676AC2840668A939007173EB /* ibitblt.h in Headers */,
 				676AC2850668A939007173EB /* iff.h in Headers */,
 				676AC2860668A939007173EB /* interp.h in Headers */,
 				676AC2870668A939007173EB /* libmve.h in Headers */,
@@ -1715,7 +1709,6 @@
 				676AC1F20668A938007173EB /* disc.c in Sources */,
 				676AC1F30668A938007173EB /* font.c in Sources */,
 				676AC1F40668A938007173EB /* gpixel.c in Sources */,
-				676AC1F50668A938007173EB /* ibitblt.c in Sources */,
 				676AC1F60668A938007173EB /* line.c in Sources */,
 				676AC1F70668A938007173EB /* palette.c in Sources */,
 				676AC1F80668A938007173EB /* pcx.c in Sources */,
@@ -1841,6 +1834,7 @@
 				EBB9E5580D8E8502003466E6 /* netdrv_udp.c in Sources */,
 				EBB9E55A0D8E8502003466E6 /* netdrv.c in Sources */,
 				EBB9E55B0D8E8502003466E6 /* netpkt.c in Sources */,
+				EB28D9A40ECEAF1C00E68E9B /* init.c in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -1858,7 +1852,6 @@
 				676AC2A20668A939007173EB /* disc.c in Sources */,
 				676AC2A30668A939007173EB /* font.c in Sources */,
 				676AC2A40668A939007173EB /* gpixel.c in Sources */,
-				676AC2A50668A939007173EB /* ibitblt.c in Sources */,
 				676AC2A60668A939007173EB /* line.c in Sources */,
 				676AC2A70668A939007173EB /* palette.c in Sources */,
 				676AC2A80668A939007173EB /* pcx.c in Sources */,
@@ -1984,6 +1977,7 @@
 				EBB9E5530D8E8502003466E6 /* netdrv_udp.c in Sources */,
 				EBB9E5550D8E8502003466E6 /* netdrv.c in Sources */,
 				EBB9E5560D8E8502003466E6 /* netpkt.c in Sources */,
+				EB28D9A30ECEAF1C00E68E9B /* init.c in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};

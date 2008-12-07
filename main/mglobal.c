@@ -96,11 +96,7 @@ fix	Next_laser_fire_time;			//	Time at which player can next fire his selected l
 fix	Next_missile_fire_time;			//	Time at which player can next fire his selected missile.
 //--unused-- fix	Laser_delay_time = F1_0/6;		//	Delay between laser fires.
 
-#if defined(MACINTOSH) && defined(APPLE_DEMO)
-#define DEFAULT_DIFFICULTY		0		// trainee for apple demo
-#else
 #define DEFAULT_DIFFICULTY		1
-#endif
 
 int	Difficulty_level=DEFAULT_DIFFICULTY;	//	Difficulty level in 0..NDL-1, 0 = easiest, NDL-1 = hardest
 

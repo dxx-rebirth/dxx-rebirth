@@ -713,7 +713,9 @@ void kconfig_sub(kc_item * items,int nitems, char * title)
 		case KEY_BACKSP:
 			Int3();
 			break;
-		MAC(case KEY_COMMAND+KEY_SHIFTED+KEY_3:)
+#ifdef macintosh
+		case KEY_COMMAND+KEY_SHIFTED+KEY_3:
+#endif
 		case KEY_PRINT_SCREEN:
 			save_screen_shot(0);
 			break;

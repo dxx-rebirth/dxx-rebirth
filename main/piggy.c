@@ -114,19 +114,7 @@ static ubyte GameBitmapFlags[MAX_BITMAP_FILES];
 ushort GameBitmapXlat[MAX_BITMAP_FILES];
 
 #define PIGGY_BUFFER_SIZE (2400*1024)
-
-#ifdef MACINTOSH
 #define PIGGY_SMALL_BUFFER_SIZE (1400*1024)		// size of buffer when GameArg.SysLowMem is set
-
-#ifdef SHAREWARE
-#undef PIGGY_BUFFER_SIZE
-#undef PIGGY_SMALL_BUFFER_SIZE
-
-#define PIGGY_BUFFER_SIZE (2000*1024)
-#define PIGGY_SMALL_BUFFER_SIZE (1100 * 1024)
-#endif		// SHAREWARE
-
-#endif
 
 int piggy_page_flushed = 0;
 
@@ -199,13 +187,6 @@ void DiskBitmapHeader_d1_read(DiskBitmapHeader *dbh, CFILE *fp)
 	dbh->avg_color = cfile_read_byte(fp);
 	dbh->offset = cfile_read_int(fp);
 }
-
-#ifdef MACINTOSH
-	extern short 	cd_VRefNum;
-	extern void		ConcatPStr(StringPtr dst, StringPtr src);
-	extern int		ConvertPToCStr(StringPtr inPStr, char* outCStrBuf);
-	extern int		ConvertCToPStr(char* inCStr, StringPtr outPStrBuf);
-#endif
 
 int piggy_is_substitutable_bitmap( char * name, char * subst_name );
 
@@ -361,174 +342,7 @@ extern char CDROM_dir[];
 int request_cd(void);
 
 
-#ifdef MACINTOSH
-
-//copies a pigfile from the CD to the current dir
-//retuns file handle of new pig
-CFILE *copy_pigfile_from_cd(char *filename)		// MACINTOSH VERSION
-{
-	// C Stuff
-	char			sourcePathAndFileCStr[255] = "";
-	char			destPathAndFileCStr[255]	= "";
-	FILEFINDSTRUCT	find;
-	FILE*			sourceFile	= NULL;
-	FILE*			destFile	= NULL;
-	const int		BUF_SIZE = 4096;
-	ubyte 			buf[BUF_SIZE];
-
-	// Mac Stuff
-	Str255			sourcePathAndFilePStr = "\p";
-	Str255			destPathAndFilePStr = "\p";
-	Str255			pigfileNamePStr = "\p";
-	HParamBlockRec	theSourcePigHFSParams;
-	HParamBlockRec	theDestPigHFSParams;
-	OSErr			theErr = noErr;
-	char			oldDirCStr[255] = "";
-
-	getcwd(oldDirCStr, 255);
-	
-	show_boxed_message("Copying bitmap data from CD...");
-	gr_palette_load(gr_palette);    //I don't think this line is really needed
-
-	chdir(":Data");
-	//First, delete all PIG files currently in the directory
-	if( !FileFindFirst( "*.pig", &find ) )
-	{
-		do
-		{
-			remove(find.name);
-		} while( !FileFindNext( &find ) );
-		
-		FileFindClose();
-	}
-	chdir(oldDirCStr);
-
-	//Now, copy over new pig
-	songs_stop_redbook();           //so we can read off the cd
-
-	// make the source path "<cd volume>:Data:filename.pig"
-//MWA	ConvertCToPStr(filename, pigfileNamePStr);
-
-//MWA	ConcatPStr(sourcePathAndFilePStr, "\pDescent II:Data:");	// volume ID is cd_VRefNum
-//MWA	ConcatPStr(sourcePathAndFilePStr, pigfileNamePStr);
-
-	strupr(filename);
-	strcpy(sourcePathAndFileCStr, "Descent II:Data:");
-	strcat(sourcePathAndFileCStr, filename);
-	
-	// make the destination path "<default directory>:Data:filename.pig"
-//MWA	ConcatPStr(destPathAndFilePStr, "\p:Data:");
-//MWA	ConcatPStr(destPathAndFilePStr, pigfileNamePStr);
-//MWA	ConvertPToCStr(sourcePathAndFilePStr, sourcePathAndFileCStr);
-//MWA	ConvertPToCStr(destPathAndFilePStr, destPathAndFileCStr);
-
-	strcpy(destPathAndFileCStr, ":Data:");
-	strcat(destPathAndFileCStr, filename);
-
-	strcpy(sourcePathAndFilePStr, sourcePathAndFileCStr);
-	strcpy(destPathAndFilePStr, destPathAndFileCStr);
-	c2pstr(sourcePathAndFilePStr);
-	c2pstr(destPathAndFilePStr);
-	
-	do {
-		// Open the source file
-		sourceFile = fopen(sourcePathAndFileCStr,"rb");
-
-		if (!sourceFile) {
-
-			if (request_cd() == -1)
-				Error("Cannot load file <%s> from CD",filename);
-		}
-
-	} while (!sourceFile);
-
-
-	// Get the time stamp from the source file
-	theSourcePigHFSParams.fileParam.ioCompletion 	= nil;
-	theSourcePigHFSParams.fileParam.ioNamePtr		= sourcePathAndFilePStr;
-	theSourcePigHFSParams.fileParam.ioVRefNum		= cd_VRefNum;
-	theSourcePigHFSParams.fileParam.ioFDirIndex	= 0;
-	theSourcePigHFSParams.fileParam.ioDirID		= 0;
-	
-	theErr = PBHGetFInfo(&theSourcePigHFSParams, false);
-	if (theErr != noErr)
-	{
-		// Error getting file time stamp!! Why? JTS
-		Error("Can't get old file time stamp: <%s>\n", sourcePathAndFileCStr);
-	}
-	
-	// Copy the file over
-	// C Stuff......
-	
-	// Open the destination file
-	destFile = fopen(destPathAndFileCStr,"wb");
-	if (!destFile)
-	{
-		Error("Cannot create file: <%s>\n", destPathAndFileCStr);
-	}
-	
-	// Copy bytes until the end of the source file
-	while (!feof(sourceFile))
-	{
-		int bytes_read;
-		int x;
-
-		bytes_read = fread(buf,1,BUF_SIZE,sourceFile);
-		if (ferror(sourceFile))
-			Error("Cannot read from file <%s>: %s", sourcePathAndFileCStr, strerror(errno));
-
-// Assert is bogus		Assert(bytes_read == BUF_SIZE || feof(sourceFile));
-
-		fwrite(buf,1,bytes_read,destFile);
-		if (ferror(destFile))
-			Error("Cannot write to file <%s>: %s",destPathAndFileCStr, strerror(errno));
-	}
-
-	// close the source/dest files
-	if (fclose(sourceFile))
-		Error("Error closing file <%s>: %s", sourcePathAndFileCStr, strerror(errno));
-	if (fclose(destFile))
-		Error("Error closing file <%s>: %s", destPathAndFileCStr, strerror(errno));
-
-	// Get the current hfs data for the new file
-	theDestPigHFSParams.fileParam.ioCompletion 	= nil;
-	theDestPigHFSParams.fileParam.ioNamePtr		= destPathAndFilePStr;
-	theDestPigHFSParams.fileParam.ioVRefNum		= 0;
-	theDestPigHFSParams.fileParam.ioFDirIndex	= 0;
-	theDestPigHFSParams.fileParam.ioDirID		= 0;
-	theErr = PBHGetFInfo(&theDestPigHFSParams, false);
-	if ((theErr != noErr) || (theDestPigHFSParams.fileParam.ioResult != noErr))
-	{
-		// Error getting file time stamp!! Why? JTS
-		Error("Can't get destination pig file information: <%s>\n", destPathAndFileCStr);
-	}
-
-	// Reset this data !!!!! or else the relative pathname won't work, could use just filename instead but, oh well.
-	theDestPigHFSParams.fileParam.ioNamePtr		= destPathAndFilePStr;
-	theDestPigHFSParams.fileParam.ioVRefNum		= 0;
-	theDestPigHFSParams.fileParam.ioFDirIndex	= 0;
-	theDestPigHFSParams.fileParam.ioDirID		= 0;
-
-	// Copy the time stamp from the source file info
-	theDestPigHFSParams.fileParam.ioFlCrDat	= theSourcePigHFSParams.fileParam.ioFlCrDat;
-	theDestPigHFSParams.fileParam.ioFlMdDat	= theSourcePigHFSParams.fileParam.ioFlMdDat;
-	theDestPigHFSParams.fileParam.ioFlFndrInfo.fdType = 'PGGY';
-	theDestPigHFSParams.fileParam.ioFlFndrInfo.fdCreator = 'DCT2';
-	
-	// Set the dest file's time stamp to the source file's time stamp values
-	theErr = PBHSetFInfo(&theDestPigHFSParams, false);
-
-	if ((theErr != noErr) || (theDestPigHFSParams.fileParam.ioResult != noErr))
-	{
-		Error("Can't set destination pig file time stamp: <%s>\n", destPathAndFileCStr);
-	}
-
-	theErr = PBHGetFInfo(&theDestPigHFSParams, false);
-
-	return cfopen(destPathAndFileCStr, "rb");
-}
-
-#else	//PC Version of copy_pigfile_from_cd is below
+//PC Version of copy_pigfile_from_cd is below
 
 //copies a pigfile from the CD to the current dir
 //retuns file handle of new pig
@@ -582,8 +396,6 @@ CFILE *copy_pigfile_from_cd(char *filename)
 
 	return cfopen(filename, "rb");
 }
-
-#endif // end of ifdef MAC around copy_pigfile_from_cd
 
 //initialize a pigfile, reading headers
 //returns the size of all the bitmap data
@@ -664,20 +476,14 @@ void piggy_init_pigfile(char *filename)
 	Assert( Piggy_bitmap_cache_size > 0 );
 #else
 	Piggy_bitmap_cache_size = PIGGY_BUFFER_SIZE;
-	#ifdef MACINTOSH
 	if (GameArg.SysLowMem)
 		Piggy_bitmap_cache_size = PIGGY_SMALL_BUFFER_SIZE;
-	#endif
 #endif
 	BitmapBits = d_malloc( Piggy_bitmap_cache_size );
 	if ( BitmapBits == NULL )
 		Error( "Not enough memory to load bitmaps\n" );
 	Piggy_bitmap_cache_data = BitmapBits;
 	Piggy_bitmap_cache_next = 0;
-
-	#if defined(MACINTOSH) && defined(SHAREWARE)
-//	load_exit_models();
-	#endif
 
 	Pigfile_initialized=1;
 }
@@ -943,6 +749,8 @@ digi_sound bogus_sound;
 #define SNDFILE_ID              MAKE_SIG('D','N','S','D') //DSND
 #define SNDFILE_VERSION 1
 
+int piggy_is_needed(int soundnum);
+
 int read_hamfile()
 {
 	CFILE * ham_fp = NULL;
@@ -1034,9 +842,7 @@ int read_hamfile()
 			memcpy( temp_name_read, sndh.name, 8 );
 			temp_name_read[8] = 0;
 			piggy_register_sound( &temp_sound, temp_name_read, 1 );
-#ifdef MACINTOSH
 			if (piggy_is_needed(i))
-#endif		// note link to if.
 				sbytes += sndh.length;
 		}
 
@@ -1095,10 +901,8 @@ int read_sndfile()
 		memcpy( temp_name_read, sndh.name, 8 );
 		temp_name_read[8] = 0;
 		piggy_register_sound( &temp_sound, temp_name_read, 1 );
-		#ifdef MACINTOSH
 		if (piggy_is_needed(i))
-		#endif		// note link to if.
-		sbytes += sndh.length;
+			sbytes += sndh.length;
 	}
 
 	SoundBits = d_malloc( sbytes + 16 );

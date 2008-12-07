@@ -691,22 +691,7 @@ void do_automap( int key_code )	{
 				else
 			   	maxdrop=9;
 
-#ifndef MACINTOSH
 			marker_num = c-KEY_1;
-#else
-			switch(c) {		// god this is stupid.....
-				case KEY_1: marker_num = 0; break;
-				case KEY_2: marker_num = 1; break;
-				case KEY_3: marker_num = 2; break;
-				case KEY_4: marker_num = 3; break;
-				case KEY_5: marker_num = 4; break;
-				case KEY_6: marker_num = 5; break;
-				case KEY_7: marker_num = 6; break;
-				case KEY_8: marker_num = 7; break;
-				case KEY_9: marker_num = 8; break;
-				case KEY_0: marker_num = 9; break;
-			}
-#endif
             if (marker_num<=maxdrop)
 				 {
 					if (MarkerObject[marker_num] != -1)

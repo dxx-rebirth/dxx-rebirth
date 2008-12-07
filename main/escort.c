@@ -489,29 +489,6 @@ void set_escort_special_goal(int special_key)
 
 	marker_key = special_key;
 	
-	#ifdef MACINTOSH
-	switch(special_key) {
-		case KEY_5:
-			marker_key = KEY_1+4;
-			break;
-		case KEY_6:
-			marker_key = KEY_1+5;
-			break;
-		case KEY_7:
-			marker_key = KEY_1+6;
-			break;
-		case KEY_8:
-			marker_key = KEY_1+7;
-			break;
-		case KEY_9:
-			marker_key = KEY_1+8;
-			break;
-		case KEY_0:
-			marker_key = KEY_1+9;
-			break;
-	}
-	#endif
-
 	if (Last_buddy_key == special_key)
 	{
 		if ((Looking_for_marker == -1) && (special_key != KEY_0)) {
