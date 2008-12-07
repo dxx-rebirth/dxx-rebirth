@@ -99,7 +99,7 @@ COPYRIGHT 1993-1998 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 #define	SHOW_EXIT_PATH	1
 
 #define key_isfunc(k) (((k&0xff)>=KEY_F1 && (k&0xff)<=KEY_F10) || (k&0xff)==KEY_F11 || (k&0xff)==KEY_F12)
-#define key_ismod(k)  ((k&0xff)==KEY_LALT || (k&0xff)==KEY_RALT || (k&0xff)==KEY_LSHIFT || (k&0xff)==KEY_RSHIFT || (k&0xff)==KEY_LCTRL || (k&0xff)==KEY_RCTRL)
+#define key_ismod(k)  ((k&0xff)==KEY_LALT || (k&0xff)==KEY_RALT || (k&0xff)==KEY_LSHIFT || (k&0xff)==KEY_RSHIFT || (k&0xff)==KEY_LCTRL || (k&0xff)==KEY_RCTRL || (k&0xff)==KEY_LMETA || (k&0xff)==KEY_RMETA)
 
 #ifdef EDITOR
 #include "editor/editor.h"
@@ -1343,22 +1343,36 @@ int do_game_pause()
 void show_help()
 {
 	int nitems = 0;
-	newmenu_item m[26];
+	newmenu_item m[28];
 
 	m[nitems].type = NM_TYPE_TEXT; m[nitems++].text = TXT_HELP_ESC;
 	m[nitems].type = NM_TYPE_TEXT; m[nitems++].text = "SHIFT-ESC\t  SHOW GAME LOG";
 	m[nitems].type = NM_TYPE_TEXT; m[nitems++].text = TXT_HELP_F2;
+#if !(defined(__APPLE__) || defined(macintosh))
 	m[nitems].type = NM_TYPE_TEXT; m[nitems++].text = "Alt-F2/F3\t  SAVE/LOAD GAME";
+#else
+	m[nitems].type = NM_TYPE_TEXT; m[nitems++].text = "Alt-F2/F3 (\x85-s/o)\t  SAVE/LOAD GAME";
+#endif
 	m[nitems].type = NM_TYPE_TEXT; m[nitems++].text = "F3\t  SWITCH COCKPIT MODES";
 	m[nitems].type = NM_TYPE_TEXT; m[nitems++].text = TXT_HELP_F5;
 	m[nitems].type = NM_TYPE_TEXT; m[nitems++].text = "ALT-F7\t  SWITCH HUD MODES";
+#if !(defined(__APPLE__) || defined(macintosh))
 	m[nitems].type = NM_TYPE_TEXT; m[nitems++].text = TXT_HELP_PAUSE;
+#else
+	m[nitems].type = NM_TYPE_TEXT; m[nitems++].text = "Pause (\x85-P)\t  Pause";
+#endif
 	m[nitems].type = NM_TYPE_TEXT; m[nitems++].text = TXT_HELP_PRTSCN;
 	m[nitems].type = NM_TYPE_TEXT; m[nitems++].text = TXT_HELP_1TO5;
 	m[nitems].type = NM_TYPE_TEXT; m[nitems++].text = TXT_HELP_6TO10;
+#if !(defined(__APPLE__) || defined(macintosh))
 	m[nitems].type = NM_TYPE_TEXT; m[nitems++].text = "Alt-Shift-F9\t  Eject Audio CD";
 	m[nitems].type = NM_TYPE_TEXT; m[nitems++].text = "Alt-Shift-F10\t  Play/Pause " EXT_MUSIC_TEXT;
 	m[nitems].type = NM_TYPE_TEXT; m[nitems++].text = "Alt-Shift-F11/F12\t  Previous/Next Song";
+#else
+	m[nitems].type = NM_TYPE_TEXT; m[nitems++].text = "\x85-E\t  Eject Audio CD";
+	m[nitems].type = NM_TYPE_TEXT; m[nitems++].text = "\x85-Up/Down\t  Play/Pause " EXT_MUSIC_TEXT;
+	m[nitems].type = NM_TYPE_TEXT; m[nitems++].text = "\x85-Left/Right\t  Previous/Next Song";
+#endif
 	m[nitems].type = NM_TYPE_TEXT; m[nitems++].text = "";
 	m[nitems].type = NM_TYPE_TEXT; m[nitems++].text = "MULTIPLAYER:";
 	m[nitems].type = NM_TYPE_TEXT; m[nitems++].text = "ALT-F4\t  SHOW RETICLE NAMES";
@@ -1366,12 +1380,16 @@ void show_help()
 	m[nitems].type = NM_TYPE_TEXT; m[nitems++].text = "F8\t  SEND MESSAGE";
 	m[nitems].type = NM_TYPE_TEXT; m[nitems++].text = "(SHIFT-)F8 to F12\t  (DEFINE)SEND MACRO";
 	m[nitems].type = NM_TYPE_TEXT; m[nitems++].text = "PAUSE\t  SHOW NETGAME INFORMATION";
+#if (defined(__APPLE__) || defined(macintosh))
+	m[nitems].type = NM_TYPE_TEXT; m[nitems++].text = "";
+	m[nitems].type = NM_TYPE_TEXT; m[nitems++].text = "(Use \x85-# for F#. e.g. \x85-1 for F1)";
+#endif
 	newmenu_dotiny( NULL, TXT_KEYS, nitems, m, NULL );
 }
 
 void show_newdemo_help()
 {
-	newmenu_item m[12];
+	newmenu_item m[14];
 	int mc = 0;
 
 	m[mc].type = NM_TYPE_TEXT; m[mc].text = "ESC\t  QUIT DEMO PLAYBACK"; mc++;
@@ -1386,6 +1404,10 @@ void show_newdemo_help()
 	m[mc].type = NM_TYPE_TEXT; m[mc].text = "SHIFT-LEFT\t  FAST BACKWARD"; mc++;
 	m[mc].type = NM_TYPE_TEXT; m[mc].text = "CTRL-RIGHT\t  JUMP TO END"; mc++;
 	m[mc].type = NM_TYPE_TEXT; m[mc].text = "CTRL-LEFT\t  JUMP TO START"; mc++;
+#if (defined(__APPLE__) || defined(macintosh))
+	m[mc].type = NM_TYPE_TEXT; m[mc].text = ""; mc++;
+	m[mc].type = NM_TYPE_TEXT; m[mc].text = "(Use \x85-# for F#. e.g. \x85-1 for F1)"; mc++;
+#endif
 	newmenu_dotiny( NULL, "DEMO PLAYBACK CONTROLS", mc, m, NULL );
 }
 
@@ -1710,10 +1732,30 @@ void HandleDeathKey(int key)
 	if (Player_exploded && !key_isfunc(key) && !key_ismod(key) && key)
 		Death_sequence_aborted  = 1;		//Any key but func or modifier aborts
 
+#ifdef macintosh
+	if ( key == (KEY_COMMAND + KEY_SHIFTED + KEY_3) ) {
+		//		save_screen_shot(0);
+		Death_sequence_aborted  = 0;		// Clear because code above sets this for any key.
+	}
+#endif
+	
+#if defined(__APPLE__) || defined(macintosh)
+	if (key == KEY_COMMAND+KEY_Q)
+		//macintosh_quit();
+		Death_sequence_aborted  = 0;		// Clear because code above sets this for any key.
+#endif
+	
 	if (key==KEY_PRINT_SCREEN) {
 		Death_sequence_aborted  = 0;		// Clear because code above sets this for any key.
 	}
 
+#if defined(__APPLE__) || defined(macintosh)
+	if ( key == (KEY_COMMAND+KEY_P) ) {
+		//		key = do_game_pause();
+		Death_sequence_aborted  = 0;		// Clear because code above sets this for any key.
+	}
+#endif
+	
 	if (key == KEY_PAUSE)   {
 		Death_sequence_aborted  = 0;		// Clear because code above sets this for any key.
 	}
@@ -1738,9 +1780,19 @@ void HandleDeathKey(int key)
 
 void HandleEndlevelKey(int key)
 {
+	
+#ifdef macintosh
+	if ( key == (KEY_COMMAND + KEY_SHIFTED + KEY_3) )
+		save_screen_shot(0);
+#endif
+	
 	if (key==KEY_PRINT_SCREEN)
 		save_screen_shot(0);
 
+#if defined(__APPLE__) || defined(macintosh)
+	if ( key == (KEY_COMMAND+KEY_P) )
+		key = do_game_pause();
+#endif
 	if (key == KEY_PAUSE)
 		key = do_game_pause();		//so esc from pause will end level
 
@@ -1787,10 +1839,15 @@ void HandleDemoKey(int key)
 		}
 		break;
 #endif
+		MAC(case KEY_COMMAND+KEY_1:)
 		case KEY_F1:	show_newdemo_help();	break;
+		MAC(case KEY_COMMAND+KEY_2:)
 		case KEY_F2:	Config_menu_flag = 1;	break;
+		MAC(case KEY_COMMAND+KEY_3:)
 		case KEY_F3:	toggle_cockpit();	break;
+		MAC(case KEY_COMMAND+KEY_4:)
 		case KEY_F4:	Newdemo_show_percentage = !Newdemo_show_percentage; break;
+		MAC(case KEY_COMMAND+KEY_7:)
 		case KEY_F7:
 #ifdef NETWORK
 			Show_kill_list = (Show_kill_list+1) % ((Game_mode & GM_TEAM) ? 4 : 3);
@@ -1822,9 +1879,13 @@ void HandleDemoKey(int key)
 		case KEY_CTRLED + KEY_LEFT:
 			newdemo_goto_beginning();
 		break;
+		MAC(case KEY_COMMAND+KEY_P:)
 		case KEY_PAUSE:
 			do_game_pause();
 		break;
+#ifdef macintosh
+		case KEY_COMMAND + KEY_SHIFTED + KEY_3:
+#endif
 		case KEY_PRINT_SCREEN:
 		{
 			if (PlayerCfg.PRShot)
@@ -2097,15 +2158,20 @@ void HandleGameKey(int key)
 				Function_mode = FMODE_MENU;
 			}
 			break;
+		MAC(case KEY_COMMAND+KEY_1:)
 		case KEY_F1:				show_help();         break;
+		MAC(case KEY_COMMAND+KEY_2:)
 		case KEY_F2:				Config_menu_flag = 1;	break;
+		MAC(case KEY_COMMAND+KEY_3:)
 		case KEY_F3:				toggle_cockpit();       break;
 
 #ifdef NETWORK
+		MAC(case KEY_COMMAND+KEY_ALTED+KEY_4:)
 		case KEY_ALTED + KEY_F4:
 			Show_reticle_name = (Show_reticle_name+1)%2;
 			break;
 #endif
+		MAC(case KEY_COMMAND+KEY_5:)
 		case KEY_F5:
 				if ( Newdemo_state == ND_STATE_RECORDING )
 					newdemo_stop_recording();
@@ -2113,6 +2179,7 @@ void HandleGameKey(int key)
 					newdemo_start_recording();
 				break;
 #ifdef NETWORK
+		MAC(case KEY_COMMAND+KEY_6:)
 		case KEY_F6:
 			if (restrict_mode && WaitForRefuseAnswer)
 			{
@@ -2120,15 +2187,18 @@ void HandleGameKey(int key)
 				HUD_init_message ("Player accepted!");
 			}
 			break;
+		MAC(case KEY_COMMAND+KEY_7:)
 		case KEY_F7:
 			Show_kill_list = (Show_kill_list+1) % ((Game_mode & GM_TEAM) ? 4 : 3);
 			break;
 #endif
 		case KEY_ALTED+KEY_F7:
+		MAC(case KEY_COMMAND+KEY_ALTED+KEY_7:)
 			PlayerCfg.HudMode=(PlayerCfg.HudMode+1)%GAUGE_HUD_NUMMODES;
 			write_player_file();
 			break;
 #ifdef NETWORK
+		MAC(case KEY_COMMAND+KEY_8:)
 		case KEY_F8:
 			multi_send_message_start();
 			break;
@@ -2139,14 +2209,50 @@ void HandleGameKey(int key)
 		case KEY_F12:
 			multi_send_macro(key);
 			break;		// send taunt macros
+
+#if defined(__APPLE__) || defined(macintosh)
+		case KEY_9 + KEY_COMMAND:
+			multi_send_macro(KEY_F9);
+			break;
+		case KEY_0 + KEY_COMMAND:
+			multi_send_macro(KEY_F10);
+			break;
+		case KEY_1 + KEY_COMMAND + KEY_CTRLED:
+			multi_send_macro(KEY_F11);
+			break;
+		case KEY_2 + KEY_COMMAND + KEY_CTRLED:
+			multi_send_macro(KEY_F12);
+			break;
+#endif
+			
 		case KEY_SHIFTED + KEY_F9:
 		case KEY_SHIFTED + KEY_F10:
 		case KEY_SHIFTED + KEY_F11:
 		case KEY_SHIFTED + KEY_F12:
 			multi_define_macro(key);
 			break;		// redefine taunt macros
+			
+#if defined(__APPLE__) || defined(macintosh)
+		case KEY_9 + KEY_SHIFTED + KEY_COMMAND:
+			multi_define_macro(KEY_F9);
+			break;
+		case KEY_0 + KEY_SHIFTED + KEY_COMMAND:
+			multi_define_macro(KEY_F10);
+			break;
+		case KEY_1 + KEY_SHIFTED + KEY_COMMAND + KEY_CTRLED:
+			multi_define_macro(KEY_F11);
+			break;
+		case KEY_2 + KEY_SHIFTED + KEY_COMMAND + KEY_CTRLED:
+			multi_define_macro(KEY_F12);
+			break;
 #endif
+			
+#endif
+		MAC( case KEY_COMMAND+KEY_P: )
 		case KEY_PAUSE:			do_game_pause(); 	break;
+#ifdef macintosh
+		case KEY_COMMAND + KEY_SHIFTED + KEY_3:
+#endif
 		case KEY_PRINT_SCREEN:
 		{
 			if (PlayerCfg.PRShot)
@@ -2161,7 +2267,11 @@ void HandleGameKey(int key)
 			break;
 		}
 
+		MAC(case KEY_COMMAND+KEY_S:)
+		MAC(case KEY_COMMAND+KEY_ALTED+KEY_2:)
 		case KEY_ALTED+KEY_F2:	if (!Player_is_dead) state_save_all( 0 );		break;	// 0 means not between levels.
+		MAC(case KEY_COMMAND+KEY_O:)
+		MAC(case KEY_COMMAND+KEY_ALTED+KEY_3:)
 		case KEY_ALTED+KEY_F3:	if (!Player_is_dead) state_restore_all(1);		break;
 
 		/*
@@ -2201,10 +2311,9 @@ void HandleGameKey(int key)
 			songs_goto_next_song();
 			break;
 			
-#ifdef MACINTOSH
+#if defined(__APPLE__) || defined(macintosh)
 		case KEY_COMMAND+KEY_Q:
-			if ( !(Game_mode & GM_MULTI) )
-				macintosh_quit();
+			macintosh_quit();
 			break;
 #endif
 			
@@ -2306,6 +2415,7 @@ void HandleGameKey(int key)
 			break;
 		}
 		case KEY_DEBUGGED+KEY_F:
+		MAC(case KEY_COMMAND+KEY_F:)
 			GameArg.SysFPSIndicator = !GameArg.SysFPSIndicator;
 			break;
 		case KEY_DEBUGGED+KEY_SPACEBAR: // Toggle physics flying

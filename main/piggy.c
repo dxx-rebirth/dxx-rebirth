@@ -92,6 +92,7 @@ ushort GameBitmapXlat[MAX_BITMAP_FILES];
 #define DEFAULT_PIGFILE_REGISTERED      "descent.pig"
 
 #define PIGGY_BUFFER_SIZE (2048*1024)
+#define PIGGY_SMALL_BUFFER_SIZE (1400*1024)		// size of buffer when GameArg.SysLowMem is set
 
 int piggy_page_flushed = 0;
 
@@ -479,6 +480,8 @@ int properties_init()
 	Assert( Piggy_bitmap_cache_size > 0 );
 #else
 	Piggy_bitmap_cache_size = PIGGY_BUFFER_SIZE;
+	if (GameArg.SysLowMem)
+		Piggy_bitmap_cache_size = PIGGY_SMALL_BUFFER_SIZE;
 #endif
 	BitmapBits = d_malloc( Piggy_bitmap_cache_size );
 	if ( BitmapBits == NULL )

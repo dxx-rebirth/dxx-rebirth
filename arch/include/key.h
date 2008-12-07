@@ -92,6 +92,8 @@ extern char * key_text[256];
 #define KEY_ALTED       0x200
 #define KEY_CTRLED      0x400
 #define KEY_DEBUGGED	0x800
+#define KEY_METAED		0x1000
+#define KEY_COMMAND		KEY_METAED	// Mac meta key
 
 #define KEY_0           0x0B
 #define KEY_1           0x02
@@ -165,6 +167,8 @@ extern char * key_text[256];
 
 #define KEY_LCTRL       0x1D
 #define KEY_RCTRL       0x9D
+#define KEY_LMETA		0x9E
+#define KEY_RMETA		0x9F
 
 #define KEY_F1          0x3B
 #define KEY_F2          0x3C

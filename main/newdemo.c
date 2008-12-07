@@ -2747,7 +2747,11 @@ void newdemo_start_recording()
 
 	if ((Newdemo_size+100000) <  2000000000) {
 		if (((int)(Newdemo_size)) < 500000) {
+#if !(defined(__APPLE__) || defined(macintosh))
 			nm_messagebox(NULL, 1, TXT_OK, TXT_DEMO_NO_SPACE);
+#else
+			nm_messagebox(NULL, 1, TXT_OK, "Not enough space on current\ndrive to start demo recording.");
+#endif
 			return;
 		}
 	}

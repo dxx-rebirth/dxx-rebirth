@@ -1003,6 +1003,9 @@ int newmenu_do3_real( char * title, char * subtitle, int nitems, newmenu_item * 
 			}
 			break;
 
+#ifdef macintosh
+		case KEY_COMMAND+KEY_SHIFTED+KEY_3:
+#endif
 		case KEY_PRINT_SCREEN: save_screen_shot(0); break;
 
 		#ifndef NDEBUG
@@ -1636,7 +1639,10 @@ ReadFileNames:
 		key = key_inkey();
 
 		switch(key)	{
-		case KEY_PRINT_SCREEN:
+#ifdef macintosh
+			case KEY_COMMAND+KEY_SHIFTED+KEY_3:
+#endif
+			case KEY_PRINT_SCREEN:
 			save_screen_shot(0);
 			
 			break;
@@ -1984,7 +1990,10 @@ int newmenu_listbox1( char * title, int nitems, char * items[], int allow_abort_
 		}
 
 		switch(key)	{
-		case KEY_PRINT_SCREEN: 		
+#ifdef macintosh
+			case KEY_COMMAND+KEY_SHIFTED+KEY_3:
+#endif
+			case KEY_PRINT_SCREEN: 		
 			save_screen_shot(0); 
 			break;
 		case KEY_HOME:

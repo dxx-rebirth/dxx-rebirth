@@ -59,4 +59,8 @@ extern int start_with_mission;
 extern char *start_with_mission_name;
 extern int MacHog;
 
+#if defined(__APPLE__) || defined(macintosh)
+extern void macintosh_quit(void);	// dialog-style quit function
+#endif
+
 #endif

@@ -439,3 +439,8 @@ void quit_request()
 	set_warn_func(warn_printf);
 	exit(0);
 }
+
+void macintosh_quit()
+{
+	Function_mode = FMODE_EXIT;
+}
