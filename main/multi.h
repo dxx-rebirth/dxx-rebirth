@@ -26,6 +26,7 @@ COPYRIGHT 1993-1999 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 // Defines
 #include "gameseq.h"
 #include "piggy.h"
+#include "vers_id.h"
 
 // What version of the multiplayer protocol is this?
 
@@ -34,6 +35,7 @@ COPYRIGHT 1993-1999 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 #else
 #define MULTI_PROTO_VERSION 4
 #endif
+#define MULTI_PROTO_D2X_VER	D2X_IVER  // Change the D2X protocol version with each release so no version is compatible with each other (except micro revisions)
 
 // Protocol versions:
 //   1 Descent Shareware

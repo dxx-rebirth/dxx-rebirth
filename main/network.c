@@ -3067,7 +3067,11 @@ network_start_game()
 	N_players = 0;
 	Netgame.game_status = NETSTAT_STARTING;
 	Netgame.numplayers = 0;
-	Netgame.protocol_version = MULTI_PROTO_VERSION;
+	// We do not have any intention (for now) to let the user set Version checking (other than D1X). It SHOULD be ENABLED always - we only switch it off for IPX users who want backwards compability.
+	if (NetDrvType() == NETPROTO_UDP)
+		Netgame.protocol_version = MULTI_PROTO_D2X_VER;
+	else
+		Netgame.protocol_version = MULTI_PROTO_VERSION;
 
 	if (GameArg.MplGameProfile)
 	{
