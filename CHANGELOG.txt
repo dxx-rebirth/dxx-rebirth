@@ -1,5 +1,9 @@
 D1X-Rebirth Changelog
 
+20081208
+--------
+main/multi.h: Made MULTI_D1X_PROTO use D1X-IVER so no different releases can play together with Version checking enabled
+
 20081207
 --------
 arch/include/key.h, arch/sdl/key.c, d1x-rebirth.xcodeproj/project.pbxproj, main/game.c, main/inferno.c, main/inferno.h, main/kconfig.c, main/newdemo.c, main/newmenu.c, main/piggy.c: Get Mac command keys working, update Xcode project
