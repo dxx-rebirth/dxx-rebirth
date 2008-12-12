@@ -86,6 +86,22 @@ typedef struct frame_info {
 } __pack__ frame_info;
 #endif
 
+// short_frame_info is not aligned -- 01/18/96 -- MWA
+// won't align because of shortpos.  Shortpos needs
+// to stay in current form.
+
+typedef struct short_frame_info {
+	ubyte       type;                   // What type of packet
+	ubyte       pad[3];                 // Pad out length of frame_info packet
+	int         numpackets;
+	shortpos    thepos;
+	ushort      data_size;          // Size of data appended to the net packet
+	ubyte       playernum;
+	ubyte       obj_render_type;
+	ubyte       level_num;
+	char        data[NET_XDATA_SIZE];   // extra data to be tacked on the end
+} __pack__ short_frame_info;
+
 void network_start_game();
 void network_join_game();
 void network_rejoin_game();
@@ -187,13 +203,11 @@ void network_send_game_info(sequence_packet *their, int light);
 #define PID_GAME_INFO                           37
 #endif
 
-#define PID_SHORTPDATA			48
 #define PID_D1X_GAME_INFO_REQ           65
 #define PID_D1X_GAME_INFO		66
 #define PID_D1X_GAME_LITE_REQ		67
 #define PID_D1X_GAME_LITE		68
 #define PID_D1X_SYNC			69
-#define PID_PDATA_SHORT2		70
 #define PID_D1X_REQUEST 		71
 //added 03/04/99 Matt Mueller - send multi data, without extra baggage
 #define PID_DIRECTDATA			72

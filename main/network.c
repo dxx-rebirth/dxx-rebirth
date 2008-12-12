@@ -71,7 +71,9 @@ void network_read_sync_packet( ubyte * sp, int d1x );
 void network_flush();
 void network_listen();
 void network_ping(ubyte flag, int pnum);
-void network_read_pdata_packet( ubyte *data, int short_pos );
+void network_process_pdata(char *data);
+void network_read_pdata_packet(ubyte *data);
+void network_read_pdata_short_packet(short_frame_info *pd);
 int network_compare_players(netplayer_info *pl1, netplayer_info *pl2);
 void DoRefuseStuff(sequence_packet *their);
 int show_game_stats(int choice);
@@ -1382,18 +1384,11 @@ void network_process_packet(ubyte *data, int length )
                 if (Network_status == NETSTAT_WAITING)
         		network_read_sync_packet(data, 0);
 		break;
-	case PID_PDATA:	
-		if ((Game_mode&GM_NETWORK) && ((Network_status == NETSTAT_PLAYING)||(Network_status == NETSTAT_ENDLEVEL) )) { 
-			network_read_pdata_packet(data, 0);
-		}
-		break;
-//added on 8/4/98 by Matt Mueller
-        case PID_SHORTPDATA:
-                if ((Game_mode&GM_NETWORK) && ((Network_status == NETSTAT_PLAYING)||(Network_status == NETSTAT_ENDLEVEL) )) {
-			network_read_pdata_packet(data, 1);
-                }
-                break;
-//end modified section - Matt Mueller
+		case PID_PDATA: 
+			if ((Game_mode&GM_NETWORK) && ((Network_status == NETSTAT_PLAYING)||(Network_status == NETSTAT_ENDLEVEL) || Network_status==NETSTAT_WAITING)) { 
+				network_process_pdata((char *)data);
+			}
+			break;
         case PID_OBJECT_DATA:
 		if (Network_status == NETSTAT_WAITING) 
 			network_read_object_packet(data);
@@ -1426,10 +1421,6 @@ void network_process_packet(ubyte *data, int length )
                 if (Network_status == NETSTAT_WAITING)
 			network_read_sync_packet(data, 1);
                 break;
-	case PID_PDATA_SHORT2:
-		if ((Game_mode&GM_NETWORK) && ((Network_status == NETSTAT_PLAYING)||(Network_status == NETSTAT_ENDLEVEL) )) { 
-			network_read_pdata_packet(data, 2);
-		}break;
 //added 03/04/99 Matt Mueller - new direct data packets..
 	  case PID_DIRECTDATA:
 		if ((Game_mode&GM_NETWORK) && ((Network_status == NETSTAT_PLAYING)||(Network_status == NETSTAT_ENDLEVEL) )) { 
@@ -3275,6 +3266,7 @@ fix last_timeout_check = 0;
 void network_do_frame(int force, int listen)
 {
 	int i;
+	short_frame_info ShortSyncPack;
 
 	if (!(Game_mode&GM_NETWORK)) return;
 
@@ -3291,23 +3283,83 @@ void network_do_frame(int force, int listen)
         if ( (last_send_time > (F1_0 / Network_pps)) ||
 	     (Network_laser_fired) || force || PacketUrgent )	    {
 		if ( Players[Player_num].connected )	{
+			int objnum = Players[Player_num].objnum;
 			PacketUrgent = 0;
 
 			if (listen) {
 #ifndef SHAREWARE
 				multi_send_robot_frame(0);
 #endif
-                                multi_send_fire(100);              // Do firing if needed..
+                multi_send_fire(100);              // Do firing if needed..
 			}
 
 			last_send_time = 0;
 
-			for (i=0; i<N_players; i++ )	{
-				if ( (Players[i].connected) && (i!=Player_num ) )	{
-					MySyncPack.numpackets = ++Players[i].n_packets_sent; // adb: changed ...++ to ++... to prevent bogus missed packets msg
-					send_frameinfo_packet(Netgame.players[i].server, Netgame.players[i].node, Players[i].net_address, (Netgame.flags & NETFLAG_SHORTPACKETS) ? 2 : 0);
+			if (Netgame.flags & NETFLAG_SHORTPACKETS)
+			{
+#ifdef WORDS_BIGENDIAN
+				ubyte send_data[MAX_DATA_SIZE];
+				//int squished_size;
+#endif
+				int i;
+
+				memset(&ShortSyncPack,0,sizeof(short_frame_info));
+				create_shortpos(&ShortSyncPack.thepos, Objects+objnum, 0);
+				ShortSyncPack.type                                      = PID_PDATA;
+				ShortSyncPack.playernum                         = Player_num;
+				ShortSyncPack.obj_render_type           = Objects[objnum].render_type;
+				ShortSyncPack.level_num                         = Current_level_num;
+				ShortSyncPack.data_size                         = MySyncPack.data_size;
+				memcpy (&ShortSyncPack.data[0],&MySyncPack.data[0],MySyncPack.data_size);
+
+				MySyncPack.numpackets = INTEL_INT(Players[0].n_packets_sent++);
+				ShortSyncPack.numpackets = MySyncPack.numpackets;
+#ifndef WORDS_BIGENDIAN
+// 				NetDrvSendGamePacket((ubyte*)&ShortSyncPack, sizeof(short_frame_info) - NET_XDATA_SIZE + MySyncPack.data_size);
+				for(i=0; i<N_players; i++) {
+					if(Players[i].connected && (i != Player_num))
+						NetDrvSendPacketData((ubyte*)&ShortSyncPack, sizeof(short_frame_info) - NET_XDATA_SIZE + MySyncPack.data_size, Netgame.players[i].server, Netgame.players[i].node,Players[i].net_address);
+				}
+#else
+				squish_short_frame_info(ShortSyncPack, send_data);
+// 				NetDrvSendGamePacket((ubyte*)send_data, IPX_SHORT_INFO_SIZE-NET_XDATA_SIZE+MySyncPack.data_size);
+				for(i=0; i<N_players; i++) {
+					if(Players[i].connected && (i != Player_num))
+						NetDrvSendPacketData((ubyte*)send_data, IPX_SHORT_INFO_SIZE-NET_XDATA_SIZE+MySyncPack.data_size, Netgame.players[i].server, Netgame.players[i].node,Players[i].net_address);
+				}
+#endif
+
+			}
+			else  // If long packets
+			{
+				int send_data_size, i;
+				
+				MySyncPack.numpackets					= Players[0].n_packets_sent++;
+				MySyncPack.type                                 = PID_PDATA;
+				MySyncPack.playernum                    = Player_num;
+				MySyncPack.obj_render_type              = Objects[objnum].render_type;
+				MySyncPack.level_num                    = Current_level_num;
+				MySyncPack.obj_segnum                   = Objects[objnum].segnum;
+				MySyncPack.obj_pos                              = Objects[objnum].pos;
+				MySyncPack.obj_orient                   = Objects[objnum].orient;
+				MySyncPack.phys_velocity                = Objects[objnum].mtype.phys_info.velocity;
+				MySyncPack.phys_rotvel                  = Objects[objnum].mtype.phys_info.rotvel;
+				
+				send_data_size = MySyncPack.data_size;                  // do this so correct size data is sent
+
+// 				NetDrvSendGamePacket((ubyte*)&MySyncPack, sizeof(frame_info) - NET_XDATA_SIZE + send_data_size);
+				for(i=0; i<N_players; i++)
+				{
+					if(Players[i].connected && (i != Player_num))
+					{
+						send_frameinfo_packet(&MySyncPack, Netgame.players[i].server, Netgame.players[i].node,Players[i].net_address);
+					}
 				}
 			}
+			
+			
+			
+			
 			MySyncPack.data_size = 0;		// Start data over at 0 length.
 			if (Fuelcen_control_center_destroyed)
 				network_send_endlevel_packet();
@@ -3376,6 +3428,7 @@ void network_consistency_error(void)
 	multi_reset_stuff();
 }
 
+#if 0
 void network_read_pdata_packet(ubyte *data, int short_packet)
 {
 	int TheirPlayernum;
@@ -3484,6 +3537,249 @@ void network_read_pdata_packet(ubyte *data, int short_packet)
 	}
 
 }
+#endif
+
+void network_process_pdata (char *data)
+ {
+  Assert (Game_mode & GM_NETWORK);
+ 
+  if (Netgame.flags & NETFLAG_SHORTPACKETS)
+	network_read_pdata_short_packet ((short_frame_info *)data);
+  else
+	network_read_pdata_packet ((ubyte *) data);
+ }
+
+void network_read_pdata_packet(ubyte *data )
+{
+	int TheirPlayernum;
+	int TheirObjnum;
+	object * TheirObj = NULL;
+	frame_info *pd;
+	frame_info frame_data;
+
+	pd = &frame_data;
+	receive_frameinfo_packet(data, &frame_data);
+
+	TheirPlayernum = pd->playernum;
+	TheirObjnum = Players[pd->playernum].objnum;
+	
+	if (TheirPlayernum < 0) {
+		Int3(); // This packet is bogus!!
+		return;
+	}
+
+	if (!multi_quit_game && (TheirPlayernum >= N_players))
+	{
+		if (Network_status!=NETSTAT_WAITING)
+		{
+			Int3(); // We missed an important packet!
+			network_consistency_error();
+			return;
+		}
+		else
+			return;
+	}
+
+	if (Endlevel_sequence || (Network_status == NETSTAT_ENDLEVEL) ) {
+		int old_Endlevel_sequence = Endlevel_sequence;
+		Endlevel_sequence = 1;
+		if ( pd->data_size>0 )
+		{
+			// pass pd->data to some parser function....
+			multi_process_bigdata( pd->data, pd->data_size );
+		}
+		Endlevel_sequence = old_Endlevel_sequence;
+		return;
+	}
+
+	if ((sbyte)pd->level_num != Current_level_num)
+	{
+		return;
+	}
+
+	TheirObj = &Objects[TheirObjnum];
+
+	//------------- Keep track of missed packets -----------------
+	Players[TheirPlayernum].n_packets_got++;
+	LastPacketTime[TheirPlayernum] = timer_get_approx_seconds();
+	if  ( pd->numpackets != Players[TheirPlayernum].n_packets_got ) {
+		missed_packets += pd->numpackets-Players[TheirPlayernum].n_packets_got;
+
+		Players[TheirPlayernum].n_packets_got = pd->numpackets;
+	}
+
+	//------------ Read the player's ship's object info ----------------------
+	TheirObj->pos                           = pd->obj_pos;
+	TheirObj->orient                        = pd->obj_orient;
+	TheirObj->mtype.phys_info.velocity = pd->phys_velocity;
+	TheirObj->mtype.phys_info.rotvel = pd->phys_rotvel;
+
+	if ((TheirObj->render_type != pd->obj_render_type) && (pd->obj_render_type == RT_POLYOBJ))
+		multi_make_ghost_player(TheirPlayernum);
+
+	obj_relink(TheirObjnum,pd->obj_segnum);
+
+	if (TheirObj->movement_type == MT_PHYSICS)
+		set_thrust_from_velocity(TheirObj);
+
+	//------------ Welcome them back if reconnecting --------------
+	if (!Players[TheirPlayernum].connected) {
+		Players[TheirPlayernum].connected = 1;
+
+		if (Newdemo_state == ND_STATE_RECORDING)
+			newdemo_record_multi_reconnect(TheirPlayernum);
+
+		multi_make_ghost_player(TheirPlayernum);
+
+		create_player_appearance_effect(&Objects[TheirObjnum]);
+
+		digi_play_sample( SOUND_HUD_MESSAGE, F1_0);
+		
+		HUD_init_message( "'%s' %s", Players[TheirPlayernum].callsign, TXT_REJOIN );
+
+		multi_send_score();
+	}
+
+	//------------ Parse the extra data at the end ---------------
+
+	if ( pd->data_size>0 )  {
+		// pass pd->data to some parser function....
+		multi_process_bigdata( pd->data, pd->data_size );
+	}
+
+}
+
+#ifdef WORDS_BIGENDIAN
+void get_short_frame_info(ubyte *old_info, short_frame_info *new_info)
+{
+	int loc = 0;
+	
+	new_info->type = old_info[loc];                                     loc++;
+	/* skip three for pad byte */                                       loc += 3;
+	memcpy(&(new_info->numpackets), &(old_info[loc]), 4);               loc += 4;
+	new_info->numpackets = INTEL_INT(new_info->numpackets);
+	memcpy(new_info->thepos.bytemat, &(old_info[loc]), 9);              loc += 9;
+	memcpy(&(new_info->thepos.xo), &(old_info[loc]), 2);                loc += 2;
+	memcpy(&(new_info->thepos.yo), &(old_info[loc]), 2);                loc += 2;
+	memcpy(&(new_info->thepos.zo), &(old_info[loc]), 2);                loc += 2;
+	memcpy(&(new_info->thepos.segment), &(old_info[loc]), 2);           loc += 2;
+	memcpy(&(new_info->thepos.velx), &(old_info[loc]), 2);              loc += 2;
+	memcpy(&(new_info->thepos.vely), &(old_info[loc]), 2);              loc += 2;
+	memcpy(&(new_info->thepos.velz), &(old_info[loc]), 2);              loc += 2;
+	new_info->thepos.xo = INTEL_SHORT(new_info->thepos.xo);
+	new_info->thepos.yo = INTEL_SHORT(new_info->thepos.yo);
+	new_info->thepos.zo = INTEL_SHORT(new_info->thepos.zo);
+	new_info->thepos.segment = INTEL_SHORT(new_info->thepos.segment);
+	new_info->thepos.velx = INTEL_SHORT(new_info->thepos.velx);
+	new_info->thepos.vely = INTEL_SHORT(new_info->thepos.vely);
+	new_info->thepos.velz = INTEL_SHORT(new_info->thepos.velz);
+
+	memcpy(&(new_info->data_size), &(old_info[loc]), 2);                loc += 2;
+	new_info->data_size = INTEL_SHORT(new_info->data_size);
+	new_info->playernum = old_info[loc];                                loc++;
+	new_info->obj_render_type = old_info[loc];                          loc++;
+	new_info->level_num = old_info[loc];                                loc++;
+	memcpy(new_info->data, &(old_info[loc]), new_info->data_size);
+}
+#else
+#define get_short_frame_info(old_info, new_info) \
+	memcpy(new_info, old_info, sizeof(short_frame_info))
+#endif
+
+void network_read_pdata_short_packet(short_frame_info *pd )
+{
+	int TheirPlayernum;
+	int TheirObjnum;
+	object * TheirObj = NULL;
+	short_frame_info new_pd;
+
+// short frame info is not aligned because of shortpos.  The mac
+// will call totally hacked and gross function to fix this up.
+
+	get_short_frame_info((ubyte *)pd, &new_pd);
+
+	TheirPlayernum = new_pd.playernum;
+	TheirObjnum = Players[new_pd.playernum].objnum;
+
+	if (TheirPlayernum < 0) {
+		Int3(); // This packet is bogus!!
+		return;
+	}
+	if (!multi_quit_game && (TheirPlayernum >= N_players)) {
+		if (Network_status!=NETSTAT_WAITING)
+		 {
+			Int3(); // We missed an important packet!
+			network_consistency_error();
+			return;
+		 }
+		else
+		 return;
+	}
+
+	if (Endlevel_sequence || (Network_status == NETSTAT_ENDLEVEL) ) {
+		int old_Endlevel_sequence = Endlevel_sequence;
+		Endlevel_sequence = 1;
+		if ( new_pd.data_size>0 )       {
+			// pass pd->data to some parser function....
+			multi_process_bigdata( new_pd.data, new_pd.data_size );
+		}
+		Endlevel_sequence = old_Endlevel_sequence;
+		return;
+	}
+
+	if ((sbyte)new_pd.level_num != Current_level_num)
+	{
+		return;
+	}
+
+	TheirObj = &Objects[TheirObjnum];
+
+	//------------- Keep track of missed packets -----------------
+	Players[TheirPlayernum].n_packets_got++;
+	LastPacketTime[TheirPlayernum] = timer_get_approx_seconds();
+	if  ( pd->numpackets != Players[TheirPlayernum].n_packets_got ) {
+		missed_packets += pd->numpackets-Players[TheirPlayernum].n_packets_got;
+
+		Players[TheirPlayernum].n_packets_got = pd->numpackets;
+	}
+
+	//------------ Read the player's ship's object info ----------------------
+
+	extract_shortpos(TheirObj, &new_pd.thepos, 0);
+
+	if ((TheirObj->render_type != new_pd.obj_render_type) && (new_pd.obj_render_type == RT_POLYOBJ))
+		multi_make_ghost_player(TheirPlayernum);
+
+	if (TheirObj->movement_type == MT_PHYSICS)
+		set_thrust_from_velocity(TheirObj);
+
+	//------------ Welcome them back if reconnecting --------------
+	if (!Players[TheirPlayernum].connected) {
+		Players[TheirPlayernum].connected = 1;
+
+		if (Newdemo_state == ND_STATE_RECORDING)
+			newdemo_record_multi_reconnect(TheirPlayernum);
+
+		multi_make_ghost_player(TheirPlayernum);
+
+		create_player_appearance_effect(&Objects[TheirObjnum]);
+
+		digi_play_sample( SOUND_HUD_MESSAGE, F1_0);
+		
+		HUD_init_message( "'%s' %s", Players[TheirPlayernum].callsign, TXT_REJOIN );
+
+		multi_send_score();
+	}
+
+	//------------ Parse the extra data at the end ---------------
+
+	if ( new_pd.data_size>0 )       {
+		// pass pd->data to some parser function....
+		multi_process_bigdata( new_pd.data, new_pd.data_size );
+	}
+
+}
+
 
 int network_who_is_master(void)
 {

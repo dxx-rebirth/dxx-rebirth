@@ -1,5 +1,9 @@
 D1X-Rebirth Changelog
 
+20081212
+--------
+main/netpkt.c, main/netpkt.h, main/network.c, main/network.h: Cleaned a frameinfo-packet related code and introduced more of D2X - especially for short packets (which is thankfully covered by Version checking)
+
 20081208
 --------
 main/multi.h: Made MULTI_D1X_PROTO use D1X-IVER so no different releases can play together with Version checking enabled

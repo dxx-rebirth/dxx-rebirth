@@ -532,146 +532,86 @@ void receive_d1x_netgame_packet(ubyte *data, netgame_info *netgame) {
 	}
 }
 
-void send_frameinfo_packet(ubyte *server, ubyte *node, ubyte *address, int short_packet)
+#ifdef WORDS_BIGENDIAN
+void send_frameinfo_packet(frame_info *info, ubyte *server, ubyte *node, ubyte *net_address)
 {
-	int loc;
-	ushort tmpus;
-	object *pl_obj = &Objects[Players[Player_num].objnum];
+	int loc = 0;
+
+	out_buffer[loc] = info->type;									loc++;
+	/*3 bytes of padding */											loc += 3;
+
+	PUT_INTEL_INT(&out_buffer[loc], info->numpackets);				loc += 4;
+	PUT_INTEL_INT(&out_buffer[loc], (int)info->obj_pos.x);			loc += 4;
+	PUT_INTEL_INT(&out_buffer[loc], (int)info->obj_pos.y);			loc += 4;
+	PUT_INTEL_INT(&out_buffer[loc], (int)info->obj_pos.z);			loc += 4;
 	
-	loc = 0;
-	memset(out_buffer, 0, MAX_DATA_SIZE);
-	if (short_packet == 1) {
-		loc = 0;
-		out_buffer[loc] = PID_SHORTPDATA; loc++;
-		out_buffer[loc] = Player_num; loc++;
-		out_buffer[loc] = pl_obj->render_type; loc++;
-		out_buffer[loc] = Current_level_num; loc++;
-		create_shortpos((shortpos *)(out_buffer + loc), pl_obj,1);
-		loc += 9+2*3+2+2*3; // go past shortpos structure
-		PUT_INTEL_SHORT(out_buffer + loc, MySyncPack.data_size); loc += 2;
-		memcpy(out_buffer + loc, MySyncPack.data, MySyncPack.data_size);
-		loc += MySyncPack.data_size;
-	} else if (short_packet == 2) {
-		loc = 0;
-		out_buffer[loc] = PID_PDATA_SHORT2; loc++;
-		out_buffer[loc] = MySyncPack.numpackets & 255; loc++;
-		create_shortpos((shortpos *)(out_buffer + loc), pl_obj,1);
-		loc += 9+2*3+2+2*3; // go past shortpos structure
-		tmpus = MySyncPack.data_size | (Player_num << 12) | (pl_obj->render_type << 15);
-		PUT_INTEL_SHORT(out_buffer + loc, tmpus); loc += 2;
-		out_buffer[loc] = Current_level_num; loc++;
-		memcpy(out_buffer + loc, MySyncPack.data, MySyncPack.data_size);
-		loc += MySyncPack.data_size;
-	} else {
-		out_buffer[0] = PID_PDATA;		loc++;	loc += 3;		// skip three for pad byte
-		PUT_INTEL_INT(&(out_buffer[loc]), MySyncPack.numpackets);					loc += 4;
+	PUT_INTEL_INT(&out_buffer[loc], (int)info->obj_orient.rvec.x);	loc += 4;
+	PUT_INTEL_INT(&out_buffer[loc], (int)info->obj_orient.rvec.y);	loc += 4;
+	PUT_INTEL_INT(&out_buffer[loc], (int)info->obj_orient.rvec.z);	loc += 4;
+	PUT_INTEL_INT(&out_buffer[loc], (int)info->obj_orient.uvec.x);	loc += 4;
+	PUT_INTEL_INT(&out_buffer[loc], (int)info->obj_orient.uvec.y);	loc += 4;
+	PUT_INTEL_INT(&out_buffer[loc], (int)info->obj_orient.uvec.z);	loc += 4;
+	PUT_INTEL_INT(&out_buffer[loc], (int)info->obj_orient.fvec.x);	loc += 4;
+	PUT_INTEL_INT(&out_buffer[loc], (int)info->obj_orient.fvec.y);	loc += 4;
+	PUT_INTEL_INT(&out_buffer[loc], (int)info->obj_orient.fvec.z);	loc += 4;
+	
+	PUT_INTEL_INT(&out_buffer[loc], (int)info->phys_velocity.x);	loc += 4;
+	PUT_INTEL_INT(&out_buffer[loc], (int)info->phys_velocity.y);	loc += 4;
+	PUT_INTEL_INT(&out_buffer[loc], (int)info->phys_velocity.z);	loc += 4;
+	
+	PUT_INTEL_INT(&out_buffer[loc], (int)info->phys_rotvel.x);		loc += 4;
+	PUT_INTEL_INT(&out_buffer[loc], (int)info->phys_rotvel.y);		loc += 4;
+	PUT_INTEL_INT(&out_buffer[loc], (int)info->phys_rotvel.z);		loc += 4;
+	
+	PUT_INTEL_SHORT(&out_buffer[loc], info->obj_segnum);			loc += 2;
+	PUT_INTEL_SHORT(&out_buffer[loc], info->data_size);				loc += 2;
+	out_buffer[loc] = info->playernum;								loc++;
+	out_buffer[loc] = info->obj_render_type;						loc++;
+	out_buffer[loc] = info->level_num;								loc++;
+	memcpy(&out_buffer[loc], info->data, info->data_size);			loc += info->data_size;
 
-		PUT_INTEL_INT(&(out_buffer[loc]), (int)pl_obj->pos.x);						loc += 4;
-		PUT_INTEL_INT(&(out_buffer[loc]), (int)pl_obj->pos.y);						loc += 4;
-		PUT_INTEL_INT(&(out_buffer[loc]), (int)pl_obj->pos.z);						loc += 4;
-		
-		PUT_INTEL_INT(&(out_buffer[loc]), (int)pl_obj->orient.rvec.x);				loc += 4;
-		PUT_INTEL_INT(&(out_buffer[loc]), (int)pl_obj->orient.rvec.y);				loc += 4;
-		PUT_INTEL_INT(&(out_buffer[loc]), (int)pl_obj->orient.rvec.z);				loc += 4;
-		PUT_INTEL_INT(&(out_buffer[loc]), (int)pl_obj->orient.uvec.x);				loc += 4;
-		PUT_INTEL_INT(&(out_buffer[loc]), (int)pl_obj->orient.uvec.y);				loc += 4;
-		PUT_INTEL_INT(&(out_buffer[loc]), (int)pl_obj->orient.uvec.z);				loc += 4;
-		PUT_INTEL_INT(&(out_buffer[loc]), (int)pl_obj->orient.fvec.x);				loc += 4;
-		PUT_INTEL_INT(&(out_buffer[loc]), (int)pl_obj->orient.fvec.y);				loc += 4;
-		PUT_INTEL_INT(&(out_buffer[loc]), (int)pl_obj->orient.fvec.z);				loc += 4;
-		
-		PUT_INTEL_INT(&(out_buffer[loc]), (int)pl_obj->mtype.phys_info.velocity.x);	loc += 4;
-		PUT_INTEL_INT(&(out_buffer[loc]), (int)pl_obj->mtype.phys_info.velocity.y);	loc += 4;
-		PUT_INTEL_INT(&(out_buffer[loc]), (int)pl_obj->mtype.phys_info.velocity.z);	loc += 4;
-		
-		PUT_INTEL_INT(&(out_buffer[loc]), (int)pl_obj->mtype.phys_info.rotvel.x);	loc += 4;
-		PUT_INTEL_INT(&(out_buffer[loc]), (int)pl_obj->mtype.phys_info.rotvel.y);	loc += 4;
-		PUT_INTEL_INT(&(out_buffer[loc]), (int)pl_obj->mtype.phys_info.rotvel.z);	loc += 4;
-		
-		PUT_INTEL_SHORT(&(out_buffer[loc]), pl_obj->segnum);						loc += 2;
-		PUT_INTEL_SHORT(&(out_buffer[loc]), MySyncPack.data_size);					loc += 2;
+	// Always array passed
+	NetDrvSendPacketData(out_buffer, loc, server, node, net_address);
+}
 
-		out_buffer[loc] = Player_num; loc++;
-		out_buffer[loc] = pl_obj->render_type; loc++;
-		out_buffer[loc] = Current_level_num; loc++;
-		memcpy(&(out_buffer[loc]), MySyncPack.data, MySyncPack.data_size);
-		loc += MySyncPack.data_size;
-	}
-#if 0 // adb: not possible (always array passed)
-	if (address == NULL)
-                NetDrvSendInternetworkPacketData( out_buffer, loc, server, node );
-	else
+void receive_frameinfo_packet(ubyte *data, frame_info *info)
+{
+	int loc = 0;
+	
+	info->type = data[loc];									loc++;
+	/*3 bytes of padding */									loc += 3;
+	
+	info->numpackets = GET_INTEL_INT(&data[loc]);			loc += 4;
+	info->obj_pos.x = GET_INTEL_INT(&data[loc]);			loc += 4;	
+	info->obj_pos.y = GET_INTEL_INT(&data[loc]);			loc += 4;	
+	info->obj_pos.z = GET_INTEL_INT(&data[loc]);			loc += 4;	
+	
+	info->obj_orient.rvec.x = GET_INTEL_INT(&data[loc]);	loc += 4;			
+	info->obj_orient.rvec.y = GET_INTEL_INT(&data[loc]);	loc += 4;			
+	info->obj_orient.rvec.z = GET_INTEL_INT(&data[loc]);	loc += 4;			
+	info->obj_orient.uvec.x = GET_INTEL_INT(&data[loc]);	loc += 4;			
+	info->obj_orient.uvec.y = GET_INTEL_INT(&data[loc]);	loc += 4;			
+	info->obj_orient.uvec.z = GET_INTEL_INT(&data[loc]);	loc += 4;			
+	info->obj_orient.fvec.x = GET_INTEL_INT(&data[loc]);	loc += 4;			
+	info->obj_orient.fvec.y = GET_INTEL_INT(&data[loc]);	loc += 4;			
+	info->obj_orient.fvec.z = GET_INTEL_INT(&data[loc]);	loc += 4;			
+	
+	info->phys_velocity.x = GET_INTEL_INT(&data[loc]);		loc += 4;		
+	info->phys_velocity.y = GET_INTEL_INT(&data[loc]);		loc += 4;				
+	info->phys_velocity.z = GET_INTEL_INT(&data[loc]);		loc += 4;				
+	
+	info->phys_rotvel.x = GET_INTEL_INT(&data[loc]);		loc += 4;				
+	info->phys_rotvel.y = GET_INTEL_INT(&data[loc]);		loc += 4;				
+	info->phys_rotvel.z = GET_INTEL_INT(&data[loc]);		loc += 4;				
+	
+	info->obj_segnum = GET_INTEL_SHORT(&data[loc]);			loc += 2;		
+	info->data_size = GET_INTEL_SHORT(&data[loc]);			loc += 2;		
+	info->playernum = data[loc];							loc++;
+	info->obj_render_type = data[loc];						loc++;
+	info->level_num = data[loc];							loc++;
+	memcpy(info->data, &data[loc], info->data_size);		loc += info->data_size;
+}
 #endif
-		NetDrvSendPacketData( out_buffer, loc, server, node, address);
-}
-
-void receive_frameinfo_packet(ubyte *data, frame_info *info, int short_packet)
-{
-	int loc;
-	
-	if (short_packet == 1) {
-		loc = 0;
-		info->type = data[loc]; loc++;
-		info->playernum = data[loc]; loc++;
-		info->obj_render_type = data[loc]; loc++;
-		info->level_num = data[loc]; loc++;
-		loc += 9+2*3+2+2*3; // skip shortpos structure
-		info->data_size = GET_INTEL_SHORT(data + loc); loc+=2;
-		memcpy(info->data, &(data[loc]), info->data_size);
-	} else if (short_packet == 2) {
-		ushort tmpus;
-
-		loc = 0;
-		info->type = data[loc];         loc++;
-		info->numpackets = data[loc];   loc++;
-		loc += 9+2*3+2+2*3; // skip shortpos structure
-		tmpus = GET_INTEL_SHORT(data + loc); loc+=2;
-		info->data_size = tmpus & 0xfff;
-		info->playernum = (tmpus >> 12) & 7;
-		info->obj_render_type = tmpus >> 15;
-		info->numpackets |= Players[info->playernum].n_packets_got & (~255);
-		if (info->numpackets - Players[info->playernum].n_packets_got > 224)
-			info->numpackets -= 256;
-		else if (Players[info->playernum].n_packets_got - info->numpackets > 128)
-			info->numpackets += 256;
-		info->level_num = data[loc];    loc++;
-		memcpy(info->data, &(data[loc]), info->data_size);
-	} else {
-		loc = 0;
-		info->type = data[loc]; 		loc++;	loc += 3;		// skip three for pad byte
-		info->numpackets = GET_INTEL_INT(&(data[loc]));			loc += 4;
-		
-		info->obj_pos.x = GET_INTEL_INT(&(data[loc]));			loc += 4;
-		info->obj_pos.y = GET_INTEL_INT(&(data[loc]));			loc += 4;
-		info->obj_pos.z = GET_INTEL_INT(&(data[loc]));			loc += 4;
-		
-		info->obj_orient.rvec.x = GET_INTEL_INT(&(data[loc]));	loc += 4;
-		info->obj_orient.rvec.y = GET_INTEL_INT(&(data[loc]));	loc += 4;
-		info->obj_orient.rvec.z = GET_INTEL_INT(&(data[loc]));	loc += 4;
-		info->obj_orient.uvec.x = GET_INTEL_INT(&(data[loc]));	loc += 4;
-		info->obj_orient.uvec.y = GET_INTEL_INT(&(data[loc]));	loc += 4;
-		info->obj_orient.uvec.z = GET_INTEL_INT(&(data[loc]));	loc += 4;
-		info->obj_orient.fvec.x = GET_INTEL_INT(&(data[loc]));	loc += 4;
-		info->obj_orient.fvec.y = GET_INTEL_INT(&(data[loc]));	loc += 4;
-		info->obj_orient.fvec.z = GET_INTEL_INT(&(data[loc]));	loc += 4;
-		
-		info->phys_velocity.x = GET_INTEL_INT(&(data[loc]));	loc += 4;
-		info->phys_velocity.y = GET_INTEL_INT(&(data[loc]));	loc += 4;
-		info->phys_velocity.z = GET_INTEL_INT(&(data[loc]));	loc += 4;
-		
-		info->phys_rotvel.x = GET_INTEL_INT(&(data[loc]));		loc += 4;
-		info->phys_rotvel.y = GET_INTEL_INT(&(data[loc]));		loc += 4;
-		info->phys_rotvel.z = GET_INTEL_INT(&(data[loc]));		loc += 4;
-		
-		info->obj_segnum = GET_INTEL_SHORT(&(data[loc]));		loc += 2;
-		info->data_size = GET_INTEL_SHORT(&(data[loc]));		loc += 2;
-		
-		info->playernum = data[loc];		loc++;
-		info->obj_render_type = data[loc];	loc++;
-		info->level_num = data[loc];		loc++;
-		memcpy(info->data, &(data[loc]), info->data_size);
-	}
-}
 
 void swap_object(object *obj)
 {
