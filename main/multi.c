@@ -1243,6 +1243,17 @@ void multi_send_message_end()
 				return;
 			}
 	}
+	
+	else if (!strnicmp (Network_message,"KillReactor",11) && (Game_mode & GM_NETWORK) && !Control_center_destroyed)
+	{
+		if (!network_i_am_master())
+			HUD_init_message ("Only %s can kill the reactor this way!",Players[network_who_is_master()].callsign);
+		else
+		{
+			net_destroy_controlcen(NULL);
+			multi_send_destroy_controlcen(-1,Player_num);
+		}
+	}
 
 	else
 		HUD_init_message("%s '%s'", TXT_SENDING, Network_message);

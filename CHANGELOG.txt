@@ -1,5 +1,9 @@
 D2X-Rebirth Changelog
 
+20081212
+--------
+main/multi.c: Added /KillReactor command to blow up the reactor in Multiplayer games
+
 20081207
 --------
 2d/pcx.c, 3d/interp.c, arch/include/key.h, arch/sdl/key.c, d2x-rebirth.xcodeproj/project.pbxproj, iff/iff.c, include/gr.h, include/pcx.h, include/u_mem.h, main/automap.c, main/escort.c, main/game.c, main/gamecntl.c, main/gauges.h, main/inferno.c, main/inferno.h, main/kconfig.c, main/mglobal.c, main/newdemo.c, main/newdemo.h, main/newmenu.c, main/piggy.c, main/render.c, main/songs.c, main/titles.c: Get Mac command keys working, MACINTOSH code cleanup, update Xcode project
