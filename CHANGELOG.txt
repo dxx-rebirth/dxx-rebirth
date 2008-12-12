@@ -3,6 +3,7 @@ D1X-Rebirth Changelog
 20081212
 --------
 main/netpkt.c, main/netpkt.h, main/network.c, main/network.h: Cleaned a frameinfo-packet related code and introduced more of D2X - especially for short packets (which is thankfully covered by Version checking)
+main/multi.c: Added /KillReactor command to blow up the reactor in Multiplayer games
 
 20081207
 --------
