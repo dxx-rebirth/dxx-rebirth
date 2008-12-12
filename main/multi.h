@@ -46,7 +46,7 @@ COPYRIGHT 1993-1998 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 #else
 #define MULTI_PROTO_VERSION	2
 #endif
-#define MULTI_PROTO_D1X_VER	D1X_IVER  // Change the D1X protocol version with each release so no version is compatible with each other (except micro revisions)
+#define MULTI_PROTO_D1X_VER	6  // Increment everytime we change networking features
 
 //Incrementing this seems the only way possible.  Still stays backwards compitible.
 #define MULTI_PROTO_D1X_MINOR	1
