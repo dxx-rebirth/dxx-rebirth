@@ -35,7 +35,7 @@ COPYRIGHT 1993-1999 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 #else
 #define MULTI_PROTO_VERSION 4
 #endif
-#define MULTI_PROTO_D2X_VER	D2X_IVER  // Change the D2X protocol version with each release so no version is compatible with each other (except micro revisions)
+#define MULTI_PROTO_D2X_VER	6  // Increment everytime we change networking features
 
 // Protocol versions:
 //   1 Descent Shareware
