@@ -1253,6 +1253,9 @@ void multi_send_message_end()
 			net_destroy_controlcen(NULL);
 			multi_send_destroy_controlcen(-1,Player_num);
 		}
+		multi_message_index = 0;
+		multi_sending_message = 0;
+		return;
 	}
 
 	else
