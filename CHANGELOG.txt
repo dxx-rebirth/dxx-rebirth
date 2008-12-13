@@ -1,5 +1,9 @@
 D2X-Rebirth Changelog
 
+20081213
+--------
+main/game.c, main/game.h, main/gamecntl.c, main/menu.c: Seperated help screens for game, netgame and demo; Also show them in Controls menu; Small Menu UI fix for ScrollOffset when calling menus in a scrolled area of a menu
+
 20081212
 --------
 main/multi.c: Added /KillReactor command to blow up the reactor in Multiplayer games

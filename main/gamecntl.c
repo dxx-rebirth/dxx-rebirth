@@ -993,7 +993,7 @@ int HandleSystemKey(int key)
 		}
 
 		MAC(case KEY_COMMAND+KEY_1:)
-		case KEY_F1:					show_help();			break;
+		case KEY_F1:					if (Game_mode & GM_MULTI) show_netgame_help(); else show_help();			break;
 
 		MAC(case KEY_COMMAND+KEY_2:)
 		case KEY_F2:					//Config_menu_flag = 1; break;
