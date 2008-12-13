@@ -3297,37 +3297,24 @@ void network_do_frame(int force, int listen)
 
 			if (Netgame.flags & NETFLAG_SHORTPACKETS)
 			{
-#ifdef WORDS_BIGENDIAN
-				ubyte send_data[MAX_DATA_SIZE];
-				//int squished_size;
-#endif
 				int i;
 
 				memset(&ShortSyncPack,0,sizeof(short_frame_info));
-				create_shortpos(&ShortSyncPack.thepos, Objects+objnum, 0);
+				create_shortpos(&ShortSyncPack.thepos, Objects+objnum, 1);
 				ShortSyncPack.type                                      = PID_PDATA;
 				ShortSyncPack.playernum                         = Player_num;
 				ShortSyncPack.obj_render_type           = Objects[objnum].render_type;
 				ShortSyncPack.level_num                         = Current_level_num;
-				ShortSyncPack.data_size                         = MySyncPack.data_size;
+				ShortSyncPack.data_size                         = INTEL_SHORT(MySyncPack.data_size);
 				memcpy (&ShortSyncPack.data[0],&MySyncPack.data[0],MySyncPack.data_size);
 
 				MySyncPack.numpackets = INTEL_INT(Players[0].n_packets_sent++);
 				ShortSyncPack.numpackets = MySyncPack.numpackets;
-#ifndef WORDS_BIGENDIAN
 // 				NetDrvSendGamePacket((ubyte*)&ShortSyncPack, sizeof(short_frame_info) - NET_XDATA_SIZE + MySyncPack.data_size);
 				for(i=0; i<N_players; i++) {
 					if(Players[i].connected && (i != Player_num))
 						NetDrvSendPacketData((ubyte*)&ShortSyncPack, sizeof(short_frame_info) - NET_XDATA_SIZE + MySyncPack.data_size, Netgame.players[i].server, Netgame.players[i].node,Players[i].net_address);
 				}
-#else
-				squish_short_frame_info(ShortSyncPack, send_data);
-// 				NetDrvSendGamePacket((ubyte*)send_data, IPX_SHORT_INFO_SIZE-NET_XDATA_SIZE+MySyncPack.data_size);
-				for(i=0; i<N_players; i++) {
-					if(Players[i].connected && (i != Player_num))
-						NetDrvSendPacketData((ubyte*)send_data, IPX_SHORT_INFO_SIZE-NET_XDATA_SIZE+MySyncPack.data_size, Netgame.players[i].server, Netgame.players[i].node,Players[i].net_address);
-				}
-#endif
 
 			}
 			else  // If long packets
