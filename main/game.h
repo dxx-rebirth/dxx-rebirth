@@ -198,7 +198,9 @@ void reset_palette_add (void);
 void palette_restore (void);
 
 //put up the help message
-void show_help ();
+void show_help();
+void show_netgame_help();
+void show_newdemo_help();
 
 //show a message in a nice little box
 void show_boxed_message (char *msg, int RenderFlag);

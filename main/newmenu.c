@@ -664,6 +664,14 @@ int newmenu_do3_real( char * title, char * subtitle, int nitems, newmenu_item * 
 		IsScrollBox=1;
 		h=((MaxOnMenu+(subtitle?1:0))*LINE_SPACING);
 		MaxDisplayable=MaxOnMenu;
+		
+		// if our last citem was > MaxOnMenu, make sure we re-scroll when we call this menu again
+		if (citem > MaxOnMenu-4)
+		{
+			ScrollOffset = citem - (MaxOnMenu-4);
+			if (ScrollOffset + MaxOnMenu > nitems)
+				ScrollOffset = nitems - MaxOnMenu;
+		}
 	}
 	else
 	{

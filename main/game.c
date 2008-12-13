@@ -1343,10 +1343,11 @@ int do_game_pause()
 void show_help()
 {
 	int nitems = 0;
-	newmenu_item m[28];
-
+	newmenu_item m[25];
+	
 	m[nitems].type = NM_TYPE_TEXT; m[nitems++].text = TXT_HELP_ESC;
 	m[nitems].type = NM_TYPE_TEXT; m[nitems++].text = "SHIFT-ESC\t  SHOW GAME LOG";
+	m[nitems].type = NM_TYPE_TEXT; m[nitems++].text = "F1\t  THIS SCREEN";
 	m[nitems].type = NM_TYPE_TEXT; m[nitems++].text = TXT_HELP_F2;
 #if !(defined(__APPLE__) || defined(macintosh))
 	m[nitems].type = NM_TYPE_TEXT; m[nitems++].text = "Alt-F2/F3\t  SAVE/LOAD GAME";
@@ -1373,13 +1374,6 @@ void show_help()
 	m[nitems].type = NM_TYPE_TEXT; m[nitems++].text = "\x85-Up/Down\t  Play/Pause " EXT_MUSIC_TEXT;
 	m[nitems].type = NM_TYPE_TEXT; m[nitems++].text = "\x85-Left/Right\t  Previous/Next Song";
 #endif
-	m[nitems].type = NM_TYPE_TEXT; m[nitems++].text = "";
-	m[nitems].type = NM_TYPE_TEXT; m[nitems++].text = "MULTIPLAYER:";
-	m[nitems].type = NM_TYPE_TEXT; m[nitems++].text = "ALT-F4\t  SHOW RETICLE NAMES";
-	m[nitems].type = NM_TYPE_TEXT; m[nitems++].text = "F7\t  TOGGLE KILL LIST";
-	m[nitems].type = NM_TYPE_TEXT; m[nitems++].text = "F8\t  SEND MESSAGE";
-	m[nitems].type = NM_TYPE_TEXT; m[nitems++].text = "(SHIFT-)F8 to F12\t  (DEFINE)SEND MACRO";
-	m[nitems].type = NM_TYPE_TEXT; m[nitems++].text = "PAUSE\t  SHOW NETGAME INFORMATION";
 #if (defined(__APPLE__) || defined(macintosh))
 	m[nitems].type = NM_TYPE_TEXT; m[nitems++].text = "";
 	m[nitems].type = NM_TYPE_TEXT; m[nitems++].text = "(Use \x85-# for F#. e.g. \x85-1 for F1)";
@@ -1387,28 +1381,54 @@ void show_help()
 	newmenu_dotiny( NULL, TXT_KEYS, nitems, m, NULL );
 }
 
+void show_netgame_help()
+{
+	int nitems = 0;
+	newmenu_item m[12];
+
+	m[nitems].type = NM_TYPE_TEXT; m[nitems++].text = "F1\t  THIS SCREEN";
+	m[nitems].type = NM_TYPE_TEXT; m[nitems++].text = "ALT-F4\t  SHOW RETICLE NAMES";
+	m[nitems].type = NM_TYPE_TEXT; m[nitems++].text = "F7\t  TOGGLE KILL LIST";
+	m[nitems].type = NM_TYPE_TEXT; m[nitems++].text = "F8\t  SEND MESSAGE";
+	m[nitems].type = NM_TYPE_TEXT; m[nitems++].text = "(SHIFT-)F8 to F12\t  (DEFINE)SEND MACRO";
+	m[nitems].type = NM_TYPE_TEXT; m[nitems++].text = "PAUSE\t  SHOW NETGAME INFORMATION";
+
+#if (defined(__APPLE__) || defined(macintosh))
+	m[nitems].type = NM_TYPE_TEXT; m[nitems++].text = "";
+	m[nitems].type = NM_TYPE_TEXT; m[nitems++].text = "(Use \x85-# for F#. e.g. \x85-1 for F1)";
+#endif
+
+	m[nitems].type = NM_TYPE_TEXT; m[nitems++].text = "";
+	m[nitems].type = NM_TYPE_TEXT; m[nitems++].text = "MULTIPLAYER MESSAGE COMMANDS:";
+	m[nitems].type = NM_TYPE_TEXT; m[nitems++].text = "kick: (*)\t  KICK PLAYER (*) FROM GAME (Host-only)";
+	m[nitems].type = NM_TYPE_TEXT; m[nitems++].text = "KillReactor\t  BLOW UP THE MINE (Host-only)";
+
+	newmenu_dotiny( NULL, TXT_KEYS, nitems, m, NULL );
+}
+
 void show_newdemo_help()
 {
-	newmenu_item m[14];
-	int mc = 0;
+	newmenu_item m[15];
+	int nitems = 0;
 
-	m[mc].type = NM_TYPE_TEXT; m[mc].text = "ESC\t  QUIT DEMO PLAYBACK"; mc++;
-	m[mc].type = NM_TYPE_TEXT; m[mc].text = TXT_HELP_F2; mc++;
-	m[mc].type = NM_TYPE_TEXT; m[mc].text = "F3\t  SWITCH COCKPIT MODES"; mc++;
-	m[mc].type = NM_TYPE_TEXT; m[mc].text = "F4\t  TOGGLE PERCENTAGE DISPLAY"; mc++;
-	m[mc].type = NM_TYPE_TEXT; m[mc].text = "UP\t  PLAY"; mc++;
-	m[mc].type = NM_TYPE_TEXT; m[mc].text = "DOWN\t  PAUSE"; mc++;
-	m[mc].type = NM_TYPE_TEXT; m[mc].text = "RIGHT\t  ONE FRAME FORWARD"; mc++;
-	m[mc].type = NM_TYPE_TEXT; m[mc].text = "LEFT\t  ONE FRAME BACKWARD"; mc++;
-	m[mc].type = NM_TYPE_TEXT; m[mc].text = "SHIFT-RIGHT\t  FAST FORWARD"; mc++;
-	m[mc].type = NM_TYPE_TEXT; m[mc].text = "SHIFT-LEFT\t  FAST BACKWARD"; mc++;
-	m[mc].type = NM_TYPE_TEXT; m[mc].text = "CTRL-RIGHT\t  JUMP TO END"; mc++;
-	m[mc].type = NM_TYPE_TEXT; m[mc].text = "CTRL-LEFT\t  JUMP TO START"; mc++;
+	m[nitems].type = NM_TYPE_TEXT; m[nitems++].text = "ESC\t  QUIT DEMO PLAYBACK";
+	m[nitems].type = NM_TYPE_TEXT; m[nitems++].text = "F1\t  THIS SCREEN";
+	m[nitems].type = NM_TYPE_TEXT; m[nitems++].text = TXT_HELP_F2;
+	m[nitems].type = NM_TYPE_TEXT; m[nitems++].text = "F3\t  SWITCH COCKPIT MODES";
+	m[nitems].type = NM_TYPE_TEXT; m[nitems++].text = "F4\t  TOGGLE PERCENTAGE DISPLAY";
+	m[nitems].type = NM_TYPE_TEXT; m[nitems++].text = "UP\t  PLAY";
+	m[nitems].type = NM_TYPE_TEXT; m[nitems++].text = "DOWN\t  PAUSE";
+	m[nitems].type = NM_TYPE_TEXT; m[nitems++].text = "RIGHT\t  ONE FRAME FORWARD";
+	m[nitems].type = NM_TYPE_TEXT; m[nitems++].text = "LEFT\t  ONE FRAME BACKWARD";
+	m[nitems].type = NM_TYPE_TEXT; m[nitems++].text = "SHIFT-RIGHT\t  FAST FORWARD";
+	m[nitems].type = NM_TYPE_TEXT; m[nitems++].text = "SHIFT-LEFT\t  FAST BACKWARD";
+	m[nitems].type = NM_TYPE_TEXT; m[nitems++].text = "CTRL-RIGHT\t  JUMP TO END";
+	m[nitems].type = NM_TYPE_TEXT; m[nitems++].text = "CTRL-LEFT\t  JUMP TO START";
 #if (defined(__APPLE__) || defined(macintosh))
-	m[mc].type = NM_TYPE_TEXT; m[mc].text = ""; mc++;
-	m[mc].type = NM_TYPE_TEXT; m[mc].text = "(Use \x85-# for F#. e.g. \x85-1 for F1)"; mc++;
+	m[nitems].type = NM_TYPE_TEXT; m[nitems++].text = "";
+	m[nitems].type = NM_TYPE_TEXT; m[nitems++].text = "(Use \x85-# for F#. e.g. \x85-1 for F1)";
 #endif
-	newmenu_dotiny( NULL, "DEMO PLAYBACK CONTROLS", mc, m, NULL );
+	newmenu_dotiny( NULL, "DEMO PLAYBACK CONTROLS", nitems, m, NULL );
 }
 
 //temp function until Matt cleans up game sequencing
@@ -2159,7 +2179,7 @@ void HandleGameKey(int key)
 			}
 			break;
 		MAC(case KEY_COMMAND+KEY_1:)
-		case KEY_F1:				show_help();         break;
+		case KEY_F1:				if (Game_mode & GM_MULTI) show_netgame_help(); else show_help();         break;
 		MAC(case KEY_COMMAND+KEY_2:)
 		case KEY_F2:				Config_menu_flag = 1;	break;
 		MAC(case KEY_COMMAND+KEY_3:)

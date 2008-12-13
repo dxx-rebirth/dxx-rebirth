@@ -3,6 +3,7 @@ D1X-Rebirth Changelog
 20081213
 --------
 main/network.c: Fix short_frameinfo sending code for big endian processors
+main/game.c, main/game.h, main/menu.c: Seperated help screens for game, netgame and demo; Also show them in Controls menu; Small Menu UI fix for ScrollOffset when calling menus in a scrolled area of a menu
 
 20081212
 --------
