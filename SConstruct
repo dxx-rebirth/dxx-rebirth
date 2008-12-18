@@ -31,17 +31,21 @@ sdlmixer = int(ARGUMENTS.get('sdlmixer', 0))
 arm = int(ARGUMENTS.get('arm', 0))
 ipv6 = int(ARGUMENTS.get('ipv6', 0))
 micro = int(ARGUMENTS.get('micro', 0))
+use_svn_as_micro = int(ARGUMENTS.get('svnmicro', 0))
 
 if (micro > 0):
 	D1XMICRO = micro
 else:
 	D1XMICRO = 0
 
-VERSION_STRING = ' v' + str(D1XMAJOR) + '.' + str(D1XMINOR) + " svn " + str(D1XSVN)
+if use_svn_as_micro:
+	D1XMICRO = str(D1XSVN)
+
+VERSION_STRING = ' v' + str(D1XMAJOR) + '.' + str(D1XMINOR)
 if (D1XMICRO):
 	VERSION_STRING += '.' + str(D1XMICRO)
 
-print '\n===== ' + PROGRAM_NAME + VERSION_STRING + ' =====\n'
+print '\n===== ' + PROGRAM_NAME + VERSION_STRING + " (svn " + str(D1XSVN) + ') =====\n'
 
 # general source files
 common_sources = [
