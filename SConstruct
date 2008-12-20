@@ -164,8 +164,8 @@ common_sources = [
 'misc/strio.c',
 'misc/strutil.c',
 'texmap/ntmap.c',
-'texmap/scanline.c',
-'tracker/client/tracker_client.c'
+'texmap/scanline.c'
+#'tracker/client/tracker_client.c'
 ]
 
 # for editor

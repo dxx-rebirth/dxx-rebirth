@@ -344,6 +344,7 @@ void do_option ( int select)
 			NetDrvSet(NETPROTO_KALINIX);
 			network_join_game();
 			break;
+#if 0 // Later...
 		// Browse the available UDP/IP games by contacting tracker...
 		case MENU_BROWSE_UDP_NETGAME:
 		{
@@ -354,6 +355,7 @@ void do_option ( int select)
 			// Done...
 			break;
 		}
+#endif
 		case MENU_START_UDP_NETGAME:
 			NetDrvSet(NETPROTO_UDP);
 			network_start_game();
@@ -812,7 +814,9 @@ void do_multi_player_menu()
 		ADD_ITEM("Start IPX Netgame", MENU_START_IPX_NETGAME, -1);
 		ADD_ITEM("Join IPX Netgame\n", MENU_JOIN_IPX_NETGAME, -1);
 #endif //HAVE_NETIPX_IPX_H
+#if 0 // Later...
         ADD_ITEM("Browse UDP/IP Netgames", MENU_BROWSE_UDP_NETGAME, -1);
+#endif
 		ADD_ITEM("Start UDP/IP Netgame", MENU_START_UDP_NETGAME, -1);
 		ADD_ITEM("Join UDP/IP Netgame\n", MENU_JOIN_UDP_NETGAME, -1);
 #ifdef __LINUX__

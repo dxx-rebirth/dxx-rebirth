@@ -1,5 +1,9 @@
 D1X-Rebirth Changelog
 
+20081220
+--------
+SConstruct, main/menu.c: Removed (#if 0) the unfinished Tracker stuff for our Release so it won't confuse the Win32 build
+
 20081213
 --------
 main/network.c: Fix short_frameinfo sending code for big endian processors
