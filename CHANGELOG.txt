@@ -3,6 +3,7 @@ D2X-Rebirth Changelog
 20081221
 --------
 d2x-rebirth.xcodeproj/project.pbxproj, D2X.make, main/gamecntl.c, main/playsave.c: Fix Mac OS 9 compile issues, update Xcode project
+arch/carbon/conf.h: Set SHAREPATH to "." so reading data from DXX's directory ACTUALLY WORKS
 
 20081213
 --------

@@ -81,7 +81,7 @@
 /* #undef RELEASE */
 
 /* Define this to be the shared game directory root */
-#define SHAREPATH ""
+#define SHAREPATH "."
 
 /* Define to 1 if you have the ANSI C header files. */
 //#define STDC_HEADERS 1
