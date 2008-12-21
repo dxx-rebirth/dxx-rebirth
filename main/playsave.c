@@ -658,8 +658,8 @@ int write_player_file()
 	//write kconfig info
 	{
 
-		control_type_dos = PlayerCfg.ControlType;
 		ubyte old_avg_joy_sensitivity = ((PlayerCfg.JoystickSensitivityX+PlayerCfg.JoystickSensitivityY+1)/2);
+		control_type_dos = PlayerCfg.ControlType;
 
 		if (PHYSFS_write(file, PlayerCfg.KeySettings, MAX_CONTROLS*CONTROL_MAX_TYPES, 1) != 1)
 			goto write_player_file_failed;

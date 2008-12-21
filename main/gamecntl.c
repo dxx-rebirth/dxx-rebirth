@@ -1054,7 +1054,7 @@ int HandleSystemKey(int key)
 			#endif
 			break;		// send taunt macros
 
-#if defined(__APPLE__) || defined(macintosh)
+#if defined(NETWORK) && (defined(__APPLE__) || defined(macintosh))
 		case KEY_9 + KEY_COMMAND:
 			multi_send_macro(KEY_F9);
 			break;
@@ -1078,7 +1078,7 @@ int HandleSystemKey(int key)
 			#endif
 			break;		// redefine taunt macros
 
-#if defined(__APPLE__) || defined(macintosh)
+#if defined(NETWORK) && (defined(__APPLE__) || defined(macintosh))
 		case KEY_9 + KEY_SHIFTED + KEY_COMMAND:
 			multi_define_macro(KEY_F9);
 			break;

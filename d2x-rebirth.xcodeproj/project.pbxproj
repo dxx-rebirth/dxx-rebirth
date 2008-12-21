@@ -1641,9 +1641,11 @@
 		29B97313FDCFA39411CA2CEA /* Project object */ = {
 			isa = PBXProject;
 			buildConfigurationList = EBBAD49E0B2D0F7E00080BBF /* Build configuration list for PBXProject "d2x-rebirth" */;
+			compatibilityVersion = "Xcode 2.4";
 			hasScannedForEncodings = 1;
 			mainGroup = 29B97314FDCFA39411CA2CEA /* d2x */;
 			projectDirPath = "";
+			projectRoot = "";
 			targets = (
 				676AC1BF0668A938007173EB /* d2x */,
 				676AC2710668A939007173EB /* d2xgl */,

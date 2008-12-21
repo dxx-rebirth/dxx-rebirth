@@ -1,5 +1,9 @@
 D2X-Rebirth Changelog
 
+20081221
+--------
+d2x-rebirth.xcodeproj/project.pbxproj, D2X.make, main/gamecntl.c, main/playsave.c: Fix Mac OS 9 compile issues, update Xcode project
+
 20081213
 --------
 main/game.c, main/game.h, main/gamecntl.c, main/menu.c: Seperated help screens for game, netgame and demo; Also show them in Controls menu; Small Menu UI fix for ScrollOffset when calling menus in a scrolled area of a menu
