@@ -90,6 +90,8 @@ int bald_guy_load( char * filename, grs_bitmap * bmp,int bitmap_type ,ubyte * pa
 	int i, row, col, count, fsize;
 	ubyte data, c, xor_value, *pixdata;
 	ubyte *bguy_data, *bguy_data1, *p;
+	unsigned int xsize;
+	unsigned int ysize;
 	
 	PCXfile = cfopen( filename , "rb" );
 	if ( !PCXfile )
@@ -129,8 +131,8 @@ int bald_guy_load( char * filename, grs_bitmap * bmp,int bitmap_type ,ubyte * pa
 	header.Ymax = INTEL_SHORT(header.Ymax);
 	
 	// Find the size of the image
-	unsigned int const xsize = header.Xmax - header.Xmin + 1;
-	unsigned int const ysize = header.Ymax - header.Ymin + 1;
+	xsize = header.Xmax - header.Xmin + 1;
+	ysize = header.Ymax - header.Ymin + 1;
 	
 	if ( bmp->bm_data == NULL )	{
 		memset( bmp, 0, sizeof( grs_bitmap ) );

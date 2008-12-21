@@ -90,8 +90,10 @@ int ReadConfigFile()
 #endif
 	memset(GameCfg.MplIpHostAddr, '\x0', sizeof(GameCfg.MplIpHostAddr));
 	
+#ifdef NETWORK
 	// Default tracker server in case one is not found in configuration file...
 	strcpy(GameCfg.TrackerServer, TRACKER_DEFAULT_SERVER);
+#endif
 
 	infile = PHYSFSX_openReadBuffered("descent.cfg");
 
@@ -166,6 +168,7 @@ int ReadConfigFile()
 				if ( p ) *p = 0;
 			}
 			
+#ifdef NETWORK
 			// Loading tracker server...
 			else if(strcmp(token, TrackerServerStr) == 0 && strlen(value) > 1)
 			{
@@ -180,6 +183,7 @@ int ReadConfigFile()
 			        if(pszTemp)
 			           *pszTemp = '\x0';
 			}
+#endif
 		}
 	}
 

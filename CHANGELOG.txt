@@ -1,5 +1,9 @@
 D1X-Rebirth Changelog
 
+20081221
+--------
+2d/pcx.c, d1x-rebirth.xcodeproj/project.pbxproj, D1X.make, main/config.c: Fix Mac OS 9 compile issues, update Xcode project
+
 20081220
 --------
 SConstruct, main/menu.c: Removed (#if 0) the unfinished Tracker stuff for our Release so it won't confuse the Win32 build

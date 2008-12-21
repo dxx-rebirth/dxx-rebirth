@@ -62,6 +62,7 @@ SrcFiles        =  ¶
 				  :arch:sdl:digi_mixer_music.c ¶
 				  :arch:sdl:event.c ¶
 				  :arch:sdl:gr.c ¶
+				  :arch:sdl:init.c ¶
 				  :arch:sdl:joy.c ¶
 				  :arch:sdl:jukebox.c ¶
 				  :arch:sdl:key.c ¶
@@ -200,6 +201,7 @@ GeneralObjects    =  ¶
 				  {ObjDir}digi_mixer.c.x ¶
 				  {ObjDir}digi_mixer_music.c.x ¶
 				  {ObjDir}event.c.x ¶
+				  {ObjDir}init.c.x ¶
 				  {ObjDir}joy.c.x ¶
 				  {ObjDir}jukebox.c.x ¶
 				  {ObjDir}key.c.x ¶
@@ -387,6 +389,7 @@ directories Ä
 {ObjDir}digi_mixer_music.c.x	Ä	:arch:sdl:digi_mixer_music.c
 {ObjDir}event.c.x	Ä	:arch:sdl:event.c
 {ObjDir}gr.c.x	Ä	:arch:sdl:gr.c
+{ObjDir}init.c.x	Ä	:arch:sdl:init.c
 {ObjDir}joy.c.x	Ä	:arch:sdl:joy.c
 {ObjDir}jukebox.c.x	Ä	:arch:sdl:jukebox.c
 {ObjDir}key.c.x	Ä	:arch:sdl:key.c
