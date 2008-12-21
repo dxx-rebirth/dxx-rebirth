@@ -3,6 +3,7 @@ D1X-Rebirth Changelog
 20081221
 --------
 2d/pcx.c, d1x-rebirth.xcodeproj/project.pbxproj, D1X.make, main/config.c: Fix Mac OS 9 compile issues, update Xcode project
+arch/carbon/conf.h: Set SHAREPATH to "." so reading data from DXX's directory ACTUALLY WORKS
 
 20081220
 --------

@@ -38,7 +38,7 @@
 /* #undef RELEASE */
 
 /* Define this to be the shared game directory root */
-#define SHAREPATH ""
+#define SHAREPATH "."
 #define DESCENT_DATA_PATH SHAREPATH
 
 /* Define if your processor needs data to be word-aligned */
