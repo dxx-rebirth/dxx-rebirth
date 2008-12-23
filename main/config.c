@@ -69,7 +69,11 @@ int ReadConfigFile()
 	// set defaults
 	GameCfg.DigiVolume = 8;
 	GameCfg.MusicVolume = 8;
+#if defined(__APPLE__) || defined(macintosh)	// MIDI is buggy
+	GameCfg.SndEnableRedbook = 1;
+#else
 	GameCfg.SndEnableRedbook = 0;
+#endif
 	GameCfg.ReverseStereo = 0;
 	GameCfg.GammaLevel = 0;
 	memset(GameCfg.LastPlayer,0,CALLSIGN_LEN+1);
