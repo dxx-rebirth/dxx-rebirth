@@ -20,7 +20,7 @@ COPYRIGHT 1993-1998 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 #ifndef _INFERNO_H
 #define _INFERNO_H
 
-#if MACINTOSH
+#if defined(__APPLE__) || defined(macintosh)
 #define MAC(x) x
 #else
 #define MAC(x)
