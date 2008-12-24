@@ -9,7 +9,7 @@ PROGRAM_NAME = 'D1X-Rebirth'
 
 # version number
 D1XMAJOR = 0
-D1XMINOR = 54
+D1XMINOR = 55
 D1XSVN   = os.popen('svnversion .').read()[:-1]
 D1XSVN   = D1XSVN.split(':')[-1]
 
