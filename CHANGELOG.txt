@@ -1,5 +1,9 @@
 D2X-Rebirth Changelog
 
+20081226
+--------
+main/netdrv_udp.c: Fixed segfault via buffer overflow when attempting to start or join a UDP/IP netgame.
+
 20081223
 --------
 main/config.c: Make Redbook the default for Mac, because MIDI is buggy

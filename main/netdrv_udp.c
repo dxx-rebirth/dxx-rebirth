@@ -447,7 +447,7 @@ int UDPOpenSocket(socket_t *unused, int port)
 #else
 	struct addrinfo hints,*res,*sres;
 	int err,ai_family_;
-	char cport[5];
+	char cport[16];
 	
 	memset (&hints, '\0', sizeof (struct addrinfo));
 	
