@@ -1,5 +1,10 @@
 D2X-Rebirth Changelog
 
+20081230
+--------
+SConstruct: prefix is now an argument (useful for auto-builds)
+debian/*: created the debian packaging files
+
 20081227
 --------
 arch/carbon/conf.h, d2x-Info.plist, d2x-rebirth.xcodeproj/project.pbxproj, d2xgl-Info.plist, English.lproj/InfoPlist.strings: Increment Mac version number, update project for latest Xcode
