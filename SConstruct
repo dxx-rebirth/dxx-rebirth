@@ -14,9 +14,9 @@ D1XSVN   = os.popen('svnversion .').read()[:-1]
 D1XSVN   = D1XSVN.split(':')[-1]
 
 # installation path
-PREFIX = '/usr/local/'
-BIN_SUBDIR = 'bin/'
-DATA_SUBDIR = 'share/games/d1x-rebirth/'
+PREFIX = str(ARGUMENTS.get('prefix', '/usr/local'))
+BIN_SUBDIR = '/bin'
+DATA_SUBDIR = '/share/games/d1x-rebirth'
 BIN_DIR = PREFIX + BIN_SUBDIR
 DATA_DIR = PREFIX + DATA_SUBDIR
 

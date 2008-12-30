@@ -1,0 +1,19 @@
+Source: d1x-rebirth
+Section: games
+Priority: optional
+Maintainer: MD2211 <md2211@users.sourceforge.net>
+Standards-Version: 3.6.1
+
+Package: d1x-rebirth
+Build-Depends: libsdl1.2-dev, libsdl-mixer1.2-dev, libphysfs-dev
+Recommends: timidity, freepats
+Architecture: any
+Depends: ${shlibs:Depends}
+Description: Port of the 1995 classic game Descent 1: First Strike 
+ DXX-Rebirth is a Source Port of the Descent & Descent ][ Engines and
+ provides classical Gameplay combined with OpenGL graphics and effects, 
+ a bunch of improvements and new features.
+ .
+ For more information please visit the web site:
+ http://www.dxx-rebirth.com/
+
