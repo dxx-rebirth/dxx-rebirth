@@ -3453,9 +3453,10 @@ void network_count_powerups_in_mine(void)
 
 int network_do_join_game(int choice)
 {
-	if (Active_games[choice].protocol_version != MULTI_PROTO_VERSION)
+	if ((Active_games[choice].protocol_version != MULTI_PROTO_VERSION) &&
+	    (Active_games[choice].protocol_version != MULTI_PROTO_D2X_VER))
 	{
-		nm_messagebox(TXT_SORRY, 1, TXT_OK, TXT_VERSION_MISMATCH);
+        nm_messagebox(TXT_SORRY, 1, TXT_OK, TXT_VERSION_MISMATCH);
 		return 0;
 	}
 
