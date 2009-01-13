@@ -85,12 +85,13 @@ COPYRIGHT 1993-1999 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 
 #define STANDARD_EXPL_DELAY (f1_0/4)
 
-int check_collision_sound_exec()
+int check_collision_delayfunc_exec()
 {
-	static int last_play_time=0;
+	static fix last_play_time=0;
 	if (last_play_time + (F1_0/3) < GameTime || last_play_time > GameTime)
 	{
 		last_play_time = GameTime;
+		last_play_time -= (d_rand()/2); // add some randomness
 		return 1;
 	}
 	return 0;
@@ -993,14 +994,9 @@ fix Last_thief_hit_time;
 void collide_robot_and_player( object * robot, object * playerobj, vms_vector *collision_point )
 { 
 	int	steal_attempt = 0;
-	int	collision_seg;
 
 	if (robot->flags&OF_EXPLODING)
 		return;
-
-	collision_seg = find_point_seg(collision_point, playerobj->segnum);
-	if (collision_seg != -1)
-		object_create_explosion( collision_seg, collision_point, Weapon_info[0].impact_size, Weapon_info[0].wall_hit_vclip );
 
 	if (playerobj->id == Player_num) {
 		if (Robot_info[robot->id].companion)	//	Player and companion don't collide.
@@ -1032,12 +1028,19 @@ void collide_robot_and_player( object * robot, object * playerobj, vms_vector *c
 		multi_robot_request_change(robot, playerobj->id);
 #endif
 
-	// added this if to remove the bump sound if it's the thief.
-	// A "steal" sound was added and it was getting obscured by the bump. -AP 10/3/95
-	//	Changed by MK to make this sound unless the robot stole.
-	if ((!steal_attempt) && !Robot_info[robot->id].energy_drain)
-		if (check_collision_sound_exec())
+	if (check_collision_delayfunc_exec())
+	{
+		int	collision_seg = find_point_seg(collision_point, playerobj->segnum);;
+
+		// added this if to remove the bump sound if it's the thief.
+		// A "steal" sound was added and it was getting obscured by the bump. -AP 10/3/95
+		//	Changed by MK to make this sound unless the robot stole.
+		if ((!steal_attempt) && !Robot_info[robot->id].energy_drain)
 			digi_link_sound_to_pos( SOUND_ROBOT_HIT_PLAYER, playerobj->segnum, 0, collision_point, 0, F1_0 );
+
+		if (collision_seg != -1)
+			object_create_explosion( collision_seg, collision_point, Weapon_info[0].impact_size, Weapon_info[0].wall_hit_vclip );
+	}
 
 	bump_two_objects(robot, playerobj, 1);
 	return; 
@@ -1125,7 +1128,7 @@ void collide_player_and_controlcen( object * controlcen, object * playerobj, vms
 		ai_do_cloak_stuff();				//	In case player cloaked, make control center know where he is.
 	}
 
-	if (check_collision_sound_exec())
+	if (check_collision_delayfunc_exec())
 		digi_link_sound_to_pos( SOUND_ROBOT_HIT_PLAYER, playerobj->segnum, 0, collision_point, 0, F1_0 );
 
 	bump_two_objects(controlcen, playerobj, 1);
@@ -1758,7 +1761,7 @@ void collide_hostage_and_player( object * hostage, object * player, vms_vector *
 //##}
 
 void collide_player_and_player( object * player1, object * player2, vms_vector *collision_point ) {
-	if (check_collision_sound_exec())
+	if (check_collision_delayfunc_exec())
 		digi_link_sound_to_pos( SOUND_ROBOT_HIT_PLAYER, player1->segnum, 0, collision_point, 0, F1_0 );
 
 	bump_two_objects(player1, player2, 1);
@@ -2303,7 +2306,7 @@ void collide_player_and_powerup( object * playerobj, object * powerup, vms_vecto
 //##}
 
 void collide_player_and_clutter( object * playerobj, object * clutter, vms_vector *collision_point ) { 
-	if (check_collision_sound_exec())
+	if (check_collision_delayfunc_exec())
 		digi_link_sound_to_pos( SOUND_ROBOT_HIT_PLAYER, playerobj->segnum, 0, collision_point, 0, F1_0 );
 	bump_two_objects(clutter, playerobj, 1);
 	return; 
