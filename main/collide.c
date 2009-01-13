@@ -167,6 +167,11 @@ void apply_force_damage(object *obj,fix force,object *other_obj)
 
 		case OBJ_PLAYER:
 
+			//	If colliding with a claw type robot, do damage proportional to FrameTime because you can collide with those
+			//	bots every frame since they don't move.
+			if ( (other_obj->type == OBJ_ROBOT) && (Robot_info[other_obj->id].attack_type) )
+				damage = fixmul(damage, FrameTime*2);
+
 			apply_damage_to_player(obj,other_obj,damage);
 			break;
 

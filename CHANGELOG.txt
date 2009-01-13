@@ -1,5 +1,9 @@
 D1X-Rebirth Changelog
 
+20090113
+--------
+main/collide.c, main/physics.c: Adjusted D1 Lifter collision damage according to D2 to scale with FPS as Melee combats can happen in every frame; Actually set velocity from movement when colliding with objects
+
 20081230
 --------
 SConstruct: prefix is now an argument (useful for auto-builds)
