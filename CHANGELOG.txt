@@ -3,6 +3,7 @@ D2X-Rebirth Changelog
 20090113
 --------
 main/physics.c: Actually set velocity from movement when colliding with objects
+arch/sdl/jukebox.c: Use a 2D array to allow playing of songs by track number in future
 
 20090108
 --------
