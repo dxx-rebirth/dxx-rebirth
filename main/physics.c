@@ -745,7 +745,8 @@ void do_physics_sim(object *obj)
 	}
 
 	// After collision with objects and walls, set velocity from actual movement
-	if (!obj_stopped && !bounced && ((fate == HIT_WALL) || (fate == HIT_BAD_P0)))	{	
+	if (!obj_stopped && !bounced && ((fate == HIT_WALL) || (fate == HIT_OBJECT) || (fate == HIT_BAD_P0)))
+	{	
 		vms_vector moved_vec;
 		vm_vec_sub(&moved_vec,&obj->pos,&start_pos);
 		vm_vec_copy_scale(&obj->mtype.phys_info.velocity,&moved_vec,fixdiv(f1_0,FrameTime));
@@ -756,7 +757,7 @@ void do_physics_sim(object *obj)
 			   and "bump" back by the value saying how far we are in already.
 		*/
 		if (
-			obj==ConsoleObject && (obj->mtype.phys_info.velocity.x==0 && obj->mtype.phys_info.velocity.y==0 && obj->mtype.phys_info.velocity.z==0) &&
+			obj==ConsoleObject && fate == HIT_WALL && (obj->mtype.phys_info.velocity.x==0 && obj->mtype.phys_info.velocity.y==0 && obj->mtype.phys_info.velocity.z==0) &&
 			!(obj->mtype.phys_info.thrust.x==0 && obj->mtype.phys_info.thrust.y==0 && obj->mtype.phys_info.thrust.z==0))
 		{
 			vms_vector center,bump_vec;

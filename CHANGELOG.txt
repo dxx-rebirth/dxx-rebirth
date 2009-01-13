@@ -1,8 +1,13 @@
 D2X-Rebirth Changelog
 
+20090113
+--------
+main/physics.c: Actually set velocity from movement when colliding with objects
+
 20090108
 --------
 main/network.c: Fixed condition for protocol version checking when joining a game - must be allowed for both original and D2X version
+
 20081230
 --------
 SConstruct: prefix is now an argument (useful for auto-builds)
