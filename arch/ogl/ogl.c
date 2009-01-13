@@ -826,7 +826,7 @@ bool g3_draw_bitmap(vms_vector *pos,fix width,fix height,grs_bitmap *bm, object 
 		glDepthFunc(GL_ALWAYS);
  
 	glBegin(GL_QUADS);
- 
+
 	// Define alpha by looking for object TYPE or ID. We do this here so we have it seperated from the rest of the code.
 	if (PlayerCfg.OglAlphaEffects && // if -gl_transparency draw following bitmaps
 		(obj->type==OBJ_FIREBALL || // all types of explosions and energy-effects
