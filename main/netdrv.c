@@ -28,7 +28,11 @@ COPYRIGHT 1993-1998 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 #include <stdio.h>
 #include <string.h>
 #include <sys/types.h>
+#ifdef _MSC_VER
+#include <WTypes.h>
+#else
 #include <sys/time.h>
+#endif
 
 #include "config.h"
 #include "args.h"
@@ -117,6 +121,7 @@ int NetDrvInit( int socket_number )
 		return -1;
 
 #ifdef _WIN32
+	{
 	WORD wVersionRequested;
 	WSADATA wsaData;
 
@@ -124,6 +129,7 @@ int NetDrvInit( int socket_number )
 	if (WSAStartup( wVersionRequested, &wsaData))
 	{
 		return -1;
+	}
 	}
 #endif
 	memset(MyAddress,0,10);
@@ -156,9 +162,9 @@ int NetDrvInit( int socket_number )
 
 int NetDrvSet(int arg)
 {
-	NetDrvClose();
-
 	int NetDrvErr;
+
+	NetDrvClose();
 
 	con_printf(CON_VERBOSE, "\n%s ", TXT_INITIALIZING_NETWORK);
 

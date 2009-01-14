@@ -9,7 +9,9 @@
 #include <windows.h>
 #endif
 #ifndef macintosh
+#ifndef _MSC_VER
 #include <unistd.h>
+#endif
 #include <sys/types.h>
 #include <sys/stat.h>
 #include <fcntl.h>

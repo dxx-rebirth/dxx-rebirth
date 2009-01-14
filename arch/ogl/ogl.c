@@ -67,8 +67,10 @@
 #endif
 
 #if defined(_WIN32) || (defined(__APPLE__) && defined(__MACH__)) || defined(__sun__) || defined(macintosh)
+#ifndef _MSC_VER
 #define cosf(a) cos(a)
 #define sinf(a) sin(a)
+#endif
 #endif
 
 unsigned char *ogl_pal=gr_palette;

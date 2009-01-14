@@ -31,6 +31,9 @@ COPYRIGHT 1993-1998 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 #if defined(__APPLE__) && defined(__MACH__)
 #include <OpenGL/glu.h>
 #else
+#ifdef _MSC_VER
+#include <Windows.h>
+#endif
 #include <GL/glu.h>
 #endif
 #endif

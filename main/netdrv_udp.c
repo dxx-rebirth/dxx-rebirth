@@ -8,7 +8,9 @@
 #include <fcntl.h>
 #include <sys/types.h>
 #include <time.h>
+#ifndef _MSC_VER
 #include <sys/time.h>
+#endif
 #ifdef _WIN32
 #include <winsock.h>
 #include <io.h>
@@ -68,6 +70,7 @@ void UDPReceiveCFG(char *text, struct _sockaddr *sAddr)
 			if (!clientid)
 				return;
 
+			{
 			ubyte outbuf[6];
 			UDPPeers[clientid].valid=1;
 			UDPPeers[clientid].timestamp=timer_get_fixed_seconds();
@@ -79,6 +82,7 @@ void UDPReceiveCFG(char *text, struct _sockaddr *sAddr)
 			outbuf[4]=CFG_FIRSTCONTACT_ACK; // CFG Type
 			outbuf[5]=clientid; // personal ID for the client
 			sendto (UDP_sock, outbuf, sizeof(outbuf), 0, (struct sockaddr *) sAddr, sizeof(struct _sockaddr)); // Send!
+			}
 			return;
 		}
 
@@ -404,6 +408,7 @@ int UDPOpenSocket(socket_t *unused, int port)
 	if( UDP_sock != -1 )
 		UDPCloseSocket(NULL);
 
+	{
 #ifdef _WIN32
 	struct _sockaddr sAddr;   // my address information
 	int reuse_on = -1;
@@ -518,6 +523,7 @@ int UDPOpenSocket(socket_t *unused, int port)
 	myid=0;
 
 	return 0;
+	}
 };
 
 

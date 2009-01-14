@@ -21,9 +21,10 @@ COPYRIGHT 1993-1998 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 #define _INFERNO_H
 
 #if defined(__APPLE__) || defined(macintosh)
-#define MAC(x) x
+#define D1X_MAC(x) x
 #else
-#define MAC(x)
+// do not use MAC, it will break MSVC compilation somewhere in rpcdce.h
+#define D1X_MAC(x)
 #endif
 
 /**

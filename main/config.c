@@ -176,12 +176,13 @@ int ReadConfigFile()
 			// Loading tracker server...
 			else if(strcmp(token, TrackerServerStr) == 0 && strlen(value) > 1)
 			{
+				char *pszTemp;
 			    // Store the tracker server from config into memory...
 			    strncpy(GameCfg.TrackerServer, value, 
                         sizeof(GameCfg.TrackerServer) - 1);
 			    
 			    // Terminate string at line feed...
-			    char *pszTemp = strchr(GameCfg.TrackerServer, '\n');
+			    pszTemp = strchr(GameCfg.TrackerServer, '\n');
 			        
 			        // Terminate...
 			        if(pszTemp)

@@ -1243,8 +1243,8 @@ multi_do_message(char *buf)
 
 	if (((colon = strrchr(buf+loc, ':')) == NULL) || (colon-(buf+loc) < 1) || (colon-(buf+loc) > CALLSIGN_LEN))
 	{
-		mesbuf[0] = CC_COLOR;
 		int color = 0;
+		mesbuf[0] = CC_COLOR;
 		if (Game_mode & GM_TEAM)
 			color = get_team((int)buf[1]);
 		else
@@ -1263,8 +1263,8 @@ multi_do_message(char *buf)
 	else if ( (!strncasecmp(Players[Player_num].callsign, buf+loc, colon-(buf+loc))) ||
 			  ((Game_mode & GM_TEAM) && ( (get_team(Player_num) == atoi(buf+loc)-1) || !strncasecmp(Netgame.team_name[get_team(Player_num)], buf+loc, colon-(buf+loc)))) )
 	{
-		mesbuf[0] = CC_COLOR;
 		int color = 0;
+		mesbuf[0] = CC_COLOR;
 		if (Game_mode & GM_TEAM)
 			color = get_team((int)buf[1]);
 		else

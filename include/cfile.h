@@ -155,7 +155,7 @@ static inline int cfseek(PHYSFS_file *fp, long int offset, int where)
 
 static inline char * cfgets(char *buf, size_t n, PHYSFS_file *const fp)
 {
-	int i;
+	size_t i;
 	int c;
 
 	for (i = 0; i < n - 1; i++)

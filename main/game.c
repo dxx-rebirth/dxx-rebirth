@@ -1859,15 +1859,15 @@ void HandleDemoKey(int key)
 		}
 		break;
 #endif
-		MAC(case KEY_COMMAND+KEY_1:)
+		D1X_MAC(case KEY_COMMAND+KEY_1:)
 		case KEY_F1:	show_newdemo_help();	break;
-		MAC(case KEY_COMMAND+KEY_2:)
+		D1X_MAC(case KEY_COMMAND+KEY_2:)
 		case KEY_F2:	Config_menu_flag = 1;	break;
-		MAC(case KEY_COMMAND+KEY_3:)
+		D1X_MAC(case KEY_COMMAND+KEY_3:)
 		case KEY_F3:	toggle_cockpit();	break;
-		MAC(case KEY_COMMAND+KEY_4:)
+		D1X_MAC(case KEY_COMMAND+KEY_4:)
 		case KEY_F4:	Newdemo_show_percentage = !Newdemo_show_percentage; break;
-		MAC(case KEY_COMMAND+KEY_7:)
+		D1X_MAC(case KEY_COMMAND+KEY_7:)
 		case KEY_F7:
 #ifdef NETWORK
 			Show_kill_list = (Show_kill_list+1) % ((Game_mode & GM_TEAM) ? 4 : 3);
@@ -1899,7 +1899,7 @@ void HandleDemoKey(int key)
 		case KEY_CTRLED + KEY_LEFT:
 			newdemo_goto_beginning();
 		break;
-		MAC(case KEY_COMMAND+KEY_P:)
+		D1X_MAC(case KEY_COMMAND+KEY_P:)
 		case KEY_PAUSE:
 			do_game_pause();
 		break;
@@ -2178,20 +2178,20 @@ void HandleGameKey(int key)
 				Function_mode = FMODE_MENU;
 			}
 			break;
-		MAC(case KEY_COMMAND+KEY_1:)
+		D1X_MAC(case KEY_COMMAND+KEY_1:)
 		case KEY_F1:				if (Game_mode & GM_MULTI) show_netgame_help(); else show_help();         break;
-		MAC(case KEY_COMMAND+KEY_2:)
+		D1X_MAC(case KEY_COMMAND+KEY_2:)
 		case KEY_F2:				Config_menu_flag = 1;	break;
-		MAC(case KEY_COMMAND+KEY_3:)
+		D1X_MAC(case KEY_COMMAND+KEY_3:)
 		case KEY_F3:				toggle_cockpit();       break;
 
 #ifdef NETWORK
-		MAC(case KEY_COMMAND+KEY_ALTED+KEY_4:)
+		D1X_MAC(case KEY_COMMAND+KEY_ALTED+KEY_4:)
 		case KEY_ALTED + KEY_F4:
 			Show_reticle_name = (Show_reticle_name+1)%2;
 			break;
 #endif
-		MAC(case KEY_COMMAND+KEY_5:)
+		D1X_MAC(case KEY_COMMAND+KEY_5:)
 		case KEY_F5:
 				if ( Newdemo_state == ND_STATE_RECORDING )
 					newdemo_stop_recording();
@@ -2199,7 +2199,7 @@ void HandleGameKey(int key)
 					newdemo_start_recording();
 				break;
 #ifdef NETWORK
-		MAC(case KEY_COMMAND+KEY_6:)
+		D1X_MAC(case KEY_COMMAND+KEY_6:)
 		case KEY_F6:
 			if (restrict_mode && WaitForRefuseAnswer)
 			{
@@ -2207,18 +2207,18 @@ void HandleGameKey(int key)
 				HUD_init_message ("Player accepted!");
 			}
 			break;
-		MAC(case KEY_COMMAND+KEY_7:)
+		D1X_MAC(case KEY_COMMAND+KEY_7:)
 		case KEY_F7:
 			Show_kill_list = (Show_kill_list+1) % ((Game_mode & GM_TEAM) ? 4 : 3);
 			break;
 #endif
 		case KEY_ALTED+KEY_F7:
-		MAC(case KEY_COMMAND+KEY_ALTED+KEY_7:)
+		D1X_MAC(case KEY_COMMAND+KEY_ALTED+KEY_7:)
 			PlayerCfg.HudMode=(PlayerCfg.HudMode+1)%GAUGE_HUD_NUMMODES;
 			write_player_file();
 			break;
 #ifdef NETWORK
-		MAC(case KEY_COMMAND+KEY_8:)
+		D1X_MAC(case KEY_COMMAND+KEY_8:)
 		case KEY_F8:
 			multi_send_message_start();
 			break;
@@ -2268,7 +2268,7 @@ void HandleGameKey(int key)
 #endif
 			
 #endif
-		MAC( case KEY_COMMAND+KEY_P: )
+		D1X_MAC( case KEY_COMMAND+KEY_P: )
 		case KEY_PAUSE:			do_game_pause(); 	break;
 #ifdef macintosh
 		case KEY_COMMAND + KEY_SHIFTED + KEY_3:
@@ -2287,11 +2287,11 @@ void HandleGameKey(int key)
 			break;
 		}
 
-		MAC(case KEY_COMMAND+KEY_S:)
-		MAC(case KEY_COMMAND+KEY_ALTED+KEY_2:)
+		D1X_MAC(case KEY_COMMAND+KEY_S:)
+		D1X_MAC(case KEY_COMMAND+KEY_ALTED+KEY_2:)
 		case KEY_ALTED+KEY_F2:	if (!Player_is_dead) state_save_all( 0 );		break;	// 0 means not between levels.
-		MAC(case KEY_COMMAND+KEY_O:)
-		MAC(case KEY_COMMAND+KEY_ALTED+KEY_3:)
+		D1X_MAC(case KEY_COMMAND+KEY_O:)
+		D1X_MAC(case KEY_COMMAND+KEY_ALTED+KEY_3:)
 		case KEY_ALTED+KEY_F3:	if (!Player_is_dead) state_restore_all(1);		break;
 
 		/*
@@ -2300,14 +2300,14 @@ void HandleGameKey(int key)
 		 * ==============================================
 		 */
 		case KEY_ALTED + KEY_SHIFTED + KEY_F9:
-		MAC(case KEY_COMMAND+KEY_E:)
+		D1X_MAC(case KEY_COMMAND+KEY_E:)
 			songs_stop_redbook();
 			RBAEjectDisk();
 			break;
 			
 		case KEY_ALTED + KEY_SHIFTED + KEY_F10:
-		MAC(case KEY_COMMAND+KEY_UP:)
-		MAC(case KEY_COMMAND+KEY_DOWN:)
+		D1X_MAC(case KEY_COMMAND+KEY_UP:)
+		D1X_MAC(case KEY_COMMAND+KEY_DOWN:)
 			if (GameCfg.SndEnableRedbook && !RBAPauseResume())
 			{
 				if (Function_mode == FMODE_GAME)
@@ -2322,12 +2322,12 @@ void HandleGameKey(int key)
 			
 		case KEY_MINUS + KEY_ALTED:
 		case KEY_ALTED + KEY_SHIFTED + KEY_F11:
-		MAC(case KEY_COMMAND+KEY_LEFT:)
+		D1X_MAC(case KEY_COMMAND+KEY_LEFT:)
 			songs_goto_prev_song();
 			break;
 		case KEY_EQUAL + KEY_ALTED:
 		case KEY_ALTED + KEY_SHIFTED + KEY_F12:
-		MAC(case KEY_COMMAND+KEY_RIGHT:)
+		D1X_MAC(case KEY_COMMAND+KEY_RIGHT:)
 			songs_goto_next_song();
 			break;
 			
@@ -2435,7 +2435,7 @@ void HandleGameKey(int key)
 			break;
 		}
 		case KEY_DEBUGGED+KEY_F:
-		MAC(case KEY_COMMAND+KEY_F:)
+		D1X_MAC(case KEY_COMMAND+KEY_F:)
 			GameArg.SysFPSIndicator = !GameArg.SysFPSIndicator;
 			break;
 		case KEY_DEBUGGED+KEY_SPACEBAR: // Toggle physics flying
