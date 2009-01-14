@@ -1,5 +1,9 @@
 D1X-Rebirth Changelog
 
+20090114
+--------
+numerous: Patch from Damjan Cvetko <zobo@lana.krneki.org> for better support building with a non-free compiler...
+
 20090113
 --------
 main/collide.c, main/physics.c: Adjusted D1 Lifter collision damage according to D2 to scale with FPS as Melee combats can happen in every frame; Actually set velocity from movement when colliding with objects
