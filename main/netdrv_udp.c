@@ -44,6 +44,7 @@ void UDPReceiveCFG(char *text, struct _sockaddr *sAddr)
 		case CFG_FIRSTCONTACT_REQ:
 		{
 			int i, clientid=0;
+			ubyte outbuf[6];
 
 			// Check if sAddr is not used already (existing client or if client got this packet)
 			for (i = 1; i < MAX_CONNECTIONS; i++)
@@ -70,8 +71,6 @@ void UDPReceiveCFG(char *text, struct _sockaddr *sAddr)
 			if (!clientid)
 				return;
 
-			{
-			ubyte outbuf[6];
 			UDPPeers[clientid].valid=1;
 			UDPPeers[clientid].timestamp=timer_get_fixed_seconds();
 			memset(UDPPeers[clientid].hs_list,0,MAX_CONNECTIONS);
@@ -82,7 +81,7 @@ void UDPReceiveCFG(char *text, struct _sockaddr *sAddr)
 			outbuf[4]=CFG_FIRSTCONTACT_ACK; // CFG Type
 			outbuf[5]=clientid; // personal ID for the client
 			sendto (UDP_sock, outbuf, sizeof(outbuf), 0, (struct sockaddr *) sAddr, sizeof(struct _sockaddr)); // Send!
-			}
+
 			return;
 		}
 

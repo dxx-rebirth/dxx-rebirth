@@ -1,8 +1,12 @@
 D1X-Rebirth Changelog
 
+20090115
+--------
+main/inferno.h, main/netdrv_udp.c, main/netdrv.c, main/game.c: Cleaning up the mess from revision 892...
+
 20090114
 --------
-numerous: Patch from Damjan Cvetko <zobo@lana.krneki.org> for better support building with a non-free compiler...
+main/network.c, main/multi.c, main/inferno.h, main/netdrv_udp.c, main/netdrv_udp.h, main/config.c, main/netdrv.c, main/game.c, arch/ogl/ogl.c, arch/ogl/gr.c, arch/sdl/digi_mixer_music.c, include/ogl_init.h, include/cfile.h, misc/args.c: Patch from Damjan Cvetko <zobo@lana.krneki.org> for better support building with a non-free compiler...
 
 20090113
 --------

@@ -116,20 +116,19 @@ void NetDrvClose()
 int NetDrvInit( int socket_number )
 {
 	static int cleanup = 0;
+#ifdef _WIN32
+	WORD wVersionRequested;
+	WSADATA wsaData;
+#endif
 
 	if (!driver)
 		return -1;
 
 #ifdef _WIN32
-	{
-	WORD wVersionRequested;
-	WSADATA wsaData;
-
 	wVersionRequested = MAKEWORD(2, 0);
 	if (WSAStartup( wVersionRequested, &wsaData))
 	{
 		return -1;
-	}
 	}
 #endif
 	memset(MyAddress,0,10);
