@@ -70,6 +70,7 @@ COPYRIGHT 1993-1999 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 #include "automap.h"
 #include "cntrlcen.h"
 #include "playsave.h"
+#include "config.h"
 
 #define EF_USED     1   // This edge is used
 #define EF_DEFINING 2   // A structure defining edge that should always draw.
@@ -775,12 +776,17 @@ void do_automap( int key_code )	{
 		}
 
 		t2 = timer_get_fixed_seconds();
-		while (t2 - t1 < F1_0 / 100) // ogl is fast enough that the automap can read the input too fast and you start to turn really slow.  So delay a bit (and free up some cpu :)
+		while (t2 - t1 < F1_0 / (GameCfg.VSync?MAXIMUM_FPS:GameArg.SysMaxFPS)) // ogl is fast enough that the automap can read the input too fast and you start to turn really slow.  So delay a bit (and free up some cpu :)
 		{
+			if (GameArg.SysUseNiceFPS && !GameCfg.VSync)
+				timer_delay(f1_0 / GameArg.SysMaxFPS - (t2 - t1));
 			t2 = timer_get_fixed_seconds();
 		}
 		if (pause_game)
+		{
 			FrameTime=t2-t1;
+			FixedStepCalc();
+		}
 		t1 = t2;
 	}
 

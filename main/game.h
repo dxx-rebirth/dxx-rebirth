@@ -116,7 +116,7 @@ void game(void);
 void close_game(void);
 void init_cockpit(void);
 void calc_frame_time(void);
-
+void FixedStepCalc();
 int do_flythrough(object *obj,int first_time);
 
 extern jmp_buf LeaveGame;       // Do a long jump to this when game is over.
