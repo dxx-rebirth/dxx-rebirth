@@ -2,7 +2,7 @@ D2X-Rebirth Changelog
 
 20090115
 --------
-include/cfile.h, main/network.c, main/inferno.h, main/netdrv_udp.c, main/netdrv_udp.h, main/netdrv.c, main/gamecntl.c, arch/sdl/digi_mixer_music.c: Patch from Damjan Cvetko <zobo@lana.krneki.org> for better support building with a non-free compiler...
+include/cfile.h, main/network.c, main/inferno.h, main/netdrv_udp.c, main/netdrv_udp.h, main/netdrv.c, main/gamecntl.c, arch/sdl/digi_mixer_music.c, include/ogl_init.h: Patch from Damjan Cvetko <zobo@lana.krneki.org> for better support building with a non-free compiler...
 
 20090113
 --------

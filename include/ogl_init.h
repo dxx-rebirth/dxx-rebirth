@@ -7,10 +7,8 @@
 #define _OGL_INIT_H_
 
 #ifdef _MSC_VER
-# undef MAC // dirty feckin hack
 #include <windows.h>
 #include <stddef.h>
-# define MAC(x)
 #endif
 
 #ifdef _WIN32
