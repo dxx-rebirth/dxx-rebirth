@@ -27,6 +27,7 @@ COPYRIGHT 1993-1998 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 #include "args.h"
 #include "cfile.h"
 #include "gamefont.h"
+#include "config.h"
 
 char * Gamefont_filenames_l[] = {
 	"font1-1.fnt", // Font 0
@@ -112,8 +113,18 @@ void gamefont_choose_game_font(int scrx,int scry){
 #ifdef OGL
 	if (!GameArg.OglFixedFont)
 	{
-		FNTScaleX = (float)scrx/font_conf[gf].font[m].x;
-		FNTScaleY = (float)scry/font_conf[gf].font[m].y;
+		// if there's no texture filtering, scale by int
+		if (!GameCfg.TexFilt)
+		{
+			FNTScaleX = (int)scrx/font_conf[gf].font[m].x;
+			FNTScaleY = (int)scry/font_conf[gf].font[m].y;
+		}
+		else
+		{
+			FNTScaleX = (float)scrx/font_conf[gf].font[m].x;
+			FNTScaleY = (float)scry/font_conf[gf].font[m].y;
+		}
+
 		// keep proportions
 		if (FNTScaleY*100 < FNTScaleX*100)
 			FNTScaleX = FNTScaleY;

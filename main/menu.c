@@ -765,6 +765,7 @@ void do_graphics_menu()
 		GameCfg.VSync = m[7].value;
 		GameCfg.Multisample = m[8].value;
 		gr_set_attributes();
+		gr_set_mode(Game_screen_mode);
 	} while( i>-1 );
 }
 

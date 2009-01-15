@@ -502,7 +502,7 @@ float dark_g[4]={	32.0/256,	138.0/256,	32.0/256,	0.6};
 
 void ogl_draw_reticle(int cross,int primary,int secondary)
 {
-	fix size=320;
+	fix size=270;
 	float scale = ((float)SWIDTH/SHEIGHT);
 
 	glPushMatrix();
