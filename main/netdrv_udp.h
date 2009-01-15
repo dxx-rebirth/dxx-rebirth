@@ -10,7 +10,9 @@
 #include <fcntl.h>
 #include <sys/types.h>
 #include <time.h>
+#ifndef _MSC_VER
 #include <sys/time.h>
+#endif
 #ifdef _WIN32
 	#include <winsock.h>
 	#include <io.h>

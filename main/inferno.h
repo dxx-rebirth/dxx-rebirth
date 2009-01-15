@@ -34,9 +34,10 @@ COPYRIGHT 1993-1999 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 #endif
 
 #if defined(__APPLE__) || defined(macintosh)
-#define MAC(x) x
+#define KEY_MAC(x) x
 #else
-#define MAC(x)
+// do not use MAC, it will break MSVC compilation somewhere in rpcdce.h
+#define KEY_MAC(x)
 #endif
 
 

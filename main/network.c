@@ -3080,8 +3080,8 @@ network_start_game()
 		m[0].type=NM_TYPE_INPUT; m[0].text_len = 8; m[0].text = mprofile_file;
 		if (!newmenu_do( NULL, "save profile as", 1, &(m[0]), NULL))
 		{
-			strcat(mprofile_file,".mpx");
 			PHYSFS_file *infile;
+			strcat(mprofile_file,".mpx");
 			infile = PHYSFSX_openWriteBuffered(mprofile_file);
 			PHYSFS_write(infile,&Netgame,sizeof(netgame_info),1);
 			PHYSFS_close(infile);

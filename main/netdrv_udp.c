@@ -8,7 +8,9 @@
 #include <fcntl.h>
 #include <sys/types.h>
 #include <time.h>
+#ifndef _MSC_VER
 #include <sys/time.h>
+#endif
 #ifdef _WIN32
 #include <winsock.h>
 #include <io.h>
@@ -43,6 +45,7 @@ void UDPReceiveCFG(char *text, struct _sockaddr *sAddr)
 		case CFG_FIRSTCONTACT_REQ:
 		{
 			int i, clientid=0;
+			ubyte outbuf[6];
 
 			// Check if sAddr is not used already (existing client or if client got this packet)
 			for (i = 1; i < MAX_CONNECTIONS; i++)
@@ -69,7 +72,6 @@ void UDPReceiveCFG(char *text, struct _sockaddr *sAddr)
 			if (!clientid)
 				return;
 
-			ubyte outbuf[6];
 			UDPPeers[clientid].valid=1;
 			UDPPeers[clientid].timestamp=timer_get_fixed_seconds();
 			memset(UDPPeers[clientid].hs_list,0,MAX_CONNECTIONS);
@@ -402,13 +404,13 @@ int UDPOpenSocket(socket_t *unused, int port)
 {
 	int i;
 
-	// close stale socket
-	if( UDP_sock != -1 )
-		UDPCloseSocket(NULL);
-
 #ifdef _WIN32
 	struct _sockaddr sAddr;   // my address information
 	int reuse_on = -1;
+
+	// close stale socket
+	if( UDP_sock != -1 )
+		UDPCloseSocket(NULL);
 
 	memset( &sAddr, '\0', sizeof( sAddr ) );
 	
@@ -448,6 +450,10 @@ int UDPOpenSocket(socket_t *unused, int port)
 	struct addrinfo hints,*res,*sres;
 	int err,ai_family_;
 	char cport[16];
+	
+	// close stale socket
+	if( UDP_sock != -1 )
+		UDPCloseSocket(NULL);
 	
 	memset (&hints, '\0', sizeof (struct addrinfo));
 	

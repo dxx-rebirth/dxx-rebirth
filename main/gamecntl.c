@@ -674,19 +674,19 @@ void HandleDeathKey(int key)
 void HandleDemoKey(int key)
 {
 	switch (key) {
-		MAC(case KEY_COMMAND+KEY_1:)
+		KEY_MAC(case KEY_COMMAND+KEY_1:)
 		case KEY_F1:	show_newdemo_help();	break;
-		MAC(case KEY_COMMAND+KEY_2:)
+		KEY_MAC(case KEY_COMMAND+KEY_2:)
 		case KEY_F2:		Config_menu_flag = 1; break;
-		MAC(case KEY_COMMAND+KEY_3:)
+		KEY_MAC(case KEY_COMMAND+KEY_3:)
 		case KEY_F3:
 				
 			 if (!Newdemo_flying_guided)
 				toggle_cockpit();
 			 break;
-		MAC(case KEY_COMMAND+KEY_4:)
+		KEY_MAC(case KEY_COMMAND+KEY_4:)
 		case KEY_F4:	Newdemo_show_percentage = !Newdemo_show_percentage; break;
-		MAC(case KEY_COMMAND+KEY_7:)
+		KEY_MAC(case KEY_COMMAND+KEY_7:)
 		case KEY_F7:
 			#ifdef NETWORK
 			Show_kill_list = (Show_kill_list+1) % ((Game_mode & GM_TEAM) ? 4 : 3);
@@ -716,7 +716,7 @@ void HandleDemoKey(int key)
 			newdemo_goto_beginning();
 			break;
 
-		MAC(case KEY_COMMAND+KEY_P:)
+		KEY_MAC(case KEY_COMMAND+KEY_P:)
 		case KEY_PAUSE:
 			do_game_pause();
 			break;
@@ -958,11 +958,11 @@ int HandleSystemKey(int key)
 
 // fleshed these out because F1 and F2 aren't sequenctial keycodes on mac -- MWA
 
-			MAC(case KEY_COMMAND+KEY_SHIFTED+KEY_1:)
+			KEY_MAC(case KEY_COMMAND+KEY_SHIFTED+KEY_1:)
 			case KEY_SHIFTED+KEY_F1:
 				screen_changed = select_next_window_function(0);
 				break;
-			MAC(case KEY_COMMAND+KEY_SHIFTED+KEY_2:)
+			KEY_MAC(case KEY_COMMAND+KEY_SHIFTED+KEY_2:)
 			case KEY_SHIFTED+KEY_F2:
 				screen_changed = select_next_window_function(1);
 				break;
@@ -970,7 +970,7 @@ int HandleSystemKey(int key)
 
 	switch (key) {
 
-		MAC( case KEY_COMMAND+KEY_P: )
+		KEY_MAC( case KEY_COMMAND+KEY_P: )
 		case KEY_PAUSE: 
 			do_game_pause();				break;
 
@@ -992,10 +992,10 @@ int HandleSystemKey(int key)
 			break;
 		}
 
-		MAC(case KEY_COMMAND+KEY_1:)
+		KEY_MAC(case KEY_COMMAND+KEY_1:)
 		case KEY_F1:					if (Game_mode & GM_MULTI) show_netgame_help(); else show_help();			break;
 
-		MAC(case KEY_COMMAND+KEY_2:)
+		KEY_MAC(case KEY_COMMAND+KEY_2:)
 		case KEY_F2:					//Config_menu_flag = 1; break;
 			{
 				if (!(Game_mode&GM_MULTI)) {palette_save(); apply_modified_palette(); reset_palette_add(); gr_palette_load(gr_palette); }
@@ -1005,7 +1005,7 @@ int HandleSystemKey(int key)
 			}
 
 
-		MAC(case KEY_COMMAND+KEY_3:)
+		KEY_MAC(case KEY_COMMAND+KEY_3:)
 
 		case KEY_F3:
 			if (!(Guided_missile[Player_num] && Guided_missile[Player_num]->type==OBJ_WEAPON && Guided_missile[Player_num]->id==GUIDEDMISS_ID && Guided_missile[Player_num]->signature==Guided_missile_sig[Player_num] && PlayerCfg.GuidedInBigWindow))
@@ -1014,7 +1014,7 @@ int HandleSystemKey(int key)
 			}
 			break;
 
-		MAC(case KEY_COMMAND+KEY_5:)
+		KEY_MAC(case KEY_COMMAND+KEY_5:)
 		case KEY_F5:
 			if ( Newdemo_state == ND_STATE_RECORDING )
 				newdemo_stop_recording();
@@ -1022,14 +1022,14 @@ int HandleSystemKey(int key)
 				newdemo_start_recording();
 			break;
 
-		MAC(case KEY_COMMAND+KEY_ALTED+KEY_4:)
+		KEY_MAC(case KEY_COMMAND+KEY_ALTED+KEY_4:)
 		case KEY_ALTED+KEY_F4:
 			#ifdef NETWORK
 			Show_reticle_name = (Show_reticle_name+1)%2;
 			#endif
 			break;
 
-		MAC(case KEY_COMMAND+KEY_7:)
+		KEY_MAC(case KEY_COMMAND+KEY_7:)
 		case KEY_F7:
 			#ifdef NETWORK
 			Show_kill_list = (Show_kill_list+1) % ((Game_mode & GM_TEAM) ? 4 : 3);
@@ -1038,7 +1038,7 @@ int HandleSystemKey(int key)
 		#endif
 			break;
 
-		MAC(case KEY_COMMAND+KEY_8:)
+		KEY_MAC(case KEY_COMMAND+KEY_8:)
 		case KEY_F8:
 			#ifdef NETWORK
 			multi_send_message_start();
@@ -1093,8 +1093,8 @@ int HandleSystemKey(int key)
 			break;
 #endif
 
-		MAC(case KEY_COMMAND+KEY_S:)
-		MAC(case KEY_COMMAND+KEY_ALTED+KEY_2:)
+		KEY_MAC(case KEY_COMMAND+KEY_S:)
+		KEY_MAC(case KEY_COMMAND+KEY_ALTED+KEY_2:)
 		case KEY_ALTED+KEY_F2:
 			if (!Player_is_dead && !((Game_mode & GM_MULTI) && !(Game_mode & GM_MULTI_COOP))) {
 				int     rsave, gsave, bsave;
@@ -1111,8 +1111,8 @@ int HandleSystemKey(int key)
 			}
 			break;
 
-		MAC(case KEY_COMMAND+KEY_O:)
-		MAC(case KEY_COMMAND+KEY_ALTED+KEY_3:)
+		KEY_MAC(case KEY_COMMAND+KEY_O:)
+		KEY_MAC(case KEY_COMMAND+KEY_ALTED+KEY_3:)
 		case KEY_ALTED+KEY_F3:
 			if (!Player_is_dead && !((Game_mode & GM_MULTI) && !(Game_mode & GM_MULTI_COOP))) {
 				full_palette_save();
@@ -1121,13 +1121,13 @@ int HandleSystemKey(int key)
 			break;
 
 
-		MAC(case KEY_COMMAND+KEY_SHIFTED+KEY_4:)
+		KEY_MAC(case KEY_COMMAND+KEY_SHIFTED+KEY_4:)
 		case KEY_F4 + KEY_SHIFTED:
 			do_escort_menu();
 			break;
 
 
-		MAC(case KEY_COMMAND+KEY_SHIFTED+KEY_ALTED+KEY_4:)
+		KEY_MAC(case KEY_COMMAND+KEY_SHIFTED+KEY_ALTED+KEY_4:)
 		case KEY_F4 + KEY_SHIFTED + KEY_ALTED:
 			change_guidebot_name();
 			break;
@@ -1138,14 +1138,14 @@ int HandleSystemKey(int key)
 			 * ==============================================
 			 */
 		case KEY_ALTED + KEY_SHIFTED + KEY_F9:
-		MAC(case KEY_COMMAND+KEY_E:)
+		KEY_MAC(case KEY_COMMAND+KEY_E:)
 			songs_stop_redbook();
 			RBAEjectDisk();
 			break;
 			
 		case KEY_ALTED + KEY_SHIFTED + KEY_F10:
-		MAC(case KEY_COMMAND+KEY_UP:)
-		MAC(case KEY_COMMAND+KEY_DOWN:)
+		KEY_MAC(case KEY_COMMAND+KEY_UP:)
+		KEY_MAC(case KEY_COMMAND+KEY_DOWN:)
 			if (GameCfg.SndEnableRedbook && !RBAPauseResume())
 			{
 				if (Function_mode == FMODE_GAME)
@@ -1160,12 +1160,12 @@ int HandleSystemKey(int key)
 			
 		case KEY_MINUS + KEY_ALTED:
 		case KEY_ALTED + KEY_SHIFTED + KEY_F11:
-		MAC(case KEY_COMMAND+KEY_LEFT:)
+		KEY_MAC(case KEY_COMMAND+KEY_LEFT:)
 			songs_goto_prev_song();
 			break;
 		case KEY_EQUAL + KEY_ALTED:
 		case KEY_ALTED + KEY_SHIFTED + KEY_F12:
-		MAC(case KEY_COMMAND+KEY_RIGHT:)
+		KEY_MAC(case KEY_COMMAND+KEY_RIGHT:)
 			songs_goto_next_song();
 			break;
 			
@@ -1335,13 +1335,13 @@ void HandleGameKey(int key)
 			}
 
 		case KEY_ALTED+KEY_F7:
-		MAC(case KEY_COMMAND+KEY_ALTED+KEY_7:)
+		KEY_MAC(case KEY_COMMAND+KEY_ALTED+KEY_7:)
 			PlayerCfg.HudMode=(PlayerCfg.HudMode+1)%GAUGE_HUD_NUMMODES;
 			write_player_file();
 			break;
 
 #ifdef NETWORK
-		MAC(case KEY_COMMAND+KEY_6:)
+		KEY_MAC(case KEY_COMMAND+KEY_6:)
 		case KEY_F6:
 			if (Netgame.RefusePlayers && WaitForRefuseAnswer && !(Game_mode & GM_TEAM))
 			{
@@ -1377,12 +1377,12 @@ void HandleGameKey(int key)
 	if (!Player_is_dead)
 		switch (key)
 		{
-			MAC(case KEY_COMMAND+KEY_SHIFTED+KEY_5:)
+			KEY_MAC(case KEY_COMMAND+KEY_SHIFTED+KEY_5:)
 			case KEY_F5 + KEY_SHIFTED:
 				DropCurrentWeapon();
 				break;
 	
-			MAC(case KEY_COMMAND+KEY_SHIFTED+KEY_6:)
+			KEY_MAC(case KEY_COMMAND+KEY_SHIFTED+KEY_6:)
 			case KEY_F6 + KEY_SHIFTED:
 				DropSecondaryWeapon();
 				break;
@@ -1394,7 +1394,7 @@ void HandleGameKey(int key)
 				break;
 #endif
 	
-			MAC(case KEY_COMMAND+KEY_4:)
+			KEY_MAC(case KEY_COMMAND+KEY_4:)
 			case KEY_F4:
 				if (!DefiningMarkerMessage)
 					InitMarkerInput();

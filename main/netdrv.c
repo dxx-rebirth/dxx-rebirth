@@ -28,7 +28,11 @@ COPYRIGHT 1993-1998 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 #include <stdio.h>
 #include <string.h>
 #include <sys/types.h>
+#ifdef _MSC_VER
+#include <WTypes.h>
+#else
 #include <sys/time.h>
+#endif
 
 #include "config.h"
 #include "args.h"
@@ -112,14 +116,15 @@ void NetDrvClose()
 int NetDrvInit( int socket_number )
 {
 	static int cleanup = 0;
+#ifdef _WIN32
+	WORD wVersionRequested;
+	WSADATA wsaData;
+#endif
 
 	if (!driver)
 		return -1;
 
 #ifdef _WIN32
-	WORD wVersionRequested;
-	WSADATA wsaData;
-
 	wVersionRequested = MAKEWORD(2, 0);
 	if (WSAStartup( wVersionRequested, &wsaData))
 	{
@@ -156,9 +161,9 @@ int NetDrvInit( int socket_number )
 
 int NetDrvSet(int arg)
 {
-	NetDrvClose();
-
 	int NetDrvErr;
+
+	NetDrvClose();
 
 	con_printf(CON_VERBOSE, "\n%s ", TXT_INITIALIZING_NETWORK);
 

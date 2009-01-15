@@ -93,6 +93,9 @@ void mix_play_music(char *filename, int loop) {
 
   // What is the extension of external files? If none, default to internal MIDI
   if (GameArg.SndExternalMusic) {
+#ifdef _MSC_VER
+#define snprintf _snprintf
+#endif
     snprintf(rel_filename, strlen(basedir)+strlen(music_title)+6, "%s/%s.%s", basedir, music_title, GameArg.SndExternalMusic); // add extension
   }
   else {
