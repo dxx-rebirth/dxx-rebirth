@@ -3,6 +3,7 @@ D1X-Rebirth Changelog
 20090115
 --------
 main/inferno.h, main/netdrv_udp.c, main/netdrv.c, main/game.c: Cleaning up the mess from revision 892...
+arch/sdl/mouse.c, main/automap.c, main/game.c, main/game.h, main/gameseq.c, main/kconfig.c: Fixed typo in mouse delta reading cleaning not up Z-Axis; Giving automap a nicer Frameloop; Small cleanup
 
 20090114
 --------

@@ -139,7 +139,7 @@ void mouse_get_delta( int *dx, int *dy, int *dz )
 
 	Mouse.delta_x = 0;
 	Mouse.delta_y = 0;
-	Mouse.delta_y = 0;
+	Mouse.delta_z = 0;
 }
 
 int mouse_get_btns()

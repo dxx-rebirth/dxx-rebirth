@@ -1574,13 +1574,11 @@ void game_disable_cheats()
 	Physics_cheat_flag = 0;
 }
 
-//	------------------------------------------------------------------------------------
-//this function is the game.  called when game mode selected.  runs until
-//editor mode or exit selected
-void game()
-{
-	fix frame_rend_time=0;
+//	game_setup()
+// ----------------------------------------------------------------------------
 
+void game_setup(void)
+{
 	do_lunacy_on();			// Copy values for insane into copy buffer in ai.c
 	do_lunacy_off();		// Restore true insane mode.
 	Game_aborted = 0;
@@ -1621,12 +1619,18 @@ void game()
 
 	fix_object_segs();
 	game_flush_inputs();
+}
+
+//	------------------------------------------------------------------------------------
+//this function is the game.  called when game mode selected.  runs until
+//editor mode or exit selected
+void game()
+{
+	game_setup();
 
 	if ( setjmp(LeaveGame)==0 ) {
 
 		while (1) {
-			frame_rend_time = timer_get_fixed_seconds();
-
 			// GAME LOOP!
 			Automap_flag = 0;
 			Config_menu_flag = 0;

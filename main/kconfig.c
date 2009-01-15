@@ -1385,6 +1385,7 @@ void controls_read_all()
 	} else {
 		mouse_axis[0] = 0;
 		mouse_axis[1] = 0;
+		mouse_axis[2] = 0;
 		mouse_buttons = 0;
 		use_mouse=0;
 	}
