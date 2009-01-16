@@ -3,6 +3,7 @@ D1X-Rebirth Changelog
 20090116
 --------
 arch/ogl/ogl.c, main/gamefont.c, main/menu.c: Reduced size of vectorial reticle to match the size of the original one; Only scale fonts by float if Texture filtering is on - otherwise scale by int
+arch/ogl/gr.c: Error handling while dumping TGA file - (partially) Patch by v66r
 
 20090115
 --------
