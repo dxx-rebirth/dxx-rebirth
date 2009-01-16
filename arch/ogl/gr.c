@@ -568,7 +568,12 @@ void write_bmp(char *savename,int w,int h,unsigned char *buf)
 
 	glReadPixels(0,0,w,h,GL_BGR_EXT,GL_UNSIGNED_BYTE,buf);
 
-	TGAFile = PHYSFSX_openWriteBuffered(savename);
+	if (!(TGAFile = PHYSFSX_openWriteBuffered(savename)))
+	{
+		con_printf(CON_URGENT,"Could not create TGA file to dump screenshot!");
+		d_free(buf);
+		return 0;
+	}
 
 	HeightH = (GLbyte)(h / 256);
 	HeightL = (GLbyte)(h % 256);
