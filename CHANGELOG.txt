@@ -3,6 +3,7 @@ D1X-Rebirth Changelog
 20090117
 --------
 arch/sdl/mouse.c, main/menu.c, main/playsave.c, main/playsave.h: Made MouseFilter selectable over Controls menu while defaulting to OFF - Saved in PLX
+d1x.ini, inlcude/args.h, main/inferno.c, main/laser.c, misc/args.c: Took out old missile tracking code to be selectable over command-line to preserve consistency
 
 20090116
 --------

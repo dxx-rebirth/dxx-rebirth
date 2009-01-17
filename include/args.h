@@ -48,7 +48,6 @@ typedef struct Arg
 	int SysNoHogDir;
 	int SysUsePlayersDir;
 	int SysLowMem;
-	int SysLegacyHomers;
 	char *SysPilot;
 	int SysWindow;
 	int SysAutoDemo;

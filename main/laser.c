@@ -1012,103 +1012,101 @@ void Laser_do_weapon_sequence(object *obj)
 			}
 
 			if (track_goal != -1) {
-				if (!GameArg.SysLegacyHomers)
-				{
-					fix turn_radius;
+				fix turn_radius;
 
-					turn_radius = 0x0024 * F1_0;
+				turn_radius = 0x0024 * F1_0;
 
-					vm_vec_sub(&vector_to_object, &Objects[track_goal].pos, &obj->pos);
-			
-					// we need normalized exact vectors here
-					vm_vec_normalize (&vector_to_object);
-					temp_vec = obj->mtype.phys_info.velocity;
-					// gives magnitude
-					speed = vm_vec_normalize (&temp_vec);
-					// homing missile speeds : insane - 0x005a
-					max_speed = Weapon_info[obj->id].speed[Difficulty_level];
+				vm_vec_sub(&vector_to_object, &Objects[track_goal].pos, &obj->pos);
 		
-					if (speed+F1_0 < max_speed)
-					{
-						speed += fixmul(max_speed, FrameTime/2);
-						if (speed > max_speed)
-							speed = max_speed;
-					}
-
-					dot = vm_vec_dot(&temp_vec, &vector_to_object);
-
-					Laser_TurnSpeedLimit(&temp_vec, &vector_to_object, speed, turn_radius);
-					obj->mtype.phys_info.velocity = temp_vec;
-					// orient it directly by movement vector
-					if (Weapon_info[obj->id].render_type == WEAPON_RENDER_POLYMODEL)
-						vm_vector_2_matrix (&obj->orient, &temp_vec, NULL, NULL);
-					// apply speed
-					vm_vec_scale (&temp_vec, speed);
-					obj->mtype.phys_info.velocity = temp_vec;
+				// we need normalized exact vectors here
+				vm_vec_normalize (&vector_to_object);
+				temp_vec = obj->mtype.phys_info.velocity;
+				// gives magnitude
+				speed = vm_vec_normalize (&temp_vec);
+				// homing missile speeds : insane - 0x005a
+				max_speed = Weapon_info[obj->id].speed[Difficulty_level];
 	
-	
-					//	Subtract off life proportional to amount turned.
-					//	For hardest turn, it will lose 2 seconds per second.
-					{
-						fix	lifelost, absdot;
-					
-						absdot = abs(F1_0 - dot);
-					
-						if (absdot > F1_0/8) {
-							if (absdot > F1_0/4)
-								absdot = F1_0/4;
-							lifelost = fixmul(absdot*16, FrameTime);
-							obj->lifeleft -= lifelost;
-						}
-						//added 8/14/98 by Victor Rachels to make homers lose life while going straight, too
-						obj->lifeleft -= fixmul(F1_0, FrameTime);
-						//end addition - Victor Rachels
-					}
-				} else {
-					vm_vec_sub(&vector_to_object, &Objects[track_goal].pos, &obj->pos);
-
-					vm_vec_normalize_quick(&vector_to_object);
-					temp_vec = obj->mtype.phys_info.velocity;
-					speed = vm_vec_normalize_quick(&temp_vec);
-					max_speed = Weapon_info[obj->id].speed[Difficulty_level];
-					if (speed+F1_0 < max_speed) {
-						speed += fixmul(max_speed, FrameTime/2);
-						if (speed > max_speed)
-							speed = max_speed;
-					}
-
-					dot = vm_vec_dot(&temp_vec, &vector_to_object);
-	
-					vm_vec_add2(&temp_vec, &vector_to_object);
-					//	The boss' smart children track better...
-					if (Weapon_info[obj->id].render_type != WEAPON_RENDER_POLYMODEL)
-						vm_vec_add2(&temp_vec, &vector_to_object);
-					vm_vec_normalize_quick(&temp_vec);
-					vm_vec_scale(&temp_vec, speed);
-					obj->mtype.phys_info.velocity = temp_vec;
-	
-					//	Subtract off life proportional to amount turned.
-					//	For hardest turn, it will lose 2 seconds per second.
-					{
-						fix	lifelost, absdot;
-					
-						absdot = abs(F1_0 - dot);
-					
-						if (absdot > F1_0/8) {
-							if (absdot > F1_0/4)
-								absdot = F1_0/4;
-							lifelost = fixmul(absdot*16, FrameTime);
-							obj->lifeleft -= lifelost;
-						}
-						//added 8/14/98 by Victor Rachels to make homers lose life while going straight, too
-						obj->lifeleft -= fixmul(F1_0, FrameTime);
-						//end addition - Victor Rachels
-					}
-	
-					//	Only polygon objects have visible orientation, so only they should turn.
-					if (Weapon_info[obj->id].render_type == WEAPON_RENDER_POLYMODEL)
-						homing_missile_turn_towards_velocity(obj, &temp_vec);		//	temp_vec is normalized velocity.
+				if (speed+F1_0 < max_speed)
+				{
+					speed += fixmul(max_speed, FrameTime/2);
+					if (speed > max_speed)
+						speed = max_speed;
 				}
+
+				dot = vm_vec_dot(&temp_vec, &vector_to_object);
+
+				Laser_TurnSpeedLimit(&temp_vec, &vector_to_object, speed, turn_radius);
+				obj->mtype.phys_info.velocity = temp_vec;
+				// orient it directly by movement vector
+				if (Weapon_info[obj->id].render_type == WEAPON_RENDER_POLYMODEL)
+					vm_vector_2_matrix (&obj->orient, &temp_vec, NULL, NULL);
+				// apply speed
+				vm_vec_scale (&temp_vec, speed);
+				obj->mtype.phys_info.velocity = temp_vec;
+
+
+				//	Subtract off life proportional to amount turned.
+				//	For hardest turn, it will lose 2 seconds per second.
+				{
+					fix	lifelost, absdot;
+				
+					absdot = abs(F1_0 - dot);
+				
+					if (absdot > F1_0/8) {
+						if (absdot > F1_0/4)
+							absdot = F1_0/4;
+						lifelost = fixmul(absdot*16, FrameTime);
+						obj->lifeleft -= lifelost;
+					}
+					//added 8/14/98 by Victor Rachels to make homers lose life while going straight, too
+					obj->lifeleft -= fixmul(F1_0, FrameTime);
+					//end addition - Victor Rachels
+				}
+#if 0 // OLD - ORIGINAL - MISSILE TRACKING CODE
+				vm_vec_sub(&vector_to_object, &Objects[track_goal].pos, &obj->pos);
+
+				vm_vec_normalize_quick(&vector_to_object);
+				temp_vec = obj->mtype.phys_info.velocity;
+				speed = vm_vec_normalize_quick(&temp_vec);
+				max_speed = Weapon_info[obj->id].speed[Difficulty_level];
+				if (speed+F1_0 < max_speed) {
+					speed += fixmul(max_speed, FrameTime/2);
+					if (speed > max_speed)
+						speed = max_speed;
+				}
+
+				dot = vm_vec_dot(&temp_vec, &vector_to_object);
+
+				vm_vec_add2(&temp_vec, &vector_to_object);
+				//	The boss' smart children track better...
+				if (Weapon_info[obj->id].render_type != WEAPON_RENDER_POLYMODEL)
+					vm_vec_add2(&temp_vec, &vector_to_object);
+				vm_vec_normalize_quick(&temp_vec);
+				vm_vec_scale(&temp_vec, speed);
+				obj->mtype.phys_info.velocity = temp_vec;
+
+				//	Subtract off life proportional to amount turned.
+				//	For hardest turn, it will lose 2 seconds per second.
+				{
+					fix	lifelost, absdot;
+				
+					absdot = abs(F1_0 - dot);
+				
+					if (absdot > F1_0/8) {
+						if (absdot > F1_0/4)
+							absdot = F1_0/4;
+						lifelost = fixmul(absdot*16, FrameTime);
+						obj->lifeleft -= lifelost;
+					}
+					//added 8/14/98 by Victor Rachels to make homers lose life while going straight, too
+					obj->lifeleft -= fixmul(F1_0, FrameTime);
+					//end addition - Victor Rachels
+				}
+
+				//	Only polygon objects have visible orientation, so only they should turn.
+				if (Weapon_info[obj->id].render_type == WEAPON_RENDER_POLYMODEL)
+					homing_missile_turn_towards_velocity(obj, &temp_vec);		//	temp_vec is normalized velocity.
+#endif
 			}
 		}
 	}
