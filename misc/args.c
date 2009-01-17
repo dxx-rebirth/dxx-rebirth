@@ -147,7 +147,6 @@ void ReadCmdArgs(void)
 
 	GameArg.SysUsePlayersDir 	= FindArg("-use_players_dir");
 	GameArg.SysLowMem 		= FindArg("-lowmem");
-	GameArg.SysLegacyHomers 	= FindArg("-legacyhomers");
 	GameArg.SysPilot 		= get_str_arg("-pilot", NULL);
 	GameArg.SysWindow 		= FindArg("-window");
 	GameArg.SysNoMovies 		= FindArg("-nomovies");

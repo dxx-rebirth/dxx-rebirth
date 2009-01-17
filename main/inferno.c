@@ -147,7 +147,6 @@ void print_commandline_help()
 	printf( "  -nohogdir          %s\n", "don't try to use shared data directory");
 	printf( "  -use_players_dir   %s\n", "put player files and saved games in Players subdirectory");
 	printf( "  -lowmem            %s\n", "Lowers animation detail for better performance with low memory");
-	printf( "  -legacyhomers      %s\n", "Activate original homing missiles (FPS and physics dependent)");
 	printf( "  -pilot <s>         %s\n", "Select this pilot automatically");
 	printf( "  -autodemo          %s\n", "Start in demo mode");
 	printf( "  -window            %s\n", "Run the game in a window");
