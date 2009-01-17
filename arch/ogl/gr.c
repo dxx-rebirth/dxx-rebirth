@@ -572,7 +572,7 @@ void write_bmp(char *savename,int w,int h,unsigned char *buf)
 	{
 		con_printf(CON_URGENT,"Could not create TGA file to dump screenshot!");
 		d_free(buf);
-		return 0;
+		return;
 	}
 
 	HeightH = (GLbyte)(h / 256);

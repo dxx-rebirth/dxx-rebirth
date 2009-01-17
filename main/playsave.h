@@ -48,6 +48,7 @@ typedef struct player_config
 	hli HighestLevels[MAX_MISSIONS];
 	ubyte MouseSensitivityX;
 	ubyte MouseSensitivityY;
+	int MouseFilter;
 	ubyte JoystickSensitivityX;
 	ubyte JoystickSensitivityY;
 	int JoystickDeadzone;

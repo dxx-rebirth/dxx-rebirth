@@ -1,5 +1,9 @@
 D2X-Rebirth Changelog
 
+20090117
+--------
+arch/sdl/mouse.c, main/menu.c, main/playsave.c, main/playsave.h: Made MouseFilter selectable over Controls menu while defaulting to OFF - Saved in PLX
+
 20090116
 --------
 arch/ogl/ogl.c, main/gamefont.c, main/menu.c: Reduced size of vectorial reticle to match the size of the original one; Only scale fonts by float if Texture filtering is on - otherwise scale by int
