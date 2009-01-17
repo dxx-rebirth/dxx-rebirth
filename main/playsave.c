@@ -91,6 +91,7 @@ int new_player_config()
 	PlayerCfg.JoystickSensitivityY = 8;
 	PlayerCfg.MouseSensitivityX = 8;
 	PlayerCfg.MouseSensitivityY = 8;
+	PlayerCfg.MouseFilter = 0;
 	PlayerCfg.CockpitMode = CM_FULL_COCKPIT;
 	PlayerCfg.ReticleOn = 1;
 	PlayerCfg.HudMode = 0;
@@ -239,6 +240,8 @@ int read_player_d1x(char *filename)
 					PlayerCfg.MouseSensitivityX = atoi(line);
 				if(!strcmp(word,"SENSITIVITYY"))
 					PlayerCfg.MouseSensitivityY = atoi(line);
+				if(!strcmp(word,"FILTER"))
+					PlayerCfg.MouseFilter = atoi(line);
 				d_free(word);
 				cfgets(line,50,f);
 				word=splitword(line,'=');
@@ -528,6 +531,7 @@ int write_player_d1x(char *filename)
 		PHYSFSX_printf(fout,"[mouse]\n");
 		PHYSFSX_printf(fout,"sensitivityx=%d\n",PlayerCfg.MouseSensitivityX);
 		PHYSFSX_printf(fout,"sensitivityy=%d\n",PlayerCfg.MouseSensitivityY);
+		PHYSFSX_printf(fout,"filter=%d\n",PlayerCfg.MouseFilter);
 		PHYSFSX_printf(fout,"[end]\n");
 		PHYSFSX_printf(fout,"[cockpit]\n");
 		PHYSFSX_printf(fout,"mode=%i\n",(PlayerCfg.CockpitMode==1?0:PlayerCfg.CockpitMode));

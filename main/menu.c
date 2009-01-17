@@ -579,9 +579,9 @@ void input_menuset(int nitems, newmenu_item * items, int *last_key, int citem )
 
 void input_config()
 {
-	newmenu_item m[21];
+	newmenu_item m[22];
 	int i, i1 = 5, j;
-	int nitems = 21;
+	int nitems = 22;
 
 	m[0].type = NM_TYPE_RADIO;  m[0].text = "KEYBOARD"; m[0].value = 0; m[0].group = 0;
 	m[1].type = NM_TYPE_RADIO;  m[1].text = "JOYSTICK"; m[1].value = 0; m[1].group = 0;
@@ -600,10 +600,11 @@ void input_config()
 	m[14].type = NM_TYPE_TEXT;   m[14].text = "Mouse";
 	m[15].type = NM_TYPE_SLIDER; m[15].text="X Sensitivity"; m[15].value=PlayerCfg.MouseSensitivityX; m[15].min_value = 0; m[15].max_value = 16;
 	m[16].type = NM_TYPE_SLIDER; m[16].text="Y Sensitivity"; m[16].value=PlayerCfg.MouseSensitivityY; m[16].min_value = 0; m[16].max_value = 16;
-	m[17].type = NM_TYPE_TEXT;   m[17].text = "";
-	m[18].type = NM_TYPE_MENU;   m[18].text = "GAME SYSTEM KEYS";
-	m[19].type = NM_TYPE_MENU;   m[19].text = "NETGAME SYSTEM KEYS";
-	m[20].type = NM_TYPE_MENU;   m[20].text = "DEMO SYSTEM KEYS";
+	m[17].type = NM_TYPE_CHECK;  m[17].text="Mouse Smoothing/Filtering"; m[17].value=PlayerCfg.MouseFilter;
+	m[18].type = NM_TYPE_TEXT;   m[18].text = "";
+	m[19].type = NM_TYPE_MENU;   m[19].text = "GAME SYSTEM KEYS";
+	m[20].type = NM_TYPE_MENU;   m[20].text = "NETGAME SYSTEM KEYS";
+	m[21].type = NM_TYPE_MENU;   m[21].text = "DEMO SYSTEM KEYS";
 
 
 	do {
@@ -620,6 +621,7 @@ void input_config()
 		PlayerCfg.JoystickDeadzone = m[12].value;
 		PlayerCfg.MouseSensitivityX = m[15].value;
 		PlayerCfg.MouseSensitivityY = m[16].value;
+		PlayerCfg.MouseFilter = m[17].value;
 
 		for (j = 0; j <= 3; j++)
 			if (m[j].value)
@@ -640,13 +642,13 @@ void input_config()
 		case 7:
 			kconfig(4, "WEAPON KEYS");
 			break;
-		case 18:
+		case 19:
 			show_help();
 			break;
-		case 19:
+		case 20:
 			show_netgame_help();
 			break;
-		case 20:
+		case 21:
 			show_newdemo_help();
 			break;
 		}

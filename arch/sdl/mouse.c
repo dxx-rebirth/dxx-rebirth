@@ -15,6 +15,7 @@
 #include "timer.h"
 #include "event.h"
 #include "mouse.h"
+#include "playsave.h"
 
 struct mousebutton {
 	ubyte pressed;
@@ -130,9 +131,12 @@ void mouse_get_delta( int *dx, int *dy, int *dz )
 	*dy = Mouse.delta_y;
 	*dz = Mouse.delta_z;
 
-	// filter delta
-	Mouse.delta_x = (*dx + old_delta_x) * 0.5;
-	Mouse.delta_y = (*dy + old_delta_y) * 0.5;
+	// filter delta?
+	if (PlayerCfg.MouseFilter)
+	{
+		Mouse.delta_x = (*dx + old_delta_x) * 0.5;
+		Mouse.delta_y = (*dy + old_delta_y) * 0.5;
+	}
 
 	old_delta_x = *dx;
 	old_delta_y = *dy;
