@@ -1,5 +1,9 @@
 D1X-Rebirth Changelog
 
+20090122
+--------
+main/newdemo.c: New condition to switch to Interpolated demo playback - the old one did NOT make ANY sense at all
+
 20090117
 --------
 arch/sdl/mouse.c, main/menu.c, main/playsave.c, main/playsave.h: Made MouseFilter selectable over Controls menu while defaulting to OFF - Saved in PLX
