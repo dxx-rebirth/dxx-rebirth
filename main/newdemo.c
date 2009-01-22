@@ -2892,16 +2892,13 @@ void newdemo_playback_one_frame()
 			if (nd_playback_total > nd_recorded_total)
 				playback_style = SKIP_PLAYBACK;
 
-			if ((nd_playback_total * INTERPOL_FACTOR) < nd_recorded_total) {
+			//if ((nd_playback_total * INTERPOL_FACTOR) < nd_recorded_total) // no matte rhow we look at it: this does not make ANY sense!
+			if (nd_recorded_total > 0 && nd_recorded_time > 0)
+			{
 				playback_style = INTERPOLATE_PLAYBACK;
 				nd_playback_total = nd_recorded_total + FrameTime; // baseline playback time
 				base_interpol_time = nd_recorded_total;
 				d_recorded = nd_recorded_time; // baseline delta recorded
-			}
-			else
-			{
-				if (NewdemoFrameCount > 0 && NewdemoFrameCount < 10)
-					newdemo_back_frames(1);
 			}
 		}
 
