@@ -550,7 +550,6 @@ void calc_frame_time()
 		timer_value = timer_get_fixed_seconds();
 		FrameTime = timer_value - last_timer_value;
 	}
-	FrameTime = (FrameTime + last_frametime) * 0.5;
 
 	if ( Game_turbo_mode )
 		FrameTime *= 2;
