@@ -299,8 +299,8 @@ network_init(void)
 	My_Seq.player.version_minor=Version_minor;
 	My_Seq.player.rank=GetMyNetRanking();	
 
-	memcpy(My_Seq.player.network.ipx.node, NetDrvGetMyLocalAddress(), 6);
-	memcpy(My_Seq.player.network.ipx.server, NetDrvGetMyServerAddress(), 4 );
+	memcpy(My_Seq.player.network.ipx.node, netdrv_get_my_local_address(), 6);
+	memcpy(My_Seq.player.network.ipx.server, netdrv_get_my_server_address(), 4 );
 	My_Seq.player.computer_type = DOS;
 
 	for (Player_num = 0; Player_num < MAX_NUM_NET_PLAYERS; Player_num++)
@@ -555,7 +555,7 @@ network_disconnect_player(int playernum)
 
 	multi_strip_robots(playernum);
 
-	if (playernum==0 && NetDrvType() == NETPROTO_UDP) // Host has left - Quit game!
+	if (playernum==0 && netdrv_type() == NETPROTO_UDP) // Host has left - Quit game!
 	{
 		Function_mode = FMODE_MENU;
 		nm_messagebox(NULL, 1, TXT_OK, "Game was closed by host!");
@@ -601,7 +601,7 @@ network_new_player(sequence_packet *their)
 	network_check_for_old_version(pnum);
 
 	if ( (*(uint *)their->player.network.ipx.server) != 0 )
-		NetDrvGetLocalTarget( their->player.network.ipx.server, their->player.network.ipx.node, Players[pnum].net_address );
+		netdrv_get_local_target( their->player.network.ipx.server, their->player.network.ipx.node, Players[pnum].net_address );
 	else
 		memcpy(Players[pnum].net_address, their->player.network.ipx.node, 6);
 
@@ -689,7 +689,7 @@ void network_welcome_player(sequence_packet *their)
 	Network_player_added = 0;
 
 	if ( (*(uint *)their->player.network.ipx.server) != 0 )
-		NetDrvGetLocalTarget( their->player.network.ipx.server, their->player.network.ipx.node, local_address );
+		netdrv_get_local_target( their->player.network.ipx.server, their->player.network.ipx.node, local_address );
 	else
 		memcpy(local_address, their->player.network.ipx.node, 6);
 
@@ -1038,7 +1038,7 @@ void network_send_objects(void)
 
 			Assert(loc <= MAX_DATA_SIZE);
 
-			NetDrvSendInternetworkPacketData( object_buffer, loc, Network_player_rejoining.player.network.ipx.server, Network_player_rejoining.player.network.ipx.node );
+			netdrv_send_internetwork_packet_data( object_buffer, loc, Network_player_rejoining.player.network.ipx.server, Network_player_rejoining.player.network.ipx.node );
 		}
 
 		if (i > Highest_object_index)
@@ -1059,7 +1059,7 @@ void network_send_objects(void)
 				object_buffer[2] = frame_num;
 				*(short *)(object_buffer+3) = INTEL_SHORT(-2);
 				*(short *)(object_buffer+6) = INTEL_SHORT(obj_count);
-				NetDrvSendInternetworkPacketData(object_buffer, 8, Network_player_rejoining.player.network.ipx.server, Network_player_rejoining.player.network.ipx.node);
+				netdrv_send_internetwork_packet_data(object_buffer, 8, Network_player_rejoining.player.network.ipx.server, Network_player_rejoining.player.network.ipx.node);
 
 				// Send sync packet which tells the player who he is and to start!
 				network_send_rejoin_sync(player_num);
@@ -1266,8 +1266,8 @@ network_send_game_list_request()
 	me.type = PID_GAME_LIST;
 	memcpy( me.player.callsign, Players[Player_num].callsign, CALLSIGN_LEN+1 );
 
-	memcpy( me.player.network.ipx.node, NetDrvGetMyLocalAddress(), 6 );
-	memcpy( me.player.network.ipx.server, NetDrvGetMyServerAddress(), 4 );
+	memcpy( me.player.network.ipx.node, netdrv_get_my_local_address(), 6 );
+	memcpy( me.player.network.ipx.server, netdrv_get_my_server_address(), 4 );
 
 	send_broadcast_sequence_packet(me);
 }
@@ -1283,8 +1283,8 @@ void network_send_all_info_request(char type,int which_security)
 	me.type = type;
 	memcpy( me.player.callsign, Players[Player_num].callsign, CALLSIGN_LEN+1 );
 	
-	memcpy( me.player.network.ipx.node, NetDrvGetMyLocalAddress(), 6 );
-	memcpy( me.player.network.ipx.server, NetDrvGetMyServerAddress(), 4 );
+	memcpy( me.player.network.ipx.node, netdrv_get_my_local_address(), 6 );
+	memcpy( me.player.network.ipx.server, netdrv_get_my_server_address(), 4 );
 	if (Ext_server==NULL || Ext_node==NULL){
 		send_broadcast_sequence_packet(me);
 	}
@@ -1382,7 +1382,7 @@ network_send_endlevel_sub(int player_num)
 			if (Players[i].connected==1) {
 				network_send_endlevel_short_sub(player_num,i);
 			} else {
-				NetDrvSendPacketData((ubyte *)&end, sizeof(endlevel_info), NetPlayers.players[i].network.ipx.server, NetPlayers.players[i].network.ipx.node,Players[i].net_address);
+				netdrv_send_packet_data((ubyte *)&end, sizeof(endlevel_info), NetPlayers.players[i].network.ipx.server, NetPlayers.players[i].network.ipx.node,Players[i].net_address);
 			}
 		}
 	}
@@ -1415,7 +1415,7 @@ network_send_endlevel_short_sub(int from_player_num,int to_player)
 
 	if ((to_player != Player_num) && (to_player!=from_player_num) && (Players[to_player].connected))
 	{
-		NetDrvSendPacketData((ubyte *)&end, sizeof(endlevel_info_short), NetPlayers.players[to_player].network.ipx.server, NetPlayers.players[to_player].network.ipx.node,Players[to_player].net_address);
+		netdrv_send_packet_data((ubyte *)&end, sizeof(endlevel_info_short), NetPlayers.players[to_player].network.ipx.server, NetPlayers.players[to_player].network.ipx.node,Players[to_player].net_address);
 	}
 }
 
@@ -2722,10 +2722,10 @@ void network_read_sync_packet( netgame_info * sp, int rsinit)
 		uint server;
 		memcpy(&server, TempPlayersInfo->players[i].network.ipx.server, 4);
 		if (server != 0)
-			NetDrvGetLocalTarget((ubyte *)&server, TempPlayersInfo->players[i].network.ipx.node, Players[i].net_address);
+			netdrv_get_local_target((ubyte *)&server, TempPlayersInfo->players[i].network.ipx.node, Players[i].net_address);
 #else // WORDS_NEED_ALIGNMENT
 		if ((*(uint *)TempPlayersInfo->players[i].network.ipx.server) != 0)
-			NetDrvGetLocalTarget(TempPlayersInfo->players[i].network.ipx.server, TempPlayersInfo->players[i].network.ipx.node, Players[i].net_address);
+			netdrv_get_local_target(TempPlayersInfo->players[i].network.ipx.server, TempPlayersInfo->players[i].network.ipx.node, Players[i].net_address);
 #endif // WORDS_NEED_ALIGNMENT
 		else
 			memcpy( Players[i].net_address, TempPlayersInfo->players[i].network.ipx.node, 6 );
@@ -3059,7 +3059,7 @@ network_start_game()
 	if (i<0) return;
 
 	if (IPX_Socket) {
-		NetDrvChangeDefaultSocket( IPX_DEFAULT_SOCKET + IPX_Socket );
+		netdrv_change_default_socket( IPX_DEFAULT_SOCKET + IPX_Socket );
 	}
 
 	if (is_D2_OEM)
@@ -3068,7 +3068,7 @@ network_start_game()
 	Netgame.game_status = NETSTAT_STARTING;
 	Netgame.numplayers = 0;
 	// We do not have any intention (for now) to let the user set Version checking (other than D1X). It SHOULD be ENABLED always - we only switch it off for IPX users who want backwards compability.
-	if (NetDrvType() == NETPROTO_UDP)
+	if (netdrv_type() == NETPROTO_UDP)
 		Netgame.protocol_version = MULTI_PROTO_D2X_VER;
 	else
 		Netgame.protocol_version = MULTI_PROTO_VERSION;
@@ -3156,7 +3156,7 @@ void network_join_poll( int nitems, newmenu_item * menus, int * key, int citem )
 		if (IPX_Socket != osocket )         {
 			sprintf( menus[0].text, "\t%s %+d (PgUp/PgDn to change)", TXT_CURRENT_IPX_SOCKET, IPX_Socket );
 			network_listen();
-			NetDrvChangeDefaultSocket( IPX_DEFAULT_SOCKET + IPX_Socket );
+			netdrv_change_default_socket( IPX_DEFAULT_SOCKET + IPX_Socket );
 			restart_net_searching(menus);
 			network_send_game_list_request();
 			return;
@@ -3310,8 +3310,8 @@ network_wait_for_sync(void)
 		memset(&me, 0, sizeof(sequence_packet));
 		me.type = PID_QUIT_JOINING;
 		memcpy( me.player.callsign, Players[Player_num].callsign, CALLSIGN_LEN+1 );
-		memcpy( me.player.network.ipx.node, NetDrvGetMyLocalAddress(), 6 );
-		memcpy( me.player.network.ipx.server, NetDrvGetMyServerAddress(), 4 );
+		memcpy( me.player.network.ipx.node, netdrv_get_my_local_address(), 6 );
+		memcpy( me.player.network.ipx.server, netdrv_get_my_server_address(), 4 );
 		send_internetwork_sequence_packet(me, NetPlayers.players[0].network.ipx.server, NetPlayers.players[0].network.ipx.node);
 		N_players = 0;
 		Function_mode = FMODE_MENU;
@@ -3689,7 +3689,7 @@ void network_do_big_wait(int choice)
 	AllNetPlayers_info info_struct;
 #endif
 
-	size=NetDrvGetPacketData( packet );
+	size=netdrv_get_packet_data( packet );
 	
 	if (size>0)
 	{
@@ -3794,7 +3794,7 @@ void network_flush()
 
 	if (!Network_active) return;
 
-	while (NetDrvGetPacketData(packet) > 0) ;
+	while (netdrv_get_packet_data(packet) > 0) ;
 }
 
 void network_listen()
@@ -3814,12 +3814,12 @@ void network_listen()
 	NetSecurityFlag=NETSECURITY_OFF;
 
 	i=1;
-	size = NetDrvGetPacketData( packet );
+	size = netdrv_get_packet_data( packet );
 	while ( size > 0)       {
 		network_process_packet( packet, size );
 		if (++i>loopmax)
 			break;
-		size = NetDrvGetPacketData( packet );
+		size = netdrv_get_packet_data( packet );
 	}
 }
 
@@ -3846,7 +3846,7 @@ int network_wait_for_playerinfo()
 
 	while (WaitingForPlayerInfo && retries<50 && (timer_get_approx_seconds()<(basetime+(F1_0*5))))
 	{
-		size = NetDrvGetPacketData( packet );
+		size = netdrv_get_packet_data( packet );
 		id = packet[0];
 
 		if (size>0 && id==PID_PLAYERSINFO)
@@ -4011,7 +4011,7 @@ void network_do_frame(int force, int listen)
 	if (NakedPacketLen)
 	{
 		Assert (NakedPacketDestPlayer>-1);
-		NetDrvSendPacketData( (ubyte *)NakedBuf, NakedPacketLen, NetPlayers.players[NakedPacketDestPlayer].network.ipx.server, NetPlayers.players[NakedPacketDestPlayer].network.ipx.node,Players[NakedPacketDestPlayer].net_address );
+		netdrv_send_packet_data( (ubyte *)NakedBuf, NakedPacketLen, NetPlayers.players[NakedPacketDestPlayer].network.ipx.server, NetPlayers.players[NakedPacketDestPlayer].network.ipx.node,Players[NakedPacketDestPlayer].net_address );
 		NakedPacketLen=0;
 		NakedPacketDestPlayer=-1;
 	}
@@ -4059,14 +4059,14 @@ void network_do_frame(int force, int listen)
 // 				NetDrvSendGamePacket((ubyte*)&ShortSyncPack, sizeof(short_frame_info) - MaxXDataSize + MySyncPack.data_size);
 				for(i=0; i<N_players; i++) {
 					if(Players[i].connected && (i != Player_num))
-						NetDrvSendPacketData((ubyte*)&ShortSyncPack, sizeof(short_frame_info) - MaxXDataSize + MySyncPack.data_size, NetPlayers.players[i].network.ipx.server, NetPlayers.players[i].network.ipx.node,Players[i].net_address);
+						netdrv_send_packet_data((ubyte*)&ShortSyncPack, sizeof(short_frame_info) - MaxXDataSize + MySyncPack.data_size, NetPlayers.players[i].network.ipx.server, NetPlayers.players[i].network.ipx.node,Players[i].net_address);
 				}
 #else
 				squish_short_frame_info(ShortSyncPack, send_data);
 // 				NetDrvSendGamePacket((ubyte*)send_data, IPX_SHORT_INFO_SIZE-MaxXDataSize+MySyncPack.data_size);
 				for(i=0; i<N_players; i++) {
 					if(Players[i].connected && (i != Player_num))
-						NetDrvSendPacketData((ubyte*)send_data, IPX_SHORT_INFO_SIZE-MaxXDataSize+MySyncPack.data_size, NetPlayers.players[i].network.ipx.server, NetPlayers.players[i].network.ipx.node,Players[i].net_address);
+						netdrv_send_packet_data((ubyte*)send_data, IPX_SHORT_INFO_SIZE-MaxXDataSize+MySyncPack.data_size, NetPlayers.players[i].network.ipx.server, NetPlayers.players[i].network.ipx.node,Players[i].net_address);
 				}
 #endif
 
@@ -4603,7 +4603,7 @@ void network_more_game_options ()
 	opt_packets=opt;
 	m[opt].type = NM_TYPE_INPUT; m[opt].text=packstring; m[opt].text_len=2; opt++;
 
-	if (NetDrvType() != NETPROTO_UDP)
+	if (netdrv_type() != NETPROTO_UDP)
 	{
 		m[opt].type = NM_TYPE_TEXT; m[opt].text = "Network socket"; opt++;
 		opt_socket = opt;
@@ -4639,12 +4639,12 @@ menu:
 		Netgame.PacketsPerSec=2;
 	}
 
-	if (NetDrvType() != NETPROTO_UDP)
+	if (netdrv_type() != NETPROTO_UDP)
 	{
 		if ((atoi(socket_string))!=IPX_Socket)
 		{
 			IPX_Socket=atoi(socket_string);
-			NetDrvChangeDefaultSocket( IPX_DEFAULT_SOCKET + IPX_Socket );
+			netdrv_change_default_socket( IPX_DEFAULT_SOCKET + IPX_Socket );
 		}
 	}
 	
@@ -4751,7 +4751,7 @@ void network_ping (ubyte flag,int pnum)
 	mybuf[0]=flag;
 	mybuf[1]=Player_num;
 	*(u_int32_t*)(multibuf+2)=INTEL_INT(timer_get_fixed_seconds());
-	NetDrvSendPacketData( (ubyte *)mybuf, 7, NetPlayers.players[pnum].network.ipx.server, NetPlayers.players[pnum].network.ipx.node,Players[pnum].net_address );
+	netdrv_send_packet_data( (ubyte *)mybuf, 7, NetPlayers.players[pnum].network.ipx.server, NetPlayers.players[pnum].network.ipx.node,Players[pnum].net_address );
 }
 
 static fix PingLaunchTime[MAX_PLAYERS],PingReturnTime[MAX_PLAYERS];
@@ -4980,7 +4980,7 @@ void network_send_naked_packet(char *buf, short len, int who)
 
 	if (len+NakedPacketLen>MaxXDataSize)
 	{
-		NetDrvSendPacketData( (ubyte *)NakedBuf, NakedPacketLen, NetPlayers.players[who].network.ipx.server, NetPlayers.players[who].network.ipx.node,Players[who].net_address );
+		netdrv_send_packet_data( (ubyte *)NakedBuf, NakedPacketLen, NetPlayers.players[who].network.ipx.server, NetPlayers.players[who].network.ipx.node,Players[who].net_address );
 		NakedPacketLen=2;
 		memcpy (&NakedBuf[NakedPacketLen],buf,len);     
 		NakedPacketLen+=len;
@@ -5200,7 +5200,7 @@ void network_send_player_names (sequence_packet *their)
    						// statement below and kills the compiler when there is no
    						// statement following the label "sendit"
 	   
-	   NetDrvSendInternetworkPacketData((ubyte *)buf, count, their->player.network.ipx.server, their->player.network.ipx.node);
+	   netdrv_send_internetwork_packet_data((ubyte *)buf, count, their->player.network.ipx.server, their->player.network.ipx.node);
  }
 
 
@@ -5237,8 +5237,8 @@ void network_info_req( int nitems, newmenu_item * menus, int * key, int citem )
 		nextsend=curtime+F1_0*3;
 		memset(&me, 0, sizeof(sequence_packet));
 		memcpy( me.player.callsign, Players[Player_num].callsign, CALLSIGN_LEN+1 );
-		memcpy( me.player.network.ipx.node, NetDrvGetMyLocalAddress(), 6 );
-		memcpy( me.player.network.ipx.server, NetDrvGetMyServerAddress(), 4 );
+		memcpy( me.player.network.ipx.node, netdrv_get_my_local_address(), 6 );
+		memcpy( me.player.network.ipx.server, netdrv_get_my_server_address(), 4 );
 		me.type = PID_GAME_LIST_D2X; //get GAME_LIST - more infos follow later while big wait!
 
 		send_internetwork_sequence_packet(me, null_addr, NetPlayers.players[0].network.ipx.node);

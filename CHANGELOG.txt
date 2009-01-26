@@ -1,5 +1,9 @@
 D2X-Rebirth Changelog
 
+20090126
+--------
+include/netdrv.h, main/network.c, main/menu.c, main/netdrv_udp.c, main/netdrv_udp.h, main/netpkt.c, main/netpkt.h, main/netdrv.c, arch/linux/netdrv_ipx.c, arch/linux/netdrv_kali.c, arch/win32/netdrv_ipx.c: Changed function naming convention in netdrv and below to general Descent code convention
+
 20090124
 --------
 main/game.c: Removed some old code to smooth FrameTime we don't need anymore
