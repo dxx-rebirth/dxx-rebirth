@@ -12,7 +12,7 @@
 #define D1XMINOR "5"
 
 /* d2x micro version */
-#define D1XMICRO "5"
+#define D1XMICRO "5.1"
 
 #define PROGRAM_NAME "D1X-Rebirth"
 

@@ -3,6 +3,7 @@ D1X-Rebirth Changelog
 20090126
 --------
 include/netdrv.h, main/network.c, main/menu.c, main/netdrv_udp.c, main/netdrv_udp.h, main/netpkt.c, main/netpkt.h, main/netdrv.c, arch/linux/netdrv_ipx.c, arch/linux/netdrv_kali.c, arch/win32/netdrv_ipx.c: Changed function naming convention in netdrv and below to general Descent code convention
+arch/carbon/conf.h, d1x-Info.plist, d1xgl-Info.plist, English.lproj/InfoPlist.strings: Update version to 0.55.1
 
 20090124
 --------
@@ -15,7 +16,7 @@ main/newdemo.c: New condition to switch to Interpolated demo playback - the old 
 20090117
 --------
 arch/sdl/mouse.c, main/menu.c, main/playsave.c, main/playsave.h: Made MouseFilter selectable over Controls menu while defaulting to OFF - Saved in PLX
-d1x.ini, inlcude/args.h, main/inferno.c, main/laser.c, misc/args.c: Took out old missile tracking code to be selectable over command-line to preserve consistency
+d1x.ini, include/args.h, main/inferno.c, main/laser.c, misc/args.c: Took out old missile tracking code to be selectable over command-line to preserve consistency
 
 20090116
 --------
