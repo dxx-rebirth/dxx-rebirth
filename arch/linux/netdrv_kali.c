@@ -15,7 +15,7 @@ int have_empty_address() {
 	return i == 10;
 }
 
-int KALIGetMyAddress(void)
+int kali_get_my_address(void)
 {
 
 	kaliaddr_ipx mKaliAddr;
@@ -32,13 +32,13 @@ int KALIGetMyAddress(void)
 	return 0;
 }
 
-int KALIOpenSocket(socket_t *sk, int port)
+int kali_open_socket(socket_t *sk, int port)
 {
 	con_printf(CON_DEBUG,"kali: OpenSocket on port(%d)\n", port);
 
 	if (!open_sockets) {
 		if (have_empty_address()) {
-			if (KALIGetMyAddress() < 0) {
+			if (kali_get_my_address() < 0) {
 				con_printf(CON_CRITICAL,"kali: Error communicating with KaliNix\n");
 				return -1;
 			}
@@ -57,7 +57,7 @@ int KALIOpenSocket(socket_t *sk, int port)
 	return 0;
 }
 
-void KALICloseSocket(socket_t *mysock)
+void kali_close_socket(socket_t *mysock)
 {
 	if (!open_sockets) {
 		con_printf(CON_CRITICAL,"kali: close w/o open\n");
@@ -71,7 +71,7 @@ void KALICloseSocket(socket_t *mysock)
 	}
 }
 
-int KALISendPacket(socket_t *mysock, IPXPacket_t *IPXHeader, u_char *data, int dataLen)
+int kali_send_packet(socket_t *mysock, IPXPacket_t *IPXHeader, u_char *data, int dataLen)
 {
 	kaliaddr_ipx toaddr;
 	int i;
@@ -85,7 +85,7 @@ int KALISendPacket(socket_t *mysock, IPXPacket_t *IPXHeader, u_char *data, int d
 	return i;
 }
 
-int KALIReceivePacket(socket_t *s, char *outbuf, int outbufsize, struct recv_data *rd)
+int kali_receive_packet(socket_t *s, char *outbuf, int outbufsize, struct recv_data *rd)
 {
 	int size;
 	kaliaddr_ipx fromaddr;
@@ -102,17 +102,17 @@ int KALIReceivePacket(socket_t *s, char *outbuf, int outbufsize, struct recv_dat
 	return size;
 }
 
-static int KALIgeneral_PacketReady(socket_t *s)
+static int kali_general_packet_ready(socket_t *s)
 {
-	return NetDrvGeneralPacketReady(s->fd);
+	return netdrv_general_packet_ready(s->fd);
 }
 
 struct net_driver netdrv_kali = {
-	KALIOpenSocket,
-	KALICloseSocket,
-	KALISendPacket,
-	KALIReceivePacket,
-	KALIgeneral_PacketReady,
+	kali_open_socket,
+	kali_close_socket,
+	kali_send_packet,
+	kali_receive_packet,
+	kali_general_packet_ready,
 	1,
 	NETPROTO_KALINIX
 };

@@ -33,11 +33,11 @@
 
 int UDP_sock = -1;
 unsigned int myid=0; // My personal ID which I will get from host and will be used for IPX-Node
-struct peer_list UDPPeers[MAX_CONNECTIONS]; // The Peer list.
-void UDPCloseSocket(socket_t *unused);
+struct peer_list UDP_Peers[MAX_CONNECTIONS]; // The Peer list.
+void udp_close_socket(socket_t *unused);
 
 // Receive Configuration: Exchanging Peers, doing Handshakes, etc.
-void UDPReceiveCFG(char *text, struct _sockaddr *sAddr)
+void udp_receive_cfg(char *text, struct _sockaddr *sAddr)
 {
 	switch (text[4])
 	{
@@ -49,7 +49,7 @@ void UDPReceiveCFG(char *text, struct _sockaddr *sAddr)
 			// Check if sAddr is not used already (existing client or if client got this packet)
 			for (i = 1; i < MAX_CONNECTIONS; i++)
 			{
-				if (!memcmp(sAddr,(struct _sockaddr *)&UDPPeers[i].addr,sizeof(struct _sockaddr)))
+				if (!memcmp(sAddr,(struct _sockaddr *)&UDP_Peers[i].addr,sizeof(struct _sockaddr)))
 				{
 					clientid=i;
 				}
@@ -60,7 +60,7 @@ void UDPReceiveCFG(char *text, struct _sockaddr *sAddr)
 			{
 				for (i = 1; i < MAX_CONNECTIONS; i++) // ... find a free place in list...
 				{
-					if (!UDPPeers[i].valid) // ... Found it!
+					if (!UDP_Peers[i].valid) // ... Found it!
 					{
 						clientid=i;
 						break;
@@ -71,12 +71,12 @@ void UDPReceiveCFG(char *text, struct _sockaddr *sAddr)
 			if (!clientid)
 				return;
 
-			UDPPeers[clientid].valid=1;
-			UDPPeers[clientid].timestamp=timer_get_fixed_seconds();
-			memset(UDPPeers[clientid].hs_list,0,MAX_CONNECTIONS);
-			UDPPeers[clientid].hstimeout=0;
-			UDPPeers[clientid].relay=0;
-			memcpy(&UDPPeers[clientid].addr,sAddr,sizeof(struct _sockaddr)); // Copy address of new client to Peer list
+			UDP_Peers[clientid].valid=1;
+			UDP_Peers[clientid].timestamp=timer_get_fixed_seconds();
+			memset(UDP_Peers[clientid].hs_list,0,MAX_CONNECTIONS);
+			UDP_Peers[clientid].hstimeout=0;
+			UDP_Peers[clientid].relay=0;
+			memcpy(&UDP_Peers[clientid].addr,sAddr,sizeof(struct _sockaddr)); // Copy address of new client to Peer list
 			memcpy(outbuf+0,DXXcfgid,4); // PacketCFG ID
 			outbuf[4]=CFG_FIRSTCONTACT_ACK; // CFG Type
 			outbuf[5]=clientid; // personal ID for the client
@@ -88,9 +88,9 @@ void UDPReceiveCFG(char *text, struct _sockaddr *sAddr)
 		case CFG_FIRSTCONTACT_ACK:
 		{
 			My_Seq.player.node[0] = MyAddress[4] = myid = text[5]; // got my ID
-			memcpy(&UDPPeers[0].addr,sAddr,sizeof(struct _sockaddr)); // Add sender -> host!
-			UDPPeers[0].valid=1;
-			UDPPeers[0].timestamp=timer_get_fixed_seconds();
+			memcpy(&UDP_Peers[0].addr,sAddr,sizeof(struct _sockaddr)); // Add sender -> host!
+			UDP_Peers[0].valid=1;
+			UDP_Peers[0].timestamp=timer_get_fixed_seconds();
 			return;
 		}
 
@@ -116,9 +116,9 @@ void UDPReceiveCFG(char *text, struct _sockaddr *sAddr)
 			int i;
 			ubyte outbuf[6];
 
-			memcpy(&UDPPeers[(int)text[5]].addr,sAddr,sizeof(struct _sockaddr)); // Copy address of new client to Peer list
-			UDPPeers[(int)text[5]].valid=1;
-			UDPPeers[(int)text[5]].timestamp=timer_get_fixed_seconds();
+			memcpy(&UDP_Peers[(int)text[5]].addr,sAddr,sizeof(struct _sockaddr)); // Copy address of new client to Peer list
+			UDP_Peers[(int)text[5]].valid=1;
+			UDP_Peers[(int)text[5]].timestamp=timer_get_fixed_seconds();
 			memcpy(outbuf+0,DXXcfgid,4); // PacketCFG ID
 			outbuf[4]=CFG_HANDSHAKE_PONG; // CFG Type
 			outbuf[5]=myid; // my ID
@@ -133,22 +133,22 @@ void UDPReceiveCFG(char *text, struct _sockaddr *sAddr)
 			int i;
 			ubyte outbuf[7];
 
-			memcpy(&UDPPeers[(int)text[5]].addr,sAddr,sizeof(struct _sockaddr)); // Copy address of new client to Peer list
-			UDPPeers[(int)text[5]].valid=1;
-			UDPPeers[(int)text[5]].timestamp=timer_get_fixed_seconds();
+			memcpy(&UDP_Peers[(int)text[5]].addr,sAddr,sizeof(struct _sockaddr)); // Copy address of new client to Peer list
+			UDP_Peers[(int)text[5]].valid=1;
+			UDP_Peers[(int)text[5]].timestamp=timer_get_fixed_seconds();
 			memcpy(outbuf+0,DXXcfgid,4); // PacketCFG ID
 			outbuf[4]=CFG_HANDSHAKE_ACK; // CFG Type
 			outbuf[5]=myid; // my ID
 			outbuf[6]=text[5]; // ID of the added client
 			for (i=0; i<3; i++)
-				sendto (UDP_sock, outbuf, sizeof(outbuf), 0, (struct sockaddr *) &UDPPeers[0].addr, sizeof(struct _sockaddr)); // send!
+				sendto (UDP_sock, outbuf, sizeof(outbuf), 0, (struct sockaddr *) &UDP_Peers[0].addr, sizeof(struct _sockaddr)); // send!
 			return;
 		}
 
 		// Got a message from a client about a new client -> Add hs_list info!
 		case CFG_HANDSHAKE_ACK:
 		{
-			UDPPeers[(int)text[6]].hs_list[(int)text[5]]=1;
+			UDP_Peers[(int)text[6]].hs_list[(int)text[5]]=1;
 			return;
 		}
 	}
@@ -158,7 +158,7 @@ void UDPReceiveCFG(char *text, struct _sockaddr *sAddr)
 // Handshaking between clients
 // Here the HOST will motivate existing clients to connect to a new one
 // If all went good, client can join, if not host will relay this client if !GameArg.MplIpNoRelay or being dumped
-int UDPHandshakeFrame(struct _sockaddr *sAddr, char *inbuf)
+int udp_handshake_frame(struct _sockaddr *sAddr, char *inbuf)
 {
 	int i,checkid=-1;
 
@@ -168,10 +168,10 @@ int UDPHandshakeFrame(struct _sockaddr *sAddr, char *inbuf)
 	// Find the player we want to Handshake
 	for (i=1; i<MAX_CONNECTIONS; i++)
 	{
-		if (!memcmp(sAddr,(struct sockaddr*)&UDPPeers[i].addr,sizeof(struct _sockaddr)))
+		if (!memcmp(sAddr,(struct sockaddr*)&UDP_Peers[i].addr,sizeof(struct _sockaddr)))
 		{
 			checkid=i;
-			UDPPeers[checkid].valid=2;
+			UDP_Peers[checkid].valid=2;
 			break;
 		}
 	}
@@ -179,13 +179,13 @@ int UDPHandshakeFrame(struct _sockaddr *sAddr, char *inbuf)
 	if (checkid<0)
 		return 0;
 
-	if (UDPPeers[checkid].relay)
+	if (UDP_Peers[checkid].relay)
 		return 1;
 
 	// send Handshake init to all valid players except the new one (checkid)
 	for (i=1; i<MAX_CONNECTIONS; i++)
 	{
-		if (UDPPeers[i].valid == 3 && i != checkid  && !UDPPeers[i].relay && memcmp(sAddr,(struct sockaddr*)&UDPPeers[i].addr,sizeof(struct _sockaddr)))
+		if (UDP_Peers[i].valid == 3 && i != checkid  && !UDP_Peers[i].relay && memcmp(sAddr,(struct sockaddr*)&UDP_Peers[i].addr,sizeof(struct _sockaddr)))
 		{
 			char outbuf[6+sizeof(struct _sockaddr)];
 
@@ -193,33 +193,33 @@ int UDPHandshakeFrame(struct _sockaddr *sAddr, char *inbuf)
 			memcpy(outbuf+0,DXXcfgid,4);
 			outbuf[4]=CFG_HANDSHAKE_INIT;
 			memcpy(outbuf+5,sAddr,sizeof(struct _sockaddr));
-			sendto (UDP_sock, outbuf, sizeof(outbuf), 0, (struct sockaddr *) &UDPPeers[i].addr, sizeof(struct _sockaddr));
+			sendto (UDP_sock, outbuf, sizeof(outbuf), 0, (struct sockaddr *) &UDP_Peers[i].addr, sizeof(struct _sockaddr));
 		}
 	}
 
 	// check if that client is already fully joined
-	if (UDPPeers[checkid].valid == 3)
+	if (UDP_Peers[checkid].valid == 3)
 		return 1;
 
 	// Now check if Handshake was successful on requesting player - if not, return 0
 	for (i=1; i<MAX_CONNECTIONS; i++)
 	{
-		if (UDPPeers[i].valid == 3 && memcmp(sAddr,(struct _sockaddr *)&UDPPeers[i].addr,sizeof(struct _sockaddr)))
+		if (UDP_Peers[i].valid == 3 && memcmp(sAddr,(struct _sockaddr *)&UDP_Peers[i].addr,sizeof(struct _sockaddr)))
 		{
-			if (UDPPeers[checkid].hs_list[i] != 1 && !UDPPeers[i].relay)
+			if (UDP_Peers[checkid].hs_list[i] != 1 && !UDP_Peers[i].relay)
 			{
- 				if (UDPPeers[checkid].hstimeout > 10)
+ 				if (UDP_Peers[checkid].hstimeout > 10)
  				{
 					if (GameArg.MplIpRelay)
 					{
 						con_printf(CON_NORMAL,"UDP: Relaying Client #%i over Host\n",checkid);
-						UDPPeers[checkid].relay=1;
-						memset(UDPPeers[checkid].hs_list,1,MAX_CONNECTIONS);
-						UDPPeers[checkid].valid=3;
+						UDP_Peers[checkid].relay=1;
+						memset(UDP_Peers[checkid].hs_list,1,MAX_CONNECTIONS);
+						UDP_Peers[checkid].valid=3;
 						return 1;
 					}
  				}
- 				UDPPeers[checkid].hstimeout++;
+ 				UDP_Peers[checkid].hstimeout++;
 				return 0;
 			}
 		}
@@ -227,14 +227,14 @@ int UDPHandshakeFrame(struct _sockaddr *sAddr, char *inbuf)
 
 	// Set all vals to true since this could be the first client in our list that had no need to Handshake.
 	// However in that case this should be true for the next client joning
-	memset(UDPPeers[checkid].hs_list,1,MAX_CONNECTIONS);
-	UDPPeers[checkid].valid=3;
+	memset(UDP_Peers[checkid].hs_list,1,MAX_CONNECTIONS);
+	UDP_Peers[checkid].valid=3;
 
 	return 1;
 }
 
 // Check if we got data from sAddr within the last 10 seconds (NETWORK_TIMEOUT). If yes, update timestamp of peer, otherwise remove it.
-void UDPCheckDisconnect(struct _sockaddr *sAddr, char *text)
+void udp_check_disconnect(struct _sockaddr *sAddr, char *text)
 {
 	int i;
 
@@ -242,25 +242,25 @@ void UDPCheckDisconnect(struct _sockaddr *sAddr, char *text)
 	for (i = 0; i < MAX_CONNECTIONS; i++)
 	{
 		// Find the player we got the packet from
-		if (!memcmp(sAddr,(struct _sockaddr *)&UDPPeers[i].addr,sizeof(struct _sockaddr)))
+		if (!memcmp(sAddr,(struct _sockaddr *)&UDP_Peers[i].addr,sizeof(struct _sockaddr)))
 		{
 			// Update timestamp
-			UDPPeers[i].timestamp=timer_get_fixed_seconds();
+			UDP_Peers[i].timestamp=timer_get_fixed_seconds();
 		}
-		else if (UDPPeers[i].valid && UDPPeers[i].timestamp + NETWORK_TIMEOUT <= timer_get_fixed_seconds())
+		else if (UDP_Peers[i].valid && UDP_Peers[i].timestamp + NETWORK_TIMEOUT <= timer_get_fixed_seconds())
 		{
 			// Timeout!
-			UDPPeers[i].valid=0;
-			UDPPeers[i].timestamp=0;
-			memset(UDPPeers[i].hs_list,0,MAX_CONNECTIONS);
-			UDPPeers[i].hstimeout=0;
-			UDPPeers[i].relay=0;
+			UDP_Peers[i].valid=0;
+			UDP_Peers[i].timestamp=0;
+			memset(UDP_Peers[i].hs_list,0,MAX_CONNECTIONS);
+			UDP_Peers[i].hstimeout=0;
+			UDP_Peers[i].relay=0;
 		}
 	}
 }
 
 // Relay packets over Host
-void UDPPacketRelay(char *text, int len, struct _sockaddr *sAddr)
+void udp_packet_relay(char *text, int len, struct _sockaddr *sAddr)
 {
 	int i, relayid=0;
 	
@@ -275,7 +275,7 @@ void UDPPacketRelay(char *text, int len, struct _sockaddr *sAddr)
 	// Check if sender is a relay client and store ID if so
 	for (i = 1; i < MAX_CONNECTIONS; i++)
 	{
-		if (!memcmp(sAddr,(struct _sockaddr *)&UDPPeers[i].addr,sizeof(struct _sockaddr)) && UDPPeers[i].relay)
+		if (!memcmp(sAddr,(struct _sockaddr *)&UDP_Peers[i].addr,sizeof(struct _sockaddr)) && UDP_Peers[i].relay)
 		{
 			relayid=i;
 		}
@@ -285,9 +285,9 @@ void UDPPacketRelay(char *text, int len, struct _sockaddr *sAddr)
 	{
 		for (i = 1; i < MAX_CONNECTIONS; i++)
 		{
-			if (memcmp(sAddr,(struct _sockaddr *)&UDPPeers[i].addr,sizeof(struct _sockaddr)) && i != relayid && UDPPeers[i].valid>1)
+			if (memcmp(sAddr,(struct _sockaddr *)&UDP_Peers[i].addr,sizeof(struct _sockaddr)) && i != relayid && UDP_Peers[i].valid>1)
 			{
-				sendto (UDP_sock, text, len, 0, (struct sockaddr *) &UDPPeers[i].addr, sizeof(struct _sockaddr));
+				sendto (UDP_sock, text, len, 0, (struct sockaddr *) &UDP_Peers[i].addr, sizeof(struct _sockaddr));
 			}
 		}
 	}
@@ -295,16 +295,16 @@ void UDPPacketRelay(char *text, int len, struct _sockaddr *sAddr)
 	{
 		for (i = 1; i < MAX_CONNECTIONS; i++)
 		{
-			if (memcmp(sAddr,(struct _sockaddr *)&UDPPeers[i].addr,sizeof(struct _sockaddr)) && UDPPeers[i].relay)
+			if (memcmp(sAddr,(struct _sockaddr *)&UDP_Peers[i].addr,sizeof(struct _sockaddr)) && UDP_Peers[i].relay)
 			{
-				sendto (UDP_sock, text, len, 0, (struct sockaddr *) &UDPPeers[i].addr, sizeof(struct _sockaddr));
+				sendto (UDP_sock, text, len, 0, (struct sockaddr *) &UDP_Peers[i].addr, sizeof(struct _sockaddr));
 			}
 		}
 	}
 }
 
 // Resolve address
-int UDPDnsFillAddr(char *host, int hostlen, int port, int portlen, struct _sockaddr *sAddr)
+int udp_dns_filladdr(char *host, int hostlen, int port, int portlen, struct _sockaddr *sAddr)
 {
 	struct hostent *he;
 
@@ -321,7 +321,7 @@ int UDPDnsFillAddr(char *host, int hostlen, int port, int portlen, struct _socka
 
 	if (!he)
 	{
-		con_printf(CON_URGENT,"UDPDnsFillAddr (gethostbyname) failed\n");
+		con_printf(CON_URGENT,"udp_dns_filladdr (gethostbyname) failed\n");
 		nm_messagebox(TXT_ERROR,1,TXT_OK,"Could not resolve address");
 		return -1;
 	}
@@ -334,7 +334,7 @@ int UDPDnsFillAddr(char *host, int hostlen, int port, int portlen, struct _socka
 #else
 	if ((he = gethostbyname (host)) == NULL) // get the host info
 	{
-		con_printf(CON_URGENT,"UDPDnsFillAddr (gethostbyname) failed\n");
+		con_printf(CON_URGENT,"udp_dns_filladdr (gethostbyname) failed\n");
 		nm_messagebox(TXT_ERROR,1,TXT_OK,"Could not resolve address");
 		return -1;
 	}
@@ -357,7 +357,7 @@ int UDPConnectManual(char *textaddr)
 	char outbuf[12], inbuf[5];
 
 	// Resolve address
-	if (UDPDnsFillAddr(textaddr, LEN_SERVERNAME, UDP_BASEPORT, LEN_PORT, &HostAddr) < 0)
+	if (udp_dns_filladdr(textaddr, LEN_SERVERNAME, UDP_BASEPORT, LEN_PORT, &HostAddr) < 0)
 	{
 		return -1;
 	}
@@ -388,7 +388,7 @@ int UDPConnectManual(char *textaddr)
 		sendto (UDP_sock, outbuf, sizeof(outbuf), 0, (struct sockaddr *) &HostAddr, sizeof(struct _sockaddr));
 		timer_delay2(10);
 		// ... and wait for answer
-		UDPReceivePacket(NULL,inbuf,6,NULL);
+		udp_receive_packet(NULL,inbuf,6,NULL);
 	}
 
 	
@@ -399,13 +399,13 @@ int UDPConnectManual(char *textaddr)
 }
 
 // Open socket
-int UDPOpenSocket(socket_t *unused, int port)
+int udp_open_socket(socket_t *unused, int port)
 {
 	int i;
 
 	// close stale socket
 	if( UDP_sock != -1 )
-		UDPCloseSocket(NULL);
+		udp_close_socket(NULL);
 
 	{
 #ifdef _WIN32
@@ -415,7 +415,7 @@ int UDPOpenSocket(socket_t *unused, int port)
 	memset( &sAddr, '\0', sizeof( sAddr ) );
 
 	if ((UDP_sock = socket (_af, SOCK_DGRAM, 0)) == -1) {
-		con_printf(CON_URGENT,"UDPOpenSocket: socket creation failed\n");
+		con_printf(CON_URGENT,"udp_open_socket: socket creation failed\n");
 		nm_messagebox(TXT_ERROR,1,TXT_OK,"Could not create socket");
 		return -1;
 	}
@@ -441,9 +441,9 @@ int UDPOpenSocket(socket_t *unused, int port)
 	
 	if (bind (UDP_sock, (struct sockaddr *) &sAddr, sizeof (struct sockaddr)) == -1) 
 	{      
-		con_printf(CON_URGENT,"UDPOpenSocket: bind name to socket failed\n");
+		con_printf(CON_URGENT,"udp_open_socket: bind name to socket failed\n");
 		nm_messagebox(TXT_ERROR,1,TXT_OK,"Could not bind name to socket");
-		UDPCloseSocket(NULL);
+		udp_close_socket(NULL);
 		return -1;
 	}
 #else
@@ -485,7 +485,7 @@ int UDPOpenSocket(socket_t *unused, int port)
 	
 		if ((UDP_sock = socket (sres->ai_family, SOCK_DGRAM, 0)) < 0)
 		{
-			con_printf(CON_URGENT,"UDPOpenSocket: socket creation failed\n");
+			con_printf(CON_URGENT,"udp_open_socket: socket creation failed\n");
 			nm_messagebox(TXT_ERROR,1,TXT_OK,"Could not create socket");
 			freeaddrinfo (res);
 			return -1;
@@ -493,9 +493,9 @@ int UDPOpenSocket(socket_t *unused, int port)
 	
 		if ((err = bind (UDP_sock, sres->ai_addr, sres->ai_addrlen)) < 0)
 		{
-			con_printf(CON_URGENT,"UDPOpenSocket: bind name to socket failed\n");
+			con_printf(CON_URGENT,"udp_open_socket: bind name to socket failed\n");
 			nm_messagebox(TXT_ERROR,1,TXT_OK,"Could not bind name to socket");
-			UDPCloseSocket(NULL);
+			udp_close_socket(NULL);
 			freeaddrinfo (res);
 			return -1;
 		}
@@ -504,20 +504,20 @@ int UDPOpenSocket(socket_t *unused, int port)
 	}
 	else {
 		UDP_sock = -1;
-		con_printf(CON_URGENT,"UDPOpenSocket (getaddrinfo):%s\n", gai_strerror (err));
+		con_printf(CON_URGENT,"udp_open_socket (getaddrinfo):%s\n", gai_strerror (err));
 		nm_messagebox(TXT_ERROR,1,TXT_OK,"Could not get address information:\n%s",gai_strerror (err));
 	}
 #endif
 
-	// Prepare UDPPeers
+	// Prepare UDP_Peers
 	for (i=0; i<MAX_CONNECTIONS;i++)
 	{
-		memset(&UDPPeers[i].addr,0,sizeof(struct _sockaddr));
-		UDPPeers[i].valid=0;
-		UDPPeers[i].timestamp=0;
-		memset(UDPPeers[i].hs_list,0,MAX_CONNECTIONS);
-		UDPPeers[i].hstimeout=0;
-		UDPPeers[i].relay=0;
+		memset(&UDP_Peers[i].addr,0,sizeof(struct _sockaddr));
+		UDP_Peers[i].valid=0;
+		UDP_Peers[i].timestamp=0;
+		memset(UDP_Peers[i].hs_list,0,MAX_CONNECTIONS);
+		UDP_Peers[i].hstimeout=0;
+		UDP_Peers[i].relay=0;
 	}
 	myid=0;
 
@@ -527,7 +527,7 @@ int UDPOpenSocket(socket_t *unused, int port)
 
 
 // Closes an existing udp socket
-void UDPCloseSocket(socket_t *unused)
+void udp_close_socket(socket_t *unused)
 {
 	int i;
 
@@ -541,37 +541,37 @@ void UDPCloseSocket(socket_t *unused)
 	}
 	UDP_sock = -1;
 
-	// Prepare UDPPeers
+	// Prepare UDP_Peers
 	for (i=0; i<MAX_CONNECTIONS;i++)
 	{
-		memset(&UDPPeers[i].addr,0,sizeof(struct _sockaddr));
-		UDPPeers[i].valid=0;
-		UDPPeers[i].timestamp=0;
-		memset(UDPPeers[i].hs_list,0,MAX_CONNECTIONS);
-		UDPPeers[i].hstimeout=0;
-		UDPPeers[i].relay=0;
+		memset(&UDP_Peers[i].addr,0,sizeof(struct _sockaddr));
+		UDP_Peers[i].valid=0;
+		UDP_Peers[i].timestamp=0;
+		memset(UDP_Peers[i].hs_list,0,MAX_CONNECTIONS);
+		UDP_Peers[i].hstimeout=0;
+		UDP_Peers[i].relay=0;
 	}
 	myid=0;
 }
 
 // Send text to someone
-// This function get's IPXHeader as address. The first byte in this header represents the UDPPeers ID, so sAddr can be assigned.
-static int UDPSendPacket(socket_t *unused, IPXPacket_t *IPXHeader, ubyte *text, int len)
+// This function get's IPXHeader as address. The first byte in this header represents the UDP_Peers ID, so sAddr can be assigned.
+static int udp_send_packet(socket_t *unused, IPXPacket_t *IPXHeader, ubyte *text, int len)
 {
-	// check if Header is in a sane range for UDPPeers
+	// check if Header is in a sane range for UDP_Peers
 	if (IPXHeader->Destination.Node[0] >= MAX_CONNECTIONS)
 		return 0;
 
-	if (!UDPPeers[IPXHeader->Destination.Node[0]].valid)
+	if (!UDP_Peers[IPXHeader->Destination.Node[0]].valid)
 		return 0;
 
-	return sendto (UDP_sock, text, len, 0, (struct sockaddr *) &UDPPeers[IPXHeader->Destination.Node[0]].addr, sizeof(struct _sockaddr));
+	return sendto (UDP_sock, text, len, 0, (struct sockaddr *) &UDP_Peers[IPXHeader->Destination.Node[0]].addr, sizeof(struct _sockaddr));
 }
 
 // Gets some text
 // Returns 0 if nothing on there
 // rd can safely be ignored here
-int UDPReceivePacket(socket_t *unused, char *text, int len, struct recv_data *rd)
+int udp_receive_packet(socket_t *unused, char *text, int len, struct recv_data *rd)
 {
 	unsigned int clen = sizeof (struct _sockaddr), msglen = 0;
 	struct _sockaddr sAddr;
@@ -579,7 +579,7 @@ int UDPReceivePacket(socket_t *unused, char *text, int len, struct recv_data *rd
 	if (UDP_sock == -1)
 		return -1;
 
-	if (UDPgeneral_PacketReady(NULL))
+	if (udp_general_packet_ready(NULL))
 	{
 		msglen = recvfrom (UDP_sock, text, len, 0, (struct sockaddr *) &sAddr, &clen);
 
@@ -592,26 +592,26 @@ int UDPReceivePacket(socket_t *unused, char *text, int len, struct recv_data *rd
 		// Wrap UDP CFG packets here!
 		if (!memcmp(text+0,DXXcfgid,4))
 		{
-			UDPReceiveCFG(text,&sAddr);
+			udp_receive_cfg(text,&sAddr);
 			return 0;
 		}
 
 		// Check for Disconnect!
-		UDPCheckDisconnect(&sAddr, text);
+		udp_check_disconnect(&sAddr, text);
 
 		// Seems someone wants to enter the game actually.
 		// If I am host, init handshakes! if not sccessful, return 0 and never process this player's request signal - cool thing, eh?
 		if (text[0] == PID_D1X_REQUEST && myid == 0)
-			if (!UDPHandshakeFrame(&sAddr,text))
+			if (!udp_handshake_frame(&sAddr,text))
 				return 0;
 				
-		UDPPacketRelay(text, msglen, &sAddr);
+		udp_packet_relay(text, msglen, &sAddr);
 	}
 
 	return msglen;
 }
 
-int UDPgeneral_PacketReady(socket_t *unused)
+int udp_general_packet_ready(socket_t *unused)
 {
 	fd_set set;
 	struct timeval tv;
@@ -627,11 +627,11 @@ int UDPgeneral_PacketReady(socket_t *unused)
 
 struct net_driver netdrv_udp =
 {
-	UDPOpenSocket,
-	UDPCloseSocket,
-	UDPSendPacket,
-	UDPReceivePacket,
-	UDPgeneral_PacketReady,
+	udp_open_socket,
+	udp_close_socket,
+	udp_send_packet,
+	udp_receive_packet,
+	udp_general_packet_ready,
 	0, //save 4 bytes.  udp/ip is completely inaccessable by the other methods, so we don't need to worry about compatibility.
 	NETPROTO_UDP
 };

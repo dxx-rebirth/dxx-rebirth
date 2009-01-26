@@ -171,11 +171,11 @@ void send_sequence_packet(sequence_packet seq, ubyte *server, ubyte *node, ubyte
 	out_buffer[loc] = MULTI_PROTO_D1X_MINOR;						loc++;
 
 	if (net_address != NULL)	
-		NetDrvSendPacketData( out_buffer, loc, server, node, net_address);
+		netdrv_send_packet_data( out_buffer, loc, server, node, net_address);
 	else if ((server == NULL) && (node == NULL))
-		NetDrvSendBroadcastPacketData( out_buffer, loc );
+		netdrv_send_broadcast_packet_data( out_buffer, loc );
 	else
-		NetDrvSendInternetworkPacketData( out_buffer, loc, server, node);
+		netdrv_send_internetwork_packet_data( out_buffer, loc, server, node);
 }
 
 void receive_sequence_packet(ubyte *data, sequence_packet *seq)
@@ -254,9 +254,9 @@ void send_netgame_packet(ubyte *server, ubyte *node)
         }
 
 	if (server == NULL)
-		NetDrvSendBroadcastPacketData(out_buffer, loc);
+		netdrv_send_broadcast_packet_data(out_buffer, loc);
 	else
-		NetDrvSendInternetworkPacketData( out_buffer, loc, server, node );
+		netdrv_send_internetwork_packet_data( out_buffer, loc, server, node );
 }
 
 void receive_netgame_packet(ubyte *data, netgame_info *netgame, int d1x)
@@ -437,9 +437,9 @@ void send_d1x_netgame_packet(ubyte *server, ubyte *node)
 	}
 
 	if (server == NULL)
-		NetDrvSendBroadcastPacketData(out_buffer, loc);
+		netdrv_send_broadcast_packet_data(out_buffer, loc);
 	else
-		NetDrvSendInternetworkPacketData(out_buffer, loc, server, node);
+		netdrv_send_internetwork_packet_data(out_buffer, loc, server, node);
 }
 
 void receive_d1x_netgame_packet(ubyte *data, netgame_info *netgame) {
@@ -571,7 +571,7 @@ void send_frameinfo_packet(frame_info *info, ubyte *server, ubyte *node, ubyte *
 	memcpy(&out_buffer[loc], info->data, info->data_size);			loc += info->data_size;
 
 	// Always array passed
-	NetDrvSendPacketData(out_buffer, loc, server, node, net_address);
+	netdrv_send_packet_data(out_buffer, loc, server, node, net_address);
 }
 
 void receive_frameinfo_packet(ubyte *data, frame_info *info)

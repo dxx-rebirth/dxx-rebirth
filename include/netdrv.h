@@ -55,26 +55,26 @@ struct recv_data {
 };
 
 struct net_driver {
-	int (*OpenSocket)(socket_t *sk, int port);
-	void (*CloseSocket)(socket_t *mysock);
-	int (*SendPacket)(socket_t *mysock, IPXPacket_t *IPXHeader, ubyte *data, int dataLen);
-	int (*ReceivePacket)(socket_t *s, char *buffer, int bufsize, struct recv_data *rec);
-	int (*PacketReady)(socket_t *s);
+	int (*open_socket)(socket_t *sk, int port);
+	void (*close_socket)(socket_t *mysock);
+	int (*send_packet)(socket_t *mysock, IPXPacket_t *IPXHeader, ubyte *data, int dataLen);
+	int (*receive_packet)(socket_t *s, char *buffer, int bufsize, struct recv_data *rec);
+	int (*packet_ready)(socket_t *s);
 	int usepacketnum;//we can save 4 bytes
 	int type; // type of driver (NETPROTO_*). Can be used to make driver-specific rules in other parts of the multiplayer code.
 };
 
-extern int NetDrvGeneralPacketReady(int fd);
-extern void NetDrvGetLocalTarget( ubyte * server, ubyte * node, ubyte * local_target );
-extern int NetDrvSet(int arg);
-extern int NetDrvChangeDefaultSocket( ushort socket_number );
-extern ubyte * NetDrvGetMyLocalAddress();
-extern ubyte * NetDrvGetMyServerAddress();
-extern int NetDrvGetPacketData( ubyte * data );
-extern void NetDrvSendBroadcastPacketData( ubyte * data, int datasize );
-extern void NetDrvSendPacketData( ubyte * data, int datasize, ubyte *network, ubyte *address, ubyte *immediate_address );
-extern void NetDrvSendInternetworkPacketData( ubyte * data, int datasize, ubyte * server, ubyte *address );
-extern int NetDrvType(void);
+extern int netdrv_general_packet_ready(int fd);
+extern void netdrv_get_local_target( ubyte * server, ubyte * node, ubyte * local_target );
+extern int netdrv_set(int arg);
+extern int netdrv_change_default_socket( ushort socket_number );
+extern ubyte * netdrv_get_my_local_address();
+extern ubyte * netdrv_get_my_server_address();
+extern int netdrv_get_packet_data( ubyte * data );
+extern void netdrv_send_broadcast_packet_data( ubyte * data, int datasize );
+extern void netdrv_send_packet_data( ubyte * data, int datasize, ubyte *network, ubyte *address, ubyte *immediate_address );
+extern void netdrv_send_internetwork_packet_data( ubyte * data, int datasize, ubyte * server, ubyte *address );
+extern int netdrv_type(void);
 
 #ifndef __APPLE__
 extern struct net_driver netdrv_ipx;

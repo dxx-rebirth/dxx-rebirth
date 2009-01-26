@@ -7,12 +7,12 @@
 #include "netdrv.h"
 #include "console.h"
 
-static int IPXGetMyAddress( void )
+static int ipx_get_my_address( void )
 {
 	return(0);
 }
 
-static int IPXOpenSocket(socket_t *sk, int port)
+static int ipx_open_socket(socket_t *sk, int port)
 {
 	int sock;			/* sock here means Linux socket handle */
 	int opt;
@@ -62,7 +62,7 @@ static int IPXOpenSocket(socket_t *sk, int port)
 	len = sizeof(ipxs2);
 	if (getsockname(sock,(struct sockaddr *)&ipxs2,&len) < 0)
 	{
-		con_printf(CON_URGENT,"IPX: could not get socket name in IPXOpenSocket\n");
+		con_printf(CON_URGENT,"IPX: could not get socket name in ipx_open_socket\n");
 		closesocket( sock );
 		return -1;
 	}
@@ -79,12 +79,12 @@ static int IPXOpenSocket(socket_t *sk, int port)
 	sk->fd = sock;
 	sk->socket = port;
 
-	IPXGetMyAddress();
+	ipx_get_my_address();
 	
 	return 0;
 }
 
-static void IPXCloseSocket(socket_t *mysock)
+static void ipx_close_socket(socket_t *mysock)
 {
 	/* now close the file descriptor for the socket, and free it */
 	con_printf(CON_URGENT,"IPX: closing file descriptor on socket %x\n", mysock->socket);
@@ -92,7 +92,7 @@ static void IPXCloseSocket(socket_t *mysock)
 	WSACleanup();
 }
 
-static int IPXSendPacket(socket_t *mysock, IPXPacket_t *IPXHeader, ubyte *data, int dataLen)
+static int ipx_send_packet(socket_t *mysock, IPXPacket_t *IPXHeader, ubyte *data, int dataLen)
 {
 	struct sockaddr_ipx ipxs;
 	
@@ -110,7 +110,7 @@ static int IPXSendPacket(socket_t *mysock, IPXPacket_t *IPXHeader, ubyte *data, 
 	return sendto(mysock->fd, data, dataLen, 0, (struct sockaddr *) &ipxs, sizeof(ipxs));
 }
 
-static int IPXReceivePacket(socket_t *s, char *buffer, int bufsize, struct recv_data *rd)
+static int ipx_receive_packet(socket_t *s, char *buffer, int bufsize, struct recv_data *rd)
 {
 	int sz, size;
 	struct sockaddr_ipx ipxs;
@@ -126,17 +126,17 @@ static int IPXReceivePacket(socket_t *s, char *buffer, int bufsize, struct recv_
 	return size;
 }
 
-static int IPXgeneral_PacketReady(socket_t *s)
+static int ipx_general_packet_ready(socket_t *s)
 {
-	return NetDrvGeneralPacketReady(s->fd);
+	return netdrv_general_packet_ready(s->fd);
 }
 
 struct net_driver netdrv_ipx = {
-	IPXOpenSocket,
-	IPXCloseSocket,
-	IPXSendPacket,
-	IPXReceivePacket,
-	IPXgeneral_PacketReady,
+	ipx_open_socket,
+	ipx_close_socket,
+	ipx_send_packet,
+	ipx_receive_packet,
+	ipx_general_packet_ready,
 	1,
 	NETPROTO_IPX
 };

@@ -25,7 +25,7 @@ void send_frameinfo_packet(frame_info *info, ubyte *server, ubyte *node, ubyte *
 void receive_frameinfo_packet(ubyte *data, frame_info *info);
 #else // !WORDS_BIGENDIAN
 #define send_frameinfo_packet(info, server, node, net_address) \
-	NetDrvSendPacketData((ubyte *)info, sizeof(frame_info) - NET_XDATA_SIZE + (info)->data_size, server, node, net_address)
+	netdrv_send_packet_data((ubyte *)info, sizeof(frame_info) - NET_XDATA_SIZE + (info)->data_size, server, node, net_address)
 #define receive_frameinfo_packet(data, info) \
 	do { memcpy((ubyte *)(info), data, sizeof(frame_info) - NET_XDATA_SIZE); \
 		memcpy((info)->data, &data[sizeof(frame_info) - NET_XDATA_SIZE], (info)->data_size); } while(0)

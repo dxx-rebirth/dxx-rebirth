@@ -45,7 +45,7 @@ COPYRIGHT 1993-1998 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 ubyte broadcast_addr[] = { 0xff, 0xff, 0xff, 0xff, 0xff, 0xff };
 ubyte null_addr[] = { 0x00, 0x00, 0x00, 0x00, 0x00, 0x00 };
 
-ubyte NetDrvInstalled=0;
+ubyte netdrv_installed=0;
 u_int32_t ipx_network = 0;
 ubyte MyAddress[10];
 int ipx_packetnum = 0;			/* Sequence number */
@@ -65,7 +65,7 @@ user_address Ipx_users[MAX_USERS];
 int Ipx_num_networks = 0;
 uint Ipx_networks[MAX_NETWORKS];
 
-int NetDrvGeneralPacketReady(int fd)
+int netdrv_general_packet_ready(int fd)
 {
 	fd_set set;
 	struct timeval tv;
@@ -81,27 +81,27 @@ int NetDrvGeneralPacketReady(int fd)
 
 struct net_driver *driver = NULL;
 
-ubyte * NetDrvGetMyServerAddress()
+ubyte * netdrv_get_my_server_address()
 {
 	return (ubyte *)&ipx_network;
 }
 
-ubyte * NetDrvGetMyLocalAddress()
+ubyte * netdrv_get_my_local_address()
 {
 	return (ubyte *)(MyAddress + 4);
 }
 
-void NetDrvClose()
+void netdrv_close()
 {
-	if (NetDrvInstalled)
+	if (netdrv_installed)
 	{
 #ifdef _WIN32
 		WSACleanup();
 #endif
-		driver->CloseSocket(&socket_data);
+		driver->close_socket(&socket_data);
 	}
 
-	NetDrvInstalled = 0;
+	netdrv_installed = 0;
 }
 
 //---------------------------------------------------------------
@@ -113,7 +113,7 @@ void NetDrvClose()
 //		-3 if driver not installed.
 //		-4 if couldn't allocate low dos memory
 //		-5 if error with getting internetwork address
-int NetDrvInit( int socket_number )
+int netdrv_init( int socket_number )
 {
 	static int cleanup = 0;
 #ifdef _WIN32
@@ -141,7 +141,7 @@ int NetDrvInit( int socket_number )
 		con_printf(CON_DEBUG,"IPX: Using network %08x\n", (unsigned int)n);
 	}
 
-	if (driver->OpenSocket(&socket_data, socket_number))
+	if (driver->open_socket(&socket_data, socket_number))
 	{
 		return -3;
 	}
@@ -150,20 +150,20 @@ int NetDrvInit( int socket_number )
 	Ipx_num_networks = 0;
 	memcpy( &Ipx_networks[Ipx_num_networks++], &ipx_network, 4 );
 
-	NetDrvInstalled = 1;
+	netdrv_installed = 1;
 
 	if (!cleanup)
-		atexit(NetDrvClose);
+		atexit(netdrv_close);
 	cleanup = 1;
 
 	return 0;
 }
 
-int NetDrvSet(int arg)
+int netdrv_set(int arg)
 {
-	int NetDrvErr;
+	int netdrv_err;
 
-	NetDrvClose();
+	netdrv_close();
 
 	con_printf(CON_VERBOSE, "\n%s ", TXT_INITIALIZING_NETWORK);
 
@@ -187,14 +187,14 @@ int NetDrvSet(int arg)
 			break;
 	}
 
-	if ((NetDrvErr=NetDrvInit(IPX_DEFAULT_SOCKET))==0)
+	if ((netdrv_err=netdrv_init(IPX_DEFAULT_SOCKET))==0)
 	{
 		con_printf(CON_VERBOSE, "%s %d.\n", TXT_IPX_CHANNEL, IPX_DEFAULT_SOCKET );
 		Network_active = 1;
 	}
 	else
 	{
-		switch (NetDrvErr)
+		switch (netdrv_err)
 		{
 			case 3:
 				con_printf(CON_VERBOSE, "%s\n", TXT_NO_NETWORK);
@@ -206,7 +206,7 @@ int NetDrvSet(int arg)
 				con_printf(CON_VERBOSE, "%s\n", TXT_MEMORY_IPX );
 				break;
 			default:
-				con_printf(CON_VERBOSE, "%s %d", TXT_ERROR_IPX, NetDrvErr );
+				con_printf(CON_VERBOSE, "%s %d", TXT_ERROR_IPX, netdrv_err );
 				break;
 		}
 
@@ -214,10 +214,10 @@ int NetDrvSet(int arg)
 		Network_active = 0;		// Assume no network
 	}
 
-	return NetDrvInstalled?0:-1;
+	return netdrv_installed?0:-1;
 }
 
-int NetDrvGetPacketData( ubyte * data )
+int netdrv_get_packet_data( ubyte * data )
 {
 	struct recv_data rd;
 	char *buf;
@@ -230,9 +230,9 @@ int NetDrvGetPacketData( ubyte * data )
 
 	memset(rd.src_network,1,4);
 
-	while (driver->PacketReady(&socket_data))
+	while (driver->packet_ready(&socket_data))
 	{
-		if ((size = driver->ReceivePacket(&socket_data, buf, MAX_IPX_DATA, &rd)) > 4)
+		if ((size = driver->receive_packet(&socket_data, buf, MAX_IPX_DATA, &rd)) > 4)
 		{
 			if (!memcmp(rd.src_network, MyAddress, 10))
 			{
@@ -253,11 +253,11 @@ int NetDrvGetPacketData( ubyte * data )
 	return 0;
 }
 
-void NetDrvSendPacketData( ubyte * data, int datasize, ubyte *network, ubyte *address, ubyte *immediate_address )
+void netdrv_send_packet_data( ubyte * data, int datasize, ubyte *network, ubyte *address, ubyte *immediate_address )
 {
 	IPXPacket_t ipx_header;
 
-	if (!NetDrvInstalled)
+	if (!netdrv_installed)
 		return;
 
 	memcpy(ipx_header.Destination.Network, network, 4);
@@ -270,23 +270,23 @@ void NetDrvSendPacketData( ubyte * data, int datasize, ubyte *network, ubyte *ad
 		*(uint *)buf = ipx_packetnum++;
 
 		memcpy(buf + 4, data, datasize);
-		driver->SendPacket(&socket_data, &ipx_header, buf, datasize + 4);
+		driver->send_packet(&socket_data, &ipx_header, buf, datasize + 4);
 	}
 	else
-		driver->SendPacket(&socket_data, &ipx_header, data, datasize);//we can save 4 bytes
+		driver->send_packet(&socket_data, &ipx_header, data, datasize);//we can save 4 bytes
 }
 
-void NetDrvGetLocalTarget( ubyte * server, ubyte * node, ubyte * local_target )
+void netdrv_get_local_target( ubyte * server, ubyte * node, ubyte * local_target )
 {
 	memcpy( local_target, node, 6 );
 }
 
-void NetDrvSendBroadcastPacketData( ubyte * data, int datasize )	
+void netdrv_send_broadcast_packet_data( ubyte * data, int datasize )	
 {
 	int i, j;
 	ubyte local_address[6];
 
-	if (!NetDrvInstalled)
+	if (!netdrv_installed)
 		return;
 
 	// Set to all networks besides mine
@@ -294,12 +294,12 @@ void NetDrvSendBroadcastPacketData( ubyte * data, int datasize )
 	{
 		if ( memcmp( &Ipx_networks[i], &ipx_network, 4 ) )
 		{
-			NetDrvGetLocalTarget( (ubyte *)&Ipx_networks[i], broadcast_addr, local_address );
-			NetDrvSendPacketData( data, datasize, (ubyte *)&Ipx_networks[i], broadcast_addr, local_address );
+			netdrv_get_local_target( (ubyte *)&Ipx_networks[i], broadcast_addr, local_address );
+			netdrv_send_packet_data( data, datasize, (ubyte *)&Ipx_networks[i], broadcast_addr, local_address );
 		}
 		else
 		{
-			NetDrvSendPacketData( data, datasize, (ubyte *)&Ipx_networks[i], broadcast_addr, broadcast_addr );
+			netdrv_send_packet_data( data, datasize, (ubyte *)&Ipx_networks[i], broadcast_addr, broadcast_addr );
 		}
 	}
 
@@ -314,7 +314,7 @@ void NetDrvSendBroadcastPacketData( ubyte * data, int datasize )
 					goto SkipUser;
 			}
 
-			NetDrvSendPacketData( data, datasize, Ipx_users[i].network, Ipx_users[i].node, Ipx_users[i].address );
+			netdrv_send_packet_data( data, datasize, Ipx_users[i].network, Ipx_users[i].node, Ipx_users[i].address );
 SkipUser:
 			j = 0;
 		}
@@ -322,11 +322,11 @@ SkipUser:
 }
 
 // Sends a non-localized packet... needs 4 byte server, 6 byte address
-void NetDrvSendInternetworkPacketData( ubyte * data, int datasize, ubyte * server, ubyte *address )
+void netdrv_send_internetwork_packet_data( ubyte * data, int datasize, ubyte * server, ubyte *address )
 {
 	ubyte local_address[6];
 
-	if (!NetDrvInstalled)
+	if (!netdrv_installed)
 		return;
 
 #ifdef WORDS_NEED_ALIGNMENT
@@ -336,24 +336,24 @@ void NetDrvSendInternetworkPacketData( ubyte * data, int datasize, ubyte * serve
 	if ((*(uint *)server) != 0)
 #endif // WORDS_NEED_ALIGNMENT
 	{
-		NetDrvGetLocalTarget( server, address, local_address );
-		NetDrvSendPacketData( data, datasize, server, address, local_address );
+		netdrv_get_local_target( server, address, local_address );
+		netdrv_send_packet_data( data, datasize, server, address, local_address );
 	}
 	else
 	{
 		// Old method, no server info.
-		NetDrvSendPacketData( data, datasize, server, address, address );
+		netdrv_send_packet_data( data, datasize, server, address, address );
 	}
 }
 
-int NetDrvChangeDefaultSocket( ushort socket_number )
+int netdrv_change_default_socket( ushort socket_number )
 {
-	if ( !NetDrvInstalled )
+	if ( !netdrv_installed )
 		return -3;
 
-	driver->CloseSocket(&socket_data);
+	driver->close_socket(&socket_data);
 
-	if (driver->OpenSocket(&socket_data, socket_number))
+	if (driver->open_socket(&socket_data, socket_number))
 	{
 		return -3;
 	}
@@ -362,7 +362,7 @@ int NetDrvChangeDefaultSocket( ushort socket_number )
 }
 
 // Return type of net_driver
-int NetDrvType(void)
+int netdrv_type(void)
 {
 	return driver->type;
 }
