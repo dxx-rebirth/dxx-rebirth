@@ -386,7 +386,7 @@ int UDPConnectManual(char *textaddr)
 		memcpy(outbuf+0,DXXcfgid,4);
 		outbuf[4]=CFG_FIRSTCONTACT_REQ;
 		sendto (UDP_sock, outbuf, sizeof(outbuf), 0, (struct sockaddr *) &HostAddr, sizeof(struct _sockaddr));
-		timer_delay2(10);
+		timer_delay(500);
 		// ... and wait for answer
 		udp_receive_packet(NULL,inbuf,6,NULL);
 	}
