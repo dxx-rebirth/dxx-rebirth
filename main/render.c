@@ -2005,6 +2005,7 @@ void render_mine(int start_seg_num,fix eye_offset, int window_num)
 		}
 	}
 
+#ifndef OGL
 	for (nn=N_render_segs;nn--;) {
 		int segnum;
 		int objnp;
@@ -2076,6 +2077,162 @@ void render_mine(int start_seg_num,fix eye_offset, int window_num)
 
 		}
 	}
+#else
+	// Sorting elements for Alpha - 3 passes
+	// First Pass: render opaque level geometry + transculent level geometry with high Alpha-Test func
+	for (nn=N_render_segs;nn--;)
+	{
+		int segnum;
+
+		segnum = Render_list[nn];
+		Current_seg_depth = Seg_depth[nn];
+
+		if (segnum!=-1 && (_search_mode || visited[segnum]!=255))
+		{
+			//set global render window vars
+
+			if (window_check) {
+				Window_clip_left  = render_windows[nn].left;
+				Window_clip_top   = render_windows[nn].top;
+				Window_clip_right = render_windows[nn].right;
+				Window_clip_bot   = render_windows[nn].bot;
+			}
+
+			// render segment
+			{
+				segment		*seg = &Segments[segnum];
+				g3s_codes 	cc;
+				int			sn;
+
+				Assert(segnum!=-1 && segnum<=Highest_segment_index);
+
+				cc=rotate_list(8,seg->verts);
+
+				if (! cc.and) {		//all off screen?
+
+				  if (Viewer->type!=OBJ_ROBOT)
+					Automap_visited[segnum]=1;
+
+					for (sn=0; sn<MAX_SIDES_PER_SEGMENT; sn++)
+						if (WALL_IS_DOORWAY(seg,sn) == WID_TRANSPARENT_WALL || WALL_IS_DOORWAY(seg,sn) == WID_TRANSILLUSORY_WALL)
+						{
+							glAlphaFunc(GL_GEQUAL,0.8);
+							render_side(seg, sn);
+							glAlphaFunc(GL_GEQUAL,0.02);
+						}
+						else
+							render_side(seg, sn);
+				}
+			}
+			visited[segnum]=255;
+		}
+	}
+
+	memset(visited, 0, sizeof(visited[0])*(Highest_segment_index+1));
+	
+	// Second Pass: Objects
+	for (nn=N_render_segs;nn--;)
+	{
+		int segnum;
+		int objnp;
+
+		segnum = Render_list[nn];
+		Current_seg_depth = Seg_depth[nn];
+
+		if (segnum!=-1 && (_search_mode || visited[segnum]!=255))
+		{
+			//set global render window vars
+
+			if (window_check) {
+				Window_clip_left  = render_windows[nn].left;
+				Window_clip_top   = render_windows[nn].top;
+				Window_clip_right = render_windows[nn].right;
+				Window_clip_bot   = render_windows[nn].bot;
+			}
+
+			visited[segnum]=255;
+
+			if (window_check) {		//reset for objects
+				Window_clip_left  = Window_clip_top = 0;
+				Window_clip_right = grd_curcanv->cv_bitmap.bm_w-1;
+				Window_clip_bot   = grd_curcanv->cv_bitmap.bm_h-1;
+			}
+
+			// render objects
+			{
+				int listnum;
+				int save_linear_depth = Max_linear_depth;
+
+				Max_linear_depth = Max_linear_depth_objects;
+
+				listnum = nn;
+
+				for (objnp=0;render_obj_list[listnum][objnp]!=-1;)
+				{
+					int ObjNumber = render_obj_list[listnum][objnp];
+
+					if (ObjNumber >= 0)
+					{
+						do_render_object(ObjNumber, window_num);	// note link to above else
+						objnp++;
+					}
+					else
+					{
+						listnum = -ObjNumber;
+						objnp = 0;
+
+					}
+				}
+				Max_linear_depth = save_linear_depth;
+			}
+		}
+	}
+
+	memset(visited, 0, sizeof(visited[0])*(Highest_segment_index+1));
+	
+	// Third Pass - Render Transculent level geometry with normal Alpha-Func
+	for (nn=N_render_segs;nn--;)
+	{
+		int segnum;
+
+		segnum = Render_list[nn];
+		Current_seg_depth = Seg_depth[nn];
+
+		if (segnum!=-1 && (_search_mode || visited[segnum]!=255))
+		{
+			//set global render window vars
+
+			if (window_check) {
+				Window_clip_left  = render_windows[nn].left;
+				Window_clip_top   = render_windows[nn].top;
+				Window_clip_right = render_windows[nn].right;
+				Window_clip_bot   = render_windows[nn].bot;
+			}
+
+			// render segment
+			{
+				segment		*seg = &Segments[segnum];
+				g3s_codes 	cc;
+				int			sn;
+
+				Assert(segnum!=-1 && segnum<=Highest_segment_index);
+
+				cc=rotate_list(8,seg->verts);
+
+				if (! cc.and) {		//all off screen?
+
+				  if (Viewer->type!=OBJ_ROBOT)
+					Automap_visited[segnum]=1;
+
+					for (sn=0; sn<MAX_SIDES_PER_SEGMENT; sn++)
+						if (WALL_IS_DOORWAY(seg,sn) == WID_TRANSPARENT_WALL || WALL_IS_DOORWAY(seg,sn) == WID_TRANSILLUSORY_WALL)
+							render_side(seg, sn);
+				}
+			}
+			visited[segnum]=255;
+		}
+	}
+#endif
 
 								
 #ifdef LASER_HACK								
