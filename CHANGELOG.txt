@@ -1,5 +1,13 @@
 D1X-Rebirth Changelog
 
+20090130
+--------
+arch/ogl/ogl.c, main/render.c: New level render order for better seperation and blending between transculent level geometry and sprites
+
+20090129
+--------
+main/netdrv_udp.c: Decreasing delay from timer_delay2 to timer_delay for sending/receiving packets when connecting to UDP host due to FPS-dependent inconsistencies in timer_delay2 causing packets possibly not received or sent frequently
+
 20090126
 --------
 include/netdrv.h, main/network.c, main/menu.c, main/netdrv_udp.c, main/netdrv_udp.h, main/netpkt.c, main/netpkt.h, main/netdrv.c, arch/linux/netdrv_ipx.c, arch/linux/netdrv_kali.c, arch/win32/netdrv_ipx.c: Changed function naming convention in netdrv and below to general Descent code convention
