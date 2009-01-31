@@ -224,7 +224,7 @@ int play_redbook_track(int tracknum,int keep_playing)
 
 #define REDBOOK_FIRST_LEVEL_TRACK	  (songs_haved1_cd()?6:1)
 #define REDBOOK_ENDLEVEL_TRACK		  4
-#define REDBOOK_ENDGAME_TRACK         14
+#define REDBOOK_ENDGAME_TRACK         (RBAGetNumberOfTracks())
 
 // songs_haved1_cd returns 1 if the descent 1 Mac CD is in the drive and
 // 0 otherwise
@@ -302,15 +302,9 @@ void songs_play_level_song( int levelnum )
 
 	songs_stop_all();
 	
-	if (cGameSongsAvailable < 1)
-		return;
-
 	current_song_level = levelnum;
 
-	if (levelnum < 0)
-		songnum = (-levelnum) % cGameSongsAvailable;
-	else
-		songnum = (levelnum-1) % cGameSongsAvailable;
+	songnum = (levelnum>0)?(levelnum-1):(-levelnum);
 
 	if (!RBAEnabled() && GameCfg.SndEnableRedbook)	// need this to determine if we currently have the official CD
 		reinit_redbook();
@@ -320,12 +314,13 @@ void songs_play_level_song( int levelnum )
 	if (RBAEnabled() && GameCfg.SndEnableRedbook) {
 		
 		//try to play redbook
-		
-		play_redbook_track(REDBOOK_FIRST_LEVEL_TRACK + (songnum % (n_tracks-REDBOOK_FIRST_LEVEL_TRACK+1)),!songs_haved1_cd());
+		// don't play endgame track during game
+
+		play_redbook_track(REDBOOK_FIRST_LEVEL_TRACK + (n_tracks<=REDBOOK_FIRST_LEVEL_TRACK) ? 0 : (songnum % (n_tracks-REDBOOK_FIRST_LEVEL_TRACK)),!songs_haved1_cd());
 	}
 	
 	if (! Redbook_playing) {			//not playing redbook, so play midi
-		songnum += SONG_LEVEL_MUSIC;
+		songnum = SONG_LEVEL_MUSIC + (songnum % cGameSongsAvailable);
 		digi_play_midi_song( Songs[songnum].filename, Songs[songnum].melodic_bank_file, Songs[songnum].drum_bank_file, 1 );
 	}
 }
