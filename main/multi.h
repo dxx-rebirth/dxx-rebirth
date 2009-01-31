@@ -35,7 +35,7 @@ COPYRIGHT 1993-1999 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 #else
 #define MULTI_PROTO_VERSION 4
 #endif
-#define MULTI_PROTO_D2X_VER	6  // Increment everytime we change networking features
+#define MULTI_PROTO_D2X_VER	7  // Increment everytime we change networking features - based on ubyte, must never be > 255
 
 // Protocol versions:
 //   1 Descent Shareware

@@ -1,5 +1,10 @@
 D2X-Rebirth Changelog
 
+20090201
+--------
+main/netdrv_udp.c: Fixing bug with incorrect/missing UDP port termination
+main/network.c, main/network.h, main/multi.h, main/netdrv_udp.c, main/netdrv_udp.h, main/noloss.c, main/noloss.h, SConstruct: Added Packet-loss prevention code for Netgames
+
 20090130
 --------
 arch/ogl/ogl.c, main/render.c: New level render order for better seperation and blending between transculent level geometry and sprites

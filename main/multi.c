@@ -2708,7 +2708,7 @@ multi_send_remobj(int objnum)
 
 	multibuf[3] = obj_owner;
 
-	multi_send_data(multibuf, 4, 0);
+	multi_send_data(multibuf, 4, 1);
 
 	if (Network_send_objects && network_objnum_is_past(objnum))
 	{

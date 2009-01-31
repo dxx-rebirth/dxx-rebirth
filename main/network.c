@@ -69,6 +69,7 @@ COPYRIGHT 1993-1999 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 #include "gamefont.h"
 #include "songs.h"
 #include "netdrv.h"
+#include "noloss.h"
 
 // MWA -- these structures are aligned -- please save me sanity and
 // headaches by keeping alignment if these are changed!!!!  Contact
@@ -1955,11 +1956,16 @@ void network_process_packet(ubyte *data, int length )
 				network_process_naked_pdata((char *)data,length);
 			break;
 	
+		case PID_PDATA_ACK:
+			if (Network_status == NETSTAT_PLAYING)
+				noloss_got_ack(data);
+			break;
+
 		case PID_OBJECT_DATA:
 			if (Network_status == NETSTAT_WAITING) 
 				network_read_object_packet(data);
 			break;
-
+			
 		case PID_ENDLEVEL:
 			if ((Network_status == NETSTAT_ENDLEVEL) || (Network_status == NETSTAT_PLAYING))
 				network_read_endlevel_packet(data);
@@ -3094,6 +3100,8 @@ network_start_game()
 
 	d_srand( timer_get_fixed_seconds() );
 	Netgame.Security=d_rand();  // For syncing Netgames with player packets
+	
+	noloss_init_queue();
 
 	if(network_select_players())
 	{
@@ -3409,6 +3417,7 @@ network_level_sync(void)
 	MySyncPackInitialized = 0;
 
 	network_flush(); // Flush any old packets
+	noloss_init_queue();
 
 	if (N_players == 0)
 		result = network_wait_for_sync();
@@ -3524,8 +3533,10 @@ int network_do_join_game(int choice)
 
 	network_set_game_mode(Netgame.gamemode);
 
-	StartNewLevel(Netgame.levelnum, 0);
+	noloss_init_queue();
 
+	StartNewLevel(Netgame.levelnum, 0);
+	
 	return 1;     // look ma, we're in a game!!!
 }
 
@@ -4025,9 +4036,9 @@ void network_do_frame(int force, int listen)
 	// Send out packet PacksPerSec times per second maximum... unless they fire, then send more often...
 	if ( (last_send_time>F1_0/Netgame.PacketsPerSec) || (Network_laser_fired) || force || PacketUrgent )
 	{
+		int to_queue = (Network_laser_fired || force || PacketUrgent);
 		if ( Players[Player_num].connected )    {
 			int objnum = Players[Player_num].objnum;
-			PacketUrgent = 0;
 
 			if (listen) {
 				multi_send_robot_frame(0);
@@ -4097,8 +4108,14 @@ void network_do_frame(int force, int listen)
 					}
 				}
 			}
+			
 
+			noloss_process_queue(); // Check queued packets, remove or re-send if necessery
+			noloss_add_packet_to_queue(to_queue, MySyncPack.numpackets, MySyncPack.data, MySyncPack.data_size); // add the current packet to queue
+			
+			PacketUrgent = 0;
 			MySyncPack.data_size = 0;               // Start data over at 0 length.
+			
 			if (Control_center_destroyed)
 			{
 				if (Player_is_dead)
@@ -4203,6 +4220,8 @@ void network_read_pdata_packet(ubyte *data )
 
 	TheirPlayernum = pd->playernum;
 	TheirObjnum = Players[pd->playernum].objnum;
+	
+	noloss_send_ack(pd->numpackets, pd->playernum);
 	
 	if (TheirPlayernum < 0) {
 		Int3(); // This packet is bogus!!
@@ -4359,6 +4378,8 @@ void network_read_pdata_short_packet(short_frame_info *pd )
 
 	TheirPlayernum = new_pd.playernum;
 	TheirObjnum = Players[new_pd.playernum].objnum;
+	
+	noloss_send_ack(new_pd.numpackets, new_pd.playernum);
 
 	if (TheirPlayernum < 0) {
 		Int3(); // This packet is bogus!!
