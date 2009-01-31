@@ -449,13 +449,14 @@ int udp_open_socket(socket_t *unused, int port)
 #else
 	struct addrinfo hints,*res,*sres;
 	int err,ai_family_;
-	char cport[16];
+	char cport[LEN_PORT];
 	
 	// close stale socket
 	if( UDP_sock != -1 )
 		udp_close_socket(NULL);
 	
 	memset (&hints, '\0', sizeof (struct addrinfo));
+	memset(cport,'\0',sizeof(char)*LEN_PORT);
 	
 	hints.ai_flags = AI_PASSIVE;
 	hints.ai_family = _pf;
