@@ -1,5 +1,10 @@
 D1X-Rebirth Changelog
 
+20090201
+--------
+main/netdrv_udp.c: Fixing bug with incorrect/missing UDP port termination
+main/network.c, main/network.h, main/multi.h, main/netdrv_udp.c, main/netdrv_udp.h, main/noloss.c, main/noloss.h, SConstruct: Added Packet-loss prevention code for Netgames
+
 20090131
 --------
 main/songs.c: Last track is endgame track for any audio CD, endgame track not played when a level is started, jukebox/redbook works in game even if no MIDI songs

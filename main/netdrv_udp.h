@@ -38,7 +38,7 @@
 #endif
 
 #define DXXcfgid "D1Rc" // identification string for UDP/IP configuration packets
-#define MAX_CONNECTIONS 32 // maximum connections that can be stored in UDPPeers
+#define MAX_CONNECTIONS 32 // maximum connections that can be stored in UDPPeers - as this currently bases on player node[0] this must NOT exceed ubyte!
 #define LEN_SERVERNAME 41
 #define LEN_PORT 6
 #define UDP_BASEPORT 31017
@@ -54,11 +54,11 @@
 typedef struct peer_list
 {
 	struct _sockaddr addr; // real address information about this peer
-	int valid; // 1 = client connected / 2 = client ready for handshaking / 3 = client done with handshake and fully joined
+	int valid; // 1 = client connected / 2 = client ready for handshaking / 3 = client done with handshake and fully joined / 0 between clients = no connection -> relay
 	fix timestamp; // time of received packet - used for timeout
 	char hs_list[MAX_CONNECTIONS]; // list to store all handshake results from clients assigned to this peer
 	int hstimeout; // counts the number of tries the client tried to connect - if reached 10, client put to relay if allowed
-	int relay; // relay packets by this clients over host
+	int relay; // relay packets by/to this clients over host
 } __pack__ peer_list;
 
 extern sequence_packet My_Seq;

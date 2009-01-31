@@ -60,6 +60,7 @@ COPYRIGHT 1993-1998 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 #include "gamefont.h"
 #include "playsave.h"
 #include "songs.h"
+#include "noloss.h"
 
 void network_send_rejoin_sync(int player_num);
 void network_update_netgame(void);
@@ -1389,6 +1390,10 @@ void network_process_packet(ubyte *data, int length )
 				network_process_pdata((char *)data);
 			}
 			break;
+		case PID_PDATA_ACK:
+			if (Network_status == NETSTAT_PLAYING)
+				noloss_got_ack(data);
+			break;
         case PID_OBJECT_DATA:
 		if (Network_status == NETSTAT_WAITING) 
 			network_read_object_packet(data);
@@ -2609,6 +2614,8 @@ void network_start_game(void)
 	Network_short_packets = (Netgame.flags & NETFLAG_SHORTPACKETS) ? 2 : 0;
 #endif
 
+	noloss_init_queue();
+
 	if(network_select_players())
 	{
 		StartNewLevel(Netgame.levelnum);
@@ -2999,6 +3006,7 @@ network_level_sync(void)
 //	my_segments_checksum = netmisc_calc_checksum(Segments, sizeof(segment)*(Highest_segment_index+1));
 
 	network_flush(); // Flush any old packets
+	noloss_init_queue();
 
 	if (N_players == 0)
 		result = network_wait_for_sync();
@@ -3070,6 +3078,8 @@ int network_do_join_game(int choice)
 	change_playernum_to(1);
 
 	network_set_game_mode(Netgame.gamemode);
+	
+	noloss_init_queue();
 
 	StartNewLevel(Netgame.levelnum);
 
@@ -3282,9 +3292,9 @@ void network_do_frame(int force, int listen)
 	// Send out packet 10 times per second maximum... unless they fire, then send more often...
         if ( (last_send_time > (F1_0 / Network_pps)) ||
 	     (Network_laser_fired) || force || PacketUrgent )	    {
+			 int to_queue = (Network_laser_fired || force || PacketUrgent);
 		if ( Players[Player_num].connected )	{
 			int objnum = Players[Player_num].objnum;
-			PacketUrgent = 0;
 
 			if (listen) {
 #ifndef SHAREWARE
@@ -3345,9 +3355,12 @@ void network_do_frame(int force, int listen)
 			}
 			
 			
+			noloss_process_queue(); // Check queued packets, remove or re-send if necessery
+			noloss_add_packet_to_queue(to_queue, MySyncPack.numpackets, MySyncPack.data, MySyncPack.data_size); // add the current packet to queue
 			
-			
+			PacketUrgent = 0;
 			MySyncPack.data_size = 0;		// Start data over at 0 length.
+			
 			if (Fuelcen_control_center_destroyed)
 				network_send_endlevel_packet();
 		}
@@ -3550,6 +3563,8 @@ void network_read_pdata_packet(ubyte *data )
 	TheirPlayernum = pd->playernum;
 	TheirObjnum = Players[pd->playernum].objnum;
 	
+	noloss_send_ack(pd->numpackets, pd->playernum);
+	
 	if (TheirPlayernum < 0) {
 		Int3(); // This packet is bogus!!
 		return;
@@ -3687,6 +3702,8 @@ void network_read_pdata_short_packet(short_frame_info *pd )
 
 	TheirPlayernum = new_pd.playernum;
 	TheirObjnum = Players[new_pd.playernum].objnum;
+	
+	noloss_send_ack(new_pd.numpackets, new_pd.playernum);
 
 	if (TheirPlayernum < 0) {
 		Int3(); // This packet is bogus!!

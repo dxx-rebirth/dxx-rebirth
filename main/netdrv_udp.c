@@ -81,7 +81,6 @@ void udp_receive_cfg(char *text, struct _sockaddr *sAddr)
 			outbuf[4]=CFG_FIRSTCONTACT_ACK; // CFG Type
 			outbuf[5]=clientid; // personal ID for the client
 			sendto (UDP_sock, outbuf, sizeof(outbuf), 0, (struct sockaddr *) sAddr, sizeof(struct _sockaddr)); // Send!
-
 			return;
 		}
 
@@ -188,7 +187,6 @@ int udp_handshake_frame(struct _sockaddr *sAddr, char *inbuf)
 		if (UDP_Peers[i].valid == 3 && i != checkid  && !UDP_Peers[i].relay && memcmp(sAddr,(struct sockaddr*)&UDP_Peers[i].addr,sizeof(struct _sockaddr)))
 		{
 			char outbuf[6+sizeof(struct _sockaddr)];
-
 			// send request to connected clients to handshake with new client
 			memcpy(outbuf+0,DXXcfgid,4);
 			outbuf[4]=CFG_HANDSHAKE_INIT;
@@ -271,6 +269,16 @@ void udp_packet_relay(char *text, int len, struct _sockaddr *sAddr)
 	// Never relay PING packets
 	if (text[0] == PID_PING_SEND || text[0] == PID_PING_RETURN)
 		return;
+		
+	// We got an PID_PDATA_ACK packet - check if it is for me (host). If not, transfer it to designated client if sender or receiver is relay client.
+	if (text[0] == PID_PDATA_ACK)
+	{
+		if ((int)text[2] != Player_num && (UDP_Peers[Netgame.players[(int)text[1]].node[0]].relay || UDP_Peers[Netgame.players[(int)text[2]].node[0]].relay))
+		{
+			sendto (UDP_sock, text, len, 0, (struct sockaddr *) &UDP_Peers[Netgame.players[(int)text[2]].node[0]].addr, sizeof(struct _sockaddr));
+		}
+		return;
+	}
 
 	// Check if sender is a relay client and store ID if so
 	for (i = 1; i < MAX_CONNECTIONS; i++)
@@ -564,7 +572,14 @@ static int udp_send_packet(socket_t *unused, IPXPacket_t *IPXHeader, ubyte *text
 		return 0;
 
 	if (!UDP_Peers[IPXHeader->Destination.Node[0]].valid)
-		return 0;
+	{
+		// PID_PDATA_ACK needs to be delivered to designated peer. If there's a relay player, Host cannot relay, as PID_PDATA_ACK is sent specifically.
+		// So in this case, if we encounter invalid ID while PID_PDATA_ACK, wrap this packet to Host so it can be relayed.
+		if (text[0] == PID_PDATA_ACK)
+			return sendto (UDP_sock, text, len, 0, (struct sockaddr *) &UDP_Peers[0].addr, sizeof(struct _sockaddr));
+		else
+			return 0;
+	}
 
 	return sendto (UDP_sock, text, len, 0, (struct sockaddr *) &UDP_Peers[IPXHeader->Destination.Node[0]].addr, sizeof(struct _sockaddr));
 }

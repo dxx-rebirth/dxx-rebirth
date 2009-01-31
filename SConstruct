@@ -133,6 +133,7 @@ common_sources = [
 'main/network.c',
 'main/newdemo.c',
 'main/newmenu.c',
+'main/noloss.c',
 'main/object.c',
 'main/paging.c',
 'main/physics.c',

@@ -46,7 +46,7 @@ COPYRIGHT 1993-1998 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 #else
 #define MULTI_PROTO_VERSION	2
 #endif
-#define MULTI_PROTO_D1X_VER	6  // Increment everytime we change networking features
+#define MULTI_PROTO_D1X_VER	7  // Increment everytime we change networking features - based on ubyte, must never be > 255
 
 //Incrementing this seems the only way possible.  Still stays backwards compitible.
 #define MULTI_PROTO_D1X_MINOR	1
