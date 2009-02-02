@@ -1407,6 +1407,7 @@ extern void check_create_player_path(void);
 extern	int	Do_appearance_effect;
 
 object *Missile_viewer=NULL;
+int Missile_viewer_sig=-1;
 
 int Marker_viewer_num[2]={-1,-1};
 int Coop_view_player[2]={-1,-1};

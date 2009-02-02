@@ -106,6 +106,7 @@ COPYRIGHT 1993-1999 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 
 void DoJasonInterpolate (fix recorded_time);
 extern int init_hoard_data();
+extern void init_seismic_disturbances(void);
 
 //#include "nocfile.h"
 
@@ -1611,14 +1612,13 @@ void newdemo_pop_ctrlcen_triggers()
 
 void nd_render_extras (ubyte,object *);
 extern void multi_apply_goal_textures ();
-ubyte Newdemo_flying_guided=0;
 
 int newdemo_read_frame_information()
 {
 	int done, segnum, side, objnum, soundno, angle, volume, i,shot;
 	object *obj;
 	sbyte c,WhichWindow;
-	static sbyte saved_letter_cockpit, saved_rearview_cockpit, saved_guided_cockpit;
+	static sbyte saved_letter_cockpit = CM_FULL_COCKPIT, saved_rearview_cockpit = CM_FULL_COCKPIT, saved_guided_cockpit = CM_FULL_COCKPIT;
 	object extraobj;
 	static char LastReadValue=101;
 	segment *seg;
@@ -1892,20 +1892,16 @@ int newdemo_read_frame_information()
 			break;
 			}
 		case ND_EVENT_START_GUIDED:
-			Newdemo_flying_guided=1;
 			if ((Newdemo_vcr_state == ND_STATE_PLAYBACK) || (Newdemo_vcr_state == ND_STATE_FASTFORWARD) || (Newdemo_vcr_state == ND_STATE_ONEFRAMEFORWARD)) {
 				saved_guided_cockpit = PlayerCfg.CockpitMode;
 				if (PlayerCfg.CockpitMode == CM_FULL_COCKPIT && 1)
 					select_cockpit(CM_STATUS_BAR);
 			} else if ((Newdemo_vcr_state == ND_STATE_REWINDING) || (Newdemo_vcr_state == ND_STATE_ONEFRAMEBACKWARD)) {
-				Newdemo_flying_guided=0;
 				select_cockpit(saved_guided_cockpit);
 			}
 			break;
 		case ND_EVENT_END_GUIDED:
-			Newdemo_flying_guided=0;
 			if ((Newdemo_vcr_state == ND_STATE_REWINDING) || (Newdemo_vcr_state == ND_STATE_ONEFRAMEBACKWARD)) {
-				Newdemo_flying_guided=1;
 				saved_guided_cockpit = PlayerCfg.CockpitMode;
 				if (PlayerCfg.CockpitMode == CM_FULL_COCKPIT && 1)
 					select_cockpit(CM_STATUS_BAR);
@@ -3195,7 +3191,6 @@ void newdemo_start_playback(char * filename)
 #endif
 	First_time_playback=1;
 	JasonPlaybackTotal=0;
-	Newdemo_flying_guided=0;
 
 	if (filename)
 		strcat(filename2, filename);
@@ -3265,6 +3260,7 @@ void newdemo_start_playback(char * filename)
 	Newdemo_players_cloaked = 0;
 	playback_style = NORMAL_PLAYBACK;
 	Function_mode = FMODE_GAME;
+	init_seismic_disturbances();
 	PlayerCfg.Cockpit3DView[0] = CV_NONE;       //turn off 3d views on cockpit
 	PlayerCfg.Cockpit3DView[1] = CV_NONE;       //turn off 3d views on cockpit
 	HUD_clear_messages();
@@ -3276,7 +3272,6 @@ void newdemo_stop_playback()
 {
 	PHYSFS_close(infile);
 	Newdemo_state = ND_STATE_NORMAL;
-	Newdemo_flying_guided=0;
 #ifdef NETWORK
 	change_playernum_to(0);             //this is reality
 #endif

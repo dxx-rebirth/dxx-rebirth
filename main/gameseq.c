@@ -471,6 +471,7 @@ void init_player_stats_new_ship()
 	digi_kill_sound_linked_to_object(Players[Player_num].objnum);
 
 	Missile_viewer=NULL;		///reset missile camera if out there
+	Missile_viewer_sig=-1;
 
 	init_ai_for_ship();
 }

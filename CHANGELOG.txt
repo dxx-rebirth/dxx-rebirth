@@ -1,5 +1,9 @@
 D2X-Rebirth Changelog
 
+20090202
+--------
+main/newdemo.c, main/gameseq.c, main/gamerend.c, main/ai.c, main/game.c, main/gauges.c, main/game.h, main/gamecntl.c: Defined some default cockpit modes in Demo mode so we do not get invalid values when demo starts in non-default-view mode (as new HUD modes are only triggered at beginning and end of event); Removed Newdemo_flying_guided global; Init seismic disturbances in demo mode just to make sure tey are switched off when coming from game mode; Made initialisation for Missile_viewer signature saving global so we can reset it for each new level and make sure we get a correct missile view; Fixed regression in Ai_last_missile_camera
+
 20090201
 --------
 main/netdrv_udp.c: Fixing bug with incorrect/missing UDP port termination

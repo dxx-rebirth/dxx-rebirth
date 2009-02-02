@@ -297,7 +297,7 @@ void make_nearby_robot_snipe(void)
 	}
 }
 
-int Ai_last_missile_camera;
+int Ai_last_missile_camera = -1;
 
 int Robots_kill_robots_cheat = 0;
 
@@ -1479,11 +1479,7 @@ void do_ai_frame_all(void)
 
 	set_player_awareness_all();
 
-	if (Ai_last_missile_camera != -1) {
-
-		if (Ai_last_missile_camera < -1) // this value can sometimes go wild
-			Ai_last_missile_camera = 0;
-
+	if (Ai_last_missile_camera > -1) {
 		// Clear if supposed misisle camera is not a weapon, or just every so often, just in case.
 		if (((FrameCount & 0x0f) == 0) || (Objects[Ai_last_missile_camera].type != OBJ_WEAPON)) {
 			int i;
@@ -1521,6 +1517,8 @@ void init_robots_for_level(void)
 
 	Boss_invulnerable_dot = F1_0/4 - i2f(Difficulty_level)/8;
 	Boss_dying_start_time = 0;
+	
+	Ai_last_missile_camera = -1;
 }
 
 int ai_save_state(PHYSFS_file *fp)

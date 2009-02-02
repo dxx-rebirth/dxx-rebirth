@@ -598,17 +598,16 @@ void show_extra_views()
 
 		if (Missile_viewer) //do missile view
 		{
-			static int mv_sig=-1;
-			if (mv_sig == -1)
-				mv_sig = Missile_viewer->signature;
-			if (PlayerCfg.MissileViewEnabled && Missile_viewer->type!=OBJ_NONE && Missile_viewer->signature == mv_sig) {
+			if (Missile_viewer_sig == -1)
+				Missile_viewer_sig = Missile_viewer->signature;
+			if (PlayerCfg.MissileViewEnabled && Missile_viewer->type!=OBJ_NONE && Missile_viewer->signature == Missile_viewer_sig) {
   				RenderingType=2+(1<<4);
 				do_cockpit_window_view(1,Missile_viewer,0,WBU_MISSILE,"MISSILE");
 				did_missile_view=1;
 			}
 			else {
 				Missile_viewer = NULL;
-				mv_sig = -1;
+				Missile_viewer_sig = -1;
 				RenderingType=255;
 				do_cockpit_window_view(1,NULL,0,WBU_STATIC,NULL);
 			}

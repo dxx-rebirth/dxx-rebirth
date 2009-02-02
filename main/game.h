@@ -48,6 +48,7 @@ extern int Cheats_enabled;
 #define EPS30	4
 
 extern object *Missile_viewer;
+extern int Missile_viewer_sig;
 
 #define CV_NONE     0
 #define CV_ESCORT   1

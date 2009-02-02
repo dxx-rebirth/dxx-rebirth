@@ -2369,8 +2369,6 @@ rgb player_rgb[] = {
 							{29,29,0},
 						};
 
-extern ubyte Newdemo_flying_guided;
-
 typedef struct {
 	sbyte x, y;
 } xy;
@@ -2388,7 +2386,7 @@ void show_reticle()
 	int cross_bm_num,primary_bm_num,secondary_bm_num;
 	int use_hires_reticle,ofs,gauge_index;
 
-	if (Newdemo_state==ND_STATE_PLAYBACK && Newdemo_flying_guided)
+	if (Newdemo_state==ND_STATE_PLAYBACK && Viewer->type != OBJ_PLAYER)
 		 return;
 
 	x = grd_curcanv->cv_bitmap.bm_w/2;

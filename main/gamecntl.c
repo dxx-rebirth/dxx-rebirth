@@ -126,7 +126,6 @@ int	redbook_volume = 255;
 //	External Variables ---------------------------------------------------------
 
 extern char WaitForRefuseAnswer,RefuseThisPlayer,RefuseTeam;
-extern ubyte Newdemo_flying_guided;
 
 #ifndef NDEBUG
 extern int	Mark_count;
@@ -680,8 +679,7 @@ void HandleDemoKey(int key)
 		case KEY_F2:		Config_menu_flag = 1; break;
 		KEY_MAC(case KEY_COMMAND+KEY_3:)
 		case KEY_F3:
-				
-			 if (!Newdemo_flying_guided)
+			 if (Viewer->type == OBJ_PLAYER)
 				toggle_cockpit();
 			 break;
 		KEY_MAC(case KEY_COMMAND+KEY_4:)
@@ -1008,7 +1006,7 @@ int HandleSystemKey(int key)
 		KEY_MAC(case KEY_COMMAND+KEY_3:)
 
 		case KEY_F3:
-			if (!(Guided_missile[Player_num] && Guided_missile[Player_num]->type==OBJ_WEAPON && Guided_missile[Player_num]->id==GUIDEDMISS_ID && Guided_missile[Player_num]->signature==Guided_missile_sig[Player_num] && PlayerCfg.GuidedInBigWindow))
+			if (Viewer->type==OBJ_PLAYER) //if (!(Guided_missile[Player_num] && Guided_missile[Player_num]->type==OBJ_WEAPON && Guided_missile[Player_num]->id==GUIDEDMISS_ID && Guided_missile[Player_num]->signature==Guided_missile_sig[Player_num] && PlayerCfg.GuidedInBigWindow))
 			{
 				toggle_cockpit();	screen_changed=1;
 			}
