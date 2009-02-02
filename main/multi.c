@@ -1199,13 +1199,6 @@ multi_do_fire(char *buf)
 
 	Assert (pnum < N_players);
 
-//added on 03/05/99 Matt Mueller - add POS_FIRE capability
-    if (buf[0]==MULTI_POS_FIRE)
-	{
-	    extract_shorterpos(&Objects[Players[pnum].objnum],(shorterpos*)(buf+8));
-	}
-//end addition -MM
-
 	if (Objects[Players[pnum].objnum].type == OBJ_GHOST)
 		multi_make_ghost_player(pnum);
 		
@@ -1412,15 +1405,6 @@ multi_do_player_explode(char *buf)
 
 	Net_create_loc = 0;
 
-//added on 03/05/99 Matt Mueller - no more misplaced spew.. might not be the best way to do it though..
-//(moving the player to where they died that is)
-    if (buf[0]==MULTI_POS_PLAYER_EXPLODE)
-	{
-	    extract_shorterpos(objp,(shorterpos*)(buf+message_length[MULTI_PLAYER_EXPLODE]));
-	}
-//end addition -MM
-
-
 	drop_player_eggs(objp);
  
 	// Create mapping from remote to local numbering system
@@ -1443,9 +1427,7 @@ multi_do_player_explode(char *buf)
 		Objects[Net_create_objnums[i]].flags |= OF_SHOULD_BE_DEAD;
 	}
 
-//edited on 03/05/99 Matt Mueller - no more misplaced spew
-	if (buf[0] == MULTI_PLAYER_EXPLODE || buf[0] == MULTI_POS_PLAYER_EXPLODE)
-//end edit -MM
+	if (buf[0] == MULTI_PLAYER_EXPLODE)
 	{
 		explode_badass_player(objp);
 		
@@ -2009,19 +1991,13 @@ multi_process_data(char *buf, int len)
 		case MULTI_REAPPEAR:
 			if (!Endlevel_sequence) multi_do_reappear(buf); break;
 		case MULTI_FIRE:
-	    //added 03/05/99 Matt Mueller - new shorter fire packets
-		case MULTI_POS_FIRE:
-	    //end addition -MM
-                        if (!Endlevel_sequence) multi_do_fire(buf); break;
+			if (!Endlevel_sequence) multi_do_fire(buf); break;
 		case MULTI_KILL:
 			multi_do_kill(buf); break;
 		case MULTI_REMOVE_OBJECT:
 			if (!Endlevel_sequence) multi_do_remobj(buf); break;
 		case MULTI_PLAYER_DROP:
 		case MULTI_PLAYER_EXPLODE:
-	    //added 03/05/99 Matt Mueller - nomore explosions in the wrong place
-		case MULTI_POS_PLAYER_EXPLODE:
-	    //end addition -MM
 			if (!Endlevel_sequence) multi_do_player_explode(buf); break;
 		case MULTI_MESSAGE:
 			if (!Endlevel_sequence) multi_do_message(buf); break;

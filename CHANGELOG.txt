@@ -4,6 +4,7 @@ D1X-Rebirth Changelog
 --------
 main/newdemo.c: Defined some default cockpit modes in Demo mode so we do not get invalid values when demo starts in non-default-view mode (as new HUD modes are only triggered at beginning and end of event)
 main/game.c: Made FPS string statically right-justified - unrelated to actual FPS string width preventing jumps
+main/multi.c, main/multi.c: Removed MULIT_POS_* hanldings as these signals are not created anymore
 
 20090201
 --------
