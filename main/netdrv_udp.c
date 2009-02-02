@@ -601,7 +601,7 @@ int udp_receive_packet(socket_t *unused, char *text, int len, struct recv_data *
 
 		if (msglen < 0)
 			return 0;
-
+printf("RECEIVED PACKET!!!\n");
 		if ((msglen >= 0) && (msglen < len))
 			text[msglen] = 0;
 

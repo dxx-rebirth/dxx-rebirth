@@ -1515,8 +1515,7 @@ int newdemo_read_frame_information()
 	int done, segnum, side, objnum, soundno, angle, volume, i;
 	object *obj;
 	ubyte c;
-	static sbyte saved_letter_cockpit;
-	static sbyte saved_rearview_cockpit;
+	static sbyte saved_letter_cockpit = CM_FULL_COCKPIT, saved_rearview_cockpit = CM_FULL_COCKPIT;
 
 	done = 0;
 
@@ -1528,7 +1527,7 @@ int newdemo_read_frame_information()
 	Players[Player_num].homing_object_dist = -F1_0;
 
 	prev_obj = NULL;
-
+	
 	while( !done )	{
 		nd_read_byte((sbyte *)&c);
 		if (nd_bad_read) { done = -1; break; }
