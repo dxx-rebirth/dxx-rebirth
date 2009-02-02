@@ -158,7 +158,7 @@ void show_framerate()
 		gr_set_fontcolor(BM_XRGB(0,31,0),-1);
 
 		ftoa( temp, rate );
-		gr_get_string_size(temp,&w,&h,&aw);
+		gr_get_string_size("FPS: 000.00",&w,&h,&aw);
 		gr_printf(SWIDTH-w-FSPACX(1),y,"%s", temp );
 	}
 }
