@@ -4036,7 +4036,7 @@ void network_do_frame(int force, int listen)
 	// Send out packet PacksPerSec times per second maximum... unless they fire, then send more often...
 	if ( (last_send_time>F1_0/Netgame.PacketsPerSec) || (Network_laser_fired) || force || PacketUrgent )
 	{
-		int to_queue = (Network_laser_fired || force || PacketUrgent);
+		int to_queue = (force || PacketUrgent);
 		if ( Players[Player_num].connected )    {
 			int objnum = Players[Player_num].objnum;
 
