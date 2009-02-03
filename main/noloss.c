@@ -27,7 +27,7 @@ void noloss_add_packet_to_queue(int urgent, int pkt_num, char *data, ushort data
 	// Only add urgent packets
 	if (!urgent)
 		return;
-	
+
 	for (i = 0; i < NOLOSS_QUEUE_SIZE; i++)
 	{
 		if (noloss_queue[i].used)
@@ -165,7 +165,7 @@ void noloss_init_queue(void)
 // 2) Check if there are packets in queue which we need to re-send to player(s) (if packet is older than one second)
 void noloss_process_queue(void)
 {
-	int i;
+	int i, count = 0;
 	
 	for (i = 0; i < NOLOSS_QUEUE_SIZE; i++)
 	{
@@ -204,6 +204,11 @@ void noloss_process_queue(void)
 		{
 			con_printf(CON_DEBUG, "Re-Sending queued packet %i\n",i);
 			noloss_send_queued_packet(i);
+			count++;
 		}
+
+		// Only send 5 packets from the queue by each time the queue process is called
+		if (count >= 5)
+			break;
 	}
 }

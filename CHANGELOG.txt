@@ -1,5 +1,9 @@
 D1X-Rebirth Changelog
 
+20090203
+--------
+main/network.c, main/noloss.c: Close out fire from queue list as this is not necessarily needed to keep games in sync; While processing the noloss queue, only process 5 packets max
+
 20090202
 --------
 main/newdemo.c: Defined some default cockpit modes in Demo mode so we do not get invalid values when demo starts in non-default-view mode (as new HUD modes are only triggered at beginning and end of event)
