@@ -214,7 +214,8 @@ void network_send_game_info(sequence_packet *their, int light);
 //end addition -MM 
 #define PID_PING_SEND       73
 #define PID_PING_RETURN     74
-#define PID_PDATA_ACK		75 // ACK message for a PDATA packet
+#define PID_PDATA_NOLOSS	75 // Same as PID_PDATA, but client should ACK it!
+#define PID_PDATA_ACK		76 // ACK message for PID_PDATA_NOLOSS packet
 
 #define NETGAME_ANARCHY                 0
 #define NETGAME_TEAM_ANARCHY            1

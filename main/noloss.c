@@ -68,7 +68,7 @@ void noloss_send_queued_packet(int queue_index)
 
 		memset(&ShortSyncPack,0,sizeof(short_frame_info));
 		create_shortpos(&ShortSyncPack.thepos, Objects+objnum, 0);
-		ShortSyncPack.type                      = PID_PDATA;
+		ShortSyncPack.type                      = PID_PDATA_NOLOSS;
 		ShortSyncPack.playernum                 = Player_num;
 		ShortSyncPack.obj_render_type           = Objects[objnum].render_type;
 		ShortSyncPack.level_num                 = Current_level_num;
@@ -92,7 +92,7 @@ void noloss_send_queued_packet(int queue_index)
 		int i;
 		
 		MySyncPack.numpackets					= noloss_queue[queue_index].pkt_num;
-		MySyncPack.type                         = PID_PDATA;
+		MySyncPack.type                         = PID_PDATA_NOLOSS;
 		MySyncPack.playernum                    = Player_num;
 		MySyncPack.obj_render_type              = Objects[objnum].render_type;
 		MySyncPack.level_num                    = Current_level_num;

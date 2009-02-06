@@ -68,6 +68,11 @@ Needed files
 
 Since D1X-Rebirth is a Sourceport of the Descent1-Engine you will need the Game-Content data files to run the game.
 
+You don't own the full game, yet?
+Just visit GOOD OLD GAMES via:
+http://www.gog.com/en/gamecard/descent_1_descent_2/pp/fc074d501302eb2b93e2554793fcaf50b3bf7291
+and download it for a very low price! DRM-FREE!
+
 For non-Mac OS *NIX all files need to be copied to the Sharepath, which is (if not specified with the SCons ‘sharepath’-variable) /usr/local/share/games/d1x-rebirth/. For all other systems the files go in the folder containing the application, as with the original version. For *NIX systems (including Mac OS X) there is also the option of placing them in a folder you specify using d1x.ini (see end).
 
 Following files are needed to run the game:
@@ -76,7 +81,7 @@ descent.hog
 descent.pig
 
 These files should be located on the Descent1 CD-Rom.
-On non-Mac OS *NIX, those files must be lowercase. The PC version data files need to be patched to version 1.4a.
+On non-Mac OS *NIX, those files must be lowercase. The PC version data files need to be patched to version 1.4a (which is not necessary for the GOG.com-version).
 
 The above files may go in a subdirectory called 'Data'.
 

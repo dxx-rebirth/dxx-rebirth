@@ -1386,6 +1386,7 @@ void network_process_packet(ubyte *data, int length )
         		network_read_sync_packet(data, 0);
 		break;
 		case PID_PDATA: 
+		case PID_PDATA_NOLOSS:
 			if ((Game_mode&GM_NETWORK) && ((Network_status == NETSTAT_PLAYING)||(Network_status == NETSTAT_ENDLEVEL) || Network_status==NETSTAT_WAITING)) { 
 				network_process_pdata((char *)data);
 			}
@@ -3292,7 +3293,7 @@ void network_do_frame(int force, int listen)
 	// Send out packet 10 times per second maximum... unless they fire, then send more often...
         if ( (last_send_time > (F1_0 / Network_pps)) ||
 	     (Network_laser_fired) || force || PacketUrgent )	    {
-			 int to_queue = (force || PacketUrgent);
+			 int ack_pkt = (force || PacketUrgent);
 		if ( Players[Player_num].connected )	{
 			int objnum = Players[Player_num].objnum;
 
@@ -3311,7 +3312,10 @@ void network_do_frame(int force, int listen)
 
 				memset(&ShortSyncPack,0,sizeof(short_frame_info));
 				create_shortpos(&ShortSyncPack.thepos, Objects+objnum, 1);
-				ShortSyncPack.type                                      = PID_PDATA;
+				if (Netgame.protocol_version == MULTI_PROTO_D1X_VER && ack_pkt)
+					ShortSyncPack.type                                      = PID_PDATA_NOLOSS;
+				else
+					ShortSyncPack.type                                      = PID_PDATA;
 				ShortSyncPack.playernum                         = Player_num;
 				ShortSyncPack.obj_render_type           = Objects[objnum].render_type;
 				ShortSyncPack.level_num                         = Current_level_num;
@@ -3332,7 +3336,10 @@ void network_do_frame(int force, int listen)
 				int send_data_size, i;
 				
 				MySyncPack.numpackets					= Players[0].n_packets_sent++;
-				MySyncPack.type                                 = PID_PDATA;
+				if (Netgame.protocol_version == MULTI_PROTO_D1X_VER && ack_pkt)
+					MySyncPack.type                                 = PID_PDATA_NOLOSS;
+				else
+					MySyncPack.type                                 = PID_PDATA;
 				MySyncPack.playernum                    = Player_num;
 				MySyncPack.obj_render_type              = Objects[objnum].render_type;
 				MySyncPack.level_num                    = Current_level_num;
@@ -3356,7 +3363,7 @@ void network_do_frame(int force, int listen)
 			
 			
 			noloss_process_queue(); // Check queued packets, remove or re-send if necessery
-			noloss_add_packet_to_queue(to_queue, MySyncPack.numpackets, MySyncPack.data, MySyncPack.data_size); // add the current packet to queue
+			noloss_add_packet_to_queue(ack_pkt, MySyncPack.numpackets, MySyncPack.data, MySyncPack.data_size); // add the current packet to queue
 			
 			PacketUrgent = 0;
 			MySyncPack.data_size = 0;		// Start data over at 0 length.
@@ -3563,7 +3570,8 @@ void network_read_pdata_packet(ubyte *data )
 	TheirPlayernum = pd->playernum;
 	TheirObjnum = Players[pd->playernum].objnum;
 	
-	noloss_send_ack(pd->numpackets, pd->playernum);
+	if (pd->type == PID_PDATA_NOLOSS)
+		noloss_send_ack(pd->numpackets, pd->playernum);
 	
 	if (TheirPlayernum < 0) {
 		Int3(); // This packet is bogus!!
@@ -3703,7 +3711,8 @@ void network_read_pdata_short_packet(short_frame_info *pd )
 	TheirPlayernum = new_pd.playernum;
 	TheirObjnum = Players[new_pd.playernum].objnum;
 	
-	noloss_send_ack(new_pd.numpackets, new_pd.playernum);
+	if (new_pd.type == PID_PDATA_NOLOSS)
+		noloss_send_ack(new_pd.numpackets, new_pd.playernum);
 
 	if (TheirPlayernum < 0) {
 		Int3(); // This packet is bogus!!
