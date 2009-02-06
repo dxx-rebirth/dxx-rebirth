@@ -1,5 +1,9 @@
 D2X-Rebirth Changelog
 
+20090206
+--------
+INSTALL.txt, main/network.c, main/network.h, main/noloss.c: Small docs update; Noloss thinking flaw correccted: Add a special type for PDATA packets that need to be ACK'd so other clients won't ACK everything
+
 20090203
 --------
 main/network.c, main/noloss.c: Close out fire from queue list as this is not necessarily needed to keep games in sync; While processing the noloss queue, only process 5 packets max

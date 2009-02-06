@@ -74,7 +74,8 @@ COPYRIGHT 1993-1999 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 // new packet types to get a little bit more information about the netgame so we can show up some rules/flags - uses netgame_info instead of lite_info
 #define PID_LITE_INFO_D2X   65 // like PID_LITE_INFO
 #define PID_GAME_LIST_D2X   66 // like PID_GAME_LIST
-#define PID_PDATA_ACK		75 // ACK message for a PDATA packet
+#define PID_PDATA_NOLOSS	75 // Same as PID_PDATA, but client should ACK it!
+#define PID_PDATA_ACK		76 // ACK message for PID_PDATA_NOLOSS packet
 
 #define NETGAME_ANARCHY         0
 #define NETGAME_TEAM_ANARCHY    1
