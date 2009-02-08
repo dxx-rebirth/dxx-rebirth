@@ -1,5 +1,9 @@
 D1X-Rebirth Changelog
 
+20090208
+--------
+main/multi.c: Fixed connect-state mess in order of kmatrix flow
+
 20090206
 --------
 INSTALL.txt, main/network.c, main/network.h, main/noloss.c: Small docs update; Noloss thinking flaw correccted: Add a special type for PDATA packets that need to be ACK'd so other clients won't ACK everything
