@@ -40,6 +40,7 @@ COPYRIGHT 1993-1999 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 #define CONNECT_FOUND_SECRET        4
 #define CONNECT_ESCAPE_TUNNEL       5
 #define CONNECT_END_MENU            6
+#define CONNECT_KMATRIX_WAITING     7 // Like CONNECT_WAITING but used especially in kmatrix.c to seperate "escaped" and "waiting"
 
 #define NETWORK_TIMEOUT (15*F1_0) // 15 seconds disconnect timeout
 #define MAX_ACTIVE_NETGAMES     12
