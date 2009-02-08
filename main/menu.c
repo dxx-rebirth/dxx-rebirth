@@ -877,6 +877,7 @@ void do_ip_manual_join_menu()
 		choice = newmenu_do1( NULL, "ENTER IP OR HOSTNAME", num_options, m, NULL, choice );
 
 		if ( choice > -1 ){
+			strncpy(GameCfg.MplIpHostAddr, buf, 128);
 			UDPConnectManual(buf);
 		}
 
