@@ -3,6 +3,7 @@ D1X-Rebirth Changelog
 20090208
 --------
 main/multi.c: Fixed connect-state mess in order of kmatrix flow
+main/menu.c: Make sure HostAddr buffer is directly saved as soon as we confirm it in the entry field
 
 20090206
 --------
