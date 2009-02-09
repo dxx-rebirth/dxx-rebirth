@@ -1361,12 +1361,6 @@ ubyte Last_angles_read = 0;
 extern int VR_sensitivity;
 int VR_sense_range[3] = { 25, 50, 75 };
 
-#define	PH_SCALE	8
-
-#define	JOYSTICK_READ_TIME	(F1_0/40)		//	Read joystick at 40 Hz.
-
-fix	LastReadTime = 0;
-
 fix	joy_axis[JOY_MAX_AXES];
 
 #ifdef D2X_KEYS
@@ -1378,7 +1372,6 @@ void controls_read_all()
 	int i;
 	int slide_on, bank_on;
 	static int dx, dy, dz;
-	fix ctime;
 	fix mouse_axis[3] = {0,0,0};
 	int raw_joy_axis[JOY_MAX_AXES];
 	int mouse_buttons;
@@ -1404,15 +1397,8 @@ void controls_read_all()
 	slide_on = 0;
 	bank_on = 0;
 
-	ctime = timer_get_fixed_seconds();
-
 	//---------  Read Joystick -----------
-	if ( (LastReadTime + JOYSTICK_READ_TIME > ctime) ) {
-		if ((ctime < 0) && (LastReadTime >= 0))
-			LastReadTime = ctime;
-		use_joystick=1;
-	} else if (CONTROL_USING_JOYSTICK ) {
-		LastReadTime = ctime;
+	if (CONTROL_USING_JOYSTICK ) {
 		channel_masks = joystick_read_raw_axis( JOY_ALL_AXIS, raw_joy_axis );
 
 		for (i = 0; i < joy_num_axes; i++)
@@ -1554,10 +1540,10 @@ void controls_read_all()
 		k3 = speed_factor*key_down_time( kc_keyboard[3].value )/2;
 
 		// From keyboard...
-		if ( kc_keyboard[0].value < 255 ) kp += k0/PH_SCALE;
-		if ( kc_keyboard[1].value < 255 ) kp += k1/PH_SCALE;
-		if ( kc_keyboard[2].value < 255 ) kp -= k2/PH_SCALE;
-		if ( kc_keyboard[3].value < 255 ) kp -= k3/PH_SCALE;
+		if ( kc_keyboard[0].value < 255 ) kp += k0;
+		if ( kc_keyboard[1].value < 255 ) kp += k1;
+		if ( kc_keyboard[2].value < 255 ) kp -= k2;
+		if ( kc_keyboard[3].value < 255 ) kp -= k3;
 
 		if (kp == 0)
 			Controls.pitch_time = 0;
@@ -1666,10 +1652,10 @@ void controls_read_all()
 		k7 = speed_factor*key_down_time( kc_keyboard[7].value );
 
 		// From keyboard...
-		if ( kc_keyboard[4].value < 255 ) kh -= k4/PH_SCALE;
-		if ( kc_keyboard[5].value < 255 ) kh -= k5/PH_SCALE;
-		if ( kc_keyboard[6].value < 255 ) kh += k6/PH_SCALE;
-		if ( kc_keyboard[7].value < 255 ) kh += k7/PH_SCALE;
+		if ( kc_keyboard[4].value < 255 ) kh -= k4;
+		if ( kc_keyboard[5].value < 255 ) kh -= k5;
+		if ( kc_keyboard[6].value < 255 ) kh += k6;
+		if ( kc_keyboard[7].value < 255 ) kh += k7;
 
 		if (kh == 0)
 			Controls.heading_time = 0;
