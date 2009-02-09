@@ -1,5 +1,9 @@
 D1X-Rebirth Changelog
 
+20090209
+--------
+main/kconfig.c: Removed PH_SCALE on Keyboard readings as caps movement not in sync to FrameTime; Removed scaled Joystick reading as it's not necessary anymore
+
 20090208
 --------
 main/multi.c: Fixed connect-state mess in order of kmatrix flow
