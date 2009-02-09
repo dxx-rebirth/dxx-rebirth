@@ -3,6 +3,7 @@ D2X-Rebirth Changelog
 20090209
 --------
 main/kconfig.c: Removed PH_SCALE on Keyboard readings as caps movement not in sync to FrameTime; Removed scaled Joystick reading as it's not necessary anymore
+main/gameseq.c: When creating new player, make sure string is long enough for use with players dir
 
 20090208
 --------
