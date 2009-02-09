@@ -560,12 +560,12 @@ int MakeNewPlayerFile(int allow_abort)
 	int x;
 	char filename[14];
 	newmenu_item m;
-	char text[CALLSIGN_LEN+1]="";
+	char text[CALLSIGN_LEN+9]="";
 
 	strncpy(text, Players[Player_num].callsign,CALLSIGN_LEN);
 
 try_again:
-	m.type=NM_TYPE_INPUT; m.text_len = 8; m.text = text;
+	m.type=NM_TYPE_INPUT; m.text_len = CALLSIGN_LEN; m.text = text;
 
 	Newmenu_allowed_chars = playername_allowed_chars;
 	x = newmenu_do( NULL, TXT_ENTER_PILOT_NAME, 1, &m, NULL );
