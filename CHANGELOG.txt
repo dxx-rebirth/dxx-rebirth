@@ -3,6 +3,7 @@ D2X-Rebirth Changelog
 20090215
 --------
 main/network.c, main/noloss.c, main/noloss.h: Added list to keep trace of received PDATA packets so receiver won't interpret them several times
+main/kmatrix.c: Made connect-state handling in kmatrix flow even more failsafe
 
 20090209
 --------
@@ -13,7 +14,6 @@ main/gameseq.c: When creating new player, make sure string is long enough for us
 --------
 main/multi.c, main/network.h, main/kmatrix.c, main/kmatrix.h: Fixed connect-state mess in order of kmatrix flow
 main/menu.c: Make sure HostAddr buffer is directly saved as soon as we confirm it in the entry field
-
 
 20090206
 --------

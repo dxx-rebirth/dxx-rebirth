@@ -458,7 +458,7 @@ void kmatrix_view(int network)
     digi_kill_sound_linked_to_object (Players[i].objnum);
 
   set_screen_mode( SCREEN_MENU );
-printf("%i\n",network);
+
   WaitingForOthers=0;
 
   game_flush_inputs();
@@ -575,7 +575,7 @@ printf("%i\n",network);
           }
 
 		  // Important: Make sure we keep connected state CONNECT_KMATRIX_WAITING even if player exits kmatrix loop which will change to CONNECT_WAITING! If we don't get all palyer packets in sync and order this condition is very handy to keep all connections alive!
-		  if (oldstates[i]==CONNECT_KMATRIX_WAITING && (Players[i].connected!=0 || Players[i].connected!=CONNECT_KMATRIX_WAITING))
+		  if ((oldstates[i]==CONNECT_END_MENU || oldstates[i]==CONNECT_KMATRIX_WAITING) && (Players[i].connected!=0 || Players[i].connected!=CONNECT_END_MENU || Players[i].connected!=CONNECT_KMATRIX_WAITING))
 			Players[i].connected=CONNECT_KMATRIX_WAITING;
 
           if (Players[i].connected!=oldstates[i])
