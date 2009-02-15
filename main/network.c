@@ -441,6 +441,8 @@ network_disconnect_player(int playernum)
 
 	Players[playernum].connected = 0;
 	Netgame.players[playernum].connected = 0;
+	
+	noloss_update_pdata_got(playernum);
 
 //	create_player_appearance_effect(&Objects[Players[playernum].objnum]);
 	multi_make_player_ghost(playernum);
@@ -3571,7 +3573,8 @@ void network_read_pdata_packet(ubyte *data )
 	TheirObjnum = Players[pd->playernum].objnum;
 	
 	if (pd->type == PID_PDATA_NOLOSS)
-		noloss_send_ack(pd->numpackets, pd->playernum);
+		if (noloss_validate_pdata(pd->numpackets, pd->playernum) == 0)
+			return; // got that one already!
 	
 	if (TheirPlayernum < 0) {
 		Int3(); // This packet is bogus!!
@@ -3712,7 +3715,8 @@ void network_read_pdata_short_packet(short_frame_info *pd )
 	TheirObjnum = Players[new_pd.playernum].objnum;
 	
 	if (new_pd.type == PID_PDATA_NOLOSS)
-		noloss_send_ack(new_pd.numpackets, new_pd.playernum);
+		if (noloss_validate_pdata(new_pd.numpackets, new_pd.playernum) == 0)
+			return; // got that one already!
 
 	if (TheirPlayernum < 0) {
 		Int3(); // This packet is bogus!!
