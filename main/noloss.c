@@ -11,6 +11,7 @@
 #include "noloss.h"
 
 struct pdata_noloss_store noloss_queue[NOLOSS_QUEUE_SIZE];
+struct pdata_recv noloss_pdata_got[MAX_PLAYERS];
 extern frame_info MySyncPack;
 extern int MaxXDataSize;
 extern int N_players;
@@ -31,6 +32,8 @@ void noloss_add_packet_to_queue(int urgent, int pkt_num, char *data, ushort data
 	
 	for (i = 0; i < NOLOSS_QUEUE_SIZE; i++)
 	{
+		int j;
+		
 		if (noloss_queue[i].used)
 			continue;
 
@@ -38,8 +41,13 @@ void noloss_add_packet_to_queue(int urgent, int pkt_num, char *data, ushort data
 		noloss_queue[i].pkt_initial_timestamp = GameTime;
 		noloss_queue[i].pkt_timestamp = GameTime;
 		noloss_queue[i].pkt_num = pkt_num;
-		memset( &noloss_queue[i].player_ack, 0, sizeof(ubyte)*MAX_PLAYERS );
-		noloss_queue[i].N_players = N_players;
+		for (j = 0; j < MAX_PLAYERS; j++)
+		{
+			if (Players[j].connected)
+				noloss_queue[i].player_ack[j] = 0;
+			else
+				noloss_queue[i].player_ack[j] = 1; // Player is not connected so set to positive in case he joins
+		}
 		memcpy( &noloss_queue[i].data[0], data, data_size );
 		noloss_queue[i].data_size = data_size;
 		
@@ -139,9 +147,12 @@ void noloss_send_queued_packet(int queue_index)
 // We have received a PDATA packet. Send ACK response to sender!
 // ACK packet needs to contain: packet num, sender player num, receiver player num
 // Call in network_process_packet() at case PID_PDATA
-void noloss_send_ack(int pkt_num, ubyte receiver_pnum)
+// Also check in our noloss_pdata_got list, if we got this packet already.
+// If yes, return 0 (not valid)! If not, add this pkt_num to our list and return 1 so the pdata packet will be processed!
+int noloss_validate_pdata(int pkt_num, ubyte receiver_pnum)
 {
 	noloss_ack ack;
+	int i;
 	
 	memset(&ack,0,sizeof(noloss_ack));
 	
@@ -151,6 +162,17 @@ void noloss_send_ack(int pkt_num, ubyte receiver_pnum)
 	ack.pkt_num = pkt_num;
 
 	netdrv_send_packet_data( (ubyte *)&ack, sizeof(noloss_ack), NetPlayers.players[receiver_pnum].network.ipx.server, NetPlayers.players[receiver_pnum].network.ipx.node,Players[receiver_pnum].net_address );
+	
+	for (i = 0; i < NOLOSS_QUEUE_SIZE; i++)
+	{
+		if (pkt_num == noloss_pdata_got[receiver_pnum].pkt_num[i])
+			return 0;
+	}
+	noloss_pdata_got[receiver_pnum].cur_slot++;
+	if (noloss_pdata_got[receiver_pnum].cur_slot >= NOLOSS_QUEUE_SIZE)
+		noloss_pdata_got[receiver_pnum].cur_slot=0;
+	noloss_pdata_got[receiver_pnum].pkt_num[noloss_pdata_got[receiver_pnum].cur_slot] = pkt_num;
+	return 1;
 }
 
 // We got an ACK by a player. Set this player slot to positive!
@@ -176,6 +198,14 @@ void noloss_got_ack(ubyte *data)
 void noloss_init_queue(void)
 {
 	memset(&noloss_queue,0,sizeof(pdata_noloss_store)*NOLOSS_QUEUE_SIZE);
+	memset(&noloss_pdata_got,-1,sizeof(pdata_recv)*MAX_PLAYERS);
+}
+
+// Reset the trace list for given player when disconnect happens
+void noloss_update_pdata_got(int player_num)
+{
+	memset(&noloss_pdata_got[player_num].pkt_num,-1,sizeof(int)*NOLOSS_QUEUE_SIZE);
+	noloss_pdata_got[player_num].cur_slot = -1;
 }
 
 // The main queue-process function.
@@ -192,22 +222,12 @@ void noloss_process_queue(void)
 		if (!noloss_queue[i].used)
 			continue;
 		
-		// If N_players differs (because of disconnet), we resend to all to make sure we we get the right ACK packets for the right players
-		if (N_players != noloss_queue[i].N_players)
+		// Check if at least one connected player has not ACK'd the packet
+		for (j = 0; j < N_players; j++)
 		{
-			memset( noloss_queue[i].player_ack, 0, sizeof(ubyte)*8 );
-			noloss_queue[i].N_players = N_players;
-			resend = 1;
-		}
-		else
-		{
-			// Check if at least one connected player has not ACK'd the packet
-			for (j = 0; j < N_players; j++)
+			if (!noloss_queue[i].player_ack[j] && Players[j].connected && j != Player_num)
 			{
-				if (!noloss_queue[i].player_ack[j] && Players[j].connected && j != Player_num)
-				{
-					resend = 1;
-				}
+				resend = 1;
 			}
 		}
 

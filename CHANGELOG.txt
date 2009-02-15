@@ -1,5 +1,9 @@
 D2X-Rebirth Changelog
 
+20090215
+--------
+main/network.c, main/noloss.c, main/noloss.h: Added list to keep trace of received PDATA packets so receiver won't interpret them several times
+
 20090209
 --------
 main/kconfig.c: Removed PH_SCALE on Keyboard readings as caps movement not in sync to FrameTime; Removed scaled Joystick reading as it's not necessary anymore
