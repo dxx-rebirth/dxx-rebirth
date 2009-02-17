@@ -1084,6 +1084,9 @@ void DropCurrentWeapon ()
 {
 	int objnum,ammo=0,seed;
 
+	if (num_objects >= MAX_USED_OBJECTS)
+		return;
+
 	if (Primary_weapon==0)
 	{
 		HUD_init_message("You cannot drop your base weapon!");
@@ -1132,23 +1135,58 @@ void DropCurrentWeapon ()
 	auto_select_weapon (0);
 }
 
-
 void DropSecondaryWeapon ()
 {
 	int objnum,seed;
+	ubyte weapon_drop_id=-1;
+	ushort sub_ammo=0;
+	
+	if (num_objects >= MAX_USED_OBJECTS)
+		return;
 
 	if (Players[Player_num].secondary_ammo[Secondary_weapon] ==0)
 	{
 		HUD_init_message("No secondary weapon to drop!");
 		return;
 	}
+	
+	weapon_drop_id = Secondary_weapon_to_powerup[Secondary_weapon];
 
-	if ((Secondary_weapon_to_powerup[Secondary_weapon]==POW_PROXIMITY_WEAPON ||
-		Secondary_weapon_to_powerup[Secondary_weapon]==POW_SMART_MINE) &&
-		Players[Player_num].secondary_ammo[Secondary_weapon]<4)
+	// see if we drop single or 4-pack
+	switch (Secondary_weapon_to_powerup[Secondary_weapon])
 	{
-		HUD_init_message("You need at least 4 to drop!");
-		return;
+		case POW_MISSILE_1:
+		case POW_HOMING_AMMO_1:
+		case POW_SMISSILE1_1:
+		case POW_GUIDED_MISSILE_1:
+		case POW_MERCURY_MISSILE_1:
+			if (Players[Player_num].secondary_ammo[Secondary_weapon]<4)
+			{
+				sub_ammo = 1;
+			}
+			else
+			{
+				sub_ammo = 4;
+				weapon_drop_id++; //4-pack always is next index
+			}
+			break;
+		case POW_PROXIMITY_WEAPON:
+		case POW_SMART_MINE:
+			if (Players[Player_num].secondary_ammo[Secondary_weapon]<4)
+			{
+				HUD_init_message("You need at least 4 to drop!");
+				return;
+			}
+			else
+			{
+				sub_ammo = 4;
+			}
+			break;
+		case POW_SMARTBOMB_WEAPON:
+		case POW_MEGA_WEAPON:
+		case POW_EARTHSHAKER_MISSILE:
+			sub_ammo = 1;
+			break;
 	}
 
 	HUD_init_message("%s dropped!",SECONDARY_WEAPON_NAMES(Secondary_weapon));
@@ -1156,7 +1194,7 @@ void DropSecondaryWeapon ()
 
 	seed = d_rand();
 
-	objnum = spit_powerup(ConsoleObject,Secondary_weapon_to_powerup[Secondary_weapon],seed);
+	objnum = spit_powerup(ConsoleObject,weapon_drop_id,seed);
 
    if (objnum<0)
 		return;
@@ -1167,11 +1205,7 @@ void DropSecondaryWeapon ()
 		multi_send_drop_weapon(objnum,seed);
 #endif
 
-	if (Secondary_weapon_to_powerup[Secondary_weapon]==POW_PROXIMITY_WEAPON ||
-		Secondary_weapon_to_powerup[Secondary_weapon]==POW_SMART_MINE)
-		Players[Player_num].secondary_ammo[Secondary_weapon]-=4;
-	else
-		Players[Player_num].secondary_ammo[Secondary_weapon]--;
+	Players[Player_num].secondary_ammo[Secondary_weapon]-=sub_ammo;
 
 	if (Players[Player_num].secondary_ammo[Secondary_weapon]==0)
 	{

@@ -2010,8 +2010,6 @@ void object_move_one( object * obj )
 	#endif		//DEMO_ONLY
 }
 
-int	Max_used_objects = MAX_OBJECTS - 20;
-
 //--------------------------------------------------------------------
 //move all objects for the current frame
 void object_move_all()
@@ -2019,8 +2017,8 @@ void object_move_all()
 	int i;
 	object *objp;
 
-	if (Highest_object_index > Max_used_objects)
-		free_object_slots(Max_used_objects);		//	Free all possible object slots.
+	if (Highest_object_index > MAX_USED_OBJECTS)
+		free_object_slots(MAX_USED_OBJECTS);		//	Free all possible object slots.
 
 	obj_delete_all_that_should_be_dead();
 

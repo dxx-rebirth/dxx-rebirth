@@ -1,5 +1,9 @@
 D2X-Rebirth Changelog
 
+20090217
+--------
+main/object.c, main/object.h, main/weapon.c: Made Max_used_objects an absolute defined value; Made num_objects globally available; Restricted Weapon drops to MAX_USED_OBJECTS; When dropping Secondary weapon, drop 4-pack if possible
+
 20090215
 --------
 main/network.c, main/noloss.c, main/noloss.h: Added list to keep trace of received PDATA packets so receiver won't interpret them several times
