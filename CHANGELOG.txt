@@ -1,5 +1,9 @@
 D1X-Rebirth Changelog
 
+20090217
+--------
+main/object.c, main/object.h: Made Max_used_objects an absolute defined value; Made num_objects globally available
+
 20090215
 --------
 main/network.c, main/noloss.c, main/noloss.h: Added list to keep trace of received PDATA packets so receiver won't interpret them several times
