@@ -1221,8 +1221,9 @@ void do_explosion_sequence(object *obj)
 			explode_model(del_obj);		//explode a polygon model
 
 		//set some parm in explosion
-		if (expl_obj) {
-
+		//If num_objects < MAX_USED_OBJECTS, expl_obj could be set to dead before this setting causing the delete_obj not to be removed. If so, directly delete del_obj
+		if (expl_obj && !(expl_obj->flags & OF_SHOULD_BE_DEAD))
+		{
 			if (del_obj->movement_type == MT_PHYSICS) {
 				expl_obj->movement_type = MT_PHYSICS;
 				expl_obj->mtype.phys_info = del_obj->mtype.phys_info;

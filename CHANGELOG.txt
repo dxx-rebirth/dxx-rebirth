@@ -1,5 +1,9 @@
 D2X-Rebirth Changelog
 
+20090222
+--------
+main/fireball.c: Fixed param handling of expl_obj in do_explosion_sequence for the case that free_object_slots might have it set to OF_SHOULD_BE_DEAD before it's actually attached to another object
+
 20090217
 --------
 main/object.c, main/object.h, main/weapon.c: Made Max_used_objects an absolute defined value; Made num_objects globally available; Restricted Weapon drops to MAX_USED_OBJECTS; When dropping Secondary weapon, drop 4-pack if possible
