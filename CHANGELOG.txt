@@ -3,6 +3,7 @@ D1X-Rebirth Changelog
 20090222
 --------
 main/fireball.c: Fixed param handling of expl_obj in do_explosion_sequence for the case that free_object_slots might have it set to OF_SHOULD_BE_DEAD before it's actually attached to another object
+d1x-rebirth.xpm, d1x-rebirth.desktop: Added desktop UI files...
 
 20090217
 --------
