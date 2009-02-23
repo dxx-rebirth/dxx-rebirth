@@ -558,6 +558,7 @@ void change_res()
 	set_screen_mode(SCREEN_MENU);
 	Game_screen_mode = screen_mode;
 	gr_set_mode(Game_screen_mode);
+	init_cockpit();
 	game_init_render_buffers(SM_W(screen_mode), SM_H(screen_mode), VR_NONE, 0);
 }
 

@@ -210,7 +210,7 @@ COPYRIGHT 1993-1999 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 #define SB_SCORE_LABEL_X		(HIRESMODE?475:237)
 #define SB_SCORE_ADDED_RIGHT		(HIRESMODE?SB_SCORE_RIGHT_H:SB_SCORE_RIGHT_L)
 #define SB_SCORE_ADDED_Y		(HIRESMODE?413:165)
-#define HOMING_WARNING_X		(HIRESMODE?14:7)
+#define HOMING_WARNING_X		(HIRESMODE?13:7)
 #define HOMING_WARNING_Y		(HIRESMODE?415:171)
 #define BOMB_COUNT_X			(HIRESMODE?546:275)
 #define BOMB_COUNT_Y			(HIRESMODE?445:186)
@@ -1630,13 +1630,14 @@ void cockpit_decode_alpha(grs_bitmap *bm)
 {
 
 	int i=0,x=0,y=0;
-	static ubyte *cur=NULL;
+	static unsigned char *cur=NULL;
+	static short cur_w=0, cur_h=0;
 	static unsigned char cockpitbuf[1024*1024];
 
 	// check if we processed this bitmap already
-	if (cur==bm->bm_data)
+	if (cur==bm->bm_data && cur_w == bm->bm_w && cur_h == bm->bm_h)
 		return;
-
+		
 	memset(cockpitbuf,0,1024*1024);
 
 	// decode the bitmap
@@ -1686,14 +1687,23 @@ void cockpit_decode_alpha(grs_bitmap *bm)
 		gr_free_sub_bitmap(WinBoxOverlay[1]);
 	WinBoxOverlay[0] = gr_create_sub_bitmap(&deccpt,(PRIMARY_W_BOX_LEFT)-2,(PRIMARY_W_BOX_TOP)-2,(PRIMARY_W_BOX_RIGHT-PRIMARY_W_BOX_LEFT+4),(PRIMARY_W_BOX_BOT-PRIMARY_W_BOX_TOP+4));
 	WinBoxOverlay[1] = gr_create_sub_bitmap(&deccpt,(SECONDARY_W_BOX_LEFT)-2,(SECONDARY_W_BOX_TOP)-2,(SECONDARY_W_BOX_RIGHT-SECONDARY_W_BOX_LEFT)+4,(SECONDARY_W_BOX_BOT-SECONDARY_W_BOX_TOP)+4);
-
-	cur=bm->bm_data;
+	
+	cur = bm->bm_data;
+	cur_w = bm->bm_w;
+	cur_h = bm->bm_h;
 }
 
 void draw_wbu_overlay()
 {
-	hud_bitblt(HUD_SCALE_X(PRIMARY_W_BOX_LEFT-2),HUD_SCALE_Y(PRIMARY_W_BOX_TOP-2),WinBoxOverlay[0]);
-	hud_bitblt(HUD_SCALE_X(SECONDARY_W_BOX_LEFT-2),HUD_SCALE_Y(SECONDARY_W_BOX_TOP-2),WinBoxOverlay[1]);
+	grs_bitmap *bm = &GameBitmaps[cockpit_bitmap[PlayerCfg.CockpitMode+(HIRESMODE?(Num_cockpits/2):0)].index];
+	
+	PIGGY_PAGE_IN(cockpit_bitmap[PlayerCfg.CockpitMode+(HIRESMODE?(Num_cockpits/2):0)]);
+	cockpit_decode_alpha(bm);
+	
+	if (WinBoxOverlay[0] != NULL)
+		hud_bitblt(HUD_SCALE_X(PRIMARY_W_BOX_LEFT-2),HUD_SCALE_Y(PRIMARY_W_BOX_TOP-2),WinBoxOverlay[0]);
+	if (WinBoxOverlay[1] != NULL)	
+		hud_bitblt(HUD_SCALE_X(SECONDARY_W_BOX_LEFT-2),HUD_SCALE_Y(SECONDARY_W_BOX_TOP-2),WinBoxOverlay[1]);
 }
 
 void close_gauges()
