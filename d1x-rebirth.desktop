@@ -1,0 +1,13 @@
+[Desktop Entry]
+Name=Descent
+Name[en_CA]=Descent
+Version=1.0
+Encoding=UTF-8
+Comment=DXX-Rebirth source port of Descent: First Strike from 1995...
+Exec=d1x-rebirth-gl -hiresfont
+Icon=d1x-rebirth.xpm
+Terminal=false
+Type=Application
+Categories=Application;Game;
+StartupNotify=true
+
