@@ -1406,11 +1406,12 @@ void cockpit_decode_alpha(grs_bitmap *bm)
 {
 
 	int i=0,x=0,y=0;
-	static ubyte *cur=NULL;
+	static unsigned char *cur=NULL;
+	static short cur_w=0, cur_h=0;
 	static unsigned char cockpitbuf[1024*1024];
 
 	// check if we processed this bitmap already
-	if (cur==bm->bm_data)
+	if (cur==bm->bm_data && cur_w == bm->bm_w && cur_h == bm->bm_h)
 		return;
 
 	memset(cockpitbuf,0,1024*1024);
@@ -1463,13 +1464,22 @@ void cockpit_decode_alpha(grs_bitmap *bm)
 	WinBoxOverlay[0] = gr_create_sub_bitmap(&deccpt,(PRIMARY_W_BOX_LEFT)-2,(PRIMARY_W_BOX_TOP)-2,(PRIMARY_W_BOX_RIGHT-PRIMARY_W_BOX_LEFT+4),(PRIMARY_W_BOX_BOT-PRIMARY_W_BOX_TOP+4));
 	WinBoxOverlay[1] = gr_create_sub_bitmap(&deccpt,(SECONDARY_W_BOX_LEFT)-2,(SECONDARY_W_BOX_TOP)-2,(SECONDARY_W_BOX_RIGHT-SECONDARY_W_BOX_LEFT)+4,(SECONDARY_W_BOX_BOT-SECONDARY_W_BOX_TOP)+4);
 
-	cur=bm->bm_data;
+	cur = bm->bm_data;
+	cur_w = bm->bm_w;
+	cur_h = bm->bm_h;
 }
 
 void draw_wbu_overlay()
 {
-	hud_bitblt(HUD_SCALE_X(PRIMARY_W_BOX_LEFT-2),HUD_SCALE_Y(PRIMARY_W_BOX_TOP-2),WinBoxOverlay[0]);
-	hud_bitblt(HUD_SCALE_X(SECONDARY_W_BOX_LEFT-2),HUD_SCALE_Y(SECONDARY_W_BOX_TOP-2),WinBoxOverlay[1]);
+	grs_bitmap * bm = &GameBitmaps[cockpit_bitmap[PlayerCfg.CockpitMode].index];
+
+	PIGGY_PAGE_IN(cockpit_bitmap[PlayerCfg.CockpitMode]);
+	cockpit_decode_alpha(bm);
+	
+	if (WinBoxOverlay[0] != NULL)
+		hud_bitblt(HUD_SCALE_X(PRIMARY_W_BOX_LEFT-2),HUD_SCALE_Y(PRIMARY_W_BOX_TOP-2),WinBoxOverlay[0]);
+	if (WinBoxOverlay[1] != NULL)
+		hud_bitblt(HUD_SCALE_X(SECONDARY_W_BOX_LEFT-2),HUD_SCALE_Y(SECONDARY_W_BOX_TOP-2),WinBoxOverlay[1]);
 }
 
 void close_gauges()

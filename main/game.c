@@ -237,7 +237,6 @@ void update_cockpits()
 	switch( PlayerCfg.CockpitMode )	{
 		case CM_FULL_COCKPIT:
 			gr_set_current_canvas(NULL);
-			cockpit_decode_alpha(bm);
 #ifdef OGL
 			ogl_ubitmapm_cs (0, 0, -1, grd_curcanv->cv_bitmap.bm_h, bm,255, F1_0);
 #else
