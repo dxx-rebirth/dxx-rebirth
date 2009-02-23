@@ -3,6 +3,7 @@ D1X-Rebirth Changelog
 20090223
 --------
 main/game.c, main/gauges.c, main/menu.c: Made our Cockpit-Transparency decoding function a bit safer for current and possibly new code flow
+main/gauges.c: Small positional correction for homing-warning bitmap
 
 20090222
 --------
