@@ -64,13 +64,13 @@ COPYRIGHT 1993-1999 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 #include "endlevel.h"
 #include "text.h"
 #include "gauges.h"
-#include "songs.h"
 #include "powerup.h"
 #include "switch.h"
 #include "automap.h"
 #include "cntrlcen.h"
 #include "playsave.h"
 #include "config.h"
+#include "rbaudio.h"
 
 #define EF_USED     1   // This edge is used
 #define EF_DEFINING 2   // A structure defining edge that should always draw.
@@ -634,7 +634,7 @@ void do_automap( int key_code )	{
 		}
 
 		//see if redbook song needs to be restarted
-		songs_check_redbook_repeat();
+		RBACheckFinishedHook();
 
 		while( (c=key_inkey()) )	{
 			switch( c ) {

@@ -40,6 +40,7 @@ COPYRIGHT 1993-1999 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 #include "screens.h"
 #include "digi.h"
 #include "cfile.h"
+#include "rbaudio.h"
 #include "text.h"
 #include "songs.h"
 #include "menu.h"
@@ -192,7 +193,7 @@ get_line:;
 			timer_delay(F1_0/25);
 		
 			//see if redbook song needs to be restarted
-			songs_check_redbook_repeat();
+			RBACheckFinishedHook();
 
 			k = key_inkey();
 

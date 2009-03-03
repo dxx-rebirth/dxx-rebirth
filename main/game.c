@@ -85,6 +85,7 @@ COPYRIGHT 1993-1999 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 #include "switch.h"
 #include "controls.h"
 #include "songs.h"
+#include "rbaudio.h"
 #include "gamepal.h"
 
 #include "multi.h"
@@ -1283,7 +1284,7 @@ void game()
 				release_guided_missile(Player_num);
 
 			//see if redbook song needs to be restarted
-			songs_check_redbook_repeat();	// Handle RedBook Audio Repeating.
+			RBACheckFinishedHook();	// Handle RedBook Audio Repeating.
 
 			if (Config_menu_flag) 	{
 				if (!(Game_mode&GM_MULTI)) {palette_save(); reset_palette_add();	apply_modified_palette(); gr_palette_load( gr_palette ); }

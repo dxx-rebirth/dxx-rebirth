@@ -35,7 +35,6 @@ COPYRIGHT 1993-1999 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 #include "game.h"
 #include "gamefont.h"
 #include "u_mem.h"
-#include "songs.h"
 #include "newmenu.h"
 #include "menu.h"
 #include "player.h"
@@ -45,6 +44,7 @@ COPYRIGHT 1993-1999 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 #include "timer.h"
 #include "text.h"
 #include "strutil.h"
+#include "rbaudio.h"
 
 #ifdef OGL
 #include "ogl_init.h"
@@ -412,7 +412,7 @@ ReshowScores:
 		}
 
 		//see if redbook song needs to be restarted
-		songs_check_redbook_repeat();
+		RBACheckFinishedHook();
 
 		k = key_inkey();
 		switch( k )	{

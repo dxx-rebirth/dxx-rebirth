@@ -21,6 +21,7 @@
 #define JUKEBOX_HUDMSG_STOPPED "Jukebox stopped"
 
 static int jukebox_playing = -1;
+static int jukebox_play_last = -1;
 static int jukebox_numsongs = 0;
 static char **JukeboxSongs = NULL;
 char hud_msg_buf[MUSIC_HUDMSG_MAXLEN+4];
@@ -77,16 +78,27 @@ void jukebox_load() {
 	}
 }
 
-void jukebox_play(int loop) {
+void jukebox_hook_next();
+void (*jukebox_hook_finished)() = NULL;
+
+int jukebox_play_tracks(int first, int last, void (*hook_finished)(void)) {
 	char *music_filename;
 
-	if (!JukeboxSongs) return;
+	if (!JukeboxSongs) return 0;
 
-	if (jukebox_playing == -1)
-		jukebox_playing = 0;	// For now - will allow track numbers as arguments in future
+	jukebox_playing = first - 1;	// start with the first track, then play until last track
+	if (jukebox_playing < 0)
+		jukebox_playing = 0;
+
+	if ((last < first) || (last >= jukebox_numsongs))
+		jukebox_play_last = jukebox_numsongs - 1;
+	else
+		jukebox_play_last = last - 1;
+
 	music_filename = JukeboxSongs[jukebox_playing];
 
-	mix_play_file(music_filename, loop);
+	jukebox_hook_finished = hook_finished ? hook_finished : mix_free_music;
+	mix_play_file(music_filename, 0, jukebox_hook_next);	// have our function handle looping
 
 	// Formatting a pretty message
 	if (strlen(music_filename) >= MUSIC_HUDMSG_MAXLEN) {
@@ -98,6 +110,8 @@ void jukebox_play(int loop) {
 	}
 
 	hud_message(MSGC_GAME_FEEDBACK, "%s %s", JUKEBOX_HUDMSG_PLAYING, hud_msg_buf);
+
+	return 1;
 }
 
 void jukebox_stop() {
@@ -108,46 +122,47 @@ void jukebox_stop() {
 	jukebox_playing = -1;
 }
 
-void jukebox_pause_resume() {
+// need this mess because pausing the game is meant to pause the music
+void jukebox_pause() {
 	if (!JukeboxSongs) return;
+
+	Mix_PauseMusic();
+}
+
+int jukebox_resume() {
+	if (!JukeboxSongs) return -1;
+	
+	Mix_ResumeMusic();
+	return 1;
+}
+
+int jukebox_pause_resume() {
+	if (!JukeboxSongs) return 0;
 
 	if (Mix_PausedMusic())
 	{
 		Mix_ResumeMusic();
 		hud_message(MSGC_GAME_FEEDBACK, "Jukebox playback resumed");
 	}
-	else
+	else if (Mix_PlayingMusic())
 	{
 		Mix_PauseMusic();
 		hud_message(MSGC_GAME_FEEDBACK, "Jukebox playback paused");
 	}
-}
+	else
+		return 0;
 
-void jukebox_hook_stop() {
-	if (!JukeboxSongs) return;
+	return 1;
 }
 
 void jukebox_hook_next() {
-	if (!JukeboxSongs) return;
-	if (jukebox_playing != -1)	jukebox_next();
-}
-
-void jukebox_next() {
 	if (!JukeboxSongs || jukebox_playing == -1) return;
-
+	
 	jukebox_playing++;
-	if (jukebox_playing == jukebox_numsongs)
-		jukebox_playing = 0;
-	jukebox_play(1);
-}
-
-void jukebox_prev() {
-	if (!JukeboxSongs || jukebox_playing == -1) return;
-
-	jukebox_playing--;
-	if (jukebox_playing == -1)
-		jukebox_playing = jukebox_numsongs - 1;
-	jukebox_play(1);
+	if ((jukebox_playing > jukebox_play_last) && jukebox_hook_finished)
+		jukebox_hook_finished();
+	else if (jukebox_playing <= jukebox_play_last)
+		jukebox_play_tracks(jukebox_playing + 1, jukebox_play_last + 1, jukebox_hook_finished);
 }
 
 char *jukebox_current() {
@@ -156,6 +171,12 @@ char *jukebox_current() {
 
 int jukebox_is_loaded() { return (JukeboxSongs != NULL); }
 int jukebox_is_playing() { return jukebox_playing + 1; }
+int jukebox_numtracks() { return jukebox_numsongs; }
+
+void jukebox_set_volume(int vol)
+{ 
+	mix_set_music_volume(vol);
+}
 
 void jukebox_list() {
 	int i;

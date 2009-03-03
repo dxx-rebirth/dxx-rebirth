@@ -1,5 +1,9 @@
 D2X-Rebirth Changelog
 
+20090303
+--------
+arch/include/digi_mixer_music.h, arch/include/jukebox.h, arch/sdl/digi_mixer_music.c, arch/sdl/digi_mixer.c, arch/sdl/digi.c, arch/sdl/init.c, arch/sdl/jukebox.c, arch/sdl/rbaudio.c, include/rbaudio.h, main/automap.c, main/config.h, main/credits.c, main/digi.h, main/game.c, main/gamecntl.c, main/kconfig.c, main/kmatrix.c, main/menu.c, main/network.c, main/newmenu.c, main/scores.c, main/songs.c, main/songs.h: Associate the jukebox with Redbook Audio via new 'extmusic' layer - separating from MIDI and making it handle ALL music (not just game music)
+
 20090223
 --------
 main/gamerend.c, main/gauges.c, main/menu.c: Made our Cockpit-Transparency decoding function a bit safer for current and possibly new code flow

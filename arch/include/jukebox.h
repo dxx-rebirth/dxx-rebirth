@@ -3,16 +3,16 @@
 
 void jukebox_unload();
 void jukebox_load();
-void jukebox_play(int loop);
+int jukebox_play_tracks(int first, int last, void (*hook_finished)(void));
 void jukebox_stop();
-void jukebox_pause_resume();
-void jukebox_hook_stop();
-void jukebox_hook_next();
-void jukebox_next();
-void jukebox_prev();
+void jukebox_pause();
+int jukebox_resume();
+int jukebox_pause_resume();
 char *jukebox_current();
 int jukebox_is_loaded();
 int jukebox_is_playing();
+int jukebox_numtracks();
+void jukebox_set_volume(int);
 void jukebox_list();
 
 #endif

@@ -25,6 +25,7 @@
 #include "args.h"
 #include "rbaudio.h"
 #include "console.h"
+#include "timer.h"
 
 static SDL_CD *s_cd = NULL;
 static int initialised = 0;
@@ -114,10 +115,13 @@ int RBAPlayTrack(int a)
 	return a;
 }
 
+void (*redbook_finished_hook)() = NULL;
+
 void RBAStop()
 {
 	if (!s_cd) return;
 	SDL_CDStop(s_cd);
+	redbook_finished_hook = NULL;	// no calling the finished hook - stopped means stopped here
 }
 
 void RBAEjectDisk()
@@ -139,7 +143,7 @@ void RBASetVolume(int volume)
 	if (!s_cd) return;
 
 	cdfile = s_cd->id;
-	level = volume * 3;
+	level = volume;
 
 	if ((level<0) || (level>255)) {
 		con_printf(CON_CRITICAL, "illegal volume value (allowed values 0-255)\n");
@@ -192,8 +196,27 @@ int RBAGetNumberOfTracks()
 	return s_cd->numtracks;
 }
 
+// check if we need to call the 'finished' hook
+// needs to go in all event loops
+// a real hook would be ideal, but is currently unsupported by SDL Audio CD
+void RBACheckFinishedHook()
+{
+	static fix last_check_time;
+	fix current_time;
+	
+	if (!s_cd) return;
+
+	current_time = timer_get_fixed_seconds();
+	if (current_time < last_check_time || (current_time - last_check_time) >= F2_0)
+	{
+		if ((SDL_CDStatus(s_cd) == CD_STOPPED) && redbook_finished_hook)
+			redbook_finished_hook();
+		last_check_time = current_time;
+	}
+}
+
 // plays tracks first through last, inclusive
-int RBAPlayTracks(int first, int last)
+int RBAPlayTracks(int first, int last, void (*hook_finished)(void))
 {
 	if (!s_cd)
 		return 0;
@@ -201,6 +224,7 @@ int RBAPlayTracks(int first, int last)
 	if (CD_INDRIVE(SDL_CDStatus(s_cd)))
 	{
 		SDL_CDPlayTracks(s_cd, first - 1, 0, last - first + 1, 0);
+		redbook_finished_hook = hook_finished;
 	}
 	return 1;
 }
@@ -268,4 +292,15 @@ unsigned long RBAGetDiscID()
 	    (s_cd->track[0].offset / CD_FPS);
 
 	return ((n % 0xff) << 24 | t << 8 | s_cd->numtracks);
+}
+
+void RBAList(void)
+{
+	int i;
+
+	if (!s_cd)
+		return;
+
+	for (i = 0; i < s_cd->numtracks; i++)
+		con_printf(CON_DEBUG, "CD track %d, type %s, length %d, offset %d", s_cd->track[i].id, (s_cd->track[i].type == SDL_AUDIO_TRACK) ? "audio" : "data", s_cd->track[i].length, s_cd->track[i].offset);
 }

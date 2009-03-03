@@ -14,7 +14,6 @@
 #include "args.h"
 #include "hmp2mid.h"
 #include "digi_mixer_music.h"
-#include "jukebox.h"
 #include "cfile.h"
 #include "u_mem.h"
 
@@ -22,9 +21,6 @@
 #define MUSIC_FADE_TIME 500 //milliseconds
 
 Mix_Music *current_music = NULL;
-
-void music_hook_stop();
-void music_hook_next();
 
 void convert_hmp(char *filename, char *mid_filename) {
 
@@ -103,7 +99,7 @@ void mix_play_music(char *filename, int loop) {
     convert_hmp(filename, rel_filename);
   }
 
-  mix_play_file(rel_filename, loop);
+  mix_play_file(rel_filename, loop, NULL);
 }
 
 
@@ -111,14 +107,14 @@ void mix_play_music(char *filename, int loop) {
  *  Plays a music file from an absolute path (used by jukebox)
  */
 
-void mix_play_file(char *filename, int loop) {
+void mix_play_file(char *filename, int loop, void (*hook_finished_track)()) {
   char real_filename[PATH_MAX];
+
+  mix_free_music();	// stop and free what we're already playing, if anything
 
   PHYSFSX_getRealPath(filename, real_filename); // build absolute path
 
-  // If loop, builtin music (MIDI) should loop (-1) while in jukebox it should only play once and proceed to next track (1) or stop after track (0)
-  if (!jukebox_is_loaded() && loop)
-    loop = -1;
+  loop = loop ? -1 : 1;	// loop means loop infinitely, otherwise play once
 
   current_music = Mix_LoadMUS(real_filename);
 
@@ -131,7 +127,7 @@ void mix_play_file(char *filename, int loop) {
       Mix_PlayMusic(current_music, loop);
     }
 
-    Mix_HookMusicFinished(loop == 1 ? music_hook_next : music_hook_stop);
+	Mix_HookMusicFinished(hook_finished_track ? hook_finished_track : mix_free_music);
   }
   else {
     con_printf(CON_CRITICAL,"Music %s could not be loaded\n", real_filename);
@@ -161,20 +157,13 @@ int mix_music_exists(char *filename)
 }
 
 // What to do when stopping song playback
-void music_hook_stop() {
+void mix_free_music() {
   Mix_HaltMusic();
   if (current_music)
   {
      Mix_FreeMusic(current_music);
      current_music = NULL;
   }
-  jukebox_hook_stop();
-}
-
-// What to do when going to next song / looping
-void music_hook_next() {
-  music_hook_stop();
-  jukebox_hook_next();
 }
 
 void mix_set_music_volume(int vol) {

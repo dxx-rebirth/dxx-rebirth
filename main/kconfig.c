@@ -41,7 +41,7 @@ COPYRIGHT 1993-1999 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 #include "mouse.h"
 #include "kconfig.h"
 #include "gauges.h"
-#include "songs.h"
+#include "rbaudio.h"
 #include "render.h"
 #include "digi.h"
 #include "newmenu.h"
@@ -693,7 +693,7 @@ void kconfig_sub(kc_item * items,int nitems, char * title)
 		kc_drawitem( &items[citem], 1 );
 
 		//see if redbook song needs to be restarted
-		songs_check_redbook_repeat();
+		RBACheckFinishedHook();
 
 		k = key_inkey();
 
