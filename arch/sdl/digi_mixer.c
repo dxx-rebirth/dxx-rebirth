@@ -26,7 +26,6 @@
 #include "digi.h"
 #include "digi_mixer.h"
 #include "digi_mixer_music.h"
-#include "jukebox.h"
 #include "console.h"
 
 #include "fix.h"
@@ -85,10 +84,6 @@ int digi_mixer_init() {
   Mix_AllocateChannels(digi_max_channels);
   Mix_Pause(0);
 
-  // Attempt to load jukebox
-  jukebox_load();
-  //jukebox_list();
-
   digi_initialised = 1;
 
   return 0;
@@ -96,6 +91,7 @@ int digi_mixer_init() {
 
 /* Shut down audio */
 void digi_mixer_close() {
+  if (MIX_DIGI_DEBUG) con_printf(CON_DEBUG,"digi_close (SDL_Mixer)\n");
   if (!digi_initialised) return;
   digi_initialised = 0;
   Mix_CloseAudio();
@@ -232,19 +228,12 @@ int digi_mixer_get_max_channels() { return digi_max_channels; }
 // MIDI stuff follows.
 
 void digi_mixer_play_midi_song(char * filename, char * melodic_bank, char * drum_bank, int loop ) {
-  if (!digi_initialised) return;
-  if (GameArg.SndNoMusic)
-    return;
+    if (!digi_initialised) return;
+    if (GameArg.SndNoMusic)
+      return;
 
-  mix_set_music_volume(midi_volume);
-  jukebox_load(); // update jukebox state
+    mix_set_music_volume(midi_volume);
 
-  // quick hack to check if filename begins with "game" -- MD2211
-  if (jukebox_is_loaded() && strstr(filename, "game") == filename) {
-    // use jukebox
-    jukebox_play(loop);
-  }
-  else {
     // standard song playback
 #ifdef _WIN32
     if (!GameArg.SndExternalMusic)
@@ -259,7 +248,6 @@ void digi_mixer_play_midi_song(char * filename, char * melodic_bank, char * drum
     else
 #endif
       mix_play_music(filename, loop);
-  }
 }
 
 int digi_mixer_music_exists(const char *filename)
@@ -276,7 +264,6 @@ void digi_mixer_stop_current_song() {
     digi_midi_song_playing = 0;
   }
 #endif
-  jukebox_stop();
   mix_stop_music();
 }
 

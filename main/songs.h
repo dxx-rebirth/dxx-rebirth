@@ -59,7 +59,8 @@ typedef struct song_info {
 	char	drum_bank_file[16];
 } song_info;
 
-#define MAX_SONGS 27
+#define MAX_NUM_SONGS 27
+extern int Num_songs;   //how many MIDI songs
 
 extern song_info Songs[];
 
@@ -78,14 +79,11 @@ extern song_info Songs[];
 void songs_play_song( int songnum, int repeat );
 void songs_play_level_song( int levelnum );
 
-// stop the redbook, so we can read off the CD
-void songs_stop_redbook(void);
+// stop the redbook / Jukebox
+void songs_stop_extmusic(void);
 
-// stop any songs - midi or redbook - that are currently playing
+//stop any songs - midi, redbook or jukebox - that are currently playing
 void songs_stop_all(void);
-
-// this should be called regularly to check for redbook restart
-void songs_check_redbook_repeat(void);
 
 #endif
  

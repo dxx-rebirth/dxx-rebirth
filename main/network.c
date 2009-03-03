@@ -59,7 +59,7 @@ COPYRIGHT 1993-1998 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 #include "vers_id.h"
 #include "gamefont.h"
 #include "playsave.h"
-#include "songs.h"
+#include "rbaudio.h"
 #include "noloss.h"
 
 void network_send_rejoin_sync(int player_num);
@@ -4031,7 +4031,7 @@ void show_game_rules(int choice)
 		gr_printf( FSPACX(130),FSPACY(156), Active_games[choice].flags&NETFLAG_DOCLOAK?"YES":"NO");
 
 		//see if redbook song needs to be restarted
-		songs_check_redbook_repeat();
+		RBACheckFinishedHook();
 		
 		k = key_inkey();
 		switch( k )	{

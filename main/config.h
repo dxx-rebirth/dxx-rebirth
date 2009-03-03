@@ -48,6 +48,12 @@ typedef struct Cfg
 
 extern struct Cfg GameCfg;
 
+#ifdef USE_SDLMIXER
+#define EXT_MUSIC_ON (GameCfg.SndEnableRedbook || GameCfg.JukeboxOn)
+#else
+#define EXT_MUSIC_ON (GameCfg.SndEnableRedbook)		// JukeboxOn shouldn't do anything if it's not supported
+#endif
+
 extern int ReadConfigFile(void);
 extern int WriteConfigFile(void);
 

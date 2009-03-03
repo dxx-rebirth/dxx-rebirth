@@ -4,18 +4,18 @@
 #include "rbaudio.h"
 #include "key.h"
 #include "digi.h"
-#include "jukebox.h"
 #include "mouse.h"
 #include "joy.h"
 #include "gr.h"
 #include "error.h"
 #include "text.h"
 #include "args.h"
+#include "config.h"
 
 void arch_close(void)
 {
-	RBAStop();
-	RBAExit();
+	ext_music_stop();
+	ext_music_unload();
 
 	gr_close();
 
@@ -25,9 +25,6 @@ void arch_close(void)
 	if (!GameArg.SndNoSound)
 	{
 		digi_close();
-#ifdef USE_SDLMIXER
-		jukebox_unload();
-#endif
 	}
 
 	key_close();
@@ -45,6 +42,7 @@ void arch_init(void)
 	key_init();
 
 	digi_select_system( GameArg.SndDisableSdlMixer ? SDLAUDIO_SYSTEM : SDLMIXER_SYSTEM );
+	ext_music_select_system(GameCfg.JukeboxOn ? EXT_MUSIC_JUKEBOX : EXT_MUSIC_REDBOOK);
 	if (!GameArg.SndNoSound)
 		digi_init();
 	

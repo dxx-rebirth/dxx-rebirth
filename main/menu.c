@@ -244,7 +244,6 @@ int DoMenu()
 	return main_menu_choice;
 }
 
-extern int cGameSongsAvailable;
 extern void show_order_form(void);	// John didn't want this in inferno.h so I just externed it.
 
 //returns flag, true means quit menu
@@ -294,12 +293,12 @@ void do_option ( int select)
 
 		case MENU_PLAY_SONG:	{
 				int i;
-				char * m[MAX_SONGS];
+				char * m[MAX_NUM_SONGS];
 
-				for (i=0;i<SONG_LEVEL_MUSIC+cGameSongsAvailable;i++) {
+				for (i=0;i<Num_songs;i++) {
 					m[i] = Songs[i].filename;
 				}
-				i = newmenu_listbox( "Select Song", SONG_LEVEL_MUSIC+cGameSongsAvailable, m, 1, NULL );
+				i = newmenu_listbox( "Select Song", Num_songs, m, 1, NULL );
 
 				if ( i > -1 )	{
 					songs_play_song( i, 0 );
@@ -693,7 +692,7 @@ void do_graphics_menu()
 	} while( i>-1 );
 }
 
-void set_redbook_volume(int volume);
+void set_extmusic_volume(int volume);
 
 void sound_menuset(int nitems, newmenu_item * items, int *last_key, int citem )
 {
@@ -707,8 +706,8 @@ void sound_menuset(int nitems, newmenu_item * items, int *last_key, int citem )
 	}
 	if (GameCfg.MusicVolume != items[1].value )   {
 		GameCfg.MusicVolume = items[1].value;
-		if (GameCfg.SndEnableRedbook)
-			set_redbook_volume(GameCfg.MusicVolume);
+		if (EXT_MUSIC_ON)
+			set_extmusic_volume(GameCfg.MusicVolume);
 		else
 			digi_set_midi_volume( (GameCfg.MusicVolume*128)/8 );
 	}
@@ -735,10 +734,10 @@ void do_sound_menu()
 		m[nitems].type = NM_TYPE_SLIDER; m[nitems].text=TXT_FX_VOLUME; m[nitems].value=GameCfg.DigiVolume; m[nitems].min_value=0; m[nitems++].max_value=8; 
 		m[nitems].type = NM_TYPE_SLIDER; m[nitems].text="music volume"; m[nitems].value=GameCfg.MusicVolume; m[nitems].min_value=0; m[nitems++].max_value=8;
 		m[nitems].type = NM_TYPE_TEXT; m[nitems++].text="";
-		m[nitems].type = NM_TYPE_RADIO; m[nitems].text = "MIDI Music enabled (default)"; m[nitems].value = (!GameCfg.SndEnableRedbook && !GameCfg.JukeboxOn); m[nitems].group = 0; nitems++;
+		m[nitems].type = NM_TYPE_RADIO; m[nitems].text = "MIDI Music enabled"; m[nitems].value = (!GameCfg.SndEnableRedbook && !GameCfg.JukeboxOn); m[nitems].group = 0; nitems++;
 		m[nitems].type = NM_TYPE_RADIO;  m[nitems].text="CD Music enabled"; m[nitems].value=GameCfg.SndEnableRedbook; m[nitems].group = 0; nitems++;
 #ifdef USE_SDLMIXER
-		m[nitems].type = NM_TYPE_RADIO; m[nitems].text="jukebox enabled in game"; m[nitems].value=GameCfg.JukeboxOn; m[nitems].group = 0; nitems++;
+		m[nitems].type = NM_TYPE_RADIO; m[nitems].text="jukebox enabled"; m[nitems].value=GameCfg.JukeboxOn; m[nitems].group = 0; nitems++;
 		m[nitems].type = NM_TYPE_TEXT; m[nitems++].text="path to music for jukebox:";
 		m[nitems].type = NM_TYPE_INPUT; m[nitems].text = GameCfg.JukeboxPath; m[nitems++].text_len = NM_MAX_TEXT_LEN-1;
 #endif
@@ -753,15 +752,16 @@ void do_sound_menu()
 #endif
 			)
 		{
-			int restart_menu_music = GameCfg.SndEnableRedbook != m[4].value;
-
 			GameCfg.SndEnableRedbook = m[4].value;
 #ifdef USE_SDLMIXER
 			GameCfg.JukeboxOn = m[5].value;
 #endif
+			ext_music_stop();
+			ext_music_unload();
+			ext_music_select_system(GameCfg.JukeboxOn ? EXT_MUSIC_JUKEBOX : EXT_MUSIC_REDBOOK);
 			if (Function_mode == FMODE_GAME)
 				songs_play_level_song( Current_level_num );
-			else if (restart_menu_music)
+			else
 				songs_play_song(SONG_TITLE, 1);
 		}
 

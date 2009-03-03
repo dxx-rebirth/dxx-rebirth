@@ -42,6 +42,7 @@ static char rcsid[] = "$Id: credits.c,v 1.1.1.1 2006/03/17 19:44:11 zicodxx Exp 
 #include "screens.h"
 #include "digi.h"
 #include "cfile.h"
+#include "rbaudio.h"
 #include "songs.h"
 #include "text.h"
 #include "menu.h"
@@ -177,7 +178,7 @@ void credits_show(char *credits_filename)
 			timer_delay(F1_0/25);
 		
 			//see if redbook song needs to be restarted
-			songs_check_redbook_repeat();
+			RBACheckFinishedHook();
 			
 			k = key_inkey();
 

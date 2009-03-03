@@ -91,7 +91,6 @@ COPYRIGHT 1993-1998 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 #include "timer.h"
 #include "vers_id.h"
 #include "fvi.h"
-#include "jukebox.h"
 #include "console.h"
 #include "playsave.h"
 #include "config.h"
@@ -1276,7 +1275,7 @@ int do_game_pause()
 #endif
 
 	digi_pause_all();
-	RBAPause();
+	ext_music_pause();
 	stop_time();
 	game_flush_inputs();
 	gr_palette_load( gr_palette );
@@ -1325,8 +1324,8 @@ int do_game_pause()
 	game_flush_inputs();
 	reset_cockpit();
 	start_time();
-	if (GameCfg.SndEnableRedbook)
-		RBAResume();
+	if (EXT_MUSIC_ON)
+		ext_music_resume();
 	digi_resume_all();
 
 	return key;
@@ -1636,7 +1635,7 @@ void game()
 			GameLoop( 1, 1 );               // Do game loop with rendering and reading controls.
 
 			//see if redbook song needs to be restarted
-			songs_check_redbook_repeat();	// Handle RedBook Audio Repeating.
+			RBACheckFinishedHook();	// Handle RedBook Audio Repeating.
 			
 			if (Config_menu_flag)	{
 				if (!(Game_mode&GM_MULTI)) palette_save();
@@ -2303,23 +2302,20 @@ void HandleGameKey(int key)
 		 */
 		case KEY_ALTED + KEY_SHIFTED + KEY_F9:
 		KEY_MAC(case KEY_COMMAND+KEY_E:)
-			songs_stop_redbook();
-			RBAEjectDisk();
+			songs_stop_extmusic();
+			ext_music_eject_disk();
 			break;
 			
 		case KEY_ALTED + KEY_SHIFTED + KEY_F10:
 		KEY_MAC(case KEY_COMMAND+KEY_UP:)
 		KEY_MAC(case KEY_COMMAND+KEY_DOWN:)
-			if (GameCfg.SndEnableRedbook && !RBAPauseResume())
+			if (EXT_MUSIC_ON && !ext_music_pause_resume())
 			{
 				if (Function_mode == FMODE_GAME)
 					songs_play_level_song( Current_level_num );
 				else if (Function_mode == FMODE_MENU)
 					songs_play_song(SONG_TITLE, 1);
 			}
-#ifdef USE_SDLMIXER
-			jukebox_pause_resume();
-#endif
 			break;
 			
 		case KEY_MINUS + KEY_ALTED:

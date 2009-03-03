@@ -57,6 +57,7 @@ COPYRIGHT 1993-1998 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 #include "automap.h"
 #include "menu.h"
 #include "playsave.h"
+#include "rbaudio.h"
 
 #ifdef OGL
 #include "ogl_init.h"
@@ -811,7 +812,7 @@ int newmenu_do3_real( char * title, char * subtitle, int nitems, newmenu_item * 
 #endif
 
 		//see if redbook song needs to be restarted
-		songs_check_redbook_repeat();
+		RBACheckFinishedHook();
 		
 		k = key_inkey();
 
@@ -1642,7 +1643,7 @@ ReadFileNames:
 #endif
 
 		//see if redbook song needs to be restarted
-		songs_check_redbook_repeat();
+		RBACheckFinishedHook();
 		
 		key = key_inkey();
 
@@ -1982,7 +1983,7 @@ int newmenu_listbox1( char * title, int nitems, char * items[], int allow_abort_
 #endif
 
 		//see if redbook song needs to be restarted
-		songs_check_redbook_repeat();
+		RBACheckFinishedHook();
 		
 		key = key_inkey();
 

@@ -29,7 +29,7 @@ extern void RBAInit(void);
 extern void RBAExit();
 extern long RBAGetDeviceStatus(void);
 extern int RBAPlayTrack(int track);
-extern int RBAPlayTracks(int first, int last);	//plays tracks first through last, inclusive
+extern int RBAPlayTracks(int first, int last, void (*hook_finished)(void));	//plays tracks first through last, inclusive
 extern int RBACheckMediaChange();
 extern long	RBAGetHeadLoc(int *min, int *sec, int *frame);
 extern int	RBAPeekPlayStatus(void);
@@ -44,6 +44,7 @@ extern int	RBAEnabled(void);
 extern void RBADisable(void);
 extern void RBAEnable(void);
 extern int	RBAGetNumberOfTracks(void);
+extern void RBACheckFinishedHook();
 extern void	RBAPause();
 extern int	RBAResume();
 extern int	RBAPauseResume();
@@ -54,5 +55,8 @@ int RBAGetTrackNum();
 
 // get the cddb discid for the current cd.
 unsigned long RBAGetDiscID();
+
+// List the tracks on the CD
+void RBAList(void);
 
 #endif
