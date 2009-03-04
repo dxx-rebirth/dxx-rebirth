@@ -50,7 +50,7 @@ COPYRIGHT 1993-1999 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 #include "gamefont.h"
 #include "newmenu.h"
 #ifdef NETWORK
-#  include "network.h"
+#  include "net_ipx.h"
 #  include "netdrv.h"
 #  include "multi.h"
 #endif

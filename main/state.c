@@ -85,7 +85,7 @@ COPYRIGHT 1993-1999 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 #include "laser.h"
 #include "state.h"
 #ifdef NETWORK
-#include "network.h"
+#include "net_ipx.h"
 #endif
 #ifdef OGL
 #include "gr.h"

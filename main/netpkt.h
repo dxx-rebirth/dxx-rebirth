@@ -22,7 +22,7 @@ COPYRIGHT 1993-1999 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 #define _NETMISC_H
 
 #include "multi.h"
-#include "network.h"
+#include "net_ipx.h"
 
 // Returns a checksum of a block of memory.
 extern ushort netmisc_calc_checksum(void *vptr, int len);

@@ -113,7 +113,7 @@ ushort netmisc_calc_checksum(void * vptr, int len)
 
 #include "multi.h"
 #ifdef NETWORK
-#include "network.h"
+#include "net_ipx.h"
 #endif
 #include "object.h"
 #include "powerup.h"

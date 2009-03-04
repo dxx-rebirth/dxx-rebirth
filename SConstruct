@@ -135,10 +135,10 @@ common_sources = [
 'main/movie.c',
 'main/multi.c',
 'main/multibot.c',
+'main/net_ipx.c',
 'main/netdrv.c',
 'main/netdrv_udp.c',
 'main/netpkt.c',
-'main/network.c',
 'main/newdemo.c',
 'main/newmenu.c',
 'main/noloss.c',
@@ -241,8 +241,8 @@ editor_sources = [
 
 # for linux
 arch_linux_sources = [
-'arch/linux/netdrv_ipx.c',
-'arch/linux/netdrv_kali.c',
+'arch/linux/ipx.c',
+'arch/linux/ipx_kali.c',
 'arch/linux/ukali.c'
 ]
 
@@ -260,7 +260,7 @@ if (sdlmixer == 1):
 # for windows
 arch_win32_sources = [
 'arch/win32/hmpfile.c',
-'arch/win32/netdrv_ipx.c',
+'arch/win32/ipx.c',
 ]
 
 # for Mac OS X

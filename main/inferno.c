@@ -77,9 +77,6 @@ char copyright[] = "DESCENT II  COPYRIGHT (C) 1994-1996 PARALLAX SOFTWARE CORPOR
 #include "player.h"
 #include "text.h"
 #include "gauges.h"
-#ifdef NETWORK
-#include "network.h"
-#endif
 #include "gamefont.h"
 #include "kconfig.h"
 #include "mouse.h"

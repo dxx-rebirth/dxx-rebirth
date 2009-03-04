@@ -49,7 +49,6 @@ COPYRIGHT 1993-1999 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 #include "collide.h"
 #include "laser.h"
 #ifdef NETWORK
-#include "network.h"
 #include "multi.h"
 #endif
 #include "multibot.h"

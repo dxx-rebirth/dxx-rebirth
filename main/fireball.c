@@ -47,7 +47,7 @@ COPYRIGHT 1993-1999 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 #include "collide.h"
 #include "newmenu.h"
 #ifdef NETWORK
-#include "network.h"
+#include "net_ipx.h"
 #endif
 #include "gameseq.h"
 #include "physics.h"

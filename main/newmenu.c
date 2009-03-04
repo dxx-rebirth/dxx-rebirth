@@ -51,9 +51,6 @@ COPYRIGHT 1993-1999 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 #include "newmenu.h"
 #include "gamefont.h"
 #include "gamepal.h"
-#ifdef NETWORK
-#include "network.h"
-#endif
 #include "iff.h"
 #include "pcx.h"
 #include "u_mem.h"

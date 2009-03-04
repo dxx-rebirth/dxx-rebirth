@@ -62,9 +62,6 @@ COPYRIGHT 1993-1999 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 #include "newdemo.h"
 #include "player.h"
 #include "weapon.h"
-#ifdef NETWORK
-#include "network.h"
-#endif
 #include "newmenu.h"
 #include "gauges.h"
 #include "multi.h"

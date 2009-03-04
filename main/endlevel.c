@@ -61,7 +61,7 @@ COPYRIGHT 1993-1999 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 #include "vclip.h"
 #include "fireball.h"
 #ifdef NETWORK
-#include "network.h"
+#include "net_ipx.h"
 #endif
 #include "text.h"
 #include "digi.h"

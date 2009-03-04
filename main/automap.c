@@ -58,7 +58,6 @@ COPYRIGHT 1993-1999 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 #include "gamefont.h"
 #ifdef NETWORK
 #include "multi.h"
-#include "network.h"
 #endif
 #include "kconfig.h"
 #include "endlevel.h"

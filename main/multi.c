@@ -30,7 +30,7 @@ COPYRIGHT 1993-1999 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 #include "u_mem.h"
 #include "strutil.h"
 #include "game.h"
-#include "network.h"
+#include "net_ipx.h"
 #include "multi.h"
 #include "object.h"
 #include "laser.h"

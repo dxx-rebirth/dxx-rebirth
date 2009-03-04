@@ -55,7 +55,6 @@ COPYRIGHT 1993-1999 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 #include "multibot.h"
 #ifdef NETWORK
 #include "multi.h"
-#include "network.h"
 #endif
 #include "gameseq.h"
 #include "key.h"

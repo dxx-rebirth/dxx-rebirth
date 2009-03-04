@@ -43,9 +43,6 @@ COPYRIGHT 1993-1999 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 #include "endlevel.h"
 #include "gameseq.h"
 #include "multi.h"
-#ifdef NETWORK
-#include "network.h"
-#endif
 #include "palette.h"
 #include "robot.h"
 #include "bm.h"

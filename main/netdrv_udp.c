@@ -26,7 +26,7 @@
 #include "console.h"
 #include "error.h"
 #include "netdrv.h"
-#include "network.h"
+#include "net_ipx.h"
 #include "timer.h"
 #include "netdrv_udp.h"
 #include "key.h"

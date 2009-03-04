@@ -50,7 +50,7 @@ COPYRIGHT 1993-1999 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 #include "kmatrix.h"
 #include "gauges.h"
 #include "pcx.h"
-#include "network.h"
+#include "net_ipx.h"
 
 #ifdef OGL
 #include "ogl_init.h"

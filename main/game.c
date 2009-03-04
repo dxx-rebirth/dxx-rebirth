@@ -75,9 +75,6 @@ COPYRIGHT 1993-1999 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 #include "powerup.h"
 #include "fireball.h"
 #include "newmenu.h"
-#ifdef NETWORK
-#include "network.h"
-#endif
 #include "gamefont.h"
 #include "endlevel.h"
 #include "kconfig.h"

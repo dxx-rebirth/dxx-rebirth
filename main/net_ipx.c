@@ -42,7 +42,7 @@ COPYRIGHT 1993-1999 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 #include "player.h"
 #include "gameseq.h"
 #include "fireball.h"
-#include "network.h"
+#include "net_ipx.h"
 #include "game.h"
 #include "multi.h"
 #include "endlevel.h"

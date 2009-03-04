@@ -29,7 +29,7 @@ COPYRIGHT 1993-1999 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 #include "object.h"
 #include "multibot.h"
 #include "game.h"
-#include "network.h"
+#include "net_ipx.h"
 #include "multi.h"
 #include "laser.h"
 #include "error.h"

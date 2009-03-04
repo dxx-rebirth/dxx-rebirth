@@ -55,9 +55,6 @@ COPYRIGHT 1993-1999 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 #include "player.h"
 #include "gauges.h"
 #include "powerup.h"
-#ifdef NETWORK
-#include "network.h"
-#endif
 #include "newmenu.h"
 #include "scores.h"
 #include "effects.h"

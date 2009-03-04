@@ -37,7 +37,7 @@ COPYRIGHT 1993-1998 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 #include "config.h"
 #include "args.h"
 #include "text.h"
-#include "network.h"
+#include "net_ipx.h"
 #include "console.h"
 #include "netdrv.h"
 #include "checker.h"
