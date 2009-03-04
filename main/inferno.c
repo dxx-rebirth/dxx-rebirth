@@ -87,7 +87,6 @@ static char *__reference[2]={copyright,(char *)__reference};
 #include "args.h"
 #include "titles.h"
 #include "text.h"
-#include "network.h"
 #include "gamefont.h"
 #include "kconfig.h"
 #include "newmenu.h"

@@ -54,7 +54,6 @@ static char rcsid[] = "$Id: collide.c,v 1.1.1.1 2006/03/17 19:41:32 zicodxx Exp 
 #include "player.h"
 #include "gauges.h"
 #include "powerup.h"
-#include "network.h"
 #include "newmenu.h"
 #include "scores.h"
 #include "effects.h"

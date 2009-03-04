@@ -3,7 +3,7 @@
 
 #include "byteswap.h"
 #include "netdrv.h"
-#include "network.h"
+#include "net_ipx.h"
 
 //Returns a checksum of a block of memory.
 extern ushort netmisc_calc_checksum( void * vptr, int len );

@@ -45,7 +45,6 @@ COPYRIGHT 1993-1998 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 #include "player.h"
 #include "collide.h"
 #include "laser.h"
-#include "network.h"
 #include "multi.h"
 #include "multibot.h"
 

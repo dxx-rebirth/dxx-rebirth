@@ -72,7 +72,6 @@ COPYRIGHT 1993-1998 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 #include "gamefont.h"
 #include "newmenu.h"
 #include "endlevel.h"
-#include "network.h"
 #include "playsave.h"
 #include "ctype.h"
 #include "multi.h"

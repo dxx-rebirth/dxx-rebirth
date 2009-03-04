@@ -39,7 +39,6 @@ COPYRIGHT 1993-1998 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 #include "text.h"
 #include "state.h"
 #include "u_mem.h"
-#include "network.h"
 #include "strutil.h"
 #include "strio.h"
 #include "vers_id.h"
@@ -547,7 +546,7 @@ int write_player_d1x(char *filename)
 		PHYSFSX_printf(fout,"oglreticle=%i\n",PlayerCfg.OglReticle);
 		PHYSFSX_printf(fout,"[end]\n");
 		PHYSFSX_printf(fout,"[plx version]\n");
-		PHYSFSX_printf(fout,"plx version=%s\n",D1X_VERSION);
+		PHYSFSX_printf(fout,"plx version=%s\n",VERSION);
 		PHYSFSX_printf(fout,"[end]\n");
 		PHYSFSX_printf(fout,"[end]\n");
 	

@@ -52,7 +52,7 @@ COPYRIGHT 1993-1998 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 #include "multi.h"
 #include "vclip.h"
 #include "fireball.h"
-#include "network.h"
+#include "net_ipx.h"
 #include "text.h"
 #include "digi.h"
 #include "cfile.h"

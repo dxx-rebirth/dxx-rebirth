@@ -40,7 +40,6 @@ COPYRIGHT 1993-1998 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 #include "newdemo.h"
 #include "newmenu.h"
 #include "gamefont.h"
-#include "network.h"
 #include "iff.h"
 #include "pcx.h"
 #include "u_mem.h"

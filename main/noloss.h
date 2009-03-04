@@ -5,7 +5,7 @@
 #include "strutil.h"
 #include "pstypes.h"
 #include "netpkt.h"
-#include "network.h"
+#include "net_ipx.h"
 #include "game.h"
 #include "multi.h"
 #include "netpkt.h"

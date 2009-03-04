@@ -39,7 +39,6 @@ COPYRIGHT 1993-1998 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 #include "powerup.h"
 #include "sounds.h"
 #include "multi.h"
-#include "network.h"
 #include "endlevel.h"
 #include "wall.h"
 #include "text.h"

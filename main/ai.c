@@ -49,7 +49,6 @@ COPYRIGHT 1993-1998 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 #include "cntrlcen.h"
 #include "multibot.h"
 #include "multi.h"
-#include "network.h"
 #include "gameseq.h"
 #include "key.h"
 #include "powerup.h"

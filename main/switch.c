@@ -41,7 +41,7 @@ COPYRIGHT 1993-1998 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 #include "endlevel.h"
 #include "gameseq.h"
 #include "multi.h"
-#include "network.h"
+#include "net_ipx.h"
 #include "palette.h"
 
 trigger Triggers[MAX_TRIGGERS];

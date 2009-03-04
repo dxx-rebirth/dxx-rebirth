@@ -50,7 +50,7 @@ COPYRIGHT 1993-1998 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 #include "text.h"
 #include "gamefont.h"
 #include "newmenu.h"
-#include "network.h"
+#include "net_ipx.h"
 #include "scores.h"
 #include "playsave.h"
 #include "multi.h"
