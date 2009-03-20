@@ -14,14 +14,8 @@ COPYRIGHT 1993-1998 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 /*
  *
  * IPX-based driver interface
+ * This is the main interface to send packets via arch-dependend IPX-code layers.
  *
- */
-
-/*
- * This is the main interface to send packets via different protocols
- * It still uses IPX-style address information.
- * Should insure maximum compability to old versions/games and isn't worse than any other way to store addresses in an *universal method*.
- * Mapping actual addresses has to be done by the protocol code.
  */
 
 #include <stdlib.h>
@@ -39,13 +33,13 @@ COPYRIGHT 1993-1998 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 #include "text.h"
 #include "net_ipx.h"
 #include "console.h"
-#include "netdrv.h"
+#include "ipxdrv.h"
 #include "checker.h"
 
 ubyte broadcast_addr[] = { 0xff, 0xff, 0xff, 0xff, 0xff, 0xff };
 ubyte null_addr[] = { 0x00, 0x00, 0x00, 0x00, 0x00, 0x00 };
 
-ubyte netdrv_installed=0;
+ubyte ipxdrv_installed=0;
 u_int32_t ipx_network = 0;
 ubyte MyAddress[10];
 int ipx_packetnum = 0;			/* Sequence number */
@@ -65,7 +59,7 @@ user_address Ipx_users[MAX_USERS];
 int Ipx_num_networks = 0;
 uint Ipx_networks[MAX_NETWORKS];
 
-int netdrv_general_packet_ready(int fd)
+int ipxdrv_general_packet_ready(int fd)
 {
 	fd_set set;
 	struct timeval tv;
@@ -81,19 +75,19 @@ int netdrv_general_packet_ready(int fd)
 
 struct net_driver *driver = NULL;
 
-ubyte * netdrv_get_my_server_address()
+ubyte * ipxdrv_get_my_server_address()
 {
 	return (ubyte *)&ipx_network;
 }
 
-ubyte * netdrv_get_my_local_address()
+ubyte * ipxdrv_get_my_local_address()
 {
 	return (ubyte *)(MyAddress + 4);
 }
 
-void netdrv_close()
+void ipxdrv_close()
 {
-	if (netdrv_installed)
+	if (ipxdrv_installed)
 	{
 #ifdef _WIN32
 		WSACleanup();
@@ -101,7 +95,7 @@ void netdrv_close()
 		driver->close_socket(&socket_data);
 	}
 
-	netdrv_installed = 0;
+	ipxdrv_installed = 0;
 }
 
 //---------------------------------------------------------------
@@ -113,7 +107,7 @@ void netdrv_close()
 //		-3 if driver not installed.
 //		-4 if couldn't allocate low dos memory
 //		-5 if error with getting internetwork address
-int netdrv_init( int socket_number )
+int ipxdrv_init( int socket_number )
 {
 	static int cleanup = 0;
 #ifdef _WIN32
@@ -150,20 +144,20 @@ int netdrv_init( int socket_number )
 	Ipx_num_networks = 0;
 	memcpy( &Ipx_networks[Ipx_num_networks++], &ipx_network, 4 );
 
-	netdrv_installed = 1;
+	ipxdrv_installed = 1;
 
 	if (!cleanup)
-		atexit(netdrv_close);
+		atexit(ipxdrv_close);
 	cleanup = 1;
 
 	return 0;
 }
 
-int netdrv_set(int arg)
+int ipxdrv_set(int arg)
 {
-	int netdrv_err;
+	int ipxdrv_err;
 
-	netdrv_close();
+	ipxdrv_close();
 
 	con_printf(CON_VERBOSE, "\n%s ", TXT_INITIALIZING_NETWORK);
 
@@ -171,30 +165,27 @@ int netdrv_set(int arg)
 	{
 #ifndef __APPLE__
 		case NETPROTO_IPX:
-			driver = &netdrv_ipx;
+			driver = &ipxdrv_ipx;
 			break;
 #endif
 #ifdef __LINUX__
 		case NETPROTO_KALINIX:
-			driver = &netdrv_kali;
+			driver = &ipxdrv_kali;
 			break;
 #endif
-		case NETPROTO_UDP:
-			driver = &netdrv_udp;
-			break;
 		default:
 			driver = NULL;
 			break;
 	}
 
-	if ((netdrv_err=netdrv_init(IPX_DEFAULT_SOCKET))==0)
+	if ((ipxdrv_err=ipxdrv_init(IPX_DEFAULT_SOCKET))==0)
 	{
 		con_printf(CON_VERBOSE, "%s %d.\n", TXT_IPX_CHANNEL, IPX_DEFAULT_SOCKET );
 		Network_active = 1;
 	}
 	else
 	{
-		switch (netdrv_err)
+		switch (ipxdrv_err)
 		{
 			case 3:
 				con_printf(CON_VERBOSE, "%s\n", TXT_NO_NETWORK);
@@ -206,7 +197,7 @@ int netdrv_set(int arg)
 				con_printf(CON_VERBOSE, "%s\n", TXT_MEMORY_IPX );
 				break;
 			default:
-				con_printf(CON_VERBOSE, "%s %d", TXT_ERROR_IPX, netdrv_err );
+				con_printf(CON_VERBOSE, "%s %d", TXT_ERROR_IPX, ipxdrv_err );
 				break;
 		}
 
@@ -214,10 +205,10 @@ int netdrv_set(int arg)
 		Network_active = 0;		// Assume no network
 	}
 
-	return netdrv_installed?0:-1;
+	return ipxdrv_installed?0:-1;
 }
 
-int netdrv_get_packet_data( ubyte * data )
+int ipxdrv_get_packet_data( ubyte * data )
 {
 	struct recv_data rd;
 	char *buf;
@@ -253,11 +244,11 @@ int netdrv_get_packet_data( ubyte * data )
 	return 0;
 }
 
-void netdrv_send_packet_data( ubyte * data, int datasize, ubyte *network, ubyte *address, ubyte *immediate_address )
+void ipxdrv_send_packet_data( ubyte * data, int datasize, ubyte *network, ubyte *address, ubyte *immediate_address )
 {
 	IPXPacket_t ipx_header;
 
-	if (!netdrv_installed)
+	if (!ipxdrv_installed)
 		return;
 
 	memcpy(ipx_header.Destination.Network, network, 4);
@@ -276,17 +267,17 @@ void netdrv_send_packet_data( ubyte * data, int datasize, ubyte *network, ubyte 
 		driver->send_packet(&socket_data, &ipx_header, data, datasize);//we can save 4 bytes
 }
 
-void netdrv_get_local_target( ubyte * server, ubyte * node, ubyte * local_target )
+void ipxdrv_get_local_target( ubyte * server, ubyte * node, ubyte * local_target )
 {
 	memcpy( local_target, node, 6 );
 }
 
-void netdrv_send_broadcast_packet_data( ubyte * data, int datasize )	
+void ipxdrv_send_broadcast_packet_data( ubyte * data, int datasize )	
 {
 	int i, j;
 	ubyte local_address[6];
 
-	if (!netdrv_installed)
+	if (!ipxdrv_installed)
 		return;
 
 	// Set to all networks besides mine
@@ -294,12 +285,12 @@ void netdrv_send_broadcast_packet_data( ubyte * data, int datasize )
 	{
 		if ( memcmp( &Ipx_networks[i], &ipx_network, 4 ) )
 		{
-			netdrv_get_local_target( (ubyte *)&Ipx_networks[i], broadcast_addr, local_address );
-			netdrv_send_packet_data( data, datasize, (ubyte *)&Ipx_networks[i], broadcast_addr, local_address );
+			ipxdrv_get_local_target( (ubyte *)&Ipx_networks[i], broadcast_addr, local_address );
+			ipxdrv_send_packet_data( data, datasize, (ubyte *)&Ipx_networks[i], broadcast_addr, local_address );
 		}
 		else
 		{
-			netdrv_send_packet_data( data, datasize, (ubyte *)&Ipx_networks[i], broadcast_addr, broadcast_addr );
+			ipxdrv_send_packet_data( data, datasize, (ubyte *)&Ipx_networks[i], broadcast_addr, broadcast_addr );
 		}
 	}
 
@@ -314,7 +305,7 @@ void netdrv_send_broadcast_packet_data( ubyte * data, int datasize )
 					goto SkipUser;
 			}
 
-			netdrv_send_packet_data( data, datasize, Ipx_users[i].network, Ipx_users[i].node, Ipx_users[i].address );
+			ipxdrv_send_packet_data( data, datasize, Ipx_users[i].network, Ipx_users[i].node, Ipx_users[i].address );
 SkipUser:
 			j = 0;
 		}
@@ -322,11 +313,11 @@ SkipUser:
 }
 
 // Sends a non-localized packet... needs 4 byte server, 6 byte address
-void netdrv_send_internetwork_packet_data( ubyte * data, int datasize, ubyte * server, ubyte *address )
+void ipxdrv_send_internetwork_packet_data( ubyte * data, int datasize, ubyte * server, ubyte *address )
 {
 	ubyte local_address[6];
 
-	if (!netdrv_installed)
+	if (!ipxdrv_installed)
 		return;
 
 #ifdef WORDS_NEED_ALIGNMENT
@@ -336,19 +327,19 @@ void netdrv_send_internetwork_packet_data( ubyte * data, int datasize, ubyte * s
 	if ((*(uint *)server) != 0)
 #endif // WORDS_NEED_ALIGNMENT
 	{
-		netdrv_get_local_target( server, address, local_address );
-		netdrv_send_packet_data( data, datasize, server, address, local_address );
+		ipxdrv_get_local_target( server, address, local_address );
+		ipxdrv_send_packet_data( data, datasize, server, address, local_address );
 	}
 	else
 	{
 		// Old method, no server info.
-		netdrv_send_packet_data( data, datasize, server, address, address );
+		ipxdrv_send_packet_data( data, datasize, server, address, address );
 	}
 }
 
-int netdrv_change_default_socket( ushort socket_number )
+int ipxdrv_change_default_socket( ushort socket_number )
 {
-	if ( !netdrv_installed )
+	if ( !ipxdrv_installed )
 		return -3;
 
 	driver->close_socket(&socket_data);
@@ -362,7 +353,7 @@ int netdrv_change_default_socket( ushort socket_number )
 }
 
 // Return type of net_driver
-int netdrv_type(void)
+int ipxdrv_type(void)
 {
 	return driver->type;
 }

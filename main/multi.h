@@ -21,12 +21,34 @@ COPYRIGHT 1993-1999 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 #ifndef _MULTI_H
 #define _MULTI_H
 
-#define MAX_MESSAGE_LEN 35
+#ifdef _WIN32
+	#include <winsock.h>
+	#include <io.h>
+#else
+	#include <sys/socket.h>
+	#include <netinet/in.h>
+	#include <netdb.h>
+	#include <arpa/inet.h>
+	#include <unistd.h>
+	#include <sys/time.h>
+#endif
+
+#ifdef IPv6
+	#define _sockaddr sockaddr_in6
+	#define _af AF_INET6
+	#define _pf PF_INET6
+#else
+	#define _sockaddr sockaddr_in
+	#define _af AF_INET
+	#define _pf PF_INET
+#endif
 
 // Defines
 #include "gameseq.h"
 #include "piggy.h"
 #include "vers_id.h"
+
+#define MAX_MESSAGE_LEN 35
 
 // What version of the multiplayer protocol is this?
 
@@ -120,6 +142,53 @@ COPYRIGHT 1993-1999 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 
 #define MAX_MULTI_MESSAGE_LEN   120
 
+#define NETSTAT_MENU                0
+#define NETSTAT_PLAYING             1
+#define NETSTAT_BROWSING            2
+#define NETSTAT_WAITING             3
+#define NETSTAT_STARTING            4
+#define NETSTAT_ENDLEVEL            5
+
+#define CONNECT_DISCONNECTED        0
+#define CONNECT_PLAYING             1
+#define CONNECT_WAITING             2
+#define CONNECT_DIED_IN_MINE        3
+#define CONNECT_FOUND_SECRET        4
+#define CONNECT_ESCAPE_TUNNEL       5
+#define CONNECT_END_MENU            6
+#define CONNECT_KMATRIX_WAITING     7 // Like CONNECT_WAITING but used especially in kmatrix.c to seperate "escaped" and "waiting"
+
+// Bitmask for netgame_info->AllowedItems to set allowed items in Netgame
+#define NETFLAG_DOLASER   		1
+#define NETFLAG_DOSUPERLASER	2
+#define NETFLAG_DOQUAD    		4
+#define NETFLAG_DOVULCAN		8
+#define NETFLAG_DOGAUSS			16
+#define NETFLAG_DOSPREAD		32
+#define NETFLAG_DOHELIX			64
+#define NETFLAG_DOPLASMA		128
+#define NETFLAG_DOPHOENIX		256
+#define NETFLAG_DOFUSION		512
+#define NETFLAG_DOOMEGA			1024
+#define NETFLAG_DOFLASH			2048
+#define NETFLAG_DOHOMING		4096
+#define NETFLAG_DOGUIDED		8192
+#define NETFLAG_DOPROXIM		16384
+#define NETFLAG_DOSMARTMINE		32768
+#define NETFLAG_DOSMART			65536
+#define NETFLAG_DOMERCURY		131072
+#define NETFLAG_DOMEGA			262144
+#define NETFLAG_DOSHAKER		524288
+#define NETFLAG_DOCLOAK			1048576
+#define NETFLAG_DOINVUL			2097152
+#define NETFLAG_DOAFTERBURNER	4194304
+#define NETFLAG_DOAMMORACK		8388608
+#define NETFLAG_DOCONVERTER		16777216
+#define NETFLAG_DOHEADLIGHT		33554432
+#define NETFLAG_DOPOWERUP		67108863  // mask for all powerup flags
+
+#define MULTI_ALLOW_POWERUP_MAX 26
+extern char *multi_allow_powerup_text[MULTI_ALLOW_POWERUP_MAX];
 
 // Exported functions
 
@@ -131,6 +200,7 @@ void reset_network_objects();
 
 void multi_init_objects(void);
 void multi_show_player_list(void);
+void multi_do_protocol_frame(int force, int listen);
 void multi_do_frame(void);
 
 
@@ -189,10 +259,13 @@ int get_team(int pnum);
 
 
 extern int Network_active;
+extern int Network_status;
 extern int Network_laser_gun;
 extern int Network_laser_fired;
 extern int Network_laser_level;
 extern int Network_laser_flags;
+extern int Network_rejoined;
+extern int Network_new_game;
 
 extern int message_length[MULTI_MAX_TYPE+1];
 extern char multibuf[MAX_MULTI_MESSAGE_LEN+4];
@@ -207,6 +280,8 @@ extern short kill_matrix[MAX_NUM_NET_PLAYERS][MAX_NUM_NET_PLAYERS];
 extern short team_kills[2];
 
 extern int multi_goto_secret;
+
+extern ushort my_segments_checksum;
 
 //do we draw the kill list on the HUD?
 extern int Show_kill_list;
@@ -250,158 +325,6 @@ extern bitmap_index multi_player_textures[MAX_NUM_NET_PLAYERS][N_PLAYER_SHIP_TEX
 #define NETGAME_NAME_LEN                15
 #define NETGAME_AUX_SIZE                20  // Amount of extra data for the network protocol to store in the netgame packet
 
-enum comp_type {DOS,WIN_32,WIN_95,MAC} __pack__ ;
-
-// sigh...the socket structure member was moved away from it's friends.
-// I'll have to create a union for appletalk network info with just
-// the server and node members since I cannot change the order ot these
-// members.
-
-typedef struct netplayer_info {
-	char    callsign[CALLSIGN_LEN+1];
-	union {
-		struct {
-			ubyte   server[4];
-			ubyte   node[6];
-		} ipx;
-		struct {
-			ushort  net;
-			ubyte   node;
-			ubyte   socket;
-		} appletalk;
-	} network;
-
-	ubyte   version_major;
-	ubyte   version_minor;
-	enum comp_type computer_type;
-	sbyte    connected;
-
-	ushort  socket;
-
-	ubyte   rank;
-
-} __pack__ netplayer_info;
-
-typedef struct AllNetPlayers_info
-{
-	char    type;
-	int     Security;
-	struct netplayer_info players[MAX_PLAYERS+4];
-} __pack__ AllNetPlayers_info;
-
-typedef struct netgame_info {
-	ubyte   type;
-	int     Security;
-	char    game_name[NETGAME_NAME_LEN+1];
-	char    mission_title[MISSION_NAME_LEN+1];
-	char    mission_name[9];
-	int     levelnum;
-	ubyte   gamemode;
-	ubyte   RefusePlayers;
-	ubyte   difficulty;
-	ubyte   game_status;
-	ubyte   numplayers;
-	ubyte   max_numplayers;
-	ubyte   numconnected;
-	ubyte   game_flags;
-	ubyte   protocol_version;
-	ubyte   version_major;
-	ubyte   version_minor;
-	ubyte   team_vector;
-
-// change the order of the bit fields for the mac compiler.
-// doing so will mean I don't have to do screwy things to
-// send this as network information
-
-#ifndef WORDS_BIGENDIAN
-	short DoMegas:1;
-	short DoSmarts:1;
-	short DoFusions:1;
-	short DoHelix:1;
-	short DoPhoenix:1;
-	short DoAfterburner:1;
-	short DoInvulnerability:1;
-	short DoCloak:1;
-	short DoGauss:1;
-	short DoVulcan:1;
-	short DoPlasma:1;
-	short DoOmega:1;
-	short DoSuperLaser:1;
-	short DoProximity:1;
-	short DoSpread:1;
-	short DoSmartMine:1;
-	short DoFlash:1;
-	short DoGuided:1;
-	short DoEarthShaker:1;
-	short DoMercury:1;
-	short Allow_marker_view:1;
-	short AlwaysLighting:1;
-	short DoAmmoRack:1;
-	short DoConverter:1;
-	short DoHeadlight:1;
-	short DoHoming:1;
-	short DoLaserUpgrade:1;
-	short DoQuadLasers:1;
-	short ShowAllNames:1;
-	short BrightPlayers:1;
-	short invul:1;
-	short bitfield_not_used2:1;
-#else
-	short DoSmartMine:1;
-	short DoSpread:1;
-	short DoProximity:1;
-	short DoSuperLaser:1;
-	short DoOmega:1;
-	short DoPlasma:1;
-	short DoVulcan:1;
-	short DoGauss:1;
-	short DoCloak:1;
-	short DoInvulnerability:1;
-	short DoAfterburner:1;
-	short DoPhoenix:1;
-	short DoHelix:1;
-	short DoFusions:1;
-	short DoSmarts:1;
-	short DoMegas:1;
-
-	short bitfield_not_used2:1;
-	short invul:1;
-	short BrightPlayers:1;
-	short ShowAllNames:1;
-	short DoQuadLasers:1;
-	short DoLaserUpgrade:1;
-	short DoHoming:1;
-	short DoHeadlight:1;
-	short DoConverter:1;
-	short DoAmmoRack:1;
-	short AlwaysLighting:1;
-	short Allow_marker_view:1;
-	short DoMercury:1;
-	short DoEarthShaker:1;
-	short DoGuided:1;
-	short DoFlash:1;
-#endif
-
-	char    team_name[2][CALLSIGN_LEN+1];
-	int     locations[MAX_PLAYERS];
-	short   kills[MAX_PLAYERS][MAX_PLAYERS];
-	ushort  segments_checksum;
-	short   team_kills[2];
-	short   killed[MAX_PLAYERS];
-	short   player_kills[MAX_PLAYERS];
-	int     KillGoal;
-	fix     PlayTimeAllowed;
-	fix     level_time;
-	int     control_invul_time;
-	int     monitor_vector;
-	int     player_score[MAX_PLAYERS];
-	ubyte   player_flags[MAX_PLAYERS];
-	short   PacketsPerSec;
-	ubyte   ShortPackets;
-	ubyte   AuxData[NETGAME_AUX_SIZE];  // Storage for protocol-specific data (e.g., multicast session and port)
-
-} __pack__ netgame_info;
-
 extern struct netgame_info Netgame;
 extern struct AllNetPlayers_info NetPlayers;
 
@@ -415,5 +338,111 @@ void change_playernum_to(int new_pnum);
 #ifdef EDITOR
 void save_hoard_data(void);
 #endif
+
+
+enum comp_type {DOS,WIN_32,WIN_95,MAC} __pack__ ;
+
+/*
+ * The Network Players structure
+ * Contains both IPX- and UDP-specific data with designated prefixes and general player-related data.
+ * Note that not all of these infos will be sent to other users - some are used and/or set locally, only.
+ * Even if some variables are not UDP-specific, they might be used in IPX as well to maintain backwards compability.
+ */
+typedef struct netplayer_info
+{
+	union
+	{
+		struct
+		{
+			ubyte				server[4];
+			ubyte				node[6];
+			ushort				socket;
+			enum comp_type		computer_type;
+		} ipx;
+		struct
+		{
+			struct _sockaddr	addr; // IP address of this peer
+			int					valid; // 1 = client connected / 2 = client ready for handshaking / 3 = client done with handshake and fully joined / 0 between clients = no connection -> relay
+			fix					timestamp; // time of received packet - used for timeout
+			char				hs_list[MAX_PLAYERS+4]; // list to store all handshake results for this player from already connected clients
+			int					hstimeout; // counts the number of tries the client tried to connect - if reached 10, client put to relay if allowed
+			int					relay; // relay packets by/to this clients over host
+		} udp;
+	} protocol;	
+
+	char						callsign[CALLSIGN_LEN+1];
+	ubyte						version_major;
+	ubyte						version_minor;
+	sbyte						connected;
+	ubyte						rank;
+	int							ping;
+} __pack__ netplayer_info;
+
+/*
+ * The Network Game structure
+ * Contains both IPX- and UDP-specific data with designated prefixes and general game-related data.
+ * Note that not all of these infos will be sent to clients - some are used and/or set locally, only.
+ * Even if some variables are not UDP-specific, they might be used in IPX as well to maintain backwards compability.
+ */
+typedef struct netgame_info
+{
+	union
+	{
+		struct
+		{
+			ubyte				Game_pkt_type;
+			int     			Game_Security;
+			ubyte				Player_pkt_type;
+			int					Player_Security;
+			ubyte   			protocol_version;
+			ubyte   			ShortPackets;
+		} ipx;
+		struct
+		{
+			struct _sockaddr	addr; // IP address of this netgame's host
+			int					program_iver; // IVER of program for version checking
+		} udp;
+	} protocol;	
+
+	ubyte			   			version_major; // Game content data version major
+	ubyte   					version_minor; // Game content data version minor
+	struct netplayer_info 		players[MAX_PLAYERS+4];
+	char    					game_name[NETGAME_NAME_LEN+1];
+	char    					mission_title[MISSION_NAME_LEN+1];
+	char    					mission_name[9];
+	int     					levelnum;
+	ubyte   					gamemode;
+	ubyte   					RefusePlayers;
+	ubyte   					difficulty;
+	ubyte   					game_status;
+	ubyte   					numplayers;
+	ubyte   					max_numplayers;
+	ubyte   					numconnected;
+	ubyte   					game_flags;
+	ubyte   					team_vector;
+	u_int32_t					AllowedItems;
+	short						Allow_marker_view:1;
+	short						AlwaysLighting:1;
+	short						ShowAllNames:1;
+	short						BrightPlayers:1;
+	short						InvulAppear:1;
+	char						team_name[2][CALLSIGN_LEN+1];
+	int							locations[MAX_PLAYERS];
+	short						kills[MAX_PLAYERS][MAX_PLAYERS];
+	ushort						segments_checksum;
+	short						team_kills[2];
+	short						killed[MAX_PLAYERS];
+	short						player_kills[MAX_PLAYERS];
+	int							KillGoal;
+	fix							PlayTimeAllowed;
+	fix							level_time;
+	int							control_invul_time;
+	int							monitor_vector;
+	int							player_score[MAX_PLAYERS];
+	ubyte						player_flags[MAX_PLAYERS];
+	short						PacketsPerSec;
+	ubyte						PacketLossPrevention;
+} __pack__ netgame_info;
+
 
 #endif /* _MULTI_H */

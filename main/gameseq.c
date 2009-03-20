@@ -79,7 +79,6 @@ COPYRIGHT 1993-1999 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 #include "endlevel.h"
 #ifdef NETWORK
 #  include "multi.h"
-#  include "netpkt.h"
 #endif
 #include "playsave.h"
 #include "ctype.h"
@@ -241,7 +240,7 @@ gameseq_init_network_players()
  	if (is_D2_OEM && (Game_mode & GM_MULTI) && PLAYING_BUILTIN_MISSION && Current_level_num==8)
 	 {
 	  for (i=0;i<N_players;i++)
-		 if (Players[i].connected && !(NetPlayers.players[i].version_minor & 0xF0))
+		 if (Players[i].connected && !(Netgame.players[i].version_minor & 0xF0))
 			{
 	       nm_messagebox ("Warning!",1,TXT_OK,"This special version of Descent II\nwill disconnect after this level.\nPlease purchase the full version\nto experience all the levels!");	
 			 return;
@@ -251,7 +250,7 @@ gameseq_init_network_players()
  	if (is_MAC_SHARE && (Game_mode & GM_MULTI) && PLAYING_BUILTIN_MISSION && Current_level_num == 4)
 	{
 		for (i = 0; i < N_players; i++)
-			if (Players[i].connected && !(NetPlayers.players[i].version_minor & 0xF0))
+			if (Players[i].connected && !(Netgame.players[i].version_minor & 0xF0))
 			{
 				nm_messagebox ("Warning!", 1 ,TXT_OK, "This shareware version of Descent II\nwill disconnect after this level.\nPlease purchase the full version\nto experience all the levels!");
 				return;
@@ -712,6 +711,109 @@ do_menu_again:
 
 	return 1;
 }
+
+
+#ifdef WORDS_BIGENDIAN
+
+#include "byteswap.h"
+#include "segment.h"
+#include "gameseg.h"
+
+// routine to calculate the checksum of the segments.  We add these specialized routines
+// since the current way is byte order dependent.
+
+void mac_do_checksum_calc(ubyte *b, int len, unsigned int *s1, unsigned int *s2)
+{
+
+	while(len--) {
+		*s1 += *b++;
+		if (*s1 >= 255) *s1 -= 255;
+		*s2 += *s1;
+	}
+}
+
+ushort mac_calc_segment_checksum()
+{
+	int i, j, k;
+	unsigned int sum1,sum2;
+	short s;
+	int t;
+
+	sum1 = sum2 = 0;
+	for (i = 0; i < Highest_segment_index + 1; i++) {
+		for (j = 0; j < MAX_SIDES_PER_SEGMENT; j++) {
+			mac_do_checksum_calc((unsigned char *)&(Segments[i].sides[j].type), 1, &sum1, &sum2);
+			mac_do_checksum_calc(&(Segments[i].sides[j].pad), 1, &sum1, &sum2);
+			s = INTEL_SHORT(Segments[i].sides[j].wall_num);
+			mac_do_checksum_calc((ubyte *)&s, 2, &sum1, &sum2);
+			s = INTEL_SHORT(Segments[i].sides[j].tmap_num);
+			mac_do_checksum_calc((ubyte *)&s, 2, &sum1, &sum2);
+			s = INTEL_SHORT(Segments[i].sides[j].tmap_num2);
+			mac_do_checksum_calc((ubyte *)&s, 2, &sum1, &sum2);
+			for (k = 0; k < 4; k++) {
+				t = INTEL_INT(((int)Segments[i].sides[j].uvls[k].u));
+				mac_do_checksum_calc((ubyte *)&t, 4, &sum1, &sum2);
+				t = INTEL_INT(((int)Segments[i].sides[j].uvls[k].v));
+				mac_do_checksum_calc((ubyte *)&t, 4, &sum1, &sum2);
+				t = INTEL_INT(((int)Segments[i].sides[j].uvls[k].l));
+				mac_do_checksum_calc((ubyte *)&t, 4, &sum1, &sum2);
+			}
+			for (k = 0; k < 2; k++) {
+				t = INTEL_INT(((int)Segments[i].sides[j].normals[k].x));
+				mac_do_checksum_calc((ubyte *)&t, 4, &sum1, &sum2);
+				t = INTEL_INT(((int)Segments[i].sides[j].normals[k].y));
+				mac_do_checksum_calc((ubyte *)&t, 4, &sum1, &sum2);
+				t = INTEL_INT(((int)Segments[i].sides[j].normals[k].z));
+				mac_do_checksum_calc((ubyte *)&t, 4, &sum1, &sum2);
+			}
+		}
+		for (j = 0; j < MAX_SIDES_PER_SEGMENT; j++) {
+			s = INTEL_SHORT(Segments[i].children[j]);
+			mac_do_checksum_calc((ubyte *)&s, 2, &sum1, &sum2);
+		}
+		for (j = 0; j < MAX_VERTICES_PER_SEGMENT; j++) {
+			s = INTEL_SHORT(Segments[i].verts[j]);
+			mac_do_checksum_calc((ubyte *)&s, 2, &sum1, &sum2);
+		}
+		t = INTEL_INT(Segments[i].objects);
+		mac_do_checksum_calc((ubyte *)&t, 4, &sum1, &sum2);
+	}
+	sum2 %= 255;
+	return ((sum1<<8)+ sum2);
+}
+
+// this routine totally and completely relies on the fact that the network
+//  checksum must be calculated on the segments!!!!!
+
+ushort netmisc_calc_checksum(void * vptr, int len)
+{
+	vptr = vptr;
+	len = len;
+	return mac_calc_segment_checksum();
+}
+#else /* !WORDS_BIGENDIAN */
+
+
+// Calculates the checksum of a block of memory.
+ushort netmisc_calc_checksum(void * vptr, int len)
+{
+	ubyte *ptr = (ubyte *)vptr;
+	unsigned int sum1,sum2;
+
+	sum1 = sum2 = 0;
+
+	while(len--) {
+		sum1 += *ptr++;
+		if (sum1 >= 255) sum1 -= 255;
+		sum2 += sum1;
+	}
+	sum2 %= 255;
+
+	return ((sum1<<8)+ sum2);
+}
+
+#endif /* WORDS_BIGENDIAN */
+
 
 
 void free_polygon_models();
@@ -1969,7 +2071,7 @@ void StartLevel(int random_flag)
 	}		
 
 	if (Game_mode & GM_NETWORK)
-		network_do_frame(1, 1);
+		multi_do_protocol_frame(1, 1);
 #endif
 
 	ai_reset_all_paths();

@@ -87,9 +87,6 @@ COPYRIGHT 1993-1999 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 #include "args.h"
 #include "palette.h"
 #include "multi.h"
-#ifdef NETWORK
-#include "net_ipx.h"
-#endif
 #include "text.h"
 #include "cntrlcen.h"
 #include "aistruct.h"

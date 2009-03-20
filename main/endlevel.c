@@ -60,9 +60,6 @@ COPYRIGHT 1993-1999 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 #include "multi.h"
 #include "vclip.h"
 #include "fireball.h"
-#ifdef NETWORK
-#include "net_ipx.h"
-#endif
 #include "text.h"
 #include "digi.h"
 #include "cfile.h"
@@ -333,7 +330,7 @@ void start_endlevel_sequence()
 #ifdef NETWORK
 	if (Game_mode & GM_MULTI) {
 		multi_send_endlevel_start(0);
-		network_do_frame(1, 1);
+		multi_do_protocol_frame(1, 1);
 	}
 #endif
 
@@ -413,7 +410,7 @@ void start_rendered_endlevel_sequence()
 	#ifdef NETWORK
 	if (Game_mode & GM_MULTI) {
 		multi_send_endlevel_start(0);
-		network_do_frame(1, 1);
+		multi_do_protocol_frame(1, 1);
 	}
 	#endif
 

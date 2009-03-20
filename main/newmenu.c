@@ -76,7 +76,6 @@ COPYRIGHT 1993-1999 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 #endif
 
 int newmenu_do4( char * title, char * subtitle, int nitems, newmenu_item * item, void (*subfunction)(int nitems,newmenu_item * items, int * last_key, int citem), int citem, char * filename, int width, int height, int TinyMode );
-void show_extra_netgame_info(int choice);
 
 grs_bitmap nm_background,nm_background1;
 grs_bitmap *nm_background_sub;

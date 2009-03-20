@@ -1630,7 +1630,7 @@ void GameLoop(int RenderFlag, int ReadControlsFlag )
 		create_player_appearance_effect(ConsoleObject);
 		Do_appearance_effect = 0;
 #ifdef NETWORK
-		if ((Game_mode & GM_MULTI) && Netgame.invul)
+		if ((Game_mode & GM_MULTI) && Netgame.InvulAppear)
 		{
 			Players[Player_num].flags |= PLAYER_FLAGS_INVULNERABLE;
 			Players[Player_num].invulnerable_time = GameTime-i2f(27);

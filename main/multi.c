@@ -133,6 +133,7 @@ sbyte object_owner[MAX_OBJECTS];   // Who created each object in my universe, -1
 
 int   Net_create_objnums[MAX_NET_CREATE_OBJECTS]; // For tracking object creation that will be sent to remote
 int   Net_create_loc = 0;       // pointer into previous array
+int   Network_status = 0;
 int   Network_laser_fired = 0;  // How many times we shot
 int   Network_laser_gun;        // Which gun number we shot
 int   Network_laser_flags;      // Special flags for the shot
@@ -148,8 +149,14 @@ int   multi_in_menu = 0;
 int   multi_leave_menu = 0;
 int   multi_quit_game = 0;
 
+// For rejoin object syncing
+
+int     Network_rejoined = 0;       // Did WE rejoin this game?
+int     Network_new_game = 0;            // Is this the first level of a new game?
+
+ushort          my_segments_checksum = 0;
+
 netgame_info Netgame;
-AllNetPlayers_info NetPlayers;
 
 bitmap_index multi_player_textures[MAX_NUM_NET_PLAYERS][N_PLAYER_SHIP_TEXTURES];
 
@@ -254,6 +261,13 @@ void extract_netplayer_stats( netplayer_stats *ps, player * pd );
 void use_netplayer_stats( player * ps, netplayer_stats *pd );
 char PowerupsInMine[MAX_POWERUP_TYPES],MaxPowerupsAllowed[MAX_POWERUP_TYPES];
 extern fix ThisLevelTime;
+
+char *multi_allow_powerup_text[MULTI_ALLOW_POWERUP_MAX] =
+{ "Laser upgrade", "Super lasers", "Quad Lasers", "Vulcan cannon", "Gauss cannon", "Spreadfire cannon", 
+"Helix cannon", "Plasma cannon", "Phoenix cannon", "Fusion cannon", "Omega cannon",
+"Flash Missiles", "Homing Missiles", "Guided Missiles", "Proximity Bombs", "Smart Mines",
+"Smart Missiles", "Mercury Missiles", "Mega Missiles", "EarthShaker Missiles", 
+"Cloaking", "Invulnerability", "Afterburners", "Ammo rack", "Energy Converter", "Headlight" };
 
 //
 //  Functions that replace what used to be macros
@@ -804,6 +818,11 @@ void multi_compute_kill(int killer, int killed)
 	Players[killed_pnum].flags&=(~(PLAYER_FLAGS_HEADLIGHT_ON));  // clear the killed guys flags/headlights
 }
 
+void multi_do_protocol_frame(int force, int listen)
+{
+	network_do_frame(force, listen);
+}
+
 void
 multi_do_frame(void)
 {
@@ -842,7 +861,7 @@ multi_do_frame(void)
 	}
 #endif
 
-	network_do_frame(0, 1);
+	multi_do_protocol_frame(0, 1);
 
 	if (multi_quit_game && !multi_in_menu)
 	{
@@ -1140,7 +1159,7 @@ void multi_send_message_end()
 		StartingShields=i2f(StartingShields);
 	}
 	else if (!strnicmp (Network_message,"NoBombs",7))
-		Netgame.DoSmartMine=0;
+		Netgame.AllowedItems &= ~NETFLAG_DOSMARTMINE;
 	else if (!strnicmp (Network_message,"move:",5))
 	{
 		if ((Game_mode & GM_NETWORK) && (Game_mode & GM_TEAM))
@@ -1244,7 +1263,7 @@ void multi_send_message_end()
 		for (i = 0; i < N_players; i++)
 		if ((!strnicmp(Players[i].callsign, &Network_message[name_index], strlen(Network_message)-name_index)) && (i != Player_num) && (Players[i].connected)) {
 			kick_player:;
-				network_dump_player(NetPlayers.players[i].network.ipx.server,NetPlayers.players[i].network.ipx.node, 7);
+				network_dump_player(Netgame.players[i].protocol.ipx.server,Netgame.players[i].protocol.ipx.node, 7);
 
 				HUD_init_message("Dumping %s...",Players[i].callsign);
 				multi_message_index = 0;
@@ -3070,7 +3089,7 @@ void multi_prep_level(void)
 		{
 			if (Objects[i].id == POW_EXTRA_LIFE)
 			{
-				if (ng && !Netgame.DoInvulnerability)
+				if (ng && !(Netgame.AllowedItems & NETFLAG_DOINVUL))
 				{
 					Objects[i].id = POW_SHIELD_BOOST;
 					Objects[i].rtype.vclip_info.vclip_num = Powerup_info[Objects[i].id].vclip_num;
@@ -3094,7 +3113,7 @@ void multi_prep_level(void)
 				}
 
 			if (Objects[i].id == POW_INVULNERABILITY) {
-				if (inv_count >= 3 || (ng && !Netgame.DoInvulnerability)) {
+				if (inv_count >= 3 || (ng && !(Netgame.AllowedItems & NETFLAG_DOINVUL))) {
 					Objects[i].id = POW_SHIELD_BOOST;
 					Objects[i].rtype.vclip_info.vclip_num = Powerup_info[Objects[i].id].vclip_num;
 					Objects[i].rtype.vclip_info.frametime = Vclip[Objects[i].rtype.vclip_info.vclip_num].frame_time;
@@ -3103,7 +3122,7 @@ void multi_prep_level(void)
 			}
 
 			if (Objects[i].id == POW_CLOAK) {
-				if (cloak_count >= 3 || (ng && !Netgame.DoCloak)) {
+				if (cloak_count >= 3 || (ng && !(Netgame.AllowedItems & NETFLAG_DOCLOAK))) {
 					Objects[i].id = POW_SHIELD_BOOST;
 					Objects[i].rtype.vclip_info.vclip_num = Powerup_info[Objects[i].id].vclip_num;
 					Objects[i].rtype.vclip_info.frametime = Vclip[Objects[i].rtype.vclip_info.vclip_num].frame_time;
@@ -3111,38 +3130,38 @@ void multi_prep_level(void)
 					cloak_count++;
 			}
 
-			if (Objects[i].id == POW_AFTERBURNER && ng && !Netgame.DoAfterburner)
+			if (Objects[i].id == POW_AFTERBURNER && ng && !(Netgame.AllowedItems & NETFLAG_DOAFTERBURNER))
 				bash_to_shield (i,"afterburner");
-			if (Objects[i].id == POW_FUSION_WEAPON && ng &&  !Netgame.DoFusions)
+			if (Objects[i].id == POW_FUSION_WEAPON && ng &&  !(Netgame.AllowedItems & NETFLAG_DOFUSION))
 				bash_to_shield (i,"fusion");
-			if (Objects[i].id == POW_PHOENIX_WEAPON && ng && !Netgame.DoPhoenix)
+			if (Objects[i].id == POW_PHOENIX_WEAPON && ng && !(Netgame.AllowedItems & NETFLAG_DOPHOENIX))
 				bash_to_shield (i,"phoenix");
 
-			if (Objects[i].id == POW_HELIX_WEAPON && ng && !Netgame.DoHelix)
+			if (Objects[i].id == POW_HELIX_WEAPON && ng && !(Netgame.AllowedItems & NETFLAG_DOHELIX))
 				bash_to_shield (i,"helix");
 
-			if (Objects[i].id == POW_MEGA_WEAPON && ng && !Netgame.DoMegas)
+			if (Objects[i].id == POW_MEGA_WEAPON && ng && !(Netgame.AllowedItems & NETFLAG_DOMEGA))
 				bash_to_shield (i,"mega");
 
-			if (Objects[i].id == POW_SMARTBOMB_WEAPON && ng && !Netgame.DoSmarts)
+			if (Objects[i].id == POW_SMARTBOMB_WEAPON && ng && !(Netgame.AllowedItems & NETFLAG_DOSMART))
 				bash_to_shield (i,"smartmissile");
 
-			if (Objects[i].id == POW_GAUSS_WEAPON && ng && !Netgame.DoGauss)
+			if (Objects[i].id == POW_GAUSS_WEAPON && ng && !(Netgame.AllowedItems & NETFLAG_DOGAUSS))
 				bash_to_shield (i,"gauss");
 
-			if (Objects[i].id == POW_VULCAN_WEAPON && ng && !Netgame.DoVulcan)
+			if (Objects[i].id == POW_VULCAN_WEAPON && ng && !(Netgame.AllowedItems & NETFLAG_DOVULCAN))
 				bash_to_shield (i,"vulcan");
 
-			if (Objects[i].id == POW_PLASMA_WEAPON && ng && !Netgame.DoPlasma)
+			if (Objects[i].id == POW_PLASMA_WEAPON && ng && !(Netgame.AllowedItems & NETFLAG_DOPLASMA))
 				bash_to_shield (i,"plasma");
 
-			if (Objects[i].id == POW_OMEGA_WEAPON && ng && !Netgame.DoOmega)
+			if (Objects[i].id == POW_OMEGA_WEAPON && ng && !(Netgame.AllowedItems & NETFLAG_DOOMEGA))
 				bash_to_shield (i,"omega");
 
-			if (Objects[i].id == POW_SUPER_LASER && ng && !Netgame.DoSuperLaser)
+			if (Objects[i].id == POW_SUPER_LASER && ng && !(Netgame.AllowedItems & NETFLAG_DOSUPERLASER))
 				bash_to_shield (i,"superlaser");
 
-			if (Objects[i].id == POW_PROXIMITY_WEAPON && ng && !Netgame.DoProximity)
+			if (Objects[i].id == POW_PROXIMITY_WEAPON && ng && !(Netgame.AllowedItems & NETFLAG_DOPROXIM))
 				bash_to_shield (i,"proximity");
 
 			// Special: Make all proximity bombs into shields if in
@@ -3152,40 +3171,40 @@ void multi_prep_level(void)
 			if (Objects[i].id == POW_PROXIMITY_WEAPON && ng && (Game_mode & GM_HOARD))
 				bash_to_shield (i,"proximity");
 
-			if (Objects[i].id==POW_VULCAN_AMMO && ng && (!Netgame.DoVulcan && !Netgame.DoGauss))
+			if (Objects[i].id==POW_VULCAN_AMMO && ng && (!(Netgame.AllowedItems & NETFLAG_DOVULCAN) && !(Netgame.AllowedItems & NETFLAG_DOGAUSS)))
 				bash_to_shield(i,"vulcan ammo");
 
-			if (Objects[i].id == POW_SPREADFIRE_WEAPON && ng && !Netgame.DoSpread)
+			if (Objects[i].id == POW_SPREADFIRE_WEAPON && ng && !(Netgame.AllowedItems & NETFLAG_DOSPREAD))
 				bash_to_shield (i,"spread");
-			if (Objects[i].id == POW_SMART_MINE && ng && !Netgame.DoSmartMine)
+			if (Objects[i].id == POW_SMART_MINE && ng && !(Netgame.AllowedItems & NETFLAG_DOSMARTMINE))
 				bash_to_shield (i,"smartmine");
-			if (Objects[i].id == POW_SMISSILE1_1 && ng &&  !Netgame.DoFlash)
+			if (Objects[i].id == POW_SMISSILE1_1 && ng &&  !(Netgame.AllowedItems & NETFLAG_DOFLASH))
 				bash_to_shield (i,"flash");
-			if (Objects[i].id == POW_SMISSILE1_4 && ng &&  !Netgame.DoFlash)
+			if (Objects[i].id == POW_SMISSILE1_4 && ng &&  !(Netgame.AllowedItems & NETFLAG_DOFLASH))
 				bash_to_shield (i,"flash");
-			if (Objects[i].id == POW_GUIDED_MISSILE_1 && ng &&  !Netgame.DoGuided)
+			if (Objects[i].id == POW_GUIDED_MISSILE_1 && ng &&  !(Netgame.AllowedItems & NETFLAG_DOGUIDED))
 				bash_to_shield (i,"guided");
-			if (Objects[i].id == POW_GUIDED_MISSILE_4 && ng &&  !Netgame.DoGuided)
+			if (Objects[i].id == POW_GUIDED_MISSILE_4 && ng &&  !(Netgame.AllowedItems & NETFLAG_DOGUIDED))
 				bash_to_shield (i,"guided");
-			if (Objects[i].id == POW_EARTHSHAKER_MISSILE && ng &&  !Netgame.DoEarthShaker)
+			if (Objects[i].id == POW_EARTHSHAKER_MISSILE && ng &&  !(Netgame.AllowedItems & NETFLAG_DOSHAKER))
 				bash_to_shield (i,"earth");
-			if (Objects[i].id == POW_MERCURY_MISSILE_1 && ng &&  !Netgame.DoMercury)
+			if (Objects[i].id == POW_MERCURY_MISSILE_1 && ng &&  !(Netgame.AllowedItems & NETFLAG_DOMERCURY))
 				bash_to_shield (i,"Mercury");
-			if (Objects[i].id == POW_MERCURY_MISSILE_4 && ng &&  !Netgame.DoMercury)
+			if (Objects[i].id == POW_MERCURY_MISSILE_4 && ng &&  !(Netgame.AllowedItems & NETFLAG_DOMERCURY))
 				bash_to_shield (i,"Mercury");
-			if (Objects[i].id == POW_CONVERTER && ng &&  !Netgame.DoConverter)
+			if (Objects[i].id == POW_CONVERTER && ng &&  !(Netgame.AllowedItems & NETFLAG_DOCONVERTER))
 				bash_to_shield (i,"Converter");
-			if (Objects[i].id == POW_AMMO_RACK && ng &&  !Netgame.DoAmmoRack)
+			if (Objects[i].id == POW_AMMO_RACK && ng &&  !(Netgame.AllowedItems & NETFLAG_DOAMMORACK))
 				bash_to_shield (i,"Ammo rack");
-			if (Objects[i].id == POW_HEADLIGHT && ng &&  !Netgame.DoHeadlight)
+			if (Objects[i].id == POW_HEADLIGHT && ng &&  !(Netgame.AllowedItems & NETFLAG_DOHEADLIGHT))
 				bash_to_shield (i,"Headlight");
-			if (Objects[i].id == POW_LASER && ng &&  !Netgame.DoLaserUpgrade)
+			if (Objects[i].id == POW_LASER && ng &&  !(Netgame.AllowedItems & NETFLAG_DOLASER))
 				bash_to_shield (i,"Laser powerup");
-			if (Objects[i].id == POW_HOMING_AMMO_1 && ng &&  !Netgame.DoHoming)
+			if (Objects[i].id == POW_HOMING_AMMO_1 && ng &&  !(Netgame.AllowedItems & NETFLAG_DOHOMING))
 				bash_to_shield (i,"Homing");
-			if (Objects[i].id == POW_HOMING_AMMO_4 && ng &&  !Netgame.DoHoming)
+			if (Objects[i].id == POW_HOMING_AMMO_4 && ng &&  !(Netgame.AllowedItems & NETFLAG_DOHOMING))
 				bash_to_shield (i,"Homing");
-			if (Objects[i].id == POW_QUAD_FIRE && ng &&  !Netgame.DoQuadLasers)
+			if (Objects[i].id == POW_QUAD_FIRE && ng &&  !(Netgame.AllowedItems & NETFLAG_DOQUAD))
 				bash_to_shield (i,"Quad Lasers");
 			if (Objects[i].id == POW_FLAG_BLUE && !(Game_mode & GM_CAPTURE))
 				bash_to_shield (i,"Blue flag");
@@ -4345,67 +4364,67 @@ int multi_powerup_is_4pack (int id)
 
 int multi_powerup_is_allowed(int id)
 {
-	if (id == POW_INVULNERABILITY && !Netgame.DoInvulnerability)
+	if (id == POW_INVULNERABILITY && !(Netgame.AllowedItems & NETFLAG_DOINVUL))
 		return (0);
-	if (id == POW_CLOAK && !Netgame.DoCloak)
+	if (id == POW_CLOAK && !(Netgame.AllowedItems & NETFLAG_DOCLOAK))
 		return (0);
-	if (id == POW_AFTERBURNER && !Netgame.DoAfterburner)
+	if (id == POW_AFTERBURNER && !(Netgame.AllowedItems & NETFLAG_DOAFTERBURNER))
 		return (0);
-	if (id == POW_FUSION_WEAPON &&  !Netgame.DoFusions)
+	if (id == POW_FUSION_WEAPON &&  !(Netgame.AllowedItems & NETFLAG_DOFUSION))
 		return (0);
-	if (id == POW_PHOENIX_WEAPON && !Netgame.DoPhoenix)
+	if (id == POW_PHOENIX_WEAPON && !(Netgame.AllowedItems & NETFLAG_DOPHOENIX))
 		return (0);
-	if (id == POW_HELIX_WEAPON && !Netgame.DoHelix)
+	if (id == POW_HELIX_WEAPON && !(Netgame.AllowedItems & NETFLAG_DOHELIX))
 		return (0);
-	if (id == POW_MEGA_WEAPON && !Netgame.DoMegas)
+	if (id == POW_MEGA_WEAPON && !(Netgame.AllowedItems & NETFLAG_DOMEGA))
 		return (0);
-	if (id == POW_SMARTBOMB_WEAPON && !Netgame.DoSmarts)
+	if (id == POW_SMARTBOMB_WEAPON && !(Netgame.AllowedItems & NETFLAG_DOSMART))
 		return (0);
-	if (id == POW_GAUSS_WEAPON && !Netgame.DoGauss)
+	if (id == POW_GAUSS_WEAPON && !(Netgame.AllowedItems & NETFLAG_DOGAUSS))
 		return (0);
-	if (id == POW_VULCAN_WEAPON && !Netgame.DoVulcan)
+	if (id == POW_VULCAN_WEAPON && !(Netgame.AllowedItems & NETFLAG_DOVULCAN))
 		return (0);
-	if (id == POW_PLASMA_WEAPON && !Netgame.DoPlasma)
+	if (id == POW_PLASMA_WEAPON && !(Netgame.AllowedItems & NETFLAG_DOPLASMA))
 		return (0);
-	if (id == POW_OMEGA_WEAPON && !Netgame.DoOmega)
+	if (id == POW_OMEGA_WEAPON && !(Netgame.AllowedItems & NETFLAG_DOOMEGA))
 		return (0);
-	if (id == POW_SUPER_LASER && !Netgame.DoSuperLaser)
+	if (id == POW_SUPER_LASER && !(Netgame.AllowedItems & NETFLAG_DOSUPERLASER))
 		return (0);
-	if (id == POW_PROXIMITY_WEAPON && !Netgame.DoProximity)
+	if (id == POW_PROXIMITY_WEAPON && !(Netgame.AllowedItems & NETFLAG_DOPROXIM))
 		return (0);
-	if (id==POW_VULCAN_AMMO && (!Netgame.DoVulcan && !Netgame.DoGauss))
+	if (id==POW_VULCAN_AMMO && (!(Netgame.AllowedItems & NETFLAG_DOVULCAN) && !(Netgame.AllowedItems & NETFLAG_DOGAUSS)))
 		return (0);
-	if (id == POW_SPREADFIRE_WEAPON && !Netgame.DoSpread)
+	if (id == POW_SPREADFIRE_WEAPON && !(Netgame.AllowedItems & NETFLAG_DOSPREAD))
 		return (0);
-	if (id == POW_SMART_MINE && !Netgame.DoSmartMine)
+	if (id == POW_SMART_MINE && !(Netgame.AllowedItems & NETFLAG_DOSMARTMINE))
 		return (0);
-	if (id == POW_SMISSILE1_1 &&  !Netgame.DoFlash)
+	if (id == POW_SMISSILE1_1 &&  !(Netgame.AllowedItems & NETFLAG_DOFLASH))
 		return (0);
-	if (id == POW_SMISSILE1_4 &&  !Netgame.DoFlash)
+	if (id == POW_SMISSILE1_4 &&  !(Netgame.AllowedItems & NETFLAG_DOFLASH))
 		return (0);
-	if (id == POW_GUIDED_MISSILE_1 &&  !Netgame.DoGuided)
+	if (id == POW_GUIDED_MISSILE_1 &&  !(Netgame.AllowedItems & NETFLAG_DOGUIDED))
 		return (0);
-	if (id == POW_GUIDED_MISSILE_4 &&  !Netgame.DoGuided)
+	if (id == POW_GUIDED_MISSILE_4 &&  !(Netgame.AllowedItems & NETFLAG_DOGUIDED))
 		return (0);
-	if (id == POW_EARTHSHAKER_MISSILE &&  !Netgame.DoEarthShaker)
+	if (id == POW_EARTHSHAKER_MISSILE &&  !(Netgame.AllowedItems & NETFLAG_DOSHAKER))
 		return (0);
-	if (id == POW_MERCURY_MISSILE_1 &&  !Netgame.DoMercury)
+	if (id == POW_MERCURY_MISSILE_1 &&  !(Netgame.AllowedItems & NETFLAG_DOMERCURY))
 		return (0);
-	if (id == POW_MERCURY_MISSILE_4 &&  !Netgame.DoMercury)
+	if (id == POW_MERCURY_MISSILE_4 &&  !(Netgame.AllowedItems & NETFLAG_DOMERCURY))
 		return (0);
-	if (id == POW_CONVERTER &&  !Netgame.DoConverter)
+	if (id == POW_CONVERTER &&  !(Netgame.AllowedItems & NETFLAG_DOCONVERTER))
 		return (0);
-	if (id == POW_AMMO_RACK &&  !Netgame.DoAmmoRack)
+	if (id == POW_AMMO_RACK &&  !(Netgame.AllowedItems & NETFLAG_DOAMMORACK))
 		return (0);
-	if (id == POW_HEADLIGHT &&  !Netgame.DoHeadlight)
+	if (id == POW_HEADLIGHT &&  !(Netgame.AllowedItems & NETFLAG_DOHEADLIGHT))
 		return (0);
-	if (id == POW_LASER &&  !Netgame.DoLaserUpgrade)
+	if (id == POW_LASER &&  !(Netgame.AllowedItems & NETFLAG_DOLASER))
 		return (0);
-	if (id == POW_HOMING_AMMO_1 &&  !Netgame.DoHoming)
+	if (id == POW_HOMING_AMMO_1 &&  !(Netgame.AllowedItems & NETFLAG_DOHOMING))
 		return (0);
-	if (id == POW_HOMING_AMMO_4 &&  !Netgame.DoHoming)
+	if (id == POW_HOMING_AMMO_4 &&  !(Netgame.AllowedItems & NETFLAG_DOHOMING))
 		return (0);
-	if (id == POW_QUAD_FIRE &&  !Netgame.DoQuadLasers)
+	if (id == POW_QUAD_FIRE &&  !(Netgame.AllowedItems & NETFLAG_DOQUAD))
 		return (0);
 	if (id == POW_FLAG_BLUE && !(Game_mode & GM_CAPTURE))
 		return (0);
@@ -4471,7 +4490,7 @@ void multi_add_lifetime_kills ()
 		{
 			HUD_init_message ("You have been promoted to %s!",RankStrings[GetMyNetRanking()]);
 			digi_play_sample (SOUND_BUDDY_MET_GOAL,F1_0*2);
-			NetPlayers.players[Player_num].rank=GetMyNetRanking();
+			Netgame.players[Player_num].rank=GetMyNetRanking();
 		}
 	}
 	write_player_file();
@@ -4494,7 +4513,7 @@ void multi_add_lifetime_killed ()
 	if (oldrank!=GetMyNetRanking())
 	{
 		multi_send_ranking();
-		NetPlayers.players[Player_num].rank=GetMyNetRanking();
+		Netgame.players[Player_num].rank=GetMyNetRanking();
 
 		if (!GameArg.MplNoRankings)
 			HUD_init_message ("You have been demoted to %s!",RankStrings[GetMyNetRanking()]);
@@ -4519,14 +4538,14 @@ void multi_do_ranking (char *buf)
 	char pnum=buf[1];
 	char rank=buf[2];
 
-	if (NetPlayers.players[(int)pnum].rank<rank)
+	if (Netgame.players[(int)pnum].rank<rank)
 		strcpy (rankstr,"promoted");
-	else if (NetPlayers.players[(int)pnum].rank>rank)
+	else if (Netgame.players[(int)pnum].rank>rank)
 		strcpy (rankstr,"demoted");
 	else
 		return;
 
-	NetPlayers.players[(int)pnum].rank=rank;
+	Netgame.players[(int)pnum].rank=rank;
 
 	if (!GameArg.MplNoRankings)
 		HUD_init_message ("%s has been %s to %s!",Players[(int)pnum].callsign,rankstr,RankStrings[(int)rank]);

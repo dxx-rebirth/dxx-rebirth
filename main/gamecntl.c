@@ -390,7 +390,6 @@ void format_time(char *str, int secs_int)
 	sprintf(str, "%1d:%02d:%02d", h, m, s );
 }
 
-void do_show_netgame_help();
 extern int netplayerinfo_on;
 //Process selected keys until game unpaused. returns key that left pause (p or esc)
 int do_game_pause()
@@ -476,105 +475,6 @@ extern char Pauseable_menu;
 // char *NetworkModeNames[]={"Anarchy","Team Anarchy","Robo Anarchy","Cooperative","Capture the Flag","Hoard","Team Hoard","Unknown"};
 extern char *RankStrings[];
 extern int PhallicLimit,PhallicMan;
-
-#ifdef NETWORK
-void do_show_netgame_help()
- {
-	newmenu_item m[30];
-   char mtext[30][50];
-	int i,num=0,eff;
-#ifndef RELEASE
-	int pl;
-#endif
-	char *eff_strings[]={"trashing","really hurting","seriously effecting","hurting",
-								"effecting","tarnishing"};
-
-   for (i=0;i<30;i++)
-	{
-	 m[i].text=(char *)&mtext[i];
-    m[i].type=NM_TYPE_TEXT;
-	}
-
-   sprintf (mtext[num],"Game: %s",Netgame.game_name); num++;
-   sprintf (mtext[num],"Mission: %s",Netgame.mission_title); num++;
-	sprintf (mtext[num],"Current Level: %d",Netgame.levelnum); num++;
-	sprintf (mtext[num],"Difficulty: %s",MENU_DIFFICULTY_TEXT(Netgame.difficulty)); num++;
-// 	sprintf (mtext[num],"Game Mode: %s",NetworkModeNames[Netgame.gamemode]); num++;
-	sprintf (mtext[num],"Game Master: %s",Players[network_who_is_master()].callsign); num++;
-   sprintf (mtext[num],"Number of players: %d/%d",network_how_many_connected(),Netgame.max_numplayers); num++;
-   sprintf (mtext[num],"Packets per second: %d",Netgame.PacketsPerSec); num++;
-   sprintf (mtext[num],"Short Packets: %s",Netgame.ShortPackets?"Yes":"No"); num++;
-
-#ifndef RELEASE
-		pl=(int)(((float)TotalMissedPackets/(float)TotalPacketsGot)*100.0);
-		if (pl<0)
-		  pl=0;
-		sprintf (mtext[num],"Packets lost: %d (%d%%)",TotalMissedPackets,pl); num++;
-#endif
-
-   if (Netgame.KillGoal)
-     { sprintf (mtext[num],"Kill goal: %d",Netgame.KillGoal*5); num++; }
-
-   sprintf (mtext[num]," "); num++;
-   sprintf (mtext[num],"Connected players:"); num++;
-
-   NetPlayers.players[Player_num].rank=GetMyNetRanking();
-
-   for (i=0;i<N_players;i++)
-     if (Players[i].connected)
-	  {		  
-      if (!GameArg.MplNoRankings)
-		 {
-			if (i==Player_num)
-				sprintf (mtext[num],"%s%s (%d/%d)",RankStrings[NetPlayers.players[i].rank],Players[i].callsign,PlayerCfg.NetlifeKills,PlayerCfg.NetlifeKilled); 
-			else
-				sprintf (mtext[num],"%s%s %d/%d",RankStrings[NetPlayers.players[i].rank],Players[i].callsign,kill_matrix[Player_num][i],
-							kill_matrix[i][Player_num]); 
-			num++;
-		 }
-	   else
-  		 sprintf (mtext[num++],"%s",Players[i].callsign); 
-	  }
-
-	
-  sprintf (mtext[num]," "); num++;
-
-  eff=(int)((float)((float)PlayerCfg.NetlifeKills/((float)PlayerCfg.NetlifeKilled+(float)PlayerCfg.NetlifeKills))*100.0);
-
-  if (eff<0)
-	eff=0;
-  
-  if (Game_mode & GM_HOARD)
-	{
-	 if (PhallicMan==-1)
-		 sprintf (mtext[num],"There is no record yet for this level."); 
-	 else
-		 sprintf (mtext[num],"%s has the record at %d points.",Players[PhallicMan].callsign,PhallicLimit); 
-	num++;
-	}
-  else if (!GameArg.MplNoRankings)
-	{
-	  if (eff<60)
-	   {
-		 sprintf (mtext[num],"Your lifetime efficiency of %d%%",eff); num++;
-		 sprintf (mtext[num],"is %s your ranking.",eff_strings[eff/10]); num++;
-		}
-	  else
-	   {
-		 sprintf (mtext[num],"Your lifetime efficiency of %d%%",eff); num++;
-		 sprintf (mtext[num],"is serving you well."); num++;
-	   }
-	}  
-	
-
-  	full_palette_save();
-
-   Pauseable_menu=1;
-	newmenu_dotiny2( NULL, "Netgame Information", num, m, NULL);
-
-	palette_restore();
-}
-#endif
 
 void HandleEndlevelKey(int key)
 {

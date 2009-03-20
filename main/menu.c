@@ -51,7 +51,7 @@ COPYRIGHT 1993-1999 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 #include "newmenu.h"
 #ifdef NETWORK
 #  include "net_ipx.h"
-#  include "netdrv.h"
+#  include "ipxdrv.h"
 #  include "multi.h"
 #endif
 #include "scores.h"
@@ -119,7 +119,6 @@ void do_new_game_menu(void);
 #ifdef NETWORK
 void do_multi_player_menu(void);
 void do_ip_manual_join_menu();
-int UDPConnectManual(char *addr);
 #endif //NETWORK
 extern void newmenu_close();
 extern void ReorderPrimary();
@@ -334,28 +333,26 @@ void do_option ( int select)
 
 #ifdef NETWORK
 		case MENU_START_IPX_NETGAME:
-			netdrv_set(NETPROTO_IPX);
+			ipxdrv_set(NETPROTO_IPX);
 			network_start_game();
 			break;
 		case MENU_JOIN_IPX_NETGAME:
-			netdrv_set(NETPROTO_IPX);
+			ipxdrv_set(NETPROTO_IPX);
 			network_join_game();
 			break;
 		case MENU_START_KALI_NETGAME:
-			netdrv_set(NETPROTO_KALINIX);
+			ipxdrv_set(NETPROTO_KALINIX);
 			network_start_game();
 			break;
 		case MENU_JOIN_KALI_NETGAME:
-			netdrv_set(NETPROTO_KALINIX);
+			ipxdrv_set(NETPROTO_KALINIX);
 			network_join_game();
 			break;
 		case MENU_START_UDP_NETGAME:
-			netdrv_set(NETPROTO_UDP);
-			network_start_game();
+			// FIXME
 			break;
 		case MENU_JOIN_UDP_NETGAME:
-			netdrv_set(NETPROTO_UDP);
-			do_ip_manual_join_menu();
+			// FIXME
 			break;
 
 		case MENU_MULTIPLAYER:
@@ -880,7 +877,7 @@ void do_ip_manual_join_menu()
 
 		if ( choice > -1 ){
 			strncpy(GameCfg.MplIpHostAddr, buf, 128);
-			UDPConnectManual(buf);
+			// FIXME !! UDPConnectManual(buf);
 		}
 
 		if (old_game_mode != Game_mode)

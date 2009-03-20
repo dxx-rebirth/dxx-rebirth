@@ -46,9 +46,6 @@ COPYRIGHT 1993-1999 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 #include "fireball.h"
 #include "collide.h"
 #include "newmenu.h"
-#ifdef NETWORK
-#include "net_ipx.h"
-#endif
 #include "gameseq.h"
 #include "physics.h"
 #include "scores.h"

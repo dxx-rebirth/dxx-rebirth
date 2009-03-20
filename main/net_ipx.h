@@ -26,22 +26,6 @@ COPYRIGHT 1993-1999 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 #include "multi.h"
 #include "newmenu.h"
 
-#define NETSTAT_MENU                0
-#define NETSTAT_PLAYING             1
-#define NETSTAT_BROWSING            2
-#define NETSTAT_WAITING             3
-#define NETSTAT_STARTING            4
-#define NETSTAT_ENDLEVEL            5
-
-#define CONNECT_DISCONNECTED        0
-#define CONNECT_PLAYING             1
-#define CONNECT_WAITING             2
-#define CONNECT_DIED_IN_MINE        3
-#define CONNECT_FOUND_SECRET        4
-#define CONNECT_ESCAPE_TUNNEL       5
-#define CONNECT_END_MENU            6
-#define CONNECT_KMATRIX_WAITING     7 // Like CONNECT_WAITING but used especially in kmatrix.c to seperate "escaped" and "waiting"
-
 #define NETWORK_TIMEOUT (15*F1_0) // 15 seconds disconnect timeout
 #define MAX_ACTIVE_NETGAMES     12
 
@@ -72,11 +56,6 @@ COPYRIGHT 1993-1999 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 #define PID_NAKED_PDATA     62
 #define PID_GAME_PLAYERS    63
 #define PID_NAMES_RETURN    64 // 0x40
-// new packet types to get a little bit more information about the netgame so we can show up some rules/flags - uses netgame_info instead of lite_info
-#define PID_LITE_INFO_D2X   65 // like PID_LITE_INFO
-#define PID_GAME_LIST_D2X   66 // like PID_GAME_LIST
-#define PID_PDATA_NOLOSS	75 // Same as PID_PDATA, but client should ACK it!
-#define PID_PDATA_ACK		76 // ACK message for PID_PDATA_NOLOSS packet
 
 #define NETGAME_ANARCHY         0
 #define NETGAME_TEAM_ANARCHY    1
@@ -145,6 +124,130 @@ typedef struct short_frame_info {
 	char        data[NET_XDATA_SIZE];   // extra data to be tacked on the end
 } __pack__ short_frame_info;
 
+typedef struct IPX_netplayer_info {
+	char    callsign[CALLSIGN_LEN+1];
+	union {
+		struct {
+			ubyte   server[4];
+			ubyte   node[6];
+		} ipx;
+		struct {
+			ushort  net;
+			ubyte   node;
+			ubyte   socket;
+		} appletalk;
+	} network;
+
+	ubyte   version_major;
+	ubyte   version_minor;
+	enum comp_type computer_type;
+	sbyte    connected;
+
+	ushort  socket;
+
+	ubyte   rank;
+
+} __pack__ IPX_netplayer_info;
+
+typedef struct IPX_AllNetPlayers_info
+{
+	char    type;
+	int     Security;
+	struct IPX_netplayer_info players[MAX_PLAYERS+4];
+} __pack__ IPX_AllNetPlayers_info;
+
+typedef struct IPX_netgame_info {
+	ubyte   type;
+	int     Security;
+	char    game_name[NETGAME_NAME_LEN+1];
+	char    mission_title[MISSION_NAME_LEN+1];
+	char    mission_name[9];
+	int     levelnum;
+	ubyte   gamemode;
+	ubyte   RefusePlayers;
+	ubyte   difficulty;
+	ubyte   game_status;
+	ubyte   numplayers;
+	ubyte   max_numplayers;
+	ubyte   numconnected;
+	ubyte   game_flags;
+	ubyte   protocol_version;
+	ubyte   version_major;
+	ubyte   version_minor;
+	ubyte   team_vector;
+	short DoMegas:1;
+	short DoSmarts:1;
+	short DoFusions:1;
+	short DoHelix:1;
+	short DoPhoenix:1;
+	short DoAfterburner:1;
+	short DoInvulnerability:1;
+	short DoCloak:1;
+	short DoGauss:1;
+	short DoVulcan:1;
+	short DoPlasma:1;
+	short DoOmega:1;
+	short DoSuperLaser:1;
+	short DoProximity:1;
+	short DoSpread:1;
+	short DoSmartMine:1;
+	short DoFlash:1;
+	short DoGuided:1;
+	short DoEarthShaker:1;
+	short DoMercury:1;
+	short Allow_marker_view:1;
+	short AlwaysLighting:1;
+	short DoAmmoRack:1;
+	short DoConverter:1;
+	short DoHeadlight:1;
+	short DoHoming:1;
+	short DoLaserUpgrade:1;
+	short DoQuadLasers:1;
+	short ShowAllNames:1;
+	short BrightPlayers:1;
+	short invul:1;
+	short bitfield_not_used2:1;
+	char    team_name[2][CALLSIGN_LEN+1];
+	int     locations[MAX_PLAYERS];
+	short   kills[MAX_PLAYERS][MAX_PLAYERS];
+	ushort  segments_checksum;
+	short   team_kills[2];
+	short   killed[MAX_PLAYERS];
+	short   player_kills[MAX_PLAYERS];
+	int     KillGoal;
+	fix     PlayTimeAllowed;
+	fix     level_time;
+	int     control_invul_time;
+	int     monitor_vector;
+	int     player_score[MAX_PLAYERS];
+	ubyte   player_flags[MAX_PLAYERS];
+	short   PacketsPerSec;
+	ubyte   ShortPackets;
+	ubyte   AuxData[NETGAME_AUX_SIZE];  // Storage for protocol-specific data (e.g., multicast session and port)
+
+} __pack__ IPX_netgame_info;
+
+typedef struct IPX_lite_info {
+	ubyte                           type;
+	int                             Security;
+	char                            game_name[NETGAME_NAME_LEN+1];
+	char                            mission_title[MISSION_NAME_LEN+1];
+	char                            mission_name[9];
+	int                             levelnum;
+	ubyte                           gamemode;
+	ubyte                           RefusePlayers;
+	ubyte                           difficulty;
+	ubyte                           game_status;
+	ubyte                           numplayers;
+	ubyte                           max_numplayers;
+	ubyte                           numconnected;
+	ubyte                           game_flags;
+	ubyte                           protocol_version;
+	ubyte                           version_major;
+	ubyte                           version_minor;
+	ubyte                           team_vector;
+} __pack__ IPX_lite_info;
+
 void network_start_game();
 void network_join_game();
 void network_rejoin_game();
@@ -172,10 +275,6 @@ extern int NetGameType;
 extern int Network_send_objects;
 extern int Network_send_objnum;
 extern int PacketUrgent;
-extern int Network_rejoined;
-
-extern int Network_new_game;
-extern int Network_status;
 
 extern int PhallicLimit,PhallicMan;
 
@@ -183,7 +282,6 @@ extern fix LastPacketTime[MAX_PLAYERS];
 
 extern char *RankStrings[];
 
-extern ushort my_segments_checksum;
 // By putting an up-to-20-char-message into Network_message and
 // setting Network_message_reciever to the player num you want to
 // send it to (100 for broadcast) the next frame the player will
