@@ -67,7 +67,7 @@ COPYRIGHT 1993-1998 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 #include "gauges.h"
 #include "hudmsg.h" //for HUD_max_num_disp
 #ifdef NETWORK
-#include "netdrv.h"
+#include "ipxdrv.h"
 #include "tracker/tracker.h"
 #endif
 
@@ -328,19 +328,19 @@ void do_option ( int select)
 
 #ifdef NETWORK
 		case MENU_START_IPX_NETGAME:
-			netdrv_set(NETPROTO_IPX);
+			ipxdrv_set(NETPROTO_IPX);
 			network_start_game();
 			break;
 		case MENU_JOIN_IPX_NETGAME:
-			netdrv_set(NETPROTO_IPX);
+			ipxdrv_set(NETPROTO_IPX);
 			network_join_game();
 			break;
 		case MENU_START_KALI_NETGAME:
-			netdrv_set(NETPROTO_KALINIX);
+			ipxdrv_set(NETPROTO_KALINIX);
 			network_start_game();
 			break;
 		case MENU_JOIN_KALI_NETGAME:
-			netdrv_set(NETPROTO_KALINIX);
+			ipxdrv_set(NETPROTO_KALINIX);
 			network_join_game();
 			break;
 #if 0 // Later...
@@ -348,7 +348,7 @@ void do_option ( int select)
 		case MENU_BROWSE_UDP_NETGAME:
 		{
 			// Initialize UDP/IP network subsystem for this platform...
-			netdrv_set(NETPROTO_UDP);
+			// FIXME
 			// Invoke the browse UDP/IP network game GUI...
 			TrackerBrowseMenu();
 			// Done...
@@ -356,12 +356,10 @@ void do_option ( int select)
 		}
 #endif
 		case MENU_START_UDP_NETGAME:
-			netdrv_set(NETPROTO_UDP);
-			network_start_game();
+			// FIXME
 			break;
 		case MENU_JOIN_UDP_NETGAME:
-			netdrv_set(NETPROTO_UDP);
-			do_ip_manual_join_menu();
+			// FIXME
 			break;
 		case MENU_MULTIPLAYER:
 			do_multi_player_menu();
@@ -839,7 +837,6 @@ void do_multi_player_menu()
 	} while( choice > -1 );
 }
 
-int UDPConnectManual(char *addr);
 void do_ip_manual_join_menu()
 {
 	int menu_choice[3];
@@ -880,7 +877,7 @@ void do_ip_manual_join_menu()
 
 		if ( choice > -1 ){
 			strncpy(GameCfg.MplIpHostAddr, buf, 128);
-			UDPConnectManual(buf);
+			// FIXME !! UDPConnectManual(buf);
 		}
 
 		if (old_game_mode != Game_mode)

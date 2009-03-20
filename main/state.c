@@ -60,9 +60,7 @@ COPYRIGHT 1993-1998 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 #include "strutil.h"
 //end added
 #include "gamefont.h"
-#ifdef NETWORK
-#include "net_ipx.h"
-#endif
+#include "multi.h"
 #ifdef OGL
 #include "ogl_init.h"
 #endif

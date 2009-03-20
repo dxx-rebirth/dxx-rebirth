@@ -4,7 +4,7 @@
 #include <stdlib.h>
 #include <winsock.h>
 #include <wsipx.h>
-#include "netdrv.h"
+#include "ipxdrv.h"
 #include "console.h"
 
 static int ipx_get_my_address( void )
@@ -128,10 +128,10 @@ static int ipx_receive_packet(socket_t *s, char *buffer, int bufsize, struct rec
 
 static int ipx_general_packet_ready(socket_t *s)
 {
-	return netdrv_general_packet_ready(s->fd);
+	return ipxdrv_general_packet_ready(s->fd);
 }
 
-struct net_driver netdrv_ipx = {
+struct net_driver ipxdrv_ipx = {
 	ipx_open_socket,
 	ipx_close_socket,
 	ipx_send_packet,

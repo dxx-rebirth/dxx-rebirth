@@ -41,7 +41,6 @@ COPYRIGHT 1993-1998 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 #include "endlevel.h"
 #include "gameseq.h"
 #include "multi.h"
-#include "net_ipx.h"
 #include "palette.h"
 
 trigger Triggers[MAX_TRIGGERS];
@@ -148,7 +147,7 @@ int check_trigger_sub(int trigger_num, int pnum)
 			#endif
 #ifdef NETWORK
 			if (Game_mode & GM_NETWORK)
-				network_do_frame(1, 1);
+				multi_do_protocol_frame(1, 1);
 #endif
 			PlayerFinishedLevel(1);		//1 means go to secret level
 			return 1;

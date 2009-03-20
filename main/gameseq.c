@@ -91,7 +91,7 @@ COPYRIGHT 1993-1998 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 #include "state.h"
 #include "songs.h"
 #ifdef NETWORK
-#include "netpkt.h"
+#include "multi.h"
 #endif
 #include "strutil.h"
 
@@ -655,6 +655,117 @@ char *get_level_file(int level_num)
 		return Level_names[level_num-1];
 #endif
 }
+
+//FIXME: Certain combinations of players having and not having the editor will cause the segment checksum code to fail.
+#ifdef WORDS_BIGENDIAN
+
+#include "byteswap.h"
+#include "segment.h"
+#include "gameseg.h"
+
+// routine to calculate the checksum of the segments.  We add these specialized routines
+// since the current way is byte order dependent.
+
+void mac_do_checksum_calc(ubyte *b, int len, unsigned int *s1, unsigned int *s2)
+{
+
+	while(len--) {
+		*s1 += *b++;
+		if (*s1 >= 255) *s1 -= 255;
+		*s2 += *s1;
+	}
+}
+
+ushort mac_calc_segment_checksum()
+{
+	int i, j, k;
+	unsigned int sum1,sum2;
+	short s;
+	int t;
+
+	sum1 = sum2 = 0;
+	for (i = 0; i < Highest_segment_index + 1; i++) {
+		for (j = 0; j < MAX_SIDES_PER_SEGMENT; j++) {
+			mac_do_checksum_calc((unsigned char *)&(Segments[i].sides[j].type), 1, &sum1, &sum2);
+			mac_do_checksum_calc(&(Segments[i].sides[j].pad), 1, &sum1, &sum2);
+			s = INTEL_SHORT(Segments[i].sides[j].wall_num);
+			mac_do_checksum_calc((ubyte *)&s, 2, &sum1, &sum2);
+			s = INTEL_SHORT(Segments[i].sides[j].tmap_num);
+			mac_do_checksum_calc((ubyte *)&s, 2, &sum1, &sum2);
+			s = INTEL_SHORT(Segments[i].sides[j].tmap_num2);
+			mac_do_checksum_calc((ubyte *)&s, 2, &sum1, &sum2);
+			for (k = 0; k < 4; k++) {
+				t = INTEL_INT(((int)Segments[i].sides[j].uvls[k].u));
+				mac_do_checksum_calc((ubyte *)&t, 4, &sum1, &sum2);
+				t = INTEL_INT(((int)Segments[i].sides[j].uvls[k].v));
+				mac_do_checksum_calc((ubyte *)&t, 4, &sum1, &sum2);
+				t = INTEL_INT(((int)Segments[i].sides[j].uvls[k].l));
+				mac_do_checksum_calc((ubyte *)&t, 4, &sum1, &sum2);
+			}
+			for (k = 0; k < 2; k++) {
+				t = INTEL_INT(((int)Segments[i].sides[j].normals[k].x));
+				mac_do_checksum_calc((ubyte *)&t, 4, &sum1, &sum2);
+				t = INTEL_INT(((int)Segments[i].sides[j].normals[k].y));
+				mac_do_checksum_calc((ubyte *)&t, 4, &sum1, &sum2);
+				t = INTEL_INT(((int)Segments[i].sides[j].normals[k].z));
+				mac_do_checksum_calc((ubyte *)&t, 4, &sum1, &sum2);
+			}
+		}
+		for (j = 0; j < MAX_SIDES_PER_SEGMENT; j++) {
+			s = INTEL_SHORT(Segments[i].children[j]);
+			mac_do_checksum_calc((ubyte *)&s, 2, &sum1, &sum2);
+		}
+		for (j = 0; j < MAX_VERTICES_PER_SEGMENT; j++) {
+			s = INTEL_SHORT(Segments[i].verts[j]);
+			mac_do_checksum_calc((ubyte *)&s, 2, &sum1, &sum2);
+		}
+		s = INTEL_SHORT(Segments[i].objects);
+		mac_do_checksum_calc((ubyte *)&s, 2, &sum1, &sum2);
+		mac_do_checksum_calc((unsigned char *)&(Segments[i].special), 1, &sum1, &sum2);
+		mac_do_checksum_calc((unsigned char *)&(Segments[i].matcen_num), 1, &sum1, &sum2);
+		s = INTEL_SHORT(Segments[i].value);
+		mac_do_checksum_calc((ubyte *)&s, 2, &sum1, &sum2);
+		t = INTEL_INT(((int)Segments[i].static_light));
+		mac_do_checksum_calc((ubyte *)&t, 4, &sum1, &sum2);
+#ifndef EDITOR
+		s = INTEL_SHORT(Segments[i].pad);	// necessary? If this isn't set to 0 it won't work Intel-Intel anyway.
+		mac_do_checksum_calc((ubyte *)&s, 2, &sum1, &sum2);
+#endif
+	}
+	sum2 %= 255;
+	return ((sum1<<8)+ sum2);
+}
+
+// this routine totally and completely relies on the fact that the network
+//  checksum must be calculated on the segments!!!!!
+
+ushort netmisc_calc_checksum(void * vptr, int len)
+{
+	vptr = vptr;
+	len = len;
+	return mac_calc_segment_checksum();
+}
+#else /* !WORDS_BIGENDIAN */
+
+// Calculates the checksum of a block of memory.
+ushort netmisc_calc_checksum(void * vptr, int len)
+{
+	ubyte *ptr = (ubyte *)vptr;
+	unsigned int sum1,sum2;
+
+	sum1 = sum2 = 0;
+
+	while(len--) {
+		sum1 += *ptr++;
+		if (sum1 >= 255) sum1 -= 255;
+		sum2 += sum1;
+	}
+	sum2 %= 255;
+
+	return ((sum1<<8)+ sum2);
+}
+
+#endif /* WORDS_BIGENDIAN */
 
 //load a level off disk. level numbers start at 1.  Secret levels are -1,-2,-3
 void LoadLevel(int level_num) 
@@ -1357,7 +1468,7 @@ void StartLevel(int random)
 	}		
 
 	if (Game_mode & GM_NETWORK)
-		network_do_frame(1, 1);
+		multi_do_protocol_frame(1, 1);
 #endif
 
 	ai_reset_all_paths();

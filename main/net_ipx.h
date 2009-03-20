@@ -25,21 +25,6 @@ COPYRIGHT 1993-1998 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 #include "multi.h"
 #include "newmenu.h"
 
-#define NETSTAT_MENU                            0
-#define NETSTAT_PLAYING				1
-#define NETSTAT_BROWSING			2
-#define NETSTAT_WAITING				3
-#define NETSTAT_STARTING			4
-#define NETSTAT_ENDLEVEL			5
-
-#define CONNECT_DISCONNECTED                    0
-#define CONNECT_PLAYING				1
-#define CONNECT_WAITING				2
-#define CONNECT_DIED_IN_MINE                    3
-#define CONNECT_FOUND_SECRET                    4
-#define CONNECT_ESCAPE_TUNNEL                   5
-#define CONNECT_END_MENU			6
-
 #define MAX_ACTIVE_NETGAMES                     12
 
 typedef struct sequence_packet {
@@ -86,21 +71,42 @@ typedef struct frame_info {
 } __pack__ frame_info;
 #endif
 
-// short_frame_info is not aligned -- 01/18/96 -- MWA
-// won't align because of shortpos.  Shortpos needs
-// to stay in current form.
+typedef struct IPX_netplayer_info {
+	char		callsign[CALLSIGN_LEN+1];
+	ubyte		server[4];
+	ubyte		node[6];
+	ushort	socket;
+	sbyte 		connected;
+} __pack__ IPX_netplayer_info;
 
-typedef struct short_frame_info {
-	ubyte       type;                   // What type of packet
-	ubyte       pad[3];                 // Pad out length of frame_info packet
-	int         numpackets;
-	shortpos    thepos;
-	ushort      data_size;          // Size of data appended to the net packet
-	ubyte       playernum;
-	ubyte       obj_render_type;
-	ubyte       level_num;
-	char        data[NET_XDATA_SIZE];   // extra data to be tacked on the end
-} __pack__ short_frame_info;
+typedef struct IPX_netgame_info {
+	ubyte					type;
+	char					game_name[NETGAME_NAME_LEN+1];
+	char					team_name[2][CALLSIGN_LEN+1];
+	ubyte					gamemode;
+        ubyte                                   difficulty;
+        ubyte                                   game_status;
+	ubyte					numplayers;
+	ubyte					max_numplayers;
+	ubyte					game_flags;
+        IPX_netplayer_info                          players[MAX_PLAYERS];
+	int					locations[MAX_PLAYERS];
+	short					kills[MAX_PLAYERS][MAX_PLAYERS];
+	int					levelnum;
+	ubyte					protocol_version;
+	ubyte					team_vector;
+        ushort                                  segments_checksum;
+	short					team_kills[2];
+	short					killed[MAX_PLAYERS];
+	short					player_kills[MAX_PLAYERS];
+	fix					level_time;
+	int					control_invul_time;
+	int 					monitor_vector;
+	int					player_score[MAX_PLAYERS];
+	ubyte					player_flags[MAX_PLAYERS];
+	char					mission_name[9];
+	char					mission_title[MISSION_NAME_LEN+1];
+} __pack__ IPX_netgame_info;
 
 void network_start_game();
 void network_join_game();
@@ -120,16 +126,10 @@ int network_whois_master();
 extern int Network_send_objects;
 extern int Network_send_objnum;
 extern int PacketUrgent;
-extern int Network_rejoined;
-
-extern int Network_new_game;
-extern int Network_status;
 
 extern int restrict_mode;
 
 extern fix LastPacketTime[MAX_PLAYERS];
-
-extern ushort my_segments_checksum;
 
 //extern int Network_allow_socket_changes;
 
@@ -176,7 +176,7 @@ extern int IPX_Socket;
 
 void network_send_objects(void);
 void network_dump_player(ubyte * server, ubyte *node, int why);
-void network_send_game_info(sequence_packet *their, int light);
+void network_send_game_info(sequence_packet *their);
 //end this section change - VR
 
 #ifdef SHAREWARE
@@ -203,19 +203,8 @@ void network_send_game_info(sequence_packet *their, int light);
 #define PID_GAME_INFO                           37
 #endif
 
-#define PID_D1X_GAME_INFO_REQ           65
-#define PID_D1X_GAME_INFO		66
-#define PID_D1X_GAME_LITE_REQ		67
-#define PID_D1X_GAME_LITE		68
-#define PID_D1X_SYNC			69
-#define PID_D1X_REQUEST 		71
-//added 03/04/99 Matt Mueller - send multi data, without extra baggage
-#define PID_DIRECTDATA			72
-//end addition -MM 
 #define PID_PING_SEND       73
 #define PID_PING_RETURN     74
-#define PID_PDATA_NOLOSS	75 // Same as PID_PDATA, but client should ACK it!
-#define PID_PDATA_ACK		76 // ACK message for PID_PDATA_NOLOSS packet
 
 #define NETGAME_ANARCHY                 0
 #define NETGAME_TEAM_ANARCHY            1

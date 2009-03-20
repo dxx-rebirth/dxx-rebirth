@@ -66,7 +66,6 @@ static char rcsid[] = "$Id: collide.c,v 1.1.1.1 2006/03/17 19:41:32 zicodxx Exp 
 #include "piggy.h"
 #include "text.h"
 #include "maths.h"
-#include "multipow.h"
 
 #ifdef EDITOR
 #include "editor/editor.h"
@@ -1066,7 +1065,7 @@ void drop_pow_count(object *obj, int *pow_count)
 		// limit powerups in D1X network games
 #ifdef NETWORK
 		if ((Game_mode & GM_NETWORK) &&
-                    (Netgame.protocol_version == MULTI_PROTO_D1X_VER))
+                    (Netgame.protocol.ipx.protocol_version == MULTI_PROTO_D1X_VER))
                  {
                     if (multi_allow_powerup_mask[i])
                      { // only check 'important' powerups (no shield,energy,conc)

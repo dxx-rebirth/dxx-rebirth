@@ -54,14 +54,13 @@ COPYRIGHT 1993-1998 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 #include "gameseq.h"
 #include "physics.h"
 #include "config.h"
-#include "multipow.h"
 #include "hudmsg.h"
 #include "ctype.h"  // for isalpha
 #include "vers_id.h"
 #include "byteswap.h"
 #include "pstypes.h"
 #include "strutil.h"
-
+#include "u_mem.h"
 
 //
 // Local macros and prototypes
@@ -101,6 +100,7 @@ sbyte  object_owner[MAX_OBJECTS];   // Who created each object in my universe, -
 
 int 	Net_create_objnums[MAX_NET_CREATE_OBJECTS]; // For tracking object creation that will be sent to remote
 int 	Net_create_loc = 0;  // pointer into previous array
+int     Network_status = 0;
 int	Network_laser_fired = 0; // How many times we shot
 int	Network_laser_gun; // Which gun number we shot
 int   Network_laser_flags; // Special flags for the shot
@@ -116,6 +116,11 @@ int 	multi_in_menu = 0;
 int 	multi_leave_menu = 0;
 int 	multi_quit_game = 0;
 
+// For rejoin object syncing
+
+int     Network_rejoined = 0;       // Did WE rejoin this game?
+int     Network_new_game = 0;            // Is this the first level of a new game?
+
 //added 02/26/99 Matt Mueller - reactor kill stats
 short reactor_kills[MAX_NUM_NET_PLAYERS];
 int reactor_kills_total;
@@ -123,6 +128,8 @@ int reactor_kills_total;
 
 uint	multi_allow_powerup;
 uint	multi_got_pow_count;
+
+ushort          my_segments_checksum = 0;
 
 netgame_info Netgame;
 
@@ -236,6 +243,17 @@ int message_length[MULTI_MAX_TYPE+1] = {
 void multi_reset_player_object(object *objp);
 void multi_set_robot_ai(void);
 void extract_netplayer_stats( netplayer_stats *ps, player * pd );
+
+int multi_allow_powerup_mask[MAX_POWERUP_TYPES] =
+{ NETFLAG_DOINVUL, 0, 0, NETFLAG_DOLASER, 0, 0, 0, 0, 0, 0, 0, 0, NETFLAG_DOQUAD,
+  NETFLAG_DOVULCAN, NETFLAG_DOSPREAD, NETFLAG_DOPLASMA, NETFLAG_DOFUSION,
+  NETFLAG_DOPROXIM, NETFLAG_DOHOMING, NETFLAG_DOHOMING, NETFLAG_DOSMART,
+  NETFLAG_DOMEGA, NETFLAG_DOVULCAN, NETFLAG_DOCLOAK, 0, NETFLAG_DOINVUL, 0, 0, 0 };
+
+char *multi_allow_powerup_text[MULTI_ALLOW_POWERUP_MAX] =
+{ "Laser upgrade", "Quad lasers", "Vulcan cannon", "Spreadfire cannon", "Plasma cannon",
+  "Fusion cannon", "Homing missiles", "Smart missiles", "Mega missiles", "Proximity bombs",
+  "Cloaking", "Invulnerability" };
 
 //
 //  Functions that replace what used to be macros
@@ -698,6 +716,11 @@ void multi_compute_kill(int killer, int killed)
 	multi_show_player_list();
 }
 
+void multi_do_protocol_frame(int force, int listen)
+{
+	network_do_frame(force, listen);
+}
+
 void multi_do_frame(void)
 {
 	if (!(Game_mode & GM_MULTI) || Newdemo_state == ND_STATE_PLAYBACK)
@@ -718,7 +741,7 @@ void multi_do_frame(void)
 	}
 #endif	
 
-	network_do_frame(0, 1);
+	multi_do_protocol_frame(0, 1);
 
 	if (multi_quit_game && !multi_in_menu)
 	{
@@ -1053,7 +1076,7 @@ void multi_send_message_end()
 		for (i = 0; i < N_players; i++)
 		if ((!strnicmp(Players[i].callsign, &Network_message[name_index], strlen(Network_message)-name_index)) && (i != Player_num) && (Players[i].connected)) {
 			kick_player:;
-				network_dump_player(Netgame.players[i].server,Netgame.players[i].node, 7);
+				network_dump_player(Netgame.players[i].protocol.ipx.server,Netgame.players[i].protocol.ipx.node, 7);
 
 				HUD_init_message("Dumping %s...",Players[i].callsign);
 				multi_message_index = 0;
@@ -2751,7 +2774,7 @@ multi_prep_level(void)
 
 	// send player powerups (assumes sync already send)
 	if ((Game_mode & GM_NETWORK) &&
-	    Netgame.protocol_version == MULTI_PROTO_D1X_VER &&
+	    Netgame.protocol.ipx.protocol_version == MULTI_PROTO_D1X_VER &&
 	    !Network_rejoined)
 		multi_send_player_powerup_count();
 
@@ -2815,7 +2838,7 @@ network_i_am_master(void)
 			return 0;
 	return 1;
 }
-#include "u_mem.h"
+
 void change_playernum_to( int new_Player_num )	
 {
 // 	if (Player_num > -1)

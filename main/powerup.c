@@ -492,7 +492,7 @@ void pow_add_random(object *obj) {
 	#ifndef NDEBUG
 #ifdef NETWORK
 	if (!(Game_mode & GM_NETWORK) ||
-            Netgame.protocol_version != MULTI_PROTO_D1X_VER)
+            Netgame.protocol.ipx.protocol_version != MULTI_PROTO_D1X_VER)
                 return;
 #endif
 	dump_pow_count("pow_add_random: now start level", powerup_start_level);
@@ -507,7 +507,7 @@ void pow_add_level_pow_count(int *pow_count) {
 	#ifndef NDEBUG
 #ifdef NETWORK
 	if (!(Game_mode & GM_NETWORK) ||
-            Netgame.protocol_version != MULTI_PROTO_D1X_VER)
+            Netgame.protocol.ipx.protocol_version != MULTI_PROTO_D1X_VER)
 		return;
 #endif
 	dump_pow_count("pow_add_level_pow_count: pow_count", pow_count);
@@ -599,7 +599,7 @@ int may_create_powerup(int powerup)
 
 	if (!(Game_mode & GM_NETWORK)
 #ifdef NETWORK
-		|| Netgame.protocol_version != MULTI_PROTO_D1X_VER
+		|| Netgame.protocol.ipx.protocol_version != MULTI_PROTO_D1X_VER
 #endif
 		)
 	    return -1; // say unknown if not in D1X network game

@@ -21,23 +21,42 @@ COPYRIGHT 1993-1998 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 #ifndef _MULTI_H
 #define _MULTI_H
 
+#ifdef NETWORK
+
+#ifdef _WIN32
+	#include <winsock.h>
+	#include <io.h>
+#else
+	#include <sys/socket.h>
+	#include <netinet/in.h>
+	#include <netdb.h>
+	#include <arpa/inet.h>
+	#include <unistd.h>
+	#include <sys/time.h>
+#endif
+
+#ifdef IPv6
+	#define _sockaddr sockaddr_in6
+	#define _af AF_INET6
+	#define _pf PF_INET6
+#else
+	#define _sockaddr sockaddr_in
+	#define _af AF_INET
+	#define _pf PF_INET
+#endif
+
+// Defines
+#include "gameseq.h"
+#include "piggy.h"
+#include "vers_id.h"
+#include "powerup.h"
+
 #ifdef SHAREWARE
 #define MAX_MESSAGE_LEN 25
 #else
 #define MAX_MESSAGE_LEN 35
 #define SHAREWARE_MAX_MESSAGE_LEN 25
 #endif
-
-#ifdef NETWORK
-
-// Defines
-#include "gameseq.h"
-#include "piggy.h"
-#include "vers_id.h"
-
-//added 03/05/99 Matt Mueller
-#include "compare.h"
-//end addition -MM
 
 // What version of the multiplayer protocol is this?
 
@@ -117,6 +136,40 @@ COPYRIGHT 1993-1998 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 #define MISSILE_ADJUST 6
 
 
+#define NETSTAT_MENU                            0
+#define NETSTAT_PLAYING				1
+#define NETSTAT_BROWSING			2
+#define NETSTAT_WAITING				3
+#define NETSTAT_STARTING			4
+#define NETSTAT_ENDLEVEL			5
+
+#define CONNECT_DISCONNECTED                    0
+#define CONNECT_PLAYING				1
+#define CONNECT_WAITING				2
+#define CONNECT_DIED_IN_MINE                    3
+#define CONNECT_FOUND_SECRET                    4
+#define CONNECT_ESCAPE_TUNNEL                   5
+#define CONNECT_END_MENU			6
+
+// Bitmask for netgame_info->AllowedItems to set allowed items in Netgame
+#define NETFLAG_DOLASER   1     //  0x0000001
+#define NETFLAG_DOQUAD    2     //  0x0000002
+#define NETFLAG_DOVULCAN  4     //  0x0000004
+#define NETFLAG_DOSPREAD  8     //  0x0000008
+#define NETFLAG_DOPLASMA  16    //  0x0000010
+#define NETFLAG_DOFUSION  32    //  0x0000020
+#define NETFLAG_DOHOMING  64    //  0x0000040
+#define NETFLAG_DOSMART   128   //  0x0000080
+#define NETFLAG_DOMEGA    256   //  0x0000100
+#define NETFLAG_DOPROXIM  512   //  0x0000200
+#define NETFLAG_DOCLOAK   1024  //  0x0000400
+#define NETFLAG_DOINVUL   2048  //  0x0000800
+#define NETFLAG_DOPOWERUP 4095  //  0x0000fff mask for all powerup flags
+
+#define MULTI_ALLOW_POWERUP_MAX 12
+int multi_allow_powerup_mask[MAX_POWERUP_TYPES];
+extern char *multi_allow_powerup_text[MULTI_ALLOW_POWERUP_MAX];
+
 // Exported functions
 
 int objnum_remote_to_local(int remote_obj, int owner);
@@ -126,6 +179,7 @@ void map_objnum_local_to_local(int objnum);
 
 void multi_init_objects(void);
 void multi_show_player_list(void);
+void multi_do_protocol_frame(int force, int listen);
 void multi_do_frame(void);
 
 void multi_send_fire(int pl);
@@ -187,10 +241,13 @@ int get_team(int pnum);
 // Exported variables
 
 extern int Network_active;
+extern int Network_status;
 extern int Network_laser_gun;
 extern int Network_laser_fired;
 extern int Network_laser_level;
 extern int Network_laser_flags;
+extern int Network_rejoined;
+extern int Network_new_game;
 
 extern int message_length[MULTI_MAX_TYPE+1];
 
@@ -206,6 +263,8 @@ extern short kill_matrix[MAX_NUM_NET_PLAYERS][MAX_NUM_NET_PLAYERS];
 extern short team_kills[2];
 
 extern int multi_goto_secret;
+
+extern ushort my_segments_checksum;
 
 //do we draw the kill list on the HUD?
 extern int Show_kill_list;
@@ -248,60 +307,106 @@ extern bitmap_index multi_player_textures[MAX_NUM_NET_PLAYERS][N_PLAYER_SHIP_TEX
 #define NETPLAYER_ORIG_SIZE	22
 #define NETPLAYER_D1X_SIZE	22 /* D1X version removes last char from callsign */
 
-typedef struct netplayer_info {
-	char		callsign[CALLSIGN_LEN+1];
-	ubyte		server[4];
-	ubyte		node[6];
-	ushort	socket;
-	sbyte 		connected;
-#ifndef SHAREWARE
-	/* following D1X only */
-	ubyte		sub_protocol;
-#endif
-} __pack__ netplayer_info;
-
-typedef struct netgame_info {
-	ubyte					type;
-	char					game_name[NETGAME_NAME_LEN+1];
-	char					team_name[2][CALLSIGN_LEN+1];
-	ubyte					gamemode;
-        ubyte                                   difficulty;
-        ubyte                                   game_status;
-	ubyte					numplayers;
-	ubyte					max_numplayers;
-	ubyte					game_flags;
-        netplayer_info                          players[MAX_PLAYERS];
-	int					locations[MAX_PLAYERS];
-	short					kills[MAX_PLAYERS][MAX_PLAYERS];
-	int					levelnum;
-	ubyte					protocol_version;
-	ubyte					team_vector;
-        ushort                                  segments_checksum;
-	short					team_kills[2];
-	short					killed[MAX_PLAYERS];
-	short					player_kills[MAX_PLAYERS];
-	fix					level_time;
-	int					control_invul_time;
-	int 					monitor_vector;
-	int					player_score[MAX_PLAYERS];
-	ubyte					player_flags[MAX_PLAYERS];
-	char					mission_name[9];
-	char					mission_title[MISSION_NAME_LEN+1];
-// from protocol v 3.0
-	ubyte					packets_per_sec;
-	uint					flags;
-	ubyte					subprotocol; // constant for given version
-	ubyte					required_subprotocol; // depends on game mode etc.
-} __pack__ netgame_info;
-
-extern struct netgame_info Netgame;
-
 int network_i_am_master(void);
 void change_playernum_to(int new_pnum);
 
 extern uint multi_allow_powerup;
 
 extern int HUD_init_message(char * format, ...);
+
+extern struct netgame_info Netgame;
+
+/*
+ * The Network Players structure
+ * Contains both IPX- and UDP-specific data with designated prefixes and general player-related data.
+ * Note that not all of these infos will be sent to other users - some are used and/or set locally, only.
+ * Even if some variables are not UDP-specific, they might be used in IPX as well to maintain backwards compability.
+ */
+typedef struct netplayer_info
+{
+	union
+	{
+		struct
+		{
+			ubyte				server[4];
+			ubyte				node[6];
+			ushort				socket;
+		} ipx;
+		struct
+		{
+			struct _sockaddr	addr; // IP address of this peer
+			int					valid; // 1 = client connected / 2 = client ready for handshaking / 3 = client done with handshake and fully joined / 0 between clients = no connection -> relay
+			fix					timestamp; // time of received packet - used for timeout
+			char				hs_list[MAX_PLAYERS+4]; // list to store all handshake results for this player from already connected clients
+			int					hstimeout; // counts the number of tries the client tried to connect - if reached 10, client put to relay if allowed
+			int					relay; // relay packets by/to this clients over host
+		} udp;
+	} protocol;	
+
+	char						callsign[CALLSIGN_LEN+1];
+	sbyte						connected;
+	int							ping;
+} __pack__ netplayer_info;
+
+/*
+ * The Network Game structure
+ * Contains both IPX- and UDP-specific data with designated prefixes and general game-related data.
+ * Note that not all of these infos will be sent to clients - some are used and/or set locally, only.
+ * Even if some variables are not UDP-specific, they might be used in IPX as well to maintain backwards compability.
+ */
+typedef struct netgame_info {
+
+	union
+	{
+		struct
+		{
+			ubyte				Game_pkt_type;
+			ubyte   			protocol_version;
+		} ipx;
+		struct
+		{
+			struct _sockaddr	addr; // IP address of this netgame's host
+			int					program_iver; // IVER of program for version checking
+		} udp;
+	} protocol;	
+
+	struct netplayer_info 		players[MAX_PLAYERS+4];
+	char    					game_name[NETGAME_NAME_LEN+1];
+	char    					mission_title[MISSION_NAME_LEN+1];
+	char    					mission_name[9];
+	int     					levelnum;
+	ubyte   					gamemode;
+	ubyte   					RefusePlayers; // FIXME!!!
+	ubyte   					difficulty;
+	ubyte   					game_status;
+	ubyte   					numplayers;
+	ubyte   					max_numplayers;
+	ubyte   					numconnected; // FIXME!!!
+	ubyte   					game_flags;
+	ubyte   					team_vector;
+	u_int32_t					AllowedItems;
+	short						Allow_marker_view:1; // FIXME!!!
+	short						AlwaysLighting:1; // FIXME!!!
+	short						ShowAllNames:1; // FIXME!!!
+	short						BrightPlayers:1; // FIXME!!!
+	short						InvulAppear:1; // FIXME!!!
+	char						team_name[2][CALLSIGN_LEN+1];
+	int							locations[MAX_PLAYERS];
+	short						kills[MAX_PLAYERS][MAX_PLAYERS];
+	ushort						segments_checksum;
+	short						team_kills[2];
+	short						killed[MAX_PLAYERS];
+	short						player_kills[MAX_PLAYERS];
+	int							KillGoal; // FIXME!!!
+	fix							PlayTimeAllowed; // FIXME!!!
+	fix							level_time;
+	int							control_invul_time;
+	int							monitor_vector;
+	int							player_score[MAX_PLAYERS];
+	ubyte						player_flags[MAX_PLAYERS];
+	short						PacketsPerSec;
+	ubyte						PacketLossPrevention;
+} __pack__ netgame_info;
 
 #endif
 

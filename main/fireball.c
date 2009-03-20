@@ -49,7 +49,6 @@ COPYRIGHT 1993-1998 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 #include "fuelcen.h"
 #include "gameseg.h"
 #include "fireball.h"
-#include "multipow.h"
 
 #define EXPLOSION_SCALE fl2f(2.5)		//explosion is the obj size times this  
 

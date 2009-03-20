@@ -2,7 +2,7 @@
 #include <stdio.h>
 #include <string.h>
 #include <netinet/in.h> /* for htons & co. */
-#include "netdrv.h"
+#include "ipxdrv.h"
 #include "ukali.h"
 #include "console.h"
 
@@ -104,10 +104,10 @@ int kali_receive_packet(socket_t *s, char *outbuf, int outbufsize, struct recv_d
 
 static int kali_general_packet_ready(socket_t *s)
 {
-	return netdrv_general_packet_ready(s->fd);
+	return ipxdrv_general_packet_ready(s->fd);
 }
 
-struct net_driver netdrv_kali = {
+struct net_driver ipxdrv_kali = {
 	kali_open_socket,
 	kali_close_socket,
 	kali_send_packet,
