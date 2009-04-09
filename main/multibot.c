@@ -25,7 +25,6 @@ COPYRIGHT 1993-1998 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 
 #include "vecmat.h"
 #include "game.h"
-#include "net_ipx.h"
 #include "multi.h"
 #include "object.h"
 #include "laser.h"
@@ -797,7 +796,7 @@ multi_explode_robot_sub(int botnum, int killer)
 
 	// Data seems valid, explode the sucker
 
-	if (Network_send_objects && network_objnum_is_past(botnum))
+	if (Network_send_objects && multi_objnum_is_past(botnum))
 	{
 		Network_send_objnum = -1;
 	}

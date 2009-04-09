@@ -23,6 +23,12 @@ COPYRIGHT 1993-1998 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 
 #ifdef NETWORK
 
+#include "gameseq.h"
+#include "piggy.h"
+#include "vers_id.h"
+#include "powerup.h"
+#include "newmenu.h"
+
 #ifdef _WIN32
 	#include <winsock.h>
 	#include <io.h>
@@ -45,34 +51,28 @@ COPYRIGHT 1993-1998 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 	#define _pf PF_INET
 #endif
 
-// Defines
-#include "gameseq.h"
-#include "piggy.h"
-#include "vers_id.h"
-#include "powerup.h"
 
-#ifdef SHAREWARE
-#define MAX_MESSAGE_LEN 25
-#else
-#define MAX_MESSAGE_LEN 35
-#define SHAREWARE_MAX_MESSAGE_LEN 25
-#endif
+// PROTOCOL VARIABLES AND DEFINES
+extern int multi_protocol; // set and determinate used protocol
+#define MULTI_PROTO_IPX 1 // IPX-type protocol (IPX, KALI)
+#define MULTI_PROTO_UDP 2 // UDP protocol
 
 // What version of the multiplayer protocol is this?
-
-#ifdef SHAREWARE
-#define MULTI_PROTO_VERSION 	1
-#else
+// Protocol versions:
+//   1 Descent Shareware
+//   2 Descent Registered/Commercial
+//   3 Descent II Shareware
+//   4 Descent II Commercial
 #define MULTI_PROTO_VERSION	2
-#endif
+// these two defines should become obsolete due to strict version checking in UDP
 #define MULTI_PROTO_D1X_VER	7  // Increment everytime we change networking features - based on ubyte, must never be > 255
+#define MULTI_PROTO_D1X_MINOR	1 //Incrementing this seems the only way possible.  Still stays backwards compitible.
+// PROTOCOL VARIABLES AND DEFINES - END
 
-//Incrementing this seems the only way possible.  Still stays backwards compitible.
-#define MULTI_PROTO_D1X_MINOR	1
 
-// How many simultaneous network players do we support?
-
-#define MAX_NUM_NET_PLAYERS 8
+#define MAX_MESSAGE_LEN 35
+#define SHAREWARE_MAX_MESSAGE_LEN 25
+#define MAX_NUM_NET_PLAYERS 8 // How many simultaneous network players do we support?
 
 #define MULTI_POSITION			0
 #define MULTI_REAPPEAR   		1
@@ -176,6 +176,8 @@ int objnum_remote_to_local(int remote_obj, int owner);
 int objnum_local_to_remote(int local_obj, sbyte *owner);
 void map_objnum_local_to_remote(int local, int remote, int owner);
 void map_objnum_local_to_local(int objnum);
+int multi_objnum_is_past(int objnum);
+void multi_do_ping_frame();
 
 void multi_init_objects(void);
 void multi_show_player_list(void);
@@ -209,7 +211,9 @@ void multi_send_start_powerup_count();
 
 void multi_endlevel_score(void);
 void multi_prep_level(void);
+int multi_level_sync(void);
 int multi_endlevel(int *secret);
+void multi_endlevel_poll2( int nitems, struct newmenu_item * menus, int * key, int citem );
 int multi_menu_poll(void);
 void multi_leave_game(void);
 void multi_process_data(char *dat, int len);
@@ -225,27 +229,23 @@ int multi_get_kill_list(int *plist);
 void multi_new_game(void);
 void multi_sort_kill_list(void);
 void multi_reset_stuff(void);
-
-//edit 03/04/99 Matt Mueller - some debug code.. ignore if you wish.
-void 
- multi_send_data_real(unsigned char *buf, int len, int repeat,char *file,char *func,int line);
-#ifndef __FUNCTION__
-#define __FUNCTION__ ((char *) 0)
-#endif
-//multi_send_data(unsigned char *buf, int len, int repeat);
-#define multi_send_data(buf, len, repeat) multi_send_data_real(buf, len, repeat, __FILE__,__FUNCTION__,__LINE__)
-//end edit -MM
-
+void multi_send_data(unsigned char *buf, int len, int repeat);
 int get_team(int pnum);
+
 
 // Exported variables
 
+extern int PacketUrgent;
 extern int Network_active;
 extern int Network_status;
 extern int Network_laser_gun;
 extern int Network_laser_fired;
 extern int Network_laser_level;
 extern int Network_laser_flags;
+
+// IMPORTANT: These variables needed for player rejoining done by protocol-specific code
+extern int Network_send_objects;
+extern int Network_send_objnum;
 extern int Network_rejoined;
 extern int Network_new_game;
 
@@ -307,7 +307,8 @@ extern bitmap_index multi_player_textures[MAX_NUM_NET_PLAYERS][N_PLAYER_SHIP_TEX
 #define NETPLAYER_ORIG_SIZE	22
 #define NETPLAYER_D1X_SIZE	22 /* D1X version removes last char from callsign */
 
-int network_i_am_master(void);
+int multi_i_am_master(void);
+int multi_who_is_master(void);
 void change_playernum_to(int new_pnum);
 
 extern uint multi_allow_powerup;
@@ -345,7 +346,8 @@ typedef struct netplayer_info
 
 	char						callsign[CALLSIGN_LEN+1];
 	sbyte						connected;
-	int							ping;
+	fix							ping;
+	fix							LastPacketTime;
 } __pack__ netplayer_info;
 
 /*
@@ -376,7 +378,7 @@ typedef struct netgame_info {
 	char    					mission_name[9];
 	int     					levelnum;
 	ubyte   					gamemode;
-	ubyte   					RefusePlayers; // FIXME!!!
+	ubyte   					RefusePlayers;
 	ubyte   					difficulty;
 	ubyte   					game_status;
 	ubyte   					numplayers;

@@ -48,7 +48,6 @@ COPYRIGHT 1993-1998 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 #include "kmatrix.h"
 #include "gauges.h"
 #include "pcx.h"
-#include "net_ipx.h"
 
 #ifdef OGL
 #include "ogl_init.h"
@@ -243,7 +242,7 @@ void kmatrix_view(int network)
 		if (network && (Game_mode & GM_NETWORK))
 		{
 			kmatrix_kills_changed = 0;
-			network_endlevel_poll2(0, NULL, &key, 0);
+			multi_endlevel_poll2(0, NULL, &key, 0);
 			if ( kmatrix_kills_changed )	{
 				kmatrix_redraw();
 			}

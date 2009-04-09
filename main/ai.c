@@ -2154,7 +2154,7 @@ void do_super_boss_stuff(object *objp, fix dist_to_player, int player_visibility
 
 	// Only master player can cause gating to occur.
 	#ifdef NETWORK
-	if ((Game_mode & GM_MULTI) && !network_i_am_master())
+	if ((Game_mode & GM_MULTI) && !multi_i_am_master())
                 return;
 	#endif
 

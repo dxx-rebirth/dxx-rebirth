@@ -874,11 +874,6 @@ void ResumeSavedGame(int start_level)
 	game_disable_cheats();
 }
 
-#ifdef NETWORK
-extern void network_endlevel_poll2( int nitems, newmenu_item * menus, int * key, int citem ); // network.c
-#endif
-
-
 //	-----------------------------------------------------------------------------
 //	Does the bonus scoring.
 //	Call with dead_flag = 1 if player died, but deserves some portion of bonus (only skill points), anyway.
@@ -968,7 +963,7 @@ void DoEndLevelScoreGlitz(int network)
 
 #ifdef NETWORK
 	if ( network && (Game_mode & GM_NETWORK) )
-		newmenu_do2(NULL, title, c, m, network_endlevel_poll2, 0, Menu_pcx_name);
+		newmenu_do2(NULL, title, c, m, multi_endlevel_poll2, 0, Menu_pcx_name);
 	else
 #endif	// Note link!
 		newmenu_do2(NULL, title, c, m, DoEndLevelScoreGlitzPoll, 0, Menu_pcx_name);
@@ -1255,7 +1250,7 @@ void StartNewLevelSub(int level_num, int page_in_textures)
 #ifdef NETWORK
 	if (Game_mode & GM_NETWORK)
 	{
-		if(network_level_sync()) // After calling this, Player_num is set
+		if(multi_level_sync()) // After calling this, Player_num is set
 			return;
 	}
 #endif

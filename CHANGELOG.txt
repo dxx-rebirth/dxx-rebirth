@@ -1,5 +1,9 @@
 D1X-Rebirth Changelog
 
+20090409
+--------
+main/multi.c, main/multi.h, main/multibot.c, main/menu.c, main/kmatrix.c, main/net_ipx.c, main/net_ipx.h, main/gameseq.c, main/fuelcen.c, main/ai.c, main/game.c: Abstracting networking protocols - Step 3: Renaming network_* functions to net_ipx_*, writing wrappers for protocol dependend functions in multi.c, Implementing protocol selection and Cleanup - Next up: Implementing new UDP layer
+
 20090320
 --------
 include/ipxdrv.h, main/ipxdrv.c, main/newmenu.c, main/fireball.c, main/multi.c, main/multi.h, main/menu.c, main/state.c, main/newdemo.c, main/net_ipx.c, main/net_ipx.h, main/gameseq.c, main/endlevel.c, main/game.c, main/gamecntl.c, SConstruct, arch/linux/ipx.c, arch/linux/ipx_kali.c, arch/win32/ipx.c: Abstracting networking protocols - Step 2: Introducing new structure to hold protocol-dependend and -independend information about Netgame and it's Players; Further isolation of the IPX code and renaming the netdrv_* code to ipxdrv_* as this is now actually IPX-only; Next up: Renaming network_* functions to net_ipx_*, writing wrappers for protocol dependend functions in multi.c, Implementing protocol selection and Cleanup

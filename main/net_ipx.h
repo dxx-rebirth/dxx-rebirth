@@ -23,7 +23,6 @@ COPYRIGHT 1993-1998 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 
 #include "gameseq.h"
 #include "multi.h"
-#include "newmenu.h"
 
 #define MAX_ACTIVE_NETGAMES                     12
 
@@ -108,28 +107,16 @@ typedef struct IPX_netgame_info {
 	char					mission_title[MISSION_NAME_LEN+1];
 } __pack__ IPX_netgame_info;
 
-void network_start_game();
-void network_join_game();
-void network_rejoin_game();
-void network_leave_game();
-int network_endlevel(int *secret);
-void network_endlevel_poll2( int nitems, struct newmenu_item * menus, int * key, int citem );
-int network_level_sync();
-void network_send_endlevel_packet();
-int network_delete_extra_objects();
-int network_find_max_net_players();
-int network_objnum_is_past(int objnum);
-char * network_get_player_name( int objnum );
-void network_disconnect_player(int playernum);
-int network_whois_master();
-
-extern int Network_send_objects;
-extern int Network_send_objnum;
-extern int PacketUrgent;
-
-extern int restrict_mode;
-
-extern fix LastPacketTime[MAX_PLAYERS];
+void net_ipx_start_game();
+void net_ipx_join_game();
+void net_ipx_leave_game();
+int net_ipx_endlevel(int *secret);
+void net_ipx_endlevel_poll2( int nitems, struct newmenu_item * menus, int * key, int citem );
+int net_ipx_level_sync();
+void net_ipx_send_endlevel_packet();
+int net_ipx_objnum_is_past(int objnum);
+char * net_ipx_get_player_name( int objnum );
+void net_ipx_disconnect_player(int playernum);
 
 //extern int Network_allow_socket_changes;
 
@@ -140,11 +127,8 @@ extern int Network_short_packets; // short packets or not
 extern int Network_pps; // packets per second
 //end edit - Victor Rachels
 
-extern int network_who_is_master(void);
-
-extern int PingTable[MAX_PLAYERS];
-extern void network_ping_all();
-extern void network_handle_ping_return (ubyte pnum);
+extern void net_ipx_ping_all();
+extern void net_ipx_handle_ping_return (ubyte pnum);
 
 // By putting an up-to-20-char-message into Network_message and 
 // setting Network_message_reciever to the player num you want to
@@ -152,11 +136,11 @@ extern void network_handle_ping_return (ubyte pnum);
 // get your message.
 
 // Call once at the beginning of a frame
-void network_do_frame(int force, int listen);
+void net_ipx_do_frame(int force, int listen);
 
 // Tacks data of length 'len' onto the end of the next
 // packet that we're transmitting.
-void network_send_data( ubyte * ptr, int len, int urgent );
+void net_ipx_send_data( ubyte * ptr, int len, int urgent );
 
 //added on 11/16/98 by Victor Rachels for use with mlticntrl
 extern sequence_packet Network_player_rejoining; // Who is rejoining now?
@@ -174,9 +158,9 @@ extern int IPX_Socket;
 #define NETWORK_TIMEOUT (10*F1_0) // 10 seconds disconnect timeout
 #define REFUSE_INTERVAL F1_0 * 8
 
-void network_send_objects(void);
-void network_dump_player(ubyte * server, ubyte *node, int why);
-void network_send_game_info(sequence_packet *their);
+void net_ipx_send_objects(void);
+void net_ipx_dump_player(ubyte * server, ubyte *node, int why);
+void net_ipx_send_game_info(sequence_packet *their);
 //end this section change - VR
 
 #ifdef SHAREWARE

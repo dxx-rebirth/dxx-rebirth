@@ -74,7 +74,6 @@ COPYRIGHT 1993-1998 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 #include "songs.h"
 #include "config.h"
 #include "newmenu.h"
-#include "net_ipx.h"
 #include "gamefont.h"
 #include "endlevel.h"
 #include "kconfig.h"
@@ -569,7 +568,7 @@ void show_netplayerinfo()
 
 	// general game information
 	y+=LINE_SPACING;
-	gr_printf(0x8000,y,"%s by %s",Netgame.game_name,Players[network_who_is_master()].callsign);
+	gr_printf(0x8000,y,"%s by %s",Netgame.game_name,Players[multi_who_is_master()].callsign);
 #ifndef SHAREWARE
 	y+=LINE_SPACING;
 	gr_printf(0x8000,y,"%s - lvl: %i",Netgame.mission_title,Netgame.levelnum);
@@ -599,7 +598,7 @@ void show_netplayerinfo()
 	gr_printf(x+FSPACX(8)*18,y,"ping");
 	gr_printf(x+FSPACX(8)*23,y,"efficiency");
 
-	network_ping_all();
+	multi_do_ping_frame();
 
 	// process players table
 	for (i=0; i<MAX_PLAYERS; i++)
@@ -623,7 +622,7 @@ void show_netplayerinfo()
 			gr_printf(x+FSPACX(8)*12,y,"%-6d",Players[i].net_killed_total);
 		}
 
-		gr_printf(x+FSPACX(8)*18,y,"%-6d",PingTable[i]);
+		gr_printf(x+FSPACX(8)*18,y,"%-6d",Netgame.players[i].ping);
 		if (i != Player_num)
 			gr_printf(x+FSPACX(8)*23,y,"%d/%d",kill_matrix[Player_num][i],kill_matrix[i][Player_num]);
 	}
@@ -1683,7 +1682,6 @@ void game()
 	}
 
 #ifdef NETWORK
-	restrict_mode = 0; // FIXME: do we still need this?
 	netplayerinfo_on=0;
 
 	if(Game_mode & GM_MULTI)
@@ -2202,7 +2200,7 @@ void HandleGameKey(int key)
 #ifdef NETWORK
 		KEY_MAC(case KEY_COMMAND+KEY_6:)
 		case KEY_F6:
-			if (restrict_mode && WaitForRefuseAnswer)
+			if (Netgame.RefusePlayers && WaitForRefuseAnswer)
 			{
 				RefuseThisPlayer=1;
 				HUD_init_message ("Player accepted!");
