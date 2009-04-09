@@ -29,7 +29,6 @@ COPYRIGHT 1993-1999 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 #include "object.h"
 #include "multibot.h"
 #include "game.h"
-#include "net_ipx.h"
 #include "multi.h"
 #include "laser.h"
 #include "error.h"
@@ -838,7 +837,7 @@ multi_explode_robot_sub(int botnum, int killer,char isthief)
 
 	// Data seems valid, explode the sucker
 
-	if (Network_send_objects && network_objnum_is_past(botnum))
+	if (Network_send_objects && multi_objnum_is_past(botnum))
 	{
 		Network_send_objnum = -1;
 	}
@@ -855,7 +854,7 @@ multi_explode_robot_sub(int botnum, int killer,char isthief)
 		multi_drop_robot_powerups(robot-Objects);
 		multi_delete_controlled_robot(robot-Objects);
 	}
-	else if (robot->ctype.ai_info.REMOTE_OWNER == -1 && network_i_am_master()) 
+	else if (robot->ctype.ai_info.REMOTE_OWNER == -1 && multi_i_am_master()) 
 	{
 		multi_drop_robot_powerups(robot-Objects);
 		//multi_delete_controlled_robot(robot-Objects);

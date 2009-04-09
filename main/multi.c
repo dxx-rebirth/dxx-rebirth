@@ -106,6 +106,8 @@ void GameLoop(int, int); // From game.c
 // Global variables
 //
 
+int multi_protocol=0; // set and determinate used protocol
+
 extern vms_vector MarkerPoint[];
 extern char MarkerMessage[16][40];
 extern char MarkerOwner[16][40];
@@ -148,9 +150,12 @@ short team_kills[2];
 int   multi_in_menu = 0;
 int   multi_leave_menu = 0;
 int   multi_quit_game = 0;
+int 	PacketUrgent = 0;
 
 // For rejoin object syncing
 
+int	Network_send_objects = 0;  // Are we in the process of sending objects to a player?
+int 	Network_send_objnum = -1;   // What object are we sending next?
 int     Network_rejoined = 0;       // Did WE rejoin this game?
 int     Network_new_game = 0;            // Is this the first level of a new game?
 
@@ -262,12 +267,43 @@ void use_netplayer_stats( player * ps, netplayer_stats *pd );
 char PowerupsInMine[MAX_POWERUP_TYPES],MaxPowerupsAllowed[MAX_POWERUP_TYPES];
 extern fix ThisLevelTime;
 
+char *RankStrings[]={"(unpatched) ","Cadet ","Ensign ","Lieutenant ","Lt.Commander ",
+                     "Commander ","Captain ","Vice Admiral ","Admiral ","Demigod "};
+
 char *multi_allow_powerup_text[MULTI_ALLOW_POWERUP_MAX] =
 { "Laser upgrade", "Super lasers", "Quad Lasers", "Vulcan cannon", "Gauss cannon", "Spreadfire cannon", 
 "Helix cannon", "Plasma cannon", "Phoenix cannon", "Fusion cannon", "Omega cannon",
 "Flash Missiles", "Homing Missiles", "Guided Missiles", "Proximity Bombs", "Smart Mines",
 "Smart Missiles", "Mercury Missiles", "Mega Missiles", "EarthShaker Missiles", 
 "Cloaking", "Invulnerability", "Afterburners", "Ammo rack", "Energy Converter", "Headlight" };
+
+int GetMyNetRanking()
+{
+	int rank, eff;
+
+	if (PlayerCfg.NetlifeKills+PlayerCfg.NetlifeKilled==0)
+		return (1);
+
+	rank=(int) (((float)PlayerCfg.NetlifeKills/3000.0)*8.0);
+
+	eff=(int)((float)((float)PlayerCfg.NetlifeKills/((float)PlayerCfg.NetlifeKilled+(float)PlayerCfg.NetlifeKills))*100.0);
+
+	if (rank>8)
+		rank=8;
+
+	if (eff<0)
+		eff=0;
+
+	if (eff<60)
+		rank-=((59-eff)/10);
+
+	if (rank<0)
+		rank=0;
+	if (rank>8)
+		rank=8;
+
+	return (rank+1);
+}
 
 //
 //  Functions that replace what used to be macros
@@ -372,6 +408,32 @@ void reset_network_objects()
 	memset(local_to_remote, -1, MAX_OBJECTS*sizeof(short));
 	memset(remote_to_local, -1, MAX_NUM_NET_PLAYERS*MAX_OBJECTS*sizeof(short));
 	memset(object_owner, -1, MAX_OBJECTS);
+}
+
+int multi_objnum_is_past(int objnum)
+{
+	switch (multi_protocol)
+	{
+		case MULTI_PROTO_IPX:
+			return net_ipx_objnum_is_past(objnum);
+			break;
+		default:
+			Error("Protocol handling missing in multi_objnum_is_past\n");
+			break;
+	}
+}
+
+void multi_do_ping_frame()
+{
+	switch (multi_protocol)
+	{
+		case MULTI_PROTO_IPX:
+			return net_ipx_ping_all();
+			break;
+		default:
+			Error("Protocol handling missing in multi_do_ping_frame\n");
+			break;
+	}
 }
 
 //
@@ -820,7 +882,15 @@ void multi_compute_kill(int killer, int killed)
 
 void multi_do_protocol_frame(int force, int listen)
 {
-	network_do_frame(force, listen);
+	switch (multi_protocol)
+	{
+		case MULTI_PROTO_IPX:
+			net_ipx_do_frame(force, listen);
+			break;
+		default:
+			Error("Protocol handling missing in multi_do_protocol_frame\n");
+			break;
+	}
 }
 
 void
@@ -881,7 +951,17 @@ multi_send_data(char *buf, int len, int repeat)
 		Assert(buf[0] > 0);
 
 	if (Game_mode & GM_NETWORK)
-		network_send_data((unsigned char *)buf, len, repeat);
+	{
+		switch (multi_protocol)
+		{
+			case MULTI_PROTO_IPX:
+				net_ipx_send_data((unsigned char *)buf, len, repeat);
+				break;
+			default:
+				Error("Protocol handling missing in multi_send_data_real\n");
+				break;
+		}
+	}
 }
 
 void
@@ -907,18 +987,22 @@ multi_leave_game(void)
 	multi_send_quit(MULTI_QUIT);
 
 	if (Game_mode & GM_NETWORK)
-		network_leave_game();
-
+	{
+		switch (multi_protocol)
+		{
+			case MULTI_PROTO_IPX:
+				net_ipx_leave_game();
+				break;
+			default:
+				Error("Protocol handling missing in multi_leave_game\n");
+				break;
+		}
+	}
+		
 	Game_mode |= GM_GAME_OVER;
 
 	if (Function_mode!=FMODE_EXIT)
 		Function_mode = FMODE_MENU;
-
-	//      N_players = 0;
-
-	//      change_playernum_to(0);
-	//      Viewer = ConsoleObject = &Objects[0];
-
 }
 
 void
@@ -939,10 +1023,69 @@ multi_endlevel(int *secret)
 {
 	int result = 0;
 
-	if (Game_mode & GM_NETWORK)
-		result = network_endlevel(secret);
+	switch (multi_protocol)
+	{
+		case MULTI_PROTO_IPX:
+			result = net_ipx_endlevel(secret);
+			break;
+		default:
+			Error("Protocol handling missing in multi_endlevel\n");
+			break;
+	}
 
 	return(result);
+}
+
+void multi_endlevel_poll2( int nitems, struct newmenu_item * menus, int * key, int citem )
+{
+	switch (multi_protocol)
+	{
+		case MULTI_PROTO_IPX:
+			net_ipx_endlevel_poll2( nitems, menus, key, citem );
+			break;
+		default:
+			Error("Protocol handling missing in multi_endlevel_poll2\n");
+			break;
+	}
+}
+
+void multi_endlevel_poll3( int nitems, struct newmenu_item * menus, int * key, int citem )
+{
+	switch (multi_protocol)
+	{
+		case MULTI_PROTO_IPX:
+			net_ipx_endlevel_poll3( nitems, menus, key, citem );
+			break;
+		default:
+			Error("Protocol handling missing in multi_endlevel_poll3\n");
+			break;
+	}
+}
+
+void multi_send_endlevel_packet()
+{
+	switch (multi_protocol)
+	{
+		case MULTI_PROTO_IPX:
+			net_ipx_send_endlevel_packet();
+			break;
+		default:
+			Error("Protocol handling missing in multi_send_endlevel_packet\n");
+			break;
+	}
+}
+
+void multi_send_endlevel_sub(int player_num)
+{
+	switch (multi_protocol)
+	{
+		case MULTI_PROTO_IPX:
+			net_ipx_send_endlevel_sub(player_num);
+			break;
+		default:
+			Error("Protocol handling missing in multi_send_endlevel_sub\n");
+			break;
+	}
 }
 
 //
@@ -1125,7 +1268,7 @@ multi_send_message_start()
 
 extern fix StartingShields;
 
-extern int network_who_is_master();
+extern int multi_who_is_master();
 extern char NameReturning;
 extern int force_cockpit_redraw;
 
@@ -1169,9 +1312,9 @@ void multi_send_message_end()
 				while (Network_message[name_index] == ' ')
 					name_index++;
 
-			if (!network_i_am_master())
+			if (!multi_i_am_master())
 			{
-				HUD_init_message ("Only %s can move players!",Players[network_who_is_master()].callsign);
+				HUD_init_message ("Only %s can move players!",Players[multi_who_is_master()].callsign);
 				return;
 			}
 
@@ -1199,7 +1342,16 @@ void multi_send_message_end()
 						if (Players[t].connected)
 							multi_reset_object_texture (&Objects[Players[t].objnum]);
 
-					network_send_netgame_update ();
+					switch (multi_protocol)
+					{
+						case MULTI_PROTO_IPX:
+							net_ipx_send_netgame_update();
+							break;
+						default:
+							Error("Protocol handling missing in multi_send_message_end\n");
+							break;
+					}
+					
 					sprintf (Network_message,"%s has changed teams!",Players[i].callsign);
 					if (i==Player_num)
 					{
@@ -1220,9 +1372,9 @@ void multi_send_message_end()
 			while (Network_message[name_index] == ' ')
 				name_index++;
 
-		if (!network_i_am_master())
+		if (!multi_i_am_master())
 		{
-			HUD_init_message ("Only %s can kick others out!",Players[network_who_is_master()].callsign);
+			HUD_init_message ("Only %s can kick others out!",Players[multi_who_is_master()].callsign);
 			multi_message_index = 0;
 			multi_sending_message = 0;
 			return;
@@ -1263,7 +1415,15 @@ void multi_send_message_end()
 		for (i = 0; i < N_players; i++)
 		if ((!strnicmp(Players[i].callsign, &Network_message[name_index], strlen(Network_message)-name_index)) && (i != Player_num) && (Players[i].connected)) {
 			kick_player:;
-				network_dump_player(Netgame.players[i].protocol.ipx.server,Netgame.players[i].protocol.ipx.node, 7);
+				switch (multi_protocol)
+				{
+					case MULTI_PROTO_IPX:
+						net_ipx_dump_player(Netgame.players[i].protocol.ipx.server,Netgame.players[i].protocol.ipx.node, 7);
+						break;
+					default:
+						Error("Protocol handling missing in multi_send_message_end\n");
+						break;
+				}
 
 				HUD_init_message("Dumping %s...",Players[i].callsign);
 				multi_message_index = 0;
@@ -1274,8 +1434,8 @@ void multi_send_message_end()
 	
 	else if (!strnicmp (Network_message,"KillReactor",11) && (Game_mode & GM_NETWORK) && !Control_center_destroyed)
 	{
-		if (!network_i_am_master())
-			HUD_init_message ("Only %s can kill the reactor this way!",Players[network_who_is_master()].callsign);
+		if (!multi_i_am_master())
+			HUD_init_message ("Only %s can kill the reactor this way!",Players[multi_who_is_master()].callsign);
 		else
 		{
 			net_destroy_controlcen(NULL);
@@ -1789,7 +1949,7 @@ multi_do_remobj(char *buf)
 		return;
 	}
 
-	if (Network_send_objects && network_objnum_is_past(local_objnum))
+	if (Network_send_objects && multi_objnum_is_past(local_objnum))
 	{
 		Network_send_objnum = -1;
 	}
@@ -1824,7 +1984,15 @@ multi_do_quit(char *buf)
 
 		HUD_init_message( "%s %s", Players[(int)buf[1]].callsign, TXT_HAS_LEFT_THE_GAME);
 
-		network_disconnect_player(buf[1]);
+		switch (multi_protocol)
+		{
+			case MULTI_PROTO_IPX:
+				net_ipx_disconnect_player(buf[1]);
+				break;
+			default:
+				Error("Protocol handling missing in multi_do_quit\n");
+				break;
+		}
 
 		if (multi_in_menu)
 			return;
@@ -1834,7 +2002,6 @@ multi_do_quit(char *buf)
 		if (n == 1)
 		{
 			HUD_init_message("You are the only person remaining in this netgame");
-			//nm_messagebox(NULL, 1, TXT_OK, TXT_YOU_ARE_ONLY);
 		}
 	}
 
@@ -1990,7 +2157,7 @@ multi_do_create_powerup(char *buf)
 		return;
 	}
 
-	if (Network_send_objects && network_objnum_is_past(my_objnum))
+	if (Network_send_objects && multi_objnum_is_past(my_objnum))
 	{
 		Network_send_objnum = -1;
 	}
@@ -2332,7 +2499,15 @@ multi_send_endlevel_start(int secret)
 	if (Game_mode & GM_NETWORK)
 	{
 		Players[Player_num].connected = 5;
-		network_send_endlevel_packet();
+		switch (multi_protocol)
+		{
+			case MULTI_PROTO_IPX:
+				net_ipx_send_endlevel_packet();
+				break;
+			default:
+				Error("Protocol handling missing in multi_send_endlevel_start\n");
+				break;
+		}
 	}
 }
 
@@ -2738,7 +2913,7 @@ multi_send_remobj(int objnum)
 
 	multi_send_data(multibuf, 4, 1);
 
-	if (Network_send_objects && network_objnum_is_past(objnum))
+	if (Network_send_objects && multi_objnum_is_past(objnum))
 	{
 		Network_send_objnum = -1;
 	}
@@ -2797,7 +2972,7 @@ multi_send_door_open(int segnum, int side,ubyte flag)
 	multi_send_data(multibuf, 5, 2);
 }
 
-extern void network_send_naked_packet (char *,short,int);
+extern void net_ipx_send_naked_packet (char *,short,int);
 
 void
 multi_send_door_open_specific(int pnum,int segnum, int side,ubyte flag)
@@ -2812,7 +2987,15 @@ multi_send_door_open_specific(int pnum,int segnum, int side,ubyte flag)
 	multibuf[3] = (sbyte)side;
 	multibuf[4] = flag;
 
-	network_send_naked_packet(multibuf, 5, pnum);
+	switch (multi_protocol)
+	{
+		case MULTI_PROTO_IPX:
+			net_ipx_send_naked_packet(multibuf, 5, pnum);
+			break;
+		default:
+			Error("Protocol handling missing in multi_send_door_open_specific\n");
+			break;
+	}
 }
 
 //
@@ -2892,7 +3075,7 @@ multi_send_create_powerup(int powerup_type, int segnum, int objnum, vms_vector *
 	//                                                                                                            Total =  19
 	multi_send_data(multibuf, count, 2);
 
-	if (Network_send_objects && network_objnum_is_past(objnum))
+	if (Network_send_objects && multi_objnum_is_past(objnum))
 	{
 		Network_send_objnum = -1;
 	}
@@ -3031,7 +3214,7 @@ void multi_prep_level(void)
 			Objects[Players[i].objnum].control_type = CT_REMOTE;
 		Objects[Players[i].objnum].movement_type = MT_PHYSICS;
 		multi_reset_player_object(&Objects[Players[i].objnum]);
-		LastPacketTime[i] = 0;
+		Netgame.players[i].LastPacketTime = 0;
 	}
 
 #ifndef SHAREWARE
@@ -3229,6 +3412,19 @@ void multi_prep_level(void)
 
 }
 
+int multi_level_sync(void)
+{
+	switch (multi_protocol)
+	{
+		case MULTI_PROTO_IPX:
+			return net_ipx_level_sync();
+			break;
+		default:
+			Error("Protocol handling missing in multi_levl_sync\n");
+			break;
+	}
+}
+
 int Goal_blue_segnum,Goal_red_segnum;
 
 void multi_apply_goal_textures()
@@ -3348,6 +3544,37 @@ int multi_delete_extra_objects()
 	}
 
 	return nnp;
+}
+
+int
+multi_i_am_master(void)
+{
+	// I am the lowest numbered player in this game?
+
+	int i;
+
+	if (!(Game_mode & GM_NETWORK))
+		return (Player_num == 0);
+
+	for (i = 0; i < Player_num; i++)
+		if (Players[i].connected)
+			return 0;
+	return 1;
+}
+
+int multi_who_is_master(void)
+{
+	// Who is the master of this game?
+
+	int i;
+
+	if (!(Game_mode & GM_NETWORK))
+		return (Player_num == 0);
+
+	for (i = 0; i < N_players; i++)
+		if (Players[i].connected)
+			return i;
+	return Player_num;
 }
 
 void change_playernum_to( int new_Player_num )
@@ -3600,8 +3827,6 @@ void multi_do_stolen_items (char *buf)
 	}
 }
 
-extern void network_send_important_packet (char *,int);
-
 void multi_send_wall_status (int wallnum,ubyte type,ubyte flags,ubyte state)
 {
 	int count=0;
@@ -3611,19 +3836,10 @@ void multi_send_wall_status (int wallnum,ubyte type,ubyte flags,ubyte state)
 	multibuf[count]=flags;                count++;
 	multibuf[count]=state;                count++;
 
-#if 0
-	if (Game_mode & GM_NETWORK)
-	{
-		network_send_important_packet (multibuf,count);
-		network_send_important_packet (multibuf,count);
-	}
-	else
-#endif
-	{
-		multi_send_data(multibuf, count, 1); // twice, just to be sure
-		multi_send_data(multibuf, count, 1);
-	}
+	multi_send_data(multibuf, count, 1); // twice, just to be sure
+	multi_send_data(multibuf, count, 1);
 }
+
 void multi_send_wall_status_specific (int pnum,int wallnum,ubyte type,ubyte flags,ubyte state)
 {
 	// Send wall states a specific rejoining player
@@ -3639,8 +3855,16 @@ void multi_send_wall_status_specific (int pnum,int wallnum,ubyte type,ubyte flag
 	multibuf[count]=flags;                count++;
 	multibuf[count]=state;                count++;
 
-	network_send_naked_packet(multibuf, count,pnum); // twice, just to be sure
-	network_send_naked_packet(multibuf, count,pnum);
+	switch (multi_protocol)
+	{
+		case MULTI_PROTO_IPX:
+			net_ipx_send_naked_packet(multibuf, count,pnum); // twice, just to be sure
+			net_ipx_send_naked_packet(multibuf, count,pnum);
+			break;
+		default:
+			Error("Protocol handling missing in multi_send_wall_status_specific\n");
+			break;
+	}
 }
 
 void multi_do_wall_status (char *buf)
@@ -3797,7 +4021,16 @@ void multi_send_light_specific (int pnum,int segnum,ubyte val)
 	{
 		PUT_INTEL_SHORT(multibuf+count, Segments[segnum].sides[i].tmap_num2); count+=2;
 	}
-	network_send_naked_packet(multibuf, count, pnum);
+
+	switch (multi_protocol)
+	{
+		case MULTI_PROTO_IPX:
+			net_ipx_send_naked_packet(multibuf, count, pnum);
+			break;
+		default:
+			Error("Protocol handling missing in multi_send_light_specific\n");
+			break;
+	}
 }
 
 void multi_do_light (char *buf)
@@ -4321,7 +4554,15 @@ void multi_send_robot_controls (char pnum)
 	memcpy (&(multibuf[count]),&robot_fired,MAX_ROBOTS_CONTROLLED*4);
 	count+=(MAX_ROBOTS_CONTROLLED*4);
 
-	network_send_naked_packet (multibuf,142,pnum);
+	switch (multi_protocol)
+	{
+		case MULTI_PROTO_IPX:
+			net_ipx_send_naked_packet (multibuf,142,pnum);
+			break;
+		default:
+			Error("Protocol handling missing in multi_send_robot_controls\n");
+			break;
+	}
 }
 void multi_do_robot_controls(char *buf)
 {
@@ -4460,7 +4701,15 @@ void multi_send_trigger_specific (char pnum,char trig)
 	multibuf[0] = MULTI_START_TRIGGER;
 	multibuf[1] = trig;
 
-	network_send_naked_packet(multibuf, 2, pnum);
+	switch (multi_protocol)
+	{
+		case MULTI_PROTO_IPX:
+			net_ipx_send_naked_packet(multibuf, 2, pnum);
+			break;
+		default:
+			Error("Protocol handling missing in multi_send_trigger_specific\n");
+			break;
+	}
 }
 void multi_do_start_trigger (char *buf)
 {

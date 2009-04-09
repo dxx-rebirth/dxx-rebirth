@@ -949,26 +949,6 @@ void StartNewGame(int start_level)
 	init_seismic_disturbances();
 }
 
-//@@//starts a resumed game loaded from disk
-//@@void ResumeSavedGame(int start_level)
-//@@{
-//@@	Game_mode = GM_NORMAL;
-//@@	Function_mode = FMODE_GAME;
-//@@
-//@@	N_players = 1;
-//@@	Network_new_game = 0;
-//@@
-//@@	InitPlayerObject();				//make sure player's object set up
-//@@
-//@@	StartNewLevel(start_level, 0);
-//@@
-//@@	game_disable_cheats();
-//@@}
-
-#ifndef _NETWORK_H
-extern int network_endlevel_poll2( int nitems, newmenu_item * menus, int * key, int citem ); // network.c
-#endif
-
 //	-----------------------------------------------------------------------------
 //	Does the bonus scoring.
 //	Call with dead_flag = 1 if player died, but deserves some portion of bonus (only skill points), anyway.
@@ -1063,7 +1043,7 @@ void DoEndLevelScoreGlitz(int network)
 
 #ifdef NETWORK
 	if ( network && (Game_mode & GM_NETWORK) )
-		newmenu_do2(NULL, title, c, m, (void (*))network_endlevel_poll2, 0, STARS_BACKGROUND);
+		newmenu_do2(NULL, title, c, m, (void (*))multi_endlevel_poll2, 0, STARS_BACKGROUND);
 	else
 #endif
 		// NOTE LINK TO ABOVE!!!
@@ -1707,7 +1687,7 @@ void StartNewLevelSub(int level_num, int page_in_textures, int secret_flag)
 #ifdef NETWORK
 	if (Game_mode & GM_NETWORK)
 	{
-		if(network_level_sync()) // After calling this, Player_num is set
+		if(multi_level_sync()) // After calling this, Player_num is set
 			return;
 	}
 #endif

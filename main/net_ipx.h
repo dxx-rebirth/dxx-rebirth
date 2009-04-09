@@ -24,7 +24,6 @@ COPYRIGHT 1993-1999 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 
 #include "gameseq.h"
 #include "multi.h"
-#include "newmenu.h"
 
 #define NETWORK_TIMEOUT (15*F1_0) // 15 seconds disconnect timeout
 #define MAX_ACTIVE_NETGAMES     12
@@ -248,39 +247,26 @@ typedef struct IPX_lite_info {
 	ubyte                           team_vector;
 } __pack__ IPX_lite_info;
 
-void network_start_game();
-void network_join_game();
+void net_ipx_start_game();
+void net_ipx_join_game();
 void network_rejoin_game();
-void network_leave_game();
-int network_endlevel(int *secret);
-void network_endlevel_poll2(int nitems, struct newmenu_item * menus, int * key, int citem);
+void net_ipx_leave_game();
+int net_ipx_endlevel(int *secret);
+void net_ipx_endlevel_poll2(int nitems, struct newmenu_item * menus, int * key, int citem);
+void net_ipx_endlevel_poll3(int nitems, struct newmenu_item * menus, int * key, int citem);
 
+int net_ipx_level_sync();
+void net_ipx_send_endlevel_packet();
 
-int network_level_sync();
-void network_send_endlevel_packet();
+int net_ipx_objnum_is_past(int objnum);
+char * net_ipx_get_player_name(int objnum);
+void net_ipx_send_endlevel_sub(int player_num);
+void net_ipx_disconnect_player(int playernum);
 
-int network_delete_extra_objects();
-int network_find_max_net_players();
-int network_objnum_is_past(int objnum);
-char * network_get_player_name(int objnum);
-void network_send_endlevel_sub(int player_num);
-void network_disconnect_player(int playernum);
-
-extern void network_dump_player(ubyte * server, ubyte *node, int why);
-extern void network_send_netgame_update();
-
-extern int GetMyNetRanking();
+extern void net_ipx_dump_player(ubyte * server, ubyte *node, int why);
+extern void net_ipx_send_netgame_update();
 
 extern int NetGameType;
-extern int Network_send_objects;
-extern int Network_send_objnum;
-extern int PacketUrgent;
-
-extern int PhallicLimit,PhallicMan;
-
-extern fix LastPacketTime[MAX_PLAYERS];
-
-extern char *RankStrings[];
 
 // By putting an up-to-20-char-message into Network_message and
 // setting Network_message_reciever to the player num you want to
@@ -288,18 +274,16 @@ extern char *RankStrings[];
 // get your message.
 
 // Call once at the beginning of a frame
-void network_do_frame(int force, int listen);
+void net_ipx_do_frame(int force, int listen);
 
 // Tacks data of length 'len' onto the end of the next
 // packet that we're transmitting.
-void network_send_data(ubyte * ptr, int len, int urgent);
+void net_ipx_send_data(ubyte * ptr, int len, int urgent);
 
 // returns 1 if hoard.ham available
 extern int HoardEquipped();
 
-extern int PingTable[MAX_PLAYERS];
-extern void network_ping_all();
-extern int network_who_is_master(void);
+extern void net_ipx_ping_all();
 extern int IPX_Socket;
 
 #endif /* _NETWORK_H */

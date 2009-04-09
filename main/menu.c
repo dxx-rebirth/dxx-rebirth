@@ -333,20 +333,24 @@ void do_option ( int select)
 
 #ifdef NETWORK
 		case MENU_START_IPX_NETGAME:
+			multi_protocol = MULTI_PROTO_IPX;
 			ipxdrv_set(NETPROTO_IPX);
-			network_start_game();
+			net_ipx_start_game();
 			break;
 		case MENU_JOIN_IPX_NETGAME:
+			multi_protocol = MULTI_PROTO_IPX;
 			ipxdrv_set(NETPROTO_IPX);
-			network_join_game();
+			net_ipx_join_game();
 			break;
 		case MENU_START_KALI_NETGAME:
+			multi_protocol = MULTI_PROTO_IPX;
 			ipxdrv_set(NETPROTO_KALINIX);
-			network_start_game();
+			net_ipx_start_game();
 			break;
 		case MENU_JOIN_KALI_NETGAME:
+			multi_protocol = MULTI_PROTO_IPX;
 			ipxdrv_set(NETPROTO_KALINIX);
-			network_join_game();
+			net_ipx_join_game();
 			break;
 		case MENU_START_UDP_NETGAME:
 			// FIXME

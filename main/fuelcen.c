@@ -393,7 +393,7 @@ void robotmaker_proc( FuelCenter * robotcen )
 	//	No robot making in multiplayer mode.
 #ifdef NETWORK
 #ifndef SHAREWARE
-	if ((Game_mode & GM_MULTI) && (!(Game_mode & GM_MULTI_ROBOTS) || !network_i_am_master()))
+	if ((Game_mode & GM_MULTI) && (!(Game_mode & GM_MULTI_ROBOTS) || !multi_i_am_master()))
 		return;
 #else
 	if (Game_mode & GM_MULTI)

@@ -21,6 +21,11 @@ COPYRIGHT 1993-1999 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 #ifndef _MULTI_H
 #define _MULTI_H
 
+#include "gameseq.h"
+#include "piggy.h"
+#include "vers_id.h"
+#include "newmenu.h"
+
 #ifdef _WIN32
 	#include <winsock.h>
 	#include <io.h>
@@ -43,31 +48,26 @@ COPYRIGHT 1993-1999 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 	#define _pf PF_INET
 #endif
 
-// Defines
-#include "gameseq.h"
-#include "piggy.h"
-#include "vers_id.h"
 
-#define MAX_MESSAGE_LEN 35
+// PROTOCOL VARIABLES AND DEFINES
+extern int multi_protocol; // set and determinate used protocol
+#define MULTI_PROTO_IPX 1 // IPX-type protocol (IPX, KALI)
+#define MULTI_PROTO_UDP 2 // UDP protocol
 
 // What version of the multiplayer protocol is this?
-
-#ifdef SHAREWARE
-#define MULTI_PROTO_VERSION 3
-#else
-#define MULTI_PROTO_VERSION 4
-#endif
-#define MULTI_PROTO_D2X_VER	7  // Increment everytime we change networking features - based on ubyte, must never be > 255
-
 // Protocol versions:
 //   1 Descent Shareware
 //   2 Descent Registered/Commercial
 //   3 Descent II Shareware
 //   4 Descent II Commercial
+#define MULTI_PROTO_VERSION 4
+// this define should become obsolete due to strict version checking in UDP
+#define MULTI_PROTO_D2X_VER	7  // Increment everytime we change networking features - based on ubyte, must never be > 255
+// PROTOCOL VARIABLES AND DEFINES - END
 
-// How many simultaneous network players do we support?
 
-#define MAX_NUM_NET_PLAYERS     8
+#define MAX_MESSAGE_LEN 35
+#define MAX_NUM_NET_PLAYERS     8 // How many simultaneous network players do we support?
 
 #define MULTI_POSITION          0
 #define MULTI_REAPPEAR          1
@@ -192,11 +192,14 @@ extern char *multi_allow_powerup_text[MULTI_ALLOW_POWERUP_MAX];
 
 // Exported functions
 
+extern int GetMyNetRanking();
 int objnum_remote_to_local(int remote_obj, int owner);
 int objnum_local_to_remote(int local_obj, sbyte *owner);
 void map_objnum_local_to_remote(int local, int remote, int owner);
 void map_objnum_local_to_local(int objnum);
 void reset_network_objects();
+int multi_objnum_is_past(int objnum);
+void multi_do_ping_frame();
 
 void multi_init_objects(void);
 void multi_show_player_list(void);
@@ -234,7 +237,12 @@ void multi_send_guided_info (object *miss,char);
 
 void multi_endlevel_score(void);
 void multi_prep_level(void);
+int multi_level_sync(void);
 int multi_endlevel(int *secret);
+void multi_endlevel_poll2( int nitems, struct newmenu_item * menus, int * key, int citem );
+void multi_endlevel_poll3( int nitems, struct newmenu_item * menus, int * key, int citem );
+void multi_send_endlevel_packet();
+void multi_send_endlevel_sub(int player_num);
 int multi_menu_poll(void);
 void multi_leave_game(void);
 void multi_process_data(char *dat, int len);
@@ -250,20 +258,23 @@ int multi_get_kill_list(int *plist);
 void multi_new_game(void);
 void multi_sort_kill_list(void);
 void multi_reset_stuff(void);
-
 void multi_send_data(char *buf, int len, int repeat);
-
 int get_team(int pnum);
+
 
 // Exported variables
 
-
+extern int PacketUrgent;
 extern int Network_active;
 extern int Network_status;
 extern int Network_laser_gun;
 extern int Network_laser_fired;
 extern int Network_laser_level;
 extern int Network_laser_flags;
+
+// IMPORTANT: These variables needed for player rejoining done by protocol-specific code
+extern int Network_send_objects;
+extern int Network_send_objnum;
 extern int Network_rejoined;
 extern int Network_new_game;
 
@@ -310,9 +321,13 @@ extern void multi_send_orb_bonus( char pnum );
 extern void multi_send_got_orb( char pnum );
 extern void multi_add_lifetime_kills(void);
 
+extern int PhallicLimit,PhallicMan;
+
 #define N_PLAYER_SHIP_TEXTURES 6
 
 extern bitmap_index multi_player_textures[MAX_NUM_NET_PLAYERS][N_PLAYER_SHIP_TEXTURES];
+
+extern char *RankStrings[];
 
 #define NETGAME_FLAG_CLOSED             1
 #define NETGAME_FLAG_SHOW_ID            2
@@ -328,7 +343,8 @@ extern bitmap_index multi_player_textures[MAX_NUM_NET_PLAYERS][N_PLAYER_SHIP_TEX
 extern struct netgame_info Netgame;
 extern struct AllNetPlayers_info NetPlayers;
 
-int network_i_am_master(void);
+int multi_i_am_master(void);
+int multi_who_is_master(void);
 void change_playernum_to(int new_pnum);
 
 //how to encode missiles & flares in weapon packets
@@ -375,7 +391,8 @@ typedef struct netplayer_info
 	ubyte						version_minor;
 	sbyte						connected;
 	ubyte						rank;
-	int							ping;
+	fix							ping;
+	fix							LastPacketTime;
 } __pack__ netplayer_info;
 
 /*

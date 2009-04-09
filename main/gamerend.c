@@ -54,10 +54,6 @@ COPYRIGHT 1993-1999 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 #include "mission.h"
 #include "gameseq.h"
 
-#ifdef NETWORK
-#include "net_ipx.h"
-#endif
-
 #ifdef OGL
 #include "ogl_init.h"
 #endif
@@ -184,7 +180,7 @@ void show_netplayerinfo()
 
 	// general game information
 	y+=LINE_SPACING;
-	gr_printf(0x8000,y,"%s by %s",Netgame.game_name,Players[network_who_is_master()].callsign);
+	gr_printf(0x8000,y,"%s by %s",Netgame.game_name,Players[multi_who_is_master()].callsign);
 	y+=LINE_SPACING;
 	gr_printf(0x8000,y,"%s - lvl: %i",Netgame.mission_title,Netgame.levelnum);
 
@@ -214,7 +210,7 @@ void show_netplayerinfo()
 	gr_printf(x+FSPACX(8)*18,y,"ping");
 	gr_printf(x+FSPACX(8)*23,y,"efficiency");
 
-	network_ping_all();
+	multi_do_ping_frame();
 
 	// process players table
 	for (i=0; i<MAX_PLAYERS; i++)
@@ -238,7 +234,7 @@ void show_netplayerinfo()
 			gr_printf(x+FSPACX(8)*12,y,"%-6d",Players[i].net_killed_total);
 		}
 
-		gr_printf(x+FSPACX(8)*18,y,"%-6d",PingTable[i]);
+		gr_printf(x+FSPACX(8)*18,y,"%-6d",Netgame.players[i].ping);
 		if (i != Player_num)
 			gr_printf(x+FSPACX(8)*23,y,"%d/%d",kill_matrix[Player_num][i],kill_matrix[i][Player_num]);
 	}
