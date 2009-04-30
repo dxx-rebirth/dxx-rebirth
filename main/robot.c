@@ -18,9 +18,6 @@ COPYRIGHT 1993-1999 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
  */
 
 
-#ifdef HAVE_CONFIG_H
-#include <conf.h>
-#endif
 #include <stdio.h>
 #include "error.h"
 #include "inferno.h"

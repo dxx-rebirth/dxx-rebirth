@@ -6,10 +6,6 @@
  */
 
 
-#ifdef HAVE_CONFIG_H
-#include <conf.h>
-#endif
-
 #include "segment.h"
 #include "cfile.h"
 

@@ -22,10 +22,6 @@ COPYRIGHT 1993-1998 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 static char rcsid[] = "$Id: ksegmove.c,v 1.1.1.1 2006/03/17 19:58:39 zicodxx Exp $";
 #endif
 
-#ifdef HAVE_CONFIG_H
-#include "conf.h"
-#endif
-
 //#include <stdio.h>
 //#include <stdlib.h>
 //#include <math.h>

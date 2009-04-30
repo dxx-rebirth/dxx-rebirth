@@ -16,10 +16,6 @@ COPYRIGHT 1993-1999 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 static char rcsid[] = "$Id: listbox.c,v 1.1.1.1 2006/03/17 19:52:20 zicodxx Exp $";
 #endif
 
-#ifdef HAVE_CONFIG_H
-#include "conf.h"
-#endif
-
 #include <stdlib.h>
 
 #include "fix.h"

@@ -3,10 +3,6 @@
  * strio.c: string/file manipulation functions by Victor Rachels
  */
 
-#ifdef HAVE_CONFIG_H
-#include <conf.h>
-#endif
-
 #include <stdlib.h>
 #include <stdio.h>
 

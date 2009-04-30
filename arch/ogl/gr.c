@@ -4,10 +4,6 @@
  *
  */
 
-#ifdef HAVE_CONFIG_H
-#include <conf.h>
-#endif
-
 #define DECLARE_VARS
 
 #include <stdlib.h>

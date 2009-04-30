@@ -1,7 +1,3 @@
-#ifdef HAVE_CONFIG_H
-#include "conf.h"
-#endif
-
 #include <string.h> // for mem* functions
 #if !defined(_WIN32) && !defined(macintosh)
 #include <unistd.h>

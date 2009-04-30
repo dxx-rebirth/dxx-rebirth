@@ -18,10 +18,6 @@ COPYRIGHT 1993-1999 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
  *
  */
 
-#ifdef HAVE_CONFIG_H
-#include <conf.h>
-#endif
-
 #ifdef RCS
 char crypt_rcsid[] = "$Id: crypt.c,v 1.1.1.1 2006/03/17 19:54:55 zicodxx Exp $";
 #endif

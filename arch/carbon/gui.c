@@ -6,10 +6,6 @@
  *
  */
 
-#ifdef HAVE_CONFIG_H
-#include "conf.h"
-#endif
-
 #ifdef __APPLE__
 #include <Carbon/Carbon.h>
 #else

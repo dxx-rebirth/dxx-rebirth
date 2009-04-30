@@ -16,10 +16,6 @@ COPYRIGHT 1993-1999 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 static char rcsid[] = "$Id: uidraw.c,v 1.1.1.1 2006/03/17 19:52:16 zicodxx Exp $";
 #endif
 
-#ifdef HAVE_CONFIG_H
-#include "conf.h"
-#endif
-
 #include "fix.h"
 #include "pstypes.h"
 #include "gr.h"

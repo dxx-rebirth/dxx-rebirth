@@ -12,10 +12,6 @@ AND AGREES TO THE TERMS HEREIN AND ACCEPTS THE SAME BY USE OF THIS FILE.
 COPYRIGHT 1993-1999 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 */
 
-#ifdef HAVE_CONFIG_H
-#include <conf.h>
-#endif
-
 #ifdef RCS
 static char rcsid[] = "$Id: hash.c,v 1.1.1.1 2006/03/17 19:58:52 zicodxx Exp $";
 #endif

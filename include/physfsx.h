@@ -9,9 +9,6 @@
 #ifndef PHYSFSX_H
 #define PHYSFSX_H
 
-#ifdef HAVE_CONFIG_H
-#include <conf.h>
-#endif
 #if !defined(macintosh) && !defined(_MSC_VER)
 #include <sys/param.h>
 #endif
