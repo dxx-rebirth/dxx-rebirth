@@ -1,5 +1,9 @@
 D2X-Rebirth Changelog
 
+20090430
+--------
+arch/carbon/conf.h, d2x-rebirth.xcodeproj/project.pbxproj: Disable network support for Mac OS X for now
+
 20090409
 --------
 main/multi.c, main/multi.h, main/multibot.c, main/menu.c, main/kmatrix.c, main/net_ipx.c, main/net_ipx.h, main/gameseq.c, main/fuelcen.c, main/gamerend.c: Abstracting networking protocols - Step 3: Renaming network_* functions to net_ipx_*, writing wrappers for protocol dependend functions in multi.c, Implementing protocol selection and Cleanup - Next up: Implementing new UDP layer
