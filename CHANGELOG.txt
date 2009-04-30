@@ -3,6 +3,7 @@ D1X-Rebirth Changelog
 20090430
 --------
 arch/carbon/conf.h, d1x-rebirth.xcodeproj/project.pbxproj, main/gauges.h, main/multi.h: Disable network support for Mac OS X for now
+arch/carbon/SDL_main.c, arch/ogl/ogl.c, arch/sdl/digi_audio.c, arch/sdl/digi_mixer.c, arch/sdl/digi.c, arch/sdl/event.c, arch/sdl/gr.c, arch/sdl/joy.c, arch/sdl/key.c, arch/sdl/mouse.c, arch/sdl/rbaudio.c, arch/sdl/timer.c, include/physfsx.h, main/automap.c, main/console.c, main/digiobj.c, main/lighting.c, main/mission.c, misc/error.c: Remove redundant conf.h directives
 
 20090409
 --------

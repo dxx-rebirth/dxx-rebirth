@@ -3,10 +3,6 @@
  * Library-independent stub for dynamic selection of sound system
  */
 
-#ifdef HAVE_CONFIG_H
-#include <conf.h>
-#endif
-
 #include "pstypes.h"
 #include "error.h"
 #include "fix.h" 	 

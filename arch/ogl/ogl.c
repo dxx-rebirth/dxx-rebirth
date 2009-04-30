@@ -6,10 +6,6 @@
  *
  */
 
-#ifdef HAVE_CONFIG_H
-#include <conf.h>
-#endif
-
 //#include <stdio.h>
 #ifdef _WIN32
 #include <windows.h>
