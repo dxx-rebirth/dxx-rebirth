@@ -52,7 +52,7 @@
 #if defined(__APPLE__) && defined(__MACH__)
 # define __unix__
 /* Define if you want a network build */
-# define NETWORK
+//# define NETWORK	//FIXME: TURN BACK ON WHEN ZICO FINISHES!!!
 #else // Mac OS 9
 # ifndef __MWERKS__
 #  define inline

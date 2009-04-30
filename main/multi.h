@@ -21,13 +21,18 @@ COPYRIGHT 1993-1998 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 #ifndef _MULTI_H
 #define _MULTI_H
 
-#ifdef NETWORK
-
 #include "gameseq.h"
 #include "piggy.h"
 #include "vers_id.h"
 #include "powerup.h"
 #include "newmenu.h"
+
+// Need these for non network builds too -Chris
+#define MAX_MESSAGE_LEN 35
+#define SHAREWARE_MAX_MESSAGE_LEN 25
+#define MAX_NUM_NET_PLAYERS 8 // How many simultaneous network players do we support?
+
+#ifdef NETWORK
 
 #ifdef _WIN32
 	#include <winsock.h>
@@ -69,10 +74,6 @@ extern int multi_protocol; // set and determinate used protocol
 #define MULTI_PROTO_D1X_MINOR	1 //Incrementing this seems the only way possible.  Still stays backwards compitible.
 // PROTOCOL VARIABLES AND DEFINES - END
 
-
-#define MAX_MESSAGE_LEN 35
-#define SHAREWARE_MAX_MESSAGE_LEN 25
-#define MAX_NUM_NET_PLAYERS 8 // How many simultaneous network players do we support?
 
 #define MULTI_POSITION			0
 #define MULTI_REAPPEAR   		1
@@ -312,8 +313,6 @@ int multi_who_is_master(void);
 void change_playernum_to(int new_pnum);
 
 extern uint multi_allow_powerup;
-
-extern int HUD_init_message(char * format, ...);
 
 extern struct netgame_info Netgame;
 
