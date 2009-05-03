@@ -7,14 +7,14 @@ IN USING, DISPLAYING,  AND CREATING DERIVATIVE WORKS THEREOF, SO LONG AS
 SUCH USE, DISPLAY OR CREATION IS FOR NON-COMMERCIAL, ROYALTY OR REVENUE
 FREE PURPOSES.  IN NO EVENT SHALL THE END-USER USE THE COMPUTER CODE
 CONTAINED HEREIN FOR REVENUE-BEARING PURPOSES.  THE END-USER UNDERSTANDS
-AND AGREES TO THE TERMS HEREIN AND ACCEPTS THE SAME BY USE OF THIS FILE.  
+AND AGREES TO THE TERMS HEREIN AND ACCEPTS THE SAME BY USE OF THIS FILE.
 COPYRIGHT 1993-1998 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 */
 
 /*
  *
  * contains routine(s) to read in the configuration file which contains
- * game configuration stuff
+ * game configuration stuff like detail level, sound card, etc
  *
  */
 
@@ -41,13 +41,13 @@ COPYRIGHT 1993-1998 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 
 struct Cfg GameCfg;
 
-static char *DigiVolumeStr="DigiVolume";
-static char *MusicVolumeStr="MidiVolume";
+static char *DigiVolumeStr = "DigiVolume";
+static char *MusicVolumeStr = "MidiVolume";
 static char *SndEnableRedbookStr = "RedbookEnabled";
-static char *ReverseStereoStr="ReverseStereo";
-static char *GammaLevelStr="GammaLevelStr";
-static char *LastPlayerStr="LastPlayerStr";
-static char *LastMissionStr="LastMissionStr";
+static char *ReverseStereoStr = "ReverseStereo";
+static char *GammaLevelStr = "GammaLevel";
+static char *LastPlayerStr = "LastPlayer";
+static char *LastMissionStr = "LastMission";
 static char *ResolutionXStr="ResolutionX";
 static char *ResolutionYStr="ResolutionY";
 static char *AspectXStr="AspectX";
@@ -87,6 +87,7 @@ int ReadConfigFile()
 	GameCfg.VSync = 0;
 	GameCfg.Multisample = 0;
 	GameCfg.JukeboxOn = 0;
+	memset(GameCfg.JukeboxPath,0,PATH_MAX+1);
 #ifndef macintosh	// Mac OS 9 binary is in .app bundle
 	strncpy(GameCfg.JukeboxPath, "Jukebox", PATH_MAX+1);	// maybe include this directory with the binary
 #else
@@ -241,4 +242,3 @@ int WriteConfigFile()
 
 	return 0;
 }
-

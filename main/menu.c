@@ -7,7 +7,7 @@ IN USING, DISPLAYING,  AND CREATING DERIVATIVE WORKS THEREOF, SO LONG AS
 SUCH USE, DISPLAY OR CREATION IS FOR NON-COMMERCIAL, ROYALTY OR REVENUE
 FREE PURPOSES.  IN NO EVENT SHALL THE END-USER USE THE COMPUTER CODE
 CONTAINED HEREIN FOR REVENUE-BEARING PURPOSES.  THE END-USER UNDERSTANDS
-AND AGREES TO THE TERMS HEREIN AND ACCEPTS THE SAME BY USE OF THIS FILE.  
+AND AGREES TO THE TERMS HEREIN AND ACCEPTS THE SAME BY USE OF THIS FILE.
 COPYRIGHT 1993-1998 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 */
 
@@ -17,13 +17,8 @@ COPYRIGHT 1993-1998 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
  *
  */
 
-#include <time.h>
 #include <stdio.h>
-#include <stdlib.h>
 #include <string.h>
-#include <ctype.h>
-#include <stdarg.h>
-#include <errno.h>
 
 #include "menu.h"
 #include "inferno.h"
@@ -63,7 +58,6 @@ COPYRIGHT 1993-1998 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 #include "mission.h"
 #include "songs.h"
 #include "config.h"
-#include "cfile.h"
 #include "gauges.h"
 #include "hudmsg.h" //for HUD_max_num_disp
 #ifdef NETWORK
@@ -76,10 +70,6 @@ COPYRIGHT 1993-1998 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 #include "editor/editor.h"
 #endif
 
-void do_option(int select);
-void do_multi_player_menu();
-void do_new_game_menu();
-void do_ip_manual_join_menu();
 
 // Menu IDs...
 enum MENUS
@@ -127,7 +117,14 @@ enum MENUS
 
 #define ADD_ITEM(t,value,key)  do { m[num_options].type=NM_TYPE_MENU; m[num_options].text=t; menu_choice[num_options]=value;num_options++; } while (0)
 
-extern int last_joy_time;		//last time the joystick was used
+// Function Prototypes added after LINTING
+void do_option(int select);
+void do_new_game_menu(void);
+#ifdef NETWORK
+void do_multi_player_menu(void);
+void do_ip_manual_join_menu();
+int UDPConnectManual(char *addr);
+#endif //NETWORK
 extern void newmenu_close();
 extern void ReorderPrimary();
 extern void ReorderSecondary();
@@ -157,7 +154,6 @@ void autodemo_menu_check(int nitems, newmenu_item * items, int *last_key, int ci
 	}
 }
 
-//static int First_time = 1;
 static int main_menu_choice = 0;
 
 //	-----------------------------------------------------------------------------
@@ -169,39 +165,26 @@ void create_main_menu(newmenu_item *m, int *menu_choice, int *callers_num_option
 	#ifndef DEMO_ONLY
 	num_options = 0;
 
-//	//	Move down to allow for space to display "Destination Saturn"
-//	if (Saturn) {
-//		int	i;
-//
-//		for (i=0; i<4; i++)
-//			ADD_ITEM("", 0, -1);
-//
-//		if (First_time) {
-//			main_menu_choice = 4;
-//			First_time = 0;
-//		}
-//	}
-
 	set_screen_mode (SCREEN_MENU);
 
 	ADD_ITEM(TXT_NEW_GAME,MENU_NEW_GAME,KEY_N);
 
-  	ADD_ITEM(TXT_LOAD_GAME,MENU_LOAD_GAME,KEY_L);
+	ADD_ITEM(TXT_LOAD_GAME,MENU_LOAD_GAME,KEY_L);
 #ifdef NETWORK
 	ADD_ITEM(TXT_MULTIPLAYER_,MENU_MULTIPLAYER,-1);
 #endif
+
 	ADD_ITEM(TXT_OPTIONS_, MENU_CONFIG, -1 );
 	ADD_ITEM(TXT_CHANGE_PILOTS,MENU_NEW_PLAYER,unused);
 	ADD_ITEM(TXT_VIEW_DEMO,MENU_DEMO_PLAY,0);
 	ADD_ITEM(TXT_VIEW_SCORES,MENU_VIEW_SCORES,KEY_V);
-	#ifdef SHAREWARE
-	ADD_ITEM(TXT_ORDERING_INFO,MENU_ORDER_INFO,-1);
-	#endif
+	if (cfexist("apple.pcx") || cfexist("order01.pcx")) /* SHAREWARE */
+		ADD_ITEM(TXT_ORDERING_INFO,MENU_ORDER_INFO,-1);
 	ADD_ITEM(TXT_CREDITS,MENU_SHOW_CREDITS,-1);
 	#endif
 	ADD_ITEM(TXT_QUIT,MENU_QUIT,KEY_Q);
 
-        #ifndef RELEASE
+	#ifndef RELEASE
 	if (!(Game_mode & GM_MULTI ))	{
 		//m[num_options].type=NM_TYPE_TEXT;
 		//m[num_options++].text=" Debug options:";
@@ -213,7 +196,7 @@ void create_main_menu(newmenu_item *m, int *menu_choice, int *callers_num_option
 	}
 
 	ADD_ITEM( "  Play song", MENU_PLAY_SONG, -1 );
-        #endif
+	#endif
 
 	*callers_num_options = num_options;
 }
@@ -221,7 +204,6 @@ void create_main_menu(newmenu_item *m, int *menu_choice, int *callers_num_option
 //returns number of item chosen
 int DoMenu() 
 {
-
 	int menu_choice[25];
 	newmenu_item m[25];
 	int num_options = 0;
@@ -231,14 +213,14 @@ int DoMenu()
 		return 0;
 	}
 
-	create_main_menu(m, menu_choice, &num_options);
-
 	do {
+		create_main_menu(m, menu_choice, &num_options); // may have to change, eg, maybe selected pilot and no save games.
+
 		keyd_time_when_last_pressed = timer_get_fixed_seconds();		// .. 20 seconds from now!
-		if (main_menu_choice < 0 )	main_menu_choice = 0;		
-                    main_menu_choice = newmenu_do2(NULL, NULL, num_options, m, autodemo_menu_check, main_menu_choice, Menu_pcx_name);
-                    if ( main_menu_choice > -1 ) do_option(menu_choice[main_menu_choice]);
-		create_main_menu(m, menu_choice, &num_options);	//	may have to change, eg, maybe selected pilot and no save games.
+		if (main_menu_choice < 0 )
+			main_menu_choice = 0;
+		main_menu_choice = newmenu_do2( "", NULL, num_options, m, autodemo_menu_check, main_menu_choice, Menu_pcx_name);
+		if ( main_menu_choice > -1 ) do_option(menu_choice[main_menu_choice]);
 	} while( Function_mode==FMODE_MENU );
 
 	return main_menu_choice;
@@ -256,14 +238,14 @@ void do_option ( int select)
 		case MENU_GAME:
 			break;
 		case MENU_DEMO_PLAY:
-			{ 
-				char demo_file[16];
-				if (newmenu_get_filename( TXT_SELECT_DEMO, ".dem", demo_file, 1 ))
-					newdemo_start_playback(demo_file);
-			}
+		{
+			char demo_file[16];
+			if (newmenu_get_filename(TXT_SELECT_DEMO, ".dem", demo_file, 1))
+				newdemo_start_playback(demo_file);
 			break;
+		}
 		case MENU_LOAD_GAME:
-			state_restore_all(0);	
+			state_restore_all(0);
 			break;
 		#ifdef EDITOR
 		case MENU_EDITOR:
@@ -274,11 +256,11 @@ void do_option ( int select)
 		case MENU_VIEW_SCORES:
 			scores_view(-1);
 			break;
-		#ifdef SHAREWARE
+#if 1 //def SHAREWARE
 		case MENU_ORDER_INFO:
 			show_order_form();
 			break;
-		#endif
+#endif
 		case MENU_QUIT:
 			#ifdef EDITOR
 			if (! SafetyCheck()) break;
@@ -289,7 +271,7 @@ void do_option ( int select)
 			RegisterPlayer();		//1 == allow escape out of menu
 			break;
 
-                #ifndef RELEASE
+#ifndef RELEASE
 
 		case MENU_PLAY_SONG:	{
 				int i;
@@ -305,7 +287,7 @@ void do_option ( int select)
 				}
 			}
 			break;
-		case MENU_LOAD_LEVEL: {
+		case MENU_LOAD_LEVEL:
 			if (Current_mission || select_mission(0, "Load Level\n\nSelect mission"))
 			{
 				newmenu_item m;
@@ -323,8 +305,9 @@ void do_option ( int select)
 				}
 			}
 			break;
-		}
-                #endif
+
+#endif //ifndef RELEASE
+
 
 #ifdef NETWORK
 		case MENU_START_IPX_NETGAME:
@@ -379,7 +362,7 @@ void do_option ( int select)
 		default:
 			Error("Unknown option %d in do_option",select);
 			break;
-        }
+	}
 
 }
 
@@ -398,7 +381,7 @@ int do_difficulty_menu()
 
 	if (s > -1 )	{
 		if (s != Difficulty_level)
-		{	
+		{
 			PlayerCfg.DefaultDifficulty = s;
 			write_player_file();
 		}
@@ -460,6 +443,17 @@ try_again:
 
 	StartNewGame(new_level_num);
 
+}
+
+void options_menuset(int nitems, newmenu_item * items, int *last_key, int citem )
+{
+	if ( citem==4)
+	{
+		gr_palette_set_gamma(items[4].value);
+	}
+
+	nitems++;		//kill warning
+	last_key++;		//kill warning
 }
 
 int gcd(int a, int b)
@@ -608,7 +602,6 @@ void input_config()
 	m[20].type = NM_TYPE_MENU;   m[20].text = "NETGAME SYSTEM KEYS";
 	m[21].type = NM_TYPE_MENU;   m[21].text = "DEMO SYSTEM KEYS";
 
-
 	do {
 
 		i = PlayerCfg.ControlType;
@@ -706,6 +699,7 @@ void sound_menuset(int nitems, newmenu_item * items, int *last_key, int citem )
 		digi_set_digi_volume( (GameCfg.DigiVolume*32768)/8 );
 		digi_play_sample_once( SOUND_DROP_BOMB, F1_0 );
 	}
+
 	if (GameCfg.MusicVolume != items[1].value )   {
 		GameCfg.MusicVolume = items[1].value;
 		if (EXT_MUSIC_ON)
@@ -713,8 +707,8 @@ void sound_menuset(int nitems, newmenu_item * items, int *last_key, int citem )
 		else
 			digi_set_midi_volume( (GameCfg.MusicVolume*128)/8 );
 	}
-	
-	citem++; //kill warning
+
+	citem++;		//kill warning
 }
 
 void do_sound_menu()
@@ -768,16 +762,6 @@ void do_sound_menu()
 		}
 
 	} while( i>-1 );
-}
-
-void options_menuset(int nitems, newmenu_item * items, int *last_key, int citem )
-{
-	nitems=nitems;
-	*last_key = *last_key;
-
-	if ( citem==4)	{
-		gr_palette_set_gamma(items[4].value);
-	}
 }
 
 #define ADD_CHECK(n,txt,v)  do { m[n].type=NM_TYPE_CHECK; m[n].text=txt; m[n].value=v;} while (0)
@@ -891,7 +875,7 @@ void do_ip_manual_join_menu()
 		}
 	} while( choice > -1 );
 }
-#endif
+#endif // NETWORK
 
 void do_options_menu()
 {
@@ -903,6 +887,7 @@ void do_options_menu()
 		m[ 1].type = NM_TYPE_TEXT;   m[ 1].text="";
 		m[ 2].type = NM_TYPE_MENU;   m[ 2].text=TXT_CONTROLS_;
 		m[ 3].type = NM_TYPE_TEXT;   m[ 3].text="";
+
 		m[ 4].type = NM_TYPE_SLIDER;
 		m[ 4].text = TXT_BRIGHTNESS;
 		m[ 4].value = gr_palette_get_gamma();
@@ -937,4 +922,3 @@ void do_options_menu()
 
 	write_player_file();
 }
-
