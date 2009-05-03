@@ -1,5 +1,9 @@
 D2X-Rebirth Changelog
 
+20090503
+--------
+main/net_ipx.c: Make sure HoardEquipped returns 1 if hoard.ham is in the Data folder, hence properly allowing hoard.ham to be in the Data folder
+
 20090430
 --------
 arch/carbon/conf.h, d2x-rebirth.xcodeproj/project.pbxproj: Disable network support for Mac OS X for now

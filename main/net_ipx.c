@@ -5417,7 +5417,7 @@ int HoardEquipped()
 
 	if (checked==-1)
 	{
-		if (cfexist("hoard.ham"))
+		if (cfexist("hoard.ham") || cfexist("Data/hoard.ham"))
 			checked=1;
 		else
 			checked=0;
