@@ -71,7 +71,6 @@ COPYRIGHT 1993-1999 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 #include "editor/editor.h"
 #endif
 
-//char *menu_difficulty_text[] = { "Trainee", "Rookie", "Fighter", "Hotshot", "Insane" };
 
 // Menu IDs...
 enum MENUS
@@ -92,16 +91,26 @@ enum MENUS
     MENU_DIFFICULTY,
     MENU_HELP,
     MENU_NEW_PLAYER,
-    MENU_MULTIPLAYER,
+    
+    // Only if networking is enabled...
+    #ifdef NETWORK
+        MENU_MULTIPLAYER,
+    #endif
+
     MENU_SHOW_CREDITS,
     MENU_ORDER_INFO,
     MENU_PLAY_SONG,
-    MENU_START_APPLETALK_NETGAME,
-    MENU_JOIN_APPLETALK_NETGAME,
+
+    // Only if networking is enabled...
+    #ifdef NETWORK
+    MENU_START_IPX_NETGAME,
+    MENU_JOIN_IPX_NETGAME,
+    MENU_BROWSE_UDP_NETGAME, // UDP/IP support
     MENU_START_UDP_NETGAME,
     MENU_JOIN_UDP_NETGAME,
-    MENU_START_KALI_NETGAME,
+    MENU_START_KALI_NETGAME, // Kali support
     MENU_JOIN_KALI_NETGAME,
+    #endif
 };
 
 //ADD_ITEM("Start netgame...", MENU_START_NETGAME, -1 );
@@ -172,11 +181,11 @@ try_again:;
 
 static int main_menu_choice = 0;
 
-//      -----------------------------------------------------------------------------
-//      Create the main menu.
+//	-----------------------------------------------------------------------------
+//	Create the main menu.
 void create_main_menu(newmenu_item *m, int *menu_choice, int *callers_num_options)
 {
-	int     num_options;
+	int	num_options;
 
 	#ifndef DEMO_ONLY
 	num_options = 0;
@@ -201,7 +210,7 @@ void create_main_menu(newmenu_item *m, int *menu_choice, int *callers_num_option
 	ADD_ITEM(TXT_QUIT,MENU_QUIT,KEY_Q);
 
 	#ifndef RELEASE
-	if (!(Game_mode & GM_MULTI ))   {
+	if (!(Game_mode & GM_MULTI ))	{
 		//m[num_options].type=NM_TYPE_TEXT;
 		//m[num_options++].text=" Debug options:";
 
@@ -224,17 +233,17 @@ int DoMenu()
 	newmenu_item m[25];
 	int num_options = 0;
 
-	if ( Players[Player_num].callsign[0]==0 )       {
+	if ( Players[Player_num].callsign[0]==0 )	{
 		RegisterPlayer();
 		return 0;
 	}
 
 	load_palette(MENU_PALETTE,0,1);		//get correct palette
-	
+
 	do {
 		create_main_menu(m, menu_choice, &num_options); // may have to change, eg, maybe selected pilot and no save games.
 
-		keyd_time_when_last_pressed = timer_get_fixed_seconds();                // .. 20 seconds from now!
+		keyd_time_when_last_pressed = timer_get_fixed_seconds();		// .. 20 seconds from now!
 		if (main_menu_choice < 0 )
 			main_menu_choice = 0;
 		main_menu_choice = newmenu_do2( "", NULL, num_options, m, autodemo_menu_check, main_menu_choice, Menu_pcx_name);
@@ -244,7 +253,7 @@ int DoMenu()
 	return main_menu_choice;
 }
 
-extern void show_order_form(void);      // John didn't want this in inferno.h so I just externed it.
+extern void show_order_form(void);	// John didn't want this in inferno.h so I just externed it.
 
 //returns flag, true means quit menu
 void do_option ( int select) 
@@ -286,12 +295,12 @@ void do_option ( int select)
 			Function_mode = FMODE_EXIT;
 			break;
 		case MENU_NEW_PLAYER:
-			RegisterPlayer();               //1 == allow escape out of menu
+			RegisterPlayer();		//1 == allow escape out of menu
 			break;
 
 #ifndef RELEASE
 
-		case MENU_PLAY_SONG:    {
+		case MENU_PLAY_SONG:	{
 				int i;
 				char * m[MAX_NUM_SONGS];
 
@@ -300,29 +309,29 @@ void do_option ( int select)
 				}
 				i = newmenu_listbox( "Select Song", Num_songs, m, 1, NULL );
 
-				if ( i > -1 )   {
+				if ( i > -1 )	{
 					songs_play_song( i, 0 );
 				}
 			}
 			break;
-	case MENU_LOAD_LEVEL:
-		if (Current_mission || select_mission(0, "Load Level\n\nSelect mission"))
-		{
-			newmenu_item m;
-			char text[10]="";
-			int new_level_num;
-
-			m.type=NM_TYPE_INPUT; m.text_len = 10; m.text = text;
-
-			newmenu_do( NULL, "Enter level to load", 1, &m, NULL );
-
-			new_level_num = atoi(m.text);
-
-			if (new_level_num!=0 && new_level_num>=Last_secret_level && new_level_num<=Last_level)  {
-				StartNewGame(new_level_num);
+		case MENU_LOAD_LEVEL:
+			if (Current_mission || select_mission(0, "Load Level\n\nSelect mission"))
+			{
+				newmenu_item m;
+				char text[10]="";
+				int new_level_num;
+	
+				m.type=NM_TYPE_INPUT; m.text_len = 10; m.text = text;
+	
+				newmenu_do( NULL, "Enter level to load", 1, &m, NULL );
+	
+				new_level_num = atoi(m.text);
+	
+				if (new_level_num!=0 && new_level_num>=Last_secret_level && new_level_num<=Last_level)  {
+					StartNewGame(new_level_num);
+				}
 			}
-		}
-		break;
+			break;
 
 #endif //ifndef RELEASE
 
@@ -354,7 +363,6 @@ void do_option ( int select)
 		case MENU_JOIN_UDP_NETGAME:
 			// FIXME
 			break;
-
 		case MENU_MULTIPLAYER:
 			do_multi_player_menu();
 			break;
@@ -386,7 +394,7 @@ int do_difficulty_menu()
 
 	s = newmenu_do1( NULL, TXT_DIFFICULTY_LEVEL, NDL, m, NULL, Difficulty_level);
 
-	if (s > -1 )    {
+	if (s > -1 )	{
 		if (s != Difficulty_level)
 		{
 			PlayerCfg.DefaultDifficulty = s;
@@ -460,7 +468,6 @@ void options_menuset(int nitems, newmenu_item * items, int *last_key, int citem 
 	nitems++;		//kill warning
 	last_key++;		//kill warning
 }
-
 
 int gcd(int a, int b)
 {
@@ -658,6 +665,41 @@ void input_config()
 
 }
 
+void do_graphics_menu()
+{
+	newmenu_item m[9];
+	int i = 0, j = 0;
+
+	do {
+		m[0].type = NM_TYPE_TEXT;   m[0].text="Texture Filtering:";
+		m[1].type = NM_TYPE_RADIO;  m[1].text = "None (Classical)";       m[1].value = 0; m[1].group = 0;
+		m[2].type = NM_TYPE_RADIO;  m[2].text = "Bilinear";               m[2].value = 0; m[2].group = 0;
+		m[3].type = NM_TYPE_RADIO;  m[3].text = "Trilinear";              m[3].value = 0; m[3].group = 0;
+		m[4].type = NM_TYPE_TEXT;   m[4].text="";
+		m[5].type = NM_TYPE_CHECK;  m[5].text="Transparency Effects";     m[5].value = PlayerCfg.OglAlphaEffects;
+		m[6].type = NM_TYPE_CHECK;  m[6].text="Vectorial Reticle";        m[6].value = PlayerCfg.OglReticle;
+		m[7].type = NM_TYPE_CHECK;  m[7].text="VSync";                    m[7].value = GameCfg.VSync;
+		m[8].type = NM_TYPE_CHECK;  m[8].text="4x multisampling";         m[8].value = GameCfg.Multisample;
+
+		m[GameCfg.TexFilt+1].value=1;
+
+		i = newmenu_do1( NULL, "Graphics Options", sizeof(m)/sizeof(*m), m, NULL, i );
+
+		if (GameCfg.VSync != m[7].value || GameCfg.Multisample != m[8].value)
+			nm_messagebox( NULL, 1, TXT_OK, "To apply VSync or 4x Multisample\nyou need to restart the program");
+
+		for (j = 0; j <= 2; j++)
+			if (m[j+1].value)
+				GameCfg.TexFilt = j;
+		PlayerCfg.OglAlphaEffects = m[5].value;
+		PlayerCfg.OglReticle = m[6].value;
+		GameCfg.VSync = m[7].value;
+		GameCfg.Multisample = m[8].value;
+		gr_set_attributes();
+		gr_set_mode(Game_screen_mode);
+	} while( i>-1 );
+}
+
 void set_extmusic_volume(int volume);
 
 void sound_menuset(int nitems, newmenu_item * items, int *last_key, int citem )
@@ -691,13 +733,13 @@ void do_sound_menu()
 #endif
 	int i = 0;
 	int nitems;
-	
+
 	do {
 		if (GameCfg.SndEnableRedbook && GameCfg.JukeboxOn)
 			GameCfg.JukeboxOn = 0;
-		
+
 		nitems = 0;
-		
+
 		m[nitems].type = NM_TYPE_SLIDER; m[nitems].text=TXT_FX_VOLUME; m[nitems].value=GameCfg.DigiVolume; m[nitems].min_value=0; m[nitems++].max_value=8; 
 		m[nitems].type = NM_TYPE_SLIDER; m[nitems].text="music volume"; m[nitems].value=GameCfg.MusicVolume; m[nitems].min_value=0; m[nitems++].max_value=8;
 		m[nitems].type = NM_TYPE_TEXT; m[nitems++].text="";
@@ -711,7 +753,7 @@ void do_sound_menu()
 		m[nitems].type = NM_TYPE_CHECK;  m[nitems].text=TXT_REVERSE_STEREO; m[nitems++].value=GameCfg.ReverseStereo;
 		
 		i = newmenu_do1( NULL, "Sound Effects & Music", nitems, m, sound_menuset, i );
-		
+
 		GameCfg.ReverseStereo = m[nitems - 1].value;
 		if ((GameCfg.SndEnableRedbook != m[4].value)
 #ifdef USE_SDLMIXER
@@ -731,42 +773,7 @@ void do_sound_menu()
 			else
 				songs_play_song(SONG_TITLE, 1);
 		}
-		
-	} while( i>-1 );
-}
 
-void do_graphics_menu()
-{
-	newmenu_item m[9];
-	int i = 0, j = 0;
-
-	do {
-		m[0].type = NM_TYPE_TEXT;   m[0].text="Texture Filtering:";
-		m[1].type = NM_TYPE_RADIO;  m[1].text = "None (Classical)";       m[1].value = 0; m[1].group = 0;
-		m[2].type = NM_TYPE_RADIO;  m[2].text = "Bilinear";               m[2].value = 0; m[2].group = 0;
-		m[3].type = NM_TYPE_RADIO;  m[3].text = "Trilinear";              m[3].value = 0; m[3].group = 0;
-		m[4].type = NM_TYPE_TEXT;   m[4].text="";
-		m[5].type = NM_TYPE_CHECK;  m[5].text="Transparency Effects";     m[5].value = PlayerCfg.OglAlphaEffects;
-		m[6].type = NM_TYPE_CHECK;  m[6].text="Vectorial Reticle";        m[6].value = PlayerCfg.OglReticle;
-		m[7].type = NM_TYPE_CHECK;  m[7].text="VSync";                    m[7].value = GameCfg.VSync;
-		m[8].type = NM_TYPE_CHECK;  m[8].text="4x multisampling";         m[8].value = GameCfg.Multisample;
-
-		m[GameCfg.TexFilt+1].value=1;
-
-		i = newmenu_do1( NULL, "Graphics Options", sizeof(m)/sizeof(*m), m, NULL, i );
-
-		if (GameCfg.VSync != m[7].value || GameCfg.Multisample != m[8].value)
-			nm_messagebox( NULL, 1, TXT_OK, "To apply VSync or 4x Multisample\nyou need to restart the program");
-
-		for (j = 0; j <= 2; j++)
-			if (m[j+1].value)
-				GameCfg.TexFilt = j;
-		PlayerCfg.OglAlphaEffects = m[5].value;
-		PlayerCfg.OglReticle = m[6].value;
-		GameCfg.VSync = m[7].value;
-		GameCfg.Multisample = m[8].value;
-		gr_set_attributes();
-		gr_set_mode(Game_screen_mode);
 	} while( i>-1 );
 }
 
@@ -834,7 +841,6 @@ void do_multi_player_menu()
 			break;          // leave menu
 
 	} while( choice > -1 );
-
 }
 
 void do_ip_manual_join_menu()
