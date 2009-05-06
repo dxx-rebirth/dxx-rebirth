@@ -45,6 +45,7 @@ static char *DigiVolumeStr = "DigiVolume";
 static char *MusicVolumeStr = "MidiVolume";
 static char *SndEnableRedbookStr = "RedbookEnabled";
 static char *ReverseStereoStr = "ReverseStereo";
+static char *OrigTrackOrderStr = "OrigTrackOrder";
 static char *GammaLevelStr = "GammaLevel";
 static char *LastPlayerStr = "LastPlayer";
 static char *LastMissionStr = "LastMission";
@@ -126,6 +127,8 @@ int ReadConfigFile()
 				GameCfg.SndEnableRedbook = strtol(value, NULL, 10);
 			else if (!strcmp(token, ReverseStereoStr))
 				GameCfg.ReverseStereo = strtol(value, NULL, 10);
+			else if (!strcmp(token, OrigTrackOrderStr))
+				GameCfg.OrigTrackOrder = strtol(value, NULL, 10);
 			else if (!strcmp(token, GammaLevelStr)) {
 				GameCfg.GammaLevel = strtol(value, NULL, 10);
 				gr_palette_set_gamma( GameCfg.GammaLevel );
@@ -222,6 +225,7 @@ int WriteConfigFile()
 	PHYSFSX_printf(infile, "%s=%d\n", MusicVolumeStr, GameCfg.MusicVolume);
 	PHYSFSX_printf(infile, "%s=%d\n", SndEnableRedbookStr, GameCfg.SndEnableRedbook);
 	PHYSFSX_printf(infile, "%s=%d\n", ReverseStereoStr, GameCfg.ReverseStereo);
+	PHYSFSX_printf(infile, "%s=%d\n", OrigTrackOrderStr, GameCfg.OrigTrackOrder);
 	PHYSFSX_printf(infile, "%s=%d\n", GammaLevelStr, GameCfg.GammaLevel);
 	PHYSFSX_printf(infile, "%s=%s\n", LastPlayerStr, Players[Player_num].callsign);
 	PHYSFSX_printf(infile, "%s=%s\n", LastMissionStr, GameCfg.LastMission);

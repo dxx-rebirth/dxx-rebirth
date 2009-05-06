@@ -30,6 +30,7 @@ typedef struct Cfg
 	ubyte MusicVolume;
 	int SndEnableRedbook;
 	int ReverseStereo;
+	int OrigTrackOrder;
 	int GammaLevel;
 	char LastPlayer[CALLSIGN_LEN+1];
 	char LastMission[MISSION_NAME_LEN+1];

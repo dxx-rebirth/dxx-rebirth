@@ -1,5 +1,9 @@
 D1X-Rebirth Changelog
 
+20090506
+--------
+main/config.c, main/config.h, main/menu.c, main/songs.c: Add option to force either Redbook or Jukebox to use the playing order for the game CD
+
 20090503
 --------
 main/config.c, main/config.h, main/menu.c: Make some files more similar between D1X and D2X

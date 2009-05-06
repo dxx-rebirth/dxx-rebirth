@@ -220,8 +220,8 @@ int play_extmusic_track(int tracknum,int keep_playing, void (*completion_proc)()
  */
 #define D1_MAC_OEM_DISCID       0xde0feb0e // Descent CD that came with the Mac Performa 6400, hope mine isn't scratched [too much]
 
-#define REDBOOK_FIRST_LEVEL_TRACK	  (songs_haved1_cd()?6:1)
-#define REDBOOK_ENDLEVEL_TRACK		  4
+#define REDBOOK_FIRST_LEVEL_TRACK	  (songs_haved1_cd() ? (GameCfg.SndEnableRedbook ? 6 : 5) : 1)
+#define REDBOOK_ENDLEVEL_TRACK		  (GameCfg.SndEnableRedbook ? 4 : 3)
 #define REDBOOK_ENDGAME_TRACK         (ext_music_get_numtracks())
 
 // songs_haved1_cd returns 1 if the descent 1 Mac CD is in the drive and
@@ -232,6 +232,9 @@ int songs_haved1_cd()
 {
 	int discid;
 
+	if (GameCfg.OrigTrackOrder)
+		return 1;
+	
 	if (!GameCfg.SndEnableRedbook)
 		return 0;
 
@@ -285,11 +288,11 @@ void songs_play_song( int songnum, int repeat )
 	
 	// The endgame track is the last track...
 	if (songnum < SONG_ENDGAME)
-		play_extmusic_track(songnum + 2, 0, repeat ? repeat_track : NULL);
+		play_extmusic_track(songnum + 2 - GameCfg.JukeboxOn, 0, repeat ? repeat_track : NULL);
 	else if (songnum == SONG_ENDGAME)
 		play_extmusic_track(REDBOOK_ENDGAME_TRACK, 0, repeat ? repeat_track : NULL);
 	else if (songnum > SONG_ENDGAME)
-		play_extmusic_track(songnum + 1, 0, repeat ? repeat_track : NULL);
+		play_extmusic_track(songnum + 1 - GameCfg.JukeboxOn, 0, repeat ? repeat_track : NULL);
 	
 	if (!Extmusic_playing)		//not playing external music, so play midi
 		digi_play_midi_song( Songs[songnum].filename, Songs[songnum].melodic_bank_file, Songs[songnum].drum_bank_file, repeat );
