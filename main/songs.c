@@ -178,9 +178,9 @@ int play_extmusic_track(int tracknum,int keep_playing, void (*completion_proc)()
 #define D2_MAC_DISCID       0xb70ee40e // Macintosh
 #define D2_IPLAY_DISCID     0x22115710 // iPlay for Macintosh
 
-#define REDBOOK_TITLE_TRACK         2
-#define REDBOOK_CREDITS_TRACK       3
-#define REDBOOK_FIRST_LEVEL_TRACK   (songs_haved2_cd()?4:1)
+#define REDBOOK_TITLE_TRACK         (GameCfg.SndEnableRedbook ? 2 : 1)
+#define REDBOOK_CREDITS_TRACK       (GameCfg.SndEnableRedbook ? 3 : 2)
+#define REDBOOK_FIRST_LEVEL_TRACK   (songs_haved2_cd() ? (GameCfg.SndEnableRedbook ? 4 : 3) : 1)
 
 // songs_haved2_cd returns 1 if the descent 2 CD is in the drive and
 // 0 otherwise
@@ -189,6 +189,9 @@ int play_extmusic_track(int tracknum,int keep_playing, void (*completion_proc)()
 int songs_haved2_cd()
 {
 	int discid;
+	
+	if (GameCfg.OrigTrackOrder)
+		return 1;
 
 	if (!GameCfg.SndEnableRedbook)
 		return 0;

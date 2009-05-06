@@ -1,6 +1,10 @@
 D2X-Rebirth Changelog
 
-20090503
+20090506
+--------
+main/config.c, main/config.h, main/menu.c, main/songs.c: Add option to force either Redbook or Jukebox to use the playing order for the game CD
+
+220090503
 --------
 main/net_ipx.c: Make sure HoardEquipped returns 1 if hoard.ham is in the Data folder, hence properly allowing hoard.ham to be in the Data folder
 main/config.c, main/menu.c: Make some files more similar between D1X and D2X

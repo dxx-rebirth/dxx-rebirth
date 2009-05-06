@@ -727,9 +727,9 @@ void sound_menuset(int nitems, newmenu_item * items, int *last_key, int citem )
 void do_sound_menu()
 {
 #ifdef USE_SDLMIXER
-	newmenu_item m[9];
+	newmenu_item m[10];
 #else
-	newmenu_item m[6];
+	newmenu_item m[7];
 #endif
 	int i = 0;
 	int nitems;
@@ -750,11 +750,13 @@ void do_sound_menu()
 		m[nitems].type = NM_TYPE_TEXT; m[nitems++].text="path to music for jukebox:";
 		m[nitems].type = NM_TYPE_INPUT; m[nitems].text = GameCfg.JukeboxPath; m[nitems++].text_len = NM_MAX_TEXT_LEN-1;
 #endif
+		m[nitems].type = NM_TYPE_CHECK;  m[nitems].text="Force Descent ][ CD track order"; m[nitems++].value=GameCfg.OrigTrackOrder;
 		m[nitems].type = NM_TYPE_CHECK;  m[nitems].text=TXT_REVERSE_STEREO; m[nitems++].value=GameCfg.ReverseStereo;
 		
 		i = newmenu_do1( NULL, "Sound Effects & Music", nitems, m, sound_menuset, i );
 
 		GameCfg.ReverseStereo = m[nitems - 1].value;
+		GameCfg.OrigTrackOrder = m[nitems - 2].value;
 		if ((GameCfg.SndEnableRedbook != m[4].value)
 #ifdef USE_SDLMIXER
 			|| (GameCfg.JukeboxOn != m[5].value) || (GameCfg.JukeboxOn)
