@@ -444,6 +444,9 @@ int main(int argc, char *argv[])
 			default:
 				Error("Invalid function mode %d",Function_mode);
 		}
+
+		// Send events to windows and the default handler
+		event_process();
 	}
 
 	WriteConfigFile();

@@ -384,6 +384,8 @@
 		EBC652140890D6DF004FCAA3 /* func.h in Headers */ = {isa = PBXBuildFile; fileRef = EBC652120890D6DF004FCAA3 /* func.h */; };
 		EBC6525C0890F79B004FCAA3 /* nocfile.h in Headers */ = {isa = PBXBuildFile; fileRef = EBC6525B0890F79B004FCAA3 /* nocfile.h */; };
 		EBC6525D0890F79B004FCAA3 /* nocfile.h in Headers */ = {isa = PBXBuildFile; fileRef = EBC6525B0890F79B004FCAA3 /* nocfile.h */; };
+		EBE8D6EB0FC583B4009D181F /* window.c in Sources */ = {isa = PBXBuildFile; fileRef = EBE8D6EA0FC583B4009D181F /* window.c */; };
+		EBE8D6EC0FC583B4009D181F /* window.c in Sources */ = {isa = PBXBuildFile; fileRef = EBE8D6EA0FC583B4009D181F /* window.c */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXFileReference section */
@@ -771,6 +773,8 @@
 		EBC6520F0890D6B7004FCAA3 /* ui.h */ = {isa = PBXFileReference; fileEncoding = 30; lastKnownFileType = sourcecode.c.h; path = ui.h; sourceTree = "<group>"; };
 		EBC652120890D6DF004FCAA3 /* func.h */ = {isa = PBXFileReference; fileEncoding = 30; lastKnownFileType = sourcecode.c.h; path = func.h; sourceTree = "<group>"; };
 		EBC6525B0890F79B004FCAA3 /* nocfile.h */ = {isa = PBXFileReference; fileEncoding = 30; lastKnownFileType = sourcecode.c.h; path = nocfile.h; sourceTree = "<group>"; };
+		EBE8D6E90FC58365009D181F /* window.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = window.h; sourceTree = "<group>"; };
+		EBE8D6EA0FC583B4009D181F /* window.c */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.c; path = window.c; sourceTree = "<group>"; };
 		EBF6589B0F936BA200CB5C73 /* ipx.c */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.c; path = ipx.c; sourceTree = "<group>"; };
 		EBF6589C0F936BA200CB5C73 /* ipx_kali.c */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.c; path = ipx_kali.c; sourceTree = "<group>"; };
 		EBF6589D0F936BD800CB5C73 /* ipx.c */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.c; path = ipx.c; sourceTree = "<group>"; };
@@ -936,6 +940,7 @@
 				6791CFE30668899A00056A5A /* joy.h */,
 				EB92BE140CDD68200045A32C /* jukebox.h */,
 				6791D07006688A5F00056A5A /* mouse.h */,
+				EBE8D6E90FC58365009D181F /* window.h */,
 			);
 			name = include;
 			path = arch/include;
@@ -1018,6 +1023,7 @@
 				67B441DB06687A0200DF26D8 /* mouse.c */,
 				67B441DC06687A0200DF26D8 /* rbaudio.c */,
 				67B441DD06687A0200DF26D8 /* timer.c */,
+				EBE8D6EA0FC583B4009D181F /* window.c */,
 			);
 			name = sdl;
 			path = arch/sdl;
@@ -1826,6 +1832,7 @@
 				EBB9E5580D8E8502003466E6 /* netdrv_udp.c in Sources */,
 				EB28D9A40ECEAF1C00E68E9B /* init.c in Sources */,
 				EB423D230F63FC710082C684 /* noloss.c in Sources */,
+				EBE8D6EC0FC583B4009D181F /* window.c in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -1962,6 +1969,7 @@
 				EB92BEA60CDD6A570045A32C /* dl_list.c in Sources */,
 				EB92BEA70CDD6A570045A32C /* hmp2mid.c in Sources */,
 				EB28D9A30ECEAF1C00E68E9B /* init.c in Sources */,
+				EBE8D6EB0FC583B4009D181F /* window.c in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};

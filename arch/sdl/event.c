@@ -8,7 +8,9 @@
 
 #include <stdio.h>
 #include <stdlib.h>
+#include "event.h"
 #include "key.h"
+#include "window.h"
 
 #include <SDL/SDL.h>
 
@@ -68,4 +70,26 @@ int event_init()
 	initialised = 1;
 
 	return 0;
+}
+
+// Process the first event in queue, sending to the appropriate handler
+// This is the new object-oriented system
+// Uses the old system for now, but this will change
+void event_process(void)
+{
+	d_event event;
+	window *wind;
+
+	// Very trivial system for now.
+	event.type = EVENT_OTHER;	// process user input first
+	wind = window_get_front();
+	if (!wind)
+		return;
+
+	window_send_event(wind, &event);
+
+	event.type = EVENT_DRAW;	// then draw all visible windows
+	for (wind = window_get_first(); wind != NULL; wind = window_get_next(wind))
+		if (window_is_visible(wind))
+			window_send_event(wind, &event);
 }
