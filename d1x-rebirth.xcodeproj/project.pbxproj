@@ -273,6 +273,10 @@
 		EB3319FE0D5335E600C799B0 /* netdrv_udp.h in Headers */ = {isa = PBXBuildFile; fileRef = EB3319FC0D5335E600C799B0 /* netdrv_udp.h */; };
 		EB331A000D5335E600C799B0 /* netdrv_udp.h in Headers */ = {isa = PBXBuildFile; fileRef = EB3319FC0D5335E600C799B0 /* netdrv_udp.h */; };
 		EB331A0C0D53578800C799B0 /* snddecom.c in Sources */ = {isa = PBXBuildFile; fileRef = EBEEB2680D2B364300FF39B4 /* snddecom.c */; };
+		EB35ABE10FB199B800C36930 /* window.h in Headers */ = {isa = PBXBuildFile; fileRef = EB35ABDF0FB199B800C36930 /* window.h */; };
+		EB35ABE20FB199B800C36930 /* window.c in Sources */ = {isa = PBXBuildFile; fileRef = EB35ABE00FB199B800C36930 /* window.c */; };
+		EB35ABE30FB199B800C36930 /* window.h in Headers */ = {isa = PBXBuildFile; fileRef = EB35ABDF0FB199B800C36930 /* window.h */; };
+		EB35ABE40FB199B800C36930 /* window.c in Sources */ = {isa = PBXBuildFile; fileRef = EB35ABE00FB199B800C36930 /* window.c */; };
 		EB380D7D0E168B1900EBD9AD /* InfoPlist.strings in Resources */ = {isa = PBXBuildFile; fileRef = EB380D7B0E168B1900EBD9AD /* InfoPlist.strings */; };
 		EB380D7E0E168B1900EBD9AD /* InfoPlist.strings in Resources */ = {isa = PBXBuildFile; fileRef = EB380D7B0E168B1900EBD9AD /* InfoPlist.strings */; };
 		EB3CA5040E97749400FB1E93 /* tracker_server.c in Sources */ = {isa = PBXBuildFile; fileRef = EB3CA5020E97749400FB1E93 /* tracker_server.c */; };
@@ -561,6 +565,8 @@
 		EB3319F20D53351600C799B0 /* ogl_init.h */ = {isa = PBXFileReference; fileEncoding = 30; lastKnownFileType = sourcecode.c.h; path = ogl_init.h; sourceTree = "<group>"; };
 		EB3319FB0D5335E500C799B0 /* netdrv_udp.c */ = {isa = PBXFileReference; fileEncoding = 30; lastKnownFileType = sourcecode.c.c; path = netdrv_udp.c; sourceTree = "<group>"; };
 		EB3319FC0D5335E600C799B0 /* netdrv_udp.h */ = {isa = PBXFileReference; fileEncoding = 30; lastKnownFileType = sourcecode.c.h; path = netdrv_udp.h; sourceTree = "<group>"; };
+		EB35ABDF0FB199B800C36930 /* window.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = window.h; sourceTree = "<group>"; };
+		EB35ABE00FB199B800C36930 /* window.c */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.c; path = window.c; sourceTree = "<group>"; };
 		EB380D7C0E168B1900EBD9AD /* English */ = {isa = PBXFileReference; fileEncoding = 10; lastKnownFileType = text.plist.strings; name = English; path = English.lproj/InfoPlist.strings; sourceTree = "<group>"; };
 		EB3CA4F90E97740E00FB1E93 /* tracker.h */ = {isa = PBXFileReference; fileEncoding = 30; lastKnownFileType = sourcecode.c.h; path = tracker.h; sourceTree = "<group>"; };
 		EB3CA5020E97749400FB1E93 /* tracker_server.c */ = {isa = PBXFileReference; fileEncoding = 30; lastKnownFileType = sourcecode.c.c; path = tracker_server.c; sourceTree = "<group>"; };
@@ -929,6 +935,7 @@
 				67B441DB06687A0200DF26D8 /* mouse.c */,
 				EBCE794C0DE59565008D8F82 /* rbaudio.c */,
 				67B441DD06687A0200DF26D8 /* timer.c */,
+				EB35ABE00FB199B800C36930 /* window.c */,
 			);
 			name = sdl;
 			path = arch/sdl;
@@ -1213,6 +1220,7 @@
 				EB3319ED0D53341900C799B0 /* jukebox.h */,
 				EB3319EE0D53341900C799B0 /* key.h */,
 				EB3319EF0D53341900C799B0 /* mouse.h */,
+				EB35ABDF0FB199B800C36930 /* window.h */,
 			);
 			name = include;
 			path = arch/include;
@@ -1433,6 +1441,7 @@
 				EBEEB2090D2B320C00FF39B4 /* script.h in Headers */,
 				EB3319FE0D5335E600C799B0 /* netdrv_udp.h in Headers */,
 				EB423CE60F6273F50082C684 /* noloss.h in Headers */,
+				EB35ABE30FB199B800C36930 /* window.h in Headers */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -1477,6 +1486,7 @@
 				EBEEB2150D2B320C00FF39B4 /* script.h in Headers */,
 				EB331A000D5335E600C799B0 /* netdrv_udp.h in Headers */,
 				EB423CE40F6273F50082C684 /* noloss.h in Headers */,
+				EB35ABE10FB199B800C36930 /* window.h in Headers */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -1691,6 +1701,7 @@
 				EB3CA5040E97749400FB1E93 /* tracker_server.c in Sources */,
 				EB28D99D0ECEABD700E68E9B /* init.c in Sources */,
 				EB423CE50F6273F50082C684 /* noloss.c in Sources */,
+				EB35ABE40FB199B800C36930 /* window.c in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -1819,6 +1830,7 @@
 				EB33198F0D50A70600C799B0 /* snddecom.c in Sources */,
 				EBCE794E0DE59565008D8F82 /* rbaudio.c in Sources */,
 				EB28D99C0ECEABD700E68E9B /* init.c in Sources */,
+				EB35ABE20FB199B800C36930 /* window.c in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};

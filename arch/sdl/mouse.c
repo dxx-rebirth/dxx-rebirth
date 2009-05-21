@@ -79,8 +79,6 @@ void mouse_button_handler(SDL_MouseButtonEvent *mbe)
 
 void mouse_motion_handler(SDL_MouseMotionEvent *mme)
 {
-	Mouse.delta_x += mme->xrel;
-	Mouse.delta_y += mme->yrel;
 	Mouse.x += mme->xrel;
 	Mouse.y += mme->yrel;
 }

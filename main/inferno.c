@@ -113,6 +113,7 @@ static char *__reference[2]={copyright,(char *)__reference};
 #include "newdemo.h"
 #include "joy.h"
 #include "console.h"
+#include "event.h"
 
 char desc_id_exit_num = 0;
 int Function_mode=FMODE_MENU; //game or editor?
@@ -411,6 +412,9 @@ int main(int argc,char *argv[])
 			default:
 				Error("Invalid function mode %d",Function_mode);
 		}
+
+		// Send events to windows and the default handler
+		event_process();
 	}
 
 	WriteConfigFile();
