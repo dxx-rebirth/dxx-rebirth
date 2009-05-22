@@ -10,6 +10,8 @@
 
 #include "gr.h"
 #include "window.h"
+#include "u_mem.h"
+#include "error.h"
 
 struct window
 {

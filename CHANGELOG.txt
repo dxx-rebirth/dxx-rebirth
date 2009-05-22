@@ -1,5 +1,9 @@
 D1X-Rebirth Changelog
 
+20090522
+--------
+arch/sdl/window.c: Add include directives for last commit (whoops)
+
 20090521
 --------
 arch/include/event.h, arch/include/window.h, arch/sdl/event.c, arch/sdl/mouse.c, arch/sdl/window.c, d1x-rebirth.xcodeproj/project.pbxproj, main/inferno.c, SConstruct: Add new window system, not used yet
