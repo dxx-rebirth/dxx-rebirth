@@ -91,6 +91,7 @@ char copyright[] = "DESCENT II  COPYRIGHT (C) 1994-1996 PARALLAX SOFTWARE CORPOR
 #include "newdemo.h"
 #include "joy.h"
 #include "../texmap/scanline.h" //for select_tmap -MM
+#include "event.h"
 
 #ifdef EDITOR
 #include "editor/editor.h"
