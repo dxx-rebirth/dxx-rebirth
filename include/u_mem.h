@@ -20,6 +20,8 @@ COPYRIGHT 1993-1998 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 extern ubyte virtual_memory_on;
 #endif
 
+void mem_init(void);
+
 #if !defined(NDEBUG) || defined(MACINTOSH)		// mac always gets this stuff.
 
 void mem_display_blocks();

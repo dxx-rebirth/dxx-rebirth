@@ -1093,11 +1093,11 @@ void show_order_form()
 {
 	char    exit_screen[16];
 
-	strcpy(exit_screen, "apple.pcx");	// D1 Mac OEM Demo
+	strcpy(exit_screen, "warning.pcx");	// D1 Registered
+	if (! cfexist(exit_screen))
+		strcpy(exit_screen, "apple.pcx");	// D1 Mac OEM Demo
 	if (! cfexist(exit_screen))
 		strcpy(exit_screen, "order01.pcx"); // D1 Demo
-	if (! cfexist(exit_screen))
-		strcpy(exit_screen, "warning.pcx");	// D1 Registered
 	show_title_screen(exit_screen, 1);
 }
 

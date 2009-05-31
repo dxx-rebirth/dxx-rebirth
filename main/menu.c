@@ -178,7 +178,7 @@ void create_main_menu(newmenu_item *m, int *menu_choice, int *callers_num_option
 	ADD_ITEM(TXT_CHANGE_PILOTS,MENU_NEW_PLAYER,unused);
 	ADD_ITEM(TXT_VIEW_DEMO,MENU_DEMO_PLAY,0);
 	ADD_ITEM(TXT_VIEW_SCORES,MENU_VIEW_SCORES,KEY_V);
-	if (cfexist("apple.pcx") || cfexist("order01.pcx")) /* SHAREWARE */
+	if (!cfexist("warning.pcx")) /* SHAREWARE */
 		ADD_ITEM(TXT_ORDERING_INFO,MENU_ORDER_INFO,-1);
 	ADD_ITEM(TXT_CREDITS,MENU_SHOW_CREDITS,-1);
 	#endif

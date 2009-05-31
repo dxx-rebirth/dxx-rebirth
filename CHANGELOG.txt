@@ -1,5 +1,9 @@
 D1X-Rebirth Changelog
 
+20090531
+--------
+include/u_mem.h, main/inferno.c, main/menu.c, main/titles.c: Make inferno.c more similar between D1X and D2X, better handling of ordering/commercial software screen
+
 20090522
 --------
 arch/sdl/window.c: Add include directives for last commit (whoops)

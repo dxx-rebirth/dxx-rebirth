@@ -7,42 +7,33 @@ IN USING, DISPLAYING,  AND CREATING DERIVATIVE WORKS THEREOF, SO LONG AS
 SUCH USE, DISPLAY OR CREATION IS FOR NON-COMMERCIAL, ROYALTY OR REVENUE
 FREE PURPOSES.  IN NO EVENT SHALL THE END-USER USE THE COMPUTER CODE
 CONTAINED HEREIN FOR REVENUE-BEARING PURPOSES.  THE END-USER UNDERSTANDS
-AND AGREES TO THE TERMS HEREIN AND ACCEPTS THE SAME BY USE OF THIS FILE.  
+AND AGREES TO THE TERMS HEREIN AND ACCEPTS THE SAME BY USE OF THIS FILE.
 COPYRIGHT 1993-1998 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 */
 
 /*
  *
- * main() for Inferno  
+ * inferno.c: Entry point of program (main procedure)
+ *
+ * After main initializes everything, most of the time is spent in the loop
+ * while (Function_mode != FMODE_EXIT)
+ * In this loop, the main menu is brought up first.
+ *
+ * main() for Inferno
  *
  */
 
-#ifdef __GNUC__
-static char copyright[] = "DESCENT   COPYRIGHT (C) 1994,1995 PARALLAX SOFTWARE CORPORATION";
-static char *__reference[2]={copyright,(char *)__reference};
-#endif
-
+char copyright[] = "DESCENT   COPYRIGHT (C) 1994,1995 PARALLAX SOFTWARE CORPORATION";
 
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
 #include <limits.h>
-#include <SDL/SDL.h>
 
-#if !defined(_MSC_VER) && !defined(macintosh)
+#ifdef __unix__
 #include <unistd.h>
-#endif
-
-#ifdef __MSDOS__
-#include <time.h>
-#endif
-
-#ifdef _WIN32
-#include <windows.h>
-#endif
-
-#if defined(_MSC_VER) && defined(_DEBUG)
-#include <crtdbg.h>
+#include <sys/stat.h>
+#include <sys/types.h>
 #endif
 
 #if !(defined(__APPLE__) && defined(__MACH__))
@@ -51,42 +42,28 @@ static char *__reference[2]={copyright,(char *)__reference};
 #include <physfs/physfs.h>
 #endif
 
-#ifdef __MSDOS__
-#include <conio.h>
-#else
-#define getch() getchar()
-#endif
-
-#ifdef EDITOR
-#include "editor/editor.h"
-#include "editor/kdefs.h"
-#endif
-
-#ifdef QUICKSTART
-#include "playsave.h"
-#endif
-
-#ifdef SCRIPT
-#include "script.h"
-#endif
-
-#ifdef OGL
-#include "ogl_init.h"
-#endif
-
+#include "pstypes.h"
+#include "strutil.h"
+#include "console.h"
 #include "gr.h"
+#include "key.h"
+#include "timer.h"
 #include "3d.h"
+#include "bm.h"
 #include "inferno.h"
 #include "error.h"
 #include "game.h"
-#include "segment.h" //for Side_to_verts
+#include "segment.h"		//for Side_to_verts
 #include "u_mem.h"
+#include "screens.h"
 #include "texmerge.h"
 #include "menu.h"
 #include "digi.h"
+#include "palette.h"
 #include "args.h"
 #include "titles.h"
 #include "text.h"
+#include "gauges.h"
 #include "gamefont.h"
 #include "kconfig.h"
 #include "newmenu.h"
@@ -96,52 +73,47 @@ static char *__reference[2]={copyright,(char *)__reference};
 #include "songs.h"
 #include "cfile.h"
 #include "gameseq.h"
-#include "timer.h"
-#include "key.h"
-#include "palette.h"
-#include "bm.h"
-#include "screens.h"
-#include "hudmsg.h"
 #include "playsave.h"
-#include "gauges.h"
-#include "physics.h"
-#include "strutil.h"
-#include "altsound.h"
-#include "../texmap/scanline.h" //for select_tmap -MM
-#include "vers_id.h"
 #include "collide.h"
 #include "newdemo.h"
 #include "joy.h"
-#include "console.h"
+#include "../texmap/scanline.h" //for select_tmap -MM
 #include "event.h"
 
+#ifdef EDITOR
+#include "editor/editor.h"
+#include "editor/kdefs.h"
+#include "ui.h"
+#endif
+
+#include <SDL/SDL.h>
+
+#include "vers_id.h"
+
 char desc_id_exit_num = 0;
-int Function_mode=FMODE_MENU; //game or editor?
-int Screen_mode=-1; //game screen or editor screen?
+int Function_mode=FMODE_MENU;		//game or editor?
+int Screen_mode=-1;					//game screen or editor screen?
 int descent_critical_error = 0;
 unsigned int descent_critical_deverror = 0;
 unsigned int descent_critical_errcode = 0;
 
 int HiresGFXAvailable = 0;
 
-void mem_init(void);
 extern void arch_init(void);
 
-#ifdef EDITOR
-int Inferno_is_800x600_available = 0;
-#endif
 
-void show_commandline_help()
+//read help from a file & print to screen
+void print_commandline_help()
 {
 	printf( "\n System Options:\n\n");
 	printf( "  -fps               %s\n", "Enable FPS indicator by default");
 	printf( "  -nonicefps         %s\n", "Don't free CPU-cycles");
 	printf( "  -maxfps <n>        %s\n", "Set maximum framerate (1-200)");
-	printf( "  -hogdir <s>        %s\n", "Set shared data directory to <dir>");
-	printf( "  -nohogdir          %s\n", "Don't try to use shared data directory");
-	printf( "  -use_players_dir   %s\n", "Put player files and saved games in Players subdirectory");
+	printf( "  -hogdir <s>        %s\n", "set shared data directory to <dir>");
+	printf( "  -nohogdir          %s\n", "don't try to use shared data directory");
+	printf( "  -use_players_dir   %s\n", "put player files and saved games in Players subdirectory");
 	printf( "  -lowmem            %s\n", "Lowers animation detail for better performance with low memory");
-	printf( "  -pilot <s>         %s\n", "Select this pilot-file automatically");
+	printf( "  -pilot <s>         %s\n", "Select this pilot automatically");
 	printf( "  -autodemo          %s\n", "Start in demo mode");
 	printf( "  -notitles          %s\n", "Skip title screens");
 	printf( "  -window            %s\n", "Run the game in a window");
@@ -212,17 +184,15 @@ void show_commandline_help()
 
 void error_messagebox(char *s)
 {
-	error_init(NULL, NULL);	// don't try to show a messagebox if there's an error with showing one!
 	nm_messagebox( TXT_SORRY, 1, TXT_OK, s );
 }
 
 int MacHog = 0;	// using a Mac hogfile?
 #define PROGNAME argv[0]
 
-int main(int argc,char *argv[])
+int main(int argc, char *argv[])
 {
 	mem_init();
-
 	error_init(NULL, NULL);
 	PHYSFSX_init(argc, argv);
 	con_init();  // Initialise the console
@@ -249,9 +219,10 @@ int main(int argc,char *argv[])
 			MacHog = 1;	// used for fonts and the Automap
 			break;
 	}
-	
+
 	load_text();
 
+	//print out the banner title
 	con_printf(CON_NORMAL,DESCENT_VERSION "\n"
 	       "This is a MODIFIED version of DESCENT which is NOT supported by Parallax or\n"
 	       "Interplay. Use at your own risk! Copyright (c) 2005 Christian Beckhaeuser\n");
@@ -259,17 +230,17 @@ int main(int argc,char *argv[])
 	con_printf(CON_NORMAL,"%s\n%s\n",TXT_COPYRIGHT,TXT_TRADEMARK);
 
 	if (GameArg.SysShowCmdHelp) {
-		show_commandline_help();
-                set_exit_message("");
-		return 0;
+		print_commandline_help();
+		set_exit_message("");
+
+		return(0);
 	}
 
 	printf("\nType %s -help' for a list of command-line options.\n", PROGNAME);
 
-	select_tmap(GameArg.DbgTexMap);
-
 	if (GameArg.DbgVerbose)
 		con_printf(CON_VERBOSE,"%s", TXT_VERBOSE_1);
+	printf("\n");
 
 	{
 		char **i, **list;
@@ -295,20 +266,24 @@ int main(int argc,char *argv[])
 	freopen( "CON", "w", stderr );
 #endif
 
+	select_tmap(GameArg.DbgTexMap);
+
 #ifdef NETWORK
 	control_invul_time = 0;
 #endif
 
-	// Load the palette stuff. Returns non-zero if error.
-	con_printf( CON_DEBUG, "Going into graphics mode..." );
+	con_printf(CON_VERBOSE, "Going into graphics mode...\n");
 	gr_set_mode(Game_screen_mode);
 
-	con_printf( CON_DEBUG, "\nInitializing palette system..." );
+	// Load the palette stuff. Returns non-zero if error.
+	con_printf(CON_DEBUG, "Initializing palette system...\n" );
 	gr_use_palette_table( "PALETTE.256" );
-	con_printf( CON_DEBUG, "\nInitializing font system..." );
-	gamefont_init(); // must load after palette data loaded.
+
+	con_printf(CON_DEBUG, "Initializing font system...\n" );
+	gamefont_init();	// must load after palette data loaded.
 	songs_play_song( SONG_TITLE, 1 );
 
+	con_printf( CON_DEBUG, "\nDoing gamedata_init..." );
 	gamedata_init();
 
 	if (GameArg.DbgNoRun)
@@ -382,7 +357,7 @@ int main(int argc,char *argv[])
 			case FMODE_MENU:
 				DoMenu();
 #ifdef EDITOR
-				if ( Function_mode == FMODE_EDITOR ) {
+				if ( Function_mode == FMODE_EDITOR )	{
 					create_new_mine();
 					SetPlayerFromCurseg();
 				}
@@ -418,9 +393,7 @@ int main(int argc,char *argv[])
 	}
 
 	WriteConfigFile();
-#ifdef SHAREWARE
 	show_order_form();
-#endif
 
 	con_printf( CON_DEBUG, "\nCleanup...\n" );
 	error_init(NULL, NULL);		// clear error func (won't have newmenu stuff loaded)
@@ -433,7 +406,7 @@ int main(int argc,char *argv[])
 	newmenu_close();
 	free_mission();
 
-	return(0); //presumably successful exit
+	return(0);		//presumably successful exit
 }
 
 void quit_request()
