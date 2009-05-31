@@ -16,6 +16,8 @@ COPYRIGHT 1993-1999 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 
 #include <stdlib.h>
 
+void mem_init(void);
+
 #if !defined(NDEBUG)
 
 void mem_display_blocks();

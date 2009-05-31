@@ -28,7 +28,6 @@ extern char *Args[];
 extern void AppendIniArgs(void);
 extern void InitArgs(int argc, char **argv);
 extern void args_exit();
-extern int Inferno_verbose;
 
 // Struct that keeps all variables used by FindArg
 // Prefixes are:

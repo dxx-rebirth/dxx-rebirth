@@ -103,26 +103,17 @@ char copyright[] = "DESCENT II  COPYRIGHT (C) 1994-1996 PARALLAX SOFTWARE CORPOR
 
 #include "vers_id.h"
 
-void mem_init(void);
-
 //Current version number
 
 ubyte Version_major = 1;		//FULL VERSION
 ubyte Version_minor = 2;
 
-//static const char desc_id_checksum_str[] = DESC_ID_CHKSUM_TAG "0000"; // 4-byte checksum
 char desc_id_exit_num = 0;
-
 int Function_mode=FMODE_MENU;		//game or editor?
 int Screen_mode=-1;					//game screen or editor screen?
-
-void show_order_form(void);
-
-//--------------------------------------------------------------------------
-
 int descent_critical_error = 0;
-unsigned descent_critical_deverror = 0;
-unsigned descent_critical_errcode = 0;
+unsigned int descent_critical_deverror = 0;
+unsigned int descent_critical_errcode = 0;
 
 extern int Network_allow_socket_changes;
 extern void piggy_init_pigfile(char *filename);
@@ -210,7 +201,7 @@ void print_commandline_help()
 #else
 	printf( "  -hwsurface         %s\n", "Use SDL HW Surface");
 	printf( "  -asyncblit         %s\n", "Use queued blits over SDL. Can speed up rendering");
-#endif
+#endif // OGL
 
 	printf( "\n Help:\n\n");
 	printf( "  -help, -h, -?, ?   %s\n", "View this help screen");
@@ -224,14 +215,8 @@ void error_messagebox(char *s)
 
 #define PROGNAME argv[0]
 
-extern char Language[];
-
-int Inferno_verbose = 0;
-
 //	DESCENT II by Parallax Software
 //		Descent Main
-
-//extern ubyte gr_current_pal[];
 
 #ifdef	EDITOR
 char	Auto_file[128] = "";
@@ -244,7 +229,8 @@ int main(int argc, char *argv[])
 	PHYSFSX_init(argc, argv);
 	con_init();  // Initialise the console
 
-	con_printf (CON_VERBOSE, "%s", TXT_VERBOSE_1);
+	setbuf(stdout, NULL); // unbuffered output via printf
+
 	ReadConfigFile();
 
 	if (! cfile_init("descent2.hog", 1)) {
@@ -289,6 +275,8 @@ int main(int argc, char *argv[])
 
 	printf("\n");
 	printf(TXT_HELP, PROGNAME);		//help message has %s for program name
+	if (GameArg.DbgVerbose)
+		con_printf(CON_VERBOSE,"%s", TXT_VERBOSE_1);
 	printf("\n");
 
 	{
@@ -347,7 +335,7 @@ int main(int argc, char *argv[])
 		return(0);
 
 	error_init(error_messagebox, NULL);
-	
+
 	con_printf( CON_DEBUG, "\nInitializing texture caching system..." );
 	texmerge_init( 10 );		// 10 cache bitmaps
 
@@ -400,7 +388,7 @@ int main(int argc, char *argv[])
 
 	while (Function_mode != FMODE_EXIT)
 	{
-		switch( Function_mode )	{
+		switch( Function_mode ) {
 			case FMODE_MENU:
 				set_screen_mode(SCREEN_MENU);
 #ifdef EDITOR
@@ -420,10 +408,10 @@ int main(int argc, char *argv[])
 					load_palette(NULL,1,0);
 				}
 #endif
-				break;
+			break;
 			case FMODE_GAME:
 #ifdef EDITOR
-					keyd_editor_mode = 0;
+				keyd_editor_mode = 0;
 #endif
 	
 				game();

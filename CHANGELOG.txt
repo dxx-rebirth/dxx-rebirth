@@ -1,5 +1,9 @@
 D2X-Rebirth Changelog
 
+20090531
+--------
+include/args.h, include/u_mem.h, main/gamecntl.c, main/inferno.c: Make inferno.c more similar between D1X and D2X
+
 20090522
 --------
 arch/sdl/window.c, main/inferno.c: Add include directives for last commit (whoops)
