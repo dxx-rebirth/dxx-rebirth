@@ -97,6 +97,8 @@ extern int Slew_on;		//in slew or sim mode?
 
 extern int Game_suspended;	//if non-zero, nothing moves but player
 
+#define	SHOW_EXIT_PATH	1
+
 
 //from game.c
 void init_game (void);
@@ -186,6 +188,9 @@ extern int Game_window_w,	//width and height of player's game window
   Game_window_h, max_window_h;
 
 extern int Rear_view;		//if true, looking back.
+
+// initalize flying
+void fly_init(object *obj);
 
 //selects a given cockpit (or lack of one).
 void select_cockpit (int mode);

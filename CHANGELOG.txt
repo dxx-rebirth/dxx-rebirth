@@ -1,5 +1,9 @@
 D1X-Rebirth Changelog
 
+20090607
+--------
+d1x-rebirth.xcodeproj/project.pbxproj, main/game.c, main/game.h, main/gamecntl.c, main/gamerend.c, SConstruct: Split game.c into game.c, gamecntl.c and gamerend.c like d2x
+
 20090531
 --------
 include/u_mem.h, main/inferno.c, main/menu.c, main/titles.c: Make inferno.c more similar between D1X and D2X, better handling of ordering/commercial software screen

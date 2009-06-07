@@ -319,6 +319,10 @@
 		EBC6525D0890F79B004FCAA3 /* nocfile.h in Headers */ = {isa = PBXBuildFile; fileRef = EBC6525B0890F79B004FCAA3 /* nocfile.h */; };
 		EBCE794D0DE59565008D8F82 /* rbaudio.c in Sources */ = {isa = PBXBuildFile; fileRef = EBCE794C0DE59565008D8F82 /* rbaudio.c */; };
 		EBCE794E0DE59565008D8F82 /* rbaudio.c in Sources */ = {isa = PBXBuildFile; fileRef = EBCE794C0DE59565008D8F82 /* rbaudio.c */; };
+		EBE8D7D10FD385E1009D181F /* gamecntl.c in Sources */ = {isa = PBXBuildFile; fileRef = EBE8D7D00FD385E1009D181F /* gamecntl.c */; };
+		EBE8D7D20FD385E1009D181F /* gamecntl.c in Sources */ = {isa = PBXBuildFile; fileRef = EBE8D7D00FD385E1009D181F /* gamecntl.c */; };
+		EBE8D8900FDA76D1009D181F /* gamerend.c in Sources */ = {isa = PBXBuildFile; fileRef = EBE8D88F0FDA76D1009D181F /* gamerend.c */; };
+		EBE8D8910FDA76D1009D181F /* gamerend.c in Sources */ = {isa = PBXBuildFile; fileRef = EBE8D88F0FDA76D1009D181F /* gamerend.c */; };
 		EBEEB0AE0D2A2AEE00FF39B4 /* bitmap.h in Headers */ = {isa = PBXBuildFile; fileRef = EBEEB0AA0D2A2AEE00FF39B4 /* bitmap.h */; };
 		EBEEB0AF0D2A2AEE00FF39B4 /* clip.h in Headers */ = {isa = PBXBuildFile; fileRef = EBEEB0AB0D2A2AEE00FF39B4 /* clip.h */; };
 		EBEEB0B00D2A2AEE00FF39B4 /* linear.h in Headers */ = {isa = PBXBuildFile; fileRef = EBEEB0AC0D2A2AEE00FF39B4 /* linear.h */; };
@@ -657,6 +661,8 @@
 		EBC6525B0890F79B004FCAA3 /* nocfile.h */ = {isa = PBXFileReference; fileEncoding = 30; lastKnownFileType = sourcecode.c.h; path = nocfile.h; sourceTree = "<group>"; };
 		EBCE794C0DE59565008D8F82 /* rbaudio.c */ = {isa = PBXFileReference; fileEncoding = 30; lastKnownFileType = sourcecode.c.c; path = rbaudio.c; sourceTree = "<group>"; };
 		EBCE79500DE59587008D8F82 /* rbaudio.h */ = {isa = PBXFileReference; fileEncoding = 30; lastKnownFileType = sourcecode.c.h; path = rbaudio.h; sourceTree = "<group>"; };
+		EBE8D7D00FD385E1009D181F /* gamecntl.c */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.c; path = gamecntl.c; sourceTree = "<group>"; };
+		EBE8D88F0FDA76D1009D181F /* gamerend.c */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.c; path = gamerend.c; sourceTree = "<group>"; };
 		EBEEB0AA0D2A2AEE00FF39B4 /* bitmap.h */ = {isa = PBXFileReference; fileEncoding = 30; lastKnownFileType = sourcecode.c.h; path = bitmap.h; sourceTree = "<group>"; };
 		EBEEB0AB0D2A2AEE00FF39B4 /* clip.h */ = {isa = PBXFileReference; fileEncoding = 30; lastKnownFileType = sourcecode.c.h; path = clip.h; sourceTree = "<group>"; };
 		EBEEB0AC0D2A2AEE00FF39B4 /* linear.h */ = {isa = PBXFileReference; fileEncoding = 30; lastKnownFileType = sourcecode.c.h; path = linear.h; sourceTree = "<group>"; };
@@ -987,6 +993,7 @@
 				67B446FF06687CF400DF26D8 /* fuelcen.c */,
 				67B4470106687CF400DF26D8 /* fvi.c */,
 				67B4470406687CF400DF26D8 /* game.c */,
+				EBE8D7D00FD385E1009D181F /* gamecntl.c */,
 				67B4470706687CF400DF26D8 /* gamefont.c */,
 				67B4470906687CF400DF26D8 /* gamemine.c */,
 				67B4470E06687CF400DF26D8 /* gamesave.c */,
@@ -1113,6 +1120,7 @@
 				EB0420C30A341042002CC961 /* vers_id.h */,
 				EB0420C20A341042002CC961 /* wall.h */,
 				EB0420C10A341042002CC961 /* weapon.h */,
+				EBE8D88F0FDA76D1009D181F /* gamerend.c */,
 			);
 			path = main;
 			sourceTree = SOURCE_ROOT;
@@ -1702,6 +1710,8 @@
 				EB28D99D0ECEABD700E68E9B /* init.c in Sources */,
 				EB423CE50F6273F50082C684 /* noloss.c in Sources */,
 				EB35ABE40FB199B800C36930 /* window.c in Sources */,
+				EBE8D7D20FD385E1009D181F /* gamecntl.c in Sources */,
+				EBE8D8910FDA76D1009D181F /* gamerend.c in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -1831,6 +1841,8 @@
 				EBCE794E0DE59565008D8F82 /* rbaudio.c in Sources */,
 				EB28D99C0ECEABD700E68E9B /* init.c in Sources */,
 				EB35ABE20FB199B800C36930 /* window.c in Sources */,
+				EBE8D7D10FD385E1009D181F /* gamecntl.c in Sources */,
+				EBE8D8900FDA76D1009D181F /* gamerend.c in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
