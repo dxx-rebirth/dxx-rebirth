@@ -1,5 +1,13 @@
 D2X-Rebirth Changelog
 
+20090701
+--------
+main/game.c, main/game.h, main/gamecntl.c, main/kconfig.c, main/kconfig.h, main/menu.c, main/net_ipx.c, main/newmenu.c, main/newmenu.h, main/scores.c, main/screens.h, main/songs.c, main/titles.c: Make game.c more similar between D1X and D2X, making related changes to other files (!)
+
+20090607
+--------
+main/game.c, main/gamecntl.c: Small cleanup
+
 20090531
 --------
 include/args.h, include/u_mem.h, main/gamecntl.c, main/inferno.c: Make inferno.c more similar between D1X and D2X

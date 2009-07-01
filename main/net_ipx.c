@@ -104,7 +104,6 @@ netgame_info TempNetInfo;
 
 extern void multi_send_drop_marker (int player,vms_vector position,char messagenum,char text[]);
 extern void multi_send_kill_goal_counts();
-extern int newmenu_dotiny( char * title, char * subtitle, int nitems, newmenu_item * item, void (*subfunction)(int nitems,newmenu_item * items, int * last_key, int citem) );
 
 void net_ipx_process_naked_pdata (char *,int);
 extern void multi_send_robot_controls(char);
@@ -2781,7 +2780,6 @@ int net_ipx_get_game_params()
 	Netgame.max_numplayers=MaxNumNetPlayers;
 	sprintf( Netgame.game_name, "%s%s", Players[Player_num].callsign, TXT_S_GAME );
 
-	ExtGameStatus=GAMESTAT_START_MULTIPLAYER_MISSION;
 	if (!select_mission(1, TXT_MULTI_MISSION))
 		return -1;
 
@@ -2839,7 +2837,6 @@ int net_ipx_get_game_params()
 	Assert(opt <= 20);
 
 menu:
-	ExtGameStatus=GAMESTAT_NETGAME_OPTIONS; 
 	i = newmenu_do1( NULL, NULL, opt, m, net_ipx_game_param_poll, 1 );
 
 	if (i==opt_moreopts)
@@ -3253,7 +3250,6 @@ net_ipx_select_players(void)
 	sprintf( title, "%s %d %s", TXT_TEAM_SELECT, MaxNumNetPlayers, TXT_TEAM_PRESS_ENTER );
 
 GetPlayersAgain:
-	ExtGameStatus=GAMESTAT_NETGAME_PLAYER_SELECT;
 	j=newmenu_do1( NULL, title, MAX_PLAYERS+4, m, net_ipx_start_poll, 1 );
 
 	save_nplayers = N_players;
@@ -3886,7 +3882,6 @@ remenu:
 	SurfingNet=1;
 	nm_draw_background1(Menu_pcx_name);             //load this here so if we abort after loading level, we restore the palette
 	gr_palette_load(gr_palette);
-	ExtGameStatus=GAMESTAT_JOIN_NETGAME;
 	choice=newmenu_dotiny("NETGAMES", NULL,MAX_ACTIVE_NETGAMES+2, m, net_ipx_join_poll);
 	SurfingNet=0;
 
@@ -4860,7 +4855,6 @@ void net_ipx_more_game_options ()
 	LastPTA=Netgame.PlayTimeAllowed;
 
 menu:
-	ExtGameStatus=GAMESTAT_MORE_NETGAME_OPTIONS; 
 	i = newmenu_do1( NULL, "Advanced netgame options", opt, m, net_ipx_more_options_poll, 0 );
 
 	Netgame.control_invul_time = m[opt_cinvul].value*5*F1_0*60;
@@ -5283,7 +5277,6 @@ void net_ipx_request_player_names (int n)
  }
 
 extern char already_showing_info;
-extern int newmenu_dotiny2( char * title, char * subtitle, int nitems, newmenu_item * item, void (*subfunction)(int nitems,newmenu_item * items, int * last_key, int citem));
 
 void net_ipx_process_names_return (ubyte *data)
  {
@@ -5356,7 +5349,7 @@ void net_ipx_process_names_return (ubyte *data)
    }
 
 	already_showing_info=1;	
-	newmenu_dotiny2( NULL, NULL, num, m, NULL);
+	newmenu_dotiny( NULL, NULL, num, m, NULL);
 	already_showing_info=0;	
  }
 

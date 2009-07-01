@@ -563,7 +563,7 @@ void change_res()
 	Game_screen_mode = screen_mode;
 	gr_set_mode(Game_screen_mode);
 	init_cockpit();
-	game_init_render_buffers(SM_W(screen_mode), SM_H(screen_mode), VR_NONE, 0);
+	game_init_render_buffers(SM_W(screen_mode), SM_H(screen_mode), VR_NONE);
 }
 
 void input_menuset(int nitems, newmenu_item * items, int *last_key, int citem )

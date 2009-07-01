@@ -65,6 +65,8 @@ extern int newmenu_do2(char *title, char *subtitle, int nitems, newmenu_item *it
 // Same as above, only you can pass through the width & height
 extern int newmenu_do3(char *title, char *subtitle, int nitems, newmenu_item *item, void (*subfunction)(int nitems, newmenu_item *items, int *last_key, int citem), int citem, char *filename, int width, int height);
 
+// Tiny menu with GAME_FONT
+extern int newmenu_dotiny(char * title, char * subtitle, int nitems, newmenu_item * item, void (*subfunction)(int nitems,newmenu_item * items, int * last_key, int citem));
 
 // Sample Code:
 /*

@@ -216,10 +216,6 @@ void scores_maybe_add_player(int abort_flag)
 	newmenu_item m[10];
 	int i,position;
 
-	#ifdef APPLE_DEMO		// no high scores in apple oem version
-	return;
-	#endif
-
 	if ((Game_mode & GM_MULTI) && !(Game_mode & GM_MULTI_COOP))
 		return;
   

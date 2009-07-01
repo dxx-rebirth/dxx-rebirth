@@ -39,7 +39,6 @@ extern grs_canvas *Canv_editor_game;	// the game window on the editor screen
 extern int set_screen_mode(int sm);	// True = editor screen
 
 //About the screen
-extern ubyte			VR_screen_flags;
 extern fix			VR_eye_width;
 extern int 			VR_eye_switch;
 
@@ -65,21 +64,13 @@ extern grs_canvas		VR_render_buffer[2];		// Two offscreen buffers for left/right
 extern grs_canvas		VR_render_sub_buffer[2];	// Two sub buffers for left/right eyes.
 extern grs_canvas		VR_screen_sub_pages[2];		// Two sub pages of VRAM if paging is available
 
-//values for VR_screen_flags
-
-//#define VRF_USE_PAGING	1		// means page flips
-#define VRF_SWITCH_EYES		2
-#define VRF_COMPATIBLE_MENUS	4
-#define VRF_ALLOW_COCKPIT	8
-
 //values for VR_render_mode
 
 #define VR_NONE			0	// viewing the game screen
 #define VR_AREA_DET		1	// viewing with the stereo area determined method
 #define VR_INTERLACED		2	// viewing with the stereo interlaced method
 
-void game_init_render_buffers(int render_max_w, int render_max_h, int render_method, int flags);
-void game_init_render_sub_buffers(int x, int y, int w, int h);
+void game_init_render_buffers(int render_max_w, int render_max_h, int render_method);
 void set_display_mode(int mode);
 extern int Default_display_mode;
 

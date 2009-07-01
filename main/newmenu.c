@@ -501,13 +501,8 @@ int newmenu_do( char * title, char * subtitle, int nitems, newmenu_item * item, 
 {
 	return newmenu_do3( title, subtitle, nitems, item, subfunction, 0, NULL, -1, -1 );
 }
+
 int newmenu_dotiny( char * title, char * subtitle, int nitems, newmenu_item * item, void (*subfunction)(int nitems,newmenu_item * items, int * last_key, int citem) )
-{
-        return newmenu_do4( title, subtitle, nitems, item, subfunction, 0, NULL, -1, -1, 1 );
-}
-
-
-int newmenu_dotiny2( char * title, char * subtitle, int nitems, newmenu_item * item, void (*subfunction)(int nitems,newmenu_item * items, int * last_key, int citem) )
 {
         return newmenu_do4( title, subtitle, nitems, item, subfunction, 0, NULL, -1, -1, 1 );
 }
@@ -1561,12 +1556,10 @@ ReadFileNames:
 	done = 0;
 	NumFiles=0;
 	
-#if !defined(APPLE_DEMO)		// no new pilots for special apple oem version
 	if (player_mode)	{
 		strncpy( &filenames[NumFiles*(FILENAME_LEN+1)], TXT_CREATE_NEW, FILENAME_LEN );
 		NumFiles++;
 	}
-#endif
 
 	find = PHYSFS_enumerateFiles(demo_mode ? DEMO_DIR : ((player_mode && GameArg.SysUsePlayersDir) ? "Players/" : ""));
 	for (f = find; *f != NULL; f++)
@@ -1604,18 +1597,14 @@ ReadFileNames:
 		goto ExitFileMenu;
 	}
 
-	#ifndef APPLE_DEMO
 	if ( (NumFiles < 2) && player_mode ) {
 		citem = 0;
 		goto ExitFileMenuEarly;
 	}
-	#endif
 
 
 	if ( NumFiles<1 )	{
-		#ifndef APPLE_DEMO
 			nm_messagebox(NULL, 1, "Ok", "%s\n '%s' %s", TXT_NO_FILES_MATCHING, type, TXT_WERE_FOUND);
-		#endif
 		exit_value = 0;
 		goto ExitFileMenu;
 	}

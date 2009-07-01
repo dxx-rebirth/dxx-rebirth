@@ -1229,11 +1229,6 @@ void do_briefing_screens(char *filename,int level_num)
 	int	abort_briefing_screens = 0;
 	int	cur_briefing_screen = 0;
 
-	#ifdef APPLE_DEMO
-	return;			// no briefing screens at all for demo
-
-	#endif
-
 	if (!filename || !*filename)
 		return;
 

@@ -59,8 +59,6 @@ COPYRIGHT 1993-1999 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 #include "ogl_init.h"
 #endif
 
-ubyte ExtGameStatus=1;
-
 vms_vector ExtForceVec;
 vms_matrix ExtApplyForceMatrix;
 
