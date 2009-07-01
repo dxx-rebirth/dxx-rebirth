@@ -127,7 +127,7 @@ void do_controlcen_destroyed_stuff(object *objp)
 		wall_toggle(&Segments[ControlCenterTriggers.seg[i]], ControlCenterTriggers.side[i]); 
 
 	// And start the countdown stuff.
-	Fuelcen_control_center_destroyed = 1;
+	Control_center_destroyed = 1;
 
 
 	if (!Control_center_present)

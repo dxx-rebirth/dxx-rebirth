@@ -186,7 +186,7 @@ extern char Special_names[MAX_CENTER_TYPES][11];
 
 // Set to 1 after control center is destroyed.
 // Clear by calling fuelcen_reset();
-extern int Fuelcen_control_center_destroyed;
+extern int Control_center_destroyed;
 extern int Fuelcen_seconds_left;		
 
 //--repair-- //do the repair center for this frame

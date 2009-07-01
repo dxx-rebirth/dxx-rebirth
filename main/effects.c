@@ -101,7 +101,7 @@ void do_special_effects()
 		if (ec->flags & EF_CRITICAL)
 			continue;
 
-		if (ec->crit_clip!=-1 && Fuelcen_control_center_destroyed) {
+		if (ec->crit_clip!=-1 && Control_center_destroyed) {
 			int n = ec->crit_clip;
 
 			//*ec->bm_ptr = &GameBitmaps[Effects[n].vc.frames[Effects[n].frame_count].index];

@@ -247,6 +247,8 @@ int message_length[MULTI_MAX_TYPE+1] = {
 
 void multi_reset_player_object(object *objp);
 void multi_set_robot_ai(void);
+void multi_add_lifetime_killed();
+void multi_add_lifetime_kills();
 void extract_netplayer_stats( netplayer_stats *ps, player * pd );
 
 int multi_allow_powerup_mask[MAX_POWERUP_TYPES] =
@@ -671,7 +673,10 @@ void multi_compute_kill(int killer, int killed)
 		reactor_kills[killed_pnum]++;
 		reactor_kills_total++;
 		if (killed_pnum == Player_num)
+		{
 			HUD_init_message("%s %s.", TXT_YOU_WERE, TXT_KILLED_BY_NONPLAY);
+			multi_add_lifetime_killed ();
+		}
 		else
 			HUD_init_message("%s %s %s.", killed_name, TXT_WAS, TXT_KILLED_BY_NONPLAY );
 		return;
@@ -681,7 +686,10 @@ void multi_compute_kill(int killer, int killed)
 	else if ((killer_type != OBJ_PLAYER) && (killer_type != OBJ_GHOST))
 	{
 		if (killed_pnum == Player_num)
+		{
 			hud_message(MSGC_MULTI_KILL, "%s %s.", TXT_YOU_WERE, TXT_KILLED_BY_ROBOT);
+			multi_add_lifetime_killed();
+		}
 		else
 			hud_message(MSGC_MULTI_KILL, "%s %s %s.", killed_name, TXT_WAS, TXT_KILLED_BY_ROBOT );
 		Players[killed_pnum].net_killed_total++;
@@ -725,7 +733,10 @@ void multi_compute_kill(int killer, int killed)
 
 		kill_matrix[killed_pnum][killed_pnum] += 1; // # of suicides
 		if (killer_pnum == Player_num)
+		{
 			HUD_init_message("%s %s %s!", TXT_YOU, TXT_KILLED, TXT_YOURSELF );
+			multi_add_lifetime_killed();
+		}
 		else
 			HUD_init_message("%s %s", killed_name, TXT_SUICIDE);
 	}
@@ -751,11 +762,15 @@ void multi_compute_kill(int killer, int killed)
 
 		if (killer_pnum == Player_num) {
 			HUD_init_message("%s %s %s!", TXT_YOU, TXT_KILLED, killed_name);
+			multi_add_lifetime_kills();
 			if ((Game_mode & GM_MULTI_COOP) && (Players[Player_num].score >= 1000))
 				add_points_to_score(-1000);
 		}
 		else if (killed_pnum == Player_num)
+		{
 			HUD_init_message("%s %s %s!", killer_name, TXT_KILLED, TXT_YOU);
+			multi_add_lifetime_killed();
+		}
 		else
 			HUD_init_message("%s %s %s!", killer_name, TXT_KILLED, killed_name);
 	}
@@ -929,7 +944,7 @@ multi_menu_poll(void)
 	fix old_shields;
 	int was_fuelcen_alive;
 
-	was_fuelcen_alive = Fuelcen_control_center_destroyed;
+	was_fuelcen_alive = Control_center_destroyed;
 
 	// Special polling function for in-game menus for multiplayer
 
@@ -947,12 +962,12 @@ multi_menu_poll(void)
 
 	multi_in_menu--;
 
-	if (Endlevel_sequence || (Fuelcen_control_center_destroyed && !was_fuelcen_alive) || (Player_is_dead && !Player_exploded) || (Players[Player_num].shields < old_shields))
+	if (Endlevel_sequence || (Control_center_destroyed && !was_fuelcen_alive) || (Player_is_dead && !Player_exploded) || (Players[Player_num].shields < old_shields))
 	{
 		multi_leave_menu = 1;
 		return(-1);
 	}
-	if ((Fuelcen_control_center_destroyed) && (Fuelcen_seconds_left < 10))
+	if ((Control_center_destroyed) && (Fuelcen_seconds_left < 10))
 	{
 		multi_leave_menu = 1;
 		return(-1);
@@ -1177,7 +1192,7 @@ void multi_send_message_end()
 			}
 	}
 	
-	else if (!strnicmp (Network_message,"KillReactor",11) && (Game_mode & GM_NETWORK) && !Fuelcen_control_center_destroyed)
+	else if (!strnicmp (Network_message,"KillReactor",11) && (Game_mode & GM_NETWORK) && !Control_center_destroyed)
 	{	
 		if (!multi_i_am_master())
 			HUD_init_message ("Only %s can kill the reactor this way!",Players[multi_who_is_master()].callsign);
@@ -1613,7 +1628,7 @@ void multi_do_controlcen_destroy(char *buf)
 	objnum = GET_INTEL_SHORT(buf + 1);
 	who = buf[3];
 
-	if (Fuelcen_control_center_destroyed != 1) 
+	if (Control_center_destroyed != 1) 
 	{
 		if ((who < N_players) && (who != Player_num)) {
 			hud_message(MSGC_MULTI_INFO, "%s %s", Players[who].callsign, TXT_HAS_DEST_CONTROL);
@@ -1859,7 +1874,7 @@ multi_do_create_powerup(char *buf)
 	vms_vector new_pos;
 	char powerup_type;
 
-	if (Endlevel_sequence || Fuelcen_control_center_destroyed)
+	if (Endlevel_sequence || Control_center_destroyed)
 		return;
 
 	pnum = buf[count++];
@@ -3052,5 +3067,21 @@ void use_netplayer_stats( player * ps, netplayer_stats *pd )
 	ps->hostages_rescued_total = INTEL_SHORT(pd->hostages_rescued_total); // Total number of hostages rescued.
 	ps->hostages_total = INTEL_SHORT(pd->hostages_total);   // Total number of hostages.
 	ps->hostages_on_board=pd->hostages_on_board;            // Number of hostages on ship.
+}
+
+void multi_add_lifetime_kills ()
+{
+	// This function adds a kill to lifetime stats of this player
+	// Trivial, but syncing with D2X
+
+	PlayerCfg.NetlifeKills++;
+}
+
+void multi_add_lifetime_killed ()
+{
+	// This function adds a "killed" to lifetime stats of this player
+	// Trivial, but syncing with D2X
+
+	PlayerCfg.NetlifeKilled++;
 }
 #endif

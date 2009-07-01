@@ -412,7 +412,7 @@ void editor_reset_stuff_on_level()
 	ConsoleObject->movement_type = MT_PHYSICS;
 	Game_suspended = 0;
 	verify_console_object();
-	Fuelcen_control_center_destroyed = 0;
+	Control_center_destroyed = 0;
 	if (Newdemo_state != ND_STATE_PLAYBACK)
 		gameseq_remove_unused_players();
 	init_cockpit();
@@ -1046,7 +1046,7 @@ extern void do_end_game(void);
 //	Return true if game over.
 int AdvanceLevel(int secret_flag)
 {
-	Fuelcen_control_center_destroyed = 0;
+	Control_center_destroyed = 0;
 
 	#ifdef EDITOR
 	if (PLAYING_BUILTIN_MISSION)
@@ -1165,7 +1165,7 @@ void DoPlayerDead()
 		}
 	}
 				
-	if ( Fuelcen_control_center_destroyed ) {
+	if ( Control_center_destroyed ) {
 		int	rval;
 
 		//clear out stuff so no bonus
@@ -1296,7 +1296,7 @@ void StartNewLevelSub(int level_num, int page_in_textures)
 
 	Game_suspended = 0;
 
-	Fuelcen_control_center_destroyed = 0;
+	Control_center_destroyed = 0;
 
 	init_cockpit();
 	init_robots_for_level();
@@ -1428,8 +1428,6 @@ void copy_defaults_to_robot_all(void)
 }
 
 int	Do_appearance_effect=0;
-
-extern int Rear_view;
 
 //	-----------------------------------------------------------------------------------------------------
 //called when the player is starting a level (new game or new ship)

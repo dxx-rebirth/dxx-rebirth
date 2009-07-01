@@ -440,7 +440,7 @@ void maybe_drop_net_powerup(int powerup_type)
 		int	segnum, objnum;
 		vms_vector	new_pos;
 
-		if (Fuelcen_control_center_destroyed || Endlevel_sequence ||
+		if (Control_center_destroyed || Endlevel_sequence ||
 		    !may_create_powerup(powerup_type))
 			return;
 

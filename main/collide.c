@@ -685,7 +685,7 @@ void collide_robot_and_player( object * robot, object * player, vms_vector *coll
 //	was actually in another object.
 void net_destroy_controlcen(object *controlcen)
 {
-	if (Fuelcen_control_center_destroyed != 1) {
+	if (Control_center_destroyed != 1) {
 		do_controlcen_destroyed_stuff(controlcen);
 
 		if ((controlcen != NULL) && !(controlcen->flags&(OF_EXPLODING|OF_DESTROYED))) {

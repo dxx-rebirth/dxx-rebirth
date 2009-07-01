@@ -22,9 +22,14 @@ COPYRIGHT 1993-1998 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 #include <string.h>
 #include <stdarg.h>
 #include <SDL/SDL.h>
+
 #ifdef OGL
 #include "ogl_init.h"
 #endif
+
+#include "pstypes.h"
+#include "console.h"
+#include "gr.h"
 #include "inferno.h"
 #include "game.h"
 #include "key.h"
@@ -48,19 +53,14 @@ COPYRIGHT 1993-1998 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 #include "gameseg.h"
 #include "wall.h"
 #include "ai.h"
-#include "rbaudio.h"
 #include "hostage.h"
 #include "fuelcen.h"
-#include "switch.h"
 #include "digi.h"
-#include "gamesave.h"
-#include "scores.h"
 #include "u_mem.h"
 #include "palette.h"
 #include "morph.h"
 #include "lighting.h"
 #include "newdemo.h"
-#include "titles.h"
 #include "collide.h"
 #include "weapon.h"
 #include "sounds.h"
@@ -70,14 +70,16 @@ COPYRIGHT 1993-1998 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 #include "text.h"
 #include "powerup.h"
 #include "fireball.h"
-#include "controls.h"
-#include "songs.h"
-#include "config.h"
 #include "newmenu.h"
 #include "gamefont.h"
 #include "endlevel.h"
 #include "kconfig.h"
+#include "config.h"
 #include "mouse.h"
+#include "switch.h"
+#include "controls.h"
+#include "songs.h"
+#include "rbaudio.h"
 #include "multi.h"
 #include "desc_id.h"
 #include "cntrlcen.h"
@@ -85,21 +87,19 @@ COPYRIGHT 1993-1998 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 #include "state.h"
 #include "piggy.h"
 #include "multibot.h"
-#include "gr.h"
-#include "hudmsg.h"
-#include "timer.h"
-#include "vers_id.h"
 #include "fvi.h"
-#include "console.h"
 #include "playsave.h"
-#include "config.h"
+#include "hudmsg.h"
+#include "vers_id.h"
 
-extern void ReadControls(void);		// located in gamecntl.c
+#ifdef EDITOR
+#include "editor/editor.h"
+#endif
 
-void game_init_render_sub_buffers( int x, int y, int w, int h );
-void GameLoop(int RenderFlag, int ReadControlsFlag );
-void FireLaser(void);
-void powerup_grab_cheat_all(void);
+
+#ifndef NDEBUG
+int	Mark_count = 0;                 // number of debugging marks set
+#endif
 
 static fix last_timer_value=0;
 
@@ -107,54 +107,49 @@ int			VR_render_mode = VR_NONE;
 int			VR_low_res = 3; // Default to low res
 int 			VR_show_hud = 1;
 int			VR_sensitivity = 1; // 0 - 2
-grs_canvas		Screen_3d_window; // The rectangle for rendering the mine to
-grs_canvas		*VR_offscreen_buffer = NULL; // The offscreen data buffer
-grs_canvas		VR_render_buffer[2]; //  Two offscreen buffers for left/right eyes.
-grs_canvas		VR_render_sub_buffer[2]; //  Two sub buffers for left/right eyes.
-grs_canvas		VR_editor_canvas; //  The canvas that the editor writes to.
-
-//added 07/11/99 by adb:
-//added buffer pointer to allow different buffers for 3D game rendering and
-//the 2D menus (for DX3D port)
-grs_canvas		*VR_offscreen_menu = NULL; // The offscreen data buffer for menus
-//end additions -- adb
+grs_canvas	Screen_3d_window;							// The rectangle for rendering the mine to
+grs_canvas	*VR_offscreen_buffer	= NULL;		// The offscreen data buffer
+grs_canvas	VR_render_buffer[2];					//  Two offscreen buffers for left/right eyes.
+grs_canvas	VR_render_sub_buffer[2];			//  Two sub buffers for left/right eyes.
+grs_canvas	VR_editor_canvas;						//  The canvas that the editor writes to.
 
 static int	old_cockpit_mode=-1;
 int	force_cockpit_redraw=0;
 int	PaletteRedAdd, PaletteGreenAdd, PaletteBlueAdd;
+
+//	Toggle_var points at a variable which gets !ed on del-T press.
 int	Dummy_var;
 int	*Toggle_var = &Dummy_var;
+
 #ifdef EDITOR
+//flag for whether initial fade-in has been done
 char	faded_in;
 #endif
 
 int	Game_suspended=0; //if non-zero, nothing moves but player
-int	create_special_path(void);
-void	fill_background(int x,int y,int w,int h,int dx,int dy);
 fix	Auto_fire_fusion_cannon_time = 0;
 fix	Fusion_charge = 0;
 fix	Fusion_next_sound_time = 0;
 fix	Fusion_last_sound_time = 0;
-int	Debug_spew = 1;
 int	Game_turbo_mode = 0;
 int	Game_mode = GM_GAME_OVER;
 int	Global_laser_firing_count = 0;
 int	Global_missile_firing_count = 0;
-grs_bitmap background_bitmap;
 int	Game_aborted;
-void	update_cockpits();
-extern int HUD_nmessages;
 
-#define BACKGROUND_NAME "statback.pcx"
+//	Function prototypes for GAME.C exclusively.
 
+void GameLoop(int RenderFlag, int ReadControlsFlag);
+void FireLaser(void);
+void powerup_grab_cheat_all(void);
+void game_init_render_sub_buffers(int x, int y, int w, int h);
+
+extern void ReadControls(void);		// located in gamecntl.c
 //	==============================================================================================
 
 //this is called once per game
 void init_game()
 {
-	ubyte pal[256*3];
-	int pcx_error;
-
 	init_objects();
 
 	hostage_init();
@@ -163,13 +158,7 @@ void init_game()
 
 	init_exploding_walls();
 
-	gr_init_bitmap_data (&background_bitmap);
-	pcx_error = pcx_read_bitmap(BACKGROUND_NAME,&background_bitmap,BM_LINEAR,pal);
-	if (pcx_error != PCX_ERROR_NONE)
-		Error("File %s - PCX error: %s",BACKGROUND_NAME,pcx_errormsg(pcx_error));
-	gr_remap_bitmap_good( &background_bitmap, pal, -1, -1 );
-
-	Clear_window = 2; // do portal only window clear.
+	Clear_window = 2;		//	do portal only window clear.
 }
 
 
@@ -195,8 +184,6 @@ void game_show_warning(char *s)
 
 u_int32_t Game_screen_mode = SM(640,480);
 
-extern int Rear_view;
-
 //initialize the various canvases on the game screen
 //called every time the screen mode or cockpit changes
 void init_cockpit()
@@ -215,46 +202,44 @@ void init_cockpit()
 	}
 #endif
 
-#ifdef D1XD3D
-	PlayerCfg.CockpitMode = CM_STATUS_BAR;
-#endif
 	gr_set_current_canvas(NULL);
 
-	switch( PlayerCfg.CockpitMode )	{
-	case CM_FULL_COCKPIT:
-		game_init_render_sub_buffers(0, 0, SWIDTH, (SHEIGHT*2)/3);
-		break;
+	switch( PlayerCfg.CockpitMode ) {
+		case CM_FULL_COCKPIT:
+			game_init_render_sub_buffers(0, 0, SWIDTH, (SHEIGHT*2)/3);
+			break;
 
-	case CM_REAR_VIEW:
-	case CM_FULL_SCREEN:
-		game_init_render_sub_buffers(0, 0, SWIDTH, SHEIGHT);
-		break;
+		case CM_REAR_VIEW:
+		case CM_FULL_SCREEN:
+			game_init_render_sub_buffers(0, 0, SWIDTH, SHEIGHT);
+			break;
 
-	case CM_STATUS_BAR:
-		game_init_render_sub_buffers( 0, 0, SWIDTH, (HIRESMODE?(SHEIGHT*2)/2.6:(SHEIGHT*2)/2.72) );
-		break;
+		case CM_STATUS_BAR:
+			game_init_render_sub_buffers( 0, 0, SWIDTH, (HIRESMODE?(SHEIGHT*2)/2.6:(SHEIGHT*2)/2.72) );
+			break;
 
-	case CM_LETTERBOX:	{
-		int x,y,w,h;
+		case CM_LETTERBOX:	{
+			int x,y,w,h;
 
-		x = 0; w = SM_W(Game_screen_mode);
-		h = (SM_H(Game_screen_mode) * 3) / 4; // true letterbox size (16:9)
-		y = (SM_H(Game_screen_mode)-h)/2;
+			x = 0; w = SM_W(Game_screen_mode);
+			h = (SM_H(Game_screen_mode) * 3) / 4; // true letterbox size (16:9)
+			y = (SM_H(Game_screen_mode)-h)/2;
 
-		gr_rect(x,0,w,SM_H(Game_screen_mode)-h);
-		gr_rect(x,SM_H(Game_screen_mode)-h,w,SM_H(Game_screen_mode));
+			gr_rect(x,0,w,SM_H(Game_screen_mode)-h);
+			gr_rect(x,SM_H(Game_screen_mode)-h,w,SM_H(Game_screen_mode));
 
-		game_init_render_sub_buffers( x, y, w, h );
-		break;
+			game_init_render_sub_buffers( x, y, w, h );
+			break;
 		}
 	}
+
 	gr_set_current_canvas(NULL);
 }
 
 //selects a given cockpit (or lack of one).  See types in game.h
 void select_cockpit(int mode)
 {
-	if (mode != PlayerCfg.CockpitMode) { //new mode
+	if (mode != PlayerCfg.CockpitMode) {		//new mode
 		PlayerCfg.CockpitMode=mode;
 		init_cockpit();
 	}
@@ -266,8 +251,6 @@ void reset_cockpit()
 	force_cockpit_redraw=1;
 	last_drawn_cockpit = -1;
 }
-
-void HUD_clear_messages();
 
 void game_init_render_sub_buffers( int x, int y, int w, int h )
 {
@@ -281,8 +264,7 @@ void game_init_render_sub_buffers( int x, int y, int w, int h )
 // Sets up the canvases we will be rendering to
 void game_init_render_buffers(int render_w, int render_h, int render_method )
 {
-// 	if (!VR_offscreen_buffer)	{
-	VR_render_mode		= render_method;
+	VR_render_mode 	=	render_method;
 
 	if (VR_offscreen_buffer) {
 		gr_free_canvas(VR_offscreen_buffer);
@@ -301,15 +283,14 @@ void game_init_render_buffers(int render_w, int render_h, int render_method )
 		else
 			VR_offscreen_buffer = gr_create_canvas( render_w, render_h );
 #ifdef OGL
-		VR_offscreen_buffer->cv_bitmap.bm_type=BM_OGL;
+		VR_offscreen_buffer->cv_bitmap.bm_type = BM_OGL;
 #endif
+
 		gr_init_sub_canvas( &VR_render_buffer[0], VR_offscreen_buffer, 0, 0, render_w, render_h );
 		gr_init_sub_canvas( &VR_render_buffer[1], VR_offscreen_buffer, 0, 0, render_w, render_h );
 	}
-	VR_offscreen_menu = VR_offscreen_buffer;
 
 	game_init_render_sub_buffers( 0, 0, render_w, render_h );
-// 	}
 }
 
 //called to change the screen mode. Parameter sm is the new mode, one of
@@ -326,13 +307,14 @@ int set_screen_mode(int sm)
 		return 1;
 	}
 
-	Screen_mode = sm;
-
 #ifdef EDITOR
 	Canv_editor = NULL;
 #endif
 
-	switch( Screen_mode )	{
+	Screen_mode = sm;
+
+	switch( Screen_mode )
+	{
 		case SCREEN_MENU:
 			/* give control back to the WM */
 			if (GameArg.CtlGrabMouse)
@@ -341,8 +323,8 @@ int set_screen_mode(int sm)
 			if  (grd_curscreen->sc_mode != Game_screen_mode)
 				if (gr_set_mode(Game_screen_mode))
 					Error("Cannot set screen mode.");
-
 			break;
+	
 		case SCREEN_GAME:
 			/* keep the mouse from wandering in SDL */
 			if (GameArg.CtlGrabMouse && (Newdemo_state != ND_STATE_PLAYBACK))
@@ -552,6 +534,7 @@ void save_screen_shot(int automap_flag)
 	key_flush();
 	start_time();
 }
+
 #endif
 
 //initialize flying
@@ -625,8 +608,10 @@ void diminish_palette_towards_normal(void)
 {
 	int	dec_amount = 0;
 
+	//	Diminish at DIMINISH_RATE units/second.
+	//	For frame rates > DIMINISH_RATE Hz, use randomness to achieve this.
 	if (FrameTime < F1_0/DIMINISH_RATE) {
-		if (d_rand() < FrameTime*DIMINISH_RATE/2)	// Note: d_rand() is in 0..32767, and 8 Hz means decrement every frame
+		if (d_rand() < FrameTime*DIMINISH_RATE/2)	//	Note: d_rand() is in 0..32767, and 8 Hz means decrement every frame
 			dec_amount = 1;
 	} else {
 		dec_amount = f2i(FrameTime*DIMINISH_RATE);	// one second = DIMINISH_RATE counts
@@ -839,7 +824,8 @@ void check_rear_view()
 	}
 	else
 		if (Controls.rear_view_down_state) {
-			if (leave_mode==0 && (timer_get_fixed_seconds()-entry_time)>LEAVE_TIME)
+
+			if (leave_mode == 0 && (timer_get_fixed_seconds() - entry_time) > LEAVE_TIME)
 				leave_mode = 1;
 		}
 		else
@@ -864,8 +850,11 @@ void reset_rear_view(void)
 
 	Rear_view = 0;
 
-	if (PlayerCfg.CockpitMode == CM_REAR_VIEW)
+	if (!(PlayerCfg.CockpitMode == CM_FULL_COCKPIT || PlayerCfg.CockpitMode == CM_STATUS_BAR || PlayerCfg.CockpitMode == CM_FULL_SCREEN)) {
+		if (!(old_cockpit_mode == CM_FULL_COCKPIT || old_cockpit_mode == CM_STATUS_BAR || old_cockpit_mode == CM_FULL_SCREEN))
+			old_cockpit_mode = CM_FULL_COCKPIT;
 		select_cockpit(old_cockpit_mode);
+	}
 
 }
 
@@ -962,11 +951,11 @@ void game()
 			Automap_flag = 0;
 			Config_menu_flag = 0;
 
-			GameLoop( 1, 1 );               // Do game loop with rendering and reading controls.
+			GameLoop( 1, 1 );		// Do game loop with rendering and reading controls.
 
 			//see if redbook song needs to be restarted
 			RBACheckFinishedHook();	// Handle RedBook Audio Repeating.
-			
+
 			if (Config_menu_flag)	{
 				if (!(Game_mode&GM_MULTI)) palette_save();
 				do_options_menu();
@@ -1008,17 +997,10 @@ void game()
 			}
 
 			if (Function_mode != FMODE_GAME)
-				longjmp(LeaveGame,1);
+				longjmp(LeaveGame,0);
 		}
 	}
 
-#ifdef NETWORK
-	if(Game_mode & GM_MULTI)
-	{
-		PlayerCfg.NetlifeKills += Players[Player_num].net_kills_total;
-		PlayerCfg.NetlifeKilled += Players[Player_num].net_killed_total;
-	}
-#endif
 	digi_stop_all();
 
 	if ( (Newdemo_state == ND_STATE_RECORDING) || (Newdemo_state == ND_STATE_PAUSED) )
@@ -1045,32 +1027,30 @@ void close_game()
 
 	close_gauges();
 	restore_effect_bitmap_icons();
-	gr_free_bitmap_data (&background_bitmap);
 	clear_warn_func(game_show_warning);     //don't use this func anymore
 }
 
-int ostate_p=0;
-int ostate_s=0;
 
-void game_render_frame();
 #ifdef EDITOR
-extern	void player_follow_path(object *objp);
-extern	void check_create_player_path(void);
+extern void player_follow_path(object *objp);
+extern void check_create_player_path(void);
 #endif
+
 extern	int Do_appearance_effect;
 
+void game_render_frame();
 void GameLoop(int RenderFlag, int ReadControlsFlag )
 {
 	if (RenderFlag) {
-		if (force_cockpit_redraw) {    //screen need redrawing?
+		if (force_cockpit_redraw) {			//screen need redrawing?
 			init_cockpit();
 			force_cockpit_redraw=0;
 		}
 		game_render_frame();
 	}
-	
+
 	calc_frame_time();
-	
+
 	if (ReadControlsFlag)
 		ReadControls();
 	else
@@ -1085,6 +1065,7 @@ void GameLoop(int RenderFlag, int ReadControlsFlag )
 	check_create_player_path();
 	player_follow_path(ConsoleObject);
 #endif
+
 #ifdef NETWORK
 	if (Game_mode & GM_MULTI)
 		multi_do_frame();
@@ -1100,7 +1081,7 @@ void GameLoop(int RenderFlag, int ReadControlsFlag )
 		do_endlevel_frame();
 		powerup_grab_cheat_all();
 		do_special_effects();
-		return; //skip everything else
+		return;					//skip everything else
 	}
 
 	if (Newdemo_state != ND_STATE_PLAYBACK)
@@ -1111,22 +1092,24 @@ void GameLoop(int RenderFlag, int ReadControlsFlag )
 		triggers_frame_process();
 	}
 
-	if (Fuelcen_control_center_destroyed) {
+	if (Control_center_destroyed) {
 		if (Newdemo_state==ND_STATE_RECORDING )
 			newdemo_record_control_center_destroyed();
-		flash_frame();
 	}
+
+	flash_frame();
 
 	if ( Newdemo_state == ND_STATE_PLAYBACK ) {
 		newdemo_playback_one_frame();
-		if ( Newdemo_state != ND_STATE_PLAYBACK ) 	{
-			longjmp( LeaveGame, 1 ); // Go back to menu
+		if ( Newdemo_state != ND_STATE_PLAYBACK )		{
+			longjmp( LeaveGame, 0 );		// Go back to menu
 		}
 	}
 	else
 	{ // Note the link to above!
 
-		Players[Player_num].homing_object_dist = -1; // Assume not being tracked.  Laser_do_weapon_sequence modifies this.
+		Players[Player_num].homing_object_dist = -1;		//	Assume not being tracked.  Laser_do_weapon_sequence modifies this.
+
 		object_move_all();
 		powerup_grab_cheat_all();
 
@@ -1134,10 +1117,11 @@ void GameLoop(int RenderFlag, int ReadControlsFlag )
 			return;
 
 		fuelcen_update_all();
+
 		do_ai_frame_all();
 
 		if (allowed_to_fire_laser())
-			FireLaser();
+			FireLaser();				// Fire Laser!
 
 		if (Auto_fire_fusion_cannon_time) {
 			if (Primary_weapon != FUSION_INDEX)
@@ -1170,7 +1154,8 @@ void GameLoop(int RenderFlag, int ReadControlsFlag )
 		}
 
 		if (Global_laser_firing_count)
-			Global_laser_firing_count -= do_laser_firing_player();  //do_laser_firing(Players[Player_num].objnum, Primary_weapon);
+			Global_laser_firing_count -= do_laser_firing_player();
+
 		if (Global_laser_firing_count < 0)
 			Global_laser_firing_count = 0;
 	}
@@ -1186,7 +1171,9 @@ void GameLoop(int RenderFlag, int ReadControlsFlag )
 //				    cannon.
 void FireLaser()
 {
+
 	Global_laser_firing_count = Weapon_info[Primary_weapon_to_weapon_info[Primary_weapon]].fire_count * (Controls.fire_primary_state || Controls.fire_primary_down_count);
+
 	if ((Primary_weapon == FUSION_INDEX) && (Global_laser_firing_count)) {
 		if ((Players[Player_num].energy < F1_0*2) && (Auto_fire_fusion_cannon_time == 0)) {
 			Global_laser_firing_count = 0;
@@ -1199,7 +1186,7 @@ void FireLaser()
 
 			if (Players[Player_num].energy <= 0) {
 				Players[Player_num].energy = 0;
-				Auto_fire_fusion_cannon_time = GameTime -1;				//	Fire now!
+				Auto_fire_fusion_cannon_time = GameTime -1;	//	Fire now!
 			} else
 				Auto_fire_fusion_cannon_time = GameTime + FrameTime/2 + 1;		//	Fire the fusion cannon at this time in the future.
 
@@ -1207,7 +1194,7 @@ void FireLaser()
 				PALETTE_FLASH_ADD(Fusion_charge >> 11, 0, Fusion_charge >> 11);
 			else
 				PALETTE_FLASH_ADD(Fusion_charge >> 11, Fusion_charge >> 11, 0);
-				
+
 			if (GameTime < Fusion_last_sound_time)		//gametime has wrapped
 				Fusion_next_sound_time = Fusion_last_sound_time = GameTime;
 
@@ -1233,6 +1220,7 @@ void FireLaser()
 		}
 	}
 }
+
 
 //	-------------------------------------------------------------------------------------------------------
 //	If player is close enough to objnum, which ought to be a powerup, pick it up!
@@ -1267,7 +1255,7 @@ void powerup_grab_cheat(object *player, int objnum)
 void powerup_grab_cheat_all(void)
 {
 	segment	*segp;
-	int 	objnum;
+	int		objnum;
 
 	segp = &Segments[ConsoleObject->segnum];
 	objnum = segp->objects;
@@ -1290,7 +1278,7 @@ int	Last_level_path_created = -1;
 int mark_player_path_to_segment(int segnum)
 {
 	int		i;
-	object		*objp = ConsoleObject;
+	object	*objp = ConsoleObject;
 	short		player_path_length=0;
 	int		player_hide_index=-1;
 
@@ -1322,7 +1310,7 @@ int mark_player_path_to_segment(int segnum)
 
 		objnum = obj_create( OBJ_POWERUP, POW_ENERGY, segnum, &seg_center, &vmd_identity_matrix, Powerup_info[POW_ENERGY].size, CT_POWERUP, MT_NONE, RT_POWERUP);
 		if (objnum == -1) {
-			Int3(); // Unable to drop energy powerup for path
+			Int3();		//	Unable to drop energy powerup for path
 			return 1;
 		}
 
@@ -1332,6 +1320,7 @@ int mark_player_path_to_segment(int segnum)
 		obj->rtype.vclip_info.framenum = 0;
 		obj->lifeleft = F1_0*100 + d_rand() * 4;
 	}
+
 	return 1;
 }
 
@@ -1349,6 +1338,7 @@ int create_special_path(void)
 
 	return 0;
 }
+
 #endif
 
 
@@ -1372,49 +1362,4 @@ void show_free_objects(void)
 	}
 }
 
-#define	FILL_VAL 0xcc // int 3 opcode value
-
-extern void code_01s(void), code_01e(void);
-extern void code_02s(void), code_02e(void);
-extern void code_03s(void), code_03e(void);
-extern void code_04s(void), code_04e(void);
-extern void code_05s(void), code_05e(void);
-extern void code_06s(void), code_06e(void);
-extern void code_07s(void), code_07e(void);
-extern void code_08s(void), code_08e(void);
-extern void code_09s(void), code_09e(void);
-extern void code_10s(void), code_10e(void);
-extern void code_11s(void), code_11e(void);
-extern void code_12s(void), code_12e(void);
-extern void code_13s(void), code_13e(void);
-extern void code_14s(void), code_14e(void);
-extern void code_15s(void), code_15e(void);
-extern void code_16s(void), code_16e(void);
-extern void code_17s(void), code_17e(void);
-extern void code_18s(void), code_18e(void);
-extern void code_19s(void), code_19e(void);
-extern void code_20s(void), code_20e(void);
-extern void code_21s(void), code_21e(void);
-
-int Mem_filled = 0;
-
-void fill_func(char *start, char *end, char value)
-{
-	char	*i;
-
-	for (i=start; i<end; i++)
-		*i = value;
-
-}
-
-void check_func(char *start, char *end, char value)
-{
-	char	*i;
-	for (i=start; i<end; i++)
-		if (*i != value) {
-			Int3(); // The nast triple aught six bug...we can smell it...contact Mike!
-			Error("Oops, the nasty triple aught six bug.  Address == %p\n", i);
-		}
-
-}
 #endif

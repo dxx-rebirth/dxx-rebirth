@@ -283,7 +283,7 @@ net_ipx_init(void)
 	Player_num = save_pnum;		
 	multi_new_game();
 	Network_new_game = 1;
-	Fuelcen_control_center_destroyed = 0;
+	Control_center_destroyed = 0;
 	net_ipx_flush();
 
 	Netgame.PacketsPerSec = 10;
@@ -658,7 +658,7 @@ void net_ipx_welcome_player(sequence_packet *their)
 	// Don't accept new players if we're ending this level.  Its safe to
 	// ignore since they'll request again later
 
-	if ((Endlevel_sequence) || (Fuelcen_control_center_destroyed))
+	if ((Endlevel_sequence) || (Control_center_destroyed))
 	{
 		net_ipx_dump_player(their->player.protocol.ipx.server,their->player.protocol.ipx.node, DUMP_ENDLEVEL);
 		return; 
@@ -1103,7 +1103,7 @@ void net_ipx_send_objects(void)
 	Assert(player_num >= 0);
 	Assert(player_num < MaxNumNetPlayers);
 
-	if (Endlevel_sequence || Fuelcen_control_center_destroyed)
+	if (Endlevel_sequence || Control_center_destroyed)
 	{
 		// Endlevel started before we finished sending the goods, we'll
 		// have to stop and try again after the level.
@@ -1215,7 +1215,7 @@ void net_ipx_send_rejoin_sync(int player_num)
 	Players[player_num].connected = 1; // connect the new guy
 	Netgame.players[player_num].LastPacketTime = timer_get_approx_seconds();
 
-	if (Endlevel_sequence || Fuelcen_control_center_destroyed)
+	if (Endlevel_sequence || Control_center_destroyed)
 	{
 		// Endlevel started before we finished sending the goods, we'll
 		// have to stop and try again after the level.
@@ -1427,7 +1427,7 @@ net_ipx_send_endlevel_sub(int player_num)
 
 	if (Players[player_num].connected == 1) // Still playing
 	{
-		Assert(Fuelcen_control_center_destroyed);
+		Assert(Control_center_destroyed);
 	 	end.seconds_left = Fuelcen_seconds_left;
 	}
 	//added 05/18/99 Matt Mueller - similarly, its not used if we aren't connected, but checker complains.
@@ -1465,7 +1465,7 @@ net_ipx_send_game_info(sequence_packet *their)
 	old_status = Netgame.game_status;
 
 	Netgame.protocol.ipx.Game_pkt_type = PID_GAME_INFO;
-	if (Endlevel_sequence || Fuelcen_control_center_destroyed)
+	if (Endlevel_sequence || Control_center_destroyed)
 		Netgame.game_status = NETSTAT_ENDLEVEL;
 
 	if (!their)
@@ -3416,7 +3416,7 @@ void net_ipx_do_frame(int force, int listen)
 			PacketUrgent = 0;
 			MySyncPack.data_size = 0;		// Start data over at 0 length.
 			
-			if (Fuelcen_control_center_destroyed)
+			if (Control_center_destroyed)
 				net_ipx_send_endlevel_packet();
 		}
 	}
@@ -3424,7 +3424,7 @@ void net_ipx_do_frame(int force, int listen)
 	if (!listen)
 		return;
 
-	if ((last_timeout_check > F1_0) && !(Fuelcen_control_center_destroyed))
+	if ((last_timeout_check > F1_0) && !(Control_center_destroyed))
 	{
 		fix approx_time = timer_get_approx_seconds();
 		// Check for player timeouts

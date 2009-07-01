@@ -1697,7 +1697,7 @@ int newdemo_read_frame_information()
 
 		case ND_EVENT_CONTROL_CENTER_DESTROYED:
 			nd_read_int(&Fuelcen_seconds_left);
-			Fuelcen_control_center_destroyed = 1;
+			Control_center_destroyed = 1;
 			if (nd_bad_read) { done = -1; break; }
 			if (!Newdemo_cntrlcen_destroyed) {
 				newdemo_pop_ctrlcen_triggers();
@@ -2563,7 +2563,7 @@ void newdemo_playback_one_frame()
 	if (Newdemo_vcr_state == ND_STATE_PLAYBACK)
 		DoJasonInterpolate(nd_recorded_time);
 
-	Fuelcen_control_center_destroyed = 0;
+	Control_center_destroyed = 0;
 	Fuelcen_seconds_left = -1;
 	PALETTE_FLASH_SET(0,0,0);		//clear flash
 

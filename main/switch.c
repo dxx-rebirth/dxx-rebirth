@@ -140,7 +140,7 @@ int check_trigger_sub(int trigger_num, int pnum)
 			if (Newdemo_state == ND_STATE_RECORDING)		// stop demo recording
 				Newdemo_state = ND_STATE_PAUSED;
 
-			Fuelcen_control_center_destroyed = 0;
+			Control_center_destroyed = 0;
 			#ifdef NETWORK
 			if (Game_mode & GM_MULTI)
 				multi_send_endlevel_start(1);

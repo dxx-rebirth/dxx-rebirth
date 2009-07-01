@@ -1180,7 +1180,7 @@ void ReadControls()
 		check_rear_view();
 		
 		// If automap key pressed, enable automap unless you are in network mode, control center destroyed and < 10 seconds left
-		if ( Controls.automap_down_count && !((Game_mode & GM_MULTI) && Fuelcen_control_center_destroyed && (Fuelcen_seconds_left < 10)))
+		if ( Controls.automap_down_count && !((Game_mode & GM_MULTI) && Control_center_destroyed && (Fuelcen_seconds_left < 10)))
 			Automap_flag = 1;
 		
 		do_weapon_stuff();

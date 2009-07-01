@@ -157,7 +157,7 @@ void flash_frame()
 {
 	static fixang flash_ang=0;
 
-	if (!Fuelcen_control_center_destroyed)
+	if (!Control_center_destroyed)
 		return;
 
 	if (Endlevel_sequence)
@@ -253,7 +253,7 @@ void render_face(int segnum, int sidenum, int nv, short *vp, int tmap1, int tmap
 			//the uvl struct has static light already in it
 
 			//scale static light for destruction effect
-			if (Fuelcen_control_center_destroyed)	//make lights flash
+			if (Control_center_destroyed)	//make lights flash
 				uvl_copy[i].l = fixmul(flash_scale,uvl_copy[i].l);
 
 			//add in dynamic light (from explosions, etc.)

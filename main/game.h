@@ -231,7 +231,6 @@ extern grs_canvas VR_render_buffer[2];	//  Two offscreen buffers for left/right 
 extern grs_canvas VR_render_sub_buffer[2];	//  Two sub buffers for left/right eyes.
 extern grs_canvas VR_screen_pages[2];	//  Two pages of VRAM if paging is available
 extern grs_canvas VR_screen_sub_pages[2];	//  Two sub pages of VRAM if paging is available
-extern grs_canvas *VR_offscreen_menu;		// The offscreen data buffer for menus
 
 void game_init_render_buffers (int render_max_w, int render_max_h, int render_method);
 void game_do_render_frame(int flip);

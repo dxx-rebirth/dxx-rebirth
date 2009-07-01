@@ -139,13 +139,11 @@ void songs_init()
 	if ( Songs_initialized ) return;
 	
 	//	Set up External Music - ie Redbook/Jukebox
-#if !defined(SHAREWARE) || ( defined(SHAREWARE) && defined(APPLE_DEMO) )
 	if (EXT_MUSIC_ON)
 	{
 		ext_music_load();
 		set_extmusic_volume(GameCfg.MusicVolume);
 	}
-#endif	// endof ifndef SHAREWARE, ie ifdef SHAREWARE
 }
 
 #define FADE_TIME (f1_0/2)

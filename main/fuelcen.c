@@ -60,7 +60,7 @@ fix Fuelcen_max_amount = i2f(100);
 // by this amount... when capacity gets to 0, no more morphers...
 fix EnergyToCreateOneRobot = i2f(1);
 
-int Fuelcen_control_center_destroyed = 0;
+int Control_center_destroyed = 0;
 int Fuelcen_seconds_left = 0;
 
 #define MATCEN_HP_DEFAULT			F1_0*500; // Hitpoints
@@ -94,7 +94,7 @@ void fuelcen_reset()
 	for(i=0; i<MAX_SEGMENTS; i++ )
 		Segments[i].special = SEGMENT_IS_NOTHING;
 
-	Fuelcen_control_center_destroyed = 0;
+	Control_center_destroyed = 0;
 	Num_robot_centers = 0;
 
 }
@@ -543,7 +543,7 @@ void controlcen_proc( FuelCenter * controlcen )
 	fix old_time;
 	int	fc;
 
-	if (!Fuelcen_control_center_destroyed)	return;
+	if (!Control_center_destroyed)	return;
 
 	//	Control center destroyed, rock the player's ship.
 	fc = Fuelcen_seconds_left;
