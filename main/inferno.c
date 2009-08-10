@@ -435,7 +435,7 @@ int main(int argc, char *argv[])
 		}
 
 		// Send events to windows and the default handler
-		event_process();
+		//event_process();	// not yet - still got work to do
 	}
 
 	WriteConfigFile();

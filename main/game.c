@@ -94,6 +94,8 @@ COPYRIGHT 1993-1999 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 #include "fix.h"
 #include "hudmsg.h"
 #include "movie.h"
+#include "event.h"
+#include "window.h"
 
 #ifdef EDITOR
 #include "editor/editor.h"
@@ -151,7 +153,7 @@ int	Game_aborted;
 
 //	Function prototypes for GAME.C exclusively.
 
-void GameLoop(int RenderFlag, int ReadControlsFlag);
+void GameProcessFrame(void);
 void FireLaser(void);
 void slide_textures(void);
 void powerup_grab_cheat_all(void);
@@ -1127,8 +1129,12 @@ void game_disable_cheats()
 //	game_setup()
 // ----------------------------------------------------------------------------
 
-void game_setup(void)
+int game_handler(window *wind, d_event *event, void *data);
+
+window *game_setup(void)
 {
+	window *game_wind;
+
 	do_lunacy_on();			// Copy values for insane into copy buffer in ai.c
 	do_lunacy_off();		// Restore true insane mode.
 	Game_aborted = 0;
@@ -1136,6 +1142,9 @@ void game_setup(void)
 	Endlevel_sequence = 0;
 
 	set_screen_mode(SCREEN_GAME);
+	game_wind = window_create(&grd_curscreen->sc_canvas, 0, 0, SWIDTH, SHEIGHT, game_handler, NULL);
+	if (!game_wind)
+		return NULL;
 
 	reset_palette_add();
 	set_warn_func(game_show_warning);
@@ -1166,100 +1175,130 @@ void game_setup(void)
 
 	fix_object_segs();
 	game_flush_inputs();
+
+	return game_wind;
 }
 
+void game_render_frame();
 
+// Event handler for the game
+int game_handler(window *wind, d_event *event, void *data)
+{
+	int player_shields;
+
+	// unused parameters
+	event = event;	// unused for now
+	data = data;
+
+	if (event->type == EVENT_DRAW)
+	{
+		if (force_cockpit_redraw) {			//screen need redrawing?
+			init_cockpit();
+			force_cockpit_redraw=0;
+		}
+		game_render_frame();
+
+		return 1;
+	}
+
+	// GAME LOOP!
+	Automap_flag = 0;
+	Config_menu_flag = 0;
+	
+	player_shields = Players[Player_num].shields;
+
+	calc_frame_time();
+
+	ReadControls();		// will have its own event(s) eventually
+
+	GameProcessFrame();
+	
+	//if the player is taking damage, give up guided missile control
+	if (Players[Player_num].shields != player_shields)
+		release_guided_missile(Player_num);
+
+	//see if redbook song needs to be restarted
+	RBACheckFinishedHook();	// Handle RedBook Audio Repeating.
+	
+	if (Config_menu_flag)	{
+		if (!(Game_mode&GM_MULTI)) {palette_save(); reset_palette_add();	apply_modified_palette(); gr_palette_load( gr_palette ); }
+		do_options_menu();
+		if (!(Game_mode&GM_MULTI)) palette_restore();
+	}
+	
+	if (Automap_flag) {
+		game_flush_inputs();
+		do_automap(0);
+		Screen_mode=-1; set_screen_mode(SCREEN_GAME);
+		init_cockpit();
+		last_drawn_cockpit = -1;
+		game_flush_inputs();
+	}
+	
+	if ( (Function_mode != FMODE_GAME) && GameArg.SysAutoDemo && (Newdemo_state != ND_STATE_NORMAL) )	{
+		int choice, fmode;
+		fmode = Function_mode;
+		Function_mode = FMODE_GAME;
+		palette_save();
+		apply_modified_palette();
+		reset_palette_add();
+		gr_palette_load( gr_palette );
+		choice=nm_messagebox( NULL, 2, TXT_YES, TXT_NO, TXT_ABORT_AUTODEMO );
+		palette_restore();
+		Function_mode = fmode;
+		if (choice==0)	{
+			GameArg.SysAutoDemo = 0;
+			newdemo_stop_playback();
+			Function_mode = FMODE_MENU;
+		} else {
+			Function_mode = FMODE_GAME;
+		}
+	}
+	
+	if ( (Function_mode != FMODE_GAME ) && (Newdemo_state != ND_STATE_PLAYBACK ) && (Function_mode!=FMODE_EDITOR)
 #ifdef NETWORK
-extern char IWasKicked;
+				       	&& !IWasKicked
 #endif
+ )	{
+		int choice, fmode;
+		fmode = Function_mode;
+		Function_mode = FMODE_GAME;
+		palette_save();
+		apply_modified_palette();
+		reset_palette_add();
+		gr_palette_load( gr_palette );
+		choice=nm_messagebox( NULL, 2, TXT_YES, TXT_NO, TXT_ABORT_GAME );
+		palette_restore();
+		Function_mode = fmode;
+		if (choice != 0)
+			Function_mode = FMODE_GAME;
+	}
+	
+#ifdef NETWORK
+	IWasKicked=0;
+#endif
+	if (Function_mode != FMODE_GAME)
+	{
+		window_close(wind);
+		longjmp(LeaveGame,0);
+	}
 
+	return 1;
+}
 
 //	------------------------------------------------------------------------------------
 //this function is the game.  called when game mode selected.  runs until
 //editor mode or exit selected
 void game()
 {
-	game_setup();
+	window *game_wind = NULL;
+
+	game_wind = game_setup();
 
 	if ( setjmp(LeaveGame)==0 ) {
-		while (1) {
-			int player_shields;
 
-			// GAME LOOP!
-			Automap_flag = 0;
-			Config_menu_flag = 0;
-
-			player_shields = Players[Player_num].shields;
-
-			GameLoop( 1, 1 );		// Do game loop with rendering and reading controls.
-
-			//if the player is taking damage, give up guided missile control
-			if (Players[Player_num].shields != player_shields)
-				release_guided_missile(Player_num);
-
-			//see if redbook song needs to be restarted
-			RBACheckFinishedHook();	// Handle RedBook Audio Repeating.
-
-			if (Config_menu_flag)	{
-				if (!(Game_mode&GM_MULTI)) {palette_save(); reset_palette_add();	apply_modified_palette(); gr_palette_load( gr_palette ); }
-				do_options_menu();
-				if (!(Game_mode&GM_MULTI)) palette_restore();
-			}
-
-			if (Automap_flag) {
-				game_flush_inputs();
-				do_automap(0);
-				Screen_mode=-1; set_screen_mode(SCREEN_GAME);
-				init_cockpit();
-				last_drawn_cockpit = -1;
-				game_flush_inputs();
-			}
-
-			if ( (Function_mode != FMODE_GAME) && GameArg.SysAutoDemo && (Newdemo_state != ND_STATE_NORMAL) )	{
-				int choice, fmode;
-				fmode = Function_mode;
-				Function_mode = FMODE_GAME;
-				palette_save();
-				apply_modified_palette();
-				reset_palette_add();
-				gr_palette_load( gr_palette );
-				choice=nm_messagebox( NULL, 2, TXT_YES, TXT_NO, TXT_ABORT_AUTODEMO );
-				palette_restore();
-				Function_mode = fmode;
-				if (choice==0)	{
-					GameArg.SysAutoDemo = 0;
-					newdemo_stop_playback();
-					Function_mode = FMODE_MENU;
-				} else {
-					Function_mode = FMODE_GAME;
-				}
-			}
-
-			if ( (Function_mode != FMODE_GAME ) && (Newdemo_state != ND_STATE_PLAYBACK ) && (Function_mode!=FMODE_EDITOR)
-#ifdef NETWORK
-				       	&& !IWasKicked
-#endif
-			   )		{
-				int choice, fmode;
-				fmode = Function_mode;
-				Function_mode = FMODE_GAME;
-				palette_save();
-				apply_modified_palette();
-				reset_palette_add();
-				gr_palette_load( gr_palette );
-				choice=nm_messagebox( NULL, 2, TXT_YES, TXT_NO, TXT_ABORT_GAME );
-				palette_restore();
-				Function_mode = fmode;
-				if (choice != 0)
-					Function_mode = FMODE_GAME;
-			}
-
-#ifdef NETWORK
-			IWasKicked=0;
-#endif
-			if (Function_mode != FMODE_GAME)
-				longjmp(LeaveGame,0);
-		}
+		while (1)
+			event_process();
 	}
 
 	digi_stop_all();
@@ -1349,30 +1388,14 @@ void do_ambient_sounds()
 
 // -- extern void lightning_frame(void);
 
-void game_render_frame();
 extern void omega_charge_frame(void);
 
 extern time_t t_current_time, t_saved_time;
 
 void flicker_lights();
 
-void GameLoop(int RenderFlag, int ReadControlsFlag )
+void GameProcessFrame(void)
 {
-	if (RenderFlag) {
-		if (force_cockpit_redraw) {			//screen need redrawing?
-			init_cockpit();
-			force_cockpit_redraw=0;
-		}
-		game_render_frame();
-	}
-
-	calc_frame_time();
-
-	if (ReadControlsFlag)
-		ReadControls();
-	else
-		memset(&Controls, 0, sizeof(Controls));
-
 	update_player_stats();
 	diminish_palette_towards_normal();		//	Should leave palette effect up for as long as possible by putting right before render.
 	do_afterburner_stuff();

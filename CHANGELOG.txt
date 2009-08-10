@@ -1,5 +1,9 @@
 D2X-Rebirth Changelog
 
+20090810
+--------
+arch/sdl/window.c, main/automap.c, main/game.c, main/inferno.c, main/multi.c: Make the game screen into a 'window', handling events through event_process
+
 20090701
 --------
 main/game.c, main/game.h, main/gamecntl.c, main/kconfig.c, main/kconfig.h, main/menu.c, main/net_ipx.c, main/newmenu.c, main/newmenu.h, main/scores.c, main/screens.h, main/songs.c, main/titles.c: Make game.c more similar between D1X and D2X, making related changes to other files (!)

@@ -96,7 +96,7 @@ void multi_do_play_by_play(char *buf);
 #define vm_angvec_zero(v) (v)->p=(v)->b=(v)->h=0
 
 void drop_player_eggs(object *player); // from collide.c
-void GameLoop(int, int); // From game.c
+void GameProcessFrame(void); // From game.c
 
 //
 // Global variables
@@ -1111,7 +1111,10 @@ multi_menu_poll(void)
 
 	multi_in_menu++; // Track level of menu nesting
 
-	GameLoop( 0, 0 );
+	// The following three [hackish] lines will go away eventually
+	calc_frame_time();
+	memset(&Controls,0,sizeof(control_info));	// from game.c (was in below function)
+	GameProcessFrame(void);			
 
 	multi_in_menu--;
 

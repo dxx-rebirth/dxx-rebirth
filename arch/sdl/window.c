@@ -44,7 +44,8 @@ window *window_create(grs_canvas *src, int x, int y, int w, int h, int (*event_c
 	if (FirstWindow == NULL)
 		FirstWindow = wind;
 	wind->prev = FrontWindow;
-	FrontWindow->next = wind;
+	if (FrontWindow)
+		FrontWindow->next = wind;
 	wind->next = NULL;
 	FrontWindow = wind;
 
