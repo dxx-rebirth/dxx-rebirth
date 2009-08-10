@@ -91,6 +91,8 @@ COPYRIGHT 1993-1998 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 #include "playsave.h"
 #include "hudmsg.h"
 #include "vers_id.h"
+#include "event.h"
+#include "window.h"
 
 #ifdef EDITOR
 #include "editor/editor.h"
@@ -139,7 +141,7 @@ int	Game_aborted;
 
 //	Function prototypes for GAME.C exclusively.
 
-void GameLoop(int RenderFlag, int ReadControlsFlag);
+void GameProcessFrame(void);
 void FireLaser(void);
 void powerup_grab_cheat_all(void);
 void game_init_render_sub_buffers(int x, int y, int w, int h);
@@ -893,8 +895,12 @@ void game_disable_cheats()
 //	game_setup()
 // ----------------------------------------------------------------------------
 
-void game_setup(void)
+int game_handler(window *wind, d_event *event, void *data);
+
+window *game_setup(void)
 {
+	window *game_wind;
+
 	do_lunacy_on();			// Copy values for insane into copy buffer in ai.c
 	do_lunacy_off();		// Restore true insane mode.
 	Game_aborted = 0;
@@ -906,6 +912,10 @@ void game_setup(void)
 	cheat_turbomode_index = cheat_wowie2_index = 0;
 
 	set_screen_mode(SCREEN_GAME);
+	game_wind = window_create(&grd_curscreen->sc_canvas, 0, 0, SWIDTH, SHEIGHT, game_handler, NULL);
+	if (!game_wind)
+		return NULL;
+
 	reset_palette_add();
 	set_warn_func(game_show_warning);
 	init_cockpit();
@@ -935,6 +945,90 @@ void game_setup(void)
 
 	fix_object_segs();
 	game_flush_inputs();
+
+	return game_wind;
+}
+
+void game_render_frame();
+
+// Event handler for the game
+int game_handler(window *wind, d_event *event, void *data)
+{
+	// unused parameters
+	event = event;	// unused for now
+	data = data;
+
+	if (event->type == EVENT_DRAW)
+	{
+		if (force_cockpit_redraw) {			//screen need redrawing?
+			init_cockpit();
+			force_cockpit_redraw=0;
+		}
+		game_render_frame();
+
+		return 1;
+	}
+
+	// GAME LOOP!
+	Automap_flag = 0;
+	Config_menu_flag = 0;
+	
+	calc_frame_time();
+
+	ReadControls();		// will have its own event(s) eventually
+
+	GameProcessFrame();
+	
+	//see if redbook song needs to be restarted
+	RBACheckFinishedHook();	// Handle RedBook Audio Repeating.
+	
+	if (Config_menu_flag)	{
+		if (!(Game_mode&GM_MULTI)) palette_save();
+		do_options_menu();
+		if (!(Game_mode&GM_MULTI)) palette_restore();
+	}
+	
+	if (Automap_flag) {
+		game_flush_inputs();
+		do_automap(0);
+		Screen_mode=-1; set_screen_mode(SCREEN_GAME);
+		init_cockpit();
+		last_drawn_cockpit = -1;
+		game_flush_inputs();
+	}
+	
+	if ( (Function_mode != FMODE_GAME) && GameArg.SysAutoDemo && (Newdemo_state != ND_STATE_NORMAL) )	{
+		int choice, fmode;
+		fmode = Function_mode;
+		Function_mode = FMODE_GAME;
+		choice=nm_messagebox( NULL, 2, TXT_YES, TXT_NO, TXT_ABORT_AUTODEMO );
+		Function_mode = fmode;
+		if (choice==0)	{
+			GameArg.SysAutoDemo = 0;
+			newdemo_stop_playback();
+			Function_mode = FMODE_MENU;
+		} else {
+			Function_mode = FMODE_GAME;
+		}
+	}
+	
+	if ( (Function_mode != FMODE_GAME ) && (Newdemo_state != ND_STATE_PLAYBACK ) && (Function_mode!=FMODE_EDITOR) )		{
+		int choice, fmode;
+		fmode = Function_mode;
+		Function_mode = FMODE_GAME;
+		choice=nm_messagebox( NULL, 2, TXT_YES, TXT_NO, TXT_ABORT_GAME );
+		Function_mode = fmode;
+		if (choice != 0)
+			Function_mode = FMODE_GAME;
+	}
+	
+	if (Function_mode != FMODE_GAME)
+	{
+		window_close(wind);
+		longjmp(LeaveGame,0);
+	}
+
+	return 1;
 }
 
 //	------------------------------------------------------------------------------------
@@ -942,63 +1036,14 @@ void game_setup(void)
 //editor mode or exit selected
 void game()
 {
-	game_setup();
+	window *game_wind = NULL;
+
+	game_wind = game_setup();
 
 	if ( setjmp(LeaveGame)==0 ) {
 
-		while (1) {
-			// GAME LOOP!
-			Automap_flag = 0;
-			Config_menu_flag = 0;
-
-			GameLoop( 1, 1 );		// Do game loop with rendering and reading controls.
-
-			//see if redbook song needs to be restarted
-			RBACheckFinishedHook();	// Handle RedBook Audio Repeating.
-
-			if (Config_menu_flag)	{
-				if (!(Game_mode&GM_MULTI)) palette_save();
-				do_options_menu();
-				if (!(Game_mode&GM_MULTI)) palette_restore();
-			}
-
-			if (Automap_flag) {
-				game_flush_inputs();
-				do_automap(0);
-				Screen_mode=-1; set_screen_mode(SCREEN_GAME);
-				init_cockpit();
-				last_drawn_cockpit = -1;
-				game_flush_inputs();
-			}
-
-			if ( (Function_mode != FMODE_GAME) && GameArg.SysAutoDemo && (Newdemo_state != ND_STATE_NORMAL) )	{
-				int choice, fmode;
-				fmode = Function_mode;
-				Function_mode = FMODE_GAME;
-				choice=nm_messagebox( NULL, 2, TXT_YES, TXT_NO, TXT_ABORT_AUTODEMO );
-				Function_mode = fmode;
-				if (choice==0)	{
-					GameArg.SysAutoDemo = 0;
-					newdemo_stop_playback();
-					Function_mode = FMODE_MENU;
-				} else {
-					Function_mode = FMODE_GAME;
-				}
-			}
-
-			if ( (Function_mode != FMODE_GAME ) && (Newdemo_state != ND_STATE_PLAYBACK ) && (Function_mode!=FMODE_EDITOR) )		{
-				int choice, fmode;
-				fmode = Function_mode;
-				Function_mode = FMODE_GAME;
-				choice=nm_messagebox( NULL, 2, TXT_YES, TXT_NO, TXT_ABORT_GAME );
-				Function_mode = fmode;
-				if (choice != 0)
-					Function_mode = FMODE_GAME;
-			}
-
-			if (Function_mode != FMODE_GAME)
-				longjmp(LeaveGame,0);
-		}
+		while (1)
+			event_process();
 	}
 
 	digi_stop_all();
@@ -1038,24 +1083,8 @@ extern void check_create_player_path(void);
 
 extern	int Do_appearance_effect;
 
-void game_render_frame();
-void GameLoop(int RenderFlag, int ReadControlsFlag )
+void GameProcessFrame(void)
 {
-	if (RenderFlag) {
-		if (force_cockpit_redraw) {			//screen need redrawing?
-			init_cockpit();
-			force_cockpit_redraw=0;
-		}
-		game_render_frame();
-	}
-
-	calc_frame_time();
-
-	if (ReadControlsFlag)
-		ReadControls();
-	else
-		memset(&Controls, 0, sizeof(Controls));
-
 	update_player_stats();
 	diminish_palette_towards_normal();		//	Should leave palette effect up for as long as possible by putting right before render.
 	do_cloak_stuff();

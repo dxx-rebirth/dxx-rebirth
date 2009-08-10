@@ -73,7 +73,7 @@ COPYRIGHT 1993-1998 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 void reset_player_object(void); // In object.c but not in object.h
 void drop_player_eggs(object *player); // from collide.c
 void StartLevel(void); // From gameseq.c
-void GameLoop(int, int); // From game.c
+void GameProcessFrame(void); // From game.c
 
 //
 // Global variables
@@ -958,7 +958,10 @@ multi_menu_poll(void)
 
 	multi_in_menu++; // Track level of menu nesting
 
-	GameLoop( 0, 0 );			
+	// The following three [hackish] lines will go away eventually
+	calc_frame_time();
+	memset(&Controls,0,sizeof(control_info));	// from game.c (was in below function)
+	GameProcessFrame(void);			
 
 	multi_in_menu--;
 

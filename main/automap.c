@@ -336,7 +336,6 @@ void draw_automap(int flip)
 #define LEAVE_TIME 0x4000
 #define WINDOW_WIDTH		288
 
-extern void GameLoop(int, int );
 extern int set_segment_depths(int start_seg, ubyte *segbuf);
 int Automap_active = 0;
 
