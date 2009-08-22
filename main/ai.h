@@ -96,4 +96,7 @@ extern void ai_init_boss_for_ship(void);
 extern int Boss_been_hit;
 extern fix AI_proc_time;
 
+extern int ai_save_state(PHYSFS_file * fp);
+extern int ai_restore_state(PHYSFS_file *fp, int version);
+
 #endif

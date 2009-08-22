@@ -1,5 +1,9 @@
 D1X-Rebirth Changelog
 
+20090822
+--------
+main/ai.h, main/state.c: Make state.c more similar between D1X and D2X
+
 20090810
 --------
 arch/sdl/window.c, main/automap.c, main/game.c, main/inferno.c, main/multi.c: Make the game screen into a 'window', handling events through event_process

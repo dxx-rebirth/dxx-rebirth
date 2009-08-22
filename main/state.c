@@ -7,7 +7,7 @@ IN USING, DISPLAYING,  AND CREATING DERIVATIVE WORKS THEREOF, SO LONG AS
 SUCH USE, DISPLAY OR CREATION IS FOR NON-COMMERCIAL, ROYALTY OR REVENUE
 FREE PURPOSES.  IN NO EVENT SHALL THE END-USER USE THE COMPUTER CODE
 CONTAINED HEREIN FOR REVENUE-BEARING PURPOSES.  THE END-USER UNDERSTANDS
-AND AGREES TO THE TERMS HEREIN AND ACCEPTS THE SAME BY USE OF THIS FILE.  
+AND AGREES TO THE TERMS HEREIN AND ACCEPTS THE SAME BY USE OF THIS FILE.
 COPYRIGHT 1993-1998 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 */
 
@@ -17,12 +17,12 @@ COPYRIGHT 1993-1998 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
  *
  */
 
-
 #include <stdio.h>
 #include <stdlib.h>
 #include <math.h>
 #include <string.h>
 
+#include "pstypes.h"
 #include "inferno.h"
 #include "segment.h"
 #include "textures.h"
@@ -30,6 +30,7 @@ COPYRIGHT 1993-1998 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 #include "object.h"
 #include "gamemine.h"
 #include "error.h"
+#include "gamefont.h"
 #include "gameseg.h"
 #include "switch.h"
 #include "game.h"
@@ -56,13 +57,11 @@ COPYRIGHT 1993-1998 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 #include "pcx.h"
 #include "u_mem.h"
 #include "args.h"
-//added 6/15/99 - Owen Evans
-#include "strutil.h"
-//end added
-#include "gamefont.h"
+#include "ai.h"
+#include "state.h"
 #include "multi.h"
 #ifdef OGL
-#include "ogl_init.h"
+#include "gr.h"
 #endif
 #include "physfsx.h"
 
@@ -83,15 +82,12 @@ COPYRIGHT 1993-1998 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 #define THUMBNAIL_H 50
 #define DESC_LENGTH 20
 
-extern int ai_save_state( PHYSFS_file * fp );
-extern int ai_restore_state( PHYSFS_file * fp );
-
 extern int Do_appearance_effect;
 extern fix Fusion_next_sound_time;
 
 extern int Laser_rapid_fire, Ugly_robot_cheat, Ugly_robot_texture;
 extern int Physics_cheat_flag;
-extern int	Lunacy;
+extern int Lunacy;
 extern void do_lunacy_on(void);
 extern void do_lunacy_off(void);
 
@@ -105,6 +101,7 @@ char dgss_id[4] = "DGSS";
 
 uint state_game_id;
 
+//-------------------------------------------------------------------
 void state_callback(int nitems,newmenu_item * items, int * last_key, int citem)
 {
 	nitems = nitems;
@@ -208,7 +205,7 @@ int state_get_savegame_filename(char * fname, char * dsc, char * caption )
 	}
 
 	sc_last_item = -1;
-	choice = newmenu_do3( NULL, caption, NUM_SAVES+1, m, state_callback, state_default_item+1, NULL, -1, -1 );
+	choice = newmenu_do3( NULL, caption, NUM_SAVES+1, m, state_callback, state_default_item + 1, NULL, -1, -1 );
 
 	for (i=0; i<NUM_SAVES; i++ )	{
 		if ( sc_bmp[i] )
@@ -216,7 +213,7 @@ int state_get_savegame_filename(char * fname, char * dsc, char * caption )
 	}
 
 	if (choice > 0) {
-		sprintf( fname, filename[choice-1] );
+		strcpy( fname, filename[choice-1] );
 		if ( dsc != NULL ) strcpy( dsc, desc[choice-1] );
 		state_default_item = choice - 1;
 		return choice;
@@ -362,12 +359,13 @@ int state_save_old_game(int slotnum, char * sg_name, player * sg_player,
 }
 
 
+//	-----------------------------------------------------------------------------------
 int state_save_all(int between_levels)
 {
-	int rval;
-	char filename[128], desc[DESC_LENGTH+1];
+	int	rval;
+	char	filename[128], desc[DESC_LENGTH+1];
 
-#ifndef SHAREWARE
+#ifdef NETWORK
 	if ( Game_mode & GM_MULTI )	{
 		return 0;
 	}
@@ -391,30 +389,37 @@ int state_save_all(int between_levels)
 int state_save_all_sub(char *filename, char *desc, int between_levels)
 {
 	int i,j;
-	PHYSFS_file * fp;
+	PHYSFS_file *fp;
 	grs_canvas * cnv;
 	ubyte *pal;
 #ifdef OGL
 	GLint gl_draw_buffer;
 #endif
 
+	#ifndef NDEBUG
+	if (GameArg.SysUsePlayersDir && strncmp(filename, "Players/", 8))
+		Int3();
+	#endif
+
 	fp = PHYSFSX_openWriteBuffered(filename);
 	if ( !fp ) {
+		nm_messagebox(NULL, 1, TXT_OK, "Error writing savegame.\nPossibly out of disk\nspace.");
 		start_time();
 		return 0;
 	}
 
 //Save id
-	PHYSFS_write( fp, dgss_id, sizeof(char)*4, 1 );
+	PHYSFS_write(fp, dgss_id, sizeof(char) * 4, 1);
 
 //Save version
 	i = STATE_VERSION;
-	PHYSFS_write( fp, &i, sizeof(int), 1 );
+	PHYSFS_write(fp, &i, sizeof(int), 1);
 
 //Save description
-	PHYSFS_write( fp, desc, sizeof(char)*DESC_LENGTH, 1 );
+	PHYSFS_write(fp, desc, sizeof(char) * DESC_LENGTH, 1);
 	
 // Save the current screen shot...
+
 	cnv = gr_create_canvas( THUMBNAIL_W, THUMBNAIL_H );
 	if ( cnv )
 	{
@@ -429,7 +434,7 @@ int state_save_all_sub(char *filename, char *desc, int between_levels)
 
 		render_frame(0);
 
-#ifdef OGL
+#if defined(OGL)
 		buf = d_malloc(THUMBNAIL_W * THUMBNAIL_H * 3);
 		glGetIntegerv(GL_DRAW_BUFFER, &gl_draw_buffer);
 		glReadBuffer(gl_draw_buffer);
@@ -443,9 +448,10 @@ int state_save_all_sub(char *filename, char *desc, int between_levels)
 		}
 		d_free(buf);
 #endif
+
 		pal = gr_palette;
 
-		PHYSFS_write( fp,cnv->cv_bitmap.bm_data, THUMBNAIL_W * THUMBNAIL_H, 1);
+		PHYSFS_write(fp, cnv->cv_bitmap.bm_data, THUMBNAIL_W * THUMBNAIL_H, 1);
 
 		gr_set_current_canvas(cnv_save);
 		gr_free_canvas( cnv );
@@ -454,40 +460,35 @@ int state_save_all_sub(char *filename, char *desc, int between_levels)
 	{
 	 	ubyte color = 0;
 	 	for ( i=0; i<THUMBNAIL_W*THUMBNAIL_H; i++ )
-			PHYSFS_write( fp,&color, sizeof(ubyte), 1);		
-	}
+			PHYSFS_write(fp, &color, sizeof(ubyte), 1);		
+	} 
 
 // Save the Between levels flag...
-	PHYSFS_write( fp, &between_levels, sizeof(int), 1 );
+	PHYSFS_write(fp, &between_levels, sizeof(int), 1);
 
 // Save the mission info...
-#ifndef SHAREWARE
-	PHYSFS_write( fp, Current_mission_filename, sizeof(char)*9, 1 );
-#else
-	PHYSFS_write( fp, "\0\0\0\0\0\0\0\0", sizeof(char)*9, 1 );
-#endif
+	PHYSFS_write(fp, Current_mission_filename, 9 * sizeof(char), 1);
 
 //Save level info
-	PHYSFS_write( fp, &Current_level_num, sizeof(int), 1 );
-	PHYSFS_write( fp, &Next_level_num, sizeof(int), 1 );
+	PHYSFS_write(fp, &Current_level_num, sizeof(int), 1);
+	PHYSFS_write(fp, &Next_level_num, sizeof(int), 1);
 
 //Save GameTime
-	PHYSFS_write( fp, &GameTime, sizeof(fix), 1 );
+	PHYSFS_write(fp, &GameTime, sizeof(fix), 1);
 
 //Save player info
-	PHYSFS_write( fp, &Players[Player_num], sizeof(player), 1 );
+	PHYSFS_write(fp, &Players[Player_num], sizeof(player), 1);
 
 // Save the current weapon info
-	PHYSFS_write( fp, &Primary_weapon, sizeof(sbyte), 1 );
-	PHYSFS_write( fp, &Secondary_weapon, sizeof(sbyte), 1 );
+	PHYSFS_write(fp, &Primary_weapon, sizeof(sbyte), 1);
+	PHYSFS_write(fp, &Secondary_weapon, sizeof(sbyte), 1);
 
 // Save the difficulty level
-	PHYSFS_write( fp, &Difficulty_level, sizeof(int), 1 );
+	PHYSFS_write(fp, &Difficulty_level, sizeof(int), 1);
 
-// Save the Cheats_enabled
-	PHYSFS_write( fp, &Cheats_enabled, sizeof(int), 1 );
-	PHYSFS_write( fp, &Game_turbo_mode, sizeof(int), 1 );
-
+// Save cheats enabled
+	PHYSFS_write(fp, &Cheats_enabled, sizeof(int), 1);
+	PHYSFS_write(fp, &Game_turbo_mode, sizeof(int), 1);
 
 	if ( !between_levels )	{
 
@@ -513,60 +514,63 @@ int state_save_all_sub(char *filename, char *desc, int between_levels)
 	
 	//Save object info
 		i = Highest_object_index+1;
-		PHYSFS_write( fp, &i, sizeof(int), 1 );
-		PHYSFS_write( fp, Objects, sizeof(object)*i, 1 );
+		PHYSFS_write(fp, &i, sizeof(int), 1);
+		PHYSFS_write(fp, Objects, sizeof(object), i);
 		
 	//Save wall info
 		i = Num_walls;
-		PHYSFS_write( fp, &i, sizeof(int), 1 );
-		PHYSFS_write( fp, Walls, sizeof(wall), i );
-	
+		PHYSFS_write(fp, &i, sizeof(int), 1);
+		PHYSFS_write(fp, Walls, sizeof(wall), i);
+
 	//Save door info
 		i = Num_open_doors;
-		PHYSFS_write( fp, &i, sizeof(int), 1 );
-		PHYSFS_write( fp, ActiveDoors, sizeof(active_door), i );
+		PHYSFS_write(fp, &i, sizeof(int), 1);
+		PHYSFS_write(fp, ActiveDoors, sizeof(active_door), i);
 	
 	//Save trigger info
-		PHYSFS_write( fp, &Num_triggers, sizeof(int), 1 );
-		PHYSFS_write( fp, Triggers, sizeof(trigger), Num_triggers );
+		PHYSFS_write(fp, &Num_triggers, sizeof(int), 1);
+		PHYSFS_write(fp, Triggers, sizeof(trigger), Num_triggers);
 	
 	//Save tmap info
-		for (i=0; i<=Highest_segment_index; i++ )	{
-			for (j=0; j<6; j++ )	{
-				PHYSFS_write( fp, &Segments[i].sides[j].wall_num, sizeof(short), 1 );
-				PHYSFS_write( fp, &Segments[i].sides[j].tmap_num, sizeof(short), 1 );
-				PHYSFS_write( fp, &Segments[i].sides[j].tmap_num2, sizeof(short), 1 );
+		for (i = 0; i <= Highest_segment_index; i++)
+		{
+			for (j = 0; j < 6; j++)
+			{
+				PHYSFS_write(fp, &Segments[i].sides[j].wall_num, sizeof(short), 1);
+				PHYSFS_write(fp, &Segments[i].sides[j].tmap_num, sizeof(short), 1);
+				PHYSFS_write(fp, &Segments[i].sides[j].tmap_num2, sizeof(short), 1);
 			}
 		}
 	
 	// Save the fuelcen info
-		PHYSFS_write( fp, &Control_center_destroyed, sizeof(int), 1 );
-		PHYSFS_write( fp, &Fuelcen_seconds_left, sizeof(int), 1 );
-		PHYSFS_write( fp, &Num_robot_centers, sizeof(int), 1 );
-		PHYSFS_write( fp, RobotCenters, sizeof(matcen_info), Num_robot_centers );
-		PHYSFS_write( fp, &ControlCenterTriggers, sizeof(control_center_triggers), 1 );
-		PHYSFS_write( fp, &Num_fuelcenters, sizeof(int), 1 );
-		PHYSFS_write( fp, Station, sizeof(FuelCenter), Num_fuelcenters );
+		PHYSFS_write(fp, &Control_center_destroyed, sizeof(int), 1);
+		PHYSFS_write(fp, &Fuelcen_seconds_left, sizeof(int), 1);
+		PHYSFS_write(fp, &Num_robot_centers, sizeof(int), 1);
+		PHYSFS_write(fp, RobotCenters, sizeof(matcen_info), Num_robot_centers);
+		PHYSFS_write(fp, &ControlCenterTriggers, sizeof(control_center_triggers), 1);
+		PHYSFS_write(fp, &Num_fuelcenters, sizeof(int), 1);
+		PHYSFS_write(fp, Station, sizeof(FuelCenter), Num_fuelcenters);
 	
 	// Save the control cen info
-		PHYSFS_write( fp, &Control_center_been_hit, sizeof(int), 1 );
-		PHYSFS_write( fp, &Control_center_player_been_seen, sizeof(int), 1 );
-		PHYSFS_write( fp, &Control_center_next_fire_time, sizeof(int), 1 );
-		PHYSFS_write( fp, &Control_center_present, sizeof(int), 1 );
-		PHYSFS_write( fp, &Dead_controlcen_object_num, sizeof(int), 1 );
+		PHYSFS_write(fp, &Control_center_been_hit, sizeof(int), 1);
+		PHYSFS_write(fp, &Control_center_player_been_seen, sizeof(int), 1);
+		PHYSFS_write(fp, &Control_center_next_fire_time, sizeof(int), 1);
+		PHYSFS_write(fp, &Control_center_present, sizeof(int), 1);
+		PHYSFS_write(fp, &Dead_controlcen_object_num, sizeof(int), 1);
 	
 	// Save the AI state
 		ai_save_state( fp );
 	
 	// Save the automap visited info
-		PHYSFS_write( fp, Automap_visited, sizeof(ubyte)*MAX_SEGMENTS, 1 );
+		PHYSFS_write(fp, Automap_visited, sizeof(ubyte), MAX_SEGMENTS);
+
 	}
-	PHYSFS_write( fp, &state_game_id, sizeof(uint), 1 );
-	PHYSFS_write( fp, &Laser_rapid_fire, sizeof(int), 1 );
-	PHYSFS_write( fp, &Ugly_robot_cheat, sizeof(int), 1 );
-	PHYSFS_write( fp, &Ugly_robot_texture, sizeof(int), 1 );
-	PHYSFS_write( fp, &Physics_cheat_flag, sizeof(int), 1 );
-	PHYSFS_write( fp, &Lunacy, sizeof(int), 1 );
+	PHYSFS_write(fp, &state_game_id, sizeof(uint), 1);
+	PHYSFS_write(fp, &Laser_rapid_fire, sizeof(int), 1);
+	PHYSFS_write(fp, &Ugly_robot_cheat, sizeof(int), 1);
+	PHYSFS_write(fp, &Ugly_robot_texture, sizeof(int), 1);
+	PHYSFS_write(fp, &Physics_cheat_flag, sizeof(int), 1);
+	PHYSFS_write(fp, &Lunacy, sizeof(int), 1);
 
 	PHYSFS_close(fp);
 
@@ -575,11 +579,12 @@ int state_save_all_sub(char *filename, char *desc, int between_levels)
 	return 1;
 }
 
+//	-----------------------------------------------------------------------------------
 int state_restore_all(int in_game)
 {
 	char filename[128];
 
-#ifndef SHAREWARE
+#ifdef NETWORK
 	if ( Game_mode & GM_MULTI )	{
 		return 0;
 	}
@@ -625,25 +630,31 @@ int state_restore_all_sub(char *filename)
 	char id[5];
 	char org_callsign[CALLSIGN_LEN+16];
 
+	#ifndef NDEBUG
+	if (GameArg.SysUsePlayersDir && strncmp(filename, "Players/", 8))
+		Int3();
+	#endif
+
 	fp = PHYSFSX_openReadBuffered(filename);
 	if ( !fp ) return 0;
 
 //Read id
-	PHYSFS_read(fp, id, sizeof(char)*4, 1 );
+	//FIXME: check for swapped file, react accordingly...
+	PHYSFS_read(fp, id, sizeof(char) * 4, 1);
 	if ( memcmp( id, dgss_id, 4 )) {
 		PHYSFS_close(fp);
 		return 0;
 	}
 
 //Read version
-	PHYSFS_read(fp, &version, sizeof(int), 1 );
+	PHYSFS_read(fp, &version, sizeof(int), 1);
 	if (version < STATE_COMPATIBLE_VERSION)	{
 		PHYSFS_close(fp);
 		return 0;
 	}
 
 // Read description
-	PHYSFS_read(fp, desc, sizeof(char)*DESC_LENGTH, 1 );
+	PHYSFS_read(fp, desc, sizeof(char) * DESC_LENGTH, 1);
 
 // Skip the current screen shot...
 	PHYSFS_seek(fp, PHYSFS_tell(fp) + THUMBNAIL_W * THUMBNAIL_H);
@@ -652,34 +663,17 @@ int state_restore_all_sub(char *filename)
 	PHYSFS_read(fp, &between_levels, sizeof(int), 1);
 
 // Read the mission info...
-	PHYSFS_read(fp, mission, sizeof(char)*9, 1);
+	PHYSFS_read(fp, mission, sizeof(char) * 9, 1);
 
-#ifndef SHAREWARE
 	if (!load_mission_by_name( mission ))	{
 		nm_messagebox( NULL, 1, "Ok", "Error!\nUnable to load mission\n'%s'\n", mission );
 		PHYSFS_close(fp);
 		return 0;
 	}
-#else
-	if (mission[0]) {
-		nm_messagebox( NULL, 1, "Ok", "Error!\nCannot load mission '%s'\nThe shareware version only supports savegames of the shareware mission!", mission );
-		PHYSFS_close(fp);
-		return 0;
-	}
-#endif
 
 //Read level info
 	PHYSFS_read(fp, &current_level, sizeof(int), 1);
 	PHYSFS_read(fp, &next_level, sizeof(int), 1);
-#ifdef SHAREWARE
-	if (current_level < 1 || current_level > Last_level ||
-		next_level < 0 || next_level > Last_level) {
-		nm_messagebox( NULL, 1, "Ok", "Error!\nCannot load level %d\nThe shareware version only supports savegames of shareware levels!",
-			between_levels? next_level:current_level);
-		PHYSFS_close(fp);
-		return 0;
-	}
-#endif
 
 //Restore GameTime
 	PHYSFS_read(fp, &GameTime, sizeof(fix), 1);
@@ -727,13 +721,14 @@ int state_restore_all_sub(char *filename)
 	PHYSFS_read(fp, &Difficulty_level, sizeof(int), 1);
 
 // Restore the cheats enabled flag
+
 	PHYSFS_read(fp, &Cheats_enabled, sizeof(int), 1);
 	PHYSFS_read(fp, &Game_turbo_mode, sizeof(int), 1);
 
 	if ( !between_levels )	{
 		Do_appearance_effect = 0;			// Don't do this for middle o' game stuff.
 
-		ObjectStartLocation = PHYSFS_tell( fp );
+		ObjectStartLocation = PHYSFS_tell(fp);
 RetryObjectLoading:
 		//Clear out all the objects from the lvl file
 		for (segnum=0; segnum <= Highest_segment_index; segnum++)
@@ -744,7 +739,7 @@ RetryObjectLoading:
 		PHYSFS_read(fp, &i, sizeof(int), 1);
 		Highest_object_index = i-1;
 		if ( !BogusSaturnShit )	
-			PHYSFS_read(fp, Objects, sizeof(object)*i, 1);
+			PHYSFS_read(fp, Objects, sizeof(object) * i, 1);
 		else {
 			ubyte tmp_object[sizeof(object)];
 			for (i=0; i<=Highest_object_index; i++ )	{
@@ -801,7 +796,7 @@ RetryObjectLoading:
 				}
 			}
 		}
-	
+
 		//Restore door info
 		PHYSFS_read(fp, &i, sizeof(int), 1);
 		Num_open_doors = i;
@@ -867,7 +862,7 @@ RetryObjectLoading:
 	PHYSFS_close(fp);
 
 // Load in bitmaps, etc..
-//	piggy_load_level_data();//already used page_in_textures in StartNewLevelSub, so no need for this here. -MPM
+//!!	piggy_load_level_data();	//already done by StartNewLevelSub()
 
 	return 1;
 }
