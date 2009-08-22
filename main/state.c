@@ -21,21 +21,6 @@ COPYRIGHT 1993-1999 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 #include <stdlib.h>
 #include <math.h>
 #include <string.h>
-#if !defined(_MSC_VER) && !defined(macintosh)
-#include <unistd.h>
-#endif
-#include <errno.h>
-#ifdef OGL
-# ifdef _MSC_VER
-#  include <windows.h>
-# endif
-#if defined(__APPLE__) && defined(__MACH__)
-#include <OpenGL/gl.h>
-#else
-#include <GL/gl.h>
-#endif
-#include "ogl_init.h"
-#endif
 
 #include "pstypes.h"
 #include "inferno.h"
@@ -43,15 +28,12 @@ COPYRIGHT 1993-1999 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 #include "textures.h"
 #include "wall.h"
 #include "object.h"
-#include "digi.h"
 #include "gamemine.h"
 #include "error.h"
 #include "gamefont.h"
 #include "gameseg.h"
-#include "menu.h"
 #include "switch.h"
 #include "game.h"
-#include "screens.h"
 #include "newmenu.h"
 #include "cfile.h"
 #include "fuelcen.h"
@@ -124,6 +106,10 @@ extern int Physics_cheat_flag;
 extern int Lunacy;
 extern void do_lunacy_on(void);
 extern void do_lunacy_off(void);
+
+int state_save_all_sub(char *filename, char *desc, int between_levels);
+int state_restore_all_sub(char *filename, int secret_restore);
+
 extern int First_secret_visit;
 
 int sc_last_item= 0;
@@ -151,13 +137,14 @@ void state_callback(int nitems,newmenu_item * items, int * last_key, int citem)
 #ifndef OGL
 			gr_bitmap( (grd_curcanv->cv_bitmap.bm_w-THUMBNAIL_W*2)/2,items[0].y-3, &temp_canv->cv_bitmap);
 #else
-			ogl_ubitmapm_cs((grd_curcanv->cv_bitmap.bm_w/2)-FSPACX(THUMBNAIL_W/2),items[0].y-FSPACY(3),THUMBNAIL_W*FSPACX(1),THUMBNAIL_H*FSPACY(1),&temp_canv->cv_bitmap,255,F1_0);
+			ogl_ubitmapm_cs((grd_curcanv->cv_bitmap.bm_w/2)-FSPACX(THUMBNAIL_W/2),items[0].y-FSPACY(3),FSPACX(THUMBNAIL_W),FSPACY(THUMBNAIL_H),&temp_canv->cv_bitmap,255,F1_0);
 #endif
 			gr_free_canvas(temp_canv);
 		}
 	}
 }
 
+#if 0
 void rpad_string( char * string, int max_chars )
 {
 	int i, end_found;
@@ -172,6 +159,7 @@ void rpad_string( char * string, int max_chars )
 	}
 	*string = 0;		// NULL terminate
 }
+#endif
 
 /* Present a menu for selection of a savegame filename.
  * For saving, dsc should be a pre-allocated buffer into which the new
@@ -326,7 +314,6 @@ extern int Final_boss_is_dead;
 int state_save_all(int between_levels, int secret_save, char *filename_override)
 {
 	int	rval, filenum = -1;
-
 	char	filename[128], desc[DESC_LENGTH+1];
 
 	Assert(between_levels == 0);	//between levels save ripped out
@@ -511,8 +498,9 @@ int state_save_all_sub(char *filename, char *desc, int between_levels)
 
 // Save the difficulty level
 	PHYSFS_write(fp, &Difficulty_level, sizeof(int), 1);
+
 // Save cheats enabled
-	PHYSFS_write(fp, &Cheats_enabled,sizeof(int), 1);
+	PHYSFS_write(fp, &Cheats_enabled, sizeof(int), 1);
 
 	if ( !between_levels )	{
 
@@ -878,7 +866,7 @@ int state_restore_all_sub(char *filename, int secret_restore)
 
 // Restore the cheats enabled flag
 
-	PHYSFS_read(fp, &Cheats_enabled, sizeof(int),1);
+	PHYSFS_read(fp, &Cheats_enabled, sizeof(int), 1);
 
 	if ( !between_levels )	{
 		Do_appearance_effect = 0;			// Don't do this for middle o' game stuff.
