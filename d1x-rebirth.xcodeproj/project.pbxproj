@@ -283,6 +283,7 @@
 		EB423CE40F6273F50082C684 /* noloss.h in Headers */ = {isa = PBXBuildFile; fileRef = EB423CE20F6273F50082C684 /* noloss.h */; };
 		EB423CE50F6273F50082C684 /* noloss.c in Sources */ = {isa = PBXBuildFile; fileRef = EB423CE10F6273F50082C684 /* noloss.c */; };
 		EB423CE60F6273F50082C684 /* noloss.h in Headers */ = {isa = PBXBuildFile; fileRef = EB423CE20F6273F50082C684 /* noloss.h */; };
+		EB775A7A105611720036C348 /* extractD1Data.cpp in Sources */ = {isa = PBXBuildFile; fileRef = EB775A79105611720036C348 /* extractD1Data.cpp */; };
 		EB92BE600CDD693C0045A32C /* digi_audio.c in Sources */ = {isa = PBXBuildFile; fileRef = EB92BE5C0CDD693C0045A32C /* digi_audio.c */; };
 		EB92BE610CDD693C0045A32C /* digi_mixer_music.c in Sources */ = {isa = PBXBuildFile; fileRef = EB92BE5D0CDD693C0045A32C /* digi_mixer_music.c */; };
 		EB92BE620CDD693C0045A32C /* digi_mixer.c in Sources */ = {isa = PBXBuildFile; fileRef = EB92BE5E0CDD693C0045A32C /* digi_mixer.c */; };
@@ -576,6 +577,8 @@
 		EB3CA5020E97749400FB1E93 /* tracker_server.c */ = {isa = PBXFileReference; fileEncoding = 30; lastKnownFileType = sourcecode.c.c; path = tracker_server.c; sourceTree = "<group>"; };
 		EB423CE10F6273F50082C684 /* noloss.c */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.c; path = noloss.c; sourceTree = "<group>"; };
 		EB423CE20F6273F50082C684 /* noloss.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = noloss.h; sourceTree = "<group>"; };
+		EB775A6F105611320036C348 /* d1Extract */ = {isa = PBXFileReference; explicitFileType = "compiled.mach-o.executable"; includeInIndex = 0; path = d1Extract; sourceTree = BUILT_PRODUCTS_DIR; };
+		EB775A79105611720036C348 /* extractD1Data.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = extractD1Data.cpp; sourceTree = "<group>"; };
 		EB9181090DABA47B0010CB39 /* console.h */ = {isa = PBXFileReference; fileEncoding = 30; lastKnownFileType = sourcecode.c.h; path = console.h; sourceTree = "<group>"; };
 		EB92BE5C0CDD693C0045A32C /* digi_audio.c */ = {isa = PBXFileReference; fileEncoding = 30; lastKnownFileType = sourcecode.c.c; path = digi_audio.c; sourceTree = "<group>"; };
 		EB92BE5D0CDD693C0045A32C /* digi_mixer_music.c */ = {isa = PBXFileReference; fileEncoding = 30; lastKnownFileType = sourcecode.c.c; path = digi_mixer_music.c; sourceTree = "<group>"; };
@@ -752,6 +755,13 @@
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
+		EB775A6D105611320036C348 /* Frameworks */ = {
+			isa = PBXFrameworksBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
 /* End PBXFrameworksBuildPhase section */
 
 /* Begin PBXGroup section */
@@ -788,6 +798,7 @@
 			children = (
 				676AC31D0668A939007173EB /* d1xgl.app */,
 				EB1283BE0D59D94800A991A3 /* d1x.app */,
+				EB775A6F105611320036C348 /* d1Extract */,
 			);
 			name = Products;
 			sourceTree = "<group>";
@@ -823,6 +834,7 @@
 				67B4488506687E5E00DF26D8 /* texmap */,
 				EBC6518D0890CEAE004FCAA3 /* ui */,
 				EBFD396E0E3C1B6A00FED206 /* tracker */,
+				EB775A77105611720036C348 /* utilities */,
 			);
 			name = "Other Sources";
 			sourceTree = "<group>";
@@ -1191,10 +1203,10 @@
 				6791D0BD06688AE800056A5A /* iff.h */,
 				EBAC994E0D4250320017D4BC /* ignorecase.h */,
 				EB3319F00D5334B600C799B0 /* internal.h */,
+				EBF658970F9368C100CB5C73 /* ipxdrv.h */,
 				EB3319F10D53351600C799B0 /* loadgl.h */,
 				6791D08F06688A9C00056A5A /* maths.h */,
 				EBEEB2480D2B358D00FF39B4 /* modex.h */,
-				EBF658970F9368C100CB5C73 /* ipxdrv.h */,
 				EBC6525B0890F79B004FCAA3 /* nocfile.h */,
 				EB3319F20D53351600C799B0 /* ogl_init.h */,
 				6791CF4E0668883900056A5A /* palette.h */,
@@ -1240,6 +1252,14 @@
 				EB3CA4F90E97740E00FB1E93 /* tracker.h */,
 			);
 			path = tracker;
+			sourceTree = "<group>";
+		};
+		EB775A77105611720036C348 /* utilities */ = {
+			isa = PBXGroup;
+			children = (
+				EB775A79105611720036C348 /* extractD1Data.cpp */,
+			);
+			path = utilities;
 			sourceTree = "<group>";
 		};
 		EBAFC268088E508D006329AD /* carbon */ = {
@@ -1538,6 +1558,22 @@
 			productReference = 676AC31D0668A939007173EB /* d1xgl.app */;
 			productType = "com.apple.product-type.application";
 		};
+		EB775A6E105611320036C348 /* d1Extract */ = {
+			isa = PBXNativeTarget;
+			buildConfigurationList = EB775A76105611690036C348 /* Build configuration list for PBXNativeTarget "d1Extract" */;
+			buildPhases = (
+				EB775A6C105611320036C348 /* Sources */,
+				EB775A6D105611320036C348 /* Frameworks */,
+			);
+			buildRules = (
+			);
+			dependencies = (
+			);
+			name = d1Extract;
+			productName = d1Extract;
+			productReference = EB775A6F105611320036C348 /* d1Extract */;
+			productType = "com.apple.product-type.tool";
+		};
 /* End PBXNativeTarget section */
 
 /* Begin PBXProject section */
@@ -1552,6 +1588,7 @@
 			targets = (
 				676AC1BF0668A938007173EB /* d1x */,
 				676AC2710668A939007173EB /* d1xgl */,
+				EB775A6E105611320036C348 /* d1Extract */,
 			);
 		};
 /* End PBXProject section */
@@ -1846,6 +1883,14 @@
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
+		EB775A6C105611320036C348 /* Sources */ = {
+			isa = PBXSourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				EB775A7A105611720036C348 /* extractD1Data.cpp in Sources */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
 /* End PBXSourcesBuildPhase section */
 
 /* Begin PBXVariantGroup section */
@@ -1860,6 +1905,47 @@
 /* End PBXVariantGroup section */
 
 /* Begin XCBuildConfiguration section */
+		EB775A71105611330036C348 /* Development */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				COPY_PHASE_STRIP = NO;
+				GCC_DYNAMIC_NO_PIC = NO;
+				GCC_ENABLE_FIX_AND_CONTINUE = YES;
+				GCC_MODEL_TUNING = G5;
+				GCC_OPTIMIZATION_LEVEL = 0;
+				INSTALL_PATH = /usr/local/bin;
+				PREBINDING = NO;
+				PRODUCT_NAME = d1Extract;
+				ZERO_LINK = YES;
+			};
+			name = Development;
+		};
+		EB775A72105611330036C348 /* Deployment */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				COPY_PHASE_STRIP = YES;
+				DEBUG_INFORMATION_FORMAT = "dwarf-with-dsym";
+				GCC_ENABLE_FIX_AND_CONTINUE = NO;
+				GCC_MODEL_TUNING = G5;
+				INSTALL_PATH = /usr/local/bin;
+				PREBINDING = NO;
+				PRODUCT_NAME = d1Extract;
+				ZERO_LINK = NO;
+			};
+			name = Deployment;
+		};
+		EB775A73105611330036C348 /* Default */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				GCC_ENABLE_FIX_AND_CONTINUE = YES;
+				GCC_MODEL_TUNING = G5;
+				INSTALL_PATH = /usr/local/bin;
+				PREBINDING = NO;
+				PRODUCT_NAME = d1Extract;
+				ZERO_LINK = YES;
+			};
+			name = Default;
+		};
 		EBBAD4930B2D0F7E00080BBF /* Development */ = {
 			isa = XCBuildConfiguration;
 			buildSettings = {
@@ -2054,6 +2140,16 @@
 /* End XCBuildConfiguration section */
 
 /* Begin XCConfigurationList section */
+		EB775A76105611690036C348 /* Build configuration list for PBXNativeTarget "d1Extract" */ = {
+			isa = XCConfigurationList;
+			buildConfigurations = (
+				EB775A71105611330036C348 /* Development */,
+				EB775A72105611330036C348 /* Deployment */,
+				EB775A73105611330036C348 /* Default */,
+			);
+			defaultConfigurationIsVisible = 0;
+			defaultConfigurationName = Default;
+		};
 		EBBAD4920B2D0F7E00080BBF /* Build configuration list for PBXNativeTarget "d1x" */ = {
 			isa = XCConfigurationList;
 			buildConfigurations = (

@@ -1,5 +1,9 @@
 D1X-Rebirth Changelog
 
+20090909
+--------
+d1x-rebirth.xcodeproj/project.pbxproj, utilities/extractD1Data.cpp, utilities/SConstruct: Add program for extracting Mac data files from installer
+
 20090822
 --------
 main/ai.h, main/state.c: Make state.c more similar between D1X and D2X

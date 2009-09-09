@@ -1,0 +1,70 @@
+#SConstruct
+
+# needed imports
+import sys
+import os
+import SCons.Util
+
+PROGRAM_NAME = 'MacD1Extract'
+
+print '\n===== ' + PROGRAM_NAME + ' =====\n'
+
+# source files
+sources = [
+'extractD1Data.cpp'
+]
+
+# Acquire environment object...
+env = Environment(ENV = os.environ)
+
+# Prettier build messages......
+env["CCCOMSTR"]     = "Compiling $SOURCE ..."
+env["CXXCOMSTR"]    = "Compiling $SOURCE ..."
+env["LINKCOMSTR"]   = "Linking $TARGET ..."
+env["ARCOMSTR"]     = "Archiving $TARGET ..."
+env["RANLIBCOMSTR"] = "Indexing $TARGET ..."
+
+# Get traditional compiler environment variables
+if os.environ.has_key('CC'):
+	env['CC'] = os.environ['CC']
+if os.environ.has_key('CFLAGS'):
+	env['CCFLAGS'] += SCons.Util.CLVar(os.environ['CFLAGS'])
+if os.environ.has_key('CXX'):
+	env['CXX'] = os.environ['CXX']
+if os.environ.has_key('CXXFLAGS'):
+	env['CXXFLAGS'] += SCons.Util.CLVar(os.environ['CXXFLAGS'])
+if os.environ.has_key('LDFLAGS'):
+	env['LINKFLAGS'] += SCons.Util.CLVar(os.environ['LDFLAGS'])
+
+# windows or *nix?
+if sys.platform == 'win32':
+	print "compiling on Windows"
+	winlibs = ['winmm', 'mingw32']		# are these even needed?
+	libs = winlibs
+	lflags = '-mwindows'
+elif sys.platform == 'darwin':
+	print "compiling on Mac OS X"
+	libs = ''
+	lflags = ''
+else:
+	print "compiling on *NIX"
+	libs = ''
+	lflags = ''
+
+target = 'macd1extract'
+print '\n'
+
+# building program...
+env.Program(target=str(target), source = sources, LIBS = libs, LINKFLAGS = str(lflags))
+
+# show some help when running scons -h
+Help(PROGRAM_NAME + ', SConstruct file help:' +
+	"""
+
+	Type 'scons' to build the binary.
+	Type 'scons install' to build (if it hasn't been done) and install.
+	Type 'scons -c' to clean up.
+	
+        """)
+
+#EOF
