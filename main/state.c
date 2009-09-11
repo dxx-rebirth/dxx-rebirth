@@ -60,8 +60,9 @@ COPYRIGHT 1993-1998 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 #include "ai.h"
 #include "state.h"
 #include "multi.h"
-#ifdef OGL
 #include "gr.h"
+#ifdef OGL
+#include "ogl_init.h"
 #endif
 #include "physfsx.h"
 

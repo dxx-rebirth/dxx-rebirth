@@ -1,5 +1,9 @@
 D1X-Rebirth Changelog
 
+20090911
+--------
+main/ai.c, main/ai.h, main/state.c: Fix compile error with ai_restore_state and include necessary ogl_init.h in state.c (whoops)
+
 20090909
 --------
 d1x-rebirth.xcodeproj/project.pbxproj, utilities/extractD1Data.cpp, utilities/SConstruct: Add program for extracting Mac data files from installer

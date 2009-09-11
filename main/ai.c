@@ -3338,7 +3338,7 @@ int ai_save_state(PHYSFS_file *fp)
 	return 1;
 }
 
-int ai_restore_state(PHYSFS_file *fp, int version)
+int ai_restore_state(PHYSFS_file *fp)
 {
 	PHYSFS_read(fp, &Ai_initialized, sizeof(int), 1);
 	PHYSFS_read(fp, &Overall_agitation, sizeof(int), 1);
