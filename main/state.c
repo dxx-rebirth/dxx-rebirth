@@ -63,8 +63,9 @@ COPYRIGHT 1993-1999 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 #include "laser.h"
 #include "state.h"
 #include "multi.h"
-#ifdef OGL
 #include "gr.h"
+#ifdef OGL
+#include "ogl_init.h"
 #endif
 #include "physfsx.h"
 
