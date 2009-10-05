@@ -49,6 +49,7 @@ COPYRIGHT 1993-1999 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 #endif
 #include "multibot.h"
 #include "escort.h"
+#include "byteswap.h"
 
 // The max number of fuel stations per mine.
 
@@ -827,6 +828,33 @@ void matcen_info_read(matcen_info *mi, CFILE *fp)
 	mi->fuelcen_num = cfile_read_short(fp);
 }
 
+void matcen_info_swap(matcen_info *mi, int swap)
+{
+	if (!swap)
+		return;
+	
+	mi->robot_flags[0] = SWAPINT(mi->robot_flags[0]);
+	mi->robot_flags[1] = SWAPINT(mi->robot_flags[1]);
+	mi->hit_points = SWAPINT(mi->hit_points);
+	mi->interval = SWAPINT(mi->interval);
+	mi->segnum = SWAPSHORT(mi->segnum);
+	mi->fuelcen_num = SWAPSHORT(mi->fuelcen_num);
+}
+
+/*
+ * reads n matcen_info structs from a CFILE and swaps if specified
+ */
+void matcen_info_read_n_swap(matcen_info *mi, int n, int swap, CFILE *fp)
+{
+	int i;
+	
+	PHYSFS_read(fp, mi, sizeof(matcen_info), n);
+	
+	if (swap)
+		for (i = 0; i < n; i++)
+			matcen_info_swap(&mi[i], swap);
+}
+
 void matcen_info_write(matcen_info *mi, short version, PHYSFS_file *fp)
 {
 	PHYSFS_writeSLE32(fp, mi->robot_flags[0]);
@@ -836,4 +864,34 @@ void matcen_info_write(matcen_info *mi, short version, PHYSFS_file *fp)
 	PHYSFSX_writeFix(fp, mi->interval);
 	PHYSFS_writeSLE16(fp, mi->segnum);
 	PHYSFS_writeSLE16(fp, mi->fuelcen_num);
+}
+
+void fuelcen_swap(FuelCenter *fc, int swap)
+{
+	if (!swap)
+		return;
+	
+	fc->Type = SWAPINT(fc->Type);
+	fc->segnum = SWAPINT(fc->segnum);
+	fc->Capacity = SWAPINT(fc->Capacity);
+	fc->MaxCapacity = SWAPINT(fc->MaxCapacity);
+	fc->Timer = SWAPINT(fc->Timer);
+	fc->Disable_time = SWAPINT(fc->Disable_time);
+	fc->Center.x = SWAPINT(fc->Center.x);
+	fc->Center.y = SWAPINT(fc->Center.y);
+	fc->Center.z = SWAPINT(fc->Center.z);
+}
+
+/*
+ * reads n Station structs from a CFILE and swaps if specified
+ */
+void fuelcen_read_n_swap(FuelCenter *fc, int n, int swap, CFILE *fp)
+{
+	int i;
+	
+	PHYSFS_read(fp, fc, sizeof(FuelCenter), n);
+	
+	if (swap)
+		for (i = 0; i < n; i++)
+			fuelcen_swap(&fc[i], swap);
 }

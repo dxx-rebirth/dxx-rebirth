@@ -56,6 +56,7 @@ COPYRIGHT 1993-1999 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 #include "cntrlcen.h"
 #include "gameseg.h"
 #include "automap.h"
+#include "byteswap.h"
 
 #define EXPLOSION_SCALE (F1_0*5/2)		//explosion is the obj size times this 
 
@@ -1418,4 +1419,27 @@ void drop_afterburner_blobs(object *obj, int count, fix size_scale, fix lifetime
 	}
 }
 
+void expl_wall_swap(expl_wall *ew, int swap)
+{
+	if (!swap)
+		return;
+	
+	ew->segnum = SWAPINT(ew->segnum);
+	ew->sidenum = SWAPINT(ew->sidenum);
+	ew->time = SWAPINT(ew->time);
+}
+
+/*
+ * reads n expl_wall structs from a CFILE and swaps if specified
+ */
+void expl_wall_read_n_swap(expl_wall *ew, int n, int swap, CFILE *fp)
+{
+	int i;
+	
+	PHYSFS_read(fp, ew, sizeof(expl_wall), n);
+	
+	if (swap)
+		for (i = 0; i < n; i++)
+			expl_wall_swap(&ew[i], swap);
+}
 

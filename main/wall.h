@@ -284,6 +284,11 @@ extern void v19_wall_read(v19_wall *w, CFILE *fp);
 extern void wall_read(wall *w, CFILE *fp);
 
 /*
+ * reads n wall structs from a CFILE and swaps if specified
+ */
+extern void wall_read_n_swap(wall *w, int n, int swap, CFILE *fp);
+
+/*
  * reads a v19_door structure from a CFILE
  */
 extern void v19_door_read(v19_door *d, CFILE *fp);
@@ -292,6 +297,16 @@ extern void v19_door_read(v19_door *d, CFILE *fp);
  * reads an active_door structure from a CFILE
  */
 extern void active_door_read(active_door *ad, CFILE *fp);
+
+/*
+ * reads n active_door structs from a CFILE and swaps if specified
+ */
+extern void active_door_read_n_swap(active_door *ad, int n, int swap, CFILE *fp);
+
+/*
+ * reads n cloaking_wall structs from a CFILE and swaps if specified
+ */
+void cloaking_wall_read_n_swap(cloaking_wall *cw, int n, int swap, CFILE *fp);
 
 extern void wall_write(wall *w, short version, PHYSFS_file *fp);
 

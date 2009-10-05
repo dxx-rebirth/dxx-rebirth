@@ -129,6 +129,11 @@ extern void v30_trigger_read(v30_trigger *t, CFILE *fp);
  */
 extern void trigger_read(trigger *t, CFILE *fp);
 
+/*
+ * reads n trigger structs from a CFILE and swaps if specified
+ */
+extern void trigger_read_n_swap(trigger *t, int n, int swap, CFILE *fp);
+
 extern void trigger_write(trigger *t, short version, PHYSFS_file *fp);
 
 #endif

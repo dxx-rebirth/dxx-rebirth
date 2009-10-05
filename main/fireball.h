@@ -70,4 +70,9 @@ extern int drop_powerup(int type, int id, int num, vms_vector *init_vel, vms_vec
 // creates afterburner blobs behind the specified object
 void drop_afterburner_blobs(object *obj, int count, fix size_scale, fix lifetime);
 
+/*
+ * reads n expl_wall structs from a CFILE and swaps if specified
+ */
+extern void expl_wall_read_n_swap(expl_wall *ew, int n, int swap, CFILE *fp);
+
 #endif /* _FIREBALL_H */

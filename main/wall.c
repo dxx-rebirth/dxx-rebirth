@@ -45,6 +45,7 @@ COPYRIGHT 1993-1999 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 #include "laser.h"		//	For seeing if a flare is stuck in a wall.
 #include "collide.h"
 #include "effects.h"
+#include "byteswap.h"
 
 #ifdef EDITOR
 #include "editor/editor.h"
@@ -1664,6 +1665,31 @@ extern void wall_read(wall *w, CFILE *fp)
 	w->cloak_value = cfile_read_byte(fp);
 }
 
+void wall_swap(wall *w, int swap)
+{
+	if (!swap)
+		return;
+	
+	w->segnum = SWAPINT(w->segnum);
+	w->sidenum = SWAPINT(w->sidenum);
+	w->hps = SWAPINT(w->hps);
+	w->linked_wall = SWAPINT(w->linked_wall);
+}
+
+/*
+ * reads n wall structs from a CFILE and swaps if specified
+ */
+void wall_read_n_swap(wall *w, int n, int swap, CFILE *fp)
+{
+	int i;
+	
+	PHYSFS_read(fp, w, sizeof(wall), n);
+	
+	if (swap)
+		for (i = 0; i < n; i++)
+			wall_swap(&w[i], swap);
+}
+
 /*
  * reads a v19_door structure from a CFILE
  */
@@ -1690,6 +1716,33 @@ extern void active_door_read(active_door *ad, CFILE *fp)
 	ad->back_wallnum[0] = cfile_read_short(fp);
 	ad->back_wallnum[1] = cfile_read_short(fp);
 	ad->time = cfile_read_fix(fp);
+}
+
+void active_door_swap(active_door *ad, int swap)
+{
+	if (!swap)
+		return;
+	
+	ad->n_parts = SWAPINT(ad->n_parts);
+	ad->front_wallnum[0] = SWAPSHORT(ad->front_wallnum[0]);
+	ad->front_wallnum[1] = SWAPSHORT(ad->front_wallnum[1]);
+	ad->back_wallnum[0] = SWAPSHORT(ad->back_wallnum[0]);
+	ad->back_wallnum[1] = SWAPSHORT(ad->back_wallnum[1]);
+	ad->time = SWAPINT(ad->time);
+}
+
+/*
+ * reads n active_door structs from a CFILE and swaps if specified
+ */
+void active_door_read_n_swap(active_door *ad, int n, int swap, CFILE *fp)
+{
+	int i;
+	
+	PHYSFS_read(fp, ad, sizeof(active_door), n);
+	
+	if (swap)
+		for (i = 0; i < n; i++)
+			active_door_swap(&ad[i], swap);
 }
 
 void wall_write(wall *w, short version, CFILE *fp)
@@ -1725,4 +1778,35 @@ void wall_write(wall *w, short version, CFILE *fp)
 	}
 	else if (version >= 17)
 		PHYSFS_writeSLE32(fp, w->linked_wall);
+}
+
+void cloaking_wall_swap(cloaking_wall *cw, int swap)
+{
+	int i;
+	
+	if (!swap)
+		return;
+	
+	cw->front_wallnum = SWAPSHORT(cw->front_wallnum);
+	cw->back_wallnum = SWAPSHORT(cw->back_wallnum);
+	for (i = 0; i < 4; i++)
+	{
+		cw->front_ls[i] = SWAPINT(cw->front_ls[i]);
+		cw->back_ls[i] = SWAPINT(cw->back_ls[i]);
+	}
+	cw->time = SWAPINT(cw->time);
+}
+
+/*
+ * reads n cloaking_wall structs from a CFILE and swaps if specified
+ */
+void cloaking_wall_read_n_swap(cloaking_wall *cw, int n, int swap, CFILE *fp)
+{
+	int i;
+	
+	PHYSFS_read(fp, cw, sizeof(cloaking_wall), n);
+	
+	if (swap)
+		for (i = 0; i < n; i++)
+			cloaking_wall_swap(&cw[i], swap);
 }

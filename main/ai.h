@@ -318,7 +318,7 @@ extern void init_thief_for_level();
 extern int Escort_goal_object;
 
 extern int ai_save_state(PHYSFS_file * fp);
-extern int ai_restore_state(PHYSFS_file *fp, int version);
+extern int ai_restore_state(PHYSFS_file *fp, int version, int swap);
 
 extern int Buddy_objnum, Buddy_allowed_to_talk;
 

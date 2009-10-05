@@ -1,5 +1,9 @@
 D2X-Rebirth Changelog
 
+20091005
+--------
+include/physfsx.h, main/ai.c, main/ai.h, main/cntrlcen.c, main/cntrlcen.h, main/fireball.c, main/fireball.h, main/fuelcen.c, main/fuelcen.h, main/object.c, main/object.h, main/player.c, main/player.h, main/state.c, main/switch.c, main/switch.h, main/wall.c, main/wall.h: Read big endian savegames on little endian computers and vice versa
+
 20090911
 --------
 main/state.c: Include necessary ogl_init.h in state.c (whoops)

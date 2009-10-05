@@ -200,6 +200,11 @@ typedef struct player16 {
 } __pack__ player16;
 
 /*
+ * reads a player struct from a CFILE and swaps if specified
+ */
+void player_read_swap(player *p, int swap, CFILE *fp);
+
+/*
  * reads a player_ship structure from a CFILE
  */
 void player_ship_read(player_ship *ps, CFILE *fp);

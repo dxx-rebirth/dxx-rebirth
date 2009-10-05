@@ -34,6 +34,7 @@
 #include "vecmat.h"
 #include "args.h"
 #include "ignorecase.h"
+#include "byteswap.h"
 
 // Initialise PhysicsFS, set up basic search paths and add arguments from .ini file.
 // The .ini file can be in either the user directory or the same directory as the program.
@@ -134,6 +135,38 @@ static inline void PHYSFSX_init(int argc, char *argv[])
 	else if (!GameArg.SysNoHogDir)
 		PHYSFS_addToSearchPath(SHAREPATH, 1);
 #endif
+}
+
+static inline int PHYSFSX_readSXE16(PHYSFS_file *file, int swap)
+{
+	PHYSFS_sint16 val;
+	
+	PHYSFS_read(file, &val, sizeof(val), 1);
+	
+	return swap ? SWAPSHORT(val) : val;
+}
+
+static inline int PHYSFSX_readSXE32(PHYSFS_file *file, int swap)
+{
+	PHYSFS_sint32 val;
+	
+	PHYSFS_read(file, &val, sizeof(val), 1);
+	
+	return swap ? SWAPINT(val) : val;
+}
+
+static inline void PHYSFSX_readVectorX(PHYSFS_file *file, vms_vector *v, int swap)
+{
+	v->x = PHYSFSX_readSXE32(file, swap);
+	v->y = PHYSFSX_readSXE32(file, swap);
+	v->z = PHYSFSX_readSXE32(file, swap);
+}
+
+static inline void PHYSFSX_readAngleVecX(PHYSFS_file *file, vms_angvec *v, int swap)
+{
+	v->p = PHYSFSX_readSXE16(file, swap);
+	v->b = PHYSFSX_readSXE16(file, swap);
+	v->h = PHYSFSX_readSXE16(file, swap);
 }
 
 static inline int PHYSFSX_readString(PHYSFS_file *file, char *s)

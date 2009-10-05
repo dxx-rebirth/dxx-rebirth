@@ -42,6 +42,7 @@ COPYRIGHT 1993-1999 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 #include "palette.h"
 #include "robot.h"
 #include "bm.h"
+#include "byteswap.h"
 
 #ifdef EDITOR
 #include "editor/editor.h"
@@ -641,6 +642,35 @@ extern void trigger_read(trigger *t, CFILE *fp)
 		t->seg[i] = cfile_read_short(fp);
 	for (i=0; i<MAX_WALLS_PER_LINK; i++ )
 		t->side[i] = cfile_read_short(fp);
+}
+
+void trigger_swap(trigger *t, int swap)
+{
+	int i;
+	
+	if (!swap)
+		return;
+	
+	t->value = SWAPINT(t->value);
+	t->time = SWAPINT(t->time);
+	for (i=0; i<MAX_WALLS_PER_LINK; i++ )
+		t->seg[i] = SWAPSHORT(t->seg[i]);
+	for (i=0; i<MAX_WALLS_PER_LINK; i++ )
+		t->side[i] = SWAPSHORT(t->side[i]);
+}
+
+/*
+ * reads n trigger structs from a CFILE and swaps if specified
+ */
+void trigger_read_n_swap(trigger *t, int n, int swap, CFILE *fp)
+{
+	int i;
+	
+	PHYSFS_read(fp, t, sizeof(trigger), n);
+	
+	if (swap)
+		for (i = 0; i < n; i++)
+			trigger_swap(&t[i], swap);
 }
 
 void trigger_write(trigger *t, short version, PHYSFS_file *fp)

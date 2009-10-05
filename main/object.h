@@ -455,4 +455,10 @@ extern void AdjustMineSpawn();
 
 void reset_player_object(void);
 
+/*
+ * reads n object structs from a CFILE and swaps if specified.
+ * Does not work for reading from level files (.rdl), but does work for state saves
+ */
+void object_read_n_swap(object *obj, int n, int swap, CFILE *fp);
+
 #endif
