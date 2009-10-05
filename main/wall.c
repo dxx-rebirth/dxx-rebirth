@@ -44,6 +44,7 @@ COPYRIGHT 1993-1998 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 #include "newdemo.h"
 #include "multi.h"
 #include "gameseq.h"
+#include "byteswap.h"
 
 void kill_stuck_objects(int wallnum);
 
@@ -1031,6 +1032,31 @@ extern void wall_read(wall *w, CFILE *fp)
 	/*w->cloak_value =*/ cfile_read_byte(fp);
 }
 
+void wall_swap(wall *w, int swap)
+{
+	if (!swap)
+		return;
+	
+	w->segnum = SWAPINT(w->segnum);
+	w->sidenum = SWAPINT(w->sidenum);
+	w->hps = SWAPINT(w->hps);
+	w->linked_wall = SWAPINT(w->linked_wall);
+}
+
+/*
+ * reads n wall structs from a CFILE and swaps if specified
+ */
+void wall_read_n_swap(wall *w, int n, int swap, CFILE *fp)
+{
+	int i;
+	
+	PHYSFS_read(fp, w, sizeof(wall), n);
+	
+	if (swap)
+		for (i = 0; i < n; i++)
+			wall_swap(&w[i], swap);
+}
+
 /*
  * reads a v19_door structure from a CFILE
  */
@@ -1057,4 +1083,31 @@ extern void active_door_read(active_door *ad, CFILE *fp)
 	ad->back_wallnum[0] = cfile_read_short(fp);
 	ad->back_wallnum[1] = cfile_read_short(fp);
 	ad->time = cfile_read_fix(fp);
+}
+
+void active_door_swap(active_door *ad, int swap)
+{
+	if (!swap)
+		return;
+	
+	ad->n_parts = SWAPINT(ad->n_parts);
+	ad->front_wallnum[0] = SWAPSHORT(ad->front_wallnum[0]);
+	ad->front_wallnum[1] = SWAPSHORT(ad->front_wallnum[1]);
+	ad->back_wallnum[0] = SWAPSHORT(ad->back_wallnum[0]);
+	ad->back_wallnum[1] = SWAPSHORT(ad->back_wallnum[1]);
+	ad->time = SWAPINT(ad->time);
+}
+
+/*
+ * reads n active_door structs from a CFILE and swaps if specified
+ */
+void active_door_read_n_swap(active_door *ad, int n, int swap, CFILE *fp)
+{
+	int i;
+	
+	PHYSFS_read(fp, ad, sizeof(active_door), n);
+	
+	if (swap)
+		for (i = 0; i < n; i++)
+			active_door_swap(&ad[i], swap);
 }

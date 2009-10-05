@@ -137,6 +137,7 @@ common_sources = [
 'main/paging.c',
 'main/physics.c',
 'main/piggy.c',
+'main/player.c',
 'main/playsave.c',
 'main/polyobj.c',
 'main/powerup.c',

@@ -1,5 +1,9 @@
 D1X-Rebirth Changelog
 
+20091005
+--------
+d1x-rebirth.xcodeproj/project.pbxproj, include/physfsx.h, main/ai.c, main/ai.h, main/cntrlcen.c, main/cntrlcen.h, main/fuelcen.c, main/fuelcen.h, main/object.c, main/object.h, main/player.c, main/player.h, main/state.c, main/switch.c, main/switch.h, main/wall.c, main/wall.h, SConstruct: Read big endian savegames on little endian computers and vice versa
+
 20090911
 --------
 main/ai.c, main/ai.h, main/state.c: Fix compile error with ai_restore_state and include necessary ogl_init.h in state.c (whoops)

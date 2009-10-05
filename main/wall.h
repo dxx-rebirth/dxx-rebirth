@@ -263,5 +263,15 @@ extern void v19_door_read(v19_door *d, CFILE *fp);
  */
 extern void active_door_read(active_door *ad, CFILE *fp);
 
+/*
+ * reads n active_door structs from a CFILE and swaps if specified
+ */
+extern void active_door_read_n_swap(active_door *ad, int n, int swap, CFILE *fp);
+
+/*
+ * reads n wall structs from a CFILE and swaps if specified
+ */
+void wall_read_n_swap(wall *w, int n, int swap, CFILE *fp);
+
 #endif
 

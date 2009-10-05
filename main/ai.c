@@ -3338,26 +3338,84 @@ int ai_save_state(PHYSFS_file *fp)
 	return 1;
 }
 
-int ai_restore_state(PHYSFS_file *fp)
+void ai_local_read_n_swap(ai_local *ail, int n, int swap, PHYSFS_file *fp)
 {
-	PHYSFS_read(fp, &Ai_initialized, sizeof(int), 1);
-	PHYSFS_read(fp, &Overall_agitation, sizeof(int), 1);
-	PHYSFS_read(fp, Ai_local_info, sizeof(ai_local) * MAX_OBJECTS, 1);
-	PHYSFS_read(fp, Point_segs, sizeof(point_seg) * MAX_POINT_SEGS, 1);
-	PHYSFS_read(fp, Ai_cloak_info, sizeof(ai_cloak_info) * MAX_AI_CLOAK_INFO, 1);
-	PHYSFS_read(fp, &Boss_cloak_start_time, sizeof(fix), 1);
-	PHYSFS_read(fp, &Boss_cloak_end_time, sizeof(fix), 1);
-	PHYSFS_read(fp, &Last_teleport_time, sizeof(fix), 1);
-	PHYSFS_read(fp, &Boss_teleport_interval, sizeof(fix), 1);
-	PHYSFS_read(fp, &Boss_cloak_interval, sizeof(fix), 1);
-	PHYSFS_read(fp, &Boss_cloak_duration, sizeof(fix), 1);
-	PHYSFS_read(fp, &Last_gate_time, sizeof(fix), 1);
-	PHYSFS_read(fp, &Gate_interval, sizeof(fix), 1);
-	PHYSFS_read(fp, &Boss_dying_start_time, sizeof(fix), 1);
-	PHYSFS_read(fp, &Boss_dying, sizeof(int), 1);
-	PHYSFS_read(fp, &Boss_dying_sound_playing, sizeof(int), 1);
-	PHYSFS_read(fp, &Boss_hit_this_frame, sizeof(int), 1);
-	PHYSFS_read(fp, &Boss_been_hit, sizeof(int), 1);
+	int i;
+	
+	for (i = 0; i < n; i++, ail++)
+	{
+		int j;
+
+		ail->player_awareness_type = cfile_read_byte(fp);
+		ail->retry_count = cfile_read_byte(fp);
+		ail->consecutive_retries = cfile_read_byte(fp);
+		ail->mode = cfile_read_byte(fp);
+		ail->previous_visibility = cfile_read_byte(fp);
+		ail->rapidfire_count = cfile_read_byte(fp);
+		ail->goal_segment = PHYSFSX_readSXE16(fp, swap);
+		ail->last_see_time = PHYSFSX_readSXE32(fp, swap);
+		ail->last_attack_time = PHYSFSX_readSXE32(fp, swap);
+		ail->wait_time = PHYSFSX_readSXE32(fp, swap);
+		ail->next_fire = PHYSFSX_readSXE32(fp, swap);
+		ail->player_awareness_time = PHYSFSX_readSXE32(fp, swap);
+		ail->time_player_seen = PHYSFSX_readSXE32(fp, swap);
+		ail->time_player_sound_attacked = PHYSFSX_readSXE32(fp, swap);
+		ail->next_misc_sound_time = PHYSFSX_readSXE32(fp, swap);
+		ail->time_since_processed = PHYSFSX_readSXE32(fp, swap);
+		
+		for (j = 0; j < MAX_SUBMODELS; j++)
+			PHYSFSX_readAngleVecX(fp, &ail->goal_angles[j], swap);
+		for (j = 0; j < MAX_SUBMODELS; j++)
+			PHYSFSX_readAngleVecX(fp, &ail->delta_angles[j], swap);
+		for (j = 0; j < MAX_SUBMODELS; j++)
+			ail->goal_state[j] = cfile_read_byte(fp);
+		for (j = 0; j < MAX_SUBMODELS; j++)
+			ail->achieved_state[j] = cfile_read_byte(fp);
+	}
+}
+
+void point_seg_read_n_swap(point_seg *ps, int n, int swap, PHYSFS_file *fp)
+{
+	int i;
+	
+	for (i = 0; i < n; i++, ps++)
+	{
+		ps->segnum = PHYSFSX_readSXE32(fp, swap);
+		PHYSFSX_readVectorX(fp, &ps->point, swap);
+	}
+}
+
+void ai_cloak_info_read_n_swap(ai_cloak_info *ci, int n, int swap, PHYSFS_file *fp)
+{
+	int i;
+	
+	for (i = 0; i < n; i++, ci++)
+	{
+		ci->last_time = PHYSFSX_readSXE32(fp, swap);
+		PHYSFSX_readVectorX(fp, &ci->last_position, swap);
+	}
+}
+
+int ai_restore_state(PHYSFS_file *fp, int swap)
+{
+	Ai_initialized = PHYSFSX_readSXE32(fp, swap);
+	Overall_agitation = PHYSFSX_readSXE32(fp, swap);
+	ai_local_read_n_swap(Ai_local_info, MAX_OBJECTS, swap, fp);
+	point_seg_read_n_swap(Point_segs, MAX_POINT_SEGS, swap, fp);
+	ai_cloak_info_read_n_swap(Ai_cloak_info, MAX_AI_CLOAK_INFO, swap, fp);
+	Boss_cloak_start_time = PHYSFSX_readSXE32(fp, swap);
+	Boss_cloak_end_time = PHYSFSX_readSXE32(fp, swap);
+	Last_teleport_time = PHYSFSX_readSXE32(fp, swap);
+	Boss_teleport_interval = PHYSFSX_readSXE32(fp, swap);
+	Boss_cloak_interval = PHYSFSX_readSXE32(fp, swap);
+	Boss_cloak_duration = PHYSFSX_readSXE32(fp, swap);
+	Last_gate_time = PHYSFSX_readSXE32(fp, swap);
+	Gate_interval = PHYSFSX_readSXE32(fp, swap);
+	Boss_dying_start_time = PHYSFSX_readSXE32(fp, swap);
+	Boss_dying = PHYSFSX_readSXE32(fp, swap);
+	Boss_dying_sound_playing = PHYSFSX_readSXE32(fp, swap);
+	Boss_hit_this_frame = PHYSFSX_readSXE32(fp, swap);
+	Boss_been_hit = PHYSFSX_readSXE32(fp, swap);
 
 	return 1;
 }

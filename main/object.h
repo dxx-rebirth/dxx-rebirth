@@ -430,5 +430,13 @@ void obj_attach(object *parent,object *sub);
 
 extern void create_small_fireball_on_object(object *objp, fix size_scale, int sound_flag);
 
+extern void object_swap(object *obj, int swap);
+
+/*
+ * reads an object struct from a CFILE and swaps if specified.
+ * Does not work for reading from level files (.rdl), but does work for state saves
+ */
+extern void object_read_n_swap(object *obj, int n, int swap, CFILE *fp);
+
 #endif
  

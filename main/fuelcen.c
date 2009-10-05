@@ -32,6 +32,7 @@ COPYRIGHT 1993-1998 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 #include "vclip.h"
 #include "fireball.h"
 #include "robot.h"
+#include "byteswap.h"
 
 #include "wall.h"
 #include "sounds.h"
@@ -758,4 +759,62 @@ void matcen_info_read(matcen_info *mi, CFILE *fp, int version)
 	mi->interval = cfile_read_fix(fp);
 	mi->segnum = cfile_read_short(fp);
 	mi->fuelcen_num = cfile_read_short(fp);
+}
+
+void matcen_info_swap(matcen_info *mi, int swap)
+{
+	if (!swap)
+		return;
+	
+	mi->robot_flags = SWAPINT(mi->robot_flags);
+	//if (version > 25)
+	/*mi->robot_flags2 = SWAPINT(mi->robot_flags2);*/
+	mi->hit_points = SWAPINT(mi->hit_points);
+	mi->interval = SWAPINT(mi->interval);
+	mi->segnum = SWAPSHORT(mi->segnum);
+	mi->fuelcen_num = SWAPSHORT(mi->fuelcen_num);
+}
+
+/*
+ * reads n matcen_info structs from a CFILE and swaps if specified
+ */
+void matcen_info_read_n_swap(matcen_info *mi, int n, int swap, CFILE *fp)
+{
+	int i;
+	
+	PHYSFS_read(fp, mi, sizeof(matcen_info), n);
+	
+	if (swap)
+		for (i = 0; i < n; i++)
+			matcen_info_swap(&mi[i], swap);
+}
+
+void fuelcen_swap(FuelCenter *fc, int swap)
+{
+	if (!swap)
+		return;
+	
+	fc->Type = SWAPINT(fc->Type);
+	fc->segnum = SWAPINT(fc->segnum);
+	fc->Capacity = SWAPINT(fc->Capacity);
+	fc->MaxCapacity = SWAPINT(fc->MaxCapacity);
+	fc->Timer = SWAPINT(fc->Timer);
+	fc->Disable_time = SWAPINT(fc->Disable_time);
+	fc->Center.x = SWAPINT(fc->Center.x);
+	fc->Center.y = SWAPINT(fc->Center.y);
+	fc->Center.z = SWAPINT(fc->Center.z);
+}
+
+/*
+ * reads n FuelCenter structs from a CFILE and swaps if specified
+ */
+void fuelcen_read_n_swap(FuelCenter *fc, int n, int swap, CFILE *fp)
+{
+	int i;
+	
+	PHYSFS_read(fp, fc, sizeof(FuelCenter), n);
+	
+	if (swap)
+		for (i = 0; i < n; i++)
+			fuelcen_swap(&fc[i], swap);
 }

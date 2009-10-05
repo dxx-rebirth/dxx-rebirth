@@ -102,5 +102,10 @@ extern void do_controlcen_dead_frame(void);
  */
 extern int control_center_triggers_read_n(control_center_triggers *cct, int n, CFILE *fp);
 
+/*
+ * reads n control_center_triggers structs from a CFILE and swaps if specified
+ */
+void control_center_triggers_read_n_swap(control_center_triggers *cct, int n, int swap, CFILE *fp);
+
 #endif
  

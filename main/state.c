@@ -174,7 +174,7 @@ int state_get_savegame_filename(char * fname, char * dsc, char * caption )
 			if ( !memcmp( id, dgss_id, 4 )) {
 				//Read version
 				PHYSFS_read(fp, &version, sizeof(int), 1);
-				if (version >= STATE_COMPATIBLE_VERSION) {
+				if ((version >= STATE_COMPATIBLE_VERSION) || (SWAPINT(version) >= STATE_COMPATIBLE_VERSION)) {
 					// Read description
 					PHYSFS_read(fp, desc[i], sizeof(char) * DESC_LENGTH, 1);
 					//rpad_string( desc[i], DESC_LENGTH-1 );
@@ -624,6 +624,7 @@ int state_restore_all_sub(char *filename)
 	int version,i, j, segnum;
 	object * obj;
 	PHYSFS_file *fp;
+	int swap = 0;	// if file is not endian native, have to swap all shorts and ints
 	int current_level, next_level;
 	int between_levels;
 	char mission[16];
@@ -640,7 +641,6 @@ int state_restore_all_sub(char *filename)
 	if ( !fp ) return 0;
 
 //Read id
-	//FIXME: check for swapped file, react accordingly...
 	PHYSFS_read(fp, id, sizeof(char) * 4, 1);
 	if ( memcmp( id, dgss_id, 4 )) {
 		PHYSFS_close(fp);
@@ -648,7 +648,14 @@ int state_restore_all_sub(char *filename)
 	}
 
 //Read version
+	//Check for swapped file here, as dgss_id is written as a string (i.e. endian independent)
 	PHYSFS_read(fp, &version, sizeof(int), 1);
+	if (version & 0xffff0000)
+	{
+		swap = 1;
+		version = SWAPINT(version);
+	}
+
 	if (version < STATE_COMPATIBLE_VERSION)	{
 		PHYSFS_close(fp);
 		return 0;
@@ -661,7 +668,7 @@ int state_restore_all_sub(char *filename)
 	PHYSFS_seek(fp, PHYSFS_tell(fp) + THUMBNAIL_W * THUMBNAIL_H);
 
 // Read the Between levels flag...
-	PHYSFS_read(fp, &between_levels, sizeof(int), 1);
+	between_levels = PHYSFSX_readSXE32(fp, swap);
 
 // Read the mission info...
 	PHYSFS_read(fp, mission, sizeof(char) * 9, 1);
@@ -673,11 +680,11 @@ int state_restore_all_sub(char *filename)
 	}
 
 //Read level info
-	PHYSFS_read(fp, &current_level, sizeof(int), 1);
-	PHYSFS_read(fp, &next_level, sizeof(int), 1);
+	current_level = PHYSFSX_readSXE32(fp, swap);
+	next_level = PHYSFSX_readSXE32(fp, swap);
 
 //Restore GameTime
-	PHYSFS_read(fp, &GameTime, sizeof(fix), 1);
+	GameTime = PHYSFSX_readSXE32(fp, swap);
 
 // Start new game....
 	Game_mode = GM_NORMAL;
@@ -694,7 +701,7 @@ int state_restore_all_sub(char *filename)
 
 	if ( between_levels )	{
 		int saved_offset;
-		PHYSFS_read(fp, &Players[Player_num], sizeof(player), 1);
+		player_read_swap(&Players[Player_num], swap, fp);
 		saved_offset = PHYSFS_tell(fp);
 		PHYSFS_close( fp );
 		do_briefing_screens(next_level);
@@ -703,7 +710,7 @@ int state_restore_all_sub(char *filename)
  		StartNewLevelSub( next_level, 1);//use page_in_textures here to fix OGL texture precashing crash -MPM
 	} else {
 		StartNewLevelSub(current_level, 1);//use page_in_textures here to fix OGL texture precashing crash -MPM
-		PHYSFS_read(fp, &Players[Player_num], sizeof(player), 1);
+		player_read_swap(&Players[Player_num], swap, fp);
 	}
 	strcpy( Players[Player_num].callsign, org_callsign );
 
@@ -719,12 +726,12 @@ int state_restore_all_sub(char *filename)
 	select_weapon(Secondary_weapon, 1, 0, 0);
 
 // Restore the difficulty level
-	PHYSFS_read(fp, &Difficulty_level, sizeof(int), 1);
+	Difficulty_level = PHYSFSX_readSXE32(fp, swap);
 
 // Restore the cheats enabled flag
 
-	PHYSFS_read(fp, &Cheats_enabled, sizeof(int), 1);
-	PHYSFS_read(fp, &Game_turbo_mode, sizeof(int), 1);
+	Cheats_enabled = PHYSFSX_readSXE32(fp, swap);
+	Game_turbo_mode = PHYSFSX_readSXE32(fp, swap);
 
 	if ( !between_levels )	{
 		Do_appearance_effect = 0;			// Don't do this for middle o' game stuff.
@@ -737,14 +744,15 @@ RetryObjectLoading:
 		reset_objects(1);
 	
 		//Read objects, and pop 'em into their respective segments.
-		PHYSFS_read(fp, &i, sizeof(int), 1);
+		i = PHYSFSX_readSXE32(fp, swap);
 		Highest_object_index = i-1;
-		if ( !BogusSaturnShit )	
-			PHYSFS_read(fp, Objects, sizeof(object) * i, 1);
+		if ( !BogusSaturnShit )
+			object_read_n_swap(Objects, i, swap, fp);
 		else {
 			ubyte tmp_object[sizeof(object)];
 			for (i=0; i<=Highest_object_index; i++ )	{
 				PHYSFS_read(fp, tmp_object, sizeof(object)-3, 1);
+				object_swap((object *)tmp_object, swap);
 				// Insert 3 bytes after the read in obj->rtype.pobj_info.alt_textures field.
 				memcpy( &Objects[i], tmp_object, sizeof(object)-3 );
 				Objects[i].rtype.pobj_info.alt_textures = -1;
@@ -775,8 +783,7 @@ RetryObjectLoading:
 		Object_next_signature++;
 	
 		//Restore wall info
-		PHYSFS_read(fp, &i, sizeof(int), 1);
-		Num_walls = i;
+		Num_walls = PHYSFSX_readSXE32(fp, swap);
 		// Check for a bogus Saturn version!!!!
 		if (!BogusSaturnShit )	{
 			if ( (Num_walls<0) || (Num_walls>MAX_WALLS) ) {
@@ -786,7 +793,7 @@ RetryObjectLoading:
 			}
 		}
 
-		PHYSFS_read(fp, Walls, sizeof(wall), Num_walls);
+		wall_read_n_swap(Walls, Num_walls, swap, fp);
 		// Check for a bogus Saturn version!!!!
 		if (!BogusSaturnShit )	{
 			for (i=0; i<Num_walls; i++ )	{
@@ -799,41 +806,40 @@ RetryObjectLoading:
 		}
 
 		//Restore door info
-		PHYSFS_read(fp, &i, sizeof(int), 1);
-		Num_open_doors = i;
-		PHYSFS_read(fp, ActiveDoors, sizeof(active_door), Num_open_doors);
+		Num_open_doors = PHYSFSX_readSXE32(fp, swap);
+		active_door_read_n_swap(ActiveDoors, Num_open_doors, swap, fp);
 	
 		//Restore trigger info
-		PHYSFS_read(fp, &Num_triggers, sizeof(int), 1);
-		PHYSFS_read(fp, Triggers, sizeof(trigger), Num_triggers);
+		Num_triggers = PHYSFSX_readSXE32(fp, swap);
+		trigger_read_n_swap(Triggers, Num_triggers, swap, fp);
 	
 		//Restore tmap info
 		for (i=0; i<=Highest_segment_index; i++ )	{
 			for (j=0; j<6; j++ )	{
-				PHYSFS_read(fp, &Segments[i].sides[j].wall_num, sizeof(short), 1);
-				PHYSFS_read(fp, &Segments[i].sides[j].tmap_num, sizeof(short), 1);
-				PHYSFS_read(fp, &Segments[i].sides[j].tmap_num2, sizeof(short), 1);
+				Segments[i].sides[j].wall_num = PHYSFSX_readSXE16(fp, swap);
+				Segments[i].sides[j].tmap_num = PHYSFSX_readSXE16(fp, swap);
+				Segments[i].sides[j].tmap_num2 = PHYSFSX_readSXE16(fp, swap);
 			}
 		}
 	
 		//Restore the fuelcen info
-		PHYSFS_read(fp, &Control_center_destroyed, sizeof(int), 1);
-		PHYSFS_read(fp, &Fuelcen_seconds_left, sizeof(int), 1);
-		PHYSFS_read(fp, &Num_robot_centers, sizeof(int), 1);
-		PHYSFS_read(fp, RobotCenters, sizeof(matcen_info), Num_robot_centers);
-		PHYSFS_read(fp, &ControlCenterTriggers, sizeof(control_center_triggers), 1);
-		PHYSFS_read(fp, &Num_fuelcenters, sizeof(int), 1);
-		PHYSFS_read(fp, Station, sizeof(FuelCenter), Num_fuelcenters);
+		Control_center_destroyed = PHYSFSX_readSXE32(fp, swap);
+		Fuelcen_seconds_left = PHYSFSX_readSXE32(fp, swap);
+		Num_robot_centers = PHYSFSX_readSXE32(fp, swap);
+		matcen_info_read_n_swap(RobotCenters, Num_robot_centers, swap, fp);
+		control_center_triggers_read_n_swap(&ControlCenterTriggers, 1, swap, fp);
+		Num_fuelcenters = PHYSFSX_readSXE32(fp, swap);
+		fuelcen_read_n_swap(Station, Num_fuelcenters, swap, fp);
 	
 		// Restore the control cen info
-		PHYSFS_read(fp, &Control_center_been_hit, sizeof(int), 1);
-		PHYSFS_read(fp, &Control_center_player_been_seen, sizeof(int), 1);
-		PHYSFS_read(fp, &Control_center_next_fire_time, sizeof(int), 1);
-		PHYSFS_read(fp, &Control_center_present, sizeof(int), 1);
-		PHYSFS_read(fp, &Dead_controlcen_object_num, sizeof(int), 1);
+		Control_center_been_hit = PHYSFSX_readSXE32(fp, swap);
+		Control_center_player_been_seen = PHYSFSX_readSXE32(fp, swap);
+		Control_center_next_fire_time = PHYSFSX_readSXE32(fp, swap);
+		Control_center_present = PHYSFSX_readSXE32(fp, swap);
+		Dead_controlcen_object_num = PHYSFSX_readSXE32(fp, swap);
 	
 		// Restore the AI state
-		ai_restore_state( fp );
+		ai_restore_state( fp, swap );
 	
 		// Restore the automap visited info
 		PHYSFS_read(fp, Automap_visited, sizeof(ubyte), MAX_SEGMENTS);
@@ -850,12 +856,12 @@ RetryObjectLoading:
 
 	if ( version >= 7 )	{
 		int tmp_Lunacy;
-		PHYSFS_read(fp, &state_game_id, sizeof(uint), 1);
-		PHYSFS_read(fp, &Laser_rapid_fire, sizeof(int), 1);
-		PHYSFS_read(fp, &Ugly_robot_cheat, sizeof(int), 1);
-		PHYSFS_read(fp, &Ugly_robot_texture, sizeof(int), 1);
-		PHYSFS_read(fp, &Physics_cheat_flag, sizeof(int), 1);
-		PHYSFS_read(fp, &tmp_Lunacy, sizeof(int), 1);
+		state_game_id = PHYSFSX_readSXE32(fp, swap);
+		Laser_rapid_fire = PHYSFSX_readSXE32(fp, swap);
+		Ugly_robot_cheat = PHYSFSX_readSXE32(fp, swap);
+		Ugly_robot_texture = PHYSFSX_readSXE32(fp, swap);
+		Physics_cheat_flag = PHYSFSX_readSXE32(fp, swap);
+		tmp_Lunacy = PHYSFSX_readSXE32(fp, swap);
 		if ( tmp_Lunacy )
 			do_lunacy_on();
 	}

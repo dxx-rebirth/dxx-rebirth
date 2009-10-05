@@ -32,6 +32,8 @@ COPYRIGHT 1993-1998 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 #include "key.h"
 #include "gameseg.h"
 #include "textures.h"
+#include "byteswap.h"
+#include "cfile.h"
 
 #include "object.h"
 #include "physics.h"
@@ -1906,3 +1908,167 @@ void obj_detach_all(object *parent)
 		obj_detach_one(&Objects[parent->attached_obj]);
 }
 
+void object_swap(object *obj, int swap)
+{
+	if (!swap)
+		return;
+
+	// swap the short and int entries for this object
+	obj->signature 			= SWAPINT(obj->signature);
+	obj->next				= SWAPSHORT(obj->next);
+	obj->prev				= SWAPSHORT(obj->prev);
+	obj->segnum				= SWAPSHORT(obj->segnum);
+	obj->attached_obj		= SWAPSHORT(obj->attached_obj);
+	obj->pos.x 				= SWAPINT(obj->pos.x);
+	obj->pos.y 				= SWAPINT(obj->pos.y);
+	obj->pos.z 				= SWAPINT(obj->pos.z);
+	
+	obj->orient.rvec.x 		= SWAPINT(obj->orient.rvec.x);
+	obj->orient.rvec.y 		= SWAPINT(obj->orient.rvec.y);
+	obj->orient.rvec.z 		= SWAPINT(obj->orient.rvec.z);
+	obj->orient.fvec.x 		= SWAPINT(obj->orient.fvec.x);
+	obj->orient.fvec.y 		= SWAPINT(obj->orient.fvec.y);
+	obj->orient.fvec.z 		= SWAPINT(obj->orient.fvec.z);
+	obj->orient.uvec.x 		= SWAPINT(obj->orient.uvec.x);
+	obj->orient.uvec.y 		= SWAPINT(obj->orient.uvec.y);
+	obj->orient.uvec.z 		= SWAPINT(obj->orient.uvec.z);
+	
+	obj->size				= SWAPINT(obj->size);
+	obj->shields			= SWAPINT(obj->shields);
+	
+	obj->last_pos.x 		= SWAPINT(obj->last_pos.x);
+	obj->last_pos.y 		= SWAPINT(obj->last_pos.y);
+	obj->last_pos.z 		= SWAPINT(obj->last_pos.z);
+	
+	obj->lifeleft			= SWAPINT(obj->lifeleft);
+	
+	switch (obj->movement_type) {
+			
+		case MT_PHYSICS:
+			
+			obj->mtype.phys_info.velocity.x = SWAPINT(obj->mtype.phys_info.velocity.x);
+			obj->mtype.phys_info.velocity.y = SWAPINT(obj->mtype.phys_info.velocity.y);
+			obj->mtype.phys_info.velocity.z = SWAPINT(obj->mtype.phys_info.velocity.z);
+			
+			obj->mtype.phys_info.thrust.x 	= SWAPINT(obj->mtype.phys_info.thrust.x);
+			obj->mtype.phys_info.thrust.y 	= SWAPINT(obj->mtype.phys_info.thrust.y);
+			obj->mtype.phys_info.thrust.z 	= SWAPINT(obj->mtype.phys_info.thrust.z);
+			
+			obj->mtype.phys_info.mass		= SWAPINT(obj->mtype.phys_info.mass);
+			obj->mtype.phys_info.drag		= SWAPINT(obj->mtype.phys_info.drag);
+			obj->mtype.phys_info.brakes		= SWAPINT(obj->mtype.phys_info.brakes);
+			
+			obj->mtype.phys_info.rotvel.x	= SWAPINT(obj->mtype.phys_info.rotvel.x);
+			obj->mtype.phys_info.rotvel.y	= SWAPINT(obj->mtype.phys_info.rotvel.y);
+			obj->mtype.phys_info.rotvel.z 	= SWAPINT(obj->mtype.phys_info.rotvel.z);
+			
+			obj->mtype.phys_info.rotthrust.x = SWAPINT(obj->mtype.phys_info.rotthrust.x);
+			obj->mtype.phys_info.rotthrust.y = SWAPINT(obj->mtype.phys_info.rotthrust.y);
+			obj->mtype.phys_info.rotthrust.z = SWAPINT(obj->mtype.phys_info.rotthrust.z);
+			
+			obj->mtype.phys_info.turnroll	= SWAPINT(obj->mtype.phys_info.turnroll);
+			obj->mtype.phys_info.flags		= SWAPSHORT(obj->mtype.phys_info.flags);
+			
+			break;
+			
+		case MT_SPINNING:
+			
+			obj->mtype.spin_rate.x = SWAPINT(obj->mtype.spin_rate.x);
+			obj->mtype.spin_rate.y = SWAPINT(obj->mtype.spin_rate.y);
+			obj->mtype.spin_rate.z = SWAPINT(obj->mtype.spin_rate.z);
+			break;
+	}
+	
+	switch (obj->control_type) {
+			
+		case CT_WEAPON:
+			obj->ctype.laser_info.parent_type		= SWAPSHORT(obj->ctype.laser_info.parent_type);
+			obj->ctype.laser_info.parent_num		= SWAPSHORT(obj->ctype.laser_info.parent_num);
+			obj->ctype.laser_info.parent_signature	= SWAPSHORT(obj->ctype.laser_info.parent_signature);
+			obj->ctype.laser_info.creation_time		= SWAPINT(obj->ctype.laser_info.creation_time);
+			obj->ctype.laser_info.last_hitobj		= SWAPINT(obj->ctype.laser_info.last_hitobj);
+			obj->ctype.laser_info.multiplier		= SWAPINT(obj->ctype.laser_info.multiplier);
+			break;
+			
+		case CT_EXPLOSION:
+			obj->ctype.expl_info.spawn_time		= SWAPINT(obj->ctype.expl_info.spawn_time);
+			obj->ctype.expl_info.delete_time	= SWAPINT(obj->ctype.expl_info.delete_time);
+			obj->ctype.expl_info.delete_objnum	= SWAPSHORT(obj->ctype.expl_info.delete_objnum);
+			obj->ctype.expl_info.attach_parent	= SWAPSHORT(obj->ctype.expl_info.attach_parent);
+			obj->ctype.expl_info.prev_attach	= SWAPSHORT(obj->ctype.expl_info.prev_attach);
+			obj->ctype.expl_info.next_attach	= SWAPSHORT(obj->ctype.expl_info.next_attach);
+			break;
+			
+		case CT_AI:
+			obj->ctype.ai_info.hide_segment			= SWAPSHORT(obj->ctype.ai_info.hide_segment);
+			obj->ctype.ai_info.hide_index			= SWAPSHORT(obj->ctype.ai_info.hide_index);
+			obj->ctype.ai_info.path_length			= SWAPSHORT(obj->ctype.ai_info.path_length);
+			obj->ctype.ai_info.cur_path_index		= SWAPSHORT(obj->ctype.ai_info.cur_path_index);
+			obj->ctype.ai_info.follow_path_start_seg	= SWAPSHORT(obj->ctype.ai_info.follow_path_start_seg);
+			obj->ctype.ai_info.follow_path_end_seg		= SWAPSHORT(obj->ctype.ai_info.follow_path_end_seg);
+			obj->ctype.ai_info.danger_laser_signature = SWAPINT(obj->ctype.ai_info.danger_laser_signature);
+			obj->ctype.ai_info.danger_laser_num		= SWAPSHORT(obj->ctype.ai_info.danger_laser_num);
+			break;
+			
+		case CT_LIGHT:
+			obj->ctype.light_info.intensity = SWAPINT(obj->ctype.light_info.intensity);
+			break;
+			
+		case CT_POWERUP:
+			obj->ctype.powerup_info.count = SWAPINT(obj->ctype.powerup_info.count);
+			if (obj->id == POW_VULCAN_WEAPON)
+				obj->ctype.powerup_info.count = VULCAN_WEAPON_AMMO_AMOUNT;
+			break;
+			
+	}
+	
+	switch (obj->render_type) {
+			
+		case RT_MORPH:
+		case RT_POLYOBJ: {
+			int i;
+			
+			obj->rtype.pobj_info.model_num		= SWAPINT(obj->rtype.pobj_info.model_num);
+			
+			for (i=0;i<MAX_SUBMODELS;i++) {
+				obj->rtype.pobj_info.anim_angles[i].p = SWAPINT(obj->rtype.pobj_info.anim_angles[i].p);
+				obj->rtype.pobj_info.anim_angles[i].b = SWAPINT(obj->rtype.pobj_info.anim_angles[i].b);
+				obj->rtype.pobj_info.anim_angles[i].h = SWAPINT(obj->rtype.pobj_info.anim_angles[i].h);
+			}
+			
+			obj->rtype.pobj_info.subobj_flags	= SWAPINT(obj->rtype.pobj_info.subobj_flags);
+			obj->rtype.pobj_info.tmap_override	= SWAPINT(obj->rtype.pobj_info.tmap_override);
+			obj->rtype.pobj_info.alt_textures	= SWAPINT(obj->rtype.pobj_info.alt_textures);
+			break;
+		}
+			
+		case RT_WEAPON_VCLIP:
+		case RT_HOSTAGE:
+		case RT_POWERUP:
+		case RT_FIREBALL:
+			obj->rtype.vclip_info.vclip_num	= SWAPINT(obj->rtype.vclip_info.vclip_num);
+			obj->rtype.vclip_info.frametime	= SWAPINT(obj->rtype.vclip_info.frametime);
+			break;
+			
+		case RT_LASER:
+			break;
+			
+	}
+	//  END OF SWAPPING OBJECT STRUCTURE
+	
+}
+
+/*
+ * reads n object structs from a CFILE and swaps if specified.
+ * Does not work for reading from level files (.rdl), but does work for state saves
+ */
+void object_read_n_swap(object *obj, int n, int swap, CFILE *fp)
+{
+	int i;
+
+	PHYSFS_read(fp, obj, sizeof(object), n);
+
+	if (swap)
+		for (i = 0; i < n; i++)
+			object_swap(&obj[i], swap);
+}

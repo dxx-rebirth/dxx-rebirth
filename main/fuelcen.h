@@ -252,5 +252,15 @@ extern fix EnergyToCreateOneRobot;
  */
 void matcen_info_read(matcen_info *ps, CFILE *fp, int version);
 
+/*
+ * reads n matcen_info structs from a CFILE and swaps if specified
+ */
+void matcen_info_read_n_swap(matcen_info *mi, int n, int swap, CFILE *fp);
+
+/*
+ * reads n FuelCenter structs from a CFILE and swaps if specified
+ */
+void fuelcen_read_n_swap(FuelCenter *fc, int n, int swap, CFILE *fp);
+
 #endif
  

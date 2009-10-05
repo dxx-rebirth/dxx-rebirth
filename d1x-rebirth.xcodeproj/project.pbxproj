@@ -284,6 +284,8 @@
 		EB423CE50F6273F50082C684 /* noloss.c in Sources */ = {isa = PBXBuildFile; fileRef = EB423CE10F6273F50082C684 /* noloss.c */; };
 		EB423CE60F6273F50082C684 /* noloss.h in Headers */ = {isa = PBXBuildFile; fileRef = EB423CE20F6273F50082C684 /* noloss.h */; };
 		EB775A7A105611720036C348 /* extractD1Data.cpp in Sources */ = {isa = PBXBuildFile; fileRef = EB775A79105611720036C348 /* extractD1Data.cpp */; };
+		EB8BE84F1071FBE00069486E /* player.c in Sources */ = {isa = PBXBuildFile; fileRef = EB8BE84E1071FBE00069486E /* player.c */; };
+		EB8BE8501071FBE00069486E /* player.c in Sources */ = {isa = PBXBuildFile; fileRef = EB8BE84E1071FBE00069486E /* player.c */; };
 		EB92BE600CDD693C0045A32C /* digi_audio.c in Sources */ = {isa = PBXBuildFile; fileRef = EB92BE5C0CDD693C0045A32C /* digi_audio.c */; };
 		EB92BE610CDD693C0045A32C /* digi_mixer_music.c in Sources */ = {isa = PBXBuildFile; fileRef = EB92BE5D0CDD693C0045A32C /* digi_mixer_music.c */; };
 		EB92BE620CDD693C0045A32C /* digi_mixer.c in Sources */ = {isa = PBXBuildFile; fileRef = EB92BE5E0CDD693C0045A32C /* digi_mixer.c */; };
@@ -579,6 +581,7 @@
 		EB423CE20F6273F50082C684 /* noloss.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = noloss.h; sourceTree = "<group>"; };
 		EB775A6F105611320036C348 /* d1Extract */ = {isa = PBXFileReference; explicitFileType = "compiled.mach-o.executable"; includeInIndex = 0; path = d1Extract; sourceTree = BUILT_PRODUCTS_DIR; };
 		EB775A79105611720036C348 /* extractD1Data.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = extractD1Data.cpp; sourceTree = "<group>"; };
+		EB8BE84E1071FBE00069486E /* player.c */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.c; path = player.c; sourceTree = "<group>"; };
 		EB9181090DABA47B0010CB39 /* console.h */ = {isa = PBXFileReference; fileEncoding = 30; lastKnownFileType = sourcecode.c.h; path = console.h; sourceTree = "<group>"; };
 		EB92BE5C0CDD693C0045A32C /* digi_audio.c */ = {isa = PBXFileReference; fileEncoding = 30; lastKnownFileType = sourcecode.c.c; path = digi_audio.c; sourceTree = "<group>"; };
 		EB92BE5D0CDD693C0045A32C /* digi_mixer_music.c */ = {isa = PBXFileReference; fileEncoding = 30; lastKnownFileType = sourcecode.c.c; path = digi_mixer_music.c; sourceTree = "<group>"; };
@@ -1008,6 +1011,7 @@
 				EBE8D7D00FD385E1009D181F /* gamecntl.c */,
 				67B4470706687CF400DF26D8 /* gamefont.c */,
 				67B4470906687CF400DF26D8 /* gamemine.c */,
+				EBE8D88F0FDA76D1009D181F /* gamerend.c */,
 				67B4470E06687CF400DF26D8 /* gamesave.c */,
 				67B4471006687CF400DF26D8 /* gameseg.c */,
 				67B4471206687CF400DF26D8 /* gameseq.c */,
@@ -1037,6 +1041,7 @@
 				67B4475906687CF400DF26D8 /* paging.c */,
 				67B4475B06687CF400DF26D8 /* physics.c */,
 				67B4475D06687CF400DF26D8 /* piggy.c */,
+				EB8BE84E1071FBE00069486E /* player.c */,
 				67B4476106687CF400DF26D8 /* playsave.c */,
 				67B4476306687CF400DF26D8 /* polyobj.c */,
 				67B4476506687CF400DF26D8 /* powerup.c */,
@@ -1132,7 +1137,6 @@
 				EB0420C30A341042002CC961 /* vers_id.h */,
 				EB0420C20A341042002CC961 /* wall.h */,
 				EB0420C10A341042002CC961 /* weapon.h */,
-				EBE8D88F0FDA76D1009D181F /* gamerend.c */,
 			);
 			path = main;
 			sourceTree = SOURCE_ROOT;
@@ -1749,6 +1753,7 @@
 				EB35ABE40FB199B800C36930 /* window.c in Sources */,
 				EBE8D7D20FD385E1009D181F /* gamecntl.c in Sources */,
 				EBE8D8910FDA76D1009D181F /* gamerend.c in Sources */,
+				EB8BE8501071FBE00069486E /* player.c in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -1880,6 +1885,7 @@
 				EB35ABE20FB199B800C36930 /* window.c in Sources */,
 				EBE8D7D10FD385E1009D181F /* gamecntl.c in Sources */,
 				EBE8D8900FDA76D1009D181F /* gamerend.c in Sources */,
+				EB8BE84F1071FBE00069486E /* player.c in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};

@@ -29,6 +29,7 @@ COPYRIGHT 1993-1998 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 #include "wall.h"
 #include "object.h"
 #include "robot.h"
+#include "byteswap.h"
 
 vms_vector controlcen_gun_points[MAX_CONTROLCEN_GUNS];
 vms_vector controlcen_gun_dirs[MAX_CONTROLCEN_GUNS];
@@ -292,10 +293,11 @@ void init_controlcen_for_level(void)
 
 #endif
 #ifdef NETWORK
-	if ( (boss_objnum != -1) && !((Game_mode & GM_MULTI) && !(Game_mode & GM_MULTI_ROBOTS)) ) {
+	if ( (boss_objnum != -1) && !((Game_mode & GM_MULTI) && !(Game_mode & GM_MULTI_ROBOTS)) )
 #else
-        if (boss_objnum != -1) {
+        if (boss_objnum != -1)
 #endif
+		{
                 if (cntrlcen_objnum != -1) {        // note link to above!!!
 			Objects[cntrlcen_objnum].type = OBJ_GHOST;
 			Objects[cntrlcen_objnum].render_type = RT_NONE;
@@ -339,4 +341,32 @@ extern int control_center_triggers_read_n(control_center_triggers *cct, int n, C
 			cct->side[j] = cfile_read_short(fp);
 	}
 	return i;
+}
+
+void control_center_triggers_swap(control_center_triggers *cct, int swap)
+{
+	int i;
+	
+	if (!swap)
+		return;
+	
+	cct->num_links = SWAPSHORT(cct->num_links);
+	for (i = 0; i < MAX_WALLS_PER_LINK; i++)
+		cct->seg[i] = SWAPSHORT(cct->seg[i]);
+	for (i = 0; i < MAX_WALLS_PER_LINK; i++)
+		cct->side[i] = SWAPSHORT(cct->side[i]);
+}
+
+/*
+ * reads n control_center_triggers structs from a CFILE and swaps if specified
+ */
+void control_center_triggers_read_n_swap(control_center_triggers *cct, int n, int swap, CFILE *fp)
+{
+	int i;
+	
+	PHYSFS_read(fp, cct, sizeof(control_center_triggers), n);
+	
+	if (swap)
+		for (i = 0; i < n; i++)
+			control_center_triggers_swap(&cct[i], swap);
 }

@@ -278,5 +278,10 @@ extern int Player_num;								// The player number who is on the console.
 extern player Players[MAX_PLAYERS];				// Misc player info
 extern player_ship *Player_ship;
 
+/*
+ * reads a player struct from a CFILE and swaps if specified
+ */
+void player_read_swap(player *p, int swap, CFILE *fp);
+
 #endif
  

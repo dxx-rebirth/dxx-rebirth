@@ -88,5 +88,10 @@ extern void triggers_frame_process();
  */
 extern void trigger_read(trigger *t, CFILE *fp);
 
+/*
+ * reads n trigger structs from a CFILE and swaps if specified
+ */
+extern void trigger_read_n_swap(trigger *t, int n, int swap, CFILE *fp);
+
 #endif
  
