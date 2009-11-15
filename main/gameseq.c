@@ -817,6 +817,34 @@ void load_robot_replacements(char *level_name);
 int read_hamfile();
 extern int Robot_replacements_loaded;
 
+// load just the hxm file
+void load_level_robots(int level_num)
+{
+	char *level_name;
+	
+	Assert(level_num <= Last_level  && level_num >= Last_secret_level  && level_num != 0);
+	
+	if (level_num<0)		//secret level
+		level_name = Secret_level_names[-level_num-1];
+	else					//normal level
+		level_name = Level_names[level_num-1];
+	
+	if (Robot_replacements_loaded) {
+		free_polygon_models();
+		read_hamfile();		//load original data
+		if (Current_mission->enhanced) {
+			// load extra data
+			char t[50];
+			extern void bm_read_extra_robots();
+			sprintf(t,"%s.ham",Current_mission_filename);
+			bm_read_extra_robots(t, Current_mission->enhanced);
+		}
+		
+		Robot_replacements_loaded = 0;
+	}
+	load_robot_replacements(level_name);
+}
+
 //load a level off disk. level numbers start at 1.  Secret levels are -1,-2,-3
 void LoadLevel(int level_num,int page_in_textures)
 {
@@ -857,20 +885,7 @@ void LoadLevel(int level_num,int page_in_textures)
 	else
 		load_bitmap_replacements(level_name);
 
-	if (Robot_replacements_loaded) {
-		free_polygon_models();
-		read_hamfile();		//load original data
-		if (Current_mission->enhanced) {
-			// load extra data
-			char t[50];
-			extern void bm_read_extra_robots();
-			sprintf(t,"%s.ham",Current_mission_filename);
-			bm_read_extra_robots(t, Current_mission->enhanced);
-		}
-		
-		Robot_replacements_loaded = 0;
-	}
-	load_robot_replacements(level_name);
+	load_level_robots(level_num);
 
 	if ( page_in_textures )
 		piggy_load_level_data();

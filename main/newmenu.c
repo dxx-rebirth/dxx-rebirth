@@ -22,20 +22,14 @@ COPYRIGHT 1993-1999 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 #include <string.h>
 #include <stdarg.h>
 #include <ctype.h>
-#include <math.h>
-#if !defined(_MSC_VER) && !defined(macintosh)
-#include <unistd.h>
-#endif
-#include <limits.h>
 #if !(defined(__APPLE__) && defined(__MACH__))
 #include <physfs.h>
 #else
 #include <physfs/physfs.h>
 #endif
 
-#include "automap.h"
-#include "error.h"
 #include "pstypes.h"
+#include "error.h"
 #include "gr.h"
 #include "grdef.h"
 #include "songs.h"
@@ -65,6 +59,7 @@ COPYRIGHT 1993-1999 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 #include "vers_id.h"
 #include "timer.h"
 #include "playsave.h"
+#include "automap.h"
 #include "rbaudio.h"
 
 #ifdef OGL
@@ -1742,6 +1737,26 @@ ReadFileNames:
 				}
 			}
 			break;
+				case KEY_CTRLED+KEY_C:
+				if (demo_mode)
+				{
+					int x = 1;
+					char bakname[PATH_MAX];
+					
+					// Get backup name
+					change_filename_extension(bakname, &filenames[citem*(FILENAME_LEN+1)]+((demo_mode && filenames[citem*(FILENAME_LEN+1)]=='$')?1:0), DEMO_BACKUP_EXT);
+					x = nm_messagebox( NULL, 2, TXT_YES, TXT_NO,	"Are you sure you want to\n"
+																	"swap the endianness of\n"
+																	"%s? If the file is\n"
+																	"already endian native, D2X\n"
+																	"will likely crash. A backup\n"
+																	"%s will be created", &filenames[citem*(FILENAME_LEN+1)]+((demo_mode && filenames[citem*(FILENAME_LEN+1)]=='$')?1:0), bakname );
+					if (x)
+						break;
+					
+					newdemo_swap_endian(&filenames[citem*(FILENAME_LEN+1)]);
+				}
+				break;
 		case KEY_HOME:
 		case KEY_PAD7:
 			citem = 0;

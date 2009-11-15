@@ -168,7 +168,7 @@ try_again:;
 			WIN(HideCursorW());
 			if (curtime < 0) curtime = 0;
 			keyd_time_when_last_pressed = curtime;                  // Reset timer so that disk won't thrash if no demos.
-			newdemo_start_playback(NULL);           // Randomly pick a file
+			newdemo_start_playback(NULL);           // Randomly pick a file, assume native endian (crashes if not)
 			if (Newdemo_state == ND_STATE_PLAYBACK) {
 				Function_mode = FMODE_GAME;
 				*last_key = -3; //exit menu to get into game mode. -3 tells menu system not to restore

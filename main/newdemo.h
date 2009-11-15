@@ -22,16 +22,21 @@ COPYRIGHT 1993-1999 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 #ifndef _NEWDEMO_H
 #define _NEWDEMO_H
 
-#define ND_STATE_NORMAL             0
-#define ND_STATE_RECORDING          1
-#define ND_STATE_PLAYBACK           2
-#define ND_STATE_PAUSED             3
-#define ND_STATE_REWINDING          4
-#define ND_STATE_FASTFORWARD        5
-#define ND_STATE_ONEFRAMEFORWARD    6
-#define ND_STATE_ONEFRAMEBACKWARD   7
+#define ND_STATE_NORMAL			0
+#define ND_STATE_RECORDING		1
+#define ND_STATE_PLAYBACK		2
+#define ND_STATE_PAUSED			3
+#define ND_STATE_REWINDING		4
+#define ND_STATE_FASTFORWARD		5
+#define ND_STATE_ONEFRAMEFORWARD	6
+#define ND_STATE_ONEFRAMEBACKWARD	7
 
 #define DEMO_DIR                "demos/"
+#if WORDS_BIGENDIAN
+#define DEMO_BACKUP_EXT			"386"
+#else
+#define DEMO_BACKUP_EXT			"ppc"
+#endif
 
 // Gives state of recorder
 extern int Newdemo_state;
@@ -97,7 +102,7 @@ extern void newdemo_record_secret_exit_blown(int truth);
 // Functions called during playback process...
 extern void newdemo_object_move_all();
 extern void newdemo_playback_one_frame();
-extern void newdemo_goto_end();
+extern void newdemo_goto_end(int to_rewrite);
 extern void newdemo_goto_beginning();
 
 // Interactive functions to control playback/record;
@@ -105,6 +110,8 @@ extern void newdemo_start_playback( char * filename );
 extern void newdemo_stop_playback();
 extern void newdemo_start_recording();
 extern void newdemo_stop_recording();
+
+extern int newdemo_swap_endian(char *filename);
 
 extern int newdemo_get_percent_done();
 

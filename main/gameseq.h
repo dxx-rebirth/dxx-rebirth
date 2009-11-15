@@ -76,6 +76,9 @@ void PlayerFinishedLevel(int secret_flag);
 // called when the player has died
 void DoPlayerDead(void);
 
+// load just the hxm file
+void load_level_robots(int level_num);
+
 // load a level off disk. level numbers start at 1.
 // Secret levels are -1,-2,-3
 void LoadLevel(int level_num, int page_in_textures);

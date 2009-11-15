@@ -585,7 +585,7 @@ void HandleDemoKey(int key)
 			Newdemo_vcr_state = ND_STATE_ONEFRAMEFORWARD;
 			break;
 		case KEY_CTRLED + KEY_RIGHT:
-			newdemo_goto_end();
+			newdemo_goto_end(0);
 			break;
 		case KEY_CTRLED + KEY_LEFT:
 			newdemo_goto_beginning();
