@@ -1,5 +1,9 @@
 D1X-Rebirth Changelog
 
+20091115
+--------
+main/gamecntl.c, main/newdemo.c, main/newdemo.h, main/newmenu.c, main/text.c: Add endian converter for demos, read shareware demos, various bugfixes to demo system
+
 20091005
 --------
 d1x-rebirth.xcodeproj/project.pbxproj, include/physfsx.h, main/ai.c, main/ai.h, main/cntrlcen.c, main/cntrlcen.h, main/fuelcen.c, main/fuelcen.h, main/object.c, main/object.h, main/player.c, main/player.h, main/state.c, main/switch.c, main/switch.h, main/wall.c, main/wall.h, SConstruct: Read big endian savegames on little endian computers and vice versa

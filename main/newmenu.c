@@ -7,7 +7,7 @@ IN USING, DISPLAYING,  AND CREATING DERIVATIVE WORKS THEREOF, SO LONG AS
 SUCH USE, DISPLAY OR CREATION IS FOR NON-COMMERCIAL, ROYALTY OR REVENUE
 FREE PURPOSES.  IN NO EVENT SHALL THE END-USER USE THE COMPUTER CODE
 CONTAINED HEREIN FOR REVENUE-BEARING PURPOSES.  THE END-USER UNDERSTANDS
-AND AGREES TO THE TERMS HEREIN AND ACCEPTS THE SAME BY USE OF THIS FILE.  
+AND AGREES TO THE TERMS HEREIN AND ACCEPTS THE SAME BY USE OF THIS FILE.
 COPYRIGHT 1993-1998 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 */
 
@@ -16,7 +16,6 @@ COPYRIGHT 1993-1998 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
  * Routines for menus.
  *
  */
-
 
 #include <stdio.h>
 #include <stdlib.h>
@@ -29,15 +28,15 @@ COPYRIGHT 1993-1998 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 #include <physfs/physfs.h>
 #endif
 
-#include "error.h"
 #include "pstypes.h"
+#include "error.h"
 #include "gr.h"
 #include "songs.h"
 #include "key.h"
 #include "palette.h"
 #include "game.h"
 #include "text.h"
-#include "newdemo.h"
+#include "menu.h"
 #include "newmenu.h"
 #include "gamefont.h"
 #include "iff.h"
@@ -49,13 +48,13 @@ COPYRIGHT 1993-1998 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 #include "multi.h"
 #include "endlevel.h"
 #include "screens.h"
-#include "kconfig.h"
 #include "player.h"
-#include "timer.h"
+#include "newdemo.h"
+#include "kconfig.h"
 #include "vers_id.h"
-#include "automap.h"
-#include "menu.h"
+#include "timer.h"
 #include "playsave.h"
+#include "automap.h"
 #include "rbaudio.h"
 
 #ifdef OGL
@@ -1701,6 +1700,26 @@ ReadFileNames:
 				}
 			}
 			break;
+				case KEY_CTRLED+KEY_C:
+				if (demo_mode)
+				{
+					int x = 1;
+					char bakname[PATH_MAX];
+					
+					// Get backup .bak name
+					change_filename_extension(bakname, &filenames[citem*(FILENAME_LEN+1)]+((demo_mode && filenames[citem*(FILENAME_LEN+1)]=='$')?1:0), "bak");
+					x = nm_messagebox( NULL, 2, TXT_YES, TXT_NO,	"Are you sure you want to\n"
+																	"swap the endianness of\n"
+																	"%s? If the file is\n"
+																	"already endian native, D1X\n"
+																	"will likely crash. A backup\n"
+																	"%s will be created", &filenames[citem*(FILENAME_LEN+1)]+((demo_mode && filenames[citem*(FILENAME_LEN+1)]=='$')?1:0), bakname );
+					if (x)
+						break;
+					
+					newdemo_swap_endian(&filenames[citem*(FILENAME_LEN+1)]);
+				}
+				break;
 		case KEY_HOME:
 		case KEY_PAD7:
 			citem = 0;

@@ -1,3 +1,4 @@
+/* $Id: text.c,v 1.1.1.1 2006/03/17 19:56:37 zicodxx Exp $ */
 /*
 THE COMPUTER CODE CONTAINED HEREIN IS THE SOLE PROPERTY OF PARALLAX
 SOFTWARE CORPORATION ("PARALLAX").  PARALLAX, IN DISTRIBUTING THE CODE TO
@@ -7,25 +8,24 @@ IN USING, DISPLAYING,  AND CREATING DERIVATIVE WORKS THEREOF, SO LONG AS
 SUCH USE, DISPLAY OR CREATION IS FOR NON-COMMERCIAL, ROYALTY OR REVENUE
 FREE PURPOSES.  IN NO EVENT SHALL THE END-USER USE THE COMPUTER CODE
 CONTAINED HEREIN FOR REVENUE-BEARING PURPOSES.  THE END-USER UNDERSTANDS
-AND AGREES TO THE TERMS HEREIN AND ACCEPTS THE SAME BY USE OF THIS FILE.  
+AND AGREES TO THE TERMS HEREIN AND ACCEPTS THE SAME BY USE OF THIS FILE.
 COPYRIGHT 1993-1998 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 */
+
 /*
  *
  * Code for localizable text
  *
  */
 
-
 #ifdef RCS
 static char rcsid[] = "$Id: text.c,v 1.1.1.1 2006/03/17 19:43:44 zicodxx Exp $";
 #endif
 
-#include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
 
-//#include "cfile.h"
+#include "pstypes.h"
 #include "cfile.h"
 #include "u_mem.h"
 #include "error.h"
@@ -33,10 +33,8 @@ static char rcsid[] = "$Id: text.c,v 1.1.1.1 2006/03/17 19:43:44 zicodxx Exp $";
 #include "inferno.h"
 #include "text.h"
 #include "args.h"
-#include "compbit.h"
 
 char *text;
-
 
 char *Text_string[N_TEXT_STRINGS];
 
@@ -45,7 +43,8 @@ void free_text()
         //added on 9/13/98 by adb to free all text
         d_free(Text_string[145]);
         //end addition - adb
-        d_free(text);
+	d_free(Text_string[330]);
+	d_free(text);
 }
 
 // rotates a byte left one bit, preserving the bit falling off the right
@@ -214,8 +213,10 @@ void load_text()
 
 	if ((tfile = cfopen(filename,"rb")) == NULL) {
 		filename="descent.txb";
-		if ((ifile = cfopen(filename, "rb")) == NULL)
+		if ((ifile = cfopen(filename, "rb")) == NULL) {
 			Error("Cannot open file DESCENT.TEX or DESCENT.TXB");
+			return;
+		}
 		have_binary = 1;
 
 		len = cfilelength(ifile);
@@ -276,46 +277,55 @@ void load_text()
 				Error("Not enough strings in text file - expecting %d (or at least %d), found %d",N_TEXT_STRINGS,N_TEXT_STRINGS_SHAREWARE,i);
 			}
 		}
-		
+
 		if ( tptr ) *tptr++ = 0;
 
-		if (have_binary) {
-			for (p=Text_string[i]; p < tptr - 1; p++) {
-				encode_rotate_left(p);
-				*p = *p ^ BITMAP_TBL_XOR;
-				encode_rotate_left(p);
-			}
-		}
+		if (have_binary)
+			decode_text_line(Text_string[i]);
 
 		//scan for special chars (like \n)
 		for (p=Text_string[i];(p=strchr(p,'\\'));) {
-			char newchar=0;//get rid of compiler warning
+			char newchar;
 
 			if (p[1] == 'n') newchar = '\n';
 			else if (p[1] == 't') newchar = '\t';
 			else if (p[1] == '\\') newchar = '\\';
 			else
-				Error("Unsupported key sequence <\\%c> on line %d of file <%s>",p[1],i+1,filename); 
+				Error("Unsupported key sequence <\\%c> on line %d of file <%s>",p[1],i+1,filename);
 
 			p[0] = newchar;
 // 			strcpy(p+1,p+2);
 			MALLOC(buf,char,len+1);
 			strcpy(buf,p+2);
 			strcpy(p+1,buf);
-			p++;
 			d_free(buf);
+			p++;
 		}
 
           switch(i) {
-          case 145:
-                  Text_string[i]=(char *) d_malloc(sizeof(char) * 48);
-                  strcpy(Text_string[i],"Sidewinder &\nThrustmaster FCS &\nWingman Extreme");
+				  char *extra;
+				  char *str;
+				  
+			  case 145:
+				Text_string[i]=(char *) d_malloc(sizeof(char) * 48);
+				strcpy(Text_string[i],"Sidewinder &\nThrustmaster FCS &\nWingman Extreme");
+				break;
+				  
+			  case 330:
+				  extra = "\n<Ctrl+C> converts format\nIntel <-> PowerPC";
+				  str = d_malloc(strlen(Text_string[i]) + strlen(extra) + 1);
+				  if (!str)
+					  break;
+				  strcpy(str, Text_string[i]);
+				  strcat(str, extra);
+				  Text_string[i] = str;
+				  break;
           }
 
 	}
 
-//	Assert(tptr==text+len || tptr==text+len-2);
-         
+	//Assert(tptr==text+len || tptr==text+len-2);
+
 }
 
 

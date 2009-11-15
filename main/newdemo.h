@@ -1,3 +1,4 @@
+/* $Id: newdemo.h,v 1.1.1.1 2006/03/17 19:57:04 zicodxx Exp $ */
 /*
 THE COMPUTER CODE CONTAINED HEREIN IS THE SOLE PROPERTY OF PARALLAX
 SOFTWARE CORPORATION ("PARALLAX").  PARALLAX, IN DISTRIBUTING THE CODE TO
@@ -7,14 +8,16 @@ IN USING, DISPLAYING,  AND CREATING DERIVATIVE WORKS THEREOF, SO LONG AS
 SUCH USE, DISPLAY OR CREATION IS FOR NON-COMMERCIAL, ROYALTY OR REVENUE
 FREE PURPOSES.  IN NO EVENT SHALL THE END-USER USE THE COMPUTER CODE
 CONTAINED HEREIN FOR REVENUE-BEARING PURPOSES.  THE END-USER UNDERSTANDS
-AND AGREES TO THE TERMS HEREIN AND ACCEPTS THE SAME BY USE OF THIS FILE.  
+AND AGREES TO THE TERMS HEREIN AND ACCEPTS THE SAME BY USE OF THIS FILE.
 COPYRIGHT 1993-1998 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 */
+
 /*
  *
- * .
+ * header for demo playback system
  *
  */
+
 
 #ifndef _NEWDEMO_H
 #define _NEWDEMO_H
@@ -29,6 +32,11 @@ COPYRIGHT 1993-1998 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 #define ND_STATE_ONEFRAMEBACKWARD	7
 
 #define DEMO_DIR                "demos/"
+#if WORDS_BIGENDIAN
+#define DEMO_BACKUP_EXT			"386"
+#else
+#define DEMO_BACKUP_EXT			"ppc"
+#endif
 
 // Gives state of recorder
 extern int Newdemo_state;
@@ -56,13 +64,8 @@ extern void newdemo_record_wall_toggle(int segnum, int side );
 extern void newdemo_record_control_center_destroyed();
 extern void newdemo_record_hud_message(char *s);
 extern void newdemo_record_palette_effect(short r, short g, short b);
-#ifdef SHAREWARE
-extern void newdemo_record_player_energy(int);
-extern void newdemo_record_player_shields(int);
-#else
 extern void newdemo_record_player_energy(int, int);
 extern void newdemo_record_player_shields(int, int);
-#endif
 extern void newdemo_record_player_flags(uint, uint);
 extern void newdemo_record_player_weapon(int, int);
 extern void newdemo_record_effect_blowup(short, int, vms_vector *);
@@ -77,7 +80,6 @@ extern void newdemo_record_multi_decloak(int pnum);
 extern void newdemo_set_new_level(int level_num);
 extern void newdemo_record_restore_rearview(void);
 
-#ifndef SHAREWARE
 extern void newdemo_record_multi_death(int pnum);
 extern void newdemo_record_multi_kill(int pnum, sbyte kill);
 extern void newdemo_record_multi_connect(int pnum, int new_player, char *new_callsign);
@@ -88,14 +90,12 @@ extern void newdemo_record_multi_score(int pnum, int score);
 extern void newdemo_record_primary_ammo(int old_ammo, int new_ammo);
 extern void newdemo_record_secondary_ammo(int old_ammo, int new_ammo);
 extern void newdemo_record_door_opening(int segnum, int side);
-#endif
-
 extern void newdemo_record_laser_level(sbyte old_level, sbyte new_level);
 
 // Functions called during playback process...
 extern void newdemo_object_move_all();
 extern void newdemo_playback_one_frame();
-extern void newdemo_goto_end();
+extern void newdemo_goto_end(int to_rewrite);
 extern void newdemo_goto_beginning();
 
 // Interactive functions to control playback/record;
@@ -104,9 +104,12 @@ extern void newdemo_stop_playback();
 extern void newdemo_start_recording();
 extern void newdemo_stop_recording();
 
+extern int newdemo_swap_endian(char *filename);
+
 extern int newdemo_get_percent_done();
 
 extern void newdemo_record_link_sound_to_object3( int soundno, short objnum, fix max_volume, fix  max_distance, int loop_start, int loop_end );
 extern int newdemo_find_object( int signature );
 extern void newdemo_record_kill_sound_linked_to_object( int objnum );
-#endif
+
+#endif // _NEWDEMO_H
