@@ -9,7 +9,6 @@
 #include <stdlib.h>
 #include <stdio.h>
 #include <string.h>
-#include <limits.h>
 #ifdef _MSC_VER
 #include <windows.h>
 #endif
@@ -56,7 +55,7 @@
 
 int gr_installed = 0;
 int gl_initialized=0;
-int ogl_fullscreen;
+int ogl_fullscreen=0;
 static int curx=-1,cury=-1,curfull=0;
 int linedotscale=1; // scalar of glLinewidth and glPointSize - only calculated once when resolution changes
 
@@ -194,7 +193,19 @@ void ogl_get_verinfo(void)
 		GameArg.DbgGlGetTexLevelParamOk=0; // Always returns 0
 #endif
 
-	con_printf(CON_VERBOSE, "gl_intensity4:%i gl_luminance4_alpha4:%i gl_rgba2:%i gl_readpixels:%i gl_gettexlevelparam:%i\n", GameArg.DbgGlIntensity4Ok, GameArg.DbgGlLuminance4Alpha4Ok, GameArg.DbgGlRGBA2Ok, GameArg.DbgGlReadPixelsOk, GameArg.DbgGlGetTexLevelParamOk);
+#ifndef NDEBUG
+	con_printf(CON_VERBOSE,"gl_intensity4:%i gl_luminance4_alpha4:%i gl_rgba2:%i gl_readpixels:%i gl_gettexlevelparam:%i\n",GameArg.DbgGlIntensity4Ok,GameArg.DbgGlLuminance4Alpha4Ok,GameArg.DbgGlRGBA2Ok,GameArg.DbgGlReadPixelsOk,GameArg.DbgGlGetTexLevelParamOk);
+#endif
+}
+
+int gr_check_mode(u_int32_t mode)
+{
+	unsigned int w, h;
+	
+	w=SM_W(mode);
+	h=SM_H(mode);
+	
+	return SDL_VideoModeOK(w, h, GameArg.DbgGlBpp, SDL_OPENGL | (ogl_fullscreen?SDL_FULLSCREEN:0));
 }
 
 int gr_set_mode(u_int32_t mode)
@@ -230,7 +241,7 @@ int gr_set_mode(u_int32_t mode)
 	grd_curscreen->sc_canvas.cv_bitmap.bm_type = BM_OGL;
 	grd_curscreen->sc_canvas.cv_bitmap.bm_data = d_realloc(gr_bm_data,w*h);
 	gr_set_current_canvas(NULL);
-	
+
 	ogl_init_window(w,h);//platform specific code
 	ogl_get_verinfo();
 	OGL_VIEWPORT(0,0,w,h);
@@ -347,7 +358,7 @@ int gr_init(int mode)
 {
 	int retcode;
 
- 	// Only do this function once!
+	// Only do this function once!
 	if (gr_installed==1)
 		return -1;
 
@@ -376,8 +387,8 @@ int gr_init(int mode)
 	grd_curscreen->sc_canvas.cv_font_fg_color = 0;
 	grd_curscreen->sc_canvas.cv_font_bg_color = 0;
 	gr_set_current_canvas( &grd_curscreen->sc_canvas );
-	
-	ogl_init_pixel_buffers(256, 128);	// for gamefont_init
+
+	ogl_init_pixel_buffers(256, 128);       // for gamefont_init
 
 	gr_installed = 1;
 	
@@ -458,7 +469,6 @@ void ogl_ulinec(int left,int top,int right,int bot,int c)
 	glVertex2f(xf,yf);
 	glEnd();
 }
-	
 
 GLfloat last_r=0, last_g=0, last_b=0;
 int do_pal_step=0;
@@ -482,7 +492,6 @@ void ogl_do_palfx(void)
 	glVertex2f(1,1);
 	glVertex2f(1,0);
 	glEnd();
-	
 	glEnable(GL_BLEND);	
 	glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
 }
@@ -560,7 +569,7 @@ void write_bmp(char *savename,int w,int h,unsigned char *buf)
 	TGA_header TGA;
 	GLbyte HeightH,HeightL,WidthH,WidthL;
 
-	buf = (unsigned char*)calloc(w*h*3,sizeof(unsigned char));
+	buf = (unsigned char*)d_calloc(w*h*3,sizeof(unsigned char));
 
 	glReadPixels(0,0,w,h,GL_BGR_EXT,GL_UNSIGNED_BYTE,buf);
 
@@ -597,7 +606,7 @@ void write_bmp(char *savename,int w,int h,unsigned char *buf)
 	PHYSFS_write(TGAFile,&TGA,sizeof(TGA_header),1);
 	PHYSFS_write(TGAFile,buf,w*h*3*sizeof(unsigned char),1);
 	PHYSFS_close(TGAFile);
-	free(buf);
+	d_free(buf);
 }
 
 void save_screen_shot(int automap_flag)

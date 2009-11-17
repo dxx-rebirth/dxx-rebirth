@@ -24,16 +24,8 @@ COPYRIGHT 1993-1999 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 #include "pstypes.h"
 #include "fix.h"
 
-#if defined(MACDATA)
-#error native mac data currently not supported
-#define SWAP_0_255              // swap black and white
-#define TRANSPARENCY_COLOR  0   // palette entry of transparency color -- 0 on the mac
-#define TRANSPARENCY_COLOR_STR  "0"
-#else /* defined(MACDATA) */
-/* #undef  SWAP_0_255 */        // no swapping for PC people
-#define TRANSPARENCY_COLOR  255 // palette entry of transparency color -- 255 on the PC
-#define TRANSPARENCY_COLOR_STR  "255"
-#endif /* defined(MACDATA) */
+// #define SWAP_0_255		0			// swap black and white
+#define TRANSPARENCY_COLOR	255			// palette entry of transparency color -- 255 on the PC
 
 #define GR_FADE_LEVELS 34
 #define GR_ACTUAL_FADE_LEVELS 32
@@ -42,10 +34,11 @@ COPYRIGHT 1993-1999 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 #define GHEIGHT grd_curcanv->cv_bitmap.bm_h
 #define SWIDTH  (grd_curscreen->sc_w)
 #define SHEIGHT (grd_curscreen->sc_h)
-#define HIRESMODE (SWIDTH >= 640 && SHEIGHT >= 480 && GameArg.GfxHiresGFXAvailable)
 
+#define HIRESMODE (SWIDTH >= 640 && SHEIGHT >= 480 && GameArg.GfxHiresGFXAvailable)
 #define MAX_BMP_SIZE(width, height) (4 + ((width) + 2) * (height))
-#define BM_FLAG_TGA 128
+
+#define SCRNS_DIR "screenshots/"
 
 extern int Gr_scanline_darkening_level;
 
@@ -77,7 +70,7 @@ typedef struct _grs_point {
 #define SM(w,h) ((((u_int32_t)w)<<16)+(((u_int32_t)h)&0xFFFF))
 #define SM_W(m) (m>>16)
 #define SM_H(m) (m&0xFFFF)
-
+#define SM_ORIGINAL		0
 
 #define BM_FLAG_TRANSPARENT         1
 #define BM_FLAG_SUPER_TRANSPARENT   2
@@ -106,8 +99,6 @@ typedef struct _grs_bitmap {
 	struct _grs_bitmap  *bm_parent;
 #endif /* def OGL */
 } grs_bitmap;
-
-#define SCRNS_DIR "screenshots/"
 
 //font structure
 typedef struct _grs_font {
@@ -156,19 +147,12 @@ typedef struct _grs_screen {    // This is a video screen
 
 int gr_init(int mode);
 
-// This function sets up the main screen.  It should be called whenever
-// the video mode changes.
-int gr_init_screen(int mode, int w, int h, int x, int y, int rowsize, ubyte *data);
-
+int gr_check_mode(u_int32_t mode);
 int gr_set_mode(u_int32_t mode);
 void gr_set_attributes(void);
 
 extern void gr_pal_setblock( int start, int number, unsigned char * pal );
 extern void gr_pal_getblock( int start, int number, unsigned char * pal );
-
-
-extern unsigned char *gr_video_memory;
-	                                            // All graphic modules will define this value.
 
 //shut down the 2d.  Restore the screen mode.
 void gr_close(void);
@@ -244,7 +228,10 @@ void gr_bm_ubitbltm(int w, int h, int dx, int dy, int sx, int sy, grs_bitmap * s
 
 void gr_update_buffer( void * sbuf1, void * sbuf2, void * dbuf, int size );
 
+void gr_set_bitmap_flags(grs_bitmap *pbm, int flags);
 void gr_set_transparent(grs_bitmap *pbm, int bTransparent);
+void gr_set_super_transparent(grs_bitmap *pbm, int bTransparent);
+void gr_set_bitmap_data(grs_bitmap *bm, unsigned char *data);
 
 //=========================================================================
 // Color functions:
@@ -271,8 +258,8 @@ void gr_setcolor(int color);
 // but not necessarily shaded as a concave polygon. It shouldn't hang.
 // probably good solution is to shade from minx to maxx on each scan line.
 // int should really be fix
-int gr_poly(int nverts,int *verts);
-int gr_upoly(int nverts,int *verts);
+void gr_poly(int nverts,int *verts);
+void gr_upoly(int nverts,int *verts);
 
 
 // Draws a point into the current canvas in the current color and drawmode.
@@ -294,6 +281,7 @@ int gr_uaaline(fix x0,fix y0,fix x1,fix y1);
 // Draw the bitmap into the current canvas at the specified location.
 void gr_bitmap(int x,int y,grs_bitmap *bm);
 void gr_ubitmap(int x,int y,grs_bitmap *bm);
+inline void scale_line(unsigned char *in, unsigned char *out, int ilen, int olen);
 void gr_bitmap_scale_to(grs_bitmap *src, grs_bitmap *dst);
 void show_fullscr(grs_bitmap *bm);
 
@@ -363,8 +351,6 @@ extern void gr_set_current_canvas( grs_canvas *canv );
 #define FT_PROPORTIONAL 2
 #define FT_KERNED       4
 
-extern void gr_vesa_update( grs_bitmap * source1, grs_bitmap * dest, grs_bitmap * source2 );
-
 // Special effects
 extern void gr_snow_out(int num_dots);
 
@@ -401,6 +387,7 @@ extern void gr_palette_step_up( int r, int g, int b );
 
 extern void gr_bitmap_check_transparency( grs_bitmap * bmp );
 
+#ifdef BITMAP_SELECTOR
 // Allocates a selector that has a base address at 'address' and length 'size'.
 // Returns 0 if successful... BE SURE TO CHECK the return value since there
 // is a limited number of selectors available!!!
@@ -409,6 +396,7 @@ extern int get_selector( void * address, int size, unsigned int * selector );
 // Assigns a selector to a bitmap. Returns 0 if successful.  BE SURE TO CHECK
 // this return value since there is a limited number of selectors!!!!!!!
 extern int gr_bitmap_assign_selector( grs_bitmap * bmp );
+#endif
 
 #define BM_RGB(r,g,b) ( (((r)&31)<<10) | (((g)&31)<<5) | ((b)&31) )
 #define BM_XRGB(r,g,b) gr_find_closest_color( (r)*2,(g)*2,(b)*2 )

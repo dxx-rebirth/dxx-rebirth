@@ -35,6 +35,16 @@ void gr_set_draw_buffer(int buf)
 	buf = buf;
 }
 
+int gr_check_mode(u_int32_t mode)
+{
+	unsigned int w, h;
+
+	w=SM_W(mode);
+	h=SM_H(mode);
+
+	return SDL_VideoModeOK(w,h,8,sdl_video_flags);
+}
+
 int gr_set_mode(u_int32_t mode)
 {
 	unsigned int w, h;
@@ -67,7 +77,7 @@ int gr_set_mode(u_int32_t mode)
 		exit(1);
 	}
 
-	memset( grd_curscreen, 0, sizeof(grs_screen));
+	memset(grd_curscreen, 0, sizeof(grs_screen));
 	grd_curscreen->sc_mode = mode;
 	grd_curscreen->sc_w = w;
 	grd_curscreen->sc_h = h;
@@ -113,7 +123,7 @@ int gr_init(int mode)
 {
 	int retcode;
 
- 	// Only do this function once!
+	// Only do this function once!
 	if (gr_installed==1)
 		return -1;
 
@@ -233,18 +243,18 @@ void gr_palette_load( ubyte *pal )
 		if (gr_current_pal[i] > 63)
 			gr_current_pal[i] = 63;
 	}
-	
+
 	if (screen == NULL)
 		return;
 
 	palette = screen->format->palette;
-	
+
 	if (palette == NULL)
 		return; // Display is not palettised
-	
+
 	for (i=0;i<64;i++)
 		gamma[i] = (int)((pow(((double)(14)/(double)(32)), 1.0)*i) + 0.5);
-	
+
 	for (i = 0, j = 0; j < 256; j++)
 	{
 		int c;
@@ -254,7 +264,7 @@ void gr_palette_load( ubyte *pal )
 		colors[j].g = (min(gr_current_pal[i++] + gr_palette_gamma, 63)) * 4;
 		colors[j].b = (min(gr_current_pal[i++] + gr_palette_gamma, 63)) * 4;
 	}
-	
+
 	SDL_SetColors(screen, colors, 0, 256);
 	init_computed_colors();
 	gr_remap_color_fonts();
@@ -265,9 +275,9 @@ void gr_palette_read(ubyte * pal)
 {
 	SDL_Palette *palette;
 	int i, j;
-	
+
 	palette = screen->format->palette;
-	
+
 	if (palette == NULL)
 		return; // Display is not palettised
 

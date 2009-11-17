@@ -488,7 +488,6 @@ void piggy_init_pigfile(char *filename)
 #define MAX_BITMAPS_PER_BRUSH 30
 
 extern int compute_average_pixel(grs_bitmap *new);
-extern void gr_set_bitmap_data(grs_bitmap *bm, unsigned char *data);
 
 ubyte *Bitmap_replacement_data = NULL;
 
@@ -1028,8 +1027,6 @@ void piggy_critical_error()
 	gr_set_current_canvas(save_canv);
 	grd_curcanv->cv_font = save_font;
 }
-
-extern void gr_set_bitmap_flags(grs_bitmap *pbm, int flags);
 
 void piggy_bitmap_page_in( bitmap_index bitmap )
 {
