@@ -262,8 +262,6 @@ bool g3_draw_polygon_model(void *model_ptr,grs_bitmap **model_bitmaps,vms_angvec
 	return 1;
 }
 
-extern int gr_find_closest_color_15bpp( int rgb );
-
 #ifndef NDEBUG
 int nest_count;
 #endif

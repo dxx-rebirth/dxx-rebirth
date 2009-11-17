@@ -1,3 +1,4 @@
+/* $Id: gr.h,v 1.1.1.1 2006/03/17 20:01:25 zicodxx Exp $ */
 /*
 THE COMPUTER CODE CONTAINED HEREIN IS THE SOLE PROPERTY OF PARALLAX
 SOFTWARE CORPORATION ("PARALLAX").  PARALLAX, IN DISTRIBUTING THE CODE TO
@@ -7,9 +8,10 @@ IN USING, DISPLAYING,  AND CREATING DERIVATIVE WORKS THEREOF, SO LONG AS
 SUCH USE, DISPLAY OR CREATION IS FOR NON-COMMERCIAL, ROYALTY OR REVENUE
 FREE PURPOSES.  IN NO EVENT SHALL THE END-USER USE THE COMPUTER CODE
 CONTAINED HEREIN FOR REVENUE-BEARING PURPOSES.  THE END-USER UNDERSTANDS
-AND AGREES TO THE TERMS HEREIN AND ACCEPTS THE SAME BY USE OF THIS FILE.  
+AND AGREES TO THE TERMS HEREIN AND ACCEPTS THE SAME BY USE OF THIS FILE.
 COPYRIGHT 1993-1998 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 */
+
 /*
  *
  * Definitions for graphics lib.
@@ -18,8 +20,6 @@ COPYRIGHT 1993-1998 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 
 #ifndef _GR_H
 #define _GR_H
-
-#include "cfile.h"
 
 #include "pstypes.h"
 #include "fix.h"
@@ -31,6 +31,12 @@ extern int HiresGFXAvailable;
 
 #define GR_FADE_LEVELS 34
 #define GR_ACTUAL_FADE_LEVELS 32
+
+#define GWIDTH  grd_curcanv->cv_bitmap.bm_w
+#define GHEIGHT grd_curcanv->cv_bitmap.bm_h
+#define SWIDTH  (grd_curscreen->sc_w)
+#define SHEIGHT (grd_curscreen->sc_h)
+
 #define HIRESMODE HiresGFXAvailable		// descent.pig either contains hires or lowres graphics, not both
 #define MAX_BMP_SIZE(width, height) (4 + ((width) + 2) * (height))
 
@@ -39,7 +45,7 @@ extern int HiresGFXAvailable;
 extern int Gr_scanline_darkening_level;
 
 typedef struct _grs_point {
-	fix	x,y;
+	fix x,y;
 } grs_point;
 
 //old font structure, could not add new items to it without screwing up gr_init_font
@@ -70,6 +76,18 @@ old_grs_font;
 #define CC_UNDERLINE_S  "\x3"   //next char is underlined
 
 #define BM_LINEAR   0
+#define BM_MODEX    1
+#define BM_SVGA     2
+#define BM_RGB15    3   //5 bits each r,g,b stored at 16 bits
+#define BM_SVGA15   4
+#ifdef OGL
+#define BM_OGL      5
+#endif /* def OGL */
+
+#define SM(w,h) ((((u_int32_t)w)<<16)+(((u_int32_t)h)&0xFFFF))
+#define SM_W(m) (m>>16)
+#define SM_H(m) (m&0xFFFF)
+#define SM_ORIGINAL		0
 
 #define BM_FLAG_TRANSPARENT         1
 #define BM_FLAG_SUPER_TRANSPARENT   2
@@ -79,48 +97,46 @@ old_grs_font;
 #define BM_FLAG_RLE_BIG             32  // for bitmaps that RLE to > 255 per row (i.e. cockpits)
 
 typedef struct _grs_bitmap {
-	short       bm_x,bm_y;      // Offset from parent's origin
-	short       bm_w,bm_h;      // width,height
-	sbyte       	bm_type;        // 0=Linear, 1=ModeX, 2=SVGA
-	sbyte		bm_flags;		// bit 0 on means it has transparency.
-								// bit 1 on means it has supertransparency
-								// bit 2 on means it doesn't get passed through lighting.
-	short	    bm_rowsize;     // unsigned char offset to next row
-	unsigned char *bm_data;		// ptr to pixel data...
-								//   Linear = *parent+(rowsize*y+x)
-								//   ModeX = *parent+(rowsize*y+x/4)
-								//   SVGA = *parent+(rowsize*y+x)
-
-	#ifdef BITMAP_SELECTOR
-	unsigned short bm_selector;
-	#endif
-	ubyte			avg_color;	//	Average color of all pixels in texture map.
-	sbyte			unused;		//	to 4-byte align.
-
+	short   bm_x,bm_y;  // Offset from parent's origin
+	short   bm_w,bm_h;  // width,height
+	sbyte   bm_type;    // 0=Linear, 1=ModeX, 2=SVGA
+	sbyte   bm_flags;   // bit 0 on means it has transparency.
+	                    // bit 1 on means it has supertransparency
+	                    // bit 2 on means it doesn't get passed through lighting.
+	short   bm_rowsize; // unsigned char offset to next row
+	unsigned char *     bm_data;    // ptr to pixel data...
+	                                //   Linear = *parent+(rowsize*y+x)
+	                                //   ModeX = *parent+(rowsize*y+x/4)
+	                                //   SVGA = *parent+(rowsize*y+x)
+	unsigned short      bm_handle;  //for application.  initialized to 0
+	ubyte   avg_color;  //  Average color of all pixels in texture map.
+	sbyte   unused;     // to 4-byte align.
 #ifdef OGL
 	struct _ogl_texture *gltexture;
-	struct _grs_bitmap *bm_parent;
-#endif
+	struct _grs_bitmap  *bm_parent;
+#endif /* def OGL */
 } grs_bitmap;
 
 //new font structure, which does not suffer from the inability to add new items
 typedef struct _new_grs_font {
-	short		ft_w,ft_h;		// Width and height in pixels
-	float		ft_aw;			// "Average" width (on proportional fonts, ft_w is usually much larger than normal)
-	short		ft_flags;		// Proportional?
-	short		ft_baseline;	//
-	ubyte		ft_minchar,		// The first and last chars defined by
-				ft_maxchar;		// This font
-	short		ft_bytewidth;	// Width in unsigned chars
-	ubyte	* 	ft_data;			// Ptr to raw data.
-	ubyte	**	ft_chars;		// Ptrs to data for each char (required for prop font)
-	short	*	ft_widths;		// Array of widths (required for prop font)
-	ubyte *  ft_kerndata;	// Array of kerning triplet data
+	short       ft_w;           // Width in pixels
+	short       ft_h;           // Height in pixels
+	float       ft_aw;          // "Average" width (on proportional fonts, ft_w is usually much larger than normal)
+	short       ft_flags;       // Proportional?
+	short       ft_baseline;    //
+	ubyte       ft_minchar;     // First char defined by this font
+	ubyte       ft_maxchar;     // Last char defined by this font
+	short       ft_bytewidth;   // Width in unsigned chars
+	ubyte     * ft_data;        // Ptr to raw data.
+	ubyte    ** ft_chars;       // Ptrs to data for each char (required for prop font)
+	short     * ft_widths;      // Array of widths (required for prop font)
+	ubyte     * ft_kerndata;    // Array of kerning triplet data
 	old_grs_font *oldfont;
 #ifdef OGL
-	grs_bitmap * ft_bitmaps;
+	// These fields do not participate in disk i/o!
+	grs_bitmap *ft_bitmaps;
 	grs_bitmap ft_parent_bitmap;
-#endif
+#endif /* def OGL */
 } grs_font;
 
 typedef struct _grs_canvas {
@@ -132,33 +148,25 @@ typedef struct _grs_canvas {
 	short       cv_font_bg_color;   // current font background color (-1==Invisible)
 } grs_canvas;
 
-typedef struct _grs_screen {     // This is a video screen
-	grs_canvas  sc_canvas;      // Represents the entire screen
-	u_int32_t       sc_mode;        // Video mode number
-	short       sc_w, sc_h;     // Actual Width and Height
-	fix			sc_aspect;		//aspect ratio (w/h) for this screen
+typedef struct _grs_screen {    // This is a video screen
+	grs_canvas  sc_canvas;  // Represents the entire screen
+	int     sc_mode;        // Video mode number
+	short   sc_w, sc_h;     // Actual Width and Height
+	fix     sc_aspect;      //aspect ratio (w/h) for this screen
 } grs_screen;
 
-#define SM(w,h) ((((u_int32_t)w)<<16)+(((u_int32_t)h)&0xFFFF))
-#define SM_W(m) (m>>16)
-#define SM_H(m) (m&0xFFFF)
-#define SM_ORIGINAL		0
 
-#define BM_LINEAR   0
-#define BM_RGB15    3   //5 bits each r,g,b stored at 16 bits
-#define BM_SVGA15   4
-#ifdef OGL
-#define BM_OGL      5
-#endif
-
-////=========================================================================
+//=========================================================================
 // System functions:
 // setup and set mode. this creates a grs_screen structure and sets
 // grd_curscreen to point to it.  grs_curcanv points to this screen's
 // canvas.  Saves the current VGA state and screen mode.
 
-int gr_init();
-void gr_set_bitmap_data (grs_bitmap *bm, unsigned char *data);
+int gr_init(int mode);
+
+int gr_check_mode(u_int32_t mode);
+int gr_set_mode(u_int32_t mode);
+void gr_set_attributes(void);
 
 void gr_enable_default_palette_loading();
 void gr_disable_default_palette_loading();
@@ -167,23 +175,7 @@ extern void gr_pal_setblock( int start, int number, unsigned char * pal );
 extern void gr_pal_getblock( int start, int number, unsigned char * pal );
 
 //shut down the 2d.  Restore the screen mode.
-void gr_close();
-
-//  0=Mode set OK
-//  1=No VGA adapter installed
-//  2=Program doesn't support this VESA granularity
-//  3=Monitor doesn't support that VESA mode.:
-//  4=Video card doesn't support that VESA mode.
-//  5=No VESA driver found.
-//  6=Bad Status after VESA call/
-//  7=Not enough DOS memory to call VESA functions.
-//  8=Error using DPMI.
-//  9=Error setting logical line width.
-// 10=Error allocating selector for A0000h
-// 11=Not a valid mode support by gr.lib
-// Returns one of the above without setting mode
-int gr_set_mode(u_int32_t mode);
-void gr_set_attributes(void);
+void gr_close(void);
 
 //=========================================================================
 // Canvas functions:
@@ -206,7 +198,7 @@ void gr_init_canvas(grs_canvas *canv,unsigned char *pixdata,int pixtype, int w,i
 
 // Initialize the specified sub canvas. no memory allocation is performed.
 
-void gr_init_sub_canvas(grs_canvas *New,grs_canvas *src,int x,int y,int w, int h);
+void gr_init_sub_canvas(grs_canvas *new,grs_canvas *src,int x,int y,int w, int h);
 
 // Free up the canvas and its pixel data.
 
@@ -250,17 +242,16 @@ void gr_free_sub_bitmap(grs_bitmap *bm);
 
 void gr_bm_pixel( grs_bitmap * bm, int x, int y, unsigned char color );
 void gr_bm_upixel( grs_bitmap * bm, int x, int y, unsigned char color );
+void gr_bm_bitblt(int w, int h, int dx, int dy, int sx, int sy, grs_bitmap * src, grs_bitmap * dest);
 void gr_bm_ubitblt( int w, int h, int dx, int dy, int sx, int sy, grs_bitmap * src, grs_bitmap * dest);
 void gr_bm_ubitbltm(int w, int h, int dx, int dy, int sx, int sy, grs_bitmap * src, grs_bitmap * dest);
 
-void gr_bitblt_cockpit(grs_bitmap *bm);
-
 void gr_update_buffer( void * sbuf1, void * sbuf2, void * dbuf, int size );
 
-void gr_set_bitmap_flags (grs_bitmap *pbm, int flags);
-void gr_set_transparent (grs_bitmap *pbm, int bTransparent);
-void gr_set_super_transparent (grs_bitmap *pbm, int bTransparent);
-void gr_set_bitmap_data (grs_bitmap *bm, unsigned char *data);
+void gr_set_bitmap_flags(grs_bitmap *pbm, int flags);
+void gr_set_transparent(grs_bitmap *pbm, int bTransparent);
+void gr_set_super_transparent(grs_bitmap *pbm, int bTransparent);
+void gr_set_bitmap_data(grs_bitmap *bm, unsigned char *data);
 
 //=========================================================================
 // Color functions:
@@ -274,7 +265,7 @@ void gr_use_palette_table(char * filename );
 // Drawing functions:
 
 // For solid, XOR, or other fill modes.
-void gr_set_drawmode(int mode);
+int gr_set_drawmode(int mode);
 
 // Sets the color in the current canvas.  should be a macro
 // Use: gr_setcolor(int color);
@@ -342,7 +333,7 @@ grs_font * gr_init_font( char * fontfile );
 void gr_close_font( grs_font * font );
 
 // Writes a string using current font. Returns the next column after last char.
-void gr_set_curfont( grs_font * New );
+void gr_set_curfont( grs_font * new );
 void gr_set_fontcolor( int fg_color, int bg_color );
 int gr_string(int x, int y, char *s );
 int gr_ustring(int x, int y, char *s );
@@ -351,15 +342,11 @@ int gr_uprintf( int x, int y, char * format, ... );
 void gr_get_string_size(char *s, int *string_width, int *string_height, int *average_width );
 
 
-//	From roller.c
+//  From roller.c
 void rotate_bitmap(grs_bitmap *bp, grs_point *vertbuf, int light_value);
 
 // From scale.c
 void scale_bitmap(grs_bitmap *bp, grs_point *vertbuf );
-
-// Reads in a font file... current font set to this one.
-grs_font * gr_init_font( char * fontfile );
-void gr_close_font( grs_font * font );
 
 //===========================================================================
 // Global variables
@@ -367,19 +354,14 @@ extern grs_canvas *grd_curcanv;             //active canvas
 extern grs_screen *grd_curscreen;           //active screen
 extern unsigned char Test_bitmap_data[64*64];
 
-#define GWIDTH  grd_curcanv->cv_bitmap.bm_w
-#define GHEIGHT grd_curcanv->cv_bitmap.bm_h
-#define SWIDTH	(grd_curscreen->sc_w)
-#define SHEIGHT	(grd_curscreen->sc_h)
-
 extern unsigned int FixDivide( unsigned int x, unsigned int y );
 
 extern void gr_set_current_canvas( grs_canvas *canv );
 
 //flags for fonts
-#define FT_COLOR			1
-#define FT_PROPORTIONAL	2
-#define FT_KERNED			4
+#define FT_COLOR        1
+#define FT_PROPORTIONAL 2
+#define FT_KERNED       4
 
 // Special effects
 extern void gr_snow_out(int num_dots);
@@ -395,10 +377,10 @@ extern ushort gr_palette_selector;
 extern ushort gr_inverse_table_selector;
 extern ushort gr_fade_table_selector;
 
-// Remaps a bitmap into the current palette. If transparent_color is between 0 and 255
-// then all occurances of that color are mapped to whatever color the 2d uses for 
-// transparency. This is normally used right after a call to iff_read_bitmap like
-// this:
+// Remaps a bitmap into the current palette. If transparent_color is
+// between 0 and 255 then all occurances of that color are mapped to
+// whatever color the 2d uses for transparency. This is normally used
+// right after a call to iff_read_bitmap like this:
 //		iff_error = iff_read_bitmap(filename,new,BM_LINEAR,newpal);
 //		if (iff_error != IFF_NO_ERROR) Error("Can't load IFF file <%s>, error=%d",filename,iff_error);
 //		if ( iff_has_transparency )
@@ -407,9 +389,11 @@ extern ushort gr_fade_table_selector;
 //			gr_remap_bitmap( new, newpal, -1 );
 extern void gr_remap_bitmap( grs_bitmap * bmp, ubyte * palette, int transparent_color, int super_transparent_color );
 
-// Same as above, but searches using gr_find_closest_color which uses 18-bit accurracy
-// instaed of 15bit when translating colors.
+// Same as above, but searches using gr_find_closest_color which uses
+// 18-bit accurracy instead of 15bit when translating colors.
 extern void gr_remap_bitmap_good( grs_bitmap * bmp, ubyte * palette, int transparent_color, int super_transparent_color );
+
+extern void build_colormap_good( ubyte * palette, ubyte * colormap, int * freq );
 
 extern void gr_palette_step_up( int r, int g, int b );
 
@@ -432,22 +416,25 @@ extern int gr_bitmap_assign_selector( grs_bitmap * bmp );
 // Given: r,g,b, each in range of 0-63, return the color index that
 // best matches the input.
 int gr_find_closest_color( int r, int g, int b );
+int gr_find_closest_color_15bpp( int rgb );
 
 extern void gr_merge_textures( ubyte * lower, ubyte * upper, ubyte * dest );
 extern void gr_merge_textures_1( ubyte * lower, ubyte * upper, ubyte * dest );
 extern void gr_merge_textures_2( ubyte * lower, ubyte * upper, ubyte * dest );
 extern void gr_merge_textures_3( ubyte * lower, ubyte * upper, ubyte * dest );
 
-// gr.c
-extern void gr_sync_display();
-// bitmap.c
-extern void build_colormap_good( ubyte * palette, ubyte * colormap, int * freq );
-//extern void decode_data_asm(ubyte *data, int num_pixels, ubyte *colormap, int *count);
-
 extern void gr_flip(void);
 extern void gr_set_draw_buffer(int buf);
 
-int gr_check_fullscreen(void);//must return 0 if windowed, 1 if fullscreen
-int gr_toggle_fullscreen(void);//returns state after toggling (ie, same as if you had called check_fullscreen immediatly after)
+/*
+ * must return 0 if windowed, 1 if fullscreen
+ */
+int gr_check_fullscreen(void);
 
-#endif //!_GR_H
+/*
+ * returns state after toggling (ie, same as if you had called
+ * check_fullscreen immediatly after)
+ */
+int gr_toggle_fullscreen(void);
+
+#endif /* def _GR_H */

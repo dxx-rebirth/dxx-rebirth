@@ -1,5 +1,9 @@
 D1X-Rebirth Changelog
 
+20091117
+--------
+3d/interp.c, arch/ogl/gr.c, arch/sdl/gr.c, include/gr.h, main/kconfig.c, main/menu.c: Only list resolutions that can actually be used, using new gr_check_mode
+
 20091115
 --------
 main/gamecntl.c, main/newdemo.c, main/newdemo.h, main/newmenu.c, main/text.c: Add endian converter for demos, read shareware demos, various bugfixes to demo system

@@ -35,10 +35,20 @@ void gr_set_draw_buffer(int buf)
 	buf = buf;
 }
 
+int gr_check_mode(u_int32_t mode)
+{
+	unsigned int w, h;
+
+	w=SM_W(mode);
+	h=SM_H(mode);
+
+	return SDL_VideoModeOK(w,h,8,sdl_video_flags);
+}
+
 int gr_set_mode(u_int32_t mode)
 {
 	unsigned int w, h;
-	
+
 	if (mode<=0)
 		return 0;
 
@@ -97,7 +107,7 @@ int gr_toggle_fullscreen(void)
 {
 	sdl_video_flags^=SDL_FULLSCREEN;
 	SDL_WM_ToggleFullScreen(screen);
-	GameCfg.WindowMode = !(sdl_video_flags & SDL_FULLSCREEN)?0:1;
+	GameCfg.WindowMode = (sdl_video_flags & SDL_FULLSCREEN)?0:1;
 	return (sdl_video_flags & SDL_FULLSCREEN)?1:0;
 }
 
@@ -112,6 +122,11 @@ int gr_init(int mode)
 	// Only do this function once!
 	if (gr_installed==1)
 		return -1;
+
+	if (SDL_Init(SDL_INIT_VIDEO) < 0)
+	{
+		Error("SDL library video initialisation failed: %s.",SDL_GetError());
+	}
 
 	MALLOC( grd_curscreen,grs_screen,1 );
 	memset( grd_curscreen, 0, sizeof(grs_screen));
@@ -214,7 +229,7 @@ void gr_palette_load( ubyte *pal )
 	SDL_Palette *palette;
 	SDL_Color colors[256];
 	ubyte gamma[64];
-	
+
 	if (memcmp(pal,gr_current_pal,768))
 		SDL_FillRect(screen, NULL, SDL_MapRGB(screen->format, 0, 0, 0));
 
@@ -227,7 +242,7 @@ void gr_palette_load( ubyte *pal )
 
 	if (screen == NULL)
 		return;
-	
+
 	palette = screen->format->palette;
 
 	if (palette == NULL)

@@ -1,23 +1,28 @@
-// OGL video functions. - Added 9/15/99 Matthew Mueller
+/*
+ *
+ * OGL video functions. - Added 9/15/99 Matthew Mueller
+ *
+ */
 
 #define DECLARE_VARS
 
 #include <stdlib.h>
 #include <stdio.h>
 #include <string.h>
-#ifdef _WIN32
+#ifdef _MSC_VER
 #include <windows.h>
 #endif
-#ifndef macintosh
-#ifndef _MSC_VER
+
+#if !defined(_MSC_VER) && !defined(macintosh)
 #include <unistd.h>
 #endif
+#if !defined(macintosh)
 #include <sys/types.h>
 #include <sys/stat.h>
 #include <fcntl.h>
 #endif
+
 #include <errno.h>
-#include <limits.h>
 #include <SDL/SDL.h>
 #include "hudmsg.h"
 #include "game.h"
@@ -33,21 +38,20 @@
 #include "strutil.h"
 #include "args.h"
 #include "key.h"
-#include "u_mem.h"
-#include "gamefont.h"
-#include "render.h"
-#include "internal.h"
 #include "physfsx.h"
+#include "internal.h"
+#include "render.h"
 #include "console.h"
+#include "config.h"
+#include "playsave.h"
+#include "vers_id.h"
+#include "game.h"
+
 #if defined(__APPLE__) && defined(__MACH__)
 #include <OpenGL/glu.h>
 #else
 #include <GL/glu.h>
 #endif
-#include "config.h"
-#include "playsave.h"
-#include "vers_id.h"
-#include "gr.h"
 
 int gr_installed = 0;
 int gl_initialized=0;
@@ -76,7 +80,7 @@ int ogl_init_window(int x, int y)
 	SDL_ShowCursor(0);
 
 	curx=x;cury=y;curfull=ogl_fullscreen;
-	
+
 	linedotscale = ((x/640<y/480?x/640:y/480)<1?1:(x/640<y/480?x/640:y/480));
 
 	gl_initialized=1;
@@ -124,7 +128,7 @@ int gr_toggle_fullscreen(void)
 }
 
 extern void ogl_init_pixel_buffers(int w, int h);
- extern void ogl_close_pixel_buffers(void);
+extern void ogl_close_pixel_buffers(void);
 
 void ogl_init_state(void)
 {
@@ -139,8 +143,8 @@ void ogl_init_state(void)
 	glLoadIdentity();//clear matrix
 	glEnable(GL_BLEND);
 	glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
-
 	gr_palette_step_up(0,0,0);//in case its left over from in game
+
 	ogl_init_pixel_buffers(grd_curscreen->sc_w, grd_curscreen->sc_h);
 }
 
@@ -150,14 +154,14 @@ void gr_set_draw_buffer(int buf)
 	glDrawBuffer((buf == 0) ? GL_FRONT : GL_BACK);
 }
 
-const char *gl_vendor,*gl_renderer,*gl_version,*gl_extensions;
+const char *gl_vendor, *gl_renderer, *gl_version, *gl_extensions;
 
 void ogl_get_verinfo(void)
 {
-	gl_vendor=(const char *)glGetString(GL_VENDOR);
-	gl_renderer=(const char *)glGetString(GL_RENDERER);
-	gl_version=(const char *)glGetString(GL_VERSION);
-	gl_extensions=(const char *)glGetString(GL_EXTENSIONS);
+	gl_vendor = (const char *) glGetString (GL_VENDOR);
+	gl_renderer = (const char *) glGetString (GL_RENDERER);
+	gl_version = (const char *) glGetString (GL_VERSION);
+	gl_extensions = (const char *) glGetString (GL_EXTENSIONS);
 
 	con_printf(CON_VERBOSE, "OpenGL: vendor: %s\nOpenGL: renderer: %s\nOpenGL: version: %s\n",gl_vendor,gl_renderer,gl_version);
 
@@ -175,7 +179,13 @@ void ogl_get_verinfo(void)
 		GameArg.DbgGlReadPixelsOk=0;//either just returns all black, or kills the X server entirely
 		GameArg.DbgGlGetTexLevelParamOk=0;//returns random data..
 	}
-
+	if (stricmp(gl_vendor,"Matrox Graphics Inc.")==0)
+	{
+		//displays garbage. reported by
+		//  redomen@crcwnet.com (render="Matrox G400" version="1.1.3 5.52.015")
+		//  orulz (Matrox G200)
+		GameArg.DbgGlIntensity4Ok=0;
+	}
 #ifdef macintosh
 	if (stricmp(gl_renderer,"3dfx Voodoo 3")==0) // strangely, includes Voodoo 2
 		GameArg.DbgGlGetTexLevelParamOk=0; // Always returns 0
@@ -184,6 +194,16 @@ void ogl_get_verinfo(void)
 #ifndef NDEBUG
 	con_printf(CON_VERBOSE,"gl_intensity4:%i gl_luminance4_alpha4:%i gl_rgba2:%i gl_readpixels:%i gl_gettexlevelparam:%i\n",GameArg.DbgGlIntensity4Ok,GameArg.DbgGlLuminance4Alpha4Ok,GameArg.DbgGlRGBA2Ok,GameArg.DbgGlReadPixelsOk,GameArg.DbgGlGetTexLevelParamOk);
 #endif
+}
+
+int gr_check_mode(u_int32_t mode)
+{
+	unsigned int w, h;
+	
+	w=SM_W(mode);
+	h=SM_H(mode);
+	
+	return SDL_VideoModeOK(w, h, GameArg.DbgGlBpp, SDL_OPENGL | (ogl_fullscreen?SDL_FULLSCREEN:0));
 }
 
 int gr_set_mode(u_int32_t mode)
@@ -279,7 +299,7 @@ int ogl_init_load_library(void)
 		}
 		else
 		{
-			Error("Opengl: error loading %s\n",OglLibPath);
+			Error("Opengl: error loading %s\n", OglLibPath);
 		}
 		ogl_rt_loaded=1;
 	}
@@ -366,7 +386,6 @@ int gr_init(int mode)
 
 	gr_installed = 1;
 	
-
 	return 0;
 }
 
@@ -397,12 +416,11 @@ extern int r_upixelc;
 void ogl_upixelc(int x, int y, int c)
 {
 	r_upixelc++;
-
 	OGL_DISABLE(TEXTURE_2D);
 	glPointSize(linedotscale);
 	glBegin(GL_POINTS);
 	glColor3f(CPAL2Tr(c),CPAL2Tg(c),CPAL2Tb(c));
-	glVertex2f((x+grd_curcanv->cv_bitmap.bm_x)/(float)last_width,1.0-(y+grd_curcanv->cv_bitmap.bm_y)/(float)last_height);
+	glVertex2f((x + grd_curcanv->cv_bitmap.bm_x + 0.5) / (float)last_width, 1.0 - (y + grd_curcanv->cv_bitmap.bm_y + 0.5) / (float)last_height);
 	glEnd();
 }
 
@@ -410,6 +428,7 @@ void ogl_urect(int left,int top,int right,int bot)
 {
 	GLfloat xo,yo,xf,yf;
 	int c=COLOR;
+	
 	xo=(left+grd_curcanv->cv_bitmap.bm_x)/(float)last_width;
 	xf = (right + 1 + grd_curcanv->cv_bitmap.bm_x) / (float)last_width;
 	yo=1.0-(top+grd_curcanv->cv_bitmap.bm_y)/(float)last_height;
@@ -475,7 +494,7 @@ int ogl_brightness_ok = 0;
 int ogl_brightness_r = 0, ogl_brightness_g = 0, ogl_brightness_b = 0;
 static int old_b_r = 0, old_b_g = 0, old_b_b = 0;
 
-void gr_palette_step_up( int r, int g, int b )
+void gr_palette_step_up(int r, int g, int b)
 {
 	old_b_r = ogl_brightness_r;
 	old_b_g = ogl_brightness_g;
@@ -497,7 +516,6 @@ void gr_palette_step_up( int r, int g, int b )
 	{
 		do_pal_step = 0;
 	}
-	
 }
 
 #undef min
@@ -506,7 +524,7 @@ static inline int min(int x, int y) { return x < y ? x : y; }
 void gr_palette_load( ubyte *pal )
 {
 	int i;
-	
+
 	for (i=0; i<768; i++ )
 	{
 		gr_current_pal[i] = pal[i];
