@@ -1,5 +1,9 @@
 D1X-Rebirth Changelog
 
+20091122
+--------
+main/piggy.h: Adding cfile.h include to get CFILE definition work again
+
 20091117
 --------
 3d/interp.c, arch/ogl/gr.c, arch/sdl/gr.c, include/gr.h, main/kconfig.c, main/menu.c: Only list resolutions that can actually be used, using new gr_check_mode

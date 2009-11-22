@@ -22,6 +22,8 @@ COPYRIGHT 1993-1998 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 
 #include "digi.h"
 #include "sounds.h"
+//#include "inferno.h"
+#include "cfile.h"
 
 #define D1_SHARE_BIG_PIGSIZE    5092871 // v1.0 - 1.4 before RLE compression
 #define D1_SHARE_10_PIGSIZE     2529454 // v1.0 - 1.2
