@@ -2335,39 +2335,37 @@ void net_ipx_process_dump(IPX_sequence_packet *their)
 {
 	// Our request for join was denied.  Tell the user why.
 
-	char temp[40];
 	int i;
 
-	if (their->player.connected!=CONNECT_KMATRIX_WAITING)
-	{
-		nm_messagebox(NULL, 1, TXT_OK, NET_DUMP_STRINGS(their->player.connected));
-		Network_status = NETSTAT_MENU;
-	}
-	else
+	if (their->player.connected==DUMP_KICKED)
 	{
 		for (i=0;i<N_players;i++)
 		{
 			if (!stricmp (their->player.callsign,Players[i].callsign))
 			{
-				if (i!=multi_who_is_master())
+				if (i==multi_who_is_master())
 				{
-					HUD_init_message ("%s attempted to kick you out.",their->player.callsign);
+					if (Network_status==NETSTAT_PLAYING)
+						multi_leave_game();
+					Function_mode = FMODE_MENU;
+					nm_messagebox(NULL, 1, TXT_OK, "%s has kicked you out!",their->player.callsign);
+					Function_mode = FMODE_GAME;
+					multi_quit_game = 1;
+					multi_leave_menu = 1;
+					multi_reset_stuff();
+					Function_mode = FMODE_MENU;
 				}
 				else
 				{
-					sprintf (temp,"%s has kicked you out!",their->player.callsign);
-					nm_messagebox(NULL, 1, TXT_OK, &temp);
-					if (Network_status==NETSTAT_PLAYING)
-					{
-						multi_leave_game();
-					}
-					else
-					{
-						Network_status = NETSTAT_MENU;
-					}
+					HUD_init_message ("%s attempted to kick you out.",their->player.callsign);
 				}
 			}
 		}
+	}
+	else
+	{
+		nm_messagebox(NULL, 1, TXT_OK, NET_DUMP_STRINGS(their->player.connected));
+		Network_status = NETSTAT_MENU;
  	}
 }	
 void net_ipx_process_request(IPX_sequence_packet *their)

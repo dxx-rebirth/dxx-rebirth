@@ -4,6 +4,7 @@ D2X-Rebirth Changelog
 --------
 include/args.h, INSTALL.txt, main/net_udp.c, main/net_udp.h, main/fireball.c, main/multi.c, main/multibot.c, main/multi.h, main/inferno.c, main/menu.c, main/object.c, main/kmatrix.c, main/kmatrix.h, main/newdemo.c, main/config.c, main/net_ipx.c, main/config.h, main/net_ipx.h, main/gamerend.c, main/gameseq.c, main/endlevel.c, main/vers_id.h, main/game.c, main/gauges.c, misc/args.c, SConstruct, d2x.ini, README.txt, arch/linux/ipx.c, arch/linux/ipx_kali.c, arch/win32/ipx.c: Abstracting networking protocols - Step 4: Implemented new UDP layer with Client/Server communication, Packet Loss Prevention and strict Version checking. Netgames list will follow later.
 main/net_udp.c: Remove the IP check when processing game info or version deny as the IP might be translated (IPv6 especially)
+main/net_udp.c, main/net_ipx.c, SConstruct: Improved Disconnect-handling between levels; Improved Kick-handling; Do not say that IPv4 and IPv6 builds are not compatible in scons -h anymore
 
 20091117
 --------

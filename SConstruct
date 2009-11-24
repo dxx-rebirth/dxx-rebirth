@@ -485,7 +485,7 @@ Help(PROGRAM_NAME + ', SConstruct file help:' +
 	'profiler=1'      do profiler build
 	'editor=1'        build editor !EXPERIMENTAL!
 	'arm=1'           compile for ARM architecture
-	'ipv6=1'          enables IPv6 copability (not compatible to non-IPv6 build)
+	'ipv6=1'          enables IPv6 copability
 	
 	Default values:
 	""" + ' sharepath = ' + DATA_DIR + """
