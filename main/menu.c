@@ -132,7 +132,7 @@ void autodemo_menu_check(int nitems, newmenu_item * items, int *last_key, int ci
 	// Don't allow them to hit ESC in the main menu.
 	if (*last_key==KEY_ESC) *last_key = 0;
 
-	curtime = timer_get_approx_seconds();
+	curtime = timer_get_fixed_seconds();
 	if ( keyd_time_when_last_pressed+i2f(45) < curtime || GameArg.SysAutoDemo  )
 	{
 		if (curtime < 0) curtime = 0;

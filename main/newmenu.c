@@ -295,7 +295,7 @@ void nm_rstring( int w1,int x, int y, char * s )
 void update_cursor( newmenu_item *item, int ScrollOffset)
 {
 	int w,h,aw;
-	fix time = timer_get_approx_seconds();
+	fix time = timer_get_fixed_seconds();
 	int x,y;
 	char * text = item->text;
 

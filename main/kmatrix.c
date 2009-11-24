@@ -200,7 +200,7 @@ void kmatrix_ipx_redraw()
 void kmatrix_ipx_view(int network)
 {
 	int k, done;
-	fix entry_time = timer_get_approx_seconds();
+	fix entry_time = timer_get_fixed_seconds();
 	//edit 05/18/99 Matt Mueller - should be initialized.
 	int key=0;
 	//end edit -MM
@@ -234,7 +234,7 @@ void kmatrix_ipx_view(int network)
 			default:
 				break;
 		}
-		if (timer_get_approx_seconds() > entry_time+MAX_VIEW_TIME)
+		if (timer_get_fixed_seconds() > entry_time+MAX_VIEW_TIME)
 			done=1;
 
 		if (network && (Game_mode & GM_NETWORK))
@@ -451,7 +451,7 @@ void kmatrix_view(int network)
 	while (!done)
 	{
 		int playing = 0;
-		fix time = timer_get_approx_seconds();
+		fix time = timer_get_fixed_seconds();
 		
 		timer_delay2(50);
 		kmatrix_redraw();
@@ -489,7 +489,7 @@ void kmatrix_view(int network)
 			case KEY_ESC:
 				if (network)
 				{
-					StartAbortMenuTime=timer_get_approx_seconds();
+					StartAbortMenuTime=timer_get_fixed_seconds();
 					choice=nm_messagebox1( NULL,multi_endlevel_poll2, 2, TXT_YES, TXT_NO, TXT_ABORT_GAME );
 				}
 				else

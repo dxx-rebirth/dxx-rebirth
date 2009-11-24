@@ -560,7 +560,7 @@ void net_udp_kmatrix_poll2( int nitems, newmenu_item * menus, int * key, int cit
 	nitems = nitems;
 	key = key;
 
-	if (timer_get_approx_seconds() > (StartAbortMenuTime+(F1_0*3)))
+	if (timer_get_fixed_seconds() > (StartAbortMenuTime+(F1_0*3)))
 		*key = -2;
 
 	net_udp_do_frame(0, 1);
@@ -588,7 +588,7 @@ int net_udp_endlevel(int *secret)
 
 	for (i=0; i<N_players; i++) 
 	{
-		Netgame.players[i].LastPacketTime = timer_get_approx_seconds();
+		Netgame.players[i].LastPacketTime = timer_get_fixed_seconds();
 	}
    
 	net_udp_send_endlevel_packet();
@@ -799,7 +799,7 @@ void net_udp_welcome_player(UDP_sequence_packet *their)
 			// disconnected and replace the oldest player with this new one
 		
 			int oldest_player = -1;
-			fix oldest_time = timer_get_approx_seconds();
+			fix oldest_time = timer_get_fixed_seconds();
 			int activeplayers = 0;
 
 			Assert(N_players == MaxNumNetPlayers);
@@ -1279,7 +1279,7 @@ void net_udp_send_rejoin_sync(int player_num)
 	int i, j;
 
 	Players[player_num].connected = CONNECT_PLAYING; // connect the new guy
-	Netgame.players[player_num].LastPacketTime = timer_get_approx_seconds();
+	Netgame.players[player_num].LastPacketTime = timer_get_fixed_seconds();
 
 	if (Endlevel_sequence || Control_center_destroyed)
 	{
@@ -1362,7 +1362,7 @@ void net_udp_add_player(UDP_sequence_packet *p)
 	Netgame.players[N_players].rank=p->player.rank;
 	Netgame.players[N_players].connected = CONNECT_PLAYING;
 	Players[N_players].connected = CONNECT_PLAYING;
-	Netgame.players[N_players].LastPacketTime = timer_get_approx_seconds();
+	Netgame.players[N_players].LastPacketTime = timer_get_fixed_seconds();
 	N_players++;
 	Netgame.numplayers = N_players;
 
@@ -2246,13 +2246,13 @@ void net_udp_sync_poll( int nitems, newmenu_item * menus, int * key, int citem )
 	if (Network_status != NETSTAT_WAITING)	// Status changed to playing, exit the menu
 		*key = -2;
 
-	if (Network_status != NETSTAT_MENU && !Network_rejoined && (timer_get_approx_seconds() > t1+F1_0*2))
+	if (Network_status != NETSTAT_MENU && !Network_rejoined && (timer_get_fixed_seconds() > t1+F1_0*2))
 	{
 		int i;
 
 		// Poll time expired, re-send request
 		
-		t1 = timer_get_approx_seconds();
+		t1 = timer_get_fixed_seconds();
 
 		i = net_udp_send_request();
 		if (i < 0)
@@ -3122,10 +3122,10 @@ net_udp_request_poll( int nitems, newmenu_item * menus, int * key, int citem )
 
 	// Send our endlevel packet at regular intervals
 
-//	if (timer_get_approx_seconds() > t1+ENDLEVEL_SEND_INTERVAL)
+//	if (timer_get_fixed_seconds() > t1+ENDLEVEL_SEND_INTERVAL)
 //	{
 //		net_udp_send_endlevel_packet();
-//		t1 = timer_get_approx_seconds();
+//		t1 = timer_get_fixed_seconds();
 //	}
 
 	net_udp_listen();
@@ -3961,7 +3961,7 @@ void net_udp_read_pdata_short_packet(UDP_frame_info *pd)
 	}
 
 	TheirObj = &Objects[TheirObjnum];
-	Netgame.players[TheirPlayernum].LastPacketTime = timer_get_approx_seconds();
+	Netgame.players[TheirPlayernum].LastPacketTime = timer_get_fixed_seconds();
 
 	//------------ Read the player's ship's object info ----------------------
 
@@ -4110,7 +4110,7 @@ void net_udp_do_refuse_stuff (UDP_sequence_packet *their)
 		}
 	
 		strcpy (RefusePlayerName,their->player.callsign);
-		RefuseTimeLimit=timer_get_approx_seconds();
+		RefuseTimeLimit=timer_get_fixed_seconds();
 		RefuseThisPlayer=0;
 		WaitForRefuseAnswer=1;
 	}
@@ -4153,7 +4153,7 @@ void net_udp_do_refuse_stuff (UDP_sequence_packet *their)
 			return;
 		}
 
-		if ((timer_get_approx_seconds()) > RefuseTimeLimit+REFUSE_INTERVAL)
+		if ((timer_get_fixed_seconds()) > RefuseTimeLimit+REFUSE_INTERVAL)
 		{
 			RefuseTimeLimit=0;
 			RefuseThisPlayer=0;
@@ -4182,7 +4182,7 @@ int net_udp_get_new_player_num (UDP_sequence_packet *their)
 			// disconnected and replace the oldest player with this new one
 		
 			int oldest_player = -1;
-			fix oldest_time = timer_get_approx_seconds();
+			fix oldest_time = timer_get_fixed_seconds();
 
 			Assert(N_players == MaxNumNetPlayers);
 

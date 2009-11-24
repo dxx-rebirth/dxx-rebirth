@@ -759,11 +759,11 @@ int show_briefing(int screen_num, char *message)
 				fix 	time_out_value;
 
 				start_time = timer_get_fixed_seconds();
-				start_time = timer_get_approx_seconds();
+				start_time = timer_get_fixed_seconds();
 				time_out_value = start_time + i2f(60*5); // Wait 1 minute...
 
 				while ( (keypress = local_key_inkey()) == 0 ) { // Wait for a key
-					if ( timer_get_approx_seconds() > time_out_value ) {
+					if ( timer_get_fixed_seconds() > time_out_value ) {
 						keypress = 0;
 						break; // Time out after 1 minute..
 					}
@@ -874,15 +874,15 @@ int show_briefing(int screen_num, char *message)
 			int	keypress;
 
 			new_page = 0;
-			start_time = timer_get_approx_seconds();
+			start_time = timer_get_fixed_seconds();
 			time_out_value = start_time + i2f(60*5); // Wait 1 minute...
 
 			while ( (keypress = local_key_inkey()) == 0 ) { // Wait for a key
-				if ( timer_get_approx_seconds() > time_out_value ) {
+				if ( timer_get_fixed_seconds() > time_out_value ) {
 					keypress = 0;
 					break; // Time out after 1 minute..
 				}
-				while (timer_get_approx_seconds() < start_time + KEY_DELAY_DEFAULT/2)
+				while (timer_get_fixed_seconds() < start_time + KEY_DELAY_DEFAULT/2)
 					;
 				timer_delay2(50);
 				gr_flip();

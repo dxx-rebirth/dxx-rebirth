@@ -427,21 +427,10 @@ void editor_reset_stuff_on_level()
 void reset_player_object();
 
 
-static fix time_out_value;
-void DoEndLevelScoreGlitzPoll( int nitems, newmenu_item * menus, int * key, int citem )
-{
-	if ( timer_get_approx_seconds() > time_out_value ) 	{
-		*key = -2;
-	}
-}
-
 //do whatever needs to be done when a player dies in multiplayer
 
 void DoGameOver()
 {
-	time_out_value = timer_get_approx_seconds() + i2f(60*5);
-// 	nm_messagebox1( TXT_GAME_OVER, DoEndLevelScoreGlitzPoll, 1, TXT_OK, "" );
-
 #ifndef SHAREWARE
 	if (PLAYING_BUILTIN_MISSION)
 #endif
@@ -959,14 +948,12 @@ void DoEndLevelScoreGlitz(int network)
 
 	Assert(c <= N_GLITZITEMS);
 
-	time_out_value = timer_get_approx_seconds() + i2f(60*5);
-
 #ifdef NETWORK
 	if ( network && (Game_mode & GM_NETWORK) )
 		newmenu_do2(NULL, title, c, m, multi_endlevel_poll1, 0, Menu_pcx_name);
 	else
 #endif	// Note link!
-		newmenu_do2(NULL, title, c, m, DoEndLevelScoreGlitzPoll, 0, Menu_pcx_name);
+		newmenu_do2(NULL, title, c, m, NULL, 0, Menu_pcx_name);
 }
 
 //called when the player has finished a level
