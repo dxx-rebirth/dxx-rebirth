@@ -1507,9 +1507,6 @@ void net_udp_send_version_deny(struct _sockaddr sender_addr)
 
 void net_udp_process_version_deny(ubyte *data, struct _sockaddr sender_addr)
 {
-	if (memcmp((struct _sockaddr *)&Netgame.players[0].protocol.udp.addr, (struct _sockaddr *)&sender_addr, sizeof(struct _sockaddr)))
-		return;
-
 	Netgame.protocol.udp.program_iver = GET_INTEL_INT(&data[1]);
 	Netgame.protocol.udp.valid = -1;
 }
@@ -1780,10 +1777,8 @@ void net_udp_process_game_info(ubyte *data, int data_len, struct _sockaddr game_
 	{
 		if (data_len > UPKT_MAX_SIZE)
 			return;
-			
-		// Check if this game info comes from the address, we've already choosen
-		if (memcmp((struct _sockaddr *)&Netgame.players[0].protocol.udp.addr, (struct _sockaddr *)&game_addr, sizeof(struct _sockaddr)))
-			return;
+
+		memcpy((struct _sockaddr *)&Netgame.players[0].protocol.udp.addr, (struct _sockaddr *)&game_addr, sizeof(struct _sockaddr));
 
 																				len++; // skip UPID byte
 		Netgame.protocol.udp.program_iver = GET_INTEL_INT(&(data[len]));		len += 4;
