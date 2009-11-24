@@ -1547,7 +1547,6 @@ void dead_player_frame(void)
 				#ifdef NETWORK
 				if (Game_mode & GM_MULTI)
 				{
-					//multi_send_position(Players[Player_num].objnum);
 					multi_send_player_explode(MULTI_PLAYER_EXPLODE);
 				}
 				#endif
@@ -1588,7 +1587,6 @@ void dead_player_frame(void)
 				#ifdef NETWORK
 				if (Game_mode & GM_MULTI)
 				{
-					//multi_send_position(Players[Player_num].objnum);
 					multi_send_player_explode(MULTI_PLAYER_EXPLODE);
 				}
 				#endif

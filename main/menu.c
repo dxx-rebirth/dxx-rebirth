@@ -45,11 +45,6 @@ COPYRIGHT 1993-1999 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 #include "text.h"
 #include "gamefont.h"
 #include "newmenu.h"
-#ifdef NETWORK
-#  include "net_ipx.h"
-#  include "ipxdrv.h"
-#  include "multi.h"
-#endif
 #include "scores.h"
 #include "playsave.h"
 #include "kconfig.h"
@@ -66,7 +61,11 @@ COPYRIGHT 1993-1999 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 #include "gauges.h"
 #include "powerup.h"
 #include "strutil.h"
-
+#ifdef NETWORK
+#  include "net_ipx.h"
+#  include "net_udp.h"
+#  include "multi.h"
+#endif
 #ifdef EDITOR
 #include "editor/editor.h"
 #endif
@@ -84,8 +83,6 @@ enum MENUS
     MENU_SAVE_GAME,
     MENU_DEMO_PLAY,
     MENU_LOAD_LEVEL,
-    MENU_START_IPX_NETGAME,
-    MENU_JOIN_IPX_NETGAME,
     MENU_CONFIG,
     MENU_REJOIN_NETGAME,
     MENU_DIFFICULTY,
@@ -103,12 +100,12 @@ enum MENUS
 
     // Only if networking is enabled...
     #ifdef NETWORK
+    MENU_START_UDP_NETGAME,
+    MENU_JOIN_MANUAL_UDP_NETGAME,
+    MENU_JOIN_LIST_UDP_NETGAME,
     MENU_START_IPX_NETGAME,
     MENU_JOIN_IPX_NETGAME,
-    MENU_BROWSE_UDP_NETGAME, // UDP/IP support
-    MENU_START_UDP_NETGAME,
-    MENU_JOIN_UDP_NETGAME,
-    MENU_START_KALI_NETGAME, // Kali support
+    MENU_START_KALI_NETGAME, // xKali support (not Windows Kali! Windows Kali is over IPX!)
     MENU_JOIN_KALI_NETGAME,
     #endif
 };
@@ -121,10 +118,7 @@ enum MENUS
 // Function Prototypes added after LINTING
 void do_option(int select);
 void do_new_game_menu(void);
-#ifdef NETWORK
-void do_multi_player_menu(void);
-void do_ip_manual_join_menu();
-#endif //NETWORK
+void do_multi_player_menu();
 extern void newmenu_close();
 extern void ReorderPrimary();
 extern void ReorderSecondary();
@@ -337,6 +331,18 @@ void do_option ( int select)
 
 
 #ifdef NETWORK
+		case MENU_START_UDP_NETGAME:
+			multi_protocol = MULTI_PROTO_UDP;
+			net_udp_start_game();
+			break;
+		case MENU_JOIN_MANUAL_UDP_NETGAME:
+			multi_protocol = MULTI_PROTO_UDP;
+			net_udp_manual_join_game();
+			break;
+		case MENU_JOIN_LIST_UDP_NETGAME:
+			multi_protocol = MULTI_PROTO_UDP;
+			//net_udp_list_join_game();
+			break;
 		case MENU_START_IPX_NETGAME:
 			multi_protocol = MULTI_PROTO_IPX;
 			ipxdrv_set(NETPROTO_IPX);
@@ -356,12 +362,6 @@ void do_option ( int select)
 			multi_protocol = MULTI_PROTO_IPX;
 			ipxdrv_set(NETPROTO_KALINIX);
 			net_ipx_join_game();
-			break;
-		case MENU_START_UDP_NETGAME:
-			// FIXME
-			break;
-		case MENU_JOIN_UDP_NETGAME:
-			// FIXME
 			break;
 		case MENU_MULTIPLAYER:
 			do_multi_player_menu();
@@ -813,8 +813,8 @@ void do_misc_menu()
 #ifdef NETWORK
 void do_multi_player_menu()
 {
-	int menu_choice[9];
-	newmenu_item m[9];
+	int menu_choice[12];
+	newmenu_item m[12];
 	int choice = 0, num_options = 0;
 	int old_game_mode;
 
@@ -822,16 +822,24 @@ void do_multi_player_menu()
 		old_game_mode = Game_mode;
 		num_options = 0;
 
-#ifdef NATIVE_IPX
-		ADD_ITEM("Start IPX Netgame", MENU_START_IPX_NETGAME, -1);
-		ADD_ITEM("Join IPX Netgame\n", MENU_JOIN_IPX_NETGAME, -1);
-#endif //NATIVE_IPX
-		ADD_ITEM("Start UDP/IP Netgame", MENU_START_UDP_NETGAME, -1);
-		ADD_ITEM("Join UDP/IP Netgame\n", MENU_JOIN_UDP_NETGAME, -1);
-#ifdef KALINIX
-		ADD_ITEM("Start Kali Netgame", MENU_START_KALI_NETGAME, -1);
-		ADD_ITEM("Join Kali Netgame", MENU_JOIN_KALI_NETGAME, -1);
-#endif // KALINIX
+		m[num_options].type=NM_TYPE_TEXT; m[num_options].text="UDP:"; num_options++;
+		m[num_options].type=NM_TYPE_MENU; m[num_options].text="HOST GAME"; menu_choice[num_options]=MENU_START_UDP_NETGAME; num_options++;
+		m[num_options].type=NM_TYPE_MENU; m[num_options].text="FIND LAN GAMES"; menu_choice[num_options]=MENU_JOIN_LIST_UDP_NETGAME; num_options++;
+		//m[num_options].type=NM_TYPE_MENU; m[num_options].text="FIND LAN/ONLINE GAMES"; menu_choice[num_options]=MENU_JOIN_LIST_UDP_NETGAME; num_options++;
+		m[num_options].type=NM_TYPE_MENU; m[num_options].text="JOIN GAME MANUALLY"; menu_choice[num_options]=MENU_JOIN_MANUAL_UDP_NETGAME; num_options++;
+
+#ifdef HAVE_NETIPX_IPX_H
+		m[num_options].type=NM_TYPE_TEXT; m[num_options].text=""; num_options++;
+		m[num_options].type=NM_TYPE_TEXT; m[num_options].text="IPX:"; num_options++;
+		m[num_options].type=NM_TYPE_MENU; m[num_options].text="HOST GAME"; menu_choice[num_options]=MENU_START_IPX_NETGAME; num_options++;
+		m[num_options].type=NM_TYPE_MENU; m[num_options].text="JOIN GAME"; menu_choice[num_options]=MENU_JOIN_IPX_NETGAME; num_options++;
+#endif //HAVE_NETIPX_IPX_H
+#ifdef __LINUX__
+		m[num_options].type=NM_TYPE_TEXT; m[num_options].text=""; num_options++;
+		m[num_options].type=NM_TYPE_TEXT; m[num_options].text="XKALI:"; num_options++;
+		m[num_options].type=NM_TYPE_MENU; m[num_options].text="HOST GAME"; menu_choice[num_options]=MENU_START_KALI_NETGAME; num_options++;
+		m[num_options].type=NM_TYPE_MENU; m[num_options].text="JOIN GAME"; menu_choice[num_options]=MENU_JOIN_KALI_NETGAME; num_options++;
+#endif // __LINUX__
 
 		choice = newmenu_do1( NULL, TXT_MULTIPLAYER, num_options, m, NULL, choice );
 		
@@ -841,57 +849,6 @@ void do_multi_player_menu()
 		if (old_game_mode != Game_mode)
 			break;          // leave menu
 
-	} while( choice > -1 );
-}
-
-void do_ip_manual_join_menu()
-{
-	int menu_choice[3];
-	newmenu_item m[3];
-	int choice = 0, num_options = 0, j = 0;
-	int old_game_mode;
-	char buf[128]="";
-
-	if (*GameCfg.MplIpHostAddr) {
-		sprintf(buf,"%s",GameCfg.MplIpHostAddr);
-
-		for (j=0; buf[j] != '\0'; j++) {
-			switch (buf[j]) {
-				case ' ':
-					buf[j] = '\0';
-			}
-		}
-	}
-
-	if (*GameArg.MplIpHostAddr) {
-		sprintf(buf,"%s",GameArg.MplIpHostAddr);
-
-		for (j=0; buf[j] != '\0'; j++) {
-			switch (buf[j]) {
-				case ' ':
-					buf[j] = '\0';
-			}
-		}
-	}
-
-	do {
-		old_game_mode = Game_mode;
-		num_options = 0;
-
-		m[num_options].type = NM_TYPE_INPUT; m[num_options].text=buf; m[num_options].text_len=128;menu_choice[num_options]=-1; num_options++;
-
-		choice = newmenu_do1( NULL, "ENTER IP OR HOSTNAME", num_options, m, NULL, choice );
-
-		if ( choice > -1 ){
-			strncpy(GameCfg.MplIpHostAddr, buf, 128);
-			// FIXME !! UDPConnectManual(buf);
-		}
-
-		if (old_game_mode != Game_mode)
-		{
-			strncpy(GameCfg.MplIpHostAddr, buf, 128);
-			break;		// leave menu
-		}
 	} while( choice > -1 );
 }
 #endif // NETWORK

@@ -12,9 +12,9 @@ COPYRIGHT 1993-1999 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 */
 
 /*
- *
- * Routines for managing network play.
- *
+ * 
+ * Routines for managing IPX-protocol network play.
+ * 
  */
 
 #ifdef HAVE_CONFIG_H
@@ -67,54 +67,18 @@ COPYRIGHT 1993-1999 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 #include "cfile.h"
 #include "gamefont.h"
 #include "rbaudio.h"
-#include "ipxdrv.h"
 
-// MWA -- these structures are aligned -- please save me sanity and
-// headaches by keeping alignment if these are changed!!!!  Contact
-// me for info.
-
-typedef struct endlevel_info {
-	ubyte                               type;
-	ubyte                               player_num;
-	sbyte                               connected;
-	ubyte                               seconds_left;
-	short                              kill_matrix[MAX_PLAYERS][MAX_PLAYERS];
-	short                               kills;
-	short                               killed;
-} endlevel_info;
-
-typedef struct endlevel_info_short {
-	ubyte                               type;
-	ubyte                               player_num;
-	sbyte                               connected;
-	ubyte                               seconds_left;
-} endlevel_info_short;
-
-#define SEQUENCE_PACKET_SIZE    (sizeof(sequence_packet)-sizeof(netplayer_info)+sizeof(IPX_netplayer_info))
-#define FRAME_INFO_SIZE         sizeof(frame_info)
-#define IPX_SHORT_INFO_SIZE     sizeof(short_frame_info)
-
-netgame_info Active_games[MAX_ACTIVE_NETGAMES];
-netgame_info ActiveNetPlayers[MAX_ACTIVE_NETGAMES];
-netgame_info *TempPlayersInfo,TempPlayersBase;
-int NamesInfoSecurity=-1;
-
-// MWAnetgame_info *TempNetInfo; 
-netgame_info TempNetInfo;
-
+// Prototypes
 extern void multi_send_drop_marker (int player,vms_vector position,char messagenum,char text[]);
 extern void multi_send_kill_goal_counts();
-
 void net_ipx_process_naked_pdata (char *,int);
-extern void multi_send_robot_controls(char);
-
 void net_ipx_flush();
 void net_ipx_listen();
 void net_ipx_update_netgame();
 void net_ipx_check_for_old_version(char pnum);
 void net_ipx_send_objects();
 void net_ipx_send_rejoin_sync(int player_num);
-void net_ipx_send_game_info(sequence_packet *their);
+void net_ipx_send_game_info(IPX_sequence_packet *their);
 void net_ipx_send_endlevel_short_sub(int from_player_num, int to_player);
 void net_ipx_read_sync_packet(netgame_info * sp, int rsinit);
 int  net_ipx_wait_for_playerinfo();
@@ -122,97 +86,401 @@ void net_ipx_process_pdata(char *data);
 void net_ipx_read_object_packet(ubyte *data );
 void net_ipx_read_endlevel_packet(ubyte *data );
 void net_ipx_read_endlevel_short_packet(ubyte *data );
+void net_ipx_ping_all(fix time);
 void net_ipx_ping(ubyte flat, int pnum);
 void net_ipx_handle_ping_return(ubyte pnum);
 void net_ipx_process_names_return(ubyte *data);
-void net_ipx_send_player_names(sequence_packet *their);
+void net_ipx_send_player_names(IPX_sequence_packet *their);
 void net_ipx_more_game_options();
 void net_ipx_count_powerups_in_mine();
 int  net_ipx_wait_for_all_info(int choice);
 void net_ipx_do_big_wait(int choice);
 void net_ipx_send_extras();
-void net_ipx_read_pdata_packet(frame_info *pd);
-void net_ipx_read_pdata_short_packet(short_frame_info *pd);
-
+void net_ipx_read_pdata_packet(IPX_frame_info *pd);
+void net_ipx_read_pdata_short_packet(IPX_short_frame_info *pd);
 void ClipRank(ubyte *rank);
-void DoRefuseStuff(sequence_packet *their);
-int  GetNewPlayerNumber(sequence_packet *their);
-void SetAllAllowablesTo(int on);
-int show_game_stats(int choice);
+void net_ipx_do_refuse_stuff(IPX_sequence_packet *their);
+int  net_ipx_get_new_player_num(IPX_sequence_packet *their);
+int net_ipx_show_game_stats(int choice);
+extern void multi_send_stolen_items();
+int net_ipx_wait_for_snyc();
+extern void multi_send_wall_status (int,ubyte,ubyte,ubyte);
+extern void multi_send_wall_status_specific (int,int,ubyte,ubyte,ubyte);
+extern void game_disable_cheats();
 
-int num_active_games = 0;
-int PacketsPerSec=10;
-
-int     Network_debug=0;
-int     Network_active=0;
-
-int     Network_games_changed = 0;
-
-int     Network_allow_socket_changes = 1;
-
+// Variables
+int num_active_ipx_games = 0;
+int     IPX_active=0;
+int     num_active_ipx_changed = 0;
+int     IPX_allow_socket_changes = 1;
 int     NetSecurityFlag=NETSECURITY_OFF;
 int     NetSecurityNum=0;
-int     Network_sending_extras=0;
 int     VerifyPlayerJoined=-1;
-int     Player_joining_extras=-1;  // This is so we know who to send 'latecomer' packets to.
-											  // We could just send updates to everyone but that kills the sender!   
-
-// For rejoin object syncing
-
-int     Network_player_added = 0;   // Is this a new player or a returning player?
-int     Network_send_object_mode = 0; // What type of objects are we sending, static or dynamic?
-sequence_packet Network_player_rejoining; // Who is rejoining now?
-
-int     NetGameType=0;
-int     TotalMissedPackets=0,TotalPacketsGot=0;
-
-frame_info      MySyncPack,UrgentSyncPack;
+IPX_sequence_packet IPX_sync_player; // Who is rejoining now?
+int     IPX_TotalMissedPackets=0,IPX_TotalPacketsGot=0;
+IPX_frame_info      MySyncPack,UrgentSyncPack;
 ubyte           MySyncPackInitialized = 0;              // Set to 1 if the MySyncPack is zeroed.
-
-sequence_packet My_Seq;
+IPX_sequence_packet IPX_Seq;
 char WantPlayersInfo=0;
 char WaitingForPlayerInfo=0;
-
 int IPX_Socket=0;
-
 extern obj_position Player_init[MAX_PLAYERS];
-
 extern int force_cockpit_redraw;
-
-// reasons for a packet with type PID_DUMP
-#define DUMP_CLOSED     0 // no new players allowed after game started
-#define DUMP_FULL       1 // player cound maxed out
-#define DUMP_ENDLEVEL   2
-#define DUMP_DORK       3
-#define DUMP_ABORTED    4
-#define DUMP_CONNECTED  5 // never used
-#define DUMP_LEVEL      6
-#define DUMP_KICKED     7 // never used
-
 extern ubyte Version_major,Version_minor;
 extern ubyte SurfingNet;
 extern char MaxPowerupsAllowed[MAX_POWERUP_TYPES];
 extern char PowerupsInMine[MAX_POWERUP_TYPES];
+extern int Final_boss_is_dead;
+typedef struct IPX_endlevel_info {
+	ubyte                               type;
+	ubyte                               player_num;
+	sbyte                               connected;
+	ubyte                               seconds_left;
+	short                              kill_matrix[MAX_PLAYERS][MAX_PLAYERS];
+	short                               kills;
+	short                               killed;
+} IPX_endlevel_info;
 
-extern void multi_send_stolen_items();
+typedef struct IPX_endlevel_info_short {
+	ubyte                               type;
+	ubyte                               player_num;
+	sbyte                               connected;
+	ubyte                               seconds_left;
+} IPX_endlevel_info_short;
 
-int net_ipx_wait_for_snyc();
-extern void multi_send_wall_status (int,ubyte,ubyte,ubyte);
-extern void multi_send_wall_status_specific (int,int,ubyte,ubyte,ubyte);
+#define SEQUENCE_PACKET_SIZE    (sizeof(IPX_sequence_packet)-sizeof(netplayer_info)+sizeof(IPX_netplayer_info))
+#define FRAME_INFO_SIZE         sizeof(IPX_frame_info)
+#define IPX_SHORT_INFO_SIZE     sizeof(IPX_short_frame_info)
 
-extern void game_disable_cheats();
+netgame_info Active_ipx_games[IPX_MAX_NETGAMES];
+netgame_info *TempPlayersInfo,TempPlayersBase;
+int NamesInfoSecurity=-1;
+netgame_info TempNetInfo;
 
-char IWasKicked=0;
-#ifdef NETPROFILING
-FILE *SendLogFile,*RecieveLogFile;
-int TTSent[100],TTRecv[100];
+/* General IPX functions - START */
+ubyte broadcast_addr[] = { 0xff, 0xff, 0xff, 0xff, 0xff, 0xff };
+ubyte null_addr[] = { 0x00, 0x00, 0x00, 0x00, 0x00, 0x00 };
+ubyte ipxdrv_installed=0;
+u_int32_t ipx_network = 0;
+ubyte MyAddress[10];
+int ipx_packetnum = 0;			/* Sequence number */
+
+/* User defined routing stuff */
+typedef struct user_address {
+	ubyte network[4];
+	ubyte node[6];
+	ubyte address[6];
+} user_address;
+
+socket_t socket_data;
+#define MAX_USERS 64
+int Ipx_num_users = 0;
+user_address Ipx_users[MAX_USERS];
+#define MAX_NETWORKS 64
+int Ipx_num_networks = 0;
+uint Ipx_networks[MAX_NETWORKS];
+
+int ipxdrv_general_packet_ready(int fd)
+{
+	fd_set set;
+	struct timeval tv;
+	
+	FD_ZERO(&set);
+	FD_SET(fd, &set);
+	tv.tv_sec = tv.tv_usec = 0;
+	if (select(fd + 1, &set, NULL, NULL, &tv) > 0)
+		return 1;
+	else
+		return 0;
+}
+
+struct net_driver *driver = NULL;
+
+ubyte * ipxdrv_get_my_server_address()
+{
+	return (ubyte *)&ipx_network;
+}
+
+ubyte * ipxdrv_get_my_local_address()
+{
+	return (ubyte *)(MyAddress + 4);
+}
+
+void ipxdrv_close()
+{
+	if (ipxdrv_installed)
+	{
+#ifdef _WIN32
+		WSACleanup();
+#endif
+		driver->close_socket(&socket_data);
+	}
+
+	ipxdrv_installed = 0;
+}
+
+//---------------------------------------------------------------
+// Initializes all driver internals. 
+// If socket_number==0, then opens next available socket.
+// Returns:	0  if successful.
+//		-1 if socket already open.
+//		-2 if socket table full.
+//		-3 if driver not installed.
+//		-4 if couldn't allocate low dos memory
+//		-5 if error with getting internetwork address
+int ipxdrv_init( int socket_number )
+{
+	static int cleanup = 0;
+#ifdef _WIN32
+	WORD wVersionRequested;
+	WSADATA wsaData;
 #endif
 
-extern int Final_boss_is_dead;
+	if (!driver)
+		return -1;
 
-#define NETWORK_OEM 0x10
+#ifdef _WIN32
+	wVersionRequested = MAKEWORD(2, 0);
+	if (WSAStartup( wVersionRequested, &wsaData))
+	{
+		return -1;
+	}
+#endif
+	memset(MyAddress,0,10);
 
-void send_sequence_packet(sequence_packet seq, ubyte *server, ubyte *node, ubyte *net_address)
+	if (GameArg.MplIpxNetwork)
+	{
+		unsigned long n = strtol(GameArg.MplIpxNetwork, NULL, 16);
+		MyAddress[0] = n >> 24; MyAddress[1] = (n >> 16) & 255;
+		MyAddress[2] = (n >> 8) & 255; MyAddress[3] = n & 255;
+		con_printf(CON_DEBUG,"IPX: Using network %08x\n", (unsigned int)n);
+	}
+
+	if (driver->open_socket(&socket_data, socket_number))
+	{
+		return -3;
+	}
+
+	memcpy(&ipx_network, MyAddress, 4);
+	Ipx_num_networks = 0;
+	memcpy( &Ipx_networks[Ipx_num_networks++], &ipx_network, 4 );
+
+	ipxdrv_installed = 1;
+
+	if (!cleanup)
+		atexit(ipxdrv_close);
+	cleanup = 1;
+
+	return 0;
+}
+
+int ipxdrv_set(int arg)
+{
+	int ipxdrv_err;
+
+	ipxdrv_close();
+
+	con_printf(CON_VERBOSE, "\n%s ", TXT_INITIALIZING_NETWORK);
+
+	switch (arg)
+	{
+#ifndef __APPLE__
+		case NETPROTO_IPX:
+			driver = &ipxdrv_ipx;
+			break;
+#endif
+#ifdef __LINUX__
+		case NETPROTO_KALINIX:
+			driver = &ipxdrv_kali;
+			break;
+#endif
+		default:
+			driver = NULL;
+			break;
+	}
+
+	if ((ipxdrv_err=ipxdrv_init(IPX_DEFAULT_SOCKET))==0)
+	{
+		con_printf(CON_VERBOSE, "%s %d.\n", TXT_IPX_CHANNEL, IPX_DEFAULT_SOCKET );
+		IPX_active = 1;
+	}
+	else
+	{
+		switch (ipxdrv_err)
+		{
+			case 3:
+				con_printf(CON_VERBOSE, "%s\n", TXT_NO_NETWORK);
+				break;
+			case -2:
+				con_printf(CON_VERBOSE, "%s 0x%x.\n", TXT_SOCKET_ERROR, IPX_DEFAULT_SOCKET);
+				break;
+			case -4:
+				con_printf(CON_VERBOSE, "%s\n", TXT_MEMORY_IPX );
+				break;
+			default:
+				con_printf(CON_VERBOSE, "%s %d", TXT_ERROR_IPX, ipxdrv_err );
+				break;
+		}
+
+		con_printf(CON_VERBOSE, "%s\n",TXT_NETWORK_DISABLED);
+		IPX_active = 0;		// Assume no network
+	}
+
+	return ipxdrv_installed?0:-1;
+}
+
+int ipxdrv_get_packet_data( ubyte * data )
+{
+	struct recv_data rd;
+	char *buf;
+	int size;
+
+	if (driver->usepacketnum)
+		buf=alloca(MAX_IPX_DATA);
+	else
+		buf=(char *)data;
+
+	memset(rd.src_network,1,4);
+
+	while (driver->packet_ready(&socket_data))
+	{
+		if ((size = driver->receive_packet(&socket_data, buf, MAX_IPX_DATA, &rd)) > 4)
+		{
+			if (!memcmp(rd.src_network, MyAddress, 10))
+			{
+				continue;	/* don't get own pkts */
+			}
+
+			if (driver->usepacketnum)
+			{
+				memcpy(data, buf + 4, size - 4);
+				return size-4;
+			}
+			else
+			{
+				return size;
+			}
+		}
+	}
+	return 0;
+}
+
+void ipxdrv_send_packet_data( ubyte * data, int datasize, ubyte *network, ubyte *address, ubyte *immediate_address )
+{
+	IPXPacket_t ipx_header;
+
+	if (!ipxdrv_installed)
+		return;
+
+	memcpy(ipx_header.Destination.Network, network, 4);
+	memcpy(ipx_header.Destination.Node, immediate_address, 6);
+	ipx_header.PacketType = 4; /* Packet Exchange */
+
+	if (driver->usepacketnum)
+	{
+		ubyte buf[MAX_IPX_DATA];
+		*(uint *)buf = ipx_packetnum++;
+
+		memcpy(buf + 4, data, datasize);
+		driver->send_packet(&socket_data, &ipx_header, buf, datasize + 4);
+	}
+	else
+		driver->send_packet(&socket_data, &ipx_header, data, datasize);//we can save 4 bytes
+}
+
+void ipxdrv_get_local_target( ubyte * server, ubyte * node, ubyte * local_target )
+{
+	memcpy( local_target, node, 6 );
+}
+
+void ipxdrv_send_broadcast_packet_data( ubyte * data, int datasize )	
+{
+	int i, j;
+	ubyte local_address[6];
+
+	if (!ipxdrv_installed)
+		return;
+
+	// Set to all networks besides mine
+	for (i=0; i<Ipx_num_networks; i++ )
+	{
+		if ( memcmp( &Ipx_networks[i], &ipx_network, 4 ) )
+		{
+			ipxdrv_get_local_target( (ubyte *)&Ipx_networks[i], broadcast_addr, local_address );
+			ipxdrv_send_packet_data( data, datasize, (ubyte *)&Ipx_networks[i], broadcast_addr, local_address );
+		}
+		else
+		{
+			ipxdrv_send_packet_data( data, datasize, (ubyte *)&Ipx_networks[i], broadcast_addr, broadcast_addr );
+		}
+	}
+
+	// Send directly to all users not on my network or in the network list.
+	for (i=0; i<Ipx_num_users; i++ )
+	{
+		if ( memcmp( Ipx_users[i].network, &ipx_network, 4 ) )
+		{
+			for (j=0; j<Ipx_num_networks; j++ )
+			{
+				if (!memcmp( Ipx_users[i].network, &Ipx_networks[j], 4 ))
+					goto SkipUser;
+			}
+
+			ipxdrv_send_packet_data( data, datasize, Ipx_users[i].network, Ipx_users[i].node, Ipx_users[i].address );
+SkipUser:
+			j = 0;
+		}
+	}
+}
+
+// Sends a non-localized packet... needs 4 byte server, 6 byte address
+void ipxdrv_send_internetwork_packet_data( ubyte * data, int datasize, ubyte * server, ubyte *address )
+{
+	ubyte local_address[6];
+
+	if (!ipxdrv_installed)
+		return;
+
+#ifdef WORDS_NEED_ALIGNMENT
+	int zero = 0;
+	if (memcmp(server, &zero, 4))
+#else // WORDS_NEED_ALIGNMENT
+	if ((*(uint *)server) != 0)
+#endif // WORDS_NEED_ALIGNMENT
+	{
+		ipxdrv_get_local_target( server, address, local_address );
+		ipxdrv_send_packet_data( data, datasize, server, address, local_address );
+	}
+	else
+	{
+		// Old method, no server info.
+		ipxdrv_send_packet_data( data, datasize, server, address, address );
+	}
+}
+
+int ipxdrv_change_default_socket( ushort socket_number )
+{
+	if ( !ipxdrv_installed )
+		return -3;
+
+	driver->close_socket(&socket_data);
+
+	if (driver->open_socket(&socket_data, socket_number))
+	{
+		return -3;
+	}
+
+	return 0;
+}
+
+// Return type of net_driver
+int ipxdrv_type(void)
+{
+	return driver->type;
+}
+/* General IPX functions - END */
+
+void net_ipx_send_sequence_packet(IPX_sequence_packet seq, ubyte *server, ubyte *node, ubyte *net_address)
 {
 	int loc, tmpi;
 	short tmps;
@@ -242,7 +510,7 @@ void send_sequence_packet(sequence_packet seq, ubyte *server, ubyte *node, ubyte
 		ipxdrv_send_internetwork_packet_data(out_buffer, loc, server, node);
 }
 
-void receive_sequence_packet(ubyte *data, sequence_packet *seq)
+void net_ipx_receive_sequence_packet(ubyte *data, IPX_sequence_packet *seq)
 {
 	int loc = 0;
 
@@ -553,7 +821,6 @@ net_ipx_init(void)
 	int save_pnum = Player_num;
 
 	game_disable_cheats();
-	IWasKicked=0;
 	Final_boss_is_dead=0;
 	NamesInfoSecurity=-1;
 
@@ -569,20 +836,20 @@ net_ipx_init(void)
 		PowerupsInMine[t]=0;
 	}
 
-	TotalMissedPackets=0; TotalPacketsGot=0;
+	IPX_TotalMissedPackets=0; IPX_TotalPacketsGot=0;
 
 	memset(&Netgame, 0, sizeof(netgame_info));
-	memset(&My_Seq, 0, sizeof(sequence_packet));
-	My_Seq.type = PID_REQUEST;
-	memcpy(My_Seq.player.callsign, Players[Player_num].callsign, CALLSIGN_LEN+1);
+	memset(&IPX_Seq, 0, sizeof(IPX_sequence_packet));
+	IPX_Seq.type = PID_REQUEST;
+	memcpy(IPX_Seq.player.callsign, Players[Player_num].callsign, CALLSIGN_LEN+1);
 
-	My_Seq.player.version_major=Version_major;
-	My_Seq.player.version_minor=Version_minor;
-	My_Seq.player.rank=GetMyNetRanking();	
+	IPX_Seq.player.version_major=Version_major;
+	IPX_Seq.player.version_minor=Version_minor;
+	IPX_Seq.player.rank=GetMyNetRanking();	
 
-	memcpy(My_Seq.player.protocol.ipx.node, ipxdrv_get_my_local_address(), 6);
-	memcpy(My_Seq.player.protocol.ipx.server, ipxdrv_get_my_server_address(), 4 );
-	My_Seq.player.protocol.ipx.computer_type = DOS;
+	memcpy(IPX_Seq.player.protocol.ipx.node, ipxdrv_get_my_local_address(), 6);
+	memcpy(IPX_Seq.player.protocol.ipx.server, ipxdrv_get_my_server_address(), 4 );
+	IPX_Seq.player.protocol.ipx.computer_type = 1;
 
 	for (Player_num = 0; Player_num < MAX_NUM_NET_PLAYERS; Player_num++)
 		init_player_stats_game();
@@ -612,7 +879,7 @@ int net_ipx_how_many_connected()
 
   
 void 
-net_ipx_endlevel_poll2( int nitems, newmenu_item * menus, int * key, int citem )
+net_ipx_kmatrix_poll1( int nitems, newmenu_item * menus, int * key, int citem )
 {
 	// Polling loop for End-of-level menu
 
@@ -620,11 +887,6 @@ net_ipx_endlevel_poll2( int nitems, newmenu_item * menus, int * key, int citem )
 	int i = 0;
 	int num_ready = 0;
 	int goto_secret = 0;
-
-	menus = menus;
-	citem = citem;
-	nitems = nitems;
-	key = key;
 
 	// Send our endlevel packet at regular intervals
 
@@ -638,9 +900,9 @@ net_ipx_endlevel_poll2( int nitems, newmenu_item * menus, int * key, int citem )
 
 	for (i = 0; i < N_players; i++)
 	{
-		if ((Players[i].connected != 1) && (Players[i].connected != 5) && (Players[i].connected != 6))
+		if ((Players[i].connected != CONNECT_PLAYING) && (Players[i].connected != CONNECT_ESCAPE_TUNNEL) && (Players[i].connected != CONNECT_END_MENU))
 			num_ready++;
-		if (Players[i].connected == 4)
+		if (Players[i].connected == CONNECT_FOUND_SECRET)
 			goto_secret = 1;                                        
 	}
 
@@ -657,7 +919,7 @@ net_ipx_endlevel_poll2( int nitems, newmenu_item * menus, int * key, int citem )
 extern fix StartAbortMenuTime;
 
 void 
-net_ipx_endlevel_poll3( int nitems, newmenu_item * menus, int * key, int citem )
+net_ipx_kmatrix_poll2( int nitems, newmenu_item * menus, int * key, int citem )
 {
 	// Polling loop for End-of-level menu
 
@@ -676,7 +938,7 @@ net_ipx_endlevel_poll3( int nitems, newmenu_item * menus, int * key, int citem )
 
 
 	for (i = 0; i < N_players; i++)
-		if ((Players[i].connected != 1) && (Players[i].connected != 5) && (Players[i].connected != 6))
+		if ((Players[i].connected != CONNECT_PLAYING) && (Players[i].connected != CONNECT_ESCAPE_TUNNEL) && (Players[i].connected != CONNECT_END_MENU))
 			num_ready++;
 
 	if (num_ready == N_players) // All players have checked in or are disconnected
@@ -717,7 +979,7 @@ net_ipx_endlevel(int *secret)
 }
 
 int 
-can_join_netgame(netgame_info *game)
+net_ipx_can_join_netgame(netgame_info *game)
 {
 	// Can this player rejoin a netgame in progress?
 
@@ -765,8 +1027,8 @@ can_join_netgame(netgame_info *game)
 
 	for (i = 0; i < num_players; i++) {
 		if ( (!stricmp(Players[Player_num].callsign, game->players[i].callsign)) &&
-			  (!memcmp(My_Seq.player.protocol.ipx.node, game->players[i].protocol.ipx.node, 6)) &&
-			  (!memcmp(My_Seq.player.protocol.ipx.server, game->players[i].protocol.ipx.server, 4)) )
+			  (!memcmp(IPX_Seq.player.protocol.ipx.node, game->players[i].protocol.ipx.node, 6)) &&
+			  (!memcmp(IPX_Seq.player.protocol.ipx.server, game->players[i].protocol.ipx.server, 4)) )
 			break;
 	}
 
@@ -788,8 +1050,8 @@ net_ipx_disconnect_player(int playernum)
 		return;
 	}
 
-	Players[playernum].connected = 0;
-   Netgame.players[playernum].connected = 0;
+	Players[playernum].connected = CONNECT_DISCONNECTED;
+   Netgame.players[playernum].connected = CONNECT_DISCONNECTED;
    if (VerifyPlayerJoined==playernum)
 	  VerifyPlayerJoined=-1;
 
@@ -803,7 +1065,7 @@ net_ipx_disconnect_player(int playernum)
 }
 		
 void
-net_ipx_new_player(sequence_packet *their)
+net_ipx_new_player(IPX_sequence_packet *their)
 {
 	int objnum;
 	int pnum;
@@ -844,7 +1106,7 @@ net_ipx_new_player(sequence_packet *their)
 	memcpy(Netgame.players[pnum].protocol.ipx.server, their->player.protocol.ipx.server, 4);
 
 	Players[pnum].n_packets_got = 0;
-	Players[pnum].connected = 1;
+	Players[pnum].connected = CONNECT_PLAYING;
 	Players[pnum].net_kills_total = 0;
 	Players[pnum].net_killed_total = 0;
 	memset(kill_matrix[pnum], 0, MAX_PLAYERS*sizeof(short)); 
@@ -873,11 +1135,7 @@ net_ipx_new_player(sequence_packet *their)
 	multi_sort_kill_list();
 }
 
-char RefuseThisPlayer=0,WaitForRefuseAnswer=0,RefuseTeam;
-char RefusePlayerName[12];
-fix RefuseTimeLimit=0;
-
-void net_ipx_welcome_player(sequence_packet *their)
+void net_ipx_welcome_player(IPX_sequence_packet *their)
 {
 	// Add a player to a game already in progress
 	ubyte local_address[6];
@@ -920,7 +1178,7 @@ void net_ipx_welcome_player(sequence_packet *their)
 	}
 
 	player_num = -1;
-	memset(&Network_player_rejoining, 0, sizeof(sequence_packet));
+	memset(&IPX_sync_player, 0, sizeof(IPX_sequence_packet));
 	Network_player_added = 0;
 
 	if ( (*(uint *)their->player.protocol.ipx.server) != 0 )
@@ -961,8 +1219,20 @@ void net_ipx_welcome_player(sequence_packet *their)
 		
 			int oldest_player = -1;
 			fix oldest_time = timer_get_approx_seconds();
+			int activeplayers = 0;
 
 			Assert(N_players == MaxNumNetPlayers);
+
+			for (i = 0; i < Netgame.numplayers; i++)
+				if (Netgame.players[i].connected)
+					activeplayers++;
+
+			if (activeplayers == Netgame.max_numplayers)
+			{
+				// Game is full.
+				net_ipx_dump_player(their->player.protocol.ipx.server, their->player.protocol.ipx.node, DUMP_FULL);
+				return;
+			}
 
 			for (i = 0; i < N_players; i++)
 			{
@@ -1015,8 +1285,8 @@ void net_ipx_welcome_player(sequence_packet *their)
 	// Send updated Objects data to the new/returning player
 
 	
-	Network_player_rejoining = *their;
-	Network_player_rejoining.player.connected = player_num;
+	IPX_sync_player = *their;
+	IPX_sync_player.player.connected = player_num;
 	Network_send_objects = 1;
 	Network_send_objnum = -1;
 
@@ -1028,7 +1298,7 @@ int net_ipx_objnum_is_past(int objnum)
 	// determine whether or not a given object number has already been sent
 	// to a re-joining player.
 	
-	int player_num = Network_player_rejoining.player.connected;
+	int player_num = IPX_sync_player.player.connected;
 	int obj_mode = !((object_owner[objnum] == -1) || (object_owner[objnum] == player_num));
 
 	if (!Network_send_objects)
@@ -1044,7 +1314,7 @@ int net_ipx_objnum_is_past(int objnum)
 		return 0;
 }
 
-#define OBJ_PACKETS_PER_FRAME 1
+#define IPX_OBJ_PACKETS_PER_FRAME 1
 extern void multi_send_active_door(char);
 extern void multi_send_door_open_specific(int,int,int,ubyte);
 
@@ -1172,11 +1442,11 @@ int net_ipx_create_monitor_vector(void)
 	return(vector);
 }
 
-void net_ipx_stop_resync(sequence_packet *their)
+void net_ipx_stop_resync(IPX_sequence_packet *their)
 {
-	if ( (!memcmp(Network_player_rejoining.player.protocol.ipx.node, their->player.protocol.ipx.node, 6)) &&
-			(!memcmp(Network_player_rejoining.player.protocol.ipx.server, their->player.protocol.ipx.server, 4)) &&
-		(!stricmp(Network_player_rejoining.player.callsign, their->player.callsign)) )
+	if ( (!memcmp(IPX_sync_player.player.protocol.ipx.node, their->player.protocol.ipx.node, 6)) &&
+			(!memcmp(IPX_sync_player.player.protocol.ipx.server, their->player.protocol.ipx.server, 4)) &&
+		(!stricmp(IPX_sync_player.player.callsign, their->player.callsign)) )
 	{
 		Network_send_objects = 0;
 		Network_sending_extras=0;
@@ -1186,7 +1456,7 @@ void net_ipx_stop_resync(sequence_packet *their)
 	}
 }
 
-void swap_object(object *obj)
+void net_ipx_swap_object(object *obj)
 {
 	// swap the short and int entries for this object
 	obj->signature     = INTEL_INT(obj->signature);
@@ -1346,7 +1616,7 @@ void net_ipx_send_objects(void)
 	static int frame_num = 0;
 
 	int obj_count_frame = 0;
-	int player_num = Network_player_rejoining.player.connected;
+	int player_num = IPX_sync_player.player.connected;
 
 	// Send clear objects array trigger and send player num
 
@@ -1359,12 +1629,12 @@ void net_ipx_send_objects(void)
 		// Endlevel started before we finished sending the goods, we'll
 		// have to stop and try again after the level.
 
-		net_ipx_dump_player(Network_player_rejoining.player.protocol.ipx.server,Network_player_rejoining.player.protocol.ipx.node, DUMP_ENDLEVEL);
+		net_ipx_dump_player(IPX_sync_player.player.protocol.ipx.server,IPX_sync_player.player.protocol.ipx.node, DUMP_ENDLEVEL);
 		Network_send_objects = 0; 
 		return;
 	}
 
-	for (h = 0; h < OBJ_PACKETS_PER_FRAME; h++) // Do more than 1 per frame, try to speed it up without over-stressing the receiver.
+	for (h = 0; h < IPX_OBJ_PACKETS_PER_FRAME; h++) // Do more than 1 per frame, try to speed it up without over-stressing the receiver.
 	{
 		obj_count_frame = 0;
 		memset(object_buffer, 0, MAX_DATA_SIZE);
@@ -1408,7 +1678,7 @@ void net_ipx_send_objects(void)
 			object_buffer[loc] = owner;                                 loc += 1;
 			*(short *)(object_buffer+loc) = INTEL_SHORT(remote_objnum); loc += 2;
 			memcpy(&object_buffer[loc], &Objects[i], sizeof(object));
-			swap_object((object *)&object_buffer[loc]);
+			net_ipx_swap_object((object *)&object_buffer[loc]);
 			loc += sizeof(object);
 		}
 
@@ -1421,7 +1691,7 @@ void net_ipx_send_objects(void)
 
 			Assert(loc <= MAX_DATA_SIZE);
 
-			ipxdrv_send_internetwork_packet_data( object_buffer, loc, Network_player_rejoining.player.protocol.ipx.server, Network_player_rejoining.player.protocol.ipx.node );
+			ipxdrv_send_internetwork_packet_data( object_buffer, loc, IPX_sync_player.player.protocol.ipx.server, IPX_sync_player.player.protocol.ipx.node );
 		}
 
 		if (i > Highest_object_index)
@@ -1442,7 +1712,7 @@ void net_ipx_send_objects(void)
 				object_buffer[2] = frame_num;
 				*(short *)(object_buffer+3) = INTEL_SHORT(-2);
 				*(short *)(object_buffer+6) = INTEL_SHORT(obj_count);
-				ipxdrv_send_internetwork_packet_data(object_buffer, 8, Network_player_rejoining.player.protocol.ipx.server, Network_player_rejoining.player.protocol.ipx.node);
+				ipxdrv_send_internetwork_packet_data(object_buffer, 8, IPX_sync_player.player.protocol.ipx.server, IPX_sync_player.player.protocol.ipx.node);
 
 				// Send sync packet which tells the player who he is and to start!
 				net_ipx_send_rejoin_sync(player_num);
@@ -1471,7 +1741,7 @@ void net_ipx_send_rejoin_sync(int player_num)
 {
 	int i, j;
 
-	Players[player_num].connected = 1; // connect the new guy
+	Players[player_num].connected = CONNECT_PLAYING; // connect the new guy
 	Netgame.players[player_num].LastPacketTime = timer_get_approx_seconds();
 
 	if (Endlevel_sequence || Control_center_destroyed)
@@ -1479,7 +1749,7 @@ void net_ipx_send_rejoin_sync(int player_num)
 		// Endlevel started before we finished sending the goods, we'll
 		// have to stop and try again after the level.
 
-		net_ipx_dump_player(Network_player_rejoining.player.protocol.ipx.server,Network_player_rejoining.player.protocol.ipx.node, DUMP_ENDLEVEL);
+		net_ipx_dump_player(IPX_sync_player.player.protocol.ipx.server,IPX_sync_player.player.protocol.ipx.node, DUMP_ENDLEVEL);
 
 		Network_send_objects = 0; 
 		Network_sending_extras=0;
@@ -1488,14 +1758,14 @@ void net_ipx_send_rejoin_sync(int player_num)
 
 	if (Network_player_added)
 	{
-		Network_player_rejoining.type = PID_ADDPLAYER;
-		Network_player_rejoining.player.connected = player_num;
-		net_ipx_new_player(&Network_player_rejoining);
+		IPX_sync_player.type = PID_ADDPLAYER;
+		IPX_sync_player.player.connected = player_num;
+		net_ipx_new_player(&IPX_sync_player);
 
 		for (i = 0; i < N_players; i++)
 		{
 			if ((i != player_num) && (i != Player_num) && (Players[i].connected))
-				send_sequence_packet( Network_player_rejoining, Netgame.players[i].protocol.ipx.server, Netgame.players[i].protocol.ipx.node, Players[i].net_address);
+				net_ipx_send_sequence_packet( IPX_sync_player, Netgame.players[i].protocol.ipx.server, Netgame.players[i].protocol.ipx.node, Players[i].net_address);
 		}
 	}
 
@@ -1516,8 +1786,8 @@ void net_ipx_send_rejoin_sync(int player_num)
 	Netgame.level_time = Players[Player_num].time_level;
 	Netgame.monitor_vector = net_ipx_create_monitor_vector();
 
-	send_netgame_packet(Network_player_rejoining.player.protocol.ipx.server, Network_player_rejoining.player.protocol.ipx.node, NULL, 0);
-	send_netplayers_packet(Network_player_rejoining.player.protocol.ipx.server, Network_player_rejoining.player.protocol.ipx.node);
+	send_netgame_packet(IPX_sync_player.player.protocol.ipx.server, IPX_sync_player.player.protocol.ipx.node, NULL, 0);
+	send_netplayers_packet(IPX_sync_player.player.protocol.ipx.server, IPX_sync_player.player.protocol.ipx.node);
 
 	return;
 }
@@ -1541,8 +1811,8 @@ void resend_sync_due_to_packet_loss_for_allender ()
 	Netgame.level_time = Players[Player_num].time_level;
 	Netgame.monitor_vector = net_ipx_create_monitor_vector();
 
-	send_netgame_packet(Network_player_rejoining.player.protocol.ipx.server, Network_player_rejoining.player.protocol.ipx.node, NULL, 0);
-	send_netplayers_packet(Network_player_rejoining.player.protocol.ipx.server, Network_player_rejoining.player.protocol.ipx.node);
+	send_netgame_packet(IPX_sync_player.player.protocol.ipx.server, IPX_sync_player.player.protocol.ipx.node, NULL, 0);
+	send_netplayers_packet(IPX_sync_player.player.protocol.ipx.server, IPX_sync_player.player.protocol.ipx.node);
 }
 
 char * net_ipx_get_player_name( int objnum )
@@ -1555,7 +1825,7 @@ char * net_ipx_get_player_name( int objnum )
 	return Players[Objects[objnum].id].callsign;
 }
 
-void net_ipx_add_player(sequence_packet *p)
+void net_ipx_add_player(IPX_sequence_packet *p)
 {
 	int i;
 	
@@ -1573,11 +1843,11 @@ void net_ipx_add_player(sequence_packet *p)
 	Netgame.players[N_players].version_major=p->player.version_major;
 	Netgame.players[N_players].version_minor=p->player.version_minor;
 	Netgame.players[N_players].rank=p->player.rank;
-	Netgame.players[N_players].connected = 1;
+	Netgame.players[N_players].connected = CONNECT_PLAYING;
 	net_ipx_check_for_old_version (N_players);
 
 	Players[N_players].KillGoalCount=0;
-	Players[N_players].connected = 1;
+	Players[N_players].connected = CONNECT_PLAYING;
 	Netgame.players[N_players].LastPacketTime = timer_get_approx_seconds();
 	N_players++;
 	Netgame.numplayers = N_players;
@@ -1589,7 +1859,7 @@ void net_ipx_add_player(sequence_packet *p)
 
 // One of the players decided not to join the game
 
-void net_ipx_remove_player(sequence_packet *p)
+void net_ipx_remove_player(IPX_sequence_packet *p)
 {
 	int i,pn;
 	
@@ -1629,13 +1899,13 @@ net_ipx_dump_player(ubyte * server, ubyte *node, int why)
 {
 	// Inform player that he was not chosen for the netgame
 
-	sequence_packet temp;
+	IPX_sequence_packet temp;
 
-	memset(&temp, 0, sizeof(sequence_packet));
+	memset(&temp, 0, sizeof(IPX_sequence_packet));
 	temp.type = PID_DUMP;
 	memcpy(temp.player.callsign, Players[Player_num].callsign, CALLSIGN_LEN+1);
 	temp.player.connected = why;
-	send_sequence_packet( temp, server, node, NULL);
+	net_ipx_send_sequence_packet( temp, server, node, NULL);
 }
 
 void
@@ -1643,32 +1913,32 @@ net_ipx_send_game_list_request()
 {
 	// Send a broadcast request for game info
 
-	sequence_packet me;
+	IPX_sequence_packet me;
 
-	memset(&me, 0, sizeof(sequence_packet));
+	memset(&me, 0, sizeof(IPX_sequence_packet));
 	me.type = PID_GAME_LIST;
 	memcpy( me.player.callsign, Players[Player_num].callsign, CALLSIGN_LEN+1 );
 
 	memcpy( me.player.protocol.ipx.node, ipxdrv_get_my_local_address(), 6 );
 	memcpy( me.player.protocol.ipx.server, ipxdrv_get_my_server_address(), 4 );
 
-	send_sequence_packet( me, NULL, NULL, NULL);
+	net_ipx_send_sequence_packet( me, NULL, NULL, NULL);
 }
 
 void net_ipx_send_all_info_request(char type,int which_security)
 {
 	// Send a broadcast request for game info
 
-	sequence_packet me;
+	IPX_sequence_packet me;
 
-	memset(&me, 0, sizeof(sequence_packet));
+	memset(&me, 0, sizeof(IPX_sequence_packet));
 	me.Security=which_security;
 	me.type = type;
 	memcpy( me.player.callsign, Players[Player_num].callsign, CALLSIGN_LEN+1 );
 	
 	memcpy( me.player.protocol.ipx.node, ipxdrv_get_my_local_address(), 6 );
 	memcpy( me.player.protocol.ipx.server, ipxdrv_get_my_server_address(), 4 );
-	send_sequence_packet( me, NULL, NULL, NULL);
+	net_ipx_send_sequence_packet( me, NULL, NULL, NULL);
 }
 
 
@@ -1728,14 +1998,14 @@ net_ipx_update_netgame(void)
 void
 net_ipx_send_endlevel_sub(int player_num)
 {
-	endlevel_info end;
+	IPX_endlevel_info end;
 	int i;
 #ifdef WORDS_BIGENDIAN
 	int j;
 #endif
 
 	// Send an endlevel packet for a player
-	memset(&end,0,sizeof(endlevel_info));
+	memset(&end,0,sizeof(IPX_endlevel_info));
 	end.type                = PID_ENDLEVEL;
 	end.player_num = player_num;
 	end.connected   = Players[player_num].connected;
@@ -1748,7 +2018,7 @@ net_ipx_send_endlevel_sub(int player_num)
 			end.kill_matrix[i][j] = INTEL_SHORT(end.kill_matrix[i][j]);
 #endif
 
-	if (Players[player_num].connected == 1) // Still playing
+	if (Players[player_num].connected == CONNECT_PLAYING) // Still playing
 	{
 		Assert(Control_center_destroyed);
 		end.seconds_left = Countdown_seconds_left;
@@ -1757,10 +2027,10 @@ net_ipx_send_endlevel_sub(int player_num)
 	for (i = 0; i < N_players; i++)
 	{
 		if ((i != Player_num) && (i!=player_num) && (Players[i].connected)) {
-			if (Players[i].connected==1) {
+			if (Players[i].connected==CONNECT_PLAYING) {
 				net_ipx_send_endlevel_short_sub(player_num,i);
 			} else {
-				ipxdrv_send_packet_data((ubyte *)&end, sizeof(endlevel_info), Netgame.players[i].protocol.ipx.server, Netgame.players[i].protocol.ipx.node,Players[i].net_address);
+				ipxdrv_send_packet_data((ubyte *)&end, sizeof(IPX_endlevel_info), Netgame.players[i].protocol.ipx.server, Netgame.players[i].protocol.ipx.node,Players[i].net_address);
 			}
 		}
 	}
@@ -1778,7 +2048,7 @@ net_ipx_send_endlevel_packet(void)
 void
 net_ipx_send_endlevel_short_sub(int from_player_num,int to_player)
 {
-	endlevel_info_short end;
+	IPX_endlevel_info_short end;
 
 	end.type = PID_ENDLEVEL_SHORT;
 	end.player_num = from_player_num;
@@ -1786,21 +2056,21 @@ net_ipx_send_endlevel_short_sub(int from_player_num,int to_player)
 	end.seconds_left = Countdown_seconds_left;
 
 
-	if (Players[from_player_num].connected == 1) // Still playing
+	if (Players[from_player_num].connected == CONNECT_PLAYING) // Still playing
 	{
 		Assert(Control_center_destroyed);
 	}
 
 	if ((to_player != Player_num) && (to_player!=from_player_num) && (Players[to_player].connected))
 	{
-		ipxdrv_send_packet_data((ubyte *)&end, sizeof(endlevel_info_short), Netgame.players[to_player].protocol.ipx.server, Netgame.players[to_player].protocol.ipx.node,Players[to_player].net_address);
+		ipxdrv_send_packet_data((ubyte *)&end, sizeof(IPX_endlevel_info_short), Netgame.players[to_player].protocol.ipx.server, Netgame.players[to_player].protocol.ipx.node,Players[to_player].net_address);
 	}
 }
 
 extern fix ThisLevelTime;
 
 void
-net_ipx_send_game_info(sequence_packet *their)
+net_ipx_send_game_info(IPX_sequence_packet *their)
 {
 	// Send game info to someone who requested it
 
@@ -1843,7 +2113,7 @@ net_ipx_send_game_info(sequence_packet *their)
 	Netgame.game_status = old_status;
 }
 
-void net_ipx_send_lite_info(sequence_packet *their)
+void net_ipx_send_lite_info(IPX_sequence_packet *their)
 {
 	// Send game info to someone who requested it
 
@@ -1941,10 +2211,10 @@ int net_ipx_send_request(void)
 
 	Assert(i < MAX_NUM_NET_PLAYERS);
 
-	My_Seq.type = PID_REQUEST;
-	My_Seq.player.connected = Current_level_num;
+	IPX_Seq.type = PID_REQUEST;
+	IPX_Seq.player.connected = Current_level_num;
 
-	send_sequence_packet(My_Seq, Netgame.players[i].protocol.ipx.server, Netgame.players[i].protocol.ipx.node, NULL);
+	net_ipx_send_sequence_packet(IPX_Seq, Netgame.players[i].protocol.ipx.server, Netgame.players[i].protocol.ipx.node, NULL);
 
 	return i;
 }
@@ -1968,39 +2238,39 @@ void net_ipx_process_gameinfo(ubyte *data)
 		return;     // If this first half doesn't go with the second half
 	}
 
-	Network_games_changed = 1;
+	num_active_ipx_changed = 1;
 
 	Assert (TempPlayersInfo!=NULL);
 
-	for (i = 0; i < num_active_games; i++)
+	for (i = 0; i < num_active_ipx_games; i++)
 	{
-		if (!stricmp(Active_games[i].game_name, new->game_name) && Active_games[i].protocol.ipx.Game_Security==new->protocol.ipx.Game_Security)
+		if (!stricmp(Active_ipx_games[i].game_name, new->game_name) && Active_ipx_games[i].protocol.ipx.Game_Security==new->protocol.ipx.Game_Security)
 			break;
 	}
 
-	if (i == MAX_ACTIVE_NETGAMES)
+	if (i == IPX_MAX_NETGAMES)
 	{
 		return;
 	}
 	
-	memcpy(&Active_games[i], (ubyte *)new, sizeof(netgame_info));
-	memcpy (&Active_games[i].players,TempPlayersInfo->players,sizeof(netplayer_info)*(MAX_PLAYERS+4));
+	memcpy(&Active_ipx_games[i], (ubyte *)new, sizeof(netgame_info));
+	memcpy (&Active_ipx_games[i].players,TempPlayersInfo->players,sizeof(netplayer_info)*(MAX_PLAYERS+4));
 
 	if (SecurityCheck)
-		if (Active_games[i].protocol.ipx.Game_Security==SecurityCheck)
+		if (Active_ipx_games[i].protocol.ipx.Game_Security==SecurityCheck)
 			SecurityCheck=-1;
 
-	if (i == num_active_games)
-		num_active_games++;
+	if (i == num_active_ipx_games)
+		num_active_ipx_games++;
 
-	if (Active_games[i].numplayers == 0)
+	if (Active_ipx_games[i].numplayers == 0)
 	{
 		// Delete this game
-		for (j = i; j < num_active_games-1; j++)
+		for (j = i; j < num_active_ipx_games-1; j++)
 		{
-			memcpy(&Active_games[j], &Active_games[j+1], sizeof(netgame_info));
+			memcpy(&Active_ipx_games[j], &Active_ipx_games[j+1], sizeof(netgame_info));
 		}
-		num_active_games--;
+		num_active_ipx_games--;
 		SecurityCheck=0;
 	}
 }
@@ -2014,61 +2284,61 @@ void net_ipx_process_lite_info(ubyte *data)
 	receive_netgame_packet(data, (netgame_info *)&tmp_info, 1);
 	new = &tmp_info;
 
-	Network_games_changed = 1;
+	num_active_ipx_changed = 1;
 
-	for (i = 0; i < num_active_games; i++)
+	for (i = 0; i < num_active_ipx_games; i++)
 	{
-		if ((!stricmp(Active_games[i].game_name, new->game_name)) && Active_games[i].protocol.ipx.Game_Security==new->protocol.ipx.Game_Security)
+		if ((!stricmp(Active_ipx_games[i].game_name, new->game_name)) && Active_ipx_games[i].protocol.ipx.Game_Security==new->protocol.ipx.Game_Security)
 			break;
 	}
 
-	if (i == MAX_ACTIVE_NETGAMES)
+	if (i == IPX_MAX_NETGAMES)
 	{
 		return;
 	}
 	
-	memcpy(&Active_games[i], (ubyte *)new, sizeof(netgame_info));
+	memcpy(&Active_ipx_games[i], (ubyte *)new, sizeof(netgame_info));
 
 	// See if this is really a Hoard game
 	// If so, adjust all the data accordingly
 	if (HoardEquipped())
 	{
-		if (Active_games[i].game_flags & NETGAME_FLAG_HOARD)
+		if (Active_ipx_games[i].game_flags & NETGAME_FLAG_HOARD)
 		{
-			Active_games[i].gamemode=NETGAME_HOARD;
-			Active_games[i].game_status=NETSTAT_PLAYING;
+			Active_ipx_games[i].gamemode=NETGAME_HOARD;
+			Active_ipx_games[i].game_status=NETSTAT_PLAYING;
 			
-			if (Active_games[i].game_flags & NETGAME_FLAG_TEAM_HOARD)
-				Active_games[i].gamemode=NETGAME_TEAM_HOARD;
-			if (Active_games[i].game_flags & NETGAME_FLAG_REALLY_ENDLEVEL)
-				Active_games[i].game_status=NETSTAT_ENDLEVEL;
-			if (Active_games[i].game_flags & NETGAME_FLAG_REALLY_FORMING)
-				Active_games[i].game_status=NETSTAT_STARTING;
+			if (Active_ipx_games[i].game_flags & NETGAME_FLAG_TEAM_HOARD)
+				Active_ipx_games[i].gamemode=NETGAME_TEAM_HOARD;
+			if (Active_ipx_games[i].game_flags & NETGAME_FLAG_REALLY_ENDLEVEL)
+				Active_ipx_games[i].game_status=NETSTAT_ENDLEVEL;
+			if (Active_ipx_games[i].game_flags & NETGAME_FLAG_REALLY_FORMING)
+				Active_ipx_games[i].game_status=NETSTAT_STARTING;
 		}
 	}
 
-	if (i == num_active_games)
-		num_active_games++;
+	if (i == num_active_ipx_games)
+		num_active_ipx_games++;
 
-	if (Active_games[i].numplayers == 0)
+	if (Active_ipx_games[i].numplayers == 0)
 	{
 		// Delete this game
-		for (j = i; j < num_active_games-1; j++)
+		for (j = i; j < num_active_ipx_games-1; j++)
 		{
-			memcpy(&Active_games[j], &Active_games[j+1], sizeof(netgame_info));
+			memcpy(&Active_ipx_games[j], &Active_ipx_games[j+1], sizeof(netgame_info));
 		}
-		num_active_games--;
+		num_active_ipx_games--;
 	}
 }
 
-void net_ipx_process_dump(sequence_packet *their)
+void net_ipx_process_dump(IPX_sequence_packet *their)
 {
 	// Our request for join was denied.  Tell the user why.
 
 	char temp[40];
 	int i;
 
-	if (their->player.connected!=7)
+	if (their->player.connected!=CONNECT_KMATRIX_WAITING)
 	{
 		nm_messagebox(NULL, 1, TXT_OK, NET_DUMP_STRINGS(their->player.connected));
 		Network_status = NETSTAT_MENU;
@@ -2089,7 +2359,6 @@ void net_ipx_process_dump(sequence_packet *their)
 					nm_messagebox(NULL, 1, TXT_OK, &temp);
 					if (Network_status==NETSTAT_PLAYING)
 					{
-						IWasKicked=1;
 						multi_leave_game();
 					}
 					else
@@ -2101,30 +2370,29 @@ void net_ipx_process_dump(sequence_packet *their)
 		}
  	}
 }	
-void net_ipx_process_request(sequence_packet *their)
+void net_ipx_process_request(IPX_sequence_packet *their)
 {
 	// Player is ready to receieve a sync packet
 	int i;
 
 	for (i = 0; i < N_players; i++) {
 		if (!memcmp(their->player.protocol.ipx.server, Netgame.players[i].protocol.ipx.server, 4) && !memcmp(their->player.protocol.ipx.node, Netgame.players[i].protocol.ipx.node, 6) && (!stricmp(their->player.callsign, Netgame.players[i].callsign))) {
-			Players[i].connected = 1;
+			Players[i].connected = CONNECT_PLAYING;
 			break;
 		}
 	}
 }
 
-#define REFUSE_INTERVAL F1_0 * 8
 extern void multi_reset_object_texture (object *);
 
 void net_ipx_process_packet(ubyte *data, int length )
 {
-	sequence_packet *their = (sequence_packet *)data;
-	sequence_packet tmp_packet;
+	IPX_sequence_packet *their = (IPX_sequence_packet *)data;
+	IPX_sequence_packet tmp_packet;
 
-	memset(&tmp_packet, 0, sizeof(sequence_packet));
+	memset(&tmp_packet, 0, sizeof(IPX_sequence_packet));
 
-	receive_sequence_packet(data, &tmp_packet);
+	net_ipx_receive_sequence_packet(data, &tmp_packet);
 	their = &tmp_packet;                                            // reassign their to point to correctly alinged structure
 
 	length = length;
@@ -2212,7 +2480,7 @@ void net_ipx_process_packet(ubyte *data, int length )
 			{
 				// Someone wants to join a game in progress!
 				if (Netgame.RefusePlayers)
-					DoRefuseStuff (their);
+					net_ipx_do_refuse_stuff (their);
 				else
 					net_ipx_welcome_player(their);
 			}
@@ -2373,7 +2641,7 @@ net_ipx_read_endlevel_packet( ubyte *data )
 {
 	// Special packet for end of level syncing
 	int playernum;
-	endlevel_info *end = (endlevel_info *)data;
+	IPX_endlevel_info *end = (IPX_endlevel_info *)data;
 #ifdef WORDS_BIGENDIAN
 	int i, j;
 
@@ -2394,7 +2662,7 @@ net_ipx_read_endlevel_packet( ubyte *data )
 		return; // if it happens in a coop restore, don't worry about it
 	 }
 
-	if ((Network_status == NETSTAT_PLAYING) && (end->connected != 0))
+	if ((Network_status == NETSTAT_PLAYING) && (end->connected != CONNECT_DISCONNECTED))
 		return; // Only accept disconnect packets if we're not out of the level yet
 
 	Players[playernum].connected = end->connected;
@@ -2402,7 +2670,7 @@ net_ipx_read_endlevel_packet( ubyte *data )
 	Players[playernum].net_kills_total = end->kills;
 	Players[playernum].net_killed_total = end->killed;
 
-	if ((Players[playernum].connected == 1) && (end->seconds_left < Countdown_seconds_left))
+	if ((Players[playernum].connected == CONNECT_PLAYING) && (end->seconds_left < Countdown_seconds_left))
 		Countdown_seconds_left = end->seconds_left;
 
 	Netgame.players[playernum].LastPacketTime = timer_get_approx_seconds();
@@ -2414,9 +2682,9 @@ net_ipx_read_endlevel_short_packet( ubyte *data )
 	// Special packet for end of level syncing
 
 	int playernum;
-	endlevel_info_short *end;       
+	IPX_endlevel_info_short *end;       
 
-	end = (endlevel_info_short *)data;
+	end = (IPX_endlevel_info_short *)data;
 
 	playernum = end->player_num;
 	
@@ -2428,14 +2696,14 @@ net_ipx_read_endlevel_short_packet( ubyte *data )
 		return; // if it happens in a coop restore, don't worry about it
 	 }
 
-	if ((Network_status == NETSTAT_PLAYING) && (end->connected != 0))
+	if ((Network_status == NETSTAT_PLAYING) && (end->connected != CONNECT_DISCONNECTED))
 	 {
 		return; // Only accept disconnect packets if we're not out of the level yet
 	 }
 
 	Players[playernum].connected = end->connected;
 
-	if ((Players[playernum].connected == 1) && (end->seconds_left < Countdown_seconds_left))
+	if ((Players[playernum].connected == CONNECT_PLAYING) && (end->seconds_left < Countdown_seconds_left))
 		Countdown_seconds_left = end->seconds_left;
 
 	Netgame.players[playernum].LastPacketTime = timer_get_approx_seconds();
@@ -2566,7 +2834,7 @@ net_ipx_read_object_packet( ubyte *data )
 				Assert(obj->segnum == -1);
 				Assert(objnum < MAX_OBJECTS);
 				memcpy(obj, &data[loc], sizeof(object));
-				swap_object(obj);
+				net_ipx_swap_object(obj);
 				loc += sizeof(object);
 				segnum = obj->segnum;
 				obj->next = obj->prev = obj->segnum = -1;
@@ -2700,9 +2968,13 @@ void net_ipx_start_poll( int nitems, newmenu_item * menus, int * key, int citem 
    }
 }
 
-int opt_cinvul, opt_team_anarchy, opt_coop, opt_show_on_map, opt_closed,opt_maxnet;
-int last_cinvul=0,last_maxnet,opt_team_hoard;
-int opt_refuse,opt_capture;
+static fix LastPTA;
+static int LastKillGoal;
+static int opt_cinvul, opt_team_anarchy, opt_coop, opt_show_on_map, opt_closed,opt_maxnet;
+static int last_cinvul=0,last_maxnet,opt_team_hoard;
+static int opt_refuse,opt_capture;
+static int opt_setpower,opt_playtime,opt_killgoal,opt_marker_view,opt_light;
+static int opt_difficulty,opt_packets, opt_bright,opt_start_invul, opt_show_names, opt_short_packets, opt_socket;
 
 void net_ipx_game_param_poll( int nitems, newmenu_item * menus, int * key, int citem )
 {
@@ -2729,7 +3001,7 @@ void net_ipx_game_param_poll( int nitems, newmenu_item * menus, int * key, int c
 		    menus[opt_maxnet].max_value=2;
 		}
 
-		if (!Netgame.game_flags & NETGAME_FLAG_SHOW_MAP) 
+		if (!(Netgame.game_flags & NETGAME_FLAG_SHOW_MAP))
 			Netgame.game_flags |= NETGAME_FLAG_SHOW_MAP;
 
 		if (Netgame.PlayTimeAllowed || Netgame.KillGoal)
@@ -2765,7 +3037,6 @@ int net_ipx_get_game_params()
 	char level_text[32];
 	char srmaxnet[50];
 
-	SetAllAllowablesTo (1);
 	NamesInfoSecurity=-1;
 
 	for (i=0;i<MAX_PLAYERS;i++)
@@ -2779,6 +3050,10 @@ int net_ipx_get_game_params()
 	Netgame.difficulty=PlayerCfg.DefaultDifficulty;
 	Netgame.max_numplayers=MaxNumNetPlayers;
 	sprintf( Netgame.game_name, "%s%s", Players[Player_num].callsign, TXT_S_GAME );
+	last_cinvul = 0;
+	Netgame.BrightPlayers = Netgame.InvulAppear = 1;
+	Netgame.AllowedItems = 0;
+	Netgame.AllowedItems |= NETFLAG_DOPOWERUP;
 
 	if (!select_mission(1, TXT_MULTI_MISSION))
 		return -1;
@@ -2855,8 +3130,8 @@ menu:
 		MaxNumNetPlayers = m[opt_maxnet].value+2;
 		Netgame.max_numplayers=MaxNumNetPlayers;
 
-		for (j = 0; j < num_active_games; j++)
-			if (!stricmp(Active_games[j].game_name, Netgame.game_name))
+		for (j = 0; j < num_active_ipx_games; j++)
+			if (!stricmp(Active_ipx_games[j].game_name, Netgame.game_name))
 			{
 				nm_messagebox(TXT_ERROR, 1, TXT_OK, TXT_DUPLICATE_NAME);
 				goto menu;
@@ -2872,21 +3147,6 @@ menu:
 		}
 		if ( m[opt_mode].value )
 			Netgame.gamemode = NETGAME_ANARCHY;
-
-#ifdef SHAREWARE
-		else 
-		{
-			nm_messagebox(TXT_SORRY, 1, TXT_OK, TXT_REGISTERED_ONLY );
-			m[opt_mode+1].value = 0;
-			m[opt_mode+2].value = 0;
-			m[opt_mode+3].value = 0;
-			if (HoardEquipped())
-					m[opt_mode+4].value = 0;
-
-			m[opt_mode].value = 1;
-			goto menu;
-		}
-#else
 		else if (m[opt_mode+1].value) {
 			Netgame.gamemode = NETGAME_TEAM_ANARCHY;
 		}
@@ -2908,7 +3168,7 @@ menu:
 		else if ( m[opt_mode+3].value ) 
 			Netgame.gamemode = NETGAME_COOPERATIVE;
 		else Int3(); // Invalid mode -- see Rob
-#endif
+
 		if (m[opt_closed].value)
 			Netgame.game_flags |= NETGAME_FLAG_CLOSED;
 		else
@@ -2960,7 +3220,7 @@ net_ipx_find_game(void)
 
 	Network_status = NETSTAT_BROWSING;
 
-	num_active_games = 0;
+	num_active_ipx_games = 0;
 
 	show_boxed_message(TXT_WAIT, 0);
 
@@ -2970,7 +3230,7 @@ net_ipx_find_game(void)
 	while (timer_get_approx_seconds() < t1) // Wait 3 seconds for replies
 		net_ipx_listen();
 
-	if (num_active_games < MAX_ACTIVE_NETGAMES)
+	if (num_active_ipx_games < IPX_MAX_NETGAMES)
 		return 0;
 	return 1;
 }
@@ -3022,7 +3282,7 @@ void net_ipx_read_sync_packet( netgame_info * sp, int rsinit)
 	}
 
 	for (i=0; i<N_players; i++ )    {
-		if ( (!memcmp( TempPlayersInfo->players[i].protocol.ipx.node, My_Seq.player.protocol.ipx.node, 6 )) && (!stricmp( TempPlayersInfo->players[i].callsign, temp_callsign)) ) {
+		if ( (!memcmp( TempPlayersInfo->players[i].protocol.ipx.node, IPX_Seq.player.protocol.ipx.node, 6 )) && (!stricmp( TempPlayersInfo->players[i].callsign, temp_callsign)) ) {
 			if (Player_num!=-1) {
 				Int3(); // Hey, we've found ourselves twice
 				Network_status = NETSTAT_MENU;
@@ -3074,8 +3334,8 @@ void net_ipx_read_sync_packet( netgame_info * sp, int rsinit)
 	team_kills[0] = sp->team_kills[0];
 	team_kills[1] = sp->team_kills[1];
 	
-	Players[Player_num].connected = 1;
-	Netgame.players[Player_num].connected = 1;
+	Players[Player_num].connected = CONNECT_PLAYING;
+	Netgame.players[Player_num].connected = CONNECT_PLAYING;
 	Netgame.players[Player_num].rank=GetMyNetRanking();
 
 	if (!Network_rejoined)
@@ -3104,7 +3364,7 @@ net_ipx_send_sync(void)
 	for (i=0; i<NumNetPlayerPositions; i++ )        
 	{
 		if (Players[i].connected)
-			Players[i].connected = 1; // Get rid of endlevel connect statuses
+			Players[i].connected = CONNECT_PLAYING; // Get rid of endlevel connect statuses
 
 		if (Game_mode & GM_MULTI_COOP)
 			Netgame.locations[i] = i;
@@ -3148,7 +3408,6 @@ net_ipx_send_sync(void)
 int
 net_ipx_select_teams(void)
 {
-#ifndef SHAREWARE
 	newmenu_item m[MAX_PLAYERS+4];
 	int choice, opt, opt_team_b;
 	ubyte team_vector = 0;
@@ -3219,9 +3478,6 @@ menu:
 	else if (choice == -1)
 		return 0;
 	goto menu;
-#else
-	return 0;
-#endif
 }
 
 int
@@ -3233,7 +3489,7 @@ net_ipx_select_players(void)
 	char title[50];
 	int save_nplayers;              //how may people would like to join
 
-	net_ipx_add_player( &My_Seq );
+	net_ipx_add_player( &IPX_Seq );
 		
 	for (i=0; i< MAX_PLAYERS+4; i++ ) {
 		sprintf( text[i], "%d.  %-20s", i+1, "" );
@@ -3319,7 +3575,7 @@ abort:
 				ClipRank (&Netgame.players[N_players].rank);
 				net_ipx_check_for_old_version(i);
 			}
-			Players[N_players].connected = 1;
+			Players[N_players].connected = CONNECT_PLAYING;
 			N_players++;
 		}
 		else
@@ -3352,7 +3608,7 @@ net_ipx_start_game()
 	int i;
 
 	Assert( FRAME_INFO_SIZE < MAX_DATA_SIZE );
-	if ( !Network_active )
+	if ( !IPX_active )
 	{
 		nm_messagebox(NULL, 1, TXT_OK, TXT_IPX_NOT_FOUND );
 		return;
@@ -3376,7 +3632,7 @@ net_ipx_start_game()
 	}
 
 	if (is_D2_OEM)
-		My_Seq.player.version_minor|=NETWORK_OEM;
+		IPX_Seq.player.version_minor|=0x10;
 	N_players = 0;
 	Netgame.game_status = NETSTAT_STARTING;
 	Netgame.numplayers = 0;
@@ -3402,22 +3658,20 @@ void restart_net_searching(newmenu_item * m)
 {
 	int i;
 	N_players = 0;
-	num_active_games = 0;
+	num_active_ipx_games = 0;
 
-	memset(Active_games, 0, sizeof(netgame_info)*MAX_ACTIVE_NETGAMES);
+	memset(Active_ipx_games, 0, sizeof(netgame_info)*IPX_MAX_NETGAMES);
 
-	for (i = 0; i < MAX_ACTIVE_NETGAMES; i++)
+	for (i = 0; i < IPX_MAX_NETGAMES; i++)
 	{
 		sprintf(m[i+2].text, "%d.                                                         ",i+1);
 	}
 
 	NamesInfoSecurity=-1;
-	Network_games_changed = 1;      
+	num_active_ipx_changed = 1;      
 }
 
 char *ModeLetters[]={"ANRCHY","TEAM","ROBO","COOP","FLAG","HOARD","TMHOARD"};
-
-int NumActiveNetgames=0;
 
 void net_ipx_join_poll( int nitems, newmenu_item * menus, int * key, int citem )
 {
@@ -3430,7 +3684,7 @@ void net_ipx_join_poll( int nitems, newmenu_item * menus, int * key, int citem )
 	nitems = nitems;
 	key = key;
 
-	if ( Network_allow_socket_changes ) {
+	if ( IPX_allow_socket_changes ) {
 		osocket = IPX_Socket;
 
 		if ( *key==KEY_PAGEDOWN )       { IPX_Socket--; *key = 0; }
@@ -3464,24 +3718,22 @@ void net_ipx_join_poll( int nitems, newmenu_item * menus, int * key, int citem )
 		net_ipx_send_game_list_request();
 	}
 
-	temp=num_active_games;
+	temp=num_active_ipx_games;
 
 	net_ipx_listen();
 
-	NumActiveNetgames=num_active_games;
-
-	if (!Network_games_changed)
+	if (!num_active_ipx_changed)
 		return;
 
-	if (temp!=num_active_games)
+	if (temp!=num_active_ipx_games)
 		digi_play_sample (SOUND_HUD_MESSAGE,F1_0);
 
-	Network_games_changed = 0;
+	num_active_ipx_changed = 0;
 
 	// Copy the active games data into the menu options
-	for (i = 0; i < num_active_games; i++)
+	for (i = 0; i < num_active_ipx_games; i++)
 	{
-		int game_status = Active_games[i].game_status;
+		int game_status = Active_ipx_games[i].game_status;
 		int j,x, k,tx,ty,ta,nplayers = 0;
 		char levelname[8],MissName[25],GameName[25],thold[2];
 		thold[1]=0;
@@ -3491,9 +3743,9 @@ void net_ipx_join_poll( int nitems, newmenu_item * menus, int * key, int citem )
 
 		for (x=0,tx=0,k=0,j=0;j<15;j++)
 		{
-			if (Active_games[i].mission_title[j]=='\t')
+			if (Active_ipx_games[i].mission_title[j]=='\t')
 				continue;
-			thold[0]=Active_games[i].mission_title[j];
+			thold[0]=Active_ipx_games[i].mission_title[j];
 			gr_get_string_size (thold,&tx,&ty,&ta);
 
 			if ((x+=tx)>=FSPACX(55))
@@ -3503,15 +3755,15 @@ void net_ipx_join_poll( int nitems, newmenu_item * menus, int * key, int citem )
 				break;
 			}
 
-			MissName[k++]=Active_games[i].mission_title[j];
+			MissName[k++]=Active_ipx_games[i].mission_title[j];
 		}
 		MissName[k]=0;
 
 		for (x=0,tx=0,k=0,j=0;j<15;j++)
 		{
-			if (Active_games[i].game_name[j]=='\t')
+			if (Active_ipx_games[i].game_name[j]=='\t')
 				continue;
-			thold[0]=Active_games[i].game_name[j];
+			thold[0]=Active_ipx_games[i].game_name[j];
 			gr_get_string_size (thold,&tx,&ty,&ta);
 
 			if ((x+=tx)>=FSPACX(55))
@@ -3520,56 +3772,56 @@ void net_ipx_join_poll( int nitems, newmenu_item * menus, int * key, int citem )
 				k+=3;
 				break;
 			}
-			GameName[k++]=Active_games[i].game_name[j];
+			GameName[k++]=Active_ipx_games[i].game_name[j];
 		}
 		GameName[k]=0;
 
 
-		nplayers=Active_games[i].numconnected;
+		nplayers=Active_ipx_games[i].numconnected;
 
-		if (Active_games[i].levelnum < 0)
-			sprintf(levelname, "S%d", -Active_games[i].levelnum);
+		if (Active_ipx_games[i].levelnum < 0)
+			sprintf(levelname, "S%d", -Active_ipx_games[i].levelnum);
 		else
-			sprintf(levelname, "%d", Active_games[i].levelnum);
+			sprintf(levelname, "%d", Active_ipx_games[i].levelnum);
 
 		if (game_status == NETSTAT_STARTING)
 		{
 			sprintf (menus[i+2].text,"%d.\t%s \t%s \t  %d/%d \t%s \t %s \t%s",
-					 i+1,GameName,ModeLetters[Active_games[i].gamemode],nplayers,
-					 Active_games[i].max_numplayers,MissName,levelname,"Forming");
+					 i+1,GameName,ModeLetters[Active_ipx_games[i].gamemode],nplayers,
+					 Active_ipx_games[i].max_numplayers,MissName,levelname,"Forming");
 		}
 		else if (game_status == NETSTAT_PLAYING)
 		{
-			join_status=can_join_netgame(&Active_games[i]);
+			join_status=net_ipx_can_join_netgame(&Active_ipx_games[i]);
 
 			if (join_status==1)
 				sprintf (menus[i+2].text,"%d.\t%s \t%s \t  %d/%d \t%s \t %s \t%s",
-						 i+1,GameName,ModeLetters[Active_games[i].gamemode],nplayers,
-						 Active_games[i].max_numplayers,MissName,levelname,"Open");
+						 i+1,GameName,ModeLetters[Active_ipx_games[i].gamemode],nplayers,
+						 Active_ipx_games[i].max_numplayers,MissName,levelname,"Open");
 			else if (join_status==2)
 				sprintf (menus[i+2].text,"%d.\t%s \t%s \t  %d/%d \t%s \t %s \t%s",
-						 i+1,GameName,ModeLetters[Active_games[i].gamemode],nplayers,
-						 Active_games[i].max_numplayers,MissName,levelname,"Full");
+						 i+1,GameName,ModeLetters[Active_ipx_games[i].gamemode],nplayers,
+						 Active_ipx_games[i].max_numplayers,MissName,levelname,"Full");
 			else if (join_status==3)
 				sprintf (menus[i+2].text,"%d.\t%s \t%s \t  %d/%d \t%s \t %s \t%s",
-						 i+1,GameName,ModeLetters[Active_games[i].gamemode],nplayers,
-						 Active_games[i].max_numplayers,MissName,levelname,"Restrict");
+						 i+1,GameName,ModeLetters[Active_ipx_games[i].gamemode],nplayers,
+						 Active_ipx_games[i].max_numplayers,MissName,levelname,"Restrict");
 			else
 				sprintf (menus[i+2].text,"%d.\t%s \t%s \t  %d/%d \t%s \t %s \t%s",
-						 i+1,GameName,ModeLetters[Active_games[i].gamemode],nplayers,
-						 Active_games[i].max_numplayers,MissName,levelname,"Closed");
+						 i+1,GameName,ModeLetters[Active_ipx_games[i].gamemode],nplayers,
+						 Active_ipx_games[i].max_numplayers,MissName,levelname,"Closed");
 
 		}
 		else
 			sprintf (menus[i+2].text,"%d.\t%s \t%s \t  %d/%d \t%s \t %s \t%s",
-					 i+1,GameName,ModeLetters[Active_games[i].gamemode],nplayers,
-					 Active_games[i].max_numplayers,MissName,levelname,"Between");
+					 i+1,GameName,ModeLetters[Active_ipx_games[i].gamemode],nplayers,
+					 Active_ipx_games[i].max_numplayers,MissName,levelname,"Between");
 
 
 		Assert(strlen(menus[i+2].text) < 100);
 	}
 
-	for (i = num_active_games; i < MAX_ACTIVE_NETGAMES; i++)
+	for (i = num_active_ipx_games; i < IPX_MAX_NETGAMES; i++)
 	{
 		sprintf(menus[i+2].text, "%d.                                                     ",i+1);
 	}
@@ -3599,14 +3851,14 @@ net_ipx_wait_for_sync(void)
 
 	if (Network_status != NETSTAT_PLAYING)  
 	{
-		sequence_packet me;
+		IPX_sequence_packet me;
 
-		memset(&me, 0, sizeof(sequence_packet));
+		memset(&me, 0, sizeof(IPX_sequence_packet));
 		me.type = PID_QUIT_JOINING;
 		memcpy( me.player.callsign, Players[Player_num].callsign, CALLSIGN_LEN+1 );
 		memcpy( me.player.protocol.ipx.node, ipxdrv_get_my_local_address(), 6 );
 		memcpy( me.player.protocol.ipx.server, ipxdrv_get_my_server_address(), 4 );
-		send_sequence_packet(me, Netgame.players[0].protocol.ipx.server, Netgame.players[0].protocol.ipx.node, NULL);
+		net_ipx_send_sequence_packet(me, Netgame.players[0].protocol.ipx.server, Netgame.players[0].protocol.ipx.node, NULL);
 		N_players = 0;
 		Function_mode = FMODE_MENU;
 		Game_mode = GM_GAME_OVER;
@@ -3640,7 +3892,7 @@ net_ipx_request_poll( int nitems, newmenu_item * menus, int * key, int citem )
 
 	for (i = 0; i < N_players; i++)
 	{
-		if ((Players[i].connected == 1) || (Players[i].connected == 0))
+		if ((Players[i].connected == CONNECT_PLAYING) || (Players[i].connected == CONNECT_DISCONNECTED))
 			num_ready++;
 	}
 
@@ -3665,7 +3917,7 @@ net_ipx_wait_for_requests(void)
 	Network_status = NETSTAT_WAITING;
 	net_ipx_flush();
 
-	Players[Player_num].connected = 1;
+	Players[Player_num].connected = CONNECT_PLAYING;
 
 menu:
 	choice = newmenu_do(NULL, TXT_WAIT, 1, m, net_ipx_request_poll);        
@@ -3684,7 +3936,7 @@ menu:
 		// User confirmed abort
 		
 		for (i=0; i < N_players; i++) {
-			if ((Players[i].connected != 0) && (i != Player_num)) {
+			if ((Players[i].connected != CONNECT_DISCONNECTED) && (i != Player_num)) {
 				net_ipx_dump_player(Netgame.players[i].protocol.ipx.server, Netgame.players[i].protocol.ipx.node, DUMP_ABORTED);
 			}
 		}
@@ -3719,7 +3971,7 @@ net_ipx_level_sync(void)
 
 	if (result)
 	{
-		Players[Player_num].connected = 0;
+		Players[Player_num].connected = CONNECT_DISCONNECTED;
 		net_ipx_send_endlevel_packet();
 		longjmp(LeaveGame, 0);
 	}
@@ -3747,20 +3999,20 @@ void net_ipx_count_powerups_in_mine(void)
 
 int net_ipx_do_join_game(int choice)
 {
-	if (Active_games[choice].protocol.ipx.protocol_version != MULTI_PROTO_VERSION)
+	if (Active_ipx_games[choice].protocol.ipx.protocol_version != MULTI_PROTO_VERSION)
 	{
         nm_messagebox(TXT_SORRY, 1, TXT_OK, TXT_VERSION_MISMATCH);
 		return 0;
 	}
 
-	if (Active_games[choice].game_status == NETSTAT_ENDLEVEL)
+	if (Active_ipx_games[choice].game_status == NETSTAT_ENDLEVEL)
 	{
 		nm_messagebox(TXT_SORRY, 1, TXT_OK, TXT_NET_GAME_BETWEEN2);
 		return 0;
 	}
 
 	// Check for valid mission name
-	if (!load_mission_by_name(Active_games[choice].mission_name))
+	if (!load_mission_by_name(Active_ipx_games[choice].mission_name))
 	{
 		nm_messagebox(NULL, 1, TXT_OK, TXT_MISSION_NOT_FOUND);
 		return 0;
@@ -3768,8 +4020,8 @@ int net_ipx_do_join_game(int choice)
 
 	if (is_D2_OEM)
 	{
-		My_Seq.player.version_minor|=NETWORK_OEM;
-		if (Active_games[choice].levelnum>8)
+		IPX_Seq.player.version_minor|=0x10;
+		if (Active_ipx_games[choice].levelnum>8)
 		{
 			nm_messagebox(NULL, 1, TXT_OK, "This OEM version only supports\nthe first 8 levels!");
 			return 0;
@@ -3778,7 +4030,7 @@ int net_ipx_do_join_game(int choice)
 
 	if (is_MAC_SHARE)
 	{
-		if (Active_games[choice].levelnum > 4)
+		if (Active_ipx_games[choice].levelnum > 4)
 		{
 			nm_messagebox(NULL, 1, TXT_OK, "This SHAREWARE version only supports\nthe first 4 levels!");
 			return 0;
@@ -3794,9 +4046,9 @@ int net_ipx_do_join_game(int choice)
 
 	Network_status = NETSTAT_BROWSING; // We are looking at a game menu
 
-	if (!can_join_netgame(&Active_games[choice]))
+	if (!net_ipx_can_join_netgame(&Active_ipx_games[choice]))
 	{
-		if (Active_games[0].numplayers == Active_games[0].max_numplayers)
+		if (Active_ipx_games[0].numplayers == Active_ipx_games[0].max_numplayers)
 			nm_messagebox(TXT_SORRY, 1, TXT_OK, TXT_GAME_FULL);
 		else
 			nm_messagebox(TXT_SORRY, 1, TXT_OK, TXT_IN_PROGRESS);
@@ -3804,7 +4056,7 @@ int net_ipx_do_join_game(int choice)
 	}
 
 	// Choice is valid, prepare to join in
-	memcpy (&Netgame, &Active_games[choice], sizeof(netgame_info));
+	memcpy (&Netgame, &Active_ipx_games[choice], sizeof(netgame_info));
 	memcpy (&Netgame.players,TempPlayersInfo->players,sizeof(netplayer_info)*(MAX_PLAYERS+4));
 
 	Difficulty_level = Netgame.difficulty;
@@ -3820,17 +4072,17 @@ int net_ipx_do_join_game(int choice)
 
 
 void nm_draw_background1(char * filename);
-int show_game_stats(int choice);
+int net_ipx_show_game_stats(int choice);
 int net_ipx_do_join_game(int choice);
 
 void net_ipx_join_game()
 {
 	int choice, i;
-	char menu_text[MAX_ACTIVE_NETGAMES+2][200];
+	char menu_text[IPX_MAX_NETGAMES+2][200];
 	
-	newmenu_item m[MAX_ACTIVE_NETGAMES+2];
+	newmenu_item m[IPX_MAX_NETGAMES+2];
 
-	if ( !Network_active )
+	if ( !IPX_active )
 	{
 		nm_messagebox(NULL, 1, TXT_OK, TXT_IPX_NOT_FOUND);
 		return;
@@ -3853,16 +4105,16 @@ void net_ipx_join_game()
 
 	net_ipx_send_game_list_request(); // broadcast a request for lists
 
-	num_active_games = 0;
+	num_active_ipx_games = 0;
 
-	memset(m, 0, sizeof(newmenu_item)*MAX_ACTIVE_NETGAMES);
-	memset(Active_games, 0, sizeof(netgame_info)*MAX_ACTIVE_NETGAMES);
+	memset(m, 0, sizeof(newmenu_item)*IPX_MAX_NETGAMES);
+	memset(Active_ipx_games, 0, sizeof(netgame_info)*IPX_MAX_NETGAMES);
 	
 	gr_set_fontcolor(BM_XRGB(15,15,23),-1);
 
 	m[0].text = menu_text[0];
 	m[0].type = NM_TYPE_TEXT;
-	if (Network_allow_socket_changes)
+	if (IPX_allow_socket_changes)
 		sprintf( m[0].text, "\tCurrent IPX Socket is default %+d (PgUp/PgDn to change)", IPX_Socket );
 	else
 		strcpy( m[0].text, "" ); //sprintf( m[0].text, "" );
@@ -3871,18 +4123,18 @@ void net_ipx_join_game()
 	m[1].type=NM_TYPE_TEXT;
 	sprintf (m[1].text,"\tGAME \tMODE \t#PLYRS \tMISSION \tLEV \tSTATUS");
 
-	for (i = 0; i < MAX_ACTIVE_NETGAMES; i++) {
+	for (i = 0; i < IPX_MAX_NETGAMES; i++) {
 		m[i+2].text = menu_text[i+2];
 		m[i+2].type = NM_TYPE_MENU;
 		sprintf(m[i+2].text, "%d.                                                                   ", i+1);
 	}
 
-	Network_games_changed = 1;
+	num_active_ipx_changed = 1;
 remenu:
 	SurfingNet=1;
 	nm_draw_background1(Menu_pcx_name);             //load this here so if we abort after loading level, we restore the palette
 	gr_palette_load(gr_palette);
-	choice=newmenu_dotiny("NETGAMES", NULL,MAX_ACTIVE_NETGAMES+2, m, net_ipx_join_poll);
+	choice=newmenu_dotiny("NETGAMES", NULL,IPX_MAX_NETGAMES+2, m, net_ipx_join_poll);
 	SurfingNet=0;
 
 	if (choice==-1) {
@@ -3891,13 +4143,13 @@ remenu:
 	}
 	choice-=2;
 
-	if (choice >=num_active_games)
+	if (choice >=num_active_ipx_games)
 	{
 		nm_messagebox(TXT_SORRY, 1, TXT_OK, TXT_INVALID_CHOICE);
 		goto remenu;
 	}
 
-	if (show_game_stats(choice)==0)
+	if (net_ipx_show_game_stats(choice)==0)
 		goto remenu;
 
 	// Choice has been made and looks legit
@@ -3941,7 +4193,7 @@ int net_ipx_wait_for_all_info (int choice)
 
   WaitAllChoice=choice;
   StartWaitAllTime=timer_get_approx_seconds();
-  SecurityCheck=Active_games[choice].protocol.ipx.Game_Security;
+  SecurityCheck=Active_ipx_games[choice].protocol.ipx.Game_Security;
   NetSecurityFlag=0;
 
   GetMenu:
@@ -3988,8 +4240,8 @@ void net_ipx_do_big_wait(int choice)
 					{
 						if (TempPlayersInfo->protocol.ipx.Player_Security==SecurityCheck)
 						{
-							memcpy (&Active_games[choice],(ubyte *)&TempNetInfo,sizeof(netgame_info));
-							memcpy (&Active_games[choice].players, TempPlayersInfo->players, sizeof(netplayer_info)*(MAX_PLAYERS+4));
+							memcpy (&Active_ipx_games[choice],(ubyte *)&TempNetInfo,sizeof(netgame_info));
+							memcpy (&Active_ipx_games[choice].players, TempPlayersInfo->players, sizeof(netplayer_info)*(MAX_PLAYERS+4));
 							SecurityCheck=-1;
 						}
 					}
@@ -4001,8 +4253,8 @@ void net_ipx_do_big_wait(int choice)
 	
 					if (net_ipx_wait_for_playerinfo())
 					{
-						memcpy (&Active_games[choice],(ubyte *)&TempNetInfo,sizeof(netgame_info));
-						memcpy (&Active_games[choice].players, TempPlayersInfo->players, sizeof(netplayer_info)*(MAX_PLAYERS+4));
+						memcpy (&Active_ipx_games[choice],(ubyte *)&TempNetInfo,sizeof(netgame_info));
+						memcpy (&Active_ipx_games[choice].players, TempPlayersInfo->players, sizeof(netplayer_info)*(MAX_PLAYERS+4));
 						SecurityCheck=-1;
 					}
 	
@@ -4052,7 +4304,7 @@ void net_ipx_leave_game()
 	
 	}
 
-	Players[Player_num].connected = 0;	
+	Players[Player_num].connected = CONNECT_DISCONNECTED;	
 	net_ipx_send_endlevel_packet();
 	change_playernum_to(0);
 	Game_mode = GM_GAME_OVER;
@@ -4065,7 +4317,7 @@ void net_ipx_flush()
 {
 	ubyte packet[MAX_DATA_SIZE];
 
-	if (!Network_active) return;
+	if (!IPX_active) return;
 
 	while (ipxdrv_get_packet_data(packet) > 0) ;
 }
@@ -4081,7 +4333,7 @@ void net_ipx_listen()
 		loopmax=N_players*Netgame.PacketsPerSec;
 	}
 	
-	if (!Network_active) return;
+	if (!IPX_active) return;
 
 	WaitingForPlayerInfo=1;
 	NetSecurityFlag=NETSECURITY_OFF;
@@ -4105,7 +4357,7 @@ int net_ipx_wait_for_playerinfo()
 	ubyte id;
 	netgame_info info_struct;
 
-	if (!Network_active) return(0);
+	if (!IPX_active) return(0);
 
 	if (Network_status==NETSTAT_PLAYING)
 	{
@@ -4172,7 +4424,7 @@ void net_ipx_send_data( ubyte * ptr, int len, int urgent )
 
 	if (!MySyncPackInitialized)     {
 		MySyncPackInitialized = 1;
-		memset( &MySyncPack, 0, sizeof(frame_info) );
+		memset( &MySyncPack, 0, sizeof(IPX_frame_info) );
 	}
 	
 	if (urgent)
@@ -4219,11 +4471,8 @@ void net_ipx_timeout_player(int playernum)
 	}
 }
 
-fix last_send_time = 0;
-fix last_timeout_check = 0;
-
 #ifdef WORDS_BIGENDIAN
-void squish_short_frame_info(short_frame_info old_info, ubyte *data)
+void squish_short_frame_info(IPX_short_frame_info old_info, ubyte *data)
 {
 	int loc = 0;
 	int tmpi;
@@ -4267,10 +4516,13 @@ int NakedPacketDestPlayer=-1;
 void net_ipx_do_frame(int force, int listen)
 {
 	int i;
-	short_frame_info ShortSyncPack;
+	IPX_short_frame_info ShortSyncPack;
 	static fix LastEndlevel=0;
+	static fix last_send_time = 0, last_timeout_check = 0;
 
 	if (!(Game_mode&GM_NETWORK)) return;
+
+	net_ipx_ping_all(timer_get_fixed_seconds());
 
 	if ((Network_status != NETSTAT_PLAYING) || (Endlevel_sequence)) // Don't send postion during escape sequence...
 		goto listen;
@@ -4310,7 +4562,7 @@ void net_ipx_do_frame(int force, int listen)
 #endif
 				int i;
 
-				memset(&ShortSyncPack,0,sizeof(short_frame_info));
+				memset(&ShortSyncPack,0,sizeof(IPX_short_frame_info));
 				create_shortpos(&ShortSyncPack.thepos, Objects+objnum, 0);
 				ShortSyncPack.type                                      = PID_PDATA;
 				ShortSyncPack.playernum                         = Player_num;
@@ -4322,10 +4574,10 @@ void net_ipx_do_frame(int force, int listen)
 				MySyncPack.numpackets = INTEL_INT(Players[0].n_packets_sent++);
 				ShortSyncPack.numpackets = MySyncPack.numpackets;
 #ifndef WORDS_BIGENDIAN
-// 				ipxdrvSendGamePacket((ubyte*)&ShortSyncPack, sizeof(short_frame_info) - MaxXDataSize + MySyncPack.data_size);
+// 				ipxdrvSendGamePacket((ubyte*)&ShortSyncPack, sizeof(IPX_short_frame_info) - MaxXDataSize + MySyncPack.data_size);
 				for(i=0; i<N_players; i++) {
 					if(Players[i].connected && (i != Player_num))
-						ipxdrv_send_packet_data((ubyte*)&ShortSyncPack, sizeof(short_frame_info) - NET_XDATA_SIZE + MySyncPack.data_size, Netgame.players[i].protocol.ipx.server, Netgame.players[i].protocol.ipx.node,Players[i].net_address);
+						ipxdrv_send_packet_data((ubyte*)&ShortSyncPack, sizeof(IPX_short_frame_info) - NET_XDATA_SIZE + MySyncPack.data_size, Netgame.players[i].protocol.ipx.server, Netgame.players[i].protocol.ipx.node,Players[i].net_address);
 				}
 #else
 				squish_short_frame_info(ShortSyncPack, send_data);
@@ -4354,12 +4606,12 @@ void net_ipx_do_frame(int force, int listen)
 				
 				send_data_size = MySyncPack.data_size;                  // do this so correct size data is sent
 
-// 				ipxdrvSendGamePacket((ubyte*)&MySyncPack, sizeof(frame_info) - MaxXDataSize + send_data_size);
+// 				ipxdrvSendGamePacket((ubyte*)&MySyncPack, sizeof(IPX_frame_info) - MaxXDataSize + send_data_size);
 				for(i=0; i<N_players; i++)
 				{
 					if(Players[i].connected && (i != Player_num))
 					{
-						ipxdrv_send_packet_data((ubyte *)&MySyncPack, sizeof(frame_info) - NET_XDATA_SIZE + (&MySyncPack)->data_size, Netgame.players[i].protocol.ipx.server, Netgame.players[i].protocol.ipx.node, Players[i].net_address);
+						ipxdrv_send_packet_data((ubyte *)&MySyncPack, sizeof(IPX_frame_info) - NET_XDATA_SIZE + (&MySyncPack)->data_size, Netgame.players[i].protocol.ipx.server, Netgame.players[i].protocol.ipx.node, Players[i].net_address);
 					}
 				}
 			}
@@ -4370,7 +4622,7 @@ void net_ipx_do_frame(int force, int listen)
 			if (Control_center_destroyed)
 			{
 				if (Player_is_dead)
-					Players[Player_num].connected=3;
+					Players[Player_num].connected=CONNECT_DIED_IN_MINE;
 				if (timer_get_approx_seconds() > (LastEndlevel+(F1_0/2)))
 				{
 					net_ipx_send_endlevel_packet();
@@ -4389,17 +4641,17 @@ void net_ipx_do_frame(int force, int listen)
 		// Check for player timeouts
 		for (i = 0; i < N_players; i++)
 		{
-			if ((i != Player_num) && (Players[i].connected == 1))
+			if ((i != Player_num) && (Players[i].connected == CONNECT_PLAYING))
 			{
 				if ((Netgame.players[i].LastPacketTime == 0) || (Netgame.players[i].LastPacketTime > approx_time))
 				{
 					Netgame.players[i].LastPacketTime = approx_time;
 					continue;
 				}
-				if ((approx_time - Netgame.players[i].LastPacketTime) > NETWORK_TIMEOUT)
+				if ((approx_time - Netgame.players[i].LastPacketTime) > IPX_TIMEOUT)
 					net_ipx_timeout_player(i);
 			}
-			if(Players[i].connected != 1 && Objects[Players[i].objnum].type != OBJ_GHOST)
+			if(Players[i].connected != CONNECT_PLAYING && Objects[Players[i].objnum].type != OBJ_GHOST)
 			{
 				HUD_init_message( "'%s' has left.", Players[i].callsign );
 				multi_make_player_ghost(i);
@@ -4417,7 +4669,7 @@ listen:
 	net_ipx_listen();
 
 	if (VerifyPlayerJoined!=-1 && !(FrameCount & 63))
-		resend_sync_due_to_packet_loss_for_allender(); // This will resend to network_player_rejoining
+		resend_sync_due_to_packet_loss_for_allender(); // This will resend to IPX_sync_player
  
 	if (Network_send_objects)
 		net_ipx_send_objects();
@@ -4429,36 +4681,17 @@ listen:
 	}
 }
 
-int missed_packets = 0;
-
-int ConsistencyCount = 0;
-
-void net_ipx_consistency_error(void)
-{
-	if (++ConsistencyCount < 10)
-		return;
-
-	Function_mode = FMODE_MENU;
-	nm_messagebox(NULL, 1, TXT_OK, TXT_CONSISTENCY_ERROR);
-	Function_mode = FMODE_GAME;
-	ConsistencyCount = 0;
-	multi_quit_game = 1;
-	multi_leave_menu = 1;
-	multi_reset_stuff();
-	Function_mode = FMODE_MENU;
-}
-
 void net_ipx_process_pdata (char *data)
  {
   Assert (Game_mode & GM_NETWORK);
  
   if (Netgame.protocol.ipx.ShortPackets)
-	net_ipx_read_pdata_short_packet ((short_frame_info *)data);
+	net_ipx_read_pdata_short_packet ((IPX_short_frame_info *)data);
   else
-	net_ipx_read_pdata_packet ((frame_info *) data);
+	net_ipx_read_pdata_packet ((IPX_frame_info *) data);
  }
 
-void net_ipx_read_pdata_packet(frame_info *pd)
+void net_ipx_read_pdata_packet(IPX_frame_info *pd)
 {
 	int TheirPlayernum;
 	int TheirObjnum;
@@ -4483,7 +4716,7 @@ void net_ipx_read_pdata_packet(frame_info *pd)
 		if (Network_status!=NETSTAT_WAITING)
 		{
 			Int3(); // We missed an important packet!
-			net_ipx_consistency_error();
+			multi_consistency_error(0);
 			return;
 		}
 		else
@@ -4511,15 +4744,12 @@ void net_ipx_read_pdata_packet(frame_info *pd)
 
 	//------------- Keep track of missed packets -----------------
 	Players[TheirPlayernum].n_packets_got++;
-	TotalPacketsGot++;
+	IPX_TotalPacketsGot++;
 	Netgame.players[TheirPlayernum].LastPacketTime = timer_get_approx_seconds();
 
 	if  ( pd->numpackets != Players[TheirPlayernum].n_packets_got ) {
-		int missed_packets;
-		
-		missed_packets = pd->numpackets-Players[TheirPlayernum].n_packets_got;
 		if ((pd->numpackets-Players[TheirPlayernum].n_packets_got)>0)
-			TotalMissedPackets += pd->numpackets-Players[TheirPlayernum].n_packets_got;
+			IPX_TotalMissedPackets += pd->numpackets-Players[TheirPlayernum].n_packets_got;
 
 		Players[TheirPlayernum].n_packets_got = pd->numpackets;
 	}
@@ -4540,7 +4770,7 @@ void net_ipx_read_pdata_packet(frame_info *pd)
 
 	//------------ Welcome them back if reconnecting --------------
 	if (!Players[TheirPlayernum].connected) {
-		Players[TheirPlayernum].connected = 1;
+		Players[TheirPlayernum].connected = CONNECT_PLAYING;
 
 		if (Newdemo_state == ND_STATE_RECORDING)
 			newdemo_record_multi_reconnect(TheirPlayernum);
@@ -4571,7 +4801,7 @@ void net_ipx_read_pdata_packet(frame_info *pd)
 
 }
 
-void net_ipx_read_pdata_short_packet(short_frame_info *pd)
+void net_ipx_read_pdata_short_packet(IPX_short_frame_info *pd)
 {
 	int TheirPlayernum;
 	int TheirObjnum;
@@ -4588,7 +4818,7 @@ void net_ipx_read_pdata_short_packet(short_frame_info *pd)
 		if (Network_status!=NETSTAT_WAITING)
 		 {
 			Int3(); // We missed an important packet!
-			net_ipx_consistency_error();
+			multi_consistency_error(0);
 			return;
 		 }
 		else
@@ -4621,15 +4851,12 @@ void net_ipx_read_pdata_short_packet(short_frame_info *pd)
 
 	//------------- Keep track of missed packets -----------------
 	Players[TheirPlayernum].n_packets_got++;
-	TotalPacketsGot++;
+	IPX_TotalPacketsGot++;
 	Netgame.players[TheirPlayernum].LastPacketTime = timer_get_approx_seconds();
 
 	if  ( pd->numpackets != Players[TheirPlayernum].n_packets_got )      {
-		int missed_packets;
-	
-		missed_packets = pd->numpackets-Players[TheirPlayernum].n_packets_got;
 		if ((pd->numpackets-Players[TheirPlayernum].n_packets_got)>0)
-			TotalMissedPackets += pd->numpackets-Players[TheirPlayernum].n_packets_got;
+			IPX_TotalMissedPackets += pd->numpackets-Players[TheirPlayernum].n_packets_got;
 
 		Players[TheirPlayernum].n_packets_got = pd->numpackets;
 	}
@@ -4646,7 +4873,7 @@ void net_ipx_read_pdata_short_packet(short_frame_info *pd)
 
 	//------------ Welcome them back if reconnecting --------------
 	if (!Players[TheirPlayernum].connected) {
-		Players[TheirPlayernum].connected = 1;
+		Players[TheirPlayernum].connected = CONNECT_PLAYING;
 
 		if (Newdemo_state == ND_STATE_RECORDING)
 			newdemo_record_multi_reconnect(TheirPlayernum);
@@ -4763,36 +4990,6 @@ void net_ipx_set_power (void)
 				Netgame.AllowedItems |= (1 << i);
 	}
 }
-
-void SetAllAllowablesTo (int on)
-{
-	last_cinvul = 0;   //default to zero
-/*
-	Netgame.DoMegas=Netgame.DoSmarts=Netgame.DoFusions=Netgame.DoHelix=\
-	Netgame.DoPhoenix=Netgame.DoCloak=Netgame.DoInvulnerability=\
-	Netgame.DoAfterburner=Netgame.DoGauss=Netgame.DoVulcan=Netgame.DoPlasma=on;
-	
-	Netgame.DoOmega=Netgame.DoSuperLaser=Netgame.DoProximity=\
-	Netgame.DoSpread=Netgame.DoMercury=Netgame.DoSmartMine=Netgame.DoFlash=\
-	Netgame.DoGuided=Netgame.DoEarthShaker=on;
-
-	Netgame.DoConverter=Netgame.DoAmmoRack=Netgame.DoHeadlight=on;
-	Netgame.DoHoming=Netgame.DoLaserUpgrade=Netgame.DoQuadLasers=on;
-	Netgame.BrightPlayers=Netgame.invul=on;
-	*/
-	Netgame.AllowedItems=0;
-	if (on)
-		Netgame.AllowedItems |= NETFLAG_DOPOWERUP;
-	Netgame.BrightPlayers=Netgame.InvulAppear=on;
-}
-
-fix LastPTA;
-int LastKillGoal;
-
-// Jeez -- mac compiler can't handle all of these on the same decl line.
-int opt_setpower,opt_playtime,opt_killgoal,opt_socket,opt_marker_view,opt_light,opt_show_on_map;
-int opt_difficulty,opt_packets,opt_short_packets, opt_bright,opt_start_invul;
-int opt_show_names;
 
 void net_ipx_more_options_poll( int nitems, newmenu_item * menus, int * key, int citem );
 
@@ -5005,28 +5202,28 @@ void net_ipx_handle_ping_return (ubyte pnum)
 }
 	
 // ping all connected players (except yourself) in 3sec interval and update ping_table
-void net_ipx_ping_all()
+void net_ipx_ping_all(fix time)
 {
 	int i;
 	static fix PingTime=0;
 
 	Netgame.players[Player_num].ping = -1; // Set mine to fancy -1 because I am super fast! Weeee
 
-	if (PingTime+(F1_0*3)<GameTime || PingTime > GameTime)
+	if (PingTime+(F1_0*3)<time || PingTime > time)
 	{
 		for (i=0; i<MAX_PLAYERS; i++)
 		{
 			if (Players[i].connected && i != Player_num)
 			{
-				PingLaunchTime[i]=GameTime;
+				PingLaunchTime[i]=time;
 				net_ipx_ping (PID_PING_SEND,i);
 			}
 		}
-		PingTime=GameTime;
+		PingTime=time;
 	}
 }
 
-void DoRefuseStuff (sequence_packet *their)
+void net_ipx_do_refuse_stuff (IPX_sequence_packet *their)
 {
 	int i,new_player_num;
 	
@@ -5097,7 +5294,7 @@ void DoRefuseStuff (sequence_packet *their)
 			WaitForRefuseAnswer=0;
 			if (Game_mode & GM_TEAM)
 			{
-				new_player_num=GetNewPlayerNumber (their);
+				new_player_num=net_ipx_get_new_player_num (their);
 	
 				Assert (RefuseTeam==1 || RefuseTeam==2);        
 			
@@ -5129,7 +5326,7 @@ void DoRefuseStuff (sequence_packet *their)
 	}
 }
 
-int GetNewPlayerNumber (sequence_packet *their)
+int net_ipx_get_new_player_num (IPX_sequence_packet *their)
   {
 	 int i;
 	
@@ -5238,7 +5435,7 @@ void net_ipx_process_naked_pdata (char *data,int len)
 		if (Network_status!=NETSTAT_WAITING)
 		 {
 			Int3(); // We missed an important packet!
-			net_ipx_consistency_error();
+			multi_consistency_error(0);
 			return;
 		 }
 		else
@@ -5256,14 +5453,6 @@ void net_ipx_process_naked_pdata (char *data,int len)
 	multi_process_bigdata( data+2, len-2 );
  }
 
-void ClipRank (ubyte *rank)
- {
-  // This function insures no crashes when dealing with D2 1.0
-
- 
-  if (*rank > 9)
-	*rank = 0;
- }
 void net_ipx_check_for_old_version (char pnum)
  {  
   if (Netgame.players[(int)pnum].version_major==1 && (Netgame.players[(int)pnum].version_minor & 0x0F)==0)
@@ -5272,8 +5461,8 @@ void net_ipx_check_for_old_version (char pnum)
 
 void net_ipx_request_player_names (int n)
  {
-  net_ipx_send_all_info_request (PID_GAME_PLAYERS,Active_games[n].protocol.ipx.Game_Security);
-  NamesInfoSecurity=Active_games[n].protocol.ipx.Game_Security;
+  net_ipx_send_all_info_request (PID_GAME_PLAYERS,Active_ipx_games[n].protocol.ipx.Game_Security);
+  NamesInfoSecurity=Active_ipx_games[n].protocol.ipx.Game_Security;
  }
 
 extern char already_showing_info;
@@ -5308,9 +5497,9 @@ void net_ipx_process_names_return (ubyte *data)
     m[i].type=NM_TYPE_TEXT;		
 	}
 
-   for (gnum=-1,i=0;i<num_active_games;i++)
+   for (gnum=-1,i=0;i<num_active_ipx_games;i++)
 	 {
-	  if (NamesInfoSecurity==Active_games[i].protocol.ipx.Game_Security)
+	  if (NamesInfoSecurity==Active_ipx_games[i].protocol.ipx.Game_Security)
 		{
 		 gnum=i;
 		 break;
@@ -5326,7 +5515,7 @@ void net_ipx_process_names_return (ubyte *data)
 		 return;
 	 }
  
-   sprintf (mtext[num],"Players of game '%s':",Active_games[gnum].game_name); num++;
+   sprintf (mtext[num],"Players of game '%s':",Active_ipx_games[gnum].game_name); num++;
    for (i=0;i<numplayers;i++)
 	 {
 	  l=data[count++];
@@ -5355,7 +5544,7 @@ void net_ipx_process_names_return (ubyte *data)
 
 char NameReturning=1;
 
-void net_ipx_send_player_names (sequence_packet *their)
+void net_ipx_send_player_names (IPX_sequence_packet *their)
  {
   int numconnected=0,count=0,i,t;
   char buf[80];
@@ -5403,22 +5592,7 @@ void net_ipx_send_player_names (sequence_packet *their)
 	   ipxdrv_send_internetwork_packet_data((ubyte *)buf, count, their->player.protocol.ipx.server, their->player.protocol.ipx.node);
  }
 
-
-int HoardEquipped()
-{
-	static int checked=-1;
-
-	if (checked==-1)
-	{
-		if (cfexist("hoard.ham") || cfexist("Data/hoard.ham"))
-			checked=1;
-		else
-			checked=0;
-	}
-	return (checked);
-}
-
-void show_game_rules(int choice)
+void net_ipx_show_game_rules(int choice)
 {
 	int done,k;
 	grs_canvas canvas;
@@ -5489,43 +5663,43 @@ void show_game_rules(int choice)
 		gr_printf( FSPACX(170),FSPACY(172), "Ammo Rack:");
 
 		gr_set_fontcolor(BM_XRGB(255,255,255),-1);
-		gr_printf( FSPACX(115),FSPACY( 35), "%i Min", Active_games[choice].control_invul_time/F1_0/60);
-		gr_printf( FSPACX(115),FSPACY( 41), "%i Min", Active_games[choice].PlayTimeAllowed*5);
-		gr_printf( FSPACX(115),FSPACY( 47), "%i", Active_games[choice].KillGoal);
-		gr_printf( FSPACX(115),FSPACY( 53), "%s", Active_games[choice].protocol.ipx.ShortPackets?"ON":"OFF");
-		gr_printf( FSPACX(115),FSPACY( 59), "%i", Active_games[choice].PacketsPerSec);
-		gr_printf( FSPACX(275),FSPACY( 35), Active_games[choice].InvulAppear?"ON":"OFF");
-		gr_printf( FSPACX(275),FSPACY( 41), Active_games[choice].Allow_marker_view?"ON":"OFF");
-		gr_printf( FSPACX(275),FSPACY( 47), Active_games[choice].AlwaysLighting?"ON":"OFF");
-		gr_printf( FSPACX(275),FSPACY( 53), Active_games[choice].BrightPlayers?"ON":"OFF");
-		gr_printf( FSPACX(275),FSPACY( 59), Active_games[choice].ShowAllNames?"ON":"OFF");
-		gr_printf( FSPACX(275),FSPACY( 65), Active_games[choice].game_flags & NETGAME_FLAG_SHOW_MAP?"ON":"OFF");
-		gr_printf( FSPACX(130),FSPACY( 90), Active_games[choice].AllowedItems & NETFLAG_DOLASER?"YES":"NO");
-		gr_printf( FSPACX(130),FSPACY( 96), Active_games[choice].AllowedItems & NETFLAG_DOSUPERLASER?"YES":"NO");
-		gr_printf( FSPACX(130),FSPACY(102), Active_games[choice].AllowedItems & NETFLAG_DOQUAD?"YES":"NO");
-		gr_printf( FSPACX(130),FSPACY(108), Active_games[choice].AllowedItems & NETFLAG_DOVULCAN?"YES":"NO");
-		gr_printf( FSPACX(130),FSPACY(114), Active_games[choice].AllowedItems & NETFLAG_DOGAUSS?"YES":"NO");
-		gr_printf( FSPACX(130),FSPACY(120), Active_games[choice].AllowedItems & NETFLAG_DOSPREAD?"YES":"NO");
-		gr_printf( FSPACX(130),FSPACY(126), Active_games[choice].AllowedItems & NETFLAG_DOHELIX?"YES":"NO");
-		gr_printf( FSPACX(130),FSPACY(132), Active_games[choice].AllowedItems & NETFLAG_DOPLASMA?"YES":"NO");
-		gr_printf( FSPACX(130),FSPACY(138), Active_games[choice].AllowedItems & NETFLAG_DOPHOENIX?"YES":"NO");
-		gr_printf( FSPACX(130),FSPACY(144), Active_games[choice].AllowedItems & NETFLAG_DOFUSION?"YES":"NO");
-		gr_printf( FSPACX(130),FSPACY(150), Active_games[choice].AllowedItems & NETFLAG_DOOMEGA?"YES":"NO");
-		gr_printf( FSPACX(275),FSPACY( 90), Active_games[choice].AllowedItems & NETFLAG_DOFLASH?"YES":"NO");
-		gr_printf( FSPACX(275),FSPACY( 96), Active_games[choice].AllowedItems & NETFLAG_DOHOMING?"YES":"NO");
-		gr_printf( FSPACX(275),FSPACY(102), Active_games[choice].AllowedItems & NETFLAG_DOGUIDED?"YES":"NO");
-		gr_printf( FSPACX(275),FSPACY(108), Active_games[choice].AllowedItems & NETFLAG_DOPROXIM?"YES":"NO");
-		gr_printf( FSPACX(275),FSPACY(114), Active_games[choice].AllowedItems & NETFLAG_DOSMARTMINE?"YES":"NO");
-		gr_printf( FSPACX(275),FSPACY(120), Active_games[choice].AllowedItems & NETFLAG_DOSMART?"YES":"NO");
-		gr_printf( FSPACX(275),FSPACY(126), Active_games[choice].AllowedItems & NETFLAG_DOMERCURY?"YES":"NO");
-		gr_printf( FSPACX(275),FSPACY(132), Active_games[choice].AllowedItems & NETFLAG_DOMEGA?"YES":"NO");
-		gr_printf( FSPACX(275),FSPACY(138), Active_games[choice].AllowedItems & NETFLAG_DOSHAKER?"YES":"NO");
-		gr_printf( FSPACX(130),FSPACY(160), Active_games[choice].AllowedItems & NETFLAG_DOAFTERBURNER?"YES":"NO");
-		gr_printf( FSPACX(130),FSPACY(166), Active_games[choice].AllowedItems & NETFLAG_DOHEADLIGHT?"YES":"NO");
-		gr_printf( FSPACX(130),FSPACY(172), Active_games[choice].AllowedItems & NETFLAG_DOCONVERTER?"YES":"NO");
-		gr_printf( FSPACX(275),FSPACY(160), Active_games[choice].AllowedItems & NETFLAG_DOINVUL?"YES":"NO");
-		gr_printf( FSPACX(275),FSPACY(166), Active_games[choice].AllowedItems & NETFLAG_DOCLOAK?"YES":"NO");
-		gr_printf( FSPACX(275),FSPACY(172), Active_games[choice].AllowedItems & NETFLAG_DOAMMORACK?"YES":"NO");
+		gr_printf( FSPACX(115),FSPACY( 35), "%i Min", Active_ipx_games[choice].control_invul_time/F1_0/60);
+		gr_printf( FSPACX(115),FSPACY( 41), "%i Min", Active_ipx_games[choice].PlayTimeAllowed*5);
+		gr_printf( FSPACX(115),FSPACY( 47), "%i", Active_ipx_games[choice].KillGoal);
+		gr_printf( FSPACX(115),FSPACY( 53), "%s", Active_ipx_games[choice].protocol.ipx.ShortPackets?"ON":"OFF");
+		gr_printf( FSPACX(115),FSPACY( 59), "%i", Active_ipx_games[choice].PacketsPerSec);
+		gr_printf( FSPACX(275),FSPACY( 35), Active_ipx_games[choice].InvulAppear?"ON":"OFF");
+		gr_printf( FSPACX(275),FSPACY( 41), Active_ipx_games[choice].Allow_marker_view?"ON":"OFF");
+		gr_printf( FSPACX(275),FSPACY( 47), Active_ipx_games[choice].AlwaysLighting?"ON":"OFF");
+		gr_printf( FSPACX(275),FSPACY( 53), Active_ipx_games[choice].BrightPlayers?"ON":"OFF");
+		gr_printf( FSPACX(275),FSPACY( 59), Active_ipx_games[choice].ShowAllNames?"ON":"OFF");
+		gr_printf( FSPACX(275),FSPACY( 65), Active_ipx_games[choice].game_flags & NETGAME_FLAG_SHOW_MAP?"ON":"OFF");
+		gr_printf( FSPACX(130),FSPACY( 90), Active_ipx_games[choice].AllowedItems & NETFLAG_DOLASER?"YES":"NO");
+		gr_printf( FSPACX(130),FSPACY( 96), Active_ipx_games[choice].AllowedItems & NETFLAG_DOSUPERLASER?"YES":"NO");
+		gr_printf( FSPACX(130),FSPACY(102), Active_ipx_games[choice].AllowedItems & NETFLAG_DOQUAD?"YES":"NO");
+		gr_printf( FSPACX(130),FSPACY(108), Active_ipx_games[choice].AllowedItems & NETFLAG_DOVULCAN?"YES":"NO");
+		gr_printf( FSPACX(130),FSPACY(114), Active_ipx_games[choice].AllowedItems & NETFLAG_DOGAUSS?"YES":"NO");
+		gr_printf( FSPACX(130),FSPACY(120), Active_ipx_games[choice].AllowedItems & NETFLAG_DOSPREAD?"YES":"NO");
+		gr_printf( FSPACX(130),FSPACY(126), Active_ipx_games[choice].AllowedItems & NETFLAG_DOHELIX?"YES":"NO");
+		gr_printf( FSPACX(130),FSPACY(132), Active_ipx_games[choice].AllowedItems & NETFLAG_DOPLASMA?"YES":"NO");
+		gr_printf( FSPACX(130),FSPACY(138), Active_ipx_games[choice].AllowedItems & NETFLAG_DOPHOENIX?"YES":"NO");
+		gr_printf( FSPACX(130),FSPACY(144), Active_ipx_games[choice].AllowedItems & NETFLAG_DOFUSION?"YES":"NO");
+		gr_printf( FSPACX(130),FSPACY(150), Active_ipx_games[choice].AllowedItems & NETFLAG_DOOMEGA?"YES":"NO");
+		gr_printf( FSPACX(275),FSPACY( 90), Active_ipx_games[choice].AllowedItems & NETFLAG_DOFLASH?"YES":"NO");
+		gr_printf( FSPACX(275),FSPACY( 96), Active_ipx_games[choice].AllowedItems & NETFLAG_DOHOMING?"YES":"NO");
+		gr_printf( FSPACX(275),FSPACY(102), Active_ipx_games[choice].AllowedItems & NETFLAG_DOGUIDED?"YES":"NO");
+		gr_printf( FSPACX(275),FSPACY(108), Active_ipx_games[choice].AllowedItems & NETFLAG_DOPROXIM?"YES":"NO");
+		gr_printf( FSPACX(275),FSPACY(114), Active_ipx_games[choice].AllowedItems & NETFLAG_DOSMARTMINE?"YES":"NO");
+		gr_printf( FSPACX(275),FSPACY(120), Active_ipx_games[choice].AllowedItems & NETFLAG_DOSMART?"YES":"NO");
+		gr_printf( FSPACX(275),FSPACY(126), Active_ipx_games[choice].AllowedItems & NETFLAG_DOMERCURY?"YES":"NO");
+		gr_printf( FSPACX(275),FSPACY(132), Active_ipx_games[choice].AllowedItems & NETFLAG_DOMEGA?"YES":"NO");
+		gr_printf( FSPACX(275),FSPACY(138), Active_ipx_games[choice].AllowedItems & NETFLAG_DOSHAKER?"YES":"NO");
+		gr_printf( FSPACX(130),FSPACY(160), Active_ipx_games[choice].AllowedItems & NETFLAG_DOAFTERBURNER?"YES":"NO");
+		gr_printf( FSPACX(130),FSPACY(166), Active_ipx_games[choice].AllowedItems & NETFLAG_DOHEADLIGHT?"YES":"NO");
+		gr_printf( FSPACX(130),FSPACY(172), Active_ipx_games[choice].AllowedItems & NETFLAG_DOCONVERTER?"YES":"NO");
+		gr_printf( FSPACX(275),FSPACY(160), Active_ipx_games[choice].AllowedItems & NETFLAG_DOINVUL?"YES":"NO");
+		gr_printf( FSPACX(275),FSPACY(166), Active_ipx_games[choice].AllowedItems & NETFLAG_DOCLOAK?"YES":"NO");
+		gr_printf( FSPACX(275),FSPACY(172), Active_ipx_games[choice].AllowedItems & NETFLAG_DOAMMORACK?"YES":"NO");
 
 		//see if redbook song needs to be restarted
 		RBACheckFinishedHook();
@@ -5548,7 +5722,7 @@ void show_game_rules(int choice)
 	game_flush_inputs();
 }
 
-int show_game_stats(int choice)
+int net_ipx_show_game_stats(int choice)
 {
 	char rinfo[512],*info=rinfo;
 	char *NetworkModeNames[]={"Anarchy","Team Anarchy","Robo Anarchy","Cooperative","Capture the Flag","Hoard","Team Hoard","Unknown"};
@@ -5556,57 +5730,25 @@ int show_game_stats(int choice)
 
 	memset(info,0,sizeof(char)*256);
 
-	info+=sprintf(info,"\nConnected to\n\"%s\"\n",Active_games[choice].game_name);
+	info+=sprintf(info,"\nConnected to\n\"%s\"\n",Active_ipx_games[choice].game_name);
 
-	if(!Active_games[choice].mission_title)
+	if(!Active_ipx_games[choice].mission_title)
 		info+=sprintf(info,"Descent2: CounterStrike");
 	else
-		info+=sprintf(info,Active_games[choice].mission_title);
+		info+=sprintf(info,Active_ipx_games[choice].mission_title);
 
-	info+=sprintf (info," - Lvl %i",Active_games[choice].levelnum);
-	info+=sprintf (info,"\n\nDifficulty: %s",MENU_DIFFICULTY_TEXT(Active_games[choice].difficulty));
-	info+=sprintf (info,"\nGame Mode: %s",NetworkModeNames[Active_games[choice].gamemode]);
-	info+=sprintf (info,"\nPlayers: %i/%i",Active_games[choice].numconnected,Active_games[choice].max_numplayers);
+	info+=sprintf (info," - Lvl %i",Active_ipx_games[choice].levelnum);
+	info+=sprintf (info,"\n\nDifficulty: %s",MENU_DIFFICULTY_TEXT(Active_ipx_games[choice].difficulty));
+	info+=sprintf (info,"\nGame Mode: %s",NetworkModeNames[Active_ipx_games[choice].gamemode]);
+	info+=sprintf (info,"\nPlayers: %i/%i",Active_ipx_games[choice].numconnected,Active_ipx_games[choice].max_numplayers);
 
 	while (1){
 		c=nm_messagebox1("WELCOME", NULL, 2, "JOIN GAME", "GAME INFO", rinfo);
 		if (c==0)
 			return 1;
 		else if (c==1)
-			show_game_rules(choice);
+			net_ipx_show_game_rules(choice);
 		else
 			return 0;
 	}
-}
-
-int get_and_show_netgame_info(ubyte *server, ubyte *node, ubyte *net_address)
-{
-	if (setjmp(LeaveGame))
-		return 0;
-
-	num_active_games = 0;
-	Network_games_changed = 0;
-	Network_status = NETSTAT_BROWSING;
-	memset(Active_games, 0, sizeof(netgame_info)*MAX_ACTIVE_NETGAMES);
-
-	while (1){
-
-		net_ipx_listen();
-
-		if (Network_games_changed){
-			if (num_active_games<1){
-				Network_games_changed=0;
-				continue;
-			}
-			if (show_game_stats(0)) {
-				return 1; //(net_ipx_do_join_game());
-			}
-			else
-				return 0;
-		}
-		if (key_inkey()==KEY_ESC)
-			return 0;
-
-	}
-	return 0;
 }

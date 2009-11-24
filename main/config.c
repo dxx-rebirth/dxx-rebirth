@@ -58,7 +58,6 @@ static char *VSyncStr="VSync";
 static char *MultisampleStr="Multisample";
 static char *JukeboxOnStr="JukeboxOn";
 static char *JukeboxPathStr="JukeboxPath";
-static char *IPHostAddrStr="IPHostAddr";
 
 int ReadConfigFile()
 {
@@ -92,7 +91,6 @@ int ReadConfigFile()
 #else
 	strncpy(GameCfg.JukeboxPath, "::::Jukebox", PATH_MAX+1);
 #endif
-	memset(GameCfg.MplIpHostAddr, '\x0', sizeof(GameCfg.MplIpHostAddr));
 
 	infile = PHYSFSX_openReadBuffered("descent.cfg");
 
@@ -162,12 +160,6 @@ int ReadConfigFile()
 				p = strchr( GameCfg.JukeboxPath, '\n');
 				if ( p ) *p = 0;
 			}
-			else if (!strcmp(token, IPHostAddrStr))	{
-				char * p;
-				strncpy( GameCfg.MplIpHostAddr, value, 128 );
-				p = strchr( GameCfg.MplIpHostAddr, '\n');
-				if ( p ) *p = 0;
-			}
 		}
 	}
 
@@ -214,7 +206,6 @@ int WriteConfigFile()
 	PHYSFSX_printf(infile, "%s=%i\n", MultisampleStr, GameCfg.Multisample);
 	PHYSFSX_printf(infile, "%s=%i\n", JukeboxOnStr, GameCfg.JukeboxOn);
 	PHYSFSX_printf(infile, "%s=%s\n", JukeboxPathStr, GameCfg.JukeboxPath);
-	PHYSFSX_printf(infile, "%s=%s\n", IPHostAddrStr, GameCfg.MplIpHostAddr);
 
 	PHYSFS_close(infile);
 

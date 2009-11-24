@@ -4,7 +4,7 @@
 #include <stdlib.h>
 #include <winsock.h>
 #include <wsipx.h>
-#include "ipxdrv.h"
+#include "net_ipx.h"
 #include "console.h"
 
 static int ipx_get_my_address( void )

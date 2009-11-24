@@ -231,13 +231,6 @@ int start_endlevel_movie()
 		memcpy(gr_palette,save_pal,768);
 	}
 
-#ifdef NETWORK
-   if (r==MOVIE_NOT_PLAYED && (Game_mode & GM_MULTI))
-	  Kmatrix_nomovie_message=1;
-	else
- 	  Kmatrix_nomovie_message=0;
-#endif
-
 	return (r);
 
 }

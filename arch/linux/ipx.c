@@ -16,7 +16,7 @@
 #include <netinet/in.h>
 #include <unistd.h>
 #include <errno.h>
-#include "ipxdrv.h"
+#include "net_ipx.h"
 #include "console.h"
 
 static int ipx_get_my_address( void )

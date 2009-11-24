@@ -1534,6 +1534,9 @@ int newdemo_read_demo_start(enum purpose_type purpose)
 	}
 #endif
 
+	nd_read_int(&Game_mode);
+	Game_mode &= ~GM_NETWORK;
+
 #ifdef NETWORK
 	change_playernum_to((Game_mode >> 16) & 0x7);
 	if (Game_mode & GM_TEAM) {
@@ -2488,7 +2491,7 @@ int newdemo_read_frame_information(int rewrite)
 				break;
 			}
 			if ((Newdemo_vcr_state == ND_STATE_REWINDING) || (Newdemo_vcr_state == ND_STATE_ONEFRAMEBACKWARD)) {
-				Players[pnum].connected = 0;
+				Players[pnum].connected = CONNECT_DISCONNECTED;
 				if (!new_player) {
 					memcpy(Players[pnum].callsign, old_callsign, CALLSIGN_LEN+1);
 					Players[pnum].net_killed_total = killed_total;
@@ -2497,7 +2500,7 @@ int newdemo_read_frame_information(int rewrite)
 					N_players--;
 				}
 			} else if ((Newdemo_vcr_state == ND_STATE_PLAYBACK) || (Newdemo_vcr_state == ND_STATE_FASTFORWARD) || (Newdemo_vcr_state == ND_STATE_ONEFRAMEFORWARD)) {
-				Players[pnum].connected = 1;
+				Players[pnum].connected = CONNECT_PLAYING;
 				Players[pnum].net_kills_total = 0;
 				Players[pnum].net_killed_total = 0;
 				memcpy(Players[pnum].callsign, new_callsign, CALLSIGN_LEN+1);
@@ -2517,9 +2520,9 @@ int newdemo_read_frame_information(int rewrite)
 				break;
 			}
 			if ((Newdemo_vcr_state == ND_STATE_REWINDING) || (Newdemo_vcr_state == ND_STATE_ONEFRAMEBACKWARD))
-				Players[pnum].connected = 0;
+				Players[pnum].connected = CONNECT_DISCONNECTED;
 			else if ((Newdemo_vcr_state == ND_STATE_PLAYBACK) || (Newdemo_vcr_state == ND_STATE_FASTFORWARD) || (Newdemo_vcr_state == ND_STATE_ONEFRAMEFORWARD))
-				Players[pnum].connected = 1;
+				Players[pnum].connected = CONNECT_PLAYING;
 			break;
 		}
 
@@ -2533,9 +2536,9 @@ int newdemo_read_frame_information(int rewrite)
 				break;
 			}
 			if ((Newdemo_vcr_state == ND_STATE_REWINDING) || (Newdemo_vcr_state == ND_STATE_ONEFRAMEBACKWARD))
-				Players[pnum].connected = 1;
+				Players[pnum].connected = CONNECT_PLAYING;
 			else if ((Newdemo_vcr_state == ND_STATE_PLAYBACK) || (Newdemo_vcr_state == ND_STATE_FASTFORWARD) || (Newdemo_vcr_state == ND_STATE_ONEFRAMEFORWARD))
-				Players[pnum].connected = 0;
+				Players[pnum].connected = CONNECT_DISCONNECTED;
 			break;
 		}
 

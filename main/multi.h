@@ -25,29 +25,27 @@ COPYRIGHT 1993-1999 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 #include "piggy.h"
 #include "vers_id.h"
 #include "newmenu.h"
-
 #ifdef _WIN32
-	#include <winsock.h>
-	#include <io.h>
+#include <winsock.h>
+#include <io.h>
 #else
-	#include <sys/socket.h>
-	#include <netinet/in.h>
-	#include <netdb.h>
-	#include <arpa/inet.h>
-	#include <unistd.h>
-	#include <sys/time.h>
+#include <sys/socket.h>
+#include <netinet/in.h>
+#include <netdb.h>
+#include <arpa/inet.h>
+#include <unistd.h>
+#include <sys/time.h>
 #endif
 
 #ifdef IPv6
-	#define _sockaddr sockaddr_in6
-	#define _af AF_INET6
-	#define _pf PF_INET6
+#define _sockaddr sockaddr_in6
+#define _af AF_INET6
+#define _pf PF_INET6
 #else
-	#define _sockaddr sockaddr_in
-	#define _af AF_INET
-	#define _pf PF_INET
+#define _sockaddr sockaddr_in
+#define _af AF_INET
+#define _pf PF_INET
 #endif
-
 
 // PROTOCOL VARIABLES AND DEFINES
 extern int multi_protocol; // set and determinate used protocol
@@ -126,7 +124,7 @@ extern int multi_protocol; // set and determinate used protocol
 #define MULTI_CAPTURE_BONUS     52
 #define MULTI_GOT_FLAG          53
 #define MULTI_DROP_FLAG         54
-#define MULTI_ROBOT_CONTROLS    55
+#define MULTI_ROBOT_CONTROLS    55 // unused!
 #define MULTI_FINISH_GAME       56
 #define MULTI_RANK              57
 #define MULTI_MODEM_PING        58
@@ -141,6 +139,14 @@ extern int multi_protocol; // set and determinate used protocol
 #define MAX_NET_CREATE_OBJECTS  40
 
 #define MAX_MULTI_MESSAGE_LEN   120
+
+#define NETGAME_ANARCHY         0
+#define NETGAME_TEAM_ANARCHY    1
+#define NETGAME_ROBOT_ANARCHY   2
+#define NETGAME_COOPERATIVE     3
+#define NETGAME_CAPTURE_FLAG    4
+#define NETGAME_HOARD           5
+#define NETGAME_TEAM_HOARD      6
 
 #define NETSTAT_MENU                0
 #define NETSTAT_PLAYING             1
@@ -157,6 +163,16 @@ extern int multi_protocol; // set and determinate used protocol
 #define CONNECT_ESCAPE_TUNNEL       5
 #define CONNECT_END_MENU            6
 #define CONNECT_KMATRIX_WAITING     7 // Like CONNECT_WAITING but used especially in kmatrix.c to seperate "escaped" and "waiting"
+
+// reasons for a packet with type PID_DUMP
+#define DUMP_CLOSED     0 // no new players allowed after game started
+#define DUMP_FULL       1 // player cound maxed out
+#define DUMP_ENDLEVEL   2
+#define DUMP_DORK       3
+#define DUMP_ABORTED    4
+#define DUMP_CONNECTED  5 // never used
+#define DUMP_LEVEL      6
+#define DUMP_KICKED     7
 
 // Bitmask for netgame_info->AllowedItems to set allowed items in Netgame
 #define NETFLAG_DOLASER   		1
@@ -193,6 +209,7 @@ extern char *multi_allow_powerup_text[MULTI_ALLOW_POWERUP_MAX];
 // Exported functions
 
 extern int GetMyNetRanking();
+extern void ClipRank (ubyte *rank);
 int objnum_remote_to_local(int remote_obj, int owner);
 int objnum_local_to_remote(int local_obj, sbyte *owner);
 void map_objnum_local_to_remote(int local, int remote, int owner);
@@ -236,13 +253,13 @@ void multi_send_guided_info (object *miss,char);
 
 
 void multi_endlevel_score(void);
+void multi_consistency_error(int reset);
 void multi_prep_level(void);
 int multi_level_sync(void);
 int multi_endlevel(int *secret);
+void multi_endlevel_poll1();
 void multi_endlevel_poll2( int nitems, struct newmenu_item * menus, int * key, int citem );
-void multi_endlevel_poll3( int nitems, struct newmenu_item * menus, int * key, int citem );
 void multi_send_endlevel_packet();
-void multi_send_endlevel_sub(int player_num);
 int multi_menu_poll(void);
 void multi_leave_game(void);
 void multi_process_data(char *dat, int len);
@@ -258,14 +275,13 @@ int multi_get_kill_list(int *plist);
 void multi_new_game(void);
 void multi_sort_kill_list(void);
 void multi_reset_stuff(void);
-void multi_send_data(char *buf, int len, int repeat);
+void multi_send_data(char *buf, int len, int priority);
 int get_team(int pnum);
 
 
 // Exported variables
 
 extern int PacketUrgent;
-extern int Network_active;
 extern int Network_status;
 extern int Network_laser_gun;
 extern int Network_laser_fired;
@@ -274,9 +290,13 @@ extern int Network_laser_flags;
 
 // IMPORTANT: These variables needed for player rejoining done by protocol-specific code
 extern int Network_send_objects;
+extern int Network_send_object_mode;
 extern int Network_send_objnum;
 extern int Network_rejoined;
 extern int Network_new_game;
+extern int Network_sending_extras;
+extern int Player_joining_extras;
+extern int Network_player_added;
 
 extern int message_length[MULTI_MAX_TYPE+1];
 extern char multibuf[MAX_MULTI_MESSAGE_LEN+4];
@@ -329,6 +349,11 @@ extern bitmap_index multi_player_textures[MAX_NUM_NET_PLAYERS][N_PLAYER_SHIP_TEX
 
 extern char *RankStrings[];
 
+// Globals for protocol-bound Refuse-functions
+extern char RefuseThisPlayer,WaitForRefuseAnswer,RefuseTeam,RefusePlayerName[12];
+extern fix RefuseTimeLimit;
+#define REFUSE_INTERVAL (F1_0*8)
+
 #define NETGAME_FLAG_CLOSED             1
 #define NETGAME_FLAG_SHOW_ID            2
 #define NETGAME_FLAG_SHOW_MAP           4
@@ -351,12 +376,10 @@ void change_playernum_to(int new_pnum);
 #define MISSILE_ADJUST  100
 #define FLARE_ADJUST    127
 
+int HoardEquipped();
 #ifdef EDITOR
 void save_hoard_data(void);
 #endif
-
-
-enum comp_type {DOS,WIN_32,WIN_95,MAC} __pack__ ;
 
 /*
  * The Network Players structure
@@ -373,16 +396,12 @@ typedef struct netplayer_info
 			ubyte				server[4];
 			ubyte				node[6];
 			ushort				socket;
-			enum comp_type		computer_type;
+			ubyte				computer_type; // {DOS,WIN_32,WIN_95,MAC}
 		} ipx;
 		struct
 		{
 			struct _sockaddr	addr; // IP address of this peer
-			int					valid; // 1 = client connected / 2 = client ready for handshaking / 3 = client done with handshake and fully joined / 0 between clients = no connection -> relay
-			fix					timestamp; // time of received packet - used for timeout
-			char				hs_list[MAX_PLAYERS+4]; // list to store all handshake results for this player from already connected clients
-			int					hstimeout; // counts the number of tries the client tried to connect - if reached 10, client put to relay if allowed
-			int					relay; // relay packets by/to this clients over host
+			ubyte				isyou; // This flag is set true while sending info to tell player his designated (re)join position
 		} udp;
 	} protocol;	
 
@@ -418,6 +437,7 @@ typedef struct netgame_info
 		{
 			struct _sockaddr	addr; // IP address of this netgame's host
 			int					program_iver; // IVER of program for version checking
+			sbyte				valid; // Status of Netgame info: -1 = Failed, Wrong version; 0 = No info, yet; 1 = Success
 		} udp;
 	} protocol;	
 
@@ -438,11 +458,11 @@ typedef struct netgame_info
 	ubyte   					game_flags;
 	ubyte   					team_vector;
 	u_int32_t					AllowedItems;
-	short						Allow_marker_view:1;
-	short						AlwaysLighting:1;
-	short						ShowAllNames:1;
-	short						BrightPlayers:1;
-	short						InvulAppear:1;
+	short						Allow_marker_view;
+	short						AlwaysLighting;
+	short						ShowAllNames;
+	short						BrightPlayers;
+	short						InvulAppear;
 	char						team_name[2][CALLSIGN_LEN+1];
 	int							locations[MAX_PLAYERS];
 	short						kills[MAX_PLAYERS][MAX_PLAYERS];
@@ -458,7 +478,7 @@ typedef struct netgame_info
 	int							player_score[MAX_PLAYERS];
 	ubyte						player_flags[MAX_PLAYERS];
 	short						PacketsPerSec;
-	ubyte						PacketLossPrevention;
+	ubyte						PacketLossPrevention; // FIXME: IMPLEMENT ME!
 } __pack__ netgame_info;
 
 

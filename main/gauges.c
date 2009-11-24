@@ -2523,7 +2523,7 @@ void hud_show_kill_list()
 		{
 			int color;
 
-			if (Players[player_num].connected != 1)
+			if (Players[player_num].connected != CONNECT_PLAYING)
 				gr_set_fontcolor(BM_XRGB(12, 12, 12), -1);
 			else if (Game_mode & GM_TEAM) {
 				color = get_team(player_num);

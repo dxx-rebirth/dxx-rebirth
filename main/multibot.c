@@ -338,10 +338,7 @@ multi_send_claim_robot(int objnum)
 	s = objnum_local_to_remote(objnum, (sbyte *)&multibuf[4]);
 	PUT_INTEL_SHORT(multibuf+2, s);
 
-	multi_send_data(multibuf, 5, 2);
-	multi_send_data(multibuf, 5, 2);
-	multi_send_data(multibuf, 5, 2);
-
+	multi_send_data(multibuf, 5, 1);
 }
 
 void
@@ -368,9 +365,7 @@ multi_send_release_robot(int objnum)
 	s = objnum_local_to_remote(objnum, (sbyte *)&multibuf[4]);
 	PUT_INTEL_SHORT(multibuf+2, s);
 
-	multi_send_data(multibuf, 5, 2);
-	multi_send_data(multibuf, 5, 2);
-	multi_send_data(multibuf, 5, 2);
+	multi_send_data(multibuf, 5, 1);
 }
 
 #define MIN_ROBOT_COM_GAP F1_0/12
@@ -518,7 +513,7 @@ multi_send_robot_fire(int objnum, int gun_num, vms_vector *fire)
 			PacketUrgent = 1;
 	}
 	else
-		multi_send_data(multibuf, loc, 2); // Not our robot, send ASAP
+		multi_send_data(multibuf, loc, 1); // Not our robot, send ASAP
 }
 
 void
@@ -559,7 +554,7 @@ multi_send_create_robot(int station, int objnum, int type)
 
 	map_objnum_local_to_local((short)objnum);
 
-	multi_send_data(multibuf, loc, 2);
+	multi_send_data(multibuf, loc, 1);
 }
 
 void
@@ -638,7 +633,7 @@ multi_send_create_robot_powerups(object *del_obj)
 
 	Net_create_loc = 0;
 
-	multi_send_data(multibuf, 27, 2);
+	multi_send_data(multibuf, 27, 1);
 }
 
 void

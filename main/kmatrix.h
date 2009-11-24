@@ -1,4 +1,3 @@
-/* $Id: kmatrix.h,v 1.1.1.1 2006/03/17 19:57:28 zicodxx Exp $ */
 /*
 THE COMPUTER CODE CONTAINED HEREIN IS THE SOLE PROPERTY OF PARALLAX
 SOFTWARE CORPORATION ("PARALLAX").  PARALLAX, IN DISTRIBUTING THE CODE TO
@@ -22,8 +21,7 @@ COPYRIGHT 1993-1999 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 #ifndef _KMATRIX_H
 #define _KMATRIX_H
 
-extern int kmatrix_kills_changed;
-
+void kmatrix_ipx_view(int network);
 void kmatrix_view(int network);
 
 #endif /* _KMATRIX_H */

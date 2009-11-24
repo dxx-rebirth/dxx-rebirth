@@ -1054,7 +1054,7 @@ void DoEndLevelScoreGlitz(int network)
 
 #ifdef NETWORK
 	if ( network && (Game_mode & GM_NETWORK) )
-		newmenu_do2(NULL, title, c, m, (void (*))multi_endlevel_poll2, 0, STARS_BACKGROUND);
+		newmenu_do2(NULL, title, c, m, (void (*))multi_endlevel_poll1, 0, STARS_BACKGROUND);
 	else
 #endif
 		// NOTE LINK TO ABOVE!!!
@@ -1341,7 +1341,7 @@ void PlayerFinishedLevel(int secret_flag)
 	Players[Player_num].hostages_rescued_total += Players[Player_num].hostages_on_board;
 
 	if (Game_mode & GM_NETWORK)
-		Players[Player_num].connected = 2; // Finished but did not die
+		Players[Player_num].connected = CONNECT_WAITING; // Finished but did not die
 
 	last_drawn_cockpit = -1;
 
@@ -1605,7 +1605,7 @@ void DoPlayerDead()
 		Players[Player_num].hostages_on_board = 0;
 		Players[Player_num].energy = 0;
 		Players[Player_num].shields = 0;
-		Players[Player_num].connected = 3;
+		Players[Player_num].connected = CONNECT_DIED_IN_MINE;
 
 		died_in_mine_message(); // Give them some indication of what happened
 
@@ -2057,7 +2057,6 @@ void StartLevel(int random_flag)
 	{
 		if (Game_mode & GM_MULTI_COOP)
 			multi_send_score();
-		multi_send_position(Players[Player_num].objnum);
 	 	multi_send_reappear();
 	}		
 

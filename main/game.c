@@ -1256,9 +1256,6 @@ int game_handler(window *wind, d_event *event, void *data)
 	}
 	
 	if ( (Function_mode != FMODE_GAME ) && (Newdemo_state != ND_STATE_PLAYBACK ) && (Function_mode!=FMODE_EDITOR)
-#ifdef NETWORK
-				       	&& !IWasKicked
-#endif
  )	{
 		int choice, fmode;
 		fmode = Function_mode;
@@ -1274,9 +1271,6 @@ int game_handler(window *wind, d_event *event, void *data)
 			Function_mode = FMODE_GAME;
 	}
 	
-#ifdef NETWORK
-	IWasKicked=0;
-#endif
 	if (Function_mode != FMODE_GAME)
 	{
 		window_close(wind);

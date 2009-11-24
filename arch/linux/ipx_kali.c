@@ -2,7 +2,7 @@
 #include <stdio.h>
 #include <string.h>
 #include <netinet/in.h> /* for htons & co. */
-#include "ipxdrv.h"
+#include "net_ipx.h"
 #include "ukali.h"
 #include "console.h"
 
