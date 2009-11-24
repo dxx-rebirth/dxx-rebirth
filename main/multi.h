@@ -26,34 +26,32 @@ COPYRIGHT 1993-1998 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 #include "vers_id.h"
 #include "powerup.h"
 #include "newmenu.h"
-
 // Need these for non network builds too -Chris
 #define MAX_MESSAGE_LEN 35
-#define SHAREWARE_MAX_MESSAGE_LEN 25
 #define MAX_NUM_NET_PLAYERS 8 // How many simultaneous network players do we support?
 
 #ifdef NETWORK
 
 #ifdef _WIN32
-	#include <winsock.h>
-	#include <io.h>
+#include <winsock.h>
+#include <io.h>
 #else
-	#include <sys/socket.h>
-	#include <netinet/in.h>
-	#include <netdb.h>
-	#include <arpa/inet.h>
-	#include <unistd.h>
-	#include <sys/time.h>
+#include <sys/socket.h>
+#include <netinet/in.h>
+#include <netdb.h>
+#include <arpa/inet.h>
+#include <unistd.h>
+#include <sys/time.h>
 #endif
 
 #ifdef IPv6
-	#define _sockaddr sockaddr_in6
-	#define _af AF_INET6
-	#define _pf PF_INET6
+#define _sockaddr sockaddr_in6
+#define _af AF_INET6
+#define _pf PF_INET6
 #else
-	#define _sockaddr sockaddr_in
-	#define _af AF_INET
-	#define _pf PF_INET
+#define _sockaddr sockaddr_in
+#define _af AF_INET
+#define _pf PF_INET
 #endif
 
 
@@ -98,7 +96,6 @@ extern int multi_protocol; // set and determinate used protocol
 #define MULTI_CONSISTENCY		20
 #define MULTI_DECLOAK			21
 #define MULTI_MENU_CHOICE		22
-#ifndef SHAREWARE
 #define MULTI_ROBOT_POSITION            23
 #define MULTI_ROBOT_EXPLODE             24
 #define MULTI_ROBOT_RELEASE             25
@@ -109,7 +106,6 @@ extern int multi_protocol; // set and determinate used protocol
 #define MULTI_BOSS_ACTIONS		30
 #define MULTI_CREATE_ROBOT_POWERUPS	31
 #define MULTI_HOSTAGE_DOOR		32
-#endif
 
 #define MULTI_SAVE_GAME			33 // obsolete
 #define MULTI_RESTORE_GAME		34 // obsolete
@@ -120,22 +116,18 @@ extern int multi_protocol; // set and determinate used protocol
 #define MULTI_PLAYER_POWERUP_COUNT	37
 #define MULTI_START_POWERUP_COUNT	38
 
-#ifndef SHAREWARE
 #define MULTI_MAX_TYPE                  38
-#else
-#define MULTI_MAX_TYPE                  25 //22
-#endif
 
 #define MAX_MULTI_MESSAGE_LEN  90 //didn't change it, just moved it up
 
-#ifdef SHAREWARE
-#define MAX_NET_CREATE_OBJECTS 19 
-#else
 #define MAX_NET_CREATE_OBJECTS 20
-#endif
 
 #define MISSILE_ADJUST 6
 
+#define NETGAME_ANARCHY                 0
+#define NETGAME_TEAM_ANARCHY            1
+#define NETGAME_ROBOT_ANARCHY           2
+#define NETGAME_COOPERATIVE             3
 
 #define NETSTAT_MENU                            0
 #define NETSTAT_PLAYING				1
@@ -144,13 +136,23 @@ extern int multi_protocol; // set and determinate used protocol
 #define NETSTAT_STARTING			4
 #define NETSTAT_ENDLEVEL			5
 
-#define CONNECT_DISCONNECTED                    0
+#define CONNECT_DISCONNECTED		0
 #define CONNECT_PLAYING				1
 #define CONNECT_WAITING				2
-#define CONNECT_DIED_IN_MINE                    3
-#define CONNECT_FOUND_SECRET                    4
-#define CONNECT_ESCAPE_TUNNEL                   5
+#define CONNECT_DIED_IN_MINE		3
+#define CONNECT_FOUND_SECRET		4
+#define CONNECT_ESCAPE_TUNNEL		5
 #define CONNECT_END_MENU			6
+
+// reasons for a packet with type PID_DUMP
+#define DUMP_CLOSED     0 // no new players allowed after game started
+#define DUMP_FULL       1 // player cound maxed out
+#define DUMP_ENDLEVEL   2
+#define DUMP_DORK       3
+#define DUMP_ABORTED    4
+#define DUMP_CONNECTED  5 // never used
+#define DUMP_LEVEL      6
+#define DUMP_KICKED     7
 
 // Bitmask for netgame_info->AllowedItems to set allowed items in Netgame
 #define NETFLAG_DOLASER   1     //  0x0000001
@@ -185,7 +187,7 @@ void multi_show_player_list(void);
 void multi_do_protocol_frame(int force, int listen);
 void multi_do_frame(void);
 
-void multi_send_fire(int pl);
+void multi_send_fire();
 void multi_send_destroy_controlcen(int objnum, int player);
 void multi_send_endlevel_start(int);
 void multi_send_player_explode(char type);
@@ -211,10 +213,13 @@ void multi_send_player_powerup_count();
 void multi_send_start_powerup_count();
 
 void multi_endlevel_score(void);
+void multi_consistency_error(int reset);
 void multi_prep_level(void);
 int multi_level_sync(void);
 int multi_endlevel(int *secret);
+void multi_endlevel_poll1();
 void multi_endlevel_poll2( int nitems, struct newmenu_item * menus, int * key, int citem );
+void multi_send_endlevel_packet();
 int multi_menu_poll(void);
 void multi_leave_game(void);
 void multi_process_data(char *dat, int len);
@@ -230,14 +235,13 @@ int multi_get_kill_list(int *plist);
 void multi_new_game(void);
 void multi_sort_kill_list(void);
 void multi_reset_stuff(void);
-void multi_send_data(unsigned char *buf, int len, int repeat);
+void multi_send_data(unsigned char *buf, int len, int priority);
 int get_team(int pnum);
 
 
 // Exported variables
 
 extern int PacketUrgent;
-extern int Network_active;
 extern int Network_status;
 extern int Network_laser_gun;
 extern int Network_laser_fired;
@@ -246,9 +250,11 @@ extern int Network_laser_flags;
 
 // IMPORTANT: These variables needed for player rejoining done by protocol-specific code
 extern int Network_send_objects;
+extern int Network_send_object_mode;
 extern int Network_send_objnum;
 extern int Network_rejoined;
 extern int Network_new_game;
+extern int Network_player_added;
 
 extern int message_length[MULTI_MAX_TYPE+1];
 
@@ -312,6 +318,11 @@ int multi_i_am_master(void);
 int multi_who_is_master(void);
 void change_playernum_to(int new_pnum);
 
+// Globals for protocol-bound Refuse-functions
+extern char RefuseThisPlayer,WaitForRefuseAnswer,RefuseTeam,RefusePlayerName[12];
+extern fix RefuseTimeLimit;
+#define REFUSE_INTERVAL (F1_0*8)
+
 extern uint multi_allow_powerup;
 
 extern struct netgame_info Netgame;
@@ -335,16 +346,15 @@ typedef struct netplayer_info
 		struct
 		{
 			struct _sockaddr	addr; // IP address of this peer
-			int					valid; // 1 = client connected / 2 = client ready for handshaking / 3 = client done with handshake and fully joined / 0 between clients = no connection -> relay
-			fix					timestamp; // time of received packet - used for timeout
-			char				hs_list[MAX_PLAYERS+4]; // list to store all handshake results for this player from already connected clients
-			int					hstimeout; // counts the number of tries the client tried to connect - if reached 10, client put to relay if allowed
-			int					relay; // relay packets by/to this clients over host
+			ubyte				isyou; // This flag is set true while sending info to tell player his designated (re)join position
 		} udp;
 	} protocol;	
 
 	char						callsign[CALLSIGN_LEN+1];
+	ubyte						version_major;
+	ubyte						version_minor;
 	sbyte						connected;
+	ubyte						rank;
 	fix							ping;
 	fix							LastPacketTime;
 } __pack__ netplayer_info;
@@ -368,9 +378,12 @@ typedef struct netgame_info {
 		{
 			struct _sockaddr	addr; // IP address of this netgame's host
 			int					program_iver; // IVER of program for version checking
+			sbyte				valid; // Status of Netgame info: -1 = Failed, Wrong version; 0 = No info, yet; 1 = Success
 		} udp;
 	} protocol;	
 
+	ubyte			   			version_major; // Game content data version major (unused in D1)
+	ubyte   					version_minor; // Game content data version minor (unused in D1)
 	struct netplayer_info 		players[MAX_PLAYERS+4];
 	char    					game_name[NETGAME_NAME_LEN+1];
 	char    					mission_title[MISSION_NAME_LEN+1];
@@ -382,15 +395,15 @@ typedef struct netgame_info {
 	ubyte   					game_status;
 	ubyte   					numplayers;
 	ubyte   					max_numplayers;
-	ubyte   					numconnected; // FIXME!!!
+	ubyte   					numconnected;
 	ubyte   					game_flags;
 	ubyte   					team_vector;
 	u_int32_t					AllowedItems;
-	short						Allow_marker_view:1; // FIXME!!!
-	short						AlwaysLighting:1; // FIXME!!!
-	short						ShowAllNames:1; // FIXME!!!
-	short						BrightPlayers:1; // FIXME!!!
-	short						InvulAppear:1; // FIXME!!!
+	short						Allow_marker_view; // (unused in D1)
+	short						AlwaysLighting; // (unused in D1)
+	short						ShowAllNames; // (unused in D1 - solved with Show_reticle_name by Client)
+	short						BrightPlayers; // (unused in D1)
+	short						InvulAppear; // (unused in D1)
 	char						team_name[2][CALLSIGN_LEN+1];
 	int							locations[MAX_PLAYERS];
 	short						kills[MAX_PLAYERS][MAX_PLAYERS];
@@ -398,15 +411,15 @@ typedef struct netgame_info {
 	short						team_kills[2];
 	short						killed[MAX_PLAYERS];
 	short						player_kills[MAX_PLAYERS];
-	int							KillGoal; // FIXME!!!
-	fix							PlayTimeAllowed; // FIXME!!!
+	int							KillGoal; // (unused in D1)
+	fix							PlayTimeAllowed; // (unused in D1)
 	fix							level_time;
 	int							control_invul_time;
 	int							monitor_vector;
 	int							player_score[MAX_PLAYERS];
 	ubyte						player_flags[MAX_PLAYERS];
 	short						PacketsPerSec;
-	ubyte						PacketLossPrevention;
+	ubyte						PacketLossPrevention; // FIXME: IMPLEMENT ME!
 } __pack__ netgame_info;
 
 #endif

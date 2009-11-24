@@ -10,45 +10,19 @@ CONTAINED HEREIN FOR REVENUE-BEARING PURPOSES.  THE END-USER UNDERSTANDS
 AND AGREES TO THE TERMS HEREIN AND ACCEPTS THE SAME BY USE OF THIS FILE.  
 COPYRIGHT 1993-1998 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 */
+
 /*
- * $Source: /cvsroot/dxx-rebirth/d1x-rebirth/main/kmatrix.h,v $
- * $Revision: 1.1.1.1 $
- * $Author: zicodxx $
- * $Date: 2006/03/17 19:44:38 $
  * 
  * Kill matrix.
  * 
- * $Log: kmatrix.h,v $
- * Revision 1.1.1.1  2006/03/17 19:44:38  zicodxx
- * initial import
- *
- * Revision 1.1.1.1  1999/06/14 22:12:31  donut
- * Import of d1x 1.37 source.
- *
- * Revision 2.0  1995/02/27  11:28:51  john
- * New version 2.0, which has no anonymous unions, builds with
- * Watcom 10.0, and doesn't require parsing BITMAPS.TBL.
- * 
- * Revision 1.3  1995/02/15  14:47:39  john
- * Added code to keep track of kills during endlevel.
- * 
- * Revision 1.2  1994/12/09  16:19:46  yuan
- * kill matrix stuff.
- * 
- * Revision 1.1  1994/12/09  15:58:33  yuan
- * Initial revision
- * 
- * 
  */
-
 
 
 #ifndef _KMATRIX_H
 #define _KMATRIX_H
 
-extern int kmatrix_kills_changed;
-
-void kmatrix_view();
+void kmatrix_ipx_view(int network);
+void kmatrix_view(int network);
 
 #endif
  

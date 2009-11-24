@@ -8,12 +8,11 @@
 
 #ifdef D1XMICRO
 #define VERSION D1XMAJOR "." D1XMINOR "." D1XMICRO
-#define D1X_IVER (atoi(D1XMAJOR)*10000+atoi(D1XMINOR)*100+atoi(D1XMICRO)
 #else
 #define VERSION D1XMAJOR "." D1XMINOR
-#define D1X_IVER (atoi(D1XMAJOR)*10000+atoi(D1XMINOR)*100)
 #endif
 
+#define D1X_IVER (atoi(D1XMAJOR)*10000+atoi(D1XMINOR)*100)
 #define DESCENT_VERSION "D1X-Rebirth v" VERSION
 
 #endif /* _VERS_ID */

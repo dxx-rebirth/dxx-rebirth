@@ -1375,12 +1375,8 @@ int newdemo_read_demo_start(enum purpose_type purpose)
 	}
 	nd_read_fix(&GameTime);
 	nd_read_int(&Game_mode);
-	if (purpose == PURPOSE_REWRITE)
-	{
-		nd_write_fix(GameTime);
-		nd_write_int(Game_mode);
-	}
-
+	Game_mode &= ~GM_NETWORK;
+	
 	JasonPlaybackTotal=0;
 #ifndef NETWORK
 	if (Game_mode & GM_MULTI) {
@@ -2340,7 +2336,7 @@ int newdemo_read_frame_information(int rewrite)
 				break;
 			}
 			if ((Newdemo_vcr_state == ND_STATE_REWINDING) || (Newdemo_vcr_state == ND_STATE_ONEFRAMEBACKWARD)) {
-				Players[pnum].connected = 0;
+				Players[pnum].connected = CONNECT_DISCONNECTED;
 				if (!new_player) {
 					memcpy(Players[pnum].callsign, old_callsign, CALLSIGN_LEN+1);
 					Players[pnum].net_killed_total = killed_total;
@@ -2349,7 +2345,7 @@ int newdemo_read_frame_information(int rewrite)
 					N_players--;
 				}
 			} else if ((Newdemo_vcr_state == ND_STATE_PLAYBACK) || (Newdemo_vcr_state == ND_STATE_FASTFORWARD) || (Newdemo_vcr_state == ND_STATE_ONEFRAMEFORWARD)) {
-				Players[pnum].connected = 1;
+				Players[pnum].connected = CONNECT_PLAYING;
 				Players[pnum].net_kills_total = 0;
 				Players[pnum].net_killed_total = 0;
 				memcpy(Players[pnum].callsign, new_callsign, CALLSIGN_LEN+1);
@@ -2369,9 +2365,9 @@ int newdemo_read_frame_information(int rewrite)
 				break;
 			}
 			if ((Newdemo_vcr_state == ND_STATE_REWINDING) || (Newdemo_vcr_state == ND_STATE_ONEFRAMEBACKWARD))
-				Players[pnum].connected = 0;
+				Players[pnum].connected = CONNECT_DISCONNECTED;
 			else if ((Newdemo_vcr_state == ND_STATE_PLAYBACK) || (Newdemo_vcr_state == ND_STATE_FASTFORWARD) || (Newdemo_vcr_state == ND_STATE_ONEFRAMEFORWARD))
-				Players[pnum].connected = 1;
+				Players[pnum].connected = CONNECT_PLAYING;
 			break;
 		}
 
@@ -2385,9 +2381,9 @@ int newdemo_read_frame_information(int rewrite)
 				break;
 			}
 			if ((Newdemo_vcr_state == ND_STATE_REWINDING) || (Newdemo_vcr_state == ND_STATE_ONEFRAMEBACKWARD))
-				Players[pnum].connected = 1;
+				Players[pnum].connected = CONNECT_DISCONNECTED;
 			else if ((Newdemo_vcr_state == ND_STATE_PLAYBACK) || (Newdemo_vcr_state == ND_STATE_FASTFORWARD) || (Newdemo_vcr_state == ND_STATE_ONEFRAMEFORWARD))
-				Players[pnum].connected = 0;
+				Players[pnum].connected = CONNECT_PLAYING;
 			break;
 		}
 

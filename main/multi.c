@@ -25,6 +25,7 @@ COPYRIGHT 1993-1998 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 
 #include "game.h"
 #include "net_ipx.h"
+#include "net_udp.h"
 #include "multi.h"
 #include "object.h"
 #include "laser.h"
@@ -119,12 +120,14 @@ int 	multi_leave_menu = 0;
 int 	multi_quit_game = 0;
 int 	PacketUrgent = 0;
 
-// For rejoin object syncing
+// For rejoin object syncing (used here and all protocols - globally)
 
 int	Network_send_objects = 0;  // Are we in the process of sending objects to a player?
+int	Network_send_object_mode = 0; // What type of objects are we sending, static or dynamic?
 int 	Network_send_objnum = -1;   // What object are we sending next?
 int     Network_rejoined = 0;       // Did WE rejoin this game?
 int     Network_new_game = 0;            // Is this the first level of a new game?
+int     Network_player_added = 0;   // Is this a new player or a returning player?
 
 //added 02/26/99 Matt Mueller - reactor kill stats
 short reactor_kills[MAX_NUM_NET_PLAYERS];
@@ -139,6 +142,10 @@ ushort          my_segments_checksum = 0;
 netgame_info Netgame;
 
 bitmap_index multi_player_textures[MAX_NUM_NET_PLAYERS][N_PLAYER_SHIP_TEXTURES];
+
+// Globals for protocol-bound Refuse-functions
+char RefuseThisPlayer=0,WaitForRefuseAnswer=0,RefuseTeam,RefusePlayerName[12];
+fix RefuseTimeLimit=0;
 
 typedef struct netplayer_stats {
 	ubyte		message_type;
@@ -170,59 +177,28 @@ typedef struct netplayer_stats {
 } netplayer_stats;						  	
 
 int message_length[MULTI_MAX_TYPE+1] = {
-        24, // POSITION
+        25, // POSITION
         3,  // REAPPEAR
         8,  // FIRE
-#ifdef SHAREWARE
-        7,  // KILL
-#else
         5,  // KILL
-#endif
         4,  // REMOVE_OBJECT
-#ifdef SHAREWARE
-        56, // PLAYER_EXPLODE
-#else
         57, // PLAYER_EXPLODE
-#endif
-#ifdef SHAREWARE
-        28, // MESSAGE (MAX_MESSAGE_LENGTH = 25)
-#else
         37, // MESSAGE (MAX_MESSAGE_LENGTH = 40)
-#endif
         2,  // QUIT
-#ifdef SHAREWARE
-        10, // PLAY_SOUND
-        24, // BEGIN_SYNC
-#else
         4,  // PLAY_SOUND
 	37, // BEGIN_SYNC
-#endif
 	4,  // CONTROLCEN
 	5,  // CLAIM ROBOT
-#ifdef SHAREWARE
-	3,  // END_SYNC
-#else
 	4,  // END_SYNC
-#endif
    2,  // CLOAK
 	3,  // ENDLEVEL_START
-#ifdef SHAREWARE
-	7,  // DOOR_OPEN
-#else
         4,  // DOOR_OPEN
-#endif
 	2,  // CREATE_EXPLOSION
 	16, // CONTROLCEN_FIRE
-#ifdef SHAREWARE
-	56, // PLAYER_DROP
-	7,  // CREATE_POWERUP
-#else
 	57, // PLAYER_DROP
 	19, // CREATE_POWERUP
-#endif
 	9,  // MISSILE_TRACK
 	2,  // DE-CLOAK
-#ifndef SHAREWARE
 	2,	 // MENU_CHOICE
 	28, // ROBOT_POSITION  (shortpos_length (23) + 5 = 28)
 	8,  // ROBOT_EXPLODE
@@ -240,9 +216,6 @@ int message_length[MULTI_MAX_TYPE+1] = {
 	sizeof(netplayer_stats),								// MULTI_SEND_PLAYER
 	19, // PLAYER_POWERUP_COUNT
 	19, // START_POWERUP_COUNT
-#else
-	2,	 // MENU_CHOICE
-#endif
 };
 
 void multi_reset_player_object(object *objp);
@@ -367,39 +340,13 @@ int multi_objnum_is_past(int objnum)
 		case MULTI_PROTO_IPX:
 			return net_ipx_objnum_is_past(objnum);
 			break;
+		case MULTI_PROTO_UDP:
+			return net_udp_objnum_is_past(objnum);
+			break;
 		default:
 			Error("Protocol handling missing in multi_objnum_is_past\n");
 			break;
 	}
-}
-
-void multi_do_ping_frame()
-{
-	switch (multi_protocol)
-	{
-		case MULTI_PROTO_IPX:
-			return net_ipx_ping_all();
-			break;
-		default:
-			Error("Protocol handling missing in multi_do_ping_frame\n");
-			break;
-	}
-}
-
-void multi_consistency_error(void)
-{
-	static int count = 0;
-
-	if (count++ < 10)
-		return;
-
-	Function_mode = FMODE_MENU;
-	nm_messagebox(NULL, 1, TXT_OK, TXT_CONSISTENCY_ERROR);
-	Function_mode = FMODE_GAME;
-	count = 0;
-	multi_quit_game = 1;
-	multi_leave_menu = 1;
-	multi_reset_stuff();
 }
 
 //
@@ -413,10 +360,6 @@ multi_endlevel_score(void)
 {
 	int i, old_connect=0;
 	
-#ifdef SHAREWARE
-	return; // DEBUG
-#endif
-
 	// Show a score list to end of net players
 
 	// Save connect state and change to new connect state
@@ -424,21 +367,26 @@ multi_endlevel_score(void)
 	if (Game_mode & GM_NETWORK)
 	{
 		old_connect = Players[Player_num].connected;
-		Players[Player_num].connected = CONNECT_END_MENU;
+		if (Players[Player_num].connected!=CONNECT_DIED_IN_MINE)
+			Players[Player_num].connected = CONNECT_END_MENU;
 	}
 #endif
 
 	// Do the actual screen we wish to show
-
 	Function_mode = FMODE_MENU;
 #ifdef NETWORK
 	Network_status = NETSTAT_ENDLEVEL;
 #endif
 
-	if (Game_mode & GM_MULTI_COOP)
-		DoEndLevelScoreGlitz(1);
+	if (multi_protocol == MULTI_PROTO_IPX)
+	{
+		if (Game_mode & GM_MULTI_COOP && multi_protocol == MULTI_PROTO_IPX)
+			DoEndLevelScoreGlitz(Game_mode & GM_NETWORK);
+		else
+			kmatrix_ipx_view(Game_mode & GM_NETWORK);
+	}
 	else
-		kmatrix_view(1);
+		kmatrix_view(Game_mode & GM_NETWORK);
 
 	Function_mode = FMODE_GAME;
 	
@@ -448,14 +396,12 @@ multi_endlevel_score(void)
 		Players[Player_num].connected = old_connect;
 	}
 
-#ifndef SHAREWARE
 	if (Game_mode & GM_MULTI_COOP)
 	{
 		for (i = 0; i < MaxNumNetPlayers; i++)
 		// Reset keys
 			Players[i].flags &= ~(PLAYER_FLAGS_BLUE_KEY | PLAYER_FLAGS_RED_KEY | PLAYER_FLAGS_GOLD_KEY);
 	}
-#endif
 }
 
 int
@@ -490,14 +436,12 @@ multi_new_game(void)
 		Players[i].flags = 0;
 	}
 
-#ifndef SHAREWARE
 	for (i = 0; i < MAX_ROBOTS_CONTROLLED; i++)
 	{
 		robot_controlled[i] = -1;	
 		robot_agitation[i] = 0;
 		robot_fired[i] = 0;
 	}
-#endif
 
 	team_kills[0] = team_kills[1] = 0;
 	Endlevel_sequence = 0;
@@ -533,10 +477,8 @@ multi_make_player_ghost(int playernum)
 	obj->movement_type = MT_NONE;
 	multi_reset_player_object(obj);
 
-#ifndef SHAREWARE
 	if (Game_mode & GM_MULTI_ROBOTS)
 		multi_strip_robots(playernum);
-#endif
 }
 
 void
@@ -590,11 +532,9 @@ multi_sort_kill_list(void)
 	
 	for (i = 0; i < MAX_NUM_NET_PLAYERS; i++)
 	{
-#ifndef SHAREWARE
 		if (Game_mode & GM_MULTI_COOP)
 			kills[i] = Players[i].score;
 		else
-#endif
 			kills[i] = Players[i].net_kills_total;
 	}
 
@@ -624,8 +564,6 @@ void multi_compute_kill(int killer, int killed)
 	char killed_name[(CALLSIGN_LEN*2)+4];
 	char killer_name[(CALLSIGN_LEN*2)+4];
 
-	kmatrix_kills_changed = 1;
-
 	// Both object numbers are localized already!
 
 	if ((killed < 0) || (killed > Highest_object_index) || (killer < 0) || (killer > Highest_object_index))
@@ -652,10 +590,8 @@ void multi_compute_kill(int killer, int killed)
 	else
 		sprintf(killed_name, "%s", Players[killed_pnum].callsign);
 
-#ifndef SHAREWARE
 	if (Newdemo_state == ND_STATE_RECORDING)
 		newdemo_record_multi_death(killed_pnum);
-#endif
 
 	digi_play_sample( SOUND_HUD_KILL, F3_0 );
 
@@ -664,10 +600,8 @@ void multi_compute_kill(int killer, int killed)
 		Players[killed_pnum].net_killed_total++;
 		Players[killed_pnum].net_kills_total--;
 
-#ifndef SHAREWARE
 		if (Newdemo_state == ND_STATE_RECORDING)
 			newdemo_record_multi_kill(killed_pnum, -1);
-#endif
 	    
 //edited 02/26/99 Matt Mueller - add kill stats to messages
 		reactor_kills[killed_pnum]++;
@@ -682,7 +616,6 @@ void multi_compute_kill(int killer, int killed)
 		return;
 	}
 
-#ifndef SHAREWARE
 	else if ((killer_type != OBJ_PLAYER) && (killer_type != OBJ_GHOST))
 	{
 		if (killed_pnum == Player_num)
@@ -695,13 +628,6 @@ void multi_compute_kill(int killer, int killed)
 		Players[killed_pnum].net_killed_total++;
 		return;		
 	}
-#else
-	else if ((killer_type != OBJ_PLAYER) && (killer_type != OBJ_GHOST))
-	{
-		Int3(); // Illegal killer type?
-		return;
-	}
-#endif
 
 	killer_pnum = Objects[killer].id;
 
@@ -726,10 +652,8 @@ void multi_compute_kill(int killer, int killed)
 		Players[killed_pnum].net_killed_total += 1;
 		Players[killed_pnum].net_kills_total -= 1;
 
-#ifndef SHAREWARE
 		if (Newdemo_state == ND_STATE_RECORDING)
 			newdemo_record_multi_kill(killed_pnum, -1);
-#endif
 
 		kill_matrix[killed_pnum][killed_pnum] += 1; // # of suicides
 		if (killer_pnum == Player_num)
@@ -752,10 +676,8 @@ void multi_compute_kill(int killer, int killed)
 		}
 		Players[killer_pnum].net_kills_total += 1;
 
-#ifndef SHAREWARE
 		if (Newdemo_state == ND_STATE_RECORDING)
 			newdemo_record_multi_kill(killer_pnum, 1);
-#endif
 
 		Players[killed_pnum].net_killed_total += 1;
 		kill_matrix[killer_pnum][killed_pnum] += 1;
@@ -785,6 +707,9 @@ void multi_do_protocol_frame(int force, int listen)
 		case MULTI_PROTO_IPX:
 			net_ipx_do_frame(force, listen);
 			break;
+		case MULTI_PROTO_UDP:
+			net_udp_do_frame(force, listen);
+			break;
 		default:
 			Error("Protocol handling missing in multi_do_protocol_frame\n");
 			break;
@@ -804,12 +729,10 @@ void multi_do_frame(void)
 	if (!multi_in_menu)
 		multi_leave_menu = 0;
 
-#ifndef SHAREWARE
 	if (Game_mode & GM_MULTI_ROBOTS)
 	{
 		multi_check_robot_timeout();
 	}
-#endif	
 
 	multi_do_protocol_frame(0, 1);
 
@@ -821,25 +744,20 @@ void multi_do_frame(void)
 }
 
 void
-multi_send_data(unsigned char *buf, int len, int repeat)
+multi_send_data(unsigned char *buf, int len, int priority)
 {
+	Assert(len == message_length[(int)buf[0]]);
 	Assert(buf[0] <= MULTI_MAX_TYPE);
-
-    if (buf[0] >MULTI_MAX_TYPE)
-	{
-	    return;
-	}
-	if (Game_mode & GM_NETWORK)
-		Assert(buf[0] > 0);
-
-        Assert(len == message_length[(int)buf[0]]);
 
 	if (Game_mode & GM_NETWORK)
 	{
 		switch (multi_protocol)
 		{
 			case MULTI_PROTO_IPX:
-				net_ipx_send_data(buf, len, repeat);
+				net_ipx_send_data(buf, len, priority);
+				break;
+			case MULTI_PROTO_UDP:
+				net_udp_send_data(buf, len, priority);
 				break;
 			default:
 				Error("Protocol handling missing in multi_send_data_real\n");
@@ -861,8 +779,8 @@ multi_leave_game(void)
 	if (Game_mode & GM_NETWORK)
 	{
 		Net_create_loc = 0;
-		drop_player_eggs(ConsoleObject);
 		multi_send_position(Players[Player_num].objnum);
+		drop_player_eggs(ConsoleObject);
 		multi_send_player_explode(MULTI_PLAYER_DROP);
 	}
 
@@ -874,6 +792,9 @@ multi_leave_game(void)
 		{
 			case MULTI_PROTO_IPX:
 				net_ipx_leave_game();
+				break;
+			case MULTI_PROTO_UDP:
+				net_udp_leave_game();
 				break;
 			default:
 				Error("Protocol handling missing in multi_leave_game\n");
@@ -912,6 +833,9 @@ multi_endlevel(int *secret)
 		case MULTI_PROTO_IPX:
 			result = net_ipx_endlevel(secret);
 			break;
+		case MULTI_PROTO_UDP:
+			result = net_udp_endlevel(secret);
+			break;
 		default:
 			Error("Protocol handling missing in multi_endlevel\n");
 			break;
@@ -920,15 +844,50 @@ multi_endlevel(int *secret)
 	return(result);		
 }
 
+void multi_endlevel_poll1( int nitems, struct newmenu_item * menus, int * key, int citem )
+{
+	switch (multi_protocol)
+	{
+		case MULTI_PROTO_IPX:
+			net_ipx_kmatrix_poll1( nitems, menus, key, citem );
+			break;
+		case MULTI_PROTO_UDP:
+			net_udp_kmatrix_poll1( nitems, menus, key, citem );
+			break;
+		default:
+			Error("Protocol handling missing in multi_endlevel_poll1\n");
+			break;
+	}
+}
+
 void multi_endlevel_poll2( int nitems, struct newmenu_item * menus, int * key, int citem )
 {
 	switch (multi_protocol)
 	{
 		case MULTI_PROTO_IPX:
-			net_ipx_endlevel_poll2( nitems, menus, key, citem );
+			// unused
+			break;
+		case MULTI_PROTO_UDP:
+			net_udp_kmatrix_poll2( nitems, menus, key, citem );
 			break;
 		default:
 			Error("Protocol handling missing in multi_endlevel_poll2\n");
+			break;
+	}
+}
+
+void multi_send_endlevel_packet()
+{
+	switch (multi_protocol)
+	{
+		case MULTI_PROTO_IPX:
+			net_ipx_send_endlevel_packet();
+			break;
+		case MULTI_PROTO_UDP:
+			net_udp_send_endlevel_packet();
+			break;
+		default:
+			Error("Protocol handling missing in multi_send_endlevel_packet\n");
 			break;
 	}
 }
@@ -961,7 +920,7 @@ multi_menu_poll(void)
 	// The following three [hackish] lines will go away eventually
 	calc_frame_time();
 	memset(&Controls,0,sizeof(control_info));	// from game.c (was in below function)
-	GameProcessFrame(void);			
+	GameProcessFrame();			
 
 	multi_in_menu--;
 
@@ -1181,7 +1140,10 @@ void multi_send_message_end()
 				switch (multi_protocol)
 				{
 					case MULTI_PROTO_IPX:
-						net_ipx_dump_player(Netgame.players[i].protocol.ipx.server,Netgame.players[i].protocol.ipx.node, 7);
+						net_ipx_dump_player(Netgame.players[i].protocol.ipx.server,Netgame.players[i].protocol.ipx.node, DUMP_KICKED);
+						break;
+					case MULTI_PROTO_UDP:
+						net_udp_dump_player(Netgame.players[i].protocol.udp.addr, DUMP_KICKED);
 						break;
 					default:
 						Error("Protocol handling missing in multi_send_message_end\n");
@@ -1369,11 +1331,7 @@ multi_do_message(char *buf)
 	char *colon,mesbuf[100];
 	int t;
 
-#ifdef SHAREWARE
-	int loc = 3;
-#else
 	int loc = 2;
-#endif
 
 	if (((colon = strrchr(buf+loc, ':')) == NULL) || (colon-(buf+loc) < 1) || (colon-(buf+loc) > CALLSIGN_LEN))
 	{
@@ -1419,26 +1377,22 @@ multi_do_message(char *buf)
 void
 multi_do_position(char *buf)
 {
+	ubyte pnum = 0;
 #ifdef WORDS_BIGENDIAN
 	shortpos sp;
 #endif
 
-	int pnum = (Player_num+1)%2;
-
-	Assert(&Objects[Players[pnum].objnum] != ConsoleObject);
-
-	if (Game_mode & GM_NETWORK)
-	{
-		Int3(); // Get Jason, what the hell are we doing here?
+	// this is unused in IPX - position is forced within net_ipx_do_frame()
+	if (multi_protocol == MULTI_PROTO_IPX)
 		return;
-	}
 
+	pnum = buf[1];
 
 #ifndef WORDS_BIGENDIAN
-	extract_shortpos(&Objects[Players[pnum].objnum], (shortpos *)(buf+1),0);
+	extract_shortpos(&Objects[Players[pnum].objnum], (shortpos *)(buf + 2),0);
 #else
-	memcpy((ubyte *)(sp.bytemat), (ubyte *)(buf + 1), 9);
-	memcpy((ubyte *)&(sp.xo), (ubyte *)(buf + 10), 14);
+	memcpy((ubyte *)(sp.bytemat), (ubyte *)(buf + 2), 9);
+	memcpy((ubyte *)&(sp.xo), (ubyte *)(buf + 11), 14);
 	extract_shortpos(&Objects[Players[pnum].objnum], &sp, 1);
 #endif
 
@@ -1590,7 +1544,6 @@ multi_do_kill(char *buf)
 	int killer, killed;
 	int count = 1;
 	
-#ifndef SHAREWARE
 	int pnum;
 	pnum = buf[count];
 	if ((pnum < 0) || (pnum >= N_players))
@@ -1600,21 +1553,9 @@ multi_do_kill(char *buf)
 	}
 	killed = Players[pnum].objnum;			
 	count += 1;
-#else
-	killed = objnum_remote_to_local(*(short *)(buf+count), (sbyte)buf[count+2]);
-	count += 3;
-#endif
 	killer = GET_INTEL_SHORT(buf + count);
 	if (killer > 0)
 		killer = objnum_remote_to_local(killer, (sbyte)buf[count+2]);
-
-#ifdef SHAREWARE
-	if ((Objects[killed].type != OBJ_PLAYER) && (Objects[killed].type != OBJ_GHOST))
-	{
-		Int3();
-		return;
-	}
-#endif		
 
 	multi_compute_kill(killer, killed);
 
@@ -1659,10 +1600,10 @@ multi_do_escape(char *buf)
 	{
                 digi_play_sample(SOUND_HUD_MESSAGE, F1_0);
 		hud_message(MSGC_MULTI_INFO, "%s %s", Players[(int)buf[1]].callsign, TXT_HAS_ESCAPED);
-#ifndef SHAREWARE
+
 		if (Game_mode & GM_NETWORK)
 			Players[(int)buf[1]].connected = CONNECT_ESCAPE_TUNNEL;
-#endif
+
 		if (!multi_goto_secret)
 			multi_goto_secret = 2;
 	}
@@ -1670,10 +1611,10 @@ multi_do_escape(char *buf)
 	{
                 digi_play_sample(SOUND_HUD_MESSAGE, F1_0);
 		hud_message(MSGC_MULTI_INFO, "%s %s", Players[(int)buf[1]].callsign, TXT_HAS_FOUND_SECRET);
-#ifndef SHAREWARE
+
 		if (Game_mode & GM_NETWORK)
 			Players[(int)buf[1]].connected = CONNECT_FOUND_SECRET;
-#endif
+
 		if (!multi_goto_secret)
 			multi_goto_secret = 1;
 	}
@@ -1736,6 +1677,9 @@ multi_do_quit(char *buf)
 			case MULTI_PROTO_IPX:
 				net_ipx_disconnect_player(buf[1]);
 				break;
+			case MULTI_PROTO_UDP:
+				net_udp_disconnect_player(buf[1]);
+				break;
 			default:
 				Error("Protocol handling missing in multi_do_quit\n");
 				break;
@@ -1768,10 +1712,8 @@ multi_do_cloak(char *buf)
 	Players[pnum].cloak_time = GameTime;
 	ai_do_cloak_stuff();
 
-#ifndef SHAREWARE
 	if (Game_mode & GM_MULTI_ROBOTS)
 		multi_strip_robots(pnum);
-#endif
 
 	if (Newdemo_state == ND_STATE_RECORDING)
 		newdemo_record_multi_cloak(pnum);
@@ -1797,14 +1739,8 @@ multi_do_door_open(char *buf)
 	segment *seg;
 	wall *w;
 
-#ifdef SHAREWARE
-	segnum = *(int *)(buf+1);
-	side = *(short *)(buf+5);
-#else
 	segnum = GET_INTEL_SHORT(buf + 1);
 	side = buf[3];
-	
-#endif
 	
 	if ((segnum < 0) || (segnum > Highest_segment_index) || (side < 0) || (side > 5))
 	{
@@ -1890,11 +1826,8 @@ multi_do_create_powerup(char *buf)
 		return;
 	}
 	
-#ifndef SHAREWARE
 	new_pos = *(vms_vector *)(buf+count); count+=sizeof(vms_vector);
-#else
-	compute_segment_center(&new_pos, &Segments[segnum]);
-#endif
+
 #ifdef WORDS_BIGENDIAN
 	new_pos.x = (fix)SWAPINT((int)new_pos.x);
 	new_pos.y = (fix)SWAPINT((int)new_pos.y);
@@ -1931,13 +1864,8 @@ void
 multi_do_play_sound(char *buf)
 {
 	int pnum = buf[1];
-#ifdef SHAREWARE
-	int sound_num = *(int *)(buf+2);
-	fix volume = *(fix *)(buf+6);
-#else
 	int sound_num = buf[2];
 	fix volume = buf[3] << 12;
-#endif
 
 	if (!Players[pnum].connected)
 		return;
@@ -1948,7 +1876,6 @@ multi_do_play_sound(char *buf)
 	digi_link_sound_to_object( sound_num, Players[pnum].objnum, 0, volume);	
 }
 
-#ifndef SHAREWARE
 void
 multi_do_score(char *buf)
 {
@@ -2033,7 +1960,6 @@ void multi_do_send_player(char *buf)
 	p = (netplayer_stats *)buf;	
 	Assert( p->Player_num <= N_players );
 }
-#endif
 
 void
 multi_reset_stuff(void)
@@ -2169,8 +2095,6 @@ multi_process_data(char *buf, int len)
 			if (!Endlevel_sequence) multi_do_create_powerup(buf); break;
 		case MULTI_PLAY_SOUND:
 			if (!Endlevel_sequence) multi_do_play_sound(buf); break;
-
-#ifndef SHAREWARE
 		case MULTI_ROBOT_CLAIM:
 			if (!Endlevel_sequence) multi_do_claim_robot(buf); break;
 		case MULTI_ROBOT_POSITION:
@@ -2200,7 +2124,6 @@ multi_process_data(char *buf, int len)
 		case MULTI_PLAYER_POWERUP_COUNT:
 		case MULTI_START_POWERUP_COUNT:
 			if (!Endlevel_sequence) multi_do_powerup_count(buf); break;
-#endif
 		default:
 			Int3();
 	}
@@ -2242,7 +2165,7 @@ multi_process_bigdata(char *buf, int len)
 //          players of something we did.
 //
 
-void multi_send_fire(int pl)
+void multi_send_fire()
 {
    if (!Network_laser_fired)
     return;
@@ -2254,7 +2177,7 @@ void multi_send_fire(int pl)
   multibuf[5] = (char)Network_laser_fired;
   PUT_INTEL_SHORT(multibuf+6, Network_laser_track);
       multibuf[0] = (char)MULTI_FIRE;
-      multi_send_data(multibuf, 8, 1);
+      multi_send_data(multibuf, 8, 0);
 
   Network_laser_fired = 0;
 }
@@ -2273,7 +2196,7 @@ multi_send_destroy_controlcen(int objnum, int player)
 	multibuf[0] = (char)MULTI_CONTROLCEN;
 	PUT_INTEL_SHORT(multibuf+1, objnum);
 	multibuf[3] = player;
-   multi_send_data(multibuf, 4, 2);
+   multi_send_data(multibuf, 4, 1);
 }
 
 void 
@@ -2291,11 +2214,14 @@ multi_send_endlevel_start(int secret)
 	multi_send_data(multibuf, 3, 1);
 	if (Game_mode & GM_NETWORK)
 	{
-		Players[Player_num].connected = 5;
+		Players[Player_num].connected = CONNECT_ESCAPE_TUNNEL;
 		switch (multi_protocol)
 		{
 			case MULTI_PROTO_IPX:
 				net_ipx_send_endlevel_packet();
+				break;
+			case MULTI_PROTO_UDP:
+				net_udp_send_endlevel_packet();
 				break;
 			default:
 				Error("Protocol handling missing in multi_send_endlevel_start\n");
@@ -2322,7 +2248,7 @@ multi_send_powerup_count(char type, int *pow_count)
 		else
 			multibuf[count++] = pow_count[pow];
 	}
-	multi_send_data(multibuf, count, 2);
+	multi_send_data(multibuf, count, 1);
 }
 
 void
@@ -2347,8 +2273,6 @@ multi_send_player_explode(char type)
 	int i;
 
 	Assert( (type == MULTI_PLAYER_DROP) || (type == MULTI_PLAYER_EXPLODE) );
-
-	multi_send_position(Players[Player_num].objnum);
 
 	if (Network_send_objects)
 	{
@@ -2398,12 +2322,11 @@ multi_send_player_explode(char type)
 		Int3(); // See Rob
 	}
 
-	multi_send_data(multibuf, message_length[MULTI_PLAYER_EXPLODE], 2);
+	multi_send_data(multibuf, message_length[MULTI_PLAYER_EXPLODE], 1);
 	if (Players[Player_num].flags & PLAYER_FLAGS_CLOAKED)
 		multi_send_decloak();
-#ifndef SHAREWARE
+
 	multi_strip_robots(Player_num);
-#endif
 }
 
 void
@@ -2414,12 +2337,9 @@ multi_send_message(void)
 	{
 		multibuf[loc] = (char)MULTI_MESSAGE; 		loc += 1;
                 multibuf[loc] = (char)Player_num;               loc += 1;
-#ifdef SHAREWARE
-                loc += 1; // Dummy space for reciever (Which isn't used)
-#endif
 		strncpy((char*)multibuf+loc, Network_message, MAX_MESSAGE_LEN); loc += MAX_MESSAGE_LEN;
 		multibuf[loc-1] = '\0';
-		multi_send_data(multibuf, loc, 1);
+		multi_send_data(multibuf, loc, 0);
 		Network_message_reciever = -1;
 	}
 }
@@ -2427,10 +2347,12 @@ multi_send_message(void)
 void
 multi_send_reappear()
 {
+	multi_send_position(Players[Player_num].objnum);
+	
 	multibuf[0] = (char)MULTI_REAPPEAR;
 	PUT_INTEL_SHORT(multibuf+1, Players[Player_num].objnum);
 
-	multi_send_data(multibuf, 3, 3);
+	multi_send_data(multibuf, 3, 1);
 }
 
 void
@@ -2441,11 +2363,12 @@ multi_send_position(int objnum)
 #endif
 	int count=0;
 
-	if (Game_mode & GM_NETWORK) {
+	// this is unused in IPX - position is forced within net_ipx_do_frame()
+	if (multi_protocol == MULTI_PROTO_IPX)
 		return;
-	}
 
 	multibuf[count++] = (char)MULTI_POSITION;
+	multibuf[count++] = (char)Player_num;
 #ifndef WORDS_BIGENDIAN
 	create_shortpos((shortpos *)(multibuf+count), Objects+objnum,0);
 	count += sizeof(shortpos);
@@ -2456,7 +2379,8 @@ multi_send_position(int objnum)
 	memcpy(&(multibuf[count]), (ubyte *)&(sp.xo), 14);
 	count += 14;
 #endif
-
+	// send twice while first has priority so the next one will be attached to the next bigdata packet
+	multi_send_data(multibuf, count, 1);
 	multi_send_data(multibuf, count, 0);
 }
 
@@ -2469,12 +2393,7 @@ multi_send_kill(int objnum)
 	int count = 0;
 
 	multibuf[count] = (char)MULTI_KILL; 	count += 1;
-#ifndef SHAREWARE
 	multibuf[1] = Player_num;					count += 1;
-#else
-	*(short *)(multibuf+count) = (short)objnum_local_to_remote(objnum, (sbyte *)&multibuf[count+2]);
-	count += 3;
-#endif
 
 	Assert(Objects[objnum].id == Player_num);
 	killer_objnum = Players[Player_num].killer_objnum;
@@ -2494,10 +2413,8 @@ multi_send_kill(int objnum)
 	multi_compute_kill(killer_objnum, objnum);
 	multi_send_data(multibuf, count, 1);
 
-#ifndef SHAREWARE
 	if (Game_mode & GM_MULTI_ROBOTS)
 		multi_strip_robots(Player_num);
-#endif
 }
 
 void
@@ -2546,10 +2463,8 @@ multi_send_cloak(void)
 
 	multi_send_data(multibuf, 2, 1);
 
-#ifndef SHAREWARE
 	if (Game_mode & GM_MULTI_ROBOTS)
 		multi_strip_robots(Player_num);
-#endif
 }
 
 void
@@ -2567,16 +2482,9 @@ void
 multi_send_door_open(int segnum, int side)
 {
 	multibuf[0] = MULTI_DOOR_OPEN;
-#ifdef SHAREWARE
-	*(int *)(multibuf+1) = segnum;
-	*(short *)(multibuf+5) = (short)side;
-	multi_send_data(multibuf, 7, 1);
-#else
 	PUT_INTEL_SHORT(multibuf+1, segnum );
 	multibuf[3] = (sbyte)side;
 	multi_send_data(multibuf, 4, 1);
-#endif
-
 }
 
 //
@@ -2636,12 +2544,14 @@ multi_send_create_powerup(int powerup_type, int segnum, int objnum, vms_vector *
 #endif
 	int count = 0;
 
+	multi_send_position(Players[Player_num].objnum);
+
 	multibuf[count] = MULTI_CREATE_POWERUP;			count += 1;
 	multibuf[count] = Player_num;				count += 1;
 	multibuf[count] = powerup_type;				count += 1;
 	PUT_INTEL_SHORT(multibuf+count, segnum );		count += 2;
 	PUT_INTEL_SHORT(multibuf+count, objnum );		count += 2;
-#if !defined(WORDS_BIGENDIAN) && !defined(SHAREWARE)
+#ifndef WORDS_BIGENDIAN
 	memcpy(multibuf+count, pos, sizeof(vms_vector));	count += sizeof(vms_vector);
 #else
 	swapped_vec.x = (fix)INTEL_INT( (int)pos->x );
@@ -2651,7 +2561,7 @@ multi_send_create_powerup(int powerup_type, int segnum, int objnum, vms_vector *
 #endif
 	//							-----------
 	//							Total =  19
-	multi_send_data(multibuf, count, 2);
+	multi_send_data(multibuf, count, 1);
 
 	if (Network_send_objects && multi_objnum_is_past(objnum))
 	{
@@ -2668,18 +2578,11 @@ multi_send_play_sound(int sound_num, fix volume)
 
 	multibuf[count] = MULTI_PLAY_SOUND;			count += 1;
         multibuf[count] = Player_num;                           count += 1;
-#ifdef SHAREWARE
-	*(int *)(multibuf+count) = sound_num;			count += 4;
-        *(fix *)(multibuf+count) = volume;                      count += 4;
-	//															-----------
-	//															Total = 10
-#else
 	multibuf[count] = (char)sound_num;			count += 1;
 	multibuf[count] = (char)(volume >> 12);	count += 1;
 	//													   -----------
 	//													   Total = 4
-#endif
-	multi_send_data(multibuf, count, 1);
+	multi_send_data(multibuf, count, 0);
 }
 
 void
@@ -2704,7 +2607,6 @@ multi_send_audio_taunt(int taunt_num)
 #endif
 }
 
-#ifndef SHAREWARE
 void
 multi_send_score(void)
 {
@@ -2730,7 +2632,7 @@ multi_send_netplayer_stats_request(ubyte player_num)
 	multibuf[count] = MULTI_REQ_PLAYER;	count += 1;
 	multibuf[count] = player_num;			count += 1;
 
-	multi_send_data(multibuf, count, 2 );
+	multi_send_data(multibuf, count, 0 );
 }
 
 
@@ -2746,7 +2648,7 @@ multi_send_trigger(int triggernum)
 	multibuf[count] = Player_num;					count += 1;
 	multibuf[count] = (ubyte)triggernum;		count += 1;
 
-	multi_send_data(multibuf, count, 2);
+	multi_send_data(multibuf, count, 1);
 }
 
 void
@@ -2765,7 +2667,26 @@ multi_send_hostage_door_status(int wallnum)
 
 	multi_send_data(multibuf, count, 0);
 }
-#endif
+
+void multi_consistency_error(int reset)
+{
+	static int count = 0;
+
+	if (reset)
+		count = 0;
+
+	if (++count < 10)
+		return;
+
+	Function_mode = FMODE_MENU;
+	nm_messagebox(NULL, 1, TXT_OK, TXT_CONSISTENCY_ERROR);
+	Function_mode = FMODE_GAME;
+	count = 0;
+	multi_quit_game = 1;
+	multi_leave_menu = 1;
+	multi_reset_stuff();
+	Function_mode = FMODE_MENU;
+}
 
 void
 multi_prep_level(void)
@@ -2786,6 +2707,8 @@ multi_prep_level(void)
 
 	Assert(NumNetPlayerPositions > 0);
 
+	multi_consistency_error(1);
+
 	for (i = 0; i < NumNetPlayerPositions; i++)
 	{
 		if (i != Player_num)
@@ -2795,14 +2718,12 @@ multi_prep_level(void)
 		Netgame.players[i].LastPacketTime = 0;
 	}
 
-#ifndef SHAREWARE
 	for (i = 0; i < MAX_ROBOTS_CONTROLLED; i++)
 	{
 		robot_controlled[i] = -1;	
 		robot_agitation[i] = 0;
 		robot_fired[i] = 0;
 	}
-#endif
 
 	Viewer = ConsoleObject = &Objects[Players[Player_num].objnum];
 
@@ -2908,8 +2829,11 @@ int multi_level_sync(void)
 		case MULTI_PROTO_IPX:
 			return net_ipx_level_sync();
 			break;
+		case MULTI_PROTO_UDP:
+			return net_udp_level_sync();
+			break;
 		default:
-			Error("Protocol handling missing in multi_levl_sync\n");
+			Error("Protocol handling missing in multi_level_sync\n");
 			break;
 	}
 }
@@ -2957,35 +2881,48 @@ int multi_delete_extra_objects()
 	return nnp;
 }
 
-int
-multi_i_am_master(void)
+// Returns 1 if player is Master/Host of this game
+int multi_i_am_master(void)
 {
-	// I am the lowest numbered player in this game?
+	// IPX has variable Hosts, but we might not want to continue this for newer protocols
+	if (multi_protocol == MULTI_PROTO_IPX)
+	{
+		int i;
 
-	int i;
+		if (!(Game_mode & GM_NETWORK))
+			return (Player_num == 0);
 
-	if (!(Game_mode & GM_NETWORK))
+		for (i = 0; i < Player_num; i++)
+			if (Players[i].connected)
+				return 0;
+		return 1;
+	}
+	else
+	{
 		return (Player_num == 0);
-
-	for (i = 0; i < Player_num; i++)
-		if (Players[i].connected)
-			return 0;
-	return 1;
+	}
 }
 
+// Returns the Player_num of Master/Host of this game
 int multi_who_is_master(void)
 {
-	// Who is the master of this game?
+	// IPX has variable Hosts, but we might not want to continue this for newer protocols
+	if (multi_protocol == MULTI_PROTO_IPX)
+	{
+		int i;
 
-	int i;
+		if (!(Game_mode & GM_NETWORK))
+			return (Player_num == 0);
 
-	if (!(Game_mode & GM_NETWORK))
-		return (Player_num == 0);
-
-	for (i = 0; i < N_players; i++)
-		if (Players[i].connected)
-			return i;
-	return Player_num;
+		for (i = 0; i < N_players; i++)
+			if (Players[i].connected)
+				return i;
+		return Player_num;
+	}
+	else
+	{
+		return 0;
+	}
 }
 
 void change_playernum_to( int new_Player_num )	

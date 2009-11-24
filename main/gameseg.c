@@ -700,55 +700,52 @@ int	Doing_lighting_hack_flag=0;
 
 //figure out what seg the given point is in, tracing through segments
 //returns segment number, or -1 if can't find segment
-int trace_segs(vms_vector *p0,int oldsegnum)
+int trace_segs(vms_vector *p0, int oldsegnum, int recursion_count)
 {
 	int centermask;
 	segment *seg;
 	fix side_dists[6];
+	fix biggest_val;
+	int sidenum, bit, check, biggest_side;
+	static ubyte visited [MAX_SEGMENTS];
 
 	Assert((oldsegnum <= Highest_segment_index) && (oldsegnum >= 0));
 
+	if (recursion_count >= Num_segments) {
+		con_printf (CON_DEBUG, "trace_segs: Segment not found\n");
+		return -1;
+	}
+	if (recursion_count == 0)
+		memset (visited, 0, sizeof (visited));
+	if (visited [oldsegnum])
+		return -1;
+	visited [oldsegnum] = 1;
+
 	centermask = get_side_dists(p0,oldsegnum,side_dists);		//check old segment
+	if (centermask == 0) // we are in the old segment
+		return oldsegnum; //..say so
 
-	if (centermask == 0)		//we're in the old segment
-
-		return oldsegnum;		//..say so
-
-	else {						//not in old seg.  trace through to find seg
-		int biggest_side;
-
-		do {
-			int sidenum,bit;
-			fix biggest_val;
-
-			seg = &Segments[oldsegnum];
-
-			biggest_side = -1; biggest_val = 0;
-
-			for (sidenum=0,bit=1;sidenum<6;sidenum++,bit<<=1)
-				if ((centermask&bit) && (seg->children[sidenum]>-1))
-					if (side_dists[sidenum] < biggest_val) {
-						biggest_val = side_dists[sidenum];
-						biggest_side = sidenum;
-					}
-
-			if (biggest_side != -1) {
-				int check;
-
-				side_dists[biggest_side] = 0;
-
-				check = trace_segs(p0,seg->children[biggest_side]);	//trace into adjacent segment
-
-				if (check != -1)		//we've found a segment
-					return check;	
+	for (;;) {
+		seg = &Segments[oldsegnum];
+		biggest_side = -1;
+		biggest_val = 0;
+		for (sidenum = 0, bit = 1; sidenum < 6; sidenum++, bit <<= 1)
+			if ((centermask & bit) && (seg->children[sidenum] > -1)
+			    && side_dists[sidenum] < biggest_val) {
+				biggest_val = side_dists[sidenum];
+				biggest_side = sidenum;
 			}
 
+			if (biggest_side == -1)
+				break;
 
-		} while (biggest_side!=-1);
-
-		return -1;		//we haven't found a segment
+			side_dists[biggest_side] = 0;
+			// trace into adjacent segment:
+			check = trace_segs(p0, seg->children[biggest_side], recursion_count + 1);
+			if (check >= 0)		//we've found a segment
+				return check;
 	}
-
+	return -1;		//we haven't found a segment
 }
 
 
@@ -767,7 +764,7 @@ int find_point_seg(vms_vector *p,int segnum)
 	Assert((segnum <= Highest_segment_index) && (segnum >= -1));
 
 	if (segnum != -1) {
-		newseg = trace_segs(p,segnum);
+		newseg = trace_segs(p,segnum,0);
 
 		if (newseg != -1)			//we found a segment!
 			return newseg;

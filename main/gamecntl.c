@@ -101,7 +101,7 @@ int	Debug_spew;
 
 //	External Variables ---------------------------------------------------------
 
-extern char WaitForRefuseAnswer,RefuseThisPlayer;
+extern char WaitForRefuseAnswer,RefuseThisPlayer,RefuseTeam;
 
 #ifndef NDEBUG
 extern int	Mark_count;
@@ -529,6 +529,24 @@ void HandleGameKey(int key)
 				HUD_init_message ("Player accepted!");
 			}
 			break;
+			case KEY_ALTED + KEY_1:
+				if (Netgame.RefusePlayers && WaitForRefuseAnswer && (Game_mode & GM_TEAM))
+					{
+						RefuseThisPlayer=1;
+						HUD_init_message ("Player accepted!");
+						RefuseTeam=1;
+						game_flush_inputs();
+					}
+				break;
+			case KEY_ALTED + KEY_2:
+				if (Netgame.RefusePlayers && WaitForRefuseAnswer && (Game_mode & GM_TEAM))
+					{
+						RefuseThisPlayer=1;
+						HUD_init_message ("Player accepted!");
+						RefuseTeam=2;
+						game_flush_inputs();
+					}
+				break;
 			KEY_MAC(case KEY_COMMAND+KEY_7:)
 			case KEY_F7:
 			Show_kill_list = (Show_kill_list+1) % ((Game_mode & GM_TEAM) ? 4 : 3);

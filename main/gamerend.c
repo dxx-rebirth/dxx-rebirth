@@ -156,7 +156,7 @@ void show_netplayerinfo()
 	
 	// general game information
 	y+=LINE_SPACING;
-	gr_printf(0x8000,y,"%s by %s",Netgame.game_name,Players[multi_who_is_master()].callsign);
+	gr_printf(0x8000,y,"%s",Netgame.game_name);
 #ifndef SHAREWARE
 	y+=LINE_SPACING;
 	gr_printf(0x8000,y,"%s - lvl: %i",Netgame.mission_title,Netgame.levelnum);
@@ -185,8 +185,6 @@ void show_netplayerinfo()
 	}
 	gr_printf(x+FSPACX(8)*18,y,"ping");
 	gr_printf(x+FSPACX(8)*23,y,"efficiency");
-	
-	multi_do_ping_frame();
 	
 	// process players table
 	for (i=0; i<MAX_PLAYERS; i++)

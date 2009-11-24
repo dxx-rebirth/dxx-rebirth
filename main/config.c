@@ -59,8 +59,6 @@ static char *VSyncStr="VSync";
 static char *MultisampleStr="Multisample";
 static char *JukeboxOnStr="JukeboxOn";
 static char *JukeboxPathStr="JukeboxPath";
-static char *IPHostAddrStr="IPHostAddr";
-static char *TrackerServerStr="TrackerServer";
 
 int ReadConfigFile()
 {
@@ -93,12 +91,6 @@ int ReadConfigFile()
 	strncpy(GameCfg.JukeboxPath, "Jukebox", PATH_MAX+1);	// maybe include this directory with the binary
 #else
 	strncpy(GameCfg.JukeboxPath, "::::Jukebox", PATH_MAX+1);
-#endif
-	memset(GameCfg.MplIpHostAddr, '\x0', sizeof(GameCfg.MplIpHostAddr));
-	
-#ifdef NETWORK
-	// Default tracker server in case one is not found in configuration file...
-	strcpy(GameCfg.TrackerServer, TRACKER_DEFAULT_SERVER);
 #endif
 
 	infile = PHYSFSX_openReadBuffered("descent.cfg");
@@ -169,30 +161,6 @@ int ReadConfigFile()
 				p = strchr( GameCfg.JukeboxPath, '\n');
 				if ( p ) *p = 0;
 			}
-			else if (!strcmp(token, IPHostAddrStr))	{
-				char * p;
-				strncpy( GameCfg.MplIpHostAddr, value, 128 );
-				p = strchr( GameCfg.MplIpHostAddr, '\n');
-				if ( p ) *p = 0;
-			}
-			
-#ifdef NETWORK
-			// Loading tracker server...
-			else if(strcmp(token, TrackerServerStr) == 0 && strlen(value) > 1)
-			{
-				char *pszTemp;
-			    // Store the tracker server from config into memory...
-			    strncpy(GameCfg.TrackerServer, value, 
-                        sizeof(GameCfg.TrackerServer) - 1);
-			    
-			    // Terminate string at line feed...
-			    pszTemp = strchr(GameCfg.TrackerServer, '\n');
-			        
-			        // Terminate...
-			        if(pszTemp)
-			           *pszTemp = '\x0';
-			}
-#endif
 		}
 	}
 
@@ -239,8 +207,6 @@ int WriteConfigFile()
 	PHYSFSX_printf(infile, "%s=%i\n", MultisampleStr, GameCfg.Multisample);
 	PHYSFSX_printf(infile, "%s=%i\n", JukeboxOnStr, GameCfg.JukeboxOn);
 	PHYSFSX_printf(infile, "%s=%s\n", JukeboxPathStr, GameCfg.JukeboxPath);
-	PHYSFSX_printf(infile, "%s=%s\n", IPHostAddrStr, GameCfg.MplIpHostAddr);
-	PHYSFSX_printf(infile, "%s=%s\n", TrackerServerStr, GameCfg.TrackerServer);
 
 	PHYSFS_close(infile);
 

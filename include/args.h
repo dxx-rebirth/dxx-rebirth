@@ -69,9 +69,9 @@ typedef struct Arg
 	int MplGameProfile;
 	int MplPlayerMessages;
 	const char *MplIpxNetwork;
-	int MplIpBasePort;
-	int MplIpRelay;
-	char *MplIpHostAddr;
+	const char *MplUdpHostAddr;
+	int MplUdpHostPort;
+	int MplUdpMyPort;
 	int DbgVerbose;
 	int DbgNoRun;
 	int DbgRenderStats;

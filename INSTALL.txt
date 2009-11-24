@@ -26,20 +26,6 @@ For Mac OS X, an Xcode project is available (requires Xcode 2.1 or later). Xcode
 The SConstruct file provides various options to compile this program.
 To get a full list of all available commands, type scons -h within the Source directory.
 
-Currently, the following variables are supported:
-
-'sharepath=DIR'   (non-Mac OS *NIX only) use DIR for shared game data. (default: /usr/local/share/games/d1x-rebirth)
-'sdl_only=1'      don't include OpenGL, use SDL-only instead
-'sdlmixer=1'      use SDL_Mixer for sound (includes external music support)
-'shareware=1'     build SHAREWARE version
-'asm=1'           use ASSEMBLER code (only with sdl_only=1, requires NASM and x86)
-'debug=1'         build DEBUG binary which includes asserts, debugging output, cheats and more output
-'profiler=1'      do profiler build
-'editor=1'        build editor !EXPERIMENTAL!
-'arm=1'           compile for ARM architecture
-
-‘editor’ is currently *not* supported and will not work.
-
 To compile the source, type:
 
 scons

@@ -1137,7 +1137,7 @@ void do_shareware_end_game(void)
 	if ((Game_mode & GM_MULTI) && !(Game_mode & GM_MULTI_COOP))
 	{
 		MALLOC(Briefing_text, char, 4); // Dummy
-		kmatrix_view();
+		kmatrix_view(1);
 		return;
 	}
 	else 

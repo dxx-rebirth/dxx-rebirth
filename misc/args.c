@@ -183,9 +183,9 @@ void ReadCmdArgs(void)
 	GameArg.MplGameProfile 		= FindArg("-mprofile");
 	GameArg.MplPlayerMessages 	= FindArg("-playermessages");
 	GameArg.MplIpxNetwork 		= get_str_arg("-ipxnetwork", NULL);
-	GameArg.MplIpBasePort 		= get_int_arg("-ip_baseport", 0);
-	GameArg.MplIpRelay	 	= FindArg("-ip_relay");
-	GameArg.MplIpHostAddr           = get_str_arg("-ip_hostaddr", "");
+	GameArg.MplUdpHostAddr		= get_str_arg("-udp_hostaddr", "localhost");
+	GameArg.MplUdpHostPort		= get_int_arg("-udp_hostport", 0);
+	GameArg.MplUdpMyPort		= get_int_arg("-udp_myport", 0);
 
 	// Editor Options
 

@@ -10,9 +10,10 @@ CONTAINED HEREIN FOR REVENUE-BEARING PURPOSES.  THE END-USER UNDERSTANDS
 AND AGREES TO THE TERMS HEREIN AND ACCEPTS THE SAME BY USE OF THIS FILE.  
 COPYRIGHT 1993-1998 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 */
+
 /*
  *
- * Prototypes for network management functions.
+ * Prototypes for IPX-protocol network management functions.
  *
  */
 
@@ -23,37 +24,23 @@ COPYRIGHT 1993-1998 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 
 #include "gameseq.h"
 #include "multi.h"
-
-#define MAX_ACTIVE_NETGAMES                     12
-
-typedef struct sequence_packet {
-	ubyte					type;
-	netplayer_info		player;
-} __pack__ sequence_packet;
-
-#ifdef SHAREWARE
-#define NET_XDATA_SIZE 256
+#include "pstypes.h"
+#ifdef _WIN32
+#include <winsock.h>
 #else
-#define NET_XDATA_SIZE 454
+#include <netinet/in.h> /* for htons & co. */
 #endif
 
-#ifdef SHAREWARE
-typedef struct frame_info {
-	ubyte				type;						// What type of p
-	int				numpackets;			
-	short				objnum;
-	ubyte				playernum;
-	short				obj_segnum;
-	vms_vector		obj_pos;
-	vms_matrix		obj_orient;
-	physics_info	obj_phys_info;
-	ubyte				obj_render_type;
-	ubyte				level_num;
-	ushort			data_size;		// Size of data appended to the net packet
-	ubyte				data[NET_XDATA_SIZE];		// extra data to be tacked on the end
-} __pack__ frame_info;
-#else
-typedef struct frame_info {
+#define IPX_MAX_NETGAMES                     12
+
+typedef struct IPX_sequence_packet {
+	ubyte					type;
+	netplayer_info		player;
+} __pack__ IPX_sequence_packet;
+
+#define NET_XDATA_SIZE 454
+
+typedef struct IPX_frame_info {
 	ubyte				type;						// What type of packet
 	ubyte				pad[3];					// Pad out length of frame_info packet
 	int				numpackets;			
@@ -67,8 +54,7 @@ typedef struct frame_info {
 	ubyte				obj_render_type;
 	ubyte				level_num;
 	char				data[NET_XDATA_SIZE];		// extra data to be tacked on the end
-} __pack__ frame_info;
-#endif
+} __pack__ IPX_frame_info;
 
 typedef struct IPX_netplayer_info {
 	char		callsign[CALLSIGN_LEN+1];
@@ -112,23 +98,12 @@ void net_ipx_join_game();
 void net_ipx_leave_game();
 int net_ipx_endlevel(int *secret);
 void net_ipx_endlevel_poll2( int nitems, struct newmenu_item * menus, int * key, int citem );
+void net_ipx_kmatrix_poll1( int nitems, newmenu_item * menus, int * key, int citem );
 int net_ipx_level_sync();
 void net_ipx_send_endlevel_packet();
 int net_ipx_objnum_is_past(int objnum);
 char * net_ipx_get_player_name( int objnum );
 void net_ipx_disconnect_player(int playernum);
-
-//extern int Network_allow_socket_changes;
-
-//added on 8/4/98 by Matt Mueller for global short packets declaration
-extern int Network_short_packets; // short packets or not
-//end modified section - Matt Mueller
-//added on 8/5/98 by Victor Rachels for global pps editing
-extern int Network_pps; // packets per second
-//end edit - Victor Rachels
-
-extern void net_ipx_ping_all();
-extern void net_ipx_handle_ping_return (ubyte pnum);
 
 // By putting an up-to-20-char-message into Network_message and 
 // setting Network_message_reciever to the player num you want to
@@ -142,39 +117,16 @@ void net_ipx_do_frame(int force, int listen);
 // packet that we're transmitting.
 void net_ipx_send_data( ubyte * ptr, int len, int urgent );
 
-//added on 11/16/98 by Victor Rachels for use with mlticntrl
-extern sequence_packet Network_player_rejoining; // Who is rejoining now?
-extern int Network_player_added;
 extern int IPX_Socket;
+extern int IPX_active;
 
-#define DUMP_CLOSED 0
-#define DUMP_FULL 1
-#define DUMP_ENDLEVEL 2
-#define DUMP_DORK 3
-#define DUMP_ABORTED 4
-#define DUMP_CONNECTED 5
-#define DUMP_LEVEL 6
-
-#define NETWORK_TIMEOUT (10*F1_0) // 10 seconds disconnect timeout
-#define REFUSE_INTERVAL F1_0 * 8
+#define IPX_TIMEOUT (10*F1_0) // 10 seconds disconnect timeout
 
 void net_ipx_send_objects(void);
 void net_ipx_dump_player(ubyte * server, ubyte *node, int why);
-void net_ipx_send_game_info(sequence_packet *their);
+void net_ipx_send_game_info(IPX_sequence_packet *their);
 //end this section change - VR
 
-#ifdef SHAREWARE
-#define PID_REQUEST                             11
-#define PID_SYNC                                13
-#define PID_PDATA                               14
-#define PID_ADDPLAYER                           15
-#define PID_DUMP                                17
-#define PID_ENDLEVEL                            18
-#define PID_QUIT_JOINING                        20
-#define PID_OBJECT_DATA                         21
-#define PID_GAME_LIST                           22
-#define PID_GAME_INFO                           24
-#else
 #define PID_REQUEST                             25
 #define PID_SYNC                                27
 #define PID_PDATA                               28
@@ -185,17 +137,11 @@ void net_ipx_send_game_info(sequence_packet *their);
 #define PID_OBJECT_DATA                         35
 #define PID_GAME_LIST                           36
 #define PID_GAME_INFO                           37
-#endif
 
 #define PID_PING_SEND       73
 #define PID_PING_RETURN     74
 
-#define NETGAME_ANARCHY                 0
-#define NETGAME_TEAM_ANARCHY            1
-#define NETGAME_ROBOT_ANARCHY           2
-#define NETGAME_COOPERATIVE             3
-
-typedef struct endlevel_info {
+typedef struct IPX_endlevel_info {
         ubyte                                   type;
         ubyte                                   player_num;
         sbyte                                    connected;
@@ -203,8 +149,81 @@ typedef struct endlevel_info {
         short                                   kills;
         short                                   killed;
         ubyte                                   seconds_left;
-} __pack__ endlevel_info;
+} __pack__ IPX_endlevel_info;
 
+/* General IPX stuff - START */
+#define MAX_PACKET_DATA		1500
+#define MAX_DATA_SIZE		542
+#define MAX_IPX_DATA		576
+
+#define IPX_DEFAULT_SOCKET 0x5100
+
+#define NETPROTO_IPX		1
+#define NETPROTO_KALINIX	2
+
+typedef struct IPXAddressStruct {
+	ubyte Network[4];
+	ubyte Node[6];
+	ubyte Socket[2];
+} IPXAddress_t;
+
+typedef struct IPXPacketStructure {
+	ushort Checksum;
+	ushort Length;
+	ubyte TransportControl;
+	ubyte PacketType;
+	IPXAddress_t Destination;
+	IPXAddress_t Source;
+} IPXPacket_t;
+
+typedef struct socket_struct {
+	ushort socket;
+	int fd;
+} socket_t;
+
+struct recv_data {
+	/* all network order */
+	ubyte src_network[4];
+	ubyte src_node[6];
+	ushort src_socket;
+	ushort dst_socket;
+	int pkt_type;
+};
+
+struct net_driver {
+	int (*open_socket)(socket_t *sk, int port);
+	void (*close_socket)(socket_t *mysock);
+	int (*send_packet)(socket_t *mysock, IPXPacket_t *IPXHeader, ubyte *data, int dataLen);
+	int (*receive_packet)(socket_t *s, char *buffer, int bufsize, struct recv_data *rec);
+	int (*packet_ready)(socket_t *s);
+	int usepacketnum;//we can save 4 bytes
+	int type; // type of driver (NETPROTO_*). Can be used to make driver-specific rules in other parts of the multiplayer code.
+};
+
+extern int ipxdrv_general_packet_ready(int fd);
+extern void ipxdrv_get_local_target( ubyte * server, ubyte * node, ubyte * local_target );
+extern int ipxdrv_set(int arg);
+extern int ipxdrv_change_default_socket( ushort socket_number );
+extern ubyte * ipxdrv_get_my_local_address();
+extern ubyte * ipxdrv_get_my_server_address();
+extern int ipxdrv_get_packet_data( ubyte * data );
+extern void ipxdrv_send_broadcast_packet_data( ubyte * data, int datasize );
+extern void ipxdrv_send_packet_data( ubyte * data, int datasize, ubyte *network, ubyte *address, ubyte *immediate_address );
+extern void ipxdrv_send_internetwork_packet_data( ubyte * data, int datasize, ubyte * server, ubyte *address );
+extern int ipxdrv_type(void);
+
+#ifndef __APPLE__
+extern struct net_driver ipxdrv_ipx;
+#endif
+#ifdef __LINUX__
+extern struct net_driver ipxdrv_kali;
+#endif
+
+extern unsigned char MyAddress[10];
+extern ubyte broadcast_addr[];
+extern ubyte null_addr[];
+extern u_int32_t ipx_network;
+/* General IPX stuff - END */
 #endif
 #endif
  

@@ -409,7 +409,7 @@ int choose_drop_segment(void)
 	while ((segnum == -1) && (cur_drop_depth > BASE_NET_DROP_DEPTH/2)) {
 		pnum = (d_rand() * N_players) >> 15;
 		count = 0;
-		while ((Players[pnum].connected == 0) && (count < N_players)) {
+		while ((Players[pnum].connected == CONNECT_DISCONNECTED) && (count < N_players)) {
 			pnum = (pnum+1)%N_players;
 			count++;
 		}

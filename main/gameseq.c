@@ -449,7 +449,7 @@ void DoGameOver()
 
 	Function_mode = FMODE_MENU;
 	Game_mode = GM_GAME_OVER;
-	longjmp( LeaveGame, 1 );		// Exit out of game loop
+	longjmp( LeaveGame, 0 );		// Exit out of game loop
 
 }
 
@@ -963,7 +963,7 @@ void DoEndLevelScoreGlitz(int network)
 
 #ifdef NETWORK
 	if ( network && (Game_mode & GM_NETWORK) )
-		newmenu_do2(NULL, title, c, m, multi_endlevel_poll2, 0, Menu_pcx_name);
+		newmenu_do2(NULL, title, c, m, multi_endlevel_poll1, 0, Menu_pcx_name);
 	else
 #endif	// Note link!
 		newmenu_do2(NULL, title, c, m, DoEndLevelScoreGlitzPoll, 0, Menu_pcx_name);
@@ -994,9 +994,9 @@ void PlayerFinishedLevel(int secret_flag)
 	if (Game_mode & GM_NETWORK)
          {
 		if (secret_flag)
-			Players[Player_num].connected = 4; // Finished and went to secret level
+			Players[Player_num].connected = CONNECT_FOUND_SECRET; // Finished and went to secret level
 		else
-			Players[Player_num].connected = 2; // Finished but did not die
+			Players[Player_num].connected = CONNECT_WAITING; // Finished but did not die
          }
 	last_drawn_cockpit = -1;
 
@@ -1029,10 +1029,10 @@ void PlayerFinishedLevel(int secret_flag)
 		if (PLAYING_BUILTIN_MISSION)
 #endif
 			scores_maybe_add_player(0);
-		longjmp( LeaveGame, 1 );		// Exit out of game loop
+		longjmp( LeaveGame, 0 );		// Exit out of game loop
 	}
 	else if (rval)
-		longjmp( LeaveGame, 1 );
+		longjmp( LeaveGame, 0 );
 }
 
 
@@ -1172,7 +1172,7 @@ void DoPlayerDead()
 		Players[Player_num].hostages_on_board = 0;
 		Players[Player_num].energy = 0;
 		Players[Player_num].shields = 0;
-		Players[Player_num].connected = 3;
+		Players[Player_num].connected = CONNECT_DIED_IN_MINE;
 
 		died_in_mine_message(); // Give them some indication of what happened
 
@@ -1209,7 +1209,7 @@ void DoPlayerDead()
 			if (PLAYING_BUILTIN_MISSION)
 #endif
 				scores_maybe_add_player(0);
-			longjmp( LeaveGame, 1 );		// Exit out of game loop
+			longjmp( LeaveGame, 0 );		// Exit out of game loop
 		}
 	} else {
 		init_player_stats_new_ship();
@@ -1456,7 +1456,6 @@ void StartLevel(int random)
 		if (Game_mode & GM_MULTI_COOP)
 			multi_send_score();
 #endif
-		multi_send_position(Players[Player_num].objnum);
 	 	multi_send_reappear();
 	}		
 
