@@ -316,7 +316,6 @@ void net_udp_game_connect(struct _sockaddr HostAddr)
 {
 	fix start_time = 0, time = 0, last_time = 0;
 
-	net_udp_init();
 	N_players = 0;
 	change_playernum_to(1);
 	start_time = timer_get_fixed_seconds();
@@ -399,12 +398,14 @@ void net_udp_manual_join_game()
 {
 	struct _sockaddr HostAddr;
 	newmenu_item m[6];
-	int choice = 0, nitems = 0, j = 0;
+	int choice = 0, nitems = 0;
 	int old_game_mode;
 	char addrbuf[128]="";
 	char portbuf[6]="";
 
 	setjmp(LeaveGame);
+
+	net_udp_init();
 
 	memset(&addrbuf,'\0', sizeof(char)*128);
 	snprintf(addrbuf, sizeof(char)*(strlen(GameArg.MplUdpHostAddr)+1), "%s", GameArg.MplUdpHostAddr);
@@ -510,6 +511,11 @@ void net_udp_init()
 	// straight
 
 	int save_pnum = Player_num;
+
+	if( UDP_Socket[0] != -1 )
+		udp_close_socket(0);
+	if( UDP_Socket[1] != -1 )
+		udp_close_socket(1);
 
 	game_disable_cheats();
 
@@ -1858,28 +1864,25 @@ void net_udp_process_game_info(ubyte *data, int data_len, struct _sockaddr game_
 void net_udp_process_dump(ubyte *data, int len, struct _sockaddr sender_addr)
 {
 	// Our request for join was denied.  Tell the user why.
-	char temp[40];
-	
 	if (memcmp((struct _sockaddr *)&sender_addr,(struct _sockaddr *)&Netgame.players[0].protocol.udp.addr,sizeof(struct _sockaddr)))
 		return;
 
-	if (data[1]!=DUMP_KICKED)
+	if (data[1]==DUMP_KICKED)
 	{
-		nm_messagebox(NULL, 1, TXT_OK, NET_DUMP_STRINGS(data[1]));
-		Network_status = NETSTAT_MENU;
+		if (Network_status==NETSTAT_PLAYING)
+			multi_leave_game();
+		Function_mode = FMODE_MENU;
+		nm_messagebox(NULL, 1, TXT_OK, "%s has kicked you out!",Players[0].callsign);
+		Function_mode = FMODE_GAME;
+		multi_quit_game = 1;
+		multi_leave_menu = 1;
+		multi_reset_stuff();
+		Function_mode = FMODE_MENU;
 	}
 	else
 	{
-		sprintf (temp,"%s has kicked you out!",Netgame.players[0].callsign);
-		nm_messagebox(NULL, 1, TXT_OK, &temp);
-		if (Network_status==NETSTAT_PLAYING)
-		{
-			multi_leave_game();
-		}
-		else
-		{
-			Network_status = NETSTAT_MENU;
-		}
+		nm_messagebox(NULL, 1, TXT_OK, NET_DUMP_STRINGS(data[1]));
+		Network_status = NETSTAT_MENU;
  	}
 }
 	
@@ -2235,6 +2238,10 @@ void net_udp_sync_poll( int nitems, newmenu_item * menus, int * key, int citem )
 	nitems = nitems;
 
 	net_udp_listen();
+
+	// Leave if Host disconnects
+	if (Netgame.players[0].connected == CONNECT_DISCONNECTED)
+		*key = -2;
 
 	if (Network_status != NETSTAT_WAITING)	// Status changed to playing, exit the menu
 		*key = -2;
@@ -3270,6 +3277,11 @@ void net_udp_leave_game()
 	change_playernum_to(0);
 	Game_mode = GM_GAME_OVER;
 	net_udp_flush();
+
+	if( UDP_Socket[0] != -1 )
+		udp_close_socket(0);
+	if( UDP_Socket[1] != -1 )
+		udp_close_socket(1);
 }
 
 void net_udp_flush()
