@@ -890,10 +890,10 @@ net_ipx_kmatrix_poll1( int nitems, newmenu_item * menus, int * key, int citem )
 
 	// Send our endlevel packet at regular intervals
 
-	if (timer_get_approx_seconds() > (t1+ENDLEVEL_SEND_INTERVAL))
+	if (timer_get_fixed_seconds() > (t1+ENDLEVEL_SEND_INTERVAL))
 	{
 		net_ipx_send_endlevel_packet();
-		t1 = timer_get_approx_seconds();
+		t1 = timer_get_fixed_seconds();
 	}
 
 	net_ipx_listen();
@@ -930,7 +930,7 @@ net_ipx_kmatrix_poll2( int nitems, newmenu_item * menus, int * key, int citem )
 	nitems = nitems;
 	key = key;
 
-	if (timer_get_approx_seconds() > (StartAbortMenuTime+(F1_0 * 8)))
+	if (timer_get_fixed_seconds() > (StartAbortMenuTime+(F1_0 * 8)))
     *key=-2;
 
 
@@ -966,7 +966,7 @@ net_ipx_endlevel(int *secret)
 
 	for (i=0; i<N_players; i++) 
 	{
-		Netgame.players[i].LastPacketTime = timer_get_approx_seconds();
+		Netgame.players[i].LastPacketTime = timer_get_fixed_seconds();
 	}
    
 	net_ipx_send_endlevel_packet();
@@ -1218,7 +1218,7 @@ void net_ipx_welcome_player(IPX_sequence_packet *their)
 			// disconnected and replace the oldest player with this new one
 		
 			int oldest_player = -1;
-			fix oldest_time = timer_get_approx_seconds();
+			fix oldest_time = timer_get_fixed_seconds();
 			int activeplayers = 0;
 
 			Assert(N_players == MaxNumNetPlayers);
@@ -1742,7 +1742,7 @@ void net_ipx_send_rejoin_sync(int player_num)
 	int i, j;
 
 	Players[player_num].connected = CONNECT_PLAYING; // connect the new guy
-	Netgame.players[player_num].LastPacketTime = timer_get_approx_seconds();
+	Netgame.players[player_num].LastPacketTime = timer_get_fixed_seconds();
 
 	if (Endlevel_sequence || Control_center_destroyed)
 	{
@@ -1848,7 +1848,7 @@ void net_ipx_add_player(IPX_sequence_packet *p)
 
 	Players[N_players].KillGoalCount=0;
 	Players[N_players].connected = CONNECT_PLAYING;
-	Netgame.players[N_players].LastPacketTime = timer_get_approx_seconds();
+	Netgame.players[N_players].LastPacketTime = timer_get_fixed_seconds();
 	N_players++;
 	Netgame.numplayers = N_players;
 
@@ -2671,7 +2671,7 @@ net_ipx_read_endlevel_packet( ubyte *data )
 	if ((Players[playernum].connected == CONNECT_PLAYING) && (end->seconds_left < Countdown_seconds_left))
 		Countdown_seconds_left = end->seconds_left;
 
-	Netgame.players[playernum].LastPacketTime = timer_get_approx_seconds();
+	Netgame.players[playernum].LastPacketTime = timer_get_fixed_seconds();
 }
 
 void
@@ -2704,7 +2704,7 @@ net_ipx_read_endlevel_short_packet( ubyte *data )
 	if ((Players[playernum].connected == CONNECT_PLAYING) && (end->seconds_left < Countdown_seconds_left))
 		Countdown_seconds_left = end->seconds_left;
 
-	Netgame.players[playernum].LastPacketTime = timer_get_approx_seconds();
+	Netgame.players[playernum].LastPacketTime = timer_get_fixed_seconds();
 }
 
 
@@ -2867,13 +2867,13 @@ void net_ipx_sync_poll( int nitems, newmenu_item * menus, int * key, int citem )
 	if (Network_status != NETSTAT_WAITING)  // Status changed to playing, exit the menu
 		*key = -2;
 
-	if (Network_status != NETSTAT_MENU && !Network_rejoined && (timer_get_approx_seconds() > t1+F1_0*2))
+	if (Network_status != NETSTAT_MENU && !Network_rejoined && (timer_get_fixed_seconds() > t1+F1_0*2))
 	{
 		int i;
 
 		// Poll time expired, re-send request
 		
-		t1 = timer_get_approx_seconds();
+		t1 = timer_get_fixed_seconds();
 
 		i = net_ipx_send_request();
 		if (i < 0)
@@ -3223,9 +3223,9 @@ net_ipx_find_game(void)
 	show_boxed_message(TXT_WAIT, 0);
 
 	net_ipx_send_game_list_request();
-	t1 = timer_get_approx_seconds() + F1_0*3;
+	t1 = timer_get_fixed_seconds() + F1_0*3;
 
-	while (timer_get_approx_seconds() < t1) // Wait 3 seconds for replies
+	while (timer_get_fixed_seconds() < t1) // Wait 3 seconds for replies
 		net_ipx_listen();
 
 	if (num_active_ipx_games < IPX_MAX_NETGAMES)
@@ -3711,8 +3711,8 @@ void net_ipx_join_poll( int nitems, newmenu_item * menus, int * key, int citem )
 
 	// send a request for game info every 3 seconds
 
-	if (timer_get_approx_seconds() > t1+F1_0*3) {
-		t1 = timer_get_approx_seconds();
+	if (timer_get_fixed_seconds() > t1+F1_0*3) {
+		t1 = timer_get_fixed_seconds();
 		net_ipx_send_game_list_request();
 	}
 
@@ -3880,10 +3880,10 @@ net_ipx_request_poll( int nitems, newmenu_item * menus, int * key, int citem )
 
 	// Send our endlevel packet at regular intervals
 
-//      if (timer_get_approx_seconds() > t1+ENDLEVEL_SEND_INTERVAL)
+//      if (timer_get_fixed_seconds() > t1+ENDLEVEL_SEND_INTERVAL)
 //      {
 //              net_ipx_send_endlevel_packet();
-//              t1 = timer_get_approx_seconds();
+//              t1 = timer_get_fixed_seconds();
 //      }
 
 	net_ipx_listen();
@@ -4169,10 +4169,10 @@ void net_ipx_wait_all_poll( int nitems, newmenu_item * menus, int * key, int cit
   nitems=nitems;
   citem=citem;
 
-  if (timer_get_approx_seconds() > t1+ALL_INFO_REQUEST_INTERVAL)
+  if (timer_get_fixed_seconds() > t1+ALL_INFO_REQUEST_INTERVAL)
 	{
 		net_ipx_send_all_info_request(PID_SEND_ALL_GAMEINFO,SecurityCheck);
-		t1 = timer_get_approx_seconds();
+		t1 = timer_get_fixed_seconds();
 	}
 
   net_ipx_do_big_wait(WaitAllChoice);  
@@ -4190,7 +4190,7 @@ int net_ipx_wait_for_all_info (int choice)
   m[0].type=NM_TYPE_TEXT; m[0].text = "Press Escape to cancel";
 
   WaitAllChoice=choice;
-  StartWaitAllTime=timer_get_approx_seconds();
+  StartWaitAllTime=timer_get_fixed_seconds();
   SecurityCheck=Active_ipx_games[choice].protocol.ipx.Game_Security;
   NetSecurityFlag=0;
 
@@ -4363,9 +4363,9 @@ int net_ipx_wait_for_playerinfo()
 		return (0);
 	}
 
-	basetime=timer_get_approx_seconds();
+	basetime=timer_get_fixed_seconds();
 
-	while (WaitingForPlayerInfo && retries<50 && (timer_get_approx_seconds()<(basetime+(F1_0*5))))
+	while (WaitingForPlayerInfo && retries<50 && (timer_get_fixed_seconds()<(basetime+(F1_0*5))))
 	{
 		size = ipxdrv_get_packet_data( packet );
 		id = packet[0];
@@ -4533,7 +4533,7 @@ void net_ipx_do_frame(int force, int listen)
 		NakedPacketDestPlayer=-1;
 	}
 
-	if (WaitForRefuseAnswer && timer_get_approx_seconds()>(RefuseTimeLimit+(F1_0*12)))
+	if (WaitForRefuseAnswer && timer_get_fixed_seconds()>(RefuseTimeLimit+(F1_0*12)))
 		WaitForRefuseAnswer=0;
 
 	last_send_time += FrameTime;
@@ -4621,10 +4621,10 @@ void net_ipx_do_frame(int force, int listen)
 			{
 				if (Player_is_dead)
 					Players[Player_num].connected=CONNECT_DIED_IN_MINE;
-				if (timer_get_approx_seconds() > (LastEndlevel+(F1_0/2)))
+				if (timer_get_fixed_seconds() > (LastEndlevel+(F1_0/2)))
 				{
 					net_ipx_send_endlevel_packet();
-					LastEndlevel=timer_get_approx_seconds();
+					LastEndlevel=timer_get_fixed_seconds();
 				}
 			}
 		}
@@ -4635,7 +4635,7 @@ void net_ipx_do_frame(int force, int listen)
 
 	if ((last_timeout_check > F1_0) && !(Control_center_destroyed))
 	{
-		fix approx_time = timer_get_approx_seconds();
+		fix approx_time = timer_get_fixed_seconds();
 		// Check for player timeouts
 		for (i = 0; i < N_players; i++)
 		{
@@ -4743,7 +4743,7 @@ void net_ipx_read_pdata_packet(IPX_frame_info *pd)
 	//------------- Keep track of missed packets -----------------
 	Players[TheirPlayernum].n_packets_got++;
 	IPX_TotalPacketsGot++;
-	Netgame.players[TheirPlayernum].LastPacketTime = timer_get_approx_seconds();
+	Netgame.players[TheirPlayernum].LastPacketTime = timer_get_fixed_seconds();
 
 	if  ( pd->numpackets != Players[TheirPlayernum].n_packets_got ) {
 		if ((pd->numpackets-Players[TheirPlayernum].n_packets_got)>0)
@@ -4850,7 +4850,7 @@ void net_ipx_read_pdata_short_packet(IPX_short_frame_info *pd)
 	//------------- Keep track of missed packets -----------------
 	Players[TheirPlayernum].n_packets_got++;
 	IPX_TotalPacketsGot++;
-	Netgame.players[TheirPlayernum].LastPacketTime = timer_get_approx_seconds();
+	Netgame.players[TheirPlayernum].LastPacketTime = timer_get_fixed_seconds();
 
 	if  ( pd->numpackets != Players[TheirPlayernum].n_packets_got )      {
 		if ((pd->numpackets-Players[TheirPlayernum].n_packets_got)>0)
@@ -5267,7 +5267,7 @@ void net_ipx_do_refuse_stuff (IPX_sequence_packet *their)
 		}
 	
 		strcpy (RefusePlayerName,their->player.callsign);
-		RefuseTimeLimit=timer_get_approx_seconds();
+		RefuseTimeLimit=timer_get_fixed_seconds();
 		RefuseThisPlayer=0;
 		WaitForRefuseAnswer=1;
 	}
@@ -5310,7 +5310,7 @@ void net_ipx_do_refuse_stuff (IPX_sequence_packet *their)
 			return;
 		}
 
-		if ((timer_get_approx_seconds()) > RefuseTimeLimit+REFUSE_INTERVAL)
+		if ((timer_get_fixed_seconds()) > RefuseTimeLimit+REFUSE_INTERVAL)
 		{
 			RefuseTimeLimit=0;
 			RefuseThisPlayer=0;
@@ -5339,7 +5339,7 @@ int net_ipx_get_new_player_num (IPX_sequence_packet *their)
 			// disconnected and replace the oldest player with this new one
 		
 			int oldest_player = -1;
-			fix oldest_time = timer_get_approx_seconds();
+			fix oldest_time = timer_get_fixed_seconds();
 
 			Assert(N_players == MaxNumNetPlayers);
 

@@ -821,7 +821,7 @@ void SoundQ_end()
 
 void SoundQ_process()
 {	
-	fix curtime = timer_get_approx_seconds();
+	fix curtime = timer_get_fixed_seconds();
 
 	if ( SoundQ_channel > -1 )	{
 		if ( digi_is_channel_playing(SoundQ_channel) )
@@ -859,7 +859,7 @@ void digi_start_sound_queued( short soundnum, fix volume )
 		volume = F1_0 + 1;
 
 	if ( i != SoundQ_head )	{
-		SoundQ[SoundQ_tail].time_added = timer_get_approx_seconds();
+		SoundQ[SoundQ_tail].time_added = timer_get_fixed_seconds();
 		SoundQ[SoundQ_tail].soundnum = soundnum;
 		SoundQ_num++;
 		SoundQ_tail = i;

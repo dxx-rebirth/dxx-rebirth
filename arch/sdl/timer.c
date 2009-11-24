@@ -10,11 +10,6 @@
 #include "timer.h"
 #include "config.h"
 
-fix timer_get_approx_seconds(void)
-{
-	return approx_msec_to_fsec(SDL_GetTicks());
-}
-
 fix timer_get_fixed_seconds(void)
 {
 	fix x;
