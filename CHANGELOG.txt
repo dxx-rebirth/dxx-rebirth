@@ -6,6 +6,7 @@ include/args.h, main/net_udp.c, main/net_udp.h, main/gameseg.c, main/fireball.c,
 main/net_udp.c: Remove the IP check when processing game info or version deny as the IP might be translated (IPv6 especially)
 main/net_udp.c, main/net_ipx.c, SConstruct: Improved Disconnect-handling between levels; Improved Kick-handling; Do not say that IPv4 and IPv6 builds are not compatible in scons -h anymore
 include/timer.h, main/net_udp.c, main/newmenu.c, main/multibot.c, main/menu.c, main/titles.c, main/kmatrix.c, main/net_ipx.c, main/gameseq.c, main/digiobj.c, arch/sdl/timer.c: Removed timer_get_approx_seconds() and replaced with timer_get_fixed seconds since it was too inaccurate and created significant offset
+main/net_udp.c: Again making the joining safer
 
 20091122
 --------

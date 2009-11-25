@@ -768,7 +768,7 @@ void net_udp_welcome_player(UDP_sequence_packet *their)
 
 	for (i = 0; i < N_players; i++)
 	{
-		if (!memcmp((struct _sockaddr *)&their->player.protocol.udp.addr, (struct _sockaddr *)&Netgame.players[i].protocol.udp.addr, sizeof(struct _sockaddr)))
+		if ((!strcasecmp(Players[i].callsign, their->player.callsign )) && !memcmp((struct _sockaddr *)&their->player.protocol.udp.addr, (struct _sockaddr *)&Netgame.players[i].protocol.udp.addr, sizeof(struct _sockaddr)))
 		{
 			player_num = i;
 			break;
@@ -865,6 +865,7 @@ void net_udp_welcome_player(UDP_sequence_packet *their)
 	UDP_sync_player.player.connected = player_num;
 	Network_send_objects = 1;
 	Network_send_objnum = -1;
+	Netgame.players[player_num].LastPacketTime = timer_get_fixed_seconds();
 
 	net_udp_send_objects();
 }
@@ -1341,11 +1342,13 @@ char * net_udp_get_player_name( int objnum )
 void net_udp_add_player(UDP_sequence_packet *p)
 {
 	int i;
+	fix time = timer_get_fixed_seconds();
 
 	for (i=0; i<N_players; i++ )
 	{
 		if ( !memcmp( (struct _sockaddr *)&Netgame.players[i].protocol.udp.addr, (struct _sockaddr *)&p->player.protocol.udp.addr, sizeof(struct _sockaddr)))
 		{
+			Netgame.players[i].LastPacketTime = time;
 			return;		// already got them
 		}
 	}
@@ -1362,7 +1365,7 @@ void net_udp_add_player(UDP_sequence_packet *p)
 	Netgame.players[N_players].rank=p->player.rank;
 	Netgame.players[N_players].connected = CONNECT_PLAYING;
 	Players[N_players].connected = CONNECT_PLAYING;
-	Netgame.players[N_players].LastPacketTime = timer_get_fixed_seconds();
+	Netgame.players[N_players].LastPacketTime = time;
 	N_players++;
 	Netgame.numplayers = N_players;
 
@@ -1892,9 +1895,10 @@ void net_udp_process_request(UDP_sequence_packet *their)
 	int i;
 
 	for (i = 0; i < N_players; i++)
-		if (!memcmp((struct _sockaddr *)&their->player.protocol.udp.addr, (struct _sockaddr *)&Netgame.players[i].protocol.udp.addr, sizeof(struct _sockaddr)))
+		if (!memcmp((struct _sockaddr *)&their->player.protocol.udp.addr, (struct _sockaddr *)&Netgame.players[i].protocol.udp.addr, sizeof(struct _sockaddr)) && (!strcasecmp(their->player.callsign, Netgame.players[i].callsign)))
 		{
 			Players[i].connected = CONNECT_PLAYING;
+			Netgame.players[i].LastPacketTime = timer_get_fixed_seconds();
 			break;
 		}
 }
@@ -2784,7 +2788,7 @@ int net_udp_send_sync(void)
 	}
 
 	// Randomize their starting locations...
-
+	d_srand( timer_get_fixed_seconds() );
 	for (i=0; i<NumNetPlayerPositions; i++ )        
 	{
 		if (Players[i].connected)
@@ -3361,9 +3365,8 @@ void net_udp_timeout_check(fix time)
 				if ((Netgame.players[i].LastPacketTime == 0) || (Netgame.players[i].LastPacketTime > time))
 				{
 					Netgame.players[i].LastPacketTime = time;
-					continue;
 				}
-				if ((time - Netgame.players[i].LastPacketTime) > UDP_TIMEOUT)
+				else if ((time - Netgame.players[i].LastPacketTime) > UDP_TIMEOUT)
 				{
 					net_udp_timeout_player(i);
 				}
