@@ -1,5 +1,9 @@
 D1X-Rebirth Changelog
 
+20091127
+--------
+main/fireball.c, main/gameseq.c, main/menu.c: Fix some compile errors, including for the non-NETWORK build
+
 20091124
 --------
 include/args.h, main/net_udp.c, main/net_udp.h, main/gameseg.c, main/fireball.c, main/multi.c, main/multi.h, main/inferno.c, main/menu.c, main/titles.c, main/object.c, main/kmatrix.c, main/kmatrix.h, main/newdemo.c, main/config.c, main/net_ipx.c, main/config.h, main/net_ipx.h, main/gameseq.c, main/gamerend.c, main/vers_id.h, main/gauges.c, main/gamecntl.c, INSTALL.txt, misc/args.c, SConstruct, d1x.ini, README.txt, arch/linux/ipx.c, arch/linux/ipx_kali.c, arch/win32/ipx.c: Abstracting networking protocols - Step 4: Implemented new UDP layer with Client/Server communication, Packet Loss Prevention and strict Version checking. Netgames list will follow later.

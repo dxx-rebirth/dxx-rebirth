@@ -391,6 +391,7 @@ int pick_connected_segment(object *objp, int max_depth)
 
 #define	BASE_NET_DROP_DEPTH	10
 
+#ifdef NETWORK
 //	------------------------------------------------------------------------------------------------------
 //	Choose segment to drop a powerup in.
 //	For all active net players, try to create a N segment path from the player.  If possible, return that
@@ -431,7 +432,6 @@ int choose_drop_segment(void)
 
 }
 
-#ifdef NETWORK
 //	------------------------------------------------------------------------------------------------------
 //	Drop cloak powerup if in a network game.
 void maybe_drop_net_powerup(int powerup_type)

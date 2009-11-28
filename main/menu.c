@@ -774,7 +774,7 @@ void do_misc_menu()
 	} while( i>-1 );
 
 }
-#define ADD_ITEM(t,value,key)  do { m[num_options].type=NM_TYPE_MENU; m[num_options].text=t; menu_choice[num_options]=value;num_options++; } while (0)
+
 #ifdef NETWORK
 void do_multi_player_menu()
 {

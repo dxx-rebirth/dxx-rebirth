@@ -978,6 +978,7 @@ void PlayerFinishedLevel(int secret_flag)
 
 // -- mk mk mk -- used to be here -- mk mk mk --
 
+#ifdef NETWORK
 	if (Game_mode & GM_NETWORK)
          {
 		if (secret_flag)
@@ -985,6 +986,7 @@ void PlayerFinishedLevel(int secret_flag)
 		else
 			Players[Player_num].connected = CONNECT_WAITING; // Finished but did not die
          }
+#endif
 	last_drawn_cockpit = -1;
 
 	if (Current_level_num == Last_level) {
@@ -1159,7 +1161,9 @@ void DoPlayerDead()
 		Players[Player_num].hostages_on_board = 0;
 		Players[Player_num].energy = 0;
 		Players[Player_num].shields = 0;
+#ifdef NETWORK
 		Players[Player_num].connected = CONNECT_DIED_IN_MINE;
+#endif
 
 		died_in_mine_message(); // Give them some indication of what happened
 
