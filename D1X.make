@@ -101,20 +101,18 @@ SrcFiles        =  ¶
 				  :main:hud.c ¶
 				  :main:inferno.c ¶
 				  :main:kconfig.c ¶
-#				  :main:kmatrix.c ¶
+				  :main:kmatrix.c ¶
 				  :main:laser.c ¶
 				  :main:lighting.c ¶
 				  :main:menu.c ¶
 				  :main:mglobal.c ¶
 				  :main:mission.c ¶
 				  :main:morph.c ¶
-#				  :main:multi.c ¶
-#				  :main:multibot.c ¶
-#				  :main:multipow.c ¶
-#				  :main:netdrv.c ¶
-#				  :main:netdrv_udp.c ¶
-#				  :main:netpkt.c ¶
-#				  :main:network.c ¶
+				  :main:multi.c ¶
+				  :main:multibot.c ¶
+				  :main:multipow.c ¶
+				  :main:net_ipx.c ¶
+				  :main:net_udp.c ¶
 				  :main:newdemo.c ¶
 				  :main:newmenu.c ¶
 				  :main:object.c ¶
@@ -240,20 +238,18 @@ GeneralObjects    =  ¶
 				  {ObjDir}hud.c.x ¶
 				  {ObjDir}inferno.c.x ¶
 				  {ObjDir}kconfig.c.x ¶
-#				  {ObjDir}kmatrix.c.x ¶
+				  {ObjDir}kmatrix.c.x ¶
 				  {ObjDir}laser.c.x ¶
 				  {ObjDir}lighting.c.x ¶
 				  {ObjDir}menu.c.x ¶
 				  {ObjDir}mglobal.c.x ¶
 				  {ObjDir}mission.c.x ¶
 				  {ObjDir}morph.c.x ¶
-#				  {ObjDir}multi.c.x ¶
-#				  {ObjDir}multibot.c.x ¶
-#				  {ObjDir}multipow.c.x ¶
-#				  {ObjDir}netdrv.c.x ¶
-#				  {ObjDir}netdrv_udp.c.x ¶
-#				  {ObjDir}netpkt.c.x ¶
-#				  {ObjDir}network.c.x ¶
+				  {ObjDir}multi.c.x ¶
+				  {ObjDir}multibot.c.x ¶
+				  {ObjDir}multipow.c.x ¶
+				  {ObjDir}net_ipx.c.x ¶
+				  {ObjDir}net_udp.c.x ¶
 				  {ObjDir}newdemo.c.x ¶
 				  {ObjDir}newmenu.c.x ¶
 				  {ObjDir}object.c.x ¶
@@ -428,20 +424,18 @@ directories Ä
 {ObjDir}hud.c.x	Ä	:main:hud.c
 {ObjDir}inferno.c.x	Ä	:main:inferno.c
 {ObjDir}kconfig.c.x	Ä	:main:kconfig.c
-#{ObjDir}kmatrix.c.x	Ä	:main:kmatrix.c
+{ObjDir}kmatrix.c.x	Ä	:main:kmatrix.c
 {ObjDir}laser.c.x	Ä	:main:laser.c
 {ObjDir}lighting.c.x	Ä	:main:lighting.c
 {ObjDir}menu.c.x	Ä	:main:menu.c
 {ObjDir}mglobal.c.x	Ä	:main:mglobal.c
 {ObjDir}mission.c.x	Ä	:main:mission.c
 {ObjDir}morph.c.x	Ä	:main:morph.c
-#{ObjDir}multi.c.x	Ä	:main:multi.c
-#{ObjDir}multibot.c.x	Ä	:main:multibot.c
-#{ObjDir}multipow.c.x	Ä	:main:multipow.c
-#{ObjDir}netdrv.c.x	Ä	:main:netdrv.c
-#{ObjDir}netdrv_udp.c.x	Ä	:main:netdrv_udp.c
-#{ObjDir}netpkt.c.x	Ä	:main:netpkt.c
-#{ObjDir}network.c.x	Ä	:main:network.c
+{ObjDir}multi.c.x	Ä	:main:multi.c
+{ObjDir}multibot.c.x	Ä	:main:multibot.c
+{ObjDir}multipow.c.x	Ä	:main:multipow.c
+{ObjDir}net_ipx.c.x	Ä	:main:net_ipx.c
+{ObjDir}net_udp.c.x	Ä	:main:net_udp.c
 {ObjDir}newdemo.c.x	Ä	:main:newdemo.c
 {ObjDir}newmenu.c.x	Ä	:main:newmenu.c
 {ObjDir}object.c.x	Ä	:main:object.c

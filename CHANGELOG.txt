@@ -1,5 +1,9 @@
 D1X-Rebirth Changelog
 
+20091128
+--------
+main/net_udp.c, main/menu.c, d1x-rebirth.xcodeproj, D1X.make, arch/carbon/conf.h: Fixed building error on Windows caused by false socket variable; Fixed compiler Warnings on Mac; Updated Mac build files; Unification in version numbering
+
 20091127
 --------
 main/fireball.c, main/gameseq.c, main/menu.c: Fix some compile errors, including for the non-NETWORK build

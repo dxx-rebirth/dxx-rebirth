@@ -9,10 +9,10 @@
 #define D1XMAJOR "0"
 
 /* d2x minor version */
-#define D1XMINOR "5"
+#define D1XMINOR "55"
 
 /* d2x micro version */
-#define D1XMICRO "5.1"
+#define D1XMICRO "1"
 
 #define PROGRAM_NAME "D1X-Rebirth"
 
@@ -52,7 +52,7 @@
 #if defined(__APPLE__) && defined(__MACH__)
 # define __unix__
 /* Define if you want a network build */
-//# define NETWORK	//FIXME: TURN BACK ON WHEN ZICO FINISHES!!!
+# define NETWORK
 #else // Mac OS 9
 # ifndef __MWERKS__
 #  define inline

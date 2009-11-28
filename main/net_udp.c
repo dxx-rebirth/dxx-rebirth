@@ -202,7 +202,7 @@ int udp_open_socket(int socknum, int port)
 	{      
 		con_printf(CON_URGENT,"udp_open_socket: bind name to socket failed\n");
 		nm_messagebox(TXT_ERROR,1,TXT_OK,"Could not bind name to socket");
-		udp_close_socket(sock);
+		udp_close_socket(socknum);
 		return -1;
 	}
 #else
@@ -297,7 +297,7 @@ int udp_receive_packet(int socknum, ubyte *text, int len, struct _sockaddr *send
 
 	if (udp_general_packet_ready(socknum))
 	{
-		msglen = recvfrom (UDP_Socket[socknum], text, len, 0, sender_addr, &clen);
+		msglen = recvfrom (UDP_Socket[socknum], text, len, 0, (struct sockaddr *)sender_addr, &clen);
 
 		if (msglen < 0)
 			return 0;
@@ -487,7 +487,7 @@ void net_udp_send_sequence_packet(UDP_sequence_packet seq, struct _sockaddr recv
 	buf[len] = seq.player.connected;							len++;
 	buf[len] = seq.player.rank;									len++;
 	
-	sendto (UDP_Socket[0], buf, len, 0, (struct _sockaddr *)&recv_addr, sizeof(struct _sockaddr));
+	sendto (UDP_Socket[0], buf, len, 0, (struct sockaddr *)&recv_addr, sizeof(struct _sockaddr));
 }
 
 void net_udp_receive_sequence_packet(ubyte *data, UDP_sequence_packet *seq, struct _sockaddr sender_addr)
@@ -1239,7 +1239,7 @@ void net_udp_send_objects(void)
 
 			Assert(loc <= UPKT_MAX_SIZE);
 
-			sendto (UDP_Socket[0], object_buffer, loc, 0, (struct _sockaddr *)&UDP_sync_player.player.protocol.udp.addr, sizeof(struct _sockaddr));
+			sendto (UDP_Socket[0], object_buffer, loc, 0, (struct sockaddr *)&UDP_sync_player.player.protocol.udp.addr, sizeof(struct _sockaddr));
 		}
 
 		if (i > Highest_object_index)
@@ -1260,7 +1260,7 @@ void net_udp_send_objects(void)
 				object_buffer[2] = frame_num;
 				*(short *)(object_buffer+3) = INTEL_SHORT(-2);	
 				*(short *)(object_buffer+6) = INTEL_SHORT(obj_count);
-				sendto (UDP_Socket[0], object_buffer, 8, 0, (struct _sockaddr *)&UDP_sync_player.player.protocol.udp.addr, sizeof(struct _sockaddr));
+				sendto (UDP_Socket[0], object_buffer, 8, 0, (struct sockaddr *)&UDP_sync_player.player.protocol.udp.addr, sizeof(struct _sockaddr));
 
 				// Send sync packet which tells the player who he is and to start!
 				net_udp_send_rejoin_sync(player_num);
@@ -1415,7 +1415,7 @@ void net_udp_dump_player(struct _sockaddr dump_addr, int why)
 	buf[0] = UPID_DUMP;
 	buf[1] = why;
 	
-	sendto (UDP_Socket[0], buf, sizeof(buf), 0, (struct _sockaddr *)&dump_addr, sizeof(struct _sockaddr));
+	sendto (UDP_Socket[0], buf, sizeof(buf), 0, (struct sockaddr *)&dump_addr, sizeof(struct _sockaddr));
 }
 
 void net_udp_update_netgame(void)
@@ -1480,7 +1480,7 @@ void net_udp_send_endlevel_packet(void)
 		}
 
 		for (i = 1; i < MAX_PLAYERS; i++)
-			sendto (UDP_Socket[0], buf, len, 0, (struct _sockaddr *)&Netgame.players[i].protocol.udp.addr, sizeof(struct _sockaddr));
+			sendto (UDP_Socket[0], buf, len, 0, (struct sockaddr *)&Netgame.players[i].protocol.udp.addr, sizeof(struct _sockaddr));
 	}
 	else
 	{
@@ -1500,7 +1500,7 @@ void net_udp_send_endlevel_packet(void)
 			PUT_INTEL_SHORT(buf + len, kill_matrix[Player_num][i]);			len += 2;
 		}
 
-		sendto (UDP_Socket[0], buf, len, 0, (struct _sockaddr *)&Netgame.players[0].protocol.udp.addr, sizeof(struct _sockaddr));
+		sendto (UDP_Socket[0], buf, len, 0, (struct sockaddr *)&Netgame.players[0].protocol.udp.addr, sizeof(struct _sockaddr));
 	}
 }
 
@@ -1511,7 +1511,7 @@ void net_udp_send_version_deny(struct _sockaddr sender_addr)
 	buf[0] = UPID_VERSION_DENY;
 	PUT_INTEL_INT(buf + 1, D1X_IVER);
 	
-	sendto (UDP_Socket[0], buf, sizeof(buf), 0, (struct _sockaddr *)&sender_addr, sizeof(struct _sockaddr));
+	sendto (UDP_Socket[0], buf, sizeof(buf), 0, (struct sockaddr *)&sender_addr, sizeof(struct _sockaddr));
 }
 
 void net_udp_process_version_deny(ubyte *data, struct _sockaddr sender_addr)
@@ -1528,7 +1528,7 @@ void net_udp_request_game_info(struct _sockaddr game_addr, int lite)
 	memcpy(&(buf[1]), UDP_REQ_ID, 4);
 	PUT_INTEL_INT(buf + 5, D1X_IVER);
 	
-	sendto (UDP_Socket[0], buf, sizeof(buf), 0, (struct _sockaddr *)&game_addr, sizeof(struct _sockaddr));
+	sendto (UDP_Socket[0], buf, sizeof(buf), 0, (struct sockaddr *)&game_addr, sizeof(struct _sockaddr));
 }
 
 // Check request for game info. Return 1 if sucessful; -1 if version mismatch; 0 if wrong game or some other error - do not process
@@ -1595,7 +1595,7 @@ void net_udp_send_game_info(struct _sockaddr sender_addr, ubyte info_upid)
 		buf[len] = Netgame.game_flags;											len++;
 		buf[len] = Netgame.team_vector;											len++;
 		
-		sendto (UDP_Socket[0], buf, len, 0, (struct _sockaddr *)&sender_addr, sizeof(struct _sockaddr));
+		sendto (UDP_Socket[0], buf, len, 0, (struct sockaddr *)&sender_addr, sizeof(struct _sockaddr));
 	}
 	else
 	{
@@ -1689,7 +1689,7 @@ void net_udp_send_game_info(struct _sockaddr sender_addr, ubyte info_upid)
 		PUT_INTEL_SHORT(buf + len, Netgame.PacketsPerSec);						len += 2;
 		buf[len] = Netgame.PacketLossPrevention;								len++;
 
-		sendto (UDP_Socket[0], buf, len, 0, (struct _sockaddr *)&sender_addr, sizeof(struct _sockaddr));
+		sendto (UDP_Socket[0], buf, len, 0, (struct sockaddr *)&sender_addr, sizeof(struct _sockaddr));
 	}
 }
 
@@ -3523,7 +3523,7 @@ int net_udp_noloss_validate_mdata(uint32_t pkt_num, ubyte sender_pnum, struct _s
 	buf[len] = Player_num;														len++;
 	buf[len] = sender_pnum;														len++;
 	PUT_INTEL_INT(buf + len, pkt_num);											len += 4;
-	sendto (UDP_Socket[0], buf, len, 0, (struct _sockaddr *)&sender_addr, sizeof(struct _sockaddr));
+	sendto (UDP_Socket[0], buf, len, 0, (struct sockaddr *)&sender_addr, sizeof(struct _sockaddr));
 	
 	for (i = 0; i < UDP_MDATA_STOR_QUEUE_SIZE; i++)
 	{
@@ -3632,7 +3632,7 @@ void net_udp_noloss_process_queue(fix time)
 					PUT_INTEL_INT(buf + len, UDP_mdata_queue[queuec].pkt_num);					len += 4;
 					memcpy(&buf[len], UDP_mdata_queue[queuec].data, sizeof(char)*UDP_mdata_queue[queuec].data_size);
 																								len += UDP_mdata_queue[queuec].data_size;
-					sendto (UDP_Socket[0], buf, len, 0, (struct _sockaddr *)&Netgame.players[plc].protocol.udp.addr, sizeof(struct _sockaddr));
+					sendto (UDP_Socket[0], buf, len, 0, (struct sockaddr *)&Netgame.players[plc].protocol.udp.addr, sizeof(struct _sockaddr));
 				}
 				resend++;
 			}
@@ -3692,14 +3692,14 @@ void net_udp_send_mdata(int priority, fix time)
 		{
 			if (Players[i].connected == CONNECT_PLAYING)
 			{
-				sendto (UDP_Socket[0], buf, len, 0, (struct _sockaddr *)&Netgame.players[i].protocol.udp.addr, sizeof(struct _sockaddr));
+				sendto (UDP_Socket[0], buf, len, 0, (struct sockaddr *)&Netgame.players[i].protocol.udp.addr, sizeof(struct _sockaddr));
 				pack[i] = 0;
 			}
 		}
 	}
 	else
 	{
-		sendto (UDP_Socket[0], buf, len, 0, (struct _sockaddr *)&Netgame.players[0].protocol.udp.addr, sizeof(struct _sockaddr));
+		sendto (UDP_Socket[0], buf, len, 0, (struct sockaddr *)&Netgame.players[0].protocol.udp.addr, sizeof(struct _sockaddr));
 		pack[0] = 0;
 	}
 	
@@ -3756,7 +3756,7 @@ void net_udp_process_mdata (ubyte *data, int data_len, struct _sockaddr sender_a
 		{
 			if ((i != pnum) && Players[i].connected == CONNECT_PLAYING)
 			{
-				sendto (UDP_Socket[0], data, data_len, 0, (struct _sockaddr *)&Netgame.players[i].protocol.udp.addr, sizeof(struct _sockaddr));
+				sendto (UDP_Socket[0], data, data_len, 0, (struct sockaddr *)&Netgame.players[i].protocol.udp.addr, sizeof(struct _sockaddr));
 				pack[i] = 0;
 			}
 		}
@@ -3831,7 +3831,7 @@ void net_udp_send_pdata()
 				}
 			}
 
-			sendto (UDP_Socket[0], buf, len, 0, (struct _sockaddr *)&Netgame.players[i].protocol.udp.addr, sizeof(struct _sockaddr));
+			sendto (UDP_Socket[0], buf, len, 0, (struct sockaddr *)&Netgame.players[i].protocol.udp.addr, sizeof(struct _sockaddr));
 		}
 	}
 	else if (Players[Player_num].connected == CONNECT_PLAYING)
@@ -3857,7 +3857,7 @@ void net_udp_send_pdata()
 		PUT_INTEL_SHORT(&buf[len], pos.vely);								len += 2;
 		PUT_INTEL_SHORT(&buf[len], pos.velz);								len += 2;
 
-		sendto (UDP_Socket[0], buf, len, 0, (struct _sockaddr *)&Netgame.players[0].protocol.udp.addr, sizeof(struct _sockaddr));
+		sendto (UDP_Socket[0], buf, len, 0, (struct sockaddr *)&Netgame.players[0].protocol.udp.addr, sizeof(struct _sockaddr));
 	}
 }
 
@@ -4015,7 +4015,7 @@ void net_udp_ping_frame(fix time)
 		{
 			if (Players[i].connected == CONNECT_DISCONNECTED)
 				continue;
-			sendto (UDP_Socket[0], buf, sizeof(buf), 0, (struct _sockaddr *)&Netgame.players[i].protocol.udp.addr, sizeof(struct _sockaddr));
+			sendto (UDP_Socket[0], buf, sizeof(buf), 0, (struct sockaddr *)&Netgame.players[i].protocol.udp.addr, sizeof(struct _sockaddr));
 		}
 		PingTime = time;
 	}
@@ -4045,7 +4045,7 @@ void net_udp_process_ping(ubyte *data, int data_len, struct _sockaddr sender_add
 	buf[1] = Player_num;
 	PUT_INTEL_INT(buf + 2, host_ping_time);
 
-	sendto (UDP_Socket[0], buf, sizeof(buf), 0, (struct _sockaddr *)&sender_addr, sizeof(struct _sockaddr));
+	sendto (UDP_Socket[0], buf, sizeof(buf), 0, (struct sockaddr *)&sender_addr, sizeof(struct _sockaddr));
 }
 
 // Got a PONG from a client. Check the time and add it to our players.
