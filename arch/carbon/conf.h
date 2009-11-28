@@ -9,10 +9,10 @@
 #define D2XMAJOR "0"
 
 /* d2x minor version */
-#define D2XMINOR "5"
+#define D2XMINOR "55"
 
 /* d2x micro version */
-#define D2XMICRO "5.1"
+#define D2XMICRO "1"
 
 /* Define if you want to build the editor */
 /* #undef EDITOR */
@@ -105,7 +105,7 @@
 #if defined(__APPLE__) && defined(__MACH__)
 #define __unix__
 /* Define if you want a network build */
-//# define NETWORK	//FIXME: TURN BACK ON WHEN ZICO FINISHES!!!
+# define NETWORK
 
 /* Define to 1 if the system has the type `struct timespec'. */
 #define HAVE_STRUCT_TIMESPEC 1

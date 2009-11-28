@@ -1,5 +1,9 @@
 D2X-Rebirth Changelog
 
+20091128
+--------
+main/net_udp.c, d2x-rebirth.xcodeproj, D2X.make, arch/carbon/conf.h: Fixed building error on Windows caused by false socket variable; Fixed compiler Warnings on Mac; Updated Mac build files; Unification in version numbering
+
 20091124
 --------
 include/args.h, INSTALL.txt, main/net_udp.c, main/net_udp.h, main/fireball.c, main/multi.c, main/multibot.c, main/multi.h, main/inferno.c, main/menu.c, main/object.c, main/kmatrix.c, main/kmatrix.h, main/newdemo.c, main/config.c, main/net_ipx.c, main/config.h, main/net_ipx.h, main/gamerend.c, main/gameseq.c, main/endlevel.c, main/vers_id.h, main/game.c, main/gauges.c, misc/args.c, SConstruct, d2x.ini, README.txt, arch/linux/ipx.c, arch/linux/ipx_kali.c, arch/win32/ipx.c: Abstracting networking protocols - Step 4: Implemented new UDP layer with Client/Server communication, Packet Loss Prevention and strict Version checking. Netgames list will follow later.
