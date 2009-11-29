@@ -1,5 +1,9 @@
 D1X-Rebirth Changelog
 
+20091129
+--------
+d1x-Info.plist, d1x-rebirth.xcodeproj/project.pbxproj, d1xgl-Info.plist, English.lproj/InfoPlist.strings: Make Mac version numbers consistent, Xcode build settings tidy up
+
 20091128
 --------
 main/net_udp.c, main/menu.c, d1x-rebirth.xcodeproj, D1X.make, arch/carbon/conf.h: Fixed building error on Windows caused by false socket variable; Fixed compiler Warnings on Mac; Updated Mac build files; Unification in version numbering

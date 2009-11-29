@@ -1021,8 +1021,8 @@
 				676032DD066B399A008A67A3 /* multibot.c */,
 				EBEEB2660D2B364300FF39B4 /* mute.c */,
 				EBF658990F936A8400CB5C73 /* net_ipx.c */,
+				17DFA6AF10C1A29500674D11 /* net_udp.c */,
 				67B4473D06687CF400DF26D8 /* newdemo.c */,
-				17DFA6B210C1A2A300674D11 /* net_udp.h */,
 				67B4473F06687CF400DF26D8 /* newmenu.c */,
 				67B4474106687CF400DF26D8 /* object.c */,
 				67B4475906687CF400DF26D8 /* paging.c */,
@@ -1090,7 +1090,7 @@
 				EB0420E70A341042002CC961 /* multibot.h */,
 				EBEEB2670D2B364300FF39B4 /* mute.h */,
 				EBF6589A0F936A8400CB5C73 /* net_ipx.h */,
-				17DFA6AF10C1A29500674D11 /* net_udp.c */,
+				17DFA6B210C1A2A300674D11 /* net_udp.h */,
 				EB01AFA90A65323200EA4C7C /* newdemo.h */,
 				EB0420DE0A341042002CC961 /* newmenu.h */,
 				EB0420DD0A341042002CC961 /* object.h */,
@@ -1562,6 +1562,7 @@
 		29B97313FDCFA39411CA2CEA /* Project object */ = {
 			isa = PBXProject;
 			buildConfigurationList = EBBAD49E0B2D0F7E00080BBF /* Build configuration list for PBXProject "d1x-rebirth" */;
+			compatibilityVersion = "Xcode 2.4";
 			hasScannedForEncodings = 1;
 			mainGroup = 29B97314FDCFA39411CA2CEA /* d1x */;
 			projectDirPath = "";
@@ -2055,10 +2056,6 @@
 		EBBAD4990B2D0F7E00080BBF /* Default */ = {
 			isa = XCBuildConfiguration;
 			buildSettings = {
-				ARCHS = (
-					ppc,
-					i386,
-				);
 				FRAMEWORK_SEARCH_PATHS = "$(HOME)/Library/Frameworks";
 				GCC_PREPROCESSOR_DEFINITIONS = (
 					no_cpp_precomp,
@@ -2074,9 +2071,6 @@
 				);
 				INFOPLIST_FILE = "d1xgl-Info.plist";
 				INSTALL_PATH = "$(USER_APPS_DIR)";
-				MACOSX_DEPLOYMENT_TARGET = 10.1;
-				MACOSX_DEPLOYMENT_TARGET_i386 = 10.4;
-				MACOSX_DEPLOYMENT_TARGET_ppc = 10.2;
 				PRODUCT_NAME = d1xgl;
 				WARNING_CFLAGS = "-Wall";
 			};
@@ -2087,21 +2081,22 @@
 			buildSettings = {
 				GCC_PREFIX_HEADER = arch/carbon/conf.h;
 				GCC_TREAT_WARNINGS_AS_ERRORS = YES;
-				MACOSX_DEPLOYMENT_TARGET = "";
 			};
 			name = Development;
 		};
 		EBBAD4A00B2D0F7E00080BBF /* Deployment */ = {
 			isa = XCBuildConfiguration;
 			buildSettings = {
+				ARCHS = (
+					i386,
+					ppc,
+				);
 				GCC_PREFIX_HEADER = arch/carbon/conf.h;
-				GCC_TREAT_WARNINGS_AS_ERRORS = NO;
 				GCC_VERSION_i386 = 4.0;
 				GCC_VERSION_ppc = 3.3;
-				MACOSX_DEPLOYMENT_TARGET = "";
+				MACOSX_DEPLOYMENT_TARGET = 10.1;
 				MACOSX_DEPLOYMENT_TARGET_i386 = 10.4;
-				MACOSX_DEPLOYMENT_TARGET_ppc = 10.2;
-				SDKROOT = /Developer/SDKs/MacOSX10.3.9.sdk;
+				MACOSX_DEPLOYMENT_TARGET_ppc = 10.1;
 				SDKROOT_i386 = /Developer/SDKs/MacOSX10.4u.sdk;
 				SDKROOT_ppc = /Developer/SDKs/MacOSX10.3.9.sdk;
 			};
@@ -2110,11 +2105,6 @@
 		EBBAD4A10B2D0F7E00080BBF /* Default */ = {
 			isa = XCBuildConfiguration;
 			buildSettings = {
-				GCC_PREFIX_HEADER = arch/carbon/conf.h;
-				MACOSX_DEPLOYMENT_TARGET = "";
-				SDKROOT = /Developer/SDKs/MacOSX10.4u.sdk;
-				SDKROOT_i386 = /Developer/SDKs/MacOSX10.2.8.sdk;
-				SDKROOT_ppc = /Developer/SDKs/MacOSX10.4u.sdk;
 			};
 			name = Default;
 		};
