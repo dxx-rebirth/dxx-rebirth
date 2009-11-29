@@ -1113,6 +1113,7 @@
 				676032DC066B399A008A67A3 /* multi.c */,
 				676032DD066B399A008A67A3 /* multibot.c */,
 				EBF658A00F936D5300CB5C73 /* net_ipx.c */,
+				17DFA6B510C1A2D100674D11 /* net_udp.c */,
 				67B4473D06687CF400DF26D8 /* newdemo.c */,
 				67B4473F06687CF400DF26D8 /* newmenu.c */,
 				67B4474106687CF400DF26D8 /* object.c */,
@@ -1181,7 +1182,6 @@
 				EB0420B90A341041002CC961 /* multi.h */,
 				EB0420E70A341042002CC961 /* multibot.h */,
 				EBF658A10F936D5300CB5C73 /* net_ipx.h */,
-				17DFA6B510C1A2D100674D11 /* net_udp.c */,
 				17DFA6B610C1A2D100674D11 /* net_udp.h */,
 				EB01AFA90A65323200EA4C7C /* newdemo.h */,
 				EB0420DE0A341042002CC961 /* newmenu.h */,
@@ -1627,6 +1627,7 @@
 		29B97313FDCFA39411CA2CEA /* Project object */ = {
 			isa = PBXProject;
 			buildConfigurationList = EBBAD49E0B2D0F7E00080BBF /* Build configuration list for PBXProject "d2x-rebirth" */;
+			compatibilityVersion = "Xcode 2.4";
 			hasScannedForEncodings = 1;
 			mainGroup = 29B97314FDCFA39411CA2CEA /* d2x */;
 			projectDirPath = "";
@@ -2023,16 +2024,7 @@
 			isa = XCBuildConfiguration;
 			buildSettings = {
 				FRAMEWORK_SEARCH_PATHS = "$(HOME)/Library/Frameworks";
-				GCC_PREPROCESSOR_DEFINITIONS = (
-					HAVE_CONFIG_H,
-					EDITOR,
-				);
 				GCC_TREAT_WARNINGS_AS_ERRORS = YES;
-				HEADER_SEARCH_PATHS = (
-					main,
-					"$(HOME)/Library/Frameworks/SDL.framework/Headers",
-					"$(HOME)/Library/Frameworks/physfs.framework/Headers",
-				);
 				INFOPLIST_FILE = "d2x-Info.plist";
 				INSTALL_PATH = "$(USER_APPS_DIR)";
 				PRODUCT_NAME = d2x;
@@ -2086,10 +2078,6 @@
 		EBBAD4990B2D0F7E00080BBF /* Default */ = {
 			isa = XCBuildConfiguration;
 			buildSettings = {
-				ARCHS = (
-					ppc,
-					i386,
-				);
 				FRAMEWORK_SEARCH_PATHS = "$(HOME)/Library/Frameworks";
 				GCC_PREPROCESSOR_DEFINITIONS = (
 					no_cpp_precomp,
@@ -2097,16 +2085,9 @@
 					NDEBUG,
 				);
 				GCC_TREAT_WARNINGS_AS_ERRORS = YES;
-				HEADER_SEARCH_PATHS = (
-					main,
-					"$(HOME)/Library/Frameworks/SDL.framework/Headers",
-					"$(HOME)/Library/Frameworks/physfs.framework/Headers",
-				);
+				HEADER_SEARCH_PATHS = main;
 				INFOPLIST_FILE = "d2xgl-Info.plist";
 				INSTALL_PATH = "$(USER_APPS_DIR)";
-				MACOSX_DEPLOYMENT_TARGET = 10.1;
-				MACOSX_DEPLOYMENT_TARGET_i386 = 10.4;
-				MACOSX_DEPLOYMENT_TARGET_ppc = 10.2;
 				PRODUCT_NAME = d2xgl;
 				WARNING_CFLAGS = "-Wall";
 			};
@@ -2175,23 +2156,23 @@
 		EBBAD49F0B2D0F7E00080BBF /* Development */ = {
 			isa = XCBuildConfiguration;
 			buildSettings = {
-				ARCHS = "$(NATIVE_ARCH)";
 				GCC_PREFIX_HEADER = arch/carbon/conf.h;
 				GCC_TREAT_WARNINGS_AS_ERRORS = YES;
-				MACOSX_DEPLOYMENT_TARGET = "";
 			};
 			name = Development;
 		};
 		EBBAD4A00B2D0F7E00080BBF /* Deployment */ = {
 			isa = XCBuildConfiguration;
 			buildSettings = {
-				ARCHS = "$(NATIVE_ARCH)";
+				ARCHS = (
+					i386,
+					ppc,
+				);
 				GCC_PREFIX_HEADER = arch/carbon/conf.h;
 				GCC_VERSION_i386 = 4.0;
 				GCC_VERSION_ppc = 3.3;
-				MACOSX_DEPLOYMENT_TARGET = "";
 				MACOSX_DEPLOYMENT_TARGET_i386 = 10.4;
-				MACOSX_DEPLOYMENT_TARGET_ppc = 10.2;
+				MACOSX_DEPLOYMENT_TARGET_ppc = 10.1;
 				SDKROOT = /Developer/SDKs/MacOSX10.3.9.sdk;
 				SDKROOT_i386 = /Developer/SDKs/MacOSX10.4u.sdk;
 				SDKROOT_ppc = /Developer/SDKs/MacOSX10.3.9.sdk;
@@ -2201,11 +2182,6 @@
 		EBBAD4A10B2D0F7E00080BBF /* Default */ = {
 			isa = XCBuildConfiguration;
 			buildSettings = {
-				ARCHS = "$(NATIVE_ARCH)";
-				GCC_PREFIX_HEADER = arch/carbon/conf.h;
-				MACOSX_DEPLOYMENT_TARGET = "";
-				SDKROOT_i386 = /Developer/SDKs/MacOSX10.2.8.sdk;
-				SDKROOT_ppc = /Developer/SDKs/MacOSX10.4u.sdk;
 			};
 			name = Default;
 		};
