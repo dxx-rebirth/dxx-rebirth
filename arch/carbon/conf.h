@@ -50,7 +50,7 @@
 # define __unix__
 /* Define if you want a network build */
 # define NETWORK
-# define UDP
+# define NET_UDP
 #else // Mac OS 9
 # ifndef __MWERKS__
 #  define inline
