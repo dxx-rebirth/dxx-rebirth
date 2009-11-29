@@ -103,7 +103,7 @@
 #define __unix__
 /* Define if you want a network build */
 # define NETWORK
-# define UDP
+# define USE_UDP
 
 /* Define to 1 if the system has the type `struct timespec'. */
 #define HAVE_STRUCT_TIMESPEC 1
