@@ -26,8 +26,6 @@ COPYRIGHT 1993-1999 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 #include "u_mem.h"
 #include "strutil.h"
 #include "game.h"
-#include "net_ipx.h"
-#include "net_udp.h"
 #include "multi.h"
 #include "object.h"
 #include "laser.h"
@@ -67,6 +65,12 @@ COPYRIGHT 1993-1999 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 #include "cfile.h"
 #include "effects.h"
 #include "iff.h"
+#ifdef USE_IPX
+#include "net_ipx.h"
+#endif
+#ifdef USE_UDP
+#include "net_udp.h"
+#endif
 
 void multi_reset_player_object(object *objp);
 void multi_reset_object_texture(object *objp);
@@ -426,12 +430,16 @@ int multi_objnum_is_past(int objnum)
 {
 	switch (multi_protocol)
 	{
+#ifdef USE_IPX
 		case MULTI_PROTO_IPX:
 			return net_ipx_objnum_is_past(objnum);
 			break;
+#endif
 		case MULTI_PROTO_UDP:
+#ifdef USE_UDP
 			return net_udp_objnum_is_past(objnum);
 			break;
+#endif
 		default:
 			Error("Protocol handling missing in multi_objnum_is_past\n");
 			break;
@@ -859,12 +867,16 @@ void multi_do_protocol_frame(int force, int listen)
 {
 	switch (multi_protocol)
 	{
+#ifdef USE_IPX
 		case MULTI_PROTO_IPX:
 			net_ipx_do_frame(force, listen);
 			break;
+#endif
+#ifdef USE_UDP
 		case MULTI_PROTO_UDP:
 			net_udp_do_frame(force, listen);
 			break;
+#endif
 		default:
 			Error("Protocol handling missing in multi_do_protocol_frame\n");
 			break;
@@ -926,12 +938,16 @@ multi_send_data(char *buf, int len, int priority)
 	{
 		switch (multi_protocol)
 		{
+#ifdef USE_IPX
 			case MULTI_PROTO_IPX:
 				net_ipx_send_data((unsigned char *)buf, len, priority);
 				break;
+#endif
+#ifdef USE_UDP
 			case MULTI_PROTO_UDP:
 				net_udp_send_data((unsigned char *)buf, len, priority);
 				break;
+#endif
 			default:
 				Error("Protocol handling missing in multi_send_data_real\n");
 				break;
@@ -965,12 +981,16 @@ multi_leave_game(void)
 	{
 		switch (multi_protocol)
 		{
+#ifdef USE_IPX
 			case MULTI_PROTO_IPX:
 				net_ipx_leave_game();
 				break;
+#endif
+#ifdef USE_UDP
 			case MULTI_PROTO_UDP:
 				net_udp_leave_game();
 				break;
+#endif
 			default:
 				Error("Protocol handling missing in multi_leave_game\n");
 				break;
@@ -1003,12 +1023,16 @@ multi_endlevel(int *secret)
 
 	switch (multi_protocol)
 	{
+#ifdef USE_IPX
 		case MULTI_PROTO_IPX:
 			result = net_ipx_endlevel(secret);
 			break;
+#endif
+#ifdef USE_UDP
 		case MULTI_PROTO_UDP:
 			result = net_udp_endlevel(secret);
 			break;
+#endif
 		default:
 			Error("Protocol handling missing in multi_endlevel\n");
 			break;
@@ -1021,12 +1045,16 @@ void multi_endlevel_poll1( int nitems, struct newmenu_item * menus, int * key, i
 {
 	switch (multi_protocol)
 	{
+#ifdef USE_IPX
 		case MULTI_PROTO_IPX:
 			net_ipx_kmatrix_poll1( nitems, menus, key, citem );
 			break;
+#endif
+#ifdef USE_UDP
 		case MULTI_PROTO_UDP:
 			net_udp_kmatrix_poll1( nitems, menus, key, citem );
 			break;
+#endif
 		default:
 			Error("Protocol handling missing in multi_endlevel_poll1\n");
 			break;
@@ -1038,11 +1066,15 @@ void multi_endlevel_poll2( int nitems, struct newmenu_item * menus, int * key, i
 	switch (multi_protocol)
 	{
 		case MULTI_PROTO_IPX:
+#ifdef USE_IPX
 			net_ipx_kmatrix_poll2( nitems, menus, key, citem );
 			break;
+#endif
+#ifdef USE_UDP
 		case MULTI_PROTO_UDP:
 			net_udp_kmatrix_poll2( nitems, menus, key, citem );
 			break;
+#endif
 		default:
 			Error("Protocol handling missing in multi_endlevel_poll2\n");
 			break;
@@ -1053,12 +1085,16 @@ void multi_send_endlevel_packet()
 {
 	switch (multi_protocol)
 	{
+#ifdef USE_IPX
 		case MULTI_PROTO_IPX:
 			net_ipx_send_endlevel_packet();
 			break;
+#endif
+#ifdef USE_UDP
 		case MULTI_PROTO_UDP:
 			net_udp_send_endlevel_packet();
 			break;
+#endif
 		default:
 			Error("Protocol handling missing in multi_send_endlevel_packet\n");
 			break;
@@ -1259,12 +1295,15 @@ void multi_send_message_end()
 
 	Network_message_reciever = 100;
 
-	if (!strnicmp (Network_message,"!Names",6))
+#ifdef USE_IPX
+	if (!strnicmp (Network_message,"!Names",6) && multi_protocol == MULTI_PROTO_IPX)
 	{
 		NameReturning=1-NameReturning;
 		HUD_init_message ("Name returning is now %s.",NameReturning?"active":"disabled");
 	}
-	else if (!strnicmp (Network_message,"Handicap:",9))
+	else
+#endif
+	if (!strnicmp (Network_message,"Handicap:",9))
 	{
 		mytempbuf=&Network_message[9];
 		StartingShields=atol (mytempbuf);
@@ -1324,12 +1363,16 @@ void multi_send_message_end()
 
 					switch (multi_protocol)
 					{
+#ifdef USE_IPX
 						case MULTI_PROTO_IPX:
 							net_ipx_send_netgame_update();
 							break;
+#endif
+#ifdef USE_UDP
 						case MULTI_PROTO_UDP:
 							net_udp_send_netgame_update();
 							break;
+#endif
 						default:
 							Error("Protocol handling missing in multi_send_message_end\n");
 							break;
@@ -1400,12 +1443,16 @@ void multi_send_message_end()
 			kick_player:;
 				switch (multi_protocol)
 				{
+#ifdef USE_IPX
 					case MULTI_PROTO_IPX:
 						net_ipx_dump_player(Netgame.players[i].protocol.ipx.server,Netgame.players[i].protocol.ipx.node, DUMP_KICKED);
 						break;
+#endif
+#ifdef USE_UDP
 					case MULTI_PROTO_UDP:
 						net_udp_dump_player(Netgame.players[i].protocol.udp.addr, DUMP_KICKED);
 						break;
+#endif
 					default:
 						Error("Protocol handling missing in multi_send_message_end\n");
 						break;
@@ -1957,12 +2004,16 @@ multi_do_quit(char *buf)
 
 		switch (multi_protocol)
 		{
+#ifdef USE_IPX
 			case MULTI_PROTO_IPX:
 				net_ipx_disconnect_player(buf[1]);
 				break;
+#endif
+#ifdef USE_UDP
 			case MULTI_PROTO_UDP:
 				net_udp_disconnect_player(buf[1]);
 				break;
+#endif
 			default:
 				Error("Protocol handling missing in multi_do_quit\n");
 				break;
@@ -2473,12 +2524,16 @@ multi_send_endlevel_start(int secret)
 		Players[Player_num].connected = CONNECT_ESCAPE_TUNNEL;
 		switch (multi_protocol)
 		{
+#ifdef USE_IPX
 			case MULTI_PROTO_IPX:
 				net_ipx_send_endlevel_packet();
 				break;
+#endif
+#ifdef USE_UDP
 			case MULTI_PROTO_UDP:
 				net_udp_send_endlevel_packet();
 				break;
+#endif
 			default:
 				Error("Protocol handling missing in multi_send_endlevel_start\n");
 				break;
@@ -2961,12 +3016,16 @@ void multi_send_door_open_specific(int pnum,int segnum, int side,ubyte flag)
 
 	switch (multi_protocol)
 	{
+#ifdef USE_IPX
 		case MULTI_PROTO_IPX:
 			net_ipx_send_naked_packet(multibuf, 5, pnum);
 			break;
+#endif
+#ifdef USE_UDP
 		case MULTI_PROTO_UDP:
 			net_udp_send_mdata_direct((ubyte *)multibuf, 5, pnum, 1);
 			break;
+#endif
 		default:
 			Error("Protocol handling missing in multi_send_door_open_specific\n");
 			break;
@@ -3409,12 +3468,16 @@ int multi_level_sync(void)
 {
 	switch (multi_protocol)
 	{
+#ifdef USE_IPX
 		case MULTI_PROTO_IPX:
 			return net_ipx_level_sync();
 			break;
+#endif
+#ifdef USE_UDP
 		case MULTI_PROTO_UDP:
 			return net_udp_level_sync();
 			break;
+#endif
 		default:
 			Error("Protocol handling missing in multi_level_sync\n");
 			break;
@@ -3867,13 +3930,17 @@ void multi_send_wall_status_specific (int pnum,int wallnum,ubyte type,ubyte flag
 
 	switch (multi_protocol)
 	{
+#ifdef USE_IPX
 		case MULTI_PROTO_IPX:
 			net_ipx_send_naked_packet(multibuf, count,pnum); // twice, just to be sure
 			net_ipx_send_naked_packet(multibuf, count,pnum);
 			break;
+#endif
+#ifdef USE_UDP
 		case MULTI_PROTO_UDP:
 			net_udp_send_mdata_direct((ubyte *)multibuf, count, pnum, 1);
 			break;
+#endif
 		default:
 			Error("Protocol handling missing in multi_send_wall_status_specific\n");
 			break;
@@ -4037,12 +4104,16 @@ void multi_send_light_specific (int pnum,int segnum,ubyte val)
 
 	switch (multi_protocol)
 	{
+#ifdef USE_IPX
 		case MULTI_PROTO_IPX:
 			net_ipx_send_naked_packet(multibuf, count, pnum);
 			break;
+#endif
+#ifdef USE_UDP
 		case MULTI_PROTO_UDP:
 			net_udp_send_mdata_direct((ubyte *)multibuf, count, pnum, 1);
 			break;
+#endif
 		default:
 			Error("Protocol handling missing in multi_send_light_specific\n");
 			break;
@@ -4657,12 +4728,16 @@ void multi_send_trigger_specific (char pnum,char trig)
 
 	switch (multi_protocol)
 	{
+#ifdef USE_IPX
 		case MULTI_PROTO_IPX:
 			net_ipx_send_naked_packet(multibuf, 2, pnum);
 			break;
+#endif
+#ifdef USE_UDP
 		case MULTI_PROTO_UDP:
 			net_udp_send_mdata_direct((ubyte *)multibuf, 2, pnum, 1);
 			break;
+#endif
 		default:
 			Error("Protocol handling missing in multi_send_trigger_specific\n");
 			break;

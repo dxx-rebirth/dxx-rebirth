@@ -25,6 +25,8 @@ COPYRIGHT 1993-1999 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 #include "piggy.h"
 #include "vers_id.h"
 #include "newmenu.h"
+
+#ifdef USE_UDP
 #ifdef _WIN32
 #include <winsock.h>
 #include <io.h>
@@ -45,6 +47,7 @@ COPYRIGHT 1993-1999 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 #define _sockaddr sockaddr_in
 #define _af AF_INET
 #define _pf PF_INET
+#endif
 #endif
 
 // PROTOCOL VARIABLES AND DEFINES
@@ -389,8 +392,10 @@ void save_hoard_data(void);
  */
 typedef struct netplayer_info
 {
+#if defined(USE_UDP) || defined(USE_IPX)
 	union
 	{
+#ifdef USE_IPX
 		struct
 		{
 			ubyte				server[4];
@@ -398,13 +403,16 @@ typedef struct netplayer_info
 			ushort				socket;
 			ubyte				computer_type; // {DOS,WIN_32,WIN_95,MAC}
 		} ipx;
+#endif
+#ifdef USE_UDP
 		struct
 		{
 			struct _sockaddr	addr; // IP address of this peer
 			ubyte				isyou; // This flag is set true while sending info to tell player his designated (re)join position
 		} udp;
+#endif
 	} protocol;	
-
+#endif
 	char						callsign[CALLSIGN_LEN+1];
 	ubyte						version_major;
 	ubyte						version_minor;
@@ -422,8 +430,10 @@ typedef struct netplayer_info
  */
 typedef struct netgame_info
 {
+#if defined(USE_UDP) || defined(USE_IPX)
 	union
 	{
+#ifdef USE_IPX
 		struct
 		{
 			ubyte				Game_pkt_type;
@@ -433,14 +443,17 @@ typedef struct netgame_info
 			ubyte   			protocol_version;
 			ubyte   			ShortPackets;
 		} ipx;
+#endif
+#ifdef USE_UDP
 		struct
 		{
 			struct _sockaddr	addr; // IP address of this netgame's host
 			int					program_iver; // IVER of program for version checking
 			sbyte				valid; // Status of Netgame info: -1 = Failed, Wrong version; 0 = No info, yet; 1 = Success
 		} udp;
+#endif
 	} protocol;	
-
+#endif
 	ubyte			   			version_major; // Game content data version major
 	ubyte   					version_minor; // Game content data version minor
 	struct netplayer_info 		players[MAX_PLAYERS+4];
@@ -478,8 +491,6 @@ typedef struct netgame_info
 	int							player_score[MAX_PLAYERS];
 	ubyte						player_flags[MAX_PLAYERS];
 	short						PacketsPerSec;
-	ubyte						PacketLossPrevention; // FIXME: IMPLEMENT ME!
+	ubyte						PacketLossPrevention;
 } __pack__ netgame_info;
-
-
 #endif /* _MULTI_H */

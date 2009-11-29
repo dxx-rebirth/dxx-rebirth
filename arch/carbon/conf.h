@@ -30,9 +30,6 @@
 /* Define to 1 if you have the <memory.h> header file. */
 //#define HAVE_MEMORY_H 1
 
-/* Define to 1 if you have the <netipx/ipx.h> header file. */
-/* #undef HAVE_NETIPX_IPX_H */
-
 /* Define to 1 if you have the <stdint.h> header file. */
 //#define HAVE_STDINT_H 1
 
@@ -106,6 +103,7 @@
 #define __unix__
 /* Define if you want a network build */
 # define NETWORK
+# define UDP
 
 /* Define to 1 if the system has the type `struct timespec'. */
 #define HAVE_STRUCT_TIMESPEC 1

@@ -4676,8 +4676,7 @@ void net_udp_show_game_rules()
 		gr_printf( FSPACX( 25),FSPACY( 35), "Reactor Life:");
 		gr_printf( FSPACX( 25),FSPACY( 41), "Max Time:");
 		gr_printf( FSPACX( 25),FSPACY( 47), "Kill Goal:");
-		gr_printf( FSPACX( 25),FSPACY( 53), "Short Packets:");
-		gr_printf( FSPACX( 25),FSPACY( 59), "Pakets per second:");
+		gr_printf( FSPACX( 25),FSPACY( 53), "Pakets per second:");
 		gr_printf( FSPACX(155),FSPACY( 35), "Invul when reappearing:");
 		gr_printf( FSPACX(155),FSPACY( 41), "Marker camera views:");
 		gr_printf( FSPACX(155),FSPACY( 47), "Indestructible lights:");
@@ -4716,8 +4715,7 @@ void net_udp_show_game_rules()
 		gr_printf( FSPACX(115),FSPACY( 35), "%i Min", Netgame.control_invul_time/F1_0/60);
 		gr_printf( FSPACX(115),FSPACY( 41), "%i Min", Netgame.PlayTimeAllowed*5);
 		gr_printf( FSPACX(115),FSPACY( 47), "%i", Netgame.KillGoal);
-		gr_printf( FSPACX(115),FSPACY( 53), "%s", Netgame.protocol.ipx.ShortPackets?"ON":"OFF");
-		gr_printf( FSPACX(115),FSPACY( 59), "%i", Netgame.PacketsPerSec);
+		gr_printf( FSPACX(115),FSPACY( 53), "%i", Netgame.PacketsPerSec);
 		gr_printf( FSPACX(275),FSPACY( 35), Netgame.InvulAppear?"ON":"OFF");
 		gr_printf( FSPACX(275),FSPACY( 41), Netgame.Allow_marker_view?"ON":"OFF");
 		gr_printf( FSPACX(275),FSPACY( 47), Netgame.AlwaysLighting?"ON":"OFF");

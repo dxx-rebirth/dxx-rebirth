@@ -61,10 +61,12 @@ COPYRIGHT 1993-1999 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 #include "gauges.h"
 #include "powerup.h"
 #include "strutil.h"
-#ifdef NETWORK
-#  include "net_ipx.h"
-#  include "net_udp.h"
-#  include "multi.h"
+#include "multi.h"
+#ifdef USE_IPX
+#include "net_ipx.h"
+#endif
+#ifdef USE_UDP
+#include "net_udp.h"
 #endif
 #ifdef EDITOR
 #include "editor/editor.h"
@@ -88,9 +90,7 @@ enum MENUS
     MENU_DIFFICULTY,
     MENU_HELP,
     MENU_NEW_PLAYER,
-    
-    // Only if networking is enabled...
-    #ifdef NETWORK
+    #if defined(USE_UDP) || defined (USE_IPX)
         MENU_MULTIPLAYER,
     #endif
 
@@ -98,11 +98,12 @@ enum MENUS
     MENU_ORDER_INFO,
     MENU_PLAY_SONG,
 
-    // Only if networking is enabled...
-    #ifdef NETWORK
+    #ifdef USE_UDP
     MENU_START_UDP_NETGAME,
     MENU_JOIN_MANUAL_UDP_NETGAME,
     MENU_JOIN_LIST_UDP_NETGAME,
+    #endif
+    #ifdef USE_IPX
     MENU_START_IPX_NETGAME,
     MENU_JOIN_IPX_NETGAME,
     MENU_START_KALI_NETGAME, // xKali support (not Windows Kali! Windows Kali is over IPX!)
@@ -189,7 +190,7 @@ void create_main_menu(newmenu_item *m, int *menu_choice, int *callers_num_option
 	ADD_ITEM(TXT_NEW_GAME,MENU_NEW_GAME,KEY_N);
 
 	ADD_ITEM(TXT_LOAD_GAME,MENU_LOAD_GAME,KEY_L);
-#ifdef NETWORK
+#if defined(USE_UDP) || defined(USE_IPX)
 	ADD_ITEM(TXT_MULTIPLAYER_,MENU_MULTIPLAYER,-1);
 #endif
 
@@ -330,7 +331,7 @@ void do_option ( int select)
 #endif //ifndef RELEASE
 
 
-#ifdef NETWORK
+#ifdef USE_UDP
 		case MENU_START_UDP_NETGAME:
 			multi_protocol = MULTI_PROTO_UDP;
 			net_udp_start_game();
@@ -343,6 +344,8 @@ void do_option ( int select)
 			multi_protocol = MULTI_PROTO_UDP;
 			//net_udp_list_join_game();
 			break;
+#endif
+#ifdef USE_IPX
 		case MENU_START_IPX_NETGAME:
 			multi_protocol = MULTI_PROTO_IPX;
 			ipxdrv_set(NETPROTO_IPX);
@@ -363,10 +366,12 @@ void do_option ( int select)
 			ipxdrv_set(NETPROTO_KALINIX);
 			net_ipx_join_game();
 			break;
+#endif
+#if defined(USE_UDP) || defined(USE_IPX)
 		case MENU_MULTIPLAYER:
 			do_multi_player_menu();
 			break;
-#endif //NETWORK
+#endif
 		case MENU_CONFIG:
 			do_options_menu();
 			break;
@@ -810,7 +815,7 @@ void do_misc_menu()
 
 }
 
-#ifdef NETWORK
+#if defined(USE_UDP) || defined(USE_IPX)
 void do_multi_player_menu()
 {
 	int menu_choice[12];
@@ -822,24 +827,26 @@ void do_multi_player_menu()
 		old_game_mode = Game_mode;
 		num_options = 0;
 
+#ifdef USE_UDP
 		m[num_options].type=NM_TYPE_TEXT; m[num_options].text="UDP:"; num_options++;
 		m[num_options].type=NM_TYPE_MENU; m[num_options].text="HOST GAME"; menu_choice[num_options]=MENU_START_UDP_NETGAME; num_options++;
 		m[num_options].type=NM_TYPE_MENU; m[num_options].text="FIND LAN GAMES"; menu_choice[num_options]=MENU_JOIN_LIST_UDP_NETGAME; num_options++;
 		//m[num_options].type=NM_TYPE_MENU; m[num_options].text="FIND LAN/ONLINE GAMES"; menu_choice[num_options]=MENU_JOIN_LIST_UDP_NETGAME; num_options++;
 		m[num_options].type=NM_TYPE_MENU; m[num_options].text="JOIN GAME MANUALLY"; menu_choice[num_options]=MENU_JOIN_MANUAL_UDP_NETGAME; num_options++;
+#endif
 
-#ifdef HAVE_NETIPX_IPX_H
+#ifdef USE_IPX
 		m[num_options].type=NM_TYPE_TEXT; m[num_options].text=""; num_options++;
 		m[num_options].type=NM_TYPE_TEXT; m[num_options].text="IPX:"; num_options++;
 		m[num_options].type=NM_TYPE_MENU; m[num_options].text="HOST GAME"; menu_choice[num_options]=MENU_START_IPX_NETGAME; num_options++;
 		m[num_options].type=NM_TYPE_MENU; m[num_options].text="JOIN GAME"; menu_choice[num_options]=MENU_JOIN_IPX_NETGAME; num_options++;
-#endif //HAVE_NETIPX_IPX_H
 #ifdef __LINUX__
 		m[num_options].type=NM_TYPE_TEXT; m[num_options].text=""; num_options++;
 		m[num_options].type=NM_TYPE_TEXT; m[num_options].text="XKALI:"; num_options++;
 		m[num_options].type=NM_TYPE_MENU; m[num_options].text="HOST GAME"; menu_choice[num_options]=MENU_START_KALI_NETGAME; num_options++;
 		m[num_options].type=NM_TYPE_MENU; m[num_options].text="JOIN GAME"; menu_choice[num_options]=MENU_JOIN_KALI_NETGAME; num_options++;
-#endif // __LINUX__
+#endif
+#endif
 
 		choice = newmenu_do1( NULL, TXT_MULTIPLAYER, num_options, m, NULL, choice );
 		
@@ -851,7 +858,7 @@ void do_multi_player_menu()
 
 	} while( choice > -1 );
 }
-#endif // NETWORK
+#endif
 
 void do_options_menu()
 {

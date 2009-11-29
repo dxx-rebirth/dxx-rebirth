@@ -3,6 +3,7 @@ D2X-Rebirth Changelog
 20091129
 --------
 d1x-Info.plist, d1x-rebirth.xcodeproj/project.pbxproj, d1xgl-Info.plist, English.lproj/InfoPlist.strings: Make Mac version numbers consistent, Xcode build settings tidy up
+main/net_udp.c, main/multi.c, main/multi.h, main/menu.c, SConstruct, arch/linux/ipx.c, arch/carbon/conf.h: Adding macros for the compiler to compile with either UDP- and/or IPX-support and removed the older IPX macros
 
 20091128
 --------
