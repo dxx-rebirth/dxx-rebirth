@@ -32,6 +32,11 @@ arm = int(ARGUMENTS.get('arm', 0))
 ipv6 = int(ARGUMENTS.get('ipv6', 0))
 micro = int(ARGUMENTS.get('micro', 0))
 use_svn_as_micro = int(ARGUMENTS.get('svnmicro', 0))
+use_udp = int(ARGUMENTS.get('use_udp', 1))
+use_ipx = int(ARGUMENTS.get('use_ipx', 1))
+
+if (sys.platform != 'linux2') and (sys.platform != 'win32'):
+	use_ipx = 0
 
 if (micro > 0):
 	D1XMICRO = micro
@@ -129,8 +134,6 @@ common_sources = [
 'main/morph.c',
 'main/multi.c',
 'main/multibot.c',
-'main/net_ipx.c',
-'main/net_udp.c',
 'main/newdemo.c',
 'main/newmenu.c',
 'main/object.c',
@@ -236,17 +239,6 @@ arch_linux_sources = [
 'arch/linux/ukali.c'
 ]
 
-# for windows
-arch_win32_sources = [
-'arch/win32/hmpfile.c',
-'arch/win32/ipx.c',
-]
-
-# for Mac OS X
-arch_macosx_sources = [
-'arch/cocoa/SDLMain.m'
-]
-
 # for opengl
 arch_ogl_sources = [
 'arch/ogl/gr.c',
@@ -289,9 +281,6 @@ arch_sdlmixer = [
 'arch/sdl/jukebox.c'
 ]
 
-if (sdlmixer == 1):
-        common_sources += arch_sdlmixer
-
 # Acquire environment object...
 env = Environment(ENV = os.environ)
 
@@ -307,13 +296,10 @@ env.ParseConfig('sdl-config --cflags')
 env.ParseConfig('sdl-config --libs')
 env.Append(CPPFLAGS = ['-Wall', '-funsigned-char'])
 env.Append(CPPDEFINES = [('PROGRAM_NAME', '\\"' + str(PROGRAM_NAME) + '\\"'), ('D1XMAJOR', '\\"' + str(D1XMAJOR) + '\\"'), ('D1XMINOR', '\\"' + str(D1XMINOR) + '\\"')])
-env.Append(CPPDEFINES = ['NETWORK', 'HAVE_NETIPX_IPX_H', '_REENTRANT'])
+env.Append(CPPDEFINES = ['NETWORK', '_REENTRANT'])
 env.Append(CPPPATH = ['include', 'main', 'arch/include'])
 generic_libs = ['SDL', 'physfs']
 sdlmixerlib = ['SDL_mixer']
-
-if sdlmixer:
-	env.Append(CPPDEFINES = ['USE_SDLMIXER'])
 
 if (D1XMICRO):
 	env.Append(CPPDEFINES = [('D1XMICRO', '\\"' + str(D1XMICRO) + '\\"')])
@@ -339,7 +325,9 @@ if sys.platform == 'win32':
 	env.Append(CPPDEFINES = ['_WIN32'])
 	env.Append(CPPPATH = ['arch/win32/include'])
 	ogldefines = ['OGL']
-	common_sources += arch_win32_sources
+	common_sources += ['arch/win32/hmpfile.c']
+	if (use_ipx == 1):
+		common_sources += ['arch/win32/ipx.c']
 	ogllibs = ''
 	winlibs = ['glu32', 'wsock32', 'winmm', 'mingw32', 'SDLmain']
 	libs = winlibs + generic_libs
@@ -351,7 +339,7 @@ elif sys.platform == 'darwin':
 	env.Append(CPPDEFINES = ['__unix__'])
 	no_asm = 1
 	ogldefines = ['OGL']
-	common_sources += arch_macosx_sources
+	common_sources += 'arch/cocoa/SDLMain.m'
 	ogllibs = ''
 	libs = ''
 	# Ugly way of linking to frameworks, but kreator has seen uglier
@@ -376,7 +364,8 @@ else:
 	env.Append(CPPDEFINES = ['__LINUX__'])
 	env.Append(CPPPATH = ['arch/linux/include'])
 	ogldefines = ['OGL']
-	common_sources += arch_linux_sources
+	if (use_ipx == 1):
+		common_sources += ['arch/linux/ipx.c', 'arch/linux/ipx_kali.c', 'arch/linux/ukali.c']
 	ogllibs = ['GL', 'GLU']
 	libs = generic_libs
 	lflags = '-L/usr/X11R6/lib'
@@ -399,10 +388,13 @@ else:
 	common_sources += arch_ogl_sources
 	libs += ogllibs
 
-# SDL_mixer for sound? (*NIX only)
-if (sdlmixer == 1) and (sys.platform != 'darwin'):
+# SDL_mixer support?
+if (sdlmixer == 1):
 	print "including SDL_mixer"
-	libs += sdlmixerlib
+	env.Append(CPPDEFINES = ['USE_SDLMIXER'])
+	common_sources += arch_sdlmixer
+	if (sys.platform != 'darwin'):
+		libs += sdlmixerlib
 
 # debug?
 if (debug == 1):
@@ -437,6 +429,16 @@ if (editor == 1):
 # IPv6 compability?
 if (ipv6 == 1):
 	env.Append(CPPDEFINES = ['IPv6'])
+
+# UDP Support?
+if (use_udp == 1):
+	env.Append(CPPDEFINES = ['USE_UDP'])
+	common_sources += ['main/net_udp.c']
+
+# IPX support?
+if (use_ipx == 1):
+	env.Append(CPPDEFINES = ['USE_IPX'])
+	common_sources += ['main/net_ipx.c']
 
 print '\n'
 
@@ -474,7 +476,9 @@ Help(PROGRAM_NAME + ', SConstruct file help:' +
 	'editor=1'        build editor !EXPERIMENTAL!
 	'arm=1'           compile for ARM architecture
 	'ipv6=1'          enables IPv6 copability
-	
+	'use_udp=0'		  disable UDP support
+	'use_ipx=0'		  disable IPX support (supported only on Linux and Windows)
+		
 	Default values:
 	""" + ' sharepath = ' + DATA_DIR + """
 

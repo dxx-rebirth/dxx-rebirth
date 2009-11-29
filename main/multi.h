@@ -30,8 +30,7 @@ COPYRIGHT 1993-1998 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 #define MAX_MESSAGE_LEN 35
 #define MAX_NUM_NET_PLAYERS 8 // How many simultaneous network players do we support?
 
-#ifdef NETWORK
-
+#ifdef USE_UDP
 #ifdef _WIN32
 #include <winsock.h>
 #include <io.h>
@@ -52,6 +51,7 @@ COPYRIGHT 1993-1998 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 #define _sockaddr sockaddr_in
 #define _af AF_INET
 #define _pf PF_INET
+#endif
 #endif
 
 
@@ -335,21 +335,26 @@ extern struct netgame_info Netgame;
  */
 typedef struct netplayer_info
 {
+#if defined(USE_UDP) || defined(USE_IPX)
 	union
 	{
+#ifdef USE_IPX
 		struct
 		{
 			ubyte				server[4];
 			ubyte				node[6];
 			ushort				socket;
 		} ipx;
+#endif
+#ifdef USE_UDP
 		struct
 		{
 			struct _sockaddr	addr; // IP address of this peer
 			ubyte				isyou; // This flag is set true while sending info to tell player his designated (re)join position
 		} udp;
+#endif
 	} protocol;	
-
+#endif
 	char						callsign[CALLSIGN_LEN+1];
 	ubyte						version_major;
 	ubyte						version_minor;
@@ -365,23 +370,28 @@ typedef struct netplayer_info
  * Note that not all of these infos will be sent to clients - some are used and/or set locally, only.
  * Even if some variables are not UDP-specific, they might be used in IPX as well to maintain backwards compability.
  */
-typedef struct netgame_info {
-
+typedef struct netgame_info
+{
+#if defined(USE_UDP) || defined(USE_IPX)
 	union
 	{
+#ifdef USE_IPX
 		struct
 		{
 			ubyte				Game_pkt_type;
 			ubyte   			protocol_version;
 		} ipx;
+#endif
+#ifdef USE_UDP
 		struct
 		{
 			struct _sockaddr	addr; // IP address of this netgame's host
 			int					program_iver; // IVER of program for version checking
 			sbyte				valid; // Status of Netgame info: -1 = Failed, Wrong version; 0 = No info, yet; 1 = Success
 		} udp;
+#endif
 	} protocol;	
-
+#endif
 	ubyte			   			version_major; // Game content data version major (unused in D1)
 	ubyte   					version_minor; // Game content data version minor (unused in D1)
 	struct netplayer_info 		players[MAX_PLAYERS+4];
@@ -419,9 +429,6 @@ typedef struct netgame_info {
 	int							player_score[MAX_PLAYERS];
 	ubyte						player_flags[MAX_PLAYERS];
 	short						PacketsPerSec;
-	ubyte						PacketLossPrevention; // FIXME: IMPLEMENT ME!
+	ubyte						PacketLossPrevention;
 } __pack__ netgame_info;
-
-#endif
-
-#endif
+#endif /* _MULTI_H */

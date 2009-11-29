@@ -19,9 +19,6 @@
 /* Define if you want to build the editor */
 /* #undef EDITOR */
 
-/* Define to 1 if you have the <netipx/ipx.h> header file. */
-/* #undef HAVE_NETIPX_IPX_H */
-
 /* Define if you want to build for mac datafiles */
 //#define MACDATA 
 
@@ -53,6 +50,7 @@
 # define __unix__
 /* Define if you want a network build */
 # define NETWORK
+# define UDP
 #else // Mac OS 9
 # ifndef __MWERKS__
 #  define inline

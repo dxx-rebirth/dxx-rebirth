@@ -490,7 +490,7 @@ void pow_add_random(object *obj) {
 	if (obj->contains_count > 0 && obj->contains_type == OBJ_POWERUP)
 		pow_count_add(powerup_start_level, obj->contains_id, obj->contains_count, NULL);
 	#ifndef NDEBUG
-#ifdef NETWORK
+#ifdef USE_IPX
 	if (!(Game_mode & GM_NETWORK) ||
             Netgame.protocol.ipx.protocol_version != MULTI_PROTO_D1X_VER)
                 return;
@@ -505,7 +505,7 @@ void pow_add_level_pow_count(int *pow_count) {
 	for (i = 0; i < MAX_POWERUP_TYPES; i++)
 		powerup_start_level[i] += pow_count[i];
 	#ifndef NDEBUG
-#ifdef NETWORK
+#ifdef USE_IPX
 	if (!(Game_mode & GM_NETWORK) ||
             Netgame.protocol.ipx.protocol_version != MULTI_PROTO_D1X_VER)
 		return;
@@ -598,7 +598,7 @@ int may_create_powerup(int powerup)
 	int pow_count[MAX_POWERUP_TYPES];
 
 	if (!(Game_mode & GM_NETWORK)
-#ifdef NETWORK
+#ifdef USE_IPX
 		|| Netgame.protocol.ipx.protocol_version != MULTI_PROTO_D1X_VER
 #endif
 		)

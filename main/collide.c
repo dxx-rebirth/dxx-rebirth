@@ -1063,7 +1063,7 @@ void drop_pow_count(object *obj, int *pow_count)
 		count = pow_count[(i = player_drop_powerups[j])];
 
 		// limit powerups in D1X network games
-#ifdef NETWORK
+#ifdef USE_IPX
 		if ((Game_mode & GM_NETWORK) &&
                     (Netgame.protocol.ipx.protocol_version == MULTI_PROTO_D1X_VER))
                  {
