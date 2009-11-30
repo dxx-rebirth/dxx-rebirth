@@ -802,6 +802,9 @@ void check_rear_view()
 	static int leave_mode;
 	static fix entry_time;
 
+	if (Newdemo_state == ND_STATE_PLAYBACK)
+		return;
+
 	if ( Controls.rear_view_down_count ) {	//key/button has gone down
 
 		if (Rear_view) {
