@@ -1,8 +1,6 @@
-/* $Id: ogl.c,v 1.1.1.1 2006/03/17 19:53:36 zicodxx Exp $ */
 /*
  *
  * Graphics support functions for OpenGL.
- *
  *
  */
 
@@ -46,7 +44,6 @@
 #include "polyobj.h"
 #include "gamefont.h"
 #include "byteswap.h"
-#include "endlevel.h"
 #include "internal.h"
 #include "gauges.h"
 #include "playsave.h"
@@ -63,10 +60,8 @@
 #endif
 
 #if defined(_WIN32) || (defined(__APPLE__) && defined(__MACH__)) || defined(__sun__) || defined(macintosh)
-#ifndef _MSC_VER
 #define cosf(a) cos(a)
 #define sinf(a) sin(a)
-#endif
 #endif
 
 unsigned char *ogl_pal=gr_palette;
@@ -74,7 +69,6 @@ unsigned char *ogl_pal=gr_palette;
 int GL_needmipmaps=0;
 float OglTexMagFilt=GL_NEAREST;
 float OglTexMinFilt=GL_NEAREST;
-int active_texture_unit=0;
 
 int last_width=-1,last_height=-1;
 int GL_TEXTURE_2D_enabled=-1;
@@ -113,6 +107,7 @@ void ogl_init_texture_stats(ogl_texture* t){
 	t->lastrend=0;
 	t->numrend=0;
 }
+
 void ogl_init_texture(ogl_texture* t, int w, int h, int flags)
 {
 	t->handle = 0;
@@ -305,6 +300,7 @@ void ogl_cache_polymodel_textures(int model_num)
 		ogl_loadbmtexture(&GameBitmaps[ObjBitmaps[ObjBitmapPtrs[po->first_texture+i]].index]);
 	}
 }
+
 void ogl_cache_vclip_textures(vclip *vc){
 	int i;
 	for (i=0;i<vc->num_frames;i++){
@@ -517,7 +513,6 @@ void ogl_draw_reticle(int cross,int primary,int secondary)
 		size*=scale;
 		glScalef(f2glf(size/scale),f2glf(size),f2glf(size));
 	}
-
 
 	glLineWidth(linedotscale*2);
 	OGL_DISABLE(TEXTURE_2D);
@@ -814,14 +809,11 @@ bool g3_draw_bitmap(vms_vector *pos,fix width,fix height,grs_bitmap *bm, object 
 	int i;
 	r_bitmapc++;
 	v1.z=0;
- 
+
 	OGL_ENABLE(TEXTURE_2D);
 	ogl_bindbmtex(bm);
 	ogl_texwrap(bm->gltexture,GL_CLAMP_TO_EDGE);
- 
-	if (Endlevel_sequence)
-		glDepthFunc(GL_ALWAYS);
- 
+
 	glBegin(GL_QUADS);
 
 	// Define alpha by looking for object TYPE or ID. We do this here so we have it seperated from the rest of the code.
@@ -836,7 +828,7 @@ bool g3_draw_bitmap(vms_vector *pos,fix width,fix height,grs_bitmap *bm, object 
 		glColor4f(1.0,1.0,1.0,0.6); // ... with 0.6 alpha
 	else
 		glColor3f(1.0,1.0,1.0);
- 
+
 	width = fixmul(width,Matrix_scale.x);
 	height = fixmul(height,Matrix_scale.y);
 	for (i=0;i<4;i++){
@@ -864,14 +856,14 @@ bool g3_draw_bitmap(vms_vector *pos,fix width,fix height,grs_bitmap *bm, object 
 				pv.y+=-height;
 				break;
 		}
- 
+
 		if (obj->id == 5 && obj->type == 1) // create small z-Offset for missile exploding effect - prevents ugly wall-clipping
 			pv.z -= F1_0;
- 
+
 		glVertex3f(f2glf(pv.x),f2glf(pv.y),-f2glf(pv.z));
 	}
 	glEnd();
- 
+
 	return 0;
 }
 
@@ -924,6 +916,7 @@ bool ogl_ubitmapm_c(int x, int y,grs_bitmap *bm,int c)
 	
 	return 0;
 }
+
 bool ogl_ubitmapm(int x, int y,grs_bitmap *bm){
 	return ogl_ubitmapm_c(x,y,bm,-1);
 }
@@ -1390,17 +1383,17 @@ void ogl_loadbmtexture_f(grs_bitmap *bm, int flags)
 				if (bm->gltexture == NULL)
 					ogl_init_texture(bm->gltexture = ogl_get_free_texture(), pdata.width, pdata.height, flags | ((pdata.alpha || bm->bm_flags & BM_FLAG_TRANSPARENT) ? OGL_FLAG_ALPHA : 0));
 				ogl_loadtexture(pdata.data, 0, 0, bm->gltexture, bm->bm_flags, pdata.paletted ? 0 : pdata.channels);
-				d_free(pdata.data);
+				free(pdata.data);
 				if (pdata.palette)
-					d_free(pdata.palette);
+					free(pdata.palette);
 				return;
 			}
 			else
 			{
 				con_printf(CON_DEBUG,"%s: unsupported texture format: must be rgb, rgba, or paletted, and depth 8\n", filename);
-				d_free(pdata.data);
+				free(pdata.data);
 				if (pdata.palette)
-					d_free(pdata.palette);
+					free(pdata.palette);
 			}
 		}
 	}
@@ -1422,14 +1415,14 @@ void ogl_loadbmtexture_f(grs_bitmap *bm, int flags)
 		unsigned char * dbits;
 		unsigned char * sbits;
 		int i, data_offset;
-		
+
 		data_offset = 1;
 		if (bm->bm_flags & BM_FLAG_RLE_BIG)
 			data_offset = 2;
-		
+
 		sbits = &bm->bm_data[4 + (bm->bm_h * data_offset)];
 		dbits = decodebuf;
-		
+
 		for (i=0; i < bm->bm_h; i++ )    {
 			gr_rle_decode(sbits,dbits);
 			if ( bm->bm_flags & BM_FLAG_RLE_BIG )
@@ -1440,7 +1433,7 @@ void ogl_loadbmtexture_f(grs_bitmap *bm, int flags)
 		}
 		buf=decodebuf;
 	}
-	
+
 	ogl_loadtexture(buf, 0, 0, bm->gltexture, bm->bm_flags, 0);
 }
 

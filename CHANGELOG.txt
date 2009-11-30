@@ -4,6 +4,7 @@ D1X-Rebirth Changelog
 --------
 d1x-rebirth/arch/carbon/conf.h, d1x-rebirth.xcodeproj/project.pbxproj: Update to not compile redundant net_ipx.c for Mac OS X
 main/newdemo.c, main/newdemo.h, main/gamerend.c, main/game.c, main/gauges.c, main/gamecntl.c: Reintroduced Newdemo_game_mode to prevent demo playback from entering code parts it should not and fixing a bug with Multiplayer demos along the way, introduced in rev. 953
+arch/ogl.c, main/endlevel.c: Draw Endlevel sequence with correct DepthFunc
 
 20091129
 --------
