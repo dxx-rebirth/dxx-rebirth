@@ -9,11 +9,9 @@
 /* Begin PBXBuildFile section */
 		17DFA6B710C1A2D100674D11 /* net_udp.c in Sources */ = {isa = PBXBuildFile; fileRef = 17DFA6B510C1A2D100674D11 /* net_udp.c */; };
 		17DFA6B910C1A2D100674D11 /* net_udp.c in Sources */ = {isa = PBXBuildFile; fileRef = 17DFA6B510C1A2D100674D11 /* net_udp.c */; };
-		17DFA6BF10C1A32300674D11 /* net_ipx.c in Sources */ = {isa = PBXBuildFile; fileRef = EBF658A00F936D5300CB5C73 /* net_ipx.c */; };
 		17DFA6C410C1A3BA00674D11 /* multi.c in Sources */ = {isa = PBXBuildFile; fileRef = 676032DC066B399A008A67A3 /* multi.c */; };
 		17DFA6C510C1A3BC00674D11 /* multibot.c in Sources */ = {isa = PBXBuildFile; fileRef = 676032DD066B399A008A67A3 /* multibot.c */; };
 		17DFA6C610C1A3D400674D11 /* kmatrix.c in Sources */ = {isa = PBXBuildFile; fileRef = 676032F9066B39CE008A67A3 /* kmatrix.c */; };
-		17DFA6C810C1A42F00674D11 /* net_ipx.c in Sources */ = {isa = PBXBuildFile; fileRef = EBF658A00F936D5300CB5C73 /* net_ipx.c */; };
 		670E39B0066C598A0085B671 /* mve_audio.c in Sources */ = {isa = PBXBuildFile; fileRef = 67B4421406687AD900DF26D8 /* mve_audio.c */; };
 		670E39B1066C598A0085B671 /* decoder16.c in Sources */ = {isa = PBXBuildFile; fileRef = 67B4421006687AD900DF26D8 /* decoder16.c */; };
 		670E39B3066C598B0085B671 /* decoder8.c in Sources */ = {isa = PBXBuildFile; fileRef = 67B4421106687AD900DF26D8 /* decoder8.c */; };
@@ -1821,7 +1819,6 @@
 				EB28D9A40ECEAF1C00E68E9B /* init.c in Sources */,
 				EBE8D6EC0FC583B4009D181F /* window.c in Sources */,
 				17DFA6B910C1A2D100674D11 /* net_udp.c in Sources */,
-				17DFA6C810C1A42F00674D11 /* net_ipx.c in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -1960,7 +1957,6 @@
 				EB28D9A30ECEAF1C00E68E9B /* init.c in Sources */,
 				EBE8D6EB0FC583B4009D181F /* window.c in Sources */,
 				17DFA6B710C1A2D100674D11 /* net_udp.c in Sources */,
-				17DFA6BF10C1A32300674D11 /* net_ipx.c in Sources */,
 				17DFA6C410C1A3BA00674D11 /* multi.c in Sources */,
 				17DFA6C510C1A3BC00674D11 /* multibot.c in Sources */,
 				17DFA6C610C1A3D400674D11 /* kmatrix.c in Sources */,

@@ -1,5 +1,9 @@
 D2X-Rebirth Changelog
 
+20091130
+--------
+d2x-rebirth.xcodeproj/project.pbxproj: Update to not compile redundant net_ipx.c for Mac OS X
+
 20091129
 --------
 d1x-Info.plist, d1x-rebirth.xcodeproj/project.pbxproj, d1xgl-Info.plist, English.lproj/InfoPlist.strings: Make Mac version numbers consistent, Xcode build settings tidy up
