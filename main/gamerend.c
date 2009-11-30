@@ -128,17 +128,17 @@ void show_framerate()
 	if (frame_time_total) {
 		int y=GHEIGHT;
 		if (PlayerCfg.CockpitMode==CM_FULL_SCREEN) {
-			if (Game_mode & GM_MULTI)
+			if ((Game_mode & GM_MULTI) || (Newdemo_state == ND_STATE_PLAYBACK && Newdemo_game_mode && GM_MULTI))
 				y -= LINE_SPACING * 10;
 			else
 				y -= LINE_SPACING * 5;
 		} else if (PlayerCfg.CockpitMode == CM_STATUS_BAR) {
-			if (Game_mode & GM_MULTI)
+			if ((Game_mode & GM_MULTI) || (Newdemo_state == ND_STATE_PLAYBACK && Newdemo_game_mode && GM_MULTI))
 				y -= LINE_SPACING * 6;
 			else
 				y -= LINE_SPACING * 1;
 		} else {
-			if (Game_mode & GM_MULTI)
+			if ((Game_mode & GM_MULTI) || (Newdemo_state == ND_STATE_PLAYBACK && Newdemo_game_mode && GM_MULTI))
 				y -= LINE_SPACING * 7;
 			else
 				y -= LINE_SPACING * 2;
@@ -429,7 +429,13 @@ void game_draw_hud_stuff()
 	if (GameArg.SysFPSIndicator && PlayerCfg.CockpitMode != CM_REAR_VIEW)
 		show_framerate();
 
+	if (Newdemo_state == ND_STATE_PLAYBACK)
+		Game_mode = Newdemo_game_mode;
+
 	draw_hud();
+
+	if (Newdemo_state == ND_STATE_PLAYBACK)
+		Game_mode = GM_NORMAL;
 
 	if ( Player_is_dead )
 		player_dead_message();
@@ -731,8 +737,15 @@ void game_render_frame_mono(int flip)
 
 	update_cockpits();
 
+	if (Newdemo_state == ND_STATE_PLAYBACK)
+		Game_mode = Newdemo_game_mode;
+
 	if (PlayerCfg.CockpitMode==CM_FULL_COCKPIT || PlayerCfg.CockpitMode==CM_STATUS_BAR)
 		render_gauges();
+
+	if (Newdemo_state == ND_STATE_PLAYBACK)
+		Game_mode = GM_NORMAL;
+		
 	gr_set_current_canvas(&Screen_3d_window);
 	if (!no_draw_hud)
 		game_draw_hud_stuff();

@@ -1713,7 +1713,7 @@ void close_gauges()
 
 void init_gauges()
 {
-	if ( ((Game_mode & GM_MULTI) && !(Game_mode & GM_MULTI_COOP)) )
+	if ( ((Game_mode & GM_MULTI) && !(Game_mode & GM_MULTI_COOP)) || ((Newdemo_state == ND_STATE_PLAYBACK) && (Newdemo_game_mode & GM_MULTI) && !(Newdemo_game_mode & GM_MULTI_COOP)) )
 		old_score = -99;
 	else
 		old_score			= -1;

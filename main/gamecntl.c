@@ -564,7 +564,7 @@ void HandleDemoKey(int key)
 		KEY_MAC(case KEY_COMMAND+KEY_7:)
 		case KEY_F7:
 			#ifdef NETWORK
-			Show_kill_list = (Show_kill_list+1) % ((Game_mode & GM_TEAM) ? 4 : 3);
+			Show_kill_list = (Show_kill_list+1) % ((Newdemo_game_mode & GM_TEAM) ? 4 : 3);
 			#endif
 			break;
 		case KEY_ESC:
