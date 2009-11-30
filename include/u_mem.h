@@ -22,7 +22,7 @@ extern ubyte virtual_memory_on;
 
 void mem_init(void);
 
-#if !defined(NDEBUG) || defined(MACINTOSH)		// mac always gets this stuff.
+#if !defined(NDEBUG)
 
 void mem_display_blocks();
 extern void * mem_malloc( unsigned int size, char * var, char * file, int line, int fill_zero );

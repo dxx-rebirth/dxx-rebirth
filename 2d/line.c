@@ -10,74 +10,19 @@ CONTAINED HEREIN FOR REVENUE-BEARING PURPOSES.  THE END-USER UNDERSTANDS
 AND AGREES TO THE TERMS HEREIN AND ACCEPTS THE SAME BY USE OF THIS FILE.  
 COPYRIGHT 1993-1998 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 */
+
 /*
- * $Source: /cvsroot/dxx-rebirth/d1x-rebirth/2d/line.c,v $
- * $Revision: 1.1.1.1 $
- * $Author: zicodxx $
- * $Date: 2006/03/17 19:39:00 $
- *
+ * 
  * Graphical routines for drawing lines.
- *
- * $Log: line.c,v $
- * Revision 1.1.1.1  2006/03/17 19:39:00  zicodxx
- * initial import
- *
- * Revision 1.3  1999/10/07 02:27:14  donut
- * OGL includes to remove warnings
- *
- * Revision 1.2  1999/09/30 23:02:27  donut
- * opengl direct support for ingame and normal menus, fonts as textures, and automap support
- *
- * Revision 1.1.1.1  1999/06/14 21:57:25  donut
- * Import of d1x 1.37 source.
- *
- * Revision 1.10  1994/11/18  22:50:02  john
- * Changed shorts to ints in parameters.
- * 
- * Revision 1.9  1994/07/13  12:03:04  john
- * Added assembly modex line-drawer.
- * 
- * Revision 1.8  1993/12/06  18:18:03  john
- * took out aaline.
- * 
- * Revision 1.7  1993/12/03  12:11:17  john
- * ,
- * 
- * Revision 1.6  1993/11/18  09:40:22  john
- * Added laser-line
- * 
- * Revision 1.5  1993/10/15  16:23:36  john
- * y
- * 
- * Revision 1.4  1993/09/29  16:13:58  john
- * optimized
- * 
- * Revision 1.3  1993/09/26  18:44:12  matt
- * Added gr_uline(), which just calls gr_line(), and made both take
- * fixes, and shift down themselves.
- * 
- * Revision 1.2  1993/09/11  19:50:15  matt
- * In gr_vline() & gr_hline(), check for start > end, and EXCHG if so
- * 
- * Revision 1.1  1993/09/08  11:43:54  john
- * Initial revision
- * 
  *
  */
 
 #include <stdlib.h>
-
 #include "u_mem.h"
-
 #include "gr.h"
 #include "grdef.h"
 #include "fix.h"
-
 #include "clip.h"
-
-#ifdef __MSDOS__
-#include "modex.h"
-#endif
 #ifdef OGL
 #include "ogl_init.h"
 #endif
@@ -91,14 +36,16 @@ from "Graphics Gems", Academic Press, 1990
 
 /* non-zero flag indicates the pixels needing EXCHG back. */
 void plot(int x,int y,int flag)
-{   if (flag)
+{
+	if (flag)
 		gr_upixel(y, x);
 	else
 		gr_upixel(x, y);
 }
 
 int gr_hline(int x1, int x2, int y)
-{   int i;
+{
+	int i;
 
 	if (x1 > x2) EXCHG(x1,x2);
 	for (i=x1; i<=x2; i++ )
@@ -107,7 +54,8 @@ int gr_hline(int x1, int x2, int y)
 }
 
 int gr_vline(int y1, int y2, int x)
-{   int i;
+{
+	int i;
 	if (y1 > y2) EXCHG(y1,y2);
 	for (i=y1; i<=y2; i++ )
 		gr_upixel( x, i );
@@ -174,7 +122,7 @@ void gr_universal_uline(int a1, int b1, int a2, int b2)
 	/* In fact (dx-1)/4 as 2 pixels are already plottted */
 	xend = (dx - 1) / 4;
 	pixels_left = (dx - 1) % 4;     /* number of pixels left over at the
-								 * end */
+	                                 * end */
 	plot(x, y, reverse);
 	plot(x1, y1, reverse);  /* plot first two points */
 	incr2 = 4 * dy - 2 * dx;
@@ -317,30 +265,13 @@ int gr_uline(fix _a1, fix _b1, fix _a2, fix _b2)
 	switch(TYPE)
 	{
 #ifdef OGL
-		case BM_OGL:
-			ogl_ulinec(a1,b1,a2,b2,COLOR);
-			return 0;
+	case BM_OGL:
+		ogl_ulinec(a1,b1,a2,b2,COLOR);
+		return 0;
 #endif
 	case BM_LINEAR:
-               #ifdef NO_ASM
-                gr_universal_uline( a1,b1,a2,b2);
-               #else
-		gr_linear_line( a1, b1, a2, b2 );
-               #endif
+		gr_universal_uline( a1,b1,a2,b2);
 		return 0;
-#ifdef __MSDOS__
-        case BM_MODEX:
-		modex_line_x1 = a1+XOFFSET;		
-		modex_line_y1 = b1+YOFFSET;		
-		modex_line_x2 = a2+XOFFSET;		
-		modex_line_y2 = b2+YOFFSET;		
-		modex_line_Color = grd_curcanv->cv_color;
-		gr_modex_line();
-		return 0;
-        default:
-		gr_universal_uline( a1, b1, a2, b2 );
-		return 0;
-#endif
 	}
 	return 2;
 }
@@ -358,12 +289,10 @@ int gr_line(fix a1, fix b1, fix a2, fix b2)
 	x2 = i2f(MAXX);
 	y2 = i2f(MAXY);
 
-	CLIPLINE(a1,b1,a2,b2,x1,y1,x2,y2,return 2,clipped=1, FIXSCALE );
+	CLIPLINE(a1,b1,a2,b2,x1,y1,x2,y2,return 2,clipped=1, FSCALE );
 
 	gr_uline( a1, b1, a2, b2 );
 
 	return clipped;
 
 }
-
-

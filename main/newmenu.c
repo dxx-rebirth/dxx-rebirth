@@ -62,7 +62,7 @@ COPYRIGHT 1993-1998 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 #endif
 
 grs_bitmap nm_background, nm_background1;
-grs_bitmap *nm_background_sub;
+grs_bitmap *nm_background_sub = NULL;
 ubyte SurfingNet=0;
 ubyte MenuReordering=0;
 
@@ -75,7 +75,11 @@ extern void game_do_render_frame(int flip);
 void newmenu_close()	{
 	if (nm_background.bm_data)
 	{
-		gr_free_sub_bitmap(nm_background_sub);
+		if (nm_background_sub)
+		{
+			gr_free_sub_bitmap(nm_background_sub);
+			nm_background_sub = NULL;
+		}
 		gr_free_bitmap_data (&nm_background);
 	}
 	if (nm_background1.bm_data)
@@ -163,6 +167,7 @@ void nm_draw_background(int x1, int y1, int x2, int y2 )
 	{
 		init_sub=1;
 		gr_free_sub_bitmap(nm_background_sub);
+		nm_background_sub = NULL;
 	}
 	if (init_sub)
 		nm_background_sub = gr_create_sub_bitmap(&nm_background,0,0,w*(((float) nm_background.bm_w)/SWIDTH),h*(((float) nm_background.bm_h)/SHEIGHT));

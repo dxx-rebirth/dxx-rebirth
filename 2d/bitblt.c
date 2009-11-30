@@ -10,6 +10,7 @@ CONTAINED HEREIN FOR REVENUE-BEARING PURPOSES.  THE END-USER UNDERSTANDS
 AND AGREES TO THE TERMS HEREIN AND ACCEPTS THE SAME BY USE OF THIS FILE.  
 COPYRIGHT 1993-1998 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 */
+
 /*
  *
  * Routines for bitblt's.
@@ -23,7 +24,6 @@ COPYRIGHT 1993-1998 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 #include "rle.h"
 #include "error.h"
 #include "byteswap.h"
-
 #ifdef OGL
 #include "ogl_init.h"
 #endif
@@ -39,11 +39,6 @@ void gr_bm_ubitblt0x_rle(int w, int h, int dx, int dy, int sx, int sy, grs_bitma
 void gr_bm_ubitblt01(int w, int h, int dx, int dy, int sx, int sy, grs_bitmap * src, grs_bitmap * dest);
 void gr_bm_ubitblt02(int w, int h, int dx, int dy, int sx, int sy, grs_bitmap * src, grs_bitmap * dest);
 
-#include "linear.h"
-#include "modex.h"
-#include "vesa.h"
-
-#ifdef NO_ASM
 void gr_linear_movsd( ubyte * source, ubyte * dest, unsigned int nbytes) {
 	memcpy(dest,source,nbytes);
 }
@@ -63,6 +58,7 @@ void gr_linear_rep_movsdm_faded(ubyte * src, ubyte * dest, int num_pixels, ubyte
 			*dest++=gr_fade_table[((int)fade_value<<8)|(int)c];
 		else	dest++;
 }
+
 void gr_linear_rep_movsd_2x(ubyte * source, ubyte * dest, uint nbytes ) {
 	register ubyte c;
 	while (nbytes--) {
@@ -76,7 +72,6 @@ void gr_linear_rep_movsd_2x(ubyte * source, ubyte * dest, uint nbytes ) {
 		}
 	}
 }
-#endif
 
 void gr_ubitmap00( int x, int y, grs_bitmap *bm )
 {
@@ -161,7 +156,6 @@ void gr_ubitmap012m( int x, int y, grs_bitmap *bm )
 		}
 	}
 }
-
 
 void gr_ubitmapGENERIC(int x, int y, grs_bitmap * bm)
 {
@@ -310,7 +304,6 @@ void gr_bm_ubitblt00m(int w, int h, int dx, int dy, int sx, int sy, grs_bitmap *
 	}
 }
 
-
 void gr_bm_bitblt(int w, int h, int dx, int dy, int sx, int sy, grs_bitmap * src, grs_bitmap * dest)
 {
 	int dx1=dx, dx2=dx+dest->bm_w-1;
@@ -388,7 +381,6 @@ void gr_bm_ubitblt(int w, int h, int dx, int dy, int sx, int sy, grs_bitmap * sr
 }
 
 // Clipped bitmap ... 
-
 void gr_bitmap( int x, int y, grs_bitmap *bm )
 {
 	int dx1=x, dx2=x+bm->bm_w-1;
