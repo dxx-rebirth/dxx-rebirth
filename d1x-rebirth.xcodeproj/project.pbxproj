@@ -9,10 +9,7 @@
 /* Begin PBXBuildFile section */
 		17A707EB10C1B5FA002D1680 /* SDL_mixer.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = EB92BEC40CDD6B4B0045A32C /* SDL_mixer.framework */; };
 		17A707EC10C1B604002D1680 /* physfs.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = EBAFC20E088E3F2A006329AD /* physfs.framework */; };
-		17DFA6B010C1A29500674D11 /* net_udp.c in Sources */ = {isa = PBXBuildFile; fileRef = 17DFA6AF10C1A29500674D11 /* net_udp.c */; };
 		17DFA6B110C1A29500674D11 /* net_udp.c in Sources */ = {isa = PBXBuildFile; fileRef = 17DFA6AF10C1A29500674D11 /* net_udp.c */; };
-		17DFA6BE10C1A31E00674D11 /* net_ipx.c in Sources */ = {isa = PBXBuildFile; fileRef = EBF658990F936A8400CB5C73 /* net_ipx.c */; };
-		17DFA6CA10C1A44200674D11 /* net_ipx.c in Sources */ = {isa = PBXBuildFile; fileRef = EBF658990F936A8400CB5C73 /* net_ipx.c */; };
 		6710AAFF066B2D6100DB0F68 /* SDL.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 6710AAFE066B2D6100DB0F68 /* SDL.framework */; };
 		6710AB00066B2D6100DB0F68 /* SDL.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 6710AAFE066B2D6100DB0F68 /* SDL.framework */; };
 		6710AB69066B2E0400DB0F68 /* OpenGL.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 6710AB68066B2E0400DB0F68 /* OpenGL.framework */; };
@@ -271,6 +268,7 @@
 		67F6FED3066B13B400443922 /* SDLMain.m in Sources */ = {isa = PBXBuildFile; fileRef = 67F6FED1066B13B400443922 /* SDLMain.m */; };
 		67F6FED4066B13B400443922 /* SDLMain.h in Headers */ = {isa = PBXBuildFile; fileRef = 67F6FED0066B13B400443922 /* SDLMain.h */; };
 		67F6FED5066B13B400443922 /* SDLMain.m in Sources */ = {isa = PBXBuildFile; fileRef = 67F6FED1066B13B400443922 /* SDLMain.m */; };
+		EB092D0110C3665E003F2274 /* net_udp.c in Sources */ = {isa = PBXBuildFile; fileRef = 17DFA6AF10C1A29500674D11 /* net_udp.c */; };
 		EB28D99C0ECEABD700E68E9B /* init.c in Sources */ = {isa = PBXBuildFile; fileRef = EB28D99B0ECEABD700E68E9B /* init.c */; };
 		EB28D99D0ECEABD700E68E9B /* init.c in Sources */ = {isa = PBXBuildFile; fileRef = EB28D99B0ECEABD700E68E9B /* init.c */; };
 		EB3319850D50A6B200C799B0 /* bmread.c in Sources */ = {isa = PBXBuildFile; fileRef = EBC652010890D632004FCAA3 /* bmread.c */; };
@@ -1729,7 +1727,6 @@
 				EBE8D8910FDA76D1009D181F /* gamerend.c in Sources */,
 				EB8BE8501071FBE00069486E /* player.c in Sources */,
 				17DFA6B110C1A29500674D11 /* net_udp.c in Sources */,
-				17DFA6CA10C1A44200674D11 /* net_ipx.c in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -1862,8 +1859,7 @@
 				EBE8D7D10FD385E1009D181F /* gamecntl.c in Sources */,
 				EBE8D8900FDA76D1009D181F /* gamerend.c in Sources */,
 				EB8BE84F1071FBE00069486E /* player.c in Sources */,
-				17DFA6B010C1A29500674D11 /* net_udp.c in Sources */,
-				17DFA6BE10C1A31E00674D11 /* net_ipx.c in Sources */,
+				EB092D0110C3665E003F2274 /* net_udp.c in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
