@@ -1,4 +1,3 @@
-/* $Id: line.c,v 1.1.1.1 2006/03/17 19:52:07 zicodxx Exp $ */
 /*
 THE COMPUTER CODE CONTAINED HEREIN IS THE SOLE PROPERTY OF PARALLAX
 SOFTWARE CORPORATION ("PARALLAX").  PARALLAX, IN DISTRIBUTING THE CODE TO
@@ -11,24 +10,19 @@ CONTAINED HEREIN FOR REVENUE-BEARING PURPOSES.  THE END-USER UNDERSTANDS
 AND AGREES TO THE TERMS HEREIN AND ACCEPTS THE SAME BY USE OF THIS FILE.
 COPYRIGHT 1993-1998 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 */
+
 /*
+ * 
  * Graphical routines for drawing lines.
  *
  */
 
 #include <stdlib.h>
-
 #include "u_mem.h"
-
 #include "gr.h"
 #include "grdef.h"
 #include "fix.h"
-
 #include "clip.h"
-
-#ifdef __DJGPP__
-#include "modex.h"
-#endif
 #ifdef OGL
 #include "ogl_init.h"
 #endif
@@ -276,25 +270,8 @@ int gr_uline(fix _a1, fix _b1, fix _a2, fix _b2)
 		return 0;
 #endif
 	case BM_LINEAR:
-#ifdef NO_ASM
 		gr_universal_uline( a1,b1,a2,b2);
-#else
-		gr_linear_line( a1, b1, a2, b2 );
-#endif
 		return 0;
-#ifdef __DJGPP__
-	case BM_MODEX:
-		modex_line_x1 = a1+XOFFSET;
-		modex_line_y1 = b1+YOFFSET;
-		modex_line_x2 = a2+XOFFSET;
-		modex_line_y2 = b2+YOFFSET;
-		modex_line_Color = grd_curcanv->cv_color;
-		gr_modex_line();
-		return 0;
-	default:
-		gr_universal_uline( a1, b1, a2, b2 );
-		return 0;
-#endif
 	}
 	return 2;
 }
@@ -319,5 +296,3 @@ int gr_line(fix a1, fix b1, fix a2, fix b2)
 	return clipped;
 
 }
-
-

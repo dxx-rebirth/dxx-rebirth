@@ -33,138 +33,8 @@ COPYRIGHT 1993-1998 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 
 #define RLE_CODE        0xE0
 #define NOT_RLE_CODE    31
-
 #define IS_RLE_CODE(x) (((x) & RLE_CODE) == RLE_CODE)
-
-#if !defined(NO_ASM) && defined(__WATCOMC__)
-#define RLE_DECODE_ASM
-
-ubyte *gr_rle_decode_asm( ubyte * src, ubyte * dest );
-#pragma aux gr_rle_decode_asm parm [esi] [edi] value [edi] modify exact [eax ebx ecx edx esi edi] = \
-"  cld              " \
-"   xor ecx, ecx    " \
-"   cld             " \
-"   jmp NextByte    " \
-"                   " \
-"Unique:            " \
-"   mov [edi],al    " \
-"   inc edi         " \
-"                   " \
-"NextByte:          " \
-"   mov al,[esi]    " \
-"   inc esi         " \
-"                   " \
-"   mov ah, al      " \
-"   and ah, 0xE0    " \
-"  cmp  ah, 0xE0    " \
-"   jne   Unique    " \
-"                   " \
-"   mov cl, al      " \
-"   and cl, 31      " \
-"   je      done    " \
-"                   " \
-"   mov al,[esi]    " \
-"   inc esi         " \
-"   mov ah, al      " \
-"   shr ecx,1       " \
-"   rep stosw       " \
-"   jnc NextByte    " \
-"   mov [edi],al    " \
-"   inc edi         " \
-"                   " \
-"   jmp NextByte    " \
-"                   " \
-"done:              ";
-
-#elif !defined(NO_ASM) && defined(__GNUC__)
-#define RLE_DECODE_ASM
-
-static inline int gr_rle_decode_asm( ubyte * src, ubyte * dest ) {
-   register int __ret;
-   int dummy;
-   __asm__ __volatile__ (
-"   cld;"
-"   xorl %%ecx, %%ecx;"
-"   jmp 1f;"
-"0:;"
-"   movb %%al,(%%edi);"
-"   incl %%edi;"
-"1:;"
-"   movb (%%esi), %%al;"
-"   incl %%esi;"
-"   movb %%al, %%ah;"
-"   andb $0xE0, %%ah;"
-"   cmpb $0xE0, %%ah;"
-"   jne 0b;"
-"   movb %%al, %%cl;"
-"   andb $31, %%cl;"
-"   je 2f;"
-"   movb (%%esi), %%al;"
-"   incl %%esi;"
-"   movb %%al, %%ah;"
-"   shrl $1, %%ecx;"
-"   rep; stosw;"
-"   jnc 1b;"
-"   movb %%al, (%%edi);"
-"   incl %%edi;"
-"   jmp 1b;"
-"2:"
-: "=D" (__ret), "=S" (dummy) : "1" (src), "D" (dest) : "%eax", "%ecx");
-  return __ret;
-}
-
-#elif !defined(NO_ASM) && defined(_MSC_VER)
-#define RLE_DECODE_ASM
-
-__inline int gr_rle_decode_asm( ubyte * src, ubyte * dest )
-{
-	 int retval;
-	__asm {
-		mov esi,[src]
-		mov edi,[dest]
-        xor ecx, ecx
-		cld
-		jmp NextByte
-Unique:
-		mov [edi], al
-		inc edi
-NextByte:
-		mov al,[esi]
-		inc esi
-		mov ah, al
-		and ah,0xE0
-		cmp ah,0xE0
-		jne Unique
-
-		mov cl, al
-		and cl, 31
-		je done
-
-		mov al, [esi]
-		inc esi
-		mov ah, al
-		shr ecx, 1
-		rep stosw
-		jnc NextByte
-		mov [edi], al
-		inc edi
-		jmp NextByte
-done:
-		mov [retval],edi
-	}
-	return retval;
-}
-
-#endif
-
-#ifdef RLE_DECODE_ASM
-
-void gr_rle_decode( ubyte * src, ubyte * dest )
-{
-    gr_rle_decode_asm( src, dest );
-}
-
-#else // NO_ASM or unknown compiler
+#define rle_stosb(_dest, _len, _color)	memset(_dest,_color,_len)
 
 void gr_rle_decode( ubyte * src, ubyte * dest )
 {
@@ -185,42 +55,6 @@ void gr_rle_decode( ubyte * src, ubyte * dest )
 		}
 	}
 }
-
-#endif
-
-void rle_stosb (unsigned char *dest, int len, int color);
-
-#if !defined(NO_ASM) && defined(__WATCOMC__)
-
-#pragma aux rle_stosb = "cld rep    stosb" parm [edi] [ecx] [eax] modify exact [edi ecx];
-
-#elif !defined(NO_ASM) && defined(__GNUC__)
-
-inline void rle_stosb (unsigned char *dest, int len, int color) {
-	int dummy[2];
-   __asm__ __volatile__ (
-    "cld; rep; stosb"
-    : "=D" (dummy[0]), "=c" (dummy[1])
-	: "0" (dest), "1" (len), "a" (color) );
-}
-
-#elif !defined(NO_ASM) && defined(_MSC_VER)
-
-__inline void rle_stosb (unsigned char *dest, int len, int color)
-{
-  __asm {
-	mov edi,[dest]
-	mov ecx,[len]
-	mov eax,[color]
-	cld
-	rep stosb
-  }
-}
-
-#else // NO_ASM or unknown compiler
-
-#define rle_stosb(_dest, _len, _color)	memset(_dest,_color,_len)
-#endif
 
 // Given pointer to start of one scanline of rle data, uncompress it to
 // dest, from source pixels x1 to x2.
@@ -342,7 +176,6 @@ void gr_rle_expand_scanline( ubyte *dest, ubyte *src, int x1, int x2  )
 		}
 	}
 }
-
 
 int gr_rle_encode( int org_size, ubyte *src, ubyte *dest )
 {
@@ -540,9 +373,6 @@ void rle_expand_texture_sub( grs_bitmap * bmp, grs_bitmap * rle_temp_bitmap_1 )
 	unsigned char * dbits;
 	unsigned char * sbits;
 	int i;
-#ifdef RLE_DECODE_ASM
-	unsigned char * dbits1;
-#endif
 
 	sbits = &bmp->bm_data[4 + bmp->bm_h];
 	dbits = rle_temp_bitmap_1->bm_data;
@@ -550,16 +380,9 @@ void rle_expand_texture_sub( grs_bitmap * bmp, grs_bitmap * rle_temp_bitmap_1 )
 	rle_temp_bitmap_1->bm_flags = bmp->bm_flags & (~BM_FLAG_RLE);
 
 	for (i=0; i < bmp->bm_h; i++ )    {
-#ifdef RLE_DECODE_ASM
-		dbits1=(unsigned char *)gr_rle_decode_asm( sbits, dbits );
-#else
 		gr_rle_decode( sbits, dbits );
-#endif
 		sbits += (int)bmp->bm_data[4+i];
 		dbits += bmp->bm_w;
-#ifdef RLE_DECODE_ASM
-		Assert( dbits == dbits1 );		// Get John, bogus rle data!
-#endif
 	}
 }
 
@@ -576,6 +399,10 @@ grs_bitmap * rle_expand_texture( grs_bitmap * bmp )
 
 	lc = rle_counter;
 	rle_counter++;
+
+	if (rle_counter < 0)
+		rle_counter = 0;
+	
 	if ( rle_counter < lc )	{
 		for (i=0; i<MAX_CACHE_BITMAPS; i++ )	{
 			rle_cache[i].rle_bitmap = NULL;

@@ -5,6 +5,7 @@ D2X-Rebirth Changelog
 d2x-rebirth.xcodeproj/project.pbxproj: Update to not compile redundant net_ipx.c for Mac OS X
 main/newdemo.c, main/newdemo.h, main/gamerend.c, main/game.c, main/gauges.c, main/gamecntl.c: Reintroduced Newdemo_game_mode to prevent demo playback from entering code parts it should not and fixing a bug with Multiplayer demos along the way, introduced in rev. 953
 arch/ogl.c, main/endlevel.c: Draw Endlevel sequence with correct DepthFunc
+main/newmenu.c, main/terrain.c, iff/archive/ifftestv.c, 2d/2dsline.c, 2d/bitblt.c, 2d/pixel.c, 2d/rle.c, 2d/line.c, 2d/gpixel.c, SConstruct: Making files in 2d directory more similar and removed unused and broken code; Fixing a bunch of memory errors; Removed stack protecting flag for gcc in debug mode
 
 20091129
 --------

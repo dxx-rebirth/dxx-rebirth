@@ -1,4 +1,3 @@
-/* $Id: gpixel.c,v 1.1.1.1 2006/03/17 19:52:08 zicodxx Exp $ */
 /*
 THE COMPUTER CODE CONTAINED HEREIN IS THE SOLE PROPERTY OF PARALLAX
 SOFTWARE CORPORATION ("PARALLAX").  PARALLAX, IN DISTRIBUTING THE CODE TO
@@ -13,63 +12,16 @@ COPYRIGHT 1993-1998 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 */
 
 #include "u_mem.h"
-
 #include "gr.h"
 #include "grdef.h"
-#ifdef __DJGPP__
-#include "modex.h"
-#include "vesa.h"
-#endif
 
 unsigned char gr_ugpixel( grs_bitmap * bitmap, int x, int y )
 {
-#ifdef __DJGPP__
-	switch(bitmap->bm_type)
-	{
-	case BM_LINEAR:
-#endif
-		return bitmap->bm_data[ bitmap->bm_rowsize*y + x ];
-#ifdef __DJGPP__
-	case BM_MODEX:
-		x += bitmap->bm_x;
-		y += bitmap->bm_y;
-		gr_modex_setplane( x & 3 );
-		return gr_video_memory[(bitmap->bm_rowsize * y) + (x/4)];
-	case BM_SVGA:
-		{
-		unsigned int offset;
-		offset = (unsigned int)bitmap->bm_data + (unsigned int)bitmap->bm_rowsize * y + x;
-		gr_vesa_setpage( offset >> 16 );
-		return gr_video_memory[offset & 0xFFFF];
-		}
-	}
-	return 0;
-#endif
+	return bitmap->bm_data[ bitmap->bm_rowsize*y + x ];
 }
 
 unsigned char gr_gpixel( grs_bitmap * bitmap, int x, int y )
 {
 	if ((x<0) || (y<0) || (x>=bitmap->bm_w) || (y>=bitmap->bm_h)) return 0;
-#ifdef __DJGPP__
-	switch(bitmap->bm_type)
-	{
-	case BM_LINEAR:
-#endif
-		return bitmap->bm_data[ bitmap->bm_rowsize*y + x ];
-#ifdef __DJGPP__
-	case BM_MODEX:
-		x += bitmap->bm_x;
-		y += bitmap->bm_y;
-		gr_modex_setplane( x & 3 );
-		return gr_video_memory[(bitmap->bm_rowsize * y) + (x/4)];
-	case BM_SVGA:
-		{
-		unsigned int offset;
-		offset = (unsigned int)bitmap->bm_data + (unsigned int)bitmap->bm_rowsize * y + x;
-		gr_vesa_setpage( offset >> 16 );
-		return gr_video_memory[offset & 0xFFFF];
-		}
-	}
-	return 0;
-#endif
+	return bitmap->bm_data[ bitmap->bm_rowsize*y + x ];
 }

@@ -11,6 +11,7 @@ CONTAINED HEREIN FOR REVENUE-BEARING PURPOSES.  THE END-USER UNDERSTANDS
 AND AGREES TO THE TERMS HEREIN AND ACCEPTS THE SAME BY USE OF THIS FILE.
 COPYRIGHT 1993-1998 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 */
+
 /*
  *
  * Graphical routines for setting a pixel.
@@ -18,13 +19,8 @@ COPYRIGHT 1993-1998 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
  */
 
 #include "u_mem.h"
-
 #include "gr.h"
 #include "grdef.h"
-#ifdef __MSDOS__
-#include "vesa.h"
-#include "modex.h"
-#endif
 #ifdef OGL
 #include "ogl_init.h"
 #endif
@@ -42,15 +38,6 @@ void gr_upixel( int x, int y )
 	case BM_LINEAR:
 		DATA[ ROWSIZE*y+x ] = COLOR;
 		return;
-#ifdef __DJGPP__
-	case BM_MODEX:
-		gr_modex_setplane( (x+XOFFSET) & 3 );
-		gr_video_memory[(ROWSIZE * (y+YOFFSET)) + ((x+XOFFSET)>>2)] = COLOR;
-		return;
-	case BM_SVGA:
-		gr_vesa_pixel( COLOR, (unsigned int)DATA + (unsigned int)ROWSIZE * y + x);
-		return;
-#endif
 	}
 }
 
@@ -72,17 +59,6 @@ inline void gr_bm_upixel( grs_bitmap * bm, int x, int y, unsigned char color )
 	case BM_LINEAR:
 		bm->bm_data[ bm->bm_rowsize*y+x ] = color;
 		return;
-#ifdef __DJGPP__
-	case BM_MODEX:
-		x += bm->bm_x;
-		y += bm->bm_y;
-		gr_modex_setplane( x & 3 );
-		gr_video_memory[(bm->bm_rowsize * y) + (x/4)] = color;
-		return;
-	case BM_SVGA:
-		gr_vesa_pixel(color,(unsigned int)bm->bm_data + (unsigned int)bm->bm_rowsize * y + x);
-		return;
-#endif
 	}
 }
 
@@ -91,5 +67,3 @@ void gr_bm_pixel( grs_bitmap * bm, int x, int y, unsigned char color )
 	if ((x<0) || (y<0) || (x>=bm->bm_w) || (y>=bm->bm_h)) return;
 	gr_bm_upixel (bm, x, y, color);
 }
-
-

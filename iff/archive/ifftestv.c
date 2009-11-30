@@ -13,10 +13,7 @@ COPYRIGHT 1993-1999 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 
 #include <conio.h>
 #include <stdio.h>
-
 #include "iff.h"
-//#include "gr.h"
-#include "vesa.h"
 
 draw_ubitmap(int x,int y,grs_bitmap *bm)
 {
@@ -33,7 +30,6 @@ printf("x,y=%d,%d  w,h=%d,%d\n",x,y,bm->bm_w,bm->bm_h);
 
 
 }
-
 
 main(int argc,char **argv)
 {

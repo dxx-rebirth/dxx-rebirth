@@ -403,7 +403,7 @@ if (sdlmixer == 1):
 # debug?
 if (debug == 1):
 	print "including: DEBUG"
-	env.Append(CPPFLAGS = ['-g', '-fstack-protector-all'])
+	env.Append(CPPFLAGS = ['-g'])
 else:
 	env.Append(CPPDEFINES = ['NDEBUG', 'RELEASE'])
 	env.Append(CPPFLAGS = ['-O2'])

@@ -384,6 +384,10 @@ void load_terrain(char *filename)
 
 void get_pnt(vms_vector *p,int i,int j)
 {
+	// added on 02/20/99 by adb to prevent overflow
+	if (i >= grid_h) i = grid_h - 1;
+	if (i == grid_h - 1 && j >= grid_w) j = grid_w - 1;
+	// end additions by adb
 	p->x = GRID_SCALE*i;
 	p->z = GRID_SCALE*j;
 	p->y = HEIGHT(i,j)*HEIGHT_SCALE;

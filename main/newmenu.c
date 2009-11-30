@@ -69,7 +69,7 @@ COPYRIGHT 1993-1999 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 int newmenu_do4( char * title, char * subtitle, int nitems, newmenu_item * item, void (*subfunction)(int nitems,newmenu_item * items, int * last_key, int citem), int citem, char * filename, int width, int height, int TinyMode );
 
 grs_bitmap nm_background,nm_background1;
-grs_bitmap *nm_background_sub;
+grs_bitmap *nm_background_sub = NULL;
 
 #define MAXDISPLAYABLEITEMS 14
 #define MESSAGEBOX_TEXT_SIZE 2176  // How many characters in messagebox
@@ -87,7 +87,11 @@ extern void game_render_frame_mono(int flip);
 void newmenu_close()	{
 	if (nm_background.bm_data)
 	{
-		gr_free_sub_bitmap(nm_background_sub);
+		if (nm_background_sub)
+		{
+			gr_free_sub_bitmap(nm_background_sub);
+			nm_background_sub = NULL;
+		}
 		gr_free_bitmap_data (&nm_background);
 	}
 	if (nm_background1.bm_data)
