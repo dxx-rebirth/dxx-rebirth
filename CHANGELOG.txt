@@ -3,6 +3,7 @@ D2X-Rebirth Changelog
 20091201
 --------
 main/gauges.c, main/weapon.c: Squishing string-related bugs in Bomb display and Weapon reordering
+2d/clip.h, 2d/line.c: Renaming FSCALE to FIXSCALE preventing possible naming conflicts
 
 20091130
 --------
