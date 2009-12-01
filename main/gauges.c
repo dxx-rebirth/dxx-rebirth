@@ -979,9 +979,9 @@ void show_bomb_count(int x,int y,int bg_color,int always_show,int right_align)
 	bomb = PROXIMITY_INDEX;
 	count = Players[Player_num].secondary_ammo[bomb];
 
-	#ifndef RELEASE
+//	#ifndef RELEASE
 	count = min(count,99);	//only have room for 2 digits - cheating give 200
-	#endif
+//	#endif
 
 	countx = (bomb==PROXIMITY_INDEX)?count:-count;
 
@@ -993,7 +993,7 @@ void show_bomb_count(int x,int y,int bg_color,int always_show,int right_align)
 	else
 		gr_set_fontcolor(bg_color,bg_color);	//erase by drawing in background color
 
-	sprintf(txt,"B:%02d",count);
+	snprintf(txt, sizeof(txt), "B:%02d", count);
 
 	while ((t=strchr(txt,'1')) != NULL)
 		*t = '\x84';	//convert to wide '1'
