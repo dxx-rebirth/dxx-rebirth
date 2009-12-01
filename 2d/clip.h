@@ -40,7 +40,7 @@ COPYRIGHT 1993-1998 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 # define USCALE(var,arg,num,den)                                        \
 	((var) = ((unsigned)(arg) * (unsigned)(num)) / (unsigned)(den))
 
-# define FSCALE(var,arg,num,den) ((var) = fixmuldiv((arg),(num),(den)))
+# define FIXSCALE(var,arg,num,den) ((var) = fixmuldiv((arg),(num),(den)))
 
 #define CLIPDOT(xx,yy,WHEN_OUTSIDE,WHEN_CLIPPED) {                      \
 	if((xx > XMAX) || (xx < XMIN)) { WHEN_OUTSIDE; }                    \
