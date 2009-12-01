@@ -1,5 +1,9 @@
 D2X-Rebirth Changelog
 
+20091201
+--------
+main/gauges.c, main/weapon.c: Squishing string-related bugs in Bomb display and Weapon reordering
+
 20091130
 --------
 d2x-rebirth.xcodeproj/project.pbxproj: Update to not compile redundant net_ipx.c for Mac OS X
