@@ -22,6 +22,7 @@ COPYRIGHT 1993-1999 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 
 #include <setjmp.h>
 
+#include "pstypes.h"
 #include "vecmat.h"
 #include "object.h"
 
@@ -30,6 +31,8 @@ COPYRIGHT 1993-1999 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 #else
 #define MAXIMUM_FPS 1000
 #endif
+
+extern struct window *Game_wind;
 
 // from mglobal.c
 extern fix FrameTime;           // time in seconds since last frame
@@ -125,7 +128,6 @@ int do_flythrough(object *obj,int first_time);
 
 extern jmp_buf LeaveGame;       // Do a long jump to this when game is over.
 extern int Difficulty_level;    // Difficulty level in 0..NDL-1, 0 = easiest, NDL-1 = hardest
-extern int Detail_level;        // Detail level in 0..NUM_DETAIL_LEVELS-1, 0 = boringest, NUM_DETAIL_LEVELS = coolest
 extern int Global_laser_firing_count;
 extern int Global_missile_firing_count;
 extern int Render_depth;

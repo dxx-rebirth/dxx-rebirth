@@ -723,7 +723,7 @@ void do_afterburner_stuff(void)
 extern fix Flash_effect;
 
  //adds to rgb values for palette flash
-void PALETTE_FLASH_ADD(int _dr,int _dg,int _db)
+void PALETTE_FLASH_ADD(int _dr, int _dg, int _db)
 {
 	int	maxval;
 
@@ -1082,7 +1082,6 @@ void reset_rear_view(void)
 
 }
 
-int Automap_flag;
 int Config_menu_flag;
 jmp_buf LeaveGame;
 
@@ -1189,8 +1188,6 @@ int game_handler(window *wind, d_event *event, void *data)
 {
 	int player_shields;
 
-	// unused parameters
-	event = event;	// unused for now
 	data = data;
 
 	if (event->type == EVENT_DRAW)
@@ -1203,9 +1200,11 @@ int game_handler(window *wind, d_event *event, void *data)
 
 		return 1;
 	}
+	else if (event->type == EVENT_CLOSE)
+		// Will have abort dialog here...
+		return 1;
 
 	// GAME LOOP!
-	Automap_flag = 0;
 	Config_menu_flag = 0;
 	
 	player_shields = Players[Player_num].shields;
@@ -1213,6 +1212,8 @@ int game_handler(window *wind, d_event *event, void *data)
 	calc_frame_time();
 
 	ReadControls();		// will have its own event(s) eventually
+	if (window_get_front() != wind)
+		return 1;		// in automap
 
 	GameProcessFrame();
 	
@@ -1227,15 +1228,6 @@ int game_handler(window *wind, d_event *event, void *data)
 		if (!(Game_mode&GM_MULTI)) {palette_save(); reset_palette_add();	apply_modified_palette(); gr_palette_load( gr_palette ); }
 		do_options_menu();
 		if (!(Game_mode&GM_MULTI)) palette_restore();
-	}
-	
-	if (Automap_flag) {
-		game_flush_inputs();
-		do_automap(0);
-		Screen_mode=-1; set_screen_mode(SCREEN_GAME);
-		init_cockpit();
-		last_drawn_cockpit = -1;
-		game_flush_inputs();
 	}
 	
 	if ( (Function_mode != FMODE_GAME) && GameArg.SysAutoDemo && (Newdemo_state != ND_STATE_NORMAL) )	{
@@ -1276,21 +1268,21 @@ int game_handler(window *wind, d_event *event, void *data)
 	
 	if (Function_mode != FMODE_GAME)
 	{
-		window_close(wind);
-		longjmp(LeaveGame,0);
+		if (window_close(wind))
+			longjmp(LeaveGame,0);
 	}
 
 	return 1;
 }
+
+window *Game_wind = NULL;
 
 //	------------------------------------------------------------------------------------
 //this function is the game.  called when game mode selected.  runs until
 //editor mode or exit selected
 void game()
 {
-	window *game_wind = NULL;
-
-	game_wind = game_setup();
+	Game_wind = game_setup();
 
 	if ( setjmp(LeaveGame)==0 ) {
 

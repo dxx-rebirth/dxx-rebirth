@@ -52,8 +52,15 @@ window *window_create(grs_canvas *src, int x, int y, int w, int h, int (*event_c
 	return wind;
 }
 
-void window_close(window *wind)
+int window_close(window *wind)
 {
+	d_event event;
+
+	event.type = EVENT_CLOSE;
+
+	if (!window_send_event(wind, &event))
+		return 0;	// user cancelled close (e.g. clicked 'No' to abort box)
+
 	if (wind == FrontWindow)
 		FrontWindow = wind->prev;
 	if (wind == FirstWindow)
@@ -64,6 +71,7 @@ void window_close(window *wind)
 		wind->prev->next = wind->next;
 
 	d_free(wind);
+	return 1;
 }
 
 // Get the top window that's visible

@@ -22,7 +22,8 @@
 typedef enum event_type
 {
 	EVENT_OTHER = 0,
-	EVENT_DRAW
+	EVENT_DRAW,
+	EVENT_CLOSE
 } event_type;
 
 // A vanilla event. Cast to the correct type of event according to 'type'.

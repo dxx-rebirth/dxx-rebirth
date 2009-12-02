@@ -69,6 +69,7 @@ COPYRIGHT 1993-1999 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 #include "newmenu.h"
 #include "gamefont.h"
 #include "endlevel.h"
+#include "config.h"
 #include "kconfig.h"
 #include "mouse.h"
 #include "titles.h"
@@ -80,6 +81,7 @@ COPYRIGHT 1993-1999 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 #include "multi.h"
 #include "desc_id.h"
 #include "cntrlcen.h"
+#include "fuelcen.h"
 #include "pcx.h"
 #include "state.h"
 #include "piggy.h"
@@ -88,6 +90,7 @@ COPYRIGHT 1993-1999 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 #include "rbaudio.h"
 #include "switch.h"
 #include "escort.h"
+#include "window.h"
 
 #ifdef EDITOR
 #include "editor/editor.h"
@@ -111,7 +114,6 @@ extern int	Mark_count;
 #endif
 
 extern int	Global_missile_firing_count;
-extern int	Automap_flag;
 extern int	Config_menu_flag;
 
 extern int	Game_aborted;
@@ -2054,16 +2056,20 @@ void ReadControls()
 				)	 // WATCH OUT!!! WEIRD CODE ABOVE!!!
 				memset( &Controls, 0, sizeof(control_info) );
 			else
-					controls_read_all();
+				controls_read_all(0);		//NOTE LINK TO ABOVE!!!
 
 		check_rear_view();
 
-		//	If automap key pressed, enable automap unless you are in network mode, control center destroyed and < 10 seconds left
+		// If automap key pressed, enable automap unless you are in network mode, control center destroyed and < 10 seconds left
 		if ( Controls.automap_down_count && !((Game_mode & GM_MULTI) && Control_center_destroyed && (Countdown_seconds_left < 10)))
-			Automap_flag = 1;
-
+		{
+			game_flush_inputs();
+			window_set_visible(Game_wind, 0);
+			do_automap(0);
+			return;
+		}
+		
 		do_weapon_stuff();
-
 	}
 
 	if (Player_exploded && !con_render) { //Player_is_dead && (ConsoleObject->flags & OF_EXPLODING) ) {

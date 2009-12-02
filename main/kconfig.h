@@ -143,19 +143,19 @@ typedef struct advanced_ext_control_info {
 
 } advanced_ext_control_info;
 
-extern control_info Controls;
-extern void controls_read_all();
-extern void kconfig(int n, char *title);
-
 #define NUM_D2X_CONTROLS    20
 #define MAX_D2X_CONTROLS    40
-
-extern ubyte DefaultKeySettingsD2X[MAX_D2X_CONTROLS];
 
 #define NUM_KEY_CONTROLS    57
 #define NUM_JOYSTICK_CONTROLS  56
 #define NUM_MOUSE_CONTROLS  30
 #define MAX_CONTROLS        60		// there are actually 48, so this leaves room for more
+
+extern control_info Controls;
+extern void controls_read_all(int automap_flag);
+extern void kconfig(int n, char *title);
+
+extern ubyte DefaultKeySettingsD2X[MAX_D2X_CONTROLS];
 
 extern ubyte DefaultKeySettings[CONTROL_MAX_TYPES][MAX_CONTROLS];
 
