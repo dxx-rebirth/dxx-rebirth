@@ -268,9 +268,9 @@
 		67F6FED3066B13B400443922 /* SDLMain.m in Sources */ = {isa = PBXBuildFile; fileRef = 67F6FED1066B13B400443922 /* SDLMain.m */; };
 		67F6FED4066B13B400443922 /* SDLMain.h in Headers */ = {isa = PBXBuildFile; fileRef = 67F6FED0066B13B400443922 /* SDLMain.h */; };
 		67F6FED5066B13B400443922 /* SDLMain.m in Sources */ = {isa = PBXBuildFile; fileRef = 67F6FED1066B13B400443922 /* SDLMain.m */; };
-		EB092D0110C3665E003F2274 /* net_udp.c in Sources */ = {isa = PBXBuildFile; fileRef = 17DFA6AF10C1A29500674D11 /* net_udp.c */; };
 		EB28D99C0ECEABD700E68E9B /* init.c in Sources */ = {isa = PBXBuildFile; fileRef = EB28D99B0ECEABD700E68E9B /* init.c */; };
 		EB28D99D0ECEABD700E68E9B /* init.c in Sources */ = {isa = PBXBuildFile; fileRef = EB28D99B0ECEABD700E68E9B /* init.c */; };
+		EB2EEB6910C5F8A3005256F2 /* net_udp.c in Sources */ = {isa = PBXBuildFile; fileRef = 17DFA6AF10C1A29500674D11 /* net_udp.c */; };
 		EB3319850D50A6B200C799B0 /* bmread.c in Sources */ = {isa = PBXBuildFile; fileRef = EBC652010890D632004FCAA3 /* bmread.c */; };
 		EB33198F0D50A70600C799B0 /* snddecom.c in Sources */ = {isa = PBXBuildFile; fileRef = EBEEB2680D2B364300FF39B4 /* snddecom.c */; };
 		EB331A0C0D53578800C799B0 /* snddecom.c in Sources */ = {isa = PBXBuildFile; fileRef = EBEEB2680D2B364300FF39B4 /* snddecom.c */; };
@@ -323,10 +323,8 @@
 		EBE8D8910FDA76D1009D181F /* gamerend.c in Sources */ = {isa = PBXBuildFile; fileRef = EBE8D88F0FDA76D1009D181F /* gamerend.c */; };
 		EBEEB0AE0D2A2AEE00FF39B4 /* bitmap.h in Headers */ = {isa = PBXBuildFile; fileRef = EBEEB0AA0D2A2AEE00FF39B4 /* bitmap.h */; };
 		EBEEB0AF0D2A2AEE00FF39B4 /* clip.h in Headers */ = {isa = PBXBuildFile; fileRef = EBEEB0AB0D2A2AEE00FF39B4 /* clip.h */; };
-		EBEEB0B00D2A2AEE00FF39B4 /* linear.h in Headers */ = {isa = PBXBuildFile; fileRef = EBEEB0AC0D2A2AEE00FF39B4 /* linear.h */; };
 		EBEEB0B20D2A2AEF00FF39B4 /* bitmap.h in Headers */ = {isa = PBXBuildFile; fileRef = EBEEB0AA0D2A2AEE00FF39B4 /* bitmap.h */; };
 		EBEEB0B30D2A2AEF00FF39B4 /* clip.h in Headers */ = {isa = PBXBuildFile; fileRef = EBEEB0AB0D2A2AEE00FF39B4 /* clip.h */; };
-		EBEEB0B40D2A2AEF00FF39B4 /* linear.h in Headers */ = {isa = PBXBuildFile; fileRef = EBEEB0AC0D2A2AEE00FF39B4 /* linear.h */; };
 		EBEEB0B80D2A2B4500FF39B4 /* clipper.h in Headers */ = {isa = PBXBuildFile; fileRef = EBEEB0B60D2A2B4500FF39B4 /* clipper.h */; };
 		EBEEB0B90D2A2B4500FF39B4 /* globvars.h in Headers */ = {isa = PBXBuildFile; fileRef = EBEEB0B70D2A2B4500FF39B4 /* globvars.h */; };
 		EBEEB0BA0D2A2B4500FF39B4 /* clipper.h in Headers */ = {isa = PBXBuildFile; fileRef = EBEEB0B60D2A2B4500FF39B4 /* clipper.h */; };
@@ -662,7 +660,6 @@
 		EBE8D88F0FDA76D1009D181F /* gamerend.c */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.c; path = gamerend.c; sourceTree = "<group>"; };
 		EBEEB0AA0D2A2AEE00FF39B4 /* bitmap.h */ = {isa = PBXFileReference; fileEncoding = 30; lastKnownFileType = sourcecode.c.h; path = bitmap.h; sourceTree = "<group>"; };
 		EBEEB0AB0D2A2AEE00FF39B4 /* clip.h */ = {isa = PBXFileReference; fileEncoding = 30; lastKnownFileType = sourcecode.c.h; path = clip.h; sourceTree = "<group>"; };
-		EBEEB0AC0D2A2AEE00FF39B4 /* linear.h */ = {isa = PBXFileReference; fileEncoding = 30; lastKnownFileType = sourcecode.c.h; path = linear.h; sourceTree = "<group>"; };
 		EBEEB0B60D2A2B4500FF39B4 /* clipper.h */ = {isa = PBXFileReference; fileEncoding = 30; lastKnownFileType = sourcecode.c.h; path = clipper.h; sourceTree = "<group>"; };
 		EBEEB0B70D2A2B4500FF39B4 /* globvars.h */ = {isa = PBXFileReference; fileEncoding = 30; lastKnownFileType = sourcecode.c.h; path = globvars.h; sourceTree = "<group>"; };
 		EBEEB1030D2A307300FF39B4 /* scanline.h */ = {isa = PBXFileReference; fileEncoding = 30; lastKnownFileType = sourcecode.c.h; path = scanline.h; sourceTree = "<group>"; };
@@ -881,7 +878,6 @@
 				67B44142066878B300DF26D8 /* font.c */,
 				67B44143066878B300DF26D8 /* gpixel.c */,
 				67B44145066878B300DF26D8 /* line.c */,
-				EBEEB0AC0D2A2AEE00FF39B4 /* linear.h */,
 				67B44148066878B300DF26D8 /* palette.c */,
 				67B44149066878B300DF26D8 /* pcx.c */,
 				67B4414A066878B300DF26D8 /* pixel.c */,
@@ -1443,7 +1439,6 @@
 				EBC6525C0890F79B004FCAA3 /* nocfile.h in Headers */,
 				EBEEB0B20D2A2AEF00FF39B4 /* bitmap.h in Headers */,
 				EBEEB0B30D2A2AEF00FF39B4 /* clip.h in Headers */,
-				EBEEB0B40D2A2AEF00FF39B4 /* linear.h in Headers */,
 				EBEEB0BA0D2A2B4500FF39B4 /* clipper.h in Headers */,
 				EBEEB0BB0D2A2B4500FF39B4 /* globvars.h in Headers */,
 				EBEEB1070D2A307300FF39B4 /* scanline.h in Headers */,
@@ -1486,7 +1481,6 @@
 				EBC6525D0890F79B004FCAA3 /* nocfile.h in Headers */,
 				EBEEB0AE0D2A2AEE00FF39B4 /* bitmap.h in Headers */,
 				EBEEB0AF0D2A2AEE00FF39B4 /* clip.h in Headers */,
-				EBEEB0B00D2A2AEE00FF39B4 /* linear.h in Headers */,
 				EBEEB0B80D2A2B4500FF39B4 /* clipper.h in Headers */,
 				EBEEB0B90D2A2B4500FF39B4 /* globvars.h in Headers */,
 				EBEEB1050D2A307300FF39B4 /* scanline.h in Headers */,
@@ -1859,7 +1853,7 @@
 				EBE8D7D10FD385E1009D181F /* gamecntl.c in Sources */,
 				EBE8D8900FDA76D1009D181F /* gamerend.c in Sources */,
 				EB8BE84F1071FBE00069486E /* player.c in Sources */,
-				EB092D0110C3665E003F2274 /* net_udp.c in Sources */,
+				EB2EEB6910C5F8A3005256F2 /* net_udp.c in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};

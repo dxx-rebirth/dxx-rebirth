@@ -7,7 +7,7 @@ IN USING, DISPLAYING,  AND CREATING DERIVATIVE WORKS THEREOF, SO LONG AS
 SUCH USE, DISPLAY OR CREATION IS FOR NON-COMMERCIAL, ROYALTY OR REVENUE
 FREE PURPOSES.  IN NO EVENT SHALL THE END-USER USE THE COMPUTER CODE
 CONTAINED HEREIN FOR REVENUE-BEARING PURPOSES.  THE END-USER UNDERSTANDS
-AND AGREES TO THE TERMS HEREIN AND ACCEPTS THE SAME BY USE OF THIS FILE.  
+AND AGREES TO THE TERMS HEREIN AND ACCEPTS THE SAME BY USE OF THIS FILE.
 COPYRIGHT 1993-1998 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 */
 
@@ -16,8 +16,6 @@ COPYRIGHT 1993-1998 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
  * Routines to configure keyboard, joystick, etc..
  *
  */
-
-#define TABLE_CREATION
 
 #include <stdio.h>
 #include <stdlib.h>
@@ -49,25 +47,29 @@ COPYRIGHT 1993-1998 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 #include "text.h"
 #include "player.h"
 #include "menu.h"
+#include "automap.h"
 #include "args.h"
-#include "key.h"
-#include "gr.h"
-#include "physics.h"
+#include "lighting.h"
+#include "ai.h"
+#include "cntrlcen.h"
+#include "collide.h"
 #include "playsave.h"
 
 #ifdef OGL
 #include "ogl_init.h"
 #endif
 
+#define TABLE_CREATION 1
+
 // Array used to 'blink' the cursor while waiting for a keypress.
 sbyte fades[64] = { 1,1,1,2,2,3,4,4,5,6,8,9,10,12,13,15,16,17,19,20,22,23,24,26,27,28,28,29,30,30,31,31,31,31,31,30,30,29,28,28,27,26,24,23,22,20,19,17,16,15,13,12,10,9,8,6,5,4,4,3,2,2,1,1 };
 
-char * invert_text[2] = { "N", "Y" };
+char *invert_text[2] = { "N", "Y" };
 char *joybutton_text[JOY_MAX_BUTTONS];
 char *joyaxis_text[JOY_MAX_AXES];
-char * mouseaxis_text[3] = { "L/R", "F/B", "WHEEL" };
-char * mousebutton_text[3] = { "LEFT", "RIGHT", "MID" };
-char * mousebutton_textra[13] = { "M4", "M5", "M6", "M7", "M8", "M9", "M10","M11","M12","M13","M14","M15","M16" };//text for buttons above 3. -MPM
+char *mouseaxis_text[3] = { "L/R", "F/B", "WHEEL" };
+char *mousebutton_text[3] = { "LEFT", "RIGHT", "MID" };
+char *mousebutton_textra[13] = { "M4", "M5", "M6", "M7", "M8", "M9", "M10","M11","M12","M13","M14","M15","M16" };//text for buttons above 3. -MPM
 
 ubyte system_keys[] = { KEY_ESC, KEY_F1, KEY_F2, KEY_F3, KEY_F4, KEY_F5, KEY_F6, KEY_F7, KEY_F8, KEY_F9, KEY_F10, KEY_F11, KEY_F12, KEY_MINUS, KEY_EQUAL, KEY_PRINT_SCREEN };
 
@@ -77,14 +79,12 @@ control_info Controls;
 
 fix Cruise_speed=0;
 
-extern int Automap_flag;
-
-#define BT_KEY                  0
+#define BT_KEY 			0
 #define BT_MOUSE_BUTTON 	1
 #define BT_MOUSE_AXIS		2
 #define BT_JOY_BUTTON 		3
-#define BT_JOY_AXIS             4
-#define BT_INVERT               5
+#define BT_JOY_AXIS		4
+#define BT_INVERT		5
 
 #define CONTROL_USING_JOYSTICK (PlayerCfg.ControlType == CONTROL_JOYSTICK || PlayerCfg.ControlType == CONTROL_JOYMOUSE)
 #define CONTROL_USING_MOUSE (PlayerCfg.ControlType == CONTROL_MOUSE || PlayerCfg.ControlType == CONTROL_JOYMOUSE)
@@ -94,13 +94,13 @@ char *btype_text[] = { "BT_KEY", "BT_MOUSE_BUTTON", "BT_MOUSE_AXIS", "BT_JOY_BUT
 #define INFO_Y (188)
 
 typedef struct kc_item {
-        short id;               // The id of this item
-	short x, y;		// Field location	
-	short w1;               // Input box location
-	short w2;               // Input box length 
-	short u,d,l,r;          // ID of neighboring selection ie. when you hit the up arrow, it will go to
-                                // the ID of 'u' 
-	char *text;
+	short id;				// The id of this item
+	short x, y;              // x, y pos of label
+	short w1;                // x pos of input field
+	short w2;                // length of input field
+	short u,d,l,r;           // neighboring field ids for cursor navigation
+        //short text_num1;
+        char *text;
 	ubyte type;
 	ubyte value;		// what key,button,etc
 } kc_item;
@@ -294,56 +294,56 @@ void kc_change_invert( kc_item * item );
 
 int isJoyRotationKey(int test_key)
 {
-	if (  test_key == kc_joystick[11].value ||
-		test_key == kc_joystick[12].value)
+	if (test_key == kc_joystick[11].value ||
+	    test_key == kc_joystick[12].value)
 	{
 		return 1;
-	}//end if
+	}// end if
 
-	//else...
+	// else...
 	return 0;
 }
 
 int isMouseRotationKey(int test_key)
 {
-	if (  test_key == kc_mouse[11].value ||
-		test_key == kc_mouse[12].value)
+	if (test_key == kc_mouse[11].value ||
+	    test_key == kc_mouse[12].value)
 	{
 		return 1;
-	}//end if
+	}// end if
 
-	//else...
+	// else...
 	return 0;
 }
 
 int isKeyboardRotationKey(int test_key)
 {
-	if (  test_key == kc_keyboard[0].value ||
-		test_key == kc_keyboard[1].value ||
-		test_key == kc_keyboard[2].value ||
-		test_key == kc_keyboard[3].value ||
-		test_key == kc_keyboard[4].value ||
-		test_key == kc_keyboard[5].value ||
-		test_key == kc_keyboard[6].value ||
-		test_key == kc_keyboard[7].value ||
-		test_key == kc_keyboard[20].value ||
-		test_key == kc_keyboard[21].value ||
-		test_key == kc_keyboard[22].value ||
-		test_key == kc_keyboard[23].value)
+	if (test_key == kc_keyboard[0].value ||
+	    test_key == kc_keyboard[1].value ||
+	    test_key == kc_keyboard[2].value ||
+	    test_key == kc_keyboard[3].value ||
+	    test_key == kc_keyboard[4].value ||
+	    test_key == kc_keyboard[5].value ||
+	    test_key == kc_keyboard[6].value ||
+	    test_key == kc_keyboard[7].value ||
+	    test_key == kc_keyboard[20].value ||
+	    test_key == kc_keyboard[21].value ||
+	    test_key == kc_keyboard[22].value ||
+	    test_key == kc_keyboard[23].value)
 	{
 		return 1;
-	}//end if
+	}// end if
 
-	//else...
+	// else...
 	return 0;
 }
 
 int kconfig_is_axes_used(int axis)
 {
 	int i;
-	for (i=0; i<NUM_JOYSTICK_CONTROLS; i++ )   {
+	for (i=0; i<NUM_JOYSTICK_CONTROLS; i++ )	{
 		if (( kc_joystick[i].type == BT_JOY_AXIS ) && (kc_joystick[i].value == axis ))
-		     return 1;
+			return 1;
 	}
 	return 0;
 }
@@ -598,11 +598,11 @@ void kconfig_sub_draw_table(kc_item * items,int nitems, char * title)
 
 void kconfig_sub(kc_item * items,int nitems, char * title)
 {
-	grs_canvas * save_canvas;
 	grs_font * save_font;
 	int old_keyd_repeat;
 	int i,k,ocitem,citem;
 	int time_stopped = 0;
+	grs_canvas * save_canvas;
 #ifdef NEWMENU_MOUSE
 	int mouse_state, omouse_state, mx, my, mz, x1, x2, y1, y2;
 #endif
@@ -611,7 +611,7 @@ void kconfig_sub(kc_item * items,int nitems, char * title)
 	Num_items = nitems;
 
 #ifdef NETWORK
-	if (! ( (Game_mode & GM_MULTI) && (Function_mode == FMODE_GAME) && (!Endlevel_sequence) ) )
+	if (!((Game_mode & GM_MULTI) && (Function_mode == FMODE_GAME) && (!Endlevel_sequence)) )
 #else
 	if (Endlevel_sequence)
 #endif
@@ -625,6 +625,7 @@ void kconfig_sub(kc_item * items,int nitems, char * title)
 	gr_init_sub_canvas(&kconfig_sub_canvas, &grd_curscreen->sc_canvas, (SWIDTH - FSPACX(320))/2, (SHEIGHT - FSPACY(200))/2, FSPACX(320), FSPACY(200));
 
 	save_font = grd_curcanv->cv_font;
+
 	game_flush_inputs();
 	old_keyd_repeat = keyd_repeat;
 	keyd_repeat = 1;
@@ -652,7 +653,7 @@ void kconfig_sub(kc_item * items,int nitems, char * title)
 
 		//see if redbook song needs to be restarted
 		RBACheckFinishedHook();
-		
+
 		k = key_inkey();
 
 #ifdef NEWMENU_MOUSE
@@ -694,26 +695,30 @@ void kconfig_sub(kc_item * items,int nitems, char * title)
 				{
 					for(i=0;i<NUM_D1X_CONTROLS;i++)
 					{
-					items[i].value=DefaultKeySettingsD1X[i];
-					kc_drawitem( &items[i], 0 );
+						items[i].value=DefaultKeySettingsD1X[i];
+						kc_drawitem( &items[i], 0 );
 					}
 				}
 				else if ( items==kc_mouse )
 				{
 					for (i=0; i<NUM_MOUSE_CONTROLS; i++ )
 					{
-					items[i].value = DefaultKeySettings[PlayerCfg.ControlType][i];
-					kc_drawitem( &items[i], 0 );
+						items[i].value = DefaultKeySettings[PlayerCfg.ControlType][i];
+						kc_drawitem( &items[i], 0 );
 					}
 				}
 				else
 				{
 					for (i=0; i<NUM_JOYSTICK_CONTROLS; i++ )
 					{
-					items[i].value = DefaultKeySettings[PlayerCfg.ControlType][i];
-					kc_drawitem( &items[i], 0 );
+						items[i].value = DefaultKeySettings[PlayerCfg.ControlType][i];
+						kc_drawitem( &items[i], 0 );
 					}
 				}
+				kc_drawitem( &items[citem], 1 );
+				break;
+			case KEY_DELETE:
+				items[citem].value=255;
 				kc_drawitem( &items[citem], 1 );
 				break;
 			case KEY_UP: 		
@@ -758,22 +763,24 @@ void kconfig_sub(kc_item * items,int nitems, char * title)
 			case -2:	
 			case KEY_ESC:
 				grd_curcanv->cv_font	= save_font;
-				gr_set_current_canvas( save_canvas );			
+
+				gr_set_current_canvas( save_canvas );
 				keyd_repeat = old_keyd_repeat;
 				game_flush_inputs();
+				newmenu_hide_cursor();
 				if (time_stopped)
 					start_time();
 				return;
 #ifdef TABLE_CREATION
-			case KEY_F12:      {
+			case KEY_F12:	{
 				FILE * fp;
-				for (i=0; i<NUM_KEY_CONTROLS; i++ )     {
+				for (i=0; i<NUM_KEY_CONTROLS; i++ )	{
 					kc_keyboard[i].u = find_next_item_up( kc_keyboard,NUM_KEY_CONTROLS, i);
 					kc_keyboard[i].d = find_next_item_down( kc_keyboard,NUM_KEY_CONTROLS, i);
 					kc_keyboard[i].l = find_next_item_left( kc_keyboard,NUM_KEY_CONTROLS, i);
 					kc_keyboard[i].r = find_next_item_right( kc_keyboard,NUM_KEY_CONTROLS, i);
 				}
-				for (i=0; i<NUM_JOYSTICK_CONTROLS; i++ )   {
+				for (i=0; i<NUM_JOYSTICK_CONTROLS; i++ )	{
 					kc_joystick[i].u = find_next_item_up( kc_joystick,NUM_JOYSTICK_CONTROLS, i);
 					kc_joystick[i].d = find_next_item_down( kc_joystick,NUM_JOYSTICK_CONTROLS, i);
 					kc_joystick[i].l = find_next_item_left( kc_joystick,NUM_JOYSTICK_CONTROLS, i);
@@ -792,7 +799,7 @@ void kconfig_sub(kc_item * items,int nitems, char * title)
 					kc_d1x[i].r = find_next_item_right( kc_d1x,NUM_D1X_CONTROLS, i);
 				}
 				fp = fopen( "kconfig.cod", "wt" );
-	
+
 				fprintf( fp, "ubyte DefaultKeySettings[CONTROL_MAX_TYPES][MAX_CONTROLS] = {\n" );
 				for (i=0; i<CONTROL_MAX_TYPES; i++ )	{
 					int j;
@@ -804,23 +811,23 @@ void kconfig_sub(kc_item * items,int nitems, char * title)
 				fprintf( fp, "};\n" );
 			
 				fprintf( fp, "\nkc_item kc_keyboard[NUM_KEY_CONTROLS] = {\n" );
-				for (i=0; i<(NUM_KEY_CONTROLS); i++ )     {
+				for (i=0; i<NUM_KEY_CONTROLS; i++ )	{
 					fprintf( fp, "\t{ %2d,%3d,%3d,%3d,%3d,%3d,%3d,%3d,%3d,%c%s%c, %s, 255 },\n", 
 						kc_keyboard[i].id, kc_keyboard[i].x, kc_keyboard[i].y, kc_keyboard[i].w1, kc_keyboard[i].w2,
 						kc_keyboard[i].u, kc_keyboard[i].d, kc_keyboard[i].l, kc_keyboard[i].r,
 						34, kc_keyboard[i].text, 34, btype_text[kc_keyboard[i].type] );
 				}
 				fprintf( fp, "};" );
-	
+
 				fprintf( fp, "\nkc_item kc_joystick[NUM_JOYSTICK_CONTROLS] = {\n" );
-				for (i=0; i<NUM_JOYSTICK_CONTROLS; i++ )   {
+				for (i=0; i<NUM_JOYSTICK_CONTROLS; i++ )	{
 					fprintf( fp, "\t{ %2d,%3d,%3d,%3d,%3d,%3d,%3d,%3d,%3d,%c%s%c, %s, 255 },\n", 
 						kc_joystick[i].id, kc_joystick[i].x, kc_joystick[i].y, kc_joystick[i].w1, kc_joystick[i].w2,
 						kc_joystick[i].u, kc_joystick[i].d, kc_joystick[i].l, kc_joystick[i].r,
 						34, kc_joystick[i].text, 34, btype_text[kc_joystick[i].type] );
 				}
 				fprintf( fp, "};" );
-	
+
 				fprintf( fp, "\nkc_item kc_mouse[NUM_MOUSE_CONTROLS] = {\n" );
 				for (i=0; i<NUM_MOUSE_CONTROLS; i++ )	{
 					fprintf( fp, "\t{ %2d,%3d,%3d,%3d,%3d,%3d,%3d,%3d,%3d,%c%s%c, %s, 255 },\n", 
@@ -838,9 +845,9 @@ void kconfig_sub(kc_item * items,int nitems, char * title)
 						34, kc_d1x[i].text, 34, btype_text[kc_d1x[i].type] );
 				}
 				fprintf( fp, "};" );
-	
+
 				fclose(fp);
-	
+
 				}
 				break;
 #endif
@@ -887,10 +894,11 @@ void kconfig_sub(kc_item * items,int nitems, char * title)
 		}
 #endif // NEWMENU_MOUSE
 
-		if (ocitem!=citem)
-		{
+		if (ocitem!=citem)	{
+			newmenu_hide_cursor();
 			kc_drawitem( &items[ocitem], 0 );
 			kc_drawitem( &items[citem], 1 );
+			newmenu_show_cursor();
 		}
 	}
 }
@@ -915,7 +923,7 @@ void kc_drawitem( kc_item *item, int is_current )
 			case BT_KEY:
 				strncpy( btext, key_text[item->value], 10 ); break;
 			case BT_MOUSE_BUTTON:
-				strncpy( btext, item->value<3?mousebutton_text[item->value]:mousebutton_textra[item->value-3], 10 ); break;
+				strncpy( btext, (item->value < 3)?mousebutton_text[item->value]:mousebutton_textra[item->value-3], 10 ); break;
 			case BT_MOUSE_AXIS:
 				strncpy( btext, mouseaxis_text[item->value], 10 ); break;
 			case BT_JOY_BUTTON:
@@ -923,7 +931,6 @@ void kc_drawitem( kc_item *item, int is_current )
 					strncpy(btext, joybutton_text[item->value], 10);
 				else
 					sprintf(btext, "BTN%2d", item->value + 1);
-
 				break;
 			case BT_JOY_AXIS:
 				if (joyaxis_text[item->value])
@@ -956,7 +963,7 @@ static int looper=0;
 void kc_drawquestion( kc_item *item )
 {
 	int c, x, w, h, aw;
-	
+
 	gr_get_string_size("?", &w, &h, &aw  );
 
 	c = BM_XRGB(21,0,24);
@@ -984,14 +991,16 @@ void kc_change_key( kc_item * item )
 	game_flush_inputs();
 	keycode=255;
 	k=255;
-	while( (k!=KEY_ESC) && (keycode==255) )	{
-
+	
+	while( (k!=KEY_ESC) && (keycode==255) )	
+	{				
 #ifdef NETWORK
 		if ((Game_mode & GM_MULTI) && (Function_mode == FMODE_GAME) && (!Endlevel_sequence))
 			multi_menu_poll();
 #endif
 		k = key_inkey();
-                timer_delay(f0_1/10);
+		timer_delay(f0_1/10);
+
 		gr_flip();
 		kconfig_sub_draw_table(kc_keyboard,NUM_KEY_CONTROLS,"KEYBOARD");
 		gr_string( 0x8000, FSPACY(INFO_Y), TXT_PRESS_NEW_KEY );
@@ -1020,6 +1029,7 @@ void kc_change_key( kc_item * item )
 		item->value = keycode;
 	}
 	kc_drawitem( item, 1 );
+
 	gr_set_fontcolor( BM_XRGB(28,28,28), BM_XRGB(0,0,0) );
 	game_flush_inputs();
 
@@ -1035,14 +1045,15 @@ void kc_change_joybutton( kc_item * item )
 	game_flush_inputs();
 	code=255;
 	k=255;
-        while( (k!=KEY_ESC) && (code==255))     {
 	
-		#ifdef NETWORK
+	while( (k!=KEY_ESC) && (code==255))	
+	{				
+#ifdef NETWORK
 		if ((Game_mode & GM_MULTI) && (Function_mode == FMODE_GAME) && (!Endlevel_sequence))
 			multi_menu_poll();
-		#endif
+#endif
 		k = key_inkey();
-                timer_delay(f0_1/10);
+		timer_delay(f0_1/10);
 
 		if (k == KEY_PRINT_SCREEN)
 			save_screen_shot(0);
@@ -1052,7 +1063,8 @@ void kc_change_joybutton( kc_item * item )
 		gr_string( 0x8000, FSPACY(INFO_Y), TXT_PRESS_NEW_JBUTTON );
 		kc_drawquestion( item );
 
-		for (i=0; i<JOY_MAX_BUTTONS; i++ )    {
+		for (i = 0; i < JOY_MAX_BUTTONS; i++)
+		{
 			if ( joy_get_button_state(i) )
 				code = i;
 		}
@@ -1060,7 +1072,7 @@ void kc_change_joybutton( kc_item * item )
 	if (code!=255)	{
 		for (i=0; i<Num_items; i++ )	{
 			n = item - All_items;
-			if ( (i!=n) && (All_items[i].type==BT_JOY_BUTTON) && (All_items[i].value==code) )		{
+			if ( (i!=n) && (All_items[i].type==BT_JOY_BUTTON) && (All_items[i].value==code) ) {
 				All_items[i].value = 255;
 				kc_drawitem( &All_items[i], 0 );
 			}
@@ -1081,13 +1093,15 @@ void kc_change_mousebutton( kc_item * item )
 	game_flush_inputs();
 	code=255;
 	k=255;
-	while( (k!=KEY_ESC) && (code==255))	{
-		#ifdef NETWORK
+	
+	while( (k!=KEY_ESC) && (code==255))	
+	{				
+#ifdef NETWORK
 		if ((Game_mode & GM_MULTI) && (Function_mode == FMODE_GAME) && (!Endlevel_sequence))
 			multi_menu_poll();
-		#endif
+#endif
 		k = key_inkey();
-                timer_delay(f0_1/10);
+		timer_delay(f0_1/10);
 
 		if (k == KEY_PRINT_SCREEN)
 			save_screen_shot(0);
@@ -1098,7 +1112,7 @@ void kc_change_mousebutton( kc_item * item )
 		kc_drawquestion( item );
 
 		b = mouse_get_btns();
-		for (i=0; i<16; i++ )	{
+		for (i = 0; i < 16; i++ ) {
 			if ( b & (1<<i) )	
 				code = i;
 		}
@@ -1134,14 +1148,14 @@ void kc_change_joyaxis( kc_item * item )
 
 	joystick_read_raw_axis( JOY_ALL_AXIS, old_axis );
 
-	while( (k!=KEY_ESC) && (code==255))	
-	{
-		#ifdef NETWORK
+	while( (k!=KEY_ESC) && (code==255))
+	{				
+#ifdef NETWORK
 		if ((Game_mode & GM_MULTI) && (Function_mode == FMODE_GAME) && (!Endlevel_sequence))
 			multi_menu_poll();
-		#endif
+#endif
 		k = key_inkey();
-                timer_delay(f0_1/10);
+		timer_delay(f0_1/10);
 
 		if (k == KEY_PRINT_SCREEN)
 			save_screen_shot(0);
@@ -1154,12 +1168,10 @@ void kc_change_joyaxis( kc_item * item )
 		joystick_read_raw_axis( JOY_ALL_AXIS, axis );
 
 		for (i=0; i<numaxis; i++ )	{
-  			if ( abs(axis[i]-old_axis[i])>4096 )
+			if ( abs(axis[i]-old_axis[i])>4096 )
 			{
 				code = i;
-#ifndef NDEBUG
-				con_printf(CON_DEBUG,"Axis Movement detected: Axis %i\n", i);
-#endif
+				con_printf(CON_DEBUG, "Axis Movement detected: Axis %i\n", i);
 			}
 		}
 	}
@@ -1192,13 +1204,14 @@ void kc_change_mouseaxis( kc_item * item )
 	code=255;
 	k=255;
 
-	while( (k!=KEY_ESC) && (code==255))	{
-		#ifdef NETWORK
+	while( (k!=KEY_ESC) && (code==255))	
+	{
+#ifdef NETWORK
 		if ((Game_mode & GM_MULTI) && (Function_mode == FMODE_GAME) && (!Endlevel_sequence))
 			multi_menu_poll();
-		#endif
+#endif
 		k = key_inkey();
-                timer_delay(f0_1/10);
+		timer_delay(f0_1/10);
 
 		if (k == KEY_PRINT_SCREEN)
 			save_screen_shot(0);
@@ -1209,12 +1222,10 @@ void kc_change_mouseaxis( kc_item * item )
 		kc_drawquestion( item );
 
 		mouse_get_delta( &dx, &dy, &dz );
-
 		if ( abs(dx)>20 ) code = 0;
-		if ( abs(dy)>20 )	code = 1;
+		if ( abs(dy)>20 ) code = 1;
 		if ( abs(dz)>20 ) code = 2;
 	}
-
 	if (code!=255)	{
 		for (i=0; i<Num_items; i++ )	{
 			n = item - All_items;
@@ -1264,11 +1275,11 @@ void kconfig(int n, char * title)
 			kconfig_sub( kc_mouse,   NUM_MOUSE_CONTROLS,     "MOUSE");
 			PlayerCfg.ControlType = CONTROL_JOYMOUSE;
 			break;
-		case 4:kconfig_sub( kc_d1x,     NUM_D1X_CONTROLS,      title); break;
+		case 4:kconfig_sub( kc_d1x, NUM_D1X_CONTROLS, title ); break;
 		default:
 			Int3();
 			return;
-    	}
+	}
 
 	reset_cockpit();                //force cockpit redraw next time
 
@@ -1287,7 +1298,7 @@ void kconfig(int n, char * title)
 		for (i=0; i<NUM_MOUSE_CONTROLS; i++ ) 
 			PlayerCfg.KeySettings[CONTROL_MOUSE][i] = kc_mouse[i].value;
 	}
-	
+
 	for (i=0; i<NUM_D1X_CONTROLS; i++)
 		PlayerCfg.KeySettingsD1X[i] = kc_d1x[i].value;
 }
@@ -1295,11 +1306,8 @@ void kconfig(int n, char * title)
 fix	joy_axis[JOY_MAX_AXES];
 
 int d1x_joystick_ostate[20]={0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0};
-int Vulcan_kostate = 0;
-int Vulcan_jostate = 0;
-int Vulcan_mostate = 0;
 
-void controls_read_all()
+void controls_read_all(int automap_flag)
 {
 	int i;
 	int slide_on, bank_on;
@@ -1312,6 +1320,9 @@ void controls_read_all()
 	ubyte channel_masks;
 	int use_mouse, use_joystick;
 	int speed_factor=1;
+
+	mouse_buttons=0;
+	use_mouse=0;
 
 	if (Game_turbo_mode)
 		speed_factor = 2;
@@ -1327,10 +1338,11 @@ void controls_read_all()
 	bank_on = 0;
 
 	//---------  Read Joystick -----------
-	if ( CONTROL_USING_JOYSTICK ) {
+	if (CONTROL_USING_JOYSTICK ) {
 		channel_masks = joystick_read_raw_axis( JOY_ALL_AXIS, raw_joy_axis );
-		
-                for (i=0; i<joy_num_axes; i++ )    {
+
+		for (i = 0; i < joy_num_axes; i++)
+		{
 			if (channel_masks&(1<<i))	{
 				int joy_null_value = 10;
 
@@ -1352,7 +1364,7 @@ void controls_read_all()
 		}
 		use_joystick=1;
 	} else {
-                for (i=0; i<joy_num_axes; i++ )
+		for (i = 0; i < joy_num_axes; i++)
 			joy_axis[i] = 0;
 		use_joystick=0;
 	}
@@ -1375,68 +1387,69 @@ void controls_read_all()
 	}
 
 
-	if (!Player_is_dead && !Automap_flag)
+	//--------- Read primary weapon select -------------
+	if (!Player_is_dead && !automap_flag)
 	{
 		int d1x_joystick_state[10];
-		
+
 		for(i=0;i<10;i++)
-		d1x_joystick_state[i] = joy_get_button_state(kc_d1x[i*2+1].value);
-		
-		
+			d1x_joystick_state[i] = joy_get_button_state(kc_d1x[i*2+1].value);
+
+
 		//----------------Weapon 1----------------
-		if(key_down_count(kc_d1x[0].value) ||
-		(joy_get_button_state(kc_d1x[1].value) &&
+		if((key_down_count(kc_d1x[0].value) && !((keyd_pressed[KEY_LSHIFT] || keyd_pressed[KEY_RSHIFT]))) ||
+			(joy_get_button_state(kc_d1x[1].value) &&
 			(d1x_joystick_state[0]!=d1x_joystick_ostate[0]) ) )
-			do_weapon_select(0,0);
+				do_weapon_select(0,0);
 		//----------------Weapon 2----------------
-		if(key_down_count(kc_d1x[2].value) ||
-		(joy_get_button_state(kc_d1x[3].value) &&
+		if((key_down_count(kc_d1x[2].value) && !((keyd_pressed[KEY_LSHIFT] || keyd_pressed[KEY_RSHIFT]))) ||
+			(joy_get_button_state(kc_d1x[3].value) &&
 			(d1x_joystick_state[1]!=d1x_joystick_ostate[1]) ) )
-			do_weapon_select(1,0);
+				do_weapon_select(1,0);
 		//----------------Weapon 3----------------
-		if(key_down_count(kc_d1x[4].value) ||
-		(joy_get_button_state(kc_d1x[5].value) &&
+		if((key_down_count(kc_d1x[4].value) && !((keyd_pressed[KEY_LSHIFT] || keyd_pressed[KEY_RSHIFT]))) ||
+			(joy_get_button_state(kc_d1x[5].value) &&
 			(d1x_joystick_state[2]!=d1x_joystick_ostate[2]) ) )
-			do_weapon_select(2,0);
+				do_weapon_select(2,0);
 		//----------------Weapon 4----------------
-		if(key_down_count(kc_d1x[6].value) ||
-		(joy_get_button_state(kc_d1x[7].value) &&
+		if((key_down_count(kc_d1x[6].value) && !((keyd_pressed[KEY_LSHIFT] || keyd_pressed[KEY_RSHIFT]))) ||
+			(joy_get_button_state(kc_d1x[7].value) &&
 			(d1x_joystick_state[3]!=d1x_joystick_ostate[3]) ) )
-			do_weapon_select(3,0);
+				do_weapon_select(3,0);
 		//----------------Weapon 5----------------
-		if(key_down_count(kc_d1x[8].value) ||
-		(joy_get_button_state(kc_d1x[9].value) &&
+		if((key_down_count(kc_d1x[8].value) && !((keyd_pressed[KEY_LSHIFT] || keyd_pressed[KEY_RSHIFT]))) ||
+			(joy_get_button_state(kc_d1x[9].value) &&
 			(d1x_joystick_state[4]!=d1x_joystick_ostate[4]) ) )
-			do_weapon_select(4,0);
-		
+				do_weapon_select(4,0);
+
 		//--------- Read secondary weapon select ----------
 		//----------------Weapon 6----------------
-		if(key_down_count(kc_d1x[10].value) ||
-		(joy_get_button_state(kc_d1x[11].value) &&
+		if((key_down_count(kc_d1x[10].value) && !((keyd_pressed[KEY_LSHIFT] || keyd_pressed[KEY_RSHIFT]))) ||
+			(joy_get_button_state(kc_d1x[11].value) &&
 			(d1x_joystick_state[5]!=d1x_joystick_ostate[5]) ) )
-			do_weapon_select(0,1);
+				do_weapon_select(0,1);
 		//----------------Weapon 7----------------
-		if(key_down_count(kc_d1x[12].value) ||
-		(joy_get_button_state(kc_d1x[13].value) &&
+		if((key_down_count(kc_d1x[12].value) && !((keyd_pressed[KEY_LSHIFT] || keyd_pressed[KEY_RSHIFT]))) ||
+			(joy_get_button_state(kc_d1x[13].value) &&
 			(d1x_joystick_state[6]!=d1x_joystick_ostate[6]) ) )
-			do_weapon_select(1,1);
+				do_weapon_select(1,1);
 		//----------------Weapon 8----------------
-		if(key_down_count(kc_d1x[14].value) ||
-		(joy_get_button_state(kc_d1x[15].value) &&
+		if((key_down_count(kc_d1x[14].value) && !((keyd_pressed[KEY_LSHIFT] || keyd_pressed[KEY_RSHIFT]))) ||
+			(joy_get_button_state(kc_d1x[15].value) &&
 			(d1x_joystick_state[7]!=d1x_joystick_ostate[7]) ) )
-			do_weapon_select(2,1);
+				do_weapon_select(2,1);
 		//----------------Weapon 9----------------
-		if(key_down_count(kc_d1x[16].value) ||
-		(joy_get_button_state(kc_d1x[17].value) &&
+		if((key_down_count(kc_d1x[16].value) && !((keyd_pressed[KEY_LSHIFT] || keyd_pressed[KEY_RSHIFT]))) ||
+			(joy_get_button_state(kc_d1x[17].value) &&
 			(d1x_joystick_state[8]!=d1x_joystick_ostate[8]) ) )
-			do_weapon_select(3,1);
+				do_weapon_select(3,1);
 		//----------------Weapon 0----------------
-		if(key_down_count(kc_d1x[18].value) ||
-		(joy_get_button_state(kc_d1x[19].value) &&
+		if((key_down_count(kc_d1x[18].value) && !((keyd_pressed[KEY_LSHIFT] || keyd_pressed[KEY_RSHIFT]))) ||
+			(joy_get_button_state(kc_d1x[19].value) &&
 			(d1x_joystick_state[9]!=d1x_joystick_ostate[9]) ) )
-			do_weapon_select(4,1);
+				do_weapon_select(4,1);
 		memcpy(d1x_joystick_ostate,d1x_joystick_state,10*sizeof(int));
-	}
+	}//end "if (!Player_is_dead)" - WraithX
 
 //------------- Read slide_on -------------
 	
@@ -1444,9 +1457,8 @@ void controls_read_all()
 	if ( kc_keyboard[8].value < 255 ) slide_on |= keyd_pressed[ kc_keyboard[8].value ];
 	if ( kc_keyboard[9].value < 255 ) slide_on |= keyd_pressed[ kc_keyboard[9].value ];
 	// From joystick...
-
 	if ((use_joystick)&&(kc_joystick[5].value<255)) slide_on |= joy_get_button_state( kc_joystick[5].value );
-        if ((use_joystick)&&(kc_joystick[34].value<255)) slide_on |= joy_get_button_state( kc_joystick[34].value );
+	if ((use_joystick)&&(kc_joystick[34].value<255)) slide_on |= joy_get_button_state( kc_joystick[34].value );
 	// From mouse...
 	if ((use_mouse)&&(kc_mouse[5].value<255)) slide_on |= mouse_buttons & (1<<kc_mouse[5].value);
 
@@ -1504,6 +1516,8 @@ void controls_read_all()
 		Controls.pitch_time = 0;
 	}
 
+
+	// done so that dead players can't move
 	if (!Player_is_dead)
 	{
 		static int mouse_pricycle_lock=0, mouse_seccycle_lock=0;
@@ -1633,13 +1647,14 @@ void controls_read_all()
 		if ( (use_mouse)&&(kc_mouse[15].value < 255 ))	{
 			if ( !kc_mouse[16].value )		// If not inverted...
 				Controls.heading_time += (mouse_axis[kc_mouse[15].value]*PlayerCfg.MouseSensitivityX)/8;
-				else
+			else
 				Controls.heading_time -= (mouse_axis[kc_mouse[15].value]*PlayerCfg.MouseSensitivityX)/8;
 		}
 	} else {
 		Controls.heading_time = 0;
 	}
 
+	// done so that dead players can't move
 	if (!Player_is_dead)
 	{
 	//----------- Read sideways_thrust_time -----------------
@@ -1756,6 +1771,7 @@ void controls_read_all()
 	if ( (use_joystick)&&(kc_joystick[40].value < 255 )) Controls.bank_time += joy_get_button_down_time( kc_joystick[40].value );
 	if ( (use_joystick)&&(kc_joystick[12].value < 255 )) Controls.bank_time -= joy_get_button_down_time( kc_joystick[12].value );
 	if ( (use_joystick)&&(kc_joystick[41].value < 255 )) Controls.bank_time -= joy_get_button_down_time( kc_joystick[41].value );
+
 	// From mouse buttons
 	if ( (use_mouse)&&(kc_mouse[11].value < 255 )) Controls.bank_time += mouse_button_down_time( kc_mouse[11].value );
 	if ( (use_mouse)&&(kc_mouse[12].value < 255 )) Controls.bank_time -= mouse_button_down_time( kc_mouse[12].value );
@@ -1768,6 +1784,7 @@ void controls_read_all()
 			Controls.bank_time -= mouse_axis[kc_mouse[21].value];
 	}
 
+	// done so that dead players can't move
 	if (!Player_is_dead)
 	{
 	//----------- Read forward_thrust_time -------------
@@ -1807,9 +1824,9 @@ void controls_read_all()
 	//----------- Read fire_primary_down_count
 		if (kc_keyboard[24].value < 255 ) Controls.fire_primary_down_count += key_down_count(kc_keyboard[24].value);
 		if (kc_keyboard[25].value < 255 ) Controls.fire_primary_down_count += key_down_count(kc_keyboard[25].value);
-		
 		if ((use_joystick)&&(kc_joystick[0].value < 255 )) Controls.fire_primary_down_count += joy_get_button_down_cnt(kc_joystick[0].value);
 		if ((use_joystick)&&(kc_joystick[29].value < 255 )) Controls.fire_primary_down_count += joy_get_button_down_cnt(kc_joystick[29].value);
+	
 		if ((use_mouse)&&(kc_mouse[0].value < 255 )) Controls.fire_primary_down_count += mouse_button_down_count(kc_mouse[0].value);
 	
 	//----------- Read fire_primary_state
@@ -1817,6 +1834,7 @@ void controls_read_all()
 		if (kc_keyboard[25].value < 255 ) Controls.fire_primary_state |= keyd_pressed[kc_keyboard[25].value];
 		if ((use_joystick)&&(kc_joystick[0].value < 255 )) Controls.fire_primary_state |= joy_get_button_state(kc_joystick[0].value);
 		if ((use_joystick)&&(kc_joystick[29].value < 255 )) Controls.fire_primary_state |= joy_get_button_state(kc_joystick[29].value);
+	
 		if ((use_mouse)&&(kc_mouse[0].value < 255) ) Controls.fire_primary_state |= mouse_button_state(kc_mouse[0].value);
 	
 	//----------- Read fire_secondary_down_count
@@ -1832,7 +1850,7 @@ void controls_read_all()
 		if ((use_joystick)&&(kc_joystick[1].value < 255 )) Controls.fire_secondary_state |= joy_get_button_state(kc_joystick[1].value);
 		if ((use_joystick)&&(kc_joystick[30].value < 255 )) Controls.fire_secondary_state |= joy_get_button_state(kc_joystick[30].value);
 		if ((use_mouse)&&(kc_mouse[1].value < 255) ) Controls.fire_secondary_state |= mouse_button_state(kc_mouse[1].value);
-	
+
 	//----------- Read fire_flare_down_count
 		if (kc_keyboard[28].value < 255 ) Controls.fire_flare_down_count += key_down_count(kc_keyboard[28].value);
 		if (kc_keyboard[29].value < 255 ) Controls.fire_flare_down_count += key_down_count(kc_keyboard[29].value);
@@ -1852,6 +1870,7 @@ void controls_read_all()
 		if (kc_keyboard[37].value < 255 ) Controls.rear_view_down_count += key_down_count(kc_keyboard[37].value);
 		if ((use_joystick)&&(kc_joystick[25].value < 255 )) Controls.rear_view_down_count += joy_get_button_down_cnt(kc_joystick[25].value);
 		if ((use_joystick)&&(kc_joystick[42].value < 255 )) Controls.rear_view_down_count += joy_get_button_down_cnt(kc_joystick[42].value);
+	
 		if ((use_mouse)&&(kc_mouse[25].value < 255 )) Controls.rear_view_down_count += mouse_button_down_count(kc_mouse[25].value);
 	
 	//----------- Read rear_view_down_state
@@ -1868,9 +1887,11 @@ void controls_read_all()
 	if (kc_keyboard[45].value < 255 ) Controls.automap_down_count += key_down_count(kc_keyboard[45].value);
         if ((use_joystick)&&(kc_joystick[27].value < 255 )) Controls.automap_down_count += joy_get_button_down_cnt(kc_joystick[27].value);
 	if ((use_joystick)&&(kc_joystick[28].value < 255 )) Controls.automap_down_count += joy_get_button_down_cnt(kc_joystick[28].value);
+
 //----------- Read automap_state
 	if (kc_keyboard[44].value < 255 ) Controls.automap_state |= keyd_pressed[kc_keyboard[44].value];
 	if (kc_keyboard[45].value < 255 ) Controls.automap_state |= keyd_pressed[kc_keyboard[45].value];
+	
 
 //----------- Read stupid-cruise-control-type of throttle.
 	{
@@ -1926,10 +1947,10 @@ void reset_cruise(void)
 void kc_set_controls()
 {
 	int i;
-	
-	for (i=0; i<NUM_KEY_CONTROLS; i++ ) 
-	kc_keyboard[i].value = PlayerCfg.KeySettings[0][i];
-	
+
+	for (i=0; i<NUM_KEY_CONTROLS; i++ )
+		kc_keyboard[i].value = PlayerCfg.KeySettings[0][i];
+
 	if (CONTROL_USING_JOYSTICK)
 	{
 		for (i=0; i<NUM_JOYSTICK_CONTROLS; i++ )
@@ -1937,26 +1958,26 @@ void kc_set_controls()
 			kc_joystick[i].value = PlayerCfg.KeySettings[CONTROL_JOYSTICK][i];
 			if (kc_joystick[i].type == BT_INVERT )
 			{
-			if (kc_joystick[i].value!=1)
-				kc_joystick[i].value    = 0;
-			PlayerCfg.KeySettings[CONTROL_JOYSTICK][i] = kc_joystick[i].value;
+				if (kc_joystick[i].value!=1)
+					kc_joystick[i].value = 0;
+				PlayerCfg.KeySettings[CONTROL_JOYSTICK][i] = kc_joystick[i].value;
 			}
 		}
 	}
-	if ( CONTROL_USING_MOUSE )
+	if (CONTROL_USING_MOUSE)
 	{
-	for (i=0; i<NUM_MOUSE_CONTROLS; i++ )
+		for (i=0; i<NUM_MOUSE_CONTROLS; i++ )
 		{
 			kc_mouse[i].value = PlayerCfg.KeySettings[CONTROL_MOUSE][i];
 			if (kc_mouse[i].type == BT_INVERT )
 			{
 				if (kc_mouse[i].value!=1)
 					kc_mouse[i].value = 0;
-					PlayerCfg.KeySettings[CONTROL_MOUSE][i] = kc_mouse[i].value;
+				PlayerCfg.KeySettings[CONTROL_MOUSE][i] = kc_mouse[i].value;
 			}
 		}
 	}
-	
+
 	for (i=0; i<NUM_D1X_CONTROLS; i++ )
 		kc_d1x[i].value = PlayerCfg.KeySettingsD1X[i];
 }

@@ -105,10 +105,18 @@ int	Mark_count = 0;                 // number of debugging marks set
 
 static fix last_timer_value=0;
 
+fix			VR_eye_width = F1_0;
 int			VR_render_mode = VR_NONE;
 int			VR_low_res = 3; // Default to low res
 int 			VR_show_hud = 1;
 int			VR_sensitivity = 1; // 0 - 2
+
+//NEWVR
+int			VR_eye_offset		 = 0;
+int			VR_eye_switch		 = 0;
+int			VR_eye_offset_changed = 0;
+int			VR_use_reg_code 	= 0;
+
 grs_canvas	Screen_3d_window;							// The rectangle for rendering the mine to
 grs_canvas	*VR_offscreen_buffer	= NULL;		// The offscreen data buffer
 grs_canvas	VR_render_buffer[2];					//  Two offscreen buffers for left/right eyes.
@@ -604,6 +612,36 @@ void do_invulnerable_stuff(void)
 //	Amount to diminish guns towards normal, per second.
 #define	DIMINISH_RATE 16 // gots to be a power of 2, else change the code in diminish_palette_towards_normal
 
+ //adds to rgb values for palette flash
+void PALETTE_FLASH_ADD(int _dr, int _dg, int _db)
+{
+	int	maxval;
+
+	PaletteRedAdd += _dr;
+	PaletteGreenAdd += _dg;
+	PaletteBlueAdd += _db;
+
+	maxval = MAX_PALETTE_ADD;
+
+	if (PaletteRedAdd > maxval)
+		PaletteRedAdd = maxval;
+
+	if (PaletteGreenAdd > maxval)
+		PaletteGreenAdd = maxval;
+
+	if (PaletteBlueAdd > maxval)
+		PaletteBlueAdd = maxval;
+
+	if (PaletteRedAdd < -maxval)
+		PaletteRedAdd = -maxval;
+
+	if (PaletteGreenAdd < -maxval)
+		PaletteGreenAdd = -maxval;
+
+	if (PaletteBlueAdd < -maxval)
+		PaletteBlueAdd = -maxval;
+}
+
 //	------------------------------------------------------------------------------------
 //	Diminish palette effects towards normal.
 void diminish_palette_towards_normal(void)
@@ -863,7 +901,6 @@ void reset_rear_view(void)
 
 }
 
-int Automap_flag;
 int Config_menu_flag;
 jmp_buf LeaveGame;
 
@@ -957,8 +994,6 @@ void game_render_frame();
 // Event handler for the game
 int game_handler(window *wind, d_event *event, void *data)
 {
-	// unused parameters
-	event = event;	// unused for now
 	data = data;
 
 	if (event->type == EVENT_DRAW)
@@ -971,14 +1006,18 @@ int game_handler(window *wind, d_event *event, void *data)
 
 		return 1;
 	}
+	else if (event->type == EVENT_CLOSE)
+		// Will have abort dialog here...
+		return 1;
 
 	// GAME LOOP!
-	Automap_flag = 0;
 	Config_menu_flag = 0;
 	
 	calc_frame_time();
 
 	ReadControls();		// will have its own event(s) eventually
+	if (window_get_front() != wind)
+		return 1;		// in automap
 
 	GameProcessFrame();
 	
@@ -989,15 +1028,6 @@ int game_handler(window *wind, d_event *event, void *data)
 		if (!(Game_mode&GM_MULTI)) palette_save();
 		do_options_menu();
 		if (!(Game_mode&GM_MULTI)) palette_restore();
-	}
-	
-	if (Automap_flag) {
-		game_flush_inputs();
-		do_automap(0);
-		Screen_mode=-1; set_screen_mode(SCREEN_GAME);
-		init_cockpit();
-		last_drawn_cockpit = -1;
-		game_flush_inputs();
 	}
 	
 	if ( (Function_mode != FMODE_GAME) && GameArg.SysAutoDemo && (Newdemo_state != ND_STATE_NORMAL) )	{
@@ -1015,7 +1045,8 @@ int game_handler(window *wind, d_event *event, void *data)
 		}
 	}
 	
-	if ( (Function_mode != FMODE_GAME ) && (Newdemo_state != ND_STATE_PLAYBACK ) && (Function_mode!=FMODE_EDITOR) )		{
+	if ( (Function_mode != FMODE_GAME ) && (Newdemo_state != ND_STATE_PLAYBACK ) && (Function_mode!=FMODE_EDITOR)
+ )	{
 		int choice, fmode;
 		fmode = Function_mode;
 		Function_mode = FMODE_GAME;
@@ -1027,21 +1058,21 @@ int game_handler(window *wind, d_event *event, void *data)
 	
 	if (Function_mode != FMODE_GAME)
 	{
-		window_close(wind);
-		longjmp(LeaveGame,0);
+		if (window_close(wind))
+			longjmp(LeaveGame,0);
 	}
 
 	return 1;
 }
+
+window *Game_wind = NULL;
 
 //	------------------------------------------------------------------------------------
 //this function is the game.  called when game mode selected.  runs until
 //editor mode or exit selected
 void game()
 {
-	window *game_wind = NULL;
-
-	game_wind = game_setup();
+	Game_wind = game_setup();
 
 	if ( setjmp(LeaveGame)==0 ) {
 

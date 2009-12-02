@@ -1,16 +1,16 @@
 /* $Id: gamecntl.c,v 1.1.1.1 2006/03/17 19:56:33 zicodxx Exp $ */
 /*
- THE COMPUTER CODE CONTAINED HEREIN IS THE SOLE PROPERTY OF PARALLAX
- SOFTWARE CORPORATION ("PARALLAX").  PARALLAX, IN DISTRIBUTING THE CODE TO
- END-USERS, AND SUBJECT TO ALL OF THE TERMS AND CONDITIONS HEREIN, GRANTS A
- ROYALTY-FREE, PERPETUAL LICENSE TO SUCH END-USERS FOR USE BY SUCH END-USERS
- IN USING, DISPLAYING,  AND CREATING DERIVATIVE WORKS THEREOF, SO LONG AS
- SUCH USE, DISPLAY OR CREATION IS FOR NON-COMMERCIAL, ROYALTY OR REVENUE
- FREE PURPOSES.  IN NO EVENT SHALL THE END-USER USE THE COMPUTER CODE
- CONTAINED HEREIN FOR REVENUE-BEARING PURPOSES.  THE END-USER UNDERSTANDS
- AND AGREES TO THE TERMS HEREIN AND ACCEPTS THE SAME BY USE OF THIS FILE.
- COPYRIGHT 1993-1999 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
- */
+THE COMPUTER CODE CONTAINED HEREIN IS THE SOLE PROPERTY OF PARALLAX
+SOFTWARE CORPORATION ("PARALLAX").  PARALLAX, IN DISTRIBUTING THE CODE TO
+END-USERS, AND SUBJECT TO ALL OF THE TERMS AND CONDITIONS HEREIN, GRANTS A
+ROYALTY-FREE, PERPETUAL LICENSE TO SUCH END-USERS FOR USE BY SUCH END-USERS
+IN USING, DISPLAYING,  AND CREATING DERIVATIVE WORKS THEREOF, SO LONG AS
+SUCH USE, DISPLAY OR CREATION IS FOR NON-COMMERCIAL, ROYALTY OR REVENUE
+FREE PURPOSES.  IN NO EVENT SHALL THE END-USER USE THE COMPUTER CODE
+CONTAINED HEREIN FOR REVENUE-BEARING PURPOSES.  THE END-USER UNDERSTANDS
+AND AGREES TO THE TERMS HEREIN AND ACCEPTS THE SAME BY USE OF THIS FILE.
+COPYRIGHT 1993-1999 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
+*/
 
 /*
  *
@@ -88,6 +88,7 @@
 #include "ai.h"
 #include "rbaudio.h"
 #include "switch.h"
+#include "window.h"
 
 #ifdef EDITOR
 #include "editor/editor.h"
@@ -108,7 +109,6 @@ extern int	Mark_count;
 #endif
 
 extern int	Global_missile_firing_count;
-extern int	Automap_flag;
 extern int	Config_menu_flag;
 
 extern int	Game_aborted;
@@ -128,7 +128,7 @@ extern int	allowed_to_fire_flare(void);
 extern void	check_rear_view(void);
 extern int	create_special_path(void);
 extern void move_player_2_segment(segment *seg, int side);
-extern	void newdemo_strip_frames(char *, int);
+extern void newdemo_strip_frames(char *, int);
 extern void toggle_cockpit(void);
 extern void dump_used_textures_all();
 
@@ -1193,13 +1193,18 @@ void ReadControls()
 			) 	// WATCH OUT!!! WEIRD CODE ABOVE!!!
 			memset( &Controls, 0, sizeof(control_info) );
 		else
-			controls_read_all();		//NOTE LINK TO ABOVE!!!
+			controls_read_all(0);		//NOTE LINK TO ABOVE!!!
 		
 		check_rear_view();
-		
+
 		// If automap key pressed, enable automap unless you are in network mode, control center destroyed and < 10 seconds left
 		if ( Controls.automap_down_count && !((Game_mode & GM_MULTI) && Control_center_destroyed && (Fuelcen_seconds_left < 10)))
-			Automap_flag = 1;
+		{
+			game_flush_inputs();
+			window_set_visible(Game_wind, 0);
+			do_automap(0);
+			return;
+		}
 		
 		do_weapon_stuff();
 	}

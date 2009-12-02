@@ -21,7 +21,6 @@ COPYRIGHT 1993-1999 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
-#include <math.h>
 
 #ifdef OGL
 #include "ogl_init.h"
@@ -40,6 +39,8 @@ COPYRIGHT 1993-1999 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 #include "player.h"
 #include "bm.h"
 #include "key.h"
+#include "newmenu.h"
+#include "menu.h"
 #include "screens.h"
 #include "textures.h"
 #include "mouse.h"
@@ -54,18 +55,21 @@ COPYRIGHT 1993-1999 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 #include "fuelcen.h"
 #include "gameseq.h"
 #include "gamefont.h"
-#include "kconfig.h"
+#ifdef NETWORK
 #include "multi.h"
+#endif
+#include "kconfig.h"
 #include "endlevel.h"
 #include "text.h"
 #include "gauges.h"
 #include "powerup.h"
-#include "newmenu.h"
+#include "switch.h"
+#include "automap.h"
 #include "cntrlcen.h"
 #include "timer.h"
-#include "automap.h"
 #include "config.h"
 #include "rbaudio.h"
+#include "window.h"
 
 #define EF_USED     1   // This edge is used
 #define EF_DEFINING 2   // A structure defining edge that should always draw.
@@ -83,6 +87,19 @@ typedef struct Edge_info {
 	ubyte color;        // 1 bytes
 	ubyte num_faces;    // 1 bytes  // 19 bytes...
 } Edge_info;
+
+typedef struct automap
+{
+	// All those darn globals should go in here
+	fix			entry_time;
+	fix			t1, t2;
+	int			leave_mode;
+	int			pause_game;
+	vms_angvec	tangles;
+	int			max_segments_away;
+	int			segment_limit;
+	control_info saved_control_info;
+} automap;
 
 #define MAX_EDGES_FROM_VERTS(v)     ((v)*4)
 #define MAX_EDGES 6000  // Determined by loading all the levels by John & Mike, Feb 9, 1995
@@ -118,6 +135,7 @@ void init_automap_colors(void)
 	Hostage_color = K_HOSTAGE_COLOR;
 	Font_color_20 = K_FONT_COLOR_20;
 	Green_31 = K_GREEN_31;
+
 	White_63 = gr_find_closest_color_current(63,63,63);
 	Blue_48 = gr_find_closest_color_current(0,0,48);
 	Red_48 = gr_find_closest_color_current(48,0,0);
@@ -128,37 +146,37 @@ ubyte Automap_visited[MAX_SEGMENTS];
 
 // Edge list variables
 static int Num_edges=0;
-static int Max_edges; //set each frame
+static int Max_edges;		//set each frame
 static int Highest_edge_index = -1;
 static Edge_info Edges[MAX_EDGES];
 static short DrawingListBright[MAX_EDGES];
 
 // Map movement defines
-#define PITCH_DEFAULT		9000
-#define ZOOM_DEFAULT		i2f(20*10)
-#define ZOOM_MIN_VALUE		i2f(20*5)
-#define ZOOM_MAX_VALUE		i2f(20*100)
+#define PITCH_DEFAULT 9000
+#define ZOOM_DEFAULT i2f(20*10)
+#define ZOOM_MIN_VALUE i2f(20*5)
+#define ZOOM_MAX_VALUE i2f(20*100)
 
-#define SLIDE_SPEED 		(350)
-#define ZOOM_SPEED_FACTOR	(500)
-#define ROT_SPEED_DIVISOR	(115000)
+#define SLIDE_SPEED 			(350)
+#define ZOOM_SPEED_FACTOR		(500)	//(1500)
+#define ROT_SPEED_DIVISOR		(115000)
 
-// Screen anvas variables
+// Screen canvas variables
 static grs_canvas Automap_view;
 
 grs_bitmap Automap_background;
 
 // Flags
-static int Automap_cheat = 0;		// If set, show everything
+static int Automap_cheat = 0; // If set, show everything
 
 // Rendering variables
 static fix Automap_zoom = 0x9000;
 static vms_vector view_target;
-static fix Automap_farthest_dist = (F1_0 * 20 * 50);		// 50 segments away
-static vms_matrix ViewMatrix;
+static fix Automap_farthest_dist = (F1_0 * 20 * 50); // 50 segments away
+static vms_matrix	ViewMatrix;
 static fix ViewDist=0;
 
-//	Function Prototypes
+// Function Prototypes
 void adjust_segment_limit(int SegmentLimit);
 void draw_all_edges(void);
 void automap_build_edge_list(void);
@@ -166,7 +184,7 @@ void automap_build_edge_list(void);
 #define	MAX_DROP_MULTI	2
 #define	MAX_DROP_SINGLE	9
 
-extern vms_vector Matrix_scale;		//how the matrix is currently scaled
+extern vms_vector Matrix_scale; //how the matrix is currently scaled
 
 # define automap_draw_line g3_draw_line
 
@@ -178,20 +196,6 @@ void automap_clear_visited()
 }
 
 char		name_level[128];
-
-void name_frame()
-{
-	if (Current_level_num > 0)
-		sprintf(name_level, "%s %i: ",TXT_LEVEL, Current_level_num);
-	else
-		name_level[0] = 0;
-
-	strcat(name_level, Current_level_name);
-
-	gr_set_curfont(GAME_FONT);
-	gr_set_fontcolor(Green_31,-1);
-	gr_printf((SWIDTH/64),(SHEIGHT/48),"%s", name_level);
-}
 
 void draw_player( object * obj )
 {
@@ -223,6 +227,20 @@ void draw_player( object * obj )
 	vm_vec_scale_add( &arrow_pos, &obj->pos, &obj->orient.uvec, obj->size*2 );
 	g3_rotate_point(&arrow_point,&arrow_pos);
 	automap_draw_line(&sphere_point, &arrow_point);
+}
+
+void name_frame()
+{
+	if (Current_level_num > 0)
+		sprintf(name_level, "%s %i: ",TXT_LEVEL, Current_level_num);
+	else
+		name_level[0] = 0;
+
+	strcat(name_level, Current_level_name);
+
+	gr_set_curfont(GAME_FONT);
+	gr_set_fontcolor(Green_31,-1);
+	gr_printf((SWIDTH/64),(SHEIGHT/48),"%s", name_level);
 }
 
 void draw_automap(int flip)
@@ -276,7 +294,7 @@ void draw_automap(int flip)
 		color = get_team(Player_num);
 	else
 #endif	
-		color = Player_num; // Note link to above if!
+		color = Player_num;	// Note link to above if!
 
 	gr_setcolor(BM_XRGB(player_rgb[color].r,player_rgb[color].g,player_rgb[color].b));
 	draw_player(&Objects[Players[Player_num].objnum]);
@@ -334,32 +352,220 @@ void draw_automap(int flip)
 }
 
 #define LEAVE_TIME 0x4000
-#define WINDOW_WIDTH		288
 
 extern int set_segment_depths(int start_seg, ubyte *segbuf);
 int Automap_active = 0;
 
 #define MAP_BACKGROUND_FILENAME "MAP.PCX"
 
-void do_automap( int key_code )	{
-	int done=0;
+int automap_handler(window *wind, d_event *event, automap *am)
+{
 	vms_matrix	tempm;
-	vms_angvec	tangles;
-	int leave_mode=0;
-	int first_time=1;
-	int pcx_error;
-#ifndef NDEBUG
-	int i;
-#endif
 	int c;
-	fix entry_time;
-	int pause_game=1;	// Set to 1 if everything is paused during automap...No pause during net.
-	fix t1, t2;
-	control_info saved_control_info;
-	int Max_segments_away = 0;
-	int SegmentLimit = 1;
-	ubyte pal[256*3];
+
+	if (event->type == EVENT_DRAW)
+	{
+		draw_automap(GameArg.DbgUseDoubleBuffer);
+		return 1;
+	}
+	else if (event->type == EVENT_CLOSE)
+	{
+#ifdef OGL
+		gr_free_bitmap_data(&Automap_background);
+#endif
+		
+		game_flush_inputs();
+		
+		if (am->pause_game)
+		{
+			start_time();
+			digi_resume_digi_sounds();
+		}
+		
+		Screen_mode=-1; set_screen_mode(SCREEN_GAME);
+		init_cockpit();
+		last_drawn_cockpit = -1;
+		game_flush_inputs();
+		d_free(am);
+		Automap_active = 0;
+		window_set_visible(Game_wind, 1);
+		return 1;
+	}
+
+	if ( am->leave_mode==0 && Controls.automap_state && (timer_get_fixed_seconds()-am->entry_time)>LEAVE_TIME)
+		am->leave_mode = 1;
 	
+	if ( !Controls.automap_state && (am->leave_mode==1) )
+	{
+		window_close(wind);
+		return 1;
+	}
+	
+	if (!am->pause_game)	{
+		ushort old_wiggle;
+		am->saved_control_info = Controls;					// Save controls so we can zero them
+		memset(&Controls,0,sizeof(control_info));			// Clear everything...
+		old_wiggle = ConsoleObject->mtype.phys_info.flags & PF_WIGGLE;	// Save old wiggle
+		ConsoleObject->mtype.phys_info.flags &= ~PF_WIGGLE;		// Turn off wiggle
+#ifdef NETWORK
+		if (multi_menu_poll())
+		{
+			window_close(wind);
+			return 1;
+		}
+#endif
+		ConsoleObject->mtype.phys_info.flags |= old_wiggle;		// Restore wiggle
+		Controls = am->saved_control_info;
+	}
+	
+	controls_read_all(1);
+	
+	if ( Controls.automap_down_count )	{
+		if (am->leave_mode==0)
+		{
+			window_close(wind);
+			return 1;
+		}
+	}
+	
+	//see if redbook song needs to be restarted
+	RBACheckFinishedHook();
+	
+	while( (c=key_inkey()) )	{
+		switch( c ) {
+#ifndef NDEBUG
+			case KEY_BACKSP: Int3(); break;
+#endif
+				
+			case KEY_PRINT_SCREEN: {
+				gr_set_current_canvas(NULL);
+				save_screen_shot(1);
+				break;
+			}
+				
+			case KEY_ESC:
+				if (am->leave_mode==0)
+				{
+					window_close(wind);
+					return 1;
+				}
+				break;
+
+			case KEY_ALTED+KEY_F:           // Alt+F shows full map, if cheats enabled
+				if (Cheats_enabled) 	 
+				{
+					uint t;
+					t = Players[Player_num].flags;
+					Players[Player_num].flags |= PLAYER_FLAGS_MAP_ALL_CHEAT;
+					automap_build_edge_list();
+					Players[Player_num].flags=t;
+				}
+				break;
+#ifndef NDEBUG
+				case KEY_DEBUGGED+KEY_F: 	{
+					int i;
+
+					for (i=0; i<=Highest_segment_index; i++ )
+						Automap_visited[i] = 1;
+					automap_build_edge_list();
+					am->max_segments_away = set_segment_depths(Objects[Players[Player_num].objnum].segnum, Automap_visited);
+					am->segment_limit = am->max_segments_away;
+					adjust_segment_limit(am->segment_limit);
+				}
+				break;
+#endif
+				
+				case KEY_F9:
+				if (am->segment_limit > 1) 		{
+					am->segment_limit--;
+					adjust_segment_limit(am->segment_limit);
+				}
+				break;
+				case KEY_F10:
+				if (am->segment_limit < am->max_segments_away) 	{
+					am->segment_limit++;
+					adjust_segment_limit(am->segment_limit);
+				}
+				break;
+				case KEY_ALTED+KEY_ENTER:
+				case KEY_ALTED+KEY_PADENTER:
+				gr_toggle_fullscreen();
+				break;
+		}
+	}
+	
+	if ( Controls.fire_primary_down_count )	{
+		// Reset orientation
+		ViewDist = ZOOM_DEFAULT;
+		am->tangles.p = PITCH_DEFAULT;
+		am->tangles.h  = 0;
+		am->tangles.b  = 0;
+		view_target = Objects[Players[Player_num].objnum].pos;
+	}
+	
+	ViewDist -= Controls.forward_thrust_time*ZOOM_SPEED_FACTOR;
+	
+	am->tangles.p += fixdiv( Controls.pitch_time, ROT_SPEED_DIVISOR );
+	am->tangles.h  += fixdiv( Controls.heading_time, ROT_SPEED_DIVISOR );
+	am->tangles.b  += fixdiv( Controls.bank_time, ROT_SPEED_DIVISOR*2 );
+	
+	if ( Controls.vertical_thrust_time || Controls.sideways_thrust_time )	{
+		vms_angvec	tangles1;
+		vms_vector	old_vt;
+		old_vt = view_target;
+		tangles1 = am->tangles;
+		vm_angles_2_matrix(&tempm,&tangles1);
+		vm_matrix_x_matrix(&ViewMatrix,&Objects[Players[Player_num].objnum].orient,&tempm);
+		vm_vec_scale_add2( &view_target, &ViewMatrix.uvec, Controls.vertical_thrust_time*SLIDE_SPEED );
+		vm_vec_scale_add2( &view_target, &ViewMatrix.rvec, Controls.sideways_thrust_time*SLIDE_SPEED );
+		if ( vm_vec_dist_quick( &view_target, &Objects[Players[Player_num].objnum].pos) > i2f(1000) )	{
+			view_target = old_vt;
+		}
+	}
+	
+	vm_angles_2_matrix(&tempm,&am->tangles);
+	vm_matrix_x_matrix(&ViewMatrix,&Objects[Players[Player_num].objnum].orient,&tempm);
+	
+	if ( ViewDist < ZOOM_MIN_VALUE ) ViewDist = ZOOM_MIN_VALUE;
+	if ( ViewDist > ZOOM_MAX_VALUE ) ViewDist = ZOOM_MAX_VALUE;
+	
+	am->t2 = timer_get_fixed_seconds();
+	while (am->t2 - am->t1 < F1_0 / (GameCfg.VSync?MAXIMUM_FPS:GameArg.SysMaxFPS)) // ogl is fast enough that the automap can read the input too fast and you start to turn really slow.  So delay a bit (and free up some cpu :)
+	{
+		if (GameArg.SysUseNiceFPS && !GameCfg.VSync)
+			timer_delay(f1_0 / GameArg.SysMaxFPS - (am->t2 - am->t1));
+		am->t2 = timer_get_fixed_seconds();
+	}
+	if (am->pause_game)
+	{
+		FrameTime=am->t2-am->t1;
+		FixedStepCalc();
+	}
+	am->t1 = am->t2;
+	
+	return 1;
+}
+
+void do_automap( int key_code )	{
+	int pcx_error;
+	ubyte pal[256*3];
+	window *automap_wind;
+	automap *am = NULL;
+	
+	MALLOC(am, automap, 1);
+	if (am)
+		automap_wind = window_create(&grd_curscreen->sc_canvas, 0, 0, SWIDTH, SHEIGHT, (int (*)(window *, d_event *, void *)) automap_handler, am);
+
+	if (am == NULL)
+	{
+		Warning("Out of memory");
+		return;
+	}
+
+	am->leave_mode = 0;
+	am->pause_game = 1; // Set to 1 if everything is paused during automap...No pause during net.
+	am->max_segments_away = 0;
+	am->segment_limit = 1;
 	Automap_active = 1;
 
 	init_automap_colors();
@@ -367,12 +573,14 @@ void do_automap( int key_code )	{
 	key_code = key_code;	// disable warning...
 
 	if ((Game_mode & GM_MULTI) && (Function_mode == FMODE_GAME) && (!Endlevel_sequence))
-		pause_game = 0;
+		am->pause_game = 0;
 
-	if (pause_game)
+	if (am->pause_game) {
 		stop_time();
+		digi_pause_digi_sounds();
+	}
 
-	Max_edges = min(MAX_EDGES_FROM_VERTS(Num_vertices),MAX_EDGES);	//make maybe smaller than max
+	Max_edges = min(MAX_EDGES_FROM_VERTS(Num_vertices),MAX_EDGES); //make maybe smaller than max
 
 	gr_set_current_canvas(NULL);
 
@@ -382,22 +590,20 @@ void do_automap( int key_code )	{
 		ViewDist = ZOOM_DEFAULT;
 	ViewMatrix = Objects[Players[Player_num].objnum].orient;
 
-	tangles.p = PITCH_DEFAULT;
-	tangles.h  = 0;
-	tangles.b  = 0;
-
-	done = 0;
+	am->tangles.p = PITCH_DEFAULT;
+	am->tangles.h  = 0;
+	am->tangles.b  = 0;
 
 	view_target = Objects[Players[Player_num].objnum].pos;
 
-	t1 = entry_time = timer_get_fixed_seconds();
-	t2 = t1;
+	am->t1 = am->entry_time = timer_get_fixed_seconds();
+	am->t2 = am->t1;
 
 	//Fill in Automap_visited from Objects[Players[Player_num].objnum].segnum
-	Max_segments_away = set_segment_depths(Objects[Players[Player_num].objnum].segnum, Automap_visited);
-	SegmentLimit = Max_segments_away;
+	am->max_segments_away = set_segment_depths(Objects[Players[Player_num].objnum].segnum, Automap_visited);
+	am->segment_limit = am->max_segments_away;
 
-	adjust_segment_limit(SegmentLimit);
+	adjust_segment_limit(am->segment_limit);
 
 	// ZICO - code from above to show frame in OGL correctly. Redundant, but better readable.
 	// KREATOR - Now applies to all platforms so double buffering is supported
@@ -411,162 +617,7 @@ void do_automap( int key_code )	{
 	else
 		gr_init_sub_canvas(&Automap_view, &grd_curscreen->sc_canvas, 38*(SWIDTH/640.0), 77*(SHEIGHT/480.0), 564*(SWIDTH/640.0), 381*(SHEIGHT/480.0));
 
-	while(!done)	{
-		if ( leave_mode==0 && Controls.automap_state && (timer_get_fixed_seconds()-entry_time)>LEAVE_TIME)
-			leave_mode = 1;
-
-		if ( !Controls.automap_state && (leave_mode==1) )
-			done=1;
-
-		if (!pause_game)	{
-			ushort old_wiggle;
-			saved_control_info = Controls;					// Save controls so we can zero them
-			memset(&Controls,0,sizeof(control_info));			// Clear everything...
-			old_wiggle = ConsoleObject->mtype.phys_info.flags & PF_WIGGLE;	// Save old wiggle
-			ConsoleObject->mtype.phys_info.flags &= ~PF_WIGGLE;		// Turn off wiggle
-#ifdef NETWORK
-			if (multi_menu_poll())
-				done = 1;
-#endif
-			ConsoleObject->mtype.phys_info.flags |= old_wiggle;		// Restore wiggle
-			Controls = saved_control_info;
-		}
-
-		controls_read_all();
-
-		if ( Controls.automap_down_count ) {
-			if (leave_mode==0)
-				done = 1;
-			c = 0;
-		}
-
-		//see if redbook song needs to be restarted
-		RBACheckFinishedHook();
-		
-		while( (c=key_inkey()) )	{
-			switch( c ) {
-#ifndef NDEBUG
-			case KEY_BACKSP: Int3(); break;
-#endif
-	
-			case KEY_PRINT_SCREEN: {
-				gr_set_current_canvas(NULL);
-				save_screen_shot(1);
-				break;
-			}
-	
-			case KEY_ESC:
-				if (leave_mode==0)
-					done = 1;
-				 break;
-			case KEY_ALTED+KEY_F:           // Alt+F shows full map, if cheats enabled
-				if (Cheats_enabled) 	 
-				{
-					uint t;
-					t = Players[Player_num].flags;
-					Players[Player_num].flags |= PLAYER_FLAGS_MAP_ALL_CHEAT;
-					automap_build_edge_list();
-					Players[Player_num].flags=t;
-				}
-				break;
-#ifndef NDEBUG
-		  	case KEY_DEBUGGED+KEY_F: 	{
-				for (i=0; i<=Highest_segment_index; i++ )
-					Automap_visited[i] = 1;
-				automap_build_edge_list();
-				Max_segments_away = set_segment_depths(Objects[Players[Player_num].objnum].segnum, Automap_visited);
-				SegmentLimit = Max_segments_away;
-				adjust_segment_limit(SegmentLimit);
-				}
-				break;
-#endif
-
-			case KEY_F9:
-				if (SegmentLimit > 1) 		{
-					SegmentLimit--;
-					adjust_segment_limit(SegmentLimit);
-				}
-				break;
-			case KEY_F10:
-				if (SegmentLimit < Max_segments_away) 	{
-					SegmentLimit++;
-					adjust_segment_limit(SegmentLimit);
-				}
-				break;
-			case KEY_ALTED+KEY_ENTER:
-			case KEY_ALTED+KEY_PADENTER:
-				gr_toggle_fullscreen();
-				break;
-			}
-		}
-
-		if ( Controls.fire_primary_down_count )	{
-			// Reset orientation
-			ViewDist = ZOOM_DEFAULT;
-			tangles.p = PITCH_DEFAULT;
-			tangles.h  = 0;
-			tangles.b  = 0;
-			view_target = Objects[Players[Player_num].objnum].pos;
-		}
-
-		ViewDist -= Controls.forward_thrust_time*ZOOM_SPEED_FACTOR;
-
-		tangles.p += fixdiv( Controls.pitch_time, ROT_SPEED_DIVISOR );
-		tangles.h  += fixdiv( Controls.heading_time, ROT_SPEED_DIVISOR );
-		tangles.b  += fixdiv( Controls.bank_time, ROT_SPEED_DIVISOR*2 );
-		
-		if ( Controls.vertical_thrust_time || Controls.sideways_thrust_time )	{
-			vms_angvec	tangles1;
-			vms_vector	old_vt;
-			old_vt = view_target;
-			tangles1 = tangles;
-			vm_angles_2_matrix(&tempm,&tangles1);
-			vm_matrix_x_matrix(&ViewMatrix,&Objects[Players[Player_num].objnum].orient,&tempm);
-			vm_vec_scale_add2( &view_target, &ViewMatrix.uvec, Controls.vertical_thrust_time*SLIDE_SPEED );
-			vm_vec_scale_add2( &view_target, &ViewMatrix.rvec, Controls.sideways_thrust_time*SLIDE_SPEED );
-			if ( vm_vec_dist_quick( &view_target, &Objects[Players[Player_num].objnum].pos) > i2f(1000) )	{
-				view_target = old_vt;
-			}
-		}
-
-		vm_angles_2_matrix(&tempm,&tangles);
-		vm_matrix_x_matrix(&ViewMatrix,&Objects[Players[Player_num].objnum].orient,&tempm);
-
-		if ( ViewDist < ZOOM_MIN_VALUE ) ViewDist = ZOOM_MIN_VALUE;
-		if ( ViewDist > ZOOM_MAX_VALUE ) ViewDist = ZOOM_MAX_VALUE;
-
-		draw_automap(GameArg.DbgUseDoubleBuffer);
-
-		if ( first_time )	{
-			first_time = 0;
-			gr_palette_load( gr_palette );
-		}
-
-		t2 = timer_get_fixed_seconds();
-		while (t2 - t1 < F1_0 / (GameCfg.VSync?MAXIMUM_FPS:GameArg.SysMaxFPS)) // ogl is fast enough that the automap can read the input too fast and you start to turn really slow.  So delay a bit (and free up some cpu :)
-		{
-			if (GameArg.SysUseNiceFPS && !GameCfg.VSync)
-				timer_delay(f1_0 / GameArg.SysMaxFPS - (t2 - t1));
-			t2 = timer_get_fixed_seconds();
-		}
-		if (pause_game)
-		{
-			FrameTime=t2-t1;
-			FixedStepCalc();
-		}
-		t1 = t2;
-	}
-
-#ifdef OGL
-		gr_free_bitmap_data(&Automap_background);
-#endif
-
-	game_flush_inputs();
-	
-	if (pause_game)
-		start_time();
-
-	Automap_active = 0;
+	gr_palette_load( gr_palette );
 }
 
 void adjust_segment_limit(int SegmentLimit)
@@ -607,9 +658,9 @@ void draw_all_edges()
 
 		if ( e->flags & EF_TOO_FAR) continue;
 
-		if (e->flags&EF_FRONTIER) { 		// A line that is between what we have seen and what we haven't
+		if (e->flags&EF_FRONTIER) { 	// A line that is between what we have seen and what we haven't
 			if ( (!(e->flags&EF_SECRET))&&(e->color==Wall_normal_color))
-				continue;		// If a line isn't secret and is normal color, then don't draw it
+				continue; 	// If a line isn't secret and is normal color, then don't draw it
 		}
 
 		cc=rotate_list(2,e->verts);
@@ -618,7 +669,7 @@ void draw_all_edges()
 		if (min_distance>distance )
 			min_distance = distance;
 
-		if (!cc.and) 	{	//all off screen?
+		if (!cc.and) {			//all off screen?
 			nfacing = nnfacing = 0;
 			tv1 = &Vertices[e->verts[0]];
 			j = 0;
@@ -705,7 +756,6 @@ void draw_all_edges()
 		}
 		g3_draw_line( p1, p2 );
 	}
-
 }
 
 
@@ -950,6 +1000,7 @@ void add_unknown_segment_edges(segment *seg)
 		// Only add edges that have no children
 		if (seg->children[sn] == -1) {
 			get_side_verts(vertex_list,segnum,sn);
+	
 			add_one_unknown_edge( vertex_list[0], vertex_list[1] );
 			add_one_unknown_edge( vertex_list[1], vertex_list[2] );
 			add_one_unknown_edge( vertex_list[2], vertex_list[3] );
