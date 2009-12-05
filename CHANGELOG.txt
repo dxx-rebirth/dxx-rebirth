@@ -1,5 +1,9 @@
 D1X-Rebirth Changelog
 
+20091205
+--------
+main/newmenu.c: Make newmenu.c nearly identical between D1X and D2X
+
 20091202
 --------
 arch/include/event.h, arch/include/window.h, arch/sdl/window.c, d1x-rebirth.xcodeproj/project.pbxproj, main/automap.c, main/game.c, main/game.h, main/gamecntl.c, main/kconfig.c, main/kconfig.h: Make the automap into a 'window', make kconfig.c more similar between D1X and D2X
