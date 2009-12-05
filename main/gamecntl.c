@@ -455,7 +455,6 @@ int do_game_pause()
 
 extern int network_who_is_master(),network_how_many_connected(),GetMyNetRanking();
 extern int TotalMissedPackets,TotalPacketsGot;
-extern char Pauseable_menu;
 // char *NetworkModeNames[]={"Anarchy","Team Anarchy","Robo Anarchy","Cooperative","Capture the Flag","Hoard","Team Hoard","Unknown"};
 extern char *RankStrings[];
 extern int PhallicLimit,PhallicMan;

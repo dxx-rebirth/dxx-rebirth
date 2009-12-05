@@ -40,7 +40,6 @@ COPYRIGHT 1993-1999 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 #include "menu.h"
 #include "newmenu.h"
 #include "gamefont.h"
-#include "gamepal.h"
 #include "iff.h"
 #include "pcx.h"
 #include "u_mem.h"
@@ -66,22 +65,21 @@ COPYRIGHT 1993-1999 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 #include "ogl_init.h"
 #endif
 
-int newmenu_do4( char * title, char * subtitle, int nitems, newmenu_item * item, void (*subfunction)(int nitems,newmenu_item * items, int * last_key, int citem), int citem, char * filename, int width, int height, int TinyMode );
-
-grs_bitmap nm_background,nm_background1;
-grs_bitmap *nm_background_sub = NULL;
 
 #define MAXDISPLAYABLEITEMS 14
 #define MESSAGEBOX_TEXT_SIZE 2176  // How many characters in messagebox
 #define MAX_TEXT_WIDTH FSPACX(120) // How many pixels wide a input box can be
 
+grs_bitmap nm_background, nm_background1;
+grs_bitmap *nm_background_sub = NULL;
 ubyte MenuReordering=0;
 ubyte SurfingNet=0;
-char Pauseable_menu=0;
-char already_showing_info=0;
 static int draw_copyright=0;
 extern ubyte Version_major,Version_minor;
 extern char last_palette_loaded[];
+
+int newmenu_do4( char * title, char * subtitle, int nitems, newmenu_item * item, void (*subfunction)(int nitems,newmenu_item * items, int * last_key, int citem), int citem, char * filename, int width, int height, int TinyMode );
+
 extern void game_render_frame_mono(int flip);
 
 void newmenu_close()	{
@@ -167,7 +165,7 @@ void nm_draw_background(int x1, int y1, int x2, int y2 )
 	{
 		int pcx_error;
 		ubyte background_palette[768];
-		gr_init_bitmap_data (&nm_background);		
+		gr_init_bitmap_data (&nm_background);
 		pcx_error = pcx_read_bitmap(MENU_BACKGROUND_BITMAP,&nm_background,BM_LINEAR,background_palette);
 		Assert(pcx_error == PCX_ERROR_NONE);
 		gr_remap_bitmap_good( &nm_background, background_palette, -1, -1 );
@@ -197,6 +195,7 @@ void nm_draw_background(int x1, int y1, int x2, int y2 )
 	{
 		init_sub=1;
 		gr_free_sub_bitmap(nm_background_sub);
+		nm_background_sub = NULL;
 	}
 	if (init_sub)
 		nm_background_sub = gr_create_sub_bitmap(&nm_background,0,0,w*(((float) nm_background.bm_w)/SWIDTH),h*(((float) nm_background.bm_h)/SHEIGHT));
@@ -377,13 +376,13 @@ void nm_string_inputbox( int w, int x, int y, char * text, int current )
 		w1 = 0;
 
 	nm_string_black( w, x, y, text );
-		
+
 	if ( current )	{
 		gr_string( x+w1, y, CURSOR_STRING );
 	}
 }
 
-void draw_item( newmenu_item *item, int is_current,int tiny )
+void draw_item( newmenu_item *item, int is_current, int tiny )
 {
 	if (tiny)
 	{
@@ -412,8 +411,8 @@ void draw_item( newmenu_item *item, int is_current,int tiny )
 		{
 			int i,j;
 			if (item->value < item->min_value) item->value=item->min_value;
-				if (item->value > item->max_value) item->value=item->max_value;
-					i = sprintf( item->saved_text, "%s\t%s", item->text, SLIDER_LEFT );
+			if (item->value > item->max_value) item->value=item->max_value;
+			i = sprintf( item->saved_text, "%s\t%s", item->text, SLIDER_LEFT );
 			for (j=0; j<(item->max_value-item->min_value+1); j++ )	{
 				i += sprintf( item->saved_text + i, "%s", SLIDER_MIDDLE );
 			}
@@ -453,8 +452,8 @@ void draw_item( newmenu_item *item, int is_current,int tiny )
 		{
 			char text[10];
 			if (item->value < item->min_value) item->value=item->min_value;
-				if (item->value > item->max_value) item->value=item->max_value;
-					nm_string( item->w, item->x, item->y, item->text );
+			if (item->value > item->max_value) item->value=item->max_value;
+			nm_string( item->w, item->x, item->y, item->text );
 			sprintf( text, "%d", item->value );
 			nm_rstring( item->right_offset,item->x, item->y, text );
 		}
@@ -518,18 +517,15 @@ int newmenu_do2( char * title, char * subtitle, int nitems, newmenu_item * item,
 	return newmenu_do3( title, subtitle, nitems, item, subfunction, citem, filename, -1, -1 );
 }
 int newmenu_do3( char * title, char * subtitle, int nitems, newmenu_item * item, void (*subfunction)(int nitems,newmenu_item * items, int * last_key, int citem), int citem, char * filename, int width, int height )
- {
-  return newmenu_do4( title, subtitle, nitems, item, subfunction, citem, filename, width, height,0 );
- }
+{
+	return newmenu_do4( title, subtitle, nitems, item, subfunction, citem, filename, width, height,0 );
+}
 
 int newmenu_do_fixedfont( char * title, char * subtitle, int nitems, newmenu_item * item, void (*subfunction)(int nitems,newmenu_item * items, int * last_key, int citem), int citem, char * filename, int width, int height){
 	set_screen_mode(SCREEN_MENU);//hafta set the screen mode before calling or fonts might get changed/freed up if screen res changes
-//	return newmenu_do3_real( title, subtitle, nitems, item, subfunction, citem, filename, width,height, GAME_FONT, GAME_FONT, GAME_FONT, GAME_FONT);
 	return newmenu_do4( title, subtitle, nitems, item, subfunction, citem, filename, width,height, 0);
 }
 
-extern int network_request_player_names(int);
-// extern int RestoringMenu;
 
 #ifdef NEWMENU_MOUSE
 ubyte Hack_DblClick_MenuMode=0;
@@ -558,9 +554,7 @@ int newmenu_do4( char * title, char * subtitle, int nitems, newmenu_item * item,
 	newmenu_hide_cursor();
 
 	if (nitems < 1 )
-	{
 		return -1;
-	}
 
 	MaxDisplayable=nitems;
 
@@ -613,17 +607,17 @@ int newmenu_do4( char * title, char * subtitle, int nitems, newmenu_item * item,
 		item[i].y = h;
 		gr_get_string_size(item[i].text,&string_width,&string_height,&average_width );
 		item[i].right_offset = 0;
-		
+
 		item[i].saved_text[0] = '\0';
 
 		if ( item[i].type == NM_TYPE_SLIDER )	{
-			int w1,h1,aw1;
+			int index,w1,h1,aw1;
 			nothers++;
-			sprintf( item[i].saved_text, "%s", SLIDER_LEFT );
+			index = sprintf( item[i].saved_text, "%s", SLIDER_LEFT );
 			for (j=0; j<(item[i].max_value-item[i].min_value+1); j++ )	{
-				sprintf( item[i].saved_text, "%s%s", item[i].saved_text,SLIDER_MIDDLE );
+				index+= sprintf( item[i].saved_text + index, "%s", SLIDER_MIDDLE );
 			}
-			sprintf( item[i].saved_text, "%s%s", item[i].saved_text,SLIDER_RIGHT );
+			sprintf( item[i].saved_text + index, "%s", SLIDER_RIGHT );
 			gr_get_string_size(item[i].saved_text,&w1,&h1,&aw1 );
 			string_width += w1 + aw;
 		}
@@ -740,15 +734,15 @@ int newmenu_do4( char * title, char * subtitle, int nitems, newmenu_item * item,
 	w += BORDERX*2;
 	h += BORDERY*2;
 
-	x = (grd_curcanv->cv_bitmap.bm_w-w)/2;
-	y = (grd_curcanv->cv_bitmap.bm_h-h)/2;
+	x = (GWIDTH-w)/2;
+	y = (GHEIGHT-h)/2;
 
 	if ( x < 0 ) x = 0;
 	if ( y < 0 ) y = 0;
 
 	nm_draw_background1( filename );
 
-// Save the background of the display
+	// Save the background of the display
 	menu_canvas = gr_create_sub_canvas( &grd_curscreen->sc_canvas, x, y, w, h );
 	gr_set_current_canvas(menu_canvas);
 
@@ -799,7 +793,7 @@ int newmenu_do4( char * title, char * subtitle, int nitems, newmenu_item * item,
 				break; 
 			}
 		}
-	} 
+	}
 	done = 0;
 
 	// Clear mouse, joystick to clear button presses.
@@ -858,6 +852,21 @@ int newmenu_do4( char * title, char * subtitle, int nitems, newmenu_item * item,
 
 		k = key_inkey();
 
+		switch( k )
+		{
+			case KEY_PAD0: k = KEY_0;  break;
+			case KEY_PAD1: k = KEY_1;  break;
+			case KEY_PAD2: k = KEY_2;  break;
+			case KEY_PAD3: k = KEY_3;  break;
+			case KEY_PAD4: k = KEY_4;  break;
+			case KEY_PAD5: k = KEY_5;  break;
+			case KEY_PAD6: k = KEY_6;  break;
+			case KEY_PAD7: k = KEY_7;  break;
+			case KEY_PAD8: k = KEY_8;  break;
+			case KEY_PAD9: k = KEY_9;  break;
+			case KEY_PADPERIOD: k = KEY_PERIOD; break;
+		}
+
 		if (subfunction)
 			(*subfunction)(nitems,item,&k,choice);
 
@@ -878,15 +887,6 @@ int newmenu_do4( char * title, char * subtitle, int nitems, newmenu_item * item,
 		old_choice = choice;
 	
 		switch( k )	{
-
-		case KEY_PAUSE:
-			if (Pauseable_menu)
-			{
-				Pauseable_menu=0;
-				done=1;
-				choice=-1;
-			}
-			break;
 		case KEY_TAB + KEY_SHIFTED:
 		case KEY_UP:
 		case KEY_PAD8:
@@ -927,7 +927,6 @@ int newmenu_do4( char * title, char * subtitle, int nitems, newmenu_item * item,
 		case KEY_TAB:
 		case KEY_DOWN:
 		case KEY_PAD2:
-		// ((0,"Pressing down! IsScrollBox=%d",IsScrollBox));
 			if (all_text) break;
 			do {
 				choice++;
@@ -1062,7 +1061,7 @@ int newmenu_do4( char * title, char * subtitle, int nitems, newmenu_item * item,
 			if ( (choice>-1) && (item[choice].type!=NM_TYPE_INPUT)&&(item[choice].type!=NM_TYPE_INPUT_MENU))
 				Int3(); 
 			break;
-		#endif
+#endif
 
 		}
 
@@ -1207,7 +1206,7 @@ int newmenu_do4( char * title, char * subtitle, int nitems, newmenu_item * item,
 					}
 					if (choice == old_choice)
 						break;
-					if ((item[choice].type==NM_TYPE_INPUT) && (choice!=old_choice))	
+					if ((item[choice].type==NM_TYPE_INPUT) && (choice!=old_choice))
 						item[choice].value = -1;
 					if ((old_choice>-1) && (item[old_choice].type==NM_TYPE_INPUT_MENU) && (old_choice!=choice))	{
 						item[old_choice].group=0;
@@ -1401,10 +1400,8 @@ int newmenu_do4( char * title, char * subtitle, int nitems, newmenu_item * item,
 
 	game_flush_inputs();
 
-	if (time_stopped) 
-	{
+	if (time_stopped)
 		start_time();
-	}
 
 	if ( sound_stopped )
 		digi_resume_digi_sounds();
@@ -1427,8 +1424,8 @@ int nm_messagebox1( char *title, void (*subfunction)(int nitems,newmenu_item * i
 	Assert( nchoices <= 5 );
 
 	for (i=0; i<nchoices; i++ )	{
-                s = va_arg( args, char * );
-                nm_message_items[i].type = NM_TYPE_MENU; nm_message_items[i].text = s;
+		s = va_arg( args, char * );
+		nm_message_items[i].type = NM_TYPE_MENU; nm_message_items[i].text = s;
 	}
 	format = va_arg( args, char * );
 	strcpy( nm_text, "" );
@@ -1483,7 +1480,7 @@ void newmenu_file_sort( int n, char *list )
 		for (i=incr; i<n; i++ ) {
 			j = i - incr;
 			while (j>=0 ) {
-				if (strncmp(&list[j*(FILENAME_LEN+1)], &list[(j+incr)*(FILENAME_LEN+1)], FILENAME_LEN-1) > 0){
+				if (strncmp(&list[j*(FILENAME_LEN+1)], &list[(j+incr)*(FILENAME_LEN+1)], FILENAME_LEN-1) > 0) {
 					memcpy( t, &list[j*(FILENAME_LEN+1)], FILENAME_LEN );
 					memcpy( &list[j*(FILENAME_LEN+1)], &list[(j+incr)*(FILENAME_LEN+1)], FILENAME_LEN );
 					memcpy( &list[(j+incr)*(FILENAME_LEN+1)], t, FILENAME_LEN );
@@ -1603,7 +1600,7 @@ ReadFileNames:
 
 
 	if ( NumFiles<1 )	{
-			nm_messagebox(NULL, 1, "Ok", "%s\n '%s' %s", TXT_NO_FILES_MATCHING, type, TXT_WERE_FOUND);
+		nm_messagebox(NULL, 1, "Ok", "%s\n '%s' %s", TXT_NO_FILES_MATCHING, type, TXT_WERE_FOUND);
 		exit_value = 0;
 		goto ExitFileMenu;
 	}
@@ -1617,7 +1614,7 @@ ReadFileNames:
 		box_w = 0;
 		for (i=0; i<NumFiles; i++ ) {
 			int w, h, aw;
-			gr_get_string_size( &filenames[i*(FILENAME_LEN+1)], &w, &h, &aw );		
+			gr_get_string_size( &filenames[i*(FILENAME_LEN+1)], &w, &h, &aw );
 			if ( w > box_w )
 				box_w = w+FSPACX(10);
 		}
@@ -1667,6 +1664,7 @@ ReadFileNames:
 
 		ocitem = citem;
 		ofirst_item = first_item;
+
 		gr_flip();
 #ifdef OGL
 		nm_draw_background1(NULL);
@@ -1800,7 +1798,7 @@ ReadFileNames:
 		case KEY_ALTED+KEY_PADENTER:
 			gr_toggle_fullscreen();
 			break;
-			
+		
 		default:	
 			{
 				int ascii = key_ascii();
@@ -2032,10 +2030,12 @@ int newmenu_listbox1( char * title, int nitems, char * items[], int allow_abort_
 
 		ocitem = citem;
 		ofirst_item = first_item;
+
 #ifdef NEWMENU_MOUSE
 		omouse_state = mouse_state;
 		mouse_state = mouse_button_state(0);
 #endif
+
 		//see if redbook song needs to be restarted
 		RBACheckFinishedHook();
 
@@ -2075,7 +2075,7 @@ int newmenu_listbox1( char * title, int nitems, char * items[], int allow_abort_
 		case KEY_PAD2:
 			citem++;
 			break;
- 		case KEY_PAGEDOWN:
+		case KEY_PAGEDOWN:
 		case KEY_PAD3:
 			citem += LB_ITEMS_ON_SCREEN;
 			break;
@@ -2142,7 +2142,6 @@ int newmenu_listbox1( char * title, int nitems, char * items[], int allow_abort_
 			first_item = nitems-LB_ITEMS_ON_SCREEN;
 		if (first_item < 0 ) first_item = 0;
 
-
 #ifdef NEWMENU_MOUSE
 		if (mouse_state) {
 			int w, h, aw;
@@ -2157,10 +2156,6 @@ int newmenu_listbox1( char * title, int nitems, char * items[], int allow_abort_
 				y1 = (i-first_item)*LINE_SPACING+box_y;
 				y2 = y1+h;
 				if ( ((mx > x1) && (mx < x2)) && ((my > y1) && (my < y2)) ) {
-					//if (i == citem) {
-					//	break;
-					//}
-					//dblclick_flag= 0;
 					citem = i;
 					done = 1;
 					break;
