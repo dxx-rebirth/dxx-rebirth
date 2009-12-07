@@ -1,5 +1,9 @@
 D2X-Rebirth Changelog
 
+20091207
+--------
+main/net_ipx.c: Removing old use of variable already_showing_info which was removed from newmenu code
+
 20091205
 --------
 main/gamecntl.c, main/newmenu.c: Make newmenu.c nearly identical between D1X and D2X

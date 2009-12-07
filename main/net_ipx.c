@@ -5463,8 +5463,6 @@ void net_ipx_request_player_names (int n)
   NamesInfoSecurity=Active_ipx_games[n].protocol.ipx.Game_Security;
  }
 
-extern char already_showing_info;
-
 void net_ipx_process_names_return (ubyte *data)
  {
 	newmenu_item m[15];
@@ -5535,9 +5533,7 @@ void net_ipx_process_names_return (ubyte *data)
 	 sprintf (mtext[num++],"Packets Per Second: %d",data[count+2]);
    }
 
-	already_showing_info=1;	
 	newmenu_dotiny( NULL, NULL, num, m, NULL);
-	already_showing_info=0;	
  }
 
 char NameReturning=1;

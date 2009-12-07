@@ -181,7 +181,7 @@ int Newdemo_num_written;
 int Newdemo_old_cockpit;
 sbyte Newdemo_no_space;
 sbyte Newdemo_at_eof;
-sbyte Newdemo_do_interpolate = 1; // ZICO - I HATE not-interpolated playbacks...
+sbyte Newdemo_do_interpolate = 0; // ZICO - I HATE not-interpolated playbacks...
 sbyte Newdemo_warning_given = 0;
 sbyte Newdemo_cntrlcen_destroyed = 0;
 static sbyte nd_bad_read;
