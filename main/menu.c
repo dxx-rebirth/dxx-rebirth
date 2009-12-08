@@ -232,8 +232,8 @@ void do_option ( int select)
 			break;
 		case MENU_DEMO_PLAY:
 		{
-			char demo_file[16];
-			if (newmenu_get_filename(TXT_SELECT_DEMO, ".dem", demo_file, 1))
+			char demo_file[PATH_MAX];
+			if (get_filename(TXT_SELECT_DEMO, ".dem", demo_file, 1))
 				newdemo_start_playback(demo_file);
 			break;
 		}
@@ -357,6 +357,203 @@ void do_option ( int select)
 
 }
 
+void delete_player_saved_games(char * name)
+{
+	int i;
+	char filename[FILENAME_LEN + 9];
+	
+	for (i=0;i<10; i++)
+	{
+		sprintf( filename, GameArg.SysUsePlayersDir? "Players/%s.sg%x" : "%s.sg%x", name, i );
+		
+		PHYSFS_delete(filename);
+	}
+}
+
+int fname_sort_func(char **e0, char **e1)
+{
+	return stricmp(*e0, *e1);
+}
+
+enum
+{
+	K_DELETED = -5,
+	K_DELETED_DEMO = -6
+};
+
+// These have to be statics until the newmenu callback system is revised
+static int player_mode=0;
+static int demo_mode=0;
+
+int filename_menu_handler( int * citem, int *nitems, char * items[], int *keypress )
+{
+	switch (*keypress)
+	{
+		case KEY_CTRLED+KEY_D:
+			if ( ((player_mode)&&(*citem>0)) || ((demo_mode)&&(*citem>=0)) )
+			{
+				int x = 1;
+				if (player_mode)
+					x = nm_messagebox( NULL, 2, TXT_YES, TXT_NO, "%s %s?", TXT_DELETE_PILOT, items[*citem]+((player_mode && items[*citem][0]=='$')?1:0) );
+				else if (demo_mode)
+					x = nm_messagebox( NULL, 2, TXT_YES, TXT_NO, "%s %s?", TXT_DELETE_DEMO, items[*citem]+((demo_mode && items[*citem][0]=='$')?1:0) );
+ 				if (x==0)	{
+					char * p;
+					char plxfile[PATH_MAX];
+					int ret;
+					char name[PATH_MAX];
+					
+					p = items[*citem] + strlen(items[*citem]);
+					if (player_mode)
+						*p = '.';
+					
+					strcpy(name, demo_mode ? DEMO_DIR : ((player_mode && GameArg.SysUsePlayersDir) ? "Players/" : ""));
+					strcat(name,items[*citem]);
+					
+					ret = !PHYSFS_delete(name);
+					if (player_mode)
+						*p = 0;
+					
+					if ((!ret) && player_mode)	{
+						delete_player_saved_games( items[*citem] );
+						// delete PLX file
+						sprintf(plxfile, GameArg.SysUsePlayersDir? "Players/%.8s.plx" : "%.8s.plx", items[*citem]);
+						if (cfexist(plxfile))
+							PHYSFS_delete(plxfile);
+					}
+					
+					*keypress = K_DELETED;
+
+					if (ret) {
+						if (player_mode)
+							nm_messagebox( NULL, 1, TXT_OK, "%s %s %s", TXT_COULDNT, TXT_DELETE_PILOT, items[*citem]+((player_mode && items[*citem][0]=='$')?1:0) );
+						else if (demo_mode)
+							nm_messagebox( NULL, 1, TXT_OK, "%s %s %s", TXT_COULDNT, TXT_DELETE_DEMO, items[*citem]+((demo_mode && items[*citem][0]=='$')?1:0) );
+					} else if (demo_mode)
+						*keypress = K_DELETED_DEMO;
+				}
+			}
+			break;
+
+		case KEY_CTRLED+KEY_C:
+			if (demo_mode)
+			{
+				int x = 1;
+				char bakname[PATH_MAX];
+				
+				*keypress = 0;
+				// Get backup name
+				change_filename_extension(bakname, items[*citem]+((demo_mode && items[*citem][0]=='$')?1:0), DEMO_BACKUP_EXT);
+				x = nm_messagebox( NULL, 2, TXT_YES, TXT_NO,	"Are you sure you want to\n"
+								  "swap the endianness of\n"
+								  "%s? If the file is\n"
+								  "already endian native, D1X\n"
+								  "will likely crash. A backup\n"
+								  "%s will be created", items[*citem]+((demo_mode && items[*citem][0]=='$')?1:0), bakname );
+				if (x)
+					break;
+				
+				newdemo_swap_endian(items[*citem]);
+			}
+			break;
+	}
+
+	return 1;
+}
+
+int get_filename(char *title, char *type, char *filename, int allow_abort_flag)
+{
+	char **m;
+	char **find;
+	char **f;
+	char *types[] = { type, NULL };
+	int i = 0, NumItems;
+	int citem = 0;
+	
+	player_mode = demo_mode = 0;
+
+	if (!stricmp(type, ".plr"))
+		player_mode = 1;
+	else if (!stricmp(type, ".dem"))
+		demo_mode = 1;
+
+ReadFileNames:
+	find = PHYSFSX_findFiles(demo_mode ? DEMO_DIR : ((player_mode && GameArg.SysUsePlayersDir) ? "Players/" : ""), types);
+	if (!find)
+		return 0;	// memory error
+	if ( !*find && demo_mode && (citem > -1) )
+	{
+		nm_messagebox( NULL, 1, TXT_OK, "%s %s\n%s", TXT_NO_DEMO_FILES, TXT_USE_F5, TXT_TO_CREATE_ONE);
+		PHYSFS_freeList(find);
+		return 0;
+	}
+	else if ( !*find && player_mode )	{
+		strcpy(filename, TXT_CREATE_NEW);	// make a new player without showing listbox
+		PHYSFS_freeList(find);
+		return 0;
+	}
+	else if ( !*find )	{
+		nm_messagebox(NULL, 1, "Ok", "%s\n '%s' %s", TXT_NO_FILES_MATCHING, type, TXT_WERE_FOUND);
+		PHYSFS_freeList(find);
+		return 0;
+	}	// else create a player file
+	
+	
+	for (NumItems = 0; find[NumItems] != NULL; NumItems++) {}
+	if (player_mode)
+		NumItems++;
+
+	MALLOC(m, char *, NumItems);
+	if (m == NULL)
+	{
+		PHYSFS_freeList(find);
+		return 0;
+	}
+
+	if (player_mode)
+		m[i++] = TXT_CREATE_NEW;
+
+	for (f = find; *f != NULL; f++)
+	{
+		m[i++] = *f;
+
+		if (player_mode)
+		{
+			char *p;
+			
+			p = strchr(*f, '.');
+			if (p)
+				*p = '\0';		// chop the .plr
+			if ((p - *f) > 8)
+				*f[8] = 0;		// sorry guys, can only have up to eight chars for the player name
+		}
+	}
+
+	// Sort by name, except the <Create New Player> string if applicable
+	qsort(&m[player_mode ? 1 : 0], NumItems - player_mode, sizeof(char *), (int (*)( const void *, const void * ))fname_sort_func);
+
+	if (player_mode)
+		for ( i=0; i<NumItems; i++ )
+			if (!stricmp(Players[Player_num].callsign, m[i]) )
+				citem = i;
+
+	citem = newmenu_listbox1(title, NumItems, m, allow_abort_flag, citem, filename_menu_handler);
+
+	if ( citem > -1 )
+		strncpy( filename, m[citem] + ((player_mode && m[citem][0]=='$')?1:0), PATH_MAX );
+
+	PHYSFS_freeList(find);
+	d_free(m);
+	
+	// The following wouldn't be necessary if the newmenu code didn't have its own loop
+	if ((citem == K_DELETED) || ((citem == K_DELETED_DEMO) && NumItems > 1))		// NumItems was *before* a demo got deleted
+		goto ReadFileNames;
+	else if (citem == -1)
+		return 0;	// aborted
+
+	return 1;
+}
+
 int do_difficulty_menu()
 {
 	int s;
@@ -381,8 +578,6 @@ int do_difficulty_menu()
 	}
 	return 0;
 }
-
-extern char *get_level_file(int level_num);
 
 void do_new_game_menu()
 {
@@ -791,6 +986,7 @@ void do_multi_player_menu()
 	do {
 		old_game_mode = Game_mode;
 		num_options = 0;
+
 #ifdef USE_UDP
 		m[num_options].type=NM_TYPE_TEXT; m[num_options].text="UDP:"; num_options++;
 		m[num_options].type=NM_TYPE_MENU; m[num_options].text="HOST GAME"; menu_choice[num_options]=MENU_START_UDP_NETGAME; num_options++;

@@ -695,8 +695,6 @@
 		EBEEB2220D2B34DE00FF39B4 /* ukali.c */ = {isa = PBXFileReference; fileEncoding = 30; lastKnownFileType = sourcecode.c.c; path = ukali.c; sourceTree = "<group>"; };
 		EBEEB2290D2B351400FF39B4 /* music.h */ = {isa = PBXFileReference; fileEncoding = 30; lastKnownFileType = sourcecode.c.h; path = music.h; sourceTree = "<group>"; };
 		EBEEB22A0D2B351400FF39B4 /* ukali.h */ = {isa = PBXFileReference; fileEncoding = 30; lastKnownFileType = sourcecode.c.h; path = ukali.h; sourceTree = "<group>"; };
-		EBEEB2480D2B358D00FF39B4 /* modex.h */ = {isa = PBXFileReference; fileEncoding = 30; lastKnownFileType = sourcecode.c.h; path = modex.h; sourceTree = "<group>"; };
-		EBEEB2490D2B358D00FF39B4 /* vesa.h */ = {isa = PBXFileReference; fileEncoding = 30; lastKnownFileType = sourcecode.c.h; path = vesa.h; sourceTree = "<group>"; };
 		EBEEB24E0D2B35B000FF39B4 /* hmpfile.c */ = {isa = PBXFileReference; fileEncoding = 30; lastKnownFileType = sourcecode.c.c; path = hmpfile.c; sourceTree = "<group>"; };
 		EBEEB2500D2B35B000FF39B4 /* hmpfile.h */ = {isa = PBXFileReference; fileEncoding = 30; lastKnownFileType = sourcecode.c.h; path = hmpfile.h; sourceTree = "<group>"; };
 		EBEEB2540D2B35B000FF39B4 /* resource.h */ = {isa = PBXFileReference; fileEncoding = 30; lastKnownFileType = sourcecode.c.h; path = resource.h; sourceTree = "<group>"; };
@@ -1189,7 +1187,6 @@
 				EB3319F00D5334B600C799B0 /* internal.h */,
 				EB3319F10D53351600C799B0 /* loadgl.h */,
 				6791D08F06688A9C00056A5A /* maths.h */,
-				EBEEB2480D2B358D00FF39B4 /* modex.h */,
 				EBC6525B0890F79B004FCAA3 /* nocfile.h */,
 				EB3319F20D53351600C799B0 /* ogl_init.h */,
 				6791CF4E0668883900056A5A /* palette.h */,
@@ -1207,7 +1204,6 @@
 				EBC6520F0890D6B7004FCAA3 /* ui.h */,
 				67B4490F066880A300DF26D8 /* u_mem.h */,
 				6791D026066889F100056A5A /* vecmat.h */,
-				EBEEB2490D2B358D00FF39B4 /* vesa.h */,
 			);
 			path = include;
 			sourceTree = SOURCE_ROOT;

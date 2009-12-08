@@ -591,7 +591,7 @@ try_again:
 //Inputs the player's name, without putting up the background screen
 int RegisterPlayer()
 {
-	char filename[14];
+	char filename[PATH_MAX];
 	int allow_abort_flag = 1;
 
         if ( Players[Player_num].callsign[0] == 0 )     {
@@ -605,9 +605,8 @@ int RegisterPlayer()
 do_menu_again:
 	;
 
-	if (!newmenu_get_filename( TXT_SELECT_PILOT, ".plr", filename, allow_abort_flag ))	{
+	if (!get_filename(TXT_SELECT_PILOT, ".plr", filename, allow_abort_flag))
 		goto do_menu_again;		// They hit Esc in file selector
-	}
 
 	if ( filename[0] == '<' )	{
 		// They selected 'create new pilot'
@@ -619,11 +618,12 @@ do_menu_again:
 		strlwr(Players[Player_num].callsign);
 	}
 
-	read_player_file();
+	if (read_player_file() != EZERO)
+		goto do_menu_again;
 
 	WriteConfigFile();		// Update lastplr
 
-        return 1;
+	return 1;
 }
 
 extern int descent_critical_error;

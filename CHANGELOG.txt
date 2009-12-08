@@ -1,5 +1,9 @@
 D1X-Rebirth Changelog
 
+20091208
+--------
+d1x-rebirth.xcodeproj/project.pbxproj, main/gameseq.c, main/menu.c, main/menu.h, main/newdemo.c, main/newmenu.c, main/newmenu.h: Move newmenu_get_filename to menu.c, call it get_filename and have it use newmenu_listbox1; support long demo filenames
+
 20091205
 --------
 main/newmenu.c: Make newmenu.c nearly identical between D1X and D2X
