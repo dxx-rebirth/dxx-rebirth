@@ -102,9 +102,6 @@ int nm_messagebox1(char *title, void (*subfunction)(int nitems, newmenu_item *it
 void nm_draw_background(int x1, int y1, int x2, int y2);
 void nm_restore_background(int x, int y, int w, int h);
 
-// Returns 0 if no file selected, else filename is filled with selected file.
-int newmenu_get_filename(char *title, char *filespec, char *filename, int allow_abort_flag);
-
 extern char *Newmenu_allowed_chars;
 
 // Example listbox callback function...
@@ -140,13 +137,12 @@ int nm_messagebox_fixedfont(char *title, int nchoices, ...);
 //should be called whenever the palette changes
 extern void newmenu_close();
 
-# define NEWMENU_MOUSE
+#define NEWMENU_MOUSE
 
 #  include <SDL/SDL.h>
 #  define newmenu_show_cursor() if (!GameArg.CtlNoMouse) SDL_ShowCursor(SDL_ENABLE)
 #  define newmenu_hide_cursor() SDL_ShowCursor(SDL_DISABLE)
 
-#endif /* _NEWMENU_H */
 
 #define NORMAL_CHECK_BOX    "Å"
 #define CHECKED_CHECK_BOX   "Ç"
@@ -163,4 +159,6 @@ extern void newmenu_close();
 
 #define BORDERX (15*(SWIDTH/320))
 #define BORDERY (15*(SHEIGHT/200))
+
+#endif /* _NEWMENU_H */
 

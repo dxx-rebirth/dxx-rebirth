@@ -3444,9 +3444,9 @@ void newdemo_stop_recording()
 {
 	newmenu_item m[6];
 	int exit;
-	static char filename[15] = "", *s;
+	static char filename[PATH_MAX] = "", *s;
 	static sbyte tmpcnt = 0;
-	char fullname[15+FILENAME_LEN] = DEMO_DIR;
+	char fullname[PATH_MAX] = DEMO_DIR;
 
 	exit = 0;
 
@@ -3460,7 +3460,7 @@ void newdemo_stop_recording()
 
 	if (filename[0] != '\0') {
 		int num, i = strlen(filename) - 1;
-		char newfile[15];
+		char newfile[PATH_MAX];
 
 		while (isdigit(filename[i])) {
 			i--;
@@ -3472,8 +3472,8 @@ void newdemo_stop_recording()
 		num++;
 		filename[i] = '\0';
 		sprintf (newfile, "%s%d", filename, num);
-		strncpy(filename, newfile, 8);
-		filename[8] = '\0';
+		strncpy(filename, newfile, PATH_MAX);
+		filename[PATH_MAX] = '\0';
 	}
 
 try_again:
@@ -3481,21 +3481,21 @@ try_again:
 
 	Newmenu_allowed_chars = demoname_allowed_chars;
 	if (!Newdemo_no_space) {
-		m[0].type=NM_TYPE_INPUT; m[0].text_len = 8; m[0].text = filename;
+		m[0].type=NM_TYPE_INPUT; m[0].text_len = PATH_MAX - 1; m[0].text = filename;
 		exit = newmenu_do( NULL, TXT_SAVE_DEMO_AS, 1, &(m[0]), NULL );
 	} else if (Newdemo_no_space == 1) {
 		m[ 0].type = NM_TYPE_TEXT; m[ 0].text = TXT_DEMO_SAVE_BAD;
-		m[ 1].type = NM_TYPE_INPUT;m[ 1].text_len = 8; m[1].text = filename;
+		m[ 1].type = NM_TYPE_INPUT;m[ 1].text_len = PATH_MAX - 1; m[1].text = filename;
 		exit = newmenu_do( NULL, NULL, 2, m, NULL );
 	} else if (Newdemo_no_space == 2) {
 		m[ 0].type = NM_TYPE_TEXT; m[ 0].text = TXT_DEMO_SAVE_NOSPACE;
-		m[ 1].type = NM_TYPE_INPUT;m[ 1].text_len = 8; m[1].text = filename;
+		m[ 1].type = NM_TYPE_INPUT;m[ 1].text_len = PATH_MAX - 1; m[1].text = filename;
 		exit = newmenu_do( NULL, NULL, 2, m, NULL );
 	}
 	Newmenu_allowed_chars = NULL;
 
 	if (exit == -2) {                   // got bumped out from network menu
-		char save_file[7+FILENAME_LEN];
+		char save_file[PATH_MAX];
 
 		if (filename[0] != '\0') {
 			strcpy(save_file, DEMO_DIR);

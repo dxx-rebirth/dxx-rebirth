@@ -1,5 +1,9 @@
 D2X-Rebirth Changelog
 
+20091208
+--------
+main/gameseq.c, main/menu.c, main/menu.h, main/newdemo.c, main/newmenu.c, main/newmenu.h: Move newmenu_get_filename to menu.c, call it get_filename and have it use newmenu_listbox1; support long demo filenames
+
 20091207
 --------
 main/net_ipx.c: Removing old use of variable already_showing_info which was removed from newmenu code

@@ -24,6 +24,7 @@ COPYRIGHT 1993-1999 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 extern int DoMenu();
 extern void do_options_menu();
 extern void d2x_options_menu();
+extern int get_filename(char *title, char *type, char *filename, int allow_abort_flag);
 
 #define MENU_PCX_MAC_SHARE ("menub.pcx")
 #define MENU_PCX_SHAREWARE ("menud.pcx")
