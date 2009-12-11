@@ -237,7 +237,7 @@ int KaliOpenSocket(unsigned short port) {
 	memcpy(&opendata[1], &port, sizeof(port));
 	pid = (int)htonl(getpid());
 	memcpy(&opendata[3], &pid, sizeof(pid));
-	strncpy(&opendata[7], KALI_PROCESS_NAME, sizeof(KALI_PROCESS_NAME));
+	strncpy(&opendata[7], KALI_PROCESS_NAME, sizeof(char)*8);
 	opendata[15] = 0;
 
 	if ((hand = knix_newSock()) < 0)
