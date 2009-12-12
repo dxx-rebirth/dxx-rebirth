@@ -1,5 +1,9 @@
 D2X-Rebirth Changelog
 
+20091212
+--------
+main/game.c: Make sure the Game_wind always gets freed when exiting the game screen, fixing flashing automap and framerate reduction after playing demos
+
 20091211
 --------
 arch/linux/ukali.c: Fixing possible string overflow while using KALI_PROCESS_NAME

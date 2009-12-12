@@ -1267,10 +1267,7 @@ int game_handler(window *wind, d_event *event, void *data)
 	}
 	
 	if (Function_mode != FMODE_GAME)
-	{
-		if (window_close(wind))
-			longjmp(LeaveGame,0);
-	}
+		longjmp(LeaveGame,0);
 
 	return 1;
 }
@@ -1290,6 +1287,7 @@ void game()
 			event_process();
 	}
 
+	window_close(Game_wind);
 	digi_stop_all();
 
 	if ( (Newdemo_state == ND_STATE_RECORDING) || (Newdemo_state == ND_STATE_PAUSED) )
