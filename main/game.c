@@ -1287,7 +1287,6 @@ void game()
 			event_process();
 	}
 
-	window_close(Game_wind);
 	digi_stop_all();
 
 	if ( (Newdemo_state == ND_STATE_RECORDING) || (Newdemo_state == ND_STATE_PAUSED) )
@@ -1302,6 +1301,8 @@ void game()
 
 	clear_warn_func(game_show_warning);     //don't use this func anymore
 	game_disable_cheats();
+
+	window_close(Game_wind);
 }
 
 //called at the end of the program
