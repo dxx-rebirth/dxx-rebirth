@@ -1,5 +1,9 @@
 D1X-Rebirth Changelog
 
+20091213
+--------
+main/game.c: Make sure the Game_wind only gets freed once when escaping demo playback
+
 20091212
 --------
 main/game.c: Make sure the Game_wind always gets freed when exiting the game screen, fixing flashing automap and framerate reduction after playing demos
