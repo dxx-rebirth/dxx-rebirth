@@ -599,7 +599,6 @@ void kconfig_sub_draw_table(kc_item * items,int nitems, char * title)
 void kconfig_sub(kc_item * items,int nitems, char * title)
 {
 	grs_font * save_font;
-	int old_keyd_repeat;
 	int i,k,ocitem,citem;
 	int time_stopped = 0;
 	grs_canvas * save_canvas;
@@ -627,8 +626,6 @@ void kconfig_sub(kc_item * items,int nitems, char * title)
 	save_font = grd_curcanv->cv_font;
 
 	game_flush_inputs();
-	old_keyd_repeat = keyd_repeat;
-	keyd_repeat = 1;
 
 	citem = 0;
 
@@ -765,7 +762,6 @@ void kconfig_sub(kc_item * items,int nitems, char * title)
 				grd_curcanv->cv_font	= save_font;
 
 				gr_set_current_canvas( save_canvas );
-				keyd_repeat = old_keyd_repeat;
 				game_flush_inputs();
 				newmenu_hide_cursor();
 				if (time_stopped)

@@ -403,9 +403,6 @@ void game_do_render_frame(int flip)
 		show_netplayerinfo();
 #endif
 	con_show();
-	
-	if (flip)
-		gr_flip();
 }
 
 void toggle_cockpit()

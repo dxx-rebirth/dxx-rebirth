@@ -346,9 +346,6 @@ void draw_automap(int flip)
 	g3_end_frame();
 
 	name_frame();
-
-	if (flip)
-		gr_flip();
 }
 
 #define LEAVE_TIME 0x4000
