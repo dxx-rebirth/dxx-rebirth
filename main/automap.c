@@ -532,9 +532,6 @@ void draw_automap(int flip)
 		sprintf(msg,"Marker %d: %s",HighlightMarker+1,MarkerMessage[(Player_num*2)+HighlightMarker]);
 		gr_printf((SWIDTH/64),(SHEIGHT/18),"%s", msg);
 	}
-
-	if (flip)
-		gr_flip();
 }
 
 #define LEAVE_TIME 0x4000

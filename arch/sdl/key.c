@@ -20,7 +20,6 @@ static unsigned char Installed = 0;
 
 //-------- Variable accessed by outside functions ---------
 unsigned char 		keyd_buffer_type;		// 0=No buffer, 1=buffer ASCII, 2=buffer scans
-unsigned char 		keyd_repeat;
 unsigned char 		keyd_editor_mode;
 volatile unsigned char 	keyd_last_pressed;
 volatile unsigned char 	keyd_last_released;
@@ -437,7 +436,6 @@ void key_init()
 
 	keyd_time_when_last_pressed = timer_get_fixed_seconds();
 	keyd_buffer_type = 1;
-	keyd_repeat = 1;
 	
 	for(i=0; i<256; i++)
 		key_text[i] = key_properties[i].key_text;

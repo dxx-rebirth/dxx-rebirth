@@ -1000,8 +1000,6 @@ void editor(void)
 
 	set_warn_func(med_show_warning);
 
-	keyd_repeat = 1;		// Allow repeat in editor
-
 //	_MARK_("start of editor");//Nuked to compile -KRB
 
 	ui_mouse_hide();

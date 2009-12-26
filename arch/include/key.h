@@ -36,7 +36,6 @@ extern void key_close();
 // set keyd_buffer_type to 0 for no key buffering.
 // set it to 1 and it will buffer scancodes.
 extern unsigned char keyd_buffer_type;
-extern unsigned char keyd_repeat;     // 1=allow repeating, 0=dont allow repeat
 
 // keyd_editor_mode... 0=game mode, 1=editor mode.
 // Editor mode makes key_down_time always return 0 if modifiers are down.

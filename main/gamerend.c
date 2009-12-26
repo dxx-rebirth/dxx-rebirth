@@ -760,9 +760,6 @@ void game_render_frame_mono(int flip)
 	show_extra_views();		//missile view, buddy bot, etc.
 
 	con_show();
-
-	if (flip)
-		gr_flip();
 }
 
 void toggle_cockpit()
