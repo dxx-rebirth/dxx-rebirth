@@ -25,10 +25,8 @@ COPYRIGHT 1993-1999 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 
 extern void do_automap(int key_code);
 extern void automap_clear_visited();
-extern void draw_automap(int flip);
 extern ubyte Automap_visited[MAX_SEGMENTS];
 void DropBuddyMarker(object *objp);
-extern int Automap_active;
 
 #define NUM_MARKERS         16
 #define MARKER_MESSAGE_LEN  40
