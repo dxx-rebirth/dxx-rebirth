@@ -1432,6 +1432,7 @@ int newmenu_do4( char * title, char * subtitle, int nitems, newmenu_item * item,
 			digi_resume_digi_sounds();
 		
 		d_free(menu);
+		newmenu_hide_cursor();
 
 		return -1;
 	}
@@ -1583,93 +1584,97 @@ int nm_messagebox( char *title, int nchoices, ... )
 
 #define LB_ITEMS_ON_SCREEN 8
 
-int newmenu_listbox( char * title, int nitems, char * items[], int allow_abort_flag, int (*listbox_callback)( int * citem, int *nitems, char * items[], int *keypress ) )
+typedef struct listbox
 {
-	return newmenu_listbox1( title, nitems, items, allow_abort_flag, 0, listbox_callback );
-}
+	char *title;
+	int nitems;
+	char **item;
+	int allow_abort_flag;
+	int (*listbox_callback)( int * citem, int *nitems, char * items[], int *keypress );
+	int done, citem, first_item;
+	int box_w, height, box_x, box_y, title_height;
+	int mouse_state, omouse_state;
+} listbox;
 
-int newmenu_listbox1( char * title, int nitems, char * items[], int allow_abort_flag, int default_item, int (*listbox_callback)( int * citem, int *nitems, char * items[], int *keypress ) )
+int listbox_handler(window *wind, d_event *event, listbox *lb)
 {
 	int i;
-	int done, ocitem,citem, ofirst_item, first_item, key, redraw;
-	int box_w, height, box_x, box_y, title_height;
+	int ocitem, ofirst_item, key;
+	int redraw;
 #ifdef NEWMENU_MOUSE
-	int mx, my, mz, x1, x2, y1, y2, mouse_state, omouse_state;	//, dblclick_flag;
+	int mx, my, mz, x1, x2, y1, y2;	//, dblclick_flag;
 #endif
-
-	newmenu_close();
-
-	gr_set_current_canvas(NULL);
-
-	gr_set_curfont(MEDIUM3_FONT);
-
-	box_w = 0;
-	for (i=0; i<nitems; i++ )	{
-		int w, h, aw;
-		gr_get_string_size( items[i], &w, &h, &aw );		
-		if ( w > box_w )
-			box_w = w+FSPACX(10);
-	}
-	height = LINE_SPACING * LB_ITEMS_ON_SCREEN;
-
+	
+	if (event->type == EVENT_CLOSE)
 	{
-		int w, h, aw;
-		gr_get_string_size( title, &w, &h, &aw );		
-		if ( w > box_w )
-			box_w = w;
-		title_height = h+FSPACY(5);
+		newmenu_hide_cursor();
+		return 1;
 	}
 
-	box_x = (grd_curcanv->cv_bitmap.bm_w-box_w)/2;
-	box_y = (grd_curcanv->cv_bitmap.bm_h-(height+title_height))/2 + title_height;
-	if ( box_y < title_height )
-		box_y = title_height;
-
-	done = 0;
-	citem = default_item;
-	if ( citem < 0 ) citem = 0;
-	if ( citem >= nitems ) citem = 0;
-
-	first_item = -1;
-
-	mouse_state = omouse_state = 0;	//dblclick_flag = 0;
-	newmenu_show_cursor();
-
-	while(!done)	{
-		timer_delay2(50);
-		gr_flip();
+	if (event->type == EVENT_DRAW)
+	{
 #ifdef OGL
 		nm_draw_background1(NULL);
 #endif
-		nm_draw_background( box_x-BORDERX,box_y-title_height-BORDERY,box_x+box_w+BORDERX,box_y+height+BORDERY );
+		nm_draw_background( lb->box_x-BORDERX,lb->box_y-lb->title_height-BORDERY,lb->box_x+lb->box_w+BORDERX,lb->box_y+lb->height+BORDERY );
 		gr_set_curfont(MEDIUM3_FONT);
-		gr_string( 0x8000, box_y - title_height, title );
-
-		ocitem = citem;
-		ofirst_item = first_item;
-
-#ifdef NEWMENU_MOUSE
-		omouse_state = mouse_state;
-		mouse_state = mouse_button_state(0);
-#endif
-
-		//see if redbook song needs to be restarted
-		RBACheckFinishedHook();
-
-		key = key_inkey();
-
-		if ( listbox_callback )
-			redraw = (*listbox_callback)(&citem, &nitems, items, &key );
-		else
-			redraw = 0;
-
-		if ( key<-1 ) {
-			citem = key;
-			key = -1;
-			done = 1;
+		gr_string( 0x8000, lb->box_y - lb->title_height, lb->title );
+		
+		gr_setcolor( BM_XRGB( 0,0,0)  );
+		for (i=lb->first_item; i<lb->first_item+LB_ITEMS_ON_SCREEN; i++ )	{
+			int y = (i-lb->first_item)*LINE_SPACING+lb->box_y;
+			if ( i >= lb->nitems )	{
+				gr_setcolor( BM_XRGB(5,5,5));
+				gr_rect( lb->box_x + lb->box_w - FSPACX(1), y-FSPACY(1), lb->box_x + lb->box_w, y + LINE_SPACING);
+				gr_setcolor( BM_XRGB(2,2,2));
+				gr_rect( lb->box_x - FSPACX(1), y - FSPACY(1), lb->box_x, y + LINE_SPACING );
+				gr_setcolor( BM_XRGB(0,0,0));
+				gr_rect( lb->box_x, y - FSPACY(1), lb->box_x + lb->box_w - FSPACX(1), y + LINE_SPACING);
+			} else {
+				if ( i == lb->citem )	
+					gr_set_curfont(MEDIUM2_FONT);
+				else	
+					gr_set_curfont(MEDIUM1_FONT);
+				gr_setcolor( BM_XRGB(5,5,5));
+				gr_rect( lb->box_x + lb->box_w - FSPACX(1), y-FSPACY(1), lb->box_x + lb->box_w, y + LINE_SPACING);
+				gr_setcolor( BM_XRGB(2,2,2));
+				gr_rect( lb->box_x - FSPACX(1), y - FSPACY(1), lb->box_x, y + LINE_SPACING );
+				gr_setcolor( BM_XRGB(0,0,0));
+				gr_rect( lb->box_x, y - FSPACY(1), lb->box_x + lb->box_w - FSPACX(1), y + LINE_SPACING);
+				gr_string( lb->box_x+FSPACX(5), y, lb->item[i]  );
+			}
 		}
+		
+		return 1;
+	}
 
-		switch(key)	{
+	timer_delay2(50);
+	ocitem = lb->citem;
+	ofirst_item = lb->first_item;
+	
+#ifdef NEWMENU_MOUSE
+	lb->omouse_state = lb->mouse_state;
+	lb->mouse_state = mouse_button_state(0);
+#endif
+	
+	//see if redbook song needs to be restarted
+	RBACheckFinishedHook();
+	
+	key = key_inkey();
+	
+	if ( lb->listbox_callback )
+		redraw = (*lb->listbox_callback)(&lb->citem, &lb->nitems, lb->item, &key );
+	else
+		redraw = 0;
+	
+	if ( key<-1 ) {
+		lb->citem = key;
+		key = -1;
+		lb->done = 1;
+		return 1;
+	}
+	
+	switch(key)	{
 #ifdef macintosh
 		case KEY_COMMAND+KEY_SHIFTED+KEY_3:
 #endif
@@ -1678,137 +1683,190 @@ int newmenu_listbox1( char * title, int nitems, char * items[], int allow_abort_
 			break;
 		case KEY_HOME:
 		case KEY_PAD7:
-			citem = 0;
+			lb->citem = 0;
 			break;
 		case KEY_END:
 		case KEY_PAD1:
-			citem = nitems-1;
+			lb->citem = lb->nitems-1;
 			break;
 		case KEY_UP:
 		case KEY_PAD8:
-			citem--;
+			lb->citem--;
 			break;
 		case KEY_DOWN:
 		case KEY_PAD2:
-			citem++;
+			lb->citem++;
 			break;
 		case KEY_PAGEDOWN:
 		case KEY_PAD3:
-			citem += LB_ITEMS_ON_SCREEN;
+			lb->citem += LB_ITEMS_ON_SCREEN;
 			break;
 		case KEY_PAGEUP:
 		case KEY_PAD9:
-			citem -= LB_ITEMS_ON_SCREEN;
+			lb->citem -= LB_ITEMS_ON_SCREEN;
 			break;
 		case KEY_ESC:
-			if (allow_abort_flag) {
-				citem = -1;
-				done = 1;
+			if (lb->allow_abort_flag) {
+				lb->citem = -1;
+				lb->done = 1;
+				return 1;
 			}
 			break;
-		case KEY_ENTER:
-		case KEY_PADENTER:
-			done = 1;
+			case KEY_ENTER:
+			case KEY_PADENTER:
+			lb->done = 1;
+			return 1;
 			break;
-
-		case KEY_ALTED+KEY_ENTER:
-		case KEY_ALTED+KEY_PADENTER:
+			
+			case KEY_ALTED+KEY_ENTER:
+			case KEY_ALTED+KEY_PADENTER:
 			gr_toggle_fullscreen();
 			break;
-
-		default:	
-			{
-				int ascii = key_ascii();
-				if ( ascii < 255 )	{
-					int cc,cc1;
-					cc=cc1=citem+1;
-					if (cc1 < 0 )  cc1 = 0;
-					if (cc1 >= nitems )  cc1 = 0;
-					while(1) {
-						if ( cc < 0 ) cc = 0;
-						if ( cc >= nitems ) cc = 0;
-						if ( citem == cc ) break;
-	
-						if ( toupper( items[cc][0] ) == toupper(ascii) )	{
-							citem = cc;
-							break;
-						}
-						cc++;
+			
+			default:	
+		{
+			int ascii = key_ascii();
+			if ( ascii < 255 )	{
+				int cc,cc1;
+				cc=cc1=lb->citem+1;
+				if (cc1 < 0 )  cc1 = 0;
+				if (cc1 >= lb->nitems )  cc1 = 0;
+				while(1) {
+					if ( cc < 0 ) cc = 0;
+					if ( cc >= lb->nitems ) cc = 0;
+					if ( lb->citem == cc ) break;
+					
+					if ( toupper( lb->item[cc][0] ) == toupper(ascii) )	{
+						lb->citem = cc;
+						break;
 					}
+					cc++;
 				}
-			}
-		}
-		if ( done ) break;
-
-		if (citem<0)
-			citem=0;
-
-		if (citem>=nitems)
-			citem = nitems-1;
-
-		if (citem< first_item)
-			first_item = citem;
-
-		if (citem>=( first_item+LB_ITEMS_ON_SCREEN))
-			first_item = citem-LB_ITEMS_ON_SCREEN+1;
-
-		if (nitems <= LB_ITEMS_ON_SCREEN )
-			 first_item = 0;
-
-		if (first_item>nitems-LB_ITEMS_ON_SCREEN)
-			first_item = nitems-LB_ITEMS_ON_SCREEN;
-		if (first_item < 0 ) first_item = 0;
-
-#ifdef NEWMENU_MOUSE
-		if (mouse_state) {
-			int w, h, aw;
-
-			mouse_get_pos(&mx, &my, &mz);
-			for (i=first_item; i<first_item+LB_ITEMS_ON_SCREEN; i++ )	{
-				if (i > nitems)
-					break;
-				gr_get_string_size(items[i], &w, &h, &aw  );
-				x1 = box_x;
-				x2 = box_x + box_w;
-				y1 = (i-first_item)*LINE_SPACING+box_y;
-				y2 = y1+h;
-				if ( ((mx > x1) && (mx < x2)) && ((my > y1) && (my < y2)) ) {
-					citem = i;
-					done = 1;
-					break;
-				}
-			}
-		}
-#endif
-
-		gr_setcolor( BM_XRGB( 0,0,0)  );
-		for (i=first_item; i<first_item+LB_ITEMS_ON_SCREEN; i++ )	{
-			int y = (i-first_item)*LINE_SPACING+box_y;
-			if ( i >= nitems )	{
-				gr_setcolor( BM_XRGB(5,5,5));
-				gr_rect( box_x + box_w - FSPACX(1), y-FSPACY(1), box_x + box_w, y + LINE_SPACING);
-				gr_setcolor( BM_XRGB(2,2,2));
-				gr_rect( box_x - FSPACX(1), y - FSPACY(1), box_x, y + LINE_SPACING );
-				gr_setcolor( BM_XRGB(0,0,0));
-				gr_rect( box_x, y - FSPACY(1), box_x + box_w - FSPACX(1), y + LINE_SPACING);
-			} else {
-				if ( i == citem )	
-					gr_set_curfont(MEDIUM2_FONT);
-				else	
-					gr_set_curfont(MEDIUM1_FONT);
-				gr_setcolor( BM_XRGB(5,5,5));
-				gr_rect( box_x + box_w - FSPACX(1), y-FSPACY(1), box_x + box_w, y + LINE_SPACING);
-				gr_setcolor( BM_XRGB(2,2,2));
-				gr_rect( box_x - FSPACX(1), y - FSPACY(1), box_x, y + LINE_SPACING );
-				gr_setcolor( BM_XRGB(0,0,0));
-				gr_rect( box_x, y - FSPACY(1), box_x + box_w - FSPACX(1), y + LINE_SPACING);
-				gr_string( box_x+FSPACX(5), y, items[i]  );
 			}
 		}
 	}
-	newmenu_hide_cursor();
+	
+	if (lb->citem<0)
+		lb->citem=0;
+	
+	if (lb->citem>=lb->nitems)
+		lb->citem = lb->nitems-1;
+	
+	if (lb->citem< lb->first_item)
+		lb->first_item = lb->citem;
+	
+	if (lb->citem>=( lb->first_item+LB_ITEMS_ON_SCREEN))
+		lb->first_item = lb->citem-LB_ITEMS_ON_SCREEN+1;
+	
+	if (lb->nitems <= LB_ITEMS_ON_SCREEN )
+		lb->first_item = 0;
+	
+	if (lb->first_item>lb->nitems-LB_ITEMS_ON_SCREEN)
+		lb->first_item = lb->nitems-LB_ITEMS_ON_SCREEN;
+	if (lb->first_item < 0 ) lb->first_item = 0;
+	
+#ifdef NEWMENU_MOUSE
+	if (lb->mouse_state) {
+		int w, h, aw;
+		
+		mouse_get_pos(&mx, &my, &mz);
+		for (i=lb->first_item; i<lb->first_item+LB_ITEMS_ON_SCREEN; i++ )	{
+			if (i > lb->nitems)
+				break;
+			gr_get_string_size(lb->item[i], &w, &h, &aw  );
+			x1 = lb->box_x;
+			x2 = lb->box_x + lb->box_w;
+			y1 = (i-lb->first_item)*LINE_SPACING+lb->box_y;
+			y2 = y1+h;
+			if ( ((mx > x1) && (mx < x2)) && ((my > y1) && (my < y2)) ) {
+				lb->citem = i;
+				lb->done = 1;
+				return 1;
+				break;
+			}
+		}
+	}
+#endif
+	
+	return 1;
+}
 
-	return citem;
+int newmenu_listbox( char * title, int nitems, char * items[], int allow_abort_flag, int (*listbox_callback)( int * citem, int *nitems, char * items[], int *keypress ) )
+{
+	return newmenu_listbox1( title, nitems, items, allow_abort_flag, 0, listbox_callback );
+}
+
+int newmenu_listbox1( char * title, int nitems, char * items[], int allow_abort_flag, int default_item, int (*listbox_callback)( int * citem, int *nitems, char * items[], int *keypress ) )
+{
+	listbox *lb;
+	window *wind;
+	int i, rval = -1;
+
+	MALLOC(lb, listbox, 1);
+	if (!lb)
+		return -1;
+	
+	newmenu_close();
+	
+	lb->title = title;
+	lb->nitems = nitems;
+	lb->item = items;
+	lb->allow_abort_flag = allow_abort_flag;
+	lb->listbox_callback = listbox_callback;
+
+	gr_set_current_canvas(NULL);
+
+	gr_set_curfont(MEDIUM3_FONT);
+
+	lb->box_w = 0;
+	for (i=0; i<nitems; i++ )	{
+		int w, h, aw;
+		gr_get_string_size( items[i], &w, &h, &aw );		
+		if ( w > lb->box_w )
+			lb->box_w = w+FSPACX(10);
+	}
+	lb->height = LINE_SPACING * LB_ITEMS_ON_SCREEN;
+
+	{
+		int w, h, aw;
+		gr_get_string_size( title, &w, &h, &aw );		
+		if ( w > lb->box_w )
+			lb->box_w = w;
+		lb->title_height = h+FSPACY(5);
+	}
+
+	lb->box_x = (grd_curcanv->cv_bitmap.bm_w-lb->box_w)/2;
+	lb->box_y = (grd_curcanv->cv_bitmap.bm_h-(lb->height+lb->title_height))/2 + lb->title_height;
+	if ( lb->box_y < lb->title_height )
+		lb->box_y = lb->title_height;
+
+	wind = window_create(&grd_curscreen->sc_canvas, lb->box_x-BORDERX, lb->box_y-lb->title_height-BORDERY, lb->box_w+2*BORDERX, lb->height+2*BORDERY, (int (*)(window *, d_event *, void *))listbox_handler, lb);
+	if (!wind)
+	{
+		d_free(lb);
+		newmenu_hide_cursor();
+		
+		return -1;
+	}
+
+	lb->done = 0;
+	lb->citem = default_item;
+	if ( lb->citem < 0 ) lb->citem = 0;
+	if ( lb->citem >= nitems ) lb->citem = 0;
+
+	lb->first_item = -1;
+
+	lb->mouse_state = lb->omouse_state = 0;	//dblclick_flag = 0;
+	newmenu_show_cursor();
+
+	while(!lb->done)
+		event_process();
+
+	window_close(wind);
+	
+	rval = lb->citem;
+	d_free(lb);
+	return rval;
 }
 
 //added on 10/14/98 by Victor Rachels to attempt a fixedwidth font messagebox

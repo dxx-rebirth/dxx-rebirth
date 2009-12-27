@@ -1,5 +1,9 @@
 D1X-Rebirth Changelog
 
+20091227
+--------
+main/newmenu.c: Make listboxes into windows
+
 20091226
 --------
 arch/include/key.h, arch/sdl/event.c, arch/sdl/key.c, main/automap.c, main/game.c, main/gamerend.c, main/kconfig.c, main/newmenu.c: Make newmenus into windows, allowing redrawing of automap and game to take place outside of newmenu.c; remove redundant keyd_repeat
