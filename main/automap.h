@@ -23,8 +23,6 @@ COPYRIGHT 1993-1998 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 
 extern void do_automap(int key_code);
 extern void automap_clear_visited();
-extern void draw_automap(int flip);
 extern ubyte Automap_visited[MAX_SEGMENTS];
-extern int Automap_active;
 
 #endif
