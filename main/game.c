@@ -776,7 +776,7 @@ void show_help()
 	m[nitems].type = NM_TYPE_TEXT; m[nitems++].text = "";
 	m[nitems].type = NM_TYPE_TEXT; m[nitems++].text = "(Use \x85-# for F#. e.g. \x85-1 for F1)";
 #endif
-	newmenu_dotiny( NULL, TXT_KEYS, nitems, m, NULL );
+	newmenu_dotiny( NULL, TXT_KEYS, nitems, m, NULL, NULL );
 }
 
 void show_netgame_help()
@@ -801,7 +801,7 @@ void show_netgame_help()
 	m[nitems].type = NM_TYPE_TEXT; m[nitems++].text = "kick: (*)\t  KICK PLAYER (*) FROM GAME (Host-only)";
 	m[nitems].type = NM_TYPE_TEXT; m[nitems++].text = "KillReactor\t  BLOW UP THE MINE (Host-only)";
 
-	newmenu_dotiny( NULL, TXT_KEYS, nitems, m, NULL );
+	newmenu_dotiny( NULL, TXT_KEYS, nitems, m, NULL, NULL );
 }
 
 void show_newdemo_help()
@@ -826,7 +826,7 @@ void show_newdemo_help()
 	m[nitems].type = NM_TYPE_TEXT; m[nitems++].text = "";
 	m[nitems].type = NM_TYPE_TEXT; m[nitems++].text = "(Use \x85-# for F#. e.g. \x85-1 for F1)";
 #endif
-	newmenu_dotiny( NULL, "DEMO PLAYBACK CONTROLS", nitems, m, NULL );
+	newmenu_dotiny( NULL, "DEMO PLAYBACK CONTROLS", nitems, m, NULL, NULL );
 }
 
 //temp function until Matt cleans up game sequencing

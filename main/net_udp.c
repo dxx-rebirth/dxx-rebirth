@@ -431,7 +431,7 @@ void net_udp_manual_join_game()
 		m[nitems].type = NM_TYPE_TEXT;  m[nitems].text="MY PORT:";	                    	nitems++;
 		m[nitems].type = NM_TYPE_INPUT; m[nitems].text=UDP_MyPort; m[nitems].text_len=5;	nitems++;
 
-		choice = newmenu_do1( NULL, "ENTER GAME ADDRESS", nitems, m, NULL, choice );
+		choice = newmenu_do1( NULL, "ENTER GAME ADDRESS", nitems, m, NULL, NULL, choice );
 
 		if ( choice > -1 )
 		{
@@ -539,31 +539,39 @@ void net_udp_init()
 }
 
 // Send PID_ENDLEVEL in regular intervals and listen for them (host also does the packets for playing clients)
-void net_udp_kmatrix_poll1( int nitems, newmenu_item * menus, int * key, int citem )
+int net_udp_kmatrix_poll1( newmenu *menu, d_event *event, void *userdata )
 {
 	// Polling loop for End-of-level menu
-	menus = menus;
-	citem = citem;
-	nitems = nitems;
-	key = key;
+	if (event->type != EVENT_IDLE)
+		return 0;
+	
+	menu = menu;
+	userdata = userdata;
 
 	net_udp_do_frame(0, 1);
+	
+	return 0;
 }
 
 // Same as above but used when player pressed ESC during kmatrix (host also does the packets for playing clients)
 extern fix StartAbortMenuTime;
-void net_udp_kmatrix_poll2( int nitems, newmenu_item * menus, int * key, int citem )
+int net_udp_kmatrix_poll2( newmenu *menu, d_event *event, void *userdata )
 {
-	// Polling loop for End-of-level menu
-	menus = menus;
-	citem = citem;
-	nitems = nitems;
-	key = key;
+	int rval = 0;
 
+	// Polling loop for End-of-level menu
+	if (event->type != EVENT_IDLE)
+		return 0;
+	
+	menu = menu;
+	userdata = userdata;
+	
 	if (timer_get_fixed_seconds() > (StartAbortMenuTime+(F1_0*3)))
-		*key = -2;
+		rval = -2;
 
 	net_udp_do_frame(0, 1);
+	
+	return rval;
 }
 
 int net_udp_endlevel(int *secret)
@@ -2232,23 +2240,26 @@ net_udp_read_object_packet( ubyte *data )
 
 /*
  * Polling loop waiting for sync packet to start game after having sent request
- */	
-void net_udp_sync_poll( int nitems, newmenu_item * menus, int * key, int citem )
+ */
+int net_udp_sync_poll( newmenu *menu, d_event *event, void *userdata )
 {
 	static fix t1 = 0;
+	int rval = 0;
 
-	menus = menus;
-	citem = citem;
-	nitems = nitems;
-
+	if (event->type != EVENT_IDLE)
+		return 0;
+	
+	menu = menu;
+	userdata = userdata;
+	
 	net_udp_listen();
 
 	// Leave if Host disconnects
 	if (Netgame.players[0].connected == CONNECT_DISCONNECTED)
-		*key = -2;
+		rval = -2;
 
 	if (Network_status != NETSTAT_WAITING)	// Status changed to playing, exit the menu
-		*key = -2;
+		rval = -2;
 
 	if (Network_status != NETSTAT_MENU && !Network_rejoined && (timer_get_fixed_seconds() > t1+F1_0*2))
 	{
@@ -2260,17 +2271,23 @@ void net_udp_sync_poll( int nitems, newmenu_item * menus, int * key, int citem )
 
 		i = net_udp_send_request();
 		if (i < 0)
-			*key = -2;
+			rval = -2;
 	}
+	
+	return rval;
 }
 
-void net_udp_start_poll( int nitems, newmenu_item * menus, int * key, int citem )
+int net_udp_start_poll( newmenu *menu, d_event *event, void *userdata )
 {
+	newmenu_item *menus = newmenu_get_items(menu);
+	int nitems = newmenu_get_nitems(menu);
 	int i,n,nm;
 
-	key=key;
-	citem=citem;
-
+	if (event->type != EVENT_IDLE)
+		return 0;
+	
+	userdata = userdata;
+	
 	Assert(Network_status == NETSTAT_STARTING);
 
 	if (!menus[0].value) {
@@ -2347,6 +2364,8 @@ void net_udp_start_poll( int nitems, newmenu_item * menus, int * key, int citem 
 			menus[i].value = 0;
 		}
    }
+	
+	return 0;
 }
 
 static int opt_cinvul, opt_team_anarchy, opt_coop, opt_show_on_map, opt_closed, opt_refuse, opt_maxnet;
@@ -2363,7 +2382,7 @@ void net_udp_set_power (void)
 		m[i].type = NM_TYPE_CHECK; m[i].text = multi_allow_powerup_text[i]; m[i].value = (Netgame.AllowedItems >> i) & 1;
 	}
 
-	i = newmenu_do1( NULL, "Objects to allow", MULTI_ALLOW_POWERUP_MAX, m, NULL, 0 );
+	i = newmenu_do1( NULL, "Objects to allow", MULTI_ALLOW_POWERUP_MAX, m, NULL, NULL, 0 );
 
 	if (i > -1)
 	{
@@ -2374,7 +2393,7 @@ void net_udp_set_power (void)
 	}
 }
 
-void net_udp_more_options_poll( int nitems, newmenu_item * menus, int * key, int citem );
+int net_udp_more_options_poll( newmenu *menu, d_event *event, void *userdata );
 
 void net_udp_more_game_options ()
 {
@@ -2408,7 +2427,7 @@ void net_udp_more_game_options ()
 	m[opt].type = NM_TYPE_CHECK; m[opt].text = "Packet Loss Prevention"; m[opt].value = Netgame.PacketLossPrevention; opt++;
 
 menu:
-	i = newmenu_do1( NULL, "Advanced netgame options", opt, m, net_udp_more_options_poll, 0 );
+	i = newmenu_do1( NULL, "Advanced netgame options", opt, m, net_udp_more_options_poll, NULL, 0 );
 
 	Netgame.control_invul_time = m[opt_cinvul].value*5*F1_0*60;
 
@@ -2446,22 +2465,30 @@ menu:
 	Netgame.PacketLossPrevention = m[opt_plp].value;
 }
 
-void net_udp_more_options_poll( int nitems, newmenu_item * menus, int * key, int citem )
+int net_udp_more_options_poll( newmenu *menu, d_event *event, void *userdata )
 {
-	menus = menus;
-	citem = citem;      // kills compile warnings
-	nitems = nitems;
-	key = key;
+	newmenu_item *menus = newmenu_get_items(menu);
 
+	if (event->type != EVENT_IDLE)	// FIXME: Should become EVENT_ITEM_CHANGED when available
+		return 0;
+	
+	userdata = userdata;
+	
 	if ( last_cinvul != menus[opt_cinvul].value )   {
 		sprintf( menus[opt_cinvul].text, "%s: %d %s", TXT_REACTOR_LIFE, menus[opt_cinvul].value*5, TXT_MINUTES_ABBREV );
 		last_cinvul = menus[opt_cinvul].value;
 	}
+	
+	return 0;
 }
 
-void net_udp_game_param_poll( int nitems, newmenu_item * menus, int * key, int citem )
+int net_udp_game_param_poll( newmenu *menu, d_event *event, void *userdata )
 {
+	newmenu_item *menus = newmenu_get_items(menu);
 	static int oldmaxnet=0;
+
+	if (event->type != EVENT_IDLE)	// FIXME: Should become EVENT_ITEM_CHANGED when available
+		return 0;
 
 	if (menus[opt_team_anarchy].value) 
 	{
@@ -2503,6 +2530,8 @@ void net_udp_game_param_poll( int nitems, newmenu_item * menus, int * key, int c
 		sprintf( menus[opt_maxnet].text, "Maximum players: %d", menus[opt_maxnet].value+2 );
 		last_maxnet = menus[opt_maxnet].value;
 	}
+	
+	return 0;
 }
 
 int net_udp_get_game_params()
@@ -2587,7 +2616,7 @@ int net_udp_get_game_params()
 	Assert(opt <= 20);
 
 menu:
-	i = newmenu_do1( NULL, NULL, opt, m, net_udp_game_param_poll, 1 );
+	i = newmenu_do1( NULL, NULL, opt, m, net_udp_game_param_poll, NULL, 1 );
 
 	if (i==opt_moreopts)
 	{
@@ -2878,7 +2907,7 @@ menu:
 
 	Assert(opt <= MAX_PLAYERS+4);
 	
-	choice = newmenu_do(NULL, TXT_TEAM_SELECTION, opt, m, NULL);
+	choice = newmenu_do(NULL, TXT_TEAM_SELECTION, opt, m, NULL, NULL);
 
 	if (choice == opt-1)
 	{
@@ -2936,7 +2965,7 @@ GetPlayersAgain:
         j=opt_msg;
          while(j==opt_msg)
           {
-            j=newmenu_do1( NULL, title, opts, m, net_udp_start_poll, 1 );
+            j=newmenu_do1( NULL, title, opts, m, net_udp_start_poll, NULL, 1 );
 
             if(j==opt_msg)
              {
@@ -3092,7 +3121,7 @@ net_udp_wait_for_sync(void)
 	sprintf( m[0].text, "%s\n'%s' %s", TXT_NET_WAITING, Netgame.players[i].callsign, TXT_NET_TO_ENTER );
 
 	while (choice > -1)
-		choice=newmenu_do( NULL, TXT_WAIT, 2, m, net_udp_sync_poll );
+		choice=newmenu_do( NULL, TXT_WAIT, 2, m, net_udp_sync_poll, NULL );
 
 
 	if (Network_status != NETSTAT_PLAYING)	
@@ -3111,19 +3140,19 @@ net_udp_wait_for_sync(void)
 	return(0);
 }
 
-void 
-net_udp_request_poll( int nitems, newmenu_item * menus, int * key, int citem )
+int net_udp_request_poll( newmenu *menu, d_event *event, void *userdata )
 {
 	// Polling loop for waiting-for-requests menu
 
 	int i = 0;
 	int num_ready = 0;
 
-	menus = menus;
-	citem = citem;
-	nitems = nitems;
-	key = key;
-
+	if (event->type != EVENT_IDLE)
+		return 0;
+	
+	menu = menu;
+	userdata = userdata;
+	
 	// Send our endlevel packet at regular intervals
 
 //	if (timer_get_fixed_seconds() > t1+ENDLEVEL_SEND_INTERVAL)
@@ -3143,8 +3172,10 @@ net_udp_request_poll( int nitems, newmenu_item * menus, int * key, int citem )
 
 	if (num_ready == N_players) // All players have checked in or are disconnected
 	{
-		*key = -2;
+		return -2;
 	}
+	
+	return 0;
 }
 
 void
@@ -3164,7 +3195,7 @@ net_udp_wait_for_requests(void)
 	Players[Player_num].connected = CONNECT_PLAYING;
 
 menu:
-	choice = newmenu_do(NULL, TXT_WAIT, 1, m, net_udp_request_poll);	
+	choice = newmenu_do(NULL, TXT_WAIT, 1, m, net_udp_request_poll, NULL);	
 
 	if (choice == -1)
 	{
@@ -4320,7 +4351,7 @@ int net_udp_show_game_info()
 	info+=sprintf (info,"\nPlayers: %i/%i",Netgame.numplayers,Netgame.max_numplayers);
 
 	while (1){
-		c=nm_messagebox1("WELCOME", NULL, 2, "JOIN GAME", "GAME INFO", rinfo);
+		c=nm_messagebox("WELCOME", 2, "JOIN GAME", "GAME INFO", rinfo);
 		if (c==0)
 			return 1;
 		else if (c==1)

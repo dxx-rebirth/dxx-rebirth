@@ -5,7 +5,8 @@
 
 typedef enum event_type
 {
-	EVENT_OTHER = 0,
+	EVENT_IDLE = 0,
+	EVENT_KEY_COMMAND,
 	EVENT_DRAW,
 	EVENT_CLOSE
 } event_type;

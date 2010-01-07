@@ -14,8 +14,6 @@
 /* d2x micro version */
 #define D1XMICRO "1"
 
-#define PROGRAM_NAME "D1X-Rebirth"
-
 /* Define if you want to build the editor */
 /* #undef EDITOR */
 
@@ -36,25 +34,36 @@
 
 /* Define this to be the shared game directory root */
 #define SHAREPATH "."
-#define DESCENT_DATA_PATH SHAREPATH
 
 /* Define if your processor needs data to be word-aligned */
 /* #undef WORDS_NEED_ALIGNMENT */
 
 
         /* General defines */
-//#define VERSION_NAME PACKAGE_STRING
-#define NMONO 1
-
 #if defined(__APPLE__) && defined(__MACH__)
 # define __unix__
 /* Define if you want a network build */
 # define NETWORK
 # define USE_UDP
+
+/* Define to 1 if the system has the type `struct timespec'. */
+#define HAVE_STRUCT_TIMESPEC 1
+
+/* Define to 1 if the system has the type `struct timeval'. */
+#define HAVE_STRUCT_TIMEVAL 1
+
 #else // Mac OS 9
 # ifndef __MWERKS__
 #  define inline
 # endif
+
+#define OGL_RUNTIME_LOAD	// avoids corruption of OpenGL
+
+/* Define to 1 if the system has the type `struct timespec'. */
+#define HAVE_STRUCT_TIMESPEC 0
+
+/* Define to 1 if the system has the type `struct timeval'. */
+#define HAVE_STRUCT_TIMEVAL 0
 #endif	// OS 9/X
 
 #define SDL_INPUT 1

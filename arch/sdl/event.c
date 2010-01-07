@@ -81,7 +81,7 @@ void event_process(void)
 	window *wind;
 
 	// Very trivial system for now.
-	event.type = EVENT_OTHER;	// process user input first
+	event.type = EVENT_IDLE;	// user input handled in idle event for now (except for newmenu)
 	wind = window_get_front();
 	if (!wind)
 		return;

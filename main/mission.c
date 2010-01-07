@@ -640,7 +640,7 @@ int select_mission(int anarchy_mode, char *message)
                 default_mission = i;
         }
 
-        new_mission_num = newmenu_listbox1( message, num_missions, m, 1, default_mission, NULL );
+        new_mission_num = newmenu_listbox1( message, num_missions, m, 1, default_mission, NULL, NULL );
 
         if (new_mission_num >= 0) {
 			// Chose a mission

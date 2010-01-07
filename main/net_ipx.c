@@ -7,7 +7,7 @@ IN USING, DISPLAYING,  AND CREATING DERIVATIVE WORKS THEREOF, SO LONG AS
 SUCH USE, DISPLAY OR CREATION IS FOR NON-COMMERCIAL, ROYALTY OR REVENUE
 FREE PURPOSES.  IN NO EVENT SHALL THE END-USER USE THE COMPUTER CODE
 CONTAINED HEREIN FOR REVENUE-BEARING PURPOSES.  THE END-USER UNDERSTANDS
-AND AGREES TO THE TERMS HEREIN AND ACCEPTS THE SAME BY USE OF THIS FILE.  
+AND AGREES TO THE TERMS HEREIN AND ACCEPTS THE SAME BY USE OF THIS FILE.
 COPYRIGHT 1993-1998 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 */
 
@@ -74,6 +74,7 @@ void net_ipx_ping_all(fix time);
 void net_ipx_ping(ubyte flag, int pnum);
 void net_ipx_handle_ping_return(ubyte pnum);
 void net_ipx_process_pdata(char *data);
+void net_ipx_more_game_options();
 void net_ipx_read_pdata_packet(IPX_frame_info *pd);
 int net_ipx_compare_players(netplayer_info *pl1, netplayer_info *pl2);
 void net_ipx_do_refuse_stuff(IPX_sequence_packet *their);
@@ -610,8 +611,7 @@ int net_ipx_change_socket(int new_socket)
 #define ENDLEVEL_SEND_INTERVAL F1_0*2
 #define ENDLEVEL_IDLE_TIME	F1_0*10
 	
-void 
-net_ipx_endlevel_poll( int nitems, newmenu_item * menus, int * key, int citem )
+int net_ipx_endlevel_poll( newmenu *menu, d_event *event, void *userdata )
 {
 	// Polling loop for End-of-level menu
 
@@ -623,11 +623,12 @@ net_ipx_endlevel_poll( int nitems, newmenu_item * menus, int * key, int citem )
 
 	int previous_state[MAX_NUM_NET_PLAYERS];
 	int previous_seconds_left;
+	newmenu_item *menus = newmenu_get_items(menu);
 
-	menus = menus;
-	citem = citem;
-	nitems = nitems;
-	key = key;
+	userdata = userdata;
+	
+	if (event->type != EVENT_IDLE)
+		return 0;
 
 	// Send our endlevel packet at regular intervals
 
@@ -688,14 +689,15 @@ net_ipx_endlevel_poll( int nitems, newmenu_item * menus, int * key, int citem )
 	if (num_ready == N_players) // All players have checked in or are disconnected
 	{
 		if (goto_secret)
-			*key = -3;
+			return -3;
 		else
-			*key = -2;
+			return -2;
 	}
+	
+	return 0;
 }
 
-void 
-net_ipx_endlevel_poll2( int nitems, newmenu_item * menus, int * key, int citem )
+int net_ipx_endlevel_poll2( newmenu *menu, d_event *event, void *userdata )
 {
 	// Polling loop for End-of-level menu
 
@@ -703,11 +705,12 @@ net_ipx_endlevel_poll2( int nitems, newmenu_item * menus, int * key, int citem )
 	int i = 0;
 	int num_ready = 0;
 	int goto_secret = 0;
-
-	menus = menus;
-	citem = citem;
-	nitems = nitems;
-	key = key;
+	
+	menu = menu;
+	userdata = userdata;
+	
+	if (event->type != EVENT_IDLE)
+		return 0;
 
 	// Send our endlevel packet at regular intervals
 
@@ -730,14 +733,15 @@ net_ipx_endlevel_poll2( int nitems, newmenu_item * menus, int * key, int citem )
 	if (num_ready == N_players) // All players have checked in or are disconnected
 	{
 		if (goto_secret)
-			*key = -3;
+			return -3;
 		else
-			*key = -2;
+			return -2;
 	}
+	
+	return 0;
 }
 
-void 
-net_ipx_kmatrix_poll1( int nitems, newmenu_item * menus, int * key, int citem )
+int net_ipx_kmatrix_poll1( newmenu *menu, d_event *event, void *userdata )
 {
 	// Polling loop for End-of-level menu
 
@@ -745,7 +749,13 @@ net_ipx_kmatrix_poll1( int nitems, newmenu_item * menus, int * key, int citem )
 	int i = 0;
 	int num_ready = 0;
 	int goto_secret = 0;
-
+	
+	menu = menu;
+	userdata = userdata;
+	
+	if (event->type != EVENT_IDLE)
+		return 0;
+	
 	// Send our endlevel packet at regular intervals
 
 	if (timer_get_fixed_seconds() > t1+ENDLEVEL_SEND_INTERVAL)
@@ -767,10 +777,12 @@ net_ipx_kmatrix_poll1( int nitems, newmenu_item * menus, int * key, int citem )
 	if (num_ready == N_players) // All players have checked in or are disconnected
 	{
 		if (goto_secret)
-			*key = -3;
+			return -3;
 		else
-			*key = -2;
+			return -2;
 	}
+	
+	return 0;
 }
 
 int
@@ -814,14 +826,14 @@ newmenu:
 menu:
 	sprintf(text, "%s\n%s", TXT_WAITING, TXT_ESC_ABORT);
 
-	choice=newmenu_do3(NULL, text, N_players+1, m, net_ipx_endlevel_poll, 0, STARS_BACKGROUND, 300*(SWIDTH/320), 160*(SHEIGHT/200));
+	choice=newmenu_do3(NULL, text, N_players+1, m, net_ipx_endlevel_poll, NULL, 0, STARS_BACKGROUND, 300*(SWIDTH/320), 160*(SHEIGHT/200));
 
 	if (choice==-1) {
 		newmenu_item m2[2];
 
 		m2[0].type = m2[1].type = NM_TYPE_MENU;
 		m2[0].text = TXT_YES; m2[1].text = TXT_NO;
-		choice = newmenu_do1(NULL, TXT_SURE_LEAVE_GAME, 2, m2, net_ipx_endlevel_poll2, 1);
+		choice = newmenu_do1(NULL, TXT_SURE_LEAVE_GAME, 2, m2, net_ipx_endlevel_poll2, NULL, 1);
 		if (choice == 0)
 		{
 			Players[Player_num].connected = CONNECT_DISCONNECTED;
@@ -2169,23 +2181,24 @@ net_ipx_read_object_packet( ubyte *data )
 	} // For each object in packet
 }
 	
-void net_ipx_sync_poll( int nitems, newmenu_item * menus, int * key, int citem )
+/* Polling loop waiting for sync packet to start game
+ * after having sent request
+ */
+int net_ipx_sync_poll( newmenu *menu, d_event *event, void *userdata )
 {
-	// Polling loop waiting for sync packet to start game
-
-
 	static fix t1 = 0;
-
-	menus = menus;
-	citem = citem;
-	nitems = nitems;
-
+	int rval = 0;
+	
+	menu = menu;
+	userdata = userdata;
+	
+	if (event->type != EVENT_IDLE)
+		return 0;
+		
 	net_ipx_listen();
 
-//added/to-be-added on someday by someone for receiving msgs in waitlist
-
 	if (Network_status != NETSTAT_WAITING)	// Status changed to playing, exit the menu
-		*key = -2;
+		rval = -2;
 
 	if (Network_status != NETSTAT_MENU && !Network_rejoined && (timer_get_fixed_seconds() > t1+F1_0*2))
 	{
@@ -2197,17 +2210,23 @@ void net_ipx_sync_poll( int nitems, newmenu_item * menus, int * key, int citem )
 
 		i = net_ipx_send_request();
 		if (i < 0)
-			*key = -2;
+			rval = -2;
 	}
+	
+	return rval;
 }
 
-void net_ipx_start_poll( int nitems, newmenu_item * menus, int * key, int citem )
+int net_ipx_start_poll( newmenu *menu, d_event *event, void *userdata )
 {
+	newmenu_item *menus = newmenu_get_items(menu);
+	int nitems = newmenu_get_nitems(menu);
 	int i,n,nm;
-
-	key=key;
-	citem=citem;
-
+	
+	if (event->type != EVENT_IDLE)
+		return 0;
+	
+	userdata = userdata;
+	
 	Assert(Network_status == NETSTAT_STARTING);
 
 	if (!menus[0].value) {
@@ -2249,28 +2268,24 @@ void net_ipx_start_poll( int nitems, newmenu_item * menus, int * key, int citem 
 	n = Netgame.numplayers;
 	net_ipx_listen();
 
-	if (n < Netgame.numplayers ) 	
+	if (n < Netgame.numplayers )
 	{
-		sprintf( menus[N_players-1].text, "%d. %-16s", N_players, Netgame.players[N_players-1].callsign );
+		digi_play_sample(SOUND_HUD_MESSAGE, F1_0);
 
-		//Begin addition by GF
-		digi_play_sample(SOUND_HUD_MESSAGE, F1_0);  //A noise to alert you when someone joins a starting game...
-		//End addition by GF
+		sprintf( menus[N_players-1].text, "%d. %-16s", N_players, Netgame.players[N_players-1].callsign );
 
 		if (N_players <= MaxNumNetPlayers)
 		{
 			menus[N_players-1].value = 1;
 		}
 	} 
-	else if ( n > Netgame.numplayers )	
+	else if ( n > Netgame.numplayers )
 	{
 		// One got removed...
 
-		//Begin addition by GF
-		// <Taken out for now due to lack of testing> digi_play_sample(SOUND_HUD_KILL, F1_0);  //A noise to alert you when someone leaves a starting game...
-		//End addition by GF
+		digi_play_sample(SOUND_HUD_KILL,F1_0);
 
-		for (i=0; i<N_players; i++ )	
+		for (i=0; i<N_players; i++ )
 		{
 			sprintf( menus[i].text, "%d. %-16s", i+1, Netgame.players[i].callsign );
 			if (i < MaxNumNetPlayers)
@@ -2278,76 +2293,28 @@ void net_ipx_start_poll( int nitems, newmenu_item * menus, int * key, int citem 
 			else
 				menus[i].value = 0;
 		}
-		for (i=N_players; i<n; i++ )	
+		for (i=N_players; i<n; i++ )
 		{
 			sprintf( menus[i].text, "%d. ", i+1 );		// Clear out the deleted entries...
 			menus[i].value = 0;
 		}
    }
+	
+	return 0;
 }
 
 static int opt_cinvul, opt_team_anarchy, opt_coop, opt_show_on_map, opt_closed, opt_refuse, opt_maxnet;
 static int opt_show_on_map, opt_difficulty, opt_socket;
 static int last_maxnet, last_cinvul=0;
 
-void net_ipx_more_options_poll( int nitems, newmenu_item * menus, int * key, int citem );
-
-void net_ipx_more_game_options ()
+int net_ipx_game_param_poll( newmenu *menu, d_event *event, void *userdata )
 {
-	int opt=0,i;
-	char srinvul[50],socket_string[5];
-	newmenu_item m[21];
-
-	sprintf (socket_string,"%d",IPX_Socket);
-	
-	opt_difficulty = opt;
-	m[opt].type = NM_TYPE_SLIDER; m[opt].value=Netgame.difficulty; m[opt].text=TXT_DIFFICULTY; m[opt].min_value=0; m[opt].max_value=(NDL-1); opt++;
-
-	opt_cinvul = opt;
-	sprintf( srinvul, "%s: %d %s", TXT_REACTOR_LIFE, Netgame.control_invul_time/F1_0/60, TXT_MINUTES_ABBREV );
-	m[opt].type = NM_TYPE_SLIDER; m[opt].value=Netgame.control_invul_time/5/F1_0/60; m[opt].text= srinvul; m[opt].min_value=0; m[opt].max_value=10; opt++;
-
-	opt_show_on_map=opt;
-	m[opt].type = NM_TYPE_CHECK; m[opt].text = TXT_SHOW_ON_MAP; m[opt].value=(Netgame.game_flags & NETGAME_FLAG_SHOW_MAP); opt_show_on_map=opt; opt++;
-
-	m[opt].type = NM_TYPE_TEXT; m[opt].text = "Network socket"; opt++;
-	opt_socket = opt;
-	m[opt].type = NM_TYPE_INPUT; m[opt].text = socket_string; m[opt].text_len=4; opt++;
-
-	i = newmenu_do1( NULL, "Advanced netgame options", opt, m, net_ipx_more_options_poll, 0 );
-
-	Netgame.control_invul_time = m[opt_cinvul].value*5*F1_0*60;
-
-	if ((atoi(socket_string))!=IPX_Socket)
-	{
-		IPX_Socket=atoi(socket_string);
-		ipxdrv_change_default_socket( IPX_DEFAULT_SOCKET + IPX_Socket );
-	}
-	
-	Netgame.difficulty=Difficulty_level = m[opt_difficulty].value;
-	if (m[opt_show_on_map].value)
-		Netgame.game_flags |= NETGAME_FLAG_SHOW_MAP;
-	else
-		Netgame.game_flags &= ~NETGAME_FLAG_SHOW_MAP;
-}
-
-void net_ipx_more_options_poll( int nitems, newmenu_item * menus, int * key, int citem )
-{
-	menus = menus;
-	citem = citem;      // kills compile warnings
-	nitems = nitems;
-	key = key;
-
-	if ( last_cinvul != menus[opt_cinvul].value )   {
-		sprintf( menus[opt_cinvul].text, "%s: %d %s", TXT_REACTOR_LIFE, menus[opt_cinvul].value*5, TXT_MINUTES_ABBREV );
-		last_cinvul = menus[opt_cinvul].value;
-	}
-}
-
-void net_ipx_game_param_poll( int nitems, newmenu_item * menus, int * key, int citem )
-{
+	newmenu_item *menus = newmenu_get_items(menu);
 	static int oldmaxnet=0;
 
+	if (event->type != EVENT_IDLE)	// FIXME: Should become EVENT_ITEM_CHANGED in future
+		return 0;
+	
 	if (menus[opt_team_anarchy].value) 
 	{
 		menus[opt_closed].value = 1;
@@ -2388,6 +2355,8 @@ void net_ipx_game_param_poll( int nitems, newmenu_item * menus, int * key, int c
 		sprintf( menus[opt_maxnet].text, "Maximum players: %d", menus[opt_maxnet].value+2 );
 		last_maxnet = menus[opt_maxnet].value;
 	}
+	
+	return 0;
 }
 
 int net_ipx_get_game_params()
@@ -2465,7 +2434,7 @@ int net_ipx_get_game_params()
 	Assert(opt <= 20);
 
 menu:
-	i = newmenu_do1( NULL, NULL, opt, m, net_ipx_game_param_poll, 1 );
+	i = newmenu_do1( NULL, NULL, opt, m, net_ipx_game_param_poll, NULL, 1 );
 
 	if (i==opt_moreopts)
 	{
@@ -2825,7 +2794,7 @@ menu:
 
 	Assert(opt <= MAX_PLAYERS+4);
 	
-	choice = newmenu_do(NULL, TXT_TEAM_SELECTION, opt, m, NULL);
+	choice = newmenu_do(NULL, TXT_TEAM_SELECTION, opt, m, NULL, NULL);
 
 	if (choice == opt-1)
 	{
@@ -2883,7 +2852,7 @@ GetPlayersAgain:
         j=opt_msg;
          while(j==opt_msg)
           {
-            j=newmenu_do1( NULL, title, opts, m, net_ipx_start_poll, 1 );
+            j=newmenu_do1( NULL, title, opts, m, net_ipx_start_poll, NULL, 1 );
 
             if(j==opt_msg)
              {
@@ -3040,22 +3009,27 @@ void restart_net_searching(newmenu_item * m)
 	num_active_ipx_changed = 1;	
 }
 
-void net_ipx_join_poll( int nitems, newmenu_item * menus, int * key, int citem )
+int net_ipx_join_poll( newmenu *menu, d_event *event, void *userdata )
 {
 	// Polling loop for Join Game menu
+	newmenu_item *menus = newmenu_get_items(menu);
 	static fix t1 = 0;
 	int i, osocket,join_status,temp;
+	int key = 0;
+	int rval = 0;
 
-	menus = menus;
-	citem = citem;
-	nitems = nitems;
-	key = key;
+	if (event->type == EVENT_KEY_COMMAND)
+		key = ((d_event_keycommand *)event)->keycode;
+	else if (event->type != EVENT_IDLE)
+		return 0;
+	
+	userdata = userdata;
 
 	if ( IPX_allow_socket_changes ) {
 		osocket = IPX_Socket;
 
-		if ( *key==KEY_PAGEDOWN )       { IPX_Socket--; *key = 0; }
-		if ( *key==KEY_PAGEUP )         { IPX_Socket++; *key = 0; }
+		if ( key==KEY_PAGEDOWN )       { IPX_Socket--; rval = 1; }
+		if ( key==KEY_PAGEUP )         { IPX_Socket++; rval = 1; }
 
 		if (IPX_Socket>99)
 			IPX_Socket=99;
@@ -3074,7 +3048,7 @@ void net_ipx_join_poll( int nitems, newmenu_item * menus, int * key, int citem )
 			ipxdrv_change_default_socket( IPX_DEFAULT_SOCKET + IPX_Socket );
 			restart_net_searching(menus);
 			net_ipx_send_game_list_request();
-			return;
+			return rval;
 		}
 	}
 
@@ -3089,7 +3063,7 @@ void net_ipx_join_poll( int nitems, newmenu_item * menus, int * key, int citem )
 	net_ipx_listen();
 
 	if (!num_active_ipx_changed)
-		return;
+		return rval;
 
 	if (temp!=num_active_ipx_games)
 		digi_play_sample (SOUND_HUD_MESSAGE,F1_0);
@@ -3193,6 +3167,8 @@ void net_ipx_join_poll( int nitems, newmenu_item * menus, int * key, int citem )
 	{
 		sprintf(menus[i+2].text, "%d.                                                     ",i+1);
 	}
+	
+	return rval;
 }
 
 int
@@ -3214,7 +3190,7 @@ net_ipx_wait_for_sync(void)
 	sprintf( m[0].text, "%s\n'%s' %s", TXT_NET_WAITING, Netgame.players[i].callsign, TXT_NET_TO_ENTER );
 
 	while (choice > -1)
-		choice=newmenu_do( NULL, TXT_WAIT, 2, m, net_ipx_sync_poll );
+		choice=newmenu_do( NULL, TXT_WAIT, 2, m, net_ipx_sync_poll, NULL );
 
 
 	if (Network_status != NETSTAT_PLAYING)	
@@ -3235,18 +3211,18 @@ net_ipx_wait_for_sync(void)
 	return(0);
 }
 
-void 
-net_ipx_request_poll( int nitems, newmenu_item * menus, int * key, int citem )
+int net_ipx_request_poll( newmenu *menu, d_event *event, void *userdata )
 {
 	// Polling loop for waiting-for-requests menu
 
 	int i = 0;
 	int num_ready = 0;
 
-	menus = menus;
-	citem = citem;
-	nitems = nitems;
-	key = key;
+	if (event->type != EVENT_IDLE)
+		return 0;
+	
+	menu = menu;
+	userdata = userdata;
 
 	// Send our endlevel packet at regular intervals
 
@@ -3266,8 +3242,10 @@ net_ipx_request_poll( int nitems, newmenu_item * menus, int * key, int citem )
 
 	if (num_ready == N_players) // All players have checked in or are disconnected
 	{
-		*key = -2;
+		return -2;
 	}
+	
+	return 0;
 }
 
 void
@@ -3287,7 +3265,7 @@ net_ipx_wait_for_requests(void)
 	Players[Player_num].connected = CONNECT_PLAYING;
 
 menu:
-	choice = newmenu_do(NULL, TXT_WAIT, 1, m, net_ipx_request_poll);	
+	choice = newmenu_do(NULL, TXT_WAIT, 1, m, net_ipx_request_poll, NULL);	
 
 	if (choice == -1)
 	{
@@ -3447,7 +3425,7 @@ remenu:
 	SurfingNet=1;
 	nm_draw_background1(Menu_pcx_name);             //load this here so if we abort after loading level, we restore the palette
 	gr_palette_load(gr_palette);
-	choice=newmenu_dotiny("NETGAMES", NULL,IPX_MAX_NETGAMES+2, m, net_ipx_join_poll);
+	choice=newmenu_dotiny("NETGAMES", NULL,IPX_MAX_NETGAMES+2, m, net_ipx_join_poll, NULL);
 	SurfingNet=0;
 
 	if (choice==-1)	{
@@ -3782,6 +3760,64 @@ void net_ipx_read_pdata_packet(IPX_frame_info *pd)
 
 }
 
+int net_ipx_more_options_poll( newmenu *menu, d_event *event, void *userdata );
+
+void net_ipx_more_game_options ()
+{
+	int opt=0,i;
+	char srinvul[50],socket_string[5];
+	newmenu_item m[21];
+
+	sprintf (socket_string,"%d",IPX_Socket);
+	
+	opt_difficulty = opt;
+	m[opt].type = NM_TYPE_SLIDER; m[opt].value=Netgame.difficulty; m[opt].text=TXT_DIFFICULTY; m[opt].min_value=0; m[opt].max_value=(NDL-1); opt++;
+
+	opt_cinvul = opt;
+	sprintf( srinvul, "%s: %d %s", TXT_REACTOR_LIFE, Netgame.control_invul_time/F1_0/60, TXT_MINUTES_ABBREV );
+	m[opt].type = NM_TYPE_SLIDER; m[opt].value=Netgame.control_invul_time/5/F1_0/60; m[opt].text= srinvul; m[opt].min_value=0; m[opt].max_value=10; opt++;
+
+	opt_show_on_map=opt;
+	m[opt].type = NM_TYPE_CHECK; m[opt].text = TXT_SHOW_ON_MAP; m[opt].value=(Netgame.game_flags & NETGAME_FLAG_SHOW_MAP); opt_show_on_map=opt; opt++;
+
+	m[opt].type = NM_TYPE_TEXT; m[opt].text = "Network socket"; opt++;
+	opt_socket = opt;
+	m[opt].type = NM_TYPE_INPUT; m[opt].text = socket_string; m[opt].text_len=4; opt++;
+
+	i = newmenu_do1( NULL, "Advanced netgame options", opt, m, net_ipx_more_options_poll, NULL, 0 );
+
+	Netgame.control_invul_time = m[opt_cinvul].value*5*F1_0*60;
+
+	if ((atoi(socket_string))!=IPX_Socket)
+	{
+		IPX_Socket=atoi(socket_string);
+		ipxdrv_change_default_socket( IPX_DEFAULT_SOCKET + IPX_Socket );
+	}
+	
+	Netgame.difficulty=Difficulty_level = m[opt_difficulty].value;
+	if (m[opt_show_on_map].value)
+		Netgame.game_flags |= NETGAME_FLAG_SHOW_MAP;
+	else
+		Netgame.game_flags &= ~NETGAME_FLAG_SHOW_MAP;
+}
+
+int net_ipx_more_options_poll( newmenu *menu, d_event *event, void *userdata )
+{
+	newmenu_item *menus = newmenu_get_items(menu);
+
+	if (event->type != EVENT_IDLE)	// FIXME: Should become EVENT_ITEM_CHANGED in future
+		return 0;
+	
+	userdata = userdata;
+		
+	if ( last_cinvul != menus[opt_cinvul].value )   {
+		sprintf( menus[opt_cinvul].text, "%s: %d %s", TXT_REACTOR_LIFE, menus[opt_cinvul].value*5, TXT_MINUTES_ABBREV );
+		last_cinvul = menus[opt_cinvul].value;
+	}
+	
+	return 0;
+}
+
 void net_ipx_ping (ubyte flag,int pnum)
 {
 	ubyte mybuf[2];
@@ -4017,7 +4053,7 @@ int net_ipx_show_game_stats(int choice)
 	info+=sprintf (info,"\nPlayers: %i/%i",Active_ipx_games[choice].numplayers,Active_ipx_games[choice].max_numplayers);
 
 	while (1){
-		c=nm_messagebox1("WELCOME", NULL, 2, "JOIN GAME", "GAME INFO", rinfo);
+		c=nm_messagebox("WELCOME", 2, "JOIN GAME", "GAME INFO", rinfo);
 		if (c==0)
 			return 1;
 		else if (c==1)

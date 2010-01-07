@@ -3,6 +3,7 @@ D1X-Rebirth Changelog
 20100107
 --------
 main/gamecntl.c, main/newdemo.c: New Interpolation method for demos and a small hack to fix this Interpolation if duplicate object signatures appear (mostly)
+arch/carbon/conf.h, arch/include/event.h, arch/include/key.h, arch/sdl/event.c, main/escort.c, main/game.c, main/gamecntl.c, main/gamesave.c, main/gameseq.c, main/kmatrix.c, main/menu.c, main/mission.c, main/multi.c, main/multi.h, main/net_ipx.c, main/net_ipx.h, main/net_udp.c, main/net_udp.h, main/newdemo.c, main/newmenu.c, main/newmenu.h, main/scores.c, main/state.c, main/weapon.c: Change newmenu and listbox callback systems, adding use of d_event, for greater flexibility
 
 20091227
 --------

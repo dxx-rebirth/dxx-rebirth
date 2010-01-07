@@ -122,16 +122,21 @@ extern void newmenu_close();
 extern void ReorderPrimary();
 extern void ReorderSecondary();
 
-void autodemo_menu_check(int nitems, newmenu_item * items, int *last_key, int citem )
+int autodemo_menu_check(newmenu *menu, d_event *event, void *userdata )
 {
 	int curtime;
 
-	nitems = nitems;
-	items=items;
-	citem = citem;
-
-	// Don't allow them to hit ESC in the main menu.
-	if (*last_key==KEY_ESC) *last_key = 0;
+	menu = menu;
+	userdata = userdata;
+	
+	if (event->type == EVENT_KEY_COMMAND)
+	{
+		// Don't allow them to hit ESC in the main menu.
+		if (((d_event_keycommand *)event)->keycode==KEY_ESC)
+			return 1;
+	}
+	else if (event->type != EVENT_IDLE)
+		return 0;
 
 	curtime = timer_get_fixed_seconds();
 	if ( keyd_time_when_last_pressed+i2f(45) < curtime || GameArg.SysAutoDemo  )
@@ -142,9 +147,11 @@ void autodemo_menu_check(int nitems, newmenu_item * items, int *last_key, int ci
 		if (Newdemo_state == ND_STATE_PLAYBACK)
 		{
 			Function_mode = FMODE_GAME;
-			*last_key = -2;
+			return -2;
 		}
 	}
+
+	return 0;
 }
 
 static int main_menu_choice = 0;
@@ -212,7 +219,7 @@ int DoMenu()
 		keyd_time_when_last_pressed = timer_get_fixed_seconds();		// .. 20 seconds from now!
 		if (main_menu_choice < 0 )
 			main_menu_choice = 0;
-		main_menu_choice = newmenu_do2( "", NULL, num_options, m, autodemo_menu_check, main_menu_choice, Menu_pcx_name);
+		main_menu_choice = newmenu_do2( "", NULL, num_options, m, autodemo_menu_check, NULL, main_menu_choice, Menu_pcx_name);
 		if ( main_menu_choice > -1 ) do_option(menu_choice[main_menu_choice]);
 	} while( Function_mode==FMODE_MENU );
 
@@ -273,7 +280,7 @@ void do_option ( int select)
 				for (i=0;i<Num_songs;i++) {
 					m[i] = Songs[i].filename;
 				}
-				i = newmenu_listbox( "Select Song", Num_songs, m, 1, NULL );
+				i = newmenu_listbox( "Select Song", Num_songs, m, 1, NULL, NULL );
 
 				if ( i > -1 )	{
 					songs_play_song( i, 0 );
@@ -289,7 +296,7 @@ void do_option ( int select)
 	
 				m.type=NM_TYPE_INPUT; m.text_len = 10; m.text = text;
 	
-				newmenu_do( NULL, "Enter level to load", 1, &m, NULL );
+				newmenu_do( NULL, "Enter level to load", 1, &m, NULL, NULL );
 	
 				new_level_num = atoi(m.text);
 	
@@ -375,90 +382,92 @@ int fname_sort_func(char **e0, char **e1)
 	return stricmp(*e0, *e1);
 }
 
-enum
+enum file_mode
 {
-	K_DELETED = -5,
-	K_DELETED_DEMO = -6
+	FILE_PLAYER_MODE = 1,
+	FILE_DEMO_MODE
 };
 
-// These have to be statics until the newmenu callback system is revised
-static int player_mode=0;
-static int demo_mode=0;
-
-int filename_menu_handler( int * citem, int *nitems, char * items[], int *keypress )
+int filename_menu_handler( listbox *lb, d_event *event, enum file_mode mode )
 {
-	switch (*keypress)
+	char **items = listbox_get_items(lb);
+	int citem = listbox_get_citem(lb);
+
+	if (event->type != EVENT_KEY_COMMAND)
+		return 0;
+	
+	switch (((d_event_keycommand *)event)->keycode)
 	{
 		case KEY_CTRLED+KEY_D:
-			if ( ((player_mode)&&(*citem>0)) || ((demo_mode)&&(*citem>=0)) )
+			if ( ((mode == FILE_PLAYER_MODE)&&(citem>0)) || ((mode == FILE_DEMO_MODE)&&(citem>=0)) )
 			{
 				int x = 1;
-				if (player_mode)
-					x = nm_messagebox( NULL, 2, TXT_YES, TXT_NO, "%s %s?", TXT_DELETE_PILOT, items[*citem]+((player_mode && items[*citem][0]=='$')?1:0) );
-				else if (demo_mode)
-					x = nm_messagebox( NULL, 2, TXT_YES, TXT_NO, "%s %s?", TXT_DELETE_DEMO, items[*citem]+((demo_mode && items[*citem][0]=='$')?1:0) );
+				if (mode == FILE_PLAYER_MODE)
+					x = nm_messagebox( NULL, 2, TXT_YES, TXT_NO, "%s %s?", TXT_DELETE_PILOT, items[citem]+(((mode == FILE_PLAYER_MODE) && items[citem][0]=='$')?1:0) );
+				else if (mode == FILE_DEMO_MODE)
+					x = nm_messagebox( NULL, 2, TXT_YES, TXT_NO, "%s %s?", TXT_DELETE_DEMO, items[citem]+(((mode == FILE_DEMO_MODE) && items[citem][0]=='$')?1:0) );
  				if (x==0)	{
 					char * p;
 					char plxfile[PATH_MAX];
 					int ret;
 					char name[PATH_MAX];
 					
-					p = items[*citem] + strlen(items[*citem]);
-					if (player_mode)
+					p = items[citem] + strlen(items[citem]);
+					if (mode == FILE_PLAYER_MODE)
 						*p = '.';
 					
-					strcpy(name, demo_mode ? DEMO_DIR : ((player_mode && GameArg.SysUsePlayersDir) ? "Players/" : ""));
-					strcat(name,items[*citem]);
+					strcpy(name, (mode == FILE_DEMO_MODE) ? DEMO_DIR : (((mode == FILE_PLAYER_MODE) && GameArg.SysUsePlayersDir) ? "Players/" : ""));
+					strcat(name,items[citem]);
 					
 					ret = !PHYSFS_delete(name);
-					if (player_mode)
+					if (mode == FILE_PLAYER_MODE)
 						*p = 0;
 					
-					if ((!ret) && player_mode)	{
-						delete_player_saved_games( items[*citem] );
+					if ((!ret) && (mode == FILE_PLAYER_MODE))	{
+						delete_player_saved_games( items[citem] );
 						// delete PLX file
-						sprintf(plxfile, GameArg.SysUsePlayersDir? "Players/%.8s.plx" : "%.8s.plx", items[*citem]);
+						sprintf(plxfile, GameArg.SysUsePlayersDir? "Players/%.8s.plx" : "%.8s.plx", items[citem]);
 						if (cfexist(plxfile))
 							PHYSFS_delete(plxfile);
 					}
 					
-					*keypress = K_DELETED;
-
 					if (ret) {
-						if (player_mode)
-							nm_messagebox( NULL, 1, TXT_OK, "%s %s %s", TXT_COULDNT, TXT_DELETE_PILOT, items[*citem]+((player_mode && items[*citem][0]=='$')?1:0) );
-						else if (demo_mode)
-							nm_messagebox( NULL, 1, TXT_OK, "%s %s %s", TXT_COULDNT, TXT_DELETE_DEMO, items[*citem]+((demo_mode && items[*citem][0]=='$')?1:0) );
-					} else if (demo_mode)
-						*keypress = K_DELETED_DEMO;
+						if (mode == FILE_PLAYER_MODE)
+							nm_messagebox( NULL, 1, TXT_OK, "%s %s %s", TXT_COULDNT, TXT_DELETE_PILOT, items[citem]+(((mode == FILE_PLAYER_MODE) && items[citem][0]=='$')?1:0) );
+						else if (mode == FILE_DEMO_MODE)
+							nm_messagebox( NULL, 1, TXT_OK, "%s %s %s", TXT_COULDNT, TXT_DELETE_DEMO, items[citem]+(((mode == FILE_DEMO_MODE) && items[citem][0]=='$')?1:0) );
+					}
+					else
+						listbox_delete_item(lb, citem);
 				}
+
+				return 1;
 			}
 			break;
 
 		case KEY_CTRLED+KEY_C:
-			if (demo_mode)
+			if (mode == FILE_DEMO_MODE)
 			{
 				int x = 1;
 				char bakname[PATH_MAX];
 				
-				*keypress = 0;
 				// Get backup name
-				change_filename_extension(bakname, items[*citem]+((demo_mode && items[*citem][0]=='$')?1:0), DEMO_BACKUP_EXT);
+				change_filename_extension(bakname, items[citem]+(((mode == FILE_DEMO_MODE) && items[citem][0]=='$')?1:0), DEMO_BACKUP_EXT);
 				x = nm_messagebox( NULL, 2, TXT_YES, TXT_NO,	"Are you sure you want to\n"
 								  "swap the endianness of\n"
 								  "%s? If the file is\n"
 								  "already endian native, D1X\n"
 								  "will likely crash. A backup\n"
-								  "%s will be created", items[*citem]+((demo_mode && items[*citem][0]=='$')?1:0), bakname );
-				if (x)
-					break;
+								  "%s will be created", items[citem]+(((mode == FILE_DEMO_MODE) && items[citem][0]=='$')?1:0), bakname );
+				if (!x)
+					newdemo_swap_endian(items[citem]);
 				
-				newdemo_swap_endian(items[*citem]);
+				return 1;
 			}
 			break;
 	}
 
-	return 1;
+	return 0;
 }
 
 int get_filename(char *title, char *type, char *filename, int allow_abort_flag)
@@ -469,25 +478,23 @@ int get_filename(char *title, char *type, char *filename, int allow_abort_flag)
 	char *types[] = { type, NULL };
 	int i = 0, NumItems;
 	int citem = 0;
+	int mode = 0;
 	
-	player_mode = demo_mode = 0;
-
 	if (!stricmp(type, ".plr"))
-		player_mode = 1;
+		mode = FILE_PLAYER_MODE;
 	else if (!stricmp(type, ".dem"))
-		demo_mode = 1;
+		mode = FILE_DEMO_MODE;
 
-ReadFileNames:
-	find = PHYSFSX_findFiles(demo_mode ? DEMO_DIR : ((player_mode && GameArg.SysUsePlayersDir) ? "Players/" : ""), types);
+	find = PHYSFSX_findFiles((mode == FILE_DEMO_MODE) ? DEMO_DIR : (((mode == FILE_PLAYER_MODE) && GameArg.SysUsePlayersDir) ? "Players/" : ""), types);
 	if (!find)
 		return 0;	// memory error
-	if ( !*find && demo_mode && (citem > -1) )
+	if ( !*find && (mode == FILE_DEMO_MODE) && (citem > -1) )
 	{
 		nm_messagebox( NULL, 1, TXT_OK, "%s %s\n%s", TXT_NO_DEMO_FILES, TXT_USE_F5, TXT_TO_CREATE_ONE);
 		PHYSFS_freeList(find);
 		return 0;
 	}
-	else if ( !*find && player_mode )	{
+	else if ( !*find && (mode == FILE_PLAYER_MODE) )	{
 		strcpy(filename, TXT_CREATE_NEW);	// make a new player without showing listbox
 		PHYSFS_freeList(find);
 		return 0;
@@ -500,7 +507,7 @@ ReadFileNames:
 	
 	
 	for (NumItems = 0; find[NumItems] != NULL; NumItems++) {}
-	if (player_mode)
+	if (mode == FILE_PLAYER_MODE)
 		NumItems++;
 
 	MALLOC(m, char *, NumItems);
@@ -510,14 +517,14 @@ ReadFileNames:
 		return 0;
 	}
 
-	if (player_mode)
+	if (mode == FILE_PLAYER_MODE)
 		m[i++] = TXT_CREATE_NEW;
 
 	for (f = find; *f != NULL; f++)
 	{
 		m[i++] = *f;
 
-		if (player_mode)
+		if (mode == FILE_PLAYER_MODE)
 		{
 			char *p;
 			
@@ -530,25 +537,22 @@ ReadFileNames:
 	}
 
 	// Sort by name, except the <Create New Player> string if applicable
-	qsort(&m[player_mode ? 1 : 0], NumItems - player_mode, sizeof(char *), (int (*)( const void *, const void * ))fname_sort_func);
+	qsort(&m[mode == FILE_PLAYER_MODE ? 1 : 0], NumItems - (mode == FILE_PLAYER_MODE), sizeof(char *), (int (*)( const void *, const void * ))fname_sort_func);
 
-	if (player_mode)
+	if (mode == FILE_PLAYER_MODE)
 		for ( i=0; i<NumItems; i++ )
 			if (!stricmp(Players[Player_num].callsign, m[i]) )
 				citem = i;
 
-	citem = newmenu_listbox1(title, NumItems, m, allow_abort_flag, citem, filename_menu_handler);
+	citem = newmenu_listbox1(title, NumItems, m, allow_abort_flag, citem, (int (*)(listbox *, d_event *, void *))filename_menu_handler, (void *)mode);
 
 	if ( citem > -1 )
-		strncpy( filename, m[citem] + ((player_mode && m[citem][0]=='$')?1:0), PATH_MAX );
+		strncpy( filename, m[citem] + (((mode == FILE_PLAYER_MODE) && m[citem][0]=='$')?1:0), PATH_MAX );
 
 	PHYSFS_freeList(find);
 	d_free(m);
 	
-	// The following wouldn't be necessary if the newmenu code didn't have its own loop
-	if ((citem == K_DELETED) || ((citem == K_DELETED_DEMO) && NumItems > 1))		// NumItems was *before* a demo got deleted
-		goto ReadFileNames;
-	else if (citem == -1)
+	if (citem < 0)
 		return 0;	// aborted
 
 	return 1;
@@ -565,7 +569,7 @@ int do_difficulty_menu()
 	m[3].type=NM_TYPE_MENU; m[3].text=MENU_DIFFICULTY_TEXT(3);
 	m[4].type=NM_TYPE_MENU; m[4].text=MENU_DIFFICULTY_TEXT(4);
 
-	s = newmenu_do1( NULL, TXT_DIFFICULTY_LEVEL, NDL, m, NULL, Difficulty_level);
+	s = newmenu_do1( NULL, TXT_DIFFICULTY_LEVEL, NDL, m, NULL, NULL, Difficulty_level);
 
 	if (s > -1 )	{
 		if (s != Difficulty_level)
@@ -608,7 +612,7 @@ try_again:
 
 		strcpy(num_text,"1");
 
-		choice = newmenu_do( NULL, TXT_SELECT_START_LEV, n_items, m, NULL );
+		choice = newmenu_do( NULL, TXT_SELECT_START_LEV, n_items, m, NULL, NULL );
 
 		if (choice==-1 || m[1].text[0]==0)
 			return;
@@ -631,15 +635,19 @@ try_again:
 
 }
 
-void options_menuset(int nitems, newmenu_item * items, int *last_key, int citem )
+int options_menuset(newmenu *menu, d_event *event, void *userdata)
 {
-	if ( citem==4)
+	if (event->type != EVENT_IDLE)	// FIXME: Should become EVENT_ITEM_CHANGED later
+		return 0;
+	
+	if ( newmenu_get_citem(menu)==4)
 	{
-		gr_palette_set_gamma(items[4].value);
+		gr_palette_set_gamma(newmenu_get_items(menu)[4].value);
 	}
 
-	nitems++;		//kill warning
-	last_key++;		//kill warning
+	userdata++;		//kill warning
+	
+	return 0;
 }
 
 int gcd(int a, int b)
@@ -650,7 +658,7 @@ int gcd(int a, int b)
 	return gcd(b, a%b);
 }
 
-void change_res_poll() {}
+int change_res_poll() { return 0; }
 
 void change_res()
 {
@@ -692,7 +700,7 @@ void change_res()
 	fullscreenc = mc; m[mc].type = NM_TYPE_CHECK; m[mc].text = "Fullscreen"; m[mc].value = gr_check_fullscreen(); mc++;
 
 	// create the menu
-	i = newmenu_do1(NULL, "Screen Resolution", mc, m, &change_res_poll, 0);
+	i = newmenu_do1(NULL, "Screen Resolution", mc, m, change_res_poll, NULL, 0);
 
 	// menu is done, now do what we need to do
 
@@ -738,14 +746,16 @@ void change_res()
 	game_init_render_buffers(SM_W(screen_mode), SM_H(screen_mode), VR_NONE);
 }
 
-void input_menuset(int nitems, newmenu_item * items, int *last_key, int citem )
+int input_menuset(newmenu *menu, d_event *event, void *userdata)
 {
 	int i;
 	int oc_type = PlayerCfg.ControlType;
+	newmenu_item *items = newmenu_get_items(menu);
 
-	nitems = nitems;
-	last_key = last_key;
-	citem = citem;		
+	if (event->type != EVENT_IDLE)	// FIXME: Should become EVENT_ITEM_CHANGED later
+		return 0;
+	
+	userdata = userdata;
 
 	for (i=0; i<4; i++ )
 		if (items[i].value) PlayerCfg.ControlType = i;
@@ -756,6 +766,8 @@ void input_menuset(int nitems, newmenu_item * items, int *last_key, int citem )
 	if (oc_type != PlayerCfg.ControlType) {
 		kc_set_controls();
 	}
+	
+	return 0;
 }
 
 void input_config()
@@ -794,7 +806,7 @@ void input_config()
 		if (i==CONTROL_JOYMOUSE) i = 3;
 		m[i].value = 1;
 
-		i1 = newmenu_do1(NULL, TXT_CONTROLS, nitems, m, input_menuset, i1);
+		i1 = newmenu_do1(NULL, TXT_CONTROLS, nitems, m, input_menuset, NULL, i1);
 
 		PlayerCfg.JoystickSensitivityX = m[10].value;
 		PlayerCfg.JoystickSensitivityY = m[11].value;
@@ -855,7 +867,7 @@ void do_graphics_menu()
 
 		m[GameCfg.TexFilt+1].value=1;
 
-		i = newmenu_do1( NULL, "Graphics Options", sizeof(m)/sizeof(*m), m, NULL, i );
+		i = newmenu_do1( NULL, "Graphics Options", sizeof(m)/sizeof(*m), m, NULL, NULL, i );
 
 		if (GameCfg.VSync != m[7].value || GameCfg.Multisample != m[8].value)
 			nm_messagebox( NULL, 1, TXT_OK, "To apply VSync or 4x Multisample\nyou need to restart the program");
@@ -874,10 +886,14 @@ void do_graphics_menu()
 
 void set_extmusic_volume(int volume);
 
-void sound_menuset(int nitems, newmenu_item * items, int *last_key, int citem )
+int sound_menuset(newmenu *menu, d_event *event, void *userdata)
 {
-	nitems=nitems;
-	*last_key = *last_key;
+	newmenu_item *items = newmenu_get_items(menu);
+
+	if (event->type != EVENT_IDLE)	// FIXME: Should become EVENT_ITEM_CHANGED later
+		return 0;
+	
+	userdata = userdata;
 
 	if ( GameCfg.DigiVolume != items[0].value )     {
 		GameCfg.DigiVolume = items[0].value;
@@ -893,7 +909,7 @@ void sound_menuset(int nitems, newmenu_item * items, int *last_key, int citem )
 			digi_set_midi_volume( (GameCfg.MusicVolume*128)/8 );
 	}
 
-	citem++;		//kill warning
+	return 0;
 }
 
 void do_sound_menu()
@@ -925,7 +941,7 @@ void do_sound_menu()
 		m[nitems].type = NM_TYPE_CHECK;  m[nitems].text="Force Mac Descent CD track order"; m[nitems++].value=GameCfg.OrigTrackOrder;
 		m[nitems].type = NM_TYPE_CHECK;  m[nitems].text=TXT_REVERSE_STEREO; m[nitems++].value=GameCfg.ReverseStereo;
 		
-		i = newmenu_do1( NULL, "Sound Effects & Music", nitems, m, sound_menuset, i );
+		i = newmenu_do1( NULL, "Sound Effects & Music", nitems, m, sound_menuset, NULL, i );
 
 		GameCfg.ReverseStereo = m[nitems - 1].value;
 		GameCfg.OrigTrackOrder = m[nitems - 2].value;
@@ -964,7 +980,7 @@ void do_misc_menu()
 		ADD_CHECK(2, "Persistent Debris",PlayerCfg.PersistentDebris);
 		ADD_CHECK(3, "Screenshots w/o HUD",PlayerCfg.PRShot);
 
-		i = newmenu_do1( NULL, "Misc Options", sizeof(m)/sizeof(*m), m, NULL, i );
+		i = newmenu_do1( NULL, "Misc Options", sizeof(m)/sizeof(*m), m, NULL, NULL, i );
 			
 		PlayerCfg.AutoLeveling		= m[0].value;
 		PlayerCfg.ReticleOn		= m[1].value;
@@ -1008,7 +1024,7 @@ void do_multi_player_menu()
 #endif
 #endif
 
-		choice = newmenu_do1( NULL, TXT_MULTIPLAYER, num_options, m, NULL, choice );
+		choice = newmenu_do1( NULL, TXT_MULTIPLAYER, num_options, m, NULL, NULL, choice );
 		
 		if ( choice > -1 )
 			do_option(menu_choice[choice]);
@@ -1049,7 +1065,7 @@ void do_options_menu()
 		m[ 9].type = NM_TYPE_MENU;   m[ 9].text="Secondary autoselect ordering...";
 		m[10].type = NM_TYPE_MENU;   m[10].text="Misc Options...";
 
-		i = newmenu_do1( NULL, TXT_OPTIONS, sizeof(m)/sizeof(*m), m, options_menuset, i );
+		i = newmenu_do1( NULL, TXT_OPTIONS, sizeof(m)/sizeof(*m), m, options_menuset, NULL, i );
 			
 		switch(i)       {
 			case  0: do_sound_menu();		break;

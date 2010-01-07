@@ -7,7 +7,7 @@ IN USING, DISPLAYING,  AND CREATING DERIVATIVE WORKS THEREOF, SO LONG AS
 SUCH USE, DISPLAY OR CREATION IS FOR NON-COMMERCIAL, ROYALTY OR REVENUE
 FREE PURPOSES.  IN NO EVENT SHALL THE END-USER USE THE COMPUTER CODE
 CONTAINED HEREIN FOR REVENUE-BEARING PURPOSES.  THE END-USER UNDERSTANDS
-AND AGREES TO THE TERMS HEREIN AND ACCEPTS THE SAME BY USE OF THIS FILE.  
+AND AGREES TO THE TERMS HEREIN AND ACCEPTS THE SAME BY USE OF THIS FILE.
 COPYRIGHT 1993-1998 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 */
 
@@ -31,7 +31,33 @@ COPYRIGHT 1993-1998 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 #include <netinet/in.h> /* for htons & co. */
 #endif
 
+#define IPX_TIMEOUT (10*F1_0) // 10 seconds disconnect timeout
 #define IPX_MAX_NETGAMES                     12
+
+
+#define PID_REQUEST                             25
+#define PID_SYNC                                27
+#define PID_PDATA                               28
+#define PID_ADDPLAYER                           29
+#define PID_DUMP                                31
+#define PID_ENDLEVEL                            32
+#define PID_QUIT_JOINING                        34
+#define PID_OBJECT_DATA                         35
+#define PID_GAME_LIST                           36
+#define PID_GAME_INFO                           37
+
+#define PID_PING_SEND       73
+#define PID_PING_RETURN     74
+
+typedef struct IPX_endlevel_info {
+        ubyte                                   type;
+        ubyte                                   player_num;
+        sbyte                                    connected;
+        short                                   kill_matrix[MAX_PLAYERS][MAX_PLAYERS];
+        short                                   kills;
+        short                                   killed;
+        ubyte                                   seconds_left;
+} __pack__ IPX_endlevel_info;
 
 typedef struct IPX_sequence_packet {
 	ubyte					type;
@@ -97,13 +123,17 @@ void net_ipx_start_game();
 void net_ipx_join_game();
 void net_ipx_leave_game();
 int net_ipx_endlevel(int *secret);
-void net_ipx_endlevel_poll2( int nitems, struct newmenu_item * menus, int * key, int citem );
-void net_ipx_kmatrix_poll1( int nitems, newmenu_item * menus, int * key, int citem );
+int net_ipx_endlevel_poll2( newmenu *menu, d_event *event, void *userdata );
+int net_ipx_kmatrix_poll1( newmenu *menu, d_event *event, void *userdata );
 int net_ipx_level_sync();
 void net_ipx_send_endlevel_packet();
 int net_ipx_objnum_is_past(int objnum);
 char * net_ipx_get_player_name( int objnum );
 void net_ipx_disconnect_player(int playernum);
+
+void net_ipx_send_objects(void);
+void net_ipx_dump_player(ubyte * server, ubyte *node, int why);
+void net_ipx_send_game_info(IPX_sequence_packet *their);
 
 // By putting an up-to-20-char-message into Network_message and 
 // setting Network_message_reciever to the player num you want to
@@ -119,37 +149,6 @@ void net_ipx_send_data( ubyte * ptr, int len, int urgent );
 
 extern int IPX_Socket;
 extern int IPX_active;
-
-#define IPX_TIMEOUT (10*F1_0) // 10 seconds disconnect timeout
-
-void net_ipx_send_objects(void);
-void net_ipx_dump_player(ubyte * server, ubyte *node, int why);
-void net_ipx_send_game_info(IPX_sequence_packet *their);
-//end this section change - VR
-
-#define PID_REQUEST                             25
-#define PID_SYNC                                27
-#define PID_PDATA                               28
-#define PID_ADDPLAYER                           29
-#define PID_DUMP                                31
-#define PID_ENDLEVEL                            32
-#define PID_QUIT_JOINING                        34
-#define PID_OBJECT_DATA                         35
-#define PID_GAME_LIST                           36
-#define PID_GAME_INFO                           37
-
-#define PID_PING_SEND       73
-#define PID_PING_RETURN     74
-
-typedef struct IPX_endlevel_info {
-        ubyte                                   type;
-        ubyte                                   player_num;
-        sbyte                                    connected;
-        short                                   kill_matrix[MAX_PLAYERS][MAX_PLAYERS];
-        short                                   kills;
-        short                                   killed;
-        ubyte                                   seconds_left;
-} __pack__ IPX_endlevel_info;
 
 /* General IPX stuff - START */
 #define MAX_PACKET_DATA		1500

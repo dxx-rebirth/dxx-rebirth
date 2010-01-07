@@ -556,7 +556,7 @@ try_again:
 	m.type=NM_TYPE_INPUT; m.text_len = CALLSIGN_LEN; m.text = text;
 
 	Newmenu_allowed_chars = playername_allowed_chars;
-	x = newmenu_do( NULL, TXT_ENTER_PILOT_NAME, 1, &m, NULL );
+	x = newmenu_do( NULL, TXT_ENTER_PILOT_NAME, 1, &m, NULL, NULL );
 	Newmenu_allowed_chars = NULL;
 
 	if ( x < 0 ) {
@@ -950,10 +950,10 @@ void DoEndLevelScoreGlitz(int network)
 
 #ifdef NETWORK
 	if ( network && (Game_mode & GM_NETWORK) )
-		newmenu_do2(NULL, title, c, m, multi_endlevel_poll1, 0, Menu_pcx_name);
+		newmenu_do2(NULL, title, c, m, multi_endlevel_poll1, NULL, 0, Menu_pcx_name);
 	else
 #endif	// Note link!
-		newmenu_do2(NULL, title, c, m, NULL, 0, Menu_pcx_name);
+		newmenu_do2(NULL, title, c, m, NULL, NULL, 0, Menu_pcx_name);
 }
 
 //called when the player has finished a level
@@ -972,7 +972,7 @@ void PlayerFinishedLevel(int secret_flag)
 		m[0].type = NM_TYPE_TEXT;
 		m[0].text = " ";			//TXT_SECRET_EXIT;
 
-		newmenu_do2(NULL, TXT_SECRET_EXIT, 1, m, NULL, 0, Menu_pcx_name);
+		newmenu_do2(NULL, TXT_SECRET_EXIT, 1, m, NULL, NULL, 0, Menu_pcx_name);
 	}
 #endif
 
