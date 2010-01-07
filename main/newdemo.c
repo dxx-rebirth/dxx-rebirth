@@ -1,4 +1,3 @@
-/* $Id: newdemo.c,v 1.1.1.1 2006/03/17 19:57:03 zicodxx Exp $ */
 /*
 THE COMPUTER CODE CONTAINED HEREIN IS THE SOLE PROPERTY OF PARALLAX
 SOFTWARE CORPORATION ("PARALLAX").  PARALLAX, IN DISTRIBUTING THE CODE TO
@@ -91,8 +90,6 @@ COPYRIGHT 1993-1998 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 #include "editor/editor.h"
 #endif
 
-void DoJasonInterpolate (fix recorded_time);
-
 #define ND_EVENT_EOF				0	// EOF
 #define ND_EVENT_START_DEMO			1	// Followed by 16 character, NULL terminated filename of .SAV file to use
 #define ND_EVENT_START_FRAME			2	// Followed by integer frame number, then a fix FrameTime
@@ -141,8 +138,6 @@ void DoJasonInterpolate (fix recorded_time);
 
 #define NORMAL_PLAYBACK 			0
 #define SKIP_PLAYBACK				1
-#define INTERPOLATE_PLAYBACK			2
-#define INTERPOL_FACTOR				(F1_0 + (F1_0/5))
 
 #define DEMO_VERSION_SHAREWARE		5
 #define DEMO_VERSION				13
@@ -165,7 +160,7 @@ int Newdemo_num_written;
 int Newdemo_old_cockpit;
 sbyte Newdemo_no_space;
 sbyte Newdemo_at_eof;
-sbyte Newdemo_do_interpolate = 1; // ZICO - I HATE not-interpolated playbacks...
+sbyte Newdemo_do_interpolate = 1;
 sbyte Newdemo_warning_given = 0;
 sbyte Newdemo_cntrlcen_destroyed = 0;
 static sbyte nd_bad_read;
@@ -175,8 +170,6 @@ fix nd_playback_total;
 fix nd_recorded_total;
 fix nd_recorded_time;
 sbyte playback_style;
-sbyte First_time_playback=1;
-fix JasonPlaybackTotal=0;
 int Newdemo_show_percentage=1;
 static int swap_endian = 0;
 
@@ -1377,7 +1370,6 @@ int newdemo_read_demo_start(enum purpose_type purpose)
 	nd_read_fix(&GameTime);
 	nd_read_int(&Newdemo_game_mode);
 	
-	JasonPlaybackTotal=0;
 #ifndef NETWORK
 	if (Newdemo_game_mode & GM_MULTI) {
 		nm_messagebox( NULL, 1, "Ok", "can't playback net game\nwith this version of code\n" );
@@ -2766,114 +2758,90 @@ void newdemo_back_frames(int frames)
 
 }
 
-/*
- *  routine to interpolate the viewer position.  the current position is
- *  stored in the Viewer object.  Save this position, and read the next
- *  frame to get all objects read in.  Calculate the delta playback and
- *  the delta recording frame times between the two frames, then intepolate
- *  the viewers position accordingly.  nd_recorded_time is the time that it
- *  took the recording to render the frame that we are currently looking
- *  at.
-*/
-
-void interpolate_frame(fix d_play, fix d_recorded)
+void DoZicoInterpolate (fix recorded_time)
 {
-	int i, j, num_cur_objs;
-	fix factor;
-	object *cur_objs;
+	static fix delay_time=0;
+	int i = 0, j = 0;
+	object SavObj[MAX_OBJECTS];
+	int SavObjNum;
 
-	factor = fixdiv(d_play, d_recorded);
-	if (factor > F1_0)
-		factor = F1_0;
+	memset(&SavObj, 0, sizeof(object)*MAX_OBJECTS);
 
-	num_cur_objs = Highest_object_index;
-	cur_objs = (object *)d_malloc(sizeof(object) * (num_cur_objs + 1));
-	if (cur_objs == NULL) {
-		Int3();
+	if (NewdemoFrameCount < 2)
 		return;
-	}
-	for (i = 0; i <= num_cur_objs; i++)
-		memcpy(&(cur_objs[i]), &(Objects[i]), sizeof(object));
 
+	// Read in the next Frame and store the objects from it.
 	Newdemo_vcr_state = ND_STATE_PAUSED;
-	if (newdemo_read_frame_information(0) == -1) {
-		d_free(cur_objs);
+	if (newdemo_read_frame_information(0) == -1)
+	{
 		newdemo_stop_playback();
 		return;
 	}
+	Newdemo_vcr_state = ND_STATE_PLAYBACK;
+	for (i=0; i<=Highest_object_index; i++)
+		memcpy(&SavObj[i], &Objects[i], sizeof(object));
+	SavObjNum=Highest_object_index;
+	newdemo_back_frames(1);
 
-	for (i = 0; i <= num_cur_objs; i++) {
-		for (j = 0; j <= Highest_object_index; j++) {
-			if (cur_objs[i].signature == Objects[j].signature) {
-				sbyte render_type = cur_objs[i].render_type;
-				fix delta_x, delta_y, delta_z;
-
-				//  Extract the angles from the object orientation matrix.
-				//  Some of this code taken from ai_turn_towards_vector
-				//  Don't do the interpolation on certain render types which don't use an orientation matrix
-
-				if (!((render_type == RT_LASER) || (render_type == RT_FIREBALL) || (render_type == RT_POWERUP))) {
-
-					vms_vector  fvec1, fvec2, rvec1, rvec2;
-					fix         mag1;
-
-					fvec1 = cur_objs[i].orient.fvec;
-					vm_vec_scale(&fvec1, F1_0-factor);
-					fvec2 = Objects[j].orient.fvec;
-					vm_vec_scale(&fvec2, factor);
-					vm_vec_add2(&fvec1, &fvec2);
-					mag1 = vm_vec_normalize_quick(&fvec1);
-					if (mag1 > F1_0/256) {
-						rvec1 = cur_objs[i].orient.rvec;
-						vm_vec_scale(&rvec1, F1_0-factor);
-						rvec2 = Objects[j].orient.rvec;
-						vm_vec_scale(&rvec2, factor);
-						vm_vec_add2(&rvec1, &rvec2);
-						vm_vec_normalize_quick(&rvec1); // Note: Doesn't matter if this is null, if null, vm_vector_2_matrix will just use fvec1
-						vm_vector_2_matrix(&cur_objs[i].orient, &fvec1, NULL, &rvec1);
-					}
-				}
-
-				// Interpolate the object position.  This is just straight linear
-				// interpolation.
-
-				delta_x = Objects[j].pos.x - cur_objs[i].pos.x;
-				delta_y = Objects[j].pos.y - cur_objs[i].pos.y;
-				delta_z = Objects[j].pos.z - cur_objs[i].pos.z;
-
-				delta_x = fixmul(delta_x, factor);
-				delta_y = fixmul(delta_y, factor);
-				delta_z = fixmul(delta_z, factor);
-
-				cur_objs[i].pos.x += delta_x;
-				cur_objs[i].pos.y += delta_y;
-				cur_objs[i].pos.z += delta_z;
-			}
+	// Do necessary steps to repeat a Demo-Frame if necessary
+	if (recorded_time > FrameTime)
+	{
+		if (delay_time <= 0)
+		{
+			delay_time += recorded_time;
+		}
+		else if (delay_time > 0)
+		{
+			newdemo_back_frames(1);
+			delay_time -= FrameTime;
 		}
 	}
 
-	// get back to original position in the demo file.  Reread the current
-	// frame information again to reset all of the object stuff not covered
-	// with Highest_object_index and the object array (previously rendered
-	// objects, etc....)
+	if (!Newdemo_do_interpolate)
+		return;
 
-	newdemo_back_frames(1);
-	newdemo_back_frames(1);
-	if (newdemo_read_frame_information(0) == -1)
-		newdemo_stop_playback();
-	Newdemo_vcr_state = ND_STATE_PLAYBACK;
+	// Interpolate objects.
+	for (i = 0; i <= SavObjNum; i++)
+	{
+		for (j = 0; j <= Highest_object_index; j++)
+		{
+			if (SavObj[i].signature == Objects[j].signature)
+			{
+				vms_vector  fvec1, fvec2, rvec1, rvec2;
+				fix         mag1;
 
-	for (i = 0; i <= num_cur_objs; i++)
-		memcpy(&(Objects[i]), &(cur_objs[i]), sizeof(object));
-	Highest_object_index = num_cur_objs;
-	d_free(cur_objs);
+				/*
+				 * HACK: Good 'ol Descent does not check for duplicate signatures when creating objects.
+				 * So in case our two objects have a huge distance, we assume they are different.
+				 * Interpolating would not make much sense in that case nevertheless.
+				 */
+				if (vm_vec_dist(&SavObj[i].pos, &Objects[j].pos) > (Objects[j].size*2))
+					continue;
+				
+				vm_vec_avg(&Objects[j].pos, &SavObj[i].pos, &Objects[j].pos);
+
+				if (!((SavObj[i].render_type == RT_LASER) || (SavObj[i].render_type == RT_FIREBALL) || (SavObj[i].render_type == RT_POWERUP)))
+				{
+					fvec1 = SavObj[i].orient.fvec;
+					fvec2 = Objects[j].orient.fvec;
+					vm_vec_add2(&fvec1, &fvec2);
+					mag1 = vm_vec_normalize_quick(&fvec1);
+					if (mag1 > F1_0/256) {
+						rvec1 = SavObj[i].orient.rvec;
+						rvec2 = Objects[j].orient.rvec;
+						vm_vec_add2(&rvec1, &rvec2);
+						vm_vec_normalize_quick(&rvec1);
+						vm_vector_2_matrix(&Objects[j].orient, &fvec1, NULL, &rvec1);
+					}
+				}
+			}
+		}
+	}
 }
 
 void newdemo_playback_one_frame()
 {
 	int frames_back, i, level;
-	static fix base_interpol_time = 0;
-	static fix d_recorded = 0;
 
 	for (i = 0; i < MAX_PLAYERS; i++)
 		if (Players[i].flags & PLAYER_FLAGS_CLOAKED)
@@ -2884,9 +2852,6 @@ void newdemo_playback_one_frame()
 
 	if (Newdemo_vcr_state == ND_STATE_PAUSED)       // render a frame or not
 		return;
-
-	if (Newdemo_vcr_state == ND_STATE_PLAYBACK)
-		DoJasonInterpolate(nd_recorded_time);
 
 	Control_center_destroyed = 0;
 	Fuelcen_seconds_left = -1;
@@ -2957,9 +2922,9 @@ void newdemo_playback_one_frame()
 	else {
 
 		//  First, uptate the total playback time to date.  Then we check to see
-		//  if we need to change the playback style to interpolate frames or
-		//  skip frames based on where the playback time is relative to the
-		//  recorded time.
+		//  if we need to change the playback style to skip frames.
+		//  In the end, interpolate between current and next frame and repeat frames
+		//  if FPS are higher than recorded FPS.
 
 		if (NewdemoFrameCount <= 0)
 			nd_playback_total = nd_recorded_total;      // baseline total playback time
@@ -2970,89 +2935,24 @@ void newdemo_playback_one_frame()
 		{
 			if (nd_playback_total > nd_recorded_total)
 				playback_style = SKIP_PLAYBACK;
-
-			//if ((nd_playback_total * INTERPOL_FACTOR) < nd_recorded_total) // no matte rhow we look at it: this does not make ANY sense!
-			if (nd_recorded_total > 0 && nd_recorded_time > 0)
-			{
-				playback_style = INTERPOLATE_PLAYBACK;
-				nd_playback_total = nd_recorded_total + FrameTime; // baseline playback time
-				base_interpol_time = nd_recorded_total;
-				d_recorded = nd_recorded_time; // baseline delta recorded
-			}
 		}
 
-
-		if ((playback_style == INTERPOLATE_PLAYBACK) && Newdemo_do_interpolate) {
-			fix d_play = 0;
-
-			if (nd_recorded_total - nd_playback_total < FrameTime) {
-				d_recorded = nd_recorded_total - nd_playback_total;
-
-				while (nd_recorded_total - nd_playback_total < FrameTime) {
-					object *cur_objs;
-					int i, j, num_objs, level;
-
-					num_objs = Highest_object_index;
-					cur_objs = (object *)d_malloc(sizeof(object) * (num_objs + 1));
-					if (cur_objs == NULL) {
-						Warning ("Couldn't get %d bytes for objects in interpolate playback\n", sizeof(object) * num_objs);
-						break;
-					}
-					for (i = 0; i <= num_objs; i++)
-						memcpy(&(cur_objs[i]), &(Objects[i]), sizeof(object));
-
-					level = Current_level_num;
-					if (newdemo_read_frame_information(0) == -1) {
-						d_free(cur_objs);
-						newdemo_stop_playback();
-						return;
-					}
-					if (level != Current_level_num) {
-						d_free(cur_objs);
-						if (newdemo_read_frame_information(0) == -1)
-							newdemo_stop_playback();
-						break;
-					}
-
-					//  for each new object in the frame just read in, determine if there is
-					//  a corresponding object that we have been interpolating.  If so, then
-					//  copy that interpolated object to the new Objects array so that the
-					//  interpolated position and orientation can be preserved.
-
-					for (i = 0; i <= num_objs; i++) {
-						for (j = 0; j <= Highest_object_index; j++) {
-							if (cur_objs[i].signature == Objects[j].signature) {
-								memcpy(&(Objects[j].orient), &(cur_objs[i].orient), sizeof(vms_matrix));
-								memcpy(&(Objects[j].pos), &(cur_objs[i].pos), sizeof(vms_vector));
-								break;
-							}
-						}
-					}
-					d_free(cur_objs);
-					d_recorded += nd_recorded_time;
-					base_interpol_time = nd_playback_total - FrameTime;
-				}
-			}
-
-			d_play = nd_playback_total - base_interpol_time;
-			interpolate_frame(d_play, d_recorded);
+		if (newdemo_read_frame_information(0) == -1) {
+			newdemo_stop_playback();
 			return;
 		}
-		else {
-			if (newdemo_read_frame_information(0) == -1) {
-				newdemo_stop_playback();
-				return;
-			}
-			if (playback_style == SKIP_PLAYBACK) {
-				while (nd_playback_total > nd_recorded_total) {
-					if (newdemo_read_frame_information(0) == -1) {
-						newdemo_stop_playback();
-						return;
-					}
+		if (playback_style == SKIP_PLAYBACK) {
+			while (nd_playback_total > nd_recorded_total) {
+				if (newdemo_read_frame_information(0) == -1) {
+					newdemo_stop_playback();
+					return;
 				}
 			}
 		}
 	}
+
+	if (Newdemo_vcr_state == ND_STATE_PLAYBACK)
+		DoZicoInterpolate(nd_recorded_time);
 }
 
 void newdemo_start_recording()
@@ -3276,8 +3176,6 @@ void newdemo_start_playback(char * filename)
 #ifdef NETWORK
 	change_playernum_to(0);
 #endif
-	First_time_playback=1;
-	JasonPlaybackTotal=0;
 
 	if (filename)
 		strcat(filename2, filename);
@@ -3506,28 +3404,4 @@ void newdemo_strip_frames(char *outname, int bytes_to_strip)
 	newdemo_stop_playback();
 
 }
-
 #endif
-
-void DoJasonInterpolate (fix recorded_time)
-{
-	fix the_delay;
-
-	JasonPlaybackTotal+=FrameTime;
-
-	if (!First_time_playback)
-	{
-		the_delay=(recorded_time - FrameTime);
-
-		if (the_delay < f0_0)
-		{
-			while (JasonPlaybackTotal > nd_recorded_total)
-				if (newdemo_read_frame_information(0) == -1)
-				{
-					newdemo_stop_playback();
-					return;
-				}
-		}
-	}
-	First_time_playback=0;
-}
