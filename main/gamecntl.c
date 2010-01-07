@@ -633,6 +633,7 @@ void HandleDemoKey(int key)
 			break;
 		case KEY_DEBUGGED + KEY_I:
 			Newdemo_do_interpolate = !Newdemo_do_interpolate;
+			HUD_init_message("Demo playback interpolation %s", Newdemo_do_interpolate?"ON":"OFF");
 			break;
 		case KEY_DEBUGGED + KEY_K: {
 			int how_many, c;
