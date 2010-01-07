@@ -1041,44 +1041,48 @@ multi_endlevel(int *secret)
 	return(result);
 }
 
-void multi_endlevel_poll1( int nitems, struct newmenu_item * menus, int * key, int citem )
+int multi_endlevel_poll1( newmenu *menu, d_event *event, void *userdata )
 {
 	switch (multi_protocol)
 	{
 #ifdef USE_IPX
 		case MULTI_PROTO_IPX:
-			net_ipx_kmatrix_poll1( nitems, menus, key, citem );
+			return net_ipx_kmatrix_poll1( menu, event, userdata );
 			break;
 #endif
 #ifdef USE_UDP
 		case MULTI_PROTO_UDP:
-			net_udp_kmatrix_poll1( nitems, menus, key, citem );
+			return net_udp_kmatrix_poll1( menu, event, userdata );
 			break;
 #endif
 		default:
 			Error("Protocol handling missing in multi_endlevel_poll1\n");
 			break;
 	}
+	
+	return 0;	// kill warning
 }
 
-void multi_endlevel_poll2( int nitems, struct newmenu_item * menus, int * key, int citem )
+int multi_endlevel_poll2( newmenu *menu, d_event *event, void *userdata )
 {
 	switch (multi_protocol)
 	{
 		case MULTI_PROTO_IPX:
 #ifdef USE_IPX
-			net_ipx_kmatrix_poll2( nitems, menus, key, citem );
+			net_ipx_kmatrix_poll2( menu, event, userdata );
 			break;
 #endif
 #ifdef USE_UDP
 		case MULTI_PROTO_UDP:
-			net_udp_kmatrix_poll2( nitems, menus, key, citem );
+			return net_udp_kmatrix_poll2( menu, event, userdata );
 			break;
 #endif
 		default:
 			Error("Protocol handling missing in multi_endlevel_poll2\n");
 			break;
 	}
+	
+	return 0;
 }
 
 void multi_send_endlevel_packet()
@@ -1574,7 +1578,7 @@ multi_send_message_dialog(void)
 	Network_message[0] = 0;             // Get rid of old contents
 
 	m[0].type=NM_TYPE_INPUT; m[0].text = Network_message; m[0].text_len = MAX_MESSAGE_LEN-1;
-	choice = newmenu_do( NULL, TXT_SEND_MESSAGE, 1, m, NULL );
+	choice = newmenu_do( NULL, TXT_SEND_MESSAGE, 1, m, NULL, NULL );
 
 	if ((choice > -1) && (strlen(Network_message) > 0)) {
 		Network_message_reciever = 100;

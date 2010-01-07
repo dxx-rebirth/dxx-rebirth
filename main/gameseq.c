@@ -640,7 +640,7 @@ try_again:
 	m.type=NM_TYPE_INPUT; m.text_len = CALLSIGN_LEN; m.text = text;
 
 	Newmenu_allowed_chars = playername_allowed_chars;
-	x = newmenu_do( NULL, TXT_ENTER_PILOT_NAME, 1, &m, NULL );
+	x = newmenu_do( NULL, TXT_ENTER_PILOT_NAME, 1, &m, NULL, NULL );
 	Newmenu_allowed_chars = NULL;
 
 	if ( x < 0 ) {
@@ -1055,11 +1055,11 @@ void DoEndLevelScoreGlitz(int network)
 
 #ifdef NETWORK
 	if ( network && (Game_mode & GM_NETWORK) )
-		newmenu_do2(NULL, title, c, m, (void (*))multi_endlevel_poll1, 0, STARS_BACKGROUND);
+		newmenu_do2(NULL, title, c, m, multi_endlevel_poll1, NULL, 0, STARS_BACKGROUND);
 	else
 #endif
 		// NOTE LINK TO ABOVE!!!
-		newmenu_do2(NULL, title, c, m, NULL, 0, STARS_BACKGROUND);
+		newmenu_do2(NULL, title, c, m, NULL, NULL, 0, STARS_BACKGROUND);
 }
 
 //	-----------------------------------------------------------------------------------------------------

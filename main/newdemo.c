@@ -1462,7 +1462,7 @@ int newdemo_read_demo_start(enum purpose_type purpose)
 {
 	sbyte i=0, version=0, game_type=0, laser_level=0, c=0;
 	ubyte energy=0, shield=0;
-	char text[128], current_mission[9];
+	char current_mission[9];
 
 	Rear_view=0;
 
@@ -1470,11 +1470,7 @@ int newdemo_read_demo_start(enum purpose_type purpose)
 	if (purpose == PURPOSE_REWRITE)
 		nd_write_byte(c);
 	if ((c != ND_EVENT_START_DEMO) || nd_bad_read) {
-		newmenu_item m[1];
-
-		sprintf(text, "%s %s", TXT_CANT_PLAYBACK, TXT_DEMO_CORRUPT);
-		m[ 0].type = NM_TYPE_TEXT; m[ 0].text = text;
-		newmenu_do( NULL, NULL, sizeof(m)/sizeof(*m), m, NULL );
+		nm_messagebox( NULL, 1, TXT_OK, "%s %s", TXT_CANT_PLAYBACK, TXT_DEMO_CORRUPT );
 		return 1;
 	}
 	nd_read_byte(&version);
@@ -1484,31 +1480,16 @@ int newdemo_read_demo_start(enum purpose_type purpose)
 	if (purpose == PURPOSE_REWRITE)
 		nd_write_byte(game_type);
 	if (game_type < DEMO_GAME_TYPE) {
-		newmenu_item m[2];
-
-		sprintf(text, "%s %s", TXT_CANT_PLAYBACK, TXT_RECORDED);
-		m[ 0].type = NM_TYPE_TEXT; m[ 0].text = text;
-		m[ 1].type = NM_TYPE_TEXT; m[ 1].text = "    In Descent: First Strike";
-
-		newmenu_do( NULL, NULL, sizeof(m)/sizeof(*m), m, NULL );
+		nm_messagebox( NULL, 1, TXT_OK, "%s %s\n%s", TXT_CANT_PLAYBACK, TXT_RECORDED, "    In Descent: First Strike" );
 		return 1;
 	}
 	if (game_type != DEMO_GAME_TYPE) {
-		newmenu_item m[2];
-
-		sprintf(text, "%s %s", TXT_CANT_PLAYBACK, TXT_RECORDED);
-		m[ 0].type = NM_TYPE_TEXT; m[ 0].text = text;
-		m[ 1].type = NM_TYPE_TEXT; m[ 1].text = "   In Unknown Descent version";
-
-		newmenu_do( NULL, NULL, sizeof(m)/sizeof(*m), m, NULL );
+		nm_messagebox( NULL, 1, TXT_OK, "%s %s\n%s", TXT_CANT_PLAYBACK, TXT_RECORDED, "   In Unknown Descent version" );
 		return 1;
 	}
 	if (version < DEMO_VERSION) {
 		if (purpose == PURPOSE_CHOSE_PLAY) {
-			newmenu_item m[1];
-			sprintf(text, "%s %s", TXT_CANT_PLAYBACK, TXT_DEMO_OLD);
-			m[ 0].type = NM_TYPE_TEXT; m[ 0].text = text;
-			newmenu_do( NULL, NULL, sizeof(m)/sizeof(*m), m, NULL );
+			nm_messagebox( NULL, 1, TXT_OK, "%s %s", TXT_CANT_PLAYBACK, TXT_DEMO_OLD );
 		}
 		return 1;
 	}
@@ -1618,11 +1599,7 @@ int newdemo_read_demo_start(enum purpose_type purpose)
 		nd_write_string(current_mission);
 	if (!load_mission_by_name(current_mission)) {
 		if (purpose != PURPOSE_RANDOM_PLAY) {
-			newmenu_item m[1];
-
-			sprintf(text, TXT_NOMISSION4DEMO, current_mission);
-			m[ 0].type = NM_TYPE_TEXT; m[ 0].text = text;
-			newmenu_do( NULL, NULL, sizeof(m)/sizeof(*m), m, NULL );
+			nm_messagebox( NULL, 1, TXT_OK, TXT_NOMISSION4DEMO, current_mission );
 		}
 		return 1;
 	}
@@ -2751,12 +2728,7 @@ int newdemo_read_frame_information(int rewrite)
 					}
 				}
 				if ((loaded_level < Last_secret_level) || (loaded_level > Last_level)) {
-					newmenu_item m[3];
-
-					m[ 0].type = NM_TYPE_TEXT; m[ 0].text = TXT_CANT_PLAYBACK;
-					m[ 1].type = NM_TYPE_TEXT; m[ 1].text = TXT_LEVEL_CANT_LOAD;
-					m[ 2].type = NM_TYPE_TEXT; m[ 2].text = TXT_DEMO_OLD_CORRUPT;
-					newmenu_do( NULL, NULL, sizeof(m)/sizeof(*m), m, NULL );
+					nm_messagebox( NULL, 1, TXT_OK, "%s\n%s\n%s", TXT_CANT_PLAYBACK, TXT_LEVEL_CANT_LOAD, TXT_DEMO_OLD_CORRUPT );
 					return -1;
 				}
 
@@ -2837,11 +2809,7 @@ int newdemo_read_frame_information(int rewrite)
 	LastReadValue=c;
 
 	if (nd_bad_read) {
-		newmenu_item m[2];
-
-		m[ 0].type = NM_TYPE_TEXT; m[ 0].text = TXT_DEMO_ERR_READING;
-		m[ 1].type = NM_TYPE_TEXT; m[ 1].text = TXT_DEMO_OLD_CORRUPT;
-		newmenu_do( NULL, NULL, sizeof(m)/sizeof(*m), m, NULL );
+		nm_messagebox( NULL, 1, TXT_OK, "%s %s", TXT_DEMO_ERR_READING, TXT_DEMO_OLD_CORRUPT );
 	}
 
 	return done;
@@ -2876,12 +2844,7 @@ void newdemo_goto_end(int to_rewrite)
 	if (!to_rewrite)
 	{
 		if ((level < Last_secret_level) || (level > Last_level)) {
-			newmenu_item m[3];
-
-			m[ 0].type = NM_TYPE_TEXT; m[ 0].text = TXT_CANT_PLAYBACK;
-			m[ 1].type = NM_TYPE_TEXT; m[ 1].text = TXT_LEVEL_CANT_LOAD;
-			m[ 2].type = NM_TYPE_TEXT; m[ 2].text = TXT_DEMO_OLD_CORRUPT;
-			newmenu_do( NULL, NULL, sizeof(m)/sizeof(*m), m, NULL );
+			nm_messagebox( NULL, 1, TXT_OK, "%s\n%s\n%s", TXT_CANT_PLAYBACK, TXT_LEVEL_CANT_LOAD, TXT_DEMO_OLD_CORRUPT );
 			newdemo_stop_playback();
 			return;
 		}
@@ -3335,15 +3298,15 @@ try_again:
 	Newmenu_allowed_chars = demoname_allowed_chars;
 	if (!Newdemo_no_space) {
 		m[0].type=NM_TYPE_INPUT; m[0].text_len = PATH_MAX - 1; m[0].text = filename;
-		exit = newmenu_do( NULL, TXT_SAVE_DEMO_AS, 1, &(m[0]), NULL );
+		exit = newmenu_do( NULL, TXT_SAVE_DEMO_AS, 1, &(m[0]), NULL, NULL );
 	} else if (Newdemo_no_space == 1) {
 		m[ 0].type = NM_TYPE_TEXT; m[ 0].text = TXT_DEMO_SAVE_BAD;
 		m[ 1].type = NM_TYPE_INPUT;m[ 1].text_len = PATH_MAX - 1; m[1].text = filename;
-		exit = newmenu_do( NULL, NULL, 2, m, NULL );
+		exit = newmenu_do( NULL, NULL, 2, m, NULL, NULL );
 	} else if (Newdemo_no_space == 2) {
 		m[ 0].type = NM_TYPE_TEXT; m[ 0].text = TXT_DEMO_SAVE_NOSPACE;
 		m[ 1].type = NM_TYPE_INPUT;m[ 1].text_len = PATH_MAX - 1; m[1].text = filename;
-		exit = newmenu_do( NULL, NULL, 2, m, NULL );
+		exit = newmenu_do( NULL, NULL, 2, m, NULL, NULL );
 	}
 	Newmenu_allowed_chars = NULL;
 
@@ -3371,7 +3334,7 @@ try_again:
 	//check to make sure name is ok
 	for (s=filename;*s;s++)
 		if (!isalnum(*s) && *s!='_') {
-			nm_messagebox1(NULL, NULL,1,TXT_CONTINUE, TXT_DEMO_USE_LETTERS);
+			nm_messagebox(NULL, 1,TXT_CONTINUE, TXT_DEMO_USE_LETTERS);
 			goto try_again;
 		}
 
@@ -3560,13 +3523,8 @@ int newdemo_swap_endian(char *filename)
 	
 read_error:
 	{
-		newmenu_item m[2];
-		char text[32 + PATH_MAX];
-		
-		sprintf(text, complete ? "Demo %s converted" : "Error converting demo\n%s", filename);
-		m[ 0].type = NM_TYPE_TEXT; m[ 0].text = text;
-		m[ 1].type = NM_TYPE_TEXT; m[ 1].text = Newdemo_at_eof ? "Demo may be corrupt" : (char *) PHYSFS_getLastError();
-		newmenu_do( NULL, NULL, 1 + !complete, m, NULL );
+		nm_messagebox( NULL, 1, TXT_OK, complete ? "Demo %s converted%s" : "Error converting demo\n%s\n%s", filename,
+					  complete ? "" : (Newdemo_at_eof ? TXT_DEMO_CORRUPT : PHYSFS_getLastError()));
 	}
 
 	return Newdemo_at_eof;
@@ -3588,19 +3546,13 @@ void newdemo_strip_frames(char *outname, int bytes_to_strip)
 	total_size = PHYSFS_fileLength(infile);
 	outfile = PHYSFSX_openWriteBuffered(outname);
 	if (outfile == NULL) {
-		newmenu_item m[1];
-
-		m[ 0].type = NM_TYPE_TEXT; m[ 0].text = "Can't open output file";
-		newmenu_do( NULL, NULL, 1, m, NULL );
+		nm_messagebox( NULL, 1, TXT_OK, "Can't open output file" );
 		newdemo_stop_playback();
 		return;
 	}
 	buf = d_malloc(BUF_SIZE);
 	if (buf == NULL) {
-		newmenu_item m[1];
-
-		m[ 0].type = NM_TYPE_TEXT; m[ 0].text = "Can't malloc output buffer";
-		newmenu_do( NULL, NULL, 1, m, NULL );
+		nm_messagebox( NULL, 1, TXT_OK, "Can't malloc output buffer" );
 		PHYSFS_close(outfile);
 		newdemo_stop_playback();
 		return;

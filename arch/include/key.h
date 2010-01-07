@@ -22,8 +22,15 @@ COPYRIGHT 1993-1999 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 
 #include "pstypes.h"
 #include "fix.h"
+#include "event.h"
 
 #define KEY_BUFFER_SIZE 16
+
+typedef struct d_event_keycommand
+{
+	event_type	type;	// EVENT_KEY_COMMAND
+	int			keycode;
+} d_event_keycommand;
 
 //==========================================================================
 // This installs the int9 vector and initializes the keyboard in buffered

@@ -581,7 +581,7 @@ void ReorderPrimary ()
 		m[i].value=PlayerCfg.PrimaryOrder[i];
 	}
 	MenuReordering=1;
-	i = newmenu_do("Reorder Primary","Shift+Up/Down arrow to move item", i, m, NULL);
+	i = newmenu_do("Reorder Primary","Shift+Up/Down arrow to move item", i, m, NULL, NULL);
 	MenuReordering=0;
 	
 	for (i=0;i<MAX_PRIMARY_WEAPONS+1;i++)
@@ -603,7 +603,7 @@ void ReorderSecondary ()
 		m[i].value=PlayerCfg.SecondaryOrder[i];
 	}
 	MenuReordering=1;
-	i = newmenu_do("Reorder Secondary","Shift+Up/Down arrow to move item", i, m, NULL);
+	i = newmenu_do("Reorder Secondary","Shift+Up/Down arrow to move item", i, m, NULL, NULL);
 	MenuReordering=0;
 	for (i=0;i<MAX_SECONDARY_WEAPONS+1;i++)
 		PlayerCfg.SecondaryOrder[i]=m[i].value;

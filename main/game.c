@@ -944,7 +944,7 @@ void show_help()
 
 	full_palette_save();
 
-	newmenu_dotiny( NULL, TXT_KEYS, nitems, m, NULL );
+	newmenu_dotiny( NULL, TXT_KEYS, nitems, m, NULL, NULL );
 
 	palette_restore();
 }
@@ -978,7 +978,7 @@ void show_netgame_help()
 
 	full_palette_save();
 
-	newmenu_dotiny( NULL, TXT_KEYS, nitems, m, NULL );
+	newmenu_dotiny( NULL, TXT_KEYS, nitems, m, NULL, NULL );
 
 	palette_restore();
 }
@@ -1006,7 +1006,7 @@ void show_newdemo_help()
 	m[nitems].type = NM_TYPE_TEXT; m[nitems++].text = "(Use \x85-# for F#. e.g. \x85-1 for F1)";
 #endif
 	full_palette_save();
-	newmenu_dotiny( NULL, "DEMO PLAYBACK CONTROLS", nitems, m, NULL );
+	newmenu_dotiny( NULL, "DEMO PLAYBACK CONTROLS", nitems, m, NULL, NULL );
 	palette_restore();
 }
 

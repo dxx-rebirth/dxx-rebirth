@@ -114,19 +114,18 @@ int state_restore_all_sub(char *filename, int secret_restore);
 extern int First_secret_visit;
 
 int sc_last_item= 0;
-grs_bitmap *sc_bmp[NUM_SAVES];
 
 char dgss_id[4] = "DGSS";
 
 uint state_game_id;
 
 //-------------------------------------------------------------------
-void state_callback(int nitems,newmenu_item * items, int * last_key, int citem)
+int state_callback(newmenu *menu, d_event *event, grs_bitmap *sc_bmp[])
 {
-	nitems = nitems;
-	last_key = last_key;
+	newmenu_item *items = newmenu_get_items(menu);
+	int citem = newmenu_get_citem(menu);
 	
-	if ( citem > 0 )
+	if ( (citem > 0) && (event->type == EVENT_DRAW) )
 	{
 		if ( sc_bmp[citem-1] )	{
 			grs_canvas *save_canv = grd_curcanv;
@@ -142,7 +141,11 @@ void state_callback(int nitems,newmenu_item * items, int * last_key, int citem)
 #endif
 			gr_free_canvas(temp_canv);
 		}
+		
+		return 1;
 	}
+	
+	return 0;
 }
 
 #if 0
@@ -175,6 +178,7 @@ int state_get_savegame_filename(char * fname, char * dsc, char * caption )
 	newmenu_item m[NUM_SAVES+1];
 	char filename[NUM_SAVES][FILENAME_LEN + 9];
 	char desc[NUM_SAVES][DESC_LENGTH + 16];
+	grs_bitmap *sc_bmp[NUM_SAVES];
 	char id[5];
 	int valid;
 	static int state_default_item = 0;
@@ -229,7 +233,7 @@ int state_get_savegame_filename(char * fname, char * dsc, char * caption )
 	}
 
 	sc_last_item = -1;
-	choice = newmenu_do3( NULL, caption, NUM_SAVES+1, m, state_callback, state_default_item + 1, NULL, -1, -1 );
+	choice = newmenu_do3( NULL, caption, NUM_SAVES+1, m, (int (*)(newmenu *, d_event *, void *))state_callback, sc_bmp, state_default_item + 1, NULL, -1, -1 );
 
 	for (i=0; i<NUM_SAVES; i++ )	{
 		if ( sc_bmp[i] )

@@ -643,14 +643,14 @@ void HandleDemoKey(int key)
 			filename[0] = '\0';
 			m[ 0].type = NM_TYPE_TEXT; m[ 0].text = "output file name";
 			m[ 1].type = NM_TYPE_INPUT;m[ 1].text_len = 8; m[1].text = filename;
-			c = newmenu_do( NULL, NULL, 2, m, NULL );
+			c = newmenu_do( NULL, NULL, 2, m, NULL, NULL );
 			if (c == -2)
 				break;
 			strcat(filename, ".dem");
 			num[0] = '\0';
 			m[ 0].type = NM_TYPE_TEXT; m[ 0].text = "strip how many bytes";
 			m[ 1].type = NM_TYPE_INPUT;m[ 1].text_len = 16; m[1].text = num;
-			c = newmenu_do( NULL, NULL, 2, m, NULL );
+			c = newmenu_do( NULL, NULL, 2, m, NULL, NULL );
 			if (c == -2)
 				break;
 			how_many = atoi(num);
@@ -1597,7 +1597,7 @@ void HandleTestKey(int key)
 			char text[FILENAME_LEN]="";
 			int item;
 			m.type=NM_TYPE_INPUT; m.text_len = FILENAME_LEN; m.text = text;
-			item = newmenu_do( NULL, "Briefing to play?", 1, &m, NULL );
+			item = newmenu_do( NULL, "Briefing to play?", 1, &m, NULL, NULL );
 			if (item != -1) {
 				do_briefing_screens(text,1);
 				reset_cockpit();
@@ -1799,7 +1799,7 @@ void FinalCheats(int key)
 		int item;
 		//digi_play_sample( SOUND_CHEATER, F1_0);
 		m.type=NM_TYPE_INPUT; m.text_len = 10; m.text = text;
-		item = newmenu_do( NULL, TXT_WARP_TO_LEVEL, 1, &m, NULL );
+		item = newmenu_do( NULL, TXT_WARP_TO_LEVEL, 1, &m, NULL, NULL );
 		if (item != -1) {
 			new_level_num = atoi(m.text);
 			if (new_level_num!=0 && new_level_num>=0 && new_level_num<=Last_level) {
@@ -1972,7 +1972,7 @@ void do_cheat_menu()
 	mm[7].type=NM_TYPE_NUMBER; mm[7].value=Players[Player_num].laser_level+1; mm[7].text="Laser Level"; mm[7].min_value=0; mm[7].max_value=MAX_SUPER_LASER_LEVEL+1;
 	mm[8].type=NM_TYPE_NUMBER; mm[8].value=Players[Player_num].secondary_ammo[CONCUSSION_INDEX]; mm[8].text="Missiles"; mm[8].min_value=0; mm[8].max_value=200;
 
-	mmn = newmenu_do("Wimp Menu",NULL,9, mm, NULL );
+	mmn = newmenu_do("Wimp Menu",NULL,9, mm, NULL, NULL );
 
 	if (mmn > -1 )  {
 		if ( mm[0].value )  {

@@ -71,14 +71,14 @@ COPYRIGHT 1993-1999 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 #define MESSAGEBOX_TEXT_SIZE 2176  // How many characters in messagebox
 #define MAX_TEXT_WIDTH FSPACX(120) // How many pixels wide a input box can be
 
-typedef struct newmenu
+struct newmenu
 {
 	int				x,y,w,h;
 	char			*title;
 	char			*subtitle;
 	int				nitems;
 	newmenu_item	*items;
-	void			(*subfunction)(int nitems,newmenu_item * items, int * last_key, int citem);
+	int				(*subfunction)(newmenu *menu, d_event *event, void *userdata);
 	int				citem;
 	char			*filename;
 	int				tiny_mode;
@@ -89,7 +89,8 @@ typedef struct newmenu
 	int				max_on_menu;
 	int				mouse_state, omouse_state, dblclick_flag;
 	int				done;
-} newmenu;
+	void			*userdata;		// For whatever - like with window system
+};
 
 grs_bitmap nm_background, nm_background1;
 grs_bitmap *nm_background_sub = NULL;
@@ -99,7 +100,7 @@ static int draw_copyright=0;
 extern ubyte Version_major,Version_minor;
 extern char last_palette_loaded[];
 
-int newmenu_do4( char * title, char * subtitle, int nitems, newmenu_item * item, void (*subfunction)(int nitems,newmenu_item * items, int * last_key, int citem), int citem, char * filename, int width, int height, int TinyMode );
+int newmenu_do4( char * title, char * subtitle, int nitems, newmenu_item * item, int (*subfunction)(newmenu *menu, d_event *event, void *userdata), void *userdata, int citem, char * filename, int width, int height, int TinyMode );
 
 void newmenu_close()	{
 	if (nm_background.bm_data)
@@ -506,41 +507,57 @@ void strip_end_whitespace( char * text )
 	}
 }
 
-int newmenu_do( char * title, char * subtitle, int nitems, newmenu_item * item, void (*subfunction)(int nitems,newmenu_item * items, int * last_key, int citem) )
+int newmenu_do( char * title, char * subtitle, int nitems, newmenu_item * item, int (*subfunction)(newmenu *menu, d_event *event, void *userdata), void *userdata )
 {
-	return newmenu_do3( title, subtitle, nitems, item, subfunction, 0, NULL, -1, -1 );
+	return newmenu_do3( title, subtitle, nitems, item, subfunction, userdata, 0, NULL, -1, -1 );
 }
 
-int newmenu_dotiny( char * title, char * subtitle, int nitems, newmenu_item * item, void (*subfunction)(int nitems,newmenu_item * items, int * last_key, int citem) )
+int newmenu_dotiny( char * title, char * subtitle, int nitems, newmenu_item * item, int (*subfunction)(newmenu *menu, d_event *event, void *userdata), void *userdata )
 {
-        return newmenu_do4( title, subtitle, nitems, item, subfunction, 0, NULL, -1, -1, 1 );
-}
-
-
-int newmenu_do1( char * title, char * subtitle, int nitems, newmenu_item * item, void (*subfunction)(int nitems,newmenu_item * items, int * last_key, int citem), int citem )
-{
-	return newmenu_do3( title, subtitle, nitems, item, subfunction, citem, NULL, -1, -1 );
+        return newmenu_do4( title, subtitle, nitems, item, subfunction, userdata, 0, NULL, -1, -1, 1 );
 }
 
 
-int newmenu_do2( char * title, char * subtitle, int nitems, newmenu_item * item, void (*subfunction)(int nitems,newmenu_item * items, int * last_key, int citem), int citem, char * filename )
+int newmenu_do1( char * title, char * subtitle, int nitems, newmenu_item * item, int (*subfunction)(newmenu *menu, d_event *event, void *userdata), void *userdata, int citem )
 {
-	return newmenu_do3( title, subtitle, nitems, item, subfunction, citem, filename, -1, -1 );
-}
-int newmenu_do3( char * title, char * subtitle, int nitems, newmenu_item * item, void (*subfunction)(int nitems,newmenu_item * items, int * last_key, int citem), int citem, char * filename, int width, int height )
-{
-	return newmenu_do4( title, subtitle, nitems, item, subfunction, citem, filename, width, height,0 );
+	return newmenu_do3( title, subtitle, nitems, item, subfunction, userdata, citem, userdata, -1, -1 );
 }
 
-int newmenu_do_fixedfont( char * title, char * subtitle, int nitems, newmenu_item * item, void (*subfunction)(int nitems,newmenu_item * items, int * last_key, int citem), int citem, char * filename, int width, int height){
+
+int newmenu_do2( char * title, char * subtitle, int nitems, newmenu_item * item, int (*subfunction)(newmenu *menu, d_event *event, void *userdata), void *userdata, int citem, char * filename )
+{
+	return newmenu_do3( title, subtitle, nitems, item, subfunction, userdata, citem, filename, -1, -1 );
+}
+int newmenu_do3( char * title, char * subtitle, int nitems, newmenu_item * item, int (*subfunction)(newmenu *menu, d_event *event, void *userdata), void *userdata, int citem, char * filename, int width, int height )
+{
 	set_screen_mode(SCREEN_MENU);//hafta set the screen mode before calling or fonts might get changed/freed up if screen res changes
-	return newmenu_do4( title, subtitle, nitems, item, subfunction, citem, filename, width,height, 0);
+	return newmenu_do4( title, subtitle, nitems, item, subfunction, userdata, citem, filename, width, height, 0 );
+}
+
+int newmenu_do_fixedfont( char * title, char * subtitle, int nitems, newmenu_item * item, int (*subfunction)(newmenu *menu, d_event *event, void *userdata), void *userdata, int citem, char * filename, int width, int height){
+	set_screen_mode(SCREEN_MENU);//hafta set the screen mode before calling or fonts might get changed/freed up if screen res changes
+	return newmenu_do4( title, subtitle, nitems, item, subfunction, userdata, citem, filename, width, height, 0);
 }
 
 
 #ifdef NEWMENU_MOUSE
 ubyte Hack_DblClick_MenuMode=0;
 #endif
+
+newmenu_item *newmenu_get_items(newmenu *menu)
+{
+	return menu->items;
+}
+
+int newmenu_get_nitems(newmenu *menu)
+{
+	return menu->nitems;
+}
+
+int newmenu_get_citem(newmenu *menu)
+{
+	return menu->citem;
+}
 
 int newmenu_handler(window *wind, d_event *event, newmenu *menu)
 {
@@ -551,9 +568,14 @@ int newmenu_handler(window *wind, d_event *event, newmenu *menu)
 #ifdef NEWMENU_MOUSE
 	int mx=0, my=0, mz=0, x1 = 0, x2, y1, y2;
 #endif
+	int rval = 0;
 
 	if (event->type == EVENT_CLOSE)
 	{
+		// Don't allow cancel here - handle item selected events / key events instead
+		if (menu->subfunction)
+			(*menu->subfunction)(menu, event, menu->userdata);
+
 		newmenu_hide_cursor();
 		game_flush_inputs();
 		
@@ -565,7 +587,7 @@ int newmenu_handler(window *wind, d_event *event, newmenu *menu)
 		
 		// d_free(menu);	// have to wait until newmenus use a separate event loop
 		
-		return 1;
+		return 1;	// always close
 	}
 	
 	if (event->type == EVENT_DRAW)
@@ -639,9 +661,9 @@ int newmenu_handler(window *wind, d_event *event, newmenu *menu)
 			
 		}
 		
-		// This will have to accept draw events later
+		// Only allow drawing over the top of the default stuff
 		if (menu->subfunction)
-			(*menu->subfunction)(menu->nitems,menu->items,&k,menu->citem);
+			(*menu->subfunction)(menu, event, menu->userdata);
 		
 		gr_set_current_canvas(save_canvas);
 
@@ -684,26 +706,38 @@ int newmenu_handler(window *wind, d_event *event, newmenu *menu)
 		gr_set_curfont(MEDIUM1_FONT);
 	
 	if (menu->subfunction)
-		(*menu->subfunction)(menu->nitems,menu->items,&k,menu->citem);
+	{
+		if (k)
+		{
+			d_event_keycommand key_event;	// for now - will be passed through newmenu_handler later
+
+			key_event.type = EVENT_KEY_COMMAND;
+			key_event.keycode = k;
+
+			rval = (*menu->subfunction)(menu, (d_event *)&key_event, menu->userdata);
+			k = key_event.keycode;
+		}
+		else
+			rval = (*menu->subfunction)(menu, event, menu->userdata);
+	}
 	
 #ifdef NETWORK
-	// Controls reading for the game will have to be separated out
-	// then game processing code put with the drawing code
-	// for this mess to be sorted out
-	if (!menu->time_stopped)	{
+	if ((rval >= -1) && !menu->time_stopped)	{
 		// Save current menu box
 		if (multi_menu_poll() == -1)
-			k = -2;
+			rval = -2;
 	}
 #endif
 	
-	if ( k<-1 ) {
-		menu->citem = k;
-		k = -1;
+	if (rval < -1)
+	{
+		menu->citem = rval;
 		menu->done = 1;
 		gr_set_current_canvas(save_canvas);
 		return 1;
 	}
+	else if (rval)
+		return 1;	// event handled already, but stay in newmenu
 	
 	old_choice = menu->citem;
 	
@@ -1203,7 +1237,7 @@ int newmenu_handler(window *wind, d_event *event, newmenu *menu)
 	return 1;
 }
 
-int newmenu_do4( char * title, char * subtitle, int nitems, newmenu_item * item, void (*subfunction)(int nitems,newmenu_item * items, int * last_key, int citem), int citem, char * filename, int width, int height, int TinyMode )
+int newmenu_do4( char * title, char * subtitle, int nitems, newmenu_item * item, int (*subfunction)(newmenu *menu, d_event *event, void *userdata), void *userdata, int citem, char * filename, int width, int height, int TinyMode )
 {
 	window *wind = NULL;
 	newmenu *menu;
@@ -1233,6 +1267,7 @@ int newmenu_do4( char * title, char * subtitle, int nitems, newmenu_item * item,
 	menu->filename = filename;
 	menu->tiny_mode = TinyMode;
 	menu->done = 0;
+	menu->userdata = userdata;
 	
 	newmenu_close();
 	newmenu_hide_cursor();
@@ -1516,7 +1551,7 @@ int newmenu_do4( char * title, char * subtitle, int nitems, newmenu_item * item,
 }
 
 
-int nm_messagebox1( char *title, void (*subfunction)(int nitems,newmenu_item * items, int * last_key, int citem), int nchoices, ... )
+int nm_messagebox1( char *title, int (*subfunction)(newmenu *menu, d_event *event, void *userdata), void *userdata, int nchoices, ... )
 {
 	int i;
 	char * format;
@@ -1540,7 +1575,7 @@ int nm_messagebox1( char *title, void (*subfunction)(int nitems,newmenu_item * i
 
 	Assert(strlen(nm_text) < MESSAGEBOX_TEXT_SIZE);
 
-	return newmenu_do( title, nm_text, nchoices, nm_message_items, subfunction );
+	return newmenu_do( title, nm_text, nchoices, nm_message_items, subfunction, userdata );
 }
 
 int nm_messagebox( char *title, int nchoices, ... )
@@ -1567,7 +1602,7 @@ int nm_messagebox( char *title, int nchoices, ... )
 
 	Assert(strlen(nm_text) < MESSAGEBOX_TEXT_SIZE );
 
-	return newmenu_do( title, nm_text, nchoices, nm_message_items, NULL );
+	return newmenu_do( title, nm_text, nchoices, nm_message_items, NULL, NULL );
 }
 
 // Example listbox callback function...
@@ -1593,31 +1628,69 @@ int nm_messagebox( char *title, int nchoices, ... )
 
 #define LB_ITEMS_ON_SCREEN 8
 
-typedef struct listbox
+struct listbox
 {
 	char *title;
 	int nitems;
 	char **item;
 	int allow_abort_flag;
-	int (*listbox_callback)( int * citem, int *nitems, char * items[], int *keypress );
+	int (*listbox_callback)(listbox *lb, d_event *event, void *userdata);
 	int done, citem, first_item;
 	int box_w, height, box_x, box_y, title_height;
 	int mouse_state, omouse_state;
-} listbox;
+	void *userdata;
+};
+
+char **listbox_get_items(listbox *lb)
+{
+	return lb->item;
+}
+
+int listbox_get_nitems(listbox *lb)
+{
+	return lb->nitems;
+}
+
+int listbox_get_citem(listbox *lb)
+{
+	return lb->citem;
+}
+
+void listbox_delete_item(listbox *lb, int item)
+{
+	int i;
+	
+	Assert(item >= 0);
+
+	if (lb->nitems)
+	{
+		for (i=item; i<lb->nitems-1; i++ )
+			lb->item[i] = lb->item[i+1];
+		lb->nitems--;
+		lb->item[lb->nitems] = NULL;
+		
+		if (lb->citem >= lb->nitems)
+			lb->citem = lb->nitems ? lb->nitems - 1 : 0;
+	}
+}
 
 int listbox_handler(window *wind, d_event *event, listbox *lb)
 {
 	int i;
 	int ocitem, ofirst_item, key;
-	int redraw;
 #ifdef NEWMENU_MOUSE
 	int mx, my, mz, x1, x2, y1, y2;	//, dblclick_flag;
 #endif
+	int rval = 0;
 	
 	if (event->type == EVENT_CLOSE)
 	{
+		// Don't allow cancel here - handle item selected events / key events instead
+		if (lb->listbox_callback)
+			(*lb->listbox_callback)(lb, event, lb->userdata);
+		
 		newmenu_hide_cursor();
-		return 1;
+		return 1;	// always close
 	}
 
 	if (event->type == EVENT_DRAW)
@@ -1654,6 +1727,10 @@ int listbox_handler(window *wind, d_event *event, listbox *lb)
 			}
 		}
 		
+		// Only allow drawing over the top of the default stuff
+		if ( lb->listbox_callback )
+			(*lb->listbox_callback)(lb, event, lb->userdata);
+		
 		return 1;
 	}
 
@@ -1672,16 +1749,28 @@ int listbox_handler(window *wind, d_event *event, listbox *lb)
 	key = key_inkey();
 	
 	if ( lb->listbox_callback )
-		redraw = (*lb->listbox_callback)(&lb->citem, &lb->nitems, lb->item, &key );
-	else
-		redraw = 0;
+	{
+		if (key)
+		{
+			d_event_keycommand key_event;	// somewhere to put the keycode for now
+
+			key_event.type = EVENT_KEY_COMMAND;
+			key_event.keycode = key;
+
+			rval = (*lb->listbox_callback)(lb, (d_event *)&key_event, lb->userdata);
+			key = key_event.keycode;
+		}
+		else
+			rval = (*lb->listbox_callback)(lb, event, lb->userdata);
+	}
 	
-	if ( key<-1 ) {
-		lb->citem = key;
-		key = -1;
+	if (rval < -1) {
+		lb->citem = rval;
 		lb->done = 1;
 		return 1;
 	}
+	else if (rval)
+		return 1;	// event handled already, but stay in listbox
 	
 	switch(key)	{
 #ifdef macintosh
@@ -1800,12 +1889,12 @@ int listbox_handler(window *wind, d_event *event, listbox *lb)
 	return 1;
 }
 
-int newmenu_listbox( char * title, int nitems, char * items[], int allow_abort_flag, int (*listbox_callback)( int * citem, int *nitems, char * items[], int *keypress ) )
+int newmenu_listbox( char * title, int nitems, char * items[], int allow_abort_flag, int (*listbox_callback)(listbox *lb, d_event *event, void *userdata), void *userdata )
 {
-	return newmenu_listbox1( title, nitems, items, allow_abort_flag, 0, listbox_callback );
+	return newmenu_listbox1( title, nitems, items, allow_abort_flag, 0, listbox_callback, userdata );
 }
 
-int newmenu_listbox1( char * title, int nitems, char * items[], int allow_abort_flag, int default_item, int (*listbox_callback)( int * citem, int *nitems, char * items[], int *keypress ) )
+int newmenu_listbox1( char * title, int nitems, char * items[], int allow_abort_flag, int default_item, int (*listbox_callback)(listbox *lb, d_event *event, void *userdata), void *userdata )
 {
 	listbox *lb;
 	window *wind;
@@ -1822,6 +1911,7 @@ int newmenu_listbox1( char * title, int nitems, char * items[], int allow_abort_
 	lb->item = items;
 	lb->allow_abort_flag = allow_abort_flag;
 	lb->listbox_callback = listbox_callback;
+	lb->userdata = userdata;
 
 	gr_set_current_canvas(NULL);
 
@@ -1903,6 +1993,6 @@ int nm_messagebox_fixedfont( char *title, int nchoices, ... )
 
 	Assert(strlen(nm_text) < MESSAGEBOX_TEXT_SIZE );
 
-        return newmenu_do_fixedfont( title, nm_text, nchoices, nm_message_items, NULL, 0, NULL, -1, -1 );
+        return newmenu_do_fixedfont( title, nm_text, nchoices, nm_message_items, NULL, NULL, 0, NULL, -1, -1 );
 }
 //end this section addition - Victor Rachels

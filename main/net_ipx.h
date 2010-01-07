@@ -249,8 +249,8 @@ void net_ipx_join_game();
 void network_rejoin_game();
 void net_ipx_leave_game();
 int net_ipx_endlevel(int *secret);
-void net_ipx_kmatrix_poll1( int nitems, newmenu_item * menus, int * key, int citem );
-void net_ipx_kmatrix_poll2( int nitems, newmenu_item * menus, int * key, int citem );
+int net_ipx_kmatrix_poll1( newmenu *menu, d_event *event, void *userdata );
+int net_ipx_kmatrix_poll2( newmenu *menu, d_event *event, void *userdata );
 
 int net_ipx_level_sync();
 void net_ipx_send_endlevel_packet();
