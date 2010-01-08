@@ -228,6 +228,20 @@ int DoMenu()
 
 extern void show_order_form(void);	// John didn't want this in inferno.h so I just externed it.
 
+int select_song_callback(listbox *lb, d_event *event, void *userdata)
+{
+	int citem = listbox_get_citem(lb);
+	
+	userdata = userdata;
+	if (event->type != EVENT_NEWMENU_SELECTED)
+		return 0;
+	
+	if (citem > -1)
+		songs_play_song( citem, 0 );
+	
+	return 1;	// stay in menu until user escapes
+}
+
 //returns flag, true means quit menu
 void do_option ( int select) 
 {
@@ -273,20 +287,16 @@ void do_option ( int select)
 
 #ifndef RELEASE
 
-		case MENU_PLAY_SONG:	{
-				int i;
-				char * m[MAX_NUM_SONGS];
+		case MENU_PLAY_SONG:
+		{
+			char * m[MAX_NUM_SONGS];
+			int i;
 
-				for (i=0;i<Num_songs;i++) {
-					m[i] = Songs[i].filename;
-				}
-				i = newmenu_listbox( "Select Song", Num_songs, m, 1, NULL, NULL );
-
-				if ( i > -1 )	{
-					songs_play_song( i, 0 );
-				}
-			}
+			for (i=0;i<Num_songs;i++)
+				m[i] = Songs[i].filename;
+			newmenu_listbox( "Select Song", Num_songs, m, 1, select_song_callback, NULL );
 			break;
+		}
 		case MENU_LOAD_LEVEL:
 			if (Current_mission || select_mission(0, "Load Level\n\nSelect mission"))
 			{

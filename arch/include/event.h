@@ -8,7 +8,8 @@ typedef enum event_type
 	EVENT_IDLE = 0,
 	EVENT_KEY_COMMAND,
 	EVENT_DRAW,
-	EVENT_CLOSE
+	EVENT_CLOSE,
+	EVENT_USER	// spare for use by modules that use windows (e.g. newmenu)
 } event_type;
 
 // A vanilla event. Cast to the correct type of event according to 'type'.
