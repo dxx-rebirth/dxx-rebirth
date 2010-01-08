@@ -886,6 +886,11 @@ int newmenu_handler(window *wind, d_event *event, newmenu *menu)
 				}
 			} else
 			{
+				// Tell callback, allow staying in menu
+				event->type = EVENT_NEWMENU_SELECTED;
+				if (menu->subfunction && (*menu->subfunction)(menu, event, menu->userdata))
+					return 1;
+
 				menu->done = 1;
 				gr_set_current_canvas(save_canvas);
 				return 1;
@@ -1094,6 +1099,11 @@ int newmenu_handler(window *wind, d_event *event, newmenu *menu)
 				if (Hack_DblClick_MenuMode) {
 					if (menu->dblclick_flag)
 					{
+						// Tell callback, allow staying in menu
+						event->type = EVENT_NEWMENU_SELECTED;
+						if (menu->subfunction && (*menu->subfunction)(menu, event, menu->userdata))
+							return 1;
+						
 						menu->done = 1;
 						gr_set_current_canvas(save_canvas);
 						return 1;
@@ -1102,6 +1112,11 @@ int newmenu_handler(window *wind, d_event *event, newmenu *menu)
 				}
 				else
 				{
+					// Tell callback, allow staying in menu
+					event->type = EVENT_NEWMENU_SELECTED;
+					if (menu->subfunction && (*menu->subfunction)(menu, event, menu->userdata))
+						return 1;
+					
 					menu->done = 1;
 					gr_set_current_canvas(save_canvas);
 					return 1;
@@ -1812,6 +1827,11 @@ int listbox_handler(window *wind, d_event *event, listbox *lb)
 			break;
 			case KEY_ENTER:
 			case KEY_PADENTER:
+			// Tell callback, allow staying in menu
+			event->type = EVENT_NEWMENU_SELECTED;
+			if (lb->listbox_callback && (*lb->listbox_callback)(lb, event, lb->userdata))
+				return 1;
+			
 			lb->done = 1;
 			return 1;
 			break;
@@ -1878,6 +1898,12 @@ int listbox_handler(window *wind, d_event *event, listbox *lb)
 			y2 = y1+h;
 			if ( ((mx > x1) && (mx < x2)) && ((my > y1) && (my < y2)) ) {
 				lb->citem = i;
+
+				// Tell callback, allow staying in menu
+				event->type = EVENT_NEWMENU_SELECTED;
+				if (lb->listbox_callback && (*lb->listbox_callback)(lb, event, lb->userdata))
+					return 1;
+				
 				lb->done = 1;
 				return 1;
 				break;

@@ -38,6 +38,11 @@ typedef struct listbox listbox;
 
 #define NM_MAX_TEXT_LEN     255
 
+enum newmenu_event
+{
+	EVENT_NEWMENU_SELECTED = EVENT_USER
+};
+
 typedef struct newmenu_item {
 	int     type;           // What kind of item this is, see NM_TYPE_????? defines
 	int     value;          // For checkboxes and radio buttons, this is 1 if marked initially, else 0
