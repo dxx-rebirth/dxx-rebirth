@@ -22,6 +22,7 @@ COPYRIGHT 1993-1999 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 #include <stdlib.h>		// for rand() and qsort()
 #include <string.h>		// for memset()
 
+#include "window.h"
 #include "inferno.h"
 #include "console.h"
 #include "fix.h"
@@ -1617,14 +1618,101 @@ void drop_stolen_items(object *objp)
 }
 
 // --------------------------------------------------------------------------------------------------------------
+typedef struct escort_menu
+{
+	char	msg[300];
+} escort_menu;
+
+int escort_menu_handler(window *wind, d_event *event, escort_menu *menu)
+{
+	int	key;
+
+	if (event->type == EVENT_DRAW)
+	{
+		show_escort_menu(menu->msg);		//TXT_PAUSE);
+		return 1;
+	}
+	else if (event->type == EVENT_CLOSE)
+	{
+		game_flush_inputs();
+		
+		palette_restore();
+		
+		start_time();
+		digi_resume_digi_sounds();
+
+		return 1;
+	}
+
+	key = key_inkey();
+	
+	switch (key) {
+		case KEY_0:
+		case KEY_1:
+		case KEY_2:
+		case KEY_3:
+		case KEY_4:
+		case KEY_5:
+		case KEY_6:
+		case KEY_7:
+		case KEY_8:
+		case KEY_9:
+			Looking_for_marker = -1;
+			Last_buddy_key = -1;
+			set_escort_special_goal(key);
+			Last_buddy_key = -1;
+			window_close(wind);
+			break;
+			
+		case KEY_ESC:
+		case KEY_ENTER:
+			window_close(wind);
+			break;
+			
+		case KEY_PRINT_SCREEN:
+			save_screen_shot(0);
+			break;
+			
+#ifndef RELEASE
+		case KEY_BACKSP: Int3(); break;
+#endif
+			
+		case KEY_T: {
+			char	msg[32];
+			int	temp;
+			
+			temp = !Buddy_messages_suppressed;
+			
+			if (temp)
+				strcpy(msg, "suppressed");
+			else
+				strcpy(msg, "enabled");
+			
+			Buddy_messages_suppressed = 1;
+			buddy_message("Messages %s.", msg);
+			
+			Buddy_messages_suppressed = temp;
+			
+			window_close(wind);
+			break;
+		}
+			
+		default:
+			return 0;
+			break;
+			
+	}
+	
+	return 1;
+}
+
 void do_escort_menu(void)
 {
 	int	i;
-	char	msg[300];
-	int	paused;
-	int	key;
 	int	next_goal;
 	char	goal_str[32], tstr[32];
+	escort_menu *menu;
+	window *wind;
 
 	if (Game_mode & GM_MULTI) {
 		HUD_init_message("No Guide-Bot in Multiplayer!");
@@ -1641,7 +1729,7 @@ void do_escort_menu(void)
 
 		HUD_init_message("No Guide-Bot present in mine!");
 
-		#ifndef NDEBUG
+		#if 0	//ndef NDEBUG	// Just use HELPVISHNU!!
 		//	If no buddy bot, create one!
 		HUD_init_message("Debug Version: Creating Guide-Bot!");
 		create_buddy_bot();
@@ -1657,6 +1745,18 @@ void do_escort_menu(void)
 		return;
 	}
 
+	MALLOC(menu, escort_menu, 1);
+	if (!menu)
+		return;
+	
+	// Just make it the full screen size and let show_escort_menu figure it out
+	wind = window_create(&grd_curscreen->sc_canvas, 0, 0, SWIDTH, SHEIGHT, (int (*)(window *, d_event *, void *))escort_menu_handler, menu);
+	if (!wind)
+	{
+		d_free(menu);
+		return;
+	}
+	
 	digi_pause_digi_sounds();
 	stop_time();
 
@@ -1665,8 +1765,6 @@ void do_escort_menu(void)
 	reset_palette_add();
 
 	game_flush_inputs();
-
-	paused = 1;
 
 	gr_palette_load( gr_palette );
 
@@ -1726,7 +1824,7 @@ void do_escort_menu(void)
 	else
 		sprintf(tstr, "Enable");
 
-	sprintf(msg,	"Select Guide-Bot Command:\n\n\n"
+	sprintf(menu->msg,	"Select Guide-Bot Command:\n\n\n"
 						"0.  Next Goal: %s" CC_LSPACING_S "3\n\n"
 						"\x84.  Find Energy Powerup" CC_LSPACING_S "3\n\n"
 						"2.  Find Energy Center" CC_LSPACING_S "3\n\n"
@@ -1740,78 +1838,6 @@ void do_escort_menu(void)
 						"T.  %s Messages"
 						// -- "9.	Find the exit" CC_LSPACING_S "3\n"
 				, goal_str, tstr);
-
-	show_escort_menu(msg);		//TXT_PAUSE);
-
-	while (paused) {
-		gr_flip();
-		show_escort_menu(msg);		//TXT_PAUSE);
-		key = key_inkey();
-
-		switch (key) {
-			case KEY_0:
-			case KEY_1:
-			case KEY_2:
-			case KEY_3:
-			case KEY_4:
-			case KEY_5:
-			case KEY_6:
-			case KEY_7:
-			case KEY_8:
-			case KEY_9:
-				Looking_for_marker = -1;
-				Last_buddy_key = -1;
-				set_escort_special_goal(key);
-				Last_buddy_key = -1;
-				paused = 0;
-				break;
-
-			case KEY_ESC:
-			case KEY_ENTER:
-				paused=0;
-				break;
-
-			case KEY_PRINT_SCREEN:
-				save_screen_shot(0);
-				break;
-
-			#ifndef RELEASE
-			case KEY_BACKSP: Int3(); break;
-			#endif
-
-			case KEY_T: {
-				char	msg[32];
-				int	temp;
-
-				temp = !Buddy_messages_suppressed;
-
-				if (temp)
-					strcpy(msg, "suppressed");
-				else
-					strcpy(msg, "enabled");
-
-				Buddy_messages_suppressed = 1;
-				buddy_message("Messages %s.", msg);
-
-				Buddy_messages_suppressed = temp;
-
-				paused = 0;
-				break;
-			}
-
-			default:
-				break;
-
-		}
-	}
-
-	game_flush_inputs();
-
-	palette_restore();
-
-	start_time();
-	digi_resume_digi_sounds();
-
 }
 
 //	-------------------------------------------------------------------------------
