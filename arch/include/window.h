@@ -8,6 +8,9 @@
  *	-kreator 2009-05-06
  */
 
+#ifndef DESCENT_WINDOW_H
+#define DESCENT_WINDOW_H
+
 #include "event.h"
 #include "gr.h"
 
@@ -23,3 +26,4 @@ extern void window_set_visible(window *wind, int visible);
 extern int window_is_visible(window *wind);
 extern grs_canvas *window_get_canvas(window *wind);
 extern int window_send_event(window *wind, d_event *event);
+#endif

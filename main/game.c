@@ -1016,7 +1016,7 @@ int game_handler(window *wind, d_event *event, void *data)
 
 	ReadControls();		// will have its own event(s) eventually
 	if (window_get_front() != wind)
-		return 1;		// in automap
+		return 1;
 
 	GameProcessFrame();
 	

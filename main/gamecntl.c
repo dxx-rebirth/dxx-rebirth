@@ -26,6 +26,7 @@ COPYRIGHT 1993-1999 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 #include <stdarg.h>
 
 #include "pstypes.h"
+#include "window.h"
 #include "console.h"
 #include "inferno.h"
 #include "game.h"
@@ -222,14 +223,67 @@ void format_time(char *str, int secs_int)
 
 extern int netplayerinfo_on;
 
-//Process selected keys until game unpaused. returns key that left pause (p or esc)
-int do_game_pause()
+//Process selected keys until game unpaused
+int pause_handler(window *wind, d_event *event, char *msg)
 {
 	int key;
-	char msg[1000];
-	char total_time[9],level_time[9];
-	int Game_paused;
+
+	if (event->type == EVENT_DRAW)
+	{
+		show_boxed_message(msg, 1);
+		return 1;
+	}
+	else if (event->type == EVENT_CLOSE)
+	{
+		game_flush_inputs();
+		reset_cockpit();
+		start_time();
+		if (EXT_MUSIC_ON)
+			ext_music_resume();
+		digi_resume_all();
+		d_free(msg);
+		
+		return 1;
+	}
+
+	timer_delay2(50);
 	
+	key = key_inkey();
+	
+	switch (key) {
+		case 0:
+			break;
+		case KEY_ESC:
+			//Function_mode = FMODE_MENU;	// Don't like this, just press escape twice (kreatordxx)
+			window_close(wind);
+			break;
+		case KEY_F1:
+			show_help();
+			break;
+		case KEY_PAUSE:
+			window_close(wind);
+			break;
+		case KEY_ALTED+KEY_ENTER:
+		case KEY_ALTED+KEY_PADENTER:
+			gr_toggle_fullscreen();
+			break;
+		default:
+			return 0;
+			break;
+	}
+	
+	return 1;
+}
+
+int do_game_pause()
+{
+	char *msg;
+	char total_time[9],level_time[9];
+	
+	MALLOC(msg, char, 1024);
+	if (!msg)
+		return 0;
+
 #ifdef NETWORK
 	if (Game_mode & GM_MULTI)
 	{
@@ -249,50 +303,12 @@ int do_game_pause()
 		sprintf(msg,"PAUSE\n\nSkill level:  %s\nHostages on board:  %d\nTime on level: %s\nTotal time in game: %s",(*(&TXT_DIFFICULTY_1 + (Difficulty_level))),Players[Player_num].hostages_on_board,level_time,total_time);
 	else
 	  	sprintf(msg,"PAUSE\n\nSkill level:  %s\nHostages on board:  %d\n",(*(&TXT_DIFFICULTY_1 + (Difficulty_level))),Players[Player_num].hostages_on_board);
-	Game_paused=1;
 	set_screen_mode(SCREEN_MENU);
-	show_boxed_message(msg, 1);
 	
-	while (Game_paused) 
-	{
-		timer_delay2(50);
-#ifdef OGL
-		show_boxed_message(msg, 1);
-#endif
-		
-		key = key_inkey();
-		
-		switch (key) {
-			case 0:
-				break;
-			case KEY_ESC:
-				Function_mode = FMODE_MENU;
-				Game_paused=0;
-				break;
-			case KEY_F1:
-				show_help();
-				show_boxed_message(TXT_PAUSE, 1);
-				break;
-			case KEY_PAUSE:
-				Game_paused=0;
-				break;
-			case KEY_ALTED+KEY_ENTER:
-			case KEY_ALTED+KEY_PADENTER:
-				gr_toggle_fullscreen();
-				break;
-			default:
-				break;
-		}
-	}
+	if (!window_create(&grd_curscreen->sc_canvas, 0, 0, SWIDTH, SHEIGHT, (int (*)(window *, d_event *, void *))pause_handler, msg))
+		d_free(msg);
 	
-	game_flush_inputs();
-	reset_cockpit();
-	start_time();
-	if (EXT_MUSIC_ON)
-		ext_music_resume();
-	digi_resume_all();
-	
-	return key;
+	return 0 /*key*/;	// Keycode returning ripped out (kreatordxx)
 }
 
 void HandleEndlevelKey(int key)
@@ -308,10 +324,10 @@ void HandleEndlevelKey(int key)
 	
 #if defined(__APPLE__) || defined(macintosh)
 	if ( key == (KEY_COMMAND+KEY_P) )
-		key = do_game_pause();
+		/*key =*/ do_game_pause();
 #endif
 	if (key == KEY_PAUSE)
-		key = do_game_pause();		//so esc from pause will end level
+		/*key =*/ do_game_pause();		//so esc from pause will end level. Removed: Don't like this, just press escape twice (kreatordxx)
 	
 	if (key == KEY_ESC)	{
 		stop_endlevel_sequence();

@@ -1,5 +1,9 @@
 D1X-Rebirth Changelog
 
+20100109
+--------
+arch/include/window.h, main/game.c, main/gamecntl.c, main/gamerend.c: Make pause box a window
+
 20100108
 --------
 arch/sdl/event.h, main/menu.c, main/newmenu.c, main/newmenu.h: Add EVENT_NEWMENU_SELECTED, allowing a newmenu/listbox selection to be handled in the callback. Demonstrate with "Select Song" menu
