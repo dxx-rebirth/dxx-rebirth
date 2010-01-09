@@ -376,13 +376,67 @@ void format_time(char *str, int secs_int)
 
 extern int netplayerinfo_on;
 
-//Process selected keys until game unpaused. returns key that left pause (p or esc)
-int do_game_pause()
+//Process selected keys until game unpaused
+int pause_handler(window *wind, d_event *event, char *msg)
 {
 	int key;
-	char msg[1000];
+
+	if (event->type == EVENT_DRAW)
+	{
+		show_boxed_message(msg, 1);
+		return 1;
+	}
+	else if (event->type == EVENT_CLOSE)
+	{
+		game_flush_inputs();
+		reset_cockpit();
+		palette_restore();
+		start_time();
+		if (EXT_MUSIC_ON)
+			ext_music_resume();
+		digi_resume_all();
+		d_free(msg);
+		
+		return 1;
+	}
+
+	timer_delay2(50);
+	
+	key = key_inkey();
+	
+	switch (key) {
+		case 0:
+			break;
+		case KEY_ESC:
+			//Function_mode = FMODE_MENU;	// Don't like this, just press escape twice (kreatordxx)
+			window_close(wind);
+			break;
+		case KEY_F1:
+			show_help();
+			break;
+		case KEY_PAUSE:
+			window_close(wind);
+			break;
+		case KEY_ALTED+KEY_ENTER:
+		case KEY_ALTED+KEY_PADENTER:
+			gr_toggle_fullscreen();
+			break;
+		default:
+			return 0;
+			break;
+	}
+	
+	return 1;
+}
+
+int do_game_pause()
+{
+	char *msg;
 	char total_time[9],level_time[9];
-	int Game_paused;
+	
+	MALLOC(msg, char, 1024);
+	if (!msg)
+		return 0;
 
 #ifdef NETWORK
 	if (Game_mode & GM_MULTI)
@@ -391,7 +445,7 @@ int do_game_pause()
 		return(KEY_PAUSE);
 	}
 #endif
-
+	
 	digi_pause_all();
 	ext_music_pause();
 	stop_time();
@@ -406,51 +460,12 @@ int do_game_pause()
 		sprintf(msg,"PAUSE\n\nSkill level:  %s\nHostages on board:  %d\nTime on level: %s\nTotal time in game: %s",(*(&TXT_DIFFICULTY_1 + (Difficulty_level))),Players[Player_num].hostages_on_board,level_time,total_time);
 	else
 	  	sprintf(msg,"PAUSE\n\nSkill level:  %s\nHostages on board:  %d\n",(*(&TXT_DIFFICULTY_1 + (Difficulty_level))),Players[Player_num].hostages_on_board);
-	Game_paused=1;
 	set_screen_mode(SCREEN_MENU);
-	show_boxed_message(msg, 1);
-
-	while (Game_paused) 
-	{
-		timer_delay2(50);
-#ifdef OGL
-		show_boxed_message(msg, 1);
-#endif
-
-		key = key_inkey();
-
-		switch (key) {
-			case 0:
-				break;
-			case KEY_ESC:
-				Function_mode = FMODE_MENU;
-				Game_paused=0;
-				break;
-			case KEY_F1:
-				show_help();
-				show_boxed_message(TXT_PAUSE, 1);
-				break;
-			case KEY_PAUSE:
-				Game_paused=0;
-				break;
-			case KEY_ALTED+KEY_ENTER:
-			case KEY_ALTED+KEY_PADENTER:
-				gr_toggle_fullscreen();
-				break;
-			default:
-				break;
-		}
-	}
-
-	game_flush_inputs();
-	reset_cockpit();
-	palette_restore();
-	start_time();
-	if (EXT_MUSIC_ON)
-		ext_music_resume();
-	digi_resume_all();
-
-	return key;
+	
+	if (!window_create(&grd_curscreen->sc_canvas, 0, 0, SWIDTH, SHEIGHT, (int (*)(window *, d_event *, void *))pause_handler, msg))
+		d_free(msg);
+	
+	return 0 /*key*/;	// Keycode returning ripped out (kreatordxx)
 }
 
 extern int network_who_is_master(),network_how_many_connected(),GetMyNetRanking();

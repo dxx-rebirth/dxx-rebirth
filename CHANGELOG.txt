@@ -3,6 +3,7 @@ D2X-Rebirth Changelog
 20100109
 --------
 main/escort.c: Make escort menu a window, now the game is drawn behind it
+arch/include/window.h, main/game.c, main/gamecntl.c, main/gamerend.c: Make pause box a window
 
 20100108
 --------
