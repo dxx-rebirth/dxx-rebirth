@@ -1,5 +1,9 @@
 D2X-Rebirth Changelog
 
+20100115
+--------
+main/menu.c: For get_filename, put mode and find variables in a structure - fixing 64-bit problem and allowing freeing of PHYSFS file list in callback in future, respectively
+
 20100109
 --------
 main/escort.c: Make escort menu a window, now the game is drawn behind it

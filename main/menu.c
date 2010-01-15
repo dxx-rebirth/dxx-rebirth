@@ -417,7 +417,13 @@ enum file_mode
 	FILE_DEMO_MODE
 };
 
-int filename_menu_handler( listbox *lb, d_event *event, enum file_mode mode )
+typedef struct file_list
+{
+	enum file_mode	mode;
+	char			**list;		// just to free it in below callback
+} file_list;
+
+int filename_menu_handler( listbox *lb, d_event *event, file_list *l )
 {
 	char **items = listbox_get_items(lb);
 	int citem = listbox_get_citem(lb);
@@ -428,13 +434,13 @@ int filename_menu_handler( listbox *lb, d_event *event, enum file_mode mode )
 	switch (((d_event_keycommand *)event)->keycode)
 	{
 		case KEY_CTRLED+KEY_D:
-			if ( ((mode == FILE_PLAYER_MODE)&&(citem>0)) || ((mode == FILE_DEMO_MODE)&&(citem>=0)) )
+			if ( ((l->mode == FILE_PLAYER_MODE)&&(citem>0)) || ((l->mode == FILE_DEMO_MODE)&&(citem>=0)) )
 			{
 				int x = 1;
-				if (mode == FILE_PLAYER_MODE)
-					x = nm_messagebox( NULL, 2, TXT_YES, TXT_NO, "%s %s?", TXT_DELETE_PILOT, items[citem]+(((mode == FILE_PLAYER_MODE) && items[citem][0]=='$')?1:0) );
-				else if (mode == FILE_DEMO_MODE)
-					x = nm_messagebox( NULL, 2, TXT_YES, TXT_NO, "%s %s?", TXT_DELETE_DEMO, items[citem]+(((mode == FILE_DEMO_MODE) && items[citem][0]=='$')?1:0) );
+				if (l->mode == FILE_PLAYER_MODE)
+					x = nm_messagebox( NULL, 2, TXT_YES, TXT_NO, "%s %s?", TXT_DELETE_PILOT, items[citem]+(((l->mode == FILE_PLAYER_MODE) && items[citem][0]=='$')?1:0) );
+				else if (l->mode == FILE_DEMO_MODE)
+					x = nm_messagebox( NULL, 2, TXT_YES, TXT_NO, "%s %s?", TXT_DELETE_DEMO, items[citem]+(((l->mode == FILE_DEMO_MODE) && items[citem][0]=='$')?1:0) );
  				if (x==0)	{
 					char * p;
 					char plxfile[PATH_MAX];
@@ -442,17 +448,17 @@ int filename_menu_handler( listbox *lb, d_event *event, enum file_mode mode )
 					char name[PATH_MAX];
 					
 					p = items[citem] + strlen(items[citem]);
-					if (mode == FILE_PLAYER_MODE)
+					if (l->mode == FILE_PLAYER_MODE)
 						*p = '.';
 					
-					strcpy(name, (mode == FILE_DEMO_MODE) ? DEMO_DIR : (((mode == FILE_PLAYER_MODE) && GameArg.SysUsePlayersDir) ? "Players/" : ""));
+					strcpy(name, (l->mode == FILE_DEMO_MODE) ? DEMO_DIR : (((l->mode == FILE_PLAYER_MODE) && GameArg.SysUsePlayersDir) ? "Players/" : ""));
 					strcat(name,items[citem]);
 					
 					ret = !PHYSFS_delete(name);
-					if (mode == FILE_PLAYER_MODE)
+					if (l->mode == FILE_PLAYER_MODE)
 						*p = 0;
 					
-					if ((!ret) && (mode == FILE_PLAYER_MODE))	{
+					if ((!ret) && (l->mode == FILE_PLAYER_MODE))	{
 						delete_player_saved_games( items[citem] );
 						// delete PLX file
 						sprintf(plxfile, GameArg.SysUsePlayersDir? "Players/%.8s.plx" : "%.8s.plx", items[citem]);
@@ -461,10 +467,10 @@ int filename_menu_handler( listbox *lb, d_event *event, enum file_mode mode )
 					}
 					
 					if (ret) {
-						if (mode == FILE_PLAYER_MODE)
-							nm_messagebox( NULL, 1, TXT_OK, "%s %s %s", TXT_COULDNT, TXT_DELETE_PILOT, items[citem]+(((mode == FILE_PLAYER_MODE) && items[citem][0]=='$')?1:0) );
-						else if (mode == FILE_DEMO_MODE)
-							nm_messagebox( NULL, 1, TXT_OK, "%s %s %s", TXT_COULDNT, TXT_DELETE_DEMO, items[citem]+(((mode == FILE_DEMO_MODE) && items[citem][0]=='$')?1:0) );
+						if (l->mode == FILE_PLAYER_MODE)
+							nm_messagebox( NULL, 1, TXT_OK, "%s %s %s", TXT_COULDNT, TXT_DELETE_PILOT, items[citem]+(((l->mode == FILE_PLAYER_MODE) && items[citem][0]=='$')?1:0) );
+						else if (l->mode == FILE_DEMO_MODE)
+							nm_messagebox( NULL, 1, TXT_OK, "%s %s %s", TXT_COULDNT, TXT_DELETE_DEMO, items[citem]+(((l->mode == FILE_DEMO_MODE) && items[citem][0]=='$')?1:0) );
 					}
 					else
 						listbox_delete_item(lb, citem);
@@ -475,19 +481,19 @@ int filename_menu_handler( listbox *lb, d_event *event, enum file_mode mode )
 			break;
 
 		case KEY_CTRLED+KEY_C:
-			if (mode == FILE_DEMO_MODE)
+			if (l->mode == FILE_DEMO_MODE)
 			{
 				int x = 1;
 				char bakname[PATH_MAX];
 				
 				// Get backup name
-				change_filename_extension(bakname, items[citem]+(((mode == FILE_DEMO_MODE) && items[citem][0]=='$')?1:0), DEMO_BACKUP_EXT);
+				change_filename_extension(bakname, items[citem]+(((l->mode == FILE_DEMO_MODE) && items[citem][0]=='$')?1:0), DEMO_BACKUP_EXT);
 				x = nm_messagebox( NULL, 2, TXT_YES, TXT_NO,	"Are you sure you want to\n"
 								  "swap the endianness of\n"
 								  "%s? If the file is\n"
 								  "already endian native, D1X\n"
 								  "will likely crash. A backup\n"
-								  "%s will be created", items[citem]+(((mode == FILE_DEMO_MODE) && items[citem][0]=='$')?1:0), bakname );
+								  "%s will be created", items[citem]+(((l->mode == FILE_DEMO_MODE) && items[citem][0]=='$')?1:0), bakname );
 				if (!x)
 					newdemo_swap_endian(items[citem]);
 				
@@ -502,58 +508,69 @@ int filename_menu_handler( listbox *lb, d_event *event, enum file_mode mode )
 int get_filename(char *title, char *type, char *filename, int allow_abort_flag)
 {
 	char **m;
-	char **find;
 	char **f;
+	file_list *l;
 	char *types[] = { type, NULL };
 	int i = 0, NumItems;
 	int citem = 0;
-	int mode = 0;
 	
-	if (!stricmp(type, ".plr"))
-		mode = FILE_PLAYER_MODE;
-	else if (!stricmp(type, ".dem"))
-		mode = FILE_DEMO_MODE;
+	MALLOC(l, file_list, 1);
+	if (!l)
+		return 0;
 
-	find = PHYSFSX_findFiles((mode == FILE_DEMO_MODE) ? DEMO_DIR : (((mode == FILE_PLAYER_MODE) && GameArg.SysUsePlayersDir) ? "Players/" : ""), types);
-	if (!find)
+	l->mode = 0;
+	if (!stricmp(type, ".plr"))
+		l->mode = FILE_PLAYER_MODE;
+	else if (!stricmp(type, ".dem"))
+		l->mode = FILE_DEMO_MODE;
+
+	l->list = PHYSFSX_findFiles((l->mode == FILE_DEMO_MODE) ? DEMO_DIR : (((l->mode == FILE_PLAYER_MODE) && GameArg.SysUsePlayersDir) ? "Players/" : ""), types);
+	if (!l->list)
+	{
+		d_free(l);
 		return 0;	// memory error
-	if ( !*find && (mode == FILE_DEMO_MODE) && (citem > -1) )
+	}
+	if ( !*l->list && (l->mode == FILE_DEMO_MODE) && (citem > -1) )
 	{
 		nm_messagebox( NULL, 1, TXT_OK, "%s %s\n%s", TXT_NO_DEMO_FILES, TXT_USE_F5, TXT_TO_CREATE_ONE);
-		PHYSFS_freeList(find);
+		PHYSFS_freeList(l->list);
+		d_free(l);
 		return 0;
 	}
-	else if ( !*find && (mode == FILE_PLAYER_MODE) )	{
+	else if ( !*l->list && (l->mode == FILE_PLAYER_MODE) )	{
 		strcpy(filename, TXT_CREATE_NEW);	// make a new player without showing listbox
-		PHYSFS_freeList(find);
+		PHYSFS_freeList(l->list);
+		d_free(l);
 		return 0;
 	}
-	else if ( !*find )	{
+	else if ( !*l->list )	{
 		nm_messagebox(NULL, 1, "Ok", "%s\n '%s' %s", TXT_NO_FILES_MATCHING, type, TXT_WERE_FOUND);
-		PHYSFS_freeList(find);
+		PHYSFS_freeList(l->list);
+		d_free(l);
 		return 0;
 	}	// else create a player file
 	
 	
-	for (NumItems = 0; find[NumItems] != NULL; NumItems++) {}
-	if (mode == FILE_PLAYER_MODE)
+	for (NumItems = 0; l->list[NumItems] != NULL; NumItems++) {}
+	if (l->mode == FILE_PLAYER_MODE)
 		NumItems++;
 
 	MALLOC(m, char *, NumItems);
 	if (m == NULL)
 	{
-		PHYSFS_freeList(find);
+		PHYSFS_freeList(l->list);
+		d_free(l);
 		return 0;
 	}
 
-	if (mode == FILE_PLAYER_MODE)
+	if (l->mode == FILE_PLAYER_MODE)
 		m[i++] = TXT_CREATE_NEW;
 
-	for (f = find; *f != NULL; f++)
+	for (f = l->list; *f != NULL; f++)
 	{
 		m[i++] = *f;
 
-		if (mode == FILE_PLAYER_MODE)
+		if (l->mode == FILE_PLAYER_MODE)
 		{
 			char *p;
 			
@@ -566,20 +583,21 @@ int get_filename(char *title, char *type, char *filename, int allow_abort_flag)
 	}
 
 	// Sort by name, except the <Create New Player> string if applicable
-	qsort(&m[mode == FILE_PLAYER_MODE ? 1 : 0], NumItems - (mode == FILE_PLAYER_MODE), sizeof(char *), (int (*)( const void *, const void * ))fname_sort_func);
+	qsort(&m[l->mode == FILE_PLAYER_MODE ? 1 : 0], NumItems - (l->mode == FILE_PLAYER_MODE), sizeof(char *), (int (*)( const void *, const void * ))fname_sort_func);
 
-	if (mode == FILE_PLAYER_MODE)
+	if (l->mode == FILE_PLAYER_MODE)
 		for ( i=0; i<NumItems; i++ )
 			if (!stricmp(Players[Player_num].callsign, m[i]) )
 				citem = i;
 
-	citem = newmenu_listbox1(title, NumItems, m, allow_abort_flag, citem, (int (*)(listbox *, d_event *, void *))filename_menu_handler, (void *)mode);
+	citem = newmenu_listbox1(title, NumItems, m, allow_abort_flag, citem, (int (*)(listbox *, d_event *, void *))filename_menu_handler, (void *)l->mode);
 
 	if ( citem > -1 )
-		strncpy( filename, m[citem] + (((mode == FILE_PLAYER_MODE) && m[citem][0]=='$')?1:0), PATH_MAX );
+		strncpy( filename, m[citem] + (((l->mode == FILE_PLAYER_MODE) && m[citem][0]=='$')?1:0), PATH_MAX );
 
-	PHYSFS_freeList(find);
+	PHYSFS_freeList(l->list);
 	d_free(m);
+	d_free(l);
 	
 	if (citem < 0)
 		return 0;	// aborted
