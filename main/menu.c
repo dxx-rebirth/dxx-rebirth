@@ -663,19 +663,48 @@ try_again:
 
 }
 
+void do_sound_menu();
+void input_config();
+void change_res();
+void do_graphics_menu();
+void do_misc_menu();
+
 int options_menuset(newmenu *menu, d_event *event, void *userdata)
 {
-	if (event->type != EVENT_IDLE)	// FIXME: Should become EVENT_ITEM_CHANGED later
-		return 0;
-	
-	if ( newmenu_get_citem(menu)==4)
+	switch (event->type)
 	{
-		gr_palette_set_gamma(newmenu_get_items(menu)[4].value);
+		case EVENT_IDLE:	// FIXME: Should become EVENT_ITEM_CHANGED later
+			if ( newmenu_get_citem(menu)==4)
+			{
+				gr_palette_set_gamma(newmenu_get_items(menu)[4].value);
+			}
+			return 0;	// for idle events
+			break;
+			
+		case EVENT_NEWMENU_SELECTED:
+			switch(newmenu_get_citem(menu))
+			{
+				case  0: do_sound_menu();		break;
+				case  2: input_config();		break;
+				case  5: change_res();			break;
+				case  6: do_graphics_menu();		break;
+				case  8: ReorderPrimary();		break;
+				case  9: ReorderSecondary();		break;
+				case 10: do_misc_menu();		break;
+			}
+			break;	// stay in menu until escape
+			
+		case EVENT_CLOSE:
+			write_player_file();
+			break;
+			
+			default:
+			return 0;
 	}
 
 	userdata++;		//kill warning
 	
-	return 0;
+	return 1;
 }
 
 int gcd(int a, int b)
@@ -779,29 +808,71 @@ int input_menuset(newmenu *menu, d_event *event, void *userdata)
 	int i;
 	int oc_type = PlayerCfg.ControlType;
 	newmenu_item *items = newmenu_get_items(menu);
+	int citem = newmenu_get_citem(menu);
 
-	if (event->type != EVENT_IDLE)	// FIXME: Should become EVENT_ITEM_CHANGED later
-		return 0;
-	
 	userdata = userdata;
 
-	for (i=0; i<4; i++ )
-		if (items[i].value) PlayerCfg.ControlType = i;
+	switch (event->type)
+	{
+		case EVENT_IDLE:	// FIXME: Should become EVENT_ITEM_CHANGED later
+			for (i=0; i<4; i++ )
+				if (items[i].value) PlayerCfg.ControlType = i;
+			
+			if (PlayerCfg.ControlType == 2) PlayerCfg.ControlType = CONTROL_MOUSE;
+			if (PlayerCfg.ControlType == 3) PlayerCfg.ControlType = CONTROL_JOYMOUSE;
+			
+			if (oc_type != PlayerCfg.ControlType) {
+				kc_set_controls();
+			}
+			
+			PlayerCfg.JoystickSensitivityX = items[10].value;
+			PlayerCfg.JoystickSensitivityY = items[11].value;
+			PlayerCfg.JoystickDeadzone = items[12].value;
+			PlayerCfg.MouseSensitivityX = items[15].value;
+			PlayerCfg.MouseSensitivityY = items[16].value;
+			PlayerCfg.MouseFilter = items[17].value;
+			return 0;	// for idle events
+			break;
+			
+		case EVENT_NEWMENU_SELECTED:
+			i = PlayerCfg.ControlType;
+			if (i == CONTROL_MOUSE) i = 2;
+			if (i == CONTROL_JOYMOUSE) i = 3;
 
-        if (PlayerCfg.ControlType == 2) PlayerCfg.ControlType = CONTROL_MOUSE;
-        if (PlayerCfg.ControlType == 3) PlayerCfg.ControlType = CONTROL_JOYMOUSE;
-
-	if (oc_type != PlayerCfg.ControlType) {
-		kc_set_controls();
+			switch (citem)
+			{
+				case 5:
+					kconfig(i, items[i].text);
+					break;
+				case 6:
+					kconfig(0, "KEYBOARD");
+					break;
+				case 7:
+					kconfig(4, "WEAPON KEYS");
+					break;
+				case 19:
+					show_help();
+					break;
+				case 20:
+					show_netgame_help();
+					break;
+				case 21:
+					show_newdemo_help();
+					break;
+			}
+			break;		// stay in menu
+			
+		default:
+			return 0;
 	}
 	
-	return 0;
+	return 1;
 }
 
 void input_config()
 {
 	newmenu_item m[22];
-	int i, i1 = 5, j;
+	int i;
 	int nitems = 22;
 
 	m[0].type = NM_TYPE_RADIO;  m[0].text = "KEYBOARD"; m[0].value = 0; m[0].group = 0;
@@ -827,54 +898,12 @@ void input_config()
 	m[20].type = NM_TYPE_MENU;   m[20].text = "NETGAME SYSTEM KEYS";
 	m[21].type = NM_TYPE_MENU;   m[21].text = "DEMO SYSTEM KEYS";
 
-	do {
+	i = PlayerCfg.ControlType;
+	if (i == CONTROL_MOUSE) i = 2;
+	if (i==CONTROL_JOYMOUSE) i = 3;
+	m[i].value = 1;
 
-		i = PlayerCfg.ControlType;
-		if (i == CONTROL_MOUSE) i = 2;
-		if (i==CONTROL_JOYMOUSE) i = 3;
-		m[i].value = 1;
-
-		i1 = newmenu_do1(NULL, TXT_CONTROLS, nitems, m, input_menuset, NULL, i1);
-
-		PlayerCfg.JoystickSensitivityX = m[10].value;
-		PlayerCfg.JoystickSensitivityY = m[11].value;
-		PlayerCfg.JoystickDeadzone = m[12].value;
-		PlayerCfg.MouseSensitivityX = m[15].value;
-		PlayerCfg.MouseSensitivityY = m[16].value;
-		PlayerCfg.MouseFilter = m[17].value;
-
-		for (j = 0; j <= 3; j++)
-			if (m[j].value)
-				PlayerCfg.ControlType = j;
-		i = PlayerCfg.ControlType;
-		if (PlayerCfg.ControlType == 2)
-			PlayerCfg.ControlType = CONTROL_MOUSE;
-		if (PlayerCfg.ControlType == 3)
-			PlayerCfg.ControlType = CONTROL_JOYMOUSE;
-
-		switch (i1) {
-		case 5:
-			kconfig(i, m[i].text);
-			break;
-		case 6:
-			kconfig(0, "KEYBOARD");
-			break;
-		case 7:
-			kconfig(4, "WEAPON KEYS");
-			break;
-		case 19:
-			show_help();
-			break;
-		case 20:
-			show_netgame_help();
-			break;
-		case 21:
-			show_newdemo_help();
-			break;
-		}
-
-	} while (i1>-1);
-
+	newmenu_do1(NULL, TXT_CONTROLS, nitems, m, input_menuset, NULL, 5);
 }
 
 void do_graphics_menu()
@@ -1067,45 +1096,29 @@ void do_multi_player_menu()
 void do_options_menu()
 {
 	newmenu_item m[11];
-	int i = 0;
 
-	do {
-		m[ 0].type = NM_TYPE_MENU;   m[ 0].text="Sound effects & music...";
-		m[ 1].type = NM_TYPE_TEXT;   m[ 1].text="";
-		m[ 2].type = NM_TYPE_MENU;   m[ 2].text=TXT_CONTROLS_;
-		m[ 3].type = NM_TYPE_TEXT;   m[ 3].text="";
+	m[ 0].type = NM_TYPE_MENU;   m[ 0].text="Sound effects & music...";
+	m[ 1].type = NM_TYPE_TEXT;   m[ 1].text="";
+	m[ 2].type = NM_TYPE_MENU;   m[ 2].text=TXT_CONTROLS_;
+	m[ 3].type = NM_TYPE_TEXT;   m[ 3].text="";
 
-		m[ 4].type = NM_TYPE_SLIDER;
-		m[ 4].text = TXT_BRIGHTNESS;
-		m[ 4].value = gr_palette_get_gamma();
-		m[ 4].min_value = 0;
-		m[ 4].max_value = 16;
+	m[ 4].type = NM_TYPE_SLIDER;
+	m[ 4].text = TXT_BRIGHTNESS;
+	m[ 4].value = gr_palette_get_gamma();
+	m[ 4].min_value = 0;
+	m[ 4].max_value = 16;
 
-		m[ 5].type = NM_TYPE_MENU;   m[ 5].text="Screen resolution...";
+	m[ 5].type = NM_TYPE_MENU;   m[ 5].text="Screen resolution...";
 #ifdef OGL
-		m[ 6].type = NM_TYPE_MENU;   m[ 6].text="Graphics Options...";
+	m[ 6].type = NM_TYPE_MENU;   m[ 6].text="Graphics Options...";
 #else
-		m[ 6].type = NM_TYPE_TEXT;   m[ 6].text="";
+	m[ 6].type = NM_TYPE_TEXT;   m[ 6].text="";
 #endif
 
-		m[ 7].type = NM_TYPE_TEXT;   m[ 7].text="";
-		m[ 8].type = NM_TYPE_MENU;   m[ 8].text="Primary autoselect ordering...";
-		m[ 9].type = NM_TYPE_MENU;   m[ 9].text="Secondary autoselect ordering...";
-		m[10].type = NM_TYPE_MENU;   m[10].text="Misc Options...";
+	m[ 7].type = NM_TYPE_TEXT;   m[ 7].text="";
+	m[ 8].type = NM_TYPE_MENU;   m[ 8].text="Primary autoselect ordering...";
+	m[ 9].type = NM_TYPE_MENU;   m[ 9].text="Secondary autoselect ordering...";
+	m[10].type = NM_TYPE_MENU;   m[10].text="Misc Options...";
 
-		i = newmenu_do1( NULL, TXT_OPTIONS, sizeof(m)/sizeof(*m), m, options_menuset, NULL, i );
-			
-		switch(i)       {
-			case  0: do_sound_menu();		break;
-			case  2: input_config();		break;
-			case  5: change_res();			break;
-			case  6: do_graphics_menu();		break;
-			case  8: ReorderPrimary();		break;
-			case  9: ReorderSecondary();		break;
-			case 10: do_misc_menu();		break;
-		}
-
-	} while( i>-1 );
-
-	write_player_file();
+	newmenu_do1( NULL, TXT_OPTIONS, sizeof(m)/sizeof(*m), m, options_menuset, NULL, 0 );
 }
