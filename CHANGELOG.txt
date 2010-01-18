@@ -1,5 +1,9 @@
 D1X-Rebirth Changelog
 
+20100118
+--------
+main/kconfig.c: Make kconfig menus into windows - allowing drawing of the game screen behind, changing of item to change while question mark flashing and clicking out of item change
+
 20100117
 --------
 main/menu.c: Respond to EVENT_NEWMENU_SELECTED for options_menuset and input_menuset, so the input menu will have THE event loop for kconfig
