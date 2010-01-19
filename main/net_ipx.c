@@ -25,6 +25,7 @@ COPYRIGHT 1993-1998 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 
 #include "strutil.h"
 #include "pstypes.h"
+#include "window.h"
 #include "args.h"
 #include "timer.h"
 #include "newmenu.h"
@@ -3934,94 +3935,122 @@ void net_ipx_do_refuse_stuff (IPX_sequence_packet *their)
 	}
 }
 
-void net_ipx_show_game_rules(int choice)
+static int show_game_rules_handler(window *wind, d_event *event, netgame_info *netgame)
 {
-	int done,k;
-	grs_canvas canvas;
+	int k;
 	int w = FSPACX(280), h = FSPACY(130);
 
-	gr_set_current_canvas(NULL);
+	switch (event->type)
+	{
+		case EVENT_IDLE:
+			timer_delay2(50);
+			
+			//see if redbook song needs to be restarted
+			RBACheckFinishedHook();
+			
+			k = key_inkey();
+			switch( k )	{
+				case KEY_PRINT_SCREEN:
+					save_screen_shot(0); k = 0;
+					break;
+				case KEY_ENTER:
+				case KEY_SPACEBAR:
+				case KEY_ESC:
+					window_close(wind);
+					break;
+			}
+			return 0;
+			break;
 
-	gr_init_sub_canvas(&canvas, &grd_curscreen->sc_canvas, (SWIDTH - FSPACX(320))/2, (SHEIGHT - FSPACY(200))/2, FSPACX(320), FSPACY(200));
-
-	game_flush_inputs();
-
-	done = 0;
-
-	while(!done)	{
-		timer_delay2(50);
-		gr_set_current_canvas(NULL);
+		case EVENT_DRAW:
+			gr_set_current_canvas(NULL);
 #ifdef OGL
-		gr_flip();
-		nm_draw_background1(NULL);
+			nm_draw_background1(NULL);
 #endif
-		nm_draw_background(((SWIDTH-w)/2)-BORDERX,((SHEIGHT-h)/2)-BORDERY,((SWIDTH-w)/2)+w+BORDERX,((SHEIGHT-h)/2)+h+BORDERY);
+			nm_draw_background(((SWIDTH-w)/2)-BORDERX,((SHEIGHT-h)/2)-BORDERY,((SWIDTH-w)/2)+w+BORDERX,((SHEIGHT-h)/2)+h+BORDERY);
+			
+			gr_set_current_canvas(window_get_canvas(wind));
+			
+			grd_curcanv->cv_font = MEDIUM3_FONT;
+			
+			gr_set_fontcolor(gr_find_closest_color_current(29,29,47),-1);
+			gr_string( 0x8000, FSPACY(35), "NETGAME INFO" );
+			
+			grd_curcanv->cv_font = GAME_FONT;
+			
+			
+			gr_printf( FSPACX( 25),FSPACY( 55), "Reactor Life:");
+			gr_printf( FSPACX( 25),FSPACY( 67), "Pakets per second:");
+			gr_printf( FSPACX( 25),FSPACY( 73), "Show All Players On Automap:");
+			
+			gr_printf( FSPACX( 25),FSPACY(100), "Allowed Objects");
+			gr_printf( FSPACX( 25),FSPACY(110), "Laser Upgrade:");
+			gr_printf( FSPACX( 25),FSPACY(116), "Quad Laser:");
+			gr_printf( FSPACX( 25),FSPACY(122), "Vulcan Cannon:");
+			gr_printf( FSPACX( 25),FSPACY(128), "Spreadfire Cannon:");
+			gr_printf( FSPACX( 25),FSPACY(134), "Plasma Cannon:");
+			gr_printf( FSPACX( 25),FSPACY(140), "Fusion Cannon:");
+			gr_printf( FSPACX(170),FSPACY(110), "Homing Missile:");
+			gr_printf( FSPACX(170),FSPACY(116), "Proximity Bomb:");
+			gr_printf( FSPACX(170),FSPACY(122), "Smart Missile:");
+			gr_printf( FSPACX(170),FSPACY(128), "Mega Missile:");
+			gr_printf( FSPACX( 25),FSPACY(150), "Invulnerability:");
+			gr_printf( FSPACX( 25),FSPACY(156), "Cloak:");
+			
+			gr_set_fontcolor(gr_find_closest_color_current(255,255,255),-1);
+			gr_printf( FSPACX(170),FSPACY( 55), "%i Min", netgame->control_invul_time/F1_0/60);
+			gr_printf( FSPACX(170),FSPACY( 67), "%i", netgame->PacketsPerSec);
+			gr_printf( FSPACX(170),FSPACY( 73), netgame->game_flags&NETGAME_FLAG_SHOW_MAP?"ON":"OFF");
+			
+			
+			gr_printf( FSPACX(130),FSPACY(110), netgame->AllowedItems&NETFLAG_DOLASER?"YES":"NO");
+			gr_printf( FSPACX(130),FSPACY(116), netgame->AllowedItems&NETFLAG_DOQUAD?"YES":"NO");
+			gr_printf( FSPACX(130),FSPACY(122), netgame->AllowedItems&NETFLAG_DOVULCAN?"YES":"NO");
+			gr_printf( FSPACX(130),FSPACY(128), netgame->AllowedItems&NETFLAG_DOSPREAD?"YES":"NO");
+			gr_printf( FSPACX(130),FSPACY(134), netgame->AllowedItems&NETFLAG_DOPLASMA?"YES":"NO");
+			gr_printf( FSPACX(130),FSPACY(140), netgame->AllowedItems&NETFLAG_DOFUSION?"YES":"NO");
+			gr_printf( FSPACX(275),FSPACY(110), netgame->AllowedItems&NETFLAG_DOHOMING?"YES":"NO");
+			gr_printf( FSPACX(275),FSPACY(116), netgame->AllowedItems&NETFLAG_DOPROXIM?"YES":"NO");
+			gr_printf( FSPACX(275),FSPACY(122), netgame->AllowedItems&NETFLAG_DOSMART?"YES":"NO");
+			gr_printf( FSPACX(275),FSPACY(128), netgame->AllowedItems&NETFLAG_DOMEGA?"YES":"NO");
+			gr_printf( FSPACX(130),FSPACY(150), netgame->AllowedItems&NETFLAG_DOINVUL?"YES":"NO");
+			gr_printf( FSPACX(130),FSPACY(156), netgame->AllowedItems&NETFLAG_DOCLOAK?"YES":"NO");
+			gr_set_current_canvas(NULL);
+			break;
 
-		gr_set_current_canvas(&canvas);
-
-		gr_set_fontcolor(gr_find_closest_color_current(29,29,47),-1);
-		grd_curcanv->cv_font = MEDIUM3_FONT;
-	
-		gr_string( 0x8000, FSPACY(35), "NETGAME INFO" );
-	
-		grd_curcanv->cv_font = GAME_FONT;
-	
-
-		gr_printf( FSPACX( 25),FSPACY( 55), "Reactor Life:");
-		gr_printf( FSPACX( 25),FSPACY( 67), "Pakets per second:");
-		gr_printf( FSPACX( 25),FSPACY( 73), "Show All Players On Automap:");
-
-		gr_printf( FSPACX( 25),FSPACY(100), "Allowed Objects");
-		gr_printf( FSPACX( 25),FSPACY(110), "Laser Upgrade:");
-		gr_printf( FSPACX( 25),FSPACY(116), "Quad Laser:");
-		gr_printf( FSPACX( 25),FSPACY(122), "Vulcan Cannon:");
-		gr_printf( FSPACX( 25),FSPACY(128), "Spreadfire Cannon:");
-		gr_printf( FSPACX( 25),FSPACY(134), "Plasma Cannon:");
-		gr_printf( FSPACX( 25),FSPACY(140), "Fusion Cannon:");
-		gr_printf( FSPACX(170),FSPACY(110), "Homing Missile:");
-		gr_printf( FSPACX(170),FSPACY(116), "Proximity Bomb:");
-		gr_printf( FSPACX(170),FSPACY(122), "Smart Missile:");
-		gr_printf( FSPACX(170),FSPACY(128), "Mega Missile:");
-		gr_printf( FSPACX( 25),FSPACY(150), "Invulnerability:");
-		gr_printf( FSPACX( 25),FSPACY(156), "Cloak:");
-
-		gr_set_fontcolor(gr_find_closest_color_current(255,255,255),-1);
-		gr_printf( FSPACX(170),FSPACY( 55), "%i Min", Active_ipx_games[choice].control_invul_time/F1_0/60);
-		gr_printf( FSPACX(170),FSPACY( 67), "%i", Active_ipx_games[choice].PacketsPerSec);
-		gr_printf( FSPACX(170),FSPACY( 73), Active_ipx_games[choice].game_flags&NETGAME_FLAG_SHOW_MAP?"ON":"OFF");
-
-
-		gr_printf( FSPACX(130),FSPACY(110), Active_ipx_games[choice].AllowedItems&NETFLAG_DOLASER?"YES":"NO");
-		gr_printf( FSPACX(130),FSPACY(116), Active_ipx_games[choice].AllowedItems&NETFLAG_DOQUAD?"YES":"NO");
-		gr_printf( FSPACX(130),FSPACY(122), Active_ipx_games[choice].AllowedItems&NETFLAG_DOVULCAN?"YES":"NO");
-		gr_printf( FSPACX(130),FSPACY(128), Active_ipx_games[choice].AllowedItems&NETFLAG_DOSPREAD?"YES":"NO");
-		gr_printf( FSPACX(130),FSPACY(134), Active_ipx_games[choice].AllowedItems&NETFLAG_DOPLASMA?"YES":"NO");
-		gr_printf( FSPACX(130),FSPACY(140), Active_ipx_games[choice].AllowedItems&NETFLAG_DOFUSION?"YES":"NO");
-		gr_printf( FSPACX(275),FSPACY(110), Active_ipx_games[choice].AllowedItems&NETFLAG_DOHOMING?"YES":"NO");
-		gr_printf( FSPACX(275),FSPACY(116), Active_ipx_games[choice].AllowedItems&NETFLAG_DOPROXIM?"YES":"NO");
-		gr_printf( FSPACX(275),FSPACY(122), Active_ipx_games[choice].AllowedItems&NETFLAG_DOSMART?"YES":"NO");
-		gr_printf( FSPACX(275),FSPACY(128), Active_ipx_games[choice].AllowedItems&NETFLAG_DOMEGA?"YES":"NO");
-		gr_printf( FSPACX(130),FSPACY(150), Active_ipx_games[choice].AllowedItems&NETFLAG_DOINVUL?"YES":"NO");
-		gr_printf( FSPACX(130),FSPACY(156), Active_ipx_games[choice].AllowedItems&NETFLAG_DOCLOAK?"YES":"NO");
-
-		//see if redbook song needs to be restarted
-		RBACheckFinishedHook();
-		
-		k = key_inkey();
-		switch( k )	{
-			case KEY_PRINT_SCREEN:
-				save_screen_shot(0); k = 0;
-				break;
-			case KEY_ENTER:
-			case KEY_SPACEBAR:
-			case KEY_ESC:
-				done=1;
-				break;
-		}
+		case EVENT_CLOSE:
+			game_flush_inputs();
+			break;
+			
+		default:
+			return 0;
+			break;
 	}
+	
+	return 1;
+}
 
+void net_ipx_show_game_rules(netgame_info *netgame)
+{
 	gr_set_current_canvas(NULL);
+
 	game_flush_inputs();
+	
+	window_create(&grd_curscreen->sc_canvas, (SWIDTH - FSPACX(320))/2, (SHEIGHT - FSPACY(200))/2, FSPACX(320), FSPACY(200), 
+				  (int (*)(window *, d_event *, void *))show_game_rules_handler, netgame);
+}
+
+static int show_game_info_handler(newmenu *menu, d_event *event, netgame_info *netgame)
+{
+	if (event->type != EVENT_NEWMENU_SELECTED)
+		return 0;
+	
+	if (newmenu_get_citem(menu) != 1)
+		return 0;
+
+	net_ipx_show_game_rules(netgame);
+	
+	return 1;
 }
 
 int net_ipx_show_game_stats(int choice)
@@ -4029,37 +4058,36 @@ int net_ipx_show_game_stats(int choice)
 	char rinfo[512],*info=rinfo;
 	char *NetworkModeNames[]={"Anarchy","Team Anarchy","Robo Anarchy","Cooperative","Unknown"};
 	int c;
+	netgame_info *netgame = &Active_ipx_games[choice];
 
 	memset(info,0,sizeof(char)*256);
 
-	info+=sprintf(info,"\nConnected to\n\"%s\"\n",Active_ipx_games[choice].game_name);
+	info+=sprintf(info,"\nConnected to\n\"%s\"\n",netgame->game_name);
 
-	if(!Active_ipx_games[choice].mission_title)
+	if(!netgame->mission_title)
 		info+=sprintf(info,"Descent: First Strike");
 	else
-		info+=sprintf(info,Active_ipx_games[choice].mission_title);
+		info+=sprintf(info,netgame->mission_title);
 
-   if( Active_ipx_games[choice].levelnum >= 0 )
+   if( netgame->levelnum >= 0 )
    {
-	   info+=sprintf (info," - Lvl %i",Active_ipx_games[choice].levelnum);
+	   info+=sprintf (info," - Lvl %i",netgame->levelnum);
    }
    else
    {
-      info+=sprintf (info," - Lvl S%i",(Active_ipx_games[choice].levelnum*-1));
+      info+=sprintf (info," - Lvl S%i",(netgame->levelnum*-1));
    }
 
-	info+=sprintf (info,"\n\nDifficulty: %s",MENU_DIFFICULTY_TEXT(Active_ipx_games[choice].difficulty));
-	info+=sprintf (info,"\nGame Mode: %s",NetworkModeNames[Active_ipx_games[choice].gamemode]);
-	info+=sprintf (info,"\nPlayers: %i/%i",Active_ipx_games[choice].numplayers,Active_ipx_games[choice].max_numplayers);
+	info+=sprintf (info,"\n\nDifficulty: %s",MENU_DIFFICULTY_TEXT(netgame->difficulty));
+	info+=sprintf (info,"\nGame Mode: %s",NetworkModeNames[netgame->gamemode]);
+	info+=sprintf (info,"\nPlayers: %i/%i",netgame->numplayers,netgame->max_numplayers);
 
-	while (1){
-		c=nm_messagebox("WELCOME", 2, "JOIN GAME", "GAME INFO", rinfo);
-		if (c==0)
-			return 1;
-		else if (c==1)
-			net_ipx_show_game_rules(choice);
-		else
-			return 0;
-	}
+	c=nm_messagebox1("WELCOME", (int (*)(newmenu *, d_event *, void *))show_game_info_handler, netgame, 2, "JOIN GAME", "GAME INFO", rinfo);
+	if (c==0)
+		return 1;
+	//else if (c==1)
+	// handled in above callback
+	else
+		return 0;
 }
 #endif
