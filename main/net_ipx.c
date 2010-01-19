@@ -28,6 +28,7 @@ COPYRIGHT 1993-1999 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 #include <stdlib.h>
 
 #include "pstypes.h"
+#include "window.h"
 #include "strutil.h"
 #include "args.h"
 #include "timer.h"
@@ -5629,134 +5630,161 @@ void net_ipx_send_player_names (IPX_sequence_packet *their)
 	   ipxdrv_send_internetwork_packet_data((ubyte *)buf, count, their->player.protocol.ipx.server, their->player.protocol.ipx.node);
  }
 
-void net_ipx_show_game_rules(int choice)
+static int show_game_rules_handler(window *wind, d_event *event, netgame_info *netgame)
 {
-	int done,k;
-	grs_canvas canvas;
+	int k;
 	int w = FSPACX(280), h = FSPACY(170);
-
-	gr_set_current_canvas(NULL);
-
-	gr_init_sub_canvas(&canvas, &grd_curscreen->sc_canvas, (SWIDTH - FSPACX(320))/2, (SHEIGHT - FSPACY(200))/2, FSPACX(320), FSPACY(200));
-
-	game_flush_inputs();
-
-	done = 0;
-
-	while(!done)	{
-		timer_delay2(50);
-		gr_set_current_canvas(NULL);
-#ifdef OGL
-		gr_flip();
-		nm_draw_background1(NULL);
-#endif
-		nm_draw_background(((SWIDTH-w)/2)-BORDERX,((SHEIGHT-h)/2)-BORDERY,((SWIDTH-w)/2)+w+BORDERX,((SHEIGHT-h)/2)+h+BORDERY);
-
-		gr_set_current_canvas(&canvas);
-		
-		grd_curcanv->cv_font = MEDIUM3_FONT;
-
-		gr_set_fontcolor(gr_find_closest_color_current(29,29,47),-1);	
-		gr_string( 0x8000, FSPACY(15), "NETGAME INFO");
 	
-		grd_curcanv->cv_font = GAME_FONT;
-		gr_printf( FSPACX( 25),FSPACY( 35), "Reactor Life:");
-		gr_printf( FSPACX( 25),FSPACY( 41), "Max Time:");
-		gr_printf( FSPACX( 25),FSPACY( 47), "Kill Goal:");
-		gr_printf( FSPACX( 25),FSPACY( 53), "Short Packets:");
-		gr_printf( FSPACX( 25),FSPACY( 59), "Pakets per second:");
-		gr_printf( FSPACX(155),FSPACY( 35), "Invul when reappearing:");
-		gr_printf( FSPACX(155),FSPACY( 41), "Marker camera views:");
-		gr_printf( FSPACX(155),FSPACY( 47), "Indestructible lights:");
-		gr_printf( FSPACX(155),FSPACY( 53), "Bright player ships:");
-		gr_printf( FSPACX(155),FSPACY( 59), "Show enemy names on hud:");
-		gr_printf( FSPACX(155),FSPACY( 65), "Show players on automap:");
-		gr_printf( FSPACX( 25),FSPACY( 80), "Allowed Objects");
-		gr_printf( FSPACX( 25),FSPACY( 90), "Laser Upgrade:");
-		gr_printf( FSPACX( 25),FSPACY( 96), "Super Laser:");
-		gr_printf( FSPACX( 25),FSPACY(102), "Quad Laser:");
-		gr_printf( FSPACX( 25),FSPACY(108), "Vulcan Cannon:");
-		gr_printf( FSPACX( 25),FSPACY(114), "Gauss Cannon:");
-		gr_printf( FSPACX( 25),FSPACY(120), "Spreadfire Cannon:");
-		gr_printf( FSPACX( 25),FSPACY(126), "Helix Cannon:");
-		gr_printf( FSPACX( 25),FSPACY(132), "Plasma Cannon:");
-		gr_printf( FSPACX( 25),FSPACY(138), "Phoenix Cannon:");
-		gr_printf( FSPACX( 25),FSPACY(144), "Fusion Cannon:");
-		gr_printf( FSPACX( 25),FSPACY(150), "Omega Cannon:");
-		gr_printf( FSPACX(170),FSPACY( 90), "Flash Missile:");
-		gr_printf( FSPACX(170),FSPACY( 96), "Homing Missile:");
-		gr_printf( FSPACX(170),FSPACY(102), "Guided Missile:");
-		gr_printf( FSPACX(170),FSPACY(108), "Proximity Bomb:");
-		gr_printf( FSPACX(170),FSPACY(114), "Smart Mine:");
-		gr_printf( FSPACX(170),FSPACY(120), "Smart Missile:");
-		gr_printf( FSPACX(170),FSPACY(126), "Mercury Missile:");
-		gr_printf( FSPACX(170),FSPACY(132), "Mega Missile:");
-		gr_printf( FSPACX(170),FSPACY(138), "Earthshaker Missile:");
-		gr_printf( FSPACX( 25),FSPACY(160), "Afterburner:");
-		gr_printf( FSPACX( 25),FSPACY(166), "Headlight:");
-		gr_printf( FSPACX( 25),FSPACY(172), "Energy->Shield Conv:");
-		gr_printf( FSPACX(170),FSPACY(160), "Invulnerability:");
-		gr_printf( FSPACX(170),FSPACY(166), "Cloaking Device:");
-		gr_printf( FSPACX(170),FSPACY(172), "Ammo Rack:");
+	switch (event->type)
+	{
+		case EVENT_IDLE:
+			timer_delay2(50);
+			
+			//see if redbook song needs to be restarted
+			RBACheckFinishedHook();
+			
+			k = key_inkey();
+			switch( k )	{
+				case KEY_PRINT_SCREEN:
+					save_screen_shot(0); k = 0;
+					break;
+				case KEY_ENTER:
+				case KEY_SPACEBAR:
+				case KEY_ESC:
+					window_close(wind);
+					break;
+			}
+			return 0;
+			break;
 
-		gr_set_fontcolor(BM_XRGB(255,255,255),-1);
-		gr_printf( FSPACX(115),FSPACY( 35), "%i Min", Active_ipx_games[choice].control_invul_time/F1_0/60);
-		gr_printf( FSPACX(115),FSPACY( 41), "%i Min", Active_ipx_games[choice].PlayTimeAllowed*5);
-		gr_printf( FSPACX(115),FSPACY( 47), "%i", Active_ipx_games[choice].KillGoal);
-		gr_printf( FSPACX(115),FSPACY( 53), "%s", Active_ipx_games[choice].protocol.ipx.ShortPackets?"ON":"OFF");
-		gr_printf( FSPACX(115),FSPACY( 59), "%i", Active_ipx_games[choice].PacketsPerSec);
-		gr_printf( FSPACX(275),FSPACY( 35), Active_ipx_games[choice].InvulAppear?"ON":"OFF");
-		gr_printf( FSPACX(275),FSPACY( 41), Active_ipx_games[choice].Allow_marker_view?"ON":"OFF");
-		gr_printf( FSPACX(275),FSPACY( 47), Active_ipx_games[choice].AlwaysLighting?"ON":"OFF");
-		gr_printf( FSPACX(275),FSPACY( 53), Active_ipx_games[choice].BrightPlayers?"ON":"OFF");
-		gr_printf( FSPACX(275),FSPACY( 59), Active_ipx_games[choice].ShowAllNames?"ON":"OFF");
-		gr_printf( FSPACX(275),FSPACY( 65), Active_ipx_games[choice].game_flags & NETGAME_FLAG_SHOW_MAP?"ON":"OFF");
-		gr_printf( FSPACX(130),FSPACY( 90), Active_ipx_games[choice].AllowedItems & NETFLAG_DOLASER?"YES":"NO");
-		gr_printf( FSPACX(130),FSPACY( 96), Active_ipx_games[choice].AllowedItems & NETFLAG_DOSUPERLASER?"YES":"NO");
-		gr_printf( FSPACX(130),FSPACY(102), Active_ipx_games[choice].AllowedItems & NETFLAG_DOQUAD?"YES":"NO");
-		gr_printf( FSPACX(130),FSPACY(108), Active_ipx_games[choice].AllowedItems & NETFLAG_DOVULCAN?"YES":"NO");
-		gr_printf( FSPACX(130),FSPACY(114), Active_ipx_games[choice].AllowedItems & NETFLAG_DOGAUSS?"YES":"NO");
-		gr_printf( FSPACX(130),FSPACY(120), Active_ipx_games[choice].AllowedItems & NETFLAG_DOSPREAD?"YES":"NO");
-		gr_printf( FSPACX(130),FSPACY(126), Active_ipx_games[choice].AllowedItems & NETFLAG_DOHELIX?"YES":"NO");
-		gr_printf( FSPACX(130),FSPACY(132), Active_ipx_games[choice].AllowedItems & NETFLAG_DOPLASMA?"YES":"NO");
-		gr_printf( FSPACX(130),FSPACY(138), Active_ipx_games[choice].AllowedItems & NETFLAG_DOPHOENIX?"YES":"NO");
-		gr_printf( FSPACX(130),FSPACY(144), Active_ipx_games[choice].AllowedItems & NETFLAG_DOFUSION?"YES":"NO");
-		gr_printf( FSPACX(130),FSPACY(150), Active_ipx_games[choice].AllowedItems & NETFLAG_DOOMEGA?"YES":"NO");
-		gr_printf( FSPACX(275),FSPACY( 90), Active_ipx_games[choice].AllowedItems & NETFLAG_DOFLASH?"YES":"NO");
-		gr_printf( FSPACX(275),FSPACY( 96), Active_ipx_games[choice].AllowedItems & NETFLAG_DOHOMING?"YES":"NO");
-		gr_printf( FSPACX(275),FSPACY(102), Active_ipx_games[choice].AllowedItems & NETFLAG_DOGUIDED?"YES":"NO");
-		gr_printf( FSPACX(275),FSPACY(108), Active_ipx_games[choice].AllowedItems & NETFLAG_DOPROXIM?"YES":"NO");
-		gr_printf( FSPACX(275),FSPACY(114), Active_ipx_games[choice].AllowedItems & NETFLAG_DOSMARTMINE?"YES":"NO");
-		gr_printf( FSPACX(275),FSPACY(120), Active_ipx_games[choice].AllowedItems & NETFLAG_DOSMART?"YES":"NO");
-		gr_printf( FSPACX(275),FSPACY(126), Active_ipx_games[choice].AllowedItems & NETFLAG_DOMERCURY?"YES":"NO");
-		gr_printf( FSPACX(275),FSPACY(132), Active_ipx_games[choice].AllowedItems & NETFLAG_DOMEGA?"YES":"NO");
-		gr_printf( FSPACX(275),FSPACY(138), Active_ipx_games[choice].AllowedItems & NETFLAG_DOSHAKER?"YES":"NO");
-		gr_printf( FSPACX(130),FSPACY(160), Active_ipx_games[choice].AllowedItems & NETFLAG_DOAFTERBURNER?"YES":"NO");
-		gr_printf( FSPACX(130),FSPACY(166), Active_ipx_games[choice].AllowedItems & NETFLAG_DOHEADLIGHT?"YES":"NO");
-		gr_printf( FSPACX(130),FSPACY(172), Active_ipx_games[choice].AllowedItems & NETFLAG_DOCONVERTER?"YES":"NO");
-		gr_printf( FSPACX(275),FSPACY(160), Active_ipx_games[choice].AllowedItems & NETFLAG_DOINVUL?"YES":"NO");
-		gr_printf( FSPACX(275),FSPACY(166), Active_ipx_games[choice].AllowedItems & NETFLAG_DOCLOAK?"YES":"NO");
-		gr_printf( FSPACX(275),FSPACY(172), Active_ipx_games[choice].AllowedItems & NETFLAG_DOAMMORACK?"YES":"NO");
+		case EVENT_DRAW:
+			gr_set_current_canvas(NULL);
+#ifdef OGL
+			nm_draw_background1(NULL);
+#endif
+			nm_draw_background(((SWIDTH-w)/2)-BORDERX,((SHEIGHT-h)/2)-BORDERY,((SWIDTH-w)/2)+w+BORDERX,((SHEIGHT-h)/2)+h+BORDERY);
+			
+			gr_set_current_canvas(window_get_canvas(wind));
+			
+			grd_curcanv->cv_font = MEDIUM3_FONT;
+			
+			gr_set_fontcolor(gr_find_closest_color_current(29,29,47),-1);	
+			gr_string( 0x8000, FSPACY(15), "NETGAME INFO");
+			
+			grd_curcanv->cv_font = GAME_FONT;
+			gr_printf( FSPACX( 25),FSPACY( 35), "Reactor Life:");
+			gr_printf( FSPACX( 25),FSPACY( 41), "Max Time:");
+			gr_printf( FSPACX( 25),FSPACY( 47), "Kill Goal:");
+			gr_printf( FSPACX( 25),FSPACY( 53), "Short Packets:");
+			gr_printf( FSPACX( 25),FSPACY( 59), "Pakets per second:");
+			gr_printf( FSPACX(155),FSPACY( 35), "Invul when reappearing:");
+			gr_printf( FSPACX(155),FSPACY( 41), "Marker camera views:");
+			gr_printf( FSPACX(155),FSPACY( 47), "Indestructible lights:");
+			gr_printf( FSPACX(155),FSPACY( 53), "Bright player ships:");
+			gr_printf( FSPACX(155),FSPACY( 59), "Show enemy names on hud:");
+			gr_printf( FSPACX(155),FSPACY( 65), "Show players on automap:");
+			gr_printf( FSPACX( 25),FSPACY( 80), "Allowed Objects");
+			gr_printf( FSPACX( 25),FSPACY( 90), "Laser Upgrade:");
+			gr_printf( FSPACX( 25),FSPACY( 96), "Super Laser:");
+			gr_printf( FSPACX( 25),FSPACY(102), "Quad Laser:");
+			gr_printf( FSPACX( 25),FSPACY(108), "Vulcan Cannon:");
+			gr_printf( FSPACX( 25),FSPACY(114), "Gauss Cannon:");
+			gr_printf( FSPACX( 25),FSPACY(120), "Spreadfire Cannon:");
+			gr_printf( FSPACX( 25),FSPACY(126), "Helix Cannon:");
+			gr_printf( FSPACX( 25),FSPACY(132), "Plasma Cannon:");
+			gr_printf( FSPACX( 25),FSPACY(138), "Phoenix Cannon:");
+			gr_printf( FSPACX( 25),FSPACY(144), "Fusion Cannon:");
+			gr_printf( FSPACX( 25),FSPACY(150), "Omega Cannon:");
+			gr_printf( FSPACX(170),FSPACY( 90), "Flash Missile:");
+			gr_printf( FSPACX(170),FSPACY( 96), "Homing Missile:");
+			gr_printf( FSPACX(170),FSPACY(102), "Guided Missile:");
+			gr_printf( FSPACX(170),FSPACY(108), "Proximity Bomb:");
+			gr_printf( FSPACX(170),FSPACY(114), "Smart Mine:");
+			gr_printf( FSPACX(170),FSPACY(120), "Smart Missile:");
+			gr_printf( FSPACX(170),FSPACY(126), "Mercury Missile:");
+			gr_printf( FSPACX(170),FSPACY(132), "Mega Missile:");
+			gr_printf( FSPACX(170),FSPACY(138), "Earthshaker Missile:");
+			gr_printf( FSPACX( 25),FSPACY(160), "Afterburner:");
+			gr_printf( FSPACX( 25),FSPACY(166), "Headlight:");
+			gr_printf( FSPACX( 25),FSPACY(172), "Energy->Shield Conv:");
+			gr_printf( FSPACX(170),FSPACY(160), "Invulnerability:");
+			gr_printf( FSPACX(170),FSPACY(166), "Cloaking Device:");
+			gr_printf( FSPACX(170),FSPACY(172), "Ammo Rack:");
+			
+			gr_set_fontcolor(BM_XRGB(255,255,255),-1);
+			gr_printf( FSPACX(115),FSPACY( 35), "%i Min", netgame->control_invul_time/F1_0/60);
+			gr_printf( FSPACX(115),FSPACY( 41), "%i Min", netgame->PlayTimeAllowed*5);
+			gr_printf( FSPACX(115),FSPACY( 47), "%i", netgame->KillGoal);
+			gr_printf( FSPACX(115),FSPACY( 53), "%s", netgame->protocol.ipx.ShortPackets?"ON":"OFF");
+			gr_printf( FSPACX(115),FSPACY( 59), "%i", netgame->PacketsPerSec);
+			gr_printf( FSPACX(275),FSPACY( 35), netgame->InvulAppear?"ON":"OFF");
+			gr_printf( FSPACX(275),FSPACY( 41), netgame->Allow_marker_view?"ON":"OFF");
+			gr_printf( FSPACX(275),FSPACY( 47), netgame->AlwaysLighting?"ON":"OFF");
+			gr_printf( FSPACX(275),FSPACY( 53), netgame->BrightPlayers?"ON":"OFF");
+			gr_printf( FSPACX(275),FSPACY( 59), netgame->ShowAllNames?"ON":"OFF");
+			gr_printf( FSPACX(275),FSPACY( 65), netgame->game_flags & NETGAME_FLAG_SHOW_MAP?"ON":"OFF");
+			gr_printf( FSPACX(130),FSPACY( 90), netgame->AllowedItems & NETFLAG_DOLASER?"YES":"NO");
+			gr_printf( FSPACX(130),FSPACY( 96), netgame->AllowedItems & NETFLAG_DOSUPERLASER?"YES":"NO");
+			gr_printf( FSPACX(130),FSPACY(102), netgame->AllowedItems & NETFLAG_DOQUAD?"YES":"NO");
+			gr_printf( FSPACX(130),FSPACY(108), netgame->AllowedItems & NETFLAG_DOVULCAN?"YES":"NO");
+			gr_printf( FSPACX(130),FSPACY(114), netgame->AllowedItems & NETFLAG_DOGAUSS?"YES":"NO");
+			gr_printf( FSPACX(130),FSPACY(120), netgame->AllowedItems & NETFLAG_DOSPREAD?"YES":"NO");
+			gr_printf( FSPACX(130),FSPACY(126), netgame->AllowedItems & NETFLAG_DOHELIX?"YES":"NO");
+			gr_printf( FSPACX(130),FSPACY(132), netgame->AllowedItems & NETFLAG_DOPLASMA?"YES":"NO");
+			gr_printf( FSPACX(130),FSPACY(138), netgame->AllowedItems & NETFLAG_DOPHOENIX?"YES":"NO");
+			gr_printf( FSPACX(130),FSPACY(144), netgame->AllowedItems & NETFLAG_DOFUSION?"YES":"NO");
+			gr_printf( FSPACX(130),FSPACY(150), netgame->AllowedItems & NETFLAG_DOOMEGA?"YES":"NO");
+			gr_printf( FSPACX(275),FSPACY( 90), netgame->AllowedItems & NETFLAG_DOFLASH?"YES":"NO");
+			gr_printf( FSPACX(275),FSPACY( 96), netgame->AllowedItems & NETFLAG_DOHOMING?"YES":"NO");
+			gr_printf( FSPACX(275),FSPACY(102), netgame->AllowedItems & NETFLAG_DOGUIDED?"YES":"NO");
+			gr_printf( FSPACX(275),FSPACY(108), netgame->AllowedItems & NETFLAG_DOPROXIM?"YES":"NO");
+			gr_printf( FSPACX(275),FSPACY(114), netgame->AllowedItems & NETFLAG_DOSMARTMINE?"YES":"NO");
+			gr_printf( FSPACX(275),FSPACY(120), netgame->AllowedItems & NETFLAG_DOSMART?"YES":"NO");
+			gr_printf( FSPACX(275),FSPACY(126), netgame->AllowedItems & NETFLAG_DOMERCURY?"YES":"NO");
+			gr_printf( FSPACX(275),FSPACY(132), netgame->AllowedItems & NETFLAG_DOMEGA?"YES":"NO");
+			gr_printf( FSPACX(275),FSPACY(138), netgame->AllowedItems & NETFLAG_DOSHAKER?"YES":"NO");
+			gr_printf( FSPACX(130),FSPACY(160), netgame->AllowedItems & NETFLAG_DOAFTERBURNER?"YES":"NO");
+			gr_printf( FSPACX(130),FSPACY(166), netgame->AllowedItems & NETFLAG_DOHEADLIGHT?"YES":"NO");
+			gr_printf( FSPACX(130),FSPACY(172), netgame->AllowedItems & NETFLAG_DOCONVERTER?"YES":"NO");
+			gr_printf( FSPACX(275),FSPACY(160), netgame->AllowedItems & NETFLAG_DOINVUL?"YES":"NO");
+			gr_printf( FSPACX(275),FSPACY(166), netgame->AllowedItems & NETFLAG_DOCLOAK?"YES":"NO");
+			gr_printf( FSPACX(275),FSPACY(172), netgame->AllowedItems & NETFLAG_DOAMMORACK?"YES":"NO");
+			gr_set_current_canvas(NULL);
+			break;
 
-		//see if redbook song needs to be restarted
-		RBACheckFinishedHook();
-
-		k = key_inkey();
-		switch( k )	{
-			case KEY_PRINT_SCREEN:
-				save_screen_shot(0); k = 0;
-				break;
-			case KEY_ENTER:
-			case KEY_SPACEBAR:
-			case KEY_ESC:
-				done=1;
-				break;
-		}
+		case EVENT_CLOSE:
+			game_flush_inputs();
+			break;
+			
+		default:
+			return 0;
+			break;
 	}
+	
+	return 1;
+}
 
+void net_ipx_show_game_rules(netgame_info *netgame)
+{
 	gr_set_current_canvas(NULL);
 
 	game_flush_inputs();
+	
+	window_create(&grd_curscreen->sc_canvas, (SWIDTH - FSPACX(320))/2, (SHEIGHT - FSPACY(200))/2, FSPACX(320), FSPACY(200), 
+				  (int (*)(window *, d_event *, void *))show_game_rules_handler, netgame);
+}
+
+static int show_game_info_handler(newmenu *menu, d_event *event, netgame_info *netgame)
+{
+	if (event->type != EVENT_NEWMENU_SELECTED)
+		return 0;
+	
+	if (newmenu_get_citem(menu) != 1)
+		return 0;
+
+	net_ipx_show_game_rules(netgame);
+	
+	return 1;
 }
 
 int net_ipx_show_game_stats(int choice)
@@ -5764,28 +5792,27 @@ int net_ipx_show_game_stats(int choice)
 	char rinfo[512],*info=rinfo;
 	char *NetworkModeNames[]={"Anarchy","Team Anarchy","Robo Anarchy","Cooperative","Capture the Flag","Hoard","Team Hoard","Unknown"};
 	int c;
+	netgame_info *netgame = &Active_ipx_games[choice];
 
 	memset(info,0,sizeof(char)*256);
 
-	info+=sprintf(info,"\nConnected to\n\"%s\"\n",Active_ipx_games[choice].game_name);
+	info+=sprintf(info,"\nConnected to\n\"%s\"\n",netgame->game_name);
 
-	if(!Active_ipx_games[choice].mission_title)
+	if(!netgame->mission_title)
 		info+=sprintf(info,"Descent2: CounterStrike");
 	else
-		info+=sprintf(info,Active_ipx_games[choice].mission_title);
+		info+=sprintf(info,netgame->mission_title);
 
-	info+=sprintf (info," - Lvl %i",Active_ipx_games[choice].levelnum);
-	info+=sprintf (info,"\n\nDifficulty: %s",MENU_DIFFICULTY_TEXT(Active_ipx_games[choice].difficulty));
-	info+=sprintf (info,"\nGame Mode: %s",NetworkModeNames[Active_ipx_games[choice].gamemode]);
-	info+=sprintf (info,"\nPlayers: %i/%i",Active_ipx_games[choice].numconnected,Active_ipx_games[choice].max_numplayers);
+	info+=sprintf (info," - Lvl %i",netgame->levelnum);
+	info+=sprintf (info,"\n\nDifficulty: %s",MENU_DIFFICULTY_TEXT(netgame->difficulty));
+	info+=sprintf (info,"\nGame Mode: %s",NetworkModeNames[netgame->gamemode]);
+	info+=sprintf (info,"\nPlayers: %i/%i",netgame->numconnected,netgame->max_numplayers);
 
-	while (1){
-		c=nm_messagebox("WELCOME", 2, "JOIN GAME", "GAME INFO", rinfo);
-		if (c==0)
-			return 1;
-		else if (c==1)
-			net_ipx_show_game_rules(choice);
-		else
-			return 0;
-	}
+	c=nm_messagebox1("WELCOME", (int (*)(newmenu *, d_event *, void *))show_game_info_handler, netgame, 2, "JOIN GAME", "GAME INFO", rinfo);
+	if (c==0)
+		return 1;
+	//else if (c==1)
+	// handled in above callback
+	else
+		return 0;
 }
