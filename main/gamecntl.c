@@ -381,12 +381,12 @@ int pause_handler(window *wind, d_event *event, char *msg)
 {
 	int key;
 
-	if (event->type == EVENT_DRAW)
+	if (event->type == EVENT_WINDOW_DRAW)
 	{
 		show_boxed_message(msg, 1);
 		return 1;
 	}
-	else if (event->type == EVENT_CLOSE)
+	else if (event->type == EVENT_WINDOW_CLOSE)
 	{
 		game_flush_inputs();
 		reset_cockpit();

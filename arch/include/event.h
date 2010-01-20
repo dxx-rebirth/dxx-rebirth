@@ -23,8 +23,9 @@ typedef enum event_type
 {
 	EVENT_IDLE = 0,
 	EVENT_KEY_COMMAND,
-	EVENT_DRAW,
-	EVENT_CLOSE,
+	EVENT_WINDOW_ACTIVATED,
+	EVENT_WINDOW_DRAW,
+	EVENT_WINDOW_CLOSE,
 	EVENT_USER	// spare for use by modules that use windows (e.g. newmenu)
 } event_type;
 

@@ -29,6 +29,7 @@ static window *FirstWindow = NULL;
 window *window_create(grs_canvas *src, int x, int y, int w, int h, int (*event_callback)(window *wind, d_event *event, void *data), void *data)
 {
 	window *wind;
+	d_event event = { EVENT_WINDOW_ACTIVATED };
 	
 	wind = d_malloc(sizeof(window));
 	if (wind == NULL)
@@ -48,6 +49,7 @@ window *window_create(grs_canvas *src, int x, int y, int w, int h, int (*event_c
 		FrontWindow->next = wind;
 	wind->next = NULL;
 	FrontWindow = wind;
+	window_send_event(wind, &event);
 
 	return wind;
 }
@@ -56,13 +58,22 @@ int window_close(window *wind)
 {
 	d_event event;
 
-	event.type = EVENT_CLOSE;
+	event.type = EVENT_WINDOW_CLOSE;
 
 	if (!window_send_event(wind, &event))
 		return 0;	// user cancelled close (e.g. clicked 'No' to abort box)
 
 	if (wind == FrontWindow)
+	{
 		FrontWindow = wind->prev;
+		if (window_is_visible(wind))
+		{
+			window *w2;
+			event.type = EVENT_WINDOW_ACTIVATED;
+			if ((w2 = window_get_front()))
+				window_send_event(w2, &event);
+		}
+	}
 	if (wind == FirstWindow)
 		FirstWindow = wind->next;
 	if (wind->next)
@@ -97,6 +108,8 @@ window *window_get_next(window *wind)
 // Make wind the front window
 void window_select(window *wind)
 {
+	d_event event = { EVENT_WINDOW_ACTIVATED };
+
 	Assert (wind != NULL);
 
 	if (wind == FrontWindow)
@@ -111,11 +124,18 @@ void window_select(window *wind)
 	wind->prev = FrontWindow;
 	wind->next = NULL;
 	FrontWindow = wind;
+	
+	if (window_is_visible(wind))
+		window_send_event(wind, &event);
 }
 
 void window_set_visible(window *wind, int visible)
 {
+	d_event event = { EVENT_WINDOW_ACTIVATED };
+
 	wind->w_visible = visible;
+	if (visible && (wind == FrontWindow))
+		window_send_event(wind, &event);
 }
 
 int window_is_visible(window *wind)

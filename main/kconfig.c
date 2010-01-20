@@ -692,12 +692,12 @@ int kconfig_handler(window *wind, d_event *event, kc_menu *menu)
 	int mx, my, mz, x1, x2, y1, y2;
 #endif
 	
-	if (event->type == EVENT_DRAW)
+	if (event->type == EVENT_WINDOW_DRAW)
 	{
 		kconfig_sub_draw_table(menu);
 		return 1;
 	}
-	else if (event->type == EVENT_CLOSE)
+	else if (event->type == EVENT_WINDOW_CLOSE)
 	{
 		game_flush_inputs();
 		newmenu_hide_cursor();

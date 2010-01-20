@@ -570,7 +570,7 @@ int newmenu_handler(window *wind, d_event *event, newmenu *menu)
 #endif
 	int rval = 0;
 
-	if (event->type == EVENT_CLOSE)
+	if (event->type == EVENT_WINDOW_CLOSE)
 	{
 		// Don't allow cancel here - handle item selected events / key events instead
 		if (menu->subfunction)
@@ -590,7 +590,7 @@ int newmenu_handler(window *wind, d_event *event, newmenu *menu)
 		return 1;	// always close
 	}
 	
-	if (event->type == EVENT_DRAW)
+	if (event->type == EVENT_WINDOW_DRAW)
 	{
 		int ty;
 
@@ -1698,7 +1698,7 @@ int listbox_handler(window *wind, d_event *event, listbox *lb)
 #endif
 	int rval = 0;
 	
-	if (event->type == EVENT_CLOSE)
+	if (event->type == EVENT_WINDOW_CLOSE)
 	{
 		// Don't allow cancel here - handle item selected events / key events instead
 		if (lb->listbox_callback)
@@ -1708,7 +1708,7 @@ int listbox_handler(window *wind, d_event *event, listbox *lb)
 		return 1;	// always close
 	}
 
-	if (event->type == EVENT_DRAW)
+	if (event->type == EVENT_WINDOW_DRAW)
 	{
 #ifdef OGL
 		nm_draw_background1(NULL);

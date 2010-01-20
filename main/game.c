@@ -1189,7 +1189,7 @@ int game_handler(window *wind, d_event *event, void *data)
 
 	data = data;
 
-	if (event->type == EVENT_DRAW)
+	if (event->type == EVENT_WINDOW_DRAW)
 	{
 		if (force_cockpit_redraw) {			//screen need redrawing?
 			init_cockpit();
@@ -1199,7 +1199,7 @@ int game_handler(window *wind, d_event *event, void *data)
 
 		return 1;
 	}
-	else if (event->type == EVENT_CLOSE)
+	else if (event->type == EVENT_WINDOW_CLOSE)
 		// Will have abort dialog here...
 		return 1;
 

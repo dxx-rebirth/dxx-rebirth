@@ -1627,12 +1627,12 @@ int escort_menu_handler(window *wind, d_event *event, escort_menu *menu)
 {
 	int	key;
 
-	if (event->type == EVENT_DRAW)
+	if (event->type == EVENT_WINDOW_DRAW)
 	{
 		show_escort_menu(menu->msg);		//TXT_PAUSE);
 		return 1;
 	}
-	else if (event->type == EVENT_CLOSE)
+	else if (event->type == EVENT_WINDOW_CLOSE)
 	{
 		game_flush_inputs();
 		
