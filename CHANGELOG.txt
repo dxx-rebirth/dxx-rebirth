@@ -1,5 +1,9 @@
 D1X-Rebirth Changelog
 
+20100121
+--------
+main/newdemo.c: Removed the new Demo Interpolating code and added the improvements to the old one
+
 20100120
 --------
 arch/include/event.h, arch/sdl/event.c, arch/sdl/window.c, main/automap.c, main/game.c, main/gamecntl.c, main/kconfig.c, main/menu.c, main/net_ipx.c, main/net_udp.c, main/newmenu.c, main/state.c: Add EVENT_WINDOW_ACTIVATED, change EVENT_DRAW to EVENT_WINDOW_DRAW and EVENT_CLOSE to EVENT_WINDOW_CLOSE
