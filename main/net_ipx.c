@@ -3962,7 +3962,7 @@ static int show_game_rules_handler(window *wind, d_event *event, netgame_info *n
 			return 0;
 			break;
 
-		case EVENT_DRAW:
+		case EVENT_WINDOW_DRAW:
 			gr_set_current_canvas(NULL);
 #ifdef OGL
 			nm_draw_background1(NULL);
@@ -4018,7 +4018,7 @@ static int show_game_rules_handler(window *wind, d_event *event, netgame_info *n
 			gr_set_current_canvas(NULL);
 			break;
 
-		case EVENT_CLOSE:
+		case EVENT_WINDOW_CLOSE:
 			game_flush_inputs();
 			break;
 			

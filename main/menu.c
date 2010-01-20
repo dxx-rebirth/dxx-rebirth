@@ -694,7 +694,7 @@ int options_menuset(newmenu *menu, d_event *event, void *userdata)
 			}
 			break;	// stay in menu until escape
 			
-		case EVENT_CLOSE:
+		case EVENT_WINDOW_CLOSE:
 			write_player_file();
 			break;
 			

@@ -1,5 +1,9 @@
 D1X-Rebirth Changelog
 
+20100120
+--------
+arch/include/event.h, arch/sdl/event.c, arch/sdl/window.c, main/automap.c, main/game.c, main/gamecntl.c, main/kconfig.c, main/menu.c, main/net_ipx.c, main/net_udp.c, main/newmenu.c, main/state.c: Add EVENT_WINDOW_ACTIVATED, change EVENT_DRAW to EVENT_WINDOW_DRAW and EVENT_CLOSE to EVENT_WINDOW_CLOSE
+
 20100119
 --------
 main/net_ipx.c, main/net_udp.c: Make net_ipx_show_game_rules and net_udp_show_game_rules into windows

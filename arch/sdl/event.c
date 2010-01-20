@@ -88,7 +88,7 @@ void event_process(void)
 
 	window_send_event(wind, &event);
 
-	event.type = EVENT_DRAW;	// then draw all visible windows
+	event.type = EVENT_WINDOW_DRAW;	// then draw all visible windows
 	for (wind = window_get_first(); wind != NULL; wind = window_get_next(wind))
 		if (window_is_visible(wind))
 			window_send_event(wind, &event);
