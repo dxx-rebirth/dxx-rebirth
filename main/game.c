@@ -1182,96 +1182,119 @@ window *game_setup(void)
 
 void game_render_frame();
 
+window *Game_wind = NULL;
+
 // Event handler for the game
 int game_handler(window *wind, d_event *event, void *data)
 {
 	int player_shields;
 
+	switch (event->type)
+	{
+		case EVENT_IDLE:
+			// GAME LOOP!
+			Config_menu_flag = 0;
+			
+			player_shields = Players[Player_num].shields;
+			
+			calc_frame_time();
+			
+			ReadControls();		// will have its own event(s) eventually
+			if (window_get_front() != wind)
+				return 1;
+			
+			GameProcessFrame();
+			
+			//if the player is taking damage, give up guided missile control
+			if (Players[Player_num].shields != player_shields)
+				release_guided_missile(Player_num);
+			
+			//see if redbook song needs to be restarted
+			RBACheckFinishedHook();	// Handle RedBook Audio Repeating.
+			
+			if (Config_menu_flag)	{
+				if (!(Game_mode&GM_MULTI)) {palette_save(); reset_palette_add();	apply_modified_palette(); gr_palette_load( gr_palette ); }
+				do_options_menu();
+				if (!(Game_mode&GM_MULTI)) palette_restore();
+			}
+			
+			if ( (Function_mode != FMODE_GAME) && GameArg.SysAutoDemo && (Newdemo_state != ND_STATE_NORMAL) )	{
+				int choice, fmode;
+				fmode = Function_mode;
+				Function_mode = FMODE_GAME;
+				palette_save();
+				apply_modified_palette();
+				reset_palette_add();
+				gr_palette_load( gr_palette );
+				choice=nm_messagebox( NULL, 2, TXT_YES, TXT_NO, TXT_ABORT_AUTODEMO );
+				palette_restore();
+				Function_mode = fmode;
+				if (choice==0)	{
+					GameArg.SysAutoDemo = 0;
+					newdemo_stop_playback();
+					Function_mode = FMODE_MENU;
+				} else {
+					Function_mode = FMODE_GAME;
+				}
+			}
+			
+			if ( (Function_mode != FMODE_GAME ) && (Newdemo_state != ND_STATE_PLAYBACK ) && (Function_mode!=FMODE_EDITOR))
+			{
+				int choice, fmode;
+				fmode = Function_mode;
+				Function_mode = FMODE_GAME;
+				palette_save();
+				apply_modified_palette();
+				reset_palette_add();
+				gr_palette_load( gr_palette );
+				choice=nm_messagebox( NULL, 2, TXT_YES, TXT_NO, TXT_ABORT_GAME );
+				palette_restore();
+				Function_mode = fmode;
+				if (choice != 0)
+					Function_mode = FMODE_GAME;
+			}
+			
+			if (Function_mode != FMODE_GAME)
+				longjmp(LeaveGame,0);
+
+			return 0;
+			break;
+			
+		case EVENT_WINDOW_DRAW:
+			if (force_cockpit_redraw) {			//screen need redrawing?
+				init_cockpit();
+				force_cockpit_redraw=0;
+			}
+			game_render_frame();
+			break;
+			
+		case EVENT_WINDOW_CLOSE:
+			digi_stop_all();
+			
+			if ( (Newdemo_state == ND_STATE_RECORDING) || (Newdemo_state == ND_STATE_PAUSED) )
+				newdemo_stop_recording();
+			
+#ifdef NETWORK
+			multi_leave_game();
+#endif
+			
+			if ( Newdemo_state == ND_STATE_PLAYBACK )
+				newdemo_stop_playback();
+			
+			clear_warn_func(game_show_warning);     //don't use this func anymore
+			game_disable_cheats();
+			Game_wind = NULL;
+			break;
+			
+		default:
+			return 0;
+			break;
+	}
+
 	data = data;
-
-	if (event->type == EVENT_WINDOW_DRAW)
-	{
-		if (force_cockpit_redraw) {			//screen need redrawing?
-			init_cockpit();
-			force_cockpit_redraw=0;
-		}
-		game_render_frame();
-
-		return 1;
-	}
-	else if (event->type == EVENT_WINDOW_CLOSE)
-		// Will have abort dialog here...
-		return 1;
-
-	// GAME LOOP!
-	Config_menu_flag = 0;
-	
-	player_shields = Players[Player_num].shields;
-
-	calc_frame_time();
-
-	ReadControls();		// will have its own event(s) eventually
-	if (window_get_front() != wind)
-		return 1;
-
-	GameProcessFrame();
-	
-	//if the player is taking damage, give up guided missile control
-	if (Players[Player_num].shields != player_shields)
-		release_guided_missile(Player_num);
-
-	//see if redbook song needs to be restarted
-	RBACheckFinishedHook();	// Handle RedBook Audio Repeating.
-	
-	if (Config_menu_flag)	{
-		if (!(Game_mode&GM_MULTI)) {palette_save(); reset_palette_add();	apply_modified_palette(); gr_palette_load( gr_palette ); }
-		do_options_menu();
-		if (!(Game_mode&GM_MULTI)) palette_restore();
-	}
-	
-	if ( (Function_mode != FMODE_GAME) && GameArg.SysAutoDemo && (Newdemo_state != ND_STATE_NORMAL) )	{
-		int choice, fmode;
-		fmode = Function_mode;
-		Function_mode = FMODE_GAME;
-		palette_save();
-		apply_modified_palette();
-		reset_palette_add();
-		gr_palette_load( gr_palette );
-		choice=nm_messagebox( NULL, 2, TXT_YES, TXT_NO, TXT_ABORT_AUTODEMO );
-		palette_restore();
-		Function_mode = fmode;
-		if (choice==0)	{
-			GameArg.SysAutoDemo = 0;
-			newdemo_stop_playback();
-			Function_mode = FMODE_MENU;
-		} else {
-			Function_mode = FMODE_GAME;
-		}
-	}
-	
-	if ( (Function_mode != FMODE_GAME ) && (Newdemo_state != ND_STATE_PLAYBACK ) && (Function_mode!=FMODE_EDITOR))
-	{
-		int choice, fmode;
-		fmode = Function_mode;
-		Function_mode = FMODE_GAME;
-		palette_save();
-		apply_modified_palette();
-		reset_palette_add();
-		gr_palette_load( gr_palette );
-		choice=nm_messagebox( NULL, 2, TXT_YES, TXT_NO, TXT_ABORT_GAME );
-		palette_restore();
-		Function_mode = fmode;
-		if (choice != 0)
-			Function_mode = FMODE_GAME;
-	}
-	
-	if (Function_mode != FMODE_GAME)
-		longjmp(LeaveGame,0);
 
 	return 1;
 }
-
-window *Game_wind = NULL;
 
 //	------------------------------------------------------------------------------------
 //this function is the game.  called when game mode selected.  runs until
@@ -1282,24 +1305,9 @@ void game()
 
 	if ( setjmp(LeaveGame)==0 ) {
 
-		while (1)
+		while (Game_wind)
 			event_process();
 	}
-
-	digi_stop_all();
-
-	if ( (Newdemo_state == ND_STATE_RECORDING) || (Newdemo_state == ND_STATE_PAUSED) )
-		newdemo_stop_recording();
-
-#ifdef NETWORK
-	multi_leave_game();
-#endif
-
-	if ( Newdemo_state == ND_STATE_PLAYBACK )
- 		newdemo_stop_playback();
-
-	clear_warn_func(game_show_warning);     //don't use this func anymore
-	game_disable_cheats();
 
 	window_close(Game_wind);
 }

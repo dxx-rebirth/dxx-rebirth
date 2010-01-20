@@ -381,51 +381,58 @@ int pause_handler(window *wind, d_event *event, char *msg)
 {
 	int key;
 
-	if (event->type == EVENT_WINDOW_DRAW)
+	switch (event->type)
 	{
-		show_boxed_message(msg, 1);
-		return 1;
-	}
-	else if (event->type == EVENT_WINDOW_CLOSE)
-	{
-		game_flush_inputs();
-		reset_cockpit();
-		palette_restore();
-		start_time();
-		if (EXT_MUSIC_ON)
-			ext_music_resume();
-		digi_resume_all();
-		d_free(msg);
-		
-		return 1;
-	}
-
-	timer_delay2(50);
-	
-	key = key_inkey();
-	
-	switch (key) {
-		case 0:
+		case EVENT_IDLE:
+			timer_delay2(50);
+			
+			key = key_inkey();
+			
+			switch (key) {
+				case 0:
+					break;
+				case KEY_ESC:
+					//Function_mode = FMODE_MENU;	// Don't like this, just press escape twice (kreatordxx)
+					window_close(wind);
+					break;
+				case KEY_F1:
+					show_help();
+					break;
+				case KEY_PAUSE:
+					window_close(wind);
+					break;
+				case KEY_ALTED+KEY_ENTER:
+				case KEY_ALTED+KEY_PADENTER:
+					gr_toggle_fullscreen();
+					break;
+				default:
+					return 0;
+					break;
+			}
+			
+			return 0;
 			break;
-		case KEY_ESC:
-			//Function_mode = FMODE_MENU;	// Don't like this, just press escape twice (kreatordxx)
-			window_close(wind);
+			
+		case EVENT_WINDOW_DRAW:
+			show_boxed_message(msg, 1);
 			break;
-		case KEY_F1:
-			show_help();
+			
+		case EVENT_WINDOW_CLOSE:
+			game_flush_inputs();
+			reset_cockpit();
+			palette_restore();
+			start_time();
+			if (EXT_MUSIC_ON)
+				ext_music_resume();
+			digi_resume_all();
+			d_free(msg);
 			break;
-		case KEY_PAUSE:
-			window_close(wind);
-			break;
-		case KEY_ALTED+KEY_ENTER:
-		case KEY_ALTED+KEY_PADENTER:
-			gr_toggle_fullscreen();
-			break;
+			
 		default:
 			return 0;
 			break;
 	}
-	
+
 	return 1;
 }
 

@@ -1623,27 +1623,10 @@ typedef struct escort_menu
 	char	msg[300];
 } escort_menu;
 
-int escort_menu_handler(window *wind, d_event *event, escort_menu *menu)
+int escort_menu_idle(window *wind, d_event *event, escort_menu *menu)
 {
 	int	key;
-
-	if (event->type == EVENT_WINDOW_DRAW)
-	{
-		show_escort_menu(menu->msg);		//TXT_PAUSE);
-		return 1;
-	}
-	else if (event->type == EVENT_WINDOW_CLOSE)
-	{
-		game_flush_inputs();
-		
-		palette_restore();
-		
-		start_time();
-		digi_resume_digi_sounds();
-
-		return 1;
-	}
-
+	
 	key = key_inkey();
 	
 	switch (key) {
@@ -1703,6 +1686,35 @@ int escort_menu_handler(window *wind, d_event *event, escort_menu *menu)
 			
 	}
 	
+	return 0;
+}
+
+int escort_menu_handler(window *wind, d_event *event, escort_menu *menu)
+{
+	switch (event->type)
+	{
+		case EVENT_IDLE:
+			return escort_menu_idle(wind, event, menu);
+			break;
+			
+		case EVENT_WINDOW_DRAW:
+			show_escort_menu(menu->msg);		//TXT_PAUSE);
+			break;
+			
+		case EVENT_WINDOW_CLOSE:
+			game_flush_inputs();
+			
+			palette_restore();
+			
+			start_time();
+			digi_resume_digi_sounds();
+			break;
+			
+		default:
+			return 0;
+			break;
+	}
+
 	return 1;
 }
 
