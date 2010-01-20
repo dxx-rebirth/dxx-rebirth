@@ -504,7 +504,7 @@ int get_item_height(kc_item *item)
 void nm_draw_background1(char * filename);
 void kc_drawquestion( kc_menu *menu, kc_item *item );
 
-void kconfig_sub_draw_table(kc_menu *menu)
+void kconfig_draw(kc_menu *menu)
 {
 	grs_canvas * save_canvas = grd_curcanv;
 	grs_font * save_font;
@@ -642,48 +642,13 @@ void kconfig_start_changing(kc_menu *menu)
 	menu->changing = 1;
 }
 
-int kconfig_handler(window *wind, d_event *event, kc_menu *menu)
+int kconfig_idle(window *wind, d_event *event, kc_menu *menu)
 {
 	grs_canvas * save_canvas = grd_curcanv;
 	int i,k;
 #ifdef NEWMENU_MOUSE
 	int mx, my, mz, x1, x2, y1, y2;
 #endif
-	
-	if (event->type == EVENT_WINDOW_DRAW)
-	{
-		kconfig_sub_draw_table(menu);
-		return 1;
-	}
-	else if (event->type == EVENT_WINDOW_CLOSE)
-	{
-		game_flush_inputs();
-		newmenu_hide_cursor();
-		if (menu->time_stopped)
-			start_time();
-		d_free(menu);
-		
-		// Update save values...
-		
-		for (i=0; i<NUM_KEY_CONTROLS; i++ ) 
-			PlayerCfg.KeySettings[0][i] = kc_keyboard[i].value;
-		
-		if ( CONTROL_USING_JOYSTICK )
-		{
-			for (i=0; i<NUM_JOYSTICK_CONTROLS; i++ ) 
-				PlayerCfg.KeySettings[CONTROL_JOYSTICK][i] = kc_joystick[i].value;
-		}
-		if ( CONTROL_USING_MOUSE )
-		{
-			for (i=0; i<NUM_MOUSE_CONTROLS; i++ ) 
-				PlayerCfg.KeySettings[CONTROL_MOUSE][i] = kc_mouse[i].value;
-		}
-		
-		for (i=0; i<NUM_D1X_CONTROLS; i++)
-			PlayerCfg.KeySettingsD1X[i] = kc_d1x[i].value;
-		
-		return 1;
-	}
 
 	if (menu->changing)
 		timer_delay(f0_1/10);
@@ -722,7 +687,7 @@ int kconfig_handler(window *wind, d_event *event, kc_menu *menu)
 			return 1;
 		}
 	}
-
+	
 #ifdef NETWORK
 	if ( !menu->time_stopped )
 		if (multi_menu_poll() == -1)
@@ -772,47 +737,47 @@ int kconfig_handler(window *wind, d_event *event, kc_menu *menu)
 				}
 			}
 			break;
-			case KEY_DELETE:
+		case KEY_DELETE:
 			menu->items[menu->citem].value=255;
 			break;
-			case KEY_UP: 		
-			case KEY_PAD8:
+		case KEY_UP: 		
+		case KEY_PAD8:
 #ifdef TABLE_CREATION
 			if (menu->items[menu->citem].u==-1) menu->items[menu->citem].u=find_next_item_up( menu->items,menu->nitems, menu->citem);
 #endif
 			menu->citem = menu->items[menu->citem].u; 
 			break;
-			case KEY_DOWN:
-			case KEY_PAD2:
+		case KEY_DOWN:
+		case KEY_PAD2:
 #ifdef TABLE_CREATION
 			if (menu->items[menu->citem].d==-1) menu->items[menu->citem].d=find_next_item_down( menu->items,menu->nitems, menu->citem);
 #endif
 			menu->citem = menu->items[menu->citem].d; 
 			break;
-			case KEY_LEFT:
-			case KEY_PAD4:
+		case KEY_LEFT:
+		case KEY_PAD4:
 #ifdef TABLE_CREATION
 			if (menu->items[menu->citem].l==-1) menu->items[menu->citem].l=find_next_item_left( menu->items,menu->nitems, menu->citem);
 #endif
 			menu->citem = menu->items[menu->citem].l; 
 			break;
-			case KEY_RIGHT:
-			case KEY_PAD6:
+		case KEY_RIGHT:
+		case KEY_PAD6:
 #ifdef TABLE_CREATION
 			if (menu->items[menu->citem].r==-1) menu->items[menu->citem].r=find_next_item_right( menu->items,menu->nitems, menu->citem);
 #endif
 			menu->citem = menu->items[menu->citem].r; 
 			break;
-			case KEY_ENTER:
-			case KEY_PADENTER:
+		case KEY_ENTER:
+		case KEY_PADENTER:
 			kconfig_start_changing(menu);
 			break;
-			case -2:	
-			case KEY_ESC:
+		case -2:	
+		case KEY_ESC:
 			window_close(wind);
 			break;
 #ifdef TABLE_CREATION
-			case KEY_F12:	{
+		case KEY_F12:	{
 				FILE * fp;
 				for (i=0; i<NUM_KEY_CONTROLS; i++ )	{
 					kc_keyboard[i].u = find_next_item_up( kc_keyboard,NUM_KEY_CONTROLS, i);
@@ -891,17 +856,17 @@ int kconfig_handler(window *wind, d_event *event, kc_menu *menu)
 			}
 			break;
 #endif
-			case 0:		// some other event
+		case 0:		// some other event
 			break;
-
-			default:
+			
+		default:
 			return 0;
 			break;
 	}
 	
 #ifdef NEWMENU_MOUSE
 	gr_set_current_canvas(window_get_canvas(wind));
-
+	
 	if ( (menu->mouse_state && !menu->omouse_state) || (menu->mouse_state && menu->omouse_state) ) {
 		int item_height;
 		
@@ -936,12 +901,60 @@ int kconfig_handler(window *wind, d_event *event, kc_menu *menu)
 			menu->changing = 0;
 			gr_set_fontcolor( BM_XRGB(28,28,28), BM_XRGB(0,0,0) );
 			game_flush_inputs();
-			return 1;
 		}
 	}
-
+	
 	gr_set_current_canvas(save_canvas);
 #endif // NEWMENU_MOUSE
+	
+	return 0;
+}
+
+int kconfig_handler(window *wind, d_event *event, kc_menu *menu)
+{
+	int i;
+	
+	switch (event->type)
+	{
+		case EVENT_IDLE:
+			return kconfig_idle(wind, event, menu);
+			break;
+			
+		case EVENT_WINDOW_DRAW:
+			kconfig_draw(menu);
+			break;
+			
+		case EVENT_WINDOW_CLOSE:
+			game_flush_inputs();
+			newmenu_hide_cursor();
+			if (menu->time_stopped)
+				start_time();
+			d_free(menu);
+			
+			// Update save values...
+			
+			for (i=0; i<NUM_KEY_CONTROLS; i++ ) 
+				PlayerCfg.KeySettings[0][i] = kc_keyboard[i].value;
+			
+			if ( CONTROL_USING_JOYSTICK )
+			{
+				for (i=0; i<NUM_JOYSTICK_CONTROLS; i++ ) 
+					PlayerCfg.KeySettings[CONTROL_JOYSTICK][i] = kc_joystick[i].value;
+			}
+			if ( CONTROL_USING_MOUSE )
+			{
+				for (i=0; i<NUM_MOUSE_CONTROLS; i++ ) 
+					PlayerCfg.KeySettings[CONTROL_MOUSE][i] = kc_mouse[i].value;
+			}
+			
+			for (i=0; i<NUM_D1X_CONTROLS; i++)
+				PlayerCfg.KeySettingsD1X[i] = kc_d1x[i].value;
+			break;
+			
+		default:
+			return 0;
+			break;
+	}
 	
 	return 1;
 }

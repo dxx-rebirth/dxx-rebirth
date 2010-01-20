@@ -549,117 +549,16 @@ int newmenu_get_citem(newmenu *menu)
 	return menu->citem;
 }
 
-int newmenu_handler(window *wind, d_event *event, newmenu *menu)
+int newmenu_idle(window *wind, d_event *event, newmenu *menu)
 {
-	int old_choice, i, tw, th, k = -1, sx, sy;
+	int old_choice, i, k = -1;
 	grs_canvas *menu_canvas = window_get_canvas(wind), *save_canvas = grd_curcanv;
-	int string_width, string_height, average_width;
 	char *Temp,TempVal;
 #ifdef NEWMENU_MOUSE
 	int mx=0, my=0, mz=0, x1 = 0, x2, y1, y2;
 #endif
 	int rval = 0;
-
-	if (event->type == EVENT_WINDOW_CLOSE)
-	{
-		// Don't allow cancel here - handle item selected events / key events instead
-		if (menu->subfunction)
-			(*menu->subfunction)(menu, event, menu->userdata);
-
-		newmenu_hide_cursor();
-		game_flush_inputs();
-		
-		if (menu->time_stopped)
-			start_time();
-		
-		if ( menu->sound_stopped )
-			digi_resume_digi_sounds();
-		
-		// d_free(menu);	// have to wait until newmenus use a separate event loop
-		
-		return 1;	// always close
-	}
 	
-	if (event->type == EVENT_WINDOW_DRAW)
-	{
-		int ty;
-
-		gr_set_current_canvas( NULL );
-#ifdef OGL
-		nm_draw_background1(menu->filename);
-#endif
-		if (menu->filename == NULL)
-			nm_draw_background(menu->x-(menu->is_scroll_box?FSPACX(5):0),menu->y,menu->x+menu->w,menu->y+menu->h);
-		
-		gr_set_current_canvas( menu_canvas );
-		
-		ty = BORDERY;
-		
-		if ( menu->title )	{
-			gr_set_curfont(HUGE_FONT);
-			gr_set_fontcolor( BM_XRGB(31,31,31), -1 );
-			gr_get_string_size(menu->title,&string_width,&string_height,&average_width );
-			tw = string_width;
-			th = string_height;
-			gr_printf( 0x8000, ty, menu->title );
-		}
-		
-		if ( menu->subtitle )	{
-			gr_set_curfont(MEDIUM3_FONT);
-			gr_set_fontcolor( BM_XRGB(21,21,21), -1 );
-			gr_get_string_size(menu->subtitle,&string_width,&string_height,&average_width );
-			tw = string_width;
-			th = (menu->title?th:0);
-			gr_printf( 0x8000, ty+th, menu->subtitle );
-		}
-		
-		if (menu->tiny_mode)
-			gr_set_curfont(GAME_FONT);
-		else 
-			gr_set_curfont(MEDIUM1_FONT);
-
-		// Redraw everything...
-		for (i=menu->scroll_offset; i<menu->max_displayable+menu->scroll_offset; i++ )
-		{
-			menu->items[i].y-=(((int)LINE_SPACING)*menu->scroll_offset);
-			draw_item( &menu->items[i], (i==menu->citem && !menu->all_text),menu->tiny_mode );
-			menu->items[i].y+=(((int)LINE_SPACING)*menu->scroll_offset);
-			
-		}
-		
-		if (menu->is_scroll_box)
-		{
-			menu->last_scroll_check=menu->scroll_offset;
-			gr_set_curfont(MEDIUM2_FONT);
-			
-			sy=menu->items[menu->scroll_offset].y-(((int)LINE_SPACING)*menu->scroll_offset);
-			sx=menu->items[menu->scroll_offset].x-FSPACX(11);
-			
-			
-			if (menu->scroll_offset!=0)
-				nm_rstring( FSPACX(11), sx, sy, UP_ARROW_MARKER );
-			else
-				nm_rstring( FSPACX(11), sx, sy, "  " );
-			
-			sy=menu->items[menu->scroll_offset+menu->max_displayable-1].y-(((int)LINE_SPACING)*menu->scroll_offset);
-			sx=menu->items[menu->scroll_offset+menu->max_displayable-1].x-FSPACX(11);
-			
-			if (menu->scroll_offset+menu->max_displayable<menu->nitems)
-				nm_rstring( FSPACX(11), sx, sy, DOWN_ARROW_MARKER );
-			else
-				nm_rstring( FSPACX(11), sx, sy, "  " );
-			
-		}
-		
-		// Only allow drawing over the top of the default stuff
-		if (menu->subfunction)
-			(*menu->subfunction)(menu, event, menu->userdata);
-		
-		gr_set_current_canvas(save_canvas);
-
-		return 1;
-	}
-
 	timer_delay2(50);
 	
 #ifdef NEWMENU_MOUSE
@@ -689,7 +588,7 @@ int newmenu_handler(window *wind, d_event *event, newmenu *menu)
 	}
 	
 	gr_set_current_canvas(menu_canvas);
-
+	
 	if (menu->tiny_mode)
 		gr_set_curfont(GAME_FONT);
 	else 
@@ -700,10 +599,10 @@ int newmenu_handler(window *wind, d_event *event, newmenu *menu)
 		if (k)
 		{
 			d_event_keycommand key_event;	// for now - will be passed through newmenu_handler later
-
+			
 			key_event.type = EVENT_KEY_COMMAND;
 			key_event.keycode = k;
-
+			
 			rval = (*menu->subfunction)(menu, (d_event *)&key_event, menu->userdata);
 			k = key_event.keycode;
 		}
@@ -880,7 +779,7 @@ int newmenu_handler(window *wind, d_event *event, newmenu *menu)
 				event->type = EVENT_NEWMENU_SELECTED;
 				if (menu->subfunction && (*menu->subfunction)(menu, event, menu->userdata))
 					return 1;
-
+				
 				menu->done = 1;
 				gr_set_current_canvas(save_canvas);
 				return 1;
@@ -1238,6 +1137,127 @@ int newmenu_handler(window *wind, d_event *event, newmenu *menu)
 			update_cursor( &menu->items[i],menu->scroll_offset);
 	
 	gr_set_current_canvas(save_canvas);
+
+	return 0;
+}
+
+int newmenu_draw(window *wind, d_event *event, newmenu *menu)
+{
+	grs_canvas *menu_canvas = window_get_canvas(wind), *save_canvas = grd_curcanv;
+	int tw, th, ty, sx, sy;
+	int i;
+	int string_width, string_height, average_width;
+	
+	gr_set_current_canvas( NULL );
+#ifdef OGL
+	nm_draw_background1(menu->filename);
+#endif
+	if (menu->filename == NULL)
+		nm_draw_background(menu->x-(menu->is_scroll_box?FSPACX(5):0),menu->y,menu->x+menu->w,menu->y+menu->h);
+	
+	gr_set_current_canvas( menu_canvas );
+	
+	ty = BORDERY;
+	
+	if ( menu->title )	{
+		gr_set_curfont(HUGE_FONT);
+		gr_set_fontcolor( BM_XRGB(31,31,31), -1 );
+		gr_get_string_size(menu->title,&string_width,&string_height,&average_width );
+		tw = string_width;
+		th = string_height;
+		gr_printf( 0x8000, ty, menu->title );
+	}
+	
+	if ( menu->subtitle )	{
+		gr_set_curfont(MEDIUM3_FONT);
+		gr_set_fontcolor( BM_XRGB(21,21,21), -1 );
+		gr_get_string_size(menu->subtitle,&string_width,&string_height,&average_width );
+		tw = string_width;
+		th = (menu->title?th:0);
+		gr_printf( 0x8000, ty+th, menu->subtitle );
+	}
+	
+	if (menu->tiny_mode)
+		gr_set_curfont(GAME_FONT);
+	else 
+		gr_set_curfont(MEDIUM1_FONT);
+	
+	// Redraw everything...
+	for (i=menu->scroll_offset; i<menu->max_displayable+menu->scroll_offset; i++ )
+	{
+		menu->items[i].y-=(((int)LINE_SPACING)*menu->scroll_offset);
+		draw_item( &menu->items[i], (i==menu->citem && !menu->all_text),menu->tiny_mode );
+		menu->items[i].y+=(((int)LINE_SPACING)*menu->scroll_offset);
+		
+	}
+	
+	if (menu->is_scroll_box)
+	{
+		menu->last_scroll_check=menu->scroll_offset;
+		gr_set_curfont(MEDIUM2_FONT);
+		
+		sy=menu->items[menu->scroll_offset].y-(((int)LINE_SPACING)*menu->scroll_offset);
+		sx=menu->items[menu->scroll_offset].x-FSPACX(11);
+		
+		
+		if (menu->scroll_offset!=0)
+			nm_rstring( FSPACX(11), sx, sy, UP_ARROW_MARKER );
+		else
+			nm_rstring( FSPACX(11), sx, sy, "  " );
+		
+		sy=menu->items[menu->scroll_offset+menu->max_displayable-1].y-(((int)LINE_SPACING)*menu->scroll_offset);
+		sx=menu->items[menu->scroll_offset+menu->max_displayable-1].x-FSPACX(11);
+		
+		if (menu->scroll_offset+menu->max_displayable<menu->nitems)
+			nm_rstring( FSPACX(11), sx, sy, DOWN_ARROW_MARKER );
+		else
+			nm_rstring( FSPACX(11), sx, sy, "  " );
+		
+	}
+	
+	// Only allow drawing over the top of the default stuff
+	if (menu->subfunction)
+		(*menu->subfunction)(menu, event, menu->userdata);
+	
+	gr_set_current_canvas(save_canvas);
+	
+	return 1;
+}
+
+int newmenu_handler(window *wind, d_event *event, newmenu *menu)
+{
+	switch (event->type)
+	{
+		case EVENT_IDLE:
+			return newmenu_idle(wind, event, menu);
+			break;
+			
+		case EVENT_WINDOW_DRAW:
+			return newmenu_draw(wind, event, menu);
+			break;
+			
+		case EVENT_WINDOW_CLOSE:
+			// Don't allow cancel here - handle item selected events / key events instead
+			if (menu->subfunction)
+				(*menu->subfunction)(menu, event, menu->userdata);
+			
+			newmenu_hide_cursor();
+			game_flush_inputs();
+			
+			if (menu->time_stopped)
+				start_time();
+			
+			if ( menu->sound_stopped )
+				digi_resume_digi_sounds();
+			
+			// d_free(menu);	// have to wait until newmenus use a separate event loop
+			break;	// always close
+			
+		default:
+			return 0;
+			break;
+	}
+	
 
 	return 1;
 }
@@ -1679,7 +1699,7 @@ void listbox_delete_item(listbox *lb, int item)
 	}
 }
 
-int listbox_handler(window *wind, d_event *event, listbox *lb)
+int listbox_idle(window *wind, d_event *event, listbox *lb)
 {
 	int i;
 	int ocitem, ofirst_item, key;
@@ -1688,57 +1708,6 @@ int listbox_handler(window *wind, d_event *event, listbox *lb)
 #endif
 	int rval = 0;
 	
-	if (event->type == EVENT_WINDOW_CLOSE)
-	{
-		// Don't allow cancel here - handle item selected events / key events instead
-		if (lb->listbox_callback)
-			(*lb->listbox_callback)(lb, event, lb->userdata);
-		
-		newmenu_hide_cursor();
-		return 1;	// always close
-	}
-
-	if (event->type == EVENT_WINDOW_DRAW)
-	{
-#ifdef OGL
-		nm_draw_background1(NULL);
-#endif
-		nm_draw_background( lb->box_x-BORDERX,lb->box_y-lb->title_height-BORDERY,lb->box_x+lb->box_w+BORDERX,lb->box_y+lb->height+BORDERY );
-		gr_set_curfont(MEDIUM3_FONT);
-		gr_string( 0x8000, lb->box_y - lb->title_height, lb->title );
-		
-		gr_setcolor( BM_XRGB( 0,0,0)  );
-		for (i=lb->first_item; i<lb->first_item+LB_ITEMS_ON_SCREEN; i++ )	{
-			int y = (i-lb->first_item)*LINE_SPACING+lb->box_y;
-			if ( i >= lb->nitems )	{
-				gr_setcolor( BM_XRGB(5,5,5));
-				gr_rect( lb->box_x + lb->box_w - FSPACX(1), y-FSPACY(1), lb->box_x + lb->box_w, y + LINE_SPACING);
-				gr_setcolor( BM_XRGB(2,2,2));
-				gr_rect( lb->box_x - FSPACX(1), y - FSPACY(1), lb->box_x, y + LINE_SPACING );
-				gr_setcolor( BM_XRGB(0,0,0));
-				gr_rect( lb->box_x, y - FSPACY(1), lb->box_x + lb->box_w - FSPACX(1), y + LINE_SPACING);
-			} else {
-				if ( i == lb->citem )	
-					gr_set_curfont(MEDIUM2_FONT);
-				else	
-					gr_set_curfont(MEDIUM1_FONT);
-				gr_setcolor( BM_XRGB(5,5,5));
-				gr_rect( lb->box_x + lb->box_w - FSPACX(1), y-FSPACY(1), lb->box_x + lb->box_w, y + LINE_SPACING);
-				gr_setcolor( BM_XRGB(2,2,2));
-				gr_rect( lb->box_x - FSPACX(1), y - FSPACY(1), lb->box_x, y + LINE_SPACING );
-				gr_setcolor( BM_XRGB(0,0,0));
-				gr_rect( lb->box_x, y - FSPACY(1), lb->box_x + lb->box_w - FSPACX(1), y + LINE_SPACING);
-				gr_string( lb->box_x+FSPACX(5), y, lb->item[i]  );
-			}
-		}
-		
-		// Only allow drawing over the top of the default stuff
-		if ( lb->listbox_callback )
-			(*lb->listbox_callback)(lb, event, lb->userdata);
-		
-		return 1;
-	}
-
 	timer_delay2(50);
 	ocitem = lb->citem;
 	ofirst_item = lb->first_item;
@@ -1758,10 +1727,10 @@ int listbox_handler(window *wind, d_event *event, listbox *lb)
 		if (key)
 		{
 			d_event_keycommand key_event;	// somewhere to put the keycode for now
-
+			
 			key_event.type = EVENT_KEY_COMMAND;
 			key_event.keycode = key;
-
+			
 			rval = (*lb->listbox_callback)(lb, (d_event *)&key_event, lb->userdata);
 			key = key_event.keycode;
 		}
@@ -1815,8 +1784,8 @@ int listbox_handler(window *wind, d_event *event, listbox *lb)
 				return 1;
 			}
 			break;
-			case KEY_ENTER:
-			case KEY_PADENTER:
+		case KEY_ENTER:
+		case KEY_PADENTER:
 			// Tell callback, allow staying in menu
 			event->type = EVENT_NEWMENU_SELECTED;
 			if (lb->listbox_callback && (*lb->listbox_callback)(lb, event, lb->userdata))
@@ -1826,8 +1795,8 @@ int listbox_handler(window *wind, d_event *event, listbox *lb)
 			return 1;
 			break;
 			
-			case KEY_ALTED+KEY_ENTER:
-			case KEY_ALTED+KEY_PADENTER:
+		case KEY_ALTED+KEY_ENTER:
+		case KEY_ALTED+KEY_PADENTER:
 			gr_toggle_fullscreen();
 			break;
 			
@@ -1888,7 +1857,7 @@ int listbox_handler(window *wind, d_event *event, listbox *lb)
 			y2 = y1+h;
 			if ( ((mx > x1) && (mx < x2)) && ((my > y1) && (my < y2)) ) {
 				lb->citem = i;
-
+				
 				// Tell callback, allow staying in menu
 				event->type = EVENT_NEWMENU_SELECTED;
 				if (lb->listbox_callback && (*lb->listbox_callback)(lb, event, lb->userdata))
@@ -1901,7 +1870,78 @@ int listbox_handler(window *wind, d_event *event, listbox *lb)
 		}
 	}
 #endif
+
+	return 0;
+}
+
+int listbox_draw(window *wind, d_event *event, listbox *lb)
+{
+	int i;
+
+#ifdef OGL
+	nm_draw_background1(NULL);
+#endif
+	nm_draw_background( lb->box_x-BORDERX,lb->box_y-lb->title_height-BORDERY,lb->box_x+lb->box_w+BORDERX,lb->box_y+lb->height+BORDERY );
+	gr_set_curfont(MEDIUM3_FONT);
+	gr_string( 0x8000, lb->box_y - lb->title_height, lb->title );
 	
+	gr_setcolor( BM_XRGB( 0,0,0)  );
+	for (i=lb->first_item; i<lb->first_item+LB_ITEMS_ON_SCREEN; i++ )	{
+		int y = (i-lb->first_item)*LINE_SPACING+lb->box_y;
+		if ( i >= lb->nitems )	{
+			gr_setcolor( BM_XRGB(5,5,5));
+			gr_rect( lb->box_x + lb->box_w - FSPACX(1), y-FSPACY(1), lb->box_x + lb->box_w, y + LINE_SPACING);
+			gr_setcolor( BM_XRGB(2,2,2));
+			gr_rect( lb->box_x - FSPACX(1), y - FSPACY(1), lb->box_x, y + LINE_SPACING );
+			gr_setcolor( BM_XRGB(0,0,0));
+			gr_rect( lb->box_x, y - FSPACY(1), lb->box_x + lb->box_w - FSPACX(1), y + LINE_SPACING);
+		} else {
+			if ( i == lb->citem )	
+				gr_set_curfont(MEDIUM2_FONT);
+			else	
+				gr_set_curfont(MEDIUM1_FONT);
+			gr_setcolor( BM_XRGB(5,5,5));
+			gr_rect( lb->box_x + lb->box_w - FSPACX(1), y-FSPACY(1), lb->box_x + lb->box_w, y + LINE_SPACING);
+			gr_setcolor( BM_XRGB(2,2,2));
+			gr_rect( lb->box_x - FSPACX(1), y - FSPACY(1), lb->box_x, y + LINE_SPACING );
+			gr_setcolor( BM_XRGB(0,0,0));
+			gr_rect( lb->box_x, y - FSPACY(1), lb->box_x + lb->box_w - FSPACX(1), y + LINE_SPACING);
+			gr_string( lb->box_x+FSPACX(5), y, lb->item[i]  );
+		}
+	}
+	
+	// Only allow drawing over the top of the default stuff
+	if ( lb->listbox_callback )
+		(*lb->listbox_callback)(lb, event, lb->userdata);
+	
+	return 1;
+}
+
+int listbox_handler(window *wind, d_event *event, listbox *lb)
+{
+	switch (event->type)
+	{
+		case EVENT_IDLE:
+			return listbox_idle(wind, event, lb);
+			break;
+			
+		case EVENT_WINDOW_DRAW:
+			return listbox_draw(wind, event, lb);
+			break;
+			
+		case EVENT_WINDOW_CLOSE:
+			// Don't allow cancel here - handle item selected events / key events instead
+			if (lb->listbox_callback)
+				(*lb->listbox_callback)(lb, event, lb->userdata);
+			
+			newmenu_hide_cursor();
+			break;
+			
+		default:
+			return 0;
+			break;
+	}
+
 	return 1;
 }
 

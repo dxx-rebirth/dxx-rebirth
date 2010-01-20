@@ -351,40 +351,10 @@ extern int set_segment_depths(int start_seg, ubyte *segbuf);
 
 #define MAP_BACKGROUND_FILENAME "MAP.PCX"
 
-int automap_handler(window *wind, d_event *event, automap *am)
+int automap_idle(window *wind, d_event *event, automap *am)
 {
 	vms_matrix	tempm;
 	int c;
-
-	if (event->type == EVENT_WINDOW_DRAW)
-	{
-		draw_automap(am);
-		return 1;
-	}
-	else if (event->type == EVENT_WINDOW_CLOSE)
-	{
-#ifdef OGL
-		gr_free_bitmap_data(&am->automap_background);
-#endif
-		d_free(am->edges);
-		d_free(am->drawingListBright);
-		
-		game_flush_inputs();
-		
-		if (am->pause_game)
-		{
-			start_time();
-			digi_resume_digi_sounds();
-		}
-		
-		Screen_mode=-1; set_screen_mode(SCREEN_GAME);
-		init_cockpit();
-		last_drawn_cockpit = -1;
-		game_flush_inputs();
-		d_free(am);
-		window_set_visible(Game_wind, 1);
-		return 1;
-	}
 
 	if ( am->leave_mode==0 && Controls.automap_state && (timer_get_fixed_seconds()-am->entry_time)>LEAVE_TIME)
 		am->leave_mode = 1;
@@ -444,7 +414,7 @@ int automap_handler(window *wind, d_event *event, automap *am)
 					return 1;
 				}
 				break;
-
+				
 			case KEY_ALTED+KEY_F:           // Alt+F shows full map, if cheats enabled
 				if (Cheats_enabled) 	 
 				{
@@ -456,9 +426,9 @@ int automap_handler(window *wind, d_event *event, automap *am)
 				}
 				break;
 #ifndef NDEBUG
-				case KEY_DEBUGGED+KEY_F: 	{
+			case KEY_DEBUGGED+KEY_F: 	{
 					int i;
-
+					
 					for (i=0; i<=Highest_segment_index; i++ )
 						Automap_visited[i] = 1;
 					automap_build_edge_list(am);
@@ -469,20 +439,20 @@ int automap_handler(window *wind, d_event *event, automap *am)
 				break;
 #endif
 				
-				case KEY_F9:
+			case KEY_F9:
 				if (am->segment_limit > 1) 		{
 					am->segment_limit--;
 					adjust_segment_limit(am, am->segment_limit);
 				}
 				break;
-				case KEY_F10:
+			case KEY_F10:
 				if (am->segment_limit < am->max_segments_away) 	{
 					am->segment_limit++;
 					adjust_segment_limit(am, am->segment_limit);
 				}
 				break;
-				case KEY_ALTED+KEY_ENTER:
-				case KEY_ALTED+KEY_PADENTER:
+			case KEY_ALTED+KEY_ENTER:
+			case KEY_ALTED+KEY_PADENTER:
 				gr_toggle_fullscreen();
 				break;
 		}
@@ -536,6 +506,49 @@ int automap_handler(window *wind, d_event *event, automap *am)
 		FixedStepCalc();
 	}
 	am->t1 = am->t2;
+	
+	return 0;
+}
+
+int automap_handler(window *wind, d_event *event, automap *am)
+{
+	switch (event->type)
+	{
+		case EVENT_IDLE:
+			return automap_idle(wind, event, am);
+			break;
+			
+		case EVENT_WINDOW_DRAW:
+			draw_automap(am);
+			break;
+			
+		case EVENT_WINDOW_CLOSE:
+#ifdef OGL
+			gr_free_bitmap_data(&am->automap_background);
+#endif
+			d_free(am->edges);
+			d_free(am->drawingListBright);
+			
+			game_flush_inputs();
+			
+			if (am->pause_game)
+			{
+				start_time();
+				digi_resume_digi_sounds();
+			}
+			
+			Screen_mode=-1; set_screen_mode(SCREEN_GAME);
+			init_cockpit();
+			last_drawn_cockpit = -1;
+			game_flush_inputs();
+			d_free(am);
+			window_set_visible(Game_wind, 1);
+			break;
+
+		default:
+			return 0;
+			break;
+	}
 	
 	return 1;
 }

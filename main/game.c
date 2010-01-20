@@ -990,78 +990,100 @@ window *game_setup(void)
 
 void game_render_frame();
 
+window *Game_wind = NULL;
+
 // Event handler for the game
 int game_handler(window *wind, d_event *event, void *data)
 {
 	data = data;
 
-	if (event->type == EVENT_WINDOW_DRAW)
+	switch (event->type)
 	{
-		if (force_cockpit_redraw) {			//screen need redrawing?
-			init_cockpit();
-			force_cockpit_redraw=0;
-		}
-		game_render_frame();
-
-		return 1;
+		case EVENT_IDLE:
+			// GAME LOOP!
+			Config_menu_flag = 0;
+			
+			calc_frame_time();
+			
+			ReadControls();		// will have its own event(s) eventually
+			if (window_get_front() != wind)
+				return 1;
+			
+			GameProcessFrame();
+			
+			//see if redbook song needs to be restarted
+			RBACheckFinishedHook();	// Handle RedBook Audio Repeating.
+			
+			if (Config_menu_flag)	{
+				if (!(Game_mode&GM_MULTI)) palette_save();
+				do_options_menu();
+				if (!(Game_mode&GM_MULTI)) palette_restore();
+			}
+			
+			if ( (Function_mode != FMODE_GAME) && GameArg.SysAutoDemo && (Newdemo_state != ND_STATE_NORMAL) )	{
+				int choice, fmode;
+				fmode = Function_mode;
+				Function_mode = FMODE_GAME;
+				choice=nm_messagebox( NULL, 2, TXT_YES, TXT_NO, TXT_ABORT_AUTODEMO );
+				Function_mode = fmode;
+				if (choice==0)	{
+					GameArg.SysAutoDemo = 0;
+					newdemo_stop_playback();
+					Function_mode = FMODE_MENU;
+				} else {
+					Function_mode = FMODE_GAME;
+				}
+			}
+			
+			if ( (Function_mode != FMODE_GAME ) && (Newdemo_state != ND_STATE_PLAYBACK ) && (Function_mode!=FMODE_EDITOR))
+			{
+				int choice, fmode;
+				fmode = Function_mode;
+				Function_mode = FMODE_GAME;
+				choice=nm_messagebox( NULL, 2, TXT_YES, TXT_NO, TXT_ABORT_GAME );
+				Function_mode = fmode;
+				if (choice != 0)
+					Function_mode = FMODE_GAME;
+			}
+			
+			if (Function_mode != FMODE_GAME)
+				longjmp(LeaveGame,0);
+			return 0;
+			break;
+			
+		case EVENT_WINDOW_DRAW:
+			if (force_cockpit_redraw) {			//screen need redrawing?
+				init_cockpit();
+				force_cockpit_redraw=0;
+			}
+			game_render_frame();
+			break;
+			
+		case EVENT_WINDOW_CLOSE:
+			digi_stop_all();
+			
+			if ( (Newdemo_state == ND_STATE_RECORDING) || (Newdemo_state == ND_STATE_PAUSED) )
+				newdemo_stop_recording();
+			
+#ifdef NETWORK
+			multi_leave_game();
+#endif
+			
+			if ( Newdemo_state == ND_STATE_PLAYBACK )
+				newdemo_stop_playback();
+			
+			clear_warn_func(game_show_warning);     //don't use this func anymore
+			game_disable_cheats();
+			Game_wind = NULL;
+			break;
+			
+		default:
+			return 0;
+			break;
 	}
-	else if (event->type == EVENT_WINDOW_CLOSE)
-		// Will have abort dialog here...
-		return 1;
-
-	// GAME LOOP!
-	Config_menu_flag = 0;
-	
-	calc_frame_time();
-
-	ReadControls();		// will have its own event(s) eventually
-	if (window_get_front() != wind)
-		return 1;
-
-	GameProcessFrame();
-	
-	//see if redbook song needs to be restarted
-	RBACheckFinishedHook();	// Handle RedBook Audio Repeating.
-	
-	if (Config_menu_flag)	{
-		if (!(Game_mode&GM_MULTI)) palette_save();
-		do_options_menu();
-		if (!(Game_mode&GM_MULTI)) palette_restore();
-	}
-	
-	if ( (Function_mode != FMODE_GAME) && GameArg.SysAutoDemo && (Newdemo_state != ND_STATE_NORMAL) )	{
-		int choice, fmode;
-		fmode = Function_mode;
-		Function_mode = FMODE_GAME;
-		choice=nm_messagebox( NULL, 2, TXT_YES, TXT_NO, TXT_ABORT_AUTODEMO );
-		Function_mode = fmode;
-		if (choice==0)	{
-			GameArg.SysAutoDemo = 0;
-			newdemo_stop_playback();
-			Function_mode = FMODE_MENU;
-		} else {
-			Function_mode = FMODE_GAME;
-		}
-	}
-	
-	if ( (Function_mode != FMODE_GAME ) && (Newdemo_state != ND_STATE_PLAYBACK ) && (Function_mode!=FMODE_EDITOR)
- )	{
-		int choice, fmode;
-		fmode = Function_mode;
-		Function_mode = FMODE_GAME;
-		choice=nm_messagebox( NULL, 2, TXT_YES, TXT_NO, TXT_ABORT_GAME );
-		Function_mode = fmode;
-		if (choice != 0)
-			Function_mode = FMODE_GAME;
-	}
-	
-	if (Function_mode != FMODE_GAME)
-		longjmp(LeaveGame,0);
 
 	return 1;
 }
-
-window *Game_wind = NULL;
 
 //	------------------------------------------------------------------------------------
 //this function is the game.  called when game mode selected.  runs until
@@ -1072,24 +1094,9 @@ void game()
 
 	if ( setjmp(LeaveGame)==0 ) {
 
-		while (1)
+		while (Game_wind)
 			event_process();
 	}
-
-	digi_stop_all();
-
-	if ( (Newdemo_state == ND_STATE_RECORDING) || (Newdemo_state == ND_STATE_PAUSED) )
-		newdemo_stop_recording();
-
-#ifdef NETWORK
-	multi_leave_game();
-#endif
-
-	if ( Newdemo_state == ND_STATE_PLAYBACK )
- 		newdemo_stop_playback();
-
-	clear_warn_func(game_show_warning);     //don't use this func anymore
-	game_disable_cheats();
 	
 	window_close(Game_wind);
 }
