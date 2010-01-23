@@ -1489,6 +1489,14 @@ void HandleTestKey(int key)
 			network_leave_game();
 #endif
 			Function_mode = FMODE_EDITOR;
+
+			keyd_editor_mode = 1;
+			editor();
+			if ( Function_mode == FMODE_GAME ) {
+				Game_mode = GM_EDITOR;
+				editor_reset_stuff_on_level();
+				N_players = 1;
+			}
 			break;
 	case KEY_Q + KEY_SHIFTED + KEY_DEBUGGED:
 		{

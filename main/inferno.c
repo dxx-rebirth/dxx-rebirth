@@ -401,13 +401,6 @@ int main(int argc, char *argv[])
 #endif
 	
 				DoMenu();
-#ifdef EDITOR
-				if ( Function_mode == FMODE_EDITOR )	{
-					create_new_mine();
-					SetPlayerFromCurseg();
-					load_palette(NULL,1,0);
-				}
-#endif
 			break;
 			case FMODE_GAME:
 #ifdef EDITOR
@@ -421,13 +414,7 @@ int main(int argc, char *argv[])
 				break;
 #ifdef EDITOR
 			case FMODE_EDITOR:
-				keyd_editor_mode = 1;
-				editor();
-				if ( Function_mode == FMODE_GAME ) {
-					Game_mode = GM_EDITOR;
-					editor_reset_stuff_on_level();
-					N_players = 1;
-				}
+				Int3();	// meant to be calling editor from do_option, for now
 				break;
 #endif
 			default:

@@ -294,6 +294,18 @@ void do_option ( int select)
 		case MENU_EDITOR:
 			Function_mode = FMODE_EDITOR;
 			init_cockpit();
+
+			create_new_mine();
+			SetPlayerFromCurseg();
+			load_palette(NULL,1,0);
+		
+			keyd_editor_mode = 1;
+			editor();
+			if ( Function_mode == FMODE_GAME ) {
+				Game_mode = GM_EDITOR;
+				editor_reset_stuff_on_level();
+				N_players = 1;
+			}
 			break;
 		#endif
 		case MENU_VIEW_SCORES:
