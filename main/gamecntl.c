@@ -754,6 +754,14 @@ void HandleGameKey(int key)
 			case KEY_E + KEY_DEBUGGED:
 			network_leave_game();
 			Function_mode = FMODE_EDITOR;
+
+			keyd_editor_mode = 1;
+			editor();
+			if ( Function_mode == FMODE_GAME ) {
+				Game_mode = GM_EDITOR;
+				editor_reset_stuff_on_level();
+				N_players = 1;
+			}
 			break;
 			case KEY_C + KEY_SHIFTED + KEY_DEBUGGED:
 			if (!( Game_mode & GM_MULTI ))
