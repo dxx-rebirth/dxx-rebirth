@@ -341,12 +341,10 @@ static int old_weapon[2]		= {-1,-1};
 static int old_ammo_count[2]	= {-1,-1};
 static int Old_Omega_charge	= -1;
 static int old_laser_level		= -1;
-static int old_cloak				= 0;
 static int old_lives				= -1;
 static fix old_afterburner		= -1;
 static int old_bombcount		= 0;
 static int invulnerable_frame = 0;
-static int cloak_fade_state;		//0=steady, -1 fading out, 1 fading in 
 int weapon_box_user[2]={WBU_WEAPON,WBU_WEAPON};		//see WBU_ constants in gauges.h
 int weapon_box_states[2] = {WS_SET, WS_SET};
 fix weapon_box_fade_values[2];
@@ -1720,7 +1718,6 @@ void init_gauges()
 	old_energy			= -1;
 	old_shields			= -1;
 	old_flags			= -1;
-	old_cloak			= -1;
 	old_lives			= -1;
 	old_afterburner	= -1;
 	old_bombcount		= 0;
@@ -1729,8 +1726,6 @@ void init_gauges()
 	old_weapon[0] = old_weapon[1] = -1;
 	old_ammo_count[0] = old_ammo_count[1] = -1;
 	Old_Omega_charge = -1;
-
-	cloak_fade_state = 0;
 
 	weapon_box_user[0] = weapon_box_user[1] = WBU_WEAPON;
 }
@@ -1815,11 +1810,10 @@ void draw_shield_bar(int shield)
 
 #define CLOAK_FADE_WAIT_TIME  0x400
 
-void draw_player_ship(int cloak_state,int old_cloak_state,int x, int y)
+void draw_player_ship(int cloak_state,int x, int y)
 {
 	static fix cloak_fade_timer=0;
 	static int cloak_fade_value=GR_FADE_LEVELS-1;
-	static int refade = 0;
 	grs_bitmap *bm = NULL;
 
 #ifdef NETWORK
@@ -1835,66 +1829,55 @@ void draw_player_ship(int cloak_state,int old_cloak_state,int x, int y)
 		bm = &GameBitmaps[ GET_GAUGE_INDEX(GAUGE_SHIPS+Player_num) ];
 	}
 	
-
-	if (old_cloak_state==-1 && cloak_state)
-			cloak_fade_value=0;
-
-	if (!cloak_state) {
-		cloak_fade_value=GR_FADE_LEVELS-1;
-		cloak_fade_state = 0;
-	}
-
-	if (cloak_state==1 && old_cloak_state==0)
-		cloak_fade_state = -1;
-
-	if ((Players[Player_num].cloak_time+CLOAK_TIME_MAX-GameTime < F1_0*3 && //doing "about-to-uncloak" effect
-		Players[Player_num].cloak_time+CLOAK_TIME_MAX-GameTime > F1_0) &&
-		cloak_state)
+	if (cloak_state)
 	{
-		if (cloak_fade_state==0)
-			cloak_fade_state = 2;
-	}
-	
+		static int step = 0;
 
-	if (cloak_fade_state)
+		if (GameTime-Players[Player_num].cloak_time < F1_0)
+		{
+			step = -2;
+		}
+		else if (Players[Player_num].cloak_time+CLOAK_TIME_MAX-GameTime <= F1_0*3)
+		{
+			if (cloak_fade_value >= (GR_FADE_LEVELS-1))
+			{
+				step = -2;
+			}
+			else if (cloak_fade_value <= 0)
+			{
+				step = 2;
+			}
+		}
+		else
+		{
+			step = 0;
+			cloak_fade_value = 0;
+		}
+
 		cloak_fade_timer -= FrameTime;
 
-	while (cloak_fade_state && cloak_fade_timer < 0) {
-
-		cloak_fade_timer += CLOAK_FADE_WAIT_TIME;
-		cloak_fade_value += cloak_fade_state;
-
-		if (cloak_fade_value >= GR_FADE_LEVELS-1) {
-			cloak_fade_value = GR_FADE_LEVELS-1;
-			if (cloak_fade_state == 2 && cloak_state)
-				cloak_fade_state = -2;
-			else
-				cloak_fade_state = 0;
+		while (cloak_fade_timer < 0)
+		{
+			cloak_fade_timer += CLOAK_FADE_WAIT_TIME;
+			cloak_fade_value += step;
 		}
-		else if (cloak_fade_value <= 0) {
+		
+		if (cloak_fade_value > (GR_FADE_LEVELS-1))
+			cloak_fade_value = (GR_FADE_LEVELS-1);
+		if (cloak_fade_value <= 0)
 			cloak_fade_value = 0;
-			if (cloak_fade_state == -2)
-				cloak_fade_state = 2;
-			else
-				cloak_fade_state = 0;
-		}
 	}
-
-	// To fade out both pages in a paged mode.
-	if (refade) refade = 0;
-	else if (cloak_state && old_cloak_state && !cloak_fade_state && !refade) {
-		cloak_fade_state = -1;
-		refade = 1;
+	else
+	{
+		cloak_fade_timer = 0;
+		cloak_fade_value = GR_FADE_LEVELS-1;
 	}
 
 	gr_set_current_canvas(NULL);
-
 	hud_bitblt( HUD_SCALE_X(x), HUD_SCALE_Y(y), bm);
-
 	Gr_scanline_darkening_level = cloak_fade_value;
-	gr_rect(HUD_SCALE_X(x), HUD_SCALE_Y(y), HUD_SCALE_X(x+bm->bm_w), HUD_SCALE_Y(y+bm->bm_h));
+	gr_rect(HUD_SCALE_X(x-3), HUD_SCALE_Y(y-3), HUD_SCALE_X(x+bm->bm_w+3), HUD_SCALE_Y(y+bm->bm_h+3));
 	Gr_scanline_darkening_level = GR_FADE_LEVELS;
-
 	gr_set_current_canvas( NULL );
 }
 
@@ -2806,7 +2789,7 @@ void render_gauges()
 		}
 		draw_afterburner_bar(Afterburner_charge);
 
-		draw_player_ship(cloak, old_cloak, SHIP_GAUGE_X, SHIP_GAUGE_Y);
+		draw_player_ship(cloak, SHIP_GAUGE_X, SHIP_GAUGE_Y);
 
 		if (Players[Player_num].flags & PLAYER_FLAGS_INVULNERABLE) {
 			draw_invulnerable_ship();
@@ -2849,7 +2832,7 @@ void render_gauges()
 		}
 		sb_draw_afterburner();
 
-		draw_player_ship(cloak, old_cloak, SB_SHIP_GAUGE_X, SB_SHIP_GAUGE_Y);
+		draw_player_ship(cloak, SB_SHIP_GAUGE_X, SB_SHIP_GAUGE_Y);
 
 		if (Players[Player_num].flags & PLAYER_FLAGS_INVULNERABLE)
 		{
@@ -2901,8 +2884,6 @@ void render_gauges()
 				sb_show_score_added();
 		}
 	}
-
-	old_cloak = cloak;
 }
 
 //	---------------------------------------------------------------------------------------------------------
