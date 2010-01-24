@@ -1,5 +1,9 @@
 D1X-Rebirth Changelog
 
+20100124
+--------
+main/gauges.c: Rewrote code for showing Cloak-effect on Cockpit and Statusbar, because it became bugged with changed order of function calls do_cloaked_stuff() and render_gauges()
+
 20100123
 --------
 main/gamecntl.c, main/inferno.c, main/menu.c: Move the editor call out of the Function_mode loop, for later overhaul
