@@ -1,5 +1,9 @@
 D1X-Rebirth Changelog
 
+20100126
+--------
+main/newdemo.c: Once again improving Demo Interpolation code, regarding changes from rev993, reducing Viewport flicker and jitter
+
 20100124
 --------
 main/gauges.c: Rewrote code for showing Cloak-effect on Cockpit and Statusbar, because it became bugged with changed order of function calls do_cloaked_stuff() and render_gauges()

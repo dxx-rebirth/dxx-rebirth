@@ -2745,12 +2745,6 @@ void interpolate_frame(fix d_play, fix d_recorded)
 	object *cur_objs;
 	static fix InterpolStep = fl2f(.01);
 
-	InterpolStep -= FrameTime;
-	// This interpolating looks just more crappy on high FPS, so let's not even waste performance on it.
-	if (InterpolStep >= 0)
-		return;
-	InterpolStep = fl2f(.01);
-
 	factor = fixdiv(d_play, d_recorded);
 	if (factor > F1_0)
 		factor = F1_0;
@@ -2771,62 +2765,69 @@ void interpolate_frame(fix d_play, fix d_recorded)
 		return;
 	}
 
-	for (i = 0; i <= num_cur_objs; i++) {
-		for (j = 0; j <= Highest_object_index; j++) {
-			if (cur_objs[i].signature == Objects[j].signature) {
-				sbyte render_type = cur_objs[i].render_type;
-				fix delta_x, delta_y, delta_z;
+	InterpolStep -= FrameTime;
+	
+	// This interpolating looks just more crappy on high FPS, so let's not even waste performance on it.
+	if (InterpolStep <= 0)
+	{
+		for (i = 0; i <= num_cur_objs; i++) {
+			for (j = 0; j <= Highest_object_index; j++) {
+				if (cur_objs[i].signature == Objects[j].signature) {
+					sbyte render_type = cur_objs[i].render_type;
+					fix delta_x, delta_y, delta_z;
 
-				/*
-				 * HACK: Good 'ol Descent does not check for duplicate signatures when creating objects.
-				 * So in case our two objects have a huge distance, we assume they are different.
-				 * Interpolating would not make much sense in that case nevertheless.
-				 */
-				if (vm_vec_dist(&cur_objs[i].pos, &Objects[j].pos) > (Objects[j].size*2))
-					continue;
+					/*
+					 * HACK: Good 'ol Descent does not check for duplicate signatures when creating objects.
+					 * So in case our two objects have a huge distance, we assume they are different.
+					 * Interpolating would not make much sense in that case nevertheless.
+					 */
+					if (vm_vec_dist(&cur_objs[i].pos, &Objects[j].pos) > (Objects[j].size*2))
+						continue;
 
-				//  Extract the angles from the object orientation matrix.
-				//  Some of this code taken from ai_turn_towards_vector
-				//  Don't do the interpolation on certain render types which don't use an orientation matrix
+					//  Extract the angles from the object orientation matrix.
+					//  Some of this code taken from ai_turn_towards_vector
+					//  Don't do the interpolation on certain render types which don't use an orientation matrix
 
-				if (!((render_type == RT_LASER) || (render_type == RT_FIREBALL) || (render_type == RT_POWERUP))) {
+					if (!((render_type == RT_LASER) || (render_type == RT_FIREBALL) || (render_type == RT_POWERUP))) {
 
-					vms_vector  fvec1, fvec2, rvec1, rvec2;
-					fix         mag1;
+						vms_vector  fvec1, fvec2, rvec1, rvec2;
+						fix         mag1;
 
-					fvec1 = cur_objs[i].orient.fvec;
-					vm_vec_scale(&fvec1, F1_0-factor);
-					fvec2 = Objects[j].orient.fvec;
-					vm_vec_scale(&fvec2, factor);
-					vm_vec_add2(&fvec1, &fvec2);
-					mag1 = vm_vec_normalize_quick(&fvec1);
-					if (mag1 > F1_0/256) {
-						rvec1 = cur_objs[i].orient.rvec;
-						vm_vec_scale(&rvec1, F1_0-factor);
-						rvec2 = Objects[j].orient.rvec;
-						vm_vec_scale(&rvec2, factor);
-						vm_vec_add2(&rvec1, &rvec2);
-						vm_vec_normalize_quick(&rvec1); // Note: Doesn't matter if this is null, if null, vm_vector_2_matrix will just use fvec1
-						vm_vector_2_matrix(&cur_objs[i].orient, &fvec1, NULL, &rvec1);
+						fvec1 = cur_objs[i].orient.fvec;
+						vm_vec_scale(&fvec1, F1_0-factor);
+						fvec2 = Objects[j].orient.fvec;
+						vm_vec_scale(&fvec2, factor);
+						vm_vec_add2(&fvec1, &fvec2);
+						mag1 = vm_vec_normalize_quick(&fvec1);
+						if (mag1 > F1_0/256) {
+							rvec1 = cur_objs[i].orient.rvec;
+							vm_vec_scale(&rvec1, F1_0-factor);
+							rvec2 = Objects[j].orient.rvec;
+							vm_vec_scale(&rvec2, factor);
+							vm_vec_add2(&rvec1, &rvec2);
+							vm_vec_normalize_quick(&rvec1); // Note: Doesn't matter if this is null, if null, vm_vector_2_matrix will just use fvec1
+							vm_vector_2_matrix(&cur_objs[i].orient, &fvec1, NULL, &rvec1);
+						}
 					}
+
+					// Interpolate the object position.  This is just straight linear
+					// interpolation.
+
+					delta_x = Objects[j].pos.x - cur_objs[i].pos.x;
+					delta_y = Objects[j].pos.y - cur_objs[i].pos.y;
+					delta_z = Objects[j].pos.z - cur_objs[i].pos.z;
+
+					delta_x = fixmul(delta_x, factor);
+					delta_y = fixmul(delta_y, factor);
+					delta_z = fixmul(delta_z, factor);
+
+					cur_objs[i].pos.x += delta_x;
+					cur_objs[i].pos.y += delta_y;
+					cur_objs[i].pos.z += delta_z;
 				}
-
-				// Interpolate the object position.  This is just straight linear
-				// interpolation.
-
-				delta_x = Objects[j].pos.x - cur_objs[i].pos.x;
-				delta_y = Objects[j].pos.y - cur_objs[i].pos.y;
-				delta_z = Objects[j].pos.z - cur_objs[i].pos.z;
-
-				delta_x = fixmul(delta_x, factor);
-				delta_y = fixmul(delta_y, factor);
-				delta_z = fixmul(delta_z, factor);
-
-				cur_objs[i].pos.x += delta_x;
-				cur_objs[i].pos.y += delta_y;
-				cur_objs[i].pos.z += delta_z;
 			}
 		}
+		InterpolStep = fl2f(.01);
 	}
 
 	// get back to original position in the demo file.  Reread the current
