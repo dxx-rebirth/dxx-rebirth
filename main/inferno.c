@@ -344,6 +344,8 @@ int main(int argc, char *argv[])
 	con_printf( CON_DEBUG, "\nRunning game...\n" );
 	init_game();
 
+	Players[Player_num].callsign[0] = '\0';
+	
 	//	If built with editor, option to auto-load a level and quit game
 	//	to write certain data.
 	#ifdef	EDITOR
@@ -377,11 +379,7 @@ int main(int argc, char *argv[])
 				read_player_file();
 				WriteConfigFile();
 			}
-			else //pilot doesn't exist. get pilot.
-				RegisterPlayer();
 		}
-		else
-			RegisterPlayer();
 	}
 
 	Game_mode = GM_GAME_OVER;

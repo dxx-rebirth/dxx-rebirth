@@ -1264,7 +1264,10 @@ int newmenu_handler(window *wind, d_event *event, newmenu *menu)
 			break;
 			
 		default:
-			return 0;
+			if (menu->subfunction)
+				return (*menu->subfunction)(menu, event, menu->userdata);
+			else
+				return 0;
 			break;
 	}
 	
@@ -1947,7 +1950,10 @@ int listbox_handler(window *wind, d_event *event, listbox *lb)
 			break;
 			
 		default:
-			return 0;
+			if (lb->listbox_callback)
+				return (*lb->listbox_callback)(lb, event, lb->userdata);
+			else
+				return 0;
 			break;
 	}
 
