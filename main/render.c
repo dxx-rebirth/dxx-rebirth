@@ -877,11 +877,11 @@ int reset_perspective_depth(void)
 }
 #endif
 
-typedef struct window {
+typedef struct rect {
 	short left,top,right,bot;
-} window;
+} rect;
 
-ubyte code_window_point(fix x,fix y,window *w)
+ubyte code_window_point(fix x,fix y,rect *w)
 {
 	ubyte code=0;
 
@@ -933,7 +933,7 @@ int	lcnt_save,scnt_save;
 //@@short *persp_ptr;
 short render_pos[MAX_SEGMENTS];	//where in render_list does this segment appear?
 //ubyte no_render_flag[MAX_RENDER_SEGS];
-window render_windows[MAX_RENDER_SEGS];
+rect render_windows[MAX_RENDER_SEGS];
 
 short render_obj_list[MAX_RENDER_SEGS+N_EXTRA_OBJ_LISTS][OBJS_PER_SEG];
 
@@ -1700,7 +1700,7 @@ void build_segment_list(int start_seg_num, int window_num)
 		//while (scnt < ecnt) {
 		for (scnt=0;scnt < ecnt;scnt++) {
 			int rotated,segnum;
-			window *check_w;
+			rect *check_w;
 			short child_list[MAX_SIDES_PER_SEGMENT];		//list of ordered sides to process
 			int n_children;										//how many sides in child_list
 			segment *seg;
@@ -1816,7 +1816,7 @@ void build_segment_list(int start_seg_num, int window_num)
 
 						if (no_proj_flag || (!codes_and_3d && !codes_and_2d)) {	//maybe add this segment
 							int rp = render_pos[ch];
-							window *new_w = &render_windows[lcnt];
+							rect *new_w = &render_windows[lcnt];
 
 							if (no_proj_flag) *new_w = *check_w;
 							else {

@@ -1,5 +1,9 @@
 D2X-Rebirth Changelog
 
+20100127
+--------
+main/game.c, main/game.h, main/gamecntl.c, main/gameseq.c, main/kmatrix.c, main/multi.c, main/net_ipx.c, main/net_udp.c, main/newdemo.c, main/render.c: Remove all uses of LeaveGame jmpbuf to allow more changing of main loop
+
 20100126
 --------
 main/newdemo.c: Once again improving Demo Interpolation code, regarding changes from rev993, reducing Viewport flicker and jitter

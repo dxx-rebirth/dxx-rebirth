@@ -591,7 +591,21 @@ void HandleDemoKey(int key)
 			#endif
 			break;
 		case KEY_ESC:
-			Function_mode = FMODE_MENU;
+			if (GameArg.SysAutoDemo)
+			{
+				int choice;
+				palette_save();
+				apply_modified_palette();
+				reset_palette_add();
+				gr_palette_load( gr_palette );
+				choice=nm_messagebox( NULL, 2, TXT_YES, TXT_NO, TXT_ABORT_AUTODEMO );
+				palette_restore();
+				if (choice==0)
+					GameArg.SysAutoDemo = 0;
+				else
+					break;
+			}
+			newdemo_stop_playback();
 			break;
 		case KEY_UP:
 			Newdemo_vcr_state = ND_STATE_PLAYBACK;

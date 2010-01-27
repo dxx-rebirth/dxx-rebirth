@@ -515,10 +515,9 @@ void DoGameOver()
 	if (PLAYING_BUILTIN_MISSION)
 		scores_maybe_add_player(0);
 
-	Function_mode = FMODE_MENU;
 	Game_mode = GM_GAME_OVER;
-	longjmp( LeaveGame, 0 );		// Exit out of game loop
-
+	if (Game_wind)
+		window_close(Game_wind);		// Exit out of game loop
 }
 
 //update various information about the player
@@ -1426,12 +1425,11 @@ void DoEndGame(void)
 		scores_maybe_add_player(0);
 	}
 
-	Function_mode = FMODE_MENU;
-
 	Game_mode = GM_GAME_OVER;
 
 
-	longjmp( LeaveGame, 0 );		// Exit out of game loop
+	if (Game_wind)
+		window_close(Game_wind);		// Exit out of game loop
 }
 
 //called to go to the next level (if there is one)
@@ -1468,9 +1466,9 @@ void AdvanceLevel(int secret_flag)
 		if (result) // failed to sync
 		{
 			if (Current_level_num == Last_level)		//player has finished the game!
-				longjmp( LeaveGame, 0 );		// Exit out of game loop
-			else
-				return;
+				if (Game_wind)
+					window_close(Game_wind);		// Exit out of game loop
+			return;
 		}
 	}
 #endif

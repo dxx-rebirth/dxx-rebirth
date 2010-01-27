@@ -3974,7 +3974,8 @@ menu:
 				net_ipx_dump_player(Netgame.players[i].protocol.ipx.server, Netgame.players[i].protocol.ipx.node, DUMP_ABORTED);
 			}
 		}
-		longjmp(LeaveGame, 0);  
+		if (Game_wind)
+			window_close(Game_wind);
 	}
 	else if (choice != -2)
 		goto menu;
@@ -4007,7 +4008,8 @@ net_ipx_level_sync(void)
 	{
 		Players[Player_num].connected = CONNECT_DISCONNECTED;
 		net_ipx_send_endlevel_packet();
-		longjmp(LeaveGame, 0);
+		if (Game_wind)
+			window_close(Game_wind);
 	}
 	return(0);
 }
@@ -4126,7 +4128,8 @@ void net_ipx_join_game()
 
 	N_players = 0;
 
-	setjmp(LeaveGame);
+	// FIXME: Keep browsing window to go back to
+	//setjmp(LeaveGame);
 	
 	Network_send_objects = 0; 
 	Network_sending_extras=0;

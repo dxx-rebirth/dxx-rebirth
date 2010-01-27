@@ -20,9 +20,8 @@ COPYRIGHT 1993-1999 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 #ifndef _GAME_H
 #define _GAME_H
 
-#include <setjmp.h>
-
 #include "pstypes.h"
+#include "window.h"
 #include "vecmat.h"
 #include "object.h"
 
@@ -126,7 +125,6 @@ void calc_frame_time(void);
 void FixedStepCalc();
 int do_flythrough(object *obj,int first_time);
 
-extern jmp_buf LeaveGame;       // Do a long jump to this when game is over.
 extern int Difficulty_level;    // Difficulty level in 0..NDL-1, 0 = easiest, NDL-1 = hardest
 extern int Global_laser_firing_count;
 extern int Global_missile_firing_count;
