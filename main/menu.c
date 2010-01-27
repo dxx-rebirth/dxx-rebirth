@@ -122,36 +122,48 @@ extern void newmenu_close();
 extern void ReorderPrimary();
 extern void ReorderSecondary();
 
-int autodemo_menu_check(newmenu *menu, d_event *event, void *userdata )
+int main_menu_handler(newmenu *menu, d_event *event, int *menu_choice )
 {
 	int curtime;
 
-	menu = menu;
-	userdata = userdata;
-	
-	if (event->type == EVENT_KEY_COMMAND)
+	switch (event->type)
 	{
-		// Don't allow them to hit ESC in the main menu.
-		if (((d_event_keycommand *)event)->keycode==KEY_ESC)
-			return 1;
+		case EVENT_WINDOW_ACTIVATED:
+			if ( Players[Player_num].callsign[0]==0 )
+				RegisterPlayer();
+			else
+				keyd_time_when_last_pressed = timer_get_fixed_seconds();		// .. 20 seconds from now!
+			break;
+			
+		case EVENT_KEY_COMMAND:
+			// Don't allow them to hit ESC in the main menu.
+			if (((d_event_keycommand *)event)->keycode==KEY_ESC)
+				break;
+			else
+				return 0;
+			
+		case EVENT_IDLE:
+			curtime = timer_get_fixed_seconds();
+			if ( keyd_time_when_last_pressed+i2f(45) < curtime || GameArg.SysAutoDemo  )
+			{
+				if (curtime < 0) curtime = 0;
+				keyd_time_when_last_pressed = curtime;			// Reset timer so that disk won't thrash if no demos.
+				newdemo_start_playback(NULL);		// Randomly pick a file
+				if (Newdemo_state == ND_STATE_PLAYBACK)
+				{
+					Function_mode = FMODE_GAME;
+					return -2;
+				}
+			}
+			return 0;
+			break;
+			
+		default:
+			return 0;
+			break;
 	}
-	else if (event->type != EVENT_IDLE)
-		return 0;
 
-	curtime = timer_get_fixed_seconds();
-	if ( keyd_time_when_last_pressed+i2f(45) < curtime || GameArg.SysAutoDemo  )
-	{
-		if (curtime < 0) curtime = 0;
-		keyd_time_when_last_pressed = curtime;			// Reset timer so that disk won't thrash if no demos.
-		newdemo_start_playback(NULL);		// Randomly pick a file
-		if (Newdemo_state == ND_STATE_PLAYBACK)
-		{
-			Function_mode = FMODE_GAME;
-			return -2;
-		}
-	}
-
-	return 0;
+	return 1;
 }
 
 static int main_menu_choice = 0;
@@ -208,18 +220,12 @@ int DoMenu()
 	newmenu_item m[25];
 	int num_options = 0;
 
-	if ( Players[Player_num].callsign[0]==0 )	{
-		RegisterPlayer();
-		return 0;
-	}
-
 	do {
 		create_main_menu(m, menu_choice, &num_options); // may have to change, eg, maybe selected pilot and no save games.
 
-		keyd_time_when_last_pressed = timer_get_fixed_seconds();		// .. 20 seconds from now!
 		if (main_menu_choice < 0 )
 			main_menu_choice = 0;
-		main_menu_choice = newmenu_do2( "", NULL, num_options, m, autodemo_menu_check, NULL, main_menu_choice, Menu_pcx_name);
+		main_menu_choice = newmenu_do2( "", NULL, num_options, m, (int (*)(newmenu *, d_event *, void *))main_menu_handler, NULL, main_menu_choice, Menu_pcx_name);
 		if ( main_menu_choice > -1 ) do_option(menu_choice[main_menu_choice]);
 	} while( Function_mode==FMODE_MENU );
 
@@ -582,7 +588,7 @@ int get_filename(char *title, char *type, char *filename, int allow_abort_flag)
 			if (!stricmp(Players[Player_num].callsign, m[i]) )
 				citem = i;
 
-	citem = newmenu_listbox1(title, NumItems, m, allow_abort_flag, citem, (int (*)(listbox *, d_event *, void *))filename_menu_handler, (void *)l->mode);
+	citem = newmenu_listbox1(title, NumItems, m, allow_abort_flag, citem, (int (*)(listbox *, d_event *, void *))filename_menu_handler, l);
 
 	if ( citem > -1 )
 		strncpy( filename, m[citem] + (((l->mode == FILE_PLAYER_MODE) && m[citem][0]=='$')?1:0), PATH_MAX );

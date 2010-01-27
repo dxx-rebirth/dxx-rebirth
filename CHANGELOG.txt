@@ -3,6 +3,7 @@ D1X-Rebirth Changelog
 20100127
 --------
 main/game.c, main/game.h, main/gamecntl.c, main/gameseq.c, main/kmatrix.c, main/multi.c, main/net_ipx.c, main/net_udp.c, main/newdemo.c, main/render.c: Remove all uses of LeaveGame jmpbuf to allow more changing of main loop
+main/gameseq.c, main/inferno.c, main/menu.c, main/newmenu.c: Allow escape from player listbox if appropriate; call RegisterPlayer only from main menu for more flexibility; actually use file_list block so deleting players/demos doesn't crash it
 
 20100126
 --------

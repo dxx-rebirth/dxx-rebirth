@@ -604,17 +604,17 @@ int RegisterPlayer()
 do_menu_again:
 	;
 
-	if (!get_filename(TXT_SELECT_PILOT, ".plr", filename, allow_abort_flag))
-		goto do_menu_again;		// They hit Esc in file selector
-
-	if ( filename[0] == '<' )	{
-		// They selected 'create new pilot'
-		if (!MakeNewPlayerFile(allow_abort_flag))
-			//return 0;		// They hit Esc during enter name stage
-			goto do_menu_again;
-	} else {
-		strncpy(Players[Player_num].callsign,filename, CALLSIGN_LEN);
-		strlwr(Players[Player_num].callsign);
+	if (get_filename(TXT_SELECT_PILOT, ".plr", filename, allow_abort_flag))
+	{
+		if ( filename[0] == '<' )	{
+			// They selected 'create new pilot'
+			if (!MakeNewPlayerFile(allow_abort_flag))
+				//return 0;		// They hit Esc during enter name stage
+				goto do_menu_again;
+		} else {
+			strncpy(Players[Player_num].callsign,filename, CALLSIGN_LEN);
+			strlwr(Players[Player_num].callsign);
+		}
 	}
 
 	if (read_player_file() != EZERO)
