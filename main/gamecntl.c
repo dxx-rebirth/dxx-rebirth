@@ -448,7 +448,16 @@ void HandleDemoKey(int key)
 			Int3();
 			break;
 		case KEY_ESC:
-			Function_mode = FMODE_MENU;
+			if (GameArg.SysAutoDemo)
+			{
+				int choice;
+				choice = nm_messagebox( NULL, 2, TXT_YES, TXT_NO, TXT_ABORT_AUTODEMO );
+				if (choice == 0)
+					GameArg.SysAutoDemo = 0;
+				else
+					break;
+			}
+			newdemo_stop_playback();
 			break;
 		case KEY_UP:
 			Newdemo_vcr_state = ND_STATE_PLAYBACK;

@@ -33,6 +33,7 @@ COPYRIGHT 1993-1998 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 #include "key.h"
 #include "palette.h"
 #include "game.h"
+#include "window.h"
 #include "gamefont.h"
 #include "u_mem.h"
 #include "newmenu.h"
@@ -503,7 +504,8 @@ void kmatrix_view(int network)
 						multi_send_endlevel_packet();
 
 					multi_leave_game();
-					longjmp(LeaveGame, 0);
+					if (Game_wind)
+						window_close(Game_wind);
 					return;
 				}
 				break;

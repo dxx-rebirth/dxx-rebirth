@@ -436,10 +436,9 @@ void DoGameOver()
 #endif
 		scores_maybe_add_player(0);
 
-	Function_mode = FMODE_MENU;
 	Game_mode = GM_GAME_OVER;
-	longjmp( LeaveGame, 0 );		// Exit out of game loop
-
+	if (Game_wind)
+		window_close(Game_wind);		// Exit out of game loop
 }
 
 //update various information about the player
@@ -1018,10 +1017,11 @@ void PlayerFinishedLevel(int secret_flag)
 		if (PLAYING_BUILTIN_MISSION)
 #endif
 			scores_maybe_add_player(0);
-		longjmp( LeaveGame, 0 );		// Exit out of game loop
+		if (Game_wind)
+			window_close(Game_wind);		// Exit out of game loop
 	}
-	else if (rval)
-		longjmp( LeaveGame, 0 );
+	else if (rval && Game_wind)
+		window_close(Game_wind);
 }
 
 
@@ -1200,7 +1200,8 @@ void DoPlayerDead()
 			if (PLAYING_BUILTIN_MISSION)
 #endif
 				scores_maybe_add_player(0);
-			longjmp( LeaveGame, 0 );		// Exit out of game loop
+			if (Game_wind)
+				window_close(Game_wind);		// Exit out of game loop
 		}
 	} else {
 		init_player_stats_new_ship();

@@ -404,7 +404,8 @@ void net_udp_manual_join_game()
 	char addrbuf[128]="";
 	char portbuf[6]="";
 
-	setjmp(LeaveGame);
+	// FIXME: Keep IP window to go back to
+	//setjmp(LeaveGame);
 
 	net_udp_init();
 
@@ -2814,7 +2815,9 @@ int net_udp_send_sync(void)
 			Netgame.numplayers = 0;
 			net_udp_send_game_info(Netgame.players[i].protocol.udp.addr, UPID_GAME_INFO); // Tell everyone we're bailing
 		}
-		longjmp(LeaveGame, 0);
+		if (Game_wind)
+			window_close(Game_wind);
+		return -1;
 	}
 
 	// Randomize their starting locations...
@@ -3060,11 +3063,12 @@ void net_udp_start_game(void)
 {
 	int i;
 
-	if (setjmp(LeaveGame))
-	{
-		Game_mode = GM_GAME_OVER;
-		return;
-	}
+	// FIXME: Keep multiplayer menu to go back to
+	//if (setjmp(LeaveGame))
+	//{
+	//	Game_mode = GM_GAME_OVER;
+	//	return;
+	//}
 
 	net_udp_init();
 	change_playernum_to(0);
@@ -3213,7 +3217,8 @@ menu:
 			if ((Players[i].connected != CONNECT_DISCONNECTED) && (i != Player_num))
 				net_udp_dump_player(Netgame.players[i].protocol.udp.addr, DUMP_ABORTED);
 
-		longjmp(LeaveGame, 0);
+		if (Game_wind)
+			window_close(Game_wind);
 	}
 	else if (choice != -2)
 		goto menu;
@@ -3249,7 +3254,8 @@ net_udp_level_sync(void)
 	{
 		Players[Player_num].connected = CONNECT_DISCONNECTED;
 		net_udp_send_endlevel_packet();
-		longjmp(LeaveGame, 0);
+		if (Game_wind)
+			window_close(Game_wind);
 	}
 	return(0);
 }

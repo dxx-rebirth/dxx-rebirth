@@ -902,7 +902,6 @@ void reset_rear_view(void)
 }
 
 int Config_menu_flag;
-jmp_buf LeaveGame;
 
 extern int Laser_rapid_fire, Ugly_robot_cheat;
 extern void do_lunacy_on(), do_lunacy_off();
@@ -1007,7 +1006,7 @@ int game_handler(window *wind, d_event *event, void *data)
 			
 			ReadControls();		// will have its own event(s) eventually
 			if (window_get_front() != wind)
-				return 1;
+				break;
 			
 			GameProcessFrame();
 			
@@ -1020,20 +1019,8 @@ int game_handler(window *wind, d_event *event, void *data)
 				if (!(Game_mode&GM_MULTI)) palette_restore();
 			}
 			
-			if ( (Function_mode != FMODE_GAME) && GameArg.SysAutoDemo && (Newdemo_state != ND_STATE_NORMAL) )	{
-				int choice, fmode;
-				fmode = Function_mode;
-				Function_mode = FMODE_GAME;
-				choice=nm_messagebox( NULL, 2, TXT_YES, TXT_NO, TXT_ABORT_AUTODEMO );
-				Function_mode = fmode;
-				if (choice==0)	{
-					GameArg.SysAutoDemo = 0;
-					newdemo_stop_playback();
-					Function_mode = FMODE_MENU;
-				} else {
-					Function_mode = FMODE_GAME;
-				}
-			}
+			if (!Game_wind)
+				break;
 			
 			if ( (Function_mode != FMODE_GAME ) && (Newdemo_state != ND_STATE_PLAYBACK ) && (Function_mode!=FMODE_EDITOR))
 			{
@@ -1047,7 +1034,7 @@ int game_handler(window *wind, d_event *event, void *data)
 			}
 			
 			if (Function_mode != FMODE_GAME)
-				longjmp(LeaveGame,0);
+				window_close(wind);
 			return 0;
 			break;
 			
@@ -1060,6 +1047,9 @@ int game_handler(window *wind, d_event *event, void *data)
 			break;
 			
 		case EVENT_WINDOW_CLOSE:
+			if (Function_mode == FMODE_GAME)
+				Function_mode = FMODE_MENU;
+			
 			digi_stop_all();
 			
 			if ( (Newdemo_state == ND_STATE_RECORDING) || (Newdemo_state == ND_STATE_PAUSED) )
@@ -1092,13 +1082,8 @@ void game()
 {
 	Game_wind = game_setup();
 
-	if ( setjmp(LeaveGame)==0 ) {
-
-		while (Game_wind)
-			event_process();
-	}
-	
-	window_close(Game_wind);
+	while (Game_wind)
+		event_process();
 }
 
 //called at the end of the program
@@ -1170,7 +1155,9 @@ void GameProcessFrame(void)
 	if ( Newdemo_state == ND_STATE_PLAYBACK ) {
 		newdemo_playback_one_frame();
 		if ( Newdemo_state != ND_STATE_PLAYBACK )		{
-			longjmp( LeaveGame, 0 );		// Go back to menu
+			if (Game_wind)
+				window_close(Game_wind);		// Go back to menu
+			return;
 		}
 	}
 	else

@@ -840,7 +840,9 @@ menu:
 			Players[Player_num].connected = CONNECT_DISCONNECTED;
 			net_ipx_send_endlevel_packet();
 			net_ipx_send_endlevel_packet();
-			longjmp(LeaveGame,0);
+			if (Game_wind)
+				window_close(Game_wind);
+			return 0;
 		}	
 		if (choice > -2)
 			goto newmenu;
@@ -2698,8 +2700,9 @@ net_ipx_send_sync(void)
 	if (NumNetPlayerPositions < MaxNumNetPlayers) {
 		nm_messagebox(TXT_ERROR, 1, TXT_OK, "Not enough start positions\n(need %d got %d)\nNetgame aborted", MaxNumNetPlayers, NumNetPlayerPositions);
 		net_ipx_abort_game();
-		//return -1;
-		longjmp(LeaveGame, 0);
+		if (Game_wind)
+			window_close(Game_wind);
+		return -1;
 	}
 
         //added/changed on 9/13/98 by adb to remove TICKER
@@ -2953,10 +2956,11 @@ void net_ipx_start_game(void)
 		return;
 	}
 
-	if (setjmp(LeaveGame)) {
-               Game_mode = GM_GAME_OVER;
-		return;
-	}
+	// FIXME: Keep multiplayer menu to go back to
+	//if (setjmp(LeaveGame)) {
+    //           Game_mode = GM_GAME_OVER;
+	//	return;
+	//}
 
 	net_ipx_init();
 	change_playernum_to(0);
@@ -3283,7 +3287,8 @@ menu:
 			if ((Players[i].connected != CONNECT_DISCONNECTED) && (i != Player_num))
 				net_ipx_dump_player(Netgame.players[i].protocol.ipx.server, Netgame.players[i].protocol.ipx.node, DUMP_ABORTED);
 
-		longjmp(LeaveGame, 0);
+		if (Game_wind)
+			window_close(Game_wind);
 	}
 	else if (choice != -2)
 		goto menu;
@@ -3318,7 +3323,8 @@ net_ipx_level_sync(void)
 	{
 		Players[Player_num].connected = CONNECT_DISCONNECTED;
 		net_ipx_send_endlevel_packet();
-		longjmp(LeaveGame, 0);
+		if (Game_wind)
+			window_close(Game_wind);
 	}
 	return(0);
 }
@@ -3385,7 +3391,8 @@ void net_ipx_join_game()
 
 	N_players = 0;
 
-	setjmp(LeaveGame);
+	// FIXME: Keep browsing window to go back to
+	//setjmp(LeaveGame);
 
 	Network_send_objects = 0; 
 	Network_rejoined=0;

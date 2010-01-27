@@ -749,7 +749,8 @@ void multi_do_frame(void)
 	if (multi_quit_game && !multi_in_menu)
 	{
 		multi_quit_game = 0;
-		longjmp(LeaveGame, 0);
+		if (Game_wind)
+			window_close(Game_wind);
 	}
 }
 
