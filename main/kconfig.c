@@ -661,7 +661,6 @@ int kconfig_idle(window *wind, d_event *event, kc_menu *menu)
 	k = key_inkey();
 	
 #ifdef NEWMENU_MOUSE
-	newmenu_show_cursor();      // possibly hidden
 	menu->omouse_state = menu->mouse_state;
 	menu->mouse_state = mouse_button_state(0);
 #endif
@@ -916,6 +915,10 @@ int kconfig_handler(window *wind, d_event *event, kc_menu *menu)
 	
 	switch (event->type)
 	{
+		case EVENT_WINDOW_ACTIVATED:
+			newmenu_show_cursor();
+			break;
+			
 		case EVENT_IDLE:
 			return kconfig_idle(wind, event, menu);
 			break;
@@ -986,8 +989,6 @@ void kconfig_sub(kc_item * items,int nitems, char *title)
 	}
 
 	game_flush_inputs();
-
-	newmenu_show_cursor();
 
 #ifdef NEWMENU_MOUSE
 	menu->mouse_state = menu->omouse_state = 0;

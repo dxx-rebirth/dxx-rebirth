@@ -5,6 +5,7 @@ D1X-Rebirth Changelog
 main/playsave.c, main/playsave.h, main/object.c, main/render.c, main/hud.c, main/hostage.c, main/newdemo.c, main/gamerend.c, main/endlevel.c, main/game.c, main/gauges.c: Made PlayerCfg.CockpitMode an array to hold two values: 0 to store the actual "cockpit", 1 to also store Letterbox, Rear, etc. Greatly helps to switch and restore views - especially in Demo playback which now properly selects modes
 main/newdemo.c: Added a new code to properly re-record view/cockpit-events at beginning and end of Demo recording so views will be fine if switched before recording started; Also added lost sequence to record Rear-view reset between levels; Last but not least, record wall tmaps so opened/blasted doors will be shown correctly if opened/blasted before recording; Everything done without breaking the Demo format!
 arch/sdl/window.c, main/automap.c, main/game.c, main/gamecntl.c, main/kconfig.c, main/menu.c, main/net_ipx.c, main/net_udp.c, main/newmenu.c: Make response to EVENT_WINDOW_CLOSE conform to 'handling' system - returning 1 means abort closing
+main/kconfig.c, main/newmenu.c: Tidy up newmenu_show/hide_cursor calls
 
 20100127
 --------
