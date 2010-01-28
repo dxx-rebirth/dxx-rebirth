@@ -106,7 +106,7 @@ void start_hostage_clip()
 //add this hostage's clip to the queue
 void queue_hostage_clip(int hostage_num)
 {
-	if ((PlayerCfg.CockpitMode!=CM_FULL_COCKPIT && PlayerCfg.CockpitMode!=CM_STATUS_BAR) || N_hostage_clips>=MAX_HOSTAGE_CLIPS)
+	if ((PlayerCfg.CockpitMode[1]!=CM_FULL_COCKPIT && PlayerCfg.CockpitMode[1]!=CM_STATUS_BAR) || N_hostage_clips>=MAX_HOSTAGE_CLIPS)
 		return;		//no cockpit, or queue is full
 
 	Hostage_queue[N_hostage_clips] = hostage_num;

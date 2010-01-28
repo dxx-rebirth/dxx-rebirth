@@ -186,8 +186,6 @@ void init_endlevel()
 	gr_init_bitmap_data (&satellite_bm_instance);
 }
 
-static int cockpit_mode_save;
-
 object external_explosion;
 int ext_expl_playing,mine_destroyed;
 
@@ -272,8 +270,6 @@ void start_endlevel_sequence()
 	}
 
 	Assert(last_segnum == exit_segnum);
-
-	cockpit_mode_save = PlayerCfg.CockpitMode;
 
 	#ifdef NETWORK
 	if (Game_mode & GM_MULTI) {
@@ -387,7 +383,7 @@ void stop_endlevel_sequence()
 {
 	Interpolation_method = 0;
 
-	select_cockpit(cockpit_mode_save);
+	select_cockpit(PlayerCfg.CockpitMode[0]);
 
 	Endlevel_sequence = EL_OFF;
 

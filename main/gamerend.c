@@ -108,12 +108,12 @@ void show_framerate()
 	
 	if (frame_time_total) {
 		int y=GHEIGHT;
-		if (PlayerCfg.CockpitMode==CM_FULL_SCREEN) {
+		if (PlayerCfg.CockpitMode[1]==CM_FULL_SCREEN) {
 			if ((Game_mode & GM_MULTI) || (Newdemo_state == ND_STATE_PLAYBACK && Newdemo_game_mode && GM_MULTI))
 				y -= LINE_SPACING * 10;
 			else
 				y -= LINE_SPACING * 4;
-		} else if (PlayerCfg.CockpitMode == CM_STATUS_BAR) {
+		} else if (PlayerCfg.CockpitMode[1] == CM_STATUS_BAR) {
 			if ((Game_mode & GM_MULTI) || (Newdemo_state == ND_STATE_PLAYBACK && Newdemo_game_mode && GM_MULTI))
 				y -= LINE_SPACING * 6;
 			else
@@ -320,28 +320,28 @@ void game_draw_hud_stuff()
 		
 		y = GHEIGHT-(LINE_SPACING*2);
 		
-		if (PlayerCfg.CockpitMode == CM_FULL_COCKPIT)
+		if (PlayerCfg.CockpitMode[1] == CM_FULL_COCKPIT)
 			y = grd_curcanv->cv_bitmap.bm_h / 1.2 ;
-		if (PlayerCfg.CockpitMode != CM_REAR_VIEW)
+		if (PlayerCfg.CockpitMode[1] != CM_REAR_VIEW)
 			gr_printf(0x8000, y, message );
 	}
 	
 	render_countdown_gauge();
 	
 	// this should be made part of hud code some day
-	if ( Player_num > -1 && Viewer->type==OBJ_PLAYER && Viewer->id==Player_num && PlayerCfg.CockpitMode != CM_REAR_VIEW)	{
+	if ( Player_num > -1 && Viewer->type==OBJ_PLAYER && Viewer->id==Player_num && PlayerCfg.CockpitMode[1] != CM_REAR_VIEW)	{
 		int	x = FSPACX(1);
 		int	y = grd_curcanv->cv_bitmap.bm_h;
 		
 		gr_set_curfont( GAME_FONT );
 		gr_set_fontcolor( BM_XRGB(0, 31, 0), -1 );
 		if (Cruise_speed > 0) {
-			if (PlayerCfg.CockpitMode==CM_FULL_SCREEN) {
+			if (PlayerCfg.CockpitMode[1]==CM_FULL_SCREEN) {
 				if (Game_mode & GM_MULTI)
 					y -= LINE_SPACING * 10;
 				else
 					y -= LINE_SPACING * 5;
-			} else if (PlayerCfg.CockpitMode == CM_STATUS_BAR) {
+			} else if (PlayerCfg.CockpitMode[1] == CM_STATUS_BAR) {
 				if (Game_mode & GM_MULTI)
 					y -= LINE_SPACING * 6;
 				else
@@ -357,7 +357,7 @@ void game_draw_hud_stuff()
 		}
 	}
 	
-	if (GameArg.SysFPSIndicator && PlayerCfg.CockpitMode != CM_REAR_VIEW)
+	if (GameArg.SysFPSIndicator && PlayerCfg.CockpitMode[1] != CM_REAR_VIEW)
 		show_framerate();
 
 	if (Newdemo_state == ND_STATE_PLAYBACK)
@@ -389,7 +389,7 @@ void game_do_render_frame(int flip)
 	if (Newdemo_state == ND_STATE_PLAYBACK)
 		Game_mode = Newdemo_game_mode;
 	
-	if (PlayerCfg.CockpitMode==CM_FULL_COCKPIT || PlayerCfg.CockpitMode==CM_STATUS_BAR)
+	if (PlayerCfg.CockpitMode[1]==CM_FULL_COCKPIT || PlayerCfg.CockpitMode[1]==CM_STATUS_BAR)
 		render_gauges();
 
 	if (Newdemo_state == ND_STATE_PLAYBACK)
@@ -408,11 +408,11 @@ void game_do_render_frame(int flip)
 void toggle_cockpit()
 {
 	int new_mode=CM_FULL_SCREEN;
-	
+
 	if (Rear_view || Player_is_dead)
 		return;
-	
-	switch (PlayerCfg.CockpitMode)
+
+	switch (PlayerCfg.CockpitMode[1])
 	{
 		case CM_FULL_COCKPIT:
 			new_mode = CM_STATUS_BAR;
@@ -424,9 +424,10 @@ void toggle_cockpit()
 			new_mode = CM_FULL_COCKPIT;
 			break;
 	}
-	
+
 	select_cockpit(new_mode);
 	HUD_clear_messages();
+	PlayerCfg.CockpitMode[0] = new_mode;
 	write_player_file();
 }
 
@@ -437,13 +438,13 @@ extern void ogl_loadbmtexture(grs_bitmap *bm);
 void update_cockpits()
 {
 	grs_bitmap * bm;
-	PIGGY_PAGE_IN(cockpit_bitmap[PlayerCfg.CockpitMode]);
-	bm = &GameBitmaps[cockpit_bitmap[PlayerCfg.CockpitMode].index];
+	PIGGY_PAGE_IN(cockpit_bitmap[PlayerCfg.CockpitMode[1]]);
+	bm = &GameBitmaps[cockpit_bitmap[PlayerCfg.CockpitMode[1]].index];
 	
 	//Redraw the on-screen cockpit bitmaps
 	if (VR_render_mode != VR_NONE )	return;
 	
-	switch( PlayerCfg.CockpitMode )	{
+	switch( PlayerCfg.CockpitMode[1] )	{
 		case CM_FULL_COCKPIT:
 			gr_set_current_canvas(NULL);
 #ifdef OGL
@@ -477,12 +478,12 @@ void update_cockpits()
 	
 	gr_set_current_canvas(NULL);
 	
-	if (PlayerCfg.CockpitMode != last_drawn_cockpit)
-		last_drawn_cockpit = PlayerCfg.CockpitMode;
+	if (PlayerCfg.CockpitMode[1] != last_drawn_cockpit)
+		last_drawn_cockpit = PlayerCfg.CockpitMode[1];
 	else
 		return;
 	
-	if (PlayerCfg.CockpitMode==CM_FULL_COCKPIT || PlayerCfg.CockpitMode==CM_STATUS_BAR)
+	if (PlayerCfg.CockpitMode[1]==CM_FULL_COCKPIT || PlayerCfg.CockpitMode[1]==CM_STATUS_BAR)
 		init_gauges();
 }
 

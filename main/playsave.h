@@ -65,7 +65,7 @@ typedef struct player_config
 	ubyte JoystickSensitivityX;
 	ubyte JoystickSensitivityY;
 	int JoystickDeadzone;
-	int CockpitMode;
+	int CockpitMode[2]; // 0 saves the "real" cockpit, 1 also saves letterbox and rear. Used to properly switch between modes and restore the real one.
 	char NetworkMessageMacro[4][MAX_MESSAGE_LEN];
 	int NetlifeKills;
 	int NetlifeKilled;

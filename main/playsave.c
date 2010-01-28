@@ -91,7 +91,7 @@ int new_player_config()
 	PlayerCfg.MouseSensitivityX = 8;
 	PlayerCfg.MouseSensitivityY = 8;
 	PlayerCfg.MouseFilter = 0;
-	PlayerCfg.CockpitMode = CM_FULL_COCKPIT;
+	PlayerCfg.CockpitMode[0] = PlayerCfg.CockpitMode[1] = CM_FULL_COCKPIT;
 	PlayerCfg.ReticleOn = 1;
 	PlayerCfg.HudMode = 0;
 	PlayerCfg.PersistentDebris = 0;
@@ -257,7 +257,7 @@ int read_player_d1x(char *filename)
 			while(!strstr(word,"END") && !PHYSFS_eof(f))
 			{
 				if(!strcmp(word,"MODE"))
-					PlayerCfg.CockpitMode = atoi(line);
+					PlayerCfg.CockpitMode[0] = PlayerCfg.CockpitMode[1] = atoi(line);
 				else if(!strcmp(word,"HUD"))
 					PlayerCfg.HudMode = atoi(line);
 				d_free(word);
@@ -533,7 +533,7 @@ int write_player_d1x(char *filename)
 		PHYSFSX_printf(fout,"filter=%d\n",PlayerCfg.MouseFilter);
 		PHYSFSX_printf(fout,"[end]\n");
 		PHYSFSX_printf(fout,"[cockpit]\n");
-		PHYSFSX_printf(fout,"mode=%i\n",(PlayerCfg.CockpitMode==1?0:PlayerCfg.CockpitMode));
+		PHYSFSX_printf(fout,"mode=%i\n",PlayerCfg.CockpitMode[0]);
 		PHYSFSX_printf(fout,"hud=%i\n",PlayerCfg.HudMode);
 		PHYSFSX_printf(fout,"[end]\n");
 		PHYSFSX_printf(fout,"[toggles]\n");

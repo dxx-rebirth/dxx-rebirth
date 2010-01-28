@@ -1193,9 +1193,7 @@ int		Player_exploded = 0;
 int		Death_sequence_aborted=0;
 int		Player_eggs_dropped=0;
 fix		Camera_to_player_dist_goal=F1_0*4;
-
 ubyte		Control_type_save, Render_type_save;
-static int cockpit_mode_save;	//set while in letterbox
 
 //	------------------------------------------------------------------------------------------------------------------
 void dead_player_end(void)
@@ -1210,7 +1208,7 @@ void dead_player_end(void)
 	Player_exploded = 0;
 	obj_delete(Dead_player_camera-Objects);
 	Dead_player_camera = NULL;
-	select_cockpit(cockpit_mode_save);
+	select_cockpit(PlayerCfg.CockpitMode[0]);
 	Viewer = Viewer_save;
 	ConsoleObject->type = OBJ_PLAYER;
 	ConsoleObject->flags = Player_flags_save;
@@ -1438,7 +1436,6 @@ void start_player_death_sequence(object *player)
 		Dead_player_camera = Viewer;
 	}
 
-	cockpit_mode_save = PlayerCfg.CockpitMode;
 	select_cockpit(CM_LETTERBOX);
 	if (Newdemo_state == ND_STATE_RECORDING)
 		newdemo_record_letterbox();
