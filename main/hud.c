@@ -64,7 +64,7 @@ int     MSG_Noredundancy = 0;
 // ----------------------------------------------------------------------------
 void clear_background_messages(void)
 {
-	if (((PlayerCfg.CockpitMode == CM_STATUS_BAR) || (PlayerCfg.CockpitMode == CM_FULL_SCREEN)) && (Last_msg_ycrd != -1) && (Screen_3d_window.cv_bitmap.bm_y >= 6)) {
+	if (((PlayerCfg.CockpitMode[1] == CM_STATUS_BAR) || (PlayerCfg.CockpitMode[1] == CM_FULL_SCREEN)) && (Last_msg_ycrd != -1) && (Screen_3d_window.cv_bitmap.bm_y >= 6)) {
 		grs_canvas	*canv_save = grd_curcanv;
 
 		gr_set_current_canvas(NULL);

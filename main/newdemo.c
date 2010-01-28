@@ -96,12 +96,6 @@ extern void init_seismic_disturbances(void);
 
 //#include "nocfile.h"
 
-sbyte WasRecorded [MAX_OBJECTS];
-sbyte ViewWasRecorded[MAX_OBJECTS];
-sbyte RenderingWasRecorded[32];
-object DemoRightExtra,DemoLeftExtra;
-ubyte DemoDoRight=0,DemoDoLeft=0;
-
 #define ND_EVENT_EOF				0	// EOF
 #define ND_EVENT_START_DEMO			1	// Followed by 16 character, NULL terminated filename of .SAV file to use
 #define ND_EVENT_START_FRAME			2	// Followed by integer frame number, then a fix FrameTime
@@ -176,7 +170,6 @@ int Newdemo_start_frame = -1;
 int Newdemo_frame_number = -1;
 unsigned int Newdemo_size;
 int Newdemo_num_written;
-int Newdemo_old_cockpit;
 sbyte Newdemo_no_space;
 sbyte Newdemo_at_eof;
 sbyte Newdemo_do_interpolate = 1;
@@ -191,6 +184,12 @@ fix nd_recorded_time;
 sbyte playback_style;
 int Newdemo_show_percentage=1;
 static int swap_endian = 0;
+ubyte Newdemo_dead = 0, Newdemo_rear = 0, Newdemo_guided = 0;
+sbyte WasRecorded [MAX_OBJECTS];
+sbyte ViewWasRecorded[MAX_OBJECTS];
+sbyte RenderingWasRecorded[32];
+object DemoRightExtra,DemoLeftExtra;
+ubyte DemoDoRight=0,DemoDoLeft=0;
 
 extern int digi_link_sound_to_object3( int org_soundnum, short objnum, int forever, fix max_volume, fix  max_distance, int loop_start, int loop_end );
 
@@ -1670,7 +1669,6 @@ int newdemo_read_frame_information(int rewrite)
 	int done, segnum, side, objnum, soundno, angle, volume, i,shot;
 	object *obj;
 	sbyte c,WhichWindow;
-	static sbyte saved_letter_cockpit = CM_FULL_COCKPIT, saved_rearview_cockpit = CM_FULL_COCKPIT, saved_guided_cockpit = CM_FULL_COCKPIT;
 	object extraobj;
 	static char LastReadValue=101;
 	segment *seg;
@@ -2044,20 +2042,16 @@ int newdemo_read_frame_information(int rewrite)
 			}
 		case ND_EVENT_START_GUIDED:
 			if ((Newdemo_vcr_state == ND_STATE_PLAYBACK) || (Newdemo_vcr_state == ND_STATE_FASTFORWARD) || (Newdemo_vcr_state == ND_STATE_ONEFRAMEFORWARD)) {
-				saved_guided_cockpit = PlayerCfg.CockpitMode;
-				if (PlayerCfg.CockpitMode == CM_FULL_COCKPIT && 1)
-					select_cockpit(CM_STATUS_BAR);
+				Newdemo_guided = 1;
 			} else if ((Newdemo_vcr_state == ND_STATE_REWINDING) || (Newdemo_vcr_state == ND_STATE_ONEFRAMEBACKWARD)) {
-				select_cockpit(saved_guided_cockpit);
+				Newdemo_guided = 0;
 			}
 			break;
 		case ND_EVENT_END_GUIDED:
 			if ((Newdemo_vcr_state == ND_STATE_REWINDING) || (Newdemo_vcr_state == ND_STATE_ONEFRAMEBACKWARD)) {
-				saved_guided_cockpit = PlayerCfg.CockpitMode;
-				if (PlayerCfg.CockpitMode == CM_FULL_COCKPIT && 1)
-					select_cockpit(CM_STATUS_BAR);
+				Newdemo_guided = 1;
 			} else if ((Newdemo_vcr_state == ND_STATE_PLAYBACK) || (Newdemo_vcr_state == ND_STATE_FASTFORWARD) || (Newdemo_vcr_state == ND_STATE_ONEFRAMEFORWARD)) {
-				select_cockpit(saved_guided_cockpit);
+				Newdemo_guided = 0;
 			}
 			break;
 
@@ -2258,10 +2252,9 @@ int newdemo_read_frame_information(int rewrite)
 
 		case ND_EVENT_LETTERBOX:
 			if ((Newdemo_vcr_state == ND_STATE_PLAYBACK) || (Newdemo_vcr_state == ND_STATE_FASTFORWARD) || (Newdemo_vcr_state == ND_STATE_ONEFRAMEFORWARD)) {
-				saved_letter_cockpit = PlayerCfg.CockpitMode;
-				select_cockpit(CM_LETTERBOX);
+				Newdemo_dead = 1;
 			} else if ((Newdemo_vcr_state == ND_STATE_REWINDING) || (Newdemo_vcr_state == ND_STATE_ONEFRAMEBACKWARD))
-				select_cockpit(saved_letter_cockpit);
+				Newdemo_dead = 0;
 			break;
 
 		case ND_EVENT_CHANGE_COCKPIT: {
@@ -2273,38 +2266,25 @@ int newdemo_read_frame_information(int rewrite)
 		}
 		case ND_EVENT_REARVIEW:
 			if ((Newdemo_vcr_state == ND_STATE_PLAYBACK) || (Newdemo_vcr_state == ND_STATE_FASTFORWARD) || (Newdemo_vcr_state == ND_STATE_ONEFRAMEFORWARD)) {
-				saved_rearview_cockpit = PlayerCfg.CockpitMode;
-				if (PlayerCfg.CockpitMode == CM_FULL_COCKPIT)
-					select_cockpit(CM_REAR_VIEW);
-				Rear_view=1;
+				Newdemo_rear = 1;
 			} else if ((Newdemo_vcr_state == ND_STATE_REWINDING) || (Newdemo_vcr_state == ND_STATE_ONEFRAMEBACKWARD)) {
-				if (saved_rearview_cockpit == CM_REAR_VIEW)     // hack to be sure we get a good cockpit on restore
-					saved_rearview_cockpit = CM_FULL_COCKPIT;
-				select_cockpit(saved_rearview_cockpit);
-				Rear_view=0;
+				Newdemo_rear = 0;
 			}
 			break;
 
 		case ND_EVENT_RESTORE_COCKPIT:
 			if ((Newdemo_vcr_state == ND_STATE_REWINDING) || (Newdemo_vcr_state == ND_STATE_ONEFRAMEBACKWARD)) {
-				saved_letter_cockpit = PlayerCfg.CockpitMode;
-				select_cockpit(CM_LETTERBOX);
+				Newdemo_dead = 1;
 			} else if ((Newdemo_vcr_state == ND_STATE_PLAYBACK) || (Newdemo_vcr_state == ND_STATE_FASTFORWARD) || (Newdemo_vcr_state == ND_STATE_ONEFRAMEFORWARD))
-				select_cockpit(saved_letter_cockpit);
+				Newdemo_dead = 0;
 			break;
 
 
 		case ND_EVENT_RESTORE_REARVIEW:
 			if ((Newdemo_vcr_state == ND_STATE_REWINDING) || (Newdemo_vcr_state == ND_STATE_ONEFRAMEBACKWARD)) {
-				saved_rearview_cockpit = PlayerCfg.CockpitMode;
-				if (PlayerCfg.CockpitMode == CM_FULL_COCKPIT)
-					select_cockpit(CM_REAR_VIEW);
-				Rear_view=1;
+				Newdemo_rear= 1;
 			} else if ((Newdemo_vcr_state == ND_STATE_PLAYBACK) || (Newdemo_vcr_state == ND_STATE_FASTFORWARD) || (Newdemo_vcr_state == ND_STATE_ONEFRAMEFORWARD)) {
-				if (saved_rearview_cockpit == CM_REAR_VIEW)     // hack to be sure we get a good cockpit on restore
-					saved_rearview_cockpit = CM_FULL_COCKPIT;
-				select_cockpit(saved_rearview_cockpit);
-				Rear_view=0;
+				Newdemo_rear = 0;
 			}
 			break;
 
@@ -2809,6 +2789,34 @@ int newdemo_read_frame_information(int rewrite)
 	}
 
 	LastReadValue=c;
+
+	// Now set up cockpit and views according to what we read out. Note that the demo itself cannot determinate the right views since it does not use a good portion of the real game code.
+	if (Newdemo_dead)
+	{
+		Rear_view = 0;
+		if (PlayerCfg.CockpitMode[1] != CM_LETTERBOX)
+			select_cockpit(CM_LETTERBOX);
+	}
+	else if (Newdemo_guided)
+	{
+		Rear_view = 0;
+		if (PlayerCfg.CockpitMode[1] != CM_FULL_SCREEN || PlayerCfg.CockpitMode[1] != CM_STATUS_BAR)
+		{
+			select_cockpit((PlayerCfg.CockpitMode[0] == CM_FULL_SCREEN)?CM_FULL_SCREEN:CM_STATUS_BAR);
+		}
+	}
+	else if (Newdemo_rear)
+	{
+		Rear_view = Newdemo_rear;
+		if (PlayerCfg.CockpitMode[0] == CM_FULL_COCKPIT)
+			select_cockpit(CM_REAR_VIEW);
+	}
+	else
+	{
+		Rear_view = 0;
+		if (PlayerCfg.CockpitMode[1] != PlayerCfg.CockpitMode[0])
+			select_cockpit(PlayerCfg.CockpitMode[0]);
+	}
 
 	if (nd_bad_read) {
 		nm_messagebox( NULL, 1, TXT_OK, "%s %s", TXT_DEMO_ERR_READING, TXT_DEMO_OLD_CORRUPT );
@@ -3550,7 +3558,6 @@ void newdemo_start_playback(char * filename)
 	Game_mode = GM_NORMAL;
 	Newdemo_state = ND_STATE_PLAYBACK;
 	Newdemo_vcr_state = ND_STATE_PLAYBACK;
-	Newdemo_old_cockpit = PlayerCfg.CockpitMode;
 	Newdemo_size = PHYSFS_fileLength(infile);
 	nd_bad_read = 0;
 	Newdemo_at_eof = 0;
@@ -3558,6 +3565,7 @@ void newdemo_start_playback(char * filename)
 	playback_style = NORMAL_PLAYBACK;
 	Function_mode = FMODE_GAME;
 	init_seismic_disturbances();
+	Newdemo_dead = Newdemo_rear = Newdemo_guided = 0;
 	PlayerCfg.Cockpit3DView[0] = CV_NONE;       //turn off 3d views on cockpit
 	PlayerCfg.Cockpit3DView[1] = CV_NONE;       //turn off 3d views on cockpit
 	HUD_clear_messages();
@@ -3573,8 +3581,8 @@ void newdemo_stop_playback()
 	change_playernum_to(0);             //this is reality
 #endif
 	strncpy(Players[Player_num].callsign, nd_save_callsign, CALLSIGN_LEN);
-	PlayerCfg.CockpitMode = Newdemo_old_cockpit;
 	Rear_view=0;
+	Newdemo_dead = Newdemo_rear = Newdemo_guided = 0;
 	Newdemo_game_mode = Game_mode = GM_GAME_OVER;
 	if (Game_wind)
 		window_close(Game_wind);               // Exit game loop

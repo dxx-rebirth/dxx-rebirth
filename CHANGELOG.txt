@@ -1,5 +1,9 @@
 D2X-Rebirth Changelog
 
+20100128
+--------
+main/playsave.c, main/playsave.h, main/object.c, main/render.c, main/hostage.c, main/newdemo.c, main/gamerend.c, main/endlevel.c, main/game.c, main/gauges.c: Made PlayerCfg.CockpitMode an array to hold two values: 0 to store the actual "cockpit", 1 to also store Letterbox, Rear, etc. Greatly helps to switch and restore views - especially in Demo playback which now properly selects modes
+
 20100127
 --------
 main/game.c, main/game.h, main/gamecntl.c, main/gameseq.c, main/kmatrix.c, main/multi.c, main/net_ipx.c, main/net_udp.c, main/newdemo.c, main/render.c: Remove all uses of LeaveGame jmpbuf to allow more changing of main loop

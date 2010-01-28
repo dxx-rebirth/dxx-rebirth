@@ -111,7 +111,7 @@ int new_player_config()
 	PlayerCfg.MouseSensitivityY = 8;
 	PlayerCfg.MouseFilter = 0;
     PlayerCfg.JoystickDeadzone = 0;
-	PlayerCfg.CockpitMode = CM_FULL_COCKPIT;
+	PlayerCfg.CockpitMode[0] = PlayerCfg.CockpitMode[1] = CM_FULL_COCKPIT;
 	PlayerCfg.Cockpit3DView[0]=CV_NONE;
 	PlayerCfg.Cockpit3DView[1]=CV_NONE;
 	PlayerCfg.ReticleOn = 1;
@@ -391,7 +391,7 @@ int read_player_file()
 	PlayerCfg.DefaultDifficulty = cfile_read_byte(file);
 	PlayerCfg.AutoLeveling       = cfile_read_byte(file);
 	PlayerCfg.ReticleOn                = cfile_read_byte(file);
-	PlayerCfg.CockpitMode              = cfile_read_byte(file);
+	PlayerCfg.CockpitMode[0] = PlayerCfg.CockpitMode[1] = cfile_read_byte(file);
 	PHYSFS_seek(file,PHYSFS_tell(file)+sizeof(sbyte)); //skip Default_display_mode
 	PlayerCfg.MissileViewEnabled      = cfile_read_byte(file);
 	PlayerCfg.HeadlightActiveDefault  = cfile_read_byte(file);
@@ -631,7 +631,7 @@ int write_player_file()
 	PHYSFSX_writeU8(file, PlayerCfg.DefaultDifficulty);
 	PHYSFSX_writeU8(file, PlayerCfg.AutoLeveling);
 	PHYSFSX_writeU8(file, PlayerCfg.ReticleOn);
-	PHYSFSX_writeU8(file, (PlayerCfg.CockpitMode==1?0:PlayerCfg.CockpitMode));
+	PHYSFSX_writeU8(file, PlayerCfg.CockpitMode[0]);
 	PHYSFS_seek(file,PHYSFS_tell(file)+sizeof(PHYSFS_uint8)); // skip Default_display_mode
 	PHYSFSX_writeU8(file, PlayerCfg.MissileViewEnabled);
 	PHYSFSX_writeU8(file, PlayerCfg.HeadlightActiveDefault);

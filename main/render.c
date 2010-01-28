@@ -1588,7 +1588,7 @@ void render_frame(fix eye_offset, int window_num)
 
 	Viewer_eye = Viewer->pos;
 
-//	if (Viewer->type == OBJ_PLAYER && (Cockpit_mode!=CM_REAR_VIEW))
+//	if (Viewer->type == OBJ_PLAYER && (PlayerCfg.CockpitMode[1]!=CM_REAR_VIEW))
 //		vm_vec_scale_add2(&Viewer_eye,&Viewer->orient.fvec,(Viewer->size*3)/4);
 
 	if (eye_offset)	{
