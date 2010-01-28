@@ -1240,9 +1240,9 @@ int newmenu_handler(window *wind, d_event *event, newmenu *menu)
 			break;
 			
 		case EVENT_WINDOW_CLOSE:
-			// Don't allow cancel here - handle item selected events / key events instead
 			if (menu->subfunction)
-				(*menu->subfunction)(menu, event, menu->userdata);
+				if ((*menu->subfunction)(menu, event, menu->userdata))
+					return 1;		// abort close
 			
 			newmenu_hide_cursor();
 			game_flush_inputs();
@@ -1253,9 +1253,9 @@ int newmenu_handler(window *wind, d_event *event, newmenu *menu)
 			if ( menu->sound_stopped )
 				digi_resume_digi_sounds();
 			
-			// d_free(menu);	// have to wait until newmenus use a separate event loop
+			d_free(menu);
 			return 0;	// continue closing
-			break;	// always close
+			break;
 			
 		default:
 			if (menu->subfunction)
@@ -1570,12 +1570,17 @@ int newmenu_do4( char * title, char * subtitle, int nitems, newmenu_item * item,
 
 	// All newmenus get their own event loop, for now.
 	while (!menu->done)
+	{
 		event_process();
+		
+		if (menu->done)
+		{
+			rval = menu->citem;
+			if (!window_close(wind))
+				menu->done = 0;		// user aborted close
+		}
+	}
 
-	window_close(wind);
-
-	rval = menu->citem;
-	d_free(menu);
 	return rval;
 }
 
@@ -1941,11 +1946,12 @@ int listbox_handler(window *wind, d_event *event, listbox *lb)
 			break;
 			
 		case EVENT_WINDOW_CLOSE:
-			// Don't allow cancel here - handle item selected events / key events instead
 			if (lb->listbox_callback)
-				(*lb->listbox_callback)(lb, event, lb->userdata);
+				if ((*lb->listbox_callback)(lb, event, lb->userdata))
+					return 1;		// abort close
 			
 			newmenu_hide_cursor();
+			d_free(lb);
 			return 0;	// continue closing
 			break;
 			
@@ -2028,12 +2034,17 @@ int newmenu_listbox1( char * title, int nitems, char * items[], int allow_abort_
 	lb->mouse_state = lb->omouse_state = 0;	//dblclick_flag = 0;
 
 	while(!lb->done)
+	{
 		event_process();
+		
+		if (lb->done)
+		{
+			rval = lb->citem;
+			if (!window_close(wind))
+				lb->done = 0;	// user aborted close
+		}
+	}
 
-	window_close(wind);
-	
-	rval = lb->citem;
-	d_free(lb);
 	return rval;
 }
 
