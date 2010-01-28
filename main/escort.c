@@ -1708,6 +1708,7 @@ int escort_menu_handler(window *wind, d_event *event, escort_menu *menu)
 			
 			start_time();
 			digi_resume_digi_sounds();
+			return 0;	// continue closing
 			break;
 			
 		default:

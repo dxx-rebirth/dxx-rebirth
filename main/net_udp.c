@@ -4801,6 +4801,7 @@ static int show_game_rules_handler(window *wind, d_event *event, netgame_info *n
 
 		case EVENT_WINDOW_CLOSE:
 			game_flush_inputs();
+			return 0;	// continue closing
 			break;
 			
 		default:

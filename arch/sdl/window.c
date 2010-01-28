@@ -60,8 +60,8 @@ int window_close(window *wind)
 
 	event.type = EVENT_WINDOW_CLOSE;
 
-	if (!window_send_event(wind, &event))
-		return 0;	// user cancelled close (e.g. clicked 'No' to abort box)
+	if (window_send_event(wind, &event))
+		return 0;	// user 'handled' the event, cancelling close
 
 	if (wind == FrontWindow)
 	{
