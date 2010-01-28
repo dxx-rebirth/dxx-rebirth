@@ -175,6 +175,7 @@ int Newdemo_show_percentage=1;
 static int swap_endian = 0;
 ubyte Newdemo_dead = 0, Newdemo_rear = 0;
 
+void newdemo_record_oneframeevent_update(int wallupdate);
 extern int digi_link_sound_to_object3( int org_soundnum, short objnum, int forever, fix max_volume, fix  max_distance, int loop_start, int loop_end );
 
 PHYSFS_file *infile;
@@ -878,6 +879,7 @@ void newdemo_record_start_demo()
 	nd_write_byte((sbyte)Secondary_weapon);
 	Newdemo_start_frame = Newdemo_frame_number = 0;
 	newdemo_set_new_level(Current_level_num);
+	newdemo_record_oneframeevent_update(1);
 	start_time();
 
 }
@@ -1308,10 +1310,51 @@ void newdemo_record_laser_level(sbyte old_level, sbyte new_level)
 void newdemo_set_new_level(int level_num)
 {
 	stop_time();
+	newdemo_record_restore_rearview(); // This is actually switched while loading the new level - not ingame, so do it here.
 	nd_write_byte(ND_EVENT_NEW_LEVEL);
 	nd_write_byte((sbyte)level_num);
 	nd_write_byte((sbyte)Current_level_num);
 	start_time();
+}
+
+/*
+ * By design, the demo code does not record certain events when demo recording starts or ends.
+ * To not break compability this function can be applied at start/end of demo recording to
+ * re-record these events. It will "simulate" those events without using functions older game
+ * versions cannot handle.
+ */
+void newdemo_record_oneframeevent_update(int wallupdate)
+{
+	int i = 0;
+
+	if (Player_is_dead)
+		newdemo_record_letterbox();
+	else
+		newdemo_record_restore_cockpit();
+
+	if (Rear_view)
+		newdemo_record_rearview();
+	else
+		newdemo_record_restore_rearview();
+
+	// This will record tmaps for all walls and properly show doors which were opened before demo recording started.
+	if (wallupdate)
+	{
+		for (i = 0; i < Num_walls; i++)
+		{
+			int side, cside;
+			segment *seg, *csegp;
+			
+			seg = &Segments[Walls[i].segnum];
+			side = Walls[i].sidenum;
+			csegp = &Segments[seg->children[side]];
+			cside = find_connect_side(seg, csegp);
+			if (seg->sides[side].tmap_num != 0)
+				newdemo_record_wall_set_tmap_num1(Walls[i].segnum,side,seg->children[side],cside,seg->sides[side].tmap_num);
+			if (seg->sides[side].tmap_num2 != 0)
+				newdemo_record_wall_set_tmap_num2(Walls[i].segnum,side,seg->children[side],cside,seg->sides[side].tmap_num2);
+		}
+	}
 }
 
 enum purpose_type
@@ -3158,6 +3201,8 @@ void newdemo_stop_recording()
 	char fullname[PATH_MAX] = DEMO_DIR;
 
 	exit = 0;
+
+	newdemo_record_oneframeevent_update(0);
 
 	if (!Newdemo_no_space)
 		newdemo_write_end();
