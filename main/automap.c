@@ -543,6 +543,7 @@ int automap_handler(window *wind, d_event *event, automap *am)
 			game_flush_inputs();
 			d_free(am);
 			window_set_visible(Game_wind, 1);
+			return 0;	// continue closing
 			break;
 
 		default:

@@ -271,6 +271,7 @@ int pause_handler(window *wind, d_event *event, char *msg)
 				ext_music_resume();
 			digi_resume_all();
 			d_free(msg);
+			return 0;	// continue closing
 			break;
 			
 		default:

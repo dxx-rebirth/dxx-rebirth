@@ -1251,6 +1251,7 @@ int newmenu_handler(window *wind, d_event *event, newmenu *menu)
 				digi_resume_digi_sounds();
 			
 			// d_free(menu);	// have to wait until newmenus use a separate event loop
+			return 0;	// continue closing
 			break;	// always close
 			
 		default:
@@ -1938,6 +1939,7 @@ int listbox_handler(window *wind, d_event *event, listbox *lb)
 				(*lb->listbox_callback)(lb, event, lb->userdata);
 			
 			newmenu_hide_cursor();
+			return 0;	// continue closing
 			break;
 			
 		default:

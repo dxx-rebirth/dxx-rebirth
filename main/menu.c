@@ -713,6 +713,7 @@ int options_menuset(newmenu *menu, d_event *event, void *userdata)
 			
 		case EVENT_WINDOW_CLOSE:
 			write_player_file();
+			return 0;	// continue closing
 			break;
 			
 			default:

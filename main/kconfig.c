@@ -949,6 +949,7 @@ int kconfig_handler(window *wind, d_event *event, kc_menu *menu)
 			
 			for (i=0; i<NUM_D1X_CONTROLS; i++)
 				PlayerCfg.KeySettingsD1X[i] = kc_d1x[i].value;
+			return 0;	// continue closing
 			break;
 			
 		default:
