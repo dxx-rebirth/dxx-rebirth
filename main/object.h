@@ -423,6 +423,9 @@ extern void extract_shortpos(object *objp, shortpos *spp, int swap_bytes);
 // between levels if clear_all is set, clear even proximity bombs
 void clear_transient_objects(int clear_all);
 
+// Returns a new, unique signature for a new object
+int obj_get_signature();
+
 // returns the number of a free object, updating Highest_object_index.
 // Generally, obj_create() should be called to get an object, since it
 // fills in important fields and does the linking.  returns -1 if no

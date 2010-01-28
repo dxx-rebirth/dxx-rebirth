@@ -894,7 +894,6 @@ int state_restore_all_sub(char *filename, int secret_restore)
 		Highest_object_index = i-1;
 		object_read_n_swap(Objects, i, swap, fp);
 	
-		Object_next_signature = 0;
 		for (i=0; i<=Highest_object_index; i++ )	{
 			obj = &Objects[i];
 			obj->rtype.pobj_info.alt_textures = -1;
@@ -902,8 +901,6 @@ int state_restore_all_sub(char *filename, int secret_restore)
 			obj->next = obj->prev = obj->segnum = -1;
 			if ( obj->type != OBJ_NONE )	{
 				obj_link(i,segnum);
-				if ( obj->signature > Object_next_signature )
-					Object_next_signature = obj->signature;
 			}
 
 			//look for, and fix, boss with bogus shields
@@ -921,8 +918,7 @@ int state_restore_all_sub(char *filename, int secret_restore)
 
 		}	
 		special_reset_objects();
-		Object_next_signature++;
-	
+
 		//	1 = Didn't die on secret level.
 		//	2 = Died on secret level.
 		if (secret_restore && (Current_level_num >= 0)) {

@@ -454,6 +454,7 @@ object *prev_obj=NULL;      //ptr to last object read in
 void nd_read_object(object *obj)
 {
 	memset(obj, 0, sizeof(object));
+	short shortsig = 0;
 
 	/*
 	 * Do render type first, since with render_type == RT_NONE, we
@@ -466,20 +467,8 @@ void nd_read_object(object *obj)
 
 	nd_read_byte((sbyte *) &(obj->id));
 	nd_read_byte((sbyte *) &(obj->flags));
-	nd_read_short((short *)&(obj->signature));
-
-	    /* This doesn't make sense, since the object signature is supposed to 
-	       be an int, but a short is probably half the size on many platforms.
-	       The problem then is that probably only half the signature will be
-	       initialized. This is definitely not portable.
-
-	       See the typedef struct object's signature field in object.h to see
-	       what I mean. The compiler warning with my gcc 4.2.3 seems to be 
-	       warranted. 
-	       
-	       Kip (kip@thevertigo.com)
-	    */
-
+	nd_read_short(&shortsig);
+	obj->signature = shortsig;  // It's OKAY! We made sure, obj->signature is never has a value which short cannot handle!!! We cannot do this otherwise, without breaking the demo format!
 	nd_read_shortpos(obj);
 
 	if ((obj->type == OBJ_ROBOT) && (obj->id == SPECIAL_REACTOR_ROBOT))
@@ -690,6 +679,7 @@ void nd_read_object(object *obj)
 void nd_write_object(object *obj)
 {
 	int life;
+	short shortsig = 0;
 
 	if ((obj->type == OBJ_ROBOT) && (obj->id == SPECIAL_REACTOR_ROBOT))
 		Int3();
@@ -705,7 +695,8 @@ void nd_write_object(object *obj)
 
 	nd_write_byte(obj->id);
 	nd_write_byte(obj->flags);
-	nd_write_short((short)obj->signature);
+	shortsig = obj->signature;  // It's OKAY! We made sure, obj->signature is never has a value which short cannot handle!!! We cannot do this otherwise, without breaking the demo format!
+	nd_write_short(shortsig);
 	nd_write_shortpos(obj);
 
 	if ((obj->type != OBJ_HOSTAGE) && (obj->type != OBJ_ROBOT) && (obj->type != OBJ_PLAYER) && (obj->type != OBJ_POWERUP) && (obj->type != OBJ_CLUTTER)) {
