@@ -572,7 +572,6 @@ int newmenu_idle(window *wind, d_event *event, newmenu *menu)
 	timer_delay2(50);
 	
 #ifdef NEWMENU_MOUSE
-	newmenu_show_cursor();      // possibly hidden
 	menu->omouse_state = menu->mouse_state;
 	menu->mouse_state = mouse_button_state(0);
 #endif
@@ -1139,9 +1138,6 @@ int newmenu_idle(window *wind, d_event *event, newmenu *menu)
 		
 	}
 	
-#ifdef NEWMENU_MOUSE
-	newmenu_show_cursor();
-#endif
 	for (i=menu->scroll_offset; i<menu->max_displayable+menu->scroll_offset; i++ )
 		if (i==menu->citem && (menu->items[i].type==NM_TYPE_INPUT || (menu->items[i].type==NM_TYPE_INPUT_MENU && menu->items[i].group)))
 			update_cursor( &menu->items[i],menu->scroll_offset);
@@ -1238,6 +1234,13 @@ int newmenu_handler(window *wind, d_event *event, newmenu *menu)
 {
 	switch (event->type)
 	{
+		case EVENT_WINDOW_ACTIVATED:
+			if (menu->subfunction)
+				(*menu->subfunction)(menu, event, menu->userdata);
+
+			newmenu_show_cursor();
+			break;
+			
 		case EVENT_IDLE:
 			return newmenu_idle(wind, event, menu);
 			break;
@@ -1308,7 +1311,6 @@ int newmenu_do4( char * title, char * subtitle, int nitems, newmenu_item * item,
 	menu->userdata = userdata;
 	
 	newmenu_close();
-	newmenu_hide_cursor();
 
 	if (nitems < 1 )
 	{
@@ -1514,7 +1516,6 @@ int newmenu_do4( char * title, char * subtitle, int nitems, newmenu_item * item,
 			digi_resume_digi_sounds();
 		
 		d_free(menu);
-		newmenu_hide_cursor();
 
 		return -1;
 	}
@@ -1572,7 +1573,6 @@ int newmenu_do4( char * title, char * subtitle, int nitems, newmenu_item * item,
 
 #ifdef NEWMENU_MOUSE
 	menu->mouse_state = menu->omouse_state = 0;
-	newmenu_show_cursor();
 #endif
 
 	gr_set_current_canvas(save_canvas);
@@ -1934,6 +1934,13 @@ int listbox_handler(window *wind, d_event *event, listbox *lb)
 {
 	switch (event->type)
 	{
+		case EVENT_WINDOW_ACTIVATED:
+			if (lb->listbox_callback)
+				(*lb->listbox_callback)(lb, event, lb->userdata);
+			
+			newmenu_show_cursor();
+			break;
+			
 		case EVENT_IDLE:
 			return listbox_idle(wind, event, lb);
 			break;
@@ -2016,7 +2023,6 @@ int newmenu_listbox1( char * title, int nitems, char * items[], int allow_abort_
 	if (!wind)
 	{
 		d_free(lb);
-		newmenu_hide_cursor();
 		
 		return -1;
 	}
@@ -2029,7 +2035,6 @@ int newmenu_listbox1( char * title, int nitems, char * items[], int allow_abort_
 	lb->first_item = -1;
 
 	lb->mouse_state = lb->omouse_state = 0;	//dblclick_flag = 0;
-	newmenu_show_cursor();
 
 	while(!lb->done)
 		event_process();
