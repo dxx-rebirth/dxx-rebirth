@@ -898,7 +898,7 @@ int load_game_data(CFILE *LoadFile)
 	}
 
 	//===================== READ PLAYER INFO ==========================
-	Object_next_signature = 0;
+
 
 	//===================== READ OBJECT INFO ==========================
 
@@ -913,7 +913,7 @@ int load_game_data(CFILE *LoadFile)
 			memset(&(Objects[i]), 0, sizeof(object));
 			read_object(&Objects[i],LoadFile,game_top_fileinfo.fileinfo_version);
 
-			Objects[i].signature = Object_next_signature++;
+			Objects[i].signature = obj_get_signature();
 			verify_object( &Objects[i] );
 		}
 

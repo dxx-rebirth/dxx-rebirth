@@ -763,7 +763,6 @@ RetryObjectLoading:
 			}
 		}
 	
-		Object_next_signature = 0;
 		for (i=0; i<=Highest_object_index; i++ )	{
 			obj = &Objects[i];
 			obj->rtype.pobj_info.alt_textures = -1;
@@ -779,12 +778,9 @@ RetryObjectLoading:
 					}
 				}
 				obj_link(i,segnum);
-				if ( obj->signature > Object_next_signature )
-					Object_next_signature = obj->signature;
 			}
 		}	
 		special_reset_objects();
-		Object_next_signature++;
 	
 		//Restore wall info
 		Num_walls = PHYSFSX_readSXE32(fp, swap);

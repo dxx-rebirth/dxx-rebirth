@@ -7,6 +7,7 @@ main/newdemo.c: Added a new code to properly re-record view/cockpit-events at be
 arch/sdl/window.c, main/automap.c, main/game.c, main/gamecntl.c, main/kconfig.c, main/menu.c, main/net_ipx.c, main/net_udp.c, main/newmenu.c: Make response to EVENT_WINDOW_CLOSE conform to 'handling' system - returning 1 means abort closing
 main/kconfig.c, main/newmenu.c: Tidy up newmenu_show/hide_cursor calls
 main/newmenu.c: Allow user to abort close, for whatever reason (helps with my next commit)
+main/gamesave.c, main/newdemo.c, main/object.c, main/object.h, main/state.c: Improved Object signature assignment and made sure there will be no duplicates; Also used short-ranged values only so Demo system won't screw up
 
 20100127
 --------

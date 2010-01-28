@@ -879,7 +879,30 @@ void obj_unlink(int objnum)
 	Assert(Objects[0].prev != 0);
 }
 
-int Object_next_signature = 0;
+// Returns a new, unique signature for a new object
+int obj_get_signature()
+{
+	static short sig = 0; // Yes! Short! a) We do not need higher values b) the demo system only stores shorts
+	int free = 0, i = 0;
+
+	while (!free)
+	{
+		free = 1;
+		sig++;
+		if (sig < 0)
+			sig = 0;
+		for (i = 0; i <= MAX_OBJECTS; i++)
+		{
+			if ((sig == Objects[i].signature) && (Objects[i].type != OBJ_NONE))
+			{
+				free = 0;
+			}
+		}
+	}
+
+	return sig;
+}
+
 
 int Debris_object_count=0;
 
@@ -1053,7 +1076,7 @@ int obj_create(ubyte type,ubyte id,int segnum,vms_vector *pos,
 	// in uninitialized fields.
 	memset( obj, 0, sizeof(object) );
 
-	obj->signature				= Object_next_signature++;
+	obj->signature				= obj_get_signature();
 	obj->type 					= type;
 	obj->id 						= id;
 	obj->last_pos				= *pos;
@@ -1141,7 +1164,7 @@ int obj_create_copy(int objnum, vms_vector *new_pos, int newsegnum)
 
 	obj_link(newobjnum,newsegnum);
 
-	obj->signature				= Object_next_signature++;
+	obj->signature				= obj_get_signature();
 
 	//we probably should initialize sub-structures here
 
