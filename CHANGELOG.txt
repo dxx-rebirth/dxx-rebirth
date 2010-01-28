@@ -3,6 +3,7 @@ D2X-Rebirth Changelog
 20100128
 --------
 main/playsave.c, main/playsave.h, main/object.c, main/render.c, main/hostage.c, main/newdemo.c, main/gamerend.c, main/endlevel.c, main/game.c, main/gauges.c: Made PlayerCfg.CockpitMode an array to hold two values: 0 to store the actual "cockpit", 1 to also store Letterbox, Rear, etc. Greatly helps to switch and restore views - especially in Demo playback which now properly selects modes
+main/newdemo.c: Added a new code to properly re-record view/cockpit-events at beginning and end of Demo recording so views will be fine if switched before recording started; Also added lost sequence to record Rear-view reset between levels; Everything done without breaking the Demo format!
 
 20100127
 --------

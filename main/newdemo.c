@@ -191,6 +191,7 @@ sbyte RenderingWasRecorded[32];
 object DemoRightExtra,DemoLeftExtra;
 ubyte DemoDoRight=0,DemoDoLeft=0;
 
+void newdemo_record_oneframeevent_update();
 extern int digi_link_sound_to_object3( int org_soundnum, short objnum, int forever, fix max_volume, fix  max_distance, int loop_start, int loop_end );
 
 PHYSFS_file *infile;
@@ -906,8 +907,8 @@ void newdemo_record_start_demo()
 	nd_write_byte((sbyte)Secondary_weapon);
 	Newdemo_start_frame = Newdemo_frame_number = 0;
 	JustStartedRecording=1;
-
 	newdemo_set_new_level(Current_level_num);
+	newdemo_record_oneframeevent_update();
 	start_time();
 
 }
@@ -1428,6 +1429,7 @@ void newdemo_set_new_level(int level_num)
 	segment *seg;
 
 	stop_time();
+	newdemo_record_restore_rearview(); // This is actually switched while loading the new level - not ingame, so do it here.
 	nd_write_byte(ND_EVENT_NEW_LEVEL);
 	nd_write_byte((sbyte)level_num);
 	nd_write_byte((sbyte)Current_level_num);
@@ -1450,6 +1452,30 @@ void newdemo_set_new_level(int level_num)
 	}
 
 	start_time();
+}
+
+/*
+ * By design, the demo code does not record certain events when demo recording starts or ends.
+ * To not break compability this function can be applied at start/end of demo recording to
+ * re-record these events. It will "simulate" those events without using functions older game
+ * versions cannot handle.
+ */
+void newdemo_record_oneframeevent_update()
+{
+	if (Player_is_dead)
+		newdemo_record_letterbox();
+	else
+		newdemo_record_restore_cockpit();
+
+	if (Rear_view)
+		newdemo_record_rearview();
+	else
+		newdemo_record_restore_rearview();
+
+	if (Viewer == Guided_missile[Player_num])
+		newdemo_record_guided_start();
+	else
+		newdemo_record_guided_end();
 }
 
 enum purpose_type
@@ -3390,6 +3416,8 @@ void newdemo_stop_recording()
 	char fullname[PATH_MAX] = DEMO_DIR;
 
 	exit = 0;
+
+	newdemo_record_oneframeevent_update();
 
 	if (!Newdemo_no_space)
 		newdemo_write_end();
