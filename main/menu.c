@@ -441,7 +441,7 @@ int filename_menu_handler( listbox *lb, d_event *event, file_list *l )
 					x = nm_messagebox( NULL, 2, TXT_YES, TXT_NO, "%s %s?", TXT_DELETE_DEMO, items[citem]+(((l->mode == FILE_DEMO_MODE) && items[citem][0]=='$')?1:0) );
  				if (x==0)	{
 					char * p;
-					char plxfile[PATH_MAX];
+					char plxfile[PATH_MAX], efffile[PATH_MAX];
 					int ret;
 					char name[PATH_MAX];
 					
@@ -462,6 +462,10 @@ int filename_menu_handler( listbox *lb, d_event *event, file_list *l )
 						sprintf(plxfile, GameArg.SysUsePlayersDir? "Players/%.8s.plx" : "%.8s.plx", items[citem]);
 						if (cfexist(plxfile))
 							PHYSFS_delete(plxfile);
+						// delete EFF file
+						sprintf(efffile, GameArg.SysUsePlayersDir? "Players/%.8s.eff" : "%.8s.eff", items[citem]);
+						if (cfexist(efffile))
+							PHYSFS_delete(efffile);
 					}
 					
 					if (ret) {

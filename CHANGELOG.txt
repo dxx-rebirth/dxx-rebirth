@@ -8,6 +8,7 @@ arch/sdl/window.c, main/automap.c, main/game.c, main/gamecntl.c, main/kconfig.c,
 main/kconfig.c, main/newmenu.c: Tidy up newmenu_show/hide_cursor calls
 main/newmenu.c: Allow user to abort close, for whatever reason (helps with my next commit)
 main/gamesave.c, main/newdemo.c, main/object.c, main/object.h, main/state.c: Improved Object signature assignment and made sure there will be no duplicates; Also used short-ranged values only so Demo system won't screw up
+main/menu.c: When deleting a player also delete the Multiplayer efficiency file
 
 20100127
 --------
