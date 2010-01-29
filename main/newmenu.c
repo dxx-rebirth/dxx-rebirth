@@ -609,14 +609,6 @@ int newmenu_idle(window *wind, d_event *event, newmenu *menu)
 			rval = (*menu->subfunction)(menu, event, menu->userdata);
 	}
 	
-#ifdef NETWORK
-	if ((rval >= -1) && !menu->time_stopped)	{
-		// Save current menu box
-		if (multi_menu_poll() == -1)
-			rval = -2;
-	}
-#endif
-	
 	if (rval < -1)
 	{
 		menu->citem = rval;
@@ -1252,6 +1244,12 @@ int newmenu_handler(window *wind, d_event *event, newmenu *menu)
 			
 			if ( menu->sound_stopped )
 				digi_resume_digi_sounds();
+			
+			if (!menu->done)	// closing from outside newmenu.c
+			{
+				menu->citem = -1;
+				menu->done = 1;
+			}
 			
 			d_free(menu);
 			return 0;	// continue closing

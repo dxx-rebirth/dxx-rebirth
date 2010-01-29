@@ -380,11 +380,11 @@ int set_screen_mode(int sm)
 	return 1;
 }
 
-static int timer_paused=0;
+static int time_paused=0;
 
 void stop_time()
 {
-	if (timer_paused==0) {
+	if (time_paused==0) {
 		fix time;
 		time = timer_get_fixed_seconds();
 		last_timer_value = time - last_timer_value;
@@ -392,14 +392,14 @@ void stop_time()
 			last_timer_value = 0;
 		}
 	}
-	timer_paused++;
+	time_paused++;
 }
 
 void start_time()
 {
-	timer_paused--;
-	Assert(timer_paused >= 0);
-	if (timer_paused==0) {
+	time_paused--;
+	Assert(time_paused >= 0);
+	if (time_paused==0) {
 		fix time;
 		time = timer_get_fixed_seconds();
 		last_timer_value = time - last_timer_value;
@@ -995,13 +995,9 @@ int game_handler(window *wind, d_event *event, void *data)
 			// GAME LOOP!
 			Config_menu_flag = 0;
 			
-			calc_frame_time();
-			
 			ReadControls();		// will have its own event(s) eventually
 			if (window_get_front() != wind)
 				break;
-			
-			GameProcessFrame();
 			
 			//see if redbook song needs to be restarted
 			RBACheckFinishedHook();	// Handle RedBook Audio Repeating.
@@ -1032,11 +1028,20 @@ int game_handler(window *wind, d_event *event, void *data)
 			break;
 			
 		case EVENT_WINDOW_DRAW:
-			if (force_cockpit_redraw) {			//screen need redrawing?
-				init_cockpit();
-				force_cockpit_redraw=0;
+			if (!time_paused)
+			{
+				calc_frame_time();
+				GameProcessFrame();
 			}
-			game_render_frame();
+			
+			if (!Automap_active)		// efficiency hack
+			{
+				if (force_cockpit_redraw) {			//screen need redrawing?
+					init_cockpit();
+					force_cockpit_redraw=0;
+				}
+				game_render_frame();
+			}
 			break;
 			
 		case EVENT_WINDOW_CLOSE:
