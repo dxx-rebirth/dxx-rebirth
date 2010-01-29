@@ -1147,9 +1147,7 @@ int newmenu_draw(window *wind, d_event *event, newmenu *menu)
 	int string_width, string_height, average_width;
 	
 	gr_set_current_canvas( NULL );
-#ifdef OGL
 	nm_draw_background1(menu->filename);
-#endif
 	if (menu->filename == NULL)
 		nm_draw_background(menu->x-(menu->is_scroll_box?FSPACX(5):0),menu->y,menu->x+menu->w,menu->y+menu->h);
 	
@@ -1894,9 +1892,7 @@ int listbox_draw(window *wind, d_event *event, listbox *lb)
 {
 	int i;
 
-#ifdef OGL
 	nm_draw_background1(NULL);
-#endif
 	nm_draw_background( lb->box_x-BORDERX,lb->box_y-lb->title_height-BORDERY,lb->box_x+lb->box_w+BORDERX,lb->box_y+lb->height+BORDERY );
 	gr_set_curfont(MEDIUM3_FONT);
 	gr_string( 0x8000, lb->box_y - lb->title_height, lb->title );

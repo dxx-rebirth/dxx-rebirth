@@ -198,10 +198,10 @@ void MovieShowFrame(ubyte *buf, uint bufw, uint bufh, uint sx, uint sy, uint w, 
 			&source_bm,&grd_curcanv->cv_bitmap,0);
 
 	glEnable (GL_BLEND);
-	gr_flip();
 #else
-	gr_bm_ubitblt(bufw,bufh,dstx*((double)grd_curscreen->sc_w/(GameArg.GfxMovieHires?640:320)),dsty*((double)grd_curscreen->sc_h/(GameArg.GfxMovieHires?480:200)),sx,sy,&source_bm,&grd_curcanv->cv_bitmap);
+	gr_bm_ubitbltm(bufw,bufh,dstx*((double)grd_curscreen->sc_w/(GameArg.GfxMovieHires?640:320)),dsty*((double)grd_curscreen->sc_h/(GameArg.GfxMovieHires?480:200)),sx,sy,&source_bm,&grd_curcanv->cv_bitmap);
 #endif
+	gr_flip();
 }
 
 //our routine to set the pallete, called from the movie code

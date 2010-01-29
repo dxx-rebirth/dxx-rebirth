@@ -190,9 +190,9 @@ void print_commandline_help()
 	printf( "  -showmeminfo       %s\n", "Show memory statistics");
 	printf( "  -nodoublebuffer    %s\n", "Disable Doublebuffering");
 	printf( "  -bigpig            %s\n", "Use uncompressed RLE bitmaps");
+	printf( "  -16bpp             %s\n", "Use 16Bpp instead of 32Bpp");
 #ifdef    OGL
 	printf( "  -gl_oldtexmerge    %s\n", "Use old texmerge, uses more ram, but _might_ be a bit faster");
-	printf( "  -gl_16bpp          %s\n", "Use 16Bpp Color Depth");
 	printf( "  -gl_intensity4_ok <n> %s\n", "Override DbgGlIntensity4Ok - Default: 1");
 	printf( "  -gl_luminance4_alpha4_ok <n> %s\n", "Override DbgGlLuminance4Alpha4Ok - Default: 1");
 	printf( "  -gl_rgba2_ok <n>   %s\n", "Override DbgGlRGBA2Ok - Default: 1");
