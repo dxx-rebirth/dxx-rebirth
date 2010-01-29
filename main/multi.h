@@ -263,8 +263,8 @@ int multi_endlevel(int *secret);
 int multi_endlevel_poll1();
 int multi_endlevel_poll2( newmenu *menu, d_event *event, void *userdata );
 void multi_send_endlevel_packet();
-int multi_menu_poll(void);
 void multi_leave_game(void);
+void multi_leave_menus(void);
 void multi_process_data(char *dat, int len);
 void multi_process_bigdata(char *buf, int len);
 void multi_do_death(int objnum);
@@ -330,8 +330,6 @@ extern int Network_message_reciever;
 // Which player 'owns' each local object for network purposes
 extern sbyte object_owner[MAX_OBJECTS];
 
-extern int multi_in_menu; // Flag to tell if we're executing GameLoop from within a newmenu.
-extern int multi_leave_menu;
 extern int multi_quit_game;
 
 extern int multi_sending_message;

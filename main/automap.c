@@ -146,6 +146,8 @@ typedef struct automap
 #define K_FONT_COLOR_20         BM_XRGB(20, 20, 20 )
 #define K_GREEN_31              BM_XRGB(0, 31, 0)
 
+int Automap_active = 0;
+
 void init_automap_colors(automap *am)
 {
 	am->wall_normal_color = K_WALL_NORMAL_COLOR;
@@ -555,13 +557,6 @@ int automap_idle(window *wind, d_event *event, automap *am)
 		memset(&Controls,0,sizeof(control_info));			// Clear everything...
 		old_wiggle = ConsoleObject->mtype.phys_info.flags & PF_WIGGLE;	// Save old wiggle
 		ConsoleObject->mtype.phys_info.flags &= ~PF_WIGGLE;		// Turn off wiggle
-#ifdef NETWORK
-		if (multi_menu_poll())
-		{
-			window_close(wind);
-			return 1;
-		}
-#endif
 		ConsoleObject->mtype.phys_info.flags |= old_wiggle;		// Restore wiggle
 		Controls = am->saved_control_info;
 	}
@@ -766,6 +761,7 @@ int automap_handler(window *wind, d_event *event, automap *am)
 			game_flush_inputs();
 			d_free(am);
 			window_set_visible(Game_wind, 1);
+			Automap_active = 0;
 			return 0;	// continue closing
 			break;
 			
@@ -826,6 +822,7 @@ void do_automap( int key_code )
 		am->pause_game = 0;
 
 	if (am->pause_game) {
+		window_set_visible(Game_wind, 0);
 		stop_time();
 		digi_pause_digi_sounds();
 	}
@@ -865,6 +862,7 @@ void do_automap( int key_code )
 	gr_init_sub_canvas(&am->automap_view, &grd_curscreen->sc_canvas, (SWIDTH/23), (SHEIGHT/6), (SWIDTH/1.1), (SHEIGHT/1.45));
 
 	gr_palette_load( gr_palette );
+	Automap_active = 1;
 }
 
 void adjust_segment_limit(automap *am, int SegmentLimit)

@@ -414,11 +414,11 @@ int set_screen_mode(int sm)
 	return 1;
 }
 
-static int timer_paused=0;
+static int time_paused=0;
 
 void stop_time()
 {
-	if (timer_paused==0) {
+	if (time_paused==0) {
 		fix time;
 		time = timer_get_fixed_seconds();
 		last_timer_value = time - last_timer_value;
@@ -426,14 +426,14 @@ void stop_time()
 			last_timer_value = 0;
 		}
 	}
-	timer_paused++;
+	time_paused++;
 }
 
 void start_time()
 {
-	timer_paused--;
-	Assert(timer_paused >= 0);
-	if (timer_paused==0) {
+	time_paused--;
+	Assert(time_paused >= 0);
+	if (time_paused==0) {
 		fix time;
 		time = timer_get_fixed_seconds();
 		last_timer_value = time - last_timer_value;
@@ -1173,7 +1173,7 @@ window *Game_wind = NULL;
 // Event handler for the game
 int game_handler(window *wind, d_event *event, void *data)
 {
-	int player_shields;
+	data = data;
 
 	switch (event->type)
 	{
@@ -1181,19 +1181,9 @@ int game_handler(window *wind, d_event *event, void *data)
 			// GAME LOOP!
 			Config_menu_flag = 0;
 			
-			player_shields = Players[Player_num].shields;
-			
-			calc_frame_time();
-			
 			ReadControls();		// will have its own event(s) eventually
 			if (window_get_front() != wind)
 				break;
-			
-			GameProcessFrame();
-			
-			//if the player is taking damage, give up guided missile control
-			if (Players[Player_num].shields != player_shields)
-				release_guided_missile(Player_num);
 			
 			//see if redbook song needs to be restarted
 			RBACheckFinishedHook();	// Handle RedBook Audio Repeating.
@@ -1225,16 +1215,24 @@ int game_handler(window *wind, d_event *event, void *data)
 			
 			if (Function_mode != FMODE_GAME)
 				window_close(wind);
-
 			return 0;
 			break;
 			
 		case EVENT_WINDOW_DRAW:
-			if (force_cockpit_redraw) {			//screen need redrawing?
-				init_cockpit();
-				force_cockpit_redraw=0;
+			if (!time_paused)
+			{
+				calc_frame_time();
+				GameProcessFrame();
 			}
-			game_render_frame();
+			
+			if (!Automap_active)		// efficiency hack
+			{
+				if (force_cockpit_redraw) {			//screen need redrawing?
+					init_cockpit();
+					force_cockpit_redraw=0;
+				}
+				game_render_frame();
+			}
 			break;
 			
 		case EVENT_WINDOW_CLOSE:
@@ -1263,8 +1261,6 @@ int game_handler(window *wind, d_event *event, void *data)
 			return 0;
 			break;
 	}
-
-	data = data;
 
 	return 1;
 }
@@ -1359,6 +1355,8 @@ void flicker_lights();
 
 void GameProcessFrame(void)
 {
+	int player_shields = Players[Player_num].shields;
+	
 	update_player_stats();
 	diminish_palette_towards_normal();		//	Should leave palette effect up for as long as possible by putting right before render.
 	do_afterburner_stuff();
@@ -1521,6 +1519,10 @@ void GameProcessFrame(void)
 		}
 #endif
 	}
+	
+	//if the player is taking damage, give up guided missile control
+	if (Players[Player_num].shields != player_shields)
+		release_guided_missile(Player_num);
 
 	omega_charge_frame();
 	slide_textures();

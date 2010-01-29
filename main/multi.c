@@ -101,7 +101,6 @@ void multi_do_play_by_play(char *buf);
 #define vm_angvec_zero(v) (v)->p=(v)->b=(v)->h=0
 
 void drop_player_eggs(object *player); // from collide.c
-void GameProcessFrame(void); // From game.c
 
 //
 // Global variables
@@ -148,8 +147,6 @@ int   sorted_kills[MAX_NUM_NET_PLAYERS];
 short kill_matrix[MAX_NUM_NET_PLAYERS][MAX_NUM_NET_PLAYERS];
 int   multi_goto_secret = 0;
 short team_kills[2];
-int   multi_in_menu = 0;
-int   multi_leave_menu = 0;
 int   multi_quit_game = 0;
 int 	PacketUrgent = 0;
 
@@ -547,7 +544,6 @@ multi_new_game(void)
 	team_kills[0] = team_kills[1] = 0;
 	Endlevel_sequence = 0;
 	Player_is_dead = 0;
-	multi_leave_menu = 0;
 	multi_quit_game = 0;
 	Show_kill_list = 1;
 	game_disable_cheats();
@@ -883,8 +879,9 @@ void multi_do_protocol_frame(int force, int listen)
 	}
 }
 
-void
-multi_do_frame(void)
+int multi_menu_check(void);
+
+void multi_do_frame(void)
 {
 	static int lasttime=0;
 	int i;
@@ -911,8 +908,7 @@ multi_do_frame(void)
 
 	multi_send_message(); // Send any waiting messages
 
-	if (!multi_in_menu)
-		multi_leave_menu = 0;
+	multi_menu_check();
 
 	if (Game_mode & GM_MULTI_ROBOTS)
 	{
@@ -921,7 +917,7 @@ multi_do_frame(void)
 
 	multi_do_protocol_frame(0, 1);
 
-	if (multi_quit_game && !multi_in_menu)
+	if (multi_quit_game)
 	{
 		multi_quit_game = 0;
 		if (Game_wind)
@@ -1111,46 +1107,40 @@ void multi_send_endlevel_packet()
 //          the state of the game in some way.
 //
 
-int
-multi_menu_poll(void)
+void multi_leave_menus(void)
 {
-	fix old_shields;
-	int was_fuelcen_alive;
-	int player_was_dead;
+	window *wind;
+	
+	for (wind = window_get_front(); wind != Game_wind; wind = window_get_front())
+		if (!window_close(wind))	// Uh-oh! Close cancelled.
+			break;
+}
 
-	was_fuelcen_alive = Control_center_destroyed;
+static fix old_shields = 400*F1_0;
+static int was_fuelcen_destroyed = 1;
+static int player_was_dead;
 
-	// Special polling function for in-game menus for multiplayer
+int multi_menu_check(void)
+{
+	// Check if we have to close in-game menus for multiplayer
 
 	if (! ((Game_mode & GM_MULTI) && (Function_mode == FMODE_GAME)) )
 		return(0);
 
-	if (multi_leave_menu)
-		return(-1);
-
-	old_shields = Players[Player_num].shields;
-	player_was_dead = Player_is_dead;
-
-	multi_in_menu++; // Track level of menu nesting
-
-	// The following three [hackish] lines will go away eventually
-	calc_frame_time();
-	memset(&Controls,0,sizeof(control_info));	// from game.c (was in below function)
-	GameProcessFrame();			
-
-	multi_in_menu--;
-
-	if (Endlevel_sequence || (Control_center_destroyed && !was_fuelcen_alive) || (Player_is_dead != player_was_dead) || (Players[Player_num].shields < old_shields))
+	if (Endlevel_sequence || (Control_center_destroyed && !was_fuelcen_destroyed) || (Player_is_dead != player_was_dead) || (Players[Player_num].shields < old_shields))
 	{
-		multi_leave_menu = 1;
+		multi_leave_menus();
 		return(-1);
 	}
 	if ((Control_center_destroyed) && (Countdown_seconds_left < 10))
 	{
-		multi_leave_menu = 1;
+		multi_leave_menus();
 		return(-1);
 	}
 
+	old_shields = Players[Player_num].shields;
+	was_fuelcen_destroyed = Control_center_destroyed;
+	player_was_dead = Player_is_dead;
 	return(0);
 }
 
@@ -2023,9 +2013,6 @@ multi_do_quit(char *buf)
 				Error("Protocol handling missing in multi_do_quit\n");
 				break;
 		}
-
-		if (multi_in_menu)
-			return;
 
 		for (i = 0; i < N_players; i++)
 			if (Players[i].connected) n++;
@@ -3236,7 +3223,7 @@ void multi_consistency_error(int reset)
 	Function_mode = FMODE_GAME;
 	count = 0;
 	multi_quit_game = 1;
-	multi_leave_menu = 1;
+	multi_leave_menus();
 	multi_reset_stuff();
 	Function_mode = FMODE_MENU;
 }

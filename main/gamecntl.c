@@ -2109,7 +2109,6 @@ void ReadControls()
 		if ( Controls.automap_down_count && !((Game_mode & GM_MULTI) && Control_center_destroyed && (Countdown_seconds_left < 10)))
 		{
 			game_flush_inputs();
-			window_set_visible(Game_wind, 0);
 			do_automap(0);
 			return;
 		}

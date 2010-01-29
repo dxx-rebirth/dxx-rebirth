@@ -729,11 +729,6 @@ int kconfig_idle(window *wind, d_event *event, kc_menu *menu)
 		}
 	}
 	
-#ifdef NETWORK
-	if ( !menu->time_stopped )
-		if (multi_menu_poll() == -1)
-			k = -2;
-#endif
 	switch( k )
 	{
 		case KEY_BACKSP:
