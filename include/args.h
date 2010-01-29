@@ -80,9 +80,9 @@ typedef struct Arg
 	int DbgShowMemInfo;
 	int DbgUseDoubleBuffer;
 	int DbgBigPig;
+	int DbgBpp;
 #ifdef OGL
 	int DbgAltTexMerge;
-	int DbgGlBpp;
 	int DbgGlIntensity4Ok;
 	int DbgGlLuminance4Alpha4Ok;
 	int DbgGlRGBA2Ok;

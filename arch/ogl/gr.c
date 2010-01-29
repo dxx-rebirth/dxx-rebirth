@@ -73,9 +73,9 @@ int ogl_init_window(int x, int y)
 	}
 
 	SDL_WM_SetCaption(DESCENT_VERSION, "Descent");
-	if (!SDL_SetVideoMode(x, y, GameArg.DbgGlBpp, SDL_OPENGL | (ogl_fullscreen ? SDL_FULLSCREEN : 0)))
+	if (!SDL_SetVideoMode(x, y, GameArg.DbgBpp, SDL_OPENGL | (ogl_fullscreen ? SDL_FULLSCREEN : 0)))
 	{
-		Error("Could not set %dx%dx%d opengl video mode: %s\n", x, y, GameArg.DbgGlBpp, SDL_GetError());
+		Error("Could not set %dx%dx%d opengl video mode: %s\n", x, y, GameArg.DbgBpp, SDL_GetError());
 	}
 	SDL_ShowCursor(0);
 
@@ -97,7 +97,7 @@ void gr_do_fullscreen(int f)
 	ogl_fullscreen=f;
 	if (gl_initialized)
 	{
-		if (!SDL_VideoModeOK(curx, cury, GameArg.DbgGlBpp, SDL_OPENGL | (ogl_fullscreen?SDL_FULLSCREEN:0)))
+		if (!SDL_VideoModeOK(curx, cury, GameArg.DbgBpp, SDL_OPENGL | (ogl_fullscreen?SDL_FULLSCREEN:0)))
 		{
 			con_printf(CON_URGENT,"Cannot set %ix%i. Fallback to 640x480\n",curx,cury);
 			curx=640;
@@ -203,7 +203,7 @@ int gr_check_mode(u_int32_t mode)
 	w=SM_W(mode);
 	h=SM_H(mode);
 	
-	return SDL_VideoModeOK(w, h, GameArg.DbgGlBpp, SDL_OPENGL | (ogl_fullscreen?SDL_FULLSCREEN:0));
+	return SDL_VideoModeOK(w, h, GameArg.DbgBpp, SDL_OPENGL | (ogl_fullscreen?SDL_FULLSCREEN:0));
 }
 
 int gr_set_mode(u_int32_t mode)
@@ -217,7 +217,7 @@ int gr_set_mode(u_int32_t mode)
 	w=SM_W(mode);
 	h=SM_H(mode);
 
-	if (!SDL_VideoModeOK(w, h, GameArg.DbgGlBpp, SDL_OPENGL | (ogl_fullscreen?SDL_FULLSCREEN:0)))
+	if (!SDL_VideoModeOK(w, h, GameArg.DbgBpp, SDL_OPENGL | (ogl_fullscreen?SDL_FULLSCREEN:0)))
 	{
 		con_printf(CON_URGENT,"Cannot set %ix%i. Fallback to 640x480\n",w,h);
 		w=640;
