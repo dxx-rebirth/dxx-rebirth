@@ -2036,7 +2036,7 @@ int newmenu_listbox1( char * title, int nitems, char * items[], int allow_abort_
 	if ( lb->citem < 0 ) lb->citem = 0;
 	if ( lb->citem >= nitems ) lb->citem = 0;
 
-	lb->first_item = -1;
+	lb->first_item = 0;
 
 	lb->mouse_state = lb->omouse_state = 0;	//dblclick_flag = 0;
 
