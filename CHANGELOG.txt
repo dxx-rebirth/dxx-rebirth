@@ -3,6 +3,7 @@ D1X-Rebirth Changelog
 20100129
 --------
 main/automap.c, main/automap.h, main/game.c, main/gamecntl.c, main/kconfig.c, main/multi.c, main/multi.h, main/net_ipx.c, main/net_udp.c, main/newmenu.c: For multiplayer, close menus from game_handler by doing frame processing in response to EVENT_WINDOW_DRAW, replacing multi_menu_poll system with single multi_menu_check call
+main/newmenu.c: Initialise lb->first_item to 0, not -1, preventing crash if you make a listbox selection very quickly
 
 20100128
 --------
