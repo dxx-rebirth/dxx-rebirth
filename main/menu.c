@@ -216,6 +216,9 @@ int DoMenu()
 	newmenu_item m[25];
 	int num_options = 0;
 
+	memset(&menu_choice, 0, sizeof(int)*25);
+	memset(&m, 0, sizeof(newmenu_item)*25);
+
 	do {
 		create_main_menu(m, menu_choice, &num_options); // may have to change, eg, maybe selected pilot and no save games.
 
