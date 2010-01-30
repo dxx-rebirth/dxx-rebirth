@@ -144,9 +144,7 @@ int main_menu_handler(newmenu *menu, d_event *event, int *menu_choice )
 		case EVENT_KEY_COMMAND:
 			// Don't allow them to hit ESC in the main menu.
 			if (((d_event_keycommand *)event)->keycode==KEY_ESC)
-				break;
-			else
-				return 0;
+				return 1;
 			
 		case EVENT_IDLE:
 			curtime = timer_get_fixed_seconds();
@@ -182,15 +180,13 @@ int main_menu_handler(newmenu *menu, d_event *event, int *menu_choice )
 						goto try_again;	//keep trying until we get a demo that works
 				}
 			}
-			return 0;
 			break;
 			
 		default:
-			return 0;
 			break;
 	}
 
-	return 1;
+	return 0;
 }
 
 static int main_menu_choice = 0;
@@ -725,7 +721,6 @@ int options_menuset(newmenu *menu, d_event *event, void *userdata)
 			{
 				gr_palette_set_gamma(newmenu_get_items(menu)[4].value);
 			}
-			return 0;	// for idle events
 			break;
 			
 		case EVENT_NEWMENU_SELECTED:
@@ -739,20 +734,20 @@ int options_menuset(newmenu *menu, d_event *event, void *userdata)
 				case  9: ReorderSecondary();		break;
 				case 10: do_misc_menu();		break;
 			}
-			break;	// stay in menu until escape
+			return 1;	// stay in menu until escape
+			break;
 			
 		case EVENT_WINDOW_CLOSE:
 			write_player_file();
-			return 0;	// continue closing
 			break;
 			
-			default:
-			return 0;
+		default:
+			break;
 	}
 
 	userdata++;		//kill warning
 	
-	return 1;
+	return 0;
 }
 
 int gcd(int a, int b)
@@ -879,7 +874,6 @@ int input_menuset(newmenu *menu, d_event *event, void *userdata)
 			PlayerCfg.MouseSensitivityX = items[15].value;
 			PlayerCfg.MouseSensitivityY = items[16].value;
 			PlayerCfg.MouseFilter = items[17].value;
-			return 0;	// for idle events
 			break;
 			
 		case EVENT_NEWMENU_SELECTED:
@@ -908,13 +902,14 @@ int input_menuset(newmenu *menu, d_event *event, void *userdata)
 					show_newdemo_help();
 					break;
 			}
-			break;		// stay in menu
+			return 1;		// stay in menu
+			break;
 			
 		default:
-			return 0;
+			break;
 	}
 	
-	return 1;
+	return 0;
 }
 
 void input_config()

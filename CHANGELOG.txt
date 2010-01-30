@@ -1,5 +1,10 @@
 D2X-Rebirth Changelog
 
+20100130
+--------
+arch/sdl/event.c, arch/sdl/key.c, main/menu.c, main/newmenu.c, main/newmenu.h, main/state.c: Send EVENT_KEY_COMMAND from key.c; add EVENT_NEWMENU_DRAW for state restore; place newmenu and listbox calls to callback so they can override ALL newmenu behaviour
+main/newdemo.c: Fix warning in newdemo_stop_recording where it should set the last char of filename to 0, not the next variable
+
 20100129
 --------
 main/automap.c, main/automap.h, main/game.c, main/gamecntl.c, main/kconfig.c, main/multi.c, main/multi.h, main/net_ipx.c, main/net_udp.c, main/newmenu.c: For multiplayer, close menus from game_handler by doing frame processing in response to EVENT_WINDOW_DRAW, replacing multi_menu_poll system with single multi_menu_check call

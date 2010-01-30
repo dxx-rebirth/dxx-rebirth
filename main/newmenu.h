@@ -40,7 +40,8 @@ typedef struct listbox listbox;
 
 enum newmenu_event
 {
-	EVENT_NEWMENU_SELECTED = EVENT_USER
+	EVENT_NEWMENU_DRAW = EVENT_USER,	// draw after the newmenu stuff is drawn (e.g. savegame previews)
+	EVENT_NEWMENU_SELECTED				// user chose something - pressed enter/clicked on it
 };
 
 typedef struct newmenu_item {
@@ -61,7 +62,8 @@ typedef struct newmenu_item {
 // return a -1 if Esc is pressed, otherwise, it returns the index of
 // the item that was current when Enter was was selected.
 // The subfunction function accepts standard events, plus additional
-// NEWMENU events in future.  Just pass NULL if you don't want this.
+// NEWMENU events in future.  Just pass NULL if you don't want this,
+// or return 0 where you don't want to override the default behaviour.
 // Title draws big, Subtitle draw medium sized.  You can pass NULL for
 // either/both of these if you don't want them.
 extern int newmenu_do(char * title, char * subtitle, int nitems, newmenu_item *item, int (*subfunction)(newmenu *menu, d_event *event, void *userdata), void *userdata);

@@ -559,27 +559,12 @@ int newmenu_get_citem(newmenu *menu)
 	return menu->citem;
 }
 
-int newmenu_idle(window *wind, d_event *event, newmenu *menu)
+int newmenu_key_command(window *wind, d_event *event, newmenu *menu)
 {
-	int old_choice, i, k = -1;
-	grs_canvas *menu_canvas = window_get_canvas(wind), *save_canvas = grd_curcanv;
+	int k = ((d_event_keycommand *)event)->keycode;
+	int old_choice, i;
 	char *Temp,TempVal;
-#ifdef NEWMENU_MOUSE
-	int mx=0, my=0, mz=0, x1 = 0, x2, y1, y2;
-#endif
-	int rval = 0;
-	
-	timer_delay2(50);
-	
-#ifdef NEWMENU_MOUSE
-	menu->omouse_state = menu->mouse_state;
-	menu->mouse_state = mouse_button_state(0);
-#endif
-	
-	//see if redbook song needs to be restarted
-	RBACheckFinishedHook();
-	
-	k = key_inkey();
+	int rval = 1;
 	
 	switch( k )
 	{
@@ -595,39 +580,6 @@ int newmenu_idle(window *wind, d_event *event, newmenu *menu)
 		case KEY_PAD9: k = KEY_9;  break;
 		case KEY_PADPERIOD: k = KEY_PERIOD; break;
 	}
-	
-	gr_set_current_canvas(menu_canvas);
-	
-	if (menu->tiny_mode)
-		gr_set_curfont(GAME_FONT);
-	else 
-		gr_set_curfont(MEDIUM1_FONT);
-	
-	if (menu->subfunction)
-	{
-		if (k)
-		{
-			d_event_keycommand key_event;	// for now - will be passed through newmenu_handler later
-			
-			key_event.type = EVENT_KEY_COMMAND;
-			key_event.keycode = k;
-			
-			rval = (*menu->subfunction)(menu, (d_event *)&key_event, menu->userdata);
-			k = key_event.keycode;
-		}
-		else
-			rval = (*menu->subfunction)(menu, event, menu->userdata);
-	}
-	
-	if (rval < -1)
-	{
-		menu->citem = rval;
-		menu->done = 1;
-		gr_set_current_canvas(save_canvas);
-		return 1;
-	}
-	else if (rval)
-		return 1;	// event handled already, but stay in newmenu
 	
 	old_choice = menu->citem;
 	
@@ -669,9 +621,9 @@ int newmenu_idle(window *wind, d_event *event, newmenu *menu)
 				menu->items[old_choice].value = -1;
 			}
 			break;
-			case KEY_TAB:
-			case KEY_DOWN:
-			case KEY_PAD2:
+		case KEY_TAB:
+		case KEY_DOWN:
+		case KEY_PAD2:
 			if (menu->all_text) break;
 			do {
 				menu->citem++;
@@ -708,7 +660,7 @@ int newmenu_idle(window *wind, d_event *event, newmenu *menu)
 				menu->items[old_choice].value = -1;
 			}
 			break;
-			case KEY_SPACEBAR:
+		case KEY_SPACEBAR:
 			if ( menu->citem > -1 )	{
 				switch( menu->items[menu->citem].type )	{
 					case NM_TYPE_MENU:
@@ -728,7 +680,7 @@ int newmenu_idle(window *wind, d_event *event, newmenu *menu)
 							}
 						}
 						break;
-						case NM_TYPE_RADIO:
+					case NM_TYPE_RADIO:
 						for (i=0; i<menu->nitems; i++ )	{
 							if ((i!=menu->citem) && (menu->items[i].type==NM_TYPE_RADIO) && (menu->items[i].group==menu->items[menu->citem].group) && (menu->items[i].value) )	{
 								menu->items[i].value = 0;
@@ -740,7 +692,7 @@ int newmenu_idle(window *wind, d_event *event, newmenu *menu)
 			}
 			break;
 			
-			case KEY_SHIFTED+KEY_UP:
+		case KEY_SHIFTED+KEY_UP:
 			if (MenuReordering && menu->citem!=0)
 			{
 				Temp=menu->items[menu->citem].text;
@@ -752,7 +704,7 @@ int newmenu_idle(window *wind, d_event *event, newmenu *menu)
 				menu->citem--;
 			}
 			break;
-			case KEY_SHIFTED+KEY_DOWN:
+		case KEY_SHIFTED+KEY_DOWN:
 			if (MenuReordering && menu->citem!=(menu->nitems-1))
 			{
 				Temp=menu->items[menu->citem].text;
@@ -764,8 +716,8 @@ int newmenu_idle(window *wind, d_event *event, newmenu *menu)
 				menu->citem++;
 			}
 			break;
-			case KEY_ENTER:
-			case KEY_PADENTER:
+		case KEY_ENTER:
+		case KEY_PADENTER:
 			if ( (menu->citem>-1) && (menu->items[menu->citem].type==NM_TYPE_INPUT_MENU) && (menu->items[menu->citem].group==0))	{
 				menu->items[menu->citem].group = 1;
 				if ( !strnicmp( menu->items[menu->citem].saved_text, TXT_EMPTY, strlen(TXT_EMPTY) ) )	{
@@ -782,17 +734,16 @@ int newmenu_idle(window *wind, d_event *event, newmenu *menu)
 					return 1;
 				
 				menu->done = 1;
-				gr_set_current_canvas(save_canvas);
 				return 1;
 			}
 			break;
 			
-			case KEY_ALTED+KEY_ENTER:
-			case KEY_ALTED+KEY_PADENTER:
+		case KEY_ALTED+KEY_ENTER:
+		case KEY_ALTED+KEY_PADENTER:
 			gr_toggle_fullscreen();
 			break;
 			
-			case KEY_ESC:
+		case KEY_ESC:
 			if ( (menu->citem>-1) && (menu->items[menu->citem].type==NM_TYPE_INPUT_MENU) && (menu->items[menu->citem].group==1))	{
 				menu->items[menu->citem].group=0;
 				strcpy(menu->items[menu->citem].text, menu->items[menu->citem].saved_text );	
@@ -800,26 +751,162 @@ int newmenu_idle(window *wind, d_event *event, newmenu *menu)
 			} else {
 				menu->done = 1;
 				menu->citem = -1;
-				gr_set_current_canvas(save_canvas);
 				return 1;
 			}
 			break;
 			
 #ifdef macintosh
-			case KEY_COMMAND+KEY_SHIFTED+KEY_3:
+		case KEY_COMMAND+KEY_SHIFTED+KEY_3:
 #endif
-			case KEY_PRINT_SCREEN:
+		case KEY_PRINT_SCREEN:
 			save_screen_shot(0);
 			break;
 			
 #ifndef NDEBUG
-			case KEY_BACKSP:	
+		case KEY_BACKSP:	
 			if ( (menu->citem>-1) && (menu->items[menu->citem].type!=NM_TYPE_INPUT)&&(menu->items[menu->citem].type!=NM_TYPE_INPUT_MENU))
 				Int3(); 
 			break;
 #endif
 			
+		default:
+			rval = 0;
+			break;
 	}
+	
+	if ( menu->citem > -1 )	{
+		int ascii;
+		
+		if ( ((menu->items[menu->citem].type==NM_TYPE_INPUT)||((menu->items[menu->citem].type==NM_TYPE_INPUT_MENU)&&(menu->items[menu->citem].group==1)) )&& (old_choice==menu->citem) )	{
+			if ( k==KEY_LEFT || k==KEY_BACKSP || k==KEY_PAD4 )	{
+				if (menu->items[menu->citem].value==-1) menu->items[menu->citem].value = strlen(menu->items[menu->citem].text);
+				if (menu->items[menu->citem].value > 0)
+					menu->items[menu->citem].value--;
+				menu->items[menu->citem].text[menu->items[menu->citem].value] = 0;
+				rval = 1;
+			} else {
+				ascii = key_ascii();
+				if ((ascii < 255 ) && (menu->items[menu->citem].value < menu->items[menu->citem].text_len ))
+				{
+					int allowed;
+					
+					if (menu->items[menu->citem].value==-1) {
+						menu->items[menu->citem].value = 0;
+					}
+					
+					allowed = char_allowed(ascii);
+					
+					if (!allowed && ascii==' ' && char_allowed('_')) {
+						ascii = '_';
+						allowed=1;
+					}
+					
+					if (allowed) {
+						menu->items[menu->citem].text[menu->items[menu->citem].value++] = ascii;
+						menu->items[menu->citem].text[menu->items[menu->citem].value] = 0;
+					}
+				}
+			}
+		}
+		else if ((menu->items[menu->citem].type!=NM_TYPE_INPUT) && (menu->items[menu->citem].type!=NM_TYPE_INPUT_MENU) )
+		{
+			ascii = key_ascii();
+			if (ascii < 255 ) {
+				int choice1 = menu->citem;
+				ascii = toupper(ascii);
+				do {
+					int i,ch;
+					choice1++;
+					if (choice1 >= menu->nitems )
+						choice1=0;
+					
+					for (i=0;(ch=menu->items[choice1].text[i])!=0 && ch==' ';i++);
+					
+					if ( ( (menu->items[choice1].type==NM_TYPE_MENU) ||
+						  (menu->items[choice1].type==NM_TYPE_CHECK) ||
+						  (menu->items[choice1].type==NM_TYPE_RADIO) ||
+						  (menu->items[choice1].type==NM_TYPE_NUMBER) ||
+						  (menu->items[choice1].type==NM_TYPE_SLIDER) )
+						&& (ascii==toupper(ch)) )
+					{
+						k = 0;
+						menu->citem = choice1;
+					}
+					
+					while (menu->citem > menu->scroll_offset+menu->max_displayable-1)
+					{
+						menu->scroll_offset++;
+					}
+					while (menu->citem < menu->scroll_offset)
+					{
+						menu->scroll_offset--;
+					}
+					
+				} while (choice1 != menu->citem );
+			}
+		}
+		
+		if ( (menu->items[menu->citem].type==NM_TYPE_NUMBER) || (menu->items[menu->citem].type==NM_TYPE_SLIDER))
+		{
+			switch( k ) {
+				case KEY_PAD4:
+				case KEY_LEFT:
+				case KEY_MINUS:
+				case KEY_MINUS+KEY_SHIFTED:
+				case KEY_PADMINUS:
+					menu->items[menu->citem].value -= 1;
+					rval = 1;
+					break;
+				case KEY_RIGHT:
+				case KEY_PAD6:
+				case KEY_EQUAL:
+				case KEY_EQUAL+KEY_SHIFTED:
+				case KEY_PADPLUS:
+					menu->items[menu->citem].value++;
+					rval = 1;
+					break;
+				case KEY_PAGEUP:
+				case KEY_PAD9:
+				case KEY_SPACEBAR:
+					menu->items[menu->citem].value += 10;
+					rval = 1;
+					break;
+				case KEY_PAGEDOWN:
+				case KEY_BACKSP:
+				case KEY_PAD3:
+					menu->items[menu->citem].value -= 10;
+					rval = 1;
+					break;
+			}
+		}
+		
+	}
+	
+	return rval;
+}
+
+int newmenu_idle(window *wind, newmenu *menu)
+{
+	int old_choice, i;
+	grs_canvas *menu_canvas = window_get_canvas(wind), *save_canvas = grd_curcanv;
+#ifdef NEWMENU_MOUSE
+	int mx=0, my=0, mz=0, x1 = 0, x2, y1, y2;
+#endif
+	d_event event = { EVENT_NEWMENU_SELECTED };
+	
+	timer_delay2(50);
+	
+#ifdef NEWMENU_MOUSE
+	menu->omouse_state = menu->mouse_state;
+	menu->mouse_state = mouse_button_state(0);
+#endif
+	
+	//see if redbook song needs to be restarted
+	RBACheckFinishedHook();
+	
+	gr_set_current_canvas(menu_canvas);
+	
+	old_choice = menu->citem;
 	
 #ifdef NEWMENU_MOUSE // for mouse selection of menu's etc.
 	if ( menu->mouse_state && !menu->omouse_state && !menu->all_text ) {
@@ -990,8 +1077,7 @@ int newmenu_idle(window *wind, d_event *event, newmenu *menu)
 					if (menu->dblclick_flag)
 					{
 						// Tell callback, allow staying in menu
-						event->type = EVENT_NEWMENU_SELECTED;
-						if (menu->subfunction && (*menu->subfunction)(menu, event, menu->userdata))
+						if (menu->subfunction && (*menu->subfunction)(menu, &event, menu->userdata))
 							return 1;
 						
 						menu->done = 1;
@@ -1003,8 +1089,7 @@ int newmenu_idle(window *wind, d_event *event, newmenu *menu)
 				else
 				{
 					// Tell callback, allow staying in menu
-					event->type = EVENT_NEWMENU_SELECTED;
-					if (menu->subfunction && (*menu->subfunction)(menu, event, menu->userdata))
+					if (menu->subfunction && (*menu->subfunction)(menu, &event, menu->userdata))
 						return 1;
 					
 					menu->done = 1;
@@ -1027,122 +1112,15 @@ int newmenu_idle(window *wind, d_event *event, newmenu *menu)
 	
 #endif // NEWMENU_MOUSE
 	
-	if ( menu->citem > -1 )	{
-		int ascii;
-		
-		if ( ((menu->items[menu->citem].type==NM_TYPE_INPUT)||((menu->items[menu->citem].type==NM_TYPE_INPUT_MENU)&&(menu->items[menu->citem].group==1)) )&& (old_choice==menu->citem) )	{
-			if ( k==KEY_LEFT || k==KEY_BACKSP || k==KEY_PAD4 )	{
-				if (menu->items[menu->citem].value==-1) menu->items[menu->citem].value = strlen(menu->items[menu->citem].text);
-				if (menu->items[menu->citem].value > 0)
-					menu->items[menu->citem].value--;
-				menu->items[menu->citem].text[menu->items[menu->citem].value] = 0;
-			} else {
-				ascii = key_ascii();
-				if ((ascii < 255 ) && (menu->items[menu->citem].value < menu->items[menu->citem].text_len ))
-				{
-					int allowed;
-					
-					if (menu->items[menu->citem].value==-1) {
-						menu->items[menu->citem].value = 0;
-					}
-					
-					allowed = char_allowed(ascii);
-					
-					if (!allowed && ascii==' ' && char_allowed('_')) {
-						ascii = '_';
-						allowed=1;
-					}
-					
-					if (allowed) {
-						menu->items[menu->citem].text[menu->items[menu->citem].value++] = ascii;
-						menu->items[menu->citem].text[menu->items[menu->citem].value] = 0;
-					}
-				}
-			}
-		}
-		else if ((menu->items[menu->citem].type!=NM_TYPE_INPUT) && (menu->items[menu->citem].type!=NM_TYPE_INPUT_MENU) )
-		{
-			ascii = key_ascii();
-			if (ascii < 255 ) {
-				int choice1 = menu->citem;
-				ascii = toupper(ascii);
-				do {
-					int i,ch;
-					choice1++;
-					if (choice1 >= menu->nitems )
-						choice1=0;
-					
-					for (i=0;(ch=menu->items[choice1].text[i])!=0 && ch==' ';i++);
-					
-					if ( ( (menu->items[choice1].type==NM_TYPE_MENU) ||
-						  (menu->items[choice1].type==NM_TYPE_CHECK) ||
-						  (menu->items[choice1].type==NM_TYPE_RADIO) ||
-						  (menu->items[choice1].type==NM_TYPE_NUMBER) ||
-						  (menu->items[choice1].type==NM_TYPE_SLIDER) )
-						&& (ascii==toupper(ch)) )
-					{
-						k = 0;
-						menu->citem = choice1;
-					}
-					
-					while (menu->citem > menu->scroll_offset+menu->max_displayable-1)
-					{
-						menu->scroll_offset++;
-					}
-					while (menu->citem < menu->scroll_offset)
-					{
-						menu->scroll_offset--;
-					}
-					
-				} while (choice1 != menu->citem );
-			}
-		}
-		
-		if ( (menu->items[menu->citem].type==NM_TYPE_NUMBER) || (menu->items[menu->citem].type==NM_TYPE_SLIDER))
-		{
-			switch( k ) {
-				case KEY_PAD4:
-				case KEY_LEFT:
-				case KEY_MINUS:
-				case KEY_MINUS+KEY_SHIFTED:
-				case KEY_PADMINUS:
-					menu->items[menu->citem].value -= 1;
-					break;
-				case KEY_RIGHT:
-				case KEY_PAD6:
-				case KEY_EQUAL:
-				case KEY_EQUAL+KEY_SHIFTED:
-				case KEY_PADPLUS:
-					menu->items[menu->citem].value++;
-					break;
-				case KEY_PAGEUP:
-				case KEY_PAD9:
-				case KEY_SPACEBAR:
-					menu->items[menu->citem].value += 10;
-					break;
-				case KEY_PAGEDOWN:
-				case KEY_BACKSP:
-				case KEY_PAD3:
-					menu->items[menu->citem].value -= 10;
-					break;
-			}
-		}
-		
-	}
-	
-	for (i=menu->scroll_offset; i<menu->max_displayable+menu->scroll_offset; i++ )
-		if (i==menu->citem && (menu->items[i].type==NM_TYPE_INPUT || (menu->items[i].type==NM_TYPE_INPUT_MENU && menu->items[i].group)))
-			update_cursor( &menu->items[i],menu->scroll_offset);
-	
 	gr_set_current_canvas(save_canvas);
 
 	return 0;
 }
 
-int newmenu_draw(window *wind, d_event *event, newmenu *menu)
+int newmenu_draw(window *wind, newmenu *menu)
 {
 	grs_canvas *menu_canvas = window_get_canvas(wind), *save_canvas = grd_curcanv;
-	int tw, th, ty, sx, sy;
+	int tw, th = 0, ty, sx, sy;
 	int i;
 	int string_width, string_height, average_width;
 	
@@ -1169,7 +1147,6 @@ int newmenu_draw(window *wind, d_event *event, newmenu *menu)
 		gr_set_fontcolor( BM_XRGB(21,21,21), -1 );
 		gr_get_string_size(menu->subtitle,&string_width,&string_height,&average_width );
 		tw = string_width;
-		th = (menu->title?th:0);
 		gr_printf( 0x8000, ty+th, menu->subtitle );
 	}
 	
@@ -1211,9 +1188,18 @@ int newmenu_draw(window *wind, d_event *event, newmenu *menu)
 		
 	}
 	
-	// Only allow drawing over the top of the default stuff
-	if (menu->subfunction)
-		(*menu->subfunction)(menu, event, menu->userdata);
+	if (wind == window_get_front())
+		for (i=menu->scroll_offset; i<menu->max_displayable+menu->scroll_offset; i++ )
+			if (i==menu->citem && (menu->items[i].type==NM_TYPE_INPUT || (menu->items[i].type==NM_TYPE_INPUT_MENU && menu->items[i].group)))
+				update_cursor( &menu->items[i],menu->scroll_offset);
+	
+	{
+		d_event event;
+		
+		event.type = EVENT_NEWMENU_DRAW;
+		if (menu->subfunction)
+			(*menu->subfunction)(menu, &event, menu->userdata);
+	}
 	
 	gr_set_current_canvas(save_canvas);
 	
@@ -1222,28 +1208,40 @@ int newmenu_draw(window *wind, d_event *event, newmenu *menu)
 
 int newmenu_handler(window *wind, d_event *event, newmenu *menu)
 {
+	if (menu->subfunction)
+	{
+		int rval = (*menu->subfunction)(menu, event, menu->userdata);
+		if (rval)
+		{
+			if (rval < -1)
+			{
+				menu->citem = rval;
+				menu->done = 1;
+			}
+
+			return 1;		// event handled
+		}
+	}
+	
 	switch (event->type)
 	{
 		case EVENT_WINDOW_ACTIVATED:
-			if (menu->subfunction)
-				(*menu->subfunction)(menu, event, menu->userdata);
-
 			newmenu_show_cursor();
 			break;
 			
+		case EVENT_KEY_COMMAND:
+			return newmenu_key_command(wind, event, menu);
+			break;
+			
 		case EVENT_IDLE:
-			return newmenu_idle(wind, event, menu);
+			return newmenu_idle(wind, menu);
 			break;
 			
 		case EVENT_WINDOW_DRAW:
-			return newmenu_draw(wind, event, menu);
+			return newmenu_draw(wind, menu);
 			break;
 			
 		case EVENT_WINDOW_CLOSE:
-			if (menu->subfunction)
-				if ((*menu->subfunction)(menu, event, menu->userdata))
-					return 1;		// abort close
-			
 			newmenu_hide_cursor();
 			game_flush_inputs();
 			
@@ -1260,18 +1258,13 @@ int newmenu_handler(window *wind, d_event *event, newmenu *menu)
 			}
 			
 			d_free(menu);
-			return 0;	// continue closing
 			break;
 			
 		default:
-			if (menu->subfunction)
-				return (*menu->subfunction)(menu, event, menu->userdata);
-			else
-				return 0;
 			break;
 	}
 	
-	return 1;
+	return 0;
 }
 
 int newmenu_do4( char * title, char * subtitle, int nitems, newmenu_item * item, int (*subfunction)(newmenu *menu, d_event *event, void *userdata), void *userdata, int citem, char * filename, int width, int height, int TinyMode )
@@ -1713,52 +1706,10 @@ void listbox_delete_item(listbox *lb, int item)
 	}
 }
 
-int listbox_idle(window *wind, d_event *event, listbox *lb)
+int listbox_key_command(window *wind, d_event *event, listbox *lb)
 {
-	int i;
-	int ocitem, ofirst_item, key;
-#ifdef NEWMENU_MOUSE
-	int mx, my, mz, x1, x2, y1, y2;	//, dblclick_flag;
-#endif
-	int rval = 0;
-	
-	timer_delay2(50);
-	ocitem = lb->citem;
-	ofirst_item = lb->first_item;
-	
-#ifdef NEWMENU_MOUSE
-	lb->omouse_state = lb->mouse_state;
-	lb->mouse_state = mouse_button_state(0);
-#endif
-	
-	//see if redbook song needs to be restarted
-	RBACheckFinishedHook();
-	
-	key = key_inkey();
-	
-	if ( lb->listbox_callback )
-	{
-		if (key)
-		{
-			d_event_keycommand key_event;	// somewhere to put the keycode for now
-			
-			key_event.type = EVENT_KEY_COMMAND;
-			key_event.keycode = key;
-			
-			rval = (*lb->listbox_callback)(lb, (d_event *)&key_event, lb->userdata);
-			key = key_event.keycode;
-		}
-		else
-			rval = (*lb->listbox_callback)(lb, event, lb->userdata);
-	}
-	
-	if (rval < -1) {
-		lb->citem = rval;
-		lb->done = 1;
-		return 1;
-	}
-	else if (rval)
-		return 1;	// event handled already, but stay in listbox
+	int key = ((d_event_keycommand *)event)->keycode;
+	int rval = 1;
 	
 	switch(key)	{
 #ifdef macintosh
@@ -1834,6 +1785,7 @@ int listbox_idle(window *wind, d_event *event, listbox *lb)
 					cc++;
 				}
 			}
+			rval = 0;
 		}
 	}
 	
@@ -1856,6 +1808,27 @@ int listbox_idle(window *wind, d_event *event, listbox *lb)
 		lb->first_item = lb->nitems-LB_ITEMS_ON_SCREEN;
 	if (lb->first_item < 0 ) lb->first_item = 0;
 	
+	return rval;
+}
+
+int listbox_idle(window *wind, listbox *lb)
+{
+	int i;
+#ifdef NEWMENU_MOUSE
+	int mx, my, mz, x1, x2, y1, y2;	//, dblclick_flag;
+#endif
+	d_event event = { EVENT_NEWMENU_SELECTED };
+	
+	timer_delay2(50);
+	
+#ifdef NEWMENU_MOUSE
+	lb->omouse_state = lb->mouse_state;
+	lb->mouse_state = mouse_button_state(0);
+#endif
+	
+	//see if redbook song needs to be restarted
+	RBACheckFinishedHook();
+	
 #ifdef NEWMENU_MOUSE
 	if (lb->mouse_state) {
 		int w, h, aw;
@@ -1873,8 +1846,7 @@ int listbox_idle(window *wind, d_event *event, listbox *lb)
 				lb->citem = i;
 				
 				// Tell callback, allow staying in menu
-				event->type = EVENT_NEWMENU_SELECTED;
-				if (lb->listbox_callback && (*lb->listbox_callback)(lb, event, lb->userdata))
+				if (lb->listbox_callback && (*lb->listbox_callback)(lb, &event, lb->userdata))
 					return 1;
 				
 				lb->done = 1;
@@ -1884,11 +1856,11 @@ int listbox_idle(window *wind, d_event *event, listbox *lb)
 		}
 	}
 #endif
-	
+
 	return 0;
 }
 
-int listbox_draw(window *wind, d_event *event, listbox *lb)
+int listbox_draw(window *wind, listbox *lb)
 {
 	int i;
 
@@ -1922,51 +1894,62 @@ int listbox_draw(window *wind, d_event *event, listbox *lb)
 		}
 	}
 	
-	// Only allow drawing over the top of the default stuff
-	if ( lb->listbox_callback )
-		(*lb->listbox_callback)(lb, event, lb->userdata);
+	{
+		d_event event;
+
+		event.type = EVENT_NEWMENU_DRAW;
+		if ( lb->listbox_callback )
+			(*lb->listbox_callback)(lb, &event, lb->userdata);
+	}
 	
 	return 1;
 }
 
 int listbox_handler(window *wind, d_event *event, listbox *lb)
 {
+	if (lb->listbox_callback)
+	{
+		int rval = (*lb->listbox_callback)(lb, event, lb->userdata);
+		if (rval)
+		{
+			if (rval < -1)
+			{
+				lb->citem = rval;
+				lb->done = 1;
+			}
+			
+			return 1;		// event handled
+		}
+	}
+	
 	switch (event->type)
 	{
 		case EVENT_WINDOW_ACTIVATED:
-			if (lb->listbox_callback)
-				(*lb->listbox_callback)(lb, event, lb->userdata);
-			
 			newmenu_show_cursor();
 			break;
 			
+		case EVENT_KEY_COMMAND:
+			return listbox_key_command(wind, event, lb);
+			break;
+			
 		case EVENT_IDLE:
-			return listbox_idle(wind, event, lb);
+			return listbox_idle(wind, lb);
 			break;
 			
 		case EVENT_WINDOW_DRAW:
-			return listbox_draw(wind, event, lb);
+			return listbox_draw(wind, lb);
 			break;
 			
 		case EVENT_WINDOW_CLOSE:
-			if (lb->listbox_callback)
-				if ((*lb->listbox_callback)(lb, event, lb->userdata))
-					return 1;		// abort close
-			
 			newmenu_hide_cursor();
 			d_free(lb);
-			return 0;	// continue closing
 			break;
 			
 		default:
-			if (lb->listbox_callback)
-				return (*lb->listbox_callback)(lb, event, lb->userdata);
-			else
-				return 0;
 			break;
 	}
 
-	return 1;
+	return 0;
 }
 
 int newmenu_listbox( char * title, int nitems, char * items[], int allow_abort_flag, int (*listbox_callback)(listbox *lb, d_event *event, void *userdata), void *userdata )

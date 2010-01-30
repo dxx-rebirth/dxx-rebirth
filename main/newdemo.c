@@ -3433,7 +3433,7 @@ void newdemo_stop_recording()
 		filename[i] = '\0';
 		sprintf (newfile, "%s%d", filename, num);
 		strncpy(filename, newfile, PATH_MAX);
-		filename[PATH_MAX] = '\0';
+		filename[PATH_MAX - 1] = '\0';
 	}
 
 try_again:
