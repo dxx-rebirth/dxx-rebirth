@@ -243,6 +243,9 @@ int DoMenu()
 	newmenu_item m[25];
 	int num_options = 0;
 
+	memset(&menu_choice, 0, sizeof(int)*25);
+	memset(&m, 0, sizeof(newmenu_item)*25);
+
 	load_palette(MENU_PALETTE,0,1);		//get correct palette
 
 	do {

@@ -4,6 +4,7 @@ D2X-Rebirth Changelog
 --------
 arch/sdl/event.c, arch/sdl/key.c, main/menu.c, main/newmenu.c, main/newmenu.h, main/state.c: Send EVENT_KEY_COMMAND from key.c; add EVENT_NEWMENU_DRAW for state restore; place newmenu and listbox calls to callback so they can override ALL newmenu behaviour
 main/newdemo.c: Fix warning in newdemo_stop_recording where it should set the last char of filename to 0, not the next variable
+main/menu.c, main/newmenu.c: Fixed two memory errors inside menu GUI
 
 20100129
 --------
