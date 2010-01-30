@@ -15,6 +15,7 @@
 #include "error.h"
 #include "key.h"
 #include "timer.h"
+#include "window.h"
 
 static unsigned char Installed = 0;
 
@@ -408,6 +409,17 @@ void key_handler(SDL_KeyboardEvent *event, int counter)
 				keycode |= KEY_DEBUGGED;
 			if ( keyd_pressed[KEY_LMETA] || keyd_pressed[KEY_RMETA])
 				keycode |= KEY_METAED;
+			
+			{
+				d_event_keycommand event;
+				window *wind;
+				
+				event.type = EVENT_KEY_COMMAND;
+				event.keycode = keycode;
+				if ((wind = window_get_front()) && window_send_event(wind, (d_event *)&event))
+					return;		// handled it - don't add to queue
+			}
+			
 			temp = key_data.keytail+1;
 			if ( temp >= KEY_BUFFER_SIZE ) temp=0;
 			if (temp!=key_data.keyhead)	{

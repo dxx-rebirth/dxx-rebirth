@@ -74,14 +74,15 @@ int event_init()
 
 // Process the first event in queue, sending to the appropriate handler
 // This is the new object-oriented system
-// Uses the old system for now, but this will change
+// Uses the old system for now, but this may change
 void event_process(void)
 {
 	d_event event;
 	window *wind;
 
-	// Very trivial system for now.
-	event.type = EVENT_IDLE;	// user input handled in idle event for now (except for newmenu)
+	event_poll();	// send input events first
+
+	event.type = EVENT_IDLE;	// most user input handled in idle event for now (except for newmenu)
 	wind = window_get_front();
 	if (!wind)
 		return;
