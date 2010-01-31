@@ -4,6 +4,7 @@ D1X-Rebirth Changelog
 --------
 main/newmenu.c: Fix memory errors, but still dynamically allocate menu and lb so it doesn't have to stay in newmenu_do4 and newmenu_listbox1 respectively
 main/automap.c, main/game.c, main/game.h, main/multi.c, main/multi.h, main/net_ipx.c, main/net_udp.c, main/newmenu.c: Fix crashing when doing menus in multiplayer, don't let player move when in automap
+main/automap.c, main/kconfig.c, main/newmenu.c: Adding a bunch of memset's to menu/automap creations so we won't run into uninitialized variables
 
 20100130
 --------
