@@ -1246,6 +1246,8 @@ int newmenu_handler(window *wind, d_event *event, newmenu *menu)
 				menu->citem = -1;
 				menu->done = 1;
 			}
+			
+			d_free(menu);
 			break;
 			
 		default:
@@ -1258,50 +1260,54 @@ int newmenu_handler(window *wind, d_event *event, newmenu *menu)
 int newmenu_do4( char * title, char * subtitle, int nitems, newmenu_item * item, int (*subfunction)(newmenu *menu, d_event *event, void *userdata), void *userdata, int citem, char * filename, int width, int height, int TinyMode )
 {
 	window *wind = NULL;
-	newmenu menu;
+	newmenu *menu;
 	int i,j,aw, tw, th, twidth,fm,right_offset;
 	int nmenus, nothers;
 	grs_font * save_font;
 	int string_width, string_height, average_width;
 	grs_canvas *menu_canvas, *save_canvas;
 	int rval = -1;
+	int done = 0;
 
-	memset(&menu, 0, sizeof(newmenu));
+	MALLOC(menu, newmenu, 1);
+	if (!menu)
+		return -1;
 	
-	menu.scroll_offset = 0;
-	menu.last_scroll_check = -1;
-	menu.all_text = 0;
-	menu.is_scroll_box = 0;
-	menu.sound_stopped = menu.time_stopped = 0;
-	menu.max_on_menu = MAXDISPLAYABLEITEMS;
-	menu.dblclick_flag = 0;
-	menu.title = title;
-	menu.subtitle = subtitle;
-	menu.nitems = nitems;
-	menu.subfunction = subfunction;
-	menu.items = item;
-	menu.filename = filename;
-	menu.tiny_mode = TinyMode;
-	menu.done = 0;
-	menu.userdata = userdata;
+	menu->scroll_offset = 0;
+	menu->last_scroll_check = -1;
+	menu->all_text = 0;
+	menu->is_scroll_box = 0;
+	menu->sound_stopped = menu->time_stopped = 0;
+	menu->max_on_menu = MAXDISPLAYABLEITEMS;
+	menu->dblclick_flag = 0;
+	menu->title = title;
+	menu->subtitle = subtitle;
+	menu->nitems = nitems;
+	menu->subfunction = subfunction;
+	menu->items = item;
+	menu->filename = filename;
+	menu->tiny_mode = TinyMode;
+	menu->done = 0;
+	menu->userdata = userdata;
 	
 	newmenu_close();
 
 	if (nitems < 1 )
 	{
+		d_free(menu);
 		return -1;
 	}
 
-	menu.max_displayable=nitems;
+	menu->max_displayable=nitems;
 
 	if ( Function_mode == FMODE_GAME && !((Game_mode & GM_MULTI) && (Newdemo_state != ND_STATE_PLAYBACK))) {
 		digi_pause_digi_sounds();
-		menu.sound_stopped = 1;
+		menu->sound_stopped = 1;
 	}
 
 	if (!(((Game_mode & GM_MULTI) && (Newdemo_state != ND_STATE_PLAYBACK)) && (Function_mode == FMODE_GAME) && (!Endlevel_sequence)) )
 	{
-		menu.time_stopped = 1;
+		menu->time_stopped = 1;
 		stop_time();
 	}
 
@@ -1334,13 +1340,13 @@ int newmenu_do4( char * title, char * subtitle, int nitems, newmenu_item * item,
 	else 
 		gr_set_curfont(MEDIUM1_FONT);
 
-	menu.w = aw = 0;
-	menu.h = th;
+	menu->w = aw = 0;
+	menu->h = th;
 	nmenus = nothers = 0;
 
 	// Find menu height & width (store in w,h)
 	for (i=0; i<nitems; i++ )	{
-		item[i].y = menu.h;
+		item[i].y = menu->h;
 		gr_get_string_size(item[i].text,&string_width,&string_height,&average_width );
 		item[i].right_offset = 0;
 
@@ -1417,76 +1423,79 @@ int newmenu_do4( char * title, char * subtitle, int nitems, newmenu_item * item,
 		item[i].w = string_width;
 		item[i].h = string_height;
 
-		if ( string_width > menu.w )
-			menu.w = string_width;		// Save maximum width
+		if ( string_width > menu->w )
+			menu->w = string_width;		// Save maximum width
 		if ( average_width > aw )
 			aw = average_width;
-		menu.h += string_height+FSPACY(1);		// Find the height of all strings
+		menu->h += string_height+FSPACY(1);		// Find the height of all strings
 	}
 
-	if (!TinyMode && i > menu.max_on_menu)
+	if (!TinyMode && i > menu->max_on_menu)
 	{
-		menu.is_scroll_box=1;
-		menu.h=((menu.max_on_menu+(subtitle?1:0))*LINE_SPACING);
-		menu.max_displayable=menu.max_on_menu;
+		menu->is_scroll_box=1;
+		menu->h=((menu->max_on_menu+(subtitle?1:0))*LINE_SPACING);
+		menu->max_displayable=menu->max_on_menu;
 		
-		// if our last citem was > menu.max_on_menu, make sure we re-scroll when we call this menu again
-		if (citem > menu.max_on_menu-4)
+		// if our last citem was > menu->max_on_menu, make sure we re-scroll when we call this menu again
+		if (citem > menu->max_on_menu-4)
 		{
-			menu.scroll_offset = citem - (menu.max_on_menu-4);
-			if (menu.scroll_offset + menu.max_on_menu > nitems)
-				menu.scroll_offset = nitems - menu.max_on_menu;
+			menu->scroll_offset = citem - (menu->max_on_menu-4);
+			if (menu->scroll_offset + menu->max_on_menu > nitems)
+				menu->scroll_offset = nitems - menu->max_on_menu;
 		}
 	}
 	else
 	{
-		menu.is_scroll_box=0;
-		menu.max_on_menu=i;
+		menu->is_scroll_box=0;
+		menu->max_on_menu=i;
 	}
 
 	right_offset=0;
 
 	if ( width > -1 )
-		menu.w = width;
+		menu->w = width;
 
 	if ( height > -1 )
-		menu.h = height;
+		menu->h = height;
 
 	for (i=0; i<nitems; i++ )	{
-		item[i].w = menu.w;
+		item[i].w = menu->w;
 		if (item[i].right_offset > right_offset )
 			right_offset = item[i].right_offset;
 	}
 
-	menu.w += right_offset;
+	menu->w += right_offset;
 
 	twidth = 0;
-	if ( tw > menu.w )	{
-		twidth = ( tw - menu.w )/2;
-		menu.w = tw;
+	if ( tw > menu->w )	{
+		twidth = ( tw - menu->w )/2;
+		menu->w = tw;
 	}
 
 	// Find min point of menu border
-	menu.w += BORDERX*2;
-	menu.h += BORDERY*2;
+	menu->w += BORDERX*2;
+	menu->h += BORDERY*2;
 
-	menu.x = (GWIDTH-menu.w)/2;
-	menu.y = (GHEIGHT-menu.h)/2;
+	menu->x = (GWIDTH-menu->w)/2;
+	menu->y = (GHEIGHT-menu->h)/2;
 
-	if ( menu.x < 0 ) menu.x = 0;
-	if ( menu.y < 0 ) menu.y = 0;
+	if ( menu->x < 0 ) menu->x = 0;
+	if ( menu->y < 0 ) menu->y = 0;
 
-	nm_draw_background1( menu.filename );
+	nm_draw_background1( menu->filename );
 
 	// Create the basic window
-	wind = window_create(&grd_curscreen->sc_canvas, menu.x, menu.y, menu.w, menu.h, (int (*)(window *, d_event *, void *))newmenu_handler, &menu);
+	if (menu)
+		wind = window_create(&grd_curscreen->sc_canvas, menu->x, menu->y, menu->w, menu->h, (int (*)(window *, d_event *, void *))newmenu_handler, menu);
 	if (!wind)
 	{
-		if (menu.time_stopped)
+		if (menu->time_stopped)
 			start_time();
 		
-		if ( menu.sound_stopped )
+		if ( menu->sound_stopped )
 			digi_resume_digi_sounds();
+		
+		d_free(menu);
 
 		return -1;
 	}
@@ -1516,24 +1525,24 @@ int newmenu_do4( char * title, char * subtitle, int nitems, newmenu_item * item,
 	}
 
 	if (citem==-1)	{
-		menu.citem = -1;
+		menu->citem = -1;
 	} else {
 		if (citem < 0 ) citem = 0;
 		if (citem > nitems-1 ) citem = nitems-1;
-		menu.citem = citem;
+		menu->citem = citem;
 
 #ifdef NEWMENU_MOUSE
-		menu.dblclick_flag = 1;
+		menu->dblclick_flag = 1;
 #endif
 
-		while ( item[menu.citem].type==NM_TYPE_TEXT )	{
-			menu.citem++;
-			if (menu.citem >= nitems ) {
-				menu.citem=0; 
+		while ( item[menu->citem].type==NM_TYPE_TEXT )	{
+			menu->citem++;
+			if (menu->citem >= nitems ) {
+				menu->citem=0; 
 			}
-			if (menu.citem == citem ) {
-				menu.citem=0; 
-				menu.all_text=1;
+			if (menu->citem == citem ) {
+				menu->citem=0; 
+				menu->all_text=1;
 				break; 
 			}
 		}
@@ -1543,21 +1552,23 @@ int newmenu_do4( char * title, char * subtitle, int nitems, newmenu_item * item,
 	game_flush_inputs();
 
 #ifdef NEWMENU_MOUSE
-	menu.mouse_state = menu.omouse_state = 0;
+	menu->mouse_state = menu->omouse_state = 0;
 #endif
 
 	gr_set_current_canvas(save_canvas);
 
 	// All newmenus get their own event loop, for now.
-	while (!menu.done)
+	while (!done)
 	{
 		event_process();
 		
-		if (menu.done)
+		if (menu->done)
 		{
-			rval = menu.citem;
+			rval = menu->citem;
 			if (!window_close(wind))
-				menu.done = 0;		// user aborted close
+				menu->done = 0;		// user aborted close
+			else
+				done = 1;
 		}
 	}
 
@@ -1924,6 +1935,7 @@ int listbox_handler(window *wind, d_event *event, listbox *lb)
 			
 		case EVENT_WINDOW_CLOSE:
 			newmenu_hide_cursor();
+			d_free(lb);
 			break;
 			
 		default:
@@ -1940,70 +1952,78 @@ int newmenu_listbox( char * title, int nitems, char * items[], int allow_abort_f
 
 int newmenu_listbox1( char * title, int nitems, char * items[], int allow_abort_flag, int default_item, int (*listbox_callback)(listbox *lb, d_event *event, void *userdata), void *userdata )
 {
-	listbox lb;
+	listbox *lb;
 	window *wind;
 	int i, rval = -1;
+	int done = 0;
 
-	memset(&lb, 0, sizeof(listbox));
+	MALLOC(lb, listbox, 1);
+	if (!lb)
+		return -1;
+	
 	newmenu_close();
 	
-	lb.title = title;
-	lb.nitems = nitems;
-	lb.item = items;
-	lb.allow_abort_flag = allow_abort_flag;
-	lb.listbox_callback = listbox_callback;
-	lb.userdata = userdata;
+	lb->title = title;
+	lb->nitems = nitems;
+	lb->item = items;
+	lb->allow_abort_flag = allow_abort_flag;
+	lb->listbox_callback = listbox_callback;
+	lb->userdata = userdata;
 
 	gr_set_current_canvas(NULL);
 
 	gr_set_curfont(MEDIUM3_FONT);
 
-	lb.box_w = 0;
+	lb->box_w = 0;
 	for (i=0; i<nitems; i++ )	{
 		int w, h, aw;
 		gr_get_string_size( items[i], &w, &h, &aw );		
-		if ( w > lb.box_w )
-			lb.box_w = w+FSPACX(10);
+		if ( w > lb->box_w )
+			lb->box_w = w+FSPACX(10);
 	}
-	lb.height = LINE_SPACING * LB_ITEMS_ON_SCREEN;
+	lb->height = LINE_SPACING * LB_ITEMS_ON_SCREEN;
 
 	{
 		int w, h, aw;
 		gr_get_string_size( title, &w, &h, &aw );		
-		if ( w > lb.box_w )
-			lb.box_w = w;
-		lb.title_height = h+FSPACY(5);
+		if ( w > lb->box_w )
+			lb->box_w = w;
+		lb->title_height = h+FSPACY(5);
 	}
 
-	lb.box_x = (grd_curcanv->cv_bitmap.bm_w-lb.box_w)/2;
-	lb.box_y = (grd_curcanv->cv_bitmap.bm_h-(lb.height+lb.title_height))/2 + lb.title_height;
-	if ( lb.box_y < lb.title_height )
-		lb.box_y = lb.title_height;
+	lb->box_x = (grd_curcanv->cv_bitmap.bm_w-lb->box_w)/2;
+	lb->box_y = (grd_curcanv->cv_bitmap.bm_h-(lb->height+lb->title_height))/2 + lb->title_height;
+	if ( lb->box_y < lb->title_height )
+		lb->box_y = lb->title_height;
 
-	wind = window_create(&grd_curscreen->sc_canvas, lb.box_x-BORDERX, lb.box_y-lb.title_height-BORDERY, lb.box_w+2*BORDERX, lb.height+2*BORDERY, (int (*)(window *, d_event *, void *))listbox_handler, &lb);
+	wind = window_create(&grd_curscreen->sc_canvas, lb->box_x-BORDERX, lb->box_y-lb->title_height-BORDERY, lb->box_w+2*BORDERX, lb->height+2*BORDERY, (int (*)(window *, d_event *, void *))listbox_handler, lb);
 	if (!wind)
 	{
+		d_free(lb);
+		
 		return -1;
 	}
 
-	lb.done = 0;
-	lb.citem = default_item;
-	if ( lb.citem < 0 ) lb.citem = 0;
-	if ( lb.citem >= nitems ) lb.citem = 0;
+	lb->done = 0;
+	lb->citem = default_item;
+	if ( lb->citem < 0 ) lb->citem = 0;
+	if ( lb->citem >= nitems ) lb->citem = 0;
 
-	lb.first_item = 0;
+	lb->first_item = 0;
 
-	lb.mouse_state = lb.omouse_state = 0;	//dblclick_flag = 0;
+	lb->mouse_state = lb->omouse_state = 0;	//dblclick_flag = 0;
 
-	while(!lb.done)
+	while(!done)
 	{
 		event_process();
 		
-		if (lb.done)
+		if (lb->done)
 		{
-			rval = lb.citem;
+			rval = lb->citem;
 			if (!window_close(wind))
-				lb.done = 0;	// user aborted close
+				lb->done = 0;	// user aborted close
+			else
+				done = 1;
 		}
 	}
 
