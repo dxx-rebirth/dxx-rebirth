@@ -1353,9 +1353,22 @@ extern time_t t_current_time, t_saved_time;
 
 void flicker_lights();
 
+void game_leave_menus(void)
+{
+	window *wind;
+	
+	if (!Game_wind)
+		return;
+
+	for (wind = window_get_next(Game_wind); wind != NULL; wind = window_get_next(wind))
+		window_close(wind);
+}
+
 void GameProcessFrame(void)
 {
-	int player_shields = Players[Player_num].shields;
+	fix player_shields = Players[Player_num].shields;
+	int was_fuelcen_destroyed = Control_center_destroyed;
+	int player_was_dead = Player_is_dead;
 	
 	update_player_stats();
 	diminish_palette_towards_normal();		//	Should leave palette effect up for as long as possible by putting right before render.
@@ -1520,6 +1533,13 @@ void GameProcessFrame(void)
 #endif
 	}
 	
+	// Check if we have to close in-game menus for multiplayer
+	if (Endlevel_sequence || (Player_is_dead != player_was_dead) || (Players[Player_num].shields < player_shields))
+		game_leave_menus();
+	
+	if ((Control_center_destroyed && !was_fuelcen_destroyed) || ((Control_center_destroyed) && (Countdown_seconds_left < 10)))
+		game_leave_menus();
+
 	//if the player is taking damage, give up guided missile control
 	if (Players[Player_num].shields != player_shields)
 		release_guided_missile(Player_num);

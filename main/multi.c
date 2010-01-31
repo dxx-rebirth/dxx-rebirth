@@ -879,8 +879,6 @@ void multi_do_protocol_frame(int force, int listen)
 	}
 }
 
-int multi_menu_check(void);
-
 void multi_do_frame(void)
 {
 	static int lasttime=0;
@@ -907,8 +905,6 @@ void multi_do_frame(void)
 	}
 
 	multi_send_message(); // Send any waiting messages
-
-	multi_menu_check();
 
 	if (Game_mode & GM_MULTI_ROBOTS)
 	{
@@ -1106,43 +1102,6 @@ void multi_send_endlevel_packet()
 // Part 2 : functions that act on network messages and change the
 //          the state of the game in some way.
 //
-
-void multi_leave_menus(void)
-{
-	window *wind;
-	
-	for (wind = window_get_front(); wind != Game_wind; wind = window_get_front())
-		if (!window_close(wind))	// Uh-oh! Close cancelled.
-			break;
-}
-
-static fix old_shields = 400*F1_0;
-static int was_fuelcen_destroyed = 1;
-static int player_was_dead;
-
-int multi_menu_check(void)
-{
-	// Check if we have to close in-game menus for multiplayer
-
-	if (! ((Game_mode & GM_MULTI) && (Function_mode == FMODE_GAME)) )
-		return(0);
-
-	if (Endlevel_sequence || (Control_center_destroyed && !was_fuelcen_destroyed) || (Player_is_dead != player_was_dead) || (Players[Player_num].shields < old_shields))
-	{
-		multi_leave_menus();
-		return(-1);
-	}
-	if ((Control_center_destroyed) && (Countdown_seconds_left < 10))
-	{
-		multi_leave_menus();
-		return(-1);
-	}
-
-	old_shields = Players[Player_num].shields;
-	was_fuelcen_destroyed = Control_center_destroyed;
-	player_was_dead = Player_is_dead;
-	return(0);
-}
 
 void
 multi_define_macro(int key)
@@ -3223,7 +3182,7 @@ void multi_consistency_error(int reset)
 	Function_mode = FMODE_GAME;
 	count = 0;
 	multi_quit_game = 1;
-	multi_leave_menus();
+	game_leave_menus();
 	multi_reset_stuff();
 	Function_mode = FMODE_MENU;
 }

@@ -1242,6 +1242,13 @@ int newmenu_handler(window *wind, d_event *event, newmenu *menu)
 			break;
 			
 		case EVENT_WINDOW_CLOSE:
+			if (!menu->done)
+			{
+				menu->citem = -1;
+				menu->done = 1;
+				return 1;	// cancel close and do it in newmenu_do4 instead
+			}
+
 			newmenu_hide_cursor();
 			game_flush_inputs();
 			
@@ -1944,6 +1951,13 @@ int listbox_handler(window *wind, d_event *event, listbox *lb)
 			break;
 			
 		case EVENT_WINDOW_CLOSE:
+			if (!lb->done)
+			{
+				lb->citem = -1;
+				lb->done = 1;
+				return 1;	// cancel close and do it in newmenu_listbox1 instead
+			}
+			
 			newmenu_hide_cursor();
 			d_free(lb);
 			break;
