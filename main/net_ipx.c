@@ -1880,7 +1880,7 @@ void net_ipx_process_dump(IPX_sequence_packet *their)
 					nm_messagebox(NULL, 1, TXT_OK, "%s has kicked you out!",their->player.callsign);
 					Function_mode = FMODE_GAME;
 					multi_quit_game = 1;
-					multi_leave_menus();
+					game_leave_menus();
 					multi_reset_stuff();
 					Function_mode = FMODE_MENU;
 				}

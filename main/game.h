@@ -200,6 +200,7 @@ extern grs_canvas VR_screen_sub_pages[2];	//  Two sub pages of VRAM if paging is
 
 void game_init_render_buffers (int render_max_w, int render_max_h, int render_method);
 void game_do_render_frame(int flip);
+void game_leave_menus(void);
 
 #endif
 

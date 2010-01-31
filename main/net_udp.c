@@ -686,7 +686,7 @@ net_udp_disconnect_player(int playernum)
 		nm_messagebox(NULL, 1, TXT_OK, "Game was closed by host!");
 		Function_mode = FMODE_GAME;
 		multi_quit_game = 1;
-		multi_leave_menus();
+		game_leave_menus();
 		multi_reset_stuff();
 		Function_mode = FMODE_MENU;
 	}
@@ -1888,7 +1888,7 @@ void net_udp_process_dump(ubyte *data, int len, struct _sockaddr sender_addr)
 		nm_messagebox(NULL, 1, TXT_OK, "%s has kicked you out!",Players[0].callsign);
 		Function_mode = FMODE_GAME;
 		multi_quit_game = 1;
-		multi_leave_menus();
+		game_leave_menus();
 		multi_reset_stuff();
 		Function_mode = FMODE_MENU;
 	}

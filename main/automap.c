@@ -95,6 +95,7 @@ typedef struct automap
 	int			leave_mode;
 	int			pause_game;
 	vms_angvec	tangles;
+	ushort		old_wiggle;		// keep 4 byte aligned
 	int			max_segments_away;
 	int			segment_limit;
 	
@@ -358,6 +359,11 @@ int automap_idle(window *wind, d_event *event, automap *am)
 	vms_matrix	tempm;
 	int c;
 
+	if (!am->pause_game)	{
+		ConsoleObject->mtype.phys_info.flags |= am->old_wiggle;		// Restore wiggle
+		Controls = am->saved_control_info;							// Restore controls
+	}
+	
 	if ( am->leave_mode==0 && Controls.automap_state && (timer_get_fixed_seconds()-am->entry_time)>LEAVE_TIME)
 		am->leave_mode = 1;
 	
@@ -365,16 +371,6 @@ int automap_idle(window *wind, d_event *event, automap *am)
 	{
 		window_close(wind);
 		return 1;
-	}
-	
-	if (!am->pause_game)	{
-		ushort old_wiggle;
-		am->saved_control_info = Controls;					// Save controls so we can zero them
-		memset(&Controls,0,sizeof(control_info));			// Clear everything...
-		old_wiggle = ConsoleObject->mtype.phys_info.flags & PF_WIGGLE;	// Save old wiggle
-		ConsoleObject->mtype.phys_info.flags &= ~PF_WIGGLE;		// Turn off wiggle
-		ConsoleObject->mtype.phys_info.flags |= old_wiggle;		// Restore wiggle
-		Controls = am->saved_control_info;
 	}
 	
 	controls_read_all(1);
@@ -501,6 +497,13 @@ int automap_idle(window *wind, d_event *event, automap *am)
 		FixedStepCalc();
 	}
 	am->t1 = am->t2;
+	
+	if (!am->pause_game)	{
+		am->saved_control_info = Controls;					// Save controls so we can zero them
+		memset(&Controls,0,sizeof(control_info));			// Clear everything...
+		am->old_wiggle = ConsoleObject->mtype.phys_info.flags & PF_WIGGLE;	// Save old wiggle
+		ConsoleObject->mtype.phys_info.flags &= ~PF_WIGGLE;		// Turn off wiggle
+	}
 	
 	return 0;
 }

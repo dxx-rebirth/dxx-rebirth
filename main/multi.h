@@ -221,7 +221,6 @@ int multi_endlevel_poll1();
 int multi_endlevel_poll2( newmenu *menu, d_event *event, void *userdata );
 void multi_send_endlevel_packet();
 void multi_leave_game(void);
-void multi_leave_menus(void);
 void multi_process_data(char *dat, int len);
 void multi_process_bigdata(char *buf, int len);		
 void multi_do_death(int objnum);
