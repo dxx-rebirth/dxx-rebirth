@@ -1287,9 +1287,11 @@ int newmenu_do4( char * title, char * subtitle, int nitems, newmenu_item * item,
 	int done = 0;
 
 	MALLOC(menu, newmenu, 1);
+	
 	if (!menu)
 		return -1;
-	
+
+	memset(menu, 0, sizeof(newmenu));
 	menu->scroll_offset = 0;
 	menu->last_scroll_check = -1;
 	menu->all_text = 0;
@@ -1982,9 +1984,11 @@ int newmenu_listbox1( char * title, int nitems, char * items[], int allow_abort_
 	int done = 0;
 
 	MALLOC(lb, listbox, 1);
+	
 	if (!lb)
 		return -1;
-	
+
+	memset(lb, 0, sizeof(listbox));	
 	newmenu_close();
 	
 	lb->title = title;
