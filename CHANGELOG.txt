@@ -1,5 +1,9 @@
 D2X-Rebirth Changelog
 
+20100131
+--------
+main/newmenu.c: Fix memory errors, but still dynamically allocate menu and lb so it doesn't have to stay in newmenu_do4 and newmenu_listbox1 respectively
+
 20100130
 --------
 arch/sdl/event.c, arch/sdl/key.c, main/menu.c, main/newmenu.c, main/newmenu.h, main/state.c: Send EVENT_KEY_COMMAND from key.c; add EVENT_NEWMENU_DRAW for state restore; place newmenu and listbox calls to callback so they can override ALL newmenu behaviour
