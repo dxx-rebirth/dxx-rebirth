@@ -41,6 +41,7 @@ typedef struct listbox listbox;
 enum newmenu_event
 {
 	EVENT_NEWMENU_DRAW = EVENT_USER,	// draw after the newmenu stuff is drawn (e.g. savegame previews)
+	EVENT_NEWMENU_CHANGED,				// an item had its value/text changed
 	EVENT_NEWMENU_SELECTED				// user chose something - pressed enter/clicked on it
 };
 

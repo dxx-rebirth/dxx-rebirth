@@ -719,7 +719,7 @@ int options_menuset(newmenu *menu, d_event *event, void *userdata)
 {
 	switch (event->type)
 	{
-		case EVENT_IDLE:	// FIXME: Should become EVENT_ITEM_CHANGED later
+		case EVENT_NEWMENU_CHANGED:
 			if ( newmenu_get_citem(menu)==4)
 			{
 				gr_palette_set_gamma(newmenu_get_items(menu)[4].value);
@@ -852,7 +852,6 @@ void change_res()
 int input_menuset(newmenu *menu, d_event *event, void *userdata)
 {
 	int i;
-	int oc_type = PlayerCfg.ControlType;
 	newmenu_item *items = newmenu_get_items(menu);
 	int citem = newmenu_get_citem(menu);
 
@@ -860,23 +859,26 @@ int input_menuset(newmenu *menu, d_event *event, void *userdata)
 
 	switch (event->type)
 	{
-		case EVENT_IDLE:	// FIXME: Should become EVENT_ITEM_CHANGED later
-			for (i=0; i<4; i++ )
-				if (items[i].value) PlayerCfg.ControlType = i;
-			
-			if (PlayerCfg.ControlType == 2) PlayerCfg.ControlType = CONTROL_MOUSE;
-			if (PlayerCfg.ControlType == 3) PlayerCfg.ControlType = CONTROL_JOYMOUSE;
-			
-			if (oc_type != PlayerCfg.ControlType) {
-				kc_set_controls();
+		case EVENT_NEWMENU_CHANGED:
+			switch (citem)
+			{
+				case 0:
+				case 1:
+				case 2:
+				case 3:
+					PlayerCfg.ControlType = citem;
+					if (PlayerCfg.ControlType == 2) PlayerCfg.ControlType = CONTROL_MOUSE;
+					if (PlayerCfg.ControlType == 3) PlayerCfg.ControlType = CONTROL_JOYMOUSE;
+					kc_set_controls();
+					break;
+				
+				case 10:	PlayerCfg.JoystickSensitivityX = items[citem].value; break;
+				case 11:	PlayerCfg.JoystickSensitivityY = items[citem].value; break;
+				case 12:	PlayerCfg.JoystickDeadzone = items[citem].value; break;
+				case 15:	PlayerCfg.MouseSensitivityX = items[citem].value; break;
+				case 16:	PlayerCfg.MouseSensitivityY = items[citem].value; break;
+				case 17:	PlayerCfg.MouseFilter = items[citem].value; break;
 			}
-			
-			PlayerCfg.JoystickSensitivityX = items[10].value;
-			PlayerCfg.JoystickSensitivityY = items[11].value;
-			PlayerCfg.JoystickDeadzone = items[12].value;
-			PlayerCfg.MouseSensitivityX = items[15].value;
-			PlayerCfg.MouseSensitivityY = items[16].value;
-			PlayerCfg.MouseFilter = items[17].value;
 			break;
 			
 		case EVENT_NEWMENU_SELECTED:
@@ -993,24 +995,32 @@ int sound_menuset(newmenu *menu, d_event *event, void *userdata)
 {
 	newmenu_item *items = newmenu_get_items(menu);
 
-	if (event->type != EVENT_IDLE)	// FIXME: Should become EVENT_ITEM_CHANGED later
-		return 0;
-	
+	switch (event->type)
+	{
+		case EVENT_NEWMENU_CHANGED:
+			switch (newmenu_get_citem(menu))
+			{
+				case 0:
+					GameCfg.DigiVolume = items[0].value;
+					digi_set_digi_volume( (GameCfg.DigiVolume*32768)/8 );
+					digi_play_sample_once( SOUND_DROP_BOMB, F1_0 );
+					break;
+
+				case 1:
+					GameCfg.MusicVolume = items[1].value;
+					if (EXT_MUSIC_ON)
+						set_extmusic_volume(GameCfg.MusicVolume);
+					else
+						digi_set_midi_volume( (GameCfg.MusicVolume*128)/8 );
+					break;
+			}
+			break;
+			
+		default:
+			break;
+	}
+
 	userdata = userdata;
-
-	if ( GameCfg.DigiVolume != items[0].value )     {
-		GameCfg.DigiVolume = items[0].value;
-		digi_set_digi_volume( (GameCfg.DigiVolume*32768)/8 );
-		digi_play_sample_once( SOUND_DROP_BOMB, F1_0 );
-	}
-
-	if (GameCfg.MusicVolume != items[1].value )   {
-		GameCfg.MusicVolume = items[1].value;
-		if (EXT_MUSIC_ON)
-			set_extmusic_volume(GameCfg.MusicVolume);
-		else
-			digi_set_midi_volume( (GameCfg.MusicVolume*128)/8 );
-	}
 
 	return 0;
 }

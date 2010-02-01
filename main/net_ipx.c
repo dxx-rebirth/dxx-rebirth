@@ -2987,67 +2987,68 @@ int net_ipx_start_poll( newmenu *menu, d_event *event, void *userdata )
 	return 1;
 }
 
-static fix LastPTA;
-static int LastKillGoal;
 static int opt_cinvul, opt_team_anarchy, opt_coop, opt_show_on_map, opt_closed,opt_maxnet;
-static int last_cinvul=0,last_maxnet,opt_team_hoard;
+static int opt_team_hoard;
 static int opt_refuse,opt_capture;
 static int opt_setpower,opt_playtime,opt_killgoal,opt_marker_view,opt_light;
 static int opt_difficulty,opt_packets, opt_bright,opt_start_invul, opt_show_names, opt_short_packets, opt_socket;
 
-int net_ipx_game_param_poll( newmenu *menu, d_event *event, void *userdata )
+int net_ipx_game_param_handler( newmenu *menu, d_event *event, void *userdata )
 {
 	newmenu_item *menus = newmenu_get_items(menu);
+	int citem = newmenu_get_citem(menu);
 	static int oldmaxnet=0;
 
-	if (event->type != EVENT_IDLE)	// FIXME: Should become EVENT_ITEM_CHANGED in future
-		return 0;
-	
-	if (((HoardEquipped() && menus[opt_team_hoard].value) || (menus[opt_team_anarchy].value || menus[opt_capture].value)) && !menus[opt_closed].value && !menus[opt_refuse].value) 
+	switch (event->type)
 	{
-		menus[opt_refuse].value = 1;
-		menus[opt_refuse-1].value = 0;
-		menus[opt_refuse-2].value = 0;
-	}
-
-	if (menus[opt_coop].value)
-	{
-		oldmaxnet=1;
-
-		if (menus[opt_maxnet].value>2) 
-		{
-			menus[opt_maxnet].value=2;
-		}
-
-		if (menus[opt_maxnet].max_value>2)
-		{
-			menus[opt_maxnet].max_value=2;
-		}
-
-		if (!(Netgame.game_flags & NETGAME_FLAG_SHOW_MAP))
-			Netgame.game_flags |= NETGAME_FLAG_SHOW_MAP;
-
-		if (Netgame.PlayTimeAllowed || Netgame.KillGoal)
-		{
-		    Netgame.PlayTimeAllowed=0;
-		    Netgame.KillGoal=0;
-		}
-
-	}
-	else // if !Coop game
-	{
-		if (oldmaxnet)
-		{
-			oldmaxnet=0;
-			menus[opt_maxnet].value=6;
-			menus[opt_maxnet].max_value=6;
-		}
-	}
-
-	if ( last_maxnet != menus[opt_maxnet].value )   
-	{
-		sprintf( menus[opt_maxnet].text, "Maximum players: %d", menus[opt_maxnet].value+2 );
-		last_maxnet = menus[opt_maxnet].value;
+		case EVENT_NEWMENU_CHANGED:
+			if (((HoardEquipped() && (citem == opt_team_hoard)) || ((citem == opt_team_anarchy) || (citem == opt_capture))) && !menus[opt_closed].value && !menus[opt_refuse].value) 
+			{
+				menus[opt_refuse].value = 1;
+				menus[opt_refuse-1].value = 0;
+				menus[opt_refuse-2].value = 0;
+			}
+			
+			if (menus[opt_coop].value)
+			{
+				oldmaxnet=1;
+				
+				if (menus[opt_maxnet].value>2) 
+				{
+					menus[opt_maxnet].value=2;
+				}
+				
+				if (menus[opt_maxnet].max_value>2)
+				{
+					menus[opt_maxnet].max_value=2;
+				}
+				
+				if (!(Netgame.game_flags & NETGAME_FLAG_SHOW_MAP))
+					Netgame.game_flags |= NETGAME_FLAG_SHOW_MAP;
+				
+				if (Netgame.PlayTimeAllowed || Netgame.KillGoal)
+				{
+					Netgame.PlayTimeAllowed=0;
+					Netgame.KillGoal=0;
+				}
+				
+			}
+			else // if !Coop game
+			{
+				if (oldmaxnet)
+				{
+					oldmaxnet=0;
+					menus[opt_maxnet].value=6;
+					menus[opt_maxnet].max_value=6;
+				}
+			}
+			
+			if (citem == opt_maxnet)
+				sprintf( menus[opt_maxnet].text, "Maximum players: %d", menus[opt_maxnet].value+2 );
+			break;
+			
+		default:
+			break;
 	}
 	
 	return 0;
@@ -3075,7 +3076,6 @@ int net_ipx_get_game_params()
 	Netgame.difficulty=PlayerCfg.DefaultDifficulty;
 	Netgame.max_numplayers=MaxNumNetPlayers;
 	sprintf( Netgame.game_name, "%s%s", Players[Player_num].callsign, TXT_S_GAME );
-	last_cinvul = 0;
 	Netgame.BrightPlayers = Netgame.InvulAppear = 1;
 	Netgame.AllowedItems = 0;
 	Netgame.AllowedItems |= NETFLAG_DOPOWERUP;
@@ -3129,7 +3129,6 @@ int net_ipx_get_game_params()
 	sprintf( srmaxnet, "Maximum players: %d", MaxNumNetPlayers);
 	m[opt].type = NM_TYPE_SLIDER; m[opt].value=Netgame.max_numplayers-2; m[opt].text= srmaxnet; m[opt].min_value=0; 
 	m[opt].max_value=MaxNumNetPlayers-2; opt++;
-	last_maxnet=MaxNumNetPlayers-2;
 	
 	opt_moreopts=opt;
 	m[opt].type = NM_TYPE_MENU;  m[opt].text = "Advanced Options"; opt++;
@@ -3137,7 +3136,7 @@ int net_ipx_get_game_params()
 	Assert(opt <= 20);
 
 menu:
-	i = newmenu_do1( NULL, NULL, opt, m, net_ipx_game_param_poll, NULL, 1 );
+	i = newmenu_do1( NULL, NULL, opt, m, net_ipx_game_param_handler, NULL, 1 );
 
 	if (i==opt_moreopts)
 	{
@@ -5032,7 +5031,7 @@ void net_ipx_set_power (void)
 	}
 }
 
-int net_ipx_more_options_poll( newmenu *menu, d_event *event, void *userdata );
+int net_ipx_more_options_handler( newmenu *menu, d_event *event, void *userdata );
 
 void net_ipx_more_game_options ()
 {
@@ -5089,11 +5088,8 @@ void net_ipx_more_game_options ()
 	opt_socket = opt;
 	m[opt].type = NM_TYPE_INPUT; m[opt].text = socket_string; m[opt].text_len=4; opt++;
 	
-	LastKillGoal=Netgame.KillGoal;
-	LastPTA=Netgame.PlayTimeAllowed;
-
 menu:
-	i = newmenu_do1( NULL, "Advanced netgame options", opt, m, net_ipx_more_options_poll, NULL, 0 );
+	i = newmenu_do1( NULL, "Advanced netgame options", opt, m, net_ipx_more_options_handler, NULL, 0 );
 
 	Netgame.control_invul_time = m[opt_cinvul].value*5*F1_0*60;
 
@@ -5137,49 +5133,47 @@ menu:
 		Netgame.game_flags &= ~NETGAME_FLAG_SHOW_MAP;
 }
 
-int net_ipx_more_options_poll( newmenu *menu, d_event *event, void *userdata )
+int net_ipx_more_options_handler( newmenu *menu, d_event *event, void *userdata )
 {
 	newmenu_item *menus = newmenu_get_items(menu);
-
-	if (event->type != EVENT_IDLE)	// FIXME: Should become EVENT_ITEM_CHANGED in future
-		return 0;
+	int citem = newmenu_get_citem(menu);
+	
+	switch (event->type)
+	{
+		case EVENT_NEWMENU_CHANGED:
+			if (citem == opt_cinvul)
+				sprintf( menus[opt_cinvul].text, "%s: %d %s", TXT_REACTOR_LIFE, menus[opt_cinvul].value*5, TXT_MINUTES_ABBREV );
+			else if (citem == opt_playtime)
+			{
+				if (Game_mode & GM_MULTI_COOP)
+				{
+					nm_messagebox ("Sorry",1,TXT_OK,"You can't change those for coop!");
+					menus[opt_playtime].value=0;
+					return 0;
+				}
+				
+				Netgame.PlayTimeAllowed=menus[opt_playtime].value;
+				sprintf( menus[opt_playtime].text, "Max Time: %d %s", Netgame.PlayTimeAllowed*5, TXT_MINUTES_ABBREV );
+			}
+			else if (citem == opt_killgoal)
+			{
+				if (Game_mode & GM_MULTI_COOP)
+				{
+					nm_messagebox ("Sorry",1,TXT_OK,"You can't change those for coop!");
+					menus[opt_killgoal].value=0;
+					return 0;
+				}
+				
+				Netgame.KillGoal=menus[opt_killgoal].value;
+				sprintf( menus[opt_killgoal].text, "Kill Goal: %d kills", Netgame.KillGoal*5);
+			}
+			break;
+			
+		default:
+			break;
+	}
 	
 	userdata = userdata;
-		
-	if ( last_cinvul != menus[opt_cinvul].value )   {
-		sprintf( menus[opt_cinvul].text, "%s: %d %s", TXT_REACTOR_LIFE, menus[opt_cinvul].value*5, TXT_MINUTES_ABBREV );
-		last_cinvul = menus[opt_cinvul].value;
-	}
-
-	if (menus[opt_playtime].value!=LastPTA)
-	{
-		if (Game_mode & GM_MULTI_COOP)
-		{
-			LastPTA=0;
-			nm_messagebox ("Sorry",1,TXT_OK,"You can't change those for coop!");
-			menus[opt_playtime].value=0;
-			return 0;
-		}
-		
-		Netgame.PlayTimeAllowed=menus[opt_playtime].value;
-		sprintf( menus[opt_playtime].text, "Max Time: %d %s", Netgame.PlayTimeAllowed*5, TXT_MINUTES_ABBREV );
-		LastPTA=Netgame.PlayTimeAllowed;
-	}
-
-	if (menus[opt_killgoal].value!=LastKillGoal)
-	{
-		if (Game_mode & GM_MULTI_COOP)
-		{
-			nm_messagebox ("Sorry",1,TXT_OK,"You can't change those for coop!");
-			menus[opt_killgoal].value=0;
-			LastKillGoal=0;
-			return 0;
-		}
-
-		Netgame.KillGoal=menus[opt_killgoal].value;
-		sprintf( menus[opt_killgoal].text, "Kill Goal: %d kills", Netgame.KillGoal*5);
-		LastKillGoal=Netgame.KillGoal;
-	}
 	
 	return 0;
 }
