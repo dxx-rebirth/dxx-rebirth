@@ -1,5 +1,9 @@
 D1X-Rebirth Changelog
 
+20100201
+--------
+arch/carbon/conf.h, d1x-rebirth.xcodeproj/project.pbxproj, main/kconfig.c, main/menu.c, main/net_ipx.c, main/net_udp.c, main/newmenu.c, main/newmenu.h: Leave kconfig_idle early if exiting kconfig to avoid erroneous memory access; initialise menu's citem properly; add EVENT_NEWMENU_CHANGED; activate USE_IPX in Xcode while I'm still changing net_ipx.c
+
 20100131
 --------
 main/newmenu.c: Fix memory errors, but still dynamically allocate menu and lb so it doesn't have to stay in newmenu_do4 and newmenu_listbox1 respectively

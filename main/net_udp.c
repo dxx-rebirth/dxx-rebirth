@@ -2372,7 +2372,6 @@ int net_udp_start_poll( newmenu *menu, d_event *event, void *userdata )
 
 static int opt_cinvul, opt_team_anarchy, opt_coop, opt_show_on_map, opt_closed, opt_refuse, opt_maxnet;
 static int opt_show_on_map, opt_difficulty, opt_setpower, opt_port, opt_packets, opt_plp;
-static int last_maxnet, last_cinvul=0;
 
 void net_udp_set_power (void)
 {
@@ -2395,7 +2394,7 @@ void net_udp_set_power (void)
 	}
 }
 
-int net_udp_more_options_poll( newmenu *menu, d_event *event, void *userdata );
+int net_udp_more_options_handler( newmenu *menu, d_event *event, void *userdata );
 
 void net_udp_more_game_options ()
 {
@@ -2429,7 +2428,7 @@ void net_udp_more_game_options ()
 	m[opt].type = NM_TYPE_CHECK; m[opt].text = "Packet Loss Prevention"; m[opt].value = Netgame.PacketLossPrevention; opt++;
 
 menu:
-	i = newmenu_do1( NULL, "Advanced netgame options", opt, m, net_udp_more_options_poll, NULL, 0 );
+	i = newmenu_do1( NULL, "Advanced netgame options", opt, m, net_udp_more_options_handler, NULL, 0 );
 
 	Netgame.control_invul_time = m[opt_cinvul].value*5*F1_0*60;
 
@@ -2467,70 +2466,75 @@ menu:
 	Netgame.PacketLossPrevention = m[opt_plp].value;
 }
 
-int net_udp_more_options_poll( newmenu *menu, d_event *event, void *userdata )
+int net_udp_more_options_handler( newmenu *menu, d_event *event, void *userdata )
 {
 	newmenu_item *menus = newmenu_get_items(menu);
-
-	if (event->type != EVENT_IDLE)	// FIXME: Should become EVENT_ITEM_CHANGED when available
-		return 0;
+	
+	switch (event->type)
+	{
+		case EVENT_NEWMENU_CHANGED:
+			if (newmenu_get_citem(menu) == opt_cinvul)
+				sprintf( menus[opt_cinvul].text, "%s: %d %s", TXT_REACTOR_LIFE, menus[opt_cinvul].value*5, TXT_MINUTES_ABBREV );
+			break;
+			
+		default:
+			break;
+	}
 	
 	userdata = userdata;
-	
-	if ( last_cinvul != menus[opt_cinvul].value )   {
-		sprintf( menus[opt_cinvul].text, "%s: %d %s", TXT_REACTOR_LIFE, menus[opt_cinvul].value*5, TXT_MINUTES_ABBREV );
-		last_cinvul = menus[opt_cinvul].value;
-	}
 	
 	return 0;
 }
 
-int net_udp_game_param_poll( newmenu *menu, d_event *event, void *userdata )
+int net_udp_game_param_handler( newmenu *menu, d_event *event, void *userdata )
 {
 	newmenu_item *menus = newmenu_get_items(menu);
+	int citem = newmenu_get_citem(menu);
 	static int oldmaxnet=0;
 
-	if (event->type != EVENT_IDLE)	// FIXME: Should become EVENT_ITEM_CHANGED when available
-		return 0;
-
-	if (menus[opt_team_anarchy].value) 
+	switch (event->type)
 	{
-		menus[opt_closed].value = 1;
-		menus[opt_closed-1].value = 0;
-		menus[opt_closed+1].value = 0;
-	}
-
-	if (menus[opt_coop].value)
-	{
-		oldmaxnet=1;
-
-		if (menus[opt_maxnet].value>2) 
-		{
-			menus[opt_maxnet].value=2;
-		}
-
-		if (menus[opt_maxnet].max_value>2)
-		{
-			menus[opt_maxnet].max_value=2;
-		}
-
-		if (!(Netgame.game_flags & NETGAME_FLAG_SHOW_MAP))
-			Netgame.game_flags |= NETGAME_FLAG_SHOW_MAP;
-
-	}
-	else // if !Coop game
-	{
-		if (oldmaxnet)
-		{
-			oldmaxnet=0;
-			menus[opt_maxnet].value=6;
-			menus[opt_maxnet].max_value=6;
-		}
-	}
-
-	if ( last_maxnet != menus[opt_maxnet].value )   
-	{
-		sprintf( menus[opt_maxnet].text, "Maximum players: %d", menus[opt_maxnet].value+2 );
-		last_maxnet = menus[opt_maxnet].value;
+		case EVENT_NEWMENU_CHANGED:
+			if (citem == opt_team_anarchy)
+			{
+				menus[opt_closed].value = 1;
+				menus[opt_closed-1].value = 0;
+				menus[opt_closed+1].value = 0;
+			}
+			
+			if (menus[opt_coop].value)
+			{
+				oldmaxnet=1;
+				
+				if (menus[opt_maxnet].value>2) 
+				{
+					menus[opt_maxnet].value=2;
+				}
+				
+				if (menus[opt_maxnet].max_value>2)
+				{
+					menus[opt_maxnet].max_value=2;
+				}
+				
+				if (!(Netgame.game_flags & NETGAME_FLAG_SHOW_MAP))
+					Netgame.game_flags |= NETGAME_FLAG_SHOW_MAP;
+			}
+			else // if !Coop game
+			{
+				if (oldmaxnet)
+				{
+					oldmaxnet=0;
+					menus[opt_maxnet].value=6;
+					menus[opt_maxnet].max_value=6;
+				}
+			}
+			
+			if (citem == opt_maxnet)
+				sprintf( menus[opt_maxnet].text, "Maximum players: %d", menus[opt_maxnet].value+2 );
+			break;
+			
+		default:
+			break;
 	}
 	
 	return 0;
@@ -2558,7 +2562,6 @@ int net_udp_get_game_params()
 		snprintf (UDP_MyPort, sizeof(UDP_MyPort), "%d", GameArg.MplUdpMyPort);
 	else
 		snprintf (UDP_MyPort, sizeof(UDP_MyPort), "%d", UDP_PORT_DEFAULT);
-	last_cinvul = 0;   //default to zero
 	Netgame.AllowedItems=0;
 	Netgame.AllowedItems |= NETFLAG_DOPOWERUP;
 	Netgame.PacketLossPrevention = 1;
@@ -2610,7 +2613,6 @@ int net_udp_get_game_params()
 	sprintf( srmaxnet, "Maximum players: %d", MaxNumNetPlayers);
 	m[opt].type = NM_TYPE_SLIDER; m[opt].value=Netgame.max_numplayers-2; m[opt].text= srmaxnet; m[opt].min_value=0; 
 	m[opt].max_value=MaxNumNetPlayers-2; opt++;
-	last_maxnet=MaxNumNetPlayers-2;
 	
 	opt_moreopts=opt;
 	m[opt].type = NM_TYPE_MENU;  m[opt].text = "Advanced options"; opt++;
@@ -2618,7 +2620,7 @@ int net_udp_get_game_params()
 	Assert(opt <= 20);
 
 menu:
-	i = newmenu_do1( NULL, NULL, opt, m, net_udp_game_param_poll, NULL, 1 );
+	i = newmenu_do1( NULL, NULL, opt, m, net_udp_game_param_handler, NULL, 1 );
 
 	if (i==opt_moreopts)
 	{

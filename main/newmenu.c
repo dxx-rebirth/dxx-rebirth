@@ -551,9 +551,11 @@ int newmenu_get_citem(newmenu *menu)
 
 int newmenu_key_command(window *wind, d_event *event, newmenu *menu)
 {
+	newmenu_item *item = &menu->items[menu->citem];
 	int k = ((d_event_keycommand *)event)->keycode;
 	int old_choice, i;
 	char *Temp,TempVal;
+	int changed = 0;
 	int rval = 1;
 	
 	switch( k )
@@ -652,16 +654,17 @@ int newmenu_key_command(window *wind, d_event *event, newmenu *menu)
 			break;
 		case KEY_SPACEBAR:
 			if ( menu->citem > -1 )	{
-				switch( menu->items[menu->citem].type )	{
+
+				switch( item->type )	{
 					case NM_TYPE_MENU:
 					case NM_TYPE_INPUT:
 					case NM_TYPE_INPUT_MENU:
 						break;
 					case NM_TYPE_CHECK:
-						if ( menu->items[menu->citem].value )
-							menu->items[menu->citem].value = 0;
+						if ( item->value )
+							item->value = 0;
 						else
-							menu->items[menu->citem].value = 1;
+							item->value = 1;
 						if (menu->is_scroll_box)
 						{
 							if (menu->citem==(menu->max_on_menu+menu->scroll_offset-1) || menu->citem==menu->scroll_offset)
@@ -669,14 +672,18 @@ int newmenu_key_command(window *wind, d_event *event, newmenu *menu)
 								menu->last_scroll_check=-1;
 							}
 						}
+						
+						changed = 1;
 						break;
 					case NM_TYPE_RADIO:
 						for (i=0; i<menu->nitems; i++ )	{
-							if ((i!=menu->citem) && (menu->items[i].type==NM_TYPE_RADIO) && (menu->items[i].group==menu->items[menu->citem].group) && (menu->items[i].value) )	{
+							if ((i!=menu->citem) && (menu->items[i].type==NM_TYPE_RADIO) && (menu->items[i].group==item->group) && (menu->items[i].value) )	{
 								menu->items[i].value = 0;
+								changed = 1;
 							}
 						}
-						menu->items[menu->citem].value = 1;
+						item->value = 1;
+						changed = 1;
 						break;
 				}	
 			}
@@ -692,6 +699,7 @@ int newmenu_key_command(window *wind, d_event *event, newmenu *menu)
 				menu->items[menu->citem-1].text=Temp;
 				menu->items[menu->citem-1].value=TempVal;
 				menu->citem--;
+				changed = 1;
 			}
 			break;
 		case KEY_SHIFTED+KEY_DOWN:
@@ -704,17 +712,18 @@ int newmenu_key_command(window *wind, d_event *event, newmenu *menu)
 				menu->items[menu->citem+1].text=Temp;
 				menu->items[menu->citem+1].value=TempVal;
 				menu->citem++;
+				changed = 1;
 			}
 			break;
 		case KEY_ENTER:
 		case KEY_PADENTER:
-			if ( (menu->citem>-1) && (menu->items[menu->citem].type==NM_TYPE_INPUT_MENU) && (menu->items[menu->citem].group==0))	{
-				menu->items[menu->citem].group = 1;
-				if ( !strnicmp( menu->items[menu->citem].saved_text, TXT_EMPTY, strlen(TXT_EMPTY) ) )	{
-					menu->items[menu->citem].text[0] = 0;
-					menu->items[menu->citem].value = -1;
+			if ( (menu->citem>-1) && (item->type==NM_TYPE_INPUT_MENU) && (item->group==0))	{
+				item->group = 1;
+				if ( !strnicmp( item->saved_text, TXT_EMPTY, strlen(TXT_EMPTY) ) )	{
+					item->text[0] = 0;
+					item->value = -1;
 				} else {	
-					strip_end_whitespace(menu->items[menu->citem].text);
+					strip_end_whitespace(item->text);
 				}
 			} else
 			{
@@ -734,10 +743,10 @@ int newmenu_key_command(window *wind, d_event *event, newmenu *menu)
 			break;
 			
 		case KEY_ESC:
-			if ( (menu->citem>-1) && (menu->items[menu->citem].type==NM_TYPE_INPUT_MENU) && (menu->items[menu->citem].group==1))	{
-				menu->items[menu->citem].group=0;
-				strcpy(menu->items[menu->citem].text, menu->items[menu->citem].saved_text );	
-				menu->items[menu->citem].value = -1;
+			if ( (menu->citem>-1) && (item->type==NM_TYPE_INPUT_MENU) && (item->group==1))	{
+				item->group=0;
+				strcpy(item->text, item->saved_text );	
+				item->value = -1;
 			} else {
 				menu->done = 1;
 				menu->citem = -1;
@@ -754,7 +763,7 @@ int newmenu_key_command(window *wind, d_event *event, newmenu *menu)
 			
 #ifndef NDEBUG
 		case KEY_BACKSP:	
-			if ( (menu->citem>-1) && (menu->items[menu->citem].type!=NM_TYPE_INPUT)&&(menu->items[menu->citem].type!=NM_TYPE_INPUT_MENU))
+			if ( (menu->citem>-1) && (item->type!=NM_TYPE_INPUT)&&(item->type!=NM_TYPE_INPUT_MENU))
 				Int3(); 
 			break;
 #endif
@@ -767,21 +776,25 @@ int newmenu_key_command(window *wind, d_event *event, newmenu *menu)
 	if ( menu->citem > -1 )	{
 		int ascii;
 		
-		if ( ((menu->items[menu->citem].type==NM_TYPE_INPUT)||((menu->items[menu->citem].type==NM_TYPE_INPUT_MENU)&&(menu->items[menu->citem].group==1)) )&& (old_choice==menu->citem) )	{
+		// Alerting callback of every keypress for NM_TYPE_INPUT. Alternatively, just respond to EVENT_NEWMENU_SELECTED
+		if ( ((item->type==NM_TYPE_INPUT)||((item->type==NM_TYPE_INPUT_MENU)&&(item->group==1)) )&& (old_choice==menu->citem) )	{
 			if ( k==KEY_LEFT || k==KEY_BACKSP || k==KEY_PAD4 )	{
-				if (menu->items[menu->citem].value==-1) menu->items[menu->citem].value = strlen(menu->items[menu->citem].text);
-				if (menu->items[menu->citem].value > 0)
-					menu->items[menu->citem].value--;
-				menu->items[menu->citem].text[menu->items[menu->citem].value] = 0;
+				if (item->value==-1) item->value = strlen(item->text);
+				if (item->value > 0)
+					item->value--;
+				item->text[item->value] = 0;
+				
+				if (item->type==NM_TYPE_INPUT)
+					changed = 1;
 				rval = 1;
 			} else {
 				ascii = key_ascii();
-				if ((ascii < 255 ) && (menu->items[menu->citem].value < menu->items[menu->citem].text_len ))
+				if ((ascii < 255 ) && (item->value < item->text_len ))
 				{
 					int allowed;
 					
-					if (menu->items[menu->citem].value==-1) {
-						menu->items[menu->citem].value = 0;
+					if (item->value==-1) {
+						item->value = 0;
 					}
 					
 					allowed = char_allowed(ascii);
@@ -792,13 +805,16 @@ int newmenu_key_command(window *wind, d_event *event, newmenu *menu)
 					}
 					
 					if (allowed) {
-						menu->items[menu->citem].text[menu->items[menu->citem].value++] = ascii;
-						menu->items[menu->citem].text[menu->items[menu->citem].value] = 0;
+						item->text[item->value++] = ascii;
+						item->text[item->value] = 0;
+						
+						if (item->type==NM_TYPE_INPUT)
+							changed = 1;
 					}
 				}
 			}
 		}
-		else if ((menu->items[menu->citem].type!=NM_TYPE_INPUT) && (menu->items[menu->citem].type!=NM_TYPE_INPUT_MENU) )
+		else if ((item->type!=NM_TYPE_INPUT) && (item->type!=NM_TYPE_INPUT_MENU) )
 		{
 			ascii = key_ascii();
 			if (ascii < 255 ) {
@@ -836,7 +852,7 @@ int newmenu_key_command(window *wind, d_event *event, newmenu *menu)
 			}
 		}
 		
-		if ( (menu->items[menu->citem].type==NM_TYPE_NUMBER) || (menu->items[menu->citem].type==NM_TYPE_SLIDER))
+		if ( (item->type==NM_TYPE_NUMBER) || (item->type==NM_TYPE_SLIDER))
 		{
 			switch( k ) {
 				case KEY_PAD4:
@@ -844,7 +860,8 @@ int newmenu_key_command(window *wind, d_event *event, newmenu *menu)
 				case KEY_MINUS:
 				case KEY_MINUS+KEY_SHIFTED:
 				case KEY_PADMINUS:
-					menu->items[menu->citem].value -= 1;
+					item->value -= 1;
+					changed = 1;
 					rval = 1;
 					break;
 				case KEY_RIGHT:
@@ -852,24 +869,36 @@ int newmenu_key_command(window *wind, d_event *event, newmenu *menu)
 				case KEY_EQUAL:
 				case KEY_EQUAL+KEY_SHIFTED:
 				case KEY_PADPLUS:
-					menu->items[menu->citem].value++;
+					item->value++;
+					changed = 1;
 					rval = 1;
 					break;
 				case KEY_PAGEUP:
 				case KEY_PAD9:
 				case KEY_SPACEBAR:
-					menu->items[menu->citem].value += 10;
+					item->value += 10;
+					changed = 1;
 					rval = 1;
 					break;
 				case KEY_PAGEDOWN:
 				case KEY_BACKSP:
 				case KEY_PAD3:
-					menu->items[menu->citem].value -= 10;
+					item->value -= 10;
+					changed = 1;
 					rval = 1;
 					break;
 			}
+
+			if (item->value < item->min_value) item->value=item->min_value;
+			if (item->value > item->max_value) item->value=item->max_value;
 		}
 		
+	}
+	
+	if (changed && menu->subfunction)
+	{
+		event->type = EVENT_NEWMENU_CHANGED;
+		(*menu->subfunction)(menu, event, menu->userdata);
 	}
 	
 	return rval;
@@ -882,6 +911,7 @@ int newmenu_idle(window *wind, newmenu *menu)
 #ifdef NEWMENU_MOUSE
 	int mx=0, my=0, mz=0, x1 = 0, x2, y1, y2;
 #endif
+	int changed = 0;
 	d_event event = { EVENT_NEWMENU_SELECTED };
 	
 	timer_delay2(50);
@@ -922,11 +952,13 @@ int newmenu_idle(window *wind, newmenu *menu)
 						
 						if (menu->is_scroll_box)
 							menu->last_scroll_check=-1;
+						changed = 1;
 						break;
 						case NM_TYPE_RADIO:
 						for (i=0; i<menu->nitems; i++ )	{
 							if ((i!=menu->citem) && (menu->items[i].type==NM_TYPE_RADIO) && (menu->items[i].group==menu->items[menu->citem].group) && (menu->items[i].value) )	{
 								menu->items[i].value = 0;
+								changed = 1;
 							}
 						}
 						menu->items[menu->citem].value = 1;
@@ -1026,8 +1058,10 @@ int newmenu_idle(window *wind, newmenu *menu)
 						x2 = x1 + slider_width + sright_width;
 						if ( (mx > x1) && (mx < (x1 + sleft_width)) && (menu->items[menu->citem].value != menu->items[menu->citem].min_value) ) {
 							menu->items[menu->citem].value = menu->items[menu->citem].min_value;
+							changed = 1;
 						} else if ( (mx < x2) && (mx > (x2 - sright_width)) && (menu->items[menu->citem].value != menu->items[menu->citem].max_value) ) {
 							menu->items[menu->citem].value = menu->items[menu->citem].max_value;
+							changed = 1;
 						} else if ( (mx > (x1 + sleft_width)) && (mx < (x2 - sright_width)) ) {
 							int num_values, value_width, new_value;
 							
@@ -1036,6 +1070,7 @@ int newmenu_idle(window *wind, newmenu *menu)
 							new_value = (mx - x1 - sleft_width) / value_width;
 							if ( menu->items[menu->citem].value != new_value ) {
 								menu->items[menu->citem].value = new_value;
+								changed = 1;
 							}
 						}
 						*p = '\t';
@@ -1101,6 +1136,12 @@ int newmenu_idle(window *wind, newmenu *menu)
 	}
 	
 #endif // NEWMENU_MOUSE
+	
+	if (changed && menu->subfunction)
+	{
+		event.type = EVENT_NEWMENU_CHANGED;
+		(*menu->subfunction)(menu, &event, menu->userdata);
+	}
 	
 	gr_set_current_canvas(save_canvas);
 
@@ -1282,6 +1323,7 @@ int newmenu_do4( char * title, char * subtitle, int nitems, newmenu_item * item,
 		return -1;
 
 	memset(menu, 0, sizeof(newmenu));	
+	menu->citem = citem;
 	menu->scroll_offset = 0;
 	menu->last_scroll_check = -1;
 	menu->all_text = 0;

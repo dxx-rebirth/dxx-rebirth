@@ -769,6 +769,7 @@ int kconfig_idle(window *wind, d_event *event, kc_menu *menu)
 		case -2:	
 		case KEY_ESC:
 			window_close(wind);
+			return 1;
 			break;
 #ifdef TABLE_CREATION
 		case KEY_F12:	{
