@@ -558,10 +558,8 @@ void write_game_text_file(char *filename)
 		char  ErrorMessage[200];
 
                 sprintf( ErrorMessage, "ERROR: Unable to open output file %s\n", my_filename );
-		stop_time();
 		gr_palette_load(gr_palette);
 		nm_messagebox( NULL, 1, "Ok", ErrorMessage );
-		start_time();
 
 		return;
 	}
@@ -853,10 +851,8 @@ void say_totals_all(void)
 		char  ErrorMessage[200];
 
 		sprintf( ErrorMessage, "ERROR: Unable to open output file levels.all\n");
-		stop_time();
 		gr_palette_load(gr_palette);
 		nm_messagebox( NULL, 1, "Ok", ErrorMessage );
-		start_time();
 
 		return;
 	}
@@ -918,10 +914,8 @@ say_totals_all();
 		char  ErrorMessage[200];
 
 		sprintf( ErrorMessage, "ERROR: Unable to open output file textures.dmp\n");
-		stop_time();
 		gr_palette_load(gr_palette);
 		nm_messagebox( NULL, 1, "Ok", ErrorMessage );
-		start_time();
 
 		return;
 	}

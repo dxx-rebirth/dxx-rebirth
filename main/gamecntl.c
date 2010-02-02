@@ -264,12 +264,10 @@ int pause_handler(window *wind, d_event *event, char *msg)
 			break;
 			
 		case EVENT_WINDOW_CLOSE:
-			game_flush_inputs();
 			reset_cockpit();
-			start_time();
 			if (EXT_MUSIC_ON)
 				ext_music_resume();
-			digi_resume_all();
+			digi_resume_midi();		// sound pausing handled by game_handler
 			d_free(msg);
 			return 0;	// continue closing
 			break;
@@ -299,10 +297,8 @@ int do_game_pause()
 	}
 #endif
 	
-	digi_pause_all();
+	digi_pause_midi();		// sound pausing handled by game_handler
 	ext_music_pause();
-	stop_time();
-	game_flush_inputs();
 	gr_palette_load( gr_palette );
 	format_time(total_time, f2i(Players[Player_num].time_total) + Players[Player_num].hours_total*3600);
 	format_time(level_time, f2i(Players[Player_num].time_level) + Players[Player_num].hours_level*3600);
@@ -1241,7 +1237,6 @@ void ReadControls()
 		// If automap key pressed, enable automap unless you are in network mode, control center destroyed and < 10 seconds left
 		if ( Controls.automap_down_count && !((Game_mode & GM_MULTI) && Control_center_destroyed && (Fuelcen_seconds_left < 10)))
 		{
-			game_flush_inputs();
 			do_automap(0);
 			return;
 		}

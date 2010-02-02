@@ -1,5 +1,9 @@
 D1X-Rebirth Changelog
 
+20100202
+--------
+arch/include/event.h, arch/sdl/window.c, main/automap.c, main/dumpmine.c, main/game.c, main/gamecntl.c, main/gamesave.c, main/gameseq.c, main/kconfig.c, main/net_ipx.c, main/net_udp.c, main/newmenu.c: Add EVENT_WINDOW_DEACTIVATED; move many game_flush_inputs, start_time and stop_time calls to game_handler as well as digi_pause_digi_sounds and digi_resume_digi_sounds
+
 20100201
 --------
 arch/carbon/conf.h, d1x-rebirth.xcodeproj/project.pbxproj, main/kconfig.c, main/menu.c, main/net_ipx.c, main/net_udp.c, main/newmenu.c, main/newmenu.h: Leave kconfig_idle early if exiting kconfig to avoid erroneous memory access; initialise menu's citem properly; add EVENT_NEWMENU_CHANGED; activate USE_IPX in Xcode while I'm still changing net_ipx.c

@@ -84,7 +84,6 @@ struct newmenu
 	int				tiny_mode;
 	int				scroll_offset, last_scroll_check, max_displayable;
 	int				all_text;		//set true if all text items
-	int				sound_stopped,time_stopped;
 	int				is_scroll_box;   // Is this a scrolling box? Set to false at init
 	int				max_on_menu;
 	int				mouse_state, omouse_state, dblclick_flag;
@@ -1260,6 +1259,10 @@ int newmenu_handler(window *wind, d_event *event, newmenu *menu)
 			newmenu_show_cursor();
 			break;
 			
+		case EVENT_WINDOW_DEACTIVATED:
+			newmenu_hide_cursor();
+			break;
+			
 		case EVENT_KEY_COMMAND:
 			return newmenu_key_command(wind, event, menu);
 			break;
@@ -1280,21 +1283,6 @@ int newmenu_handler(window *wind, d_event *event, newmenu *menu)
 				return 1;	// cancel close and do it in newmenu_do4 instead
 			}
 
-			newmenu_hide_cursor();
-			game_flush_inputs();
-			
-			if (menu->time_stopped)
-				start_time();
-			
-			if ( menu->sound_stopped )
-				digi_resume_digi_sounds();
-			
-			if (!menu->done)	// closing from outside newmenu.c
-			{
-				menu->citem = -1;
-				menu->done = 1;
-			}
-			
 			d_free(menu);
 			break;
 			
@@ -1328,7 +1316,6 @@ int newmenu_do4( char * title, char * subtitle, int nitems, newmenu_item * item,
 	menu->last_scroll_check = -1;
 	menu->all_text = 0;
 	menu->is_scroll_box = 0;
-	menu->sound_stopped = menu->time_stopped = 0;
 	menu->max_on_menu = MAXDISPLAYABLEITEMS;
 	menu->dblclick_flag = 0;
 	menu->title = title;
@@ -1350,17 +1337,6 @@ int newmenu_do4( char * title, char * subtitle, int nitems, newmenu_item * item,
 	}
 
 	menu->max_displayable=nitems;
-
-	if ( Function_mode == FMODE_GAME && !((Game_mode & GM_MULTI) && (Newdemo_state != ND_STATE_PLAYBACK))) {
-		digi_pause_digi_sounds();
-		menu->sound_stopped = 1;
-	}
-
-	if (!(((Game_mode & GM_MULTI) && (Newdemo_state != ND_STATE_PLAYBACK)) && (Function_mode == FMODE_GAME) && (!Endlevel_sequence)) )
-	{
-		menu->time_stopped = 1;
-		stop_time();
-	}
 
 	save_canvas = grd_curcanv;
 
@@ -1540,12 +1516,6 @@ int newmenu_do4( char * title, char * subtitle, int nitems, newmenu_item * item,
 		wind = window_create(&grd_curscreen->sc_canvas, menu->x, menu->y, menu->w, menu->h, (int (*)(window *, d_event *, void *))newmenu_handler, menu);
 	if (!wind)
 	{
-		if (menu->time_stopped)
-			start_time();
-		
-		if ( menu->sound_stopped )
-			digi_resume_digi_sounds();
-		
 		d_free(menu);
 
 		return -1;
@@ -1598,9 +1568,6 @@ int newmenu_do4( char * title, char * subtitle, int nitems, newmenu_item * item,
 			}
 		}
 	}
-
-	// Clear mouse, joystick to clear button presses.
-	game_flush_inputs();
 
 #ifdef NEWMENU_MOUSE
 	menu->mouse_state = menu->omouse_state = 0;
@@ -1972,6 +1939,10 @@ int listbox_handler(window *wind, d_event *event, listbox *lb)
 			newmenu_show_cursor();
 			break;
 			
+		case EVENT_WINDOW_DEACTIVATED:
+			newmenu_hide_cursor();
+			break;
+			
 		case EVENT_KEY_COMMAND:
 			return listbox_key_command(wind, event, lb);
 			break;
@@ -1992,7 +1963,6 @@ int listbox_handler(window *wind, d_event *event, listbox *lb)
 				return 1;	// cancel close and do it in newmenu_listbox1 instead
 			}
 			
-			newmenu_hide_cursor();
 			d_free(lb);
 			break;
 			

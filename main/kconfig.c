@@ -115,7 +115,6 @@ typedef struct kc_menu
 	int		citem;
 	int		old_axis[JOY_MAX_AXES];
 	ubyte	changing;
-	ubyte	time_stopped;
 	ubyte	q_fade_i;	// for flashing the question mark
 #ifdef NEWMENU_MOUSE
 	ubyte	mouse_state, omouse_state;
@@ -924,10 +923,7 @@ int kconfig_handler(window *wind, d_event *event, kc_menu *menu)
 			break;
 			
 		case EVENT_WINDOW_CLOSE:
-			game_flush_inputs();
 			newmenu_hide_cursor();
-			if (menu->time_stopped)
-				start_time();
 			d_free(menu);
 			
 			// Update save values...
@@ -969,24 +965,11 @@ void kconfig_sub(kc_item * items,int nitems, char *title)
 		return;
 
 	memset(menu, 0, sizeof(kc_menu));
-	menu->time_stopped = 0;
 	menu->items = items;
 	menu->nitems = nitems;
 	menu->title = title;
 	menu->citem = 0;
 	menu->changing = 0;
-
-#ifdef NETWORK
-	if (!((Game_mode & GM_MULTI) && (Function_mode == FMODE_GAME) && (!Endlevel_sequence)) )
-#else
-	if (Endlevel_sequence)
-#endif
-	{
-		menu->time_stopped = 1;
-		stop_time();
-	}
-
-	game_flush_inputs();
 
 #ifdef NEWMENU_MOUSE
 	menu->mouse_state = menu->omouse_state = 0;

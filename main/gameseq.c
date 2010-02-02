@@ -1296,7 +1296,6 @@ void StartNewLevelSub(int level_num, int page_in_textures)
 	init_morphs();
 	init_all_matcens();
 	reset_palette_add();
-	game_flush_inputs();		// clear out the keyboard
 
 	if (!(Game_mode & GM_MULTI) && !Cheats_enabled)
 		set_highest_level(Current_level_num);
