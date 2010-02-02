@@ -22,6 +22,7 @@ COPYRIGHT 1993-1998 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 #include <string.h>
 #include <stdarg.h>
 #include <SDL/SDL.h>
+#include <setjmp.h>
 
 #ifdef OGL
 #include "ogl_init.h"
@@ -975,6 +976,7 @@ window *game_setup(void)
 void game_render_frame();
 
 window *Game_wind = NULL;
+jmp_buf LeaveGame;
 
 // Event handler for the game
 int game_handler(window *wind, d_event *event, void *data)
@@ -1078,6 +1080,10 @@ int game_handler(window *wind, d_event *event, void *data)
 			return 0;	// continue closing
 			break;
 			
+		case EVENT_WINDOW_CLOSED:
+			longjmp(LeaveGame, 0);
+			break;
+			
 		default:
 			return 0;
 			break;
@@ -1093,8 +1099,11 @@ void game()
 {
 	Game_wind = game_setup();
 
-	while (Game_wind)
-		event_process();
+	if (setjmp(LeaveGame) == 0)
+	{
+		while (Game_wind)
+			event_process();
+	}
 }
 
 //called at the end of the program

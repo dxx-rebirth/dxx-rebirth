@@ -65,6 +65,7 @@ int window_close(window *wind)
 {
 	window *prev;
 	d_event event;
+	int (*w_callback)(window *wind, d_event *event, void *data) = wind->w_callback;
 
 	event.type = EVENT_WINDOW_DEACTIVATED;	// Deactivate first
 	window_send_event(wind, &event);
@@ -92,6 +93,10 @@ int window_close(window *wind)
 	}
 	
 	d_free(wind);
+	
+	event.type = EVENT_WINDOW_CLOSED;
+	w_callback(wind, &event, NULL);	// callback needs to recognise this is a NULL pointer!
+	
 	return 1;
 }
 

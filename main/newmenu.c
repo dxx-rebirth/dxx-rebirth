@@ -1238,6 +1238,9 @@ int newmenu_draw(window *wind, newmenu *menu)
 
 int newmenu_handler(window *wind, d_event *event, newmenu *menu)
 {
+	if (event->type == EVENT_WINDOW_CLOSED)
+		return 0;
+	
 	if (menu->subfunction)
 	{
 		int rval = (*menu->subfunction)(menu, event, menu->userdata);
@@ -1918,6 +1921,9 @@ int listbox_draw(window *wind, listbox *lb)
 
 int listbox_handler(window *wind, d_event *event, listbox *lb)
 {
+	if (event->type == EVENT_WINDOW_CLOSED)
+		return 0;
+
 	if (lb->listbox_callback)
 	{
 		int rval = (*lb->listbox_callback)(lb, event, lb->userdata);
