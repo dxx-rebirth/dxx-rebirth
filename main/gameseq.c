@@ -1751,7 +1751,6 @@ void StartNewLevelSub(int level_num, int page_in_textures, int secret_flag)
 	reset_palette_add();
 	init_thief_for_level();
 	init_stuck_objects();
-	game_flush_inputs();		// clear out the keyboard
 	if (!(Game_mode & GM_MULTI))
 		filter_objects_from_level();
 

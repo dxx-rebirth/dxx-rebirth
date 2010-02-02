@@ -862,13 +862,10 @@ int SafetyCheck()
 	int x;
 			
 	if (mine_changed) {
-		stop_time();				
 		x = nm_messagebox( "Warning!", 2, "Cancel", "OK", "You are about to lose work." );
 		if (x<1) {
-			start_time();
 			return 0;
 		}
-		start_time();
 	}
 	return 1;
 }

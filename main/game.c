@@ -195,14 +195,7 @@ void reset_palette_add()
 
 void game_show_warning(char *s)
 {
-
-	if (!((Game_mode & GM_MULTI) && (Function_mode == FMODE_GAME)))
-		stop_time();
-
 	nm_messagebox( TXT_WARNING, 1, TXT_OK, s );
-
-	if (!((Game_mode & GM_MULTI) && (Function_mode == FMODE_GAME)))
-		start_time();
 }
 
 u_int32_t Game_screen_mode = SM(640,480);
@@ -1161,7 +1154,6 @@ window *game_setup(void)
 #endif
 
 	fix_object_segs();
-	game_flush_inputs();
 
 	return game_wind;
 }
@@ -1177,6 +1169,26 @@ int game_handler(window *wind, d_event *event, void *data)
 
 	switch (event->type)
 	{
+		case EVENT_WINDOW_ACTIVATED:
+			game_flush_inputs();
+
+			if (time_paused && !(((Game_mode & GM_MULTI) && (Newdemo_state != ND_STATE_PLAYBACK)) && (Function_mode == FMODE_GAME) && (!Endlevel_sequence)) )
+				start_time();
+
+			if ( Function_mode == FMODE_GAME && !((Game_mode & GM_MULTI) && (Newdemo_state != ND_STATE_PLAYBACK)))
+				digi_resume_digi_sounds();
+			break;
+			
+		case EVENT_WINDOW_DEACTIVATED:
+			game_flush_inputs();
+			
+			if (!(((Game_mode & GM_MULTI) && (Newdemo_state != ND_STATE_PLAYBACK)) && (Function_mode == FMODE_GAME) && (!Endlevel_sequence)) )
+				stop_time();
+			
+			if ( Function_mode == FMODE_GAME && !((Game_mode & GM_MULTI) && (Newdemo_state != ND_STATE_PLAYBACK)))
+				digi_pause_digi_sounds();
+			break;
+			
 		case EVENT_IDLE:
 			// GAME LOOP!
 			Config_menu_flag = 0;

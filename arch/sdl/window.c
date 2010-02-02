@@ -29,6 +29,7 @@ static window *FirstWindow = NULL;
 window *window_create(grs_canvas *src, int x, int y, int w, int h, int (*event_callback)(window *wind, d_event *event, void *data), void *data)
 {
 	window *wind;
+	window *prev = window_get_front();
 	d_event event = { EVENT_WINDOW_ACTIVATED };
 	
 	wind = d_malloc(sizeof(window));
@@ -51,29 +52,32 @@ window *window_create(grs_canvas *src, int x, int y, int w, int h, int (*event_c
 	FrontWindow = wind;
 	window_send_event(wind, &event);
 
+	if (prev)
+	{
+		event.type = EVENT_WINDOW_DEACTIVATED;
+		window_send_event(prev, &event);
+	}
+
 	return wind;
 }
 
 int window_close(window *wind)
 {
+	window *prev;
 	d_event event;
 
+	event.type = EVENT_WINDOW_DEACTIVATED;	// Deactivate first
+	window_send_event(wind, &event);
 	event.type = EVENT_WINDOW_CLOSE;
-
 	if (window_send_event(wind, &event))
+	{
+		event.type = EVENT_WINDOW_ACTIVATED;	// Reactivate. May cause flashing of some sort, too bad
+		window_send_event(wind, &event);
 		return 0;	// user 'handled' the event, cancelling close
+	}
 
 	if (wind == FrontWindow)
-	{
 		FrontWindow = wind->prev;
-		if (window_is_visible(wind))
-		{
-			window *w2;
-			event.type = EVENT_WINDOW_ACTIVATED;
-			if ((w2 = window_get_front()))
-				window_send_event(w2, &event);
-		}
-	}
 	if (wind == FirstWindow)
 		FirstWindow = wind->next;
 	if (wind->next)
@@ -81,6 +85,12 @@ int window_close(window *wind)
 	if (wind->prev)
 		wind->prev->next = wind->next;
 
+	if ((prev = window_get_front()))
+	{
+		event.type = EVENT_WINDOW_ACTIVATED;
+		window_send_event(prev, &event);
+	}
+	
 	d_free(wind);
 	return 1;
 }
@@ -108,6 +118,7 @@ window *window_get_next(window *wind)
 // Make wind the front window
 void window_select(window *wind)
 {
+	window *prev = window_get_front();
 	d_event event = { EVENT_WINDOW_ACTIVATED };
 
 	Assert (wind != NULL);
@@ -126,16 +137,30 @@ void window_select(window *wind)
 	FrontWindow = wind;
 	
 	if (window_is_visible(wind))
+	{
 		window_send_event(wind, &event);
+		event.type = EVENT_WINDOW_DEACTIVATED;
+		if (prev)
+			window_send_event(prev, &event);
+	}
 }
 
 void window_set_visible(window *wind, int visible)
 {
+	window *prev = window_get_front();
 	d_event event = { EVENT_WINDOW_ACTIVATED };
 
 	wind->w_visible = visible;
-	if (visible && (wind == FrontWindow))
+	wind = window_get_front();	// get the new front window
+	if (wind == prev)
+		return;
+
+	if (wind)
 		window_send_event(wind, &event);
+	
+	event.type = EVENT_WINDOW_DEACTIVATED;
+	if (prev)
+		window_send_event(prev, &event);
 }
 
 int window_is_visible(window *wind)

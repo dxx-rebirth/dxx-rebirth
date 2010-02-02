@@ -1559,14 +1559,11 @@ int save_level_sub(char * filename, int compiled_version)
 				char  ErrorMessage[200];
 	
 				sprintf( ErrorMessage, "Warning: %i errors in this mine!\n", Errors_in_mine );
-				stop_time();
 				gr_palette_load(gr_palette);
 	 
 				if (nm_messagebox( NULL, 2, "Cancel Save", "Save", ErrorMessage )!=1)	{
-					start_time();
 					return 1;
 				}
-				start_time();
 			}
 		}
 //		change_filename_extension(temp_filename,filename,".LVL");
@@ -1590,10 +1587,8 @@ int save_level_sub(char * filename, int compiled_version)
 		sprintf( ErrorMessage, \
 			"ERROR: Cannot write to '%s'.\nYou probably need to check out a locked\nversion of the file. You should save\nthis under a different filename, and then\ncheck out a locked copy by typing\n\'co -l %s.lvl'\nat the DOS prompt.\n" 
 			, temp_filename, fname );
-		stop_time();
 		gr_palette_load(gr_palette);
 		nm_messagebox( NULL, 1, "Ok", ErrorMessage );
-		start_time();
 		return 1;
 	}
 

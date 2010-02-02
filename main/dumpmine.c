@@ -560,10 +560,8 @@ void write_game_text_file(char *filename)
 		char  ErrorMessage[200];
 
 		sprintf(ErrorMessage, "ERROR: Unable to open %s\nErrno = %i", my_filename, errno);
-		stop_time();
 		gr_palette_load(gr_palette);
 		nm_messagebox( NULL, 1, "Ok", ErrorMessage );
-		start_time();
 
 		return;
 	}
@@ -1014,10 +1012,8 @@ void say_totals_all(void)
 		char  ErrorMessage[200];
 
 		sprintf( ErrorMessage, "ERROR: Unable to open levels.all\nErrno=%i", errno );
-		stop_time();
 		gr_palette_load(gr_palette);
 		nm_messagebox( NULL, 1, "Ok", ErrorMessage );
-		start_time();
 
 		return;
 	}
@@ -1074,10 +1070,8 @@ say_totals_all();
 		char  ErrorMessage[200];
 
 		sprintf( ErrorMessage, "ERROR: Can't open textures.dmp\nErrno=%i", errno);
-		stop_time();
 		gr_palette_load(gr_palette);
 		nm_messagebox( NULL, 1, "Ok", ErrorMessage );
-		start_time();
 
 		return;
 	}

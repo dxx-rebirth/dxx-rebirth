@@ -1702,11 +1702,8 @@ int escort_menu_handler(window *wind, d_event *event, escort_menu *menu)
 			break;
 			
 		case EVENT_WINDOW_CLOSE:
-			game_flush_inputs();
-			
 			palette_restore();
 			
-			start_time();
 			digi_resume_digi_sounds();
 			return 0;	// continue closing
 			break;
@@ -1770,14 +1767,9 @@ void do_escort_menu(void)
 		return;
 	}
 	
-	digi_pause_digi_sounds();
-	stop_time();
-
 	palette_save();
 	apply_modified_palette();
 	reset_palette_add();
-
-	game_flush_inputs();
 
 	gr_palette_load( gr_palette );
 
