@@ -214,7 +214,7 @@ void error_messagebox(char *s)
 	
 	// Hide all windows so they don't interfere
 	// Don't care about unfreed pointers on exit; trying to close the windows may cause problems
-	for (wind = window_get_front(), wind != NULL; wind = window_get_front())
+	for (wind = window_get_front(); wind != NULL; wind = window_get_front())
 		window_set_visible(wind, 0);
 
 	nm_messagebox( TXT_SORRY, 1, TXT_OK, s );
