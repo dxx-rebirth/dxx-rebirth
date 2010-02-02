@@ -3,6 +3,7 @@ D2X-Rebirth Changelog
 20100202
 --------
 arch/include/event.h, arch/sdl/window.c, main/automap.c, main/dumpmine.c, main/editor/med.c, main/escort.c, main/game.c, main/gamecntl.c, main/gamesave.c, main/gameseq.c, main/kconfig.c, main/net_ipx.c, main/net_udp.c, main/newmenu.c: Add EVENT_WINDOW_DEACTIVATED; move many game_flush_inputs, start_time and stop_time calls to game_handler as well as digi_pause_digi_sounds and digi_resume_digi_sounds
+main/inferno.c: Hide all other windows before showing error dialog, hopefully so errors don't happen while the error dialog is there
 
 20100201
 --------
