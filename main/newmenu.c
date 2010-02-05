@@ -97,7 +97,6 @@ ubyte MenuReordering=0;
 ubyte SurfingNet=0;
 static int draw_copyright=0;
 extern ubyte Version_major,Version_minor;
-extern char last_palette_loaded[];
 
 int newmenu_do4( char * title, char * subtitle, int nitems, newmenu_item * item, int (*subfunction)(newmenu *menu, d_event *event, void *userdata), void *userdata, int citem, char * filename, int width, int height, int TinyMode );
 
@@ -157,8 +156,6 @@ void nm_draw_background1(char * filename)
 		if (draw_copyright)
 			nm_draw_copyright();
 	}
-
-	strcpy(last_palette_loaded,"");		//force palette load next time
 }
 
 #define MENU_BACKGROUND_BITMAP_HIRES (cfexist("scoresb.pcx")?"scoresb.pcx":"scores.pcx")

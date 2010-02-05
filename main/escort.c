@@ -1702,9 +1702,6 @@ int escort_menu_handler(window *wind, d_event *event, escort_menu *menu)
 			break;
 			
 		case EVENT_WINDOW_CLOSE:
-			palette_restore();
-			
-			digi_resume_digi_sounds();
 			return 0;	// continue closing
 			break;
 			
@@ -1767,12 +1764,6 @@ void do_escort_menu(void)
 		return;
 	}
 	
-	palette_save();
-	apply_modified_palette();
-	reset_palette_add();
-
-	gr_palette_load( gr_palette );
-
 	//	This prevents the buddy from coming back if you've told him to scram.
 	//	If we don't set next_goal, we get garbage there.
 	if (Escort_special_goal == ESCORT_GOAL_SCRAM) {

@@ -184,6 +184,7 @@ void reset_cockpit(void);       // called if you've trashed the screen
 void palette_save(void);
 void reset_palette_add(void);
 void palette_restore(void);
+void full_palette_save(void);	// all of the above plus gr_palette_load(gr_palette)
 
 // put up the help message
 void show_help();

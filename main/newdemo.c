@@ -2788,6 +2788,8 @@ int newdemo_read_frame_information(int rewrite)
 				break;
 
 			reset_palette_add();                // get palette back to normal
+			full_palette_save();				// initialise for palette_restore()
+
 			start_time();
 			break;
 		}

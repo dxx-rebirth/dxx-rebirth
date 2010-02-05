@@ -929,11 +929,7 @@ void show_help()
 	m[nitems].type = NM_TYPE_TEXT; m[nitems++].text = "(Use \x85-# for F#. e.g. \x85-1 for F1)";
 #endif
 
-	full_palette_save();
-
 	newmenu_dotiny( NULL, TXT_KEYS, nitems, m, NULL, NULL );
-
-	palette_restore();
 }
 
 void show_netgame_help()
@@ -963,11 +959,7 @@ void show_netgame_help()
 	m[nitems].type = NM_TYPE_TEXT; m[nitems++].text = "kick: (*)\t  KICK PLAYER (*) FROM GAME (Host-only)";
 	m[nitems].type = NM_TYPE_TEXT; m[nitems++].text = "KillReactor\t  BLOW UP THE MINE (Host-only)";
 
-	full_palette_save();
-
 	newmenu_dotiny( NULL, TXT_KEYS, nitems, m, NULL, NULL );
-
-	palette_restore();
 }
 
 void show_newdemo_help()
@@ -992,9 +984,7 @@ void show_newdemo_help()
 	m[nitems].type = NM_TYPE_TEXT; m[nitems++].text = "";
 	m[nitems].type = NM_TYPE_TEXT; m[nitems++].text = "(Use \x85-# for F#. e.g. \x85-1 for F1)";
 #endif
-	full_palette_save();
 	newmenu_dotiny( NULL, "DEMO PLAYBACK CONTROLS", nitems, m, NULL, NULL );
-	palette_restore();
 }
 
 //temp function until Matt cleans up game sequencing
@@ -1179,6 +1169,9 @@ int game_handler(window *wind, d_event *event, void *data)
 
 			if ( Function_mode == FMODE_GAME && !((Game_mode & GM_MULTI) && (Newdemo_state != ND_STATE_PLAYBACK)))
 				digi_resume_digi_sounds();
+
+			if (!((Game_mode & GM_MULTI) && (Newdemo_state != ND_STATE_PLAYBACK)))
+				palette_restore();
 			break;
 			
 		case EVENT_WINDOW_DEACTIVATED:
@@ -1189,6 +1182,9 @@ int game_handler(window *wind, d_event *event, void *data)
 			
 			if ( Function_mode == FMODE_GAME && !((Game_mode & GM_MULTI) && (Newdemo_state != ND_STATE_PLAYBACK)))
 				digi_pause_digi_sounds();
+
+			if (!((Game_mode & GM_MULTI) && (Newdemo_state != ND_STATE_PLAYBACK)))
+				full_palette_save();
 			break;
 			
 		case EVENT_IDLE:
@@ -1203,9 +1199,7 @@ int game_handler(window *wind, d_event *event, void *data)
 			RBACheckFinishedHook();	// Handle RedBook Audio Repeating.
 			
 			if (Config_menu_flag)	{
-				if (!(Game_mode&GM_MULTI)) {palette_save(); reset_palette_add();	apply_modified_palette(); gr_palette_load( gr_palette ); }
 				do_options_menu();
-				if (!(Game_mode&GM_MULTI)) palette_restore();
 			}
 			
 			if (!Game_wind)
@@ -1216,12 +1210,7 @@ int game_handler(window *wind, d_event *event, void *data)
 				int choice, fmode;
 				fmode = Function_mode;
 				Function_mode = FMODE_GAME;
-				palette_save();
-				apply_modified_palette();
-				reset_palette_add();
-				gr_palette_load( gr_palette );
 				choice=nm_messagebox( NULL, 2, TXT_YES, TXT_NO, TXT_ABORT_GAME );
-				palette_restore();
 				Function_mode = fmode;
 				if (choice != 0)
 					Function_mode = FMODE_GAME;

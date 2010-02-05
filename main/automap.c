@@ -750,11 +750,6 @@ int automap_handler(window *wind, d_event *event, automap *am)
 			d_free(am->edges);
 			d_free(am->drawingListBright);
 			
-			if (am->pause_game)
-			{
-				digi_resume_digi_sounds();
-			}
-			
 			Screen_mode=-1; set_screen_mode(SCREEN_GAME);
 			init_cockpit();
 			last_drawn_cockpit = -1;

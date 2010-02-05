@@ -98,7 +98,6 @@ COPYRIGHT 1993-1999 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 
 #include <SDL/SDL.h>
 
-extern void full_palette_save(void);
 extern void object_goto_prev_viewer(void);
 
 // Global Variables -----------------------------------------------------------
@@ -419,7 +418,6 @@ int pause_handler(window *wind, d_event *event, char *msg)
 			
 		case EVENT_WINDOW_CLOSE:
 			reset_cockpit();
-			palette_restore();
 			if (EXT_MUSIC_ON)
 				ext_music_resume();
 			digi_resume_midi();		// sound pausing handled by game_handler
@@ -454,10 +452,6 @@ int do_game_pause()
 	
 	digi_pause_midi();		// sound pausing handled by game_handler
 	ext_music_pause();
-	palette_save();
-	apply_modified_palette();
-	reset_palette_add();
-	gr_palette_load( gr_palette );
 	format_time(total_time, f2i(Players[Player_num].time_total) + Players[Player_num].hours_total*3600);
 	format_time(level_time, f2i(Players[Player_num].time_level) + Players[Player_num].hours_level*3600);
 	if (Newdemo_state!=ND_STATE_PLAYBACK)
@@ -591,12 +585,7 @@ void HandleDemoKey(int key)
 			if (GameArg.SysAutoDemo)
 			{
 				int choice;
-				palette_save();
-				apply_modified_palette();
-				reset_palette_add();
-				gr_palette_load( gr_palette );
 				choice=nm_messagebox( NULL, 2, TXT_YES, TXT_NO, TXT_ABORT_AUTODEMO );
-				palette_restore();
 				if (choice==0)
 					GameArg.SysAutoDemo = 0;
 				else
@@ -908,9 +897,7 @@ int HandleSystemKey(int key)
 		KEY_MAC(case KEY_COMMAND+KEY_2:)
 		case KEY_F2:					//Config_menu_flag = 1; break;
 			{
-				if (!(Game_mode&GM_MULTI)) {palette_save(); apply_modified_palette(); reset_palette_add(); gr_palette_load(gr_palette); }
 				do_options_menu();
-				if (!(Game_mode&GM_MULTI)) palette_restore();
 				break;
 			}
 
@@ -1007,17 +994,7 @@ int HandleSystemKey(int key)
 		KEY_MAC(case KEY_COMMAND+KEY_ALTED+KEY_2:)
 		case KEY_ALTED+KEY_F2:
 			if (!Player_is_dead && !((Game_mode & GM_MULTI) && !(Game_mode & GM_MULTI_COOP))) {
-				int     rsave, gsave, bsave;
-				rsave = PaletteRedAdd;
-				gsave = PaletteGreenAdd;
-				bsave = PaletteBlueAdd;
-
-				full_palette_save();
-				PaletteRedAdd = rsave;
-				PaletteGreenAdd = gsave;
-				PaletteBlueAdd = bsave;
 				state_save_all(0, 0, NULL); // 0 means not between levels.
-				palette_restore();
 			}
 			break;
 
@@ -1025,7 +1002,6 @@ int HandleSystemKey(int key)
 		KEY_MAC(case KEY_COMMAND+KEY_ALTED+KEY_3:)
 		case KEY_ALTED+KEY_F3:
 			if (!Player_is_dead && !((Game_mode & GM_MULTI) && !(Game_mode & GM_MULTI_COOP))) {
-				full_palette_save();
 				state_restore_all(1, 0, NULL);
 			}
 			break;
@@ -1581,10 +1557,7 @@ void HandleTestKey(int key)
 			break;
 
 		case KEY_DEBUGGED + KEY_C:
-
-			full_palette_save();
 			do_cheat_menu();
-			palette_restore();
 			break;
 		case KEY_DEBUGGED + KEY_SHIFTED + KEY_A:
 			do_megawow_powerup(10);
