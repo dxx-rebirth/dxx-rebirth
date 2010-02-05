@@ -30,7 +30,7 @@ window *window_create(grs_canvas *src, int x, int y, int w, int h, int (*event_c
 {
 	window *wind;
 	window *prev = window_get_front();
-	d_event event = { EVENT_WINDOW_ACTIVATED };
+	d_event event;
 	
 	wind = d_malloc(sizeof(window));
 	if (wind == NULL)
@@ -50,13 +50,14 @@ window *window_create(grs_canvas *src, int x, int y, int w, int h, int (*event_c
 		FrontWindow->next = wind;
 	wind->next = NULL;
 	FrontWindow = wind;
-	window_send_event(wind, &event);
-
 	if (prev)
 	{
 		event.type = EVENT_WINDOW_DEACTIVATED;
 		window_send_event(prev, &event);
 	}
+
+	event.type = EVENT_WINDOW_ACTIVATED;
+	window_send_event(wind, &event);
 
 	return wind;
 }
@@ -124,7 +125,7 @@ window *window_get_next(window *wind)
 void window_select(window *wind)
 {
 	window *prev = window_get_front();
-	d_event event = { EVENT_WINDOW_ACTIVATED };
+	d_event event;
 
 	Assert (wind != NULL);
 
@@ -143,29 +144,31 @@ void window_select(window *wind)
 	
 	if (window_is_visible(wind))
 	{
-		window_send_event(wind, &event);
 		event.type = EVENT_WINDOW_DEACTIVATED;
 		if (prev)
 			window_send_event(prev, &event);
+		event.type = EVENT_WINDOW_ACTIVATED;
+		window_send_event(wind, &event);
 	}
 }
 
 void window_set_visible(window *wind, int visible)
 {
 	window *prev = window_get_front();
-	d_event event = { EVENT_WINDOW_ACTIVATED };
+	d_event event;
 
 	wind->w_visible = visible;
 	wind = window_get_front();	// get the new front window
 	if (wind == prev)
 		return;
-
-	if (wind)
-		window_send_event(wind, &event);
 	
 	event.type = EVENT_WINDOW_DEACTIVATED;
 	if (prev)
 		window_send_event(prev, &event);
+
+	event.type = EVENT_WINDOW_ACTIVATED;
+	if (wind)
+		window_send_event(wind, &event);
 }
 
 int window_is_visible(window *wind)

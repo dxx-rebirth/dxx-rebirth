@@ -4,6 +4,7 @@ D1X-Rebirth Changelog
 --------
 main/game.c, main/gameseq.c, main/newdemo.c: Use palette_save and palette_restore for all windows displayed over Game_wind, not just for do_option
 main/gameseq.c, main/newmenu.c: No showing the main menu background between loading a level and playing it (syncing with D2X)
+main/window.c: Send EVENT_WINDOW_DEACTIVATE before EVENT_WINDOW_ACTIVATE, ensuring cursor remains shown when appropriate
 
 20100202
 --------
