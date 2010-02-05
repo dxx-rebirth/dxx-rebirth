@@ -741,7 +741,10 @@ void do_physics_sim(object *obj)
 	}
 
 	// After collision with objects and walls, set velocity from actual movement
-	if (!obj_stopped && !bounced && ((fate == HIT_WALL) || (fate == HIT_OBJECT) || (fate == HIT_BAD_P0)))
+	if (!obj_stopped && !bounced 
+		&& ((obj->type == OBJ_PLAYER) || (obj->type == OBJ_ROBOT) || (obj->type == OBJ_DEBRIS)) 
+		&& ((fate == HIT_WALL) || (fate == HIT_OBJECT) || (fate == HIT_BAD_P0))
+		)
 	{	
 		vms_vector moved_vec;
 		vm_vec_sub(&moved_vec,&obj->pos,&start_pos);

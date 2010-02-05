@@ -5,6 +5,7 @@ D2X-Rebirth Changelog
 main/automap.c, main/escort.c, main/game.c, main/game.h, main/gamecntl.c, main/gameseq.c, main/newdemo.c, main/newmenu.c: Put the full_palette_save and palette_restore calls in the game handler for tidiness; remove leftover redundant digi_resume_digi_sounds calls
 main/newmenu.c: No showing the main menu background between loading a level and playing it, fixing palette issue when autoplaying a demo
 main/window.c: Send EVENT_WINDOW_DEACTIVATE before EVENT_WINDOW_ACTIVATE, ensuring cursor remains shown when appropriate
+main/physics.c: In do_physics_sim() only set velocity from movement for certain objects which actually do collisions like Player or Robots - otherwise we might be able to shoot down projectiles or produce other unfortunate glitches
 
 20100202
 --------
