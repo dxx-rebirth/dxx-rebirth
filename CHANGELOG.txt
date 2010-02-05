@@ -1,5 +1,9 @@
 D1X-Rebirth Changelog
 
+20100205
+--------
+main/game.c, main/gameseq.c, main/newdemo.c: Use palette_save and palette_restore for all windows displayed over Game_wind, not just for do_option
+
 20100202
 --------
 arch/include/event.h, arch/sdl/window.c, main/automap.c, main/dumpmine.c, main/game.c, main/gamecntl.c, main/gamesave.c, main/gameseq.c, main/kconfig.c, main/net_ipx.c, main/net_udp.c, main/newmenu.c: Add EVENT_WINDOW_DEACTIVATED; move many game_flush_inputs, start_time and stop_time calls to game_handler as well as digi_pause_digi_sounds and digi_resume_digi_sounds

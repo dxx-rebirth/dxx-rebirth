@@ -993,6 +993,9 @@ int game_handler(window *wind, d_event *event, void *data)
 
 			if ( Function_mode == FMODE_GAME && !((Game_mode & GM_MULTI) && (Newdemo_state != ND_STATE_PLAYBACK)))
 				digi_resume_digi_sounds();
+
+			if (!((Game_mode & GM_MULTI) && (Newdemo_state != ND_STATE_PLAYBACK)))
+				palette_restore();
 			break;
 			
 		case EVENT_WINDOW_DEACTIVATED:
@@ -1003,6 +1006,9 @@ int game_handler(window *wind, d_event *event, void *data)
 			
 			if ( Function_mode == FMODE_GAME && !((Game_mode & GM_MULTI) && (Newdemo_state != ND_STATE_PLAYBACK)))
 				digi_pause_digi_sounds();
+
+			if (!((Game_mode & GM_MULTI) && (Newdemo_state != ND_STATE_PLAYBACK)))
+				palette_save();
 			break;
 			
 		case EVENT_IDLE:
@@ -1017,9 +1023,7 @@ int game_handler(window *wind, d_event *event, void *data)
 			RBACheckFinishedHook();	// Handle RedBook Audio Repeating.
 			
 			if (Config_menu_flag)	{
-				if (!(Game_mode&GM_MULTI)) palette_save();
 				do_options_menu();
-				if (!(Game_mode&GM_MULTI)) palette_restore();
 			}
 			
 			if (!Game_wind)

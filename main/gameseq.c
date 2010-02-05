@@ -1321,6 +1321,10 @@ void StartNewLevelSub(int level_num, int page_in_textures)
 
 	//	Say player can use FLASH cheat to mark path to exit.
 	Last_level_path_created = -1;
+	
+	// Initialise for palette_restore()
+	if (!((Game_mode & GM_MULTI) && (Newdemo_state != ND_STATE_PLAYBACK)))
+		palette_save();
 }
 
 //called when the player is starting a new level for normal game model
