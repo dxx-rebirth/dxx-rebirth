@@ -135,9 +135,12 @@ void nm_draw_background1(char * filename)
 {
 	int pcx_error;
 
-	if (filename == NULL && Function_mode == FMODE_MENU)
+	if (filename == NULL)
 		filename = Menu_pcx_name;
-
+	
+	if (!strcmp(filename, Menu_pcx_name) && Function_mode != FMODE_MENU)
+		return;
+	
 	if (filename != NULL)
 	{
 		if (nm_background1.bm_data == NULL)

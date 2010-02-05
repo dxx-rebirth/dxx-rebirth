@@ -3,6 +3,7 @@ D2X-Rebirth Changelog
 20100205
 --------
 main/automap.c, main/escort.c, main/game.c, main/game.h, main/gamecntl.c, main/gameseq.c, main/newdemo.c, main/newmenu.c: Put the full_palette_save and palette_restore calls in the game handler for tidiness; remove leftover redundant digi_resume_digi_sounds calls
+main/newmenu.c: No showing the main menu background between loading a level and playing it, fixing palette issue when autoplaying a demo
 
 20100202
 --------
