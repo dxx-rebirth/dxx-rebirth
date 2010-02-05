@@ -3,6 +3,7 @@ D1X-Rebirth Changelog
 20100205
 --------
 main/game.c, main/gameseq.c, main/newdemo.c: Use palette_save and palette_restore for all windows displayed over Game_wind, not just for do_option
+main/gameseq.c, main/newmenu.c: No showing the main menu background between loading a level and playing it (syncing with D2X)
 
 20100202
 --------

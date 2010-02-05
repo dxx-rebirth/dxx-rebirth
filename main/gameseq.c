@@ -878,6 +878,7 @@ void DoEndLevelScoreGlitz(int network)
 	int				i,c;
 	char				title[128];
 	int				is_last_level;
+	int				fmode;
 
 	gr_palette_load( gr_palette );
 
@@ -947,12 +948,15 @@ void DoEndLevelScoreGlitz(int network)
 
 	Assert(c <= N_GLITZITEMS);
 
+	fmode = Function_mode;
+	Function_mode = FMODE_MENU;		// hack to get Menu_pcx_name to actually show
 #ifdef NETWORK
 	if ( network && (Game_mode & GM_NETWORK) )
 		newmenu_do2(NULL, title, c, m, multi_endlevel_poll1, NULL, 0, Menu_pcx_name);
 	else
 #endif	// Note link!
 		newmenu_do2(NULL, title, c, m, NULL, NULL, 0, Menu_pcx_name);
+	Function_mode = fmode;
 }
 
 //called when the player has finished a level
@@ -967,11 +971,14 @@ void PlayerFinishedLevel(int secret_flag)
 #ifndef SHAREWARE
 	if (!(Game_mode & GM_MULTI) && (secret_flag)) {
 		newmenu_item	m[1];
+		int fmode = Function_mode;
 
 		m[0].type = NM_TYPE_TEXT;
 		m[0].text = " ";			//TXT_SECRET_EXIT;
 
+		Function_mode = FMODE_MENU;
 		newmenu_do2(NULL, TXT_SECRET_EXIT, 1, m, NULL, NULL, 0, Menu_pcx_name);
+		Function_mode = fmode;
 	}
 #endif
 
