@@ -286,12 +286,8 @@ void do_option ( int select)
 		case MENU_GAME:
 			break;
 		case MENU_DEMO_PLAY:
-		{
-			char demo_file[PATH_MAX];
-			if (get_filename(TXT_SELECT_DEMO, ".dem", demo_file, 1))
-				newdemo_start_playback(demo_file);
+			select_filename(TXT_SELECT_DEMO, ".dem", 1);
 			break;
-		}
 		case MENU_LOAD_GAME:
 			state_restore_all(0, 0, NULL);
 			break;
@@ -450,13 +446,10 @@ typedef struct file_list
 	char			**list;		// just to free it in below callback
 } file_list;
 
-int filename_menu_handler( listbox *lb, d_event *event, file_list *l )
+int filename_menu_keycommand( listbox *lb, d_event *event, file_list *l )
 {
 	char **items = listbox_get_items(lb);
 	int citem = listbox_get_citem(lb);
-
-	if (event->type != EVENT_KEY_COMMAND)
-		return 0;
 	
 	switch (((d_event_keycommand *)event)->keycode)
 	{
@@ -468,9 +461,9 @@ int filename_menu_handler( listbox *lb, d_event *event, file_list *l )
 					x = nm_messagebox( NULL, 2, TXT_YES, TXT_NO, "%s %s?", TXT_DELETE_PILOT, items[citem]+(((l->mode == FILE_PLAYER_MODE) && items[citem][0]=='$')?1:0) );
 				else if (l->mode == FILE_DEMO_MODE)
 					x = nm_messagebox( NULL, 2, TXT_YES, TXT_NO, "%s %s?", TXT_DELETE_DEMO, items[citem]+(((l->mode == FILE_DEMO_MODE) && items[citem][0]=='$')?1:0) );
- 				if (x==0)	{
+				if (x==0)	{
 					char * p;
-					char plxfile[PATH_MAX];
+					char plxfile[PATH_MAX], efffile[PATH_MAX];
 					int ret;
 					char name[PATH_MAX];
 					
@@ -491,6 +484,10 @@ int filename_menu_handler( listbox *lb, d_event *event, file_list *l )
 						sprintf(plxfile, GameArg.SysUsePlayersDir? "Players/%.8s.plx" : "%.8s.plx", items[citem]);
 						if (cfexist(plxfile))
 							PHYSFS_delete(plxfile);
+						// delete EFF file
+						sprintf(efffile, GameArg.SysUsePlayersDir? "Players/%.8s.eff" : "%.8s.eff", items[citem]);
+						if (cfexist(efffile))
+							PHYSFS_delete(efffile);
 					}
 					
 					if (ret) {
@@ -502,12 +499,12 @@ int filename_menu_handler( listbox *lb, d_event *event, file_list *l )
 					else
 						listbox_delete_item(lb, citem);
 				}
-
+				
 				return 1;
 			}
 			break;
-
-		case KEY_CTRLED+KEY_C:
+			
+			case KEY_CTRLED+KEY_C:
 			if (l->mode == FILE_DEMO_MODE)
 			{
 				int x = 1;
@@ -528,11 +525,69 @@ int filename_menu_handler( listbox *lb, d_event *event, file_list *l )
 			}
 			break;
 	}
+	
+	return 0;
+}
+
+int filename_menu_handler( listbox *lb, d_event *event, file_list *l )
+{
+	char **items = listbox_get_items(lb);
+	int citem = listbox_get_citem(lb);
+
+	switch (event->type)
+	{
+		case EVENT_KEY_COMMAND:
+			return filename_menu_keycommand(lb, event, l);
+			break;
+			
+		case EVENT_NEWMENU_SELECTED:
+			if (citem < 0)
+				return 0;		// shouldn't happen
+			
+			switch (l->mode)
+			{
+				case FILE_PLAYER_MODE:
+					if (citem == 0)
+					{
+						// They selected 'create new pilot'
+						return !MakeNewPlayerFile(1);
+					}
+					else
+					{
+						strncpy(Players[Player_num].callsign,items[citem] + ((items[citem][0]=='$')?1:0), CALLSIGN_LEN);
+						strlwr(Players[Player_num].callsign);
+					}
+					break;
+					
+				case FILE_DEMO_MODE:
+					newdemo_start_playback(items[citem]);
+					// return 1;		// later - when the listbox uses the main loop
+					break;
+			}
+			break;
+			
+		case EVENT_WINDOW_CLOSE:
+			if (l->mode == FILE_PLAYER_MODE)
+			{
+				if (read_player_file() != EZERO)
+					return 1;		// abort close!
+				
+				WriteConfigFile();		// Update lastplr
+			}
+			
+			PHYSFS_freeList(l->list);
+			d_free(items);
+			d_free(l);
+			break;
+					
+		default:
+			break;
+	}
 
 	return 0;
 }
 
-int get_filename(char *title, char *type, char *filename, int allow_abort_flag)
+int select_filename(char *title, char *type, int allow_abort_flag)
 {
 	char **m;
 	char **f;
@@ -565,7 +620,7 @@ int get_filename(char *title, char *type, char *filename, int allow_abort_flag)
 		return 0;
 	}
 	else if ( !*l->list && (l->mode == FILE_PLAYER_MODE) )	{
-		strcpy(filename, TXT_CREATE_NEW);	// make a new player without showing listbox
+		MakeNewPlayerFile(allow_abort_flag);	// make a new player without showing listbox
 		PHYSFS_freeList(l->list);
 		d_free(l);
 		return 0;
@@ -617,18 +672,8 @@ int get_filename(char *title, char *type, char *filename, int allow_abort_flag)
 			if (!stricmp(Players[Player_num].callsign, m[i]) )
 				citem = i;
 
-	citem = newmenu_listbox1(title, NumItems, m, allow_abort_flag, citem, (int (*)(listbox *, d_event *, void *))filename_menu_handler, l);
-
-	if ( citem > -1 )
-		strncpy( filename, m[citem] + (((l->mode == FILE_PLAYER_MODE) && m[citem][0]=='$')?1:0), PATH_MAX );
-
-	PHYSFS_freeList(l->list);
-	d_free(m);
-	d_free(l);
+	newmenu_listbox1(title, NumItems, m, allow_abort_flag, citem, (int (*)(listbox *, d_event *, void *))filename_menu_handler, l);
 	
-	if (citem < 0)
-		return 0;	// aborted
-
 	return 1;
 }
 
@@ -847,6 +892,8 @@ void change_res()
 	gr_set_mode(Game_screen_mode);
 	init_cockpit();
 	game_init_render_buffers(SM_W(screen_mode), SM_H(screen_mode), VR_NONE);
+	window_close(window_get_front());	// close options dialog - it will be messy with a different resolution
+	//do_options_menu();				// reopen it. D'OH: Can't yet, not until we have a main event loop for it
 }
 
 int input_menuset(newmenu *menu, d_event *event, void *userdata)
