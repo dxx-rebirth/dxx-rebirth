@@ -1723,6 +1723,28 @@ void listbox_delete_item(listbox *lb, int item)
 	}
 }
 
+void update_scroll_position(listbox *lb)
+{
+	if (lb->citem<0)
+		lb->citem=0;
+	
+	if (lb->citem>=lb->nitems)
+		lb->citem = lb->nitems-1;
+	
+	if (lb->citem< lb->first_item)
+		lb->first_item = lb->citem;
+	
+	if (lb->citem>=( lb->first_item+LB_ITEMS_ON_SCREEN))
+		lb->first_item = lb->citem-LB_ITEMS_ON_SCREEN+1;
+	
+	if (lb->nitems <= LB_ITEMS_ON_SCREEN )
+		lb->first_item = 0;
+	
+	if (lb->first_item>lb->nitems-LB_ITEMS_ON_SCREEN)
+		lb->first_item = lb->nitems-LB_ITEMS_ON_SCREEN;
+	if (lb->first_item < 0 ) lb->first_item = 0;
+}
+
 int listbox_key_command(window *wind, d_event *event, listbox *lb)
 {
 	int key = ((d_event_keycommand *)event)->keycode;
@@ -1806,24 +1828,7 @@ int listbox_key_command(window *wind, d_event *event, listbox *lb)
 		}
 	}
 	
-	if (lb->citem<0)
-		lb->citem=0;
-	
-	if (lb->citem>=lb->nitems)
-		lb->citem = lb->nitems-1;
-	
-	if (lb->citem< lb->first_item)
-		lb->first_item = lb->citem;
-	
-	if (lb->citem>=( lb->first_item+LB_ITEMS_ON_SCREEN))
-		lb->first_item = lb->citem-LB_ITEMS_ON_SCREEN+1;
-	
-	if (lb->nitems <= LB_ITEMS_ON_SCREEN )
-		lb->first_item = 0;
-	
-	if (lb->first_item>lb->nitems-LB_ITEMS_ON_SCREEN)
-		lb->first_item = lb->nitems-LB_ITEMS_ON_SCREEN;
-	if (lb->first_item < 0 ) lb->first_item = 0;
+	update_scroll_position(lb);
 	
 	return rval;
 }
@@ -2049,6 +2054,7 @@ int newmenu_listbox1( char * title, int nitems, char * items[], int allow_abort_
 	if ( lb->citem >= nitems ) lb->citem = 0;
 
 	lb->first_item = 0;
+	update_scroll_position(lb);
 
 	lb->mouse_state = lb->omouse_state = 0;	//dblclick_flag = 0;
 
