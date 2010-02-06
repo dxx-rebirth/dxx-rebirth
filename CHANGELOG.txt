@@ -3,6 +3,7 @@ D1X-Rebirth Changelog
 20100206
 --------
 main/newmenu.c: Set the correct scroll position for the listbox when it's shown
+main/gameseq.c, main/gameseq.h, main/menu.c, main/menu.h: Handle player selection and demo playing in filename_menu_handler, fixing bug where it won't leave the player listbox if there's no LastPlayer; close do_options dialog when changing resolution
 
 20100205
 --------

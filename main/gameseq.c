@@ -590,37 +590,18 @@ try_again:
 //Inputs the player's name, without putting up the background screen
 int RegisterPlayer()
 {
-	char filename[PATH_MAX];
 	int allow_abort_flag = 1;
 
-        if ( Players[Player_num].callsign[0] == 0 )     {
+	if ( Players[Player_num].callsign[0] == 0 )
+	{
 		// Read the last player's name from config file, not lastplr.txt
 		strncpy( Players[Player_num].callsign, GameCfg.LastPlayer, CALLSIGN_LEN );
 
 		if (GameCfg.LastPlayer[0]==0)
 			allow_abort_flag = 0;
-        }
-
-do_menu_again:
-	;
-
-	if (get_filename(TXT_SELECT_PILOT, ".plr", filename, allow_abort_flag))
-	{
-		if ( filename[0] == '<' )	{
-			// They selected 'create new pilot'
-			if (!MakeNewPlayerFile(allow_abort_flag))
-				//return 0;		// They hit Esc during enter name stage
-				goto do_menu_again;
-		} else {
-			strncpy(Players[Player_num].callsign,filename, CALLSIGN_LEN);
-			strlwr(Players[Player_num].callsign);
-		}
 	}
 
-	if (read_player_file() != EZERO)
-		goto do_menu_again;
-
-	WriteConfigFile();		// Update lastplr
+	select_filename(TXT_SELECT_PILOT, ".plr", allow_abort_flag);
 
 	return 1;
 }
