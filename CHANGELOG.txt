@@ -1,5 +1,9 @@
 D2X-Rebirth Changelog
 
+20100206
+--------
+main/newmenu.c: Reset last_palette_loaded in nm_draw_background1 as before, it's needed for using the right palette when advancing a level
+
 20100205
 --------
 main/automap.c, main/escort.c, main/game.c, main/game.h, main/gamecntl.c, main/gameseq.c, main/newdemo.c, main/newmenu.c: Put the full_palette_save and palette_restore calls in the game handler for tidiness; remove leftover redundant digi_resume_digi_sounds calls

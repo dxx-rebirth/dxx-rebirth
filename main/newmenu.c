@@ -130,6 +130,8 @@ void nm_draw_copyright()
 	gr_printf(0x8000,SHEIGHT-(LINE_SPACING*2),DESCENT_VERSION);
 }
 
+extern char last_palette_loaded[];
+
 // Draws the background of menus (i.e. Descent Logo screen)
 void nm_draw_background1(char * filename)
 {
@@ -159,6 +161,8 @@ void nm_draw_background1(char * filename)
 		if (draw_copyright)
 			nm_draw_copyright();
 	}
+	
+	strcpy(last_palette_loaded,"");		//force palette load next time
 }
 
 #define MENU_BACKGROUND_BITMAP_HIRES (cfexist("scoresb.pcx")?"scoresb.pcx":"scores.pcx")
