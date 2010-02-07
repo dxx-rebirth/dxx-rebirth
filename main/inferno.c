@@ -220,6 +220,7 @@ void error_messagebox(char *s)
 	nm_messagebox( TXT_SORRY, 1, TXT_OK, s );
 }
 
+jmp_buf LeaveEvents;
 #define PROGNAME argv[0]
 
 //	DESCENT II by Parallax Software
@@ -389,45 +390,24 @@ int main(int argc, char *argv[])
 		}
 	}
 
+#ifdef EDITOR
+	if (GameArg.EdiAutoLoad) {
+		strcpy((char *)&Level_names[0], Auto_file);
+		LoadLevel(1, 1);
+		Function_mode = FMODE_EXIT;
+	}
+#endif
+	
 	Game_mode = GM_GAME_OVER;
 
+	setjmp(LeaveEvents);
 	while (Function_mode != FMODE_EXIT)
 	{
-		switch( Function_mode ) {
-			case FMODE_MENU:
-				set_screen_mode(SCREEN_MENU);
-#ifdef EDITOR
-				if (GameArg.EdiAutoLoad) {
-					strcpy((char *)&Level_names[0], Auto_file);
-					LoadLevel(1, 1);
-					Function_mode = FMODE_EXIT;
-					break;
-				}
-#endif
-	
-				DoMenu();
-			break;
-			case FMODE_GAME:
-#ifdef EDITOR
-				keyd_editor_mode = 0;
-#endif
-	
-				game();
-	
-				if ( Function_mode == FMODE_MENU )
-					songs_play_song( SONG_TITLE, 1 );
-				break;
-#ifdef EDITOR
-			case FMODE_EDITOR:
-				Int3();	// meant to be calling editor from do_option, for now
-				break;
-#endif
-			default:
-				Error("Invalid function mode %d",Function_mode);
-		}
-
 		// Send events to windows and the default handler
-		//event_process();	// not yet - still got work to do
+		if (window_get_front())
+			event_process();
+		else
+			DoMenu();
 	}
 
 	WriteConfigFile();

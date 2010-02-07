@@ -1770,6 +1770,8 @@ void StartNewLevelSub(int level_num, int page_in_textures, int secret_flag)
 	// Also takes care of nm_draw_background() possibly being called
 	if (!((Game_mode & GM_MULTI) && (Newdemo_state != ND_STATE_PLAYBACK)))
 		full_palette_save();
+	
+	game();
 }
 
 #ifdef NETWORK
