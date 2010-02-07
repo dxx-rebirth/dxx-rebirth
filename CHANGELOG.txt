@@ -4,6 +4,7 @@ D2X-Rebirth Changelog
 --------
 main/game.c, main/gameseq.c, main/inferno.c, main/inferno.h, main/menu.c, main/newdemo.c: Create the main event loop and use it for the game and main menu
 main/scores.c: Make the scores menu into a window
+d2x-rebirth.xcodeproj/project.pbxproj, main/aistruct.h, main/game.h, main/gameseq.h, main/inferno.h, main/laser.h, main/polyobj.h, main/robot.h, main/weapon.h: Move MAX_SUBMODELS from inferno.h to polyobj.h, fixing #include loop by removing some (mainly object.h) and instead using explicit 'struct' declarations; compile net_ipx.c for Mac SDL Video build
 
 20100206
 --------

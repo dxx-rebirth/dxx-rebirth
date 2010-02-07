@@ -60,11 +60,6 @@ COPYRIGHT 1993-1999 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 #define FMODE_GAME		2		// running the game
 #define FMODE_EDITOR	3		// running the editor
 
-// This constant doesn't really belong here, but it is because of
-// horrible circular dependencies involving object.h, aistruct.h,
-// polyobj.h, & robot.h
-#define MAX_SUBMODELS	10		// how many animating sub-objects per model
-
 /**
  **	Global variables
  **/

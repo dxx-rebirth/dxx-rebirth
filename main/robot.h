@@ -21,7 +21,6 @@ COPYRIGHT 1993-1999 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 #define _ROBOT_H
 
 #include "vecmat.h"
-#include "object.h"
 #include "game.h"
 #include "cfile.h"
 
@@ -38,6 +37,8 @@ COPYRIGHT 1993-1999 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 #define RI_CLOAKED_NEVER            0
 #define RI_CLOAKED_ALWAYS           1
 #define RI_CLOAKED_EXCEPT_FIRING    2
+
+struct object;
 
 //describes the position of a certain joint
 typedef struct jointpos {
@@ -151,7 +152,7 @@ extern int  N_robot_joints;
 
 //given an object and a gun number, return position in 3-space of gun
 //fills in gun_point
-void calc_gun_point(vms_vector *gun_point,object *obj,int gun_num);
+void calc_gun_point(vms_vector *gun_point,struct object *obj,int gun_num);
 //void calc_gun_point(vms_vector *gun_point,int objnum,int gun_num);
 
 //  Tells joint positions for a gun to be in a specified state.
