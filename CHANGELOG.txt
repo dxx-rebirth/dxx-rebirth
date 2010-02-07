@@ -1,5 +1,9 @@
 D1X-Rebirth Changelog
 
+20100207
+--------
+main/game.c, main/gameseq.c, main/inferno.c, main/inferno.h, main/menu.c, main/newdemo.c: Create the main event loop and use it for the game and main menu
+
 20100206
 --------
 main/newmenu.c: Set the correct scroll position for the listbox when it's shown

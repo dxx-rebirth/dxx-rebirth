@@ -20,6 +20,8 @@ COPYRIGHT 1993-1998 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 #ifndef _INFERNO_H
 #define _INFERNO_H
 
+#include <setjmp.h>
+
 #if defined(__APPLE__) || defined(macintosh)
 #define KEY_MAC(x) x
 #else
@@ -54,6 +56,7 @@ COPYRIGHT 1993-1998 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
  **	Global variables
  **/
 
+extern jmp_buf LeaveEvents;
 extern int Function_mode;			//in game or editor?
 extern int Screen_mode;				//editor screen or game screen?
 extern int start_with_mission;

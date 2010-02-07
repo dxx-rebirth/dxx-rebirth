@@ -219,14 +219,12 @@ int DoMenu()
 	memset(&menu_choice, 0, sizeof(int)*25);
 	memset(&m, 0, sizeof(newmenu_item)*25);
 
-	do {
-		create_main_menu(m, menu_choice, &num_options); // may have to change, eg, maybe selected pilot and no save games.
+	create_main_menu(m, menu_choice, &num_options); // may have to change, eg, maybe selected pilot and no save games.
 
-		if (main_menu_choice < 0 )
-			main_menu_choice = 0;
-		main_menu_choice = newmenu_do2( "", NULL, num_options, m, (int (*)(newmenu *, d_event *, void *))main_menu_handler, NULL, main_menu_choice, Menu_pcx_name);
-		if ( main_menu_choice > -1 ) do_option(menu_choice[main_menu_choice]);
-	} while( Function_mode==FMODE_MENU );
+	if (main_menu_choice < 0 )
+		main_menu_choice = 0;
+	main_menu_choice = newmenu_do2( "", NULL, num_options, m, (int (*)(newmenu *, d_event *, void *))main_menu_handler, NULL, main_menu_choice, Menu_pcx_name);
+	if ( main_menu_choice > -1 ) do_option(menu_choice[main_menu_choice]);
 
 	return main_menu_choice;
 }

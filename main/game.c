@@ -926,6 +926,9 @@ window *game_setup(void)
 {
 	window *game_wind;
 
+#ifdef EDITOR
+	keyd_editor_mode = 0;
+#endif
 	do_lunacy_on();			// Copy values for insane into copy buffer in ai.c
 	do_lunacy_off();		// Restore true insane mode.
 	Game_aborted = 0;
@@ -976,7 +979,6 @@ window *game_setup(void)
 void game_render_frame();
 
 window *Game_wind = NULL;
-jmp_buf LeaveGame;
 
 // Event handler for the game
 int game_handler(window *wind, d_event *event, void *data)
@@ -1078,6 +1080,9 @@ int game_handler(window *wind, d_event *event, void *data)
 			if ( Newdemo_state == ND_STATE_PLAYBACK )
 				newdemo_stop_playback();
 			
+			if ( Function_mode == FMODE_MENU )
+				songs_play_song( SONG_TITLE, 1 );
+			
 			clear_warn_func(game_show_warning);     //don't use this func anymore
 			game_disable_cheats();
 			Game_wind = NULL;
@@ -1085,7 +1090,7 @@ int game_handler(window *wind, d_event *event, void *data)
 			break;
 			
 		case EVENT_WINDOW_CLOSED:
-			longjmp(LeaveGame, 0);
+			longjmp(LeaveEvents, 0);
 			break;
 			
 		default:
@@ -1096,18 +1101,10 @@ int game_handler(window *wind, d_event *event, void *data)
 	return 1;
 }
 
-//	------------------------------------------------------------------------------------
-//this function is the game.  called when game mode selected.  runs until
-//editor mode or exit selected
+// Initialise game, actually runs in main event loop
 void game()
 {
 	Game_wind = game_setup();
-
-	if (setjmp(LeaveGame) == 0)
-	{
-		while (Game_wind)
-			event_process();
-	}
 }
 
 //called at the end of the program
