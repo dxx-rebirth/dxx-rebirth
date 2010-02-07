@@ -23,13 +23,14 @@ COPYRIGHT 1993-1998 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 #include "pstypes.h"
 #include "window.h"
 #include "vecmat.h"
-#include "object.h"
 
 #ifdef NDEBUG
 #define MAXIMUM_FPS 200
 #else
 #define MAXIMUM_FPS 1000
 #endif
+
+struct object;
 
 extern struct window *Game_wind;
 
@@ -109,7 +110,7 @@ void close_game(void);
 void init_cockpit(void);
 void calc_frame_time(void);
 void FixedStepCalc();
-int do_flythrough(object *obj,int first_time);
+int do_flythrough(struct object *obj,int first_time);
 
 extern int Difficulty_level;    // Difficulty level in 0..NDL-1, 0 = easiest, NDL-1 = hardest
 extern int Global_laser_firing_count;
@@ -158,7 +159,7 @@ extern int Game_window_w,       // width and height of player's game window
 extern int Rear_view;           // if true, looking back.
 
 // initalize flying
-void fly_init(object *obj);
+void fly_init(struct object *obj);
 
 // selects a given cockpit (or lack of one).
 void select_cockpit(int mode);

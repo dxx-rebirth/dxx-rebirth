@@ -22,6 +22,7 @@ COPYRIGHT 1993-1998 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 #define _GAMEFONT_H
 
 #include "gr.h"
+#include "piggy.h"
 
 // When adding a new font, don't forget to change the filename in
 // gamefont.c!!!!!!!!!!!!!!!!!!!!!!!!!!!

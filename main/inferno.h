@@ -45,10 +45,6 @@ COPYRIGHT 1993-1998 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 #define FMODE_GAME		2		//running the game
 #define FMODE_EDITOR		3		//running the editor
 
-//This constant doesn't really belong here, but it is because of horrible
-//circular dependencies involving object.h, aistruct.h, polyobj.h, & robot.h
-#define MAX_SUBMODELS 10			//how many animating sub-objects per model
-
 // the maximum length of a filename
 #define FILENAME_LEN 13
 
@@ -59,8 +55,6 @@ COPYRIGHT 1993-1998 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 extern jmp_buf LeaveEvents;
 extern int Function_mode;			//in game or editor?
 extern int Screen_mode;				//editor screen or game screen?
-extern int start_with_mission;
-extern char *start_with_mission_name;
 extern int MacHog;
 
 #if defined(__APPLE__) || defined(macintosh)

@@ -7,9 +7,11 @@
 #ifndef _ROBOT_H
 #define _ROBOT_H
 
+#include "cfile.h"
 #include "vecmat.h"
-#include "object.h"
 #include "game.h"
+
+struct object;
 
 #define MAX_GUNS 8		//should be multiple of 4 for ubyte array
 
@@ -102,7 +104,7 @@ extern int	N_robot_joints;
 
 //given an object and a gun number, return position in 3-space of gun
 //fills in gun_point
-void calc_gun_point(vms_vector *gun_point,object *obj,int gun_num);
+void calc_gun_point(vms_vector *gun_point,struct object *obj,int gun_num);
 //void calc_gun_point(vms_vector *gun_point,int objnum,int gun_num);
 
 //	Tells joint positions for a gun to be in a specified state.

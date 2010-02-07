@@ -57,13 +57,15 @@ COPYRIGHT 1993-1998 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 #define	MAX_TRACKABLE_DIST				(F1_0*250)
 #define	HOMING_MISSILE_STRAIGHT_TIME	(F1_0/8)			//	Changed as per request of John, Adam, Yuan, but mostly John
 
+struct object;
+
 extern fix Min_trackable_dot;				//	MIN_TRACKABLE_DOT inversely scaled by FrameTime
 
-void Laser_render( object *obj );
-void Laser_player_fire( object * obj, int type, int gun_num, int make_sound, int harmless_flag );
-void Laser_player_fire_spread(object *obj, int laser_type, int gun_num, fix spreadr, fix spreadu, int make_sound, int harmless);
-void Laser_do_weapon_sequence( object *obj );
-void Flare_create(object *obj);
+void Laser_render( struct object *obj );
+void Laser_player_fire( struct object * obj, int type, int gun_num, int make_sound, int harmless_flag );
+void Laser_player_fire_spread(struct object *obj, int laser_type, int gun_num, fix spreadr, fix spreadu, int make_sound, int harmless);
+void Laser_do_weapon_sequence( struct object *obj );
+void Flare_create(struct object *obj);
 int laser_are_related( int o1, int o2 );
 
 extern int do_laser_firing_player(void);
@@ -89,8 +91,8 @@ extern int do_laser_firing(int objnum, int weapon_id, int level, int flags, int 
 //	Returns object number of laser fired or -1 if not possible to fire laser.
 int Laser_create_new_easy( vms_vector * direction, vms_vector * position, int parent, int weapon_type, int make_sound );
 
-extern void create_smart_children(object *objp);
-extern int object_to_object_visibility(object *obj1, object *obj2, int trans_type);
+extern void create_smart_children(struct object *objp);
+extern int object_to_object_visibility(struct object *obj1, struct object *obj2, int trans_type);
 
 extern int		Muzzle_queue_index;
 
