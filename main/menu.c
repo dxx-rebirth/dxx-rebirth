@@ -122,6 +122,222 @@ extern void newmenu_close();
 extern void ReorderPrimary();
 extern void ReorderSecondary();
 
+//pairs of chars describing ranges
+char playername_allowed_chars[] = "azAZ09__--";
+
+int MakeNewPlayerFile(int allow_abort)
+{
+	int x;
+	char filename[14];
+	newmenu_item m;
+	char text[CALLSIGN_LEN+9]="";
+	
+	strncpy(text, Players[Player_num].callsign,CALLSIGN_LEN);
+	
+try_again:
+	m.type=NM_TYPE_INPUT; m.text_len = CALLSIGN_LEN; m.text = text;
+	
+	Newmenu_allowed_chars = playername_allowed_chars;
+	x = newmenu_do( NULL, TXT_ENTER_PILOT_NAME, 1, &m, NULL, NULL );
+	Newmenu_allowed_chars = NULL;
+	
+	if ( x < 0 ) {
+		if ( allow_abort ) return 0;
+		goto try_again;
+	}
+	
+	if (text[0]==0)	//null string
+		goto try_again;
+	
+	strlwr(text);
+	
+	sprintf( filename, GameArg.SysUsePlayersDir? "Players/%s.plr" : "%s.plr", text );
+	
+	if (PHYSFS_exists(filename))
+	{
+		nm_messagebox(NULL, 1, TXT_OK, "%s '%s' %s", TXT_PLAYER, text, TXT_ALREADY_EXISTS );
+		goto try_again;
+	}
+	
+	if ( !new_player_config() )
+		goto try_again;			// They hit Esc during New player config
+	
+	strncpy(Players[Player_num].callsign, text, CALLSIGN_LEN);
+	strlwr(Players[Player_num].callsign);
+	
+	write_player_file();
+	
+	return 1;
+}
+
+void delete_player_saved_games(char * name);
+
+int player_menu_keycommand( listbox *lb, d_event *event )
+{
+	char **items = listbox_get_items(lb);
+	int citem = listbox_get_citem(lb);
+	
+	switch (((d_event_keycommand *)event)->keycode)
+	{
+		case KEY_CTRLED+KEY_D:
+			if (citem > 0)
+			{
+				int x = 1;
+				x = nm_messagebox( NULL, 2, TXT_YES, TXT_NO, "%s %s?", TXT_DELETE_PILOT, items[citem]+((items[citem][0]=='$')?1:0) );
+				if (x==0)	{
+					char * p;
+					char plxfile[PATH_MAX], efffile[PATH_MAX];
+					int ret;
+					char name[PATH_MAX];
+					
+					p = items[citem] + strlen(items[citem]);
+					*p = '.';
+					
+					strcpy(name, GameArg.SysUsePlayersDir ? "Players/" : "");
+					strcat(name, items[citem]);
+					
+					ret = !PHYSFS_delete(name);
+					*p = 0;
+					
+					if (!ret)
+					{
+						delete_player_saved_games( items[citem] );
+						// delete PLX file
+						sprintf(plxfile, GameArg.SysUsePlayersDir? "Players/%.8s.plx" : "%.8s.plx", items[citem]);
+						if (cfexist(plxfile))
+							PHYSFS_delete(plxfile);
+						// delete EFF file
+						sprintf(efffile, GameArg.SysUsePlayersDir? "Players/%.8s.eff" : "%.8s.eff", items[citem]);
+						if (cfexist(efffile))
+							PHYSFS_delete(efffile);
+					}
+					
+					if (ret)
+						nm_messagebox( NULL, 1, TXT_OK, "%s %s %s", TXT_COULDNT, TXT_DELETE_PILOT, items[citem]+((items[citem][0]=='$')?1:0) );
+					else
+						listbox_delete_item(lb, citem);
+				}
+				
+				return 1;
+			}
+			break;
+	}
+	
+	return 0;
+}
+
+int player_menu_handler( listbox *lb, d_event *event, char **list )
+{
+	char **items = listbox_get_items(lb);
+	int citem = listbox_get_citem(lb);
+	
+	switch (event->type)
+	{
+		case EVENT_KEY_COMMAND:
+			return player_menu_keycommand(lb, event);
+			break;
+			
+		case EVENT_NEWMENU_SELECTED:
+			if (citem < 0)
+				return 0;		// shouldn't happen
+			else if (citem == 0)
+			{
+				// They selected 'create new pilot'
+				return !MakeNewPlayerFile(1);
+			}
+			else
+			{
+				strncpy(Players[Player_num].callsign,items[citem] + ((items[citem][0]=='$')?1:0), CALLSIGN_LEN);
+				strlwr(Players[Player_num].callsign);
+			}
+			break;
+			
+		case EVENT_WINDOW_CLOSE:
+			if (read_player_file() != EZERO)
+				return 1;		// abort close!
+			
+			WriteConfigFile();		// Update lastplr
+		
+			PHYSFS_freeList(list);
+			d_free(items);
+			break;
+			
+		default:
+			break;
+	}
+	
+	return 0;
+}
+
+int fname_sort_func(char **e0, char **e1);
+
+//Inputs the player's name, without putting up the background screen
+int RegisterPlayer()
+{
+	char **m;
+	char **f;
+	char **list;
+	char *types[] = { ".plr", NULL };
+	int i = 0, NumItems;
+	int citem = 0;
+	int allow_abort_flag = 1;
+	
+	if ( Players[Player_num].callsign[0] == 0 )
+	{
+		// Read the last player's name from config file, not lastplr.txt
+		strncpy( Players[Player_num].callsign, GameCfg.LastPlayer, CALLSIGN_LEN );
+		
+		if (GameCfg.LastPlayer[0]==0)
+			allow_abort_flag = 0;
+	}
+	
+	list = PHYSFSX_findFiles(GameArg.SysUsePlayersDir ? "Players/" : "", types);
+	if (!list)
+		return 0;	// memory error
+	if (!*list)
+	{
+		MakeNewPlayerFile(0);	// make a new player without showing listbox
+		PHYSFS_freeList(list);
+		return 0;
+	}
+	
+	
+	for (NumItems = 0; list[NumItems] != NULL; NumItems++) {}
+	NumItems++;		// for TXT_CREATE_NEW
+	
+	MALLOC(m, char *, NumItems);
+	if (m == NULL)
+	{
+		PHYSFS_freeList(list);
+		return 0;
+	}
+	
+	m[i++] = TXT_CREATE_NEW;
+	
+	for (f = list; *f != NULL; f++)
+	{
+		char *p;
+		
+		m[i++] = *f;
+		p = strchr(*f, '.');
+		if (p)
+			*p = '\0';		// chop the .plr
+		if ((p - *f) > 8)
+			*f[8] = 0;		// sorry guys, can only have up to eight chars for the player name
+	}
+	
+	// Sort by name, except the <Create New Player> string
+	qsort(&m[1], NumItems - 1, sizeof(char *), (int (*)( const void *, const void * ))fname_sort_func);
+
+	for ( i=0; i<NumItems; i++ )
+		if (!stricmp(Players[Player_num].callsign, m[i]) )
+			citem = i;
+
+	newmenu_listbox1(TXT_SELECT_PILOT, NumItems, m, allow_abort_flag, citem, (int (*)(listbox *, d_event *, void *))player_menu_handler, list);
+	
+	return 1;
+}
+
 int main_menu_handler(newmenu *menu, d_event *event, int *menu_choice )
 {
 	int curtime;
@@ -255,7 +471,7 @@ void do_option ( int select)
 		case MENU_GAME:
 			break;
 		case MENU_DEMO_PLAY:
-			select_filename(TXT_SELECT_DEMO, ".dem", 1);
+			select_demo();
 			break;
 		case MENU_LOAD_GAME:
 			state_restore_all(0);
@@ -402,19 +618,7 @@ int fname_sort_func(char **e0, char **e1)
 	return stricmp(*e0, *e1);
 }
 
-enum file_mode
-{
-	FILE_PLAYER_MODE = 1,
-	FILE_DEMO_MODE
-};
-
-typedef struct file_list
-{
-	enum file_mode	mode;
-	char			**list;		// just to free it in below callback
-} file_list;
-
-int filename_menu_keycommand( listbox *lb, d_event *event, file_list *l )
+int demo_menu_keycommand( listbox *lb, d_event *event )
 {
 	char **items = listbox_get_items(lb);
 	int citem = listbox_get_citem(lb);
@@ -422,48 +626,22 @@ int filename_menu_keycommand( listbox *lb, d_event *event, file_list *l )
 	switch (((d_event_keycommand *)event)->keycode)
 	{
 		case KEY_CTRLED+KEY_D:
-			if ( ((l->mode == FILE_PLAYER_MODE)&&(citem>0)) || ((l->mode == FILE_DEMO_MODE)&&(citem>=0)) )
+			if (citem >= 0)
 			{
 				int x = 1;
-				if (l->mode == FILE_PLAYER_MODE)
-					x = nm_messagebox( NULL, 2, TXT_YES, TXT_NO, "%s %s?", TXT_DELETE_PILOT, items[citem]+(((l->mode == FILE_PLAYER_MODE) && items[citem][0]=='$')?1:0) );
-				else if (l->mode == FILE_DEMO_MODE)
-					x = nm_messagebox( NULL, 2, TXT_YES, TXT_NO, "%s %s?", TXT_DELETE_DEMO, items[citem]+(((l->mode == FILE_DEMO_MODE) && items[citem][0]=='$')?1:0) );
-				if (x==0)	{
-					char * p;
-					char plxfile[PATH_MAX], efffile[PATH_MAX];
+				x = nm_messagebox( NULL, 2, TXT_YES, TXT_NO, "%s %s?", TXT_DELETE_DEMO, items[citem]+((items[citem][0]=='$')?1:0) );
+				if (x==0)
+				{
 					int ret;
 					char name[PATH_MAX];
 					
-					p = items[citem] + strlen(items[citem]);
-					if (l->mode == FILE_PLAYER_MODE)
-						*p = '.';
-					
-					strcpy(name, (l->mode == FILE_DEMO_MODE) ? DEMO_DIR : (((l->mode == FILE_PLAYER_MODE) && GameArg.SysUsePlayersDir) ? "Players/" : ""));
+					strcpy(name, DEMO_DIR);
 					strcat(name,items[citem]);
 					
 					ret = !PHYSFS_delete(name);
-					if (l->mode == FILE_PLAYER_MODE)
-						*p = 0;
 					
-					if ((!ret) && (l->mode == FILE_PLAYER_MODE))	{
-						delete_player_saved_games( items[citem] );
-						// delete PLX file
-						sprintf(plxfile, GameArg.SysUsePlayersDir? "Players/%.8s.plx" : "%.8s.plx", items[citem]);
-						if (cfexist(plxfile))
-							PHYSFS_delete(plxfile);
-						// delete EFF file
-						sprintf(efffile, GameArg.SysUsePlayersDir? "Players/%.8s.eff" : "%.8s.eff", items[citem]);
-						if (cfexist(efffile))
-							PHYSFS_delete(efffile);
-					}
-					
-					if (ret) {
-						if (l->mode == FILE_PLAYER_MODE)
-							nm_messagebox( NULL, 1, TXT_OK, "%s %s %s", TXT_COULDNT, TXT_DELETE_PILOT, items[citem]+(((l->mode == FILE_PLAYER_MODE) && items[citem][0]=='$')?1:0) );
-						else if (l->mode == FILE_DEMO_MODE)
-							nm_messagebox( NULL, 1, TXT_OK, "%s %s %s", TXT_COULDNT, TXT_DELETE_DEMO, items[citem]+(((l->mode == FILE_DEMO_MODE) && items[citem][0]=='$')?1:0) );
-					}
+					if (ret)
+						nm_messagebox( NULL, 1, TXT_OK, "%s %s %s", TXT_COULDNT, TXT_DELETE_DEMO, items[citem]+((items[citem][0]=='$')?1:0) );
 					else
 						listbox_delete_item(lb, citem);
 				}
@@ -472,20 +650,19 @@ int filename_menu_keycommand( listbox *lb, d_event *event, file_list *l )
 			}
 			break;
 			
-			case KEY_CTRLED+KEY_C:
-			if (l->mode == FILE_DEMO_MODE)
+		case KEY_CTRLED+KEY_C:
 			{
 				int x = 1;
 				char bakname[PATH_MAX];
 				
 				// Get backup name
-				change_filename_extension(bakname, items[citem]+(((l->mode == FILE_DEMO_MODE) && items[citem][0]=='$')?1:0), DEMO_BACKUP_EXT);
+				change_filename_extension(bakname, items[citem]+((items[citem][0]=='$')?1:0), DEMO_BACKUP_EXT);
 				x = nm_messagebox( NULL, 2, TXT_YES, TXT_NO,	"Are you sure you want to\n"
 								  "swap the endianness of\n"
 								  "%s? If the file is\n"
 								  "already endian native, D1X\n"
 								  "will likely crash. A backup\n"
-								  "%s will be created", items[citem]+(((l->mode == FILE_DEMO_MODE) && items[citem][0]=='$')?1:0), bakname );
+								  "%s will be created", items[citem]+((items[citem][0]=='$')?1:0), bakname );
 				if (!x)
 					newdemo_swap_endian(items[citem]);
 				
@@ -497,55 +674,29 @@ int filename_menu_keycommand( listbox *lb, d_event *event, file_list *l )
 	return 0;
 }
 
-int filename_menu_handler( listbox *lb, d_event *event, file_list *l )
+int demo_menu_handler( listbox *lb, d_event *event, void *userdata )
 {
 	char **items = listbox_get_items(lb);
 	int citem = listbox_get_citem(lb);
 
+	userdata = userdata;
+	
 	switch (event->type)
 	{
 		case EVENT_KEY_COMMAND:
-			return filename_menu_keycommand(lb, event, l);
+			return demo_menu_keycommand(lb, event);
 			break;
 			
 		case EVENT_NEWMENU_SELECTED:
 			if (citem < 0)
 				return 0;		// shouldn't happen
-			
-			switch (l->mode)
-			{
-				case FILE_PLAYER_MODE:
-					if (citem == 0)
-					{
-						// They selected 'create new pilot'
-						return !MakeNewPlayerFile(1);
-					}
-					else
-					{
-						strncpy(Players[Player_num].callsign,items[citem] + ((items[citem][0]=='$')?1:0), CALLSIGN_LEN);
-						strlwr(Players[Player_num].callsign);
-					}
-					break;
-					
-				case FILE_DEMO_MODE:
-					newdemo_start_playback(items[citem]);
-					// return 1;		// later - when the listbox uses the main loop
-					break;
-			}
+
+			newdemo_start_playback(items[citem]);
+			// return 1;		// later - when the listbox uses the main loop
 			break;
 			
 		case EVENT_WINDOW_CLOSE:
-			if (l->mode == FILE_PLAYER_MODE)
-			{
-				if (read_player_file() != EZERO)
-					return 1;		// abort close!
-				
-				WriteConfigFile();		// Update lastplr
-			}
-			
-			PHYSFS_freeList(l->list);
-			d_free(items);
-			d_free(l);
+			PHYSFS_freeList(items);
 			break;
 					
 		default:
@@ -555,92 +706,28 @@ int filename_menu_handler( listbox *lb, d_event *event, file_list *l )
 	return 0;
 }
 
-int select_filename(char *title, char *type, int allow_abort_flag)
+int select_demo(void)
 {
-	char **m;
-	char **f;
-	file_list *l;
-	char *types[] = { type, NULL };
-	int i = 0, NumItems;
-	int citem = 0;
+	char **list;
+	char *types[] = { ".dem", NULL };
+	int NumItems;
 	
-	MALLOC(l, file_list, 1);
-	if (!l)
-		return 0;
-
-	l->mode = 0;
-	if (!stricmp(type, ".plr"))
-		l->mode = FILE_PLAYER_MODE;
-	else if (!stricmp(type, ".dem"))
-		l->mode = FILE_DEMO_MODE;
-
-	l->list = PHYSFSX_findFiles((l->mode == FILE_DEMO_MODE) ? DEMO_DIR : (((l->mode == FILE_PLAYER_MODE) && GameArg.SysUsePlayersDir) ? "Players/" : ""), types);
-	if (!l->list)
-	{
-		d_free(l);
+	list = PHYSFSX_findFiles(DEMO_DIR, types);
+	if (!list)
 		return 0;	// memory error
-	}
-	if ( !*l->list && (l->mode == FILE_DEMO_MODE) && (citem > -1) )
+	if ( !*list )
 	{
 		nm_messagebox( NULL, 1, TXT_OK, "%s %s\n%s", TXT_NO_DEMO_FILES, TXT_USE_F5, TXT_TO_CREATE_ONE);
-		PHYSFS_freeList(l->list);
-		d_free(l);
+		PHYSFS_freeList(list);
 		return 0;
-	}
-	else if ( !*l->list && (l->mode == FILE_PLAYER_MODE) )	{
-		MakeNewPlayerFile(allow_abort_flag);	// make a new player without showing listbox
-		PHYSFS_freeList(l->list);
-		d_free(l);
-		return 0;
-	}
-	else if ( !*l->list )	{
-		nm_messagebox(NULL, 1, "Ok", "%s\n '%s' %s", TXT_NO_FILES_MATCHING, type, TXT_WERE_FOUND);
-		PHYSFS_freeList(l->list);
-		d_free(l);
-		return 0;
-	}	// else create a player file
+	}	
 	
-	
-	for (NumItems = 0; l->list[NumItems] != NULL; NumItems++) {}
-	if (l->mode == FILE_PLAYER_MODE)
-		NumItems++;
+	for (NumItems = 0; list[NumItems] != NULL; NumItems++) {}
 
-	MALLOC(m, char *, NumItems);
-	if (m == NULL)
-	{
-		PHYSFS_freeList(l->list);
-		d_free(l);
-		return 0;
-	}
+	// Sort by name
+	qsort(list, NumItems, sizeof(char *), (int (*)( const void *, const void * ))fname_sort_func);
 
-	if (l->mode == FILE_PLAYER_MODE)
-		m[i++] = TXT_CREATE_NEW;
-
-	for (f = l->list; *f != NULL; f++)
-	{
-		m[i++] = *f;
-
-		if (l->mode == FILE_PLAYER_MODE)
-		{
-			char *p;
-			
-			p = strchr(*f, '.');
-			if (p)
-				*p = '\0';		// chop the .plr
-			if ((p - *f) > 8)
-				*f[8] = 0;		// sorry guys, can only have up to eight chars for the player name
-		}
-	}
-
-	// Sort by name, except the <Create New Player> string if applicable
-	qsort(&m[l->mode == FILE_PLAYER_MODE ? 1 : 0], NumItems - (l->mode == FILE_PLAYER_MODE), sizeof(char *), (int (*)( const void *, const void * ))fname_sort_func);
-
-	if (l->mode == FILE_PLAYER_MODE)
-		for ( i=0; i<NumItems; i++ )
-			if (!stricmp(Players[Player_num].callsign, m[i]) )
-				citem = i;
-
-	newmenu_listbox1(title, NumItems, m, allow_abort_flag, citem, (int (*)(listbox *, d_event *, void *))filename_menu_handler, l);
+	newmenu_listbox1(TXT_SELECT_DEMO, NumItems, list, 1, 0, demo_menu_handler, NULL);
 	
 	return 1;
 }

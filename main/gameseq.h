@@ -57,13 +57,6 @@ extern int Player_highest_level;
 // New game sequencing functions
 //
 
-// called once at program startup to get the player's name
-int RegisterPlayer();
-int MakeNewPlayerFile(int allow_abort);
-
-// Inputs the player's name, without putting up the background screen
-void RegisterPlayerSub(int allow_abort_flag);
-
 // starts a new game on the given level
 void StartNewGame(int start_level);
 

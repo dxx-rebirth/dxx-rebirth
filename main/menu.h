@@ -20,10 +20,13 @@ COPYRIGHT 1993-1998 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 #ifndef _MENU_H
 #define _MENU_H
 
+// called once at program startup to get the player's name
+extern int RegisterPlayer();
+
 // returns number of item chosen
 extern int DoMenu();
 extern void do_options_menu();
-extern int select_filename(char *title, char *type, int allow_abort_flag);
+extern int select_demo(void);
 #define Menu_pcx_name (((SWIDTH>=640&&SHEIGHT>=480) && cfexist("menuh.pcx"))?"menuh.pcx":"menu.pcx")
 #define STARS_BACKGROUND (((SWIDTH>=640&&SHEIGHT>=480) && cfexist("starsb.pcx"))?"starsb.pcx":"stars.pcx")
 
