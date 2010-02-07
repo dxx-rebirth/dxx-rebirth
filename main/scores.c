@@ -7,7 +7,7 @@ IN USING, DISPLAYING,  AND CREATING DERIVATIVE WORKS THEREOF, SO LONG AS
 SUCH USE, DISPLAY OR CREATION IS FOR NON-COMMERCIAL, ROYALTY OR REVENUE
 FREE PURPOSES.  IN NO EVENT SHALL THE END-USER USE THE COMPUTER CODE
 CONTAINED HEREIN FOR REVENUE-BEARING PURPOSES.  THE END-USER UNDERSTANDS
-AND AGREES TO THE TERMS HEREIN AND ACCEPTS THE SAME BY USE OF THIS FILE.  
+AND AGREES TO THE TERMS HEREIN AND ACCEPTS THE SAME BY USE OF THIS FILE.
 COPYRIGHT 1993-1998 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 */
 
@@ -21,10 +21,11 @@ COPYRIGHT 1993-1998 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 #include <stdlib.h>
 #include <string.h>
 #include <ctype.h>
-#include <stdarg.h>
 
+#include "scores.h"
 #include "error.h"
 #include "pstypes.h"
+#include "window.h"
 #include "gr.h"
 #include "key.h"
 #include "palette.h"
@@ -40,15 +41,12 @@ COPYRIGHT 1993-1998 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 #include "joy.h"
 #include "timer.h"
 #include "text.h"
-#include "byteswap.h"
+#include "strutil.h"
 #include "rbaudio.h"
 
 #ifdef OGL
 #include "ogl_init.h"
 #endif
-
-void scores_view(int citem);
-extern void nm_draw_background1(char * filename);
 
 #define VERSION_NUMBER 		1
 #define SCORES_FILENAME 	"descent.hi"
@@ -56,22 +54,24 @@ extern void nm_draw_background1(char * filename);
 #define MAX_HIGH_SCORES 	10
 
 typedef struct stats_info {
-	char		name[CALLSIGN_LEN+1];
+  	char	name[CALLSIGN_LEN+1];
 	int		score;
-	sbyte		starting_level;
-	sbyte		ending_level;
-	sbyte  	diff_level;
-	short 	kill_ratio;	// 0-100
-	short		hostage_ratio;   // 
-	int		seconds;			// How long it took in seconds...
+	sbyte   starting_level;
+	sbyte   ending_level;
+	sbyte   diff_level;
+	short 	kill_ratio;		// 0-100
+	short	hostage_ratio;  // 
+	int		seconds;		// How long it took in seconds...
 } __pack__ stats_info;
 
 typedef struct all_scores {
 	char			signature[3];			// DHS
-	sbyte			version;					// version
+	sbyte           version;				// version
 	char			cool_saying[COOL_MESSAGE_LEN];
 	stats_info	stats[MAX_HIGH_SCORES];
 } __pack__ all_scores;
+
+extern void nm_draw_background1(char * filename);
 
 static all_scores Scores;
 stats_info Last_game;
@@ -172,17 +172,18 @@ void int_to_string( int number, char *dest )
 		return;
 	}
 
-	c = l % 3;
+	c = 0;
 	p=dest;
-	for (i=0; i<l; i++ ) {
-		if (c==0) {
-			if (i) *p++=',';
-            c = 3;
-        }
-        c--;
-        *p++ = buffer[i];
-    }
+	for (i=l-1; i>=0; i-- )	{
+		if (c==3) {
+			*p++=',';
+			c = 0;
+		}
+		c++;
+		*p++ = buffer[i];
+	}
 	*p++ = '\0';
+	strrev(dest);
 }
 
 void scores_fill_struct(stats_info * stats)
@@ -212,6 +213,9 @@ void scores_maybe_add_player(int abort_flag)
 	newmenu_item m[10];
 	int i,position;
 
+	if ((Game_mode & GM_MULTI) && !(Game_mode & GM_MULTI_COOP))
+		return;
+  
 	scores_read();
 	
 	position = MAX_HIGH_SCORES;
@@ -241,7 +245,7 @@ void scores_maybe_add_player(int abort_flag)
 	
 		// move everyone down...
 		for ( i=MAX_HIGH_SCORES-1; i>position; i-- )	{
-			Scores.stats[i] = Scores.stats[i-1]; 
+			Scores.stats[i] = Scores.stats[i-1];
 		}
 
 		scores_fill_struct( &Scores.stats[position] );
@@ -320,107 +324,134 @@ void scores_draw_item( int i, stats_info * stats )
 	}
 }
 
-void scores_view(int citem)
+typedef struct scores_menu
 {
+	int citem;
 	fix t1;
-	int i,done,looper;
+	int looper;
+} scores_menu;
+
+int scores_handler(window *wind, d_event *event, scores_menu *menu)
+{
+	int i;
 	int k;
 	sbyte fades[64] = { 1,1,1,2,2,3,4,4,5,6,8,9,10,12,13,15,16,17,19,20,22,23,24,26,27,28,28,29,30,30,31,31,31,31,31,30,30,29,28,28,27,26,24,23,22,20,19,17,16,15,13,12,10,9,8,6,5,4,4,3,2,2,1,1 };
-	grs_canvas canvas;
 	int w = FSPACX(290), h = FSPACY(170);
 
-	gr_palette_load( gr_palette );
+	switch (event->type)
+	{
+		case EVENT_KEY_COMMAND:
+			k = ((d_event_keycommand *)event)->keycode;
+			switch( k )	{
+				case KEY_CTRLED+KEY_R:		
+					if ( menu->citem < 0 )		{
+						// Reset scores...
+						if ( nm_messagebox( NULL, 2,  TXT_NO, TXT_YES, TXT_RESET_HIGH_SCORES )==1 )	{
+							PHYSFS_delete(get_scores_filename());
+							scores_view(menu->citem);	// create new scores window
+							window_close(wind);			// then remove the old one
+						}
+					}
+					break;
+					case KEY_BACKSP:				Int3(); k = 0; break;
+					case KEY_PRINT_SCREEN:		save_screen_shot(0); k = 0; break;
+					
+					case KEY_ENTER:
+					case KEY_SPACEBAR:
+					case KEY_ESC:
+					window_close(wind);
+					break;
+			}
+			break;
+			
+		case EVENT_IDLE:
+			timer_delay2(50);
+
+			//see if redbook song needs to be restarted
+			RBACheckFinishedHook();
+			break;
+
+		case EVENT_WINDOW_DRAW:
+			gr_set_current_canvas(NULL);
+#ifdef OGL
+			nm_draw_background1(Menu_pcx_name);
+#endif
+			nm_draw_background(((SWIDTH-w)/2)-BORDERX,((SHEIGHT-h)/2)-BORDERY,((SWIDTH-w)/2)+w+BORDERX,((SHEIGHT-h)/2)+h+BORDERY);
+			
+			gr_set_current_canvas(window_get_canvas(wind));
+			
+			grd_curcanv->cv_font = MEDIUM3_FONT;
+			
+			gr_string( 0x8000, FSPACY(15), TXT_HIGH_SCORES );
+			
+			grd_curcanv->cv_font = GAME_FONT;
+			
+			gr_set_fontcolor( BM_XRGB(31,26,5), -1 );
+			gr_string( FSPACX( 71), FSPACY(50), TXT_NAME );
+			gr_string( FSPACX(122), FSPACY(50), TXT_SCORE );
+			gr_string( FSPACX(167), FSPACY(50), TXT_SKILL );
+			gr_string( FSPACX(210), FSPACY(50), TXT_LEVELS );
+			gr_string( FSPACX(253), FSPACY(50), TXT_TIME );
+			
+			if ( menu->citem < 0 )	
+				gr_string( 0x8000, FSPACY(175), TXT_PRESS_CTRL_R );
+			
+			gr_set_fontcolor( BM_XRGB(28,28,28), -1 );
+			
+			gr_printf( 0x8000, FSPACY(31), "%c%s%c  - %s", 34, Scores.cool_saying, 34, Scores.stats[0].name );
+			
+			for (i=0; i<MAX_HIGH_SCORES; i++ )		{
+				gr_set_fontcolor( BM_XRGB(28-i*2,28-i*2,28-i*2), -1 );
+				scores_draw_item( i, &Scores.stats[i] );
+			}
+			
+			if ( menu->citem > -1 )	{
+				
+				gr_set_fontcolor( BM_XRGB(7+fades[menu->looper],7+fades[menu->looper],7+fades[menu->looper]), -1 );
+				if (timer_get_fixed_seconds() >= menu->t1+F1_0/128)
+				{
+					menu->t1 = timer_get_fixed_seconds();
+					menu->looper++;
+					if (menu->looper>63) menu->looper=0;
+				}
+
+				if ( menu->citem ==  MAX_HIGH_SCORES )
+					scores_draw_item( MAX_HIGH_SCORES, &Last_game );
+				else
+					scores_draw_item( menu->citem, &Scores.stats[menu->citem] );
+			}
+			gr_set_current_canvas(NULL);
+			break;
+			
+		case EVENT_WINDOW_CLOSE:
+			d_free(menu);
+			break;
+
+		default:
+			break;
+	}
+	
+	return 0;
+}
+
+void scores_view(int citem)
+{
+	scores_menu *menu;
+
+	MALLOC(menu, scores_menu, 1);
+	if (!menu)
+		return;
+
+	menu->citem = citem;
+	menu->t1 = timer_get_fixed_seconds();
+	menu->looper = 0;
+
 	newmenu_close();
 
-ReshowScores:
 	scores_read();
 
 	set_screen_mode(SCREEN_MENU);
 
-	gr_set_current_canvas(NULL);
-
-	gr_init_sub_canvas(&canvas, &grd_curscreen->sc_canvas, (SWIDTH - FSPACX(320))/2, (SHEIGHT - FSPACY(200))/2, FSPACX(320), FSPACY(200));
-
-	game_flush_inputs();
-
-	done = 0;
-	looper = 0;
-
-	while(!done)	{
-		timer_delay2(50);
-		gr_set_current_canvas(NULL);
-		gr_flip();
-#ifdef OGL
-		nm_draw_background1(Menu_pcx_name);
-#endif
-		nm_draw_background(((SWIDTH-w)/2)-BORDERX,((SHEIGHT-h)/2)-BORDERY,((SWIDTH-w)/2)+w+BORDERX,((SHEIGHT-h)/2)+h+BORDERY);
-
-		gr_set_current_canvas(&canvas);
-
-		grd_curcanv->cv_font = MEDIUM3_FONT;
-	
-		gr_string( 0x8000, FSPACY(15), TXT_HIGH_SCORES );
-	
-		grd_curcanv->cv_font = GAME_FONT;
-	
-		gr_set_fontcolor( BM_XRGB(31,26,5), -1 );
-		gr_string( FSPACX( 71), FSPACY(50), TXT_NAME );
-		gr_string( FSPACX(122), FSPACY(50), TXT_SCORE );
-		gr_string( FSPACX(167), FSPACY(50), TXT_SKILL );
-		gr_string( FSPACX(210), FSPACY(50), TXT_LEVELS );
-		gr_string( FSPACX(253), FSPACY(50), TXT_TIME );
-	
-		if ( citem < 0 )	
-			gr_string( 0x8000, FSPACY(175), TXT_PRESS_CTRL_R );
-	
-		gr_set_fontcolor( BM_XRGB(28,28,28), -1 );
-	
-		gr_printf( 0x8000, FSPACY(31), "%c%s%c  - %s", 34, Scores.cool_saying, 34, Scores.stats[0].name );
-		
-		for (i=0; i<MAX_HIGH_SCORES; i++ )		{
-			gr_set_fontcolor( BM_XRGB(28-i*2,28-i*2,28-i*2), -1 );
-			scores_draw_item( i, &Scores.stats[i] );
-		}
-	
-		if ( citem > -1 )	{
-	
-			t1	= timer_get_fixed_seconds();
-			while ( timer_get_fixed_seconds() < t1+F1_0/128 );	
-
-			gr_set_fontcolor( BM_XRGB(7+fades[looper],7+fades[looper],7+fades[looper]), -1 );
-			looper++;
-			if (looper>63) looper=0;
-			if ( citem ==  MAX_HIGH_SCORES )
-				scores_draw_item( MAX_HIGH_SCORES, &Last_game );
-			else
-				scores_draw_item( citem, &Scores.stats[citem] );
-		}
-
-		//see if redbook song needs to be restarted
-		RBACheckFinishedHook();
-		
-		k = key_inkey();
-		switch( k )	{
-		case KEY_CTRLED+KEY_R:		
-			if ( citem < 0 )		{
-				// Reset scores...
-				if ( nm_messagebox( NULL, 2,  TXT_NO, TXT_YES, TXT_RESET_HIGH_SCORES )==1 )	{
-					PHYSFS_delete( get_scores_filename() );
-				}
-				goto ReshowScores;
-			}
-			break;
-		case KEY_BACKSP:				Int3(); k = 0; break;
-		case KEY_PRINT_SCREEN:		save_screen_shot(0); k = 0; break;
-			
-		case KEY_ENTER:
-		case KEY_SPACEBAR:
-		case KEY_ESC:
-			done=1;
-			break;
-		}
-	}
-
-	gr_set_current_canvas(NULL);
-	game_flush_inputs();
+	window_create(&grd_curscreen->sc_canvas, (SWIDTH - FSPACX(320))/2, (SHEIGHT - FSPACY(200))/2, FSPACX(320), FSPACY(200),
+				  (int (*)(window *, d_event *, void *))scores_handler, menu);
 }

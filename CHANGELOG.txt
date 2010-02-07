@@ -3,6 +3,7 @@ D1X-Rebirth Changelog
 20100207
 --------
 main/game.c, main/gameseq.c, main/inferno.c, main/inferno.h, main/menu.c, main/newdemo.c: Create the main event loop and use it for the game and main menu
+main/scores.c: Make the scores menu into a window
 
 20100206
 --------
