@@ -779,6 +779,17 @@ RetryObjectLoading:
 				}
 				obj_link(i,segnum);
 			}
+
+			// If weapon, restore the most recent hitobj to the list
+			if (obj->type == OBJ_WEAPON)
+			{
+				if (obj->ctype.laser_info.last_hitobj > 0 && obj->ctype.laser_info.last_hitobj < MAX_OBJECTS)
+				{
+					memset(&hitobj_list[i], 0, sizeof(ubyte)*MAX_OBJECTS);
+					hitobj_list[i][obj->ctype.laser_info.last_hitobj] = 1;
+					printf("RESTORE WEAPON[%i] LHO[%i]\n",i,obj->ctype.laser_info.last_hitobj);
+				}
+			}
 		}	
 		special_reset_objects();
 	

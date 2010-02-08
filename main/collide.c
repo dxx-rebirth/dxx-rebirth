@@ -899,6 +899,24 @@ void collide_robot_and_weapon( object * robot, object * weapon, vms_vector *coll
 		robot->rtype.pobj_info.tmap_override = Ugly_robot_texture % NumTextures;
 	}
 
+#if 1
+	/*
+	 * Check if persistent weapon already hit this object. If yes, abort.
+	 * If no, add this object to hitobj_list and do it's damage.
+	 */
+	if (weapon->mtype.phys_info.flags & PF_PERSISTENT)
+	{
+		if (!hitobj_list[weapon-Objects][robot-Objects])
+		{
+			hitobj_list[weapon-Objects][robot-Objects] = 1;
+			weapon->ctype.laser_info.last_hitobj = robot-Objects;
+		}
+		else
+		{
+			return;
+		}
+	}
+#else
 	//	If a persistent weapon hit robot most recently, quick abort, else we cream the same robot many times,
 	//	depending on frame rate.
 	if (weapon->mtype.phys_info.flags & PF_PERSISTENT) {
@@ -907,6 +925,7 @@ void collide_robot_and_weapon( object * robot, object * weapon, vms_vector *coll
 		else
 			weapon->ctype.laser_info.last_hitobj = robot-Objects;
 	}
+#endif
 
 	if (weapon->ctype.laser_info.parent_signature == robot->signature)
 		return;
@@ -1203,12 +1222,31 @@ void collide_player_and_weapon( object * player, object * weapon, vms_vector *co
 
 	damage = fixmul(damage, weapon->ctype.laser_info.multiplier);
 
+#if 1
+	/*
+	 * Check if persistent weapon already hit this object. If yes, abort.
+	 * If no, add this object to hitobj_list and do it's damage.
+	 */
+	if (weapon->mtype.phys_info.flags & PF_PERSISTENT)
+	{
+		if (!hitobj_list[weapon-Objects][player-Objects])
+		{
+			hitobj_list[weapon-Objects][player-Objects] = 1;
+			weapon->ctype.laser_info.last_hitobj = player-Objects;
+		}
+		else
+		{
+			return;
+		}
+	}
+#else
         if (weapon->mtype.phys_info.flags & PF_PERSISTENT) {
 		if (weapon->ctype.laser_info.last_hitobj == player-Objects)
 			return;
 		else
 			weapon->ctype.laser_info.last_hitobj = player-Objects;
         }
+#endif
 
 	if (player->id == Player_num)
 	{
@@ -1446,7 +1484,8 @@ void collide_weapon_and_debris( object * weapon, object * debris, vms_vector *co
 		if ( Weapon_info[weapon->id].damage_radius )
 			explode_badass_weapon(weapon);
 		maybe_kill_weapon(weapon,debris);
-		weapon->flags |= OF_SHOULD_BE_DEAD;
+		if (!(weapon->mtype.phys_info.flags & PF_PERSISTENT))
+			weapon->flags |= OF_SHOULD_BE_DEAD;
 	}
 	return; 
 }
