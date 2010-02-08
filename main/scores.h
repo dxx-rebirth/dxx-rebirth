@@ -100,7 +100,9 @@ COPYRIGHT 1993-1998 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 #define	INVULNERABILITY_SCORE		0
 #define	HEADLIGHT_SCORE				0
 
-extern void scores_view(int citem);
+struct stats_info;
+
+extern void scores_view(struct stats_info *last_game, int citem);
 
 // If player has a high score, adds you to file and returns.
 //	If abort_flag set, only show if player has gotten a high score.

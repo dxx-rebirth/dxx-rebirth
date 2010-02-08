@@ -494,7 +494,7 @@ void do_option ( int select)
 			break;
 		#endif
 		case MENU_VIEW_SCORES:
-			scores_view(-1);
+			scores_view(NULL, -1);
 			break;
 #if 1 //def SHAREWARE
 		case MENU_ORDER_INFO:
