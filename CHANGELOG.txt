@@ -4,6 +4,7 @@ D1X-Rebirth Changelog
 --------
 main/menu.c, main/scores.c, main/scores.h: Move all globals in scores.c into struct members/local variables
 main/game.c, main/newdemo.c: Don't make another Game_wind when advancing a level, fixing failed asserts / slow turning
+arch/sdl/window.c: Don't send an EVENT_WINDOW_DEACTIVATED when closing a window if it wasn't the front window, now the game works properly after you're shown on the high scores
 
 20100207
 --------

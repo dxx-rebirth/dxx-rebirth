@@ -68,14 +68,22 @@ int window_close(window *wind)
 	d_event event;
 	int (*w_callback)(window *wind, d_event *event, void *data) = wind->w_callback;
 
-	event.type = EVENT_WINDOW_DEACTIVATED;	// Deactivate first
-	window_send_event(wind, &event);
+	if (wind == window_get_front())
+	{
+		event.type = EVENT_WINDOW_DEACTIVATED;	// Deactivate first
+		window_send_event(wind, &event);
+	}
+
 	event.type = EVENT_WINDOW_CLOSE;
 	if (window_send_event(wind, &event))
 	{
-		event.type = EVENT_WINDOW_ACTIVATED;	// Reactivate. May cause flashing of some sort, too bad
-		window_send_event(wind, &event);
-		return 0;	// user 'handled' the event, cancelling close
+		// User 'handled' the event, cancelling close
+		if (wind == window_get_front())
+		{
+			event.type = EVENT_WINDOW_ACTIVATED;	// Reactivate. May cause flashing of some sort, too bad
+			window_send_event(wind, &event);
+		}
+		return 0;
 	}
 
 	if (wind == FrontWindow)
