@@ -3,6 +3,7 @@ D1X-Rebirth Changelog
 20100208
 --------
 main/menu.c, main/scores.c, main/scores.h: Move all globals in scores.c into struct members/local variables
+main/game.c, main/newdemo.c: Don't make another Game_wind when advancing a level, fixing failed asserts / slow turning
 
 20100207
 --------
