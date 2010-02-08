@@ -1,5 +1,10 @@
 D2X-Rebirth Changelog
 
+20100208
+--------
+main/menu.c, main/scores.c, main/scores.h: Move all globals in scores.c into struct members/local variables
+main/game.c, main/newdemo.c: Don't make another Game_wind when advancing a level, fixing failed asserts / slow turning
+
 20100207
 --------
 main/game.c, main/gameseq.c, main/inferno.c, main/inferno.h, main/menu.c, main/newdemo.c: Create the main event loop and use it for the game and main menu

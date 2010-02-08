@@ -3592,7 +3592,8 @@ void newdemo_start_playback(char * filename)
 	HUD_clear_messages();
 	newdemo_playback_one_frame();       // this one loads new level
 	newdemo_playback_one_frame();       // get all of the objects to renderb game
-	game();								// create game environment
+	if (!Game_wind)
+		game();							// create game environment
 }
 
 void newdemo_stop_playback()
