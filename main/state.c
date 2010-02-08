@@ -916,6 +916,15 @@ int state_restore_all_sub(char *filename, int secret_restore)
 					obj->shields /= 2;  //give player a break
 			}
 
+			// If weapon, restore the most recent hitobj to the list
+			if (obj->type == OBJ_WEAPON)
+			{
+				if (obj->ctype.laser_info.last_hitobj > 0 && obj->ctype.laser_info.last_hitobj < MAX_OBJECTS)
+				{
+					memset(&hitobj_list[i], 0, sizeof(ubyte)*MAX_OBJECTS);
+					hitobj_list[i][obj->ctype.laser_info.last_hitobj] = 1;
+				}
+			}
 		}	
 		special_reset_objects();
 

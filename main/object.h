@@ -169,10 +169,12 @@ typedef struct laser_info {
 	short   parent_num;         // The object's parent's number
 	int     parent_signature;   // The object's parent's signature...
 	fix     creation_time;      // Absolute time of creation.
-	short   last_hitobj;        // For persistent weapons (survive object collision), object it most recently hit.
+	short   last_hitobj;        // For persistent weapons (survive object collision), object it most recently hit. NOTE: SEE hitobj_list!!!
 	short   track_goal;         // Object this object is tracking.
 	fix     multiplier;         // Power if this is a fusion bolt (or other super weapon to be added).
 } __pack__ laser_info;
+
+extern ubyte hitobj_list[MAX_OBJECTS][MAX_OBJECTS];
 
 typedef struct explosion_info {
     fix     spawn_time;         // when lifeleft is < this, spawn another

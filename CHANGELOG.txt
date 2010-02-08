@@ -5,6 +5,7 @@ D2X-Rebirth Changelog
 main/menu.c, main/scores.c, main/scores.h: Move all globals in scores.c into struct members/local variables
 main/game.c, main/newdemo.c: Don't make another Game_wind when advancing a level, fixing failed asserts / slow turning
 arch/sdl/window.c: Don't send an EVENT_WINDOW_DEACTIVATED when closing a window if it wasn't the front window, now the game works properly after you're shown on the high scores
+main/collide.c, main/object.c, main/object.h, main/state.c: Introduced hitobj_list for persistent weapon objects to keep track of multiple objects the weapon is in contect with to prevent it from doing FPS-based damage; Made persistent weapon objects not die on debris but just decrease their shields like when an ordinary player/robot is hit - makes more sense
 
 20100207
 --------
