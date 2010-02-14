@@ -678,7 +678,7 @@ void kconfig_start_changing(kc_menu *menu)
 	
 	game_flush_inputs();
 	if (menu->items[menu->citem].type == BT_JOY_AXIS)
-		joystick_read_raw_axis( JOY_ALL_AXIS, menu->old_axis );
+		joystick_read_raw_axis( menu->old_axis );
 	
 	menu->changing = 1;
 }
@@ -1196,7 +1196,7 @@ void kc_change_joyaxis( kc_menu *menu, kc_item * item )
 	int n,i;
 	ubyte code = 255;
 
-	joystick_read_raw_axis( JOY_ALL_AXIS, axis );
+	joystick_read_raw_axis( axis );
 
 	for (i=0; i<numaxis; i++ )	{
 		if ( abs(axis[i]-menu->old_axis[i])>4096 )
@@ -1306,7 +1306,6 @@ void controls_read_all(int automap_flag)
 	int mouse_buttons;
 	fix k0, k1, k2, k3, kp;
 	fix k4, k5, k6, k7, kh;
-	ubyte channel_masks;
 	int use_mouse, use_joystick;
 	int speed_factor=1;
 
@@ -1328,28 +1327,24 @@ void controls_read_all(int automap_flag)
 
 	//---------  Read Joystick -----------
 	if (CONTROL_USING_JOYSTICK ) {
-		channel_masks = joystick_read_raw_axis( JOY_ALL_AXIS, raw_joy_axis );
+		joystick_read_raw_axis( raw_joy_axis );
 
 		for (i = 0; i < joy_num_axes; i++)
 		{
-			if (channel_masks&(1<<i))	{
-				int joy_null_value = 10;
+			int joy_null_value = 10;
 
-				raw_joy_axis[i] = joy_get_scaled_reading( raw_joy_axis[i], i );
+			raw_joy_axis[i] = joy_get_scaled_reading( raw_joy_axis[i], i );
 
-				if (kc_joystick[23].value==i)		// If this is the throttle
-					joy_null_value = 20;		// Then use a larger dead-zone
+			if (kc_joystick[23].value==i)		// If this is the throttle
+				joy_null_value = 20;		// Then use a larger dead-zone
 
-				if (raw_joy_axis[i] > joy_null_value) 
-					raw_joy_axis[i] = ((raw_joy_axis[i]-joy_null_value)*128)/(128-joy_null_value);
-			  	else if (raw_joy_axis[i] < -joy_null_value)
-					raw_joy_axis[i] = ((raw_joy_axis[i]+joy_null_value)*128)/(128-joy_null_value);
-				else
-					raw_joy_axis[i] = 0;
-				joy_axis[i]	= (raw_joy_axis[i]*FrameTime)/128;	
-			} else {
-				joy_axis[i] = 0;
-			}
+			if (raw_joy_axis[i] > joy_null_value) 
+				raw_joy_axis[i] = ((raw_joy_axis[i]-joy_null_value)*128)/(128-joy_null_value);
+			else if (raw_joy_axis[i] < -joy_null_value)
+				raw_joy_axis[i] = ((raw_joy_axis[i]+joy_null_value)*128)/(128-joy_null_value);
+			else
+				raw_joy_axis[i] = 0;
+			joy_axis[i]	= (raw_joy_axis[i]*FrameTime)/128;	
 		}
 		use_joystick=1;
 	} else {

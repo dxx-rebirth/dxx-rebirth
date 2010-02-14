@@ -143,6 +143,7 @@ void print_commandline_help()
 	printf( "  -nojoystick        %s\n", "Deactivate joystick");
 	printf( "  -mouselook         %s\n", "Activate mouselook. Works in singleplayer only");
 	printf( "  -grabmouse         %s\n", "Keeps the mouse from wandering out of the window");
+	printf( "  -nostickykeys      %s\n", "Make CapsLock and NumLock non-sticky so they can be used as normal keys");
 
 	printf( "\n Sound:\n\n");
 	printf( "  -nosound           %s\n", "Disables sound output");
@@ -170,7 +171,7 @@ void print_commandline_help()
 	printf( "  -ipxnetwork <n>    %s\n", "Use IPX network number <n>");
 	printf( "  -udp_hostaddr <n>  %s\n", "When manually joining a game use default IP Address <n> to connect to");
 	printf( "  -udp_hostport <n>  %s\n", "When manually joining a game use default UDP Port <n> to connect to");
-	printf( "  -udp_myport	<n>	  %s\n", "When hosting/joining a game use default UDP Port <n> to send packets from");
+	printf( "  -udp_myport <n>	  %s\n", "When hosting/joining a game use default UDP Port <n> to send packets from");
 #endif // NETWORK
 
 #ifdef    EDITOR

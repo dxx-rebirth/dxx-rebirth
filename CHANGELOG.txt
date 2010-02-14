@@ -1,5 +1,9 @@
 D2X-Rebirth Changelog
 
+20100214
+--------
+d2x.ini, arch/include/joy.h, arch/sdl/joy.c, main/endlevel.c, main/inferno.c, main/kconfig.c, main/slew.c, misc/args.c: Cleaning up Joystick code and on the way supporting more axes and buttons; Also fixed bug with channel_mask byte causing trouble using some axes ingame; Added argument to set environment variable which disables sticky keys (for SDL >= 1.2.14)
+
 20100208
 --------
 main/menu.c, main/scores.c, main/scores.h: Move all globals in scores.c into struct members/local variables
