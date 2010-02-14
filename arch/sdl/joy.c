@@ -1,8 +1,6 @@
-/* $Id: joy.c,v 1.1.1.1 2006/03/17 19:53:38 zicodxx Exp $ */
 /*
  *
  * SDL joystick support
- *
  *
  */
 
@@ -21,7 +19,6 @@
 extern char *joybutton_text[]; //from kconfig.c
 extern char *joyaxis_text[]; //from kconfig.c
 
-char joy_present = 0;
 int num_joysticks = 0;
 int joy_num_axes = 0;
 
@@ -127,14 +124,14 @@ void joy_axis_handler(SDL_JoyAxisEvent *jae)
 
 /* ----------------------------------------------- */
 
-int joy_init()
+void joy_init()
 {
 	int i,j,n;
 	char temp[10];
 
 	if (SDL_Init(SDL_INIT_JOYSTICK) < 0) {
 		con_printf(CON_NORMAL, "sdl-joystick: initialisation failed: %s.",SDL_GetError());
-		return 0;
+		return;
 	}
 
 	memset(&Joystick,0,sizeof(Joystick));
@@ -148,13 +145,13 @@ int joy_init()
 		con_printf(CON_NORMAL, "sdl-joystick %d: %s\n", i, SDL_JoystickName(i));
 		SDL_Joysticks[num_joysticks].handle = SDL_JoystickOpen(i);
 		if (SDL_Joysticks[num_joysticks].handle) {
-			joy_present = 1;
 
 			SDL_Joysticks[num_joysticks].n_axes
 				= SDL_JoystickNumAxes(SDL_Joysticks[num_joysticks].handle);
 			if(SDL_Joysticks[num_joysticks].n_axes > MAX_AXES_PER_JOYSTICK)
 			{
-				Warning("sdl-joystick: found %d axes, only %d supported.  Game may be unstable.\n", SDL_Joysticks[num_joysticks].n_axes, MAX_AXES_PER_JOYSTICK);
+				Warning("sdl-joystick: found %d axes, only %d supported.\n", SDL_Joysticks[num_joysticks].n_axes, MAX_AXES_PER_JOYSTICK);
+				Warning("sdl-joystick: found %d axes, only %d supported.\n", SDL_Joysticks[num_joysticks].n_axes, MAX_AXES_PER_JOYSTICK);
 				SDL_Joysticks[num_joysticks].n_axes = MAX_AXES_PER_JOYSTICK;
 			}
 
@@ -162,7 +159,7 @@ int joy_init()
 				= SDL_JoystickNumButtons(SDL_Joysticks[num_joysticks].handle);
 			if(SDL_Joysticks[num_joysticks].n_buttons > MAX_BUTTONS_PER_JOYSTICK)
 			{
-				Warning("sdl-joystick: found %d buttons, only %d supported.  Game may be unstable.\n", SDL_Joysticks[num_joysticks].n_buttons, MAX_BUTTONS_PER_JOYSTICK);
+				Warning("sdl-joystick: found %d buttons, only %d supported.\n", SDL_Joysticks[num_joysticks].n_buttons, MAX_BUTTONS_PER_JOYSTICK);
 				SDL_Joysticks[num_joysticks].n_buttons = MAX_BUTTONS_PER_JOYSTICK;
 			}
 
@@ -170,7 +167,7 @@ int joy_init()
 				= SDL_JoystickNumHats(SDL_Joysticks[num_joysticks].handle);
 			if(SDL_Joysticks[num_joysticks].n_hats > MAX_HATS_PER_JOYSTICK)
 			{
-				Warning("sdl-joystick: found %d hats, only %d supported.  Game may be unstable.\n", SDL_Joysticks[num_joysticks].n_hats, MAX_HATS_PER_JOYSTICK);
+				Warning("sdl-joystick: found %d hats, only %d supported.\n", SDL_Joysticks[num_joysticks].n_hats, MAX_HATS_PER_JOYSTICK);
 				SDL_Joysticks[num_joysticks].n_hats = MAX_HATS_PER_JOYSTICK;
 			}
 
@@ -214,8 +211,6 @@ int joy_init()
 	}
 
 	joy_num_axes = Joystick.n_axes;
-
-	return joy_present;
 }
 
 void joy_close()
@@ -226,40 +221,6 @@ void joy_close()
 		d_free(joyaxis_text[Joystick.n_axes]);
 	while (Joystick.n_buttons--)
 		d_free(joybutton_text[Joystick.n_buttons]);
-}
-
-void joy_get_pos(int *x, int *y)
-{
-	int axis[JOY_MAX_AXES];
-
-	if (!num_joysticks) {
-		*x=*y=0;
-		return;
-	}
-
-	joystick_read_raw_axis (JOY_ALL_AXIS, axis);
-
-	*x = joy_get_scaled_reading( axis[0], 0 );
-	*y = joy_get_scaled_reading( axis[1], 1 );
-}
-
-int joy_get_btns()
-{
-#if 0 // This is never used?
-	int i, buttons = 0;
-	for (i=0; i++; i<buttons) {
-		switch (Joystick.buttons[i].state) {
-		case SDL_PRESSED:
-			buttons |= 1<<i;
-			break;
-		case SDL_RELEASED:
-			break;
-		}
-	}
-	return buttons;
-#else
-	return 0;
-#endif
 }
 
 int joy_get_button_down_cnt( int btn )
@@ -299,23 +260,17 @@ fix joy_get_button_down_time(int btn)
 	return time;
 }
 
-ubyte joystick_read_raw_axis( ubyte mask, int * axis )
+void joystick_read_raw_axis( int * axis )
 {
 	int i;
-	ubyte channel_masks = 0;
 	
 	if (!num_joysticks)
-		return 0;
+		return;
 
 	event_poll();
 
 	for (i = 0; i < Joystick.n_axes; i++)
-	{
-		if ((axis[i] = Joystick.axes[i].value))
-			channel_masks |= 1 << i;
-	}
-
-	return channel_masks;
+		axis[i] = Joystick.axes[i].value;
 }
 
 void joy_flush()
@@ -346,33 +301,8 @@ int joy_get_button_state( int btn )
 	return Joystick.buttons[btn].state;
 }
 
-void joy_get_cal_vals(int *axis_min, int *axis_center, int *axis_max)
-{
-	int i;
-
-	for (i = 0; i < Joystick.n_axes; i++)
-	{
-		axis_center[i] = Joystick.axes[i].center_val;
-		axis_min[i] = Joystick.axes[i].min_val;
-		axis_max[i] = Joystick.axes[i].max_val;
-	}
-}
-
-void joy_set_cal_vals(int *axis_min, int *axis_center, int *axis_max)
-{
-	int i;
-
-	for (i = 0; i < Joystick.n_axes; i++)
-	{
-		Joystick.axes[i].center_val = axis_center[i];
-		Joystick.axes[i].min_val = axis_min[i];
-		Joystick.axes[i].max_val = axis_max[i];
-	}
-}
-
 int joy_get_scaled_reading( int raw, int axis_num )
 {
-#if 1
 	int x, d;
 
 	d =  (PlayerCfg.JoystickDeadzone) * 6;
@@ -382,33 +312,4 @@ int joy_get_scaled_reading( int raw, int axis_num )
 		x = raw/256;
 
 	return x;
-	//return raw/256;
-#else
-	int d, x;
-
-	raw -= Joystick.axes[axis_num].center_val;
-	
-	if (raw < 0)
-		d = Joystick.axes[axis_num].center_val - Joystick.axes[axis_num].min_val;
-	else if (raw > 0)
-		d = Joystick.axes[axis_num].max_val - Joystick.axes[axis_num].center_val;
-	else
-		d = 0;
-	
-	if (d)
-		x = ((raw << 7) / d);
-	else
-		x = 0;
-	
-	if ( x < -128 )
-		x = -128;
-	if ( x > 127 )
-		x = 127;
-	
-	d =  (PlayerCfg.JoystickDeadzone) * 6;
-	if ((x > (-1*d)) && (x < d))
-		x = 0;
-	
-	return x;
-#endif
 }

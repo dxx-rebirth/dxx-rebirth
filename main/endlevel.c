@@ -662,7 +662,7 @@ void do_endlevel_frame()
 
 				#ifdef SLEW_ON
 				slew_obj = endlevel_camera;
-				_do_slew_movement(endlevel_camera,1,1);
+				_do_slew_movement(endlevel_camera,1);
 				timer += FrameTime;		//make time stop
 				break;
 				#else
@@ -703,7 +703,7 @@ void do_endlevel_frame()
 			vm_vec_scale_add2(&ConsoleObject->pos,&ConsoleObject->orient.fvec,fixmul(FrameTime,cur_fly_speed));
 
 			#ifdef SLEW_ON
-			_do_slew_movement(endlevel_camera,1,1);
+			_do_slew_movement(endlevel_camera,1);
 			#else
 
 			get_angs_to_object(&camera_desired_angles,&ConsoleObject->pos,&endlevel_camera->pos);
@@ -732,7 +732,7 @@ void do_endlevel_frame()
 			fix d,speed_scale;
 
 			#ifdef SLEW_ON
-			_do_slew_movement(endlevel_camera,1,1);
+			_do_slew_movement(endlevel_camera,1);
 			#endif
 
 			get_angs_to_object(&camera_desired_angles,&ConsoleObject->pos,&endlevel_camera->pos);
@@ -1210,13 +1210,11 @@ extern short old_joy_x,old_joy_y;	//position last time around
 #include "joy.h"
 
 #ifdef SLEW_ON		//this is a special routine for slewing around external scene
-int _do_slew_movement(object *obj, int check_keys, int check_joy )
+int _do_slew_movement(object *obj, int check_keys )
 {
 	int moved = 0;
 	vms_vector svel, movement;				//scaled velocity (per this frame)
 	vms_matrix rotmat,new_pm;
-	int joy_x,joy_y,btns;
-	int joyx_moved,joyy_moved;
 	vms_angvec rotang;
 
 	if (keyd_pressed[KEY_PAD5])
@@ -1233,29 +1231,6 @@ int _do_slew_movement(object *obj, int check_keys, int check_joy )
 	}
 	else
 		rotang.pitch = rotang.bank  = rotang.head  = 0;
-
-	//check for joystick movement
-
-	if (check_joy && joy_present)	{
-		joy_get_pos(&joy_x,&joy_y);
-		btns=joy_get_btns();
-	
-		joyx_moved = (abs(joy_x - old_joy_x)>JOY_NULL);
-		joyy_moved = (abs(joy_y - old_joy_y)>JOY_NULL);
-	
-		if (abs(joy_x) < JOY_NULL) joy_x = 0;
-		if (abs(joy_y) < JOY_NULL) joy_y = 0;
-	
-		if (btns)
-			if (!rotang.pitch) rotang.pitch = fixmul(-joy_y * 512,FrameTime); else;
-		else
-			if (joyy_moved) obj->phys_info.velocity.z = -joy_y * 8192;
-	
-		if (!rotang.head) rotang.head = fixmul(joy_x * 512,FrameTime);
-	
-		if (joyx_moved) old_joy_x = joy_x;
-		if (joyy_moved) old_joy_y = joy_y;
-	}
 
 	moved = rotang.pitch | rotang.bank | rotang.head;
 

@@ -170,13 +170,11 @@ void slew_reset_orient()
 
 }
 
-int do_slew_movement(object *obj, int check_keys, int check_joy )
+int do_slew_movement(object *obj, int check_keys )
 {
 	int moved = 0;
 	vms_vector svel, movement;				//scaled velocity (per this frame)
 	vms_matrix rotmat,new_pm;
-	int joy_x,joy_y,btns;
-	int joyx_moved,joyy_moved;
 	vms_angvec rotang;
 
 	if (!slew_obj || slew_obj->control_type!=CT_SLEW) return 0;
@@ -203,35 +201,6 @@ int do_slew_movement(object *obj, int check_keys, int check_joy )
 	}
 	else
 		rotang.p = rotang.b  = rotang.h  = 0;
-
-	//check for joystick movement
-
-	if (check_joy && joy_present && (Function_mode == FMODE_EDITOR) )	{
-		joy_get_pos(&joy_x,&joy_y);
-		btns=joy_get_btns();
-	
-		joyx_moved = (abs(joy_x - old_joy_x)>JOY_NULL);
-		joyy_moved = (abs(joy_y - old_joy_y)>JOY_NULL);
-	
-		if (abs(joy_x) < JOY_NULL) joy_x = 0;
-		if (abs(joy_y) < JOY_NULL) joy_y = 0;
-	
-		if (btns)
-                 {
-                    if (!rotang.p)
-                     rotang.p = fixmul(-joy_y * 512,FrameTime);
-                 }
-		else
-                 {
-                    if (joyy_moved)
-                     obj->mtype.phys_info.velocity.z = -joy_y * 8192;
-                 }
-	
-		if (!rotang.h) rotang.h = fixmul(joy_x * 512,FrameTime);
-	
-		if (joyx_moved) old_joy_x = joy_x;
-		if (joyy_moved) old_joy_y = joy_y;
-	}
 
 	moved = rotang.p | rotang.b | rotang.h;
 
@@ -260,6 +229,6 @@ int do_slew_movement(object *obj, int check_keys, int check_joy )
 //do slew for this frame
 int slew_frame(int check_keys)
 {
-	return do_slew_movement( slew_obj, !check_keys, 1 );
+	return do_slew_movement( slew_obj, !check_keys );
 
 }
