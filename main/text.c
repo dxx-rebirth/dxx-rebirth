@@ -305,10 +305,13 @@ void load_text()
           switch(i) {
 				  char *extra;
 				  char *str;
-				  
-			  case 145:
-				Text_string[i]=(char *) d_malloc(sizeof(char) * 48);
-				strcpy(Text_string[i],"Sidewinder &\nThrustmaster FCS &\nWingman Extreme");
+
+			case 116:
+				if (!stricmp(Text_string[i], "SPREADFIRE")) // This string is too long to fit in the cockpit-box
+				{
+					memset(Text_string[i], '\0', sizeof(char)*(strlen(Text_string[i])+1));
+					strncpy(Text_string[i], "SPREAD", sizeof(char)*6);
+				}
 				break;
 				  
 			  case 330:

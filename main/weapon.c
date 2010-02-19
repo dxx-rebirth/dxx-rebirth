@@ -45,14 +45,6 @@ ubyte DefaultSecondaryOrder[] = { 4, 3, 1, 0, 255, 2 };
 extern ubyte MenuReordering;
 ubyte Cycling=0;
 
-char	*Primary_weapon_names_short[MAX_PRIMARY_WEAPONS] = {
-	"Laser",
-	"Vulcan",
-	"Spread",
-	"Plasma",
-	"Fusion"
-};
-
 //	------------------------------------------------------------------------------------
 //	Return:
 // Bits set:

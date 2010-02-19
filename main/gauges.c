@@ -44,6 +44,7 @@ COPYRIGHT 1993-1998 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 #include "text.h"
 #include "render.h"
 #include "piggy.h"
+#include "laser.h"
 #include "playsave.h"
 #include "rle.h"
 #include "byteswap.h"
@@ -189,7 +190,7 @@ COPYRIGHT 1993-1998 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 #define PRIMARY_W_PIC_Y			(HIRESMODE?370:154)
 #define PRIMARY_W_TEXT_X		HUD_SCALE_X(HIRESMODE?182:87)
 #define PRIMARY_W_TEXT_Y		HUD_SCALE_Y(HIRESMODE?400:157)
-#define PRIMARY_AMMO_X			HUD_SCALE_X(HIRESMODE?186:(96-3))
+#define PRIMARY_AMMO_X			HUD_SCALE_X(HIRESMODE?186:93)
 #define PRIMARY_AMMO_Y			HUD_SCALE_Y(HIRESMODE?420:171)
 
 #define SECONDARY_W_PIC_X		(HIRESMODE?405:234)
@@ -287,13 +288,13 @@ COPYRIGHT 1993-1998 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 #define SB_PRIMARY_W_PIC_Y		(HIRESMODE?382:154)
 #define SB_PRIMARY_W_TEXT_X		HUD_SCALE_X(SB_PRIMARY_W_BOX_LEFT+(HIRESMODE?50:24))	//(51+23)
 #define SB_PRIMARY_W_TEXT_Y		HUD_SCALE_Y(HIRESMODE?390:157)
-#define SB_PRIMARY_AMMO_X		HUD_SCALE_X(SB_PRIMARY_W_BOX_LEFT+(HIRESMODE?(38+20):30))	//((SB_PRIMARY_W_BOX_LEFT+33)-3)	//(51+32)
+#define SB_PRIMARY_AMMO_X		HUD_SCALE_X(SB_PRIMARY_W_BOX_LEFT+(HIRESMODE?58:30))	//((SB_PRIMARY_W_BOX_LEFT+33)-3)	//(51+32)
 #define SB_PRIMARY_AMMO_Y		HUD_SCALE_Y(HIRESMODE?410:171)
 
 #define SB_SECONDARY_W_PIC_X		(HIRESMODE?385:(SB_SECONDARY_W_BOX_LEFT+27))	//(212+27)
 #define SB_SECONDARY_W_PIC_Y		(HIRESMODE?382:154)
 #define SB_SECONDARY_W_TEXT_X		HUD_SCALE_X(SB_SECONDARY_W_BOX_LEFT+2)	//212
-#define SB_SECONDARY_W_TEXT_Y		HUD_SCALE_Y(HIRESMODE?389:157)
+#define SB_SECONDARY_W_TEXT_Y		HUD_SCALE_Y(HIRESMODE?390:157)
 #define SB_SECONDARY_AMMO_X		HUD_SCALE_X(SB_SECONDARY_W_BOX_LEFT+(HIRESMODE?(14):11))	//(212+9)
 #define SB_SECONDARY_AMMO_Y		HUD_SCALE_Y(HIRESMODE?414:171)
 
@@ -342,7 +343,6 @@ int weapon_box_states[2];
 fix weapon_box_fade_values[2];
 int Color_0_31_0 = -1;
 fix Last_warning_beep_time = 0; // Time we last played homing missile warning beep.
-int Last_homing_warning_shown=-1;
 extern int HUD_nmessages, hud_first;
 extern char HUD_messages[HUD_MAX_NUM][HUD_MESSAGE_LENGTH+5]; 
 
@@ -876,38 +876,33 @@ void play_homing_warning(void)
 //	-----------------------------------------------------------------------------
 void show_homing_warning(void)
 {
-	if ((PlayerCfg.CockpitMode[1] == CM_STATUS_BAR) || (Endlevel_sequence)) {
-		if (Last_homing_warning_shown == 1) {
-			PIGGY_PAGE_IN( Gauges[GAUGE_HOMING_WARNING_OFF] );
-			hud_bitblt( HOMING_WARNING_X, HOMING_WARNING_Y, &GameBitmaps[Gauges[GAUGE_HOMING_WARNING_OFF].index]);
-			Last_homing_warning_shown = 0;
-		}
+	if (Endlevel_sequence)
+	{
+		PIGGY_PAGE_IN( Gauges[GAUGE_HOMING_WARNING_OFF] );
+		hud_bitblt( HOMING_WARNING_X, HOMING_WARNING_Y, &GameBitmaps[Gauges[GAUGE_HOMING_WARNING_OFF].index]);
 		return;
 	}
 
 	gr_set_current_canvas( NULL );
 
-	if (Players[Player_num].homing_object_dist >= 0) {
-
-		if (GameTime & 0x4000) {
-			if (Last_homing_warning_shown != 1) {
-				PIGGY_PAGE_IN(Gauges[GAUGE_HOMING_WARNING_ON]);
-				hud_bitblt( HOMING_WARNING_X, HOMING_WARNING_Y, &GameBitmaps[Gauges[GAUGE_HOMING_WARNING_ON].index]);
-				Last_homing_warning_shown = 1;
-			}
-		} else {
-			if (Last_homing_warning_shown != 0) {
-				PIGGY_PAGE_IN(Gauges[GAUGE_HOMING_WARNING_OFF]);
-				hud_bitblt( HOMING_WARNING_X, HOMING_WARNING_Y, &GameBitmaps[Gauges[GAUGE_HOMING_WARNING_OFF].index]);
-				Last_homing_warning_shown = 0;
-			}
+	if (Players[Player_num].homing_object_dist >= 0)
+	{
+		if (GameTime & 0x4000)
+		{
+			PIGGY_PAGE_IN(Gauges[GAUGE_HOMING_WARNING_ON]);
+			hud_bitblt( HOMING_WARNING_X, HOMING_WARNING_Y, &GameBitmaps[Gauges[GAUGE_HOMING_WARNING_ON].index]);
 		}
-	} else if (Last_homing_warning_shown != 0) {
+		else
+		{
+			PIGGY_PAGE_IN(Gauges[GAUGE_HOMING_WARNING_OFF]);
+			hud_bitblt( HOMING_WARNING_X, HOMING_WARNING_Y, &GameBitmaps[Gauges[GAUGE_HOMING_WARNING_OFF].index]);
+		}
+	}
+	else
+	{
 		PIGGY_PAGE_IN(Gauges[GAUGE_HOMING_WARNING_OFF]);
 		hud_bitblt( HOMING_WARNING_X, HOMING_WARNING_Y, &GameBitmaps[Gauges[GAUGE_HOMING_WARNING_OFF].index]);
-		Last_homing_warning_shown = 0;
 	}
-
 }
 
 void hud_show_homing_warning(void)
@@ -1703,29 +1698,20 @@ void draw_weapon_info_sub(int info_index,gauge_box *box,int pic_x,int pic_y,char
 	if (PlayerCfg.HudMode == 0)
 	{
 		gr_set_fontcolor(BM_XRGB(0,20,0),-1 );
-		
-		if ((p=strchr(name,'\n'))!=NULL) {
-			*p=0;
+	
+		if ((strchr(name,'\n'))!=NULL)
+		{
 			gr_printf(text_x,text_y,name);
-			gr_printf(text_x,text_y+LINE_SPACING,p+1);
-			*p='\n';
-		} else
+		}
+		else
 			gr_printf(text_x,text_y,name);
-		
-		// For laser, show level and quadness
-		if (info_index == 0) {
-			char	temp_str[7];
-			
-			sprintf(temp_str, "%s: 0", TXT_LVL);
-			
-			temp_str[5] = Players[Player_num].laser_level+1 + '0';
-			
-			gr_printf(text_x,text_y+LINE_SPACING, temp_str);
-			
-			if (Players[Player_num].flags & PLAYER_FLAGS_QUAD_LASERS) {
-				strcpy(temp_str, TXT_QUAD);
-				gr_printf(text_x,text_y+(LINE_SPACING*2), temp_str);
-			}
+	
+		//	For laser, show level and quadness
+		if (info_index == LASER_ID)
+		{
+			gr_printf(text_x,text_y+LINE_SPACING, "%s: %i", TXT_LVL, Players[Player_num].laser_level+1);
+			if (Players[Player_num].flags & PLAYER_FLAGS_QUAD_LASERS)
+				gr_printf(text_x,text_y+(LINE_SPACING*2), TXT_QUAD);
 		}
 	}
 }
@@ -1743,13 +1729,13 @@ void draw_weapon_info(int weapon_type,int weapon_num)
 	{
 		if (PlayerCfg.CockpitMode[1] == CM_STATUS_BAR)
 		{
-			draw_weapon_info_sub(Primary_weapon_to_weapon_info[weapon_num],&gauge_boxes[SB_PRIMARY_BOX],SB_PRIMARY_W_PIC_X,SB_PRIMARY_W_PIC_Y,Primary_weapon_names_short[weapon_num],SB_PRIMARY_W_TEXT_X,SB_PRIMARY_W_TEXT_Y);
+			draw_weapon_info_sub(Primary_weapon_to_weapon_info[weapon_num],&gauge_boxes[SB_PRIMARY_BOX],SB_PRIMARY_W_PIC_X,SB_PRIMARY_W_PIC_Y,PRIMARY_WEAPON_NAMES_SHORT(weapon_num),SB_PRIMARY_W_TEXT_X,SB_PRIMARY_W_TEXT_Y);
 			x=SB_PRIMARY_AMMO_X;
 			y=SB_PRIMARY_AMMO_Y;
 		}
 		else
 		{
-			draw_weapon_info_sub(Primary_weapon_to_weapon_info[weapon_num],&gauge_boxes[COCKPIT_PRIMARY_BOX],PRIMARY_W_PIC_X,PRIMARY_W_PIC_Y,	Primary_weapon_names_short[weapon_num],PRIMARY_W_TEXT_X,PRIMARY_W_TEXT_Y);
+			draw_weapon_info_sub(Primary_weapon_to_weapon_info[weapon_num],&gauge_boxes[COCKPIT_PRIMARY_BOX],PRIMARY_W_PIC_X,PRIMARY_W_PIC_Y, PRIMARY_WEAPON_NAMES_SHORT(weapon_num),PRIMARY_W_TEXT_X,PRIMARY_W_TEXT_Y);
 			x=PRIMARY_AMMO_X;
 			y=PRIMARY_AMMO_Y;
 		}
