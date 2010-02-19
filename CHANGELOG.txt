@@ -1,5 +1,9 @@
 D2X-Rebirth Changelog
 
+20100219
+--------
+main/gauges.c: The little light bulb showing homing warning in Cockpit was broken and I replaced it; Rewritten code to show weapon text in Cockpit and Statusbar slightly
+
 20100215
 --------
 libmve/mveplay.c: Added another bunch of macros to fix sound initialisation for Movies when program is compiled without SDL_mixer
