@@ -40,9 +40,6 @@ char *Text_string[N_TEXT_STRINGS];
 
 void free_text()
 {
-        //added on 9/13/98 by adb to free all text
-        d_free(Text_string[145]);
-        //end addition - adb
 	d_free(Text_string[330]);
 	d_free(text);
 }
