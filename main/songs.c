@@ -56,6 +56,8 @@ void songs_init()
 	char inputline[80+1];
 	CFILE * fp;
 
+	memset(Songs, '\0', sizeof(Songs));
+
 	if (cfexist("descent.sng")) {   // mac (demo?) datafiles don't have the .sng file
 		fp = cfopen( "descent.sng", "rb" );
 		if ( fp == NULL )
@@ -63,16 +65,23 @@ void songs_init()
 			Error( "Couldn't open descent.sng" );
 		}
 		i = 0;
-		while (cfgets(inputline, 80, fp ))
+		while (!PHYSFS_eof(fp))
 		{
+			cfgets(inputline, 80, fp );
 			if ( strlen( inputline ) )
 			{
 				Assert( i < MAX_NUM_SONGS );
+				memset(Songs[i].filename, '\0', sizeof(char)*16);
+				memset(Songs[i].melodic_bank_file, '\0', sizeof(char)*16);
+				memset(Songs[i].drum_bank_file, '\0', sizeof(char)*16);
 				sscanf( inputline, "%15s %15s %15s",
 						Songs[i].filename,
 						Songs[i].melodic_bank_file,
 						Songs[i].drum_bank_file );
-				i++;
+
+				if (strchr(Songs[i].filename, '.'))
+					if (!stricmp(strchr(Songs[i].filename, '.'), ".hmp"))
+						i++;
 			}
 		}
 		Num_songs = i;

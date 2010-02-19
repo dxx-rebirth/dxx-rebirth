@@ -3,6 +3,7 @@ D2X-Rebirth Changelog
 20100219
 --------
 main/gauges.c: The little light bulb showing homing warning in Cockpit was broken and I replaced it; Rewritten code to show weapon text in Cockpit and Statusbar slightly
+main/songs.c, main/songs.h: Making reading of descent.sng a bit more flexible; Not dynamically allocated, yet, since missions are not as well
 
 20100215
 --------
