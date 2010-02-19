@@ -59,22 +59,16 @@ typedef struct song_info {
 	char	drum_bank_file[16];
 } song_info;
 
-#define MAX_NUM_SONGS 27
-extern int Num_songs;   //how many MIDI songs
-
+extern int Num_songs;   //how many songs
 extern song_info Songs[];
 
 #define SONG_TITLE			0
 #define SONG_BRIEFING		1
 #define SONG_ENDLEVEL		2
-#define SONG_ENDGAME			3
-#define SONG_CREDITS			4
+#define SONG_ENDGAME		3
+#define SONG_CREDITS		4
 #define SONG_LEVEL_MUSIC	5
-#ifdef SHAREWARE
-#define NUM_GAME_SONGS		5
-#else
-#define NUM_GAME_SONGS          22
-#endif
+#define MAX_NUM_SONGS		(5+MAX_LEVELS_PER_MISSION+MAX_SECRET_LEVELS_PER_MISSION)
 
 void songs_play_song( int songnum, int repeat );
 void songs_play_level_song( int levelnum );

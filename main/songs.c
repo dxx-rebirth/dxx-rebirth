@@ -52,15 +52,16 @@ void set_extmusic_volume(int volume)
 
 void songs_init()
 {
-	int i;
+	int i = 0;
 	char inputline[80+1];
 	CFILE * fp;
 
+	memset(Songs, '\0', sizeof(Songs));
+
 	fp = cfopen( "descent.sng", "rb" );
-	if ( fp == NULL )	{
-		int i;
-		
-		for (i = 0; i < SONG_LEVEL_MUSIC + NUM_GAME_SONGS; i++) {
+	if ( fp == NULL ) // No descent.sng available. Define a default song-set
+	{
+		for (i = 0; i < MAX_NUM_SONGS; i++) {
 			strcpy(Songs[i].melodic_bank_file, "melodic.bnk");
 			strcpy(Songs[i].drum_bank_file, "drum.bnk");
 			if (i >= SONG_LEVEL_MUSIC)
@@ -80,62 +81,54 @@ void songs_init()
 		strcpy(Songs[SONG_CREDITS].filename, "credits.hmp");
 		strcpy(Songs[SONG_ENDLEVEL].filename, "endlevel.hmp");	// can't find it? give a warning
 		strcpy(Songs[SONG_ENDGAME].filename, "endgame.hmp");	// ditto
-		Num_songs = i;
-		return;
 	}
-
-	i = 0;
-	while (cfgets(inputline, 80, fp ))
+	else
 	{
-		if ( strlen( inputline ) )	{
-			Assert( i < MAX_NUM_SONGS );
-			sscanf( inputline, "%15s %15s %15s",
-					Songs[i].filename,
-					Songs[i].melodic_bank_file,
-					Songs[i].drum_bank_file );
-			i++;
+		while (!PHYSFS_eof(fp))
+		{
+			cfgets(inputline, 80, fp );
+			if ( strlen( inputline ) )
+			{
+				Assert( i < MAX_NUM_SONGS );
+				memset(Songs[i].filename, '\0', sizeof(char)*16);
+				memset(Songs[i].melodic_bank_file, '\0', sizeof(char)*16);
+				memset(Songs[i].drum_bank_file, '\0', sizeof(char)*16);
+				sscanf( inputline, "%15s %15s %15s",
+						Songs[i].filename,
+						Songs[i].melodic_bank_file,
+						Songs[i].drum_bank_file );
+
+				if (strchr(Songs[i].filename, '.'))
+					if (!stricmp(strchr(Songs[i].filename, '.'), ".hmp"))
+						i++;
+			}
 		}
-	}
 
-	// HACK: If Descent.hog is patched from 1.0 to 1.5, descent.sng is broken and will not exceed 12 songs. So let's HACK it here.
-	if (i==12)
-	{
-		sprintf(Songs[i].filename,"game08.hmp"); sprintf(Songs[i].melodic_bank_file,"rickmelo.bnk"); sprintf(Songs[i].drum_bank_file,"rickdrum.bnk");
-		i++;
-		sprintf(Songs[i].filename,"game09.hmp"); sprintf(Songs[i].melodic_bank_file,"melodic.bnk"); sprintf(Songs[i].drum_bank_file,"drum.bnk");
-		i++;
-		sprintf(Songs[i].filename,"game10.hmp"); sprintf(Songs[i].melodic_bank_file,"melodic.bnk"); sprintf(Songs[i].drum_bank_file,"drum.bnk");
-		i++;
-		sprintf(Songs[i].filename,"game11.hmp"); sprintf(Songs[i].melodic_bank_file,"intmelo.bnk"); sprintf(Songs[i].drum_bank_file,"intdrum.bnk");
-		i++;
-		sprintf(Songs[i].filename,"game12.hmp"); sprintf(Songs[i].melodic_bank_file,"melodic.bnk"); sprintf(Songs[i].drum_bank_file,"drum.bnk");
-		i++;
-		sprintf(Songs[i].filename,"game13.hmp"); sprintf(Songs[i].melodic_bank_file,"intmelo.bnk"); sprintf(Songs[i].drum_bank_file,"intdrum.bnk");
-		i++;
-		sprintf(Songs[i].filename,"game14.hmp"); sprintf(Songs[i].melodic_bank_file,"intmelo.bnk"); sprintf(Songs[i].drum_bank_file,"intdrum.bnk");
-		i++;
-		sprintf(Songs[i].filename,"game15.hmp"); sprintf(Songs[i].melodic_bank_file,"melodic.bnk"); sprintf(Songs[i].drum_bank_file,"drum.bnk");
-		i++;
-		sprintf(Songs[i].filename,"game16.hmp"); sprintf(Songs[i].melodic_bank_file,"melodic.bnk"); sprintf(Songs[i].drum_bank_file,"drum.bnk");
-		i++;
-		sprintf(Songs[i].filename,"game17.hmp"); sprintf(Songs[i].melodic_bank_file,"melodic.bnk"); sprintf(Songs[i].drum_bank_file,"drum.bnk");
-		i++;
-		sprintf(Songs[i].filename,"game18.hmp"); sprintf(Songs[i].melodic_bank_file,"intmelo.bnk"); sprintf(Songs[i].drum_bank_file,"intdrum.bnk");
-		i++;
-		sprintf(Songs[i].filename,"game19.hmp"); sprintf(Songs[i].melodic_bank_file,"melodic.bnk"); sprintf(Songs[i].drum_bank_file,"drum.bnk");
-		i++;
-		sprintf(Songs[i].filename,"game20.hmp"); sprintf(Songs[i].melodic_bank_file,"melodic.bnk"); sprintf(Songs[i].drum_bank_file,"drum.bnk");
-		i++;
-		sprintf(Songs[i].filename,"game21.hmp"); sprintf(Songs[i].melodic_bank_file,"intmelo.bnk"); sprintf(Songs[i].drum_bank_file,"intdrum.bnk");
-		i++;
-		sprintf(Songs[i].filename,"game22.hmp"); sprintf(Songs[i].melodic_bank_file,"hammelo.bnk"); sprintf(Songs[i].drum_bank_file,"hamdrum.bnk");
-		i++;
+		// HACK: If Descent.hog is patched from 1.0 to 1.5, descent.sng is broken and will not exceed 12 songs. So let's HACK it here.
+		if (i==12 && cfile_size("descent.sng")==422)
+		{
+			sprintf(Songs[i].filename,"game08.hmp"); sprintf(Songs[i].melodic_bank_file,"rickmelo.bnk"); sprintf(Songs[i].drum_bank_file,"rickdrum.bnk");
+			sprintf(Songs[i].filename,"game09.hmp"); sprintf(Songs[i].melodic_bank_file,"melodic.bnk"); sprintf(Songs[i].drum_bank_file,"drum.bnk");
+			sprintf(Songs[i].filename,"game10.hmp"); sprintf(Songs[i].melodic_bank_file,"melodic.bnk"); sprintf(Songs[i].drum_bank_file,"drum.bnk");
+			sprintf(Songs[i].filename,"game11.hmp"); sprintf(Songs[i].melodic_bank_file,"intmelo.bnk"); sprintf(Songs[i].drum_bank_file,"intdrum.bnk");
+			sprintf(Songs[i].filename,"game12.hmp"); sprintf(Songs[i].melodic_bank_file,"melodic.bnk"); sprintf(Songs[i].drum_bank_file,"drum.bnk");
+			sprintf(Songs[i].filename,"game13.hmp"); sprintf(Songs[i].melodic_bank_file,"intmelo.bnk"); sprintf(Songs[i].drum_bank_file,"intdrum.bnk");
+			sprintf(Songs[i].filename,"game14.hmp"); sprintf(Songs[i].melodic_bank_file,"intmelo.bnk"); sprintf(Songs[i].drum_bank_file,"intdrum.bnk");
+			sprintf(Songs[i].filename,"game15.hmp"); sprintf(Songs[i].melodic_bank_file,"melodic.bnk"); sprintf(Songs[i].drum_bank_file,"drum.bnk");
+			sprintf(Songs[i].filename,"game16.hmp"); sprintf(Songs[i].melodic_bank_file,"melodic.bnk"); sprintf(Songs[i].drum_bank_file,"drum.bnk");
+			sprintf(Songs[i].filename,"game17.hmp"); sprintf(Songs[i].melodic_bank_file,"melodic.bnk"); sprintf(Songs[i].drum_bank_file,"drum.bnk");
+			sprintf(Songs[i].filename,"game18.hmp"); sprintf(Songs[i].melodic_bank_file,"intmelo.bnk"); sprintf(Songs[i].drum_bank_file,"intdrum.bnk");
+			sprintf(Songs[i].filename,"game19.hmp"); sprintf(Songs[i].melodic_bank_file,"melodic.bnk"); sprintf(Songs[i].drum_bank_file,"drum.bnk");
+			sprintf(Songs[i].filename,"game20.hmp"); sprintf(Songs[i].melodic_bank_file,"melodic.bnk"); sprintf(Songs[i].drum_bank_file,"drum.bnk");
+			sprintf(Songs[i].filename,"game21.hmp"); sprintf(Songs[i].melodic_bank_file,"intmelo.bnk"); sprintf(Songs[i].drum_bank_file,"intdrum.bnk");
+			sprintf(Songs[i].filename,"game22.hmp"); sprintf(Songs[i].melodic_bank_file,"hammelo.bnk"); sprintf(Songs[i].drum_bank_file,"hamdrum.bnk");
+			i+=15;
+		}
 	}
 
 	Num_songs = i;
 	Songs_initialized = 1;
-	cfclose(fp);
-	
+	if (fp != NULL)	cfclose(fp);
 	if ( Songs_initialized ) return;
 	
 	//	Set up External Music - ie Redbook/Jukebox

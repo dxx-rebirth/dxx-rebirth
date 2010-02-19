@@ -4,6 +4,7 @@ D1X-Rebirth Changelog
 --------
 main/gauges.c, main/text.c, main/weapon.c: The little light bulb showing homing warning in Cockpit was broken and I replaced it; Rewritten code to show weapon text in Cockpit and Statusbar slightly; Instead of using hardcoded weapon strings, use from descent.txb and fixed too long spreadfire string properly
 main/text.c: Small fix for most recent commit: Removed an obsolete d_free
+main/songs.c, main/songs.h: Making reading of descent.sng a bit more flexible; Not dynamically allocated, yet, since missions are not as well
 
 20100214
 --------
