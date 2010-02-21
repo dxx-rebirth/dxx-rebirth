@@ -63,22 +63,15 @@ extern void InitWeaponOrdering();
 
 int new_player_config()
 {
-	int i,j;
-	int mct=CONTROL_MAX_TYPES;
-
+	int i=0;
+	
 	for (i=0;i<N_SAVE_SLOTS;i++)
 		saved_games[i].name[0] = 0;
 
-	mct--;
-
-	PlayerCfg.ControlType=CONTROL_NONE; // Assume keyboard
 	InitWeaponOrdering (); //setup default weapon priorities
-
-	for (i=0;i<CONTROL_MAX_TYPES; i++ )
-		for (j=0;j<MAX_CONTROLS; j++ )
-			PlayerCfg.KeySettings[i][j] = DefaultKeySettings[i][j];
-	for(i=0; i < MAX_D1X_CONTROLS; i++)
-		PlayerCfg.KeySettingsD1X[i] = DefaultKeySettingsD1X[i];
+	PlayerCfg.ControlType=0; // Assume keyboard
+	memcpy(PlayerCfg.KeySettings, DefaultKeySettings, sizeof(DefaultKeySettings));
+	memcpy(PlayerCfg.KeySettingsD1X, DefaultKeySettingsD1X, sizeof(DefaultKeySettingsD1X));
 	kc_set_controls();
 
 	PlayerCfg.DefaultDifficulty = 1;
@@ -702,12 +695,16 @@ int read_player_file()
 
 	//read kconfig data
 	{
-		int i,j;
 		ubyte dummy_joy_sens;
-		for(i=0;i<CONTROL_MAX_TYPES;i++)
-			for(j=0;j<MAX_NOND1X_CONTROLS;j++)
-				if(PHYSFS_read(file, &PlayerCfg.KeySettings[i][j], sizeof(ubyte),1)!=1)
-					goto read_player_file_failed;
+
+		if (PHYSFS_read(file, &PlayerCfg.KeySettings[0], sizeof(PlayerCfg.KeySettings[0]),1)!=1)
+			goto read_player_file_failed;
+		if (PHYSFS_read(file, &PlayerCfg.KeySettings[1], sizeof(PlayerCfg.KeySettings[1]),1)!=1)
+			goto read_player_file_failed;
+		PHYSFS_seek( file, PHYSFS_tell(file)+(sizeof(ubyte)*MAX_CONTROLS*3) ); // Skip obsolete Flightstick/Thrustmaster/Gravis map fields
+		if (PHYSFS_read(file, &PlayerCfg.KeySettings[2], sizeof(PlayerCfg.KeySettings[2]),1)!=1)
+			goto read_player_file_failed;
+		PHYSFS_seek( file, PHYSFS_tell(file)+(sizeof(ubyte)*MAX_CONTROLS) ); // Skip obsolete Cyberman map field
 		if (PHYSFS_read(file, &PlayerCfg.ControlType, sizeof(ubyte), 1 )!=1)
 			goto read_player_file_failed;
 		else if (PHYSFS_read(file, &dummy_joy_sens, sizeof(ubyte), 1 )!=1)
@@ -820,7 +817,7 @@ int write_player_file()
 {
 	char filename[32];
 	PHYSFS_file *file;
-	int errno_ret;
+	int errno_ret, i;
 
 	if ( Newdemo_state == ND_STATE_PLAYBACK )
 		return -1;
@@ -878,13 +875,18 @@ int write_player_file()
 
 	//write kconfig info
 	{
-		int i,j;
-		for(i=0;i<CONTROL_MAX_TYPES;i++) {
-			for(j=0;j<MAX_NOND1X_CONTROLS;j++) {
-				if(PHYSFS_write( file,  &PlayerCfg.KeySettings[i][j], sizeof(PlayerCfg.KeySettings[i][j]), 1)!=1)
-					errno_ret=errno;
-			}
-		}
+		if (PHYSFS_write(file, PlayerCfg.KeySettings[0], sizeof(PlayerCfg.KeySettings[0]), 1) != 1)
+			errno_ret=errno;
+		if (PHYSFS_write(file, PlayerCfg.KeySettings[1], sizeof(PlayerCfg.KeySettings[1]), 1) != 1)
+			errno_ret=errno;
+		for (i = 0; i < MAX_CONTROLS*3; i++)
+			if (PHYSFS_write(file, "0", sizeof(ubyte), 1) != 1) // Skip obsolete Flightstick/Thrustmaster/Gravis map fields
+				errno_ret=errno;
+		if (PHYSFS_write(file, PlayerCfg.KeySettings[2], sizeof(PlayerCfg.KeySettings[2]), 1) != 1)
+			errno_ret=errno;
+		for (i = 0; i < MAX_CONTROLS; i++)
+			if (PHYSFS_write(file, "0", sizeof(ubyte), 1) != 1) // Skip obsolete Cyberman map field
+				errno_ret=errno;
 	
 		if(errno_ret == EZERO)
 		{

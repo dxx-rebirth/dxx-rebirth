@@ -52,47 +52,25 @@ typedef struct _control_info {
         ubyte   cycle_secondary_down_count;
 } control_info;
 
-#define CONTROL_NONE 0
-#define CONTROL_JOYSTICK 1
-#define CONTROL_MOUSE 5
-#define CONTROL_MAX_TYPES 7
-#define CONTROL_JOYMOUSE 8
-
-// old stuff - kept for compability reasons
-#define CONTROL_FLIGHTSTICK_PRO 2
-#define CONTROL_THRUSTMASTER_FCS 3
-#define CONTROL_GRAVIS_GAMEPAD 4
-#define CONTROL_CYBERMAN 6
-
+#define CONTROL_USING_JOYSTICK	1
+#define CONTROL_USING_MOUSE		2
 #define NUM_D1X_CONTROLS 24
 #define MAX_D1X_CONTROLS 40
 #define NUM_KEY_CONTROLS 46
 #define NUM_JOYSTICK_CONTROLS 44
 #define NUM_MOUSE_CONTROLS 29
-#define MAX_CONTROLS 62
-#define MAX_NOND1X_CONTROLS 50
+#define MAX_CONTROLS 50
+
 extern control_info Controls;
 extern void controls_read_all(int automap_flag);
 extern void kconfig(int n, char *title);
 
 extern ubyte DefaultKeySettingsD1X[MAX_D1X_CONTROLS];
-
-extern ubyte DefaultKeySettings[CONTROL_MAX_TYPES][MAX_CONTROLS];
-
-extern char *control_text[CONTROL_MAX_TYPES];
+extern ubyte DefaultKeySettings[3][MAX_CONTROLS];
 
 extern void kc_set_controls();
 
-// Tries to use vfx1 head tracking.
-void kconfig_sense_init();
-
 //set the cruise speed to zero
 extern void reset_cruise(void);
-
-extern int kconfig_is_axes_used(int axis);
-
-extern int isJoyRotationKey(int test_key);       //tells if "test_key" is setup for rotation on the joy
-extern int isMouseRotationKey(int test_key);     //tells if "test_key" is setup for rotation on the mouse
-extern int isKeyboardRotationKey(int test_key);  //tells if "test_key" is setup for rotation on the keyboard
 
 #endif /* _KCONFIG_H */

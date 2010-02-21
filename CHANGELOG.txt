@@ -1,5 +1,9 @@
 D1X-Rebirth Changelog
 
+20100221
+--------
+main/kconfig.c, main/kconfig.h, main/menu.c, main/playsave.c, main/playsave.h, main/text.h: Overhaul for CONTROLS menu; Cleaned kconfig-code a little and slacked out keymap arrays
+
 20100219
 --------
 main/gauges.c, main/text.c, main/weapon.c: The little light bulb showing homing warning in Cockpit was broken and I replaced it; Rewritten code to show weapon text in Cockpit and Statusbar slightly; Instead of using hardcoded weapon strings, use from descent.txb and fixed too long spreadfire string properly

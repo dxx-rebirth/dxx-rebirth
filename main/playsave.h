@@ -53,7 +53,7 @@ typedef struct player_config
 	ubyte ControlType;
 	ubyte PrimaryOrder[MAX_PRIMARY_WEAPONS+1];
 	ubyte SecondaryOrder[MAX_SECONDARY_WEAPONS+1];
-	ubyte KeySettings[CONTROL_MAX_TYPES][MAX_CONTROLS];
+	ubyte KeySettings[3][MAX_CONTROLS];
 	ubyte KeySettingsD1X[MAX_D1X_CONTROLS];
 	int DefaultDifficulty;
 	int AutoLeveling;
