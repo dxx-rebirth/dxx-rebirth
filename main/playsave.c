@@ -85,19 +85,10 @@ extern void InitWeaponOrdering();
 
 int new_player_config()
 {
-	int i,j;
-	int mct=CONTROL_MAX_TYPES;
- 
-	mct--;
-
-	PlayerCfg.ControlType=CONTROL_NONE; // Assume keyboard
-	InitWeaponOrdering (); //setup default weapon prioritiess
-
-	for (i=0;i<CONTROL_MAX_TYPES; i++ )
-		for (j=0;j<MAX_CONTROLS; j++ )
-			PlayerCfg.KeySettings[i][j] = DefaultKeySettings[i][j];
-	for(i=0; i < MAX_D2X_CONTROLS; i++)
-		PlayerCfg.KeySettingsD2X[i] = DefaultKeySettingsD2X[i];
+	InitWeaponOrdering (); //setup default weapon priorities
+	PlayerCfg.ControlType=0; // Assume keyboard
+	memcpy(PlayerCfg.KeySettings, DefaultKeySettings, sizeof(DefaultKeySettings));
+	memcpy(PlayerCfg.KeySettingsD2X, DefaultKeySettingsD2X, sizeof(DefaultKeySettingsD2X));
 	kc_set_controls();
 
 	PlayerCfg.DefaultDifficulty = 1;
@@ -428,12 +419,19 @@ int read_player_file()
 
 	//read kconfig data
 	{
-		int n_control_types = (player_file_version<20)?7:CONTROL_MAX_TYPES;
 		ubyte dummy_joy_sens;
 
-		if (PHYSFS_read(file, PlayerCfg.KeySettings, MAX_CONTROLS*n_control_types, 1) != 1)
+		if (PHYSFS_read(file, &PlayerCfg.KeySettings[0], sizeof(PlayerCfg.KeySettings[0]),1)!=1)
 			goto read_player_file_failed;
-		else if (PHYSFS_read(file, (ubyte *)&control_type_dos, sizeof(ubyte), 1) != 1)
+		if (PHYSFS_read(file, &PlayerCfg.KeySettings[1], sizeof(PlayerCfg.KeySettings[1]),1)!=1)
+			goto read_player_file_failed;
+		PHYSFS_seek( file, PHYSFS_tell(file)+(sizeof(ubyte)*MAX_CONTROLS*3) ); // Skip obsolete Flightstick/Thrustmaster/Gravis map fields
+		if (PHYSFS_read(file, &PlayerCfg.KeySettings[2], sizeof(PlayerCfg.KeySettings[2]),1)!=1)
+			goto read_player_file_failed;
+		PHYSFS_seek( file, PHYSFS_tell(file)+(sizeof(ubyte)*MAX_CONTROLS) ); // Skip obsolete Cyberman map field
+		if (player_file_version>=20)
+			PHYSFS_seek( file, PHYSFS_tell(file)+(sizeof(ubyte)*MAX_CONTROLS) ); // Skip obsolete Winjoy map field
+		if (PHYSFS_read(file, (ubyte *)&control_type_dos, sizeof(ubyte), 1) != 1)
 			goto read_player_file_failed;
 		else if (player_file_version >= 21 && PHYSFS_read(file, (ubyte *)&control_type_win, sizeof(ubyte), 1) != 1)
 			goto read_player_file_failed;
@@ -661,13 +659,23 @@ int write_player_file()
 		ubyte old_avg_joy_sensitivity = ((PlayerCfg.JoystickSensitivityX+PlayerCfg.JoystickSensitivityY+1)/2);
 		control_type_dos = PlayerCfg.ControlType;
 
-		if (PHYSFS_write(file, PlayerCfg.KeySettings, MAX_CONTROLS*CONTROL_MAX_TYPES, 1) != 1)
+		if (PHYSFS_write(file, PlayerCfg.KeySettings[0], sizeof(PlayerCfg.KeySettings[0]), 1) != 1)
 			goto write_player_file_failed;
-		else if (PHYSFS_write(file, &control_type_dos, sizeof(ubyte), 1) != 1)
+		if (PHYSFS_write(file, PlayerCfg.KeySettings[1], sizeof(PlayerCfg.KeySettings[1]), 1) != 1)
 			goto write_player_file_failed;
-		else if (PHYSFS_write(file, &control_type_win, sizeof(ubyte), 1) != 1)
+		for (i = 0; i < MAX_CONTROLS*3; i++)
+			if (PHYSFS_write(file, "0", sizeof(ubyte), 1) != 1) // Skip obsolete Flightstick/Thrustmaster/Gravis map fields
+				goto write_player_file_failed;
+		if (PHYSFS_write(file, PlayerCfg.KeySettings[2], sizeof(PlayerCfg.KeySettings[2]), 1) != 1)
 			goto write_player_file_failed;
-		else if (PHYSFS_write(file, &old_avg_joy_sensitivity, sizeof(ubyte), 1) != 1)
+		for (i = 0; i < MAX_CONTROLS*2; i++)
+			if (PHYSFS_write(file, "0", sizeof(ubyte), 1) != 1) // Skip obsolete Cyberman/Winjoy map fields
+				goto write_player_file_failed;
+		if (PHYSFS_write(file, &control_type_dos, sizeof(ubyte), 1) != 1)
+			goto write_player_file_failed;
+		if (PHYSFS_write(file, &control_type_win, sizeof(ubyte), 1) != 1)
+			goto write_player_file_failed;
+		if (PHYSFS_write(file, &old_avg_joy_sensitivity, sizeof(ubyte), 1) != 1)
 			goto write_player_file_failed;
 
 		for (i = 0; i < 11; i++)

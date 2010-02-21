@@ -983,7 +983,6 @@ void change_res()
 
 int input_menuset(newmenu *menu, d_event *event, void *userdata)
 {
-	int i;
 	newmenu_item *items = newmenu_get_items(menu);
 	int citem = newmenu_get_citem(menu);
 
@@ -994,48 +993,39 @@ int input_menuset(newmenu *menu, d_event *event, void *userdata)
 		case EVENT_NEWMENU_CHANGED:
 			switch (citem)
 			{
-				case 0:
-				case 1:
-				case 2:
-				case 3:
-					PlayerCfg.ControlType = citem;
-					if (PlayerCfg.ControlType == 2) PlayerCfg.ControlType = CONTROL_MOUSE;
-					if (PlayerCfg.ControlType == 3) PlayerCfg.ControlType = CONTROL_JOYMOUSE;
-					kc_set_controls();
-					break;
-				
-				case 10:	PlayerCfg.JoystickSensitivityX = items[citem].value; break;
-				case 11:	PlayerCfg.JoystickSensitivityY = items[citem].value; break;
-				case 12:	PlayerCfg.JoystickDeadzone = items[citem].value; break;
-				case 15:	PlayerCfg.MouseSensitivityX = items[citem].value; break;
-				case 16:	PlayerCfg.MouseSensitivityY = items[citem].value; break;
-				case 17:	PlayerCfg.MouseFilter = items[citem].value; break;
+				case 0:		(items[citem].value)?(PlayerCfg.ControlType|=CONTROL_USING_JOYSTICK):(PlayerCfg.ControlType&=~CONTROL_USING_JOYSTICK); break; 
+				case 1:		(items[citem].value)?(PlayerCfg.ControlType|=CONTROL_USING_MOUSE):(PlayerCfg.ControlType&=~CONTROL_USING_MOUSE); break; 
+				case 9:		PlayerCfg.JoystickSensitivityX = items[citem].value; break;
+				case 10:	PlayerCfg.JoystickSensitivityY = items[citem].value; break;
+				case 11:	PlayerCfg.JoystickDeadzone = items[citem].value; break;
+				case 14:	PlayerCfg.MouseSensitivityX = items[citem].value; break;
+				case 15:	PlayerCfg.MouseSensitivityY = items[citem].value; break;
+				case 16:	PlayerCfg.MouseFilter = items[citem].value; break;
 			}
 			break;
 			
 		case EVENT_NEWMENU_SELECTED:
-			i = PlayerCfg.ControlType;
-			if (i == CONTROL_MOUSE) i = 2;
-			if (i == CONTROL_JOYMOUSE) i = 3;
-
 			switch (citem)
 			{
-				case 5:
-					kconfig(i, items[i].text);
-					break;
-				case 6:
+				case 3:
 					kconfig(0, "KEYBOARD");
 					break;
-				case 7:
-					kconfig(4, "WEAPON KEYS");
+				case 4:
+					kconfig(1, "JOYSTICK");
 					break;
-				case 19:
+				case 5:
+					kconfig(2, "MOUSE");
+					break;
+				case 6:
+					kconfig(3, "WEAPON KEYS");
+					break;
+				case 18:
 					show_help();
 					break;
-				case 20:
+				case 19:
 					show_netgame_help();
 					break;
-				case 21:
+				case 20:
 					show_newdemo_help();
 					break;
 			}
@@ -1051,39 +1041,32 @@ int input_menuset(newmenu *menu, d_event *event, void *userdata)
 
 void input_config()
 {
-	newmenu_item m[22];
-	int i;
-	int nitems = 22;
+	newmenu_item m[21];
+	int nitems = 21;
 
-	m[0].type = NM_TYPE_RADIO;  m[0].text = "KEYBOARD"; m[0].value = 0; m[0].group = 0;
-	m[1].type = NM_TYPE_RADIO;  m[1].text = "JOYSTICK"; m[1].value = 0; m[1].group = 0;
-	m[2].type = NM_TYPE_RADIO;  m[2].text = "MOUSE";    m[2].value = 0; m[2].group = 0;
-	m[3].type = NM_TYPE_RADIO;  m[3].text = "JOYSTICK & MOUSE"; m[3].value = 0; m[3].group = 0;
-	m[4].type = NM_TYPE_TEXT;   m[4].text = "";
-	m[5].type = NM_TYPE_MENU;   m[5].text = TXT_CUST_ABOVE;
-	m[6].type = NM_TYPE_MENU;   m[6].text = TXT_CUST_KEYBOARD;
-	m[7].type = NM_TYPE_MENU;   m[7].text = "CUSTOMIZE WEAPON KEYS";
-	m[8].type = NM_TYPE_TEXT;   m[8].text = "";
-	m[9].type = NM_TYPE_TEXT;   m[9].text = "Joystick";
-	m[10].type = NM_TYPE_SLIDER; m[10].text="X Sensitivity"; m[10].value=PlayerCfg.JoystickSensitivityX; m[10].min_value = 0; m[10].max_value = 16;
-	m[11].type = NM_TYPE_SLIDER; m[11].text="Y Sensitivity"; m[11].value=PlayerCfg.JoystickSensitivityY; m[11].min_value = 0; m[11].max_value = 16;
-	m[12].type = NM_TYPE_SLIDER; m[12].text="Deadzone"; m[12].value=PlayerCfg.JoystickDeadzone; m[12].min_value=0; m[12].max_value = 16;
-	m[13].type = NM_TYPE_TEXT;   m[13].text = "";
-	m[14].type = NM_TYPE_TEXT;   m[14].text = "Mouse";
-	m[15].type = NM_TYPE_SLIDER; m[15].text="X Sensitivity"; m[15].value=PlayerCfg.MouseSensitivityX; m[15].min_value = 0; m[15].max_value = 16;
-	m[16].type = NM_TYPE_SLIDER; m[16].text="Y Sensitivity"; m[16].value=PlayerCfg.MouseSensitivityY; m[16].min_value = 0; m[16].max_value = 16;
-	m[17].type = NM_TYPE_CHECK;  m[17].text="Mouse Smoothing/Filtering"; m[17].value=PlayerCfg.MouseFilter;
-	m[18].type = NM_TYPE_TEXT;   m[18].text = "";
-	m[19].type = NM_TYPE_MENU;   m[19].text = "GAME SYSTEM KEYS";
-	m[20].type = NM_TYPE_MENU;   m[20].text = "NETGAME SYSTEM KEYS";
-	m[21].type = NM_TYPE_MENU;   m[21].text = "DEMO SYSTEM KEYS";
+	m[0].type = NM_TYPE_CHECK;  m[0].text = "USE JOYSTICK"; m[0].value = (PlayerCfg.ControlType&CONTROL_USING_JOYSTICK);
+	m[1].type = NM_TYPE_CHECK;  m[1].text = "USE MOUSE"; m[1].value = (PlayerCfg.ControlType&CONTROL_USING_MOUSE);
+	m[2].type = NM_TYPE_TEXT;   m[2].text = "";
+	m[3].type = NM_TYPE_MENU;   m[3].text = "CUSTOMIZE KEYBOARD";
+	m[4].type = NM_TYPE_MENU;   m[4].text = "CUSTOMIZE JOYSTICK";
+	m[5].type = NM_TYPE_MENU;   m[5].text = "CUSTOMIZE MOUSE";
+	m[6].type = NM_TYPE_MENU;   m[6].text = "CUSTOMIZE WEAPON KEYS";
+	m[7].type = NM_TYPE_TEXT;   m[7].text = "";
+	m[8].type = NM_TYPE_TEXT;   m[8].text = "Joystick";
+	m[9].type = NM_TYPE_SLIDER; m[9].text="X Sensitivity"; m[9].value=PlayerCfg.JoystickSensitivityX; m[9].min_value = 0; m[9].max_value = 16;
+	m[10].type = NM_TYPE_SLIDER; m[10].text="Y Sensitivity"; m[10].value=PlayerCfg.JoystickSensitivityY; m[10].min_value = 0; m[10].max_value = 16;
+	m[11].type = NM_TYPE_SLIDER; m[11].text="Deadzone"; m[11].value=PlayerCfg.JoystickDeadzone; m[11].min_value=0; m[11].max_value = 16;
+	m[12].type = NM_TYPE_TEXT;   m[12].text = "";
+	m[13].type = NM_TYPE_TEXT;   m[13].text = "Mouse";
+	m[14].type = NM_TYPE_SLIDER; m[14].text="X Sensitivity"; m[14].value=PlayerCfg.MouseSensitivityX; m[14].min_value = 0; m[14].max_value = 16;
+	m[15].type = NM_TYPE_SLIDER; m[15].text="Y Sensitivity"; m[15].value=PlayerCfg.MouseSensitivityY; m[15].min_value = 0; m[15].max_value = 16;
+	m[16].type = NM_TYPE_CHECK;  m[16].text="Mouse Smoothing/Filtering"; m[16].value=PlayerCfg.MouseFilter;
+	m[17].type = NM_TYPE_TEXT;   m[17].text = "";
+	m[18].type = NM_TYPE_MENU;   m[18].text = "GAME SYSTEM KEYS";
+	m[19].type = NM_TYPE_MENU;   m[19].text = "NETGAME SYSTEM KEYS";
+	m[20].type = NM_TYPE_MENU;   m[20].text = "DEMO SYSTEM KEYS";
 
-	i = PlayerCfg.ControlType;
-	if (i == CONTROL_MOUSE) i = 2;
-	if (i==CONTROL_JOYMOUSE) i = 3;
-	m[i].value = 1;
-
-	newmenu_do1(NULL, TXT_CONTROLS, nitems, m, input_menuset, NULL, 5);
+	newmenu_do1(NULL, TXT_CONTROLS, nitems, m, input_menuset, NULL, 3);
 }
 
 void do_graphics_menu()

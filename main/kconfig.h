@@ -143,36 +143,26 @@ typedef struct advanced_ext_control_info {
 
 } advanced_ext_control_info;
 
+#define CONTROL_USING_JOYSTICK	1
+#define CONTROL_USING_MOUSE		2
 #define NUM_D2X_CONTROLS    20
 #define MAX_D2X_CONTROLS    40
-
 #define NUM_KEY_CONTROLS    57
 #define NUM_JOYSTICK_CONTROLS  56
 #define NUM_MOUSE_CONTROLS  30
 #define MAX_CONTROLS        60		// there are actually 48, so this leaves room for more
+#define D2X_KEYS 1
 
 extern control_info Controls;
 extern void controls_read_all(int automap_flag);
 extern void kconfig(int n, char *title);
 
 extern ubyte DefaultKeySettingsD2X[MAX_D2X_CONTROLS];
-
-extern ubyte DefaultKeySettings[CONTROL_MAX_TYPES][MAX_CONTROLS];
-
-extern char *control_text[CONTROL_MAX_TYPES];
+extern ubyte DefaultKeySettings[3][MAX_CONTROLS];
 
 extern void kc_set_controls();
 
-// Tries to use vfx1 head tracking.
-void kconfig_sense_init();
-
 //set the cruise speed to zero
 extern void reset_cruise(void);
-
-extern int kconfig_is_axes_used(int axis);
-
-extern int isJoyRotationKey(int test_key);       //tells if "test_key" is setup for rotation on the joy
-extern int isMouseRotationKey(int test_key);     //tells if "test_key" is setup for rotation on the mouse
-extern int isKeyboardRotationKey(int test_key);  //tells if "test_key" is setup for rotation on the keyboard
 
 #endif /* _KCONFIG_H */

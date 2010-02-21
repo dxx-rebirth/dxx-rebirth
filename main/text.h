@@ -667,9 +667,6 @@ extern char *Text_string[];
 #define PRIMARY_WEAPON_NAMES_SHORT(weapon_num) (*(&TXT_W_LASER_S + (weapon_num)))
 #define SECONDARY_WEAPON_NAMES_SHORT(weapon_num) (*(&TXT_W_C_MISSILE_S + (weapon_num)))
 
-//  Control configuration strings.
-#define CONTROL_TEXT(control_type) (*(&TXT_CONTROL_KEYBOARD + (control_type)))
-
 // Network connect states
 #define CONNECT_STATES(state_num) (*(&TXT_NET_DISCONNECTED + (state_num)))
 // Network dump strings
