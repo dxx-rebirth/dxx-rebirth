@@ -5,6 +5,7 @@ D2X-Rebirth Changelog
 SConstruct: Removing svnmicro as micro numbering option since SVN-revisions will not really represent logical numbering; Some cleaning for libs usage; Small cleanup
 SConstruct, main/multi.h, main/net_udp.c, main/net_udp.h, main/vers_id.h: Make Version-check for UDP also cover Micro-versions; Making sure versioning will act same way as conf.h for MacOS
 main/game.c, main/multi.c: Add to help how to send a message to a specific player in Multiplayer; Removed NoBombs command as this is covered by the weapons selection in Multiplayer game creation
+main/songs.c: Adding a Failsafe to Songs-reading so it will not accidentially read over current Array-boundaries
 
 20100221
 --------
