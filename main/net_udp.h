@@ -35,7 +35,7 @@ void net_udp_send_netgame_update();
 
 // Following are static defines for the buffer size of various packets. IF you change the packets, you must change the size, too.
 #define UPKT_MAX_SIZE 1024 // Max size for a packet - just for the buffers
-#define UPKT_GAME_INFO_REQ_SIZE 9 
+#define UPKT_GAME_INFO_REQ_SIZE 11 
 #define UPKT_SEQUENCE_SIZE 14
 #define UPKT_PING_SIZE 33
 #define UPKT_PONG_SIZE 6
@@ -67,7 +67,7 @@ void net_udp_send_netgame_update();
 typedef struct UDP_netgame_info_lite
 {
 	struct _sockaddr				game_addr;
-	int								program_iver;
+	short							program_iver[3];
 	char                            game_name[NETGAME_NAME_LEN+1];
 	char                            mission_title[MISSION_NAME_LEN+1];
 	char                            mission_name[9];

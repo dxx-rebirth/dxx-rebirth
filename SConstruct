@@ -11,9 +11,7 @@ PROGRAM_NAME = 'D2X-Rebirth'
 D2XMAJOR = 0
 D2XMINOR = 55
 D2XMICRO = 1
-VERSION_STRING = ' v' + str(D2XMAJOR) + '.' + str(D2XMINOR)
-if (D2XMICRO):
-	VERSION_STRING += '.' + str(D2XMICRO)
+VERSION_STRING = ' v' + str(D2XMAJOR) + '.' + str(D2XMINOR) + '.' + str(D2XMICRO)
 
 # installation path
 PREFIX = str(ARGUMENTS.get('prefix', '/usr/local'))
@@ -281,14 +279,11 @@ env["RANLIBCOMSTR"] = "Indexing $TARGET ..."
 env.ParseConfig('sdl-config --cflags')
 env.ParseConfig('sdl-config --libs')
 env.Append(CPPFLAGS = ['-Wall', '-funsigned-char'])
-env.Append(CPPDEFINES = [('PROGRAM_NAME', '\\"' + str(PROGRAM_NAME) + '\\"'), ('D2XMAJOR', '\\"' + str(D2XMAJOR) + '\\"'), ('D2XMINOR', '\\"' + str(D2XMINOR) + '\\"')])
+env.Append(CPPDEFINES = [('PROGRAM_NAME', '\\"' + str(PROGRAM_NAME) + '\\"'), ('D2XMAJOR', '\\"' + str(D2XMAJOR) + '\\"'), ('D2XMINOR', '\\"' + str(D2XMINOR) + '\\"'), ('D2XMICRO', '\\"' + str(D2XMICRO) + '\\"')])
 env.Append(CPPDEFINES = ['NETWORK', '_REENTRANT'])
 env.Append(CPPPATH = ['include', 'main', 'arch/include'])
 libs = env['LIBS']
 libs += ['physfs']
-
-if (D2XMICRO):
-	env.Append(CPPDEFINES = [('D2XMICRO', '\\"' + str(D2XMICRO) + '\\"')])
 
 # Get traditional compiler environment variables
 if os.environ.has_key('CC'):
