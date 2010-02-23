@@ -1,5 +1,9 @@
 D2X-Rebirth Changelog
 
+20100224
+--------
+main/kconfig.c: Due to the change of GameCfg.ControlType, Mouselook was broken - fixed
+
 20100223
 --------
 SConstruct: Removing svnmicro as micro numbering option since SVN-revisions will not really represent logical numbering; Some cleaning for libs usage; Small cleanup
