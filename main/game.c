@@ -952,9 +952,8 @@ void show_netgame_help()
 
 	m[nitems].type = NM_TYPE_TEXT; m[nitems++].text = "";
 	m[nitems].type = NM_TYPE_TEXT; m[nitems++].text = "MULTIPLAYER MESSAGE COMMANDS:";
-	m[nitems].type = NM_TYPE_TEXT; m[nitems++].text = "!Names\t  TOGGLE NAMES RETURN";
 	m[nitems].type = NM_TYPE_TEXT; m[nitems++].text = "Handicap: (*)\t  SET YOUR STARTING SHIELDS TO (*) [10-100]";
-	m[nitems].type = NM_TYPE_TEXT; m[nitems++].text = "NoBombs\t  TOGGLE SMART BOMBS (Host-only)";
+	m[nitems].type = NM_TYPE_TEXT; m[nitems++].text = "(*): TEXT\t  SEND TEXT TO PLAYER (*)";
 	m[nitems].type = NM_TYPE_TEXT; m[nitems++].text = "move: (*)\t  MOVE PLAYER (*) TO OTHER TEAM (Host-only)";
 	m[nitems].type = NM_TYPE_TEXT; m[nitems++].text = "kick: (*)\t  KICK PLAYER (*) FROM GAME (Host-only)";
 	m[nitems].type = NM_TYPE_TEXT; m[nitems++].text = "KillReactor\t  BLOW UP THE MINE (Host-only)";

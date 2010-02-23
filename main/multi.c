@@ -1274,8 +1274,6 @@ void multi_send_message_end()
 		HUD_init_message ("Telling others of your handicap of %d!",StartingShields);
 		StartingShields=i2f(StartingShields);
 	}
-	else if (!strnicmp (Network_message,"NoBombs",7))
-		Netgame.AllowedItems &= ~NETFLAG_DOSMARTMINE;
 	else if (!strnicmp (Network_message,"move:",5))
 	{
 		if ((Game_mode & GM_NETWORK) && (Game_mode & GM_TEAM))
