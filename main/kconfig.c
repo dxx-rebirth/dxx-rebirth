@@ -1735,7 +1735,7 @@ void controls_read_all(int automap_flag)
 
 //----------- Clamp values between -FrameTime and FrameTime
 	// ZICO - remove clamp for pitch and heading if mouselook on and no multiplayer game
-	if ((PlayerCfg.ControlType != 5) || !GameArg.CtlMouselook || (Game_mode & GM_MULTI) ) {
+	if ((!(PlayerCfg.ControlType & CONTROL_USING_MOUSE)) || !GameArg.CtlMouselook || (Game_mode & GM_MULTI) ) {
 		if (Controls.pitch_time > FrameTime/2 ) Controls.pitch_time = FrameTime/2;
 		if (Controls.heading_time > FrameTime ) Controls.heading_time = FrameTime;
 		if (Controls.pitch_time < -FrameTime/2 ) Controls.pitch_time = -FrameTime/2;
