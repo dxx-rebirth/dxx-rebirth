@@ -5,14 +5,11 @@
 
 #define VERSION_NAME	"Registered v1.5 Jan 5, 1996"
 #define VERSION_TYPE	"REGISTERED"
-
-#ifdef D1XMICRO
 #define VERSION D1XMAJOR "." D1XMINOR "." D1XMICRO
-#else
-#define VERSION D1XMAJOR "." D1XMINOR
-#endif
-
-#define D1X_IVER (atoi(D1XMAJOR)*10000+atoi(D1XMINOR)*100)
 #define DESCENT_VERSION "D1X-Rebirth v" VERSION
+
+#define D1XMAJORi atoi(D1XMAJOR)
+#define D1XMINORi atoi(D1XMINOR)
+#define D1XMICROi atoi(D1XMICRO)
 
 #endif /* _VERS_ID */

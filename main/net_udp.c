@@ -341,14 +341,7 @@ void net_udp_game_connect(struct _sockaddr HostAddr)
 		
 		if (Netgame.protocol.udp.valid == -1)
 		{
-			int hmaj = 0, hmin = 0, cmaj = 0, cmin = 0;
-			
-			// This calculation bases on vers_id.h
-			hmaj = Netgame.protocol.udp.program_iver/10000;
-			hmin = (Netgame.protocol.udp.program_iver-(hmaj*10000))/100;
-			cmaj = D1X_IVER/10000;
-			cmin = (D1X_IVER-(cmaj*10000))/100;
-			nm_messagebox(TXT_ERROR,1,TXT_OK,"Version mismatch! Cannot join Game.\nHost game version: %i.%i\nYour game version: %i.%i",hmaj,hmin,cmaj,cmin);
+			nm_messagebox(TXT_ERROR,1,TXT_OK,"Version mismatch! Cannot join Game.\nHost game version: %i.%i.%i\nYour game version: %s",Netgame.protocol.udp.program_iver[0],Netgame.protocol.udp.program_iver[1],Netgame.protocol.udp.program_iver[2],VERSION);
 			return;
 		}
 		
@@ -1516,17 +1509,21 @@ void net_udp_send_endlevel_packet(void)
 
 void net_udp_send_version_deny(struct _sockaddr sender_addr)
 {
-	ubyte buf[5];
+	ubyte buf[7];
 	
 	buf[0] = UPID_VERSION_DENY;
-	PUT_INTEL_INT(buf + 1, D1X_IVER);
+	PUT_INTEL_SHORT(buf + 1, D1XMAJORi);
+	PUT_INTEL_SHORT(buf + 3, D1XMINORi);
+	PUT_INTEL_SHORT(buf + 5, D1XMICROi);
 	
 	sendto (UDP_Socket[0], buf, sizeof(buf), 0, (struct sockaddr *)&sender_addr, sizeof(struct _sockaddr));
 }
 
 void net_udp_process_version_deny(ubyte *data, struct _sockaddr sender_addr)
 {
-	Netgame.protocol.udp.program_iver = GET_INTEL_INT(&data[1]);
+	Netgame.protocol.udp.program_iver[0] = GET_INTEL_SHORT(&data[1]);
+	Netgame.protocol.udp.program_iver[1] = GET_INTEL_SHORT(&data[3]);
+	Netgame.protocol.udp.program_iver[2] = GET_INTEL_SHORT(&data[5]);
 	Netgame.protocol.udp.valid = -1;
 }
 
@@ -1536,7 +1533,9 @@ void net_udp_request_game_info(struct _sockaddr game_addr, int lite)
 	
 	buf[0] = (lite?UPID_GAME_INFO_LITE:UPID_GAME_INFO_REQ);
 	memcpy(&(buf[1]), UDP_REQ_ID, 4);
-	PUT_INTEL_INT(buf + 5, D1X_IVER);
+	PUT_INTEL_SHORT(buf + 5, D1XMAJORi);
+	PUT_INTEL_SHORT(buf + 7, D1XMINORi);
+	PUT_INTEL_SHORT(buf + 9, D1XMICROi);
 	
 	sendto (UDP_Socket[0], buf, sizeof(buf), 0, (struct sockaddr *)&game_addr, sizeof(struct _sockaddr));
 }
@@ -1544,7 +1543,7 @@ void net_udp_request_game_info(struct _sockaddr game_addr, int lite)
 // Check request for game info. Return 1 if sucessful; -1 if version mismatch; 0 if wrong game or some other error - do not process
 int net_udp_check_game_info_request(ubyte *data, int data_len)
 {
-	int sender_iver = 0;
+	short sender_iver[3] = { 0, 0, 0 };
 	char sender_id[4] = "";
 
 	if (!multi_i_am_master())
@@ -1554,12 +1553,14 @@ int net_udp_check_game_info_request(ubyte *data, int data_len)
 		return 0;
 	
 	memcpy(&sender_id, &(data[1]), 4);
-	sender_iver = GET_INTEL_INT(&(data[5]));
+	sender_iver[0] = GET_INTEL_SHORT(&(data[5]));
+	sender_iver[1] = GET_INTEL_SHORT(&(data[7]));
+	sender_iver[2] = GET_INTEL_SHORT(&(data[9]));
 	
 	if (memcmp(&sender_id, UDP_REQ_ID, 4))
 		return 0;
 	
-	if (sender_iver != D1X_IVER)
+	if ((sender_iver[0] != D1XMAJORi) || (sender_iver[1] != D1XMINORi) || (sender_iver[2] != D1XMICROi))
 		return -1;
 		
 	return 1;
@@ -1581,7 +1582,9 @@ void net_udp_send_game_info(struct _sockaddr sender_addr, ubyte info_upid)
 		memset(buf, 0, sizeof(buf));
 		
 		buf[0] = info_upid;														len++;
-		PUT_INTEL_INT(buf + len, D1X_IVER);  									len += 4;
+		PUT_INTEL_SHORT(buf + len, D1XMAJORi); 									len += 2;
+		PUT_INTEL_SHORT(buf + len, D1XMINORi); 									len += 2;
+		PUT_INTEL_SHORT(buf + len, D1XMICROi); 									len += 2;
 		memcpy(&(buf[len]), Netgame.game_name, NETGAME_NAME_LEN+1);				len += (NETGAME_NAME_LEN+1);
 		memcpy(&(buf[len]), Netgame.mission_title, MISSION_NAME_LEN+1);			len += (MISSION_NAME_LEN+1);
 		memcpy(&(buf[len]), Netgame.mission_name, 9);		            		len += 9;
@@ -1615,7 +1618,9 @@ void net_udp_send_game_info(struct _sockaddr sender_addr, ubyte info_upid)
 		memset(buf, 0, sizeof(buf));
 	
 		buf[0] = info_upid;														len++;
-		PUT_INTEL_INT(buf + len, D1X_IVER);  									len += 4;
+		PUT_INTEL_SHORT(buf + len, D1XMAJORi); 									len += 2;
+		PUT_INTEL_SHORT(buf + len, D1XMINORi); 									len += 2;
+		PUT_INTEL_SHORT(buf + len, D1XMICROi); 									len += 2;
 		buf[len] = Netgame.version_major;										len++;
 		buf[len] = Netgame.version_minor;										len++;
 		for (i = 0; i < MAX_PLAYERS+4; i++)
@@ -1750,9 +1755,11 @@ void net_udp_process_game_info(ubyte *data, int data_len, struct _sockaddr game_
 			
 		memcpy(&recv_game, &game_addr, sizeof(struct _sockaddr));
 																				len++; // skip UPID byte
-		Netgame.protocol.udp.program_iver = GET_INTEL_INT(&(data[len]));		len += 4;
+		Netgame.protocol.udp.program_iver[0] = GET_INTEL_SHORT(&(data[len]));	len += 2;
+		Netgame.protocol.udp.program_iver[1] = GET_INTEL_SHORT(&(data[len]));	len += 2;
+		Netgame.protocol.udp.program_iver[2] = GET_INTEL_SHORT(&(data[len]));	len += 2;
 		
-		if (recv_game.program_iver != D1X_IVER)
+		if ((recv_game.program_iver[0] != D1XMAJORi) || (recv_game.program_iver[1] != D1XMINORi) || (recv_game.program_iver[2] != D1XMICROi))
 			return;
 
 		memcpy(&recv_game.game_name, &(data[len]), NETGAME_NAME_LEN+1);			len += (NETGAME_NAME_LEN+1);
@@ -1800,7 +1807,9 @@ void net_udp_process_game_info(ubyte *data, int data_len, struct _sockaddr game_
 		memcpy((struct _sockaddr *)&Netgame.players[0].protocol.udp.addr, (struct _sockaddr *)&game_addr, sizeof(struct _sockaddr));
 
 																				len++; // skip UPID byte
-		Netgame.protocol.udp.program_iver = GET_INTEL_INT(&(data[len]));		len += 4;
+		Netgame.protocol.udp.program_iver[0] = GET_INTEL_SHORT(&(data[len]));	len += 2;
+		Netgame.protocol.udp.program_iver[1] = GET_INTEL_SHORT(&(data[len]));	len += 2;
+		Netgame.protocol.udp.program_iver[2] = GET_INTEL_SHORT(&(data[len]));	len += 2;
 		Netgame.version_major = data[len];										len++;
 		Netgame.version_minor = data[len];										len++;
 		for (i = 0; i < MAX_PLAYERS+4; i++)
