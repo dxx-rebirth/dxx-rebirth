@@ -10,8 +10,10 @@ PROGRAM_NAME = 'D1X-Rebirth'
 # version number
 D1XMAJOR = 0
 D1XMINOR = 55
-D1XSVN   = os.popen('svnversion .').read()[:-1]
-D1XSVN   = D1XSVN.split(':')[-1]
+D1XMICRO = 1
+VERSION_STRING = ' v' + str(D1XMAJOR) + '.' + str(D1XMINOR)
+if (D1XMICRO):
+	VERSION_STRING += '.' + str(D1XMICRO)
 
 # installation path
 PREFIX = str(ARGUMENTS.get('prefix', '/usr/local'))
@@ -30,27 +32,10 @@ editor = int(ARGUMENTS.get('editor', 0))
 sdlmixer = int(ARGUMENTS.get('sdlmixer', 0))
 arm = int(ARGUMENTS.get('arm', 0))
 ipv6 = int(ARGUMENTS.get('ipv6', 0))
-micro = int(ARGUMENTS.get('micro', 0))
-use_svn_as_micro = int(ARGUMENTS.get('svnmicro', 0))
 use_udp = int(ARGUMENTS.get('use_udp', 1))
 use_ipx = int(ARGUMENTS.get('use_ipx', 1))
 
-if (sys.platform != 'linux2') and (sys.platform != 'win32'):
-	use_ipx = 0
-
-if (micro > 0):
-	D1XMICRO = micro
-else:
-	D1XMICRO = 0
-
-if use_svn_as_micro:
-	D1XMICRO = str(D1XSVN)
-
-VERSION_STRING = ' v' + str(D1XMAJOR) + '.' + str(D1XMINOR)
-if (D1XMICRO):
-	VERSION_STRING += '.' + str(D1XMICRO)
-
-print '\n===== ' + PROGRAM_NAME + VERSION_STRING + " (svn " + str(D1XSVN) + ') =====\n'
+print '\n===== ' + PROGRAM_NAME + VERSION_STRING + ' =====\n'
 
 # general source files
 common_sources = [
@@ -298,8 +283,8 @@ env.Append(CPPFLAGS = ['-Wall', '-funsigned-char'])
 env.Append(CPPDEFINES = [('PROGRAM_NAME', '\\"' + str(PROGRAM_NAME) + '\\"'), ('D1XMAJOR', '\\"' + str(D1XMAJOR) + '\\"'), ('D1XMINOR', '\\"' + str(D1XMINOR) + '\\"')])
 env.Append(CPPDEFINES = ['NETWORK', '_REENTRANT'])
 env.Append(CPPPATH = ['include', 'main', 'arch/include'])
-generic_libs = ['SDL', 'physfs']
-sdlmixerlib = ['SDL_mixer']
+libs = env['LIBS']
+libs += ['physfs']
 
 if (D1XMICRO):
 	env.Append(CPPDEFINES = [('D1XMICRO', '\\"' + str(D1XMICRO) + '\\"')])
@@ -329,8 +314,7 @@ if sys.platform == 'win32':
 	if (use_ipx == 1):
 		common_sources += ['arch/win32/ipx.c']
 	ogllibs = ''
-	winlibs = ['glu32', 'wsock32', 'winmm', 'mingw32', 'SDLmain']
-	libs = winlibs + generic_libs
+	libs += ['glu32', 'wsock32', 'winmm', 'mingw32', 'SDLmain', 'SDL']
 	lflags = '-mwindows'
 elif sys.platform == 'darwin':
 	print "compiling on Mac OS X"
@@ -367,7 +351,6 @@ else:
 	if (use_ipx == 1):
 		common_sources += ['arch/linux/ipx.c', 'arch/linux/ipx_kali.c', 'arch/linux/ukali.c']
 	ogllibs = ['GL', 'GLU']
-	libs = generic_libs
 	lflags = '-L/usr/X11R6/lib'
 
 # arm architecture?
@@ -394,7 +377,7 @@ if (sdlmixer == 1):
 	env.Append(CPPDEFINES = ['USE_SDLMIXER'])
 	common_sources += arch_sdlmixer
 	if (sys.platform != 'darwin'):
-		libs += sdlmixerlib
+		libs += ['SDL_mixer']
 
 # debug?
 if (debug == 1):
@@ -477,7 +460,7 @@ Help(PROGRAM_NAME + ', SConstruct file help:' +
 	'arm=1'           compile for ARM architecture
 	'ipv6=1'          enables IPv6 copability
 	'use_udp=0'		  disable UDP support
-	'use_ipx=0'		  disable IPX support (supported only on Linux and Windows)
+	'use_ipx=0'		  disable IPX support (IPX available on Linux and Windows, only)
 		
 	Default values:
 	""" + ' sharepath = ' + DATA_DIR + """
