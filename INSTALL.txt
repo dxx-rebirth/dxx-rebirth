@@ -3,155 +3,136 @@ Compiling D1X-Rebirth Sourcecode
 This file describes how to compile D1X-Rebirth from Source.
 
 
-Requirements
+Requirements:
+=============
 
-   1.
-      C/C++ compiler (gcc/g++)
-   2.
-      SCons
-   3.
-      SDL(-devel)
-   4.
-      PhysFS(-devel)
-   5.
-      GLU/GL
-   6.
-      NASM (optional for Assembler-based Texture-mapper in non-OpenGL Build)
+   1. C/C++ compiler (gcc/g++)
+   2. SCons (to compile in *NIX/Win32) / XCode (to compile on MacOS)
+   3. SDL(-devel)
+   4. PhysFS(-devel)
+   5. GLU/GL
+   6. NASM (optional for Assembler-based Texture-mapper in non-OpenGL Build)
+   7. SDL_mixer(-devel) (+ dependencies) for external music support
 
 
-Compiling
+Compiling:
+==========
 
-For Mac OS X, an Xcode project is available (requires Xcode 2.1 or later). Xcode includes the compiler and OpenGL.
+   *NIX:
+   -----
+   Type 'scons' to compile the source.
+   You can also give additional options like 'scons sdl_only=1 asm=1'. See 'scons -h' for available options.
+   To install, use 'scons install' but remember to use all your options as well or SCons will re-compile and
+   install without any options given to prior compiling. However it's STRONGLY recommended NOT to use the
+   'install' argument but to create a package for your Linux distribution or operating system. 'install' will
+   compile the resulting binary (d1x-rebirth-gl/sdl) to /usr/local/bin/ by default so to uninstall, just
+   delete the binary.
 
-The SConstruct file provides various options to compile this program.
-To get a full list of all available commands, type scons -h within the Source directory.
+   MacOS:
+   ------ 
+   For Mac OS X, an Xcode project is available (requires Xcode 2.1 or later). Xcode includes the compiler
+   and OpenGL. For Mac OS 9, an MPW Makefile is available. MPW includes the compiler. For the sources to
+   compile, they will need to be made into text files using a typecode changing program, if they were
+   downloaded outside of Mac OS 9 (including Mac OS X). This will also need to be done after any Terminal
+   command (diff, svn update etc) edits the source files.
+   SCons also works on MacOS, but it's recommended to use XCode instead.
+   Note that there are ready-to-go packages on http://www.dxx-rebirth.com   
 
-To compile the source, type:
-
-scons
-
-
-If you wish to add additional commands, just add them to the scons command.
-Example:
-
-scons sdl_only=1 asm=1
-
-
-To install the compiled binary to your system (/usr/local/bin/), type (as root):
-
-scons install
-
-You can also add the ‘install’ command while compile-time. SCons will compile and install the binary right after that.
-
-For Windows and Mac however, it is instead recommended to manually drag the program to the folder containing the Descent data or use the -hogdir option when running.
-
-To clean up the source directory after installation, type:
-
-scons -c
-
-
-Needed files
-
-Since D1X-Rebirth is a Sourceport of the Descent1-Engine you will need the Game-Content data files to run the game.
-
-You don't own the full game, yet?
-Just visit GOOD OLD GAMES via:
-http://www.gog.com/en/gamecard/descent_1_descent_2/pp/fc074d501302eb2b93e2554793fcaf50b3bf7291
-and download it for a very low price! DRM-FREE!
-
-For non-Mac OS *NIX all files need to be copied to the Sharepath, which is (if not specified with the SCons ‘sharepath’-variable) /usr/local/share/games/d1x-rebirth/. For all other systems the files go in the folder containing the application, as with the original version. For *NIX systems (including Mac OS X) there is also the option of placing them in a folder you specify using d1x.ini (see end).
-
-Following files are needed to run the game:
-
-descent.hog
-descent.pig
-
-These files should be located on the Descent1 CD-Rom.
-On non-Mac OS *NIX, those files must be lowercase. The PC version data files need to be patched to version 1.4a (which is not necessary for the GOG.com-version).
-
-The above files may go in a subdirectory called 'Data'.
-
-There is a patch suitable for *NIX systems (diff-files) available at:
-http://www.dxx-rebirth.com/download/dxx/res/descent1_patch14a-linux.tar.gz
-
-Patching can also be done from Windows/DOS using the DOS 1.4a-patch of Parallax, that will patch a common Descent1 installation.
-DOS 1.4a patch: http://www.dxx-rebirth.com/download/dxx/res/descent1_patch14a.exe
-
-For the Mac CD-ROM, the data files will need to be installed from the CD using a Mac system earler than OS X. Classic will work. If you know of any other way, please tell me at chris at icculus.org. No patch is needed for these data files.
-
-To play the Multiplayer levelset “Total Chaos”, also copy the files
-
-chaos.hog
-chaos.msn
-
-to the subdirectory ‘missions/’. These files should also be located on the Descent1 CD.
+   Win32:
+   ------
+   Use the SCons way like described in the *NIX-instructions from an MSYS/MinGW environment. However you will
+   not need to use 'install' but just drag the resulting binary to your Descent-folder.
+   Note that there are ready-to-go packages on http://www.dxx-rebirth.com 
 
 
-Optional files
+Needed files:
+=============
 
-D1X-Rebirth is expandable. You can add additional content to the game.
+   Since D1X-Rebirth is a Sourceport of the Descent-Engine you will need the Game-Content data files to run
+   the game. You don't own the full game, yet?
+   Just visit GOOD OLD GAMES via:
+   http://www.gog.com/en/gamecard/descent_1_descent_2/pp/fc074d501302eb2b93e2554793fcaf50b3bf7291
+   and download it for a very low price! DRM-FREE!
 
-Supported content:
+   Following files are needed to run the game:
+   descent.hog
+   descent.pig
 
-    *
-      HiRes Briefing Images and Fonts
-      Available at:
-      http://www.dxx-rebirth.com/download/dxx/res/d1xrdata.zip
-      To add those, copy the ZIP file to the D1X-Rebirth directory or - on *NIX systems - into Sharepath or ~/.d1x-rebirth.
-      HiRes Briefings and fonts will be used automatically.
-      The Mac data files are already hires.
+   For the Mac CD-ROM, the data files will need to be installed from the CD using a Mac system earler than
+   OS X. Classic will work. If you know of any other way, please tell me at chris at icculus.org.
 
-    *
-      Custom/AddOn missions
-      Those can be found on several websites. Add them to the game by copying them to subdirectory ‘missions/’. They can also go in subdirectories of 'missions/', unlike with the original version.
+   Note that the above files must be lowercase if you use an operating system with case-sensitive file management.
 
-    *
-      Language Packs
-      German translation: http://www.dxx-rebirth.com/download/dxx/res/D1XBDE01.zip
-      Copy the txb-files to the Sharepath (non-Mac OS *NIX)/program directory (otherwise). Will be activated automatically
 
-    *
-      Custom Music (like MP3 or OGG)
-      Custom Music can be played either used via the Jukebox by specifying the path to your music in the Sound Options menu.
-      Please note that all custom music has to be in 44Khz format.
+Where to put these files:
+=========================
+
+   *NIX
+   ----
+   The Sharepath (/usr/local/share/games/d1x-rebirth/ by default - if not reconfigured via SCons) or
+   ~/.d1x-rebirth or
+   another directory specified by -hogdir via d1x.ini
+
+   MacOS
+   -----
+   Same directory as where the binary is located or
+   another directory specified by -hogdir via d1x.ini
+
+   Win32
+   -----
+   Same directory as where the binary is located
+   
+
+Optional files:
+===============
+
+   D1X-Rebirth is expandable. You can add additional content to the game.
+
+   HiRes Briefing Images and Fonts:
+   --------------------------------
+   Available at http://www.dxx-rebirth.com/download/dxx/res/d1xrdata.zip
+   To add those, copy the ZIP file to the D1X-Rebirth directory or - on *NIX systems -
+   into Sharepath or ~/.d1x-rebirth.
+   The Mac data files are already hires.
+
+   Custom/AddOn missions:
+   ----------------------
+   Those can be found on several websites. Add them to the game by copying them to subdirectory
+   ‘missions/’. They can also go in subdirectories of 'missions/', unlike with the original version.
+
+   Language Packs:
+   ---------------
+   German translation: http://www.dxx-rebirth.com/download/dxx/res/D1XBDE01.zip
+   Copy the txb-files to the Sharepath (non-Mac OS *NIX)/program directory (otherwise).
+
+   Custom Music (like MP3 or OGG):
+   -------------------------------
+   Custom Music can be played via the Jukebox by specifying the path to your music in the Sound Options menu.
+   Please note that all custom music has to be in 44Khz format.
 
 
 Launching the program
+=====================
 
-On Windows and Mac OS, simply double-click the program.
+   MacOS
+   -----
+   Simply double-click "D1X-Rebirth".
 
-After compiling and installing, the program can be launched on *NIX systems with the command
+   Win32
+   -----
+   Doubleclick d1x-rebirth-gl.exe
 
-d1x-rebirth-gl
+   *NIX
+   ----
+   After compiling and installing, the program can be launched with the command:
+   d1x-rebirth-gl
+   or - if it has been compiled with SCons parameter ‘sdl_only=1’:
+   d1x-rebirth-sdl
 
-or - if it has been compiled with SCons parameter ‘sdl_only=1’ -
-
-d1x-rebirth-sdl
-
-To see a full list of available command-line options append ‘-h’, ‘-?’ to the command or refer file
-
-d1x.ini
-
-
-On *NIX systems, the game will create a config-directory. On non-Mac *NIX systems this will be called ‘.d1x-rebirth’ and reside in the Home directory of the user.
-On Mac OS X this directory will be called ‘D1X Rebirth’, in the Preferences folder in the user’s Library.
-On all other systems (Windows and Mac OS 9) the application directory is used.
-It is used to read/save
-
-    *
-      Configuration files
-    *
-      Pilot profiles and Savegames
-    *
-      Demos
-    *
-      Screenshots
-    *
-      d1x.ini for parsing command-line arguments (the config directory is searched first, then the directory containing the program)
-
-Thanks to PhysFS, on *NIX systems data files can also go in here. In addition, demos could be moved from the config directory to the Sharepath/program directory to make them viewable by other users.
+   To see a full list of available command-line options append ‘-h’, ‘-?’ to the command or refer file
+   d1x.ini
 
 
 Appendix
-
-http://DXX-Rebirth.com
+========
+   http://DXX-Rebirth.com
