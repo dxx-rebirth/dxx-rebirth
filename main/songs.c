@@ -86,10 +86,12 @@ void songs_init()
 	{
 		while (!PHYSFS_eof(fp))
 		{
+			if (i == MAX_NUM_SONGS)
+				break;
+				
 			cfgets(inputline, 80, fp );
 			if ( strlen( inputline ) )
 			{
-				Assert( i < MAX_NUM_SONGS );
 				memset(Songs[i].filename, '\0', sizeof(char)*16);
 				memset(Songs[i].melodic_bank_file, '\0', sizeof(char)*16);
 				memset(Songs[i].drum_bank_file, '\0', sizeof(char)*16);
