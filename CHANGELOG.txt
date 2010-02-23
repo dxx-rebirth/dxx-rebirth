@@ -1,5 +1,9 @@
 D2X-Rebirth Changelog
 
+20100223
+--------
+SConstruct: Removing svnmicro as micro numbering option since SVN-revisions will not really represent logical numbering; Some cleaning for libs usage; Small cleanup
+
 20100221
 --------
 main/config.h, main/kconfig.c, main/kconfig.h, main/menu.c, main/playsave.c, main/playsave.h, main/text.h: Overhaul for CONTROLS menu; Cleaned kconfig-code a little and slacked out keymap arrays
