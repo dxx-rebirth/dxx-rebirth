@@ -1693,6 +1693,10 @@ int escort_menu_handler(window *wind, d_event *event, escort_menu *menu)
 {
 	switch (event->type)
 	{
+		case EVENT_WINDOW_ACTIVATED:
+			game_flush_inputs();
+			break;
+			
 		case EVENT_IDLE:
 			return escort_menu_idle(wind, event, menu);
 			break;

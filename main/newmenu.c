@@ -1273,6 +1273,7 @@ int newmenu_handler(window *wind, d_event *event, newmenu *menu)
 	switch (event->type)
 	{
 		case EVENT_WINDOW_ACTIVATED:
+			game_flush_inputs();
 			newmenu_show_cursor();
 			break;
 			
@@ -1961,6 +1962,7 @@ int listbox_handler(window *wind, d_event *event, listbox *lb)
 	switch (event->type)
 	{
 		case EVENT_WINDOW_ACTIVATED:
+			game_flush_inputs();
 			newmenu_show_cursor();
 			break;
 			
