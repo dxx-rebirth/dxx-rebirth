@@ -845,10 +845,13 @@ void InitPlayerObject()
 extern void game_disable_cheats();
 extern void turn_cheats_off();
 extern void init_seismic_disturbances(void);
+extern int state_default_item;
 
 //starts a new game on the given level
 void StartNewGame(int start_level)
 {
+	state_default_item = -2;	// for first blind save, pick slot to save in
+
 	Game_mode = GM_NORMAL;
 	Function_mode = FMODE_GAME;
 	
@@ -1155,7 +1158,7 @@ void ExitSecretLevel(void)
 		return;
 
 	if (!Control_center_destroyed) {
-		state_save_all(0, 2, SECRETC_FILENAME);
+		state_save_all(0, 2, SECRETC_FILENAME, 0);
 	}
 
 	if (PHYSFS_exists(SECRETB_FILENAME))
@@ -1216,7 +1219,7 @@ void EnterSecretLevel(void)
 		DoEndLevelScoreGlitz(0);
 
 	if (Newdemo_state != ND_STATE_PLAYBACK)
-		state_save_all(0, 1, NULL);	//	Not between levels (ie, save all), IS a secret level, NO filename override
+		state_save_all(0, 1, NULL, 0);	//	Not between levels (ie, save all), IS a secret level, NO filename override
 
 	//	Find secret level number to go to, stuff in Next_level_num.
 	for (i=0; i<-Last_secret_level; i++)
@@ -1552,7 +1555,7 @@ void DoPlayerDead()
 		{
 			returning_to_level_message();
 			if (!Control_center_destroyed)
-				state_save_all(0, 2, SECRETC_FILENAME);
+				state_save_all(0, 2, SECRETC_FILENAME, 0);
 			state_restore_all(1, 2, SECRETB_FILENAME);
 			set_pos_from_return_segment();
 			Players[Player_num].lives--;						//	re-lose the life, Players[Player_num].lives got written over in restore.
