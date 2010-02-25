@@ -654,6 +654,7 @@ int kconfig_idle(window *wind, d_event *event, kc_menu *menu)
 		{
 			gr_set_fontcolor( BM_XRGB(28,28,28), BM_XRGB(0,0,0) );
 			game_flush_inputs();
+			menu->mouse_state = 0;
 			return 1;
 		}
 	}
