@@ -327,6 +327,10 @@ int scores_handler(window *wind, d_event *event, scores_menu *menu)
 
 	switch (event->type)
 	{
+		case EVENT_WINDOW_ACTIVATED:
+			game_flush_inputs();
+			break;
+			
 		case EVENT_KEY_COMMAND:
 			k = ((d_event_keycommand *)event)->keycode;
 			switch( k )	{

@@ -4257,6 +4257,10 @@ static int show_game_rules_handler(window *wind, d_event *event, netgame_info *n
 	
 	switch (event->type)
 	{
+		case EVENT_WINDOW_ACTIVATED:
+			game_flush_inputs();
+			break;
+			
 		case EVENT_IDLE:
 			timer_delay2(50);
 			

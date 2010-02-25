@@ -4,6 +4,7 @@ D1X-Rebirth Changelog
 --------
 main/game.c, main/gamecntl.c, main/gameseq.c, main/state.c, main/state.h: Put fast save back, using Alt-F1 instead of F6
 arch/sdl/key.c: Move call to callback outside of loop in key_handler, now deleting a second demo using CTRL-D actually works
+main/automap.c, main/game.c, main/gamecntl.c, main/gauges.c, main/kconfig.c, main/net_ipx.c, main/net_udp.c, main/newmenu.c, main/scores.c: Call game_flush_inputs for all windows' EVENT_WINDOW_ACTIVATED, so clicking on a pilot doesn't bring up the multiplayer screen for example
 
 20100224
 --------

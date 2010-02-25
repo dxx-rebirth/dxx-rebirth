@@ -1004,8 +1004,6 @@ int game_handler(window *wind, d_event *event, void *data)
 			break;
 			
 		case EVENT_WINDOW_DEACTIVATED:
-			game_flush_inputs();
-			
 			if (!(((Game_mode & GM_MULTI) && (Newdemo_state != ND_STATE_PLAYBACK)) && (Function_mode == FMODE_GAME) && (!Endlevel_sequence)) )
 				stop_time();
 			

@@ -512,6 +512,10 @@ int automap_handler(window *wind, d_event *event, automap *am)
 {
 	switch (event->type)
 	{
+		case EVENT_WINDOW_ACTIVATED:
+			game_flush_inputs();
+			break;
+
 		case EVENT_IDLE:
 			return automap_idle(wind, event, am);
 			break;

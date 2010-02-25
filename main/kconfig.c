@@ -829,6 +829,7 @@ int kconfig_handler(window *wind, d_event *event, kc_menu *menu)
 	switch (event->type)
 	{
 		case EVENT_WINDOW_ACTIVATED:
+			game_flush_inputs();
 			newmenu_show_cursor();
 			break;
 			

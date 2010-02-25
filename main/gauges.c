@@ -1683,7 +1683,6 @@ void draw_keys()
 void draw_weapon_info_sub(int info_index,gauge_box *box,int pic_x,int pic_y,char *name,int text_x,int text_y)
 {
 	grs_bitmap *bm;
-	char *p;
 
 	//clear the window
 	gr_setcolor(BM_XRGB(0,0,0));

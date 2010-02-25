@@ -230,6 +230,10 @@ int pause_handler(window *wind, d_event *event, char *msg)
 
 	switch (event->type)
 	{
+		case EVENT_WINDOW_ACTIVATED:
+			game_flush_inputs();
+			break;
+			
 		case EVENT_IDLE:
 			timer_delay2(50);
 			
