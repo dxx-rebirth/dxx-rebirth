@@ -602,7 +602,7 @@ void title_save_game()
 	gr_palette_read( palette );
 	gr_palette_load( gr_palette );
 #ifndef SHAREWARE
-	state_save_all(1);
+	state_save_all(1, 0);
 #endif
 	
 	gr_set_current_canvas(save_canv);

@@ -1,5 +1,9 @@
 D1X-Rebirth Changelog
 
+20100225
+--------
+main/game.c, main/gamecntl.c, main/gameseq.c, main/state.c, main/state.h: Put fast save back, using Alt-F1 instead of F6
+
 20100224
 --------
 main/kconfig.c: Due to the change of GameCfg.ControlType, Mouselook was broken - fixed

@@ -21,7 +21,7 @@ COPYRIGHT 1993-1998 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 #ifndef _STATE_H
 #define _STATE_H
 
-int state_save_all(int between_levels);
+int state_save_all(int between_levels, int blind_save);
 int state_restore_all(int in_game );
 
 extern int state_save_old_game(int slotnum, char * sg_name, player * sg_player, 
@@ -33,7 +33,7 @@ int state_restore_all_sub(char *filename);
 
 extern uint state_game_id;
 
-int state_get_save_file(char * fname, char * dsc );
+int state_get_save_file(char * fname, char * dsc, int blind_save);
 int state_get_restore_file(char * fname );
 
 #endif

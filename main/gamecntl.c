@@ -656,9 +656,11 @@ void HandleGameKey(int key)
 			break;
 		}
 			
-			KEY_MAC(case KEY_COMMAND+KEY_S:)
+			KEY_MAC(case KEY_COMMAND+KEY_SHIFTED+KEY_S:)
 			KEY_MAC(case KEY_COMMAND+KEY_ALTED+KEY_2:)
-			case KEY_ALTED+KEY_F2:	if (!Player_is_dead) state_save_all( 0 );		break;	// 0 means not between levels.
+			case KEY_ALTED+KEY_F2:	if (!Player_is_dead) state_save_all( 0, 0 );		break;
+			KEY_MAC(case KEY_COMMAND+KEY_S:)
+			case KEY_ALTED+KEY_F1:	if (!Player_is_dead) state_save_all(0, 1);	break;
 			KEY_MAC(case KEY_COMMAND+KEY_O:)
 			KEY_MAC(case KEY_COMMAND+KEY_ALTED+KEY_3:)
 			case KEY_ALTED+KEY_F3:	if (!Player_is_dead) state_restore_all(1);		break;
