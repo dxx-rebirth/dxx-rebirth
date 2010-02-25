@@ -3,6 +3,7 @@ D2X-Rebirth Changelog
 20100225
 --------
 main/game.c, main/gamecntl.c, main/gameseq.c, main/state.c, main/state.h: Put fast save back, using Alt-F1 instead of F6
+arch/sdl/key.c: Move call to callback outside of loop in key_handler, now deleting a second demo using CTRL-D actually works
 
 20100224
 --------
