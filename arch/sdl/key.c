@@ -350,6 +350,7 @@ void key_handler(SDL_KeyboardEvent *event, int counter)
 	int i, keycode, event_keysym=-1, key_state;
 	Key_info *key;
 	unsigned char temp;
+	int key_command = 0;
 
 	// Read SDLK symbol and state
         event_keysym = event->keysym.sym;
@@ -410,15 +411,7 @@ void key_handler(SDL_KeyboardEvent *event, int counter)
 			if ( keyd_pressed[KEY_LMETA] || keyd_pressed[KEY_RMETA])
 				keycode |= KEY_METAED;
 			
-			{
-				d_event_keycommand event;
-				window *wind;
-				
-				event.type = EVENT_KEY_COMMAND;
-				event.keycode = keycode;
-				if ((wind = window_get_front()) && window_send_event(wind, (d_event *)&event))
-					return;		// handled it - don't add to queue
-			}
+			key_command = keycode;
 			
 			temp = key_data.keytail+1;
 			if ( temp >= KEY_BUFFER_SIZE ) temp=0;
@@ -429,6 +422,19 @@ void key_handler(SDL_KeyboardEvent *event, int counter)
 			}
 		}
 		key->last_state = state;
+	}
+
+	// We allowed the key to be added to the queue for now,
+	// because there are still input loops without associated windows
+	if (key_command)
+	{
+		d_event_keycommand event;
+		window *wind;
+		
+		event.type = EVENT_KEY_COMMAND;
+		event.keycode = key_command;
+		if ((wind = window_get_front()) && window_send_event(wind, (d_event *)&event))
+		/*return*/;		// handled it - don't add to queue NOT YET: have to make all input loops into windows
 	}
 }
 
