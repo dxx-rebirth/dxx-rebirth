@@ -729,6 +729,9 @@ int newmenu_key_command(window *wind, d_event *event, newmenu *menu)
 				}
 			} else
 			{
+				if (item->type==NM_TYPE_INPUT_MENU)
+					item->group = 0;	// go out of editing mode
+
 				// Tell callback, allow staying in menu
 				event->type = EVENT_NEWMENU_SELECTED;
 				if (menu->subfunction && (*menu->subfunction)(menu, event, menu->userdata))
@@ -1317,7 +1320,7 @@ int newmenu_do4( char * title, char * subtitle, int nitems, newmenu_item * item,
 	if (!menu)
 		return -1;
 
-	memset(menu, 0, sizeof(newmenu));	
+	memset(menu, 0, sizeof(newmenu));
 	menu->citem = citem;
 	menu->scroll_offset = 0;
 	menu->last_scroll_check = -1;
@@ -1435,23 +1438,21 @@ int newmenu_do4( char * title, char * subtitle, int nitems, newmenu_item * item,
 				item[i].right_offset = w1;
 		}
 
-		if ( item[i].type == NM_TYPE_INPUT )	{
+		if ((item[i].type == NM_TYPE_INPUT) || (item[i].type == NM_TYPE_INPUT_MENU))
+		{
 			Assert( strlen(item[i].text) < NM_MAX_TEXT_LEN );
 			strcpy(item[i].saved_text, item[i].text );
-			nothers++;
+
 			string_width = item[i].text_len*FSPACX(8)+item[i].text_len;
 			if ( string_width > MAX_TEXT_WIDTH ) 
 				string_width = MAX_TEXT_WIDTH;
-			item[i].value = -1;
-		}
 
-		if ( item[i].type == NM_TYPE_INPUT_MENU )	{
-			Assert( strlen(item[i].text) < NM_MAX_TEXT_LEN );
-			strcpy(item[i].saved_text, item[i].text );
-			nmenus++;
-			string_width = item[i].text_len*FSPACX(8)+item[i].text_len;
 			item[i].value = -1;
 			item[i].group = 0;
+			if (item[i].type == NM_TYPE_INPUT_MENU)
+				nmenus++;
+			else
+				nothers++;
 		}
 
 		item[i].w = string_width;

@@ -1,5 +1,9 @@
 D1X-Rebirth Changelog
 
+20100226
+--------
+main/menu.c, main/newmenu.c: Handle all user input in callback for sounds menu, being more judicious about when to restart the music. Also make the jukebox path input a NM_TYPE_INPUT_MENU, allowing the user to abort changes
+
 20100225
 --------
 main/game.c, main/gamecntl.c, main/gameseq.c, main/state.c, main/state.h: Put fast save back, using Alt-F1 instead of F6
