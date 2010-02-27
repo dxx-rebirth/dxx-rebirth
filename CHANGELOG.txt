@@ -3,6 +3,7 @@ D2X-Rebirth Changelog
 20100227
 --------
 main/menu.c: Actually change to MIDI if Jukebox was selected
+arch/sdl/jukebox.c: No more crashing if an invalid Jukebox path is entered - default to MIDI
 
 20100226
 --------

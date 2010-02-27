@@ -96,6 +96,8 @@ int jukebox_play_tracks(int first, int last, void (*hook_finished)(void)) {
 		jukebox_play_last = last - 1;
 
 	music_filename = JukeboxSongs[jukebox_playing];
+	if (!music_filename)
+		return 0;
 
 	jukebox_hook_finished = hook_finished ? hook_finished : mix_free_music;
 	mix_play_file(music_filename, 0, jukebox_hook_next);	// have our function handle looping
