@@ -1,5 +1,9 @@
 D2X-Rebirth Changelog
 
+20100227
+--------
+main/menu.c: Actually change to MIDI if Jukebox was selected
+
 20100226
 --------
 main/menu.c, main/newmenu.c: Handle all user input in callback for sounds menu, being more judicious about when to restart the music. Also make the jukebox path input a NM_TYPE_INPUT_MENU, allowing the user to abort changes
