@@ -1105,15 +1105,13 @@ int sound_menuset(newmenu *menu, d_event *event, void *userdata)
 					
 				case 3:
 				case 4:
+#ifdef USE_SDLMIXER
+				case 5:
+					GameCfg.JukeboxOn = items[5].value;
+#endif
 					GameCfg.SndEnableRedbook = items[4].value;
 					replay = 1;
 					break;
-#ifdef USE_SDLMIXER
-				case 5:
-					GameCfg.JukeboxOn = items[citem].value;
-					replay = 1;
-					break;
-#endif
 
 				default:
 					if (citem == nitems - 1)
