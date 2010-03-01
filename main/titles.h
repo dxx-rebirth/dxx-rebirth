@@ -7,9 +7,10 @@ IN USING, DISPLAYING,  AND CREATING DERIVATIVE WORKS THEREOF, SO LONG AS
 SUCH USE, DISPLAY OR CREATION IS FOR NON-COMMERCIAL, ROYALTY OR REVENUE
 FREE PURPOSES.  IN NO EVENT SHALL THE END-USER USE THE COMPUTER CODE
 CONTAINED HEREIN FOR REVENUE-BEARING PURPOSES.  THE END-USER UNDERSTANDS
-AND AGREES TO THE TERMS HEREIN AND ACCEPTS THE SAME BY USE OF THIS FILE.  
+AND AGREES TO THE TERMS HEREIN AND ACCEPTS THE SAME BY USE OF THIS FILE.
 COPYRIGHT 1993-1998 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 */
+
 /*
  *
  * Header for titles.c
@@ -19,9 +20,9 @@ COPYRIGHT 1993-1998 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 #ifndef _TITLES_H
 #define _TITLES_H
 
-extern int show_title_screen( char * filename, int allow_keys );
+extern void show_titles(void);
 extern int show_briefing_screen( char * filename, int allow_keys );
-extern void do_briefing_screens(int level_num);
+extern void do_briefing_screens(char *filename, int level_num);
 extern void do_end_game(void);
 extern char * get_briefing_screen( int level_num );
 extern void show_order_form(void);

@@ -310,21 +310,8 @@ int main(int argc, char *argv[])
 
 	Players[Player_num].callsign[0] = '\0';
 
-	if (!GameArg.SysNoTitles)
-	{
-		char    publisher[16];
-
-		strcpy(publisher, "macplay.pcx");	// Mac Shareware
-		if (!PHYSFS_exists(publisher))
-			strcpy(publisher, "mplaycd.pcx");	// Mac Registered
-		if (!PHYSFS_exists(publisher))
-			strcpy(publisher, "iplogo1.pcx");	// PC. Only down here because it's lowres ;-)
-		
-		show_title_screen( publisher, 1 );
-		show_title_screen( (((SWIDTH>=640&&SHEIGHT>=480) && cfexist("logoh.pcx"))?"logoh.pcx":"logo.pcx"), 1 );
-		show_title_screen( (((SWIDTH>=640&&SHEIGHT>=480) && cfexist("descenth.pcx"))?"descenth.pcx":"descent.pcx"), 1 );
-	}
-
+	show_titles();
+	
 	key_flush();
 
 	if(GameArg.SysPilot)

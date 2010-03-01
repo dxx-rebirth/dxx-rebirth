@@ -720,7 +720,7 @@ int state_restore_all_sub(char *filename)
 		player_read_swap(&Players[Player_num], swap, fp);
 		saved_offset = PHYSFS_tell(fp);
 		PHYSFS_close( fp );
-		do_briefing_screens(next_level);
+		do_briefing_screens(Briefing_text_filename, next_level);
 		fp = PHYSFSX_openReadBuffered(filename);
 		PHYSFS_seek(fp, saved_offset);
  		StartNewLevelSub( next_level, 1);//use page_in_textures here to fix OGL texture precashing crash -MPM
