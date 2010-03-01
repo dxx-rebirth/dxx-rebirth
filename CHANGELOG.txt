@@ -1,5 +1,9 @@
 D2X-Rebirth Changelog
 
+20100301
+--------
+main/titles.c, main/titles.h: Make titles.c more similar between D1X and D2X
+
 20100227
 --------
 main/menu.c: Actually change to MIDI if Jukebox was selected

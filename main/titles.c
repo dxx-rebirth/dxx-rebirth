@@ -17,8 +17,8 @@ COPYRIGHT 1993-1999 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
  *
  */
 
-#ifdef WINDOWS
-#include "desw.h"
+#ifdef RCS
+static char rcsid[] = "$Id: titles.c,v 1.2 2006/03/18 23:08:13 michaelstather Exp $";
 #endif
 
 #include <stdlib.h>
@@ -58,26 +58,22 @@ COPYRIGHT 1993-1999 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 #include "mouse.h"
 #include "console.h"
 
+extern unsigned RobSX,RobSY,RobDX,RobDY; // Robot movie coords
+
 void set_briefing_fontcolor ();
 int get_new_message_num(char **message);
 int DefineBriefingBox (char **buf);
 
-extern unsigned RobSX,RobSY,RobDX,RobDY; // Robot movie coords
+#define MAX_BRIEFING_COLORS     7
+#define	SHAREWARE_ENDING_FILENAME	"ending.tex"
 
 char CurBriefScreenName[15]="brief03.pcx";
 char	* Briefing_text;
-char RobotPlaying=0;
-grs_bitmap briefing_bm;
-
-//Begin D1X modification
-#define MAX_BRIEFING_COLORS     7
-//End D1X modification
-
-#define	SHAREWARE_ENDING_FILENAME	"ending.tex"
-
 int	Briefing_text_colors[MAX_BRIEFING_COLORS];
 int	Current_color = 0;
 int	Erase_color;
+grs_bitmap briefing_bm;
+char	RobotPlaying=0;
 
 // added by Jan Bobrowski for variable-size menu screen
 static int rescale_x(int x)
@@ -122,7 +118,8 @@ int show_title_screen( char * filename, int allow_keys, int from_hog_only )
 	strcat(new_filename,filename);
 	filename = new_filename;
 
-	title_bm.bm_data=NULL;
+	gr_init_bitmap_data (&title_bm);
+
 	if ((pcx_error=pcx_read_bitmap( filename, &title_bm, BM_LINEAR, gr_palette ))!=PCX_ERROR_NONE)	{
 		Error( "Error loading briefing screen <%s>, PCX load error: %s (%i)\n",filename, pcx_errormsg(pcx_error), pcx_error);
 	}
@@ -471,11 +468,12 @@ void show_briefing_bitmap(grs_bitmap *bmp)
 {
 	grs_canvas	*curcanv_save, *bitmap_canv;
 
-	bitmap_canv = gr_create_sub_canvas(grd_curcanv, 220, 45, bmp->bm_w, bmp->bm_h);
+	bitmap_canv = gr_create_sub_canvas(grd_curcanv, 220*((double)SWIDTH/(HIRESMODE ? 640 : 320)), 45*((double)SHEIGHT/(HIRESMODE ? 480 : 200)),
+									   bmp->bm_w, bmp->bm_h);
 	curcanv_save = grd_curcanv;
 	gr_set_current_canvas(bitmap_canv);
 #ifdef OGL
-	ogl_ubitmapm_cs(0,0,(bmp->bm_w*(SWIDTH/320)),(bmp->bm_h*(SHEIGHT/200)),bmp,255,F1_0);
+	ogl_ubitmapm_cs(0,0,(bmp->bm_w*(SWIDTH/(HIRESMODE ? 640 : 320))),(bmp->bm_h*(SHEIGHT/(HIRESMODE ? 480 : 200))),bmp,255,F1_0);
 #else
 	gr_bitmapm(0, 0, bmp);
 #endif
@@ -517,9 +515,9 @@ void init_spinning_robot(void) //(int x,int y,int w,int h)
 // If show_robot_flag set, then show a frame of the spinning robot.
 int show_char_delay(char the_char, int delay, int robot_num, int cursor_flag)
 {
-	int w, h, aw;
-	char message[2];
-	static fix	start_time=0;
+	int	w, h, aw;
+	char	message[2];
+	static fix start_time = 0;
 
 	message[0] = the_char;
 	message[1] = 0;
@@ -532,33 +530,39 @@ int show_char_delay(char the_char, int delay, int robot_num, int cursor_flag)
 	Assert((Current_color >= 0) && (Current_color < MAX_BRIEFING_COLORS));
 
 	//	Draw cursor if there is some delay and caller says to draw cursor
-	if (cursor_flag && delay) {
-		gr_set_fontcolor(Briefing_text_colors[Current_color], -1);
-		gr_printf(Briefing_text_x, Briefing_text_y, "_" );
-	}
+	if (delay)
+	{
+		if (cursor_flag)
+		{
+			gr_set_fontcolor(Briefing_text_colors[Current_color], -1);
+			gr_printf(Briefing_text_x, Briefing_text_y, "_" );
+		}
 
-	if ((Bitmap_name[0] != 0) && (delay != 0))
-		show_animated_bitmap();
+		if (Bitmap_name[0] != 0)
+			show_animated_bitmap();
 
-	if (RobotPlaying && (delay != 0))
-		RotateRobot();
-
-	while (timer_get_fixed_seconds() < (start_time + delay/2)) {
-		if (RobotPlaying && delay != 0)
+		if (RobotPlaying)
 			RotateRobot();
+
+		while (timer_get_fixed_seconds() < (start_time + delay/2))
+		{
+			if (RobotPlaying)
+				RotateRobot();
+		}
+		if (robot_num != -1)
+			show_spinning_robot_frame(robot_num);
+
+		start_time = timer_get_fixed_seconds();
+
+		// Erase cursor
+		if (cursor_flag)
+		{
+			gr_set_fontcolor(Erase_color, -1);
+			gr_printf(Briefing_text_x, Briefing_text_y, "_" );
+		}
 	}
-	if (robot_num != -1)
-		show_spinning_robot_frame(robot_num);
 
-	start_time = timer_get_fixed_seconds();
-
-	//	Erase cursor
-	if (cursor_flag && delay) {
-		gr_set_fontcolor(Erase_color, -1);
-		gr_printf(Briefing_text_x, Briefing_text_y, "_" );
-	}
-
-	//	Draw the character
+	// Draw the character
 	gr_set_fontcolor(Briefing_text_colors[Current_color], -1);
 	gr_printf(Briefing_text_x+1, Briefing_text_y, message );
 
@@ -578,9 +582,8 @@ int load_briefing_screen( char *fname )
 
 	strcpy (CurBriefScreenName,fname);
 
-	if ((pcx_error = pcx_read_bitmap( fname, &briefing_bm, BM_LINEAR,gr_palette))!=PCX_ERROR_NONE)   {
+	if ((pcx_error = pcx_read_bitmap(fname, &briefing_bm, BM_LINEAR, gr_palette))!=PCX_ERROR_NONE)
 		Error( "Error loading briefing screen <%s>, PCX load error: %s (%i)\n",fname, pcx_errormsg(pcx_error), pcx_error);
-	}
 
 	show_fullscr(&briefing_bm);
 
@@ -679,7 +682,7 @@ void redraw_messagestream(int count)
 int show_briefing(int screen_num, char *message)
 {
 	int	prev_ch=-1;
-	int	ch, done=0,i;
+	int	ch, done=0;
 	briefing_screen	*bsp;
 	int	delay_count = KEY_DELAY_DEFAULT;
 	int	key_check;
@@ -697,12 +700,7 @@ int show_briefing(int screen_num, char *message)
 	grs_bitmap  guy_bitmap;
 	int streamcount=0, guy_bitmap_show=0;
 
-	if (EMULATING_D1)
-		strncpy(fname, Briefing_screens[screen_num].bs_name, 15);//fname = Briefing_screens[screen_num].bs_name;
-	else
-		strncpy(fname, CurBriefScreenName, 15);//fname = CurBriefScreenName;
-
-
+	strncpy(fname, CurBriefScreenName, 15);//fname = CurBriefScreenName;
 	Bitmap_name[0] = 0;
 	Current_color = 0;
 	RobotPlaying=0;
@@ -756,7 +754,8 @@ int show_briefing(int screen_num, char *message)
 				tab_stop*=(1+HIRESMODE);
 				prev_ch = 10;							//	read to eoln
 			} else if (ch == 'R') {
-				if (Robot_canv != NULL) {
+				if (Robot_canv != NULL)
+				{
 					d_free(Robot_canv);
 					Robot_canv=NULL;
 				}
@@ -785,8 +784,8 @@ int show_briefing(int screen_num, char *message)
 				}
 				prev_ch = 10;                           // read to eoln
 			} else if (ch == 'N') {
-				//--grs_bitmap *bitmap_ptr;
-				if (Robot_canv != NULL) {
+				if (Robot_canv != NULL)
+				{
 					d_free(Robot_canv);
 					Robot_canv=NULL;
 				}
@@ -796,9 +795,10 @@ int show_briefing(int screen_num, char *message)
 				Animating_bitmap_type = 0;
 				prev_ch = 10;
 			} else if (ch == 'O') {
-				if (Robot_canv != NULL) {
-						d_free(Robot_canv);
-						Robot_canv=NULL;
+				if (Robot_canv != NULL)
+				{
+					d_free(Robot_canv);
+					Robot_canv=NULL;
 				}
 
 				get_message_name(&message, Bitmap_name);
@@ -808,6 +808,8 @@ int show_briefing(int screen_num, char *message)
 			} else if (ch=='A') {
 				LineAdjustment=1-LineAdjustment;
 			} else if (ch=='Z') {
+				int i;
+
 				GotZ=1;
 				DumbAdjust=1;
 				i=0;
@@ -841,18 +843,19 @@ int show_briefing(int screen_num, char *message)
 				}
 
 			} else if (ch == 'B') {
-				char        bitmap_name[32];
-				ubyte       temp_palette[768];
-				int         iff_error;
+				char		bitmap_name[32];
+				ubyte		temp_palette[768];
+				int		iff_error;
 
-				if (Robot_canv != NULL) {
+				if (Robot_canv != NULL)
+				{
 					d_free(Robot_canv);
 					Robot_canv=NULL;
 				}
 
 				get_message_name(&message, bitmap_name);
 				strcat(bitmap_name, ".bbm");
-				guy_bitmap.bm_data = NULL;
+				gr_init_bitmap_data (&guy_bitmap);
 				iff_error = iff_read_bitmap(bitmap_name, &guy_bitmap, BM_LINEAR, temp_palette);
 				Assert(iff_error == IFF_NO_ERROR);
 				gr_remap_bitmap_good( &guy_bitmap, temp_palette, -1, -1 );
@@ -875,6 +878,7 @@ int show_briefing(int screen_num, char *message)
 
 					while (timer_get_fixed_seconds() < start_time + KEY_DELAY_DEFAULT/2)
 						;
+					timer_delay2(50);
 					if (!RobotPlaying)
 						gr_flip();
 					show_fullscr(&briefing_bm);
@@ -891,7 +895,6 @@ int show_briefing(int screen_num, char *message)
 					if (Bitmap_name[0] != 0)
 						show_animated_bitmap();
 					start_time += KEY_DELAY_DEFAULT/2;
-					timer_delay2(50);
 				}
 
 #ifndef NDEBUG
@@ -945,7 +948,6 @@ int show_briefing(int screen_num, char *message)
 					Int3();
 				prev_ch = ch;
 			}
-
 		} else {
 			if (!GotZ) {
 				Int3(); // Hey ryan!!!! You gotta load a screen before you start
@@ -1013,6 +1015,7 @@ int show_briefing(int screen_num, char *message)
 			while ( (keypress = local_key_inkey()) == 0 ) {		//	Wait for a key
 				while (timer_get_fixed_seconds() < start_time + KEY_DELAY_DEFAULT/2)
 					;
+				timer_delay2(50);
 				if (!RobotPlaying)
 					gr_flip();
 				show_fullscr(&briefing_bm);
@@ -1027,7 +1030,6 @@ int show_briefing(int screen_num, char *message)
 				if (Bitmap_name[0] != 0)
 					show_animated_bitmap();
 				start_time += KEY_DELAY_DEFAULT/2;
-				timer_delay2(50);
 			}
 
 			if (RobotPlaying)
@@ -1083,7 +1085,7 @@ int show_briefing(int screen_num, char *message)
 // Return a pointer to the start of text for screen #screen_num.
 char * get_briefing_message(int screen_num)
 {
-	char *tptr = Briefing_text;
+	char	*tptr = Briefing_text;
 	int	cur_screen=0;
 	int	ch;
 
@@ -1212,6 +1214,8 @@ int show_briefing_screen( int screen_num, int allow_keys)
 	int     rval=0;
 
 	if (EMULATING_D1) {
+		gr_init_bitmap_data (&briefing_bm);
+
 		load_briefing_screen(Briefing_screens[screen_num].bs_name);
 		show_fullscr(&briefing_bm );
 		gr_palette_load(gr_palette);
@@ -1224,7 +1228,7 @@ int show_briefing_screen( int screen_num, int allow_keys)
 
 
 //-----------------------------------------------------------------------------
-void do_briefing_screens(char *filename,int level_num)
+void do_briefing_screens(char *filename, int level_num)
 {
 	int	abort_briefing_screens = 0;
 	int	cur_briefing_screen = 0;
@@ -1271,7 +1275,7 @@ void do_briefing_screens(char *filename,int level_num)
 	} else
 		show_briefing_screen(level_num,0);
 
-	d_free (Briefing_text);
+	d_free(Briefing_text);
 	key_flush();
 
 	return;
