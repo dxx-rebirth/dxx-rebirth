@@ -1,5 +1,9 @@
 D1X-Rebirth Changelog
 
+20100303
+--------
+arch/sdl/digi_audio.c, arch/sdl/digi_mixer.c: Changed default Audio-buffer size to 2048 bytes. Should prevent crackly playback on some systems
+
 20100301
 --------
 main/gameseq.c, main/inferno.c, main/state.c, main/titles.c, main/titles.h: Make titles.c more similar between D1X and D2X
