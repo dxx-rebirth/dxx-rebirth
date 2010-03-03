@@ -5,7 +5,7 @@ Maintainer: MD2211 <md2211@users.sourceforge.net>
 Standards-Version: 3.6.1
 
 Package: d1x-rebirth
-Build-Depends: libsdl1.2-dev, libsdl-mixer1.2-dev, libphysfs-dev
+Build-Depends: libsdl1.2-dev, libsdl-mixer1.2-dev, libphysfs-dev, scons
 Recommends: timidity, freepats
 Architecture: any
 Depends: ${shlibs:Depends}
