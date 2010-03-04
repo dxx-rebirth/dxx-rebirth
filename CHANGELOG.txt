@@ -1,8 +1,13 @@
 D1X-Rebirth Changelog
 
+20100304
+--------
+main/piggy.c, main/text.c, main/text.h: Fixed some Piggy- and Text-loading routines for Shareware, Destination Saturn and 1.0 Registered; Full support for End-Briefing on non-registered still missing however
+
 20100303
 --------
 arch/sdl/digi_audio.c, arch/sdl/digi_mixer.c: Changed default Audio-buffer size to 2048 bytes. Should prevent crackly playback on some systems
+debian/control: Adding scons to depends-list for Debian packaging
 
 20100301
 --------

@@ -252,28 +252,20 @@ void load_text()
 		char *p;
 		char *buf;
 
-		if (!tptr && i >= N_TEXT_STRINGS_SHAREWARE)	// account for shareware text file
+		if (!tptr && i >= N_TEXT_STRINGS_MIN)	// account for non-registered 1.4/1.5 text files
 		{
-			Text_string[i] = extra_strings[i - N_TEXT_STRINGS_SHAREWARE];
+			Text_string[i-1] = extra_strings[i - N_TEXT_STRINGS_MIN - 1];
+			Text_string[i] = extra_strings[i - N_TEXT_STRINGS_MIN];
 			continue;
+		}
+		else if (!tptr && i < N_TEXT_STRINGS_MIN)
+		{
+			Error("Not enough strings in text file - expecting %d (or at least %d), found %d",N_TEXT_STRINGS,N_TEXT_STRINGS_MIN,i);
 		}
 		
 		Text_string[i] = tptr;
 
 		tptr = strchr(tptr,'\n');
-
-		if (!tptr)
-		{
-			if (i == N_TEXT_STRINGS_SHAREWARE)
-			{
-				Text_string[i] = extra_strings[0];
-				continue;
-			}
-			else
-			{
-				Error("Not enough strings in text file - expecting %d (or at least %d), found %d",N_TEXT_STRINGS,N_TEXT_STRINGS_SHAREWARE,i);
-			}
-		}
 
 		if ( tptr ) *tptr++ = 0;
 
@@ -321,11 +313,9 @@ void load_text()
 				  Text_string[i] = str;
 				  break;
           }
-
 	}
 
 	//Assert(tptr==text+len || tptr==text+len-2);
-
 }
 
 

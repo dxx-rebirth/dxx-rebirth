@@ -355,9 +355,11 @@ int properties_init()
 		case D1_SHARE_BIG_PIGSIZE:
 		case D1_SHARE_10_PIGSIZE:
 		case D1_SHARE_PIGSIZE:
+			pcshare = 1;
+			Pigdata_start = 0;
+			break;
 		case D1_10_BIG_PIGSIZE:
 		case D1_10_PIGSIZE:
-			pcshare = 1;
 			Pigdata_start = 0;
 			break;
 		default:

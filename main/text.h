@@ -736,7 +736,7 @@ extern char *Text_string[];
 
 #endif
 
-#define N_TEXT_STRINGS_SHAREWARE		514
+#define N_TEXT_STRINGS_MIN				514
 #define N_TEXT_STRINGS                  621
 
 // Weapon names.
