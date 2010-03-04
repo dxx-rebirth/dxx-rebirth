@@ -473,6 +473,12 @@ int load_mission(mle *mission)
 	Current_mission->filename = Current_mission->path + (mission->filename - mission->path);
 	Current_mission->n_secret_levels = 0;
 
+	//init vars
+	Last_level = 0;
+	Last_secret_level = 0;
+	Briefing_text_filename[0] = 0;
+	Ending_text_filename[0] = 0;
+
 	// for Descent 1 missions, load descent.hog
 	if (!cfile_init("descent.hog", 1))
 		Error("descent.hog not available!\n");
@@ -507,12 +513,6 @@ int load_mission(mle *mission)
 	PHYSFSEXT_locateCorrectCase(buf);
 	if (cfexist(buf))
 		cfile_init(buf, 0);
-
-	//init vars
-	Last_level = 0;
-	Last_secret_level = 0;
-	Briefing_text_filename[0] = 0;
-	Ending_text_filename[0] = 0;
 
 	while (cfgets(buf,80,mfile)) {
 		if (istok(buf,"type"))
