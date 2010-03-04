@@ -4,6 +4,7 @@ D1X-Rebirth Changelog
 --------
 main/piggy.c, main/text.c, main/text.h: Fixed some Piggy- and Text-loading routines for Shareware, Destination Saturn and 1.0 Registered; Full support for End-Briefing on non-registered still missing however
 main/mission.c: Init variables/strings at the beginning of load_mission() to prevent errors if demo content is used
+main/laser.h: If Shareware content is used, fallback to original Smart behaviour since Shareware content has no own definition for Bot-related Smarts
 
 20100303
 --------

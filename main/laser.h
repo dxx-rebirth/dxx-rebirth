@@ -36,7 +36,7 @@ COPYRIGHT 1993-1998 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 #define	SUPER_MECH_MISS	21
 #define	REGULAR_MECH_MISS	22
 #define	SILENT_SPREADFIRE_ID	23
-#define	ROBOT_SMART_HOMING_ID 29
+#define	ROBOT_SMART_HOMING_ID ((N_weapon_types<29)?(PLAYER_SMART_HOMING_ID):(29)) // NOTE: Shareware does not have it's own Smart structure for bots. It was introduced later to make Smart blobs from lvl 7 boss easier to dodge. So if we do not have this type, revert to player's Smart behaviour..
 
 // These are new defines for the value of 'flags' passed to do_laser_firing.
 // The purpose is to collect other flags like QUAD_LASER and Spreadfire_toggle
