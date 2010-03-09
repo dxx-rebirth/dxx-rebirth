@@ -329,9 +329,12 @@ typedef struct msgstream {
 
 typedef struct briefing
 {
+	short	level_num;
+	short	cur_screen;
 	grs_bitmap background;
 	char	background_name[16];
 	char	*text;
+	char	*message;
 	int		text_x, text_y;
 	msgstream messagestream[2048];
 	grs_canvas	*robot_canv;
@@ -340,8 +343,10 @@ typedef struct briefing
 	sbyte   door_dir, door_div_count, animating_bitmap_type;
 } briefing;
 
-void briefing_init(briefing *br)
+void briefing_init(briefing *br, short level_num)
 {
+	br->level_num = level_num;
+	br->cur_screen = 0;
 	strcpy(br->background_name, DEFAULT_BRIEFING_BKG);
 	br->robot_canv = NULL;
 	br->bitmap_name[0] = '\0';
@@ -727,7 +732,7 @@ void redraw_messagestream(msgstream *stream, int count)
 //	-----------------------------------------------------------------------------
 //	Return true if message got aborted by user (pressed ESC), else return false.
 //	Draws text, images and bitmaps actually
-int show_briefing(briefing *br, int screen_num, char *message)
+int show_briefing(briefing *br)
 {
 	int	prev_ch=-1;
 	int	ch, done=0;
@@ -750,7 +755,7 @@ int show_briefing(briefing *br, int screen_num, char *message)
 	gr_set_curfont( GAME_FONT );
 
 	MALLOC(bsp, briefing_screen, 1);
-	memcpy(bsp, &Briefing_screens[screen_num], sizeof(briefing_screen));
+	memcpy(bsp, &Briefing_screens[br->cur_screen], sizeof(briefing_screen));
 	bsp->text_ulx = rescale_x(bsp->text_ulx);
 	bsp->text_uly = rescale_y(bsp->text_uly);
 	bsp->text_width = rescale_x(bsp->text_width);
@@ -758,20 +763,20 @@ int show_briefing(briefing *br, int screen_num, char *message)
 	init_char_pos(br, bsp->text_ulx, bsp->text_uly);
 
 	while (!done) {
-		ch = *message++;
+		ch = *br->message++;
 		if (ch == '$') {
-			ch = *message++;
+			ch = *br->message++;
 			if (ch == 'C') {
-				Current_color = get_message_num(&message)-1;
+				Current_color = get_message_num(&br->message)-1;
 				Assert((Current_color >= 0) && (Current_color < MAX_BRIEFING_COLORS));
 				prev_ch = 10;
 			} else if (ch == 'F') {     // toggle flashing cursor
 				flashing_cursor = !flashing_cursor;
 				prev_ch = 10;
-				while (*message++ != 10)
+				while (*br->message++ != 10)
 					;
 			} else if (ch == 'T') {
-				tab_stop = get_message_num(&message);
+				tab_stop = get_message_num(&br->message);
 				tab_stop*=(1+HIRESMODE);
 				prev_ch = 10;							//	read to eoln
 			} else if (ch == 'R') {
@@ -782,8 +787,8 @@ int show_briefing(briefing *br, int screen_num, char *message)
 				}
 
 				init_spinning_robot(br);
-				robot_num = get_message_num(&message);
-				while (*message++ != 10)
+				robot_num = get_message_num(&br->message);
+				while (*br->message++ != 10)
 					;
 				prev_ch = 10;                           // read to eoln
 			} else if (ch == 'N') {
@@ -793,7 +798,7 @@ int show_briefing(briefing *br, int screen_num, char *message)
 					br->robot_canv=NULL;
 				}
 
-				get_message_name(&message, br->bitmap_name);
+				get_message_name(&br->message, br->bitmap_name);
 				strcat(br->bitmap_name, "#0");
 				br->animating_bitmap_type = 0;
 				prev_ch = 10;
@@ -804,7 +809,7 @@ int show_briefing(briefing *br, int screen_num, char *message)
 					br->robot_canv=NULL;
 				}
 
-				get_message_name(&message, br->bitmap_name);
+				get_message_name(&br->message, br->bitmap_name);
 				strcat(br->bitmap_name, "#0");
 				br->animating_bitmap_type = 1;
 				prev_ch = 10;
@@ -819,7 +824,7 @@ int show_briefing(briefing *br, int screen_num, char *message)
 					br->robot_canv=NULL;
 				}
 
-				get_message_name(&message, bitmap_name);
+				get_message_name(&br->message, bitmap_name);
 				strcat(bitmap_name, ".bbm");
 				gr_init_bitmap_data (&guy_bitmap);
 				iff_error = iff_read_bitmap(bitmap_name, &guy_bitmap, BM_LINEAR, temp_palette);
@@ -866,10 +871,10 @@ int show_briefing(briefing *br, int screen_num, char *message)
 
 				new_page = 1;
 
-				while (*message != 10) {
-					message++;	//	drop carriage return after special escape sequence
+				while (*br->message != 10) {
+					br->message++;	//	drop carriage return after special escape sequence
 				}
-				message++;
+				br->message++;
 				prev_ch = 10;
 			} else if (ch == '$' || ch == ';') { // Print a $/;
 				prev_ch = ch;
@@ -879,7 +884,7 @@ int show_briefing(briefing *br, int screen_num, char *message)
 			if (br->text_x - bsp->text_ulx < tab_stop)
 				br->text_x = bsp->text_ulx + tab_stop;
 		} else if ((ch == ';') && (prev_ch == 10)) {
-			while (*message++ != 10)
+			while (*br->message++ != 10)
 				;
 			prev_ch = 10;
 		} else if (ch == '\\') {
@@ -890,7 +895,7 @@ int show_briefing(briefing *br, int screen_num, char *message)
 				br->text_y += FSPACY(5)+FSPACY(5)*3/5;
 				br->text_x = bsp->text_ulx;
 				if (br->text_y > bsp->text_uly + bsp->text_height) {
-					load_briefing_screen(br, Briefing_screens[screen_num].bs_name);
+					load_briefing_screen(br, Briefing_screens[br->cur_screen].bs_name);
 					br->text_x = bsp->text_ulx;
 					br->text_y = bsp->text_uly;
 				}
@@ -1068,18 +1073,16 @@ int load_screen_text(char *filename, char **buf)
 
 //-----------------------------------------------------------------------------
 // Return true if message got aborted, else return false.
-int show_briefing_text(briefing *br, int screen_num)
+int show_briefing_text(briefing *br)
 {
-	char	*message_ptr;
+	br->message = get_briefing_message(br, Briefing_screens[br->cur_screen].message_num);
 
-	message_ptr = get_briefing_message(br, Briefing_screens[screen_num].message_num);
-
-	if (message_ptr==NULL)
+	if (br->message==NULL)
 		return (0);
 
 	set_briefing_fontcolor();
 
-	return show_briefing(br, screen_num, message_ptr);
+	return show_briefing(br);
 }
 
 void set_briefing_fontcolor ()
@@ -1112,17 +1115,17 @@ void set_briefing_fontcolor ()
 
 //-----------------------------------------------------------------------------
 // Return true if screen got aborted by user, else return false.
-int show_briefing_screen(briefing *br, int screen_num, int allow_keys)
+int show_briefing_screen(briefing *br)
 {
 	int     rval=0;
 
 	gr_init_bitmap_data (&br->background);
 
-	load_briefing_screen(br, Briefing_screens_LH[screen_num].bs_name);
+	load_briefing_screen(br, Briefing_screens_LH[br->cur_screen].bs_name);
 	show_fullscr(&br->background );
 	gr_palette_load(gr_palette);
 
-	rval = show_briefing_text(br, screen_num);
+	rval = show_briefing_text(br);
 
 	return rval;
 }
@@ -1131,9 +1134,8 @@ int show_briefing_screen(briefing *br, int screen_num, int allow_keys)
 //-----------------------------------------------------------------------------
 void do_briefing_screens(char *filename, int level_num)
 {
-	int	abort_briefing_screens = 0;
-	int	cur_briefing_screen = 0;
 	briefing *br;
+	int abort_briefing_screens = 0;
 
 	if (!filename || !*filename)
 		return;
@@ -1142,7 +1144,7 @@ void do_briefing_screens(char *filename, int level_num)
 	if (!br)
 		return;
 
-	briefing_init(br);
+	briefing_init(br, level_num);
 	
 	if (!load_screen_text(filename, &br->text))
 	{
@@ -1157,17 +1159,17 @@ void do_briefing_screens(char *filename, int level_num)
 
 	key_flush();
 
-	if (level_num == 1) {
-		while ((!abort_briefing_screens) && (Briefing_screens[cur_briefing_screen].level_num == 0)) {
-			abort_briefing_screens = show_briefing_screen(br, cur_briefing_screen, 0);
-			cur_briefing_screen++;
+	if (br->level_num == 1) {
+		while ((!abort_briefing_screens) && (Briefing_screens[br->cur_screen].level_num == 0)) {
+			abort_briefing_screens = show_briefing_screen(br);
+			br->cur_screen++;
 		}
 	}
 
 	if (!abort_briefing_screens) {
-		for (cur_briefing_screen = 0; cur_briefing_screen < MAX_BRIEFING_SCREEN; cur_briefing_screen++)
-			if (Briefing_screens[cur_briefing_screen].level_num == level_num)
-				if (show_briefing_screen(br, cur_briefing_screen, 0))
+		for (br->cur_screen = 0; br->cur_screen < MAX_BRIEFING_SCREEN; br->cur_screen++)
+			if (Briefing_screens[br->cur_screen].level_num == br->level_num)
+				if (show_briefing_screen(br))
 					break;
 	}
 
@@ -1180,7 +1182,6 @@ void do_briefing_screens(char *filename, int level_num)
 #ifndef SHAREWARE
 void do_registered_end_game(void)
 {
-	int	cur_briefing_screen;
 	briefing *br;
 
 	if (!Ending_text_filename[0]) //no filename?
@@ -1190,7 +1191,7 @@ void do_registered_end_game(void)
 	if (!br)
 		return;
 	
-	briefing_init(br);
+	briefing_init(br, REGISTERED_ENDING_LEVEL_NUM);
 	
 	if ((Game_mode & GM_MULTI) && !(Game_mode & GM_MULTI_COOP))
 	{
@@ -1203,9 +1204,9 @@ void do_registered_end_game(void)
 		
 	load_screen_text(Ending_text_filename, &br->text);
 
-	for (cur_briefing_screen = 0; cur_briefing_screen < MAX_BRIEFING_SCREEN; cur_briefing_screen++)
-		if (Briefing_screens[cur_briefing_screen].level_num == REGISTERED_ENDING_LEVEL_NUM)
-			if (show_briefing_screen(br, cur_briefing_screen, 0))
+	for (br->cur_screen = 0; br->cur_screen < MAX_BRIEFING_SCREEN; br->cur_screen++)
+		if (Briefing_screens[br->cur_screen].level_num == br->level_num)
+			if (show_briefing_screen(br))
 				break;
 
 	d_free(br->text);
@@ -1215,7 +1216,6 @@ void do_registered_end_game(void)
 
 void do_shareware_end_game(void)
 {
-	int	cur_briefing_screen;
 	briefing *br;
 
 #ifdef NETWORK
@@ -1231,7 +1231,7 @@ void do_shareware_end_game(void)
 		if (!br)
 			return;
 		
-		briefing_init(br);
+		briefing_init(br, SHAREWARE_ENDING_LEVEL_NUM);
 		
 #ifdef DEST_SAT
 		load_screen_text(Ending_text_filename, &br->text);
@@ -1240,9 +1240,9 @@ void do_shareware_end_game(void)
 #endif
 	}
 
-	for (cur_briefing_screen = 0; cur_briefing_screen < MAX_BRIEFING_SCREEN; cur_briefing_screen++)
-		if (Briefing_screens[cur_briefing_screen].level_num == SHAREWARE_ENDING_LEVEL_NUM)
-			if (show_briefing_screen(br, cur_briefing_screen, 0))
+	for (br->cur_screen = 0; br->cur_screen < MAX_BRIEFING_SCREEN; br->cur_screen++)
+		if (Briefing_screens[br->cur_screen].level_num == br->level_num)
+			if (show_briefing_screen(br))
 				break;
 
 	d_free(br->text);

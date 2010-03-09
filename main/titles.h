@@ -21,7 +21,6 @@ COPYRIGHT 1993-1998 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 #define _TITLES_H
 
 extern void show_titles(void);
-extern int show_briefing_screen( char * filename, int allow_keys );
 extern void do_briefing_screens(char *filename, int level_num);
 extern void do_end_game(void);
 extern char * get_briefing_screen( int level_num );
