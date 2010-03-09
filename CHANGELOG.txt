@@ -1,5 +1,9 @@
 D2X-Rebirth Changelog
 
+20100309
+--------
+main/titles.c: Put briefing globals in 'briefing' struct, pass this by parameter
+
 20100303
 --------
 arch/sdl/digi_audio.c, arch/sdl/digi_mixer.c: Changed default Audio-buffer size to 2048 bytes. Should prevent crackly playback on some systems
