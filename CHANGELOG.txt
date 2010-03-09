@@ -3,6 +3,7 @@ D2X-Rebirth Changelog
 20100309
 --------
 main/titles.c: Put briefing globals in 'briefing' struct, pass this by parameter
+arch/sdl/digi_audio.c, arch/sdl/digi_mixer.c: Change audio buffer size back to 1024 for Mac only - fixing crackly music
 
 20100303
 --------
