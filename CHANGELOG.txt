@@ -1,5 +1,9 @@
 D1X-Rebirth Changelog
 
+20100309
+--------
+main/titles.c: Put briefing globals in 'briefing' struct, pass this by parameter
+
 20100304
 --------
 main/piggy.c, main/text.c, main/text.h: Fixed some Piggy- and Text-loading routines for Shareware, Destination Saturn and 1.0 Registered; Full support for End-Briefing on non-registered still missing however
