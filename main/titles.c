@@ -351,17 +351,32 @@ typedef struct briefing
 {
 	short	level_num;
 	short	cur_screen;
+	briefing_screen	*screen;
 	grs_bitmap background;
 	char	background_name[16];
+	int		got_z;
+	int		hum_channel, printing_channel;
 	char	*text;
 	char	*message;
 	int		text_x, text_y;
 	msgstream messagestream[2048];
+	int		streamcount;
+	short	tab_stop;
+	ubyte	flashing_cursor;
+	ubyte	new_page;
+	ubyte	dumb_adjust;
+	ubyte	line_adjustment;
+	short	chattering;
+	int		delay_count;
+	int		robot_num;
 	grs_canvas	*robot_canv;
 	vms_angvec	robot_angles;
 	char	robot_playing;
 	char    bitmap_name[32];
+	grs_bitmap  guy_bitmap;
+	sbyte	guy_bitmap_show;
 	sbyte   door_dir, door_div_count, animating_bitmap_type;
+	sbyte	prev_ch;
 } briefing;
 
 void briefing_init(briefing *br, short level_num)
@@ -700,48 +715,45 @@ void redraw_messagestream(msgstream *stream, int count)
 //	Draws text, images and bitmaps actually
 int show_briefing(briefing *br)
 {
-	int	prev_ch=-1;
 	int	ch, done=0;
-	briefing_screen	*bsp;
-	int	delay_count = KEY_DELAY_DEFAULT;
 	int	key_check;
-	int	robot_num=-1;
 	int	rval=0;
-	static int tab_stop=0;
-	int	flashing_cursor=0;
-	int	new_page=0,GotZ=0;
-	char spinRobotName[]="rba.mve",kludge;  // matt don't change this!
-	char fname[15];
-	char DumbAdjust=0;
-	char chattering=0;
-	int hum_channel=-1,printing_channel=-1;
-	int LineAdjustment=1;
-	grs_bitmap  guy_bitmap;
-	int streamcount=0, guy_bitmap_show=0;
 
-	strncpy(fname, br->background_name, 15);//fname = br->background_name;
-	br->bitmap_name[0] = 0;
+	br->got_z = 0;
+	br->hum_channel = br->printing_channel = -1;
 	Current_color = 0;
+	br->streamcount = 0;
+	br->tab_stop = 0;
+	br->flashing_cursor = 0;
+	br->new_page = 0;
+	br->dumb_adjust = 0;
+	br->line_adjustment = 1;
+	br->chattering = 0;
+	br->delay_count = KEY_DELAY_DEFAULT;
+	br->robot_num = -1;
 	br->robot_playing=0;
+	br->bitmap_name[0] = 0;
+	br->guy_bitmap_show = 0;
+	br->prev_ch = -1;
 
 	#ifndef SHAREWARE
-	hum_channel  = digi_start_sound( digi_xlat_sound(SOUND_BRIEFING_HUM), F1_0/2, 0xFFFF/2, 1, -1, -1, -1 );
+	br->hum_channel  = digi_start_sound( digi_xlat_sound(SOUND_BRIEFING_HUM), F1_0/2, 0xFFFF/2, 1, -1, -1, -1 );
 	#endif
 
 	gr_set_curfont( GAME_FONT );
 
 	if (EMULATING_D1) {
-		GotZ = 1;
-		MALLOC(bsp, briefing_screen, 1);
-		memcpy(bsp, &Briefing_screens[br->cur_screen], sizeof(briefing_screen));
-		bsp->text_ulx = rescale_x(bsp->text_ulx);
-		bsp->text_uly = rescale_y(bsp->text_uly);
-		bsp->text_width = rescale_x(bsp->text_width);
-		bsp->text_height = rescale_y(bsp->text_height);
-		init_char_pos(br, bsp->text_ulx, bsp->text_uly);
+		br->got_z = 1;
+		MALLOC(br->screen, briefing_screen, 1);
+		memcpy(br->screen, &Briefing_screens[br->cur_screen], sizeof(briefing_screen));
+		br->screen->text_ulx = rescale_x(br->screen->text_ulx);
+		br->screen->text_uly = rescale_y(br->screen->text_uly);
+		br->screen->text_width = rescale_x(br->screen->text_width);
+		br->screen->text_height = rescale_y(br->screen->text_height);
+		init_char_pos(br, br->screen->text_ulx, br->screen->text_uly);
 	} else {
-		bsp=&Briefing_screens[0];
-		init_char_pos(br, bsp->text_ulx, bsp->text_uly-(8*(1+HIRESMODE)));
+		br->screen=&Briefing_screens[0];
+		init_char_pos(br, br->screen->text_ulx, br->screen->text_uly-(8*(1+HIRESMODE)));
 	}
 
 	while (!done) {
@@ -750,28 +762,28 @@ int show_briefing(briefing *br)
 			ch = *br->message++;
 			if (ch=='D') {
 				br->cur_screen=DefineBriefingBox (&br->message);
-				bsp = &Briefing_screens[br->cur_screen];
-				init_char_pos(br, bsp->text_ulx, bsp->text_uly);
-				LineAdjustment=0;
-				prev_ch = 10;                                   // read to eoln
+				br->screen = &Briefing_screens[br->cur_screen];
+				init_char_pos(br, br->screen->text_ulx, br->screen->text_uly);
+				br->line_adjustment=0;
+				br->prev_ch = 10;                                   // read to eoln
 			} else if (ch=='U') {
 				br->cur_screen=get_message_num(&br->message);
-				bsp = &Briefing_screens[br->cur_screen];
-				init_char_pos(br, bsp->text_ulx, bsp->text_uly);
-				prev_ch = 10;                                   // read to eoln
+				br->screen = &Briefing_screens[br->cur_screen];
+				init_char_pos(br, br->screen->text_ulx, br->screen->text_uly);
+				br->prev_ch = 10;                                   // read to eoln
 			} else if (ch == 'C') {
 				Current_color = get_message_num(&br->message)-1;
 				Assert((Current_color >= 0) && (Current_color < MAX_BRIEFING_COLORS));
-				prev_ch = 10;
+				br->prev_ch = 10;
 			} else if (ch == 'F') {     // toggle flashing cursor
-				flashing_cursor = !flashing_cursor;
-				prev_ch = 10;
+				br->flashing_cursor = !br->flashing_cursor;
+				br->prev_ch = 10;
 				while (*br->message++ != 10)
 					;
 			} else if (ch == 'T') {
-				tab_stop = get_message_num(&br->message);
-				tab_stop*=(1+HIRESMODE);
-				prev_ch = 10;							//	read to eoln
+				br->tab_stop = get_message_num(&br->message);
+				br->tab_stop*=(1+HIRESMODE);
+				br->prev_ch = 10;							//	read to eoln
 			} else if (ch == 'R') {
 				if (br->robot_canv != NULL)
 				{
@@ -785,10 +797,12 @@ int show_briefing(briefing *br)
 
 				if (EMULATING_D1) {
 					init_spinning_robot(br);
-					robot_num = get_message_num(&br->message);
+					br->robot_num = get_message_num(&br->message);
 					while (*br->message++ != 10)
 						;
 				} else {
+					char spinRobotName[]="rba.mve",kludge;  // matt don't change this!
+
 					kludge=*br->message++;
 					spinRobotName[2]=kludge; // ugly but proud
 
@@ -801,7 +815,7 @@ int show_briefing(briefing *br)
 						set_briefing_fontcolor (br);
 					}
 				}
-				prev_ch = 10;                           // read to eoln
+				br->prev_ch = 10;                           // read to eoln
 			} else if (ch == 'N') {
 				if (br->robot_canv != NULL)
 				{
@@ -812,7 +826,7 @@ int show_briefing(briefing *br)
 				get_message_name(&br->message, br->bitmap_name);
 				strcat(br->bitmap_name, "#0");
 				br->animating_bitmap_type = 0;
-				prev_ch = 10;
+				br->prev_ch = 10;
 			} else if (ch == 'O') {
 				if (br->robot_canv != NULL)
 				{
@@ -823,14 +837,15 @@ int show_briefing(briefing *br)
 				get_message_name(&br->message, br->bitmap_name);
 				strcat(br->bitmap_name, "#0");
 				br->animating_bitmap_type = 1;
-				prev_ch = 10;
+				br->prev_ch = 10;
 			} else if (ch=='A') {
-				LineAdjustment=1-LineAdjustment;
+				br->line_adjustment=1-br->line_adjustment;
 			} else if (ch=='Z') {
+				char fname[15];
 				int i;
 
-				GotZ=1;
-				DumbAdjust=1;
+				br->got_z=1;
+				br->dumb_adjust=1;
 				i=0;
 				while ((fname[i]=*br->message) != '\n') {
 					i++;
@@ -874,22 +889,22 @@ int show_briefing(briefing *br)
 
 				get_message_name(&br->message, bitmap_name);
 				strcat(bitmap_name, ".bbm");
-				gr_init_bitmap_data (&guy_bitmap);
-				iff_error = iff_read_bitmap(bitmap_name, &guy_bitmap, BM_LINEAR, temp_palette);
+				gr_init_bitmap_data (&br->guy_bitmap);
+				iff_error = iff_read_bitmap(bitmap_name, &br->guy_bitmap, BM_LINEAR, temp_palette);
 				Assert(iff_error == IFF_NO_ERROR);
-				gr_remap_bitmap_good( &guy_bitmap, temp_palette, -1, -1 );
+				gr_remap_bitmap_good( &br->guy_bitmap, temp_palette, -1, -1 );
 
-				show_briefing_bitmap(&guy_bitmap);
-				guy_bitmap_show=1;
-				prev_ch = 10;
+				show_briefing_bitmap(&br->guy_bitmap);
+				br->guy_bitmap_show=1;
+				br->prev_ch = 10;
 			} else if (ch == 'S') {
 				int keypress;
 				fix start_time;
 
-				chattering=0;
-				if (printing_channel>-1)
-					digi_stop_sound( printing_channel );
-				printing_channel=-1;
+				br->chattering=0;
+				if (br->printing_channel>-1)
+					digi_stop_sound( br->printing_channel );
+				br->printing_channel=-1;
 
 
 				start_time = timer_get_fixed_seconds();
@@ -901,15 +916,15 @@ int show_briefing(briefing *br)
 					if (!br->robot_playing)
 						gr_flip();
 					show_fullscr(&br->background);
-					redraw_messagestream(br->messagestream, streamcount);
-					if (guy_bitmap_show)
-						show_briefing_bitmap(&guy_bitmap);
-					flash_cursor(br, flashing_cursor);
+					redraw_messagestream(br->messagestream, br->streamcount);
+					if (br->guy_bitmap_show)
+						show_briefing_bitmap(&br->guy_bitmap);
+					flash_cursor(br, br->flashing_cursor);
 
 					if (br->robot_playing)
 						RotateRobot ();
-					if (robot_num != -1)
-						show_spinning_robot_frame(br, robot_num);
+					if (br->robot_num != -1)
+						show_spinning_robot_frame(br, br->robot_num);
 
 					if (br->bitmap_name[0] != 0)
 						show_animated_bitmap(br);
@@ -923,84 +938,84 @@ int show_briefing(briefing *br)
 				if (keypress == KEY_ESC)
 					rval = 1;
 
-				flashing_cursor = 0;
+				br->flashing_cursor = 0;
 				done = 1;
 			} else if (ch == 'P') {		//	New page.
-				if (!GotZ) {
+				if (!br->got_z) {
 					Int3(); // Hey ryan!!!! You gotta load a screen before you start
 					        // printing to it! You know, $Z !!!
 		  		    load_briefing_screen (br, HIRESMODE?"end01b.pcx":"end01.pcx");
 				}
 
-				new_page = 1;
+				br->new_page = 1;
 
 				while (*br->message != 10) {
 					br->message++;	//	drop carriage return after special escape sequence
 				}
 				br->message++;
-				prev_ch = 10;
+				br->prev_ch = 10;
 			}
 		} else if (ch == '\t') {		//	Tab
-			if (br->text_x - bsp->text_ulx < tab_stop)
-				br->text_x = bsp->text_ulx + tab_stop;
-		} else if ((ch == ';') && (prev_ch == 10)) {
+			if (br->text_x - br->screen->text_ulx < br->tab_stop)
+				br->text_x = br->screen->text_ulx + br->tab_stop;
+		} else if ((ch == ';') && (br->prev_ch == 10)) {
 			while (*br->message++ != 10)
 				;
-			prev_ch = 10;
+			br->prev_ch = 10;
 		} else if (ch == '\\') {
-			prev_ch = ch;
+			br->prev_ch = ch;
 		} else if (ch == 10) {
-			if (prev_ch != '\\') {
-				prev_ch = ch;
-				if (DumbAdjust==0)
+			if (br->prev_ch != '\\') {
+				br->prev_ch = ch;
+				if (br->dumb_adjust==0)
 					br->text_y += FSPACY(5)+FSPACY(5)*3/5;
 				else
-					DumbAdjust--;
-				br->text_x = bsp->text_ulx;
-				if (br->text_y > bsp->text_uly + bsp->text_height) {
+					br->dumb_adjust--;
+				br->text_x = br->screen->text_ulx;
+				if (br->text_y > br->screen->text_uly + br->screen->text_height) {
 					load_briefing_screen(br, Briefing_screens[br->cur_screen].bs_name);
-					br->text_x = bsp->text_ulx;
-					br->text_y = bsp->text_uly;
+					br->text_x = br->screen->text_ulx;
+					br->text_y = br->screen->text_uly;
 				}
 			} else {
 				if (ch == 13)		//Can this happen? Above says ch==10
 					Int3();
-				prev_ch = ch;
+				br->prev_ch = ch;
 			}
 		} else {
-			if (!GotZ) {
+			if (!br->got_z) {
 				Int3(); // Hey ryan!!!! You gotta load a screen before you start
 				        // printing to it! You know, $Z !!!
 				load_briefing_screen (br, HIRESMODE?"end01b.pcx":"end01.pcx");
 			}
 
-			br->messagestream[streamcount].x = br->text_x;
-			br->messagestream[streamcount].y = br->text_y;
-			br->messagestream[streamcount].color = Briefing_text_colors[Current_color];
-			br->messagestream[streamcount].ch = ch;
-			if (delay_count) {
+			br->messagestream[br->streamcount].x = br->text_x;
+			br->messagestream[br->streamcount].y = br->text_y;
+			br->messagestream[br->streamcount].color = Briefing_text_colors[Current_color];
+			br->messagestream[br->streamcount].ch = ch;
+			if (br->delay_count) {
 				if (!br->robot_playing)
 					gr_flip();
 				show_fullscr(&br->background);
-				redraw_messagestream(br->messagestream, streamcount);
+				redraw_messagestream(br->messagestream, br->streamcount);
 			}
-			if (guy_bitmap_show)
-				show_briefing_bitmap(&guy_bitmap);
-			streamcount++;
+			if (br->guy_bitmap_show)
+				show_briefing_bitmap(&br->guy_bitmap);
+			br->streamcount++;
 
-			prev_ch = ch;
+			br->prev_ch = ch;
 
-			if (!chattering) {
-		 		printing_channel  = digi_start_sound( digi_xlat_sound(SOUND_BRIEFING_PRINTING), F1_0, 0xFFFF/2, 1, -1, -1, -1 );
-				chattering=1;
+			if (!br->chattering) {
+		 		br->printing_channel  = digi_start_sound( digi_xlat_sound(SOUND_BRIEFING_PRINTING), F1_0, 0xFFFF/2, 1, -1, -1, -1 );
+				br->chattering=1;
 			}
 
-			br->text_x += show_char_delay(br, ch, delay_count, robot_num, flashing_cursor);
+			br->text_x += show_char_delay(br, ch, br->delay_count, br->robot_num, br->flashing_cursor);
 
 		}
 
 		//	Check for Esc -> abort.
-		if(delay_count)
+		if(br->delay_count)
 			key_check=local_key_inkey();
 		else
 			key_check=0;
@@ -1011,24 +1026,24 @@ int show_briefing(briefing *br)
 		}
 
 		if ((key_check == KEY_SPACEBAR) || (key_check == KEY_ENTER))
-			delay_count = 0;
+			br->delay_count = 0;
 
-		if (br->text_x > bsp->text_ulx + bsp->text_width) {
-			br->text_x = bsp->text_ulx;
-			br->text_y += bsp->text_uly;
+		if (br->text_x > br->screen->text_ulx + br->screen->text_width) {
+			br->text_x = br->screen->text_ulx;
+			br->text_y += br->screen->text_uly;
 		}
 
-		if ((new_page) || (br->text_y > bsp->text_uly + bsp->text_height)) {
+		if ((br->new_page) || (br->text_y > br->screen->text_uly + br->screen->text_height)) {
 			fix	start_time = 0;
 			int	keypress;
 
-			new_page = 0;
+			br->new_page = 0;
 
-			if (printing_channel>-1)
-				digi_stop_sound( printing_channel );
-			printing_channel=-1;
+			if (br->printing_channel>-1)
+				digi_stop_sound( br->printing_channel );
+			br->printing_channel=-1;
 
-			chattering=0;
+			br->chattering=0;
 
 			start_time = timer_get_fixed_seconds();
 			while ( (keypress = local_key_inkey()) == 0 ) {		//	Wait for a key
@@ -1038,14 +1053,14 @@ int show_briefing(briefing *br)
 				if (!br->robot_playing)
 					gr_flip();
 				show_fullscr(&br->background);
-				redraw_messagestream(br->messagestream, streamcount);
-				if (guy_bitmap_show)
-					show_briefing_bitmap(&guy_bitmap);
-				flash_cursor(br, flashing_cursor);
+				redraw_messagestream(br->messagestream, br->streamcount);
+				if (br->guy_bitmap_show)
+					show_briefing_bitmap(&br->guy_bitmap);
+				flash_cursor(br, br->flashing_cursor);
 				if (br->robot_playing)
 					RotateRobot();
-				if (robot_num != -1)
-					show_spinning_robot_frame(br, robot_num);
+				if (br->robot_num != -1)
+					show_spinning_robot_frame(br, br->robot_num);
 				if (br->bitmap_name[0] != 0)
 					show_animated_bitmap(br);
 				start_time += KEY_DELAY_DEFAULT/2;
@@ -1054,7 +1069,7 @@ int show_briefing(briefing *br)
 			if (br->robot_playing)
 				DeInitRobotMovie();
 			br->robot_playing=0;
-			robot_num = -1;
+			br->robot_num = -1;
 
 #ifndef NDEBUG
 			if (keypress == KEY_BACKSP)
@@ -1064,17 +1079,17 @@ int show_briefing(briefing *br)
 				rval = 1;
 				done = 1;
 			}
-			load_briefing_screen(br, fname);
-			br->text_x = bsp->text_ulx;
-			br->text_y = bsp->text_uly;
+			load_briefing_screen(br, br->background_name);
+			br->text_x = br->screen->text_ulx;
+			br->text_y = br->screen->text_uly;
 
-			streamcount=0;
-			if (guy_bitmap_show) {
-				gr_free_bitmap_data (&guy_bitmap);
-				guy_bitmap_show=0;
+			br->streamcount=0;
+			if (br->guy_bitmap_show) {
+				gr_free_bitmap_data (&br->guy_bitmap);
+				br->guy_bitmap_show=0;
 			}
 
-			delay_count = KEY_DELAY_DEFAULT;
+			br->delay_count = KEY_DELAY_DEFAULT;
 		}
 	}
 
@@ -1086,12 +1101,12 @@ int show_briefing(briefing *br)
 	if (br->robot_canv != NULL)
 		{d_free(br->robot_canv); br->robot_canv=NULL;}
 
-	if (hum_channel>-1)
-		digi_stop_sound( hum_channel );
-	if (printing_channel>-1)
-		digi_stop_sound( printing_channel );
+	if (br->hum_channel>-1)
+		digi_stop_sound( br->hum_channel );
+	if (br->printing_channel>-1)
+		digi_stop_sound( br->printing_channel );
 	if (EMULATING_D1) {
-		d_free(bsp);
+		d_free(br->screen);
 	}
 
 	if (br->background.bm_data != NULL)
