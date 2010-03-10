@@ -1,5 +1,9 @@
 D1X-Rebirth Changelog
 
+20100310
+--------
+main/titles.c: Put most local variables in show_briefing in 'briefing' struct, to make briefing a window in future
+
 20100309
 --------
 main/titles.c: Put briefing globals in 'briefing' struct, pass this by parameter
