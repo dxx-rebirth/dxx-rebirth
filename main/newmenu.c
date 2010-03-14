@@ -1870,7 +1870,7 @@ int listbox_idle(window *wind, listbox *lb)
 		
 		mouse_get_pos(&mx, &my, &mz);
 		for (i=lb->first_item; i<lb->first_item+LB_ITEMS_ON_SCREEN; i++ )	{
-			if (i > lb->nitems)
+			if (i >= lb->nitems)
 				break;
 			gr_get_string_size(lb->item[i], &w, &h, &aw  );
 			x1 = lb->box_x;
