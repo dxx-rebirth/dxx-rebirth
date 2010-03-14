@@ -1,5 +1,9 @@
 D1X-Rebirth Changelog
 
+20100313
+--------
+main/newmenu.c: Fix memory error for listbox when clicking in the region where there are no items
+
 20100310
 --------
 main/titles.c: Put most local variables in show_briefing in 'briefing' struct, to make briefing a window in future
