@@ -29,9 +29,11 @@ COPYRIGHT 1993-1999 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 #include <ctype.h>
 
 #include "movie.h"
+#include "window.h"
 #include "console.h"
 #include "args.h"
 #include "key.h"
+#include "mouse.h"
 #include "digi.h"
 #include "songs.h"
 #include "inferno.h"
@@ -201,7 +203,6 @@ void MovieShowFrame(ubyte *buf, uint bufw, uint bufh, uint sx, uint sy, uint w, 
 #else
 	gr_bm_ubitbltm(bufw,bufh,dstx*((double)grd_curscreen->sc_w/(GameArg.GfxMovieHires?640:320)),dsty*((double)grd_curscreen->sc_h/(GameArg.GfxMovieHires?480:200)),sx,sy,&source_bm,&grd_curcanv->cv_bitmap);
 #endif
-	gr_flip();
 }
 
 //our routine to set the pallete, called from the movie code
@@ -224,43 +225,132 @@ void MovieSetPalette(unsigned char *p, unsigned start, unsigned count)
 }
 
 
-void show_pause_message(char *msg)
+typedef struct movie
 {
-	int w,h,aw;
-	int x,y;
+	int result, aborted;
+	int frame_num;
+} movie;
 
-	gr_set_current_canvas(NULL);
-	gr_set_curfont( GAME_FONT );
+int show_pause_message(window *wind, d_event *event, void *userdata)
+{
+	userdata = userdata;
 
-	gr_get_string_size(msg,&w,&h,&aw);
+	switch (event->type)
+	{
+		case EVENT_KEY_COMMAND:
+			window_close(wind);
+			return 1;
 
-	x = (grd_curscreen->sc_w-w)/2;
-	y = (grd_curscreen->sc_h-h)/2;
+		case EVENT_IDLE:
+			if (mouse_button_state(0))
+			{
+				window_close(wind);
+				return 1;
+			}
+			break;
+			
+		case EVENT_WINDOW_DRAW:
+		{
+			char *msg = TXT_PAUSE;
+			int w,h,aw;
+			int x,y;
 
-	gr_set_fontcolor( 255, -1 );
+			gr_set_current_canvas(NULL);
+			gr_set_curfont( GAME_FONT );
 
-	gr_ustring( 0x8000, y, msg );
+			gr_get_string_size(msg,&w,&h,&aw);
 
-	gr_flip();
+			x = (grd_curscreen->sc_w-w)/2;
+			y = (grd_curscreen->sc_h-h)/2;
+
+			gr_set_fontcolor( 255, -1 );
+
+			gr_ustring( 0x8000, y, msg );
+			break;
+		}
+			
+		default:
+			break;
+	}
+	
+	return 0;
 }
 
-void clear_pause_message()
+int MovieHandler(window *wind, d_event *event, movie *m)
 {
+	int key;
+
+	switch (event->type)
+	{
+		case EVENT_KEY_COMMAND:
+			key = ((d_event_keycommand *)event)->keycode;
+			
+			// If ESCAPE pressed, then quit movie.
+			if (key == KEY_ESC) {
+				m->result = m->aborted = 1;
+				window_close(wind);
+				return 1;
+			}
+			
+			// If PAUSE pressed, then pause movie
+			if ((key == KEY_PAUSE) || (key == KEY_COMMAND + KEY_P))
+			{
+				if (window_create(&grd_curscreen->sc_canvas, 0, 0, SWIDTH, SHEIGHT, show_pause_message, NULL))
+					MVE_rmHoldMovie();
+				return 1;
+			}
+			break;
+
+		case EVENT_IDLE:
+			m->result = MVE_rmStepMovie();
+			if (m->result)
+			{
+				window_close(wind);
+				return 1;
+			}
+			break;
+
+		case EVENT_WINDOW_DRAW:
+			draw_subtitles(m->frame_num);
+			
+			gr_palette_load(gr_palette);
+			
+			m->frame_num++;
+			break;
+			
+		default:
+			break;
+	}
+	
+	return 0;
 }
 
 //returns status.  see movie.h
 int RunMovie(char *filename, int hires_flag, int must_have,int dx,int dy)
 {
+	window *wind;
+	movie *m;
 	SDL_RWops *filehndl;
-	int result=1,aborted=0;
 	int track = 0;
-	int frame_num;
-	int key;
+	int aborted = 0;
 #ifdef OGL
 	ubyte pal_save[768];
 #endif
 
-	result=1;
+	MALLOC(m, movie, 1);
+	if (!m)
+		return MOVIE_NOT_PLAYED;
+		
+	m->result = 1;
+	m->aborted = 0;
+	m->frame_num = 0;
+	
+	wind = window_create(&grd_curscreen->sc_canvas, 0, 0, SWIDTH, SHEIGHT, (int (*)(window *, d_event *, void *))MovieHandler, m);
+	if (!wind)
+	{
+		d_free(m);
+		return MOVIE_NOT_PLAYED;
+	}
 
 	// Open Movie file.  If it doesn't exist, no movie, just return.
 
@@ -270,6 +360,8 @@ int RunMovie(char *filename, int hires_flag, int must_have,int dx,int dy)
 	{
 		if (must_have)
 			con_printf(CON_URGENT, "Can't open movie <%s>: %s\n", filename, PHYSFS_getLastError());
+		window_close(wind);
+		d_free(m);
 		return MOVIE_NOT_PLAYED;
 	}
 
@@ -289,44 +381,25 @@ int RunMovie(char *filename, int hires_flag, int must_have,int dx,int dy)
 
 	if (MVE_rmPrepMovie((void *)filehndl, dx, dy, track)) {
 		Int3();
+		SDL_FreeRW(filehndl);
+		window_close(wind);
+		d_free(m);
 		return MOVIE_NOT_PLAYED;
 	}
 
 	MVE_sfCallbacks(MovieShowFrame);
 	MVE_palCallbacks(MovieSetPalette);
 
-	frame_num = 0;
+	while (window_exists(wind))
+		event_process();
 
-	while((result = MVE_rmStepMovie()) == 0) {
-
-		draw_subtitles(frame_num);
-
-		gr_palette_load(gr_palette);
-
-		key = key_inkey();
-
-		// If ESCAPE pressed, then quit movie.
-		if (key == KEY_ESC) {
-			result = aborted = 1;
-			break;
-		}
-
-		// If PAUSE pressed, then pause movie
-		if (key == KEY_PAUSE) {
-			MVE_rmHoldMovie();
-			show_pause_message(TXT_PAUSE);
-			while (!key_inkey()) ;
-			clear_pause_message();
-		}
-
-		frame_num++;
-	}
-
-	Assert(aborted || result == MVE_ERR_EOF);	 ///movie should be over
+	Assert(m->aborted || m->result == MVE_ERR_EOF);	 ///movie should be over
 
     MVE_rmEndMovie();
 
 	SDL_FreeRW(filehndl);                           // Close Movie File
+	aborted = m->aborted;
+	d_free(m);
 
 	// Restore old graphic state
 
@@ -365,8 +438,9 @@ int RotateRobot()
 			Int3();
 			return 0;
 		}
+		err = MVE_rmStepMovie();
 	}
-	else if (err) {
+	if (err) {
 		Int3();
 		return 0;
 	}

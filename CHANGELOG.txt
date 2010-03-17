@@ -1,5 +1,9 @@
 D2X-Rebirth Changelog
 
+20100317
+--------
+arch/include/window.h, arch/sdl/window.c, libmve/mveplay.c, main/movie.c, main/titles.c: Make fullscreen movies into windows, maintain performance of robot briefing movies with necessary move of gr_flip
+
 20100313
 --------
 main/newmenu.c: Fix memory error for listbox when clicking in the region where there are no items

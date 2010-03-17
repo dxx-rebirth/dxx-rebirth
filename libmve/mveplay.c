@@ -753,6 +753,9 @@ int MVE_rmStepMovie()
 	while (cont && !g_frameUpdated) // make a "step" be a frame, not a chunk...
 		cont = mve_play_next_chunk(mve);
 	g_frameUpdated = 0;
+	
+	if (!cont)
+		return MVE_ERR_EOF;
 
 	if (micro_frame_delay  && !init_timer) {
 		timer_start();
@@ -761,10 +764,7 @@ int MVE_rmStepMovie()
 
 	do_timer_wait();
 
-	if (cont)
-		return 0;
-	else
-		return MVE_ERR_EOF;
+	return 0;
 }
 
 void MVE_rmEndMovie()
