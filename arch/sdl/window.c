@@ -109,6 +109,15 @@ int window_close(window *wind)
 	return 1;
 }
 
+int window_exists(window *wind)
+{
+	window *w;
+
+	for (w = FirstWindow; w && w != wind; w = w->next) {}
+	
+	return w && w == wind;
+}
+
 // Get the top window that's visible
 window *window_get_front(void)
 {

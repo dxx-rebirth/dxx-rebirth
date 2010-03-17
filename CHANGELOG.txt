@@ -1,5 +1,9 @@
 D1X-Rebirth Changelog
 
+20100317
+--------
+arch/sdl/window.c, arch/include/window.h: Add window_exists function so event loops can be placed for specific windows
+
 20100313
 --------
 main/newmenu.c: Fix memory error for listbox when clicking in the region where there are no items
