@@ -1697,7 +1697,7 @@ struct listbox
 	char **item;
 	int allow_abort_flag;
 	int (*listbox_callback)(listbox *lb, d_event *event, void *userdata);
-	int done, citem, first_item;
+	int citem, first_item;
 	int box_w, height, box_x, box_y, title_height;
 	int mouse_state, omouse_state;
 	void *userdata;
@@ -1797,7 +1797,7 @@ int listbox_key_command(window *wind, d_event *event, listbox *lb)
 		case KEY_ESC:
 			if (lb->allow_abort_flag) {
 				lb->citem = -1;
-				lb->done = 1;
+				window_close(wind);
 				return 1;
 			}
 			break;
@@ -1808,7 +1808,7 @@ int listbox_key_command(window *wind, d_event *event, listbox *lb)
 			if (lb->listbox_callback && (*lb->listbox_callback)(lb, event, lb->userdata))
 				return 1;
 			
-			lb->done = 1;
+			window_close(wind);
 			return 1;
 			break;
 			
@@ -1884,7 +1884,7 @@ int listbox_idle(window *wind, listbox *lb)
 				if (lb->listbox_callback && (*lb->listbox_callback)(lb, &event, lb->userdata))
 					return 1;
 				
-				lb->done = 1;
+				window_close(wind);
 				return 1;
 				break;
 			}
@@ -1949,15 +1949,7 @@ int listbox_handler(window *wind, d_event *event, listbox *lb)
 	{
 		int rval = (*lb->listbox_callback)(lb, event, lb->userdata);
 		if (rval)
-		{
-			if (rval < -1)
-			{
-				lb->citem = rval;
-				lb->done = 1;
-			}
-			
 			return 1;		// event handled
-		}
 	}
 	
 	switch (event->type)
@@ -1984,13 +1976,6 @@ int listbox_handler(window *wind, d_event *event, listbox *lb)
 			break;
 			
 		case EVENT_WINDOW_CLOSE:
-			if (!lb->done)
-			{
-				lb->citem = -1;
-				lb->done = 1;
-				return 1;	// cancel close and do it in newmenu_listbox1 instead
-			}
-			
 			d_free(lb);
 			break;
 			
@@ -2001,22 +1986,21 @@ int listbox_handler(window *wind, d_event *event, listbox *lb)
 	return 0;
 }
 
-int newmenu_listbox( char * title, int nitems, char * items[], int allow_abort_flag, int (*listbox_callback)(listbox *lb, d_event *event, void *userdata), void *userdata )
+listbox *newmenu_listbox( char * title, int nitems, char * items[], int allow_abort_flag, int (*listbox_callback)(listbox *lb, d_event *event, void *userdata), void *userdata )
 {
 	return newmenu_listbox1( title, nitems, items, allow_abort_flag, 0, listbox_callback, userdata );
 }
 
-int newmenu_listbox1( char * title, int nitems, char * items[], int allow_abort_flag, int default_item, int (*listbox_callback)(listbox *lb, d_event *event, void *userdata), void *userdata )
+listbox *newmenu_listbox1( char * title, int nitems, char * items[], int allow_abort_flag, int default_item, int (*listbox_callback)(listbox *lb, d_event *event, void *userdata), void *userdata )
 {
 	listbox *lb;
 	window *wind;
-	int i, rval = -1;
-	int done = 0;
+	int i;
 
 	MALLOC(lb, listbox, 1);
 	
 	if (!lb)
-		return -1;
+		return NULL;
 
 	memset(lb, 0, sizeof(listbox));	
 	newmenu_close();
@@ -2059,10 +2043,9 @@ int newmenu_listbox1( char * title, int nitems, char * items[], int allow_abort_
 	{
 		d_free(lb);
 		
-		return -1;
+		return NULL;
 	}
 
-	lb->done = 0;
 	lb->citem = default_item;
 	if ( lb->citem < 0 ) lb->citem = 0;
 	if ( lb->citem >= nitems ) lb->citem = 0;
@@ -2072,21 +2055,7 @@ int newmenu_listbox1( char * title, int nitems, char * items[], int allow_abort_
 
 	lb->mouse_state = lb->omouse_state = 0;	//dblclick_flag = 0;
 
-	while(!done)
-	{
-		event_process();
-		
-		if (lb->done)
-		{
-			rval = lb->citem;
-			if (!window_close(wind))
-				lb->done = 0;	// user aborted close
-			else
-				done = 1;
-		}
-	}
-
-	return rval;
+	return lb;
 }
 
 //added on 10/14/98 by Victor Rachels to attempt a fixedwidth font messagebox

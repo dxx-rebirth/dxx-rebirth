@@ -7,7 +7,7 @@
 #include "multi.h"
 
 // Exported functions
-void net_udp_start_game(void);
+int net_udp_start_game(void);
 void net_udp_manual_join_game();
 int net_udp_objnum_is_past(int objnum);
 void net_udp_do_frame(int force, int listen);

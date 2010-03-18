@@ -2814,9 +2814,6 @@ int net_udp_get_game_params()
 	Netgame.AllowedItems |= NETFLAG_DOPOWERUP;
 	Netgame.PacketLossPrevention = 1;
 
-	if (!select_mission(1, TXT_MULTI_MISSION))
-		return -1;
-
 	strcpy(Netgame.mission_name, Current_mission_filename);
 	strcpy(Netgame.mission_title, Current_mission_longname);
 
@@ -3314,35 +3311,27 @@ abort:
 	return(1);
 }
 
-void 
-net_udp_start_game()
+int net_udp_start_game(void)
 {
 	int i;
-
-	// FIXME: Keep multiplayer menu to go back to
-	//if (setjmp(LeaveGame))
-	//{
-	//	Game_mode = GM_GAME_OVER;
-	//	return;
-	//}
 
 	net_udp_init();
 	change_playernum_to(0);
 
 	i = net_udp_get_game_params();
 
-	if (i<0) return;
+	if (i<0) return 0;
 
 	i = udp_open_socket(0, atoi(UDP_MyPort));
 
 	if (i != 0)
-		return;
+		return 0;
 	
 	if (atoi(UDP_MyPort) != UDP_PORT_DEFAULT)
 		i = udp_open_socket(1, UDP_PORT_DEFAULT); // Default port open for Broadcasts
 
 	if (i != 0)
-		return;
+		return 0;
 
 	if (is_D2_OEM)
 		UDP_Seq.player.version_minor|=0x10;
@@ -3364,6 +3353,7 @@ net_udp_start_game()
 	else
 		Game_mode = GM_GAME_OVER;
 	
+	return 1;	// FIXME: keep mission listbox for convenience. Need to keep main menu first
 }
 
 int net_udp_wait_for_sync(void)

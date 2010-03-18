@@ -120,7 +120,8 @@ static window *menus[16];
 
 // Function Prototypes added after LINTING
 void do_option(int select);
-void do_new_game_menu(void);
+int do_new_game_menu(void);
+int do_load_level_menu(void);
 void do_multi_player_menu();
 extern void newmenu_close();
 extern void ReorderPrimary();
@@ -525,7 +526,7 @@ void do_option ( int select)
 {
 	switch (select) {
 		case MENU_NEW_GAME:
-			do_new_game_menu();
+			select_mission(0, "New Game\n\nSelect mission", do_new_game_menu);
 			break;
 		case MENU_GAME:
 			break;
@@ -584,22 +585,7 @@ void do_option ( int select)
 			break;
 		}
 		case MENU_LOAD_LEVEL:
-			if (Current_mission || select_mission(0, "Load Level\n\nSelect mission"))
-			{
-				newmenu_item m;
-				char text[10]="";
-				int new_level_num;
-	
-				m.type=NM_TYPE_INPUT; m.text_len = 10; m.text = text;
-	
-				newmenu_do( NULL, "Enter level to load", 1, &m, NULL, NULL );
-	
-				new_level_num = atoi(m.text);
-	
-				if (new_level_num!=0 && new_level_num>=Last_secret_level && new_level_num<=Last_level)  {
-					StartNewGame(new_level_num);
-				}
-			}
+			select_mission(0, "Load Level\n\nSelect mission", do_load_level_menu);
 			break;
 
 #endif //ifndef RELEASE
@@ -608,7 +594,7 @@ void do_option ( int select)
 #ifdef USE_UDP
 		case MENU_START_UDP_NETGAME:
 			multi_protocol = MULTI_PROTO_UDP;
-			net_udp_start_game();
+			select_mission(1, TXT_MULTI_MISSION, net_udp_start_game);
 			break;
 		case MENU_JOIN_MANUAL_UDP_NETGAME:
 			multi_protocol = MULTI_PROTO_UDP;
@@ -623,7 +609,7 @@ void do_option ( int select)
 		case MENU_START_IPX_NETGAME:
 			multi_protocol = MULTI_PROTO_IPX;
 			ipxdrv_set(NETPROTO_IPX);
-			net_ipx_start_game();
+			select_mission(1, TXT_MULTI_MISSION, net_ipx_start_game);
 			break;
 		case MENU_JOIN_IPX_NETGAME:
 			multi_protocol = MULTI_PROTO_IPX;
@@ -633,7 +619,7 @@ void do_option ( int select)
 		case MENU_START_KALI_NETGAME:
 			multi_protocol = MULTI_PROTO_IPX;
 			ipxdrv_set(NETPROTO_KALINIX);
-			net_ipx_start_game();
+			select_mission(1, TXT_MULTI_MISSION, net_ipx_start_game);
 			break;
 		case MENU_JOIN_KALI_NETGAME:
 			multi_protocol = MULTI_PROTO_IPX;
@@ -817,13 +803,10 @@ int do_difficulty_menu()
 	return 0;
 }
 
-void do_new_game_menu()
+int do_new_game_menu()
 {
 	int new_level_num,player_highest_level;
 
-    if (!select_mission(0, "New Game\n\nSelect mission"))
-        return;
-    
 	new_level_num = 1;
 
 	player_highest_level = get_highest_level();
@@ -849,7 +832,7 @@ try_again:
 		choice = newmenu_do( NULL, TXT_SELECT_START_LEV, n_items, m, NULL, NULL );
 
 		if (choice==-1 || m[1].text[0]==0)
-			return;
+			return 0;
 
 		new_level_num = atoi(m[1].text);
 
@@ -863,10 +846,31 @@ try_again:
 	Difficulty_level = PlayerCfg.DefaultDifficulty;
 
 	if (!do_difficulty_menu())
-		return;
+		return 0;
 
 	StartNewGame(new_level_num);
 
+	return 1;	// exit mission listbox
+}
+
+int do_load_level_menu(void)
+{
+	newmenu_item m;
+	char text[10]="";
+	int new_level_num;
+	
+	m.type=NM_TYPE_INPUT; m.text_len = 10; m.text = text;
+	
+	newmenu_do( NULL, "Enter level to load", 1, &m, NULL, NULL );
+	
+	new_level_num = atoi(m.text);
+	
+	if (new_level_num!=0 && new_level_num>=Last_secret_level && new_level_num<=Last_level)  {
+		StartNewGame(new_level_num);
+		return 1;
+	}
+	
+	return 0;
 }
 
 void do_sound_menu();
@@ -1163,10 +1167,10 @@ int sound_menuset(newmenu *menu, d_event *event, void *userdata)
 						digi_set_midi_volume( (GameCfg.MusicVolume*128)/8 );
 					break;
 					
-					case 3:
-					case 4:
+				case 3:
+				case 4:
 #ifdef USE_SDLMIXER
-					case 5:
+				case 5:
 					GameCfg.JukeboxOn = items[5].value;
 #endif
 					GameCfg.SndEnableRedbook = items[4].value;
@@ -1291,42 +1295,36 @@ void do_multi_player_menu()
 	int menu_choice[12];
 	newmenu_item m[12];
 	int choice = 0, num_options = 0;
-	int old_game_mode;
 
-	do {
-		old_game_mode = Game_mode;
-		num_options = 0;
+	num_options = 0;
 
 #ifdef USE_UDP
-		m[num_options].type=NM_TYPE_TEXT; m[num_options].text="UDP:"; num_options++;
-		m[num_options].type=NM_TYPE_MENU; m[num_options].text="HOST GAME"; menu_choice[num_options]=MENU_START_UDP_NETGAME; num_options++;
-		m[num_options].type=NM_TYPE_MENU; m[num_options].text="FIND LAN GAMES"; menu_choice[num_options]=MENU_JOIN_LIST_UDP_NETGAME; num_options++;
-		//m[num_options].type=NM_TYPE_MENU; m[num_options].text="FIND LAN/ONLINE GAMES"; menu_choice[num_options]=MENU_JOIN_LIST_UDP_NETGAME; num_options++;
-		m[num_options].type=NM_TYPE_MENU; m[num_options].text="JOIN GAME MANUALLY"; menu_choice[num_options]=MENU_JOIN_MANUAL_UDP_NETGAME; num_options++;
+	m[num_options].type=NM_TYPE_TEXT; m[num_options].text="UDP:"; num_options++;
+	m[num_options].type=NM_TYPE_MENU; m[num_options].text="HOST GAME"; menu_choice[num_options]=MENU_START_UDP_NETGAME; num_options++;
+	m[num_options].type=NM_TYPE_MENU; m[num_options].text="FIND LAN GAMES"; menu_choice[num_options]=MENU_JOIN_LIST_UDP_NETGAME; num_options++;
+	//m[num_options].type=NM_TYPE_MENU; m[num_options].text="FIND LAN/ONLINE GAMES"; menu_choice[num_options]=MENU_JOIN_LIST_UDP_NETGAME; num_options++;
+	m[num_options].type=NM_TYPE_MENU; m[num_options].text="JOIN GAME MANUALLY"; menu_choice[num_options]=MENU_JOIN_MANUAL_UDP_NETGAME; num_options++;
 #endif
 
 #ifdef USE_IPX
-		m[num_options].type=NM_TYPE_TEXT; m[num_options].text=""; num_options++;
-		m[num_options].type=NM_TYPE_TEXT; m[num_options].text="IPX:"; num_options++;
-		m[num_options].type=NM_TYPE_MENU; m[num_options].text="HOST GAME"; menu_choice[num_options]=MENU_START_IPX_NETGAME; num_options++;
-		m[num_options].type=NM_TYPE_MENU; m[num_options].text="JOIN GAME"; menu_choice[num_options]=MENU_JOIN_IPX_NETGAME; num_options++;
+	m[num_options].type=NM_TYPE_TEXT; m[num_options].text=""; num_options++;
+	m[num_options].type=NM_TYPE_TEXT; m[num_options].text="IPX:"; num_options++;
+	m[num_options].type=NM_TYPE_MENU; m[num_options].text="HOST GAME"; menu_choice[num_options]=MENU_START_IPX_NETGAME; num_options++;
+	m[num_options].type=NM_TYPE_MENU; m[num_options].text="JOIN GAME"; menu_choice[num_options]=MENU_JOIN_IPX_NETGAME; num_options++;
 #ifdef __LINUX__
-		m[num_options].type=NM_TYPE_TEXT; m[num_options].text=""; num_options++;
-		m[num_options].type=NM_TYPE_TEXT; m[num_options].text="XKALI:"; num_options++;
-		m[num_options].type=NM_TYPE_MENU; m[num_options].text="HOST GAME"; menu_choice[num_options]=MENU_START_KALI_NETGAME; num_options++;
-		m[num_options].type=NM_TYPE_MENU; m[num_options].text="JOIN GAME"; menu_choice[num_options]=MENU_JOIN_KALI_NETGAME; num_options++;
+	m[num_options].type=NM_TYPE_TEXT; m[num_options].text=""; num_options++;
+	m[num_options].type=NM_TYPE_TEXT; m[num_options].text="XKALI:"; num_options++;
+	m[num_options].type=NM_TYPE_MENU; m[num_options].text="HOST GAME"; menu_choice[num_options]=MENU_START_KALI_NETGAME; num_options++;
+	m[num_options].type=NM_TYPE_MENU; m[num_options].text="JOIN GAME"; menu_choice[num_options]=MENU_JOIN_KALI_NETGAME; num_options++;
 #endif
 #endif
 
-		choice = newmenu_do1( NULL, TXT_MULTIPLAYER, num_options, m, NULL, NULL, choice );
-		
-		if ( choice > -1 )
-			do_option(menu_choice[choice]);
+	choice = newmenu_do1( NULL, TXT_MULTIPLAYER, num_options, m, NULL, NULL, choice );
 	
-		if (old_game_mode != Game_mode)
-			break;          // leave menu
-
-	} while( choice > -1 );
+	// FIXME: Stay in multiplayer menu for convenience. Must make newmenu_do's fall back to main loop first,
+	// due to LeaveEvents longjmp hack
+	if ( choice > -1 )
+		do_option(menu_choice[choice]);
 }
 #endif
 
