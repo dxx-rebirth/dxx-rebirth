@@ -84,7 +84,7 @@ int load_mission_by_name (char *mission_name);
 
 //Handles creating and selecting from the mission list.
 //Returns 1 if a mission was loaded.
-int select_mission (int anarchy_mode, char *message);
+int select_mission (int anarchy_mode, char *message, int (*when_selected)(void));
 
 void free_mission(void);
 

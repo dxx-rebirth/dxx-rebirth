@@ -1086,6 +1086,7 @@ int game_handler(window *wind, d_event *event, void *data)
 			
 			clear_warn_func(game_show_warning);     //don't use this func anymore
 			game_disable_cheats();
+			show_menus();
 			Game_wind = NULL;
 			return 0;	// continue closing
 			break;
@@ -1105,6 +1106,7 @@ int game_handler(window *wind, d_event *event, void *data)
 // Initialise game, actually runs in main event loop
 void game()
 {
+	hide_menus();
 	Game_wind = game_setup();
 }
 

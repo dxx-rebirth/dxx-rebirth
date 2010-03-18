@@ -146,8 +146,8 @@ extern int listbox_get_nitems(listbox *lb);
 extern int listbox_get_citem(listbox *lb);
 extern void listbox_delete_item(listbox *lb, int item);
 
-extern int newmenu_listbox(char *title, int nitems, char *items[], int allow_abort_flag, int (*listbox_callback)(listbox *lb, d_event *event, void *userdata), void *userdata);
-extern int newmenu_listbox1(char *title, int nitems, char *items[], int allow_abort_flag, int default_item, int (*listbox_callback)(listbox *lb, d_event *event, void *userdata), void *userdata);
+extern listbox *newmenu_listbox(char *title, int nitems, char *items[], int allow_abort_flag, int (*listbox_callback)(listbox *lb, d_event *event, void *userdata), void *userdata);
+extern listbox *newmenu_listbox1(char *title, int nitems, char *items[], int allow_abort_flag, int default_item, int (*listbox_callback)(listbox *lb, d_event *event, void *userdata), void *userdata);
 
 //added on 10/14/98 by Victor Rachels to attempt a fixedwidth font messagebox
 int nm_messagebox_fixedfont(char *title, int nchoices, ...);

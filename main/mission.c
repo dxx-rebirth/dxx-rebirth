@@ -622,17 +622,84 @@ int load_mission_by_name(char *mission_name)
 	return found;
 }
 
-int select_mission(int anarchy_mode, char *message)
+typedef struct mission_menu
+{
+	mle *mission_list;
+	int (*when_selected)(void);
+} mission_menu;
+
+int mission_menu_handler(listbox *lb, d_event *event, mission_menu *mm)
+{
+	char **list = listbox_get_items(lb);
+	int citem = listbox_get_citem(lb);
+
+	switch (event->type)
+	{
+		case EVENT_NEWMENU_SELECTED:
+			if (citem >= 0)
+			{
+				// Chose a mission
+				strcpy(GameCfg.LastMission, list[citem]);
+				
+				if (!load_mission(mm->mission_list + citem))
+				{
+					nm_messagebox( NULL, 1, TXT_OK, TXT_MISSION_ERROR);
+					return 0;	// stay in listbox so user can select another one
+				}
+			}
+			return !(*mm->when_selected)();
+			break;
+
+		case EVENT_WINDOW_CLOSE:
+			free_mission_list(mm->mission_list);
+			d_free(list);
+			d_free(mm);
+			break;
+			
+		default:
+			break;
+	}
+	
+	return 0;
+}
+
+int select_mission(int anarchy_mode, char *message, int (*when_selected)(void))
 {
     mle *mission_list = build_mission_list(anarchy_mode);
 	int new_mission_num;
 
-    if (num_missions <= 1) {
+    if (num_missions <= 1)
+	{
         new_mission_num = load_mission(mission_list) ? 0 : -1;
-    } else {
+		free_mission_list(mission_list);
+		(*when_selected)();
+		
+		return (new_mission_num >= 0);
+    }
+	else
+	{
+		mission_menu *mm;
         int i, default_mission;
-        char * m[MAX_MISSIONS];
+        char **m;
+		
+		MALLOC(m, char *, num_missions);
+		if (!m)
+		{
+			free_mission_list(mission_list);
+			return 0;
+		}
+		
+		MALLOC(mm, mission_menu, 1);
+		if (!mm)
+		{
+			d_free(m);
+			free_mission_list(mission_list);
+			return 0;
+		}
 
+		mm->mission_list = mission_list;
+		mm->when_selected = when_selected;
+		
         default_mission = 0;
         for (i = 0; i < num_missions; i++) {
             m[i] = mission_list[i].mission_name;
@@ -640,19 +707,8 @@ int select_mission(int anarchy_mode, char *message)
                 default_mission = i;
         }
 
-        new_mission_num = newmenu_listbox1( message, num_missions, m, 1, default_mission, NULL, NULL );
-
-        if (new_mission_num >= 0) {
-			// Chose a mission
-			strcpy(GameCfg.LastMission, m[new_mission_num]  );
-	
-			if (!load_mission(mission_list + new_mission_num)) {
-				nm_messagebox( NULL, 1, TXT_OK, TXT_MISSION_ERROR);
-				new_mission_num = -1;
-			}
-		}
+        newmenu_listbox1( message, num_missions, m, 1, default_mission, (int (*)(listbox *, d_event *, void *))mission_menu_handler, mm );
     }
 
-	free_mission_list(mission_list);
-    return (new_mission_num >= 0);
+    return 1;	// presume success
 }

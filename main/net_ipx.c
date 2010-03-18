@@ -2384,9 +2384,6 @@ int net_ipx_get_game_params()
 	Netgame.AllowedItems = NETFLAG_DOPOWERUP; // enable all powerups
 	Netgame.protocol.ipx.protocol_version = MULTI_PROTO_VERSION;
 
-	if (!select_mission(1, TXT_MULTI_MISSION))
-		return -1;
-
 	strcpy(Netgame.mission_name, Current_mission_filename);
 	strcpy(Netgame.mission_title, Current_mission_longname);
 
@@ -2944,7 +2941,7 @@ abort:
 	return(1); 
 }
 
-void net_ipx_start_game(void)	
+int net_ipx_start_game(void)	
 {
 	int i;
 
@@ -2953,14 +2950,8 @@ void net_ipx_start_game(void)
 	if ( !IPX_active )
 	{
 		nm_messagebox(NULL, 1, TXT_OK, TXT_IPX_NOT_FOUND );
-		return;
+		return 0;
 	}
-
-	// FIXME: Keep multiplayer menu to go back to
-	//if (setjmp(LeaveGame)) {
-    //           Game_mode = GM_GAME_OVER;
-	//	return;
-	//}
 
 	net_ipx_init();
 	change_playernum_to(0);
@@ -2968,12 +2959,12 @@ void net_ipx_start_game(void)
 	if (net_ipx_find_game())
 	{
 		nm_messagebox(NULL, 1, TXT_OK, TXT_NET_FULL);
-		return;
+		return 0;
 	}
 
 	i = net_ipx_get_game_params();
 
-	if (i<0) return;
+	if (i<0) return 0;
 
 	if (IPX_Socket) {
 		ipxdrv_change_default_socket( IPX_DEFAULT_SOCKET + IPX_Socket );
@@ -2996,6 +2987,7 @@ void net_ipx_start_game(void)
 	else
 		Game_mode = GM_GAME_OVER;
 	
+	return 1;	// FIXME: keep mission listbox for convenience. Need to keep main menu first
 }
 
 void restart_net_searching(newmenu_item * m)
