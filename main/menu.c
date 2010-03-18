@@ -116,6 +116,8 @@ enum MENUS
 
 #define ADD_ITEM(t,value,key)  do { m[num_options].type=NM_TYPE_MENU; m[num_options].text=t; menu_choice[num_options]=value;num_options++; } while (0)
 
+static window *menus[16];
+
 // Function Prototypes added after LINTING
 void do_option(int select);
 void do_new_game_menu(void);
@@ -123,6 +125,32 @@ void do_multi_player_menu();
 extern void newmenu_close();
 extern void ReorderPrimary();
 extern void ReorderSecondary();
+
+// Hide all menus
+void hide_menus(void)
+{
+	window *wind;
+	int i;
+	
+	for (i = 0; (i < 15) && (wind = window_get_front()); i++)
+	{
+		menus[i] = wind;
+		window_set_visible(wind, 0);
+	}
+	
+	Assert(window_get_front() == NULL);
+	menus[i] = NULL;
+}
+
+// Show all menus, with the front one shown first
+// This makes sure EVENT_WINDOW_ACTIVATED is only sent to that window
+void show_menus(void)
+{
+	int i;
+	
+	for (i = 0; (i < 16) && menus[i]; i++)
+		window_set_visible(menus[i], 1);
+}
 
 //pairs of chars describing ranges
 char playername_allowed_chars[] = "azAZ09__--";
@@ -376,7 +404,9 @@ int main_menu_handler(newmenu *menu, d_event *event, int *menu_choice )
 #ifdef OGL
 					Screen_mode = -1;
 #endif
+					init_subtitles("intro.tex");
 					PlayMovie("intro.mve",0);
+					close_subtitles();
 					songs_play_song(SONG_TITLE,1);
 					set_screen_mode(SCREEN_MENU);
 					return -3; //exit menu to force redraw even if not going to game mode. -3 tells menu system not to restore

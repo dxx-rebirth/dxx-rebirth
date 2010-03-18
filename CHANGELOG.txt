@@ -1,5 +1,9 @@
 D2X-Rebirth Changelog
 
+20100318
+--------
+main/menu.c, main/menu.h, main/movie.c: Show intro movie properly when idle in main menu, including subtitles if on
+
 20100317
 --------
 arch/include/window.h, arch/sdl/window.c, libmve/mveplay.c, main/movie.c, main/titles.c: Make fullscreen movies into windows, maintain performance of robot briefing movies with necessary move of gr_flip
