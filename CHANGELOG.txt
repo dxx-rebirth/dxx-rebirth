@@ -2,6 +2,10 @@ D1X-Rebirth Changelog
 
 20100317
 --------
+main/menu.c, main/menu.h: Add hide_menus and show_menus (for later use in the case of D1X)
+
+20100317
+--------
 arch/sdl/window.c, arch/include/window.h: Add window_exists function so event loops can be placed for specific windows
 
 20100313
