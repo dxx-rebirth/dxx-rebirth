@@ -3,6 +3,7 @@ D2X-Rebirth Changelog
 20100318
 --------
 main/menu.c, main/menu.h, main/movie.c: Show intro movie properly when idle in main menu, including subtitles if on
+main/titles.c: Make briefing into a window, allowing more flexibility with other windows and tidying code up
 
 20100317
 --------
