@@ -993,10 +993,10 @@ int game_handler(window *wind, d_event *event, void *data)
 		case EVENT_WINDOW_ACTIVATED:
 			game_flush_inputs();
 
-			if (time_paused && !(((Game_mode & GM_MULTI) && (Newdemo_state != ND_STATE_PLAYBACK)) && (Function_mode == FMODE_GAME) && (!Endlevel_sequence)) )
+			if (time_paused && !(((Game_mode & GM_MULTI) && (Newdemo_state != ND_STATE_PLAYBACK)) && (!Endlevel_sequence)) )
 				start_time();
 
-			if ( Function_mode == FMODE_GAME && !((Game_mode & GM_MULTI) && (Newdemo_state != ND_STATE_PLAYBACK)))
+			if (!((Game_mode & GM_MULTI) && (Newdemo_state != ND_STATE_PLAYBACK)))
 				digi_resume_digi_sounds();
 
 			if (!((Game_mode & GM_MULTI) && (Newdemo_state != ND_STATE_PLAYBACK)))
@@ -1004,10 +1004,10 @@ int game_handler(window *wind, d_event *event, void *data)
 			break;
 			
 		case EVENT_WINDOW_DEACTIVATED:
-			if (!(((Game_mode & GM_MULTI) && (Newdemo_state != ND_STATE_PLAYBACK)) && (Function_mode == FMODE_GAME) && (!Endlevel_sequence)) )
+			if (!(((Game_mode & GM_MULTI) && (Newdemo_state != ND_STATE_PLAYBACK)) && (!Endlevel_sequence)) )
 				stop_time();
 			
-			if ( Function_mode == FMODE_GAME && !((Game_mode & GM_MULTI) && (Newdemo_state != ND_STATE_PLAYBACK)))
+			if (!((Game_mode & GM_MULTI) && (Newdemo_state != ND_STATE_PLAYBACK)))
 				digi_pause_digi_sounds();
 
 			if (!((Game_mode & GM_MULTI) && (Newdemo_state != ND_STATE_PLAYBACK)))
