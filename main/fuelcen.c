@@ -62,7 +62,7 @@ fix Fuelcen_max_amount = i2f(100);
 fix EnergyToCreateOneRobot = i2f(1);
 
 int Control_center_destroyed = 0;
-int Fuelcen_seconds_left = 0;
+int Countdown_seconds_left = 0;
 
 #define MATCEN_HP_DEFAULT			F1_0*500; // Hitpoints
 #define MATCEN_INTERVAL_DEFAULT	F1_0*5;	//  5 seconds
@@ -547,7 +547,7 @@ void controlcen_proc( FuelCenter * controlcen )
 	if (!Control_center_destroyed)	return;
 
 	//	Control center destroyed, rock the player's ship.
-	fc = Fuelcen_seconds_left;
+	fc = Countdown_seconds_left;
 	if (fc > 16)
 		fc = 16;
 	if (FixedStep & EPS20)
@@ -559,14 +559,14 @@ void controlcen_proc( FuelCenter * controlcen )
 
 	old_time = controlcen->Timer;
 	controlcen->Timer += FrameTime;			//timer_get_approx_seconds
-	Fuelcen_seconds_left = DIFF_CONTROL_CENTER_EXPLOSION_TIME - f2i(controlcen->Timer);
+	Countdown_seconds_left = DIFF_CONTROL_CENTER_EXPLOSION_TIME - f2i(controlcen->Timer);
 	if ( (old_time < COUNTDOWN_VOICE_TIME ) && (controlcen->Timer >= COUNTDOWN_VOICE_TIME) )	{
 			digi_play_sample( SOUND_COUNTDOWN_13_SECS, F3_0 );
 	}
 	if ( f2i(old_time) != f2i(controlcen->Timer) )	{
-		if ( (Fuelcen_seconds_left>=0) && (Fuelcen_seconds_left<10) ) 
-			digi_play_sample( SOUND_COUNTDOWN_0_SECS+Fuelcen_seconds_left, F3_0 );
-		if ( Fuelcen_seconds_left==DIFF_CONTROL_CENTER_EXPLOSION_TIME-1)
+		if ( (Countdown_seconds_left>=0) && (Countdown_seconds_left<10) ) 
+			digi_play_sample( SOUND_COUNTDOWN_0_SECS+Countdown_seconds_left, F3_0 );
+		if ( Countdown_seconds_left==DIFF_CONTROL_CENTER_EXPLOSION_TIME-1)
 			digi_play_sample( SOUND_COUNTDOWN_29_SECS, F3_0 );
 	}						
 

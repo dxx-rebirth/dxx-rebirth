@@ -1465,7 +1465,7 @@ void net_udp_send_endlevel_packet(void)
 		memset(buf, 0, sizeof(buf));
 
 		buf[len] = UPID_ENDLEVEL_H;											len++;
-		buf[len] = Fuelcen_seconds_left;									len++;
+		buf[len] = Countdown_seconds_left;									len++;
 
 		for (i = 0; i < MAX_PLAYERS; i++)
 		{
@@ -1494,7 +1494,7 @@ void net_udp_send_endlevel_packet(void)
 		buf[len] = UPID_ENDLEVEL_C;											len++;
 		buf[len] = Player_num;												len++;
 		buf[len] = Players[Player_num].connected;							len++;
-		buf[len] = Fuelcen_seconds_left;									len++;
+		buf[len] = Countdown_seconds_left;									len++;
 		PUT_INTEL_SHORT(buf + len, Players[Player_num].net_kills_total);	len += 2;
 		PUT_INTEL_SHORT(buf + len, Players[Player_num].net_killed_total);	len += 2;
 
@@ -2053,8 +2053,8 @@ void net_udp_read_endlevel_packet( ubyte *data, int data_len, struct _sockaddr s
 
 		Players[pnum].connected = data[len];								len++;
 		tmpvar = data[len];													len++;
-		if ((Network_status != NETSTAT_PLAYING) && (Players[pnum].connected == CONNECT_PLAYING) && (tmpvar < Fuelcen_seconds_left))
-			Fuelcen_seconds_left = tmpvar;
+		if ((Network_status != NETSTAT_PLAYING) && (Players[pnum].connected == CONNECT_PLAYING) && (tmpvar < Countdown_seconds_left))
+			Countdown_seconds_left = tmpvar;
 		Players[pnum].net_kills_total = GET_INTEL_SHORT(&(data[len]));		len += 2;
 		Players[pnum].net_killed_total = GET_INTEL_SHORT(&(data[len]));		len += 2;
 
@@ -2073,8 +2073,8 @@ void net_udp_read_endlevel_packet( ubyte *data, int data_len, struct _sockaddr s
 		len++;
 
 		tmpvar = data[len];													len++;
-		if ((Network_status != NETSTAT_PLAYING) && (tmpvar < Fuelcen_seconds_left))
-			Fuelcen_seconds_left = tmpvar;
+		if ((Network_status != NETSTAT_PLAYING) && (tmpvar < Countdown_seconds_left))
+			Countdown_seconds_left = tmpvar;
 
 		for (i = 0; i < MAX_PLAYERS; i++)
 		{

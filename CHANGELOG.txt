@@ -1,5 +1,9 @@
 D1X-Rebirth Changelog
 
+20100320
+--------
+main/cntrlcen.c, main/fuelcen.c, main/fuelcen.h, main/game.c, main/gamecntl.c, main/gamerend.c, main/kmatrix.c, main/multi.c, main/multi.h, main/net_ipx.c, main/net_udp.c, main/newdemo.c, main/state.c: Make kmatrixs into windows, rename Fuelcen_seconds_left to Countdown_seconds_left for consistency
+
 20100317
 --------
 main/menu.c, main/menu.h: Add hide_menus and show_menus (for later use in the case of D1X)

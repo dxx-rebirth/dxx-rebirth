@@ -7,7 +7,7 @@ IN USING, DISPLAYING,  AND CREATING DERIVATIVE WORKS THEREOF, SO LONG AS
 SUCH USE, DISPLAY OR CREATION IS FOR NON-COMMERCIAL, ROYALTY OR REVENUE
 FREE PURPOSES.  IN NO EVENT SHALL THE END-USER USE THE COMPUTER CODE
 CONTAINED HEREIN FOR REVENUE-BEARING PURPOSES.  THE END-USER UNDERSTANDS
-AND AGREES TO THE TERMS HEREIN AND ACCEPTS THE SAME BY USE OF THIS FILE.  
+AND AGREES TO THE TERMS HEREIN AND ACCEPTS THE SAME BY USE OF THIS FILE.
 COPYRIGHT 1993-1998 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 */
 
@@ -30,6 +30,7 @@ COPYRIGHT 1993-1998 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 #include "error.h"
 #include "pstypes.h"
 #include "gr.h"
+#include "window.h"
 #include "key.h"
 #include "palette.h"
 #include "game.h"
@@ -198,57 +199,97 @@ void kmatrix_ipx_redraw()
 	kmatrix_ipx_draw_deaths(sorted);
 }
 
+typedef struct kmatrix_ipx_screen
+{
+	fix entry_time;
+	int network;
+} kmatrix_ipx_screen;
+
+int kmatrix_ipx_handler(window *wind, d_event *event, kmatrix_ipx_screen *km)
+{
+	int k;
+	
+	switch (event->type)
+	{
+		case EVENT_KEY_COMMAND:
+			k = ((d_event_keycommand *)event)->keycode;
+			switch( k )
+			{
+				case KEY_ENTER:
+				case KEY_SPACEBAR:
+				case KEY_ESC:
+					window_close(wind);
+					return 1;
+					
+				case KEY_PRINT_SCREEN:
+					save_screen_shot(0);
+					return 1;
+					
+				case KEY_BACKSP:
+					Int3();
+					return 1;
+					
+				default:
+					break;
+			}
+			break;
+			
+		case EVENT_IDLE:
+			timer_delay2(50);
+
+			//see if redbook song needs to be restarted
+			RBACheckFinishedHook();
+
+			if (timer_get_fixed_seconds() >= (km->entry_time+MAX_VIEW_TIME))
+				window_close(wind);
+			
+			if (km->network && (Game_mode & GM_NETWORK))
+				multi_endlevel_poll1(NULL, event, NULL);
+			break;
+
+		case EVENT_WINDOW_DRAW:
+			kmatrix_ipx_redraw();
+			break;
+			
+		case EVENT_WINDOW_CLOSE:
+			game_flush_inputs();
+			d_free(km);
+			break;
+			
+		default:
+			break;
+	}
+	
+	return 0;
+}
+
 void kmatrix_ipx_view(int network)
 {
-	int k, done;
-	fix entry_time = timer_get_fixed_seconds();
-	//edit 05/18/99 Matt Mueller - should be initialized.
-	int key=0;
-	//end edit -MM
+	window *wind;
+	kmatrix_ipx_screen *km;
+
+	MALLOC(km, kmatrix_ipx_screen, 1);
+	if (!km)
+		return;
+
+	km->entry_time = timer_get_fixed_seconds();
+	km->network = network;
 
 	set_screen_mode( SCREEN_MENU );
 
 	game_flush_inputs();
 
-	done = 0;
-
-	while(!done)	{
-		timer_delay2(50);
-		kmatrix_ipx_redraw();
-
-		//see if redbook song needs to be restarted
-		RBACheckFinishedHook();
-		
-		k = key_inkey();
-		switch( k )	{
-			case KEY_ENTER:
-			case KEY_SPACEBAR:
-			case KEY_ESC:
-				done=1;
-				break;
-			case KEY_PRINT_SCREEN:
-				save_screen_shot(0);
-				break;
-			case KEY_BACKSP:
-				Int3();
-				break;
-			default:
-				break;
-		}
-		if (timer_get_fixed_seconds() > entry_time+MAX_VIEW_TIME)
-			done=1;
-
-		if (network && (Game_mode & GM_NETWORK))
-		{
-			multi_endlevel_poll1(0, NULL, &key, 0);
-			if (key < -1)
-				done = 1;
-		}
-		gr_flip();
+	wind = window_create(&grd_curscreen->sc_canvas, 0, 0, SWIDTH, SHEIGHT, (int (*)(window *, d_event *, void *))kmatrix_ipx_handler, km);
+	if (!wind)
+	{
+		d_free(km);
+		return;
 	}
 
-	game_flush_inputs();
+	while (window_exists(wind))
+		event_process();
 }
+
 /* IPX CODE - END */
 
 /* NEW CODE - START */
@@ -438,94 +479,141 @@ void kmatrix_redraw_coop()
 	gr_palette_load(gr_palette);
 }
 
+typedef struct kmatrix_screen
+{
+	int network;
+	fix end_time;
+	int playing;
+} kmatrix_screen;
+
+int kmatrix_handler(window *wind, d_event *event, kmatrix_screen *km)
+{
+	int i = 0, k = 0, choice = 0;
+	fix time = timer_get_fixed_seconds();
+	
+	switch (event->type)
+	{
+		case EVENT_KEY_COMMAND:
+			k = ((d_event_keycommand *)event)->keycode;
+			switch( k )
+			{
+				case KEY_ESC:
+					if (km->network)
+					{
+						StartAbortMenuTime=timer_get_fixed_seconds();
+						choice=nm_messagebox1( NULL,multi_endlevel_poll2, NULL, 2, TXT_YES, TXT_NO, TXT_ABORT_GAME );
+					}
+					else
+						choice=nm_messagebox( NULL, 2, TXT_YES, TXT_NO, TXT_ABORT_GAME );
+					
+					if (choice==0)
+					{
+						Players[Player_num].connected=CONNECT_DISCONNECTED;
+						
+						if (km->network)
+							multi_send_endlevel_packet();
+						
+						multi_leave_game();
+						window_close(wind);
+						if (Game_wind)
+							window_close(Game_wind);
+						return 1;
+					}
+					return 1;
+					
+				case KEY_PRINT_SCREEN:
+					save_screen_shot(0);
+					return 1;
+					
+				default:
+					break;
+			}
+			break;
+			
+		case EVENT_IDLE:
+			timer_delay2(50);
+
+			RBACheckFinishedHook(); //see if redbook song needs to be restarted
+			
+			if (km->network)
+				multi_do_protocol_frame(0, 1);
+			
+			// Check if all connected players are also looking at this screen ...
+			for (i = 0; i < MAX_PLAYERS; i++)
+				if (Players[i].connected)
+					if (Players[i].connected != CONNECT_END_MENU && Players[i].connected != CONNECT_DIED_IN_MINE)
+						km->playing = 1;
+			
+			// ... and let the reactor blow sky high!
+			if (!km->playing)
+				Countdown_seconds_left = -1;
+			
+			// If Reactor is finished and end_time not inited, set the time when we will exit this loop
+			if (km->end_time == -1 && Countdown_seconds_left < 0 && !km->playing)
+				km->end_time = time + (KMATRIX_VIEW_SEC * F1_0);
+			
+			// Check if end_time has been reached and exit loop
+			if (time >= km->end_time && km->end_time != -1)
+			{
+				if (km->network)
+					multi_send_endlevel_packet();  // make sure
+				
+				window_close(wind);
+			}
+			break;
+
+		case EVENT_WINDOW_DRAW:
+			kmatrix_redraw();
+			
+			if (km->playing)
+				kmatrix_status_msg(Countdown_seconds_left, 1);
+			else
+				kmatrix_status_msg(f2i(time-km->end_time), 0);
+			break;
+			
+		case EVENT_WINDOW_CLOSE:
+			game_flush_inputs();
+			newmenu_close();
+			
+			d_free(km);
+			break;
+			
+		default:
+			break;
+	}
+	
+	return 0;
+}
+
 void kmatrix_view(int network)
 {
-	int done = 0, i = 0, k = 0, choice = 0;
-	fix end_time = -1;
+	kmatrix_screen *km;
+	window *wind;
+	int i = 0;
 
+	MALLOC(km, kmatrix_screen, 1);
+	if (!km)
+		return;
+
+	km->network = network;
+	km->end_time = -1;
+	km->playing = 0;
+	
 	set_screen_mode( SCREEN_MENU );
 	game_flush_inputs();
 
 	for (i=0;i<MAX_NUM_NET_PLAYERS;i++)
 		digi_kill_sound_linked_to_object (Players[i].objnum);
 
-	while (!done)
+	wind = window_create(&grd_curscreen->sc_canvas, 0, 0, SWIDTH, SHEIGHT, (int (*)(window *, d_event *, void *))kmatrix_handler, km);
+	if (!wind)
 	{
-		int playing = 0;
-		fix time = timer_get_fixed_seconds();
-		
-		timer_delay2(50);
-		kmatrix_redraw();
-		RBACheckFinishedHook(); //see if redbook song needs to be restarted
-
-		if (network)
-			multi_do_protocol_frame(0, 1);
-
-		// Check if all connected players are also looking at this screen ...
-		for (i = 0; i < MAX_PLAYERS; i++)
-			if (Players[i].connected)
-				if (Players[i].connected != CONNECT_END_MENU && Players[i].connected != CONNECT_DIED_IN_MINE)
-					playing = 1;
-
-		// ... and let the reactor blow sky high!
-		if (!playing)
-			Fuelcen_seconds_left = -1;
-
-		// If Reactor is finished and end_time not inited, set the time when we will exit this loop
-		if (end_time == -1 && Fuelcen_seconds_left < 0  && !playing)
-			end_time = time + (KMATRIX_VIEW_SEC * F1_0);
-
-		// Check if end_time has been reached and exit loop
-		if (time >= end_time && end_time != -1)
-			done = 1;
-
-		if (playing)
-			kmatrix_status_msg(Fuelcen_seconds_left, 1);
-		else
-			kmatrix_status_msg(f2i(time-end_time), 0);
-
-		k = key_inkey();
-		switch( k )
-		{
-			case KEY_ESC:
-				if (network)
-				{
-					StartAbortMenuTime=timer_get_fixed_seconds();
-					choice=nm_messagebox1( NULL,multi_endlevel_poll2, NULL, 2, TXT_YES, TXT_NO, TXT_ABORT_GAME );
-				}
-				else
-					choice=nm_messagebox( NULL, 2, TXT_YES, TXT_NO, TXT_ABORT_GAME );
-
-				if (choice==0)
-				{
-					Players[Player_num].connected=CONNECT_DISCONNECTED;
-
-					if (network)
-						multi_send_endlevel_packet();
-
-					multi_leave_game();
-					if (Game_wind)
-						window_close(Game_wind);
-					return;
-				}
-				break;
-
-			case KEY_PRINT_SCREEN:
-				save_screen_shot(0);
-				break;
-
-			default:
-				break;
-		}
-
-		gr_flip();
+		d_free(km);
+		return;
 	}
-
-	if (network)
-		multi_send_endlevel_packet();  // make sure
-
-	game_flush_inputs();
-	newmenu_close();
+	
+	while (window_exists(wind))
+		event_process();
 }
 
 /* NEW CODE - END */

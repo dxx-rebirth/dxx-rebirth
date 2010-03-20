@@ -642,7 +642,7 @@ int net_ipx_endlevel_poll( newmenu *menu, d_event *event, void *userdata )
 	for (i = 0; i < N_players; i++)
 		previous_state[i] = Players[i].connected;
 
-	previous_seconds_left = Fuelcen_seconds_left;
+	previous_seconds_left = Countdown_seconds_left;
 
 	net_ipx_listen();
 
@@ -672,18 +672,18 @@ int net_ipx_endlevel_poll( newmenu *menu, d_event *event, void *userdata )
 
 	if (num_escaped == N_players) // All players are out of the mine
 	{
-		Fuelcen_seconds_left = -1;
+		Countdown_seconds_left = -1;
 	}
 
-	if (previous_seconds_left != Fuelcen_seconds_left)
+	if (previous_seconds_left != Countdown_seconds_left)
 	{
-		if (Fuelcen_seconds_left < 0)
+		if (Countdown_seconds_left < 0)
 		{
 			sprintf(menus[N_players].text, TXT_REACTOR_EXPLODED);
 		}
 		else
 		{
-			sprintf(menus[N_players].text, "%s: %d %s  ", TXT_TIME_REMAINING, Fuelcen_seconds_left, TXT_SECONDS);
+			sprintf(menus[N_players].text, "%s: %d %s  ", TXT_TIME_REMAINING, Countdown_seconds_left, TXT_SECONDS);
 		}
 	}
 
@@ -819,10 +819,10 @@ newmenu:
 	m[N_players].type = NM_TYPE_TEXT;
 	m[N_players].text = menu_text[N_players];
 
-	if (Fuelcen_seconds_left < 0)
+	if (Countdown_seconds_left < 0)
 		sprintf(m[N_players].text, TXT_REACTOR_EXPLODED);
 	else
-		sprintf(m[N_players].text, "%s: %d %s  ", TXT_TIME_REMAINING, Fuelcen_seconds_left, TXT_SECONDS);
+		sprintf(m[N_players].text, "%s: %d %s  ", TXT_TIME_REMAINING, Countdown_seconds_left, TXT_SECONDS);
 
 menu:
 	sprintf(text, "%s\n%s", TXT_WAITING, TXT_ESC_ABORT);
@@ -1746,7 +1746,7 @@ net_ipx_send_endlevel_sub(int player_num)
 	if (Players[player_num].connected == CONNECT_PLAYING) // Still playing
 	{
 		Assert(Control_center_destroyed);
-	 	end.seconds_left = Fuelcen_seconds_left;
+	 	end.seconds_left = Countdown_seconds_left;
 	}
 	//added 05/18/99 Matt Mueller - similarly, its not used if we aren't connected, but checker complains.
 	else
@@ -2035,8 +2035,8 @@ net_ipx_read_endlevel_packet( ubyte *data )
 	Players[playernum].net_kills_total = end->kills;
 	Players[playernum].net_killed_total = end->killed;
 
-	if ((Players[playernum].connected == CONNECT_PLAYING) && (end->seconds_left < Fuelcen_seconds_left))
-		Fuelcen_seconds_left = end->seconds_left;
+	if ((Players[playernum].connected == CONNECT_PLAYING) && (end->seconds_left < Countdown_seconds_left))
+		Countdown_seconds_left = end->seconds_left;
 
 	Netgame.players[playernum].LastPacketTime = timer_get_fixed_seconds();
 }

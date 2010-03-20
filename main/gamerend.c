@@ -278,10 +278,10 @@ void draw_window_label()
 
 void render_countdown_gauge()
 {
-	if (!Endlevel_sequence && Control_center_destroyed  && (Fuelcen_seconds_left>-1) && (Fuelcen_seconds_left<127))	{
+	if (!Endlevel_sequence && Control_center_destroyed  && (Countdown_seconds_left>-1) && (Countdown_seconds_left<127))	{
 		gr_set_curfont(GAME_FONT);
 		gr_set_fontcolor(BM_XRGB(0,63,0),-1);
-		gr_printf(0x8000, (SHEIGHT/6.666), "T-%d s", Fuelcen_seconds_left );
+		gr_printf(0x8000, (SHEIGHT/6.666), "T-%d s", Countdown_seconds_left );
 	}
 }
 

@@ -109,7 +109,7 @@ void do_controlcen_dead_frame(void)
 	if (!Control_center_present)
 		return;
 
-	if ((Dead_controlcen_object_num != -1) && (Fuelcen_seconds_left > 0))
+	if ((Dead_controlcen_object_num != -1) && (Countdown_seconds_left > 0))
 		if (d_rand() < FrameTime*4)
 			create_small_fireball_on_object(&Objects[Dead_controlcen_object_num], F1_0*3, 1);
 }

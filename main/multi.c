@@ -381,6 +381,9 @@ multi_endlevel_score(void)
 	Network_status = NETSTAT_ENDLEVEL;
 #endif
 
+	if (Game_wind)
+		window_set_visible(Game_wind, 0);
+	
 	if (multi_protocol == MULTI_PROTO_IPX)
 	{
 		if (Game_mode & GM_MULTI_COOP && multi_protocol == MULTI_PROTO_IPX)
@@ -391,6 +394,9 @@ multi_endlevel_score(void)
 	else
 		kmatrix_view(Game_mode & GM_NETWORK);
 
+	if (Game_wind)
+		window_set_visible(Game_wind, 1);
+	
 	Function_mode = FMODE_GAME;
 	
 	// Restore connect state

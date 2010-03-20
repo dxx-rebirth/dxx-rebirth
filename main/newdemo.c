@@ -1037,7 +1037,7 @@ void newdemo_record_control_center_destroyed()
 {
 	stop_time();
 	nd_write_byte( ND_EVENT_CONTROL_CENTER_DESTROYED );
-	nd_write_int( Fuelcen_seconds_left );
+	nd_write_int( Countdown_seconds_left );
 	start_time();
 }
 
@@ -1907,12 +1907,12 @@ int newdemo_read_frame_information(int rewrite)
 			break;
 
 		case ND_EVENT_CONTROL_CENTER_DESTROYED:
-			nd_read_int(&Fuelcen_seconds_left);
+			nd_read_int(&Countdown_seconds_left);
 			Control_center_destroyed = 1;
 			if (nd_bad_read) { done = -1; break; }
 			if (rewrite)
 			{
-				nd_write_int(Fuelcen_seconds_left);
+				nd_write_int(Countdown_seconds_left);
 				break;
 			}
 			if (!Newdemo_cntrlcen_destroyed) {
@@ -2906,7 +2906,7 @@ void newdemo_playback_one_frame()
 		return;
 
 	Control_center_destroyed = 0;
-	Fuelcen_seconds_left = -1;
+	Countdown_seconds_left = -1;
 	PALETTE_FLASH_SET(0,0,0);       //clear flash
 
 	if ((Newdemo_vcr_state == ND_STATE_REWINDING) || (Newdemo_vcr_state == ND_STATE_ONEFRAMEBACKWARD))

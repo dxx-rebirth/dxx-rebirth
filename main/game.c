@@ -1263,7 +1263,7 @@ void GameProcessFrame(void)
 	if (Endlevel_sequence || (Player_is_dead != player_was_dead) || (Players[Player_num].shields < player_shields))
 		game_leave_menus();
 	
-	if ((Control_center_destroyed && !was_fuelcen_destroyed) || ((Control_center_destroyed) && (Fuelcen_seconds_left < 10)))
+	if ((Control_center_destroyed && !was_fuelcen_destroyed) || ((Control_center_destroyed) && (Countdown_seconds_left < 10)))
 		game_leave_menus();
 }
 

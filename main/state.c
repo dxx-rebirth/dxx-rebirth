@@ -561,7 +561,7 @@ int state_save_all_sub(char *filename, char *desc, int between_levels)
 	
 	// Save the fuelcen info
 		PHYSFS_write(fp, &Control_center_destroyed, sizeof(int), 1);
-		PHYSFS_write(fp, &Fuelcen_seconds_left, sizeof(int), 1);
+		PHYSFS_write(fp, &Countdown_seconds_left, sizeof(int), 1);
 		PHYSFS_write(fp, &Num_robot_centers, sizeof(int), 1);
 		PHYSFS_write(fp, RobotCenters, sizeof(matcen_info), Num_robot_centers);
 		PHYSFS_write(fp, &ControlCenterTriggers, sizeof(control_center_triggers), 1);
@@ -847,7 +847,7 @@ RetryObjectLoading:
 	
 		//Restore the fuelcen info
 		Control_center_destroyed = PHYSFSX_readSXE32(fp, swap);
-		Fuelcen_seconds_left = PHYSFSX_readSXE32(fp, swap);
+		Countdown_seconds_left = PHYSFSX_readSXE32(fp, swap);
 		Num_robot_centers = PHYSFSX_readSXE32(fp, swap);
 		matcen_info_read_n_swap(RobotCenters, Num_robot_centers, swap, fp);
 		control_center_triggers_read_n_swap(&ControlCenterTriggers, 1, swap, fp);
