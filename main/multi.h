@@ -260,7 +260,7 @@ void multi_consistency_error(int reset);
 void multi_prep_level(void);
 int multi_level_sync(void);
 int multi_endlevel(int *secret);
-int multi_endlevel_poll1();
+int multi_endlevel_poll1(newmenu *menu, d_event *event, void *userdata);
 int multi_endlevel_poll2( newmenu *menu, d_event *event, void *userdata );
 void multi_send_endlevel_packet();
 void multi_leave_game(void);

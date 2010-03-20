@@ -1,5 +1,9 @@
 D2X-Rebirth Changelog
 
+20100320
+--------
+main/kmatrix.c, main/multi.c, main/multi.h: Make kmatrixs into windows (failed attempt at fixing a bug)
+
 20100318
 --------
 main/menu.c, main/menu.h, main/movie.c: Show intro movie properly when idle in main menu, including subtitles if on

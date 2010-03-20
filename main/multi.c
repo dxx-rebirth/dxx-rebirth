@@ -471,11 +471,17 @@ multi_endlevel_score(void)
 
 	Function_mode = FMODE_MENU;
 
+	if (Game_wind)
+		window_set_visible(Game_wind, 0);
+	
 	if (multi_protocol == MULTI_PROTO_IPX)
 		kmatrix_ipx_view(Game_mode & GM_NETWORK);
 	else
 		kmatrix_view(Game_mode & GM_NETWORK);
 
+	if (Game_wind)
+		window_set_visible(Game_wind, 1);
+	
 	Function_mode = FMODE_GAME;
 	
 	// Restore connect state

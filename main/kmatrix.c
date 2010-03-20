@@ -27,6 +27,7 @@ COPYRIGHT 1993-1999 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 #include "error.h"
 #include "pstypes.h"
 #include "gr.h"
+#include "window.h"
 #include "key.h"
 #include "palette.h"
 #include "game.h"
@@ -353,163 +354,210 @@ void kmatrix_ipx_redraw_coop()
   gr_palette_load(gr_palette);
 }
 
+typedef struct kmatrix_ipx_screen
+{
+	fix entry_time;
+	int oldstates[MAX_PLAYERS];
+	int network;
+} kmatrix_ipx_screen;
+
+int kmatrix_ipx_handler(window *wind, d_event *event, kmatrix_ipx_screen *km)
+{
+	int i, k, choice;
+	int num_ready,num_escaped;
+	
+	switch (event->type)
+	{
+		case EVENT_KEY_COMMAND:
+			k = ((d_event_keycommand *)event)->keycode;
+			switch( k )
+			{
+				case KEY_ENTER:
+				case KEY_SPACEBAR:
+					if (is_D2_OEM)
+					{
+						if (Current_level_num==8)
+						{
+							Players[Player_num].connected=CONNECT_DISCONNECTED;
+							if (km->network)
+								multi_send_endlevel_packet();
+							multi_leave_game();
+							window_close(wind);
+							if (Game_wind)
+								window_close(Game_wind);
+							return 1;
+						}
+					}
+					
+					Players[Player_num].connected=CONNECT_KMATRIX_WAITING;
+					if (km->network)	
+						multi_send_endlevel_packet();
+					return 1;
+					
+				case KEY_ESC:
+					if (Game_mode & GM_NETWORK)
+					{
+						StartAbortMenuTime=timer_get_fixed_seconds();
+						choice=nm_messagebox1( NULL,multi_endlevel_poll2, NULL, 2, TXT_YES, TXT_NO, TXT_ABORT_GAME );
+					}
+					else
+						choice=nm_messagebox( NULL, 2, TXT_YES, TXT_NO, TXT_ABORT_GAME );
+					if (choice==0)
+					{
+						Players[Player_num].connected=CONNECT_DISCONNECTED;
+						if (km->network)
+							multi_send_endlevel_packet();
+						multi_leave_game();
+						window_close(wind);
+						if (Game_wind)
+							window_close(Game_wind);
+						return 1;
+					}
+					return 1;
+					
+				case KEY_PRINT_SCREEN:
+					save_screen_shot(0);
+					return 1;
+					
+				case KEY_BACKSP:
+					Int3();
+					return 1;
+					
+				default:
+					break;
+			}
+			break;
+			
+		case EVENT_IDLE:
+			timer_delay2(50);
+
+			//see if redbook song needs to be restarted
+			RBACheckFinishedHook();
+
+			if (timer_get_fixed_seconds() >= (km->entry_time+MAX_VIEW_TIME) && Players[Player_num].connected!=CONNECT_KMATRIX_WAITING)
+			{
+				if (is_D2_OEM)
+				{
+					if (Current_level_num==8)
+					{
+						Players[Player_num].connected=CONNECT_DISCONNECTED;
+						if (km->network)
+							multi_send_endlevel_packet();
+						multi_leave_game();
+						window_close(wind);
+						if (Game_wind)
+							window_close(Game_wind);
+						return 0;
+					}
+				}
+				
+				Players[Player_num].connected=CONNECT_KMATRIX_WAITING;
+				if (km->network)
+					multi_send_endlevel_packet();
+			}
+			
+			if (km->network && (Game_mode & GM_NETWORK))
+			{
+				multi_endlevel_poll1(NULL, event, NULL);
+				
+				for (num_escaped=0,num_ready=0,i=0;i<N_players;i++)
+				{
+					if (Players[i].connected && i!=Player_num)
+					{
+						// Check timeout for idle players
+						if (timer_get_fixed_seconds() > Netgame.players[i].LastPacketTime+ENDLEVEL_IDLE_TIME)
+						{
+							Players[i].connected = CONNECT_DISCONNECTED;
+						}
+					}
+					
+					// HACK: If a player legally exits kmatrix loop he will send the previous connect byte which can invalidate us from setting him to ready and let us stuck here forever... it's stupid to solve it this way, but for now I have no better idea.
+					if ((km->oldstates[i]==CONNECT_END_MENU || km->oldstates[i]==CONNECT_KMATRIX_WAITING) && // player was viewing scores before...
+						(Players[i].connected!=CONNECT_DISCONNECTED || Players[i].connected!=CONNECT_END_MENU || Players[i].connected!=CONNECT_KMATRIX_WAITING)) // ... but now he sends neither disconnect or further waiting signal - so he MUST be out of kmatrix already
+						Players[i].connected=CONNECT_KMATRIX_WAITING;
+					
+					if (Players[i].connected!=km->oldstates[i])
+					{
+						if (ConditionLetters[Players[i].connected]!=ConditionLetters[km->oldstates[i]])
+							km->oldstates[i]=Players[i].connected;
+						multi_send_endlevel_packet();
+					}
+					
+					if (Players[i].connected==CONNECT_DISCONNECTED || Players[i].connected==CONNECT_KMATRIX_WAITING)
+						num_ready++;
+					
+					if (Players[i].connected!=CONNECT_PLAYING)
+						num_escaped++;
+				}
+				
+				if (num_ready>=N_players)
+				{
+					window_close(wind);
+					
+					Players[Player_num].connected=CONNECT_KMATRIX_WAITING;
+					
+					if (km->network)
+						multi_send_endlevel_packet();  // make sure
+				}
+				if (num_escaped>=N_players)
+					Countdown_seconds_left=-1;
+			}
+			break;
+
+		case EVENT_WINDOW_DRAW:
+			kmatrix_ipx_redraw();
+			break;
+			
+		case EVENT_WINDOW_CLOSE:
+			game_flush_inputs();
+			
+			newmenu_close();
+			d_free(km);
+			break;
+			
+		default:
+			break;
+	}
+	
+	return 0;
+}
+
 void kmatrix_ipx_view(int network)
 {
-  int i, k, done,choice;
-  fix entry_time = timer_get_fixed_seconds();
-  int key;
-  int oldstates[MAX_PLAYERS];
-  int num_ready,num_escaped;
+	window *wind;
+	kmatrix_ipx_screen *km;
+	int i;
+	int key;
+	
+	MALLOC(km, kmatrix_ipx_screen, 1);
+	if (!km)
+		return;
 
-  for (i=0;i<MAX_NUM_NET_PLAYERS;i++)
-    digi_kill_sound_linked_to_object (Players[i].objnum);
+	km->entry_time = timer_get_fixed_seconds();
+	km->network = network;
 
-  set_screen_mode( SCREEN_MENU );
+	for (i=0;i<MAX_NUM_NET_PLAYERS;i++)
+		digi_kill_sound_linked_to_object (Players[i].objnum);
 
-  game_flush_inputs();
+	set_screen_mode( SCREEN_MENU );
 
-  done = 0;
+	game_flush_inputs();
 
-  for (i=0;i<N_players;i++)
-    oldstates[i]=Players[i].connected;
+	for (i=0;i<N_players;i++)
+		km->oldstates[i]=Players[i].connected;
 
-  if (network)
-      multi_endlevel(&key);
+	if (km->network)
+		multi_endlevel(&key);
+	
+	wind = window_create(&grd_curscreen->sc_canvas, 0, 0, SWIDTH, SHEIGHT, (int (*)(window *, d_event *, void *))kmatrix_ipx_handler, km);
+	if (!wind)
+	{
+		d_free(km);
+		return;
+	}
 
-  while(!done)
-  {
-		timer_delay2(50);
-		kmatrix_ipx_redraw();
-
-      //see if redbook song needs to be restarted
-      RBACheckFinishedHook();
-
-      k = key_inkey();
-      switch( k ) {
-        case KEY_ENTER:
-        case KEY_SPACEBAR:
-          if (is_D2_OEM)
-          {
-            if (Current_level_num==8)
-            {
-              Players[Player_num].connected=CONNECT_DISCONNECTED;
-              if (network)
-                multi_send_endlevel_packet();
-              multi_leave_game();
-				if (Game_wind)
-					window_close(Game_wind);
-              return;
-            }
-          }
-
-          Players[Player_num].connected=CONNECT_KMATRIX_WAITING;
-          if (network)	
-            multi_send_endlevel_packet();
-          break;
-
-        case KEY_ESC:
-          if (Game_mode & GM_NETWORK)
-          {
-            StartAbortMenuTime=timer_get_fixed_seconds();
-            choice=nm_messagebox1( NULL,multi_endlevel_poll2, NULL, 2, TXT_YES, TXT_NO, TXT_ABORT_GAME );
-          }
-          else
-            choice=nm_messagebox( NULL, 2, TXT_YES, TXT_NO, TXT_ABORT_GAME );
-          if (choice==0)
-          {
-            Players[Player_num].connected=CONNECT_DISCONNECTED;
-            if (network)
-              multi_send_endlevel_packet();
-            multi_leave_game();
-			  if (Game_wind)
-				  window_close(Game_wind);
-            return;
-          }
-          break;
-
-          case KEY_PRINT_SCREEN:
-            save_screen_shot(0);
-            break;
-
-          case KEY_BACKSP:
-            Int3();
-            break;
-
-          default:
-            break;
-      }
-
-      if (timer_get_fixed_seconds() >= (entry_time+MAX_VIEW_TIME) && Players[Player_num].connected!=CONNECT_KMATRIX_WAITING)
-      {
-        if (is_D2_OEM)
-        {
-          if (Current_level_num==8)
-          {
-            Players[Player_num].connected=CONNECT_DISCONNECTED;
-            if (network)
-              multi_send_endlevel_packet();
-            multi_leave_game();
-			  if (Game_wind)
-				  window_close(Game_wind);
-            return;
-          }
-        }
-
-        Players[Player_num].connected=CONNECT_KMATRIX_WAITING;
-        if (network)
-          multi_send_endlevel_packet();
-      }
-
-      if (network && (Game_mode & GM_NETWORK))
-      {
-        multi_endlevel_poll1();
-
-        for (num_escaped=0,num_ready=0,i=0;i<N_players;i++)
-        {
-          if (Players[i].connected && i!=Player_num)
-          {
-            // Check timeout for idle players
-            if (timer_get_fixed_seconds() > Netgame.players[i].LastPacketTime+ENDLEVEL_IDLE_TIME)
-            {
-              Players[i].connected = CONNECT_DISCONNECTED;
-            }
-          }
-
-		  // HACK: If a player legally exits kmatrix loop he will send the previous connect byte which can invalidate us from setting him to ready and let us stuck here forever... it's stupid to solve it this way, but for now I have no better idea.
-		  if ((oldstates[i]==CONNECT_END_MENU || oldstates[i]==CONNECT_KMATRIX_WAITING) && // player was viewing scores before...
-			(Players[i].connected!=CONNECT_DISCONNECTED || Players[i].connected!=CONNECT_END_MENU || Players[i].connected!=CONNECT_KMATRIX_WAITING)) // ... but now he sends neither disconnect or further waiting signal - so he MUST be out of kmatrix already
-			  Players[i].connected=CONNECT_KMATRIX_WAITING;
-
-          if (Players[i].connected!=oldstates[i])
-          {
-            if (ConditionLetters[Players[i].connected]!=ConditionLetters[oldstates[i]])
-            oldstates[i]=Players[i].connected;
-            multi_send_endlevel_packet();
-          }
-
-          if (Players[i].connected==CONNECT_DISCONNECTED || Players[i].connected==CONNECT_KMATRIX_WAITING)
-            num_ready++;
-
-          if (Players[i].connected!=CONNECT_PLAYING)
-            num_escaped++;
-        }
-
-        if (num_ready>=N_players)
-          done=1;
-        if (num_escaped>=N_players)
-          Countdown_seconds_left=-1;
-      }
-		gr_flip();
-  }
-
-  Players[Player_num].connected=CONNECT_KMATRIX_WAITING;
-
-  if (network)
-    multi_send_endlevel_packet();  // make sure
-
-  game_flush_inputs();
-
-	newmenu_close();
+	while (window_exists(wind))
+		event_process();
 }
 
 /* IPX CODE - END */
@@ -725,110 +773,158 @@ void kmatrix_redraw_coop()
 	gr_palette_load(gr_palette);
 }
 
+typedef struct kmatrix_screen
+{
+	int network;
+	fix end_time;
+	int playing;
+} kmatrix_screen;
+
+int kmatrix_handler(window *wind, d_event *event, kmatrix_screen *km)
+{
+	int i = 0, k = 0, choice = 0;
+	fix time = timer_get_fixed_seconds();
+	
+	switch (event->type)
+	{
+		case EVENT_KEY_COMMAND:
+			k = ((d_event_keycommand *)event)->keycode;
+			switch( k )
+			{
+				case KEY_ESC:
+					if (km->network)
+					{
+						StartAbortMenuTime=timer_get_fixed_seconds();
+						choice=nm_messagebox1( NULL,multi_endlevel_poll2, NULL, 2, TXT_YES, TXT_NO, TXT_ABORT_GAME );
+					}
+					else
+						choice=nm_messagebox( NULL, 2, TXT_YES, TXT_NO, TXT_ABORT_GAME );
+					
+					if (choice==0)
+					{
+						Players[Player_num].connected=CONNECT_DISCONNECTED;
+						
+						if (km->network)
+							multi_send_endlevel_packet();
+						
+						multi_leave_game();
+						window_close(wind);
+						if (Game_wind)
+							window_close(Game_wind);
+						return 1;
+					}
+					return 1;
+					
+				case KEY_PRINT_SCREEN:
+					save_screen_shot(0);
+					return 1;
+					
+				default:
+					break;
+			}
+			break;
+			
+		case EVENT_IDLE:
+			timer_delay2(50);
+
+			RBACheckFinishedHook(); //see if redbook song needs to be restarted
+			
+			if (km->network)
+				multi_do_protocol_frame(0, 1);
+			
+			// Check if all connected players are also looking at this screen ...
+			for (i = 0; i < MAX_PLAYERS; i++)
+				if (Players[i].connected)
+					if (Players[i].connected != CONNECT_END_MENU && Players[i].connected != CONNECT_DIED_IN_MINE)
+						km->playing = 1;
+			
+			// ... and let the reactor blow sky high!
+			if (!km->playing)
+				Countdown_seconds_left = -1;
+			
+			// If Reactor is finished and end_time not inited, set the time when we will exit this loop
+			if (km->end_time == -1 && Countdown_seconds_left < 0 && !km->playing)
+				km->end_time = time + (KMATRIX_VIEW_SEC * F1_0);
+			
+			// Check if end_time has been reached and exit loop
+			if (time >= km->end_time && km->end_time != -1)
+			{
+				if (km->network)
+					multi_send_endlevel_packet();  // make sure
+				
+				if (is_D2_OEM)
+				{
+					if (Current_level_num==8)
+					{
+						Players[Player_num].connected=CONNECT_DISCONNECTED;
+						
+						if (km->network)
+							multi_send_endlevel_packet();
+						
+						multi_leave_game();
+						window_close(wind);
+						if (Game_wind)
+							window_close(Game_wind);
+						return 0;
+					}
+				}
+				
+				window_close(wind);
+			}
+			break;
+
+		case EVENT_WINDOW_DRAW:
+			kmatrix_redraw();
+			
+			if (km->playing)
+				kmatrix_status_msg(Countdown_seconds_left, 1);
+			else
+				kmatrix_status_msg(f2i(time-km->end_time), 0);
+			break;
+			
+		case EVENT_WINDOW_CLOSE:
+			game_flush_inputs();
+			newmenu_close();
+			
+			d_free(km);
+			break;
+			
+		default:
+			break;
+	}
+	
+	return 0;
+}
+
 void kmatrix_view(int network)
 {
-	int done = 0, i = 0, k = 0, choice = 0;
-	fix end_time = -1;
+	kmatrix_screen *km;
+	window *wind;
+	int i = 0;
 
+	MALLOC(km, kmatrix_screen, 1);
+	if (!km)
+		return;
+
+	km->network = network;
+	km->end_time = -1;
+	km->playing = 0;
+	
 	set_screen_mode( SCREEN_MENU );
 	game_flush_inputs();
 
 	for (i=0;i<MAX_NUM_NET_PLAYERS;i++)
 		digi_kill_sound_linked_to_object (Players[i].objnum);
 
-	while (!done)
+	wind = window_create(&grd_curscreen->sc_canvas, 0, 0, SWIDTH, SHEIGHT, (int (*)(window *, d_event *, void *))kmatrix_handler, km);
+	if (!wind)
 	{
-		int playing = 0;
-		fix time = timer_get_fixed_seconds();
-		
-		timer_delay2(50);
-		kmatrix_redraw();
-		RBACheckFinishedHook(); //see if redbook song needs to be restarted
-
-		if (network)
-			multi_do_protocol_frame(0, 1);
-
-		// Check if all connected players are also looking at this screen ...
-		for (i = 0; i < MAX_PLAYERS; i++)
-			if (Players[i].connected)
-				if (Players[i].connected != CONNECT_END_MENU && Players[i].connected != CONNECT_DIED_IN_MINE)
-					playing = 1;
-
-		// ... and let the reactor blow sky high!
-		if (!playing)
-			Countdown_seconds_left = -1;
-
-		// If Reactor is finished and end_time not inited, set the time when we will exit this loop
-		if (end_time == -1 && Countdown_seconds_left < 0 && !playing)
-			end_time = time + (KMATRIX_VIEW_SEC * F1_0);
-
-		// Check if end_time has been reached and exit loop
-		if (time >= end_time && end_time != -1)
-			done = 1;
-
-		if (playing)
-			kmatrix_status_msg(Countdown_seconds_left, 1);
-		else
-			kmatrix_status_msg(f2i(time-end_time), 0);
-
-		k = key_inkey();
-		switch( k )
-		{
-			case KEY_ESC:
-				if (network)
-				{
-					StartAbortMenuTime=timer_get_fixed_seconds();
-					choice=nm_messagebox1( NULL,multi_endlevel_poll2, NULL, 2, TXT_YES, TXT_NO, TXT_ABORT_GAME );
-				}
-				else
-					choice=nm_messagebox( NULL, 2, TXT_YES, TXT_NO, TXT_ABORT_GAME );
-
-				if (choice==0)
-				{
-					Players[Player_num].connected=CONNECT_DISCONNECTED;
-
-					if (network)
-						multi_send_endlevel_packet();
-
-					multi_leave_game();
-					if (Game_wind)
-						window_close(Game_wind);
-					return;
-				}
-				break;
-
-			case KEY_PRINT_SCREEN:
-				save_screen_shot(0);
-				break;
-
-			default:
-				break;
-		}
-
-		gr_flip();
+		d_free(km);
+		return;
 	}
-
-	if (network)
-		multi_send_endlevel_packet();  // make sure
-
-	game_flush_inputs();
-	newmenu_close();
-
-	if (is_D2_OEM)
-	{
-		if (Current_level_num==8)
-		{
-			Players[Player_num].connected=CONNECT_DISCONNECTED;
-
-			if (network)
-				multi_send_endlevel_packet();
-
-			multi_leave_game();
-			if (Game_wind)
-				window_close(Game_wind);
-			return;
-		}
-	}
+	
+	while (window_exists(wind))
+		event_process();
 }
 
 /* NEW CODE - END */
