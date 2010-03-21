@@ -3,6 +3,7 @@ D2X-Rebirth Changelog
 20100321
 --------
 main/gameseq.c, main/multi.c: Hide game window between levels, fixing bug where many textures are loaded with the wrong palette when advancing to the next multiplayer level
+main/multi.c: Fix bug introduced in last commit - when the last level is finished, hide the game window - making sure the cockpit isn't drawn over the kmatrix screen
 
 20100320
 --------
