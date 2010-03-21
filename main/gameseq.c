@@ -959,20 +959,30 @@ extern void do_end_game(void);
 //	Return true if game over.
 int AdvanceLevel(int secret_flag)
 {
+	window_set_visible(Game_wind, 0);	// suspend the game, including drawing
+
 	Control_center_destroyed = 0;
 
 	#ifdef EDITOR
 	if (PLAYING_BUILTIN_MISSION)
+	{
+		window_set_visible(Game_wind, 1);
 		return 0;		//not a real level
+	}
 	#endif
 
 	#ifdef NETWORK
 	if (Game_mode & GM_MULTI)
 	{
-          int result;
+		int result;
 		result = multi_endlevel(&secret_flag); // Wait for other players to reach this point
 		if (result) // failed to sync
+		{
+			if (Game_wind)
+				window_set_visible(Game_wind, 1);
+
 			return (Current_level_num == Last_level);
+		}
 	}
 	#endif
 
@@ -1016,6 +1026,9 @@ int AdvanceLevel(int secret_flag)
 
 	}
 
+	if (Game_wind)
+		window_set_visible(Game_wind, 1);
+	
 	return 0;
 }
 
