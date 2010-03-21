@@ -1360,6 +1360,8 @@ void AdvanceLevel(int secret_flag)
 #endif
 
 	Assert(!secret_flag);
+	
+	window_set_visible(Game_wind, 0);	// suspend the game, including drawing
 
 	if (Current_level_num != Last_level) {
 #ifdef NETWORK
@@ -1375,7 +1377,10 @@ void AdvanceLevel(int secret_flag)
 
 	#ifdef EDITOR
 	if (Current_level_num == 0)
+	{
+		window_set_visible(Game_wind, 1);
 		return;		//not a real level
+	}
 	#endif
 
 #ifdef NETWORK
@@ -1386,6 +1391,10 @@ void AdvanceLevel(int secret_flag)
 			if (Current_level_num == Last_level)		//player has finished the game!
 				if (Game_wind)
 					window_close(Game_wind);		// Exit out of game loop
+
+			if (Game_wind)
+				window_set_visible(Game_wind, 1);
+
 			return;
 		}
 	}
@@ -1409,6 +1418,9 @@ void AdvanceLevel(int secret_flag)
 		StartNewLevel(Next_level_num, 0);
 
 	}
+	
+	if (Game_wind)
+		window_set_visible(Game_wind, 1);
 }
 
 void

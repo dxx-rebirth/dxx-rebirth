@@ -1,8 +1,13 @@
 D2X-Rebirth Changelog
 
+20100321
+--------
+main/gameseq.c, main/multi.c: Hide game window between levels, fixing bug where many textures are loaded with the wrong palette when advancing to the next multiplayer level
+
 20100320
 --------
 main/kmatrix.c, main/multi.c, main/multi.h: Make kmatrixs into windows (failed attempt at fixing a bug)
+main/game.c: Fix bug - make sure time isn't stopped for multiplayer when aborting, so starting a second game doesn't result in a frozen game
 
 20100318
 --------
