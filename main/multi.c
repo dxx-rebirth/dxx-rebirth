@@ -361,7 +361,7 @@ int multi_objnum_is_past(int objnum)
 void
 multi_endlevel_score(void)
 {
-	int i, old_connect=0;
+	int i, old_connect=0, old_vis = 1;
 	
 	// Show a score list to end of net players
 
@@ -381,6 +381,12 @@ multi_endlevel_score(void)
 	Network_status = NETSTAT_ENDLEVEL;
 #endif
 
+	if (Game_wind)
+	{
+		old_vis = window_is_visible(Game_wind);
+		window_set_visible(Game_wind, 0);
+	}
+	
 	if (multi_protocol == MULTI_PROTO_IPX)
 	{
 		if (Game_mode & GM_MULTI_COOP && multi_protocol == MULTI_PROTO_IPX)
@@ -391,6 +397,9 @@ multi_endlevel_score(void)
 	else
 		kmatrix_view(Game_mode & GM_NETWORK);
 
+	if (Game_wind)
+		window_set_visible(Game_wind, old_vis);
+	
 	Function_mode = FMODE_GAME;
 	
 	// Restore connect state

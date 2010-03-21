@@ -3,6 +3,7 @@ D1X-Rebirth Changelog
 20100321
 --------
 main/gameseq.c, main/multi.c: Hide game window between levels
+main/multi.c: Fix bug introduced in last commit - when the last level is finished, hide the game window - making sure the cockpit isn't drawn over the kmatrix screen
 
 20100320
 --------
