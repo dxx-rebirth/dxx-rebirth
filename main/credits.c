@@ -42,6 +42,7 @@ COPYRIGHT 1993-1999 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 #include "text.h"
 #include "songs.h"
 #include "menu.h"
+#include "mission.h"
 
 #define ROW_SPACING			(SHEIGHT / 17)
 #define NUM_LINES			20 //14

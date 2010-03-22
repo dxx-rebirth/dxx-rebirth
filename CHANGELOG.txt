@@ -3,6 +3,7 @@ D2X-Rebirth Changelog
 20100322
 --------
 main/credits.c: Make credits screen a window
+main/credits.c, main/titles.c: Fix error introduced with credits, make title screen a window. Only the editor left now...
 
 20100321
 --------
