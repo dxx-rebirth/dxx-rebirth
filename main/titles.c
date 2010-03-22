@@ -79,34 +79,69 @@ static int rescale_y(int y)
 	return y * GHEIGHT / 200;
 }
 
-int local_key_inkey(void)
+typedef struct title_screen
 {
-	int	rval;
+	grs_bitmap title_bm;
+	fix timer;
+	int allow_keys;
+} title_screen;
 
-	rval = key_inkey();
+int title_handler(window *wind, d_event *event, title_screen *ts)
+{
+	switch (event->type)
+	{
+		case EVENT_KEY_COMMAND:
+			switch (((d_event_keycommand *)event)->keycode)
+			{
+				case KEY_PRINT_SCREEN:
+					save_screen_shot(0);
+					return 1;
+					
+				default:
+					if (ts->allow_keys)
+						window_close(wind);
+					return 1;
+			}
+			break;
+			
+		case EVENT_IDLE:
+			timer_delay2(50);
 
-	if ( rval==KEY_ALTED+KEY_F2 )	{
-	 	title_save_game();
-		return 0;
+			if ((mouse_button_state(0) && ts->allow_keys) || (timer_get_fixed_seconds() > ts->timer))
+			{
+				window_close(wind);
+				return 1;
+			}
+			break;
+			
+		case EVENT_WINDOW_DRAW:
+			show_fullscr(&ts->title_bm);
+			break;
+
+		case EVENT_WINDOW_CLOSE:
+			gr_free_bitmap_data (&ts->title_bm);
+			d_free(ts);
+			break;
+			
+		default:
+			break;
 	}
-
-	if (rval == KEY_PRINT_SCREEN) {
-		save_screen_shot(0);
-		return 0;				//say no key pressed
-	}
-
-	else if (mouse_button_state(0))
-		rval = KEY_SPACEBAR;
-
-	return rval;
+	
+	return 0;
 }
 
 int show_title_screen( char * filename, int allow_keys, int from_hog_only )
 {
-	fix timer;
+	title_screen *ts;
+	window *wind;
 	int pcx_error;
-	grs_bitmap title_bm;
 	char new_filename[FILENAME_LEN+1] = "";
+	
+	MALLOC(ts, title_screen, 1);
+	if (!ts)
+		return 0;
+	
+	ts->allow_keys = allow_keys;
 
 #ifdef RELEASE
 	if (from_hog_only)
@@ -116,31 +151,28 @@ int show_title_screen( char * filename, int allow_keys, int from_hog_only )
 	strcat(new_filename,filename);
 	filename = new_filename;
 
-	gr_init_bitmap_data (&title_bm);
+	gr_init_bitmap_data (&ts->title_bm);
 
-	if ((pcx_error=pcx_read_bitmap( filename, &title_bm, BM_LINEAR, gr_palette ))!=PCX_ERROR_NONE)	{
+	if ((pcx_error=pcx_read_bitmap( filename, &ts->title_bm, BM_LINEAR, gr_palette ))!=PCX_ERROR_NONE)	{
 		Error( "Error loading briefing screen <%s>, PCX load error: %s (%i)\n",filename, pcx_errormsg(pcx_error), pcx_error);
 	}
 
 	gr_set_current_canvas( NULL );
 
-	timer = timer_get_fixed_seconds() + i2f(3);
+	ts->timer = timer_get_fixed_seconds() + i2f(3);
 
 	gr_palette_load( gr_palette );
 
-	while (1) {
-		gr_flip();
-		show_fullscr(&title_bm);
-
-		if (( local_key_inkey() && allow_keys ) || ( timer_get_fixed_seconds() > timer ))
-		{
-			gr_free_bitmap_data (&title_bm);
-			break;
-		}
-		timer_delay2(50);
-        }
-
-	gr_free_bitmap_data (&title_bm);
+	wind = window_create(&grd_curscreen->sc_canvas, 0, 0, SWIDTH, SHEIGHT, (int (*)(window *, d_event *, void *))title_handler, ts);
+	if (!wind)
+	{
+		gr_free_bitmap_data (&ts->title_bm);
+		d_free(ts);
+		return 0;
+	}
+	
+	while (window_exists(wind))
+		event_process();
 
 	return 0;
 }

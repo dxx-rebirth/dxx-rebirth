@@ -2,7 +2,8 @@ D1X-Rebirth Changelog
 
 20100322
 --------
-main/credits.c: 
+main/credits.c: Make credits screen a window
+main/titles.c: Make title screen a window. Only the editor left now...
 
 20100321
 --------
