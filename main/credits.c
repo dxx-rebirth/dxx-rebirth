@@ -26,6 +26,7 @@ COPYRIGHT 1993-1999 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 #include "error.h"
 #include "pstypes.h"
 #include "gr.h"
+#include "window.h"
 #include "key.h"
 #include "palette.h"
 #include "game.h"
@@ -33,6 +34,7 @@ COPYRIGHT 1993-1999 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 #include "timer.h"
 #include "gamefont.h"
 #include "pcx.h"
+#include "u_mem.h"
 #include "screens.h"
 #include "digi.h"
 #include "cfile.h"
@@ -44,126 +46,95 @@ COPYRIGHT 1993-1999 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 #define ROW_SPACING			(SHEIGHT / 17)
 #define NUM_LINES			20 //14
 #define CREDITS_FILE    		(cfexist("mcredits.tex")?"mcredits.tex":cfexist("ocredits.tex")?"ocredits.tex":"credits.tex")
-#ifdef SHAREWARE
-#define ALLOWED_CHAR			'S'
-#else
-#define ALLOWED_CHAR			'R'
-#endif
+#define ALLOWED_CHAR			(is_SHAREWARE ? 'S' : 'R')
 
-//if filename passed is NULL, show normal credits
-void credits_show(char *credits_filename)
+typedef struct credits
 {
 	CFILE * file;
-	int i, j, l, done;
-	int pcx_error;
-	int buffer_line = 0;
-	int first_line_offset;
-	int extra_inc=0;
-	int have_bin_file = 0;
-	char * tempp;
-	char filename[32];
+	int have_bin_file;
 	char buffer[NUM_LINES][80];
-	ubyte backdrop_palette[768];
+	int buffer_line;
+	int first_line_offset;
+	int extra_inc;
+	int done;
+	int row;
 	grs_bitmap backdrop;
-	grs_canvas *CreditsOffscreenBuf=NULL;
+} credits;
 
-	// Clear out all tex buffer lines.
-	for (i=0; i<NUM_LINES; i++ )
-		buffer[i][0] = 0;
-
-	sprintf(filename, "%s", CREDITS_FILE);
-	have_bin_file = 0;
-	if (credits_filename) {
-		strcpy(filename,credits_filename);
-		have_bin_file = 1;
-	}
-	file = cfopen( filename, "rb" );
-	if (file == NULL) {
-		char nfile[32];
-		
-		if (credits_filename)
-			return;		//ok to not find special filename
-
-		tempp = strchr(filename, '.');
-		*tempp = '\0';
-		sprintf(nfile, "%s.txb", filename);
-		file = cfopen(nfile, "rb");
-		if (file == NULL)
-			Error("Missing CREDITS.TEX and CREDITS.TXB file\n");
-		have_bin_file = 1;
-	}
-
-	set_screen_mode(SCREEN_MENU);
-	gr_use_palette_table( "credits.256" );
-	backdrop.bm_data=NULL;
-
-	pcx_error = pcx_read_bitmap(STARS_BACKGROUND,&backdrop, BM_LINEAR,backdrop_palette);
-	if (pcx_error != PCX_ERROR_NONE)		{
-		cfclose(file);
-		return;
-	}
-
-	songs_play_song( SONG_CREDITS, 1 );
-
-	gr_remap_bitmap_good( &backdrop,backdrop_palette, -1, -1 );
-
-	gr_set_current_canvas(NULL);
-	show_fullscr(&backdrop);
-	gr_palette_load( gr_palette );
-	CreditsOffscreenBuf = gr_create_sub_canvas(grd_curcanv,0,0,SWIDTH,SHEIGHT);
-
-	if (!CreditsOffscreenBuf)
-		Error("Not enough memory to allocate Credits Buffer.");
-
-	key_flush();
-
-	done = 0;
-
-	first_line_offset = 0;
-
-	while( 1 ) {
-		int k;
-
-		do {
-			buffer_line = (buffer_line+1) % NUM_LINES;
-get_line:;
-			if (cfgets( buffer[buffer_line], 80, file ))	{
-				char *p;
-				if (have_bin_file) // is this a binary tbl file
-					decode_text_line (buffer[buffer_line]);
-				p = buffer[buffer_line];
-				if (p[0] == ';')
-					goto get_line;
-
-				if (p[0] == '%')
-				{
-					if (p[1] == ALLOWED_CHAR)
-						strcpy(p,p+2);
-					else
-						goto get_line;
-				}
-
-			} else	{
-				//fseek( file, 0, SEEK_SET);
-				buffer[buffer_line][0] = 0;
-				done++;
+int credits_handler(window *wind, d_event *event, credits *cr)
+{
+	int j, k, l;
+	char * tempp;
+	int y;
+	
+	switch (event->type)
+	{
+		case EVENT_KEY_COMMAND:
+			k = ((d_event_keycommand *)event)->keycode;
+			switch (k)
+			{
+				case KEY_PRINT_SCREEN:
+					save_screen_shot(0);
+					return 1;
+					
+				default:
+					window_close(wind);
+					return 1;
 			}
-		} while (extra_inc--);
-		extra_inc = 0;
+			break;
 
-		for (i=0; i<ROW_SPACING; i += (SHEIGHT/200))	{
-			int y;
+		case EVENT_IDLE:
+			timer_delay(F1_0/25);
+			
+			//see if redbook song needs to be restarted
+			RBACheckFinishedHook();
 
-			y = first_line_offset - i;
-			gr_flip();
-			gr_set_current_canvas(CreditsOffscreenBuf);
-			show_fullscr(&backdrop);
+			if (cr->row == 0)
+			{
+				do {
+					cr->buffer_line = (cr->buffer_line+1) % NUM_LINES;
+				get_line:;
+					if (cfgets( cr->buffer[cr->buffer_line], 80, cr->file ))	{
+						char *p;
+						if (cr->have_bin_file) // is this a binary tbl file
+							decode_text_line (cr->buffer[cr->buffer_line]);
+						p = cr->buffer[cr->buffer_line];
+						if (p[0] == ';')
+							goto get_line;
+						
+						if (p[0] == '%')
+						{
+							if (p[1] == ALLOWED_CHAR)
+								strcpy(p,p+2);
+							else
+								goto get_line;
+						}
+						
+					} else	{
+						//fseek( file, 0, SEEK_SET);
+						cr->buffer[cr->buffer_line][0] = 0;
+						cr->done++;
+					}
+				} while (cr->extra_inc--);
+				cr->extra_inc = 0;
+			}
+			
+			if (cr->done>NUM_LINES)
+			{
+				window_close(wind);
+				return 0;
+			}
+			break;
+			
+		case EVENT_WINDOW_DRAW:
+			y = cr->first_line_offset - cr->row;
+			show_fullscr(&cr->backdrop);
 			for (j=0; j<NUM_LINES; j++ )	{
 				char *s;
-
-				l = (buffer_line + j + 1 ) %  NUM_LINES;
-				s = buffer[l];
-
+				
+				l = (cr->buffer_line + j + 1 ) %  NUM_LINES;
+				s = cr->buffer[l];
+				
 				if ( s[0] == '!' ) {
 					s++;
 				} else if ( s[0] == '$' )	{
@@ -174,38 +145,113 @@ get_line:;
 					s++;
 				} else
 					gr_set_curfont( MEDIUM2_FONT );
-
+				
 				tempp = strchr( s, '\t' );
 				if ( !tempp )	{
-				// Wacky Fast Credits thing
+					// Wacky Fast Credits thing
 					int w, h, aw;
-
+					
 					gr_get_string_size( s, &w, &h, &aw);
 					gr_printf( 0x8000, y, s );
 				}
 				y += ROW_SPACING;
 			}
+			
+			cr->row += SHEIGHT/200;
+			if (cr->row >= ROW_SPACING)
+				cr->row = 0;
+			break;
 
-			timer_delay(F1_0/25);
-		
-			//see if redbook song needs to be restarted
-			RBACheckFinishedHook();
-
-			k = key_inkey();
-
-			if (k == KEY_PRINT_SCREEN) {
-				save_screen_shot(0);
-				k = 0;
-			}
-
-			if ((k>0)||(done>NUM_LINES))
-			{
-				gr_free_bitmap_data (&backdrop);
-				cfclose(file);
-				songs_play_song( SONG_TITLE, 1 );
-				gr_free_sub_canvas(CreditsOffscreenBuf);
-				return;
-			}
-		}
+		case EVENT_WINDOW_CLOSE:
+			gr_free_bitmap_data (&cr->backdrop);
+			cfclose(cr->file);
+			songs_play_song( SONG_TITLE, 1 );
+			d_free(cr);
+			break;
+			
+		default:
+			break;
 	}
+	
+	return 0;
+}
+
+//if filename passed is NULL, show normal credits
+void credits_show(char *credits_filename)
+{
+	credits *cr;
+	window *wind;
+	int i;
+	int pcx_error;
+	char * tempp;
+	char filename[32];
+	ubyte backdrop_palette[768];
+	
+	MALLOC(cr, credits, 1);
+	if (!cr)
+		return;
+	
+	cr->have_bin_file = 0;
+	cr->buffer_line = 0;
+	cr->first_line_offset = 0;
+	cr->extra_inc = 0;
+	cr->done = 0;
+	cr->row = 0;
+
+	// Clear out all tex buffer lines.
+	for (i=0; i<NUM_LINES; i++ )
+		cr->buffer[i][0] = 0;
+
+	sprintf(filename, "%s", CREDITS_FILE);
+	cr->have_bin_file = 0;
+	if (credits_filename) {
+		strcpy(filename,credits_filename);
+		cr->have_bin_file = 1;
+	}
+	cr->file = cfopen( filename, "rb" );
+	if (cr->file == NULL) {
+		char nfile[32];
+		
+		if (credits_filename)
+			return;		//ok to not find special filename
+
+		tempp = strchr(filename, '.');
+		*tempp = '\0';
+		sprintf(nfile, "%s.txb", filename);
+		cr->file = cfopen(nfile, "rb");
+		if (cr->file == NULL)
+			Error("Missing CREDITS.TEX and CREDITS.TXB file\n");
+		cr->have_bin_file = 1;
+	}
+
+	set_screen_mode(SCREEN_MENU);
+	gr_use_palette_table( "credits.256" );
+	cr->backdrop.bm_data=NULL;
+
+	pcx_error = pcx_read_bitmap(STARS_BACKGROUND,&cr->backdrop, BM_LINEAR,backdrop_palette);
+	if (pcx_error != PCX_ERROR_NONE)		{
+		cfclose(cr->file);
+		return;
+	}
+
+	songs_play_song( SONG_CREDITS, 1 );
+
+	gr_remap_bitmap_good( &cr->backdrop,backdrop_palette, -1, -1 );
+
+	gr_set_current_canvas(NULL);
+	show_fullscr(&cr->backdrop);
+	gr_palette_load( gr_palette );
+
+	key_flush();
+
+	wind = window_create(&grd_curscreen->sc_canvas, 0, 0, SWIDTH, SHEIGHT, (int (*)(window *, d_event *, void *))credits_handler, cr);
+	if (!wind)
+	{
+		d_event event = { EVENT_WINDOW_CLOSE };
+		credits_handler(NULL, &event, cr);
+		return;
+	}
+
+	while (window_exists(wind))
+		event_process();
 }

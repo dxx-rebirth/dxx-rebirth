@@ -1,5 +1,9 @@
 D2X-Rebirth Changelog
 
+20100322
+--------
+main/credits.c: Make credits screen a window
+
 20100321
 --------
 main/gameseq.c, main/multi.c: Hide game window between levels, fixing bug where many textures are loaded with the wrong palette when advancing to the next multiplayer level
