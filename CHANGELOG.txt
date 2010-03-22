@@ -1,5 +1,9 @@
 D1X-Rebirth Changelog
 
+20100322
+--------
+main/credits.c: 
+
 20100321
 --------
 main/gameseq.c, main/multi.c: Hide game window between levels
