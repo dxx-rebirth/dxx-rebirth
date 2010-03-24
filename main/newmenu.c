@@ -86,7 +86,7 @@ struct newmenu
 	int				all_text;		//set true if all text items
 	int				is_scroll_box;   // Is this a scrolling box? Set to false at init
 	int				max_on_menu;
-	int				mouse_state, omouse_state, dblclick_flag;
+	int				mouse_state, dblclick_flag;
 	int				done;
 	void			*userdata;		// For whatever - like with window system
 };
@@ -562,6 +562,239 @@ int newmenu_get_citem(newmenu *menu)
 	return menu->citem;
 }
 
+int newmenu_mouse(window *wind, d_event *event, newmenu *menu)
+{
+	int old_choice, i;
+	grs_canvas *menu_canvas = window_get_canvas(wind), *save_canvas = grd_curcanv;
+	int mx=0, my=0, mz=0, x1 = 0, x2, y1, y2;
+	int changed = 0;
+
+	gr_set_current_canvas(menu_canvas);
+	
+	old_choice = menu->citem;
+	
+	if ((event->type == EVENT_MOUSE_BUTTON_DOWN) && !menu->all_text)
+	{
+		mouse_get_pos(&mx, &my, &mz);
+		for (i=0; i<menu->max_on_menu; i++ )	{
+			x1 = grd_curcanv->cv_bitmap.bm_x + menu->items[i].x-FSPACX(13) /*- menu->items[i].right_offset - 6*/;
+			x2 = x1 + menu->items[i].w+FSPACX(13);
+			y1 = grd_curcanv->cv_bitmap.bm_y + menu->items[i].y;
+			y2 = y1 + menu->items[i].h;
+			if (((mx > x1) && (mx < x2)) && ((my > y1) && (my < y2))) {
+				if (i+menu->scroll_offset != menu->citem) {
+					if(Hack_DblClick_MenuMode) menu->dblclick_flag = 0; 
+				}
+				
+				menu->citem = i + menu->scroll_offset;
+				
+				switch( menu->items[menu->citem].type )	{
+					case NM_TYPE_CHECK:
+						if ( menu->items[menu->citem].value )
+							menu->items[menu->citem].value = 0;
+						else
+							menu->items[menu->citem].value = 1;
+						
+						if (menu->is_scroll_box)
+							menu->last_scroll_check=-1;
+						changed = 1;
+						break;
+					case NM_TYPE_RADIO:
+						for (i=0; i<menu->nitems; i++ )	{
+							if ((i!=menu->citem) && (menu->items[i].type==NM_TYPE_RADIO) && (menu->items[i].group==menu->items[menu->citem].group) && (menu->items[i].value) )	{
+								menu->items[i].value = 0;
+								changed = 1;
+							}
+						}
+						menu->items[menu->citem].value = 1;
+						break;
+					case NM_TYPE_TEXT:
+						menu->citem=old_choice;
+						menu->mouse_state=0;
+						break;
+				}
+				break;
+			}
+		}
+	}
+	
+	if (menu->mouse_state && menu->all_text)
+	{
+		menu->done = 1;
+		gr_set_current_canvas(save_canvas);
+		return 1;
+	}
+	
+	if ( menu->mouse_state && !menu->all_text ) {
+		mouse_get_pos(&mx, &my, &mz);
+		
+		// check possible scrollbar stuff first
+		if (menu->is_scroll_box) {
+			int arrow_width, arrow_height, aw, ScrollAllow=0, time=timer_get_fixed_seconds();
+			static fix ScrollTime=0;
+			if (ScrollTime + F1_0/5 < time || time < ScrollTime)
+			{
+				ScrollTime = time;
+				ScrollAllow = 1;
+			}
+			
+			if (menu->scroll_offset != 0) {
+				gr_get_string_size(UP_ARROW_MARKER, &arrow_width, &arrow_height, &aw);
+				x2 = grd_curcanv->cv_bitmap.bm_x + menu->items[menu->scroll_offset].x-FSPACX(13);
+				y1 = grd_curcanv->cv_bitmap.bm_y + menu->items[menu->scroll_offset].y-(((int)LINE_SPACING)*menu->scroll_offset);
+				x1 = x2 - arrow_width;
+				y2 = y1 + arrow_height;
+				if (((mx > x1) && (mx < x2)) && ((my > y1) && (my < y2)) && ScrollAllow) {
+					menu->citem--;
+					menu->last_scroll_check=-1;
+					if (menu->citem-4<menu->scroll_offset && menu->scroll_offset > 0)
+					{
+						menu->scroll_offset--;
+					}
+				}
+			}
+			if (menu->scroll_offset+menu->max_displayable<menu->nitems) {
+				gr_get_string_size(DOWN_ARROW_MARKER, &arrow_width, &arrow_height, &aw);
+				x2 = grd_curcanv->cv_bitmap.bm_x + menu->items[menu->scroll_offset+menu->max_displayable-1].x-FSPACX(13);
+				y1 = grd_curcanv->cv_bitmap.bm_y + menu->items[menu->scroll_offset+menu->max_displayable-1].y-(((int)LINE_SPACING)*menu->scroll_offset);
+				x1 = x2 - arrow_width;
+				y2 = y1 + arrow_height;
+				if (((mx > x1) && (mx < x2)) && ((my > y1) && (my < y2)) && ScrollAllow) {
+					menu->citem++;
+					menu->last_scroll_check=-1;
+					if (menu->citem+4>=menu->max_on_menu+menu->scroll_offset && menu->scroll_offset < menu->nitems-menu->max_on_menu)
+					{
+						menu->scroll_offset++;
+					}
+				}
+			}
+		}
+		
+		for (i=0; i<menu->max_on_menu; i++ )	{
+			x1 = grd_curcanv->cv_bitmap.bm_x + menu->items[i].x-FSPACX(13);
+			x2 = x1 + menu->items[i].w+FSPACX(13);
+			y1 = grd_curcanv->cv_bitmap.bm_y + menu->items[i].y;
+			y2 = y1 + menu->items[i].h;
+			
+			if (((mx > x1) && (mx < x2)) && ((my > y1) && (my < y2)) && (menu->items[i].type != NM_TYPE_TEXT) ) {
+				if (i+menu->scroll_offset != menu->citem) {
+					if(Hack_DblClick_MenuMode) menu->dblclick_flag = 0; 
+				}
+				
+				menu->citem = i + menu->scroll_offset;
+				
+				if ( menu->items[menu->citem].type == NM_TYPE_SLIDER ) {
+					char slider_text[NM_MAX_TEXT_LEN+1], *p, *s1;
+					int slider_width, height, aw, sleft_width, sright_width, smiddle_width;
+					
+					strcpy(slider_text, menu->items[menu->citem].saved_text);
+					p = strchr(slider_text, '\t');
+					if (p) {
+						*p = '\0';
+						s1 = p+1;
+					}
+					if (p) {
+						gr_get_string_size(s1, &slider_width, &height, &aw);
+						gr_get_string_size(SLIDER_LEFT, &sleft_width, &height, &aw);
+						gr_get_string_size(SLIDER_RIGHT, &sright_width, &height, &aw);
+						gr_get_string_size(SLIDER_MIDDLE, &smiddle_width, &height, &aw);
+						
+						x1 = grd_curcanv->cv_bitmap.bm_x + menu->items[menu->citem].x + menu->items[menu->citem].w - slider_width;
+						x2 = x1 + slider_width + sright_width;
+						if ( (mx > x1) && (mx < (x1 + sleft_width)) && (menu->items[menu->citem].value != menu->items[menu->citem].min_value) ) {
+							menu->items[menu->citem].value = menu->items[menu->citem].min_value;
+							changed = 1;
+						} else if ( (mx < x2) && (mx > (x2 - sright_width)) && (menu->items[menu->citem].value != menu->items[menu->citem].max_value) ) {
+							menu->items[menu->citem].value = menu->items[menu->citem].max_value;
+							changed = 1;
+						} else if ( (mx > (x1 + sleft_width)) && (mx < (x2 - sright_width)) ) {
+							int num_values, value_width, new_value;
+							
+							num_values = menu->items[menu->citem].max_value - menu->items[menu->citem].min_value + 1;
+							value_width = (slider_width - sleft_width - sright_width) / num_values;
+							new_value = (mx - x1 - sleft_width) / value_width;
+							if ( menu->items[menu->citem].value != new_value ) {
+								menu->items[menu->citem].value = new_value;
+								changed = 1;
+							}
+						}
+						*p = '\t';
+					}
+				}
+				if (menu->citem == old_choice)
+					break;
+				if ((menu->items[menu->citem].type==NM_TYPE_INPUT) && (menu->citem!=old_choice))
+					menu->items[menu->citem].value = -1;
+				if ((old_choice>-1) && (menu->items[old_choice].type==NM_TYPE_INPUT_MENU) && (old_choice!=menu->citem))	{
+					menu->items[old_choice].group=0;
+					strcpy(menu->items[old_choice].text, menu->items[old_choice].saved_text );
+					menu->items[old_choice].value = -1;
+				}
+				break;
+			}
+		}
+	}
+	
+	if ((event->type == EVENT_MOUSE_BUTTON_UP) && !menu->all_text && (menu->citem != -1) && (menu->items[menu->citem].type == NM_TYPE_MENU) )
+	{
+		mouse_get_pos(&mx, &my, &mz);
+		for (i=0; i<menu->nitems; i++ )	{
+			x1 = grd_curcanv->cv_bitmap.bm_x + menu->items[i].x-FSPACX(13);
+			x2 = x1 + menu->items[i].w+FSPACX(13);
+			y1 = grd_curcanv->cv_bitmap.bm_y + menu->items[i].y;
+			y2 = y1 + menu->items[i].h;
+			if (((mx > x1) && (mx < x2)) && ((my > y1) && (my < y2))) {
+				if (Hack_DblClick_MenuMode) {
+					if (menu->dblclick_flag)
+					{
+						// Tell callback, allow staying in menu
+						event->type = EVENT_NEWMENU_SELECTED;
+						if (menu->subfunction && (*menu->subfunction)(menu, event, menu->userdata))
+							return 1;
+						
+						menu->done = 1;
+						gr_set_current_canvas(save_canvas);
+						return 1;
+					}
+					else menu->dblclick_flag = 1;
+				}
+				else
+				{
+					// Tell callback, allow staying in menu
+					event->type = EVENT_NEWMENU_SELECTED;
+					if (menu->subfunction && (*menu->subfunction)(menu, event, menu->userdata))
+						return 1;
+					
+					menu->done = 1;
+					gr_set_current_canvas(save_canvas);
+					return 1;
+				}
+			}
+		}
+	}
+	
+	if ((event->type == EVENT_MOUSE_BUTTON_UP) && (menu->citem>-1) && (menu->items[menu->citem].type==NM_TYPE_INPUT_MENU) && (menu->items[menu->citem].group==0))
+	{
+		menu->items[menu->citem].group = 1;
+		if ( !strnicmp( menu->items[menu->citem].saved_text, TXT_EMPTY, strlen(TXT_EMPTY) ) )	{
+			menu->items[menu->citem].text[0] = 0;
+			menu->items[menu->citem].value = -1;
+		} else {
+			strip_end_whitespace(menu->items[menu->citem].text);
+		}
+	}
+	
+	gr_set_current_canvas(save_canvas);
+	
+	if (changed && menu->subfunction)
+	{
+		event->type = EVENT_NEWMENU_CHANGED;
+		(*menu->subfunction)(menu, event, menu->userdata);
+	}
+	
+	return 0;
+}
+
 int newmenu_key_command(window *wind, d_event *event, newmenu *menu)
 {
 	newmenu_item *item = &menu->items[menu->citem];
@@ -920,250 +1153,6 @@ int newmenu_key_command(window *wind, d_event *event, newmenu *menu)
 	return rval;
 }
 
-int newmenu_idle(window *wind, newmenu *menu)
-{
-	int old_choice, i;
-	grs_canvas *menu_canvas = window_get_canvas(wind), *save_canvas = grd_curcanv;
-#ifdef NEWMENU_MOUSE
-	int mx=0, my=0, mz=0, x1 = 0, x2, y1, y2;
-#endif
-	int changed = 0;
-	d_event event = { EVENT_NEWMENU_SELECTED };
-	
-	timer_delay2(50);
-	
-#ifdef NEWMENU_MOUSE
-	menu->omouse_state = menu->mouse_state;
-	menu->mouse_state = mouse_button_state(0);
-#endif
-	
-	//see if redbook song needs to be restarted
-	RBACheckFinishedHook();
-	
-	gr_set_current_canvas(menu_canvas);
-	
-	old_choice = menu->citem;
-	
-#ifdef NEWMENU_MOUSE // for mouse selection of menu's etc.
-	if ( menu->mouse_state && !menu->omouse_state && !menu->all_text ) {
-		mouse_get_pos(&mx, &my, &mz);
-		for (i=0; i<menu->max_on_menu; i++ )	{
-			x1 = grd_curcanv->cv_bitmap.bm_x + menu->items[i].x-FSPACX(13) /*- menu->items[i].right_offset - 6*/;
-			x2 = x1 + menu->items[i].w+FSPACX(13);
-			y1 = grd_curcanv->cv_bitmap.bm_y + menu->items[i].y;
-			y2 = y1 + menu->items[i].h;
-			if (((mx > x1) && (mx < x2)) && ((my > y1) && (my < y2))) {
-				if (i+menu->scroll_offset != menu->citem) {
-					if(Hack_DblClick_MenuMode) menu->dblclick_flag = 0; 
-				}
-				
-				menu->citem = i + menu->scroll_offset;
-				
-				switch( menu->items[menu->citem].type )	{
-					case NM_TYPE_CHECK:
-						if ( menu->items[menu->citem].value )
-							menu->items[menu->citem].value = 0;
-						else
-							menu->items[menu->citem].value = 1;
-						
-						if (menu->is_scroll_box)
-							menu->last_scroll_check=-1;
-						changed = 1;
-						break;
-						case NM_TYPE_RADIO:
-						for (i=0; i<menu->nitems; i++ )	{
-							if ((i!=menu->citem) && (menu->items[i].type==NM_TYPE_RADIO) && (menu->items[i].group==menu->items[menu->citem].group) && (menu->items[i].value) )	{
-								menu->items[i].value = 0;
-								changed = 1;
-							}
-						}
-						menu->items[menu->citem].value = 1;
-						break;
-						case NM_TYPE_TEXT:
-						menu->citem=old_choice;
-						menu->mouse_state=0;
-						break;
-				}
-				break;
-			}
-		}
-	}
-	
-	if (menu->mouse_state && menu->all_text)
-	{
-		menu->done = 1;
-		gr_set_current_canvas(save_canvas);
-		return 1;
-	}
-	
-	if ( menu->mouse_state && !menu->all_text ) {
-		mouse_get_pos(&mx, &my, &mz);
-		
-		// check possible scrollbar stuff first
-		if (menu->is_scroll_box) {
-			int arrow_width, arrow_height, aw, ScrollAllow=0, time=timer_get_fixed_seconds();
-			static fix ScrollTime=0;
-			if (ScrollTime + F1_0/5 < time || time < ScrollTime)
-			{
-				ScrollTime = time;
-				ScrollAllow = 1;
-			}
-			
-			if (menu->scroll_offset != 0) {
-				gr_get_string_size(UP_ARROW_MARKER, &arrow_width, &arrow_height, &aw);
-				x2 = grd_curcanv->cv_bitmap.bm_x + menu->items[menu->scroll_offset].x-FSPACX(13);
-				y1 = grd_curcanv->cv_bitmap.bm_y + menu->items[menu->scroll_offset].y-(((int)LINE_SPACING)*menu->scroll_offset);
-				x1 = x2 - arrow_width;
-				y2 = y1 + arrow_height;
-				if (((mx > x1) && (mx < x2)) && ((my > y1) && (my < y2)) && ScrollAllow) {
-					menu->citem--;
-					menu->last_scroll_check=-1;
-					if (menu->citem-4<menu->scroll_offset && menu->scroll_offset > 0)
-					{
-						menu->scroll_offset--;
-					}
-				}
-			}
-			if (menu->scroll_offset+menu->max_displayable<menu->nitems) {
-				gr_get_string_size(DOWN_ARROW_MARKER, &arrow_width, &arrow_height, &aw);
-				x2 = grd_curcanv->cv_bitmap.bm_x + menu->items[menu->scroll_offset+menu->max_displayable-1].x-FSPACX(13);
-				y1 = grd_curcanv->cv_bitmap.bm_y + menu->items[menu->scroll_offset+menu->max_displayable-1].y-(((int)LINE_SPACING)*menu->scroll_offset);
-				x1 = x2 - arrow_width;
-				y2 = y1 + arrow_height;
-				if (((mx > x1) && (mx < x2)) && ((my > y1) && (my < y2)) && ScrollAllow) {
-					menu->citem++;
-					menu->last_scroll_check=-1;
-					if (menu->citem+4>=menu->max_on_menu+menu->scroll_offset && menu->scroll_offset < menu->nitems-menu->max_on_menu)
-					{
-						menu->scroll_offset++;
-					}
-				}
-			}
-		}
-		
-		for (i=0; i<menu->max_on_menu; i++ )	{
-			x1 = grd_curcanv->cv_bitmap.bm_x + menu->items[i].x-FSPACX(13);
-			x2 = x1 + menu->items[i].w+FSPACX(13);
-			y1 = grd_curcanv->cv_bitmap.bm_y + menu->items[i].y;
-			y2 = y1 + menu->items[i].h;
-			
-			if (((mx > x1) && (mx < x2)) && ((my > y1) && (my < y2)) && (menu->items[i].type != NM_TYPE_TEXT) ) {
-				if (i+menu->scroll_offset != menu->citem) {
-					if(Hack_DblClick_MenuMode) menu->dblclick_flag = 0; 
-				}
-				
-				menu->citem = i + menu->scroll_offset;
-				
-				if ( menu->items[menu->citem].type == NM_TYPE_SLIDER ) {
-					char slider_text[NM_MAX_TEXT_LEN+1], *p, *s1;
-					int slider_width, height, aw, sleft_width, sright_width, smiddle_width;
-					
-					strcpy(slider_text, menu->items[menu->citem].saved_text);
-					p = strchr(slider_text, '\t');
-					if (p) {
-						*p = '\0';
-						s1 = p+1;
-					}
-					if (p) {
-						gr_get_string_size(s1, &slider_width, &height, &aw);
-						gr_get_string_size(SLIDER_LEFT, &sleft_width, &height, &aw);
-						gr_get_string_size(SLIDER_RIGHT, &sright_width, &height, &aw);
-						gr_get_string_size(SLIDER_MIDDLE, &smiddle_width, &height, &aw);
-						
-						x1 = grd_curcanv->cv_bitmap.bm_x + menu->items[menu->citem].x + menu->items[menu->citem].w - slider_width;
-						x2 = x1 + slider_width + sright_width;
-						if ( (mx > x1) && (mx < (x1 + sleft_width)) && (menu->items[menu->citem].value != menu->items[menu->citem].min_value) ) {
-							menu->items[menu->citem].value = menu->items[menu->citem].min_value;
-							changed = 1;
-						} else if ( (mx < x2) && (mx > (x2 - sright_width)) && (menu->items[menu->citem].value != menu->items[menu->citem].max_value) ) {
-							menu->items[menu->citem].value = menu->items[menu->citem].max_value;
-							changed = 1;
-						} else if ( (mx > (x1 + sleft_width)) && (mx < (x2 - sright_width)) ) {
-							int num_values, value_width, new_value;
-							
-							num_values = menu->items[menu->citem].max_value - menu->items[menu->citem].min_value + 1;
-							value_width = (slider_width - sleft_width - sright_width) / num_values;
-							new_value = (mx - x1 - sleft_width) / value_width;
-							if ( menu->items[menu->citem].value != new_value ) {
-								menu->items[menu->citem].value = new_value;
-								changed = 1;
-							}
-						}
-						*p = '\t';
-					}
-				}
-				if (menu->citem == old_choice)
-					break;
-				if ((menu->items[menu->citem].type==NM_TYPE_INPUT) && (menu->citem!=old_choice))
-					menu->items[menu->citem].value = -1;
-				if ((old_choice>-1) && (menu->items[old_choice].type==NM_TYPE_INPUT_MENU) && (old_choice!=menu->citem))	{
-					menu->items[old_choice].group=0;
-					strcpy(menu->items[old_choice].text, menu->items[old_choice].saved_text );
-					menu->items[old_choice].value = -1;
-				}
-				break;
-			}
-		}
-	}
-	
-	if ( !menu->mouse_state && menu->omouse_state && !menu->all_text && (menu->citem != -1) && (menu->items[menu->citem].type == NM_TYPE_MENU) ) {
-		mouse_get_pos(&mx, &my, &mz);
-		for (i=0; i<menu->nitems; i++ )	{
-			x1 = grd_curcanv->cv_bitmap.bm_x + menu->items[i].x-FSPACX(13);
-			x2 = x1 + menu->items[i].w+FSPACX(13);
-			y1 = grd_curcanv->cv_bitmap.bm_y + menu->items[i].y;
-			y2 = y1 + menu->items[i].h;
-			if (((mx > x1) && (mx < x2)) && ((my > y1) && (my < y2))) {
-				if (Hack_DblClick_MenuMode) {
-					if (menu->dblclick_flag)
-					{
-						// Tell callback, allow staying in menu
-						if (menu->subfunction && (*menu->subfunction)(menu, &event, menu->userdata))
-							return 1;
-						
-						menu->done = 1;
-						gr_set_current_canvas(save_canvas);
-						return 1;
-					}
-					else menu->dblclick_flag = 1;
-				}
-				else
-				{
-					// Tell callback, allow staying in menu
-					if (menu->subfunction && (*menu->subfunction)(menu, &event, menu->userdata))
-						return 1;
-					
-					menu->done = 1;
-					gr_set_current_canvas(save_canvas);
-					return 1;
-				}
-			}
-		}
-	}
-	
-	if ( !menu->mouse_state && menu->omouse_state && (menu->citem>-1) && (menu->items[menu->citem].type==NM_TYPE_INPUT_MENU) && (menu->items[menu->citem].group==0))	{
-		menu->items[menu->citem].group = 1;
-		if ( !strnicmp( menu->items[menu->citem].saved_text, TXT_EMPTY, strlen(TXT_EMPTY) ) )	{
-			menu->items[menu->citem].text[0] = 0;
-			menu->items[menu->citem].value = -1;
-		} else {
-			strip_end_whitespace(menu->items[menu->citem].text);
-		}
-	}
-	
-#endif // NEWMENU_MOUSE
-	
-	if (changed && menu->subfunction)
-	{
-		event.type = EVENT_NEWMENU_CHANGED;
-		(*menu->subfunction)(menu, &event, menu->userdata);
-	}
-	
-	gr_set_current_canvas(save_canvas);
-
-	return 0;
-}
-
 int newmenu_draw(window *wind, newmenu *menu)
 {
 	grs_canvas *menu_canvas = window_get_canvas(wind), *save_canvas = grd_curcanv;
@@ -1282,14 +1271,28 @@ int newmenu_handler(window *wind, d_event *event, newmenu *menu)
 			
 		case EVENT_WINDOW_DEACTIVATED:
 			newmenu_hide_cursor();
+			menu->mouse_state = 0;
 			break;
+			
+		case EVENT_MOUSE_BUTTON_DOWN:
+		case EVENT_MOUSE_BUTTON_UP:
+			if (mouse_get_button(event) != 0)
+				return 0;
+
+			menu->mouse_state = event->type == EVENT_MOUSE_BUTTON_DOWN;
+			return newmenu_mouse(wind, event, menu);
 			
 		case EVENT_KEY_COMMAND:
 			return newmenu_key_command(wind, event, menu);
 			break;
 			
 		case EVENT_IDLE:
-			return newmenu_idle(wind, menu);
+			timer_delay2(50);
+			
+			//see if redbook song needs to be restarted
+			RBACheckFinishedHook();
+			
+			return newmenu_mouse(wind, event, menu);
 			break;
 			
 		case EVENT_WINDOW_DRAW:
@@ -1588,9 +1591,7 @@ int newmenu_do4( char * title, char * subtitle, int nitems, newmenu_item * item,
 		}
 	}
 
-#ifdef NEWMENU_MOUSE
-	menu->mouse_state = menu->omouse_state = 0;
-#endif
+	menu->mouse_state = 0;
 
 	gr_set_current_canvas(save_canvas);
 
@@ -1699,7 +1700,7 @@ struct listbox
 	int (*listbox_callback)(listbox *lb, d_event *event, void *userdata);
 	int citem, first_item;
 	int box_w, height, box_x, box_y, title_height;
-	int mouse_state, omouse_state;
+	int mouse_state;
 	void *userdata;
 };
 
@@ -1756,6 +1757,58 @@ void update_scroll_position(listbox *lb)
 	if (lb->first_item>lb->nitems-LB_ITEMS_ON_SCREEN)
 		lb->first_item = lb->nitems-LB_ITEMS_ON_SCREEN;
 	if (lb->first_item < 0 ) lb->first_item = 0;
+}
+
+int listbox_mouse(window *wind, d_event *event, listbox *lb)
+{
+	int i;
+	int mx, my, mz, x1, x2, y1, y2;	//, dblclick_flag;
+	
+	if (lb->mouse_state)
+	{
+		int w, h, aw;
+		
+		mouse_get_pos(&mx, &my, &mz);
+		for (i=lb->first_item; i<lb->first_item+LB_ITEMS_ON_SCREEN; i++ )	{
+			if (i >= lb->nitems)
+				break;
+			gr_get_string_size(lb->item[i], &w, &h, &aw  );
+			x1 = lb->box_x;
+			x2 = lb->box_x + lb->box_w;
+			y1 = (i-lb->first_item)*LINE_SPACING+lb->box_y;
+			y2 = y1+h;
+			if ( ((mx > x1) && (mx < x2)) && ((my > y1) && (my < y2)) ) {
+				lb->citem = i;
+				return 1;
+			}
+		}
+	}
+	else if (event->type == EVENT_MOUSE_BUTTON_UP)
+	{
+		int w, h, aw;
+		
+		if (lb->citem < 0)
+			return 0;
+
+		mouse_get_pos(&mx, &my, &mz);
+		gr_get_string_size(lb->item[lb->citem], &w, &h, &aw  );
+		x1 = lb->box_x;
+		x2 = lb->box_x + lb->box_w;
+		y1 = (lb->citem-lb->first_item)*LINE_SPACING+lb->box_y;
+		y2 = y1+h;
+		if ( ((mx > x1) && (mx < x2)) && ((my > y1) && (my < y2)) )
+		{
+			// Tell callback, allow staying in menu
+			event->type = EVENT_NEWMENU_SELECTED;
+			if (lb->listbox_callback && (*lb->listbox_callback)(lb, event, lb->userdata))
+				return 1;
+			
+			window_close(wind);
+			return 1;
+		}
+	}
+	
+	return 0;
 }
 
 int listbox_key_command(window *wind, d_event *event, listbox *lb)
@@ -1846,55 +1899,6 @@ int listbox_key_command(window *wind, d_event *event, listbox *lb)
 	return rval;
 }
 
-int listbox_idle(window *wind, listbox *lb)
-{
-	int i;
-#ifdef NEWMENU_MOUSE
-	int mx, my, mz, x1, x2, y1, y2;	//, dblclick_flag;
-#endif
-	d_event event = { EVENT_NEWMENU_SELECTED };
-	
-	timer_delay2(50);
-	
-#ifdef NEWMENU_MOUSE
-	lb->omouse_state = lb->mouse_state;
-	lb->mouse_state = mouse_button_state(0);
-#endif
-	
-	//see if redbook song needs to be restarted
-	RBACheckFinishedHook();
-	
-#ifdef NEWMENU_MOUSE
-	if (lb->mouse_state) {
-		int w, h, aw;
-		
-		mouse_get_pos(&mx, &my, &mz);
-		for (i=lb->first_item; i<lb->first_item+LB_ITEMS_ON_SCREEN; i++ )	{
-			if (i >= lb->nitems)
-				break;
-			gr_get_string_size(lb->item[i], &w, &h, &aw  );
-			x1 = lb->box_x;
-			x2 = lb->box_x + lb->box_w;
-			y1 = (i-lb->first_item)*LINE_SPACING+lb->box_y;
-			y2 = y1+h;
-			if ( ((mx > x1) && (mx < x2)) && ((my > y1) && (my < y2)) ) {
-				lb->citem = i;
-				
-				// Tell callback, allow staying in menu
-				if (lb->listbox_callback && (*lb->listbox_callback)(lb, &event, lb->userdata))
-					return 1;
-				
-				window_close(wind);
-				return 1;
-				break;
-			}
-		}
-	}
-#endif
-
-	return 0;
-}
-
 int listbox_draw(window *wind, listbox *lb)
 {
 	int i;
@@ -1963,12 +1967,25 @@ int listbox_handler(window *wind, d_event *event, listbox *lb)
 			newmenu_hide_cursor();
 			break;
 			
+		case EVENT_MOUSE_BUTTON_DOWN:
+		case EVENT_MOUSE_BUTTON_UP:
+			if (mouse_get_button(event) != 0)
+				return 0;
+			
+			lb->mouse_state = event->type == EVENT_MOUSE_BUTTON_DOWN;
+			return listbox_mouse(wind, event, lb);
+			
 		case EVENT_KEY_COMMAND:
 			return listbox_key_command(wind, event, lb);
 			break;
 			
 		case EVENT_IDLE:
-			return listbox_idle(wind, lb);
+			timer_delay2(50);
+			
+			//see if redbook song needs to be restarted
+			RBACheckFinishedHook();
+			
+			return listbox_mouse(wind, event, lb);
 			break;
 			
 		case EVENT_WINDOW_DRAW:
@@ -2053,7 +2070,7 @@ listbox *newmenu_listbox1( char * title, int nitems, char * items[], int allow_a
 	lb->first_item = 0;
 	update_scroll_position(lb);
 
-	lb->mouse_state = lb->omouse_state = 0;	//dblclick_flag = 0;
+	lb->mouse_state = 0;	//dblclick_flag = 0;
 
 	return lb;
 }

@@ -131,9 +131,7 @@ typedef struct kc_menu
 	int		old_axis[JOY_MAX_AXES];
 	ubyte	changing;
 	ubyte	q_fade_i;	// for flashing the question mark
-#ifdef NEWMENU_MOUSE
-	ubyte	mouse_state, omouse_state;
-#endif
+	ubyte	mouse_state;
 } kc_menu;
 
 ubyte DefaultKeySettings[3][MAX_CONTROLS] = {
@@ -326,7 +324,7 @@ ubyte DefaultKeySettingsD2X[MAX_D2X_CONTROLS] = {
 void kc_drawitem( kc_item *item, int is_current );
 void kc_change_key( kc_menu *menu, kc_item * item );
 void kc_change_joybutton( kc_menu *menu, kc_item * item );
-void kc_change_mousebutton( kc_menu *menu, kc_item * item );
+void kc_change_mousebutton( kc_menu *menu, d_event *event, kc_item * item );
 void kc_change_joyaxis( kc_menu *menu, kc_item * item );
 void kc_change_mouseaxis( kc_menu *menu, kc_item * item );
 void kc_change_invert( kc_menu *menu, kc_item * item );
@@ -432,7 +430,6 @@ int find_next_item_left( kc_item * items, int nitems, int citem )
 }
 #endif
 
-#ifdef NEWMENU_MOUSE
 int get_item_height(kc_item *item)
 {
 	int w, h, aw;
@@ -468,7 +465,6 @@ int get_item_height(kc_item *item)
 
 	return h;
 }
-#endif
 
 void nm_draw_background1(char * filename);
 void kc_drawquestion( kc_menu *menu, kc_item *item );
@@ -613,14 +609,65 @@ void kconfig_start_changing(kc_menu *menu)
 	menu->changing = 1;
 }
 
-int kconfig_idle(window *wind, d_event *event, kc_menu *menu)
+int kconfig_mouse(window *wind, d_event *event, kc_menu *menu)
 {
 	grs_canvas * save_canvas = grd_curcanv;
-	int i,k;
-#ifdef NEWMENU_MOUSE
 	int mx, my, mz, x1, x2, y1, y2;
-#endif
+	int i;
+	int rval = 0;
+
+	gr_set_current_canvas(window_get_canvas(wind));
 	
+	if (menu->mouse_state)
+	{
+		int item_height;
+		
+		mouse_get_pos(&mx, &my, &mz);
+		for (i=0; i<menu->nitems; i++ )	{
+			item_height = get_item_height( &menu->items[i] );
+			x1 = grd_curcanv->cv_bitmap.bm_x + FSPACX(menu->items[i].x) + FSPACX(menu->items[i].w1);
+			x2 = x1 + FSPACX(menu->items[i].w2);
+			y1 = grd_curcanv->cv_bitmap.bm_y + FSPACY(menu->items[i].y);
+			y2 = y1 + item_height;
+			if (((mx > x1) && (mx < x2)) && ((my > y1) && (my < y2))) {
+				menu->citem = i;
+				rval = 1;
+				break;
+			}
+		}
+	}
+	else if (event->type == EVENT_MOUSE_BUTTON_UP)
+	{
+		int item_height;
+		
+		mouse_get_pos(&mx, &my, &mz);
+		item_height = get_item_height( &menu->items[menu->citem] );
+		x1 = grd_curcanv->cv_bitmap.bm_x + FSPACX(menu->items[menu->citem].x) + FSPACX(menu->items[menu->citem].w1);
+		x2 = x1 + FSPACX(menu->items[menu->citem].w2);
+		y1 = grd_curcanv->cv_bitmap.bm_y + FSPACY(menu->items[menu->citem].y);
+		y2 = y1 + item_height;
+		if (((mx > x1) && (mx < x2)) && ((my > y1) && (my < y2))) {
+			kconfig_start_changing(menu);
+			rval = 1;
+		}
+		else
+		{
+			// Click out of changing mode - kreatordxx
+			menu->changing = 0;
+			game_flush_inputs();
+			rval = 1;
+		}
+	}
+	
+	gr_set_current_canvas(save_canvas);
+	
+	return rval;
+}
+
+int kconfig_idle(window *wind, kc_menu *menu)
+{
+	int i,k;
+
 	if (menu->changing)
 		timer_delay(f0_1/10);
 	else
@@ -631,30 +678,22 @@ int kconfig_idle(window *wind, d_event *event, kc_menu *menu)
 	
 	k = key_inkey();
 	
-#ifdef NEWMENU_MOUSE
-	menu->omouse_state = menu->mouse_state;
-	menu->mouse_state = mouse_button_state(0);
-#endif
-	
 	if (menu->changing)
 	{
 		if (k == KEY_ESC)
 			menu->changing = 0;
 		else
 			switch( menu->items[menu->citem].type )
-		{
-			case BT_KEY:            kc_change_key(         menu, &menu->items[menu->citem] ); break;
-			case BT_MOUSE_BUTTON:   kc_change_mousebutton( menu, &menu->items[menu->citem] ); break;
-			case BT_MOUSE_AXIS:     kc_change_mouseaxis(   menu, &menu->items[menu->citem] ); break;
-			case BT_JOY_BUTTON:     kc_change_joybutton(   menu, &menu->items[menu->citem] ); break;
-			case BT_JOY_AXIS:       kc_change_joyaxis(     menu, &menu->items[menu->citem] ); break;
-		}
+			{
+				case BT_KEY:            kc_change_key(         menu, &menu->items[menu->citem] ); break;
+				case BT_MOUSE_AXIS:     kc_change_mouseaxis(   menu, &menu->items[menu->citem] ); break;
+				case BT_JOY_BUTTON:     kc_change_joybutton(   menu, &menu->items[menu->citem] ); break;
+				case BT_JOY_AXIS:       kc_change_joyaxis(     menu, &menu->items[menu->citem] ); break;
+			}
 		
 		if (!menu->changing)
 		{
-			gr_set_fontcolor( BM_XRGB(28,28,28), BM_XRGB(0,0,0) );
 			game_flush_inputs();
-			menu->mouse_state = 0;
 			return 1;
 		}
 	}
@@ -825,57 +864,13 @@ int kconfig_idle(window *wind, d_event *event, kc_menu *menu)
 			break;
 	}
 	
-#ifdef NEWMENU_MOUSE
-	gr_set_current_canvas(window_get_canvas(wind));
-	
-	if ( (menu->mouse_state && !menu->omouse_state) || (menu->mouse_state && menu->omouse_state) ) {
-		int item_height;
-		
-		mouse_get_pos(&mx, &my, &mz);
-		for (i=0; i<menu->nitems; i++ )	{
-			item_height = get_item_height( &menu->items[i] );
-			x1 = grd_curcanv->cv_bitmap.bm_x + FSPACX(menu->items[i].x) + FSPACX(menu->items[i].w1);
-			x2 = x1 + FSPACX(menu->items[i].w2);
-			y1 = grd_curcanv->cv_bitmap.bm_y + FSPACY(menu->items[i].y);
-			y2 = y1 + item_height;
-			if (((mx > x1) && (mx < x2)) && ((my > y1) && (my < y2))) {
-				menu->citem = i;
-				break;
-			}
-		}
-	}
-	else if ( !menu->mouse_state && menu->omouse_state ) {
-		int item_height;
-		
-		mouse_get_pos(&mx, &my, &mz);
-		item_height = get_item_height( &menu->items[menu->citem] );
-		x1 = grd_curcanv->cv_bitmap.bm_x + FSPACX(menu->items[menu->citem].x) + FSPACX(menu->items[menu->citem].w1);
-		x2 = x1 + FSPACX(menu->items[menu->citem].w2);
-		y1 = grd_curcanv->cv_bitmap.bm_y + FSPACY(menu->items[menu->citem].y);
-		y2 = y1 + item_height;
-		if (((mx > x1) && (mx < x2)) && ((my > y1) && (my < y2))) {
-			kconfig_start_changing(menu);
-		}
-		else
-		{
-			// Click out of changing mode - kreatordxx
-			menu->changing = 0;
-			gr_set_fontcolor( BM_XRGB(28,28,28), BM_XRGB(0,0,0) );
-			game_flush_inputs();
-			return 1;
-		}
-	}
-	
-	gr_set_current_canvas(save_canvas);
-#endif // NEWMENU_MOUSE
-	
 	return 0;
 }
 
 int kconfig_handler(window *wind, d_event *event, kc_menu *menu)
 {
 	int i;
-
+	
 	switch (event->type)
 	{
 		case EVENT_WINDOW_ACTIVATED:
@@ -883,8 +878,28 @@ int kconfig_handler(window *wind, d_event *event, kc_menu *menu)
 			newmenu_show_cursor();
 			break;
 			
+		case EVENT_WINDOW_DEACTIVATED:
+			menu->mouse_state = 0;
+			break;
+			
+		case EVENT_MOUSE_BUTTON_DOWN:
+			if (menu->changing && (menu->items[menu->citem].type == BT_MOUSE_BUTTON))
+			{
+				kc_change_mousebutton( menu, event, &menu->items[menu->citem] );
+				return 1;
+			}
+			// else fall through
+
+		case EVENT_MOUSE_BUTTON_UP:
+			if (mouse_get_button(event) != 0)
+				return 0;
+
+			menu->mouse_state = (event->type == EVENT_MOUSE_BUTTON_DOWN);
+			return kconfig_mouse(wind, event, menu);
+
 		case EVENT_IDLE:
-			return kconfig_idle(wind, event, menu);
+			kconfig_mouse(wind, event, menu);
+			return kconfig_idle(wind, menu);
 			break;
 			
 		case EVENT_WINDOW_DRAW:
@@ -917,7 +932,7 @@ int kconfig_handler(window *wind, d_event *event, kc_menu *menu)
 			return 0;
 			break;
 	}
-
+	
 	return 1;
 }
 
@@ -936,10 +951,7 @@ void kconfig_sub(kc_item * items,int nitems, char *title)
 	menu->title = title;
 	menu->citem = 0;
 	menu->changing = 0;
-
-#ifdef NEWMENU_MOUSE
-	menu->mouse_state = menu->omouse_state = 0;
-#endif
+	menu->mouse_state = 0;
 
 	nm_draw_background1(NULL);
 
@@ -1080,26 +1092,21 @@ void kc_change_joybutton( kc_menu *menu, kc_item * item )
 	}
 }
 
-void kc_change_mousebutton( kc_menu *menu, kc_item * item )
+void kc_change_mousebutton( kc_menu *menu, d_event *event, kc_item * item )
 {
 	int n,i,b;
-	ubyte code = 255;
 
-	b = mouse_get_btns();
-	for (i = 0; i < 16; i++ ) {
-		if ( b & (1<<i) )	
-			code = i;
+	b = mouse_get_button(event);
+
+	for (i=0; i<menu->nitems; i++)
+	{
+		n = item - menu->items;
+		if ( (i!=n) && (menu->items[i].type==BT_MOUSE_BUTTON) && (menu->items[i].value==b) )
+			menu->items[i].value = 255;
 	}
-	if (code!=255)	{
-		for (i=0; i<menu->nitems; i++ )	{
-			n = item - menu->items;
-			if ( (i!=n) && (menu->items[i].type==BT_MOUSE_BUTTON) && (menu->items[i].value==code) )		{
-				menu->items[i].value = 255;
-			}
-		}
-		item->value = code;
-		menu->changing = 0;
-	}
+
+	item->value = b;
+	menu->changing = 0;
 }
 
 void kc_change_joyaxis( kc_menu *menu, kc_item * item )
@@ -1259,7 +1266,7 @@ void controls_read_all(int automap_flag)
 		use_joystick=0;
 	}
 
-	if ( PlayerCfg.ControlType & CONTROL_USING_MOUSE ) {
+	if ( PlayerCfg.ControlType & CONTROL_USING_MOUSE) {
 		//---------  Read Mouse -----------
 		if (FixedStep & EPS30) // as the mouse won't get delta in each frame (at high FPS) and we have a capped movement, read time-based
 			mouse_get_delta( &dx, &dy, &dz );

@@ -238,18 +238,15 @@ int show_pause_message(window *wind, d_event *event, void *userdata)
 
 	switch (event->type)
 	{
+		case EVENT_MOUSE_BUTTON_DOWN:
+			if (mouse_get_button(event) != 0)
+				return 0;
+			// else fall through
+
 		case EVENT_KEY_COMMAND:
 			window_close(wind);
 			return 1;
 
-		case EVENT_IDLE:
-			if (mouse_button_state(0))
-			{
-				window_close(wind);
-				return 1;
-			}
-			break;
-			
 		case EVENT_WINDOW_DRAW:
 		{
 			char *msg = TXT_PAUSE;
