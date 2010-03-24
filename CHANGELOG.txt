@@ -3,6 +3,7 @@ D2X-Rebirth Changelog
 20100324
 --------
 arch/include/event.h, arch/include/mouse.h, arch/sdl/mouse.c, main/kconfig.c, main/movie.c, main/newmenu.c, main/titles.c: Add EVENT_MOUSE_BUTTON_DOWN and EVENT_MOUSE_BUTTON_UP, use for all windows except game and editor. Fixes crash on iMac G5 when pressing keys to progress through briefing
+main/titles.c: Only show briefing background if we have one, fixing arithmetic crash with SDL Video build
 
 20100322
 --------
