@@ -1170,7 +1170,8 @@ int briefing_handler(window *wind, d_event *event, briefing *br)
 			break;
 
 		case EVENT_WINDOW_DRAW:
-			show_fullscr(&br->background);
+			if (br->background.bm_data)
+				show_fullscr(&br->background);
 
 			if (br->guy_bitmap_show)
 				show_briefing_bitmap(&br->guy_bitmap);
