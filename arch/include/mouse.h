@@ -22,6 +22,8 @@ COPYRIGHT 1993-1998 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 #include "pstypes.h"
 #include "fix.h"
 
+struct d_event;
+
 #define MOUSE_MAX_BUTTONS       16
 #define Z_SENSITIVITY		100
 #define MBTN_LEFT		0
@@ -47,6 +49,7 @@ COPYRIGHT 1993-1998 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 
 extern void mouse_flush();	// clears all mice events...
 extern void d_mouse_init(void);
+int mouse_get_button(struct d_event *event);
 extern void mouse_get_pos( int *x, int *y, int *z );
 extern void mouse_get_delta( int *dx, int *dy, int *dz );
 extern int mouse_get_btns();

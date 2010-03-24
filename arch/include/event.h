@@ -6,6 +6,8 @@
 typedef enum event_type
 {
 	EVENT_IDLE = 0,
+	EVENT_MOUSE_BUTTON_DOWN,
+	EVENT_MOUSE_BUTTON_UP,
 	EVENT_KEY_COMMAND,
 	EVENT_WINDOW_ACTIVATED,
 	EVENT_WINDOW_DEACTIVATED,
@@ -22,9 +24,11 @@ typedef struct d_event
 } d_event;
 
 int event_init();
+
+// Sends input events to event handlers
 void event_poll();
 
-// Not to be confused with event_poll, which will be removed eventually, this one sends events to event handlers
+// Sends input, idle and draw events to event handlers
 void event_process();
 
 #endif

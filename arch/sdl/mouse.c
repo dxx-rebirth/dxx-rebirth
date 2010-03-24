@@ -27,6 +27,12 @@ static struct mouseinfo {
 	int x,y,z;
 } Mouse;
 
+typedef struct d_event_mousebutton
+{
+	event_type type;
+	int button;
+} d_event_mousebutton;
+
 void d_mouse_init(void)
 {
 	memset(&Mouse,0,sizeof(Mouse));
@@ -57,6 +63,8 @@ void mouse_button_handler(SDL_MouseButtonEvent *mbe)
 	};
 
 	int button = button_remap[mbe->button - 1]; // -1 since SDL seems to start counting at 1
+	d_event_mousebutton event;
+	window *wind;
 
 	if (mbe->state == SDL_PRESSED) {
 		Mouse.buttons[button].pressed = 1;
@@ -75,6 +83,12 @@ void mouse_button_handler(SDL_MouseButtonEvent *mbe)
 		Mouse.buttons[button].time_held_down += timer_get_fixed_seconds() - Mouse.buttons[button].time_went_down;
 		Mouse.buttons[button].num_ups++;
 	}
+	
+	event.type = (mbe->state == SDL_PRESSED) ? EVENT_MOUSE_BUTTON_DOWN : EVENT_MOUSE_BUTTON_UP;
+	event.button = button;
+	
+	if ((wind = window_get_front()))
+		window_send_event(wind, (d_event *)&event);
 }
 
 void mouse_motion_handler(SDL_MouseMotionEvent *mme)
@@ -138,6 +152,12 @@ void mouse_get_delta( int *dx, int *dy, int *dz )
 	Mouse.delta_x = 0;
 	Mouse.delta_y = 0;
 	Mouse.delta_z = 0;
+}
+
+int mouse_get_button(d_event *event)
+{
+	Assert((event->type == EVENT_MOUSE_BUTTON_DOWN) || (event->type == EVENT_MOUSE_BUTTON_UP));
+	return ((d_event_mousebutton *)event)->button;
 }
 
 int mouse_get_btns()

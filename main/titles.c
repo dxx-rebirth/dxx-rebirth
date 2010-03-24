@@ -90,6 +90,16 @@ int title_handler(window *wind, d_event *event, title_screen *ts)
 {
 	switch (event->type)
 	{
+		case EVENT_MOUSE_BUTTON_DOWN:
+			if (mouse_get_button(event) != 0)
+				return 0;
+			else if (ts->allow_keys)
+			{
+				window_close(wind);
+				return 1;
+			}
+			break;
+			
 		case EVENT_KEY_COMMAND:
 			switch (((d_event_keycommand *)event)->keycode)
 			{
@@ -107,7 +117,7 @@ int title_handler(window *wind, d_event *event, title_screen *ts)
 		case EVENT_IDLE:
 			timer_delay2(50);
 
-			if ((mouse_button_state(0) && ts->allow_keys) || (timer_get_fixed_seconds() > ts->timer))
+			if (timer_get_fixed_seconds() > ts->timer)
 			{
 				window_close(wind);
 				return 1;
@@ -1081,6 +1091,26 @@ int briefing_handler(window *wind, d_event *event, briefing *br)
 			key_flush();
 			break;
 			
+		case EVENT_MOUSE_BUTTON_DOWN:
+			if (mouse_get_button(event) == 0)
+			{
+				if (br->new_screen)
+				{
+					if (!new_briefing_screen(br, 0))
+					{
+						window_close(wind);
+						return 1;
+					}
+				}
+				else if (br->new_page)
+					init_new_page(br);
+				else
+					br->delay_count = 0;
+
+				return 1;
+			}
+			break;
+			
 		case EVENT_KEY_COMMAND:
 		{
 			int key = ((d_event_keycommand *)event)->keycode;
@@ -1129,22 +1159,6 @@ int briefing_handler(window *wind, d_event *event, briefing *br)
 		case EVENT_IDLE:
 			timer_delay2(50);
 			
-			if (mouse_button_state(0))
-			{
-				if (br->new_screen)
-				{
-					if (!new_briefing_screen(br, 0))
-					{
-						window_close(wind);
-						return 1;
-					}
-				}
-				else if (br->new_page)
-					init_new_page(br);
-				
-				br->delay_count = 0;
-			}
-
 			if (!(br->new_screen || br->new_page))
 				while (!briefing_process_char(br) && !br->delay_count)
 				{
