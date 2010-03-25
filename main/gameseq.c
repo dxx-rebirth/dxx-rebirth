@@ -971,6 +971,8 @@ int AdvanceLevel(int secret_flag)
 	}
 	#endif
 
+	key_flush();
+
 	#ifdef NETWORK
 	if (Game_mode & GM_MULTI)
 	{
@@ -986,17 +988,15 @@ int AdvanceLevel(int secret_flag)
 	}
 	#endif
 
+	key_flush();
+
 	if (Current_level_num == Last_level) {		//player has finished the game!
 		
 		Function_mode = FMODE_MENU;
 		if ((Newdemo_state == ND_STATE_RECORDING) || (Newdemo_state == ND_STATE_PAUSED))
 			newdemo_stop_recording();
 
-		#ifndef SHAREWARE
-		songs_play_song( SONG_ENDGAME, 0 );
-		#endif
-
-		do_end_game();
+		do_end_briefing_screens(Ending_text_filename);
 		return 1;
 
 	} else {
@@ -1025,6 +1025,10 @@ int AdvanceLevel(int secret_flag)
 		StartNewLevel(Next_level_num);
 
 	}
+
+	key_flush();
+
+	Game_mode = GM_GAME_OVER;
 
 	if (Game_wind)
 		window_set_visible(Game_wind, 1);

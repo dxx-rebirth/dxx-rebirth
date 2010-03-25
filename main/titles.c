@@ -61,7 +61,6 @@ void title_save_game();
 void set_briefing_fontcolor ();
 
 #define MAX_BRIEFING_COLORS     7
-#define	SHAREWARE_ENDING_FILENAME	"ending.tex"
 #define DEFAULT_BRIEFING_BKG		"brief03.pcx"
 
 int	Briefing_text_colors[MAX_BRIEFING_COLORS];
@@ -220,7 +219,7 @@ void show_order_form()
 
 //-----------------------------------------------------------------------------
 typedef struct {
-	char    bs_name[14];                //  filename, eg merc01.  Assumes .lbm suffix.
+	char    bs_name[16];                //  filename, eg merc01.  Assumes .lbm suffix.
 	sbyte   level_num;
 	sbyte   message_num;
 	short   text_ulx, text_uly;         //  upper left x,y of text window
@@ -230,8 +229,8 @@ typedef struct {
 #define BRIEFING_SECRET_NUM 31          //  This must correspond to the first secret level which must come at the end of the list.
 #define BRIEFING_OFFSET_NUM 4           // This must correspond to the first level screen (ie, past the bald guy briefing screens)
 
-#define	SHAREWARE_ENDING_LEVEL_NUM  0x7f
-#define	REGISTERED_ENDING_LEVEL_NUM 0x7e
+#define	ENDING_LEVEL_NUM_OEMSHARE 0x7f
+#define	ENDING_LEVEL_NUM_REGISTER 0x7e
 #define Briefing_screens_LH ((SWIDTH >= 640 && SHEIGHT >= 480 && cfexist( "brief01h.pcx"))?Briefing_screens_h:Briefing_screens)
 
 briefing_screen Briefing_screens[] = {
@@ -251,7 +250,6 @@ briefing_screen Briefing_screens[] = {
 	{ "merc01.pcx",    6, 11,  10, 15, 300, 200 },  // level 6
 	{ "merc01.pcx",    7, 12,  10, 15, 300, 200 },  // level 7
 
-#ifndef SHAREWARE
 	{ "brief03.pcx",   8, 13,  20,  22, 257, 177 },
 	{ "mars01.pcx",    8, 14,  10, 100, 300,  200 }, // level 8
 	{ "mars01.pcx",    9, 15,  10, 100, 300,  200 }, // level 9
@@ -286,77 +284,70 @@ briefing_screen Briefing_screens[] = {
 	{ "aster01.pcx",  -1, 38,  10, 90, 300,  200 }, // secret level -1
 	{ "aster01.pcx",  -2, 39,  10, 90, 300,  200 }, // secret level -2
 	{ "aster01.pcx",  -3, 40,  10, 90, 300,  200 }, // secret level -3
-#endif
 
-	{ "end01.pcx",   SHAREWARE_ENDING_LEVEL_NUM,  1,  23, 40, 320, 200 },   // shareware end
-#ifndef SHAREWARE
-	{ "end02.pcx",   REGISTERED_ENDING_LEVEL_NUM,  1,  5, 5, 300, 200 },    // registered end
-	{ "end01.pcx",   REGISTERED_ENDING_LEVEL_NUM,  2,  23, 40, 320, 200 },  // registered end
-	{ "end03.pcx",   REGISTERED_ENDING_LEVEL_NUM,  3,  5, 5, 300, 200 },    // registered end
-#endif
+	{ "end01.pcx",   ENDING_LEVEL_NUM_OEMSHARE,  1,  23, 40, 320, 200 },   //  OEM and shareware end
+	{ "end02.pcx",   ENDING_LEVEL_NUM_REGISTER,  1,  5, 5, 300, 200 },    // registered end
+	{ "end01.pcx",   ENDING_LEVEL_NUM_REGISTER,  2,  23, 40, 320, 200 },  // registered end
+	{ "end03.pcx",   ENDING_LEVEL_NUM_REGISTER,  3,  5, 5, 300, 200 },    // registered end
 
 };
 
 briefing_screen Briefing_screens_h[] = { // hires screens
-	{  "brief01h.pcx",   0,  1,  13, 140, 290,  59 },
-	{  "brief02h.pcx",   0,  2,  27,  34, 257, 177 },
-	{  "brief03h.pcx",   0,  3,  20,  22, 257, 177 },
-	{  "brief02h.pcx",   0,  4,  27,  34, 257, 177 },
+	{ "brief01h.pcx",   0,  1,  13, 140, 290,  59 },
+	{ "brief02h.pcx",   0,  2,  27,  34, 257, 177 },
+	{ "brief03h.pcx",   0,  3,  20,  22, 257, 177 },
+	{ "brief02h.pcx",   0,  4,  27,  34, 257, 177 },
 
-	{  "moon01h.pcx",    1,  5,  10,  10, 300, 170 },	// level 1
-	{  "moon01h.pcx",    2,  6,  10,  10, 300, 170 },	// level 2
-	{  "moon01h.pcx",    3,  7,  10,  10, 300, 170 },	// level 3
+	{ "moon01h.pcx",    1,  5,  10,  10, 300, 170 },	// level 1
+	{ "moon01h.pcx",    2,  6,  10,  10, 300, 170 },	// level 2
+	{ "moon01h.pcx",    3,  7,  10,  10, 300, 170 },	// level 3
 
-	{  "venus01h.pcx",   4,  8,  15,  15, 300, 200 },	// level 4
-	{  "venus01h.pcx",   5,  9,  15,  15, 300, 200 },	// level 5
+	{ "venus01h.pcx",   4,  8,  15,  15, 300, 200 },	// level 4
+	{ "venus01h.pcx",   5,  9,  15,  15, 300, 200 },	// level 5
 
-	{  "brief03h.pcx",   6, 10,  20,  22, 257, 177 },
-	{  "merc01h.pcx",    6, 11,  10,  15, 300, 200 },	// level 6
-	{  "merc01h.pcx",    7, 12,  10,  15, 300, 200 },	// level 7
+	{ "brief03h.pcx",   6, 10,  20,  22, 257, 177 },
+	{ "merc01h.pcx",    6, 11,  10,  15, 300, 200 },	// level 6
+	{ "merc01h.pcx",    7, 12,  10,  15, 300, 200 },	// level 7
 
-#ifndef SHAREWARE
-	{  "brief03h.pcx",   8, 13,  20,  22, 257, 177 },
-	{  "mars01h.pcx",    8, 14,  10, 100, 300, 200 },	// level 8
-	{  "mars01h.pcx",    9, 15,  10, 100, 300, 200 },	// level 9
-	{  "brief03h.pcx",  10, 16,  20,  22, 257, 177 },
-	{  "mars01h.pcx",   10, 17,  10, 100, 300, 200 },	// level 10
+	{ "brief03h.pcx",   8, 13,  20,  22, 257, 177 },
+	{ "mars01h.pcx",    8, 14,  10, 100, 300, 200 },	// level 8
+	{ "mars01h.pcx",    9, 15,  10, 100, 300, 200 },	// level 9
+	{ "brief03h.pcx",  10, 16,  20,  22, 257, 177 },
+	{ "mars01h.pcx",   10, 17,  10, 100, 300, 200 },	// level 10
 
-	{  "jup01h.pcx",    11, 18,  10,  40, 300, 200 },	// level 11
-	{  "jup01h.pcx",    12, 19,  10,  40, 300, 200 },	// level 12
-	{  "brief03h.pcx",  13, 20,  20,  22, 257, 177 },
-	{  "jup01h.pcx",    13, 21,  10,  40, 300, 200 },	// level 13
-	{  "jup01h.pcx",    14, 22,  10,  40, 300, 200 },	// level 14
+	{ "jup01h.pcx",    11, 18,  10,  40, 300, 200 },	// level 11
+	{ "jup01h.pcx",    12, 19,  10,  40, 300, 200 },	// level 12
+	{ "brief03h.pcx",  13, 20,  20,  22, 257, 177 },
+	{ "jup01h.pcx",    13, 21,  10,  40, 300, 200 },	// level 13
+	{ "jup01h.pcx",    14, 22,  10,  40, 300, 200 },	// level 14
 
-	{  "saturn01h.pcx", 15, 23,  10,  40, 300, 200 },	// level 15
-	{  "brief03h.pcx",  16, 24,  20,  22, 257, 177 },
-	{  "saturn01h.pcx", 16, 25,  10,  40, 300, 200 },	// level 16
-	{  "brief03h.pcx",  17, 26,  20,  22, 257, 177 },
-	{  "saturn01h.pcx", 17, 27,  10,  40, 300, 200 },	// level 17
+	{ "saturn01h.pcx", 15, 23,  10,  40, 300, 200 },	// level 15
+	{ "brief03h.pcx",  16, 24,  20,  22, 257, 177 },
+	{ "saturn01h.pcx", 16, 25,  10,  40, 300, 200 },	// level 16
+	{ "brief03h.pcx",  17, 26,  20,  22, 257, 177 },
+	{ "saturn01h.pcx", 17, 27,  10,  40, 300, 200 },	// level 17
 
-	{  "uranus01h.pcx", 18, 28, 100, 100, 300, 200 },	// level 18
-	{  "uranus01h.pcx", 19, 29, 100, 100, 300, 200 },	// level 19
-	{  "uranus01h.pcx", 20, 30, 100, 100, 300, 200 },	// level 20
-	{  "uranus01h.pcx", 21, 31, 100, 100, 300, 200 },	// level 21
+	{ "uranus01h.pcx", 18, 28, 100, 100, 300, 200 },	// level 18
+	{ "uranus01h.pcx", 19, 29, 100, 100, 300, 200 },	// level 19
+	{ "uranus01h.pcx", 20, 30, 100, 100, 300, 200 },	// level 20
+	{ "uranus01h.pcx", 21, 31, 100, 100, 300, 200 },	// level 21
 
-	{  "neptun01h.pcx", 22, 32,  10,  20, 300, 200 },	// level 22
-	{  "neptun01h.pcx", 23, 33,  10,  20, 300, 200 },	// level 23
-	{  "neptun01h.pcx", 24, 34,  10,  20, 300, 200 },	// level 24
+	{ "neptun01h.pcx", 22, 32,  10,  20, 300, 200 },	// level 22
+	{ "neptun01h.pcx", 23, 33,  10,  20, 300, 200 },	// level 23
+	{ "neptun01h.pcx", 24, 34,  10,  20, 300, 200 },	// level 24
 
-	{  "pluto01h.pcx",  25, 35,  10,  20, 300, 200 },	// level 25
-	{  "pluto01h.pcx",  26, 36,  10,  20, 300, 200 },	// level 26
-	{  "pluto01h.pcx",  27, 37,  10,  20, 300, 200 },	// level 27
+	{ "pluto01h.pcx",  25, 35,  10,  20, 300, 200 },	// level 25
+	{ "pluto01h.pcx",  26, 36,  10,  20, 300, 200 },	// level 26
+	{ "pluto01h.pcx",  27, 37,  10,  20, 300, 200 },	// level 27
 
-	{  "aster01h.pcx",  -1, 38,  10, 90, 300,  200 },	// secret level -1
-	{  "aster01h.pcx",  -2, 39,  10, 90, 300,  200 },	// secret level -2
-	{  "aster01h.pcx",  -3, 40,  10, 90, 300,  200 }, 	// secret level -3
-#endif
+	{ "aster01h.pcx",  -1, 38,  10, 90, 300,  200 },	// secret level -1
+	{ "aster01h.pcx",  -2, 39,  10, 90, 300,  200 },	// secret level -2
+	{ "aster01h.pcx",  -3, 40,  10, 90, 300,  200 }, 	// secret level -3
 
-	{  "end01h.pcx",   SHAREWARE_ENDING_LEVEL_NUM,   1,  23, 40, 320, 200 }, 	// shareware end
-#ifndef SHAREWARE
-	{  "end02h.pcx",   REGISTERED_ENDING_LEVEL_NUM,  1,   5,  5, 300, 200 }, 	// registered end
-	{  "end01h.pcx",   REGISTERED_ENDING_LEVEL_NUM,  2,  23, 40, 320, 200 }, 	// registered end
-	{  "end03h.pcx",   REGISTERED_ENDING_LEVEL_NUM,  3,   5,  5, 300, 200 }, 	// registered end
-#endif
+	{ "end01h.pcx",   ENDING_LEVEL_NUM_OEMSHARE,  1,  23, 40, 320, 200 },   //  OEM and shareware end
+	{ "end02h.pcx",   ENDING_LEVEL_NUM_REGISTER,  1,  5, 5, 300, 200 },    // registered end
+	{ "end01h.pcx",   ENDING_LEVEL_NUM_REGISTER,  2,  23, 40, 320, 200 },  // registered end
+	{ "end03h.pcx",   ENDING_LEVEL_NUM_REGISTER,  3,  5, 5, 300, 200 },    // registered end
 
 };
 
@@ -407,7 +398,7 @@ void briefing_init(briefing *br, short level_num)
 	br->cur_screen = 0;
 	br->screen = NULL;
 	gr_init_bitmap_data (&br->background);
-	strcpy(br->background_name, DEFAULT_BRIEFING_BKG);
+	strncpy(br->background_name, DEFAULT_BRIEFING_BKG, sizeof(br->background_name));
 	br->robot_canv = NULL;
 	br->bitmap_name[0] = '\0';
 	br->door_dir = 1;
@@ -860,8 +851,7 @@ void show_briefing_bitmap(grs_bitmap *bmp)
 {
 	grs_canvas	*curcanv_save, *bitmap_canv;
 
-	bitmap_canv = gr_create_sub_canvas(grd_curcanv, 220*((double)SWIDTH/(HIRESMODE ? 640 : 320)), 45*((double)SHEIGHT/(HIRESMODE ? 480 : 200)),
-									   bmp->bm_w, bmp->bm_h);
+	bitmap_canv = gr_create_sub_canvas(grd_curcanv, rescale_x(220), rescale_y(55), (bmp->bm_w*(SWIDTH/(HIRESMODE ? 640 : 320))),(bmp->bm_h*(SHEIGHT/(HIRESMODE ? 480 : 200))));
 	curcanv_save = grd_curcanv;
 	gr_set_current_canvas(bitmap_canv);
 #ifdef OGL
@@ -962,8 +952,8 @@ int load_briefing_screen(briefing *br, char *fname)
 	free_briefing_screen(br);
 
 	gr_init_bitmap_data(&br->background);
-
-	strcpy (br->background_name,fname);
+	if (stricmp(br->background_name, fname))
+		strncpy (br->background_name,fname, sizeof(br->background_name));
 
 	if (!stricmp(fname, "brief02h.pcx") && baldguy_cheat)
 		if ( bald_guy_load(new_baldguy_pcx, &br->background, BM_LINEAR, gr_palette) == 0)
@@ -1250,132 +1240,32 @@ void do_briefing_screens(char *filename, int level_num)
 		event_process();
 }
 
-#ifndef SHAREWARE
-void do_registered_end_game(void)
+void do_end_briefing_screens(char *filename)
 {
-	briefing *br;
-	window *wind;
+	int level_num_screen = Current_level_num, showorder = 0;
+	
+	if (!strlen(filename))
+		return; // no filename, no ending
 
-	if (!Ending_text_filename[0]) //no filename?
-		return;
-
-	MALLOC(br, briefing, 1);
-	if (!br)
-		return;
-	
-	briefing_init(br, REGISTERED_ENDING_LEVEL_NUM);
-	
-	if ((Game_mode & GM_MULTI) && !(Game_mode & GM_MULTI_COOP))
+	if (stricmp(filename, BIMD1_ENDING_FILE_OEM) == 0)
 	{
-		// Special ending for deathmatch!!
-		int len = 40;
-		
-		MALLOC(br->text, char, len);
-		sprintf(br->text, "Test");
+		songs_play_song( SONG_ENDGAME, 0 );
+		level_num_screen = ENDING_LEVEL_NUM_OEMSHARE;
+		showorder = 1;
+	}
+	else if (stricmp(filename, BIMD1_ENDING_FILE_SHARE) == 0)
+	{
+		songs_play_song( SONG_BRIEFING, 1 );
+		level_num_screen = ENDING_LEVEL_NUM_OEMSHARE;
+		showorder = 1;
+	}
+	else
+	{
+		songs_play_song( SONG_ENDGAME, 0 );
+		level_num_screen = ENDING_LEVEL_NUM_REGISTER;
 	}
 
-	if (!load_screen_text(Ending_text_filename, &br->text) && !((Game_mode & GM_MULTI) && !(Game_mode & GM_MULTI_COOP)))
-	{
-		d_free(br);
-		return;
-	}
-	
-	wind = window_create(&grd_curscreen->sc_canvas, 0, 0, SWIDTH, SHEIGHT, (int (*)(window *, d_event *, void *))briefing_handler, br);
-	if (!wind)
-	{
-		d_free(br->text);
-		d_free(br);
-		return;
-	}
-	
-	if (!new_briefing_screen(br, 1))
-	{
-		window_close(wind);
-		return;
-	}
-	
-	// Stay where we are in the stack frame until briefing done
-	// Too complicated otherwise
-	while (window_exists(wind))
-		event_process();
+	do_briefing_screens(filename, level_num_screen);
+	if (showorder)
+		show_order_form();
 }
-#endif
-
-void do_shareware_end_game(void)
-{
-	briefing *br;
-	window *wind;
-
-#ifdef NETWORK
-	if ((Game_mode & GM_MULTI) && !(Game_mode & GM_MULTI_COOP))
-	{
-		kmatrix_view(1);
-		return;
-	}
-#endif
-
-	MALLOC(br, briefing, 1);
-	if (!br)
-		return;
-	
-	briefing_init(br, SHAREWARE_ENDING_LEVEL_NUM);
-	
-#ifdef DEST_SAT
-	load_screen_text(Ending_text_filename, &br->text);
-#else
-	load_screen_text(SHAREWARE_ENDING_FILENAME, &br->text);
-#endif
-
-	wind = window_create(&grd_curscreen->sc_canvas, 0, 0, SWIDTH, SHEIGHT, (int (*)(window *, d_event *, void *))briefing_handler, br);
-	if (!wind)
-	{
-		d_free(br->text);
-		d_free(br);
-		return;
-	}
-	
-	if (!new_briefing_screen(br, 1))
-	{
-		window_close(wind);
-		return;
-	}
-	
-	// Stay where we are in the stack frame until briefing done
-	// Too complicated otherwise
-	while (window_exists(wind))
-		event_process();
-}
-
-void do_end_game(void)
-{
-	set_screen_mode( SCREEN_MENU );
-	gr_set_current_canvas(NULL);
-
-	key_flush();
-
-	#ifdef SHAREWARE
-	do_shareware_end_game(); //hurrah! you win!
-	#else
-		#ifdef DEST_SAT
-			do_shareware_end_game(); //hurrah! you win!
-		#else
-			do_registered_end_game(); //hurrah! you win!
-		#endif
-	#endif
-
-	key_flush();
-
-	Function_mode = FMODE_MENU;
-
-	Game_mode = GM_GAME_OVER;
-
-#ifdef DEST_SAT
-	show_order_form();
-#endif
-
-#ifdef SHAREWARE
-	show_order_form();
-#endif
-
-}
-

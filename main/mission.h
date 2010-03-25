@@ -78,6 +78,13 @@ extern Mission *Current_mission; // current mission
 #define PLAYING_BUILTIN_MISSION	(Current_mission->builtin_hogsize != 0)
 #define ANARCHY_ONLY_MISSION	(Current_mission->anarchy_only_flag == 1)
 
+#define BIMD1_LAST_LEVEL			27
+#define BIMD1_LAST_SECRET_LEVEL		-3
+#define BIMD1_BRIEFING_FILE			"briefing.tex"
+#define BIMD1_ENDING_FILE			"endreg.tex"
+#define BIMD1_ENDING_FILE_OEM		"endsat.tex"
+#define BIMD1_ENDING_FILE_SHARE		"ending.tex"
+
 //loads the named mission if it exists.
 //Returns true if mission loaded ok, else false.
 int load_mission_by_name (char *mission_name);

@@ -1,5 +1,9 @@
 D1X-Rebirth Changelog
 
+20100326
+--------
+main/endlevel.c, main/gameseq.c, main/mission.c, main/mission.h, main/titles.c, main/titles.h: In Endlevel sequence, re-align big explosion to draw in front of exit model, relative to viewer; Re-organized tex files for Briefings and Endings and created more general code to play them; Re-aligned Dravis' head
+
 20100324
 --------
 arch/include/event.h, arch/include/mouse.h, arch/sdl/mouse.c, main/kconfig.c, main/movie.c, main/newmenu.c, main/titles.c: Add EVENT_MOUSE_BUTTON_DOWN and EVENT_MOUSE_BUTTON_UP, use for all windows except game and editor. Fixes crash on iMac G5 when pressing keys to progress through briefing

@@ -39,11 +39,6 @@ COPYRIGHT 1993-1998 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 #include "u_mem.h"
 #include "ignorecase.h"
 
-#define BIM_LAST_LEVEL          27
-#define BIM_LAST_SECRET_LEVEL   -3
-#define BIM_BRIEFING_FILE       "briefing.tex"
-#define BIM_ENDING_FILE         "endreg.tex"
-
 //mission list entry
 typedef struct mle {
 	char    *filename;          // filename without extension
@@ -82,6 +77,9 @@ int load_mission_d1(void)
 			//build level names
 			for (i=0;i<Last_level;i++)
 				sprintf(Level_names[i], "level%02d.sdl", i+1);
+
+			strcpy(Briefing_text_filename,BIMD1_BRIEFING_FILE);
+			strcpy(Ending_text_filename,BIMD1_ENDING_FILE_SHARE);
 	
 			break;
 		case D1_MAC_SHARE_MISSION_HOGSIZE:
@@ -93,6 +91,9 @@ int load_mission_d1(void)
 			//build level names
 			for (i=0;i<Last_level;i++)
 				sprintf(Level_names[i], "level%02d.sdl", i+1);
+
+			strcpy(Briefing_text_filename,BIMD1_BRIEFING_FILE);
+			strcpy(Ending_text_filename,BIMD1_ENDING_FILE_SHARE);
 	
 			break;
 		case D1_OEM_MISSION_HOGSIZE:
@@ -110,6 +111,9 @@ int load_mission_d1(void)
 				sprintf(Secret_level_names[i], "levels%1d.rdl", i+1);
 	
 			Secret_level_table[0] = 10;
+
+			strcpy(Briefing_text_filename,BIMD1_BRIEFING_FILE);
+			strcpy(Ending_text_filename,BIMD1_ENDING_FILE_OEM);
 	
 			break;
 		default:
@@ -119,8 +123,8 @@ int load_mission_d1(void)
 		case D1_MAC_MISSION_HOGSIZE:
 			N_secret_levels = 3;
 	
-			Last_level = BIM_LAST_LEVEL;
-			Last_secret_level = BIM_LAST_SECRET_LEVEL;
+			Last_level = BIMD1_LAST_LEVEL;
+			Last_secret_level = BIMD1_LAST_SECRET_LEVEL;
 	
 			//build level names
 			for (i=0;i<Last_level;i++)
@@ -131,11 +135,12 @@ int load_mission_d1(void)
 			Secret_level_table[0] = 10;
 			Secret_level_table[1] = 21;
 			Secret_level_table[2] = 24;
+
+			strcpy(Briefing_text_filename,BIMD1_BRIEFING_FILE);
+			strcpy(Ending_text_filename,BIMD1_ENDING_FILE);
 	
 			break;
 	}
-	strcpy(Briefing_text_filename,BIM_BRIEFING_FILE);
-	strcpy(Ending_text_filename,BIM_ENDING_FILE);
 
 	return 1;
 }
@@ -476,8 +481,8 @@ int load_mission(mle *mission)
 	//init vars
 	Last_level = 0;
 	Last_secret_level = 0;
-	Briefing_text_filename[0] = 0;
-	Ending_text_filename[0] = 0;
+	memset(&Briefing_text_filename, '\0', sizeof(Briefing_text_filename));
+	memset(&Ending_text_filename, '\0', sizeof(Ending_text_filename));
 
 	// for Descent 1 missions, load descent.hog
 	if (!cfile_init("descent.hog", 1))
