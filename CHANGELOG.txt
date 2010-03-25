@@ -1,5 +1,9 @@
 D2X-Rebirth Changelog
 
+20100325
+--------
+main/titles.c: Make sure got_z is not reset to 0 for Descent 1 missions - fixing crash, also make sure briefing hum is not played through more than one channel
+
 20100324
 --------
 arch/include/event.h, arch/include/mouse.h, arch/sdl/mouse.c, main/kconfig.c, main/movie.c, main/newmenu.c, main/titles.c: Add EVENT_MOUSE_BUTTON_DOWN and EVENT_MOUSE_BUTTON_UP, use for all windows except game and editor. Fixes crash on iMac G5 when pressing keys to progress through briefing
