@@ -40,12 +40,6 @@ COPYRIGHT 1993-1999 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 #include "u_mem.h"
 #include "ignorecase.h"
 
-//values for d1 built-in mission
-#define BIM_LAST_LEVEL          27
-#define BIM_LAST_SECRET_LEVEL   -3
-#define BIM_BRIEFING_FILE       "briefing.tex"
-#define BIM_ENDING_FILE         "endreg.tex"
-
 //mission list entry
 typedef struct mle {
 	char    *filename;          // filename without extension
@@ -85,6 +79,9 @@ int load_mission_d1(void)
 			//build level names
 			for (i=0;i<Last_level;i++)
 				sprintf(Level_names[i], "level%02d.sdl", i+1);
+
+			strcpy(Briefing_text_filename,BIMD1_BRIEFING_FILE);
+			strcpy(Ending_text_filename,BIMD1_ENDING_FILE_SHARE);
 	
 			break;
 		case D1_MAC_SHARE_MISSION_HOGSIZE:
@@ -96,7 +93,10 @@ int load_mission_d1(void)
 			//build level names
 			for (i=0;i<Last_level;i++)
 				sprintf(Level_names[i], "level%02d.sdl", i+1);
-	
+
+			strcpy(Briefing_text_filename,BIMD1_BRIEFING_FILE);
+			strcpy(Ending_text_filename,BIMD1_ENDING_FILE_SHARE);
+
 			break;
 		case D1_OEM_MISSION_HOGSIZE:
 		case D1_OEM_10_MISSION_HOGSIZE:
@@ -113,7 +113,10 @@ int load_mission_d1(void)
 				sprintf(Secret_level_names[i], "levels%1d.rdl", i+1);
 	
 			Secret_level_table[0] = 10;
-	
+
+			strcpy(Briefing_text_filename,BIMD1_BRIEFING_FILE);
+			strcpy(Ending_text_filename,BIMD1_ENDING_FILE_OEM);
+
 			break;
 		default:
 			Int3(); // fall through
@@ -122,8 +125,8 @@ int load_mission_d1(void)
 		case D1_MAC_MISSION_HOGSIZE:
 			N_secret_levels = 3;
 	
-			Last_level = BIM_LAST_LEVEL;
-			Last_secret_level = BIM_LAST_SECRET_LEVEL;
+			Last_level = BIMD1_LAST_LEVEL;
+			Last_secret_level = BIMD1_LAST_SECRET_LEVEL;
 	
 			//build level names
 			for (i=0;i<Last_level;i++)
@@ -134,11 +137,12 @@ int load_mission_d1(void)
 			Secret_level_table[0] = 10;
 			Secret_level_table[1] = 21;
 			Secret_level_table[2] = 24;
-	
+
+			strcpy(Briefing_text_filename,BIMD1_BRIEFING_FILE);
+			strcpy(Ending_text_filename,BIMD1_ENDING_FILE);
+
 			break;
 	}
-	strcpy(Briefing_text_filename,BIM_BRIEFING_FILE);
-	strcpy(Ending_text_filename,BIM_ENDING_FILE);
 
 	return 1;
 }
@@ -613,8 +617,8 @@ int load_mission(mle *mission)
 	//init vars
 	Last_level = 0;
 	Last_secret_level = 0;
-	Briefing_text_filename[0] = 0;
-	Ending_text_filename[0] = 0;
+	memset(&Briefing_text_filename, '\0', sizeof(Briefing_text_filename));
+	memset(&Ending_text_filename, '\0', sizeof(Ending_text_filename));
 
 	// for Descent 1 missions, load descent.hog
 	if (EMULATING_D1) {
@@ -628,9 +632,13 @@ int load_mission(mle *mission)
 		switch (Current_mission->builtin_hogsize) {
 		case SHAREWARE_MISSION_HOGSIZE:
 		case MAC_SHARE_MISSION_HOGSIZE:
+			strcpy(Briefing_text_filename,BIMD2_BRIEFING_FILE_SHARE);
+			strcpy(Ending_text_filename,BIMD2_ENDING_FILE_SHARE);
 			return load_mission_shareware();
 			break;
 		case OEM_MISSION_HOGSIZE:
+			strcpy(Briefing_text_filename,BIMD2_BRIEFING_FILE_OEM);
+			strcpy(Ending_text_filename,BIMD2_ENDING_FILE_OEM);
 			return load_mission_oem();
 			break;
 		default:
@@ -638,6 +646,7 @@ int load_mission(mle *mission)
 		case FULL_MISSION_HOGSIZE:
 		case FULL_10_MISSION_HOGSIZE:
 		case MAC_FULL_MISSION_HOGSIZE:
+			strcpy(Briefing_text_filename,BIMD2_BRIEFING_FILE);
 			// continue on... (use d2.mn2 from hogfile)
 			break;
 		}
@@ -676,6 +685,9 @@ int load_mission(mle *mission)
 		PHYSFSEXT_locateCorrectCase(buf);
 		if (cfexist(buf))
 			cfile_init(buf, 0);
+
+		snprintf(Briefing_text_filename, sizeof(Briefing_text_filename), "%s.tex",Current_mission_filename);
+		snprintf(Ending_text_filename, sizeof(Ending_text_filename), "%s.tex",Current_mission_filename);
 	}
 
 	while (cfgets(buf,80,mfile)) {

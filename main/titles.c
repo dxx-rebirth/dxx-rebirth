@@ -324,7 +324,7 @@ void show_order_form()
 
 //-----------------------------------------------------------------------------
 typedef struct {
-	char    bs_name[14];                //  filename, eg merc01.  Assumes .lbm suffix.
+	char    bs_name[16];                //  filename, eg merc01.  Assumes .lbm suffix.
 	sbyte   level_num;
 	sbyte   message_num;
 	short   text_ulx, text_uly;         //  upper left x,y of text window
@@ -334,14 +334,8 @@ typedef struct {
 #define BRIEFING_SECRET_NUM 31          //  This must correspond to the first secret level which must come at the end of the list.
 #define BRIEFING_OFFSET_NUM 4           // This must correspond to the first level screen (ie, past the bald guy briefing screens)
 
-#define	SHAREWARE_ENDING_LEVEL_NUM  0x7f
-#define	REGISTERED_ENDING_LEVEL_NUM 0x7e
-
-#ifdef SHAREWARE
-#define ENDING_LEVEL_NUM 	SHAREWARE_ENDING_LEVEL_NUM
-#else
-#define ENDING_LEVEL_NUM 	REGISTERED_ENDING_LEVEL_NUM
-#endif
+#define	ENDING_LEVEL_NUM_OEMSHARE 0x7f
+#define	ENDING_LEVEL_NUM_REGISTER 0x7e
 
 #define MAX_BRIEFING_SCREENS 60
 
@@ -365,7 +359,6 @@ briefing_screen D1_Briefing_screens[] = {
 	{ "merc01.pcx",    6, 11,  10, 15, 300, 200 },  // level 6
 	{ "merc01.pcx",    7, 12,  10, 15, 300, 200 },  // level 7
 
-#ifndef SHAREWARE
 	{ "brief03.pcx",   8, 13,  20,  22, 257, 177 },
 	{ "mars01.pcx",    8, 14,  10, 100, 300,  200 }, // level 8
 	{ "mars01.pcx",    9, 15,  10, 100, 300,  200 }, // level 9
@@ -400,15 +393,11 @@ briefing_screen D1_Briefing_screens[] = {
 	{ "aster01.pcx",  -1, 38,  10, 90, 300,  200 }, // secret level -1
 	{ "aster01.pcx",  -2, 39,  10, 90, 300,  200 }, // secret level -2
 	{ "aster01.pcx",  -3, 40,  10, 90, 300,  200 }, // secret level -3
-#endif
 
-	{ "end01.pcx",   SHAREWARE_ENDING_LEVEL_NUM,  1,  23, 40, 320, 200 },   // shareware end
-#ifndef SHAREWARE
-	{ "end02.pcx",   REGISTERED_ENDING_LEVEL_NUM,  1,  5, 5, 300, 200 },    // registered end
-	{ "end01.pcx",   REGISTERED_ENDING_LEVEL_NUM,  2,  23, 40, 320, 200 },  // registered end
-	{ "end03.pcx",   REGISTERED_ENDING_LEVEL_NUM,  3,  5, 5, 300, 200 },    // registered end
-#endif
-
+	{ "end01.pcx",   ENDING_LEVEL_NUM_OEMSHARE,  1,  23, 40, 320, 200 },   //  OEM and shareware end
+	{ "end02.pcx",   ENDING_LEVEL_NUM_REGISTER,  1,  5, 5, 300, 200 },    // registered end
+	{ "end01.pcx",   ENDING_LEVEL_NUM_REGISTER,  2,  23, 40, 320, 200 },  // registered end
+	{ "end03.pcx",   ENDING_LEVEL_NUM_REGISTER,  3,  5, 5, 300, 200 },    // registered end
 };
 
 #define NUM_D1_BRIEFING_SCREENS (sizeof(D1_Briefing_screens)/sizeof(briefing_screen))
@@ -463,7 +452,7 @@ void briefing_init(briefing *br, short level_num)
 	br->cur_screen = 0;
 	br->screen = NULL;
 	gr_init_bitmap_data (&br->background);
-	strcpy(br->background_name, DEFAULT_BRIEFING_BKG);
+	strncpy(br->background_name, DEFAULT_BRIEFING_BKG, sizeof(br->background_name));
 	br->hum_channel = br->printing_channel = -1;
 	br->robot_canv = NULL;
 	br->robot_playing = 0;
@@ -1049,8 +1038,7 @@ void show_briefing_bitmap(grs_bitmap *bmp)
 {
 	grs_canvas	*curcanv_save, *bitmap_canv;
 
-	bitmap_canv = gr_create_sub_canvas(grd_curcanv, 220*((double)SWIDTH/(HIRESMODE ? 640 : 320)), 45*((double)SHEIGHT/(HIRESMODE ? 480 : 200)),
-									   bmp->bm_w, bmp->bm_h);
+	bitmap_canv = gr_create_sub_canvas(grd_curcanv, rescale_x(220), rescale_y(55), (bmp->bm_w*(SWIDTH/(HIRESMODE ? 640 : 320))),(bmp->bm_h*(SHEIGHT/(HIRESMODE ? 480 : 200))));
 	curcanv_save = grd_curcanv;
 	gr_set_current_canvas(bitmap_canv);
 #ifdef OGL
@@ -1161,8 +1149,8 @@ int load_briefing_screen(briefing *br, char *fname)
 	free_briefing_screen(br);
 
 	gr_init_bitmap_data(&br->background);
-
-	strcpy (br->background_name,fname);
+	if (stricmp(br->background_name, fname))
+		strncpy (br->background_name,fname, sizeof(br->background_name));
 
 	if ((pcx_error = pcx_read_bitmap(fname, &br->background, BM_LINEAR, gr_palette))!=PCX_ERROR_NONE)
 		Error( "Error loading briefing screen <%s>, PCX load error: %s (%i)\n",fname, pcx_errormsg(pcx_error), pcx_error);
@@ -1464,4 +1452,54 @@ void do_briefing_screens(char *filename, int level_num)
 	// Too complicated otherwise
 	while (window_exists(wind))
 		event_process();
+}
+
+void do_end_briefing_screens(char *filename)
+{
+	int level_num_screen = Current_level_num, showorder = 0;
+	
+	if (!strlen(filename))
+		return; // no filename, no ending
+
+	if (EMULATING_D1)
+	{
+		if (stricmp(filename, BIMD1_ENDING_FILE_OEM) == 0)
+		{
+			songs_play_song( SONG_ENDGAME, 0 );
+			level_num_screen = ENDING_LEVEL_NUM_OEMSHARE;
+		}
+		else if (stricmp(filename, BIMD1_ENDING_FILE_SHARE) == 0)
+		{
+			songs_play_song( SONG_BRIEFING, 1 );
+			level_num_screen = ENDING_LEVEL_NUM_OEMSHARE;
+		}
+		else
+		{
+			songs_play_song( SONG_ENDGAME, 0 );
+			level_num_screen = ENDING_LEVEL_NUM_REGISTER;
+		}
+	}
+	else if (PLAYING_BUILTIN_MISSION)
+	{
+		if (stricmp(filename, BIMD2_ENDING_FILE_OEM) == 0)
+		{
+			songs_play_song( SONG_TITLE, 0 );
+			level_num_screen = 1;
+			showorder = 1;
+		}
+		else if (stricmp(filename, BIMD2_ENDING_FILE_SHARE) == 0)
+		{
+			songs_play_song( SONG_ENDGAME, 0 );
+			level_num_screen = 1;
+			showorder = 1;
+		}
+	}
+	else
+	{
+		level_num_screen = Current_level_num + 1;
+	}
+
+	do_briefing_screens(filename, level_num_screen);
+	if (showorder)
+		show_order_form();
 }

@@ -574,13 +574,15 @@ void do_endlevel_frame()
 
 			if (vm_vec_dot(&tvec,&mine_exit_orient.fvec) > 0) {
 				object *tobj;
+				vms_vector mov_vec;
 
 				outside_mine = 1;
 
 				tobj = object_create_explosion(exit_segnum,&mine_side_exit_point,i2f(50),VCLIP_BIG_PLAYER_EXPLOSION);
 
-				// Move explosion a bit to draw it in front of mine exit model
-				vm_vec_scale_add(&tobj->pos,&tobj->pos,&tobj->orient.rvec,i2f(20));
+				// Move explosion to Viewer to draw it in front of mine exit model
+				vm_vec_normalized_dir_quick(&mov_vec,&Viewer->pos,&tobj->pos);
+				vm_vec_scale_add2(&tobj->pos,&mov_vec,i2f(30));
 
 				if (tobj) {
 					external_explosion = *tobj;
