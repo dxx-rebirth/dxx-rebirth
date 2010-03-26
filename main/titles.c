@@ -880,6 +880,7 @@ void show_spinning_robot_frame(briefing *br, int robot_num)
 	grs_canvas	*curcanv_save;
 
 	if (robot_num != -1) {
+		br->robot_angles.p = br->robot_angles.b = 0;
 		br->robot_angles.h += 150;
 
 		curcanv_save = grd_curcanv;
