@@ -354,10 +354,78 @@ extern int set_segment_depths(int start_seg, ubyte *segbuf);
 
 #define MAP_BACKGROUND_FILENAME "MAP.PCX"
 
+int automap_key_command(window *wind, d_event *event, automap *am)
+{
+	int c = ((d_event_keycommand *)event)->keycode;
+
+	switch (c)
+	{
+#ifndef NDEBUG
+		case KEY_BACKSP: Int3(); return 1;
+#endif
+			
+		case KEY_PRINT_SCREEN: {
+			gr_set_current_canvas(NULL);
+			save_screen_shot(1);
+			return 1;
+		}
+			
+		case KEY_ESC:
+			if (am->leave_mode==0)
+			{
+				window_close(wind);
+				return 1;
+			}
+			return 1;
+			
+		case KEY_ALTED+KEY_F:           // Alt+F shows full map, if cheats enabled
+			if (Cheats_enabled) 	 
+			{
+				uint t;
+				t = Players[Player_num].flags;
+				Players[Player_num].flags |= PLAYER_FLAGS_MAP_ALL_CHEAT;
+				automap_build_edge_list(am);
+				Players[Player_num].flags=t;
+			}
+			return 1;
+#ifndef NDEBUG
+		case KEY_DEBUGGED+KEY_F: 	{
+				int i;
+				
+				for (i=0; i<=Highest_segment_index; i++ )
+					Automap_visited[i] = 1;
+				automap_build_edge_list(am);
+				am->max_segments_away = set_segment_depths(Objects[Players[Player_num].objnum].segnum, Automap_visited);
+				am->segment_limit = am->max_segments_away;
+				adjust_segment_limit(am, am->segment_limit);
+			}
+			return 1;
+#endif
+			
+		case KEY_F9:
+			if (am->segment_limit > 1) 		{
+				am->segment_limit--;
+				adjust_segment_limit(am, am->segment_limit);
+			}
+			return 1;
+		case KEY_F10:
+			if (am->segment_limit < am->max_segments_away) 	{
+				am->segment_limit++;
+				adjust_segment_limit(am, am->segment_limit);
+			}
+			return 1;
+		case KEY_ALTED+KEY_ENTER:
+		case KEY_ALTED+KEY_PADENTER:
+			gr_toggle_fullscreen();
+			return 1;
+	}
+	
+	return 0;
+}
+
 int automap_idle(window *wind, d_event *event, automap *am)
 {
 	vms_matrix	tempm;
-	int c;
 
 	if (!am->pause_game)	{
 		ConsoleObject->mtype.phys_info.flags |= am->old_wiggle;		// Restore wiggle
@@ -385,69 +453,6 @@ int automap_idle(window *wind, d_event *event, automap *am)
 	
 	//see if redbook song needs to be restarted
 	RBACheckFinishedHook();
-	
-	while( (c=key_inkey()) )	{
-		switch( c ) {
-#ifndef NDEBUG
-			case KEY_BACKSP: Int3(); break;
-#endif
-				
-			case KEY_PRINT_SCREEN: {
-				gr_set_current_canvas(NULL);
-				save_screen_shot(1);
-				break;
-			}
-				
-			case KEY_ESC:
-				if (am->leave_mode==0)
-				{
-					window_close(wind);
-					return 1;
-				}
-				break;
-				
-			case KEY_ALTED+KEY_F:           // Alt+F shows full map, if cheats enabled
-				if (Cheats_enabled) 	 
-				{
-					uint t;
-					t = Players[Player_num].flags;
-					Players[Player_num].flags |= PLAYER_FLAGS_MAP_ALL_CHEAT;
-					automap_build_edge_list(am);
-					Players[Player_num].flags=t;
-				}
-				break;
-#ifndef NDEBUG
-			case KEY_DEBUGGED+KEY_F: 	{
-					int i;
-					
-					for (i=0; i<=Highest_segment_index; i++ )
-						Automap_visited[i] = 1;
-					automap_build_edge_list(am);
-					am->max_segments_away = set_segment_depths(Objects[Players[Player_num].objnum].segnum, Automap_visited);
-					am->segment_limit = am->max_segments_away;
-					adjust_segment_limit(am, am->segment_limit);
-				}
-				break;
-#endif
-				
-			case KEY_F9:
-				if (am->segment_limit > 1) 		{
-					am->segment_limit--;
-					adjust_segment_limit(am, am->segment_limit);
-				}
-				break;
-			case KEY_F10:
-				if (am->segment_limit < am->max_segments_away) 	{
-					am->segment_limit++;
-					adjust_segment_limit(am, am->segment_limit);
-				}
-				break;
-			case KEY_ALTED+KEY_ENTER:
-			case KEY_ALTED+KEY_PADENTER:
-				gr_toggle_fullscreen();
-				break;
-		}
-	}
 	
 	if ( Controls.fire_primary_down_count )	{
 		// Reset orientation
@@ -515,6 +520,9 @@ int automap_handler(window *wind, d_event *event, automap *am)
 		case EVENT_WINDOW_ACTIVATED:
 			game_flush_inputs();
 			break;
+
+		case EVENT_KEY_COMMAND:
+			return automap_key_command(wind, event, am);
 
 		case EVENT_IDLE:
 			return automap_idle(wind, event, am);

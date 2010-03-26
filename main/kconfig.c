@@ -623,54 +623,26 @@ int kconfig_mouse(window *wind, d_event *event, kc_menu *menu)
 	return rval;
 }
 
-int kconfig_idle(window *wind, kc_menu *menu)
+int kconfig_key_command(window *wind, d_event *event, kc_menu *menu)
 {
 	int i,k;
 
-	if (menu->changing)
-		timer_delay(f0_1/10);
-	else
-		timer_delay2(50);
+	k = ((d_event_keycommand *)event)->keycode;
 	
-	//see if redbook song needs to be restarted
-	RBACheckFinishedHook();
-	
-	k = key_inkey();
-	
-	if (menu->changing)
-	{
-		if (k == KEY_ESC)
-			menu->changing = 0;
-		else
-			switch( menu->items[menu->citem].type )
-			{
-				case BT_KEY:            kc_change_key(         menu, &menu->items[menu->citem] ); break;
-				case BT_MOUSE_AXIS:     kc_change_mouseaxis(   menu, &menu->items[menu->citem] ); break;
-				case BT_JOY_BUTTON:     kc_change_joybutton(   menu, &menu->items[menu->citem] ); break;
-				case BT_JOY_AXIS:       kc_change_joyaxis(     menu, &menu->items[menu->citem] ); break;
-			}
-		
-		if (!menu->changing)
-		{
-			game_flush_inputs();
-			return 1;
-		}
-	}
-	
-	switch( k )
+	switch (k)
 	{
 		case KEY_BACKSP:
 			Int3();
-			break;
+			return 1;
 #ifdef macintosh
 		case KEY_COMMAND+KEY_SHIFTED+KEY_3:
 #endif
 		case KEY_PRINT_SCREEN:
 			save_screen_shot(0);
-			break;
+			return 1;
 		case KEY_CTRLED+KEY_D:
 			menu->items[menu->citem].value = 255;
-			break;
+			return 1;
 		case KEY_CTRLED+KEY_R:	
 			if ( menu->items==kc_keyboard )
 				for (i=0; i<NUM_KEY_CONTROLS; i++ )
@@ -687,47 +659,49 @@ int kconfig_idle(window *wind, kc_menu *menu)
 			if ( menu->items==kc_d1x )
 				for(i=0;i<NUM_D1X_CONTROLS;i++)
 					menu->items[i].value=DefaultKeySettingsD1X[i];
-			break;
+			return 1;
 		case KEY_DELETE:
 			menu->items[menu->citem].value=255;
-			break;
+			return 1;
 		case KEY_UP: 		
 		case KEY_PAD8:
 #ifdef TABLE_CREATION
 			if (menu->items[menu->citem].u==-1) menu->items[menu->citem].u=find_next_item_up( menu->items,menu->nitems, menu->citem);
 #endif
 			menu->citem = menu->items[menu->citem].u; 
-			break;
+			return 1;
 		case KEY_DOWN:
 		case KEY_PAD2:
 #ifdef TABLE_CREATION
 			if (menu->items[menu->citem].d==-1) menu->items[menu->citem].d=find_next_item_down( menu->items,menu->nitems, menu->citem);
 #endif
 			menu->citem = menu->items[menu->citem].d; 
-			break;
+			return 1;
 		case KEY_LEFT:
 		case KEY_PAD4:
 #ifdef TABLE_CREATION
 			if (menu->items[menu->citem].l==-1) menu->items[menu->citem].l=find_next_item_left( menu->items,menu->nitems, menu->citem);
 #endif
 			menu->citem = menu->items[menu->citem].l; 
-			break;
+			return 1;
 		case KEY_RIGHT:
 		case KEY_PAD6:
 #ifdef TABLE_CREATION
 			if (menu->items[menu->citem].r==-1) menu->items[menu->citem].r=find_next_item_right( menu->items,menu->nitems, menu->citem);
 #endif
 			menu->citem = menu->items[menu->citem].r; 
-			break;
+			return 1;
 		case KEY_ENTER:
 		case KEY_PADENTER:
 			kconfig_start_changing(menu);
-			break;
+			return 1;
 		case -2:	
 		case KEY_ESC:
-			window_close(wind);
+			if (menu->changing)
+				menu->changing = 0;
+			else
+				window_close(wind);
 			return 1;
-			break;
 #ifdef TABLE_CREATION
 		case KEY_F12:	{
 				FILE * fp;
@@ -806,13 +780,12 @@ int kconfig_idle(window *wind, kc_menu *menu)
 				fclose(fp);
 				
 			}
-			break;
+			return 1;
 #endif
 		case 0:		// some other event
 			break;
 			
 		default:
-			return 0;
 			break;
 	}
 	
@@ -849,9 +822,33 @@ int kconfig_handler(window *wind, d_event *event, kc_menu *menu)
 			menu->mouse_state = (event->type == EVENT_MOUSE_BUTTON_DOWN);
 			return kconfig_mouse(wind, event, menu);
 
+		case EVENT_KEY_COMMAND:
+			return kconfig_key_command(wind, event, menu);
+
 		case EVENT_IDLE:
 			kconfig_mouse(wind, event, menu);
-			return kconfig_idle(wind, menu);
+
+			if (menu->changing)
+				timer_delay(f0_1/10);
+			else
+				timer_delay2(50);
+			
+			//see if redbook song needs to be restarted
+			RBACheckFinishedHook();
+			
+			if (menu->changing)
+			{
+				switch( menu->items[menu->citem].type )
+				{
+					case BT_KEY:            kc_change_key(         menu, &menu->items[menu->citem] ); break;
+					case BT_MOUSE_AXIS:     kc_change_mouseaxis(   menu, &menu->items[menu->citem] ); break;
+					case BT_JOY_BUTTON:     kc_change_joybutton(   menu, &menu->items[menu->citem] ); break;
+					case BT_JOY_AXIS:       kc_change_joyaxis(     menu, &menu->items[menu->citem] ); break;
+				}
+				
+				if (!menu->changing)
+					game_flush_inputs();
+			}
 			break;
 			
 		case EVENT_WINDOW_DRAW:

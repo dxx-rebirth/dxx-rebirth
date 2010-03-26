@@ -234,33 +234,34 @@ int pause_handler(window *wind, d_event *event, char *msg)
 			game_flush_inputs();
 			break;
 			
-		case EVENT_IDLE:
-			timer_delay2(50);
+		case EVENT_KEY_COMMAND:
+			key = ((d_event_keycommand *)event)->keycode;
 			
-			key = key_inkey();
-			
-			switch (key) {
+			switch (key)
+			{
 				case 0:
 					break;
 				case KEY_ESC:
 					//Function_mode = FMODE_MENU;	// Don't like this, just press escape twice (kreatordxx)
 					window_close(wind);
-					break;
+					return 1;
 				case KEY_F1:
 					show_help();
-					break;
+					return 1;
 				case KEY_PAUSE:
 					window_close(wind);
-					break;
+					return 1;
 				case KEY_ALTED+KEY_ENTER:
 				case KEY_ALTED+KEY_PADENTER:
 					gr_toggle_fullscreen();
-					break;
+					return 1;
 				default:
-					return 0;
 					break;
 			}
-			return 0;
+			break;
+			
+		case EVENT_IDLE:
+			timer_delay2(50);
 			break;
 			
 		case EVENT_WINDOW_DRAW:
@@ -273,15 +274,13 @@ int pause_handler(window *wind, d_event *event, char *msg)
 				ext_music_resume();
 			digi_resume_midi();		// sound pausing handled by game_handler
 			d_free(msg);
-			return 0;	// continue closing
 			break;
 			
 		default:
-			return 0;
 			break;
 	}
 
-	return 1;
+	return 0;
 }
 
 int do_game_pause()
