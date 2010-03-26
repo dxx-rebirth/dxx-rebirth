@@ -5,6 +5,7 @@ D2X-Rebirth Changelog
 main/endlevel.c, main/gameseq.c, main/mission.c, main/mission.h, main/titles.c, main/titles.h: In Endlevel sequence, re-align big explosion to draw in front of exit model, relative to viewer; Re-organized tex files for Briefings and Endings and created more general code to play them; Re-aligned Dravis' head
 main/automap.c, main/escort.c, main/gamecntl.c, main/kconfig.c, main/net_ipx.c, main/net_udp.c, main/newmenu.c, main/scores.c: Make all windows except game and editor use EVENT_KEY_COMMAND, returning 1 if handled; pass NULL instead of userdata for the PCX filename, for newmenu_do1
 include/cfile.h, include/physfsx.h, main/piggy.c: Ignore case-sensitivity for cfile_init/close/size and PHYSFSX_openReadBuffered; Give error message if default sound file cannot be opened so user knows what's going on
+main/titles.c: Fixing uninitialized angles for robots in briefings
 
 20100325
 --------
