@@ -53,16 +53,19 @@ COPYRIGHT 1993-1999 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 //Specify the name of the hogfile.  Returns 1 if hogfile found & had files
 static inline int cfile_init(char *hogname, int add_to_end)
 {
-	char pathname[PATH_MAX];
+	char hogname2[PATH_MAX], pathname[PATH_MAX];
 
-	if (!PHYSFSX_getRealPath(hogname, pathname))
+	snprintf(hogname2, strlen(hogname)+1, hogname);
+	PHYSFSEXT_locateCorrectCase(hogname2);
+
+	if (!PHYSFSX_getRealPath(hogname2, pathname))
 		return 0;
 
 	if (!PHYSFS_addToSearchPath(pathname, add_to_end))
 	{	// try the 'Data' directory for old Mac Descent directories compatibility
 		char std_path[PATH_MAX] = "Data/";
 
-		strncat(std_path, hogname, PATH_MAX - 1 - strlen(std_path));
+		strncat(std_path, hogname2, PATH_MAX - 1 - strlen(std_path));
 		std_path[PATH_MAX - 1] = 0;
 
 		if (!PHYSFSX_getRealPath(std_path, pathname))
@@ -76,16 +79,19 @@ static inline int cfile_init(char *hogname, int add_to_end)
 
 static inline int cfile_close(char *hogname)
 {
-	char pathname[PATH_MAX];
+	char hogname2[PATH_MAX], pathname[PATH_MAX];
 
-	if (!PHYSFSX_getRealPath(hogname, pathname))
+	snprintf(hogname2, strlen(hogname)+1, hogname);
+	PHYSFSEXT_locateCorrectCase(hogname2);
+
+	if (!PHYSFSX_getRealPath(hogname2, pathname))
 		return 0;
 
 	if (!PHYSFS_removeFromSearchPath(pathname))
 	{
 		char std_path[PATH_MAX] = "Data/";
 		
-		strncat(std_path, hogname, PATH_MAX - 1 - strlen(std_path));
+		strncat(std_path, hogname2, PATH_MAX - 1 - strlen(std_path));
 		std_path[PATH_MAX - 1] = 0;
 		
 		if (!PHYSFSX_getRealPath(std_path, pathname))
@@ -97,18 +103,21 @@ static inline int cfile_close(char *hogname)
 	return 1;
 }
 
-
 static inline int cfile_size(char *hogname)
 {
 	PHYSFS_file *fp;
+	char hogname2[PATH_MAX];
 	int size;
 
-	fp = PHYSFS_openRead(hogname);
+	snprintf(hogname2, strlen(hogname)+1, hogname);
+	PHYSFSEXT_locateCorrectCase(hogname2);
+
+	fp = PHYSFS_openRead(hogname2);
 	if (fp == NULL)
 	{
 		char std_path[PATH_MAX] = "Data/";
 		
-		strncat(std_path, hogname, PATH_MAX - 1 - strlen(std_path));
+		strncat(std_path, hogname2, PATH_MAX - 1 - strlen(std_path));
 		std_path[PATH_MAX - 1] = 0;
 		
 		if (!(fp = PHYSFS_openRead(std_path)))
