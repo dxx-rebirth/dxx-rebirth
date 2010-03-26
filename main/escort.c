@@ -30,6 +30,7 @@ COPYRIGHT 1993-1999 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 #include "gr.h"
 #include "3d.h"
 #include "palette.h"
+#include "timer.h"
 
 #include "object.h"
 #include "error.h"
@@ -1623,11 +1624,11 @@ typedef struct escort_menu
 	char	msg[300];
 } escort_menu;
 
-int escort_menu_idle(window *wind, d_event *event, escort_menu *menu)
+int escort_menu_keycommand(window *wind, d_event *event, escort_menu *menu)
 {
 	int	key;
 	
-	key = key_inkey();
+	key = ((d_event_keycommand *)event)->keycode;
 	
 	switch (key) {
 		case KEY_0:
@@ -1645,19 +1646,19 @@ int escort_menu_idle(window *wind, d_event *event, escort_menu *menu)
 			set_escort_special_goal(key);
 			Last_buddy_key = -1;
 			window_close(wind);
-			break;
+			return 1;
 			
 		case KEY_ESC:
 		case KEY_ENTER:
 			window_close(wind);
-			break;
+			return 1;
 			
 		case KEY_PRINT_SCREEN:
 			save_screen_shot(0);
-			break;
+			return 1;
 			
 #ifndef RELEASE
-		case KEY_BACKSP: Int3(); break;
+		case KEY_BACKSP: Int3(); return 1;
 #endif
 			
 		case KEY_T: {
@@ -1677,13 +1678,11 @@ int escort_menu_idle(window *wind, d_event *event, escort_menu *menu)
 			Buddy_messages_suppressed = temp;
 			
 			window_close(wind);
-			break;
+			return 1;
 		}
 			
 		default:
-			return 0;
 			break;
-			
 	}
 	
 	return 0;
@@ -1697,8 +1696,11 @@ int escort_menu_handler(window *wind, d_event *event, escort_menu *menu)
 			game_flush_inputs();
 			break;
 			
+		case EVENT_KEY_COMMAND:
+			return escort_menu_keycommand(wind, event, menu);
+			
 		case EVENT_IDLE:
-			return escort_menu_idle(wind, event, menu);
+			timer_delay2(50);
 			break;
 			
 		case EVENT_WINDOW_DRAW:

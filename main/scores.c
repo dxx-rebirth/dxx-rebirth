@@ -349,15 +349,15 @@ int scores_handler(window *wind, d_event *event, scores_menu *menu)
 							window_close(wind);			// then remove the old one
 						}
 					}
-					break;
-					case KEY_BACKSP:				Int3(); k = 0; break;
-					case KEY_PRINT_SCREEN:		save_screen_shot(0); k = 0; break;
+					return 1;
+					case KEY_BACKSP:				Int3(); k = 0; return 1;
+					case KEY_PRINT_SCREEN:		save_screen_shot(0); k = 0; return 1;
 					
 					case KEY_ENTER:
 					case KEY_SPACEBAR:
 					case KEY_ESC:
 					window_close(wind);
-					break;
+					return 1;
 			}
 			break;
 			

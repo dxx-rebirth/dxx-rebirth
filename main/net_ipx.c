@@ -5635,24 +5635,26 @@ static int show_game_rules_handler(window *wind, d_event *event, netgame_info *n
 			game_flush_inputs();
 			break;
 			
+		case EVENT_KEY_COMMAND:
+			k = ((d_event_keycommand *)event)->keycode;
+			switch (k)
+			{
+				case KEY_PRINT_SCREEN:
+					save_screen_shot(0); k = 0;
+					return 1;
+				case KEY_ENTER:
+				case KEY_SPACEBAR:
+				case KEY_ESC:
+					window_close(wind);
+					return 1;
+			}
+			break;
+
 		case EVENT_IDLE:
 			timer_delay2(50);
 			
 			//see if redbook song needs to be restarted
 			RBACheckFinishedHook();
-			
-			k = key_inkey();
-			switch( k )	{
-				case KEY_PRINT_SCREEN:
-					save_screen_shot(0); k = 0;
-					break;
-				case KEY_ENTER:
-				case KEY_SPACEBAR:
-				case KEY_ESC:
-					window_close(wind);
-					break;
-			}
-			return 0;
 			break;
 
 		case EVENT_WINDOW_DRAW:
@@ -5750,16 +5752,11 @@ static int show_game_rules_handler(window *wind, d_event *event, netgame_info *n
 			gr_set_current_canvas(NULL);
 			break;
 
-		case EVENT_WINDOW_CLOSE:
-			return 0;	// continue closing
-			break;
-			
 		default:
-			return 0;
 			break;
 	}
 	
-	return 1;
+	return 0;
 }
 
 void net_ipx_show_game_rules(netgame_info *netgame)

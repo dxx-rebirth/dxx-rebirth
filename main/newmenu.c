@@ -523,7 +523,7 @@ int newmenu_dotiny( char * title, char * subtitle, int nitems, newmenu_item * it
 
 int newmenu_do1( char * title, char * subtitle, int nitems, newmenu_item * item, int (*subfunction)(newmenu *menu, d_event *event, void *userdata), void *userdata, int citem )
 {
-	return newmenu_do3( title, subtitle, nitems, item, subfunction, userdata, citem, userdata, -1, -1 );
+	return newmenu_do3( title, subtitle, nitems, item, subfunction, userdata, citem, NULL, -1, -1 );
 }
 
 
