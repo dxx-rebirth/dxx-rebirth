@@ -369,6 +369,7 @@ static inline PHYSFS_file *PHYSFSX_openReadBuffered(char *filename)
 {
 	PHYSFS_file *fp;
 	PHYSFS_uint64 bufSize;
+	char filename2[PATH_MAX];
 
 	if (filename[0] == '\x01')
 	{
@@ -376,9 +377,10 @@ static inline PHYSFS_file *PHYSFSX_openReadBuffered(char *filename)
 		filename++;
 	}
 
-	PHYSFSEXT_locateCorrectCase(filename);
+	snprintf(filename2, strlen(filename)+1, filename);
+	PHYSFSEXT_locateCorrectCase(filename2);
 
-	fp = PHYSFS_openRead(filename);
+	fp = PHYSFS_openRead(filename2);
 	if (!fp)
 		return NULL;
 

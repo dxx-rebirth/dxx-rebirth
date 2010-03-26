@@ -949,7 +949,11 @@ int properties_init(void)
 	snd_ok = ham_ok = read_hamfile();
 
 	if (Piggy_hamfile_version >= 3)
+	{
 		snd_ok = read_sndfile();
+		if (!snd_ok)
+			Error("Cannot open sound file: %s\n", DEFAULT_SNDFILE);
+	}
 
 	return (ham_ok && snd_ok);               //read ok
 }
