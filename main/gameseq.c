@@ -949,8 +949,6 @@ void PlayerFinishedLevel(int secret_flag)
 }
 
 
-extern void do_end_game(void);
-
 //from which level each do you get to each secret level 
 // int Secret_level_table[MAX_SECRET_LEVELS_PER_MISSION];
 
@@ -997,6 +995,9 @@ int AdvanceLevel(int secret_flag)
 			newdemo_stop_recording();
 
 		do_end_briefing_screens(Ending_text_filename);
+
+		Game_mode = GM_GAME_OVER;
+
 		return 1;
 
 	} else {
@@ -1027,8 +1028,6 @@ int AdvanceLevel(int secret_flag)
 	}
 
 	key_flush();
-
-	Game_mode = GM_GAME_OVER;
 
 	if (Game_wind)
 		window_set_visible(Game_wind, 1);
