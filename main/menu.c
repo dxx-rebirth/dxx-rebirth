@@ -133,7 +133,7 @@ void hide_menus(void)
 	window *wind;
 	int i;
 	
-	if (menus[i])
+	if (menus[0])
 		return;		// there are already hidden menus
 
 	for (i = 0; (i < 15) && (wind = window_get_front()); i++)
