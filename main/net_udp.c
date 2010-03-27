@@ -398,13 +398,9 @@ int net_udp_game_connect(manual_join *mj)
 		}
 	}
 		
-	if (net_udp_do_join_game())
-	{
-		mj->connecting = 0;
-		return 1;	// Success!
-	}
+	mj->connecting = 0;
 	
-	return 0;
+	return net_udp_do_join_game();
 }
 
 static char *connecting_txt = "Connecting...";

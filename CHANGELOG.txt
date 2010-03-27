@@ -1,5 +1,9 @@
 D2X-Rebirth Changelog
 
+20100327
+--------
+main/kmatrix.c, main/net_udp.c: Initialise 'playing' to 0 for UDP kmatrix, making sure player progresses to next level; always return 1 when starting to join a UDP game so it doesn't immediately return to the main menu
+
 20100326
 --------
 main/endlevel.c, main/gameseq.c, main/mission.c, main/mission.h, main/titles.c, main/titles.h: In Endlevel sequence, re-align big explosion to draw in front of exit model, relative to viewer; Re-organized tex files for Briefings and Endings and created more general code to play them; Re-aligned Dravis' head
