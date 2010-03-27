@@ -3,6 +3,7 @@ D2X-Rebirth Changelog
 20100327
 --------
 main/kmatrix.c, main/net_udp.c: Initialise 'playing' to 0 for UDP kmatrix, making sure player progresses to next level; always return 1 when starting to join a UDP game so it doesn't immediately return to the main menu
+main/gameseq.c, main/menu.c: Hide mission dialog before the level intro screens are shown, make sure it doesn't try to show it again after it was closed - fixing bad memory access
 
 20100326
 --------

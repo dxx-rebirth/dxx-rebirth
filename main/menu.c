@@ -116,7 +116,7 @@ enum MENUS
 
 #define ADD_ITEM(t,value,key)  do { m[num_options].type=NM_TYPE_MENU; m[num_options].text=t; menu_choice[num_options]=value;num_options++; } while (0)
 
-static window *menus[16];
+static window *menus[16] = { NULL };
 
 // Function Prototypes added after LINTING
 void do_option(int select);
@@ -133,6 +133,9 @@ void hide_menus(void)
 	window *wind;
 	int i;
 	
+	if (menus[i])
+		return;		// there are already hidden menus
+
 	for (i = 0; (i < 15) && (wind = window_get_front()); i++)
 	{
 		menus[i] = wind;
@@ -150,7 +153,10 @@ void show_menus(void)
 	int i;
 	
 	for (i = 0; (i < 16) && menus[i]; i++)
-		window_set_visible(menus[i], 1);
+		if (window_exists(menus[i]))
+			window_set_visible(menus[i], 1);
+
+	menus[0] = NULL;
 }
 
 //pairs of chars describing ranges

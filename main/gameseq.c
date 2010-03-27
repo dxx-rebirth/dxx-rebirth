@@ -1832,6 +1832,8 @@ void maybe_set_first_secret_visit(int level_num)
 //	secret_flag if came from a secret level
 void StartNewLevel(int level_num, int secret_flag)
 {
+	hide_menus();
+	
 	GameTime = FrameTime;
 	ThisLevelTime=0;
 
