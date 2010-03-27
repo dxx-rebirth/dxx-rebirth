@@ -538,6 +538,8 @@ int kmatrix_handler(window *wind, d_event *event, kmatrix_screen *km)
 			if (km->network)
 				multi_do_protocol_frame(0, 1);
 			
+			km->playing = 0;
+
 			// Check if all connected players are also looking at this screen ...
 			for (i = 0; i < MAX_PLAYERS; i++)
 				if (Players[i].connected)
