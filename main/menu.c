@@ -131,6 +131,9 @@ void hide_menus(void)
 	window *wind;
 	int i;
 	
+	if (menus[i])
+		return;		// there are already hidden menus
+	
 	for (i = 0; (i < 15) && (wind = window_get_front()); i++)
 	{
 		menus[i] = wind;
@@ -148,7 +151,10 @@ void show_menus(void)
 	int i;
 	
 	for (i = 0; (i < 16) && menus[i]; i++)
-		window_set_visible(menus[i], 1);
+		if (window_exists(menus[i]))
+			window_set_visible(menus[i], 1);
+	
+	menus[0] = NULL;
 }
 
 //pairs of chars describing ranges

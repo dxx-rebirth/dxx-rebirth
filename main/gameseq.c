@@ -1274,6 +1274,8 @@ void StartNewLevelSub(int level_num, int page_in_textures)
 //called when the player is starting a new level for normal game model
 void StartNewLevel(int level_num)
 {
+	hide_menus();
+
 	GameTime = FrameTime;
 
 	load_custom_data(get_level_file(level_num));
