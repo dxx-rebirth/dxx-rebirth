@@ -705,6 +705,7 @@ void LoadLevel(int level_num)
 
 	songs_play_level_song( Current_level_num );
 
+	gr_palette_load(gr_palette);		//actually load the palette
 }
 
 //sets up Player_num & ConsoleObject
@@ -1202,6 +1203,9 @@ void StartNewLevelSub(int level_num, int page_in_textures)
 	#endif
 	init_player_stats_level();
 
+	gr_use_palette_table( "palette.256" );
+	gr_palette_load(gr_palette);
+	
 #ifndef SHAREWARE
 #ifdef NETWORK
 	if ((Game_mode & GM_MULTI_COOP) && Network_rejoined)

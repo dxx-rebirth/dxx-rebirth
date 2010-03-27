@@ -7,6 +7,7 @@ main/gameseq.c, main/menu.c: Hide mission dialog before the level intro screens 
 main/game.c: Finally fix bug where if you start a single player game then a multiplayer game, time is stopped. Always start time if it's stopped and the game window is activated
 main/menu.c: Check menus[0], not menus[i] in hide_menus - fixing possible crash
 main/gameseq.c: In AdvanceLevel only set Game_mode to GAME_OVER if current level is last level, fixing stupid mistake introduced in rev. 1080
+main/gameseq.c: Make sure correct palette is loaded for game, fixing swapping of black and white and cockpit/status bar not showing for ogl build, in multiplayer
 
 20100326
 --------
