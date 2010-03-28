@@ -252,8 +252,14 @@ fix compute_light_intensity(int objnum)
         
 	switch (objtype) {
 		case OBJ_PLAYER:
-				return max(vm_vec_mag_quick(&obj->mtype.phys_info.thrust)/4, F1_0*2) + F1_0/2;
+		{
+				vms_vector sthrust = obj->mtype.phys_info.thrust;
+				fix k = fixmuldiv(obj->mtype.phys_info.mass,obj->mtype.phys_info.drag,(f1_0-obj->mtype.phys_info.drag));
+				// smooth thrust value like set_thrust_from_velocity()
+				vm_vec_copy_scale(&sthrust,&obj->mtype.phys_info.velocity,k);
+				return max(vm_vec_mag_quick(&sthrust)/4, F1_0*2) + F1_0/2;
 			break;
+		}
 		case OBJ_FIREBALL:
 			if (obj->id != 0xff) {
 				if (obj->lifeleft < F1_0*4)
