@@ -1,5 +1,9 @@
 D2X-Rebirth Changelog
 
+20100328
+--------
+main/lighting.c: For casting light from Player-object, smooth out thrust to prevent flickering on high FPS
+
 20100327
 --------
 main/kmatrix.c, main/net_udp.c: Initialise 'playing' to 0 for UDP kmatrix, making sure player progresses to next level; always return 1 when starting to join a UDP game so it doesn't immediately return to the main menu
