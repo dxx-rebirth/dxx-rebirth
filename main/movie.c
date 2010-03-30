@@ -341,6 +341,7 @@ int RunMovie(char *filename, int hires_flag, int must_have,int dx,int dy)
 	SDL_RWops *filehndl;
 	int track = 0;
 	int aborted = 0;
+	int reshow = 0;
 #ifdef OGL
 	ubyte pal_save[768];
 #endif
@@ -354,12 +355,13 @@ int RunMovie(char *filename, int hires_flag, int must_have,int dx,int dy)
 	m->frame_num = 0;
 	m->paused = 0;
 	
-	hide_menus();
+	reshow = hide_menus();
 	
 	wind = window_create(&grd_curscreen->sc_canvas, 0, 0, SWIDTH, SHEIGHT, (int (*)(window *, d_event *, void *))MovieHandler, m);
 	if (!wind)
 	{
-		show_menus();
+		if (reshow)
+			show_menus();
 		d_free(m);
 		return MOVIE_NOT_PLAYED;
 	}
@@ -373,7 +375,8 @@ int RunMovie(char *filename, int hires_flag, int must_have,int dx,int dy)
 		if (must_have)
 			con_printf(CON_URGENT, "Can't open movie <%s>: %s\n", filename, PHYSFS_getLastError());
 		window_close(wind);
-		show_menus();
+		if (reshow)
+			show_menus();
 		d_free(m);
 		return MOVIE_NOT_PLAYED;
 	}
@@ -396,7 +399,8 @@ int RunMovie(char *filename, int hires_flag, int must_have,int dx,int dy)
 		Int3();
 		SDL_FreeRW(filehndl);
 		window_close(wind);
-		show_menus();
+		if (reshow)
+			show_menus();
 		d_free(m);
 		return MOVIE_NOT_PLAYED;
 	}
@@ -412,7 +416,8 @@ int RunMovie(char *filename, int hires_flag, int must_have,int dx,int dy)
     MVE_rmEndMovie();
 
 	SDL_FreeRW(filehndl);                           // Close Movie File
-	show_menus();
+	if (reshow)
+		show_menus();
 	aborted = m->aborted;
 	d_free(m);
 

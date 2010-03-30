@@ -128,13 +128,13 @@ extern void ReorderPrimary();
 extern void ReorderSecondary();
 
 // Hide all menus
-void hide_menus(void)
+int hide_menus(void)
 {
 	window *wind;
 	int i;
 	
 	if (menus[0])
-		return;		// there are already hidden menus
+		return 0;		// there are already hidden menus
 
 	for (i = 0; (i < 15) && (wind = window_get_front()); i++)
 	{
@@ -144,6 +144,8 @@ void hide_menus(void)
 	
 	Assert(window_get_front() == NULL);
 	menus[i] = NULL;
+	
+	return 1;
 }
 
 // Show all menus, with the front one shown first
