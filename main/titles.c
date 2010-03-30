@@ -1158,7 +1158,7 @@ int load_briefing_screen(briefing *br, char *fname)
 
 	show_fullscr(&br->background);
 
-	if (EMULATING_D1) // HACK, FIXME: D1 missions should use their own palette (PALETTE.256), but texture replacements not complete
+	if (EMULATING_D1 && !stricmp(fname, "brief03.pcx")) // HACK, FIXME: D1 missions should use their own palette (PALETTE.256), but texture replacements not complete
 		gr_use_palette_table("groupa.256");
 
 	gr_palette_load(gr_palette);
