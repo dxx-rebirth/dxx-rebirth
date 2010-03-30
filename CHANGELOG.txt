@@ -1,5 +1,9 @@
 D1X-Rebirth Changelog
 
+20100330
+--------
+main/titles.c: Fix black and white swapping when viewing robots in briefings using Mac data
+
 20100328
 --------
 main/lighting.c: For casting light from Player-object, smooth out thrust to prevent flickering on high FPS

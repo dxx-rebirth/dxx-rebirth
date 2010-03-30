@@ -944,6 +944,7 @@ void bald_guy_cheat(int key)
 }
 
 void free_briefing_screen(briefing *br);
+extern void swap_0_255(grs_bitmap *bmp);
 
 //	loads a briefing screen
 int load_briefing_screen(briefing *br, char *fname)
@@ -962,6 +963,16 @@ int load_briefing_screen(briefing *br, char *fname)
 
 	if ((pcx_error = pcx_read_bitmap(fname, &br->background, BM_LINEAR, gr_palette))!=PCX_ERROR_NONE)
 		Error( "Error loading briefing screen <%s>, PCX load error: %s (%i)\n",fname, pcx_errormsg(pcx_error), pcx_error);
+	
+	// Hack: Make sure black parts of robot are shown black
+	if (MacPig && gr_palette[0] == 63 && 
+		(!stricmp(fname, "brief03.pcx") || 
+		 !stricmp(fname, "end01.pcx")))
+	{
+		swap_0_255(&br->background);
+		gr_palette[0] = gr_palette[1] = gr_palette[2] = 0;
+		gr_palette[765] = gr_palette[766] = gr_palette[767] = 63;
+	}
 
 	show_fullscr(&br->background);
 
