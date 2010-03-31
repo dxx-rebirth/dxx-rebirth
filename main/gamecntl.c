@@ -131,7 +131,7 @@ extern ubyte DefiningMarkerMessage;
 extern void CyclePrimary();
 extern void CycleSecondary();
 extern void InitMarkerInput();
-extern void MarkerInputMessage(int key);
+extern int  MarkerInputMessage(int key);
 extern int	allowed_to_fire_missile(void);
 extern int	allowed_to_fire_flare(void);
 extern void	check_rear_view(void);
@@ -151,10 +151,10 @@ void FinalCheats(int key);
 void do_cheat_menu(void);
 #endif
 
-void HandleGameKey(int key);
+int HandleGameKey(int key);
 int HandleSystemKey(int key);
-void HandleTestKey(int key);
-void HandleVRKey(int key);
+int HandleTestKey(int key);
+int HandleVRKey(int key);
 void advance_sound(void);
 void play_test_sound(void);
 
@@ -462,95 +462,55 @@ extern int TotalMissedPackets,TotalPacketsGot;
 extern char *RankStrings[];
 extern int PhallicLimit,PhallicMan;
 
-void HandleEndlevelKey(int key)
+int HandleEndlevelKey(int key)
 {
-
+	switch (key)
+	{
 #ifdef macintosh
-	if ( key == (KEY_COMMAND + KEY_SHIFTED + KEY_3) )
-		save_screen_shot(0);
+		case KEY_COMMAND + KEY_SHIFTED + KEY_3:
 #endif
-
-	if (key==KEY_PRINT_SCREEN)
-		save_screen_shot(0);
-
-#if defined(__APPLE__) || defined(macintosh)
-	if ( key == (KEY_COMMAND+KEY_P) )
-		key = do_game_pause();
-#endif
-	if (key == KEY_PAUSE)
-		key = do_game_pause();		//so esc from pause will end level
-
-	if (key == KEY_ESC) {
-		stop_endlevel_sequence();
-		last_drawn_cockpit=-1;
-		return;
+		case KEY_PRINT_SCREEN:
+			save_screen_shot(0);
+			return 1;
+			
+		case KEY_COMMAND+KEY_P:
+		case KEY_PAUSE:
+			do_game_pause();
+			return 1;
+			
+		case KEY_ESC:
+			stop_endlevel_sequence();
+			last_drawn_cockpit=-1;
+			return 1;
+			
+		case KEY_BACKSP:
+			Int3();
+			return 1;
 	}
 
-	if (key == KEY_BACKSP)
-		Int3();
+	return 0;
 }
 
-void HandleDeathKey(int key)
+int HandleDeathKey(int key)
 {
-/*
-	Commented out redundant calls because the key used here typically
-	will be passed to HandleSystemKey later.  Note that I do this to pause
-	which is supposed to pass the ESC key to leave the level.  This
-	doesn't work in the DOS version anyway.   -Samir 
-*/
-
 	if (Player_exploded && !key_isfunc(key) && !key_ismod(key) && key)
 		Death_sequence_aborted  = 1;		//Any key but func or modifier aborts
-
-#ifdef macintosh
-	if ( key == (KEY_COMMAND + KEY_SHIFTED + KEY_3) ) {
-//		save_screen_shot(0);
-		Death_sequence_aborted  = 0;		// Clear because code above sets this for any key.
-	}
-#endif
-
-#if defined(__APPLE__) || defined(macintosh)
-	if (key == KEY_COMMAND+KEY_Q)
-		//macintosh_quit();
-		Death_sequence_aborted  = 0;		// Clear because code above sets this for any key.
-#endif
-
-	if (key==KEY_PRINT_SCREEN) {
-//		save_screen_shot(0);
-		Death_sequence_aborted  = 0;		// Clear because code above sets this for any key.
-	}
-
-#if defined(__APPLE__) || defined(macintosh)
-	if ( key == (KEY_COMMAND+KEY_P) ) {
-//		key = do_game_pause();
-		Death_sequence_aborted  = 0;		// Clear because code above sets this for any key.
-	}
-#endif
-
-	if (key == KEY_PAUSE)   {
-//		key = do_game_pause();		//so esc from pause will end level
-		Death_sequence_aborted  = 0;		// Clear because code above sets this for any key.
-	}
 
 	if (key == KEY_ESC) {
 		if (ConsoleObject->flags & OF_EXPLODING)
 			Death_sequence_aborted = 1;
 	}
 
-	if (key == KEY_BACKSP)  {
-		Death_sequence_aborted  = 0;		// Clear because code above sets this for any key.
-		Int3();
-	}
-
-	//don't abort death sequence for netgame join/refuse keys
-	if ( Game_mode & GM_MULTI && ((key == KEY_ALTED + KEY_1) || (key == KEY_ALTED + KEY_2) || key == KEY_F6))
-		Death_sequence_aborted  = 0;
-
 	if (Death_sequence_aborted)
+	{
 		game_flush_inputs();
+		return 1;
+	}
+	
+	return 0;
 }
 
-void HandleDemoKey(int key)
+int HandleDemoKey(int key)
 {
 	switch (key) {
 		KEY_MAC(case KEY_COMMAND+KEY_1:)
@@ -672,7 +632,12 @@ void HandleDemoKey(int key)
 			break;
 		}
 #endif
+
+		default:
+			return 0;
 	}
+	
+	return 1;
 }
 
 //switch a cockpit window to the next function
@@ -827,8 +792,6 @@ dump_door_debugging_info()
 //returns 1 if screen changed
 int HandleSystemKey(int key)
 {
-	int screen_changed=0;
-
 	if (!Player_is_dead)
 		switch (key)
 		{
@@ -836,24 +799,24 @@ int HandleSystemKey(int key)
 			#ifdef DOOR_DEBUGGING
 			case KEY_LAPOSTRO+KEY_SHIFTED:
 				dump_door_debugging_info();
-				break;
+				return 1;
 			#endif
 
 			case KEY_ESC:
 				Game_aborted=1;
 				Function_mode = FMODE_MENU;
-				break;
+				return 1;
 
 // fleshed these out because F1 and F2 aren't sequenctial keycodes on mac -- MWA
 
 			KEY_MAC(case KEY_COMMAND+KEY_SHIFTED+KEY_1:)
 			case KEY_SHIFTED+KEY_F1:
-				screen_changed = select_next_window_function(0);
-				break;
+				select_next_window_function(0);
+				return 1;
 			KEY_MAC(case KEY_COMMAND+KEY_SHIFTED+KEY_2:)
 			case KEY_SHIFTED+KEY_F2:
-				screen_changed = select_next_window_function(1);
-				break;
+				select_next_window_function(1);
+				return 1;
 		}
 
 	switch (key)
@@ -894,9 +857,9 @@ int HandleSystemKey(int key)
 		KEY_MAC(case KEY_COMMAND+KEY_3:)
 
 		case KEY_F3:
-			if (Viewer->type==OBJ_PLAYER) //if (!(Guided_missile[Player_num] && Guided_missile[Player_num]->type==OBJ_WEAPON && Guided_missile[Player_num]->id==GUIDEDMISS_ID && Guided_missile[Player_num]->signature==Guided_missile_sig[Player_num] && PlayerCfg.GuidedInBigWindow))
+			if (!Player_is_dead && Viewer->type==OBJ_PLAYER) //if (!(Guided_missile[Player_num] && Guided_missile[Player_num]->type==OBJ_WEAPON && Guided_missile[Player_num]->id==GUIDEDMISS_ID && Guided_missile[Player_num]->signature==Guided_missile_sig[Player_num] && PlayerCfg.GuidedInBigWindow))
 			{
-				toggle_cockpit();	screen_changed=1;
+				toggle_cockpit();
 			}
 			break;
 
@@ -1039,15 +1002,16 @@ int HandleSystemKey(int key)
 			break;
 #endif
 		default:
+			return 0;
 			break;
 
 	}
 
-	return screen_changed;
+	return 1;
 }
 
 
-void HandleVRKey(int key)
+int HandleVRKey(int key)
 {
 	switch( key )   {
 
@@ -1127,54 +1091,22 @@ void HandleVRKey(int key)
 				VR_eye_offset_changed = 2;
 			}
 			break;
+			
+		default:
+			return 0;
+			break;
 	}
+	
+	return 1;
 }
 
 
 extern void DropFlag();
 
-void HandleGameKey(int key)
+int HandleGameKey(int key)
 {
 	switch (key) {
 
-#ifndef D2X_KEYS // weapon selection handled in controls_read_all, d1x-style
-		// MWA changed the weapon select cases to have each case call
-		// do_weapon_select the macintosh keycodes aren't consecutive from 1
-		// -- 0 on the keyboard -- boy is that STUPID!!!!
-		//	Select primary or secondary weapon.
-		case KEY_1:
-			do_weapon_select(0 , 0);
-			break;
-		case KEY_2:
-			do_weapon_select(1 , 0);
-			break;
-		case KEY_3:
-			do_weapon_select(2 , 0);
-			break;
-		case KEY_4:
-			do_weapon_select(3 , 0);
-			break;
-		case KEY_5:
-			do_weapon_select(4 , 0);
-			break;
-
-		case KEY_6:
-			do_weapon_select(0 , 1);
-			break;
-		case KEY_7:
-			do_weapon_select(1 , 1);
-			break;
-		case KEY_8:
-			do_weapon_select(2 , 1);
-			break;
-		case KEY_9:
-			do_weapon_select(3 , 1);
-			break;
-		case KEY_0:
-			do_weapon_select(4 , 1);
-			break;
-#endif
-	
 		case KEY_1 + KEY_SHIFTED:
 		case KEY_2 + KEY_SHIFTED:
 		case KEY_3 + KEY_SHIFTED:
@@ -1192,14 +1124,14 @@ void HandleGameKey(int key)
 				else
 					HUD_init_message ("No Guide-Bot in Multiplayer!");
 				game_flush_inputs();
-				break;
+				return 1;
 			}
 
 		case KEY_ALTED+KEY_F7:
 		KEY_MAC(case KEY_COMMAND+KEY_ALTED+KEY_7:)
 			PlayerCfg.HudMode=(PlayerCfg.HudMode+1)%GAUGE_HUD_NUMMODES;
 			write_player_file();
-			break;
+			return 1;
 
 #ifdef NETWORK
 		KEY_MAC(case KEY_COMMAND+KEY_6:)
@@ -1209,7 +1141,7 @@ void HandleGameKey(int key)
 				RefuseThisPlayer=1;
 				HUD_init_message ("Player accepted!");
 			}
-			break;
+			return 1;
 		case KEY_ALTED + KEY_1:
 			if (Netgame.RefusePlayers && WaitForRefuseAnswer && (Game_mode & GM_TEAM))
 				{
@@ -1218,7 +1150,7 @@ void HandleGameKey(int key)
 					RefuseTeam=1;
 					game_flush_inputs();
 				}
-			break;
+			return 1;
 		case KEY_ALTED + KEY_2:
 			if (Netgame.RefusePlayers && WaitForRefuseAnswer && (Game_mode & GM_TEAM))
 				{
@@ -1227,7 +1159,7 @@ void HandleGameKey(int key)
 					RefuseTeam=2;
 					game_flush_inputs();
 				}
-			break;
+			return 1;
 #endif
 
 		default:
@@ -1238,7 +1170,45 @@ void HandleGameKey(int key)
 	if (!Player_is_dead)
 		switch (key)
 		{
-			KEY_MAC(case KEY_COMMAND+KEY_SHIFTED+KEY_5:)
+#ifndef D2X_KEYS // weapon selection handled in controls_read_all, d1x-style
+				// MWA changed the weapon select cases to have each case call
+				// do_weapon_select the macintosh keycodes aren't consecutive from 1
+				// -- 0 on the keyboard -- boy is that STUPID!!!!
+				//	Select primary or secondary weapon.
+			case KEY_1:
+				do_weapon_select(0 , 0);
+				break;
+			case KEY_2:
+				do_weapon_select(1 , 0);
+				break;
+			case KEY_3:
+				do_weapon_select(2 , 0);
+				break;
+			case KEY_4:
+				do_weapon_select(3 , 0);
+				break;
+			case KEY_5:
+				do_weapon_select(4 , 0);
+				break;
+				
+			case KEY_6:
+				do_weapon_select(0 , 1);
+				break;
+			case KEY_7:
+				do_weapon_select(1 , 1);
+				break;
+			case KEY_8:
+				do_weapon_select(2 , 1);
+				break;
+			case KEY_9:
+				do_weapon_select(3 , 1);
+				break;
+			case KEY_0:
+				do_weapon_select(4 , 1);
+				break;
+#endif
+				
+				KEY_MAC(case KEY_COMMAND+KEY_SHIFTED+KEY_5:)
 			case KEY_F5 + KEY_SHIFTED:
 				DropCurrentWeapon();
 				break;
@@ -1260,7 +1230,12 @@ void HandleGameKey(int key)
 				if (!DefiningMarkerMessage)
 					InitMarkerInput();
 				break;
+				
+			default:
+				return 0;
 		}
+	
+	return 1;
 }
 
 void kill_all_robots(void)
@@ -1381,7 +1356,7 @@ void kill_buddy(void)
 			}
 }
 
-void HandleTestKey(int key)
+int HandleTestKey(int key)
 {
 	switch (key)
 	{
@@ -1427,6 +1402,9 @@ void HandleTestKey(int key)
 		case KEY_DEBUGGED+KEY_SHIFTED + KEY_K:  Players[Player_num].shields = -1;	 break;  //	an actual kill
 		case KEY_DEBUGGED+KEY_X: Players[Player_num].lives++; break; // Extra life cheat key.
 		case KEY_DEBUGGED+KEY_H:
+			if (Player_is_dead)
+				return 0;
+
 			Players[Player_num].flags ^= PLAYER_FLAGS_CLOAKED;
 			if (Players[Player_num].flags & PLAYER_FLAGS_CLOAKED) {
 #ifdef NETWORK
@@ -1478,7 +1456,7 @@ void HandleTestKey(int key)
 			break;
 		}
 		case KEY_C + KEY_SHIFTED + KEY_DEBUGGED:
-			if (!( Game_mode & GM_MULTI ))
+			if (!Player_is_dead && !( Game_mode & GM_MULTI ))
 				move_player_2_segment(Cursegp,Curside);
 			break;   //move eye to curseg
 
@@ -1487,10 +1465,10 @@ void HandleTestKey(int key)
 
 		#endif  //#ifdef EDITOR
 
-			case KEY_DEBUGGED+KEY_LAPOSTRO: Show_view_text_timer = 0x30000; object_goto_next_viewer(); break;
-			case KEY_DEBUGGED+KEY_SHIFTED+KEY_LAPOSTRO: Viewer=ConsoleObject; break;
-			case KEY_DEBUGGED+KEY_O: toggle_outline_mode(); break;
-			case KEY_DEBUGGED+KEY_T:
+		case KEY_DEBUGGED+KEY_LAPOSTRO: Show_view_text_timer = 0x30000; object_goto_next_viewer(); break;
+		case KEY_DEBUGGED+KEY_SHIFTED+KEY_LAPOSTRO: Viewer=ConsoleObject; break;
+		case KEY_DEBUGGED+KEY_O: toggle_outline_mode(); break;
+		case KEY_DEBUGGED+KEY_T:
 			*Toggle_var = !*Toggle_var;
 			break;
 		case KEY_DEBUGGED + KEY_L:
@@ -1576,6 +1554,9 @@ void HandleTestKey(int key)
 			break;
 
 		case KEY_DEBUGGED+KEY_SHIFTED+KEY_B:
+			if (Player_is_dead)
+				return 0;
+
 			kill_and_so_forth();
 			break;
 		case KEY_DEBUGGED+KEY_G:
@@ -1583,8 +1564,11 @@ void HandleTestKey(int key)
 			HUD_init_message("GameTime %i - Reset in 10 seconds!", GameTime);
 			break;
 		default:
+			return 0;
 			break;
 	}
+	
+	return 1;
 }
 #endif		//#ifndef RELEASE
 
@@ -2008,7 +1992,7 @@ void play_test_sound()
 
 #endif  //ifndef NDEBUG
 
-void ReadControls()
+int ReadControls(d_event *event)
 {
 	int key;
 	static ubyte exploding_flag=0;
@@ -2033,7 +2017,7 @@ void ReadControls()
 		if ( Controls.automap_down_count && !((Game_mode & GM_MULTI) && Control_center_destroyed && (Countdown_seconds_left < 10)))
 		{
 			do_automap(0);
-			return;
+			return 1;
 		}
 		
 		do_weapon_stuff();
@@ -2063,56 +2047,62 @@ void ReadControls()
 	if (Newdemo_state == ND_STATE_PLAYBACK )
 		update_vcr_state();
 
-	key=key_inkey();
-
-	if (con_events(key) && con_render)
-		return;
-
-	if (DefiningMarkerMessage)
+	if (event->type == EVENT_KEY_COMMAND)
 	{
-		MarkerInputMessage(key);
-		return;
-	}
+		key = ((d_event_keycommand *)event)->keycode;
+
+		if (con_events(key) && con_render)
+			return 1;
+
+		if (DefiningMarkerMessage)
+		{
+			return MarkerInputMessage(key);
+		}
 
 #ifdef NETWORK
-	if ( (Game_mode & GM_MULTI) && (multi_sending_message || multi_defining_message) )
-	{
-		multi_message_input_sub(key);
-		return;
-	}
+		if ( (Game_mode & GM_MULTI) && (multi_sending_message || multi_defining_message) )
+		{
+			return multi_message_input_sub(key);
+		}
 #endif
 
-	#ifndef RELEASE
-	#ifdef NETWORK
-	if ((key&KEY_DEBUGGED)&&(Game_mode&GM_MULTI))   {
-		Network_message_reciever = 100;		// Send to everyone...
-		sprintf( Network_message, "%s %s", TXT_I_AM_A, TXT_CHEATER);
+#ifndef RELEASE
+#ifdef NETWORK
+		if ((key&KEY_DEBUGGED)&&(Game_mode&GM_MULTI))   {
+			Network_message_reciever = 100;		// Send to everyone...
+			sprintf( Network_message, "%s %s", TXT_I_AM_A, TXT_CHEATER);
+		}
+#endif
+#endif
+
+		if (Endlevel_sequence)
+		{
+			if (HandleEndlevelKey(key))
+				return 1;
+		}
+		else if (Newdemo_state == ND_STATE_PLAYBACK )
+		{
+			if (HandleDemoKey(key))
+				return 1;
+		}
+		else
+		{
+			FinalCheats(key);
+
+			if (HandleSystemKey(key)) return 1;
+			if (HandleVRKey(key)) return 1;
+			if (HandleGameKey(key)) return 1;
+		}
+
+#ifndef RELEASE
+		if (HandleTestKey(key))
+			return 1;
+#endif
+		
+		if (Player_is_dead)
+			return HandleDeathKey(key);
 	}
-	#endif
-	#endif
-
-	if (Player_is_dead)
-		HandleDeathKey(key);
-
-	if (Endlevel_sequence)
-		HandleEndlevelKey(key);
-	else if (Newdemo_state == ND_STATE_PLAYBACK )
-	{
-		HandleDemoKey(key);
-
-		#ifndef RELEASE
-		HandleTestKey(key);
-		#endif
-	} else {
-		FinalCheats(key);
-
-		HandleSystemKey(key);
-		HandleVRKey(key);
-		HandleGameKey(key);
-
-		#ifndef RELEASE
-		HandleTestKey(key);
-		#endif
-	}
+	
+	return 0;
 }
 
