@@ -1194,7 +1194,7 @@ void multi_define_macro_end()
 	game_flush_inputs();
 }
 
-void multi_message_input_sub(int key)
+int multi_message_input_sub(int key)
 {
 	switch( key )
 	{
@@ -1203,21 +1203,21 @@ void multi_message_input_sub(int key)
 			multi_sending_message = 0;
 			multi_defining_message = 0;
 			game_flush_inputs();
-			break;
+			return 1;
 		case KEY_LEFT:
 		case KEY_BACKSP:
 		case KEY_PAD4:
 			if (multi_message_index > 0)
 				multi_message_index--;
 			Network_message[multi_message_index] = 0;
-			break;
+			return 1;
 		case KEY_ENTER:
 			if ( multi_sending_message )	
 				multi_send_message_end();
 			else if ( multi_defining_message )
 				multi_define_macro_end();
 			game_flush_inputs();
-			break;
+			return 1;
 		default:
 		{
 			int ascii = key_ascii();
@@ -1252,6 +1252,8 @@ void multi_message_input_sub(int key)
 			}
 		}
 	}
+	
+	return 0;
 }
 
 void 

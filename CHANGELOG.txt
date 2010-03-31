@@ -3,6 +3,7 @@ D1X-Rebirth Changelog
 20100331
 --------
 main/game.h, main/gamecntl.c, main/gamerend.c, main/kconfig.c, main/kconfig.h, main/laser.c, main/laser.h: Make gamecntl.c more similar between D1X and D2X
+main/game.c, main/gamecntl.c, main/multi.c, main/multi.h: Make game respond to EVENT_KEY_COMMAND for key commands, allowing default key handler (later)
 
 20100330
 --------

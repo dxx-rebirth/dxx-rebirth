@@ -139,9 +139,9 @@ void FinalCheats(int key);
 void do_cheat_menu(void);
 #endif
 
-void HandleGameKey(int key);
+int HandleGameKey(int key);
 int HandleSystemKey(int key);
-void HandleTestKey(int key);
+int HandleTestKey(int key);
 void advance_sound(void);
 void play_test_sound(void);
 
@@ -316,95 +316,55 @@ int do_game_pause()
 	return 0 /*key*/;	// Keycode returning ripped out (kreatordxx)
 }
 
-void HandleEndlevelKey(int key)
+int HandleEndlevelKey(int key)
 {
-
+	switch (key)
+	{
 #ifdef macintosh
-	if ( key == (KEY_COMMAND + KEY_SHIFTED + KEY_3) )
-		save_screen_shot(0);
+		case KEY_COMMAND + KEY_SHIFTED + KEY_3:
 #endif
-
-	if (key==KEY_PRINT_SCREEN)
-		save_screen_shot(0);
-
-#if defined(__APPLE__) || defined(macintosh)
-	if ( key == (KEY_COMMAND+KEY_P) )
-		key = do_game_pause();
-#endif
-	if (key == KEY_PAUSE)
-		key = do_game_pause();		//so esc from pause will end level
-
-	if (key == KEY_ESC) {
-		stop_endlevel_sequence();
-		last_drawn_cockpit=-1;
-		return;
+		case KEY_PRINT_SCREEN:
+			save_screen_shot(0);
+			return 1;
+			
+		case KEY_COMMAND+KEY_P:
+		case KEY_PAUSE:
+			do_game_pause();
+			return 1;
+			
+		case KEY_ESC:
+			stop_endlevel_sequence();
+			last_drawn_cockpit=-1;
+			return 1;
+			
+		case KEY_BACKSP:
+			Int3();
+			return 1;
 	}
 
-	if (key == KEY_BACKSP)
-		Int3();
+	return 0;
 }
 
-void HandleDeathKey(int key)
+int HandleDeathKey(int key)
 {
-/*
-	Commented out redundant calls because the key used here typically
-	will be passed to HandleSystemKey later.  Note that I do this to pause
-	which is supposed to pass the ESC key to leave the level.  This
-	doesn't work in the DOS version anyway.   -Samir 
-*/
-
 	if (Player_exploded && !key_isfunc(key) && !key_ismod(key) && key)
 		Death_sequence_aborted  = 1;		//Any key but func or modifier aborts
-
-#ifdef macintosh
-	if ( key == (KEY_COMMAND + KEY_SHIFTED + KEY_3) ) {
-//		save_screen_shot(0);
-		Death_sequence_aborted  = 0;		// Clear because code above sets this for any key.
-	}
-#endif
-
-#if defined(__APPLE__) || defined(macintosh)
-	if (key == KEY_COMMAND+KEY_Q)
-		//macintosh_quit();
-		Death_sequence_aborted  = 0;		// Clear because code above sets this for any key.
-#endif
-
-	if (key==KEY_PRINT_SCREEN) {
-//		save_screen_shot(0);
-		Death_sequence_aborted  = 0;		// Clear because code above sets this for any key.
-	}
-
-#if defined(__APPLE__) || defined(macintosh)
-	if ( key == (KEY_COMMAND+KEY_P) ) {
-//		key = do_game_pause();
-		Death_sequence_aborted  = 0;		// Clear because code above sets this for any key.
-	}
-#endif
-
-	if (key == KEY_PAUSE)   {
-//		key = do_game_pause();		//so esc from pause will end level
-		Death_sequence_aborted  = 0;		// Clear because code above sets this for any key.
-	}
 
 	if (key == KEY_ESC) {
 		if (ConsoleObject->flags & OF_EXPLODING)
 			Death_sequence_aborted = 1;
 	}
 
-	if (key == KEY_BACKSP)  {
-		Death_sequence_aborted  = 0;		// Clear because code above sets this for any key.
-		Int3();
-	}
-
-	//don't abort death sequence for netgame join/refuse keys
-	if ( Game_mode & GM_MULTI && ((key == KEY_ALTED + KEY_1) || (key == KEY_ALTED + KEY_2) || key == KEY_F6))
-		Death_sequence_aborted  = 0;
-
 	if (Death_sequence_aborted)
+	{
 		game_flush_inputs();
+		return 1;
+	}
+	
+	return 0;
 }
 
-void HandleDemoKey(int key)
+int HandleDemoKey(int key)
 {
 	switch (key) {
 		KEY_MAC(case KEY_COMMAND+KEY_1:)
@@ -523,7 +483,12 @@ void HandleDemoKey(int key)
 			break;
 		}
 #endif
+
+		default:
+			return 0;
 	}
+	
+	return 1;
 }
 
 void songs_goto_next_song();
@@ -533,15 +498,13 @@ void songs_goto_prev_song();
 //returns 1 if screen changed
 int HandleSystemKey(int key)
 {
-	int screen_changed=0;
-
 	if (!Player_is_dead)
 		switch (key)
 		{
 			case KEY_ESC:
 				Game_aborted=1;
 				Function_mode = FMODE_MENU;
-				break;
+				return 1;
 		}
 
 	switch (key)
@@ -580,7 +543,10 @@ int HandleSystemKey(int key)
 
 
 		KEY_MAC(case KEY_COMMAND+KEY_3:)
-		case KEY_F3:				toggle_cockpit();       break;
+		case KEY_F3:
+			if (!Player_is_dead)
+				toggle_cockpit();
+			break;
 
 		KEY_MAC(case KEY_COMMAND+KEY_5:)
 		case KEY_F5:
@@ -709,14 +675,15 @@ int HandleSystemKey(int key)
 			break;
 #endif
 		default:
+			return 0;
 			break;
 
 	}
 
-	return screen_changed;
+	return 1;
 }
 
-void HandleGameKey(int key)
+int HandleGameKey(int key)
 {
 	switch (key) {
 		case KEY_ALTED+KEY_F7:
@@ -755,13 +722,16 @@ void HandleGameKey(int key)
 #endif
 
 		default:
+			return 0;
 			break;
 
 	}	 //switch (key)
+	
+	return 1;
 }
 
 #ifndef RELEASE
-void HandleTestKey(int key)
+int HandleTestKey(int key)
 {
 	switch (key)
 	{
@@ -799,6 +769,9 @@ void HandleTestKey(int key)
 		case KEY_DEBUGGED+KEY_SHIFTED + KEY_K:  Players[Player_num].shields = -1;	 break;  //	an actual kill
 		case KEY_DEBUGGED+KEY_X: Players[Player_num].lives++; break; // Extra life cheat key.
 		case KEY_DEBUGGED+KEY_H:
+			if (Player_is_dead)
+				return 0;
+
 			Players[Player_num].flags ^= PLAYER_FLAGS_CLOAKED;
 			if (Players[Player_num].flags & PLAYER_FLAGS_CLOAKED) {
 #ifdef NETWORK
@@ -832,7 +805,7 @@ void HandleTestKey(int key)
 			}
 			break;
 		case KEY_C + KEY_SHIFTED + KEY_DEBUGGED:
-			if (!( Game_mode & GM_MULTI ))
+			if (!Player_is_dead && !( Game_mode & GM_MULTI ))
 				move_player_2_segment(Cursegp,Curside);
 			break;   //move eye to curseg
 
@@ -841,10 +814,10 @@ void HandleTestKey(int key)
 
 		#endif  //#ifdef EDITOR
 
-			case KEY_DEBUGGED+KEY_LAPOSTRO: Show_view_text_timer = 0x30000; object_goto_next_viewer(); break;
-			case KEY_DEBUGGED+KEY_SHIFTED+KEY_LAPOSTRO: Viewer=ConsoleObject; break;
-			case KEY_DEBUGGED+KEY_O: toggle_outline_mode(); break;
-			case KEY_DEBUGGED+KEY_T:
+		case KEY_DEBUGGED+KEY_LAPOSTRO: Show_view_text_timer = 0x30000; object_goto_next_viewer(); break;
+		case KEY_DEBUGGED+KEY_SHIFTED+KEY_LAPOSTRO: Viewer=ConsoleObject; break;
+		case KEY_DEBUGGED+KEY_O: toggle_outline_mode(); break;
+		case KEY_DEBUGGED+KEY_T:
 			*Toggle_var = !*Toggle_var;
 			break;
 		case KEY_DEBUGGED + KEY_L:
@@ -934,8 +907,11 @@ void HandleTestKey(int key)
 			HUD_init_message("GameTime %i - Reset in 10 seconds!", GameTime);
 			break;
 		default:
+			return 0;
 			break;
 	}
+	
+	return 1;
 }
 #endif		//#ifndef RELEASE
 
@@ -1332,7 +1308,7 @@ void play_test_sound()
 
 #endif  //ifndef NDEBUG
 
-void ReadControls()
+int ReadControls(d_event *event)
 {
 	int key;
 	static ubyte exploding_flag=0;
@@ -1357,7 +1333,7 @@ void ReadControls()
 		if ( Controls.automap_down_count && !((Game_mode & GM_MULTI) && Control_center_destroyed && (Countdown_seconds_left < 10)))
 		{
 			do_automap(0);
-			return;
+			return 1;
 		}
 		
 		do_weapon_stuff();
@@ -1387,49 +1363,56 @@ void ReadControls()
 	if (Newdemo_state == ND_STATE_PLAYBACK )
 		update_vcr_state();
 
-	key=key_inkey();
+	if (event->type == EVENT_KEY_COMMAND)
+	{
+		key = ((d_event_keycommand *)event)->keycode;
 
-	if (con_events(key) && con_render)
-		return;
+		if (con_events(key) && con_render)
+			return 1;
 
 #ifdef NETWORK
-	if ( (Game_mode & GM_MULTI) && (multi_sending_message || multi_defining_message) )
-	{
-		multi_message_input_sub(key);
-		return;
-	}
+		if ( (Game_mode & GM_MULTI) && (multi_sending_message || multi_defining_message) )
+		{
+			return multi_message_input_sub(key);
+		}
 #endif
 
-	#ifndef RELEASE
-	#ifdef NETWORK
-	if ((key&KEY_DEBUGGED)&&(Game_mode&GM_MULTI))   {
-		Network_message_reciever = 100;		// Send to everyone...
-		sprintf( Network_message, "%s %s", TXT_I_AM_A, TXT_CHEATER);
+#ifndef RELEASE
+#ifdef NETWORK
+		if ((key&KEY_DEBUGGED)&&(Game_mode&GM_MULTI))   {
+			Network_message_reciever = 100;		// Send to everyone...
+			sprintf( Network_message, "%s %s", TXT_I_AM_A, TXT_CHEATER);
+		}
+#endif
+#endif
+
+		if (Endlevel_sequence)
+		{
+			if (HandleEndlevelKey(key))
+				return 1;
+		}
+		else if (Newdemo_state == ND_STATE_PLAYBACK )
+		{
+			if (HandleDemoKey(key))
+				return 1;
+		}
+		else
+		{
+			FinalCheats(key);
+
+			if (HandleSystemKey(key)) return 1;
+			if (HandleGameKey(key)) return 1;
+		}
+
+#ifndef RELEASE
+		if (HandleTestKey(key))
+			return 1;
+#endif
+		
+		if (Player_is_dead)
+			return HandleDeathKey(key);
 	}
-	#endif
-	#endif
-
-	if (Player_is_dead)
-		HandleDeathKey(key);
-
-	if (Endlevel_sequence)
-		HandleEndlevelKey(key);
-	else if (Newdemo_state == ND_STATE_PLAYBACK )
-	{
-		HandleDemoKey(key);
-
-		#ifndef RELEASE
-		HandleTestKey(key);
-		#endif
-	} else {
-		FinalCheats(key);
-
-		HandleSystemKey(key);
-		HandleGameKey(key);
-
-		#ifndef RELEASE
-		HandleTestKey(key);
-		#endif
-	}
+	
+	return 0;
 }
 

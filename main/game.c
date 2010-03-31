@@ -154,7 +154,7 @@ void FireLaser(void);
 void powerup_grab_cheat_all(void);
 void game_init_render_sub_buffers(int x, int y, int w, int h);
 
-extern void ReadControls(void);		// located in gamecntl.c
+extern int ReadControls(d_event *event);		// located in gamecntl.c
 //	==============================================================================================
 
 //this is called once per game
@@ -1014,11 +1014,17 @@ int game_handler(window *wind, d_event *event, void *data)
 				palette_save();
 			break;
 			
+		case EVENT_MOUSE_BUTTON_UP:
+		case EVENT_MOUSE_BUTTON_DOWN:
+		case EVENT_KEY_COMMAND:
+			return ReadControls(event);
+			break;
+
 		case EVENT_IDLE:
 			// GAME LOOP!
 			Config_menu_flag = 0;
 			
-			ReadControls();		// will have its own event(s) eventually
+			ReadControls(event);		// will be removed from here once all input events are in place
 			if (window_get_front() != wind)
 				break;
 			
