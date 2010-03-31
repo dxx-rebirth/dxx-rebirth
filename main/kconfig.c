@@ -1417,25 +1417,25 @@ void controls_read_all(int automap_flag)
 		//Read primary cycle
 
 		if ( kc_d1x[20].value < 255 )
-			Controls.cycle_primary_down_count += key_down_count(kc_d1x[20].value);
+			Controls.cycle_primary_count += key_down_count(kc_d1x[20].value);
 		if ( (use_joystick)&&(kc_d1x[21].value < 255) )
-			Controls.cycle_primary_down_count += joy_get_button_down_cnt( kc_d1x[21].value );
+			Controls.cycle_primary_count += joy_get_button_down_cnt( kc_d1x[21].value );
 		// maybe we want to go tru the weapons with the mouse... obviously the wheel. The wheel is an axis... okay...
 		// axes are scaled. so to prevent weapon cacle in the scale-rythm, we need to be sure the wheel was once 0 between cycling... god this is stupid...
 		if ( (use_mouse)&&(kc_mouse[27].value < 255) && !mouse_pricycle_lock )
-			Controls.cycle_primary_down_count = kc_mouse[28].value?(mouse_axis[kc_mouse[27].value]<0):(mouse_axis[kc_mouse[27].value]>0);
+			Controls.cycle_primary_count = kc_mouse[28].value?(mouse_axis[kc_mouse[27].value]<0):(mouse_axis[kc_mouse[27].value]>0);
 		mouse_pricycle_lock=mouse_axis[kc_mouse[27].value];
 
 		//Read secondary cycle
 	
 		if ( kc_d1x[22].value < 255 )
-			Controls.cycle_secondary_down_count += key_down_count(kc_d1x[22].value);
+			Controls.cycle_secondary_count += key_down_count(kc_d1x[22].value);
 		if ( (use_joystick)&&(kc_d1x[23].value < 255) )
-			Controls.cycle_secondary_down_count += joy_get_button_down_cnt( kc_d1x[23].value );
+			Controls.cycle_secondary_count += joy_get_button_down_cnt( kc_d1x[23].value );
 		// maybe we want to go tru the weapons with the mouse... obviously the wheel. The wheel is an axis... okay...
 		// axes are scaled. so to prevent weapon cacle in the scale-rythm, we need to be sure the wheel was once 0 between cycling... god this is stupid...
 		if ( (use_mouse)&&(kc_mouse[27].value < 255) && !mouse_seccycle_lock)
-			Controls.cycle_secondary_down_count = kc_mouse[28].value?(mouse_axis[kc_mouse[27].value]>0):(mouse_axis[kc_mouse[27].value]<0);
+			Controls.cycle_secondary_count = kc_mouse[28].value?(mouse_axis[kc_mouse[27].value]>0):(mouse_axis[kc_mouse[27].value]<0);
 		mouse_seccycle_lock=mouse_axis[kc_mouse[27].value];
 	}
 

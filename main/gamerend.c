@@ -378,7 +378,7 @@ extern int force_cockpit_redraw;
 void update_cockpits();
 
 //render a frame for the game
-void game_do_render_frame(int flip)
+void game_render_frame_mono(int flip)
 {
 	gr_set_current_canvas(&Screen_3d_window);
 	
@@ -491,7 +491,7 @@ void game_render_frame()
 {
 	set_screen_mode(SCREEN_GAME);
 	play_homing_warning();
-	game_do_render_frame(GameArg.DbgUseDoubleBuffer);
+	game_render_frame_mono(GameArg.DbgUseDoubleBuffer);
 	FrameCount++;
 }
 

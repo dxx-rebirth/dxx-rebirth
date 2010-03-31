@@ -1459,7 +1459,7 @@ int Missile_gun=0;
 
 //	-------------------------------------------------------------------------------------------
 //changed on 9/16/98 by adb to distinguish between drop bomb and secondary fire
-static void do_missile_firing_all(int drop_bomb)
+void do_missile_firing(int drop_bomb)
 {
 	static int proximity = 0;
 
@@ -1549,19 +1549,6 @@ static void do_missile_firing_all(int drop_bomb)
 			auto_select_weapon(1);		//select next missile, if this one out of ammo
 	}
 }
-
-void do_missile_firing(void)
-{
-	do_missile_firing_all(0);
-}
-//end changes - adb
-
-//added on 9/16/98 by adb to distinguish between drop bomb and secondary fire
-void do_drop_bomb(void)
-{
-	do_missile_firing_all(1);
-}
-//end additions - adb
 
 #ifdef NETWORK
 void net_missile_firing(int player, int gun, int flags)

@@ -47,9 +47,9 @@ typedef struct _control_info {
 	ubyte automap_state;
 
         ubyte   cycle_primary_state;
-        ubyte   cycle_primary_down_count;
+        ubyte   cycle_primary_count;
         ubyte   cycle_secondary_state;
-        ubyte   cycle_secondary_down_count;
+        ubyte   cycle_secondary_count;
 } control_info;
 
 #define CONTROL_USING_JOYSTICK	1
