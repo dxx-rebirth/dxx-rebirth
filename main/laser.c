@@ -2086,36 +2086,38 @@ void release_guided_missile(int player_num)
 
 int Proximity_dropped=0,Smartmines_dropped=0;
 
+extern int which_bomb();
+
 //	-------------------------------------------------------------------------------------------
-//parameter determines whether or not to do autoselect if have run out of ammo
-//this is needed because if you drop a bomb with the B key, you don't want
-//want to autoselect if the bomb isn't actually selected. 
-void do_missile_firing(int do_autoselect)
+//changed on 31/3/10 by kreatordxx to distinguish between drop bomb and secondary fire
+void do_missile_firing(int drop_bomb)
 {
 	int gun_flag=0;
+	int bomb = which_bomb();
+	int weapon = (drop_bomb) ? bomb : Secondary_weapon;
 
-	Assert(Secondary_weapon < MAX_SECONDARY_WEAPONS);
+	Assert(weapon < MAX_SECONDARY_WEAPONS);
 
 	if (Guided_missile[Player_num] && Guided_missile[Player_num]->signature==Guided_missile_sig[Player_num]) {
 		release_guided_missile(Player_num);
-		Next_missile_fire_time = GameTime + Weapon_info[Secondary_weapon_to_weapon_info[Secondary_weapon]].fire_wait;
+		Next_missile_fire_time = GameTime + Weapon_info[Secondary_weapon_to_weapon_info[weapon]].fire_wait;
 		return;
 	}
 
-	if (!Player_is_dead && (Players[Player_num].secondary_ammo[Secondary_weapon] > 0))	{
+	if (!Player_is_dead && (Players[Player_num].secondary_ammo[weapon] > 0))	{
 
 		int weapon_id,weapon_gun;
 
-		Players[Player_num].secondary_ammo[Secondary_weapon]--;
+		Players[Player_num].secondary_ammo[weapon]--;
 
-		weapon_id = Secondary_weapon_to_weapon_info[Secondary_weapon];
+		weapon_id = Secondary_weapon_to_weapon_info[weapon];
 
 		if (Laser_rapid_fire!=0xBADA55)
 			Next_missile_fire_time = GameTime + Weapon_info[weapon_id].fire_wait;
 		else
 			Next_missile_fire_time = GameTime + F1_0/25;
 
-		weapon_gun = Secondary_weapon_to_gun_num[Secondary_weapon];
+		weapon_gun = Secondary_weapon_to_gun_num[weapon];
 
 		if (weapon_gun==4) {		//alternate left/right
 			weapon_gun += (gun_flag = (Missile_gun & 1));
@@ -2124,7 +2126,7 @@ void do_missile_firing(int do_autoselect)
 
 		Laser_player_fire( ConsoleObject, weapon_id, weapon_gun, 1, 0);
 
-		if (Secondary_weapon == PROXIMITY_INDEX) {
+		if (weapon == PROXIMITY_INDEX) {
 			if (++Proximity_dropped == 4) {
 				Proximity_dropped = 0;
 #ifdef NETWORK
@@ -2132,7 +2134,7 @@ void do_missile_firing(int do_autoselect)
 #endif
 			}
 		}
-		else if (Secondary_weapon == SMART_MINE_INDEX) {
+		else if (weapon == SMART_MINE_INDEX) {
 			if (++Smartmines_dropped == 4) {
 				Smartmines_dropped = 0;
 #ifdef NETWORK
@@ -2141,11 +2143,11 @@ void do_missile_firing(int do_autoselect)
 			}
 		}
 #ifdef NETWORK
-		else if (Secondary_weapon != CONCUSSION_INDEX)
-			maybe_drop_net_powerup(Secondary_weapon_to_powerup[Secondary_weapon]);
+		else if (weapon != CONCUSSION_INDEX)
+			maybe_drop_net_powerup(Secondary_weapon_to_powerup[weapon]);
 #endif
 		
-		if (Secondary_weapon == MEGA_INDEX || Secondary_weapon == SMISSILE5_INDEX) {
+		if (weapon == MEGA_INDEX || weapon == SMISSILE5_INDEX) {
 			vms_vector force_vec;
 
 			force_vec.x = -(ConsoleObject->orient.fvec.x << 7);
@@ -2163,13 +2165,14 @@ void do_missile_firing(int do_autoselect)
 		if (Game_mode & GM_MULTI) 
 		{
 			Network_laser_fired = 1;		//how many
-			Network_laser_gun = Secondary_weapon + MISSILE_ADJUST;
+			Network_laser_gun = weapon + MISSILE_ADJUST;
 			Network_laser_flags = gun_flag;
 			Network_laser_level = 0;
 		}
 #endif
 
-		if (do_autoselect)
+		// don't autoselect if dropping prox and prox not current weapon
+		if (!drop_bomb || Secondary_weapon == bomb)
 			auto_select_weapon(1);		//select next missile, if this one out of ammo
 	}
 }

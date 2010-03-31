@@ -1,9 +1,13 @@
 D2X-Rebirth Changelog
 
+20100331
+--------
+main/gamecntl.c, main/laser.c, main/laser.h: Make gamecntl.c more similar between D1X and D2X
+
 20100330
 --------
 main/titles.c: For Descent 1 briefings, only change the palette to groupa.256 for brief03.pcx - the robot screen. Improves palette use for sdl build
-main/movie.c: Don't reshow the mission menu after playing a level intro movie
+main/menu.c, main/menu.h, main/movie.c: Don't reshow the mission menu after playing a level intro movie
 
 20100328
 --------

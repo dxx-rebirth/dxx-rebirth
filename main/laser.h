@@ -105,7 +105,7 @@ void Flare_create(struct object *obj);
 int laser_are_related(int o1, int o2);
 
 extern int do_laser_firing_player(void);
-extern void do_missile_firing(int do_autoselect);
+extern void do_missile_firing(int drop_bomb);
 extern void net_missile_firing(int player, int weapon, int flags);
 
 int Laser_create_new(vms_vector * direction, vms_vector * position, int segnum, int parent, int type, int make_sound);
