@@ -1234,6 +1234,8 @@ int HandleGameKey(int key)
 			default:
 				return 0;
 		}
+	else
+		return 0;
 	
 	return 1;
 }

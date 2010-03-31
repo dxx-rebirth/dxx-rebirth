@@ -4,6 +4,7 @@ D2X-Rebirth Changelog
 --------
 main/gamecntl.c, main/laser.c, main/laser.h: Make gamecntl.c more similar between D1X and D2X
 main/automap.c, main/game.c, main/gamecntl.c, main/multi.c, main/multi.h: Make game respond to EVENT_KEY_COMMAND for key commands, allowing default key handler (later)
+main/gamecntl.c: Fix bug introduced in last commit where the player can't escape from the death sequence (whoops)
 
 20100330
 --------
