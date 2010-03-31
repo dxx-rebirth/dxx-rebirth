@@ -323,9 +323,13 @@ void start_endlevel_sequence()
 	}
 #endif
 
+	window_set_visible(Game_wind, 0);	// suspend the game, including drawing
+	
 	if (PLAYING_BUILTIN_MISSION) // only play movie for built-in mission
 		if (!(Game_mode & GM_MULTI))
 			movie_played = start_endlevel_movie();
+	
+	window_set_visible(Game_wind, 1);
 
 	if (!(Game_mode & GM_MULTI) && (movie_played == MOVIE_NOT_PLAYED) && endlevel_data_loaded)
 	{   //don't have movie.  Do rendered sequence, if available
