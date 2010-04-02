@@ -746,8 +746,7 @@ int demo_menu_handler( listbox *lb, d_event *event, void *userdata )
 				return 0;		// shouldn't happen
 
 			newdemo_start_playback(items[citem]);
-			// return 1;		// later - when the listbox uses the main loop
-			break;
+			return 1;		// stay in demo selector
 			
 		case EVENT_WINDOW_CLOSE:
 			PHYSFS_freeList(items);

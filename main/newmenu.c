@@ -1877,6 +1877,7 @@ int listbox_draw(window *wind, listbox *lb)
 {
 	int i;
 
+	gr_set_current_canvas(NULL);
 	nm_draw_background1(NULL);
 	nm_draw_background( lb->box_x-BORDERX,lb->box_y-lb->title_height-BORDERY,lb->box_x+lb->box_w+BORDERX,lb->box_y+lb->height+BORDERY );
 	gr_set_curfont(MEDIUM3_FONT);
