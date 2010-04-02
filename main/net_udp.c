@@ -4722,9 +4722,6 @@ static int show_game_rules_handler(window *wind, d_event *event, netgame_info *n
 			k = ((d_event_keycommand *)event)->keycode;
 			switch (k)
 			{
-				case KEY_PRINT_SCREEN:
-					save_screen_shot(0); k = 0;
-					return 1;
 				case KEY_ENTER:
 				case KEY_SPACEBAR:
 				case KEY_ESC:
@@ -4735,9 +4732,6 @@ static int show_game_rules_handler(window *wind, d_event *event, netgame_info *n
 			
 		case EVENT_IDLE:
 			timer_delay2(50);
-			
-			//see if redbook song needs to be restarted
-			RBACheckFinishedHook();
 			break;
 
 		case EVENT_WINDOW_DRAW:

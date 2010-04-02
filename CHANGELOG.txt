@@ -1,11 +1,15 @@
 D2X-Rebirth Changelog
 
+20100401
+--------
+arch/include/event.h, arch/sdl/event.c, arch/sdl/key.c, arch/sdl/mouse.c, main/automap.c, main/credits.c, main/escort.c, main/game.c, main/gamecntl.c, main/inferno.c, main/kconfig.c, main/kmatrix.c, main/movie.c, main/net_ipx.c, main/net_udp.c, main/newmenu.c, main/scores.c, main/titles.c: Add a default event handler for screenshots, entering debugger, Redbook repeating etc
+
 20100331
 --------
 main/gamecntl.c, main/laser.c, main/laser.h: Make gamecntl.c more similar between D1X and D2X
 main/automap.c, main/game.c, main/gamecntl.c, main/multi.c, main/multi.h: Make game respond to EVENT_KEY_COMMAND for key commands, allowing default key handler (later)
 main/gamecntl.c: Fix bug introduced in last commit where the player can't escape from the death sequence (whoops)
-main/gameseq.c: Hide the game window so the exit movie has a black background
+main/endlevel.c: Hide the game window so the exit movie has a black background
 
 20100330
 --------

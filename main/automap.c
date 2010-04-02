@@ -545,10 +545,6 @@ int automap_key_command(window *wind, d_event *event, automap *am)
 
 	switch (c)
 	{
-#ifndef NDEBUG
-		case KEY_BACKSP: Int3(); return 1;
-#endif
-			
 		case KEY_PRINT_SCREEN: {
 			gr_set_current_canvas(NULL);
 			save_screen_shot(1);
@@ -635,13 +631,6 @@ int automap_key_command(window *wind, d_event *event, automap *am)
 				MarkerScale+=.5;
 			return 1;
 #endif
-			
-		case KEY_ALTED+KEY_ENTER:
-		case KEY_ALTED+KEY_PADENTER:
-			gr_toggle_fullscreen();
-			return 1;
-			//end addition -MM
-			
 	}
 	
 	return 0;
@@ -674,9 +663,6 @@ int automap_idle(window *wind, d_event *event, automap *am)
 			return 1;
 		}
 	}
-	
-	//see if redbook song needs to be restarted
-	RBACheckFinishedHook();
 	
 	if ( Controls.fire_primary_down_count )	{
 		// Reset orientation

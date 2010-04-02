@@ -106,18 +106,10 @@ int title_handler(window *wind, d_event *event, title_screen *ts)
 			break;
 			
 		case EVENT_KEY_COMMAND:
-			switch (((d_event_keycommand *)event)->keycode)
-			{
-				case KEY_PRINT_SCREEN:
-					save_screen_shot(0);
-					return 1;
-					
-				default:
-					if (ts->allow_keys)
-						window_close(wind);
-					return 1;
-			}
-			break;
+			if (!call_default_handler(event))
+				if (ts->allow_keys)
+					window_close(wind);
+			return 1;
 			
 		case EVENT_IDLE:
 			timer_delay2(50);
@@ -1313,16 +1305,6 @@ int briefing_handler(window *wind, d_event *event, briefing *br)
 			
 			switch (key)
 			{
-				case KEY_PRINT_SCREEN:
-					save_screen_shot(0);
-					return 1;
-					
-#ifndef NDEBUG
-				case KEY_BACKSP:
-					Int3();
-					return 1;
-#endif
-
 				case KEY_ESC:
 					window_close(wind);
 					return 1;
@@ -1333,7 +1315,9 @@ int briefing_handler(window *wind, d_event *event, briefing *br)
 					// fall through
 					
 				default:
-					if (br->new_screen)
+					if (call_default_handler(event))
+						return 1;
+					else if (br->new_screen)
 					{
 						if (!new_briefing_screen(br, 0))
 						{

@@ -159,7 +159,6 @@ void advance_sound(void);
 void play_test_sound(void);
 
 #define key_isfunc(k) (((k&0xff)>=KEY_F1 && (k&0xff)<=KEY_F10) || (k&0xff)==KEY_F11 || (k&0xff)==KEY_F12)
-#define key_ismod(k)  ((k&0xff)==KEY_LALT || (k&0xff)==KEY_RALT || (k&0xff)==KEY_LSHIFT || (k&0xff)==KEY_RSHIFT || (k&0xff)==KEY_LCTRL || (k&0xff)==KEY_RCTRL || (k&0xff)==KEY_LMETA || (k&0xff)==KEY_RMETA)
 
 // Functions ------------------------------------------------------------------
 
@@ -391,10 +390,6 @@ int pause_handler(window *wind, d_event *event, char *msg)
 				case KEY_PAUSE:
 					window_close(wind);
 					return 1;
-				case KEY_ALTED+KEY_ENTER:
-				case KEY_ALTED+KEY_PADENTER:
-					gr_toggle_fullscreen();
-					return 1;
 				default:
 					break;
 			}
@@ -466,13 +461,6 @@ int HandleEndlevelKey(int key)
 {
 	switch (key)
 	{
-#ifdef macintosh
-		case KEY_COMMAND + KEY_SHIFTED + KEY_3:
-#endif
-		case KEY_PRINT_SCREEN:
-			save_screen_shot(0);
-			return 1;
-			
 		case KEY_COMMAND+KEY_P:
 		case KEY_PAUSE:
 			do_game_pause();
@@ -482,10 +470,6 @@ int HandleEndlevelKey(int key)
 			stop_endlevel_sequence();
 			last_drawn_cockpit=-1;
 			return 1;
-			
-		case KEY_BACKSP:
-			Int3();
-			return 1;
 	}
 
 	return 0;
@@ -493,7 +477,7 @@ int HandleEndlevelKey(int key)
 
 int HandleDeathKey(int key)
 {
-	if (Player_exploded && !key_isfunc(key) && !key_ismod(key) && key)
+	if (Player_exploded && !key_isfunc(key) && key)
 		Death_sequence_aborted  = 1;		//Any key but func or modifier aborts
 
 	if (key == KEY_ESC) {
@@ -593,15 +577,7 @@ int HandleDemoKey(int key)
 			}
 			break;
 		}
-		case KEY_ALTED+KEY_ENTER:
-		case KEY_ALTED+KEY_PADENTER:
-			gr_toggle_fullscreen();
-			break;
-
 #ifndef NDEBUG
-		case KEY_BACKSP:
-			Int3();
-			break;
 		case KEY_DEBUGGED + KEY_I:
 			Newdemo_do_interpolate = !Newdemo_do_interpolate;
 			HUD_init_message("Demo playback interpolation %s", Newdemo_do_interpolate?"ON":"OFF");
@@ -996,15 +972,9 @@ int HandleSystemKey(int key)
 			songs_goto_next_song();
 			break;
 			
-#if defined(__APPLE__) || defined(macintosh)
-		case KEY_COMMAND+KEY_Q:
-			macintosh_quit();
-			break;
-#endif
 		default:
 			return 0;
 			break;
-
 	}
 
 	return 1;
@@ -2100,6 +2070,9 @@ int ReadControls(d_event *event)
 		if (HandleTestKey(key))
 			return 1;
 #endif
+		
+		if (call_default_handler(event))
+			return 1;
 		
 		if (Player_is_dead)
 			return HandleDeathKey(key);

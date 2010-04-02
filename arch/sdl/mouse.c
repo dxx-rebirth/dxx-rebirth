@@ -88,7 +88,12 @@ void mouse_button_handler(SDL_MouseButtonEvent *mbe)
 	event.button = button;
 	
 	if ((wind = window_get_front()))
-		window_send_event(wind, (d_event *)&event);
+	{
+		if (!window_send_event(wind, (d_event *)&event))
+			call_default_handler((d_event *)&event);
+	}
+	else
+		call_default_handler((d_event *)&event);
 }
 
 void mouse_motion_handler(SDL_MouseMotionEvent *mme)

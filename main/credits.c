@@ -64,32 +64,20 @@ typedef struct credits
 
 int credits_handler(window *wind, d_event *event, credits *cr)
 {
-	int j, k, l;
+	int j, l;
 	char * tempp;
 	int y;
 	
 	switch (event->type)
 	{
 		case EVENT_KEY_COMMAND:
-			k = ((d_event_keycommand *)event)->keycode;
-			switch (k)
-			{
-				case KEY_PRINT_SCREEN:
-					save_screen_shot(0);
-					return 1;
-					
-				default:
-					window_close(wind);
-					return 1;
-			}
-			break;
+			if (!call_default_handler(event))	// if not print screen, debug etc
+				window_close(wind);
+			return 1;
 
 		case EVENT_IDLE:
 			timer_delay(F1_0/25);
 			
-			//see if redbook song needs to be restarted
-			RBACheckFinishedHook();
-
 			if (cr->row == 0)
 			{
 				do {

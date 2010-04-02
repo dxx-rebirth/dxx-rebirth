@@ -672,15 +672,6 @@ int kconfig_key_command(window *wind, d_event *event, kc_menu *menu)
 	
 	switch (k)
 	{
-		case KEY_BACKSP:
-			Int3();
-			return 1;
-#ifdef macintosh
-		case KEY_COMMAND+KEY_SHIFTED+KEY_3:
-#endif
-		case KEY_PRINT_SCREEN:
-			save_screen_shot(0);
-			return 1;
 		case KEY_CTRLED+KEY_D:
 			menu->items[menu->citem].value = 255;
 			return 1;
@@ -880,9 +871,6 @@ int kconfig_handler(window *wind, d_event *event, kc_menu *menu)
 				timer_delay(f0_1/10);
 			else
 				timer_delay2(50);
-			
-			//see if redbook song needs to be restarted
-			RBACheckFinishedHook();
 			
 			if (menu->changing)
 			{

@@ -92,6 +92,7 @@ char copyright[] = "DESCENT II  COPYRIGHT (C) 1994-1996 PARALLAX SOFTWARE CORPOR
 #include "joy.h"
 #include "../texmap/scanline.h" //for select_tmap -MM
 #include "event.h"
+#include "rbaudio.h"
 
 #ifdef EDITOR
 #include "editor/editor.h"
@@ -221,6 +222,74 @@ void error_messagebox(char *s)
 	nm_messagebox( TXT_SORRY, 1, TXT_OK, s );
 }
 
+#define key_ismod(k)  ((k&0xff)==KEY_LALT || (k&0xff)==KEY_RALT || (k&0xff)==KEY_LSHIFT || (k&0xff)==KEY_RSHIFT || (k&0xff)==KEY_LCTRL || (k&0xff)==KEY_RCTRL || (k&0xff)==KEY_LMETA || (k&0xff)==KEY_RMETA)
+
+// Default event handler for everything except the editor
+int standard_handler(d_event *event)
+{
+	int key;
+	
+	switch (event->type)
+	{
+		case EVENT_MOUSE_BUTTON_DOWN:
+		case EVENT_MOUSE_BUTTON_UP:
+			// No window selecting
+			// We stay with the current one until it's closed/hidden or another one is made
+			// Not the case for the editor
+			break;
+			
+		case EVENT_KEY_COMMAND:
+			key = ((d_event_keycommand *)event)->keycode;
+			
+			// Don't let modifier(s) on their own do something unless we explicitly want that
+			// (e.g. if it's a game control like fire primary)
+			if (key_ismod(key))
+				return 1;
+			
+			switch (key)
+			{
+#ifdef macintosh
+				case KEY_COMMAND + KEY_SHIFTED + KEY_3:
+#endif
+				case KEY_PRINT_SCREEN:
+				{
+					gr_set_current_canvas(NULL);
+					save_screen_shot(0);
+					return 1;
+				}
+					
+				case KEY_ALTED+KEY_ENTER:
+				case KEY_ALTED+KEY_PADENTER:
+					gr_toggle_fullscreen();
+					return 1;
+					
+#ifndef NDEBUG
+				case KEY_BACKSP:
+					Int3();
+					return 1;
+#endif
+					
+#if defined(__APPLE__) || defined(macintosh)
+				case KEY_COMMAND+KEY_Q:
+					// Alt-F4 already taken, too bad
+					macintosh_quit();
+					break;
+#endif
+			}
+			break;
+			
+		case EVENT_IDLE:
+			//see if redbook song needs to be restarted
+			RBACheckFinishedHook();
+			return 1;
+			
+		default:
+			break;
+	}
+	
+	return 0;
+}
+
 jmp_buf LeaveEvents;
 #define PROGNAME argv[0]
 
@@ -323,6 +392,8 @@ int main(int argc, char *argv[])
 	con_printf(CON_DEBUG, "Initializing font system...\n" );
 	gamefont_init();	// must load after palette data loaded.
 
+	set_default_handler(standard_handler);
+	
 	con_printf( CON_DEBUG, "Initializing movie libraries...\n" );
 	init_movies();		//init movie libraries
 
@@ -344,7 +415,7 @@ int main(int argc, char *argv[])
 		return(0);
 
 	error_init(error_messagebox, NULL);
-
+	
 	con_printf( CON_DEBUG, "\nInitializing texture caching system..." );
 	texmerge_init( 10 );		// 10 cache bitmaps
 

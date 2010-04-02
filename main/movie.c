@@ -244,7 +244,8 @@ int show_pause_message(window *wind, d_event *event, void *userdata)
 			// else fall through
 
 		case EVENT_KEY_COMMAND:
-			window_close(wind);
+			if (!call_default_handler(event))
+				window_close(wind);
 			return 1;
 
 		case EVENT_WINDOW_DRAW:

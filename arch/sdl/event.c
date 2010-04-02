@@ -72,6 +72,21 @@ int event_init()
 	return 0;
 }
 
+int (*default_handler)(d_event *event) = NULL;
+
+void set_default_handler(int (*handler)(d_event *event))
+{
+	default_handler = handler;
+}
+
+int call_default_handler(d_event *event)
+{
+	if (default_handler)
+		return (*default_handler)(event);
+	
+	return 0;
+}
+
 // Process the first event in queue, sending to the appropriate handler
 // This is the new object-oriented system
 // Uses the old system for now, but this may change
@@ -82,13 +97,15 @@ void event_process(void)
 
 	event_poll();	// send input events first
 
-	event.type = EVENT_IDLE;	// most user input handled in idle event for now (except for newmenu)
-	wind = window_get_front();
-	if (!wind)
-		return;
-
-	window_send_event(wind, &event);
-
+	event.type = EVENT_IDLE;
+	if ((wind = window_get_front()))
+	{
+		if (!window_send_event(wind, &event))
+			call_default_handler(&event);
+	}
+	else
+		call_default_handler(&event);
+	
 	event.type = EVENT_WINDOW_DRAW;	// then draw all visible windows
 	for (wind = window_get_first(); wind != NULL; wind = window_get_next(wind))
 		if (window_is_visible(wind))

@@ -433,8 +433,13 @@ void key_handler(SDL_KeyboardEvent *event, int counter)
 		
 		event.type = EVENT_KEY_COMMAND;
 		event.keycode = key_command;
-		if ((wind = window_get_front()) && window_send_event(wind, (d_event *)&event))
-		/*return*/;		// handled it - don't add to queue NOT YET: have to make all input loops into windows
+		if ((wind = window_get_front()))
+		{
+			if (!window_send_event(wind, (d_event *)&event))
+				call_default_handler((d_event *)&event);
+		}
+		else
+			call_default_handler((d_event *)&event);
 	}
 }
 

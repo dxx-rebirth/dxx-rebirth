@@ -1653,14 +1653,6 @@ int escort_menu_keycommand(window *wind, d_event *event, escort_menu *menu)
 			window_close(wind);
 			return 1;
 			
-		case KEY_PRINT_SCREEN:
-			save_screen_shot(0);
-			return 1;
-			
-#ifndef RELEASE
-		case KEY_BACKSP: Int3(); return 1;
-#endif
-			
 		case KEY_T: {
 			char	msg[32];
 			int	temp;
