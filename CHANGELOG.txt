@@ -1,5 +1,9 @@
 D1X-Rebirth Changelog
 
+20100401
+--------
+arch/include/event.h, arch/sdl/event.c, arch/sdl/key.c, arch/sdl/mouse.c, main/automap.c, main/credits.c, main/game.c, main/gamecntl.c, main/inferno.c, main/kconfig.c, main/kmatrix.c, main/net_ipx.c, main/net_udp.c, main/newmenu.c, main/scores.c, main/titles.c: Add a default event handler for screenshots, entering debugger, Redbook repeating etc
+
 20100331
 --------
 main/game.h, main/gamecntl.c, main/gamerend.c, main/kconfig.c, main/kconfig.h, main/laser.c, main/laser.h: Make gamecntl.c more similar between D1X and D2X

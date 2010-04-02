@@ -28,6 +28,10 @@ int event_init();
 // Sends input events to event handlers
 void event_poll();
 
+// Set and call the default event handler
+void set_default_handler(int (*handler)(d_event *event));
+int call_default_handler(d_event *event);
+
 // Sends input, idle and draw events to event handlers
 void event_process();
 

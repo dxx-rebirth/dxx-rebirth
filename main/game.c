@@ -1028,9 +1028,6 @@ int game_handler(window *wind, d_event *event, void *data)
 			if (window_get_front() != wind)
 				break;
 			
-			//see if redbook song needs to be restarted
-			RBACheckFinishedHook();	// Handle RedBook Audio Repeating.
-			
 			if (Config_menu_flag)	{
 				do_options_menu();
 			}

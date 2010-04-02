@@ -344,12 +344,10 @@ int scores_handler(window *wind, d_event *event, scores_menu *menu)
 						}
 					}
 					return 1;
-					case KEY_BACKSP:				Int3(); k = 0; return 1;
-					case KEY_PRINT_SCREEN:		save_screen_shot(0); k = 0; return 1;
 					
-					case KEY_ENTER:
-					case KEY_SPACEBAR:
-					case KEY_ESC:
+				case KEY_ENTER:
+				case KEY_SPACEBAR:
+				case KEY_ESC:
 					window_close(wind);
 					return 1;
 			}
@@ -357,9 +355,6 @@ int scores_handler(window *wind, d_event *event, scores_menu *menu)
 			
 		case EVENT_IDLE:
 			timer_delay2(50);
-
-			//see if redbook song needs to be restarted
-			RBACheckFinishedHook();
 			break;
 
 		case EVENT_WINDOW_DRAW:

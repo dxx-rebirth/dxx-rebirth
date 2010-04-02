@@ -975,11 +975,6 @@ int newmenu_key_command(window *wind, d_event *event, newmenu *menu)
 			}
 			break;
 			
-		case KEY_ALTED+KEY_ENTER:
-		case KEY_ALTED+KEY_PADENTER:
-			gr_toggle_fullscreen();
-			break;
-			
 		case KEY_ESC:
 			if ( (menu->citem>-1) && (item->type==NM_TYPE_INPUT_MENU) && (item->group==1))	{
 				item->group=0;
@@ -990,13 +985,6 @@ int newmenu_key_command(window *wind, d_event *event, newmenu *menu)
 				menu->citem = -1;
 				return 1;
 			}
-			break;
-			
-#ifdef macintosh
-		case KEY_COMMAND+KEY_SHIFTED+KEY_3:
-#endif
-		case KEY_PRINT_SCREEN:
-			save_screen_shot(0);
 			break;
 			
 #ifndef NDEBUG
@@ -1277,9 +1265,6 @@ int newmenu_handler(window *wind, d_event *event, newmenu *menu)
 			
 		case EVENT_IDLE:
 			timer_delay2(50);
-			
-			//see if redbook song needs to be restarted
-			RBACheckFinishedHook();
 			
 			return newmenu_mouse(wind, event, menu);
 			break;
@@ -1806,12 +1791,6 @@ int listbox_key_command(window *wind, d_event *event, listbox *lb)
 	int rval = 1;
 	
 	switch(key)	{
-#ifdef macintosh
-		case KEY_COMMAND+KEY_SHIFTED+KEY_3:
-#endif
-		case KEY_PRINT_SCREEN: 		
-			save_screen_shot(0); 
-			break;
 		case KEY_HOME:
 		case KEY_PAD7:
 			lb->citem = 0;
@@ -1852,11 +1831,6 @@ int listbox_key_command(window *wind, d_event *event, listbox *lb)
 			
 			window_close(wind);
 			return 1;
-			break;
-			
-		case KEY_ALTED+KEY_ENTER:
-		case KEY_ALTED+KEY_PADENTER:
-			gr_toggle_fullscreen();
 			break;
 			
 		default:	
@@ -1970,9 +1944,6 @@ int listbox_handler(window *wind, d_event *event, listbox *lb)
 			
 		case EVENT_IDLE:
 			timer_delay2(50);
-			
-			//see if redbook song needs to be restarted
-			RBACheckFinishedHook();
 			
 			return listbox_mouse(wind, event, lb);
 			break;
