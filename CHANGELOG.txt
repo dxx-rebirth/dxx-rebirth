@@ -3,6 +3,7 @@ D1X-Rebirth Changelog
 20100403
 --------
 arch/sdl/mouse.c, main/game.c, main/net_ipx.c, main/net_ipx.h, main/newmenu.c, main/newmenu.h, main/state.c: Make newmenu_do3 and newmenu_dotiny return as soon as the newmenu is created, which will allow the main menu (and others) to persist
+main/menu.c: Make main menu persist to streamline redrawing (later)
 
 20100402
 --------

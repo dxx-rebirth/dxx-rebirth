@@ -114,10 +114,10 @@ enum MENUS
 
 #define ADD_ITEM(t,value,key)  do { m[num_options].type=NM_TYPE_MENU; m[num_options].text=t; menu_choice[num_options]=value;num_options++; } while (0)
 
-static window *menus[16];
+static window *menus[16] = { NULL };
 
 // Function Prototypes added after LINTING
-void do_option(int select);
+int do_option(int select);
 int do_new_game_menu(void);
 int do_load_level_menu(void);
 void do_multi_player_menu();
@@ -126,14 +126,14 @@ extern void ReorderPrimary();
 extern void ReorderSecondary();
 
 // Hide all menus
-void hide_menus(void)
+int hide_menus(void)
 {
 	window *wind;
 	int i;
 	
 	if (menus[0])
-		return;		// there are already hidden menus
-	
+		return 0;		// there are already hidden menus
+
 	for (i = 0; (i < 15) && (wind = window_get_front()); i++)
 	{
 		menus[i] = wind;
@@ -142,6 +142,8 @@ void hide_menus(void)
 	
 	Assert(window_get_front() == NULL);
 	menus[i] = NULL;
+	
+	return 1;
 }
 
 // Show all menus, with the front one shown first
@@ -153,7 +155,7 @@ void show_menus(void)
 	for (i = 0; (i < 16) && menus[i]; i++)
 		if (window_exists(menus[i]))
 			window_set_visible(menus[i], 1);
-	
+
 	menus[0] = NULL;
 }
 
@@ -376,6 +378,7 @@ int RegisterPlayer()
 int main_menu_handler(newmenu *menu, d_event *event, int *menu_choice )
 {
 	int curtime;
+	newmenu_item *items = newmenu_get_items(menu);
 
 	switch (event->type)
 	{
@@ -384,6 +387,9 @@ int main_menu_handler(newmenu *menu, d_event *event, int *menu_choice )
 				RegisterPlayer();
 			else
 				keyd_time_when_last_pressed = timer_get_fixed_seconds();		// .. 20 seconds from now!
+			
+			if (Function_mode == FMODE_EXIT)
+				return -2;
 			break;
 			
 		case EVENT_KEY_COMMAND:
@@ -398,12 +404,16 @@ int main_menu_handler(newmenu *menu, d_event *event, int *menu_choice )
 				if (curtime < 0) curtime = 0;
 				keyd_time_when_last_pressed = curtime;			// Reset timer so that disk won't thrash if no demos.
 				newdemo_start_playback(NULL);		// Randomly pick a file
-				if (Newdemo_state == ND_STATE_PLAYBACK)
-				{
-					Function_mode = FMODE_GAME;
-					return -2;
-				}
 			}
+			break;
+			
+		case EVENT_NEWMENU_SELECTED:
+			return do_option(menu_choice[newmenu_get_citem(menu)]);
+			break;
+			
+		case EVENT_WINDOW_CLOSE:
+			d_free(menu_choice);
+			d_free(items);
 			break;
 			
 		default:
@@ -412,8 +422,6 @@ int main_menu_handler(newmenu *menu, d_event *event, int *menu_choice )
 
 	return 0;
 }
-
-static int main_menu_choice = 0;
 
 //	-----------------------------------------------------------------------------
 //	Create the main menu.
@@ -463,21 +471,28 @@ void create_main_menu(newmenu_item *m, int *menu_choice, int *callers_num_option
 //returns number of item chosen
 int DoMenu() 
 {
-	int menu_choice[25];
-	newmenu_item m[25];
+	int *menu_choice;
+	newmenu_item *m;
 	int num_options = 0;
 
-	memset(&menu_choice, 0, sizeof(int)*25);
-	memset(&m, 0, sizeof(newmenu_item)*25);
+	MALLOC(menu_choice, int, 25);
+	if (!menu_choice)
+		return -1;
+	MALLOC(m, newmenu_item, 25);
+	if (!m)
+	{
+		d_free(menu_choice);
+		return -1;
+	}
+
+	memset(menu_choice, 0, sizeof(int)*25);
+	memset(m, 0, sizeof(newmenu_item)*25);
 
 	create_main_menu(m, menu_choice, &num_options); // may have to change, eg, maybe selected pilot and no save games.
 
-	if (main_menu_choice < 0 )
-		main_menu_choice = 0;
-	main_menu_choice = newmenu_do2( "", NULL, num_options, m, (int (*)(newmenu *, d_event *, void *))main_menu_handler, NULL, main_menu_choice, Menu_pcx_name);
-	if ( main_menu_choice > -1 ) do_option(menu_choice[main_menu_choice]);
+	newmenu_do3( "", NULL, num_options, m, (int (*)(newmenu *, d_event *, void *))main_menu_handler, menu_choice, 0, Menu_pcx_name, -1, -1);
 
-	return main_menu_choice;
+	return 0;
 }
 
 extern void show_order_form(void);	// John didn't want this in inferno.h so I just externed it.
@@ -497,7 +512,7 @@ int select_song_callback(listbox *lb, d_event *event, void *userdata)
 }
 
 //returns flag, true means quit menu
-void do_option ( int select) 
+int do_option ( int select) 
 {
 	switch (select) {
 		case MENU_NEW_GAME:
@@ -520,12 +535,15 @@ void do_option ( int select)
 			SetPlayerFromCurseg();
 
 			keyd_editor_mode = 1;
+			hide_menus();
 			editor();
 			if ( Function_mode == FMODE_GAME ) {
 				Game_mode = GM_EDITOR;
 				editor_reset_stuff_on_level();
 				N_players = 1;
 			}
+			else
+				show_menus();
 			break;
 		#endif
 		case MENU_VIEW_SCORES:
@@ -541,7 +559,8 @@ void do_option ( int select)
 			if (! SafetyCheck()) break;
 			#endif
 			Function_mode = FMODE_EXIT;
-			break;
+			return 0;
+
 		case MENU_NEW_PLAYER:
 			RegisterPlayer();		//1 == allow escape out of menu
 			break;
@@ -618,6 +637,7 @@ void do_option ( int select)
 			break;
 	}
 
+	return 1;		// stay in main menu unless quitting
 }
 
 void delete_player_saved_games(char * name)
