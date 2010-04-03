@@ -1,6 +1,10 @@
 D1X-Rebirth Changelog
 
-20100401
+20100403
+--------
+arch/sdl/mouse.c, main/game.c, main/net_ipx.c, main/net_ipx.h, main/newmenu.c, main/newmenu.h, main/state.c: Make newmenu_do3 and newmenu_dotiny return as soon as the newmenu is created, which will allow the main menu (and others) to persist
+
+20100402
 --------
 arch/include/event.h, arch/sdl/event.c, arch/sdl/key.c, arch/sdl/mouse.c, main/automap.c, main/credits.c, main/game.c, main/gamecntl.c, main/inferno.c, main/kconfig.c, main/kmatrix.c, main/net_ipx.c, main/net_udp.c, main/newmenu.c, main/scores.c, main/titles.c: Add a default event handler for screenshots, entering debugger, Redbook repeating etc
 main/menu.c, main/newmenu.c: Keep demo selector just after playing one, for convenience

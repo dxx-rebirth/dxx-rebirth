@@ -73,6 +73,7 @@ COPYRIGHT 1993-1998 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 
 struct newmenu
 {
+	window			*wind;
 	int				x,y,w,h;
 	char			*title;
 	char			*subtitle;
@@ -87,7 +88,7 @@ struct newmenu
 	int				is_scroll_box;   // Is this a scrolling box? Set to false at init
 	int				max_on_menu;
 	int				mouse_state, dblclick_flag;
-	int				done;
+	int				leave;			// Leave newmenu_doX function
 	void			*userdata;		// For whatever - like with window system
 };
 
@@ -97,7 +98,7 @@ ubyte MenuReordering=0;
 ubyte SurfingNet=0;
 static int draw_copyright=0;
 
-int newmenu_do4( char * title, char * subtitle, int nitems, newmenu_item * item, int (*subfunction)(newmenu *menu, d_event *event, void *userdata), void *userdata, int citem, char * filename, int width, int height, int TinyMode );
+newmenu *newmenu_do4( char * title, char * subtitle, int nitems, newmenu_item * item, int (*subfunction)(newmenu *menu, d_event *event, void *userdata), void *userdata, int citem, char * filename, int width, int height, int TinyMode );
 
 void newmenu_close()	{
 	if (nm_background.bm_data)
@@ -501,10 +502,10 @@ void strip_end_whitespace( char * text )
 
 int newmenu_do( char * title, char * subtitle, int nitems, newmenu_item * item, int (*subfunction)(newmenu *menu, d_event *event, void *userdata), void *userdata )
 {
-	return newmenu_do3( title, subtitle, nitems, item, subfunction, userdata, 0, NULL, -1, -1 );
+	return newmenu_do2( title, subtitle, nitems, item, subfunction, userdata, 0, NULL );
 }
 
-int newmenu_dotiny( char * title, char * subtitle, int nitems, newmenu_item * item, int (*subfunction)(newmenu *menu, d_event *event, void *userdata), void *userdata )
+newmenu *newmenu_dotiny( char * title, char * subtitle, int nitems, newmenu_item * item, int (*subfunction)(newmenu *menu, d_event *event, void *userdata), void *userdata )
 {
         return newmenu_do4( title, subtitle, nitems, item, subfunction, userdata, 0, NULL, -1, -1, 1 );
 }
@@ -512,21 +513,46 @@ int newmenu_dotiny( char * title, char * subtitle, int nitems, newmenu_item * it
 
 int newmenu_do1( char * title, char * subtitle, int nitems, newmenu_item * item, int (*subfunction)(newmenu *menu, d_event *event, void *userdata), void *userdata, int citem )
 {
-	return newmenu_do3( title, subtitle, nitems, item, subfunction, userdata, citem, NULL, -1, -1 );
+	return newmenu_do2( title, subtitle, nitems, item, subfunction, userdata, citem, NULL );
 }
 
 
 int newmenu_do2( char * title, char * subtitle, int nitems, newmenu_item * item, int (*subfunction)(newmenu *menu, d_event *event, void *userdata), void *userdata, int citem, char * filename )
 {
-	return newmenu_do3( title, subtitle, nitems, item, subfunction, userdata, citem, filename, -1, -1 );
+	newmenu *menu;
+	window *wind;
+	int rval = -1;
+
+	menu = newmenu_do3( title, subtitle, nitems, item, subfunction, userdata, citem, filename, -1, -1 );
+	
+	if (!menu)
+		return -1;
+	menu->leave = 0;	// no leaving this function until we're finished
+	wind = menu->wind;	// avoid dereferencing a freed 'menu'
+	
+	// newmenu_do2 and simpler get their own event loop
+	// This is so the caller doesn't have to provide a callback that responds to EVENT_NEWMENU_SELECTED
+	while (window_exists(wind))
+	{
+		event_process();
+		
+		if (menu->leave)
+		{
+			rval = menu->citem;
+			if (!window_close(wind))
+				menu->leave = 0;		// user aborted close
+		}
+	}
+	
+	return rval;
 }
-int newmenu_do3( char * title, char * subtitle, int nitems, newmenu_item * item, int (*subfunction)(newmenu *menu, d_event *event, void *userdata), void *userdata, int citem, char * filename, int width, int height )
+newmenu *newmenu_do3( char * title, char * subtitle, int nitems, newmenu_item * item, int (*subfunction)(newmenu *menu, d_event *event, void *userdata), void *userdata, int citem, char * filename, int width, int height )
 {
 	set_screen_mode(SCREEN_MENU);//hafta set the screen mode before calling or fonts might get changed/freed up if screen res changes
 	return newmenu_do4( title, subtitle, nitems, item, subfunction, userdata, citem, filename, width, height, 0 );
 }
 
-int newmenu_do_fixedfont( char * title, char * subtitle, int nitems, newmenu_item * item, int (*subfunction)(newmenu *menu, d_event *event, void *userdata), void *userdata, int citem, char * filename, int width, int height){
+newmenu *newmenu_do_fixedfont( char * title, char * subtitle, int nitems, newmenu_item * item, int (*subfunction)(newmenu *menu, d_event *event, void *userdata), void *userdata, int citem, char * filename, int width, int height){
 	set_screen_mode(SCREEN_MENU);//hafta set the screen mode before calling or fonts might get changed/freed up if screen res changes
 	return newmenu_do4( title, subtitle, nitems, item, subfunction, userdata, citem, filename, width, height, 0);
 }
@@ -549,6 +575,24 @@ int newmenu_get_nitems(newmenu *menu)
 int newmenu_get_citem(newmenu *menu)
 {
 	return menu->citem;
+}
+
+window *newmenu_get_window(newmenu *menu)
+{
+	return menu->wind;
+}
+
+// The 'softer' version of window_close,
+// this leaves citem alone
+int newmenu_close_window(newmenu *menu)
+{
+	if (!menu->leave)
+	{
+		menu->leave = 1;
+		return 1;
+	}
+	
+	return window_close(newmenu_get_window(menu));
 }
 
 int newmenu_mouse(window *wind, d_event *event, newmenu *menu)
@@ -609,7 +653,7 @@ int newmenu_mouse(window *wind, d_event *event, newmenu *menu)
 	
 	if (menu->mouse_state && menu->all_text)
 	{
-		menu->done = 1;
+		newmenu_close_window(menu);
 		gr_set_current_canvas(save_canvas);
 		return 1;
 	}
@@ -741,7 +785,7 @@ int newmenu_mouse(window *wind, d_event *event, newmenu *menu)
 						if (menu->subfunction && (*menu->subfunction)(menu, event, menu->userdata))
 							return 1;
 						
-						menu->done = 1;
+						newmenu_close_window(menu);
 						gr_set_current_canvas(save_canvas);
 						return 1;
 					}
@@ -754,7 +798,7 @@ int newmenu_mouse(window *wind, d_event *event, newmenu *menu)
 					if (menu->subfunction && (*menu->subfunction)(menu, event, menu->userdata))
 						return 1;
 					
-					menu->done = 1;
+					newmenu_close_window(menu);
 					gr_set_current_canvas(save_canvas);
 					return 1;
 				}
@@ -970,7 +1014,7 @@ int newmenu_key_command(window *wind, d_event *event, newmenu *menu)
 				if (menu->subfunction && (*menu->subfunction)(menu, event, menu->userdata))
 					return 1;
 				
-				menu->done = 1;
+				newmenu_close_window(menu);
 				return 1;
 			}
 			break;
@@ -981,8 +1025,8 @@ int newmenu_key_command(window *wind, d_event *event, newmenu *menu)
 				strcpy(item->text, item->saved_text );	
 				item->value = -1;
 			} else {
-				menu->done = 1;
 				menu->citem = -1;
+				newmenu_close_window(menu);
 				return 1;
 			}
 			break;
@@ -1232,7 +1276,7 @@ int newmenu_handler(window *wind, d_event *event, newmenu *menu)
 			if (rval < -1)
 			{
 				menu->citem = rval;
-				menu->done = 1;
+				newmenu_close_window(menu);
 			}
 
 			return 1;		// event handled
@@ -1274,11 +1318,11 @@ int newmenu_handler(window *wind, d_event *event, newmenu *menu)
 			break;
 			
 		case EVENT_WINDOW_CLOSE:
-			if (!menu->done)
+			if (!menu->leave)
 			{
 				menu->citem = -1;
-				menu->done = 1;
-				return 1;	// cancel close and do it in newmenu_do4 instead
+				menu->leave = 1;
+				return 1;	// cancel close and do it in newmenu_do2 instead
 			}
 
 			d_free(menu);
@@ -1291,7 +1335,7 @@ int newmenu_handler(window *wind, d_event *event, newmenu *menu)
 	return 0;
 }
 
-int newmenu_do4( char * title, char * subtitle, int nitems, newmenu_item * item, int (*subfunction)(newmenu *menu, d_event *event, void *userdata), void *userdata, int citem, char * filename, int width, int height, int TinyMode )
+newmenu *newmenu_do4( char * title, char * subtitle, int nitems, newmenu_item * item, int (*subfunction)(newmenu *menu, d_event *event, void *userdata), void *userdata, int citem, char * filename, int width, int height, int TinyMode )
 {
 	window *wind = NULL;
 	newmenu *menu;
@@ -1300,13 +1344,11 @@ int newmenu_do4( char * title, char * subtitle, int nitems, newmenu_item * item,
 	grs_font * save_font;
 	int string_width, string_height, average_width;
 	grs_canvas *menu_canvas, *save_canvas;
-	int rval = -1;
-	int done = 0;
 
 	MALLOC(menu, newmenu, 1);
 	
 	if (!menu)
-		return -1;
+		return NULL;
 
 	memset(menu, 0, sizeof(newmenu));
 	menu->citem = citem;
@@ -1323,7 +1365,7 @@ int newmenu_do4( char * title, char * subtitle, int nitems, newmenu_item * item,
 	menu->items = item;
 	menu->filename = filename;
 	menu->tiny_mode = TinyMode;
-	menu->done = 0;
+	menu->leave = 1;		// Default to leaving newmenu_doX function
 	menu->userdata = userdata;
 	
 	newmenu_close();
@@ -1331,7 +1373,7 @@ int newmenu_do4( char * title, char * subtitle, int nitems, newmenu_item * item,
 	if (nitems < 1 )
 	{
 		d_free(menu);
-		return -1;
+		return NULL;
 	}
 
 	menu->max_displayable=nitems;
@@ -1514,9 +1556,10 @@ int newmenu_do4( char * title, char * subtitle, int nitems, newmenu_item * item,
 	{
 		d_free(menu);
 
-		return -1;
+		return NULL;
 	}
 
+	menu->wind = wind;
 	menu_canvas = window_get_canvas(wind);
 	gr_set_curfont(save_font);
 	gr_set_current_canvas(menu_canvas);
@@ -1568,23 +1611,8 @@ int newmenu_do4( char * title, char * subtitle, int nitems, newmenu_item * item,
 	menu->mouse_state = 0;
 
 	gr_set_current_canvas(save_canvas);
-
-	// All newmenus get their own event loop, for now.
-	while (!done)
-	{
-		event_process();
-		
-		if (menu->done)
-		{
-			rval = menu->citem;
-			if (!window_close(wind))
-				menu->done = 0;		// user aborted close
-			else
-				done = 1;
-		}
-	}
-
-	return rval;
+	
+	return menu;
 }
 
 
@@ -2037,7 +2065,7 @@ listbox *newmenu_listbox1( char * title, int nitems, char * items[], int allow_a
 }
 
 //added on 10/14/98 by Victor Rachels to attempt a fixedwidth font messagebox
-int nm_messagebox_fixedfont( char *title, int nchoices, ... )
+newmenu *nm_messagebox_fixedfont( char *title, int nchoices, ... )
 {
 	int i;
 	char * format;

@@ -123,7 +123,7 @@ int net_ipx_start_game();
 void net_ipx_join_game();
 void net_ipx_leave_game();
 int net_ipx_endlevel(int *secret);
-int net_ipx_endlevel_poll2( newmenu *menu, d_event *event, void *userdata );
+int net_ipx_endlevel_poll2( newmenu *menu, d_event *event, int *secret );
 int net_ipx_kmatrix_poll1( newmenu *menu, d_event *event, void *userdata );
 int net_ipx_level_sync();
 void net_ipx_send_endlevel_packet();
