@@ -607,7 +607,7 @@ void do_cloak_stuff(void)
 					if (Game_mode & GM_MULTI)
 						multi_send_play_sound(SOUND_CLOAK_OFF, F1_0);
 					maybe_drop_net_powerup(POW_CLOAK);
-					if ( Newdemo_state == ND_STATE_PLAYBACK )
+					if ( Newdemo_state != ND_STATE_PLAYBACK )
 						multi_send_decloak(); // For demo recording
 #endif
 				}
@@ -884,10 +884,27 @@ extern int Death_sequence_aborted;
 #define EXT_MUSIC_TEXT "Audio CD"
 #endif
 
+static int free_help(newmenu *menu, d_event *event, void *userdata)
+{
+	userdata = userdata;
+	
+	if (event->type == EVENT_WINDOW_CLOSE)
+	{
+		newmenu_item *items = newmenu_get_items(menu);
+		d_free(items);
+	}
+	
+	return 0;
+}
+
 void show_help()
 {
 	int nitems = 0;
-	newmenu_item m[26];
+	newmenu_item *m;
+	
+	MALLOC(m, newmenu_item, 26);
+	if (!m)
+		return;
 	
 	m[nitems].type = NM_TYPE_TEXT; m[nitems++].text = TXT_HELP_ESC;
 	m[nitems].type = NM_TYPE_TEXT; m[nitems++].text = "SHIFT-ESC\t  SHOW GAME LOG";
@@ -931,14 +948,18 @@ void show_help()
 	m[nitems].type = NM_TYPE_TEXT; m[nitems++].text = "(Use \x85-# for F#. e.g. \x85-1 for F1)";
 #endif
 
-	newmenu_dotiny( NULL, TXT_KEYS, nitems, m, NULL, NULL );
+	newmenu_dotiny( NULL, TXT_KEYS, nitems, m, free_help, NULL );
 }
 
 void show_netgame_help()
 {
 	int nitems = 0;
-	newmenu_item m[17];
+	newmenu_item *m;
 
+	MALLOC(m, newmenu_item, 17);
+	if (!m)
+		return;
+	
 	m[nitems].type = NM_TYPE_TEXT; m[nitems++].text = "F1\t  THIS SCREEN";
 	m[nitems].type = NM_TYPE_TEXT; m[nitems++].text = "ALT-0\t  DROP FLAG";
 	m[nitems].type = NM_TYPE_TEXT; m[nitems++].text = "ALT-F4\t  SHOW RETICLE NAMES";
@@ -960,14 +981,18 @@ void show_netgame_help()
 	m[nitems].type = NM_TYPE_TEXT; m[nitems++].text = "kick: (*)\t  KICK PLAYER (*) FROM GAME (Host-only)";
 	m[nitems].type = NM_TYPE_TEXT; m[nitems++].text = "KillReactor\t  BLOW UP THE MINE (Host-only)";
 
-	newmenu_dotiny( NULL, TXT_KEYS, nitems, m, NULL, NULL );
+	newmenu_dotiny( NULL, TXT_KEYS, nitems, m, free_help, NULL );
 }
 
 void show_newdemo_help()
 {
-	newmenu_item m[15];
+	newmenu_item *m;
 	int nitems = 0;
 
+	MALLOC(m, newmenu_item, 15);
+	if (!m)
+		return;
+	
 	m[nitems].type = NM_TYPE_TEXT; m[nitems++].text = "ESC\t  QUIT DEMO PLAYBACK";
 	m[nitems].type = NM_TYPE_TEXT; m[nitems++].text = "F1\t  THIS SCREEN";
 	m[nitems].type = NM_TYPE_TEXT; m[nitems++].text = TXT_HELP_F2;
@@ -985,7 +1010,8 @@ void show_newdemo_help()
 	m[nitems].type = NM_TYPE_TEXT; m[nitems++].text = "";
 	m[nitems].type = NM_TYPE_TEXT; m[nitems++].text = "(Use \x85-# for F#. e.g. \x85-1 for F1)";
 #endif
-	newmenu_dotiny( NULL, "DEMO PLAYBACK CONTROLS", nitems, m, NULL, NULL );
+
+	newmenu_dotiny( NULL, "DEMO PLAYBACK CONTROLS", nitems, m, free_help, NULL );
 }
 
 //temp function until Matt cleans up game sequencing

@@ -76,10 +76,10 @@ extern int newmenu_do1(char *title, char *subtitle, int nitems, newmenu_item *it
 extern int newmenu_do2(char *title, char *subtitle, int nitems, newmenu_item *item, int (*subfunction)(newmenu *menu, d_event *event, void *userdata), void *userdata, int citem, char *filename);
 
 // Same as above, only you can pass through the width and height
-extern int newmenu_do3(char *title, char *subtitle, int nitems, newmenu_item *item, int (*subfunction)(newmenu *menu, d_event *event, void *userdata), void *userdata, int citem, char *filename, int width, int height);
+extern newmenu *newmenu_do3(char *title, char *subtitle, int nitems, newmenu_item *item, int (*subfunction)(newmenu *menu, d_event *event, void *userdata), void *userdata, int citem, char *filename, int width, int height);
 
 // Tiny menu with GAME_FONT
-extern int newmenu_dotiny(char * title, char * subtitle, int nitems, newmenu_item * item, int (*subfunction)(newmenu *menu, d_event *event, void *userdata), void *userdata);
+extern newmenu *newmenu_dotiny(char * title, char * subtitle, int nitems, newmenu_item * item, int (*subfunction)(newmenu *menu, d_event *event, void *userdata), void *userdata);
 
 // Sample Code:
 /*
@@ -115,6 +115,7 @@ int nm_messagebox1(char *title, int (*subfunction)(newmenu *menu, d_event *event
 newmenu_item *newmenu_get_items(newmenu *menu);
 int newmenu_get_nitems(newmenu *menu);
 int newmenu_get_citem(newmenu *menu);
+struct window *newmenu_get_window(newmenu *menu);
 void nm_draw_background(int x1, int y1, int x2, int y2);
 void nm_restore_background(int x, int y, int w, int h);
 
@@ -150,7 +151,7 @@ extern listbox *newmenu_listbox(char *title, int nitems, char *items[], int allo
 extern listbox *newmenu_listbox1(char *title, int nitems, char *items[], int allow_abort_flag, int default_item, int (*listbox_callback)(listbox *lb, d_event *event, void *userdata), void *userdata);
 
 //added on 10/14/98 by Victor Rachels to attempt a fixedwidth font messagebox
-int nm_messagebox_fixedfont(char *title, int nchoices, ...);
+newmenu *nm_messagebox_fixedfont(char *title, int nchoices, ...);
 //end this section addition
 
 //should be called whenever the palette changes

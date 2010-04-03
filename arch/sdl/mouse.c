@@ -129,7 +129,7 @@ void mouse_flush()	// clears all mice events...
 //========================================================================
 void mouse_get_pos( int *x, int *y, int *z )
 {
-	event_poll();
+	//event_poll();		// Have to assume this is called in event_process, because event_poll can cause a window to close (depending on what the user does)
 	*x=Mouse.x;
 	*y=Mouse.y;
 	*z=Mouse.z;

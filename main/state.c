@@ -244,7 +244,7 @@ int state_get_savegame_filename(char * fname, char * dsc, char * caption, int bl
 	if (blind_save)
 		choice = state_default_item + 1;
 	else
-		choice = newmenu_do3( NULL, caption, NUM_SAVES+1, m, (int (*)(newmenu *, d_event *, void *))state_callback, sc_bmp, state_default_item + 1, NULL, -1, -1 );
+		choice = newmenu_do2( NULL, caption, NUM_SAVES+1, m, (int (*)(newmenu *, d_event *, void *))state_callback, sc_bmp, state_default_item + 1, NULL );
 
 	for (i=0; i<NUM_SAVES; i++ )	{
 		if ( sc_bmp[i] )
