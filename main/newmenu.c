@@ -96,7 +96,6 @@ grs_bitmap nm_background, nm_background1;
 grs_bitmap *nm_background_sub = NULL;
 ubyte MenuReordering=0;
 ubyte SurfingNet=0;
-static int draw_copyright=0;
 
 newmenu *newmenu_do4( char * title, char * subtitle, int nitems, newmenu_item * item, int (*subfunction)(newmenu *menu, d_event *event, void *userdata), void *userdata, int citem, char * filename, int width, int height, int TinyMode );
 
@@ -114,17 +113,7 @@ void newmenu_close()	{
 		gr_free_bitmap_data (&nm_background1);
 }
 
-// Draw Copyright and Version strings
-void nm_draw_copyright()
-{
-	gr_set_curfont(GAME_FONT);
-	gr_set_fontcolor(BM_XRGB(6,6,6),-1);
-	gr_printf(0x8000,SHEIGHT-LINE_SPACING,TXT_COPYRIGHT);
-	gr_set_fontcolor( BM_XRGB(25,0,0), -1);
-	gr_printf(0x8000,SHEIGHT-(LINE_SPACING*2),DESCENT_VERSION);
-}
-
-// Draws the background of menus (i.e. Descent Logo screen)
+// Draws the custom menu background pcx, if available
 void nm_draw_background1(char * filename)
 {
 	int pcx_error;
@@ -136,16 +125,9 @@ void nm_draw_background1(char * filename)
 			gr_init_bitmap_data (&nm_background1);
 			pcx_error = pcx_read_bitmap( filename, &nm_background1, BM_LINEAR, gr_palette );
 			Assert(pcx_error == PCX_ERROR_NONE);
-			if (!strcmp(filename,Menu_pcx_name))
-				draw_copyright=1;
-			else
-				draw_copyright=0;
 		}
 		gr_palette_load( gr_palette );
 		show_fullscr(&nm_background1);
-
-		if (draw_copyright)
-			nm_draw_copyright();
 	}
 }
 

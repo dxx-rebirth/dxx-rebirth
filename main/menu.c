@@ -375,6 +375,17 @@ int RegisterPlayer()
 	return 1;
 }
 
+// Draw Copyright and Version strings
+void draw_copyright()
+{
+	gr_set_current_canvas(NULL);
+	gr_set_curfont(GAME_FONT);
+	gr_set_fontcolor(BM_XRGB(6,6,6),-1);
+	gr_printf(0x8000,SHEIGHT-LINE_SPACING,TXT_COPYRIGHT);
+	gr_set_fontcolor( BM_XRGB(25,0,0), -1);
+	gr_printf(0x8000,SHEIGHT-(LINE_SPACING*2),DESCENT_VERSION);
+}
+
 int main_menu_handler(newmenu *menu, d_event *event, int *menu_choice )
 {
 	int curtime;
@@ -405,6 +416,10 @@ int main_menu_handler(newmenu *menu, d_event *event, int *menu_choice )
 				keyd_time_when_last_pressed = curtime;			// Reset timer so that disk won't thrash if no demos.
 				newdemo_start_playback(NULL);		// Randomly pick a file
 			}
+			break;
+			
+		case EVENT_NEWMENU_DRAW:
+			draw_copyright();
 			break;
 			
 		case EVENT_NEWMENU_SELECTED:

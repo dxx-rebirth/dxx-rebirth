@@ -71,8 +71,6 @@ typedef struct all_scores {
 	stats_info	stats[MAX_HIGH_SCORES];
 } __pack__ all_scores;
 
-extern void nm_draw_background1(char * filename);
-
 
 void scores_read(all_scores *scores)
 {
@@ -360,8 +358,6 @@ int scores_handler(window *wind, d_event *event, scores_menu *menu)
 		case EVENT_WINDOW_DRAW:
 			gr_set_current_canvas(NULL);
 			
-			if (Game_wind)
-				nm_draw_background1(Menu_pcx_name);		// haven't closed the game yet, need to draw menu pcx here
 			nm_draw_background(((SWIDTH-w)/2)-BORDERX,((SHEIGHT-h)/2)-BORDERY,((SWIDTH-w)/2)+w+BORDERX,((SHEIGHT-h)/2)+h+BORDERY);
 			
 			gr_set_current_canvas(window_get_canvas(wind));
@@ -439,6 +435,7 @@ void scores_view(stats_info *last_game, int citem)
 	scores_read(&menu->scores);
 
 	set_screen_mode(SCREEN_MENU);
+	show_menus();
 
 	window_create(&grd_curscreen->sc_canvas, (SWIDTH - FSPACX(320))/2, (SHEIGHT - FSPACY(200))/2, FSPACX(320), FSPACY(200),
 				  (int (*)(window *, d_event *, void *))scores_handler, menu);
