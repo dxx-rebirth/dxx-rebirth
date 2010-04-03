@@ -129,12 +129,6 @@ void nm_draw_background1(char * filename)
 {
 	int pcx_error;
 
-	if (filename == NULL)
-		filename = Menu_pcx_name;
-	
-	if (!strcmp(filename, Menu_pcx_name) && Function_mode != FMODE_MENU)
-		return;
-
 	if (filename != NULL)
 	{
 		if (nm_background1.bm_data == NULL)
@@ -1895,7 +1889,6 @@ int listbox_draw(window *wind, listbox *lb)
 	int i;
 
 	gr_set_current_canvas(NULL);
-	nm_draw_background1(NULL);
 	nm_draw_background( lb->box_x-BORDERX,lb->box_y-lb->title_height-BORDERY,lb->box_x+lb->box_w+BORDERX,lb->box_y+lb->height+BORDERY );
 	gr_set_curfont(MEDIUM3_FONT);
 	gr_string( 0x8000, lb->box_y - lb->title_height, lb->title );

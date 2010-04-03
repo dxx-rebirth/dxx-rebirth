@@ -359,9 +359,9 @@ int scores_handler(window *wind, d_event *event, scores_menu *menu)
 
 		case EVENT_WINDOW_DRAW:
 			gr_set_current_canvas(NULL);
-#ifdef OGL
-			nm_draw_background1(Menu_pcx_name);
-#endif
+			
+			if (Game_wind)
+				nm_draw_background1(Menu_pcx_name);		// haven't closed the game yet, need to draw menu pcx here
 			nm_draw_background(((SWIDTH-w)/2)-BORDERX,((SHEIGHT-h)/2)-BORDERY,((SWIDTH-w)/2)+w+BORDERX,((SHEIGHT-h)/2)+h+BORDERY);
 			
 			gr_set_current_canvas(window_get_canvas(wind));

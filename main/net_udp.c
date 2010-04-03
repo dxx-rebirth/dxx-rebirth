@@ -83,7 +83,6 @@ void net_udp_noloss_got_ack(ubyte *data, int data_len);
 void net_udp_noloss_init_mdata_queue(void);
 void net_udp_noloss_clear_mdata_got(ubyte player_num);
 void net_udp_noloss_process_queue(fix time);
-extern void nm_draw_background1(char * filename);
 extern void game_disable_cheats();
 
 // Variables
@@ -4305,9 +4304,6 @@ static int show_game_rules_handler(window *wind, d_event *event, netgame_info *n
 
 		case EVENT_WINDOW_DRAW:
 			gr_set_current_canvas(NULL);
-#ifdef OGL
-			nm_draw_background1(NULL);
-#endif
 			nm_draw_background(((SWIDTH-w)/2)-BORDERX,((SHEIGHT-h)/2)-BORDERY,((SWIDTH-w)/2)+w+BORDERX,((SHEIGHT-h)/2)+h+BORDERY);
 			
 			gr_set_current_canvas(window_get_canvas(wind));

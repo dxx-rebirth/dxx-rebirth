@@ -3391,8 +3391,6 @@ net_ipx_level_sync(void)
 	return(0);
 }
 
-void nm_draw_background1(char * filename);
-
 int net_ipx_do_join_game(int choice)
 {
 	if (Active_ipx_games[choice].game_status == NETSTAT_ENDLEVEL)
@@ -4020,9 +4018,6 @@ static int show_game_rules_handler(window *wind, d_event *event, netgame_info *n
 
 		case EVENT_WINDOW_DRAW:
 			gr_set_current_canvas(NULL);
-#ifdef OGL
-			nm_draw_background1(NULL);
-#endif
 			nm_draw_background(((SWIDTH-w)/2)-BORDERX,((SHEIGHT-h)/2)-BORDERY,((SWIDTH-w)/2)+w+BORDERX,((SHEIGHT-h)/2)+h+BORDERY);
 			
 			gr_set_current_canvas(window_get_canvas(wind));
