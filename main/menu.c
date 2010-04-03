@@ -377,6 +377,25 @@ int RegisterPlayer()
 	return 1;
 }
 
+extern ubyte Version_major,Version_minor;
+
+// Draw Copyright and Version strings
+void draw_copyright()
+{
+	int w,h,aw;
+
+	gr_set_current_canvas(NULL);
+	gr_set_curfont(GAME_FONT);
+	gr_set_fontcolor(BM_XRGB(6,6,6),-1);
+	gr_printf(0x8000,SHEIGHT-LINE_SPACING,TXT_COPYRIGHT);
+
+	gr_get_string_size("V2.2", &w, &h, &aw );
+	gr_printf(SWIDTH-w-FSPACX(1),SHEIGHT-LINE_SPACING,"V%d.%d",Version_major,Version_minor);
+
+	gr_set_fontcolor( BM_XRGB(25,0,0), -1);
+	gr_printf(0x8000,SHEIGHT-(LINE_SPACING*2),DESCENT_VERSION);
+}
+
 //returns the number of demo files on the disk
 int newdemo_count_demos();
 
@@ -437,6 +456,10 @@ int main_menu_handler(newmenu *menu, d_event *event, int *menu_choice )
 						goto try_again;	//keep trying until we get a demo that works
 				}
 			}
+			break;
+			
+		case EVENT_NEWMENU_DRAW:
+			draw_copyright();
 			break;
 			
 		case EVENT_NEWMENU_SELECTED:
