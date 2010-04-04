@@ -3369,7 +3369,6 @@ void newdemo_start_playback(char * filename)
 	Newdemo_at_eof = 0;
 	NewdemoFrameCount = 0;
 	playback_style = NORMAL_PLAYBACK;
-	Function_mode = FMODE_GAME;
 	Newdemo_dead = Newdemo_rear = 0;
 	HUD_clear_messages();
 	newdemo_playback_one_frame();       // this one loads new level

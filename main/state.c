@@ -704,7 +704,6 @@ int state_restore_all_sub(char *filename)
 
 // Start new game....
 	Game_mode = GM_NORMAL;
-	Function_mode = FMODE_GAME;
 #ifdef NETWORK
 	change_playernum_to(0);
 #endif

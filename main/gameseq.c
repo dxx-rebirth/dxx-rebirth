@@ -737,7 +737,6 @@ void StartNewGame(int start_level)
 	state_default_item = -2;	// for first blind save, pick slot to save in
 
 	Game_mode = GM_NORMAL;
-	Function_mode = FMODE_GAME;
 
 	Next_level_num = 0;
 
@@ -766,7 +765,6 @@ void StartNewGame(int start_level)
 void ResumeSavedGame(int start_level)
 {
 	Game_mode = GM_NORMAL;
-	Function_mode = FMODE_GAME;
 
 	N_players = 1;
 	#ifdef NETWORK
@@ -796,7 +794,6 @@ void DoEndLevelScoreGlitz(int network)
 	int				i,c;
 	char				title[128];
 	int				is_last_level;
-	int				fmode;
 
 	gr_palette_load( gr_palette );
 
@@ -866,15 +863,12 @@ void DoEndLevelScoreGlitz(int network)
 
 	Assert(c <= N_GLITZITEMS);
 
-	fmode = Function_mode;
-	Function_mode = FMODE_MENU;		// hack to get Menu_pcx_name to actually show
 #ifdef NETWORK
 	if ( network && (Game_mode & GM_NETWORK) )
 		newmenu_do2(NULL, title, c, m, multi_endlevel_poll1, NULL, 0, Menu_pcx_name);
 	else
 #endif	// Note link!
 		newmenu_do2(NULL, title, c, m, NULL, NULL, 0, Menu_pcx_name);
-	Function_mode = fmode;
 }
 
 //called when the player has finished a level
@@ -889,14 +883,11 @@ void PlayerFinishedLevel(int secret_flag)
 #ifndef SHAREWARE
 	if (!(Game_mode & GM_MULTI) && (secret_flag)) {
 		newmenu_item	m[1];
-		int fmode = Function_mode;
 
 		m[0].type = NM_TYPE_TEXT;
 		m[0].text = " ";			//TXT_SECRET_EXIT;
 
-		Function_mode = FMODE_MENU;
 		newmenu_do2(NULL, TXT_SECRET_EXIT, 1, m, NULL, NULL, 0, Menu_pcx_name);
-		Function_mode = fmode;
 	}
 #endif
 
@@ -991,7 +982,6 @@ int AdvanceLevel(int secret_flag)
 
 	if (Current_level_num == Last_level) {		//player has finished the game!
 		
-		Function_mode = FMODE_MENU;
 		if ((Newdemo_state == ND_STATE_RECORDING) || (Newdemo_state == ND_STATE_PAUSED))
 			newdemo_stop_recording();
 
@@ -1041,17 +1031,14 @@ void
 died_in_mine_message(void)
 {
 	// Tell the player he died in the mine, explain why
-	int old_fmode;
 
 	if (Game_mode & GM_MULTI)
 		return;
 
 	gr_set_current_canvas(NULL);
+	window_set_visible(Game_wind, 0);
 	
-	old_fmode = Function_mode;
-	Function_mode = FMODE_MENU;
 	nm_messagebox(NULL, 1, TXT_OK, TXT_DIED_IN_MINE);
-	Function_mode = old_fmode;
 }
 
 //called when the player has died
@@ -1166,9 +1153,6 @@ void StartNewLevelSub(int level_num, int page_in_textures)
 		newdemo_record_start_frame(FrameTime );
 	}
 
-	if (Game_mode & GM_MULTI)
-		Function_mode = FMODE_MENU; // Cheap fix to prevent problems with errror dialogs in loadlevel.
-
 	LoadLevel(level_num);
 
 	if ( page_in_textures )	{
@@ -1187,8 +1171,6 @@ void StartNewLevelSub(int level_num, int page_in_textures)
 			return;
 	}
 #endif
-
-	Assert(Function_mode == FMODE_GAME);
 
 	HUD_clear_messages();
 

@@ -57,8 +57,8 @@ void event_poll()
 			case SDL_JOYBALLMOTION:
 				break;
 			case SDL_QUIT: {
-				void quit_request();
-				quit_request();
+				d_event event = { EVENT_QUIT };
+				call_default_handler(&event);
 			} break;
 		}
 	}

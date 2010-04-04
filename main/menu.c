@@ -398,9 +398,6 @@ int main_menu_handler(newmenu *menu, d_event *event, int *menu_choice )
 				RegisterPlayer();
 			else
 				keyd_time_when_last_pressed = timer_get_fixed_seconds();		// .. 20 seconds from now!
-			
-			if (Function_mode == FMODE_EXIT)
-				return -2;
 			break;
 			
 		case EVENT_KEY_COMMAND:
@@ -573,7 +570,6 @@ int do_option ( int select)
 			#ifdef EDITOR
 			if (! SafetyCheck()) break;
 			#endif
-			Function_mode = FMODE_EXIT;
 			return 0;
 
 		case MENU_NEW_PLAYER:

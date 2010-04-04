@@ -57,8 +57,4 @@ extern int Function_mode;			//in game or editor?
 extern int Screen_mode;				//editor screen or game screen?
 extern int MacHog;
 
-#if defined(__APPLE__) || defined(macintosh)
-extern void macintosh_quit(void);	// dialog-style quit function
-#endif
-
 #endif
