@@ -71,10 +71,6 @@ extern int Screen_mode;			// editor screen or game screen?
 // The version number of the game
 extern ubyte Version_major, Version_minor;
 
-#if defined(__APPLE__) || defined(macintosh)
-extern void macintosh_quit(void);	// dialog-style quit function
-#endif
-
 #endif
 
 

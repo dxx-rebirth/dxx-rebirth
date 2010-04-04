@@ -469,8 +469,6 @@ multi_endlevel_score(void)
 
 	// Do the actual screen we wish to show
 
-	Function_mode = FMODE_MENU;
-
 	if (Game_wind)
 	{
 		old_vis = window_is_visible(Game_wind);
@@ -484,8 +482,6 @@ multi_endlevel_score(void)
 
 	if (Game_wind)
 		window_set_visible(Game_wind, old_vis);
-	
-	Function_mode = FMODE_GAME;
 	
 	// Restore connect state
 
@@ -961,9 +957,6 @@ void
 multi_leave_game(void)
 {
 
-	//      if (Function_mode != FMODE_GAME)
-	//              return;
-
 	if (!(Game_mode & GM_MULTI))
 		return;
 
@@ -1000,9 +993,6 @@ multi_leave_game(void)
 	}
 		
 	Game_mode |= GM_GAME_OVER;
-
-	if (Function_mode!=FMODE_EXIT)
-		Function_mode = FMODE_MENU;
 }
 
 void
@@ -3186,14 +3176,13 @@ void multi_consistency_error(int reset)
 	if (++count < 10)
 		return;
 
-	Function_mode = FMODE_MENU;
+	window_set_visible(Game_wind, 0);
 	nm_messagebox(NULL, 1, TXT_OK, TXT_CONSISTENCY_ERROR);
-	Function_mode = FMODE_GAME;
+	window_set_visible(Game_wind, 1);
 	count = 0;
 	multi_quit_game = 1;
 	game_leave_menus();
 	multi_reset_stuff();
-	Function_mode = FMODE_MENU;
 }
 
 void multi_prep_level(void)

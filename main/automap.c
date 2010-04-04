@@ -815,7 +815,7 @@ void do_automap( int key_code )
 
 	key_code = key_code;	// disable warning...
 
-	if ((Game_mode & GM_MULTI) && (Function_mode == FMODE_GAME) && (!Endlevel_sequence))
+	if ((Game_mode & GM_MULTI) && (!Endlevel_sequence))
 		am->pause_game = 0;
 
 	if (am->pause_game) {

@@ -116,7 +116,6 @@ extern int	Mark_count;
 extern int	Global_missile_firing_count;
 extern int	Config_menu_flag;
 
-extern int	Game_aborted;
 extern int	*Toggle_var;
 
 extern int	Physics_cheat_flag;
@@ -779,10 +778,15 @@ int HandleSystemKey(int key)
 			#endif
 
 			case KEY_ESC:
-				Game_aborted=1;
-				Function_mode = FMODE_MENU;
+			{
+				int choice;
+				choice=nm_messagebox( NULL, 2, TXT_YES, TXT_NO, TXT_ABORT_GAME );
+				if (choice == 0)
+					window_close(Game_wind);
+				
 				return 1;
-
+			}
+				
 // fleshed these out because F1 and F2 aren't sequenctial keycodes on mac -- MWA
 
 			KEY_MAC(case KEY_COMMAND+KEY_SHIFTED+KEY_1:)
@@ -954,10 +958,7 @@ int HandleSystemKey(int key)
 		KEY_MAC(case KEY_COMMAND+KEY_DOWN:)
 			if (EXT_MUSIC_ON && !ext_music_pause_resume())
 			{
-				if (Function_mode == FMODE_GAME)
-					songs_play_level_song( Current_level_num );
-				else if (Function_mode == FMODE_MENU)
-					songs_play_song(SONG_TITLE, 1);
+				songs_play_level_song( Current_level_num );
 			}
 			break;
 			

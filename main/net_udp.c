@@ -771,13 +771,12 @@ net_udp_disconnect_player(int playernum)
 
 	if (playernum == 0) // Host has left - Quit game!
 	{
-		Function_mode = FMODE_MENU;
+		window_set_visible(Game_wind, 0);
 		nm_messagebox(NULL, 1, TXT_OK, "Game was closed by host!");
-		Function_mode = FMODE_GAME;
+		window_set_visible(Game_wind, 1);
 		multi_quit_game = 1;
 		game_leave_menus();
 		multi_reset_stuff();
-		Function_mode = FMODE_MENU;
 	}
 }
 		
@@ -2092,13 +2091,12 @@ void net_udp_process_dump(ubyte *data, int len, struct _sockaddr sender_addr)
 	{
 		if (Network_status==NETSTAT_PLAYING)
 			multi_leave_game();
-		Function_mode = FMODE_MENU;
+		window_set_visible(Game_wind, 0);
 		nm_messagebox(NULL, 1, TXT_OK, "%s has kicked you out!",Players[0].callsign);
-		Function_mode = FMODE_GAME;
+		window_set_visible(Game_wind, 1);
 		multi_quit_game = 1;
 		game_leave_menus();
 		multi_reset_stuff();
-		Function_mode = FMODE_MENU;
 	}
 	else
 	{
@@ -3084,7 +3082,6 @@ void net_udp_read_sync_packet( ubyte * data, int data_len, struct _sockaddr send
 	Objects[Players[Player_num].objnum].type = OBJ_PLAYER;
 
 	Network_status = NETSTAT_PLAYING;
-	Function_mode = FMODE_GAME;
 	multi_sort_kill_list();
 }
 
@@ -3420,7 +3417,6 @@ int net_udp_wait_for_sync(void)
 		memcpy( me.player.callsign, Players[Player_num].callsign, CALLSIGN_LEN+1 );
 		net_udp_send_sequence_packet(me, Netgame.players[0].protocol.udp.addr);
 		N_players = 0;
-		Function_mode = FMODE_MENU;
 		Game_mode = GM_GAME_OVER;
 		return(-1);     // they cancelled
 	}

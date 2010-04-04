@@ -3584,7 +3584,6 @@ void newdemo_start_playback(char * filename)
 	Newdemo_at_eof = 0;
 	NewdemoFrameCount = 0;
 	playback_style = NORMAL_PLAYBACK;
-	Function_mode = FMODE_GAME;
 	init_seismic_disturbances();
 	Newdemo_dead = Newdemo_rear = Newdemo_guided = 0;
 	PlayerCfg.Cockpit3DView[0] = PlayerCfg.Cockpit3DView[1] = CV_NONE;       //turn off 3d views on cockpit

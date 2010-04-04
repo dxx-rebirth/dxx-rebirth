@@ -2356,13 +2356,12 @@ void net_ipx_process_dump(IPX_sequence_packet *their)
 				{
 					if (Network_status==NETSTAT_PLAYING)
 						multi_leave_game();
-					Function_mode = FMODE_MENU;
+					window_set_visible(Game_wind, 0);
 					nm_messagebox(NULL, 1, TXT_OK, "%s has kicked you out!",their->player.callsign);
-					Function_mode = FMODE_GAME;
+					window_set_visible(Game_wind, 1);
 					multi_quit_game = 1;
 					game_leave_menus();
 					multi_reset_stuff();
-					Function_mode = FMODE_MENU;
 				}
 				else
 				{
@@ -3369,7 +3368,6 @@ void net_ipx_read_sync_packet( netgame_info * sp, int rsinit)
 	Objects[Players[Player_num].objnum].type = OBJ_PLAYER;
 
 	Network_status = NETSTAT_PLAYING;
-	Function_mode = FMODE_GAME;
 	multi_sort_kill_list();
 
 }
@@ -3932,7 +3930,6 @@ net_ipx_wait_for_sync(void)
 		memcpy( me.player.protocol.ipx.server, ipxdrv_get_my_server_address(), 4 );
 		net_ipx_send_sequence_packet(me, Netgame.players[0].protocol.ipx.server, Netgame.players[0].protocol.ipx.node, NULL);
 		N_players = 0;
-		Function_mode = FMODE_MENU;
 		Game_mode = GM_GAME_OVER;
 		return(-1);     // they cancelled
 	}

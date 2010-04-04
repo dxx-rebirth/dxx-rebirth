@@ -28,6 +28,7 @@ COPYRIGHT 1993-1999 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 #include "palette.h"
 #include "rle.h"
 #include "inferno.h"
+#include "game.h"
 #include "gamepal.h"
 #include "mission.h"
 #include "newmenu.h"
@@ -80,7 +81,7 @@ int load_palette(char *name,int used_for_level,int no_change_screen)
 
 		gr_use_palette_table(name);
 
-		if (Function_mode == FMODE_GAME && !no_change_screen)
+		if (Game_wind && !no_change_screen)
 			gr_remap_bitmap_good( &grd_curscreen->sc_canvas.cv_bitmap, old_pal, -1, -1 );
 
 		if (!no_change_screen)

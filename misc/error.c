@@ -93,7 +93,6 @@ void Error(char *fmt,...)
 {
 	va_list arglist;
 
-	Function_mode = FMODE_EXIT;
 	strcpy(exit_message,"Error: "); // don't put the new line in for dialog output
 	va_start(arglist,fmt);
 	vsprintf(exit_message+strlen(exit_message),fmt,arglist);

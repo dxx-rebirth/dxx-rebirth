@@ -149,7 +149,6 @@ int	Game_turbo_mode = 0;
 int	Game_mode = GM_GAME_OVER;
 int	Global_laser_firing_count = 0;
 int	Global_missile_firing_count = 0;
-int	Game_aborted;
 
 //	Function prototypes for GAME.C exclusively.
 
@@ -1138,7 +1137,6 @@ window *game_setup(void)
 #endif
 	do_lunacy_on();			// Copy values for insane into copy buffer in ai.c
 	do_lunacy_off();		// Restore true insane mode.
-	Game_aborted = 0;
 	PlayerCfg.CockpitMode[1] = PlayerCfg.CockpitMode[0];
 	last_drawn_cockpit = -1;	// Force cockpit to redraw next time a frame renders.
 	Endlevel_sequence = 0;
@@ -1235,19 +1233,6 @@ int game_handler(window *wind, d_event *event, void *data)
 			if (!Game_wind)
 				break;
 			
-			if ( (Function_mode != FMODE_GAME ) && (Newdemo_state != ND_STATE_PLAYBACK ) && (Function_mode!=FMODE_EDITOR))
-			{
-				int choice, fmode;
-				fmode = Function_mode;
-				Function_mode = FMODE_GAME;
-				choice=nm_messagebox( NULL, 2, TXT_YES, TXT_NO, TXT_ABORT_GAME );
-				Function_mode = fmode;
-				if (choice != 0)
-					Function_mode = FMODE_GAME;
-			}
-			
-			if (Function_mode != FMODE_GAME)
-				window_close(wind);
 			return 0;
 			break;
 			
@@ -1269,9 +1254,6 @@ int game_handler(window *wind, d_event *event, void *data)
 			break;
 			
 		case EVENT_WINDOW_CLOSE:
-			if (Function_mode == FMODE_GAME)
-				Function_mode = FMODE_MENU;
-			
 			digi_stop_all();
 			
 			if ( (Newdemo_state == ND_STATE_RECORDING) || (Newdemo_state == ND_STATE_PAUSED) )
@@ -1284,8 +1266,7 @@ int game_handler(window *wind, d_event *event, void *data)
 			if ( Newdemo_state == ND_STATE_PLAYBACK )
 				newdemo_stop_playback();
 			
-			if ( Function_mode == FMODE_MENU )
-				songs_play_song( SONG_TITLE, 1 );
+			songs_play_song( SONG_TITLE, 1 );
 			
 			clear_warn_func(game_show_warning);     //don't use this func anymore
 			game_disable_cheats();

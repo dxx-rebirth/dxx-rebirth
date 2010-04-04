@@ -16,7 +16,7 @@ COPYRIGHT 1993-1999 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
  * inferno.c: Entry point of program (main procedure)
  *
  * After main initializes everything, most of the time is spent in the loop
- * while (Function_mode != FMODE_EXIT)
+ * while (window_get_front())
  * In this loop, the main menu is brought up first.
  *
  * main() for Inferno
@@ -224,6 +224,8 @@ void error_messagebox(char *s)
 
 #define key_ismod(k)  ((k&0xff)==KEY_LALT || (k&0xff)==KEY_RALT || (k&0xff)==KEY_LSHIFT || (k&0xff)==KEY_RSHIFT || (k&0xff)==KEY_LCTRL || (k&0xff)==KEY_RCTRL || (k&0xff)==KEY_LMETA || (k&0xff)==KEY_RMETA)
 
+void quit_request();
+
 // Default event handler for everything except the editor
 int standard_handler(d_event *event)
 {
@@ -272,7 +274,7 @@ int standard_handler(d_event *event)
 #if defined(__APPLE__) || defined(macintosh)
 				case KEY_COMMAND+KEY_Q:
 					// Alt-F4 already taken, too bad
-					macintosh_quit();
+					quit_request();
 					break;
 #endif
 			}
@@ -283,6 +285,10 @@ int standard_handler(d_event *event)
 			RBACheckFinishedHook();
 			return 1;
 			
+		case EVENT_QUIT:
+			quit_request();
+			break;
+
 		default:
 			break;
 	}
@@ -466,21 +472,18 @@ int main(int argc, char *argv[])
 	if (GameArg.EdiAutoLoad) {
 		strcpy((char *)&Level_names[0], Auto_file);
 		LoadLevel(1, 1);
-		Function_mode = FMODE_EXIT;
 	}
+	else
 #endif
-	
-	Game_mode = GM_GAME_OVER;
+	{
+		Game_mode = GM_GAME_OVER;
+		DoMenu();
+	}
 
 	setjmp(LeaveEvents);
-	while (Function_mode != FMODE_EXIT)
-	{
+	while (window_get_front())
 		// Send events to windows and the default handler
-		if (window_get_front())
-			event_process();
-		else
-			DoMenu();
-	}
+		event_process();
 
 	WriteConfigFile();
 	show_order_form();
@@ -501,11 +504,17 @@ int main(int argc, char *argv[])
 
 void quit_request()
 {
-	set_warn_func(warn_printf);
-	exit(0);
-}
-
-void macintosh_quit()
-{
-	Function_mode = FMODE_EXIT;
+	window *wind;
+	
+	while ((wind = window_get_front()))
+	{
+		if (wind == Game_wind)
+		{
+			int choice=nm_messagebox( NULL, 2, TXT_YES, TXT_NO, TXT_ABORT_GAME );
+			if (choice != 0)
+				return;
+		}
+		
+		window_close(wind);
+	}
 }
