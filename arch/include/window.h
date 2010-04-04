@@ -22,6 +22,7 @@ extern int window_exists(window *wind);
 extern window *window_get_front(void);
 extern window *window_get_first(void);
 extern window *window_get_next(window *wind);
+extern window *window_get_prev(window *wind);
 extern void window_select(window *wind);
 extern void window_set_visible(window *wind, int visible);
 extern int window_is_visible(window *wind);

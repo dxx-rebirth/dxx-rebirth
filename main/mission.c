@@ -649,7 +649,7 @@ int mission_menu_handler(listbox *lb, d_event *event, mission_menu *mm)
 				if (!load_mission(mm->mission_list + citem))
 				{
 					nm_messagebox( NULL, 1, TXT_OK, TXT_MISSION_ERROR);
-					return 0;	// stay in listbox so user can select another one
+					return 1;	// stay in listbox so user can select another one
 				}
 			}
 			return !(*mm->when_selected)();

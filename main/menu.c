@@ -573,7 +573,7 @@ int do_option ( int select)
 			return 0;
 
 		case MENU_NEW_PLAYER:
-			RegisterPlayer();		//1 == allow escape out of menu
+			RegisterPlayer();
 			break;
 
 #ifndef RELEASE
@@ -598,7 +598,7 @@ int do_option ( int select)
 #ifdef USE_UDP
 		case MENU_START_UDP_NETGAME:
 			multi_protocol = MULTI_PROTO_UDP;
-			select_mission(1, TXT_MULTI_MISSION, net_udp_start_game);
+			select_mission(1, TXT_MULTI_MISSION, net_udp_setup_game);
 			break;
 		case MENU_JOIN_MANUAL_UDP_NETGAME:
 			multi_protocol = MULTI_PROTO_UDP;
@@ -613,7 +613,7 @@ int do_option ( int select)
 		case MENU_START_IPX_NETGAME:
 			multi_protocol = MULTI_PROTO_IPX;
 			ipxdrv_set(NETPROTO_IPX);
-			select_mission(1, TXT_MULTI_MISSION, net_ipx_start_game);
+			select_mission(1, TXT_MULTI_MISSION, net_ipx_setup_game);
 			break;
 		case MENU_JOIN_IPX_NETGAME:
 			multi_protocol = MULTI_PROTO_IPX;
@@ -623,7 +623,7 @@ int do_option ( int select)
 		case MENU_START_KALI_NETGAME:
 			multi_protocol = MULTI_PROTO_IPX;
 			ipxdrv_set(NETPROTO_KALINIX);
-			select_mission(1, TXT_MULTI_MISSION, net_ipx_start_game);
+			select_mission(1, TXT_MULTI_MISSION, net_ipx_setup_game);
 			break;
 		case MENU_JOIN_KALI_NETGAME:
 			multi_protocol = MULTI_PROTO_IPX;
@@ -909,8 +909,12 @@ int options_menuset(newmenu *menu, d_event *event, void *userdata)
 			break;
 			
 		case EVENT_WINDOW_CLOSE:
+		{
+			newmenu_item *items = newmenu_get_items(menu);
+			d_free(items);
 			write_player_file();
 			break;
+		}
 			
 		default:
 			break;
@@ -1016,7 +1020,7 @@ void change_res()
 	init_cockpit();
 	game_init_render_buffers(SM_W(screen_mode), SM_H(screen_mode), VR_NONE);
 	window_close(window_get_front());	// close options dialog - it will be messy with a different resolution
-	//do_options_menu();				// reopen it. D'OH: Can't yet, not until we have a main event loop for it
+	do_options_menu();				// reopen it
 }
 
 int input_menuset(newmenu *menu, d_event *event, void *userdata)
@@ -1286,13 +1290,44 @@ void do_misc_menu()
 }
 
 #if defined(USE_UDP) || defined(USE_IPX)
+static int multi_player_menu_handler(newmenu *menu, d_event *event, int *menu_choice)
+{
+	newmenu_item *items = newmenu_get_items(menu);
+
+	switch (event->type)
+	{
+		case EVENT_NEWMENU_SELECTED:
+			// stay in multiplayer menu, even after having played a game
+			return do_option(menu_choice[newmenu_get_citem(menu)]);
+		
+		case EVENT_WINDOW_CLOSE:
+			d_free(menu_choice);
+			d_free(items);
+			break;
+			
+		default:
+			break;
+	}
+	
+	return 0;
+}
+
 void do_multi_player_menu()
 {
-	int menu_choice[12];
-	newmenu_item m[12];
-	int choice = 0, num_options = 0;
+	int *menu_choice;
+	newmenu_item *m;
+	int num_options = 0;
 
-	num_options = 0;
+	MALLOC(menu_choice, int, 12);
+	if (!menu_choice)
+		return;
+	
+	MALLOC(m, newmenu_item, 12);
+	if (!m)
+	{
+		d_free(menu_choice);
+		return;
+	}
 
 #ifdef USE_UDP
 	m[num_options].type=NM_TYPE_TEXT; m[num_options].text="UDP:"; num_options++;
@@ -1315,18 +1350,17 @@ void do_multi_player_menu()
 #endif
 #endif
 
-	choice = newmenu_do1( NULL, TXT_MULTIPLAYER, num_options, m, NULL, NULL, choice );
-	
-	// FIXME: Stay in multiplayer menu for convenience. Must make newmenu_do's fall back to main loop first,
-	// due to LeaveEvents longjmp hack
-	if ( choice > -1 )
-		do_option(menu_choice[choice]);
+	newmenu_do3( NULL, TXT_MULTIPLAYER, num_options, m, (int (*)(newmenu *, d_event *, void *))multi_player_menu_handler, menu_choice, 0, NULL, -1, -1 );
 }
 #endif
 
 void do_options_menu()
 {
-	newmenu_item m[11];
+	newmenu_item *m;
+	
+	MALLOC(m, newmenu_item, 11);
+	if (!m)
+		return;
 
 	m[ 0].type = NM_TYPE_MENU;   m[ 0].text="Sound effects & music...";
 	m[ 1].type = NM_TYPE_TEXT;   m[ 1].text="";
@@ -1351,5 +1385,7 @@ void do_options_menu()
 	m[ 9].type = NM_TYPE_MENU;   m[ 9].text="Secondary autoselect ordering...";
 	m[10].type = NM_TYPE_MENU;   m[10].text="Misc Options...";
 
-	newmenu_do1( NULL, TXT_OPTIONS, sizeof(m)/sizeof(*m), m, options_menuset, NULL, 0 );
+	// Fall back to main event loop
+	// Allows clean closing and re-opening when resolution changes
+	newmenu_do3( NULL, TXT_OPTIONS, sizeof(m)/sizeof(*m), m, options_menuset, NULL, 0, NULL, -1, -1 );
 }

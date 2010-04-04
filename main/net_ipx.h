@@ -119,7 +119,7 @@ typedef struct IPX_netgame_info {
 	char					mission_title[MISSION_NAME_LEN+1];
 } __pack__ IPX_netgame_info;
 
-int net_ipx_start_game();
+int net_ipx_setup_game();
 void net_ipx_join_game();
 void net_ipx_leave_game();
 int net_ipx_endlevel(int *secret);
