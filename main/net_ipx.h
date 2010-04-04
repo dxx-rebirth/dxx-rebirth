@@ -244,7 +244,7 @@ typedef struct IPX_lite_info {
 	ubyte                           team_vector;
 } __pack__ IPX_lite_info;
 
-int net_ipx_start_game();
+int net_ipx_setup_game();
 void net_ipx_join_game();
 void network_rejoin_game();
 void net_ipx_leave_game();

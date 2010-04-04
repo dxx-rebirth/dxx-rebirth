@@ -138,6 +138,11 @@ window *window_get_next(window *wind)
 	return wind->next;
 }
 
+window *window_get_prev(window *wind)
+{
+	return wind->prev;
+}
+
 // Make wind the front window
 void window_select(window *wind)
 {

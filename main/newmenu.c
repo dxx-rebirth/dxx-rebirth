@@ -519,7 +519,7 @@ int newmenu_do2( char * title, char * subtitle, int nitems, newmenu_item * item,
 		if (menu->leave)
 		{
 			rval = menu->citem;
-			if (!window_close(wind))
+			if (window_exists(wind) && !window_close(wind))
 				menu->leave = 0;		// user aborted close
 		}
 	}
@@ -1305,7 +1305,8 @@ int newmenu_handler(window *wind, d_event *event, newmenu *menu)
 				return 1;	// cancel close and do it in newmenu_do2 instead
 			}
 
-			d_free(menu);
+			if (window_exists(wind))
+				d_free(menu);
 			break;
 			
 		default:

@@ -506,7 +506,7 @@ void quit_request()
 {
 	window *wind;
 	
-	while ((wind = window_get_front()))
+	for (wind = window_get_front(); wind != NULL; wind = window_get_prev(wind))
 	{
 		if (wind == Game_wind)
 		{

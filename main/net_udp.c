@@ -424,7 +424,7 @@ static int manual_join_game_handler(newmenu *menu, d_event *event, manual_join *
 			if (mj->connecting)
 			{
 				if (net_udp_game_connect(mj))
-					return -2;	// Success! (Keep this menu in future)
+					return -2;	// Success!
 				else if (!mj->connecting)
 					items[6].text = blank;
 			}
@@ -495,9 +495,6 @@ void net_udp_manual_join_game()
 	mj->addrbuf[0] = '\0';
 	mj->portbuf[0] = '\0';
 	
-	// FIXME: Keep manual join window to go back to
-	//setjmp(LeaveGame);
-
 	net_udp_init();
 
 	memset(&mj->addrbuf,'\0', sizeof(char)*128);
@@ -2584,9 +2581,7 @@ int net_udp_start_poll( newmenu *menu, d_event *event, void *userdata )
 	return 0;
 }
 
-static int opt_cinvul, opt_team_anarchy, opt_coop, opt_show_on_map, opt_closed,opt_maxnet;
-static int opt_team_hoard;
-static int opt_refuse,opt_capture;
+static int opt_cinvul, opt_show_on_map;
 static int opt_setpower,opt_playtime,opt_killgoal,opt_port,opt_marker_view,opt_light;
 static int opt_difficulty,opt_packets, opt_bright,opt_start_invul, opt_show_names, opt_plp;
 
@@ -2756,7 +2751,15 @@ int net_udp_more_options_handler( newmenu *menu, d_event *event, void *userdata 
 	return 0;
 }
 
-int net_udp_game_param_handler( newmenu *menu, d_event *event, void *userdata )
+typedef struct param_opt
+{
+	int name, level, mode, moreopts;
+	int closed, refuse, maxnet, coop, team_anarchy, team_hoard, capture;
+} param_opt;
+
+int net_udp_start_game(void);
+
+int net_udp_game_param_handler( newmenu *menu, d_event *event, param_opt *opt )
 {
 	newmenu_item *menus = newmenu_get_items(menu);
 	int citem = newmenu_get_citem(menu);
@@ -2765,25 +2768,25 @@ int net_udp_game_param_handler( newmenu *menu, d_event *event, void *userdata )
 	switch (event->type)
 	{
 		case EVENT_NEWMENU_CHANGED:
-			if (((HoardEquipped() && (citem == opt_team_hoard)) || ((citem == opt_team_anarchy) || (citem == opt_capture))) && !menus[opt_closed].value && !menus[opt_refuse].value) 
+			if (((HoardEquipped() && (citem == opt->team_hoard)) || ((citem == opt->team_anarchy) || (citem == opt->capture))) && !menus[opt->closed].value && !menus[opt->refuse].value) 
 			{
-				menus[opt_refuse].value = 1;
-				menus[opt_refuse-1].value = 0;
-				menus[opt_refuse-2].value = 0;
+				menus[opt->refuse].value = 1;
+				menus[opt->refuse-1].value = 0;
+				menus[opt->refuse-2].value = 0;
 			}
 			
-			if (menus[opt_coop].value)
+			if (menus[opt->coop].value)
 			{
 				oldmaxnet=1;
 				
-				if (menus[opt_maxnet].value>2) 
+				if (menus[opt->maxnet].value>2) 
 				{
-					menus[opt_maxnet].value=2;
+					menus[opt->maxnet].value=2;
 				}
 				
-				if (menus[opt_maxnet].max_value>2)
+				if (menus[opt->maxnet].max_value>2)
 				{
-					menus[opt_maxnet].max_value=2;
+					menus[opt->maxnet].max_value=2;
 				}
 				
 				if (!(Netgame.game_flags & NETGAME_FLAG_SHOW_MAP))
@@ -2801,14 +2804,83 @@ int net_udp_game_param_handler( newmenu *menu, d_event *event, void *userdata )
 				if (oldmaxnet)
 				{
 					oldmaxnet=0;
-					menus[opt_maxnet].value=6;
-					menus[opt_maxnet].max_value=6;
+					menus[opt->maxnet].value=6;
+					menus[opt->maxnet].max_value=6;
 				}
 			}
 			
-			if (citem == opt_maxnet)
-				sprintf( menus[opt_maxnet].text, "Maximum players: %d", menus[opt_maxnet].value+2 );
+			if (citem == opt->level)
+			{
+				char *slevel = menus[opt->level].text;
+
+				Netgame.levelnum = atoi(slevel);
+				
+				if ((Netgame.levelnum < 1) || (Netgame.levelnum > Last_level))
+				{
+					nm_messagebox(TXT_ERROR, 1, TXT_OK, TXT_LEVEL_OUT_RANGE );
+					sprintf(slevel, "1");
+					return 0;
+				}
+			}
+			
+			if (citem == opt->refuse)
+				Netgame.RefusePlayers=menus[opt->refuse].value;
+
+			if (citem == opt->maxnet)
+			{
+				sprintf( menus[opt->maxnet].text, "Maximum players: %d", menus[opt->maxnet].value+2 );
+				MaxNumNetPlayers = menus[opt->maxnet].value+2;
+				Netgame.max_numplayers=MaxNumNetPlayers;
+			}
+
+			if ((citem >= opt->mode) && (citem <= opt->team_hoard))
+			{
+				if ( menus[opt->mode].value )
+					Netgame.gamemode = NETGAME_ANARCHY;
+				
+				else if (menus[opt->mode+1].value) {
+					Netgame.gamemode = NETGAME_TEAM_ANARCHY;
+				}
+		 		else if (ANARCHY_ONLY_MISSION) {
+		 			nm_messagebox(NULL, 1, TXT_OK, TXT_ANARCHY_ONLY_MISSION);
+		 			menus[opt->mode+2].value = 0;
+		 			menus[opt->mode+3].value = 0;
+		 			menus[opt->mode].value = 1;
+		 			return 0;
+		 		}
+				else if ( menus[opt->mode+2].value ) 
+					Netgame.gamemode = NETGAME_ROBOT_ANARCHY;
+				else if ( menus[opt->mode+3].value ) 
+					Netgame.gamemode = NETGAME_COOPERATIVE;
+				else if (menus[opt->capture].value)
+					Netgame.gamemode = NETGAME_CAPTURE_FLAG;
+				else if (HoardEquipped() && menus[opt->capture+1].value)
+					Netgame.gamemode = NETGAME_HOARD;
+				else if (HoardEquipped() && menus[opt->capture+2].value)
+					Netgame.gamemode = NETGAME_TEAM_HOARD;
+				else Int3(); // Invalid mode -- see Rob
+			}
+
+			if (citem == opt->closed)
+			{
+				if (menus[opt->closed].value)
+					Netgame.game_flags |= NETGAME_FLAG_CLOSED;
+				else
+					Netgame.game_flags &= ~NETGAME_FLAG_CLOSED;
+			}
 			break;
+			
+		case EVENT_NEWMENU_SELECTED:
+			if (citem==opt->moreopts)
+			{
+				if ( menus[opt->mode+3].value )
+					Game_mode=GM_MULTI_COOP;
+				net_udp_more_game_options();
+				Game_mode=0;
+				return 1;
+			}
+			
+			return !net_udp_start_game();
 			
 		default:
 			break;
@@ -2817,14 +2889,19 @@ int net_udp_game_param_handler( newmenu *menu, d_event *event, void *userdata )
 	return 0;
 }
 
-int net_udp_get_game_params()
+int net_udp_setup_game()
 {
 	int i;
-	int opt, opt_name, opt_level, opt_mode,opt_moreopts;
+	int optnum;
+	param_opt opt;
 	newmenu_item m[20];
 	char slevel[5];
 	char level_text[32];
 	char srmaxnet[50];
+
+	net_udp_init();
+	
+	change_playernum_to(0);
 
 	for (i=0;i<MAX_PLAYERS;i++)
 		if (i!=Player_num)
@@ -2849,111 +2926,58 @@ int net_udp_get_game_params()
 	strcpy(Netgame.mission_name, Current_mission_filename);
 	strcpy(Netgame.mission_title, Current_mission_longname);
 
-	sprintf( slevel, "1" );
+	sprintf( slevel, "1" ); Netgame.levelnum = 1;
 
-	opt = 0;
-	m[opt].type = NM_TYPE_TEXT; m[opt].text = TXT_DESCRIPTION; opt++;
+	optnum = 0;
+	m[optnum].type = NM_TYPE_TEXT; m[optnum].text = TXT_DESCRIPTION; optnum++;
 
-	opt_name = opt;
-	m[opt].type = NM_TYPE_INPUT; m[opt].text = Netgame.game_name; m[opt].text_len = NETGAME_NAME_LEN; opt++;
+	opt.name = optnum;
+	m[optnum].type = NM_TYPE_INPUT; m[optnum].text = Netgame.game_name; m[optnum].text_len = NETGAME_NAME_LEN; optnum++;
 
 	sprintf(level_text, "%s (1-%d)", TXT_LEVEL_, Last_level);
 
 	Assert(strlen(level_text) < 32);
 
-	m[opt].type = NM_TYPE_TEXT; m[opt].text = level_text; opt++;
+	m[optnum].type = NM_TYPE_TEXT; m[optnum].text = level_text; optnum++;
 
-	opt_level = opt;
-	m[opt].type = NM_TYPE_INPUT; m[opt].text = slevel; m[opt].text_len=4; opt++;
-	m[opt].type = NM_TYPE_TEXT; m[opt].text = TXT_OPTIONS; opt++;
+	opt.level = optnum;
+	m[optnum].type = NM_TYPE_INPUT; m[optnum].text = slevel; m[optnum].text_len=4; optnum++;
+	m[optnum].type = NM_TYPE_TEXT; m[optnum].text = TXT_OPTIONS; optnum++;
 
-	opt_mode = opt;
-	m[opt].type = NM_TYPE_RADIO; m[opt].text = TXT_ANARCHY; m[opt].value=(Netgame.gamemode == NETGAME_ANARCHY); m[opt].group=0; opt++;
-	m[opt].type = NM_TYPE_RADIO; m[opt].text = TXT_TEAM_ANARCHY; m[opt].value=(Netgame.gamemode == NETGAME_TEAM_ANARCHY); m[opt].group=0; opt_team_anarchy=opt; opt++;
-	m[opt].type = NM_TYPE_RADIO; m[opt].text = TXT_ANARCHY_W_ROBOTS; m[opt].value=(Netgame.gamemode == NETGAME_ROBOT_ANARCHY); m[opt].group=0; opt++;
-	m[opt].type = NM_TYPE_RADIO; m[opt].text = TXT_COOPERATIVE; m[opt].value=(Netgame.gamemode == NETGAME_COOPERATIVE); m[opt].group=0; opt_coop=opt; opt++;
-	m[opt].type = NM_TYPE_RADIO; m[opt].text = "Capture the flag"; m[opt].value=(Netgame.gamemode == NETGAME_CAPTURE_FLAG); m[opt].group=0; opt_capture=opt; opt++;
+	opt.mode = optnum;
+	m[optnum].type = NM_TYPE_RADIO; m[optnum].text = TXT_ANARCHY; m[optnum].value=(Netgame.gamemode == NETGAME_ANARCHY); m[optnum].group=0; optnum++;
+	m[optnum].type = NM_TYPE_RADIO; m[optnum].text = TXT_TEAM_ANARCHY; m[optnum].value=(Netgame.gamemode == NETGAME_TEAM_ANARCHY); m[optnum].group=0; opt.team_anarchy=optnum; optnum++;
+	m[optnum].type = NM_TYPE_RADIO; m[optnum].text = TXT_ANARCHY_W_ROBOTS; m[optnum].value=(Netgame.gamemode == NETGAME_ROBOT_ANARCHY); m[optnum].group=0; optnum++;
+	m[optnum].type = NM_TYPE_RADIO; m[optnum].text = TXT_COOPERATIVE; m[optnum].value=(Netgame.gamemode == NETGAME_COOPERATIVE); m[optnum].group=0; opt.coop=optnum; optnum++;
+	m[optnum].type = NM_TYPE_RADIO; m[optnum].text = "Capture the flag"; m[optnum].value=(Netgame.gamemode == NETGAME_CAPTURE_FLAG); m[optnum].group=0; opt.capture=optnum; optnum++;
 
 	if (HoardEquipped())
 	{
-		m[opt].type = NM_TYPE_RADIO; m[opt].text = "Hoard"; m[opt].value=(Netgame.gamemode & NETGAME_HOARD); m[opt].group=0; opt++;
-		m[opt].type = NM_TYPE_RADIO; m[opt].text = "Team Hoard"; m[opt].value=(Netgame.gamemode & NETGAME_TEAM_HOARD); m[opt].group=0; opt_team_hoard=opt; opt++;
+		m[optnum].type = NM_TYPE_RADIO; m[optnum].text = "Hoard"; m[optnum].value=(Netgame.gamemode & NETGAME_HOARD); m[optnum].group=0; optnum++;
+		m[optnum].type = NM_TYPE_RADIO; m[optnum].text = "Team Hoard"; m[optnum].value=(Netgame.gamemode & NETGAME_TEAM_HOARD); m[optnum].group=0; opt.team_hoard=optnum; optnum++;
 	}
 
-	m[opt].type = NM_TYPE_TEXT; m[opt].text = ""; opt++;
+	m[optnum].type = NM_TYPE_TEXT; m[optnum].text = ""; optnum++;
 
-	m[opt].type = NM_TYPE_RADIO; m[opt].text = "Open game"; m[opt].group=1; m[opt].value=(!Netgame.RefusePlayers && !Netgame.game_flags & NETGAME_FLAG_CLOSED); opt++;
-	opt_closed = opt;
-	m[opt].type = NM_TYPE_RADIO; m[opt].text = TXT_CLOSED_GAME; m[opt].group=1; m[opt].value=Netgame.game_flags & NETGAME_FLAG_CLOSED; opt++;
-	opt_refuse = opt;
-	m[opt].type = NM_TYPE_RADIO; m[opt].text = "Restricted Game              "; m[opt].group=1; m[opt].value=Netgame.RefusePlayers; opt++;
+	m[optnum].type = NM_TYPE_RADIO; m[optnum].text = "Open game"; m[optnum].group=1; m[optnum].value=(!Netgame.RefusePlayers && !Netgame.game_flags & NETGAME_FLAG_CLOSED); optnum++;
+	opt.closed = optnum;
+	m[optnum].type = NM_TYPE_RADIO; m[optnum].text = TXT_CLOSED_GAME; m[optnum].group=1; m[optnum].value=Netgame.game_flags & NETGAME_FLAG_CLOSED; optnum++;
+	opt.refuse = optnum;
+	m[optnum].type = NM_TYPE_RADIO; m[optnum].text = "Restricted Game              "; m[optnum].group=1; m[optnum].value=Netgame.RefusePlayers; optnum++;
 
-	opt_maxnet = opt;
+	opt.maxnet = optnum;
 	sprintf( srmaxnet, "Maximum players: %d", MaxNumNetPlayers);
-	m[opt].type = NM_TYPE_SLIDER; m[opt].value=Netgame.max_numplayers-2; m[opt].text= srmaxnet; m[opt].min_value=0; 
-	m[opt].max_value=MaxNumNetPlayers-2; opt++;
+	m[optnum].type = NM_TYPE_SLIDER; m[optnum].value=Netgame.max_numplayers-2; m[optnum].text= srmaxnet; m[optnum].min_value=0; 
+	m[optnum].max_value=MaxNumNetPlayers-2; optnum++;
 	
-	opt_moreopts=opt;
-	m[opt].type = NM_TYPE_MENU;  m[opt].text = "Advanced Options"; opt++;
+	opt.moreopts=optnum;
+	m[optnum].type = NM_TYPE_MENU;  m[optnum].text = "Advanced Options"; optnum++;
 
-	Assert(opt <= 20);
+	Assert(optnum <= 20);
 
-menu:
-	i = newmenu_do1( NULL, NULL, opt, m, net_udp_game_param_handler, NULL, 1 );
+	i = newmenu_do1( NULL, NULL, optnum, m, (int (*)( newmenu *, d_event *, void * ))net_udp_game_param_handler, &opt, 1 );
 
-	if (i==opt_moreopts)
-	{
-		if ( m[opt_mode+3].value )
-			Game_mode=GM_MULTI_COOP;
-		net_udp_more_game_options();
-		Game_mode=0;
-		goto menu;
-	}
-	Netgame.RefusePlayers=m[opt_refuse].value;
-
-	if ( i > -1 )   {
-		MaxNumNetPlayers = m[opt_maxnet].value+2;
-		Netgame.max_numplayers=MaxNumNetPlayers;
-
-		Netgame.levelnum = atoi(slevel);
-
-		if ((Netgame.levelnum < 1) || (Netgame.levelnum > Last_level))
-		{
-			nm_messagebox(TXT_ERROR, 1, TXT_OK, TXT_LEVEL_OUT_RANGE );
-			sprintf(slevel, "1");
-			goto menu;
-		}
-		if ( m[opt_mode].value )
-			Netgame.gamemode = NETGAME_ANARCHY;
-		else if (m[opt_mode+1].value) {
-			Netgame.gamemode = NETGAME_TEAM_ANARCHY;
-		}
-		else if (m[opt_capture].value)
-			Netgame.gamemode = NETGAME_CAPTURE_FLAG;
-		else if (HoardEquipped() && m[opt_capture+1].value)
-				Netgame.gamemode = NETGAME_HOARD;
-		else if (HoardEquipped() && m[opt_capture+2].value)
-				Netgame.gamemode = NETGAME_TEAM_HOARD;
-		else if (ANARCHY_ONLY_MISSION) {
-			nm_messagebox(NULL, 1, TXT_OK, TXT_ANARCHY_ONLY_MISSION);
-			m[opt_mode+2].value = 0;
-			m[opt_mode+3].value = 0;
-			m[opt_mode].value = 1;
-			goto menu;
-		}
-		else if ( m[opt_mode+2].value ) 
-			Netgame.gamemode = NETGAME_ROBOT_ANARCHY;
-		else if ( m[opt_mode+3].value ) 
-			Netgame.gamemode = NETGAME_COOPERATIVE;
-		else Int3(); // Invalid mode -- see Rob
-
-		if (m[opt_closed].value)
-			Netgame.game_flags |= NETGAME_FLAG_CLOSED;
-		else
-			Netgame.game_flags &= ~NETGAME_FLAG_CLOSED;
-	}
-
-	return i;
+	return i >= 0;
 }
 
 void
@@ -3346,13 +3370,6 @@ int net_udp_start_game(void)
 {
 	int i;
 
-	net_udp_init();
-	change_playernum_to(0);
-
-	i = net_udp_get_game_params();
-
-	if (i<0) return 0;
-
 	i = udp_open_socket(0, atoi(UDP_MyPort));
 
 	if (i != 0)
@@ -3382,9 +3399,12 @@ int net_udp_start_game(void)
 		StartNewLevel(Netgame.levelnum, 0);
 	}
 	else
+	{
 		Game_mode = GM_GAME_OVER;
+		return 0;	// see if we want to tweak the game we setup
+	}
 	
-	return 1;	// FIXME: keep mission listbox for convenience. Need to keep main menu first
+	return 1;	// don't keep params menu or mission listbox (may want to join a game next time)
 }
 
 int net_udp_wait_for_sync(void)
