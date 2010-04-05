@@ -39,6 +39,9 @@ int Num_songs;
 //0 if external music is not playing, else the track number
 static int Extmusic_playing = 0;
 
+// 0 if no song playing, else the Descent song number
+static int Song_playing = 0;
+
 #define NumLevelSongs (Num_songs - SONG_FIRST_LEVEL_SONG)
 
 #define EXTMUSIC_VOLUME_SCALE	(255)
@@ -52,24 +55,43 @@ void set_extmusic_volume(int volume)
 
 void songs_init()
 {
-	int i;
+	int i = 0;
 	char inputline[80+1];
 	CFILE * fp;
 
 	memset(Songs, '\0', sizeof(Songs));
 
-	if (cfexist("descent.sng")) {   // mac (demo?) datafiles don't have the .sng file
-		fp = cfopen( "descent.sng", "rb" );
-		if ( fp == NULL )
-		{
-			Error( "Couldn't open descent.sng" );
+	fp = cfopen( "descent.sng", "rb" );
+	if ( fp == NULL ) // No descent.sng available. Define a default song-set
+	{
+		for (i = 0; i < MAX_NUM_SONGS; i++) {
+			strcpy(Songs[i].melodic_bank_file, "melodic.bnk");
+			strcpy(Songs[i].drum_bank_file, "drum.bnk");
+			if (i >= SONG_FIRST_LEVEL_SONG)
+			{
+				sprintf(Songs[i].filename, "game%02d.hmp", i - SONG_FIRST_LEVEL_SONG + 1);
+				if (!digi_music_exists(Songs[i].filename))
+					sprintf(Songs[i].filename, "game%d.hmp", i - SONG_FIRST_LEVEL_SONG);
+				if (!digi_music_exists(Songs[i].filename))
+				{
+					Songs[i].filename[0] = '\0';	// music not available
+					break;
+				}
+			}
 		}
-		i = 0;
+		strcpy(Songs[SONG_TITLE].filename, "descent.hmp");
+		strcpy(Songs[SONG_BRIEFING].filename, "briefing.hmp");
+		strcpy(Songs[SONG_CREDITS].filename, "credits.hmp");
+		strcpy(Songs[SONG_ENDLEVEL].filename, "endlevel.hmp");	// can't find it? give a warning
+		strcpy(Songs[SONG_ENDGAME].filename, "endgame.hmp");	// ditto
+	}
+	else
+	{
 		while (!PHYSFS_eof(fp))
 		{
 			if (i == MAX_NUM_SONGS)
 				break;
-
+				
 			cfgets(inputline, 80, fp );
 			if ( strlen( inputline ) )
 			{
@@ -86,15 +108,13 @@ void songs_init()
 						i++;
 			}
 		}
-		Num_songs = i;
-		if (Num_songs <= SONG_FIRST_LEVEL_SONG)
+		if (i <= SONG_FIRST_LEVEL_SONG)
 			Error("Must have at least %d songs",SONG_FIRST_LEVEL_SONG+1);
-		cfclose(fp);
 	}
 
-	if ( Songs_initialized ) return;
-
+	Num_songs = i;
 	Songs_initialized = 1;
+	if (fp != NULL)	cfclose(fp);
 
 	//	Set up External Music - ie Redbook/Jukebox
 	if (EXT_MUSIC_ON)
@@ -107,6 +127,8 @@ void songs_init()
 #define FADE_TIME (f1_0/2)
 
 //stop the external music
+//only supposed to be called from within songs_stop_all,
+//otherwise the value for Song_playing will be wrong
 void songs_stop_extmusic(void)
 {
 	int old_volume = GameCfg.MusicVolume*EXTMUSIC_VOLUME_SCALE/8;
@@ -141,6 +163,7 @@ void songs_stop_all(void)
 	digi_stop_current_song();	// Stop midi song, if playing
 	
 	songs_stop_extmusic();			// Stop external music, if playing
+	Song_playing = 0;
 }
 
 void reinit_extmusic()
@@ -198,10 +221,10 @@ int play_extmusic_track(int tracknum,int keep_playing, void (*completion_proc)()
 int songs_haved2_cd()
 {
 	int discid;
-	
+
 	if (GameCfg.OrigTrackOrder)
 		return 1;
-
+	
 	if (!GameCfg.SndEnableRedbook)
 		return 0;
 
@@ -254,7 +277,7 @@ void play_credits_track()
 	start_time();
 }
 
-void songs_play_song( int songnum, int repeat )
+int songs_play_song( int songnum, int repeat )
 {
 	#ifndef SHAREWARE
 	//Assert(songnum != SONG_ENDLEVEL && songnum != SONG_ENDGAME);	//not in full version
@@ -274,7 +297,14 @@ void songs_play_song( int songnum, int repeat )
 		play_extmusic_track(REDBOOK_CREDITS_TRACK, 0, repeat ? play_credits_track : NULL);
 
 	if (!Extmusic_playing)		//not playing external music, so play midi
-		digi_play_midi_song( Songs[songnum].filename, Songs[songnum].melodic_bank_file, Songs[songnum].drum_bank_file, repeat );
+	{
+		if (digi_play_midi_song( Songs[songnum].filename, Songs[songnum].melodic_bank_file, Songs[songnum].drum_bank_file, repeat ))
+			Song_playing = songnum;
+	}
+	else
+		Song_playing = songnum;
+	
+	return Song_playing;
 }
 
 int current_song_level;
@@ -286,7 +316,7 @@ void play_first_song()
 	start_time();
 }
 
-void songs_play_level_song( int levelnum )
+int songs_play_level_song( int levelnum )
 {
 	int songnum;
 	int n_tracks;
@@ -313,8 +343,13 @@ void songs_play_level_song( int levelnum )
 
 	if (! Extmusic_playing && (NumLevelSongs > 0)) {			//not playing external music, so play midi
 		songnum = SONG_FIRST_LEVEL_SONG + (songnum % NumLevelSongs);
-		digi_play_midi_song( Songs[songnum].filename, Songs[songnum].melodic_bank_file, Songs[songnum].drum_bank_file, 1 );
+		if (digi_play_midi_song( Songs[songnum].filename, Songs[songnum].melodic_bank_file, Songs[songnum].drum_bank_file, 1 ))
+			Song_playing = songnum;
 	}
+	else if (Extmusic_playing)
+		Song_playing = songnum;
+	
+	return Song_playing;
 }
 
 //goto the next level song
@@ -336,5 +371,11 @@ void songs_goto_prev_song()
 	if (current_song_level > 1)
 		songs_play_level_song(current_song_level-1);
 
+}
+
+// check which song is playing
+int songs_is_playing()
+{
+	return Song_playing;
 }
 

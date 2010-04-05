@@ -37,7 +37,7 @@ void strrev( char *s1 );
 void removeext(const char *filename, char *out);
 
 //give a filename a new extension, doesn't work with paths.
-extern void change_filename_extension( char *dest, char *src, char *new_ext );
+extern void change_filename_extension( char *dest, const char *src, char *new_ext );
 
 #if !(defined(_WIN32))
 void _splitpath(char *name, char *drive, char *path, char *base, char *ext);

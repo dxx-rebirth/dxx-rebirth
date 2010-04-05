@@ -143,7 +143,7 @@ void removeext(const char *filename, char *out)
 
 
 //give a filename a new extension, doesn't work with paths.
-void change_filename_extension( char *dest, char *src, char *ext )
+void change_filename_extension( char *dest, const char *src, char *ext )
 {
 	char *p;
 	

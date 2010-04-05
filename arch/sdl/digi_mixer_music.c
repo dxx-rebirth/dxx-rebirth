@@ -65,7 +65,7 @@ void convert_hmp(char *filename, char *mid_filename) {
  *  Plays a music given its name (regular game songs)
  */
 
-void mix_play_music(char *filename, int loop) {
+int mix_play_music(char *filename, int loop) {
   int i, got_end=0;
   char rel_filename[32];	// just the filename of the actual music file used
   char music_title[16];
@@ -99,7 +99,7 @@ void mix_play_music(char *filename, int loop) {
     convert_hmp(filename, rel_filename);
   }
 
-  mix_play_file(rel_filename, loop, NULL);
+  return mix_play_file(rel_filename, loop, NULL);
 }
 
 
@@ -107,7 +107,7 @@ void mix_play_music(char *filename, int loop) {
  *  Plays a music file from an absolute path (used by jukebox)
  */
 
-void mix_play_file(char *filename, int loop, void (*hook_finished_track)()) {
+int mix_play_file(char *filename, int loop, void (*hook_finished_track)()) {
   char real_filename[PATH_MAX];
 
   mix_free_music();	// stop and free what we're already playing, if anything
@@ -128,11 +128,14 @@ void mix_play_file(char *filename, int loop, void (*hook_finished_track)()) {
     }
 
 	Mix_HookMusicFinished(hook_finished_track ? hook_finished_track : mix_free_music);
+	return 1;
   }
   else {
     con_printf(CON_CRITICAL,"Music %s could not be loaded\n", real_filename);
     Mix_HaltMusic();
   }
+	
+	return 0;
 }
 
 
@@ -140,7 +143,7 @@ void mix_play_file(char *filename, int loop, void (*hook_finished_track)()) {
  *  See if a music file exists, taking into account possible -music_ext option
  */
 
-int mix_music_exists(char *filename)
+int mix_music_exists(const char *filename)
 {
 	char rel_filename[32];	// just the filename of the actual music file used
 	char music_file[16];

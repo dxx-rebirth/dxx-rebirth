@@ -188,16 +188,10 @@ int intro_played = 0;
 
 void show_titles(void)
 {
-#ifndef SHAREWARE
 	int played=MOVIE_NOT_PLAYED;    //default is not played
-#endif
 	int song_playing = 0;
 
-#ifdef D2_OEM
-#define MOVIE_REQUIRED 0
-#else
-#define MOVIE_REQUIRED 1
-#endif
+#define MOVIE_REQUIRED 1	//(!is_D2_OEM && !is_SHAREWARE && !is_MAC_SHARE)	// causes segfault
 
 	{       //show bundler screens
 		char filename[FILENAME_LEN];
@@ -217,11 +211,9 @@ void show_titles(void)
 		}
 	}
 
-#ifndef SHAREWARE
 	init_subtitles("intro.tex");
 	played = PlayMovie("intro.mve",MOVIE_REQUIRED);
 	close_subtitles();
-#endif
 
 	if (played != MOVIE_NOT_PLAYED)
 		intro_played = 1;
@@ -1260,10 +1252,8 @@ int new_briefing_screen(briefing *br, int first)
 	br->guy_bitmap_show = 0;
 	br->prev_ch = -1;
 	
-#ifndef SHAREWARE
-	if (br->hum_channel == -1)
+	if (!songs_is_playing() && (br->hum_channel == -1))
 		br->hum_channel  = digi_start_sound( digi_xlat_sound(SOUND_BRIEFING_HUM), F1_0/2, 0xFFFF/2, 1, -1, -1, -1 );
-#endif
 	
 	return 1;
 }
@@ -1416,11 +1406,11 @@ void do_briefing_screens(char *filename, int level_num)
 		return;
 	}
 
-	#ifdef SHAREWARE
-	songs_play_song( SONG_BRIEFING, 1 );
-	#else
-	songs_stop_all();
-	#endif
+	if ((EMULATING_D1 || is_SHAREWARE || is_MAC_SHARE || is_D2_OEM) && 
+		(songs_is_playing() != SONG_BRIEFING) && (songs_is_playing() != SONG_ENDGAME))
+		songs_play_song( SONG_BRIEFING, 1 );
+	else
+		songs_stop_all();
 
 	// set screen correctly for robot movies
 	set_screen_mode( SCREEN_MOVIE );

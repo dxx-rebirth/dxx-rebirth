@@ -230,10 +230,10 @@ int digi_mixer_get_max_channels() { return digi_max_channels; }
 
 // MIDI stuff follows.
 
-void digi_mixer_play_midi_song(char * filename, char * melodic_bank, char * drum_bank, int loop ) {
-    if (!digi_initialised) return;
+int digi_mixer_play_midi_song(char * filename, char * melodic_bank, char * drum_bank, int loop ) {
+    if (!digi_initialised) return 0;
     if (GameArg.SndNoMusic)
-      return;
+      return 0;
 
     mix_set_music_volume(midi_volume);
 
@@ -243,15 +243,25 @@ void digi_mixer_play_midi_song(char * filename, char * melodic_bank, char * drum
     {
       if ((hmp = hmp_open(filename)))
       {
-        hmp_play(hmp,loop);
+        if (hmp_play(hmp,loop) != 0)
+			return 0;	// error
         digi_midi_song_playing = 1;
         digi_set_midi_volume(midi_volume);
+		return 1;
       }
+	else
+		return 0;
     }
     else
 #endif
-      mix_play_music(filename, loop);
+      return mix_play_music(filename, loop);
 }
+
+int digi_mixer_music_exists(const char *filename)
+{
+	return mix_music_exists(filename);
+}
+
 void digi_mixer_stop_current_song() {
 #ifdef _WIN32
   if (digi_midi_song_playing)

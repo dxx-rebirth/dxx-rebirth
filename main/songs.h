@@ -38,13 +38,14 @@ extern song_info Songs[];
 #define SONG_FIRST_LEVEL_SONG   5
 #define MAX_NUM_SONGS          (5+MAX_LEVELS_PER_MISSION+MAX_SECRET_LEVELS_PER_MISSION)
 
-void songs_play_song( int songnum, int repeat );
-void songs_play_level_song( int levelnum );
-
-// stop the redbook / Jukebox
-void songs_stop_extmusic(void);
+int songs_play_song( int songnum, int repeat );
+int songs_play_level_song( int levelnum );
 
 //stop any songs - midi, redbook or jukebox - that are currently playing
 void songs_stop_all(void);
 
-#endif /* _SONGS_H */
+// check which song is playing
+int songs_is_playing();
+
+#endif
+ 
