@@ -815,7 +815,8 @@ void LoadLevel(int level_num,int page_in_textures)
 
 	set_sound_sources();
 
-	songs_play_level_song( Current_level_num );
+	if (songs_is_playing() < SONG_FIRST_LEVEL_SONG)
+		songs_play_level_song( Current_level_num );
 
 	gr_palette_load(gr_palette);		//actually load the palette
 

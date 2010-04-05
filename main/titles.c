@@ -620,7 +620,7 @@ void put_char_delay(briefing *br, int ch)
 	gr_get_string_size(str, &w, &h, &aw );
 	br->text_x += w;
 	
-	if (!br->chattering) {
+	if (!br->chattering && br->flashing_cursor) {
 		br->printing_channel  = digi_start_sound( digi_xlat_sound(SOUND_BRIEFING_PRINTING), F1_0, 0xFFFF/2, 1, -1, -1, -1 );
 		br->chattering=1;
 	}
@@ -1406,9 +1406,11 @@ void do_briefing_screens(char *filename, int level_num)
 		return;
 	}
 
-	if ((EMULATING_D1 || is_SHAREWARE || is_MAC_SHARE || is_D2_OEM) && 
-		(songs_is_playing() != SONG_BRIEFING) && (songs_is_playing() != SONG_ENDGAME))
-		songs_play_song( SONG_BRIEFING, 1 );
+	if (EMULATING_D1 || is_SHAREWARE || is_MAC_SHARE || is_D2_OEM)
+	{
+		if ((songs_is_playing() != SONG_BRIEFING) && (songs_is_playing() != SONG_ENDGAME))
+			songs_play_song( SONG_BRIEFING, 1 );
+	}
 	else
 		songs_stop_all();
 
