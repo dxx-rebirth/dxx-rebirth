@@ -461,24 +461,28 @@ void digi_audio_set_midi_volume( int mvolume )
 #endif
 }
 
-void digi_audio_play_midi_song( char * filename, char * melodic_bank, char * drum_bank, int loop )
+int digi_audio_play_midi_song( char * filename, char * melodic_bank, char * drum_bank, int loop )
 {
 #ifdef _WIN32
 	if (GameArg.SndNoMusic)
-		return;
+		return 0;
 
 	digi_stop_current_song();
 
 	if (filename == NULL)
-		return;
+		return 0;
 
 	if ((hmp = hmp_open(filename)))
 	{
-		hmp_play(hmp,loop);
+		if (hmp_play(hmp,loop) != 0)
+			return 0;	// error
 		digi_midi_song_playing = 1;
 		digi_set_midi_volume(midi_volume);
+		return 1;
 	}
 #endif
+	
+	return 0;
 }
 
 void digi_audio_stop_current_song()

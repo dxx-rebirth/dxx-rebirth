@@ -1,5 +1,9 @@
 D1X-Rebirth Changelog
 
+20100405
+--------
+arch/include/digi_audio.h, arch/include/digi_mixer.h, arch/include/digi_mixer_music.h, arch/linux/hmiplay.c, arch/linux/hmistub.c, arch/sdl/digi.c, arch/sdl/digi_audio.c, arch/sdl/digi_mixer.c, arch/sdl/digi_mixer_music.c, arch/sdl/jukebox.c, arch/sdl/rbaudio.c, main/digi.h, main/gamecntl.c, main/songs.c, main/songs.h, main/titles.c: Actually play endgame music when game is finished
+
 20100404
 --------
 arch/include/event.h, arch/sdl/event.c, main/automap.c, main/game.c, main/gamecntl.c, main/gameseq.c, main/inferno.c, main/inferno.h, main/menu.c, main/multi.c, main/net_ipx.c, main/net_udp.c, main/newdemo.c, main/state.c, misc/error.c: Get rid of a heap of uses of Function_mode, quit properly (freeing all windows and asking for confirmation for game) when clicking close box

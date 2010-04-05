@@ -1219,7 +1219,8 @@ void do_briefing_screens(char *filename, int level_num)
 		return;
 	}
 
-	songs_play_song( SONG_BRIEFING, 1 );
+	if ((songs_is_playing() != SONG_BRIEFING) && (songs_is_playing() != SONG_ENDGAME))
+		songs_play_song( SONG_BRIEFING, 1 );
 
 	set_screen_mode( SCREEN_MENU );
 	gr_set_current_canvas(NULL);

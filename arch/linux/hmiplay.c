@@ -815,10 +815,10 @@ void play_hmi (void * arg)
 	
 }
 
-void digi_play_midi_song(char *filename, char *melodic_bank, char *drum_bank, int loop)
+int digi_play_midi_song(char *filename, char *melodic_bank, char *drum_bank, int loop)
 {
 	if (GameArg.SndNoMusic)
-		return;
+		return 0;
 
 	if (!filename)
 		send_ipc("p");
@@ -829,6 +829,8 @@ void digi_play_midi_song(char *filename, char *melodic_bank, char *drum_bank, in
 		send_ipc(buf);
 	}
 	rephmi=loop;
+	
+	return 1;	// FIXME: assume everything is OK
 }
 
 void digi_set_midi_volume( int mvolume ) { 

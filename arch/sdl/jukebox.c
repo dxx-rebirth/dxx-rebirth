@@ -100,7 +100,8 @@ int jukebox_play_tracks(int first, int last, void (*hook_finished)(void)) {
 		return 0;
 
 	jukebox_hook_finished = hook_finished ? hook_finished : mix_free_music;
-	mix_play_file(music_filename, 0, jukebox_hook_next);	// have our function handle looping
+	if (!mix_play_file(music_filename, 0, jukebox_hook_next))	// have our function handle looping
+		return 0;	// whoops, got an error
 
 	// Formatting a pretty message
 	if (strlen(music_filename) >= MUSIC_HUDMSG_MAXLEN) {

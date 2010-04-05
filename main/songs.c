@@ -39,7 +39,10 @@ int Num_songs;
 //0 if external music is not playing, else the track number
 static int Extmusic_playing = 0;
 
-#define NumLevelSongs (Num_songs - SONG_LEVEL_MUSIC)
+// 0 if no song playing, else the Descent song number
+static int Song_playing = 0;
+
+#define NumLevelSongs (Num_songs - SONG_FIRST_LEVEL_SONG)
 
 #define EXTMUSIC_VOLUME_SCALE	(255)
 
@@ -64,11 +67,11 @@ void songs_init()
 		for (i = 0; i < MAX_NUM_SONGS; i++) {
 			strcpy(Songs[i].melodic_bank_file, "melodic.bnk");
 			strcpy(Songs[i].drum_bank_file, "drum.bnk");
-			if (i >= SONG_LEVEL_MUSIC)
+			if (i >= SONG_FIRST_LEVEL_SONG)
 			{
-				sprintf(Songs[i].filename, "game%02d.hmp", i - SONG_LEVEL_MUSIC + 1);
+				sprintf(Songs[i].filename, "game%02d.hmp", i - SONG_FIRST_LEVEL_SONG + 1);
 				if (!digi_music_exists(Songs[i].filename))
-					sprintf(Songs[i].filename, "game%d.hmp", i - SONG_LEVEL_MUSIC);
+					sprintf(Songs[i].filename, "game%d.hmp", i - SONG_FIRST_LEVEL_SONG);
 				if (!digi_music_exists(Songs[i].filename))
 				{
 					Songs[i].filename[0] = '\0';	// music not available
@@ -131,8 +134,7 @@ void songs_init()
 	Num_songs = i;
 	Songs_initialized = 1;
 	if (fp != NULL)	cfclose(fp);
-	if ( Songs_initialized ) return;
-	
+
 	//	Set up External Music - ie Redbook/Jukebox
 	if (EXT_MUSIC_ON)
 	{
@@ -144,6 +146,8 @@ void songs_init()
 #define FADE_TIME (f1_0/2)
 
 //stop the external music
+//only supposed to be called from within songs_stop_all,
+//otherwise the value for Song_playing will be wrong
 void songs_stop_extmusic(void)
 {
 	int old_volume = GameCfg.MusicVolume*EXTMUSIC_VOLUME_SCALE/8;
@@ -178,6 +182,7 @@ void songs_stop_all(void)
 	digi_stop_current_song();	// Stop midi song, if playing
 	
 	songs_stop_extmusic();			// Stop external music, if playing
+	Song_playing = 0;
 }
 
 void reinit_extmusic()
@@ -213,9 +218,9 @@ int play_extmusic_track(int tracknum,int keep_playing, void (*completion_proc)()
  */
 #define D1_MAC_OEM_DISCID       0xde0feb0e // Descent CD that came with the Mac Performa 6400, hope mine isn't scratched [too much]
 
-#define REDBOOK_FIRST_LEVEL_TRACK	  (songs_haved1_cd() ? (GameCfg.SndEnableRedbook ? 6 : 5) : 1)
 #define REDBOOK_ENDLEVEL_TRACK		  (GameCfg.SndEnableRedbook ? 4 : 3)
 #define REDBOOK_ENDGAME_TRACK         (ext_music_get_numtracks())
+#define REDBOOK_FIRST_LEVEL_TRACK	  (songs_haved1_cd() ? (GameCfg.SndEnableRedbook ? 6 : 5) : 1)
 
 // songs_haved1_cd returns 1 if the descent 1 Mac CD is in the drive and
 // 0 otherwise
@@ -271,7 +276,7 @@ void repeat_track()
 	start_time();
 }
 
-void songs_play_song( int songnum, int repeat )
+int songs_play_song( int songnum, int repeat )
 {
 	songs_init();
 
@@ -288,7 +293,14 @@ void songs_play_song( int songnum, int repeat )
 		play_extmusic_track(songnum + 1 - GameCfg.JukeboxOn, 0, repeat ? repeat_track : NULL);
 	
 	if (!Extmusic_playing)		//not playing external music, so play midi
-		digi_play_midi_song( Songs[songnum].filename, Songs[songnum].melodic_bank_file, Songs[songnum].drum_bank_file, repeat );
+	{
+		if (digi_play_midi_song( Songs[songnum].filename, Songs[songnum].melodic_bank_file, Songs[songnum].drum_bank_file, repeat ))
+			Song_playing = songnum;
+	}
+	else
+		Song_playing = songnum;
+	
+	return Song_playing;
 }
 
 int current_song_level;
@@ -300,7 +312,7 @@ void play_first_song()
 	start_time();
 }
 
-void songs_play_level_song( int levelnum )
+int songs_play_level_song( int levelnum )
 {
 	int songnum;
 	int n_tracks;
@@ -329,9 +341,14 @@ void songs_play_level_song( int levelnum )
 	}
 
 	if (! Extmusic_playing && (NumLevelSongs > 0)) {			//not playing external music, so play midi
-		songnum = SONG_LEVEL_MUSIC + (songnum % NumLevelSongs);
-		digi_play_midi_song( Songs[songnum].filename, Songs[songnum].melodic_bank_file, Songs[songnum].drum_bank_file, 1 );
+		songnum = SONG_FIRST_LEVEL_SONG + (songnum % NumLevelSongs);
+		if (digi_play_midi_song( Songs[songnum].filename, Songs[songnum].melodic_bank_file, Songs[songnum].drum_bank_file, 1 ))
+			Song_playing = songnum;
 	}
+	else if (Extmusic_playing)
+		Song_playing = songnum;
+	
+	return Song_playing;
 }
 
 //goto the next level song
@@ -353,5 +370,11 @@ void songs_goto_prev_song()
 	if (current_song_level > 1)
 		songs_play_level_song(current_song_level-1);
 
+}
+
+// check which song is playing
+int songs_is_playing()
+{
+	return Song_playing;
 }
 

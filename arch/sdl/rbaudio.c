@@ -106,9 +106,10 @@ int RBAPlayTrack(int a)
 	if (!s_cd) return -1;
 
 	if (CD_INDRIVE(SDL_CDStatus(s_cd)) ) {
-		SDL_CDPlayTracks(s_cd, a-1, 0, 0, 0);
+		if (SDL_CDPlayTracks(s_cd, a-1, 0, 0, 0) == 0)
+			return a;
 	}
-	return a;
+	return -1;
 }
 
 void (*redbook_finished_hook)() = NULL;
@@ -219,10 +220,10 @@ int RBAPlayTracks(int first, int last, void (*hook_finished)(void))
 
 	if (CD_INDRIVE(SDL_CDStatus(s_cd)))
 	{
-		SDL_CDPlayTracks(s_cd, first - 1, 0, last - first + 1, 0);
 		redbook_finished_hook = hook_finished;
+		return SDL_CDPlayTracks(s_cd, first - 1, 0, last - first + 1, 0) == 0;
 	}
-	return 1;
+	return 0;
 }
 
 // return the track number currently playing.  Useful if RBAPlayTracks()

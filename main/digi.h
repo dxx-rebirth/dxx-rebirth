@@ -117,7 +117,7 @@ extern void digi_stop_looping_sound();
 extern void digi_start_sound_queued( short soundnum, fix volume );
 
 // MIDI music functions
-extern void digi_play_midi_song( char * filename, char * melodic_bank, char * drum_bank, int loop );
+extern int  digi_play_midi_song( char * filename, char * melodic_bank, char * drum_bank, int loop );
 extern void digi_stop_current_song();
 extern void digi_pause_midi();
 extern void digi_resume_midi();
