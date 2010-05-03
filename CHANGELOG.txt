@@ -1,5 +1,9 @@
 D2X-Rebirth Changelog
 
+20100503
+--------
+main/menu.c: Properly specify number of items for do_options_menu, so the options menu actually shows
+
 20100405
 --------
 arch/include/digi_audio.h, arch/include/digi_mixer.h, arch/include/digi_mixer_music.h, arch/linux/hmiplay.c, arch/linux/hmistub.c, arch/sdl/digi.c, arch/sdl/digi_audio.c, arch/sdl/digi_mixer.c, arch/sdl/digi_mixer_music.c, arch/sdl/jukebox.c, arch/sdl/rbaudio.c, include/strutil.h, main/digi.h, main/gamecntl.c, main/songs.c, main/songs.h, main/titles.c, misc/strutil.c: Actually play endgame music when game is finished, play briefing music instead of hum if appropriate
