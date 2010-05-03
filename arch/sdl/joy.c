@@ -230,7 +230,7 @@ int joy_get_button_down_cnt( int btn )
 	if (!num_joysticks)
 		return 0;
 
-	event_poll();
+//	event_poll();
 
 	num_downs = Joystick.buttons[btn].num_downs;
 	Joystick.buttons[btn].num_downs = 0;
@@ -245,7 +245,7 @@ fix joy_get_button_down_time(int btn)
 	if (!num_joysticks)
 		return 0;
 
-	event_poll();
+//	event_poll();
 
 	switch (Joystick.buttons[btn].state) {
 	case SDL_PRESSED:
@@ -267,7 +267,7 @@ void joystick_read_raw_axis( int * axis )
 	if (!num_joysticks)
 		return;
 
-	event_poll();
+//	event_poll();
 
 	for (i = 0; i < Joystick.n_axes; i++)
 		axis[i] = Joystick.axes[i].value;
@@ -296,7 +296,7 @@ int joy_get_button_state( int btn )
 	if(btn >= Joystick.n_buttons)
 		return 0;
 
-	event_poll();
+//	event_poll();
 
 	return Joystick.buttons[btn].state;
 }
