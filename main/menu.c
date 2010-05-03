@@ -404,6 +404,7 @@ int main_menu_handler(newmenu *menu, d_event *event, int *menu_choice )
 			// Don't allow them to hit ESC in the main menu.
 			if (((d_event_keycommand *)event)->keycode==KEY_ESC)
 				return 1;
+			break;
 			
 		case EVENT_IDLE:
 			curtime = timer_get_fixed_seconds();
@@ -1387,5 +1388,5 @@ void do_options_menu()
 
 	// Fall back to main event loop
 	// Allows clean closing and re-opening when resolution changes
-	newmenu_do3( NULL, TXT_OPTIONS, sizeof(m)/sizeof(*m), m, options_menuset, NULL, 0, NULL, -1, -1 );
+	newmenu_do3( NULL, TXT_OPTIONS, 11, m, options_menuset, NULL, 0, NULL, -1, -1 );
 }
