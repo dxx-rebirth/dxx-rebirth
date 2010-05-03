@@ -107,7 +107,7 @@ void mouse_flush()	// clears all mice events...
 	int i;
 	fix current_time;
 
-	event_poll();
+//	event_poll();
 
 	current_time = timer_get_fixed_seconds();
 	for (i=0; i<MOUSE_MAX_BUTTONS; i++) {
@@ -171,7 +171,7 @@ int mouse_get_btns()
 	uint flag=1;
 	int status = 0;
 
-	event_poll();
+//	event_poll();
 
 	for (i=0; i<MOUSE_MAX_BUTTONS; i++ ) {
 		if (Mouse.buttons[i].pressed)
@@ -187,7 +187,7 @@ fix mouse_button_down_time(int button)
 {
 	fix time_down, time;
 
-	event_poll();
+//	event_poll();
 
 	if (!Mouse.buttons[button].pressed) {
 		time_down = Mouse.buttons[button].time_held_down;
@@ -205,7 +205,7 @@ int mouse_button_down_count(int button)
 {
 	int count;
 
-	event_poll();
+//	event_poll();
 
 	count = Mouse.buttons[button].num_downs;
 	Mouse.buttons[button].num_downs = 0;
@@ -216,6 +216,6 @@ int mouse_button_down_count(int button)
 // Returns 1 if this button is currently down
 int mouse_button_state(int button)
 {
-	event_poll();
+//	event_poll();
 	return Mouse.buttons[button].pressed;
 }

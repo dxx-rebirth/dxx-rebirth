@@ -510,7 +510,7 @@ int add_one(int n)
 int key_checkch()
 {
 	int is_one_waiting = 0;
-	event_poll();
+//	event_poll();
 	if (key_data.keytail!=key_data.keyhead)
 		is_one_waiting = 1;
 	return is_one_waiting;
@@ -521,7 +521,7 @@ int key_inkey()
 	int key = 0;
 	if (!Installed)
 		key_init();
-        event_poll();
+//        event_poll();
 	if (key_data.keytail!=key_data.keyhead) {
 		key = key_data.keybuffer[key_data.keyhead];
 		key_data.keyhead = add_one(key_data.keyhead);
@@ -536,7 +536,7 @@ int key_inkey_time(fix * time)
 
 	if (!Installed)
 		key_init();
-        event_poll();
+//        event_poll();
 	if (key_data.keytail!=key_data.keyhead)	{
 		key = key_data.keybuffer[key_data.keyhead];
 		*time = key_data.time_pressed[key_data.keyhead];
@@ -548,7 +548,7 @@ int key_inkey_time(fix * time)
 int key_peekkey()
 {
 	int key = 0;
-        event_poll();
+//        event_poll();
 	if (key_data.keytail!=key_data.keyhead)
 		key = key_data.keybuffer[key_data.keyhead];
 
@@ -594,7 +594,7 @@ fix key_down_time(int scancode)
 {
 	fix time_down, time;
 
-	event_poll();
+//	event_poll();
         if ((scancode<0)|| (scancode>255)) return 0;
 
 	if (!keyd_pressed[scancode]) {
@@ -612,7 +612,7 @@ fix key_down_time(int scancode)
 unsigned int key_down_count(int scancode)
 {
 	int n;
-        event_poll();
+//        event_poll();
         if ((scancode<0)|| (scancode>255)) return 0;
 
 	n = key_data.keys[scancode].downcount;
@@ -624,7 +624,7 @@ unsigned int key_down_count(int scancode)
 unsigned int key_up_count(int scancode)
 {
 	int n;
-        event_poll();
+//        event_poll();
         if ((scancode<0)|| (scancode>255)) return 0;
 
 	n = key_data.keys[scancode].upcount;

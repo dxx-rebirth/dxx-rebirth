@@ -4,6 +4,7 @@ D2X-Rebirth Changelog
 --------
 main/menu.c: Properly specify number of items for do_options_menu, so the options menu actually shows
 arch/include/event.h, main/newmenu.h: Merge d_event and newmenu_event enum's, hopefully fixing compiler warnings in GCC 4.5.0
+arch/sdl/joy.c, arch/sdl/key.c, arch/sdl/mouse.c: Comment out redundant calls to event_poll, fixing rapid bomb dropping bug (and probably others)
 
 20100405
 --------
