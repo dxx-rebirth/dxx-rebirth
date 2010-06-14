@@ -40,7 +40,8 @@ void jukebox_unload()
 }
 
 /* Loads music file names from a given directory */
-void jukebox_load() {
+void jukebox_load()
+{
 	int count;
 	char *music_exts[] = { ".mp3", ".ogg", ".wav", ".aif", ".mid", NULL };
 	static char curpath[PATH_MAX+1];
@@ -58,7 +59,6 @@ void jukebox_load() {
 	{
 		char *p;
 		const char *sep = PHYSFS_getDirSeparator();
-		char absolute_path[PATH_MAX];
 
 		// make sure there's a proper path separator.
 		if (strlen(GameCfg.CMLevelMusicPath) >= strlen(sep))
@@ -78,13 +78,14 @@ void jukebox_load() {
 			for (count = 0; JukeboxSongs[count]!=NULL; count++) {}
 			if (!count)
 			{
+				char absolute_path[PATH_MAX + 1];
+				PHYSFS_removeFromSearchPath(GameCfg.CMLevelMusicPath);
 				PHYSFSX_getRealPath(GameCfg.CMLevelMusicPath,absolute_path);
-				PHYSFS_addToSearchPath(absolute_path, 0);
-				JukeboxSongs = PHYSFSX_findabsoluteFiles("", absolute_path, music_exts);
+				memcpy(GameCfg.CMLevelMusicPath,absolute_path,sizeof(char)*PATH_MAX);
+				PHYSFS_addToSearchPath(GameCfg.CMLevelMusicPath, 0);
+				JukeboxSongs = PHYSFSX_findabsoluteFiles("", GameCfg.CMLevelMusicPath, music_exts);
 			}
 		}
-
-		count = 0;
 
 		if (JukeboxSongs != NULL)
 		{
@@ -92,7 +93,7 @@ void jukebox_load() {
 			if (count)
 			{
 				con_printf(CON_DEBUG,"Jukebox: %d music file(s) found in %s\n", count, GameCfg.CMLevelMusicPath);
-				memcpy(curpath,GameCfg.CMLevelMusicPath,PATH_MAX);
+				memcpy(curpath,GameCfg.CMLevelMusicPath,sizeof(char)*PATH_MAX);
 				if (GameCfg.CMLevelMusicTrack[1] != count)
 				{
 					GameCfg.CMLevelMusicTrack[1] = count;
@@ -103,6 +104,7 @@ void jukebox_load() {
 			{
 				GameCfg.CMLevelMusicTrack[0] = -1;
 				GameCfg.CMLevelMusicTrack[1] = -1;
+				PHYSFS_removeFromSearchPath(GameCfg.CMLevelMusicPath);
 				con_printf(CON_DEBUG,"Jukebox music could not be found!\n");
 			}
 		}
