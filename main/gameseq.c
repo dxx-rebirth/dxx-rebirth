@@ -1826,7 +1826,6 @@ void StartNewLevel(int level_num, int secret_flag)
 {
 	hide_menus();
 
-	GameTime = FrameTime;
 	ThisLevelTime=0;
 
 	if ((level_num > 0) && (!secret_flag)) {

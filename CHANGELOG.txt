@@ -1,5 +1,9 @@
 D2X-Rebirth Changelog
 
+20100615
+--------
+main/game.c, main/gameseq.c: Resetting GameTime, Next/Last_flare/laser/missile_time in reset_time() together so GameTime-rollover-fallbacks will not create a massive delay when starting a new level
+
 20100614
 --------
 include/args.h, include/physfsx.h, main/inferno.c, main/menu.c, main/movie.c, main/songs.c, main/songs.h, main/switch.c, main/config.c, main/config.h, main/gameseq.c, main/digiobj.c, main/digi.h, main/game.c, main/gamecntl.c, misc/args.c, CHANGELOG.txt, d2x.ini, arch/sdl/digi_mixer.c, arch/sdl/digi_mixer_music.c, arch/sdl/init.c, arch/sdl/jukebox.c, arch/sdl/digi.c, arch/sdl/digi_audio.c, arch/include/digi_audio.h, arch/include/digi_mixer.h, arch/include/digi_mixer_music.h, arch/include/jukebox.h: Increased SDL_mixer music abilities to play non-hmp from HOGs, having Level-music path to play, options to specify non-level tracks and added various playing order methods; Abstracted SDL_mixer- and Redbook-interfaces; Simplified program flow through all music functions
