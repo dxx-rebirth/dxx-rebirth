@@ -8,6 +8,7 @@ arch/sdl/jukebox.c: Small fix and improvement for Jukebox path detection
 arch/sdl/digi_mixer_music.c, main/songs.c: Use strrchr instead of strchr for music filename extension in case there are dots in the filename
 main/collide.c: Made reactor damage with persistent weapons FPS-independent but still a bit stronger than normal
 arch/sdl/jukebox.c: rev1112 contd: Killed juggling around with adding Jukebox paths - must always be removed correctly if Jukebox loading fails
+arch/linux/hmiplay.c, arch/sdl/digi.c, main/songs.c: Process -nomusic argument again
 
 20100503
 --------

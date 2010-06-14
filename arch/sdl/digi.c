@@ -164,9 +164,6 @@ void digi_win32_set_midi_volume( int mvolume )
 
 int digi_win32_play_midi_song( char * filename, char * melodic_bank, char * drum_bank, int loop )
 {
-	if (GameArg.SndNoMusic)
-		return 0;
-
 	digi_stop_current_song();
 
 	if (filename == NULL)
