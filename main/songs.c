@@ -158,6 +158,9 @@ void songs_init()
 		}
 	}
 
+	if (GameArg.SndNoMusic)
+		GameCfg.MusicType = MUSIC_TYPE_NONE;
+
 	// If SDL_Mixer is not supported (or deactivated), switch to no-music type if SDL_mixer-related music type was selected
 #ifdef USE_SDLMIXER
 	if (GameArg.SndDisableSdlMixer)
