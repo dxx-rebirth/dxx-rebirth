@@ -125,12 +125,12 @@ void songs_init()
 						Songs[i].melodic_bank_file,
 						Songs[i].drum_bank_file );
 
-				if (strchr(Songs[i].filename, '.'))
-					if (!stricmp(strchr(Songs[i].filename, '.'), ".hmp") ||
-						!stricmp(strchr(Songs[i].filename, '.'), ".mp3") ||
-						!stricmp(strchr(Songs[i].filename, '.'), ".ogg") ||
-						!stricmp(strchr(Songs[i].filename, '.'), ".aif") ||
-						!stricmp(strchr(Songs[i].filename, '.'), ".mid")
+				if (strrchr(Songs[i].filename, '.'))
+					if (!stricmp(strrchr(Songs[i].filename, '.'), ".hmp") ||
+						!stricmp(strrchr(Songs[i].filename, '.'), ".mp3") ||
+						!stricmp(strrchr(Songs[i].filename, '.'), ".ogg") ||
+						!stricmp(strrchr(Songs[i].filename, '.'), ".aif") ||
+						!stricmp(strrchr(Songs[i].filename, '.'), ".mid")
 						)
 						i++;
 			}
