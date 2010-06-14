@@ -20,9 +20,6 @@
 #define JUKEBOX_HUDMSG_PLAYING "Now playing:"
 #define JUKEBOX_HUDMSG_STOPPED "Jukebox stopped"
 
-static int jukebox_playing = -1;
-static int jukebox_play_last = -1;
-static int jukebox_numsongs = 0;
 static char **JukeboxSongs = NULL;
 char hud_msg_buf[MUSIC_HUDMSG_MAXLEN+4];
 
@@ -45,10 +42,10 @@ void jukebox_unload()
 /* Loads music file names from a given directory */
 void jukebox_load() {
 	int count;
-	char *music_exts[] = { ".mp3", ".ogg", ".wav", ".aif", NULL };
+	char *music_exts[] = { ".mp3", ".ogg", ".wav", ".aif", ".mid", NULL };
 	static char curpath[PATH_MAX+1];
 
-	if (memcmp(curpath,GameCfg.JukeboxPath,PATH_MAX) || !GameCfg.JukeboxOn)
+	if (memcmp(curpath,GameCfg.CMLevelMusicPath,PATH_MAX) || (GameCfg.MusicType != MUSIC_TYPE_CUSTOM))
 	{
 		PHYSFS_removeFromSearchPath(curpath);
 		jukebox_unload();
@@ -57,50 +54,76 @@ void jukebox_load() {
 	if (JukeboxSongs)
 		return;
 
-	if (GameCfg.JukeboxOn) {
-		// Adding as a mount point is an option, but wouldn't work for older versions of PhysicsFS
-		PHYSFS_addToSearchPath(GameCfg.JukeboxPath, 1);
+	if (GameCfg.MusicType == MUSIC_TYPE_CUSTOM)
+	{
+		char *p;
+		const char *sep = PHYSFS_getDirSeparator();
+		char absolute_path[PATH_MAX];
 
-		JukeboxSongs = PHYSFSX_findFiles("", music_exts);
+		// make sure there's a proper path separator.
+		if (strlen(GameCfg.CMLevelMusicPath) >= strlen(sep))
+		{
+			p = GameCfg.CMLevelMusicPath + strlen(GameCfg.CMLevelMusicPath) - strlen(sep);
+			if (strcmp(p, sep))
+				strncat(GameCfg.CMLevelMusicPath, sep, PATH_MAX - 1 - strlen(GameCfg.CMLevelMusicPath));
+		}
+
+		PHYSFSX_getRealPath(GameCfg.CMLevelMusicPath,absolute_path);
+		PHYSFS_addToSearchPath(absolute_path, 0);
+
+		// as mountpoints are no option (yet), make sure only files originating from GameCfg.CMLevelMusicPath are aded to the list.
+		JukeboxSongs = PHYSFSX_findabsoluteFiles("", absolute_path, music_exts);
 
 		if (JukeboxSongs != NULL) {
 			for (count = 0; JukeboxSongs[count]!=NULL; count++) {}
 			if (count)
 			{
-				con_printf(CON_DEBUG,"Jukebox: %d music file(s) found in %s\n", count, GameCfg.JukeboxPath);
-				memcpy(curpath,GameCfg.JukeboxPath,PATH_MAX);
-				jukebox_numsongs = count;
+				con_printf(CON_DEBUG,"Jukebox: %d music file(s) found in %s\n", count, GameCfg.CMLevelMusicPath);
+				memcpy(curpath,GameCfg.CMLevelMusicPath,PATH_MAX);
+				if (GameCfg.CMLevelMusicTrack[1] != count)
+				{
+					GameCfg.CMLevelMusicTrack[1] = count;
+					GameCfg.CMLevelMusicTrack[0] = 0; // number of songs changed so start from beginning.
+				}
 			}
-			else { con_printf(CON_DEBUG,"Jukebox music could not be found!\n"); }
+			else
+			{
+				GameCfg.CMLevelMusicTrack[0] = -1;
+				GameCfg.CMLevelMusicTrack[1] = -1;
+				con_printf(CON_DEBUG,"Jukebox music could not be found!\n");
+			}
 		}
-		else
-			{ Int3(); }	// should at least find a directory in some search path, otherwise how did D2X load?
 	}
 }
 
-void jukebox_hook_next();
-void (*jukebox_hook_finished)() = NULL;
+// To proceed tru our playlist. Usually used for continous play, but can loop as well.
+void jukebox_hook_next()
+{
+	if (!JukeboxSongs || GameCfg.CMLevelMusicTrack[0] == -1) return;
 
-int jukebox_play_tracks(int first, int last, void (*hook_finished)(void)) {
+	GameCfg.CMLevelMusicTrack[0]++;
+	if (GameCfg.CMLevelMusicTrack[0] + 1 > GameCfg.CMLevelMusicTrack[1])
+		GameCfg.CMLevelMusicTrack[0] = 0;
+
+	jukebox_play();
+}
+
+// Play tracks from Jukebox directory. Play track specified in GameCfg.CMLevelMusicTrack[0] and loop depending on GameCfg.CMLevelMusicPlayOrder
+int jukebox_play()
+{
 	char *music_filename;
 
-	if (!JukeboxSongs) return 0;
+	if (!JukeboxSongs)
+		return 0;
 
-	jukebox_playing = first - 1;	// start with the first track, then play until last track
-	if (jukebox_playing < 0)
-		jukebox_playing = 0;
+	if (GameCfg.CMLevelMusicTrack[0] < 0 || GameCfg.CMLevelMusicTrack[0] + 1 > GameCfg.CMLevelMusicTrack[1])
+		return 0;
 
-	if ((last < first) || (last >= jukebox_numsongs))
-		jukebox_play_last = jukebox_numsongs - 1;
-	else
-		jukebox_play_last = last - 1;
-
-	music_filename = JukeboxSongs[jukebox_playing];
+	music_filename = JukeboxSongs[GameCfg.CMLevelMusicTrack[0]];
 	if (!music_filename)
 		return 0;
 
-	jukebox_hook_finished = hook_finished ? hook_finished : mix_free_music;
-	if (!mix_play_file(music_filename, 0, jukebox_hook_next))	// have our function handle looping
+	if (!mix_play_file(music_filename, ((GameCfg.CMLevelMusicPlayOrder == MUSIC_CM_PLAYORDER_CONT)?0:1), ((GameCfg.CMLevelMusicPlayOrder == MUSIC_CM_PLAYORDER_CONT)?jukebox_hook_next:NULL)))
 		return 0;	// whoops, got an error
 
 	// Formatting a pretty message
@@ -117,69 +140,13 @@ int jukebox_play_tracks(int first, int last, void (*hook_finished)(void)) {
 	return 1;
 }
 
-void jukebox_stop() {
-	if (!JukeboxSongs) return;	// since this function is also used for stopping MIDI
-	mix_stop_music();
-	if (jukebox_playing != -1)
-		hud_message(MSGC_GAME_FEEDBACK, JUKEBOX_HUDMSG_STOPPED);
-	jukebox_playing = -1;
-}
-
-// need this mess because pausing the game is meant to pause the music
-void jukebox_pause() {
-	if (!JukeboxSongs) return;
-
-	Mix_PauseMusic();
-}
-
-int jukebox_resume() {
-	if (!JukeboxSongs) return -1;
-	
-	Mix_ResumeMusic();
-	return 1;
-}
-
-int jukebox_pause_resume() {
-	if (!JukeboxSongs) return 0;
-
-	if (Mix_PausedMusic())
-	{
-		Mix_ResumeMusic();
-		hud_message(MSGC_GAME_FEEDBACK, "Jukebox playback resumed");
-	}
-	else if (Mix_PlayingMusic())
-	{
-		Mix_PauseMusic();
-		hud_message(MSGC_GAME_FEEDBACK, "Jukebox playback paused");
-	}
-	else
-		return 0;
-
-	return 1;
-}
-
-void jukebox_hook_next() {
-	if (!JukeboxSongs || jukebox_playing == -1) return;
-	
-	jukebox_playing++;
-	if ((jukebox_playing > jukebox_play_last) && jukebox_hook_finished)
-		jukebox_hook_finished();
-	else if (jukebox_playing <= jukebox_play_last)
-		jukebox_play_tracks(jukebox_playing + 1, jukebox_play_last + 1, jukebox_hook_finished);
-}
-
 char *jukebox_current() {
-	return JukeboxSongs[jukebox_playing];
+	return JukeboxSongs[GameCfg.CMLevelMusicTrack[0]];
 }
 
 int jukebox_is_loaded() { return (JukeboxSongs != NULL); }
-int jukebox_is_playing() { return jukebox_playing + 1; }
-int jukebox_numtracks() { return jukebox_numsongs; }
-
-void jukebox_set_volume(int vol)
-{ 
-	mix_set_music_volume(vol);
-}
+int jukebox_is_playing() { return GameCfg.CMLevelMusicTrack[0] + 1; }
+int jukebox_numtracks() { return GameCfg.CMLevelMusicTrack[1]; }
 
 void jukebox_list() {
 	int i;
@@ -188,7 +155,7 @@ void jukebox_list() {
 		con_printf(CON_DEBUG,"* No songs have been found\n");
 	}
 	else {
-		for (i = 0; i < jukebox_numsongs; i++)
+		for (i = 0; i < GameCfg.CMLevelMusicTrack[1]; i++)
 			con_printf(CON_DEBUG,"* %s\n", JukeboxSongs[i]);
 	}
 }

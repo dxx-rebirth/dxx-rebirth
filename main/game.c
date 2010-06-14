@@ -326,7 +326,7 @@ int set_screen_mode(int sm)
 				if (gr_set_mode(Game_screen_mode))
 					Error("Cannot set screen mode.");
 			break;
-	
+
 		case SCREEN_GAME:
 			/* keep the mouse from wandering in SDL */
 			if (GameArg.CtlGrabMouse && (Newdemo_state != ND_STATE_PLAYBACK))
@@ -353,7 +353,7 @@ int set_screen_mode(int sm)
 				}
 			}
 			gr_palette_load( gr_palette );
-	
+
 			gr_init_sub_canvas( &VR_editor_canvas, &grd_curscreen->sc_canvas, 0, 0, SWIDTH, SHEIGHT );
 			Canv_editor = &VR_editor_canvas;
 			gr_set_current_canvas( Canv_editor );
@@ -430,14 +430,14 @@ void FixedStepCalc()
 		StepRes |= EPS20;
 		Timer20 = 0 - (Timer20-F1_0/20);
 	}
-	
+
 	Timer30 += FrameTime;
 	if (Timer30 >= F1_0/30)
 	{
 		StepRes |= EPS30;
 		Timer30 = 0 - (Timer30-F1_0/30);
 	}
-	
+
 	FixedStep = StepRes;
 }
 
@@ -468,7 +468,7 @@ void calc_frame_time()
 
 	if (FrameTime < 0)				//if bogus frametime...
 		FrameTime = (last_frametime==0?1:last_frametime);		//...then use time from last frame
-		
+
 	GameTime += FrameTime;
 
 	if (GameTime < 0 || GameTime > i2f(0x7fff - 600))
@@ -733,13 +733,13 @@ extern int Death_sequence_aborted;
 static int free_help(newmenu *menu, d_event *event, void *userdata)
 {
 	userdata = userdata;
-	
+
 	if (event->type == EVENT_WINDOW_CLOSE)
 	{
 		newmenu_item *items = newmenu_get_items(menu);
 		d_free(items);
 	}
-	
+
 	return 0;
 }
 
@@ -747,11 +747,11 @@ void show_help()
 {
 	int nitems = 0;
 	newmenu_item *m;
-	
+
 	MALLOC(m, newmenu_item, 26);
 	if (!m)
 		return;
-	
+
 	m[nitems].type = NM_TYPE_TEXT; m[nitems++].text = TXT_HELP_ESC;
 	m[nitems].type = NM_TYPE_TEXT; m[nitems++].text = "SHIFT-ESC\t  SHOW GAME LOG";
 	m[nitems].type = NM_TYPE_TEXT; m[nitems++].text = "F1\t  THIS SCREEN";
@@ -799,7 +799,7 @@ void show_netgame_help()
 	MALLOC(m, newmenu_item, 13);
 	if (!m)
 		return;
-	
+
 	m[nitems].type = NM_TYPE_TEXT; m[nitems++].text = "F1\t  THIS SCREEN";
 	m[nitems].type = NM_TYPE_TEXT; m[nitems++].text = "ALT-F4\t  SHOW RETICLE NAMES";
 	m[nitems].type = NM_TYPE_TEXT; m[nitems++].text = "F7\t  TOGGLE KILL LIST";
@@ -829,7 +829,7 @@ void show_newdemo_help()
 	MALLOC(m, newmenu_item, 15);
 	if (!m)
 		return;
-	
+
 	m[nitems].type = NM_TYPE_TEXT; m[nitems++].text = "ESC\t  QUIT DEMO PLAYBACK";
 	m[nitems].type = NM_TYPE_TEXT; m[nitems++].text = "F1\t  THIS SCREEN";
 	m[nitems].type = NM_TYPE_TEXT; m[nitems++].text = TXT_HELP_F2;
@@ -1027,18 +1027,18 @@ int game_handler(window *wind, d_event *event, void *data)
 			if (!((Game_mode & GM_MULTI) && (Newdemo_state != ND_STATE_PLAYBACK)))
 				palette_restore();
 			break;
-			
+
 		case EVENT_WINDOW_DEACTIVATED:
 			if (!(((Game_mode & GM_MULTI) && (Newdemo_state != ND_STATE_PLAYBACK)) && (!Endlevel_sequence)) )
 				stop_time();
-			
+
 			if (!((Game_mode & GM_MULTI) && (Newdemo_state != ND_STATE_PLAYBACK)))
 				digi_pause_digi_sounds();
 
 			if (!((Game_mode & GM_MULTI) && (Newdemo_state != ND_STATE_PLAYBACK)))
 				palette_save();
 			break;
-			
+
 		case EVENT_MOUSE_BUTTON_UP:
 		case EVENT_MOUSE_BUTTON_DOWN:
 		case EVENT_KEY_COMMAND:
@@ -1048,28 +1048,28 @@ int game_handler(window *wind, d_event *event, void *data)
 		case EVENT_IDLE:
 			// GAME LOOP!
 			Config_menu_flag = 0;
-			
+
 			ReadControls(event);		// will be removed from here once all input events are in place
 			if (window_get_front() != wind)
 				break;
-			
+
 			if (Config_menu_flag)	{
 				do_options_menu();
 			}
-			
+
 			if (!Game_wind)
 				break;
-			
+
 			return 0;
 			break;
-			
+
 		case EVENT_WINDOW_DRAW:
 			if (!time_paused)
 			{
 				calc_frame_time();
 				GameProcessFrame();
 			}
-			
+
 			if (!Automap_active)		// efficiency hack
 			{
 				if (force_cockpit_redraw) {			//screen need redrawing?
@@ -1079,33 +1079,33 @@ int game_handler(window *wind, d_event *event, void *data)
 				game_render_frame();
 			}
 			break;
-			
+
 		case EVENT_WINDOW_CLOSE:
-			digi_stop_all();
-			
+			digi_stop_digi_sounds();
+
 			if ( (Newdemo_state == ND_STATE_RECORDING) || (Newdemo_state == ND_STATE_PAUSED) )
 				newdemo_stop_recording();
-			
+
 #ifdef NETWORK
 			multi_leave_game();
 #endif
-			
+
 			if ( Newdemo_state == ND_STATE_PLAYBACK )
 				newdemo_stop_playback();
-			
+
 			songs_play_song( SONG_TITLE, 1 );
-			
+
 			clear_warn_func(game_show_warning);     //don't use this func anymore
 			game_disable_cheats();
 			show_menus();
 			Game_wind = NULL;
 			return 0;	// continue closing
 			break;
-			
+
 		case EVENT_WINDOW_CLOSED:
 			longjmp(LeaveEvents, 0);
 			break;
-			
+
 		default:
 			return 0;
 			break;
@@ -1145,7 +1145,7 @@ extern	int Do_appearance_effect;
 void game_leave_menus(void)
 {
 	window *wind;
-	
+
 	if (!Game_wind)
 		return;
 
@@ -1158,7 +1158,7 @@ void GameProcessFrame(void)
 	fix player_shields = Players[Player_num].shields;
 	int was_fuelcen_destroyed = Control_center_destroyed;
 	int player_was_dead = Player_is_dead;
-	
+
 	update_player_stats();
 	diminish_palette_towards_normal();		//	Should leave palette effect up for as long as possible by putting right before render.
 	do_cloak_stuff();
@@ -1273,7 +1273,7 @@ void GameProcessFrame(void)
 	// Check if we have to close in-game menus for multiplayer
 	if (Endlevel_sequence || (Player_is_dead != player_was_dead) || (Players[Player_num].shields < player_shields))
 		game_leave_menus();
-	
+
 	if ((Control_center_destroyed && !was_fuelcen_destroyed) || ((Control_center_destroyed) && (Countdown_seconds_left < 10)))
 		game_leave_menus();
 }

@@ -121,7 +121,7 @@ struct sound_slot {
 	int looped;    // Play this sample looped?
 	fix pan;       // 0 = far left, 1 = far right
 	fix volume;    // 0 = nothing, 1 = fully on
-	//changed on 980905 by adb from char * to unsigned char * 
+	//changed on 980905 by adb from char * to unsigned char *
 	unsigned char *samples;
 	//end changes by adb
 	unsigned int length; // Length of the sample
@@ -198,7 +198,7 @@ int digi_audio_init()
 	if (SDL_InitSubSystem(SDL_INIT_AUDIO)<0) {
 		Error("SDL audio initialisation failed: %s.",SDL_GetError());
 	}
-	
+
 	WaveSpec.freq = digi_sample_rate;
 	//added/changed by Sam Lantinga on 12/01/98 for new SDL version
 	WaveSpec.format = AUDIO_U8;
@@ -206,7 +206,7 @@ int digi_audio_init()
 	//end this section addition/change - SL
 	WaveSpec.samples = SOUND_BUFFER_SIZE;
 	WaveSpec.callback = audio_mixcallback;
-	
+
 	if ( SDL_OpenAudio(&WaveSpec, NULL) < 0 ) {
 		//edited on 10/05/98 by Matt Mueller - should keep running, just with no sound.
 		Warning("\nError: Couldn't open audio: %s\n", SDL_GetError());
@@ -215,7 +215,7 @@ int digi_audio_init()
 		//end edit -MM
 	}
 	SDL_PauseAudio(0);
-	
+
 	digi_initialised = 1;
 	return 0;
 }
@@ -243,7 +243,7 @@ void digi_audio_stop_all_channels()
 }
 
 
-extern void digi_end_soundobj(int channel);	
+extern void digi_end_soundobj(int channel);
 extern int SoundQ_channel;
 extern void SoundQ_end();
 int verify_sound_channel_free(int channel);
@@ -269,7 +269,7 @@ int digi_audio_start_sound(short soundnum, fix volume, int pan, int looping, int
 			break;
 
 		if (!SoundSlots[next_channel].persistent)
-			break;	// use this channel!	
+			break;	// use this channel!
 
 		next_channel++;
 		if (next_channel >= digi_max_channels)
@@ -372,12 +372,12 @@ int digi_audio_is_sound_playing(int soundno)
 
 
  //added on 980905 by adb to make sound channel setting work
-void digi_audio_set_max_channels(int n) { 
+void digi_audio_set_max_channels(int n) {
 	digi_max_channels	= n;
 
-	if ( digi_max_channels < 1 ) 
+	if ( digi_max_channels < 1 )
 		digi_max_channels = 1;
-	if (digi_max_channels > MAX_SOUND_SLOTS) 
+	if (digi_max_channels > MAX_SOUND_SLOTS)
 		digi_max_channels = MAX_SOUND_SLOTS;
 
 	if ( !digi_initialised ) return;
@@ -385,8 +385,8 @@ void digi_audio_set_max_channels(int n) {
 	digi_stop_all_channels();
 }
 
-int digi_audio_get_max_channels() { 
-	return digi_max_channels; 
+int digi_audio_get_max_channels() {
+	return digi_max_channels;
 }
 // end edit by adb
 
@@ -438,72 +438,6 @@ void digi_audio_end_sound(int channel)
 	SoundSlots[channel].soundobj = -1;
 	SoundSlots[channel].persistent = 0;
 }
-
-// MIDI stuff follows.
-void digi_audio_set_midi_volume( int mvolume )
-{
-#ifdef _WIN32
-	int mm_volume;
-
-	if (mvolume < 0)
-		midi_volume = 0;
-	else if (mvolume > 127)
-		midi_volume = 127;
-	else
-		midi_volume = mvolume;
-
-	// scale up from 0-127 to 0-0xffff
-	mm_volume = (midi_volume << 1) | (midi_volume & 1);
-	mm_volume |= (mm_volume << 8);
-
-	if (hmp)
-		midiOutSetVolume((HMIDIOUT)hmp->hmidi, mm_volume | mm_volume << 16);
-#endif
-}
-
-int digi_audio_play_midi_song( char * filename, char * melodic_bank, char * drum_bank, int loop )
-{
-#ifdef _WIN32
-	if (GameArg.SndNoMusic)
-		return 0;
-
-	digi_stop_current_song();
-
-	if (filename == NULL)
-		return 0;
-
-	if ((hmp = hmp_open(filename)))
-	{
-		if (hmp_play(hmp,loop) != 0)
-			return 0;	// error
-		digi_midi_song_playing = 1;
-		digi_set_midi_volume(midi_volume);
-		return 1;
-	}
-#endif
-	
-	return 0;
-}
-
-void digi_audio_stop_current_song()
-{
-#ifdef HMIPLAY
-        char buf[10];
-    
-        sprintf(buf,"s");
-        send_ipc(buf);
-#endif
-#ifdef _WIN32
-	if (digi_midi_song_playing)
-	{
-		hmp_close(hmp);
-		hmp = NULL;
-		digi_midi_song_playing = 0;
-	}
-#endif
-}
-void digi_audio_pause_midi() {}
-void digi_audio_resume_midi() {}
 
 #ifndef NDEBUG
 void digi_audio_debug()

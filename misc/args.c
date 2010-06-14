@@ -7,7 +7,7 @@ IN USING, DISPLAYING,  AND CREATING DERIVATIVE WORKS THEREOF, SO LONG AS
 SUCH USE, DISPLAY OR CREATION IS FOR NON-COMMERCIAL, ROYALTY OR REVENUE
 FREE PURPOSES.  IN NO EVENT SHALL THE END-USER USE THE COMPUTER CODE
 CONTAINED HEREIN FOR REVENUE-BEARING PURPOSES.  THE END-USER UNDERSTANDS
-AND AGREES TO THE TERMS HEREIN AND ACCEPTS THE SAME BY USE OF THIS FILE.  
+AND AGREES TO THE TERMS HEREIN AND ACCEPTS THE SAME BY USE OF THIS FILE.
 COPYRIGHT 1993-1998 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 */
 
@@ -92,7 +92,7 @@ void AppendIniArgs(void)
 	char separator[] = " ";
 
 	f = PHYSFSX_openReadBuffered(INI_FILENAME);
-	
+
 	if(f) {
 		while(!PHYSFS_eof(f) && Num_args < MAX_ARGS)
 		{
@@ -169,7 +169,6 @@ void ReadCmdArgs(void)
 
 #ifdef USE_SDLMIXER
 	GameArg.SndDisableSdlMixer 	= FindArg("-nosdlmixer");
-	GameArg.SndExternalMusic 	= get_str_arg("-music_ext", NULL);
 #endif
 
 	// Graphics Options
@@ -233,9 +232,9 @@ void args_exit(void)
 void InitArgs( int argc,char **argv )
 {
 	int i;
-	
+
 	Num_args=0;
-	
+
 	for (i=0; i<argc; i++ )
 		Args[Num_args++] = d_strdup( argv[i] );
 

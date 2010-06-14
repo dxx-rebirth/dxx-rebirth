@@ -167,8 +167,8 @@ extern void newmenu_close();
 #define SLIDER_RIGHT        "„"  // 132
 #define SLIDER_MIDDLE       "…"  // 133
 #define SLIDER_MARKER       "†"  // 134
-#define UP_ARROW_MARKER     "‡"  // 135
-#define DOWN_ARROW_MARKER   "ˆ"  // 136
+#define UP_ARROW_MARKER     "+"  // 135
+#define DOWN_ARROW_MARKER   "+"  // 136
 
 #define BORDERX (15*(SWIDTH/320))
 #define BORDERY (15*(SHEIGHT/200))

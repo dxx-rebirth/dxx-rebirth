@@ -171,7 +171,7 @@ void update_vcr_state(void)
 void do_weapon_stuff()
 {
 	int i;
-	
+
 	if (Controls.fire_flare_down_count)
 		if (allowed_to_fire_flare())
 			Flare_create(ConsoleObject);
@@ -231,10 +231,10 @@ int pause_handler(window *wind, d_event *event, char *msg)
 		case EVENT_WINDOW_ACTIVATED:
 			game_flush_inputs();
 			break;
-			
+
 		case EVENT_KEY_COMMAND:
 			key = ((d_event_keycommand *)event)->keycode;
-			
+
 			switch (key)
 			{
 				case 0:
@@ -253,23 +253,21 @@ int pause_handler(window *wind, d_event *event, char *msg)
 					break;
 			}
 			break;
-			
+
 		case EVENT_IDLE:
 			timer_delay2(50);
 			break;
-			
+
 		case EVENT_WINDOW_DRAW:
 			show_boxed_message(msg, 1);
 			break;
-			
+
 		case EVENT_WINDOW_CLOSE:
 			reset_cockpit();
-			if (EXT_MUSIC_ON)
-				ext_music_resume();
-			digi_resume_midi();		// sound pausing handled by game_handler
+			songs_resume();
 			d_free(msg);
 			break;
-			
+
 		default:
 			break;
 	}
@@ -281,7 +279,7 @@ int do_game_pause()
 {
 	char *msg;
 	char total_time[9],level_time[9];
-	
+
 	MALLOC(msg, char, 1024);
 	if (!msg)
 		return 0;
@@ -293,9 +291,9 @@ int do_game_pause()
 		return(KEY_PAUSE);
 	}
 #endif
-	
-	digi_pause_midi();		// sound pausing handled by game_handler
-	ext_music_pause();
+
+	songs_pause();
+
 	format_time(total_time, f2i(Players[Player_num].time_total) + Players[Player_num].hours_total*3600);
 	format_time(level_time, f2i(Players[Player_num].time_level) + Players[Player_num].hours_level*3600);
 	if (Newdemo_state!=ND_STATE_PLAYBACK)
@@ -303,10 +301,10 @@ int do_game_pause()
 	else
 	  	sprintf(msg,"PAUSE\n\nSkill level:  %s\nHostages on board:  %d\n",(*(&TXT_DIFFICULTY_1 + (Difficulty_level))),Players[Player_num].hostages_on_board);
 	set_screen_mode(SCREEN_MENU);
-	
+
 	if (!window_create(&grd_curscreen->sc_canvas, 0, 0, SWIDTH, SHEIGHT, (int (*)(window *, d_event *, void *))pause_handler, msg))
 		d_free(msg);
-	
+
 	return 0 /*key*/;	// Keycode returning ripped out (kreatordxx)
 }
 
@@ -318,7 +316,7 @@ int HandleEndlevelKey(int key)
 		case KEY_PAUSE:
 			do_game_pause();
 			return 1;
-			
+
 		case KEY_ESC:
 			stop_endlevel_sequence();
 			last_drawn_cockpit=-1;
@@ -343,7 +341,7 @@ int HandleDeathKey(int key)
 		game_flush_inputs();
 		return 1;
 	}
-	
+
 	return 0;
 }
 
@@ -462,12 +460,9 @@ int HandleDemoKey(int key)
 		default:
 			return 0;
 	}
-	
+
 	return 1;
 }
-
-void songs_goto_next_song();
-void songs_goto_prev_song();
 
 //this is for system-level keys, such as help, etc.
 //returns 1 if screen changed
@@ -622,30 +617,30 @@ int HandleSystemKey(int key)
 			 */
 		case KEY_ALTED + KEY_SHIFTED + KEY_F9:
 		KEY_MAC(case KEY_COMMAND+KEY_E:)
-			songs_stop_all();
-			ext_music_eject_disk();
+			if (GameCfg.MusicType == MUSIC_TYPE_REDBOOK)
+			{
+				songs_stop_all();
+				RBAEjectDisk();
+			}
 			break;
-			
+
 		case KEY_ALTED + KEY_SHIFTED + KEY_F10:
 		KEY_MAC(case KEY_COMMAND+KEY_UP:)
 		KEY_MAC(case KEY_COMMAND+KEY_DOWN:)
-			if (EXT_MUSIC_ON && !ext_music_pause_resume())
-			{
-				songs_play_level_song( Current_level_num );
-			}
+			songs_pause_resume();
 			break;
-			
+
 		case KEY_MINUS + KEY_ALTED:
 		case KEY_ALTED + KEY_SHIFTED + KEY_F11:
 		KEY_MAC(case KEY_COMMAND+KEY_LEFT:)
-			songs_goto_prev_song();
+			songs_play_level_song( Current_level_num, -1 );
 			break;
 		case KEY_EQUAL + KEY_ALTED:
 		case KEY_ALTED + KEY_SHIFTED + KEY_F12:
 		KEY_MAC(case KEY_COMMAND+KEY_RIGHT:)
-			songs_goto_next_song();
+			songs_play_level_song( Current_level_num, 1 );
 			break;
-			
+
 		default:
 			return 0;
 			break;
@@ -697,7 +692,7 @@ int HandleGameKey(int key)
 			break;
 
 	}	 //switch (key)
-	
+
 	return 1;
 }
 
@@ -881,7 +876,7 @@ int HandleTestKey(int key)
 			return 0;
 			break;
 	}
-	
+
 	return 1;
 }
 #endif		//#ifndef RELEASE
@@ -966,7 +961,7 @@ extern void john_cheat_func_4(int);
 void FinalCheats(int key)
 {
 	if (key == 0) return;
-	
+
 	if (!(Game_mode&GM_MULTI) && key == cheat_enable_keys[cheat_enable_index]) {
 		if (++cheat_enable_index == CHEAT_ENABLE_LENGTH) {
 			hud_message(MSGC_GAME_CHEAT, TXT_CHEATS_ENABLED);
@@ -977,97 +972,97 @@ void FinalCheats(int key)
 	}
 	else
 		cheat_enable_index = 0;
-	
+
 	if (Cheats_enabled)
 	{
 		john_cheat_func_2(key);
-		
+
 		if (!(Game_mode&GM_MULTI) && key == cheat_wowie[cheat_wowie_index]) {
 			if (++cheat_wowie_index == CHEAT_WOWIE_LENGTH) {
 				int i;
-				
+
 				hud_message(MSGC_GAME_CHEAT, TXT_WOWIE_ZOWIE);
 				digi_play_sample( SOUND_CHEATER, F1_0);
-				
+
 				Players[Player_num].primary_weapon_flags |= 0xff ^ (HAS_PLASMA_FLAG | HAS_FUSION_FLAG);
 				Players[Player_num].secondary_weapon_flags |= 0xff ^ (HAS_SMART_FLAG | HAS_MEGA_FLAG);
-				
+
 				for (i=0; i<3; i++)
 					Players[Player_num].primary_ammo[i] = Primary_ammo_max[i];
-				
+
 				for (i=0; i<3; i++)
 					Players[Player_num].secondary_ammo[i] = Secondary_ammo_max[i];
-				
+
 				if (Newdemo_state == ND_STATE_RECORDING)
 					newdemo_record_laser_level(Players[Player_num].laser_level, MAX_LASER_LEVEL);
-				
+
 				Players[Player_num].energy = MAX_ENERGY;
 				Players[Player_num].laser_level = MAX_LASER_LEVEL;
 				Players[Player_num].flags |= PLAYER_FLAGS_QUAD_LASERS;
 				update_laser_weapon_info();
-				
+
 				cheat_wowie_index = 0;
 			}
 		}
 		else
 			cheat_wowie_index = 0;
-		
+
 		if (!(Game_mode&GM_MULTI) && key == (0xaa^new_cheats[cheat_wowie2_index*NUM_NEW_CHEATS+CHEAT_WOWIE2_OFS])) {
 			if (++cheat_wowie2_index == CHEAT_WOWIE2_LENGTH) {
 				int i;
-				
+
 				hud_message(MSGC_GAME_CHEAT, "SUPER %s",TXT_WOWIE_ZOWIE);
 				digi_play_sample( SOUND_CHEATER, F1_0);
-				
+
 				Players[Player_num].primary_weapon_flags = 0xff;
 				Players[Player_num].secondary_weapon_flags = 0xff;
-				
+
 				for (i=0; i<MAX_PRIMARY_WEAPONS; i++)
 					Players[Player_num].primary_ammo[i] = Primary_ammo_max[i];
-				
+
 				for (i=0; i<MAX_SECONDARY_WEAPONS; i++)
 					Players[Player_num].secondary_ammo[i] = Secondary_ammo_max[i];
-				
+
 				if (Newdemo_state == ND_STATE_RECORDING)
 					newdemo_record_laser_level(Players[Player_num].laser_level, MAX_LASER_LEVEL);
-				
+
 				Players[Player_num].energy = MAX_ENERGY;
 				Players[Player_num].laser_level = MAX_LASER_LEVEL;
 				Players[Player_num].flags |= PLAYER_FLAGS_QUAD_LASERS;
 				update_laser_weapon_info();
-				
+
 				cheat_wowie2_index = 0;
 			}
 		}
 		else
 			cheat_wowie2_index = 0;
-		
+
 		if (!(Game_mode&GM_MULTI) && key == cheat_allkeys[cheat_allkeys_index]) {
 			if (++cheat_allkeys_index == CHEAT_ALLKEYS_LENGTH) {
 				hud_message(MSGC_GAME_CHEAT, TXT_ALL_KEYS);
 				digi_play_sample( SOUND_CHEATER, F1_0);
 				Players[Player_num].flags |= PLAYER_FLAGS_BLUE_KEY | PLAYER_FLAGS_RED_KEY | PLAYER_FLAGS_GOLD_KEY;
-				
+
 				cheat_allkeys_index = 0;
 			}
 		}
 		else
 			cheat_allkeys_index = 0;
-		
-		
+
+
 		if (!(Game_mode&GM_MULTI) && key == cheat_invuln[cheat_invuln_index]) {
 			if (++cheat_invuln_index == CHEAT_INVULN_LENGTH) {
 				Players[Player_num].flags ^= PLAYER_FLAGS_INVULNERABLE;
 				hud_message(MSGC_GAME_CHEAT, "%s %s!", TXT_INVULNERABILITY, (Players[Player_num].flags&PLAYER_FLAGS_INVULNERABLE)?TXT_ON:TXT_OFF);
 				digi_play_sample( SOUND_CHEATER, F1_0);
 				Players[Player_num].invulnerable_time = GameTime+i2f(1000);
-				
+
 				cheat_invuln_index = 0;
 			}
 		}
 		else
 			cheat_invuln_index = 0;
-		
+
 		if (!(Game_mode&GM_MULTI) && key == cheat_cloak[cheat_cloak_index]) {
 			if (++cheat_cloak_index == CHEAT_CLOAK_LENGTH) {
 				Players[Player_num].flags ^= PLAYER_FLAGS_CLOAKED;
@@ -1077,25 +1072,25 @@ void FinalCheats(int key)
 					ai_do_cloak_stuff();
 					Players[Player_num].cloak_time = (GameTime+CLOAK_TIME_MAX>i2f(0x7fff-600)?GameTime-i2f(0x7fff-600):GameTime);
 				}
-				
+
 				cheat_cloak_index = 0;
 			}
 		}
 		else
 			cheat_cloak_index = 0;
-		
+
 		if (!(Game_mode&GM_MULTI) && key == cheat_shield[cheat_shield_index]) {
 			if (++cheat_shield_index == CHEAT_SHIELD_LENGTH) {
 				hud_message(MSGC_GAME_CHEAT, TXT_FULL_SHIELDS);
 				digi_play_sample( SOUND_CHEATER, F1_0);
 				Players[Player_num].shields = MAX_SHIELDS;
-				
+
 				cheat_shield_index = 0;
 			}
 		}
 		else
 			cheat_shield_index = 0;
-		
+
 		if (!(Game_mode&GM_MULTI) && key == cheat_warp[cheat_warp_index]) {
 			if (++cheat_warp_index == CHEAT_WARP_LENGTH) {
 				newmenu_item m;
@@ -1110,13 +1105,13 @@ void FinalCheats(int key)
 					if (new_level_num!=0 && new_level_num>=0 && new_level_num<=Last_level)
 						StartNewLevel(new_level_num);
 				}
-				
+
 				cheat_warp_index = 0;
 			}
 		}
 		else
 			cheat_warp_index = 0;
-		
+
 		if (!(Game_mode&GM_MULTI) && key == cheat_astral[cheat_astral_index]) {
 			if (++cheat_astral_index == CHEAT_ASTRAL_LENGTH) {
 				digi_play_sample( SOUND_CHEATER, F1_0);
@@ -1131,7 +1126,7 @@ void FinalCheats(int key)
 		}
 		else
 			cheat_astral_index = 0;
-		
+
 		if (!(Game_mode&GM_MULTI) && key == (0xaa^new_cheats[cheat_turbomode_index*NUM_NEW_CHEATS+CHEAT_TURBOMODE_OFS])) {
 			if (++cheat_turbomode_index == CHEAT_TURBOMODE_LENGTH) {
 				Game_turbo_mode ^= 1;
@@ -1141,7 +1136,7 @@ void FinalCheats(int key)
 		}
 		else
 			cheat_turbomode_index = 0;
-		
+
 		if (!(Game_mode&GM_MULTI) && key == (0xaa^new_cheats[cheat_newlife_index*NUM_NEW_CHEATS+CHEAT_NEWLIFE_OFS])) {
 			if (++cheat_newlife_index == CHEAT_NEWLIFE_LENGTH) {
 				if (Players[Player_num].lives<50) {
@@ -1149,13 +1144,13 @@ void FinalCheats(int key)
 					hud_message(MSGC_GAME_CHEAT, "Extra life!");
 					digi_play_sample( SOUND_CHEATER, F1_0);
 				}
-				
+
 				cheat_newlife_index = 0;
 			}
 		}
 		else
 			cheat_newlife_index = 0;
-		
+
 		if (!(Game_mode&GM_MULTI) && key == (0xaa^new_cheats[cheat_exitpath_index*NUM_NEW_CHEATS+CHEAT_EXITPATH_OFS])) {
 			if (++cheat_exitpath_index == CHEAT_EXITPATH_LENGTH) {
 #ifdef SHOW_EXIT_PATH
@@ -1169,20 +1164,20 @@ void FinalCheats(int key)
 		}
 		else
 			cheat_exitpath_index = 0;
-		
+
 		if (!(Game_mode&GM_MULTI) && key == (0xaa^new_cheats[cheat_robotpause_index*NUM_NEW_CHEATS+CHEAT_ROBOTPAUSE_OFS])) {
 			if (++cheat_robotpause_index == CHEAT_ROBOTPAUSE_LENGTH) {
 				Robot_firing_enabled = !Robot_firing_enabled;
 				hud_message(MSGC_GAME_CHEAT, "%s %s!", "Robot firing", Robot_firing_enabled?TXT_ON:TXT_OFF);
 				digi_play_sample( SOUND_CHEATER, F1_0);
-				
+
 				cheat_robotpause_index = 0;
 			}
-			
+
 		}
 		else
 			cheat_robotpause_index = 0;
-		
+
 		john_cheat_func_3(key);
 		john_cheat_func_4(key);
 		bald_guy_cheat(key);
@@ -1211,7 +1206,7 @@ void do_cheat_menu()
 	mm[9].type=NM_TYPE_RADIO; mm[9].value=(Players[Player_num].laser_level==2); mm[9].group=0; mm[9].text="Laser level 3";
 	mm[10].type=NM_TYPE_RADIO; mm[10].value=(Players[Player_num].laser_level==3); mm[10].group=0; mm[10].text="Laser level 4";
 	mm[11].type=NM_TYPE_NUMBER; mm[11].value=Players[Player_num].secondary_ammo[CONCUSSION_INDEX]; mm[11].text="Missiles"; mm[11].min_value=0; mm[11].max_value=200;
-	
+
 	mmn = newmenu_do("Wimp Menu",NULL,12, mm, NULL, NULL );
 
 	if (mmn > -1 )  {
@@ -1306,7 +1301,7 @@ int ReadControls(d_event *event)
 			do_automap(0);
 			return 1;
 		}
-		
+
 		do_weapon_stuff();
 	}
 
@@ -1379,14 +1374,14 @@ int ReadControls(d_event *event)
 		if (HandleTestKey(key))
 			return 1;
 #endif
-		
+
 		if (call_default_handler(event))
 			return 1;
-		
+
 		if (Player_is_dead)
 			return HandleDeathKey(key);
 	}
-	
+
 	return 0;
 }
 

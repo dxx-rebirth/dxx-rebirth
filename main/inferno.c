@@ -132,7 +132,6 @@ void print_commandline_help()
 	printf( "  -nomusic           %s\n", "Disables music output");
 #ifdef    USE_SDLMIXER
 	printf( "  -nosdlmixer        %s\n", "Disable Sound output via SDL_mixer");
-	printf( "  -music_ext <s>     %s\n", "Play music files with extension <s> (i.e. mp3, ogg)");
 #endif // USE SDLMIXER
 
 	printf( "\n Graphics:\n\n");
@@ -187,7 +186,7 @@ void print_commandline_help()
 void error_messagebox(char *s)
 {
 	window *wind;
-	
+
 	// Hide all windows so they don't interfere
 	// Don't care about unfreed pointers on exit; trying to close the windows may cause problems
 	for (wind = window_get_front(); wind != NULL; wind = window_get_front())
@@ -213,7 +212,7 @@ int standard_handler(d_event *event)
 			// We stay with the current one until it's closed/hidden or another one is made
 			// Not the case for the editor
 			break;
-			
+
 		case EVENT_KEY_COMMAND:
 			key = ((d_event_keycommand *)event)->keycode;
 
@@ -233,7 +232,7 @@ int standard_handler(d_event *event)
 					save_screen_shot(0);
 					return 1;
 				}
-					
+
 				case KEY_ALTED+KEY_ENTER:
 				case KEY_ALTED+KEY_PADENTER:
 					gr_toggle_fullscreen();
@@ -244,7 +243,7 @@ int standard_handler(d_event *event)
 					Int3();
 					return 1;
 #endif
-					
+
 #if defined(__APPLE__) || defined(macintosh)
 				case KEY_COMMAND+KEY_Q:
 					// Alt-F4 already taken, too bad
@@ -253,12 +252,12 @@ int standard_handler(d_event *event)
 #endif
 			}
 			break;
-			
+
 		case EVENT_IDLE:
 			//see if redbook song needs to be restarted
 			RBACheckFinishedHook();
 			return 1;
-			
+
 		case EVENT_QUIT:
 			quit_request();
 			break;
@@ -266,7 +265,7 @@ int standard_handler(d_event *event)
 		default:
 			break;
 	}
-	
+
 	return 0;
 }
 
@@ -374,7 +373,7 @@ int main(int argc, char *argv[])
 		return(0);
 
 	error_init(error_messagebox, NULL);
-	
+
 	set_default_handler(standard_handler);
 
 	con_printf( CON_DEBUG, "\nInitializing texture caching system..." );
@@ -388,7 +387,7 @@ int main(int argc, char *argv[])
 	Players[Player_num].callsign[0] = '\0';
 
 	show_titles();
-	
+
 	key_flush();
 
 	if(GameArg.SysPilot)
@@ -446,7 +445,7 @@ int main(int argc, char *argv[])
 void quit_request()
 {
 	window *wind;
-	
+
 	for (wind = window_get_front(); wind != NULL; wind = window_get_prev(wind))
 	{
 		if (wind == Game_wind)
@@ -455,7 +454,7 @@ void quit_request()
 			if (choice != 0)
 				return;
 		}
-		
+
 		window_close(wind);
 	}
 }

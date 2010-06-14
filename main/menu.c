@@ -130,7 +130,7 @@ int hide_menus(void)
 {
 	window *wind;
 	int i;
-	
+
 	if (menus[0])
 		return 0;		// there are already hidden menus
 
@@ -139,10 +139,10 @@ int hide_menus(void)
 		menus[i] = wind;
 		window_set_visible(wind, 0);
 	}
-	
+
 	Assert(window_get_front() == NULL);
 	menus[i] = NULL;
-	
+
 	return 1;
 }
 
@@ -151,7 +151,7 @@ int hide_menus(void)
 void show_menus(void)
 {
 	int i;
-	
+
 	for (i = 0; (i < 16) && menus[i]; i++)
 		if (window_exists(menus[i]))
 			window_set_visible(menus[i], 1);
@@ -168,42 +168,42 @@ int MakeNewPlayerFile(int allow_abort)
 	char filename[14];
 	newmenu_item m;
 	char text[CALLSIGN_LEN+9]="";
-	
+
 	strncpy(text, Players[Player_num].callsign,CALLSIGN_LEN);
-	
+
 try_again:
 	m.type=NM_TYPE_INPUT; m.text_len = CALLSIGN_LEN; m.text = text;
-	
+
 	Newmenu_allowed_chars = playername_allowed_chars;
 	x = newmenu_do( NULL, TXT_ENTER_PILOT_NAME, 1, &m, NULL, NULL );
 	Newmenu_allowed_chars = NULL;
-	
+
 	if ( x < 0 ) {
 		if ( allow_abort ) return 0;
 		goto try_again;
 	}
-	
+
 	if (text[0]==0)	//null string
 		goto try_again;
-	
+
 	strlwr(text);
-	
+
 	sprintf( filename, GameArg.SysUsePlayersDir? "Players/%s.plr" : "%s.plr", text );
-	
+
 	if (PHYSFS_exists(filename))
 	{
 		nm_messagebox(NULL, 1, TXT_OK, "%s '%s' %s", TXT_PLAYER, text, TXT_ALREADY_EXISTS );
 		goto try_again;
 	}
-	
+
 	if ( !new_player_config() )
 		goto try_again;			// They hit Esc during New player config
-	
+
 	strncpy(Players[Player_num].callsign, text, CALLSIGN_LEN);
 	strlwr(Players[Player_num].callsign);
-	
+
 	write_player_file();
-	
+
 	return 1;
 }
 
@@ -213,7 +213,7 @@ int player_menu_keycommand( listbox *lb, d_event *event )
 {
 	char **items = listbox_get_items(lb);
 	int citem = listbox_get_citem(lb);
-	
+
 	switch (((d_event_keycommand *)event)->keycode)
 	{
 		case KEY_CTRLED+KEY_D:
@@ -226,16 +226,16 @@ int player_menu_keycommand( listbox *lb, d_event *event )
 					char plxfile[PATH_MAX], efffile[PATH_MAX];
 					int ret;
 					char name[PATH_MAX];
-					
+
 					p = items[citem] + strlen(items[citem]);
 					*p = '.';
-					
+
 					strcpy(name, GameArg.SysUsePlayersDir ? "Players/" : "");
 					strcat(name, items[citem]);
-					
+
 					ret = !PHYSFS_delete(name);
 					*p = 0;
-					
+
 					if (!ret)
 					{
 						delete_player_saved_games( items[citem] );
@@ -248,18 +248,18 @@ int player_menu_keycommand( listbox *lb, d_event *event )
 						if (cfexist(efffile))
 							PHYSFS_delete(efffile);
 					}
-					
+
 					if (ret)
 						nm_messagebox( NULL, 1, TXT_OK, "%s %s %s", TXT_COULDNT, TXT_DELETE_PILOT, items[citem]+((items[citem][0]=='$')?1:0) );
 					else
 						listbox_delete_item(lb, citem);
 				}
-				
+
 				return 1;
 			}
 			break;
 	}
-	
+
 	return 0;
 }
 
@@ -267,13 +267,13 @@ int player_menu_handler( listbox *lb, d_event *event, char **list )
 {
 	char **items = listbox_get_items(lb);
 	int citem = listbox_get_citem(lb);
-	
+
 	switch (event->type)
 	{
 		case EVENT_KEY_COMMAND:
 			return player_menu_keycommand(lb, event);
 			break;
-			
+
 		case EVENT_NEWMENU_SELECTED:
 			if (citem < 0)
 				return 0;		// shouldn't happen
@@ -288,21 +288,21 @@ int player_menu_handler( listbox *lb, d_event *event, char **list )
 				strlwr(Players[Player_num].callsign);
 			}
 			break;
-			
+
 		case EVENT_WINDOW_CLOSE:
 			if (read_player_file() != EZERO)
 				return 1;		// abort close!
-			
+
 			WriteConfigFile();		// Update lastplr
-		
+
 			PHYSFS_freeList(list);
 			d_free(items);
 			break;
-			
+
 		default:
 			break;
 	}
-	
+
 	return 0;
 }
 
@@ -318,16 +318,16 @@ int RegisterPlayer()
 	int i = 0, NumItems;
 	int citem = 0;
 	int allow_abort_flag = 1;
-	
+
 	if ( Players[Player_num].callsign[0] == 0 )
 	{
 		// Read the last player's name from config file, not lastplr.txt
 		strncpy( Players[Player_num].callsign, GameCfg.LastPlayer, CALLSIGN_LEN );
-		
+
 		if (GameCfg.LastPlayer[0]==0)
 			allow_abort_flag = 0;
 	}
-	
+
 	list = PHYSFSX_findFiles(GameArg.SysUsePlayersDir ? "Players/" : "", types);
 	if (!list)
 		return 0;	// memory error
@@ -337,24 +337,24 @@ int RegisterPlayer()
 		PHYSFS_freeList(list);
 		return 0;
 	}
-	
-	
+
+
 	for (NumItems = 0; list[NumItems] != NULL; NumItems++) {}
 	NumItems++;		// for TXT_CREATE_NEW
-	
+
 	MALLOC(m, char *, NumItems);
 	if (m == NULL)
 	{
 		PHYSFS_freeList(list);
 		return 0;
 	}
-	
+
 	m[i++] = TXT_CREATE_NEW;
-	
+
 	for (f = list; *f != NULL; f++)
 	{
 		char *p;
-		
+
 		m[i++] = *f;
 		p = strchr(*f, '.');
 		if (p)
@@ -362,7 +362,7 @@ int RegisterPlayer()
 		if ((p - *f) > 8)
 			*f[8] = 0;		// sorry guys, can only have up to eight chars for the player name
 	}
-	
+
 	// Sort by name, except the <Create New Player> string
 	qsort(&m[1], NumItems - 1, sizeof(char *), (int (*)( const void *, const void * ))fname_sort_func);
 
@@ -371,7 +371,7 @@ int RegisterPlayer()
 			citem = i;
 
 	newmenu_listbox1(TXT_SELECT_PILOT, NumItems, m, allow_abort_flag, citem, (int (*)(listbox *, d_event *, void *))player_menu_handler, list);
-	
+
 	return 1;
 }
 
@@ -399,13 +399,13 @@ int main_menu_handler(newmenu *menu, d_event *event, int *menu_choice )
 			else
 				keyd_time_when_last_pressed = timer_get_fixed_seconds();		// .. 20 seconds from now!
 			break;
-			
+
 		case EVENT_KEY_COMMAND:
 			// Don't allow them to hit ESC in the main menu.
 			if (((d_event_keycommand *)event)->keycode==KEY_ESC)
 				return 1;
 			break;
-			
+
 		case EVENT_IDLE:
 			curtime = timer_get_fixed_seconds();
 			if ( keyd_time_when_last_pressed+i2f(45) < curtime || GameArg.SysAutoDemo  )
@@ -415,20 +415,20 @@ int main_menu_handler(newmenu *menu, d_event *event, int *menu_choice )
 				newdemo_start_playback(NULL);		// Randomly pick a file
 			}
 			break;
-			
+
 		case EVENT_NEWMENU_DRAW:
 			draw_copyright();
 			break;
-			
+
 		case EVENT_NEWMENU_SELECTED:
 			return do_option(menu_choice[newmenu_get_citem(menu)]);
 			break;
-			
+
 		case EVENT_WINDOW_CLOSE:
 			d_free(menu_choice);
 			d_free(items);
 			break;
-			
+
 		default:
 			break;
 	}
@@ -482,7 +482,7 @@ void create_main_menu(newmenu_item *m, int *menu_choice, int *callers_num_option
 }
 
 //returns number of item chosen
-int DoMenu() 
+int DoMenu()
 {
 	int *menu_choice;
 	newmenu_item *m;
@@ -513,19 +513,19 @@ extern void show_order_form(void);	// John didn't want this in inferno.h so I ju
 int select_song_callback(listbox *lb, d_event *event, void *userdata)
 {
 	int citem = listbox_get_citem(lb);
-	
+
 	userdata = userdata;
 	if (event->type != EVENT_NEWMENU_SELECTED)
 		return 0;
-	
+
 	if (citem > -1)
 		songs_play_song( citem, 0 );
-	
+
 	return 1;	// stay in menu until user escapes
 }
 
 //returns flag, true means quit menu
-int do_option ( int select) 
+int do_option ( int select)
 {
 	switch (select) {
 		case MENU_NEW_GAME:
@@ -656,11 +656,11 @@ void delete_player_saved_games(char * name)
 {
 	int i;
 	char filename[FILENAME_LEN + 9];
-	
+
 	for (i=0;i<10; i++)
 	{
 		sprintf( filename, GameArg.SysUsePlayersDir? "Players/%s.sg%x" : "%s.sg%x", name, i );
-		
+
 		PHYSFS_delete(filename);
 	}
 }
@@ -674,7 +674,7 @@ int demo_menu_keycommand( listbox *lb, d_event *event )
 {
 	char **items = listbox_get_items(lb);
 	int citem = listbox_get_citem(lb);
-	
+
 	switch (((d_event_keycommand *)event)->keycode)
 	{
 		case KEY_CTRLED+KEY_D:
@@ -686,27 +686,27 @@ int demo_menu_keycommand( listbox *lb, d_event *event )
 				{
 					int ret;
 					char name[PATH_MAX];
-					
+
 					strcpy(name, DEMO_DIR);
 					strcat(name,items[citem]);
-					
+
 					ret = !PHYSFS_delete(name);
-					
+
 					if (ret)
 						nm_messagebox( NULL, 1, TXT_OK, "%s %s %s", TXT_COULDNT, TXT_DELETE_DEMO, items[citem]+((items[citem][0]=='$')?1:0) );
 					else
 						listbox_delete_item(lb, citem);
 				}
-				
+
 				return 1;
 			}
 			break;
-			
+
 		case KEY_CTRLED+KEY_C:
 			{
 				int x = 1;
 				char bakname[PATH_MAX];
-				
+
 				// Get backup name
 				change_filename_extension(bakname, items[citem]+((items[citem][0]=='$')?1:0), DEMO_BACKUP_EXT);
 				x = nm_messagebox( NULL, 2, TXT_YES, TXT_NO,	"Are you sure you want to\n"
@@ -717,12 +717,12 @@ int demo_menu_keycommand( listbox *lb, d_event *event )
 								  "%s will be created", items[citem]+((items[citem][0]=='$')?1:0), bakname );
 				if (!x)
 					newdemo_swap_endian(items[citem]);
-				
+
 				return 1;
 			}
 			break;
 	}
-	
+
 	return 0;
 }
 
@@ -732,24 +732,24 @@ int demo_menu_handler( listbox *lb, d_event *event, void *userdata )
 	int citem = listbox_get_citem(lb);
 
 	userdata = userdata;
-	
+
 	switch (event->type)
 	{
 		case EVENT_KEY_COMMAND:
 			return demo_menu_keycommand(lb, event);
 			break;
-			
+
 		case EVENT_NEWMENU_SELECTED:
 			if (citem < 0)
 				return 0;		// shouldn't happen
 
 			newdemo_start_playback(items[citem]);
 			return 1;		// stay in demo selector
-			
+
 		case EVENT_WINDOW_CLOSE:
 			PHYSFS_freeList(items);
 			break;
-					
+
 		default:
 			break;
 	}
@@ -762,7 +762,7 @@ int select_demo(void)
 	char **list;
 	char *types[] = { ".dem", NULL };
 	int NumItems;
-	
+
 	list = PHYSFSX_findFiles(DEMO_DIR, types);
 	if (!list)
 		return 0;	// memory error
@@ -771,15 +771,15 @@ int select_demo(void)
 		nm_messagebox( NULL, 1, TXT_OK, "%s %s\n%s", TXT_NO_DEMO_FILES, TXT_USE_F5, TXT_TO_CREATE_ONE);
 		PHYSFS_freeList(list);
 		return 0;
-	}	
-	
+	}
+
 	for (NumItems = 0; list[NumItems] != NULL; NumItems++) {}
 
 	// Sort by name
 	qsort(list, NumItems, sizeof(char *), (int (*)( const void *, const void * ))fname_sort_func);
 
 	newmenu_listbox1(TXT_SELECT_DEMO, NumItems, list, 1, 0, demo_menu_handler, NULL);
-	
+
 	return 1;
 }
 
@@ -843,7 +843,7 @@ try_again:
 
 		if (!(new_level_num>0 && new_level_num<=player_highest_level)) {
 			m[0].text = TXT_ENTER_TO_CONT;
-			nm_messagebox( NULL, 1, TXT_OK, TXT_INVALID_LEVEL); 
+			nm_messagebox( NULL, 1, TXT_OK, TXT_INVALID_LEVEL);
 			goto try_again;
 		}
 	}
@@ -863,18 +863,18 @@ int do_load_level_menu(void)
 	newmenu_item m;
 	char text[10]="";
 	int new_level_num;
-	
+
 	m.type=NM_TYPE_INPUT; m.text_len = 10; m.text = text;
-	
+
 	newmenu_do( NULL, "Enter level to load", 1, &m, NULL, NULL );
-	
+
 	new_level_num = atoi(m.text);
-	
+
 	if (new_level_num!=0 && new_level_num>=Last_secret_level && new_level_num<=Last_level)  {
 		StartNewGame(new_level_num);
 		return 1;
 	}
-	
+
 	return 0;
 }
 
@@ -894,7 +894,7 @@ int options_menuset(newmenu *menu, d_event *event, void *userdata)
 				gr_palette_set_gamma(newmenu_get_items(menu)[4].value);
 			}
 			break;
-			
+
 		case EVENT_NEWMENU_SELECTED:
 			switch(newmenu_get_citem(menu))
 			{
@@ -908,7 +908,7 @@ int options_menuset(newmenu *menu, d_event *event, void *userdata)
 			}
 			return 1;	// stay in menu until escape
 			break;
-			
+
 		case EVENT_WINDOW_CLOSE:
 		{
 			newmenu_item *items = newmenu_get_items(menu);
@@ -916,20 +916,20 @@ int options_menuset(newmenu *menu, d_event *event, void *userdata)
 			write_player_file();
 			break;
 		}
-			
+
 		default:
 			break;
 	}
 
 	userdata++;		//kill warning
-	
+
 	return 0;
 }
 
 int gcd(int a, int b)
 {
 	if (!b)
-		return a; 
+		return a;
 
 	return gcd(b, a%b);
 }
@@ -1036,8 +1036,8 @@ int input_menuset(newmenu *menu, d_event *event, void *userdata)
 		case EVENT_NEWMENU_CHANGED:
 			switch (citem)
 			{
-				case 0:		(items[citem].value)?(PlayerCfg.ControlType|=CONTROL_USING_JOYSTICK):(PlayerCfg.ControlType&=~CONTROL_USING_JOYSTICK); break; 
-				case 1:		(items[citem].value)?(PlayerCfg.ControlType|=CONTROL_USING_MOUSE):(PlayerCfg.ControlType&=~CONTROL_USING_MOUSE); break; 
+				case 0:		(items[citem].value)?(PlayerCfg.ControlType|=CONTROL_USING_JOYSTICK):(PlayerCfg.ControlType&=~CONTROL_USING_JOYSTICK); break;
+				case 1:		(items[citem].value)?(PlayerCfg.ControlType|=CONTROL_USING_MOUSE):(PlayerCfg.ControlType&=~CONTROL_USING_MOUSE); break;
 				case 9:		PlayerCfg.JoystickSensitivityX = items[citem].value; break;
 				case 10:	PlayerCfg.JoystickSensitivityY = items[citem].value; break;
 				case 11:	PlayerCfg.JoystickDeadzone = items[citem].value; break;
@@ -1046,7 +1046,7 @@ int input_menuset(newmenu *menu, d_event *event, void *userdata)
 				case 16:	PlayerCfg.MouseFilter = items[citem].value; break;
 			}
 			break;
-			
+
 		case EVENT_NEWMENU_SELECTED:
 			switch (citem)
 			{
@@ -1074,11 +1074,11 @@ int input_menuset(newmenu *menu, d_event *event, void *userdata)
 			}
 			return 1;		// stay in menu
 			break;
-			
+
 		default:
 			break;
 	}
-	
+
 	return 0;
 }
 
@@ -1147,123 +1147,231 @@ void do_graphics_menu()
 	} while( i>-1 );
 }
 
+int opt_sm_digivol = -1, opt_sm_musicvol = -1, opt_sm_revstereo = -1, opt_sm_mtype0 = -1, opt_sm_mtype1 = -1, opt_sm_mtype2 = -1, opt_sm_mtype3 = -1, opt_sm_redbook_playorder = -1, opt_sm_mtype3_lmpath = -1, opt_sm_mtype3_lmplayorder1 = -1, opt_sm_mtype3_lmplayorder2 = -1, opt_sm_mtype3_lmplayorder3 = -1, opt_sm_cm_mtype3_file1 = -1, opt_sm_cm_mtype3_file2 = -1, opt_sm_cm_mtype3_file3 = -1, opt_sm_cm_mtype3_file4 = -1, opt_sm_cm_mtype3_file5 = -1;
+
 void set_extmusic_volume(int volume);
 
 int sound_menuset(newmenu *menu, d_event *event, void *userdata)
 {
 	newmenu_item *items = newmenu_get_items(menu);
 	int citem = newmenu_get_citem(menu);
-	int nitems = newmenu_get_nitems(menu);
+	//int nitems = newmenu_get_nitems(menu);
 	int replay = 0;
 	int rval = 0;
 
 	switch (event->type)
 	{
 		case EVENT_NEWMENU_CHANGED:
-			switch (citem)
+			if (citem == opt_sm_digivol)
 			{
-				case 0:
-					GameCfg.DigiVolume = items[citem].value;
-					digi_set_digi_volume( (GameCfg.DigiVolume*32768)/8 );
-					digi_play_sample_once( SOUND_DROP_BOMB, F1_0 );
-					break;
-
-				case 1:
-					GameCfg.MusicVolume = items[citem].value;
-					if (EXT_MUSIC_ON)
-						set_extmusic_volume(GameCfg.MusicVolume);
-					else
-						digi_set_midi_volume( (GameCfg.MusicVolume*128)/8 );
-					break;
-					
-				case 3:
-				case 4:
-#ifdef USE_SDLMIXER
-				case 5:
-					GameCfg.JukeboxOn = items[5].value;
-#endif
-					GameCfg.SndEnableRedbook = items[4].value;
-					replay = 1;
-					break;
-
-				default:
-					if (citem == nitems - 1)
-						GameCfg.ReverseStereo = items[citem].value;
-					else if (citem == nitems - 2)
-					{
-						GameCfg.OrigTrackOrder = items[citem].value;
-						replay = Game_wind != NULL;
-					}
-					break;
+				GameCfg.DigiVolume = items[citem].value;
+				digi_set_digi_volume( (GameCfg.DigiVolume*32768)/8 );
+				digi_play_sample_once( SOUND_DROP_BOMB, F1_0 );
+			}
+			else if (citem == opt_sm_musicvol)
+			{
+				GameCfg.MusicVolume = items[citem].value;
+				songs_set_volume(GameCfg.MusicVolume);
+			}
+			else if (citem == opt_sm_revstereo)
+			{
+				GameCfg.ReverseStereo = items[citem].value;
+			}
+			else if (citem == opt_sm_mtype0)
+			{
+				GameCfg.MusicType = MUSIC_TYPE_NONE;
+				replay = 1;
+			}
+			else if (citem == opt_sm_mtype1)
+			{
+				GameCfg.MusicType = MUSIC_TYPE_BUILTIN;
+				replay = 1;
+			}
+			else if (citem == opt_sm_mtype2)
+			{
+				GameCfg.MusicType = MUSIC_TYPE_REDBOOK;
+				replay = 1;
+			}
+			else if (citem == opt_sm_mtype3)
+			{
+				GameCfg.MusicType = MUSIC_TYPE_CUSTOM;
+				replay = 1;
+			}
+			else if (citem == opt_sm_redbook_playorder)
+			{
+				GameCfg.OrigTrackOrder = items[citem].value;
+				replay = (Game_wind != NULL);
+			}
+			else if (citem == opt_sm_mtype3_lmplayorder1)
+			{
+				GameCfg.CMLevelMusicPlayOrder = MUSIC_CM_PLAYORDER_CONT;
+				replay = (Game_wind != NULL);
+			}
+			else if (citem == opt_sm_mtype3_lmplayorder2)
+			{
+				GameCfg.CMLevelMusicPlayOrder = MUSIC_CM_PLAYORDER_LEVELDEP;
+				replay = (Game_wind != NULL);
+			}
+			else if (citem == opt_sm_mtype3_lmplayorder3)
+			{
+				GameCfg.CMLevelMusicPlayOrder = MUSIC_CM_PLAYORDER_LEVELALPHA;
+				replay = (Game_wind != NULL);
 			}
 			break;
-			
-#ifdef USE_SDLMIXER
+
 		case EVENT_NEWMENU_SELECTED:
-			if (citem == 7)	// changed the jukebox path
-				replay = 1;
 			rval = 1;	// stay in menu
 			break;
-#endif
-			
+
 		case EVENT_WINDOW_CLOSE:
 			d_free(items);
 			break;
-			
+
 		default:
 			break;
 	}
 
 	if (replay)
 	{
-		ext_music_stop();
-		ext_music_unload();
-		ext_music_select_system(GameCfg.JukeboxOn ? EXT_MUSIC_JUKEBOX : EXT_MUSIC_REDBOOK);
+		songs_uninit();
+
 		if (Game_wind)
-			songs_play_level_song( Current_level_num );
+			songs_play_level_song( Current_level_num, 0 );
 		else
 			songs_play_song(SONG_TITLE, 1);
 	}
-	
+
 	userdata = userdata;
 
 	return rval;
 }
 
 #ifdef USE_SDLMIXER
-#define SOUND_MENU_NITEMS 10
+#define SOUND_MENU_NITEMS 31
 #else
-#define SOUND_MENU_NITEMS 7
+#ifdef _WIN32
+#define SOUND_MENU_NITEMS 11
+#else
+#define SOUND_MENU_NITEMS 10
+#endif
 #endif
 
 void do_sound_menu()
 {
 	newmenu_item *m;
 	int nitems = 0;
+	char old_CMLevelMusicPath[PATH_MAX+1], old_CMMiscMusic0[PATH_MAX+1];
 
-	if (GameCfg.SndEnableRedbook && GameCfg.JukeboxOn)
-		GameCfg.JukeboxOn = 0;
+	memset(old_CMLevelMusicPath, 0, sizeof(char)*(PATH_MAX+1));
+	snprintf(old_CMLevelMusicPath, strlen(GameCfg.CMLevelMusicPath)+1, GameCfg.CMLevelMusicPath);
+	memset(old_CMMiscMusic0, 0, sizeof(char)*(PATH_MAX+1));
+	snprintf(old_CMMiscMusic0, strlen(GameCfg.CMMiscMusic[SONG_TITLE])+1, GameCfg.CMMiscMusic[SONG_TITLE]);
 
 	MALLOC(m, newmenu_item, SOUND_MENU_NITEMS);
 	if (!m)
 		return;
 
-	m[nitems].type = NM_TYPE_SLIDER; m[nitems].text=TXT_FX_VOLUME; m[nitems].value=GameCfg.DigiVolume; m[nitems].min_value=0; m[nitems++].max_value=8; 
-	m[nitems].type = NM_TYPE_SLIDER; m[nitems].text="music volume"; m[nitems].value=GameCfg.MusicVolume; m[nitems].min_value=0; m[nitems++].max_value=8;
-	m[nitems].type = NM_TYPE_TEXT; m[nitems++].text="";
-	m[nitems].type = NM_TYPE_RADIO; m[nitems].text = "MIDI Music enabled"; m[nitems].value = (!GameCfg.SndEnableRedbook && !GameCfg.JukeboxOn); m[nitems].group = 0; nitems++;
-	m[nitems].type = NM_TYPE_RADIO;  m[nitems].text="CD Music enabled"; m[nitems].value=GameCfg.SndEnableRedbook; m[nitems].group = 0; nitems++;
-#ifdef USE_SDLMIXER
-	m[nitems].type = NM_TYPE_RADIO; m[nitems].text="jukebox enabled"; m[nitems].value=GameCfg.JukeboxOn; m[nitems].group = 0; nitems++;
-	m[nitems].type = NM_TYPE_TEXT; m[nitems++].text="path to music for jukebox:";
-	m[nitems].type = NM_TYPE_INPUT_MENU; m[nitems].text = GameCfg.JukeboxPath; m[nitems++].text_len = NM_MAX_TEXT_LEN-1;
+	opt_sm_digivol = nitems;
+	m[nitems].type = NM_TYPE_SLIDER; m[nitems].text = TXT_FX_VOLUME; m[nitems].value = GameCfg.DigiVolume; m[nitems].min_value = 0; m[nitems++].max_value = 8;
+
+	opt_sm_musicvol = nitems;
+	m[nitems].type = NM_TYPE_SLIDER; m[nitems].text = "music volume"; m[nitems].value = GameCfg.MusicVolume; m[nitems].min_value = 0; m[nitems++].max_value = 8;
+
+	opt_sm_revstereo = nitems;
+	m[nitems].type = NM_TYPE_CHECK; m[nitems].text = TXT_REVERSE_STEREO; m[nitems++].value = GameCfg.ReverseStereo;
+
+	m[nitems].type = NM_TYPE_TEXT; m[nitems++].text = "";
+
+	m[nitems].type = NM_TYPE_TEXT; m[nitems++].text = "music type:";
+
+	opt_sm_mtype0 = nitems;
+	m[nitems].type = NM_TYPE_RADIO; m[nitems].text = "no music"; m[nitems].value = (GameCfg.MusicType == MUSIC_TYPE_NONE); m[nitems].group = 0; nitems++;
+
+#if defined(USE_SDLMIXER) || defined(_WIN32)
+	opt_sm_mtype1 = nitems;
+	m[nitems].type = NM_TYPE_RADIO; m[nitems].text = "built-in music"; m[nitems].value = (GameCfg.MusicType == MUSIC_TYPE_BUILTIN); m[nitems].group = 0; nitems++;
 #endif
-	m[nitems].type = NM_TYPE_CHECK;  m[nitems].text="Force Mac Descent CD track order"; m[nitems++].value=GameCfg.OrigTrackOrder;
-	m[nitems].type = NM_TYPE_CHECK;  m[nitems].text=TXT_REVERSE_STEREO; m[nitems++].value=GameCfg.ReverseStereo;
-	
+
+	opt_sm_mtype2 = nitems;
+	m[nitems].type = NM_TYPE_RADIO; m[nitems].text = "cd music"; m[nitems].value = (GameCfg.MusicType == MUSIC_TYPE_REDBOOK); m[nitems].group = 0; nitems++;
+
+#ifdef USE_SDLMIXER
+	opt_sm_mtype3 = nitems;
+	m[nitems].type = NM_TYPE_RADIO; m[nitems].text = "custom music"; m[nitems].value = (GameCfg.MusicType == MUSIC_TYPE_CUSTOM); m[nitems].group = 0; nitems++;
+
+#endif
+
+	m[nitems].type = NM_TYPE_TEXT; m[nitems++].text = "";
+
+	m[nitems].type = NM_TYPE_TEXT; m[nitems++].text = "cd music options:";
+
+	opt_sm_redbook_playorder = nitems;
+	m[nitems].type = NM_TYPE_CHECK; m[nitems].text = "force mac descent cd track order"; m[nitems++].value = GameCfg.OrigTrackOrder;
+
+#ifdef USE_SDLMIXER
+	m[nitems].type = NM_TYPE_TEXT; m[nitems++].text = "";
+
+	m[nitems].type = NM_TYPE_TEXT; m[nitems++].text = "custom music options:";
+
+	opt_sm_mtype3_lmpath = nitems;
+	m[nitems].type = NM_TYPE_TEXT; m[nitems++].text = "path to music used for levels";
+
+	m[nitems].type = NM_TYPE_INPUT; m[nitems].text = GameCfg.CMLevelMusicPath; m[nitems++].text_len = NM_MAX_TEXT_LEN-1;
+
+	m[nitems].type = NM_TYPE_TEXT; m[nitems++].text = "level music play order:";
+
+	opt_sm_mtype3_lmplayorder1 = nitems;
+	m[nitems].type = NM_TYPE_RADIO; m[nitems].text = "continuously"; m[nitems].value = (GameCfg.CMLevelMusicPlayOrder == MUSIC_CM_PLAYORDER_CONT); m[nitems].group = 1; nitems++;
+
+	opt_sm_mtype3_lmplayorder2 = nitems;
+	m[nitems].type = NM_TYPE_RADIO; m[nitems].text = "level-dependent"; m[nitems].value = (GameCfg.CMLevelMusicPlayOrder == MUSIC_CM_PLAYORDER_LEVELDEP); m[nitems].group = 1; nitems++;
+
+	opt_sm_mtype3_lmplayorder3 = nitems;
+	m[nitems].type = NM_TYPE_RADIO; m[nitems].text = "one track per level"; m[nitems].value = (GameCfg.CMLevelMusicPlayOrder == MUSIC_CM_PLAYORDER_LEVELALPHA); m[nitems].group = 1; nitems++;
+
+	m[nitems].type = NM_TYPE_TEXT; m[nitems++].text = "non-level music:";
+
+	m[nitems].type = NM_TYPE_TEXT; m[nitems++].text = "main menu";
+
+	opt_sm_cm_mtype3_file1 = nitems;
+	m[nitems].type = NM_TYPE_INPUT; m[nitems].text = GameCfg.CMMiscMusic[SONG_TITLE]; m[nitems++].text_len = NM_MAX_TEXT_LEN-1;
+
+	m[nitems].type = NM_TYPE_TEXT; m[nitems++].text = "briefing";
+
+	opt_sm_cm_mtype3_file2 = nitems;
+	m[nitems].type = NM_TYPE_INPUT; m[nitems].text = GameCfg.CMMiscMusic[SONG_BRIEFING]; m[nitems++].text_len = NM_MAX_TEXT_LEN-1;
+
+	m[nitems].type = NM_TYPE_TEXT; m[nitems++].text = "credits";
+
+	opt_sm_cm_mtype3_file3 = nitems;
+	m[nitems].type = NM_TYPE_INPUT; m[nitems].text = GameCfg.CMMiscMusic[SONG_CREDITS]; m[nitems++].text_len = NM_MAX_TEXT_LEN-1;
+
+	m[nitems].type = NM_TYPE_TEXT; m[nitems++].text = "escape sequence";
+
+	opt_sm_cm_mtype3_file4 = nitems;
+	m[nitems].type = NM_TYPE_INPUT; m[nitems].text = GameCfg.CMMiscMusic[SONG_ENDLEVEL]; m[nitems++].text_len = NM_MAX_TEXT_LEN-1;
+
+	m[nitems].type = NM_TYPE_TEXT; m[nitems++].text = "game ending";
+
+	opt_sm_cm_mtype3_file5 = nitems;
+	m[nitems].type = NM_TYPE_INPUT; m[nitems].text = GameCfg.CMMiscMusic[SONG_ENDGAME]; m[nitems++].text_len = NM_MAX_TEXT_LEN-1;
+#endif
+
 	Assert(nitems == SOUND_MENU_NITEMS);
-	
+
 	newmenu_do1( NULL, "Sound Effects & Music", nitems, m, sound_menuset, NULL, 0 );
+
+#ifdef USE_SDLMIXER
+	if ( ((Game_wind != NULL) && strcmp(old_CMLevelMusicPath, GameCfg.CMLevelMusicPath)) || ((Game_wind == NULL) && strcmp(old_CMMiscMusic0, GameCfg.CMMiscMusic[SONG_TITLE])) )
+	{
+		songs_uninit();
+
+		if (Game_wind)
+			songs_play_level_song( Current_level_num, 0 );
+		else
+			songs_play_song(SONG_TITLE, 1);
+	}
+#endif
 }
 
 #define ADD_CHECK(n,txt,v)  do { m[n].type=NM_TYPE_CHECK; m[n].text=txt; m[n].value=v;} while (0)
@@ -1280,7 +1388,7 @@ void do_misc_menu()
 		ADD_CHECK(3, "Screenshots w/o HUD",PlayerCfg.PRShot);
 
 		i = newmenu_do1( NULL, "Misc Options", sizeof(m)/sizeof(*m), m, NULL, NULL, i );
-			
+
 		PlayerCfg.AutoLeveling		= m[0].value;
 		PlayerCfg.ReticleOn		= m[1].value;
 		PlayerCfg.PersistentDebris	= m[2].value;
@@ -1300,16 +1408,16 @@ static int multi_player_menu_handler(newmenu *menu, d_event *event, int *menu_ch
 		case EVENT_NEWMENU_SELECTED:
 			// stay in multiplayer menu, even after having played a game
 			return do_option(menu_choice[newmenu_get_citem(menu)]);
-		
+
 		case EVENT_WINDOW_CLOSE:
 			d_free(menu_choice);
 			d_free(items);
 			break;
-			
+
 		default:
 			break;
 	}
-	
+
 	return 0;
 }
 
@@ -1322,7 +1430,7 @@ void do_multi_player_menu()
 	MALLOC(menu_choice, int, 12);
 	if (!menu_choice)
 		return;
-	
+
 	MALLOC(m, newmenu_item, 12);
 	if (!m)
 	{
@@ -1358,7 +1466,7 @@ void do_multi_player_menu()
 void do_options_menu()
 {
 	newmenu_item *m;
-	
+
 	MALLOC(m, newmenu_item, 11);
 	if (!m)
 		return;

@@ -1,5 +1,9 @@
 D1X-Rebirth Changelog
 
+20100614
+--------
+include/args.h, include/physfsx.h, main/newmenu.h, main/inferno.c, main/menu.c, main/songs.c, main/songs.h, main/config.c, main/config.h, main/gameseq.c, main/digiobj.c, main/digi.h, main/game.c, main/gamecntl.c, misc/args.c, d1x.ini, arch/sdl/digi_mixer.c, arch/sdl/digi_mixer_music.c, arch/sdl/init.c, arch/sdl/jukebox.c, arch/sdl/digi.c, arch/sdl/digi_audio.c, arch/include/digi_audio.h, arch/include/digi_mixer.h, arch/include/digi_mixer_music.h, arch/include/jukebox.h: Increased SDL_mixer music abilities to play non-hmp from HOGs, having Level-music path to play, options to specify non-level tracks and added various playing order methods; Abstracted SDL_mixer- and Redbook-interfaces; Simplified program flow through all music functions
+
 20100503
 --------
 main/menu.c: Properly specify number of items for do_options_menu, so the options menu actually shows
@@ -421,7 +425,7 @@ include/ipxdrv.h, main/ipxdrv.c, main/newmenu.c, main/fireball.c, main/multi.c, 
 20090304
 --------
 various: Abstracting networking protocols - Step 1: Renaming network-related files; Removing net_ipx.h (former network.h) includes from as much files as possible to make isolation of IPX-related functions easier in Step 2; Version defines Cleanup - needed later for good Version-Checking
- 
+
 20090303
 --------
 arch/include/digi_mixer_music.h, arch/include/jukebox.h, arch/sdl/digi_mixer_music.c, arch/sdl/digi_mixer.c, arch/sdl/digi.c, arch/sdl/init.c, arch/sdl/jukebox.c, arch/sdl/rbaudio.c, include/rbaudio.h, main/automap.c, main/config.h, main/credits.c, main/digi.h, main/game.c, main/kconfig.c, main/kmatrix.c, main/menu.c, main/network.c, main/newmenu.c, main/scores.c, main/songs.c, main/songs.h: Associate the jukebox with Redbook Audio via new 'extmusic' layer - separating from MIDI and making it handle ALL music (not just game music)
@@ -586,7 +590,7 @@ main/render.c: Increasing Render_depth to max. if OGL build (we probably should 
 
 20081120
 --------
-main/ai.c: When we reached MAX_BOSS_TELEPORT_SEGS in init_boss_segments, make sure we also escape out of the for-loop - otherwise we still might overflow 
+main/ai.c: When we reached MAX_BOSS_TELEPORT_SEGS in init_boss_segments, make sure we also escape out of the for-loop - otherwise we still might overflow
 main/ai.c, main/object.c: Some timer-Failsafe in robot/boss dying frames; Fixed logical flaw in create_small_fireball_on_object() closing out sound effects on robots
 
 20081119
@@ -1375,7 +1379,7 @@ d1x.ini: typo fixed, sdl_mixer-related options added
 20070312
 --------
 misc/dl_list.c, include/dl_list.h: doubly-linked list implementation
-main/game.c, arch/sdl/jukebox.c, arch/sdl/include/jukebox.h, arch/sdl/mixdigi.c, arch/sdl/include/mixdigi.h, SConstruct: new 
+main/game.c, arch/sdl/jukebox.c, arch/sdl/include/jukebox.h, arch/sdl/mixdigi.c, arch/sdl/include/mixdigi.h, SConstruct: new
 in-game jukebox system
 
 20070306
@@ -1544,7 +1548,7 @@ dxx-changelog.txt, arch/ogl/gr.c, arch/ogl/ogl.c, arch/ogl/include/ogl_init.h, m
 
 20061212
 --------
-arch/sdl/mixdigi.c, main/inferno.c: music volume now properly restored and remembered in D1 and D2, using a static int; removed ugly hack that fixed this bug in D1 (inferno.c, revision 230) 
+arch/sdl/mixdigi.c, main/inferno.c: music volume now properly restored and remembered in D1 and D2, using a static int; removed ugly hack that fixed this bug in D1 (inferno.c, revision 230)
 
 20061128
 --------

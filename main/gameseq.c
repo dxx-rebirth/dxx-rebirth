@@ -7,7 +7,7 @@ IN USING, DISPLAYING,  AND CREATING DERIVATIVE WORKS THEREOF, SO LONG AS
 SUCH USE, DISPLAY OR CREATION IS FOR NON-COMMERCIAL, ROYALTY OR REVENUE
 FREE PURPOSES.  IN NO EVENT SHALL THE END-USER USE THE COMPUTER CODE
 CONTAINED HEREIN FOR REVENUE-BEARING PURPOSES.  THE END-USER UNDERSTANDS
-AND AGREES TO THE TERMS HEREIN AND ACCEPTS THE SAME BY USE OF THIS FILE.  
+AND AGREES TO THE TERMS HEREIN AND ACCEPTS THE SAME BY USE OF THIS FILE.
 COPYRIGHT 1993-1998 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 */
 
@@ -113,7 +113,7 @@ void StartLevel(int random);
 //-1,-2,-3 are secret levels
 //0 means not a real level loaded
 int	Current_level_num=0,Next_level_num;
-char	Current_level_name[LEVEL_NAME_LEN];		
+char	Current_level_name[LEVEL_NAME_LEN];
 
 // #ifndef SHAREWARE
 // int Last_level,Last_secret_level;
@@ -145,7 +145,7 @@ void verify_console_object()
 	Assert( ConsoleObject->id==Player_num );
 }
 
-int count_number_of_robots() 
+int count_number_of_robots()
 {
 	int robot_count;
 	int i;
@@ -160,7 +160,7 @@ int count_number_of_robots()
 }
 
 
-int count_number_of_hostages() 
+int count_number_of_hostages()
 {
 	int count;
 	int i;
@@ -266,7 +266,7 @@ void init_player_stats_game()
 	Players[Player_num].num_kills_total = 0;
 	Players[Player_num].num_robots_level = 0;
 	Players[Player_num].num_robots_total = 0;
-	
+
 	Players[Player_num].hostages_rescued_total = 0;
 	Players[Player_num].hostages_level = 0;
 	Players[Player_num].hostages_total = 0;
@@ -670,12 +670,12 @@ ushort netmisc_calc_checksum(void * vptr, int len)
 #endif /* WORDS_BIGENDIAN */
 
 //load a level off disk. level numbers start at 1.  Secret levels are -1,-2,-3
-void LoadLevel(int level_num) 
+void LoadLevel(int level_num)
 {
 	char *level_name;
 	player save_player;
 
-	save_player = Players[Player_num];	
+	save_player = Players[Player_num];
 
 	Assert(level_num <= Last_level  && level_num >= Last_secret_level  && level_num != 0);
 
@@ -704,7 +704,7 @@ void LoadLevel(int level_num)
 	set_sound_sources();
 
 	if (songs_is_playing() < SONG_FIRST_LEVEL_SONG)
-		songs_play_level_song( Current_level_num );
+		songs_play_level_song( Current_level_num, 0 );
 
 	gr_palette_load(gr_palette);		//actually load the palette
 }
@@ -783,7 +783,7 @@ void ResumeSavedGame(int start_level)
 //	Does the bonus scoring.
 //	Call with dead_flag = 1 if player died, but deserves some portion of bonus (only skill points), anyway.
 void DoEndLevelScoreGlitz(int network)
-{ 
+{
 	int level_points, skill_points, energy_points, shield_points, hostage_points;
 	int	all_hostage_points;
 	int	endgame_points;
@@ -913,7 +913,7 @@ void PlayerFinishedLevel(int secret_flag)
 			multi_endlevel_score();
 			rval = AdvanceLevel(secret_flag);				//now go on to the next one (if one)
 		}
-		else 
+		else
 		#endif
 		{	// Note link to above else!
 			rval = AdvanceLevel(secret_flag);				//now go on to the next one (if one)
@@ -923,7 +923,7 @@ void PlayerFinishedLevel(int secret_flag)
 		#ifdef NETWORK
 		if (Game_mode & GM_MULTI)
 			multi_endlevel_score();
-		else 
+		else
 		#endif	// Note link!!
 			DoEndLevelScoreGlitz(0);		//give bonuses
 		rval = AdvanceLevel(secret_flag);				//now go on to the next one (if one)
@@ -942,7 +942,7 @@ void PlayerFinishedLevel(int secret_flag)
 }
 
 
-//from which level each do you get to each secret level 
+//from which level each do you get to each secret level
 // int Secret_level_table[MAX_SECRET_LEVELS_PER_MISSION];
 
 //called to go to the next level (if there is one)
@@ -982,7 +982,7 @@ int AdvanceLevel(int secret_flag)
 	key_flush();
 
 	if (Current_level_num == Last_level) {		//player has finished the game!
-		
+
 		if ((Newdemo_state == ND_STATE_RECORDING) || (Newdemo_state == ND_STATE_PAUSED))
 			newdemo_stop_recording();
 
@@ -1023,7 +1023,7 @@ int AdvanceLevel(int secret_flag)
 
 	if (Game_wind)
 		window_set_visible(Game_wind, 1);
-	
+
 	return 0;
 }
 
@@ -1038,7 +1038,7 @@ died_in_mine_message(void)
 
 	gr_set_current_canvas(NULL);
 	window_set_visible(Game_wind, 0);
-	
+
 	nm_messagebox(NULL, 1, TXT_OK, TXT_DIED_IN_MINE);
 }
 
@@ -1072,17 +1072,17 @@ void DoPlayerDead()
 	{
 		multi_do_death(Players[Player_num].objnum);
 	}
-	else 
-	#endif		
+	else
+	#endif
 	{				//Note link to above else!
 		Players[Player_num].lives--;
 		if (Players[Player_num].lives == 0)
-		{	
+		{
 			DoGameOver();
 			return;
 		}
 	}
-				
+
 	if ( Control_center_destroyed ) {
 		int	rval;
 
@@ -1104,10 +1104,10 @@ void DoPlayerDead()
 				rval = AdvanceLevel(0);			//if finished, go on to next level
 			}
 			else
-			#endif	
+			#endif
 			{			// Note link to above else!
 				rval = AdvanceLevel(0);			//if finished, go on to next level
-				DoEndLevelScoreGlitz(0);	
+				DoEndLevelScoreGlitz(0);
 			}
 			init_player_stats_new_ship();
 			last_drawn_cockpit = -1;
@@ -1162,7 +1162,7 @@ void StartNewLevelSub(int level_num, int page_in_textures)
 
 	Assert(Current_level_num == level_num);	//make sure level set right
 
-	gameseq_init_network_players(); // Initialize the Players array for 
+	gameseq_init_network_players(); // Initialize the Players array for
 											  // this level
 
 #ifdef NETWORK
@@ -1188,7 +1188,7 @@ void StartNewLevelSub(int level_num, int page_in_textures)
 
 	gr_use_palette_table( "palette.256" );
 	gr_palette_load(gr_palette);
-	
+
 #ifndef SHAREWARE
 #ifdef NETWORK
 	if ((Game_mode & GM_MULTI_COOP) && Network_rejoined)
@@ -1248,11 +1248,11 @@ void StartNewLevelSub(int level_num, int page_in_textures)
 
 	//	Say player can use FLASH cheat to mark path to exit.
 	Last_level_path_created = -1;
-	
+
 	// Initialise for palette_restore()
 	if (!((Game_mode & GM_MULTI) && (Newdemo_state != ND_STATE_PLAYBACK)))
 		palette_save();
-	
+
 	if (!Game_wind)
 		game();
 }
@@ -1294,7 +1294,7 @@ void InitPlayerPosition(int random)
 
 			closest = -1;
 			closest_dist = 0x7fffffff;
-	
+
 			for (i=0; i<N_players; i++ )	{
 				if ( (i!=Player_num) && (Objects[Players[i].objnum].type == OBJ_PLAYER) )	{
 					dist = find_connected_distance(&Objects[Players[i].objnum].pos, Objects[Players[i].objnum].segnum, &Player_init[NewPlayer].pos, Player_init[NewPlayer].segnum, 5, WID_FLY_FLAG );
@@ -1305,7 +1305,7 @@ void InitPlayerPosition(int random)
 				}
 			}
 		} while ( (closest_dist<i2f(10*20)) && (trys<MAX_NUM_NET_PLAYERS*2) );
-	} 
+	}
 #endif
 	else {
 		goto done; // If deathmatch and not random, positions were already determined by sync packet
@@ -1384,7 +1384,7 @@ void StartLevel(int random)
 			multi_send_score();
 #endif
 	 	multi_send_reappear();
-	}		
+	}
 
 	if (Game_mode & GM_NETWORK)
 		multi_do_protocol_frame(1, 1);

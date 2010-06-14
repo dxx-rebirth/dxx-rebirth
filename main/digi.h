@@ -26,32 +26,12 @@ COPYRIGHT 1993-1998 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 #include "pstypes.h"
 #include "vecmat.h"
 
-/*
-#ifdef __DJGPP__
-#define ALLEGRO
-#endif
-*/
-
-#ifdef ALLEGRO
-#include "allg_snd.h"
-typedef SAMPLE digi_sound;
-#else
 typedef struct digi_sound       {
         int bits;
         int freq;
 	int length;
 	ubyte * data;
 } digi_sound;
-#endif
-
-#ifdef __MSDOS__
-extern int digi_driver_board;
-extern int digi_driver_port;
-extern int digi_driver_irq;
-extern int digi_driver_dma;
-extern int digi_midi_type;
-extern int digi_midi_port;
-#endif
 
 extern int digi_get_settings();
 extern int digi_init();
@@ -74,17 +54,13 @@ extern void digi_sync_sounds();
 extern void digi_kill_sound_linked_to_segment( int segnum, int sidenum, int soundnum );
 extern void digi_kill_sound_linked_to_object( int objnum );
 
-extern void digi_set_midi_volume( int mvolume );
 extern void digi_set_digi_volume( int dvolume );
-extern void digi_set_volume( int dvolume, int mvolume );
+extern void digi_set_volume( int dvolume );
 
 extern int digi_is_sound_playing(int soundno);
 
-extern void digi_pause_all();
-extern void digi_resume_all();
 extern void digi_pause_digi_sounds();
 extern void digi_resume_digi_sounds();
-extern void digi_stop_all();
 
 extern void digi_set_max_channels(int n);
 extern int digi_get_max_channels();
@@ -103,6 +79,8 @@ extern int digi_start_sound(short soundnum, fix volume, int pan, int looping, in
 // Stops all sounds that are playing
 void digi_stop_all_channels();
 
+void digi_stop_digi_sounds();
+
 extern void digi_end_sound( int channel );
 extern void digi_set_channel_pan( int channel, int pan );
 extern void digi_set_channel_volume( int channel, int volume );
@@ -116,28 +94,6 @@ extern void digi_stop_looping_sound();
 // Plays a queued voice sound.
 extern void digi_start_sound_queued( short soundnum, fix volume );
 
-// MIDI music functions
-extern int  digi_play_midi_song( char * filename, char * melodic_bank, char * drum_bank, int loop );
-extern void digi_stop_current_song();
-extern void digi_pause_midi();
-extern void digi_resume_midi();
-extern int  digi_music_exists(const char *filename);
-
-// External music functions
-extern void ext_music_load(void);
-extern void ext_music_unload(void);
-extern int ext_music_is_loaded(void);
-extern int ext_music_play_tracks(int first, int last, void (*hook_finished)(void));
-extern void ext_music_eject_disk(void);
-extern int ext_music_get_track_playing(void);
-extern int ext_music_get_numtracks(void);
-extern void ext_music_stop();
-extern void ext_music_pause();
-extern int ext_music_resume();
-extern int ext_music_pause_resume(void);
-extern void ext_music_set_volume(int volume);
-extern void ext_music_list(void);
-
 // Following declarations are for the runtime switching system
 
 #define SAMPLE_RATE_11K 11025
@@ -147,15 +103,27 @@ extern void ext_music_list(void);
 #define SDLMIXER_SYSTEM 1
 #define SDLAUDIO_SYSTEM 2
 
-#define EXT_MUSIC_REDBOOK	1
-#define EXT_MUSIC_JUKEBOX	2
+#define MUSIC_TYPE_NONE		0
+#define MUSIC_TYPE_BUILTIN	1
+#define MUSIC_TYPE_REDBOOK	2
+#define MUSIC_TYPE_CUSTOM	3
+
+// play-order definitions for custom music
+#define MUSIC_CM_PLAYORDER_CONT 0
+#define MUSIC_CM_PLAYORDER_LEVELDEP 1
+#define MUSIC_CM_PLAYORDER_LEVELALPHA 2
 
 #define SOUND_MAX_VOLUME F1_0 / 2
 
 extern int digi_volume;
-extern int midi_volume;
 extern int digi_sample_rate;
 void digi_select_system(int);
-void ext_music_select_system(int);
+
+#ifdef _WIN32
+// Windows native-MIDI stuff.
+void digi_win32_set_midi_volume( int mvolume );
+int digi_win32_play_midi_song( char * filename, char * melodic_bank, char * drum_bank, int loop );
+void digi_win32_stop_current_song();
+#endif
 
 #endif

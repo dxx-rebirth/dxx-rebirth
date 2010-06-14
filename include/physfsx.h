@@ -50,7 +50,7 @@ static inline void PHYSFSX_init(int argc, char *argv[])
 #else
 #define base_dir PHYSFS_getBaseDir()
 #endif
-	
+
 	PHYSFS_init(argv[0]);
 	PHYSFS_permitSymbolicLinks(1);
 
@@ -140,18 +140,18 @@ static inline void PHYSFSX_init(int argc, char *argv[])
 static inline int PHYSFSX_readSXE16(PHYSFS_file *file, int swap)
 {
 	PHYSFS_sint16 val;
-	
+
 	PHYSFS_read(file, &val, sizeof(val), 1);
-	
+
 	return swap ? SWAPSHORT(val) : val;
 }
 
 static inline int PHYSFSX_readSXE32(PHYSFS_file *file, int swap)
 {
 	PHYSFS_sint32 val;
-	
+
 	PHYSFS_read(file, &val, sizeof(val), 1);
-	
+
 	return swap ? SWAPINT(val) : val;
 }
 
@@ -347,6 +347,33 @@ static inline char **PHYSFSX_findFiles(char *path, char **exts)
 	return list;
 }
 
+// Same function as above but takes a real directory as second argument, only adding files originating from this directory.
+// This can be used to further seperate files in search path but it must be made sure realpath is properly formatted.
+static inline char **PHYSFSX_findabsoluteFiles(char *path, char *realpath, char **exts)
+{
+	char **list = PHYSFS_enumerateFiles(path);
+	char **i, **j = list, **k;
+	char *ext;
+
+	if (list == NULL)
+		return NULL;	// out of memory: not so good
+
+	for (i = list; *i; i++)
+	{
+		ext = strrchr(*i, '.');
+		if (ext)
+			for (k = exts; *k != NULL && stricmp(ext, *k); k++) {}	// see if the file is of a type we want
+
+		if (ext && *k && (!strcmp(PHYSFS_getRealDir(*i),realpath)))
+			*j++ = *i;
+		else
+			free(*i);
+	}
+
+	*j = NULL;
+	list = realloc(list, (j - list + 1)*sizeof(char *));	// save a bit of memory (or a lot?)
+	return list;
+}
 
 // returns -1 if error
 // Gets bytes free in current write dir
@@ -416,7 +443,7 @@ static inline PHYSFS_file *PHYSFSX_openDataFile(char *filename)
 	if (!fp)
 	{
 		char name[255];
-		
+
 		sprintf(name, "Data/%s", filename);
 		fp = PHYSFSX_openReadBuffered(name);
 	}
