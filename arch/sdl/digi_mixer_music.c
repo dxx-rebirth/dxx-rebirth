@@ -75,7 +75,7 @@ int mix_play_file(char *filename, int loop, void (*hook_finished_track)())
 
 	mix_free_music();	// stop and free what we're already playing, if anything
 
-	fptr = strchr(filename, '.');
+	fptr = strrchr(filename, '.');
 
 	if (fptr == NULL)
 		return 0;
