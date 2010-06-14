@@ -6,6 +6,7 @@ include/args.h, include/physfsx.h, main/newmenu.h, main/inferno.c, main/menu.c, 
 arch/include/window.h: Added missing newline at EOF
 arch/sdl/jukebox.c: Small fix and improvement for Jukebox path detection
 arch/sdl/digi_mixer_music.c, main/songs.c: Use strrchr instead of strchr for music filename extension in case there are dots in the filename
+main/collide.c: Made reactor damage with persistent weapons FPS-independent but still a bit stronger than normal
 
 20100503
 --------
