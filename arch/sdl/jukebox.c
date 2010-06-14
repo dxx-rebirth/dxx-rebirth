@@ -68,13 +68,26 @@ void jukebox_load() {
 				strncat(GameCfg.CMLevelMusicPath, sep, PATH_MAX - 1 - strlen(GameCfg.CMLevelMusicPath));
 		}
 
-		PHYSFSX_getRealPath(GameCfg.CMLevelMusicPath,absolute_path);
-		PHYSFS_addToSearchPath(absolute_path, 0);
-
+		PHYSFS_addToSearchPath(GameCfg.CMLevelMusicPath, 0);
 		// as mountpoints are no option (yet), make sure only files originating from GameCfg.CMLevelMusicPath are aded to the list.
-		JukeboxSongs = PHYSFSX_findabsoluteFiles("", absolute_path, music_exts);
+		JukeboxSongs = PHYSFSX_findabsoluteFiles("", GameCfg.CMLevelMusicPath, music_exts);
 
-		if (JukeboxSongs != NULL) {
+		// If we do not find anything, try to see if given path is child of Searchpath
+		if (JukeboxSongs != NULL)
+		{
+			for (count = 0; JukeboxSongs[count]!=NULL; count++) {}
+			if (!count)
+			{
+				PHYSFSX_getRealPath(GameCfg.CMLevelMusicPath,absolute_path);
+				PHYSFS_addToSearchPath(absolute_path, 0);
+				JukeboxSongs = PHYSFSX_findabsoluteFiles("", absolute_path, music_exts);
+			}
+		}
+
+		count = 0;
+
+		if (JukeboxSongs != NULL)
+		{
 			for (count = 0; JukeboxSongs[count]!=NULL; count++) {}
 			if (count)
 			{
