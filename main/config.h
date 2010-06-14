@@ -28,9 +28,13 @@ typedef struct Cfg
 {
 	ubyte DigiVolume;
 	ubyte MusicVolume;
-	int SndEnableRedbook;
 	int ReverseStereo;
 	int OrigTrackOrder;
+	int MusicType;
+	int CMLevelMusicPlayOrder;
+	int CMLevelMusicTrack[2];
+	char CMLevelMusicPath[PATH_MAX+1];
+	char CMMiscMusic[5][PATH_MAX+1];
 	int GammaLevel;
 	char LastPlayer[CALLSIGN_LEN+1];
 	char LastMission[MISSION_NAME_LEN+1];
@@ -42,17 +46,15 @@ typedef struct Cfg
 	int TexFilt;
 	int VSync;
 	int Multisample;
-	int JukeboxOn;
-	char JukeboxPath[PATH_MAX+1];
 } __pack__ Cfg;
 
 extern struct Cfg GameCfg;
 
-#ifdef USE_SDLMIXER
-#define EXT_MUSIC_ON (GameCfg.SndEnableRedbook || GameCfg.JukeboxOn)
-#else
-#define EXT_MUSIC_ON (GameCfg.SndEnableRedbook)		// JukeboxOn shouldn't do anything if it's not supported
-#endif
+//#ifdef USE_SDLMIXER
+//#define EXT_MUSIC_ON (GameCfg.SndEnableRedbook || GameCfg.JukeboxOn)
+//#else
+//#define EXT_MUSIC_ON (GameCfg.SndEnableRedbook)		// JukeboxOn shouldn't do anything if it's not supported
+//#endif
 
 extern int ReadConfigFile(void);
 extern int WriteConfigFile(void);

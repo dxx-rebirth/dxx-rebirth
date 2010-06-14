@@ -5,14 +5,14 @@
 
 #include "pstypes.h"
 #include "error.h"
-#include "fix.h" 	 
-#include "vecmat.h" 	 
-#include "gr.h" 	 
-#include "piggy.h" 	 
-#include "digi.h" 	 
-#include "sounds.h" 	 
-#include "wall.h" 	 
-#include "newdemo.h" 	 
+#include "fix.h"
+#include "vecmat.h"
+#include "gr.h"
+#include "piggy.h"
+#include "digi.h"
+#include "sounds.h"
+#include "wall.h"
+#include "newdemo.h"
 #include "kconfig.h"
 #include "console.h"
 #include "rbaudio.h"
@@ -46,28 +46,6 @@ int  (*fptr_is_channel_playing)(int) = NULL;
 void (*fptr_stop_all_channels)() = NULL;
 void (*fptr_set_digi_volume)(int) = NULL;
 
-int  (*fptr_play_midi_song)(char *, char *, char *, int) = NULL;
-void (*fptr_stop_current_song)() = NULL;
-void (*fptr_pause_midi)() = NULL;
-void (*fptr_resume_midi)() = NULL;
-int  (*fptr_music_exists)(const char *) = NULL;
-void (*fptr_set_midi_volume)(int) = NULL;
-
-void (*fptr_extmusic_load)(void) = NULL;
-void (*fptr_extmusic_unload)(void) = NULL;
-int (*fptr_extmusic_is_loaded)(void) = NULL;
-int (*fptr_extmusic_play_track)(int track) = NULL;
-int (*fptr_extmusic_play_tracks)(int first, int last, void (*hook_finished)()) = NULL;
-void (*fptr_extmusic_eject_disk)(void) = NULL;
-int (*fptr_extmusic_get_track_playing)(void) = NULL;
-int (*fptr_extmusic_get_numtracks)(void) = NULL;
-void (*fptr_extmusic_stop)(void) = NULL;
-void (*fptr_extmusic_pause)() = NULL;
-int (*fptr_extmusic_resume)() = NULL;
-int (*fptr_extmusic_pause_resume)(void) = NULL;
-void (*fptr_extmusic_set_volume)(int volume) = NULL;
-void (*fptr_extmusic_list)(void) = NULL;
-
 void digi_select_system(int n) {
 	switch (n) {
 #ifdef USE_SDLMIXER
@@ -85,12 +63,6 @@ void digi_select_system(int n) {
 	fptr_is_sound_playing = digi_mixer_is_sound_playing;
 	fptr_is_channel_playing = digi_mixer_is_channel_playing;
 	fptr_stop_all_channels = digi_mixer_stop_all_channels;
-	fptr_play_midi_song = digi_mixer_play_midi_song;
-	fptr_music_exists = digi_mixer_music_exists;
-	fptr_stop_current_song = digi_mixer_stop_current_song;
-	fptr_pause_midi = digi_mixer_pause_midi;
-	fptr_resume_midi = digi_mixer_resume_midi;
-	fptr_set_midi_volume = digi_mixer_set_midi_volume;
 	fptr_set_digi_volume = digi_mixer_set_digi_volume;
 	break;
 #endif
@@ -109,12 +81,6 @@ void digi_select_system(int n) {
         fptr_is_sound_playing = digi_audio_is_sound_playing;
         fptr_is_channel_playing = digi_audio_is_channel_playing;
         fptr_stop_all_channels = digi_audio_stop_all_channels;
-        fptr_play_midi_song = digi_audio_play_midi_song;
-		fptr_music_exists = PHYSFS_exists;
-        fptr_stop_current_song = digi_audio_stop_current_song;
-        fptr_pause_midi = digi_audio_pause_midi;
-        fptr_resume_midi = digi_audio_resume_midi;
-	fptr_set_midi_volume = digi_audio_set_midi_volume;
 	fptr_set_digi_volume = digi_audio_set_digi_volume;
  	break;
 	}
@@ -126,13 +92,10 @@ static int digi_initialised = 0;
 #endif
 extern int digi_max_channels;
 int digi_volume = SOUND_MAX_VOLUME;
-int midi_volume = SOUND_MAX_VOLUME;
 
-void digi_set_volume(int dvolume, int mvolume) {
+void digi_set_volume(int dvolume) {
 	digi_volume = dvolume;
-	midi_volume = mvolume;
 	if (fptr_set_digi_volume) digi_set_digi_volume(dvolume);
-	if (fptr_set_midi_volume) digi_set_midi_volume(mvolume);
 }
 
 void digi_set_sample_rate(int r) { GameArg.SndDigiSampleRate = r; }
@@ -140,7 +103,7 @@ void digi_set_sample_rate(int r) { GameArg.SndDigiSampleRate = r; }
 /* Stub functions */
 
 int  digi_init()
-{ 
+{
 	digi_init_sounds();
 	return fptr_init();
 }
@@ -161,84 +124,72 @@ int  digi_is_channel_playing(int channel) { return fptr_is_channel_playing(chann
 void digi_stop_all_channels() { fptr_stop_all_channels(); }
 void digi_set_digi_volume(int dvolume) { fptr_set_digi_volume(dvolume); }
 
-int  digi_play_midi_song(char * filename, char * melodic_bank, char * drum_bank, int loop ) { return fptr_play_midi_song(filename, melodic_bank, drum_bank, loop); }
-int  digi_music_exists(const char *filename) { return fptr_music_exists(filename); }
-void digi_set_midi_volume(int mvolume) { fptr_set_midi_volume(mvolume); }
-void digi_stop_current_song() { fptr_stop_current_song(); }
-void digi_pause_midi() { fptr_pause_midi(); }
-void digi_resume_midi() { fptr_resume_midi(); }
-
-void ext_music_select_system(int n)
+#ifndef NDEBUG
+void digi_debug()
 {
-	switch (n)
+	int i;
+	int n_voices = 0;
+
+	if (!digi_initialised) return;
+
+	for (i = 0; i < digi_max_channels; i++)
 	{
-#ifdef USE_SDLMIXER
-		case EXT_MUSIC_JUKEBOX:
-			if (fptr_init == digi_mixer_init)	// using SDL_mixer
-			{
-				fptr_extmusic_load = jukebox_load;
-				fptr_extmusic_unload = jukebox_unload;
-				fptr_extmusic_is_loaded = jukebox_is_loaded;
-				fptr_extmusic_play_tracks = jukebox_play_tracks;
-				fptr_extmusic_eject_disk = jukebox_unload;
-				fptr_extmusic_get_track_playing = jukebox_is_playing;
-				fptr_extmusic_get_numtracks = jukebox_numtracks;
-				fptr_extmusic_stop = jukebox_stop;
-				fptr_extmusic_pause = jukebox_pause;
-				fptr_extmusic_resume = jukebox_resume;
-				fptr_extmusic_pause_resume = jukebox_pause_resume;
-				fptr_extmusic_set_volume = jukebox_set_volume;
-				fptr_extmusic_list = jukebox_list;
-				break;
-			}	// else fall through
+		if (digi_is_channel_playing(i))
+			n_voices++;
+        }
+}
 #endif
-			
-			case EXT_MUSIC_REDBOOK:
-			default:
-			fptr_extmusic_load = RBAInit;
-			fptr_extmusic_unload = RBAExit;
-			fptr_extmusic_is_loaded = RBAEnabled;
-			fptr_extmusic_play_track = RBAPlayTrack;
-			fptr_extmusic_play_tracks = RBAPlayTracks;
-			fptr_extmusic_eject_disk = RBAEjectDisk;
-			fptr_extmusic_get_track_playing = RBAGetTrackNum;
-			fptr_extmusic_get_numtracks = RBAGetNumberOfTracks;
-			fptr_extmusic_stop = RBAStop;
-			fptr_extmusic_pause = RBAPause;
-			fptr_extmusic_resume = RBAResume;
-			fptr_extmusic_pause_resume = RBAPauseResume;
-			fptr_extmusic_set_volume = RBASetVolume;
-			fptr_extmusic_list = RBAList;
-			break;
-	}
+
+#ifdef _WIN32
+// Windows native-MIDI stuff.
+void digi_win32_set_midi_volume( int mvolume )
+{
+	int mm_volume;
+
+	if (mvolume < 0)
+		midi_volume = 0;
+	else if (mvolume > 127)
+		midi_volume = 127;
+	else
+		midi_volume = mvolume;
+
+	// scale up from 0-127 to 0-0xffff
+	mm_volume = (midi_volume << 1) | (midi_volume & 1);
+	mm_volume |= (mm_volume << 8);
+
+	if (hmp)
+		midiOutSetVolume((HMIDIOUT)hmp->hmidi, mm_volume | mm_volume << 16);
 }
 
-void ext_music_load(void) { fptr_extmusic_load(); }
-void ext_music_unload(void) { fptr_extmusic_unload(); }
-int ext_music_is_loaded(void) { return fptr_extmusic_is_loaded(); }
-int ext_music_play_tracks(int first, int last, void (*hook_finished)(void)) { return fptr_extmusic_play_tracks(first, last, hook_finished); }
-void ext_music_eject_disk(void) { fptr_extmusic_eject_disk(); }
-int ext_music_get_track_playing(void) { return fptr_extmusic_get_track_playing(); }
-int ext_music_get_numtracks(void) { return fptr_extmusic_get_numtracks(); }
-void ext_music_stop() { fptr_extmusic_stop(); }
-void ext_music_pause() { fptr_extmusic_pause(); }
-int ext_music_resume() { return fptr_extmusic_resume(); }
-int ext_music_pause_resume(void) { return fptr_extmusic_pause_resume(); }
-void ext_music_set_volume(int volume) { fptr_extmusic_set_volume(volume); }
-void ext_music_list(void) { fptr_extmusic_list(); }
+int digi_win32_play_midi_song( char * filename, char * melodic_bank, char * drum_bank, int loop )
+{
+	if (GameArg.SndNoMusic)
+		return 0;
 
-#ifndef NDEBUG 	 
-void digi_debug() 	 
-{ 	 
-	int i; 	 
-	int n_voices = 0; 	 
-	  	 
-	if (!digi_initialised) return; 	 
-	  	 
-	for (i = 0; i < digi_max_channels; i++) 	 
-	{ 	 
-		if (digi_is_channel_playing(i)) 	 
-			n_voices++; 	 
-        } 	 
+	digi_stop_current_song();
+
+	if (filename == NULL)
+		return 0;
+
+	if ((hmp = hmp_open(filename)))
+	{
+		if (hmp_play(hmp,loop) != 0)
+			return 0;	// error
+		digi_midi_song_playing = 1;
+		digi_set_midi_volume(midi_volume);
+		return 1;
+	}
+
+	return 0;
+}
+
+void digi_win32_stop_current_song()
+{
+	if (digi_midi_song_playing)
+	{
+		hmp_close(hmp);
+		hmp = NULL;
+		digi_midi_song_playing = 0;
+	}
 }
 #endif

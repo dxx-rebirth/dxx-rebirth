@@ -28,10 +28,6 @@
 #include "gr.h" // needed for piggy.h
 #include "piggy.h"
 
-#ifdef _WIN32
-#include "hmpfile.h"
-#endif
-
 #define MIX_DIGI_DEBUG 0
 #define MIX_OUTPUT_FORMAT	AUDIO_S16
 #define MIX_OUTPUT_CHANNELS	2
@@ -107,7 +103,7 @@ void mixdigi_convert_sound(int i) {
   int out_freq;
   Uint16 out_format;
   int out_channels;
-  
+
   Mix_QuerySpec(&out_freq, &out_format, &out_channels); // get current output settings
 
   if (SoundChunks[i].abuf) return; //proceed only if not converted yet
@@ -181,35 +177,6 @@ void digi_mixer_set_digi_volume( int dvolume )
   Mix_Volume(-1, fix2byte(dvolume));
 }
 
-void digi_mixer_set_midi_volume( int mvolume ) {
-#ifdef _WIN32
-  int mm_volume;
-
-  if (mvolume < 0)
-    midi_volume = 0;
-  else if (mvolume > 127)
-    midi_volume = 127;
-  else
-    midi_volume = mvolume;
-
-  // scale up from 0-127 to 0-0xffff
-  mm_volume = (midi_volume << 1) | (midi_volume & 1);
-  mm_volume |= (mm_volume << 8);
-
-  if (hmp)
-    midiOutSetVolume((HMIDIOUT)hmp->hmidi, mm_volume | mm_volume << 16);
-#endif
-  midi_volume = mvolume;
-  if (!digi_initialised) return;
-  mix_set_music_volume(mvolume);
-}
-
-void digi_mixer_set_volume( int dvolume, int mvolume ) {
-  digi_mixer_set_digi_volume(dvolume);
-  digi_mixer_set_midi_volume(mvolume);
-}
-
-
 int digi_mixer_find_channel(int soundno) { return 0; }
 int digi_mixer_is_sound_playing(int soundno) { return 0; }
 int digi_mixer_is_channel_playing(int channel) { return 0; }
@@ -219,63 +186,13 @@ void digi_mixer_stop_all_channels() {
 	Mix_HaltChannel(-1);
 }
 
-extern void digi_end_soundobj(int channel);	
+extern void digi_end_soundobj(int channel);
 int verify_sound_channel_free(int channel);
 
  //added on 980905 by adb to make sound channel setting work
 void digi_mixer_set_max_channels(int n) { }
 int digi_mixer_get_max_channels() { return digi_max_channels; }
 // end edit by adb
-
-
-// MIDI stuff follows.
-
-int digi_mixer_play_midi_song(char * filename, char * melodic_bank, char * drum_bank, int loop ) {
-    if (!digi_initialised) return 0;
-    if (GameArg.SndNoMusic)
-      return 0;
-
-    mix_set_music_volume(midi_volume);
-
-    // standard song playback
-#ifdef _WIN32
-    if (!GameArg.SndExternalMusic)
-    {
-      if ((hmp = hmp_open(filename)))
-      {
-        if (hmp_play(hmp,loop) != 0)
-			return 0;	// error
-        digi_midi_song_playing = 1;
-        digi_set_midi_volume(midi_volume);
-		return 1;
-      }
-	else
-		return 0;
-    }
-    else
-#endif
-      return mix_play_music(filename, loop);
-}
-
-int digi_mixer_music_exists(const char *filename)
-{
-	return mix_music_exists(filename);
-}
-
-void digi_mixer_stop_current_song() {
-#ifdef _WIN32
-  if (digi_midi_song_playing)
-  {
-    hmp_close(hmp);
-    hmp = NULL;
-    digi_midi_song_playing = 0;
-  }
-#endif
-  mix_stop_music();
-}
-
-void digi_mixer_pause_midi() {}
-void digi_mixer_resume_midi() {}
 
 #ifndef NDEBUG
 void digi_mixer_debug() {}

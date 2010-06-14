@@ -28,6 +28,10 @@ COPYRIGHT 1993-1999 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 #include "cfile.h"
 #include "digi.h"
 #include "rbaudio.h"
+#ifdef USE_SDLMIXER
+#include "digi_mixer_music.h"
+#include "jukebox.h"
+#endif
 #include "config.h"
 #include "timer.h"
 
@@ -36,32 +40,50 @@ int Songs_initialized = 0;
 
 int Num_songs;
 
-//0 if external music is not playing, else the track number
-static int Extmusic_playing = 0;
-
-// 0 if no song playing, else the Descent song number
-static int Song_playing = 0;
+static int Song_playing = 0; // 0 if no song playing, else the Descent song number
+static int Redbook_playing = 0; // Redbook track num differs from Song num. Store here so we know with which track we deal with.
+// NOTE: Custom music song number is stored in GameCfg.CMLevelMusicTrack[0]
 
 #define NumLevelSongs (Num_songs - SONG_FIRST_LEVEL_SONG)
 
 #define EXTMUSIC_VOLUME_SCALE	(255)
 
 //takes volume in range 0..8
-void set_extmusic_volume(int volume)
+void songs_set_volume(int volume)
 {
-	ext_music_set_volume(0);
-	ext_music_set_volume(volume*EXTMUSIC_VOLUME_SCALE/8);
+#ifdef _WIN32
+	if (GameArg.SndDisableSdlMixer)
+		digi_win32_set_midi_volume((volume*128)/8);
+#endif
+	if (GameCfg.MusicType == MUSIC_TYPE_REDBOOK)
+	{
+		RBASetVolume(0);
+		RBASetVolume(volume*EXTMUSIC_VOLUME_SCALE/8);
+	}
+#ifdef USE_SDLMIXER
+	mix_set_music_volume(volume*EXTMUSIC_VOLUME_SCALE/8);
+#endif
 }
 
 void songs_init()
 {
 	int i = 0;
 	char inputline[80+1];
-	CFILE * fp;
+	CFILE * fp = NULL;
+	char sng_file[PATH_MAX];
 
 	memset(Songs, '\0', sizeof(Songs));
 
-	fp = cfopen( "descent.sng", "rb" );
+	memset(sng_file, '\0', sizeof(sng_file));
+	if (Current_mission != NULL)
+	{
+		snprintf(sng_file, strlen(Current_mission_filename)+5, "%s.sng", Current_mission_filename);
+		fp = cfopen(sng_file, "rb");
+	}
+
+	if (fp == NULL)
+		fp = cfopen( "descent.sng", "rb" );
+
 	if ( fp == NULL ) // No descent.sng available. Define a default song-set
 	{
 		for (i = 0; i < MAX_NUM_SONGS; i++) {
@@ -70,9 +92,9 @@ void songs_init()
 			if (i >= SONG_FIRST_LEVEL_SONG)
 			{
 				sprintf(Songs[i].filename, "game%02d.hmp", i - SONG_FIRST_LEVEL_SONG + 1);
-				if (!digi_music_exists(Songs[i].filename))
+				if (!cfexist(Songs[i].filename))
 					sprintf(Songs[i].filename, "game%d.hmp", i - SONG_FIRST_LEVEL_SONG);
-				if (!digi_music_exists(Songs[i].filename))
+				if (!cfexist(Songs[i].filename))
 				{
 					Songs[i].filename[0] = '\0';	// music not available
 					break;
@@ -91,7 +113,7 @@ void songs_init()
 		{
 			if (i == MAX_NUM_SONGS)
 				break;
-				
+
 			cfgets(inputline, 80, fp );
 			if ( strlen( inputline ) )
 			{
@@ -104,94 +126,128 @@ void songs_init()
 						Songs[i].drum_bank_file );
 
 				if (strchr(Songs[i].filename, '.'))
-					if (!stricmp(strchr(Songs[i].filename, '.'), ".hmp"))
+					if (!stricmp(strchr(Songs[i].filename, '.'), ".hmp") ||
+						!stricmp(strchr(Songs[i].filename, '.'), ".mp3") ||
+						!stricmp(strchr(Songs[i].filename, '.'), ".ogg") ||
+						!stricmp(strchr(Songs[i].filename, '.'), ".aif") ||
+						!stricmp(strchr(Songs[i].filename, '.'), ".mid")
+						)
 						i++;
 			}
 		}
-		if (i <= SONG_FIRST_LEVEL_SONG)
-			Error("Must have at least %d songs",SONG_FIRST_LEVEL_SONG+1);
 	}
 
 	Num_songs = i;
 	Songs_initialized = 1;
 	if (fp != NULL)	cfclose(fp);
 
-	//	Set up External Music - ie Redbook/Jukebox
-	if (EXT_MUSIC_ON)
+	// Now each song will get it's own number which will serve custom music (and maybe others) as track number
+	if (Num_songs > 0)
 	{
-		ext_music_load();
-		set_extmusic_volume(GameCfg.MusicVolume);
+		int i = 0, j = 0, c = 0;
+
+		for (i = 0; i < Num_songs; i++)
+		{
+			Songs[i].id = -1;
+			for (j = 0; j < i; j++)
+				if (stricmp(Songs[i].filename, Songs[j].filename) == 0)
+					Songs[i].id = Songs[j].id;
+
+			if (Songs[i].id == -1)
+				Songs[i].id = c++;
+		}
 	}
+
+	// If SDL_Mixer is not supported (or deactivated), switch to no-music type if SDL_mixer-related music type was selected
+#ifdef USE_SDLMIXER
+	if (GameArg.SndDisableSdlMixer)
+#else
+	if (1)
+#endif
+	{
+#ifndef _WIN32
+		if (GameCfg.MusicType == MUSIC_TYPE_BUILTIN)
+			GameCfg.MusicType = MUSIC_TYPE_NONE;
+#endif
+		if (GameCfg.MusicType == MUSIC_TYPE_CUSTOM)
+			GameCfg.MusicType = MUSIC_TYPE_NONE;
+	}
+
+	if (GameCfg.MusicType == MUSIC_TYPE_REDBOOK)
+		RBAInit();
+#ifdef USE_SDLMIXER
+	else if (GameCfg.MusicType == MUSIC_TYPE_CUSTOM)
+		jukebox_load();
+#endif
+
+	songs_set_volume(GameCfg.MusicVolume);
 }
 
-#define FADE_TIME (f1_0/2)
-
-//stop the external music
-//only supposed to be called from within songs_stop_all,
-//otherwise the value for Song_playing will be wrong
-void songs_stop_extmusic(void)
+void songs_uninit()
 {
-	int old_volume = GameCfg.MusicVolume*EXTMUSIC_VOLUME_SCALE/8;
-	fix old_time = timer_get_fixed_seconds();
-	
-	if (Extmusic_playing) {		//fade out volume
-		int new_volume;
-		do {
-			fix t = timer_get_fixed_seconds();
-			
-			new_volume = fixmuldiv(old_volume,(FADE_TIME - (t-old_time)),FADE_TIME);
-			
-			if (new_volume < 0)
-				new_volume = 0;
-			
-			ext_music_set_volume(new_volume);
-			
-		} while (new_volume > 0);
-	}
-	
-	ext_music_stop();              	// Stop CD/Jukebox, if playing
-	
-	ext_music_set_volume(old_volume);	//restore volume
-	
-	Extmusic_playing = 0;		
-	
+#ifdef _WIN32
+	if (GameArg.DisableSdlMixer)
+		digi_win32_stop_current_song();	// Stop midi song, if playing
+#endif
+	RBAStop();
+//	RBAExit();
+#ifdef USE_SDLMIXER
+	mix_stop_music();
+	jukebox_unload();
+#endif
+
+	Song_playing = 0;
+	Songs_initialized = 0;
 }
 
-//stop any songs - midi, redbook or jukebox - that are currently playing
+//stop any songs - builtin, redbook or jukebox - that are currently playing
 void songs_stop_all(void)
 {
-	digi_stop_current_song();	// Stop midi song, if playing
-	
-	songs_stop_extmusic();			// Stop external music, if playing
+#ifdef _WIN32
+	if (GameArg.DisableSdlMixer)
+		digi_win32_stop_current_song();	// Stop midi song, if playing
+#endif
+	RBAStop();
+#ifdef USE_SDLMIXER
+	mix_stop_music();
+#endif
+
 	Song_playing = 0;
 }
 
-void reinit_extmusic()
+void songs_pause(void)
 {
-	ext_music_load();
-	set_extmusic_volume(GameCfg.MusicVolume);
+#ifdef _WIN32
+	if (GameArg.DisableSdlMixer)
+		digi_win32_pause_midi();
+#endif
+	if (GameCfg.MusicType == MUSIC_TYPE_REDBOOK)
+		RBAPause();
+#ifdef USE_SDLMIXER
+	mix_pause_music();
+#endif
 }
 
-
-//returns 1 if track started sucessfully
-//start at tracknum.  if keep_playing set, play to end of disc.  else
-//play only specified track
-int play_extmusic_track(int tracknum,int keep_playing, void (*completion_proc)())
+void songs_resume(void)
 {
-	Extmusic_playing = 0;
-	
-	if (!ext_music_is_loaded() && EXT_MUSIC_ON)
-		reinit_extmusic();
-	
-	if (EXT_MUSIC_ON) {
-		int num_tracks = ext_music_get_numtracks();
-		if (tracknum <= num_tracks)
-			if (ext_music_play_tracks(tracknum,keep_playing?num_tracks:tracknum, completion_proc))  {
-				Extmusic_playing = tracknum;
-			}
-	}
-		
-		return (Extmusic_playing != 0);
+#ifdef _WIN32
+	if (GameArg.DisableSdlMixer)
+		digi_win32_resume_midi_song();
+#endif
+	if (GameCfg.MusicType == MUSIC_TYPE_REDBOOK)
+		RBAResume();
+#ifdef USE_SDLMIXER
+	mix_resume_music();
+#endif
+}
+
+void songs_pause_resume(void)
+{
+	if (GameCfg.MusicType == MUSIC_TYPE_REDBOOK)
+		RBAPauseResume();
+#ifdef USE_SDLMIXER
+	mix_pause_resume_music();
+#endif
 }
 
 /*
@@ -210,22 +266,20 @@ int play_extmusic_track(int tracknum,int keep_playing, void (*completion_proc)()
 #define D2_MAC_DISCID       0xb70ee40e // Macintosh
 #define D2_IPLAY_DISCID     0x22115710 // iPlay for Macintosh
 
-#define REDBOOK_TITLE_TRACK         (GameCfg.SndEnableRedbook ? 2 : 1)
-#define REDBOOK_CREDITS_TRACK       (GameCfg.SndEnableRedbook ? 3 : 2)
-#define REDBOOK_FIRST_LEVEL_TRACK   (songs_haved2_cd() ? (GameCfg.SndEnableRedbook ? 4 : 3) : 1)
+#define REDBOOK_TITLE_TRACK         2
+#define REDBOOK_CREDITS_TRACK       3
+#define REDBOOK_FIRST_LEVEL_TRACK   (songs_haved2_cd() ? 4 : 1)
 
 // songs_haved2_cd returns 1 if the descent 2 CD is in the drive and
 // 0 otherwise
-
-#if 1
 int songs_haved2_cd()
 {
 	int discid;
 
 	if (GameCfg.OrigTrackOrder)
 		return 1;
-	
-	if (!GameCfg.SndEnableRedbook)
+
+	if (!(GameCfg.MusicType == MUSIC_TYPE_REDBOOK))
 		return 0;
 
 	discid = RBAGetDiscID();
@@ -247,130 +301,203 @@ int songs_haved2_cd()
 		return 0;
 	}
 }
-#else
-int songs_haved2_cd()
-{
-	char temp[128],cwd[128];
-	
-	getcwd(cwd, 128);
 
-	strcpy(temp,CDROM_dir);
-	
-#ifndef MACINTOSH		//for PC, strip of trailing slash
-	if (temp[strlen(temp)-1] == '\\')
-		temp[strlen(temp)-1] = 0;
-#endif
-
-	if ( !chdir(temp) ) {
-		chdir(cwd);
-		return 1;
-	}
-
-	return 0;
-}
-#endif
-
-void play_credits_track()
+void redbook_repeat_func()
 {
 	stop_time();
-	play_extmusic_track(REDBOOK_CREDITS_TRACK, 0, play_credits_track);
+	RBAPlayTracks(Redbook_playing, 0, redbook_repeat_func);
 	start_time();
 }
 
 int songs_play_song( int songnum, int repeat )
 {
-	#ifndef SHAREWARE
-	//Assert(songnum != SONG_ENDLEVEL && songnum != SONG_ENDGAME);	//not in full version
-	#endif
-
 	songs_init();
 
 	//stop any music already playing
 
 	songs_stop_all();
 
-	//do we want any of these to be redbook songs?
-
-	if (songnum == SONG_TITLE)
-		play_extmusic_track(REDBOOK_TITLE_TRACK, 0, repeat ? play_credits_track : NULL);
-	else if (songnum == SONG_CREDITS)
-		play_extmusic_track(REDBOOK_CREDITS_TRACK, 0, repeat ? play_credits_track : NULL);
-
-	if (!Extmusic_playing)		//not playing external music, so play midi
+	switch (GameCfg.MusicType)
 	{
-		if (digi_play_midi_song( Songs[songnum].filename, Songs[songnum].melodic_bank_file, Songs[songnum].drum_bank_file, repeat ))
-			Song_playing = songnum;
+		case MUSIC_TYPE_BUILTIN:
+		{
+#ifdef _WIN32
+			if (GameArg.DisableSdlMixer)
+			{
+				if (digi_win32_play_midi_song( Songs[songnum].filename, Songs[songnum].melodic_bank_file, Songs[songnum].drum_bank_file, repeat ))
+				{
+					Song_playing = songnum;
+				}
+			}
+			else
+#endif
+#ifdef USE_SDLMIXER
+			{
+				if (mix_play_file(Songs[songnum].filename, repeat, NULL))
+				{
+					Song_playing = songnum;
+				}
+			}
+#endif
+			break;
+		}
+		case MUSIC_TYPE_REDBOOK:
+		{
+			int num_tracks = RBAGetNumberOfTracks();
+
+			if ((songnum == SONG_TITLE) && (REDBOOK_TITLE_TRACK <= num_tracks))
+			{
+				if (RBAPlayTracks(REDBOOK_TITLE_TRACK, 0, repeat ? redbook_repeat_func : NULL))
+				{
+					Redbook_playing = REDBOOK_TITLE_TRACK;
+					Song_playing = songnum;
+				}
+			}
+			else if ((songnum == SONG_CREDITS) && (REDBOOK_CREDITS_TRACK <= num_tracks))
+			{
+				if (RBAPlayTracks(REDBOOK_CREDITS_TRACK, 0, repeat ? redbook_repeat_func : NULL))
+				{
+					Redbook_playing = REDBOOK_CREDITS_TRACK;
+					Song_playing = songnum;
+				}
+			}
+			break;
+		}
+#ifdef USE_SDLMIXER
+		case MUSIC_TYPE_CUSTOM:
+		{
+			if (mix_play_file(GameCfg.CMMiscMusic[songnum], repeat, NULL))
+				Song_playing = songnum;
+			break;
+		}
+#endif
+		default:
+			Song_playing = 0;
+			break;
 	}
-	else
-		Song_playing = songnum;
-	
+
 	return Song_playing;
 }
 
-int current_song_level;
-
-void play_first_song()
+void redbook_first_song_func()
 {
 	stop_time();
-	songs_play_level_song(1);
+	songs_play_level_song(1, 0);
 	start_time();
 }
 
-int songs_play_level_song( int levelnum )
+// play track given by levelnum (depending on the music type and it's playing behaviour) or increment/decrement current track number via offset value
+int songs_play_level_song( int levelnum, int offset )
 {
 	int songnum;
-	int n_tracks;
 
 	Assert( levelnum != 0 );
+
+	// Track changing not allowed for builtin music
+	if (offset && GameCfg.MusicType == MUSIC_TYPE_BUILTIN)
+		return Song_playing;
 
 	songs_init();
 
 	songs_stop_all();
 
-	current_song_level = levelnum;
-
 	songnum = (levelnum>0)?(levelnum-1):(-levelnum);
 
-	if (!ext_music_is_loaded() && EXT_MUSIC_ON)	// need this to determine if we currently have the official CD
-		reinit_extmusic();
+	switch (GameCfg.MusicType)
+	{
+		case MUSIC_TYPE_BUILTIN:
+		{
+			if (NumLevelSongs > 0)
+			{
+				songnum = SONG_FIRST_LEVEL_SONG + (songnum % NumLevelSongs);
+#ifdef _WIN32
+				if (GameArg.DisableSdlMixer)
+				{
+					if (digi_win32_play_midi_song( Songs[songnum].filename, Songs[songnum].melodic_bank_file, Songs[songnum].drum_bank_file, 1 ))
+					{
+						Song_playing = songnum;
+					}
+				}
+				else
+#endif
+#ifdef USE_SDLMIXER
+				{
+					if (mix_play_file(Songs[songnum].filename, 1, NULL))
+					{
+						Song_playing = songnum;
+					}
+				}
+#endif
+			}
+			break;
+		}
+		case MUSIC_TYPE_REDBOOK:
+		{
+			int n_tracks = RBAGetNumberOfTracks();
+			int tracknum;
 
-	n_tracks = ext_music_get_numtracks();
-	
-	if (ext_music_is_loaded() && EXT_MUSIC_ON) {
-		//try to play external music (Redbook / Jukebox)
-		play_extmusic_track(REDBOOK_FIRST_LEVEL_TRACK + ((n_tracks+1<=REDBOOK_FIRST_LEVEL_TRACK) ? 0 : (songnum % (n_tracks-REDBOOK_FIRST_LEVEL_TRACK+1))), 1, play_first_song);
+			if (!offset)
+				tracknum = REDBOOK_FIRST_LEVEL_TRACK + ((n_tracks+1<=REDBOOK_FIRST_LEVEL_TRACK) ? 0 : (songnum % (n_tracks-REDBOOK_FIRST_LEVEL_TRACK+1)));
+			else
+			{
+				tracknum = Redbook_playing+offset;
+				if (tracknum < REDBOOK_FIRST_LEVEL_TRACK)
+					tracknum = n_tracks - (REDBOOK_FIRST_LEVEL_TRACK - tracknum) + 1;
+				else if (tracknum > n_tracks)
+					tracknum = REDBOOK_FIRST_LEVEL_TRACK + (tracknum - n_tracks) - 1;
+			}
+
+
+			if (RBAEnabled() && (tracknum <= n_tracks))
+			{
+				if (RBAPlayTracks(tracknum, n_tracks, redbook_first_song_func))
+				{
+					Song_playing = songnum;
+					Redbook_playing = tracknum;
+				}
+			}
+			break;
+		}
+#ifdef USE_SDLMIXER
+		case MUSIC_TYPE_CUSTOM:
+		{
+			if (!offset)
+			{
+				if (GameCfg.CMLevelMusicPlayOrder == MUSIC_CM_PLAYORDER_CONT)
+				{
+					static int last_songnum = -1;
+
+					// As soon as we start a new level, go to next track
+					if (last_songnum != -1 && songnum != last_songnum)
+						((GameCfg.CMLevelMusicTrack[0]+1>=GameCfg.CMLevelMusicTrack[1])?GameCfg.CMLevelMusicTrack[0]=0:GameCfg.CMLevelMusicTrack[0]++);
+					last_songnum = songnum;
+				}
+				else if (GameCfg.CMLevelMusicPlayOrder == MUSIC_CM_PLAYORDER_LEVELDEP)
+					GameCfg.CMLevelMusicTrack[0] = ((Songs[songnum+SONG_FIRST_LEVEL_SONG].id - SONG_FIRST_LEVEL_SONG) % (GameCfg.CMLevelMusicTrack[1]));
+				else if (GameCfg.CMLevelMusicPlayOrder == MUSIC_CM_PLAYORDER_LEVELALPHA)
+					GameCfg.CMLevelMusicTrack[0] = (songnum % GameCfg.CMLevelMusicTrack[1]);
+			}
+			else
+			{
+				GameCfg.CMLevelMusicTrack[0] += offset;
+				if (GameCfg.CMLevelMusicTrack[0] < 0)
+					GameCfg.CMLevelMusicTrack[0] = GameCfg.CMLevelMusicTrack[1] + GameCfg.CMLevelMusicTrack[0];
+				if (GameCfg.CMLevelMusicTrack[0] + 1 > GameCfg.CMLevelMusicTrack[1])
+					GameCfg.CMLevelMusicTrack[0] = GameCfg.CMLevelMusicTrack[0] - GameCfg.CMLevelMusicTrack[1];
+			}
+
+			if (jukebox_play())
+				Song_playing = songnum;
+
+			break;
+		}
+#endif
+		default:
+			Song_playing = 0;
+			break;
 	}
 
-	if (! Extmusic_playing && (NumLevelSongs > 0)) {			//not playing external music, so play midi
-		songnum = SONG_FIRST_LEVEL_SONG + (songnum % NumLevelSongs);
-		if (digi_play_midi_song( Songs[songnum].filename, Songs[songnum].melodic_bank_file, Songs[songnum].drum_bank_file, 1 ))
-			Song_playing = songnum;
-	}
-	else if (Extmusic_playing)
-		Song_playing = songnum;
-	
 	return Song_playing;
-}
-
-//goto the next level song
-void songs_goto_next_song()
-{
-	if (Extmusic_playing) 		//get correct track
-		current_song_level = ext_music_get_track_playing() - REDBOOK_FIRST_LEVEL_TRACK + 1;
-	
-	songs_play_level_song(current_song_level+1);
-
-}
-
-//goto the previous level song
-void songs_goto_prev_song()
-{
-	if (Extmusic_playing) 		//get correct track
-		current_song_level = ext_music_get_track_playing() - REDBOOK_FIRST_LEVEL_TRACK + 1;
-	
-	if (current_song_level > 1)
-		songs_play_level_song(current_song_level-1);
-
 }
 
 // check which song is playing

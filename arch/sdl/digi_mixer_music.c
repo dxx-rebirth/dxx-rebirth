@@ -17,162 +17,166 @@
 #include "cfile.h"
 #include "u_mem.h"
 
-#define MIX_MUSIC_DEBUG 0
-#define MUSIC_FADE_TIME 500 //milliseconds
 
 Mix_Music *current_music = NULL;
 
-void convert_hmp(char *filename, char *mid_filename) {
+void convert_hmp(char *filename, char *mid_filename)
+{
 
-  if (1)	//!PHYSFS_exists(mid_filename))	// allow custom MIDI in add-on hogs to be used without caching everything
-  {
-    const char *err;
-    PHYSFS_file *hmp_in;
-    PHYSFS_file *mid_out = PHYSFSX_openWriteBuffered(mid_filename);
+	if (1)	//!PHYSFS_exists(mid_filename))	// allow custom MIDI in add-on hogs to be used without caching everything
+	{
+		const char *err;
+		PHYSFS_file *hmp_in;
+		PHYSFS_file *mid_out = PHYSFSX_openWriteBuffered(mid_filename);
 
-    if (!mid_out) {
-      con_printf(CON_CRITICAL," could not open: %s for writing: %s\n", mid_filename, PHYSFS_getLastError());
-      return;
-    }
+		if (!mid_out)
+		{
+			con_printf(CON_CRITICAL," could not open: %s for writing: %s\n", mid_filename, PHYSFS_getLastError());
+				return;
+		}
 
-    con_printf(CON_DEBUG,"convert_hmp: converting %s to %s\n", filename, mid_filename);
+		con_printf(CON_DEBUG,"convert_hmp: converting %s to %s\n", filename, mid_filename);
 
-    hmp_in = PHYSFSX_openReadBuffered(filename);
+		hmp_in = PHYSFSX_openReadBuffered(filename);
 
-    if (!hmp_in) {
-      con_printf(CON_CRITICAL," could not open: %s\n", filename);
-      PHYSFS_close(mid_out);
-      return;
-    }
+		if (!hmp_in)
+		{
+			con_printf(CON_CRITICAL," could not open: %s\n", filename);
+			PHYSFS_close(mid_out);
+			return;
+		}
 
-    err = hmp2mid(hmp_in, mid_out);
+		err = hmp2mid(hmp_in, mid_out);
 
-    PHYSFS_close(mid_out);
-    PHYSFS_close(hmp_in);
+		PHYSFS_close(mid_out);
+		PHYSFS_close(hmp_in);
 
-    if (err) {
-      con_printf(CON_CRITICAL,"%s\n", err);
-      PHYSFS_delete(mid_filename);
-      return;
-    }
-  }
-  else {
-    con_printf(CON_DEBUG,"convert_hmp: %s already exists\n", mid_filename);
-  }
+		if (err)
+		{
+			con_printf(CON_CRITICAL,"%s\n", err);
+			PHYSFS_delete(mid_filename);
+			return;
+		}
+	}
+	else
+	{
+		con_printf(CON_DEBUG,"convert_hmp: %s already exists\n", mid_filename);
+	}
 }
 
 /*
- *  Plays a music given its name (regular game songs)
+ *  Plays a music file from an absolute path
  */
 
-int mix_play_music(char *filename, int loop) {
-  int i, got_end=0;
-  char rel_filename[32];	// just the filename of the actual music file used
-  char music_title[16];
-  char *basedir = "Music";
+int mix_play_file(char *filename, int loop, void (*hook_finished_track)())
+{
+	char tmp_file[PATH_MAX], real_filename[PATH_MAX], real_filename_absolute[PATH_MAX];
+	char *basedir = "music", *fptr;
 
-  // Quick hack to filter out the .hmp extension
-  for (i=0; !got_end; i++) {
-    switch (filename[i]) {
-    case '.':
-    case '\0':
-      music_title[i] = '\0';
-      got_end = 1;
-      break;
-    default:
-      music_title[i] = filename[i];
-    }
-  }
+	mix_free_music();	// stop and free what we're already playing, if anything
 
-  if (!PHYSFS_isDirectory(basedir))
-	  PHYSFS_mkdir(basedir);	// tidy up those files
+	fptr = strchr(filename, '.');
 
-  // What is the extension of external files? If none, default to internal MIDI
-  if (GameArg.SndExternalMusic) {
-#ifdef _MSC_VER
-#define snprintf _snprintf
-#endif
-    snprintf(rel_filename, strlen(basedir)+strlen(music_title)+6, "%s/%s.%s", basedir, music_title, GameArg.SndExternalMusic); // add extension
-  }
-  else {
-    snprintf(rel_filename, strlen(basedir)+strlen(music_title)+6, "%s/%s.mid", basedir, music_title);
-    convert_hmp(filename, rel_filename);
-  }
+	if (fptr == NULL)
+		return 0;
 
-  return mix_play_file(rel_filename, loop, NULL);
-}
+	snprintf(tmp_file, sizeof(char)*(strlen(filename)+1), filename);
 
+	// It's a .hmp. Convert to mid, store ind music/ and pass the new filename.
+	if (!stricmp(fptr, ".hmp"))
+	{
+		strcpy(tmp_file+strlen(tmp_file)-4,".mid");
+		if (!PHYSFS_isDirectory(basedir))
+			PHYSFS_mkdir(basedir);
+		snprintf(real_filename, strlen(basedir)+strlen(tmp_file)+6, "%s/%s", basedir, tmp_file);
+		convert_hmp(filename, real_filename);
+	}
+	else
+	{
+		snprintf(real_filename, sizeof(char)*(strlen(filename)+1), filename);
+	}
 
-/*
- *  Plays a music file from an absolute path (used by jukebox)
- */
+	loop = loop ? -1 : 1;	// loop means loop infinitely, otherwise play once
 
-int mix_play_file(char *filename, int loop, void (*hook_finished_track)()) {
-  char real_filename[PATH_MAX];
+	current_music = Mix_LoadMUS(real_filename);
 
-  mix_free_music();	// stop and free what we're already playing, if anything
+	// Could not open the file, yet. Try to get absolute path.
+	if (!current_music)
+	{
+		PHYSFSX_getRealPath(real_filename, real_filename_absolute);
+		current_music = Mix_LoadMUS(real_filename_absolute);
+	}
 
-  PHYSFSX_getRealPath(filename, real_filename); // build absolute path
+	// Still no luck. Maybe the music is stored in an archive. Try that.
+	// NOTE: This method should basically always work - making the above steps unnecessary. But for now it stays the last resort for the sake of memory swallowed by 'buf'.
+	if (!current_music)
+	{
+		SDL_RWops *rw = NULL;
+		PHYSFS_file *filehandle = NULL;
+		char *buf = NULL;
+		int bufsize = 0;
 
-  loop = loop ? -1 : 1;	// loop means loop infinitely, otherwise play once
+		filehandle = PHYSFS_openRead(real_filename);
+		if (filehandle != NULL)
+		{
+			buf = realloc(buf, sizeof(char *)*PHYSFS_fileLength(filehandle));
+			bufsize = PHYSFS_read(filehandle, buf, sizeof(char), PHYSFS_fileLength(filehandle));
+			rw = SDL_RWFromConstMem(buf,bufsize*sizeof(char));
+			PHYSFS_close(filehandle);
+			current_music = Mix_LoadMUS_RW(rw);
+		}
+	}
 
-  current_music = Mix_LoadMUS(real_filename);
+	if (current_music)
+	{
+		Mix_PlayMusic(current_music, loop);
+		Mix_HookMusicFinished(hook_finished_track ? hook_finished_track : mix_free_music);
+		return 1;
+	}
+	else
+	{
+		con_printf(CON_CRITICAL,"Music %s could not be loaded\n", real_filename_absolute);
+		Mix_HaltMusic();
+	}
 
-  if (current_music) {
-    if (Mix_PlayingMusic()) {
-      // Fade-in effect sounds cleaner if we're already playing something
-      Mix_FadeInMusic(current_music, loop, MUSIC_FADE_TIME);
-    }
-    else {
-      Mix_PlayMusic(current_music, loop);
-    }
-
-	Mix_HookMusicFinished(hook_finished_track ? hook_finished_track : mix_free_music);
-	return 1;
-  }
-  else {
-    con_printf(CON_CRITICAL,"Music %s could not be loaded\n", real_filename);
-    Mix_HaltMusic();
-  }
-	
 	return 0;
 }
 
-
-/*
- *  See if a music file exists, taking into account possible -music_ext option
- */
-
-int mix_music_exists(const char *filename)
-{
-	char rel_filename[32];	// just the filename of the actual music file used
-	char music_file[16];
-	char *basedir = "Music";
-
-	if (GameArg.SndExternalMusic)
-	{
-		change_filename_extension(music_file, filename, GameArg.SndExternalMusic);
-		sprintf(rel_filename, "%s/%s", basedir, music_file);
-		return PHYSFS_exists(rel_filename);
-	}
-
-	return PHYSFS_exists(filename);
-}
-
 // What to do when stopping song playback
-void mix_free_music() {
-  Mix_HaltMusic();
-  if (current_music)
-  {
-     Mix_FreeMusic(current_music);
-     current_music = NULL;
-  }
+void mix_free_music()
+{
+	Mix_HaltMusic();
+	if (current_music)
+	{
+		Mix_FreeMusic(current_music);
+		current_music = NULL;
+	}
 }
 
-void mix_set_music_volume(int vol) {
-  Mix_VolumeMusic(vol);
+void mix_set_music_volume(int vol)
+{
+	Mix_VolumeMusic(vol);
 }
 
-void mix_stop_music() {
-  Mix_HaltMusic();
+void mix_stop_music()
+{
+	Mix_HaltMusic();
+}
+
+void mix_pause_music()
+{
+	Mix_PauseMusic();
+}
+
+void mix_resume_music()
+{
+	Mix_ResumeMusic();
+}
+
+void mix_pause_resume_music()
+{
+	if (Mix_PausedMusic())
+		Mix_ResumeMusic();
+	else if (Mix_PlayingMusic())
+		Mix_PauseMusic();
 }

@@ -17,13 +17,7 @@ void digi_mixer_reset();
 void digi_set_max_channels(int);
 int digi_get_max_channels();
 void digi_mixer_stop_all_channels();
-int digi_mixer_play_midi_song(char *, char *, char *, int);
-int digi_mixer_music_exists(const char *filename);
-void digi_mixer_set_midi_volume(int);
 void digi_mixer_set_digi_volume(int);
-void digi_mixer_stop_current_song();
-void digi_mixer_pause_midi();
-void digi_mixer_resume_midi();
 void digi_mixer_debug();
 
 #endif

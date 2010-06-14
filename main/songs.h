@@ -25,6 +25,7 @@ typedef struct song_info {
 	char    filename[16];
 	char    melodic_bank_file[16];
 	char    drum_bank_file[16];
+	int	id; // representative number for each song
 } song_info;
 
 extern int Num_songs;   //how many songs
@@ -39,7 +40,7 @@ extern song_info Songs[];
 #define MAX_NUM_SONGS          (5+MAX_LEVELS_PER_MISSION+MAX_SECRET_LEVELS_PER_MISSION)
 
 int songs_play_song( int songnum, int repeat );
-int songs_play_level_song( int levelnum );
+int songs_play_level_song( int levelnum, int offset );
 
 //stop any songs - midi, redbook or jukebox - that are currently playing
 void songs_stop_all(void);
@@ -47,5 +48,14 @@ void songs_stop_all(void);
 // check which song is playing
 int songs_is_playing();
 
+void songs_pause(void);
+void songs_resume(void);
+void songs_pause_resume(void);
+
+// set volume for selected music playback system
+void songs_set_volume(int volume);
+
+void songs_uninit();
+
 #endif
- 
+

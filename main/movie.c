@@ -139,7 +139,7 @@ int PlayMovie(const char *filename, int must_have)
 			return MOVIE_ABORTED;
 
 	// Stop all digital sounds currently playing.
-	digi_stop_all();
+	digi_stop_digi_sounds();
 
 	// Stop all songs
 	songs_stop_all();
@@ -267,11 +267,11 @@ int show_pause_message(window *wind, d_event *event, void *userdata)
 			gr_ustring( 0x8000, y, msg );
 			break;
 		}
-			
+
 		default:
 			break;
 	}
-	
+
 	return 0;
 }
 
@@ -288,17 +288,17 @@ int MovieHandler(window *wind, d_event *event, movie *m)
 		case EVENT_WINDOW_DEACTIVATED:
 			m->paused = 1;
 			break;
-			
+
 		case EVENT_KEY_COMMAND:
 			key = ((d_event_keycommand *)event)->keycode;
-			
+
 			// If ESCAPE pressed, then quit movie.
 			if (key == KEY_ESC) {
 				m->result = m->aborted = 1;
 				window_close(wind);
 				return 1;
 			}
-			
+
 			// If PAUSE pressed, then pause movie
 			if ((key == KEY_PAUSE) || (key == KEY_COMMAND + KEY_P))
 			{
@@ -320,17 +320,17 @@ int MovieHandler(window *wind, d_event *event, movie *m)
 			}
 
 			draw_subtitles(m->frame_num);
-			
+
 			gr_palette_load(gr_palette);
-			
+
 			if (!m->paused)
 				m->frame_num++;
 			break;
-			
+
 		default:
 			break;
 	}
-	
+
 	return 0;
 }
 
@@ -350,14 +350,14 @@ int RunMovie(char *filename, int hires_flag, int must_have,int dx,int dy)
 	MALLOC(m, movie, 1);
 	if (!m)
 		return MOVIE_NOT_PLAYED;
-		
+
 	m->result = 1;
 	m->aborted = 0;
 	m->frame_num = 0;
 	m->paused = 0;
-	
+
 	reshow = hide_menus();
-	
+
 	wind = window_create(&grd_curscreen->sc_canvas, 0, 0, SWIDTH, SHEIGHT, (int (*)(window *, d_event *, void *))MovieHandler, m);
 	if (!wind)
 	{
@@ -408,10 +408,10 @@ int RunMovie(char *filename, int hires_flag, int must_have,int dx,int dy)
 
 	MVE_sfCallbacks(MovieShowFrame);
 	MVE_palCallbacks(MovieSetPalette);
-	
+
 	while (window_exists(wind))
 		event_process();
-	
+
 	Assert(m->aborted || m->result == MVE_ERR_EOF);	 ///movie should be over
 
     MVE_rmEndMovie();
@@ -512,7 +512,7 @@ int InitRobotMovie(char *filename)
 char *subtitle_raw_data;
 
 
-//search for next field following whitespace 
+//search for next field following whitespace
 char *next_field (char *p)
 {
 	while (*p && !isspace(*p))
@@ -574,7 +574,7 @@ int init_subtitles(char *filename)
 	while (p && p < subtitle_raw_data+size) {
 		char *endp;
 
-		endp = strchr(p,'\n'); 
+		endp = strchr(p,'\n');
 		if (endp) {
 			if (endp[-1] == '\r')
 				endp[-1] = 0;		//handle 0d0a pair
@@ -641,7 +641,7 @@ void draw_subtitles(int frame_num)
 		else
 			t++;
 
-	//get any subtitles new for this frame 
+	//get any subtitles new for this frame
 	while (next_subtitle < Num_subtitles && frame_num >= Subtitles[next_subtitle].first_frame) {
 		if (num_active_subtitles >= MAX_ACTIVE_SUBTITLES)
 			Error("Too many active subtitles!");
@@ -699,12 +699,12 @@ void close_extra_robot_movie(void)
 
 	if (strcmp(movielib_files[EXTRA_ROBOT_LIB],"")) {
 		sprintf(filename, "%s-%s.mvl", movielib_files[EXTRA_ROBOT_LIB], GameArg.GfxMovieHires?"h":"l");
-	
+
 		if (!cfile_close(filename))
 		{
 			con_printf(CON_URGENT, "Can't close movielib <%s>: %s\n", filename, PHYSFS_getLastError());
 			sprintf(filename, "%s-%s.mvl", movielib_files[EXTRA_ROBOT_LIB], GameArg.GfxMovieHires?"l":"h");
-	
+
 			if (!cfile_close(filename))
 				con_printf(CON_URGENT, "Can't close movielib <%s>: %s\n", filename, PHYSFS_getLastError());
 		}

@@ -90,7 +90,7 @@ void AppendIniArgs(void)
 	char separator[] = " ";
 
 	f = PHYSFSX_openReadBuffered(INI_FILENAME);
-	
+
 	if(f) {
 		while(!PHYSFS_eof(f) && Num_args < MAX_ARGS)
 		{
@@ -168,7 +168,6 @@ void ReadCmdArgs(void)
 
 #ifdef USE_SDLMIXER
 	GameArg.SndDisableSdlMixer 	= FindArg("-nosdlmixer");
-	GameArg.SndExternalMusic 	= get_str_arg("-music_ext", NULL);
 #endif
 
 
@@ -241,13 +240,13 @@ void args_exit(void)
 void InitArgs( int argc,char **argv )
 {
 	int i;
-	
+
 	Num_args=0;
-	
+
 	for (i=0; i<argc; i++ )
 		Args[Num_args++] = d_strdup( argv[i] );
 
-	
+
 	for (i=0; i< Num_args; i++ ) {
 		if ( Args[i][0] == '-' )
 			strlwr( Args[i]  );  // Convert all args to lowercase

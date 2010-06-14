@@ -238,7 +238,7 @@ gameseq_init_network_players()
 	  for (i=0;i<N_players;i++)
 		 if (Players[i].connected && !(Netgame.players[i].version_minor & 0xF0))
 			{
-	       nm_messagebox ("Warning!",1,TXT_OK,"This special version of Descent II\nwill disconnect after this level.\nPlease purchase the full version\nto experience all the levels!");	
+	       nm_messagebox ("Warning!",1,TXT_OK,"This special version of Descent II\nwill disconnect after this level.\nPlease purchase the full version\nto experience all the levels!");
 			 return;
 			}
 	 }
@@ -309,7 +309,7 @@ void init_player_stats_game()
 	Players[Player_num].num_robots_level = 0;
 	Players[Player_num].num_robots_total = 0;
 	Players[Player_num].KillGoalCount = 0;
-	
+
 	Players[Player_num].hostages_rescued_total = 0;
 	Players[Player_num].hostages_level = 0;
 	Players[Player_num].hostages_total = 0;
@@ -736,14 +736,14 @@ extern int Robot_replacements_loaded;
 void load_level_robots(int level_num)
 {
 	char *level_name;
-	
+
 	Assert(level_num <= Last_level  && level_num >= Last_secret_level  && level_num != 0);
-	
+
 	if (level_num<0)		//secret level
 		level_name = Secret_level_names[-level_num-1];
 	else					//normal level
 		level_name = Level_names[level_num-1];
-	
+
 	if (Robot_replacements_loaded) {
 		free_polygon_models();
 		read_hamfile();		//load original data
@@ -754,7 +754,7 @@ void load_level_robots(int level_num)
 			sprintf(t,"%s.ham",Current_mission_filename);
 			bm_read_extra_robots(t, Current_mission->enhanced);
 		}
-		
+
 		Robot_replacements_loaded = 0;
 	}
 	load_robot_replacements(level_name);
@@ -767,7 +767,7 @@ void LoadLevel(int level_num,int page_in_textures)
 	player save_player;
 	int load_ret;
 
-	save_player = Players[Player_num];	
+	save_player = Players[Player_num];
 
 	Assert(level_num <= Last_level  && level_num >= Last_secret_level  && level_num != 0);
 
@@ -816,7 +816,7 @@ void LoadLevel(int level_num,int page_in_textures)
 	set_sound_sources();
 
 	if (songs_is_playing() < SONG_FIRST_LEVEL_SONG)
-		songs_play_level_song( Current_level_num );
+		songs_play_level_song( Current_level_num, 0 );
 
 	gr_palette_load(gr_palette);		//actually load the palette
 
@@ -854,7 +854,7 @@ void StartNewGame(int start_level)
 	state_default_item = -2;	// for first blind save, pick slot to save in
 
 	Game_mode = GM_NORMAL;
-	
+
 	Next_level_num = 0;
 
 	InitPlayerObject();				//make sure player's object set up
@@ -1055,14 +1055,14 @@ void StartNewLevelSecret(int level_num, int page_in_textures)
 
 	if (Newdemo_state == ND_STATE_PAUSED)
 		Newdemo_state = ND_STATE_RECORDING;
- 
+
 	if (Newdemo_state == ND_STATE_RECORDING) {
 		newdemo_set_new_level(level_num);
 		newdemo_record_start_frame(FrameTime );
 	} else if (Newdemo_state != ND_STATE_PLAYBACK) {
 
 		set_screen_mode(SCREEN_MENU);
- 
+
 		if (First_secret_visit) {
 			do_secret_message(TXT_SECRET_EXIT);
 		} else {
@@ -1244,7 +1244,7 @@ void EnterSecretLevel(void)
  	   	StartNewLevelSecret(Next_level_num, 1);
 	}
 	// END NMN
-	
+
 	// do_cloak_invul_stuff();
 }
 
@@ -1347,13 +1347,13 @@ void AdvanceLevel(int secret_flag)
 #endif
 
 	Assert(!secret_flag);
-	
+
 	window_set_visible(Game_wind, 0);	// suspend the game, including drawing
 
 	if (Current_level_num != Last_level) {
 #ifdef NETWORK
 		if (Game_mode & GM_MULTI)
-			multi_endlevel_score();		
+			multi_endlevel_score();
 		else
 #endif
 			// NOTE LINK TO ABOVE!!!
@@ -1388,13 +1388,13 @@ void AdvanceLevel(int secret_flag)
 #endif
 
 	if (Current_level_num == Last_level) {		//player has finished the game!
-		
+
 		DoEndGame();
 
 	} else {
 		//NMN 04/08/07 If we are in a secret level and playing a D1
 		// 	       level, then use Entered_from_level # instead
-		if (Current_level_num < 0 && EMULATING_D1) 
+		if (Current_level_num < 0 && EMULATING_D1)
 		{
 		  Next_level_num = Entered_from_level+1;		//assume go to next normal level
                 } else {
@@ -1405,7 +1405,7 @@ void AdvanceLevel(int secret_flag)
 		StartNewLevel(Next_level_num, 0);
 
 	}
-	
+
 	if (Game_wind)
 		window_set_visible(Game_wind, 1);
 }
@@ -1466,7 +1466,7 @@ void advancing_to_level_message(void)
 	set_screen_mode(SCREEN_MENU);		//go into menu mode
 
 	gr_set_current_canvas(NULL);
-	
+
 	old_vis = window_is_visible(Game_wind);
 	window_set_visible(Game_wind, 0);
 	sprintf(msg, "Base level destroyed.\nAdvancing to level %i", Entered_from_level+1);
@@ -1509,12 +1509,12 @@ void DoPlayerDead()
 	{				//Note link to above else!
 		Players[Player_num].lives--;
 		if (Players[Player_num].lives == 0)
-		{	
+		{
 			DoGameOver();
 			return;
 		}
 	}
-				
+
 	if ( Control_center_destroyed ) {
 
 		//clear out stuff so no bonus
@@ -1696,12 +1696,12 @@ void StartNewLevelSub(int level_num, int page_in_textures, int secret_flag)
 
 	//	Say player can use FLASH cheat to mark path to exit.
 	Last_level_path_created = -1;
-	
+
 	// Initialise for palette_restore()
 	// Also takes care of nm_draw_background() possibly being called
 	if (!((Game_mode & GM_MULTI) && (Newdemo_state != ND_STATE_PLAYBACK)))
 		full_palette_save();
-	
+
 	if (!Game_wind)
 		game();
 }
@@ -1825,7 +1825,7 @@ void maybe_set_first_secret_visit(int level_num)
 void StartNewLevel(int level_num, int secret_flag)
 {
 	hide_menus();
-	
+
 	GameTime = FrameTime;
 	ThisLevelTime=0;
 
@@ -1863,7 +1863,7 @@ void InitPlayerPosition(int random_flag)
 
 			closest = -1;
 			closest_dist = 0x7fffffff;
-	
+
 			for (i=0; i<N_players; i++ )	{
 				if ( (i!=Player_num) && (Objects[Players[i].objnum].type == OBJ_PLAYER) )	{
 					dist = find_connected_distance(&Objects[Players[i].objnum].pos, Objects[Players[i].objnum].segnum, &Player_init[NewPlayer].pos, Player_init[NewPlayer].segnum, 10, WID_FLY_FLAG );	//	Used to be 5, search up to 10 segments
@@ -1973,7 +1973,7 @@ void StartLevel(int random_flag)
 		if (Game_mode & GM_MULTI_COOP)
 			multi_send_score();
 	 	multi_send_reappear();
-	}		
+	}
 
 	if (Game_mode & GM_NETWORK)
 		multi_do_protocol_frame(1, 1);

@@ -1,5 +1,9 @@
 D2X-Rebirth Changelog
 
+20100614
+--------
+include/args.h, include/physfsx.h, main/inferno.c, main/menu.c, main/movie.c, main/songs.c, main/songs.h, main/switch.c, main/config.c, main/config.h, main/gameseq.c, main/digiobj.c, main/digi.h, main/game.c, main/gamecntl.c, misc/args.c, CHANGELOG.txt, d2x.ini, arch/sdl/digi_mixer.c, arch/sdl/digi_mixer_music.c, arch/sdl/init.c, arch/sdl/jukebox.c, arch/sdl/digi.c, arch/sdl/digi_audio.c, arch/include/digi_audio.h, arch/include/digi_mixer.h, arch/include/digi_mixer_music.h, arch/include/jukebox.h: Increased SDL_mixer music abilities to play non-hmp from HOGs, having Level-music path to play, options to specify non-level tracks and added various playing order methods; Abstracted SDL_mixer- and Redbook-interfaces; Simplified program flow through all music functions
+
 20100503
 --------
 main/menu.c: Properly specify number of items for do_options_menu, so the options menu actually shows
@@ -574,7 +578,7 @@ main/render.c: Increasing Render_depth to max. if OGL build (we probably should 
 
 20081120
 --------
-main/ai2.c: When we reached MAX_BOSS_TELEPORT_SEGS in init_boss_segments, make sure we also escape out of the for-loop - otherwise we still might overflow 
+main/ai2.c: When we reached MAX_BOSS_TELEPORT_SEGS in init_boss_segments, make sure we also escape out of the for-loop - otherwise we still might overflow
 main/piggy.c: Corrected a small logical mistake in Shareware-HAM recognition
 arch/ogl/ogl.c, main/ai2.c, main/object.c: Small transparency fix for robot weapons; Some timer-Failsafe in robot/boss dying frames; Fixed logical flaw in create_small_fireball_on_object() closing out sound effects on robots
 
@@ -1012,7 +1016,7 @@ arch/sdl/digi_mixer.c, libmve/mveplay.c: various small fixes
 
 20071011
 --------
-main/movie.c, arch/sdl/digi_mixer.c, libmve/mveplay.c: enabled SDL_mixer sound backend for movie playback. When 
+main/movie.c, arch/sdl/digi_mixer.c, libmve/mveplay.c: enabled SDL_mixer sound backend for movie playback. When
 using it, audio is no longer closed/re-opened with each movie -- hence does not crash with SDL_mixer 1.2.8.
 
 20071009
@@ -1347,7 +1351,7 @@ SConstruct: some help correction
 
 20070405
 --------
-arch/dos/gr.c, arch/ogl/gr.c, arch/sdl/gr.c, main/game.c, main/gameseq.c, main/inferno.c, main/menu.c, main/playsave.c, main/screens.h: resolution variable cleanup - remove VGA_current_mode, VR_screen_mode and VR_render_buffer[0].cv_bitmap.bm_w/h (Game_screen_mode is the actual resolution put in an int, not an index) 
+arch/dos/gr.c, arch/ogl/gr.c, arch/sdl/gr.c, main/game.c, main/gameseq.c, main/inferno.c, main/menu.c, main/playsave.c, main/screens.h: resolution variable cleanup - remove VGA_current_mode, VR_screen_mode and VR_render_buffer[0].cv_bitmap.bm_w/h (Game_screen_mode is the actual resolution put in an int, not an index)
 SConstruct: BINARY_SUBDIR should be bin/, not games/
 
 20070404
@@ -1642,7 +1646,7 @@ main/game.c, main/gamerend.c: small brace tidy up to allow a source code editor 
 
 20061212
 --------
-arch/sdl/mixdigi.c, arch/sdl/mixmusic.c: music volume now properly restored and remembered in D1 and D2, using a static int; removed ugly hack that fixed this bug in D1 (inferno.c, revision 230) 
+arch/sdl/mixdigi.c, arch/sdl/mixmusic.c: music volume now properly restored and remembered in D1 and D2, using a static int; removed ugly hack that fixed this bug in D1 (inferno.c, revision 230)
 
 20061123
 --------

@@ -239,8 +239,8 @@ int which_bomb()
 		bomb = SMART_MINE_INDEX+PROXIMITY_INDEX-bomb;
 		Secondary_last_was_super[bomb%SUPER_WEAPON] = (bomb == SMART_MINE_INDEX);
 	}
-	
-	
+
+
 
 	return bomb;
 }
@@ -249,7 +249,7 @@ int which_bomb()
 void do_weapon_stuff()
 {
 	int i;
-	
+
 	if (Controls.fire_flare_down_count)
 		if (allowed_to_fire_flare())
 			Flare_create(ConsoleObject);
@@ -371,10 +371,10 @@ int pause_handler(window *wind, d_event *event, char *msg)
 		case EVENT_WINDOW_ACTIVATED:
 			game_flush_inputs();
 			break;
-			
+
 		case EVENT_KEY_COMMAND:
 			key = ((d_event_keycommand *)event)->keycode;
-			
+
 			switch (key)
 			{
 				case 0:
@@ -393,23 +393,21 @@ int pause_handler(window *wind, d_event *event, char *msg)
 					break;
 			}
 			break;
-			
+
 		case EVENT_IDLE:
 			timer_delay2(50);
 			break;
-			
+
 		case EVENT_WINDOW_DRAW:
 			show_boxed_message(msg, 1);
 			break;
-			
+
 		case EVENT_WINDOW_CLOSE:
 			reset_cockpit();
-			if (EXT_MUSIC_ON)
-				ext_music_resume();
-			digi_resume_midi();		// sound pausing handled by game_handler
+			songs_resume();
 			d_free(msg);
 			break;
-			
+
 		default:
 			break;
 	}
@@ -421,7 +419,7 @@ int do_game_pause()
 {
 	char *msg;
 	char total_time[9],level_time[9];
-	
+
 	MALLOC(msg, char, 1024);
 	if (!msg)
 		return 0;
@@ -433,9 +431,9 @@ int do_game_pause()
 		return(KEY_PAUSE);
 	}
 #endif
-	
-	digi_pause_midi();		// sound pausing handled by game_handler
-	ext_music_pause();
+
+	songs_pause();
+
 	format_time(total_time, f2i(Players[Player_num].time_total) + Players[Player_num].hours_total*3600);
 	format_time(level_time, f2i(Players[Player_num].time_level) + Players[Player_num].hours_level*3600);
 	if (Newdemo_state!=ND_STATE_PLAYBACK)
@@ -443,10 +441,10 @@ int do_game_pause()
 	else
 	  	sprintf(msg,"PAUSE\n\nSkill level:  %s\nHostages on board:  %d\n",(*(&TXT_DIFFICULTY_1 + (Difficulty_level))),Players[Player_num].hostages_on_board);
 	set_screen_mode(SCREEN_MENU);
-	
+
 	if (!window_create(&grd_curscreen->sc_canvas, 0, 0, SWIDTH, SHEIGHT, (int (*)(window *, d_event *, void *))pause_handler, msg))
 		d_free(msg);
-	
+
 	return 0 /*key*/;	// Keycode returning ripped out (kreatordxx)
 }
 
@@ -464,7 +462,7 @@ int HandleEndlevelKey(int key)
 		case KEY_PAUSE:
 			do_game_pause();
 			return 1;
-			
+
 		case KEY_ESC:
 			stop_endlevel_sequence();
 			last_drawn_cockpit=-1;
@@ -489,7 +487,7 @@ int HandleDeathKey(int key)
 		game_flush_inputs();
 		return 1;
 	}
-	
+
 	return 0;
 }
 
@@ -611,7 +609,7 @@ int HandleDemoKey(int key)
 		default:
 			return 0;
 	}
-	
+
 	return 1;
 }
 
@@ -676,9 +674,6 @@ int select_next_window_function(int w)
 	return 1;	 //screen_changed
 }
 
-void songs_goto_next_song();
-void songs_goto_prev_song();
-
 #ifdef DOOR_DEBUGGING
 dump_door_debugging_info()
 {
@@ -715,12 +710,12 @@ dump_door_debugging_info()
 
 		wall_num = Segments[hit_info.hit_seg].sides[hit_info.hit_side].wall_num;
 		fprintf(dfile,"wall_num = %d\n",wall_num);
-	
+
 		if (wall_num != -1) {
 			wall *wall = &Walls[wall_num];
 			active_door *d;
 			int i;
-	
+
 			fprintf(dfile,"    segnum = %d\n",wall->segnum);
 			fprintf(dfile,"    sidenum = %d\n",wall->sidenum);
 			fprintf(dfile,"    hps = %x\n",wall->hps);
@@ -734,14 +729,14 @@ dump_door_debugging_info()
 			fprintf(dfile,"    controlling_trigger = %d\n",wall->controlling_trigger);
 			fprintf(dfile,"    cloak_value = %d\n",wall->cloak_value);
 			fprintf(dfile,"\n");
-	
-	
+
+
 			for (i=0;i<Num_open_doors;i++) {		//find door
 				d = &ActiveDoors[i];
 				if (d->front_wallnum[0]==wall-Walls || d->back_wallnum[0]==wall-Walls || (d->n_parts==2 && (d->front_wallnum[1]==wall-Walls || d->back_wallnum[1]==wall-Walls)))
 					break;
-			} 
-	
+			}
+
 			if (i>=Num_open_doors)
 				fprintf(dfile,"No active door.\n");
 			else {
@@ -751,7 +746,7 @@ dump_door_debugging_info()
 				fprintf(dfile,"    back_wallnum = %d,%d\n",d->back_wallnum[0],d->back_wallnum[1]);
 				fprintf(dfile,"    time = %x\n",d->time);
 			}
-	
+
 		}
 	}
 
@@ -783,10 +778,10 @@ int HandleSystemKey(int key)
 				choice=nm_messagebox( NULL, 2, TXT_YES, TXT_NO, TXT_ABORT_GAME );
 				if (choice == 0)
 					window_close(Game_wind);
-				
+
 				return 1;
 			}
-				
+
 // fleshed these out because F1 and F2 aren't sequenctial keycodes on mac -- MWA
 
 			KEY_MAC(case KEY_COMMAND+KEY_SHIFTED+KEY_1:)
@@ -949,30 +944,30 @@ int HandleSystemKey(int key)
 			 */
 		case KEY_ALTED + KEY_SHIFTED + KEY_F9:
 		KEY_MAC(case KEY_COMMAND+KEY_E:)
-			songs_stop_all();
-			ext_music_eject_disk();
+			if (GameCfg.MusicType == MUSIC_TYPE_REDBOOK)
+			{
+				songs_stop_all();
+				RBAEjectDisk();
+			}
 			break;
-			
+
 		case KEY_ALTED + KEY_SHIFTED + KEY_F10:
 		KEY_MAC(case KEY_COMMAND+KEY_UP:)
 		KEY_MAC(case KEY_COMMAND+KEY_DOWN:)
-			if (EXT_MUSIC_ON && !ext_music_pause_resume())
-			{
-				songs_play_level_song( Current_level_num );
-			}
+			songs_pause_resume();
 			break;
-			
+
 		case KEY_MINUS + KEY_ALTED:
 		case KEY_ALTED + KEY_SHIFTED + KEY_F11:
 		KEY_MAC(case KEY_COMMAND+KEY_LEFT:)
-			songs_goto_prev_song();
+			songs_play_level_song( Current_level_num, -1 );
 			break;
 		case KEY_EQUAL + KEY_ALTED:
 		case KEY_ALTED + KEY_SHIFTED + KEY_F12:
 		KEY_MAC(case KEY_COMMAND+KEY_RIGHT:)
-			songs_goto_next_song();
+			songs_play_level_song( Current_level_num, 1 );
 			break;
-			
+
 		default:
 			return 0;
 			break;
@@ -1062,12 +1057,12 @@ int HandleVRKey(int key)
 				VR_eye_offset_changed = 2;
 			}
 			break;
-			
+
 		default:
 			return 0;
 			break;
 	}
-	
+
 	return 1;
 }
 
@@ -1161,7 +1156,7 @@ int HandleGameKey(int key)
 			case KEY_5:
 				do_weapon_select(4 , 0);
 				break;
-				
+
 			case KEY_6:
 				do_weapon_select(0 , 1);
 				break;
@@ -1178,12 +1173,12 @@ int HandleGameKey(int key)
 				do_weapon_select(4 , 1);
 				break;
 #endif
-				
+
 				KEY_MAC(case KEY_COMMAND+KEY_SHIFTED+KEY_5:)
 			case KEY_F5 + KEY_SHIFTED:
 				DropCurrentWeapon();
 				break;
-	
+
 			KEY_MAC(case KEY_COMMAND+KEY_SHIFTED+KEY_6:)
 			case KEY_F6 + KEY_SHIFTED:
 				DropSecondaryWeapon();
@@ -1195,19 +1190,19 @@ int HandleGameKey(int key)
 				game_flush_inputs();
 				break;
 #endif
-	
+
 			KEY_MAC(case KEY_COMMAND+KEY_4:)
 			case KEY_F4:
 				if (!DefiningMarkerMessage)
 					InitMarkerInput();
 				break;
-				
+
 			default:
 				return 0;
 		}
 	else
 		return 0;
-	
+
 	return 1;
 }
 
@@ -1540,7 +1535,7 @@ int HandleTestKey(int key)
 			return 0;
 			break;
 	}
-	
+
 	return 1;
 }
 #endif		//#ifndef RELEASE
@@ -1575,7 +1570,7 @@ char *FinishLevelCheat  ="%bG_bZ<D";    //only Matt knows / d-elshiftb
 char *RapidFireCheat    ="*jLgHi'J";    //only Matt knows / wildfire
 
 char *RobotsKillRobotsCheat ="rT6xD__S"; // New for 1.1 / silkwing
-char *AhimsaCheat       ="!Uscq_yc";    // New for 1.1 / im-agespace 
+char *AhimsaCheat       ="!Uscq_yc";    // New for 1.1 / im-agespace
 
 char *AccessoryCheat    ="dWdz[kCK";    // al-ifalafel
 char *AcidCheat         ="qPmwxz\"S";   // bit-tersweet
@@ -1992,7 +1987,7 @@ int ReadControls(d_event *event)
 			do_automap(0);
 			return 1;
 		}
-		
+
 		do_weapon_stuff();
 	}
 
@@ -2071,14 +2066,14 @@ int ReadControls(d_event *event)
 		if (HandleTestKey(key))
 			return 1;
 #endif
-		
+
 		if (call_default_handler(event))
 			return 1;
-		
+
 		if (Player_is_dead)
 			return HandleDeathKey(key);
 	}
-	
+
 	return 0;
 }
 

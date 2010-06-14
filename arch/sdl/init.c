@@ -1,7 +1,7 @@
 // Holds the main init and de-init functions for arch-related program parts
 
 #include <SDL/SDL.h>
-#include "rbaudio.h"
+#include "songs.h"
 #include "key.h"
 #include "digi.h"
 #include "mouse.h"
@@ -14,8 +14,7 @@
 
 void arch_close(void)
 {
-	ext_music_stop();
-	ext_music_unload();
+	songs_uninit();
 
 	gr_close();
 
@@ -42,10 +41,10 @@ void arch_init(void)
 	key_init();
 
 	digi_select_system( GameArg.SndDisableSdlMixer ? SDLAUDIO_SYSTEM : SDLMIXER_SYSTEM );
-	ext_music_select_system(GameCfg.JukeboxOn ? EXT_MUSIC_JUKEBOX : EXT_MUSIC_REDBOOK);
+
 	if (!GameArg.SndNoSound)
 		digi_init();
-	
+
 	if (!GameArg.CtlNoMouse)
 		d_mouse_init();
 
