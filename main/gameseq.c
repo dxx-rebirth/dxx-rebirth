@@ -1262,8 +1262,6 @@ void StartNewLevel(int level_num)
 {
 	hide_menus();
 
-	GameTime = FrameTime;
-
 	load_custom_data(get_level_file(level_num));
 
 	if (!(Game_mode & GM_MULTI)) {

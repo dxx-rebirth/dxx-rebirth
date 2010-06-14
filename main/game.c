@@ -145,6 +145,7 @@ int	Game_turbo_mode = 0;
 int	Game_mode = GM_GAME_OVER;
 int	Global_laser_firing_count = 0;
 int	Global_missile_firing_count = 0;
+fix	Next_flare_fire_time = 0;
 
 //	Function prototypes for GAME.C exclusively.
 
@@ -443,6 +444,7 @@ void FixedStepCalc()
 
 void reset_time()
 {
+	GameTime = Next_flare_fire_time = Last_laser_fired_time = Next_laser_fire_time = Next_missile_fire_time = 0;
 	last_timer_value = timer_get_fixed_seconds();
 }
 
@@ -697,8 +699,6 @@ int allowed_to_fire_laser(void)
 
 	return 1;
 }
-
-fix	Next_flare_fire_time = 0;
 
 int allowed_to_fire_flare(void)
 {
