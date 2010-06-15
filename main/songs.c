@@ -209,7 +209,7 @@ void songs_init()
 void songs_uninit()
 {
 #ifdef _WIN32
-	if (GameArg.DisableSdlMixer)
+	if (GameArg.SndDisableSdlMixer)
 		digi_win32_stop_current_song();	// Stop midi song, if playing
 #endif
 	RBAStop();
@@ -227,7 +227,7 @@ void songs_uninit()
 void songs_stop_all(void)
 {
 #ifdef _WIN32
-	if (GameArg.DisableSdlMixer)
+	if (GameArg.SndDisableSdlMixer)
 		digi_win32_stop_current_song();	// Stop midi song, if playing
 #endif
 	RBAStop();
@@ -240,10 +240,6 @@ void songs_stop_all(void)
 
 void songs_pause(void)
 {
-#ifdef _WIN32
-	if (GameArg.DisableSdlMixer)
-		digi_win32_pause_midi();
-#endif
 	if (GameCfg.MusicType == MUSIC_TYPE_REDBOOK)
 		RBAPause();
 #ifdef USE_SDLMIXER
@@ -253,10 +249,6 @@ void songs_pause(void)
 
 void songs_resume(void)
 {
-#ifdef _WIN32
-	if (GameArg.DisableSdlMixer)
-		digi_win32_resume_midi_song();
-#endif
 	if (GameCfg.MusicType == MUSIC_TYPE_REDBOOK)
 		RBAResume();
 #ifdef USE_SDLMIXER
@@ -324,7 +316,7 @@ int songs_play_song( int songnum, int repeat )
 		case MUSIC_TYPE_BUILTIN:
 		{
 #ifdef _WIN32
-			if (GameArg.DisableSdlMixer)
+			if (GameArg.SndDisableSdlMixer)
 			{
 				if (digi_win32_play_midi_song( Songs[songnum].filename, Songs[songnum].melodic_bank_file, Songs[songnum].drum_bank_file, repeat ))
 				{
@@ -421,7 +413,7 @@ int songs_play_level_song( int levelnum, int offset )
 			{
 				songnum = SONG_FIRST_LEVEL_SONG + (songnum % NumLevelSongs);
 #ifdef _WIN32
-				if (GameArg.DisableSdlMixer)
+				if (GameArg.SndDisableSdlMixer)
 				{
 					if (digi_win32_play_midi_song( Songs[songnum].filename, Songs[songnum].melodic_bank_file, Songs[songnum].drum_bank_file, 1 ))
 					{
