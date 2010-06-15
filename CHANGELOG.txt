@@ -4,6 +4,7 @@ D2X-Rebirth Changelog
 --------
 main/game.c, main/gameseq.c: Resetting GameTime, Next/Last_flare/laser/missile_time in reset_time() together so GameTime-rollover-fallbacks will not create a massive delay when starting a new level
 main/laser.c: Removed the previously used homers code and instead used old one to keep good ol' Gameplay; Removed FrameCount steps from track_track_goal() and scaled homing vector accordingly to this change, including properly scaling it to FrameTime; Made code more similar between D1X and D2X; Introduced different turn rates for different difficulty levels
+main/game.c: Fixing typo in Netgame help screen
 
 20100614
 --------
