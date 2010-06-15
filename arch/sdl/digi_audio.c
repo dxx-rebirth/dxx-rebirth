@@ -9,14 +9,8 @@
 #include <stdlib.h>
 #include <stdio.h>
 #include <string.h>
-
 #include <SDL/SDL.h>
 #include <digi_audio.h>
-
-#ifdef _WIN32
-#include "hmpfile.h"
-#endif
-
 #include "pstypes.h"
 #include "error.h"
 #include "fix.h"
