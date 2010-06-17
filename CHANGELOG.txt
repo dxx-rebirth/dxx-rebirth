@@ -1,5 +1,9 @@
 D2X-Rebirth Changelog
 
+20100617
+--------
+main/weapons.c: If picking up one missile out of a four-pack, use singular description instead of plural
+
 20100615
 --------
 main/game.c, main/gameseq.c: Resetting GameTime, Next/Last_flare/laser/missile_time in reset_time() together so GameTime-rollover-fallbacks will not create a massive delay when starting a new level

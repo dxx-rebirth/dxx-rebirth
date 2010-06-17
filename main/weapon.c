@@ -162,7 +162,7 @@ sbyte   Weapon_is_energy[MAX_WEAPON_TYPES] = {
 // Bits set:
 //		HAS_WEAPON_FLAG
 //		HAS_ENERGY_FLAG
-//		HAS_AMMO_FLAG	
+//		HAS_AMMO_FLAG
 // See weapon.h for bit values
 int player_has_weapon(int weapon_num, int secondary_flag)
 {
@@ -180,7 +180,7 @@ int player_has_weapon(int weapon_num, int secondary_flag)
 		if (Players[Player_num].primary_weapon_flags & (1 << weapon_num))
 			return_value |= HAS_WEAPON_FLAG;
 
-		// Special case: Gauss cannon uses vulcan ammo.		
+		// Special case: Gauss cannon uses vulcan ammo.
 		if (weapon_num == GAUSS_INDEX) {
 			if (Weapon_info[weapon_index].ammo_usage <= Players[Player_num].primary_ammo[VULCAN_INDEX])
 				return_value |= HAS_AMMO_FLAG;
@@ -191,7 +191,7 @@ int player_has_weapon(int weapon_num, int secondary_flag)
 		if (weapon_num == OMEGA_INDEX) {	// Hack: Make sure player has energy to omega
 			if (Players[Player_num].energy || Omega_charge)
 				return_value |= HAS_ENERGY_FLAG;
-		} else		
+		} else
 			if (Weapon_info[weapon_index].energy_usage <= Players[Player_num].energy)
 				return_value |= HAS_ENERGY_FLAG;
 
@@ -221,7 +221,7 @@ void InitWeaponOrdering ()
 	PlayerCfg.PrimaryOrder[i]=DefaultPrimaryOrder[i];
   for (i=0;i<MAX_SECONDARY_WEAPONS+1;i++)
 	PlayerCfg.SecondaryOrder[i]=DefaultSecondaryOrder[i];
- }	
+ }
 
 void CyclePrimary ()
 {
@@ -298,7 +298,7 @@ void select_weapon(int weapon_num, int secondary_flag, int print_message, int wa
 			 else
 				digi_play_sample_once( SOUND_BAD_SELECTION, F1_0 );
 			}
-				
+
 		}
 		Secondary_weapon = weapon_num;
 		weapon_name = SECONDARY_WEAPON_NAMES(weapon_num);
@@ -397,10 +397,10 @@ void auto_select_weapon(int weapon_type)
 		if (r != HAS_ALL || Cycling) {
 			int	cur_weapon;
 			int	try_again = 1;
-	
+
 			cur_weapon = POrderList(Primary_weapon);
 			cutpoint = POrderList (255);
-	
+
 			while (try_again) {
 				cur_weapon++;
 
@@ -426,7 +426,7 @@ void auto_select_weapon(int weapon_type)
 
 				if (cur_weapon==MAX_PRIMARY_WEAPONS)
 					cur_weapon = 0;
-	
+
 				//	Hack alert!  Because the fusion uses 0 energy at the end (it's got the weird chargeup)
 				//	it looks like it takes 0 to fire, but it doesn't, so never auto-select.
 				// if (PlayerCfg.PrimaryOrder[cur_weapon] == FUSION_INDEX)
@@ -458,11 +458,11 @@ void auto_select_weapon(int weapon_type)
 		if (r != HAS_ALL || Cycling) {
 			int	cur_weapon;
 			int	try_again = 1;
-	
+
 			cur_weapon = SOrderList(Secondary_weapon);
 			cutpoint = SOrderList (255);
 
-	
+
 			while (try_again) {
 				cur_weapon++;
 
@@ -554,7 +554,7 @@ int pick_up_secondary(int weapon_index,int count)
 	}
 
 	//note: flash for all but concussion was 7,14,21
-	if (count>1) {
+	if (num_picked_up>1) {
 		PALETTE_FLASH_ADD(15,15,15);
 		HUD_init_message("%d %s%s",num_picked_up,SECONDARY_WEAPON_NAMES(weapon_index), TXT_SX);
 	}
@@ -583,7 +583,7 @@ void ReorderPrimary ()
 	MenuReordering=1;
 	i = newmenu_do("Reorder Primary","Shift+Up/Down arrow to move item", i, m, NULL, NULL);
 	MenuReordering=0;
-	
+
 	for (i=0;i<MAX_PRIMARY_WEAPONS+1;i++)
 		PlayerCfg.PrimaryOrder[i]=m[i].value;
 }
@@ -652,7 +652,7 @@ int pick_up_primary(int weapon_index)
 
 	cutpoint=POrderList (255);
 
-	if (Primary_weapon==LASER_INDEX && Players[Player_num].laser_level>=4)	
+	if (Primary_weapon==LASER_INDEX && Players[Player_num].laser_level>=4)
 		supposed_weapon=SUPER_LASER_INDEX;  // allotment for stupid way of doing super laser
 
 
@@ -660,7 +660,7 @@ int pick_up_primary(int weapon_index)
 		select_weapon(weapon_index,0,0,1);
 
 	PALETTE_FLASH_ADD(7,14,21);
-	
+
    if (weapon_index!=LASER_INDEX)
    	HUD_init_message("%s!",PRIMARY_WEAPON_NAMES(weapon_index));
 
@@ -681,7 +681,7 @@ int check_to_use_primary(int weapon_index)
 		else
 			select_weapon(weapon_index,0,0,1);
 	}
-		
+
 	PALETTE_FLASH_ADD(7,14,21);
 
 	return 1;
@@ -715,7 +715,7 @@ int pick_up_ammo(int class_flag,int weapon_index,int ammo_count)
 	}
 	cutpoint=POrderList (255);
 
-	if (Primary_weapon==LASER_INDEX && Players[Player_num].laser_level>=4)	
+	if (Primary_weapon==LASER_INDEX && Players[Player_num].laser_level>=4)
 		supposed_weapon=SUPER_LASER_INDEX;  // allotment for stupid way of doing super laser
 
 
@@ -737,7 +737,7 @@ void init_smega_detonates(void)
 	int	i;
 
 	for (i=0; i<MAX_SMEGA_DETONATES; i++)
-		Smega_detonate_times[i] = 0;	
+		Smega_detonate_times[i] = 0;
 }
 
 fix	Seismic_tremor_magnitude;
@@ -946,15 +946,15 @@ void process_super_mines_frame(void)
 			Super_mines_yes = 1;
 			if (Objects[i].lifeleft + F1_0*2 < Weapon_info[SUPERPROX_ID].lifetime) {
 				vms_vector	*bombpos;
-	
+
 				bombpos = &Objects[i].pos;
-	
+
 				for (j=0; j<=Highest_object_index; j++) {
 					if ((Objects[j].type == OBJ_PLAYER) || (Objects[j].type == OBJ_ROBOT)) {
 						fix	dist;
-		
+
 						dist = vm_vec_dist_quick(bombpos, &Objects[j].pos);
-		
+
 						if (j != parent_num)
 							if (dist - Objects[j].size < F1_0*20)
 							{
@@ -1022,7 +1022,7 @@ int spit_powerup(object *spitter, int id,int seed)
 
 #ifdef NETWORK
 	if (Game_mode & GM_MULTI)
-	{	
+	{
 		if (Net_create_loc >= MAX_NET_CREATE_OBJECTS)
 		{
 			return (-1);
@@ -1130,7 +1130,7 @@ void DropSecondaryWeapon ()
 	int objnum,seed;
 	ubyte weapon_drop_id=-1;
 	ushort sub_ammo=0;
-	
+
 	if (num_objects >= MAX_USED_OBJECTS)
 		return;
 
@@ -1139,7 +1139,7 @@ void DropSecondaryWeapon ()
 		HUD_init_message("No secondary weapon to drop!");
 		return;
 	}
-	
+
 	weapon_drop_id = Secondary_weapon_to_powerup[Secondary_weapon];
 
 	// see if we drop single or 4-pack
