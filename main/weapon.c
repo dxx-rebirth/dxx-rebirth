@@ -7,7 +7,7 @@ IN USING, DISPLAYING,  AND CREATING DERIVATIVE WORKS THEREOF, SO LONG AS
 SUCH USE, DISPLAY OR CREATION IS FOR NON-COMMERCIAL, ROYALTY OR REVENUE
 FREE PURPOSES.  IN NO EVENT SHALL THE END-USER USE THE COMPUTER CODE
 CONTAINED HEREIN FOR REVENUE-BEARING PURPOSES.  THE END-USER UNDERSTANDS
-AND AGREES TO THE TERMS HEREIN AND ACCEPTS THE SAME BY USE OF THIS FILE.  
+AND AGREES TO THE TERMS HEREIN AND ACCEPTS THE SAME BY USE OF THIS FILE.
 COPYRIGHT 1993-1998 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 */
 /*
@@ -50,7 +50,7 @@ ubyte Cycling=0;
 // Bits set:
 //		HAS_WEAPON_FLAG
 //		HAS_ENERGY_FLAG
-//		HAS_AMMO_FLAG	
+//		HAS_AMMO_FLAG
 // See weapon.h for bit values
 int player_has_weapon(int weapon_num, int secondary_flag)
 {
@@ -139,7 +139,7 @@ void InitWeaponOrdering ()
 	PlayerCfg.PrimaryOrder[i]=DefaultPrimaryOrder[i];
   for (i=0;i<MAX_SECONDARY_WEAPONS+1;i++)
 	PlayerCfg.SecondaryOrder[i]=DefaultSecondaryOrder[i];
- }	
+ }
 
 void CyclePrimary ()
 {
@@ -278,10 +278,10 @@ void auto_select_weapon(int weapon_type)
 		if (r != HAS_ALL || Cycling) {
 			int	cur_weapon;
 			int	try_again = 1;
-	
+
 			cur_weapon = POrderList(Primary_weapon);
 			cutpoint = POrderList (255);
-	
+
 			while (try_again) {
 				cur_weapon++;
 
@@ -307,7 +307,7 @@ void auto_select_weapon(int weapon_type)
 
 				if (cur_weapon==MAX_PRIMARY_WEAPONS)
 					cur_weapon = 0;
-	
+
 				//	Hack alert!  Because the fusion uses 0 energy at the end (it's got the weird chargeup)
 				//	it looks like it takes 0 to fire, but it doesn't, so never auto-select.
 				// if (PlayerCfg.PrimaryOrder[cur_weapon] == FUSION_INDEX)
@@ -339,11 +339,11 @@ void auto_select_weapon(int weapon_type)
 		if (r != HAS_ALL || Cycling) {
 			int	cur_weapon;
 			int	try_again = 1;
-	
+
 			cur_weapon = SOrderList(Secondary_weapon);
 			cutpoint = SOrderList (255);
 
-	
+
 			while (try_again) {
 				cur_weapon++;
 
@@ -411,7 +411,7 @@ int pick_up_secondary(int weapon_index,int count)
 			select_weapon(weapon_index,1, 0, 1);
 	}
 
-	if (count>1) {
+	if (num_picked_up>1) {
 		PALETTE_FLASH_ADD(15,15,15);
 		hud_message(MSGC_PICKUP_OK, "%d %s%s",num_picked_up,SECONDARY_WEAPON_NAMES(weapon_index), TXT_SX);
 	}
@@ -440,7 +440,7 @@ void ReorderPrimary ()
 	MenuReordering=1;
 	i = newmenu_do("Reorder Primary","Shift+Up/Down arrow to move item", i, m, NULL, NULL);
 	MenuReordering=0;
-	
+
 	for (i=0;i<MAX_PRIMARY_WEAPONS+1;i++)
 		PlayerCfg.PrimaryOrder[i]=m[i].value;
 }
@@ -550,18 +550,18 @@ int pick_up_ammo(int class_flag,int weapon_index,int ammo_count)
 int weapon_info_read_n(weapon_info *wi, int n, CFILE *fp)
 {
 	int i, j;
-	
+
 	for (i = 0; i < n; i++) {
 		wi[i].render_type = cfile_read_byte(fp);
 		wi[i].model_num = cfile_read_byte(fp);
 		wi[i].model_num_inner = cfile_read_byte(fp);
 		wi[i].persistent = cfile_read_byte(fp);
 		wi[i].flash_vclip = cfile_read_byte(fp);
-		wi[i].flash_sound = cfile_read_short(fp);		
+		wi[i].flash_sound = cfile_read_short(fp);
 		wi[i].robot_hit_vclip = cfile_read_byte(fp);
-		wi[i].robot_hit_sound = cfile_read_short(fp);		
+		wi[i].robot_hit_sound = cfile_read_short(fp);
 		wi[i].wall_hit_vclip = cfile_read_byte(fp);
-		wi[i].wall_hit_sound = cfile_read_short(fp);		
+		wi[i].wall_hit_sound = cfile_read_short(fp);
 		wi[i].fire_count = cfile_read_byte(fp);
 		wi[i].ammo_usage = cfile_read_byte(fp);
 		wi[i].weapon_vclip = cfile_read_byte(fp);
@@ -585,7 +585,7 @@ int weapon_info_read_n(weapon_info *wi, int n, CFILE *fp)
 		wi[i].mass = cfile_read_fix(fp);
 		wi[i].drag = cfile_read_fix(fp);
 		wi[i].thrust = cfile_read_fix(fp);
-		
+
 		wi[i].po_len_to_width_ratio = cfile_read_fix(fp);
 		wi[i].light = cfile_read_fix(fp);
 		wi[i].lifetime = cfile_read_fix(fp);
