@@ -3,6 +3,7 @@ D1X-Rebirth Changelog
 20100617
 --------
 main/weapons.c: If picking up one missile out of a four-pack, use singular description instead of plural
+main/gauges.c: Fixing regression from rev1038 which broke showing laser level or quadness in cockpit and statusbar
 
 20100615
 --------
