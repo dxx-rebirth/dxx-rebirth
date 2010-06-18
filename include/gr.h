@@ -285,6 +285,9 @@ inline void scale_line(unsigned char *in, unsigned char *out, int ilen, int olen
 void gr_bitmap_scale_to(grs_bitmap *src, grs_bitmap *dst);
 void show_fullscr(grs_bitmap *bm);
 
+// Find transparent area in bitmap
+void gr_bitblt_find_transparent_area(grs_bitmap *bm, int *minx, int *miny, int *maxx, int *maxy);
+
 // bitmap function with transparency
 void gr_bitmapm( int x, int y, grs_bitmap *bm );
 void gr_ubitmapm( int x, int y, grs_bitmap *bm );
