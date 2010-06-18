@@ -12,9 +12,7 @@
 #if !defined(macintosh) && !defined(_MSC_VER)
 #include <sys/param.h>
 #endif
-#if defined(__linux__)
-#include <sys/vfs.h>
-#elif defined(__MACH__) && defined(__APPLE__)
+#if defined(__MACH__) && defined(__APPLE__)
 #include <sys/mount.h>
 #include <unistd.h>	// for chdir hack
 #endif
@@ -375,7 +373,7 @@ static inline char **PHYSFSX_findabsoluteFiles(char *path, char *realpath, char 
 	return list;
 }
 
-
+#if 0
 // returns -1 if error
 // Gets bytes free in current write dir
 static inline PHYSFS_sint64 PHYSFSX_getFreeDiskSpace()
@@ -391,6 +389,7 @@ static inline PHYSFS_sint64 PHYSFSX_getFreeDiskSpace()
 	return 0x7FFFFFFF;
 #endif
 }
+#endif
 
 //Open a file for reading, set up a buffer
 static inline PHYSFS_file *PHYSFSX_openReadBuffered(char *filename)
