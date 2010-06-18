@@ -98,7 +98,7 @@ COPYRIGHT 1993-1998 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 #define ND_EVENT_SOUND				5	// Followed by int soundum
 #define ND_EVENT_SOUND_ONCE			6	// Followed by int soundum
 #define ND_EVENT_SOUND_3D			7	// Followed by int soundum, int angle, int volume
-#define ND_EVENT_WALL_HIT_PROCESS		8	// Followed by int segnum, int side, fix damage 
+#define ND_EVENT_WALL_HIT_PROCESS		8	// Followed by int segnum, int side, fix damage
 #define ND_EVENT_TRIGGER			9	// Followed by int segnum, int side, int objnum
 #define ND_EVENT_HOSTAGE_RESCUED 		10	// Followed by int hostage_type
 #define ND_EVENT_SOUND_3D_ONCE			11	// Followed by int soundum, int angle, int volume
@@ -254,13 +254,7 @@ int newdemo_write( void *buffer, int elsize, int nelem )
 	Newdemo_num_written += total_size;
 	Assert(outfile != NULL);
 	num_written = PHYSFS_write(outfile, buffer, elsize, nelem);
-	//if ((Newdemo_num_written > Newdemo_size) && !Newdemo_no_space) {
-	//	Newdemo_no_space=1;
-	//	newdemo_stop_recording();
-	//	return -1;
-	//}
-	if ((Newdemo_num_written > Newdemo_size) && !Newdemo_no_space)
-		Newdemo_no_space=1;
+
 	if (num_written == nelem && !Newdemo_no_space)
 		return num_written;
 
@@ -1335,7 +1329,7 @@ void newdemo_record_oneframeevent_update(int wallupdate)
 		{
 			int side, cside;
 			segment *seg, *csegp;
-			
+
 			seg = &Segments[Walls[i].segnum];
 			side = Walls[i].sidenum;
 			csegp = &Segments[seg->children[side]];
@@ -1394,7 +1388,7 @@ int newdemo_read_demo_start(enum purpose_type purpose)
 	}
 	nd_read_fix(&GameTime);
 	nd_read_int(&Newdemo_game_mode);
-	
+
 #ifndef NETWORK
 	if (Newdemo_game_mode & GM_MULTI) {
 		nm_messagebox( NULL, 1, "Ok", "can't playback net game\nwith this version of code\n" );
@@ -2035,7 +2029,7 @@ int newdemo_read_frame_information(int rewrite)
 				nd_write_int(Players[Player_num].flags);
 				break;
 			}
-			
+
 			oflags = Players[Player_num].flags >> 16;
 			Players[Player_num].flags &= 0xffff;
 
@@ -2080,7 +2074,7 @@ int newdemo_read_frame_information(int rewrite)
 				nd_write_byte(weapon_num);
 				break;
 			}
-			
+
 			if (weapon_type == 0)
 				Primary_weapon = (int)weapon_num;
 			else
@@ -2258,7 +2252,7 @@ int newdemo_read_frame_information(int rewrite)
 				nd_write_byte(pnum);
 				break;
 			}
-			
+
 			if ((Newdemo_vcr_state == ND_STATE_REWINDING) || (Newdemo_vcr_state == ND_STATE_ONEFRAMEBACKWARD)) {
 				Players[pnum].flags |= PLAYER_FLAGS_CLOAKED;
 				Players[pnum].cloak_time = GameTime  - (CLOAK_TIME_MAX / 2);
@@ -2440,7 +2434,7 @@ int newdemo_read_frame_information(int rewrite)
 				nd_write_short(new_ammo);
 				break;
 			}
-			
+
 			if ((Newdemo_vcr_state == ND_STATE_REWINDING) || (Newdemo_vcr_state == ND_STATE_ONEFRAMEBACKWARD))
 				Players[Player_num].primary_ammo[Primary_weapon] = old_ammo;
 			else if ((Newdemo_vcr_state == ND_STATE_PLAYBACK) || (Newdemo_vcr_state == ND_STATE_FASTFORWARD) || (Newdemo_vcr_state == ND_STATE_ONEFRAMEFORWARD))
@@ -2459,7 +2453,7 @@ int newdemo_read_frame_information(int rewrite)
 				nd_write_short(new_ammo);
 				break;
 			}
-			
+
 			if ((Newdemo_vcr_state == ND_STATE_REWINDING) || (Newdemo_vcr_state == ND_STATE_ONEFRAMEBACKWARD))
 				Players[Player_num].secondary_ammo[Secondary_weapon] = old_ammo;
 			else if ((Newdemo_vcr_state == ND_STATE_PLAYBACK) || (Newdemo_vcr_state == ND_STATE_FASTFORWARD) || (Newdemo_vcr_state == ND_STATE_ONEFRAMEFORWARD))
@@ -2597,7 +2591,7 @@ int newdemo_read_frame_information(int rewrite)
 		if (PlayerCfg.CockpitMode[1] != PlayerCfg.CockpitMode[0])
 			select_cockpit(PlayerCfg.CockpitMode[0]);
 	}
-	
+
 	if (nd_bad_read) {
 		nm_messagebox( NULL, 1, TXT_OK, "%s %s", TXT_DEMO_ERR_READING, TXT_DEMO_OLD_CORRUPT );
 	}
@@ -2685,7 +2679,7 @@ void newdemo_goto_end(int to_rewrite)
 		nd_read_byte(&bbyte);
 		nd_read_short(&bshort);
 		nd_read_int(&bint);
-		
+
 		nd_read_byte((sbyte *)&energy);
 		nd_read_byte((sbyte *)&shield);
 		Players[Player_num].energy = i2f(energy);
@@ -2699,9 +2693,9 @@ void newdemo_goto_end(int to_rewrite)
 		nd_read_byte((sbyte *)&Primary_weapon);
 		nd_read_byte((sbyte *)&Secondary_weapon);
 		for (i = 0; i < MAX_PRIMARY_WEAPONS; i++)
-			nd_read_short((short *)&(Players[Player_num].primary_ammo[i]));	
+			nd_read_short((short *)&(Players[Player_num].primary_ammo[i]));
 		for (i = 0; i < MAX_SECONDARY_WEAPONS; i++)
-			nd_read_short((short *)&(Players[Player_num].secondary_ammo[i]));	
+			nd_read_short((short *)&(Players[Player_num].secondary_ammo[i]));
 		nd_read_byte(&laser_level);
 		if (laser_level != Players[Player_num].laser_level) {
 			Players[Player_num].laser_level = laser_level;
@@ -2808,7 +2802,7 @@ void interpolate_frame(fix d_play, fix d_recorded)
 	}
 
 	InterpolStep -= FrameTime;
-	
+
 	// This interpolating looks just more crappy on high FPS, so let's not even waste performance on it.
 	if (InterpolStep <= 0)
 	{
@@ -3082,22 +3076,6 @@ void newdemo_playback_one_frame()
 
 void newdemo_start_recording()
 {
-	Newdemo_size = PHYSFSX_getFreeDiskSpace();
-	con_printf(CON_VERBOSE, "Free space = %d\n", Newdemo_size);
-
-	Newdemo_size -= 100000;
-
-	if ((Newdemo_size+100000) <  2000000000) {
-		if (((int)(Newdemo_size)) < 500000) {
-#if !(defined(__APPLE__) || defined(macintosh))
-			nm_messagebox(NULL, 1, TXT_OK, TXT_DEMO_NO_SPACE);
-#else
-			nm_messagebox(NULL, 1, TXT_OK, "Not enough space on current\ndrive to start demo recording.");
-#endif
-			return;
-		}
-	}
-
 	Newdemo_num_written = 0;
 	Newdemo_no_space=0;
 	Newdemo_state = ND_STATE_RECORDING;
@@ -3135,28 +3113,28 @@ void newdemo_write_end()
 	}
 	nd_write_short(ND_EVENT_EOF);
 	nd_write_int(ND_EVENT_EOF);
-	
+
 	if (!shareware)
 	{
 		byte_count += 10;       // from frame_bytes_written
-		
+
 		nd_write_byte((sbyte)(f2ir(Players[Player_num].energy)));
 		nd_write_byte((sbyte)(f2ir(Players[Player_num].shields)));
 		nd_write_int(Players[Player_num].flags);        // be sure players flags are set
 		nd_write_byte((sbyte)Primary_weapon);
 		nd_write_byte((sbyte)Secondary_weapon);
 		byte_count += 8;
-		
+
 		for (i = 0; i < MAX_PRIMARY_WEAPONS; i++)
 			nd_write_short((short)Players[Player_num].primary_ammo[i]);
-		
+
 		for (i = 0; i < MAX_SECONDARY_WEAPONS; i++)
 			nd_write_short((short)Players[Player_num].secondary_ammo[i]);
 		byte_count += (sizeof(short) * (MAX_PRIMARY_WEAPONS + MAX_SECONDARY_WEAPONS));
-		
+
 		nd_write_byte(Players[Player_num].laser_level);
 		byte_count++;
-		
+
 		if (Game_mode & GM_MULTI) {
 			nd_write_byte((sbyte)N_players);
 			byte_count++;
@@ -3179,7 +3157,7 @@ void newdemo_write_end()
 		}
 		nd_write_short(byte_count);
 	}
-	
+
 	nd_write_byte(Current_level_num);
 	nd_write_byte(ND_EVENT_EOF);
 }
@@ -3195,10 +3173,11 @@ void newdemo_stop_recording()
 
 	exit = 0;
 
-	newdemo_record_oneframeevent_update(0);
-
 	if (!Newdemo_no_space)
+	{
+		newdemo_record_oneframeevent_update(0);
 		newdemo_write_end();
+	}
 
 	PHYSFS_close(outfile);
 	outfile = NULL;
@@ -3230,10 +3209,6 @@ try_again:
 	if (!Newdemo_no_space) {
 		m[0].type=NM_TYPE_INPUT; m[0].text_len = PATH_MAX - 1; m[0].text = filename;
 		exit = newmenu_do( NULL, TXT_SAVE_DEMO_AS, 1, &(m[0]), NULL, NULL );
-	} else if (Newdemo_no_space == 1) {
-		m[ 0].type = NM_TYPE_TEXT; m[ 0].text = TXT_DEMO_SAVE_BAD;
-		m[ 1].type = NM_TYPE_INPUT;m[ 1].text_len = PATH_MAX - 1; m[1].text = filename;
-		exit = newmenu_do( NULL, NULL, 2, m, NULL, NULL );
 	} else if (Newdemo_no_space == 2) {
 		m[ 0].type = NM_TYPE_TEXT; m[ 0].text = TXT_DEMO_SAVE_NOSPACE;
 		m[ 1].type = NM_TYPE_INPUT;m[ 1].text_len = PATH_MAX - 1; m[1].text = filename;
@@ -3402,11 +3377,11 @@ int newdemo_swap_endian(char *filename)
 		strcat(inpath, filename);
 	else
 		return 0;
-	
+
 	infile = PHYSFSX_openReadBuffered(inpath);
 	if (infile==NULL)
 		goto read_error;
-	
+
 	Newdemo_size = PHYSFS_fileLength(infile);	// should be exactly the same size
 	outfile = PHYSFSX_openWriteBuffered(DEMO_FILENAME);
 	if (outfile==NULL)
@@ -3414,31 +3389,31 @@ int newdemo_swap_endian(char *filename)
 		PHYSFS_close(infile);
 		goto read_error;
 	}
-	
+
 	Newdemo_num_written = 0;
 	nd_bad_read = 0;
 	swap_endian = 1;
 	Newdemo_at_eof = 0;
 	Newdemo_state = ND_STATE_NORMAL;	// not doing anything special really
-	
+
 	if (newdemo_read_demo_start(PURPOSE_REWRITE)) {
 		PHYSFS_close(infile);
 		PHYSFS_close(outfile);
 		swap_endian = 0;
 		return 0;
 	}
-	
+
 	while (newdemo_read_frame_information(1) == 1) {}	// rewrite all frames
-	
+
 	newdemo_goto_end(1);	// get end of demo data
 	newdemo_write_end();	// and write it
-	
+
 	swap_endian = 0;
 	complete = Newdemo_size == Newdemo_num_written;
 	PHYSFS_close(infile);
 	PHYSFS_close(outfile);
 	outfile = NULL;
-	
+
 	if (complete)
 	{
 		char bakpath[PATH_MAX+FILENAME_LEN];
@@ -3449,7 +3424,7 @@ int newdemo_swap_endian(char *filename)
 	}
 	else
 		PHYSFS_delete(DEMO_FILENAME);	// clean up the mess
-	
+
 read_error:
 	{
 		nm_messagebox( NULL, 1, TXT_OK, complete ? "Demo %s converted%s" : "Error converting demo\n%s\n%s", filename,

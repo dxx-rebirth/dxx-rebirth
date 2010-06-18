@@ -2,7 +2,8 @@ D1X-Rebirth Changelog
 
 20100618
 --------
-2d/bitblt.c, include/gr.h, main/game.c, main/gauges.c: Introducing gr_bitblt_find_transparent_area to dynamically detect boundaries of sub cancas used for CM_REAR_VIEW; On the way also allowing to create weapon box sub bitmaps from uncompressed cockpit bitmaps
+2d/bitblt.c, include/gr.h, main/game.c, main/gauges.c: Introducing gr_bitblt_find_transparent_area to dynamically detect boundaries of sub canvas used for CM_REAR_VIEW; On the way also allowing to create weapon box sub bitmaps from uncompressed cockpit bitmaps
+include/physfsx.h, main/newdemo.c: Removed PHYSFSX_getFreeDiskSpace and relying on success of buffered writing to see if demo recording must be stopped
 
 20100617
 --------
