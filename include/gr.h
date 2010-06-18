@@ -60,7 +60,7 @@ typedef struct _grs_font {
 	u_int32_t	ft_chars;	// Ptrs to data for each char (required for prop font)
 	u_int32_t	ft_widths;	// Array of widths (required for prop font)
 	u_int32_t	ft_kerndata;	// Array of kerning triplet data
-} 
+}
 old_grs_font;
 
 //these are control characters that have special meaning in the font code
@@ -303,6 +303,9 @@ void gr_ubitmap(int x,int y,grs_bitmap *bm);
 inline void scale_line(unsigned char *in, unsigned char *out, int ilen, int olen);
 void gr_bitmap_scale_to(grs_bitmap *src, grs_bitmap *dst);
 void show_fullscr(grs_bitmap *bm);
+
+// Find transparent area in bitmap
+void gr_bitblt_find_transparent_area(grs_bitmap *bm, int *minx, int *miny, int *maxx, int *maxy);
 
 // bitmap function with transparency
 void gr_bitmapm( int x, int y, grs_bitmap *bm );

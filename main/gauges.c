@@ -1430,6 +1430,10 @@ void cockpit_decode_alpha(grs_bitmap *bm)
 			dbits += bm->bm_w;
 		}
 	}
+	else
+	{
+		memcpy(&cockpitbuf, bm->bm_data, sizeof(unsigned char)*(bm->bm_w*bm->bm_h));
+	}
 
 	// add alpha color to the pixels which are inside the window box spans
 	for (y=0;y<bm->bm_h;y++)
