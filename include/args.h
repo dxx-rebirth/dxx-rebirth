@@ -68,6 +68,7 @@ typedef struct Arg
 	int GfxMovieSubtitles;
 #ifdef OGL
 	int OglFixedFont;
+	int OglNoMovieFilter;
 #endif
 	int MplGameProfile;
 	int MplNoRankings;

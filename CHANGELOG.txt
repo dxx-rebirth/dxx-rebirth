@@ -3,6 +3,7 @@ D2X-Rebirth Changelog
 20100619
 --------
 main/titles.c: For briefings, keep elementes of show_briefing_bitmap and show_animated_bitmap in correct aspect
+d2x.ini, include/args.h, include/libmve.h, main/inferno.c, main/movie.c, libmve/mve_main.c, main/mveplay.c, misc/args.c: Show movies in correct aspect; Added mipmap generation to movie texture if Texture filtering enabled - can also be disabled seperately
 
 20100618
 --------

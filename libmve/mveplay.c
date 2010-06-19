@@ -410,7 +410,7 @@ static int play_audio_handler(unsigned char major, unsigned char minor, unsigned
 #ifdef USE_SDLMIXER
 		else
 			Mix_Pause(0);
-#endif			
+#endif
 		mve_audio_playing = 1;
 	}
 	return 1;
@@ -571,13 +571,7 @@ static int create_videobuf_handler(unsigned char major, unsigned char minor, uns
 
 static int display_video_handler(unsigned char major, unsigned char minor, unsigned char *data, int len, void *context)
 {
-	if (g_destX == -1) // center it
-		g_destX = (g_screenWidth - g_width) >> 1;
-	if (g_destY == -1) // center it
-		g_destY = (g_screenHeight - g_height) >> 1;
-
-	mve_showframe(g_vBackBuf1, g_width, g_height, 0, 0,
-	              g_width, g_height, g_destX, g_destY);
+	mve_showframe(g_vBackBuf1, g_destX, g_destY, g_width, g_height, g_screenWidth, g_screenHeight);
 
 	g_frameUpdated = 1;
 
@@ -753,7 +747,7 @@ int MVE_rmStepMovie()
 	while (cont && !g_frameUpdated) // make a "step" be a frame, not a chunk...
 		cont = mve_play_next_chunk(mve);
 	g_frameUpdated = 0;
-	
+
 	if (!cont)
 		return MVE_ERR_EOF;
 

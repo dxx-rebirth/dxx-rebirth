@@ -27,11 +27,7 @@ typedef unsigned int (*mve_cb_Read)(void *stream,
 typedef void *(*mve_cb_Alloc)(unsigned int size);
 typedef void (*mve_cb_Free)(void *ptr);
 
-typedef void (*mve_cb_ShowFrame)(unsigned char *buffer,
-                                 unsigned int bufw, unsigned int bufh,
-                                 unsigned int sx, unsigned int sy,
-                                 unsigned int w, unsigned int h,
-                                 unsigned int dstx, unsigned int dsty);
+typedef void (*mve_cb_ShowFrame)(unsigned char *buffer, int dstx, int dsty, int bufw, int bufh, int sw, int sh);
 
 typedef void (*mve_cb_SetPalette)(unsigned char *p,
                                   unsigned int start, unsigned int count);

@@ -168,10 +168,11 @@ int PlayMovie(const char *filename, int must_have)
 	return ret;
 }
 
-void MovieShowFrame(ubyte *buf, uint bufw, uint bufh, uint sx, uint sy, uint w, uint h, uint dstx, uint dsty)
+void MovieShowFrame(ubyte *buf, int dstx, int dsty, int bufw, int bufh, int sw, int sh)
 {
 	grs_bitmap source_bm;
 	static ubyte old_pal[768];
+	float scale = 1.0;
 
 	if (memcmp(old_pal,gr_palette,768))
 	{
@@ -180,8 +181,6 @@ void MovieShowFrame(ubyte *buf, uint bufw, uint bufh, uint sx, uint sy, uint w, 
 	}
 	memcpy(old_pal,gr_palette,768);
 
-	Assert(bufw == w && bufh == h);
-
 	source_bm.bm_x = source_bm.bm_y = 0;
 	source_bm.bm_w = source_bm.bm_rowsize = bufw;
 	source_bm.bm_h = bufh;
@@ -189,19 +188,37 @@ void MovieShowFrame(ubyte *buf, uint bufw, uint bufh, uint sx, uint sy, uint w, 
 	source_bm.bm_flags = 0;
 	source_bm.bm_data = buf;
 
+	if (dstx == -1 && dsty == -1) // Fullscreen movie so set scale to fit the actual screen size
+	{
+		if (((float)SWIDTH/SHEIGHT) < ((float)sw/bufh))
+			scale = ((float)SWIDTH/sw);
+		else
+			scale = ((float)SHEIGHT/bufh);
+	}
+	else // Other (robot) movie so set scale to min. screen dimension
+	{
+		if (((float)SWIDTH/bufw) < ((float)SHEIGHT/bufh))
+			scale = ((float)SWIDTH/sw);
+		else
+			scale = ((float)SHEIGHT/sh);
+	}
+
+	if (dstx == -1) // center it
+		dstx = (SWIDTH/2)-((bufw*scale)/2);
+	if (dsty == -1) // center it
+		dsty = (SHEIGHT/2)-((bufh*scale)/2);
+
 #ifdef OGL
 	glDisable (GL_BLEND);
 
-	ogl_ubitblt_i(	w*((double)grd_curscreen->sc_w/(GameArg.GfxMovieHires?640:320)),
-			h*((double)grd_curscreen->sc_h/(GameArg.GfxMovieHires?480:200)),
-			dstx*((double)grd_curscreen->sc_w/(GameArg.GfxMovieHires?640:320)),
-			dsty*((double)grd_curscreen->sc_h/(GameArg.GfxMovieHires?480:200)),
-			bufw, bufh, sx, sy,
-			&source_bm,&grd_curcanv->cv_bitmap,0);
+	ogl_ubitblt_i(
+		bufw*scale, bufh*scale,
+		dstx, dsty,
+		bufw, bufh, 0, 0, &source_bm,&grd_curcanv->cv_bitmap,!GameArg.OglNoMovieFilter);
 
 	glEnable (GL_BLEND);
 #else
-	gr_bm_ubitbltm(bufw,bufh,dstx*((double)grd_curscreen->sc_w/(GameArg.GfxMovieHires?640:320)),dsty*((double)grd_curscreen->sc_h/(GameArg.GfxMovieHires?480:200)),sx,sy,&source_bm,&grd_curcanv->cv_bitmap);
+	gr_bm_ubitbltm(bufw,bufh,dstx,dsty,0,0,&source_bm,&grd_curcanv->cv_bitmap);
 #endif
 }
 
@@ -454,7 +471,7 @@ int RotateRobot()
 	if (err == MVE_ERR_EOF)     //end of movie, so reset
 	{
 		SDL_RWseek(RoboFile, 0, SEEK_SET);
-		if (MVE_rmPrepMovie(RoboFile, GameArg.GfxMovieHires?280:140, GameArg.GfxMovieHires?200:80, 0))
+		if (MVE_rmPrepMovie(RoboFile, SWIDTH/2.3, SHEIGHT/2.3, 0))
 		{
 			Int3();
 			return 0;
@@ -496,7 +513,7 @@ int InitRobotMovie(char *filename)
 
 	Vid_State = VID_PLAY;
 
-	if (MVE_rmPrepMovie((void *)RoboFile, GameArg.GfxMovieHires?280:140, GameArg.GfxMovieHires?200:80, 0)) {
+	if (MVE_rmPrepMovie((void *)RoboFile, SWIDTH/2.3, SHEIGHT/2.3, 0)) {
 		Int3();
 		return 0;
 	}

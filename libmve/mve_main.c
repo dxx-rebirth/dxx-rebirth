@@ -48,17 +48,17 @@ static unsigned int fileRead(void *handle, void *buf, unsigned int count)
 	return (numread == count);
 }
 
-static void showFrame(unsigned char *buf, unsigned int bufw, unsigned int bufh,
-					  unsigned int sx, unsigned int sy,
-					  unsigned int w, unsigned int h,
-					  unsigned int dstx, unsigned int dsty)
+static void showFrame(unsigned char *buf, int dstx, int dsty, int bufw, int bufh, int sw, int sh)
 {
 	int i;
 	unsigned char *pal;
 	SDL_Surface *sprite;
 	SDL_Rect srcRect, destRect;
 
-	assert(bufw == w && bufh == h);
+	if (dstx == -1) // center it
+		dstx = (sw - bufw) / 2;
+	if (dsty == -1) // center it
+		dsty = (sh - bufh) / 2;
 
 	if (g_truecolor)
 		sprite = SDL_CreateRGBSurfaceFrom(buf, bufw, bufh, 16, 2 * bufw, 0x7C00, 0x03E0, 0x001F, 0);
@@ -76,14 +76,14 @@ static void showFrame(unsigned char *buf, unsigned int bufw, unsigned int bufh,
 		}
 	}
 
-	srcRect.x = sx;
-	srcRect.y = sy;
-	srcRect.w = w;
-	srcRect.h = h;
+	srcRect.x = 0;
+	srcRect.y = 0;
+	srcRect.w = bufw;
+	srcRect.h = bufh;
 	destRect.x = dstx;
 	destRect.y = dsty;
-	destRect.w = w;
-	destRect.h = h;
+	destRect.w = bufw;
+	destRect.h = bufh;
 
 	SDL_BlitSurface(sprite, &srcRect, g_screen, &destRect);
 

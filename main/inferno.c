@@ -161,6 +161,7 @@ void print_commandline_help()
 	printf( "  -subtitles         %s\n", "Turn on movie subtitles");
 #ifdef    OGL
 	printf( "  -gl_fixedfont      %s\n", "Do not scale fonts to current resolution");
+	printf( "  -gl_nomoviefilter  %s\n", "Force texture filtering for movies off (helps if movies shutter if texture filtering enabled)");
 #endif // OGL
 
 #ifdef    NETWORK
