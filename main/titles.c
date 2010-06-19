@@ -104,13 +104,13 @@ int title_handler(window *wind, d_event *event, title_screen *ts)
 				return 1;
 			}
 			break;
-			
+
 		case EVENT_KEY_COMMAND:
 			if (!call_default_handler(event))
 				if (ts->allow_keys)
 					window_close(wind);
 			return 1;
-			
+
 		case EVENT_IDLE:
 			timer_delay2(50);
 
@@ -120,7 +120,7 @@ int title_handler(window *wind, d_event *event, title_screen *ts)
 				return 1;
 			}
 			break;
-			
+
 		case EVENT_WINDOW_DRAW:
 			show_fullscr(&ts->title_bm);
 			break;
@@ -129,11 +129,11 @@ int title_handler(window *wind, d_event *event, title_screen *ts)
 			gr_free_bitmap_data (&ts->title_bm);
 			d_free(ts);
 			break;
-			
+
 		default:
 			break;
 	}
-	
+
 	return 0;
 }
 
@@ -143,11 +143,11 @@ int show_title_screen( char * filename, int allow_keys, int from_hog_only )
 	window *wind;
 	int pcx_error;
 	char new_filename[FILENAME_LEN+1] = "";
-	
+
 	MALLOC(ts, title_screen, 1);
 	if (!ts)
 		return 0;
-	
+
 	ts->allow_keys = allow_keys;
 
 #ifdef RELEASE
@@ -177,7 +177,7 @@ int show_title_screen( char * filename, int allow_keys, int from_hog_only )
 		d_free(ts);
 		return 0;
 	}
-	
+
 	while (window_exists(wind))
 		event_process();
 
@@ -285,11 +285,11 @@ void show_order_form()
 {
 #ifndef EDITOR
 	char    exit_screen[16];
-	
+
 	gr_set_current_canvas( NULL );
-	
+
 	key_flush();
-	
+
 	strcpy(exit_screen, HIRESMODE?"ordrd2ob.pcx":"ordrd2o.pcx"); // OEM
 	if (! cfexist(exit_screen))
 		strcpy(exit_screen, HIRESMODE?"orderd2b.pcx":"orderd2.pcx"); // SHAREWARE, prefer mac if hires
@@ -299,9 +299,9 @@ void show_order_form()
 		strcpy(exit_screen, HIRESMODE?"warningb.pcx":"warning.pcx"); // D1
 	if (! cfexist(exit_screen))
 		return; // D2 registered
-	
+
 	show_title_screen(exit_screen,1,0);
-	
+
 #endif
 }
 
@@ -454,10 +454,10 @@ int load_screen_text(char *filename, char **buf)
 	CFILE *ifile;
 	int	len, i,x;
 	int	have_binary = 0;
-	
+
 	if ((tfile = cfopen(filename,"rb")) == NULL) {
 		char nfilename[30], *ptr;
-		
+
 		strcpy(nfilename, filename);
 		if ((ptr = strrchr(nfilename, '.')))
 			*ptr = '\0';
@@ -466,9 +466,9 @@ int load_screen_text(char *filename, char **buf)
 			return (0);
 			//Error("Cannot open file %s or %s", filename, nfilename);
 		}
-		
+
 		have_binary = 1;
-		
+
 		len = cfilelength(ifile);
 		MALLOC(*buf, char, len+1);
 		for (x=0, i=0; i < len; i++, x++) {
@@ -487,47 +487,47 @@ int load_screen_text(char *filename, char **buf)
 		}
 		cfclose(tfile);
 	}
-	
+
 	if (have_binary)
 		decode_text(*buf, len);
-	
+
 	*(*buf+len)='\0';
-	
+
 	return (1);
 }
 
 int get_message_num(char **message)
 {
 	int	num=0;
-	
+
 	while (strlen(*message) > 0 && **message == ' ')
 		(*message)++;
-	
+
 	while (strlen(*message) > 0 && (**message >= '0') && (**message <= '9')) {
 		num = 10*num + **message-'0';
 		(*message)++;
 	}
-	
+
 	while (strlen(*message) > 0 && *(*message)++ != 10)		//	Get and drop eoln
 		;
-	
+
 	return num;
 }
 
 int get_new_message_num(char **message)
 {
 	int	num=0;
-	
+
 	while (strlen(*message) > 0 && **message == ' ')
 		(*message)++;
-	
+
 	while (strlen(*message) > 0 && (**message >= '0') && (**message <= '9')) {
 		num = 10*num + **message-'0';
 		(*message)++;
 	}
-	
+
 	(*message)++;
-	
+
 	return num;
 }
 
@@ -535,17 +535,17 @@ void get_message_name(char **message, char *result)
 {
 	while (strlen(*message) > 0 && **message == ' ')
 		(*message)++;
-	
+
 	while (strlen(*message) > 0 && (**message != ' ') && (**message != 10)) {
 		if (**message != '\n')
 			*result++ = **message;
 		(*message)++;
 	}
-	
+
 	if (**message != 10)
 		while (strlen(*message) > 0 && *(*message)++ != 10)		//	Get and drop eoln
 			;
-	
+
 	*result = 0;
 }
 
@@ -555,9 +555,9 @@ char * get_briefing_message(briefing *br, int screen_num)
 	char	*tptr = br->text;
 	int	cur_screen=0;
 	int	ch;
-	
+
 	Assert(screen_num >= 0);
-	
+
 	while ( (*tptr != 0 ) && (screen_num != cur_screen)) {
 		ch = *tptr++;
 		if (ch == '$') {
@@ -566,10 +566,10 @@ char * get_briefing_message(briefing *br, int screen_num)
 				cur_screen = get_message_num(&tptr);
 		}
 	}
-	
+
 	if (screen_num!=cur_screen)
 		return (NULL);
-	
+
 	return tptr;
 }
 
@@ -589,13 +589,13 @@ int check_text_pos(briefing *br)
 		br->text_x = br->screen->text_ulx;
 		br->text_y += br->screen->text_uly;
 	}
-	
+
 	if (br->text_y > br->screen->text_uly + br->screen->text_height)
 	{
 		br->new_page = 1;
 		return 1;
 	}
-	
+
 	return 0;
 }
 
@@ -603,23 +603,23 @@ void put_char_delay(briefing *br, int ch)
 {
 	char str[] = { ch, '\0' };
 	int	w, h, aw;
-	
+
 	if (br->delay_count && (timer_get_fixed_seconds() < br->start_time + br->delay_count))
 	{
 		br->message--;		// Go back to same character
 		return;
 	}
-	
+
 	br->messagestream[br->streamcount].x = br->text_x;
 	br->messagestream[br->streamcount].y = br->text_y;
 	br->messagestream[br->streamcount].color = Briefing_text_colors[Current_color];
 	br->messagestream[br->streamcount].ch = ch;
 	br->streamcount++;
-	
+
 	br->prev_ch = ch;
 	gr_get_string_size(str, &w, &h, &aw );
 	br->text_x += w;
-	
+
 	if (!br->chattering && br->flashing_cursor) {
 		br->printing_channel  = digi_start_sound( digi_xlat_sound(SOUND_BRIEFING_PRINTING), F1_0, 0xFFFF/2, 1, -1, -1, -1 );
 		br->chattering=1;
@@ -637,7 +637,7 @@ int load_briefing_screen(briefing *br, char *fname);
 int briefing_process_char(briefing *br)
 {
 	int	ch;
-	
+
 	ch = *br->message++;
 	if (ch == '$') {
 		ch = *br->message++;
@@ -675,7 +675,7 @@ int briefing_process_char(briefing *br)
 				DeInitRobotMovie();
 				br->robot_playing=0;
 			}
-			
+
 			if (EMULATING_D1) {
 				init_spinning_robot(br);
 				br->robot_num = get_message_num(&br->message);
@@ -683,14 +683,14 @@ int briefing_process_char(briefing *br)
 					;
 			} else {
 				char spinRobotName[]="rba.mve",kludge;  // matt don't change this!
-				
+
 				kludge=*br->message++;
 				spinRobotName[2]=kludge; // ugly but proud
-				
+
 				br->robot_playing=InitRobotMovie(spinRobotName);
-				
+
 				// gr_remap_bitmap_good( &grd_curcanv->cv_bitmap, pal, -1, -1 );
-				
+
 				if (br->robot_playing) {
 					RotateRobot();
 					set_briefing_fontcolor (br);
@@ -703,7 +703,7 @@ int briefing_process_char(briefing *br)
 				d_free(br->robot_canv);
 				br->robot_canv=NULL;
 			}
-			
+
 			get_message_name(&br->message, br->bitmap_name);
 			strcat(br->bitmap_name, "#0");
 			br->animating_bitmap_type = 0;
@@ -714,7 +714,7 @@ int briefing_process_char(briefing *br)
 				d_free(br->robot_canv);
 				br->robot_canv=NULL;
 			}
-			
+
 			get_message_name(&br->message, br->bitmap_name);
 			strcat(br->bitmap_name, "#0");
 			br->animating_bitmap_type = 1;
@@ -724,7 +724,7 @@ int briefing_process_char(briefing *br)
 		} else if (ch=='Z') {
 			char fname[15];
 			int i;
-			
+
 			br->got_z=1;
 			br->dumb_adjust=1;
 			i=0;
@@ -736,10 +736,10 @@ int briefing_process_char(briefing *br)
 			if (*br->message != 10)
 				while (*br->message++ != 10)    //  Get and drop eoln
 					;
-			
+
 			{
 				char fname2[15];
-				
+
 				i=0;
 				while (fname[i]!='.') {
 					fname2[i] = fname[i];
@@ -751,30 +751,30 @@ int briefing_process_char(briefing *br)
 				fname2[i++]='c';
 				fname2[i++]='x';
 				fname2[i++]=0;
-				
+
 				if ((HIRESMODE && cfexist(fname2)) || !cfexist(fname))
 					strcpy(fname,fname2);
 				load_briefing_screen (br, fname);
 			}
-			
+
 		} else if (ch == 'B') {
 			char		bitmap_name[32];
 			ubyte		temp_palette[768];
 			int		iff_error;
-			
+
 			if (br->robot_canv != NULL)
 			{
 				d_free(br->robot_canv);
 				br->robot_canv=NULL;
 			}
-			
+
 			get_message_name(&br->message, bitmap_name);
 			strcat(bitmap_name, ".bbm");
 			gr_init_bitmap_data (&br->guy_bitmap);
 			iff_error = iff_read_bitmap(bitmap_name, &br->guy_bitmap, BM_LINEAR, temp_palette);
 			Assert(iff_error == IFF_NO_ERROR);
 			gr_remap_bitmap_good( &br->guy_bitmap, temp_palette, -1, -1 );
-			
+
 			br->guy_bitmap_show=1;
 			br->prev_ch = 10;
 		} else if (ch == 'S') {
@@ -782,7 +782,7 @@ int briefing_process_char(briefing *br)
 			if (br->printing_channel >- 1)
 				digi_stop_sound(br->printing_channel);
 			br->printing_channel =- 1;
-			
+
 			br->new_screen = 1;
 			return 1;
 		} else if (ch == 'P') {		//	New page.
@@ -791,20 +791,20 @@ int briefing_process_char(briefing *br)
 				// printing to it! You know, $Z !!!
 				load_briefing_screen (br, HIRESMODE?"end01b.pcx":"end01.pcx");
 			}
-			
+
 			br->chattering = 0;
 			if (br->printing_channel >- 1)
 				digi_stop_sound(br->printing_channel);
 			br->printing_channel =- 1;
-			
+
 			br->new_page = 1;
-			
+
 			while (*br->message != 10) {
 				br->message++;	//	drop carriage return after special escape sequence
 			}
 			br->message++;
 			br->prev_ch = 10;
-			
+
 			return 1;
 		} else if (ch == '$' || ch == ';') // Print a $/;
 			put_char_delay(br, ch);
@@ -841,10 +841,10 @@ int briefing_process_char(briefing *br)
 			// printing to it! You know, $Z !!!
 			load_briefing_screen (br, HIRESMODE?"end01b.pcx":"end01.pcx");
 		}
-		
+
 		put_char_delay(br, ch);
 	}
-	
+
 	return 0;
 }
 
@@ -853,7 +853,7 @@ void set_briefing_fontcolor (briefing *br)
 	Briefing_text_colors[0] = gr_find_closest_color_current( 0, 40, 0);
 	Briefing_text_colors[1] = gr_find_closest_color_current( 40, 33, 35);
 	Briefing_text_colors[2] = gr_find_closest_color_current( 8, 31, 54);
-	
+
 	if (EMULATING_D1) {
 		//green
 		Briefing_text_colors[0] = gr_find_closest_color_current( 0, 54, 0);
@@ -863,12 +863,12 @@ void set_briefing_fontcolor (briefing *br)
 		//red
 		Briefing_text_colors[2] = gr_find_closest_color_current( 63, 0, 0);
 	}
-	
+
 	if (br->robot_playing)
 	{
 		Briefing_text_colors[0] = gr_find_closest_color_current( 0, 31, 0);
 	}
-	
+
 	//blue
 	Briefing_text_colors[3] = gr_find_closest_color_current( 0, 0, 54);
 	//gray
@@ -878,7 +878,7 @@ void set_briefing_fontcolor (briefing *br)
 	//purple
 	Briefing_text_colors[6] = gr_find_closest_color_current( 0, 54, 54);
 	//End D1X addition
-	
+
 	Erase_color = gr_find_closest_color_current(0, 0, 0);
 }
 
@@ -886,7 +886,7 @@ void redraw_messagestream(msgstream *stream, int count)
 {
 	char msgbuf[2];
 	int i;
-	
+
 	for (i=0; i<count; i++) {
 		msgbuf[0] = stream[i].ch;
 		msgbuf[1] = 0;
@@ -900,12 +900,12 @@ void flash_cursor(briefing *br, int cursor_flag)
 {
 	if (cursor_flag == 0)
 		return;
-	
+
 	if ((timer_get_fixed_seconds() % (F1_0/2) ) > (F1_0/4))
 		gr_set_fontcolor(Briefing_text_colors[Current_color], -1);
 	else
 		gr_set_fontcolor(Erase_color, -1);
-	
+
 	gr_printf(br->text_x, br->text_y, "_" );
 }
 
@@ -918,6 +918,12 @@ void show_animated_bitmap(briefing *br)
 {
 	grs_canvas  *curcanv_save, *bitmap_canv=0;
 	grs_bitmap	*bitmap_ptr;
+	float scale = 1.0;
+
+	if (((float)SWIDTH/320) < ((float)SHEIGHT/200))
+		scale = ((float)SWIDTH/320);
+	else
+		scale = ((float)SHEIGHT/200);
 
 	// Only plot every nth frame.
 	if (br->door_div_count) {
@@ -927,7 +933,7 @@ void show_animated_bitmap(briefing *br)
 			bitmap_ptr = &GameBitmaps[bi.index];
 			PIGGY_PAGE_IN( bi );
 #ifdef OGL
-			ogl_ubitmapm_cs(rescale_x(220), rescale_y(45),(bitmap_ptr->bm_w*(SWIDTH/320)),(bitmap_ptr->bm_h*(SHEIGHT/200)),bitmap_ptr,255,F1_0);
+			ogl_ubitmapm_cs(rescale_x(220), rescale_y(45),bitmap_ptr->bm_w*scale,bitmap_ptr->bm_h*scale,bitmap_ptr,255,F1_0);
 #else
 			gr_bitmapm(rescale_x(220), rescale_y(45), bitmap_ptr);
 #endif
@@ -994,7 +1000,7 @@ void show_animated_bitmap(briefing *br)
 		bitmap_ptr = &GameBitmaps[bi.index];
 		PIGGY_PAGE_IN( bi );
 #ifdef OGL
-		ogl_ubitmapm_cs(0,0,(bitmap_ptr->bm_w*(SWIDTH/320)),(bitmap_ptr->bm_h*(SHEIGHT/200)),bitmap_ptr,255,F1_0);
+		ogl_ubitmapm_cs(0,0,bitmap_ptr->bm_w*scale,bitmap_ptr->bm_h*scale,bitmap_ptr,255,F1_0);
 #else
 		gr_bitmapm(0, 0, bitmap_ptr);
 #endif
@@ -1021,12 +1027,18 @@ void show_animated_bitmap(briefing *br)
 void show_briefing_bitmap(grs_bitmap *bmp)
 {
 	grs_canvas	*curcanv_save, *bitmap_canv;
+	float scale = 1.0;
 
 	bitmap_canv = gr_create_sub_canvas(grd_curcanv, rescale_x(220), rescale_y(55), (bmp->bm_w*(SWIDTH/(HIRESMODE ? 640 : 320))),(bmp->bm_h*(SHEIGHT/(HIRESMODE ? 480 : 200))));
 	curcanv_save = grd_curcanv;
 	gr_set_current_canvas(bitmap_canv);
+
+	if (((float)SWIDTH/(HIRESMODE ? 640 : 320)) < ((float)SHEIGHT/(HIRESMODE ? 480 : 200)))
+		scale = ((float)SWIDTH/(HIRESMODE ? 640 : 320));
+	else
+		scale = ((float)SHEIGHT/(HIRESMODE ? 480 : 200));
 #ifdef OGL
-	ogl_ubitmapm_cs(0,0,(bmp->bm_w*(SWIDTH/(HIRESMODE ? 640 : 320))),(bmp->bm_h*(SHEIGHT/(HIRESMODE ? 480 : 200))),bmp,255,F1_0);
+	ogl_ubitmapm_cs(0,0,bmp->bm_w*scale,bmp->bm_h*scale,bmp,255,F1_0);
 #else
 	gr_bitmapm(0, 0, bmp);
 #endif
@@ -1070,17 +1082,17 @@ void init_new_page(briefing *br)
 {
 	br->new_page = 0;
 	br->robot_num = -1;
-	
+
 	load_briefing_screen(br, br->background_name);
 	br->text_x = br->screen->text_ulx;
 	br->text_y = br->screen->text_uly;
-	
+
 	br->streamcount=0;
 	if (br->guy_bitmap_show) {
 		gr_free_bitmap_data (&br->guy_bitmap);
 		br->guy_bitmap_show=0;
 	}
-	
+
 	if (br->robot_playing)
 	{
 		DeInitRobotMovie();
@@ -1095,18 +1107,18 @@ int DefineBriefingBox (char **buf)
 {
 	int n,i=0;
 	char name[20];
-	
+
 	n=get_new_message_num (buf);
-	
+
 	Assert(n < MAX_BRIEFING_SCREENS);
-	
+
 	while (**buf!=' ') {
 		name[i++]=**buf;
 		(*buf)++;
 	}
-	
+
 	name[i]='\0';   // slap a delimiter on this guy
-	
+
 	strcpy (Briefing_screens[n].bs_name,name);
 	Briefing_screens[n].level_num=get_new_message_num (buf);
 	Briefing_screens[n].message_num=get_new_message_num (buf);
@@ -1114,12 +1126,12 @@ int DefineBriefingBox (char **buf)
 	Briefing_screens[n].text_uly=get_new_message_num (buf);
 	Briefing_screens[n].text_width=get_new_message_num (buf);
 	Briefing_screens[n].text_height=get_message_num (buf);  // NOTICE!!!
-	
+
 	Briefing_screens[n].text_ulx = rescale_x(Briefing_screens[n].text_ulx);
 	Briefing_screens[n].text_uly = rescale_y(Briefing_screens[n].text_uly);
 	Briefing_screens[n].text_width = rescale_x(Briefing_screens[n].text_width);
 	Briefing_screens[n].text_height = rescale_y(Briefing_screens[n].text_height);
-	
+
 	return (n);
 }
 
@@ -1148,14 +1160,14 @@ int load_briefing_screen(briefing *br, char *fname)
 	gr_palette_load(gr_palette);
 
 	set_briefing_fontcolor(br);
-	
+
 	if (EMULATING_D1)
 	{
 		br->got_z = 1;
 		MALLOC(br->screen, briefing_screen, 1);
 		if (!br->screen)
 			return 0;
-		
+
 		memcpy(br->screen, &Briefing_screens[br->cur_screen], sizeof(briefing_screen));
 		br->screen->text_ulx = rescale_x(br->screen->text_ulx);
 		br->screen->text_uly = rescale_y(br->screen->text_uly);
@@ -1163,7 +1175,7 @@ int load_briefing_screen(briefing *br, char *fname)
 		br->screen->text_height = rescale_y(br->screen->text_height);
 		init_char_pos(br, br->screen->text_ulx, br->screen->text_uly);
 	}
-	
+
 	return 1;
 }
 
@@ -1176,13 +1188,13 @@ void free_briefing_screen(briefing *br)
 	}
 	if (br->robot_canv != NULL)
 		d_free(br->robot_canv);
-	
+
 	if (br->printing_channel>-1)
 		digi_stop_sound( br->printing_channel );
 
 	if (EMULATING_D1 && br->screen)
 		d_free(br->screen);
-	
+
 	if (br->background.bm_data != NULL)
 		gr_free_bitmap_data (&br->background);
 }
@@ -1195,7 +1207,7 @@ int new_briefing_screen(briefing *br, int first)
 
 	br->new_screen = 0;
 	br->got_z = 0;
-	
+
 	if (EMULATING_D1)
 	{
 		if (!first)
@@ -1203,7 +1215,7 @@ int new_briefing_screen(briefing *br, int first)
 		else
 			for (i = 0; i < NUM_D1_BRIEFING_SCREENS; i++)
 				memcpy(&Briefing_screens[i], &D1_Briefing_screens[i], sizeof(briefing_screen));
-		
+
 		while ((br->cur_screen < NUM_D1_BRIEFING_SCREENS) && (Briefing_screens[br->cur_screen].level_num != br->level_num))
 		{
 			br->cur_screen++;
@@ -1214,7 +1226,7 @@ int new_briefing_screen(briefing *br, int first)
 				br->cur_screen = 0;
 			}
 		}
-		
+
 		if (br->cur_screen == NUM_D1_BRIEFING_SCREENS)
 			return 0;		// finished
 
@@ -1231,10 +1243,10 @@ int new_briefing_screen(briefing *br, int first)
 		return 0;	// finished
 
 	br->message = get_briefing_message(br, EMULATING_D1 ? Briefing_screens[br->cur_screen].message_num : br->cur_screen);
-	
+
 	if (br->message==NULL)
 		return 0;
-	
+
 	br->printing_channel = -1;
 	Current_color = 0;
 	br->streamcount = 0;
@@ -1251,10 +1263,10 @@ int new_briefing_screen(briefing *br, int first)
 	br->bitmap_name[0] = 0;
 	br->guy_bitmap_show = 0;
 	br->prev_ch = -1;
-	
+
 	if (!songs_is_playing() && (br->hum_channel == -1))
 		br->hum_channel  = digi_start_sound( digi_xlat_sound(SOUND_BRIEFING_HUM), F1_0/2, 0xFFFF/2, 1, -1, -1, -1 );
-	
+
 	return 1;
 }
 
@@ -1268,7 +1280,7 @@ int briefing_handler(window *wind, d_event *event, briefing *br)
 		case EVENT_WINDOW_DEACTIVATED:
 			key_flush();
 			break;
-			
+
 		case EVENT_MOUSE_BUTTON_DOWN:
 			if (mouse_get_button(event) == 0)
 			{
@@ -1288,22 +1300,22 @@ int briefing_handler(window *wind, d_event *event, briefing *br)
 				return 1;
 			}
 			break;
-			
+
 		case EVENT_KEY_COMMAND:
 		{
 			int key = ((d_event_keycommand *)event)->keycode;
-			
+
 			switch (key)
 			{
 				case KEY_ESC:
 					window_close(wind);
 					return 1;
-					
+
 				case KEY_SPACEBAR:
 				case KEY_ENTER:
 					br->delay_count = 0;
 					// fall through
-					
+
 				default:
 					if (call_default_handler(event))
 						return 1;
@@ -1324,7 +1336,7 @@ int briefing_handler(window *wind, d_event *event, briefing *br)
 
 		case EVENT_IDLE:
 			timer_delay2(50);
-			
+
 			if (!(br->new_screen || br->new_page))
 				while (!briefing_process_char(br) && !br->delay_count)
 				{
@@ -1349,11 +1361,11 @@ int briefing_handler(window *wind, d_event *event, briefing *br)
 				show_spinning_robot_frame(br, br->robot_num);
 
 			gr_set_curfont( GAME_FONT );
-			
+
 			Assert((Current_color >= 0) && (Current_color < MAX_BRIEFING_COLORS));
 			gr_set_fontcolor(Briefing_text_colors[Current_color], -1);
 			redraw_messagestream(br->messagestream, br->streamcount);
-			
+
 			if (br->new_page || br->new_screen)
 				flash_cursor(br, br->flashing_cursor);
 			else if (br->flashing_cursor)
@@ -1370,11 +1382,11 @@ int briefing_handler(window *wind, d_event *event, briefing *br)
 			d_free(br->text);
 			d_free(br);
 			break;
-			
+
 		default:
 			break;
 	}
-	
+
 	return 0;
 }
 
@@ -1391,13 +1403,13 @@ void do_briefing_screens(char *filename, int level_num)
 		return;
 
 	briefing_init(br, level_num);
-	
+
 	if (!load_screen_text(filename, &br->text))
 	{
 		d_free(br);
 		return;
 	}
-	
+
 	wind = window_create(&grd_curscreen->sc_canvas, 0, 0, SWIDTH, SHEIGHT, (int (*)(window *, d_event *, void *))briefing_handler, br);
 	if (!wind)
 	{
@@ -1424,7 +1436,7 @@ void do_briefing_screens(char *filename, int level_num)
 		window_close(wind);
 		return;
 	}
-	
+
 	// Stay where we are in the stack frame until briefing done
 	// Too complicated otherwise
 	while (window_exists(wind))
@@ -1434,7 +1446,7 @@ void do_briefing_screens(char *filename, int level_num)
 void do_end_briefing_screens(char *filename)
 {
 	int level_num_screen = Current_level_num, showorder = 0;
-	
+
 	if (!strlen(filename))
 		return; // no filename, no ending
 
