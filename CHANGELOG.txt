@@ -3,6 +3,7 @@ D1X-Rebirth Changelog
 20100619
 --------
 main/titles.c: For briefings, keep elementes of show_briefing_bitmap and show_animated_bitmap in correct aspect
+main/laser.c: Re-balanced homing-device turn values introduced in rev1118 based on comparisons to many levels played
 
 20100618
 --------
