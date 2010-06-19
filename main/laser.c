@@ -1440,7 +1440,7 @@ void Laser_TurnSpeedLimit(vms_vector* vec_forward, vms_vector* vec_to_target, fi
 }
 
 #ifdef NEWHOMER
-fix homing_turn_base[NDL] = { 20, 30, 40, 50, 60 };
+fix homing_turn_base[NDL] = { 20, 25, 35, 40, 45 };
 #endif
 
 //-------------------------------------------------------------------------------------------
