@@ -1,5 +1,9 @@
 D1X-Rebirth Changelog
 
+20100619
+--------
+main/titles.c: For briefings, keep elementes of show_briefing_bitmap and show_animated_bitmap in correct aspect
+
 20100618
 --------
 2d/bitblt.c, include/gr.h, main/game.c, main/gauges.c: Introducing gr_bitblt_find_transparent_area to dynamically detect boundaries of sub canvas used for CM_REAR_VIEW; On the way also allowing to create weapon box sub bitmaps from uncompressed cockpit bitmaps
