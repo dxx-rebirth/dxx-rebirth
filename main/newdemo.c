@@ -72,7 +72,7 @@ COPYRIGHT 1993-1999 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 #include "gauges.h"
 #include "player.h"
 #include "vecmat.h"
-#include "newmenu.h"
+#include "menu.h"
 #include "args.h"
 #include "palette.h"
 #include "multi.h"
@@ -193,6 +193,7 @@ ubyte DemoDoRight=0,DemoDoLeft=0;
 
 void newdemo_record_oneframeevent_update();
 extern int digi_link_sound_to_object3( int org_soundnum, short objnum, int forever, fix max_volume, fix  max_distance, int loop_start, int loop_end );
+extern window *game_setup(void);
 
 PHYSFS_file *infile;
 PHYSFS_file *outfile = NULL;
@@ -2998,6 +2999,9 @@ void interpolate_frame(fix d_play, fix d_recorded)
 	object *cur_objs;
 	static fix InterpolStep = fl2f(.01);
 
+	if (NewdemoFrameCount < 1)
+		return;
+
 	factor = fixdiv(d_play, d_recorded);
 	if (factor > F1_0)
 		factor = F1_0;
@@ -3564,10 +3568,12 @@ void newdemo_start_playback(char * filename)
 	PlayerCfg.Cockpit3DView[0] = PlayerCfg.Cockpit3DView[1] = CV_NONE;       //turn off 3d views on cockpit
 	DemoDoLeft = DemoDoRight = 0;
 	HUD_clear_messages();
+	if (!Game_wind)
+		hide_menus();
 	newdemo_playback_one_frame();       // this one loads new level
 	newdemo_playback_one_frame();       // get all of the objects to renderb game
 	if (!Game_wind)
-		game();							// create game environment
+		Game_wind = game_setup();							// create game environment
 }
 
 void newdemo_stop_playback()
