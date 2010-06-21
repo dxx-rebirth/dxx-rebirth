@@ -1,5 +1,9 @@
 D2X-Rebirth Changelog
 
+20100622
+--------
+main/titles.c: Make sure GAME_FONT is set when reading out briefing text so char dimensions will always be stored correctly
+
 20100620
 --------
 main/newdemo.c: For starting demo, seperate hide_menus() and game_setup() since between this, demo must load the actual level and it's palette; Fixed small bug in interpolate_frame() causing interpolation happening in very first frame causing file read corruption
