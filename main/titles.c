@@ -560,6 +560,8 @@ int briefing_process_char(briefing *br)
 {
 	int	ch;
 
+	gr_set_curfont( GAME_FONT );
+
 	ch = *br->message++;
 	if (ch == '$') {
 		ch = *br->message++;
