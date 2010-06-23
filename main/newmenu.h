@@ -68,8 +68,8 @@ extern int newmenu_do1(char *title, char *subtitle, int nitems, newmenu_item *it
 // Same as above, only you can pass through what background bitmap to use.
 extern int newmenu_do2(char *title, char *subtitle, int nitems, newmenu_item *item, int (*subfunction)(newmenu *menu, d_event *event, void *userdata), void *userdata, int citem, char *filename);
 
-// Same as above, only you can pass through the width and height
-extern newmenu *newmenu_do3(char *title, char *subtitle, int nitems, newmenu_item *item, int (*subfunction)(newmenu *menu, d_event *event, void *userdata), void *userdata, int citem, char *filename, int width, int height);
+// Same as above, but returns menu instead of citem 
+extern newmenu *newmenu_do3(char *title, char *subtitle, int nitems, newmenu_item *item, int (*subfunction)(newmenu *menu, d_event *event, void *userdata), void *userdata, int citem, char *filename);
 
 // Tiny menu with GAME_FONT
 extern newmenu *newmenu_dotiny(char * title, char * subtitle, int nitems, newmenu_item * item, int (*subfunction)(newmenu *menu, d_event *event, void *userdata), void *userdata);
