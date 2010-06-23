@@ -75,7 +75,7 @@ struct newmenu
 {
 	window			*wind;
 	int				x,y,w,h;
-	int			swidth, sheight, fntscalex, fntscaley; // with these we check if resolution or fonts have changed so menu structure can be recreated
+	short			swidth, sheight; float fntscalex, fntscaley; // with these we check if resolution or fonts have changed so menu structure can be recreated
 	char			*title;
 	char			*subtitle;
 	int				nitems;
@@ -1657,7 +1657,7 @@ struct listbox
 	int (*listbox_callback)(listbox *lb, d_event *event, void *userdata);
 	int citem, first_item;
 	int box_w, height, box_x, box_y, title_height;
-	int swidth, sheight, fntscalex, fntscaley; // with these we check if resolution or fonts have changed so listbox structure can be recreated
+	short swidth, sheight; float fntscalex, fntscaley; // with these we check if resolution or fonts have changed so listbox structure can be recreated
 	int mouse_state;
 	void *userdata;
 };

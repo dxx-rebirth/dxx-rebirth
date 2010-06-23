@@ -4,6 +4,7 @@ D2X-Rebirth Changelog
 --------
 main/menu.c, main/newmenu.c, main/newmenu.h, main/net_ipx.c: Making menus recreated on the fly in case resolution or font-size changes; Removing arguments to pass width and height to menu which was not used except on one IPX menu; Fixing measurement of menu strings of type NM_TYPE_INPUT_MENU; Fixing slight bug in freeing IPX netlist
 main/menu.c: If no player exists and GameCfg.LasterPlayer is unset, give user a nice default for convenience and - more important - let menu stop to nag about missing callsign and thereby showing the player creation dialogue over and over again
+main/newmenu.c: Fix for last rev1130 - store resolution and font-size in matching data type
 
 20100622
 --------
