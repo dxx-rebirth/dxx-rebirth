@@ -1,5 +1,9 @@
 D1X-Rebirth Changelog
 
+20100623
+--------
+main/menu.c, main/newmenu.c, main/newmenu.h, main/net_ipx.c: Making menus recreated on the fly in case resolution or font-size changes; Removing arguments to pass width and height to menu which was not used except on one IPX menu; Fixing measurement of menu strings of type NM_TYPE_INPUT_MENU; Fixing slight bug in freeing IPX netlist
+
 20100622
 --------
 main/titles.c: Make sure GAME_FONT is set when reading out briefing text so char dimensions will always be stored correctly

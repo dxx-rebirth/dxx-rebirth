@@ -503,7 +503,7 @@ int DoMenu()
 
 	create_main_menu(m, menu_choice, &num_options); // may have to change, eg, maybe selected pilot and no save games.
 
-	newmenu_do3( "", NULL, num_options, m, (int (*)(newmenu *, d_event *, void *))main_menu_handler, menu_choice, 0, Menu_pcx_name, -1, -1);
+	newmenu_do3( "", NULL, num_options, m, (int (*)(newmenu *, d_event *, void *))main_menu_handler, menu_choice, 0, Menu_pcx_name);
 
 	return 0;
 }
@@ -1020,8 +1020,6 @@ void change_res()
 	gr_set_mode(Game_screen_mode);
 	init_cockpit();
 	game_init_render_buffers(SM_W(screen_mode), SM_H(screen_mode), VR_NONE);
-	window_close(window_get_front());	// close options dialog - it will be messy with a different resolution
-	do_options_menu();				// reopen it
 }
 
 int input_menuset(newmenu *menu, d_event *event, void *userdata)
@@ -1459,7 +1457,7 @@ void do_multi_player_menu()
 #endif
 #endif
 
-	newmenu_do3( NULL, TXT_MULTIPLAYER, num_options, m, (int (*)(newmenu *, d_event *, void *))multi_player_menu_handler, menu_choice, 0, NULL, -1, -1 );
+	newmenu_do3( NULL, TXT_MULTIPLAYER, num_options, m, (int (*)(newmenu *, d_event *, void *))multi_player_menu_handler, menu_choice, 0, NULL );
 }
 #endif
 
@@ -1496,5 +1494,5 @@ void do_options_menu()
 
 	// Fall back to main event loop
 	// Allows clean closing and re-opening when resolution changes
-	newmenu_do3( NULL, TXT_OPTIONS, 11, m, options_menuset, NULL, 0, NULL, -1, -1 );
+	newmenu_do3( NULL, TXT_OPTIONS, 11, m, options_menuset, NULL, 0, NULL );
 }
