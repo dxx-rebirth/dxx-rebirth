@@ -1,5 +1,9 @@
 D2X-Rebirth Changelog
 
+20100624
+--------
+arch/ogl/gr.c, arch/sdl/gr.c, include/gr.h, main/menu.c: Added function to list valid resolutions and build resolutions menu dynamically with the resulting list
+
 20100623
 --------
 main/menu.c, main/newmenu.c, main/newmenu.h, main/net_ipx.c: Making menus recreated on the fly in case resolution or font-size changes; Removing arguments to pass width and height to menu which was not used except on one IPX menu; Fixing measurement of menu strings of type NM_TYPE_INPUT_MENU; Fixing slight bug in freeing IPX netlist

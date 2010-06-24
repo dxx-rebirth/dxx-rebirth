@@ -980,92 +980,99 @@ int gcd(int a, int b)
 	return gcd(b, a%b);
 }
 
-int change_res_poll() { return 0; }
-
 void change_res()
 {
-	newmenu_item m[15];
-	u_int32_t modes[15];
-	int i = 0, mc = 0, num_presets = 0;
-	char customres[16], aspect[16];
-	int fullscreenc;
-	u_int32_t screen_mode = 0, aspect_mode = 0;
+	u_int32_t modes[50], new_mode = 0;
+	int i = 0, mc = 0, num_presets = 0, citem = -1, opt_cval = -1, opt_cres = -1, opt_casp = -1, opt_fullscr = -1;
 
-	// the list of pre-defined resolutions
-	if (gr_check_mode(SM(320,200)))		{ m[mc].type = NM_TYPE_RADIO; m[mc].text = "320x200 (16x10)"; m[mc].value = (Game_screen_mode == SM(320,200)); m[mc].group = 0; modes[mc] = SM(320,200); mc++; }
-	if (gr_check_mode(SM(640,480)))		{ m[mc].type = NM_TYPE_RADIO; m[mc].text = "640x480 (4x3)"; m[mc].value = (Game_screen_mode == SM(640,480)); m[mc].group = 0; modes[mc] = SM(640,480); mc++; }
-	if (gr_check_mode(SM(800,600)))		{ m[mc].type = NM_TYPE_RADIO; m[mc].text = "800x600 (4x3)"; m[mc].value = (Game_screen_mode == SM(800,600)); m[mc].group = 0; modes[mc] = SM(800,600); mc++; }
-	if (gr_check_mode(SM(1024,768)))	{ m[mc].type = NM_TYPE_RADIO; m[mc].text = "1024x768 (4x3)"; m[mc].value = (Game_screen_mode == SM(1024,768)); m[mc].group = 0; modes[mc] = SM(1024,768); mc++; }
-	if (gr_check_mode(SM(1280,800)))	{ m[mc].type = NM_TYPE_RADIO; m[mc].text = "1280x800 (16x10)"; m[mc].value = (Game_screen_mode == SM(1280,800)); m[mc].group = 0; modes[mc] = SM(1280,800); mc++; }
-	if (gr_check_mode(SM(1280,1024)))	{ m[mc].type = NM_TYPE_RADIO; m[mc].text = "1280x1024 (5x4)"; m[mc].value = (Game_screen_mode == SM(1280,1024)); m[mc].group = 0; modes[mc] = SM(1280,1024); mc++; }
-	if (gr_check_mode(SM(1440,900)))	{ m[mc].type = NM_TYPE_RADIO; m[mc].text = "1440x900 (16x10)"; m[mc].value = (Game_screen_mode == SM(1440,900)); m[mc].group = 0; modes[mc] = SM(1440,900); mc++; }
-	if (gr_check_mode(SM(1600,1200)))	{ m[mc].type = NM_TYPE_RADIO; m[mc].text = "1600x1200 (4x3)"; m[mc].value = (Game_screen_mode == SM(1600,1200)); m[mc].group = 0; modes[mc] = SM(1600,1200); mc++; }
-	if (gr_check_mode(SM(1920,1200)))	{ m[mc].type = NM_TYPE_RADIO; m[mc].text = "1920x1200 (16x10)"; m[mc].value = (Game_screen_mode == SM(1920,1200)); m[mc].group = 0; modes[mc] = SM(1920,1200); mc++; }
-	num_presets = mc;
+	num_presets = gr_list_modes( modes );
 
-	// now see which field is true and break there
-	m[mc].value=0;
-	for (i = 0; i < mc; i++)
+	{
+	newmenu_item m[num_presets+8];
+	char restext[num_presets][12], crestext[12], casptext[12];
+
+	for (i = 0; i <= num_presets-1; i++)
+	{
+		snprintf(restext[mc], sizeof(restext[mc]), "%ix%i", SM_W(modes[i]), SM_H(modes[i]));
+		m[mc].type = NM_TYPE_RADIO;
+		m[mc].text = restext[mc];
+		m[mc].value = ((citem == -1) && (Game_screen_mode == modes[i]) && GameCfg.AspectY == SM_W(modes[i])/gcd(SM_W(modes[i]),SM_H(modes[i])) && GameCfg.AspectX == SM_H(modes[i])/gcd(SM_W(modes[i]),SM_H(modes[i])));
+		m[mc].group = 0;
 		if (m[mc].value)
-			break;
+			citem = mc;
+		mc++;
+	}
 
-	// the field for custom resolution and aspect
-	m[mc].type = NM_TYPE_RADIO; m[mc].text = "use custom values"; m[mc].value = (i == mc); m[mc].group = 0; modes[mc] = 0; mc++;
+	m[mc].type = NM_TYPE_TEXT; m[mc].text = ""; mc++; // little space for overview
+	// the fields for custom resolution and aspect
+	opt_cval = mc;
+	m[mc].type = NM_TYPE_RADIO; m[mc].text = "use custom values"; m[mc].value = (citem == -1); m[mc].group = 0; mc++;
 	m[mc].type = NM_TYPE_TEXT; m[mc].text = "resolution:"; mc++;
-	sprintf(customres, "%ix%i", SM_W(Game_screen_mode), SM_H(Game_screen_mode));
-	m[mc].type = NM_TYPE_INPUT; m[mc].text = customres; m[mc].text_len = 11; modes[mc] = 0; mc++;
+	snprintf(crestext, sizeof(crestext), "%ix%i", SM_W(Game_screen_mode), SM_H(Game_screen_mode));
+	opt_cres = mc;
+	m[mc].type = NM_TYPE_INPUT; m[mc].text = crestext; m[mc].text_len = 11; modes[mc] = 0; mc++;
 	m[mc].type = NM_TYPE_TEXT; m[mc].text = "aspect:"; mc++;
-	sprintf(aspect, "%ix%i", GameCfg.AspectY, GameCfg.AspectX);
-	m[mc].type = NM_TYPE_INPUT; m[mc].text = aspect; m[mc].text_len = 11; modes[mc] = 0; mc++;
-
-	// fullscreen toggle
-	fullscreenc = mc; m[mc].type = NM_TYPE_CHECK; m[mc].text = "Fullscreen"; m[mc].value = gr_check_fullscreen(); mc++;
+	opt_casp = mc;
+	snprintf(casptext, sizeof(casptext), "%ix%i", GameCfg.AspectY, GameCfg.AspectX);
+	m[mc].type = NM_TYPE_INPUT; m[mc].text = casptext; m[mc].text_len = 11; modes[mc] = 0; mc++;
+	m[mc].type = NM_TYPE_TEXT; m[mc].text = ""; mc++; // little space for overview
+	// fullscreen
+	opt_fullscr = mc;
+	m[mc].type = NM_TYPE_CHECK; m[mc].text = "Fullscreen"; m[mc].value = gr_check_fullscreen(); mc++;
 
 	// create the menu
-	i = newmenu_do1(NULL, "Screen Resolution", mc, m, change_res_poll, NULL, 0);
+	newmenu_do1(NULL, "Screen Resolution", mc, m, NULL, NULL, 0);
 
 	// menu is done, now do what we need to do
 
+	// check which resolution field was selected
+	for (i = 0; i <= mc; i++)
+		if ((m[i].type == NM_TYPE_RADIO) && (m[i].group==0) && (m[i].value == 1))
+			break;
+
 	// now check for fullscreen toggle and apply if necessary
-	if (m[fullscreenc].value != gr_check_fullscreen())
+	if (m[opt_fullscr].value != gr_check_fullscreen())
 		gr_toggle_fullscreen();
 
-	// check which preset field was selected
-	for (i = 0; (m[i].value == 0) && (i < num_presets); i++);
-
-	if (modes[i]==0) // no preset selected, use custom values and set screen_mode and aspect
+	if (i == opt_cval) // set custom resolution and aspect
 	{
-		if (!strchr(customres, 'x'))
+		u_int32_t cmode = Game_screen_mode, casp = Game_screen_mode;
+
+		if (!strchr(crestext, 'x'))
 			return;
 
-		screen_mode = SM(atoi(customres), atoi(strchr(customres, 'x')+1));
-		if (SM_W(screen_mode) < 320 || SM_H(screen_mode) < 200) // oh oh - the resolution is too small. Revert!
+		cmode = SM(atoi(crestext), atoi(strchr(crestext, 'x')+1));
+		if (SM_W(cmode) < 320 || SM_H(cmode) < 200) // oh oh - the resolution is too small. Revert!
 		{
 			nm_messagebox( TXT_WARNING, 1, "OK", "Entered resolution is too small.\nReverting ..." );
-			return;
+			cmode = new_mode;
 		}
-		if (strchr(aspect, 'x')) // we even have a custom aspect set up
-		{
-			aspect_mode = SM(atoi(aspect), atoi(strchr(aspect, 'x')+1));
-			GameCfg.AspectY = SM_W(aspect_mode)/gcd(SM_W(aspect_mode),SM_H(aspect_mode));
-			GameCfg.AspectX = SM_H(aspect_mode)/gcd(SM_W(aspect_mode),SM_H(aspect_mode));
-		}
-	}
-	else // a preset field is selected - set screen_mode and aspect
-	{
-		screen_mode = modes[i];
-		GameCfg.AspectY = SM_W(screen_mode)/gcd(SM_W(screen_mode),SM_H(screen_mode));
-		GameCfg.AspectX = SM_H(screen_mode)/gcd(SM_W(screen_mode),SM_H(screen_mode));
-	}
 
+		casp = cmode;
+		if (strchr(casptext, 'x')) // we even have a custom aspect set up
+		{
+			casp = SM(atoi(casptext), atoi(strchr(casptext, 'x')+1));
+		}
+		GameCfg.AspectY = SM_W(casp)/gcd(SM_W(casp),SM_H(casp));
+		GameCfg.AspectX = SM_H(casp)/gcd(SM_W(casp),SM_H(casp));
+		new_mode = cmode;
+	}
+	else if (i >= 0 && i < num_presets) // set preset resolution
+	{
+		new_mode = modes[i];
+		GameCfg.AspectY = SM_W(new_mode)/gcd(SM_W(new_mode),SM_H(new_mode));
+		GameCfg.AspectX = SM_H(new_mode)/gcd(SM_W(new_mode),SM_H(new_mode));
+	}
 
 	// clean up and apply everything
 	newmenu_close();
 	set_screen_mode(SCREEN_MENU);
-	Game_screen_mode = screen_mode;
-	gr_set_mode(Game_screen_mode);
+	if (new_mode != Game_screen_mode)
+		gr_set_mode(new_mode);
+	Game_screen_mode = new_mode;
 	init_cockpit();
-	game_init_render_buffers(SM_W(screen_mode), SM_H(screen_mode), VR_NONE);
+	game_init_render_buffers(SM_W(Game_screen_mode), SM_H(Game_screen_mode), VR_NONE);
+	}
 }
 
 int input_menuset(newmenu *menu, d_event *event, void *userdata)

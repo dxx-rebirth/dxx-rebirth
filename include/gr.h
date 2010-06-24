@@ -147,6 +147,7 @@ typedef struct _grs_screen {    // This is a video screen
 
 int gr_init(int mode);
 
+int gr_list_modes( u_int32_t gsmodes[] );
 int gr_check_mode(u_int32_t mode);
 int gr_set_mode(u_int32_t mode);
 void gr_set_attributes(void);
