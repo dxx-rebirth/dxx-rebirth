@@ -104,7 +104,7 @@ void gr_do_fullscreen(int f)
 			cury=480;
 			Game_screen_mode=SM(curx,cury);
 		}
-	
+
 		ogl_init_window(curx,cury);
 	}
 }
@@ -196,13 +196,46 @@ void ogl_get_verinfo(void)
 #endif
 }
 
+// returns possible (fullscreen) resolutions if any.
+int gr_list_modes( u_int32_t gsmodes[] )
+{
+	SDL_Rect** modes;
+	int i = 0, modesnum = 0;
+	int sdl_check_flags = SDL_OPENGL | SDL_FULLSCREEN; // always use Fullscreen as lead.
+
+	modes = SDL_ListModes(NULL, sdl_check_flags);
+
+	if (modes == (SDL_Rect**)0) // check if we get any modes - if not, return 0
+		return 0;
+
+
+	if (modes == (SDL_Rect**)-1)
+	{
+		return 0; // can obviously use any resolution... strange!
+	}
+	else
+	{
+		for (i = 0; modes[i]; ++i)
+		{
+			if (modes[i]->w > 0xFFFF || modes[i]->h > 0xFFFF // resolutions saved in 32bits. so skip bigger ones (unrealistic in 2010)
+				|| modes[i]->w < 320 || modes[i]->h < 200) // also skip everything smaller than 320x200
+				continue;
+			gsmodes[modesnum] = SM(modes[i]->w,modes[i]->h);
+			modesnum++;
+			if (modesnum >= 50) // that really seems to be enough big boy.
+				break;
+		}
+		return modesnum;
+	}
+}
+
 int gr_check_mode(u_int32_t mode)
 {
 	unsigned int w, h;
-	
+
 	w=SM_W(mode);
 	h=SM_H(mode);
-	
+
 	return SDL_VideoModeOK(w, h, GameArg.DbgBpp, SDL_OPENGL | (ogl_fullscreen?SDL_FULLSCREEN:0));
 }
 
@@ -245,7 +278,7 @@ int gr_set_mode(u_int32_t mode)
 	OGL_VIEWPORT(0,0,w,h);
 	ogl_init_state();
 	gamefont_choose_game_font(w,h);
-	
+
 	return 0;
 }
 
@@ -385,7 +418,7 @@ int gr_init(int mode)
 	ogl_init_pixel_buffers(256, 128);       // for gamefont_init
 
 	gr_installed = 1;
-	
+
 	return 0;
 }
 
@@ -428,7 +461,7 @@ void ogl_urect(int left,int top,int right,int bot)
 {
 	GLfloat xo,yo,xf,yf;
 	int c=COLOR;
-	
+
 	xo=(left+grd_curcanv->cv_bitmap.bm_x)/(float)last_width;
 	xf = (right + 1 + grd_curcanv->cv_bitmap.bm_x) / (float)last_width;
 	yo=1.0-(top+grd_curcanv->cv_bitmap.bm_y)/(float)last_height;
@@ -486,7 +519,7 @@ void ogl_do_palfx(void)
 	glVertex2f(1,1);
 	glVertex2f(1,0);
 	glEnd();
-	glEnable(GL_BLEND);	
+	glEnable(GL_BLEND);
 	glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
 }
 
@@ -609,7 +642,7 @@ void save_screen_shot(int automap_flag)
 	static int savenum=0;
 	char savename[13+sizeof(SCRNS_DIR)];
 	unsigned char *buf;
-	
+
 	if (!GameArg.DbgGlReadPixelsOk){
 		if (!automap_flag)
 			hud_message(MSGC_GAME_FEEDBACK,"glReadPixels not supported on your configuration");

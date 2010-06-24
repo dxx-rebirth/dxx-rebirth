@@ -30,7 +30,7 @@ void gr_flip()
 	dest.x = src.x = dest.y = src.y = 0;
 	dest.w = src.w = canvas->w;
 	dest.h = src.h = canvas->h;
-	
+
 	SDL_BlitSurface(canvas, &src, screen, &dest);
 	SDL_Flip(screen);
 }
@@ -40,6 +40,41 @@ void gr_flip()
 void gr_set_draw_buffer(int buf)
 {
 	buf = buf;
+}
+
+// returns possible (fullscreen) resolutions if any.
+int gr_list_modes( u_int32_t gsmodes[] )
+{
+	SDL_Rect** modes;
+	int i = 0, modesnum = 0;
+	int sdl_check_flags = sdl_video_flags;
+
+	sdl_check_flags |= SDL_FULLSCREEN; // always use Fullscreen as lead.
+
+	modes = SDL_ListModes(NULL, sdl_check_flags);
+
+	if (modes == (SDL_Rect**)0) // check if we get any modes - if not, return 0
+		return 0;
+
+
+	if (modes == (SDL_Rect**)-1)
+	{
+		return 0; // can obviously use any resolution... strange!
+	}
+	else
+	{
+		for (i = 0; modes[i]; ++i)
+		{
+			if (modes[i]->w > 0xFFFF || modes[i]->h > 0xFFFF // resolutions saved in 32bits. so skip bigger ones (unrealistic in 2010)
+				|| modes[i]->w < 320 || modes[i]->h < 200) // also skip everything smaller than 320x200
+				continue;
+			gsmodes[modesnum] = SM(modes[i]->w,modes[i]->h);
+			modesnum++;
+			if (modesnum >= 50) // that really seems to be enough big boy.
+				break;
+		}
+		return modesnum;
+	}
 }
 
 int gr_check_mode(u_int32_t mode)
@@ -191,7 +226,7 @@ void gr_palette_step_up( int r, int g, int b )
 	int temp;
 	SDL_Palette *palette;
 	SDL_Color colors[256];
-	
+
 	if ( (r==last_r) && (g==last_g) && (b==last_b) )
 		return;
 
@@ -238,7 +273,7 @@ void gr_palette_step_up( int r, int g, int b )
 #undef min
 static inline int min(int x, int y) { return x < y ? x : y; }
 
-void gr_palette_load( ubyte *pal )	
+void gr_palette_load( ubyte *pal )
 {
 	int i, j;
 	SDL_Palette *palette;
