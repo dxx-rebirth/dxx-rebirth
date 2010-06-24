@@ -3,6 +3,7 @@ D2X-Rebirth Changelog
 20100624
 --------
 arch/ogl/gr.c, arch/sdl/gr.c, include/gr.h, main/menu.c: Added function to list valid resolutions and build resolutions menu dynamically with the resulting list
+main/gamecntl.c: When inregulary exiting a level by warp cheat, set canvas to NULL so cockpit canvas will not apply furthermore
 
 20100623
 --------
