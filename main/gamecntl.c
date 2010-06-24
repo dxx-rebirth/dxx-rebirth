@@ -1103,7 +1103,10 @@ void FinalCheats(int key)
 				if (item != -1) {
 					new_level_num = atoi(m.text);
 					if (new_level_num!=0 && new_level_num>=0 && new_level_num<=Last_level)
+					{
+						gr_set_current_canvas(NULL); // get out of cockpit canvas
 						StartNewLevel(new_level_num);
+					}
 				}
 
 				cheat_warp_index = 0;
