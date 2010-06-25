@@ -696,6 +696,47 @@ int HandleGameKey(int key)
 	return 1;
 }
 
+//	--------------------------------------------------------------------------
+//	Detonate reactor.
+//	Award player all powerups in mine.
+//	Place player just outside exit.
+//	Kill all bots in mine.
+//	Yippee!!
+void kill_and_so_forth(void)
+{
+	int     i, j;
+
+	HUD_init_message("Killing, awarding, etc.!");
+
+	for (i=0; i<=Highest_object_index; i++) {
+		switch (Objects[i].type) {
+			case OBJ_ROBOT:
+				Objects[i].flags |= OF_EXPLODING|OF_SHOULD_BE_DEAD;
+				break;
+			case OBJ_POWERUP:
+				do_powerup(&Objects[i]);
+				break;
+		}
+	}
+
+	do_controlcen_destroyed_stuff(NULL);
+
+	for (i=0; i<Num_triggers; i++) {
+		if (Triggers[i].flags == TRIGGER_EXIT) {
+			for (j=0; j<Num_walls; j++) {
+				if (Walls[j].trigger == i) {
+					compute_segment_center(&ConsoleObject->pos, &Segments[Walls[j].segnum]);
+					obj_relink(ConsoleObject-Objects,Walls[j].segnum);
+					goto kasf_done;
+				}
+			}
+		}
+	}
+
+kasf_done: ;
+
+}
+
 #ifndef RELEASE
 int HandleTestKey(int key)
 {
@@ -867,7 +908,12 @@ int HandleTestKey(int key)
 		case KEY_DEBUGGED+KEY_ALTED+KEY_F5:
 			GameTime = i2f(0x7fff - 840);		//will overflow in 14 minutes
 			break;
+		case KEY_DEBUGGED+KEY_SHIFTED+KEY_B:
+			if (Player_is_dead)
+				return 0;
 
+			kill_and_so_forth();
+			break;
 		case KEY_DEBUGGED+KEY_G:
 			GameTime = i2f(0x7fff - 600) - (F1_0*10);
 			HUD_init_message("GameTime %i - Reset in 10 seconds!", GameTime);

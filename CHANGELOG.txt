@@ -1,5 +1,9 @@
 D1X-Rebirth Changelog
 
+20100625
+--------
+main/gamecntl.c: Implemented kill_and_so_forth via DEL+SHIFT+B for easier debugging
+
 20100624
 --------
 arch/ogl/gr.c, arch/sdl/gr.c, include/gr.h, main/menu.c: Added function to list valid resolutions and build resolutions menu dynamically with the resulting list
