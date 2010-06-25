@@ -620,7 +620,7 @@ void put_char_delay(briefing *br, int ch)
 	gr_get_string_size(str, &w, &h, &aw );
 	br->text_x += w;
 
-	if (!br->chattering && br->flashing_cursor) {
+	if (!br->chattering) {
 		br->printing_channel  = digi_start_sound( digi_xlat_sound(SOUND_BRIEFING_PRINTING), F1_0, 0xFFFF/2, 1, -1, -1, -1 );
 		br->chattering=1;
 	}
