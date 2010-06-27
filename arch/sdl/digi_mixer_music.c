@@ -70,8 +70,11 @@ void convert_hmp(char *filename, char *mid_filename)
 
 int mix_play_file(char *filename, int loop, void (*hook_finished_track)())
 {
+	SDL_RWops *rw = NULL;
+	PHYSFS_file *filehandle = NULL;
 	char tmp_file[PATH_MAX], real_filename[PATH_MAX], real_filename_absolute[PATH_MAX];
-	char *basedir = "music", *fptr;
+	char *basedir = "music", *fptr, *buf = NULL;
+	int bufsize = 0;
 
 	mix_free_music();	// stop and free what we're already playing, if anything
 
@@ -98,33 +101,14 @@ int mix_play_file(char *filename, int loop, void (*hook_finished_track)())
 
 	loop = loop ? -1 : 1;	// loop means loop infinitely, otherwise play once
 
-	current_music = Mix_LoadMUS(real_filename);
-
-	// Could not open the file, yet. Try to get absolute path.
-	if (!current_music)
+	filehandle = PHYSFS_openRead(real_filename);
+	if (filehandle != NULL)
 	{
-		PHYSFSX_getRealPath(real_filename, real_filename_absolute);
-		current_music = Mix_LoadMUS(real_filename_absolute);
-	}
-
-	// Still no luck. Maybe the music is stored in an archive. Try that.
-	// NOTE: This method should basically always work - making the above steps unnecessary. But for now it stays the last resort for the sake of memory swallowed by 'buf'.
-	if (!current_music)
-	{
-		SDL_RWops *rw = NULL;
-		PHYSFS_file *filehandle = NULL;
-		char *buf = NULL;
-		int bufsize = 0;
-
-		filehandle = PHYSFS_openRead(real_filename);
-		if (filehandle != NULL)
-		{
-			buf = realloc(buf, sizeof(char *)*PHYSFS_fileLength(filehandle));
-			bufsize = PHYSFS_read(filehandle, buf, sizeof(char), PHYSFS_fileLength(filehandle));
-			rw = SDL_RWFromConstMem(buf,bufsize*sizeof(char));
-			PHYSFS_close(filehandle);
-			current_music = Mix_LoadMUS_RW(rw);
-		}
+		buf = realloc(buf, sizeof(char *)*PHYSFS_fileLength(filehandle));
+		bufsize = PHYSFS_read(filehandle, buf, sizeof(char), PHYSFS_fileLength(filehandle));
+		rw = SDL_RWFromConstMem(buf,bufsize*sizeof(char));
+		PHYSFS_close(filehandle);
+		current_music = Mix_LoadMUS_RW(rw);
 	}
 
 	if (current_music)
