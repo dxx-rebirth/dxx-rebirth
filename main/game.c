@@ -454,7 +454,6 @@ void FixedStepCalc()
 
 void reset_time()
 {
-	GameTime = Next_flare_fire_time = Last_laser_fired_time = Next_laser_fire_time = Next_missile_fire_time = 0;
 	last_timer_value = timer_get_fixed_seconds();
 }
 

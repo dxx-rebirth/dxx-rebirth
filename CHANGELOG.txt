@@ -1,5 +1,9 @@
 D1X-Rebirth Changelog
 
+20100627
+--------
+main/game.c, main/game.h, main/gameseq.c: When starting, leaving or changing a level in any way, use more ordered approach to set Game_wind visible or invisible. Fixing timer-issues after level-change and makes hiding of Game_wind obsolete for certain messageboxes; Moved GameTime and weapon timer variables out of reset_time since this function is not appropriate for this and is not needed between levels anymore due to window management handling start/stop_time properly
+
 20100625
 --------
 main/gamecntl.c: Implemented kill_and_so_forth via DEL+SHIFT+B for easier debugging

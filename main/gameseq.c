@@ -338,7 +338,7 @@ void init_player_stats_level()
 	Player_is_dead = 0; // Added by RH
 	Players[Player_num].homing_object_dist = -F1_0; // Added by RH
 
-	Last_laser_fired_time = Next_laser_fire_time = GameTime; // added by RH, solved demo playback bug
+	Next_flare_fire_time = Last_laser_fired_time = Next_laser_fire_time = Next_missile_fire_time = GameTime; // added by RH, solved demo playback bug
 
 	init_gauges();
 }
@@ -687,7 +687,9 @@ void LoadLevel(int level_num)
 	gr_use_palette_table( "palette.256" );
 
 	show_boxed_message(TXT_LOADING, 0);
-	timer_delay2(1);
+#ifdef RELEASE
+	timer_delay(F1_0);
+#endif
 
 	#ifdef NETWORK
 	my_segments_checksum = netmisc_calc_checksum(Segments, sizeof(segment)*(Highest_segment_index+1));
@@ -878,6 +880,9 @@ void PlayerFinishedLevel(int secret_flag)
 	int	rval;
 	int 	was_multi = 0;
 
+	if (Game_wind)
+		window_set_visible(Game_wind, 0);
+
 	//credit the player for hostages
 	Players[Player_num].hostages_rescued_total += Players[Player_num].hostages_on_board;
 
@@ -939,6 +944,9 @@ void PlayerFinishedLevel(int secret_flag)
 	}
 	else if (rval && Game_wind)
 		window_close(Game_wind);
+
+	if (Game_wind)
+		window_set_visible(Game_wind, 1);
 }
 
 
@@ -950,14 +958,11 @@ void PlayerFinishedLevel(int secret_flag)
 //	Return true if game over.
 int AdvanceLevel(int secret_flag)
 {
-	window_set_visible(Game_wind, 0);	// suspend the game, including drawing
-
 	Control_center_destroyed = 0;
 
 	#ifdef EDITOR
 	if (PLAYING_BUILTIN_MISSION)
 	{
-		window_set_visible(Game_wind, 1);
 		return 0;		//not a real level
 	}
 	#endif
@@ -971,9 +976,6 @@ int AdvanceLevel(int secret_flag)
 		result = multi_endlevel(&secret_flag); // Wait for other players to reach this point
 		if (result) // failed to sync
 		{
-			if (Game_wind)
-				window_set_visible(Game_wind, 1);
-
 			return (Current_level_num == Last_level);
 		}
 	}
@@ -1021,9 +1023,6 @@ int AdvanceLevel(int secret_flag)
 
 	key_flush();
 
-	if (Game_wind)
-		window_set_visible(Game_wind, 1);
-
 	return 0;
 }
 
@@ -1037,14 +1036,15 @@ died_in_mine_message(void)
 		return;
 
 	gr_set_current_canvas(NULL);
-	window_set_visible(Game_wind, 0);
-
 	nm_messagebox(NULL, 1, TXT_OK, TXT_DIED_IN_MINE);
 }
 
 //called when the player has died
 void DoPlayerDead()
 {
+	if (Game_wind)
+		window_set_visible(Game_wind, 0);
+
 	reset_palette_add();
 
 	gr_palette_load (gr_palette);
@@ -1137,6 +1137,8 @@ void DoPlayerDead()
 		StartLevel(1);
 	}
 
+	if (Game_wind)
+		window_set_visible(Game_wind, 1);
 }
 
 //called when the player is starting a new level for normal game mode and restore state
@@ -1261,6 +1263,8 @@ void StartNewLevelSub(int level_num, int page_in_textures)
 void StartNewLevel(int level_num)
 {
 	hide_menus();
+
+	GameTime = 0;
 
 	load_custom_data(get_level_file(level_num));
 
@@ -1390,7 +1394,7 @@ void StartLevel(int random)
 
 	ai_reset_all_paths();
 	ai_init_boss_for_ship();
-	reset_time();
+	// reset_time(); Time is stopped and should be resumed soon. You shall be obsolete!
 
 	reset_rear_view();
 	Auto_fire_fusion_cannon_time = 0;
