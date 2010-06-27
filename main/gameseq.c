@@ -391,7 +391,7 @@ void init_player_stats_level(int secret_flag)
 	Player_is_dead = 0; // Added by RH
 	Players[Player_num].homing_object_dist = -F1_0; // Added by RH
 
-	Last_laser_fired_time = Next_laser_fire_time = GameTime; // added by RH, solved demo playback bug
+	Next_flare_fire_time = Last_laser_fired_time = Next_laser_fire_time = Next_missile_fire_time = GameTime; // added by RH, solved demo playback bug
 
 	Controls.afterburner_state = 0;
 	Last_afterburner_state = 0;
@@ -791,7 +791,9 @@ void LoadLevel(int level_num,int page_in_textures)
 	load_palette(Current_level_palette,1,1);		//don't change screen
 
 	show_boxed_message(TXT_LOADING, 0);
-	timer_delay2(1);
+#ifdef RELEASE
+	timer_delay(F1_0);
+#endif
 
 	load_endlevel_data(level_num);
 
@@ -1028,12 +1030,7 @@ int p_secret_level_destroyed(void)
 //	-----------------------------------------------------------------------------------------------------
 void do_secret_message(char *msg)
 {
-	int	old_vis;
-
-	old_vis = window_is_visible(Game_wind);
-	window_set_visible(Game_wind, 0);
 	nm_messagebox(NULL, 1, TXT_OK, msg);
-	window_set_visible(Game_wind, old_vis);
 }
 
 //	-----------------------------------------------------------------------------------------------------
@@ -1155,6 +1152,9 @@ void ExitSecretLevel(void)
 	if (Newdemo_state == ND_STATE_PLAYBACK)
 		return;
 
+	if (Game_wind)
+		window_set_visible(Game_wind, 0);
+
 	if (!Control_center_destroyed) {
 		state_save_all(0, 2, SECRETC_FILENAME, 0);
 	}
@@ -1178,6 +1178,9 @@ void ExitSecretLevel(void)
 			StartNewLevel(Entered_from_level+1, 0);
 		}
 	}
+
+	if (Game_wind)
+		window_set_visible(Game_wind, 1);
 }
 
 // ---------------------------------------------------------------------------------------------------------------
@@ -1210,6 +1213,9 @@ void EnterSecretLevel(void)
 	int	i;
 
 	Assert(! (Game_mode & GM_MULTI) );
+
+	if (Game_wind)
+		window_set_visible(Game_wind, 0);
 
 	Entered_from_level = Current_level_num;
 
@@ -1246,12 +1252,17 @@ void EnterSecretLevel(void)
 	// END NMN
 
 	// do_cloak_invul_stuff();
+	if (Game_wind)
+		window_set_visible(Game_wind, 1);
 }
 
 //called when the player has finished a level
 void PlayerFinishedLevel(int secret_flag)
 {
 	Assert(!secret_flag);
+
+	if (Game_wind)
+		window_set_visible(Game_wind, 0);
 
 	//credit the player for hostages
 	Players[Player_num].hostages_rescued_total += Players[Player_num].hostages_on_board;
@@ -1262,6 +1273,9 @@ void PlayerFinishedLevel(int secret_flag)
 	last_drawn_cockpit = -1;
 
 	AdvanceLevel(secret_flag);				//now go on to the next one (if one)
+
+	if (Game_wind)
+		window_set_visible(Game_wind, 1);
 }
 
 #if defined(D2_OEM) || defined(COMPILATION)
@@ -1348,8 +1362,6 @@ void AdvanceLevel(int secret_flag)
 
 	Assert(!secret_flag);
 
-	window_set_visible(Game_wind, 0);	// suspend the game, including drawing
-
 	if (Current_level_num != Last_level) {
 #ifdef NETWORK
 		if (Game_mode & GM_MULTI)
@@ -1365,7 +1377,6 @@ void AdvanceLevel(int secret_flag)
 	#ifdef EDITOR
 	if (Current_level_num == 0)
 	{
-		window_set_visible(Game_wind, 1);
 		return;		//not a real level
 	}
 	#endif
@@ -1378,9 +1389,6 @@ void AdvanceLevel(int secret_flag)
 			if (Current_level_num == Last_level)		//player has finished the game!
 				if (Game_wind)
 					window_close(Game_wind);		// Exit out of game loop
-
-			if (Game_wind)
-				window_set_visible(Game_wind, 1);
 
 			return;
 		}
@@ -1405,57 +1413,39 @@ void AdvanceLevel(int secret_flag)
 		StartNewLevel(Next_level_num, 0);
 
 	}
-
-	if (Game_wind)
-		window_set_visible(Game_wind, 1);
 }
 
 void
 died_in_mine_message(void)
 {
 	// Tell the player he died in the mine, explain why
-	int old_vis;
 
 	if (Game_mode & GM_MULTI)
 		return;
 
 	set_screen_mode(SCREEN_MENU);		//go into menu mode
-
 	gr_set_current_canvas(NULL);
-
-	old_vis = window_is_visible(Game_wind);
-	window_set_visible(Game_wind, 0);
 	nm_messagebox(NULL, 1, TXT_OK, TXT_DIED_IN_MINE);
-	window_set_visible(Game_wind, old_vis);
 }
 
-//	Called when player dies on secret level.
+//	Called when player leaves secret level (alive or dead).
 void returning_to_level_message(void)
 {
 	char	msg[128];
 
-	int old_vis;
-
 	if (Game_mode & GM_MULTI)
 		return;
 
 	set_screen_mode(SCREEN_MENU);		//go into menu mode
-
 	gr_set_current_canvas(NULL);
-
-	old_vis = window_is_visible(Game_wind);
-	window_set_visible(Game_wind, 0);
 	sprintf(msg, "Returning to level %i", Entered_from_level);
 	nm_messagebox(NULL, 1, TXT_OK, msg);
-	window_set_visible(Game_wind, old_vis);
 }
 
 //	Called when player dies on secret level.
 void advancing_to_level_message(void)
 {
 	char	msg[128];
-
-	int old_vis;
 
 	//	Only supposed to come here from a secret level.
 	Assert(Current_level_num < 0);
@@ -1464,20 +1454,18 @@ void advancing_to_level_message(void)
 		return;
 
 	set_screen_mode(SCREEN_MENU);		//go into menu mode
-
 	gr_set_current_canvas(NULL);
-
-	old_vis = window_is_visible(Game_wind);
-	window_set_visible(Game_wind, 0);
 	sprintf(msg, "Base level destroyed.\nAdvancing to level %i", Entered_from_level+1);
 	nm_messagebox(NULL, 1, TXT_OK, msg);
-	window_set_visible(Game_wind, old_vis);
 }
 
 void digi_stop_digi_sounds();
 
 void DoPlayerDead()
 {
+	if (Game_wind)
+		window_set_visible(Game_wind, 0);
+
 	reset_palette_add();
 
 	gr_palette_load (gr_palette);
@@ -1574,6 +1562,9 @@ void DoPlayerDead()
 	}
 
 	digi_sync_sounds();
+
+	if (Game_wind)
+		window_set_visible(Game_wind, 1);
 }
 
 extern int BigWindowSwitch;
@@ -1826,6 +1817,7 @@ void StartNewLevel(int level_num, int secret_flag)
 {
 	hide_menus();
 
+	GameTime = 0;
 	ThisLevelTime=0;
 
 	if ((level_num > 0) && (!secret_flag)) {
@@ -1990,7 +1982,7 @@ void StartLevel(int random_flag)
 	init_ai_objects();
 	#endif
 
-	reset_time();
+	// reset_time(); Time is stopped and should be resumed soon. You shall be obsolete!
 
 	reset_rear_view();
 	Auto_fire_fusion_cannon_time = 0;

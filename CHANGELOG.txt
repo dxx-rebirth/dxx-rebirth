@@ -1,5 +1,13 @@
 D2X-Rebirth Changelog
 
+20100627
+--------
+main/game.c, main/game.h, main/gameseq.c: When starting, leaving or changing a level in any way, use more ordered approach to set Game_wind visible or invisible. Fixing timer-issues after level-change and makes hiding of Game_wind obsolete for certain messageboxes; Moved GameTime and weapon timer variables out of reset_time since this function is not appropriate for this and is not needed between levels anymore due to window management handling start/stop_time properly
+
+20100625
+--------
+main/titles.c: Made Briefing printing sound apply everytime there is chattering enabled. Even if it would be logical to have it only with flashing cursor, most briefings - even Counterstrike - forget to toggle it correctly
+
 20100624
 --------
 arch/ogl/gr.c, arch/sdl/gr.c, include/gr.h, main/menu.c: Added function to list valid resolutions and build resolutions menu dynamically with the resulting list
