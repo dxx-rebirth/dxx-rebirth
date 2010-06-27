@@ -3,6 +3,7 @@ D2X-Rebirth Changelog
 20100627
 --------
 main/game.c, main/game.h, main/gameseq.c: When starting, leaving or changing a level in any way, use more ordered approach to set Game_wind visible or invisible. Fixing timer-issues after level-change and makes hiding of Game_wind obsolete for certain messageboxes; Moved GameTime and weapon timer variables out of reset_time since this function is not appropriate for this and is not needed between levels anymore due to window management handling start/stop_time properly
+arch/sdl/digi_mixer_music.c, main/jukebox.c: For playing music over SDL_mixer always use handle over PhysFS to save the path building mess; When building Jukebox path, only try to build full path if given path is actually a child of Searchpath
 
 20100625
 --------

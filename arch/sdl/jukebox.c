@@ -60,32 +60,25 @@ void jukebox_load()
 		char *p;
 		const char *sep = PHYSFS_getDirSeparator();
 
-		// make sure there's a proper path separator.
+		// build path properly.
 		if (strlen(GameCfg.CMLevelMusicPath) >= strlen(sep))
 		{
+			char abspath[PATH_MAX+1];
+
 			p = GameCfg.CMLevelMusicPath + strlen(GameCfg.CMLevelMusicPath) - strlen(sep);
 			if (strcmp(p, sep))
 				strncat(GameCfg.CMLevelMusicPath, sep, PATH_MAX - 1 - strlen(GameCfg.CMLevelMusicPath));
+
+			if (PHYSFS_isDirectory(GameCfg.CMLevelMusicPath)) // it's a child of Sharepath, build full path
+			{
+				PHYSFSX_getRealPath(GameCfg.CMLevelMusicPath,abspath);
+				snprintf(GameCfg.CMLevelMusicPath,sizeof(char)*PATH_MAX,abspath);
+			}
 		}
 
 		PHYSFS_addToSearchPath(GameCfg.CMLevelMusicPath, 0);
 		// as mountpoints are no option (yet), make sure only files originating from GameCfg.CMLevelMusicPath are aded to the list.
 		JukeboxSongs = PHYSFSX_findabsoluteFiles("", GameCfg.CMLevelMusicPath, music_exts);
-
-		// If we do not find anything, try to see if given path is child of Searchpath
-		if (JukeboxSongs != NULL)
-		{
-			for (count = 0; JukeboxSongs[count]!=NULL; count++) {}
-			if (!count)
-			{
-				char absolute_path[PATH_MAX + 1];
-				PHYSFS_removeFromSearchPath(GameCfg.CMLevelMusicPath);
-				PHYSFSX_getRealPath(GameCfg.CMLevelMusicPath,absolute_path);
-				memcpy(GameCfg.CMLevelMusicPath,absolute_path,sizeof(char)*PATH_MAX);
-				PHYSFS_addToSearchPath(GameCfg.CMLevelMusicPath, 0);
-				JukeboxSongs = PHYSFSX_findabsoluteFiles("", GameCfg.CMLevelMusicPath, music_exts);
-			}
-		}
 
 		if (JukeboxSongs != NULL)
 		{
