@@ -162,6 +162,8 @@ void udp_close_socket(int socknum)
 // Open socket
 int udp_open_socket(int socknum, int port)
 {
+	int bcast = 1;
+
 	// close stale socket
 	if( UDP_Socket[socknum] != -1 )
 		udp_close_socket(socknum);
@@ -268,6 +270,7 @@ int udp_open_socket(int socknum, int port)
 		nm_messagebox(TXT_ERROR,1,TXT_OK,"Could not get address information:\n%s",gai_strerror (err));
 	}
 #endif
+	setsockopt( UDP_Socket[socknum], SOL_SOCKET, SO_BROADCAST, &bcast, sizeof(bcast) );
 
 	return 0;
 	}
@@ -1561,7 +1564,7 @@ void net_udp_request_game_info(struct _sockaddr game_addr, int lite)
 {
 	ubyte buf[UPKT_GAME_INFO_REQ_SIZE];
 	
-	buf[0] = (lite?UPID_GAME_INFO_LITE:UPID_GAME_INFO_REQ);
+	buf[0] = (lite?UPID_GAME_INFO_LITE_REQ:UPID_GAME_INFO_REQ);
 	memcpy(&(buf[1]), UDP_REQ_ID, 4);
 	PUT_INTEL_SHORT(buf + 5, D1XMAJORi);
 	PUT_INTEL_SHORT(buf + 7, D1XMINORi);
@@ -1785,9 +1788,9 @@ void net_udp_process_game_info(ubyte *data, int data_len, struct _sockaddr game_
 			
 		memcpy(&recv_game, &game_addr, sizeof(struct _sockaddr));
 																				len++; // skip UPID byte
-		Netgame.protocol.udp.program_iver[0] = GET_INTEL_SHORT(&(data[len]));	len += 2;
-		Netgame.protocol.udp.program_iver[1] = GET_INTEL_SHORT(&(data[len]));	len += 2;
-		Netgame.protocol.udp.program_iver[2] = GET_INTEL_SHORT(&(data[len]));	len += 2;
+		recv_game.program_iver[0] = GET_INTEL_SHORT(&(data[len]));				len += 2;
+		recv_game.program_iver[1] = GET_INTEL_SHORT(&(data[len]));				len += 2;
+		recv_game.program_iver[2] = GET_INTEL_SHORT(&(data[len]));				len += 2;
 		
 		if ((recv_game.program_iver[0] != D1XMAJORi) || (recv_game.program_iver[1] != D1XMINORi) || (recv_game.program_iver[2] != D1XMICROi))
 			return;
