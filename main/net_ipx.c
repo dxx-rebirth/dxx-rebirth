@@ -3997,8 +3997,7 @@ int net_ipx_request_poll( newmenu *menu, d_event *event, void *userdata )
 	return 0;
 }
 
-void
-net_ipx_wait_for_requests(void)
+int net_ipx_wait_for_requests(void)
 {
 	// Wait for other players to load the level before we send the sync
 	int choice, i;
@@ -4023,7 +4022,7 @@ menu:
 		choice = nm_messagebox(NULL, 3, TXT_YES, TXT_NO, TXT_START_NOWAIT, TXT_QUITTING_NOW);
 		if (choice == 2) {
 			N_players = 1;
-			return;
+			return 0;
 		}
 		if (choice != 0)
 			goto menu;
@@ -4035,18 +4034,19 @@ menu:
 				net_ipx_dump_player(Netgame.players[i].protocol.ipx.server, Netgame.players[i].protocol.ipx.node, DUMP_ABORTED);
 			}
 		}
-		if (Game_wind)
-			window_close(Game_wind);
+		return -1;
 	}
 	else if (choice != -2)
 		goto menu;
+
+	return 0;
 }
 
 /* Do required syncing after each level, before starting new one */
 int
 net_ipx_level_sync(void)
 {
-	int result;
+	int result = 0;
 
 	MySyncPackInitialized = 0;
 
@@ -4056,9 +4056,9 @@ net_ipx_level_sync(void)
 		result = net_ipx_wait_for_sync();
 	else if (multi_i_am_master())
 	{
-		net_ipx_wait_for_requests();
-		net_ipx_send_sync();
-		result = 0;
+		result = net_ipx_wait_for_requests();
+		if (!result)
+			net_ipx_send_sync();
 	}
 	else
 		result = net_ipx_wait_for_sync();
@@ -4071,6 +4071,8 @@ net_ipx_level_sync(void)
 		net_ipx_send_endlevel_packet();
 		if (Game_wind)
 			window_close(Game_wind);
+		show_menus();
+		return -1;
 	}
 	return(0);
 }

@@ -2362,6 +2362,8 @@ void net_udp_process_packet(ubyte *data, struct _sockaddr sender_addr, int lengt
 			break;
 		}
 		case UPID_GAME_INFO:
+			if (multi_i_am_master())
+				break;
 			net_udp_process_game_info(data, length, sender_addr, 0);
 			// FIXME: Check if this cannot be solved different.
 			if (Game_mode & GM_TEAM)
@@ -3334,7 +3336,7 @@ void net_udp_read_sync_packet( ubyte * data, int data_len, struct _sockaddr send
 	multi_sort_kill_list();
 }
 
-void net_udp_send_sync(void)
+int net_udp_send_sync(void)
 {
 	int i, j, np;
 
@@ -3350,9 +3352,7 @@ void net_udp_send_sync(void)
 			net_udp_send_game_info(Netgame.players[i].protocol.udp.addr, UPID_GAME_INFO);
 		}
 		net_udp_send_game_info(GBcast, UPID_GAME_INFO_LITE);
-		if (Game_wind)
-			window_close(Game_wind);
-		return;
+		return -1;
 	}
 
 	// Randomize their starting locations...
@@ -3397,6 +3397,7 @@ void net_udp_send_sync(void)
 	}
 
 	net_udp_read_sync_packet(NULL, 0, Netgame.players[0].protocol.udp.addr); // Read it myself, as if I had sent it
+	return 0;
 }
 
 int
@@ -3715,8 +3716,7 @@ int net_udp_request_poll( newmenu *menu, d_event *event, void *userdata )
 	return 0;
 }
 
-void
-net_udp_wait_for_requests(void)
+int net_udp_wait_for_requests(void)
 {
 	// Wait for other players to load the level before we send the sync
 	int choice, i;
@@ -3741,7 +3741,7 @@ menu:
 		choice = nm_messagebox(NULL, 3, TXT_YES, TXT_NO, TXT_START_NOWAIT, TXT_QUITTING_NOW);
 		if (choice == 2) {
 			N_players = 1;
-			return;
+			return 0;
 		}
 		if (choice != 0)
 			goto menu;
@@ -3753,18 +3753,19 @@ menu:
 				net_udp_dump_player(Netgame.players[i].protocol.udp.addr, DUMP_ABORTED);
 			}
 		}
-		if (Game_wind)
-			window_close(Game_wind);
+		return -1;
 	}
 	else if (choice != -2)
 		goto menu;
+
+	return 0;
 }
 
 /* Do required syncing after each level, before starting new one */
 int
 net_udp_level_sync(void)
 {
-	int result;
+	int result = 0;
 
 	memset(&UDP_MData, 0, sizeof(UDP_mdata_info));
 	net_udp_noloss_init_mdata_queue();
@@ -3775,9 +3776,9 @@ net_udp_level_sync(void)
 		result = net_udp_wait_for_sync();
 	else if (multi_i_am_master())
 	{
-		net_udp_wait_for_requests();
-		net_udp_send_sync();
-		result = 0;
+		result = net_udp_wait_for_requests();
+		if (!result)
+			result = net_udp_send_sync();
 	}
 	else
 		result = net_udp_wait_for_sync();
@@ -3790,6 +3791,8 @@ net_udp_level_sync(void)
 		net_udp_send_endlevel_packet();
 		if (Game_wind)
 			window_close(Game_wind);
+		show_menus();
+		return -1;
 	}
 	return(0);
 }
@@ -4073,7 +4076,7 @@ void net_udp_do_frame(int force, int listen)
 	if (time>=last_bcast_time+(F1_0*10) || (time < last_bcast_time))
 	{
 		last_bcast_time = time;
-		net_udp_send_game_info(GBcast, UPID_GAME_INFO);
+		net_udp_send_game_info(GBcast, UPID_GAME_INFO_LITE);
 	}
 
 	if (listen)
