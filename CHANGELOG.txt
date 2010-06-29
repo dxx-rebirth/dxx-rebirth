@@ -1,5 +1,9 @@
 D2X-Rebirth Changelog
 
+20100629
+--------
+main/net_ipx.c, main/net_udp.c: Aligned default width for IPX-Netlist menu to fit possible items a bit better; Fixed two small bugs when sending and receiving lite_info in UDP; Allowed broadcast on UDP sockets (for later use)
+
 20100627
 --------
 main/game.c, main/game.h, main/gameseq.c: When starting, leaving or changing a level in any way, use more ordered approach to set Game_wind visible or invisible. Fixing timer-issues after level-change and makes hiding of Game_wind obsolete for certain messageboxes; Moved GameTime and weapon timer variables out of reset_time since this function is not appropriate for this and is not needed between levels anymore due to window management handling start/stop_time properly

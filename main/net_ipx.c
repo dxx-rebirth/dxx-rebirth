@@ -3833,7 +3833,7 @@ void net_ipx_join_listen(newmenu *menu)
 
 	for (i = num_active_ipx_games; i < IPX_MAX_NETGAMES; i++)
 	{
-		sprintf(menus[i+2].text, "%d.                                                     ",i+1);
+		sprintf(menus[i+2].text, "%d.                                                                      ",i+1);
 	}
 }
 
@@ -4186,7 +4186,7 @@ void net_ipx_join_game()
 	MALLOC(m, newmenu_item, ((IPX_MAX_NETGAMES)*2)+1);
 	if (!m)
 		return;
-	MALLOC(menu_text, char, (((IPX_MAX_NETGAMES)*2)+1)*200);
+	MALLOC(menu_text, char, (((IPX_MAX_NETGAMES)*2)+1)*74);
 	if (!menu_text)
 	{
 		d_free(m);
@@ -4222,14 +4222,14 @@ void net_ipx_join_game()
 	else
 		strcpy( m[0].text, "" ); //sprintf( m[0].text, "" );
 
-	m[1].text=menu_text + 200*1;
+	m[1].text=menu_text + 74*1;
 	m[1].type=NM_TYPE_TEXT;
 	sprintf (m[1].text,"\tGAME \tMODE \t#PLYRS \tMISSION \tLEV \tSTATUS");
 
 	for (i = 0; i < IPX_MAX_NETGAMES; i++) {
-		m[i+2].text = menu_text + 200*(i+2);
+		m[i+2].text = menu_text + 74*(i+2);
 		m[i+2].type = NM_TYPE_MENU;
-		sprintf(m[i+2].text, "%d.                                                                   ", i+1);
+		sprintf(m[i+2].text, "%d.                                                                      ", i+1);
 	}
 
 	num_active_ipx_changed = 1;
