@@ -1,5 +1,9 @@
 D2X-Rebirth Changelog
 
+20100630
+--------
+main/gameseq.c: If multi_level_sync() fails, restart menu music since level music is playing already
+
 20100629
 --------
 main/net_ipx.c, main/net_udp.c: Aligned default width for IPX-Netlist menu to fit possible items a bit better; Fixed two small bugs when sending and receiving lite_info in UDP; Allowed broadcast on UDP sockets (for later use)

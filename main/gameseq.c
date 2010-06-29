@@ -1603,7 +1603,10 @@ void StartNewLevelSub(int level_num, int page_in_textures, int secret_flag)
 	if (Game_mode & GM_NETWORK)
 	{
 		if(multi_level_sync()) // After calling this, Player_num is set
+		{
+			songs_play_song( SONG_TITLE, 1 ); // level song already plays but we fail to start level...
 			return;
+		}
 	}
 #endif
 
