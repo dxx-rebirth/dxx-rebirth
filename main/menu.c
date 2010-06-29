@@ -612,7 +612,7 @@ int do_option ( int select)
 			break;
 		case MENU_JOIN_LIST_UDP_NETGAME:
 			multi_protocol = MULTI_PROTO_UDP;
-			//net_udp_list_join_game();
+			net_udp_list_join_game();
 			break;
 #endif
 #ifdef USE_IPX

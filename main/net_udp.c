@@ -96,6 +96,7 @@ int num_active_udp_games = 0;
 int num_active_udp_changed = 0;
 static int UDP_Socket[2] = { -1, -1 };
 static char UDP_MyPort[6] = "";
+struct _sockaddr GBcast; // global Broadcast address clients and hosts will use for lite_info exchange over LAN
 extern obj_position Player_init[MAX_PLAYERS];
 extern ubyte SurfingNet;
 
@@ -500,6 +501,226 @@ void net_udp_manual_join_game()
 	m[nitems].type = NM_TYPE_TEXT;  m[nitems].text=blank;								nitems++;	// for connecting_txt
 
 	newmenu_do1( NULL, "ENTER GAME ADDRESS", nitems, m, (int (*)(newmenu *, d_event *, void *))manual_join_game_handler, mj, 0 );
+}
+
+static int NLPage = 0;
+int net_udp_list_join_poll( newmenu *menu, d_event *event, void *menu_text )
+{
+	// Polling loop for Join Game menu
+	int i, newpage = 0;
+	newmenu_item *menus = newmenu_get_items(menu);
+	int citem = newmenu_get_citem(menu);
+
+	switch (event->type)
+	{
+		case EVENT_WINDOW_ACTIVATED:
+		{
+			memset(Active_udp_games, 0, sizeof(UDP_netgame_info_lite)*UDP_MAX_NETGAMES);
+			num_active_udp_changed = 1;
+			num_active_udp_games = 0;
+			net_udp_request_game_info(GBcast, 1);
+			break;
+		}
+		case EVENT_KEY_COMMAND:
+		{
+			int key = ((d_event_keycommand *)event)->keycode;
+			if (key == KEY_PAGEUP)
+			{
+				NLPage--;
+				newpage++;
+				if (NLPage < 0)
+					NLPage = UDP_NETGAMES_PAGES-1;
+			}
+			if (key == KEY_PAGEDOWN)
+			{
+				NLPage++;
+				newpage++;
+				if (NLPage >= UDP_NETGAMES_PAGES)
+					NLPage = 0;
+			}
+			if (key == KEY_F5)
+			{
+				memset(Active_udp_games, 0, sizeof(UDP_netgame_info_lite)*UDP_MAX_NETGAMES);
+				num_active_udp_changed = 1;
+				num_active_udp_games = 0;
+				net_udp_request_game_info(GBcast, 1);
+			}
+			break;
+		}
+		case EVENT_NEWMENU_SELECTED:
+		{
+			if (((citem+(NLPage*UDP_NETGAMES_PPAGE)) >= 2) && (((citem+(NLPage*UDP_NETGAMES_PPAGE))-2) <= num_active_udp_games))
+			{
+				manual_join mj;
+				memset(&mj,0,sizeof(manual_join));
+				memcpy(&mj.host_addr, (struct _sockaddr *)&Active_udp_games[(citem+(NLPage*UDP_NETGAMES_PPAGE))-2].game_addr, sizeof(struct _sockaddr));
+				mj.start_time = timer_get_fixed_seconds();
+				mj.last_time = 0;
+				mj.connecting = 0;
+				// Choice has been made and looks legit
+				net_udp_game_connect(&mj);
+				return 1;
+			}
+			break;
+		}
+		case EVENT_WINDOW_CLOSE:
+			SurfingNet=0;
+			d_free(menu_text);
+			d_free(menus);
+
+			if (!Game_wind)
+				Network_status = NETSTAT_MENU;	// they cancelled
+			break;
+
+		default:
+			break;
+	}
+
+	net_udp_listen();
+
+	if (!num_active_udp_changed && !newpage)
+		return 0;
+
+	num_active_udp_changed = 0;
+
+	// Copy the active games data into the menu options
+	for (i = 0; i < UDP_NETGAMES_PPAGE; i++)
+	{
+		int game_status = Active_udp_games[(i+(NLPage*UDP_NETGAMES_PPAGE))].game_status;
+		int j,x, k,tx,ty,ta,nplayers = 0;
+		char levelname[8],MissName[25],GameName[25],thold[2],status[8];
+		thold[1]=0;
+
+		if ((i+(NLPage*UDP_NETGAMES_PPAGE)) >= num_active_udp_games)
+		{
+			snprintf(menus[i+2].text, sizeof(menu_text), "%d.                                                                      ",(i+(NLPage*UDP_NETGAMES_PPAGE))+1);
+			continue;
+		}
+
+		// These next two loops protect against menu skewing
+		// if missiontitle or gamename contain a tab
+
+		for (x=0,tx=0,k=0,j=0;j<15;j++)
+		{
+			if (Active_udp_games[(i+(NLPage*UDP_NETGAMES_PPAGE))].mission_title[j]=='\t')
+				continue;
+			thold[0]=Active_udp_games[(i+(NLPage*UDP_NETGAMES_PPAGE))].mission_title[j];
+			gr_get_string_size (thold,&tx,&ty,&ta);
+
+			if ((x+=tx)>=FSPACX(55))
+			{
+				MissName[k]=MissName[k+1]=MissName[k+2]='.';
+				k+=3;
+				break;
+			}
+
+			MissName[k++]=Active_udp_games[(i+(NLPage*UDP_NETGAMES_PPAGE))].mission_title[j];
+		}
+		MissName[k]=0;
+
+		for (x=0,tx=0,k=0,j=0;j<15;j++)
+		{
+			if (Active_udp_games[(i+(NLPage*UDP_NETGAMES_PPAGE))].game_name[j]=='\t')
+				continue;
+			thold[0]=Active_udp_games[(i+(NLPage*UDP_NETGAMES_PPAGE))].game_name[j];
+			gr_get_string_size (thold,&tx,&ty,&ta);
+
+			if ((x+=tx)>=FSPACX(55))
+			{
+				GameName[k]=GameName[k+1]=GameName[k+2]='.';
+				k+=3;
+				break;
+			}
+			GameName[k++]=Active_udp_games[(i+(NLPage*UDP_NETGAMES_PPAGE))].game_name[j];
+		}
+		GameName[k]=0;
+
+		nplayers = Active_udp_games[(i+(NLPage*UDP_NETGAMES_PPAGE))].numplayers;
+
+		if (Active_udp_games[(i+(NLPage*UDP_NETGAMES_PPAGE))].levelnum < 0)
+			snprintf(levelname, sizeof(levelname), "S%d", -Active_udp_games[(i+(NLPage*UDP_NETGAMES_PPAGE))].levelnum);
+		else
+			snprintf(levelname, sizeof(levelname), "%d", Active_udp_games[(i+(NLPage*UDP_NETGAMES_PPAGE))].levelnum);
+
+		if (game_status == NETSTAT_STARTING)
+			snprintf(status, sizeof(status), "FORMING ");
+		else if (game_status == NETSTAT_PLAYING)
+		{
+			if (Active_udp_games[(i+(NLPage*UDP_NETGAMES_PPAGE))].RefusePlayers)
+				snprintf(status, sizeof(status), "RESTRICT");
+			else if (Active_udp_games[(i+(NLPage*UDP_NETGAMES_PPAGE))].game_flags & NETGAME_FLAG_CLOSED)
+				snprintf(status, sizeof(status), "CLOSED  ");
+			else
+				snprintf(status, sizeof(status), "OPEN    ");
+		}
+		else
+			snprintf(status, sizeof(status), "BETWEEN ");
+		
+		snprintf (menus[i+2].text,sizeof(char)*74,"%d.\t%s \t%s \t  %d/%d \t%s \t %s \t%s",(i+(NLPage*UDP_NETGAMES_PPAGE))+1,GameName,MODE_NAMES(Active_udp_games[(i+(NLPage*UDP_NETGAMES_PPAGE))].gamemode),nplayers,
+					 Active_udp_games[(i+(NLPage*UDP_NETGAMES_PPAGE))].max_numplayers,MissName,levelname,status);
+			
+		Assert(strlen(menus[i+2].text) < 75);
+	}
+	return 0;
+}
+
+void net_udp_list_join_game()
+{
+	int i = 0;
+	char *menu_text;
+	newmenu_item *m;
+
+	net_udp_init();
+	if (udp_open_socket(0, GameArg.MplUdpMyPort != 0?GameArg.MplUdpMyPort:UDP_PORT_DEFAULT) < 0)
+		return;
+
+	MALLOC(m, newmenu_item, ((UDP_NETGAMES_PPAGE+2)*2)+1);
+	if (!m)
+		return;
+	MALLOC(menu_text, char, (((UDP_NETGAMES_PPAGE+2)*2)+1)*74);
+	if (!menu_text)
+	{
+		d_free(m);
+		return;
+	}
+
+	// prepare broadcast address to discover games
+	memset(&GBcast, '\0', sizeof(struct _sockaddr));
+	udp_dns_filladdr(UDP_BCAST_ADDR, UDP_PORT_DEFAULT, &GBcast);
+
+	change_playernum_to(1);
+	N_players = 0;
+	Network_send_objects = 0;
+	Network_rejoined=0;
+
+	Network_status = NETSTAT_BROWSING; // We are looking at a game menu
+
+	net_udp_flush();
+	net_udp_listen();  // Throw out old info
+
+	num_active_udp_games = 0;
+
+	memset(m, 0, sizeof(newmenu_item)*(UDP_NETGAMES_PPAGE+2));
+	memset(Active_udp_games, 0, sizeof(UDP_netgame_info_lite)*UDP_MAX_NETGAMES);
+
+	gr_set_fontcolor(BM_XRGB(15,15,23),-1);
+
+	m[0].text = menu_text;
+	m[0].type = NM_TYPE_TEXT;
+	snprintf( m[0].text, sizeof(char)*74, "\tF5: (Re)Scan for Games. PgUp/PgDn: Flip Pages." );
+	m[1].text=menu_text + 74*1;
+	m[1].type=NM_TYPE_TEXT;
+	snprintf (m[1].text, sizeof(char)*74, "\tGAME \tMODE \t#PLYRS \tMISSION \tLEV \tSTATUS");
+
+	for (i = 0; i < UDP_NETGAMES_PPAGE; i++) {
+		m[(i+(NLPage*UDP_NETGAMES_PPAGE))+2].text = menu_text + 74 * (i+2);
+		m[(i+(NLPage*UDP_NETGAMES_PPAGE))+2].type = NM_TYPE_MENU;
+		snprintf(m[(i+(NLPage*UDP_NETGAMES_PPAGE))+2].text,sizeof(char)*74,"%d.                                                                      ", (i+(NLPage*UDP_NETGAMES_PPAGE))+1);
+	}
+
+	num_active_udp_changed = 1;
+	SurfingNet=1;
+	newmenu_dotiny("NETGAMES", NULL,(UDP_NETGAMES_PPAGE+2), m, net_udp_list_join_poll, menu_text);
 }
 
 void net_udp_send_sequence_packet(UDP_sequence_packet seq, struct _sockaddr recv_addr)
@@ -1741,7 +1962,7 @@ void net_udp_send_game_info(struct _sockaddr sender_addr, ubyte info_upid)
 	}
 }
 
-/* Send game info to all players in this game */
+/* Send game info to all players in this game. Also send lite_info for people watching the netlist */
 void net_udp_send_netgame_update()
 {
 	int i = 0;
@@ -1750,6 +1971,7 @@ void net_udp_send_netgame_update()
 	{
 		net_udp_send_game_info(Netgame.players[i].protocol.udp.addr, UPID_GAME_INFO);
 	}
+	net_udp_send_game_info(GBcast, UPID_GAME_INFO_LITE);
 }
 
 int net_udp_send_request(void)
@@ -2874,13 +3096,14 @@ int net_udp_send_sync(void)
 	if (NumNetPlayerPositions < MaxNumNetPlayers)
 	{
 		nm_messagebox(TXT_ERROR, 1, TXT_OK, "Not enough start positions\n(set %d got %d)\nNetgame aborted", MaxNumNetPlayers, NumNetPlayerPositions);
-
+		// Tell everyone we're bailing
+		Netgame.numplayers = 0;
 		for (i=1; i<N_players; i++)
 		{
 			net_udp_dump_player(Netgame.players[i].protocol.udp.addr, DUMP_ABORTED);
-			Netgame.numplayers = 0;
-			net_udp_send_game_info(Netgame.players[i].protocol.udp.addr, UPID_GAME_INFO); // Tell everyone we're bailing
+			net_udp_send_game_info(Netgame.players[i].protocol.udp.addr, UPID_GAME_INFO);
 		}
+		net_udp_send_game_info(GBcast, UPID_GAME_INFO_LITE);
 		if (Game_wind)
 			window_close(Game_wind);
 		return -1;
@@ -3053,11 +3276,14 @@ GetPlayersAgain:
 		// Dump all players and go back to menu mode
 
 abort:
+		// Tell everyone we're bailing
+		Netgame.numplayers = 0;
 		for (i=1; i<save_nplayers; i++) {
 			net_udp_dump_player(Netgame.players[i].protocol.udp.addr, DUMP_ABORTED);
-			Netgame.numplayers = 0;
-			net_udp_send_game_info(Netgame.players[i].protocol.udp.addr, UPID_GAME_INFO); // Tell everyone we're bailing
+			net_udp_send_game_info(Netgame.players[i].protocol.udp.addr, UPID_GAME_INFO);
 		}
+		net_udp_send_game_info(GBcast, UPID_GAME_INFO_LITE);
+		Netgame.numplayers = save_nplayers;
 
 		Network_status = NETSTAT_MENU;
 		return(0);
@@ -3140,6 +3366,10 @@ int net_udp_start_game(void)
 	if (i != 0)
 		return 0;
 
+	// prepare broadcast address to announce our game
+	memset(&GBcast, '\0', sizeof(struct _sockaddr));
+	udp_dns_filladdr(UDP_BCAST_ADDR, UDP_PORT_DEFAULT, &GBcast);
+
 	N_players = 0;
 
     Netgame.game_status = NETSTAT_STARTING;
@@ -3159,7 +3389,8 @@ int net_udp_start_game(void)
 		Game_mode = GM_GAME_OVER;
 		return 0;	// see if we want to tweak the game we setup
 	}
-	
+	net_udp_send_game_info(GBcast, UPID_GAME_INFO_LITE); // game started. broadcast our current status to everyone who wants to know
+
 	return 1;	// don't keep params menu or mission listbox (may want to join a game next time)
 }
 
@@ -3365,6 +3596,7 @@ void net_udp_leave_game()
 		{
 			net_udp_send_game_info(Netgame.players[i].protocol.udp.addr, UPID_GAME_INFO);
 		}
+		net_udp_send_game_info(GBcast, UPID_GAME_INFO_LITE);
 		N_players=nsave;
 	
 	}
@@ -3506,7 +3738,7 @@ void net_udp_do_frame(int force, int listen)
 {
 	int send_mdata = (Network_laser_fired || force || PacketUrgent);
 	fix time = 0;
-	static fix last_send_time = 0, last_endlevel_time = 0;
+	static fix last_send_time = 0, last_endlevel_time = 0, last_bcast_time = 0;
 
 	if (!(Game_mode&GM_NETWORK))
 		return;
@@ -3540,6 +3772,13 @@ void net_udp_do_frame(int force, int listen)
 	{
 		last_endlevel_time = time;
 		net_udp_send_endlevel_packet();
+	}
+
+	// broadcast lite_info every 10 seconds
+	if (time>=last_bcast_time+(F1_0*10) || (time < last_bcast_time))
+	{
+		last_bcast_time = time;
+		net_udp_send_game_info(GBcast, UPID_GAME_INFO);
 	}
 
 	if (listen)
