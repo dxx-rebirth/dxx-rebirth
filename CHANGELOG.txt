@@ -3,6 +3,7 @@ D2X-Rebirth Changelog
 20100629
 --------
 main/net_ipx.c, main/net_udp.c: Aligned default width for IPX-Netlist menu to fit possible items a bit better; Fixed two small bugs when sending and receiving lite_info in UDP; Allowed broadcast on UDP sockets (for later use)
+main/menu.c, main/new_udp.c, main/net_udp.h: Added UDP Netlist to join LAN games discovered/announced via broadcast
 
 20100627
 --------

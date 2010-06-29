@@ -9,6 +9,7 @@
 // Exported functions
 int net_udp_setup_game(void);
 void net_udp_manual_join_game();
+void net_udp_list_join_game();
 int net_udp_objnum_is_past(int objnum);
 void net_udp_do_frame(int force, int listen);
 void net_udp_send_data( ubyte * ptr, int len, int priority );
@@ -24,6 +25,11 @@ void net_udp_send_mdata_direct(ubyte *data, int data_len, int pnum, int priority
 void net_udp_send_netgame_update();
 
 // Some defines
+#ifdef IPv6
+#define UDP_BCAST_ADDR "ff02::1"
+#else
+#define UDP_BCAST_ADDR "255.255.255.255"
+#endif
 #define UDP_PORT_DEFAULT 42424 // Our default port - easy to remember: D = 4, X = 24, X = 24
 #define UDP_REQ_ID "D2XR" // ID string for a request packet
 #define UDP_MAX_NETGAMES 600
