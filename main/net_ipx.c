@@ -2748,8 +2748,6 @@ net_ipx_send_sync(void)
 	if (NumNetPlayerPositions < MaxNumNetPlayers) {
 		nm_messagebox(TXT_ERROR, 1, TXT_OK, "Not enough start positions\n(need %d got %d)\nNetgame aborted", MaxNumNetPlayers, NumNetPlayerPositions);
 		net_ipx_abort_game();
-		if (Game_wind)
-			window_close(Game_wind);
 		return -1;
 	}
 
@@ -3334,8 +3332,7 @@ int net_ipx_request_poll( newmenu *menu, d_event *event, void *userdata )
 	return 0;
 }
 
-void
-net_ipx_wait_for_requests(void)
+int net_ipx_wait_for_requests(void)
 {
 	// Wait for other players to load the level before we send the sync
 	int choice, i;
@@ -3358,7 +3355,7 @@ menu:
 		// User aborted
 		choice = nm_messagebox(NULL, 3, TXT_YES, TXT_NO, TXT_START_NOWAIT, TXT_QUITTING_NOW);
 		if (choice == 2)
-			return;
+			return 0;
 		if (choice != 0)
 			goto menu;
 
@@ -3368,11 +3365,12 @@ menu:
 			if ((Players[i].connected != CONNECT_DISCONNECTED) && (i != Player_num))
 				net_ipx_dump_player(Netgame.players[i].protocol.ipx.server, Netgame.players[i].protocol.ipx.node, DUMP_ABORTED);
 
-		if (Game_wind)
-			window_close(Game_wind);
+		return -1;
 	}
 	else if (choice != -2)
 		goto menu;
+
+	return 0;
 }
 
 int
@@ -3380,7 +3378,7 @@ net_ipx_level_sync(void)
 {
  	// Do required syncing between (before) levels
 
-	int result;
+	int result = 0;
 
 	MySyncPackInitialized = 0;
 
@@ -3392,10 +3390,9 @@ net_ipx_level_sync(void)
 		result = net_ipx_wait_for_sync();
 	else if (multi_i_am_master())
 	{
-		net_ipx_wait_for_requests();
-		result = net_ipx_send_sync();
-		if (result)
-			return -1;
+		result = net_ipx_wait_for_requests();
+		if (!result)
+			result = net_ipx_send_sync();
 	}
 	else
 		result = net_ipx_wait_for_sync();
@@ -3406,6 +3403,8 @@ net_ipx_level_sync(void)
 		net_ipx_send_endlevel_packet();
 		if (Game_wind)
 			window_close(Game_wind);
+		show_menus();
+		return -1;
 	}
 	return(0);
 }

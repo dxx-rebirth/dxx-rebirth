@@ -4,6 +4,7 @@ D1X-Rebirth Changelog
 --------
 main/net_ipx.c, main/net_udp.c: Aligned default width for IPX-Netlist menu to fit possible items a bit better; Fixed two small bugs when sending and receiving lite_info in UDP; Allowed broadcast on UDP sockets (for later use)
 main/menu.c, main/new_udp.c, main/net_udp.h: Added UDP Netlist to join LAN games discovered/announced via broadcast
+main/net_ipx.c, main/net_udp.c: Improved handling of multi level sync and exit smoothly back to the menus; Fixed another small bug in lite_info broadcasting which was sending full info; By broadcasting full info, host could cripple Netgame so a new security measure is implemented to protect host from letting his game be overwritten from outside
 
 20100627
 --------
