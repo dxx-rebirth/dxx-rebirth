@@ -128,7 +128,6 @@ int IPX_Socket=0;
 extern obj_position Player_init[MAX_PLAYERS];
 extern int force_cockpit_redraw;
 extern ubyte Version_major,Version_minor;
-extern ubyte SurfingNet;
 extern char MaxPowerupsAllowed[MAX_POWERUP_TYPES];
 extern char PowerupsInMine[MAX_POWERUP_TYPES];
 extern int Final_boss_is_dead;
@@ -3906,7 +3905,6 @@ int net_ipx_join_poll( newmenu *menu, d_event *event, void *menu_text )
 			break;
 
 		case EVENT_WINDOW_CLOSE:
-			SurfingNet=0;
 			d_free(menu_text);
 			d_free(menus);
 
@@ -4235,8 +4233,7 @@ void net_ipx_join_game()
 	}
 
 	num_active_ipx_changed = 1;
-	SurfingNet=1;
-	newmenu_dotiny("NETGAMES", NULL,IPX_MAX_NETGAMES+2, m, net_ipx_join_poll, menu_text);
+	newmenu_dotiny("NETGAMES", NULL,IPX_MAX_NETGAMES+2, m, 1, net_ipx_join_poll, menu_text);
 }
 
 fix StartWaitAllTime=0;
@@ -5565,10 +5562,8 @@ void net_ipx_process_names_return (ubyte *data)
 
    if (numplayers==255)
 	 {
-		 SurfingNet=0;
 		 NamesInfoSecurity=-1;
  		 nm_messagebox(NULL, 1, "OK", "That game is refusing\nname requests.\n");
-		 SurfingNet=1;
 		 return;
 	 }
 
@@ -5591,10 +5586,8 @@ void net_ipx_process_names_return (ubyte *data)
 
 	if (gnum==-1)
     {
-       SurfingNet=0;
 		 NamesInfoSecurity=-1;
  		 nm_messagebox(NULL, 1, "OK", "The game you have requested\nnames from is gone.\n");
-		 SurfingNet=1;
 		 return;
 	 }
 
@@ -5620,7 +5613,7 @@ void net_ipx_process_names_return (ubyte *data)
 	 sprintf (mtext[num++],"Packets Per Second: %d",data[count+2]);
    }
 
-	menu = newmenu_dotiny( NULL, NULL, num, m, NULL, NULL);
+	menu = newmenu_dotiny( NULL, NULL, num, m, 0, NULL, NULL);
 
 	 wind = newmenu_get_window(menu);
 	 while (window_exists(wind))

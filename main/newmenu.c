@@ -84,6 +84,8 @@ struct newmenu
 	int				citem;
 	char			*filename;
 	int				tiny_mode;
+	int			tabs_flag;
+	int			reorderitems;
 	int				scroll_offset, last_scroll_check, max_displayable;
 	int				all_text;		//set true if all text items
 	int				is_scroll_box;   // Is this a scrolling box? Set to false at init
@@ -95,10 +97,8 @@ struct newmenu
 
 grs_bitmap nm_background, nm_background1;
 grs_bitmap *nm_background_sub = NULL;
-ubyte MenuReordering=0;
-ubyte SurfingNet=0;
 
-newmenu *newmenu_do4( char * title, char * subtitle, int nitems, newmenu_item * item, int (*subfunction)(newmenu *menu, d_event *event, void *userdata), void *userdata, int citem, char * filename, int TinyMode );
+newmenu *newmenu_do4( char * title, char * subtitle, int nitems, newmenu_item * item, int (*subfunction)(newmenu *menu, d_event *event, void *userdata), void *userdata, int citem, char * filename, int TinyMode, int TabsFlag );
 
 void newmenu_close()	{
 	if (nm_background.bm_data)
@@ -201,7 +201,7 @@ void nm_draw_background(int x1, int y1, int x2, int y2 )
 }
 
 // Draw a left justfied string
-void nm_string( int w1,int x, int y, char * s)
+void nm_string( int w1,int x, int y, char * s, int tabs_flag)
 {
 	int w,h,aw,tx=0,t=0,i;
 	char *p,*s1,*s2,measure[2];
@@ -217,7 +217,7 @@ void nm_string( int w1,int x, int y, char * s)
 
 	measure[1]=0;
 
-	if (!SurfingNet) {
+	if (!tabs_flag) {
 		p = strchr( s2, '\t' );
 		if (p && (w1>0) ) {
 			*p = '\0';
@@ -230,9 +230,9 @@ void nm_string( int w1,int x, int y, char * s)
 	if (w1 > 0)
 		w = w1;
 
-	if (SurfingNet) {
+	if (tabs_flag) {
 		for (i=0;i<strlen(s2);i++) {
-			if (s2[i]=='\t' && SurfingNet) {
+			if (s2[i]=='\t' && tabs_flag) {
 				x=XTabs[t];
 				t++;
 				continue;
@@ -246,7 +246,7 @@ void nm_string( int w1,int x, int y, char * s)
 	else
 		gr_string (x,y,s2);
 
-	if (!SurfingNet && p && (w1>0) ) {
+	if (!tabs_flag && p && (w1>0) ) {
 		gr_get_string_size(s1, &w, &h, &aw  );
 
 		gr_string( x+w1-w, y, s1 );
@@ -336,7 +336,7 @@ void nm_string_inputbox( int w, int x, int y, char * text, int current )
 		gr_string( x+w1, y, CURSOR_STRING );
 }
 
-void draw_item( newmenu_item *item, int is_current, int tiny )
+void draw_item( newmenu_item *item, int is_current, int tiny, int tabs_flag )
 {
 	if (tiny)
 	{
@@ -359,7 +359,7 @@ void draw_item( newmenu_item *item, int is_current, int tiny )
 	switch( item->type )	{
 		case NM_TYPE_TEXT:
 		case NM_TYPE_MENU:
-			nm_string( item->w, item->x, item->y, item->text );
+			nm_string( item->w, item->x, item->y, item->text, tabs_flag );
 			break;
 		case NM_TYPE_SLIDER:
 		{
@@ -380,7 +380,7 @@ void draw_item( newmenu_item *item, int is_current, int tiny )
 		case NM_TYPE_INPUT_MENU:
 			if ( item->group==0 )
 			{
-				nm_string( item->w, item->x, item->y, item->text );
+				nm_string( item->w, item->x, item->y, item->text, tabs_flag );
 			} else {
 				nm_string_inputbox( item->w, item->x, item->y, item->text, is_current );
 			}
@@ -389,14 +389,14 @@ void draw_item( newmenu_item *item, int is_current, int tiny )
 			nm_string_inputbox( item->w, item->x, item->y, item->text, is_current );
 			break;
 		case NM_TYPE_CHECK:
-			nm_string( item->w, item->x, item->y, item->text );
+			nm_string( item->w, item->x, item->y, item->text, tabs_flag );
 			if (item->value)
 				nm_rstring( item->right_offset,item->x, item->y, CHECKED_CHECK_BOX );
 			else
 				nm_rstring( item->right_offset,item->x, item->y, NORMAL_CHECK_BOX );
 			break;
 		case NM_TYPE_RADIO:
-			nm_string( item->w, item->x, item->y, item->text );
+			nm_string( item->w, item->x, item->y, item->text, tabs_flag );
 			if (item->value)
 				nm_rstring( item->right_offset, item->x, item->y, CHECKED_RADIO_BOX );
 			else
@@ -407,7 +407,7 @@ void draw_item( newmenu_item *item, int is_current, int tiny )
 			char text[10];
 			if (item->value < item->min_value) item->value=item->min_value;
 			if (item->value > item->max_value) item->value=item->max_value;
-			nm_string( item->w, item->x, item->y, item->text );
+			nm_string( item->w, item->x, item->y, item->text, tabs_flag );
 			sprintf( text, "%d", item->value );
 			nm_rstring( item->right_offset,item->x, item->y, text );
 		}
@@ -454,9 +454,9 @@ int newmenu_do( char * title, char * subtitle, int nitems, newmenu_item * item, 
 	return newmenu_do2( title, subtitle, nitems, item, subfunction, userdata, 0, NULL );
 }
 
-newmenu *newmenu_dotiny( char * title, char * subtitle, int nitems, newmenu_item * item, int (*subfunction)(newmenu *menu, d_event *event, void *userdata), void *userdata )
+newmenu *newmenu_dotiny( char * title, char * subtitle, int nitems, newmenu_item * item, int TabsFlag, int (*subfunction)(newmenu *menu, d_event *event, void *userdata), void *userdata )
 {
-        return newmenu_do4( title, subtitle, nitems, item, subfunction, userdata, 0, NULL, 1 );
+        return newmenu_do4( title, subtitle, nitems, item, subfunction, userdata, 0, NULL, 1, TabsFlag );
 }
 
 
@@ -495,15 +495,48 @@ int newmenu_do2( char * title, char * subtitle, int nitems, newmenu_item * item,
 
 	return rval;
 }
+
+// Basically the same as do2 but sets reorderitems flag for weapon priority menu a bit redundant to get lose of a global variable but oh well...
+int newmenu_doreorder( char * title, char * subtitle, int nitems, newmenu_item * item, int (*subfunction)(newmenu *menu, d_event *event, void *userdata), void *userdata )
+{
+	newmenu *menu;
+	window *wind;
+	int rval = -1;
+
+	menu = newmenu_do3( title, subtitle, nitems, item, subfunction, userdata, 0, NULL );
+
+	if (!menu)
+		return -1;
+	menu->reorderitems = 1;
+	menu->leave = 0;	// no leaving this function until we're finished
+	wind = menu->wind;	// avoid dereferencing a freed 'menu'
+
+	// newmenu_do2 and simpler get their own event loop
+	// This is so the caller doesn't have to provide a callback that responds to EVENT_NEWMENU_SELECTED
+	while (window_exists(wind))
+	{
+		event_process();
+
+		if (menu->leave)
+		{
+			rval = menu->citem;
+			if (window_exists(wind) && !window_close(wind))
+				menu->leave = 0;		// user aborted close
+		}
+	}
+
+	return rval;
+}
+
 newmenu *newmenu_do3( char * title, char * subtitle, int nitems, newmenu_item * item, int (*subfunction)(newmenu *menu, d_event *event, void *userdata), void *userdata, int citem, char * filename )
 {
 	set_screen_mode(SCREEN_MENU);//hafta set the screen mode before calling or fonts might get changed/freed up if screen res changes
-	return newmenu_do4( title, subtitle, nitems, item, subfunction, userdata, citem, filename, 0 );
+	return newmenu_do4( title, subtitle, nitems, item, subfunction, userdata, citem, filename, 0, 0 );
 }
 
 newmenu *newmenu_do_fixedfont( char * title, char * subtitle, int nitems, newmenu_item * item, int (*subfunction)(newmenu *menu, d_event *event, void *userdata), void *userdata, int citem, char * filename){
 	set_screen_mode(SCREEN_MENU);//hafta set the screen mode before calling or fonts might get changed/freed up if screen res changes
-	return newmenu_do4( title, subtitle, nitems, item, subfunction, userdata, citem, filename, 0);
+	return newmenu_do4( title, subtitle, nitems, item, subfunction, userdata, citem, filename, 0, 0);
 }
 
 
@@ -918,7 +951,7 @@ int newmenu_key_command(window *wind, d_event *event, newmenu *menu)
 			break;
 
 		case KEY_SHIFTED+KEY_UP:
-			if (MenuReordering && menu->citem!=0)
+			if (menu->reorderitems && menu->citem!=0)
 			{
 				Temp=menu->items[menu->citem].text;
 				TempVal=menu->items[menu->citem].value;
@@ -931,7 +964,7 @@ int newmenu_key_command(window *wind, d_event *event, newmenu *menu)
 			}
 			break;
 		case KEY_SHIFTED+KEY_DOWN:
-			if (MenuReordering && menu->citem!=(menu->nitems-1))
+			if (menu->reorderitems && menu->citem!=(menu->nitems-1))
 			{
 				Temp=menu->items[menu->citem].text;
 				TempVal=menu->items[menu->citem].value;
@@ -1399,7 +1432,7 @@ int newmenu_draw(window *wind, newmenu *menu)
 	for (i=menu->scroll_offset; i<menu->max_displayable+menu->scroll_offset; i++ )
 	{
 		menu->items[i].y-=(((int)LINE_SPACING)*menu->scroll_offset);
-		draw_item( &menu->items[i], (i==menu->citem && !menu->all_text),menu->tiny_mode );
+		draw_item( &menu->items[i], (i==menu->citem && !menu->all_text),menu->tiny_mode, menu->tabs_flag );
 		menu->items[i].y+=(((int)LINE_SPACING)*menu->scroll_offset);
 
 	}
@@ -1514,7 +1547,7 @@ int newmenu_handler(window *wind, d_event *event, newmenu *menu)
 	return 0;
 }
 
-newmenu *newmenu_do4( char * title, char * subtitle, int nitems, newmenu_item * item, int (*subfunction)(newmenu *menu, d_event *event, void *userdata), void *userdata, int citem, char * filename, int TinyMode )
+newmenu *newmenu_do4( char * title, char * subtitle, int nitems, newmenu_item * item, int (*subfunction)(newmenu *menu, d_event *event, void *userdata), void *userdata, int citem, char * filename, int TinyMode, int TabsFlag )
 {
 	window *wind = NULL;
 	newmenu *menu;
@@ -1540,6 +1573,8 @@ newmenu *newmenu_do4( char * title, char * subtitle, int nitems, newmenu_item * 
 	menu->items = item;
 	menu->filename = filename;
 	menu->tiny_mode = TinyMode;
+	menu->tabs_flag = TabsFlag;
+	menu->reorderitems = 0; // will be set if needed
 	menu->leave = 1;		// Default to leaving newmenu_doX function
 	menu->userdata = userdata;
 
