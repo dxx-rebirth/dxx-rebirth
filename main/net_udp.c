@@ -454,7 +454,6 @@ static int manual_join_game_handler(newmenu *menu, d_event *event, manual_join *
 			// Resolve address
 			if (udp_dns_filladdr(mj->addrbuf, atoi(mj->portbuf), &mj->host_addr) < 0)
 			{
-				nm_messagebox(TXT_ERROR, 1, TXT_OK, "Could not resolve Address!");
 				return 1;
 			}
 			else
@@ -695,6 +694,10 @@ void net_udp_list_join_game()
 	net_udp_init();
 	if (udp_open_socket(0, GameArg.MplUdpMyPort != 0?GameArg.MplUdpMyPort:UDP_PORT_DEFAULT) < 0)
 		return;
+
+	if (GameArg.MplUdpMyPort != 0)
+		if (udp_open_socket(1, UDP_PORT_DEFAULT) < 0)
+			nm_messagebox(TXT_WARNING, 1, TXT_OK, "Cannot open default port!\nYou can only scan for games\nmanually.");
 
 	MALLOC(m, newmenu_item, ((UDP_NETGAMES_PPAGE+2)*2)+1);
 	if (!m)

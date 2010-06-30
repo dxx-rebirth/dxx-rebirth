@@ -4,6 +4,7 @@ D2X-Rebirth Changelog
 --------
 main/gameseq.c: If multi_level_sync() fails, restart menu music since level music is playing already
 main/game.c, main/net_ipx.c, main/net_udp.c, main/newmenu.c, main/newmenu.h, main/weapon.c: Removed SurfingNet global and made tabs a parameter of newmenu_dotiny; Same procedure with MenuReordering which is replaced with newmenu_doreorder to set reordering flag specifically
+main/net_udp.c: Always try to open UDP default port when discovering Netgames and give warning if that fails; If entered IP address cannot be resoled, do not warn me twice
 
 20100629
 --------
