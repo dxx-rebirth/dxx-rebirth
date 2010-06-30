@@ -93,7 +93,6 @@ int IPX_Socket=0;
 int     IPX_allow_socket_changes = 1;
 IPX_sequence_packet IPX_Seq;
 extern obj_position Player_init[MAX_PLAYERS];
-extern ubyte SurfingNet;
 extern void game_disable_cheats();
 int net_ipx_wait_for_snyc();
 
@@ -3241,7 +3240,6 @@ int net_ipx_join_poll( newmenu *menu, d_event *event, void *menu_text )
 			break;
 
 		case EVENT_WINDOW_CLOSE:
-			SurfingNet=0;
 			d_free(menu_text);
 			d_free(menus);
 
@@ -3513,8 +3511,7 @@ void net_ipx_join_game()
 	}
 
 	num_active_ipx_changed = 1;
-	SurfingNet=1;
-	newmenu_dotiny("NETGAMES", NULL,IPX_MAX_NETGAMES+2, m, net_ipx_join_poll, menu_text);
+	newmenu_dotiny("NETGAMES", NULL,IPX_MAX_NETGAMES+2, m, 1, net_ipx_join_poll, menu_text);
 }
 
 void net_ipx_leave_game()

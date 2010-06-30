@@ -98,7 +98,6 @@ static int UDP_Socket[2] = { -1, -1 };
 static char UDP_MyPort[6] = "";
 struct _sockaddr GBcast; // global Broadcast address clients and hosts will use for lite_info exchange over LAN
 extern obj_position Player_init[MAX_PLAYERS];
-extern ubyte SurfingNet;
 
 /* General UDP functions - START */
 // Resolve address
@@ -564,7 +563,6 @@ int net_udp_list_join_poll( newmenu *menu, d_event *event, void *menu_text )
 			break;
 		}
 		case EVENT_WINDOW_CLOSE:
-			SurfingNet=0;
 			d_free(menu_text);
 			d_free(menus);
 
@@ -719,8 +717,7 @@ void net_udp_list_join_game()
 	}
 
 	num_active_udp_changed = 1;
-	SurfingNet=1;
-	newmenu_dotiny("NETGAMES", NULL,(UDP_NETGAMES_PPAGE+2), m, net_udp_list_join_poll, menu_text);
+	newmenu_dotiny("NETGAMES", NULL,(UDP_NETGAMES_PPAGE+2), m, 1, net_udp_list_join_poll, menu_text);
 }
 
 void net_udp_send_sequence_packet(UDP_sequence_packet seq, struct _sockaddr recv_addr)
