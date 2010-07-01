@@ -314,17 +314,17 @@ int udp_receive_packet(int socknum, ubyte *text, int len, struct _sockaddr *send
 /* General UDP functions - END */
 
 
-typedef struct manual_join
+typedef struct direct_join
 {
 	struct _sockaddr host_addr;
 	int connecting;
 	fix start_time, last_time;
 	char addrbuf[128];
 	char portbuf[6];
-} manual_join;
+} direct_join;
 
 // Connect to a game host and get full info. Eventually we join!
-int net_udp_game_connect(manual_join *mj)
+int net_udp_game_connect(direct_join *dj)
 {
 	fix time = 0;
 
@@ -333,24 +333,24 @@ int net_udp_game_connect(manual_join *mj)
 	time = timer_get_fixed_seconds();
 	
 	// Timeout after 10 seconds
-	if (timer_get_fixed_seconds() >= mj->start_time + (F1_0*10) || timer_get_fixed_seconds() < mj->start_time)
+	if (timer_get_fixed_seconds() >= dj->start_time + (F1_0*10) || timer_get_fixed_seconds() < dj->start_time)
 	{
 		nm_messagebox(TXT_ERROR,1,TXT_OK,"No response by host.\n\nPossible reasons:\n* No game on this IP (anymore)\n* Port of Host not open\n  or different\n* Host uses a game version\n  I do not understand");
-		mj->connecting = 0;
+		dj->connecting = 0;
 		return 0;
 	}
 	
 	if (Netgame.protocol.udp.valid == -1)
 	{
 		nm_messagebox(TXT_ERROR,1,TXT_OK,"Version mismatch! Cannot join Game.\nHost game version: %i.%i.%i\nYour game version: %s",Netgame.protocol.udp.program_iver[0],Netgame.protocol.udp.program_iver[1],Netgame.protocol.udp.program_iver[2],VERSION);
-		mj->connecting = 0;
+		dj->connecting = 0;
 		return 0;
 	}
 	
-	if (time >= mj->last_time + F1_0)
+	if (time >= dj->last_time + F1_0)
 	{
-		net_udp_request_game_info(mj->host_addr, 0);
-		mj->last_time = time;
+		net_udp_request_game_info(dj->host_addr, 0);
+		dj->last_time = time;
 	}
 	timer_delay2(5);
 	net_udp_listen();
@@ -358,25 +358,25 @@ int net_udp_game_connect(manual_join *mj)
 	if (Netgame.protocol.udp.valid != 1)
 		return 0;		// still trying to connect
 
-	if (mj->connecting == 1)
+	if (dj->connecting == 1)
 	{
 		if (!net_udp_show_game_info()) // show info menu and check if we join
 		{
-			mj->connecting = 0;
+			dj->connecting = 0;
 			return 0;
 		}
 		else
 		{
 			// Get full game info again as it could have changed since we entered the info menu.
-			mj->connecting = 2;
+			dj->connecting = 2;
 			Netgame.protocol.udp.valid = 0;
-			mj->start_time = timer_get_fixed_seconds();
+			dj->start_time = timer_get_fixed_seconds();
 
 			return 0;
 		}
 	}
 		
-	mj->connecting = 0;
+	dj->connecting = 0;
 
 	return net_udp_do_join_game();
 }
@@ -384,27 +384,27 @@ int net_udp_game_connect(manual_join *mj)
 static char *connecting_txt = "Connecting...";
 static char *blank = "";
 
-static int manual_join_game_handler(newmenu *menu, d_event *event, manual_join *mj)
+static int manual_join_game_handler(newmenu *menu, d_event *event, direct_join *dj)
 {
 	newmenu_item *items = newmenu_get_items(menu);
 
 	switch (event->type)
 	{
 		case EVENT_KEY_COMMAND:
-			if (mj->connecting && ((d_event_keycommand *)event)->keycode == KEY_ESC)
+			if (dj->connecting && ((d_event_keycommand *)event)->keycode == KEY_ESC)
 			{
-				mj->connecting = 0;
+				dj->connecting = 0;
 				items[6].text = blank;
 				return 1;
 			}
 			break;
 			
 		case EVENT_IDLE:
-			if (mj->connecting)
+			if (dj->connecting)
 			{
-				if (net_udp_game_connect(mj))
+				if (net_udp_game_connect(dj))
 					return -2;	// Success!
-				else if (!mj->connecting)
+				else if (!dj->connecting)
 					items[6].text = blank;
 			}
 			break;
@@ -428,7 +428,7 @@ static int manual_join_game_handler(newmenu *menu, d_event *event, manual_join *
 			}
 			
 			// Resolve address
-			if (udp_dns_filladdr(mj->addrbuf, atoi(mj->portbuf), &mj->host_addr) < 0)
+			if (udp_dns_filladdr(dj->addrbuf, atoi(dj->portbuf), &dj->host_addr) < 0)
 			{
 				return 1;
 			}
@@ -436,12 +436,12 @@ static int manual_join_game_handler(newmenu *menu, d_event *event, manual_join *
 			{
 				N_players = 0;
 				change_playernum_to(1);
-				mj->start_time = timer_get_fixed_seconds();
-				mj->last_time = 0;
+				dj->start_time = timer_get_fixed_seconds();
+				dj->last_time = 0;
 				
-				memcpy((struct _sockaddr *)&Netgame.players[0].protocol.udp.addr, (struct _sockaddr *)&mj->host_addr, sizeof(struct _sockaddr));
+				memcpy((struct _sockaddr *)&Netgame.players[0].protocol.udp.addr, (struct _sockaddr *)&dj->host_addr, sizeof(struct _sockaddr));
 				
-				mj->connecting = 1;
+				dj->connecting = 1;
 				items[6].text = connecting_txt;
 				return 1;
 			}
@@ -450,7 +450,7 @@ static int manual_join_game_handler(newmenu *menu, d_event *event, manual_join *
 		}
 			
 		case EVENT_WINDOW_CLOSE:
-			d_free(mj);
+			d_free(dj);
 			break;
 			
 		default:
@@ -462,26 +462,26 @@ static int manual_join_game_handler(newmenu *menu, d_event *event, manual_join *
 
 void net_udp_manual_join_game()
 {
-	manual_join *mj;
+	direct_join *dj;
 	newmenu_item m[7];
 	int nitems = 0;
 
-	MALLOC(mj, manual_join, 1);
-	if (!mj)
+	MALLOC(dj, direct_join, 1);
+	if (!dj)
 		return;
-	mj->connecting = 0;
-	mj->addrbuf[0] = '\0';
-	mj->portbuf[0] = '\0';
+	dj->connecting = 0;
+	dj->addrbuf[0] = '\0';
+	dj->portbuf[0] = '\0';
 	
 	net_udp_init();
 
-	memset(&mj->addrbuf,'\0', sizeof(char)*128);
-	snprintf(mj->addrbuf, sizeof(char)*(strlen(GameArg.MplUdpHostAddr)+1), "%s", GameArg.MplUdpHostAddr);
+	memset(&dj->addrbuf,'\0', sizeof(char)*128);
+	snprintf(dj->addrbuf, sizeof(char)*(strlen(GameArg.MplUdpHostAddr)+1), "%s", GameArg.MplUdpHostAddr);
 
 	if (GameArg.MplUdpHostPort != 0)
-		snprintf(mj->portbuf, sizeof(mj->portbuf), "%d", GameArg.MplUdpHostPort);
+		snprintf(dj->portbuf, sizeof(dj->portbuf), "%d", GameArg.MplUdpHostPort);
 	else
-		snprintf(mj->portbuf, sizeof(mj->portbuf), "%d", UDP_PORT_DEFAULT);
+		snprintf(dj->portbuf, sizeof(dj->portbuf), "%d", UDP_PORT_DEFAULT);
 
 	if (GameArg.MplUdpMyPort != 0)
 		snprintf (UDP_MyPort, sizeof(UDP_MyPort), "%d", GameArg.MplUdpMyPort);
@@ -491,14 +491,14 @@ void net_udp_manual_join_game()
 	nitems = 0;
 	
 	m[nitems].type = NM_TYPE_TEXT;  m[nitems].text="GAME ADDRESS OR HOSTNAME:";     	nitems++;
-	m[nitems].type = NM_TYPE_INPUT; m[nitems].text=mj->addrbuf; m[nitems].text_len=128; 	nitems++;
+	m[nitems].type = NM_TYPE_INPUT; m[nitems].text=dj->addrbuf; m[nitems].text_len=128; 	nitems++;
 	m[nitems].type = NM_TYPE_TEXT;  m[nitems].text="GAME PORT:";                    	nitems++;
-	m[nitems].type = NM_TYPE_INPUT; m[nitems].text=mj->portbuf; m[nitems].text_len=5;   	nitems++;
+	m[nitems].type = NM_TYPE_INPUT; m[nitems].text=dj->portbuf; m[nitems].text_len=5;   	nitems++;
 	m[nitems].type = NM_TYPE_TEXT;  m[nitems].text="MY PORT:";	                    	nitems++;
 	m[nitems].type = NM_TYPE_INPUT; m[nitems].text=UDP_MyPort; m[nitems].text_len=5;	nitems++;
 	m[nitems].type = NM_TYPE_TEXT;  m[nitems].text=blank;								nitems++;	// for connecting_txt
 
-	newmenu_do1( NULL, "ENTER GAME ADDRESS", nitems, m, (int (*)(newmenu *, d_event *, void *))manual_join_game_handler, mj, 0 );
+	newmenu_do1( NULL, "ENTER GAME ADDRESS", nitems, m, (int (*)(newmenu *, d_event *, void *))manual_join_game_handler, dj, 0 );
 }
 
 static int NLPage = 0;
@@ -549,14 +549,14 @@ int net_udp_list_join_poll( newmenu *menu, d_event *event, void *menu_text )
 		{
 			if (((citem+(NLPage*UDP_NETGAMES_PPAGE)) >= 2) && (((citem+(NLPage*UDP_NETGAMES_PPAGE))-2) <= num_active_udp_games))
 			{
-				manual_join mj;
-				memset(&mj,0,sizeof(manual_join));
-				memcpy(&mj.host_addr, (struct _sockaddr *)&Active_udp_games[(citem+(NLPage*UDP_NETGAMES_PPAGE))-2].game_addr, sizeof(struct _sockaddr));
-				mj.start_time = timer_get_fixed_seconds();
-				mj.last_time = 0;
-				mj.connecting = 0;
+				direct_join dj;
+				memset(&dj,0,sizeof(direct_join));
+				memcpy(&dj.host_addr, (struct _sockaddr *)&Active_udp_games[(citem+(NLPage*UDP_NETGAMES_PPAGE))-2].game_addr, sizeof(struct _sockaddr));
+				dj.start_time = timer_get_fixed_seconds();
+				dj.last_time = 0;
+				dj.connecting = 0;
 				// Choice has been made and looks legit
-				net_udp_game_connect(&mj);
+				net_udp_game_connect(&dj);
 				return 1;
 			}
 			break;

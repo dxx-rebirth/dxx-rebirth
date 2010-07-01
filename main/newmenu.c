@@ -201,7 +201,7 @@ void nm_string( int w1,int x, int y, char * s, int tabs_flag)
 {
 	int w,h,aw,tx=0,t=0,i;
 	char *p,*s1,*s2,measure[2];
-	int XTabs[]={15,87,124,162,228,253};
+	int XTabs[]={18,90,127,165,231,256};
 
 	p=s1=NULL;
 	s2 = d_strdup(s);
@@ -302,7 +302,7 @@ void nm_rstring( int w1,int x, int y, char * s )
 {
 	int w,h,aw;
 	gr_get_string_size(s, &w, &h, &aw  );
-	x -= 3;
+	x -= FSPACX(3);
 
 	if (w1 == 0) w1 = w;
 	gr_string( x-w, y, s );
