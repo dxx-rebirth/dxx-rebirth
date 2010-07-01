@@ -21,10 +21,8 @@ COPYRIGHT 1993-1999 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
-
-#if !defined(_MSC_VER) && !defined(macintosh)
+#ifndef macintosh
 #include <fcntl.h>
-#include <unistd.h>
 #endif
 
 #include "u_mem.h"
@@ -87,7 +85,47 @@ void get_char_width(ubyte c,ubyte c2,int *width,int *spacing)
 	if (!INFONT(letter)) {				//not in font, draw as space
 		*width=0;
 		if (grd_curcanv->cv_font->ft_flags & FT_PROPORTIONAL)
-			*spacing = grd_curcanv->cv_font->ft_w/2;
+			*spacing = FONTSCALE_X(grd_curcanv->cv_font->ft_w)/2;
+		else
+			*spacing = grd_curcanv->cv_font->ft_w;
+		return;
+	}
+
+	if (grd_curcanv->cv_font->ft_flags & FT_PROPORTIONAL)
+		*width = FONTSCALE_X(grd_curcanv->cv_font->ft_widths[letter]);
+	else
+		*width = grd_curcanv->cv_font->ft_w;
+
+	*spacing = *width;
+
+	if (grd_curcanv->cv_font->ft_flags & FT_KERNED)  {
+		ubyte *p;
+
+		if (!(c2==0 || c2=='\n')) {
+			int letter2 = c2-grd_curcanv->cv_font->ft_minchar;
+
+			if (INFONT(letter2)) {
+
+				p = find_kern_entry(grd_curcanv->cv_font,(ubyte)letter,letter2);
+
+				if (p)
+					*spacing = FONTSCALE_X(p[2]);
+			}
+		}
+	}
+}
+
+// Same as above but works with floats, which is better for string-size measurement while being bad for string composition of course
+void get_char_width_f(ubyte c,ubyte c2,float *width,float *spacing)
+{
+	int letter;
+
+	letter = c-grd_curcanv->cv_font->ft_minchar;
+
+	if (!INFONT(letter)) {				//not in font, draw as space
+		*width=0;
+		if (grd_curcanv->cv_font->ft_flags & FT_PROPORTIONAL)
+			*spacing = FONTSCALE_X(grd_curcanv->cv_font->ft_w)/2;
 		else
 			*spacing = grd_curcanv->cv_font->ft_w;
 		return;
@@ -119,7 +157,7 @@ void get_char_width(ubyte c,ubyte c2,int *width,int *spacing)
 
 int get_centered_x(char *s)
 {
-	int w,w2,s2;
+	float w,w2,s2;
 
 	for (w=0;*s!=0 && *s!='\n';s++) {
 		if (*s<=0x06) {
@@ -127,7 +165,7 @@ int get_centered_x(char *s)
 				s++;
 			continue;//skip color codes.
 		}
-		get_char_width(s[0],s[1],&w2,&s2);
+		get_char_width_f(s[0],s[1],&w2,&s2);
 		w += s2;
 	}
 
@@ -256,10 +294,8 @@ int gr_internal_string0(int x, int y, char *s )
 
 				text_ptr++;
 			}
-
 			VideoOffset1 += ROWSIZE; y++;
 		}
-
 		y += skip_lines;
 		VideoOffset1 += ROWSIZE * skip_lines;
 		skip_lines = 0;
@@ -272,13 +308,13 @@ int gr_internal_string0m(int x, int y, char *s )
 	unsigned char * fp;
 	char * text_ptr, * next_row, * text_ptr1;
 	int r, BitMask, i, bits, width, spacing, letter, underline;
-	int	skip_lines = 0;
+	int skip_lines = 0;
 
 	unsigned int VideoOffset, VideoOffset1;
 
 	int orig_color=grd_curcanv->cv_font_fg_color;//to allow easy reseting to default string color with colored strings -MPM
 
-        bits=0;
+        bits = 0;
 
 	VideoOffset1 = y * ROWSIZE + x;
 
@@ -412,7 +448,6 @@ int gr_internal_color_string(int x, int y, char *s )
 	next_row = s;
 
 	yy = y;
-
 
 	while (next_row != NULL)
 	{
@@ -689,8 +724,8 @@ int ogl_internal_string(int x, int y, char *s )
 
 			get_char_width(text_ptr[0],text_ptr[1],&width,&spacing);
 
-			if (!INFONT(letter) || (unsigned char)*text_ptr <= 0x06)
-			{   //not in font, draw as space
+			if (!INFONT(letter) || (unsigned char)*text_ptr <= 0x06) //not in font, draw as space
+			{
 				CHECK_EMBEDDED_COLORS() else{
 					xx += spacing;
 					text_ptr++;
@@ -800,47 +835,43 @@ int gr_ustring(int x, int y, char *s )
 
 void gr_get_string_size(char *s, int *string_width, int *string_height, int *average_width )
 {
-	int i = 0, longest_width = 0;
-	int width,spacing;
+	int i = 0;
+	float width=0.0,spacing=0.0,longest_width=0.0,string_width_f=0.0,string_height_f=0.0;
 
-	*string_height = FONTSCALE_Y(grd_curcanv->cv_font->ft_h);
-	*string_width = 0;
+	string_height_f = FONTSCALE_Y(grd_curcanv->cv_font->ft_h);
+	string_width_f = 0;
 	*average_width = grd_curcanv->cv_font->ft_w;
 
 	if (s != NULL )
 	{
-		*string_width = 0;
+		string_width_f = 0;
 		while (*s)
 		{
+//			if (*s == '&')
+//				s++;
 			while (*s == '\n')
 			{
 				s++;
-				*string_height += FONTSCALE_Y(grd_curcanv->cv_font->ft_h)+FSPACY(1);
-				*string_width = 0;
+				string_height_f += FONTSCALE_Y(grd_curcanv->cv_font->ft_h)+FSPACY(1);
+				string_width_f = 0;
 			}
 
 			if (*s == 0) break;
 
-			//	1 = next byte specifies color, so skip the 1 and the color value
-			if (*s == CC_COLOR)
-				s += 2;
-			else if (*s == CC_LSPACING) {
-				*string_height += *(s+1)-'0';
-				s += 2;
-			} else {
-				get_char_width(s[0],s[1],&width,&spacing);
+			get_char_width_f(s[0],s[1],&width,&spacing);
 
-				*string_width += spacing;
+			string_width_f += spacing;
 
-				if (*string_width > longest_width)
-					longest_width = *string_width;
+			if (string_width_f > longest_width)
+				longest_width = string_width_f;
 
-				i++;
-				s++;
-			}
+			i++;
+			s++;
 		}
 	}
-	*string_width = longest_width;
+	string_width_f = longest_width;
+	*string_width = string_width_f;
+	*string_height = string_height_f;
 }
 
 
@@ -1168,7 +1199,7 @@ int gr_internal_string_clipped(int x, int y, char *s )
 	int r, BitMask, i, bits, width, spacing, letter, underline;
 	int x1 = x, last_x;
 
-        bits=0;
+        bits = 0;
 
 	next_row = s;
 
@@ -1194,7 +1225,7 @@ int gr_internal_string_clipped(int x, int y, char *s )
 				}
 
 				if (*text_ptr == CC_COLOR) {
-					grd_curcanv->cv_font_fg_color = *(text_ptr+1);
+					grd_curcanv->cv_font_fg_color = (unsigned char)*(text_ptr+1);
 					text_ptr += 2;
 					continue;
 				}
@@ -1206,7 +1237,8 @@ int gr_internal_string_clipped(int x, int y, char *s )
 				}
 
 				underline = 0;
-				if (*text_ptr == CC_UNDERLINE )	{
+				if (*text_ptr == CC_UNDERLINE )
+				{
 					if ((r==grd_curcanv->cv_font->ft_baseline+2) || (r==grd_curcanv->cv_font->ft_baseline+3))
 						underline = 1;
 					text_ptr++;
@@ -1214,7 +1246,7 @@ int gr_internal_string_clipped(int x, int y, char *s )
 
 				get_char_width(text_ptr[0],text_ptr[1],&width,&spacing);
 
-				letter = *text_ptr-grd_curcanv->cv_font->ft_minchar;
+				letter = (unsigned char)*text_ptr-grd_curcanv->cv_font->ft_minchar;
 
 				if (!INFONT(letter)) {	//not in font, draw as space
 					x += spacing;
@@ -1268,7 +1300,7 @@ int gr_internal_string_clipped_m(int x, int y, char *s )
 	int r, BitMask, i, bits, width, spacing, letter, underline;
 	int x1 = x, last_x;
 
-        bits=0;
+        bits = 0;
 
 	next_row = s;
 
@@ -1295,7 +1327,7 @@ int gr_internal_string_clipped_m(int x, int y, char *s )
 				}
 
 				if (*text_ptr == CC_COLOR) {
-					grd_curcanv->cv_font_fg_color = *(text_ptr+1);
+					grd_curcanv->cv_font_fg_color = (unsigned char)*(text_ptr+1);
 					text_ptr += 2;
 					continue;
 				}
@@ -1307,7 +1339,8 @@ int gr_internal_string_clipped_m(int x, int y, char *s )
 				}
 
 				underline = 0;
-				if (*text_ptr == CC_UNDERLINE )	{
+				if (*text_ptr == CC_UNDERLINE )
+				{
 					if ((r==grd_curcanv->cv_font->ft_baseline+2) || (r==grd_curcanv->cv_font->ft_baseline+3))
 						underline = 1;
 					text_ptr++;
@@ -1315,7 +1348,7 @@ int gr_internal_string_clipped_m(int x, int y, char *s )
 
 				get_char_width(text_ptr[0],text_ptr[1],&width,&spacing);
 
-				letter = *text_ptr-grd_curcanv->cv_font->ft_minchar;
+				letter = (unsigned char)*text_ptr-grd_curcanv->cv_font->ft_minchar;
 
 				if (!INFONT(letter)) {	//not in font, draw as space
 					x += spacing;
