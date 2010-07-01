@@ -31,11 +31,12 @@ COPYRIGHT 1993-1998 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 #include "error.h"
 #include "cfile.h"
 #include "byteswap.h"
+#include "bitmap.h"
 #include "gamefont.h"
+#include "console.h"
 #ifdef OGL
 #include "ogl_init.h"
 #endif
-#include "console.h"
 
 #define FONTSCALE_X(x) ((float)(x)*(FNTScaleX))
 #define FONTSCALE_Y(x) ((float)(x)*(FNTScaleY))
@@ -71,7 +72,47 @@ void get_char_width(ubyte c,ubyte c2,int *width,int *spacing)
 	if (!INFONT(letter)) {				//not in font, draw as space
 		*width=0;
 		if (grd_curcanv->cv_font->ft_flags & FT_PROPORTIONAL)
-			*spacing = grd_curcanv->cv_font->ft_w/2;
+			*spacing = FONTSCALE_X(grd_curcanv->cv_font->ft_w)/2;
+		else
+			*spacing = grd_curcanv->cv_font->ft_w;
+		return;
+	}
+
+	if (grd_curcanv->cv_font->ft_flags & FT_PROPORTIONAL)
+		*width = FONTSCALE_X(grd_curcanv->cv_font->ft_widths[letter]);
+	else
+		*width = grd_curcanv->cv_font->ft_w;
+
+	*spacing = *width;
+
+	if (grd_curcanv->cv_font->ft_flags & FT_KERNED)  {
+		ubyte *p;
+
+		if (!(c2==0 || c2=='\n')) {
+			int letter2 = c2-grd_curcanv->cv_font->ft_minchar;
+
+			if (INFONT(letter2)) {
+
+				p = find_kern_entry(grd_curcanv->cv_font,(ubyte)letter,letter2);
+
+				if (p)
+					*spacing = FONTSCALE_X(p[2]);
+			}
+		}
+	}
+}
+
+// Same as above but works with floats, which is better for string-size measurement while being bad for string composition of course
+void get_char_width_f(ubyte c,ubyte c2,float *width,float *spacing)
+{
+	int letter;
+
+	letter = c-grd_curcanv->cv_font->ft_minchar;
+
+	if (!INFONT(letter)) {				//not in font, draw as space
+		*width=0;
+		if (grd_curcanv->cv_font->ft_flags & FT_PROPORTIONAL)
+			*spacing = FONTSCALE_X(grd_curcanv->cv_font->ft_w)/2;
 		else
 			*spacing = grd_curcanv->cv_font->ft_w;
 		return;
@@ -103,7 +144,7 @@ void get_char_width(ubyte c,ubyte c2,int *width,int *spacing)
 
 int get_centered_x(char *s)
 {
-	int w,w2,s2;
+	float w,w2,s2;
 
 	for (w=0;*s!=0 && *s!='\n';s++) {
 		if (*s<=0x06) {
@@ -111,7 +152,7 @@ int get_centered_x(char *s)
 				s++;
 			continue;//skip color codes.
 		}
-		get_char_width(s[0],s[1],&w2,&s2);
+		get_char_width_f(s[0],s[1],&w2,&s2);
 		w += s2;
 	}
 
@@ -136,7 +177,6 @@ int gr_message_color_level=1;
 			grd_curcanv->cv_font_fg_color=(unsigned char)orig_color; \
 		text_ptr++; \
 	}
-
 
 int gr_internal_string0(int x, int y, char *s )
 {
@@ -200,7 +240,7 @@ int gr_internal_string0(int x, int y, char *s )
 
 				get_char_width(text_ptr[0],text_ptr[1],&width,&spacing);
 
-				letter = (unsigned char)*text_ptr-grd_curcanv->cv_font->ft_minchar;
+				letter = (unsigned char)*text_ptr - grd_curcanv->cv_font->ft_minchar;
 
 				if (!INFONT(letter)) {	//not in font, draw as space
 					VideoOffset += spacing;
@@ -316,7 +356,8 @@ int gr_internal_string0m(int x, int y, char *s )
 
 				letter = (unsigned char)*text_ptr-grd_curcanv->cv_font->ft_minchar;
 
-				if (!INFONT(letter) || (unsigned char)*text_ptr<=0x06) {	//not in font, draw as space
+				if (!INFONT(letter) || (unsigned char) *text_ptr <= 0x06)	//not in font, draw as space
+				{
 					CHECK_EMBEDDED_COLORS() else{
 						VideoOffset += spacing;
 						text_ptr++;
@@ -370,22 +411,22 @@ int gr_internal_string0m(int x, int y, char *s )
 #ifndef OGL
 //a bitmap for the character
 grs_bitmap char_bm = {
-				0,0,0,0,						//x,y,w,h
-				BM_LINEAR,					//type
-				BM_FLAG_TRANSPARENT,		//flags
-				0,								//rowsize
-				NULL,							//data
+				0,0,0,0,		//x,y,w,h
+				BM_LINEAR,		//type
+				BM_FLAG_TRANSPARENT,	//flags
+				0,			//rowsize
+				NULL,			//data
 #ifdef BITMAP_SELECTOR
-				0,								//selector
+				0,			//selector
 #endif
-				0,	//avg_color
-				0	//unused
+				0,			//avg_color
+				0			//unused
 };
 
 int gr_internal_color_string(int x, int y, char *s )
 {
 	unsigned char * fp;
-	char * text_ptr, * next_row, * text_ptr1;
+	char *text_ptr, *next_row, *text_ptr1;
 	int width, spacing,letter;
 	int xx,yy;
 
@@ -416,7 +457,7 @@ int gr_internal_color_string(int x, int y, char *s )
 				break;
 			}
 
-			letter = (unsigned char)*text_ptr-grd_curcanv->cv_font->ft_minchar;
+			letter = (unsigned char)*text_ptr - grd_curcanv->cv_font->ft_minchar;
 
 			get_char_width(text_ptr[0],text_ptr[1],&width,&spacing);
 
@@ -433,9 +474,6 @@ int gr_internal_color_string(int x, int y, char *s )
 
 			gr_init_bitmap (&char_bm, BM_LINEAR, 0, 0, width, grd_curcanv->cv_font->ft_h, width, fp);
 			gr_bitmapm(xx,yy,&char_bm);
-#ifdef D1XD3D
-			Win32_FreeTexture (&char_bm);
-#endif
 
 			xx += spacing;
 
@@ -669,11 +707,12 @@ int ogl_internal_string(int x, int y, char *s )
 				break;
 			}
 
-			letter = (unsigned char)*text_ptr-grd_curcanv->cv_font->ft_minchar;
+			letter = (unsigned char)*text_ptr - grd_curcanv->cv_font->ft_minchar;
 
 			get_char_width(text_ptr[0],text_ptr[1],&width,&spacing);
 
-			if (!INFONT(letter) || (unsigned char)*text_ptr<=0x06) {	//not in font, draw as space
+			if (!INFONT(letter) || (unsigned char)*text_ptr <= 0x06) //not in font, draw as space
+			{
 				CHECK_EMBEDDED_COLORS() else{
 					xx += spacing;
 					text_ptr++;
@@ -698,6 +737,7 @@ int ogl_internal_string(int x, int y, char *s )
 	}
 	return 0;
 }
+
 int gr_internal_color_string(int x, int y, char *s ){
 	return ogl_internal_string(x,y,s);
 }
@@ -707,6 +747,8 @@ int gr_string(int x, int y, char *s )
 {
 	int w, h, aw;
 	int clipped=0;
+
+	Assert(grd_curcanv->cv_font != NULL);
 
 	if ( x == 0x8000 )	{
 		if ( y<0 ) clipped |= 1;
@@ -773,20 +815,6 @@ int gr_ustring(int x, int y, char *s )
 				return gr_internal_string0m(x,y,s);
 			else
 				return gr_internal_string0(x,y,s);
-#ifdef __MSDOS__
-		case BM_SVGA:
-			if ( grd_curcanv->cv_font_bg_color == -1)
-				return gr_internal_string2m(x,y,s);
-			else
-				return gr_internal_string2(x,y,s);
-#endif
-#ifdef D1XD3D
-		case BM_DIRECTX:
-			if ( grd_curcanv->cv_font_bg_color == -1)
-				return gr_internal_string_clipped_m(x,y,s);
-			else
-				return gr_internal_string_clipped(x,y,s);
-#endif
 		}
 	return 0;
 }
@@ -794,16 +822,16 @@ int gr_ustring(int x, int y, char *s )
 
 void gr_get_string_size(char *s, int *string_width, int *string_height, int *average_width )
 {
-	int i = 0, longest_width = 0;
-	int width,spacing;
+	int i = 0;
+	float width=0.0,spacing=0.0,longest_width=0.0,string_width_f=0.0,string_height_f=0.0;
 
-	*string_height = FONTSCALE_Y(grd_curcanv->cv_font->ft_h);
-	*string_width = 0;
+	string_height_f = FONTSCALE_Y(grd_curcanv->cv_font->ft_h);
+	string_width_f = 0;
 	*average_width = grd_curcanv->cv_font->ft_w;
 
 	if (s != NULL )
 	{
-		*string_width = 0;
+		string_width_f = 0;
 		while (*s)
 		{
 //			if (*s == '&')
@@ -811,24 +839,26 @@ void gr_get_string_size(char *s, int *string_width, int *string_height, int *ave
 			while (*s == '\n')
 			{
 				s++;
-				*string_height += FONTSCALE_Y(grd_curcanv->cv_font->ft_h)+FSPACY(1);
-				*string_width = 0;
+				string_height_f += FONTSCALE_Y(grd_curcanv->cv_font->ft_h)+FSPACY(1);
+				string_width_f = 0;
 			}
 
 			if (*s == 0) break;
 
-			get_char_width(s[0],s[1],&width,&spacing);
+			get_char_width_f(s[0],s[1],&width,&spacing);
 
-			*string_width += spacing;
+			string_width_f += spacing;
 
-			if (*string_width > longest_width)
-				longest_width = *string_width;
+			if (string_width_f > longest_width)
+				longest_width = string_width_f;
 
 			i++;
 			s++;
 		}
 	}
-	*string_width = longest_width;
+	string_width_f = longest_width;
+	*string_width = string_width_f;
+	*string_height = string_height_f;
 }
 
 
@@ -870,20 +900,6 @@ void gr_close_font( grs_font * font )
 }
 
 void build_colormap_good( ubyte * palette, ubyte * colormap, int * freq );
-#include "bitmap.h" // decode_data_asm
-#if 0
-void decode_data_asm(ubyte *data, int num_pixels, ubyte * colormap, int * count );
-#pragma aux decode_data_asm parm [esi] [ecx] [edi] [ebx] modify exact [esi edi eax ebx ecx] = \
-"again_ddn:"							\
-	"xor	eax,eax"				\
-	"mov	al,[esi]"			\
-	"inc	dword ptr [ebx+eax*4]"		\
-	"mov	al,[edi+eax]"		\
-	"mov	[esi],al"			\
-	"inc	esi"					\
-	"dec	ecx"					\
-	"jne	again_ddn"
-#endif
 
 grs_font * gr_init_font( char * fontname )
 {
@@ -1211,4 +1227,3 @@ int gr_internal_string_clipped_m(int x, int y, char *s )
 	}
 	return 0;
 }
-
