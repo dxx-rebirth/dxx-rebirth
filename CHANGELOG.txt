@@ -3,6 +3,7 @@ D2X-Rebirth Changelog
 20100701
 --------
 2d/font.c: For gr_get_string_size introduced get_char_width_f to calculate with floats to measure non-integer font scalings; Cleanup
+main/net_udp.c, main/newmenu.c: Renamed manual_join to direct_join; Aligned letlist tabs a little bit
 
 20100630
 --------
