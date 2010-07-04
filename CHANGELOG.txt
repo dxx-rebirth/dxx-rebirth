@@ -1,5 +1,9 @@
 D1X-Rebirth Changelog
 
+20100704
+--------
+main/net_udp.c: Fixed Compiler-warning on Windows
+
 20100701
 --------
 2d/font.c: For gr_get_string_size introduced get_char_width_f to calculate with floats to measure non-integer font scalings; Cleanup
