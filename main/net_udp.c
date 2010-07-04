@@ -453,7 +453,6 @@ static int manual_join_game_handler(newmenu *menu, d_event *event, direct_join *
 			
 		case EVENT_WINDOW_CLOSE:
 			d_free(dj);
-			net_udp_close();
 			break;
 			
 		default:
@@ -467,7 +466,7 @@ void net_udp_manual_join_game()
 {
 	direct_join *dj;
 	newmenu_item m[7];
-	int nitems = 0;
+	int nitems = 0, i = 0;
 
 	MALLOC(dj, direct_join, 1);
 	if (!dj)
@@ -501,7 +500,9 @@ void net_udp_manual_join_game()
 	m[nitems].type = NM_TYPE_INPUT; m[nitems].text=UDP_MyPort; m[nitems].text_len=5;	nitems++;
 	m[nitems].type = NM_TYPE_TEXT;  m[nitems].text=blank;								nitems++;	// for connecting_txt
 
-	newmenu_do1( NULL, "ENTER GAME ADDRESS", nitems, m, (int (*)(newmenu *, d_event *, void *))manual_join_game_handler, dj, 0 );
+	i = newmenu_do1( NULL, "ENTER GAME ADDRESS", nitems, m, (int (*)(newmenu *, d_event *, void *))manual_join_game_handler, dj, 0 );
+	if (i != -2)
+		net_udp_close();
 }
 
 static int NLPage = 0;
@@ -770,7 +771,7 @@ void net_udp_init()
 	WORD wVersionRequested;
 	WSADATA wsaData;
 	wVersionRequested = MAKEWORD(2, 0);
-	WSACleanUp();
+	WSACleanup();
 	if (WSAStartup( wVersionRequested, &wsaData))
 		nm_messagebox( TXT_ERROR, 1, TXT_OK, "Cannot init Winsock!"); // no break here... game will fail at socket creation anyways...
 }
@@ -805,7 +806,7 @@ void net_udp_init()
 void net_udp_close()
 {
 #ifdef _WIN32
-	WSACleanUp();
+	WSACleanup();
 #endif
 
 	if( UDP_Socket[0] != -1 )

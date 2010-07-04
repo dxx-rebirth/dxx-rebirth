@@ -5,6 +5,7 @@ D1X-Rebirth Changelog
 main/net_udp.c: Fixed Compiler-warning on Windows
 main/net_ipx.c, main/net_udp.c: Implemented Winsock functions for UDP which I totally forgot about; Now when leaving game in any way, close sockets and Winsock stuff
 main/gameseq.c, main/multi.c: Since time is not suspended between levels in Multiplayer, call reset_time after level change. Apply this in Singleplayer, too since it should always be safe - and appropriate - to reset timer_value soon as a new level begins
+main/net_udp.c: Fixes for rev1148: Was too hasty with calling net_udp_close; Fixing typo in WSACleanup()
 
 20100701
 --------
