@@ -389,7 +389,7 @@ static int time_paused=0;
 void stop_time()
 {
 	if (time_paused==0) {
-		fix time;
+		fix time;printf("STOP\n");
 		time = timer_get_fixed_seconds();
 		last_timer_value = time - last_timer_value;
 		if (last_timer_value < 0) {
@@ -404,7 +404,7 @@ void start_time()
 	time_paused--;
 	Assert(time_paused >= 0);
 	if (time_paused==0) {
-		fix time;
+		fix time;printf("START\n");
 		time = timer_get_fixed_seconds();
 		last_timer_value = time - last_timer_value;
 	}
@@ -453,7 +453,7 @@ void FixedStepCalc()
 }
 
 void reset_time()
-{
+{printf("RESET\n");
 	last_timer_value = timer_get_fixed_seconds();
 }
 

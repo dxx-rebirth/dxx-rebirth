@@ -947,6 +947,7 @@ void PlayerFinishedLevel(int secret_flag)
 
 	if (Game_wind)
 		window_set_visible(Game_wind, 1);
+	reset_time();
 }
 
 
@@ -1139,6 +1140,7 @@ void DoPlayerDead()
 
 	if (Game_wind)
 		window_set_visible(Game_wind, 1);
+	reset_time();
 }
 
 //called when the player is starting a new level for normal game mode and restore state
@@ -1397,7 +1399,6 @@ void StartLevel(int random)
 
 	ai_reset_all_paths();
 	ai_init_boss_for_ship();
-	// reset_time(); Time is stopped and should be resumed soon. You shall be obsolete!
 
 	reset_rear_view();
 	Auto_fire_fusion_cannon_time = 0;
