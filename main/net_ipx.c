@@ -230,7 +230,6 @@ void ipxdrv_close()
 //		-5 if error with getting internetwork address
 int ipxdrv_init( int socket_number )
 {
-	static int cleanup = 0;
 #ifdef _WIN32
 	WORD wVersionRequested;
 	WSADATA wsaData;
@@ -266,10 +265,6 @@ int ipxdrv_init( int socket_number )
 	memcpy( &Ipx_networks[Ipx_num_networks++], &ipx_network, 4 );
 
 	ipxdrv_installed = 1;
-
-	if (!cleanup)
-		atexit(ipxdrv_close);
-	cleanup = 1;
 
 	return 0;
 }
@@ -3224,6 +3219,9 @@ int net_ipx_setup_game()
 
 	i = newmenu_do1( NULL, NULL, optnum, m, (int (*)( newmenu *, d_event *, void * ))net_ipx_game_param_handler, &opt, 1 );
 
+	if (i < 0)
+		ipxdrv_close();
+
 	return i >= 0;
 }
 
@@ -3907,7 +3905,7 @@ int net_ipx_join_poll( newmenu *menu, d_event *event, void *menu_text )
 		case EVENT_WINDOW_CLOSE:
 			d_free(menu_text);
 			d_free(menus);
-
+			ipxdrv_close();
 			if (!Game_wind)
 				Network_status = NETSTAT_MENU;	// they cancelled
 			break;
@@ -4067,6 +4065,7 @@ net_ipx_level_sync(void)
 	{
 		Players[Player_num].connected = CONNECT_DISCONNECTED;
 		net_ipx_send_endlevel_packet();
+		ipxdrv_close();
 		if (Game_wind)
 			window_close(Game_wind);
 		show_menus();
@@ -4392,6 +4391,7 @@ void net_ipx_leave_game()
 	write_player_file();
 
 	net_ipx_flush();
+	ipxdrv_close();
 }
 
 void net_ipx_flush()
