@@ -3,6 +3,7 @@ D1X-Rebirth Changelog
 20100704
 --------
 main/net_udp.c: Fixed Compiler-warning on Windows
+main/net_ipx.c, main/net_udp.c: Implemented Winsock functions for UDP which I totally forgot about; Now when leaving game in any way, close sockets and Winsock stuff
 
 20100701
 --------

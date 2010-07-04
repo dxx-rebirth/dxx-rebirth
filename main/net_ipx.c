@@ -169,7 +169,6 @@ void ipxdrv_close()
 //		-5 if error with getting internetwork address
 int ipxdrv_init( int socket_number )
 {
-	static int cleanup = 0;
 #ifdef _WIN32
 	WORD wVersionRequested;
 	WSADATA wsaData;
@@ -205,10 +204,6 @@ int ipxdrv_init( int socket_number )
 	memcpy( &Ipx_networks[Ipx_num_networks++], &ipx_network, 4 );
 
 	ipxdrv_installed = 1;
-
-	if (!cleanup)
-		atexit(ipxdrv_close);
-	cleanup = 1;
 
 	return 0;
 }
@@ -643,9 +638,6 @@ int net_ipx_endlevel_poll( newmenu *menu, d_event *event, int *secret )
 				if (choice == 0)
 				{
 					Players[Player_num].connected = CONNECT_DISCONNECTED;
-					window_close(newmenu_get_window(menu));
-					if (Game_wind)
-						window_close(Game_wind);	// exit game
 					return 0;
 				}
 				if (choice > -2)
@@ -875,12 +867,21 @@ int net_ipx_endlevel(int *secret)
 	sprintf(title, "%s\n%s", TXT_WAITING, TXT_ESC_ABORT);
 
 	menu = newmenu_do3(NULL, title, N_players+1, m, (int (*)( newmenu *, d_event *, void * ))net_ipx_endlevel_poll, secret,
-					   0, STARS_BACKGROUND);
+					   0, NULL);
 
 	// Stay here until finished
 	wind = newmenu_get_window(menu);
 	while (window_exists(wind))
 		event_process();
+
+	// Player canceled between levels
+	if (Players[Player_num].connected == CONNECT_DISCONNECTED)
+	{
+		if (Game_wind)
+			window_close(Game_wind);
+		show_menus();
+		ipxdrv_close();
+	}
 
 	return(0);
 }
@@ -2549,6 +2550,9 @@ int net_ipx_setup_game()
 
 	i = newmenu_do1( NULL, NULL, optnum, m, (int (*)( newmenu *, d_event *, void * ))net_ipx_game_param_handler, &opt, 1 );
 
+	if (i < 0)
+		ipxdrv_close();
+
 	return i >= 0;
 }
 
@@ -3242,7 +3246,7 @@ int net_ipx_join_poll( newmenu *menu, d_event *event, void *menu_text )
 		case EVENT_WINDOW_CLOSE:
 			d_free(menu_text);
 			d_free(menus);
-
+			ipxdrv_close();
 			if (!Game_wind)
 				Network_status = NETSTAT_MENU;	// they cancelled
 			break;
@@ -3399,6 +3403,7 @@ net_ipx_level_sync(void)
 	{
 		Players[Player_num].connected = CONNECT_DISCONNECTED;
 		net_ipx_send_endlevel_packet();
+		ipxdrv_close();
 		if (Game_wind)
 			window_close(Game_wind);
 		show_menus();
@@ -3530,6 +3535,7 @@ void net_ipx_leave_game()
 	change_playernum_to(0);
 	Game_mode = GM_GAME_OVER;
 	net_ipx_flush();
+	ipxdrv_close();
 }
 
 void net_ipx_flush()

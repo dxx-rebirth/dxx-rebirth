@@ -51,6 +51,7 @@
 
 // Prototypes
 void net_udp_init();
+void net_udp_close();
 void net_udp_request_game_info(struct _sockaddr game_addr, int lite);
 void net_udp_listen();
 int net_udp_show_game_info();
@@ -452,6 +453,7 @@ static int manual_join_game_handler(newmenu *menu, d_event *event, direct_join *
 			
 		case EVENT_WINDOW_CLOSE:
 			d_free(dj);
+			net_udp_close();
 			break;
 			
 		default:
@@ -565,7 +567,7 @@ int net_udp_list_join_poll( newmenu *menu, d_event *event, void *menu_text )
 		case EVENT_WINDOW_CLOSE:
 			d_free(menu_text);
 			d_free(menus);
-
+			net_udp_close();
 			if (!Game_wind)
 				Network_status = NETSTAT_MENU;	// they cancelled
 			break;
@@ -763,6 +765,17 @@ void net_udp_init()
 
 	int save_pnum = Player_num;
 
+#ifdef _WIN32
+{
+	WORD wVersionRequested;
+	WSADATA wsaData;
+	wVersionRequested = MAKEWORD(2, 0);
+	WSACleanUp();
+	if (WSAStartup( wVersionRequested, &wsaData))
+		nm_messagebox( TXT_ERROR, 1, TXT_OK, "Cannot init Winsock!"); // no break here... game will fail at socket creation anyways...
+}
+#endif
+
 	if( UDP_Socket[0] != -1 )
 		udp_close_socket(0);
 	if( UDP_Socket[1] != -1 )
@@ -787,6 +800,18 @@ void net_udp_init()
 	net_udp_flush();
 
 	Netgame.PacketsPerSec = 10;
+}
+
+void net_udp_close()
+{
+#ifdef _WIN32
+	WSACleanUp();
+#endif
+
+	if( UDP_Socket[0] != -1 )
+		udp_close_socket(0);
+	if( UDP_Socket[1] != -1 )
+		udp_close_socket(1);
 }
 
 // Send PID_ENDLEVEL in regular intervals and listen for them (host also does the packets for playing clients)
@@ -937,6 +962,7 @@ net_udp_disconnect_player(int playernum)
 		multi_quit_game = 1;
 		game_leave_menus();
 		multi_reset_stuff();
+		net_udp_close();
 	}
 }
 
@@ -2893,7 +2919,7 @@ int net_udp_setup_game()
 	char srmaxnet[50];
 
 	net_udp_init();
-	
+
 	change_playernum_to(0);
 
 	for (i=0;i<MAX_PLAYERS;i++)
@@ -2964,6 +2990,9 @@ int net_udp_setup_game()
 	Assert(optnum <= 20);
 
 	i = newmenu_do1( NULL, NULL, optnum, m, (int (*)( newmenu *, d_event *, void * ))net_udp_game_param_handler, &opt, 1 );
+
+	if (i < 0)
+		net_udp_close();
 
 	return i >= 0;
 }
@@ -3540,6 +3569,7 @@ net_udp_level_sync(void)
 	{
 		Players[Player_num].connected = CONNECT_DISCONNECTED;
 		net_udp_send_endlevel_packet();
+		net_udp_close();
 		if (Game_wind)
 			window_close(Game_wind);
 		show_menus();
@@ -3608,11 +3638,7 @@ void net_udp_leave_game()
 	change_playernum_to(0);
 	Game_mode = GM_GAME_OVER;
 	net_udp_flush();
-
-	if( UDP_Socket[0] != -1 )
-		udp_close_socket(0);
-	if( UDP_Socket[1] != -1 )
-		udp_close_socket(1);
+	net_udp_close();
 }
 
 void net_udp_flush()
