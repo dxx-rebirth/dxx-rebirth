@@ -231,6 +231,7 @@ int udp_open_socket(int socknum, int port)
 		udp_close_socket(socknum);
 		return -1;
 	}
+	(void)setsockopt( UDP_Socket[socknum], SOL_SOCKET, SO_BROADCAST, (const char *) &bcast, sizeof(bcast) );
 #else
 	struct addrinfo hints,*res,*sres;
 	int err,ai_family_;
@@ -293,8 +294,8 @@ int udp_open_socket(int socknum, int port)
 		con_printf(CON_URGENT,"udp_open_socket (getaddrinfo):%s\n", gai_strerror (err));
 		nm_messagebox(TXT_ERROR,1,TXT_OK,"Could not get address information:\n%s",gai_strerror (err));
 	}
-#endif
 	setsockopt( UDP_Socket[socknum], SOL_SOCKET, SO_BROADCAST, &bcast, sizeof(bcast) );
+#endif
 
 	return 0;
 	}
