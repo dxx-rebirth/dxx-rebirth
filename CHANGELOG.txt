@@ -2,7 +2,7 @@ D2X-Rebirth Changelog
 
 20100705
 --------
-main/kconfig.c: Fixing issue when assigning mouse button if a citem is still pointed out; Fixing still processing key commands even if we want to assign a key
+main/kconfig.c: Fixing issue when assigning mouse button if a citem is still pointed out; Fixing still processing key commands even if we want to assign a key; After setting mouse button, reset mouse state properly
 arch/sdl/digi_mixer_music.c: Fixing issue introduced in rev1139: Game could of course not open music files which are not inside Searchpath or added to it - re-added playing over absolute path
 
 20100704
