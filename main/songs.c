@@ -420,7 +420,9 @@ int songs_play_level_song( int levelnum, int offset )
 						Song_playing = songnum;
 					}
 				}
+#ifdef USE_SDLMIXER
 				else
+#endif
 #endif
 #ifdef USE_SDLMIXER
 				{
