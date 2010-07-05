@@ -72,7 +72,7 @@ int mix_play_file(char *filename, int loop, void (*hook_finished_track)())
 {
 	SDL_RWops *rw = NULL;
 	PHYSFS_file *filehandle = NULL;
-	char tmp_file[PATH_MAX], real_filename[PATH_MAX], real_filename_absolute[PATH_MAX];
+	char tmp_file[PATH_MAX], real_filename[PATH_MAX];
 	char *basedir = "music", *fptr, *buf = NULL;
 	int bufsize = 0;
 
@@ -101,7 +101,12 @@ int mix_play_file(char *filename, int loop, void (*hook_finished_track)())
 
 	loop = loop ? -1 : 1;	// loop means loop infinitely, otherwise play once
 
-	filehandle = PHYSFS_openRead(real_filename);
+	// try loading music via given filename
+	current_music = Mix_LoadMUS(real_filename);
+
+	// no luck. so either it's in an archive or Searchpath
+	if (!current_music)
+		filehandle = PHYSFS_openRead(real_filename);
 	if (filehandle != NULL)
 	{
 		buf = realloc(buf, sizeof(char *)*PHYSFS_fileLength(filehandle));
@@ -119,7 +124,7 @@ int mix_play_file(char *filename, int loop, void (*hook_finished_track)())
 	}
 	else
 	{
-		con_printf(CON_CRITICAL,"Music %s could not be loaded\n", real_filename_absolute);
+		con_printf(CON_CRITICAL,"Music %s could not be loaded\n", real_filename);
 		Mix_HaltMusic();
 	}
 
