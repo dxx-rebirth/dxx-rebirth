@@ -803,6 +803,7 @@ int kconfig_handler(window *wind, d_event *event, kc_menu *menu)
 			if (menu->changing && (menu->items[menu->citem].type == BT_MOUSE_BUTTON) && (event->type == EVENT_MOUSE_BUTTON_UP))
 			{
 				kc_change_mousebutton( menu, event, &menu->items[menu->citem] );
+				menu->mouse_state = (event->type == EVENT_MOUSE_BUTTON_DOWN);
 				return 1;
 			}
 
