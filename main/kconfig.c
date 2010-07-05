@@ -624,6 +624,10 @@ int kconfig_key_command(window *wind, d_event *event, kc_menu *menu)
 	int i,k;
 
 	k = ((d_event_keycommand *)event)->keycode;
+
+	// when changing, process no keys instead of ESC
+	if (menu->changing && (k != -2 && k != KEY_ESC))
+		return 0;
 	
 	switch (k)
 	{
@@ -795,14 +799,13 @@ int kconfig_handler(window *wind, d_event *event, kc_menu *menu)
 			break;
 			
 		case EVENT_MOUSE_BUTTON_DOWN:
-			if (menu->changing && (menu->items[menu->citem].type == BT_MOUSE_BUTTON))
+		case EVENT_MOUSE_BUTTON_UP:
+			if (menu->changing && (menu->items[menu->citem].type == BT_MOUSE_BUTTON) && (event->type == EVENT_MOUSE_BUTTON_UP))
 			{
 				kc_change_mousebutton( menu, event, &menu->items[menu->citem] );
 				return 1;
 			}
-			// else fall through
 
-		case EVENT_MOUSE_BUTTON_UP:
 			if (mouse_get_button(event) != 0)
 				return 0;
 

@@ -1,5 +1,9 @@
 D1X-Rebirth Changelog
 
+20100705
+--------
+main/kconfig.c: Fixing issue when assigning mouse button if a citem is still pointed out; Fixing still processing key commands even if we want to assign a key
+
 20100704
 --------
 main/net_udp.c: Fixed Compiler-warning on Windows
