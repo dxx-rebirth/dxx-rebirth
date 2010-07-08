@@ -4,6 +4,7 @@ D2X-Rebirth Changelog
 --------
 main/net_udp.c, main/net_udp.h: Reworked handling of Netlist now also showing full game info; Prevent Clients from sending lite_info; Make lite_info show numconnected instead of numplayers as this would show disconnected ones as well; Removed reusing ports on different instances in Windows build - only screws up several games running on one machine
 main/game.c, main/gameseq.c, main/multi.c, main/net_udp.c, main/net_ipx.c: Improved hanlding for closing sockets - doing via closing of Game_wind when available or in specific multi menus; Also handling GM_GAME_OVER setting over Game_wind closing as well if apprpriate - cleaner and helps to cleanup multi when mission is over
+arch/sdl/key.c: Also send event KEY_COMMAND if there's somethig in our Unicode buffer since not every Unicode key corresponds to a keysym on every layout 
 
 20100705
 --------

@@ -426,7 +426,7 @@ void key_handler(SDL_KeyboardEvent *event, int counter)
 
 	// We allowed the key to be added to the queue for now,
 	// because there are still input loops without associated windows
-	if (key_command)
+	if (key_command || unicode_frame_buffer[0] != '\0')
 	{
 		d_event_keycommand event;
 		window *wind;
