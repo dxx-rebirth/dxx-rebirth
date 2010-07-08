@@ -82,7 +82,7 @@ typedef struct UDP_netgame_info_lite
 	ubyte							RefusePlayers;
 	ubyte                           difficulty;
 	ubyte                           game_status;
-	ubyte                           numplayers;
+	ubyte                           numconnected;
 	ubyte                           max_numplayers;
 	ubyte                           game_flags;
 	ubyte                           team_vector;

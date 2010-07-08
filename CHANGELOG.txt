@@ -1,5 +1,9 @@
 D2X-Rebirth Changelog
 
+20100708
+--------
+main/net_udp.c, main/net_udp.h: Reworked handling of Netlist now also showing full game info; Prevent Clients from sending lite_info; Make lite_info show numconnected instead of numplayers as this would show disconnected ones as well; Removed reusing ports on different instances in Windows build - only screws up several games running on one machine
+
 20100705
 --------
 main/kconfig.c: Fixing issue when assigning mouse button if a citem is still pointed out; Fixing still processing key commands even if we want to assign a key; After setting mouse button, reset mouse state properly

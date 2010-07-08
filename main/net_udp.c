@@ -196,20 +196,14 @@ int udp_open_socket(int socknum, int port)
 	{
 #ifdef _WIN32
 	struct _sockaddr sAddr;   // my address information
-	int reuse_on = -1;
 
 	memset( &sAddr, '\0', sizeof( sAddr ) );
 
-	if ((UDP_Socket[socknum] = socket (_af, SOCK_DGRAM, 0)) == -1) {
+	if ((UDP_Socket[socknum] = socket (_af, SOCK_DGRAM, 0)) < 0) {
 		con_printf(CON_URGENT,"udp_open_socket: socket creation failed\n");
 		nm_messagebox(TXT_ERROR,1,TXT_OK,"Could not create socket");
 		return -1;
 	}
-
-	// this is pretty annoying in win32. Not doing that will lead to 
-	// "Could not bind name to socket" errors. It may be suitable for other
-	// socket implementations, too
-	(void)setsockopt( UDP_Socket[socknum], SOL_SOCKET, SO_REUSEADDR, (const char *) &reuse_on, sizeof( reuse_on ));
 
 #ifdef IPv6
 	sAddr.sin6_family = _pf; // host byte order
@@ -225,7 +219,7 @@ int udp_open_socket(int socknum, int port)
 	
 	memset (&(sAddr.sin_zero), '\0', 8); // zero the rest of the struct
 	
-	if (bind (UDP_Socket[socknum], (struct sockaddr *) &sAddr, sizeof (struct sockaddr)) == -1) 
+	if (bind (UDP_Socket[socknum], (struct sockaddr *) &sAddr, sizeof (struct sockaddr)) < 0) 
 	{      
 		con_printf(CON_URGENT,"udp_open_socket: bind name to socket failed\n");
 		nm_messagebox(TXT_ERROR,1,TXT_OK,"Could not bind name to socket");
@@ -529,11 +523,13 @@ void net_udp_manual_join_game()
 		net_udp_close();
 }
 
-static int NLPage = 0;
-int net_udp_list_join_poll( newmenu *menu, d_event *event, void *menu_text )
+static char *ljtext = "";
+
+int net_udp_list_join_poll( newmenu *menu, d_event *event, direct_join *dj )
 {
 	// Polling loop for Join Game menu
 	int i, newpage = 0;
+	static int NLPage = 0;
 	newmenu_item *menus = newmenu_get_items(menu);
 	int citem = newmenu_get_citem(menu);
 
@@ -547,6 +543,13 @@ int net_udp_list_join_poll( newmenu *menu, d_event *event, void *menu_text )
 			net_udp_request_game_info(GBcast, 1);
 			break;
 		}
+		case EVENT_IDLE:
+			if (dj->connecting)
+			{
+				if (net_udp_game_connect(dj))
+					return -2;	// Success!
+			}
+			break;
 		case EVENT_KEY_COMMAND:
 		{
 			int key = ((d_event_keycommand *)event)->keycode;
@@ -556,6 +559,7 @@ int net_udp_list_join_poll( newmenu *menu, d_event *event, void *menu_text )
 				newpage++;
 				if (NLPage < 0)
 					NLPage = UDP_NETGAMES_PAGES-1;
+				break;
 			}
 			if (key == KEY_PAGEDOWN)
 			{
@@ -563,6 +567,7 @@ int net_udp_list_join_poll( newmenu *menu, d_event *event, void *menu_text )
 				newpage++;
 				if (NLPage >= UDP_NETGAMES_PAGES)
 					NLPage = 0;
+				break;
 			}
 			if (key == KEY_F5)
 			{
@@ -570,6 +575,16 @@ int net_udp_list_join_poll( newmenu *menu, d_event *event, void *menu_text )
 				num_active_udp_changed = 1;
 				num_active_udp_games = 0;
 				net_udp_request_game_info(GBcast, 1);
+				break;
+			}
+			if (key == KEY_ESC)
+			{
+				if (dj->connecting)
+				{
+					dj->connecting = 0;
+					return 1;
+				}
+				break;
 			}
 			break;
 		}
@@ -577,21 +592,21 @@ int net_udp_list_join_poll( newmenu *menu, d_event *event, void *menu_text )
 		{
 			if (((citem+(NLPage*UDP_NETGAMES_PPAGE)) >= 2) && (((citem+(NLPage*UDP_NETGAMES_PPAGE))-2) <= num_active_udp_games))
 			{
-				direct_join dj;
-				memset(&dj,0,sizeof(direct_join));
-				memcpy(&dj.host_addr, (struct _sockaddr *)&Active_udp_games[(citem+(NLPage*UDP_NETGAMES_PPAGE))-2].game_addr, sizeof(struct _sockaddr));
-				dj.start_time = timer_get_fixed_seconds();
-				dj.last_time = 0;
-				dj.connecting = 0;
-				// Choice has been made and looks legit
-				net_udp_game_connect(&dj);
+				N_players = 0;
+				change_playernum_to(1);
+				dj->start_time = timer_get_fixed_seconds();
+				dj->last_time = 0;
+				memcpy((struct _sockaddr *)&dj->host_addr, (struct _sockaddr *)&Active_udp_games[(citem+(NLPage*UDP_NETGAMES_PPAGE))-2].game_addr, sizeof(struct _sockaddr));
+				memcpy((struct _sockaddr *)&Netgame.players[0].protocol.udp.addr, (struct _sockaddr *)&dj->host_addr, sizeof(struct _sockaddr));
+				dj->connecting = 1;
 				return 1;
 			}
 			break;
 		}
 		case EVENT_WINDOW_CLOSE:
-			d_free(menu_text);
+			d_free(ljtext);
 			d_free(menus);
+			d_free(dj);
 			net_udp_close();
 			if (!Game_wind)
 				Network_status = NETSTAT_MENU;	// they cancelled
@@ -618,7 +633,7 @@ int net_udp_list_join_poll( newmenu *menu, d_event *event, void *menu_text )
 
 		if ((i+(NLPage*UDP_NETGAMES_PPAGE)) >= num_active_udp_games)
 		{
-			snprintf(menus[i+2].text, sizeof(menu_text), "%d.                                                                      ",(i+(NLPage*UDP_NETGAMES_PPAGE))+1);
+			snprintf(menus[i+2].text, sizeof(char)*74, "%d.                                                                      ",(i+(NLPage*UDP_NETGAMES_PPAGE))+1);
 			continue;
 		}
 
@@ -660,7 +675,7 @@ int net_udp_list_join_poll( newmenu *menu, d_event *event, void *menu_text )
 		}
 		GameName[k]=0;
 
-		nplayers = Active_udp_games[(i+(NLPage*UDP_NETGAMES_PPAGE))].numplayers;
+		nplayers = Active_udp_games[(i+(NLPage*UDP_NETGAMES_PPAGE))].numconnected;
 
 		if (Active_udp_games[(i+(NLPage*UDP_NETGAMES_PPAGE))].levelnum < 0)
 			snprintf(levelname, sizeof(levelname), "S%d", -Active_udp_games[(i+(NLPage*UDP_NETGAMES_PPAGE))].levelnum);
@@ -681,8 +696,7 @@ int net_udp_list_join_poll( newmenu *menu, d_event *event, void *menu_text )
 		else
 			snprintf(status, sizeof(status), "BETWEEN ");
 		
-		snprintf (menus[i+2].text,sizeof(char)*74,"%d.\t%s \t%s \t  %d/%d \t%s \t %s \t%s",(i+(NLPage*UDP_NETGAMES_PPAGE))+1,GameName,MODE_NAMES(Active_udp_games[(i+(NLPage*UDP_NETGAMES_PPAGE))].gamemode),nplayers,
-					 Active_udp_games[(i+(NLPage*UDP_NETGAMES_PPAGE))].max_numplayers,MissName,levelname,status);
+		snprintf (menus[i+2].text,sizeof(char)*74,"%d.\t%s \t%s \t  %d/%d \t%s \t %s \t%s",(i+(NLPage*UDP_NETGAMES_PPAGE))+1,GameName,MODE_NAMES(Active_udp_games[(i+(NLPage*UDP_NETGAMES_PPAGE))].gamemode),nplayers, Active_udp_games[(i+(NLPage*UDP_NETGAMES_PPAGE))].max_numplayers,MissName,levelname,status);
 			
 		Assert(strlen(menus[i+2].text) < 75);
 	}
@@ -692,8 +706,24 @@ int net_udp_list_join_poll( newmenu *menu, d_event *event, void *menu_text )
 void net_udp_list_join_game()
 {
 	int i = 0;
-	char *menu_text;
 	newmenu_item *m;
+	direct_join *dj;
+
+	MALLOC(m, newmenu_item, ((UDP_NETGAMES_PPAGE+2)*2)+1);
+	if (!m)
+		return;
+	MALLOC(ljtext, char, (((UDP_NETGAMES_PPAGE+2)*2)+1)*74);
+	if (!ljtext)
+	{
+		d_free(m);
+		return;
+	}
+	MALLOC(dj, direct_join, 1);
+	if (!dj)
+		return;
+	dj->connecting = 0;
+	dj->addrbuf[0] = '\0';
+	dj->portbuf[0] = '\0';
 
 	net_udp_init();
 	if (udp_open_socket(0, GameArg.MplUdpMyPort != 0?GameArg.MplUdpMyPort:UDP_PORT_DEFAULT) < 0)
@@ -702,16 +732,6 @@ void net_udp_list_join_game()
 	if (GameArg.MplUdpMyPort != 0)
 		if (udp_open_socket(1, UDP_PORT_DEFAULT) < 0)
 			nm_messagebox(TXT_WARNING, 1, TXT_OK, "Cannot open default port!\nYou can only scan for games\nmanually.");
-
-	MALLOC(m, newmenu_item, ((UDP_NETGAMES_PPAGE+2)*2)+1);
-	if (!m)
-		return;
-	MALLOC(menu_text, char, (((UDP_NETGAMES_PPAGE+2)*2)+1)*74);
-	if (!menu_text)
-	{
-		d_free(m);
-		return;
-	}
 
 	// prepare broadcast address to discover games
 	memset(&GBcast, '\0', sizeof(struct _sockaddr));
@@ -734,21 +754,21 @@ void net_udp_list_join_game()
 
 	gr_set_fontcolor(BM_XRGB(15,15,23),-1);
 
-	m[0].text = menu_text;
+	m[0].text = ljtext;
 	m[0].type = NM_TYPE_TEXT;
 	snprintf( m[0].text, sizeof(char)*74, "\tF5: (Re)Scan for Games. PgUp/PgDn: Flip Pages." );
-	m[1].text=menu_text + 74*1;
+	m[1].text=ljtext + 74*1;
 	m[1].type=NM_TYPE_TEXT;
 	snprintf (m[1].text, sizeof(char)*74, "\tGAME \tMODE \t#PLYRS \tMISSION \tLEV \tSTATUS");
 
 	for (i = 0; i < UDP_NETGAMES_PPAGE; i++) {
-		m[(i+(NLPage*UDP_NETGAMES_PPAGE))+2].text = menu_text + 74 * (i+2);
-		m[(i+(NLPage*UDP_NETGAMES_PPAGE))+2].type = NM_TYPE_MENU;
-		snprintf(m[(i+(NLPage*UDP_NETGAMES_PPAGE))+2].text,sizeof(char)*74,"%d.                                                                      ", (i+(NLPage*UDP_NETGAMES_PPAGE))+1);
+		m[i+2].text = ljtext + 74 * (i+2);
+		m[i+2].type = NM_TYPE_MENU;
+		snprintf(m[i+2].text,sizeof(char)*74,"%d.                                                                      ", i+1);
 	}
 
 	num_active_udp_changed = 1;
-	newmenu_dotiny("NETGAMES", NULL,(UDP_NETGAMES_PPAGE+2), m, 1, net_udp_list_join_poll, menu_text);
+	newmenu_dotiny("NETGAMES", NULL,(UDP_NETGAMES_PPAGE+2), m, 1, (int (*)(newmenu *, d_event *, void *))net_udp_list_join_poll, dj);
 }
 
 void net_udp_send_sequence_packet(UDP_sequence_packet seq, struct _sockaddr recv_addr)
@@ -2032,7 +2052,7 @@ void net_udp_send_game_info(struct _sockaddr sender_addr, ubyte info_upid)
 			}
 		}
 		buf[len] = tmpvar;														len++;
-		buf[len] = Netgame.numplayers;											len++;
+		buf[len] = Netgame.numconnected;										len++;
 		buf[len] = Netgame.max_numplayers;										len++;
 		buf[len] = Netgame.game_flags;											len++;
 		buf[len] = Netgame.team_vector;											len++;
@@ -2200,7 +2220,7 @@ void net_udp_process_game_info(ubyte *data, int data_len, struct _sockaddr game_
 		recv_game.RefusePlayers = data[len];									len++;
 		recv_game.difficulty = data[len];										len++;
 		recv_game.game_status = data[len];										len++;
-		recv_game.numplayers = data[len];										len++;
+		recv_game.numconnected = data[len];										len++;
 		recv_game.max_numplayers = data[len];									len++;
 		recv_game.game_flags = data[len];										len++;
 		recv_game.team_vector = data[len];										len++;
@@ -2239,7 +2259,7 @@ void net_udp_process_game_info(ubyte *data, int data_len, struct _sockaddr game_
 		if (i == num_active_udp_games)
 			num_active_udp_games++;
 
-		if (Active_udp_games[i].numplayers == 0)
+		if (Active_udp_games[i].numconnected == 0)
 		{
 			// Delete this game
 			for (j = i; j < num_active_udp_games-1; j++)
@@ -4103,7 +4123,7 @@ void net_udp_do_frame(int force, int listen)
 	}
 
 	// broadcast lite_info every 10 seconds
-	if (time>=last_bcast_time+(F1_0*10) || (time < last_bcast_time))
+	if (multi_i_am_master() && (time>=last_bcast_time+(F1_0*10) || (time < last_bcast_time)))
 	{
 		last_bcast_time = time;
 		net_udp_send_game_info(GBcast, UPID_GAME_INFO_LITE);
