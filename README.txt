@@ -11,7 +11,7 @@ http://www.dxx-rebirth.com
    D2X-Rebirth is based on a late D2X-CVS Source, coded and released by Bradley Bell and his team.
    I spend much time to improve the Sourcecode, tried to fix bugs in there and added some improvements.
    It is the goal of DXX-Rebirth to keep these games alive and the result is a very stable version of
-   the Descent ][ port - called D2X-Rebrith.
+   the Descent ][ port - called D2X-Rebirth.
    I hope you enjoy the game as you did when you played it the first time.
    If you have something to say about my release, feel free to contact me at zicodxx [at] yahoo [dot] de
 
