@@ -1,5 +1,9 @@
 D1X-Rebirth Changelog
 
+20100709
+--------
+main/mission.c: When reading mission file, check for sanity of possible breifing or ending to make sure author did not just screw up the file
+
 20100708
 --------
 main/net_udp.c, main/net_udp.h: Reworked handling of Netlist now also showing full game info; Prevent Clients from sending lite_info; Make lite_info show numconnected instead of numplayers as this would show disconnected ones as well; Removed reusing ports on different instances in Windows build - only screws up several games running on one machine
