@@ -538,16 +538,18 @@ int load_mission(mle *mission)
 			if ((v = get_value(buf)) != NULL) {
 				add_term(v);
 				if (strlen(v) < 13 && strlen(v) > 0)
-					if (!stricmp(strrchr(v, '.'), ".tex") || !stricmp(strrchr(v, '.'), ".txb"))
-						strcpy(Briefing_text_filename,v);
+					if (strrchr(v, '.'))
+						if (!stricmp(strrchr(v, '.'), ".tex") || !stricmp(strrchr(v, '.'), ".txb"))
+							strcpy(Briefing_text_filename,v);
 			}
 		}
 		else if (istok(buf,"ending")) {
 			if ((v = get_value(buf)) != NULL) {
 				add_term(v);
 				if (strlen(v) < 13 && strlen(v) > 0)
-					if (!stricmp(strrchr(v, '.'), ".tex") || !stricmp(strrchr(v, '.'), ".txb"))
-						strcpy(Ending_text_filename,v);
+					if (strrchr(v, '.'))
+						if (!stricmp(strrchr(v, '.'), ".tex") || !stricmp(strrchr(v, '.'), ".txb"))
+							strcpy(Ending_text_filename,v);
 			}
 		}
 		else if (istok(buf,"num_levels")) {
