@@ -1487,7 +1487,7 @@ void do_end_briefing_screens(char *filename)
 	}
 	else
 	{
-		level_num_screen = Current_level_num + 1;
+		level_num_screen = Last_level + 1;
 	}
 
 	do_briefing_screens(filename, level_num_screen);

@@ -1,5 +1,9 @@
 D2X-Rebirth Changelog
 
+20100709
+--------
+main/mission.c, main/titles.c: When reading mission file, check for sanity of possible breifing or ending to make sure author did not just screw up the file; Fixed slight bug when playing ending briefings from secret levels
+
 20100708
 --------
 main/net_udp.c, main/net_udp.h: Reworked handling of Netlist now also showing full game info; Prevent Clients from sending lite_info; Make lite_info show numconnected instead of numplayers as this would show disconnected ones as well; Removed reusing ports on different instances in Windows build - only screws up several games running on one machine
