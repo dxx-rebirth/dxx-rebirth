@@ -515,7 +515,6 @@ void DoGameOver()
 	if (PLAYING_BUILTIN_MISSION)
 		scores_maybe_add_player(0);
 
-	Game_mode = GM_GAME_OVER;
 	if (Game_wind)
 		window_close(Game_wind);		// Exit out of game loop
 }
@@ -1346,9 +1345,6 @@ void DoEndGame(void)
 		load_palette(D2_DEFAULT_PALETTE,0,1);
 		scores_maybe_add_player(0);
 	}
-
-	Game_mode = GM_GAME_OVER;
-
 
 	if (Game_wind)
 		window_close(Game_wind);		// Exit out of game loop

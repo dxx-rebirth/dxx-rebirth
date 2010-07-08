@@ -470,6 +470,8 @@ static int manual_join_game_handler(newmenu *menu, d_event *event, direct_join *
 		}
 			
 		case EVENT_WINDOW_CLOSE:
+			if (!Game_wind) // they cancelled
+				net_udp_close();
 			d_free(dj);
 			break;
 			
@@ -484,7 +486,7 @@ void net_udp_manual_join_game()
 {
 	direct_join *dj;
 	newmenu_item m[7];
-	int nitems = 0, i = 0;
+	int nitems = 0;
 
 	MALLOC(dj, direct_join, 1);
 	if (!dj)
@@ -518,9 +520,7 @@ void net_udp_manual_join_game()
 	m[nitems].type = NM_TYPE_INPUT; m[nitems].text=UDP_MyPort; m[nitems].text_len=5;	nitems++;
 	m[nitems].type = NM_TYPE_TEXT;  m[nitems].text=blank;								nitems++;	// for connecting_txt
 
-	i = newmenu_do1( NULL, "ENTER GAME ADDRESS", nitems, m, (int (*)(newmenu *, d_event *, void *))manual_join_game_handler, dj, 0 );
-	if (i != -2)
-		net_udp_close();
+	newmenu_do1( NULL, "ENTER GAME ADDRESS", nitems, m, (int (*)(newmenu *, d_event *, void *))manual_join_game_handler, dj, 0 );
 }
 
 static char *ljtext = "";
@@ -607,9 +607,11 @@ int net_udp_list_join_poll( newmenu *menu, d_event *event, direct_join *dj )
 			d_free(ljtext);
 			d_free(menus);
 			d_free(dj);
-			net_udp_close();
 			if (!Game_wind)
+			{
+				net_udp_close();
 				Network_status = NETSTAT_MENU;	// they cancelled
+			}
 			break;
 
 		default:
@@ -1045,7 +1047,6 @@ net_udp_disconnect_player(int playernum)
 		multi_quit_game = 1;
 		game_leave_menus();
 		multi_reset_stuff();
-		net_udp_close();
 	}
 }
 		
@@ -3842,10 +3843,10 @@ net_udp_level_sync(void)
 	{
 		Players[Player_num].connected = CONNECT_DISCONNECTED;
 		net_udp_send_endlevel_packet();
-		net_udp_close();
 		if (Game_wind)
 			window_close(Game_wind);
 		show_menus();
+		net_udp_close();
 		return -1;
 	}
 	return(0);
@@ -3954,7 +3955,6 @@ void net_udp_leave_game()
 	Players[Player_num].connected = CONNECT_DISCONNECTED;	
 	net_udp_send_endlevel_packet();
 	change_playernum_to(0);
-	Game_mode = GM_GAME_OVER;
 	write_player_file();
 
 	net_udp_flush();

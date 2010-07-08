@@ -982,8 +982,6 @@ multi_leave_game(void)
 				break;
 		}
 	}
-		
-	Game_mode |= GM_GAME_OVER;
 }
 
 void
