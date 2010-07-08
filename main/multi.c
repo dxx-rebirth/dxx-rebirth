@@ -807,8 +807,6 @@ multi_leave_game(void)
 		}
 	}
 
-	Game_mode |= GM_GAME_OVER;
-
 	plyr_save_stats();
 }
 		

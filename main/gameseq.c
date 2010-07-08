@@ -436,7 +436,6 @@ void DoGameOver()
 #endif
 		scores_maybe_add_player(0);
 
-	Game_mode = GM_GAME_OVER;
 	if (Game_wind)
 		window_close(Game_wind);		// Exit out of game loop
 }
@@ -990,8 +989,6 @@ int AdvanceLevel(int secret_flag)
 			newdemo_stop_recording();
 
 		do_end_briefing_screens(Ending_text_filename);
-
-		Game_mode = GM_GAME_OVER;
 
 		return 1;
 

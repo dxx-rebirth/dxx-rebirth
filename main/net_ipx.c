@@ -3248,9 +3248,11 @@ int net_ipx_join_poll( newmenu *menu, d_event *event, void *menu_text )
 		case EVENT_WINDOW_CLOSE:
 			d_free(menu_text);
 			d_free(menus);
-			ipxdrv_close();
 			if (!Game_wind)
+			{
+				ipxdrv_close();
 				Network_status = NETSTAT_MENU;	// they cancelled
+			}
 			break;
 
 		default:
@@ -3405,10 +3407,10 @@ net_ipx_level_sync(void)
 	{
 		Players[Player_num].connected = CONNECT_DISCONNECTED;
 		net_ipx_send_endlevel_packet();
-		ipxdrv_close();
 		if (Game_wind)
 			window_close(Game_wind);
 		show_menus();
+		ipxdrv_close();
 		return -1;
 	}
 	return(0);
@@ -3535,7 +3537,6 @@ void net_ipx_leave_game()
 	Players[Player_num].connected = CONNECT_DISCONNECTED;
 	net_ipx_send_endlevel_packet();
 	change_playernum_to(0);
-	Game_mode = GM_GAME_OVER;
 	net_ipx_flush();
 	ipxdrv_close();
 }
