@@ -3,6 +3,7 @@ D2X-Rebirth Changelog
 20100709
 --------
 main/mission.c, main/titles.c: When reading mission file, check for sanity of possible breifing or ending to make sure author did not just screw up the file; Fixed slight bug when playing ending briefings from secret levels
+main/laser.c: Trying to improve reliability to find appropriate homing object by using vm_vec_mag/normalize instead of their *quick equivalents
 
 20100708
 --------
