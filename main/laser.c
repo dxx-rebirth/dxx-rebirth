@@ -604,8 +604,8 @@ int find_homing_object_complete(vms_vector *curpos, object *tracker, int track_o
 	fix     max_dot = -F1_0*2;
 	int	best_objnum = -1;
 
-        fix best_dist=MAX_TRACKABLE_DIST;
-        fix best_dot= MIN_TRACKABLE_DOT;
+	fix max_trackable_dist = MAX_TRACKABLE_DIST;
+	fix min_trackable_dot = MIN_TRACKABLE_DOT;
 
 	if (!Weapon_info[tracker->id].homing_flag) {
 		Int3();		//	Contact Mike: This is a bad and stupid thing.  Who called this routine with an illegal laser type??
@@ -613,12 +613,21 @@ int find_homing_object_complete(vms_vector *curpos, object *tracker, int track_o
 	}
 
 	for (objnum=0; objnum<=Highest_object_index; objnum++) {
+		int		is_proximity = 0;
                 fix             dot, dist;
 		vms_vector	vec_to_curobj;
 		object		*curobjp = &Objects[objnum];
 
 		if ((curobjp->type != track_obj_type1) && (curobjp->type != track_obj_type2))
-			continue;
+		{
+			if ((curobjp->type == OBJ_WEAPON) && (curobjp->id == PROXIMITY_ID)) {
+				if (curobjp->ctype.laser_info.parent_signature != tracker->ctype.laser_info.parent_signature)
+					is_proximity = 1;
+				else
+					continue;
+			} else
+				continue;
+		}
 
 		if (objnum == tracker->ctype.laser_info.parent_num) // Don't track shooter
 			continue;
