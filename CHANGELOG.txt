@@ -3,6 +3,7 @@ D1X-Rebirth Changelog
 20100709
 --------
 main/mission.c: When reading mission file, check for sanity of possible breifing or ending to make sure author did not just screw up the file
+main/laser.c: Trying to improve reliability to find appropriate homing object by using vm_vec_mag/normalize instead of their *quick equivalents; Removed code which supposedly meant to track objects near reticle - don't like that
 
 20100708
 --------

@@ -601,15 +601,10 @@ int find_homing_object(vms_vector *curpos, object *tracker)
 int find_homing_object_complete(vms_vector *curpos, object *tracker, int track_obj_type1, int track_obj_type2)
 {
 	int	objnum;
-//added/killed on 9/30/98 by Victor Rachels to remove unnescesary vars
-//-killed-        fix     max_dot = -F1_0*2;
-//end this section kill - Victor Rachels
+	fix     max_dot = -F1_0*2;
 	int	best_objnum = -1;
 
-//added on 8/14/98 by Victor Rachels to fix player/object numbering tracking... doing best distance now
-//moved on 9/29/98 by Victor Rachels ... DUH!  yeesh.
-//        fix best_dist=MAX_TRACKABLE_DIST;
-//end this section - Victor Rachels
+        fix best_dist=MAX_TRACKABLE_DIST;
         fix best_dot= MIN_TRACKABLE_DOT;
 
 	if (!Weapon_info[tracker->id].homing_flag) {
@@ -646,35 +641,26 @@ int find_homing_object_complete(vms_vector *curpos, object *tracker, int track_o
 				continue;
 
 		vm_vec_sub(&vec_to_curobj, &curobjp->pos, curpos);
-		dist = vm_vec_mag_quick(&vec_to_curobj);
+		dist = vm_vec_mag(&vec_to_curobj);
 
-//added/rewritten on 9/30/98 by Victor Rachels to calc less
-/*                  if(dist < best_dist)
-                   {
-                     vm_vec_normalize_quick(&vec_to_curobj);
-                     dot = vm_vec_dot(&vec_to_curobj, &tracker->orient.fvec);
-                      if(dot > MIN_TRACKABLE_DOT)
-                       if(object_to_object_visibility(tracker, &Objects[objnum], FQ_TRANSWALL))
-                        {
-                         best_dist = dist;
-                         best_objnum=objnum;
-                        }
-                   }*/
-//end rewrite - Victor Rachels
-//added/changed on 10/16/98 by Victor Rachels to track on closest to reticle
-                  if(dist < MAX_TRACKABLE_DIST)
-                   {
-                     vm_vec_normalize_quick(&vec_to_curobj);
-                     dot = vm_vec_dot(&vec_to_curobj, &tracker->orient.fvec);
-                      if(dot > best_dot)
-                       if(object_to_object_visibility(tracker, &Objects[objnum], FQ_TRANSWALL))
-                        {
-                         best_dot = dot;
-                         best_objnum=objnum;
-//                         hud_message(MSGC_GAME_FEEDBACK,"dot: %d bestdot:%d",dot,best_dot);
-                        }
-                   }
-//end rewrite - Victor Rachels
+		if (dist < max_trackable_dist) {
+			vm_vec_normalize(&vec_to_curobj);
+			dot = vm_vec_dot(&vec_to_curobj, &tracker->orient.fvec);
+			if (is_proximity)
+				dot = ((dot << 3) + dot) >> 3;		//	I suspect Watcom would be too stupid to figure out the obvious...
+
+			//	Note: This uses the constant, not-scaled-by-frametime value, because it is only used
+			//	to determine if an object is initially trackable.  find_homing_object is called on subsequent
+			//	frames to determine if the object remains trackable.
+			if (dot > min_trackable_dot) {
+				if (dot > max_dot) {
+					if (object_to_object_visibility(tracker, &Objects[objnum], FQ_TRANSWALL)) {
+						max_dot = dot;
+						best_objnum = objnum;
+					}
+				}
+			}
+		}
 
 	}
 
