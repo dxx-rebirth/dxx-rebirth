@@ -143,7 +143,7 @@ int jukebox_play()
 		strcpy(hud_msg_buf, music_filename);
 	}
 
-	hud_message(MSGC_GAME_FEEDBACK, "%s %s", JUKEBOX_HUDMSG_PLAYING, hud_msg_buf);
+	HUD_init_message(HM_DEFAULT, "%s %s", JUKEBOX_HUDMSG_PLAYING, hud_msg_buf);
 
 	return 1;
 }

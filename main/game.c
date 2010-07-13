@@ -570,7 +570,7 @@ void save_screen_shot(int automap_flag)
 	gr_set_current_canvas(NULL);
 
 	if (!automap_flag)
-		hud_message(MSGC_GAME_FEEDBACK,message);
+		HUD_init_message(HM_DEFAULT, message);
 
 	gr_palette_read(pal);		//get actual palette from the hardware
 	pcx_write_bitmap(savename,&temp_canv->cv_bitmap,pal);

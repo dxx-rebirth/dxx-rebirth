@@ -710,7 +710,7 @@ void collide_weapon_and_wall( object * weapon, fix hitspeed, short hitseg, short
 	if (keyd_pressed[KEY_LAPOSTRO])
 		if (weapon->ctype.laser_info.parent_num == Players[Player_num].objnum) {
 			//	MK: Real pain when you need to know a seg:side and you've got quad lasers.
-			HUD_init_message("Hit at segment = %i, side = %i", hitseg, hitwall);
+			HUD_init_message(HM_DEFAULT, "Hit at segment = %i, side = %i", hitseg, hitwall);
 			if (weapon->id < 4)
 				subtract_light(hitseg, hitwall);
 			else if (weapon->id == FLARE_ID)
@@ -1079,7 +1079,7 @@ void apply_damage_to_controlcen(object *controlcen, fix damage, short who)
 		if (Objects[who].id == Player_num) {
 			int secs = f2i(Netgame.control_invul_time-Players[Player_num].time_level) % 60;
 			int mins = f2i(Netgame.control_invul_time-Players[Player_num].time_level) / 60;
-			HUD_init_message("%s %d:%02d.", TXT_CNTRLCEN_INVUL, mins, secs);
+			HUD_init_message(HM_DEFAULT, "%s %d:%02d.", TXT_CNTRLCEN_INVUL, mins, secs);
 		}
 		return;
 	}
@@ -1136,14 +1136,14 @@ void collide_player_and_marker( object * marker, object * playerobj, vms_vector 
 
 		if (Game_mode & GM_MULTI)
 		{
-			drawn = HUD_init_message ("MARKER %s: %s",Players[marker->id/2].callsign,MarkerMessage[marker->id]);
+			drawn = HUD_init_message(HM_DEFAULT, "MARKER %s: %s",Players[marker->id/2].callsign,MarkerMessage[marker->id]);
 		}
 		else
 		{
 			if (MarkerMessage[marker->id][0])
-				drawn = HUD_init_message("MARKER %d: %s", marker->id+1,MarkerMessage[marker->id]);
+				drawn = HUD_init_message(HM_DEFAULT, "MARKER %d: %s", marker->id+1,MarkerMessage[marker->id]);
 			else
-				drawn = HUD_init_message("MARKER %d", marker->id+1);
+				drawn = HUD_init_message(HM_DEFAULT, "MARKER %d", marker->id+1);
 	   }
 
 		if (drawn)
@@ -2034,9 +2034,9 @@ void drop_player_eggs(object *playerobj)
 
 // -- 		if (Items_destroyed) {
 // -- 			if (Items_destroyed == 1)
-// -- 				HUD_init_message("%i item was destroyed.", Items_destroyed);
+// -- 				HUD_init_message(HM_DEFAULT, "%i item was destroyed.", Items_destroyed);
 // -- 			else
-// -- 				HUD_init_message("%i items were destroyed.", Items_destroyed);
+// -- 				HUD_init_message(HM_DEFAULT, "%i items were destroyed.", Items_destroyed);
 // -- 			Items_destroyed = 0;
 // -- 		}
 	}
@@ -2046,16 +2046,16 @@ void drop_player_eggs(object *playerobj)
 // -- removed, 09/06/95, MK -- void destroy_primary_weapon(int weapon_index)
 // -- removed, 09/06/95, MK -- {
 // -- removed, 09/06/95, MK -- 	if (weapon_index == MAX_PRIMARY_WEAPONS) {
-// -- removed, 09/06/95, MK -- 		HUD_init_message("Quad lasers destroyed!");
+// -- removed, 09/06/95, MK -- 		HUD_init_message(HM_DEFAULT, "Quad lasers destroyed!");
 // -- removed, 09/06/95, MK -- 		Players[Player_num].flags &= ~PLAYER_FLAGS_QUAD_LASERS;
 // -- removed, 09/06/95, MK -- 		update_laser_weapon_info();
 // -- removed, 09/06/95, MK -- 	} else if (weapon_index == 0) {
 // -- removed, 09/06/95, MK -- 		Assert(Players[Player_num].laser_level > 0);
-// -- removed, 09/06/95, MK -- 		HUD_init_message("%s degraded!", Text_string[104+weapon_index]);		//	Danger! Danger! Use of literal!  Danger!
+// -- removed, 09/06/95, MK -- 		HUD_init_message(HM_DEFAULT, "%s degraded!", Text_string[104+weapon_index]);		//	Danger! Danger! Use of literal!  Danger!
 // -- removed, 09/06/95, MK -- 		Players[Player_num].laser_level--;
 // -- removed, 09/06/95, MK -- 		update_laser_weapon_info();
 // -- removed, 09/06/95, MK -- 	} else {
-// -- removed, 09/06/95, MK -- 		HUD_init_message("%s destroyed!", Text_string[104+weapon_index]);		//	Danger! Danger! Use of literal!  Danger!
+// -- removed, 09/06/95, MK -- 		HUD_init_message(HM_DEFAULT, "%s destroyed!", Text_string[104+weapon_index]);		//	Danger! Danger! Use of literal!  Danger!
 // -- removed, 09/06/95, MK -- 		Players[Player_num].primary_weapon_flags &= ~(1 << weapon_index);
 // -- removed, 09/06/95, MK -- 		auto_select_weapon(0);
 // -- removed, 09/06/95, MK -- 	}
@@ -2067,7 +2067,7 @@ void drop_player_eggs(object *playerobj)
 // -- removed, 09/06/95, MK -- 	if (Players[Player_num].secondary_ammo <= 0)
 // -- removed, 09/06/95, MK -- 		return;
 // -- removed, 09/06/95, MK --
-// -- removed, 09/06/95, MK -- 	HUD_init_message("%s destroyed!", Text_string[114+weapon_index]);		//	Danger! Danger! Use of literal!  Danger!
+// -- removed, 09/06/95, MK -- 	HUD_init_message(HM_DEFAULT, "%s destroyed!", Text_string[114+weapon_index]);		//	Danger! Danger! Use of literal!  Danger!
 // -- removed, 09/06/95, MK -- 	if (--Players[Player_num].secondary_ammo[weapon_index] == 0)
 // -- removed, 09/06/95, MK -- 		auto_select_weapon(1);
 // -- removed, 09/06/95, MK --

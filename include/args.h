@@ -70,9 +70,8 @@ typedef struct Arg
 	int OglFixedFont;
 	int OglNoMovieFilter;
 #endif
-	int MplGameProfile;
 	int MplNoRankings;
-	int MplPlayerMessages;
+	int MplTxtMessages;
 	const char *MplIpxNetwork;
 	const char *MplUdpHostAddr;
 	int MplUdpHostPort;

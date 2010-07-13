@@ -651,7 +651,7 @@ void save_screen_shot(int automap_flag)
 
 	if (!GameArg.DbgGlReadPixelsOk){
 		if (!automap_flag)
-			hud_message(MSGC_GAME_FEEDBACK,"glReadPixels not supported on your configuration");
+			HUD_init_message(HM_DEFAULT, "glReadPixels not supported on your configuration");
 		return;
 	}
 
@@ -668,7 +668,7 @@ void save_screen_shot(int automap_flag)
 	sprintf( message, "%s 'scrn%04d.tga'", TXT_DUMPING_SCREEN, savenum-1 );
 
 	if (!automap_flag)
-		hud_message(MSGC_GAME_FEEDBACK,message);
+		HUD_init_message(HM_DEFAULT, message);
 
 	glReadBuffer(GL_FRONT);
 

@@ -176,10 +176,10 @@ void transfer_energy_to_shield(fix time)
 	if (e <= 0) {
 
 		if (Players[Player_num].energy <= INITIAL_ENERGY) {
-			HUD_init_message("Need more than %i energy to enable transfer", f2i(INITIAL_ENERGY));
+			HUD_init_message(HM_DEFAULT, "Need more than %i energy to enable transfer", f2i(INITIAL_ENERGY));
 		}
 		else if (Players[Player_num].shields == 200) {
-			HUD_init_message("No transfer: Shields already at max");
+			HUD_init_message(HM_DEFAULT, "No transfer: Shields already at max");
 		}
 		return;
 	}
@@ -577,7 +577,7 @@ int HandleDemoKey(int key)
 #ifndef NDEBUG
 		case KEY_DEBUGGED + KEY_I:
 			Newdemo_do_interpolate = !Newdemo_do_interpolate;
-			HUD_init_message("Demo playback interpolation %s", Newdemo_do_interpolate?"ON":"OFF");
+			HUD_init_message(HM_DEFAULT, "Demo playback interpolation %s", Newdemo_do_interpolate?"ON":"OFF");
 			break;
 		case KEY_DEBUGGED + KEY_K: {
 			int how_many, c;
@@ -984,9 +984,9 @@ int HandleVRKey(int key)
 		case KEY_ALTED+KEY_F5:
 			if ( VR_render_mode != VR_NONE )	{
 				VR_reset_params();
-				HUD_init_message( "-Stereoscopic Parameters Reset-" );
-				HUD_init_message( "Interaxial Separation = %.2f", f2fl(VR_eye_width) );
-				HUD_init_message( "Stereo balance = %.2f", (float)VR_eye_offset/30.0 );
+				HUD_init_message(HM_DEFAULT,  "-Stereoscopic Parameters Reset-" );
+				HUD_init_message(HM_DEFAULT,  "Interaxial Separation = %.2f", f2fl(VR_eye_width) );
+				HUD_init_message(HM_DEFAULT,  "Stereo balance = %.2f", (float)VR_eye_offset/30.0 );
 			}
 			break;
 
@@ -995,10 +995,10 @@ int HandleVRKey(int key)
 				VR_low_res++;
 				if ( VR_low_res > 3 ) VR_low_res = 0;
 				switch( VR_low_res )    {
-					case 0: HUD_init_message( "Normal Resolution" ); break;
-					case 1: HUD_init_message( "Low Vertical Resolution" ); break;
-					case 2: HUD_init_message( "Low Horizontal Resolution" ); break;
-					case 3: HUD_init_message( "Low Resolution" ); break;
+					case 0: HUD_init_message(HM_DEFAULT,  "Normal Resolution" ); break;
+					case 1: HUD_init_message(HM_DEFAULT,  "Low Vertical Resolution" ); break;
+					case 2: HUD_init_message(HM_DEFAULT,  "Low Horizontal Resolution" ); break;
+					case 3: HUD_init_message(HM_DEFAULT,  "Low Resolution" ); break;
 				}
 			}
 			break;
@@ -1006,11 +1006,11 @@ int HandleVRKey(int key)
 		case KEY_ALTED+KEY_F7:
 			if ( VR_render_mode != VR_NONE )	{
 				VR_eye_switch = !VR_eye_switch;
-				HUD_init_message( "-Eyes toggled-" );
+				HUD_init_message(HM_DEFAULT,  "-Eyes toggled-" );
 				if ( VR_eye_switch )
-					HUD_init_message( "Right Eye -- Left Eye" );
+					HUD_init_message(HM_DEFAULT,  "Right Eye -- Left Eye" );
 				else
-					HUD_init_message( "Left Eye -- Right Eye" );
+					HUD_init_message(HM_DEFAULT,  "Left Eye -- Right Eye" );
 			}
 			break;
 
@@ -1019,23 +1019,23 @@ int HandleVRKey(int key)
 			VR_sensitivity++;
 			if (VR_sensitivity > 2 )
 				VR_sensitivity = 0;
-			HUD_init_message( "Head tracking sensitivy = %d", VR_sensitivity );
+			HUD_init_message(HM_DEFAULT,  "Head tracking sensitivy = %d", VR_sensitivity );
 		 }
 			break;
 		case KEY_ALTED+KEY_F9:
 			if ( VR_render_mode != VR_NONE )	{
 				VR_eye_width -= F1_0/10;
 				if ( VR_eye_width < 0 ) VR_eye_width = 0;
-				HUD_init_message( "Interaxial Separation = %.2f", f2fl(VR_eye_width) );
-				HUD_init_message( "(The default value is %.2f)", f2fl(VR_SEPARATION) );
+				HUD_init_message(HM_DEFAULT,  "Interaxial Separation = %.2f", f2fl(VR_eye_width) );
+				HUD_init_message(HM_DEFAULT,  "(The default value is %.2f)", f2fl(VR_SEPARATION) );
 			}
 			break;
 		case KEY_ALTED+KEY_F10:
 			if ( VR_render_mode != VR_NONE )	{
 				VR_eye_width += F1_0/10;
 				if ( VR_eye_width > F1_0*4 )    VR_eye_width = F1_0*4;
-				HUD_init_message( "Interaxial Separation = %.2f", f2fl(VR_eye_width) );
-				HUD_init_message( "(The default value is %.2f)", f2fl(VR_SEPARATION) );
+				HUD_init_message(HM_DEFAULT,  "Interaxial Separation = %.2f", f2fl(VR_eye_width) );
+				HUD_init_message(HM_DEFAULT,  "(The default value is %.2f)", f2fl(VR_SEPARATION) );
 			}
 			break;
 
@@ -1043,8 +1043,8 @@ int HandleVRKey(int key)
 			if ( VR_render_mode != VR_NONE )	{
 				VR_eye_offset--;
 				if ( VR_eye_offset < -30 )	VR_eye_offset = -30;
-				HUD_init_message( "Stereo balance = %.2f", (float)VR_eye_offset/30.0 );
-				HUD_init_message( "(The default value is %.2f)", (float)VR_PIXEL_SHIFT/30.0 );
+				HUD_init_message(HM_DEFAULT,  "Stereo balance = %.2f", (float)VR_eye_offset/30.0 );
+				HUD_init_message(HM_DEFAULT,  "(The default value is %.2f)", (float)VR_PIXEL_SHIFT/30.0 );
 				VR_eye_offset_changed = 2;
 			}
 			break;
@@ -1052,8 +1052,8 @@ int HandleVRKey(int key)
 			if ( VR_render_mode != VR_NONE )	{
 				VR_eye_offset++;
 				if ( VR_eye_offset > 30 )	 VR_eye_offset = 30;
-				HUD_init_message( "Stereo balance = %.2f", (float)VR_eye_offset/30.0 );
-				HUD_init_message( "(The default value is %.2f)", (float)VR_PIXEL_SHIFT/30.0 );
+				HUD_init_message(HM_DEFAULT,  "Stereo balance = %.2f", (float)VR_eye_offset/30.0 );
+				HUD_init_message(HM_DEFAULT,  "(The default value is %.2f)", (float)VR_PIXEL_SHIFT/30.0 );
 				VR_eye_offset_changed = 2;
 			}
 			break;
@@ -1088,7 +1088,7 @@ int HandleGameKey(int key)
 				if (!(Game_mode & GM_MULTI))
 					set_escort_special_goal(key);
 				else
-					HUD_init_message ("No Guide-Bot in Multiplayer!");
+					HUD_init_message(HM_DEFAULT, "No Guide-Bot in Multiplayer!");
 				game_flush_inputs();
 				return 1;
 			}
@@ -1105,14 +1105,14 @@ int HandleGameKey(int key)
 			if (Netgame.RefusePlayers && WaitForRefuseAnswer && !(Game_mode & GM_TEAM))
 			{
 				RefuseThisPlayer=1;
-				HUD_init_message ("Player accepted!");
+				HUD_init_message(HM_MULTI, "Player accepted!");
 			}
 			return 1;
 		case KEY_ALTED + KEY_1:
 			if (Netgame.RefusePlayers && WaitForRefuseAnswer && (Game_mode & GM_TEAM))
 				{
 					RefuseThisPlayer=1;
-					HUD_init_message ("Player accepted!");
+					HUD_init_message(HM_MULTI, "Player accepted!");
 					RefuseTeam=1;
 					game_flush_inputs();
 				}
@@ -1121,7 +1121,7 @@ int HandleGameKey(int key)
 			if (Netgame.RefusePlayers && WaitForRefuseAnswer && (Game_mode & GM_TEAM))
 				{
 					RefuseThisPlayer=1;
-					HUD_init_message ("Player accepted!");
+					HUD_init_message(HM_MULTI, "Player accepted!");
 					RefuseTeam=2;
 					game_flush_inputs();
 				}
@@ -1225,7 +1225,7 @@ void kill_all_robots(void)
 // --			Objects[boss_index].flags &= ~(OF_EXPLODING|OF_SHOULD_BE_DEAD);
 // --			dead_count--;
 // --		} else if (boss_index != -1)
-// --			HUD_init_message("Toasted the BOSS!");
+// --			HUD_init_message(HM_DEFAULT, "Toasted the BOSS!");
 
 	// Toast the buddy if nothing else toasted!
 	if (dead_count == 0)
@@ -1233,11 +1233,11 @@ void kill_all_robots(void)
 			if (Objects[i].type == OBJ_ROBOT)
 				if (Robot_info[Objects[i].id].companion) {
 					Objects[i].flags |= OF_EXPLODING|OF_SHOULD_BE_DEAD;
-					HUD_init_message("Toasted the Buddy! *sniff*");
+					HUD_init_message(HM_DEFAULT, "Toasted the Buddy! *sniff*");
 					dead_count++;
 				}
 
-	HUD_init_message("%i robots toasted!", dead_count);
+	HUD_init_message(HM_DEFAULT, "%i robots toasted!", dead_count);
 }
 
 //	--------------------------------------------------------------------------
@@ -1250,7 +1250,7 @@ void kill_and_so_forth(void)
 {
 	int     i, j;
 
-	HUD_init_message("Killing, awarding, etc.!");
+	HUD_init_message(HM_DEFAULT, "Killing, awarding, etc.!");
 
 	for (i=0; i<=Highest_object_index; i++) {
 		switch (Objects[i].type) {
@@ -1295,7 +1295,7 @@ void kill_all_snipers(void)
 				Objects[i].flags |= OF_EXPLODING|OF_SHOULD_BE_DEAD;
 			}
 
-	HUD_init_message("%i robots toasted!", dead_count);
+	HUD_init_message(HM_DEFAULT, "%i robots toasted!", dead_count);
 }
 
 void kill_thief(void)
@@ -1307,7 +1307,7 @@ void kill_thief(void)
 		if (Objects[i].type == OBJ_ROBOT)
 			if (Robot_info[Objects[i].id].thief) {
 				Objects[i].flags |= OF_EXPLODING|OF_SHOULD_BE_DEAD;
-				HUD_init_message("Thief toasted!");
+				HUD_init_message(HM_DEFAULT, "Thief toasted!");
 			}
 }
 
@@ -1320,7 +1320,7 @@ void kill_buddy(void)
 		if (Objects[i].type == OBJ_ROBOT)
 			if (Robot_info[Objects[i].id].companion) {
 				Objects[i].flags |= OF_EXPLODING|OF_SHOULD_BE_DEAD;
-				HUD_init_message("Buddy toasted!");
+				HUD_init_message(HM_DEFAULT, "Buddy toasted!");
 			}
 }
 
@@ -1453,9 +1453,9 @@ int HandleTestKey(int key)
 		case KEY_DEBUGGED + KEY_M:
 			Debug_spew = !Debug_spew;
 			if (Debug_spew) {
-				HUD_init_message( "Debug Spew: ON" );
+				HUD_init_message(HM_DEFAULT,  "Debug Spew: ON" );
 			} else {
-				HUD_init_message( "Debug Spew: OFF" );
+				HUD_init_message(HM_DEFAULT,  "Debug Spew: OFF" );
 			}
 			break;
 
@@ -1529,7 +1529,7 @@ int HandleTestKey(int key)
 			break;
 		case KEY_DEBUGGED+KEY_G:
 			GameTime = i2f(0x7fff - 600) - (F1_0*10);
-			HUD_init_message("GameTime %i - Reset in 10 seconds!", GameTime);
+			HUD_init_message(HM_DEFAULT, "GameTime %i - Reset in 10 seconds!", GameTime);
 			break;
 		default:
 			return 0;
@@ -1629,7 +1629,7 @@ void FinalCheats(int key)
 				sprintf( Network_message, "%s is crippled...get him!",Players[Player_num].callsign);
 			}
 #endif
-			HUD_init_message ("Take that...cheater!");
+			HUD_init_message(HM_DEFAULT, "Take that...cheater!");
 		}
 
   if (!(strcmp (cryptstring,AcidCheat)))
@@ -1638,14 +1638,14 @@ void FinalCheats(int key)
 				{
 				 AcidCheatOn=0;
 				 Interpolation_method=old_IntMethod;
-				 HUD_init_message ("Coming down...");
+				 HUD_init_message(HM_DEFAULT, "Coming down...");
 				}
 				else
 				{
 				 AcidCheatOn=1;
 				 old_IntMethod=Interpolation_method;
 				 Interpolation_method=1;
-				 HUD_init_message ("Going up!");
+				 HUD_init_message(HM_DEFAULT, "Going up!");
 				}
 
 		}
@@ -1670,13 +1670,13 @@ void FinalCheats(int key)
 	 		powerup_basic(0, 0, 15, SHIELD_SCORE, "%s %s %d",TXT_SHIELD,TXT_BOOSTED_TO,f2ir(Players[Player_num].shields));
 			do_cheat_penalty();
 	 	} else
-	 		HUD_init_message(TXT_MAXED_OUT,TXT_SHIELD);
+			HUD_init_message(HM_DEFAULT|HM_REDUNDANT, TXT_MAXED_OUT,TXT_SHIELD);
    }
 
   if (!(strcmp(cryptstring,BuddyLifeCheat)))
    {
 	 do_cheat_penalty();
-	 HUD_init_message ("What's this? Another buddy bot!");
+	 HUD_init_message(HM_DEFAULT, "What's this? Another buddy bot!");
 	 create_buddy_bot();
    }
 
@@ -1686,12 +1686,12 @@ void FinalCheats(int key)
 	 do_cheat_penalty();
 	 Buddy_dude_cheat = !Buddy_dude_cheat;
 	 if (Buddy_dude_cheat) {
-		HUD_init_message ("%s gets angry!",PlayerCfg.GuidebotName);
+		HUD_init_message(HM_DEFAULT, "%s gets angry!",PlayerCfg.GuidebotName);
 		strcpy(PlayerCfg.GuidebotName,"Wingnut");
 	 }
 	 else {
 		strcpy(PlayerCfg.GuidebotName,PlayerCfg.GuidebotNameReal);
-		HUD_init_message ("%s calms down",PlayerCfg.GuidebotName);
+		HUD_init_message(HM_DEFAULT, "%s calms down",PlayerCfg.GuidebotName);
 	 }
   }
 
@@ -1700,14 +1700,14 @@ void FinalCheats(int key)
    {
     Monster_mode=1-Monster_mode;
 	 do_cheat_penalty();
-	 HUD_init_message (Monster_mode?"Oh no, there goes Tokyo!":"What have you done, I'm shrinking!!");
+	 HUD_init_message(HM_DEFAULT, Monster_mode?"Oh no, there goes Tokyo!":"What have you done, I'm shrinking!!");
    }
 
 
   if (!(strcmp (cryptstring,BouncyCheat)))
 	{
 		do_cheat_penalty();
-		HUD_init_message ("Bouncing weapons!");
+		HUD_init_message(HM_DEFAULT, "Bouncing weapons!");
 		BounceCheat=1;
 	}
 
@@ -1734,7 +1734,7 @@ void FinalCheats(int key)
   if (!(strcmp (cryptstring,WowieCheat)))
 	{
 
-				HUD_init_message(TXT_WOWIE_ZOWIE);
+				HUD_init_message(HM_DEFAULT, TXT_WOWIE_ZOWIE);
 		do_cheat_penalty();
 
 			if (Piggy_hamfile_version < 3) // SHAREWARE
@@ -1777,7 +1777,7 @@ void FinalCheats(int key)
   if (!(strcmp (cryptstring,AllKeysCheat)))
 	{
 		do_cheat_penalty();
-				HUD_init_message(TXT_ALL_KEYS);
+				HUD_init_message(HM_DEFAULT, TXT_ALL_KEYS);
 				Players[Player_num].flags |= PLAYER_FLAGS_BLUE_KEY | PLAYER_FLAGS_RED_KEY | PLAYER_FLAGS_GOLD_KEY;
 	}
 
@@ -1786,7 +1786,7 @@ void FinalCheats(int key)
 		{
 		do_cheat_penalty();
 				Players[Player_num].flags ^= PLAYER_FLAGS_INVULNERABLE;
-				HUD_init_message("%s %s!", TXT_INVULNERABILITY, (Players[Player_num].flags&PLAYER_FLAGS_INVULNERABLE)?TXT_ON:TXT_OFF);
+				HUD_init_message(HM_DEFAULT, "%s %s!", TXT_INVULNERABILITY, (Players[Player_num].flags&PLAYER_FLAGS_INVULNERABLE)?TXT_ON:TXT_OFF);
 				Players[Player_num].invulnerable_time = GameTime+i2f(1000);
 		}
   if (!(strcmp (cryptstring,AccessoryCheat)))
@@ -1797,14 +1797,14 @@ void FinalCheats(int key)
 				Players[Player_num].flags |=PLAYER_FLAGS_AMMO_RACK;
 				Players[Player_num].flags |=PLAYER_FLAGS_CONVERTER;
 
-				HUD_init_message ("Accessories!!");
+				HUD_init_message(HM_DEFAULT, "Accessories!!");
 		}
   if (!(strcmp (cryptstring,FullMapCheat)))
 		{
 				do_cheat_penalty();
 				Players[Player_num].flags |=PLAYER_FLAGS_MAP_ALL;
 
-				HUD_init_message ("Full Map!!");
+				HUD_init_message(HM_DEFAULT, "Full Map!!");
 		}
 
 
@@ -1818,7 +1818,7 @@ void FinalCheats(int key)
 				  OldHomingState[i]=Weapon_info[i].homing_flag;
 				  Weapon_info[i].homing_flag=1;
 				 }
-				HUD_init_message ("Homing weapons!");
+				HUD_init_message(HM_DEFAULT, "Homing weapons!");
 			}
 		}
 
@@ -1837,32 +1837,32 @@ void FinalCheats(int key)
 	if (!(strcmp (cryptstring,RobotsKillRobotsCheat))) {
 		Robots_kill_robots_cheat = !Robots_kill_robots_cheat;
 		if (Robots_kill_robots_cheat) {
-			HUD_init_message ("Rabid robots!");
+			HUD_init_message(HM_DEFAULT, "Rabid robots!");
 			do_cheat_penalty();
 		}
 		else
-			HUD_init_message ("Kill the player!");
+			HUD_init_message(HM_DEFAULT, "Kill the player!");
 	}
 
 	if (!(strcmp (cryptstring,AhimsaCheat))) {
 		Robot_firing_enabled = !Robot_firing_enabled;
 		if (!Robot_firing_enabled) {
-			HUD_init_message("%s", "Robot firing OFF!");
+			HUD_init_message(HM_DEFAULT, "%s", "Robot firing OFF!");
 			do_cheat_penalty();
 		}
 		else
-			HUD_init_message("%s", "Robot firing ON!");
+			HUD_init_message(HM_DEFAULT, "%s", "Robot firing ON!");
 	}
 
 	if (!(strcmp (cryptstring,RapidFireCheat))) {
 		if (Laser_rapid_fire) {
 			Laser_rapid_fire = 0;
-			HUD_init_message("%s", "Rapid fire OFF!");
+			HUD_init_message(HM_DEFAULT, "%s", "Rapid fire OFF!");
 		}
 		else {
 			Laser_rapid_fire = 0xbada55;
 			do_cheat_penalty();
-			HUD_init_message("%s", "Rapid fire ON!");
+			HUD_init_message(HM_DEFAULT, "%s", "Rapid fire ON!");
 		}
 	}
 

@@ -1744,14 +1744,14 @@ void controls_read_all(int automap_flag)
 					!Players[Player_num].secondary_ammo[SMART_MINE_INDEX])
 				{
 					digi_play_sample_once( SOUND_BAD_SELECTION, F1_0 );
-					HUD_init_message ("No bombs available!");
+					HUD_init_message(HM_DEFAULT, "No bombs available!");
 					}
 				else
 					{	
 					if (Players[Player_num].secondary_ammo[bomb]==0)
 						{
 						digi_play_sample_once( SOUND_BAD_SELECTION, F1_0 );
-						HUD_init_message ("No %s available!",(bomb==SMART_MINE_INDEX)?"Smart mines":"Proximity bombs");
+						HUD_init_message(HM_DEFAULT, "No %s available!",(bomb==SMART_MINE_INDEX)?"Smart mines":"Proximity bombs");
 						}
 					else
 						{

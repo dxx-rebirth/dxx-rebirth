@@ -1,5 +1,9 @@
 D2X-Rebirth Changelog
 
+20100713
+--------
+include/args.h, main/net_udp.c, main/collide.c, main/multi.c, main/inferno.c, main/object.c, main/gamepal.c, main/wall.c, main/state.c, main/hud.c, main/weapon.c, main/hostage.c, main/hudmsg.h, main/newdemo.c, main/switch.c, main/net_ipx.c, main/gameseq.c, main/escort.c, main/fuelcen.c, main/endlevel.c, main/powerup.c, main/automap.c, main/game.c, main/gauges.c, main/kconfig.c, main/gauges.h, main/gamecntl.c, misc/args.c, d2x.ini, arch/ogl/gr.c, arch/sdl/jukebox.c: Added expandable classes for HUD messages (like D1X but slacked) to better handle Multi messages or redundant messages; Rewrote HUD code completely; Changes -playermessages to -multimessages since this is more appropriate; Removed remnants of -mprofile
+
 20100709
 --------
 main/mission.c, main/titles.c: When reading mission file, check for sanity of possible breifing or ending to make sure author did not just screw up the file; Fixed slight bug when playing ending briefings from secret levels

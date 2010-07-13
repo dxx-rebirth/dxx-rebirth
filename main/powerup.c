@@ -139,7 +139,7 @@ void powerup_basic(int redadd, int greenadd, int blueadd, int score, char *forma
 
 	PALETTE_FLASH_ADD(redadd,greenadd,blueadd);
 
-	HUD_init_message(text);
+	HUD_init_message(HM_DEFAULT, text);
 
 	add_points_to_score(score);
 
@@ -196,7 +196,7 @@ int pick_up_energy(void)
 		powerup_basic(15,15,7, ENERGY_SCORE, "%s %s %d",TXT_ENERGY,TXT_BOOSTED_TO,f2ir(Players[Player_num].energy));
 		used=1;
 	} else
-		HUD_init_message(TXT_MAXED_OUT,TXT_ENERGY);
+		HUD_init_message(HM_DEFAULT|HM_REDUNDANT, TXT_MAXED_OUT,TXT_ENERGY);
 
 	return used;
 }
@@ -213,7 +213,7 @@ int pick_up_vulcan_ammo(void)
 		max = Primary_ammo_max[VULCAN_INDEX];
 		if (Players[Player_num].flags & PLAYER_FLAGS_AMMO_RACK)
 			max *= 2;
-		HUD_init_message("%s %d %s!",TXT_ALREADY_HAVE,f2i((unsigned) VULCAN_AMMO_SCALE * (unsigned) max),TXT_VULCAN_ROUNDS);
+		HUD_init_message(HM_DEFAULT|HM_REDUNDANT, "%s %d %s!",TXT_ALREADY_HAVE,f2i((unsigned) VULCAN_AMMO_SCALE * (unsigned) max),TXT_VULCAN_ROUNDS);
 		used = 0;
 	}
 	Primary_weapon = pwsave;
@@ -225,8 +225,6 @@ extern void invalidate_escort_goal(void);
 extern char GetKeyValue(char);
 extern void check_to_use_primary(int);
 extern void multi_send_got_flag (char);
-
-extern int PlayerMessage;
 
 //	returns true if powerup consumed
 int do_powerup(object *obj)
@@ -243,8 +241,6 @@ int do_powerup(object *obj)
 
 	if ((obj->ctype.powerup_info.flags & PF_SPAT_BY_PLAYER) && obj->ctype.powerup_info.creation_time>0 && GameTime<obj->ctype.powerup_info.creation_time+i2f(2))
 		return 0;		//not enough time elapsed
-
-	PlayerMessage=0;	//	Prevent messages from going to HUD if -PlayerMessages switch is set
 
 	switch (obj->id) {
 		case POW_EXTRA_LIFE:
@@ -266,12 +262,12 @@ int do_powerup(object *obj)
 				powerup_basic(0, 0, 15, SHIELD_SCORE, "%s %s %d",TXT_SHIELD,TXT_BOOSTED_TO,f2ir(Players[Player_num].shields));
 				used=1;
 			} else
-				HUD_init_message(TXT_MAXED_OUT,TXT_SHIELD);
+				HUD_init_message(HM_DEFAULT|HM_REDUNDANT, TXT_MAXED_OUT,TXT_SHIELD);
 			break;
 		case POW_LASER:
 			if (Players[Player_num].laser_level >= MAX_LASER_LEVEL) {
 				//Players[Player_num].laser_level = MAX_LASER_LEVEL;
-				HUD_init_message(TXT_MAXED_OUT,TXT_LASER);
+				HUD_init_message(HM_DEFAULT|HM_REDUNDANT, TXT_MAXED_OUT,TXT_LASER);
 			} else {
 				if (Newdemo_state == ND_STATE_RECORDING)
 					newdemo_record_laser_level(Players[Player_num].laser_level, Players[Player_num].laser_level + 1);
@@ -343,7 +339,7 @@ int do_powerup(object *obj)
 				update_laser_weapon_info();
 				used=1;
 			} else
-				HUD_init_message("%s %s!",TXT_ALREADY_HAVE,TXT_QUAD_LASERS);
+				HUD_init_message(HM_DEFAULT|HM_REDUNDANT, "%s %s!",TXT_ALREADY_HAVE,TXT_QUAD_LASERS);
 			if (!used && !(Game_mode & GM_MULTI) )
 				used = pick_up_energy();
 			break;
@@ -458,7 +454,7 @@ int do_powerup(object *obj)
 			break;
 		case	POW_CLOAK:
 			if (Players[Player_num].flags & PLAYER_FLAGS_CLOAKED) {
-				HUD_init_message("%s %s!",TXT_ALREADY_ARE,TXT_CLOAKED);
+				HUD_init_message(HM_DEFAULT|HM_REDUNDANT, "%s %s!",TXT_ALREADY_ARE,TXT_CLOAKED);
 				break;
 			} else {
 				Players[Player_num].cloak_time = (GameTime+CLOAK_TIME_MAX>i2f(0x7fff-600)?GameTime-i2f(0x7fff-600):GameTime);	//	Not! changed by awareness events (like player fires laser).
@@ -474,7 +470,7 @@ int do_powerup(object *obj)
 			}
 		case	POW_INVULNERABILITY:
 			if (Players[Player_num].flags & PLAYER_FLAGS_INVULNERABLE) {
-				HUD_init_message("%s %s!",TXT_ALREADY_ARE,TXT_INVULNERABLE);
+				HUD_init_message(HM_DEFAULT|HM_REDUNDANT, "%s %s!",TXT_ALREADY_ARE,TXT_INVULNERABLE);
 				break;
 			} else {
 				Players[Player_num].invulnerable_time = (GameTime+INVULNERABLE_TIME_MAX>i2f(0x7fff-600)?GameTime-i2f(0x7fff-600):GameTime);
@@ -492,7 +488,7 @@ int do_powerup(object *obj)
 
 		case POW_FULL_MAP:
 			if (Players[Player_num].flags & PLAYER_FLAGS_MAP_ALL) {
-				HUD_init_message("%s %s!",TXT_ALREADY_HAVE,"the FULL MAP");
+				HUD_init_message(HM_DEFAULT|HM_REDUNDANT, "%s %s!",TXT_ALREADY_HAVE,"the FULL MAP");
 				if (!(Game_mode & GM_MULTI) )
 					used = pick_up_energy();
 			} else {
@@ -504,7 +500,7 @@ int do_powerup(object *obj)
 
 		case POW_CONVERTER:
 			if (Players[Player_num].flags & PLAYER_FLAGS_CONVERTER) {
-				HUD_init_message("%s %s!",TXT_ALREADY_HAVE,"the Converter");
+				HUD_init_message(HM_DEFAULT|HM_REDUNDANT, "%s %s!",TXT_ALREADY_HAVE,"the Converter");
 				if (!(Game_mode & GM_MULTI) )
 					used = pick_up_energy();
 			} else {
@@ -519,7 +515,7 @@ int do_powerup(object *obj)
 		case POW_SUPER_LASER:
 			if (Players[Player_num].laser_level >= MAX_SUPER_LASER_LEVEL) {
 				Players[Player_num].laser_level = MAX_SUPER_LASER_LEVEL;
-				HUD_init_message("SUPER LASER MAXED OUT!");
+				HUD_init_message(HM_DEFAULT, "SUPER LASER MAXED OUT!");
 			} else {
 				int old_level=Players[Player_num].laser_level;
 
@@ -540,7 +536,7 @@ int do_powerup(object *obj)
 
 		case POW_AMMO_RACK:
 			if (Players[Player_num].flags & PLAYER_FLAGS_AMMO_RACK) {
-				HUD_init_message("%s %s!",TXT_ALREADY_HAVE,"the Ammo rack");
+				HUD_init_message(HM_DEFAULT|HM_REDUNDANT, "%s %s!",TXT_ALREADY_HAVE,"the Ammo rack");
 				if (!(Game_mode & GM_MULTI) )
 					used = pick_up_energy();
 			}
@@ -557,7 +553,7 @@ int do_powerup(object *obj)
 
 		case POW_AFTERBURNER:
 			if (Players[Player_num].flags & PLAYER_FLAGS_AFTERBURNER) {
-				HUD_init_message("%s %s!",TXT_ALREADY_HAVE,"the Afterburner");
+				HUD_init_message(HM_DEFAULT|HM_REDUNDANT, "%s %s!",TXT_ALREADY_HAVE,"the Afterburner");
 				if (!(Game_mode & GM_MULTI) )
 					used = pick_up_energy();
 			}
@@ -575,7 +571,7 @@ int do_powerup(object *obj)
 
 		case POW_HEADLIGHT:
 			if (Players[Player_num].flags & PLAYER_FLAGS_HEADLIGHT) {
-				HUD_init_message("%s %s!",TXT_ALREADY_HAVE,"the Headlight boost");
+				HUD_init_message(HM_DEFAULT|HM_REDUNDANT, "%s %s!",TXT_ALREADY_HAVE,"the Headlight boost");
 				if (!(Game_mode & GM_MULTI) )
 					used = pick_up_energy();
 			}
@@ -650,8 +646,6 @@ int do_powerup(object *obj)
 		digi_play_sample( Powerup_info[id].hit_sound, F1_0 );
 		detect_escort_goal_accomplished(obj-Objects);
 	}
-
-	PlayerMessage=1;
 
 	return used;
 

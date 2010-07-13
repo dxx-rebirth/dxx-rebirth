@@ -38,7 +38,7 @@ COPYRIGHT 1993-1999 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 
 char Current_level_palette[FILENAME_LEN];
 
-extern int Color_0_31_0, HUD_color;
+extern int Color_0_31_0;
 
 char last_palette_loaded[FILENAME_LEN]="";
 char last_palette_loaded_pig[FILENAME_LEN]="";
@@ -92,7 +92,6 @@ int load_palette(char *name,int used_for_level,int no_change_screen)
 		gr_remap_mono_fonts();
 
 		Color_0_31_0 = -1;		//for gauges
-		HUD_color = -1;
 	}
 
 

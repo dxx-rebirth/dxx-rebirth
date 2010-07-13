@@ -1128,9 +1128,9 @@ net_ipx_new_player(IPX_sequence_packet *their)
 	ClipRank (&their->player.rank);
 
 	if (GameArg.MplNoRankings)
-		HUD_init_message("'%s' %s\n",their->player.callsign, TXT_JOINING);
+		HUD_init_message(HM_MULTI, "'%s' %s\n",their->player.callsign, TXT_JOINING);
 	else
-		HUD_init_message("%s'%s' %s\n",RankStrings[their->player.rank],their->player.callsign, TXT_JOINING);
+		HUD_init_message(HM_MULTI, "%s'%s' %s\n",RankStrings[their->player.rank],their->player.callsign, TXT_JOINING);
 
 	multi_make_ghost_player(pnum);
 
@@ -1278,9 +1278,9 @@ void net_ipx_welcome_player(IPX_sequence_packet *their)
 		digi_play_sample(SOUND_HUD_MESSAGE, F1_0);
 
 		if (GameArg.MplNoRankings)
-			HUD_init_message("'%s' %s", Players[player_num].callsign, TXT_REJOIN);
+			HUD_init_message(HM_MULTI, "'%s' %s", Players[player_num].callsign, TXT_REJOIN);
 		else
-			HUD_init_message("%s'%s' %s", RankStrings[Netgame.players[player_num].rank],Players[player_num].callsign, TXT_REJOIN);
+			HUD_init_message(HM_MULTI, "%s'%s' %s", RankStrings[Netgame.players[player_num].rank],Players[player_num].callsign, TXT_REJOIN);
 	}
 
 	Players[player_num].KillGoalCount=0;
@@ -2359,7 +2359,7 @@ void net_ipx_process_dump(IPX_sequence_packet *their)
 				}
 				else
 				{
-					HUD_init_message ("%s attempted to kick you out.",their->player.callsign);
+					HUD_init_message(HM_MULTI, "%s attempted to kick you out.",their->player.callsign);
 				}
 			}
 		}
@@ -4543,14 +4543,14 @@ void net_ipx_timeout_player(int playernum)
 
 	digi_play_sample(SOUND_HUD_MESSAGE, F1_0);
 
-	HUD_init_message("%s %s", Players[playernum].callsign, TXT_DISCONNECTING);
+	HUD_init_message(HM_MULTI, "%s %s", Players[playernum].callsign, TXT_DISCONNECTING);
 	for (i = 0; i < N_players; i++)
 		if (Players[i].connected)
 			n++;
 
 	if (n == 1)
 	{
-		HUD_init_message("You are the only person remaining in this netgame");
+		HUD_init_message(HM_MULTI, "You are the only person remaining in this netgame");
 		//nm_messagebox(NULL, 1, TXT_OK, TXT_YOU_ARE_ONLY);
 	}
 }
@@ -4737,7 +4737,7 @@ void net_ipx_do_frame(int force, int listen)
 			}
 			if(Players[i].connected != CONNECT_PLAYING && Objects[Players[i].objnum].type != OBJ_GHOST)
 			{
-				HUD_init_message( "'%s' has left.", Players[i].callsign );
+				HUD_init_message(HM_MULTI,  "'%s' has left.", Players[i].callsign );
 				multi_make_player_ghost(i);
 			}
 		}
@@ -4868,9 +4868,9 @@ void net_ipx_read_pdata_packet(IPX_frame_info *pd)
 		ClipRank (&Netgame.players[TheirPlayernum].rank);
 
 		if (GameArg.MplNoRankings)
-			HUD_init_message( "'%s' %s", Players[TheirPlayernum].callsign, TXT_REJOIN );
+			HUD_init_message(HM_MULTI,  "'%s' %s", Players[TheirPlayernum].callsign, TXT_REJOIN );
 		else
-			HUD_init_message( "%s'%s' %s", RankStrings[Netgame.players[TheirPlayernum].rank],Players[TheirPlayernum].callsign, TXT_REJOIN );
+			HUD_init_message(HM_MULTI,  "%s'%s' %s", RankStrings[Netgame.players[TheirPlayernum].rank],Players[TheirPlayernum].callsign, TXT_REJOIN );
 
 
 		multi_send_score();
@@ -4970,9 +4970,9 @@ void net_ipx_read_pdata_short_packet(IPX_short_frame_info *pd)
 		ClipRank (&Netgame.players[TheirPlayernum].rank);
 
 		if (GameArg.MplNoRankings)
-			HUD_init_message( "'%s' %s", Players[TheirPlayernum].callsign, TXT_REJOIN );
+			HUD_init_message(HM_MULTI,  "'%s' %s", Players[TheirPlayernum].callsign, TXT_REJOIN );
 		else
-			HUD_init_message( "%s'%s' %s", RankStrings[Netgame.players[TheirPlayernum].rank],Players[TheirPlayernum].callsign, TXT_REJOIN );
+			HUD_init_message(HM_MULTI,  "%s'%s' %s", RankStrings[Netgame.players[TheirPlayernum].rank],Players[TheirPlayernum].callsign, TXT_REJOIN );
 
 
 		multi_send_score();
@@ -5338,17 +5338,17 @@ void net_ipx_do_refuse_stuff (IPX_sequence_packet *their)
 		{
 			if (!GameArg.MplNoRankings)
 			{
-				HUD_init_message ("%s %s wants to join",RankStrings[their->player.rank],their->player.callsign);
+				HUD_init_message(HM_MULTI, "%s %s wants to join",RankStrings[their->player.rank],their->player.callsign);
 			}
 			else
 			{
-				HUD_init_message ("%s wants to join",their->player.callsign);
+				HUD_init_message(HM_MULTI, "%s wants to join",their->player.callsign);
 			}
-			HUD_init_message ("Alt-1 assigns to team %s. Alt-2 to team %s",their->player.callsign,Netgame.team_name[0],Netgame.team_name[1]);
+			HUD_init_message(HM_MULTI, "Alt-1 assigns to team %s. Alt-2 to team %s",their->player.callsign,Netgame.team_name[0],Netgame.team_name[1]);
 		}
 		else
 		{
-			HUD_init_message ("%s wants to join (accept: F6)",their->player.callsign);
+			HUD_init_message(HM_MULTI, "%s wants to join (accept: F6)",their->player.callsign);
 		}
 
 		strcpy (RefusePlayerName,their->player.callsign);

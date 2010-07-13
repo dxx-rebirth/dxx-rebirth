@@ -341,7 +341,7 @@ int state_save_all(int between_levels, int secret_save, char *filename_override,
 #endif
 
 	if ((Current_level_num < 0) && (secret_save == 0)) {
-		HUD_init_message( "Can't save in secret level!" );
+		HUD_init_message(HM_DEFAULT,  "Can't save in secret level!" );
 		return 0;
 	}
 
@@ -405,7 +405,7 @@ int state_save_all(int between_levels, int secret_save, char *filename_override,
 	rval = state_save_all_sub(filename, desc, between_levels);
 
 	if (rval && !secret_save)
-		HUD_init_message("Game saved");
+		HUD_init_message(HM_DEFAULT, "Game saved");
 
 	return rval;
 }
@@ -686,7 +686,7 @@ int state_restore_all(int in_game, int secret_restore, char *filename_override)
 #endif
 
 	if (in_game && (Current_level_num < 0) && (secret_restore == 0)) {
-		HUD_init_message( "Can't restore in secret level!" );
+		HUD_init_message(HM_DEFAULT,  "Can't restore in secret level!" );
 		return 0;
 	}
 

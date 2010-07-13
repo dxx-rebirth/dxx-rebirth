@@ -350,8 +350,6 @@ int weapon_box_states[2] = {WS_SET, WS_SET};
 fix weapon_box_fade_values[2];
 int	Color_0_31_0 = -1;
 fix	Last_warning_beep_time = 0;		//	Time we last played homing missile warning beep.
-extern int HUD_nmessages, hud_first; // From hud.c
-extern char HUD_messages[HUD_MAX_NUM][HUD_MESSAGE_LENGTH+5];
 extern fix ThisLevelTime;
 extern fix Omega_charge;
 
@@ -720,7 +718,7 @@ void hud_show_score()
 	char	score_str[20];
 	int	w, h, aw;
 
-	if ((HUD_nmessages > 0) && (strlen(HUD_messages[hud_first]) > 38))
+	if (HUD_toolong)
 		return;
 
 	gr_set_curfont( GAME_FONT );
@@ -748,7 +746,7 @@ void hud_show_timer_count()
 	fix timevar=0;
 #endif
 
-	if ((HUD_nmessages > 0) && (strlen(HUD_messages[hud_first]) > 38))
+	if (HUD_toolong)
 		return;
 
 #ifdef NETWORK
@@ -1459,7 +1457,7 @@ void hud_show_lives()
 {
 	int x;
 
-	if ((HUD_nmessages > 0) && (strlen(HUD_messages[hud_first]) > 38))
+	if (HUD_toolong)
 		return;
 
 	if (PlayerCfg.CockpitMode[1] == CM_FULL_COCKPIT)

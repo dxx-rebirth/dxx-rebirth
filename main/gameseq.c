@@ -154,8 +154,6 @@ int	First_secret_visit = 1;
 
 extern int descent_critical_error;
 
-extern int Last_msg_ycrd;
-
 //--------------------------------------------------------------------
 void verify_console_object()
 {
@@ -777,8 +775,6 @@ void LoadLevel(int level_num,int page_in_textures)
 
 	gr_set_current_canvas(NULL);
 	gr_clear_canvas(BM_XRGB(0, 0, 0));		//so palette switching is less obvious
-
-	Last_msg_ycrd = -1;		//so we don't restore backgound under msg
 
 	load_ret = load_level(level_name);		//actually load the data from disk!
 
