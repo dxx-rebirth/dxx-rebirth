@@ -515,7 +515,7 @@ int do_powerup(object *obj)
 		case POW_SUPER_LASER:
 			if (Players[Player_num].laser_level >= MAX_SUPER_LASER_LEVEL) {
 				Players[Player_num].laser_level = MAX_SUPER_LASER_LEVEL;
-				HUD_init_message(HM_DEFAULT, "SUPER LASER MAXED OUT!");
+				HUD_init_message(HM_DEFAULT|HM_REDUNDANT, "SUPER LASER MAXED OUT!");
 			} else {
 				int old_level=Players[Player_num].laser_level;
 
