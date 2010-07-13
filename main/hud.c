@@ -122,7 +122,10 @@ int HUD_init_message_va(char * format, va_list args)
 	{
 		if (!strnicmp(message, HUD_messages[i].message, sizeof(char)*HUD_MESSAGE_LENGTH))
 		{
-			HUD_messages[i].time = F1_0*2;
+			HUD_messages[i].time = F1_0*2; // keep redundant message in list
+			if (i >= HUD_nmessages-HUD_MAX_NUM_DISP) // if redundant message on display, update them all
+				for (i = HUD_nmessages-HUD_MAX_NUM_DISP, j = 1; i < HUD_nmessages; i++, j++)
+					HUD_messages[i].time = F1_0*(j*2);
 			return 0;
 		}
 	}
