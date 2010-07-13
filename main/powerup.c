@@ -125,7 +125,7 @@ void powerup_basic(int redadd, int greenadd, int blueadd, int score, char *forma
 
 	PALETTE_FLASH_ADD(redadd,greenadd,blueadd);
 
-	hud_message(MSGC_PICKUP_OK, text);
+	HUD_init_message(HM_DEFAULT, text);
 
 	add_points_to_score(score);
 
@@ -182,7 +182,7 @@ int pick_up_energy(void)
 		powerup_basic(15,15,7, ENERGY_SCORE, "%s %s %d",TXT_ENERGY,TXT_BOOSTED_TO,f2ir(Players[Player_num].energy));
 		used=1;
 	} else
-		hud_message(MSGC_PICKUP_TOOMUCH, TXT_MAXED_OUT,TXT_ENERGY);
+		HUD_init_message(HM_DEFAULT|HM_REDUNDANT, TXT_MAXED_OUT,TXT_ENERGY);
 
 	return used;
 }
@@ -197,7 +197,7 @@ int pick_up_vulcan_ammo(void)
 		powerup_basic(7, 14, 21, VULCAN_AMMO_SCORE, "%s!", TXT_VULCAN_AMMO);
 		used = 1;
 	} else {
-		hud_message(MSGC_PICKUP_TOOMUCH, "%s %d %s!",TXT_ALREADY_HAVE,f2i(VULCAN_AMMO_SCALE * Primary_ammo_max[VULCAN_INDEX]),TXT_VULCAN_ROUNDS);
+		HUD_init_message(HM_DEFAULT|HM_REDUNDANT, "%s %d %s!",TXT_ALREADY_HAVE,f2i(VULCAN_AMMO_SCALE * Primary_ammo_max[VULCAN_INDEX]),TXT_VULCAN_ROUNDS);
 		used = 0;
 	}
 //-killed-        Primary_weapon = pwsave;
@@ -205,8 +205,6 @@ int pick_up_vulcan_ammo(void)
 
 	return used;
 }
-
-extern int PlayerMessage;
 
 //	returns true if powerup consumed
 int do_powerup(object *obj)
@@ -216,8 +214,6 @@ int do_powerup(object *obj)
 
 	if ((Player_is_dead) || (ConsoleObject->type == OBJ_GHOST))
 		return 0;
-
-	PlayerMessage=0;	//	Prevent messages from going to HUD if -PlayerMessages switch is set
 
 	switch (obj->id) {
 		case POW_EXTRA_LIFE:
@@ -236,12 +232,12 @@ int do_powerup(object *obj)
 				powerup_basic(0, 0, 15, SHIELD_SCORE, "%s %s %d",TXT_SHIELD,TXT_BOOSTED_TO,f2ir(Players[Player_num].shields));
 				used=1;
 			} else
-				hud_message(MSGC_PICKUP_TOOMUCH, TXT_MAXED_OUT,TXT_SHIELD);
+				HUD_init_message(HM_DEFAULT|HM_REDUNDANT, TXT_MAXED_OUT,TXT_SHIELD);
 			break;
 		case POW_LASER:
 			if (Players[Player_num].laser_level >= MAX_LASER_LEVEL) {
 				Players[Player_num].laser_level = MAX_LASER_LEVEL;
-				hud_message(MSGC_PICKUP_TOOMUCH, TXT_MAXED_OUT,TXT_LASER);
+				HUD_init_message(HM_DEFAULT|HM_REDUNDANT, TXT_MAXED_OUT,TXT_LASER);
                         } else {
 				if (Newdemo_state == ND_STATE_RECORDING)
 					newdemo_record_laser_level(Players[Player_num].laser_level, Players[Player_num].laser_level + 1);
@@ -310,7 +306,7 @@ int do_powerup(object *obj)
 				update_laser_weapon_info();
 				used=1;
 			} else
-				hud_message(MSGC_PICKUP_ALREADY, "%s %s!",TXT_ALREADY_HAVE,TXT_QUAD_LASERS);
+				HUD_init_message(HM_DEFAULT|HM_REDUNDANT, "%s %s!",TXT_ALREADY_HAVE,TXT_QUAD_LASERS);
 			if (!used && !(Game_mode & GM_MULTI) )
 				used = pick_up_energy();
 			break;
@@ -379,7 +375,7 @@ int do_powerup(object *obj)
 			break;
 		case	POW_CLOAK:
 			if (Players[Player_num].flags & PLAYER_FLAGS_CLOAKED) {
-				hud_message(MSGC_PICKUP_ALREADY, "%s %s!",TXT_ALREADY_ARE,TXT_CLOAKED);
+				HUD_init_message(HM_DEFAULT|HM_REDUNDANT, "%s %s!",TXT_ALREADY_ARE,TXT_CLOAKED);
 				break;
 			} else {
 				Players[Player_num].cloak_time = (GameTime+CLOAK_TIME_MAX>i2f(0x7fff-600)?GameTime-i2f(0x7fff-600):GameTime);
@@ -395,7 +391,7 @@ int do_powerup(object *obj)
 			}
 		case	POW_INVULNERABILITY:
 			if (Players[Player_num].flags & PLAYER_FLAGS_INVULNERABLE) {
-				hud_message(MSGC_PICKUP_ALREADY, "%s %s!",TXT_ALREADY_ARE,TXT_INVULNERABLE);
+				HUD_init_message(HM_DEFAULT|HM_REDUNDANT, "%s %s!",TXT_ALREADY_ARE,TXT_INVULNERABLE);
 				break;
 			} else {
 				Players[Player_num].invulnerable_time = (GameTime+INVULNERABLE_TIME_MAX>i2f(0x7fff-600)?GameTime-i2f(0x7fff-600):GameTime);
@@ -426,8 +422,6 @@ int do_powerup(object *obj)
 		#endif
 		digi_play_sample( Powerup_info[obj->id].hit_sound, F1_0 );
 	}
-
-	PlayerMessage=1;
 
 	return used;
 

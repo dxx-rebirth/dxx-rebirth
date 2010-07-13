@@ -1918,7 +1918,6 @@ int newdemo_read_frame_information(int rewrite)
 
 		case ND_EVENT_HUD_MESSAGE: {
 			char hud_msg[60];
-			int class = MSGC_UNKNOWN;
 
 			nd_read_string(&(hud_msg[0]));
 			if (nd_bad_read) { done = -1; break; }
@@ -1935,7 +1934,7 @@ int newdemo_read_frame_information(int rewrite)
 				 (((unsigned char)hud_msg[4]) << 24);
 			#endif
 			if (Newdemo_vcr_state != ND_STATE_PAUSED)
-				hud_message(class, hud_msg);
+				HUD_init_message(HM_DEFAULT, hud_msg);
 			break;
 		}
 

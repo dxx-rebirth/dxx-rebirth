@@ -606,11 +606,11 @@ void multi_compute_kill(int killer, int killed)
 		reactor_kills_total++;
 		if (killed_pnum == Player_num)
 		{
-			HUD_init_message("%s %s.", TXT_YOU_WERE, TXT_KILLED_BY_NONPLAY);
+			HUD_init_message(HM_MULTI, "%s %s.", TXT_YOU_WERE, TXT_KILLED_BY_NONPLAY);
 			multi_add_lifetime_killed ();
 		}
 		else
-			HUD_init_message("%s %s %s.", killed_name, TXT_WAS, TXT_KILLED_BY_NONPLAY );
+			HUD_init_message(HM_MULTI, "%s %s %s.", killed_name, TXT_WAS, TXT_KILLED_BY_NONPLAY );
 		return;
 	}
 
@@ -618,11 +618,11 @@ void multi_compute_kill(int killer, int killed)
 	{
 		if (killed_pnum == Player_num)
 		{
-			hud_message(MSGC_MULTI_KILL, "%s %s.", TXT_YOU_WERE, TXT_KILLED_BY_ROBOT);
+			HUD_init_message(HM_MULTI, "%s %s.", TXT_YOU_WERE, TXT_KILLED_BY_ROBOT);
 			multi_add_lifetime_killed();
 		}
 		else
-			hud_message(MSGC_MULTI_KILL, "%s %s %s.", killed_name, TXT_WAS, TXT_KILLED_BY_ROBOT );
+			HUD_init_message(HM_MULTI, "%s %s %s.", killed_name, TXT_WAS, TXT_KILLED_BY_ROBOT );
 		Players[killed_pnum].net_killed_total++;
 		return;		
 	}
@@ -656,11 +656,11 @@ void multi_compute_kill(int killer, int killed)
 		kill_matrix[killed_pnum][killed_pnum] += 1; // # of suicides
 		if (killer_pnum == Player_num)
 		{
-			HUD_init_message("%s %s %s!", TXT_YOU, TXT_KILLED, TXT_YOURSELF );
+			HUD_init_message(HM_MULTI, "%s %s %s!", TXT_YOU, TXT_KILLED, TXT_YOURSELF );
 			multi_add_lifetime_killed();
 		}
 		else
-			HUD_init_message("%s %s", killed_name, TXT_SUICIDE);
+			HUD_init_message(HM_MULTI, "%s %s", killed_name, TXT_SUICIDE);
 	}
 
 	else
@@ -681,18 +681,18 @@ void multi_compute_kill(int killer, int killed)
 		kill_matrix[killer_pnum][killed_pnum] += 1;
 
 		if (killer_pnum == Player_num) {
-			HUD_init_message("%s %s %s!", TXT_YOU, TXT_KILLED, killed_name);
+			HUD_init_message(HM_MULTI, "%s %s %s!", TXT_YOU, TXT_KILLED, killed_name);
 			multi_add_lifetime_kills();
 			if ((Game_mode & GM_MULTI_COOP) && (Players[Player_num].score >= 1000))
 				add_points_to_score(-1000);
 		}
 		else if (killed_pnum == Player_num)
 		{
-			HUD_init_message("%s %s %s!", killer_name, TXT_KILLED, TXT_YOU);
+			HUD_init_message(HM_MULTI, "%s %s %s!", killer_name, TXT_KILLED, TXT_YOU);
 			multi_add_lifetime_killed();
 		}
 		else
-			HUD_init_message("%s %s %s!", killer_name, TXT_KILLED, killed_name);
+			HUD_init_message(HM_MULTI, "%s %s %s!", killer_name, TXT_KILLED, killed_name);
 	}
 	multi_sort_kill_list();
 	multi_show_player_list();
@@ -999,7 +999,7 @@ multi_message_feedback(void)
 
 		Assert(strlen(feedback_result) < 200);
 
-		hud_message(MSGC_GAME_FEEDBACK, feedback_result);
+		HUD_init_message(HM_MULTI, feedback_result);
 	}
 }
 
@@ -1029,14 +1029,14 @@ multi_send_macro(int key)
 
 	if (!PlayerCfg.NetworkMessageMacro[key][0])
 	{
-		hud_message(MSGC_GAME_FEEDBACK, TXT_NO_MACRO);
+		HUD_init_message(HM_MULTI, TXT_NO_MACRO);
 		return;
 	}
 
 	strcpy(Network_message, PlayerCfg.NetworkMessageMacro[key]);
 	Network_message_reciever = 100;
 
-	HUD_init_message("%s '%s'", TXT_SENDING, Network_message);
+	HUD_init_message(HM_MULTI, "%s '%s'", TXT_SENDING, Network_message);
 	multi_message_feedback();
 
 }
@@ -1075,14 +1075,14 @@ void multi_send_message_end()
 
 		if (!multi_i_am_master())
 		{
-			HUD_init_message ("Only %s can kick others out!",Players[multi_who_is_master()].callsign);
+			HUD_init_message(HM_MULTI, "Only %s can kick others out!",Players[multi_who_is_master()].callsign);
 			multi_message_index = 0;
 			multi_sending_message = 0;
 			return;
 		}
 		if (strlen(Network_message)<=name_index)
 		{
-			HUD_init_message ("You must specify a name to kick");
+			HUD_init_message(HM_MULTI, "You must specify a name to kick");
 			multi_message_index = 0;
 			multi_sending_message = 0;
 			return;
@@ -1094,7 +1094,7 @@ void multi_send_message_end()
 
 			if (Show_kill_list==1 || Show_kill_list==2) {
 				if (listpos == 0 || listpos >= N_players) {
-					HUD_init_message ("Invalid player number for kick.");
+					HUD_init_message(HM_MULTI, "Invalid player number for kick.");
 					multi_message_index = 0;
 					multi_sending_message = 0;
 					return;
@@ -1104,7 +1104,7 @@ void multi_send_message_end()
 				if ((i != Player_num) && (Players[i].connected))
 					goto kick_player;
 			}
-			else HUD_init_message ("You cannot use # kicking with in team display.");
+			else HUD_init_message(HM_MULTI, "You cannot use # kicking with in team display.");
 
 
 		    multi_message_index = 0;
@@ -1133,7 +1133,7 @@ void multi_send_message_end()
 						break;
 				}
 
-				HUD_init_message("Dumping %s...",Players[i].callsign);
+				HUD_init_message(HM_MULTI, "Dumping %s...",Players[i].callsign);
 				multi_message_index = 0;
 				multi_sending_message = 0;
 				return;
@@ -1143,7 +1143,7 @@ void multi_send_message_end()
 	else if (!strnicmp (Network_message,"KillReactor",11) && (Game_mode & GM_NETWORK) && !Control_center_destroyed)
 	{	
 		if (!multi_i_am_master())
-			HUD_init_message ("Only %s can kill the reactor this way!",Players[multi_who_is_master()].callsign);
+			HUD_init_message(HM_MULTI, "Only %s can kill the reactor this way!",Players[multi_who_is_master()].callsign);
 		else
 		{
 			net_destroy_controlcen(NULL);
@@ -1155,7 +1155,7 @@ void multi_send_message_end()
 	}
 
 	Network_message_reciever = 100;
-	hud_message(MSGC_GAME_FEEDBACK, "%s '%s'", TXT_SENDING, Network_message);
+	HUD_init_message(HM_MULTI, "%s '%s'", TXT_SENDING, Network_message);
 	multi_send_message();
         multi_message_feedback();
 	game_flush_inputs();
@@ -1251,7 +1251,6 @@ multi_send_message_dialog(void)
 
 	if ((choice > -1) && (strlen(Network_message) > 0)) {
 		Network_message_reciever = 100;
-                //hud_message(MSGC_GAME_FEEDBACK, "%s '%s'", TXT_SENDING, Network_message);
                 multi_message_feedback();
 	}
 }
@@ -1335,7 +1334,7 @@ multi_do_message(char *buf)
 		mesbuf[t+3] = 0;
 
 		digi_play_sample(SOUND_HUD_MESSAGE, F1_0);
-		HUD_init_message("%s %s", mesbuf, buf+2);
+		HUD_init_message(HM_MULTI, "%s %s", mesbuf, buf+2);
 	}
 	else if ( (!strncasecmp(Players[Player_num].callsign, buf+loc, colon-(buf+loc))) ||
 			  ((Game_mode & GM_TEAM) && ( (get_team(Player_num) == atoi(buf+loc)-1) || !strncasecmp(Netgame.team_name[get_team(Player_num)], buf+loc, colon-(buf+loc)))) )
@@ -1355,7 +1354,7 @@ multi_do_message(char *buf)
 		mesbuf[t+3] = 0;
 
 		digi_play_sample(SOUND_HUD_MESSAGE, F1_0);
-		HUD_init_message("%s %s", mesbuf, colon+1);
+		HUD_init_message(HM_MULTI, "%s %s", mesbuf, colon+1);
 	}
 }
 
@@ -1560,12 +1559,12 @@ void multi_do_controlcen_destroy(char *buf)
 	if (Control_center_destroyed != 1) 
 	{
 		if ((who < N_players) && (who != Player_num)) {
-			hud_message(MSGC_MULTI_INFO, "%s %s", Players[who].callsign, TXT_HAS_DEST_CONTROL);
+			HUD_init_message(HM_MULTI, "%s %s", Players[who].callsign, TXT_HAS_DEST_CONTROL);
 		}
 		else if (who == Player_num)
-			hud_message(MSGC_MULTI_INFO, TXT_YOU_DEST_CONTROL);
+			HUD_init_message(HM_MULTI, TXT_YOU_DEST_CONTROL);
 		else 
-			hud_message(MSGC_MULTI_INFO, TXT_CONTROL_DESTROYED);
+			HUD_init_message(HM_MULTI, TXT_CONTROL_DESTROYED);
 
 		if (objnum != -1)
 			net_destroy_controlcen(Objects+objnum);
@@ -1584,7 +1583,7 @@ multi_do_escape(char *buf)
         if (buf[2] == 0)
 	{
                 digi_play_sample(SOUND_HUD_MESSAGE, F1_0);
-		hud_message(MSGC_MULTI_INFO, "%s %s", Players[(int)buf[1]].callsign, TXT_HAS_ESCAPED);
+		HUD_init_message(HM_MULTI, "%s %s", Players[(int)buf[1]].callsign, TXT_HAS_ESCAPED);
 
 		if (Game_mode & GM_NETWORK)
 			Players[(int)buf[1]].connected = CONNECT_ESCAPE_TUNNEL;
@@ -1595,7 +1594,7 @@ multi_do_escape(char *buf)
         else if (buf[2] == 1) 
 	{
                 digi_play_sample(SOUND_HUD_MESSAGE, F1_0);
-		hud_message(MSGC_MULTI_INFO, "%s %s", Players[(int)buf[1]].callsign, TXT_HAS_FOUND_SECRET);
+		HUD_init_message(HM_MULTI, "%s %s", Players[(int)buf[1]].callsign, TXT_HAS_FOUND_SECRET);
 
 		if (Game_mode & GM_NETWORK)
 			Players[(int)buf[1]].connected = CONNECT_FOUND_SECRET;
@@ -1655,7 +1654,7 @@ multi_do_quit(char *buf)
 
 		digi_play_sample( SOUND_HUD_MESSAGE, F1_0 );
 
-		HUD_init_message( "%s %s", Players[(int)buf[1]].callsign, TXT_HAS_LEFT_THE_GAME);
+		HUD_init_message(HM_MULTI,  "%s %s", Players[(int)buf[1]].callsign, TXT_HAS_LEFT_THE_GAME);
 		
 		switch (multi_protocol)
 		{
@@ -1678,7 +1677,7 @@ multi_do_quit(char *buf)
 			if (Players[i].connected) n++;
 		if (n == 1)
 		{
-			hud_message(MSGC_GAME_FEEDBACK, "You are the only person remaining in this netgame");
+			HUD_init_message(HM_MULTI, "You are the only person remaining in this netgame");
 		}
 	}
 
@@ -2173,11 +2172,11 @@ void
 multi_send_destroy_controlcen(int objnum, int player)
 {
 	if (player == Player_num)
-		hud_message(MSGC_MULTI_INFO, TXT_YOU_DEST_CONTROL);
+		HUD_init_message(HM_MULTI, TXT_YOU_DEST_CONTROL);
 	else if ((player > 0) && (player < N_players))
-		hud_message(MSGC_MULTI_INFO, "%s %s", Players[player].callsign, TXT_HAS_DEST_CONTROL);
+		HUD_init_message(HM_MULTI, "%s %s", Players[player].callsign, TXT_HAS_DEST_CONTROL);
 	else
-		hud_message(MSGC_MULTI_INFO, TXT_CONTROL_DESTROYED);
+		HUD_init_message(HM_MULTI, TXT_CONTROL_DESTROYED);
 
 	multibuf[0] = (char)MULTI_CONTROLCEN;
 	PUT_INTEL_SHORT(multibuf+1, objnum);

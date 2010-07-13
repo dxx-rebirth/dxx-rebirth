@@ -428,7 +428,7 @@ int HandleDemoKey(int key)
 #ifndef NDEBUG
 		case KEY_DEBUGGED + KEY_I:
 			Newdemo_do_interpolate = !Newdemo_do_interpolate;
-			HUD_init_message("Demo playback interpolation %s", Newdemo_do_interpolate?"ON":"OFF");
+			HUD_init_message(HM_DEFAULT, "Demo playback interpolation %s", Newdemo_do_interpolate?"ON":"OFF");
 			break;
 		case KEY_DEBUGGED + KEY_K: {
 			int how_many, c;
@@ -664,14 +664,14 @@ int HandleGameKey(int key)
 			if (Netgame.RefusePlayers && WaitForRefuseAnswer)
 			{
 				RefuseThisPlayer=1;
-				HUD_init_message ("Player accepted!");
+				HUD_init_message(HM_MULTI, "Player accepted!");
 			}
 			break;
 		case KEY_ALTED + KEY_1:
 			if (Netgame.RefusePlayers && WaitForRefuseAnswer && (Game_mode & GM_TEAM))
 				{
 					RefuseThisPlayer=1;
-					HUD_init_message ("Player accepted!");
+					HUD_init_message(HM_MULTI, "Player accepted!");
 					RefuseTeam=1;
 					game_flush_inputs();
 				}
@@ -680,7 +680,7 @@ int HandleGameKey(int key)
 			if (Netgame.RefusePlayers && WaitForRefuseAnswer && (Game_mode & GM_TEAM))
 				{
 					RefuseThisPlayer=1;
-					HUD_init_message ("Player accepted!");
+					HUD_init_message (HM_MULTI,"Player accepted!");
 					RefuseTeam=2;
 					game_flush_inputs();
 				}
@@ -706,7 +706,7 @@ void kill_and_so_forth(void)
 {
 	int     i, j;
 
-	HUD_init_message("Killing, awarding, etc.!");
+	HUD_init_message(HM_DEFAULT, "Killing, awarding, etc.!");
 
 	for (i=0; i<=Highest_object_index; i++) {
 		switch (Objects[i].type) {
@@ -841,9 +841,9 @@ int HandleTestKey(int key)
 		case KEY_DEBUGGED + KEY_M:
 			Debug_spew = !Debug_spew;
 			if (Debug_spew) {
-				hud_message( MSGC_GAME_FEEDBACK, "Debug Spew: ON" );
+				HUD_init_message(HM_DEFAULT,  "Debug Spew: ON" );
 			} else {
-				hud_message( MSGC_GAME_FEEDBACK, "Debug Spew: OFF" );
+				HUD_init_message(HM_DEFAULT,  "Debug Spew: OFF" );
 			}
 			break;
 
@@ -916,7 +916,7 @@ int HandleTestKey(int key)
 			break;
 		case KEY_DEBUGGED+KEY_G:
 			GameTime = i2f(0x7fff - 600) - (F1_0*10);
-			HUD_init_message("GameTime %i - Reset in 10 seconds!", GameTime);
+			HUD_init_message(HM_DEFAULT, "GameTime %i - Reset in 10 seconds!", GameTime);
 			break;
 		default:
 			return 0;
@@ -1010,7 +1010,7 @@ void FinalCheats(int key)
 
 	if (!(Game_mode&GM_MULTI) && key == cheat_enable_keys[cheat_enable_index]) {
 		if (++cheat_enable_index == CHEAT_ENABLE_LENGTH) {
-			hud_message(MSGC_GAME_CHEAT, TXT_CHEATS_ENABLED);
+			HUD_init_message(HM_DEFAULT, TXT_CHEATS_ENABLED);
 			digi_play_sample( SOUND_CHEATER, F1_0);
 			Cheats_enabled = 1;
 			Players[Player_num].score = 0;
@@ -1027,7 +1027,7 @@ void FinalCheats(int key)
 			if (++cheat_wowie_index == CHEAT_WOWIE_LENGTH) {
 				int i;
 
-				hud_message(MSGC_GAME_CHEAT, TXT_WOWIE_ZOWIE);
+				HUD_init_message(HM_DEFAULT, TXT_WOWIE_ZOWIE);
 				digi_play_sample( SOUND_CHEATER, F1_0);
 
 				Players[Player_num].primary_weapon_flags |= 0xff ^ (HAS_PLASMA_FLAG | HAS_FUSION_FLAG);
@@ -1057,7 +1057,7 @@ void FinalCheats(int key)
 			if (++cheat_wowie2_index == CHEAT_WOWIE2_LENGTH) {
 				int i;
 
-				hud_message(MSGC_GAME_CHEAT, "SUPER %s",TXT_WOWIE_ZOWIE);
+				HUD_init_message(HM_DEFAULT, "SUPER %s",TXT_WOWIE_ZOWIE);
 				digi_play_sample( SOUND_CHEATER, F1_0);
 
 				Players[Player_num].primary_weapon_flags = 0xff;
@@ -1085,7 +1085,7 @@ void FinalCheats(int key)
 
 		if (!(Game_mode&GM_MULTI) && key == cheat_allkeys[cheat_allkeys_index]) {
 			if (++cheat_allkeys_index == CHEAT_ALLKEYS_LENGTH) {
-				hud_message(MSGC_GAME_CHEAT, TXT_ALL_KEYS);
+				HUD_init_message(HM_DEFAULT, TXT_ALL_KEYS);
 				digi_play_sample( SOUND_CHEATER, F1_0);
 				Players[Player_num].flags |= PLAYER_FLAGS_BLUE_KEY | PLAYER_FLAGS_RED_KEY | PLAYER_FLAGS_GOLD_KEY;
 
@@ -1099,7 +1099,7 @@ void FinalCheats(int key)
 		if (!(Game_mode&GM_MULTI) && key == cheat_invuln[cheat_invuln_index]) {
 			if (++cheat_invuln_index == CHEAT_INVULN_LENGTH) {
 				Players[Player_num].flags ^= PLAYER_FLAGS_INVULNERABLE;
-				hud_message(MSGC_GAME_CHEAT, "%s %s!", TXT_INVULNERABILITY, (Players[Player_num].flags&PLAYER_FLAGS_INVULNERABLE)?TXT_ON:TXT_OFF);
+				HUD_init_message(HM_DEFAULT, "%s %s!", TXT_INVULNERABILITY, (Players[Player_num].flags&PLAYER_FLAGS_INVULNERABLE)?TXT_ON:TXT_OFF);
 				digi_play_sample( SOUND_CHEATER, F1_0);
 				Players[Player_num].invulnerable_time = GameTime+i2f(1000);
 
@@ -1112,7 +1112,7 @@ void FinalCheats(int key)
 		if (!(Game_mode&GM_MULTI) && key == cheat_cloak[cheat_cloak_index]) {
 			if (++cheat_cloak_index == CHEAT_CLOAK_LENGTH) {
 				Players[Player_num].flags ^= PLAYER_FLAGS_CLOAKED;
-				hud_message(MSGC_GAME_CHEAT, "%s %s!", TXT_CLOAK, (Players[Player_num].flags&PLAYER_FLAGS_CLOAKED)?TXT_ON:TXT_OFF);
+				HUD_init_message(HM_DEFAULT, "%s %s!", TXT_CLOAK, (Players[Player_num].flags&PLAYER_FLAGS_CLOAKED)?TXT_ON:TXT_OFF);
 				digi_play_sample( SOUND_CHEATER, F1_0);
 				if (Players[Player_num].flags & PLAYER_FLAGS_CLOAKED) {
 					ai_do_cloak_stuff();
@@ -1127,7 +1127,7 @@ void FinalCheats(int key)
 
 		if (!(Game_mode&GM_MULTI) && key == cheat_shield[cheat_shield_index]) {
 			if (++cheat_shield_index == CHEAT_SHIELD_LENGTH) {
-				hud_message(MSGC_GAME_CHEAT, TXT_FULL_SHIELDS);
+				HUD_init_message(HM_DEFAULT, TXT_FULL_SHIELDS);
 				digi_play_sample( SOUND_CHEATER, F1_0);
 				Players[Player_num].shields = MAX_SHIELDS;
 
@@ -1170,7 +1170,7 @@ void FinalCheats(int key)
 				} else {
 					Physics_cheat_flag = 0xBADA55;
 				}
-				hud_message(MSGC_GAME_CHEAT, "%s %s!", "Ghosty mode", Physics_cheat_flag==0xBADA55?TXT_ON:TXT_OFF);
+				HUD_init_message(HM_DEFAULT, "%s %s!", "Ghosty mode", Physics_cheat_flag==0xBADA55?TXT_ON:TXT_OFF);
 				cheat_astral_index = 0;
 			}
 		}
@@ -1180,7 +1180,7 @@ void FinalCheats(int key)
 		if (!(Game_mode&GM_MULTI) && key == (0xaa^new_cheats[cheat_turbomode_index*NUM_NEW_CHEATS+CHEAT_TURBOMODE_OFS])) {
 			if (++cheat_turbomode_index == CHEAT_TURBOMODE_LENGTH) {
 				Game_turbo_mode ^= 1;
-				hud_message(MSGC_GAME_CHEAT, "%s %s!", "Turbo mode", Game_turbo_mode?TXT_ON:TXT_OFF);
+				HUD_init_message(HM_DEFAULT, "%s %s!", "Turbo mode", Game_turbo_mode?TXT_ON:TXT_OFF);
 				digi_play_sample( SOUND_CHEATER, F1_0);
 			}
 		}
@@ -1191,7 +1191,7 @@ void FinalCheats(int key)
 			if (++cheat_newlife_index == CHEAT_NEWLIFE_LENGTH) {
 				if (Players[Player_num].lives<50) {
 					Players[Player_num].lives++;
-					hud_message(MSGC_GAME_CHEAT, "Extra life!");
+					HUD_init_message(HM_DEFAULT, "Extra life!");
 					digi_play_sample( SOUND_CHEATER, F1_0);
 				}
 
@@ -1205,7 +1205,7 @@ void FinalCheats(int key)
 			if (++cheat_exitpath_index == CHEAT_EXITPATH_LENGTH) {
 #ifdef SHOW_EXIT_PATH
 				if (create_special_path()) {
-					hud_message(MSGC_GAME_CHEAT, "Exit path illuminated!");
+					HUD_init_message(HM_DEFAULT, "Exit path illuminated!");
 					digi_play_sample( SOUND_CHEATER, F1_0);
 				}
 #endif
@@ -1218,7 +1218,7 @@ void FinalCheats(int key)
 		if (!(Game_mode&GM_MULTI) && key == (0xaa^new_cheats[cheat_robotpause_index*NUM_NEW_CHEATS+CHEAT_ROBOTPAUSE_OFS])) {
 			if (++cheat_robotpause_index == CHEAT_ROBOTPAUSE_LENGTH) {
 				Robot_firing_enabled = !Robot_firing_enabled;
-				hud_message(MSGC_GAME_CHEAT, "%s %s!", "Robot firing", Robot_firing_enabled?TXT_ON:TXT_OFF);
+				HUD_init_message(HM_DEFAULT, "%s %s!", "Robot firing", Robot_firing_enabled?TXT_ON:TXT_OFF);
 				digi_play_sample( SOUND_CHEATER, F1_0);
 
 				cheat_robotpause_index = 0;

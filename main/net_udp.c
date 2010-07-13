@@ -1030,7 +1030,7 @@ net_udp_new_player(UDP_sequence_packet *their)
 
 	digi_play_sample(SOUND_HUD_MESSAGE, F1_0);
 
-	hud_message(MSGC_MULTI_INFO, "'%s' %s",their->player.callsign, TXT_JOINING);
+	HUD_init_message(HM_MULTI, "'%s' %s",their->player.callsign, TXT_JOINING);
 	
 	multi_make_ghost_player(pnum);
 
@@ -1162,7 +1162,7 @@ void net_udp_welcome_player(UDP_sequence_packet *their)
 
 		digi_play_sample(SOUND_HUD_MESSAGE, F1_0);
 
-		hud_message(MSGC_MULTI_INFO, "'%s' %s", Players[player_num].callsign, TXT_REJOIN);
+		HUD_init_message(HM_MULTI, "'%s' %s", Players[player_num].callsign, TXT_REJOIN);
 	}
 
 	// Send updated Objects data to the new/returning player
@@ -3749,7 +3749,7 @@ void net_udp_timeout_check(fix time)
 			}
 			if (Players[i].connected == CONNECT_DISCONNECTED && Objects[Players[i].objnum].type != OBJ_GHOST)
 			{
-				HUD_init_message( "'%s' has left.", Players[i].callsign );
+				HUD_init_message(HM_MULTI,  "'%s' has left.", Players[i].callsign );
 				multi_make_player_ghost(i);
 			}
 		}
@@ -3772,7 +3772,7 @@ void net_udp_timeout_player(int playernum)
 	{
 		create_player_appearance_effect(&Objects[Players[playernum].objnum]);
 		digi_play_sample(SOUND_HUD_MESSAGE, F1_0);
-		hud_message(MSGC_MULTI_INFO, "%s %s", Players[playernum].callsign, TXT_DISCONNECTING);
+		HUD_init_message(HM_MULTI, "%s %s", Players[playernum].callsign, TXT_DISCONNECTING);
 	}
 
 	for (i = 0; i < N_players; i++)
@@ -3781,7 +3781,7 @@ void net_udp_timeout_player(int playernum)
 
 	if (n == 1 && Network_status == NETSTAT_PLAYING)
 	{
-		hud_message(MSGC_GAME_FEEDBACK, "You are the only person remaining in this netgame");
+		HUD_init_message(HM_MULTI, "You are the only person remaining in this netgame");
 	}
 }
 
@@ -4365,7 +4365,7 @@ void net_udp_read_pdata_short_packet(UDP_frame_info *pd)
 
 		digi_play_sample( SOUND_HUD_MESSAGE, F1_0);
 		
-		HUD_init_message( "'%s' %s", Players[TheirPlayernum].callsign, TXT_REJOIN );
+		HUD_init_message(HM_MULTI,  "'%s' %s", Players[TheirPlayernum].callsign, TXT_REJOIN );
 
 		multi_send_score();
 
@@ -4487,12 +4487,12 @@ void net_udp_do_refuse_stuff (UDP_sequence_packet *their)
 	
 		if (Game_mode & GM_TEAM)
 		{
-			HUD_init_message ("%s wants to join",their->player.callsign);
-			HUD_init_message ("Alt-1 assigns to team %s. Alt-2 to team %s",their->player.callsign,Netgame.team_name[0],Netgame.team_name[1]);
+			HUD_init_message(HM_MULTI, "%s wants to join",their->player.callsign);
+			HUD_init_message(HM_MULTI, "Alt-1 assigns to team %s. Alt-2 to team %s",their->player.callsign,Netgame.team_name[0],Netgame.team_name[1]);
 		}
 		else
 		{
-			HUD_init_message ("%s wants to join (accept: F6)",their->player.callsign);
+			HUD_init_message(HM_MULTI, "%s wants to join (accept: F6)",their->player.callsign);
 		}
 	
 		strcpy (RefusePlayerName,their->player.callsign);

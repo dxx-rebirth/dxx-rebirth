@@ -1003,7 +1003,7 @@ net_ipx_new_player(IPX_sequence_packet *their)
 
 	digi_play_sample(SOUND_HUD_MESSAGE, F1_0);
 
-	hud_message(MSGC_MULTI_INFO, "'%s' %s",their->player.callsign, TXT_JOINING);
+	HUD_init_message(HM_MULTI, "'%s' %s",their->player.callsign, TXT_JOINING);
 
 	multi_make_ghost_player(pnum);
 	multi_send_score();
@@ -1138,7 +1138,7 @@ void net_ipx_welcome_player(IPX_sequence_packet *their)
 
 		digi_play_sample(SOUND_HUD_MESSAGE, F1_0);
 
-		hud_message(MSGC_MULTI_INFO, "'%s' %s", Players[player_num].callsign, TXT_REJOIN);
+		HUD_init_message(HM_MULTI, "'%s' %s", Players[player_num].callsign, TXT_REJOIN);
 	}
 
 	// Send updated Objects data to the new/returning player
@@ -1908,7 +1908,7 @@ void net_ipx_process_dump(IPX_sequence_packet *their)
 				}
 				else
 				{
-					HUD_init_message ("%s attempted to kick you out.",their->player.callsign);
+					HUD_init_message(HM_MULTI, "%s attempted to kick you out.",their->player.callsign);
 				}
 			}
 		}
@@ -3610,7 +3610,7 @@ void net_ipx_timeout_player(int playernum)
 
 	digi_play_sample(SOUND_HUD_MESSAGE, F1_0);
 
-	hud_message(MSGC_MULTI_INFO, "%s %s", Players[playernum].callsign, TXT_DISCONNECTING);
+	HUD_init_message(HM_MULTI, "%s %s", Players[playernum].callsign, TXT_DISCONNECTING);
 	for (i = 0; i < N_players; i++)
 		if (Players[i].connected)
 			n++;
@@ -3619,7 +3619,7 @@ void net_ipx_timeout_player(int playernum)
 	{
 //added/changed on 10/11/98 by Victor Rachels cuz this is annoying as a box
 //-killed-                nm_messagebox(NULL, 1, TXT_OK, TXT_YOU_ARE_ONLY);
-          hud_message(MSGC_GAME_FEEDBACK, "You are the only person remaining in this netgame");
+          HUD_init_message(HM_MULTI, "You are the only person remaining in this netgame");
 //end this section change - VR
 	}
 }
@@ -3712,7 +3712,7 @@ void net_ipx_do_frame(int force, int listen)
 //added on 11/18/98 by Victor Rachels to hack ghost disconnects
                         if(Players[i].connected != CONNECT_PLAYING && Objects[Players[i].objnum].type != OBJ_GHOST)
                          {
-                          hud_message(MSGC_MULTI_INFO, "%s has left.", Players[i].callsign);
+                          HUD_init_message(HM_MULTI, "%s has left.", Players[i].callsign);
                           multi_make_player_ghost(i);
                          }
 //end this section addition - VR
@@ -3819,7 +3819,7 @@ void net_ipx_read_pdata_packet(IPX_frame_info *pd)
 
 		digi_play_sample( SOUND_HUD_MESSAGE, F1_0);
 
-		HUD_init_message( "'%s' %s", Players[TheirPlayernum].callsign, TXT_REJOIN );
+		HUD_init_message(HM_MULTI,  "'%s' %s", Players[TheirPlayernum].callsign, TXT_REJOIN );
 
 		multi_send_score();
 	}
@@ -3966,7 +3966,7 @@ void net_ipx_do_refuse_stuff (IPX_sequence_packet *their)
 
 		digi_play_sample (SOUND_CONTROL_CENTER_WARNING_SIREN,F1_0*2);
 
-		HUD_init_message ("%s wants to join (accept: F6)",their->player.callsign);
+		HUD_init_message(HM_MULTI, "%s wants to join (accept: F6)",their->player.callsign);
 
 		strcpy (RefusePlayerName,their->player.callsign);
 		RefuseTimeLimit=timer_get_fixed_seconds();

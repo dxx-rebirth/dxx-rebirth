@@ -183,8 +183,7 @@ void ReadCmdArgs(void)
 
 	// Multiplayer Options
 
-	GameArg.MplGameProfile 		= FindArg("-mprofile");
-	GameArg.MplPlayerMessages 	= FindArg("-playermessages");
+	GameArg.MplTxtMessages 		= FindArg("-multimessages");
 	GameArg.MplIpxNetwork 		= get_str_arg("-ipxnetwork", NULL);
 	GameArg.MplUdpHostAddr		= get_str_arg("-udp_hostaddr", "localhost");
 	GameArg.MplUdpHostPort		= get_int_arg("-udp_hostport", 0);

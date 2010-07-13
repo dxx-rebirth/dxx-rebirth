@@ -142,8 +142,7 @@ void print_commandline_help()
 
 #ifdef    NETWORK
 	printf( "\n Multiplayer:\n\n");
-	printf( "  -mprofile          %s\n", "Enable multiplayer game profiles");
-	printf( "  -playermessages    %s\n", "View only messages from other players in multi - overrides -noredundancy");
+	printf( "  -multimessages     %s\n", "Only show player-chat important Multiplayer messages");
 	printf( "  -ipxnetwork <n>    %s\n", "Use IPX network number <n>");
 	printf( "  -udp_hostaddr <n>  %s\n", "When manually joining a game use default IP Address <n> to connect to");
 	printf( "  -udp_hostport <n>  %s\n", "When manually joining a game use default UDP Port <n> to connect to");

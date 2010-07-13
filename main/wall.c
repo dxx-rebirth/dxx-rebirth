@@ -778,7 +778,7 @@ int wall_hit_process(segment *seg, int side, fix damage, int playernum, object *
 		if (!(Players[playernum].flags & PLAYER_FLAGS_BLUE_KEY)) {
 			if ( playernum==Player_num )
 				if (show_message)
-					hud_message(MSGC_MINE_FEEDBACK, "%s %s",TXT_BLUE,TXT_ACCESS_DENIED);
+					HUD_init_message(HM_DEFAULT, "%s %s",TXT_BLUE,TXT_ACCESS_DENIED);
 			return WHP_NO_KEY;
 		}
 
@@ -786,7 +786,7 @@ int wall_hit_process(segment *seg, int side, fix damage, int playernum, object *
 		if (!(Players[playernum].flags & PLAYER_FLAGS_RED_KEY)) {
 			if ( playernum==Player_num )
 				if (show_message)
-					hud_message(MSGC_MINE_FEEDBACK, "%s %s",TXT_RED,TXT_ACCESS_DENIED);
+					HUD_init_message(HM_DEFAULT, "%s %s",TXT_RED,TXT_ACCESS_DENIED);
 			return WHP_NO_KEY;
 		}
 	
@@ -794,7 +794,7 @@ int wall_hit_process(segment *seg, int side, fix damage, int playernum, object *
 		if (!(Players[playernum].flags & PLAYER_FLAGS_GOLD_KEY)) {
 			if ( playernum==Player_num )
 				if (show_message)
-					hud_message(MSGC_MINE_FEEDBACK, "%s %s",TXT_YELLOW,TXT_ACCESS_DENIED);
+					HUD_init_message(HM_DEFAULT, "%s %s",TXT_YELLOW,TXT_ACCESS_DENIED);
 			return WHP_NO_KEY;
 		}
 
@@ -803,7 +803,7 @@ int wall_hit_process(segment *seg, int side, fix damage, int playernum, object *
 		if ((w->flags & WALL_DOOR_LOCKED ) && !(special_boss_opening_allowed(seg-Segments, side)) ) {
 			if ( playernum==Player_num )
 				if (show_message)
-					hud_message(MSGC_MINE_FEEDBACK, TXT_CANT_OPEN_DOOR);
+					HUD_init_message(HM_DEFAULT, TXT_CANT_OPEN_DOOR);
 			return WHP_NO_KEY;
 		}
 		else {

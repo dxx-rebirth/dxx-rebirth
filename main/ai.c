@@ -523,10 +523,10 @@ void john_cheat_func_3(int key)
 		if (john_cheats_index_3 == JOHN_CHEATS_SIZE_3+1) {
 			if (Lunacy) {
 				do_lunacy_off();
-                                hud_message(MSGC_GAME_FEEDBACK, TXT_NO_LUNACY );
+                                HUD_init_message(HM_DEFAULT,  TXT_NO_LUNACY );
 			} else {
 				do_lunacy_on();
-                                hud_message(MSGC_GAME_FEEDBACK, TXT_LUNACY );
+                                HUD_init_message(HM_DEFAULT,  TXT_LUNACY );
 				digi_play_sample( SOUND_CHEATER, F1_0);
 			}
 			john_cheats_index_3 = 0;
@@ -685,9 +685,9 @@ void john_cheat_func_4(int key)
 				if (john_cheats_index_4 == 9) {
 					if (Ugly_robot_texture == 999)	{
 						Ugly_robot_cheat = 0;
-                                                hud_message(MSGC_GAME_FEEDBACK, TXT_ROBOT_PAINTING_OFF );
+                                                HUD_init_message(HM_DEFAULT, TXT_ROBOT_PAINTING_OFF );
 					} else {
-                                                hud_message(MSGC_GAME_FEEDBACK, TXT_ROBOT_PAINTING_ON, Ugly_robot_texture );
+                                                HUD_init_message(HM_DEFAULT, TXT_ROBOT_PAINTING_ON, Ugly_robot_texture );
 						Ugly_robot_cheat = 0xBADA55;
 					}
 					john_cheats_index_4 = 0;

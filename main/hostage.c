@@ -181,7 +181,7 @@ void hostage_rescue( int hostage_number )
 
  #ifndef HOSTAGE_FACES
 
-	hud_message(MSGC_GAME_ACTION, TXT_HOSTAGE_RESCUED);
+	HUD_init_message(HM_DEFAULT, TXT_HOSTAGE_RESCUED);
 
  #else
 

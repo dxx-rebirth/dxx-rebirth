@@ -651,12 +651,12 @@ fix fuelcen_give_fuel(segment *segp, fix MaxAmountCanTake )
 		fix amount;
 
 //		if (Station[segp->value].MaxCapacity<=0)	{
-//			hud_message( MSGC_MINE_FEEDBACK, "Fuelcenter %d is destroyed.", segp->value );
+//			HUD_init_message(HM_DEFAULT,  "Fuelcenter %d is destroyed.", segp->value );
 //			return 0;
 //		}
 
 //		if (Station[segp->value].Capacity<=0)	{
-//			hud_message( MSGC_MINE_FEEDBACK, "Fuelcenter %d is empty.", segp->value );
+//			HUD_init_message(HM_DEFAULT,  "Fuelcenter %d is empty.", segp->value );
 //			return 0;
 //		}
 
@@ -690,7 +690,7 @@ fix fuelcen_give_fuel(segment *segp, fix MaxAmountCanTake )
 			#endif
 		}
 
-		//hud_message( MSGC_MINE_FEEDBACK, "Fuelcen %d has %d/%d fuel", segp->value,f2i(Station[segp->value].Capacity),f2i(Station[segp->value].MaxCapacity) );
+		//HUD_init_message(HM_DEFAULT,  "Fuelcen %d has %d/%d fuel", segp->value,f2i(Station[segp->value].Capacity),f2i(Station[segp->value].MaxCapacity) );
 		return amount;
 
 	} else {

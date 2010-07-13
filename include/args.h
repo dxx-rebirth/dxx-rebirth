@@ -65,8 +65,7 @@ typedef struct Arg
 	int OglFixedFont;
 #endif
 	int EdiNoBm;
-	int MplGameProfile;
-	int MplPlayerMessages;
+	int MplTxtMessages;
 	const char *MplIpxNetwork;
 	const char *MplUdpHostAddr;
 	int MplUdpHostPort;

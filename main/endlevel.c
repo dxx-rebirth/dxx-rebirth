@@ -293,7 +293,7 @@ void start_endlevel_sequence()
 
 	start_endlevel_flythrough(0,ConsoleObject,cur_fly_speed);		//initialize
 
-	hud_message( MSGC_GAME_ACTION, TXT_EXIT_SEQUENCE );
+	HUD_init_message(HM_DEFAULT,  TXT_EXIT_SEQUENCE );
 
 	outside_mine = ext_expl_playing = 0;
 
