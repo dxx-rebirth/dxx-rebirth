@@ -4,6 +4,7 @@ D2X-Rebirth Changelog
 --------
 main/object.c, main/wall.c, main/newdemo.c, main/newdemo.h, main/gauges.c: Cleaned the variables used for newdemo code; Instead of giving both old and new values to special recording functions, added new variables to demo code serving this purpose and also checking for redundant record calls which only would waste bytes; Removed duplicated-object-id-hack which did not work as expected and caused jittering on playback; In that process, found a bug where Num_open_doors might nor be set correctly - cleaned that up a little and got also rid of one aweful goto; Made sure cloaked walls are recorded FPS-independent but rather fade-value-dependent
 main/titles.c: Scale tab stops in briefings to font-size correctly
+main/titles.c: Make sure the right canvas is set for titles and briefings, fixing bug where briefing is shown in the cockpit when using 'freespace' cheat
 
 20100713
 --------

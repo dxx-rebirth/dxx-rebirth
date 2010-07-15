@@ -122,6 +122,7 @@ int title_handler(window *wind, d_event *event, title_screen *ts)
 			break;
 
 		case EVENT_WINDOW_DRAW:
+			gr_set_current_canvas( NULL );
 			show_fullscr(&ts->title_bm);
 			break;
 
@@ -163,8 +164,6 @@ int show_title_screen( char * filename, int allow_keys, int from_hog_only )
 	if ((pcx_error=pcx_read_bitmap( filename, &ts->title_bm, BM_LINEAR, gr_palette ))!=PCX_ERROR_NONE)	{
 		Error( "Error loading briefing screen <%s>, PCX load error: %s (%i)\n",filename, pcx_errormsg(pcx_error), pcx_error);
 	}
-
-	gr_set_current_canvas( NULL );
 
 	ts->timer = timer_get_fixed_seconds() + i2f(3);
 
@@ -285,8 +284,6 @@ void show_order_form()
 {
 #ifndef EDITOR
 	char    exit_screen[16];
-
-	gr_set_current_canvas( NULL );
 
 	key_flush();
 
@@ -1350,6 +1347,8 @@ int briefing_handler(window *wind, d_event *event, briefing *br)
 			break;
 
 		case EVENT_WINDOW_DRAW:
+			gr_set_current_canvas(NULL);
+			
 			if (br->background.bm_data)
 				show_fullscr(&br->background);
 
