@@ -361,21 +361,26 @@ void wall_open_door(segment *seg, int side)
 				break;
 		}
 
-		if (i>=Num_open_doors && (Game_mode & GM_MULTI))	
-				goto FastFix;
-		
-		Assert(i<Num_open_doors);				//didn't find door!
-		Assert( d!=NULL ); // Get John!
-
-		d->time = WallAnims[w->clip_num].play_time - d->time;
-
-		if (d->time < 0)
+		if (i>=Num_open_doors) // likely in demo playback or multiplayer
+		{
+			d = &ActiveDoors[Num_open_doors];
 			d->time = 0;
+			Num_open_doors++;
+			Assert( Num_open_doors < MAX_DOORS );
+		}
+		else
+		{
+			Assert( d!=NULL ); // Get John!
+
+			d->time = WallAnims[w->clip_num].play_time - d->time;
+
+			if (d->time < 0)
+				d->time = 0;
+		}
 	
 	}
 	else {											//create new door
 		Assert(w->state == WALL_DOOR_CLOSED);
-		FastFix:
 		d = &ActiveDoors[Num_open_doors];
 		d->time = 0;
 		Num_open_doors++;
