@@ -384,21 +384,26 @@ void wall_open_door(segment *seg, int side)
 				break;
 		}
 
-		if (i>=Num_open_doors && (Game_mode & GM_MULTI))	
-				goto FastFix;
-		
-		Assert(i<Num_open_doors);				//didn't find door!
-		Assert( d!=NULL ); // Get John!
-
-		d->time = WallAnims[w->clip_num].play_time - d->time;
-
-		if (d->time < 0)
+		if (i>=Num_open_doors) // likely in demo playback or multiplayer
+		{
+			d = &ActiveDoors[Num_open_doors];
 			d->time = 0;
+			Num_open_doors++;
+			Assert( Num_open_doors < MAX_DOORS );
+		}
+		else
+		{
+			Assert( d!=NULL ); // Get John!
+
+			d->time = WallAnims[w->clip_num].play_time - d->time;
+
+			if (d->time < 0)
+				d->time = 0;
+		}
 	
 	}
 	else {											//create new door
 		Assert(w->state == WALL_DOOR_CLOSED);
-		FastFix:
 		d = &ActiveDoors[Num_open_doors];
 		d->time = 0;
 		Num_open_doors++;
@@ -1183,12 +1188,15 @@ void do_cloaking_wall_frame(int cloaking_wall_num)
 {
 	cloaking_wall *d;
 	wall *wfront,*wback;
+	sbyte old_cloak; // for demo recording
 
 	if ( Newdemo_state==ND_STATE_PLAYBACK ) return;
 
 	d = &CloakingWalls[cloaking_wall_num];
 	wfront = &Walls[d->front_wallnum];
 	wback = (d->back_wallnum > -1) ? Walls + d->back_wallnum : NULL;
+
+	old_cloak = wfront->cloak_value;
 
 	d->time += FrameTime;
 
@@ -1241,7 +1249,8 @@ void do_cloaking_wall_frame(int cloaking_wall_num)
 		}
 	}
 
-	if ( Newdemo_state == ND_STATE_RECORDING )
+	// check if the actual cloak_value changed in this frame to prevent redundant recordings and wasted bytes
+	if ( Newdemo_state == ND_STATE_RECORDING && wfront->cloak_value != old_cloak )
 		newdemo_record_cloaking_wall(d->front_wallnum, d->back_wallnum, wfront->type, wfront->state, wfront->cloak_value, Segments[wfront->segnum].sides[wfront->sidenum].uvls[0].l, Segments[wfront->segnum].sides[wfront->sidenum].uvls[1].l, Segments[wfront->segnum].sides[wfront->sidenum].uvls[2].l, Segments[wfront->segnum].sides[wfront->sidenum].uvls[3].l);
 
 }
@@ -1250,12 +1259,15 @@ void do_decloaking_wall_frame(int cloaking_wall_num)
 {
 	cloaking_wall *d;
 	wall *wfront,*wback;
+	sbyte old_cloak; // for demo recording
 
 	if ( Newdemo_state==ND_STATE_PLAYBACK ) return;
 
 	d = &CloakingWalls[cloaking_wall_num];
 	wfront = &Walls[d->front_wallnum];
 	wback = (d->back_wallnum > -1) ? Walls + d->back_wallnum : NULL;
+
+	old_cloak = wfront->cloak_value;
 
 	d->time += FrameTime;
 
@@ -1300,7 +1312,8 @@ void do_decloaking_wall_frame(int cloaking_wall_num)
 		}
 	}
 
-	if ( Newdemo_state == ND_STATE_RECORDING )
+	// check if the actual cloak_value changed in this frame to prevent redundant recordings and wasted bytes
+	if ( Newdemo_state == ND_STATE_RECORDING && wfront->cloak_value != old_cloak )
 		newdemo_record_cloaking_wall(d->front_wallnum, d->back_wallnum, wfront->type, wfront->state, wfront->cloak_value, Segments[wfront->segnum].sides[wfront->sidenum].uvls[0].l, Segments[wfront->segnum].sides[wfront->sidenum].uvls[1].l, Segments[wfront->segnum].sides[wfront->sidenum].uvls[2].l, Segments[wfront->segnum].sides[wfront->sidenum].uvls[3].l);
 
 }

@@ -1,5 +1,9 @@
 D2X-Rebirth Changelog
 
+20100715
+--------
+main/object.c, main/wall.c, main/newdemo.c, main/newdemo.h, main/gauges.c: Cleaned the variables used for newdemo code; Instead of giving both old and new values to special recording functions, added new variables to demo code serving this purpose and also checking for redundant record calls which only would waste bytes; Removed duplicated-object-id-hack which did not work as expected and caused jittering on playback; In that process, found a bug where Num_open_doors might nor be set correctly - cleaned that up a little and got also rid of one aweful goto; Made sure cloaked walls are recorded FPS-independent but rather fade-value-dependent
+
 20100713
 --------
 include/args.h, main/net_udp.c, main/collide.c, main/multi.c, main/inferno.c, main/object.c, main/gamepal.c, main/wall.c, main/state.c, main/hud.c, main/weapon.c, main/hostage.c, main/hudmsg.h, main/newdemo.c, main/switch.c, main/net_ipx.c, main/gameseq.c, main/escort.c, main/fuelcen.c, main/endlevel.c, main/powerup.c, main/automap.c, main/game.c, main/gauges.c, main/kconfig.c, main/gauges.h, main/gamecntl.c, misc/args.c, d2x.ini, arch/ogl/gr.c, arch/sdl/jukebox.c: Added expandable classes for HUD messages (like D1X but slacked) to better handle Multi messages or redundant messages; Rewrote HUD code completely; Changes -playermessages to -multimessages since this is more appropriate; Removed remnants of -mprofile

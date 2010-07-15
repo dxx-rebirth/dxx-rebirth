@@ -333,17 +333,8 @@ extern void draw_guided_crosshair(void);
 
 static int score_display;
 static fix score_time;
-static int old_score				= -1;
-static int old_energy			= -1;
-static int old_shields			= -1;
-static int old_flags				= -1;
 static int old_weapon[2]		= {-1,-1};
-static int old_ammo_count[2]	= {-1,-1};
-static int Old_Omega_charge	= -1;
 static int old_laser_level		= -1;
-static int old_lives				= -1;
-static fix old_afterburner		= -1;
-static int old_bombcount		= 0;
 static int invulnerable_frame = 0;
 int weapon_box_user[2]={WBU_WEAPON,WBU_WEAPON};		//see WBU_ constants in gauges.h
 int weapon_box_states[2] = {WS_SET, WS_SET};
@@ -1052,14 +1043,8 @@ void hud_show_energy(void)
 		     gr_printf(FSPACX(1), (grd_curcanv->cv_bitmap.bm_h-LINE_SPACING),"%s: %i", TXT_ENERGY, f2ir(Players[Player_num].energy));
 	}
 
-	if (Newdemo_state==ND_STATE_RECORDING ) {
-		int energy = f2ir(Players[Player_num].energy);
-
-		if (energy != old_energy) {
-			newdemo_record_player_energy(old_energy, energy);
-			old_energy = energy;
-		}
-	}
+	if (Newdemo_state == ND_STATE_RECORDING)
+		newdemo_record_player_energy(f2ir(Players[Player_num].energy));
 }
 
 void hud_show_afterburner(void)
@@ -1076,13 +1061,8 @@ void hud_show_afterburner(void)
 
 	gr_printf(FSPACX(1), grd_curcanv->cv_bitmap.bm_h+y, "burn: %d%%" , fixmul(Afterburner_charge,100));
 
-	if (Newdemo_state==ND_STATE_RECORDING ) {
-
-		if (Afterburner_charge != old_afterburner) {
-			newdemo_record_player_afterburner(old_afterburner, Afterburner_charge);
-			old_afterburner = Afterburner_charge;
-	 	}
-	}
+	if (Newdemo_state==ND_STATE_RECORDING )
+		newdemo_record_player_afterburner(Afterburner_charge);
 }
 
 char *d2_very_short_secondary_weapon_names[] =
@@ -1126,8 +1106,6 @@ void show_bomb_count(int x,int y,int bg_color,int always_show,int right_align)
 		gr_get_string_size(txt, &w, &h, &aw );
 
 	gr_string(x-w,y,txt);
-
-	old_bombcount = countx;
 }
 
 void draw_primary_ammo_info(int ammo_count)
@@ -1352,21 +1330,13 @@ void hud_show_weapons(void)
 		gr_get_string_size(weapon_str, &w, &h, &aw );
 		gr_printf(grd_curcanv->cv_bitmap.bm_w-w-FSPACX(1), y-(LINE_SPACING*2), weapon_str);
 
-		if (Primary_weapon == VULCAN_INDEX) {
-			if (Players[Player_num].primary_ammo[Primary_weapon] != old_ammo_count[0]) {
-				if (Newdemo_state == ND_STATE_RECORDING)
-					newdemo_record_primary_ammo(old_ammo_count[0], Players[Player_num].primary_ammo[Primary_weapon]);
-				old_ammo_count[0] = Players[Player_num].primary_ammo[Primary_weapon];
-			}
-		}
+		if (Primary_weapon == VULCAN_INDEX)
+			if (Newdemo_state == ND_STATE_RECORDING)
+				newdemo_record_primary_ammo(Players[Player_num].primary_ammo[Primary_weapon]);
 
-		if (Primary_weapon == OMEGA_INDEX) {
-			if (Omega_charge != Old_Omega_charge) {
-				if (Newdemo_state == ND_STATE_RECORDING)
-					newdemo_record_primary_ammo(Old_Omega_charge, Omega_charge);
-				Old_Omega_charge = Omega_charge;
-			}
-		}
+		if (Primary_weapon == OMEGA_INDEX)
+			if (Newdemo_state == ND_STATE_RECORDING)
+				newdemo_record_primary_ammo(Omega_charge);
 
 		weapon_name = SECONDARY_WEAPON_NAMES_VERY_SHORT(Secondary_weapon);
 
@@ -1374,11 +1344,8 @@ void hud_show_weapons(void)
 		gr_get_string_size(weapon_str, &w, &h, &aw );
 		gr_printf(grd_curcanv->cv_bitmap.bm_w-w-FSPACX(1), y-LINE_SPACING, weapon_str);
 
-		if (Players[Player_num].secondary_ammo[Secondary_weapon] != old_ammo_count[1]) {
-			if (Newdemo_state == ND_STATE_RECORDING)
-				newdemo_record_secondary_ammo(old_ammo_count[1], Players[Player_num].secondary_ammo[Secondary_weapon]);
-			old_ammo_count[1] = Players[Player_num].secondary_ammo[Secondary_weapon];
-		}
+		if (Newdemo_state == ND_STATE_RECORDING)
+			newdemo_record_secondary_ammo(Players[Player_num].secondary_ammo[Secondary_weapon]);
 
 		show_bomb_count(grd_curcanv->cv_bitmap.bm_w-FSPACX(1), y-(LINE_SPACING*3),-1,1,1);
 	}
@@ -1442,14 +1409,8 @@ void hud_show_shield(void)
 		}
 	}
 
-	if (Newdemo_state==ND_STATE_RECORDING ) {
-		int shields = f2ir(Players[Player_num].shields);
-
-		if (shields != old_shields) {		// Draw the shield gauge
-			newdemo_record_player_shields(old_shields, shields);
-			old_shields = shields;
-		}
-	}
+	if (Newdemo_state==ND_STATE_RECORDING )
+		newdemo_record_player_shields(f2ir(Players[Player_num].shields));
 }
 
 //draw the icons for number of lives
@@ -1708,21 +1669,9 @@ void close_gauges()
 
 void init_gauges()
 {
-	if ( ((Game_mode & GM_MULTI) && !(Game_mode & GM_MULTI_COOP)) || ((Newdemo_state == ND_STATE_PLAYBACK) && (Newdemo_game_mode & GM_MULTI) && !(Newdemo_game_mode & GM_MULTI_COOP)) )
-		old_score = -99;
-	else
-		old_score			= -1;
-	old_energy			= -1;
-	old_shields			= -1;
-	old_flags			= -1;
-	old_lives			= -1;
-	old_afterburner	= -1;
-	old_bombcount		= 0;
 	old_laser_level	= 0;
 
 	old_weapon[0] = old_weapon[1] = -1;
-	old_ammo_count[0] = old_ammo_count[1] = -1;
-	Old_Omega_charge = -1;
 
 	weapon_box_user[0] = weapon_box_user[1] = WBU_WEAPON;
 }
@@ -2070,14 +2019,11 @@ void draw_weapon_box(int weapon_type,int weapon_num)
 	{
 		draw_weapon_info(weapon_type,weapon_num,Players[Player_num].laser_level);
 		old_weapon[weapon_type] = weapon_num;
-		old_ammo_count[weapon_type]=-1;
 		weapon_box_states[weapon_type] = WS_SET;
 	}
 
 	if (weapon_box_states[weapon_type] == WS_FADING_OUT) {
 		draw_weapon_info(weapon_type,old_weapon[weapon_type],old_laser_level);
-		old_ammo_count[weapon_type]=-1;
-		Old_Omega_charge=-1;
 		weapon_box_fade_values[weapon_type] -= FrameTime * FADE_SCALE;
 		if (weapon_box_fade_values[weapon_type] <= 0) {
 			weapon_box_states[weapon_type] = WS_FADING_IN;
@@ -2092,8 +2038,6 @@ void draw_weapon_box(int weapon_type,int weapon_num)
 		}
 		else {
 			draw_weapon_info(weapon_type,weapon_num,Players[Player_num].laser_level);
-			old_ammo_count[weapon_type]=-1;
-			Old_Omega_charge=-1;
 			weapon_box_fade_values[weapon_type] += FrameTime * FADE_SCALE;
 			if (weapon_box_fade_values[weapon_type] >= i2f(GR_FADE_LEVELS-1)) {
 				weapon_box_states[weapon_type] = WS_SET;
@@ -2104,8 +2048,6 @@ void draw_weapon_box(int weapon_type,int weapon_num)
 	{
 		draw_weapon_info(weapon_type, weapon_num, Players[Player_num].laser_level);
 		old_weapon[weapon_type] = weapon_num;
-		old_ammo_count[weapon_type] = -1;
-		Old_Omega_charge = -1;
 		old_laser_level = Players[Player_num].laser_level;
 	}
 
@@ -2174,20 +2116,16 @@ void draw_weapon_boxes()
 		if (weapon_box_states[0] == WS_SET) {
 			if ((Primary_weapon == VULCAN_INDEX) || (Primary_weapon == GAUSS_INDEX))
 			{
-				if (Newdemo_state == ND_STATE_RECORDING &&
-		Players[Player_num].primary_ammo[VULCAN_INDEX] != old_ammo_count[0])
-					newdemo_record_primary_ammo(old_ammo_count[0], Players[Player_num].primary_ammo[VULCAN_INDEX]);
+				if (Newdemo_state == ND_STATE_RECORDING)
+					newdemo_record_primary_ammo(Players[Player_num].primary_ammo[VULCAN_INDEX]);
 				draw_primary_ammo_info(f2i((unsigned) VULCAN_AMMO_SCALE * (unsigned) Players[Player_num].primary_ammo[VULCAN_INDEX]));
-				old_ammo_count[0] = Players[Player_num].primary_ammo[VULCAN_INDEX];
 			}
 
 			if (Primary_weapon == OMEGA_INDEX)
 			{
-				if (Newdemo_state == ND_STATE_RECORDING &&
-		Omega_charge != Old_Omega_charge)
-					newdemo_record_primary_ammo(Old_Omega_charge, Omega_charge);
+				if (Newdemo_state == ND_STATE_RECORDING)
+					newdemo_record_primary_ammo(Omega_charge);
 				draw_primary_ammo_info(Omega_charge * 100/MAX_OMEGA_CHARGE);
-				Old_Omega_charge = Omega_charge;
 			}
 		}
 	}
@@ -2199,12 +2137,9 @@ void draw_weapon_boxes()
 
 		if (weapon_box_states[1] == WS_SET)
 		{
-			old_bombcount = 0x7fff;	//force redraw
-			if (Newdemo_state == ND_STATE_RECORDING &&
-	Players[Player_num].secondary_ammo[Secondary_weapon] != old_ammo_count[1])
-				newdemo_record_secondary_ammo(old_ammo_count[1], Players[Player_num].secondary_ammo[Secondary_weapon]);
+			if (Newdemo_state == ND_STATE_RECORDING)
+				newdemo_record_secondary_ammo(Players[Player_num].secondary_ammo[Secondary_weapon]);
 			draw_secondary_ammo_info(Players[Player_num].secondary_ammo[Secondary_weapon]);
-			old_ammo_count[1] = Players[Player_num].secondary_ammo[Secondary_weapon];
 		}
 	}
 	else if (weapon_box_user[1] == WBU_STATIC)
@@ -2697,10 +2632,8 @@ void draw_hud()
 			hud_show_keys();
 			hud_show_cloak_invuln();
 
-			if ( ( Newdemo_state==ND_STATE_RECORDING ) && ( Players[Player_num].flags != old_flags )) {
-				newdemo_record_player_flags(old_flags, Players[Player_num].flags);
-				old_flags = Players[Player_num].flags;
-			}
+			if (Newdemo_state==ND_STATE_RECORDING)
+				newdemo_record_player_flags(Players[Player_num].flags);
 		}
 
 		#ifdef NETWORK
@@ -2762,42 +2695,29 @@ void render_gauges()
 	draw_weapon_boxes();
 
 	if (PlayerCfg.CockpitMode[1] == CM_FULL_COCKPIT) {
-		if (Newdemo_state == ND_STATE_RECORDING && (energy != old_energy))
-		{
-			newdemo_record_player_energy(old_energy, energy);
-			old_energy = energy;
-		}
+		if (Newdemo_state == ND_STATE_RECORDING)
+			newdemo_record_player_energy(energy);
 		draw_energy_bar(energy);
 		draw_numerical_display(shields, energy);
 		show_bomb_count(HUD_SCALE_X(BOMB_COUNT_X), HUD_SCALE_Y(BOMB_COUNT_Y), gr_find_closest_color(0, 0, 0), 0, 0);
 
-		if (Newdemo_state == ND_STATE_RECORDING && (Afterburner_charge != old_afterburner))
-		{
-			newdemo_record_player_afterburner(old_afterburner, Afterburner_charge);
-			old_afterburner = Afterburner_charge;
-		}
+		if (Newdemo_state==ND_STATE_RECORDING )
+			newdemo_record_player_afterburner(Afterburner_charge);
 		draw_afterburner_bar(Afterburner_charge);
 
 		draw_player_ship(cloak, SHIP_GAUGE_X, SHIP_GAUGE_Y);
 
 		if (Players[Player_num].flags & PLAYER_FLAGS_INVULNERABLE) {
 			draw_invulnerable_ship();
-			old_shields = shields ^ 1;
 		} else {		// Draw the shield gauge
-			if (Newdemo_state == ND_STATE_RECORDING && (shields != old_shields))
-			{
-				newdemo_record_player_shields(old_shields, shields);
-				old_shields = shields;
-			}
+			if (Newdemo_state == ND_STATE_RECORDING)
+				newdemo_record_player_shields(shields);
 			draw_shield_bar(shields);
 		}
 		draw_numerical_display(shields, energy);
 
-		if (Newdemo_state == ND_STATE_RECORDING && (Players[Player_num].flags != old_flags))
-		{
-			newdemo_record_player_flags(old_flags, Players[Player_num].flags);
-			old_flags = Players[Player_num].flags;
-		}
+		if (Newdemo_state==ND_STATE_RECORDING)
+			newdemo_record_player_flags(Players[Player_num].flags);
 		draw_keys();
 
 		show_homing_warning();
@@ -2805,20 +2725,14 @@ void render_gauges()
 
 	} else if (PlayerCfg.CockpitMode[1] == CM_STATUS_BAR) {
 
-		if (Newdemo_state == ND_STATE_RECORDING && (energy != old_energy))
-		{
-			newdemo_record_player_energy(old_energy, energy);
-			old_energy = energy;
-		}
+		if (Newdemo_state == ND_STATE_RECORDING)
+			newdemo_record_player_energy(energy);
 		sb_draw_energy_bar(energy);
 		if (!PlayerCfg.HudMode && weapon_box_user[1] == WBU_WEAPON)
 			show_bomb_count(HUD_SCALE_X(SB_BOMB_COUNT_X), HUD_SCALE_Y(SB_BOMB_COUNT_Y), gr_find_closest_color(0, 0, 0), 0, 0);
 
-		if (Newdemo_state == ND_STATE_RECORDING && (Afterburner_charge != old_afterburner))
-		{
-			newdemo_record_player_afterburner(old_afterburner, Afterburner_charge);
-			old_afterburner = Afterburner_charge;
-		}
+		if (Newdemo_state==ND_STATE_RECORDING )
+			newdemo_record_player_afterburner(Afterburner_charge);
 		sb_draw_afterburner();
 
 		draw_player_ship(cloak, SB_SHIP_GAUGE_X, SB_SHIP_GAUGE_Y);
@@ -2826,51 +2740,29 @@ void render_gauges()
 		if (Players[Player_num].flags & PLAYER_FLAGS_INVULNERABLE)
 		{
 			draw_invulnerable_ship();
-			old_shields = shields ^ 1;
 		}
 		else
 		{		// Draw the shield gauge
-			if (Newdemo_state == ND_STATE_RECORDING && (shields != old_shields))
-			{
-				newdemo_record_player_shields(old_shields, shields);
-				old_shields = shields;
-			}
+			if (Newdemo_state == ND_STATE_RECORDING)
+				newdemo_record_player_shields(shields);
 			sb_draw_shield_bar(shields);
 		}
 		sb_draw_shield_num(shields);
 
-		if (Newdemo_state == ND_STATE_RECORDING && (Players[Player_num].flags != old_flags))
-		{
-			newdemo_record_player_flags(old_flags, Players[Player_num].flags);
-			old_flags = Players[Player_num].flags;
-		}
+		if (Newdemo_state==ND_STATE_RECORDING)
+			newdemo_record_player_flags(Players[Player_num].flags);
 		sb_draw_keys();
 
-
-		// May want to record this in a demo...
-		if ((Game_mode & GM_MULTI) && !(Game_mode & GM_MULTI_COOP))
-		{
-			sb_show_lives();
-			old_lives = Players[Player_num].net_killed_total;
-		}
-		else
-		{
-			sb_show_lives();
-			old_lives = Players[Player_num].lives;
-		}
+		sb_show_lives();
 
 		if ((Game_mode&GM_MULTI) && !(Game_mode & GM_MULTI_COOP))
 		{
 			sb_show_score();
-			old_score = Players[Player_num].net_kills_total;
 		}
 		else
 		{
 			sb_show_score();
-			old_score = Players[Player_num].score;
-
-			//if (score_time)
-				sb_show_score_added();
+			sb_show_score_added();
 		}
 	}
 }
@@ -3029,7 +2921,7 @@ void do_cockpit_window_view(int win,object *viewer,int rear_view_flag,int user,c
 	}
 
 	//force redraw when done
-	old_weapon[win] = old_ammo_count[win] = -1;
+	old_weapon[win] = -1;
 
 	if (PlayerCfg.CockpitMode[1] == CM_FULL_COCKPIT)
 		draw_wbu_overlay();

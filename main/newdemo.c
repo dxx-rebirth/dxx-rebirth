@@ -161,46 +161,65 @@ extern void init_seismic_disturbances(void);
 
 #define DEMO_MAX_LEVELS				29
 
+// In- and Out-files
+PHYSFS_file *infile;
+PHYSFS_file *outfile = NULL;
 
-char nd_save_callsign[CALLSIGN_LEN+1];
+// Some globals
 int Newdemo_state = 0;
 int Newdemo_game_mode = 0;
 int Newdemo_vcr_state = 0;
-int Newdemo_start_frame = -1;
-int Newdemo_frame_number = -1;
-unsigned int Newdemo_size;
-int Newdemo_num_written;
-sbyte Newdemo_no_space;
-sbyte Newdemo_at_eof;
-sbyte Newdemo_do_interpolate = 1;
-sbyte Newdemo_warning_given = 0;
-sbyte Newdemo_cntrlcen_destroyed = 0;
-static sbyte nd_bad_read;
-int NewdemoFrameCount;
-short frame_bytes_written = 0;
-fix nd_playback_total;
-fix nd_recorded_total;
-fix nd_recorded_time;
-sbyte playback_style;
 int Newdemo_show_percentage=1;
-static int swap_endian = 0;
-ubyte Newdemo_dead = 0, Newdemo_rear = 0, Newdemo_guided = 0;
-sbyte WasRecorded [MAX_OBJECTS];
-sbyte ViewWasRecorded[MAX_OBJECTS];
-sbyte RenderingWasRecorded[32];
-object DemoRightExtra,DemoLeftExtra;
+sbyte Newdemo_do_interpolate = 1;
+int Newdemo_num_written;
 ubyte DemoDoRight=0,DemoDoLeft=0;
+object DemoRightExtra,DemoLeftExtra;
+
+// local var used for swapping endian demos
+static int swap_endian = 0;
+
+// playback variables
+static unsigned int nd_playback_v_demosize;
+static char nd_playback_v_save_callsign[CALLSIGN_LEN+1];
+static sbyte nd_playback_v_at_eof;
+static sbyte nd_playback_v_cntrlcen_destroyed = 0;
+static sbyte nd_playback_v_bad_read;
+static int nd_playback_v_framecount;
+static fix nd_playback_total, nd_recorded_total, nd_recorded_time;
+static sbyte nd_playback_v_style;
+static ubyte nd_playback_v_dead = 0, nd_playback_v_rear = 0, nd_playback_v_guided = 0;
+int nd_playback_v_juststarted=0;
+
+// record variables
+#define REC_DELAY F1_0/20
+static int nd_record_v_start_frame = -1;
+static int nd_record_v_frame_number = -1;
+static short nd_record_v_framebytes_written = 0;
+static int nd_record_v_recordframe = 1;
+static fix nd_record_v_recordframe_last_time = 0;
+static int nd_record_v_juststarted = 0;
+static sbyte nd_record_v_no_space;
+static sbyte nd_record_v_objs[MAX_OBJECTS];
+static sbyte nd_record_v_viewobjs[MAX_OBJECTS];
+static sbyte nd_record_v_rendering[32];
+static int nd_record_v_countdown_seconds_left = 0;
+static int nd_record_v_player_energy = -1;
+static fix nd_record_v_player_afterburner = -1;
+static int nd_record_v_player_shields = -1;
+static uint nd_record_v_player_flags = -1;
+static int nd_record_v_weapon_type = -1;
+static int nd_record_v_weapon_num = -1;
+static fix nd_record_v_homing_distance = -1;
+static int nd_record_v_primary_ammo = -1;
+static int nd_record_v_secondary_ammo = -1;
 
 void newdemo_record_oneframeevent_update();
 extern int digi_link_sound_to_object3( int org_soundnum, short objnum, int forever, fix max_volume, fix  max_distance, int loop_start, int loop_end );
 extern window *game_setup(void);
 
-PHYSFS_file *infile;
-PHYSFS_file *outfile = NULL;
-
 int newdemo_get_percent_done()	{
 	if ( Newdemo_state == ND_STATE_PLAYBACK ) {
-		return (PHYSFS_tell(infile) * 100) / Newdemo_size;
+		return (PHYSFS_tell(infile) * 100) / nd_playback_v_demosize;
 	}
 	if ( Newdemo_state == ND_STATE_RECORDING ) {
 		return PHYSFS_tell(outfile);
@@ -245,7 +264,7 @@ int newdemo_read( void *buffer, int elsize, int nelem )
 	int num_read;
 	num_read = PHYSFS_read(infile, buffer, elsize, nelem);
 	if (num_read < nelem || PHYSFS_eof(infile))
-		nd_bad_read = -1;
+		nd_playback_v_bad_read = -1;
 
 	return num_read;
 }
@@ -267,15 +286,15 @@ int newdemo_write( void *buffer, int elsize, int nelem )
 	int num_written, total_size;
 
 	total_size = elsize * nelem;
-	frame_bytes_written += total_size;
+	nd_record_v_framebytes_written += total_size;
 	Newdemo_num_written += total_size;
 	Assert(outfile != NULL);
 	num_written = PHYSFS_write(outfile, buffer, elsize, nelem);
 
-	if (num_written == nelem && !Newdemo_no_space)
+	if (num_written == nelem && !nd_record_v_no_space)
 		return num_written;
 
-	Newdemo_no_space=2;
+	nd_record_v_no_space=2;
 	newdemo_stop_recording();
 	return -1;
 }
@@ -823,17 +842,11 @@ void nd_write_object(object *obj)
 
 }
 
-int JustStartedRecording=0,JustStartedPlayback=0;
-
-int RecordFrame=1;
-static fix last_rec_time=0;
-#define REC_DELAY F1_0/20
-
 void newdemo_record_start_demo()
 {
 	int i;
 
-	last_rec_time=GameTime-REC_DELAY; // make sure first frame is recorded!
+	nd_record_v_recordframe_last_time=GameTime-REC_DELAY; // make sure first frame is recorded!
 
 	stop_time();
 	nd_write_byte(ND_EVENT_START_DEMO);
@@ -874,6 +887,12 @@ void newdemo_record_start_demo()
 		// NOTE LINK TO ABOVE!!!
 		nd_write_int(Players[Player_num].score);
 
+	nd_record_v_weapon_type = -1;
+	nd_record_v_weapon_num = -1;
+	nd_record_v_homing_distance = -1;
+	nd_record_v_primary_ammo = -1;
+	nd_record_v_secondary_ammo = -1;
+
 	for (i = 0; i < MAX_PRIMARY_WEAPONS; i++)
 		nd_write_short((short)Players[Player_num].primary_ammo[i]);
 
@@ -886,13 +905,18 @@ void newdemo_record_start_demo()
 
 	nd_write_string(Current_mission_filename);
 
+	nd_record_v_player_energy = (sbyte)(f2ir(Players[Player_num].energy));
 	nd_write_byte((sbyte)(f2ir(Players[Player_num].energy)));
+	nd_record_v_player_shields = (sbyte)(f2ir(Players[Player_num].shields));
 	nd_write_byte((sbyte)(f2ir(Players[Player_num].shields)));
+	nd_record_v_player_afterburner = 0;
+	nd_record_v_player_flags = Players[Player_num].flags;
 	nd_write_int(Players[Player_num].flags);        // be sure players flags are set
 	nd_write_byte((sbyte)Primary_weapon);
 	nd_write_byte((sbyte)Secondary_weapon);
-	Newdemo_start_frame = Newdemo_frame_number = 0;
-	JustStartedRecording=1;
+	nd_record_v_countdown_seconds_left = 0;
+	nd_record_v_start_frame = nd_record_v_frame_number = 0;
+	nd_record_v_juststarted=1;
 	newdemo_set_new_level(Current_level_num);
 	newdemo_record_oneframeevent_update();
 	start_time();
@@ -903,62 +927,65 @@ void newdemo_record_start_frame(fix frame_time )
 {
 	int i;
 
-	if (Newdemo_no_space) {
+	if (nd_record_v_no_space) {
 		newdemo_stop_playback();
 		return;
 	}
 
 	// Make demo recording waste a bit less space.
-	// First check if if at least REC_DELAY has passed since last recorded frame. If yes, record frame and set RecordFrame true.
-	// RecordFrame will be used for various other frame-by-frame events to drop some unnecessary bytes.
+	// First check if if at least REC_DELAY has passed since last recorded frame. If yes, record frame and set nd_record_v_recordframe true.
+	// nd_record_v_recordframe will be used for various other frame-by-frame events to drop some unnecessary bytes.
 	// frame_time must be modified to get the right playback speed.
-	if (last_rec_time > GameTime)
-		last_rec_time=GameTime-REC_DELAY;
+	if (nd_record_v_recordframe_last_time > GameTime)
+		nd_record_v_recordframe_last_time=GameTime-REC_DELAY;
 
-	if (last_rec_time + REC_DELAY <= GameTime || frame_time >= REC_DELAY)
+	if (nd_record_v_recordframe_last_time + REC_DELAY <= GameTime || frame_time >= REC_DELAY)
 	{
 		if (frame_time < REC_DELAY)
 			frame_time = REC_DELAY;
-		last_rec_time = GameTime-(GameTime-(last_rec_time + REC_DELAY));
-		RecordFrame=1;
+		nd_record_v_recordframe_last_time = GameTime-(GameTime-(nd_record_v_recordframe_last_time + REC_DELAY));
+		nd_record_v_recordframe=1;
 
 		stop_time();
 
 		for (i=0;i<MAX_OBJECTS;i++)
 		{
-			WasRecorded[i]=0;
-			ViewWasRecorded[i]=0;
+			nd_record_v_objs[i]=0;
+			nd_record_v_viewobjs[i]=0;
 		}
 		for (i=0;i<32;i++)
-			RenderingWasRecorded[i]=0;
+			nd_record_v_rendering[i]=0;
 
-		Newdemo_frame_number -= Newdemo_start_frame;
+		nd_record_v_frame_number -= nd_record_v_start_frame;
 
 		nd_write_byte(ND_EVENT_START_FRAME);
-		nd_write_short(frame_bytes_written - 1);        // from previous frame
-		frame_bytes_written=3;
-		nd_write_int(Newdemo_frame_number);
-		Newdemo_frame_number++;
+		nd_write_short(nd_record_v_framebytes_written - 1);        // from previous frame
+		nd_record_v_framebytes_written=3;
+		nd_write_int(nd_record_v_frame_number);
+		nd_record_v_frame_number++;
 		nd_write_int(frame_time);
 		start_time();
 	}
 	else
 	{
-		RecordFrame=0;
+		nd_record_v_recordframe=0;
 	}
 
 }
 
 void newdemo_record_render_object(object * obj)
 {
-	if (!RecordFrame)
+	if (!nd_record_v_recordframe)
 		return;
-	if (ViewWasRecorded[obj-Objects])
+	if (nd_record_v_objs[obj-Objects])
+		return;
+	if (nd_record_v_viewobjs[obj-Objects])
 		return;
 
 	stop_time();
 	nd_write_byte(ND_EVENT_RENDER_OBJECT);
 	nd_write_object(obj);
+	nd_record_v_objs[obj-Objects] = 1;
 	start_time();
 }
 
@@ -966,16 +993,16 @@ extern ubyte RenderingType;
 
 void newdemo_record_viewer_object(object * obj)
 {
-	if (!RecordFrame)
+	if (!nd_record_v_recordframe)
 		return;
-	if (ViewWasRecorded[obj-Objects] && (ViewWasRecorded[obj-Objects]-1)==RenderingType)
+	if (nd_record_v_viewobjs[obj-Objects] && (nd_record_v_viewobjs[obj-Objects]-1)==RenderingType)
 		return;
-	if (RenderingWasRecorded[RenderingType])
+	if (nd_record_v_rendering[RenderingType])
 		return;
 
-	ViewWasRecorded[obj-Objects]=RenderingType+1;
-	RenderingWasRecorded[RenderingType]=1;
 	stop_time();
+	nd_record_v_viewobjs[obj-Objects]=RenderingType+1;
+	nd_record_v_rendering[RenderingType]=1;
 	nd_write_byte(ND_EVENT_VIEWER_OBJECT);
 	nd_write_byte(RenderingType);
 	nd_write_object(obj);
@@ -1100,7 +1127,7 @@ void newdemo_record_hostage_rescued( int hostage_number )
 
 void newdemo_record_morph_frame(morph_data *md)
 {
-	if (!RecordFrame)
+	if (!nd_record_v_recordframe)
 		return;
 	stop_time();
 	nd_write_byte( ND_EVENT_MORPH_FRAME );
@@ -1119,9 +1146,12 @@ void newdemo_record_wall_toggle( int segnum, int side )
 
 void newdemo_record_control_center_destroyed()
 {
+	if (nd_record_v_countdown_seconds_left == Countdown_seconds_left)
+		return;
 	stop_time();
 	nd_write_byte( ND_EVENT_CONTROL_CENTER_DESTROYED );
 	nd_write_int( Countdown_seconds_left );
+	nd_record_v_countdown_seconds_left = Countdown_seconds_left;
 	start_time();
 }
 
@@ -1135,7 +1165,7 @@ void newdemo_record_hud_message( char * message )
 
 void newdemo_record_palette_effect(short r, short g, short b )
 {
-	if (!RecordFrame)
+	if (!nd_record_v_recordframe)
 		return;
 	stop_time();
 	nd_write_byte( ND_EVENT_PALETTE_EFFECT );
@@ -1145,43 +1175,57 @@ void newdemo_record_palette_effect(short r, short g, short b )
 	start_time();
 }
 
-void newdemo_record_player_energy(int old_energy, int energy)
+void newdemo_record_player_energy(int energy)
 {
+	if (nd_record_v_player_energy == energy)
+		return;
 	stop_time();
 	nd_write_byte( ND_EVENT_PLAYER_ENERGY );
-	nd_write_byte((sbyte) old_energy);
+	nd_write_byte((sbyte) nd_record_v_player_energy);
 	nd_write_byte((sbyte) energy);
+	nd_record_v_player_energy = energy;
 	start_time();
 }
 
-void newdemo_record_player_afterburner(fix old_afterburner, fix afterburner)
+void newdemo_record_player_afterburner(fix afterburner)
 {
+	if ((nd_record_v_player_afterburner>>9) == (afterburner>>9))
+		return;
 	stop_time();
 	nd_write_byte( ND_EVENT_PLAYER_AFTERBURNER );
-	nd_write_byte((sbyte) (old_afterburner>>9));
+	nd_write_byte((sbyte) (nd_record_v_player_afterburner>>9));
 	nd_write_byte((sbyte) (afterburner>>9));
+	nd_record_v_player_afterburner = afterburner;
 	start_time();
 }
 
-void newdemo_record_player_shields(int old_shield, int shield)
+void newdemo_record_player_shields(int shield)
 {
+	if (nd_record_v_player_shields == shield)
+		return;
 	stop_time();
 	nd_write_byte( ND_EVENT_PLAYER_SHIELD );
-	nd_write_byte((sbyte)old_shield);
+	nd_write_byte((sbyte)nd_record_v_player_shields);
 	nd_write_byte((sbyte)shield);
+	nd_record_v_player_shields = shield;
 	start_time();
 }
 
-void newdemo_record_player_flags(uint oflags, uint flags)
+void newdemo_record_player_flags(uint flags)
 {
+	if (nd_record_v_player_flags == flags)
+		return;
 	stop_time();
 	nd_write_byte( ND_EVENT_PLAYER_FLAGS );
-	nd_write_int(((short)oflags << 16) | (short)flags);
+	nd_write_int(((short)nd_record_v_player_flags << 16) | (short)flags);
+	nd_record_v_player_flags = flags;
 	start_time();
 }
 
 void newdemo_record_player_weapon(int weapon_type, int weapon_num)
 {
+	if (nd_record_v_weapon_type == weapon_type && nd_record_v_weapon_num == weapon_num)
+		return;
 	stop_time();
 	nd_write_byte( ND_EVENT_PLAYER_WEAPON );
 	nd_write_byte((sbyte)weapon_type);
@@ -1190,6 +1234,8 @@ void newdemo_record_player_weapon(int weapon_type, int weapon_num)
 		nd_write_byte((sbyte)Secondary_weapon);
 	else
 		nd_write_byte((sbyte)Primary_weapon);
+	nd_record_v_weapon_type = weapon_type;
+	nd_record_v_weapon_num = weapon_num;
 	start_time();
 }
 
@@ -1205,9 +1251,12 @@ void newdemo_record_effect_blowup(short segment, int side, vms_vector *pnt)
 
 void newdemo_record_homing_distance(fix distance)
 {
+	if ((nd_record_v_homing_distance>>16) == (distance>>16))
+		return;
 	stop_time();
 	nd_write_byte(ND_EVENT_HOMING_DISTANCE);
 	nd_write_short((short)(distance>>16));
+	nd_record_v_homing_distance = distance;
 	start_time();
 }
 
@@ -1344,31 +1393,33 @@ void newdemo_record_multi_score(int pnum, int score)
 	start_time();
 }
 
-void newdemo_record_primary_ammo(int old_ammo, int new_ammo)
+void newdemo_record_primary_ammo(int new_ammo)
 {
-	if (!RecordFrame)
+	if (nd_record_v_primary_ammo == new_ammo)
 		return;
 	stop_time();
 	nd_write_byte(ND_EVENT_PRIMARY_AMMO);
-	if (old_ammo < 0)
+	if (nd_record_v_primary_ammo < 0)
 		nd_write_short((short)new_ammo);
 	else
-		nd_write_short((short)old_ammo);
+		nd_write_short((short)nd_record_v_primary_ammo);
 	nd_write_short((short)new_ammo);
+	nd_record_v_primary_ammo = new_ammo;
 	start_time();
 }
 
-void newdemo_record_secondary_ammo(int old_ammo, int new_ammo)
+void newdemo_record_secondary_ammo(int new_ammo)
 {
-	if (!RecordFrame)
+	if (nd_record_v_secondary_ammo == new_ammo)
 		return;
 	stop_time();
 	nd_write_byte(ND_EVENT_SECONDARY_AMMO);
-	if (old_ammo < 0)
+	if (nd_record_v_secondary_ammo < 0)
 		nd_write_short((short)new_ammo);
 	else
-		nd_write_short((short)old_ammo);
+		nd_write_short((short)nd_record_v_secondary_ammo);
 	nd_write_short((short)new_ammo);
+	nd_record_v_secondary_ammo = new_ammo;
 	start_time();
 }
 
@@ -1420,7 +1471,7 @@ void newdemo_set_new_level(int level_num)
 	nd_write_byte((sbyte)level_num);
 	nd_write_byte((sbyte)Current_level_num);
 
-	if (JustStartedRecording==1)
+	if (nd_record_v_juststarted==1)
 	{
 		nd_write_int(Num_walls);
 		for (i=0;i<Num_walls;i++)
@@ -1433,7 +1484,7 @@ void newdemo_set_new_level(int level_num)
 			side = Walls[i].sidenum;
 			nd_write_short (seg->sides[side].tmap_num);
 			nd_write_short (seg->sides[side].tmap_num2);
-			JustStartedRecording=0;
+			nd_record_v_juststarted=0;
 		}
 	}
 
@@ -1482,7 +1533,7 @@ int newdemo_read_demo_start(enum purpose_type purpose)
 	nd_read_byte(&c);
 	if (purpose == PURPOSE_REWRITE)
 		nd_write_byte(c);
-	if ((c != ND_EVENT_START_DEMO) || nd_bad_read) {
+	if ((c != ND_EVENT_START_DEMO) || nd_playback_v_bad_read) {
 		nm_messagebox( NULL, 1, TXT_OK, "%s %s", TXT_CANT_PLAYBACK, TXT_DEMO_CORRUPT );
 		return 1;
 	}
@@ -1646,7 +1697,7 @@ int newdemo_read_demo_start(enum purpose_type purpose)
 
 	Players[Player_num].energy = i2f(energy);
 	Players[Player_num].shields = i2f(shield);
-	JustStartedPlayback=1;
+	nd_playback_v_juststarted=1;
 	return 0;
 }
 
@@ -1698,7 +1749,7 @@ int newdemo_read_frame_information(int rewrite)
 
 	while( !done ) {
 		nd_read_byte(&c);
-		if (nd_bad_read) { done = -1; break; }
+		if (nd_playback_v_bad_read) { done = -1; break; }
 		if (rewrite && (c != ND_EVENT_EOF))
 			nd_write_byte(c);
 
@@ -1709,20 +1760,20 @@ int newdemo_read_frame_information(int rewrite)
 
 			done=1;
 			nd_read_short(&last_frame_length);
-			nd_read_int(&NewdemoFrameCount);
+			nd_read_int(&nd_playback_v_framecount);
 			nd_read_int((int *)&nd_recorded_time);
-			if (nd_bad_read) { done = -1; break; }
+			if (nd_playback_v_bad_read) { done = -1; break; }
 			if (rewrite)
 			{
 				nd_write_short(last_frame_length);
-				frame_bytes_written = 3;
-				nd_write_int(NewdemoFrameCount);
+				nd_record_v_framebytes_written = 3;
+				nd_write_int(nd_playback_v_framecount);
 				nd_write_int(nd_recorded_time);
 				break;
 			}
 			if (Newdemo_vcr_state == ND_STATE_PLAYBACK)
 				nd_recorded_total += nd_recorded_time;
-			NewdemoFrameCount--;
+			nd_playback_v_framecount--;
 			break;
 		}
 
@@ -1733,7 +1784,7 @@ int newdemo_read_frame_information(int rewrite)
 			if (WhichWindow&15)
 			{
 				nd_read_object (&extraobj);
-				if (nd_bad_read)
+				if (nd_playback_v_bad_read)
 				{
 					done = -1;
 					break;
@@ -1751,7 +1802,7 @@ int newdemo_read_frame_information(int rewrite)
 			{
 				//Viewer=&Objects[0];
 				nd_read_object(Viewer);
-				if (nd_bad_read) { done = -1; break; }
+				if (nd_playback_v_bad_read) { done = -1; break; }
 				if (rewrite)
 				{
 					nd_write_object(Viewer);
@@ -1780,7 +1831,7 @@ int newdemo_read_frame_information(int rewrite)
 				break;
 			obj = &Objects[objnum];
 			nd_read_object(obj);
-			if (nd_bad_read) { done = -1; break; }
+			if (nd_playback_v_bad_read) { done = -1; break; }
 			if (rewrite)
 			{
 				nd_write_object(obj);
@@ -1822,7 +1873,7 @@ int newdemo_read_frame_information(int rewrite)
 
 		case ND_EVENT_SOUND:
 			nd_read_int(&soundno);
-			if (nd_bad_read) {done = -1; break; }
+			if (nd_playback_v_bad_read) {done = -1; break; }
 			if (rewrite)
 			{
 				nd_write_int(soundno);
@@ -1836,7 +1887,7 @@ int newdemo_read_frame_information(int rewrite)
 			nd_read_int(&soundno);
 			nd_read_int(&angle);
 			nd_read_int(&volume);
-			if (nd_bad_read) { done = -1; break; }
+			if (nd_playback_v_bad_read) { done = -1; break; }
 			if (rewrite)
 			{
 				nd_write_int(soundno);
@@ -1852,7 +1903,7 @@ int newdemo_read_frame_information(int rewrite)
 			nd_read_int(&soundno);
 			nd_read_int(&angle);
 			nd_read_int(&volume);
-			if (nd_bad_read) { done = -1; break; }
+			if (nd_playback_v_bad_read) { done = -1; break; }
 			if (rewrite)
 			{
 				nd_write_int(soundno);
@@ -1915,7 +1966,7 @@ int newdemo_read_frame_information(int rewrite)
 			nd_read_int(&side);
 			nd_read_fix(&damage);
 			nd_read_int(&player);
-			if (nd_bad_read) { done = -1; break; }
+			if (nd_playback_v_bad_read) { done = -1; break; }
 			if (rewrite)
 			{
 				nd_write_int(segnum);
@@ -1934,7 +1985,7 @@ int newdemo_read_frame_information(int rewrite)
 			nd_read_int(&side);
 			nd_read_int(&objnum);
 			nd_read_int(&shot);
-			if (nd_bad_read) { done = -1; break; }
+			if (nd_playback_v_bad_read) { done = -1; break; }
 			if (rewrite)
 			{
 				nd_write_int(segnum);
@@ -1967,7 +2018,7 @@ int newdemo_read_frame_information(int rewrite)
 			int hostage_number;
 
 			nd_read_int(&hostage_number);
-			if (nd_bad_read) { done = -1; break; }
+			if (nd_playback_v_bad_read) { done = -1; break; }
 			if (rewrite)
 			{
 				nd_write_int(hostage_number);
@@ -1992,7 +2043,7 @@ int newdemo_read_frame_information(int rewrite)
 				break;
 			obj = &Objects[objnum];
 			nd_read_object(obj);
-			if (nd_bad_read) { done = -1; break; }
+			if (nd_playback_v_bad_read) { done = -1; break; }
 			if (rewrite)
 			{
 				nd_write_object(obj);
@@ -2012,7 +2063,7 @@ int newdemo_read_frame_information(int rewrite)
 		case ND_EVENT_WALL_TOGGLE:
 			nd_read_int(&segnum);
 			nd_read_int(&side);
-			if (nd_bad_read) {done = -1; break; }
+			if (nd_playback_v_bad_read) {done = -1; break; }
 			if (rewrite)
 			{
 				nd_write_int(segnum);
@@ -2026,15 +2077,15 @@ int newdemo_read_frame_information(int rewrite)
 		case ND_EVENT_CONTROL_CENTER_DESTROYED:
 			nd_read_int(&Countdown_seconds_left);
 			Control_center_destroyed = 1;
-			if (nd_bad_read) { done = -1; break; }
+			if (nd_playback_v_bad_read) { done = -1; break; }
 			if (rewrite)
 			{
 				nd_write_int(Countdown_seconds_left);
 				break;
 			}
-			if (!Newdemo_cntrlcen_destroyed) {
+			if (!nd_playback_v_cntrlcen_destroyed) {
 				newdemo_pop_ctrlcen_triggers();
-				Newdemo_cntrlcen_destroyed = 1;
+				nd_playback_v_cntrlcen_destroyed = 1;
 			}
 			break;
 
@@ -2042,7 +2093,7 @@ int newdemo_read_frame_information(int rewrite)
 			char hud_msg[60];
 
 			nd_read_string(&(hud_msg[0]));
-			if (nd_bad_read) { done = -1; break; }
+			if (nd_playback_v_bad_read) { done = -1; break; }
 			if (rewrite)
 			{
 				nd_write_string(&(hud_msg[0]));
@@ -2054,16 +2105,16 @@ int newdemo_read_frame_information(int rewrite)
 			}
 		case ND_EVENT_START_GUIDED:
 			if ((Newdemo_vcr_state == ND_STATE_PLAYBACK) || (Newdemo_vcr_state == ND_STATE_FASTFORWARD) || (Newdemo_vcr_state == ND_STATE_ONEFRAMEFORWARD)) {
-				Newdemo_guided = 1;
+				nd_playback_v_guided = 1;
 			} else if ((Newdemo_vcr_state == ND_STATE_REWINDING) || (Newdemo_vcr_state == ND_STATE_ONEFRAMEBACKWARD)) {
-				Newdemo_guided = 0;
+				nd_playback_v_guided = 0;
 			}
 			break;
 		case ND_EVENT_END_GUIDED:
 			if ((Newdemo_vcr_state == ND_STATE_REWINDING) || (Newdemo_vcr_state == ND_STATE_ONEFRAMEBACKWARD)) {
-				Newdemo_guided = 1;
+				nd_playback_v_guided = 1;
 			} else if ((Newdemo_vcr_state == ND_STATE_PLAYBACK) || (Newdemo_vcr_state == ND_STATE_FASTFORWARD) || (Newdemo_vcr_state == ND_STATE_ONEFRAMEFORWARD)) {
-				Newdemo_guided = 0;
+				nd_playback_v_guided = 0;
 			}
 			break;
 
@@ -2073,7 +2124,7 @@ int newdemo_read_frame_information(int rewrite)
 			nd_read_short(&r);
 			nd_read_short(&g);
 			nd_read_short(&b);
-			if (nd_bad_read) { done = -1; break; }
+			if (nd_playback_v_bad_read) { done = -1; break; }
 			if (rewrite)
 			{
 				nd_write_short(r);
@@ -2092,7 +2143,7 @@ int newdemo_read_frame_information(int rewrite)
 			nd_read_byte((sbyte *)&old_energy);
 			nd_read_byte((sbyte *)&energy);
 
-			if (nd_bad_read) {done = -1; break; }
+			if (nd_playback_v_bad_read) {done = -1; break; }
 			if (rewrite)
 			{
 				nd_write_byte(old_energy);
@@ -2114,7 +2165,7 @@ int newdemo_read_frame_information(int rewrite)
 
 			nd_read_byte((sbyte *)&old_afterburner);
 			nd_read_byte((sbyte *)&afterburner);
-			if (nd_bad_read) {done = -1; break; }
+			if (nd_playback_v_bad_read) {done = -1; break; }
 			if (rewrite)
 			{
 				nd_write_byte(old_afterburner);
@@ -2137,7 +2188,7 @@ int newdemo_read_frame_information(int rewrite)
 
 			nd_read_byte((sbyte *)&old_shield);
 			nd_read_byte((sbyte *)&shield);
-			if (nd_bad_read) {done = -1; break; }
+			if (nd_playback_v_bad_read) {done = -1; break; }
 			if (rewrite)
 			{
 				nd_write_byte(old_shield);
@@ -2157,7 +2208,7 @@ int newdemo_read_frame_information(int rewrite)
 			uint oflags;
 
 			nd_read_int((int *)&(Players[Player_num].flags));
-			if (nd_bad_read) {done = -1; break; }
+			if (nd_playback_v_bad_read) {done = -1; break; }
 			if (rewrite)
 			{
 				nd_write_int(Players[Player_num].flags);
@@ -2264,9 +2315,9 @@ int newdemo_read_frame_information(int rewrite)
 
 		case ND_EVENT_LETTERBOX:
 			if ((Newdemo_vcr_state == ND_STATE_PLAYBACK) || (Newdemo_vcr_state == ND_STATE_FASTFORWARD) || (Newdemo_vcr_state == ND_STATE_ONEFRAMEFORWARD)) {
-				Newdemo_dead = 1;
+				nd_playback_v_dead = 1;
 			} else if ((Newdemo_vcr_state == ND_STATE_REWINDING) || (Newdemo_vcr_state == ND_STATE_ONEFRAMEBACKWARD))
-				Newdemo_dead = 0;
+				nd_playback_v_dead = 0;
 			break;
 
 		case ND_EVENT_CHANGE_COCKPIT: {
@@ -2278,25 +2329,25 @@ int newdemo_read_frame_information(int rewrite)
 		}
 		case ND_EVENT_REARVIEW:
 			if ((Newdemo_vcr_state == ND_STATE_PLAYBACK) || (Newdemo_vcr_state == ND_STATE_FASTFORWARD) || (Newdemo_vcr_state == ND_STATE_ONEFRAMEFORWARD)) {
-				Newdemo_rear = 1;
+				nd_playback_v_rear = 1;
 			} else if ((Newdemo_vcr_state == ND_STATE_REWINDING) || (Newdemo_vcr_state == ND_STATE_ONEFRAMEBACKWARD)) {
-				Newdemo_rear = 0;
+				nd_playback_v_rear = 0;
 			}
 			break;
 
 		case ND_EVENT_RESTORE_COCKPIT:
 			if ((Newdemo_vcr_state == ND_STATE_REWINDING) || (Newdemo_vcr_state == ND_STATE_ONEFRAMEBACKWARD)) {
-				Newdemo_dead = 1;
+				nd_playback_v_dead = 1;
 			} else if ((Newdemo_vcr_state == ND_STATE_PLAYBACK) || (Newdemo_vcr_state == ND_STATE_FASTFORWARD) || (Newdemo_vcr_state == ND_STATE_ONEFRAMEFORWARD))
-				Newdemo_dead = 0;
+				nd_playback_v_dead = 0;
 			break;
 
 
 		case ND_EVENT_RESTORE_REARVIEW:
 			if ((Newdemo_vcr_state == ND_STATE_REWINDING) || (Newdemo_vcr_state == ND_STATE_ONEFRAMEBACKWARD)) {
-				Newdemo_rear= 1;
+				nd_playback_v_rear= 1;
 			} else if ((Newdemo_vcr_state == ND_STATE_PLAYBACK) || (Newdemo_vcr_state == ND_STATE_FASTFORWARD) || (Newdemo_vcr_state == ND_STATE_ONEFRAMEFORWARD)) {
-				Newdemo_rear = 0;
+				nd_playback_v_rear = 0;
 			}
 			break;
 
@@ -2727,10 +2778,10 @@ int newdemo_read_frame_information(int rewrite)
 				}
 
 				LoadLevel((int)loaded_level,1);
-				Newdemo_cntrlcen_destroyed = 0;
+				nd_playback_v_cntrlcen_destroyed = 0;
 			}
 
-			if (JustStartedPlayback)
+			if (nd_playback_v_juststarted)
 			{
 				nd_read_int (&Num_walls);
 				if (rewrite)
@@ -2764,7 +2815,7 @@ int newdemo_read_frame_information(int rewrite)
 					}
 				}
 
-				JustStartedPlayback=0;
+				nd_playback_v_juststarted=0;
 				if (rewrite)
 					break;
 
@@ -2792,8 +2843,8 @@ int newdemo_read_frame_information(int rewrite)
 		case ND_EVENT_EOF: {
 			done=-1;
 			PHYSFS_seek(infile, PHYSFS_tell(infile) - 1);        // get back to the EOF marker
-			Newdemo_at_eof = 1;
-			NewdemoFrameCount++;
+			nd_playback_v_at_eof = 1;
+			nd_playback_v_framecount++;
 			break;
 		}
 
@@ -2805,13 +2856,13 @@ int newdemo_read_frame_information(int rewrite)
 	LastReadValue=c;
 
 	// Now set up cockpit and views according to what we read out. Note that the demo itself cannot determinate the right views since it does not use a good portion of the real game code.
-	if (Newdemo_dead)
+	if (nd_playback_v_dead)
 	{
 		Rear_view = 0;
 		if (PlayerCfg.CockpitMode[1] != CM_LETTERBOX)
 			select_cockpit(CM_LETTERBOX);
 	}
-	else if (Newdemo_guided)
+	else if (nd_playback_v_guided)
 	{
 		Rear_view = 0;
 		if (PlayerCfg.CockpitMode[1] != CM_FULL_SCREEN || PlayerCfg.CockpitMode[1] != CM_STATUS_BAR)
@@ -2819,9 +2870,9 @@ int newdemo_read_frame_information(int rewrite)
 			select_cockpit((PlayerCfg.CockpitMode[0] == CM_FULL_SCREEN)?CM_FULL_SCREEN:CM_STATUS_BAR);
 		}
 	}
-	else if (Newdemo_rear)
+	else if (nd_playback_v_rear)
 	{
-		Rear_view = Newdemo_rear;
+		Rear_view = nd_playback_v_rear;
 		if (PlayerCfg.CockpitMode[0] == CM_FULL_COCKPIT)
 			select_cockpit(CM_REAR_VIEW);
 	}
@@ -2832,7 +2883,7 @@ int newdemo_read_frame_information(int rewrite)
 			select_cockpit(PlayerCfg.CockpitMode[0]);
 	}
 
-	if (nd_bad_read) {
+	if (nd_playback_v_bad_read) {
 		nm_messagebox( NULL, 1, TXT_OK, "%s %s", TXT_DEMO_ERR_READING, TXT_DEMO_OLD_CORRUPT );
 	}
 
@@ -2841,7 +2892,7 @@ int newdemo_read_frame_information(int rewrite)
 
 void newdemo_goto_beginning()
 {
-	//if (NewdemoFrameCount == 0)
+	//if (nd_playback_v_framecount == 0)
 	//	return;
 	PHYSFS_seek(infile, 0);
 	Newdemo_vcr_state = ND_STATE_PLAYBACK;
@@ -2852,7 +2903,7 @@ void newdemo_goto_beginning()
 	if (newdemo_read_frame_information(0) == -1)
 		newdemo_stop_playback();
 	Newdemo_vcr_state = ND_STATE_PAUSED;
-	Newdemo_at_eof = 0;
+	nd_playback_v_at_eof = 0;
 }
 
 void newdemo_goto_end(int to_rewrite)
@@ -2948,8 +2999,8 @@ void newdemo_goto_end(int to_rewrite)
 
 	cfseek(infile, loc, SEEK_SET);
 	cfseek(infile, -frame_length, SEEK_CUR);
-	nd_read_int(&NewdemoFrameCount);            // get the frame count
-	NewdemoFrameCount--;
+	nd_read_int(&nd_playback_v_framecount);            // get the frame count
+	nd_playback_v_framecount--;
 	cfseek(infile, 4, SEEK_CUR);
 	Newdemo_vcr_state = ND_STATE_PLAYBACK;
 	newdemo_read_frame_information(0); // then the frame information
@@ -2968,12 +3019,12 @@ void newdemo_back_frames(int frames)
 		nd_read_short(&last_frame_length);
 		PHYSFS_seek(infile, PHYSFS_tell(infile) + 8 - last_frame_length);
 
-		if (!Newdemo_at_eof && newdemo_read_frame_information(0) == -1) {
+		if (!nd_playback_v_at_eof && newdemo_read_frame_information(0) == -1) {
 			newdemo_stop_playback();
 			return;
 		}
-		if (Newdemo_at_eof)
-			Newdemo_at_eof = 0;
+		if (nd_playback_v_at_eof)
+			nd_playback_v_at_eof = 0;
 
 		PHYSFS_seek(infile, PHYSFS_tell(infile) - 10);
 		nd_read_short(&last_frame_length);
@@ -2999,7 +3050,7 @@ void interpolate_frame(fix d_play, fix d_recorded)
 	object *cur_objs;
 	static fix InterpolStep = fl2f(.01);
 
-	if (NewdemoFrameCount < 1)
+	if (nd_playback_v_framecount < 1)
 		return;
 
 	factor = fixdiv(d_play, d_recorded);
@@ -3033,21 +3084,11 @@ void interpolate_frame(fix d_play, fix d_recorded)
 					sbyte render_type = cur_objs[i].render_type;
 					fix delta_x, delta_y, delta_z;
 
-					/*
-					 * HACK: Good 'ol Descent does not check for duplicate signatures when creating objects.
-					 * So in case our two objects have a huge distance, we assume they are different.
-					 * Interpolating would not make much sense in that case nevertheless.
-					 */
-					if (vm_vec_dist(&cur_objs[i].pos, &Objects[j].pos) > (Objects[j].size*2))
-						continue;
-
-
 					//  Extract the angles from the object orientation matrix.
 					//  Some of this code taken from ai_turn_towards_vector
 					//  Don't do the interpolation on certain render types which don't use an orientation matrix
 
 					if (!((render_type == RT_LASER) || (render_type == RT_FIREBALL) || (render_type == RT_POWERUP))) {
-
 						vms_vector  fvec1, fvec2, rvec1, rvec2;
 						fix         mag1;
 
@@ -3128,9 +3169,9 @@ void newdemo_playback_one_frame()
 	if ((Newdemo_vcr_state == ND_STATE_REWINDING) || (Newdemo_vcr_state == ND_STATE_ONEFRAMEBACKWARD))
 	{
 		level = Current_level_num;
-		if (NewdemoFrameCount == 0)
+		if (nd_playback_v_framecount == 0)
 			return;
-		else if ((Newdemo_vcr_state == ND_STATE_REWINDING) && (NewdemoFrameCount < 10)) {
+		else if ((Newdemo_vcr_state == ND_STATE_REWINDING) && (nd_playback_v_framecount < 10)) {
 			newdemo_goto_beginning();
 			return;
 		}
@@ -3138,7 +3179,7 @@ void newdemo_playback_one_frame()
 			frames_back = 10;
 		else
 			frames_back = 1;
-		if (Newdemo_at_eof) {
+		if (nd_playback_v_at_eof) {
 			PHYSFS_seek(infile, PHYSFS_tell(infile) + 11);
 		}
 		newdemo_back_frames(frames_back);
@@ -3153,13 +3194,13 @@ void newdemo_playback_one_frame()
 		}
 	}
 	else if (Newdemo_vcr_state == ND_STATE_FASTFORWARD) {
-		if (!Newdemo_at_eof)
+		if (!nd_playback_v_at_eof)
 		{
 			for (i = 0; i < 10; i++)
 			{
 				if (newdemo_read_frame_information(0) == -1)
 				{
-					if (Newdemo_at_eof)
+					if (nd_playback_v_at_eof)
 						Newdemo_vcr_state = ND_STATE_PAUSED;
 					else
 						newdemo_stop_playback();
@@ -3171,15 +3212,15 @@ void newdemo_playback_one_frame()
 			Newdemo_vcr_state = ND_STATE_PAUSED;
 	}
 	else if (Newdemo_vcr_state == ND_STATE_ONEFRAMEFORWARD) {
-		if (!Newdemo_at_eof) {
+		if (!nd_playback_v_at_eof) {
 			level = Current_level_num;
 			if (newdemo_read_frame_information(0) == -1) {
-				if (!Newdemo_at_eof)
+				if (!nd_playback_v_at_eof)
 					newdemo_stop_playback();
 			}
 			if (level != Current_level_num) {
 				if (newdemo_read_frame_information(0) == -1) {
-					if (!Newdemo_at_eof)
+					if (!nd_playback_v_at_eof)
 						newdemo_stop_playback();
 				}
 			}
@@ -3194,20 +3235,19 @@ void newdemo_playback_one_frame()
 		//  skip frames based on where the playback time is relative to the
 		//  recorded time.
 
-		if (NewdemoFrameCount <= 0)
+		if (nd_playback_v_framecount <= 0)
 			nd_playback_total = nd_recorded_total;      // baseline total playback time
 		else
 			nd_playback_total += FrameTime;
 
-		if (playback_style == NORMAL_PLAYBACK)
+		if (nd_playback_v_style == NORMAL_PLAYBACK)
 		{
 			if (nd_playback_total > nd_recorded_total)
-				playback_style = SKIP_PLAYBACK;
+				nd_playback_v_style = SKIP_PLAYBACK;
 
-			//if ((nd_playback_total * INTERPOL_FACTOR) < nd_recorded_total) // no matte rhow we look at it: this does not make ANY sense!
 			if (nd_recorded_total > 0 && nd_recorded_time > 0)
 			{
-				playback_style = INTERPOLATE_PLAYBACK;
+				nd_playback_v_style = INTERPOLATE_PLAYBACK;
 				nd_playback_total = nd_recorded_total + FrameTime; // baseline playback time
 				base_interpol_time = nd_recorded_total;
 				d_recorded = nd_recorded_time; // baseline delta recorded
@@ -3215,7 +3255,7 @@ void newdemo_playback_one_frame()
 		}
 
 
-		if ((playback_style == INTERPOLATE_PLAYBACK) && Newdemo_do_interpolate) {
+		if ((nd_playback_v_style == INTERPOLATE_PLAYBACK) && Newdemo_do_interpolate) {
 			fix d_play = 0;
 
 			if (nd_recorded_total - nd_playback_total < FrameTime) {
@@ -3255,14 +3295,6 @@ void newdemo_playback_one_frame()
 					for (i = 0; i <= num_objs; i++) {
 						for (j = 0; j <= Highest_object_index; j++) {
 							if (cur_objs[i].signature == Objects[j].signature) {
-								/*
-								 * HACK: Good 'ol Descent does not check for duplicate signatures when creating objects.
-								 * So in case our two objects have a huge distance, we assume they are different.
-								 * Interpolating would not make much sense in that case nevertheless.
-								 */
-								if (vm_vec_dist(&cur_objs[i].pos, &Objects[j].pos) > (Objects[j].size*2))
-									continue;
-
 								memcpy(&(Objects[j].orient), &(cur_objs[i].orient), sizeof(vms_matrix));
 								memcpy(&(Objects[j].pos), &(cur_objs[i].pos), sizeof(vms_vector));
 								break;
@@ -3284,7 +3316,7 @@ void newdemo_playback_one_frame()
 				newdemo_stop_playback();
 				return;
 			}
-			if (playback_style == SKIP_PLAYBACK) {
+			if (nd_playback_v_style == SKIP_PLAYBACK) {
 				while (nd_playback_total > nd_recorded_total) {
 					if (newdemo_read_frame_information(0) == -1) {
 						newdemo_stop_playback();
@@ -3299,7 +3331,7 @@ void newdemo_playback_one_frame()
 void newdemo_start_recording()
 {
 	Newdemo_num_written = 0;
-	Newdemo_no_space=0;
+	nd_record_v_no_space=0;
 	Newdemo_state = ND_STATE_RECORDING;
 
 	PHYSFS_mkdir(DEMO_DIR); //always try making directory - could only exist in read-only path
@@ -3322,7 +3354,7 @@ void newdemo_write_end()
 	int i;
 
 	nd_write_byte(ND_EVENT_EOF);
-	nd_write_short(frame_bytes_written - 1);
+	nd_write_short(nd_record_v_framebytes_written - 1);
 	if (Game_mode & GM_MULTI) {
 		for (i = 0; i < N_players; i++) {
 			if (Players[i].flags & PLAYER_FLAGS_CLOAKED)
@@ -3336,7 +3368,7 @@ void newdemo_write_end()
 	nd_write_short(ND_EVENT_EOF);
 	nd_write_int(ND_EVENT_EOF);
 
-	byte_count += 10;       // from frame_bytes_written
+	byte_count += 10;       // from nd_record_v_framebytes_written
 
 	nd_write_byte((sbyte)(f2ir(Players[Player_num].energy)));
 	nd_write_byte((sbyte)(f2ir(Players[Player_num].shields)));
@@ -3392,7 +3424,7 @@ void newdemo_stop_recording()
 
 	exit = 0;
 
-	if (!Newdemo_no_space)
+	if (!nd_record_v_no_space)
 	{
 		newdemo_record_oneframeevent_update();
 		newdemo_write_end();
@@ -3425,10 +3457,10 @@ try_again:
 	;
 
 	Newmenu_allowed_chars = demoname_allowed_chars;
-	if (!Newdemo_no_space) {
+	if (!nd_record_v_no_space) {
 		m[0].type=NM_TYPE_INPUT; m[0].text_len = PATH_MAX - 1; m[0].text = filename;
 		exit = newmenu_do( NULL, TXT_SAVE_DEMO_AS, 1, &(m[0]), NULL, NULL );
-	} else if (Newdemo_no_space == 2) {
+	} else if (nd_record_v_no_space == 2) {
 		m[ 0].type = NM_TYPE_TEXT; m[ 0].text = TXT_DEMO_SAVE_NOSPACE;
 		m[ 1].type = NM_TYPE_INPUT;m[ 1].text_len = PATH_MAX - 1; m[1].text = filename;
 		exit = newmenu_do( NULL, NULL, 2, m, NULL, NULL );
@@ -3463,7 +3495,7 @@ try_again:
 			goto try_again;
 		}
 
-	if (Newdemo_no_space)
+	if (nd_record_v_no_space)
 		strcat(fullname, m[1].text);
 	else
 		strcat(fullname, m[0].text);
@@ -3542,11 +3574,11 @@ void newdemo_start_playback(char * filename)
 		return;
 	}
 
-	nd_bad_read = 0;
+	nd_playback_v_bad_read = 0;
 #ifdef NETWORK
 	change_playernum_to(0);                 // force playernum to 0
 #endif
-	strncpy(nd_save_callsign, Players[Player_num].callsign, CALLSIGN_LEN);
+	strncpy(nd_playback_v_save_callsign, Players[Player_num].callsign, CALLSIGN_LEN);
 	Players[Player_num].lives=0;
 	Viewer = ConsoleObject = &Objects[0];   // play properly as if console player
 
@@ -3558,13 +3590,13 @@ void newdemo_start_playback(char * filename)
 	Game_mode = GM_NORMAL;
 	Newdemo_state = ND_STATE_PLAYBACK;
 	Newdemo_vcr_state = ND_STATE_PLAYBACK;
-	Newdemo_size = PHYSFS_fileLength(infile);
-	nd_bad_read = 0;
-	Newdemo_at_eof = 0;
-	NewdemoFrameCount = 0;
-	playback_style = NORMAL_PLAYBACK;
+	nd_playback_v_demosize = PHYSFS_fileLength(infile);
+	nd_playback_v_bad_read = 0;
+	nd_playback_v_at_eof = 0;
+	nd_playback_v_framecount = 0;
+	nd_playback_v_style = NORMAL_PLAYBACK;
 	init_seismic_disturbances();
-	Newdemo_dead = Newdemo_rear = Newdemo_guided = 0;
+	nd_playback_v_dead = nd_playback_v_rear = nd_playback_v_guided = 0;
 	PlayerCfg.Cockpit3DView[0] = PlayerCfg.Cockpit3DView[1] = CV_NONE;       //turn off 3d views on cockpit
 	DemoDoLeft = DemoDoRight = 0;
 	HUD_clear_messages();
@@ -3583,9 +3615,9 @@ void newdemo_stop_playback()
 #ifdef NETWORK
 	change_playernum_to(0);             //this is reality
 #endif
-	strncpy(Players[Player_num].callsign, nd_save_callsign, CALLSIGN_LEN);
+	strncpy(Players[Player_num].callsign, nd_playback_v_save_callsign, CALLSIGN_LEN);
 	Rear_view=0;
-	Newdemo_dead = Newdemo_rear = Newdemo_guided = 0;
+	nd_playback_v_dead = nd_playback_v_rear = nd_playback_v_guided = 0;
 	Newdemo_game_mode = Game_mode = GM_GAME_OVER;
 	if (Game_wind)
 		window_close(Game_wind);               // Exit game loop
@@ -3606,7 +3638,7 @@ int newdemo_swap_endian(char *filename)
 	if (infile==NULL)
 		goto read_error;
 
-	Newdemo_size = PHYSFS_fileLength(infile);	// should be exactly the same size
+	nd_playback_v_demosize = PHYSFS_fileLength(infile);	// should be exactly the same size
 	outfile = PHYSFSX_openWriteBuffered(DEMO_FILENAME);
 	if (outfile==NULL)
 	{
@@ -3615,9 +3647,9 @@ int newdemo_swap_endian(char *filename)
 	}
 
 	Newdemo_num_written = 0;
-	nd_bad_read = 0;
+	nd_playback_v_bad_read = 0;
 	swap_endian = 1;
-	Newdemo_at_eof = 0;
+	nd_playback_v_at_eof = 0;
 	Newdemo_state = ND_STATE_NORMAL;	// not doing anything special really
 
 	if (newdemo_read_demo_start(PURPOSE_REWRITE)) {
@@ -3633,7 +3665,7 @@ int newdemo_swap_endian(char *filename)
 	newdemo_write_end();	// and write it
 
 	swap_endian = 0;
-	complete = Newdemo_size == Newdemo_num_written;
+	complete = nd_playback_v_demosize == Newdemo_num_written;
 	PHYSFS_close(infile);
 	PHYSFS_close(outfile);
 	outfile = NULL;
@@ -3652,10 +3684,10 @@ int newdemo_swap_endian(char *filename)
 read_error:
 	{
 		nm_messagebox( NULL, 1, TXT_OK, complete ? "Demo %s converted%s" : "Error converting demo\n%s\n%s", filename,
-					  complete ? "" : (Newdemo_at_eof ? TXT_DEMO_CORRUPT : PHYSFS_getLastError()));
+					  complete ? "" : (nd_playback_v_at_eof ? TXT_DEMO_CORRUPT : PHYSFS_getLastError()));
 	}
 
-	return Newdemo_at_eof;
+	return nd_playback_v_at_eof;
 }
 
 #ifndef NDEBUG

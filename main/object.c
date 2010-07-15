@@ -82,8 +82,6 @@ int free_object_slots(int num_used);
  *  Global variables
  */
 
-extern sbyte WasRecorded[MAX_OBJECTS];
-
 ubyte CollisionResult[MAX_OBJECT_TYPES][MAX_OBJECT_TYPES];
 ubyte hitobj_list[MAX_OBJECTS][MAX_OBJECTS]; // last_hitobj of laser_inof struct can only keep track of one object. Still a persistent laser can hit several objects at the same time. This list keeps track of those while last_hitobj will only represent the most recent (the last) hitobj.
 
@@ -752,13 +750,8 @@ void render_object(object *obj)
 		default: Error("Unknown render_type <%d>",obj->render_type);
  	}
 
-	if ( obj->render_type != RT_NONE )
-		if ( Newdemo_state == ND_STATE_RECORDING ) {
-			if (!WasRecorded[obj-Objects]) {
-				newdemo_record_render_object(obj);
-				WasRecorded[obj-Objects]=1;
-			}
-		}
+	if (( obj->render_type != RT_NONE ) && ( Newdemo_state == ND_STATE_RECORDING ))
+		newdemo_record_render_object(obj);
 
 	Max_linear_depth = mld_save;
 
