@@ -226,14 +226,20 @@ void wall_set_tmap_num(segment *seg,int side,segment *csegp,int cside,int anim_n
 	if ( Newdemo_state==ND_STATE_PLAYBACK ) return;
 
 	if (anim->flags & WCF_TMAP1)	{
-		seg->sides[side].tmap_num = csegp->sides[cside].tmap_num = tmap;
-		if ( Newdemo_state == ND_STATE_RECORDING )
-			newdemo_record_wall_set_tmap_num1(seg-Segments,side,csegp-Segments,cside,tmap);
+		if (tmap != seg->sides[side].tmap_num || tmap != csegp->sides[cside].tmap_num)
+		{
+			seg->sides[side].tmap_num = csegp->sides[cside].tmap_num = tmap;
+			if ( Newdemo_state == ND_STATE_RECORDING )
+				newdemo_record_wall_set_tmap_num1(seg-Segments,side,csegp-Segments,cside,tmap);
+		}
 	} else	{
 		Assert(tmap!=0 && seg->sides[side].tmap_num2!=0);
-		seg->sides[side].tmap_num2 = csegp->sides[cside].tmap_num2 = tmap;
-		if ( Newdemo_state == ND_STATE_RECORDING )
-			newdemo_record_wall_set_tmap_num2(seg-Segments,side,csegp-Segments,cside,tmap);
+		if (tmap != seg->sides[side].tmap_num2 || tmap != csegp->sides[cside].tmap_num2)
+		{
+			seg->sides[side].tmap_num2 = csegp->sides[cside].tmap_num2 = tmap;
+			if ( Newdemo_state == ND_STATE_RECORDING )
+				newdemo_record_wall_set_tmap_num2(seg-Segments,side,csegp-Segments,cside,tmap);
+		}
 	}
 }
 
