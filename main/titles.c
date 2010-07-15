@@ -665,7 +665,7 @@ int briefing_process_char(briefing *br)
 				;
 		} else if (ch == 'T') {
 			br->tab_stop = get_message_num(&br->message);
-			br->tab_stop*=(1+HIRESMODE);
+			br->tab_stop*=FSPACX(1+HIRESMODE);
 			br->prev_ch = 10;							//	read to eoln
 		} else if (ch == 'R') {
 			if (br->robot_canv != NULL)
