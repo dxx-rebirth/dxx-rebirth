@@ -3541,6 +3541,7 @@ void newdemo_start_playback(char * filename)
 		NumFiles = newdemo_count_demos();
 
 		if ( NumFiles == 0 ) {
+			GameArg.SysAutoDemo = 0;
 			return;     // No files found!
 		}
 		RandFileNum = d_rand() % NumFiles;
@@ -3561,11 +3562,17 @@ void newdemo_start_playback(char * filename)
 		PHYSFS_freeList(find);
 
 		if (NumFiles > RandFileNum)
+		{
+			GameArg.SysAutoDemo = 0;
 			return;
+		}
 
 		// if in random mode, PhysFS may look for all possible files, so check if filename actually points to be a demo file...
 		if (strnicmp(".dem",&filename2[strlen(filename2)-4],4))
+		{
+			GameArg.SysAutoDemo = 0;
 			return;
+		}
 	}
 
 	infile = PHYSFSX_openReadBuffered(filename2);
