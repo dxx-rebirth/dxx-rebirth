@@ -3,6 +3,7 @@ D2X-Rebirth Changelog
 20100716
 --------
 main/gamecntl.c: Fixing showing options menu in demos - was still called (or rather not) by obsolete variable
+main/newmenu.c, main/newmenu.h, main/automap.c, main/game.c, main/kconfig.c, arch/sdl/event.c, arch/sdl/joy.c, arch/sdl/init.c, arch/sdl/key.c, arch/sdl/mouse.c, arch/include/mouse.h: Only use one single call of timer_get_fixed_seconds() for whole SDL event loop; Abstracted grabbing mouse and mouse cursor toogle to mouse functions instead of calling SDL functions inside of non-arch code; Automatically hide mouse cursor if it's not used for more than 3 seconds; Reworked placement of mouse grabbing toggle; Do not read any mouse input if -nomouse is given
 
 20100715
 --------

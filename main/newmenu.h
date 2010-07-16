@@ -155,11 +155,6 @@ extern void newmenu_close();
 
 #define NEWMENU_MOUSE
 
-#  include <SDL/SDL.h>
-#  define newmenu_show_cursor() if (!GameArg.CtlNoMouse) SDL_ShowCursor(SDL_ENABLE)
-#  define newmenu_hide_cursor() SDL_ShowCursor(SDL_DISABLE)
-
-
 #define NORMAL_CHECK_BOX    "Å"
 #define CHECKED_CHECK_BOX   "Ç"
 

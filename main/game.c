@@ -354,20 +354,12 @@ int set_screen_mode(int sm)
 	switch( Screen_mode )
 	{
 		case SCREEN_MENU:
-			/* give control back to the WM */
-			if (GameArg.CtlGrabMouse)
-				SDL_WM_GrabInput(SDL_GRAB_OFF);
-
 			if  (grd_curscreen->sc_mode != Game_screen_mode)
 				if (gr_set_mode(Game_screen_mode))
 					Error("Cannot set screen mode.");
 			break;
 
 		case SCREEN_GAME:
-			/* keep the mouse from wandering in SDL */
-			if (GameArg.CtlGrabMouse && (Newdemo_state != ND_STATE_PLAYBACK))
-				SDL_WM_GrabInput(SDL_GRAB_ON);
-
 			if  (grd_curscreen->sc_mode != Game_screen_mode)
 				if (gr_set_mode(Game_screen_mode))
 					Error("Cannot set screen mode.");
@@ -377,10 +369,6 @@ int set_screen_mode(int sm)
 			break;
 #ifdef EDITOR
 		case SCREEN_EDITOR:
-			/* give control back to the WM */
-			if (GameArg.CtlGrabMouse)
-				SDL_WM_GrabInput(SDL_GRAB_OFF);
-
 			if (grd_curscreen->sc_mode != SM(800,600))	{
 				int gr_error;
 				if ((gr_error=gr_set_mode(SM(800,600)))!=0) { //force into game scrren
@@ -1200,6 +1188,9 @@ int game_handler(window *wind, d_event *event, void *data)
 		case EVENT_WINDOW_ACTIVATED:
 			game_flush_inputs();
 
+			if (Newdemo_state != ND_STATE_PLAYBACK)
+				mouse_toggle_grab(1);
+
 			if (time_paused)
 				start_time();
 
@@ -1219,6 +1210,8 @@ int game_handler(window *wind, d_event *event, void *data)
 
 			if (!((Game_mode & GM_MULTI) && (Newdemo_state != ND_STATE_PLAYBACK)))
 				full_palette_save();
+
+			mouse_toggle_grab(0);
 			break;
 
 		case EVENT_MOUSE_BUTTON_UP:
@@ -1282,6 +1275,7 @@ int game_handler(window *wind, d_event *event, void *data)
 			Game_mode = GM_GAME_OVER;
 			show_menus();
 			Game_wind = NULL;
+			mouse_toggle_grab(0);
 			return 0;	// continue closing
 			break;
 

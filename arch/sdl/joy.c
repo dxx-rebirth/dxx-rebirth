@@ -60,7 +60,7 @@ static struct {
 	int button_map[MAX_BUTTONS_PER_JOYSTICK];
 } SDL_Joysticks[MAX_JOYSTICKS];
 
-void joy_button_handler(SDL_JoyButtonEvent *jbe)
+void joy_button_handler(SDL_JoyButtonEvent *jbe, fix time)
 {
 	int button;
 
@@ -70,7 +70,7 @@ void joy_button_handler(SDL_JoyButtonEvent *jbe)
 
 	switch (jbe->type) {
 	case SDL_JOYBUTTONDOWN:
-		Joystick.buttons[button].time_went_down = timer_get_fixed_seconds();
+		Joystick.buttons[button].time_went_down = time;
 		Joystick.buttons[button].num_downs++;
 		break;
 	case SDL_JOYBUTTONUP:
@@ -79,7 +79,7 @@ void joy_button_handler(SDL_JoyButtonEvent *jbe)
 	}
 }
 
-void joy_hat_handler(SDL_JoyHatEvent *jhe)
+void joy_hat_handler(SDL_JoyHatEvent *jhe, fix time)
 {
 	int hat = SDL_Joysticks[jhe->which].hat_map[jhe->hat];
 	int hbi;
@@ -102,7 +102,7 @@ void joy_hat_handler(SDL_JoyHatEvent *jhe)
 		if(	!Joystick.buttons[hat+hbi].last_state && Joystick.buttons[hat+hbi].state) //last_state up, current state down
 		{
 			Joystick.buttons[hat+hbi].time_went_down
-				= timer_get_fixed_seconds();
+				= time;
 			Joystick.buttons[hat+hbi].num_downs++;
 		}
 		else if(Joystick.buttons[hat+hbi].last_state && !Joystick.buttons[hat+hbi].state)  //last_state down, current state up
@@ -112,7 +112,7 @@ void joy_hat_handler(SDL_JoyHatEvent *jhe)
 	}
 }
 
-void joy_axis_handler(SDL_JoyAxisEvent *jae)
+void joy_axis_handler(SDL_JoyAxisEvent *jae, fix time)
 {
 	int axis;
 

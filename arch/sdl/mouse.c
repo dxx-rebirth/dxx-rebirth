@@ -25,6 +25,8 @@ static struct mouseinfo {
 	struct mousebutton buttons[MOUSE_MAX_BUTTONS];
 	int delta_x, delta_y, delta_z;
 	int x,y,z;
+	int cursor_enabled;
+	fix cursor_time;
 } Mouse;
 
 typedef struct d_event_mousebutton
@@ -33,12 +35,12 @@ typedef struct d_event_mousebutton
 	int button;
 } d_event_mousebutton;
 
-void d_mouse_init(void)
+void mouse_init(void)
 {
 	memset(&Mouse,0,sizeof(Mouse));
 }
 
-void mouse_button_handler(SDL_MouseButtonEvent *mbe)
+void mouse_button_handler(SDL_MouseButtonEvent *mbe, fix time)
 {
 	// to bad, SDL buttons use a different mapping as descent expects,
 	// this is at least true and tested for the first three buttons 
@@ -66,9 +68,14 @@ void mouse_button_handler(SDL_MouseButtonEvent *mbe)
 	d_event_mousebutton event;
 	window *wind;
 
+	if (GameArg.CtlNoMouse)
+		return;
+
+	Mouse.cursor_time = time;
+
 	if (mbe->state == SDL_PRESSED) {
 		Mouse.buttons[button].pressed = 1;
-		Mouse.buttons[button].time_went_down = timer_get_fixed_seconds();
+		Mouse.buttons[button].time_went_down = time;
 		Mouse.buttons[button].num_downs++;
 
 		if (button == MBTN_Z_UP) {
@@ -80,7 +87,7 @@ void mouse_button_handler(SDL_MouseButtonEvent *mbe)
 		}
 	} else {
 		Mouse.buttons[button].pressed = 0;
-		Mouse.buttons[button].time_held_down += timer_get_fixed_seconds() - Mouse.buttons[button].time_went_down;
+		Mouse.buttons[button].time_held_down += time - Mouse.buttons[button].time_went_down;
 		Mouse.buttons[button].num_ups++;
 	}
 	
@@ -96,8 +103,12 @@ void mouse_button_handler(SDL_MouseButtonEvent *mbe)
 		call_default_handler((d_event *)&event);
 }
 
-void mouse_motion_handler(SDL_MouseMotionEvent *mme)
+void mouse_motion_handler(SDL_MouseMotionEvent *mme, fix time)
 {
+	if (GameArg.CtlNoMouse)
+		return;
+
+	Mouse.cursor_time = time;
 	Mouse.x += mme->xrel;
 	Mouse.y += mme->yrel;
 }
@@ -218,4 +229,37 @@ int mouse_button_state(int button)
 {
 //	event_poll();
 	return Mouse.buttons[button].pressed;
+}
+
+void mouse_toggle_cursor(int activate)
+{
+	Mouse.cursor_enabled = (activate && !GameArg.CtlNoMouse);
+}
+
+void mouse_maybe_show_cursor(fix time)
+{
+	static int show = -1;
+
+	if (show == -1)
+		show = SDL_ShowCursor(SDL_QUERY);
+
+	if (!Mouse.cursor_enabled)
+	{
+		if (show)
+			show = SDL_ShowCursor(SDL_DISABLE);
+		return;
+	}
+
+	if ( (Mouse.cursor_time + (F1_0*3)) >= time && !show)
+		show = SDL_ShowCursor(SDL_ENABLE);
+	else if ( (Mouse.cursor_time + (F1_0*3)) < time && show)
+		show = SDL_ShowCursor(SDL_DISABLE);
+}
+
+void mouse_toggle_grab(int activate)
+{
+	if (activate && GameArg.CtlGrabMouse && !GameArg.CtlNoMouse)
+		SDL_WM_GrabInput(SDL_GRAB_ON);
+	else
+		SDL_WM_GrabInput(SDL_GRAB_OFF);
 }
