@@ -1,5 +1,9 @@
 D1X-Rebirth Changelog
 
+20100716
+--------
+main/gamecntl.c: Fixing showing options menu in demos - was still called (or rather not) by obsolete variable
+
 20100715
 --------
 main/wall.c, main/newdemo.c, main/newdemo.h, main/gauges.c: Cleaned the variables used for newdemo code; Instead of giving both old and new values to special recording functions, added new variables to demo code serving this purpose and also checking for redundant record calls which only would waste bytes; Removed duplicated-object-id-hack which did not work as expected and caused jittering on playback; In that process, found a bug where Num_open_doors might nor be set correctly - cleaned that up a little and got also rid of one aweful goto
