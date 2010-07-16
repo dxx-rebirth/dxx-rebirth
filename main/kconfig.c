@@ -791,7 +791,7 @@ int kconfig_handler(window *wind, d_event *event, kc_menu *menu)
 	{
 		case EVENT_WINDOW_ACTIVATED:
 			game_flush_inputs();
-			newmenu_show_cursor();
+			mouse_toggle_cursor(1);
 			break;
 			
 		case EVENT_WINDOW_DEACTIVATED:
@@ -844,7 +844,7 @@ int kconfig_handler(window *wind, d_event *event, kc_menu *menu)
 			break;
 			
 		case EVENT_WINDOW_CLOSE:
-			newmenu_hide_cursor();
+			mouse_toggle_cursor(0);
 			d_free(menu);
 			
 			// Update save values...

@@ -11,15 +11,17 @@
 #include "event.h"
 #include "key.h"
 #include "window.h"
+#include "timer.h"
 
 #include <SDL/SDL.h>
 
-extern void key_handler(SDL_KeyboardEvent *event);
-extern void mouse_button_handler(SDL_MouseButtonEvent *mbe);
-extern void mouse_motion_handler(SDL_MouseMotionEvent *mme);
-extern void joy_button_handler(SDL_JoyButtonEvent *jbe);
-extern void joy_hat_handler(SDL_JoyHatEvent *jhe);
-extern void joy_axis_handler(SDL_JoyAxisEvent *jae);
+extern void key_handler(SDL_KeyboardEvent *event, fix time);
+extern void mouse_button_handler(SDL_MouseButtonEvent *mbe, fix time);
+extern void mouse_motion_handler(SDL_MouseMotionEvent *mme, fix time);
+extern void joy_button_handler(SDL_JoyButtonEvent *jbe, fix time);
+extern void joy_hat_handler(SDL_JoyHatEvent *jhe, fix time);
+extern void joy_axis_handler(SDL_JoyAxisEvent *jae, fix time);
+extern void mouse_maybe_show_cursor(fix time);
 
 static int initialised=0;
 
@@ -27,6 +29,7 @@ void event_poll()
 {
 	SDL_Event event;
 	int clean_uniframe=1;
+	fix time = timer_get_fixed_seconds();
 
 	while (SDL_PollEvent(&event)) {
 		switch(event.type) {
@@ -35,24 +38,24 @@ void event_poll()
 				if (clean_uniframe)
 					memset(unicode_frame_buffer,'\0',sizeof(unsigned char)*KEY_BUFFER_SIZE);
 				clean_uniframe=0;
-				key_handler((SDL_KeyboardEvent *)&event);
+				key_handler((SDL_KeyboardEvent *)&event, time);
 				break;
 			case SDL_MOUSEBUTTONDOWN:
 			case SDL_MOUSEBUTTONUP:
-				mouse_button_handler((SDL_MouseButtonEvent *)&event);
+				mouse_button_handler((SDL_MouseButtonEvent *)&event, time);
 				break;
 			case SDL_MOUSEMOTION:
-				mouse_motion_handler((SDL_MouseMotionEvent *)&event);
+				mouse_motion_handler((SDL_MouseMotionEvent *)&event, time);
 				break;
 			case SDL_JOYBUTTONDOWN:
 			case SDL_JOYBUTTONUP:
-				joy_button_handler((SDL_JoyButtonEvent *)&event);
+				joy_button_handler((SDL_JoyButtonEvent *)&event, time);
 				break;
 			case SDL_JOYAXISMOTION:
-				joy_axis_handler((SDL_JoyAxisEvent *)&event);
+				joy_axis_handler((SDL_JoyAxisEvent *)&event, time);
 				break;
 			case SDL_JOYHATMOTION:
-				joy_hat_handler((SDL_JoyHatEvent *)&event);
+				joy_hat_handler((SDL_JoyHatEvent *)&event, time);
 				break;
 			case SDL_JOYBALLMOTION:
 				break;
@@ -62,6 +65,8 @@ void event_poll()
 			} break;
 		}
 	}
+
+	mouse_maybe_show_cursor(time);
 }
 
 int event_init()

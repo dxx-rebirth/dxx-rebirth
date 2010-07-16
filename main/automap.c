@@ -508,6 +508,11 @@ int automap_handler(window *wind, d_event *event, automap *am)
 	{
 		case EVENT_WINDOW_ACTIVATED:
 			game_flush_inputs();
+			mouse_toggle_grab(1);
+			break;
+
+		case EVENT_WINDOW_DEACTIVATED:
+			mouse_toggle_grab(0);
 			break;
 
 		case EVENT_KEY_COMMAND:
@@ -522,12 +527,12 @@ int automap_handler(window *wind, d_event *event, automap *am)
 			break;
 			
 		case EVENT_WINDOW_CLOSE:
+			mouse_toggle_grab(0);
 #ifdef OGL
 			gr_free_bitmap_data(&am->automap_background);
 #endif
 			d_free(am->edges);
 			d_free(am->drawingListBright);
-			
 			Screen_mode=-1; set_screen_mode(SCREEN_GAME);
 			init_cockpit();
 			last_drawn_cockpit = -1;

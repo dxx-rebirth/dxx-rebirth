@@ -344,7 +344,7 @@ unsigned char key_ascii()
 		return 255;
 }
 
-void key_handler(SDL_KeyboardEvent *event, int counter)
+void key_handler(SDL_KeyboardEvent *event, fix time)
 {
 	ubyte state;
 	int i, keycode, event_keysym=-1, key_state;
@@ -380,7 +380,7 @@ void key_handler(SDL_KeyboardEvent *event, int counter)
 			if (state) {
 				key->counter++;
 				keyd_last_pressed = keycode;
-				keyd_time_when_last_pressed = timer_get_fixed_seconds();
+				keyd_time_when_last_pressed = time;
 			}
 		} else {
 			if (state)	{
@@ -388,7 +388,7 @@ void key_handler(SDL_KeyboardEvent *event, int counter)
 				keyd_pressed[keycode] = 1;
 				key->downcount += state;
 				key->state = 1;
-				key->timewentdown = keyd_time_when_last_pressed = timer_get_fixed_seconds();
+				key->timewentdown = keyd_time_when_last_pressed = time;
 				key->counter++;
 			} else {	
 				keyd_pressed[keycode] = 0;
@@ -396,7 +396,7 @@ void key_handler(SDL_KeyboardEvent *event, int counter)
 				key->upcount += key->state;
 				key->state = 0;
 				key->counter = 0;
-				key->timehelddown += timer_get_fixed_seconds() - key->timewentdown;
+				key->timehelddown += time - key->timewentdown;
 			}
 		}
 		if ( (state && !key->last_state) || (state && key->last_state && (key->counter > 30) && (key->counter & 0x01)) ) {

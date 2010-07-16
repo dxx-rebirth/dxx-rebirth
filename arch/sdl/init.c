@@ -45,8 +45,7 @@ void arch_init(void)
 	if (!GameArg.SndNoSound)
 		digi_init();
 
-	if (!GameArg.CtlNoMouse)
-		d_mouse_init();
+	mouse_init();
 
 	if (!GameArg.CtlNoJoystick)
 		joy_init();
