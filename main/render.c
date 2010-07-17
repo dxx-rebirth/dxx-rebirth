@@ -1018,7 +1018,8 @@ int find_seg_side(segment *seg,short *verts,int notside)
 		}
 	}
 
-// 	Assert(vv0!=-1 && vv1!=-1); // ZICO - disabled. will fail sometimes in some 4D levels.
+	if (vv0 == -1 || vv1 != -1)
+		return -1;
 
 	eptr = Edge_to_sides[vv0][vv1];
 
@@ -1063,7 +1064,9 @@ int find_joining_side_norms(vms_vector *norm0_0,vms_vector *norm0_1,vms_vector *
 	Assert(notside1 != -1);
 
 	edgeside0 = find_seg_side(seg0,edge_verts,notside0);
+	if (edgeside0 == -1) return 0;
 	edgeside1 = find_seg_side(seg1,edge_verts,notside1);
+	if (edgeside1 == -1) return 0;
 
 	//deal with the case where an edge is shared by more than two segments
 
@@ -1136,8 +1139,8 @@ int compare_children(segment *seg,short c0,short c1)
 
 	t = find_joining_side_norms(&norm0_0,&norm0_1,&norm1_0,&norm1_1,&pnt0,&pnt1,seg,c0,c1);
 
-//if (!t)
-// return 0;
+	if (!t) // can happen - 4D rooms!
+		return 0;
 
 	vm_vec_sub(&temp,&Viewer_eye,pnt0);
 	d0_0 = vm_vec_dot(&norm0_0,&temp);

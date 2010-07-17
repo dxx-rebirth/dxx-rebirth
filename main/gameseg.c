@@ -314,7 +314,7 @@ segmasks get_seg_masks(vms_vector *checkp, int segnum, fix rad, char *calling_fi
 	if (segnum==-1)
 		Error("segnum == -1 in get_seg_masks()");
 
-// 	Assert((segnum <= Highest_segment_index) && (segnum >= 0)); // ZICO - FIXME
+	Assert((segnum <= Highest_segment_index) && (segnum >= 0));
 
 	seg = &Segments[segnum];
 
@@ -457,7 +457,7 @@ ubyte get_side_dists(vms_vector *checkp,int segnum,fix *side_dists)
 	int			vertex_list[6];
 	segment		*seg;
 
-	Assert((segnum <= Highest_segment_index) && (segnum >= 0)); // ZICO - FIXME
+	Assert((segnum <= Highest_segment_index) && (segnum >= 0));
 
 	if (segnum==-1)
 		Error("segnum == -1 in get_seg_dists()");
