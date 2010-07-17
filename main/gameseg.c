@@ -305,7 +305,7 @@ segmasks get_seg_masks(vms_vector *checkp,int segnum,fix rad,char *calling_file,
 	int			vertex_list[6];
 	segment		*seg;
 
-// 	Assert((segnum <= Highest_segment_index) && (segnum >= 0)); // ZICO - FIXME
+	Assert((segnum <= Highest_segment_index) && (segnum >= 0));
 
 	seg = &Segments[segnum];
 
