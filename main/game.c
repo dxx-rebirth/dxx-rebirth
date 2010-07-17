@@ -927,6 +927,7 @@ extern int	cheat_cloak_index;
 extern int	cheat_shield_index;
 extern int	cheat_warp_index;
 extern int	cheat_astral_index;
+extern int	cheat_poboys_index;
 extern int	cheat_turbomode_index;
 extern int	cheat_wowie2_index;
 extern int	cheat_newlife_index;
@@ -962,8 +963,7 @@ window *game_setup(void)
 	Endlevel_sequence = 0;
 	cheat_enable_index = 0;
 
-	cheat_wowie_index = cheat_allkeys_index = cheat_invuln_index = cheat_cloak_index = cheat_shield_index = cheat_warp_index = cheat_astral_index = 0;
-	cheat_turbomode_index = cheat_wowie2_index = 0;
+	cheat_wowie_index = cheat_allkeys_index = cheat_invuln_index = cheat_cloak_index = cheat_shield_index = cheat_warp_index = cheat_astral_index = cheat_poboys_index = cheat_turbomode_index = cheat_wowie2_index = 0;
 
 	set_screen_mode(SCREEN_GAME);
 	game_wind = window_create(&grd_curscreen->sc_canvas, 0, 0, SWIDTH, SHEIGHT, game_handler, NULL);

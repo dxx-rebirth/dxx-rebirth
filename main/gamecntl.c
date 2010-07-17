@@ -938,6 +938,7 @@ ubyte	cheat_cloak[] = {KEY_G,KEY_U,KEY_I,KEY_L,KEY_E};
 ubyte	cheat_shield[] = {KEY_T,KEY_W,KEY_I,KEY_L,KEY_I,KEY_G,KEY_H,KEY_T};
 ubyte	cheat_warp[] = {KEY_F,KEY_A,KEY_R,KEY_M,KEY_E,KEY_R,KEY_J,KEY_O,KEY_E};
 ubyte	cheat_astral[] = {KEY_A,KEY_S,KEY_T,KEY_R,KEY_A,KEY_L};
+ubyte	cheat_poboys[] = {KEY_P,KEY_O,KEY_B,KEY_O,KEY_Y,KEY_S};
 
 #define NUM_NEW_CHEATS 5
 ubyte new_cheats[]= {	KEY_B^0xaa, KEY_B^0xaa, KEY_B^0xaa, KEY_F^0xaa, KEY_A^0xaa,
@@ -954,6 +955,7 @@ KEY_N^0xaa, KEY_D^0xaa, KEY_X^0xaa, KEY_X^0xaa, KEY_A^0xaa };
 #define CHEAT_SHIELD_LENGTH (sizeof(cheat_shield) / sizeof(*cheat_shield))
 #define CHEAT_WARP_LENGTH (sizeof(cheat_warp) / sizeof(*cheat_warp))
 #define CHEAT_ASTRAL_LENGTH (sizeof(cheat_astral) / sizeof(*cheat_astral))
+#define CHEAT_POBOYS_LENGTH (sizeof(cheat_poboys) / sizeof(*cheat_poboys))
 
 #define CHEAT_TURBOMODE_OFS	0
 #define CHEAT_WOWIE2_OFS	1
@@ -973,6 +975,7 @@ int	cheat_cloak_index;
 int	cheat_shield_index;
 int	cheat_warp_index;
 int	cheat_astral_index;
+int	cheat_poboys_index;
 int	cheat_turbomode_index;
 int	cheat_wowie2_index;
 int	cheat_newlife_index;
@@ -1175,6 +1178,16 @@ void FinalCheats(int key)
 		}
 		else
 			cheat_astral_index = 0;
+
+		if (!(Game_mode&GM_MULTI) && key == cheat_poboys[cheat_poboys_index]) {
+			if (++cheat_poboys_index == CHEAT_POBOYS_LENGTH) {
+				digi_play_sample( SOUND_CHEATER, F1_0);
+				kill_and_so_forth();
+				cheat_poboys_index = 0;
+			}
+		}
+		else
+			cheat_poboys_index = 0;
 
 		if (!(Game_mode&GM_MULTI) && key == (0xaa^new_cheats[cheat_turbomode_index*NUM_NEW_CHEATS+CHEAT_TURBOMODE_OFS])) {
 			if (++cheat_turbomode_index == CHEAT_TURBOMODE_LENGTH) {

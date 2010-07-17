@@ -4,6 +4,7 @@ D1X-Rebirth Changelog
 --------
 main/gamesave.c, main/render.c: Removed OGL hack to fix overlapping room in D1 lvl19 and rather move vertex a little. Still a hack but now without messing Depth test
 main/gameseg.c, main/render.c: Instead of screwing by possibly using negative array indicies in find_seg_side() return -1. In ordering segments make this result in unimportant order; Taking in some Asserts which were disabled years ago by me. Let's fix this for real when we get to it
+main/game.c, main/gamecntl.c: Implenented POBOYS cheat as equivalent to D2's DELSHIFTB
 
 20100716
 --------
