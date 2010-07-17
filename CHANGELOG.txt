@@ -1,5 +1,9 @@
 D1X-Rebirth Changelog
 
+20100717
+--------
+main/gamesave.c, main/render.c: Removed OGL hack to fix overlapping room in D1 lvl19 and rather move vertex a little. Still a hack but now without messing Depth test
+
 20100716
 --------
 main/gamecntl.c: Fixing showing options menu in demos - was still called (or rather not) by obsolete variable

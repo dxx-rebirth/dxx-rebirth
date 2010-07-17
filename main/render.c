@@ -283,12 +283,6 @@ void render_face(int segnum, int sidenum, int nv, short *vp, int tmap1, int tmap
 #endif
 	{
 #ifdef OGL
-		/* HACK: Level 19 has an unwanted 4D room. Let's use this stupid hack to disguise it. */
-		if ( !memcmp("Descent: First Strike",Current_mission_longname,MISSION_NAME_LEN+1) && Current_level_num==19 && segnum >= 522 && segnum <=528 )
-		{
-			glDepthFunc(GL_ALWAYS);
-		}
-	
 		if (bm2)
 		{
 			g3_draw_tmap_2(nv,pointlist,uvl_copy,bm,bm2,((tmap2&0xC000)>>14) & 3);
