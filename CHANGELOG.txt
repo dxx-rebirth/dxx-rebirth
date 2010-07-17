@@ -1,5 +1,9 @@
 D2X-Rebirth Changelog
 
+20100717
+--------
+main/render.c: Fix overlapping room in D1 lvl19 by moving vertex a little. Still a hack
+
 20100716
 --------
 main/gamecntl.c: Fixing showing options menu in demos - was still called (or rather not) by obsolete variable
