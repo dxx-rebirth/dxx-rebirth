@@ -44,11 +44,7 @@ extern inline fix fixmul(fix x, fix y) { return do_fixmul(x,y); }
 //changed on 980905 by adb to increase number of concurrent sounds
 #define MAX_SOUND_SLOTS 32
 //end changes by adb
-#if !((defined(__APPLE__) && defined(__MACH__)) || defined(macintosh))
-#define SOUND_BUFFER_SIZE 2048
-#else
 #define SOUND_BUFFER_SIZE 1024
-#endif
 
 #define MIN_VOLUME 10
 
