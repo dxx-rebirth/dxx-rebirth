@@ -12,57 +12,13 @@
 #include <stdlib.h>
 
 #include "args.h"
-#include "hmp2mid.h"
+#include "hmp.h"
 #include "digi_mixer_music.h"
 #include "cfile.h"
 #include "u_mem.h"
 
 
 Mix_Music *current_music = NULL;
-
-void convert_hmp(char *filename, char *mid_filename)
-{
-
-	if (1)	//!PHYSFS_exists(mid_filename))	// allow custom MIDI in add-on hogs to be used without caching everything
-	{
-		const char *err;
-		PHYSFS_file *hmp_in;
-		PHYSFS_file *mid_out = PHYSFSX_openWriteBuffered(mid_filename);
-
-		if (!mid_out)
-		{
-			con_printf(CON_CRITICAL," could not open: %s for writing: %s\n", mid_filename, PHYSFS_getLastError());
-				return;
-		}
-
-		con_printf(CON_DEBUG,"convert_hmp: converting %s to %s\n", filename, mid_filename);
-
-		hmp_in = PHYSFSX_openReadBuffered(filename);
-
-		if (!hmp_in)
-		{
-			con_printf(CON_CRITICAL," could not open: %s\n", filename);
-			PHYSFS_close(mid_out);
-			return;
-		}
-
-		err = hmp2mid(hmp_in, mid_out);
-
-		PHYSFS_close(mid_out);
-		PHYSFS_close(hmp_in);
-
-		if (err)
-		{
-			con_printf(CON_CRITICAL,"%s\n", err);
-			PHYSFS_delete(mid_filename);
-			return;
-		}
-	}
-	else
-	{
-		con_printf(CON_DEBUG,"convert_hmp: %s already exists\n", mid_filename);
-	}
-}
 
 /*
  *  Plays a music file from an absolute path
@@ -92,7 +48,7 @@ int mix_play_file(char *filename, int loop, void (*hook_finished_track)())
 		if (!PHYSFS_isDirectory(basedir))
 			PHYSFS_mkdir(basedir);
 		snprintf(real_filename, strlen(basedir)+strlen(tmp_file)+6, "%s/%s", basedir, tmp_file);
-		convert_hmp(filename, real_filename);
+		hmp2mid(filename, real_filename);
 	}
 	else
 	{

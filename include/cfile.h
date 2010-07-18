@@ -44,12 +44,6 @@ COPYRIGHT 1993-1999 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 #define cfexist          PHYSFS_exists
 #define cfilelength      PHYSFS_fileLength
 
-//MD2211: hmp2mid needs a function pointer, so a macro won't do the job
-//Kreator: no longer needed, hmp2mid now uses PhysicsFS implicitly
-//static inline size_t cfread(void *p, size_t s, size_t n, CFILE *fp) {
-//  return PHYSFS_read(fp,p,s,n);
-//}
-
 //Specify the name of the hogfile.  Returns 1 if hogfile found & had files
 static inline int cfile_init(char *hogname, int add_to_end)
 {

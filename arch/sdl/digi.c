@@ -27,7 +27,7 @@
 #include <digi_mixer.h>
 #endif
 #ifdef _WIN32
-#include "hmpfile.h"
+#include "hmp.h"
 #endif
 
 /* Sound system function pointers */
@@ -147,6 +147,8 @@ void digi_debug()
 #ifdef _WIN32
 // Windows native-MIDI stuff.
 int digi_win32_midi_song_playing=0;
+static hmp_file *cur_hmp=NULL;
+
 void digi_win32_set_midi_volume( int mvolume )
 {
 	int mm_volume, midi_volume=0;
@@ -162,8 +164,8 @@ void digi_win32_set_midi_volume( int mvolume )
 	mm_volume = (midi_volume << 1) | (midi_volume & 1);
 	mm_volume |= (mm_volume << 8);
 
-	if (hmp)
-		midiOutSetVolume((HMIDIOUT)hmp->hmidi, mm_volume | mm_volume << 16);
+	if (cur_hmp)
+		midiOutSetVolume((HMIDIOUT)cur_hmp->hmidi, mm_volume | mm_volume << 16);
 }
 
 int digi_win32_play_midi_song( char * filename, char * melodic_bank, char * drum_bank, int loop )
@@ -173,9 +175,9 @@ int digi_win32_play_midi_song( char * filename, char * melodic_bank, char * drum
 	if (filename == NULL)
 		return 0;
 
-	if ((hmp = hmp_open(filename)))
+	if ((cur_hmp = hmp_open(filename)))
 	{
-		if (hmp_play(hmp,loop) != 0)
+		if (hmp_play(cur_hmp,loop) != 0)
 			return 0;	// error
 		digi_win32_midi_song_playing = 1;
 		digi_win32_set_midi_volume((GameCfg.MusicVolume*128)/8);
@@ -189,8 +191,8 @@ void digi_win32_stop_current_song()
 {
 	if (digi_win32_midi_song_playing)
 	{
-		hmp_close(hmp);
-		hmp = NULL;
+		hmp_close(cur_hmp);
+		cur_hmp = NULL;
 		digi_win32_midi_song_playing = 0;
 	}
 }
