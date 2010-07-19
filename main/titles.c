@@ -566,7 +566,10 @@ int briefing_process_char(briefing *br)
 		ch = *br->message++;
 		if (ch == 'C') {
 			Current_color = get_message_num(&br->message)-1;
-			Assert((Current_color >= 0) && (Current_color < MAX_BRIEFING_COLORS));
+			if (Current_color < 0)
+				Current_color = 0;
+			else if (Current_color > MAX_BRIEFING_COLORS-1)
+				Current_color = MAX_BRIEFING_COLORS-1;
 			br->prev_ch = 10;
 		} else if (ch == 'F') {     // toggle flashing cursor
 			br->flashing_cursor = !br->flashing_cursor;
@@ -1183,7 +1186,6 @@ int briefing_handler(window *wind, d_event *event, briefing *br)
 
 			gr_set_curfont( GAME_FONT );
 
-			Assert((Current_color >= 0) && (Current_color < MAX_BRIEFING_COLORS));
 			gr_set_fontcolor(Briefing_text_colors[Current_color], -1);
 			redraw_messagestream(br->messagestream, br->streamcount);
 
