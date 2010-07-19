@@ -165,7 +165,9 @@ void rpad_string( char * string, int max_chars )
 }
 #endif
 
-int state_default_item = 0;
+static int state_default_item = 0;
+//Since state_default_item should ALWAYS point to a valid savegame slot, we use this to check if we once already actually SAVED a game. If yes, state_quick_item will be equal state_default_item, otherwise it should be -1 on every new mission and tell us we need to select a slot for quicksave.
+int state_quick_item = -1;
 
 /* Present a menu for selection of a savegame filename.
  * For saving, dsc should be a pre-allocated buffer into which the new
@@ -235,11 +237,8 @@ int state_get_savegame_filename(char * fname, char * dsc, char * caption, int bl
 
 	sc_last_item = -1;
 
-	if (blind_save && state_default_item < 0)
-	{
+	if (blind_save && state_quick_item < 0)
 		blind_save = 0;		// haven't picked a slot yet
-		state_default_item = 0;
-	}
 
 	if (blind_save)
 		choice = state_default_item + 1;
@@ -254,7 +253,7 @@ int state_get_savegame_filename(char * fname, char * dsc, char * caption, int bl
 	if (choice > 0) {
 		strcpy( fname, filename[choice-1] );
 		if ( dsc != NULL ) strcpy( dsc, desc[choice-1] );
-		state_default_item = choice - 1;
+		state_quick_item = state_default_item = choice - 1;
 		return choice;
 	}
 	return 0;

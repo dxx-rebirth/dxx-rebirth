@@ -3,6 +3,7 @@ D2X-Rebirth Changelog
 20100719
 --------
 misc/hmp.c: Did not close hmp after MIDI conversion which caused some unfree memory - fixed
+main/gameseq.c, main/state.c, main/state.h: Introduced state_quick_item so we can safly check if there is a valid quicksave slot wihtout messing around with state_Default_item which is supposed to always show a valid slot in the first place
 
 20100718
 --------
