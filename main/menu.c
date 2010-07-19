@@ -59,6 +59,7 @@ COPYRIGHT 1993-1998 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 #include "config.h"
 #include "gauges.h"
 #include "hudmsg.h" //for HUD_max_num_disp
+#include "strutil.h"
 #include "multi.h"
 #ifdef USE_IPX
 #include "net_ipx.h"

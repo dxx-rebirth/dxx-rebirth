@@ -23,6 +23,7 @@ COPYRIGHT 1993-1998 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 #include <stdarg.h>
 #include <string.h> // for memset
 #include <errno.h>
+#include <ctype.h>
 
 #if !(defined(__APPLE__) && defined(__MACH__))
 #include <physfs.h>

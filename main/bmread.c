@@ -57,6 +57,7 @@ COPYRIGHT 1993-1998 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 #include "compbit.h"
 #include "args.h"
 #include "text.h"
+#include "strutil.h"
 
 #ifdef EDITOR
 #include "editor/texpage.h"
