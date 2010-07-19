@@ -532,6 +532,7 @@ void hmp2mid(char *hmp_name, char *mid_name)
 	{
 		hmp_close(hmp);
 		return;
+	}
 	// write MIDI-header
 	PHYSFS_write(mid, "MThd", 4, 1);
 	mi = MIDIINT(6);
