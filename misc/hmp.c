@@ -529,6 +529,8 @@ void hmp2mid(char *hmp_name, char *mid_name)
 		return;
 	mid = PHYSFSX_openWriteBuffered(mid_name);
 	if (mid == NULL)
+	{
+		hmp_close(hmp);
 		return;
 	// write MIDI-header
 	PHYSFS_write(mid, "MThd", 4, 1);
@@ -556,5 +558,6 @@ void hmp2mid(char *hmp_name, char *mid_name)
 		cfseek(mid, 0, SEEK_END);
 	}
 
+	hmp_close(hmp);
 	cfclose(mid);
 }

@@ -1,5 +1,9 @@
 D2X-Rebirth Changelog
 
+20100719
+--------
+misc/hmp.c: Did not close hmp after MIDI conversion which caused some unfree memory - fixed
+
 20100718
 --------
 SCsonstruct, d1x-rebirth.xcodeproj, arch/sdl/digi.c, arch/sdl/digi_mixer_music.c, include/cfile.h, include/hmp.h, include/hmp.c: Merged all HMP-related code into hmp.c/h; Also introduced new HMP to MIDI conversion functions based on JJFFE which use former Win32-related HMP-code - fixes some bugs in MIDI conversion and cleaner
