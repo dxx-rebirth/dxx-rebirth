@@ -5,6 +5,7 @@ D2X-Rebirth Changelog
 misc/hmp.c: Did not close hmp after MIDI conversion which caused some unfree memory - fixed
 main/gameseq.c, main/state.c, main/state.h: Introduced state_quick_item so we can safly check if there is a valid quicksave slot wihtout messing around with state_Default_item which is supposed to always show a valid slot in the first place
 main/titles.c: In briefings make sure Current_color cannot exceed possible array bounds
+include/strutil.h, main/newdemo.c: Fixing some harmless compiler warnings caused by missing includes, missing newlines at end of file; cleaned up strutil.h
 
 20100718
 --------
