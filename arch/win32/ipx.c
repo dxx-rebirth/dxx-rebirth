@@ -20,16 +20,6 @@ static int ipx_open_socket(socket_t *sk, int port)
 	int len;
 	struct sockaddr_ipx ipxs2;
 	
-	WORD wVersionRequested;
-	WSADATA wsaData;
-	
-	wVersionRequested = MAKEWORD(2, 0);
-	
-	if (WSAStartup( wVersionRequested, &wsaData))
-	{
-		return -1;
-	}
-
 	sock = socket(AF_IPX, SOCK_DGRAM, NSPROTO_IPX);
 
 	if (sock == -1) {
@@ -89,7 +79,6 @@ static void ipx_close_socket(socket_t *mysock)
 	/* now close the file descriptor for the socket, and free it */
 	con_printf(CON_URGENT,"IPX: closing file descriptor on socket %x\n", mysock->socket);
 	closesocket(mysock->fd);
-	WSACleanup();
 }
 
 static int ipx_send_packet(socket_t *mysock, IPXPacket_t *IPXHeader, ubyte *data, int dataLen)
