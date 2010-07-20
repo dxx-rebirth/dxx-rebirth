@@ -1,5 +1,9 @@
 D1X-Rebirth Changelog
 
+20100720
+--------
+main/net_udp.c: Thanks to Marix for hinting me I should not init a pointer with quotes if I plan to allocate/free it... my stupid-level officially broke the record
+
 20100719
 --------
 misc/hmp.c: Did not close hmp after MIDI conversion which caused some unfree memory - fixed
