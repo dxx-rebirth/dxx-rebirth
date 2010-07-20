@@ -523,7 +523,7 @@ void net_udp_manual_join_game()
 	newmenu_do1( NULL, "ENTER GAME ADDRESS", nitems, m, (int (*)(newmenu *, d_event *, void *))manual_join_game_handler, dj, 0 );
 }
 
-static char *ljtext = "";
+static char *ljtext;
 
 int net_udp_list_join_poll( newmenu *menu, d_event *event, direct_join *dj )
 {
