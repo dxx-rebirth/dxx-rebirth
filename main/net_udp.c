@@ -604,6 +604,7 @@ int net_udp_list_join_poll( newmenu *menu, d_event *event, direct_join *dj )
 			break;
 		}
 		case EVENT_WINDOW_CLOSE:
+		{
 			d_free(ljtext);
 			d_free(menus);
 			d_free(dj);
@@ -612,8 +613,8 @@ int net_udp_list_join_poll( newmenu *menu, d_event *event, direct_join *dj )
 				net_udp_close();
 				Network_status = NETSTAT_MENU;	// they cancelled
 			}
-			break;
-
+			return 0;
+		}
 		default:
 			break;
 	}
