@@ -2,7 +2,8 @@ D1X-Rebirth Changelog
 
 20100725
 --------
-arch/sdl/event.c, arch/ogl/gr.c, arch/sdl/gr.c: Exit SDL_PollEvent early if window changes, to avoid menu problems when pressing keys fast; fix 'condition is always false' warning 
+arch/sdl/event.c, arch/ogl/gr.c, arch/sdl/gr.c: Exit SDL_PollEvent early if window changes, to avoid menu problems when pressing keys fast; fix 'condition is always false' warning
+main/inferno.c, main/inferno.h: Rewrite quit system, fixing *many* bugs with it :P
 
 20100721
 --------
