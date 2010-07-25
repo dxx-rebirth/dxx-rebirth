@@ -1479,7 +1479,7 @@ int newmenu_handler(window *wind, d_event *event, newmenu *menu)
 	if (event->type == EVENT_WINDOW_CLOSED)
 		return 0;
 
-	if (menu->subfunction)
+	if (menu->subfunction && (event->type != EVENT_WINDOW_CLOSE))
 	{
 		int rval = (*menu->subfunction)(menu, event, menu->userdata);
 		if (rval)
@@ -1537,7 +1537,10 @@ int newmenu_handler(window *wind, d_event *event, newmenu *menu)
 			}
 
 			if (window_exists(wind))
+			{
+				(*menu->subfunction)(menu, event, menu->userdata);	// can't cancel here - too hard
 				d_free(menu);
+			}
 			break;
 
 		default:
