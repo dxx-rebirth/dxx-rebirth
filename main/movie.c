@@ -344,6 +344,11 @@ int MovieHandler(window *wind, d_event *event, movie *m)
 				m->frame_num++;
 			break;
 
+		case EVENT_WINDOW_CLOSE:
+			if (Quitting)
+				m->result = m->aborted = 1;
+			break;
+			
 		default:
 			break;
 	}

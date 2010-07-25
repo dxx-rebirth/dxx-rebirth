@@ -223,12 +223,35 @@ void error_messagebox(char *s)
 
 #define key_ismod(k)  ((k&0xff)==KEY_LALT || (k&0xff)==KEY_RALT || (k&0xff)==KEY_LSHIFT || (k&0xff)==KEY_RSHIFT || (k&0xff)==KEY_LCTRL || (k&0xff)==KEY_RCTRL || (k&0xff)==KEY_LMETA || (k&0xff)==KEY_RMETA)
 
-void quit_request();
+int Quitting = 0;
 
 // Default event handler for everything except the editor
 int standard_handler(d_event *event)
 {
 	int key;
+
+	if (Quitting)
+	{
+		window *wind = window_get_front();
+		if (!wind)
+			return 0;
+	
+		if (wind == Game_wind)
+		{
+			int choice;
+			Quitting = 0;
+			choice=nm_messagebox( NULL, 2, TXT_YES, TXT_NO, TXT_ABORT_GAME );
+			if (choice != 0)
+				return 0;
+			else
+				Quitting = 1;
+		}
+		
+		// Close front window, let the code flow continue until all windows closed or quit cancelled
+		window_close(wind);
+		
+		return 1;
+	}
 
 	switch (event->type)
 	{
@@ -273,8 +296,8 @@ int standard_handler(d_event *event)
 #if defined(__APPLE__) || defined(macintosh)
 				case KEY_COMMAND+KEY_Q:
 					// Alt-F4 already taken, too bad
-					quit_request();
-					break;
+					Quitting = 1;
+					return 1;
 #endif
 			}
 			break;
@@ -285,8 +308,8 @@ int standard_handler(d_event *event)
 			return 1;
 
 		case EVENT_QUIT:
-			quit_request();
-			break;
+			Quitting = 1;
+			return 1;
 
 		default:
 			break;
@@ -499,21 +522,4 @@ int main(int argc, char *argv[])
 	free_mission();
 
 	return(0);		//presumably successful exit
-}
-
-void quit_request()
-{
-	window *wind;
-
-	for (wind = window_get_front(); wind != NULL; wind = window_get_prev(wind))
-	{
-		if (wind == Game_wind)
-		{
-			int choice=nm_messagebox( NULL, 2, TXT_YES, TXT_NO, TXT_ABORT_GAME );
-			if (choice != 0)
-				return;
-		}
-
-		window_close(wind);
-	}
 }
