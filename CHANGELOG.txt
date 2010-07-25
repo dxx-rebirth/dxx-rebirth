@@ -5,6 +5,7 @@ D2X-Rebirth Changelog
 arch/sdl/event.c, arch/ogl/gr.c, arch/sdl/gr.c: Exit SDL_PollEvent early if window changes, to avoid menu problems when pressing keys fast; fix 'condition is always false' warning 
 main/inferno.c, main/inferno.h, main/movie.c: Rewrite quit system, fixing *many* bugs with it :P
 main/newmenu: For menus, only call the user function for closing immediately before closing, fixing memory errors when the user function frees memory
+main/newmenu.c: Fix crash caused by last commit (whoops)
 
 20100721
 --------

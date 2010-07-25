@@ -1538,7 +1538,8 @@ int newmenu_handler(window *wind, d_event *event, newmenu *menu)
 
 			if (window_exists(wind))
 			{
-				(*menu->subfunction)(menu, event, menu->userdata);	// can't cancel here - too hard
+				if (menu->subfunction)
+					(*menu->subfunction)(menu, event, menu->userdata);	// can't cancel here - too hard
 				d_free(menu);
 			}
 			break;
