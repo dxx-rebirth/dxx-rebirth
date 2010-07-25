@@ -53,6 +53,7 @@ COPYRIGHT 1993-1998 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
  **/
 
 extern jmp_buf LeaveEvents;
+extern int Quitting;
 extern int Function_mode;			//in game or editor?
 extern int Screen_mode;				//editor screen or game screen?
 extern int MacHog;
