@@ -217,7 +217,7 @@ int gr_list_modes( u_int32_t gsmodes[] )
 	{
 		for (i = 0; modes[i]; ++i)
 		{
-			if (modes[i]->w > 0xFFFF || modes[i]->h > 0xFFFF // resolutions saved in 32bits. so skip bigger ones (unrealistic in 2010)
+			if (modes[i]->w > 0xFFF0 || modes[i]->h > 0xFFF0 // resolutions saved in 32bits. so skip bigger ones (unrealistic in 2010) (kreatordxx - made 0xFFF0 to kill warning)
 				|| modes[i]->w < 320 || modes[i]->h < 200) // also skip everything smaller than 320x200
 				continue;
 			gsmodes[modesnum] = SM(modes[i]->w,modes[i]->h);
