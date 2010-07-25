@@ -1,5 +1,9 @@
 D2X-Rebirth Changelog
 
+20100725
+--------
+arch/sdl/event.c, arch/ogl/gr.c, arch/sdl/gr.c: Exit SDL_PollEvent early if window changes, to avoid menu problems when pressing keys fast; fix 'condition is always false' warning 
+
 20100721
 --------
 main/net_udp.c: Fixing crash when joinging game over UDP Netlist: when exiting the menu for any reason, return 0 instead of following the code and possibly lead to drawing text from a newly free'd pointer - D'OH! 

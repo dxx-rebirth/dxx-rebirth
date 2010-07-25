@@ -30,8 +30,12 @@ void event_poll()
 	SDL_Event event;
 	int clean_uniframe=1;
 	fix time = timer_get_fixed_seconds();
+	window *wind = window_get_front();
 
-	while (SDL_PollEvent(&event)) {
+	// If the front window changes, exit this loop, otherwise unintended behavior can occur
+	// like pressing 'Return' really fast at 'Difficulty Level' causing multiple games to be started
+	while ((wind == window_get_front()) && SDL_PollEvent(&event))
+	{
 		switch(event.type) {
 			case SDL_KEYDOWN:
 			case SDL_KEYUP:
