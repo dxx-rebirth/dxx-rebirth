@@ -23,9 +23,9 @@ struct mousebutton {
 
 static struct mouseinfo {
 	struct mousebutton buttons[MOUSE_MAX_BUTTONS];
-	int delta_x, delta_y, delta_z;
+	int delta_x, delta_y, delta_z, old_delta_x, old_delta_y;
 	int x,y,z;
-	int cursor_enabled;
+	int cursor_enabled, grab_enabled;
 	fix cursor_time;
 } Mouse;
 
@@ -131,6 +131,8 @@ void mouse_flush()	// clears all mice events...
 	Mouse.delta_x = 0;
 	Mouse.delta_y = 0;
 	Mouse.delta_z = 0;
+	Mouse.old_delta_x = 0;
+	Mouse.old_delta_y = 0;
 	Mouse.x = 0;
 	Mouse.y = 0;
 	Mouse.z = 0;
@@ -148,8 +150,6 @@ void mouse_get_pos( int *x, int *y, int *z )
 
 void mouse_get_delta( int *dx, int *dy, int *dz )
 {
-	static int old_delta_x = 0, old_delta_y = 0;
-
 	SDL_GetRelativeMouseState( &Mouse.delta_x, &Mouse.delta_y );
 	*dx = Mouse.delta_x;
 	*dy = Mouse.delta_y;
@@ -158,12 +158,12 @@ void mouse_get_delta( int *dx, int *dy, int *dz )
 	// filter delta?
 	if (PlayerCfg.MouseFilter)
 	{
-		Mouse.delta_x = (*dx + old_delta_x) * 0.5;
-		Mouse.delta_y = (*dy + old_delta_y) * 0.5;
+		Mouse.delta_x = (*dx + Mouse.old_delta_x) * 0.5;
+		Mouse.delta_y = (*dy + Mouse.old_delta_y) * 0.5;
 	}
 
-	old_delta_x = *dx;
-	old_delta_y = *dy;
+	Mouse.old_delta_x = *dx;
+	Mouse.old_delta_y = *dy;
 
 	Mouse.delta_x = 0;
 	Mouse.delta_y = 0;
@@ -236,30 +236,43 @@ void mouse_toggle_cursor(int activate)
 	Mouse.cursor_enabled = (activate && !GameArg.CtlNoMouse);
 }
 
-void mouse_maybe_show_cursor(fix time)
-{
-	static int show = -1;
-
-	if (show == -1)
-		show = SDL_ShowCursor(SDL_QUERY);
-
-	if (!Mouse.cursor_enabled)
-	{
-		if (show)
-			show = SDL_ShowCursor(SDL_DISABLE);
-		return;
-	}
-
-	if ( (Mouse.cursor_time + (F1_0*3)) >= time && !show)
-		show = SDL_ShowCursor(SDL_ENABLE);
-	else if ( (Mouse.cursor_time + (F1_0*3)) < time && show)
-		show = SDL_ShowCursor(SDL_DISABLE);
-}
-
 void mouse_toggle_grab(int activate)
 {
-	if (activate && GameArg.CtlGrabMouse && !GameArg.CtlNoMouse)
+	Mouse.grab_enabled = (activate && GameArg.CtlGrabMouse && !GameArg.CtlNoMouse);
+}
+
+/* 
+ * Here we check what to do with our mouse:
+ * If we want to display/hide cursor, do so if not already and also hide it automatically after some time.
+ * If we want to grab/release cursor, do so if not already.
+ * If app looses focus, automatically show and release cursor.
+ */
+void mouse_update_cursor_and_grab(fix time)
+{
+	int show = SDL_ShowCursor(SDL_QUERY), grab = SDL_WM_GrabInput(SDL_QUERY);
+
+	if (!(SDL_GetAppState() & SDL_APPMOUSEFOCUS))
+	{
+		if (!show)
+			SDL_ShowCursor(SDL_ENABLE);
+		if (grab)
+			SDL_WM_GrabInput(SDL_GRAB_OFF);
+	}
+
+	if (Mouse.cursor_enabled)
+	{
+		if ( (Mouse.cursor_time + (F1_0*3)) >= time && !show)
+			SDL_ShowCursor(SDL_ENABLE);
+		else if ( (Mouse.cursor_time + (F1_0*3)) < time && show)
+			SDL_ShowCursor(SDL_DISABLE);
+	}
+	else if (show)
+	{
+		SDL_ShowCursor(SDL_DISABLE);
+	}
+
+	if (Mouse.grab_enabled && !grab)
 		SDL_WM_GrabInput(SDL_GRAB_ON);
-	else
+	else if (!Mouse.grab_enabled && grab)
 		SDL_WM_GrabInput(SDL_GRAB_OFF);
 }
