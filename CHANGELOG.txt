@@ -1,5 +1,9 @@
 D1X-Rebirth Changelog
 
+20100726
+--------
+arch/sdl/event.c, arch/sdl/mouse.c: Overhauling showing/grabbing cursor and also taking care of case if program looses focus; store old_delta_x/y in mouse info structure
+
 20100725
 --------
 arch/sdl/event.c, arch/ogl/gr.c, arch/sdl/gr.c: Exit SDL_PollEvent early if window changes, to avoid menu problems when pressing keys fast; fix 'condition is always false' warning

@@ -21,7 +21,7 @@ extern void mouse_motion_handler(SDL_MouseMotionEvent *mme, fix time);
 extern void joy_button_handler(SDL_JoyButtonEvent *jbe, fix time);
 extern void joy_hat_handler(SDL_JoyHatEvent *jhe, fix time);
 extern void joy_axis_handler(SDL_JoyAxisEvent *jae, fix time);
-extern void mouse_maybe_show_cursor(fix time);
+extern void mouse_update_cursor_and_grab(fix time);
 
 static int initialised=0;
 
@@ -70,7 +70,7 @@ void event_poll()
 		}
 	}
 
-	mouse_maybe_show_cursor(time);
+	mouse_update_cursor_and_grab(time);
 }
 
 int event_init()
