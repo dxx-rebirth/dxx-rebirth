@@ -538,7 +538,7 @@ void hmp2mid(char *hmp_name, char *mid_name)
 	mi = MIDIINT(6);
 	PHYSFS_write(mid, &mi, sizeof(mi), 1);
 	ms = MIDISHORT(1);
-	PHYSFS_write(mid, &ms, sizeof(mi), 1);
+	PHYSFS_write(mid, &ms, sizeof(ms), 1);
 	ms = MIDISHORT(hmp->num_trks);
 	PHYSFS_write(mid, &ms, sizeof(ms), 1);
 	ms = MIDISHORT((short) 0xC0);

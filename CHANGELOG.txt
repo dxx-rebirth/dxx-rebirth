@@ -4,6 +4,7 @@ D2X-Rebirth Changelog
 --------
 2d/pcx.c, include/pcx.h, main/cntrlcen.h, main/fuelcen.h, main/gameseq.c, main/kmatrix.c: Show stars background for died in mine and secret level messageboxes; equalise fuelcen.h and cntrlcen.h
 arch/sdl/mouse.c: Fixing automatic mouse release function - still this does not seem to work in every case
+misc/hmp.c: Fixing bug in MIDI header - format was written in size of int instead of short
 
 20100726
 --------
