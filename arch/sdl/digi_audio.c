@@ -22,6 +22,7 @@
 #include "wall.h"
 #include "newdemo.h"
 #include "kconfig.h"
+#include "config.h"
 
 //edited 05/17/99 Matt Mueller - added ifndef NO_ASM
 //added on 980905 by adb to add inline fixmul for mixer on i386
@@ -207,6 +208,8 @@ int digi_audio_init()
 	SDL_PauseAudio(0);
 
 	digi_initialised = 1;
+
+	digi_audio_set_digi_volume( (GameCfg.DigiVolume*32768)/8 );
 	return 0;
 }
 
