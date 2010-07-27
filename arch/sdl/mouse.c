@@ -251,12 +251,13 @@ void mouse_update_cursor_and_grab(fix time)
 {
 	int show = SDL_ShowCursor(SDL_QUERY), grab = SDL_WM_GrabInput(SDL_QUERY);
 
-	if (!(SDL_GetAppState() & SDL_APPMOUSEFOCUS))
+	if (!(SDL_GetAppState() == (SDL_APPMOUSEFOCUS | SDL_APPINPUTFOCUS | SDL_APPACTIVE)))
 	{
 		if (!show)
 			SDL_ShowCursor(SDL_ENABLE);
 		if (grab)
 			SDL_WM_GrabInput(SDL_GRAB_OFF);
+		return;
 	}
 
 	if (Mouse.cursor_enabled)
