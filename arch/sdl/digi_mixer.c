@@ -23,6 +23,7 @@
 #include "digi_mixer.h"
 #include "digi_mixer_music.h"
 #include "console.h"
+#include "config.h"
 
 #include "fix.h"
 #include "gr.h" // needed for piggy.h
@@ -81,6 +82,8 @@ int digi_mixer_init() {
   Mix_Pause(0);
 
   digi_initialised = 1;
+
+  digi_mixer_set_digi_volume( (GameCfg.DigiVolume*32768)/8 );
 
   return 0;
 }

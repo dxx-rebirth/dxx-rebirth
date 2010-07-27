@@ -30,7 +30,6 @@ COPYRIGHT 1993-1998 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 #include "config.h"
 #include "pstypes.h"
 #include "game.h"
-#include "digi.h"
 #include "songs.h"
 #include "kconfig.h"
 #include "palette.h"
@@ -209,8 +208,6 @@ int ReadConfigFile()
 
 	if ( GameCfg.DigiVolume > 8 ) GameCfg.DigiVolume = 8;
 	if ( GameCfg.MusicVolume > 8 ) GameCfg.MusicVolume = 8;
-
-	digi_set_volume( (GameCfg.DigiVolume*32768)/8 );
 
 	if (GameCfg.ResolutionX >= 320 && GameCfg.ResolutionY >= 200)
 		Game_screen_mode = SM(GameCfg.ResolutionX,GameCfg.ResolutionY);

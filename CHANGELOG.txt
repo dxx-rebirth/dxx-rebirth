@@ -5,6 +5,7 @@ D1X-Rebirth Changelog
 2d/pcx.c, include/pcx.h, main/cntrlcen.h, main/effects.c, main/fireball.c, main/fuelcen.h, main/gameseq.c, main/kmatrix.c, main/net_ipx.c, main/net_udp.c, main/render.c, main/segment.h, main/switch.c: Show main menu background for died in mine messagebox; equalise fuelcen.h and cntrlcen.h
 arch/sdl/mouse.c: Fixing automatic mouse release function - still this does not seem to work in every case
 misc/hmp.c: Fixing bug in MIDI header - format was written in size of int instead of short
+arch/sdl/digi_audio.c, arch/sdl/digi_mixer.c, main/config.c: Moved digi_set_digi_volume call from config loading to designated audio subsystem init function so it will be correctly set after the sound system is auctionlly initialized
 
 20100726
 --------
