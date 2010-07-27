@@ -7,17 +7,16 @@ IN USING, DISPLAYING,  AND CREATING DERIVATIVE WORKS THEREOF, SO LONG AS
 SUCH USE, DISPLAY OR CREATION IS FOR NON-COMMERCIAL, ROYALTY OR REVENUE
 FREE PURPOSES.  IN NO EVENT SHALL THE END-USER USE THE COMPUTER CODE
 CONTAINED HEREIN FOR REVENUE-BEARING PURPOSES.  THE END-USER UNDERSTANDS
-AND AGREES TO THE TERMS HEREIN AND ACCEPTS THE SAME BY USE OF THIS FILE.  
+AND AGREES TO THE TERMS HEREIN AND ACCEPTS THE SAME BY USE OF THIS FILE.
 COPYRIGHT 1993-1998 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 */
 
 /*
  *
  * Special effects, such as rotating fans, electrical walls, and
- * other cool animations. 
+ * other cool animations.
  *
  */
-
 
 #include <stdio.h>
 #include <stdlib.h>
@@ -32,13 +31,13 @@ COPYRIGHT 1993-1998 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 #include "bm.h"
 #include "u_mem.h"
 #include "textures.h"
-#include "fuelcen.h"
+#include "cntrlcen.h"
 #include "error.h"
 
 int Num_effects;
 eclip Effects[MAX_EFFECTS];
 
-void init_special_effects() 
+void init_special_effects()
 {
 	int i;
 
@@ -174,7 +173,7 @@ void restart_effect(int effect_num)
 int eclip_read_n(eclip *ec, int n, CFILE *fp)
 {
 	int i, j;
-	
+
 	for (i = 0; i < n; i++) {
 		ec[i].vc.play_time = cfile_read_fix(fp);
 		ec[i].vc.num_frames = cfile_read_int(fp);

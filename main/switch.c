@@ -7,7 +7,7 @@ IN USING, DISPLAYING,  AND CREATING DERIVATIVE WORKS THEREOF, SO LONG AS
 SUCH USE, DISPLAY OR CREATION IS FOR NON-COMMERCIAL, ROYALTY OR REVENUE
 FREE PURPOSES.  IN NO EVENT SHALL THE END-USER USE THE COMPUTER CODE
 CONTAINED HEREIN FOR REVENUE-BEARING PURPOSES.  THE END-USER UNDERSTANDS
-AND AGREES TO THE TERMS HEREIN AND ACCEPTS THE SAME BY USE OF THIS FILE.  
+AND AGREES TO THE TERMS HEREIN AND ACCEPTS THE SAME BY USE OF THIS FILE.
 COPYRIGHT 1993-1998 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 */
 
@@ -16,7 +16,6 @@ COPYRIGHT 1993-1998 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
  * New Triggers and Switches.
  *
  */
-
 
 #include <stdio.h>
 #include <stdlib.h>
@@ -27,15 +26,13 @@ COPYRIGHT 1993-1998 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 #include "game.h"
 #include "switch.h"
 #include "inferno.h"
-#ifdef EDITOR
-#include "editor/editor.h"
-#endif
 #include "segment.h"
 #include "error.h"
 #include "gameseg.h"
 #include "wall.h"
 #include "texmap.h"
 #include "fuelcen.h"
+#include "cntrlcen.h"
 #include "newdemo.h"
 #include "player.h"
 #include "endlevel.h"
@@ -43,6 +40,10 @@ COPYRIGHT 1993-1998 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 #include "multi.h"
 #include "palette.h"
 #include "byteswap.h"
+
+#ifdef EDITOR
+#include "editor/editor.h"
+#endif
 
 trigger Triggers[MAX_TRIGGERS];
 int Num_triggers;

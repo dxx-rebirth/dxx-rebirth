@@ -1,3 +1,4 @@
+/* $Id: pcx.c,v 1.1.1.1 2006/03/17 19:51:57 zicodxx Exp $ */
 /*
 THE COMPUTER CODE CONTAINED HEREIN IS THE SOLE PROPERTY OF PARALLAX
 SOFTWARE CORPORATION ("PARALLAX").  PARALLAX, IN DISTRIBUTING THE CODE TO
@@ -7,7 +8,7 @@ IN USING, DISPLAYING,  AND CREATING DERIVATIVE WORKS THEREOF, SO LONG AS
 SUCH USE, DISPLAY OR CREATION IS FOR NON-COMMERCIAL, ROYALTY OR REVENUE
 FREE PURPOSES.  IN NO EVENT SHALL THE END-USER USE THE COMPUTER CODE
 CONTAINED HEREIN FOR REVENUE-BEARING PURPOSES.  THE END-USER UNDERSTANDS
-AND AGREES TO THE TERMS HEREIN AND ACCEPTS THE SAME BY USE OF THIS FILE.  
+AND AGREES TO THE TERMS HEREIN AND ACCEPTS THE SAME BY USE OF THIS FILE.
 COPYRIGHT 1993-1998 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 */
 /*
@@ -16,45 +17,41 @@ COPYRIGHT 1993-1998 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
  *
  */
 
-
-#ifdef RCS
-static char rcsid[] = "$Id: pcx.c,v 1.1.1.1 2006/03/17 19:38:53 zicodxx Exp $";
-#endif
-
 #include <stdlib.h>
 #include <stdio.h>
 #include <string.h>
 
 #include "gr.h"
+#include "grdef.h"
 #include "u_mem.h"
 #include "pcx.h"
 #include "cfile.h"
 #include "physfsx.h"
-#include "byteswap.h"
 
-#define PCXHEADER_SIZE 128
 
-int pcx_encode_byte(ubyte byt, ubyte cnt, PHYSFS_file * fid);
-int pcx_encode_line(ubyte *inBuff, int inLen, PHYSFS_file * fp);
+int pcx_encode_byte(ubyte byt, ubyte cnt, PHYSFS_file *fid);
+int pcx_encode_line(ubyte *inBuff, int inLen, PHYSFS_file *fp);
 
 /* PCX Header data type */
-typedef struct	{
-	ubyte		Manufacturer;
-	ubyte		Version;
-	ubyte		Encoding;
-	ubyte		BitsPerPixel;
-	short		Xmin;
-	short		Ymin;
-	short		Xmax;
-	short		Ymax;
-	short		Hdpi;
-	short		Vdpi;
-	ubyte		ColorMap[16][3];
-	ubyte		Reserved;
-	ubyte		Nplanes;
-	short		BytesPerLine;
-	ubyte		filler[60];
-} PCXHeader;
+typedef struct {
+	ubyte   Manufacturer;
+	ubyte   Version;
+	ubyte   Encoding;
+	ubyte   BitsPerPixel;
+	short   Xmin;
+	short   Ymin;
+	short   Xmax;
+	short   Ymax;
+	short   Hdpi;
+	short   Vdpi;
+	ubyte   ColorMap[16][3];
+	ubyte   Reserved;
+	ubyte   Nplanes;
+	short   BytesPerLine;
+	ubyte   filler[60];
+} __pack__ PCXHeader;
+
+#define PCXHEADER_SIZE 128
 
 /*
  * reads n PCXHeader structs from a CFILE
@@ -62,7 +59,7 @@ typedef struct	{
 int PCXHeader_read_n(PCXHeader *ph, int n, CFILE *fp)
 {
 	int i;
-	
+
 	for (i = 0; i < n; i++) {
 		ph->Manufacturer = cfile_read_byte(fp);
 		ph->Version = cfile_read_byte(fp);
@@ -198,11 +195,11 @@ int pcx_read_bitmap( char * filename, grs_bitmap * bmp,int bitmap_type ,ubyte * 
 		return PCX_ERROR_OPENING;
 
 	// read 128 char PCX header
-	if (PCXHeader_read_n( &header, 1, PCXfile )!=1)	{
+	if (PCXHeader_read_n( &header, 1, PCXfile )!=1) {
 		cfclose( PCXfile );
 		return PCX_ERROR_NO_HEADER;
 	}
-	
+
 	// Is it a 256 color PCX file?
 	if ((header.Manufacturer != 10)||(header.Encoding != 1)||(header.Nplanes != 1)||(header.BitsPerPixel != 8)||(header.Version != 5))	{
 		cfclose( PCXfile );
@@ -224,13 +221,13 @@ int pcx_read_bitmap( char * filename, grs_bitmap * bmp,int bitmap_type ,ubyte * 
 			pixdata = &bmp->bm_data[bmp->bm_rowsize*row];
 			for (col=0; col< xsize ; )      {
 				if (cfread( &data, 1, 1, PCXfile )!=1 )	{
-					cfclose( PCXfile );	
+					cfclose( PCXfile );
 					return PCX_ERROR_READING;
 				}
 				if ((data & 0xC0) == 0xC0)     {
 					count =  data & 0x3F;
 					if (cfread( &data, 1, 1, PCXfile )!=1 )	{
-						cfclose( PCXfile );	
+						cfclose( PCXfile );
 						return PCX_ERROR_READING;
 					}
 					memset( pixdata, data, count );
@@ -246,13 +243,13 @@ int pcx_read_bitmap( char * filename, grs_bitmap * bmp,int bitmap_type ,ubyte * 
 		for (row=0; row< ysize ; row++)      {
 			for (col=0; col< xsize ; )      {
 				if (cfread( &data, 1, 1, PCXfile )!=1 )	{
-					cfclose( PCXfile );	
+					cfclose( PCXfile );
 					return PCX_ERROR_READING;
 				}
 				if ((data & 0xC0) == 0xC0)     {
 					count =  data & 0x3F;
 					if (cfread( &data, 1, 1, PCXfile )!=1 )	{
-						cfclose( PCXfile );	
+						cfclose( PCXfile );
 						return PCX_ERROR_READING;
 					}
 					for (i=0;i<count;i++)
@@ -279,7 +276,7 @@ int pcx_read_bitmap( char * filename, grs_bitmap * bmp,int bitmap_type ,ubyte * 
 					palette[i] >>= 2;
 			}
 		} else {
-			cfclose( PCXfile );	
+			cfclose( PCXfile );
 			return PCX_ERROR_NO_PALETTE;
 		}
 	}
@@ -436,18 +433,4 @@ char *pcx_errormsg(int error_number)
 	}
 
 	return p;
-}
-
-// fullscreen loading, 10/14/99 Jan Bobrowski
-
-int pcx_read_fullscr(char * filename, ubyte * palette)
-{
-	int pcx_error;
-	grs_bitmap bm;
-	gr_init_bitmap_data(&bm);
-	pcx_error = pcx_read_bitmap(filename, &bm, BM_LINEAR, palette);
-	if (pcx_error == PCX_ERROR_NONE)
-		show_fullscr(&bm);
-	gr_free_bitmap_data(&bm);
-	return pcx_error;
 }

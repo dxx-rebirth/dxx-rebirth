@@ -23,9 +23,9 @@ COPYRIGHT 1993-1998 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 #include <string.h>
 #include <stdlib.h>
 
-#include "strutil.h"
 #include "pstypes.h"
 #include "window.h"
+#include "strutil.h"
 #include "args.h"
 #include "timer.h"
 #include "newmenu.h"
@@ -44,7 +44,7 @@ COPYRIGHT 1993-1998 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 #include "multi.h"
 #include "endlevel.h"
 #include "palette.h"
-#include "fuelcen.h"
+#include "cntrlcen.h"
 #include "menu.h"
 #include "sounds.h"
 #include "text.h"
@@ -56,10 +56,10 @@ COPYRIGHT 1993-1998 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 #include "effects.h"
 #include "physics.h"
 #include "vers_id.h"
-#include "gamefont.h"
-#include "playsave.h"
-#include "rbaudio.h"
 #include "byteswap.h"
+#include "playsave.h"
+#include "gamefont.h"
+#include "rbaudio.h"
 
 // Prototypes
 void net_ipx_send_rejoin_sync(int player_num);

@@ -1,5 +1,9 @@
 D1X-Rebirth Changelog
 
+20100727
+--------
+2d/pcx.c, include/pcx.h, main/cntrlcen.h, main/effects.c, main/fireball.c, main/fuelcen.h, main/gameseq.c, main/kmatrix.c, main/net_ipx.c, main/net_udp.c, main/render.c, main/segment.h, main/switch.c: Show main menu background for died in mine messagebox; equalise fuelcen.h and cntrlcen.h
+
 20100726
 --------
 arch/sdl/event.c, arch/sdl/mouse.c: Overhauling showing/grabbing cursor and also taking care of case if program looses focus; store old_delta_x/y in mouse info structure

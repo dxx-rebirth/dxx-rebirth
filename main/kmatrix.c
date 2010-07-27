@@ -14,18 +14,15 @@ COPYRIGHT 1993-1998 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 /*
  *
  * Kill matrix displayed at end of level.
+ * This source file contains code for both newer networking protocols and IPX. Pretty much redundant stuff but lets keep a clean cut until IPX dies completly.
  *
  */
-
-
-#ifdef NETWORK
 
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
 #include <ctype.h>
 #include <stdarg.h>
-#include <time.h>
 
 #include "error.h"
 #include "pstypes.h"
@@ -41,6 +38,7 @@ COPYRIGHT 1993-1998 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 #include "menu.h"
 #include "player.h"
 #include "screens.h"
+#include "cntrlcen.h"
 #include "mouse.h"
 #include "joy.h"
 #include "timer.h"
@@ -50,7 +48,6 @@ COPYRIGHT 1993-1998 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 #include "kmatrix.h"
 #include "gauges.h"
 #include "pcx.h"
-#include "fuelcen.h"
 
 #ifdef OGL
 #include "ogl_init.h"
@@ -61,32 +58,22 @@ COPYRIGHT 1993-1998 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 
 /* IPX CODE - START */
 
-#define MAX_VIEW_TIME	F1_0*60
+#define MAX_VIEW_TIME       F1_0*60
 fix StartAbortMenuTime;
-
-static int rescale_x(int x)
-{
-	return x * GWIDTH / 320;
-}
-
-static int rescale_y(int y)
-{
-	return y * GHEIGHT / 200;
-}
 
 void kmatrix_ipx_draw_item( int  i, int *sorted )
 {
 	int j, x, y;
 
-	y = rescale_y(50+i*9);
+	y = FSPACY(50+i*9);
 
 	// Print player name.
 
-	gr_printf( rescale_x(CENTERING_OFFSET(N_players)), y, "%s", Players[sorted[i]].callsign );
+	gr_printf( FSPACX(CENTERING_OFFSET(N_players)), y, "%s", Players[sorted[i]].callsign );
 
 	for (j=0; j<N_players; j++) {
 
-		x = rescale_x(70 + CENTERING_OFFSET(N_players) + j*25);
+		x = FSPACX(70 + CENTERING_OFFSET(N_players) + j*25);
 
 		if (sorted[i]==sorted[j]) {
 			if (kill_matrix[sorted[i]][sorted[j]] == 0) {
@@ -105,80 +92,81 @@ void kmatrix_ipx_draw_item( int  i, int *sorted )
 				gr_printf( x, y, "%d", kill_matrix[sorted[i]][sorted[j]] );
 			}
 		}
-
 	}
 	
-	x = rescale_x(70 + CENTERING_OFFSET(N_players) + N_players*25);
+	x = FSPACX(70 + CENTERING_OFFSET(N_players) + N_players*25);
 	gr_set_fontcolor( BM_XRGB(25,25,25),-1 );
 	gr_printf( x ,y,"%4d",Players[sorted[i]].net_kills_total);
 }
 
 void kmatrix_ipx_draw_names(int *sorted)
 {
-	int j, x;
-	
-	int color;
+	int j, x, color;
 
 	for (j=0; j<N_players; j++) {
-		
 		if (Game_mode & GM_TEAM)
 			color = get_team(sorted[j]);
 		else
 			color = sorted[j];
 
-		x = rescale_x(70 + CENTERING_OFFSET(N_players) + j*25);
+		x = FSPACX(70 + CENTERING_OFFSET(N_players) + j*25);
 		gr_set_fontcolor(BM_XRGB(player_rgb[color].r,player_rgb[color].g,player_rgb[color].b),-1 );
-		gr_printf( x, rescale_y(40), "%c", Players[sorted[j]].callsign[0] );
+		gr_printf( x, FSPACY(40), "%c", Players[sorted[j]].callsign[0] );
 	}
 
-	x = rescale_x(70 + CENTERING_OFFSET(N_players) + N_players*25);
+	x = FSPACX(70 + CENTERING_OFFSET(N_players) + N_players*25);
 	gr_set_fontcolor( BM_XRGB(31,31,31),-1 );
-	gr_printf( x, rescale_y(40), TXT_KILLS);		
+	gr_printf( x, FSPACY(40), TXT_KILLS);		
 }
 
 void kmatrix_ipx_draw_deaths(int *sorted)
 {
 	int j, x, y;
 	
-	y = rescale_y(55 + N_players * 9);
+	y = FSPACY(55 + N_players * 9);
 
 //	gr_set_fontcolor(BM_XRGB(player_rgb[j].r,player_rgb[j].g,player_rgb[j].b),-1 );
 	gr_set_fontcolor( BM_XRGB(31,31,31),-1 );
 
-	x = rescale_x(CENTERING_OFFSET(N_players));
+	x = FSPACX(CENTERING_OFFSET(N_players));
 	gr_printf( x, y, TXT_DEATHS );
 
 	for (j=0; j<N_players; j++) {
-		x = rescale_x(70 + CENTERING_OFFSET(N_players) + j*25);
+		x = FSPACX(70 + CENTERING_OFFSET(N_players) + j*25);
 		gr_printf( x, y, "%d", Players[sorted[j]].net_killed_total );
 	}
 
-	y = rescale_y(55 + 72 + 12);
-	x = rescale_x(35);
+	y = FSPACY(55 + 72 + 12);
+	x = FSPACX(35);
 
 	{
 		int sw, sh, aw;
 		gr_get_string_size(TXT_PRESS_ANY_KEY2, &sw, &sh, &aw);	
-		gr_printf( rescale_x(160)-(sw/2), y, TXT_PRESS_ANY_KEY2);
+		gr_printf( FSPACX(160)-(sw/2), y, TXT_PRESS_ANY_KEY2);
 	}
 }
 
-void kmatrix_ipx_redraw()
+typedef struct kmatrix_ipx_screen
 {
-	int i, pcx_error, color;
-		
+	grs_bitmap background;
+	fix entry_time;
+	int network;
+} kmatrix_ipx_screen;
+
+void kmatrix_ipx_redraw(kmatrix_ipx_screen *km)
+{
+	int i, color;
 	int sorted[MAX_NUM_NET_PLAYERS];
 
 	multi_sort_kill_list();
 
 	gr_set_current_canvas(NULL);
 	
-	pcx_error = pcx_read_fullscr(STARS_BACKGROUND, gr_palette);
-	Assert(pcx_error == PCX_ERROR_NONE);
+	show_fullscr(&km->background);
 
 	grd_curcanv->cv_font = MEDIUM3_FONT;
 
-	gr_string( 0x8000, rescale_y(15), TXT_KILL_MATRIX_TITLE	);
+	gr_string( 0x8000, FSPACY(15), TXT_KILL_MATRIX_TITLE	);
 
 	grd_curcanv->cv_font = GAME_FONT;
 
@@ -186,7 +174,7 @@ void kmatrix_ipx_redraw()
 
 	kmatrix_ipx_draw_names(sorted);
 
-	for (i=0; i<N_players; i++ )		{
+	for (i=0; i<N_players; i++ )  {
 		if (Game_mode & GM_TEAM)
 			color = get_team(sorted[i]);
 		else
@@ -198,12 +186,6 @@ void kmatrix_ipx_redraw()
 
 	kmatrix_ipx_draw_deaths(sorted);
 }
-
-typedef struct kmatrix_ipx_screen
-{
-	fix entry_time;
-	int network;
-} kmatrix_ipx_screen;
 
 int kmatrix_ipx_handler(window *wind, d_event *event, kmatrix_ipx_screen *km)
 {
@@ -237,11 +219,12 @@ int kmatrix_ipx_handler(window *wind, d_event *event, kmatrix_ipx_screen *km)
 			break;
 
 		case EVENT_WINDOW_DRAW:
-			kmatrix_ipx_redraw();
+			kmatrix_ipx_redraw(km);
 			break;
 			
 		case EVENT_WINDOW_CLOSE:
 			game_flush_inputs();
+			gr_free_bitmap_data(&km->background);
 			d_free(km);
 			break;
 			
@@ -261,6 +244,14 @@ void kmatrix_ipx_view(int network)
 	if (!km)
 		return;
 
+	gr_init_bitmap_data(&km->background);
+	if (pcx_read_bitmap(STARS_BACKGROUND, &km->background, BM_LINEAR, gr_palette) != PCX_ERROR_NONE)
+	{
+		d_free(km);
+		return;
+	}
+	gr_palette_load(gr_palette);
+	
 	km->entry_time = timer_get_fixed_seconds();
 	km->network = network;
 
@@ -397,14 +388,22 @@ void kmatrix_status_msg (fix time, int reactor)
 		gr_printf(0x8000, SHEIGHT-LINE_SPACING, "Level finished. Wait (%d) to proceed or ESC to Quit.", time);
 }
 
-void kmatrix_redraw()
+typedef struct kmatrix_screen
 {
-	int i, pcx_error, color;
+	grs_bitmap background;
+	int network;
+	fix end_time;
+	int playing;
+} kmatrix_screen;
+
+void kmatrix_redraw(kmatrix_screen *km)
+{
+	int i, color;
 	int sorted[MAX_NUM_NET_PLAYERS];
 
-	pcx_error = pcx_read_fullscr(STARS_BACKGROUND, gr_palette);
-	Assert(pcx_error == PCX_ERROR_NONE);
-
+	gr_set_current_canvas(NULL);
+	show_fullscr(&km->background);
+	
 	if (Game_mode & GM_MULTI_COOP)
 	{
 		kmatrix_redraw_coop();
@@ -412,7 +411,6 @@ void kmatrix_redraw()
 	else
 	{
 		multi_sort_kill_list();
-		gr_set_current_canvas(NULL);
 		grd_curcanv->cv_font = MEDIUM3_FONT;
 
 		gr_string( 0x8000, FSPACY(10), TXT_KILL_MATRIX_TITLE);
@@ -446,7 +444,6 @@ void kmatrix_redraw_coop()
 	int sorted[MAX_NUM_NET_PLAYERS];
 
 	multi_sort_kill_list();
-	gr_set_current_canvas(NULL);
 	grd_curcanv->cv_font = MEDIUM3_FONT;
 	gr_string( 0x8000, FSPACY(10), "COOPERATIVE SUMMARY");
 	grd_curcanv->cv_font = GAME_FONT;
@@ -467,13 +464,6 @@ void kmatrix_redraw_coop()
 
 	gr_palette_load(gr_palette);
 }
-
-typedef struct kmatrix_screen
-{
-	int network;
-	fix end_time;
-	int playing;
-} kmatrix_screen;
 
 int kmatrix_handler(window *wind, d_event *event, kmatrix_screen *km)
 {
@@ -548,7 +538,7 @@ int kmatrix_handler(window *wind, d_event *event, kmatrix_screen *km)
 			break;
 
 		case EVENT_WINDOW_DRAW:
-			kmatrix_redraw();
+			kmatrix_redraw(km);
 			
 			if (km->playing)
 				kmatrix_status_msg(Countdown_seconds_left, 1);
@@ -560,6 +550,7 @@ int kmatrix_handler(window *wind, d_event *event, kmatrix_screen *km)
 			game_flush_inputs();
 			newmenu_close();
 			
+			gr_free_bitmap_data(&km->background);
 			d_free(km);
 			break;
 			
@@ -580,6 +571,14 @@ void kmatrix_view(int network)
 	if (!km)
 		return;
 
+	gr_init_bitmap_data(&km->background);
+	if (pcx_read_bitmap(STARS_BACKGROUND, &km->background, BM_LINEAR, gr_palette) != PCX_ERROR_NONE)
+	{
+		d_free(km);
+		return;
+	}
+	gr_palette_load(gr_palette);
+	
 	km->network = network;
 	km->end_time = -1;
 	km->playing = 0;
@@ -602,5 +601,3 @@ void kmatrix_view(int network)
 }
 
 /* NEW CODE - END */
-
-#endif

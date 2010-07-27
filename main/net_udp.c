@@ -10,9 +10,9 @@
 #include <string.h>
 #include <stdlib.h>
 
-#include "strutil.h"
 #include "pstypes.h"
 #include "window.h"
+#include "strutil.h"
 #include "args.h"
 #include "timer.h"
 #include "newmenu.h"
@@ -31,7 +31,7 @@
 #include "multi.h"
 #include "endlevel.h"
 #include "palette.h"
-#include "fuelcen.h"
+#include "cntrlcen.h"
 #include "menu.h"
 #include "sounds.h"
 #include "text.h"

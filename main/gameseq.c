@@ -872,6 +872,47 @@ void DoEndLevelScoreGlitz(int network)
 		newmenu_do2(NULL, title, c, m, NULL, NULL, 0, Menu_pcx_name);
 }
 
+int draw_rock(newmenu *menu, d_event *event, grs_bitmap *background)
+{
+	menu = menu;
+
+	switch (event->type)
+	{
+		case EVENT_WINDOW_DRAW:
+			gr_set_current_canvas(NULL);
+			show_fullscr(background);
+			break;
+			
+		default:
+			break;
+	}
+	
+	return 0;
+}
+
+void do_screen_message(char *fmt, ...)
+{
+	va_list arglist;
+	grs_bitmap background;
+	char msg[1024];
+	
+	if (Game_mode & GM_MULTI)
+		return;
+	
+	gr_init_bitmap_data(&background);
+	if (pcx_read_bitmap(Menu_pcx_name, &background, BM_LINEAR, gr_palette) != PCX_ERROR_NONE)
+		return;
+
+	gr_palette_load(gr_palette);
+
+	va_start(arglist, fmt);
+	vsprintf(msg, fmt, arglist);
+	va_end(arglist);
+	
+	nm_messagebox1(NULL, (int (*)(newmenu *, d_event *, void *))draw_rock, &background, 1, TXT_OK, msg);
+	gr_free_bitmap_data(&background);
+}
+
 //called when the player has finished a level
 void PlayerFinishedLevel(int secret_flag)
 {
@@ -1024,18 +1065,6 @@ int AdvanceLevel(int secret_flag)
 }
 
 
-void
-died_in_mine_message(void)
-{
-	// Tell the player he died in the mine, explain why
-
-	if (Game_mode & GM_MULTI)
-		return;
-
-	gr_set_current_canvas(NULL);
-	nm_messagebox(NULL, 1, TXT_OK, TXT_DIED_IN_MINE);
-}
-
 //called when the player has died
 void DoPlayerDead()
 {
@@ -1091,7 +1120,7 @@ void DoPlayerDead()
 		Players[Player_num].connected = CONNECT_DIED_IN_MINE;
 #endif
 
-		died_in_mine_message(); // Give them some indication of what happened
+		do_screen_message(TXT_DIED_IN_MINE); // Give them some indication of what happened
 
 		if (Current_level_num == Last_level) {
 			#ifdef NETWORK
