@@ -77,7 +77,7 @@ extern void do_controlcen_dead_frame(void);
 #define DEFAULT_CONTROL_CENTER_EXPLOSION_TIME 30    // Note: Usually uses Alan_pavlish_reactor_times, but can be overridden in editor.
 
 extern fix Countdown_timer;
-extern int Control_center_destroyed,Countdown_seconds_left;
+extern int Control_center_destroyed, Countdown_seconds_left;
 extern int Base_control_center_explosion_time;      // how long to blow up on insane
 extern int Reactor_strength;
 

@@ -71,295 +71,290 @@ void kmatrix_ipx_redraw_coop();
 
 void kmatrix_ipx_draw_item( int  i, int *sorted )
 {
-  int j, x, y;
-  char temp[10];
+	int j, x, y;
+	char temp[10];
 
-  y = FSPACY(50+i*9);
+	y = FSPACY(50+i*9);
 
-  // Print player name.
+	// Print player name.
 
-  gr_printf( FSPACX(CENTERING_OFFSET(N_players)), y, "%s", Players[sorted[i]].callsign );
+	gr_printf( FSPACX(CENTERING_OFFSET(N_players)), y, "%s", Players[sorted[i]].callsign );
 
-  gr_printf (FSPACX(CENTERING_OFFSET(N_players)-15),y,"%c",ConditionLetters[Players[sorted[i]].connected]);
+	gr_printf (FSPACX(CENTERING_OFFSET(N_players)-15),y,"%c",ConditionLetters[Players[sorted[i]].connected]);
 
-  for (j=0; j<N_players; j++) {
+	for (j=0; j<N_players; j++) {
 
-    x = FSPACX(70 + CENTERING_OFFSET(N_players) + j*25);
+		x = FSPACX(70 + CENTERING_OFFSET(N_players) + j*25);
 
-    if (sorted[i]==sorted[j]) {
-      if (kill_matrix[sorted[i]][sorted[j]] == 0) {
-        gr_set_fontcolor( BM_XRGB(10,10,10),-1 );
-        gr_printf( x, y, "%d", kill_matrix[sorted[i]][sorted[j]] );
-      } else {
-        gr_set_fontcolor( BM_XRGB(25,25,25),-1 );
-        gr_printf( x, y, "-%d", kill_matrix[sorted[i]][sorted[j]] );
-      }
-    } else {
-      if (kill_matrix[sorted[i]][sorted[j]] <= 0) {
-        gr_set_fontcolor( BM_XRGB(10,10,10),-1 );
-        gr_printf( x, y, "%d", kill_matrix[sorted[i]][sorted[j]] );
-      } else {
-        gr_set_fontcolor( BM_XRGB(25,25,25),-1 );
-        gr_printf( x, y, "%d", kill_matrix[sorted[i]][sorted[j]] );
-      }
-    }
-  }
-
-  if (Players[sorted[i]].net_killed_total+Players[sorted[i]].net_kills_total==0)
-    sprintf (temp,"NA");
-  else
-   sprintf (temp,"%d%%",(int)((float)((float)Players[sorted[i]].net_kills_total/((float)Players[sorted[i]].net_killed_total+(float)Players[sorted[i]].net_kills_total))*100.0));
-
-  x = FSPACX(60 + CENTERING_OFFSET(N_players) + N_players*25);
-  gr_set_fontcolor( BM_XRGB(25,25,25),-1 );
-  gr_printf( x ,y,"%4d/%s",Players[sorted[i]].net_kills_total,temp);
+		if (sorted[i]==sorted[j]) {
+			if (kill_matrix[sorted[i]][sorted[j]] == 0) {
+				gr_set_fontcolor( BM_XRGB(10,10,10),-1 );
+				gr_printf( x, y, "%d", kill_matrix[sorted[i]][sorted[j]] );
+			} else {
+				gr_set_fontcolor( BM_XRGB(25,25,25),-1 );
+				gr_printf( x, y, "-%d", kill_matrix[sorted[i]][sorted[j]] );
+			}
+		} else {
+			if (kill_matrix[sorted[i]][sorted[j]] <= 0) {
+				gr_set_fontcolor( BM_XRGB(10,10,10),-1 );
+				gr_printf( x, y, "%d", kill_matrix[sorted[i]][sorted[j]] );
+			} else {
+				gr_set_fontcolor( BM_XRGB(25,25,25),-1 );
+				gr_printf( x, y, "%d", kill_matrix[sorted[i]][sorted[j]] );
+			}
+		}
+	}
+	
+	if (Players[sorted[i]].net_killed_total+Players[sorted[i]].net_kills_total==0)
+		sprintf (temp,"NA");
+	else
+		sprintf (temp,"%d%%",(int)((float)((float)Players[sorted[i]].net_kills_total/((float)Players[sorted[i]].net_killed_total+(float)Players[sorted[i]].net_kills_total))*100.0));
+	
+	x = FSPACX(60 + CENTERING_OFFSET(N_players) + N_players*25);
+	gr_set_fontcolor( BM_XRGB(25,25,25),-1 );
+	gr_printf( x ,y,"%4d/%s",Players[sorted[i]].net_kills_total,temp);
 }
 
 void kmatrix_ipx_draw_coop_item( int  i, int *sorted )
 {
-  int  x, y;
-
-  y = FSPACY(50+i*9);
-
-  // Print player name.
-
-  gr_printf( FSPACX(CENTERING_OFFSET(N_players)), y, "%s", Players[sorted[i]].callsign );
-  gr_printf (FSPACX(CENTERING_OFFSET(N_players)-15),y,"%c",ConditionLetters[Players[sorted[i]].connected]);
-
-  x = CENTERSCREEN;
-
-  gr_set_fontcolor( BM_XRGB(60,40,10),-1 );
-  gr_printf( x, y, "%d", Players[sorted[i]].score );
-
-  x = CENTERSCREEN+FSPACX(50);
-
-  gr_set_fontcolor( BM_XRGB(60,40,10),-1 );
-  gr_printf( x, y, "%d", Players[sorted[i]].net_killed_total);
+	int  x, y;
+	
+	y = FSPACY(50+i*9);
+	
+	// Print player name.
+	
+	gr_printf( FSPACX(CENTERING_OFFSET(N_players)), y, "%s", Players[sorted[i]].callsign );
+	gr_printf (FSPACX(CENTERING_OFFSET(N_players)-15),y,"%c",ConditionLetters[Players[sorted[i]].connected]);
+	
+	x = CENTERSCREEN;
+	
+	gr_set_fontcolor( BM_XRGB(60,40,10),-1 );
+	gr_printf( x, y, "%d", Players[sorted[i]].score );
+	
+	x = CENTERSCREEN+FSPACX(50);
+	
+	gr_set_fontcolor( BM_XRGB(60,40,10),-1 );
+	gr_printf( x, y, "%d", Players[sorted[i]].net_killed_total);
 }
 
 void kmatrix_ipx_draw_names(int *sorted)
 {
-  int j, x, color;
+	int j, x, color;
 
-  for (j=0; j<N_players; j++) {
-    if (Game_mode & GM_TEAM)
-      color = get_team(sorted[j]);
-    else
-      color = sorted[j];
+	for (j=0; j<N_players; j++) {
+		if (Game_mode & GM_TEAM)
+			color = get_team(sorted[j]);
+		else
+			color = sorted[j];
 
-    x = FSPACX (70 + CENTERING_OFFSET(N_players) + j*25);
+		x = FSPACX(70 + CENTERING_OFFSET(N_players) + j*25);
 
-    if (Players[sorted[j]].connected==CONNECT_DISCONNECTED)
-      gr_set_fontcolor(gr_find_closest_color(31,31,31),-1);
-    else
-      gr_set_fontcolor(BM_XRGB(player_rgb[color].r,player_rgb[color].g,player_rgb[color].b),-1 );
+		if (Players[sorted[j]].connected==CONNECT_DISCONNECTED)
+			gr_set_fontcolor(gr_find_closest_color(31,31,31),-1);
+		else
+			gr_set_fontcolor(BM_XRGB(player_rgb[color].r,player_rgb[color].g,player_rgb[color].b),-1 );
 
-    gr_printf( x, FSPACY(40), "%c", Players[sorted[j]].callsign[0] );
-  }
+		gr_printf( x, FSPACY(40), "%c", Players[sorted[j]].callsign[0] );
+	}
 
-  x = FSPACX(72 + CENTERING_OFFSET(N_players) + N_players*25);
-  gr_set_fontcolor( BM_XRGB(31,31,31),-1 );
-  gr_printf( x, FSPACY(40), "K/E");
+	x = FSPACX(72 + CENTERING_OFFSET(N_players) + N_players*25);
+	gr_set_fontcolor( BM_XRGB(31,31,31),-1 );
+	gr_printf( x, FSPACY(40), "K/E");
 }
 
 void kmatrix_ipx_draw_coop_names(int *sorted)
 {
-  sorted=sorted;
-
-  gr_set_fontcolor( BM_XRGB(63,31,31),-1 );
-  gr_printf( CENTERSCREEN, FSPACY(40), "SCORE");
-  gr_set_fontcolor( BM_XRGB(63,31,31),-1 );
-  gr_printf( CENTERSCREEN+FSPACX(50), FSPACY(40), "DEATHS");
+	sorted=sorted;
+	
+	gr_set_fontcolor( BM_XRGB(63,31,31),-1 );
+	gr_printf( CENTERSCREEN, FSPACY(40), "SCORE");
+	gr_set_fontcolor( BM_XRGB(63,31,31),-1 );
+	gr_printf( CENTERSCREEN+FSPACX(50), FSPACY(40), "DEATHS");
 }
 
 void kmatrix_ipx_draw_deaths(int *sorted)
 {
-  int y,x;
-  char reactor_message[50];
+	int y,x;
+	char reactor_message[50];
+	
+	sorted=sorted;
 
-  sorted=sorted;
+	y = FSPACY(55 + 72 + 35);
+	x = FSPACX(35);
 
-  y = FSPACY(55 + 72 + 35);
-  x = FSPACX(35);
+	{
+		int sw, sh, aw;
 
-  {
-    int sw, sh, aw;
+		gr_set_fontcolor(gr_find_closest_color(63,20,0),-1);
+		gr_get_string_size("P-Playing E-Escaped D-Died", &sw, &sh, &aw);
 
-    gr_set_fontcolor(gr_find_closest_color(63,20,0),-1);
-    gr_get_string_size("P-Playing E-Escaped D-Died", &sw, &sh, &aw);
+		gr_printf( CENTERSCREEN-(sw/2), y,"P-Playing E-Escaped D-Died");
 
-    gr_printf( CENTERSCREEN-(sw/2), y,"P-Playing E-Escaped D-Died");
+		y+=(sh+5);
+		gr_get_string_size("V-Viewing scores W-Waiting", &sw, &sh, &aw);
+		
+		gr_printf( CENTERSCREEN-(sw/2), y,"V-Viewing scores W-Waiting");
+	}
 
-    y+=(sh+5);
-    gr_get_string_size("V-Viewing scores W-Waiting", &sw, &sh, &aw);
+	y+=FSPACY(20);
 
-    gr_printf( CENTERSCREEN-(sw/2), y,"V-Viewing scores W-Waiting");
+	{
+		int sw, sh, aw;
+		gr_set_fontcolor(gr_find_closest_color(63,63,63),-1);
 
-  }
+		if (Players[Player_num].connected==CONNECT_KMATRIX_WAITING)
+		{
+			gr_get_string_size("Waiting for other players...",&sw, &sh, &aw);
+			gr_printf( CENTERSCREEN-(sw/2), y,"Waiting for other players...");
+		}
+		else
+		{
+			gr_get_string_size(TXT_PRESS_ANY_KEY2, &sw, &sh, &aw);
+			gr_printf( CENTERSCREEN-(sw/2), y, TXT_PRESS_ANY_KEY2);
+		}
+	}
 
-  y+=FSPACY(20);
+	if (Countdown_seconds_left <=0)
+		kmatrix_ipx_reactor(TXT_REACTOR_EXPLODED);
+	else
+	{
+		sprintf((char *)&reactor_message, "%s: %d %s  ", TXT_TIME_REMAINING, Countdown_seconds_left, TXT_SECONDS);
+		kmatrix_ipx_reactor ((char *)&reactor_message);
+	}
 
-  {
-    int sw, sh, aw;
-    gr_set_fontcolor(gr_find_closest_color(63,63,63),-1);
-
-    if (Players[Player_num].connected==CONNECT_KMATRIX_WAITING)
-    {
-      gr_get_string_size("Waiting for other players...",&sw, &sh, &aw);
-      gr_printf( CENTERSCREEN-(sw/2), y,"Waiting for other players...");
-    }
-    else
-    {
-      gr_get_string_size(TXT_PRESS_ANY_KEY2, &sw, &sh, &aw);
-      gr_printf( CENTERSCREEN-(sw/2), y, TXT_PRESS_ANY_KEY2);
-    }
-  }
-
-  if (Countdown_seconds_left <=0)
-    kmatrix_ipx_reactor(TXT_REACTOR_EXPLODED);
-  else
-  {
-    sprintf((char *)&reactor_message, "%s: %d %s  ", TXT_TIME_REMAINING, Countdown_seconds_left, TXT_SECONDS);
-    kmatrix_ipx_reactor ((char *)&reactor_message);
-  }
-
-  if (Game_mode & GM_HOARD) 
-    kmatrix_ipx_phallic();
+	if (Game_mode & GM_HOARD) 
+		kmatrix_ipx_phallic();
 }
 
 void kmatrix_ipx_reactor (char *message)
 {
-  static char oldmessage[50]={0};
-  int sw, sh, aw;
-
-  grd_curcanv->cv_font = GAME_FONT;
-
-  if (oldmessage[0]!=0)
-  {
-    gr_set_fontcolor(gr_find_closest_color(0,0,0),-1);
-    gr_get_string_size(oldmessage, &sw, &sh, &aw);
-  }
-
-  gr_set_fontcolor(gr_find_closest_color(0,32,63),-1);
-  gr_get_string_size(message, &sw, &sh, &aw);
-  gr_printf( CENTERSCREEN-(sw/2), FSPACY(55+72+12), message);
-  strcpy ((char *)&oldmessage,message);
+	static char oldmessage[50]={0};
+	int sw, sh, aw;
+	
+	grd_curcanv->cv_font = GAME_FONT;
+	
+	if (oldmessage[0]!=0)
+	{
+		gr_set_fontcolor(gr_find_closest_color(0,0,0),-1);
+		gr_get_string_size(oldmessage, &sw, &sh, &aw);
+	}
+	
+	gr_set_fontcolor(gr_find_closest_color(0,32,63),-1);
+	gr_get_string_size(message, &sw, &sh, &aw);
+	gr_printf( CENTERSCREEN-(sw/2), FSPACY(55+72+12), message);
+	strcpy ((char *)&oldmessage,message);
 }
 
 extern int PhallicLimit,PhallicMan;
 
 void kmatrix_ipx_phallic ()
 {
-  int sw, sh, aw;
-  char message[80];
-
-  if (!(Game_mode & GM_HOARD))
-    return;
-
-  if (PhallicMan==-1)
-    strcpy (message,"There was no record set for this level.");
-  else
-    sprintf (message,"%s had the best record at %d points.",Players[PhallicMan].callsign,PhallicLimit);
-
-  grd_curcanv->cv_font = GAME_FONT;
-  gr_set_fontcolor(gr_find_closest_color(63,63,63),-1);
-  gr_get_string_size(message, &sw, &sh, &aw);
-  gr_printf( CENTERSCREEN-(sw/2), FSPACY(55+72+3), message);
-}
-
-void kmatrix_ipx_redraw()
-{
-  int i, pcx_error, color;
-  int sorted[MAX_NUM_NET_PLAYERS];
-
-  pcx_error = pcx_read_fullscr(STARS_BACKGROUND, gr_palette);
-  Assert(pcx_error == PCX_ERROR_NONE);
-
-  if (Game_mode & GM_MULTI_COOP)
-  {
-    kmatrix_ipx_redraw_coop();
-    return;
-  }
-
-  multi_sort_kill_list();
-
-  gr_set_current_canvas(NULL);
-
-  grd_curcanv->cv_font = MEDIUM3_FONT;
-
-  if (Game_mode & GM_CAPTURE)
-    gr_string( 0x8000, FSPACY(10), "CAPTURE THE FLAG SUMMARY");
-  else if (Game_mode & GM_HOARD)
-    gr_string( 0x8000, FSPACY(10), "HOARD SUMMARY");
-  else
-    gr_string( 0x8000, FSPACY(10), TXT_KILL_MATRIX_TITLE);
-
-  grd_curcanv->cv_font = GAME_FONT;
-
-  multi_get_kill_list(sorted);
-
-  kmatrix_ipx_draw_names(sorted);
-
-  for (i=0; i<N_players; i++ )  {
-    if (Game_mode & GM_TEAM)
-      color = get_team(sorted[i]);
-    else
-      color = sorted[i];
-
-    if (Players[sorted[i]].connected==CONNECT_DISCONNECTED)
-      gr_set_fontcolor(gr_find_closest_color(31,31,31),-1);
-    else
-      gr_set_fontcolor(BM_XRGB(player_rgb[color].r,player_rgb[color].g,player_rgb[color].b),-1 );
-
-    kmatrix_ipx_draw_item( i, sorted );
-  }
-
-  kmatrix_ipx_draw_deaths(sorted);
-
-  gr_palette_load(gr_palette);
-}
-
-void kmatrix_ipx_redraw_coop()
-{
-  int i, color;
-  int sorted[MAX_NUM_NET_PLAYERS];
-
-  multi_sort_kill_list();
-
-  gr_set_current_canvas(NULL);
-
-  grd_curcanv->cv_font = MEDIUM3_FONT;
-  gr_string( 0x8000, FSPACY(10), "COOPERATIVE SUMMARY");
-
-  grd_curcanv->cv_font = GAME_FONT;
-
-  multi_get_kill_list(sorted);
-
-  kmatrix_ipx_draw_coop_names(sorted);
-
-  for (i=0; i<N_players; i++ )  {
-
-    color = sorted[i];
-
-    if (Players[sorted[i]].connected==CONNECT_DIED_IN_MINE)
-      gr_set_fontcolor(gr_find_closest_color(31,31,31),-1);
-    else
-      gr_set_fontcolor(BM_XRGB(player_rgb[color].r,player_rgb[color].g,player_rgb[color].b),-1 );
-
-    kmatrix_ipx_draw_coop_item( i, sorted );
-  }
-
-  kmatrix_ipx_draw_deaths(sorted);
-
-  gr_palette_load(gr_palette);
+	int sw, sh, aw;
+	char message[80];
+	
+	if (!(Game_mode & GM_HOARD))
+		return;
+	
+	if (PhallicMan==-1)
+		strcpy (message,"There was no record set for this level.");
+	else
+		sprintf (message,"%s had the best record at %d points.",Players[PhallicMan].callsign,PhallicLimit);
+	
+	grd_curcanv->cv_font = GAME_FONT;
+	gr_set_fontcolor(gr_find_closest_color(63,63,63),-1);
+	gr_get_string_size(message, &sw, &sh, &aw);
+	gr_printf( CENTERSCREEN-(sw/2), FSPACY(55+72+3), message);
 }
 
 typedef struct kmatrix_ipx_screen
 {
+	grs_bitmap background;
 	fix entry_time;
 	int oldstates[MAX_PLAYERS];
 	int network;
 } kmatrix_ipx_screen;
+
+void kmatrix_ipx_redraw(kmatrix_ipx_screen *km)
+{
+	int i, color;
+	int sorted[MAX_NUM_NET_PLAYERS];
+
+	if (Game_mode & GM_MULTI_COOP)
+	{
+		kmatrix_ipx_redraw_coop();
+		return;
+	}
+	
+	multi_sort_kill_list();
+
+	gr_set_current_canvas(NULL);
+	
+	show_fullscr(&km->background);
+
+	grd_curcanv->cv_font = MEDIUM3_FONT;
+
+	if (Game_mode & GM_CAPTURE)
+		gr_string( 0x8000, FSPACY(10), "CAPTURE THE FLAG SUMMARY");
+	else if (Game_mode & GM_HOARD)
+		gr_string( 0x8000, FSPACY(10), "HOARD SUMMARY");
+	else
+		gr_string( 0x8000, FSPACY(10), TXT_KILL_MATRIX_TITLE);
+
+	grd_curcanv->cv_font = GAME_FONT;
+
+	multi_get_kill_list(sorted);
+
+	kmatrix_ipx_draw_names(sorted);
+
+	for (i=0; i<N_players; i++ )  {
+		if (Game_mode & GM_TEAM)
+			color = get_team(sorted[i]);
+		else
+			color = sorted[i];
+
+		if (Players[sorted[i]].connected==CONNECT_DISCONNECTED)
+			gr_set_fontcolor(gr_find_closest_color(31,31,31),-1);
+		else
+			gr_set_fontcolor(BM_XRGB(player_rgb[color].r,player_rgb[color].g,player_rgb[color].b),-1 );
+
+		kmatrix_ipx_draw_item( i, sorted );
+	}
+
+	kmatrix_ipx_draw_deaths(sorted);
+}
+
+void kmatrix_ipx_redraw_coop()
+{
+	int i, color;
+	int sorted[MAX_NUM_NET_PLAYERS];
+	
+	multi_sort_kill_list();
+	
+	grd_curcanv->cv_font = MEDIUM3_FONT;
+	gr_string( 0x8000, FSPACY(10), "COOPERATIVE SUMMARY");
+	
+	grd_curcanv->cv_font = GAME_FONT;
+	
+	multi_get_kill_list(sorted);
+	
+	kmatrix_ipx_draw_coop_names(sorted);
+	
+	for (i=0; i<N_players; i++ )  {
+		
+		color = sorted[i];
+		
+		if (Players[sorted[i]].connected==CONNECT_DIED_IN_MINE)
+			gr_set_fontcolor(gr_find_closest_color(31,31,31),-1);
+		else
+			gr_set_fontcolor(BM_XRGB(player_rgb[color].r,player_rgb[color].g,player_rgb[color].b),-1 );
+		
+		kmatrix_ipx_draw_coop_item( i, sorted );
+	}
+	
+	kmatrix_ipx_draw_deaths(sorted);
+	
+	gr_palette_load(gr_palette);
+}
 
 int kmatrix_ipx_handler(window *wind, d_event *event, kmatrix_ipx_screen *km)
 {
@@ -494,13 +489,12 @@ int kmatrix_ipx_handler(window *wind, d_event *event, kmatrix_ipx_screen *km)
 			break;
 
 		case EVENT_WINDOW_DRAW:
-			kmatrix_ipx_redraw();
+			kmatrix_ipx_redraw(km);
 			break;
 			
 		case EVENT_WINDOW_CLOSE:
 			game_flush_inputs();
-			
-			newmenu_close();
+			gr_free_bitmap_data(&km->background);
 			d_free(km);
 			break;
 			
@@ -522,6 +516,14 @@ void kmatrix_ipx_view(int network)
 	if (!km)
 		return;
 
+	gr_init_bitmap_data(&km->background);
+	if (pcx_read_bitmap(STARS_BACKGROUND, &km->background, BM_LINEAR, gr_palette) != PCX_ERROR_NONE)
+	{
+		d_free(km);
+		return;
+	}
+	gr_palette_load(gr_palette);
+	
 	km->entry_time = timer_get_fixed_seconds();
 	km->network = network;
 
@@ -686,14 +688,22 @@ void kmatrix_status_msg (fix time, int reactor)
 		gr_printf(0x8000, SHEIGHT-LINE_SPACING, "Level finished. Wait (%d) to proceed or ESC to Quit.", time);
 }
 
-void kmatrix_redraw()
+typedef struct kmatrix_screen
 {
-	int i, pcx_error, color;
+	grs_bitmap background;
+	int network;
+	fix end_time;
+	int playing;
+} kmatrix_screen;
+
+void kmatrix_redraw(kmatrix_screen *km)
+{
+	int i, color;
 	int sorted[MAX_NUM_NET_PLAYERS];
 
-	pcx_error = pcx_read_fullscr(STARS_BACKGROUND, gr_palette);
-	Assert(pcx_error == PCX_ERROR_NONE);
-
+	gr_set_current_canvas(NULL);
+	show_fullscr(&km->background);
+	
 	if (Game_mode & GM_MULTI_COOP)
 	{
 		kmatrix_redraw_coop();
@@ -701,7 +711,6 @@ void kmatrix_redraw()
 	else
 	{
 		multi_sort_kill_list();
-		gr_set_current_canvas(NULL);
 		grd_curcanv->cv_font = MEDIUM3_FONT;
 
 		if (Game_mode & GM_CAPTURE)
@@ -740,7 +749,6 @@ void kmatrix_redraw_coop()
 	int sorted[MAX_NUM_NET_PLAYERS];
 
 	multi_sort_kill_list();
-	gr_set_current_canvas(NULL);
 	grd_curcanv->cv_font = MEDIUM3_FONT;
 	gr_string( 0x8000, FSPACY(10), "COOPERATIVE SUMMARY");
 	grd_curcanv->cv_font = GAME_FONT;
@@ -761,13 +769,6 @@ void kmatrix_redraw_coop()
 
 	gr_palette_load(gr_palette);
 }
-
-typedef struct kmatrix_screen
-{
-	int network;
-	fix end_time;
-	int playing;
-} kmatrix_screen;
 
 int kmatrix_handler(window *wind, d_event *event, kmatrix_screen *km)
 {
@@ -859,7 +860,7 @@ int kmatrix_handler(window *wind, d_event *event, kmatrix_screen *km)
 			break;
 
 		case EVENT_WINDOW_DRAW:
-			kmatrix_redraw();
+			kmatrix_redraw(km);
 			
 			if (km->playing)
 				kmatrix_status_msg(Countdown_seconds_left, 1);
@@ -871,6 +872,7 @@ int kmatrix_handler(window *wind, d_event *event, kmatrix_screen *km)
 			game_flush_inputs();
 			newmenu_close();
 			
+			gr_free_bitmap_data(&km->background);
 			d_free(km);
 			break;
 			
@@ -891,6 +893,14 @@ void kmatrix_view(int network)
 	if (!km)
 		return;
 
+	gr_init_bitmap_data(&km->background);
+	if (pcx_read_bitmap(STARS_BACKGROUND, &km->background, BM_LINEAR, gr_palette) != PCX_ERROR_NONE)
+	{
+		d_free(km);
+		return;
+	}
+	gr_palette_load(gr_palette);
+	
 	km->network = network;
 	km->end_time = -1;
 	km->playing = 0;

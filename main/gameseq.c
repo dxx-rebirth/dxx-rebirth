@@ -109,8 +109,6 @@ COPYRIGHT 1993-1999 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 
 void StartNewLevelSecret(int level_num, int page_in_textures);
 void InitPlayerPosition(int random_flag);
-void returning_to_level_message(void);
-void advancing_to_level_message(void);
 void DoEndGame(void);
 void AdvanceLevel(int secret_flag);
 void filter_objects_from_level();
@@ -1022,9 +1020,48 @@ int p_secret_level_destroyed(void)
 }
 
 //	-----------------------------------------------------------------------------------------------------
-void do_secret_message(char *msg)
+#define TXT_SECRET_RETURN  "Returning to level %i", Entered_from_level
+#define TXT_SECRET_ADVANCE "Base level destroyed.\nAdvancing to level %i", Entered_from_level+1
+
+int draw_stars_bg(newmenu *menu, d_event *event, grs_bitmap *background)
 {
-	nm_messagebox(NULL, 1, TXT_OK, msg);
+	menu = menu;
+	
+	switch (event->type)
+	{
+		case EVENT_WINDOW_DRAW:
+			gr_set_current_canvas(NULL);
+			show_fullscr(background);
+			break;
+			
+		default:
+			break;
+	}
+	
+	return 0;
+}
+
+void do_screen_message(char *fmt, ...)
+{
+	va_list arglist;
+	grs_bitmap background;
+	char msg[1024];
+	
+	if (Game_mode & GM_MULTI)
+		return;
+	
+	gr_init_bitmap_data(&background);
+	if (pcx_read_bitmap(STARS_BACKGROUND, &background, BM_LINEAR, gr_palette) != PCX_ERROR_NONE)
+		return;
+	
+	gr_palette_load(gr_palette);
+	
+	va_start(arglist, fmt);
+	vsprintf(msg, fmt, arglist);
+	va_end(arglist);
+	
+	nm_messagebox1(NULL, (int (*)(newmenu *, d_event *, void *))draw_stars_bg, &background, 1, TXT_OK, msg);
+	gr_free_bitmap_data(&background);
 }
 
 //	-----------------------------------------------------------------------------------------------------
@@ -1055,16 +1092,13 @@ void StartNewLevelSecret(int level_num, int page_in_textures)
 		set_screen_mode(SCREEN_MENU);
 
 		if (First_secret_visit) {
-			do_secret_message(TXT_SECRET_EXIT);
+			do_screen_message(TXT_SECRET_EXIT);
 		} else {
 			if (PHYSFS_exists(SECRETC_FILENAME))
 			{
-				do_secret_message(TXT_SECRET_EXIT);
+				do_screen_message(TXT_SECRET_EXIT);
 			} else {
-				char	text_str[128];
-
-				sprintf(text_str, "Secret level already destroyed.\nAdvancing to level %i.", Current_level_num+1);
-				do_secret_message(text_str);
+				do_screen_message("Secret level already destroyed.\nAdvancing to level %i.", Current_level_num+1);
 			}
 		}
 	}
@@ -1115,10 +1149,7 @@ void StartNewLevelSecret(int level_num, int page_in_textures)
 			StartSecretLevel();
 			// -- No: This is only for returning to base level: set_pos_from_return_segment();
 		} else {
-			char	text_str[128];
-
-			sprintf(text_str, "Secret level already destroyed.\nAdvancing to level %i.", Current_level_num+1);
-			do_secret_message(text_str);
+			do_screen_message("Secret level already destroyed.\nAdvancing to level %i.", Current_level_num+1);
 			return;
 		}
 	}
@@ -1157,7 +1188,7 @@ void ExitSecretLevel(void)
 	{
 		int	pw_save, sw_save;
 
-		returning_to_level_message();
+		do_screen_message(TXT_SECRET_RETURN);
 		pw_save = Primary_weapon;
 		sw_save = Secondary_weapon;
 		state_restore_all(1, 1, SECRETB_FILENAME);
@@ -1168,7 +1199,7 @@ void ExitSecretLevel(void)
 		if (Entered_from_level == Last_level)
 			DoEndGame();
 		else {
-			advancing_to_level_message();
+			do_screen_message(TXT_SECRET_ADVANCE);
 			StartNewLevel(Entered_from_level+1, 0);
 		}
 	}
@@ -1239,7 +1270,7 @@ void EnterSecretLevel(void)
 	if (EMULATING_D1)
 	{
 		set_screen_mode(SCREEN_MENU);
-		do_secret_message("Alternate Exit Found!\n\nProceeding to Secret Level!");
+		do_screen_message("Alternate Exit Found!\n\nProceeding to Secret Level!");
 		StartNewLevel(Next_level_num, 0);
 	} else {
  	   	StartNewLevelSecret(Next_level_num, 1);
@@ -1409,50 +1440,6 @@ void AdvanceLevel(int secret_flag)
 	}
 }
 
-void
-died_in_mine_message(void)
-{
-	// Tell the player he died in the mine, explain why
-
-	if (Game_mode & GM_MULTI)
-		return;
-
-	set_screen_mode(SCREEN_MENU);		//go into menu mode
-	gr_set_current_canvas(NULL);
-	nm_messagebox(NULL, 1, TXT_OK, TXT_DIED_IN_MINE);
-}
-
-//	Called when player leaves secret level (alive or dead).
-void returning_to_level_message(void)
-{
-	char	msg[128];
-
-	if (Game_mode & GM_MULTI)
-		return;
-
-	set_screen_mode(SCREEN_MENU);		//go into menu mode
-	gr_set_current_canvas(NULL);
-	sprintf(msg, "Returning to level %i", Entered_from_level);
-	nm_messagebox(NULL, 1, TXT_OK, msg);
-}
-
-//	Called when player dies on secret level.
-void advancing_to_level_message(void)
-{
-	char	msg[128];
-
-	//	Only supposed to come here from a secret level.
-	Assert(Current_level_num < 0);
-
-	if (Game_mode & GM_MULTI)
-		return;
-
-	set_screen_mode(SCREEN_MENU);		//go into menu mode
-	gr_set_current_canvas(NULL);
-	sprintf(msg, "Base level destroyed.\nAdvancing to level %i", Entered_from_level+1);
-	nm_messagebox(NULL, 1, TXT_OK, msg);
-}
-
 void digi_stop_digi_sounds();
 
 void DoPlayerDead()
@@ -1505,12 +1492,12 @@ void DoPlayerDead()
 		Players[Player_num].shields = 0;
 		Players[Player_num].connected = CONNECT_DIED_IN_MINE;
 
-		died_in_mine_message(); // Give them some indication of what happened
+		do_screen_message(TXT_DIED_IN_MINE); // Give them some indication of what happened
 
 		if (Current_level_num < 0) {
 			if (PHYSFS_exists(SECRETB_FILENAME))
 			{
-				returning_to_level_message();
+				do_screen_message(TXT_SECRET_RETURN);
 				state_restore_all(1, 2, SECRETB_FILENAME);			//	2 means you died
 				set_pos_from_return_segment();
 				Players[Player_num].lives--;						//	re-lose the life, Players[Player_num].lives got written over in restore.
@@ -1518,7 +1505,7 @@ void DoPlayerDead()
 				if (Entered_from_level == Last_level)
 					DoEndGame();
 				else {
-					advancing_to_level_message();
+					do_screen_message(TXT_SECRET_ADVANCE);
 					StartNewLevel(Entered_from_level+1, 0);
 					init_player_stats_new_ship();	//	New, MK, 05/29/96!, fix bug with dying in secret level, advance to next level, keep powerups!
 				}
@@ -1534,18 +1521,18 @@ void DoPlayerDead()
 	} else if (Current_level_num < 0) {
 		if (PHYSFS_exists(SECRETB_FILENAME))
 		{
-			returning_to_level_message();
+			do_screen_message(TXT_SECRET_RETURN);
 			if (!Control_center_destroyed)
 				state_save_all(0, 2, SECRETC_FILENAME, 0);
 			state_restore_all(1, 2, SECRETB_FILENAME);
 			set_pos_from_return_segment();
 			Players[Player_num].lives--;						//	re-lose the life, Players[Player_num].lives got written over in restore.
 		} else {
-			died_in_mine_message(); // Give them some indication of what happened
+			do_screen_message(TXT_DIED_IN_MINE); // Give them some indication of what happened
 			if (Entered_from_level == Last_level)
 				DoEndGame();
 			else {
-				advancing_to_level_message();
+				do_screen_message(TXT_SECRET_ADVANCE);
 				StartNewLevel(Entered_from_level+1, 0);
 				init_player_stats_new_ship();	//	New, MK, 05/29/96!, fix bug with dying in secret level, advance to next level, keep powerups!
 			}

@@ -26,12 +26,11 @@ COPYRIGHT 1993-1998 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 #include "u_mem.h"
 #include "pcx.h"
 #include "cfile.h"
+#include "physfsx.h"
 
 #ifdef OGL
 #include "palette.h"
 #endif
-
-#include "physfsx.h"
 
 int pcx_encode_byte(ubyte byt, ubyte cnt, PHYSFS_file *fid);
 int pcx_encode_line(ubyte *inBuff, int inLen, PHYSFS_file *fp);
@@ -354,23 +353,4 @@ char *pcx_errormsg(int error_number)
 	}
 
 	return p;
-
-}
-
-// fullscreen loading, 10/14/99 Jan Bobrowski
-
-int pcx_read_fullscr(char * filename, ubyte * palette)
-{
-	int pcx_error;
-	grs_bitmap bm;
-	gr_init_bitmap_data(&bm);
-	pcx_error = pcx_read_bitmap(filename, &bm, BM_LINEAR, palette);
-	if (pcx_error == PCX_ERROR_NONE) {
-#ifdef OGL
-		gr_palette_load(palette);
-#endif
-		show_fullscr(&bm);
-	}
-	gr_free_bitmap_data(&bm);
-	return pcx_error;
 }

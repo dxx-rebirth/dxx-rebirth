@@ -66,7 +66,7 @@ void fuelcen_replentish_all();
 // Create a matcen robot
 extern object *create_morph_robot(segment *segp, vms_vector *object_pos, int object_id);
 
-// Returns the amount of fuel/shield this segment can give up.
+// Returns the amount of fuel/shields this segment can give up.
 // Can be from 0 to 100.
 fix fuelcen_give_fuel(segment *segp, fix MaxAmountCanTake );
 fix repaircen_give_shields(segment *segp, fix MaxAmountCanTake );
