@@ -1,16 +1,4 @@
 /*
-THE COMPUTER CODE CONTAINED HEREIN IS THE SOLE PROPERTY OF PARALLAX
-SOFTWARE CORPORATION ("PARALLAX").  PARALLAX, IN DISTRIBUTING THE CODE TO
-END-USERS, AND SUBJECT TO ALL OF THE TERMS AND CONDITIONS HEREIN, GRANTS A
-ROYALTY-FREE, PERPETUAL LICENSE TO SUCH END-USERS FOR USE BY SUCH END-USERS
-IN USING, DISPLAYING,  AND CREATING DERIVATIVE WORKS THEREOF, SO LONG AS
-SUCH USE, DISPLAY OR CREATION IS FOR NON-COMMERCIAL, ROYALTY OR REVENUE
-FREE PURPOSES.  IN NO EVENT SHALL THE END-USER USE THE COMPUTER CODE
-CONTAINED HEREIN FOR REVENUE-BEARING PURPOSES.  THE END-USER UNDERSTANDS
-AND AGREES TO THE TERMS HEREIN AND ACCEPTS THE SAME BY USE OF THIS FILE.  
-COPYRIGHT 1993-1998 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
-*/
-/*
  *
  * SDL mouse driver header
  *
@@ -49,6 +37,7 @@ struct d_event;
 
 extern void mouse_flush();	// clears all mice events...
 extern void mouse_init(void);
+extern void mouse_close(void);
 int mouse_get_button(struct d_event *event);
 extern void mouse_get_pos( int *x, int *y, int *z );
 extern void mouse_get_delta( int *dx, int *dy, int *dz );
@@ -58,6 +47,5 @@ extern fix mouse_button_down_time(int button);
 extern int mouse_button_down_count(int button);
 extern int mouse_button_state(int button);
 extern void mouse_toggle_cursor(int activate);
-extern void mouse_toggle_grab(int activate);
 
 #endif
