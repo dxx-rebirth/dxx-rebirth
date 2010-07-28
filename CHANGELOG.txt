@@ -1,5 +1,9 @@
 D2X-Rebirth Changelog
 
+20100728
+--------
+main/automap.c, main/game.c, main/gamecntl.c, arch/sdl/init.c, arch/sdl/mouse.c, arch/include/mouse.h: One more take on Mouse cursor friendliness: Merged mouse_toggle_cursor and mouse_toggle_grab; instead of trying to use SDL_GetAppState (which does not work as expected on Windows) to release mouse, use strict calls of mouse_toggle_cursor so we at least have a free mouse outside of Game_wind and Automap; decreased time to automatically hide cursor; added mouse_close to release mouse in case of emergency
+
 20100727
 --------
 2d/pcx.c, include/pcx.h, main/cntrlcen.h, main/fuelcen.h, main/gameseq.c, main/kmatrix.c: Show stars background for died in mine and secret level messageboxes; equalise fuelcen.h and cntrlcen.h

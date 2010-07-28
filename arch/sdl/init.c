@@ -21,6 +21,8 @@ void arch_close(void)
 	if (!GameArg.CtlNoJoystick)
 		joy_close();
 
+	mouse_close();
+
 	if (!GameArg.SndNoSound)
 	{
 		digi_close();

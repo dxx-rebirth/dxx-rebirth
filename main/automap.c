@@ -729,11 +729,11 @@ int automap_handler(window *wind, d_event *event, automap *am)
 	{
 		case EVENT_WINDOW_ACTIVATED:
 			game_flush_inputs();
-			mouse_toggle_grab(1);
+			mouse_toggle_cursor(0);
 			break;
 
 		case EVENT_WINDOW_DEACTIVATED:
-			mouse_toggle_grab(0);
+			mouse_toggle_cursor(1);
 			break;
 
 		case EVENT_KEY_COMMAND:
@@ -748,7 +748,7 @@ int automap_handler(window *wind, d_event *event, automap *am)
 			break;
 			
 		case EVENT_WINDOW_CLOSE:
-			mouse_toggle_grab(0);
+			mouse_toggle_cursor(1);
 #ifdef OGL
 			gr_free_bitmap_data(&am->automap_background);
 #endif
