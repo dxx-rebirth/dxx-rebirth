@@ -113,7 +113,7 @@ int gr_toggle_fullscreen(void)
 {
 	gr_do_fullscreen(!ogl_fullscreen);
 
-	if (gl_initialized && Screen_mode != SCREEN_GAME) // update viewing values for menus
+	if (gl_initialized) // update viewing values for menus
 	{
 		glMatrixMode(GL_PROJECTION);
 		glLoadIdentity();

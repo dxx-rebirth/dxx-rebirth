@@ -3,6 +3,7 @@ D1X-Rebirth Changelog
 20100729
 --------
 main/automap.c, main/fuelcen.c, main/game.c, main/gamecntl.c, main/gameseq.c, main/menu.c, main/newmenu.c: Tidy up use of set_screen_mode
+arch/ogl/gr.c, arch/ogl/ogl.c: Using rather sane values for gluPerspective - fixing Z-Fighting bugs on Intel chips; in Fullscreen toggle, always apply new viewing values independent of Screen_mode
 
 20100728
 --------
