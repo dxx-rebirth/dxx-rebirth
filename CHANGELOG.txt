@@ -1,5 +1,9 @@
 D1X-Rebirth Changelog
 
+20100729
+--------
+main/automap.c, main/fuelcen.c, main/game.c, main/gamecntl.c, main/gameseq.c, main/menu.c, main/newmenu.c: Tidy up use of set_screen_mode
+
 20100728
 --------
 main/automap.c, main/game.c, main/gamecntl.c, arch/sdl/init.c, arch/sdl/mouse.c, arch/include/mouse.h: One more take on Mouse cursor friendliness: Merged mouse_toggle_cursor and mouse_toggle_grab; instead of trying to use SDL_GetAppState (which does not work as expected on Windows) to release mouse, use strict calls of mouse_toggle_cursor so we at least have a free mouse outside of Game_wind and Automap; decreased time to automatically hide cursor; added mouse_close to release mouse in case of emergency

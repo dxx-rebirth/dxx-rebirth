@@ -798,8 +798,6 @@ void DoEndLevelScoreGlitz(int network)
 
 	gr_palette_load( gr_palette );
 
-        set_screen_mode(SCREEN_MENU);
-
 	level_points = Players[Player_num].score-Players[Player_num].last_score;
 
 	if (!Cheats_enabled) {

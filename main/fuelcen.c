@@ -595,7 +595,6 @@ void controlcen_proc( FuelCenter * controlcen )
 		if (PaletteBlueAdd > 64 )	{
 			gr_set_current_canvas( NULL );		
 			gr_clear_canvas(BM_XRGB(31,31,31));		//make screen all white to match palette effect
-			reset_cockpit();								//force cockpit redraw next time
 			reset_palette_add();							//restore palette for death message
 			controlcen->Timer = -1;
 			controlcen->MaxCapacity = Fuelcen_max_amount;

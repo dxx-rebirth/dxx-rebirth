@@ -451,8 +451,6 @@ void create_main_menu(newmenu_item *m, int *menu_choice, int *callers_num_option
 	#ifndef DEMO_ONLY
 	num_options = 0;
 
-	set_screen_mode (SCREEN_MENU);
-
 	ADD_ITEM(TXT_NEW_GAME,MENU_NEW_GAME,KEY_N);
 
 	ADD_ITEM(TXT_LOAD_GAME,MENU_LOAD_GAME,KEY_L);
@@ -548,7 +546,6 @@ int do_option ( int select)
 		#ifdef EDITOR
 		case MENU_EDITOR:
 			Function_mode = FMODE_EDITOR;
-			init_cockpit();
 
 			create_new_mine();
 			SetPlayerFromCurseg();
@@ -1030,7 +1027,6 @@ void change_res()
 	if (new_mode != Game_screen_mode)
 		gr_set_mode(new_mode);
 	Game_screen_mode = new_mode;
-	init_cockpit();
 	game_init_render_buffers(SM_W(Game_screen_mode), SM_H(Game_screen_mode), VR_NONE);
 	}
 }
