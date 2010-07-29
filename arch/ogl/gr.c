@@ -115,7 +115,7 @@ int gr_toggle_fullscreen(void)
 	gr_remap_color_fonts();
 	gr_remap_mono_fonts();
 
-	if (gl_initialized && Screen_mode != SCREEN_GAME) // update viewing values for menus
+	if (gl_initialized) // update viewing values for menus
 	{
 		glMatrixMode(GL_PROJECTION);
 		glLoadIdentity();
