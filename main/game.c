@@ -379,10 +379,6 @@ int set_screen_mode(int sm)
 			break;
 #endif
 		case SCREEN_MOVIE:
-			/* give control back to the WM */
-			if (GameArg.CtlGrabMouse)
-				SDL_WM_GrabInput(SDL_GRAB_OFF);
-
 			if (grd_curscreen->sc_mode != SM(MOVIE_WIDTH,MOVIE_HEIGHT))	{
 				if (gr_set_mode(SM(MOVIE_WIDTH,MOVIE_HEIGHT))) Error("Cannot set screen mode for game!");
 				gr_palette_load( gr_palette );

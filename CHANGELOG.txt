@@ -1,5 +1,9 @@
 D2X-Rebirth Changelog
 
+20100730
+--------
+main/game.c: Removed leftover of mouse grabbing from set_screen_mode - forgot to do this in rev1192
+
 20100729
 --------
 main/automap.c, main/cntrlcen.c, main/game.c, main/gamecntl.c, main/gameseq.c, main/menu.c, main/movie.c, main/newmenu.c: Tidy up use of set_screen_mode
