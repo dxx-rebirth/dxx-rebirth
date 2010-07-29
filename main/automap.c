@@ -754,10 +754,6 @@ int automap_handler(window *wind, d_event *event, automap *am)
 #endif
 			d_free(am->edges);
 			d_free(am->drawingListBright);
-			
-			Screen_mode=-1; set_screen_mode(SCREEN_GAME);
-			init_cockpit();
-			last_drawn_cockpit = -1;
 			d_free(am);
 			window_set_visible(Game_wind, 1);
 			Automap_active = 0;

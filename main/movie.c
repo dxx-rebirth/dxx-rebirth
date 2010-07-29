@@ -456,14 +456,6 @@ int RunMovie(char *filename, int hires_flag, int must_have,int dx,int dy)
 }
 
 
-int InitMovieBriefing()
-{
-	set_screen_mode(SCREEN_MOVIE);
-
-	return 1;
-}
-
-
 //returns 1 if frame updated ok
 int RotateRobot()
 {

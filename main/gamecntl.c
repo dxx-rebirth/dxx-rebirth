@@ -404,7 +404,6 @@ int pause_handler(window *wind, d_event *event, char *msg)
 
 		case EVENT_WINDOW_CLOSE:
 			mouse_toggle_cursor(0);
-			reset_cockpit();
 			songs_resume();
 			d_free(msg);
 			break;
@@ -1513,7 +1512,6 @@ int HandleTestKey(int key)
 			item = newmenu_do( NULL, "Briefing to play?", 1, &m, NULL, NULL );
 			if (item != -1) {
 				do_briefing_screens(text,1);
-				reset_cockpit();
 			}
 			break;
 		}

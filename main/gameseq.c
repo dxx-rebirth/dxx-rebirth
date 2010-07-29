@@ -890,8 +890,6 @@ void DoEndLevelScoreGlitz(int network)
 	int				is_last_level;
 	int				mine_level;
 
-	set_screen_mode(SCREEN_MENU);		//go into menu mode
-
 	//	Compute level player is on, deal with secret levels (negative numbers)
 	mine_level = Players[Player_num].level;
 	if (mine_level < 0)

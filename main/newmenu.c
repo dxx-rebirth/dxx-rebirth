@@ -530,12 +530,10 @@ int newmenu_doreorder( char * title, char * subtitle, int nitems, newmenu_item *
 
 newmenu *newmenu_do3( char * title, char * subtitle, int nitems, newmenu_item * item, int (*subfunction)(newmenu *menu, d_event *event, void *userdata), void *userdata, int citem, char * filename )
 {
-	set_screen_mode(SCREEN_MENU);//hafta set the screen mode before calling or fonts might get changed/freed up if screen res changes
 	return newmenu_do4( title, subtitle, nitems, item, subfunction, userdata, citem, filename, 0, 0 );
 }
 
 newmenu *newmenu_do_fixedfont( char * title, char * subtitle, int nitems, newmenu_item * item, int (*subfunction)(newmenu *menu, d_event *event, void *userdata), void *userdata, int citem, char * filename){
-	set_screen_mode(SCREEN_MENU);//hafta set the screen mode before calling or fonts might get changed/freed up if screen res changes
 	return newmenu_do4( title, subtitle, nitems, item, subfunction, userdata, citem, filename, 0, 0);
 }
 
@@ -1592,6 +1590,8 @@ newmenu *newmenu_do4( char * title, char * subtitle, int nitems, newmenu_item * 
 
 	menu->max_displayable=nitems;
 
+	set_screen_mode(SCREEN_MENU);	//hafta set the screen mode here or fonts might get changed/freed up if screen res changes
+
 	newmenu_create_structure(menu);
 
 	// Create the basic window
@@ -2058,6 +2058,8 @@ listbox *newmenu_listbox1( char * title, int nitems, char * items[], int allow_a
 	lb->listbox_callback = listbox_callback;
 	lb->userdata = userdata;
 
+	set_screen_mode(SCREEN_MENU);	//hafta set the screen mode here or fonts might get changed/freed up if screen res changes
+	
 	listbox_create_structure(lb);
 
 	wind = window_create(&grd_curscreen->sc_canvas, lb->box_x-BORDERX, lb->box_y-lb->title_height-BORDERY, lb->box_w+2*BORDERX, lb->height+2*BORDERY, (int (*)(window *, d_event *, void *))listbox_handler, lb);
