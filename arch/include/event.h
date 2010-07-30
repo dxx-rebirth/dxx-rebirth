@@ -34,6 +34,7 @@ int event_init();
 
 // Sends input events to event handlers
 void event_poll();
+void event_flush();
 
 // Set and call the default event handler
 void set_default_handler(int (*handler)(d_event *event));

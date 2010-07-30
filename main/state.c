@@ -712,6 +712,9 @@ int state_restore_all_sub(char *filename)
 	InitPlayerObject();				//make sure player's object set up
 	init_player_stats_game();		//clear all stats
 
+	if (Game_wind)
+		window_set_visible(Game_wind, 0);
+
 //Read player info
 
 	if ( between_levels )	{
@@ -890,8 +893,10 @@ RetryObjectLoading:
 
 	PHYSFS_close(fp);
 
-// Load in bitmaps, etc..
-//!!	piggy_load_level_data();	//already done by StartNewLevelSub()
+	if (Game_wind)
+		if (!window_is_visible(Game_wind))
+			window_set_visible(Game_wind, 1);
+	reset_time();
 
 	return 1;
 }
