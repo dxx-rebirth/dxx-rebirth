@@ -313,8 +313,6 @@ elif sys.platform == 'darwin':
 	print "compiling on Mac OS X"
 	osdef = '__APPLE__'
 	sharepath = ''
-	env.ParseConfig('sdl-config --cflags')
-	env.ParseConfig('sdl-config --libs')
 	env.Append(CPPDEFINES = ['__unix__'])
 	no_asm = 1
 	ogldefines = ['OGL']
@@ -347,6 +345,7 @@ else:
 	ogldefines = ['OGL']
 	if (use_ipx == 1):
 		common_sources += ['arch/linux/ipx.c', 'arch/linux/ipx_kali.c', 'arch/linux/ukali.c']
+	libs += env['LIBS']
 	ogllibs = ['GL', 'GLU']
 	lflags = '-L/usr/X11R6/lib'
 
