@@ -73,6 +73,13 @@ void event_poll()
 	mouse_update_cursor_and_grab(time);
 }
 
+void event_flush()
+{
+	SDL_Event event;
+	
+	while (SDL_PollEvent(&event));
+}
+
 int event_init()
 {
 	// We should now be active and responding to events.

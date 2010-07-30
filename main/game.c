@@ -422,6 +422,7 @@ void start_time()
 void game_flush_inputs()
 {
 	int dx,dy,dz;
+	event_flush();
 	key_flush();
 	joy_flush();
 	mouse_flush();
@@ -1173,9 +1174,8 @@ int game_handler(window *wind, d_event *event, void *data)
 		case EVENT_WINDOW_ACTIVATED:
 			set_screen_mode(SCREEN_GAME);
 
-			game_flush_inputs();
-
 			mouse_toggle_cursor(0);
+			game_flush_inputs();
 
 			if (time_paused)
 				start_time();
