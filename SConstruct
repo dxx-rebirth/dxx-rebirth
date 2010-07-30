@@ -32,6 +32,7 @@ arm = int(ARGUMENTS.get('arm', 0))
 ipv6 = int(ARGUMENTS.get('ipv6', 0))
 use_udp = int(ARGUMENTS.get('use_udp', 1))
 use_ipx = int(ARGUMENTS.get('use_ipx', 1))
+verbosebuild = int(ARGUMENTS.get('verbosebuild', 0))
 
 print '\n===== ' + PROGRAM_NAME + VERSION_STRING + ' =====\n'
 
@@ -269,21 +270,19 @@ noasm_sources = [
 env = Environment(ENV = os.environ)
  
 # Prettier build messages......
-env["CCCOMSTR"]     = "Compiling $SOURCE ..."
-env["CXXCOMSTR"]    = "Compiling $SOURCE ..."
-env["LINKCOMSTR"]   = "Linking $TARGET ..."
-env["ARCOMSTR"]     = "Archiving $TARGET ..."
-env["RANLIBCOMSTR"] = "Indexing $TARGET ..."
+if (verbosebuild == 0):
+	env["CCCOMSTR"]     = "Compiling $SOURCE ..."
+	env["CXXCOMSTR"]    = "Compiling $SOURCE ..."
+	env["LINKCOMSTR"]   = "Linking $TARGET ..."
+	env["ARCOMSTR"]     = "Archiving $TARGET ..."
+	env["RANLIBCOMSTR"] = "Indexing $TARGET ..."
 
 # flags and stuff for all platforms
-env.ParseConfig('sdl-config --cflags')
-env.ParseConfig('sdl-config --libs')
 env.Append(CPPFLAGS = ['-Wall', '-funsigned-char'])
 env.Append(CPPDEFINES = [('PROGRAM_NAME', '\\"' + str(PROGRAM_NAME) + '\\"'), ('D2XMAJOR', '\\"' + str(D2XMAJOR) + '\\"'), ('D2XMINOR', '\\"' + str(D2XMINOR) + '\\"'), ('D2XMICRO', '\\"' + str(D2XMICRO) + '\\"')])
 env.Append(CPPDEFINES = ['NETWORK', '_REENTRANT'])
 env.Append(CPPPATH = ['include', 'main', 'arch/include'])
-libs = env['LIBS']
-libs += ['physfs']
+libs = ['physfs']
 
 # Get traditional compiler environment variables
 if os.environ.has_key('CC'):
@@ -317,6 +316,8 @@ elif sys.platform == 'darwin':
 	sharepath = ''
 	env.Append(CPPDEFINES = ['HAVE_STRUCT_TIMESPEC', 'HAVE_STRUCT_TIMEVAL', '__unix__'])
 	asm = 0
+	env.ParseConfig('sdl-config --cflags')
+	env.ParseConfig('sdl-config --libs')
 	env.Append(CPPPATH = ['arch/linux/include'])
 	ogldefines = ['OGL']
 	common_sources += 'arch/cocoa/SDLMain.m'
@@ -341,6 +342,8 @@ else:
 	osdef = '__LINUX__'
 	osasmdef = 'elf'
 	sharepath += '/'
+	env.ParseConfig('sdl-config --cflags')
+	env.ParseConfig('sdl-config --libs')
 	env.Append(CPPDEFINES = ['__LINUX__', 'HAVE_STRUCT_TIMESPEC', 'HAVE_STRUCT_TIMEVAL'])
 	env.Append(CPPPATH = ['arch/linux/include'])
 	ogldefines = ['OGL']
@@ -455,8 +458,9 @@ Help(PROGRAM_NAME + ', SConstruct file help:' +
 	'editor=1'        build editor !EXPERIMENTAL!
 	'arm=1'           compile for ARM architecture
 	'ipv6=1'          enables IPv6 copability
-	'use_udp=0'		  disable UDP support
-	'use_ipx=0'		  disable IPX support (IPX available on Linux and Windows, only)
+	'use_udp=0'	  disable UDP support
+	'use_ipx=0'	  disable IPX support (IPX available on Linux and Windows, only)
+	'verbosebuild=1'  print out all compiler/linker messages during building
 	
 	Default values:
 	""" + ' sharepath = ' + DATA_DIR + """

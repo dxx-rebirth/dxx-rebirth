@@ -3,6 +3,7 @@ D2X-Rebirth Changelog
 20100730
 --------
 main/game.c: Removed leftover of mouse grabbing from set_screen_mode - forgot to do this in rev1192
+SConstruct: restricted parsing of sdl-config to *NIX and Mac builds as it's static on Win32 anyways; added verbosebuild as SCons option to print out all compiler/linker messages
 
 20100729
 --------
