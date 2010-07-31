@@ -1,10 +1,13 @@
 D1X-Rebirth Changelog
 
+20100731
+--------
+main/inferno.c, main/kmatrix.c, main/menu.c, main/newmenu.c, main/newmenu.h, main/scores.c: For polling newmenus, set rval using a pointer and don't delay closing the window, hopefully fixing bad memory access when clicking in level scores screen; change newmenu_close to newmenu_free_background to avoid confusion
+
 20100730
 --------
 SConstruct: restricted parsing of sdl-config to *NIX and Mac builds as it's static on Win32 anyways; added verbosebuild as SCons option to print out all compiler/linker messages
 main/state.c, main/game.c, arch/sdl/event.c, arch/sdl/mouse.c, arch/include/event.h: Added event_flush to take place in game_flush_inputs which will clean SDL events which may be buffered while event_process was suspended; suspend Game_Wind while loading restoring save state while playing a level to properly flush controls and reset timer; when toggeling cursor, also directly modify the mouse to wanted behaviour instead of waiting for mouse_update_cursor_and_grab
-
 
 20100729
 --------

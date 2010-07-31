@@ -91,7 +91,7 @@ struct newmenu
 	int				is_scroll_box;   // Is this a scrolling box? Set to false at init
 	int				max_on_menu;
 	int				mouse_state, dblclick_flag;
-	int				leave;			// Leave newmenu_doX function
+	int				*rval;			// Pointer to return value (for polling newmenus)
 	void			*userdata;		// For whatever - like with window system
 };
 
@@ -100,7 +100,7 @@ grs_bitmap *nm_background_sub = NULL;
 
 newmenu *newmenu_do4( char * title, char * subtitle, int nitems, newmenu_item * item, int (*subfunction)(newmenu *menu, d_event *event, void *userdata), void *userdata, int citem, char * filename, int TinyMode, int TabsFlag );
 
-void newmenu_close()	{
+void newmenu_free_background()	{
 	if (nm_background.bm_data)
 	{
 		if (nm_background_sub)
@@ -472,22 +472,13 @@ int newmenu_do2( char * title, char * subtitle, int nitems, newmenu_item * item,
 
 	if (!menu)
 		return -1;
-	menu->leave = 0;	// no leaving this function until we're finished
+	menu->rval = &rval;
 	wind = menu->wind;	// avoid dereferencing a freed 'menu'
 
 	// newmenu_do2 and simpler get their own event loop
 	// This is so the caller doesn't have to provide a callback that responds to EVENT_NEWMENU_SELECTED
 	while (window_exists(wind))
-	{
 		event_process();
-
-		if (menu->leave)
-		{
-			rval = menu->citem;
-			if (window_exists(wind) && !window_close(wind))
-				menu->leave = 0;		// user aborted close
-		}
-	}
 
 	return rval;
 }
@@ -504,22 +495,13 @@ int newmenu_doreorder( char * title, char * subtitle, int nitems, newmenu_item *
 	if (!menu)
 		return -1;
 	menu->reorderitems = 1;
-	menu->leave = 0;	// no leaving this function until we're finished
+	menu->rval = &rval;
 	wind = menu->wind;	// avoid dereferencing a freed 'menu'
 
 	// newmenu_do2 and simpler get their own event loop
 	// This is so the caller doesn't have to provide a callback that responds to EVENT_NEWMENU_SELECTED
 	while (window_exists(wind))
-	{
 		event_process();
-
-		if (menu->leave)
-		{
-			rval = menu->citem;
-			if (window_exists(wind) && !window_close(wind))
-				menu->leave = 0;		// user aborted close
-		}
-	}
 
 	return rval;
 }
@@ -556,19 +538,6 @@ int newmenu_get_citem(newmenu *menu)
 window *newmenu_get_window(newmenu *menu)
 {
 	return menu->wind;
-}
-
-// The 'softer' version of window_close,
-// this leaves citem alone
-int newmenu_close_window(newmenu *menu)
-{
-	if (!menu->leave)
-	{
-		menu->leave = 1;
-		return 1;
-	}
-
-	return window_close(newmenu_get_window(menu));
 }
 
 int newmenu_mouse(window *wind, d_event *event, newmenu *menu)
@@ -629,7 +598,7 @@ int newmenu_mouse(window *wind, d_event *event, newmenu *menu)
 
 	if (menu->mouse_state && menu->all_text)
 	{
-		newmenu_close_window(menu);
+		window_close(menu->wind);
 		gr_set_current_canvas(save_canvas);
 		return 1;
 	}
@@ -761,7 +730,9 @@ int newmenu_mouse(window *wind, d_event *event, newmenu *menu)
 						if (menu->subfunction && (*menu->subfunction)(menu, event, menu->userdata))
 							return 1;
 
-						newmenu_close_window(menu);
+						if (menu->rval)
+							*menu->rval = menu->citem;
+						window_close(menu->wind);
 						gr_set_current_canvas(save_canvas);
 						return 1;
 					}
@@ -774,7 +745,9 @@ int newmenu_mouse(window *wind, d_event *event, newmenu *menu)
 					if (menu->subfunction && (*menu->subfunction)(menu, event, menu->userdata))
 						return 1;
 
-					newmenu_close_window(menu);
+					if (menu->rval)
+						*menu->rval = menu->citem;
+					window_close(menu->wind);
 					gr_set_current_canvas(save_canvas);
 					return 1;
 				}
@@ -990,7 +963,9 @@ int newmenu_key_command(window *wind, d_event *event, newmenu *menu)
 				if (menu->subfunction && (*menu->subfunction)(menu, event, menu->userdata))
 					return 1;
 
-				newmenu_close_window(menu);
+				if (menu->rval)
+					*menu->rval = menu->citem;
+				window_close(menu->wind);
 				return 1;
 			}
 			break;
@@ -1001,8 +976,7 @@ int newmenu_key_command(window *wind, d_event *event, newmenu *menu)
 				strcpy(item->text, item->saved_text );
 				item->value = -1;
 			} else {
-				menu->citem = -1;
-				newmenu_close_window(menu);
+				window_close(menu->wind);
 				return 1;
 			}
 			break;
@@ -1473,15 +1447,16 @@ int newmenu_handler(window *wind, d_event *event, newmenu *menu)
 	if (event->type == EVENT_WINDOW_CLOSED)
 		return 0;
 
-	if (menu->subfunction && (event->type != EVENT_WINDOW_CLOSE))
+	if (menu->subfunction)
 	{
 		int rval = (*menu->subfunction)(menu, event, menu->userdata);
 		if (rval)
 		{
 			if (rval < -1)
 			{
-				menu->citem = rval;
-				newmenu_close_window(menu);
+				if (menu->rval)
+					*menu->rval = rval;
+				window_close(wind);
 			}
 
 			return 1;		// event handled
@@ -1523,19 +1498,7 @@ int newmenu_handler(window *wind, d_event *event, newmenu *menu)
 			break;
 
 		case EVENT_WINDOW_CLOSE:
-			if (!menu->leave)
-			{
-				menu->citem = -1;
-				menu->leave = 1;
-				return 1;	// cancel close and do it in newmenu_do2 instead
-			}
-
-			if (window_exists(wind))
-			{
-				if (menu->subfunction)
-					(*menu->subfunction)(menu, event, menu->userdata);	// can't cancel here - too hard
-				d_free(menu);
-			}
+			d_free(menu);
 			break;
 
 		default:
@@ -1573,10 +1536,10 @@ newmenu *newmenu_do4( char * title, char * subtitle, int nitems, newmenu_item * 
 	menu->tiny_mode = TinyMode;
 	menu->tabs_flag = TabsFlag;
 	menu->reorderitems = 0; // will be set if needed
-	menu->leave = 1;		// Default to leaving newmenu_doX function
+	menu->rval = NULL;		// Default to not returning a value - respond to EVENT_NEWMENU_SELECTED instead
 	menu->userdata = userdata;
 
-	newmenu_close();
+	newmenu_free_background();
 
 	if (nitems < 1 )
 	{
@@ -2044,7 +2007,7 @@ listbox *newmenu_listbox1( char * title, int nitems, char * items[], int allow_a
 		return NULL;
 
 	memset(lb, 0, sizeof(listbox));
-	newmenu_close();
+	newmenu_free_background();
 
 	lb->title = title;
 	lb->nitems = nitems;

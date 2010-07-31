@@ -458,7 +458,7 @@ int main(int argc, char *argv[])
 	gamefont_close();
 	free_text();
 	args_exit();
-	newmenu_close();
+	newmenu_free_background();
 	free_mission();
 
 	return(0);		//presumably successful exit
