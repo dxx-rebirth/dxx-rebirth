@@ -1,5 +1,9 @@
 D2X-Rebirth Changelog
 
+20100731
+--------
+main/gamepal.c, main/gamerend.c, main/inferno.c, main/kmatrix.c, main/menu.c, main/newmenu.c, main/newmenu.h, main/scores.c: For polling newmenus, set rval using a pointer and don't delay closing the window, hopefully fixing bad memory access when clicking in level scores screen; change newmenu_close to newmenu_free_background to avoid confusion
+
 20100730
 --------
 main/game.c: Removed leftover of mouse grabbing from set_screen_mode - forgot to do this in rev1192

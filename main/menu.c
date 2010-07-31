@@ -123,7 +123,7 @@ int do_option(int select);
 int do_new_game_menu(void);
 int do_load_level_menu(void);
 void do_multi_player_menu();
-extern void newmenu_close();
+extern void newmenu_free_background();
 extern void ReorderPrimary();
 extern void ReorderSecondary();
 
@@ -1062,7 +1062,7 @@ void change_res()
 	}
 
 	// clean up and apply everything
-	newmenu_close();
+	newmenu_free_background();
 	set_screen_mode(SCREEN_MENU);
 	if (new_mode != Game_screen_mode)
 		gr_set_mode(new_mode);

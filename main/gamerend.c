@@ -57,7 +57,7 @@ COPYRIGHT 1993-1999 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 extern fix Cruise_speed;
 extern int LinearSVGABuffer;
 
-extern void newmenu_close();
+extern void newmenu_free_background();
 int netplayerinfo_on=0;
 
 extern ubyte DefiningMarkerMessage;

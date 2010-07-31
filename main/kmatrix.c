@@ -63,7 +63,7 @@ COPYRIGHT 1993-1999 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 #define ENDLEVEL_IDLE_TIME  F1_0*10
 fix StartAbortMenuTime;
 char ConditionLetters[]={' ','P','E','D','E','E','V','W'};
-extern void newmenu_close();
+extern void newmenu_free_background();
 
 void kmatrix_ipx_reactor (char *message);
 void kmatrix_ipx_phallic ();
@@ -870,7 +870,7 @@ int kmatrix_handler(window *wind, d_event *event, kmatrix_screen *km)
 			
 		case EVENT_WINDOW_CLOSE:
 			game_flush_inputs();
-			newmenu_close();
+			newmenu_free_background();
 			
 			gr_free_bitmap_data(&km->background);
 			d_free(km);

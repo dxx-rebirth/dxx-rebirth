@@ -87,7 +87,7 @@ int load_palette(char *name,int used_for_level,int no_change_screen)
 		if (!no_change_screen)
 			gr_palette_load(gr_palette);
 
-		newmenu_close(); // palette changed! free menu!
+		newmenu_free_background(); // palette changed! free menu!
 		gr_remap_color_fonts();
 		gr_remap_mono_fonts();
 

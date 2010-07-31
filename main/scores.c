@@ -436,7 +436,7 @@ void scores_view(stats_info *last_game, int citem)
 	if (last_game)
 		menu->last_game = *last_game;
 
-	newmenu_close();
+	newmenu_free_background();
 
 	scores_read(&menu->scores);
 
