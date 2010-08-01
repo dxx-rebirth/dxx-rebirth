@@ -704,8 +704,7 @@ void LoadLevel(int level_num)
 
 	set_sound_sources();
 
-	if (songs_is_playing() < SONG_FIRST_LEVEL_SONG)
-		songs_play_level_song( Current_level_num, 0 );
+	songs_play_level_song( Current_level_num, 0 );
 
 	gr_palette_load(gr_palette);		//actually load the palette
 }

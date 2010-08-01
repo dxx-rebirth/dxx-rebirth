@@ -1,5 +1,9 @@
 D1X-Rebirth Changelog
 
+20100801
+--------
+main/menu.c, main/songs.c, main/songs.h, main/gameseq.c, main/digi.h, arch/sdl/digi.c: Builtin music list now dynamically allocated and not limited to 30 songs; Instead of never loading new level when loading savestate ingame, only do this for Redbook and Custom Music playing order 'continously'; if no endlevel song is specified in Custom Music continue with level music
+
 20100731
 --------
 main/inferno.c, main/kmatrix.c, main/menu.c, main/newmenu.c, main/newmenu.h, main/scores.c: For polling newmenus, set rval using a pointer and don't delay closing the window, hopefully fixing bad memory access when clicking in level scores screen; change newmenu_close to newmenu_free_background to avoid confusion

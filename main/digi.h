@@ -122,7 +122,7 @@ void digi_select_system(int);
 #ifdef _WIN32
 // Windows native-MIDI stuff.
 void digi_win32_set_midi_volume( int mvolume );
-int digi_win32_play_midi_song( char * filename, char * melodic_bank, char * drum_bank, int loop );
+int digi_win32_play_midi_song( char * filename, int loop );
 void digi_win32_stop_current_song();
 #endif
 
