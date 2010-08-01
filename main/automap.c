@@ -446,8 +446,8 @@ void draw_automap(automap *am)
 	gr_set_curfont(GAME_FONT);
 	gr_set_fontcolor(BM_XRGB(20, 20, 20), -1);
 	gr_printf((SWIDTH/10.666), (SHEIGHT/1.126), TXT_TURN_SHIP);
-	gr_printf((SWIDTH/10.666), (SHEIGHT/1.083), TXT_SLIDE_UPDOWN);
-	gr_printf((SWIDTH/10.666), (SHEIGHT/1.043), "F9/F10 Changes viewing distance");
+	gr_printf((SWIDTH/10.666), (SHEIGHT/1.083), "F9/F10 Changes viewing distance");
+	gr_printf((SWIDTH/10.666), (SHEIGHT/1.043), TXT_AUTOMAP_MARKER);
 
 	gr_set_current_canvas(&am->automap_view);
 

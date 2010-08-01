@@ -4,6 +4,7 @@ D2X-Rebirth Changelog
 --------
 main/menu.c, main/songs.c, main/songs.h, main/gameseq.c, main/digi.h, arch/sdl/digi.c: Builtin music list now dynamically allocated and not limited to 30 songs; Instead of never loading new level when loading savestate ingame, only do this for Redbook and Custom Music playing order 'continously'; if no endlevel song is specified in Custom Music continue with level music
 arch/sdl/mouse.c: If mouse_toggle_cursor is set to activate, do not toggle ursor visibility as mouse_update_cursor_and_grab might decide it should be hidden
+main/automap.c, main/text.h: Fixed automap marker info as well as misleading text defines
 
 20100731
 --------

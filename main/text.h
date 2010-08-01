@@ -577,7 +577,7 @@ extern char *Text_string[];
 #define TXT_DEF_MACRO_3         Text_string[563]
 #define TXT_DEF_MACRO_4         Text_string[564]
 #define TXT_MISSION             Text_string[565]
-#define TXT_VIEWING_DISTANCE    Text_string[566]
+#define TXT_AUTOMAP_MARKER      Text_string[566]
 #define TXT_SECRET_EXIT         Text_string[567]
 #define TXT_SHOW_ON_MAP         Text_string[568]
 #define TXT_KILLED_BY_ROBOT     Text_string[569]
