@@ -35,16 +35,12 @@ COPYRIGHT 1993-1999 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 #include "config.h"
 #include "timer.h"
 
-song_info Songs[MAX_NUM_SONGS];
 int Songs_initialized = 0;
-
-int Num_songs;
-
 static int Song_playing = 0; // 0 if no song playing, else the Descent song number
-static int Redbook_playing = 0; // Redbook track num differs from Song num. Store here so we know with which track we deal with.
-// NOTE: Custom music song number is stored in GameCfg.CMLevelMusicTrack[0]
+static int Redbook_playing = 0; // Redbook track num differs from Song_playing. We need this for Redbook repeat hooks.
 
-#define NumLevelSongs (Num_songs - SONG_FIRST_LEVEL_SONG)
+bim_song_info *BIMSongs = NULL;
+int Num_bim_songs;
 
 #define EXTMUSIC_VOLUME_SCALE	(255)
 
@@ -72,7 +68,10 @@ void songs_init()
 	CFILE * fp = NULL;
 	char sng_file[PATH_MAX];
 
-	memset(Songs, '\0', sizeof(Songs));
+	Songs_initialized = 0;
+
+	if (BIMSongs != NULL)
+		d_free(BIMSongs);
 
 	memset(sng_file, '\0', sizeof(sng_file));
 	if (Current_mission != NULL)
@@ -86,75 +85,71 @@ void songs_init()
 
 	if ( fp == NULL ) // No descent.sng available. Define a default song-set
 	{
-		for (i = 0; i < MAX_NUM_SONGS; i++) {
-			strcpy(Songs[i].melodic_bank_file, "melodic.bnk");
-			strcpy(Songs[i].drum_bank_file, "drum.bnk");
-			if (i >= SONG_FIRST_LEVEL_SONG)
+		int predef=30; // define 30 songs - period
+
+		MALLOC(BIMSongs, bim_song_info, predef);
+		if (!BIMSongs)
+			return;
+
+		strncpy(BIMSongs[SONG_TITLE].filename, "descent.hmp",sizeof(BIMSongs[SONG_TITLE].filename));
+		strncpy(BIMSongs[SONG_BRIEFING].filename, "briefing.hmp",sizeof(BIMSongs[SONG_BRIEFING].filename));
+		strncpy(BIMSongs[SONG_CREDITS].filename, "credits.hmp",sizeof(BIMSongs[SONG_CREDITS].filename));
+		strncpy(BIMSongs[SONG_ENDLEVEL].filename, "endlevel.hmp",sizeof(BIMSongs[SONG_ENDLEVEL].filename));	// can't find it? give a warning
+		strncpy(BIMSongs[SONG_ENDGAME].filename, "endgame.hmp",sizeof(BIMSongs[SONG_ENDGAME].filename));	// ditto
+
+		for (i = SONG_FIRST_LEVEL_SONG; i < predef; i++) {
+			snprintf(BIMSongs[i].filename, sizeof(BIMSongs[i].filename), "game%02d.hmp", i - SONG_FIRST_LEVEL_SONG + 1);
+			if (!cfexist(BIMSongs[i].filename))
+				snprintf(BIMSongs[i].filename, sizeof(BIMSongs[i].filename), "game%d.hmp", i - SONG_FIRST_LEVEL_SONG);
+			if (!cfexist(BIMSongs[i].filename))
 			{
-				sprintf(Songs[i].filename, "game%02d.hmp", i - SONG_FIRST_LEVEL_SONG + 1);
-				if (!cfexist(Songs[i].filename))
-					sprintf(Songs[i].filename, "game%d.hmp", i - SONG_FIRST_LEVEL_SONG);
-				if (!cfexist(Songs[i].filename))
-				{
-					Songs[i].filename[0] = '\0';	// music not available
-					break;
-				}
+				memset(BIMSongs[i].filename, '\0', sizeof(BIMSongs[i].filename)); // music not available
+				break;
 			}
 		}
-		strcpy(Songs[SONG_TITLE].filename, "descent.hmp");
-		strcpy(Songs[SONG_BRIEFING].filename, "briefing.hmp");
-		strcpy(Songs[SONG_CREDITS].filename, "credits.hmp");
-		strcpy(Songs[SONG_ENDLEVEL].filename, "endlevel.hmp");	// can't find it? give a warning
-		strcpy(Songs[SONG_ENDGAME].filename, "endgame.hmp");	// ditto
 	}
 	else
 	{
 		while (!PHYSFS_eof(fp))
 		{
-			if (i == MAX_NUM_SONGS)
-				break;
-
 			cfgets(inputline, 80, fp );
 			if ( strlen( inputline ) )
 			{
-				memset(Songs[i].filename, '\0', sizeof(char)*16);
-				memset(Songs[i].melodic_bank_file, '\0', sizeof(char)*16);
-				memset(Songs[i].drum_bank_file, '\0', sizeof(char)*16);
-				sscanf( inputline, "%15s %15s %15s",
-						Songs[i].filename,
-						Songs[i].melodic_bank_file,
-						Songs[i].drum_bank_file );
+				BIMSongs = d_realloc(BIMSongs, sizeof(bim_song_info)*(i+1));
+				memset(BIMSongs[i].filename, '\0', sizeof(BIMSongs[i].filename));
+				sscanf( inputline, "%15s", BIMSongs[i].filename );
 
-				if (strrchr(Songs[i].filename, '.'))
-					if (!stricmp(strrchr(Songs[i].filename, '.'), ".hmp") ||
-						!stricmp(strrchr(Songs[i].filename, '.'), ".mp3") ||
-						!stricmp(strrchr(Songs[i].filename, '.'), ".ogg") ||
-						!stricmp(strrchr(Songs[i].filename, '.'), ".aif") ||
-						!stricmp(strrchr(Songs[i].filename, '.'), ".mid")
+				if (strrchr(BIMSongs[i].filename, '.'))
+					if (!stricmp(strrchr(BIMSongs[i].filename, '.'), ".hmp") ||
+						!stricmp(strrchr(BIMSongs[i].filename, '.'), ".mp3") ||
+						!stricmp(strrchr(BIMSongs[i].filename, '.'), ".ogg") ||
+						!stricmp(strrchr(BIMSongs[i].filename, '.'), ".aif") ||
+						!stricmp(strrchr(BIMSongs[i].filename, '.'), ".mid")
 						)
 						i++;
 			}
 		}
 	}
 
-	Num_songs = i;
+	Num_bim_songs = i;
 	Songs_initialized = 1;
-	if (fp != NULL)	cfclose(fp);
+	if (fp != NULL)
+		cfclose(fp);
 
 	// Now each song will get it's own number which will serve custom music (and maybe others) as track number
-	if (Num_songs > 0)
+	if (Num_bim_songs > 0)
 	{
 		int i = 0, j = 0, c = 0;
 
-		for (i = 0; i < Num_songs; i++)
+		for (i = 0; i < Num_bim_songs; i++)
 		{
-			Songs[i].id = -1;
+			BIMSongs[i].id = -1;
 			for (j = 0; j < i; j++)
-				if (stricmp(Songs[i].filename, Songs[j].filename) == 0)
-					Songs[i].id = Songs[j].id;
+				if (stricmp(BIMSongs[i].filename, BIMSongs[j].filename) == 0)
+					BIMSongs[i].id = BIMSongs[j].id;
 
-			if (Songs[i].id == -1)
-				Songs[i].id = c++;
+			if (BIMSongs[i].id == -1)
+				BIMSongs[i].id = c++;
 		}
 	}
 
@@ -199,6 +194,8 @@ void songs_uninit()
 	jukebox_unload();
 #endif
 
+	if (BIMSongs != NULL)
+		d_free(BIMSongs);
 	Song_playing = 0;
 	Songs_initialized = 0;
 }
@@ -307,19 +304,18 @@ void redbook_repeat_func()
 int songs_play_song( int songnum, int repeat )
 {
 	songs_init();
-
-	//stop any music already playing
-
-	songs_stop_all();
+	if (!Songs_initialized)
+		return 0;
 
 	switch (GameCfg.MusicType)
 	{
 		case MUSIC_TYPE_BUILTIN:
 		{
+			Song_playing = 0;
 #ifdef _WIN32
 			if (GameArg.SndDisableSdlMixer)
 			{
-				if (digi_win32_play_midi_song( Songs[songnum].filename, Songs[songnum].melodic_bank_file, Songs[songnum].drum_bank_file, repeat ))
+				if (digi_win32_play_midi_song( BIMSongs[songnum].filename, repeat ))
 				{
 					Song_playing = songnum;
 				}
@@ -328,7 +324,7 @@ int songs_play_song( int songnum, int repeat )
 #endif
 #ifdef USE_SDLMIXER
 			{
-				if (mix_play_file(Songs[songnum].filename, repeat, NULL))
+				if (mix_play_file(BIMSongs[songnum].filename, repeat, NULL))
 				{
 					Song_playing = songnum;
 				}
@@ -340,6 +336,7 @@ int songs_play_song( int songnum, int repeat )
 		{
 			int num_tracks = RBAGetNumberOfTracks();
 
+			Song_playing = 0;
 			if ((songnum == SONG_TITLE) && (REDBOOK_TITLE_TRACK <= num_tracks))
 			{
 				if (RBAPlayTracks(REDBOOK_TITLE_TRACK, 0, repeat ? redbook_repeat_func : NULL))
@@ -361,6 +358,11 @@ int songs_play_song( int songnum, int repeat )
 #ifdef USE_SDLMIXER
 		case MUSIC_TYPE_CUSTOM:
 		{
+			// EXCEPTION: If SONG_ENDLEVEL is undefined, continue playing level song.
+			if (Song_playing >= SONG_FIRST_LEVEL_SONG && songnum == SONG_ENDLEVEL && !strlen(GameCfg.CMMiscMusic[songnum]))
+				return Song_playing;
+
+			Song_playing = 0;
 			if (mix_play_file(GameCfg.CMMiscMusic[songnum], repeat, NULL))
 				Song_playing = songnum;
 			break;
@@ -388,13 +390,9 @@ int songs_play_level_song( int levelnum, int offset )
 
 	Assert( levelnum != 0 );
 
-	// Track changing not allowed for builtin music
-	if (offset && GameCfg.MusicType == MUSIC_TYPE_BUILTIN)
-		return Song_playing;
-
 	songs_init();
-
-	songs_stop_all();
+	if (!Songs_initialized)
+		return 0;
 
 	songnum = (levelnum>0)?(levelnum-1):(-levelnum);
 
@@ -402,13 +400,17 @@ int songs_play_level_song( int levelnum, int offset )
 	{
 		case MUSIC_TYPE_BUILTIN:
 		{
-			if (NumLevelSongs > 0)
+			if (offset)
+				return Song_playing;
+
+			Song_playing = 0;
+			if ((Num_bim_songs - SONG_FIRST_LEVEL_SONG) > 0)
 			{
-				songnum = SONG_FIRST_LEVEL_SONG + (songnum % NumLevelSongs);
+				songnum = SONG_FIRST_LEVEL_SONG + (songnum % (Num_bim_songs - SONG_FIRST_LEVEL_SONG));
 #ifdef _WIN32
 				if (GameArg.SndDisableSdlMixer)
 				{
-					if (digi_win32_play_midi_song( Songs[songnum].filename, Songs[songnum].melodic_bank_file, Songs[songnum].drum_bank_file, 1 ))
+					if (digi_win32_play_midi_song( BIMSongs[songnum].filename, 1 ))
 					{
 						Song_playing = songnum;
 					}
@@ -419,7 +421,7 @@ int songs_play_level_song( int levelnum, int offset )
 #endif
 #ifdef USE_SDLMIXER
 				{
-					if (mix_play_file(Songs[songnum].filename, 1, NULL))
+					if (mix_play_file(BIMSongs[songnum].filename, 1, NULL))
 					{
 						Song_playing = songnum;
 					}
@@ -434,7 +436,12 @@ int songs_play_level_song( int levelnum, int offset )
 			int tracknum;
 
 			if (!offset)
+			{
+				if (Song_playing >= SONG_FIRST_LEVEL_SONG)
+					return Song_playing;
+
 				tracknum = REDBOOK_FIRST_LEVEL_TRACK + ((n_tracks+1<=REDBOOK_FIRST_LEVEL_TRACK) ? 0 : (songnum % (n_tracks-REDBOOK_FIRST_LEVEL_TRACK+1)));
+			}
 			else
 			{
 				tracknum = Redbook_playing+offset;
@@ -444,12 +451,12 @@ int songs_play_level_song( int levelnum, int offset )
 					tracknum = REDBOOK_FIRST_LEVEL_TRACK + (tracknum - n_tracks) - 1;
 			}
 
-
+			Song_playing = 0;
 			if (RBAEnabled() && (tracknum <= n_tracks))
 			{
 				if (RBAPlayTracks(tracknum, n_tracks, redbook_first_song_func))
 				{
-					Song_playing = songnum;
+					Song_playing = songnum + SONG_FIRST_LEVEL_SONG;
 					Redbook_playing = tracknum;
 				}
 			}
@@ -463,6 +470,9 @@ int songs_play_level_song( int levelnum, int offset )
 				if (GameCfg.CMLevelMusicPlayOrder == MUSIC_CM_PLAYORDER_CONT)
 				{
 					static int last_songnum = -1;
+					
+					if (Song_playing >= SONG_FIRST_LEVEL_SONG)
+						return Song_playing;
 
 					// As soon as we start a new level, go to next track
 					if (last_songnum != -1 && songnum != last_songnum)
@@ -470,7 +480,7 @@ int songs_play_level_song( int levelnum, int offset )
 					last_songnum = songnum;
 				}
 				else if (GameCfg.CMLevelMusicPlayOrder == MUSIC_CM_PLAYORDER_LEVELDEP)
-					GameCfg.CMLevelMusicTrack[0] = ((Songs[songnum+SONG_FIRST_LEVEL_SONG].id - SONG_FIRST_LEVEL_SONG) % (GameCfg.CMLevelMusicTrack[1]));
+					GameCfg.CMLevelMusicTrack[0] = ((BIMSongs[songnum+SONG_FIRST_LEVEL_SONG].id - SONG_FIRST_LEVEL_SONG) % (GameCfg.CMLevelMusicTrack[1]));
 				else if (GameCfg.CMLevelMusicPlayOrder == MUSIC_CM_PLAYORDER_LEVELALPHA)
 					GameCfg.CMLevelMusicTrack[0] = (songnum % GameCfg.CMLevelMusicTrack[1]);
 			}
@@ -483,8 +493,9 @@ int songs_play_level_song( int levelnum, int offset )
 					GameCfg.CMLevelMusicTrack[0] = GameCfg.CMLevelMusicTrack[0] - GameCfg.CMLevelMusicTrack[1];
 			}
 
+			Song_playing = 0;
 			if (jukebox_play())
-				Song_playing = songnum;
+				Song_playing = songnum + SONG_FIRST_LEVEL_SONG;
 
 			break;
 		}

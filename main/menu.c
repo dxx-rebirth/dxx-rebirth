@@ -96,7 +96,6 @@ enum MENUS
 
     MENU_SHOW_CREDITS,
     MENU_ORDER_INFO,
-    MENU_PLAY_SONG,
 
     #ifdef USE_UDP
     MENU_START_UDP_NETGAME,
@@ -518,7 +517,6 @@ void create_main_menu(newmenu_item *m, int *menu_choice, int *callers_num_option
 		#endif
 	}
 
-	//ADD_ITEM( "  Play song", MENU_PLAY_SONG, -1 );
 	#endif
 
 	*callers_num_options = num_options;
@@ -552,20 +550,6 @@ int DoMenu()
 }
 
 extern void show_order_form(void);	// John didn't want this in inferno.h so I just externed it.
-
-int select_song_callback(listbox *lb, d_event *event, void *userdata)
-{
-	int citem = listbox_get_citem(lb);
-
-	userdata = userdata;
-	if (event->type != EVENT_NEWMENU_SELECTED)
-		return 0;
-
-	if (citem > -1)
-		songs_play_song( citem, 0 );
-
-	return 1;	// stay in menu until user escapes
-}
 
 //returns flag, true means quit menu
 int do_option ( int select)
@@ -621,17 +605,6 @@ int do_option ( int select)
 			break;
 
 #ifndef RELEASE
-
-		case MENU_PLAY_SONG:
-		{
-			char * m[MAX_NUM_SONGS];
-			int i;
-
-			for (i=0;i<Num_songs;i++)
-				m[i] = Songs[i].filename;
-			newmenu_listbox( "Select Song", Num_songs, m, 1, select_song_callback, NULL );
-			break;
-		}
 		case MENU_LOAD_LEVEL:
 			select_mission(0, "Load Level\n\nSelect mission", do_load_level_menu);
 			break;
