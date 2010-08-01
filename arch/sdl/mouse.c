@@ -243,7 +243,6 @@ void mouse_toggle_cursor(int activate)
 	Mouse.cursor_enabled = (activate && !GameArg.CtlNoMouse);
 	if (Mouse.cursor_enabled)
 	{
-		SDL_ShowCursor(SDL_ENABLE);
 		if (GameArg.CtlGrabMouse)
 			SDL_WM_GrabInput(SDL_GRAB_OFF);
 	}
