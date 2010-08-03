@@ -1,5 +1,9 @@
 D1X-Rebirth Changelog
 
+20100803
+--------
+main/hud.c: When updating redundant HUD messages check the for-loop not the start with a negative number - causes too long message display and negative array index
+
 20100801
 --------
 main/menu.c, main/songs.c, main/songs.h, main/gameseq.c, main/digi.h, arch/sdl/digi.c: Builtin music list now dynamically allocated and not limited to 30 songs; Instead of never loading new level when loading savestate ingame, only do this for Redbook and Custom Music playing order 'continously'; if no endlevel song is specified in Custom Music continue with level music
