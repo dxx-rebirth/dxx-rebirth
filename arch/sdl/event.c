@@ -109,9 +109,14 @@ int call_default_handler(d_event *event)
 void event_process(void)
 {
 	d_event event;
-	window *wind;
+	window *wind = window_get_front();
 
 	event_poll();	// send input events first
+
+	// Doing this prevents problems when an idle event can create a newmenu,
+	// such as some network menus when they report a problem
+	if (window_get_front() != wind)
+		return;
 
 	event.type = EVENT_IDLE;
 	if ((wind = window_get_front()))
@@ -121,6 +126,9 @@ void event_process(void)
 	}
 	else
 		call_default_handler(&event);
+	
+	if (window_get_front() != wind)
+		return;
 	
 	event.type = EVENT_WINDOW_DRAW;	// then draw all visible windows
 	for (wind = window_get_first(); wind != NULL; wind = window_get_next(wind))
