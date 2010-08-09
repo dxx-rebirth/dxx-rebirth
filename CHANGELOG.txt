@@ -3,6 +3,7 @@ D1X-Rebirth Changelog
 20100809
 --------
 d1x-rebirth.xcodeproj/project.pbxproj, include/physfsx.h, include/pstypes.h, misc/physfsx.c, SConstruct: Add 'Resources' in .app bundle to searchpath for Mac; move bigger functions from physfsx.h to physfsx.c; resolve conflict with definition of 'bool'
+include/pstypes.h: Cleaned and simplified includes to fix possible and actual problems with PATH_MAX
 
 20100806
 --------
