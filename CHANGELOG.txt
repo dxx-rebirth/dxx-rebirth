@@ -1,5 +1,9 @@
 D1X-Rebirth Changelog
 
+20100809
+--------
+d1x-rebirth.xcodeproj/project.pbxproj, include/physfsx.h, include/pstypes.h, misc/physfsx.c, SConstruct: Add 'Resources' in .app bundle to searchpath for Mac; move bigger functions from physfsx.h to physfsx.c; resolve conflict with definition of 'bool'
+
 20100806
 --------
 arch/sdl/event.c: Between event sending, exit event_process if front window is different, fixing netgame joining problem introduced with commit on 20100731

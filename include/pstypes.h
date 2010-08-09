@@ -80,7 +80,7 @@ typedef unsigned int uint;
 # define FNAME_MAX 32
 #endif
 
-#ifndef __cplusplus
+#ifndef bool
 //define a boolean
 typedef ubyte bool;
 #endif
