@@ -158,6 +158,7 @@ common_sources = [
 'misc/hmp.c',
 'misc/ignorecase.c',
 'misc/physfsrwops.c',
+'misc/physfsx.c',
 'misc/strio.c',
 'misc/strutil.c',
 'texmap/ntmap.c',
