@@ -1,5 +1,9 @@
 D1X-Rebirth Changelog
 
+20100811
+--------
+main/laser.c: The inital vector scaling to compensate previous frame-skipped tracking was not aligned to FrameTime. Removed that code and just divided homer_turn_base values to compensate this offset properly. Thanks to zif for hinting me to that; Added comment about the how and why of the homing missile scaling issue
+
 20100809
 --------
 d1x-rebirth.xcodeproj/project.pbxproj, include/physfsx.h, include/pstypes.h, misc/physfsx.c, SConstruct: Add 'Resources' in .app bundle to searchpath for Mac; move bigger functions from physfsx.h to physfsx.c; resolve conflict with definition of 'bool'

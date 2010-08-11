@@ -959,7 +959,12 @@ void Laser_TurnSpeedLimit(vms_vector* vec_forward, vms_vector* vec_to_target, fi
 }
 
 #ifdef NEWHOMER
-fix homing_turn_base[NDL] = { 20, 25, 35, 40, 45 };
+/* 
+ * In the original game homers turned sharper in higher FPS-values. We do not want that so we need to scale vector_to_object to FrameTime.
+ * For each difficulty setting we have a base value the homers will align to. This we express in a FPS value representing the homers turn radius of the original game (i.e. "The homer will turn like on XXFPS"). 
+ * NOTE: Old homers only get valid track_goal every 8 frames. This does not apply anymore so these values are divided by 4 to compensate this.
+ */
+fix homing_turn_base[NDL] = { 5, 6, 9, 10, 11 };
 #endif
 
 //-------------------------------------------------------------------------------------------
@@ -1033,8 +1038,6 @@ void Laser_do_weapon_sequence(object *obj)
 						speed = max_speed;
 				}
 
-				// Old homers only get valid track_goal every 8 frames. That was changed so scale vector to object accordingly.
-				vm_vec_scale(&vector_to_object, F1_0/4);
 				// Scale vector to object to current FrameTime.
 				vm_vec_scale(&vector_to_object, F1_0/((float)(F1_0/homing_turn_base[Difficulty_level])/FrameTime));
 
