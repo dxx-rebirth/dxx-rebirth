@@ -492,7 +492,7 @@ int pick_up_primary(int weapon_index)
 	int cutpoint;
 	ubyte flag = 1<<weapon_index;
 
-	if (Players[Player_num].primary_weapon_flags & flag) {		//already have
+	if (weapon_index!=LASER_INDEX && Players[Player_num].primary_weapon_flags & flag) {		//already have
 		HUD_init_message(HM_DEFAULT|HM_REDUNDANT, "%s %s!", TXT_ALREADY_HAVE_THE, PRIMARY_WEAPON_NAMES(weapon_index));
 		return 0;
 	}
@@ -505,6 +505,8 @@ int pick_up_primary(int weapon_index)
 		select_weapon(weapon_index,0,0,1);
 
 	PALETTE_FLASH_ADD(7,14,21);
+
+   if (weapon_index!=LASER_INDEX)
 	HUD_init_message(HM_DEFAULT, "%s!",PRIMARY_WEAPON_NAMES(weapon_index));
 
 	return 1;

@@ -1,5 +1,9 @@
 D1X-Rebirth Changelog
 
+20100812
+--------
+main/weapon.c: When picking up laser, game would show generic weapon pickup/already-have messages instead of laser-upgrade/maxed-out messages only - fixed
+
 20100811
 --------
 main/laser.c: The inital vector scaling to compensate previous frame-skipped tracking was not aligned to FrameTime. Removed that code and just divided homer_turn_base values to compensate this offset properly. Thanks to zif for hinting me to that; Added comment about the how and why of the homing missile scaling issue
