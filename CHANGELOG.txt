@@ -1,5 +1,9 @@
 D2X-Rebirth Changelog
 
+20100814
+--------
+main/game.c: Tidy up for EVENT_IDLE case in game_handler, hopefully fixing obscure 'optimise threads' bug
+
 20100811
 --------
 main/laser.c: The inital vector scaling to compensate previous frame-skipped tracking was not aligned to FrameTime. Removed that code and just divided homer_turn_base values to compensate this offset properly. Thanks to zif for hinting me to that; Added comment about the how and why of the homing missile scaling issue
