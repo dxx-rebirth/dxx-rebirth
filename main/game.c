@@ -1036,26 +1036,8 @@ int game_handler(window *wind, d_event *event, void *data)
 		case EVENT_MOUSE_BUTTON_UP:
 		case EVENT_MOUSE_BUTTON_DOWN:
 		case EVENT_KEY_COMMAND:
+		case EVENT_IDLE:		// EVENT_IDLE will be removed once all input events are in place
 			return ReadControls(event);
-			break;
-
-		case EVENT_IDLE:
-			// GAME LOOP!
-			Config_menu_flag = 0;
-
-			ReadControls(event);		// will be removed from here once all input events are in place
-			if (window_get_front() != wind)
-				break;
-
-			if (Config_menu_flag)	{
-				do_options_menu();
-			}
-
-			if (!Game_wind)
-				break;
-
-			return 0;
-			break;
 
 		case EVENT_WINDOW_DRAW:
 			if (!time_paused)
@@ -1095,7 +1077,6 @@ int game_handler(window *wind, d_event *event, void *data)
 			show_menus();
 			Game_wind = NULL;
 			mouse_toggle_cursor(1);
-			return 0;	// continue closing
 			break;
 
 		case EVENT_WINDOW_CLOSED:
@@ -1103,11 +1084,10 @@ int game_handler(window *wind, d_event *event, void *data)
 			break;
 
 		default:
-			return 0;
 			break;
 	}
 
-	return 1;
+	return 0;
 }
 
 // Initialise game, actually runs in main event loop

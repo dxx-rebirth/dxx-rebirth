@@ -1,5 +1,9 @@
 D1X-Rebirth Changelog
 
+20100814
+--------
+main/game.c: Tidy up for EVENT_IDLE case in game_handler, hopefully fixing obscure 'optimise threads' bug
+
 20100812
 --------
 main/weapon.c: When picking up laser, game would show generic weapon pickup/already-have messages instead of laser-upgrade/maxed-out messages only - fixed
