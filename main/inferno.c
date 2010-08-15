@@ -361,8 +361,7 @@ int main(int argc, char *argv[])
 		PHYSFS_freeList(list);
 	}
 
-	if (cfile_init("d1xrdata.zip", 0))
-		con_printf(CON_NORMAL, "Added d1xrdata.zip for additional content\n");
+	PHYSFSX_addArchiveContent();
 
 	arch_init();
 
@@ -460,6 +459,7 @@ int main(int argc, char *argv[])
 	args_exit();
 	newmenu_free_background();
 	free_mission();
+	PHYSFSX_removeArchiveContent();
 
 	return(0);		//presumably successful exit
 }

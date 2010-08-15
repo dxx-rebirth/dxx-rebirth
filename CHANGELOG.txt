@@ -1,5 +1,9 @@
 D1X-Rebirth Changelog
 
+20100815
+--------
+INSTALL.txt, include/physfsx.h, main/inferno.c, misc/physfsx.c: Added support to automatically load/mount ZIP files at startup, giving option to dynamically override or replace game content; Updated docs
+
 20100814
 --------
 main/game.c: Tidy up for EVENT_IDLE case in game_handler, hopefully fixing obscure 'optimise threads' bug
