@@ -115,20 +115,26 @@ Optional files:
    d2x.hog, d2x.mn2 to 'missions/' subdirectory.
    All these files should be located on the ‘Vertigo Series’ CD-Rom
 
-   Custom/AddOn missions:
-   ----------------------
+   Missions:
+   ---------
    Those can be found on several websites. Add them to the game by copying them to subdirectory
    ‘missions/’. They can also go in subdirectories of 'missions/', unlike with the original version.
 
-   Language Packs:
-   ---------------
-   German translation: http://www.dxx-rebirth.com/download/dxx/res/D1XBDE01.zip
-   Copy the txb-files to the Sharepath (non-Mac OS *NIX)/program directory (otherwise).
+   Custom Music (MP3, OGG, AIF, etc.):
+   -----------------------------------
+   Custom Music can be played via the CUSTOM MUSIC options by specifying it in the Sound Options menu.
+   Please note that all custom music has to be in 44Khz format. Supported formats depend on the capabilities of SDL_mixer.
 
-   Custom Music (like MP3 or OGG):
-   -------------------------------
-   Custom Music can be played via the Jukebox by specifying the path to your music in the Sound Options menu.
-   Please note that all custom music has to be in 44Khz format.
+   AddOn Packs:
+   ------------
+   Custom AddOn packs will expand the game in many differnt ways. These are usually provided as ZIP or 7Z and can easily
+   be installed by putting them to where your game content resides (OS-dependent - see above).
+   NO EXTRACTION OR ADDITIONAL CONFIGURATION NEEDED.
+   A list of currently available packs:
+   - German briefings:
+     http://www.dxx-rebirth.com/download/dxx/res/d2xr-briefings-ger.zip
+   - Soundtrack in OGG format (if your MIDI output just does not kick ass):
+     http://www.dxx-rebirth.com/download/dxx/res/d2xr-music-ogg.zip
    
 
 Launching the program

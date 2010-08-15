@@ -166,5 +166,7 @@ extern PHYSFS_sint64 PHYSFSX_getFreeDiskSpace();
 extern PHYSFS_file *PHYSFSX_openReadBuffered(char *filename);
 extern PHYSFS_file *PHYSFSX_openWriteBuffered(char *filename);
 extern PHYSFS_file *PHYSFSX_openDataFile(char *filename);
+extern void PHYSFSX_addArchiveContent();
+extern void PHYSFSX_removeArchiveContent();
 
 #endif /* PHYSFSX_H */

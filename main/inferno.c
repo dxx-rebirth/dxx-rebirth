@@ -399,6 +399,8 @@ int main(int argc, char *argv[])
 		PHYSFS_freeList(list);
 	}
 
+	PHYSFSX_addArchiveContent();
+
 	arch_init();
 
 #ifdef _WIN32
@@ -520,6 +522,7 @@ int main(int argc, char *argv[])
 	args_exit();
 	newmenu_free_background();
 	free_mission();
+	PHYSFSX_removeArchiveContent();
 
 	return(0);		//presumably successful exit
 }

@@ -15,6 +15,8 @@
 #endif
 
 #include "physfsx.h"
+#include "object.h"
+#include "newdemo.h"
 
 // Initialise PhysicsFS, set up basic search paths and add arguments from .ini file.
 // The .ini file can be in either the user directory or the same directory as the program.
@@ -343,3 +345,113 @@ PHYSFS_file *PHYSFSX_openDataFile(char *filename)
 	return fp;
 }
 
+void PHYSFSX_addArchiveContent()
+{
+	char **list = NULL;
+	char *archive_exts[] = { ".zip", ".7z", NULL }, *file[2];
+	int i = 0;
+
+	// find files in Searchpath ...
+	list = PHYSFSX_findFiles("", archive_exts);
+	// if found, add them...
+	for (i = 0; list[i] != NULL; i++)
+	{
+		MALLOC(file[0], char, PATH_MAX);
+		MALLOC(file[1], char, PATH_MAX);
+		snprintf(file[0], sizeof(char)*PATH_MAX, "%s", list[i]);
+		PHYSFSX_getRealPath(file[0],file[1]);
+		PHYSFS_addToSearchPath(file[1], 0);
+		d_free(file[0]);
+		d_free(file[1]);
+	}
+	PHYSFS_freeList(list);
+	list = NULL;
+
+	// find files in DATA_DIR ...
+	list = PHYSFSX_findFiles("Data/", archive_exts);
+	// if found, add them...
+	for (i = 0; list[i] != NULL; i++)
+	{
+		MALLOC(file[0], char, PATH_MAX);
+		MALLOC(file[1], char, PATH_MAX);
+		snprintf(file[0], sizeof(char)*PATH_MAX, "%s%s", "Data/", list[i]);
+		PHYSFSX_getRealPath(file[0],file[1]);
+		PHYSFS_addToSearchPath(file[1], 0);
+		d_free(file[0]);
+		d_free(file[1]);
+	}
+	PHYSFS_freeList(list);
+	list = NULL;
+
+	// find files in DEMO_DIR ...
+	list = PHYSFSX_findFiles(DEMO_DIR, archive_exts);
+	// if found, add them...
+	for (i = 0; list[i] != NULL; i++)
+	{
+		MALLOC(file[0], char, PATH_MAX);
+		MALLOC(file[1], char, PATH_MAX);
+		snprintf(file[0], sizeof(char)*PATH_MAX, "%s%s", DEMO_DIR, list[i]);
+		PHYSFSX_getRealPath(file[0],file[1]);
+		PHYSFS_mount(file[1], DEMO_DIR, 0);
+		d_free(file[0]);
+		d_free(file[1]);
+	}
+	PHYSFS_freeList(list);
+	list = NULL;
+}
+
+// Removes content added above when quitting game
+void PHYSFSX_removeArchiveContent()
+{
+	char **list = NULL;
+	char *archive_exts[] = { ".zip", ".7z", NULL }, *file[2];
+	int i = 0;
+
+	// find files in Searchpath ...
+	list = PHYSFSX_findFiles("", archive_exts);
+	// if found, remove them...
+	for (i = 0; list[i] != NULL; i++)
+	{
+		MALLOC(file[0], char, PATH_MAX);
+		MALLOC(file[1], char, PATH_MAX);
+		snprintf(file[0], sizeof(char)*PATH_MAX, "%s", list[i]);
+		PHYSFSX_getRealPath(file[0],file[1]);
+		PHYSFS_removeFromSearchPath(file[1]);
+		d_free(file[0]);
+		d_free(file[1]);
+	}
+	PHYSFS_freeList(list);
+	list = NULL;
+
+	// find files in DATA_DIR ...
+	list = PHYSFSX_findFiles("Data/", archive_exts);
+	// if found, remove them...
+	for (i = 0; list[i] != NULL; i++)
+	{
+		MALLOC(file[0], char, PATH_MAX);
+		MALLOC(file[1], char, PATH_MAX);
+		snprintf(file[0], sizeof(char)*PATH_MAX, "%s%s", "Data/", list[i]);
+		PHYSFSX_getRealPath(file[0],file[1]);
+		PHYSFS_removeFromSearchPath(file[1]);
+		d_free(file[0]);
+		d_free(file[1]);
+	}
+	PHYSFS_freeList(list);
+	list = NULL;
+
+	// find files in DEMO_DIR ...
+	list = PHYSFSX_findFiles(DEMO_DIR, archive_exts);
+	// if found, remove them...
+	for (i = 0; list[i] != NULL; i++)
+	{
+		MALLOC(file[0], char, PATH_MAX);
+		MALLOC(file[1], char, PATH_MAX);
+		snprintf(file[0], sizeof(char)*PATH_MAX, "%s%s", DEMO_DIR, list[i]);
+		PHYSFSX_getRealPath(file[0],file[1]);
+		PHYSFS_removeFromSearchPath(file[1]);
+		d_free(file[0]);
+		d_free(file[1]);
+	}
+	PHYSFS_freeList(list);
+	list = NULL;
+}
