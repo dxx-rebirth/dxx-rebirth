@@ -3,6 +3,7 @@ D1X-Rebirth Changelog
 20100816
 --------
 main/net_ipx.c, main/net_udp.c: When switching from COOP to any other game mode, make sure Netgame.max_numplayers, MaxNumNetPlayers as well as the menu text showing the player limit is updated correctly
+INSTALL.txt: Updated docs to add new OGG Soundtrack created by Brandon Blume
 
 20100815
 --------
