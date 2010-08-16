@@ -341,6 +341,8 @@ int main(int argc, char *argv[])
 		return(0);
 	}
 
+	PHYSFSX_addArchiveContent();
+
 	printf("\nType %s -help' for a list of command-line options.\n", PROGNAME);
 
 	if (GameArg.DbgVerbose)
@@ -360,8 +362,6 @@ int main(int argc, char *argv[])
 			con_printf(CON_DEBUG, "PHYSFS: * We've got [%s].\n", *i);
 		PHYSFS_freeList(list);
 	}
-
-	PHYSFSX_addArchiveContent();
 
 	arch_init();
 
