@@ -4,6 +4,7 @@ D2X-Rebirth Changelog
 --------
 main/net_ipx.c, main/net_udp.c: When switching from COOP to any other game mode, make sure Netgame.max_numplayers, MaxNumNetPlayers as well as the menu text showing the player limit is updated correctly
 INSTALL.txt: Updated docs to add new OGG Soundtrack created by Brandon Blume
+main/inferno.c: Moved up PHYSFSX_addArchiveContent() a little inside main() so -debug and -verbose will show us this content which will be helpful for debugging possible problems with AddOn Zips
 
 20100815
 --------
