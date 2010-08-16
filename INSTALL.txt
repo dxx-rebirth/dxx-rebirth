@@ -133,8 +133,8 @@ Optional files:
    A list of currently available packs:
    - German briefings:
      http://www.dxx-rebirth.com/download/dxx/res/d2xr-briefings-ger.zip
-   - Soundtrack in OGG format (if your MIDI output just does not kick ass):
-     http://www.dxx-rebirth.com/download/dxx/res/d2xr-music-ogg.zip
+   - Soundtrack in OGG format (created by Brandon Blume using Roland SC-55 MIDI Module):
+     http://www.dxx-rebirth.com/download/dxx/res/d2xr-sc55-music.zip
    
 
 Launching the program
