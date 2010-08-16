@@ -3085,6 +3085,8 @@ int net_udp_game_param_handler( newmenu *menu, d_event *event, param_opt *opt )
 					oldmaxnet=0;
 					menus[opt->maxnet].value=6;
 					menus[opt->maxnet].max_value=6;
+					sprintf( menus[opt->maxnet].text, "Maximum players: %d", menus[opt->maxnet].value+2 );
+					Netgame.max_numplayers = MaxNumNetPlayers = menus[opt->maxnet].value+2;
 				}
 			}
 			
