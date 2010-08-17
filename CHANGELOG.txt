@@ -1,5 +1,9 @@
 D1X-Rebirth Changelog
 
+20100817
+--------
+main/digi.h, main/menu.c, main/songs.c, main/songs.h: Renamed MUSIC TYPE options BUILT-IN MUSIC to BUILT-IN/ADDON MUSIC and CUSTOM MUSIC to JUKEBOX; Removed LEVEL-DEPENDENT play order for Jukebox as this is now mainly covered by AddOn packs and future M3U-support
+
 20100816
 --------
 main/net_ipx.c, main/net_udp.c: When switching from COOP to any other game mode, make sure Netgame.max_numplayers, MaxNumNetPlayers as well as the menu text showing the player limit is updated correctly

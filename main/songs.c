@@ -144,23 +144,6 @@ void songs_init()
 	if (fp != NULL)
 		cfclose(fp);
 
-	// Now each song will get it's own number which will serve custom music (and maybe others) as track number
-	if (Num_bim_songs > 0)
-	{
-		int i = 0, j = 0, c = 0;
-
-		for (i = 0; i < Num_bim_songs; i++)
-		{
-			BIMSongs[i].id = -1;
-			for (j = 0; j < i; j++)
-				if (stricmp(BIMSongs[i].filename, BIMSongs[j].filename) == 0)
-					BIMSongs[i].id = BIMSongs[j].id;
-
-			if (BIMSongs[i].id == -1)
-				BIMSongs[i].id = c++;
-		}
-	}
-
 	if (GameArg.SndNoMusic)
 		GameCfg.MusicType = MUSIC_TYPE_NONE;
 
@@ -474,9 +457,7 @@ int songs_play_level_song( int levelnum, int offset )
 						((GameCfg.CMLevelMusicTrack[0]+1>=GameCfg.CMLevelMusicTrack[1])?GameCfg.CMLevelMusicTrack[0]=0:GameCfg.CMLevelMusicTrack[0]++);
 					last_songnum = songnum;
 				}
-				else if (GameCfg.CMLevelMusicPlayOrder == MUSIC_CM_PLAYORDER_LEVELDEP)
-					GameCfg.CMLevelMusicTrack[0] = ((BIMSongs[songnum+SONG_FIRST_LEVEL_SONG].id - SONG_FIRST_LEVEL_SONG) % (GameCfg.CMLevelMusicTrack[1]));
-				else if (GameCfg.CMLevelMusicPlayOrder == MUSIC_CM_PLAYORDER_LEVELALPHA)
+				else if (GameCfg.CMLevelMusicPlayOrder == MUSIC_CM_PLAYORDER_LEVEL)
 					GameCfg.CMLevelMusicTrack[0] = (songnum % GameCfg.CMLevelMusicTrack[1]);
 			}
 			else
