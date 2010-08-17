@@ -9,7 +9,6 @@
 
 typedef struct bim_song_info {
 	char    filename[16];
-	int	id; // representative number for each song
 } bim_song_info;
 
 #define SONG_TITLE              0

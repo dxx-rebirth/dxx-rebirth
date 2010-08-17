@@ -1167,7 +1167,7 @@ void do_graphics_menu()
 	} while( i>-1 );
 }
 
-int opt_sm_digivol = -1, opt_sm_musicvol = -1, opt_sm_revstereo = -1, opt_sm_mtype0 = -1, opt_sm_mtype1 = -1, opt_sm_mtype2 = -1, opt_sm_mtype3 = -1, opt_sm_redbook_playorder = -1, opt_sm_mtype3_lmpath = -1, opt_sm_mtype3_lmplayorder1 = -1, opt_sm_mtype3_lmplayorder2 = -1, opt_sm_mtype3_lmplayorder3 = -1, opt_sm_cm_mtype3_file1 = -1, opt_sm_cm_mtype3_file2 = -1, opt_sm_cm_mtype3_file3 = -1, opt_sm_cm_mtype3_file4 = -1, opt_sm_cm_mtype3_file5 = -1;
+int opt_sm_digivol = -1, opt_sm_musicvol = -1, opt_sm_revstereo = -1, opt_sm_mtype0 = -1, opt_sm_mtype1 = -1, opt_sm_mtype2 = -1, opt_sm_mtype3 = -1, opt_sm_redbook_playorder = -1, opt_sm_mtype3_lmpath = -1, opt_sm_mtype3_lmplayorder1 = -1, opt_sm_mtype3_lmplayorder2 = -1, opt_sm_cm_mtype3_file1 = -1, opt_sm_cm_mtype3_file2 = -1, opt_sm_cm_mtype3_file3 = -1, opt_sm_cm_mtype3_file4 = -1, opt_sm_cm_mtype3_file5 = -1;
 
 void set_extmusic_volume(int volume);
 
@@ -1229,12 +1229,7 @@ int sound_menuset(newmenu *menu, d_event *event, void *userdata)
 			}
 			else if (citem == opt_sm_mtype3_lmplayorder2)
 			{
-				GameCfg.CMLevelMusicPlayOrder = MUSIC_CM_PLAYORDER_LEVELDEP;
-				replay = (Game_wind != NULL);
-			}
-			else if (citem == opt_sm_mtype3_lmplayorder3)
-			{
-				GameCfg.CMLevelMusicPlayOrder = MUSIC_CM_PLAYORDER_LEVELALPHA;
+				GameCfg.CMLevelMusicPlayOrder = MUSIC_CM_PLAYORDER_LEVEL;
 				replay = (Game_wind != NULL);
 			}
 			break;
@@ -1267,7 +1262,7 @@ int sound_menuset(newmenu *menu, d_event *event, void *userdata)
 }
 
 #ifdef USE_SDLMIXER
-#define SOUND_MENU_NITEMS 29
+#define SOUND_MENU_NITEMS 30
 #else
 #ifdef _WIN32
 #define SOUND_MENU_NITEMS 11
@@ -1309,7 +1304,7 @@ void do_sound_menu()
 
 #if defined(USE_SDLMIXER) || defined(_WIN32)
 	opt_sm_mtype1 = nitems;
-	m[nitems].type = NM_TYPE_RADIO; m[nitems].text = "built-in music"; m[nitems].value = (GameCfg.MusicType == MUSIC_TYPE_BUILTIN); m[nitems].group = 0; nitems++;
+	m[nitems].type = NM_TYPE_RADIO; m[nitems].text = "built-in/addon music"; m[nitems].value = (GameCfg.MusicType == MUSIC_TYPE_BUILTIN); m[nitems].group = 0; nitems++;
 #endif
 
 	opt_sm_mtype2 = nitems;
@@ -1317,7 +1312,7 @@ void do_sound_menu()
 
 #ifdef USE_SDLMIXER
 	opt_sm_mtype3 = nitems;
-	m[nitems].type = NM_TYPE_RADIO; m[nitems].text = "custom music"; m[nitems].value = (GameCfg.MusicType == MUSIC_TYPE_CUSTOM); m[nitems].group = 0; nitems++;
+	m[nitems].type = NM_TYPE_RADIO; m[nitems].text = "jukebox"; m[nitems].value = (GameCfg.MusicType == MUSIC_TYPE_CUSTOM); m[nitems].group = 0; nitems++;
 
 #endif
 
@@ -1331,12 +1326,14 @@ void do_sound_menu()
 #ifdef USE_SDLMIXER
 	m[nitems].type = NM_TYPE_TEXT; m[nitems++].text = "";
 
-	m[nitems].type = NM_TYPE_TEXT; m[nitems++].text = "custom music options:";
+	m[nitems].type = NM_TYPE_TEXT; m[nitems++].text = "jukebox options:";
 
 	opt_sm_mtype3_lmpath = nitems;
 	m[nitems].type = NM_TYPE_TEXT; m[nitems++].text = "path to music used for levels";
 
 	m[nitems].type = NM_TYPE_INPUT; m[nitems].text = GameCfg.CMLevelMusicPath; m[nitems++].text_len = NM_MAX_TEXT_LEN-1;
+
+	m[nitems].type = NM_TYPE_TEXT; m[nitems++].text = "";
 
 	m[nitems].type = NM_TYPE_TEXT; m[nitems++].text = "level music play order:";
 
@@ -1344,10 +1341,9 @@ void do_sound_menu()
 	m[nitems].type = NM_TYPE_RADIO; m[nitems].text = "continuously"; m[nitems].value = (GameCfg.CMLevelMusicPlayOrder == MUSIC_CM_PLAYORDER_CONT); m[nitems].group = 1; nitems++;
 
 	opt_sm_mtype3_lmplayorder2 = nitems;
-	m[nitems].type = NM_TYPE_RADIO; m[nitems].text = "level-dependent"; m[nitems].value = (GameCfg.CMLevelMusicPlayOrder == MUSIC_CM_PLAYORDER_LEVELDEP); m[nitems].group = 1; nitems++;
+	m[nitems].type = NM_TYPE_RADIO; m[nitems].text = "one track per level"; m[nitems].value = (GameCfg.CMLevelMusicPlayOrder == MUSIC_CM_PLAYORDER_LEVEL); m[nitems].group = 1; nitems++;
 
-	opt_sm_mtype3_lmplayorder3 = nitems;
-	m[nitems].type = NM_TYPE_RADIO; m[nitems].text = "one track per level"; m[nitems].value = (GameCfg.CMLevelMusicPlayOrder == MUSIC_CM_PLAYORDER_LEVELALPHA); m[nitems].group = 1; nitems++;
+	m[nitems].type = NM_TYPE_TEXT; m[nitems++].text = "";
 
 	m[nitems].type = NM_TYPE_TEXT; m[nitems++].text = "non-level music:";
 
