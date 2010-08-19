@@ -337,8 +337,9 @@ static int (*KeyFunction[2048])();
 
 void medkey_init()
 {
-	FILE * keyfile;
+	CFILE * keyfile;
 	char keypress[100];
+	char line_buffer[200];
 	int key;
 	int i;	//, size;
 	int np;
@@ -349,11 +350,12 @@ void medkey_init()
 	for (i=0; i<2048; i++ )
 		KeyFunction[i] = NULL;
 
-	keyfile = fopen( "GLOBAL.KEY", "rt" );
+	keyfile = cfopen( "GLOBAL.KEY", "rt" );
 	if (keyfile)
 	{
-		while (fscanf( keyfile, " %s %s ", keypress, LispCommand ) != EOF )
+		while (cfgets(line_buffer, 200, keyfile))
 		{
+			sscanf(line_buffer, " %s %s ", keypress, LispCommand);
 			//ReadLispMacro( keyfile, LispCommand );
 
 			if ( (key=DecodeKeyText( keypress ))!= -1 )
@@ -364,7 +366,7 @@ void medkey_init()
 				Error( "Bad key %s in GLOBAL.KEY!", keypress );
 			}
 		}
-		fclose(keyfile);
+		cfclose(keyfile);
 	}
 	d_free( LispCommand );
 }
@@ -1004,8 +1006,6 @@ void editor(void)
 	//Editor renders into full (320x200) game screen 
 
 	set_warn_func(med_show_warning);
-
-	keyd_repeat = 1;		// Allow repeat in editor
 
 //	_MARK_("start of editor");//Nuked to compile -KRB
 

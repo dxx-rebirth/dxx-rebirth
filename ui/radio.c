@@ -24,6 +24,7 @@ COPYRIGHT 1993-1998 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 #include "gr.h"
 #include "ui.h"
 #include "key.h"
+#include "u_mem.h"
 
 #define Middle(x) ((2*(x)+1)/4)
 

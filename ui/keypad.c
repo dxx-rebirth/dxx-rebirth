@@ -28,6 +28,7 @@ COPYRIGHT 1993-1998 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 #include "u_mem.h"
 #include "func.h"
 #include "error.h"
+#include "cfile.h"
 
 #define MAX_NUM_PADS 20
 
@@ -302,19 +303,19 @@ void ui_pad_read( int n, char * filename )
 	char * ptr;
 	char buffer[100];
 	char text[100];
-	FILE * infile;
+	char line_buffer[200];
+	CFILE * infile;
 	int linenumber = 0;
 	int i;
 	int keycode, functionnumber;
 
-	infile = fopen( filename, "rt" );
+	infile = cfopen( filename, "rt" );
 	if (!infile) {
-		Warning( "Couldn't find %s", filename );
+		Warning( "Couldn't find %s\n", filename );
 		return;
 	}
 					  
 	MALLOC( KeyPad[n], UI_KEYPAD, 1 );
-
 			
 	for (i=0; i < 17; i++ ) {
 		MALLOC( KeyPad[n]->buttontext[i], char, 100 );
@@ -330,8 +331,7 @@ void ui_pad_read( int n, char * filename )
 
 	while ( linenumber < 22)
 	{
-		fgets( buffer, 100, infile );
-		REMOVE_EOL( buffer );
+		cfgets( buffer, 100, infile );
 
 		switch( linenumber+1 )
 		{
@@ -506,8 +506,9 @@ void ui_pad_read( int n, char * filename )
 
 	// Get the keycodes...
 
-	while (fscanf( infile, " %s %s ", text, buffer )!=EOF)
-	{	
+	while (cfgets(line_buffer, 200, infile))
+	{
+		sscanf(line_buffer, " %s %s ", text, buffer);
 		keycode = DecodeKeyText(text);
 		functionnumber = func_get_index(buffer);
 		if (functionnumber==-1)
@@ -525,49 +526,7 @@ void ui_pad_read( int n, char * filename )
 		}
 	}
 	
-	fclose(infile);
+	cfclose(infile);
 
 }
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-/*
-
-	ui_pad_init(2);
-
-	ui_pad_read( 0, "curve.pad" );
-	ui_pad_read( 1, "segmove.pad" );
-	
-	
-	//open window
-		
-		ui_pad_activate();
-
-		
-			ui_pad_goto( n );
-			ui_pad_goto_next( n );
-			ui_pad_goto_previous( n );
-	
-
-		ui_pad_deactivate();
-		
-	
-
-	//close window
-
-	ui_pad_close();
-
-	exit();
-*/
 

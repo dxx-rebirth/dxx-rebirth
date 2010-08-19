@@ -799,7 +799,7 @@ int HandleTestKey(int key)
 
 		case KEY_E + KEY_DEBUGGED:
 #ifdef NETWORK
-			network_leave_game();
+			multi_leave_game();
 #endif
 			Function_mode = FMODE_EDITOR;
 

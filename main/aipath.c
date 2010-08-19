@@ -1117,7 +1117,6 @@ void test_create_all_paths(void)
 			for (end_seg=start_seg+1; end_seg<=Highest_segment_index; end_seg++) {
 				if (Segments[end_seg].segnum != -1) {
 					create_path_points(&Objects[0], start_seg, end_seg, Point_segs_free_ptr, &resultant_length, -1, 0, 0, -1);
-					show_path(start_seg, end_seg, Point_segs_free_ptr, resultant_length);
 				}
 			}
 		}

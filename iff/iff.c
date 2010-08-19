@@ -34,7 +34,6 @@ COPYRIGHT 1993-1998 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 #include "error.h"
 #include "physfsx.h"
 
-int put_byte(unsigned char c,FILE *f);
 //Internal constants and structures for this library
 
 extern void gr_bm_bitblt(int w, int h, int dx, int dy, int sx, int sy, grs_bitmap * src, grs_bitmap * dest);

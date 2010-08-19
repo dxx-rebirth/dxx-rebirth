@@ -27,6 +27,7 @@ COPYRIGHT 1993-1998 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 #include "key.h"
 #include "ui.h"
 #include "u_mem.h"
+#include "cfile.h"
 
 
 char filename_list[300][13];
@@ -222,7 +223,7 @@ static char CurDir[128];
 
 int ui_get_filename( char * filename, char * Filespec, char * message  )
 {
-       FILE * TempFile;
+       CFILE * TempFile;
        int NumFiles, NumDirs,i;
        char InputText[100];
        char Spaces[35];
@@ -355,20 +356,20 @@ int ui_get_filename( char * filename, char * Filespec, char * message  )
 
                        error_mode = 1; // Critical error handler automatically fails.
 
-                       TempFile = fopen( UserFile->text, "r" );
+                       TempFile = cfopen( UserFile->text, "r" );
                       if (TempFile)
                        {
                                // Looks like a valid filename that already exists!
-                               fclose( TempFile );
+                               cfclose( TempFile );
                                break;
                        }
 
                        // File doesn't exist, but can we create it?
-                       TempFile = fopen( UserFile->text, "w" );
+                       TempFile = cfopen( UserFile->text, "w" );
                        if (TempFile)
                        {
                                // Looks like a valid filename!
-                               fclose( TempFile );
+                               cfclose( TempFile );
                                remove( UserFile->text );
                                break;
                        }

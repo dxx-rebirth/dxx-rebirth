@@ -1812,72 +1812,72 @@ void bm_read_hostage_face(int skip, int pc_shareware)
 	}
 }
 
-void bm_write_all(FILE *fp)
+void bm_write_all(PHYSFS_file *fp)
 {
 	int i;
 
-	fwrite( &NumTextures, sizeof(int), 1, fp );
-	fwrite( Textures, sizeof(bitmap_index), MAX_TEXTURES, fp );
-	fwrite( TmapInfo, sizeof(tmap_info), MAX_TEXTURES, fp );
+	PHYSFS_write( fp, &NumTextures, sizeof(int), 1);
+	PHYSFS_write( fp, Textures, sizeof(bitmap_index), MAX_TEXTURES);
+	PHYSFS_write( fp, TmapInfo, sizeof(tmap_info), MAX_TEXTURES);
 
-	fwrite( Sounds, sizeof(ubyte), MAX_SOUNDS, fp );
-	fwrite( AltSounds, sizeof(ubyte), MAX_SOUNDS, fp );
+	PHYSFS_write( fp, Sounds, sizeof(ubyte), MAX_SOUNDS);
+	PHYSFS_write( fp, AltSounds, sizeof(ubyte), MAX_SOUNDS);
 
-	fwrite( &Num_vclips, sizeof(int), 1, fp );
-	fwrite( Vclip, sizeof(vclip), VCLIP_MAXNUM, fp );
+	PHYSFS_write( fp, &Num_vclips, sizeof(int), 1);
+	PHYSFS_write( fp, Vclip, sizeof(vclip), VCLIP_MAXNUM);
 
-	fwrite( &Num_effects, sizeof(int), 1, fp );
-	fwrite( Effects, sizeof(eclip), MAX_EFFECTS, fp );
+	PHYSFS_write( fp, &Num_effects, sizeof(int), 1);
+	PHYSFS_write( fp, Effects, sizeof(eclip), MAX_EFFECTS);
 
-	fwrite( &Num_wall_anims, sizeof(int), 1, fp );
-	fwrite( WallAnims, sizeof(wclip), MAX_WALL_ANIMS, fp );
+	PHYSFS_write( fp, &Num_wall_anims, sizeof(int), 1);
+	PHYSFS_write( fp, WallAnims, sizeof(wclip), MAX_WALL_ANIMS);
 
-	fwrite( &N_robot_types, sizeof(int), 1, fp );
-	fwrite( Robot_info, sizeof(robot_info), MAX_ROBOT_TYPES, fp );
+	PHYSFS_write( fp, &N_robot_types, sizeof(int), 1);
+	PHYSFS_write( fp, Robot_info, sizeof(robot_info), MAX_ROBOT_TYPES);
 
-	fwrite( &N_robot_joints, sizeof(int), 1, fp );
-	fwrite( Robot_joints, sizeof(jointpos), MAX_ROBOT_JOINTS, fp );
+	PHYSFS_write( fp, &N_robot_joints, sizeof(int), 1);
+	PHYSFS_write( fp, Robot_joints, sizeof(jointpos), MAX_ROBOT_JOINTS);
 
-	fwrite( &N_weapon_types, sizeof(int), 1, fp );
-	fwrite( Weapon_info, sizeof(weapon_info), MAX_WEAPON_TYPES, fp );
+	PHYSFS_write( fp, &N_weapon_types, sizeof(int), 1);
+	PHYSFS_write( fp, Weapon_info, sizeof(weapon_info), MAX_WEAPON_TYPES);
 
-	fwrite( &N_powerup_types, sizeof(int), 1, fp );
-	fwrite( Powerup_info, sizeof(powerup_type_info), MAX_POWERUP_TYPES, fp );
+	PHYSFS_write( fp, &N_powerup_types, sizeof(int), 1);
+	PHYSFS_write( fp, Powerup_info, sizeof(powerup_type_info), MAX_POWERUP_TYPES);
 	
-	fwrite( &N_polygon_models, sizeof(int), 1, fp );
-	fwrite( Polygon_models, sizeof(polymodel), N_polygon_models, fp );
+	PHYSFS_write( fp, &N_polygon_models, sizeof(int), 1);
+	PHYSFS_write( fp, Polygon_models, sizeof(polymodel), N_polygon_models);
 
 	for (i=0; i<N_polygon_models; i++ )	{
-		fwrite( Polygon_models[i].model_data, sizeof(ubyte), Polygon_models[i].model_data_size, fp );
+		PHYSFS_write( fp, Polygon_models[i].model_data, sizeof(ubyte), Polygon_models[i].model_data_size);
 	}
 
-	fwrite( Gauges, sizeof(bitmap_index), MAX_GAUGE_BMS, fp );
+	PHYSFS_write( fp, Gauges, sizeof(bitmap_index), MAX_GAUGE_BMS);
 
-	fwrite( Dying_modelnums, sizeof(int), MAX_POLYGON_MODELS, fp );
-	fwrite( Dead_modelnums, sizeof(int), MAX_POLYGON_MODELS, fp );
+	PHYSFS_write( fp, Dying_modelnums, sizeof(int), MAX_POLYGON_MODELS);
+	PHYSFS_write( fp, Dead_modelnums, sizeof(int), MAX_POLYGON_MODELS);
 
-	fwrite( ObjBitmaps, sizeof(bitmap_index), MAX_OBJ_BITMAPS, fp );
-	fwrite( ObjBitmapPtrs, sizeof(ushort), MAX_OBJ_BITMAPS, fp );
+	PHYSFS_write( fp, ObjBitmaps, sizeof(bitmap_index), MAX_OBJ_BITMAPS);
+	PHYSFS_write( fp, ObjBitmapPtrs, sizeof(ushort), MAX_OBJ_BITMAPS);
 
-	fwrite( &only_player_ship, sizeof(player_ship), 1, fp );
+	PHYSFS_write( fp, &only_player_ship, sizeof(player_ship), 1);
 
-	fwrite( &Num_cockpits, sizeof(int), 1, fp );
-	fwrite( cockpit_bitmap, sizeof(bitmap_index), N_COCKPIT_BITMAPS, fp );
+	PHYSFS_write( fp, &Num_cockpits, sizeof(int), 1);
+	PHYSFS_write( fp, cockpit_bitmap, sizeof(bitmap_index), N_COCKPIT_BITMAPS);
 
-	fwrite( Sounds, sizeof(ubyte), MAX_SOUNDS, fp );
-	fwrite( AltSounds, sizeof(ubyte), MAX_SOUNDS, fp );
+	PHYSFS_write( fp, Sounds, sizeof(ubyte), MAX_SOUNDS);
+	PHYSFS_write( fp, AltSounds, sizeof(ubyte), MAX_SOUNDS);
 
-	fwrite( &Num_total_object_types, sizeof(int), 1, fp );
-	fwrite( ObjType, sizeof(sbyte), MAX_OBJTYPE, fp );
-	fwrite( ObjId, sizeof(sbyte), MAX_OBJTYPE, fp );
-	fwrite( ObjStrength, sizeof(fix), MAX_OBJTYPE, fp );
+	PHYSFS_write( fp, &Num_total_object_types, sizeof(int), 1);
+	PHYSFS_write( fp, ObjType, sizeof(sbyte), MAX_OBJTYPE);
+	PHYSFS_write( fp, ObjId, sizeof(sbyte), MAX_OBJTYPE);
+	PHYSFS_write( fp, ObjStrength, sizeof(fix), MAX_OBJTYPE);
 
-	fwrite( &First_multi_bitmap_num, sizeof(int), 1, fp );
+	PHYSFS_write( fp, &First_multi_bitmap_num, sizeof(int), 1);
 
-	fwrite( &N_controlcen_guns, sizeof(int), 1, fp );
-	fwrite( controlcen_gun_points, sizeof(vms_vector), MAX_CONTROLCEN_GUNS, fp );
-	fwrite( controlcen_gun_dirs, sizeof(vms_vector), MAX_CONTROLCEN_GUNS, fp );
-	fwrite( &exit_modelnum, sizeof(int), 1, fp );
-	fwrite( &destroyed_exit_modelnum, sizeof(int), 1, fp );
+	PHYSFS_write( fp, &N_controlcen_guns, sizeof(int), 1);
+	PHYSFS_write( fp, controlcen_gun_points, sizeof(vms_vector), MAX_CONTROLCEN_GUNS);
+	PHYSFS_write( fp, controlcen_gun_dirs, sizeof(vms_vector), MAX_CONTROLCEN_GUNS);
+	PHYSFS_write( fp, &exit_modelnum, sizeof(int), 1);
+	PHYSFS_write( fp, &destroyed_exit_modelnum, sizeof(int), 1);
 }
 

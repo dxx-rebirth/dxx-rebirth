@@ -157,9 +157,9 @@ void ui_scrollbar_do( UI_GADGET_SCROLLBAR * scrollbar, int keypress )
 
 	if ( (scrollbar->up_button->position!=0) || (keyfocus && keyd_pressed[KEY_UP]) )
 	{
-		if (TICKER > scrollbar->last_scrolled+1)
+		if (timer_get_fixed_seconds() > scrollbar->last_scrolled+1)
 		{
-			scrollbar->last_scrolled = TICKER;
+			scrollbar->last_scrolled = timer_get_fixed_seconds();
 			scrollbar->position--;
 			if (scrollbar->position < scrollbar->start )
 				scrollbar->position = scrollbar->start;
@@ -171,9 +171,9 @@ void ui_scrollbar_do( UI_GADGET_SCROLLBAR * scrollbar, int keypress )
 
 	if ( (scrollbar->down_button->position!=0) || (keyfocus && keyd_pressed[KEY_DOWN]) )
 	{
-		if (TICKER > scrollbar->last_scrolled+1)
+		if (timer_get_fixed_seconds() > scrollbar->last_scrolled+1)
 		{
-			scrollbar->last_scrolled = TICKER;
+			scrollbar->last_scrolled = timer_get_fixed_seconds();
 			scrollbar->position++;
 			if (scrollbar->position > scrollbar->stop )
 				scrollbar->position = scrollbar->stop;
@@ -207,9 +207,9 @@ void ui_scrollbar_do( UI_GADGET_SCROLLBAR * scrollbar, int keypress )
 		scrollbar->drag_starting = scrollbar->fake_position;
 	}
 
-	if  ( B1_PRESSED && OnMe && !OnSlider && (TICKER > scrollbar->last_scrolled+4) )
+	if  ( B1_PRESSED && OnMe && !OnSlider && (timer_get_fixed_seconds() > scrollbar->last_scrolled+4) )
 	{
-		scrollbar->last_scrolled = TICKER;
+		scrollbar->last_scrolled = timer_get_fixed_seconds();
 
 		if ( Mouse.y < scrollbar->fake_position+scrollbar->y1 )
 		{

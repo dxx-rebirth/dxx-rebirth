@@ -29,7 +29,7 @@ COPYRIGHT 1993-1998 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 #include "key.h"
 #include "func.h"
 #include "error.h"
-
+#include "cfile.h"
 
 #define MAXMENUS 30
 #define MAXITEMS 40
@@ -630,7 +630,7 @@ void menubar_init( char * file )
 {
 	int i,j, np;
 	int aw, w, h;
-	FILE * infile;
+	CFILE * infile;
 	char buffer[200];
 	char buf1[200];
 	char buf2[200];
@@ -655,11 +655,11 @@ void menubar_init( char * file )
 		}
 	}
 		
-	infile = fopen( file, "rt" );
+	infile = cfopen( file, "rt" );
 
 	if (!infile) return;
 		
-	while ( fgets( buffer, 200, infile) != NULL )
+	while ( cfgets( buffer, 200, infile) != NULL )
 	{
 		if ( buffer[0] == ';' ) continue;
 		
@@ -762,7 +762,7 @@ void menubar_init( char * file )
 
 	Menu[0].w = 700;
 			
-	fclose( infile );
+	cfclose( infile );
 
 	
 	for (i=0; i<num_menus; i++ )

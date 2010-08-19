@@ -1299,7 +1299,7 @@ int load_level(char * filename_passed)
 
 	#ifdef EDITOR
 	//If an old version, ask the use if he wants to save as new version
-	if (((LEVEL_FILE_VERSION>1) && version<LEVEL_FILE_VERSION) || mine_err==1 || game_err==1) {
+	if (((LEVEL_FILE_VERSION>1) && Gamesave_current_version<LEVEL_FILE_VERSION) || mine_err==1 || game_err==1) {
 		char  ErrorMessage[200];
 
 		sprintf( ErrorMessage, "You just loaded a old version level.  Would\n"
@@ -1352,7 +1352,8 @@ int	Errors_in_mine;
 int save_game_data(PHYSFS_file * SaveFile)
 {
 	int  player_offset=0, object_offset=0, walls_offset=0, doors_offset=0, triggers_offset=0, control_offset=0, matcen_offset=0; //, links_offset;
-	int start_offset=0,end_offset=0;
+	int offset_offset=0,end_offset=0;
+	int i = 0;
 
 	//===================== SAVE FILE INFO ========================
 
@@ -1388,19 +1389,15 @@ int save_game_data(PHYSFS_file * SaveFile)
 
 	//==================== SAVE OBJECT INFO ===========================
 
-	object_offset = ftell(SaveFile);
+	object_offset = PHYSFS_tell(SaveFile);
 	//fwrite( &Objects, sizeof(object), game_fileinfo.object_howmany, SaveFile );
-	{
-		int i;
-		for (i=0;i<Highest_object_index;i++)
-			write_object(&Objects[i],SaveFile);
-	}
+	for (i=0;i<Highest_object_index;i++)
+		write_object(&Objects[i],SaveFile);
 
 	//==================== SAVE WALL INFO =============================
 
 	walls_offset = PHYSFS_tell(SaveFile);
-	for (i = 0; i < Num_walls; i++)
-		wall_write(&Walls[i], SaveFile);
+	PHYSFS_write( SaveFile, Walls, sizeof(wall), Num_walls );
 
 	//==================== SAVE DOOR INFO =============================
 
@@ -1413,20 +1410,18 @@ int save_game_data(PHYSFS_file * SaveFile)
 	//==================== SAVE TRIGGER INFO =============================
 
 	triggers_offset = PHYSFS_tell(SaveFile);
-	for (i = 0; i < Num_triggers; i++)
-		trigger_write(&Triggers[i], SaveFile);
+	PHYSFS_write( SaveFile, Triggers, sizeof(trigger), Num_triggers );
 
 	//================ SAVE CONTROL CENTER TRIGGER INFO ===============
 
 	control_offset = PHYSFS_tell(SaveFile);
-	control_center_triggers_write(&ControlCenterTriggers, SaveFile);
+	PHYSFS_write( SaveFile, &ControlCenterTriggers, sizeof(control_center_triggers), 1 );
 
 
 	//================ SAVE MATERIALIZATION CENTER TRIGGER INFO ===============
 
 	matcen_offset = PHYSFS_tell(SaveFile);
-	for (i = 0; i < Num_robot_centers; i++)
-		matcen_info_write(&RobotCenters[i], game_top_fileinfo_version, SaveFile);
+	PHYSFS_write( SaveFile, &RobotCenters, sizeof(matcen_info), Num_robot_centers );
 
 	//============= REWRITE FILE INFO, TO SAVE OFFSETS ===============
 

@@ -22,6 +22,7 @@ COPYRIGHT 1993-1998 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 #include <stdlib.h>
 #include <math.h>
 #include <string.h>
+#include "physfsx.h"
 #include "key.h"
 #include "gr.h"
 #include "bm.h"			// for MAX_TEXTURES
@@ -37,14 +38,13 @@ COPYRIGHT 1993-1998 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 #include "texpage.h"		// For texpage_goto_first
 #include "medwall.h"
 #include "switch.h"
-#include "nocfile.h"
 #include "fuelcen.h"
 
 #define REMOVE_EXT(s)  (*(strchr( (s), '.' ))='\0')
 
 int CreateDefaultNewSegment();
-int save_mine_data(CFILE * SaveFile);
-int save_mine_data_compiled_new(FILE * SaveFile);
+int save_mine_data(PHYSFS_file * SaveFile);
+int save_mine_data_compiled_new(PHYSFS_file * SaveFile);
 
 static char	 current_tmap_list[MAX_TEXTURES][13];
 
@@ -57,7 +57,7 @@ static char	 current_tmap_list[MAX_TEXTURES][13];
 
 int med_save_mine(char * filename)
 {
-	FILE * SaveFile;
+	PHYSFS_file *SaveFile;
 	char ErrorMessage[256];
 
 	SaveFile = cfopen( filename, CF_WRITE_MODE );
@@ -87,7 +87,7 @@ int med_save_mine(char * filename)
 
 // -----------------------------------------------------------------------------
 // saves to an already-open file
-int save_mine_data(CFILE * SaveFile)
+int save_mine_data(PHYSFS_file * SaveFile)
 {
 	int  header_offset, editor_offset, vertex_offset, segment_offset, doors_offset, texture_offset, walls_offset, triggers_offset; //, links_offset;
 	int  newseg_verts_offset;
@@ -142,7 +142,7 @@ int save_mine_data(CFILE * SaveFile)
 	mine_fileinfo.triggers_sizeof	  =	sizeof(trigger);  
 
 	// Write the fileinfo
-	cfwrite( &mine_fileinfo, sizeof(mine_fileinfo), 1, SaveFile );
+	PHYSFS_write( SaveFile, &mine_fileinfo, sizeof(mine_fileinfo), 1 );
 
 	//===================== SAVE HEADER INFO ========================
 
@@ -153,7 +153,7 @@ int save_mine_data(CFILE * SaveFile)
 	if (header_offset != cftell(SaveFile))
 		Error( "OFFSETS WRONG IN MINE.C!" );
 
-	cfwrite( &mine_header, sizeof(mine_header), 1, SaveFile );
+	PHYSFS_write( SaveFile, &mine_header, sizeof(mine_header), 1 );
 
 	//===================== SAVE EDITOR INFO ==========================
 	mine_editor.current_seg         =   Cursegp - Segments;
@@ -174,35 +174,35 @@ int save_mine_data(CFILE * SaveFile)
 
 	if (editor_offset != cftell(SaveFile))
 		Error( "OFFSETS WRONG IN MINE.C!" );
-	cfwrite( &mine_editor, sizeof(mine_editor), 1, SaveFile );
+	PHYSFS_write( SaveFile, &mine_editor, sizeof(mine_editor), 1 );
 
 	//===================== SAVE TEXTURE INFO ==========================
 
 	if (texture_offset != cftell(SaveFile))
 		Error( "OFFSETS WRONG IN MINE.C!" );
-	cfwrite( current_tmap_list, 13, NumTextures, SaveFile );
+	PHYSFS_write( SaveFile, current_tmap_list, 13, NumTextures );
 	
 	//===================== SAVE VERTEX INFO ==========================
 
 	if (vertex_offset != cftell(SaveFile))
 		Error( "OFFSETS WRONG IN MINE.C!" );
-	cfwrite( Vertices, sizeof(vms_vector), Num_vertices, SaveFile );
+	PHYSFS_write( SaveFile, Vertices, sizeof(vms_vector), Num_vertices );
 
 	//===================== SAVE SEGMENT INFO =========================
 
 	if (segment_offset != cftell(SaveFile))
 		Error( "OFFSETS WRONG IN MINE.C!" );
-	cfwrite( Segments, sizeof(segment), Num_segments, SaveFile );
+	PHYSFS_write( SaveFile, Segments, sizeof(segment), Num_segments );
 
 	//===================== SAVE NEWSEGMENT INFO ======================
 
 	if (newsegment_offset != cftell(SaveFile))
 		Error( "OFFSETS WRONG IN MINE.C!" );
-	cfwrite( &New_segment, sizeof(segment), 1, SaveFile );
+	PHYSFS_write( SaveFile, &New_segment, sizeof(segment), 1 );
 
 	if (newseg_verts_offset != cftell(SaveFile))
 		Error( "OFFSETS WRONG IN MINE.C!" );
-	cfwrite( &Vertices[New_segment.verts[0]], sizeof(vms_vector), 8, SaveFile );
+	PHYSFS_write( SaveFile, &Vertices[New_segment.verts[0]], sizeof(vms_vector), 8 );
 
 	//==================== CLOSE THE FILE =============================
 
@@ -229,7 +229,7 @@ void dump_fix_as_short( fix value, int nbits, CFILE * SaveFile )
 	else
 		short_value = (short)int_value;
 
-	cfwrite( &short_value, sizeof(short_value), 1, SaveFile );
+	PHYSFS_write( SaveFile, &short_value, sizeof(short_value), 1 );
 }
 
 //version of dump for unsigned values
@@ -251,14 +251,14 @@ void dump_fix_as_ushort( fix value, int nbits, CFILE * SaveFile )
 	else
 		short_value = int_value;
 
-	cfwrite( &short_value, sizeof(short_value), 1, SaveFile );
+	PHYSFS_write( SaveFile, &short_value, sizeof(short_value), 1 );
 }
 
 int	New_file_format_save = 1;
 
 // -----------------------------------------------------------------------------
 // saves compiled mine data to an already-open file...
-int save_mine_data_compiled(FILE * SaveFile)
+int save_mine_data_compiled(PHYSFS_file * SaveFile)
 {
 	short i,segnum,sidenum;
 	ubyte version = COMPILED_MINE_VERSION;
@@ -284,25 +284,25 @@ int save_mine_data_compiled(FILE * SaveFile)
 	}
 
 	//=============================== Writing part ==============================
-	cfwrite( &version, sizeof(ubyte), 1, SaveFile );						// 1 byte = compiled version
-	cfwrite( &Num_vertices, sizeof(int), 1, SaveFile );					// 4 bytes = Num_vertices
-	cfwrite( &Num_segments, sizeof(int), 1, SaveFile );						// 4 bytes = Num_segments
-	cfwrite( Vertices, sizeof(vms_vector), Num_vertices, SaveFile );
+	PHYSFS_write( SaveFile, &version, sizeof(ubyte), 1 );						// 1 byte = compiled version
+	PHYSFS_write( SaveFile, &Num_vertices, sizeof(int), 1 );					// 4 bytes = Num_vertices
+	PHYSFS_write( SaveFile, &Num_segments, sizeof(int), 1 );						// 4 bytes = Num_segments
+	PHYSFS_write( SaveFile, Vertices, sizeof(vms_vector), Num_vertices );
 
 	for (segnum=0; segnum<Num_segments; segnum++ )	{
 		// Write short Segments[segnum].children[MAX_SIDES_PER_SEGMENT]
- 		cfwrite( &Segments[segnum].children, sizeof(short), MAX_SIDES_PER_SEGMENT, SaveFile );
+ 		PHYSFS_write( SaveFile, &Segments[segnum].children, sizeof(short), MAX_SIDES_PER_SEGMENT );
 		// Write short Segments[segnum].verts[MAX_VERTICES_PER_SEGMENT]
-		cfwrite( &Segments[segnum].verts, sizeof(short), MAX_VERTICES_PER_SEGMENT, SaveFile );
+		PHYSFS_write( SaveFile, &Segments[segnum].verts, sizeof(short), MAX_VERTICES_PER_SEGMENT );
 		// Write ubyte	Segments[segnum].special
-		cfwrite( &Segments[segnum].special, sizeof(ubyte), 1, SaveFile );
+		PHYSFS_write( SaveFile, &Segments[segnum].special, sizeof(ubyte), 1 );
 		// Write byte	Segments[segnum].matcen_num
-		cfwrite( &Segments[segnum].matcen_num, sizeof(ubyte), 1, SaveFile );
+		PHYSFS_write( SaveFile, &Segments[segnum].matcen_num, sizeof(ubyte), 1 );
 		// Write short	Segments[segnum].value
-		cfwrite( &Segments[segnum].value, sizeof(short), 1, SaveFile );
+		PHYSFS_write( SaveFile, &Segments[segnum].value, sizeof(short), 1 );
 		// Write fix	Segments[segnum].static_light (shift down 5 bits, write as short)
 		dump_fix_as_ushort( Segments[segnum].static_light, 4, SaveFile );
-		//cfwrite( &Segments[segnum].static_light , sizeof(fix), 1, SaveFile );
+		//PHYSFS_write( SaveFile, &Segments[segnum].static_light , sizeof(fix), 1 );
 	
 		// Write the walls as a 6 byte array
 		for (sidenum=0; sidenum<MAX_SIDES_PER_SEGMENT; sidenum++ )	{
@@ -315,21 +315,21 @@ int save_mine_data_compiled(FILE * SaveFile)
 				Assert( wallnum < 255 );		// Get John or Mike.. can only store up to 255 walls!!! 
 			}
 			byte_wallnum = (ubyte)wallnum;
-			cfwrite( &byte_wallnum, sizeof(ubyte), 1, SaveFile );
+			PHYSFS_write( SaveFile, &byte_wallnum, sizeof(ubyte), 1 );
 		}
 
 		for (sidenum=0; sidenum<MAX_SIDES_PER_SEGMENT; sidenum++ )	{
 			if ( (Segments[segnum].children[sidenum]==-1) || (Segments[segnum].sides[sidenum].wall_num!=-1) )	{
 				// Write short Segments[segnum].sides[sidenum].tmap_num;
-				cfwrite( &Segments[segnum].sides[sidenum].tmap_num, sizeof(short), 1, SaveFile );
+				PHYSFS_write( SaveFile, &Segments[segnum].sides[sidenum].tmap_num, sizeof(short), 1 );
 				// Write short Segments[segnum].sides[sidenum].tmap_num2;
-				cfwrite( &Segments[segnum].sides[sidenum].tmap_num2, sizeof(short), 1, SaveFile );
+				PHYSFS_write( SaveFile, &Segments[segnum].sides[sidenum].tmap_num2, sizeof(short), 1 );
 				// Write uvl Segments[segnum].sides[sidenum].uvls[4] (u,v>>5, write as short, l>>1 write as short)
 				for (i=0; i<4; i++ )	{
 					dump_fix_as_short( Segments[segnum].sides[sidenum].uvls[i].u, 5, SaveFile );
 					dump_fix_as_short( Segments[segnum].sides[sidenum].uvls[i].v, 5, SaveFile );
 					dump_fix_as_ushort( Segments[segnum].sides[sidenum].uvls[i].l, 1, SaveFile );
-					//cfwrite( &Segments[segnum].sides[sidenum].uvls[i].l, sizeof(fix), 1, SaveFile );
+					//PHYSFS_write( SaveFile, &Segments[segnum].sides[sidenum].uvls[i].l, sizeof(fix), 1 );
 				}	
 			}
 		}
@@ -341,7 +341,7 @@ int save_mine_data_compiled(FILE * SaveFile)
 
 // -----------------------------------------------------------------------------
 // saves compiled mine data to an already-open file...
-int save_mine_data_compiled_new(FILE * SaveFile)
+int save_mine_data_compiled_new(PHYSFS_file * SaveFile)
 {
 	short		i, segnum, sidenum, temp_short;
 	ubyte 	version = COMPILED_MINE_VERSION;
@@ -363,12 +363,12 @@ int save_mine_data_compiled_new(FILE * SaveFile)
 	}
 
 	//=============================== Writing part ==============================
-	cfwrite( &version, sizeof(ubyte), 1, SaveFile );						// 1 byte = compiled version
+	PHYSFS_write( SaveFile, &version, sizeof(ubyte), 1 );						// 1 byte = compiled version
 	temp_short = Num_vertices;
-	cfwrite( &temp_short, sizeof(short), 1, SaveFile );					// 2 bytes = Num_vertices
+	PHYSFS_write( SaveFile, &temp_short, sizeof(short), 1 );					// 2 bytes = Num_vertices
 	temp_short = Num_segments;
-	cfwrite( &temp_short, sizeof(short), 1, SaveFile );					// 2 bytes = Num_segments
-	cfwrite( Vertices, sizeof(vms_vector), Num_vertices, SaveFile );
+	PHYSFS_write( SaveFile, &temp_short, sizeof(short), 1 );					// 2 bytes = Num_segments
+	PHYSFS_write( SaveFile, Vertices, sizeof(vms_vector), Num_vertices );
 
 	for (segnum=0; segnum<Num_segments; segnum++ )	{
 
@@ -380,19 +380,19 @@ int save_mine_data_compiled_new(FILE * SaveFile)
 		if ((Segments[segnum].special != 0) || (Segments[segnum].matcen_num != 0) || (Segments[segnum].value != 0))
 			bit_mask |= (1 << MAX_SIDES_PER_SEGMENT);
 
- 		cfwrite( &bit_mask, sizeof(ubyte), 1, SaveFile );
+ 		PHYSFS_write( SaveFile, &bit_mask, sizeof(ubyte), 1 );
 
 		for (sidenum=0; sidenum<MAX_SIDES_PER_SEGMENT; sidenum++) {
  			if (bit_mask & (1 << sidenum))
-		 		cfwrite( &Segments[segnum].children[sidenum], sizeof(short), 1, SaveFile );
+		 		PHYSFS_write( SaveFile, &Segments[segnum].children[sidenum], sizeof(short), 1 );
 		}
 
-		cfwrite( &Segments[segnum].verts, sizeof(short), MAX_VERTICES_PER_SEGMENT, SaveFile );
+		PHYSFS_write( SaveFile, &Segments[segnum].verts, sizeof(short), MAX_VERTICES_PER_SEGMENT );
 
 		if (bit_mask & (1 << MAX_SIDES_PER_SEGMENT)) {
-			cfwrite( &Segments[segnum].special, sizeof(ubyte), 1, SaveFile );
-			cfwrite( &Segments[segnum].matcen_num, sizeof(ubyte), 1, SaveFile );
-			cfwrite( &Segments[segnum].value, sizeof(short), 1, SaveFile );
+			PHYSFS_write( SaveFile, &Segments[segnum].special, sizeof(ubyte), 1 );
+			PHYSFS_write( SaveFile, &Segments[segnum].matcen_num, sizeof(ubyte), 1 );
+			PHYSFS_write( SaveFile, &Segments[segnum].value, sizeof(short), 1 );
 		}
 
 		dump_fix_as_ushort( Segments[segnum].static_light, 4, SaveFile );
@@ -407,11 +407,11 @@ int save_mine_data_compiled_new(FILE * SaveFile)
 				Assert( wallnum < 255 );		// Get John or Mike.. can only store up to 255 walls!!! 
 			}
 		}
-		cfwrite( &bit_mask, sizeof(ubyte), 1, SaveFile );
+		PHYSFS_write( SaveFile, &bit_mask, sizeof(ubyte), 1 );
 
 		for (sidenum=0; sidenum<MAX_SIDES_PER_SEGMENT; sidenum++ )	{
 			if (bit_mask & (1 << sidenum))
-				cfwrite( &Segments[segnum].sides[sidenum].wall_num, sizeof(ubyte), 1, SaveFile );
+				PHYSFS_write( SaveFile, &Segments[segnum].sides[sidenum].wall_num, sizeof(ubyte), 1 );
 		}
 
 		for (sidenum=0; sidenum<MAX_SIDES_PER_SEGMENT; sidenum++ )	{
@@ -423,9 +423,9 @@ int save_mine_data_compiled_new(FILE * SaveFile)
 				if (tmap_num2 != 0)
 					tmap_num |= 0x8000;
 
-				cfwrite( &tmap_num, sizeof(ushort), 1, SaveFile );
+				PHYSFS_write( SaveFile, &tmap_num, sizeof(ushort), 1 );
 				if (tmap_num2 != 0)
-					cfwrite( &tmap_num2, sizeof(ushort), 1, SaveFile );
+					PHYSFS_write( SaveFile, &tmap_num2, sizeof(ushort), 1 );
 
 				for (i=0; i<4; i++ )	{
 					dump_fix_as_short( Segments[segnum].sides[sidenum].uvls[i].u, 5, SaveFile );

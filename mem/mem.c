@@ -21,6 +21,7 @@ COPYRIGHT 1993-1998 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
+#include "physfsx.h"
 #include "pstypes.h"
 #include "error.h"
 #include "args.h"
@@ -339,19 +340,18 @@ void mem_validate_heap()
 
 void mem_print_all()
 {
-	FILE * ef;
+	PHYSFS_file * ef;
 	int i, size = 0;
 
-	ef = fopen( "DESCENT.MEM", "wt" );
+	ef = PHYSFSX_openWriteBuffered( "DESCENT.MEM" );
 	
 	for (i=0; i<LargestIndex; i++  )
 		if (Present[i]==1 )	{
 			size += MallocSize[i];
-			//fprintf( ef, "Var:%s\t File:%s\t Line:%d\t Size:%d Base:%x\n", Varname[i], Filename[i], Line[i], MallocSize[i], MallocBase[i] );
-			fprintf( ef, "%12d bytes in %s declared in %s, line %d\n", MallocSize[i], Varname[i], Filename[i], LineNum[i]  );
+			PHYSFSX_printf( ef, "%12d bytes in %s declared in %s, line %d\n", MallocSize[i], Varname[i], Filename[i], LineNum[i]  );
 		}
-	fprintf( ef, "%d bytes (%d Kbytes) allocated.\n", size, size/1024 ); 
-	fclose(ef);
+	PHYSFSX_printf( ef, "%d bytes (%d Kbytes) allocated.\n", size, size/1024 ); 
+	PHYSFS_close(ef);
 }
 
 #else
