@@ -736,7 +736,7 @@ int kconfig_key_command(window *wind, d_event *event, kc_menu *menu)
 			return 1;
 #ifdef TABLE_CREATION
 		case KEY_F12:	{
-				FILE * fp;
+				PHYSFS_file * fp;
 				for (i=0; i<NUM_KEY_CONTROLS; i++ )	{
 					kc_keyboard[i].u = find_next_item_up( kc_keyboard,NUM_KEY_CONTROLS, i);
 					kc_keyboard[i].d = find_next_item_down( kc_keyboard,NUM_KEY_CONTROLS, i);
@@ -761,61 +761,61 @@ int kconfig_key_command(window *wind, d_event *event, kc_menu *menu)
 					kc_d2x[i].l = find_next_item_left( kc_d2x,NUM_D2X_CONTROLS, i);
 					kc_d2x[i].r = find_next_item_right( kc_d2x,NUM_D2X_CONTROLS, i);
 				}
-				fp = fopen( "kconfig.cod", "wt" );
+				fp = PHYSFSX_openWriteBuffered( "kconfig.cod" );
 				
-				fprintf( fp, "ubyte DefaultKeySettings[3][MAX_CONTROLS] = {\n" );
+				PHYSFSX_printf( fp, "ubyte DefaultKeySettings[3][MAX_CONTROLS] = {\n" );
 				for (i=0; i<3; i++ )	{
 					int j;
-					fprintf( fp, "{0x%2x", PlayerCfg.KeySettings[i][0] );
+					PHYSFSX_printf( fp, "{0x%2x", PlayerCfg.KeySettings[i][0] );
 					for (j=1; j<MAX_CONTROLS; j++ )
-						fprintf( fp, ",0x%2x", PlayerCfg.KeySettings[i][j] );
-					fprintf( fp, "},\n" );
+						PHYSFSX_printf( fp, ",0x%2x", PlayerCfg.KeySettings[i][j] );
+					PHYSFSX_printf( fp, "},\n" );
 				}
-				fprintf( fp, "};\n" );
+				PHYSFSX_printf( fp, "};\n" );
 				
-				fprintf( fp, "\nkc_item kc_keyboard[NUM_KEY_CONTROLS] = {\n" );
+				PHYSFSX_printf( fp, "\nkc_item kc_keyboard[NUM_KEY_CONTROLS] = {\n" );
 				for (i=0; i<NUM_KEY_CONTROLS; i++ )	{
-					fprintf( fp, "\t{ %2d,%3d,%3d,%3d,%3d,%3d,%3d,%3d,%3d,%c%s%c, %s, 255 },\n", 
+					PHYSFSX_printf( fp, "\t{ %2d,%3d,%3d,%3d,%3d,%3d,%3d,%3d,%3d,%c%s%c, %s, 255 },\n", 
 							kc_keyboard[i].id, kc_keyboard[i].x, kc_keyboard[i].y, kc_keyboard[i].w1, kc_keyboard[i].w2,
 							kc_keyboard[i].u, kc_keyboard[i].d, kc_keyboard[i].l, kc_keyboard[i].r,
 							34, kc_keyboard[i].text, 34, btype_text[kc_keyboard[i].type] );
 				}
-				fprintf( fp, "};" );
+				PHYSFSX_printf( fp, "};" );
 				
-				fprintf( fp, "\nkc_item kc_joystick[NUM_JOYSTICK_CONTROLS] = {\n" );
+				PHYSFSX_printf( fp, "\nkc_item kc_joystick[NUM_JOYSTICK_CONTROLS] = {\n" );
 				for (i=0; i<NUM_JOYSTICK_CONTROLS; i++ )	{
 					if (kc_joystick[i].type == BT_JOY_BUTTON)
-						fprintf( fp, "\t{ %2d,%3d,%3d,%3d,%3d,%3d,%3d,%3d,%3d,%c%s%c, %s, 255 },\n", 
+						PHYSFSX_printf( fp, "\t{ %2d,%3d,%3d,%3d,%3d,%3d,%3d,%3d,%3d,%c%s%c, %s, 255 },\n", 
 								kc_joystick[i].id, kc_joystick[i].x, kc_joystick[i].y, kc_joystick[i].w1, kc_joystick[i].w2,
 								kc_joystick[i].u, kc_joystick[i].d, kc_joystick[i].l, kc_joystick[i].r,
 								34, kc_joystick[i].text, 34, btype_text[kc_joystick[i].type] );
 					else
-						fprintf( fp, "\t{ %2d,%3d,%3d,%3d,%3d,%3d,%3d,%3d,%3d,%c%s%c, %s, 255 },\n", 
+						PHYSFSX_printf( fp, "\t{ %2d,%3d,%3d,%3d,%3d,%3d,%3d,%3d,%3d,%c%s%c, %s, 255 },\n", 
 								kc_joystick[i].id, kc_joystick[i].x, kc_joystick[i].y, kc_joystick[i].w1, kc_joystick[i].w2,
 								kc_joystick[i].u, kc_joystick[i].d, kc_joystick[i].l, kc_joystick[i].r,
 								34, kc_joystick[i].text, 34, btype_text[kc_joystick[i].type] );
 				}
-				fprintf( fp, "};" );
+				PHYSFSX_printf( fp, "};" );
 				
-				fprintf( fp, "\nkc_item kc_mouse[NUM_MOUSE_CONTROLS] = {\n" );
+				PHYSFSX_printf( fp, "\nkc_item kc_mouse[NUM_MOUSE_CONTROLS] = {\n" );
 				for (i=0; i<NUM_MOUSE_CONTROLS; i++ )	{
-					fprintf( fp, "\t{ %2d,%3d,%3d,%3d,%3d,%3d,%3d,%3d,%3d,%c%s%c, %s, 255 },\n", 
+					PHYSFSX_printf( fp, "\t{ %2d,%3d,%3d,%3d,%3d,%3d,%3d,%3d,%3d,%c%s%c, %s, 255 },\n", 
 							kc_mouse[i].id, kc_mouse[i].x, kc_mouse[i].y, kc_mouse[i].w1, kc_mouse[i].w2,
 							kc_mouse[i].u, kc_mouse[i].d, kc_mouse[i].l, kc_mouse[i].r,
 							34, kc_mouse[i].text, 34, btype_text[kc_mouse[i].type] );
 				}
-				fprintf( fp, "};" );
+				PHYSFSX_printf( fp, "};" );
 				
-				fprintf( fp, "\nkc_item kc_d2x[NUM_D2X_CONTROLS] = {\n" );
+				PHYSFSX_printf( fp, "\nkc_item kc_d2x[NUM_D2X_CONTROLS] = {\n" );
 				for (i=0; i<NUM_D2X_CONTROLS; i++ )	{
-					fprintf( fp, "\t{ %2d,%3d,%3d,%3d,%3d,%3d,%3d,%3d,%3d,%c%s%c, %s, 255 },\n", 
+					PHYSFSX_printf( fp, "\t{ %2d,%3d,%3d,%3d,%3d,%3d,%3d,%3d,%3d,%c%s%c, %s, 255 },\n", 
 							kc_d2x[i].id, kc_d2x[i].x, kc_d2x[i].y, kc_d2x[i].w1, kc_d2x[i].w2,
 							kc_d2x[i].u, kc_d2x[i].d, kc_d2x[i].l, kc_d2x[i].r,
 							34, kc_d2x[i].text, 34, btype_text[kc_d2x[i].type] );
 				}
-				fprintf( fp, "};" );
+				PHYSFSX_printf( fp, "};" );
 				
-				fclose(fp);
+				PHYSFS_close(fp);
 				
 			}
 			return 1;

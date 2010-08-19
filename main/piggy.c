@@ -188,7 +188,7 @@ int piggy_is_substitutable_bitmap( char * name, char * subst_name );
 
 #ifdef EDITOR
 void piggy_write_pigfile(char *filename);
-static void write_int(int i,FILE *file);
+static void write_int(int i,PHYSFS_file *file);
 #endif
 
 void swap_0_255(grs_bitmap *bmp)
@@ -1211,13 +1211,13 @@ void piggy_load_level_data()
 
 void piggy_write_pigfile(char *filename)
 {
-	FILE *pig_fp;
+	PHYSFS_file *pig_fp;
 	int bitmap_data_start, data_offset;
 	DiskBitmapHeader bmh;
 	int org_offset;
 	char subst_name[32];
 	int i;
-	FILE *fp1,*fp2;
+	PHYSFS_file *fp1,*fp2;
 	char tname[FILENAME_LEN];
 
 	for (i=0; i < Num_bitmap_files; i++ )   {
@@ -1228,24 +1228,24 @@ void piggy_write_pigfile(char *filename)
 
 	piggy_close_file();
 
-	pig_fp = fopen( filename, "wb" );       //open PIG file
+	pig_fp = PHYSFSX_openWriteBuffered( filename );       //open PIG file
 	Assert( pig_fp!=NULL );
 
 	write_int(PIGFILE_ID,pig_fp);
 	write_int(PIGFILE_VERSION,pig_fp);
 
 	Num_bitmap_files--;
-	fwrite( &Num_bitmap_files, sizeof(int), 1, pig_fp );
+	PHYSFS_write( pig_fp, &Num_bitmap_files, sizeof(int), 1 );
 	Num_bitmap_files++;
 
-	bitmap_data_start = ftell(pig_fp);
+	bitmap_data_start = cftell(pig_fp);
 	bitmap_data_start += (Num_bitmap_files - 1) * sizeof(DiskBitmapHeader);
 	data_offset = bitmap_data_start;
 
 	change_filename_extension(tname,filename,"lst");
-	fp1 = fopen( tname, "wt" );
+	fp1 = PHYSFSX_openWriteBuffered( tname );
 	change_filename_extension(tname,filename,"all");
-	fp2 = fopen( tname, "wt" );
+	fp2 = PHYSFSX_openWriteBuffered( tname );
 
 	for (i=1; i < Num_bitmap_files; i++ )   {
 		int *size;
@@ -1260,14 +1260,14 @@ void piggy_write_pigfile(char *filename)
 				n = atoi(p1);
 				*p = 0;
 				if (fp2 && n==0)
-					fprintf( fp2, "%s.abm\n", AllBitmaps[i].name );
+					PHYSFSX_printf( fp2, "%s.abm\n", AllBitmaps[i].name );
 				memcpy( bmh.name, AllBitmaps[i].name, 8 );
 				Assert( n <= DBM_NUM_FRAMES );
 				bmh.dflags = DBM_FLAG_ABM + n;
 				*p = '#';
 			} else {
 				if (fp2)
-					fprintf( fp2, "%s.bbm\n", AllBitmaps[i].name );
+					PHYSFSX_printf( fp2, "%s.bbm\n", AllBitmaps[i].name );
 				memcpy( bmh.name, AllBitmaps[i].name, 8 );
 				bmh.dflags = 0;
 			}
@@ -1277,24 +1277,24 @@ void piggy_write_pigfile(char *filename)
 		Assert( !(bmp->bm_flags&BM_FLAG_PAGED_OUT) );
 
 		if (fp1)
-			fprintf( fp1, "BMP: %s, size %d bytes", AllBitmaps[i].name, bmp->bm_rowsize * bmp->bm_h );
-		org_offset = ftell(pig_fp);
+			PHYSFSX_printf( fp1, "BMP: %s, size %d bytes", AllBitmaps[i].name, bmp->bm_rowsize * bmp->bm_h );
+		org_offset = cftell(pig_fp);
 		bmh.offset = data_offset - bitmap_data_start;
-		fseek( pig_fp, data_offset, SEEK_SET );
+		cfseek( pig_fp, data_offset, SEEK_SET );
 
 		if ( bmp->bm_flags & BM_FLAG_RLE )      {
 			size = (int *)bmp->bm_data;
-			fwrite( bmp->bm_data, sizeof(ubyte), *size, pig_fp );
+			PHYSFS_write( pig_fp, bmp->bm_data, sizeof(ubyte), *size );
 			data_offset += *size;
 			if (fp1)
-				fprintf( fp1, ", and is already compressed to %d bytes.\n", *size );
+				PHYSFSX_printf( fp1, ", and is already compressed to %d bytes.\n", *size );
 		} else {
-			fwrite( bmp->bm_data, sizeof(ubyte), bmp->bm_rowsize * bmp->bm_h, pig_fp );
+			PHYSFS_write( pig_fp, bmp->bm_data, sizeof(ubyte), bmp->bm_rowsize * bmp->bm_h );
 			data_offset += bmp->bm_rowsize * bmp->bm_h;
 			if (fp1)
-				fprintf( fp1, ".\n" );
+				PHYSFSX_printf( fp1, ".\n" );
 		}
-		fseek( pig_fp, org_offset, SEEK_SET );
+		cfseek( pig_fp, org_offset, SEEK_SET );
 		Assert( GameBitmaps[i].bm_w < 4096 );
 		bmh.width = (GameBitmaps[i].bm_w & 0xff);
 		bmh.wh_extra = ((GameBitmaps[i].bm_w >> 8) & 0x0f);
@@ -1311,21 +1311,21 @@ void piggy_write_pigfile(char *filename)
 			bmh.flags &= ~BM_FLAG_PAGED_OUT;
 		}
 		bmh.avg_color=GameBitmaps[i].avg_color;
-		fwrite(&bmh, sizeof(DiskBitmapHeader), 1, pig_fp);  // Mark as a bitmap
+		PHYSFS_write(pig_fp, &bmh, sizeof(DiskBitmapHeader), 1);  // Mark as a bitmap
 	}
 
-	fclose(pig_fp);
+	PHYSFS_close(pig_fp);
 
-	fprintf( fp1, " Dumped %d assorted bitmaps.\n", Num_bitmap_files );
+	PHYSFSX_printf( fp1, " Dumped %d assorted bitmaps.\n", Num_bitmap_files );
 
-	fclose(fp1);
-	fclose(fp2);
+	PHYSFS_close(fp1);
+	PHYSFS_close(fp2);
 
 }
 
-static void write_int(int i,FILE *file)
+static void write_int(int i, PHYSFS_file *file)
 {
-	if (fwrite( &i, sizeof(i), 1, file) != 1)
+	if (PHYSFS_write( file, &i, sizeof(i), 1) != 1)
 		Error( "Error reading int in gamesave.c" );
 
 }
@@ -1333,11 +1333,11 @@ static void write_int(int i,FILE *file)
 void piggy_dump_all()
 {
 	int i, xlat_offset;
-	FILE * ham_fp;
+	PHYSFS_file * ham_fp;
 	int org_offset,data_offset=0;
 	DiskSoundHeader sndh;
 	int sound_data_start=0;
-	FILE *fp1,*fp2;
+	PHYSFS_file *fp1,*fp2;
 
 	#ifdef NO_DUMP_SOUNDS
 	Num_sound_files = 0;
@@ -1347,20 +1347,20 @@ void piggy_dump_all()
 	if (!Must_write_hamfile && (Num_bitmap_files_new == 0) && (Num_sound_files_new == 0) )
 		return;
 
-	fp1 = fopen( "ham.lst", "wt" );
-	fp2 = fopen( "ham.all", "wt" );
+	fp1 = PHYSFSX_openWriteBuffered( "ham.lst" );
+	fp2 = PHYSFSX_openWriteBuffered( "ham.all" );
 
 	if (Must_write_hamfile || Num_bitmap_files_new) {
 
-		ham_fp = fopen( DEFAULT_HAMFILE_REGISTERED, "wb" );                       //open HAM file
+		ham_fp = PHYSFSX_openWriteBuffered( DEFAULT_HAMFILE_REGISTERED );                       //open HAM file
 		Assert( ham_fp!=NULL );
 	
 		write_int(HAMFILE_ID,ham_fp);
 		write_int(HAMFILE_VERSION,ham_fp);
 	
 		bm_write_all(ham_fp);
-		xlat_offset = ftell(ham_fp);
-		fwrite( GameBitmapXlat, sizeof(ushort)*MAX_BITMAP_FILES, 1, ham_fp );
+		xlat_offset = cftell(ham_fp);
+		PHYSFS_write( ham_fp, GameBitmapXlat, sizeof(ushort)*MAX_BITMAP_FILES, 1 );
 		//Dump bitmaps
 	
 		if (Num_bitmap_files_new)
@@ -1371,24 +1371,24 @@ void piggy_dump_all()
 			d_free(GameBitmaps[i].bm_data);
 	
 		//next thing must be done after pig written
-		fseek( ham_fp, xlat_offset, SEEK_SET );
-		fwrite( GameBitmapXlat, sizeof(ushort)*MAX_BITMAP_FILES, 1, ham_fp );
+		cfseek( ham_fp, xlat_offset, SEEK_SET );
+		PHYSFS_write( ham_fp, GameBitmapXlat, sizeof(ushort)*MAX_BITMAP_FILES, 1 );
 	
-		fclose(ham_fp);
+		PHYSFS_close(ham_fp);
 	}
 	
 	if (Num_sound_files_new) {
 
 		// Now dump sound file
-		ham_fp = fopen( DEFAULT_SNDFILE, "wb" );
+		ham_fp = PHYSFSX_openWriteBuffered( DEFAULT_SNDFILE );
 		Assert( ham_fp!=NULL );
 	
 		write_int(SNDFILE_ID,ham_fp);
 		write_int(SNDFILE_VERSION,ham_fp);
 
-		fwrite( &Num_sound_files, sizeof(int), 1, ham_fp );
+		PHYSFS_write( ham_fp, &Num_sound_files, sizeof(int), 1 );
 	
-		sound_data_start = ftell(ham_fp);
+		sound_data_start = cftell(ham_fp);
 		sound_data_start += Num_sound_files*sizeof(DiskSoundHeader);
 		data_offset = sound_data_start;
 	
@@ -1400,27 +1400,27 @@ void piggy_dump_all()
 			sndh.length = GameSounds[i].length;
 			sndh.offset = data_offset - sound_data_start;
 	
-			org_offset = ftell(ham_fp);
-			fseek( ham_fp, data_offset, SEEK_SET );
+			org_offset = cftell(ham_fp);
+			cfseek( ham_fp, data_offset, SEEK_SET );
 	
 			sndh.data_length = GameSounds[i].length;
-			fwrite( snd->data, sizeof(ubyte), snd->length, ham_fp );
+			PHYSFS_write( ham_fp, snd->data, sizeof(ubyte), snd->length );
 			data_offset += snd->length;
-			fseek( ham_fp, org_offset, SEEK_SET );
-			fwrite( &sndh, sizeof(DiskSoundHeader), 1, ham_fp );                    // Mark as a bitmap
+			cfseek( ham_fp, org_offset, SEEK_SET );
+			PHYSFS_write( ham_fp, &sndh, sizeof(DiskSoundHeader), 1 );                    // Mark as a bitmap
 	
-			fprintf( fp1, "SND: %s, size %d bytes\n", AllSounds[i].name, snd->length );
-			fprintf( fp2, "%s.raw\n", AllSounds[i].name );
+			PHYSFSX_printf( fp1, "SND: %s, size %d bytes\n", AllSounds[i].name, snd->length );
+			PHYSFSX_printf( fp2, "%s.raw\n", AllSounds[i].name );
 		}
 
-		fclose(ham_fp);
+		PHYSFS_close(ham_fp);
 	}
 
-	fprintf( fp1, "Total sound size: %d bytes\n", data_offset-sound_data_start);
-	fprintf( fp1, " Dumped %d assorted sounds.\n", Num_sound_files );
+	PHYSFSX_printf( fp1, "Total sound size: %d bytes\n", data_offset-sound_data_start);
+	PHYSFSX_printf( fp1, " Dumped %d assorted sounds.\n", Num_sound_files );
 
-	fclose(fp1);
-	fclose(fp2);
+	PHYSFS_close(fp1);
+	PHYSFS_close(fp2);
 
 	// Never allow the game to run after building ham.
 	exit(0);

@@ -448,9 +448,6 @@ int do_game_pause()
 	return 0 /*key*/;	// Keycode returning ripped out (kreatordxx)
 }
 
-extern int network_who_is_master(),network_how_many_connected(),GetMyNetRanking();
-extern int TotalMissedPackets,TotalPacketsGot;
-// char *NetworkModeNames[]={"Anarchy","Team Anarchy","Robo Anarchy","Cooperative","Capture the Flag","Hoard","Team Hoard","Unknown"};
 extern char *RankStrings[];
 extern int PhallicLimit,PhallicMan;
 
@@ -682,7 +679,7 @@ dump_door_debugging_info()
 	fvi_query fq;
 	fvi_info hit_info;
 	int fate;
-	FILE *dfile;
+	PHYSFS_file *dfile;
 	int wall_num;
 
 	obj = &Objects[Players[Player_num].objnum];
@@ -698,37 +695,37 @@ dump_door_debugging_info()
 
 	fate = find_vector_intersection(&fq,&hit_info);
 
-	dfile = fopen("door.out","at");
+	dfile = PHYSFSX_openWriteBuffered("door.out");
 
-	fprintf(dfile,"FVI hit_type = %d\n",fate);
-	fprintf(dfile,"    hit_seg = %d\n",hit_info.hit_seg);
-	fprintf(dfile,"    hit_side = %d\n",hit_info.hit_side);
-	fprintf(dfile,"    hit_side_seg = %d\n",hit_info.hit_side_seg);
-	fprintf(dfile,"\n");
+	PHYSFSX_printf(dfile,"FVI hit_type = %d\n",fate);
+	PHYSFSX_printf(dfile,"    hit_seg = %d\n",hit_info.hit_seg);
+	PHYSFSX_printf(dfile,"    hit_side = %d\n",hit_info.hit_side);
+	PHYSFSX_printf(dfile,"    hit_side_seg = %d\n",hit_info.hit_side_seg);
+	PHYSFSX_printf(dfile,"\n");
 
 	if (fate == HIT_WALL) {
 
 		wall_num = Segments[hit_info.hit_seg].sides[hit_info.hit_side].wall_num;
-		fprintf(dfile,"wall_num = %d\n",wall_num);
+		PHYSFSX_printf(dfile,"wall_num = %d\n",wall_num);
 
 		if (wall_num != -1) {
 			wall *wall = &Walls[wall_num];
 			active_door *d;
 			int i;
 
-			fprintf(dfile,"    segnum = %d\n",wall->segnum);
-			fprintf(dfile,"    sidenum = %d\n",wall->sidenum);
-			fprintf(dfile,"    hps = %x\n",wall->hps);
-			fprintf(dfile,"    linked_wall = %d\n",wall->linked_wall);
-			fprintf(dfile,"    type = %d\n",wall->type);
-			fprintf(dfile,"    flags = %x\n",wall->flags);
-			fprintf(dfile,"    state = %d\n",wall->state);
-			fprintf(dfile,"    trigger = %d\n",wall->trigger);
-			fprintf(dfile,"    clip_num = %d\n",wall->clip_num);
-			fprintf(dfile,"    keys = %x\n",wall->keys);
-			fprintf(dfile,"    controlling_trigger = %d\n",wall->controlling_trigger);
-			fprintf(dfile,"    cloak_value = %d\n",wall->cloak_value);
-			fprintf(dfile,"\n");
+			PHYSFSX_printf(dfile,"    segnum = %d\n",wall->segnum);
+			PHYSFSX_printf(dfile,"    sidenum = %d\n",wall->sidenum);
+			PHYSFSX_printf(dfile,"    hps = %x\n",wall->hps);
+			PHYSFSX_printf(dfile,"    linked_wall = %d\n",wall->linked_wall);
+			PHYSFSX_printf(dfile,"    type = %d\n",wall->type);
+			PHYSFSX_printf(dfile,"    flags = %x\n",wall->flags);
+			PHYSFSX_printf(dfile,"    state = %d\n",wall->state);
+			PHYSFSX_printf(dfile,"    trigger = %d\n",wall->trigger);
+			PHYSFSX_printf(dfile,"    clip_num = %d\n",wall->clip_num);
+			PHYSFSX_printf(dfile,"    keys = %x\n",wall->keys);
+			PHYSFSX_printf(dfile,"    controlling_trigger = %d\n",wall->controlling_trigger);
+			PHYSFSX_printf(dfile,"    cloak_value = %d\n",wall->cloak_value);
+			PHYSFSX_printf(dfile,"\n");
 
 
 			for (i=0;i<Num_open_doors;i++) {		//find door
@@ -738,22 +735,22 @@ dump_door_debugging_info()
 			}
 
 			if (i>=Num_open_doors)
-				fprintf(dfile,"No active door.\n");
+				PHYSFSX_printf(dfile,"No active door.\n");
 			else {
-				fprintf(dfile,"Active door %d:\n",i);
-				fprintf(dfile,"    n_parts = %d\n",d->n_parts);
-				fprintf(dfile,"    front_wallnum = %d,%d\n",d->front_wallnum[0],d->front_wallnum[1]);
-				fprintf(dfile,"    back_wallnum = %d,%d\n",d->back_wallnum[0],d->back_wallnum[1]);
-				fprintf(dfile,"    time = %x\n",d->time);
+				PHYSFSX_printf(dfile,"Active door %d:\n",i);
+				PHYSFSX_printf(dfile,"    n_parts = %d\n",d->n_parts);
+				PHYSFSX_printf(dfile,"    front_wallnum = %d,%d\n",d->front_wallnum[0],d->front_wallnum[1]);
+				PHYSFSX_printf(dfile,"    back_wallnum = %d,%d\n",d->back_wallnum[0],d->back_wallnum[1]);
+				PHYSFSX_printf(dfile,"    time = %x\n",d->time);
 			}
 
 		}
 	}
 
-	fprintf(dfile,"\n");
-	fprintf(dfile,"\n");
+	PHYSFSX_printf(dfile,"\n");
+	PHYSFSX_printf(dfile,"\n");
 
-	fclose(dfile);
+	PHYSFS_close(dfile);
 
 }
 #endif
@@ -1397,7 +1394,7 @@ int HandleTestKey(int key)
 
 		case KEY_E + KEY_DEBUGGED:
 #ifdef NETWORK
-			network_leave_game();
+			multi_leave_game();
 #endif
 			Function_mode = FMODE_EDITOR;
 

@@ -2111,166 +2111,162 @@ void bm_read_hostage()
 #define N_D2_OBJBITMAPPTRS		502
 #define N_D2_WEAPON_TYPES		62
 
-void bm_write_all(FILE *fp)
+void bm_write_all(PHYSFS_file *fp)
 {
 	int i,t;
-	FILE *tfile;
+	PHYSFS_file *tfile;
 	int s=0;
 
-	tfile = fopen("hamfile.lst","wt");
+	tfile = PHYSFSX_openWriteBuffered("hamfile.lst");
 
 	t = NumTextures-1;	//don't save bogus texture
-	fwrite( &t, sizeof(int), 1, fp );
-	fwrite( Textures, sizeof(bitmap_index), t, fp );
+	PHYSFS_write( fp, &t, sizeof(int), 1 );
+	PHYSFS_write( fp, Textures, sizeof(bitmap_index), t );
 	for (i=0;i<t;i++)
-		fwrite( &TmapInfo[i], sizeof(*TmapInfo)-sizeof(TmapInfo->filename)-sizeof(TmapInfo->pad2), 1, fp );
-	fprintf(tfile, "NumTextures = %d, Textures array = %d, TmapInfo array = %d\n", NumTextures, (int) sizeof(bitmap_index)*NumTextures, (int) sizeof(tmap_info)*NumTextures);
+		PHYSFS_write( fp, &TmapInfo[i], sizeof(*TmapInfo)-sizeof(TmapInfo->filename)-sizeof(TmapInfo->pad2), 1 );
+	PHYSFSX_printf(tfile, "NumTextures = %d, Textures array = %d, TmapInfo array = %d\n", NumTextures, (int) sizeof(bitmap_index)*NumTextures, (int) sizeof(tmap_info)*NumTextures);
 
 	t = MAX_SOUNDS;
-	fwrite( &t, sizeof(int), 1, fp );
-	fwrite( Sounds, sizeof(ubyte), t, fp );
-	fwrite( AltSounds, sizeof(ubyte), t, fp );
-	fprintf(tfile,"Num Sounds = %d, Sounds array = %d, AltSounds array = %d\n",t,t,t);
+	PHYSFS_write( fp, &t, sizeof(int), 1 );
+	PHYSFS_write( fp, Sounds, sizeof(ubyte), t );
+	PHYSFS_write( fp, AltSounds, sizeof(ubyte), t );
+	PHYSFSX_printf(tfile,"Num Sounds = %d, Sounds array = %d, AltSounds array = %d\n",t,t,t);
 
-	fwrite( &Num_vclips, sizeof(int), 1, fp );
-	fwrite( Vclip, sizeof(vclip), Num_vclips, fp );
-	fprintf(tfile, "Num_vclips = %d, Vclip array = %d\n", Num_vclips, (int) sizeof(vclip)*Num_vclips);
+	PHYSFS_write( fp, &Num_vclips, sizeof(int), 1 );
+	PHYSFS_write( fp, Vclip, sizeof(vclip), Num_vclips );
+	PHYSFSX_printf(tfile, "Num_vclips = %d, Vclip array = %d\n", Num_vclips, (int) sizeof(vclip)*Num_vclips);
 
-	fwrite( &Num_effects, sizeof(int), 1, fp );
-	fwrite( Effects, sizeof(eclip), Num_effects, fp );
-	fprintf(tfile, "Num_effects = %d, Effects array = %d\n", Num_effects, (int) sizeof(eclip)*Num_effects);
+	PHYSFS_write( fp, &Num_effects, sizeof(int), 1 );
+	PHYSFS_write( fp, Effects, sizeof(eclip), Num_effects );
+	PHYSFSX_printf(tfile, "Num_effects = %d, Effects array = %d\n", Num_effects, (int) sizeof(eclip)*Num_effects);
 
-	fwrite( &Num_wall_anims, sizeof(int), 1, fp );
-	fwrite( WallAnims, sizeof(wclip), Num_wall_anims, fp );
-	fprintf(tfile, "Num_wall_anims = %d, WallAnims array = %d\n", Num_wall_anims, (int) sizeof(wclip)*Num_wall_anims);
+	PHYSFS_write( fp, &Num_wall_anims, sizeof(int), 1 );
+	PHYSFS_write( fp, WallAnims, sizeof(wclip), Num_wall_anims );
+	PHYSFSX_printf(tfile, "Num_wall_anims = %d, WallAnims array = %d\n", Num_wall_anims, (int) sizeof(wclip)*Num_wall_anims);
 
 	t = N_D2_ROBOT_TYPES;
-	fwrite( &t, sizeof(int), 1, fp );
-	fwrite( Robot_info, sizeof(robot_info), t, fp );
-	fprintf(tfile, "N_robot_types = %d, Robot_info array = %d\n", t, (int) sizeof(robot_info)*N_robot_types);
+	PHYSFS_write( fp, &t, sizeof(int), 1 );
+	PHYSFS_write( fp, Robot_info, sizeof(robot_info), t );
+	PHYSFSX_printf(tfile, "N_robot_types = %d, Robot_info array = %d\n", t, (int) sizeof(robot_info)*N_robot_types);
 
 	t = N_D2_ROBOT_JOINTS;
-	fwrite( &t, sizeof(int), 1, fp );
-	fwrite( Robot_joints, sizeof(jointpos), t, fp );
-	fprintf(tfile, "N_robot_joints = %d, Robot_joints array = %d\n", t, (int) sizeof(jointpos)*N_robot_joints);
+	PHYSFS_write( fp, &t, sizeof(int), 1 );
+	PHYSFS_write( fp, Robot_joints, sizeof(jointpos), t );
+	PHYSFSX_printf(tfile, "N_robot_joints = %d, Robot_joints array = %d\n", t, (int) sizeof(jointpos)*N_robot_joints);
 
 	t = N_D2_WEAPON_TYPES;
-	fwrite( &t, sizeof(int), 1, fp );
-	fwrite( Weapon_info, sizeof(weapon_info), t, fp );
-	fprintf(tfile, "N_weapon_types = %d, Weapon_info array = %d\n", N_weapon_types, (int) sizeof(weapon_info)*N_weapon_types);
+	PHYSFS_write( fp, &t, sizeof(int), 1 );
+	PHYSFS_write( fp, Weapon_info, sizeof(weapon_info), t );
+	PHYSFSX_printf(tfile, "N_weapon_types = %d, Weapon_info array = %d\n", N_weapon_types, (int) sizeof(weapon_info)*N_weapon_types);
 
-	fwrite( &N_powerup_types, sizeof(int), 1, fp );
-	fwrite( Powerup_info, sizeof(powerup_type_info), N_powerup_types, fp );
-	fprintf(tfile, "N_powerup_types = %d, Powerup_info array = %d\n", N_powerup_types, (int) sizeof(powerup_info)*N_powerup_types);
+	PHYSFS_write( fp, &N_powerup_types, sizeof(int), 1 );
+	PHYSFS_write( fp, Powerup_info, sizeof(powerup_type_info), N_powerup_types );
+	PHYSFSX_printf(tfile, "N_powerup_types = %d, Powerup_info array = %d\n", N_powerup_types, (int) sizeof(powerup_info)*N_powerup_types);
 
 	t = N_D2_POLYGON_MODELS;
-	fwrite( &t, sizeof(int), 1, fp );
-	fwrite( Polygon_models, sizeof(polymodel), t, fp );
-	fprintf(tfile, "N_polygon_models = %d, Polygon_models array = %d\n", t, (int) sizeof(polymodel)*t);
+	PHYSFS_write( fp, &t, sizeof(int), 1 );
+	PHYSFS_write( fp, Polygon_models, sizeof(polymodel), t );
+	PHYSFSX_printf(tfile, "N_polygon_models = %d, Polygon_models array = %d\n", t, (int) sizeof(polymodel)*t);
 
 	for (i=0; i<t; i++ )	{
 		g3_uninit_polygon_model(Polygon_models[i].model_data);	//get RGB colors
-		fwrite( Polygon_models[i].model_data, sizeof(ubyte), Polygon_models[i].model_data_size, fp );
-		fprintf(tfile, "  Model %d, data size = %d\n", i, Polygon_models[i].model_data_size); s += Polygon_models[i].model_data_size;
+		PHYSFS_write( fp, Polygon_models[i].model_data, sizeof(ubyte), Polygon_models[i].model_data_size);
+		PHYSFSX_printf(tfile, "  Model %d, data size = %d\n", i, Polygon_models[i].model_data_size); s += Polygon_models[i].model_data_size;
 		g3_init_polygon_model(Polygon_models[i].model_data);	//map colors again
 	}
-	fprintf(tfile,"Total model size = %d\n",s);
+	PHYSFSX_printf(tfile,"Total model size = %d\n",s);
 
-	fwrite( Dying_modelnums, sizeof(int), t, fp );
-	fwrite( Dead_modelnums, sizeof(int), t, fp );
-	fprintf(tfile, "Dying_modelnums array = %d, Dead_modelnums array = %d\n", (int) sizeof(int)*t, (int) sizeof(int)*t);
+	PHYSFS_write( fp, Dying_modelnums, sizeof(int), t );
+	PHYSFS_write( fp, Dead_modelnums, sizeof(int), t );
+	PHYSFSX_printf(tfile, "Dying_modelnums array = %d, Dead_modelnums array = %d\n", (int) sizeof(int)*t, (int) sizeof(int)*t);
 
 	t = MAX_GAUGE_BMS;
-	fwrite( &t, sizeof(int), 1, fp );
-	fwrite( Gauges, sizeof(bitmap_index), t, fp );
-	fwrite( Gauges_hires, sizeof(bitmap_index), t, fp );
-	fprintf(tfile, "Num gauge bitmaps = %d, Gauges array = %d, Gauges_hires array = %d\n", t, (int) sizeof(bitmap_index)*t, (int) sizeof(bitmap_index)*t);
+	PHYSFS_write( fp, &t, sizeof(int), 1 );
+	PHYSFS_write( fp, Gauges, sizeof(bitmap_index), t );
+	PHYSFS_write( fp, Gauges_hires, sizeof(bitmap_index), t );
+	PHYSFSX_printf(tfile, "Num gauge bitmaps = %d, Gauges array = %d, Gauges_hires array = %d\n", t, (int) sizeof(bitmap_index)*t, (int) sizeof(bitmap_index)*t);
 
 	t = MAX_OBJ_BITMAPS;
-	fwrite( &t, sizeof(int), 1, fp );
-	fwrite( ObjBitmaps, sizeof(bitmap_index), t, fp );
-	fwrite( ObjBitmapPtrs, sizeof(ushort), t, fp );
-	fprintf(tfile, "Num obj bitmaps = %d, ObjBitmaps array = %d, ObjBitmapPtrs array = %d\n", t, (int) sizeof(bitmap_index)*t, (int) sizeof(ushort)*t);
+	PHYSFS_write( fp, &t, sizeof(int), 1 );
+	PHYSFS_write( fp, ObjBitmaps, sizeof(bitmap_index), t );
+	PHYSFS_write( fp, ObjBitmapPtrs, sizeof(ushort), t );
+	PHYSFSX_printf(tfile, "Num obj bitmaps = %d, ObjBitmaps array = %d, ObjBitmapPtrs array = %d\n", t, (int) sizeof(bitmap_index)*t, (int) sizeof(ushort)*t);
 
-	fwrite( &only_player_ship, sizeof(player_ship), 1, fp );
-	fprintf(tfile, "player_ship size = %d\n", (int) sizeof(player_ship));
+	PHYSFS_write( fp, &only_player_ship, sizeof(player_ship), 1 );
+	PHYSFSX_printf(tfile, "player_ship size = %d\n", (int) sizeof(player_ship));
 
-	fwrite( &Num_cockpits, sizeof(int), 1, fp );
-	fwrite( cockpit_bitmap, sizeof(bitmap_index), Num_cockpits, fp );
-	fprintf(tfile, "Num_cockpits = %d, cockpit_bitmaps array = %d\n", Num_cockpits, (int) sizeof(bitmap_index)*Num_cockpits);
+	PHYSFS_write( fp, &Num_cockpits, sizeof(int), 1 );
+	PHYSFS_write( fp, cockpit_bitmap, sizeof(bitmap_index), Num_cockpits );
+	PHYSFSX_printf(tfile, "Num_cockpits = %d, cockpit_bitmaps array = %d\n", Num_cockpits, (int) sizeof(bitmap_index)*Num_cockpits);
 
-	fwrite( &First_multi_bitmap_num, sizeof(int), 1, fp );
+	PHYSFS_write( fp, &First_multi_bitmap_num, sizeof(int), 1 );
 
-	fwrite( &Num_reactors, sizeof(Num_reactors), 1, fp );
-	fwrite( Reactors, sizeof(*Reactors), Num_reactors, fp);
-	fprintf(tfile, "Num_reactors = %d, Reactors array = %d\n", Num_reactors, (int) sizeof(*Reactors)*Num_reactors);
+	PHYSFS_write( fp, &Num_reactors, sizeof(Num_reactors), 1 );
+	PHYSFS_write( fp, Reactors, sizeof(*Reactors), Num_reactors);
+	PHYSFSX_printf(tfile, "Num_reactors = %d, Reactors array = %d\n", Num_reactors, (int) sizeof(*Reactors)*Num_reactors);
 
-	fwrite( &Marker_model_num, sizeof(Marker_model_num), 1, fp);
-
-	//@@fwrite( &N_controlcen_guns, sizeof(int), 1, fp );
-	//@@fwrite( controlcen_gun_points, sizeof(vms_vector), N_controlcen_guns, fp );
-	//@@fwrite( controlcen_gun_dirs, sizeof(vms_vector), N_controlcen_guns, fp );
+	PHYSFS_write( fp, &Marker_model_num, sizeof(Marker_model_num), 1);
 
 	#ifdef SHAREWARE
-	fwrite( &exit_modelnum, sizeof(int), 1, fp );
-	fwrite( &destroyed_exit_modelnum, sizeof(int), 1, fp );
+	PHYSFS_write( fp, &exit_modelnum, sizeof(int), 1 );
+	PHYSFS_write( fp, &destroyed_exit_modelnum, sizeof(int), 1 );
 	#endif
 
-	fclose(tfile);
+	PHYSFS_close(tfile);
 
 	bm_write_extra_robots();
 }
 
 void bm_write_extra_robots()
 {
-	FILE *fp;
+	PHYSFS_file *fp;
 	u_int32_t t;
 	int i;
 
-	fp = fopen("robots.ham","wb");
+	fp = PHYSFSX_openWriteBuffered("robots.ham");
 
 	t = 0x5848414d; /* 'XHAM' */
-	fwrite( &t, sizeof(int), 1, fp );
+	PHYSFS_write( fp, &t, sizeof(int), 1);
 	t = 1;	//version
-	fwrite( &t, sizeof(int), 1, fp );
+	PHYSFS_write( fp, &t, sizeof(int), 1);
 
 	//write weapon info
 	t = N_weapon_types - N_D2_WEAPON_TYPES;
-	fwrite( &t, sizeof(int), 1, fp );
-	fwrite( &Weapon_info[N_D2_WEAPON_TYPES], sizeof(weapon_info), t, fp );
+	PHYSFS_write( fp, &t, sizeof(int), 1);
+	PHYSFS_write( fp, &Weapon_info[N_D2_WEAPON_TYPES], sizeof(weapon_info), t);
 
 	//now write robot info
 
 	t = N_robot_types - N_D2_ROBOT_TYPES;
-	fwrite( &t, sizeof(int), 1, fp );
-	fwrite( &Robot_info[N_D2_ROBOT_TYPES], sizeof(robot_info), t, fp );
+	PHYSFS_write( fp, &t, sizeof(int), 1);
+	PHYSFS_write( fp, &Robot_info[N_D2_ROBOT_TYPES], sizeof(robot_info), t);
 
 	t = N_robot_joints - N_D2_ROBOT_JOINTS;
-	fwrite( &t, sizeof(int), 1, fp );
-	fwrite( &Robot_joints[N_D2_ROBOT_JOINTS], sizeof(jointpos), t, fp );
+	PHYSFS_write( fp, &t, sizeof(int), 1);
+	PHYSFS_write( fp, &Robot_joints[N_D2_ROBOT_JOINTS], sizeof(jointpos), t);
 
 	t = N_polygon_models - N_D2_POLYGON_MODELS;
-	fwrite( &t, sizeof(int), 1, fp );
-	fwrite( &Polygon_models[N_D2_POLYGON_MODELS], sizeof(polymodel), t, fp );
+	PHYSFS_write( fp, &t, sizeof(int), 1);
+	PHYSFS_write( fp, &Polygon_models[N_D2_POLYGON_MODELS], sizeof(polymodel), t);
 
 	for (i=N_D2_POLYGON_MODELS; i<N_polygon_models; i++ )	{
 		g3_uninit_polygon_model(Polygon_models[i].model_data);	//get RGB colors
-		fwrite( Polygon_models[i].model_data, sizeof(ubyte), Polygon_models[i].model_data_size, fp );
+		PHYSFS_write( fp, Polygon_models[i].model_data, sizeof(ubyte), Polygon_models[i].model_data_size);
 		g3_init_polygon_model(Polygon_models[i].model_data);	//map colors again
 	}
 
-	fwrite( &Dying_modelnums[N_D2_POLYGON_MODELS], sizeof(int), t, fp );
-	fwrite( &Dead_modelnums[N_D2_POLYGON_MODELS], sizeof(int), t, fp );
+	PHYSFS_write( fp, &Dying_modelnums[N_D2_POLYGON_MODELS], sizeof(int), t);
+	PHYSFS_write( fp, &Dead_modelnums[N_D2_POLYGON_MODELS], sizeof(int), t);
 
 	t = N_ObjBitmaps - N_D2_OBJBITMAPS;
-	fwrite( &t, sizeof(int), 1, fp );
-	fwrite( &ObjBitmaps[N_D2_OBJBITMAPS], sizeof(bitmap_index), t, fp );
+	PHYSFS_write( fp, &t, sizeof(int), 1);
+	PHYSFS_write( fp, &ObjBitmaps[N_D2_OBJBITMAPS], sizeof(bitmap_index), t);
 
 	t = N_ObjBitmapPtrs - N_D2_OBJBITMAPPTRS;
-	fwrite( &t, sizeof(int), 1, fp );
-	fwrite( &ObjBitmapPtrs[N_D2_OBJBITMAPPTRS], sizeof(ushort), t, fp );
+	PHYSFS_write( fp, &t, sizeof(int), 1);
+	PHYSFS_write( fp, &ObjBitmapPtrs[N_D2_OBJBITMAPPTRS], sizeof(ushort), t);
 
-	fwrite( ObjBitmapPtrs, sizeof(ushort), t, fp );
+	PHYSFS_write( fp, ObjBitmapPtrs, sizeof(ushort), t);
 
-	fclose(fp);
+	PHYSFS_close(fp);
 }

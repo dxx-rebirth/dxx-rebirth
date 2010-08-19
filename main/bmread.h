@@ -21,6 +21,6 @@ COPYRIGHT 1993-1999 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 #ifndef _BMREAD_H
 #define _BMREAD_H
 
-void bm_write_all(FILE *fp);
+void bm_write_all(PHYSFS_file *fp);
 
 #endif /* _BMREAD_H */

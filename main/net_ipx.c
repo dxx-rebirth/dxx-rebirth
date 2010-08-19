@@ -820,11 +820,6 @@ net_ipx_init(void)
 	NamesInfoSecurity=-1;
 
 
-#ifdef NETPROFILING
-	OpenSendLog();
-	OpenRecieveLog();
-#endif
-
 	for (t=0;t<MAX_POWERUP_TYPES;t++)
 	{
 		MaxPowerupsAllowed[t]=0;
@@ -4372,11 +4367,6 @@ void net_ipx_leave_game()
 
 	net_ipx_do_frame(1, 1);
 
-#ifdef NETPROFILING
-	fclose (SendLogFile);
-	fclose (RecieveLogFile);
-#endif
-
 	if ((multi_i_am_master()))
 	{
 		while (Network_sending_extras>1 && Player_joining_extras!=-1)
@@ -4498,12 +4488,6 @@ int net_ipx_wait_for_playerinfo()
 void net_ipx_send_data( ubyte * ptr, int len, int urgent )
 {
 	char check;
-
-   #ifdef NETPROFILING
-	   TTSent[ptr[0]]++;
-	   fprintf (SendLogFile,"Packet type: %d Len:%d Urgent:%d TT=%d\n",ptr[0],len,urgent,TTSent[ptr[0]]);
-	   fflush (SendLogFile);
-	#endif
 
 	if (Endlevel_sequence)
 		return;

@@ -2350,14 +2350,6 @@ void multi_reset_object_texture (object *objp)
 	}
 }
 
-
-
-
-#ifdef NETPROFILING
-extern int TTRecv[];
-extern FILE *RecieveLogFile;
-#endif
-
 void
 multi_process_bigdata(char *buf, int len)
 {
@@ -5077,13 +5069,6 @@ multi_process_data(char *buf, int len)
 		Int3();
 		return;
 	}
-
-
-#ifdef NETPROFILING
-	TTRecv[type]++;
-	fprintf (RecieveLogFile,"Packet type: %d Len:%d TT=%d\n",type,len,TTRecv[type]);
-	fflush (RecieveLogFile);
-#endif
 
 	switch(type)
 	{

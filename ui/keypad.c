@@ -306,7 +306,7 @@ void ui_pad_read( int n, char * filename )
 
 	infile = cfopen( filename, "rt" );
 	if (!infile) {
-		Warning( "Couldn't find %s", filename );
+		Warning( "Couldn't find %s\n", filename );
 		return;
 	}
 					  

@@ -341,7 +341,7 @@ void ui_mega_process()
 		last_keypress = key_inkey();
 
 		if ( Mouse.new_buttons || last_keypress || Mouse.new_dx || Mouse.new_dy )	{
-			last_event = TICKER;
+			last_event = timer_get_fixed_seconds();
 		}
 
 		break;

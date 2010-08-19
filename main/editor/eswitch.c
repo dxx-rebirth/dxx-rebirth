@@ -146,7 +146,7 @@ int trigger_remove_flag_from_Markedside(short flag) {
 		return 0;
 	}
 
-	if (!Triggers[trigger_num].flags & flag)
+	if (!(Triggers[trigger_num].flags & flag))
 		return 1;
 
  	Triggers[trigger_num].flags &= ~flag;

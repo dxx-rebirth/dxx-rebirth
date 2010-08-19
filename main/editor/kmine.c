@@ -22,7 +22,6 @@ COPYRIGHT 1993-1998 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 #include <stdlib.h>
 #include "error.h"
 #include "strutil.h"
-#include "nocfile.h"
 #include "inferno.h"
 #include "editor.h"
 #include "ui.h"
@@ -33,6 +32,7 @@ COPYRIGHT 1993-1998 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 #include "game.h"
 #include "gameseq.h"
 #include "object.h"
+#include "cfile.h"
 
 #define MINESAVE_CRIPPLED	0
 
@@ -200,16 +200,16 @@ int med_save_situation(char * filename)
 //	strcpy(mine_name, filename);
 	_splitpath(filename, NULL, NULL, mine_name, NULL);
 	set_extension(mine_name, "min");
-	fprintf(SaveFile, "%s\n", mine_name);
+	PHYSFSX_printf(SaveFile, "%s\n", mine_name);
 
 	//	Write player position.
-        fprintf(SaveFile, "%x %x %x\n",(unsigned int) ConsoleObject->pos.x,(unsigned int) ConsoleObject->pos.y,(unsigned int) ConsoleObject->pos.z);
+        PHYSFSX_printf(SaveFile, "%x %x %x\n",(unsigned int) ConsoleObject->pos.x,(unsigned int) ConsoleObject->pos.y,(unsigned int) ConsoleObject->pos.z);
 
 	//	Write player orientation.
-        fprintf(SaveFile, "%8x %8x %8x\n",(unsigned int) ConsoleObject->orient.rvec.x,(unsigned int) ConsoleObject->orient.rvec.y,(unsigned int) ConsoleObject->orient.rvec.z);
-        fprintf(SaveFile, "%8x %8x %8x\n",(unsigned int) ConsoleObject->orient.uvec.x,(unsigned int) ConsoleObject->orient.uvec.y,(unsigned int) ConsoleObject->orient.uvec.z);                       
-        fprintf(SaveFile, "%8x %8x %8x\n",(unsigned int) ConsoleObject->orient.fvec.x,(unsigned int) ConsoleObject->orient.fvec.y,(unsigned int) ConsoleObject->orient.fvec.z);
-	fprintf(SaveFile, "%i\n", ConsoleObject->segnum);
+        PHYSFSX_printf(SaveFile, "%8x %8x %8x\n",(unsigned int) ConsoleObject->orient.rvec.x,(unsigned int) ConsoleObject->orient.rvec.y,(unsigned int) ConsoleObject->orient.rvec.z);
+        PHYSFSX_printf(SaveFile, "%8x %8x %8x\n",(unsigned int) ConsoleObject->orient.uvec.x,(unsigned int) ConsoleObject->orient.uvec.y,(unsigned int) ConsoleObject->orient.uvec.z);                       
+        PHYSFSX_printf(SaveFile, "%8x %8x %8x\n",(unsigned int) ConsoleObject->orient.fvec.x,(unsigned int) ConsoleObject->orient.fvec.y,(unsigned int) ConsoleObject->orient.fvec.z);
+	PHYSFSX_printf(SaveFile, "%i\n", ConsoleObject->segnum);
 
 	cfclose( SaveFile);
 

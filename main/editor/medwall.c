@@ -1094,84 +1094,84 @@ int delete_all_triggers()
 int dump_walls_info() 
 {
 	int w; 
-	FILE *fp;
+	PHYSFS_file *fp;
 
-	fp = fopen("WALL.OUT", "wt");
+	fp = PHYSFSX_openWriteBuffered("WALL.OUT");
 
-	fprintf(fp, "Num_walls %d\n", Num_walls);
+	PHYSFSX_printf(fp, "Num_walls %d\n", Num_walls);
 
 	for (w=0; w<Num_walls; w++) {
 
-		fprintf(fp, "WALL #%d\n", w);
-		fprintf(fp, "  seg: %d\n", Walls[w].segnum);
-		fprintf(fp, "  sidenum: %d\n", Walls[w].sidenum);
+		PHYSFSX_printf(fp, "WALL #%d\n", w);
+		PHYSFSX_printf(fp, "  seg: %d\n", Walls[w].segnum);
+		PHYSFSX_printf(fp, "  sidenum: %d\n", Walls[w].sidenum);
 	
 		switch (Walls[w].type) {
 			case WALL_NORMAL:
-				fprintf(fp, "  type: NORMAL\n");
+				PHYSFSX_printf(fp, "  type: NORMAL\n");
 				break;
 			case WALL_BLASTABLE:
-				fprintf(fp, "  type: BLASTABLE\n");
+				PHYSFSX_printf(fp, "  type: BLASTABLE\n");
 				break;
 			case WALL_DOOR:
-				fprintf(fp, "  type: DOOR\n");
+				PHYSFSX_printf(fp, "  type: DOOR\n");
 				break;
 			case WALL_ILLUSION:
-				fprintf(fp, "  type: ILLUSION\n");
+				PHYSFSX_printf(fp, "  type: ILLUSION\n");
 				break;
 			case WALL_OPEN:
-				fprintf(fp, "  type: OPEN\n");
+				PHYSFSX_printf(fp, "  type: OPEN\n");
 				break;
 			case WALL_CLOSED:
-				fprintf(fp, "  type: CLOSED\n");
+				PHYSFSX_printf(fp, "  type: CLOSED\n");
 				break;
 			default:
-				fprintf(fp, "  type: ILLEGAL!!!!! <-----------------\n");
+				PHYSFSX_printf(fp, "  type: ILLEGAL!!!!! <-----------------\n");
 				break;
 		}
 	
-		fprintf(fp, "  flags:\n");
+		PHYSFSX_printf(fp, "  flags:\n");
 
 		if (Walls[w].flags & WALL_BLASTED)
-			fprintf(fp, "   BLASTED\n");
+			PHYSFSX_printf(fp, "   BLASTED\n");
 		if (Walls[w].flags & WALL_DOOR_OPENED)
-			fprintf(fp, "   DOOR_OPENED <----------------- BAD!!!\n");
+			PHYSFSX_printf(fp, "   DOOR_OPENED <----------------- BAD!!!\n");
 		if (Walls[w].flags & WALL_DOOR_OPENING)
-			fprintf(fp, "   DOOR_OPENING <---------------- BAD!!!\n");
+			PHYSFSX_printf(fp, "   DOOR_OPENING <---------------- BAD!!!\n");
 		if (Walls[w].flags & WALL_DOOR_LOCKED)
-			fprintf(fp, "   DOOR_LOCKED\n");
+			PHYSFSX_printf(fp, "   DOOR_LOCKED\n");
 		if (Walls[w].flags & WALL_DOOR_AUTO)
-			fprintf(fp, "   DOOR_AUTO\n");
+			PHYSFSX_printf(fp, "   DOOR_AUTO\n");
 		if (Walls[w].flags & WALL_ILLUSION_OFF)
-			fprintf(fp, "   ILLUSION_OFF <---------------- OUTDATED\n");
+			PHYSFSX_printf(fp, "   ILLUSION_OFF <---------------- OUTDATED\n");
 		//if (Walls[w].flags & WALL_FUELCEN)
-		//	fprintf(fp, "   FUELCEN <--------------------- OUTDATED\n");
+		//	PHYSFSX_printf(fp, "   FUELCEN <--------------------- OUTDATED\n");
 
-		fprintf(fp, "  trigger: %d\n", Walls[w].trigger);
-		fprintf(fp, "  clip_num: %d\n", Walls[w].clip_num);
+		PHYSFSX_printf(fp, "  trigger: %d\n", Walls[w].trigger);
+		PHYSFSX_printf(fp, "  clip_num: %d\n", Walls[w].clip_num);
 
 		switch (Walls[w].keys) {
 			case KEY_NONE:
-				fprintf(fp, "	key: NONE\n");
+				PHYSFSX_printf(fp, "	key: NONE\n");
 				break;
 			case KEY_BLUE:
-				fprintf(fp, "	key: BLUE\n");
+				PHYSFSX_printf(fp, "	key: BLUE\n");
 				break;
 			case KEY_RED:
-				fprintf(fp, "	key: RED\n");
+				PHYSFSX_printf(fp, "	key: RED\n");
 				break;
 			case KEY_GOLD:
-				fprintf(fp, "	key: NONE\n");
+				PHYSFSX_printf(fp, "	key: NONE\n");
 				break;
 			default:
-				fprintf(fp, "  key: ILLEGAL!!!!!! <-----------------\n");
+				PHYSFSX_printf(fp, "  key: ILLEGAL!!!!!! <-----------------\n");
 				break;
 		}
 
-		fprintf(fp, "  linked_wall %d\n", Walls[w].linked_wall);
+		PHYSFSX_printf(fp, "  linked_wall %d\n", Walls[w].linked_wall);
 	}
 	
-	fclose(fp);
+	PHYSFS_close(fp);
 	return 1;
 }
 

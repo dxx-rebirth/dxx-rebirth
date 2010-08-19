@@ -1482,7 +1482,7 @@ void build_object_lists(int n_segs)
 						int ii;
 
 						#ifndef NDEBUG
-						FILE *tfile=fopen("sortlist.out","wt");
+						PHYSFS_file *tfile=PHYSFSX_openWriteBuffered("sortlist.out");
 
 						//I find this strange, so I'm going to write out
 						//some information to look at later
@@ -1490,10 +1490,10 @@ void build_object_lists(int n_segs)
 							for (ii=0;ii<SORT_LIST_SIZE;ii++) {
 								int objnum = sort_list[ii].objnum;
 
-								fprintf(tfile,"Obj %3d  Type = %2d  Id = %2d  Dist = %08x  Segnum = %3d\n",
+								PHYSFSX_printf(tfile,"Obj %3d  Type = %2d  Id = %2d  Dist = %08x  Segnum = %3d\n",
 									objnum,Objects[objnum].type,Objects[objnum].id,sort_list[ii].dist,Objects[objnum].segnum);
 							}
-							fclose(tfile);
+							PHYSFS_close(tfile);
 						}
 						#endif
 

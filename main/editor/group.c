@@ -21,7 +21,6 @@ COPYRIGHT 1993-1998 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 #include <string.h>
 
 #include "gr.h"
-#include "nocfile.h"
 #include "ui.h"
 #include "inferno.h"
 #include "segment.h"
@@ -1049,7 +1048,7 @@ static char	 current_tmap_list[MAX_TEXTURES][13];
 //    values in the headers.
 int med_save_group( char *filename, short *vertex_ids, short *segment_ids, int num_vertices, int num_segments)
 {
-	FILE * SaveFile;
+	PHYSFS_file * SaveFile;
 	int header_offset, editor_offset, vertex_offset, segment_offset, texture_offset;
 	char ErrorMessage[100];
 	int i, j, k;
@@ -1058,7 +1057,7 @@ int med_save_group( char *filename, short *vertex_ids, short *segment_ids, int n
    vms_vector tvert;
 	int found;
 
-	SaveFile = fopen( filename, "wb" );
+	SaveFile = PHYSFSX_openWriteBuffered( filename );
 	if (!SaveFile)
 	{
 		sprintf( ErrorMessage, "ERROR: Unable to open %s\n", filename );
@@ -1085,7 +1084,7 @@ int med_save_group( char *filename, short *vertex_ids, short *segment_ids, int n
 	group_fileinfo.texture_sizeof    =   13;  // num characters in a name
 
 	// Write the fileinfo
-	fwrite( &group_fileinfo, sizeof(group_fileinfo), 1, SaveFile );
+	PHYSFS_write( SaveFile, &group_fileinfo, sizeof(group_fileinfo), 1);
 
 	//===================== SAVE HEADER INFO ========================
 
@@ -1093,8 +1092,8 @@ int med_save_group( char *filename, short *vertex_ids, short *segment_ids, int n
 	group_header.num_segments        =   num_segments;
 
 	// Write the editor info
-	header_offset = ftell(SaveFile);
-	fwrite( &group_header, sizeof(group_header), 1, SaveFile );
+	header_offset = cftell(SaveFile);
+	PHYSFS_write( SaveFile, &group_header, sizeof(group_header), 1);
 
 	//===================== SAVE EDITOR INFO ==========================
 	group_editor.newsegment_offset   =   -1; // To be written
@@ -1110,22 +1109,22 @@ int med_save_group( char *filename, short *vertex_ids, short *segment_ids, int n
 		group_editor.Groupsegp      	=   0;
 	group_editor.Groupside		 =   Groupside[current_group];
 
-	editor_offset = ftell(SaveFile);
-	fwrite( &group_editor, sizeof(group_editor), 1, SaveFile );
+	editor_offset = cftell(SaveFile);
+	PHYSFS_write( SaveFile, &group_editor, sizeof(group_editor), 1);
 
 
 	//===================== SAVE VERTEX INFO ==========================
 
-	vertex_offset = ftell(SaveFile);
+	vertex_offset = cftell(SaveFile);
 	for (i=0;i<num_vertices;i++) {
 		tvert = Vertices[vertex_ids[i]];	
-		fwrite( &tvert, sizeof(tvert), 1, SaveFile ); 
+		PHYSFS_write( SaveFile, &tvert, sizeof(tvert), 1); 
 	}
 
 	//===================== SAVE SEGMENT INFO =========================
 
 
-	segment_offset = ftell(SaveFile);
+	segment_offset = cftell(SaveFile);
 	for (i=0;i<num_segments;i++) {
 		tseg = Segments[segment_ids[i]];
 		
@@ -1147,18 +1146,18 @@ int med_save_group( char *filename, short *vertex_ids, short *segment_ids, int n
 					break;
 					}
 
-		fwrite( &tseg, sizeof(tseg), 1, SaveFile );
+		PHYSFS_write( SaveFile, &tseg, sizeof(tseg), 1);
 
 	 }
 
 	//===================== SAVE TEXTURE INFO ==========================
 
-	texture_offset = ftell(SaveFile);
+	texture_offset = cftell(SaveFile);
 
 	for (i=0;i<NumTextures;i++)
 		strncpy(current_tmap_list[i], TmapInfo[i].filename, 13);
 
-	fwrite( current_tmap_list, 13, NumTextures, SaveFile );
+	PHYSFS_write( SaveFile, current_tmap_list, 13, NumTextures);
 
 	//============= REWRITE FILE INFO, TO SAVE OFFSETS ===============
 
@@ -1170,11 +1169,11 @@ int med_save_group( char *filename, short *vertex_ids, short *segment_ids, int n
 	group_fileinfo.texture_offset    =   texture_offset;
 	
 	// Write the fileinfo
-	fseek(  SaveFile, 0, SEEK_SET );  // Move to TOF
-	fwrite( &group_fileinfo, sizeof(group_fileinfo), 1, SaveFile );
+	cfseek(  SaveFile, 0, SEEK_SET );  // Move to TOF
+	PHYSFS_write( SaveFile, &group_fileinfo, sizeof(group_fileinfo), 1);
 
 	//==================== CLOSE THE FILE =============================
-	fclose(SaveFile);
+	PHYSFS_close(SaveFile);
 
 	return 0;
 
