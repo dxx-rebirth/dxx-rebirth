@@ -100,6 +100,7 @@ void mix_free_music()
 
 void mix_set_music_volume(int vol)
 {
+	vol *= MIX_MAX_VOLUME/8;
 	Mix_VolumeMusic(vol);
 }
 

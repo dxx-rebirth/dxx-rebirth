@@ -49,15 +49,15 @@ void songs_set_volume(int volume)
 {
 #ifdef _WIN32
 	if (GameArg.SndDisableSdlMixer)
-		digi_win32_set_midi_volume((volume*128)/8);
+		digi_win32_set_midi_volume(volume);
 #endif
 	if (GameCfg.MusicType == MUSIC_TYPE_REDBOOK)
 	{
 		RBASetVolume(0);
-		RBASetVolume(volume*EXTMUSIC_VOLUME_SCALE/8);
+		RBASetVolume(volume);
 	}
 #ifdef USE_SDLMIXER
-	mix_set_music_volume(volume*EXTMUSIC_VOLUME_SCALE/8);
+	mix_set_music_volume(volume);
 #endif
 }
 

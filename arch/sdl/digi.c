@@ -146,17 +146,20 @@ void digi_debug()
 
 #ifdef _WIN32
 // Windows native-MIDI stuff.
+#define MIDI_VOLUME_SCALE 128
 int digi_win32_midi_song_playing=0;
 static hmp_file *cur_hmp=NULL;
 
 void digi_win32_set_midi_volume( int mvolume )
 {
 	int mm_volume, midi_volume=0;
+	
+	mvolume *= MIDI_VOLUME_SCALE/8;
 
 	if (mvolume < 0)
 		midi_volume = 0;
-	else if (mvolume > 127)
-		midi_volume = 127;
+	else if (mvolume > MIDI_VOLUME_SCALE-1)
+		midi_volume = MIDI_VOLUME_SCALE-1;
 	else
 		midi_volume = mvolume;
 
@@ -180,7 +183,7 @@ int digi_win32_play_midi_song( char * filename, int loop )
 		if (hmp_play(cur_hmp,loop) != 0)
 			return 0;	// error
 		digi_win32_midi_song_playing = 1;
-		digi_win32_set_midi_volume((GameCfg.MusicVolume*128)/8);
+		digi_win32_set_midi_volume((GameCfg.MusicVolume*MIDI_VOLUME_SCALE)/8);
 		return 1;
 	}
 
