@@ -3,6 +3,7 @@ D2X-Rebirth Changelog
 20100819
 --------
 d2x-rebirth/main/multi.c, d2x-rebirth/main/bmread.c, d2x-rebirth/main/bmread.h, d2x-rebirth/main/paging.c, d2x-rebirth/main/piggy.c, d2x-rebirth/main/render.c, d2x-rebirth/main/net_ipx.c, d2x-rebirth/main/dumpmine.c, d2x-rebirth/main/editor/kmine.c, d2x-rebirth/main/editor/mine.c, d2x-rebirth/main/editor/group.c, d2x-rebirth/main/editor/med.c, d2x-rebirth/main/editor/eswitch.c, d2x-rebirth/main/editor/medwall.c, d2x-rebirth/main/kconfig.c, d2x-rebirth/main/gamecntl.c, d2x-rebirth/ui/window.c, d2x-rebirth/ui/keypad.c, d2x-rebirth/mem/mem.c: Patching together editor so it compiles again (while still not running); Implemented PhysFS for file accessing for editor- and debugging-related code
+main/gamecntl.c: Removed processing of HandleVRKey() as this code is not usable anymore and blocks some system keys (removal of general VR-code will follow later)
 
 20100817
 --------
