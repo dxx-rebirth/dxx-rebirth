@@ -304,7 +304,7 @@ void load_text()
 				break;
 				  
 			  case 330:
-				  extra = "\n<Ctrl+C> converts format\nIntel <-> PowerPC";
+				  extra = "\n<Ctrl-C> converts format\nIntel <-> PowerPC";
 				  str = d_malloc(strlen(Text_string[i]) + strlen(extra) + 1);
 				  if (!str)
 					  break;
