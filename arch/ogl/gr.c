@@ -73,6 +73,7 @@ int ogl_init_window(int x, int y)
 	}
 
 	SDL_WM_SetCaption(DESCENT_VERSION, "Descent II");
+	SDL_WM_SetIcon( SDL_LoadBMP( "d2x-rebirth.ico" ), NULL );
 	if (!SDL_SetVideoMode(x, y, GameArg.DbgBpp, SDL_OPENGL | (ogl_fullscreen ? SDL_FULLSCREEN : 0)))
 	{
 		Error("Could not set %dx%dx%d opengl video mode: %s\n", x, y, GameArg.DbgBpp, SDL_GetError());

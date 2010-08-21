@@ -99,6 +99,7 @@ int gr_set_mode(u_int32_t mode)
 	screen=NULL;
 
 	SDL_WM_SetCaption(DESCENT_VERSION, "Descent II");
+	SDL_WM_SetIcon( SDL_LoadBMP( "d2x-rebirth.ico" ), NULL );
 
 	if(SDL_VideoModeOK(w,h,GameArg.DbgBpp,sdl_video_flags))
 	{
