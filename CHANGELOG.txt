@@ -1,5 +1,9 @@
 D1X-Rebirth Changelog
 
+20100821
+--------
+d1x-rebirth.ico, d1x-rebirth.xpm, arch/sdl/gr.c, arch/ogl/gr.c: Bind WM-Icon to application
+
 20100819
 --------
 d1x-rebirth/main/bmread.c, d1x-rebirth/main/paging.c, d1x-rebirth/main/aipath.c, d1x-rebirth/main/piggy.c, d1x-rebirth/main/gamesave.c, d1x-rebirth/main/dumpmine.c, d1x-rebirth/main/kconfig.c, d1x-rebirth/main/gamecntl.c, d1x-rebirth/editor/segment.c, d1x-rebirth/editor/kmine.c, d1x-rebirth/editor/mine.c, d1x-rebirth/editor/group.c, d1x-rebirth/editor/med.c, d1x-rebirth/editor/eswitch.c, d1x-rebirth/editor/medwall.c, d1x-rebirth/iff/iff.c, d1x-rebirth/ui/radio.c, d1x-rebirth/ui/scroll.c, d1x-rebirth/ui/window.c, d1x-rebirth/ui/keypad.c, d1x-rebirth/ui/file.c, d1x-rebirth/ui/listbox.c, d1x-rebirth/ui/mouse.c, d1x-rebirth/ui/menubar.c, d1x-rebirth/ui/lfile.c, d1x-rebirth/mem/mem.c: Patching together editor so it compiles again (while still not running); Implemented PhysFS for file accessing for editor- and debugging-related code
