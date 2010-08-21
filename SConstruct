@@ -308,7 +308,7 @@ if sys.platform == 'win32':
 		common_sources += ['arch/win32/ipx.c']
 	ogllibs = ''
 	libs += ['glu32', 'wsock32', 'winmm', 'mingw32', 'SDLmain', 'SDL']
-	lflags = '-mwindows'
+	lflags = '-mwindows arch/win32/d1xr.res'
 elif sys.platform == 'darwin':
 	print "compiling on Mac OS X"
 	osdef = '__APPLE__'
