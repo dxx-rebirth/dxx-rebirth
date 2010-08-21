@@ -3,6 +3,7 @@ D2X-Rebirth Changelog
 20100821
 --------
 d2x-rebirth.ico, d2x-rebirth.xpm, arch/sdl/gr.c, arch/ogl/gr.c: Bind WM-Icon to application
+SConstruct, d2x-rebirth.bmp, d2x-rebirth.xpm, arch/sdl/gr.c, arch/ogl/gr.c, arch/win32/d2xr.res: Added res-file to be linked in Windows build to show icon in Filemanager; converted icon file to be smaller
 
 20100819
 --------
