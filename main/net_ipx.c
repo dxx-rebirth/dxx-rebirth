@@ -2333,7 +2333,7 @@ static int opt_show_on_map, opt_difficulty, opt_socket;
 
 typedef struct param_opt
 {
-	int name, level, mode, moreopts;
+	int start_game, name, level, mode, moreopts;
 	int closed, refuse, maxnet, coop, team_anarchy;
 } param_opt;
 
@@ -2397,12 +2397,12 @@ int net_ipx_game_param_handler( newmenu *menu, d_event *event, param_opt *opt )
 				else
 					Netgame.levelnum = atoi(slevel);
 
-				if ((Netgame.levelnum < Last_secret_level) || (Netgame.levelnum > Last_level) || (Netgame.levelnum == 0))
-				{
-					nm_messagebox(TXT_ERROR, 1, TXT_OK, TXT_LEVEL_OUT_RANGE );
-					sprintf(slevel, "1");
-					return 0;
-				}
+// 				if ((Netgame.levelnum < Last_secret_level) || (Netgame.levelnum > Last_level) || (Netgame.levelnum == 0))
+// 				{
+// 					nm_messagebox(TXT_ERROR, 1, TXT_OK, TXT_LEVEL_OUT_RANGE );
+// 					sprintf(slevel, "1");
+// 					return 0;
+// 				}
 			}
 
 			if (citem == opt->refuse)
@@ -2447,6 +2447,14 @@ int net_ipx_game_param_handler( newmenu *menu, d_event *event, param_opt *opt )
 			break;
 
 		case EVENT_NEWMENU_SELECTED:
+			if ((Netgame.levelnum < Last_secret_level) || (Netgame.levelnum > Last_level) || (Netgame.levelnum == 0))
+			{
+				char *slevel = menus[opt->level].text;
+				nm_messagebox(TXT_ERROR, 1, TXT_OK, TXT_LEVEL_OUT_RANGE );
+				sprintf(slevel, "1");
+				return 1;
+			}
+
 			if (citem==opt->moreopts)
 			{
 				if ( menus[opt->mode+3].value )
@@ -2468,7 +2476,9 @@ int net_ipx_game_param_handler( newmenu *menu, d_event *event, param_opt *opt )
 
 			}
 
-			return !net_ipx_start_game();
+			if (citem==opt->start_game)
+				return !net_ipx_start_game();
+			return 1;
 
 		default:
 			break;
@@ -2482,7 +2492,7 @@ int net_ipx_setup_game()
 	int i;
 	int optnum;
 	param_opt opt;
-	newmenu_item m[20];
+	newmenu_item m[21];
 	char slevel[5];
 	char level_text[32];
 	char srmaxnet[50];
@@ -2509,6 +2519,8 @@ int net_ipx_setup_game()
 	sprintf( slevel, "1" ); Netgame.levelnum = 1;
 
 	optnum = 0;
+	opt.start_game=optnum;
+	m[optnum].type = NM_TYPE_MENU;  m[optnum].text = "Start Game"; optnum++;
 	m[optnum].type = NM_TYPE_TEXT; m[optnum].text = TXT_DESCRIPTION; optnum++;
 
 	opt.name = optnum;
@@ -2552,7 +2564,7 @@ int net_ipx_setup_game()
 
 	Assert(optnum <= 20);
 
-	i = newmenu_do1( NULL, NULL, optnum, m, (int (*)( newmenu *, d_event *, void * ))net_ipx_game_param_handler, &opt, 1 );
+	i = newmenu_do1( NULL, TXT_NETGAME_SETUP, optnum, m, (int (*)( newmenu *, d_event *, void * ))net_ipx_game_param_handler, &opt, 1 );
 
 	if (i < 0)
 		ipxdrv_close();
