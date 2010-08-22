@@ -110,6 +110,8 @@ Optional files:
      http://www.dxx-rebirth.com/download/dxx/res/d1xr-briefings-ger.zip
    - Soundtrack in OGG format (created by Brandon Blume using Roland SC-55 MIDI Module):
      http://www.dxx-rebirth.com/download/dxx/res/d1xr-sc55-music.zip
+   - Sound Effects for Mac Game Content (adds sounds which were not included in DESCENT.PIG)
+     http://www.dxx-rebirth.com/download/dxx/res/d1xr-mac-sounds.zip
 
 
 Launching the program
