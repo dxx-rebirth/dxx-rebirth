@@ -3030,7 +3030,7 @@ int net_udp_more_options_handler( newmenu *menu, d_event *event, void *userdata 
 
 typedef struct param_opt
 {
-	int name, level, mode, moreopts;
+	int start_game, name, level, mode, moreopts;
 	int closed, refuse, maxnet, coop, team_anarchy, team_hoard, capture;
 } param_opt;
 
@@ -3093,15 +3093,7 @@ int net_udp_game_param_handler( newmenu *menu, d_event *event, param_opt *opt )
 			if (citem == opt->level)
 			{
 				char *slevel = menus[opt->level].text;
-
 				Netgame.levelnum = atoi(slevel);
-				
-				if ((Netgame.levelnum < 1) || (Netgame.levelnum > Last_level))
-				{
-					nm_messagebox(TXT_ERROR, 1, TXT_OK, TXT_LEVEL_OUT_RANGE );
-					sprintf(slevel, "1");
-					return 0;
-				}
 			}
 			
 			if (citem == opt->refuse)
@@ -3152,6 +3144,14 @@ int net_udp_game_param_handler( newmenu *menu, d_event *event, param_opt *opt )
 			break;
 			
 		case EVENT_NEWMENU_SELECTED:
+			if ((Netgame.levelnum < 1) || (Netgame.levelnum > Last_level))
+			{
+				char *slevel = menus[opt->level].text;
+				nm_messagebox(TXT_ERROR, 1, TXT_OK, TXT_LEVEL_OUT_RANGE );
+				sprintf(slevel, "1");
+				return 1;
+			}
+
 			if (citem==opt->moreopts)
 			{
 				if ( menus[opt->mode+3].value )
@@ -3160,8 +3160,10 @@ int net_udp_game_param_handler( newmenu *menu, d_event *event, param_opt *opt )
 				Game_mode=0;
 				return 1;
 			}
-			
-			return !net_udp_start_game();
+
+			if (citem==opt->start_game)
+				return !net_udp_start_game();
+			return 1;
 			
 		default:
 			break;
@@ -3175,7 +3177,7 @@ int net_udp_setup_game()
 	int i;
 	int optnum;
 	param_opt opt;
-	newmenu_item m[20];
+	newmenu_item m[21];
 	char slevel[5];
 	char level_text[32];
 	char srmaxnet[50];
@@ -3210,6 +3212,8 @@ int net_udp_setup_game()
 	sprintf( slevel, "1" ); Netgame.levelnum = 1;
 
 	optnum = 0;
+	opt.start_game=optnum;
+	m[optnum].type = NM_TYPE_MENU;  m[optnum].text = "Start Game"; optnum++;
 	m[optnum].type = NM_TYPE_TEXT; m[optnum].text = TXT_DESCRIPTION; optnum++;
 
 	opt.name = optnum;
@@ -3256,7 +3260,7 @@ int net_udp_setup_game()
 
 	Assert(optnum <= 20);
 
-	i = newmenu_do1( NULL, NULL, optnum, m, (int (*)( newmenu *, d_event *, void * ))net_udp_game_param_handler, &opt, 1 );
+	i = newmenu_do1( NULL, TXT_NETGAME_SETUP, optnum, m, (int (*)( newmenu *, d_event *, void * ))net_udp_game_param_handler, &opt, 1 );
 
 	if (i < 0)
 		net_udp_close();
