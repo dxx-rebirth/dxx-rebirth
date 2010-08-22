@@ -3,6 +3,7 @@ D2X-Rebirth Changelog
 20100822
 --------
 main/net_ipx.c, main/net_udp.c: Moved levelnum-sanity-check in game_param_handler so it will be checked when screen is changed to allow entry of secret levels (which does not work in D2X-Rebirth - it's only done for code similarity); added menu item START GAME for consistency and added proper subtitle for game setup page
+arch/sdl/digi_mixer_music.c: Use more reliable Mix_LoadMUS for music in directory searchpaths, so WAVE's and MP3's are correctly loaded (probably others)
 
 20100821
 --------
