@@ -277,10 +277,10 @@ int songs_haved2_cd()
 	}
 }
 
-void redbook_repeat_func()
+void play_credits_track()
 {
 	stop_time();
-	RBAPlayTracks(Redbook_playing, 0, redbook_repeat_func);
+	songs_play_song(SONG_CREDITS, 1);
 	start_time();
 }
 
@@ -322,7 +322,7 @@ int songs_play_song( int songnum, int repeat )
 			Song_playing = 0;
 			if ((songnum == SONG_TITLE) && (REDBOOK_TITLE_TRACK <= num_tracks))
 			{
-				if (RBAPlayTracks(REDBOOK_TITLE_TRACK, 0, repeat ? redbook_repeat_func : NULL))
+				if (RBAPlayTracks(REDBOOK_TITLE_TRACK, 0, repeat ? play_credits_track : NULL))
 				{
 					Redbook_playing = REDBOOK_TITLE_TRACK;
 					Song_playing = songnum;
@@ -330,7 +330,7 @@ int songs_play_song( int songnum, int repeat )
 			}
 			else if ((songnum == SONG_CREDITS) && (REDBOOK_CREDITS_TRACK <= num_tracks))
 			{
-				if (RBAPlayTracks(REDBOOK_CREDITS_TRACK, 0, repeat ? redbook_repeat_func : NULL))
+				if (RBAPlayTracks(REDBOOK_CREDITS_TRACK, 0, repeat ? play_credits_track : NULL))
 				{
 					Redbook_playing = REDBOOK_CREDITS_TRACK;
 					Song_playing = songnum;

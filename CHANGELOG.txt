@@ -1,5 +1,9 @@
 D2X-Rebirth Changelog
 
+20100823
+--------
+main/songs.c: For Redbook, play the credits track after the title track like original Descent 2 did
+
 20100822
 --------
 main/net_ipx.c, main/net_udp.c: Moved levelnum-sanity-check in game_param_handler so it will be checked when screen is changed to allow entry of secret levels (which does not work in D2X-Rebirth - it's only done for code similarity); added menu item START GAME for consistency and added proper subtitle for game setup page
