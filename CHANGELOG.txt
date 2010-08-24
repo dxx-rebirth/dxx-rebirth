@@ -1,5 +1,9 @@
 D2X-Rebirth Changelog
 
+20100824
+--------
+main/mission.c, main/mission.h, main/titles.c: Overhauled detection of TEX/TXB files for Briefings and Endings
+
 20100823
 --------
 main/songs.c: For Redbook, play the credits track after the title track like original Descent 2 did

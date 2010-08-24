@@ -112,16 +112,16 @@ extern Mission *Current_mission; // current mission
 //values for d1 built-in mission
 #define BIMD1_LAST_LEVEL			27
 #define BIMD1_LAST_SECRET_LEVEL		-3
-#define BIMD1_BRIEFING_FILE			"briefing.tex"
-#define BIMD1_ENDING_FILE			"endreg.tex"
-#define BIMD1_ENDING_FILE_OEM		"endsat.tex"
-#define BIMD1_ENDING_FILE_SHARE		"ending.tex"
+#define BIMD1_BRIEFING_FILE			"briefing.txb"
+#define BIMD1_ENDING_FILE			"endreg.txb"
+#define BIMD1_ENDING_FILE_OEM		"endsat.txb"
+#define BIMD1_ENDING_FILE_SHARE		"ending.txb"
 //values for d2 built-in mission
-#define BIMD2_BRIEFING_FILE			"robot.tex"
-#define BIMD2_BRIEFING_FILE_OEM		"brief2o.tex"
-#define BIMD2_BRIEFING_FILE_SHARE	"brief2.tex"
-#define BIMD2_ENDING_FILE_OEM		"end2oem.tex"
-#define BIMD2_ENDING_FILE_SHARE		"ending2.tex"
+#define BIMD2_BRIEFING_FILE			"robot.txb"
+#define BIMD2_BRIEFING_FILE_OEM		"brief2o.txb"
+#define BIMD2_BRIEFING_FILE_SHARE	"brief2.txb"
+#define BIMD2_ENDING_FILE_OEM		"end2oem.txb"
+#define BIMD2_ENDING_FILE_SHARE		"ending2.txb"
 
 //loads the named mission if it exists.
 //Returns true if mission loaded ok, else false.

@@ -448,42 +448,23 @@ void briefing_init(briefing *br, short level_num)
 int load_screen_text(char *filename, char **buf)
 {
 	CFILE *tfile;
-	CFILE *ifile;
 	int	len, i,x;
 	int	have_binary = 0;
 
-	if ((tfile = cfopen(filename,"rb")) == NULL) {
-		char nfilename[30], *ptr;
-
-		strcpy(nfilename, filename);
-		if ((ptr = strrchr(nfilename, '.')))
-			*ptr = '\0';
-		strcat(nfilename, ".txb");
-		if ((ifile = cfopen(nfilename, "rb")) == NULL) {
-			return (0);
-			//Error("Cannot open file %s or %s", filename, nfilename);
-		}
-
+	if (!stricmp(strrchr(filename, '.'), ".txb"))
 		have_binary = 1;
+	
+	if ((tfile = cfopen(filename, "rb")) == NULL)
+		return (0);
 
-		len = cfilelength(ifile);
-		MALLOC(*buf, char, len+1);
-		for (x=0, i=0; i < len; i++, x++) {
-			cfread (*buf+x,1,1,ifile);
-			if (*(*buf+x)==13)
-				x--;
-		}
-		cfclose(ifile);
-	} else {
-		len = cfilelength(tfile);
-		MALLOC(*buf, char, len+1);
-		for (x=0, i=0; i < len; i++, x++) {
-			cfread (*buf+x,1,1,tfile);
-			if (*(*buf+x)==13)
-				x--;
-		}
-		cfclose(tfile);
+	len = cfilelength(tfile);
+	MALLOC(*buf, char, len+1);
+	for (x=0, i=0; i < len; i++, x++) {
+		cfread (*buf+x,1,1,tfile);
+		if (*(*buf+x)==13)
+			x--;
 	}
+	cfclose(tfile);
 
 	if (have_binary)
 		decode_text(*buf, len);
