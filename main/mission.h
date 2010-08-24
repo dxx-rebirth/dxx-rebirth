@@ -80,10 +80,10 @@ extern Mission *Current_mission; // current mission
 
 #define BIMD1_LAST_LEVEL			27
 #define BIMD1_LAST_SECRET_LEVEL		-3
-#define BIMD1_BRIEFING_FILE			"briefing.tex"
-#define BIMD1_ENDING_FILE			"endreg.tex"
-#define BIMD1_ENDING_FILE_OEM		"endsat.tex"
-#define BIMD1_ENDING_FILE_SHARE		"ending.tex"
+#define BIMD1_BRIEFING_FILE			"briefing.txb"
+#define BIMD1_ENDING_FILE			"endreg.txb"
+#define BIMD1_ENDING_FILE_OEM		"endsat.txb"
+#define BIMD1_ENDING_FILE_SHARE		"ending.txb"
 
 //loads the named mission if it exists.
 //Returns true if mission loaded ok, else false.

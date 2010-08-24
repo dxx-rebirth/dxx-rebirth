@@ -519,37 +519,64 @@ int load_mission(mle *mission)
 	if (cfexist(buf))
 		cfile_init(buf, 0);
 
+	snprintf(Briefing_text_filename, sizeof(Briefing_text_filename), "%s.tex",Current_mission_filename);
+	if (!cfexist(Briefing_text_filename))
+		snprintf(Briefing_text_filename, sizeof(Briefing_text_filename), "%s.txb",Current_mission_filename);
+	snprintf(Ending_text_filename, sizeof(Ending_text_filename), "%s.tex",Current_mission_filename);
+	if (!cfexist(Ending_text_filename))
+		snprintf(Ending_text_filename, sizeof(Ending_text_filename), "%s.txb",Current_mission_filename);
+
 	while (cfgets(buf,80,mfile)) {
 		if (istok(buf,"type"))
 			continue;						//already have name, go to next line
-		else if (istok(buf,"hog")) {
-			char	*bufp = buf;
-
-			while (*(bufp++) != '=')
-				;
-
-			if (*bufp == ' ')
-				while (*(++bufp) == ' ')
-					;
-
-			cfile_init(bufp, 0);
-		}
 		else if (istok(buf,"briefing")) {
 			if ((v = get_value(buf)) != NULL) {
 				add_term(v);
-				if (strlen(v) < 13 && strlen(v) > 0)
-					if (strrchr(v, '.'))
-						if (!stricmp(strrchr(v, '.'), ".tex") || !stricmp(strrchr(v, '.'), ".txb"))
-							strcpy(Briefing_text_filename,v);
+				if (strlen(v) < FILENAME_LEN && strlen(v) > 0)
+				{
+					char *tmp, *ptr;
+					MALLOC(tmp, char, FILENAME_LEN);
+					snprintf(tmp, FILENAME_LEN, v);
+					if ((ptr = strrchr(tmp, '.'))) // if there's a filename extension, kill it. No one knows it's the right one.
+						*ptr = '\0';
+					strncat(tmp, ".tex", sizeof(char)*FILENAME_LEN); // apply tex-extenstion
+					if (cfexist(tmp)) // check if this file exists ...
+						snprintf(Briefing_text_filename, FILENAME_LEN, tmp); // ... and apply ...
+					else // ... otherwise ...
+					{
+						if ((ptr = strrchr(tmp, '.')))
+							*ptr = '\0';
+						strncat(tmp, ".txb", sizeof(char)*FILENAME_LEN); // apply txb extension
+						if (cfexist(tmp)) // check if this file exists ...
+							snprintf(Briefing_text_filename, FILENAME_LEN, tmp); // ... and apply ...
+					}
+					d_free(tmp);
+				}
 			}
 		}
 		else if (istok(buf,"ending")) {
 			if ((v = get_value(buf)) != NULL) {
 				add_term(v);
-				if (strlen(v) < 13 && strlen(v) > 0)
-					if (strrchr(v, '.'))
-						if (!stricmp(strrchr(v, '.'), ".tex") || !stricmp(strrchr(v, '.'), ".txb"))
-							strcpy(Ending_text_filename,v);
+				if (strlen(v) < FILENAME_LEN && strlen(v) > 0)
+				{
+					char *tmp, *ptr;
+					MALLOC(tmp, char, FILENAME_LEN);
+					snprintf(tmp, FILENAME_LEN, v);
+					if ((ptr = strrchr(tmp, '.'))) // if there's a filename extension, kill it. No one knows it's the right one.
+						*ptr = '\0';
+					strncat(tmp, ".tex", sizeof(char)*FILENAME_LEN); // apply tex-extenstion
+					if (cfexist(tmp)) // check if this file exists ...
+						snprintf(Briefing_text_filename, FILENAME_LEN, tmp); // ... and apply ...
+					else // ... otherwise ...
+					{
+						if ((ptr = strrchr(tmp, '.')))
+							*ptr = '\0';
+						strncat(tmp, ".txb", sizeof(char)*FILENAME_LEN); // apply txb extension
+						if (cfexist(tmp)) // check if this file exists ...
+							snprintf(Ending_text_filename, FILENAME_LEN, tmp); // ... and apply ...
+					}
+					d_free(tmp);
+				}
 			}
 		}
 		else if (istok(buf,"num_levels")) {
