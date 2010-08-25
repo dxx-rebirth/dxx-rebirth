@@ -1318,7 +1318,7 @@ void do_sound_menu()
 
 	m[nitems].type = NM_TYPE_TEXT; m[nitems++].text = "";
 
-	m[nitems].type = NM_TYPE_TEXT; m[nitems++].text = "cd music options:";
+	m[nitems].type = NM_TYPE_TEXT; m[nitems++].text = "cd music / jukebox options:";
 
 	opt_sm_redbook_playorder = nitems;
 	m[nitems].type = NM_TYPE_CHECK; m[nitems].text = "force descent ][ cd track order"; m[nitems++].value = GameCfg.OrigTrackOrder;

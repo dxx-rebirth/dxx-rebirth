@@ -1,5 +1,9 @@
 D2X-Rebirth Changelog
 
+20100825
+--------
+main/menu.c, main/songs.c: When 'force descent ][ cd track order' is chosen, play and loop the credits track after the title track for Jukebox too
+
 20100824
 --------
 main/mission.c, main/mission.h, main/titles.c: Overhauled detection of TEX/TXB files for Briefings and Endings

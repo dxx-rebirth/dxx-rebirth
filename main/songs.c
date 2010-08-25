@@ -346,7 +346,10 @@ int songs_play_song( int songnum, int repeat )
 				return Song_playing;
 
 			Song_playing = 0;
-			if (mix_play_file(GameCfg.CMMiscMusic[songnum], repeat, NULL))
+			if (mix_play_file(GameCfg.CMMiscMusic[songnum],
+							  // Play the credits track after the title track and loop the credits track if original CD track order was chosen
+							  (songnum == SONG_TITLE && GameCfg.OrigTrackOrder) ? 0 : repeat,
+							  (songnum == SONG_TITLE && GameCfg.OrigTrackOrder) ? play_credits_track : NULL))
 				Song_playing = songnum;
 			break;
 		}
