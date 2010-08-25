@@ -222,7 +222,6 @@ typedef struct {
 
 #define	ENDING_LEVEL_NUM_OEMSHARE 0x7f
 #define	ENDING_LEVEL_NUM_REGISTER 0x7e
-#define Briefing_screens_LH ((SWIDTH >= 640 && SHEIGHT >= 480 && cfexist( "brief01h.pcx"))?Briefing_screens_h:Briefing_screens)
 
 briefing_screen Briefing_screens[] = {
 	{ "brief01.pcx",   0,  1,  13, 140, 290,  59 },
@@ -280,65 +279,6 @@ briefing_screen Briefing_screens[] = {
 	{ "end02.pcx",   ENDING_LEVEL_NUM_REGISTER,  1,  5, 5, 300, 200 },    // registered end
 	{ "end01.pcx",   ENDING_LEVEL_NUM_REGISTER,  2,  23, 40, 320, 200 },  // registered end
 	{ "end03.pcx",   ENDING_LEVEL_NUM_REGISTER,  3,  5, 5, 300, 200 },    // registered end
-
-};
-
-briefing_screen Briefing_screens_h[] = { // hires screens
-	{ "brief01h.pcx",   0,  1,  13, 140, 290,  59 },
-	{ "brief02h.pcx",   0,  2,  27,  34, 257, 177 },
-	{ "brief03h.pcx",   0,  3,  20,  22, 257, 177 },
-	{ "brief02h.pcx",   0,  4,  27,  34, 257, 177 },
-
-	{ "moon01h.pcx",    1,  5,  10,  10, 300, 170 },	// level 1
-	{ "moon01h.pcx",    2,  6,  10,  10, 300, 170 },	// level 2
-	{ "moon01h.pcx",    3,  7,  10,  10, 300, 170 },	// level 3
-
-	{ "venus01h.pcx",   4,  8,  15,  15, 300, 200 },	// level 4
-	{ "venus01h.pcx",   5,  9,  15,  15, 300, 200 },	// level 5
-
-	{ "brief03h.pcx",   6, 10,  20,  22, 257, 177 },
-	{ "merc01h.pcx",    6, 11,  10,  15, 300, 200 },	// level 6
-	{ "merc01h.pcx",    7, 12,  10,  15, 300, 200 },	// level 7
-
-	{ "brief03h.pcx",   8, 13,  20,  22, 257, 177 },
-	{ "mars01h.pcx",    8, 14,  10, 100, 300, 200 },	// level 8
-	{ "mars01h.pcx",    9, 15,  10, 100, 300, 200 },	// level 9
-	{ "brief03h.pcx",  10, 16,  20,  22, 257, 177 },
-	{ "mars01h.pcx",   10, 17,  10, 100, 300, 200 },	// level 10
-
-	{ "jup01h.pcx",    11, 18,  10,  40, 300, 200 },	// level 11
-	{ "jup01h.pcx",    12, 19,  10,  40, 300, 200 },	// level 12
-	{ "brief03h.pcx",  13, 20,  20,  22, 257, 177 },
-	{ "jup01h.pcx",    13, 21,  10,  40, 300, 200 },	// level 13
-	{ "jup01h.pcx",    14, 22,  10,  40, 300, 200 },	// level 14
-
-	{ "saturn01h.pcx", 15, 23,  10,  40, 300, 200 },	// level 15
-	{ "brief03h.pcx",  16, 24,  20,  22, 257, 177 },
-	{ "saturn01h.pcx", 16, 25,  10,  40, 300, 200 },	// level 16
-	{ "brief03h.pcx",  17, 26,  20,  22, 257, 177 },
-	{ "saturn01h.pcx", 17, 27,  10,  40, 300, 200 },	// level 17
-
-	{ "uranus01h.pcx", 18, 28, 100, 100, 300, 200 },	// level 18
-	{ "uranus01h.pcx", 19, 29, 100, 100, 300, 200 },	// level 19
-	{ "uranus01h.pcx", 20, 30, 100, 100, 300, 200 },	// level 20
-	{ "uranus01h.pcx", 21, 31, 100, 100, 300, 200 },	// level 21
-
-	{ "neptun01h.pcx", 22, 32,  10,  20, 300, 200 },	// level 22
-	{ "neptun01h.pcx", 23, 33,  10,  20, 300, 200 },	// level 23
-	{ "neptun01h.pcx", 24, 34,  10,  20, 300, 200 },	// level 24
-
-	{ "pluto01h.pcx",  25, 35,  10,  20, 300, 200 },	// level 25
-	{ "pluto01h.pcx",  26, 36,  10,  20, 300, 200 },	// level 26
-	{ "pluto01h.pcx",  27, 37,  10,  20, 300, 200 },	// level 27
-
-	{ "aster01h.pcx",  -1, 38,  10, 90, 300,  200 },	// secret level -1
-	{ "aster01h.pcx",  -2, 39,  10, 90, 300,  200 },	// secret level -2
-	{ "aster01h.pcx",  -3, 40,  10, 90, 300,  200 }, 	// secret level -3
-
-	{ "end01h.pcx",   ENDING_LEVEL_NUM_OEMSHARE,  1,  23, 40, 320, 200 },   //  OEM and shareware end
-	{ "end02h.pcx",   ENDING_LEVEL_NUM_REGISTER,  1,  5, 5, 300, 200 },    // registered end
-	{ "end01h.pcx",   ENDING_LEVEL_NUM_REGISTER,  2,  23, 40, 320, 200 },  // registered end
-	{ "end03h.pcx",   ENDING_LEVEL_NUM_REGISTER,  3,  5, 5, 300, 200 },    // registered end
 
 };
 
@@ -943,30 +883,58 @@ extern void swap_0_255(grs_bitmap *bmp);
 int load_briefing_screen(briefing *br, char *fname)
 {
 	int pcx_error;
+	char *fname2 = NULL, *forigin = NULL;
 
 	free_briefing_screen(br);
 
+	MALLOC(fname2, char, FILENAME_LEN);
+	snprintf(fname2, sizeof(char)*FILENAME_LEN, fname);
+	MALLOC(forigin, char, PATH_MAX);
+	snprintf(forigin, sizeof(char)*PATH_MAX, PHYSFS_getRealDir(fname));
+	strlwr(forigin);
+
+	// check if we have a hires version of this image (not included in PC-version by default)
+	// Also if this hires image comes via external AddOn pack, only apply if requested image would be loaded from descent.hog - not a seperate mission which might want to show something else.
+	if (SWIDTH >= 640 && SHEIGHT >= 480 && (strstr(forigin,"descent.hog") != NULL))
+	{
+		char *ptr;
+		if ((ptr = strrchr(fname2,'.')))
+			*ptr = '\0';
+		strncat(fname2, "h.pcx", sizeof(char)*FILENAME_LEN);
+		if (!cfexist(fname2))
+			snprintf(fname2, sizeof(char)*FILENAME_LEN, fname);
+	}
+	d_free(forigin);
+
 	gr_init_bitmap_data(&br->background);
-	if (stricmp(br->background_name, fname))
-		strncpy (br->background_name,fname, sizeof(br->background_name));
+	if (stricmp(br->background_name, fname2))
+		strncpy (br->background_name,fname2, sizeof(br->background_name));
 
-	if (!stricmp(fname, "brief02h.pcx") && baldguy_cheat)
+	if ((!stricmp(fname2, "brief02.pcx") || !stricmp(fname2, "brief02h.pcx")) && baldguy_cheat)
 		if ( bald_guy_load(new_baldguy_pcx, &br->background, BM_LINEAR, gr_palette) == 0)
+		{
+			d_free(fname2);
 			return 0;
+		}
 
-	if ((pcx_error = pcx_read_bitmap(fname, &br->background, BM_LINEAR, gr_palette))!=PCX_ERROR_NONE)
-		Error( "Error loading briefing screen <%s>, PCX load error: %s (%i)\n",fname, pcx_errormsg(pcx_error), pcx_error);
+	if ((pcx_error = pcx_read_bitmap(fname2, &br->background, BM_LINEAR, gr_palette))!=PCX_ERROR_NONE)
+	{
+		d_free(fname2);
+		Error( "Error loading briefing screen <%s>, PCX load error: %s (%i)\n",fname2, pcx_errormsg(pcx_error), pcx_error);
+	}
 
 	// Hack: Make sure black parts of robot are shown black
 	if (MacPig && gr_palette[0] == 63 &&
-		(!stricmp(fname, "brief03.pcx") ||
-		 !stricmp(fname, "end01.pcx")))
+		(!stricmp(fname2, "brief03.pcx") || !stricmp(fname2, "end01.pcx") ||
+		!stricmp(fname2, "brief03h.pcx") || !stricmp(fname2, "end01h.pcx")
+		))
 	{
 		swap_0_255(&br->background);
 		gr_palette[0] = gr_palette[1] = gr_palette[2] = 0;
 		gr_palette[765] = gr_palette[766] = gr_palette[767] = 63;
 	}
 
+	d_free(fname2);
 	show_fullscr(&br->background);
 
 	gr_palette_load(gr_palette);
@@ -1022,7 +990,7 @@ int new_briefing_screen(briefing *br, int first)
 	if (br->cur_screen == MAX_BRIEFING_SCREEN)
 		return 0;		// finished
 
-	if (!load_briefing_screen(br, Briefing_screens_LH[br->cur_screen].bs_name))
+	if (!load_briefing_screen(br, Briefing_screens[br->cur_screen].bs_name))
 		return 0;
 
 	br->message = get_briefing_message(br, Briefing_screens[br->cur_screen].message_num);

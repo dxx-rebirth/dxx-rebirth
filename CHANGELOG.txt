@@ -1,5 +1,9 @@
 D1X-Rebirth Changelog
 
+20100825
+--------
+main/titles.c: Made loading of Hires briefings a bit more simpler (more D2-ish) and not using a new briefing_screen structure; Also perform a check if requested image originates from descent.hog or a third-party mission and do not load a Hires version in the latter case
+
 20100824
 --------
 main/mission.c, main/mission.h, main/titles.c: Overhauled detection of TEX/TXB files for Briefings and Endings
