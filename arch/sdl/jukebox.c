@@ -39,11 +39,12 @@ void jukebox_unload()
 	JukeboxSongs = NULL;
 }
 
+char *jukebox_exts[] = { ".mp3", ".ogg", ".wav", ".aif", ".mid", NULL };
+
 /* Loads music file names from a given directory */
 void jukebox_load()
 {
 	int count;
-	char *music_exts[] = { ".mp3", ".ogg", ".wav", ".aif", ".mid", NULL };
 	static char curpath[PATH_MAX+1];
 
 	if (memcmp(curpath,GameCfg.CMLevelMusicPath,PATH_MAX) || (GameCfg.MusicType != MUSIC_TYPE_CUSTOM))
@@ -78,7 +79,7 @@ void jukebox_load()
 
 		PHYSFS_addToSearchPath(GameCfg.CMLevelMusicPath, 0);
 		// as mountpoints are no option (yet), make sure only files originating from GameCfg.CMLevelMusicPath are aded to the list.
-		JukeboxSongs = PHYSFSX_findabsoluteFiles("", GameCfg.CMLevelMusicPath, music_exts);
+		JukeboxSongs = PHYSFSX_findabsoluteFiles("", GameCfg.CMLevelMusicPath, jukebox_exts);
 
 		if (JukeboxSongs != NULL)
 		{

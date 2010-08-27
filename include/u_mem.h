@@ -30,6 +30,8 @@ extern void * mem_realloc( void * buffer, unsigned int size, char * var, char * 
 extern void mem_free( void * buffer );
 extern char * mem_strdup(char * str, char * var, char * file, int line );
 
+#define MEM_K 1.5	// Dynamic array growth factor
+
 /* DPH: Changed malloc, etc. to d_malloc. Overloading system calls is very evil and error prone */
 #define d_malloc(size)      mem_malloc((size),"Unknown", __FILE__,__LINE__, 0 )
 #define d_calloc(n,size)    mem_malloc((n*size),"Unknown", __FILE__,__LINE__, 1 )
