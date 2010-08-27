@@ -1,5 +1,9 @@
 D2X-Rebirth Changelog
 
+20100827
+--------
+arch/include/jukebox.h, arch/sdl/jukebox.c, include/u_mem.h, main/menu.c: Add path browsing feature to make song file/directory selection easier
+
 20100825
 --------
 main/menu.c, main/songs.c: When 'force descent ][ cd track order' is chosen, play and loop the credits track after the title track for Jukebox too

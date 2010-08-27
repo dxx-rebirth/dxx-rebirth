@@ -55,6 +55,7 @@ COPYRIGHT 1993-1999 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 #include "state.h"
 #include "mission.h"
 #include "songs.h"
+#include "jukebox.h" // for jukebox_exts
 #include "config.h"
 #include "movie.h"
 #include "gamepal.h"
@@ -1167,9 +1168,292 @@ void do_graphics_menu()
 	} while( i>-1 );
 }
 
-int opt_sm_digivol = -1, opt_sm_musicvol = -1, opt_sm_revstereo = -1, opt_sm_mtype0 = -1, opt_sm_mtype1 = -1, opt_sm_mtype2 = -1, opt_sm_mtype3 = -1, opt_sm_redbook_playorder = -1, opt_sm_mtype3_lmpath = -1, opt_sm_mtype3_lmplayorder1 = -1, opt_sm_mtype3_lmplayorder2 = -1, opt_sm_cm_mtype3_file1 = -1, opt_sm_cm_mtype3_file2 = -1, opt_sm_cm_mtype3_file3 = -1, opt_sm_cm_mtype3_file4 = -1, opt_sm_cm_mtype3_file5 = -1;
+#define CUR_DIRLIST "DirectoryListDXX"
+
+typedef struct browser
+{
+	char	*title;			// The title - needed for making another listbox when changing directory
+	int		(*when_selected)(void *userdata, const char *filename);	// What to do when something chosen
+	void	*userdata;		// Whatever you want passed to when_selected
+	char	**list;			// All menu items
+	char	*list_buf;		// Buffer for menu item text: hopefully reduces memory fragmentation this way
+	char	**ext_list;		// List of file extensions we're looking for (if looking for a music file many types are possible)
+	int		select_dir;		// Allow selecting the current directory (e.g. for Jukebox level song directory)
+	int		num_files;		// Number of list items found (including parent directory and current directory if selectable)
+	int		max_files;		// How many entries we can have before having to grow the array
+	int		max_buf;		// How much text we can have before having to grow the buffer
+	char	view_path[PATH_MAX];	// The absolute path we're currently looking at
+	int		new_path;		// Whether the view_path is a new searchpath, if so, remove it when finished
+} browser;
+
+// Figure out if we need to remove the view_path searchpath when finished
+// We don't, and shouldn't, if it was already there
+void searchpath_matches(browser *b, const char *str)
+{
+	if (!strcmp(b->view_path, str))
+		b->new_path = 0;
+}
+
+void list_dir_el(browser *b, const char *origdir, const char *fname)
+{
+	char *ext;
+	char **i;
+	
+	ext = strrchr(fname, '.');
+	if (ext)
+		for (i = b->ext_list; *i != NULL && stricmp(ext, *i); i++) {}	// see if the file is of a type we want
+	
+	if ((!strcmp(PHYSFS_getRealDir(fname), b->view_path)) && (PHYSFS_isDirectory(fname) || (ext && *i))
+#if defined(__MACH__) && defined(__APPLE__)
+		&& stricmp(fname, "Volumes")	// this messes things up, use '..' instead
+#endif
+		)
+	{
+		char *next_path = b->list[b->num_files - 1] + strlen(b->list[b->num_files - 1]) + 1;
+
+		// Need to grow an array?
+		if (b->num_files >= b->max_files)
+		{
+			char **new_list = d_realloc(b->list, b->max_files*sizeof(char *)*MEM_K);
+			if (new_list == NULL)
+				return;
+			b->max_files *= MEM_K;
+			b->list = new_list;
+		}
+		
+		if (next_path + strlen(fname) + 1 - b->list_buf >= b->max_buf)
+		{
+			char *new_buf = d_realloc(b->list_buf, b->max_buf*sizeof(char)*MEM_K);
+			if (new_buf == NULL)
+				return;
+			b->max_buf *= MEM_K;
+			b->list_buf = new_buf;
+		}
+		
+		strcpy(next_path, fname);
+		b->list[b->num_files++] = next_path;
+	}
+}
+
+int list_directory(browser *b)
+{
+	char *temp_buf, **temp_list;
+	int i, j;
+
+	b->max_files = 1024;
+	MALLOC(b->list, char *, 1024);
+	if (b->list == NULL)
+		return 0;
+	
+	b->max_buf = 1024;			// bigger?
+	MALLOC(b->list_buf, char, 1024);
+	if (b->list_buf == NULL)
+	{
+		d_free(b->list);
+		return 0;
+	}
+	
+	strcpy(b->list_buf, "..");		// go to parent directory
+	b->list[b->num_files++] = b->list_buf;
+	
+	if (b->select_dir)
+	{
+		b->list[b->num_files] = b->list[b->num_files - 1] + strlen(b->list[b->num_files - 1]) + 1;
+		strcpy(b->list[b->num_files++], "<this directory>");	// choose the directory being viewed
+	}
+	
+	PHYSFS_enumerateFilesCallback("", (PHYSFS_EnumFilesCallback) list_dir_el, b);
+	
+	// Reduce memory fragmentation
+	temp_list = d_realloc(b->list, sizeof(char *)*b->num_files);
+	if (temp_list)
+		b->list = temp_list;
+	
+	temp_buf = d_realloc(b->list_buf, b->list[b->num_files - 1] + strlen(b->list[b->num_files - 1]) + 1 - b->list_buf);
+	if (temp_buf)
+	{
+		for (i = 0; i < b->num_files; i++)
+			b->list[i] += (temp_buf - b->list_buf);
+		b->list_buf = temp_buf;
+	}
+	
+	// Sort by name, except the .. string and 'this directory', if applicable
+	qsort(&b->list[1 + (b->select_dir ? 1 : 0)], b->num_files - 1 - (b->select_dir ? 1 : 0), sizeof(char *), (int (*)( const void *, const void * ))fname_sort_func);
+	
+	// Remove duplicates
+	// Can't do this before reallocating, otherwise it makes a mess of things (the strings in the buffer aren't ordered)
+	for (i = 1 + (b->select_dir ? 1 : 0), j = 1 + (b->select_dir ? 1 : 0); i < b->num_files; i++)
+#ifdef __LINUX__
+		if (strcmp(b->list[i - 1], b->list[i]))
+#else
+			if (stricmp(b->list[i - 1], b->list[i]))
+#endif
+				b->list[j++] = b->list[i];
+	b->num_files = j;
+	
+	return 1;
+}
+
+int select_file_recursive(char *title, const char *orig_path, char **ext_list, int select_dir, int (*when_selected)(void *userdata, const char *filename), void *userdata);
+
+int select_file_handler(listbox *menu, d_event *event, browser *b)
+{
+	char newpath[PATH_MAX];
+	char **list = listbox_get_items(menu);
+	int citem = listbox_get_citem(menu);
+	const char *sep = PHYSFS_getDirSeparator();
+	
+	switch (event->type)
+	{
+		case EVENT_NEWMENU_SELECTED:
+			strcpy(newpath, b->view_path);
+
+			if (citem == 0)		// go to parent dir
+			{
+				char *p;
+				
+				if ((p = strstr(&newpath[strlen(newpath) - strlen(sep)], sep)))
+					if (p != strstr(newpath, sep))	// if this isn't the only separator (i.e. it's not about to look at the root)
+						*p = 0;
+				
+				p = newpath + strlen(newpath) - 1;
+				while ((p > newpath) && strncmp(p, sep, strlen(sep)))	// make sure full separator string is matched (typically is)
+					p--;
+				
+				if (p == strstr(newpath, sep))	// Look at root directory next, if not already
+				{
+#if defined(__MACH__) && defined(__APPLE__)
+					if (!stricmp(p, "/Volumes"))
+						return 1;
+#endif
+					if (p[strlen(sep)] != '\0')
+						p[strlen(sep)] = '\0';
+					else
+					{
+#if defined(__MACH__) && defined(__APPLE__)
+						// For Mac OS X, list all active volumes if we leave the root
+						strcpy(newpath, "/Volumes");
+#else
+						return 1;
+#endif
+					}
+				}
+				else
+					*p = '\0';
+			}
+			else if (citem == 1 && b->select_dir)
+				return !(*b->when_selected)(b->userdata, "");
+			else
+			{
+				if (strncmp(&newpath[strlen(newpath) - strlen(sep)], sep, strlen(sep)))
+				{
+					strncat(newpath, sep, PATH_MAX - 1 - strlen(newpath));
+					newpath[PATH_MAX - 1] = '\0';
+				}
+				strncat(newpath, list[citem], PATH_MAX - 1 - strlen(newpath));
+				newpath[PATH_MAX - 1] = '\0';
+			}
+			
+			if ((citem == 0) || PHYSFS_isDirectory(list[citem]))
+			{
+				// If it fails, stay in this one
+				return !select_file_recursive(b->title, newpath, b->ext_list, b->select_dir, b->when_selected, b->userdata);
+			}
+			
+			return !(*b->when_selected)(b->userdata, list[citem]);
+			break;
+			
+		case EVENT_WINDOW_CLOSE:
+			if (b->new_path)
+				PHYSFS_removeFromSearchPath(b->view_path);
+
+			if (list)
+				d_free(list);
+			if (b->list_buf)
+				d_free(b->list_buf);
+			d_free(b);
+			break;
+			
+		default:
+			break;
+	}
+	
+	return 0;
+}
+
+int select_file_recursive(char *title, const char *orig_path, char **ext_list, int select_dir, int (*when_selected)(void *userdata, const char *filename), void *userdata)
+{
+	browser *b;
+	const char *sep = PHYSFS_getDirSeparator();
+	char *p;
+	
+	MALLOC(b, browser, 1);
+	if (!b)
+		return 0;
+	
+	b->title = title;
+	b->when_selected = when_selected;
+	b->userdata = userdata;
+	b->ext_list = ext_list;
+	b->select_dir = select_dir;
+	b->num_files = b->max_files = 0;
+	b->view_path[0] = '\0';
+	b->new_path = 1;
+	
+	// Set the viewing directory to orig_path, or some parent of it
+	if (orig_path && *orig_path)
+	{
+		strncpy(b->view_path, orig_path, PATH_MAX - 1);
+		b->view_path[PATH_MAX - 1] = '\0';
+		p = b->view_path + strlen(b->view_path) - 1;
+		PHYSFS_getSearchPathCallback((PHYSFS_StringCallback) searchpath_matches, b);
+		
+		while (!PHYSFS_addToSearchPath(b->view_path, 0))
+		{
+			while ((p > b->view_path) && strncmp(p, sep, strlen(sep)))
+				p--;
+			*p = '\0';
+			
+			if (p == b->view_path)
+				break;
+			
+			PHYSFS_getSearchPathCallback((PHYSFS_StringCallback) searchpath_matches, b);
+		}
+	}
+	
+	// Set to user directory if we couldn't find a searchpath
+	if (!b->view_path[0])
+	{
+		strncpy(b->view_path, PHYSFS_getUserDir(), PATH_MAX - 1);
+		b->view_path[PATH_MAX - 1] = '\0';
+		PHYSFS_getSearchPathCallback((PHYSFS_StringCallback) searchpath_matches, b);
+		if (!PHYSFS_addToSearchPath(b->view_path, 0))
+		{
+			d_free(b);
+			return 0;
+		}
+	}
+	
+	if (!list_directory(b))
+	{
+		d_free(b);
+		return 0;
+	}
+	
+	return newmenu_listbox1(title, b->num_files, b->list, 1, 0, (int (*)(listbox *, d_event *, void *))select_file_handler, b) >= 0;
+}
+
+int opt_sm_digivol = -1, opt_sm_musicvol = -1, opt_sm_revstereo = -1, opt_sm_mtype0 = -1, opt_sm_mtype1 = -1, opt_sm_mtype2 = -1, opt_sm_mtype3 = -1, opt_sm_redbook_playorder = -1, opt_sm_mtype3_lmpath = -1, opt_sm_mtype3_lmplayorder1 = -1, opt_sm_mtype3_lmplayorder2 = -1, opt_sm_cm_mtype3_file1_b = -1, opt_sm_cm_mtype3_file1 = -1, opt_sm_cm_mtype3_file2_b = -1, opt_sm_cm_mtype3_file2 = -1, opt_sm_cm_mtype3_file3_b = -1, opt_sm_cm_mtype3_file3 = -1, opt_sm_cm_mtype3_file4_b = -1, opt_sm_cm_mtype3_file4 = -1, opt_sm_cm_mtype3_file5_b = -1, opt_sm_cm_mtype3_file5 = -1;
 
 void set_extmusic_volume(int volume);
+
+int get_absolute_path(char *full_path, const char *rel_path)
+{
+	PHYSFSX_getRealPath(rel_path, full_path);
+	return 1;
+}
+
+#define SELECT_SONG(t, s)	select_file_recursive(t, GameCfg.CMMiscMusic[s], jukebox_exts, 0, (int (*)(void *, const char *))get_absolute_path, GameCfg.CMMiscMusic[s])
 
 int sound_menuset(newmenu *menu, d_event *event, void *userdata)
 {
@@ -1235,6 +1519,24 @@ int sound_menuset(newmenu *menu, d_event *event, void *userdata)
 			break;
 
 		case EVENT_NEWMENU_SELECTED:
+			if (citem == opt_sm_mtype3_lmpath)
+			{
+				char *ext_list[] = { NULL };		// only select a directory (for now)
+				select_file_recursive("Select directory to\n play level music from", 
+									  GameCfg.CMLevelMusicPath, ext_list, 1,	// look in current music path for ext_list files and allow directory selection
+									  (int (*)(void *, const char *))get_absolute_path, GameCfg.CMLevelMusicPath);	// just copy the absolute path
+			}
+			else if (citem == opt_sm_cm_mtype3_file1_b)
+				SELECT_SONG("Select main menu music", SONG_TITLE);
+			else if (citem == opt_sm_cm_mtype3_file2_b)
+				SELECT_SONG("Select briefing music", SONG_BRIEFING);
+			else if (citem == opt_sm_cm_mtype3_file3_b)
+				SELECT_SONG("Select credits music", SONG_CREDITS);
+			else if (citem == opt_sm_cm_mtype3_file4_b)
+				SELECT_SONG("Select escape sequence music", SONG_ENDLEVEL);
+			else if (citem == opt_sm_cm_mtype3_file5_b)
+				SELECT_SONG("Select game ending music", SONG_ENDGAME);
+			
 			rval = 1;	// stay in menu
 			break;
 
@@ -1329,7 +1631,7 @@ void do_sound_menu()
 	m[nitems].type = NM_TYPE_TEXT; m[nitems++].text = "jukebox options:";
 
 	opt_sm_mtype3_lmpath = nitems;
-	m[nitems].type = NM_TYPE_TEXT; m[nitems++].text = "path to music used for levels";
+	m[nitems].type = NM_TYPE_MENU; m[nitems++].text = "path to music used for levels (...)";
 
 	m[nitems].type = NM_TYPE_INPUT; m[nitems].text = GameCfg.CMLevelMusicPath; m[nitems++].text_len = NM_MAX_TEXT_LEN-1;
 
@@ -1347,22 +1649,26 @@ void do_sound_menu()
 
 	m[nitems].type = NM_TYPE_TEXT; m[nitems++].text = "non-level music:";
 
-	m[nitems].type = NM_TYPE_TEXT; m[nitems++].text = "main menu";
+	opt_sm_cm_mtype3_file1_b = nitems;
+	m[nitems].type = NM_TYPE_MENU; m[nitems++].text = "main menu (browse...)";
 
 	opt_sm_cm_mtype3_file1 = nitems;
 	m[nitems].type = NM_TYPE_INPUT; m[nitems].text = GameCfg.CMMiscMusic[SONG_TITLE]; m[nitems++].text_len = NM_MAX_TEXT_LEN-1;
 
-	m[nitems].type = NM_TYPE_TEXT; m[nitems++].text = "briefing";
+	opt_sm_cm_mtype3_file2_b = nitems;
+	m[nitems].type = NM_TYPE_MENU; m[nitems++].text = "briefing (browse...)";
 
 	opt_sm_cm_mtype3_file2 = nitems;
 	m[nitems].type = NM_TYPE_INPUT; m[nitems].text = GameCfg.CMMiscMusic[SONG_BRIEFING]; m[nitems++].text_len = NM_MAX_TEXT_LEN-1;
 
-	m[nitems].type = NM_TYPE_TEXT; m[nitems++].text = "credits";
+	opt_sm_cm_mtype3_file3_b = nitems;
+	m[nitems].type = NM_TYPE_MENU; m[nitems++].text = "credits (browse...)";
 
 	opt_sm_cm_mtype3_file3 = nitems;
 	m[nitems].type = NM_TYPE_INPUT; m[nitems].text = GameCfg.CMMiscMusic[SONG_CREDITS]; m[nitems++].text_len = NM_MAX_TEXT_LEN-1;
 
-	m[nitems].type = NM_TYPE_TEXT; m[nitems++].text = "game ending";
+	opt_sm_cm_mtype3_file5_b = nitems;
+	m[nitems].type = NM_TYPE_MENU; m[nitems++].text = "game ending (browse...)";
 
 	opt_sm_cm_mtype3_file5 = nitems;
 	m[nitems].type = NM_TYPE_INPUT; m[nitems].text = GameCfg.CMMiscMusic[SONG_ENDGAME]; m[nitems++].text_len = NM_MAX_TEXT_LEN-1;
