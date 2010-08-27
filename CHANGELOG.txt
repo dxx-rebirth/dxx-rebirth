@@ -1,5 +1,9 @@
 D1X-Rebirth Changelog
 
+20100828
+--------
+main/menu.c: In list_dir_el make sure PHYSFS_getRealDir won't give NULL to strcmp which will happen for files located in a Windows root directory
+
 20100827
 --------
 arch/include/jukebox.h, arch/sdl/jukebox.c, include/u_mem.h, main/menu.c: Add path browsing feature to make song file/directory selection easier
