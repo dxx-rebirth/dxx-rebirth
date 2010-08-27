@@ -1261,7 +1261,8 @@ int select_file_handler(listbox *menu, d_event *event, browser *b)
 	char **list = listbox_get_items(menu);
 	int citem = listbox_get_citem(menu);
 	const char *sep = PHYSFS_getDirSeparator();
-	
+
+	memset(newpath, 0, sizeof(char)*PATH_MAX);
 	switch (event->type)
 	{
 		case EVENT_NEWMENU_SELECTED:

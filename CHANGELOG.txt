@@ -4,6 +4,7 @@ D1X-Rebirth Changelog
 --------
 arch/include/jukebox.h, arch/sdl/jukebox.c, include/u_mem.h, main/menu.c: Add path browsing feature to make song file/directory selection easier
 include/u_mem.h, main/menu.c: Moving upwards definition of MEM_K so it's not restricted to !NDEBUG; Initialized **i in list_dir_el properly to silence gcc when compiling
+main/menu.c: In select_file_handler properly initialize newpath preventing memory errors and crashes
 
 20100825
 --------
