@@ -1156,7 +1156,7 @@ void searchpath_matches(browser *b, const char *str)
 void list_dir_el(browser *b, const char *origdir, const char *fname)
 {
 	char *ext;
-	char **i;
+	char **i = NULL;
 	
 	ext = strrchr(fname, '.');
 	if (ext)
