@@ -4,6 +4,7 @@ D1X-Rebirth Changelog
 --------
 main/menu.c: In list_dir_el make sure PHYSFS_getRealDir won't give NULL to strcmp which will happen for files located in a Windows root directory
 include/u_mem.h: Make define of MEM_K apply to non-debug builds as well (whoops)
+main/menu.c: In select_file_recursive handle paths relative to the current write directory correctly
 
 20100827
 --------
