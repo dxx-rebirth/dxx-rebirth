@@ -1402,10 +1402,31 @@ int select_file_recursive(char *title, const char *orig_path, char **ext_list, i
 	b->new_path = 1;
 	
 	// Set the viewing directory to orig_path, or some parent of it
-	if (orig_path && *orig_path)
+	if (orig_path)
 	{
-		strncpy(b->view_path, orig_path, PATH_MAX - 1);
-		b->view_path[PATH_MAX - 1] = '\0';
+		// Must make this an absolute path for directory browsing to work properly
+#ifdef __WIN32
+		if (!(isalpha(orig_path[0]) && (orig_path[1] == ':')))	// drive letter prompt (e.g. "C:"
+#elif defined(macintosh)
+		if (orig_path[0] == ':')
+#else
+		if (orig_path[0] != '/')
+#endif
+		{
+			strncpy(b->view_path, PHYSFS_getBaseDir(), PATH_MAX - 1);		// current write directory must be set to base directory
+			b->view_path[PATH_MAX - 1] = '\0';
+#ifdef macintosh
+			orig_path++;	// go past ':'
+#endif
+			strncat(b->view_path, orig_path, PATH_MAX - 1 - strlen(b->view_path));
+			b->view_path[PATH_MAX - 1] = '\0';
+		}
+		else
+		{
+			strncpy(b->view_path, orig_path, PATH_MAX - 1);
+			b->view_path[PATH_MAX - 1] = '\0';
+		}
+
 		p = b->view_path + strlen(b->view_path) - 1;
 		PHYSFS_getSearchPathCallback((PHYSFS_StringCallback) searchpath_matches, b);
 		
