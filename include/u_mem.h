@@ -16,6 +16,8 @@ COPYRIGHT 1993-1998 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 
 #include <stdlib.h>
 
+#define MEM_K 1.5	// Dynamic array growth factor
+
 #ifdef MACINTOSH
 extern ubyte virtual_memory_on;
 #endif
