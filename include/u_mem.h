@@ -16,6 +16,8 @@ COPYRIGHT 1993-1999 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 
 #include <stdlib.h>
 
+#define MEM_K 1.5	// Dynamic array growth factor
+
 void mem_init(void);
 
 #define MEM_K 1.5	// Dynamic array growth factor
