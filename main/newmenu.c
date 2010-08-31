@@ -1652,6 +1652,7 @@ int nm_messagebox( char *title, int nchoices, ... )
 
 struct listbox
 {
+	window *wind;
 	char *title;
 	int nitems;
 	char **item;
@@ -1677,6 +1678,11 @@ int listbox_get_nitems(listbox *lb)
 int listbox_get_citem(listbox *lb)
 {
 	return lb->citem;
+}
+
+window *listbox_get_window(listbox *lb)
+{
+	return lb->wind;
 }
 
 void listbox_delete_item(listbox *lb, int item)
@@ -2032,6 +2038,7 @@ listbox *newmenu_listbox1( char * title, int nitems, char * items[], int allow_a
 
 		return NULL;
 	}
+	lb->wind = wind;
 
 	return lb;
 }

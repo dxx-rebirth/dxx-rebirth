@@ -1,5 +1,9 @@
 D2X-Rebirth Changelog
 
+20100831
+--------
+include/u_mem.h, main/menu.c, main/newmenu.c, main/newmenu.h: Added feature to let select_file_reursive() change drive on _WIN32 via CTRL-D; Removed second definition of MEM_K accidentially happened due to bad communication
+
 20100828
 --------
 main/menu.c: In list_dir_el make sure PHYSFS_getRealDir won't give NULL to strcmp which will happen for files located in a Windows root directory

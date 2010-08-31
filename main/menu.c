@@ -1306,6 +1306,36 @@ int select_file_handler(listbox *menu, d_event *event, browser *b)
 	memset(newpath, 0, sizeof(char)*PATH_MAX);
 	switch (event->type)
 	{
+#ifdef _WIN32
+		case EVENT_KEY_COMMAND:
+		{
+			if (((d_event_keycommand *)event)->keycode == KEY_CTRLED + KEY_D)
+			{
+				newmenu_item *m;
+				char *text = NULL;
+				int rval = 0;
+
+				MALLOC(text, char, 2);
+				MALLOC(m, newmenu_item, 1);
+				snprintf(text, sizeof(char)*PATH_MAX, "c");
+				m->type=NM_TYPE_INPUT; m->text_len = 3; m->text = text;
+				rval = newmenu_do( NULL, "Enter drive letter", 1, m, NULL, NULL );
+				text[1] = '\0'; 
+				snprintf(newpath, sizeof(char)*PATH_MAX, "%s:%s", text, sep);
+				if (!rval && strlen(text))
+				{
+					select_file_recursive(b->title, newpath, b->ext_list, b->select_dir, b->when_selected, b->userdata);
+					// close old box.
+					event->type = EVENT_WINDOW_CLOSED;
+					window_close(listbox_get_window(menu));
+				}
+				d_free(text);
+				d_free(m);
+				return 0;
+			}
+			break;
+		}
+#endif
 		case EVENT_NEWMENU_SELECTED:
 			strcpy(newpath, b->view_path);
 
@@ -1405,7 +1435,7 @@ int select_file_recursive(char *title, const char *orig_path, char **ext_list, i
 	if (orig_path)
 	{
 		// Must make this an absolute path for directory browsing to work properly
-#ifdef __WIN32
+#ifdef _WIN32
 		if (!(isalpha(orig_path[0]) && (orig_path[1] == ':')))	// drive letter prompt (e.g. "C:"
 #elif defined(macintosh)
 		if (orig_path[0] == ':')
@@ -1544,20 +1574,45 @@ int sound_menuset(newmenu *menu, d_event *event, void *userdata)
 			if (citem == opt_sm_mtype3_lmpath)
 			{
 				char *ext_list[] = { NULL };		// only select a directory (for now)
-				select_file_recursive("Select directory to\n play level music from", 
+				select_file_recursive(
+#ifndef _WIN32
+					"Select directory to\n play level music from",
+#else
+					"Select directory to\n play level music from.\n CTRL-D to change drive",
+#endif
 									  GameCfg.CMLevelMusicPath, ext_list, 1,	// look in current music path for ext_list files and allow directory selection
 									  (int (*)(void *, const char *))get_absolute_path, GameCfg.CMLevelMusicPath);	// just copy the absolute path
 			}
 			else if (citem == opt_sm_cm_mtype3_file1_b)
+#ifndef _WIN32
 				SELECT_SONG("Select main menu music", SONG_TITLE);
+#else
+				SELECT_SONG("Select main menu music.\nCTRL-D to change drive", SONG_TITLE);
+#endif
 			else if (citem == opt_sm_cm_mtype3_file2_b)
+#ifndef _WIN32
 				SELECT_SONG("Select briefing music", SONG_BRIEFING);
+#else
+				SELECT_SONG("Select briefing music.\nCTRL-D to change drive", SONG_BRIEFING);
+#endif
 			else if (citem == opt_sm_cm_mtype3_file3_b)
+#ifndef _WIN32
 				SELECT_SONG("Select credits music", SONG_CREDITS);
+#else
+				SELECT_SONG("Select credits music.\nCTRL-D to change drive", SONG_CREDITS);
+#endif
 			else if (citem == opt_sm_cm_mtype3_file4_b)
+#ifndef _WIN32
 				SELECT_SONG("Select escape sequence music", SONG_ENDLEVEL);
+#else
+				SELECT_SONG("Select escape sequence music.\nCTRL-D to change drive", SONG_ENDLEVEL);
+#endif
 			else if (citem == opt_sm_cm_mtype3_file5_b)
+#ifndef _WIN32
 				SELECT_SONG("Select game ending music", SONG_ENDGAME);
+#else
+				SELECT_SONG("Select game ending music.\nCTRL-D to change drive", SONG_ENDGAME);
+#endif
 			
 			rval = 1;	// stay in menu
 			break;
