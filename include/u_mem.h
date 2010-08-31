@@ -22,8 +22,6 @@ COPYRIGHT 1993-1998 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 extern ubyte virtual_memory_on;
 #endif
 
-#define MEM_K 1.5	// Dynamic array growth factor
-
 void mem_init(void);
 
 #if !defined(NDEBUG)
