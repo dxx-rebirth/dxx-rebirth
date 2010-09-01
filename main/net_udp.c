@@ -3028,7 +3028,7 @@ int net_udp_setup_game()
 
 	Assert(optnum <= 20);
 
-	i = newmenu_do1( NULL, TXT_NETGAME_SETUP, optnum, m, (int (*)( newmenu *, d_event *, void * ))net_udp_game_param_handler, &opt, 1 );
+	i = newmenu_do1( NULL, TXT_NETGAME_SETUP, optnum, m, (int (*)( newmenu *, d_event *, void * ))net_udp_game_param_handler, &opt, opt.start_game );
 
 	if (i < 0)
 		net_udp_close();
@@ -4197,7 +4197,7 @@ void net_udp_send_pdata()
 
 		for (i = 0; i < MAX_PLAYERS; i++)
 			if (Players[i].connected == CONNECT_PLAYING)
-				create_shortpos(&pos[i], Objects+Players[i].objnum, 1);
+				create_shortpos(&pos[i], Objects+Players[i].objnum, 0);
 
 		for (i = 1; i < MAX_PLAYERS; i++)
 		{
@@ -4245,7 +4245,7 @@ void net_udp_send_pdata()
 		buf[len] = Players[Player_num].connected;							len++;
 		buf[len] = Objects[Players[j].objnum].render_type;					len++;
 		memset(&pos, 0, sizeof(shortpos));
-		create_shortpos(&pos, Objects+Players[Player_num].objnum, 1);
+		create_shortpos(&pos, Objects+Players[Player_num].objnum, 0);
 		memcpy(buf + len, &pos.bytemat, 9);									len += 9;
 		PUT_INTEL_SHORT(&buf[len], pos.xo);									len += 2;
 		PUT_INTEL_SHORT(&buf[len], pos.yo);									len += 2;

@@ -2564,7 +2564,7 @@ int net_ipx_setup_game()
 
 	Assert(optnum <= 20);
 
-	i = newmenu_do1( NULL, TXT_NETGAME_SETUP, optnum, m, (int (*)( newmenu *, d_event *, void * ))net_ipx_game_param_handler, &opt, 1 );
+	i = newmenu_do1( NULL, TXT_NETGAME_SETUP, optnum, m, (int (*)( newmenu *, d_event *, void * ))net_ipx_game_param_handler, &opt, opt.start_game );
 
 	if (i < 0)
 		ipxdrv_close();
