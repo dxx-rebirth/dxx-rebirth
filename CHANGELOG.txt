@@ -1,5 +1,9 @@
 D2X-Rebirth Changelog
 
+20100901
+--------
+main/net_ipx.c, main/net_udp.c: in pdata communication swap_bytes was set for create_shortpos causing problems on PPC architecture; in multiplayer host menu set citem to START GAME by default
+
 20100831
 --------
 include/u_mem.h, main/menu.c, main/newmenu.c, main/newmenu.h: Added feature to let select_file_reursive() change drive on _WIN32 via CTRL-D; Removed second definition of MEM_K accidentially happened due to bad communication
