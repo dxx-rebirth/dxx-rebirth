@@ -3,6 +3,7 @@ D1X-Rebirth Changelog
 20100902
 --------
 arch/sdl/digi_mixer.c, arch/sdl/digi_mixer_music.c, arch/sdl/jukebox.c, d1x-rebirth.xcodeproj/project.pbxproj, main/multi.h: On Mac OS X - no longer have to copy SDL_mixer.h to SDL framework; frameworks can now be in /Library/Frameworks; fix for obscure compile error involving u_int32_t
+include/ogl_init.h, 2d/font.c, arch/ogl/ogl.c, arch/ogl/gr.c: Rewrote code to control Texture Filtering a little so it's easier to apply Mipmaps for different parts of the game independently
 
 20100901
 --------

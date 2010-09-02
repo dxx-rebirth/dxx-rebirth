@@ -66,10 +66,6 @@
 
 unsigned char *ogl_pal=gr_palette;
 
-int GL_needmipmaps=0;
-float OglTexMagFilt=GL_NEAREST;
-float OglTexMinFilt=GL_NEAREST;
-
 int last_width=-1,last_height=-1;
 int GL_TEXTURE_2D_enabled=-1;
 int GL_texclamp_enabled=-1;
@@ -928,11 +924,7 @@ bool ogl_ubitblt_i(int dw,int dh,int dx,int dy, int sw, int sh, int sx, int sy, 
 	ogl_texture tex;
 	r_ubitbltc++;
 
-	if (mipmap) {
-		ogl_init_texture(&tex, sw, sh, OGL_FLAG_MIPMAP);
-	} else {
-		ogl_init_texture(&tex, sw, sh, OGL_FLAG_ALPHA);
-	}
+	ogl_init_texture(&tex, sw, sh, (mipmap?OGL_FLAG_MIPMAP:OGL_FLAG_ALPHA));
 	tex.prio = 0.0;
 	tex.lw=src->bm_rowsize;
 
@@ -1330,14 +1322,14 @@ int ogl_loadtexture (unsigned char *data, int dxo, int dyo, ogl_texture *tex, in
 	OGL_BINDTEXTURE(tex->handle);
 	glTexEnvi (GL_TEXTURE_ENV, GL_TEXTURE_ENV_MODE, GL_MODULATE);
 	if (tex->wantmip){
-		glTexParameteri (GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, OglTexMagFilt);
-		glTexParameteri (GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, OglTexMinFilt);
+		glTexParameteri (GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
+		glTexParameteri (GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, (GameCfg.TexFilt==2?GL_LINEAR_MIPMAP_LINEAR:GL_LINEAR_MIPMAP_NEAREST));
 		}
 	else{
 		glTexParameteri (GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_NEAREST);
 		glTexParameteri (GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_NEAREST);
 		}
-	if (tex->wantmip && GL_needmipmaps)
+	if (tex->wantmip)
 		gluBuild2DMipmaps (
 				GL_TEXTURE_2D, tex->internalformat, 
 				tex->tw, tex->th, tex->format, 
@@ -1439,7 +1431,7 @@ void ogl_loadbmtexture_f(grs_bitmap *bm, int flags)
 
 void ogl_loadbmtexture(grs_bitmap *bm)
 {
-	ogl_loadbmtexture_f(bm, OGL_FLAG_MIPMAP);
+	ogl_loadbmtexture_f(bm, (GameCfg.TexFilt?OGL_FLAG_MIPMAP:0));
 }
 
 void ogl_freetexture(ogl_texture *gltexture)
