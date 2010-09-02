@@ -14,7 +14,11 @@
 
 #include <SDL/SDL.h>
 #include <SDL/SDL_audio.h>
+#if !(defined(__APPLE__) && defined(__MACH__))
 #include <SDL/SDL_mixer.h>
+#else
+#include <SDL_mixer/SDL_mixer.h>
+#endif
 
 #include "pstypes.h"
 #include "error.h"
