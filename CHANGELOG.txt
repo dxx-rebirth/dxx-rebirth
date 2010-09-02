@@ -1,5 +1,9 @@
 D2X-Rebirth Changelog
 
+20100902
+--------
+arch/sdl/digi_mixer.c, arch/sdl/digi_mixer_music.c, arch/sdl/jukebox.c, d2x-rebirth.xcodeproj/project.pbxproj, main/multi.h, main/mveplay.c: On Mac OS X - no longer have to copy SDL_mixer.h to SDL framework; frameworks can now be in /Library/Frameworks; fix for obscure compile error involving u_int32_t
+
 20100901
 --------
 main/net_ipx.c, main/net_udp.c: in pdata communication swap_bytes was set for create_shortpos causing problems on PPC architecture; in multiplayer host menu set citem to START GAME by default

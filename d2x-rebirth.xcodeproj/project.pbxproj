@@ -343,8 +343,6 @@
 		EB0E38BC11169B5700791182 /* net_ipx.c in Sources */ = {isa = PBXBuildFile; fileRef = EBF658A00F936D5300CB5C73 /* net_ipx.c */; };
 		EB1405E9121044B5002B1CC6 /* physfsx.c in Sources */ = {isa = PBXBuildFile; fileRef = EB1405E8121044B5002B1CC6 /* physfsx.c */; };
 		EB1405EA121044B5002B1CC6 /* physfsx.c in Sources */ = {isa = PBXBuildFile; fileRef = EB1405E8121044B5002B1CC6 /* physfsx.c */; };
-		EB1405ED12104885002B1CC6 /* ApplicationServices.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = EB1405EC12104885002B1CC6 /* ApplicationServices.framework */; };
-		EB1405EE12104885002B1CC6 /* ApplicationServices.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = EB1405EC12104885002B1CC6 /* ApplicationServices.framework */; };
 		EB28D9A30ECEAF1C00E68E9B /* init.c in Sources */ = {isa = PBXBuildFile; fileRef = EB28D9A20ECEAF1C00E68E9B /* init.c */; };
 		EB28D9A40ECEAF1C00E68E9B /* init.c in Sources */ = {isa = PBXBuildFile; fileRef = EB28D9A20ECEAF1C00E68E9B /* init.c */; };
 		EB2EEB5810C50CE2005256F2 /* net_udp.c in Sources */ = {isa = PBXBuildFile; fileRef = 17DFA6B510C1A2D100674D11 /* net_udp.c */; };
@@ -380,6 +378,8 @@
 		EBAFC2B4088E695F006329AD /* ignorecase.c in Sources */ = {isa = PBXBuildFile; fileRef = EBAFC2B0088E695F006329AD /* ignorecase.c */; };
 		EBAFC2B5088E695F006329AD /* physfsrwops.c in Sources */ = {isa = PBXBuildFile; fileRef = EBAFC2B1088E695F006329AD /* physfsrwops.c */; };
 		EBAFC2C0088E6BC7006329AD /* conf.h in Headers */ = {isa = PBXBuildFile; fileRef = EBAFC269088E508D006329AD /* conf.h */; };
+		EBB66314122E4DC60057352D /* ApplicationServices.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = EBB66313122E4DC60057352D /* ApplicationServices.framework */; };
+		EBB66315122E4DC60057352D /* ApplicationServices.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = EBB66313122E4DC60057352D /* ApplicationServices.framework */; };
 		EBB9E5340D8E82B3003466E6 /* bitmap.h in Headers */ = {isa = PBXBuildFile; fileRef = EBB9E5320D8E82B3003466E6 /* bitmap.h */; };
 		EBB9E5350D8E82B3003466E6 /* clip.h in Headers */ = {isa = PBXBuildFile; fileRef = EBB9E5330D8E82B3003466E6 /* clip.h */; };
 		EBB9E5360D8E82B3003466E6 /* bitmap.h in Headers */ = {isa = PBXBuildFile; fileRef = EBB9E5320D8E82B3003466E6 /* bitmap.h */; };
@@ -642,7 +642,6 @@
 		EB0421050A341042002CC961 /* controls.h */ = {isa = PBXFileReference; fileEncoding = 30; lastKnownFileType = sourcecode.c.h; path = controls.h; sourceTree = "<group>"; };
 		EB0421060A341042002CC961 /* config.h */ = {isa = PBXFileReference; fileEncoding = 30; lastKnownFileType = sourcecode.c.h; path = config.h; sourceTree = "<group>"; };
 		EB1405E8121044B5002B1CC6 /* physfsx.c */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.c; path = physfsx.c; sourceTree = "<group>"; };
-		EB1405EC12104885002B1CC6 /* ApplicationServices.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = ApplicationServices.framework; path = /System/Library/Frameworks/ApplicationServices.framework; sourceTree = "<absolute>"; };
 		EB28D9A20ECEAF1C00E68E9B /* init.c */ = {isa = PBXFileReference; fileEncoding = 30; lastKnownFileType = sourcecode.c.c; path = init.c; sourceTree = "<group>"; };
 		EB92BE110CDD68200045A32C /* digi_audio.h */ = {isa = PBXFileReference; fileEncoding = 30; lastKnownFileType = sourcecode.c.h; path = digi_audio.h; sourceTree = "<group>"; };
 		EB92BE120CDD68200045A32C /* digi_mixer_music.h */ = {isa = PBXFileReference; fileEncoding = 30; lastKnownFileType = sourcecode.c.h; path = digi_mixer_music.h; sourceTree = "<group>"; };
@@ -668,6 +667,8 @@
 		EBAFC28F088E67CD006329AD /* digiobj.c */ = {isa = PBXFileReference; fileEncoding = 30; lastKnownFileType = sourcecode.c.c; path = digiobj.c; sourceTree = "<group>"; };
 		EBAFC2B0088E695F006329AD /* ignorecase.c */ = {isa = PBXFileReference; fileEncoding = 30; lastKnownFileType = sourcecode.c.c; path = ignorecase.c; sourceTree = "<group>"; };
 		EBAFC2B1088E695F006329AD /* physfsrwops.c */ = {isa = PBXFileReference; fileEncoding = 30; lastKnownFileType = sourcecode.c.c; path = physfsrwops.c; sourceTree = "<group>"; };
+		EBB66313122E4DC60057352D /* ApplicationServices.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = ApplicationServices.framework; path = /System/Library/Frameworks/ApplicationServices.framework; sourceTree = "<absolute>"; };
+		EBB66317122E4DF40057352D /* HIServices.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = HIServices.framework; path = /System/Library/Frameworks/ApplicationServices.framework/Versions/A/Frameworks/HIServices.framework; sourceTree = "<absolute>"; };
 		EBB9E5320D8E82B3003466E6 /* bitmap.h */ = {isa = PBXFileReference; fileEncoding = 30; lastKnownFileType = sourcecode.c.h; path = bitmap.h; sourceTree = "<group>"; };
 		EBB9E5330D8E82B3003466E6 /* clip.h */ = {isa = PBXFileReference; fileEncoding = 30; lastKnownFileType = sourcecode.c.h; path = clip.h; sourceTree = "<group>"; };
 		EBB9E5380D8E82FF003466E6 /* clipper.h */ = {isa = PBXFileReference; fileEncoding = 30; lastKnownFileType = sourcecode.c.h; path = clipper.h; sourceTree = "<group>"; };
@@ -807,7 +808,7 @@
 				6710AB00066B2D6100DB0F68 /* SDL.framework in Frameworks */,
 				EBAFC20F088E3F2A006329AD /* physfs.framework in Frameworks */,
 				EB92BEC60CDD6B4B0045A32C /* SDL_mixer.framework in Frameworks */,
-				EB1405EE12104885002B1CC6 /* ApplicationServices.framework in Frameworks */,
+				EBB66315122E4DC60057352D /* ApplicationServices.framework in Frameworks */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -820,7 +821,7 @@
 				6710AB69066B2E0400DB0F68 /* OpenGL.framework in Frameworks */,
 				EBAFC210088E3F2A006329AD /* physfs.framework in Frameworks */,
 				EB92BEC50CDD6B4B0045A32C /* SDL_mixer.framework in Frameworks */,
-				EB1405ED12104885002B1CC6 /* ApplicationServices.framework in Frameworks */,
+				EBB66314122E4DC60057352D /* ApplicationServices.framework in Frameworks */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -839,7 +840,8 @@
 		1058C7A0FEA54F0111CA2CBB /* Linked Frameworks */ = {
 			isa = PBXGroup;
 			children = (
-				EB1405EC12104885002B1CC6 /* ApplicationServices.framework */,
+				EBB66317122E4DF40057352D /* HIServices.framework */,
+				EBB66313122E4DC60057352D /* ApplicationServices.framework */,
 				EB92BEC40CDD6B4B0045A32C /* SDL_mixer.framework */,
 				EBAFC20E088E3F2A006329AD /* physfs.framework */,
 				6710AB68066B2E0400DB0F68 /* OpenGL.framework */,
@@ -2001,15 +2003,21 @@
 				COPY_PHASE_STRIP = NO;
 				FRAMEWORK_SEARCH_PATHS = (
 					"$(HOME)/Library/Frameworks",
-					"$(FRAMEWORK_SEARCH_PATHS_QUOTED_FOR_TARGET_1)",
+					/Library/Frameworks,
+					"$(FRAMEWORK_SEARCH_PATHS_QUOTED_FOR_TARGET_2)",
 				);
 				FRAMEWORK_SEARCH_PATHS_QUOTED_FOR_TARGET_1 = "\"$(SYSTEM_LIBRARY_DIR)/Frameworks/ApplicationServices.framework/Versions/A/Frameworks\"";
+				FRAMEWORK_SEARCH_PATHS_QUOTED_FOR_TARGET_2 = "\"$(SYSTEM_LIBRARY_DIR)/Frameworks/ApplicationServices.framework/Versions/A/Frameworks\"";
 				GCC_DYNAMIC_NO_PIC = NO;
 				GCC_ENABLE_FIX_AND_CONTINUE = YES;
 				GCC_GENERATE_DEBUGGING_SYMBOLS = YES;
 				GCC_OPTIMIZATION_LEVEL = 0;
 				GCC_PREPROCESSOR_DEFINITIONS = USE_SDLMIXER;
-				HEADER_SEARCH_PATHS = main;
+				HEADER_SEARCH_PATHS = (
+					main,
+					"$(HOME)/Library/Frameworks/SDL.framework/Headers",
+					/Library/Frameworks/SDL.framework/Headers,
+				);
 				INFOPLIST_FILE = "d2x-Info.plist";
 				INSTALL_PATH = "$(USER_APPS_DIR)";
 				PRODUCT_NAME = d2x;
@@ -2024,16 +2032,22 @@
 				COPY_PHASE_STRIP = YES;
 				FRAMEWORK_SEARCH_PATHS = (
 					"$(HOME)/Library/Frameworks",
-					"$(FRAMEWORK_SEARCH_PATHS_QUOTED_1)",
+					/Library/Frameworks,
+					"$(FRAMEWORK_SEARCH_PATHS_QUOTED_FOR_TARGET_1)",
 				);
 				FRAMEWORK_SEARCH_PATHS_QUOTED_1 = "\"$(SYSTEM_LIBRARY_DIR)/Frameworks/ApplicationServices.framework/Versions/A/Frameworks\"";
+				FRAMEWORK_SEARCH_PATHS_QUOTED_FOR_TARGET_1 = "\"$(SYSTEM_LIBRARY_DIR)/Frameworks/ApplicationServices.framework/Versions/A/Frameworks\"";
 				GCC_ENABLE_FIX_AND_CONTINUE = NO;
 				GCC_PREPROCESSOR_DEFINITIONS = (
 					USE_SDLMIXER,
 					NDEBUG,
 					RELEASE,
 				);
-				HEADER_SEARCH_PATHS = main;
+				HEADER_SEARCH_PATHS = (
+					main,
+					"$(HOME)/Library/Frameworks/SDL.framework/Headers",
+					/Library/Frameworks/SDL.framework/Headers,
+				);
 				INFOPLIST_FILE = "d2x-Info.plist";
 				INSTALL_PATH = "$(USER_APPS_DIR)";
 				PRODUCT_NAME = d2x;
@@ -2064,9 +2078,11 @@
 				COPY_PHASE_STRIP = NO;
 				FRAMEWORK_SEARCH_PATHS = (
 					"$(HOME)/Library/Frameworks",
-					"$(FRAMEWORK_SEARCH_PATHS_QUOTED_FOR_TARGET_1)",
+					/Library/Frameworks,
+					"$(FRAMEWORK_SEARCH_PATHS_QUOTED_FOR_TARGET_2)",
 				);
 				FRAMEWORK_SEARCH_PATHS_QUOTED_FOR_TARGET_1 = "\"$(SYSTEM_LIBRARY_DIR)/Frameworks/ApplicationServices.framework/Versions/A/Frameworks\"";
+				FRAMEWORK_SEARCH_PATHS_QUOTED_FOR_TARGET_2 = "\"$(SYSTEM_LIBRARY_DIR)/Frameworks/ApplicationServices.framework/Versions/A/Frameworks\"";
 				GCC_DYNAMIC_NO_PIC = NO;
 				GCC_ENABLE_FIX_AND_CONTINUE = YES;
 				GCC_GENERATE_DEBUGGING_SYMBOLS = YES;
@@ -2075,7 +2091,11 @@
 					USE_SDLMIXER,
 					OGL,
 				);
-				HEADER_SEARCH_PATHS = main;
+				HEADER_SEARCH_PATHS = (
+					main,
+					"$(HOME)/Library/Frameworks/SDL.framework/Headers",
+					/Library/Frameworks/SDL.framework/Headers,
+				);
 				INFOPLIST_FILE = "d2xgl-Info.plist";
 				INSTALL_PATH = "$(USER_APPS_DIR)";
 				PRODUCT_NAME = d2xgl;
@@ -2090,9 +2110,11 @@
 				COPY_PHASE_STRIP = YES;
 				FRAMEWORK_SEARCH_PATHS = (
 					"$(HOME)/Library/Frameworks",
-					"$(FRAMEWORK_SEARCH_PATHS_QUOTED_1)",
+					/Library/Frameworks,
+					"$(FRAMEWORK_SEARCH_PATHS_QUOTED_FOR_TARGET_1)",
 				);
 				FRAMEWORK_SEARCH_PATHS_QUOTED_1 = "\"$(SYSTEM_LIBRARY_DIR)/Frameworks/ApplicationServices.framework/Versions/A/Frameworks\"";
+				FRAMEWORK_SEARCH_PATHS_QUOTED_FOR_TARGET_1 = "\"$(SYSTEM_LIBRARY_DIR)/Frameworks/ApplicationServices.framework/Versions/A/Frameworks\"";
 				GCC_ENABLE_FIX_AND_CONTINUE = NO;
 				GCC_PREPROCESSOR_DEFINITIONS = (
 					USE_SDLMIXER,
@@ -2100,7 +2122,11 @@
 					NDEBUG,
 					RELEASE,
 				);
-				HEADER_SEARCH_PATHS = main;
+				HEADER_SEARCH_PATHS = (
+					main,
+					"$(HOME)/Library/Frameworks/SDL.framework/Headers",
+					/Library/Frameworks/SDL.framework/Headers,
+				);
 				INFOPLIST_FILE = "d2xgl-Info.plist";
 				INSTALL_PATH = "$(USER_APPS_DIR)";
 				PRODUCT_NAME = d2xgl;
@@ -2115,8 +2141,10 @@
 				FRAMEWORK_SEARCH_PATHS = (
 					"$(HOME)/Library/Frameworks",
 					"$(FRAMEWORK_SEARCH_PATHS_QUOTED_1)",
+					"$(FRAMEWORK_SEARCH_PATHS_QUOTED_FOR_TARGET_1)",
 				);
 				FRAMEWORK_SEARCH_PATHS_QUOTED_1 = "\"$(SYSTEM_LIBRARY_DIR)/Frameworks/ApplicationServices.framework/Versions/A/Frameworks\"";
+				FRAMEWORK_SEARCH_PATHS_QUOTED_FOR_TARGET_1 = "\"$(SYSTEM_LIBRARY_DIR)/Frameworks/ApplicationServices.framework/Versions/A/Frameworks\"";
 				GCC_PREPROCESSOR_DEFINITIONS = (
 					no_cpp_precomp,
 					OGL,

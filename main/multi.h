@@ -36,6 +36,7 @@ COPYRIGHT 1993-1999 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 #include <netdb.h>
 #include <arpa/inet.h>
 #include <unistd.h>
+#include <stdint.h>
 #include <sys/time.h>
 #endif
 
