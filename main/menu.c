@@ -736,7 +736,7 @@ int demo_menu_handler( listbox *lb, d_event *event, void *userdata )
 int select_demo(void)
 {
 	char **list;
-	char *types[] = { ".dem", NULL };
+	char *types[] = { DEMO_EXT, NULL };
 	int NumItems;
 
 	list = PHYSFSX_findFiles(DEMO_DIR, types);

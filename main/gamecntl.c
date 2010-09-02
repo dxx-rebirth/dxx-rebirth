@@ -441,7 +441,7 @@ int HandleDemoKey(int key)
 			c = newmenu_do( NULL, NULL, 2, m, NULL, NULL );
 			if (c == -2)
 				break;
-			strcat(filename, ".dem");
+			strcat(filename, DEMO_EXT);
 			num[0] = '\0';
 			m[ 0].type = NM_TYPE_TEXT; m[ 0].text = "strip how many bytes";
 			m[ 1].type = NM_TYPE_INPUT;m[ 1].text_len = 16; m[1].text = num;
