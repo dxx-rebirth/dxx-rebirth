@@ -23,6 +23,7 @@
 
 
 Mix_Music *current_music = NULL;
+char *current_music_hndlbuf = NULL;
 
 /*
  *  Plays a music file from an absolute path or a relative path
@@ -33,7 +34,7 @@ int mix_play_file(char *filename, int loop, void (*hook_finished_track)())
 	SDL_RWops *rw = NULL;
 	PHYSFS_file *filehandle = NULL;
 	char midi_filename[PATH_MAX], full_path[PATH_MAX];
-	char *basedir = "music", *fptr, *buf = NULL;
+	char *basedir = "music", *fptr;
 	int bufsize = 0;
 
 	mix_free_music();	// stop and free what we're already playing, if anything
@@ -43,7 +44,7 @@ int mix_play_file(char *filename, int loop, void (*hook_finished_track)())
 	if (fptr == NULL)
 		return 0;
 
-	// It's a .hmp. Convert to mid, store in music/ and pass the new filename.
+	// It's a .hmp. Convertchar *current_music_hndlbuf = NULL; to mid, store in music/ and pass the new filename.
 	if (!stricmp(fptr, ".hmp"))
 	{
 		PHYSFS_mkdir(basedir);		// ALWAYS attempt to make 'Music': might exist in some searchpath but not the write directory
@@ -72,9 +73,9 @@ int mix_play_file(char *filename, int loop, void (*hook_finished_track)())
 		filehandle = PHYSFS_openRead(filename);
 	if (filehandle != NULL)
 	{
-		buf = realloc(buf, sizeof(char *)*PHYSFS_fileLength(filehandle));
-		bufsize = PHYSFS_read(filehandle, buf, sizeof(char), PHYSFS_fileLength(filehandle));
-		rw = SDL_RWFromConstMem(buf,bufsize*sizeof(char));
+		current_music_hndlbuf = d_realloc(current_music_hndlbuf, sizeof(char *)*PHYSFS_fileLength(filehandle));
+		bufsize = PHYSFS_read(filehandle, current_music_hndlbuf, sizeof(char), PHYSFS_fileLength(filehandle));
+		rw = SDL_RWFromConstMem(current_music_hndlbuf,bufsize*sizeof(char));
 		PHYSFS_close(filehandle);
 		current_music = Mix_LoadMUS_RW(rw);
 	}
@@ -89,6 +90,11 @@ int mix_play_file(char *filename, int loop, void (*hook_finished_track)())
 	{
 		con_printf(CON_CRITICAL,"Music %s could not be loaded\n", filename);
 		Mix_HaltMusic();
+		if (current_music_hndlbuf)
+		{
+			d_free(current_music_hndlbuf);
+			current_music_hndlbuf = NULL;
+		}
 	}
 
 	return 0;
@@ -103,6 +109,11 @@ void mix_free_music()
 		Mix_FreeMusic(current_music);
 		current_music = NULL;
 	}
+	if (current_music_hndlbuf)
+	{
+		d_free(current_music_hndlbuf);
+		current_music_hndlbuf = NULL;
+	}
 }
 
 void mix_set_music_volume(int vol)
@@ -114,6 +125,11 @@ void mix_set_music_volume(int vol)
 void mix_stop_music()
 {
 	Mix_HaltMusic();
+	if (current_music_hndlbuf)
+	{
+		d_free(current_music_hndlbuf);
+		current_music_hndlbuf = NULL;
+	}
 }
 
 void mix_pause_music()
