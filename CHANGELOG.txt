@@ -3,6 +3,7 @@ D2X-Rebirth Changelog
 20100902
 --------
 arch/sdl/digi_mixer.c, arch/sdl/digi_mixer_music.c, arch/sdl/jukebox.c, d2x-rebirth.xcodeproj/project.pbxproj, main/multi.h, main/mveplay.c: On Mac OS X - no longer have to copy SDL_mixer.h to SDL framework; frameworks can now be in /Library/Frameworks; fix for obscure compile error involving u_int32_t
+include/args.h, include/ogl_init.h, main/inferno.c, main/menu.c, main/movie.c, main/config.c, main/config.h, misc/args.c, 2d/font.c, d2x.ini, arch/ogl/ogl.c, arch/ogl/gr.c: Rewrote code to control Texture Filtering a little so it's easier to apply Mipmaps for different parts of the game independently; Made Movie Filtering a menu option which must be enabled seperately; Added Movie Subtitles toggle to misc game options
 
 20100901
 --------

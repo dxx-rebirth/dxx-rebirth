@@ -65,10 +65,8 @@ typedef struct Arg
 	int GfxHiresGFXAvailable;
 	int GfxHiresFNTAvailable;
 	int GfxMovieHires;
-	int GfxMovieSubtitles;
 #ifdef OGL
 	int OglFixedFont;
-	int OglNoMovieFilter;
 #endif
 	int MplNoRankings;
 	int MplTxtMessages;

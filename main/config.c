@@ -62,6 +62,8 @@ static char *AspectXStr="AspectX";
 static char *AspectYStr="AspectY";
 static char *WindowModeStr="WindowMode";
 static char *TexFiltStr="TexFilt";
+static char *MovieTexFiltStr="MovieTexFilt";
+static char *MovieSubtitlesStr="MovieSubtitles";
 static char *VSyncStr="VSync";
 static char *MultisampleStr="Multisample";
 
@@ -92,6 +94,8 @@ int ReadConfigFile()
 	GameCfg.AspectY = 4;
 	GameCfg.WindowMode = 0;
 	GameCfg.TexFilt = 0;
+	GameCfg.MovieTexFilt = 0;
+	GameCfg.MovieSubtitles = 0;
 	GameCfg.VSync = 0;
 	GameCfg.Multisample = 0;
 
@@ -188,6 +192,10 @@ int ReadConfigFile()
 				GameCfg.WindowMode = strtol(value, NULL, 10);
 			else if (!strcmp(token, TexFiltStr))
 				GameCfg.TexFilt = strtol(value, NULL, 10);
+			else if (!strcmp(token, MovieTexFiltStr))
+				GameCfg.MovieTexFilt = strtol(value, NULL, 10);
+			else if (!strcmp(token, MovieSubtitlesStr))
+				GameCfg.MovieSubtitles = strtol(value, NULL, 10);
 			else if (!strcmp(token, VSyncStr))
 				GameCfg.VSync = strtol(value, NULL, 10);
 			else if (!strcmp(token, MultisampleStr))
@@ -240,6 +248,8 @@ int WriteConfigFile()
 	PHYSFSX_printf(infile, "%s=%i\n", AspectYStr, GameCfg.AspectY);
 	PHYSFSX_printf(infile, "%s=%i\n", WindowModeStr, GameCfg.WindowMode);
 	PHYSFSX_printf(infile, "%s=%i\n", TexFiltStr, GameCfg.TexFilt);
+	PHYSFSX_printf(infile, "%s=%i\n", MovieTexFiltStr, GameCfg.MovieTexFilt);
+	PHYSFSX_printf(infile, "%s=%i\n", MovieSubtitlesStr, GameCfg.MovieSubtitles);
 	PHYSFSX_printf(infile, "%s=%i\n", VSyncStr, GameCfg.VSync);
 	PHYSFSX_printf(infile, "%s=%i\n", MultisampleStr, GameCfg.Multisample);
 

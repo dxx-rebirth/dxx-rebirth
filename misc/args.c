@@ -176,13 +176,11 @@ void ReadCmdArgs(void)
 	GameArg.GfxHiresGFXAvailable	= !FindArg("-lowresgraphics");
 	GameArg.GfxHiresFNTAvailable	= !FindArg("-lowresfont");
 	GameArg.GfxMovieHires 		= !FindArg( "-lowresmovies" );
-	GameArg.GfxMovieSubtitles 	= FindArg("-subtitles");
 
 #ifdef OGL
 	// OpenGL Options
 
 	GameArg.OglFixedFont 		= FindArg("-gl_fixedfont");
-	GameArg.OglNoMovieFilter	= FindArg("-gl_nomoviefilter");
 #endif
 
 	// Multiplayer Options

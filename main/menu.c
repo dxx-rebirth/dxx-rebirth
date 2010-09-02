@@ -1135,7 +1135,7 @@ void input_config()
 
 void do_graphics_menu()
 {
-	newmenu_item m[9];
+	newmenu_item m[10];
 	int i = 0, j = 0;
 
 	do {
@@ -1143,26 +1143,28 @@ void do_graphics_menu()
 		m[1].type = NM_TYPE_RADIO;  m[1].text = "None (Classical)";       m[1].value = 0; m[1].group = 0;
 		m[2].type = NM_TYPE_RADIO;  m[2].text = "Bilinear";               m[2].value = 0; m[2].group = 0;
 		m[3].type = NM_TYPE_RADIO;  m[3].text = "Trilinear";              m[3].value = 0; m[3].group = 0;
-		m[4].type = NM_TYPE_TEXT;   m[4].text="";
-		m[5].type = NM_TYPE_CHECK;  m[5].text="Transparency Effects";     m[5].value = PlayerCfg.OglAlphaEffects;
-		m[6].type = NM_TYPE_CHECK;  m[6].text="Vectorial Reticle";        m[6].value = PlayerCfg.OglReticle;
-		m[7].type = NM_TYPE_CHECK;  m[7].text="VSync";                    m[7].value = GameCfg.VSync;
-		m[8].type = NM_TYPE_CHECK;  m[8].text="4x multisampling";         m[8].value = GameCfg.Multisample;
+		m[4].type = NM_TYPE_CHECK;  m[4].text="Movie Filter";             m[4].value = GameCfg.MovieTexFilt;
+		m[5].type = NM_TYPE_TEXT;   m[5].text="";
+		m[6].type = NM_TYPE_CHECK;  m[6].text="Transparency Effects";     m[6].value = PlayerCfg.OglAlphaEffects;
+		m[7].type = NM_TYPE_CHECK;  m[7].text="Vectorial Reticle";        m[7].value = PlayerCfg.OglReticle;
+		m[8].type = NM_TYPE_CHECK;  m[8].text="VSync";                    m[8].value = GameCfg.VSync;
+		m[9].type = NM_TYPE_CHECK;  m[9].text="4x multisampling";         m[9].value = GameCfg.Multisample;
 
 		m[GameCfg.TexFilt+1].value=1;
 
 		i = newmenu_do1( NULL, "Graphics Options", sizeof(m)/sizeof(*m), m, NULL, NULL, i );
 
-		if (GameCfg.VSync != m[7].value || GameCfg.Multisample != m[8].value)
+		if (GameCfg.VSync != m[8].value || GameCfg.Multisample != m[9].value)
 			nm_messagebox( NULL, 1, TXT_OK, "To apply VSync or 4x Multisample\nyou need to restart the program");
 
 		for (j = 0; j <= 2; j++)
 			if (m[j+1].value)
 				GameCfg.TexFilt = j;
-		PlayerCfg.OglAlphaEffects = m[5].value;
-		PlayerCfg.OglReticle = m[6].value;
-		GameCfg.VSync = m[7].value;
-		GameCfg.Multisample = m[8].value;
+		GameCfg.MovieTexFilt = m[4].value;
+		PlayerCfg.OglAlphaEffects = m[6].value;
+		PlayerCfg.OglReticle = m[7].value;
+		GameCfg.VSync = m[8].value;
+		GameCfg.Multisample = m[9].value;
 		gr_set_attributes();
 		gr_set_mode(Game_screen_mode);
 	} while( i>-1 );
@@ -1772,7 +1774,7 @@ void do_sound_menu()
 
 void do_misc_menu()
 {
-	newmenu_item m[8];
+	newmenu_item m[9];
 	int i = 0;
 
 	do {
@@ -1784,6 +1786,7 @@ void do_misc_menu()
 		ADD_CHECK(5, "Escort robot hot keys",PlayerCfg.EscortHotKeys);
 		ADD_CHECK(6, "Persistent Debris",PlayerCfg.PersistentDebris);
 		ADD_CHECK(7, "Screenshots w/o HUD",PlayerCfg.PRShot);
+		ADD_CHECK(8, "Movie Subtitles",GameCfg.MovieSubtitles);
 
 		i = newmenu_do1( NULL, "Misc Options", sizeof(m)/sizeof(*m), m, NULL, NULL, i );
 
@@ -1795,6 +1798,7 @@ void do_misc_menu()
 		PlayerCfg.EscortHotKeys		= m[5].value;
 		PlayerCfg.PersistentDebris	= m[6].value;
 		PlayerCfg.PRShot 		= m[7].value;
+		GameCfg.MovieSubtitles 		= m[8].value;
 
 	} while( i>-1 );
 

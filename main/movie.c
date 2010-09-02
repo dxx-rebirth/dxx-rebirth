@@ -31,7 +31,7 @@ COPYRIGHT 1993-1999 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 #include "movie.h"
 #include "window.h"
 #include "console.h"
-#include "args.h"
+#include "config.h"
 #include "key.h"
 #include "mouse.h"
 #include "digi.h"
@@ -214,7 +214,7 @@ void MovieShowFrame(ubyte *buf, int dstx, int dsty, int bufw, int bufh, int sw, 
 	ogl_ubitblt_i(
 		bufw*scale, bufh*scale,
 		dstx, dsty,
-		bufw, bufh, 0, 0, &source_bm,&grd_curcanv->cv_bitmap,!GameArg.OglNoMovieFilter);
+		bufw, bufh, 0, 0, &source_bm,&grd_curcanv->cv_bitmap,GameCfg.MovieTexFilt);
 
 	glEnable (GL_BLEND);
 #else
@@ -554,7 +554,7 @@ int init_subtitles(char *filename)
 
 	Num_subtitles = 0;
 
-	if (!GameArg.GfxMovieSubtitles)
+	if (!GameCfg.MovieSubtitles)
 		return 0;
 
 	ifile = cfopen(filename,"rb");		//try text version

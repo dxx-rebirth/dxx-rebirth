@@ -158,10 +158,8 @@ void print_commandline_help()
 	printf( "  -lowresfont        %s\n", "Force to use LowRes fonts");
 	printf( "  -lowresgraphics    %s\n", "Force to use LowRes graphics");
 	printf( "  -lowresmovies      %s\n", "Play low resolution movies if available (for slow machines)");
-	printf( "  -subtitles         %s\n", "Turn on movie subtitles");
 #ifdef    OGL
 	printf( "  -gl_fixedfont      %s\n", "Do not scale fonts to current resolution");
-	printf( "  -gl_nomoviefilter  %s\n", "Force texture filtering for movies off (helps if movies shutter if texture filtering enabled)");
 #endif // OGL
 
 #ifdef    NETWORK

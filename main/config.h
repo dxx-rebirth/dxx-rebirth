@@ -44,6 +44,8 @@ typedef struct Cfg
 	int AspectY;
 	int WindowMode;
 	int TexFilt;
+	int MovieTexFilt;
+	int MovieSubtitles;
 	int VSync;
 	int Multisample;
 } __pack__ Cfg;
