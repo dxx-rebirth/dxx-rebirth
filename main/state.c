@@ -84,7 +84,6 @@ COPYRIGHT 1993-1998 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 #define DESC_LENGTH 20
 
 extern int Do_appearance_effect;
-extern fix Fusion_next_sound_time;
 
 extern int Laser_rapid_fire, Ugly_robot_cheat, Ugly_robot_texture;
 extern int Physics_cheat_flag;
