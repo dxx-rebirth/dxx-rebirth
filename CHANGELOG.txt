@@ -1,5 +1,9 @@
 D2X-Rebirth Changelog
 
+20100903
+--------
+main/game.h, main/gameseq.c, main/state.c: Reset Fusion_next_sound_time in init_player_stats_level() to hopefully fix Fusion not doing damage or playing sounds 
+
 20100902
 --------
 arch/sdl/digi_mixer.c, arch/sdl/digi_mixer_music.c, arch/sdl/jukebox.c, d2x-rebirth.xcodeproj/project.pbxproj, main/multi.h, main/mveplay.c: On Mac OS X - no longer have to copy SDL_mixer.h to SDL framework; frameworks can now be in /Library/Frameworks; fix for obscure compile error involving u_int32_t
