@@ -330,7 +330,9 @@ void briefing_init(briefing *br, short level_num)
 	br->screen = NULL;
 	gr_init_bitmap_data (&br->background);
 	strncpy(br->background_name, DEFAULT_BRIEFING_BKG, sizeof(br->background_name));
+	br->robot_num = 0;
 	br->robot_canv = NULL;
+	br->robot_angles.p = br->robot_angles.b = br->robot_angles.h = 0;
 	br->bitmap_name[0] = '\0';
 	br->door_dir = 1;
 	br->door_div_count = 0;
