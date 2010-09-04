@@ -139,8 +139,6 @@ char	faded_in;
 int	Game_suspended=0; //if non-zero, nothing moves but player
 fix	Auto_fire_fusion_cannon_time = 0;
 fix	Fusion_charge = 0;
-fix	Fusion_next_sound_time = 0;
-fix	Fusion_last_sound_time = 0;
 int	Game_turbo_mode = 0;
 int	Game_mode = GM_GAME_OVER;
 int	Global_laser_firing_count = 0;
@@ -1266,6 +1264,8 @@ void FireLaser()
 		if ((Players[Player_num].energy < F1_0*2) && (Auto_fire_fusion_cannon_time == 0)) {
 			Global_laser_firing_count = 0;
 		} else {
+			static int Fusion_next_sound_time = 0;
+
 			if (Fusion_charge == 0)
 				Players[Player_num].energy -= F1_0*2;
 
@@ -1283,8 +1283,8 @@ void FireLaser()
 			else
 				PALETTE_FLASH_ADD(Fusion_charge >> 11, Fusion_charge >> 11, 0);
 
-			if (GameTime < Fusion_last_sound_time)		//gametime has wrapped
-				Fusion_next_sound_time = Fusion_last_sound_time = GameTime;
+			if (Fusion_next_sound_time > GameTime + F1_0/8 + D_RAND_MAX/4) //gametime has wrapped or something is screwed
+				Fusion_next_sound_time = GameTime - 1;
 
 			if (Fusion_next_sound_time < GameTime) {
 				if (Fusion_charge > F1_0*2) {
@@ -1302,7 +1302,6 @@ void FireLaser()
 						multi_send_play_sound(SOUND_FUSION_WARMUP, F1_0);
 					#endif
 				}
-				Fusion_last_sound_time = GameTime;
 				Fusion_next_sound_time = GameTime + F1_0/8 + d_rand()/4;
 			}
 		}

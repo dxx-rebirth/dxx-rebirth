@@ -3,6 +3,7 @@ D1X-Rebirth Changelog
 20100904
 --------
 main/titles.c: In briefing_init() init robot angles properly because in show_spinning_robot_frame() robot_angles.h is incremented only but not initialized
+main/game.c, main/game.h, main/gameseq.c, main/state.c: Removed Fusion_last_sound_time and made Fusion_next_sound_time static inside FireLaser() with it's own fallback function for bogus timer values - should make this code insusceptible against errors - last but not least: minus two globals
 
 20100903
 --------

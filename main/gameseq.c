@@ -339,7 +339,7 @@ void init_player_stats_level()
 	Players[Player_num].homing_object_dist = -F1_0; // Added by RH
 
 	// properly init these cursed globals
-	Fusion_next_sound_time = Next_flare_fire_time = Last_laser_fired_time = Next_laser_fire_time = Next_missile_fire_time = GameTime;
+	Next_flare_fire_time = Last_laser_fired_time = Next_laser_fire_time = Next_missile_fire_time = GameTime;
 
 	init_gauges();
 }
