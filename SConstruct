@@ -9,8 +9,8 @@ PROGRAM_NAME = 'D1X-Rebirth'
 
 # version number
 D1XMAJOR = 0
-D1XMINOR = 55
-D1XMICRO = 1
+D1XMINOR = 56
+D1XMICRO = 0
 VERSION_STRING = ' v' + str(D1XMAJOR) + '.' + str(D1XMINOR) + '.' + str(D1XMICRO)
 
 # installation path
