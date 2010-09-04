@@ -9,10 +9,10 @@
 #define D2XMAJOR "0"
 
 /* d2x minor version */
-#define D2XMINOR "55"
+#define D2XMINOR "56"
 
 /* d2x micro version */
-#define D2XMICRO "1"
+#define D2XMICRO "0"
 
 /* Define if you want to build the editor */
 /* #undef EDITOR */

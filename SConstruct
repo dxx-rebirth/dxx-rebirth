@@ -9,8 +9,8 @@ PROGRAM_NAME = 'D2X-Rebirth'
 
 # version number
 D2XMAJOR = 0
-D2XMINOR = 55
-D2XMICRO = 1
+D2XMINOR = 56
+D2XMICRO = 0
 VERSION_STRING = ' v' + str(D2XMAJOR) + '.' + str(D2XMINOR) + '.' + str(D2XMICRO)
 
 # installation path
