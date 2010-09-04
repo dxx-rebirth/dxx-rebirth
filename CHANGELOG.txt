@@ -1,5 +1,9 @@
 D2X-Rebirth Changelog
 
+20100904
+--------
+main/titles.c: In briefing_init() init robot angles properly because in show_spinning_robot_frame() robot_angles.h is incremented only but not initialized
+
 20100903
 --------
 main/game.h, main/gameseq.c, main/state.c: Reset Fusion_next_sound_time in init_player_stats_level() to hopefully fix Fusion not doing damage or playing sounds 
