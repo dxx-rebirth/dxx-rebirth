@@ -388,7 +388,7 @@ void init_player_stats_level(int secret_flag)
 	Players[Player_num].homing_object_dist = -F1_0; // Added by RH
 
 	// properly init these cursed globals
-	Fusion_next_sound_time = Next_flare_fire_time = Last_laser_fired_time = Next_laser_fire_time = Next_missile_fire_time = GameTime;
+	Next_flare_fire_time = Last_laser_fired_time = Next_laser_fire_time = Next_missile_fire_time = GameTime;
 
 	Controls.afterburner_state = 0;
 	Last_afterburner_state = 0;
