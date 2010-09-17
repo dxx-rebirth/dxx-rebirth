@@ -1241,6 +1241,8 @@ void EnterSecretLevel(void)
 	if (Game_wind)
 		window_set_visible(Game_wind, 0);
 
+	digi_play_sample( SOUND_SECRET_EXIT, F1_0 );	// after above call which stops all sounds
+	
 	Entered_from_level = Current_level_num;
 
 	if (Control_center_destroyed)

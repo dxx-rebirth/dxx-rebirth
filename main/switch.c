@@ -457,8 +457,6 @@ int check_trigger_sub(int trigger_num, int pnum,int shot)
 
 			digi_stop_digi_sounds();
 
-			digi_play_sample( SOUND_SECRET_EXIT, F1_0 );
-
 			EnterSecretLevel();
 			Control_center_destroyed = 0;
 			return 1;
