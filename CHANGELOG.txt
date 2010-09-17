@@ -6,6 +6,7 @@ arch/carbon/conf.h: Enable IPv6 for Mac OS X
 main/config.c: Set default Jukebox music paths to original Redbook music in iTunes for Mac OS X
 d1x-rebirth.xcodeproj/project.pbxproj, include/cfile.h, include/hmp.h, include/physfsx.h, INSTALL.txt, main/config.c, main/inferno.c, main/newdemo.c, main/newmenu.c, main/playsave.c, misc/hmp.c, misc/ignorecase.c: Link to PhysicsFS static library and use header from source for Mac OS X
 main/menu.c: Put in a note that a restart is required when changing the texture filter level (remove later when it isn't)
+d1x-Info.plist, d1xgl-Info.plist, English.lproj/InfoPlist.strings: Increment version to 0.56.0 for Mac OS X, marking release point
 
 20100904
 --------
