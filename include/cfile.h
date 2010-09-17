@@ -23,11 +23,6 @@ COPYRIGHT 1993-1999 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 
 #include <stdio.h>
 #include <string.h>
-#if !(defined(__APPLE__) && defined(__MACH__))
-#include <physfs.h>
-#else
-#include <physfs/physfs.h>
-#endif
 
 #include "pstypes.h"
 #include "maths.h"

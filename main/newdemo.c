@@ -25,12 +25,6 @@ COPYRIGHT 1993-1998 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 #include <errno.h>
 #include <ctype.h>
 
-#if !(defined(__APPLE__) && defined(__MACH__))
-#include <physfs.h>
-#else
-#include <physfs/physfs.h>
-#endif
-
 #include "u_mem.h"
 #include "inferno.h"
 #include "game.h"

@@ -8,11 +8,7 @@
 #include <string.h>
 #include <stdlib.h>
 #include <stdio.h>
-#if !(defined(__APPLE__) && defined(__MACH__))
-#include <physfs.h>
-#else
-#include <physfs/physfs.h>
-#endif
+
 #include "hmp.h"
 #include "u_mem.h"
 #include "cfile.h"

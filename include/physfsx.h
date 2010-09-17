@@ -12,7 +12,9 @@
 #include <string.h>
 #include <stdarg.h>
 
-#if !(defined(__APPLE__) && defined(__MACH__))
+// When PhysicsFS can *easily* be built as a framework on Mac OS X,
+// the framework form will be supported again -kreatordxx
+#if 1	//!(defined(__APPLE__) && defined(__MACH__))
 #include <physfs.h>
 #else
 #include <physfs/physfs.h>

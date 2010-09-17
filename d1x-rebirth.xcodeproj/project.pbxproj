@@ -10,7 +10,6 @@
 		179E6E9E11F37B3400175C54 /* hmp.c in Sources */ = {isa = PBXBuildFile; fileRef = 179E6E9D11F37B3400175C54 /* hmp.c */; };
 		179E6E9F11F37B3400175C54 /* hmp.c in Sources */ = {isa = PBXBuildFile; fileRef = 179E6E9D11F37B3400175C54 /* hmp.c */; };
 		17A707EB10C1B5FA002D1680 /* SDL_mixer.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = EB92BEC40CDD6B4B0045A32C /* SDL_mixer.framework */; };
-		17A707EC10C1B604002D1680 /* physfs.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = EBAFC20E088E3F2A006329AD /* physfs.framework */; };
 		17DFA6B110C1A29500674D11 /* net_udp.c in Sources */ = {isa = PBXBuildFile; fileRef = 17DFA6AF10C1A29500674D11 /* net_udp.c */; };
 		6710AAFF066B2D6100DB0F68 /* SDL.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 6710AAFE066B2D6100DB0F68 /* SDL.framework */; };
 		6710AB00066B2D6100DB0F68 /* SDL.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 6710AAFE066B2D6100DB0F68 /* SDL.framework */; };
@@ -270,7 +269,6 @@
 		67F6FED3066B13B400443922 /* SDLMain.m in Sources */ = {isa = PBXBuildFile; fileRef = 67F6FED1066B13B400443922 /* SDLMain.m */; };
 		67F6FED4066B13B400443922 /* SDLMain.h in Headers */ = {isa = PBXBuildFile; fileRef = 67F6FED0066B13B400443922 /* SDLMain.h */; };
 		67F6FED5066B13B400443922 /* SDLMain.m in Sources */ = {isa = PBXBuildFile; fileRef = 67F6FED1066B13B400443922 /* SDLMain.m */; };
-		EB0E38C111169C1700791182 /* net_ipx.c in Sources */ = {isa = PBXBuildFile; fileRef = EBF658990F936A8400CB5C73 /* net_ipx.c */; };
 		EB1405BA12100883002B1CC6 /* physfsx.c in Sources */ = {isa = PBXBuildFile; fileRef = EB1405B912100883002B1CC6 /* physfsx.c */; };
 		EB1405BB12100883002B1CC6 /* physfsx.c in Sources */ = {isa = PBXBuildFile; fileRef = EB1405B912100883002B1CC6 /* physfsx.c */; };
 		EB28D99C0ECEABD700E68E9B /* init.c in Sources */ = {isa = PBXBuildFile; fileRef = EB28D99B0ECEABD700E68E9B /* init.c */; };
@@ -286,6 +284,8 @@
 		EB380D7D0E168B1900EBD9AD /* InfoPlist.strings in Resources */ = {isa = PBXBuildFile; fileRef = EB380D7B0E168B1900EBD9AD /* InfoPlist.strings */; };
 		EB380D7E0E168B1900EBD9AD /* InfoPlist.strings in Resources */ = {isa = PBXBuildFile; fileRef = EB380D7B0E168B1900EBD9AD /* InfoPlist.strings */; };
 		EB775A7A105611720036C348 /* extractD1Data.cpp in Sources */ = {isa = PBXBuildFile; fileRef = EB775A79105611720036C348 /* extractD1Data.cpp */; };
+		EB796886123F1C8F00B2028B /* libphysfs.a in Frameworks */ = {isa = PBXBuildFile; fileRef = EB796885123F1C8F00B2028B /* libphysfs.a */; };
+		EB796887123F1C8F00B2028B /* libphysfs.a in Frameworks */ = {isa = PBXBuildFile; fileRef = EB796885123F1C8F00B2028B /* libphysfs.a */; };
 		EB861343111E9E810097D871 /* net_ipx.c in Sources */ = {isa = PBXBuildFile; fileRef = EBF658990F936A8400CB5C73 /* net_ipx.c */; };
 		EB8BE84F1071FBE00069486E /* player.c in Sources */ = {isa = PBXBuildFile; fileRef = EB8BE84E1071FBE00069486E /* player.c */; };
 		EB8BE8501071FBE00069486E /* player.c in Sources */ = {isa = PBXBuildFile; fileRef = EB8BE84E1071FBE00069486E /* player.c */; };
@@ -304,7 +304,6 @@
 		EBAC98FB0D42497F0017D4BC /* ignorecase.c in Sources */ = {isa = PBXBuildFile; fileRef = EBAC98F90D42497F0017D4BC /* ignorecase.c */; };
 		EBAC98FD0D42497F0017D4BC /* ignorecase.c in Sources */ = {isa = PBXBuildFile; fileRef = EBAC98F90D42497F0017D4BC /* ignorecase.c */; };
 		EBAEB74C0BF4A86F00FC6E13 /* d1x-rebirth.icns in Resources */ = {isa = PBXBuildFile; fileRef = EBAEB74B0BF4A86F00FC6E13 /* d1x-rebirth.icns */; };
-		EBAFC20F088E3F2A006329AD /* physfs.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = EBAFC20E088E3F2A006329AD /* physfs.framework */; };
 		EBAFC26E088E508D006329AD /* conf.h in Headers */ = {isa = PBXBuildFile; fileRef = EBAFC269088E508D006329AD /* conf.h */; };
 		EBAFC290088E67CD006329AD /* digiobj.c in Sources */ = {isa = PBXBuildFile; fileRef = EBAFC28F088E67CD006329AD /* digiobj.c */; };
 		EBAFC291088E67CD006329AD /* digiobj.c in Sources */ = {isa = PBXBuildFile; fileRef = EBAFC28F088E67CD006329AD /* digiobj.c */; };
@@ -579,6 +578,7 @@
 		EB3CA4F90E97740E00FB1E93 /* tracker.h */ = {isa = PBXFileReference; fileEncoding = 30; lastKnownFileType = sourcecode.c.h; path = tracker.h; sourceTree = "<group>"; };
 		EB775A6F105611320036C348 /* d1Extract */ = {isa = PBXFileReference; explicitFileType = "compiled.mach-o.executable"; includeInIndex = 0; path = d1Extract; sourceTree = BUILT_PRODUCTS_DIR; };
 		EB775A79105611720036C348 /* extractD1Data.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = extractD1Data.cpp; sourceTree = "<group>"; };
+		EB796885123F1C8F00B2028B /* libphysfs.a */ = {isa = PBXFileReference; lastKnownFileType = archive.ar; name = libphysfs.a; path = ../physfs/build/Debug/libphysfs.a; sourceTree = SOURCE_ROOT; };
 		EB8BE84E1071FBE00069486E /* player.c */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.c; path = player.c; sourceTree = "<group>"; };
 		EB9181090DABA47B0010CB39 /* console.h */ = {isa = PBXFileReference; fileEncoding = 30; lastKnownFileType = sourcecode.c.h; path = console.h; sourceTree = "<group>"; };
 		EB92BE5C0CDD693C0045A32C /* digi_audio.c */ = {isa = PBXFileReference; fileEncoding = 30; lastKnownFileType = sourcecode.c.c; path = digi_audio.c; sourceTree = "<group>"; };
@@ -592,7 +592,6 @@
 		EBAC994E0D4250320017D4BC /* ignorecase.h */ = {isa = PBXFileReference; fileEncoding = 30; lastKnownFileType = sourcecode.c.h; path = ignorecase.h; sourceTree = "<group>"; };
 		EBAC99500D4250320017D4BC /* physfsx.h */ = {isa = PBXFileReference; fileEncoding = 30; lastKnownFileType = sourcecode.c.h; path = physfsx.h; sourceTree = "<group>"; };
 		EBAEB74B0BF4A86F00FC6E13 /* d1x-rebirth.icns */ = {isa = PBXFileReference; lastKnownFileType = image.icns; name = "d1x-rebirth.icns"; path = "arch/cocoa/d1x-rebirth.icns"; sourceTree = "<group>"; };
-		EBAFC20E088E3F2A006329AD /* physfs.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = physfs.framework; path = /Library/Frameworks/physfs.framework; sourceTree = "<absolute>"; };
 		EBAFC269088E508D006329AD /* conf.h */ = {isa = PBXFileReference; fileEncoding = 30; lastKnownFileType = sourcecode.c.h; path = conf.h; sourceTree = "<group>"; };
 		EBAFC26A088E508D006329AD /* descent.r */ = {isa = PBXFileReference; fileEncoding = 30; lastKnownFileType = sourcecode.rez; path = descent.r; sourceTree = "<group>"; };
 		EBAFC26D088E508D006329AD /* SDL_main.c */ = {isa = PBXFileReference; fileEncoding = 30; lastKnownFileType = sourcecode.c.c; path = SDL_main.c; sourceTree = "<group>"; };
@@ -731,9 +730,9 @@
 			files = (
 				676AC26C0668A938007173EB /* Cocoa.framework in Frameworks */,
 				6710AB00066B2D6100DB0F68 /* SDL.framework in Frameworks */,
-				EBAFC20F088E3F2A006329AD /* physfs.framework in Frameworks */,
 				EB92BEC60CDD6B4B0045A32C /* SDL_mixer.framework in Frameworks */,
 				EBC858F5122E165800FA437D /* ApplicationServices.framework in Frameworks */,
+				EB796887123F1C8F00B2028B /* libphysfs.a in Frameworks */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -745,8 +744,8 @@
 				6710AAFF066B2D6100DB0F68 /* SDL.framework in Frameworks */,
 				6710AB69066B2E0400DB0F68 /* OpenGL.framework in Frameworks */,
 				17A707EB10C1B5FA002D1680 /* SDL_mixer.framework in Frameworks */,
-				17A707EC10C1B604002D1680 /* physfs.framework in Frameworks */,
 				EBC858F4122E165800FA437D /* ApplicationServices.framework in Frameworks */,
+				EB796886123F1C8F00B2028B /* libphysfs.a in Frameworks */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -772,9 +771,9 @@
 		1058C7A0FEA54F0111CA2CBB /* Linked Frameworks */ = {
 			isa = PBXGroup;
 			children = (
+				EB796885123F1C8F00B2028B /* libphysfs.a */,
 				EBC858F3122E165800FA437D /* ApplicationServices.framework */,
 				EB92BEC40CDD6B4B0045A32C /* SDL_mixer.framework */,
-				EBAFC20E088E3F2A006329AD /* physfs.framework */,
 				6710AB68066B2E0400DB0F68 /* OpenGL.framework */,
 				6710AAFE066B2D6100DB0F68 /* SDL.framework */,
 				1058C7A1FEA54F0111CA2CBB /* Cocoa.framework */,
@@ -1863,7 +1862,6 @@
 				EBE8D8900FDA76D1009D181F /* gamerend.c in Sources */,
 				EB8BE84F1071FBE00069486E /* player.c in Sources */,
 				EB2EEB6910C5F8A3005256F2 /* net_udp.c in Sources */,
-				EB0E38C111169C1700791182 /* net_ipx.c in Sources */,
 				179E6E9F11F37B3400175C54 /* hmp.c in Sources */,
 				EB1405BA12100883002B1CC6 /* physfsx.c in Sources */,
 			);
@@ -1941,7 +1939,6 @@
 					/Library/Frameworks,
 					"$(FRAMEWORK_SEARCH_PATHS_QUOTED_FOR_TARGET_2)",
 				);
-				FRAMEWORK_SEARCH_PATHS_QUOTED_FOR_TARGET_1 = "\"$(SYSTEM_LIBRARY_DIR)/Frameworks/ApplicationServices.framework/Versions/A/Frameworks\"";
 				FRAMEWORK_SEARCH_PATHS_QUOTED_FOR_TARGET_2 = "\"$(SYSTEM_LIBRARY_DIR)/Frameworks/ApplicationServices.framework/Versions/A/Frameworks\"";
 				GCC_DYNAMIC_NO_PIC = NO;
 				GCC_ENABLE_FIX_AND_CONTINUE = YES;
@@ -1953,10 +1950,12 @@
 					include,
 					main,
 					arch/sdl/include,
+					../physfs,
 					"$(HOME)/Library/Frameworks/SDL.framework/Headers",
 					/Library/Frameworks/SDL.framework/Headers,
 				);
 				INFOPLIST_FILE = "d1x-Info.plist";
+				LIBRARY_SEARCH_PATHS = "\"$(SRCROOT)/../physfs/build/Debug\"";
 				PRODUCT_NAME = d1x;
 				WARNING_CFLAGS = "-Wall";
 				ZERO_LINK = NO;
@@ -1972,7 +1971,6 @@
 					/Library/Frameworks,
 					"$(FRAMEWORK_SEARCH_PATHS_QUOTED_FOR_TARGET_1)",
 				);
-				FRAMEWORK_SEARCH_PATHS_QUOTED_1 = "\"$(SYSTEM_LIBRARY_DIR)/Frameworks/ApplicationServices.framework/Versions/A/Frameworks\"";
 				FRAMEWORK_SEARCH_PATHS_QUOTED_FOR_TARGET_1 = "\"$(SYSTEM_LIBRARY_DIR)/Frameworks/ApplicationServices.framework/Versions/A/Frameworks\"";
 				GCC_ENABLE_FIX_AND_CONTINUE = NO;
 				GCC_PREPROCESSOR_DEFINITIONS = (
@@ -1985,10 +1983,12 @@
 					include,
 					main,
 					arch/sdl/include,
+					../physfs,
 					"$(HOME)/Library/Frameworks/SDL.framework/Headers",
 					/Library/Frameworks/SDL.framework/Headers,
 				);
 				INFOPLIST_FILE = "d1x-Info.plist";
+				LIBRARY_SEARCH_PATHS = "\"$(SRCROOT)/../physfs/build/Debug\"";
 				PRODUCT_NAME = d1x;
 				SKIP_INSTALL = NO;
 				WARNING_CFLAGS = "-Wall";
@@ -2014,6 +2014,8 @@
 				);
 				INFOPLIST_FILE = "d1x-Info.plist";
 				INSTALL_PATH = "$(USER_APPS_DIR)";
+				LIBRARY_SEARCH_PATHS = "\"$(SRCROOT)/../physfs/build/Debug\"";
+				LIBRARY_SEARCH_PATHS_QUOTED_1 = "\"$(SRCROOT)/../../Library/Frameworks\"";
 				PRODUCT_NAME = d1x;
 				WARNING_CFLAGS = "-Wall";
 			};
@@ -2028,7 +2030,6 @@
 					/Library/Frameworks,
 					"$(FRAMEWORK_SEARCH_PATHS_QUOTED_FOR_TARGET_2)",
 				);
-				FRAMEWORK_SEARCH_PATHS_QUOTED_FOR_TARGET_1 = "\"$(SYSTEM_LIBRARY_DIR)/Frameworks/ApplicationServices.framework/Versions/A/Frameworks\"";
 				FRAMEWORK_SEARCH_PATHS_QUOTED_FOR_TARGET_2 = "\"$(SYSTEM_LIBRARY_DIR)/Frameworks/ApplicationServices.framework/Versions/A/Frameworks\"";
 				GCC_DYNAMIC_NO_PIC = NO;
 				GCC_ENABLE_FIX_AND_CONTINUE = YES;
@@ -2044,10 +2045,12 @@
 					main,
 					arch/sdl/include,
 					arch/ogl/include,
+					../physfs,
 					"$(HOME)/Library/Frameworks/SDL.framework/Headers",
 					/Library/Frameworks/SDL.framework/Headers,
 				);
 				INFOPLIST_FILE = "d1xgl-Info.plist";
+				LIBRARY_SEARCH_PATHS = "\"$(SRCROOT)/../physfs/build/Debug\"";
 				PRODUCT_NAME = d1xgl;
 				WARNING_CFLAGS = "-Wall";
 				ZERO_LINK = NO;
@@ -2063,7 +2066,6 @@
 					/Library/Frameworks,
 					"$(FRAMEWORK_SEARCH_PATHS_QUOTED_FOR_TARGET_1)",
 				);
-				FRAMEWORK_SEARCH_PATHS_QUOTED_1 = "\"$(SYSTEM_LIBRARY_DIR)/Frameworks/ApplicationServices.framework/Versions/A/Frameworks\"";
 				FRAMEWORK_SEARCH_PATHS_QUOTED_FOR_TARGET_1 = "\"$(SYSTEM_LIBRARY_DIR)/Frameworks/ApplicationServices.framework/Versions/A/Frameworks\"";
 				GCC_ENABLE_FIX_AND_CONTINUE = NO;
 				GCC_PREPROCESSOR_DEFINITIONS = (
@@ -2078,10 +2080,12 @@
 					main,
 					arch/sdl/include,
 					arch/ogl/include,
+					../physfs,
 					"$(HOME)/Library/Frameworks/SDL.framework/Headers",
 					/Library/Frameworks/SDL.framework/Headers,
 				);
 				INFOPLIST_FILE = "d1xgl-Info.plist";
+				LIBRARY_SEARCH_PATHS = "\"$(SRCROOT)/../physfs/build/Debug\"";
 				PRODUCT_NAME = d1xgl;
 				SKIP_INSTALL = NO;
 				WARNING_CFLAGS = "-Wall";
@@ -2109,6 +2113,15 @@
 				);
 				INFOPLIST_FILE = "d1xgl-Info.plist";
 				INSTALL_PATH = "$(USER_APPS_DIR)";
+				LIBRARY_SEARCH_PATHS = (
+					"$(inherited)",
+					"$(LIBRARY_SEARCH_PATHS_QUOTED_1)",
+					"$(LIBRARY_SEARCH_PATHS_QUOTED_FOR_TARGET_1)",
+					"$(LIBRARY_SEARCH_PATHS_QUOTED_FOR_TARGET_2)",
+				);
+				LIBRARY_SEARCH_PATHS_QUOTED_1 = "\"$(SRCROOT)/../../Library/Frameworks\"";
+				LIBRARY_SEARCH_PATHS_QUOTED_FOR_TARGET_1 = "\"$(SRCROOT)/../physfs/build/Debug\"";
+				LIBRARY_SEARCH_PATHS_QUOTED_FOR_TARGET_2 = "\"$(SRCROOT)/../physfs/build/Release\"";
 				PRODUCT_NAME = d1xgl;
 				WARNING_CFLAGS = "-Wall";
 			};

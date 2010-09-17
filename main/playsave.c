@@ -21,11 +21,7 @@ COPYRIGHT 1993-1998 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 #include <string.h>
 #include <errno.h>
 #include <limits.h>
-#if !(defined(__APPLE__) && defined(__MACH__))
-#include <physfs.h>
-#else
-#include <physfs/physfs.h>
-#endif
+
 #include "error.h"
 #include "gameseq.h"
 #include "player.h"

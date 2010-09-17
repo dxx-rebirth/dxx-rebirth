@@ -1,10 +1,5 @@
 #ifndef __HMP_H
 #define __HMP_H
-#if !(defined(__APPLE__) && defined(__MACH__))
-#include <physfs.h>
-#else
-#include <physfs/physfs.h>
-#endif
 
 #ifdef WIN32
 #include <windows.h>
