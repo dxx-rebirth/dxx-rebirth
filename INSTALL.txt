@@ -31,11 +31,22 @@ Compiling:
    MacOS:
    ------ 
    For Mac OS X, an Xcode project is available (requires Xcode 2.1 or later). Xcode includes the compiler
-   and OpenGL. For Mac OS 9, an MPW Makefile is available. MPW includes the compiler. For the sources to
-   compile, they will need to be made into text files using a typecode changing program, if they were
-   downloaded outside of Mac OS 9 (including Mac OS X). This will also need to be done after any Terminal
-   command (diff, svn update etc) edits the source files.
-   SCons also works on MacOS, but it's recommended to use XCode instead.
+   and OpenGL. The standard SDL and SDL_mixer libraries from the SDL website may be used, these go in
+   /Library/Frameworks or ~/Library/Frameworks. However, to fix MP3 support for the 'Release' build I used
+   SDL 1.2.8 with Diedel's modified SMPEG library from his D2X-XL website. To debug these libraries compile
+   the frameworks from source as 'Debug' builds, then use these instead. PhysicsFS must be compiled from
+   source. Put its enclosing folder 'physfs', renaming if necessary, next to D1X's (typically d1x-rebirth).
+   In CMake ensure the build path points to 'build' inside 'physfs'. Specify 'i386;ppc' as the architecture
+   for a universal binary. In Xcode, build the 'Debug' static library target. If anyone knows how to get the
+   'Release' build to properly link with DXX, please tell.
+   SCons also works on MacOS X, but it's recommended to use XCode instead.
+
+   For Mac OS 9, an MPW Makefile is available. MPW includes the compiler. As for the shared libraries,
+   compile PhysicsFS version 1.0 and the latest SDL and SDL_mixer (as of writing) from source.
+   For any sources to compile, they will need to be made into text files using a typecode changing program,
+   if they were downloaded outside of Mac OS 9 (including Mac OS X). This will also need to be done after any
+   Terminal command (diff, svn update etc) edits the source files.
+
    Note that there are ready-to-go packages on http://www.dxx-rebirth.com   
 
    Win32:
@@ -72,16 +83,12 @@ Needed files:
    With the PC version, these files - except the Movies (*.mvl) - are archived in the file
    'descent2.sow' on the Descent2 CD-Rom.
    This is an ARJ-archive and can be extracted with an adapted archiver like ‘unarj’ or by installing the
-   game on a Windows/DOS system. Otherwise, for the Mac CD-ROM, the data files will need to be installed
-   from the CD using a Mac system earler than OS X. Classic will work. If you know of any other way, please
-   tell me at chris at icculus.org.
+   game on a Windows/DOS system.
 
    Note that the above files must be lowercase if you use an operating system with case-sensitive file management.
 
-   For the Mac CD-ROM, the data files will need to be installed from the CD using a Mac system earler than
-   OS X. Classic will work. If you know of any other way, please tell me at chris at icculus.org.
-
-   Note that the above files must be lowercase if you use an operating system with case-sensitive file management.
+   For the Mac CD-ROM, the data files (except for the movies) will need to be installed from the CD using a Mac
+   system earler than OS X. Classic will work. StuffIt tech support said this is virtually the only way.
 
 
 Where to put these files:

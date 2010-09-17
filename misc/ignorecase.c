@@ -5,7 +5,7 @@
 #include <string.h>
 #include <ctype.h>
 
-#if !(defined(__APPLE__) && defined(__MACH__))
+#if 1	//!(defined(__APPLE__) && defined(__MACH__))
 #include <physfs.h>
 #else
 #include <physfs/physfs.h>

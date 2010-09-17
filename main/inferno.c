@@ -36,12 +36,6 @@ char copyright[] = "DESCENT II  COPYRIGHT (C) 1994-1996 PARALLAX SOFTWARE CORPOR
 #include <sys/types.h>
 #endif
 
-#if !(defined(__APPLE__) && defined(__MACH__))
-#include <physfs.h>
-#else
-#include <physfs/physfs.h>
-#endif
-
 #include "pstypes.h"
 #include "strutil.h"
 #include "console.h"
@@ -348,6 +342,9 @@ int main(int argc, char *argv[])
 				  "\tDirectory containing D2X\n"
 #endif
 				  "\tIn a subdirectory called 'Data'\n"
+#if (defined(__APPLE__) && defined(__MACH__)) || defined(macintosh)
+				  "\tIn 'Resources' inside the application bundle\n"
+#endif
 				  "Or use the -hogdir option to specify an alternate location.");
 		}
 	}

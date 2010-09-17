@@ -23,7 +23,7 @@
 #ifndef _INCLUDE_PHYSFSRWOPS_H_
 #define _INCLUDE_PHYSFSRWOPS_H_
 
-#if !(defined(__APPLE__) && defined(__MACH__))
+#if 1	//!(defined(__APPLE__) && defined(__MACH__))
 #include <physfs.h>
 #else
 #include <physfs/physfs.h>
