@@ -1,5 +1,9 @@
 D1X-Rebirth Changelog
 
+20100917
+--------
+arch/carbon/conf.h: Enable IPv6 for Mac OS X
+
 20100904
 --------
 main/titles.c: In briefing_init() init robot angles properly because in show_spinning_robot_frame() robot_angles.h is incremented only but not initialized
