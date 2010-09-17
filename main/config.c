@@ -81,10 +81,17 @@ int ReadConfigFile()
 	GameCfg.CMLevelMusicPlayOrder = MUSIC_CM_PLAYORDER_CONT;
 	GameCfg.CMLevelMusicTrack[0] = -1;
 	GameCfg.CMLevelMusicTrack[1] = -1;
+	memset(GameCfg.CMLevelMusicPath,0,PATH_MAX+1);
 	memset(GameCfg.CMMiscMusic[SONG_TITLE],0,PATH_MAX+1);
 	memset(GameCfg.CMMiscMusic[SONG_BRIEFING],0,PATH_MAX+1);
 	memset(GameCfg.CMMiscMusic[SONG_ENDGAME],0,PATH_MAX+1);
 	memset(GameCfg.CMMiscMusic[SONG_CREDITS],0,PATH_MAX+1);
+#if defined(__APPLE__) && defined(__MACH__)
+	GameCfg.OrigTrackOrder = 1;
+	snprintf(GameCfg.CMLevelMusicPath,				PATH_MAX, "%s/%s", PHYSFS_getUserDir(), "Music/iTunes/iTunes Music/Redbook Soundtrack/Descent II, Macintosh CD-ROM/");
+	snprintf(GameCfg.CMMiscMusic[SONG_TITLE],		PATH_MAX, "%s/%s", PHYSFS_getUserDir(), "Music/iTunes/iTunes Music/Redbook Soundtrack/Descent II, Macintosh CD-ROM/02 Title.mp3");
+	snprintf(GameCfg.CMMiscMusic[SONG_CREDITS],		PATH_MAX, "%s/%s", PHYSFS_getUserDir(), "Music/iTunes/iTunes Music/Redbook Soundtrack/Descent II, Macintosh CD-ROM/03 Crawl.mp3");
+#endif
 	GameCfg.GammaLevel = 0;
 	memset(GameCfg.LastPlayer,0,CALLSIGN_LEN+1);
 	memset(GameCfg.LastMission,0,MISSION_NAME_LEN+1);
