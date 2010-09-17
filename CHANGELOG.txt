@@ -7,6 +7,7 @@ main/config.c: Set default Jukebox music paths to original Redbook music in iTun
 d2x-rebirth.xcodeproj/project.pbxproj, include/cfile.h, include/hmp.h, include/physfsrwops.h, include/physfsx.h, INSTALL.txt, main/config.c, main/inferno.c, main/newdemo.c, main/newmenu.c, main/playsave.c, misc/hmp.c, misc/ignorecase.c: Link to PhysicsFS static library and use header from source for Mac OS X
 main/menu.c: Put in a note that a restart is required when changing the texture filter level (remove later when it isn't)
 main/gameseq.c, main/switch.c: Don't let the teleport sound get cut out by Game_wind being hidden when going to a secret level
+d2x-Info.plist, d2xgl-Info.plist, English.lproj/InfoPlist.strings: Increment version to 0.56.0 for Mac OS X, marking release point
 
 20100904
 --------
