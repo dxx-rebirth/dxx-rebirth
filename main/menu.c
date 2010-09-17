@@ -1139,7 +1139,7 @@ void do_graphics_menu()
 	int i = 0, j = 0;
 
 	do {
-		m[0].type = NM_TYPE_TEXT;   m[0].text="Texture Filtering:";
+		m[0].type = NM_TYPE_TEXT;   m[0].text="Texture Filtering (restart required):";
 		m[1].type = NM_TYPE_RADIO;  m[1].text = "None (Classical)";       m[1].value = 0; m[1].group = 0;
 		m[2].type = NM_TYPE_RADIO;  m[2].text = "Bilinear";               m[2].value = 0; m[2].group = 0;
 		m[3].type = NM_TYPE_RADIO;  m[3].text = "Trilinear";              m[3].value = 0; m[3].group = 0;
