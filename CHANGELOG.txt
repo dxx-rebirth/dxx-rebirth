@@ -3,6 +3,7 @@ D1X-Rebirth Changelog
 20100917
 --------
 arch/carbon/conf.h: Enable IPv6 for Mac OS X
+main/config.c: Set default Jukebox music paths to original Redbook music in iTunes for Mac OS X
 
 20100904
 --------
