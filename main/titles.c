@@ -758,7 +758,6 @@ int briefing_process_char(briefing *br)
 			gr_init_bitmap_data (&br->guy_bitmap);
 			iff_error = iff_read_bitmap(bitmap_name, &br->guy_bitmap, BM_LINEAR, temp_palette);
 			Assert(iff_error == IFF_NO_ERROR);
-			gr_remap_bitmap_good( &br->guy_bitmap, temp_palette, -1, -1 );
 
 			br->guy_bitmap_show=1;
 			br->prev_ch = 10;

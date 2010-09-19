@@ -3,6 +3,7 @@ D2X-Rebirth Changelog
 20100919
 --------
 main/state.c: Pass -1 instead of 255 as the colour to ogl_ubitmapm_cs when drawing savegame previews, to make sure a black rectangle isn't drawn instead
+iff/iff.c, main/titles.c: To fix Dravis's head in endgame debriefing, don't remap the colours and read compressed .bbm bitmaps properly (both my bad)
 
 20100917
 --------

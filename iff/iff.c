@@ -170,7 +170,7 @@ int parse_body(PHYSFS_file *ifile,long len,iff_bitmap_header *bmheader)
 		int y;
 
 		for (y=bmheader->h;y;y--) {
-			cfread(p, bmheader->w, 1, ifile);
+			cfread(p, width, depth, ifile);
 			p += bmheader->w;
 
 			if (bmheader->masking == mskHasMask)
@@ -205,7 +205,10 @@ int parse_body(PHYSFS_file *ifile,long len,iff_bitmap_header *bmheader)
 				if (plane==depth)	//masking row
 					cfseek(ifile, nn, SEEK_CUR);
 				else
-					cfread(p += nn, nn, 1, ifile);
+				{
+					cfread(p, nn, 1, ifile);
+					p += nn;
+				}
 				if (wid_cnt==-1) cfseek(ifile, 1, SEEK_CUR);
 			}
 			else if (n>=-127) {             // next -n + 1 bytes are following byte
