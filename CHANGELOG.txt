@@ -1,5 +1,9 @@
 D1X-Rebirth Changelog
 
+20100925
+--------
+include/cfile.h, include/physfsx.h, main/bmread.c, main/piggy.c, misc/physfsx.c: Add 'Data' subdir as a searchpath, simplifying a lot of file opening/checking/closing code
+
 20100919
 --------
 main/state.c: Pass -1 instead of 255 as the colour to ogl_ubitmapm_cs when drawing savegame previews, to make sure a black rectangle isn't drawn instead

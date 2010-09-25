@@ -342,7 +342,7 @@ int properties_init()
 		GameBitmapOffset[0] = 0;
 	}
 	
-	Piggy_fp = PHYSFSX_openDataFile(DEFAULT_PIGFILE_REGISTERED);
+	Piggy_fp = PHYSFSX_openReadBuffered(DEFAULT_PIGFILE_REGISTERED);
 	if (Piggy_fp==NULL)
 	{
 		if (!cfexist("BITMAPS.TBL") && !cfexist("BITMAPS.BIN"))
@@ -519,7 +519,7 @@ void piggy_read_sounds(int pc_shareware)
 		// Read Mac sounds converted to RAW format (too messy to read them directly from the resource fork code-wise)
 		char soundfile[32] = "Sounds/sounds.array";
 		extern int ds_load(int skip, char * filename );
-		PHYSFS_file *array = PHYSFSX_openDataFile(soundfile);	// hack for Mac Demo
+		PHYSFS_file *array = PHYSFSX_openReadBuffered(soundfile);	// hack for Mac Demo
 
 		if (!array && (cfile_size(DEFAULT_PIGFILE_REGISTERED) == D1_MAC_SHARE_PIGSIZE))
 		{
