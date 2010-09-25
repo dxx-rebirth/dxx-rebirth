@@ -3,6 +3,7 @@ D2X-Rebirth Changelog
 20100925
 --------
 include/cfile.h, include/physfsx.h, main/bm.c, main/bmread.c, main/multi.c, main/piggy.c, misc/physfsx.c: Add 'Data' subdir as a searchpath, so D2X will find descent.pig and to simplify a lot of file opening/checking/closing code
+misc/physfsx.c: fullpath variable was missing for _WIN32
 
 20100919
 --------
