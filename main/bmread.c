@@ -303,7 +303,7 @@ int ds_load(int skip, char * filename )	{
 		return i;
 	}
 
-	cfp = PHYSFSX_openDataFile(rawname);
+	cfp = PHYSFSX_openReadBuffered(rawname);
 
 	if (cfp!=NULL) {
 		new.length	= cfilelength( cfp );
@@ -389,9 +389,9 @@ int gamedata_read_tbl(int pc_shareware)
 
 	// Open BITMAPS.TBL for reading.
 	have_bin_tbl = 0;
-	InfoFile = PHYSFSX_openDataFile("BITMAPS.TBL");
+	InfoFile = PHYSFSX_openReadBuffered("BITMAPS.TBL");
 	if (InfoFile == NULL) {
-		InfoFile = PHYSFSX_openDataFile("BITMAPS.BIN");
+		InfoFile = PHYSFSX_openReadBuffered("BITMAPS.BIN");
 		if (InfoFile == NULL)
 			return 0;	//missing BITMAPS.TBL and BITMAPS.BIN file
 		have_bin_tbl = 1;

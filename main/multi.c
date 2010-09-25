@@ -4825,7 +4825,7 @@ int HoardEquipped()
 
 	if (checked==-1)
 	{
-		if (cfexist("hoard.ham") || cfexist("Data/hoard.ham"))
+		if (cfexist("hoard.ham"))
 			checked=1;
 		else
 			checked=0;
@@ -4861,7 +4861,7 @@ void init_hoard_data()
 	int i,save_pos;
 	extern int Num_bitmap_files,Num_effects,Num_sound_files;
 
-	ifile = PHYSFSX_openDataFile("hoard.ham");
+	ifile = PHYSFSX_openReadBuffered("hoard.ham");
 	if (ifile == NULL)
 		Error("can't open <hoard.ham>");
 

@@ -1,5 +1,9 @@
 D2X-Rebirth Changelog
 
+20100925
+--------
+include/cfile.h, include/physfsx.h, main/bm.c, main/bmread.c, main/multi.c, main/piggy.c, misc/physfsx.c: Add 'Data' subdir as a searchpath, so D2X will find descent.pig and to simplify a lot of file opening/checking/closing code
+
 20100919
 --------
 main/state.c: Pass -1 instead of 255 as the colour to ogl_ubitmapm_cs when drawing savegame previews, to make sure a black rectangle isn't drawn instead
@@ -1202,7 +1206,7 @@ d2x.ini, arch/sdl/joy.c, include/cfile.h, include/physfsx.h, main/config.c, main
 --------
 misc/strutil.c: fix potential bad memory access in change_filename_extension
 main/inferno.c: if descent2.hog / d2demo.hog isn't found, show a more accurate error message than before
-include/physfsx.h, main/bm.c, main/piggy.c: rename datafile_open to PHYSFSX_openDataFile to fit in with naming convention
+include/physfsx.h, main/bm.c, main/piggy.c: rename datafile_open to PHYSFSX_openReadBuffered to fit in with naming convention
 
 20080113
 --------

@@ -513,7 +513,7 @@ int load_exit_models()
 		return 0;
 	}
 
-	exit_hamfile = PHYSFSX_openDataFile("exit.ham");
+	exit_hamfile = PHYSFSX_openReadBuffered("exit.ham");
 
 	if (exit_hamfile) {
 		exit_modelnum = N_polygon_models++;

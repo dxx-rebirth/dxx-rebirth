@@ -128,6 +128,9 @@ void PHYSFSX_init(int argc, char *argv[])
 		PHYSFS_addToSearchPath(SHAREPATH, 1);
 #endif
 	
+	PHYSFSX_getRealPath("data", fullPath);	// 'Data' subdirectory
+	PHYSFS_addToSearchPath(fullPath, 1);
+	
 	// For Macintosh, add the 'Resources' directory in the .app bundle to the searchpaths
 #if defined(__APPLE__) && defined(__MACH__)
 	{
@@ -328,23 +331,11 @@ PHYSFS_file *PHYSFSX_openWriteBuffered(char *filename)
 	return fp;
 }
 
-//Open a 'data' file for reading (a file that would go in the 'Data' folder for the original Mac Descent II)
-//Allows backwards compatibility with old Mac directories while retaining PhysicsFS flexibility
-PHYSFS_file *PHYSFSX_openDataFile(char *filename)
-{
-	PHYSFS_file *fp = PHYSFSX_openReadBuffered(filename);
-	
-	if (!fp)
-	{
-		char name[255];
-		
-		sprintf(name, "Data/%s", filename);
-		fp = PHYSFSX_openReadBuffered(name);
-	}
-	
-	return fp;
-}
-
+/* 
+ * Add archives to the game.
+ * 1) archives from Sharepath/Data to extend/replace builtin game content
+ * 2) archived demos
+ */
 void PHYSFSX_addArchiveContent()
 {
 	char **list = NULL;
@@ -359,22 +350,6 @@ void PHYSFSX_addArchiveContent()
 		MALLOC(file[0], char, PATH_MAX);
 		MALLOC(file[1], char, PATH_MAX);
 		snprintf(file[0], sizeof(char)*PATH_MAX, "%s", list[i]);
-		PHYSFSX_getRealPath(file[0],file[1]);
-		PHYSFS_addToSearchPath(file[1], 0);
-		d_free(file[0]);
-		d_free(file[1]);
-	}
-	PHYSFS_freeList(list);
-	list = NULL;
-
-	// find files in DATA_DIR ...
-	list = PHYSFSX_findFiles("Data/", archive_exts);
-	// if found, add them...
-	for (i = 0; list[i] != NULL; i++)
-	{
-		MALLOC(file[0], char, PATH_MAX);
-		MALLOC(file[1], char, PATH_MAX);
-		snprintf(file[0], sizeof(char)*PATH_MAX, "%s%s", "Data/", list[i]);
 		PHYSFSX_getRealPath(file[0],file[1]);
 		PHYSFS_addToSearchPath(file[1], 0);
 		d_free(file[0]);
@@ -415,22 +390,6 @@ void PHYSFSX_removeArchiveContent()
 		MALLOC(file[0], char, PATH_MAX);
 		MALLOC(file[1], char, PATH_MAX);
 		snprintf(file[0], sizeof(char)*PATH_MAX, "%s", list[i]);
-		PHYSFSX_getRealPath(file[0],file[1]);
-		PHYSFS_removeFromSearchPath(file[1]);
-		d_free(file[0]);
-		d_free(file[1]);
-	}
-	PHYSFS_freeList(list);
-	list = NULL;
-
-	// find files in DATA_DIR ...
-	list = PHYSFSX_findFiles("Data/", archive_exts);
-	// if found, remove them...
-	for (i = 0; list[i] != NULL; i++)
-	{
-		MALLOC(file[0], char, PATH_MAX);
-		MALLOC(file[1], char, PATH_MAX);
-		snprintf(file[0], sizeof(char)*PATH_MAX, "%s%s", "Data/", list[i]);
 		PHYSFSX_getRealPath(file[0],file[1]);
 		PHYSFS_removeFromSearchPath(file[1]);
 		d_free(file[0]);

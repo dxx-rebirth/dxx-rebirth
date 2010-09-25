@@ -51,20 +51,7 @@ static inline int cfile_init(char *hogname, int add_to_end)
 	if (!PHYSFSX_getRealPath(hogname2, pathname))
 		return 0;
 
-	if (!PHYSFS_addToSearchPath(pathname, add_to_end))
-	{	// try the 'Data' directory for old Mac Descent directories compatibility
-		char std_path[PATH_MAX] = "Data/";
-
-		strncat(std_path, hogname2, PATH_MAX - 1 - strlen(std_path));
-		std_path[PATH_MAX - 1] = 0;
-
-		if (!PHYSFSX_getRealPath(std_path, pathname))
-			return 0;
-		
-		return PHYSFS_addToSearchPath(pathname, add_to_end);
-	}
-	
-	return 1;
+	return PHYSFS_addToSearchPath(pathname, add_to_end);
 }
 
 static inline int cfile_close(char *hogname)
@@ -77,20 +64,7 @@ static inline int cfile_close(char *hogname)
 	if (!PHYSFSX_getRealPath(hogname2, pathname))
 		return 0;
 
-	if (!PHYSFS_removeFromSearchPath(pathname))
-	{
-		char std_path[PATH_MAX] = "Data/";
-		
-		strncat(std_path, hogname2, PATH_MAX - 1 - strlen(std_path));
-		std_path[PATH_MAX - 1] = 0;
-		
-		if (!PHYSFSX_getRealPath(std_path, pathname))
-			return 0;
-		
-		return PHYSFS_removeFromSearchPath(pathname);
-	}
-	
-	return 1;
+	return PHYSFS_removeFromSearchPath(pathname);
 }
 
 
@@ -105,15 +79,7 @@ static inline int cfile_size(char *hogname)
 
 	fp = PHYSFS_openRead(hogname2);
 	if (fp == NULL)
-	{
-		char std_path[PATH_MAX] = "Data/";
-		
-		strncat(std_path, hogname2, PATH_MAX - 1 - strlen(std_path));
-		std_path[PATH_MAX - 1] = 0;
-		
-		if (!(fp = PHYSFS_openRead(std_path)))
-			return -1;
-	}
+		return -1;
 
 	size = PHYSFS_fileLength(fp);
 	cfclose(fp);
