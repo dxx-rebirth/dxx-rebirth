@@ -1581,7 +1581,7 @@ int sound_menuset(newmenu *menu, d_event *event, void *userdata)
 }
 
 #ifdef USE_SDLMIXER
-#define SOUND_MENU_NITEMS 30
+#define SOUND_MENU_NITEMS 32
 #else
 #ifdef _WIN32
 #define SOUND_MENU_NITEMS 11
@@ -1683,6 +1683,12 @@ void do_sound_menu()
 
 	opt_sm_cm_mtype3_file3 = nitems;
 	m[nitems].type = NM_TYPE_INPUT; m[nitems].text = GameCfg.CMMiscMusic[SONG_CREDITS]; m[nitems++].text_len = NM_MAX_TEXT_LEN-1;
+
+	opt_sm_cm_mtype3_file4_b = nitems;
+	m[nitems].type = NM_TYPE_MENU; m[nitems++].text = "escape sequence (browse...)";
+
+	opt_sm_cm_mtype3_file4 = nitems;
+	m[nitems].type = NM_TYPE_INPUT; m[nitems].text = GameCfg.CMMiscMusic[SONG_ENDLEVEL]; m[nitems++].text_len = NM_MAX_TEXT_LEN-1;
 
 	opt_sm_cm_mtype3_file5_b = nitems;
 	m[nitems].type = NM_TYPE_MENU; m[nitems++].text = "game ending (browse...)";

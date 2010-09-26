@@ -403,10 +403,8 @@ void start_rendered_endlevel_sequence()
 	}
 	#endif
 
-	#ifdef SHAREWARE
 	Assert(last_segnum == exit_segnum);
-	// 	songs_play_song( SONG_ENDLEVEL, 0 );	// JTS: Until we get an exit song, just don't worry
-	#endif
+	songs_play_song( SONG_ENDLEVEL, 0 );
 
 	Endlevel_sequence = EL_FLYTHROUGH;
 

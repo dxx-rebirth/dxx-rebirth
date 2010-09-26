@@ -3,6 +3,7 @@ D2X-Rebirth Changelog
 20100926
 --------
 arch/sdl/jukebox.c, include/strutil.h, main/menu.c, misc/strutil.c: Add support for M3U playlists, tweak 'Jukebox playing' message so it shows the end of the path when truncating
+main/config.c, main/endlevel.c, main/menu.c, main/songs.c: Enable exit sequence song for D2X (not available via Redbook)
 
 20100925
 --------

@@ -319,7 +319,7 @@ int songs_play_song( int songnum, int repeat )
 		{
 			int num_tracks = RBAGetNumberOfTracks();
 
-			Song_playing = 0;
+			//Song_playing = 0;		// keep playing current music if chosen song is unavailable (e.g. SONG_ENDLEVEL)
 			if ((songnum == SONG_TITLE) && (REDBOOK_TITLE_TRACK <= num_tracks))
 			{
 				if (RBAPlayTracks(REDBOOK_TITLE_TRACK, 0, repeat ? play_credits_track : NULL))
