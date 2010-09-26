@@ -308,8 +308,6 @@ int player_menu_handler( listbox *lb, d_event *event, char **list )
 	return 0;
 }
 
-int fname_sort_func(char **e0, char **e1);
-
 //Inputs the player's name, without putting up the background screen
 int RegisterPlayer()
 {
@@ -371,7 +369,7 @@ int RegisterPlayer()
 	}
 
 	// Sort by name, except the <Create New Player> string
-	qsort(&m[1], NumItems - 1, sizeof(char *), (int (*)( const void *, const void * ))fname_sort_func);
+	qsort(&m[1], NumItems - 1, sizeof(char *), (int (*)( const void *, const void * ))string_array_sort_func);
 
 	for ( i=0; i<NumItems; i++ )
 		if (!stricmp(Players[Player_num].callsign, m[i]) )
@@ -682,11 +680,6 @@ void delete_player_saved_games(char * name)
 	}
 }
 
-int fname_sort_func(char **e0, char **e1)
-{
-	return stricmp(*e0, *e1);
-}
-
 int demo_menu_keycommand( listbox *lb, d_event *event )
 {
 	char **items = listbox_get_items(lb);
@@ -793,7 +786,7 @@ int select_demo(void)
 	for (NumItems = 0; list[NumItems] != NULL; NumItems++) {}
 
 	// Sort by name
-	qsort(list, NumItems, sizeof(char *), (int (*)( const void *, const void * ))fname_sort_func);
+	qsort(list, NumItems, sizeof(char *), (int (*)( const void *, const void * ))string_array_sort_func);
 
 	newmenu_listbox1(TXT_SELECT_DEMO, NumItems, list, 1, 0, demo_menu_handler, NULL);
 
@@ -1210,50 +1203,13 @@ void list_dir_el(browser *b, const char *origdir, const char *fname)
 		&& stricmp(fname, "Volumes")	// this messes things up, use '..' instead
 #endif
 		)
-	{
-		char *next_path = b->list[b->num_files - 1] + strlen(b->list[b->num_files - 1]) + 1;
-
-		// Need to grow an array?
-		if (b->num_files >= b->max_files)
-		{
-			char **new_list = d_realloc(b->list, b->max_files*sizeof(char *)*MEM_K);
-			if (new_list == NULL)
-				return;
-			b->max_files *= MEM_K;
-			b->list = new_list;
-		}
-		
-		if (next_path + strlen(fname) + 1 - b->list_buf >= b->max_buf)
-		{
-			char *new_buf = d_realloc(b->list_buf, b->max_buf*sizeof(char)*MEM_K);
-			if (new_buf == NULL)
-				return;
-			b->max_buf *= MEM_K;
-			b->list_buf = new_buf;
-		}
-		
-		strcpy(next_path, fname);
-		b->list[b->num_files++] = next_path;
-	}
+		string_array_add(&b->list, &b->list_buf, &b->num_files, &b->max_files, &b->max_buf, fname);
 }
 
 int list_directory(browser *b)
 {
-	char *temp_buf, **temp_list;
-	int i, j;
-
-	b->max_files = 1024;
-	MALLOC(b->list, char *, 1024);
-	if (b->list == NULL)
+	if (!string_array_new(&b->list, &b->list_buf, &b->num_files, &b->max_files, &b->max_buf))
 		return 0;
-	
-	b->max_buf = 1024;			// bigger?
-	MALLOC(b->list_buf, char, 1024);
-	if (b->list_buf == NULL)
-	{
-		d_free(b->list);
-		return 0;
-	}
 	
 	strcpy(b->list_buf, "..");		// go to parent directory
 	b->list[b->num_files++] = b->list_buf;
@@ -1265,34 +1221,16 @@ int list_directory(browser *b)
 	}
 	
 	PHYSFS_enumerateFilesCallback("", (PHYSFS_EnumFilesCallback) list_dir_el, b);
-	
-	// Reduce memory fragmentation
-	temp_list = d_realloc(b->list, sizeof(char *)*b->num_files);
-	if (temp_list)
-		b->list = temp_list;
-	
-	temp_buf = d_realloc(b->list_buf, b->list[b->num_files - 1] + strlen(b->list[b->num_files - 1]) + 1 - b->list_buf);
-	if (temp_buf)
-	{
-		for (i = 0; i < b->num_files; i++)
-			b->list[i] += (temp_buf - b->list_buf);
-		b->list_buf = temp_buf;
-	}
-	
-	// Sort by name, except the .. string and 'this directory', if applicable
-	qsort(&b->list[1 + (b->select_dir ? 1 : 0)], b->num_files - 1 - (b->select_dir ? 1 : 0), sizeof(char *), (int (*)( const void *, const void * ))fname_sort_func);
-	
-	// Remove duplicates
-	// Can't do this before reallocating, otherwise it makes a mess of things (the strings in the buffer aren't ordered)
-	for (i = 1 + (b->select_dir ? 1 : 0), j = 1 + (b->select_dir ? 1 : 0); i < b->num_files; i++)
+	string_array_tidy(&b->list, &b->list_buf, &b->num_files, &b->max_files, &b->max_buf, 1 + (b->select_dir ? 1 : 0),
 #ifdef __LINUX__
-		if (strcmp(b->list[i - 1], b->list[i]))
+					  strcmp
+#elif defined(_WIN32) || defined(macintosh)
+					  stricmp
 #else
-			if (stricmp(b->list[i - 1], b->list[i]))
+					  strcasecmp
 #endif
-				b->list[j++] = b->list[i];
-	b->num_files = j;
-	
+					  );
+					  
 	return 1;
 }
 
@@ -1575,12 +1513,12 @@ int sound_menuset(newmenu *menu, d_event *event, void *userdata)
 		case EVENT_NEWMENU_SELECTED:
 			if (citem == opt_sm_mtype3_lmpath)
 			{
-				char *ext_list[] = { NULL };		// only select a directory (for now)
+				static char *ext_list[] = { ".m3u", NULL };		// select a directory or M3U playlist
 				select_file_recursive(
 #ifndef _WIN32
-					"Select directory to\n play level music from",
+					"Select directory or\nM3U playlist to\n play level music from",
 #else
-					"Select directory to\n play level music from.\n CTRL-D to change drive",
+					"Select directory or\nM3U playlist to\n play level music from.\n CTRL-D to change drive",
 #endif
 									  GameCfg.CMLevelMusicPath, ext_list, 1,	// look in current music path for ext_list files and allow directory selection
 									  (int (*)(void *, const char *))get_absolute_path, GameCfg.CMLevelMusicPath);	// just copy the absolute path

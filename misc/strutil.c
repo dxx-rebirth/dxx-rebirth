@@ -11,6 +11,12 @@ AND AGREES TO THE TERMS HEREIN AND ACCEPTS THE SAME BY USE OF THIS FILE.
 COPYRIGHT 1993-1999 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 */
 
+/*
+ *
+ * string manipulation utility code
+ *
+ */
+
 #include <stdio.h>
 #include <stdlib.h>
 #include <ctype.h>
@@ -19,7 +25,7 @@ COPYRIGHT 1993-1999 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 
 #include "u_mem.h"
 #include "error.h"
-//#include "inferno.h"
+#include "strutil.h"
 
 #define FILENAME_LEN 13
 
@@ -126,8 +132,7 @@ void strrev( char *s1 )
 }
 #endif
 
-
-// remove extension from filename, doesn't work with paths.
+// remove extension from filename
 void removeext(const char *filename, char *out)
 {
 	char *p;
@@ -142,7 +147,7 @@ void removeext(const char *filename, char *out)
 }
 
 
-//give a filename a new extension, doesn't work with paths.
+//give a filename a new extension, won't append if strlen(dest) > 8 chars.
 void change_filename_extension( char *dest, const char *src, char *ext )
 {
 	char *p;
@@ -216,3 +221,93 @@ void _splitpath(char *name, char *drive, char *path, char *base, char *ext)
 		strcpy(ext, p);		
 }
 #endif
+
+// create a growing 2D array with a single growing buffer for the text
+// this system is likely to cause less memory fragmentation than having one malloc'd buffer per string
+int string_array_new(char ***list, char **list_buf, int *num_str, int *max_str, int *max_buf)
+{
+	*max_str = 1024;
+	MALLOC(*list, char *, 1024);
+	if (*list == NULL)
+		return 0;
+	
+	*max_buf = 1024;			// bigger?
+	MALLOC(*list_buf, char, 1024);
+	if (*list_buf == NULL)
+	{
+		d_free(*list);
+		return 0;
+	}
+	*num_str = 0;
+	(*list)[0] = *list_buf;
+	
+	return 1;
+}
+
+int string_array_add(char ***list, char **list_buf, int *num_str, int *max_str, int *max_buf, const char *str)
+{
+	char *next_str = *num_str ? (*list)[*num_str - 1] + strlen((*list)[*num_str - 1]) + 1 : *list_buf;
+	
+	// Need to grow an array?
+	if (*num_str >= *max_str)
+	{
+		char **new_list = d_realloc(*list, *max_str*sizeof(char *)*MEM_K);
+		if (new_list == NULL)
+			return 0;
+		*max_str *= MEM_K;
+		*list = new_list;
+	}
+	
+	if (next_str + strlen(str) + 1 - *list_buf >= *max_buf)
+	{
+		char *new_buf = d_realloc(*list_buf, *max_buf*sizeof(char)*MEM_K);
+		if (new_buf == NULL)
+			return 0;
+		*max_buf *= MEM_K;
+		*list_buf = new_buf;
+	}
+	
+	strcpy(next_str, str);
+	(*list)[(*num_str)++] = next_str;
+	
+	return 1;
+}
+
+int string_array_sort_func(char **e0, char **e1)
+{
+	return stricmp(*e0, *e1);
+}
+
+void string_array_tidy(char ***list, char **list_buf, int *num_str, int *max_str, int *max_buf, int offset, int (*comp)( const char *, const char * ))
+{
+	char *temp_buf, **temp_list;
+	int i, j;
+	
+	// Reduce memory fragmentation
+	temp_list = d_realloc(*list, sizeof(char *)*(*num_str ? *num_str : 1));
+	if (temp_list)
+	{
+		*list = temp_list;
+		*max_str = *num_str;
+	}
+	
+	temp_buf = d_realloc(*list_buf, (j = *num_str ? (*list)[*num_str - 1] + strlen((*list)[*num_str - 1]) + 1 - *list_buf : 1));
+	if (temp_buf)
+	{
+		for (i = 0; i < *num_str; i++)
+			(*list)[i] += (temp_buf - *list_buf);
+		*list_buf = temp_buf;
+		*max_buf = j;	// set to buffer size used - a bit of variable recycling here
+	}
+	
+	// Sort by name, starting at offset
+	qsort(&(*list)[offset], *num_str - offset, sizeof(char *), (int (*)( const void *, const void * ))string_array_sort_func);
+	
+	// Remove duplicates
+	// Can't do this before reallocating, otherwise it makes a mess of things (the strings in the buffer aren't ordered)
+	for (i = offset, j = offset; i < *num_str; i++)
+		if ((i == offset) || comp((*list)[i - 1], (*list)[i]))
+			(*list)[j++] = (*list)[i];
+
+	*num_str = j;
+}

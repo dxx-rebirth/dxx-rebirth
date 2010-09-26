@@ -1,5 +1,9 @@
 D2X-Rebirth Changelog
 
+20100926
+--------
+arch/sdl/jukebox.c, include/strutil.h, main/menu.c, misc/strutil.c: Add support for M3U playlists, tweak 'Jukebox playing' message so it shows the end of the path when truncating
+
 20100925
 --------
 include/cfile.h, include/physfsx.h, main/bm.c, main/bmread.c, main/multi.c, main/piggy.c, misc/physfsx.c: Add 'Data' subdir as a searchpath, so D2X will find descent.pig and to simplify a lot of file opening/checking/closing code
