@@ -113,9 +113,17 @@ void HUD_render_message_frame()
 int HUD_init_message_va(char * format, va_list args)
 {
 	int i, j;
+#ifndef macintosh
 	char message[HUD_MESSAGE_LENGTH+1] = "";
+#else
+	char message[1024] = "";
+#endif
 
+#ifndef macintosh
 	vsnprintf(message, sizeof(char)*HUD_MESSAGE_LENGTH, format, args);
+#else
+	vsprintf(message, format, args);
+#endif
 
 	// already in list - do not add again
 	for (i = 0; i < HUD_nmessages; i++)

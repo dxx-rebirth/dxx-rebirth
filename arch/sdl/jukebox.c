@@ -41,29 +41,23 @@ char hud_msg_buf[MUSIC_HUDMSG_MAXLEN+4];
 
 void jukebox_unload()
 {
-	if (JukeboxSongs.list)
-		d_free(JukeboxSongs.list);
-
 	if (JukeboxSongs.list_buf)
+	{
 		d_free(JukeboxSongs.list_buf);
-	
+		
+		if (JukeboxSongs.list)
+			d_free(JukeboxSongs.list);
+	}
+	else if (JukeboxSongs.list)
+	{
+		PHYSFS_freeList(JukeboxSongs.list);
+		JukeboxSongs.list = NULL;
+	}
+
 	JukeboxSongs.num_songs = JukeboxSongs.max_songs = JukeboxSongs.max_buf = 0;
 }
 
 char *jukebox_exts[] = { ".mp3", ".ogg", ".wav", ".aif", ".mid", NULL };
-
-void jukebox_add_song(void *data, const char *origdir, const char *fname)
-{
-	char *ext;
-	char **i = NULL;
-	
-	ext = strrchr(fname, '.');
-	if (ext)
-		for (i = jukebox_exts; *i != NULL && stricmp(ext, *i); i++) {}	// see if the file is of a type we want
-
-	if ((!strcmp((PHYSFS_getRealDir(fname)==NULL?"":PHYSFS_getRealDir(fname)), GameCfg.CMLevelMusicPath)) && (ext && *i))
-		string_array_add(&JukeboxSongs.list, &JukeboxSongs.list_buf, &JukeboxSongs.num_songs, &JukeboxSongs.max_songs, &JukeboxSongs.max_buf, fname);
-}
 
 void read_m3u(void)
 {
@@ -176,22 +170,17 @@ void jukebox_load()
 		}
 		else
 		{
+			int i;
+
 			// Read directory using PhysicsFS
 
-			if (!string_array_new(&JukeboxSongs.list, &JukeboxSongs.list_buf, &JukeboxSongs.num_songs, &JukeboxSongs.max_songs, &JukeboxSongs.max_buf))
+			// as mountpoints are no option (yet), make sure only files originating from GameCfg.CMLevelMusicPath are aded to the list.
+			JukeboxSongs.list = PHYSFSX_findabsoluteFiles("", GameCfg.CMLevelMusicPath, jukebox_exts);
+			if (!JukeboxSongs.list)
 				return;
 			
-			// as mountpoints are no option (yet), make sure only files originating from GameCfg.CMLevelMusicPath are aded to the list.
-			PHYSFS_enumerateFilesCallback("", jukebox_add_song, NULL);
-			string_array_tidy(&JukeboxSongs.list, &JukeboxSongs.list_buf, &JukeboxSongs.num_songs, &JukeboxSongs.max_songs, &JukeboxSongs.max_buf, 0,
-#ifdef __LINUX__
-							  strcmp
-#elif defined(_WIN32) || defined(macintosh)
-							  stricmp
-#else
-							  strcasecmp
-#endif
-							  );
+			for (i = 0; JukeboxSongs.list[i]; i++) {}
+			JukeboxSongs.num_songs = i;
 		}
 	
 		if (JukeboxSongs.num_songs)

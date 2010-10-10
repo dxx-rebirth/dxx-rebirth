@@ -9,12 +9,12 @@ MAKEFILE        = D1X.make
 
 ObjDir          = ":obj:"
 Includes        =  ¶
-				  -i :arch:carbon: ¶
-				  -i :arch:include: ¶
 				  -i :include: ¶
+				  -i :arch:include: ¶
 				  -i "{CIncludes}SDL:" ¶
+				  -i :arch:carbon: ¶
 				  -i "{CIncludes}" ¶
-				  -i :main: ¶
+				  -i :main:
 
 Sym-PPC         = -sym on
 
@@ -69,6 +69,7 @@ SrcFiles        =  ¶
 				  :arch:sdl:mouse.c ¶
 				  :arch:sdl:rbaudio.c ¶
 				  :arch:sdl:timer.c ¶
+				  :arch:sdl:window.c ¶
 				  :iff:iff.c ¶
 				  :main:ai.c ¶
 				  :main:aipath.c ¶
@@ -90,8 +91,10 @@ SrcFiles        =  ¶
 				  :main:fuelcen.c ¶
 				  :main:fvi.c ¶
 				  :main:game.c ¶
+				  :main:gamecntl.c ¶
 				  :main:gamefont.c ¶
 				  :main:gamemine.c ¶
+				  :main:gamerend.c ¶
 				  :main:gamesave.c ¶
 				  :main:gameseg.c ¶
 				  :main:gameseq.c ¶
@@ -110,7 +113,6 @@ SrcFiles        =  ¶
 				  :main:morph.c ¶
 				  :main:multi.c ¶
 				  :main:multibot.c ¶
-				  :main:multipow.c ¶
 				  :main:net_ipx.c ¶
 				  :main:net_udp.c ¶
 				  :main:newdemo.c ¶
@@ -119,6 +121,7 @@ SrcFiles        =  ¶
 				  :main:paging.c ¶
 				  :main:physics.c ¶
 				  :main:piggy.c ¶
+				  :main:player.c ¶
 				  :main:playsave.c ¶
 				  :main:polyobj.c ¶
 				  :main:powerup.c ¶
@@ -143,11 +146,11 @@ SrcFiles        =  ¶
 				  :maths:vecmat.c ¶
 				  :mem:mem.c ¶
 				  :misc:args.c ¶
-				  :misc:compare.c ¶
 				  :misc:dl_list.c ¶
 				  :misc:error.c ¶
-				  :misc:hmp2mid.c ¶
+				  :misc:hmp.c ¶
 				  :misc:ignorecase.c ¶
+				  :misc:physfsx.c ¶
 				  :misc:strio.c ¶
 				  :misc:strutil.c ¶
 				  :texmap:ntmap.c ¶
@@ -206,6 +209,7 @@ GeneralObjects    =  ¶
 				  {ObjDir}mouse.c.x ¶
 				  {ObjDir}rbaudio.c.x ¶
 				  {ObjDir}timer.c.x ¶
+				  {ObjDir}window.c.x ¶
 				  {ObjDir}iff.c.x ¶
 				  {ObjDir}ai.c.x ¶
 				  {ObjDir}aipath.c.x ¶
@@ -227,8 +231,10 @@ GeneralObjects    =  ¶
 				  {ObjDir}fuelcen.c.x ¶
 				  {ObjDir}fvi.c.x ¶
 				  {ObjDir}game.c.x ¶
+				  {ObjDir}gamecntl.c.x ¶
 				  {ObjDir}gamefont.c.x ¶
 				  {ObjDir}gamemine.c.x ¶
+				  {ObjDir}gamerend.c.x ¶
 				  {ObjDir}gamesave.c.x ¶
 				  {ObjDir}gameseg.c.x ¶
 				  {ObjDir}gameseq.c.x ¶
@@ -245,9 +251,8 @@ GeneralObjects    =  ¶
 				  {ObjDir}mglobal.c.x ¶
 				  {ObjDir}mission.c.x ¶
 				  {ObjDir}morph.c.x ¶
-				  {ObjDir}multi.c.x ¶
-				  {ObjDir}multibot.c.x ¶
-				  {ObjDir}multipow.c.x ¶
+#				  {ObjDir}multi.c.x ¶
+#				  {ObjDir}multibot.c.x ¶
 				  {ObjDir}net_ipx.c.x ¶
 				  {ObjDir}net_udp.c.x ¶
 				  {ObjDir}newdemo.c.x ¶
@@ -256,6 +261,7 @@ GeneralObjects    =  ¶
 				  {ObjDir}paging.c.x ¶
 				  {ObjDir}physics.c.x ¶
 				  {ObjDir}piggy.c.x ¶
+				  {ObjDir}player.c.x ¶
 				  {ObjDir}playsave.c.x ¶
 				  {ObjDir}polyobj.c.x ¶
 				  {ObjDir}powerup.c.x ¶
@@ -280,11 +286,11 @@ GeneralObjects    =  ¶
 				  {ObjDir}vecmat.c.x ¶
 				  {ObjDir}mem.c.x ¶
 				  {ObjDir}args.c.x ¶
-				  {ObjDir}compare.c.x ¶
 				  {ObjDir}dl_list.c.x ¶
 				  {ObjDir}error.c.x ¶
-				  {ObjDir}hmp2mid.c.x ¶
+				  {ObjDir}hmp.c.x ¶
 				  {ObjDir}ignorecase.c.x ¶
+				  {ObjDir}physfsx.c.x ¶
 				  {ObjDir}strio.c.x ¶
 				  {ObjDir}strutil.c.x ¶
 				  {ObjDir}ntmap.c.x ¶
@@ -384,7 +390,7 @@ directories Ä
 {ObjDir}digi_mixer.c.x	Ä	:arch:sdl:digi_mixer.c
 {ObjDir}digi_mixer_music.c.x	Ä	:arch:sdl:digi_mixer_music.c
 {ObjDir}event.c.x	Ä	:arch:sdl:event.c
-{ObjDir}gr.c.x	Ä	:arch:sdl:gr.c
+{ObjDir}SDL:gr.c.x	Ä	:arch:sdl:gr.c
 {ObjDir}init.c.x	Ä	:arch:sdl:init.c
 {ObjDir}joy.c.x	Ä	:arch:sdl:joy.c
 {ObjDir}jukebox.c.x	Ä	:arch:sdl:jukebox.c
@@ -392,6 +398,7 @@ directories Ä
 {ObjDir}mouse.c.x	Ä	:arch:sdl:mouse.c
 {ObjDir}rbaudio.c.x	Ä	:arch:sdl:rbaudio.c
 {ObjDir}timer.c.x	Ä	:arch:sdl:timer.c
+{ObjDir}window.c.x	Ä	:arch:sdl:window.c
 {ObjDir}iff.c.x	Ä	:iff:iff.c
 {ObjDir}ai.c.x	Ä	:main:ai.c
 {ObjDir}aipath.c.x	Ä	:main:aipath.c
@@ -413,8 +420,10 @@ directories Ä
 {ObjDir}fuelcen.c.x	Ä	:main:fuelcen.c
 {ObjDir}fvi.c.x	Ä	:main:fvi.c
 {ObjDir}game.c.x	Ä	:main:game.c
+{ObjDir}gamecntl.c.x	Ä	:main:gamecntl.c
 {ObjDir}gamefont.c.x	Ä	:main:gamefont.c
 {ObjDir}gamemine.c.x	Ä	:main:gamemine.c
+{ObjDir}gamerend.c.x	Ä	:main:gamerend.c
 {ObjDir}gamesave.c.x	Ä	:main:gamesave.c
 {ObjDir}gameseg.c.x	Ä	:main:gameseg.c
 {ObjDir}gameseq.c.x	Ä	:main:gameseq.c
@@ -433,7 +442,6 @@ directories Ä
 {ObjDir}morph.c.x	Ä	:main:morph.c
 {ObjDir}multi.c.x	Ä	:main:multi.c
 {ObjDir}multibot.c.x	Ä	:main:multibot.c
-{ObjDir}multipow.c.x	Ä	:main:multipow.c
 {ObjDir}net_ipx.c.x	Ä	:main:net_ipx.c
 {ObjDir}net_udp.c.x	Ä	:main:net_udp.c
 {ObjDir}newdemo.c.x	Ä	:main:newdemo.c
@@ -442,6 +450,7 @@ directories Ä
 {ObjDir}paging.c.x	Ä	:main:paging.c
 {ObjDir}physics.c.x	Ä	:main:physics.c
 {ObjDir}piggy.c.x	Ä	:main:piggy.c
+{ObjDir}player.c.x	Ä	:main:player.c
 {ObjDir}playsave.c.x	Ä	:main:playsave.c
 {ObjDir}polyobj.c.x	Ä	:main:polyobj.c
 {ObjDir}powerup.c.x	Ä	:main:powerup.c
@@ -466,11 +475,11 @@ directories Ä
 {ObjDir}vecmat.c.x	Ä	:maths:vecmat.c
 {ObjDir}mem.c.x	Ä	:mem:mem.c
 {ObjDir}args.c.x	Ä	:misc:args.c
-{ObjDir}compare.c.x	Ä	:misc:compare.c
 {ObjDir}dl_list.c.x	Ä	:misc:dl_list.c
 {ObjDir}error.c.x	Ä	:misc:error.c
-{ObjDir}hmp2mid.c.x	Ä	:misc:hmp2mid.c
+{ObjDir}hmp.c.x	Ä	:misc:hmp.c
 {ObjDir}ignorecase.c.x	Ä	:misc:ignorecase.c
+{ObjDir}physfsx.c.x	Ä	:misc:physfsx.c
 {ObjDir}strio.c.x	Ä	:misc:strio.c
 {ObjDir}strutil.c.x	Ä	:misc:strutil.c
 {ObjDir}ntmap.c.x	Ä	:texmap:ntmap.c

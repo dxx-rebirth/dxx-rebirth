@@ -3,6 +3,7 @@ D1X-Rebirth Changelog
 20101010
 --------
 d1x-rebirth.xcodeproj/project.pbxproj, INSTALL.txt: Use dynamic PhysicsFS library again to fix linking errors
+D1X.make, arch/sdl/jukebox.c, d1x-rebirth.xcodeproj/project.pbxproj, include/pstypes.h, main/hud.c, main/menu.c, main/newdemo.c, main/titles.c, misc/args.c, misc/physfsx.c: Fix errors for Mac OS 9, Mac OS X 'd1x' target builds again
 
 20100926
 --------

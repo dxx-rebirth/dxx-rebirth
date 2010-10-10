@@ -454,9 +454,10 @@ int check_text_pos(briefing *br)
 
 void put_char_delay(briefing *br, int ch)
 {
-	char str[] = { ch, '\0' };
+	char str[2];
 	int	w, h, aw;
 
+	str[0] = ch; str[1] = '\0';
 	if (br->delay_count && (timer_get_fixed_seconds() < br->start_time + br->delay_count))
 	{
 		br->message--;		// Go back to same character
@@ -891,7 +892,7 @@ int load_briefing_screen(briefing *br, char *fname)
 	MALLOC(fname2, char, FILENAME_LEN);
 	snprintf(fname2, sizeof(char)*FILENAME_LEN, fname);
 	MALLOC(forigin, char, PATH_MAX);
-	snprintf(forigin, sizeof(char)*PATH_MAX, PHYSFS_getRealDir(fname));
+	snprintf(forigin, sizeof(char)*PATH_MAX, "%s", PHYSFS_getRealDir(fname));
 	strlwr(forigin);
 
 	// check if we have a hires version of this image (not included in PC-version by default)
