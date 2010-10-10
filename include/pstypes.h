@@ -7,7 +7,10 @@
 #ifndef _TYPES_H
 #define _TYPES_H
 
+#ifndef macintosh
 #include <sys/types.h>
+#endif
+
 #include <limits.h>
 
 // define a dboolean

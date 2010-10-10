@@ -23,12 +23,9 @@
 // The user directory is searched first.
 void PHYSFSX_init(int argc, char *argv[])
 {
-#if defined (_WIN32)
 	char fullPath[PATH_MAX + 5];
-#endif
 #if defined(__unix__)
 	char *path = NULL;
-	char fullPath[PATH_MAX + 5];
 #endif
 #ifdef macintosh	// Mac OS 9
 	char base_dir[PATH_MAX];
@@ -361,6 +358,7 @@ void PHYSFSX_addArchiveContent()
 	PHYSFS_freeList(list);
 	list = NULL;
 
+#if PHYSFS_VER_MAJOR >= 2
 	// find files in DEMO_DIR ...
 	list = PHYSFSX_findFiles(DEMO_DIR, archive_exts);
 	// if found, add them...
@@ -374,6 +372,8 @@ void PHYSFSX_addArchiveContent()
 		d_free(file[0]);
 		d_free(file[1]);
 	}
+#endif
+
 	PHYSFS_freeList(list);
 	list = NULL;
 }

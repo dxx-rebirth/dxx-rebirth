@@ -346,7 +346,6 @@
 		EB28D9A40ECEAF1C00E68E9B /* init.c in Sources */ = {isa = PBXBuildFile; fileRef = EB28D9A20ECEAF1C00E68E9B /* init.c */; };
 		EB2EEB5810C50CE2005256F2 /* net_udp.c in Sources */ = {isa = PBXBuildFile; fileRef = 17DFA6B510C1A2D100674D11 /* net_udp.c */; };
 		EB380D360E16886300EBD9AD /* InfoPlist.strings in Resources */ = {isa = PBXBuildFile; fileRef = 089C165CFE840E0CC02AAC07 /* InfoPlist.strings */; };
-		EB861365111EA10E0097D871 /* net_ipx.c in Sources */ = {isa = PBXBuildFile; fileRef = EBF658A00F936D5300CB5C73 /* net_ipx.c */; };
 		EB91A438126175ED009E0095 /* libphysfs.dylib in Frameworks */ = {isa = PBXBuildFile; fileRef = EB91A437126175ED009E0095 /* libphysfs.dylib */; };
 		EB91A439126175ED009E0095 /* libphysfs.dylib in Frameworks */ = {isa = PBXBuildFile; fileRef = EB91A437126175ED009E0095 /* libphysfs.dylib */; };
 		EB91A43D12617668009E0095 /* libphysfs.dylib in Frameworks */ = {isa = PBXBuildFile; fileRef = EB91A43C12617668009E0095 /* libphysfs.dylib */; };
@@ -1837,7 +1836,6 @@
 				EB28D9A40ECEAF1C00E68E9B /* init.c in Sources */,
 				EBE8D6EC0FC583B4009D181F /* window.c in Sources */,
 				17DFA6B910C1A2D100674D11 /* net_udp.c in Sources */,
-				EB861365111EA10E0097D871 /* net_ipx.c in Sources */,
 				179E6ECE11F37C0500175C54 /* hmp.c in Sources */,
 				EB1405EA121044B5002B1CC6 /* physfsx.c in Sources */,
 			);

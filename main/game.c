@@ -1337,8 +1337,6 @@ void do_ambient_sounds()
 
 extern void omega_charge_frame(void);
 
-extern time_t t_current_time, t_saved_time;
-
 void flicker_lights();
 
 void game_leave_menus(void)

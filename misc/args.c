@@ -19,6 +19,16 @@ COPYRIGHT 1993-1998 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 
 #include <stdlib.h>
 #include <string.h>
+#include <SDL/SDL_stdinc.h>
+
+#ifdef OGL
+#if defined(__APPLE__) && defined(__MACH__)
+#include <OpenGL/glu.h>
+#else
+#include <GL/glu.h>
+#endif
+#endif
+
 #include "physfsx.h"
 #include "args.h"
 #include "u_mem.h"
@@ -28,13 +38,6 @@ COPYRIGHT 1993-1998 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 #include "game.h"
 #include "gauges.h"
 #include "console.h"
-#ifdef OGL
-#if defined(__APPLE__) && defined(__MACH__)
-#include <OpenGL/glu.h>
-#else
-#include <GL/glu.h>
-#endif
-#endif
 
 #define MAX_ARGS 1000
 #define INI_FILENAME "d2x.ini"
@@ -156,9 +159,9 @@ void ReadCmdArgs(void)
 	GameArg.CtlMouselook 		= FindArg("-mouselook");
 	GameArg.CtlGrabMouse 		= FindArg("-grabmouse");
 	if (FindArg("-nostickykeys")) // no GameArg, just an environment variable. Must happen before SDL_Init!
-		putenv("SDL_DISABLE_LOCK_KEYS=1");
+		SDL_putenv("SDL_DISABLE_LOCK_KEYS=1");
 	else
-		putenv("SDL_DISABLE_LOCK_KEYS=0");
+		SDL_putenv("SDL_DISABLE_LOCK_KEYS=0");
 
 	// Sound Options
 
