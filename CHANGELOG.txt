@@ -1,5 +1,9 @@
 D2X-Rebirth Changelog
 
+20101010
+--------
+d2x-rebirth.xcodeproj/project.pbxproj, INSTALL.txt: Use dynamic PhysicsFS library again to fix linking errors
+
 20100926
 --------
 arch/sdl/jukebox.c, include/strutil.h, main/menu.c, misc/strutil.c: Add support for M3U playlists, tweak 'Jukebox playing' message so it shows the end of the path when truncating
