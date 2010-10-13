@@ -284,11 +284,13 @@
 		EB380D7D0E168B1900EBD9AD /* InfoPlist.strings in Resources */ = {isa = PBXBuildFile; fileRef = EB380D7B0E168B1900EBD9AD /* InfoPlist.strings */; };
 		EB380D7E0E168B1900EBD9AD /* InfoPlist.strings in Resources */ = {isa = PBXBuildFile; fileRef = EB380D7B0E168B1900EBD9AD /* InfoPlist.strings */; };
 		EB775A7A105611720036C348 /* extractD1Data.cpp in Sources */ = {isa = PBXBuildFile; fileRef = EB775A79105611720036C348 /* extractD1Data.cpp */; };
-		EB796886123F1C8F00B2028B /* libphysfs.a in Frameworks */ = {isa = PBXBuildFile; fileRef = EB796885123F1C8F00B2028B /* libphysfs.a */; };
-		EB796887123F1C8F00B2028B /* libphysfs.a in Frameworks */ = {isa = PBXBuildFile; fileRef = EB796885123F1C8F00B2028B /* libphysfs.a */; };
 		EB861343111E9E810097D871 /* net_ipx.c in Sources */ = {isa = PBXBuildFile; fileRef = EBF658990F936A8400CB5C73 /* net_ipx.c */; };
 		EB8BE84F1071FBE00069486E /* player.c in Sources */ = {isa = PBXBuildFile; fileRef = EB8BE84E1071FBE00069486E /* player.c */; };
 		EB8BE8501071FBE00069486E /* player.c in Sources */ = {isa = PBXBuildFile; fileRef = EB8BE84E1071FBE00069486E /* player.c */; };
+		EB91A41012617070009E0095 /* libphysfs.dylib in Frameworks */ = {isa = PBXBuildFile; fileRef = EB91A40F12617070009E0095 /* libphysfs.dylib */; };
+		EB91A41112617070009E0095 /* libphysfs.dylib in Frameworks */ = {isa = PBXBuildFile; fileRef = EB91A40F12617070009E0095 /* libphysfs.dylib */; };
+		EB91A41312617084009E0095 /* libphysfs.dylib in Frameworks */ = {isa = PBXBuildFile; fileRef = EB91A41212617084009E0095 /* libphysfs.dylib */; };
+		EB91A41412617084009E0095 /* libphysfs.dylib in Frameworks */ = {isa = PBXBuildFile; fileRef = EB91A41212617084009E0095 /* libphysfs.dylib */; };
 		EB92BE600CDD693C0045A32C /* digi_audio.c in Sources */ = {isa = PBXBuildFile; fileRef = EB92BE5C0CDD693C0045A32C /* digi_audio.c */; };
 		EB92BE610CDD693C0045A32C /* digi_mixer_music.c in Sources */ = {isa = PBXBuildFile; fileRef = EB92BE5D0CDD693C0045A32C /* digi_mixer_music.c */; };
 		EB92BE620CDD693C0045A32C /* digi_mixer.c in Sources */ = {isa = PBXBuildFile; fileRef = EB92BE5E0CDD693C0045A32C /* digi_mixer.c */; };
@@ -361,7 +363,7 @@
 		670E3796066C50C30085B671 /* CHANGELOG.txt */ = {isa = PBXFileReference; fileEncoding = 30; lastKnownFileType = text; path = CHANGELOG.txt; sourceTree = "<group>"; };
 		6710AAFE066B2D6100DB0F68 /* SDL.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = SDL.framework; path = /Library/Frameworks/SDL.framework; sourceTree = "<absolute>"; };
 		6710AB68066B2E0400DB0F68 /* OpenGL.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = OpenGL.framework; path = /System/Library/Frameworks/OpenGL.framework; sourceTree = "<absolute>"; };
-		675ED123066B196700E42AA7 /* d1x-Info.plist */ = {isa = PBXFileReference; fileEncoding = 30; lastKnownFileType = text.plist.xml; path = "d1x-Info.plist"; sourceTree = "<group>"; };
+		675ED123066B196700E42AA7 /* d1x-Info.plist */ = {isa = PBXFileReference; fileEncoding = 30; lastKnownFileType = text.xml; path = "d1x-Info.plist"; sourceTree = "<group>"; };
 		676032DC066B399A008A67A3 /* multi.c */ = {isa = PBXFileReference; fileEncoding = 30; lastKnownFileType = sourcecode.c.c; path = multi.c; sourceTree = "<group>"; };
 		676032DD066B399A008A67A3 /* multibot.c */ = {isa = PBXFileReference; fileEncoding = 30; lastKnownFileType = sourcecode.c.c; path = multibot.c; sourceTree = "<group>"; };
 		676032F9066B39CE008A67A3 /* kmatrix.c */ = {isa = PBXFileReference; fileEncoding = 30; lastKnownFileType = sourcecode.c.c; path = kmatrix.c; sourceTree = "<group>"; };
@@ -491,7 +493,7 @@
 		67B44915066880C400DF26D8 /* grdef.h */ = {isa = PBXFileReference; fileEncoding = 30; lastKnownFileType = sourcecode.c.h; path = grdef.h; sourceTree = "<group>"; };
 		67F6FED0066B13B400443922 /* SDLMain.h */ = {isa = PBXFileReference; fileEncoding = 30; lastKnownFileType = sourcecode.c.h; name = SDLMain.h; path = arch/cocoa/SDLMain.h; sourceTree = "<group>"; };
 		67F6FED1066B13B400443922 /* SDLMain.m */ = {isa = PBXFileReference; fileEncoding = 30; lastKnownFileType = sourcecode.c.objc; name = SDLMain.m; path = arch/cocoa/SDLMain.m; sourceTree = "<group>"; };
-		67F6FEEA066B13D900443922 /* d1xgl-Info.plist */ = {isa = PBXFileReference; fileEncoding = 30; lastKnownFileType = text.plist.xml; path = "d1xgl-Info.plist"; sourceTree = "<group>"; };
+		67F6FEEA066B13D900443922 /* d1xgl-Info.plist */ = {isa = PBXFileReference; fileEncoding = 30; lastKnownFileType = text.xml; path = "d1xgl-Info.plist"; sourceTree = "<group>"; };
 		EB01AFA90A65323200EA4C7C /* newdemo.h */ = {isa = PBXFileReference; fileEncoding = 30; lastKnownFileType = sourcecode.c.h; path = newdemo.h; sourceTree = "<group>"; };
 		EB0420B90A341041002CC961 /* multi.h */ = {isa = PBXFileReference; fileEncoding = 30; lastKnownFileType = sourcecode.c.h; path = multi.h; sourceTree = "<group>"; };
 		EB0420BB0A341042002CC961 /* morph.h */ = {isa = PBXFileReference; fileEncoding = 30; lastKnownFileType = sourcecode.c.h; path = morph.h; sourceTree = "<group>"; };
@@ -578,9 +580,10 @@
 		EB3CA4F90E97740E00FB1E93 /* tracker.h */ = {isa = PBXFileReference; fileEncoding = 30; lastKnownFileType = sourcecode.c.h; path = tracker.h; sourceTree = "<group>"; };
 		EB775A6F105611320036C348 /* d1Extract */ = {isa = PBXFileReference; explicitFileType = "compiled.mach-o.executable"; includeInIndex = 0; path = d1Extract; sourceTree = BUILT_PRODUCTS_DIR; };
 		EB775A79105611720036C348 /* extractD1Data.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = extractD1Data.cpp; sourceTree = "<group>"; };
-		EB796885123F1C8F00B2028B /* libphysfs.a */ = {isa = PBXFileReference; lastKnownFileType = archive.ar; name = libphysfs.a; path = ../physfs/build/Debug/libphysfs.a; sourceTree = SOURCE_ROOT; };
 		EB8BE84E1071FBE00069486E /* player.c */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.c; path = player.c; sourceTree = "<group>"; };
 		EB9181090DABA47B0010CB39 /* console.h */ = {isa = PBXFileReference; fileEncoding = 30; lastKnownFileType = sourcecode.c.h; path = console.h; sourceTree = "<group>"; };
+		EB91A40F12617070009E0095 /* libphysfs.dylib */ = {isa = PBXFileReference; lastKnownFileType = "compiled.mach-o.dylib"; name = libphysfs.dylib; path = ../physfs/build/Debug/libphysfs.dylib; sourceTree = SOURCE_ROOT; };
+		EB91A41212617084009E0095 /* libphysfs.dylib */ = {isa = PBXFileReference; lastKnownFileType = "compiled.mach-o.dylib"; name = libphysfs.dylib; path = ../physfs/build/Release/libphysfs.dylib; sourceTree = SOURCE_ROOT; };
 		EB92BE5C0CDD693C0045A32C /* digi_audio.c */ = {isa = PBXFileReference; fileEncoding = 30; lastKnownFileType = sourcecode.c.c; path = digi_audio.c; sourceTree = "<group>"; };
 		EB92BE5D0CDD693C0045A32C /* digi_mixer_music.c */ = {isa = PBXFileReference; fileEncoding = 30; lastKnownFileType = sourcecode.c.c; path = digi_mixer_music.c; sourceTree = "<group>"; };
 		EB92BE5E0CDD693C0045A32C /* digi_mixer.c */ = {isa = PBXFileReference; fileEncoding = 30; lastKnownFileType = sourcecode.c.c; path = digi_mixer.c; sourceTree = "<group>"; };
@@ -732,7 +735,8 @@
 				6710AB00066B2D6100DB0F68 /* SDL.framework in Frameworks */,
 				EB92BEC60CDD6B4B0045A32C /* SDL_mixer.framework in Frameworks */,
 				EBC858F5122E165800FA437D /* ApplicationServices.framework in Frameworks */,
-				EB796887123F1C8F00B2028B /* libphysfs.a in Frameworks */,
+				EB91A41112617070009E0095 /* libphysfs.dylib in Frameworks */,
+				EB91A41412617084009E0095 /* libphysfs.dylib in Frameworks */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -745,7 +749,8 @@
 				6710AB69066B2E0400DB0F68 /* OpenGL.framework in Frameworks */,
 				17A707EB10C1B5FA002D1680 /* SDL_mixer.framework in Frameworks */,
 				EBC858F4122E165800FA437D /* ApplicationServices.framework in Frameworks */,
-				EB796886123F1C8F00B2028B /* libphysfs.a in Frameworks */,
+				EB91A41012617070009E0095 /* libphysfs.dylib in Frameworks */,
+				EB91A41312617084009E0095 /* libphysfs.dylib in Frameworks */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -771,7 +776,8 @@
 		1058C7A0FEA54F0111CA2CBB /* Linked Frameworks */ = {
 			isa = PBXGroup;
 			children = (
-				EB796885123F1C8F00B2028B /* libphysfs.a */,
+				EB91A41212617084009E0095 /* libphysfs.dylib */,
+				EB91A40F12617070009E0095 /* libphysfs.dylib */,
 				EBC858F3122E165800FA437D /* ApplicationServices.framework */,
 				EB92BEC40CDD6B4B0045A32C /* SDL_mixer.framework */,
 				6710AB68066B2E0400DB0F68 /* OpenGL.framework */,
@@ -1988,7 +1994,7 @@
 					/Library/Frameworks/SDL.framework/Headers,
 				);
 				INFOPLIST_FILE = "d1x-Info.plist";
-				LIBRARY_SEARCH_PATHS = "\"$(SRCROOT)/../physfs/build/Debug\"";
+				LIBRARY_SEARCH_PATHS = "\"$(SRCROOT)/../physfs/build/Release\"";
 				PRODUCT_NAME = d1x;
 				SKIP_INSTALL = NO;
 				WARNING_CFLAGS = "-Wall";
@@ -2014,8 +2020,13 @@
 				);
 				INFOPLIST_FILE = "d1x-Info.plist";
 				INSTALL_PATH = "$(USER_APPS_DIR)";
-				LIBRARY_SEARCH_PATHS = "\"$(SRCROOT)/../physfs/build/Debug\"";
+				LIBRARY_SEARCH_PATHS = (
+					"$(LIBRARY_SEARCH_PATHS_QUOTED_FOR_TARGET_1)",
+					"$(LIBRARY_SEARCH_PATHS_QUOTED_FOR_TARGET_2)",
+				);
 				LIBRARY_SEARCH_PATHS_QUOTED_1 = "\"$(SRCROOT)/../../Library/Frameworks\"";
+				LIBRARY_SEARCH_PATHS_QUOTED_FOR_TARGET_1 = "\"$(SRCROOT)/../physfs/build/Debug\"";
+				LIBRARY_SEARCH_PATHS_QUOTED_FOR_TARGET_2 = "\"$(SRCROOT)/../physfs/build/Release\"";
 				PRODUCT_NAME = d1x;
 				WARNING_CFLAGS = "-Wall";
 			};
@@ -2085,7 +2096,7 @@
 					/Library/Frameworks/SDL.framework/Headers,
 				);
 				INFOPLIST_FILE = "d1xgl-Info.plist";
-				LIBRARY_SEARCH_PATHS = "\"$(SRCROOT)/../physfs/build/Debug\"";
+				LIBRARY_SEARCH_PATHS = "\"$(SRCROOT)/../physfs/build/Release\"";
 				PRODUCT_NAME = d1xgl;
 				SKIP_INSTALL = NO;
 				WARNING_CFLAGS = "-Wall";
@@ -2118,10 +2129,14 @@
 					"$(LIBRARY_SEARCH_PATHS_QUOTED_1)",
 					"$(LIBRARY_SEARCH_PATHS_QUOTED_FOR_TARGET_1)",
 					"$(LIBRARY_SEARCH_PATHS_QUOTED_FOR_TARGET_2)",
+					"$(LIBRARY_SEARCH_PATHS_QUOTED_FOR_TARGET_3)",
+					"$(LIBRARY_SEARCH_PATHS_QUOTED_FOR_TARGET_4)",
 				);
 				LIBRARY_SEARCH_PATHS_QUOTED_1 = "\"$(SRCROOT)/../../Library/Frameworks\"";
 				LIBRARY_SEARCH_PATHS_QUOTED_FOR_TARGET_1 = "\"$(SRCROOT)/../physfs/build/Debug\"";
 				LIBRARY_SEARCH_PATHS_QUOTED_FOR_TARGET_2 = "\"$(SRCROOT)/../physfs/build/Release\"";
+				LIBRARY_SEARCH_PATHS_QUOTED_FOR_TARGET_3 = "\"$(SRCROOT)/../physfs/build/Release\"";
+				LIBRARY_SEARCH_PATHS_QUOTED_FOR_TARGET_4 = "\"$(SRCROOT)/../physfs/build/Debug\"";
 				PRODUCT_NAME = d1xgl;
 				WARNING_CFLAGS = "-Wall";
 			};
@@ -2132,6 +2147,7 @@
 			buildSettings = {
 				GCC_PREFIX_HEADER = arch/carbon/conf.h;
 				GCC_TREAT_WARNINGS_AS_ERRORS = YES;
+				SDKROOT = /Developer/SDKs/MacOSX10.4u.sdk;
 			};
 			name = Development;
 		};
@@ -2148,8 +2164,8 @@
 				MACOSX_DEPLOYMENT_TARGET = 10.1;
 				MACOSX_DEPLOYMENT_TARGET_i386 = 10.4;
 				MACOSX_DEPLOYMENT_TARGET_ppc = 10.1;
-				SDKROOT_i386 = /Developer/SDKs/MacOSX10.4u.sdk;
-				SDKROOT_ppc = /Developer/SDKs/MacOSX10.3.9.sdk;
+				OTHER_CFLAGS = "-lSystemStubs";
+				SDKROOT = /Developer/SDKs/MacOSX10.4u.sdk;
 			};
 			name = Deployment;
 		};
@@ -2160,6 +2176,7 @@
 					"$(HOME)/Library/Frameworks",
 					/Library/Frameworks,
 				);
+				SDKROOT = /Developer/SDKs/MacOSX10.4u.sdk;
 			};
 			name = Default;
 		};

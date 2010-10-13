@@ -37,12 +37,12 @@ Compiling:
    the frameworks from source as 'Debug' builds, then use these instead. PhysicsFS must be compiled from
    source. Put its enclosing folder 'physfs', renaming if necessary, next to D1X's (typically d1x-rebirth).
    In CMake ensure the build path points to 'build' inside 'physfs'. Specify 'i386;ppc' as the architecture
-   for a universal binary. In Xcode, build the 'Debug' static library target. If anyone knows how to get the
-   'Release' build to properly link with DXX, please tell.
+   for a universal binary. In Xcode, build 'Debug' and 'Release' from the dynamic library target.
    SCons also works on MacOS X, but it's recommended to use XCode instead.
 
    For Mac OS 9, an MPW Makefile is available. MPW includes the compiler. As for the shared libraries,
-   compile PhysicsFS version 1.0 and the latest SDL and SDL_mixer (as of writing) from source.
+   compile PhysicsFS version 1.0 and the latest SDL and SDL_mixer (as of writing) from source. For SDL_mixer
+   1.2.11 you will need to disable MikMod support, from SDL_mixer.make, otherwise use SDL_mixer 1.2.8.
    For any sources to compile, they will need to be made into text files using a typecode changing program,
    if they were downloaded outside of Mac OS 9 (including Mac OS X). This will also need to be done after any
    Terminal command (diff, svn update etc) edits the source files.
