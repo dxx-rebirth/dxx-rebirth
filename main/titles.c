@@ -889,9 +889,9 @@ int load_briefing_screen(briefing *br, char *fname)
 	free_briefing_screen(br);
 
 	MALLOC(fname2, char, FILENAME_LEN);
-	snprintf(fname2, sizeof(char)*FILENAME_LEN, fname);
+	snprintf(fname2, sizeof(char)*FILENAME_LEN, "%s", fname);
 	MALLOC(forigin, char, PATH_MAX);
-	snprintf(forigin, sizeof(char)*PATH_MAX, PHYSFS_getRealDir(fname));
+	snprintf(forigin, sizeof(char)*PATH_MAX, "%s", PHYSFS_getRealDir(fname));
 	strlwr(forigin);
 
 	// check if we have a hires version of this image (not included in PC-version by default)
@@ -903,7 +903,7 @@ int load_briefing_screen(briefing *br, char *fname)
 			*ptr = '\0';
 		strncat(fname2, "h.pcx", sizeof(char)*FILENAME_LEN);
 		if (!cfexist(fname2))
-			snprintf(fname2, sizeof(char)*FILENAME_LEN, fname);
+			snprintf(fname2, sizeof(char)*FILENAME_LEN, "%s", fname);
 	}
 	d_free(forigin);
 

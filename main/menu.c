@@ -1563,9 +1563,9 @@ void do_sound_menu()
 	char old_CMLevelMusicPath[PATH_MAX+1], old_CMMiscMusic0[PATH_MAX+1];
 
 	memset(old_CMLevelMusicPath, 0, sizeof(char)*(PATH_MAX+1));
-	snprintf(old_CMLevelMusicPath, strlen(GameCfg.CMLevelMusicPath)+1, GameCfg.CMLevelMusicPath);
+	snprintf(old_CMLevelMusicPath, strlen(GameCfg.CMLevelMusicPath)+1, "%s", GameCfg.CMLevelMusicPath);
 	memset(old_CMMiscMusic0, 0, sizeof(char)*(PATH_MAX+1));
-	snprintf(old_CMMiscMusic0, strlen(GameCfg.CMMiscMusic[SONG_TITLE])+1, GameCfg.CMMiscMusic[SONG_TITLE]);
+	snprintf(old_CMMiscMusic0, strlen(GameCfg.CMMiscMusic[SONG_TITLE])+1, "%s", GameCfg.CMMiscMusic[SONG_TITLE]);
 
 	MALLOC(m, newmenu_item, SOUND_MENU_NITEMS);
 	if (!m)

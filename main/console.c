@@ -82,7 +82,7 @@ void con_printf(int priority, char *fmt, ...)
 		con_add_buffer_line(priority, buffer);
 
 		/* Print output to stdout */
-		printf(buffer);
+		printf("%s",buffer);
 
 		/* Print output to gamelog.txt */
 		if (gamelog_fp)

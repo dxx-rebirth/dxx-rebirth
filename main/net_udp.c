@@ -4721,7 +4721,7 @@ int net_udp_show_game_info()
 	if(!netgame->mission_title)
 		info+=sprintf(info,"Descent: First Strike");
 	else
-		info+=sprintf(info,netgame->mission_title);
+		info+=sprintf(info,"%s",netgame->mission_title);
 
    if( netgame->levelnum >= 0 )
    {

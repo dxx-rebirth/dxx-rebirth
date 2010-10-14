@@ -696,7 +696,7 @@ int net_ipx_endlevel_poll( newmenu *menu, d_event *event, int *secret )
 			{
 				if (Countdown_seconds_left < 0)
 				{
-					sprintf(menus[N_players].text, TXT_REACTOR_EXPLODED);
+					sprintf(menus[N_players].text, "%s", TXT_REACTOR_EXPLODED);
 				}
 				else
 				{
@@ -860,7 +860,7 @@ int net_ipx_endlevel(int *secret)
 	title = menu_text + (N_players + 1)*80;
 
 	if (Countdown_seconds_left < 0)
-		sprintf(m[N_players].text, TXT_REACTOR_EXPLODED);
+		sprintf(m[N_players].text, "%s", TXT_REACTOR_EXPLODED);
 	else
 		sprintf(m[N_players].text, "%s: %d %s  ", TXT_TIME_REMAINING, Countdown_seconds_left, TXT_SECONDS);
 
@@ -4146,7 +4146,7 @@ int net_ipx_show_game_stats(int choice)
 	if(!netgame->mission_title)
 		info+=sprintf(info,"Descent: First Strike");
 	else
-		info+=sprintf(info,netgame->mission_title);
+		info+=sprintf(info,"%s",netgame->mission_title);
 
    if( netgame->levelnum >= 0 )
    {
