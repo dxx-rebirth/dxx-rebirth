@@ -5824,7 +5824,7 @@ int net_ipx_show_game_stats(int choice)
 	if(!netgame->mission_title)
 		info+=sprintf(info,"Descent2: CounterStrike");
 	else
-		info+=sprintf(info,netgame->mission_title);
+		info+=sprintf(info,"%s",netgame->mission_title);
 
 	info+=sprintf (info," - Lvl %i",netgame->levelnum);
 	info+=sprintf (info,"\n\nDifficulty: %s",MENU_DIFFICULTY_TEXT(netgame->difficulty));

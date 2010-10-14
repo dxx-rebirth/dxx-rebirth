@@ -3,6 +3,7 @@ D2X-Rebirth Changelog
 20101014
 --------
 main/menu.c: Fixed compilation of menu.c when USE_SDLMIXER is not defined
+arch/sdl/jukebox.c, include/cfile.h, main/console.c, main/hud.c, main/menu.c, main/mission.c, main/net_ipx.c, main/net_udp.c, main/scores.c, misc/physfsx.c: Added format arguments to all printf, sprintf and snprintf calls missing them to prevent warnings/errors with some distributions of gcc
 
 20101010
 --------

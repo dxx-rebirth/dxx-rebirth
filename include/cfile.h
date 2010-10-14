@@ -45,7 +45,7 @@ static inline int cfile_init(char *hogname, int add_to_end)
 {
 	char hogname2[PATH_MAX], pathname[PATH_MAX];
 
-	snprintf(hogname2, strlen(hogname)+1, hogname);
+	snprintf(hogname2, strlen(hogname)+1, "%s", hogname);
 	PHYSFSEXT_locateCorrectCase(hogname2);
 
 	if (!PHYSFSX_getRealPath(hogname2, pathname))
@@ -58,7 +58,7 @@ static inline int cfile_close(char *hogname)
 {
 	char hogname2[PATH_MAX], pathname[PATH_MAX];
 
-	snprintf(hogname2, strlen(hogname)+1, hogname);
+	snprintf(hogname2, strlen(hogname)+1, "%s", hogname);
 	PHYSFSEXT_locateCorrectCase(hogname2);
 
 	if (!PHYSFSX_getRealPath(hogname2, pathname))
@@ -74,7 +74,7 @@ static inline int cfile_size(char *hogname)
 	char hogname2[PATH_MAX];
 	int size;
 
-	snprintf(hogname2, strlen(hogname)+1, hogname);
+	snprintf(hogname2, strlen(hogname)+1, "%s", hogname);
 	PHYSFSEXT_locateCorrectCase(hogname2);
 
 	fp = PHYSFS_openRead(hogname2);

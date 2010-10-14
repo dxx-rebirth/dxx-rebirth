@@ -304,7 +304,7 @@ PHYSFS_file *PHYSFSX_openReadBuffered(char *filename)
 		filename++;
 	}
 	
-	snprintf(filename2, strlen(filename)+1, filename);
+	snprintf(filename2, strlen(filename)+1, "%s", filename);
 	PHYSFSEXT_locateCorrectCase(filename2);
 	
 	fp = PHYSFS_openRead(filename2);

@@ -91,7 +91,7 @@ void scores_read(all_scores *scores)
 		int i;
 
 	 	// No error message needed, code will work without a scores file
-		sprintf( scores->cool_saying, COOL_SAYING );
+		sprintf( scores->cool_saying, "%s", COOL_SAYING );
 		sprintf( scores->stats[0].name, "Parallax" );
 		sprintf( scores->stats[1].name, "Matt" );
 		sprintf( scores->stats[2].name, "Mike" );

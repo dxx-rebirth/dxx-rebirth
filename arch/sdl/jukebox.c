@@ -164,7 +164,7 @@ void jukebox_load()
 			if (PHYSFS_isDirectory(GameCfg.CMLevelMusicPath)) // it's a child of Sharepath, build full path
 			{
 				PHYSFSX_getRealPath(GameCfg.CMLevelMusicPath,abspath);
-				snprintf(GameCfg.CMLevelMusicPath,sizeof(char)*PATH_MAX,abspath);
+				snprintf(GameCfg.CMLevelMusicPath,sizeof(char)*PATH_MAX,"%s",abspath);
 			}
 		}
 

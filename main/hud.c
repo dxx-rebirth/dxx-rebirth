@@ -154,7 +154,7 @@ int HUD_init_message_va(char * format, va_list args)
 	{
 		HUD_nmessages++;
 	}
-	snprintf(HUD_messages[HUD_nmessages-1].message, sizeof(char)*HUD_MESSAGE_LENGTH, message);
+	snprintf(HUD_messages[HUD_nmessages-1].message, sizeof(char)*HUD_MESSAGE_LENGTH, "%s", message);
 	if (HUD_nmessages-HUD_MAX_NUM_DISP < 0)
 		HUD_messages[HUD_nmessages-1].time = F1_0*3; // one message - display 3 secs
 	else
