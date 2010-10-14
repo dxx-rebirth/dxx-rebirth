@@ -1,5 +1,9 @@
 D1X-Rebirth Changelog
 
+20101014
+--------
+main/menu.c: Fixed compilation of menu.c when USE_SDLMIXER is not defined
+
 20101010
 --------
 d1x-rebirth.xcodeproj/project.pbxproj, INSTALL.txt: Use dynamic PhysicsFS library again to fix linking errors
