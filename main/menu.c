@@ -55,7 +55,9 @@ COPYRIGHT 1993-1999 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 #include "state.h"
 #include "mission.h"
 #include "songs.h"
+#ifdef USE_SDLMIXER
 #include "jukebox.h" // for jukebox_exts
+#endif
 #include "config.h"
 #include "movie.h"
 #include "gamepal.h"
@@ -1445,7 +1447,9 @@ int get_absolute_path(char *full_path, const char *rel_path)
 	return 1;
 }
 
+#ifdef USE_SDLMIXER
 #define SELECT_SONG(t, s)	select_file_recursive(t, GameCfg.CMMiscMusic[s], jukebox_exts, 0, (int (*)(void *, const char *))get_absolute_path, GameCfg.CMMiscMusic[s])
+#endif
 
 int sound_menuset(newmenu *menu, d_event *event, void *userdata)
 {
@@ -1488,16 +1492,19 @@ int sound_menuset(newmenu *menu, d_event *event, void *userdata)
 				GameCfg.MusicType = MUSIC_TYPE_REDBOOK;
 				replay = 1;
 			}
+#ifdef USE_SDLMIXER
 			else if (citem == opt_sm_mtype3)
 			{
 				GameCfg.MusicType = MUSIC_TYPE_CUSTOM;
 				replay = 1;
 			}
+#endif
 			else if (citem == opt_sm_redbook_playorder)
 			{
 				GameCfg.OrigTrackOrder = items[citem].value;
 				replay = (Game_wind != NULL);
 			}
+#ifdef USE_SDLMIXER
 			else if (citem == opt_sm_mtype3_lmplayorder1)
 			{
 				GameCfg.CMLevelMusicPlayOrder = MUSIC_CM_PLAYORDER_CONT;
@@ -1508,9 +1515,11 @@ int sound_menuset(newmenu *menu, d_event *event, void *userdata)
 				GameCfg.CMLevelMusicPlayOrder = MUSIC_CM_PLAYORDER_LEVEL;
 				replay = (Game_wind != NULL);
 			}
+#endif
 			break;
 
 		case EVENT_NEWMENU_SELECTED:
+#ifdef USE_SDLMIXER
 			if (citem == opt_sm_mtype3_lmpath)
 			{
 				static char *ext_list[] = { ".m3u", NULL };		// select a directory or M3U playlist
@@ -1553,7 +1562,7 @@ int sound_menuset(newmenu *menu, d_event *event, void *userdata)
 #else
 				SELECT_SONG("Select game ending music.\nCTRL-D to change drive", SONG_ENDGAME);
 #endif
-			
+#endif
 			rval = 1;	// stay in menu
 			break;
 
@@ -1636,8 +1645,11 @@ void do_sound_menu()
 #endif
 
 	m[nitems].type = NM_TYPE_TEXT; m[nitems++].text = "";
-
+#ifdef USE_SDLMIXER
 	m[nitems].type = NM_TYPE_TEXT; m[nitems++].text = "cd music / jukebox options:";
+#else
+	m[nitems].type = NM_TYPE_TEXT; m[nitems++].text = "cd music options:";
+#endif
 
 	opt_sm_redbook_playorder = nitems;
 	m[nitems].type = NM_TYPE_CHECK; m[nitems].text = "force descent ][ cd track order"; m[nitems++].value = GameCfg.OrigTrackOrder;
@@ -1648,7 +1660,7 @@ void do_sound_menu()
 	m[nitems].type = NM_TYPE_TEXT; m[nitems++].text = "jukebox options:";
 
 	opt_sm_mtype3_lmpath = nitems;
-	m[nitems].type = NM_TYPE_MENU; m[nitems++].text = "path to music used for levels (...)";
+	m[nitems].type = NM_TYPE_MENU; m[nitems++].text = "path for level music (browse...)";
 
 	m[nitems].type = NM_TYPE_INPUT; m[nitems].text = GameCfg.CMLevelMusicPath; m[nitems++].text_len = NM_MAX_TEXT_LEN-1;
 
