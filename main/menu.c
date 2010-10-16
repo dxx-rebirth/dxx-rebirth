@@ -933,7 +933,7 @@ int options_menuset(newmenu *menu, d_event *event, void *userdata)
 			break;
 	}
 
-	userdata++;		//kill warning
+	userdata = userdata;		//kill warning
 
 	return 0;
 }
@@ -954,8 +954,8 @@ void change_res()
 	num_presets = gr_list_modes( modes );
 
 	{
-	newmenu_item m[num_presets+8];
-	char restext[num_presets][12], crestext[12], casptext[12];
+	newmenu_item m[50+8];
+	char restext[50][12], crestext[12], casptext[12];
 
 	for (i = 0; i <= num_presets-1; i++)
 	{
@@ -1165,8 +1165,7 @@ void do_graphics_menu()
 	} while( i>-1 );
 }
 
-#define CUR_DIRLIST "DirectoryListDXX"
-
+#if PHYSFS_VER_MAJOR >= 2
 typedef struct browser
 {
 	char	*title;			// The title - needed for making another listbox when changing directory
@@ -1437,6 +1436,23 @@ int select_file_recursive(char *title, const char *orig_path, char **ext_list, i
 	return newmenu_listbox1(title, b->num_files, b->list, 1, 0, (int (*)(listbox *, d_event *, void *))select_file_handler, b) >= 0;
 }
 
+#define PATH_HEADER_TYPE NM_TYPE_MENU
+#define BROWSE_TXT_SHRT " (...)"
+#define BROWSE_TXT " (browse...)"
+
+#else
+
+int select_file_recursive(char *title, const char *orig_path, char **ext_list, int select_dir, int (*when_selected)(void *userdata, const char *filename), void *userdata)
+{
+	return 0;
+}
+
+#define PATH_HEADER_TYPE NM_TYPE_TEXT
+#define BROWSE_TXT_SHRT
+#define BROWSE_TXT
+
+#endif
+
 int opt_sm_digivol = -1, opt_sm_musicvol = -1, opt_sm_revstereo = -1, opt_sm_mtype0 = -1, opt_sm_mtype1 = -1, opt_sm_mtype2 = -1, opt_sm_mtype3 = -1, opt_sm_redbook_playorder = -1, opt_sm_mtype3_lmpath = -1, opt_sm_mtype3_lmplayorder1 = -1, opt_sm_mtype3_lmplayorder2 = -1, opt_sm_cm_mtype3_file1_b = -1, opt_sm_cm_mtype3_file1 = -1, opt_sm_cm_mtype3_file2_b = -1, opt_sm_cm_mtype3_file2 = -1, opt_sm_cm_mtype3_file3_b = -1, opt_sm_cm_mtype3_file3 = -1, opt_sm_cm_mtype3_file4_b = -1, opt_sm_cm_mtype3_file4 = -1, opt_sm_cm_mtype3_file5_b = -1, opt_sm_cm_mtype3_file5 = -1;
 
 void set_extmusic_volume(int volume);
@@ -1660,7 +1676,7 @@ void do_sound_menu()
 	m[nitems].type = NM_TYPE_TEXT; m[nitems++].text = "jukebox options:";
 
 	opt_sm_mtype3_lmpath = nitems;
-	m[nitems].type = NM_TYPE_MENU; m[nitems++].text = "path for level music (browse...)";
+	m[nitems].type = PATH_HEADER_TYPE; m[nitems++].text = "path for level music" BROWSE_TXT_SHRT;
 
 	m[nitems].type = NM_TYPE_INPUT; m[nitems].text = GameCfg.CMLevelMusicPath; m[nitems++].text_len = NM_MAX_TEXT_LEN-1;
 
@@ -1679,31 +1695,31 @@ void do_sound_menu()
 	m[nitems].type = NM_TYPE_TEXT; m[nitems++].text = "non-level music:";
 
 	opt_sm_cm_mtype3_file1_b = nitems;
-	m[nitems].type = NM_TYPE_MENU; m[nitems++].text = "main menu (browse...)";
+	m[nitems].type = PATH_HEADER_TYPE; m[nitems++].text = "main menu" BROWSE_TXT;
 
 	opt_sm_cm_mtype3_file1 = nitems;
 	m[nitems].type = NM_TYPE_INPUT; m[nitems].text = GameCfg.CMMiscMusic[SONG_TITLE]; m[nitems++].text_len = NM_MAX_TEXT_LEN-1;
 
 	opt_sm_cm_mtype3_file2_b = nitems;
-	m[nitems].type = NM_TYPE_MENU; m[nitems++].text = "briefing (browse...)";
+	m[nitems].type = PATH_HEADER_TYPE; m[nitems++].text = "briefing" BROWSE_TXT;
 
 	opt_sm_cm_mtype3_file2 = nitems;
 	m[nitems].type = NM_TYPE_INPUT; m[nitems].text = GameCfg.CMMiscMusic[SONG_BRIEFING]; m[nitems++].text_len = NM_MAX_TEXT_LEN-1;
 
 	opt_sm_cm_mtype3_file3_b = nitems;
-	m[nitems].type = NM_TYPE_MENU; m[nitems++].text = "credits (browse...)";
+	m[nitems].type = PATH_HEADER_TYPE; m[nitems++].text = "credits" BROWSE_TXT;
 
 	opt_sm_cm_mtype3_file3 = nitems;
 	m[nitems].type = NM_TYPE_INPUT; m[nitems].text = GameCfg.CMMiscMusic[SONG_CREDITS]; m[nitems++].text_len = NM_MAX_TEXT_LEN-1;
 
 	opt_sm_cm_mtype3_file4_b = nitems;
-	m[nitems].type = NM_TYPE_MENU; m[nitems++].text = "escape sequence (browse...)";
+	m[nitems].type = PATH_HEADER_TYPE; m[nitems++].text = "escape sequence" BROWSE_TXT;
 
 	opt_sm_cm_mtype3_file4 = nitems;
 	m[nitems].type = NM_TYPE_INPUT; m[nitems].text = GameCfg.CMMiscMusic[SONG_ENDLEVEL]; m[nitems++].text_len = NM_MAX_TEXT_LEN-1;
 
 	opt_sm_cm_mtype3_file5_b = nitems;
-	m[nitems].type = NM_TYPE_MENU; m[nitems++].text = "game ending (browse...)";
+	m[nitems].type = PATH_HEADER_TYPE; m[nitems++].text = "game ending" BROWSE_TXT;
 
 	opt_sm_cm_mtype3_file5 = nitems;
 	m[nitems].type = NM_TYPE_INPUT; m[nitems].text = GameCfg.CMMiscMusic[SONG_ENDGAME]; m[nitems++].text_len = NM_MAX_TEXT_LEN-1;
