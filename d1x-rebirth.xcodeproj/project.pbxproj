@@ -284,7 +284,6 @@
 		EB380D7D0E168B1900EBD9AD /* InfoPlist.strings in Resources */ = {isa = PBXBuildFile; fileRef = EB380D7B0E168B1900EBD9AD /* InfoPlist.strings */; };
 		EB380D7E0E168B1900EBD9AD /* InfoPlist.strings in Resources */ = {isa = PBXBuildFile; fileRef = EB380D7B0E168B1900EBD9AD /* InfoPlist.strings */; };
 		EB775A7A105611720036C348 /* extractD1Data.cpp in Sources */ = {isa = PBXBuildFile; fileRef = EB775A79105611720036C348 /* extractD1Data.cpp */; };
-		EB861343111E9E810097D871 /* net_ipx.c in Sources */ = {isa = PBXBuildFile; fileRef = EBF658990F936A8400CB5C73 /* net_ipx.c */; };
 		EB8BE84F1071FBE00069486E /* player.c in Sources */ = {isa = PBXBuildFile; fileRef = EB8BE84E1071FBE00069486E /* player.c */; };
 		EB8BE8501071FBE00069486E /* player.c in Sources */ = {isa = PBXBuildFile; fileRef = EB8BE84E1071FBE00069486E /* player.c */; };
 		EB91A41012617070009E0095 /* libphysfs.dylib in Frameworks */ = {isa = PBXBuildFile; fileRef = EB91A40F12617070009E0095 /* libphysfs.dylib */; };
@@ -1733,7 +1732,6 @@
 				EBE8D8910FDA76D1009D181F /* gamerend.c in Sources */,
 				EB8BE8501071FBE00069486E /* player.c in Sources */,
 				17DFA6B110C1A29500674D11 /* net_udp.c in Sources */,
-				EB861343111E9E810097D871 /* net_ipx.c in Sources */,
 				179E6E9E11F37B3400175C54 /* hmp.c in Sources */,
 				EB1405BB12100883002B1CC6 /* physfsx.c in Sources */,
 			);

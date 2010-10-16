@@ -454,9 +454,10 @@ int check_text_pos(briefing *br)
 
 void put_char_delay(briefing *br, int ch)
 {
-	char str[] = { ch, '\0' };
+	char str[2];
 	int	w, h, aw;
 
+	str[0] = ch; str[1] = '\0';
 	if (br->delay_count && (timer_get_fixed_seconds() < br->start_time + br->delay_count))
 	{
 		br->message--;		// Go back to same character

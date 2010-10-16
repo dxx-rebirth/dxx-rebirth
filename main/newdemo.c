@@ -445,8 +445,9 @@ static int shareware = 0;	// reading shareware demo?
 
 void nd_read_object(object *obj)
 {
-	memset(obj, 0, sizeof(object));
 	short shortsig = 0;
+
+	memset(obj, 0, sizeof(object));
 
 	/*
 	 * Do render type first, since with render_type == RT_NONE, we
@@ -3310,9 +3311,9 @@ void newdemo_start_playback(char * filename)
 	{
 		// Randomly pick a filename
 		int NumFiles = 0, RandFileNum;
-		rnd_demo = 1;
 		char *types[] = { DEMO_EXT, NULL };
 
+		rnd_demo = 1;
 		NumFiles = newdemo_count_demos();
 
 		if ( NumFiles == 0 ) {
