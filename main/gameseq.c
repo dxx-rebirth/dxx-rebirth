@@ -696,6 +696,8 @@ void LoadLevel(int level_num)
 	#endif
 
 	load_endlevel_data(level_num);
+	
+	load_custom_data(level_name);
 
 	#ifdef NETWORK
 	reset_network_objects();
@@ -1293,8 +1295,6 @@ void StartNewLevel(int level_num)
 	hide_menus();
 
 	GameTime = 0;
-
-	load_custom_data(get_level_file(level_num));
 
 	if (!(Game_mode & GM_MULTI)) {
 		do_briefing_screens(Briefing_text_filename, level_num);
