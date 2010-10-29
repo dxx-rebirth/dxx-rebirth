@@ -1,5 +1,9 @@
 D1X-Rebirth Changelog
 
+20101029
+--------
+arch/sdl/digi_mixer_music, include/hmp.h, misc/hmp.c: Instead of writing converted MIDI to file, write to buffer so it can be played directly
+
 20101016
 --------
 main/custom.c, main/gameseq.c: Finished support for custom textures and robots, fixed some bugs, reformatted code and placed function calls to properly work for designated mission/level

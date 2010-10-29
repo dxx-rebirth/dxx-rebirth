@@ -436,20 +436,21 @@ int hmp_play(hmp_file *hmp, int bLoop)
 
 // CONVERSION FROM HMP TO MIDI
 
-static int hmptrk2mid(ubyte* data, int size, PHYSFS_file *mid)
+static unsigned int hmptrk2mid(ubyte* data, int size, unsigned char **midbuf, unsigned int *midlen)
 {
 	ubyte *dptr = data;
 	ubyte lc1 = 0,last_com = 0;
-	uint t = 0, d;
+	uint d;
 	int n1, n2;
-	int offset = cftell(mid);
+	unsigned int offset = *midlen;
 
 	while (data < dptr + size)
 	{
 		if (data[0] & 0x80) {
 			ubyte b = (data[0] & 0x7F);
-			PHYSFS_write(mid, &b, sizeof (b), 1);
-			t+=b;
+			*midbuf = d_realloc(*midbuf, *midlen + 1);
+			memcpy(&(*midbuf)[*midlen], &b, 1);
+			*midlen += 1;
 		}
 		else {
 			d = (data[0] & 0x7F);
@@ -458,7 +459,6 @@ static int hmptrk2mid(ubyte* data, int size, PHYSFS_file *mid)
 				n1++;
 				d += (data[n1] & 0x7F) << (n1 * 7);
 				}
-			t += d;
 			n1 = 1;
 			while ((data[n1] & 0x80) == 0) {
 				n1++;
@@ -470,13 +470,17 @@ static int hmptrk2mid(ubyte* data, int size, PHYSFS_file *mid)
 
 				if (n2 != n1)
 					b |= 0x80;
-				PHYSFS_write(mid, &b, sizeof(b), 1);
+				*midbuf = d_realloc(*midbuf, *midlen + 1);
+				memcpy(&(*midbuf)[*midlen], &b, 1);
+				*midlen += 1;
 				}
 			data += n1;
 		}
 		data++;
 		if (*data == 0xFF) { //meta?
-			PHYSFS_write(mid, data, 3 + data [2], 1);
+			*midbuf = d_realloc(*midbuf, *midlen + 3 + data[2]);
+			memcpy(&(*midbuf)[*midlen], data, 3 + data[2]);
+			*midlen += 3 + data[2];
 			if (data[1] == 0x2F)
 				break;
 		}
@@ -491,15 +495,27 @@ static int hmptrk2mid(ubyte* data, int size, PHYSFS_file *mid)
 				case 0xB0:
 				case 0xE0:
 					if (lc1 != last_com)
-						PHYSFS_write(mid, &lc1, sizeof (lc1), 1);
-					PHYSFS_write(mid, data + 1, 2, 1);
+					{
+						*midbuf = d_realloc(*midbuf, *midlen + 1);
+						memcpy(&(*midbuf)[*midlen], &lc1, 1);
+						*midlen += 1;
+					}
+					*midbuf = d_realloc(*midbuf, *midlen + 2);
+					memcpy(&(*midbuf)[*midlen], data + 1, 2);
+					*midlen += 2;
 					data += 3;
 					break;
 				case 0xC0:
 				case 0xD0:
 					if (lc1 != last_com)
-						PHYSFS_write(mid, &lc1, sizeof (lc1), 1);
-					PHYSFS_write(mid, data + 1, 1, 1);
+					{
+						*midbuf = d_realloc(*midbuf, *midlen + 1);
+						memcpy(&(*midbuf)[*midlen], &lc1, 1);
+						*midlen += 1;
+					}
+					*midbuf = d_realloc(*midbuf, *midlen + 1);
+					memcpy(&(*midbuf)[*midlen], data + 1, 1);
+					*midlen += 1;
 					data += 2;
 					break;
 				default:
@@ -508,53 +524,63 @@ static int hmptrk2mid(ubyte* data, int size, PHYSFS_file *mid)
 			last_com = lc1;
 		}
 	}
-	return (cftell(mid) - offset);
+	return (*midlen - offset);
 }
 
 ubyte tempo [19] = {'M','T','r','k',0,0,0,11,0,0xFF,0x51,0x03,0x18,0x80,0x00,0,0xFF,0x2F,0};
 
-void hmp2mid(char *hmp_name, char *mid_name)
+void hmp2mid(char *hmp_name, unsigned char **midbuf, unsigned int *midlen)
 {
-	PHYSFS_file *mid=NULL;
-	int mi, i, loc;
+	int mi, i;
 	short ms;
 	hmp_file *hmp=NULL;
 
 	hmp = hmp_open(hmp_name);
 	if (hmp == NULL)
 		return;
-	mid = PHYSFSX_openWriteBuffered(mid_name);
-	if (mid == NULL)
-	{
-		hmp_close(hmp);
-		return;
-	}
+
+	*midlen = 0;
+
 	// write MIDI-header
-	PHYSFS_write(mid, "MThd", 4, 1);
+	*midbuf = d_realloc(*midbuf, *midlen + 4);
+	memcpy(&(*midbuf)[*midlen], "MThd", 4);
+	*midlen += 4;
 	mi = MIDIINT(6);
-	PHYSFS_write(mid, &mi, sizeof(mi), 1);
+	*midbuf = d_realloc(*midbuf, *midlen + sizeof(mi));
+	memcpy(&(*midbuf)[*midlen], &mi, sizeof(mi));
+	*midlen += sizeof(mi);
 	ms = MIDISHORT(1);
-	PHYSFS_write(mid, &ms, sizeof(ms), 1);
+	*midbuf = d_realloc(*midbuf, *midlen + sizeof(ms));
+	memcpy(&(*midbuf)[*midlen], &ms, sizeof(ms));
+	*midlen += sizeof(ms);
 	ms = MIDISHORT(hmp->num_trks);
-	PHYSFS_write(mid, &ms, sizeof(ms), 1);
+	*midbuf = d_realloc(*midbuf, *midlen + sizeof(ms));
+	memcpy(&(*midbuf)[*midlen], &ms, sizeof(ms));
+	*midlen += sizeof(ms);
 	ms = MIDISHORT((short) 0xC0);
-	PHYSFS_write(mid, &ms, sizeof(ms), 1);
-	PHYSFS_write(mid, tempo, sizeof(tempo), 1);
+	*midbuf = d_realloc(*midbuf, *midlen + sizeof(ms));
+	memcpy(&(*midbuf)[*midlen], &ms, sizeof(ms));
+	*midlen += sizeof(ms);
+	*midbuf = d_realloc(*midbuf, *midlen + sizeof(tempo));
+	memcpy(&(*midbuf)[*midlen], &tempo, sizeof(tempo));
+	*midlen += sizeof(tempo);
 
 	// tracks
 	for (i = 1; i < hmp->num_trks; i++)
 	{
-		PHYSFS_write(mid, "MTrk", 4, 1);
-		loc = cftell(mid);
+		int midtrklenpos = 0;
+
+		*midbuf = d_realloc(*midbuf, *midlen + 4);
+		memcpy(&(*midbuf)[*midlen], "MTrk", 4);
+		*midlen += 4;
+		midtrklenpos = *midlen;
 		mi = 0;
-		PHYSFS_write(mid, &mi, sizeof(mi), 1);
-		mi = hmptrk2mid(hmp->trks[i].data, hmp->trks[i].len, mid);
+		*midbuf = d_realloc(*midbuf, *midlen + sizeof(mi));
+		*midlen += sizeof(mi);
+		mi = hmptrk2mid(hmp->trks[i].data, hmp->trks[i].len, midbuf, midlen);
 		mi = MIDIINT(mi);
-		cfseek(mid, loc, SEEK_SET);
-		PHYSFS_write(mid, &mi, sizeof(mi), 1);
-		cfseek(mid, 0, SEEK_END);
+		memcpy(&(*midbuf)[midtrklenpos], &mi, 4);
 	}
 
 	hmp_close(hmp);
-	cfclose(mid);
 }

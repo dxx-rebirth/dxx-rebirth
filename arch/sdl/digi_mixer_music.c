@@ -23,7 +23,8 @@
 
 
 Mix_Music *current_music = NULL;
-char *current_music_hndlbuf = NULL;
+static unsigned char *current_music_hndlbuf = NULL;
+
 
 /*
  *  Plays a music file from an absolute path or a relative path
@@ -33,9 +34,9 @@ int mix_play_file(char *filename, int loop, void (*hook_finished_track)())
 {
 	SDL_RWops *rw = NULL;
 	PHYSFS_file *filehandle = NULL;
-	char midi_filename[PATH_MAX], full_path[PATH_MAX];
-	char *basedir = "music", *fptr;
-	int bufsize = 0;
+	char full_path[PATH_MAX];
+	char *fptr;
+	unsigned int bufsize = 0;
 
 	mix_free_music();	// stop and free what we're already playing, if anything
 
@@ -44,23 +45,21 @@ int mix_play_file(char *filename, int loop, void (*hook_finished_track)())
 	if (fptr == NULL)
 		return 0;
 
-	// It's a .hmp. Convert to mid, store in music/ and pass the new filename.
-	if (!stricmp(fptr, ".hmp"))
-	{
-		PHYSFS_mkdir(basedir);		// ALWAYS attempt to make 'Music': might exist in some searchpath but not the write directory
-		snprintf(midi_filename, PATH_MAX, "%s/%s", basedir, filename);
-		midi_filename[PATH_MAX - 1] = '\0';
-		change_filename_extension(midi_filename, midi_filename, ".mid");
-		hmp2mid(filename, midi_filename);
-		filename = midi_filename;	// finished with hmp
-	}
-
 	loop = loop ? -1 : 1;	// loop means loop infinitely, otherwise play once
 
-	// try loading music via given filename
-	current_music = Mix_LoadMUS(filename);
+	// It's a .hmp. Convert to midi stream and load to current_music
+	if (!stricmp(fptr, ".hmp"))
+	{
+		hmp2mid(filename, &current_music_hndlbuf, &bufsize);
+		rw = SDL_RWFromConstMem(current_music_hndlbuf,bufsize*sizeof(char));
+		current_music = Mix_LoadMUS_RW(rw);
+	}
 
-	// no luck. so either it's in an archive or Searchpath
+	// try loading music via given filename
+	if (!current_music)
+		current_music = Mix_LoadMUS(filename);
+
+	// no luck. so it might be in Searchpath. So try to build absolute path
 	if (!current_music)
 	{
 		PHYSFSX_getRealPath(filename, full_path);
@@ -69,15 +68,18 @@ int mix_play_file(char *filename, int loop, void (*hook_finished_track)())
 			filename = full_path;	// used later for possible error reporting
 	}
 
+	// still nothin'? Let's open via PhysFS in case it's located inside an archive
 	if (!current_music)
-		filehandle = PHYSFS_openRead(filename);
-	if (filehandle != NULL)
 	{
-		current_music_hndlbuf = d_realloc(current_music_hndlbuf, sizeof(char *)*PHYSFS_fileLength(filehandle));
-		bufsize = PHYSFS_read(filehandle, current_music_hndlbuf, sizeof(char), PHYSFS_fileLength(filehandle));
-		rw = SDL_RWFromConstMem(current_music_hndlbuf,bufsize*sizeof(char));
-		PHYSFS_close(filehandle);
-		current_music = Mix_LoadMUS_RW(rw);
+		filehandle = PHYSFS_openRead(filename);
+		if (filehandle != NULL)
+		{
+			current_music_hndlbuf = d_realloc(current_music_hndlbuf, sizeof(char *)*PHYSFS_fileLength(filehandle));
+			bufsize = PHYSFS_read(filehandle, current_music_hndlbuf, sizeof(char), PHYSFS_fileLength(filehandle));
+			rw = SDL_RWFromConstMem(current_music_hndlbuf,bufsize*sizeof(char));
+			PHYSFS_close(filehandle);
+			current_music = Mix_LoadMUS_RW(rw);
+		}
 	}
 
 	if (current_music)
@@ -89,12 +91,7 @@ int mix_play_file(char *filename, int loop, void (*hook_finished_track)())
 	else
 	{
 		con_printf(CON_CRITICAL,"Music %s could not be loaded\n", filename);
-		Mix_HaltMusic();
-		if (current_music_hndlbuf)
-		{
-			d_free(current_music_hndlbuf);
-			current_music_hndlbuf = NULL;
-		}
+		mix_stop_music();
 	}
 
 	return 0;
