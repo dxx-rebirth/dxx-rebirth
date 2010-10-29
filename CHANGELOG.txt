@@ -1,5 +1,9 @@
 D1X-Rebirth Changelog
 
+20101030
+--------
+main/titles: Make songs playing at end briefings loop, like they used to in the original game
+
 20101029
 --------
 arch/sdl/digi_mixer_music, include/hmp.h, misc/hmp.c: Instead of writing converted MIDI to file, write to buffer so it can be played directly

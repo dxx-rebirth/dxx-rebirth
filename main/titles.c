@@ -1218,7 +1218,7 @@ void do_end_briefing_screens(char *filename)
 
 	if (stricmp(filename, BIMD1_ENDING_FILE_OEM) == 0)
 	{
-		songs_play_song( SONG_ENDGAME, 0 );
+		songs_play_song( SONG_ENDGAME, 1 );
 		level_num_screen = ENDING_LEVEL_NUM_OEMSHARE;
 		showorder = 1;
 	}
@@ -1230,7 +1230,7 @@ void do_end_briefing_screens(char *filename)
 	}
 	else
 	{
-		songs_play_song( SONG_ENDGAME, 0 );
+		songs_play_song( SONG_ENDGAME, 1 );
 		level_num_screen = ENDING_LEVEL_NUM_REGISTER;
 	}
 
