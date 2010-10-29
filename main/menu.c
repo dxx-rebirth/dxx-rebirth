@@ -1394,7 +1394,6 @@ int select_file_recursive(char *title, const char *orig_path, char **ext_list, i
 }
 
 #define PATH_HEADER_TYPE NM_TYPE_MENU
-#define BROWSE_TXT_SHRT " (...)"
 #define BROWSE_TXT " (browse...)"
 
 #else
@@ -1405,7 +1404,6 @@ int select_file_recursive(char *title, const char *orig_path, char **ext_list, i
 }
 
 #define PATH_HEADER_TYPE NM_TYPE_TEXT
-#define BROWSE_TXT_SHRT
 #define BROWSE_TXT
 
 #endif
@@ -1630,7 +1628,7 @@ void do_sound_menu()
 	m[nitems].type = NM_TYPE_TEXT; m[nitems++].text = "jukebox options:";
 
 	opt_sm_mtype3_lmpath = nitems;
-	m[nitems].type = PATH_HEADER_TYPE; m[nitems++].text = "path for level music" BROWSE_TXT_SHRT;
+	m[nitems].type = PATH_HEADER_TYPE; m[nitems++].text = "path for level music" BROWSE_TXT;
 
 	m[nitems].type = NM_TYPE_INPUT; m[nitems].text = GameCfg.CMLevelMusicPath; m[nitems++].text_len = NM_MAX_TEXT_LEN-1;
 
