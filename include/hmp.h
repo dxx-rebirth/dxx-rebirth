@@ -54,7 +54,7 @@ typedef struct hmp_file {
 
 hmp_file *hmp_open(const char *filename);
 void hmp_close(hmp_file *hmp);
-void hmp2mid(char *hmp_name, char *mid_name);
+void hmp2mid(char *hmp_name, unsigned char **midbuf, unsigned int *midlen);
 #ifdef WIN32
 int hmp_play(hmp_file *hmp, int bLoop);
 #endif
