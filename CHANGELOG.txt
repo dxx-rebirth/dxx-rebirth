@@ -3,6 +3,7 @@ D2X-Rebirth Changelog
 20101030
 --------
 main/titles: Make songs playing at end briefings loop, like they used to in the original game
+main/menu.c: Text string for level music was made smaller some time ago so BROWSE_TXT_SHRT basically became obsolete - removed it now and show BROWSE_TXT instead
 
 20101029
 --------
