@@ -3,6 +3,7 @@ D1X-Rebirth Changelog
 20101101
 --------
 main/newmenu.c: In case listbox strings are too long for screen, fit box width to screen width, shorten strings and add a scroll effect to selected item
+main/titles.c: Increased buffer for fname2 in load_briefing_screen, preventing buffer overflow in case replacement filenames are longer than DOS-style
 
 20101030
 --------

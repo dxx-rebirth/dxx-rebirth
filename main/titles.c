@@ -889,8 +889,8 @@ int load_briefing_screen(briefing *br, char *fname)
 
 	free_briefing_screen(br);
 
-	MALLOC(fname2, char, FILENAME_LEN);
-	snprintf(fname2, sizeof(char)*FILENAME_LEN, "%s", fname);
+	MALLOC(fname2, char, PATH_MAX);
+	snprintf(fname2, sizeof(char)*PATH_MAX, "%s", fname);
 	MALLOC(forigin, char, PATH_MAX);
 	snprintf(forigin, sizeof(char)*PATH_MAX, "%s", PHYSFS_getRealDir(fname));
 	strlwr(forigin);
