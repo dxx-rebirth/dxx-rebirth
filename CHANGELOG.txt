@@ -1,5 +1,9 @@
 D1X-Rebirth Changelog
 
+20101101
+--------
+main/newmenu.c: In case listbox strings are too long for screen, fit box width to screen width, shorten strings and add a scroll effect to selected item
+
 20101030
 --------
 main/titles: Make songs playing at end briefings loop, like they used to in the original game
