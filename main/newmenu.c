@@ -1654,6 +1654,7 @@ struct listbox
 	int allow_abort_flag;
 	int (*listbox_callback)(listbox *lb, d_event *event, void *userdata);
 	int citem, first_item;
+	int marquee_maxchars, marquee_charpos, marquee_scrollback, marquee_lasttime; // to scroll text if string does not fit in box
 	int box_w, height, box_x, box_y, title_height;
 	short swidth, sheight; float fntscalex, fntscaley; // with these we check if resolution or fonts have changed so listbox structure can be recreated
 	int mouse_state;
@@ -1874,6 +1875,18 @@ void listbox_create_structure( listbox *lb)
 		lb->title_height = h+FSPACY(5);
 	}
 
+	lb->marquee_maxchars = lb->marquee_charpos = lb->marquee_scrollback = lb->marquee_lasttime = 0;
+	// The box is bigger than we can fit on the screen since at least one string is too long. Check how many chars we can fit on the screen (at least only - MEDIUM*_FONT is variable font!) so we can make a marquee-like effect.
+	if (lb->box_w + (BORDERX*2) > SWIDTH)
+	{
+		int w = 0, h = 0, aw = 0;
+
+		lb->box_w = SWIDTH - (BORDERX*2);
+		gr_get_string_size("O", &w, &h, &aw);
+		lb->marquee_maxchars = lb->box_w/w;
+		lb->marquee_lasttime = timer_get_fixed_seconds();
+	}
+
 	lb->box_x = (grd_curcanv->cv_bitmap.bm_w-lb->box_w)/2;
 	lb->box_y = (grd_curcanv->cv_bitmap.bm_h-(lb->height+lb->title_height))/2 + lb->title_height;
 	if ( lb->box_y < lb->title_height )
@@ -1925,7 +1938,53 @@ int listbox_draw(window *wind, listbox *lb)
 			gr_rect( lb->box_x - FSPACX(1), y - FSPACY(1), lb->box_x, y + LINE_SPACING );
 			gr_setcolor( BM_XRGB(0,0,0));
 			gr_rect( lb->box_x, y - FSPACY(1), lb->box_x + lb->box_w - FSPACX(1), y + LINE_SPACING);
-			gr_string( lb->box_x+FSPACX(5), y, lb->item[i]  );
+
+			if (lb->marquee_maxchars && strlen(lb->item[i]) > lb->marquee_maxchars)
+			{
+				char *shrtstr = d_malloc(lb->marquee_maxchars+1);
+				static int prev_citem = -1;
+				
+				if (prev_citem != lb->citem)
+				{
+					lb->marquee_charpos = lb->marquee_scrollback = 0;
+					lb->marquee_lasttime = timer_get_fixed_seconds();
+					prev_citem = lb->citem;
+				}
+
+				memset(shrtstr, '\0', lb->marquee_maxchars+1);
+				
+				if (i == lb->citem)
+				{
+					fix time = timer_get_fixed_seconds();
+
+					if (lb->marquee_lasttime + (F1_0/3) < time)
+					{
+						lb->marquee_charpos = lb->marquee_charpos+(lb->marquee_scrollback?-1:+1);
+						lb->marquee_lasttime = time;
+					}
+					if (lb->marquee_charpos < 0) // reached beginning of string -> scroll forward
+					{
+						lb->marquee_charpos = 0;
+						lb->marquee_scrollback = 0;
+					}
+					if (lb->marquee_charpos + lb->marquee_maxchars - 1 > strlen(lb->item[i])) // reached end of string -> scroll backward
+					{
+						lb->marquee_charpos = strlen(lb->item[i]) - lb->marquee_maxchars + 1;
+						lb->marquee_scrollback = 1;
+					}
+					snprintf(shrtstr, lb->marquee_maxchars, "%s", lb->item[i]+lb->marquee_charpos);
+				}
+				else
+				{
+					snprintf(shrtstr, lb->marquee_maxchars, "%s", lb->item[i]);
+				}
+				gr_string( lb->box_x+FSPACX(5), y, shrtstr );
+				d_free(shrtstr);
+			}
+			else
+			{
+				gr_string( lb->box_x+FSPACX(5), y, lb->item[i]  );
+			}
 		}
 	}
 
