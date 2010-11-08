@@ -820,7 +820,8 @@ bool g3_draw_bitmap(vms_vector *pos,fix width,fix height,grs_bitmap *bm, int ori
 		obj->id==POW_ENERGY || // energy powerup
 		obj->id==POW_SHIELD_BOOST || // shield boost
 		obj->id==POW_CLOAK || // cloak
-		obj->id==POW_INVULNERABILITY)) // invulnerability
+		obj->id==POW_INVULNERABILITY || // invulnerability
+		obj->id==POW_HOARD_ORB)) // Hoard Orb
 		glColor4f(1.0,1.0,1.0,0.6); // ... with 0.6 alpha
 	else
 		glColor3f(1.0,1.0,1.0);
