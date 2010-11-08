@@ -4440,7 +4440,10 @@ void DropOrb ()
 
 	// If empty, tell everyone to stop drawing the box around me
 	if (Players[Player_num].secondary_ammo[PROXIMITY_INDEX]==0)
+	{
+		Players[Player_num].flags &=~(PLAYER_FLAGS_FLAG);
 		multi_send_flags (Player_num);
+	}
 }
 
 void DropFlag ()
