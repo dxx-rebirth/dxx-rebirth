@@ -2667,9 +2667,11 @@ void multi_consistency_error(int reset)
 	if (++count < 10)
 		return;
 
-	window_set_visible(Game_wind, 0);
+	if (Game_wind)
+		window_set_visible(Game_wind, 0);
 	nm_messagebox(NULL, 1, TXT_OK, TXT_CONSISTENCY_ERROR);
-	window_set_visible(Game_wind, 1);
+	if (Game_wind)
+		window_set_visible(Game_wind, 1);
 	count = 0;
 	multi_quit_game = 1;
 	game_leave_menus();
