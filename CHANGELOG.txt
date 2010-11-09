@@ -3,6 +3,7 @@ D1X-Rebirth Changelog
 20101109
 --------
 main/multi.c: In multi_consistency_error check for Game_wind before trying to set it in/visible - just for safety
+mem/mem.c: When running out of memory slots, do not try to print detailed info as it will only call a negative array index
 
 20101101
 --------

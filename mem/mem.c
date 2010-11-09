@@ -124,7 +124,7 @@ void * mem_malloc( unsigned int size, char * var, char * filename, int line, int
 	if (id==-1)
 	{
 		con_printf(CON_CRITICAL,"\nMEM_OUT_OF_SLOTS: Not enough space in mem.c to hold all the mallocs.\n" );		
-		con_printf(CON_CRITICAL, "\tBlock '%s' created in %s, line %d.\n", Varname[id], Filename[id], LineNum[id] );
+		//con_printf(CON_CRITICAL, "\tBlock '%s' created in %s, line %d.\n", Varname[id], Filename[id], LineNum[id] );
 		Error( "MEM_OUT_OF_SLOTS" );
 	}
 
