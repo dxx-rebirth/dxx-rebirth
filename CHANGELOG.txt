@@ -3,6 +3,7 @@ D2X-Rebirth Changelog
 20101109
 --------
 main/multi.c: In DropOrb PLAYER_FLAGS_FLAG-bit was not removed before calling multi_send_flags which would draw the HUD-box even if player ejected all Hoard orbs
+main/multi.c: In multi_consistency_error check for Game_wind before trying to set it in/visible - just for safety
 
 20101108
 --------
