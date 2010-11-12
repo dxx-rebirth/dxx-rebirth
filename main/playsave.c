@@ -410,31 +410,32 @@ void plyr_read_stats()
 
 void plyr_save_stats()
 {
-	int kills,deaths,neg;
-	char filename[14];
+	int kills = PlayerCfg.NetlifeKills,deaths = PlayerCfg.NetlifeKilled, neg, i;
+	char filename[PATH_MAX];
 	unsigned char buf[16],buf2[16],a;
-	int i;
 	PHYSFS_file *f;
-	kills=0;
-	deaths=0;
-	
-	kills=PlayerCfg.NetlifeKills;
-	deaths=PlayerCfg.NetlifeKilled;
-	
-	sprintf(filename,GameArg.SysUsePlayersDir?"Players/%s.eff":"%s.eff",Players[Player_num].callsign);
+
+	memset(filename, '\0', PATH_MAX);
+	snprintf(filename, PATH_MAX, GameArg.SysUsePlayersDir?"Players/%s.eff":"%s.eff", Players[Player_num].callsign);
 	f = PHYSFSX_openWriteBuffered(filename);
 
 	if(!f)
 		return; //broken!
-	
+
 	PHYSFSX_printf(f,"kills:%i\n",kills);
 	PHYSFSX_printf(f,"deaths:%i\n",deaths);
 	PHYSFSX_printf(f,"key:01 ");
-	if (kills<0){
+
+	if (kills<0)
+	{
 		neg=1;
 		kills*=-1;
-	}else neg=0;
-	for (i=0;kills;i++){
+	}
+	else
+		neg=0;
+
+	for (i=0;kills;i++)
+	{
 		a=(kills & 0xFF) ^ effcode1[i+neg];
 		buf[i*2]=(a&0xF)+33;
 		buf[i*2+1]=(a>>4)+33;
@@ -443,17 +444,26 @@ void plyr_save_stats()
 		buf2[i*2+1]=(a>>4)+33;
 		kills>>=8;
 	}
+
 	buf[i*2]=0;
 	buf2[i*2]=0;
-	if (neg)i+='a';
-	else i+='A';
+
+	if (neg)
+		i+='a';
+	else
+		i+='A';
+
 	PHYSFSX_printf(f,"%c%s %c%s ",i,buf,i,buf2);
 
-	if (deaths<0){
+	if (deaths<0)
+	{
 		neg=1;
 		deaths*=-1;
-	}else neg=0;
-	for (i=0;deaths;i++){
+	}else
+		neg=0;
+
+	for (i=0;deaths;i++)
+	{
 		a=(deaths & 0xFF) ^ effcode3[i+neg];
 		buf[i*2]=(a&0xF)+33;
 		buf[i*2+1]=(a>>4)+33;
@@ -462,10 +472,15 @@ void plyr_save_stats()
 		buf2[i*2+1]=(a>>4)+33;
 		deaths>>=8;
 	}
+
 	buf[i*2]=0;
 	buf2[i*2]=0;
-	if (neg)i+='a';
-	else i+='A';
+
+	if (neg)
+		i+='a';
+	else
+		i+='A';
+
 	PHYSFSX_printf(f,"%c%s %c%s\n",i,buf,i,buf2);
 	
 	PHYSFS_close(f);

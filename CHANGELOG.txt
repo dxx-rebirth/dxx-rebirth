@@ -1,5 +1,9 @@
 D1X-Rebirth Changelog
 
+20101113
+--------
+main/playsave.c: In plyr_save_stats setting filename to size of PATH_MAX to have enough space to also hold the player directory prefix which would otherwise create a memory corruption and crash the game
+
 20101109
 --------
 main/multi.c: In multi_consistency_error check for Game_wind before trying to set it in/visible - just for safety
