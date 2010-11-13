@@ -101,7 +101,7 @@ void read_m3u(void)
 	JukeboxSongs.max_buf = length + 1;
 	buf = JukeboxSongs.list_buf;
 	
-	while (buf < JukeboxSongs.list_buf + length)
+	while (buf < JukeboxSongs.list_buf + length - 1)
 	{
 		while (*buf == 0 || *buf == 10 || *buf == 13)	// find new line - support DOS, Unix and Mac line endings
 			buf++;

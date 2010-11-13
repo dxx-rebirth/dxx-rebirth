@@ -3,6 +3,7 @@ D1X-Rebirth Changelog
 20101113
 --------
 main/playsave.c: In plyr_save_stats setting filename to size of PATH_MAX to have enough space to also hold the player directory prefix which would otherwise create a memory corruption and crash the game
+arch/sdl/jukebox.c: Make sure read_m3u won't read past the end of the buffer, causing a crash
 
 20101109
 --------

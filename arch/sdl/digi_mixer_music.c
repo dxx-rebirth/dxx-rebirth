@@ -59,7 +59,7 @@ int mix_play_file(char *filename, int loop, void (*hook_finished_track)())
 	if (!current_music)
 		current_music = Mix_LoadMUS(filename);
 
-	// no luck. so it might be in Searchpath. So try to build absolute path
+	// no luck. so either it's in an archive or Searchpath
 	if (!current_music)
 	{
 		PHYSFSX_getRealPath(filename, full_path);
@@ -68,18 +68,15 @@ int mix_play_file(char *filename, int loop, void (*hook_finished_track)())
 			filename = full_path;	// used later for possible error reporting
 	}
 
-	// still nothin'? Let's open via PhysFS in case it's located inside an archive
 	if (!current_music)
-	{
 		filehandle = PHYSFS_openRead(filename);
-		if (filehandle != NULL)
-		{
-			current_music_hndlbuf = d_realloc(current_music_hndlbuf, sizeof(char *)*PHYSFS_fileLength(filehandle));
-			bufsize = PHYSFS_read(filehandle, current_music_hndlbuf, sizeof(char), PHYSFS_fileLength(filehandle));
-			rw = SDL_RWFromConstMem(current_music_hndlbuf,bufsize*sizeof(char));
-			PHYSFS_close(filehandle);
-			current_music = Mix_LoadMUS_RW(rw);
-		}
+	if (filehandle != NULL)
+	{
+		current_music_hndlbuf = d_realloc(current_music_hndlbuf, sizeof(char *)*PHYSFS_fileLength(filehandle));
+		bufsize = PHYSFS_read(filehandle, current_music_hndlbuf, sizeof(char), PHYSFS_fileLength(filehandle));
+		rw = SDL_RWFromConstMem(current_music_hndlbuf,bufsize*sizeof(char));
+		PHYSFS_close(filehandle);
+		current_music = Mix_LoadMUS_RW(rw);
 	}
 
 	if (current_music)
