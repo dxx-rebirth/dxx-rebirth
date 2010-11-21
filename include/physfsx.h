@@ -161,6 +161,7 @@ static inline int PHYSFSX_writeMatrix(PHYSFS_file *file, vms_matrix *m)
 }
 
 extern int PHYSFSX_getRealPath(const char *stdPath, char *realPath);
+extern int PHYSFSX_isNewPath(char *path);
 extern int PHYSFSX_rename(char *oldpath, char *newpath);
 extern char **PHYSFSX_findFiles(char *path, char **exts);
 extern char **PHYSFSX_findabsoluteFiles(char *path, char *realpath, char **exts);

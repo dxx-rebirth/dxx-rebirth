@@ -1,5 +1,9 @@
 D2X-Rebirth Changelog
 
+20101120
+--------
+arch/sdl/jukebox.c, include/physfsx.h, main/menu.c, misc/physfsx.c: Created function PHYSFSX_isNewPath to check wether given path has already been added to Searchpath or not; Used PHYSFSX_isNewPath for menu browsing code instead it's own implementation; Using PHYSFSX_isNewPath for Jukebox directory, too to make sure Jukebox will not accidentially remove Game content depending on user selection; Also only keep Jukebox directory added until files are stored to prevent any other file present in this path can override or add anything to the game
+
 20101109
 --------
 main/multi.c: In DropOrb PLAYER_FLAGS_FLAG-bit was not removed before calling multi_send_flags which would draw the HUD-box even if player ejected all Hoard orbs
