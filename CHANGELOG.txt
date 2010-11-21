@@ -3,6 +3,7 @@ D2X-Rebirth Changelog
 20101120
 --------
 arch/sdl/jukebox.c, include/physfsx.h, main/menu.c, misc/physfsx.c: Created function PHYSFSX_isNewPath to check wether given path has already been added to Searchpath or not; Used PHYSFSX_isNewPath for menu browsing code instead it's own implementation; Using PHYSFSX_isNewPath for Jukebox directory, too to make sure Jukebox will not accidentially remove Game content depending on user selection; Also only keep Jukebox directory added until files are stored to prevent any other file present in this path can override or add anything to the game
+main/config.c: For fresh configuration set Redbook music as default for Mac, Builtin music for all others
 
 20101109
 --------
