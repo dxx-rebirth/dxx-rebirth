@@ -73,7 +73,11 @@ int ReadConfigFile()
 	GameCfg.MusicVolume = 8;
 	GameCfg.ReverseStereo = 0;
 	GameCfg.OrigTrackOrder = 0;
-	GameCfg.MusicType = MUSIC_TYPE_NONE;
+#if defined(__APPLE__) && defined(__MACH__)
+	GameCfg.MusicType = MUSIC_TYPE_REDBOOK;
+#else
+	GameCfg.MusicType = MUSIC_TYPE_BUILTIN;
+#endif
 	GameCfg.CMLevelMusicPlayOrder = MUSIC_CM_PLAYORDER_CONT;
 	GameCfg.CMLevelMusicTrack[0] = -1;
 	GameCfg.CMLevelMusicTrack[1] = -1;
