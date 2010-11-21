@@ -114,7 +114,7 @@ void HUD_render_message_frame()
 
 // Call to flash a message on the HUD.  Returns true if message drawn.
 // (message might not be drawn if previous message was same)
-int HUD_init_message_va(char * format, va_list args)
+int HUD_init_message_va(int class_flag, char * format, va_list args)
 {
 	int i, j;
 #ifndef macintosh
@@ -129,16 +129,21 @@ int HUD_init_message_va(char * format, va_list args)
 	vsprintf(message, format, args);
 #endif
 
-	// already in list - do not add again
-	for (i = 0; i < HUD_nmessages; i++)
+
+	// check if message is already in list and bail out if so
+	if (HUD_nmessages > 0)
 	{
-		if (!strnicmp(message, HUD_messages[i].message, sizeof(char)*HUD_MESSAGE_LENGTH))
+		// if "normal" message, only check if it's the same at the most recent one, if marked as "redundant" check whole list
+		for (i = ((class_flag & HM_REDUNDANT)?0:HUD_nmessages-1); i < HUD_nmessages; i++)
 		{
-			HUD_messages[i].time = F1_0*2; // keep redundant message in list
-			if (i >= HUD_nmessages-HUD_MAX_NUM_DISP) // if redundant message on display, update them all
-				for (i = (HUD_nmessages-HUD_MAX_NUM_DISP<0?0:HUD_nmessages-HUD_MAX_NUM_DISP), j = 1; i < HUD_nmessages; i++, j++)
-					HUD_messages[i].time = F1_0*(j*2);
-			return 0;
+			if (!strnicmp(message, HUD_messages[i].message, sizeof(char)*HUD_MESSAGE_LENGTH))
+			{
+				HUD_messages[i].time = F1_0*2; // keep redundant message in list
+				if (i >= HUD_nmessages-HUD_MAX_NUM_DISP) // if redundant message on display, update them all
+					for (i = (HUD_nmessages-HUD_MAX_NUM_DISP<0?0:HUD_nmessages-HUD_MAX_NUM_DISP), j = 1; i < HUD_nmessages; i++, j++)
+						HUD_messages[i].time = F1_0*(j*2);
+				return 0;
+			}
 		}
 	}
 
@@ -193,7 +198,7 @@ int HUD_init_message(int class_flag, char * format, ... )
 		return 0;
 
 	va_start(args, format);
-	ret = HUD_init_message_va(format, args);
+	ret = HUD_init_message_va(class_flag, format, args);
 	va_end(args);
 
 	return ret;
