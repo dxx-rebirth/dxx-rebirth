@@ -205,6 +205,25 @@ int PHYSFSX_getRealPath(const char *stdPath, char *realPath)
 	return 1;
 }
 
+// checks if path is already added to Searchpath. Returns 0 if yes, 1 if not.
+int PHYSFSX_isNewPath(char *path)
+{
+	int is_new_path = 1;
+	char **i, **list;
+	
+	list = PHYSFS_getSearchPath();
+	for (i = list; *i != NULL; i++)
+	{
+		if (!strcmp(path, *i))
+		{
+			is_new_path = 0;
+		}
+	}
+	PHYSFS_freeList(list);
+	
+	return is_new_path;
+}
+
 int PHYSFSX_rename(char *oldpath, char *newpath)
 {
 	char old[PATH_MAX], new[PATH_MAX];

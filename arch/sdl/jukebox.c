@@ -29,7 +29,7 @@
 typedef struct jukebox_songs
 {
 	char **list;	// the actual list
-	char *list_buf; // buffer containing song file path text
+	char *list_buf;	// buffer containing song file path text
 	int num_songs;	// number of jukebox songs
 	int max_songs;	// maximum number of pointers that 'list' can hold, i.e. size of list / size of one pointer
 	int max_buf;	// size of list_buf
@@ -130,76 +130,84 @@ void read_m3u(void)
 /* Loads music file names from a given directory or M3U playlist */
 void jukebox_load()
 {
-	static char curpath[PATH_MAX+1];
+	static int jukebox_init = 1;
+	int new_path = 0;
+	char *p;
+	const char *sep = PHYSFS_getDirSeparator();
 
-	if (memcmp(curpath,GameCfg.CMLevelMusicPath,PATH_MAX) || (GameCfg.MusicType != MUSIC_TYPE_CUSTOM))
+	// initialize JukeboxSongs structure once per runtime
+	if (jukebox_init)
 	{
-		PHYSFS_removeFromSearchPath(curpath);
-		jukebox_unload();
+		JukeboxSongs.list = NULL;
+		JukeboxSongs.num_songs = JukeboxSongs.max_songs = JukeboxSongs.max_buf = 0;
+		jukebox_init = 0;
 	}
 
-	if (JukeboxSongs.list)
-		return;
+	jukebox_unload();
 
-	if (GameCfg.MusicType == MUSIC_TYPE_CUSTOM)
+	// build path properly.
+	if (strlen(GameCfg.CMLevelMusicPath) >= strlen(sep))
 	{
-		char *p;
-		const char *sep = PHYSFS_getDirSeparator();
+		char *abspath;
 
-		// build path properly.
-		if (strlen(GameCfg.CMLevelMusicPath) >= strlen(sep))
+		MALLOC(abspath, char, PATH_MAX);
+
+		p = GameCfg.CMLevelMusicPath + strlen(GameCfg.CMLevelMusicPath) - strlen(sep);
+		if (strcmp(p, sep) && stricmp(&GameCfg.CMLevelMusicPath[strlen(GameCfg.CMLevelMusicPath) - 4], ".m3u"))
+			strncat(GameCfg.CMLevelMusicPath, sep, PATH_MAX - 1 - strlen(GameCfg.CMLevelMusicPath));
+
+		if (PHYSFS_isDirectory(GameCfg.CMLevelMusicPath)) // it's a child of Sharepath, build full path
 		{
-			char abspath[PATH_MAX+1];
-
-			p = GameCfg.CMLevelMusicPath + strlen(GameCfg.CMLevelMusicPath) - strlen(sep);
-			if (strcmp(p, sep) && stricmp(&GameCfg.CMLevelMusicPath[strlen(GameCfg.CMLevelMusicPath) - 4], ".m3u"))
-				strncat(GameCfg.CMLevelMusicPath, sep, PATH_MAX - 1 - strlen(GameCfg.CMLevelMusicPath));
-
-			if (PHYSFS_isDirectory(GameCfg.CMLevelMusicPath)) // it's a child of Sharepath, build full path
-			{
-				PHYSFSX_getRealPath(GameCfg.CMLevelMusicPath,abspath);
-				snprintf(GameCfg.CMLevelMusicPath,sizeof(char)*PATH_MAX,"%s",abspath);
-			}
+			PHYSFSX_getRealPath(GameCfg.CMLevelMusicPath,abspath);
+			snprintf(GameCfg.CMLevelMusicPath,sizeof(char)*PATH_MAX,"%s",abspath);
 		}
+		d_free(abspath);
+	}
 
-		// Check if it's an M3U file
-		if (!PHYSFS_addToSearchPath(GameCfg.CMLevelMusicPath, 0))
-		{
-			if (!stricmp(&GameCfg.CMLevelMusicPath[strlen(GameCfg.CMLevelMusicPath) - 4], ".m3u"))
-				read_m3u();
-		}
-		else
-		{
-			int i;
+	new_path = PHYSFSX_isNewPath(GameCfg.CMLevelMusicPath);
 
-			// Read directory using PhysicsFS
+	// Check if it's an M3U file
+	if (!PHYSFS_addToSearchPath(GameCfg.CMLevelMusicPath, 0))
+	{
+		if (!stricmp(&GameCfg.CMLevelMusicPath[strlen(GameCfg.CMLevelMusicPath) - 4], ".m3u"))
+			read_m3u();
+	}
+	else
+	{
+		int i;
 
-			// as mountpoints are no option (yet), make sure only files originating from GameCfg.CMLevelMusicPath are aded to the list.
-			JukeboxSongs.list = PHYSFSX_findabsoluteFiles("", GameCfg.CMLevelMusicPath, jukebox_exts);
-			if (!JukeboxSongs.list)
-				return;
-			
-			for (i = 0; JukeboxSongs.list[i]; i++) {}
-			JukeboxSongs.num_songs = i;
-		}
-	
-		if (JukeboxSongs.num_songs)
+		// Read directory using PhysicsFS
+
+		// as mountpoints are no option (yet), make sure only files originating from GameCfg.CMLevelMusicPath are aded to the list.
+		JukeboxSongs.list = PHYSFSX_findabsoluteFiles("", GameCfg.CMLevelMusicPath, jukebox_exts);
+		if (!JukeboxSongs.list)
 		{
-			con_printf(CON_DEBUG,"Jukebox: %d music file(s) found in %s\n", JukeboxSongs.num_songs, GameCfg.CMLevelMusicPath);
-			memcpy(curpath,GameCfg.CMLevelMusicPath,sizeof(char)*PATH_MAX);
-			if (GameCfg.CMLevelMusicTrack[1] != JukeboxSongs.num_songs)
-			{
-				GameCfg.CMLevelMusicTrack[1] = JukeboxSongs.num_songs;
-				GameCfg.CMLevelMusicTrack[0] = 0; // number of songs changed so start from beginning.
-			}
+			if (new_path)
+				PHYSFS_removeFromSearchPath(GameCfg.CMLevelMusicPath);
+			return;
 		}
-		else
-		{
-			GameCfg.CMLevelMusicTrack[0] = -1;
-			GameCfg.CMLevelMusicTrack[1] = -1;
+		
+		for (i = 0; JukeboxSongs.list[i]; i++) {printf("%s\n",JukeboxSongs.list[i]);}
+		JukeboxSongs.num_songs = i;
+
+		if (new_path)
 			PHYSFS_removeFromSearchPath(GameCfg.CMLevelMusicPath);
-			con_printf(CON_DEBUG,"Jukebox music could not be found!\n");
+	}
+
+	if (JukeboxSongs.num_songs)
+	{
+		con_printf(CON_DEBUG,"Jukebox: %d music file(s) found in %s\n", JukeboxSongs.num_songs, GameCfg.CMLevelMusicPath);
+		if (GameCfg.CMLevelMusicTrack[1] != JukeboxSongs.num_songs)
+		{
+			GameCfg.CMLevelMusicTrack[1] = JukeboxSongs.num_songs;
+			GameCfg.CMLevelMusicTrack[0] = 0; // number of songs changed so start from beginning.
 		}
+	}
+	else
+	{
+		GameCfg.CMLevelMusicTrack[0] = -1;
+		GameCfg.CMLevelMusicTrack[1] = -1;
+		con_printf(CON_DEBUG,"Jukebox music could not be found!\n");
 	}
 }
 
@@ -218,7 +226,7 @@ void jukebox_hook_next()
 // Play tracks from Jukebox directory. Play track specified in GameCfg.CMLevelMusicTrack[0] and loop depending on GameCfg.CMLevelMusicPlayOrder
 int jukebox_play()
 {
-	char *music_filename;
+	char *music_filename, *full_filename;
 
 	if (!JukeboxSongs.list)
 		return 0;
@@ -230,8 +238,15 @@ int jukebox_play()
 	if (!music_filename)
 		return 0;
 
-	if (!mix_play_file(music_filename, ((GameCfg.CMLevelMusicPlayOrder == MUSIC_CM_PLAYORDER_CONT)?0:1), ((GameCfg.CMLevelMusicPlayOrder == MUSIC_CM_PLAYORDER_CONT)?jukebox_hook_next:NULL)))
+	MALLOC(full_filename, char, strlen(GameCfg.CMLevelMusicPath)+strlen(music_filename)+1);
+	memset(full_filename, '\0', strlen(GameCfg.CMLevelMusicPath)+strlen(music_filename)+1);
+	snprintf(full_filename, strlen(GameCfg.CMLevelMusicPath)+strlen(music_filename)+1, "%s%s", GameCfg.CMLevelMusicPath, music_filename);
+
+	if (!mix_play_file(full_filename, ((GameCfg.CMLevelMusicPlayOrder == MUSIC_CM_PLAYORDER_CONT)?0:1), ((GameCfg.CMLevelMusicPlayOrder == MUSIC_CM_PLAYORDER_CONT)?jukebox_hook_next:NULL)))
+	{
+		d_free(full_filename);
 		return 0;	// whoops, got an error
+	}
 
 	// Formatting a pretty message
 	if (strlen(music_filename) >= MUSIC_HUDMSG_MAXLEN) {
@@ -243,6 +258,8 @@ int jukebox_play()
 	}
 
 	HUD_init_message(HM_DEFAULT, "%s %s", JUKEBOX_HUDMSG_PLAYING, hud_msg_buf);
+
+	d_free(full_filename);
 
 	return 1;
 }
