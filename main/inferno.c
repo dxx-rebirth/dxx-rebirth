@@ -329,7 +329,30 @@ int main(int argc, char *argv[])
 
 	setbuf(stdout, NULL); // unbuffered output via printf
 
-	ReadConfigFile();
+	if (GameArg.SysShowCmdHelp) {
+		print_commandline_help();
+		set_exit_message("");
+
+		return(0);
+	}
+
+	printf("\nType %s -help' for a list of command-line options.\n\n", PROGNAME);
+
+	{
+		char **i, **list;
+
+		list = PHYSFS_getSearchPath();
+		for (i = list; *i != NULL; i++)
+			con_printf(CON_VERBOSE, "PHYSFS: [%s] is in the search path.\n", *i);
+		PHYSFS_freeList(list);
+
+		list = PHYSFS_enumerateFiles("");
+		for (i = list; *i != NULL; i++)
+			con_printf(CON_DEBUG, "PHYSFS: * We've got [%s].\n", *i);
+		PHYSFS_freeList(list);
+		
+		con_printf(CON_VERBOSE, "\n");
+	}
 
 	if (! cfile_init("descent2.hog", 1)) {
 		if (! cfile_init("d2demo.hog", 1))
@@ -352,7 +375,7 @@ int main(int argc, char *argv[])
 	load_text();
 
 	//print out the banner title
-	con_printf(CON_NORMAL, "\nDESCENT 2 %s v%d.%d",VERSION_TYPE,Version_major,Version_minor);
+	con_printf(CON_NORMAL, "DESCENT 2 %s v%d.%d",VERSION_TYPE,Version_major,Version_minor);
 	#if 1	//def VERSION_NAME
 	con_printf(CON_NORMAL, "  %s", DESCENT_VERSION);	// D2X version
 	#endif
@@ -364,37 +387,17 @@ int main(int argc, char *argv[])
 	con_printf(CON_NORMAL, "%s\n%s\n",TXT_COPYRIGHT,TXT_TRADEMARK);
 	con_printf(CON_NORMAL, "This is a MODIFIED version of Descent 2. Copyright (c) 1999 Peter Hawkins\n");
 	con_printf(CON_NORMAL, "                                         Copyright (c) 2002 Bradley Bell\n");
-	con_printf(CON_NORMAL, "                                         Copyright (c) 2005 Christian Beckhaeuser\n");
+	con_printf(CON_NORMAL, "                                         Copyright (c) 2005 Christian Beckhaeuser\n\n");
 
-
-	if (GameArg.SysShowCmdHelp) {
-		print_commandline_help();
-		set_exit_message("");
-
-		return(0);
+	if (GameArg.DbgVerbose)
+	{
+		con_printf(CON_VERBOSE,"%s", TXT_VERBOSE_1);
+		con_printf(CON_VERBOSE,"%s", "\n");
 	}
+	
+	ReadConfigFile();
 
 	PHYSFSX_addArchiveContent();
-
-	printf("\n");
-	printf(TXT_HELP, PROGNAME);		//help message has %s for program name
-	if (GameArg.DbgVerbose)
-		con_printf(CON_VERBOSE,"%s", TXT_VERBOSE_1);
-	printf("\n");
-
-	{
-		char **i, **list;
-
-		list = PHYSFS_getSearchPath();
-		for (i = list; *i != NULL; i++)
-			con_printf(CON_VERBOSE, "PHYSFS: [%s] is in the search path.\n", *i);
-		PHYSFS_freeList(list);
-
-		list = PHYSFS_enumerateFiles("");
-		for (i = list; *i != NULL; i++)
-			con_printf(CON_DEBUG, "PHYSFS: * We've got [%s].\n", *i);
-		PHYSFS_freeList(list);
-	}
 
 	arch_init();
 
