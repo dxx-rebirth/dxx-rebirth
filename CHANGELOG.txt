@@ -1,5 +1,9 @@
 D1X-Rebirth Changelog
 
+20101122
+--------
+arch/sdl/jukebox.c: Make sure read_m3u won't read past the end of the buffer, causing a crash
+
 20101121
 --------
 arch/sdl/jukebox.c, include/physfsx.h, main/menu.c, misc/physfsx.c: Created function PHYSFSX_isNewPath to check wether given path has already been added to Searchpath or not; Used PHYSFSX_isNewPath for menu browsing code instead it's own implementation; Using PHYSFSX_isNewPath for Jukebox directory, too to make sure Jukebox will not accidentially remove Game content depending on user selection; Also only keep Jukebox directory added until files are stored to prevent any other file present in this path can override or add anything to the game
