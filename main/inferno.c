@@ -289,6 +289,9 @@ int MacHog = 0;	// using a Mac hogfile?
 jmp_buf LeaveEvents;
 #define PROGNAME argv[0]
 
+//	DESCENT by Parallax Software
+//		Descent Main
+
 int main(int argc, char *argv[])
 {
 	mem_init();
@@ -298,7 +301,30 @@ int main(int argc, char *argv[])
 
 	setbuf(stdout, NULL); // unbuffered output via printf
 
-	ReadConfigFile();
+	if (GameArg.SysShowCmdHelp) {
+		print_commandline_help();
+		set_exit_message("");
+
+		return(0);
+	}
+
+	printf("\nType %s -help' for a list of command-line options.\n\n", PROGNAME);
+
+	{
+		char **i, **list;
+
+		list = PHYSFS_getSearchPath();
+		for (i = list; *i != NULL; i++)
+			con_printf(CON_VERBOSE, "PHYSFS: [%s] is in the search path.\n", *i);
+		PHYSFS_freeList(list);
+
+		list = PHYSFS_enumerateFiles("");
+		for (i = list; *i != NULL; i++)
+			con_printf(CON_DEBUG, "PHYSFS: * We've got [%s].\n", *i);
+		PHYSFS_freeList(list);
+		
+		con_printf(CON_VERBOSE, "\n");
+	}
 
 	if (! cfile_init("descent.hog", 1))
 		Error("Could not find a valid hog file (descent.hog)\nPossible locations are:\n"
@@ -313,7 +339,7 @@ int main(int argc, char *argv[])
 			  "\tIn 'Resources' inside the application bundle\n"
 #endif
 			  "Or use the -hogdir option to specify an alternate location.");
-
+	
 	switch (cfile_size("descent.hog"))
 	{
 		case D1_MAC_SHARE_MISSION_HOGSIZE:
@@ -326,39 +352,20 @@ int main(int argc, char *argv[])
 
 	//print out the banner title
 	con_printf(CON_NORMAL,DESCENT_VERSION "\n"
-	       "This is a MODIFIED version of DESCENT which is NOT supported by Parallax or\n"
-	       "Interplay. Use at your own risk! Copyright (c) 2005 Christian Beckhaeuser\n");
+			   "This is a MODIFIED version of DESCENT which is NOT supported by Parallax or\n"
+			   "Interplay. Use at your own risk! Copyright (c) 2005 Christian Beckhaeuser\n");
 	con_printf(CON_NORMAL,"Based on: DESCENT   %s\n", VERSION_NAME);
-	con_printf(CON_NORMAL,"%s\n%s\n",TXT_COPYRIGHT,TXT_TRADEMARK);
-
-	if (GameArg.SysShowCmdHelp) {
-		print_commandline_help();
-		set_exit_message("");
-
-		return(0);
-	}
-
-	PHYSFSX_addArchiveContent();
-
-	printf("\nType %s -help' for a list of command-line options.\n", PROGNAME);
+	con_printf(CON_NORMAL,"%s\n%s\n\n",TXT_COPYRIGHT,TXT_TRADEMARK);
 
 	if (GameArg.DbgVerbose)
-		con_printf(CON_VERBOSE,"%s", TXT_VERBOSE_1);
-	printf("\n");
-
 	{
-		char **i, **list;
-
-		list = PHYSFS_getSearchPath();
-		for (i = list; *i != NULL; i++)
-			con_printf(CON_VERBOSE, "PHYSFS: [%s] is in the search path.\n", *i);
-		PHYSFS_freeList(list);
-
-		list = PHYSFS_enumerateFiles("");
-		for (i = list; *i != NULL; i++)
-			con_printf(CON_DEBUG, "PHYSFS: * We've got [%s].\n", *i);
-		PHYSFS_freeList(list);
+		con_printf(CON_VERBOSE,"%s", TXT_VERBOSE_1);
+		con_printf(CON_VERBOSE,"%s", "\n");
 	}
+	
+	ReadConfigFile();
+
+	PHYSFSX_addArchiveContent();
 
 	arch_init();
 
