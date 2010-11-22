@@ -3,6 +3,7 @@ D2X-Rebirth Changelog
 20101122
 --------
 arch/sdl/jukebox.c: Make sure read_m3u won't read past the end of the buffer, causing a crash
+main/inferno.c: If it can't find descent2.hog/d2demo.hog, still print some useful info
 
 20101120
 --------
