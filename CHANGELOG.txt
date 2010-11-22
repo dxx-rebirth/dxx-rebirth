@@ -4,6 +4,7 @@ D2X-Rebirth Changelog
 --------
 arch/sdl/jukebox.c: Make sure read_m3u won't read past the end of the buffer, causing a crash
 main/inferno.c: If it can't find descent2.hog/d2demo.hog, still print some useful info
+main/multi.c, main/multi.h, main/net_ipx.c, main/net_udp.c: Took over variable VerifyPlayerJoined for UDP protocol usage as well to get object and extra packet sending in order as well as regulary resending UPID_SYNC for latecoming players. Should resolve problems when joining already running UDP games
 
 20101120
 --------

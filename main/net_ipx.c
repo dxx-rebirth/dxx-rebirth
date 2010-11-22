@@ -116,7 +116,6 @@ int     num_active_ipx_changed = 0;
 int     IPX_allow_socket_changes = 1;
 int     NetSecurityFlag=NETSECURITY_OFF;
 int     NetSecurityNum=0;
-int     VerifyPlayerJoined=-1;
 IPX_sequence_packet IPX_sync_player; // Who is rejoining now?
 int     IPX_TotalMissedPackets=0,IPX_TotalPacketsGot=0;
 IPX_frame_info      MySyncPack,UrgentSyncPack;

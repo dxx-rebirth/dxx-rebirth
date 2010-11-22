@@ -298,6 +298,7 @@ extern int Network_send_objnum;
 extern int Network_rejoined;
 extern int Network_new_game;
 extern int Network_sending_extras;
+extern int VerifyPlayerJoined;
 extern int Player_joining_extras;
 extern int Network_player_added;
 

@@ -743,6 +743,7 @@ void net_udp_list_join_game()
 	change_playernum_to(1);
 	N_players = 0;
 	Network_send_objects = 0;
+	Network_sending_extras=0;
 	Network_rejoined=0;
 
 	Network_status = NETSTAT_BROWSING; // We are looking at a game menu
@@ -1028,6 +1029,9 @@ net_udp_disconnect_player(int playernum)
 
 	Players[playernum].connected = CONNECT_DISCONNECTED;
 	Netgame.players[playernum].connected = CONNECT_DISCONNECTED;
+
+	if (VerifyPlayerJoined==playernum)
+		VerifyPlayerJoined=-1;
 
 	if (Network_status == NETSTAT_PLAYING)
 	{
@@ -1684,6 +1688,7 @@ void net_udp_send_objects(void)
 
 				// Send sync packet which tells the player who he is and to start!
 				net_udp_send_rejoin_sync(player_num);
+				VerifyPlayerJoined=player_num;
 
 				// Turn off send object mode
 				Network_send_objnum = -1;
@@ -1754,6 +1759,31 @@ void net_udp_send_rejoin_sync(int player_num)
 	net_udp_send_game_info(UDP_sync_player.player.protocol.udp.addr, UPID_SYNC);
 
 	return;
+}
+
+void net_udp_resend_sync_due_to_packet_loss()
+{
+	int i,j;
+
+	if (!multi_i_am_master())
+		return;
+
+	net_udp_update_netgame();
+
+	// Fill in the kill list
+	for (j=0; j<MAX_PLAYERS; j++)
+	{
+		for (i=0; i<MAX_PLAYERS;i++)
+			Netgame.kills[j][i] = kill_matrix[j][i];
+		Netgame.killed[j] = Players[j].net_killed_total;
+		Netgame.player_kills[j] = Players[j].net_kills_total;
+		Netgame.player_score[j] = Players[j].score;
+	}
+
+	Netgame.level_time = Players[Player_num].time_level;
+	Netgame.monitor_vector = net_udp_create_monitor_vector();
+
+	net_udp_send_game_info(UDP_sync_player.player.protocol.udp.addr, UPID_SYNC);
 }
 
 char * net_udp_get_player_name( int objnum )
@@ -4140,9 +4170,11 @@ void net_udp_do_frame(int force, int listen)
 	{
 		net_udp_timeout_check(time);
 		net_udp_listen();
+		if (VerifyPlayerJoined!=-1 && !(FrameCount & 63))
+			net_udp_resend_sync_due_to_packet_loss(); // This will resend to UDP_sync_player
 		if (Network_send_objects)
 			net_udp_send_objects();
-		if (Network_sending_extras)
+		if (Network_sending_extras && VerifyPlayerJoined==-1)
 			net_udp_send_extras();
 	}
 
@@ -4682,6 +4714,12 @@ void net_udp_read_pdata_short_packet(UDP_frame_info *pd)
 	TheirPlayernum = pd->Player_num;
 	TheirObjnum = Players[pd->Player_num].objnum;
 
+	if (VerifyPlayerJoined!=-1 && TheirPlayernum==VerifyPlayerJoined)
+	{
+		// Hurray! Someone really really got in the game (I think).
+		VerifyPlayerJoined=-1;
+	}
+
 	if (!multi_quit_game && (TheirPlayernum >= N_players))
 	{
 		if (Network_status!=NETSTAT_WAITING)
@@ -4979,7 +5017,6 @@ int net_udp_get_new_player_num (UDP_sequence_packet *their)
 
 void net_udp_send_extras ()
 {
-#if 0 // let's try somethign new
 	Assert (Player_joining_extras>-1);
 
 	if (Network_sending_extras==40)
@@ -5002,20 +5039,6 @@ void net_udp_send_extras ()
 	Network_sending_extras--;
 	if (!Network_sending_extras)
 		Player_joining_extras=-1;
-#endif
-	net_udp_send_fly_thru_triggers(Player_joining_extras);
-	net_udp_send_door_updates(Player_joining_extras);
-	net_udp_send_markers();
-	if (Game_mode & GM_MULTI_ROBOTS)
-		multi_send_stolen_items();
-	if (Netgame.PlayTimeAllowed || Netgame.KillGoal)
-		multi_send_kill_goal_counts();
-	net_udp_send_smash_lights(Player_joining_extras);
-	net_udp_send_player_flags();    
-	multi_send_powerup_update();
-
-	Network_sending_extras = 0;
-	Player_joining_extras = -1;
 }
 
 void net_udp_check_for_old_version (char pnum)
