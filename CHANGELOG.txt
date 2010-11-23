@@ -1,5 +1,9 @@
 D2X-Rebirth Changelog
 
+20101123
+--------
+main/net_udp.h: reducing max buffer size of an UDP packet from 1024 to 512 bytes - should prevent possible turncating, especially when sending obejcts where max size is actually used
+
 20101122
 --------
 arch/sdl/jukebox.c: Make sure read_m3u won't read past the end of the buffer, causing a crash
