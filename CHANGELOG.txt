@@ -2,7 +2,7 @@ D1X-Rebirth Changelog
 
 20101123
 --------
-main/net_udp.h: reducing max buffer size of an UDP packet from 1024 to 512 bytes - should prevent possible turncating, especially when sending obejcts where max size is actually used
+main/net_udp.h: reducing max buffer size of an UDP packet from 1024 to 576 bytes - should prevent possible turncating, especially when sending obejcts where max size is actually used
 
 20101122
 --------
