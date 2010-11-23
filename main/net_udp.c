@@ -2627,26 +2627,18 @@ void net_udp_pack_objects(void)
 int
 net_udp_verify_objects(int remote, int local)
 {
-	int i;
-	int nplayers, got_controlcen=0;
+	int i, nplayers = 0;
 
 	if ((remote-local) > 10)
-		return(-1);
-
-	if (Game_mode & GM_MULTI_ROBOTS)
-		got_controlcen = 1;
-
-	nplayers = 0;
+		return(2);
 
 	for (i = 0; i <= Highest_object_index; i++)
 	{
 		if ((Objects[i].type == OBJ_PLAYER) || (Objects[i].type == OBJ_GHOST))
 			nplayers++;
-		if (Objects[i].type == OBJ_CNTRLCEN)
-			got_controlcen=1;
 	}
 
-    if (got_controlcen && (MaxNumNetPlayers<=nplayers))
+	if (MaxNumNetPlayers<=nplayers)
 		return(0);
 
 	return(1);
