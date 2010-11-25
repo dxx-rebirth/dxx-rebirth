@@ -4407,7 +4407,7 @@ void net_udp_send_mdata_direct(ubyte *data, int data_len, int pnum, int priority
 	sendto (UDP_Socket[0], buf, len, 0, (struct sockaddr *)&Netgame.players[pnum].protocol.udp.addr, sizeof(struct _sockaddr));
 
 	if (priority)
-		net_udp_noloss_add_queue_pkt(UDP_MData.pkt_num, timer_get_fixed_seconds(), data, len, Player_num, pack);
+		net_udp_noloss_add_queue_pkt(UDP_MData.pkt_num, timer_get_fixed_seconds(), data, data_len, Player_num, pack);
 }
 
 void net_udp_send_mdata(int priority, fix time)

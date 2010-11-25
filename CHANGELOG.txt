@@ -1,5 +1,9 @@
 D2X-Rebirth Changelog
 
+20101125
+--------
+main/net_udp.c: When adding data from net_udp_send_mdata_direct to noloss queue, use data_len as length of data stream - not len which is longer and would then cause storing garbage
+
 20101123
 --------
 main/net_udp.h: reducing max buffer size of an UDP packet from 1024 to 576 bytes - should prevent possible turncating, especially when sending obejcts where max size is actually used
