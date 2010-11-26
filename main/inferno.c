@@ -338,21 +338,10 @@ int main(int argc, char *argv[])
 
 	printf("\nType %s -help' for a list of command-line options.\n\n", PROGNAME);
 
-	{
-		char **i, **list;
+	PHYSFSX_listSearchPathContent();
 
-		list = PHYSFS_getSearchPath();
-		for (i = list; *i != NULL; i++)
-			con_printf(CON_VERBOSE, "PHYSFS: [%s] is in the search path.\n", *i);
-		PHYSFS_freeList(list);
-
-		list = PHYSFS_enumerateFiles("");
-		for (i = list; *i != NULL; i++)
-			con_printf(CON_DEBUG, "PHYSFS: * We've got [%s].\n", *i);
-		PHYSFS_freeList(list);
-		
-		con_printf(CON_VERBOSE, "\n");
-	}
+	if (!PHYSFSX_checkSupportedArchiveTypes())
+		return(0);
 
 	if (! cfile_init("descent2.hog", 1)) {
 		if (! cfile_init("d2demo.hog", 1))

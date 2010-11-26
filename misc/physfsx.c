@@ -161,6 +161,48 @@ void PHYSFSX_init(int argc, char *argv[])
 #endif
 }
 
+void PHYSFSX_listSearchPathContent()
+{
+	char **i, **list;
+
+	con_printf(CON_DEBUG, "PHYSFS: Listing contents of Search Path.\n");
+	list = PHYSFS_getSearchPath();
+	for (i = list; *i != NULL; i++)
+		con_printf(CON_DEBUG, "PHYSFS: [%s] is in the Search Sath.\n", *i);
+	PHYSFS_freeList(list);
+
+	list = PHYSFS_enumerateFiles("");
+	for (i = list; *i != NULL; i++)
+		con_printf(CON_DEBUG, "PHYSFS: * We've got [%s].\n", *i);
+	PHYSFS_freeList(list);
+	
+	con_printf(CON_DEBUG, "\n");
+}
+
+// checks which archives are supported by PhysFS. Return 0 if some essential (HOG) is not supported
+int PHYSFSX_checkSupportedArchiveTypes()
+{
+	const PHYSFS_ArchiveInfo **i;
+	int hog_sup = 0, mvl_sup = 0;
+
+	con_printf(CON_DEBUG, "PHYSFS: Checking supported archive types.\n");
+	for (i = PHYSFS_supportedArchiveTypes(); *i != NULL; i++)
+	{
+		con_printf(CON_DEBUG, "PHYSFS: Supported archive: [%s], which is [%s].\n", (*i)->extension, (*i)->description);
+		if (!stricmp((*i)->extension, "HOG"))
+			hog_sup = 1;
+		if (!stricmp((*i)->extension, "MVL"))
+			mvl_sup = 1;
+	}
+
+	if (!hog_sup)
+		con_printf(CON_CRITICAL, "PHYSFS: HOG not supported. The game will not work without!\n");
+	if (!mvl_sup)
+		con_printf(CON_URGENT, "PHYSFS: MVL not supported. Won't be able to play movies!\n");
+
+	return hog_sup;
+}
+
 int PHYSFSX_getRealPath(const char *stdPath, char *realPath)
 {
 	const char *realDir = PHYSFS_getRealDir(stdPath);
@@ -359,8 +401,9 @@ void PHYSFSX_addArchiveContent()
 {
 	char **list = NULL;
 	char *archive_exts[] = { ".zip", ".7z", NULL }, *file[2];
-	int i = 0;
+	int i = 0, content_updated = 0;
 
+	con_printf(CON_DEBUG, "PHYSFS: Adding archives to the game.\n");
 	// find files in Searchpath ...
 	list = PHYSFSX_findFiles("", archive_exts);
 	// if found, add them...
@@ -370,7 +413,11 @@ void PHYSFSX_addArchiveContent()
 		MALLOC(file[1], char, PATH_MAX);
 		snprintf(file[0], sizeof(char)*PATH_MAX, "%s", list[i]);
 		PHYSFSX_getRealPath(file[0],file[1]);
-		PHYSFS_addToSearchPath(file[1], 0);
+		if (PHYSFS_addToSearchPath(file[1], 0))
+		{
+			con_printf(CON_DEBUG, "PHYSFS: Added %s to Search Path\n",file[1]);
+			content_updated = 1;
+		}
 		d_free(file[0]);
 		d_free(file[1]);
 	}
@@ -387,7 +434,11 @@ void PHYSFSX_addArchiveContent()
 		MALLOC(file[1], char, PATH_MAX);
 		snprintf(file[0], sizeof(char)*PATH_MAX, "%s%s", DEMO_DIR, list[i]);
 		PHYSFSX_getRealPath(file[0],file[1]);
-		PHYSFS_mount(file[1], DEMO_DIR, 0);
+		if (PHYSFS_mount(file[1], DEMO_DIR, 0))
+		{
+			con_printf(CON_DEBUG, "PHYSFS: Added %s to %s\n",file[1], DEMO_DIR);
+			content_updated = 1;
+		}
 		d_free(file[0]);
 		d_free(file[1]);
 	}
@@ -395,6 +446,12 @@ void PHYSFSX_addArchiveContent()
 
 	PHYSFS_freeList(list);
 	list = NULL;
+
+	if (content_updated)
+	{
+		con_printf(CON_DEBUG, "Game content updated!\n");
+		PHYSFSX_listSearchPathContent();
+	}
 }
 
 // Removes content added above when quitting game

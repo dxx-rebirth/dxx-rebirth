@@ -160,6 +160,8 @@ static inline int PHYSFSX_writeMatrix(PHYSFS_file *file, vms_matrix *m)
 	return 1;
 }
 
+extern void PHYSFSX_listSearchPathContent();
+extern int PHYSFSX_checkSupportedArchiveTypes();
 extern int PHYSFSX_getRealPath(const char *stdPath, char *realPath);
 extern int PHYSFSX_isNewPath(char *path);
 extern int PHYSFSX_rename(char *oldpath, char *newpath);

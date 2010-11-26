@@ -1,5 +1,9 @@
 D2X-Rebirth Changelog
 
+20101126
+--------
+include/physfsx.h, main/inferno.c, misc/physfsx.c: Implemented PHYSFSX_checkSupportedArchiveTypes to check if essential archive types are supported. Print warnings if not and stop program if necessary. Also added PHYSFSX_listSearchPAthContent  to print out search path contents (figures) each time the function is called. Doing this before main HOG inits as well after sucessfully adding archives. Made PHYSFSX_addArchiveContent a bit more verbose as well.
+
 20101125
 --------
 main/net_udp.c: When adding data from net_udp_send_mdata_direct to noloss queue, use data_len as length of data stream - not len which is longer and would then cause storing garbage
