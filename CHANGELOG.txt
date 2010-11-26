@@ -3,6 +3,7 @@ D1X-Rebirth Changelog
 20101126
 --------
 include/physfsx.h, main/inferno.c, misc/physfsx.c: Implemented PHYSFSX_checkSupportedArchiveTypes to check if essential archive types are supported. Print warnings if not and stop program if necessary. Also added PHYSFSX_listSearchPAthContent  to print out search path contents (figures) each time the function is called. Doing this before main HOG inits as well after sucessfully adding archives. Made PHYSFSX_addArchiveContent a bit more verbose as well.
+main/console.c, main/inferno.c: If -verbose or -debug is set, write gamelog.txt unbuffered for a higher chance to get messages there in case of a crash; Totally supress messages in stdout/err.txt on _WIN32
 
 20101123
 --------

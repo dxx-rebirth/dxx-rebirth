@@ -209,7 +209,10 @@ void con_init(void)
 {
 	memset(con_buffer,0,sizeof(con_buffer));
 
-	gamelog_fp = PHYSFSX_openWriteBuffered("gamelog.txt");
+	if (GameArg.DbgVerbose >= CON_VERBOSE)
+		gamelog_fp = PHYSFS_openWrite("gamelog.txt");
+	else
+		gamelog_fp = PHYSFSX_openWriteBuffered("gamelog.txt");
 	atexit(con_close);
 }
 
