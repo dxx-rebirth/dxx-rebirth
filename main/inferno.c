@@ -328,6 +328,10 @@ int main(int argc, char *argv[])
 	con_init();  // Initialise the console
 
 	setbuf(stdout, NULL); // unbuffered output via printf
+#ifdef _WIN32
+	freopen( "CON", "w", stdout );
+	freopen( "CON", "w", stderr );
+#endif
 
 	if (GameArg.SysShowCmdHelp) {
 		print_commandline_help();
@@ -389,11 +393,6 @@ int main(int argc, char *argv[])
 	PHYSFSX_addArchiveContent();
 
 	arch_init();
-
-#ifdef _WIN32
-	freopen( "CON", "w", stdout );
-	freopen( "CON", "w", stderr );
-#endif
 
 	select_tmap(GameArg.DbgTexMap);
 
