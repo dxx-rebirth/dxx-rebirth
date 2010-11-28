@@ -3,6 +3,7 @@ D2X-Rebirth Changelog
 20101128
 --------
 main/multi.c: In multi_new_game when initializing Players structures, also correctly init connected variable which is highly important for spreading pdata to clients and should be set correctly anyways (Thanks to Gold Leader and Flip for help with debugging/testing recent Multiplayer bugs)
+main/powerup.c: in do_powerup added check for distance of other players to powerup object to make redundant pickups less likely
 
 20101126
 --------

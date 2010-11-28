@@ -242,6 +242,28 @@ int do_powerup(object *obj)
 	if ((obj->ctype.powerup_info.flags & PF_SPAT_BY_PLAYER) && obj->ctype.powerup_info.creation_time>0 && GameTime<obj->ctype.powerup_info.creation_time+i2f(2))
 		return 0;		//not enough time elapsed
 
+	if (Game_mode & GM_MULTI)
+	{
+		/*
+		 * The fact: Collecting a powerup is decided Client-side and due to PING it takes time for other players to know if one collected a powerup actually. This may lead to the case two players collect the same powerup!
+		 * The solution: Let us check if someone else is closer to a powerup and if so, do not collect it.
+		 * NOTE: Player positions computed by 'shortpos' and PING can still cause a small margin of error.
+		 */
+		int i = 0;
+		vms_vector tvec;
+		fix mydist = vm_vec_normalized_dir(&tvec, &obj->pos, &ConsoleObject->pos);
+
+		for (i = 0; i < MAX_PLAYERS; i++)
+		{
+			if (i == Player_num || Players[i].connected != CONNECT_PLAYING)
+				continue;
+			if (Objects[Players[i].objnum].type == OBJ_GHOST || Players[i].shields < 0)
+				continue;
+			if (mydist > vm_vec_normalized_dir(&tvec, &obj->pos, &Objects[Players[i].objnum].pos))
+				return 0;
+		}
+	}
+
 	switch (obj->id) {
 		case POW_EXTRA_LIFE:
 			Players[Player_num].lives++;
