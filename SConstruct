@@ -217,13 +217,6 @@ editor_sources = [
 'ui/window.c'
 ]
 
-# for linux
-arch_linux_sources = [
-'arch/linux/ipx.c',
-'arch/linux/ipx_kali.c',
-'arch/linux/ukali.c'
-]
-
 # for opengl
 arch_ogl_sources = [
 'arch/ogl/gr.c',
@@ -347,7 +340,7 @@ else:
 	ogldefines = ['OGL']
 	if (use_ipx == 1):
 		common_sources += ['arch/linux/ipx.c', 'arch/linux/ipx_kali.c', 'arch/linux/ukali.c']
-	common_sources += 'arch/linux/messagebox.c'
+	common_sources += ['arch/linux/messagebox.c']
 	libs += env['LIBS']
 	ogllibs = ['GL', 'GLU']
 	lflags = '-L/usr/X11R6/lib'
