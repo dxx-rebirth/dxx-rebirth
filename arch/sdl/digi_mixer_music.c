@@ -21,7 +21,9 @@
 #include "cfile.h"
 #include "u_mem.h"
 
-
+#ifdef _WIN32
+extern int digi_win32_play_midi_song( char * filename, int loop );
+#endif
 Mix_Music *current_music = NULL;
 static unsigned char *current_music_hndlbuf = NULL;
 
@@ -45,14 +47,16 @@ int mix_play_file(char *filename, int loop, void (*hook_finished_track)())
 	if (fptr == NULL)
 		return 0;
 
-	loop = loop ? -1 : 1;	// loop means loop infinitely, otherwise play once
-
-	// It's a .hmp. Convert to midi stream and load to current_music
+	// It's a .hmp!
 	if (!stricmp(fptr, ".hmp"))
 	{
+#ifdef _WIN32 // on _WIN32, play natively
+		return digi_win32_play_midi_song( filename, loop ); 
+#else // otherwise convert and load to current_music
 		hmp2mid(filename, &current_music_hndlbuf, &bufsize);
 		rw = SDL_RWFromConstMem(current_music_hndlbuf,bufsize*sizeof(char));
 		current_music = Mix_LoadMUS_RW(rw);
+#endif
 	}
 
 	// try loading music via given filename
@@ -84,7 +88,7 @@ int mix_play_file(char *filename, int loop, void (*hook_finished_track)())
 
 	if (current_music)
 	{
-		Mix_PlayMusic(current_music, loop);
+		Mix_PlayMusic(current_music, (loop ? -1 : 1));
 		Mix_HookMusicFinished(hook_finished_track ? hook_finished_track : mix_free_music);
 		return 1;
 	}

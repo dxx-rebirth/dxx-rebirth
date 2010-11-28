@@ -122,6 +122,8 @@ void digi_select_system(int);
 // Windows native-MIDI stuff.
 void digi_win32_set_midi_volume( int mvolume );
 int digi_win32_play_midi_song( char * filename, int loop );
+void digi_win32_pause_midi_song();
+void digi_win32_resume_midi_song();
 void digi_win32_stop_current_song();
 #endif
 

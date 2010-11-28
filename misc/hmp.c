@@ -22,6 +22,8 @@
 #endif
 
 #ifdef _WIN32
+int midi_volume;
+int channel_volume[16];
 void hmp_stop(hmp_file *hmp);
 #endif
 
@@ -123,12 +125,13 @@ hmp_file *hmp_open(const char *filename) {
 			hmp_close(hmp);
 			return NULL;
 		}
+		hmp->trks[i].loop_set = 0;
 	}
 	cfclose(fp);
 	return hmp;
 }
 
-#ifdef WIN32
+#ifdef _WIN32
 // PLAY HMP AS MIDI
 
 void hmp_stop(hmp_file *hmp)
@@ -154,7 +157,7 @@ void hmp_stop(hmp_file *hmp)
 }
 
 /*
- * read a HMI type variabele length number
+ * read a HMI type variable length number
  */
 static int get_var_num_hmi(unsigned char *data, int datalen, unsigned long *value) {
 	unsigned char *p;
@@ -175,7 +178,7 @@ static int get_var_num_hmi(unsigned char *data, int datalen, unsigned long *valu
 }
 
 /*
- * read a MIDI type variabele length number
+ * read a MIDI type variable length number
  */
 static int get_var_num(unsigned char *data, int datalen,
 	unsigned long *value) {
@@ -201,7 +204,7 @@ static int get_event(hmp_file *hmp, event *ev) {
 	mindelta = INT_MAX;
 	fndtrk = NULL;
 	for (trk = hmp->trks, i = hmp->num_trks; (i--) > 0; trk++) {
-		if (!trk->left)
+		if (!trk->left || hmp->loop_start && hmp->looping && !trk->loop_set)
 			continue;
 		if (!(got = get_var_num_hmi(trk->cur, trk->left, &delta)))
 			return HMP_INVALID_FILE;
@@ -210,6 +213,11 @@ static int get_event(hmp_file *hmp, event *ev) {
 			trk->left = 0;
 			continue;
 		}
+
+		if (hmp->loop_start && hmp->looping)
+			if (trk->cur == trk->loop)
+				delta = 0;
+
         delta += trk->cur_time - hmp->cur_time;
 		if (delta < mindelta) {
 			mindelta = delta;
@@ -221,7 +229,28 @@ static int get_event(hmp_file *hmp, event *ev) {
 
 	got = get_var_num_hmi(trk->cur, trk->left, &delta);
 
+	if (hmp->loop_start && hmp->looping)
+		if (trk->cur == trk->loop)
+			delta = 0;
+
 	trk->cur_time += delta;
+
+	if (!hmp->loop_start && *(trk->cur + got) >> 4 == MIDI_CONTROL_CHANGE && *(trk->cur + got + 1) == HMP_LOOP_START)
+		hmp->loop_start = trk->cur_time;
+
+	if (!hmp->loop_end && *(trk->cur + got) >> 4 == MIDI_CONTROL_CHANGE && *(trk->cur + got + 1) == HMP_LOOP_END)
+		hmp->loop_end = trk->cur_time;
+
+	if (hmp->loop_start && !trk->loop_set && trk->cur_time == hmp->loop_start)
+	{
+		trk->loop = trk->cur;
+		trk->len = trk->left;
+		trk->loop_set = 1;
+	}
+
+	if (hmp->loop_end && trk->cur_time > hmp->loop_end)
+		return HMP_EOF;
+
 	ev->delta = trk->cur_time - hmp->cur_time;
 	hmp->cur_time = trk->cur_time;
 
@@ -239,6 +268,13 @@ static int get_event(hmp_file *hmp, event *ev) {
 		if (cmdlen[((ev_num) >> 4) - 8] == 3) {
 			ev->msg[2] = *(trk->cur++);
 			trk->left--;
+
+			if (ev->msg[0] >> 4 == MIDI_CONTROL_CHANGE && ev->msg[1] == MIDI_VOLUME)
+			{
+				channel_volume[ev->msg[0] & 0xf] = ev->msg[2];
+
+				ev->msg[2] = ev->msg[2] * midi_volume / MIDI_VOLUME_SCALE;
+			}
 		}
 	} else if (ev_num == 0xff) {
 		ev->msg[1] = *(trk->cur++);
@@ -319,11 +355,14 @@ static void reset_tracks(struct hmp_file *hmp)
 	int i;
 
 	for (i = 0; i < hmp->num_trks; i++) {
-		hmp->trks [i].cur = hmp->trks [i].data;
-		hmp->trks [i].left = hmp->trks [i].len;
-		hmp->trks [i].cur_time = 0;
+		if (hmp->trks[i].loop_set)
+			hmp->trks[i].cur = hmp->trks[i].loop;
+		else
+			hmp->trks[i].cur = hmp->trks[i].data;
+		hmp->trks[i].left = hmp->trks[i].len;
+		hmp->trks[i].cur_time = 0;
 	}
-	hmp->cur_time=0;
+	hmp->cur_time = 0;
 }
 
 static void _stdcall midi_callback(HMIDISTRM hms, UINT uMsg, DWORD dwUser, DWORD dw1, DWORD dw2) {
@@ -348,6 +387,8 @@ static void _stdcall midi_callback(HMIDISTRM hms, UINT uMsg, DWORD dwUser, DWORD
 			else
 				hmp->stop = 1;
 
+			hmp->looping = 1;
+
 			reset_tracks(hmp);
 		}
 		if ((rc = midiStreamOut(hmp->hmidi, hmp->evbuf,
@@ -371,27 +412,26 @@ static void setup_tempo(hmp_file *hmp, unsigned long tempo) {
 	mhdr->dwBytesRecorded += 12;
 }
 
+void hmp_setvolume(hmp_file *hmp, int volume)
+{
+	int channel;
+
+	if (hmp)
+		for (channel = 0; channel < 16; channel++)
+			midiOutShortMsg((HMIDIOUT)hmp->hmidi, (DWORD)(channel | MIDI_CONTROL_CHANGE << 4 | MIDI_VOLUME << 8 | (channel_volume[channel] * volume / MIDI_VOLUME_SCALE) << 16));
+
+	midi_volume = volume;
+}
+
 int hmp_play(hmp_file *hmp, int bLoop)
 {
 	int rc;
 	MIDIPROPTIMEDIV mptd;
-#if 1
-	unsigned int    numdevs;
-	int i=0; // ZICO - LOOP HERE
 
-	numdevs=midiOutGetNumDevs();
-	hmp->devid=-1;
-	do
-	{
-		MIDIOUTCAPS devcaps;
-		midiOutGetDevCaps(i,&devcaps,sizeof(MIDIOUTCAPS));
-		if ((devcaps.wTechnology==MOD_FMSYNTH) || (devcaps.wTechnology==MOD_SYNTH))
-			hmp->devid=i;
-		i++;
-	} while ((i<(int)numdevs) && (hmp->devid==-1));
-	if (hmp->devid == -1)
-#endif
-		hmp->bLoop = bLoop;
+	hmp->bLoop = bLoop;
+	hmp->loop_start = 0;
+	hmp->loop_end = 0;
+	hmp->looping = 0;
 	hmp->devid = MIDI_MAPPER;
 
 	if ((rc = setup_buffers(hmp)))
@@ -431,6 +471,58 @@ int hmp_play(hmp_file *hmp, int bLoop)
 	}
 	midiStreamRestart(hmp->hmidi);
 	return 0;
+}
+
+void hmp_pause(hmp_file *hmp)
+{
+	midiStreamPause(hmp->hmidi);
+}
+
+void hmp_resume(hmp_file *hmp)
+{
+	midiStreamRestart(hmp->hmidi);
+}
+
+void hmp_reset()
+{
+	HMIDIOUT hmidi;
+	MIDIHDR mhdr;
+	int channel;
+	unsigned char GS_Reset[] = { 0xF0, 0x41, 0x10, 0x42, 0x12, 0x40, 0x00, 0x7F, 0x00, 0x41, 0xF7 };
+
+
+	midiOutOpen(&hmidi, MIDI_MAPPER, 0, 0, 0);
+
+	for (channel = 0; channel < 16; channel++)
+	{
+		midiOutShortMsg(hmidi, (DWORD)(channel | MIDI_CONTROL_CHANGE << 4 | MIDI_ALL_SOUNDS_OFF << 8 | 0 << 16));
+		midiOutShortMsg(hmidi, (DWORD)(channel | MIDI_CONTROL_CHANGE << 4 | MIDI_RESET_ALL_CONTROLLERS << 8 | 0 << 16));
+		midiOutShortMsg(hmidi, (DWORD)(channel | MIDI_CONTROL_CHANGE << 4 | MIDI_ALL_NOTES_OFF << 8 | 0 << 16));
+
+		channel_volume[channel] = 100;
+		midiOutShortMsg(hmidi, (DWORD)(channel | MIDI_CONTROL_CHANGE << 4 | MIDI_PANPOT << 8 | 64 << 16));
+		midiOutShortMsg(hmidi, (DWORD)(channel | MIDI_CONTROL_CHANGE << 4 | MIDI_REVERB << 8 | 40 << 16));
+		midiOutShortMsg(hmidi, (DWORD)(channel | MIDI_CONTROL_CHANGE << 4 | MIDI_CHORUS << 8 | 0 << 16));
+
+		midiOutShortMsg(hmidi, (DWORD)(channel | MIDI_CONTROL_CHANGE << 4 | MIDI_BANK_SELECT_MSB << 8 | 0 << 16));
+		midiOutShortMsg(hmidi, (DWORD)(channel | MIDI_CONTROL_CHANGE << 4 | MIDI_BANK_SELECT_LSB << 8 | 0 << 16));
+		midiOutShortMsg(hmidi, (DWORD)(channel | MIDI_PROGRAM_CHANGE << 4 | 0 << 8));
+	}
+
+	mhdr.lpData = GS_Reset;
+	mhdr.dwBufferLength = sizeof(GS_Reset);
+	mhdr.dwFlags = 0;
+	midiOutPrepareHeader(hmidi, &mhdr, sizeof(MIDIHDR));
+	midiOutLongMsg(hmidi, &mhdr, sizeof(MIDIHDR));
+	while (!(mhdr.dwFlags & MHDR_DONE));
+	midiOutUnprepareHeader(hmidi, &mhdr, sizeof(MIDIHDR));
+
+	Sleep( 50 );
+
+	for (channel = 0; channel < 16; channel++)
+		midiOutShortMsg(hmidi, (DWORD)(channel | MIDI_CONTROL_CHANGE << 4 | MIDI_VOLUME << 8 | (100 * midi_volume / MIDI_VOLUME_SCALE) << 16));
+
+	midiOutClose(hmidi);
 }
 #endif
 
