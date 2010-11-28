@@ -430,6 +430,7 @@ multi_new_game(void)
 	for (i = 0; i < MAX_NUM_NET_PLAYERS; i++)
 	{
 		sorted_kills[i] = i;
+		Players[i].connected = CONNECT_DISCONNECTED;
 		Players[i].net_killed_total = 0;
 		Players[i].net_kills_total = 0;
 		Players[i].flags = 0;
