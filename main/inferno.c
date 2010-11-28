@@ -379,6 +379,7 @@ int main(int argc, char *argv[])
 
 	set_default_handler(standard_handler);
 
+	songs_play_song( SONG_TITLE, 1 );
 	show_titles();
 
 	set_screen_mode(SCREEN_MENU);

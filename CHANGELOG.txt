@@ -5,6 +5,7 @@ D1X-Rebirth Changelog
 main/multi.c: In multi_new_game when initializing Players structures, also correctly init connected variable which is highly important for spreading pdata to clients and should be set correctly anyways (Thanks to Gold Leader and Flip for help with debugging/testing recent Multiplayer bugs)
 main/powerup.c: in do_powerup added check for distance of other players to powerup object to make redundant pickups less likely
 arch/carbon/messagebox.c, arch/include/messagebox.h, arch/linux/messagebox.c, arch/sdl/rbaudio.c, arch/win32/messagebox.c, d1x-rebirth.xcodeproj/project.pbxproj, editor/med.c, main/game.c, main/inferno.c, SConstruct: Add support for OS native error/warning boxes, only implemented for Mac for now
+main/inferno.c: Fix for r936 - re-added playing titles song when titles are about to show
 
 20101126
 --------
