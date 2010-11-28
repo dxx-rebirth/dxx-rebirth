@@ -1,5 +1,9 @@
 D2X-Rebirth Changelog
 
+20101128
+--------
+main/multi.c: In multi_new_game when initializing Players structures, also correctly init connected variable which is highly important for spreading pdata to clients and should be set correctly anyways (Thanks to Gold Leader and Flip for help with debugging/testing recent Multiplayer bugs)
+
 20101126
 --------
 include/physfsx.h, main/inferno.c, misc/physfsx.c: Implemented PHYSFSX_checkSupportedArchiveTypes to check if essential archive types are supported. Print warnings if not and stop program if necessary. Also added PHYSFSX_listSearchPAthContent  to print out search path contents (figures) each time the function is called. Doing this before main HOG inits as well after sucessfully adding archives. Made PHYSFSX_addArchiveContent a bit more verbose as well.
