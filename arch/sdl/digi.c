@@ -145,29 +145,12 @@ void digi_debug()
 
 #ifdef _WIN32
 // Windows native-MIDI stuff.
-#define MIDI_VOLUME_SCALE 128
 int digi_win32_midi_song_playing=0;
 static hmp_file *cur_hmp=NULL;
 
 void digi_win32_set_midi_volume( int mvolume )
 {
-	int mm_volume, midi_volume=0;
-	
-	mvolume *= MIDI_VOLUME_SCALE/8;
-
-	if (mvolume < 0)
-		midi_volume = 0;
-	else if (mvolume > MIDI_VOLUME_SCALE-1)
-		midi_volume = MIDI_VOLUME_SCALE-1;
-	else
-		midi_volume = mvolume;
-
-	// scale up from 0-127 to 0-0xffff
-	mm_volume = (midi_volume << 1) | (midi_volume & 1);
-	mm_volume |= (mm_volume << 8);
-
-	if (cur_hmp)
-		midiOutSetVolume((HMIDIOUT)cur_hmp->hmidi, mm_volume | mm_volume << 16);
+	hmp_setvolume(cur_hmp, mvolume*MIDI_VOLUME_SCALE/8);
 }
 
 int digi_win32_play_midi_song( char * filename, int loop )
@@ -182,11 +165,21 @@ int digi_win32_play_midi_song( char * filename, int loop )
 		if (hmp_play(cur_hmp,loop) != 0)
 			return 0;	// error
 		digi_win32_midi_song_playing = 1;
-		digi_win32_set_midi_volume((GameCfg.MusicVolume*MIDI_VOLUME_SCALE)/8);
+		digi_win32_set_midi_volume(GameCfg.MusicVolume);
 		return 1;
 	}
 
 	return 0;
+}
+
+void digi_win32_pause_midi_song()
+{
+	hmp_pause(cur_hmp);
+}
+
+void digi_win32_resume_midi_song()
+{
+	hmp_resume(cur_hmp);
 }
 
 void digi_win32_stop_current_song()
@@ -197,5 +190,6 @@ void digi_win32_stop_current_song()
 		cur_hmp = NULL;
 		digi_win32_midi_song_playing = 0;
 	}
+	hmp_reset();
 }
 #endif

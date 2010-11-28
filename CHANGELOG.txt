@@ -6,6 +6,7 @@ main/multi.c: In multi_new_game when initializing Players structures, also corre
 main/powerup.c: in do_powerup added check for distance of other players to powerup object to make redundant pickups less likely
 arch/carbon/messagebox.c, arch/include/messagebox.h, arch/linux/messagebox.c, arch/sdl/rbaudio.c, arch/win32/messagebox.c, d2x-rebirth.xcodeproj/project.pbxproj, main/editor/med.c, main/game.c, main/inferno.c, SConstruct: Add support for OS native error/warning boxes, only implemented for Mac for now
 SConstruct: Added missing brackets gone missing in r936
+arch/sdl/digi.c, arch/sdl/digi_mixer_music.c, include/hmp.h, main/digi.h, main/songs.c, misc/args.c, misc/hmp.c: Large improvement for _WIN32 native MIDI code by TURRICAN0: supprt for HMP track loop, seamless song looping, GS reset, pausing/resuming midi, volume control for each MIDI channel; Set GameArg.SndDisableSdlMixer automatically if compiled without SDL_mixer support; On _WIN32 play HMP natively again
 
 20101126
 --------
