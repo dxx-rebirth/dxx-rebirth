@@ -178,11 +178,6 @@ void reset_palette_add()
 }
 
 
-void game_show_warning(char *s)
-{
-	nm_messagebox( TXT_WARNING, 1, TXT_OK, s );
-}
-
 u_int32_t Game_screen_mode = SM(640,480);
 
 //initialize the various canvases on the game screen
@@ -959,7 +954,6 @@ window *game_setup(void)
 		return NULL;
 
 	reset_palette_add();
-	set_warn_func(game_show_warning);
 	init_cockpit();
 	init_gauges();
 
@@ -1069,7 +1063,6 @@ int game_handler(window *wind, d_event *event, void *data)
 
 			songs_play_song( SONG_TITLE, 1 );
 
-			clear_warn_func(game_show_warning);     //don't use this func anymore
 			game_disable_cheats();
 			Game_mode = GM_GAME_OVER;
 			show_menus();
@@ -1105,7 +1098,6 @@ void close_game()
 
 	close_gauges();
 	restore_effect_bitmap_icons();
-	clear_warn_func(game_show_warning);     //don't use this func anymore
 }
 
 

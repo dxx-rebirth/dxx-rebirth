@@ -74,6 +74,7 @@ char copyright[] = "DESCENT   COPYRIGHT (C) 1994,1995 PARALLAX SOFTWARE CORPORAT
 #include "../texmap/scanline.h" //for select_tmap -MM
 #include "event.h"
 #include "rbaudio.h"
+#include "messagebox.h"
 
 #ifdef EDITOR
 #include "editor/editor.h"
@@ -295,7 +296,8 @@ jmp_buf LeaveEvents;
 int main(int argc, char *argv[])
 {
 	mem_init();
-	error_init(NULL, NULL);
+	error_init(msgbox_error, NULL);
+	set_warn_func(msgbox_warning);
 	PHYSFSX_init(argc, argv);
 	con_init();  // Initialise the console
 
@@ -351,10 +353,7 @@ int main(int argc, char *argv[])
 	con_printf(CON_NORMAL,"%s\n%s\n\n",TXT_COPYRIGHT,TXT_TRADEMARK);
 
 	if (GameArg.DbgVerbose)
-	{
-		con_printf(CON_VERBOSE,"%s", TXT_VERBOSE_1);
-		con_printf(CON_VERBOSE,"%s", "\n");
-	}
+		con_printf(CON_VERBOSE,"%s%s", TXT_VERBOSE_1, "\n");
 	
 	ReadConfigFile();
 
@@ -377,7 +376,12 @@ int main(int argc, char *argv[])
 
 	con_printf(CON_DEBUG, "Initializing font system...\n" );
 	gamefont_init();	// must load after palette data loaded.
-	songs_play_song( SONG_TITLE, 1 );
+
+	set_default_handler(standard_handler);
+
+	show_titles();
+
+	set_screen_mode(SCREEN_MENU);
 
 	con_printf( CON_DEBUG, "\nDoing gamedata_init..." );
 	gamedata_init();
@@ -385,21 +389,13 @@ int main(int argc, char *argv[])
 	if (GameArg.DbgNoRun)
 		return(0);
 
-	error_init(error_messagebox, NULL);
-
-	set_default_handler(standard_handler);
-
 	con_printf( CON_DEBUG, "\nInitializing texture caching system..." );
 	texmerge_init( 10 );		// 10 cache bitmaps
 
 	con_printf( CON_DEBUG, "\nRunning game...\n" );
-	set_screen_mode(SCREEN_MENU);
-
 	init_game();
 
 	Players[Player_num].callsign[0] = '\0';
-
-	show_titles();
 
 	key_flush();
 
@@ -442,7 +438,6 @@ int main(int argc, char *argv[])
 	show_order_form();
 
 	con_printf( CON_DEBUG, "\nCleanup...\n" );
-	error_init(NULL, NULL);		// clear error func (won't have newmenu stuff loaded)
 	close_game();
 	texmerge_close();
 	gamedata_close();

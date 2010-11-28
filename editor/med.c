@@ -1359,7 +1359,7 @@ void editor(void)
 
 //	_MARK_("end of editor");//Nuked to compile -KRB
 
-	clear_warn_func(med_show_warning);
+	set_warn_func(msgbox_warning);
 
 	//kill our camera object
 
