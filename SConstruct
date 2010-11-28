@@ -308,6 +308,7 @@ if sys.platform == 'win32':
 	ogldefines = ['OGL']
 	if (use_ipx == 1):
 		common_sources += ['arch/win32/ipx.c']
+	common_sources += ['arch/win32/messagebox.c']
 	ogllibs = ''
 	libs += ['glu32', 'wsock32', 'winmm', 'mingw32', 'SDLmain', 'SDL']
 	lflags = '-mwindows  arch/win32/d2xr.res'
@@ -319,11 +320,12 @@ elif sys.platform == 'darwin':
 	asm = 0
 	env.Append(CPPPATH = ['arch/linux/include'])
 	ogldefines = ['OGL']
-	common_sources += 'arch/cocoa/SDLMain.m'
+	common_sources += ['arch/cocoa/SDLMain.m', 'arch/carbon/messagebox.c']
 	ogllibs = ''
 	libs = ''
 	# Ugly way of linking to frameworks, but kreator has seen uglier
-	lflags = '-framework Cocoa -framework SDL -framework physfs'
+	lflags = '-framework ApplicationServices -framework Carbon -framework Cocoa -framework SDL'
+	libs += '../physfs/build/Debug/libphysfs.dylib'
 	if (sdl_only == 0):
 		lflags += ' -framework OpenGL'
 	if (sdlmixer == 1):
@@ -348,6 +350,7 @@ else:
 	ogldefines = ['OGL']
 	if (use_ipx == 1):
 		common_sources += ['arch/linux/ipx.c', 'arch/linux/ipx_kali.c', 'arch/linux/ukali.c']
+	common_sources += 'arch/linux/messagebox.c'
 	libs += env['LIBS']
 	ogllibs = ['GL', 'GLU']
 	lflags = '-L/usr/X11R6/lib'

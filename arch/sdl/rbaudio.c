@@ -53,7 +53,7 @@ void RBAInit()
 	num_cds = SDL_CDNumDrives();
 	if (num_cds < 1)
 	{
-		Warning("No cdrom drives found!\n");
+		con_printf(CON_NORMAL, "No cdrom drives found!\n");
 #if defined(__APPLE__) || defined(macintosh)
 		SDL_QuitSubSystem(SDL_INIT_CDROM);	// necessary for rescanning CDROMs
 #endif
@@ -83,7 +83,7 @@ void RBAInit()
 	
 	if (i == num_cds)
 	{
-		Warning("No audio CDs found\n");
+		con_printf(CON_NORMAL, "No audio CDs found\n");
 		if (s_cd)	// if there's no audio CD, say that there's no redbook and hence play MIDI instead
 		{
 			SDL_CDClose(s_cd);

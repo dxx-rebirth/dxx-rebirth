@@ -87,6 +87,7 @@ char copyright[] = "DESCENT II  COPYRIGHT (C) 1994-1996 PARALLAX SOFTWARE CORPOR
 #include "../texmap/scanline.h" //for select_tmap -MM
 #include "event.h"
 #include "rbaudio.h"
+#include "messagebox.h"
 
 #ifdef EDITOR
 #include "editor/editor.h"
@@ -323,7 +324,8 @@ char	Auto_file[128] = "";
 int main(int argc, char *argv[])
 {
 	mem_init();
-	error_init(NULL, NULL);
+	error_init(msgbox_error, NULL);
+	set_warn_func(msgbox_warning);
 	PHYSFSX_init(argc, argv);
 	con_init();  // Initialise the console
 
@@ -343,7 +345,7 @@ int main(int argc, char *argv[])
 	printf("\nType %s -help' for a list of command-line options.\n\n", PROGNAME);
 
 	PHYSFSX_listSearchPathContent();
-
+	
 	if (!PHYSFSX_checkSupportedArchiveTypes())
 		return(0);
 
@@ -383,10 +385,7 @@ int main(int argc, char *argv[])
 	con_printf(CON_NORMAL, "                                         Copyright (c) 2005 Christian Beckhaeuser\n\n");
 
 	if (GameArg.DbgVerbose)
-	{
-		con_printf(CON_VERBOSE,"%s", TXT_VERBOSE_1);
-		con_printf(CON_VERBOSE,"%s", "\n");
-	}
+		con_printf(CON_VERBOSE,"%s%s", TXT_VERBOSE_1, "\n");
 	
 	ReadConfigFile();
 
@@ -429,8 +428,6 @@ int main(int argc, char *argv[])
 
 	if (GameArg.DbgNoRun)
 		return(0);
-
-	error_init(error_messagebox, NULL);
 
 	con_printf( CON_DEBUG, "\nInitializing texture caching system..." );
 	texmerge_init( 10 );		// 10 cache bitmaps
@@ -499,7 +496,6 @@ int main(int argc, char *argv[])
 	show_order_form();
 
 	con_printf( CON_DEBUG, "\nCleanup...\n" );
-	error_init(NULL, NULL);		// clear error func (won't have newmenu stuff loaded)
 	close_game();
 	texmerge_close();
 	gamedata_close();

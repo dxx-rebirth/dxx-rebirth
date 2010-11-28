@@ -340,6 +340,8 @@
 		67F6FED3066B13B400443922 /* SDLMain.m in Sources */ = {isa = PBXBuildFile; fileRef = 67F6FED1066B13B400443922 /* SDLMain.m */; };
 		67F6FED4066B13B400443922 /* SDLMain.h in Headers */ = {isa = PBXBuildFile; fileRef = 67F6FED0066B13B400443922 /* SDLMain.h */; };
 		67F6FED5066B13B400443922 /* SDLMain.m in Sources */ = {isa = PBXBuildFile; fileRef = 67F6FED1066B13B400443922 /* SDLMain.m */; };
+		EB092A8012A25AFB004D9A79 /* messagebox.c in Sources */ = {isa = PBXBuildFile; fileRef = EB092A7F12A25AFB004D9A79 /* messagebox.c */; };
+		EB092A8112A25AFB004D9A79 /* messagebox.c in Sources */ = {isa = PBXBuildFile; fileRef = EB092A7F12A25AFB004D9A79 /* messagebox.c */; };
 		EB1405E9121044B5002B1CC6 /* physfsx.c in Sources */ = {isa = PBXBuildFile; fileRef = EB1405E8121044B5002B1CC6 /* physfsx.c */; };
 		EB1405EA121044B5002B1CC6 /* physfsx.c in Sources */ = {isa = PBXBuildFile; fileRef = EB1405E8121044B5002B1CC6 /* physfsx.c */; };
 		EB28D9A30ECEAF1C00E68E9B /* init.c in Sources */ = {isa = PBXBuildFile; fileRef = EB28D9A20ECEAF1C00E68E9B /* init.c */; };
@@ -640,6 +642,16 @@
 		EB0421040A341042002CC961 /* ai.h */ = {isa = PBXFileReference; fileEncoding = 30; lastKnownFileType = sourcecode.c.h; path = ai.h; sourceTree = "<group>"; };
 		EB0421050A341042002CC961 /* controls.h */ = {isa = PBXFileReference; fileEncoding = 30; lastKnownFileType = sourcecode.c.h; path = controls.h; sourceTree = "<group>"; };
 		EB0421060A341042002CC961 /* config.h */ = {isa = PBXFileReference; fileEncoding = 30; lastKnownFileType = sourcecode.c.h; path = config.h; sourceTree = "<group>"; };
+		EB092A7F12A25AFB004D9A79 /* messagebox.c */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.c; path = messagebox.c; sourceTree = "<group>"; };
+		EB092A8412A25EB1004D9A79 /* messagebox.c */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.c; path = messagebox.c; sourceTree = "<group>"; };
+		EB092A8512A25EC8004D9A79 /* messagebox.c */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.c; path = messagebox.c; sourceTree = "<group>"; };
+		EB092A8712A25EE4004D9A79 /* d3dhelp.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = d3dhelp.h; sourceTree = "<group>"; };
+		EB092A8812A25EE4004D9A79 /* debug.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = debug.h; sourceTree = "<group>"; };
+		EB092A8912A25EE4004D9A79 /* pch.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = pch.h; sourceTree = "<group>"; };
+		EB092A8A12A25EE4004D9A79 /* resource.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = resource.h; sourceTree = "<group>"; };
+		EB092A8B12A25EE4004D9A79 /* scene.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = scene.h; sourceTree = "<group>"; };
+		EB092A8C12A25EE4004D9A79 /* texture.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = texture.h; sourceTree = "<group>"; };
+		EB092A8D12A25EE4004D9A79 /* wsipx.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = wsipx.h; sourceTree = "<group>"; };
 		EB1405E8121044B5002B1CC6 /* physfsx.c */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.c; path = physfsx.c; sourceTree = "<group>"; };
 		EB28D9A20ECEAF1C00E68E9B /* init.c */ = {isa = PBXFileReference; fileEncoding = 30; lastKnownFileType = sourcecode.c.c; path = init.c; sourceTree = "<group>"; };
 		EB91A437126175ED009E0095 /* libphysfs.dylib */ = {isa = PBXFileReference; lastKnownFileType = "compiled.mach-o.dylib"; name = libphysfs.dylib; path = ../physfs/build/Release/libphysfs.dylib; sourceTree = SOURCE_ROOT; };
@@ -661,8 +673,6 @@
 		EBAFC24B088E4C53006329AD /* physfsrwops.h */ = {isa = PBXFileReference; fileEncoding = 30; lastKnownFileType = sourcecode.c.h; path = physfsrwops.h; sourceTree = "<group>"; };
 		EBAFC269088E508D006329AD /* conf.h */ = {isa = PBXFileReference; fileEncoding = 30; lastKnownFileType = sourcecode.c.h; path = conf.h; sourceTree = "<group>"; };
 		EBAFC26A088E508D006329AD /* descent.r */ = {isa = PBXFileReference; fileEncoding = 30; lastKnownFileType = sourcecode.rez; path = descent.r; sourceTree = "<group>"; };
-		EBAFC26B088E508D006329AD /* findfile.c */ = {isa = PBXFileReference; fileEncoding = 30; lastKnownFileType = sourcecode.c.c; path = findfile.c; sourceTree = "<group>"; };
-		EBAFC26C088E508D006329AD /* gui.c */ = {isa = PBXFileReference; fileEncoding = 30; lastKnownFileType = sourcecode.c.c; path = gui.c; sourceTree = "<group>"; };
 		EBAFC26D088E508D006329AD /* SDL_main.c */ = {isa = PBXFileReference; fileEncoding = 30; lastKnownFileType = sourcecode.c.c; path = SDL_main.c; sourceTree = "<group>"; };
 		EBAFC28F088E67CD006329AD /* digiobj.c */ = {isa = PBXFileReference; fileEncoding = 30; lastKnownFileType = sourcecode.c.c; path = digiobj.c; sourceTree = "<group>"; };
 		EBAFC2B0088E695F006329AD /* ignorecase.c */ = {isa = PBXFileReference; fileEncoding = 30; lastKnownFileType = sourcecode.c.c; path = ignorecase.c; sourceTree = "<group>"; };
@@ -673,15 +683,6 @@
 		EBB9E5330D8E82B3003466E6 /* clip.h */ = {isa = PBXFileReference; fileEncoding = 30; lastKnownFileType = sourcecode.c.h; path = clip.h; sourceTree = "<group>"; };
 		EBB9E5380D8E82FF003466E6 /* clipper.h */ = {isa = PBXFileReference; fileEncoding = 30; lastKnownFileType = sourcecode.c.h; path = clipper.h; sourceTree = "<group>"; };
 		EBB9E5390D8E82FF003466E6 /* globvars.h */ = {isa = PBXFileReference; fileEncoding = 30; lastKnownFileType = sourcecode.c.h; path = globvars.h; sourceTree = "<group>"; };
-		EBB9E53B0D8E8378003466E6 /* hmpfile.c */ = {isa = PBXFileReference; fileEncoding = 30; lastKnownFileType = sourcecode.c.c; path = hmpfile.c; sourceTree = "<group>"; };
-		EBB9E53D0D8E8378003466E6 /* d3dhelp.h */ = {isa = PBXFileReference; fileEncoding = 30; lastKnownFileType = sourcecode.c.h; path = d3dhelp.h; sourceTree = "<group>"; };
-		EBB9E53E0D8E8378003466E6 /* debug.h */ = {isa = PBXFileReference; fileEncoding = 30; lastKnownFileType = sourcecode.c.h; path = debug.h; sourceTree = "<group>"; };
-		EBB9E53F0D8E8378003466E6 /* hmpfile.h */ = {isa = PBXFileReference; fileEncoding = 30; lastKnownFileType = sourcecode.c.h; path = hmpfile.h; sourceTree = "<group>"; };
-		EBB9E5400D8E8378003466E6 /* pch.h */ = {isa = PBXFileReference; fileEncoding = 30; lastKnownFileType = sourcecode.c.h; path = pch.h; sourceTree = "<group>"; };
-		EBB9E5410D8E8378003466E6 /* resource.h */ = {isa = PBXFileReference; fileEncoding = 30; lastKnownFileType = sourcecode.c.h; path = resource.h; sourceTree = "<group>"; };
-		EBB9E5420D8E8378003466E6 /* scene.h */ = {isa = PBXFileReference; fileEncoding = 30; lastKnownFileType = sourcecode.c.h; path = scene.h; sourceTree = "<group>"; };
-		EBB9E5430D8E8378003466E6 /* texture.h */ = {isa = PBXFileReference; fileEncoding = 30; lastKnownFileType = sourcecode.c.h; path = texture.h; sourceTree = "<group>"; };
-		EBB9E5450D8E8378003466E6 /* wsipx.h */ = {isa = PBXFileReference; fileEncoding = 30; lastKnownFileType = sourcecode.c.h; path = wsipx.h; sourceTree = "<group>"; };
 		EBB9E5480D8E83F2003466E6 /* internal.h */ = {isa = PBXFileReference; fileEncoding = 30; lastKnownFileType = sourcecode.c.h; path = internal.h; sourceTree = "<group>"; };
 		EBB9E5490D8E83F2003466E6 /* loadgl.h */ = {isa = PBXFileReference; fileEncoding = 30; lastKnownFileType = sourcecode.c.h; path = loadgl.h; sourceTree = "<group>"; };
 		EBB9E54B0D8E8429003466E6 /* decoders.h */ = {isa = PBXFileReference; fileEncoding = 30; lastKnownFileType = sourcecode.c.h; path = decoders.h; sourceTree = "<group>"; };
@@ -689,7 +690,6 @@
 		EBB9E54D0D8E8429003466E6 /* mvelib.h */ = {isa = PBXFileReference; fileEncoding = 30; lastKnownFileType = sourcecode.c.h; path = mvelib.h; sourceTree = "<group>"; };
 		EBB9E5620D8E8690003466E6 /* alsadigi.c */ = {isa = PBXFileReference; fileEncoding = 30; lastKnownFileType = sourcecode.c.c; path = alsadigi.c; sourceTree = "<group>"; };
 		EBB9E5630D8E8691003466E6 /* hmiplay.c */ = {isa = PBXFileReference; fileEncoding = 30; lastKnownFileType = sourcecode.c.c; path = hmiplay.c; sourceTree = "<group>"; };
-		EBB9E5640D8E8691003466E6 /* hmistub.c */ = {isa = PBXFileReference; fileEncoding = 30; lastKnownFileType = sourcecode.c.c; path = hmistub.c; sourceTree = "<group>"; };
 		EBB9E5670D8E8691003466E6 /* music.h */ = {isa = PBXFileReference; fileEncoding = 30; lastKnownFileType = sourcecode.c.h; path = music.h; sourceTree = "<group>"; };
 		EBB9E5680D8E8691003466E6 /* ukali.h */ = {isa = PBXFileReference; fileEncoding = 30; lastKnownFileType = sourcecode.c.h; path = ukali.h; sourceTree = "<group>"; };
 		EBB9E56C0D8E8691003466E6 /* ukali.c */ = {isa = PBXFileReference; fileEncoding = 30; lastKnownFileType = sourcecode.c.c; path = ukali.c; sourceTree = "<group>"; };
@@ -923,13 +923,6 @@
 			name = Frameworks;
 			sourceTree = "<group>";
 		};
-		67603357066B3AE0008A67A3 /* include */ = {
-			isa = PBXGroup;
-			children = (
-			);
-			path = include;
-			sourceTree = "<group>";
-		};
 		676AC04B0668A814007173EB /* ogl */ = {
 			isa = PBXGroup;
 			children = (
@@ -1005,14 +998,13 @@
 		67B44193066879B000DF26D8 /* linux */ = {
 			isa = PBXGroup;
 			children = (
+				EB092A8412A25EB1004D9A79 /* messagebox.c */,
 				EBB9E5620D8E8690003466E6 /* alsadigi.c */,
 				EBB9E5630D8E8691003466E6 /* hmiplay.c */,
-				EBB9E5640D8E8691003466E6 /* hmistub.c */,
 				EBB9E5650D8E8691003466E6 /* include */,
 				EBF6589B0F936BA200CB5C73 /* ipx.c */,
 				EBF6589C0F936BA200CB5C73 /* ipx_kali.c */,
 				EBB9E56C0D8E8691003466E6 /* ukali.c */,
-				67603357066B3AE0008A67A3 /* include */,
 			);
 			name = linux;
 			path = arch/linux;
@@ -1324,13 +1316,26 @@
 			path = include;
 			sourceTree = SOURCE_ROOT;
 		};
+		EB092A8612A25EE4004D9A79 /* include */ = {
+			isa = PBXGroup;
+			children = (
+				EB092A8712A25EE4004D9A79 /* d3dhelp.h */,
+				EB092A8812A25EE4004D9A79 /* debug.h */,
+				EB092A8912A25EE4004D9A79 /* pch.h */,
+				EB092A8A12A25EE4004D9A79 /* resource.h */,
+				EB092A8B12A25EE4004D9A79 /* scene.h */,
+				EB092A8C12A25EE4004D9A79 /* texture.h */,
+				EB092A8D12A25EE4004D9A79 /* wsipx.h */,
+			);
+			path = include;
+			sourceTree = "<group>";
+		};
 		EBAFC268088E508D006329AD /* carbon */ = {
 			isa = PBXGroup;
 			children = (
+				EB092A7F12A25AFB004D9A79 /* messagebox.c */,
 				EBAFC269088E508D006329AD /* conf.h */,
 				EBAFC26A088E508D006329AD /* descent.r */,
-				EBAFC26B088E508D006329AD /* findfile.c */,
-				EBAFC26C088E508D006329AD /* gui.c */,
 				EBAFC26D088E508D006329AD /* SDL_main.c */,
 			);
 			name = carbon;
@@ -1340,27 +1345,12 @@
 		EBB9E53A0D8E8378003466E6 /* win32 */ = {
 			isa = PBXGroup;
 			children = (
-				EBB9E53B0D8E8378003466E6 /* hmpfile.c */,
-				EBB9E53C0D8E8378003466E6 /* include */,
+				EB092A8612A25EE4004D9A79 /* include */,
+				EB092A8512A25EC8004D9A79 /* messagebox.c */,
 				EBF6589D0F936BD800CB5C73 /* ipx.c */,
 			);
 			name = win32;
 			path = arch/win32;
-			sourceTree = "<group>";
-		};
-		EBB9E53C0D8E8378003466E6 /* include */ = {
-			isa = PBXGroup;
-			children = (
-				EBB9E53D0D8E8378003466E6 /* d3dhelp.h */,
-				EBB9E53E0D8E8378003466E6 /* debug.h */,
-				EBB9E53F0D8E8378003466E6 /* hmpfile.h */,
-				EBB9E5400D8E8378003466E6 /* pch.h */,
-				EBB9E5410D8E8378003466E6 /* resource.h */,
-				EBB9E5420D8E8378003466E6 /* scene.h */,
-				EBB9E5430D8E8378003466E6 /* texture.h */,
-				EBB9E5450D8E8378003466E6 /* wsipx.h */,
-			);
-			path = include;
 			sourceTree = "<group>";
 		};
 		EBB9E5650D8E8691003466E6 /* include */ = {
@@ -1838,6 +1828,7 @@
 				17DFA6B910C1A2D100674D11 /* net_udp.c in Sources */,
 				179E6ECE11F37C0500175C54 /* hmp.c in Sources */,
 				EB1405EA121044B5002B1CC6 /* physfsx.c in Sources */,
+				EB092A8112A25AFB004D9A79 /* messagebox.c in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -1980,6 +1971,7 @@
 				EB2EEB5810C50CE2005256F2 /* net_udp.c in Sources */,
 				179E6ECF11F37C0500175C54 /* hmp.c in Sources */,
 				EB1405E9121044B5002B1CC6 /* physfsx.c in Sources */,
+				EB092A8012A25AFB004D9A79 /* messagebox.c in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
