@@ -6,6 +6,7 @@
  *
  */
 
+#include <windows.h>
 #include "window.h"
 #include "event.h"
 #include "messagebox.h"
@@ -20,7 +21,10 @@ void display_win32_alert(char *message, int error)
 		window_send_event(window_get_front(), &event);
 	event.type = EVENT_WINDOW_ACTIVATED;
 
-	// TODO: insert messagebox code...
+	if (gr_check_fullscreen())
+		gr_toggle_fullscreen();
+
+	MessageBox(NULL, message, error?"Sorry, a critical error has occurred.":"Attention!", error?MB_OK|MB_ICONERROR:MB_OK|MB_ICONWARNING);
 
 	if (wind)
 		window_send_event(window_get_front(), &event);
