@@ -348,6 +348,8 @@
 		EB28D9A40ECEAF1C00E68E9B /* init.c in Sources */ = {isa = PBXBuildFile; fileRef = EB28D9A20ECEAF1C00E68E9B /* init.c */; };
 		EB2EEB5810C50CE2005256F2 /* net_udp.c in Sources */ = {isa = PBXBuildFile; fileRef = 17DFA6B510C1A2D100674D11 /* net_udp.c */; };
 		EB380D360E16886300EBD9AD /* InfoPlist.strings in Resources */ = {isa = PBXBuildFile; fileRef = 089C165CFE840E0CC02AAC07 /* InfoPlist.strings */; };
+		EB3EB4F312A54805005F992D /* Carbon.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = EB3EB4ED12A547C7005F992D /* Carbon.framework */; };
+		EB3EB4F412A5480D005F992D /* Carbon.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = EB3EB4ED12A547C7005F992D /* Carbon.framework */; };
 		EB91A438126175ED009E0095 /* libphysfs.dylib in Frameworks */ = {isa = PBXBuildFile; fileRef = EB91A437126175ED009E0095 /* libphysfs.dylib */; };
 		EB91A439126175ED009E0095 /* libphysfs.dylib in Frameworks */ = {isa = PBXBuildFile; fileRef = EB91A437126175ED009E0095 /* libphysfs.dylib */; };
 		EB91A43D12617668009E0095 /* libphysfs.dylib in Frameworks */ = {isa = PBXBuildFile; fileRef = EB91A43C12617668009E0095 /* libphysfs.dylib */; };
@@ -654,6 +656,8 @@
 		EB092A8D12A25EE4004D9A79 /* wsipx.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = wsipx.h; sourceTree = "<group>"; };
 		EB1405E8121044B5002B1CC6 /* physfsx.c */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.c; path = physfsx.c; sourceTree = "<group>"; };
 		EB28D9A20ECEAF1C00E68E9B /* init.c */ = {isa = PBXFileReference; fileEncoding = 30; lastKnownFileType = sourcecode.c.c; path = init.c; sourceTree = "<group>"; };
+		EB3EB4DF12A5471B005F992D /* messagebox.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = messagebox.h; sourceTree = "<group>"; };
+		EB3EB4ED12A547C7005F992D /* Carbon.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = Carbon.framework; path = /System/Library/Frameworks/Carbon.framework; sourceTree = "<absolute>"; };
 		EB91A437126175ED009E0095 /* libphysfs.dylib */ = {isa = PBXFileReference; lastKnownFileType = "compiled.mach-o.dylib"; name = libphysfs.dylib; path = ../physfs/build/Release/libphysfs.dylib; sourceTree = SOURCE_ROOT; };
 		EB91A43C12617668009E0095 /* libphysfs.dylib */ = {isa = PBXFileReference; lastKnownFileType = "compiled.mach-o.dylib"; name = libphysfs.dylib; path = ../physfs/build/Debug/libphysfs.dylib; sourceTree = SOURCE_ROOT; };
 		EB92BE110CDD68200045A32C /* digi_audio.h */ = {isa = PBXFileReference; fileEncoding = 30; lastKnownFileType = sourcecode.c.h; path = digi_audio.h; sourceTree = "<group>"; };
@@ -809,6 +813,7 @@
 				EBB66315122E4DC60057352D /* ApplicationServices.framework in Frameworks */,
 				EB91A439126175ED009E0095 /* libphysfs.dylib in Frameworks */,
 				EB91A43E12617668009E0095 /* libphysfs.dylib in Frameworks */,
+				EB3EB4F412A5480D005F992D /* Carbon.framework in Frameworks */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -823,6 +828,7 @@
 				EBB66314122E4DC60057352D /* ApplicationServices.framework in Frameworks */,
 				EB91A438126175ED009E0095 /* libphysfs.dylib in Frameworks */,
 				EB91A43D12617668009E0095 /* libphysfs.dylib in Frameworks */,
+				EB3EB4F312A54805005F992D /* Carbon.framework in Frameworks */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -917,6 +923,7 @@
 		29B97323FDCFA39411CA2CEA /* Frameworks */ = {
 			isa = PBXGroup;
 			children = (
+				EB3EB4ED12A547C7005F992D /* Carbon.framework */,
 				1058C7A0FEA54F0111CA2CBB /* Linked Frameworks */,
 				1058C7A2FEA54F0111CA2CBB /* Other Frameworks */,
 			);
@@ -936,6 +943,7 @@
 		6791CFE10668899A00056A5A /* include */ = {
 			isa = PBXGroup;
 			children = (
+				EB3EB4DF12A5471B005F992D /* messagebox.h */,
 				EB92BE110CDD68200045A32C /* digi_audio.h */,
 				EB92BE120CDD68200045A32C /* digi_mixer_music.h */,
 				EB92BE130CDD68200045A32C /* digi_mixer.h */,

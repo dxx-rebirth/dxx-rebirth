@@ -18,20 +18,26 @@
 
 void display_mac_alert(char *message, int error)
 {
-	int16_t itemHit;
-	uint 	response;
-	bool	osX = FALSE;
-	d_event	event = { EVENT_WINDOW_DEACTIVATED };
 	window	*wind;
+	d_event	event = { EVENT_WINDOW_DEACTIVATED };
+	int		fullscreen;
+	bool	osX = FALSE;
+	uint 	response;
+	int16_t itemHit;
 
 	// Handle Descent's windows properly
 	if ((wind = window_get_front()))
 		window_send_event(window_get_front(), &event);
 	event.type = EVENT_WINDOW_ACTIVATED;
 
+	if ((fullscreen = gr_check_fullscreen()))
+		gr_toggle_fullscreen();
+	
 	osX = ( Gestalt(gestaltSystemVersion, (long *) &response) == noErr)
 		&& (response >= 0x01000 );
 
+    ShowCursor();
+	
 	if (osX)
 	{
 #ifdef TARGET_API_MAC_CARBON
@@ -70,6 +76,9 @@ void display_mac_alert(char *message, int error)
 
 	if (wind)
 		window_send_event(window_get_front(), &event);
+	
+	if (!error && fullscreen)
+		gr_toggle_fullscreen();
 }
 
 void msgbox_warning(char *message)
