@@ -4,6 +4,7 @@ D1X-Rebirth Changelog
 --------
 include/hmp.h, misc/hmp.c: Little fixes for rev939 - changed definition from WIN32 to _WIN32, added little hack for incorrectly set HMP loop in Descent2-version of descent.hmp
 SConstruct, arch/include/messagebox.h, arch/win32/messagebox.c, main/inferno.c, misc/error.c: Add support for Windows native error/warning boxes; Only print to stdout on Linux/other *nix; Fixed redundant printing of Error and Warning via stdout
+arch/carbon/messagebox.c, main/inferno.c, main/titles.c: Turn fullscreen off when showing a messagebox for Mac; move songs_play_song(SONG_TITLE) from inferno.c to titles.c
 
 20101128
 --------

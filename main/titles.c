@@ -181,6 +181,8 @@ void show_titles(void)
 {
 	char    publisher[16];
 
+	songs_play_song( SONG_TITLE, 1 );
+
 	if (GameArg.SysNoTitles)
 		return;
 
