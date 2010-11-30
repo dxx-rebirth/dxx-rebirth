@@ -227,7 +227,10 @@ int standard_handler(d_event *event)
 			if (choice != 0)
 				return 0;
 			else
+			{
+				GameArg.SysAutoDemo = 0;
 				Quitting = 1;
+			}
 		}
 		
 		// Close front window, let the code flow continue until all windows closed or quit cancelled
