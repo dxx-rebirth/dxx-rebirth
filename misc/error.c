@@ -96,7 +96,6 @@ void Error(char *fmt,...)
 	strcpy(exit_message,"Error: "); // don't put the new line in for dialog output
 	va_start(arglist,fmt);
 	vsprintf(exit_message+strlen(exit_message),fmt,arglist);
-	con_printf(CON_CRITICAL,"%s",exit_message);
 	va_end(arglist);
 
 	Int3();
@@ -118,7 +117,6 @@ void Warning(char *fmt,...)
 
 	va_start(arglist,fmt);
 	vsprintf(warn_message+strlen(warn_message),fmt,arglist);
-	con_printf(CON_URGENT,"%s",warn_message);
 	va_end(arglist);
 
 	(*warn_func)(warn_message);

@@ -87,7 +87,9 @@ char copyright[] = "DESCENT II  COPYRIGHT (C) 1994-1996 PARALLAX SOFTWARE CORPOR
 #include "../texmap/scanline.h" //for select_tmap -MM
 #include "event.h"
 #include "rbaudio.h"
+#ifndef __LINUX__
 #include "messagebox.h"
+#endif
 
 #ifdef EDITOR
 #include "editor/editor.h"
@@ -202,18 +204,6 @@ void print_commandline_help()
 	printf( "\n\n");
 }
 
-void error_messagebox(char *s)
-{
-	window *wind;
-
-	// Hide all windows so they don't interfere
-	// Don't care about unfreed pointers on exit; trying to close the windows may cause problems
-	for (wind = window_get_front(); wind != NULL; wind = window_get_front())
-		window_set_visible(wind, 0);
-
-	nm_messagebox( TXT_SORRY, 1, TXT_OK, s );
-}
-
 #define key_ismod(k)  ((k&0xff)==KEY_LALT || (k&0xff)==KEY_RALT || (k&0xff)==KEY_LSHIFT || (k&0xff)==KEY_RSHIFT || (k&0xff)==KEY_LCTRL || (k&0xff)==KEY_RCTRL || (k&0xff)==KEY_LMETA || (k&0xff)==KEY_RMETA)
 
 int Quitting = 0;
@@ -324,8 +314,12 @@ char	Auto_file[128] = "";
 int main(int argc, char *argv[])
 {
 	mem_init();
+#ifdef __LINUX__
+	error_init(NULL, NULL);
+#else
 	error_init(msgbox_error, NULL);
 	set_warn_func(msgbox_warning);
+#endif
 	PHYSFSX_init(argc, argv);
 	con_init();  // Initialise the console
 

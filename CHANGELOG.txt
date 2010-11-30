@@ -3,6 +3,7 @@ D2X-Rebirth Changelog
 20101130
 --------
 include/hmp.h, misc/hmp.c: Little fixes for rev950 - changed definition from WIN32 to _WIN32, added little hack for incorrectly set HMP loop in Descent2-version of descent.hmp
+SConstruct, arch/include/messagebox.h, arch/win32/messagebox.c, main/inferno.c, misc/error.c: Add support for Windows native error/warning boxes; Only print to stdout on Linux/other *nix; Fixed redundant printing of Error and Warning via stdout
 
 20101128
 --------
