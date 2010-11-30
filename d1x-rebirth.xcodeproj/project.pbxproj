@@ -2161,7 +2161,6 @@
 			buildSettings = {
 				GCC_PREFIX_HEADER = arch/carbon/conf.h;
 				GCC_TREAT_WARNINGS_AS_ERRORS = YES;
-				SDKROOT = /Developer/SDKs/MacOSX10.4u.sdk;
 			};
 			name = Development;
 		};
