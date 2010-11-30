@@ -127,6 +127,7 @@ hmp_file *hmp_open(const char *filename) {
 		}
 		hmp->trks[i].loop_set = 0;
 	}
+	hmp->filesize = PHYSFS_fileLength(fp);
 	cfclose(fp);
 	return hmp;
 }
@@ -236,7 +237,14 @@ static int get_event(hmp_file *hmp, event *ev) {
 	trk->cur_time += delta;
 
 	if (!hmp->loop_start && *(trk->cur + got) >> 4 == MIDI_CONTROL_CHANGE && *(trk->cur + got + 1) == HMP_LOOP_START)
-		hmp->loop_start = trk->cur_time;
+	{
+	    hmp->loop_start = trk->cur_time;
+	    if ((hmp->filesize == 86949) && (trk->cur_time == 29)) // special ugly HACK HACK HACK for Descent2-version of descent.hmp where loop at this point causes instruments not being reset properly. No track supporting HMP loop I know of meets the requirements for the condition below and even if so - it only disabled the HMP loop feature.
+	    {
+	        hmp->loop_start = 0;
+	    }
+
+	}
 
 	if (!hmp->loop_end && *(trk->cur + got) >> 4 == MIDI_CONTROL_CHANGE && *(trk->cur + got + 1) == HMP_LOOP_END)
 		hmp->loop_end = trk->cur_time;

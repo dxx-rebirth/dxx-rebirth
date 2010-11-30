@@ -1,10 +1,11 @@
 #ifndef __HMP_H
 #define __HMP_H
 
-#ifdef WIN32
+#ifdef _WIN32
 #include <windows.h>
 #include <mmsystem.h>
 #endif
+#include "physfsx.h"
 
 #define HMP_TRACKS 32
 #ifdef _WIN32
@@ -53,6 +54,7 @@ typedef struct hmp_track {
 } hmp_track;
 
 typedef struct hmp_file {
+	PHYSFS_sint64 filesize;
 	int num_trks;
 	hmp_track trks[HMP_TRACKS];
 	unsigned int cur_time;
@@ -77,7 +79,7 @@ typedef struct hmp_file {
 hmp_file *hmp_open(const char *filename);
 void hmp_close(hmp_file *hmp);
 void hmp2mid(char *hmp_name, unsigned char **midbuf, unsigned int *midlen);
-#ifdef WIN32
+#ifdef _WIN32
 void hmp_setvolume(hmp_file *hmp, int volume);
 int hmp_play(hmp_file *hmp, int bLoop);
 void hmp_pause(hmp_file *hmp);
