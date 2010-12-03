@@ -3998,10 +3998,8 @@ void net_udp_noloss_process_queue(fix time)
 			if (!UDP_mdata_queue[queuec].player_ack[plc])
 			{
 				// Set resend interval
-				if (Netgame.players[plc].ping < 20)
-					resend_delay = (F1_0/20);
-				else if (Netgame.players[plc].ping < 500)
-					resend_delay = i2f(Netgame.players[plc].ping + (Netgame.players[plc].ping/10));
+				if (Netgame.players[plc].ping < 100)
+					resend_delay = (F1_0/3);
 				else
 					resend_delay = (F1_0/2);
 

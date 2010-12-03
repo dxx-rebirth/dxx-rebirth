@@ -1,5 +1,9 @@
 D1X-Rebirth Changelog
 
+20101203
+--------
+main/net_udp.c: Made resent_delay for net_udp_noloss_process_queue() a bit longer depending on the player's ping
+
 20101130
 --------
 include/hmp.h, misc/hmp.c: Little fixes for rev939 - changed definition from WIN32 to _WIN32, added little hack for incorrectly set HMP loop in Descent2-version of descent.hmp
