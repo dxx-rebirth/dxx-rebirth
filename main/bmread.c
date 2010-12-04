@@ -285,7 +285,9 @@ int ds_load(int skip, char * filename )	{
 	char rawname[100];
 
 	if (skip) {
-		return piggy_register_sound( &bogus_sound, "bogus", 0 );
+		// We tell piggy_register_sound it's in the pig file, when in actual fact it's in no file
+		// This just tells piggy_close not to attempt to free it
+		return piggy_register_sound( &bogus_sound, "bogus", 1 );
 	}
 
 	removeext( filename, fname );

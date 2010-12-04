@@ -1,5 +1,9 @@
 D1X-Rebirth Changelog
 
+20101204
+--------
+main/bmread.c, main/piggy.c: When setting a bogus sound in gamedata_read_tbl, don't let piggy_close free it. Fixes freeing of non-malloc'd pointer for PC shareware data
+
 20101203
 --------
 main/net_udp.c: Made resent_delay for net_udp_noloss_process_queue() a bit longer depending on the player's ping

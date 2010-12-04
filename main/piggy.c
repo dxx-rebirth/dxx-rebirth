@@ -211,6 +211,8 @@ int piggy_register_sound( digi_sound * snd, char * name, int in_file )
 	if ( !in_file )	{
 		SoundOffset[Num_sound_files] = 0;	
 	}
+	else if (SoundOffset[Num_sound_files] == 0)
+		SoundOffset[Num_sound_files] = -1;		// make sure this sound's data is not individually freed
 
 	i = Num_sound_files;
    
