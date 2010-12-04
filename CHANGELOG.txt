@@ -3,6 +3,7 @@ D2X-Rebirth Changelog
 20101204
 --------
 main/bmread.c, main/piggy.c: Set a bogus sound when a sound is skipped in gamedata_read_tbl and don't let piggy_close free it
+main/gamecntl.c: When calling do_game_pause do not allocate msg in Game mod GM_MULTI as it's not used nor freed
 
 20101203
 --------

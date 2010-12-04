@@ -419,10 +419,6 @@ int do_game_pause()
 	char *msg;
 	char total_time[9],level_time[9];
 
-	MALLOC(msg, char, 1024);
-	if (!msg)
-		return 0;
-
 #ifdef NETWORK
 	if (Game_mode & GM_MULTI)
 	{
@@ -430,6 +426,10 @@ int do_game_pause()
 		return(KEY_PAUSE);
 	}
 #endif
+
+	MALLOC(msg, char, 1024);
+	if (!msg)
+		return 0;
 
 	songs_pause();
 
