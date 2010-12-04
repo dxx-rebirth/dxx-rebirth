@@ -229,6 +229,8 @@ bitmap_index piggy_register_bitmap( grs_bitmap * bmp, char * name, int in_file )
 		if ( !GameArg.DbgBigPig )  gr_bitmap_rle_compress( bmp );
 		Num_bitmap_files_new++;
 	}
+	else if (SoundOffset[Num_sound_files] == 0)
+		SoundOffset[Num_sound_files] = -1;		// make sure this sound's data is not individually freed
 
 	strncpy( AllBitmaps[Num_bitmap_files].name, name, 12 );
 	hashtable_insert( &AllBitmapsNames, AllBitmaps[Num_bitmap_files].name, Num_bitmap_files );

@@ -1,5 +1,9 @@
 D2X-Rebirth Changelog
 
+20101204
+--------
+main/bmread.c, main/piggy.c: Set a bogus sound when a sound is skipped in gamedata_read_tbl and don't let piggy_close free it
+
 20101203
 --------
 main/net_udp.c: Made resent_delay for net_udp_noloss_process_queue() a bit longer depending on the player's ping
