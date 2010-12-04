@@ -68,7 +68,7 @@ typedef ubyte bool;
 
 // the following stuff has nothing to do with types but needed everywhere,
 // and since this file is included everywhere, it's here.
-#if  defined(__i386__) || defined(__ia64__) || defined(WIN32) || \
+#if  defined(__i386__) || defined(__ia64__) || defined(_WIN32) || \
 (defined(__alpha__) || defined(__alpha)) || \
 defined(__arm__) || defined(ARM) || \
 (defined(__mips__) && defined(__MIPSEL__)) || \
