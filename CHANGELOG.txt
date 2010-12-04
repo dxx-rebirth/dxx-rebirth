@@ -3,6 +3,7 @@ D1X-Rebirth Changelog
 20101204
 --------
 main/bmread.c, main/piggy.c: When setting a bogus sound in gamedata_read_tbl, don't let piggy_close free it. Fixes freeing of non-malloc'd pointer for PC shareware data
+main/gamecntl.c: When calling do_game_pause do not allocate msg in Game mod GM_MULTI as it's not used nor freed
 
 20101203
 --------
