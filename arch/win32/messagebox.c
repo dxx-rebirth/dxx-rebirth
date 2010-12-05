@@ -13,21 +13,20 @@
 
 void display_win32_alert(char *message, int error)
 {
-	d_event	event = { EVENT_WINDOW_DEACTIVATED };
+	d_event	event;
 	window	*wind;
 
 	// Handle Descent's windows properly
 	if ((wind = window_get_front()))
-		window_send_event(window_get_front(), &event);
-	event.type = EVENT_WINDOW_ACTIVATED;
+		WINDOW_SEND_EVENT(wind, EVENT_WINDOW_DEACTIVATED);
 
 	if (gr_check_fullscreen())
 		gr_toggle_fullscreen();
 
 	MessageBox(NULL, message, error?"Sorry, a critical error has occurred.":"Attention!", error?MB_OK|MB_ICONERROR:MB_OK|MB_ICONWARNING);
 
-	if (wind)
-		window_send_event(window_get_front(), &event);
+	if ((wind = window_get_front()))
+		WINDOW_SEND_EVENT(wind, EVENT_WINDOW_ACTIVATED);
 }
 
 void msgbox_warning(char *message)

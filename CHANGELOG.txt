@@ -1,5 +1,9 @@
 D1X-Rebirth Changelog
 
+20101205
+--------
+arch/carbon/messagebox.c, arch/include/window.h, arch/linux/messagebox.c, arch/sdl/key.c, arch/sdl/mouse.c, arch/sdl/window.c, arch/win32/messagebox.c: Add CON_DEBUG level con_printf's for basic events (not EVENT_IDLE or EVENT_DRAW though)
+
 20101204
 --------
 main/bmread.c, main/piggy.c: When setting a bogus sound in gamedata_read_tbl, don't let piggy_close free it. Fixes freeing of non-malloc'd pointer for PC shareware data
