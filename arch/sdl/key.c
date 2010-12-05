@@ -16,6 +16,7 @@
 #include "key.h"
 #include "timer.h"
 #include "window.h"
+#include "console.h"
 
 static unsigned char Installed = 0;
 
@@ -435,6 +436,14 @@ void key_handler(SDL_KeyboardEvent *event, fix time)
 		event.keycode = key_command;
 		if ((wind = window_get_front()))
 		{
+			con_printf(CON_DEBUG, "Sending event EVENT_KEY_COMMAND: %s %s %s %s %s %s\n",
+					   (key_command & KEY_METAED)	? "META" : "",
+					   (key_command & KEY_DEBUGGED)	? "DEBUG" : "",
+					   (key_command & KEY_CTRLED)	? "CTRL" : "",
+					   (key_command & KEY_ALTED)	? "ALT" : "",
+					   (key_command & KEY_SHIFTED)	? "SHIFT" : "",
+					   key_properties[key_command & 0xff].key_text
+			);
 			if (!window_send_event(wind, (d_event *)&event))
 				call_default_handler((d_event *)&event);
 		}

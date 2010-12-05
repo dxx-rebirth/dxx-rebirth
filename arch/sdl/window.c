@@ -51,13 +51,9 @@ window *window_create(grs_canvas *src, int x, int y, int w, int h, int (*event_c
 	wind->next = NULL;
 	FrontWindow = wind;
 	if (prev)
-	{
-		event.type = EVENT_WINDOW_DEACTIVATED;
-		window_send_event(prev, &event);
-	}
+		WINDOW_SEND_EVENT(prev, EVENT_WINDOW_DEACTIVATED);
 
-	event.type = EVENT_WINDOW_ACTIVATED;
-	window_send_event(wind, &event);
+	WINDOW_SEND_EVENT(wind, EVENT_WINDOW_ACTIVATED);
 
 	return wind;
 }
@@ -69,20 +65,16 @@ int window_close(window *wind)
 	int (*w_callback)(window *wind, d_event *event, void *data) = wind->w_callback;
 
 	if (wind == window_get_front())
-	{
-		event.type = EVENT_WINDOW_DEACTIVATED;	// Deactivate first
-		window_send_event(wind, &event);
-	}
+		WINDOW_SEND_EVENT(wind, EVENT_WINDOW_DEACTIVATED);	// Deactivate first
 
 	event.type = EVENT_WINDOW_CLOSE;
+	con_printf(CON_DEBUG,	"Sending event EVENT_WINDOW_CLOSE to window of dimensions %dx%d\n",
+			   (wind)->w_canv.cv_bitmap.bm_w, (wind)->w_canv.cv_bitmap.bm_h);
 	if (window_send_event(wind, &event))
 	{
 		// User 'handled' the event, cancelling close
 		if (wind == window_get_front())
-		{
-			event.type = EVENT_WINDOW_ACTIVATED;	// Reactivate. May cause flashing of some sort, too bad
-			window_send_event(wind, &event);
-		}
+			WINDOW_SEND_EVENT(wind, EVENT_WINDOW_ACTIVATED);	// Reactivate. May cause flashing of some sort, too bad
 		return 0;
 	}
 
@@ -96,10 +88,7 @@ int window_close(window *wind)
 		wind->prev->next = wind->next;
 
 	if ((prev = window_get_front()))
-	{
-		event.type = EVENT_WINDOW_ACTIVATED;
-		window_send_event(prev, &event);
-	}
+		WINDOW_SEND_EVENT(wind, EVENT_WINDOW_ACTIVATED);	// Reactivate. May cause flashing of some sort, too bad
 	
 	d_free(wind);
 	
@@ -166,11 +155,9 @@ void window_select(window *wind)
 	
 	if (window_is_visible(wind))
 	{
-		event.type = EVENT_WINDOW_DEACTIVATED;
 		if (prev)
-			window_send_event(prev, &event);
-		event.type = EVENT_WINDOW_ACTIVATED;
-		window_send_event(wind, &event);
+			WINDOW_SEND_EVENT(prev, EVENT_WINDOW_DEACTIVATED);
+		WINDOW_SEND_EVENT(wind, EVENT_WINDOW_ACTIVATED);
 	}
 }
 
@@ -184,13 +171,11 @@ void window_set_visible(window *wind, int visible)
 	if (wind == prev)
 		return;
 	
-	event.type = EVENT_WINDOW_DEACTIVATED;
 	if (prev)
-		window_send_event(prev, &event);
+		WINDOW_SEND_EVENT(prev, EVENT_WINDOW_DEACTIVATED);
 
-	event.type = EVENT_WINDOW_ACTIVATED;
 	if (wind)
-		window_send_event(wind, &event);
+		WINDOW_SEND_EVENT(wind, EVENT_WINDOW_ACTIVATED);
 }
 
 int window_is_visible(window *wind)

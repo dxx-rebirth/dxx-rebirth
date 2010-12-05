@@ -103,6 +103,8 @@ void mouse_button_handler(SDL_MouseButtonEvent *mbe, fix time)
 	
 	if ((wind = window_get_front()))
 	{
+		con_printf(CON_DEBUG, "Sending event %s, button %d, coords %d,%d,%d\n",
+				   (mbe->state == SDL_PRESSED) ? "EVENT_MOUSE_BUTTON_DOWN" : "EVENT_MOUSE_BUTTON_UP", event.button, Mouse.x, Mouse.y, Mouse.z);
 		if (!window_send_event(wind, (d_event *)&event))
 			call_default_handler((d_event *)&event);
 	}

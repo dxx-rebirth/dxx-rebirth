@@ -12,18 +12,17 @@
 
 void display_linux_alert(char *message, int error)
 {
-	d_event	event = { EVENT_WINDOW_DEACTIVATED };
+	d_event	event;
 	window	*wind;
 
 	// Handle Descent's windows properly
 	if ((wind = window_get_front()))
-		window_send_event(window_get_front(), &event);
-	event.type = EVENT_WINDOW_ACTIVATED;
+		WINDOW_SEND_EVENT(wind, EVENT_WINDOW_DEACTIVATED);
 
 	// TODO: insert messagebox code...
 
-	if (wind)
-		window_send_event(window_get_front(), &event);
+	if ((wind = window_get_front()))
+		WINDOW_SEND_EVENT(wind, EVENT_WINDOW_ACTIVATED);
 }
 
 void msgbox_warning(char *message)

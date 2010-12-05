@@ -19,7 +19,7 @@
 void display_mac_alert(char *message, int error)
 {
 	window	*wind;
-	d_event	event = { EVENT_WINDOW_DEACTIVATED };
+	d_event	event;
 	int		fullscreen;
 	bool	osX = FALSE;
 	uint 	response;
@@ -27,8 +27,7 @@ void display_mac_alert(char *message, int error)
 
 	// Handle Descent's windows properly
 	if ((wind = window_get_front()))
-		window_send_event(window_get_front(), &event);
-	event.type = EVENT_WINDOW_ACTIVATED;
+		WINDOW_SEND_EVENT(wind, EVENT_WINDOW_DEACTIVATED);
 
 	if ((fullscreen = gr_check_fullscreen()))
 		gr_toggle_fullscreen();
@@ -48,14 +47,14 @@ void display_mac_alert(char *message, int error)
 		text = CFStringCreateWithCString(CFAllocatorGetDefault(), message, kCFStringEncodingMacRoman);
 		if (!text)
 		{
-			if (wind) window_send_event(window_get_front(), &event);
+			if (wind) WINDOW_SEND_EVENT(wind, EVENT_WINDOW_ACTIVATED);
 			return;
 		}
 
 		if (CreateStandardAlert(error ? kAlertStopAlert : kAlertNoteAlert, error ? error_text : text, error ? text : NULL, 0, &alert) != noErr)
 		{
 			CFRelease(text);
-			if (wind) window_send_event(window_get_front(), &event);
+			if (wind) WINDOW_SEND_EVENT(wind, EVENT_WINDOW_ACTIVATED);
 			return;
 		}
 		
@@ -74,8 +73,8 @@ void display_mac_alert(char *message, int error)
 		StandardAlert(error ? kAlertStopAlert : kAlertNoteAlert, error ? error_text : text, error ? text : NULL, 0, &itemHit);
 	}
 
-	if (wind)
-		window_send_event(window_get_front(), &event);
+	if ((wind = window_get_front()))
+		WINDOW_SEND_EVENT(wind, EVENT_WINDOW_ACTIVATED);
 	
 	if (!error && fullscreen)
 		gr_toggle_fullscreen();

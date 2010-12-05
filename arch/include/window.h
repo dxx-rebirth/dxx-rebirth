@@ -13,6 +13,7 @@
 
 #include "event.h"
 #include "gr.h"
+#include "console.h"
 
 typedef struct window window;
 
@@ -28,4 +29,12 @@ extern void window_set_visible(window *wind, int visible);
 extern int window_is_visible(window *wind);
 extern grs_canvas *window_get_canvas(window *wind);
 extern int window_send_event(window *wind, d_event *event);
+
+#define WINDOW_SEND_EVENT(w, e)	\
+do {	\
+	con_printf(CON_DEBUG, "Sending event %s to window of dimensions %dx%d\n", #e, window_get_canvas(w)->cv_bitmap.bm_w, window_get_canvas(w)->cv_bitmap.bm_h);	\
+	event.type = e;	\
+	window_send_event(w, &event);	\
+} while (0)
+
 #endif
