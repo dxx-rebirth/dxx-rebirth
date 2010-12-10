@@ -54,7 +54,7 @@ static UI_GADGET_CHECKBOX	*DoorFlag[4];
 static UI_GADGET_RADIO		*KeyFlag[4];
 
 static int old_wall_num;
-static fix Time;
+static fix64 Time;
 static int framenum=0;
 static int Current_door_type=1;
 
@@ -400,7 +400,8 @@ void do_wall_window()
 {
 	int i;
 	sbyte type;
-	fix DeltaTime, Temp;
+	fix DeltaTime;
+	fix64 Temp;
 
 	if ( MainWindow == NULL ) return;
 
@@ -496,7 +497,7 @@ void do_wall_window()
 	//------------------------------------------------------------
 	// A simple frame time counter for animating the walls...
 	//------------------------------------------------------------
-	Temp = timer_get_fixed_seconds();
+	Temp = timer_query();
 	DeltaTime = Temp - Time;
 
 	//------------------------------------------------------------

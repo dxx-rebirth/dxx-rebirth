@@ -26,15 +26,15 @@ unsigned char 		keyd_editor_mode;
 volatile unsigned char 	keyd_last_pressed;
 volatile unsigned char 	keyd_last_released;
 volatile unsigned char	keyd_pressed[256];
-volatile int		keyd_time_when_last_pressed;
+fix64			keyd_time_when_last_pressed;
 unsigned char		unicode_frame_buffer[KEY_BUFFER_SIZE] = { '\0', '\0', '\0', '\0', '\0', '\0', '\0', '\0', '\0', '\0', '\0', '\0', '\0', '\0', '\0', '\0' };
 
 typedef struct Key_info {
 	ubyte		state;			// state of key 1 == down, 0 == up
 	ubyte		last_state;		// previous state of key
 	int		counter;		// incremented each time key is down in handler
-	fix		timewentdown;	// simple counter incremented each time in interrupt and key is down
-	fix		timehelddown;	// counter to tell how long key is down -- gets reset to 0 by key routines
+	fix64		timewentdown;	// simple counter incremented each time in interrupt and key is down
+	fix64		timehelddown;	// counter to tell how long key is down -- gets reset to 0 by key routines
 	ubyte		downcount;		// number of key counts key was down
 	ubyte		upcount;		// number of times key was released
 } Key_info;
@@ -42,7 +42,7 @@ typedef struct Key_info {
 typedef struct keyboard	{
 	unsigned short		keybuffer[KEY_BUFFER_SIZE];
 	Key_info		keys[256];
-	fix			time_pressed[KEY_BUFFER_SIZE];
+	fix64			time_pressed[KEY_BUFFER_SIZE];
 	unsigned int 		keyhead, keytail;
 } keyboard;
 
@@ -345,7 +345,7 @@ unsigned char key_ascii()
 		return 255;
 }
 
-void key_handler(SDL_KeyboardEvent *event, fix time)
+void key_handler(SDL_KeyboardEvent *event)
 {
 	ubyte state;
 	int i, keycode, event_keysym=-1, key_state;
@@ -381,7 +381,7 @@ void key_handler(SDL_KeyboardEvent *event, fix time)
 			if (state) {
 				key->counter++;
 				keyd_last_pressed = keycode;
-				keyd_time_when_last_pressed = time;
+				keyd_time_when_last_pressed = timer_query();
 			}
 		} else {
 			if (state)	{
@@ -389,7 +389,7 @@ void key_handler(SDL_KeyboardEvent *event, fix time)
 				keyd_pressed[keycode] = 1;
 				key->downcount += state;
 				key->state = 1;
-				key->timewentdown = keyd_time_when_last_pressed = time;
+				key->timewentdown = keyd_time_when_last_pressed = timer_query();
 				key->counter++;
 			} else {	
 				keyd_pressed[keycode] = 0;
@@ -397,7 +397,7 @@ void key_handler(SDL_KeyboardEvent *event, fix time)
 				key->upcount += key->state;
 				key->state = 0;
 				key->counter = 0;
-				key->timehelddown += time - key->timewentdown;
+				key->timehelddown += timer_query() - key->timewentdown;
 			}
 		}
 		if ( (state && !key->last_state) || (state && key->last_state && (key->counter > 30) && (key->counter & 0x01)) ) {
@@ -466,7 +466,7 @@ void key_init()
 	Installed=1;
 	SDL_EnableUNICODE(1);
 
-	keyd_time_when_last_pressed = timer_get_fixed_seconds();
+	keyd_time_when_last_pressed = timer_query();
 	keyd_buffer_type = 1;
 	
 	for(i=0; i<256; i++)
@@ -479,7 +479,6 @@ void key_init()
 void key_flush()
 {
  	int i;
-	fix curtime;
 
 	if (!Installed)
 		key_init();
@@ -493,14 +492,11 @@ void key_flush()
 		unicode_frame_buffer[i] = '\0';
 	}
 
-//use gettimeofday here:
-	curtime = timer_get_fixed_seconds();
-
 	for (i=0; i<256; i++ )	{
 		keyd_pressed[i] = 0;
 		key_data.keys[i].state = 1;
 		key_data.keys[i].last_state = 0;
-		key_data.keys[i].timewentdown = curtime;
+		key_data.keys[i].timewentdown = timer_query();
 		key_data.keys[i].downcount=0;
 		key_data.keys[i].upcount=0;
 		key_data.keys[i].timehelddown = 0;
@@ -537,21 +533,6 @@ int key_inkey()
 	}
 
         return key;
-}
-
-int key_inkey_time(fix * time)
-{
-	int key = 0;
-
-	if (!Installed)
-		key_init();
-//        event_poll();
-	if (key_data.keytail!=key_data.keyhead)	{
-		key = key_data.keybuffer[key_data.keyhead];
-		*time = key_data.time_pressed[key_data.keyhead];
-		key_data.keyhead = add_one(key_data.keyhead);
-	}
-	return key;
 }
 
 int key_peekkey()
@@ -599,9 +580,9 @@ unsigned int key_get_shift_status()
 }
 
 // Returns the number of seconds this key has been down since last call.
-fix key_down_time(int scancode)
+fix64 key_down_time(int scancode)
 {
-	fix time_down, time;
+	fix64 time_down, time;
 
 //	event_poll();
         if ((scancode<0)|| (scancode>255)) return 0;
@@ -610,7 +591,7 @@ fix key_down_time(int scancode)
 		time_down = key_data.keys[scancode].timehelddown;
 		key_data.keys[scancode].timehelddown = 0;
 	} else {
-		time = timer_get_fixed_seconds();
+		time = timer_query();
 		time_down = time - key_data.keys[scancode].timewentdown;
 		key_data.keys[scancode].timewentdown = time;
 	}

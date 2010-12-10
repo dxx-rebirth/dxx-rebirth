@@ -43,7 +43,7 @@ extern void mouse_get_pos( int *x, int *y, int *z );
 extern void mouse_get_delta( int *dx, int *dy, int *dz );
 extern int mouse_get_btns();
 extern void mouse_set_pos( int x, int y);
-extern fix mouse_button_down_time(int button);
+extern fix64 mouse_button_down_time(int button);
 extern int mouse_button_down_count(int button);
 extern int mouse_button_state(int button);
 extern void mouse_toggle_cursor(int activate);

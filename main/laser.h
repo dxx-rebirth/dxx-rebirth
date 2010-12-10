@@ -93,8 +93,8 @@ extern int object_to_object_visibility(struct object *obj1, struct object *obj2,
 extern int		Muzzle_queue_index;
 
 typedef struct muzzle_info {
-	fix			create_time;
-	short			segnum;
+	fix64		create_time;
+	short		segnum;
 	vms_vector	pos;
 }	muzzle_info;
 

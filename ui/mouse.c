@@ -205,11 +205,11 @@ void ui_mouse_process()
 
 	if ((Mouse.b1_status & BUTTON_PRESSED) && (Mouse.b1_last_status & BUTTON_RELEASED) )
 	{
-		if ( (timer_get_fixed_seconds() <= Mouse.time_lastpressed+5)  )  //&& (Mouse.moved==0)
+		if ( (timer_query() <= Mouse.time_lastpressed+5)  )  //&& (Mouse.moved==0)
 			Mouse.b1_status |= BUTTON_DOUBLE_CLICKED;
 
 		Mouse.moved = 0;
-		Mouse.time_lastpressed = timer_get_fixed_seconds();
+		Mouse.time_lastpressed = timer_query();
 		Mouse.b1_status |= BUTTON_JUST_PRESSED;
 
 	}

@@ -46,9 +46,6 @@ COPYRIGHT 1993-1998 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 #define PID_GAME_LIST                           36
 #define PID_GAME_INFO                           37
 
-#define PID_PING_SEND       73
-#define PID_PING_RETURN     74
-
 typedef struct IPX_endlevel_info {
         ubyte                                   type;
         ubyte                                   player_num;

@@ -104,7 +104,7 @@ COPYRIGHT 1993-1998 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 int	Mark_count = 0;                 // number of debugging marks set
 #endif
 
-static fix last_timer_value=0;
+static fix64 last_timer_value=0;
 
 fix			VR_eye_width = F1_0;
 int			VR_render_mode = VR_NONE;
@@ -360,8 +360,8 @@ static int time_paused=0;
 void stop_time()
 {
 	if (time_paused==0) {
-		fix time;
-		time = timer_get_fixed_seconds();
+		fix64 time;
+		time = timer_query();
 		last_timer_value = time - last_timer_value;
 		if (last_timer_value < 0) {
 			last_timer_value = 0;
@@ -375,8 +375,8 @@ void start_time()
 	time_paused--;
 	Assert(time_paused >= 0);
 	if (time_paused==0) {
-		fix time;
-		time = timer_get_fixed_seconds();
+		fix64 time;
+		time = timer_query();
 		last_timer_value = time - last_timer_value;
 	}
 }
@@ -426,21 +426,23 @@ void FixedStepCalc()
 
 void reset_time()
 {
-	last_timer_value = timer_get_fixed_seconds();
+	last_timer_value = timer_query();
 }
 
 void calc_frame_time()
 {
-	fix timer_value,last_frametime = FrameTime;
+	fix64 timer_value;
+	fix last_frametime = FrameTime;
 
-	timer_value = timer_get_fixed_seconds();
+	timer_value = timer_query();
 	FrameTime = timer_value - last_timer_value;
 
 	while (FrameTime < f1_0 / (GameCfg.VSync?MAXIMUM_FPS:GameArg.SysMaxFPS))
 	{
 		if (GameArg.SysUseNiceFPS && !GameCfg.VSync)
 			timer_delay(f1_0 / GameArg.SysMaxFPS - FrameTime);
-		timer_value = timer_get_fixed_seconds();
+		timer_update();
+		timer_value = timer_query();
 		FrameTime = timer_value - last_timer_value;
 	}
 
@@ -841,7 +843,7 @@ extern void temp_reset_stuff_on_level();
 void check_rear_view()
 {
 	static int leave_mode;
-	static fix entry_time;
+	static fix64 entry_time;
 
 	if (Newdemo_state == ND_STATE_PLAYBACK)
 		return;
@@ -859,7 +861,7 @@ void check_rear_view()
 		else {
 			Rear_view = 1;
 			leave_mode = 0;		//means wait for another key
-			entry_time = timer_get_fixed_seconds();
+			entry_time = timer_query();
 			if (PlayerCfg.CockpitMode[1] == CM_FULL_COCKPIT) {
 				select_cockpit(CM_REAR_VIEW);
 			}
@@ -870,7 +872,7 @@ void check_rear_view()
 	else
 		if (Controls.rear_view_down_state) {
 
-			if (leave_mode == 0 && (timer_get_fixed_seconds() - entry_time) > LEAVE_TIME)
+			if (leave_mode == 0 && (timer_query() - entry_time) > LEAVE_TIME)
 				leave_mode = 1;
 		}
 		else

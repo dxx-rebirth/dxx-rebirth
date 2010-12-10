@@ -188,6 +188,8 @@ int standard_handler(d_event *event)
 {
 	int key;
 
+	timer_update();
+
 	if (Quitting)
 	{
 		window *wind = window_get_front();

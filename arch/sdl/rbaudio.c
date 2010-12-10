@@ -200,17 +200,15 @@ int RBAGetNumberOfTracks()
 // a real hook would be ideal, but is currently unsupported by SDL Audio CD
 void RBACheckFinishedHook()
 {
-	static fix last_check_time;
-	fix current_time;
+	static fix64 last_check_time;
 	
 	if (!s_cd) return;
 
-	current_time = timer_get_fixed_seconds();
-	if (current_time < last_check_time || (current_time - last_check_time) >= F2_0)
+	if ((timer_query() - last_check_time) >= F2_0)
 	{
 		if ((SDL_CDStatus(s_cd) == CD_STOPPED) && redbook_finished_hook)
 			redbook_finished_hook();
-		last_check_time = current_time;
+		last_check_time = timer_query();
 	}
 }
 

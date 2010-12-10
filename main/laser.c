@@ -174,7 +174,7 @@ int Laser_offset=0;
 
 void do_muzzle_stuff(int segnum, vms_vector *pos)
 {
-	Muzzle_data[Muzzle_queue_index].create_time = timer_get_fixed_seconds();
+	Muzzle_data[Muzzle_queue_index].create_time = timer_query();
 	Muzzle_data[Muzzle_queue_index].segnum = segnum;
 	Muzzle_data[Muzzle_queue_index].pos = *pos;
 	Muzzle_queue_index++;

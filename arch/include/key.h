@@ -49,7 +49,7 @@ extern unsigned char keyd_buffer_type;
 extern unsigned char keyd_editor_mode;		
 
 // Time in seconds when last key was pressed...
-extern volatile int keyd_time_when_last_pressed;
+extern fix64 keyd_time_when_last_pressed;
 
 // Stores Unicode values registered in one event_loop call
 unsigned char unicode_frame_buffer[KEY_BUFFER_SIZE];
@@ -63,7 +63,6 @@ extern void key_flush();    // Clears the 256 char buffer
 extern int key_checkch();   // Returns 1 if a char is waiting
 extern int key_getch();     // Gets key if one waiting other waits for one.
 extern int key_inkey();     // Gets key if one, other returns 0.
-extern int key_inkey_time(fix *time);     // Same as inkey, but returns the time the key was pressed down.
 extern int key_peekkey();   // Same as inkey, but doesn't remove key from buffer.
 
 extern unsigned char key_ascii();
@@ -79,7 +78,7 @@ extern volatile unsigned char keyd_last_pressed;
 extern volatile unsigned char keyd_last_released;
 
 // Returns the seconds this key has been down since last call.
-extern fix key_down_time(int scancode);
+extern fix64 key_down_time(int scancode);
 
 // Returns number of times key has went from up to down since last call.
 extern unsigned int key_down_count(int scancode);

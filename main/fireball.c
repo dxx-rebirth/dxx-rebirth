@@ -406,7 +406,7 @@ int choose_drop_segment(void)
 	int	cur_drop_depth = initial_drop_depth;
 	int	count;
 
-	d_srand(timer_get_fixed_seconds());
+	d_srand((fix)timer_query());
 
 	while ((segnum == -1) && (cur_drop_depth > BASE_NET_DROP_DEPTH/2)) {
 		pnum = (d_rand() * N_players) >> 15;

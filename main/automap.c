@@ -90,8 +90,8 @@ typedef struct Edge_info {
 
 typedef struct automap
 {
-	fix			entry_time;
-	fix			t1, t2;
+	fix64			entry_time;
+	fix64			t1, t2;
 	int			leave_mode;
 	int			pause_game;
 	vms_angvec	tangles;
@@ -424,7 +424,7 @@ int automap_idle(window *wind, d_event *event, automap *am)
 		Controls = am->saved_control_info;							// Restore controls
 	}
 	
-	if ( am->leave_mode==0 && Controls.automap_state && (timer_get_fixed_seconds()-am->entry_time)>LEAVE_TIME)
+	if ( am->leave_mode==0 && Controls.automap_state && (timer_query()-am->entry_time)>LEAVE_TIME)
 		am->leave_mode = 1;
 	
 	if ( !Controls.automap_state && (am->leave_mode==1) )
@@ -478,12 +478,13 @@ int automap_idle(window *wind, d_event *event, automap *am)
 	if ( am->viewDist < ZOOM_MIN_VALUE ) am->viewDist = ZOOM_MIN_VALUE;
 	if ( am->viewDist > ZOOM_MAX_VALUE ) am->viewDist = ZOOM_MAX_VALUE;
 	
-	am->t2 = timer_get_fixed_seconds();
+	am->t2 = timer_query();
 	while (am->t2 - am->t1 < F1_0 / (GameCfg.VSync?MAXIMUM_FPS:GameArg.SysMaxFPS)) // ogl is fast enough that the automap can read the input too fast and you start to turn really slow.  So delay a bit (and free up some cpu :)
 	{
 		if (GameArg.SysUseNiceFPS && !GameCfg.VSync)
 			timer_delay(f1_0 / GameArg.SysMaxFPS - (am->t2 - am->t1));
-		am->t2 = timer_get_fixed_seconds();
+		timer_update();
+		am->t2 = timer_query();
 	}
 	if (am->pause_game)
 	{
@@ -619,7 +620,7 @@ void do_automap( int key_code )
 
 	am->view_target = Objects[Players[Player_num].objnum].pos;
 
-	am->t1 = am->entry_time = timer_get_fixed_seconds();
+	am->t1 = am->entry_time = timer_query();
 	am->t2 = am->t1;
 
 	//Fill in Automap_visited from Objects[Players[Player_num].objnum].segnum

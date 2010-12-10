@@ -394,7 +394,6 @@ void draw_copyright()
 
 int main_menu_handler(newmenu *menu, d_event *event, int *menu_choice )
 {
-	int curtime;
 	newmenu_item *items = newmenu_get_items(menu);
 
 	switch (event->type)
@@ -403,7 +402,7 @@ int main_menu_handler(newmenu *menu, d_event *event, int *menu_choice )
 			if ( Players[Player_num].callsign[0]==0 )
 				RegisterPlayer();
 			else
-				keyd_time_when_last_pressed = timer_get_fixed_seconds();		// .. 20 seconds from now!
+				keyd_time_when_last_pressed = timer_query();		// .. 20 seconds from now!
 			break;
 
 		case EVENT_KEY_COMMAND:
@@ -413,11 +412,9 @@ int main_menu_handler(newmenu *menu, d_event *event, int *menu_choice )
 			break;
 
 		case EVENT_IDLE:
-			curtime = timer_get_fixed_seconds();
-			if ( keyd_time_when_last_pressed+i2f(45) < curtime || GameArg.SysAutoDemo  )
+			if ( keyd_time_when_last_pressed+i2f(45) < timer_query() || GameArg.SysAutoDemo  )
 			{
-				if (curtime < 0) curtime = 0;
-				keyd_time_when_last_pressed = curtime;			// Reset timer so that disk won't thrash if no demos.
+				keyd_time_when_last_pressed = timer_query();			// Reset timer so that disk won't thrash if no demos.
 				newdemo_start_playback(NULL);		// Randomly pick a file
 			}
 			break;

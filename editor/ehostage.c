@@ -106,7 +106,7 @@ void vclip_play( vclip * vc, fix frame_time )
 
 static char HostageMessage[]  = "  ";
 
-static fix Time;
+static fix64 Time;
 
 int SelectPrevHostage()	{
 	int start=0;
@@ -374,7 +374,7 @@ int do_hostage_dialog()
 	ui_add_gadget_button( MainWindow,155,i,140, 26, "Delete", ObjectDelete );	i += 29;		
 	ui_add_gadget_button( MainWindow,155,i,140, 26, "Create New", PlaceHostage );	i += 29;		
 	
-	Time = timer_get_fixed_seconds();
+	Time = timer_query();
 
 	LastHostageIndex = -2;		// Set to some dummy value so everything works ok on the first frame.
 	
@@ -395,7 +395,8 @@ void hostage_close_window()
 
 void do_hostage_window()
 {
-	fix DeltaTime, Temp;
+	fix DeltaTime;
+	fix64 Temp;
 
 	if ( MainWindow == NULL ) return;
 
@@ -436,7 +437,7 @@ void do_hostage_window()
 	//------------------------------------------------------------
 	// A simple frame time counter for spinning the objects...
 	//------------------------------------------------------------
-	Temp = timer_get_fixed_seconds();
+	Temp = timer_query();
 	DeltaTime = Temp - Time;
 	Time = Temp;
 

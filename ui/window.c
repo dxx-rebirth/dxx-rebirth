@@ -322,16 +322,16 @@ void restore_state()
 }
 
 
-int last_event = 0;
+fix64 last_event = 0;
 
 void ui_reset_idle_seconds()
 {
-	last_event = timer_get_fixed_seconds();
+	last_event = timer_query();
 }
 
 int ui_get_idle_seconds()
 {
-	return (((timer_get_fixed_seconds() - last_event)*10)/182);
+	return (((timer_query() - last_event)*10)/182);
 }
 
 void ui_mega_process()
@@ -349,7 +349,7 @@ void ui_mega_process()
 		last_keypress = key_inkey();
 
 		if ( Mouse.new_buttons || last_keypress || Mouse.new_dx || Mouse.new_dy )	{
-			last_event = timer_get_fixed_seconds();
+			last_event = timer_query();
 		}
 
 		break;

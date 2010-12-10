@@ -15,18 +15,18 @@
 
 struct mousebutton {
 	ubyte pressed;
-	fix time_went_down;
-	fix time_held_down;
-	uint num_downs;
-	uint num_ups;
+	fix64 time_went_down;
+	fix64 time_held_down;
+	uint  num_downs;
+	uint  num_ups;
 };
 
 static struct mouseinfo {
 	struct mousebutton buttons[MOUSE_MAX_BUTTONS];
-	int delta_x, delta_y, delta_z, old_delta_x, old_delta_y;
-	int x,y,z;
-	int cursor_enabled;
-	fix cursor_time;
+	int    delta_x, delta_y, delta_z, old_delta_x, old_delta_y;
+	int    x,y,z;
+	int    cursor_enabled;
+	fix64  cursor_time;
 } Mouse;
 
 typedef struct d_event_mousebutton
@@ -47,7 +47,7 @@ void mouse_close(void)
 	SDL_WM_GrabInput(SDL_GRAB_OFF);
 }
 
-void mouse_button_handler(SDL_MouseButtonEvent *mbe, fix time)
+void mouse_button_handler(SDL_MouseButtonEvent *mbe)
 {
 	// to bad, SDL buttons use a different mapping as descent expects,
 	// this is at least true and tested for the first three buttons 
@@ -78,11 +78,11 @@ void mouse_button_handler(SDL_MouseButtonEvent *mbe, fix time)
 	if (GameArg.CtlNoMouse)
 		return;
 
-	Mouse.cursor_time = time;
+	Mouse.cursor_time = timer_query();
 
 	if (mbe->state == SDL_PRESSED) {
 		Mouse.buttons[button].pressed = 1;
-		Mouse.buttons[button].time_went_down = time;
+		Mouse.buttons[button].time_went_down = timer_query();
 		Mouse.buttons[button].num_downs++;
 
 		if (button == MBTN_Z_UP) {
@@ -94,7 +94,7 @@ void mouse_button_handler(SDL_MouseButtonEvent *mbe, fix time)
 		}
 	} else {
 		Mouse.buttons[button].pressed = 0;
-		Mouse.buttons[button].time_held_down += time - Mouse.buttons[button].time_went_down;
+		Mouse.buttons[button].time_held_down += timer_query() - Mouse.buttons[button].time_went_down;
 		Mouse.buttons[button].num_ups++;
 	}
 	
@@ -112,12 +112,12 @@ void mouse_button_handler(SDL_MouseButtonEvent *mbe, fix time)
 		call_default_handler((d_event *)&event);
 }
 
-void mouse_motion_handler(SDL_MouseMotionEvent *mme, fix time)
+void mouse_motion_handler(SDL_MouseMotionEvent *mme)
 {
 	if (GameArg.CtlNoMouse)
 		return;
 
-	Mouse.cursor_time = time;
+	Mouse.cursor_time = timer_query();
 	Mouse.x += mme->xrel;
 	Mouse.y += mme->yrel;
 }
@@ -125,14 +125,12 @@ void mouse_motion_handler(SDL_MouseMotionEvent *mme, fix time)
 void mouse_flush()	// clears all mice events...
 {
 	int i;
-	fix current_time;
 
 //	event_poll();
 
-	current_time = timer_get_fixed_seconds();
 	for (i=0; i<MOUSE_MAX_BUTTONS; i++) {
 		Mouse.buttons[i].pressed=0;
-		Mouse.buttons[i].time_went_down=current_time;
+		Mouse.buttons[i].time_went_down=timer_query();
 		Mouse.buttons[i].time_held_down=0;
 		Mouse.buttons[i].num_ups=0;
 		Mouse.buttons[i].num_downs=0;
@@ -203,9 +201,9 @@ int mouse_get_btns()
 }
 
 // Returns how long this button has been down since last call.
-fix mouse_button_down_time(int button)
+fix64 mouse_button_down_time(int button)
 {
-	fix time_down, time;
+	fix64 time_down, time;
 
 //	event_poll();
 
@@ -213,7 +211,7 @@ fix mouse_button_down_time(int button)
 		time_down = Mouse.buttons[button].time_held_down;
 		Mouse.buttons[button].time_held_down = 0;
 	} else {
-		time = timer_get_fixed_seconds();
+		time = timer_query();
 		time_down = time - Mouse.buttons[button].time_held_down;
 		Mouse.buttons[button].time_held_down = time;
 	}
@@ -261,15 +259,15 @@ void mouse_toggle_cursor(int activate)
  * If we want to display/hide cursor, do so if not already and also hide it automatically after some time.
  * If we want to grab/release cursor, do so if not already.
  */
-void mouse_update_cursor_and_grab(fix time)
+void mouse_update_cursor_and_grab()
 {
 	int show = SDL_ShowCursor(SDL_QUERY), grab = SDL_WM_GrabInput(SDL_QUERY);
 
 	if (Mouse.cursor_enabled)
 	{
-		if ( (Mouse.cursor_time + (F1_0*2)) >= time && !show)
+		if ( (Mouse.cursor_time + (F1_0*2)) >= timer_query() && !show)
 			SDL_ShowCursor(SDL_ENABLE);
-		else if ( (Mouse.cursor_time + (F1_0*2)) < time && show)
+		else if ( (Mouse.cursor_time + (F1_0*2)) < timer_query() && show)
 			SDL_ShowCursor(SDL_DISABLE);
 
 		if (grab)

@@ -144,7 +144,7 @@ bitmap_index multi_player_textures[MAX_NUM_NET_PLAYERS][N_PLAYER_SHIP_TEXTURES];
 
 // Globals for protocol-bound Refuse-functions
 char RefuseThisPlayer=0,WaitForRefuseAnswer=0,RefuseTeam,RefusePlayerName[12];
-fix RefuseTimeLimit=0;
+fix64 RefuseTimeLimit=0;
 
 typedef struct netplayer_stats {
 	ubyte		message_type;

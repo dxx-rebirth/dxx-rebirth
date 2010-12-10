@@ -59,7 +59,7 @@ COPYRIGHT 1993-1998 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 /* IPX CODE - START */
 
 #define MAX_VIEW_TIME       F1_0*60
-fix StartAbortMenuTime;
+fix64 StartAbortMenuTime;
 
 void kmatrix_ipx_draw_item( int  i, int *sorted )
 {
@@ -149,7 +149,7 @@ void kmatrix_ipx_draw_deaths(int *sorted)
 typedef struct kmatrix_ipx_screen
 {
 	grs_bitmap background;
-	fix entry_time;
+	fix64 entry_time;
 	int network;
 } kmatrix_ipx_screen;
 
@@ -211,7 +211,7 @@ int kmatrix_ipx_handler(window *wind, d_event *event, kmatrix_ipx_screen *km)
 		case EVENT_IDLE:
 			timer_delay2(50);
 
-			if (timer_get_fixed_seconds() >= (km->entry_time+MAX_VIEW_TIME))
+			if (timer_query() >= (km->entry_time+MAX_VIEW_TIME))
 				window_close(wind);
 			
 			if (km->network && (Game_mode & GM_NETWORK))
@@ -252,7 +252,7 @@ void kmatrix_ipx_view(int network)
 	}
 	gr_palette_load(gr_palette);
 	
-	km->entry_time = timer_get_fixed_seconds();
+	km->entry_time = timer_query();
 	km->network = network;
 
 	set_screen_mode( SCREEN_MENU );
@@ -392,7 +392,7 @@ typedef struct kmatrix_screen
 {
 	grs_bitmap background;
 	int network;
-	fix end_time;
+	fix64 end_time;
 	int playing;
 } kmatrix_screen;
 
@@ -468,7 +468,6 @@ void kmatrix_redraw_coop()
 int kmatrix_handler(window *wind, d_event *event, kmatrix_screen *km)
 {
 	int i = 0, k = 0, choice = 0;
-	fix time = timer_get_fixed_seconds();
 	
 	switch (event->type)
 	{
@@ -479,7 +478,7 @@ int kmatrix_handler(window *wind, d_event *event, kmatrix_screen *km)
 				case KEY_ESC:
 					if (km->network)
 					{
-						StartAbortMenuTime=timer_get_fixed_seconds();
+						StartAbortMenuTime=timer_query();
 						choice=nm_messagebox1( NULL,multi_endlevel_poll2, NULL, 2, TXT_YES, TXT_NO, TXT_ABORT_GAME );
 					}
 					else
@@ -525,10 +524,10 @@ int kmatrix_handler(window *wind, d_event *event, kmatrix_screen *km)
 			
 			// If Reactor is finished and end_time not inited, set the time when we will exit this loop
 			if (km->end_time == -1 && Countdown_seconds_left < 0 && !km->playing)
-				km->end_time = time + (KMATRIX_VIEW_SEC * F1_0);
+				km->end_time = timer_query() + (KMATRIX_VIEW_SEC * F1_0);
 			
 			// Check if end_time has been reached and exit loop
-			if (time >= km->end_time && km->end_time != -1)
+			if (timer_query() >= km->end_time && km->end_time != -1)
 			{
 				if (km->network)
 					multi_send_endlevel_packet();  // make sure
@@ -543,7 +542,7 @@ int kmatrix_handler(window *wind, d_event *event, kmatrix_screen *km)
 			if (km->playing)
 				kmatrix_status_msg(Countdown_seconds_left, 1);
 			else
-				kmatrix_status_msg(f2i(time-km->end_time), 0);
+				kmatrix_status_msg(f2i(timer_query()-km->end_time), 0);
 			break;
 			
 		case EVENT_WINDOW_CLOSE:

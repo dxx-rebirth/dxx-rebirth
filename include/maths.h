@@ -18,6 +18,7 @@ int d_rand ();			// Random number function which returns in the range 0-0x7FFF
 
 //=============================== FIXED POINT ===============================
 
+typedef int64_t fix64;		//64 bits int, for timers
 typedef int32_t fix;		//16 bits int, 16 bits frac
 typedef int16_t fixang;		//angles
 
@@ -29,10 +30,8 @@ typedef struct quad
 quad;
 
 
-//Convert an int to a fix
+//Convert an int to a fix/fix64 and back
 #define i2f(i) ((i)<<16)
-
-//Get the int part of a fix
 #define f2i(f) ((f)>>16)
 
 //Get the int part of a fix, with rounding
