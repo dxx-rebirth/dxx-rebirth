@@ -1161,7 +1161,7 @@ multi_drop_robot_powerups(int objnum)
 		return;
 
 	else if (robptr->contains_count) {
-		d_srand(timer_get_fixed_seconds());
+		d_srand((fix)timer_query());
 		if (((d_rand() * 16) >> 15) < robptr->contains_prob) {
 			del_obj->contains_count = ((d_rand() * robptr->contains_count) >> 15) + 1;
 			del_obj->contains_type = robptr->contains_type;

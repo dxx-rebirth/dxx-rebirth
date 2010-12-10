@@ -24,7 +24,8 @@ COPYRIGHT 1993-1998 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 #include "pstypes.h"
 #include "fix.h"
 
-extern fix timer_get_fixed_seconds();   // Rolls about every 9 hours...
+void timer_update();
+fix64 timer_query();
 void timer_delay(fix seconds);
 void timer_delay2(int fps);
 

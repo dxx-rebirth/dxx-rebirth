@@ -285,18 +285,18 @@ void ui_listbox_do( UI_GADGET_LISTBOX * listbox, int keypress )
 			else
 				mitem = (Mouse.y - listbox->y1)/listbox->textheight;
 
-			if ((mitem < 0) && (timer_get_fixed_seconds() > listbox->last_scrolled + 1))
+			if ((mitem < 0) && (timer_query() > listbox->last_scrolled + 1))
 			{
 				listbox->current_item--;
-				listbox->last_scrolled = timer_get_fixed_seconds();
+				listbox->last_scrolled = timer_query();
 				listbox->moved = 1;
 			}
 
 			if ((mitem >= listbox->num_items_displayed) &&
-				 (timer_get_fixed_seconds() > listbox->last_scrolled + 1))
+				 (timer_query() > listbox->last_scrolled + 1))
 			{
 				listbox->current_item++;
-				listbox->last_scrolled = timer_get_fixed_seconds();
+				listbox->last_scrolled = timer_query();
 				listbox->moved = 1;
 			}
 
@@ -366,7 +366,7 @@ void ui_listbox_change(UI_WINDOW *wnd, UI_GADGET_LISTBOX *listbox, short numitem
 	listbox->num_items = numitems;
 	listbox->first_item = 0;
 	listbox->current_item = -1;
-	listbox->last_scrolled = timer_get_fixed_seconds();
+	listbox->last_scrolled = timer_query();
 	listbox->dragging = 0;
 	listbox->selected_item = -1;
 	listbox->status = 1;

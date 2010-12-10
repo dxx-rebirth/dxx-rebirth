@@ -237,11 +237,11 @@ void apply_light(fix obj_intensity, int obj_seg, vms_vector *obj_pos, int n_rend
 // ----------------------------------------------------------------------------------------------
 void cast_muzzle_flash_light(int n_render_vertices, short *render_vertices)
 {
-	fix current_time;
+	fix64 current_time;
 	int	i;
 	short	time_since_flash;
 
-	current_time = timer_get_fixed_seconds();
+	current_time = timer_query();
 
 	for (i=0; i<MUZZLE_QUEUE_MAX; i++) {
 		if (Muzzle_data[i].create_time) {

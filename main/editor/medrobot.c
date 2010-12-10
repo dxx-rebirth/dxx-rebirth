@@ -60,7 +60,7 @@ static UI_GADGET_BUTTON 	*QuitButton;
 static UI_GADGET_RADIO		*InitialMode[NUM_BOXES];
 
 static int old_object;
-static fix Time;
+static fix64 Time;
 static vms_angvec angles={0,0,0}, goody_angles={0,0,0};
 
 void call_init_ai_object(object *objp, int behavior)
@@ -501,7 +501,7 @@ int do_robot_dialog()
 	ui_add_gadget_button( MainWindow,190,i,110, 26, "Create New", 	LocalObjectPlaceObject );				i += 29;		
 	ui_add_gadget_button( MainWindow,190,i,110, 26, "Set Path", 	med_set_ai_path );
 	
-	Time = timer_get_fixed_seconds();
+	Time = timer_query();
 
 	old_object = -2;		// Set to some dummy value so everything works ok on the first frame.
 
@@ -526,7 +526,8 @@ void robot_close_window()
 void do_robot_window()
 {
 	int	i;
-	fix	DeltaTime, Temp;
+	fix	DeltaTime;
+	fix64	Temp;
 	int	first_object_index;
 
 	if ( MainWindow == NULL ) return;
@@ -576,7 +577,7 @@ void do_robot_window()
 	//------------------------------------------------------------
 	// A simple frame time counter for spinning the objects...
 	//------------------------------------------------------------
-	Temp = timer_get_fixed_seconds();
+	Temp = timer_query();
 	DeltaTime = Temp - Time;
 	Time = Temp;
 

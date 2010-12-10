@@ -353,7 +353,7 @@ extern char *RankStrings[];
 
 // Globals for protocol-bound Refuse-functions
 extern char RefuseThisPlayer,WaitForRefuseAnswer,RefuseTeam,RefusePlayerName[12];
-extern fix RefuseTimeLimit;
+extern fix64 RefuseTimeLimit;
 #define REFUSE_INTERVAL (F1_0*8)
 
 #define NETGAME_FLAG_CLOSED             1
@@ -418,7 +418,7 @@ typedef struct netplayer_info
 	sbyte						connected;
 	ubyte						rank;
 	fix							ping;
-	fix							LastPacketTime;
+	fix64							LastPacketTime;
 } __pack__ netplayer_info;
 
 /*

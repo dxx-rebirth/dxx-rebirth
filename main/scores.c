@@ -316,7 +316,7 @@ void scores_draw_item( int i, stats_info * stats )
 typedef struct scores_menu
 {
 	int			citem;
-	fix			t1;
+	fix64			t1;
 	int			looper;
 	all_scores	scores;
 	stats_info	last_game;
@@ -396,9 +396,9 @@ int scores_handler(window *wind, d_event *event, scores_menu *menu)
 			if ( menu->citem > -1 )	{
 				
 				gr_set_fontcolor( BM_XRGB(7+fades[menu->looper],7+fades[menu->looper],7+fades[menu->looper]), -1 );
-				if (timer_get_fixed_seconds() >= menu->t1+F1_0/128)
+				if (timer_query() >= menu->t1+F1_0/128)
 				{
-					menu->t1 = timer_get_fixed_seconds();
+					menu->t1 = timer_query();
 					menu->looper++;
 					if (menu->looper>63) menu->looper=0;
 				}
@@ -431,7 +431,7 @@ void scores_view(stats_info *last_game, int citem)
 		return;
 
 	menu->citem = citem;
-	menu->t1 = timer_get_fixed_seconds();
+	menu->t1 = timer_query();
 	menu->looper = 0;
 	if (last_game)
 		menu->last_game = *last_game;

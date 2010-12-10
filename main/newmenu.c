@@ -310,7 +310,6 @@ void nm_rstring( int w1,int x, int y, char * s )
 void nm_string_inputbox( int w, int x, int y, char * text, int current )
 {
 	int w1,h1,aw;
-	fix time = timer_get_fixed_seconds();
 
 	// even with variable char widths and a box that goes over the whole screen, we maybe never get more than 75 chars on the line
 	if (strlen(text)>75)
@@ -327,7 +326,7 @@ void nm_string_inputbox( int w, int x, int y, char * text, int current )
 
 	nm_string_black( w, x, y, text );
 
-	if ( current && time & 0x8000 )
+	if ( current && timer_query() & 0x8000 )
 		gr_string( x+w1, y, CURSOR_STRING );
 }
 
@@ -607,11 +606,11 @@ int newmenu_mouse(window *wind, d_event *event, newmenu *menu)
 
 		// check possible scrollbar stuff first
 		if (menu->is_scroll_box) {
-			int arrow_width, arrow_height, aw, ScrollAllow=0, time=timer_get_fixed_seconds();
+			int arrow_width, arrow_height, aw, ScrollAllow=0;
 			static fix ScrollTime=0;
-			if (ScrollTime + F1_0/5 < time || time < ScrollTime)
+			if (ScrollTime + F1_0/5 < timer_query())
 			{
-				ScrollTime = time;
+				ScrollTime = timer_query();
 				ScrollAllow = 1;
 			}
 
@@ -1654,7 +1653,8 @@ struct listbox
 	int allow_abort_flag;
 	int (*listbox_callback)(listbox *lb, d_event *event, void *userdata);
 	int citem, first_item;
-	int marquee_maxchars, marquee_charpos, marquee_scrollback, marquee_lasttime; // to scroll text if string does not fit in box
+	int marquee_maxchars, marquee_charpos, marquee_scrollback;
+	fix64 marquee_lasttime; // to scroll text if string does not fit in box
 	int box_w, height, box_x, box_y, title_height;
 	short swidth, sheight; float fntscalex, fntscaley; // with these we check if resolution or fonts have changed so listbox structure can be recreated
 	int mouse_state;
@@ -1884,7 +1884,7 @@ void listbox_create_structure( listbox *lb)
 		lb->box_w = SWIDTH - (BORDERX*2);
 		gr_get_string_size("O", &w, &h, &aw);
 		lb->marquee_maxchars = lb->box_w/w;
-		lb->marquee_lasttime = timer_get_fixed_seconds();
+		lb->marquee_lasttime = timer_query();
 	}
 
 	lb->box_x = (grd_curcanv->cv_bitmap.bm_w-lb->box_w)/2;
@@ -1947,7 +1947,7 @@ int listbox_draw(window *wind, listbox *lb)
 				if (prev_citem != lb->citem)
 				{
 					lb->marquee_charpos = lb->marquee_scrollback = 0;
-					lb->marquee_lasttime = timer_get_fixed_seconds();
+					lb->marquee_lasttime = timer_query();
 					prev_citem = lb->citem;
 				}
 
@@ -1955,12 +1955,10 @@ int listbox_draw(window *wind, listbox *lb)
 				
 				if (i == lb->citem)
 				{
-					fix time = timer_get_fixed_seconds();
-
-					if (lb->marquee_lasttime + (F1_0/3) < time)
+					if (lb->marquee_lasttime + (F1_0/3) < timer_query())
 					{
 						lb->marquee_charpos = lb->marquee_charpos+(lb->marquee_scrollback?-1:+1);
-						lb->marquee_lasttime = time;
+						lb->marquee_lasttime = timer_query();
 					}
 					if (lb->marquee_charpos < 0) // reached beginning of string -> scroll forward
 					{

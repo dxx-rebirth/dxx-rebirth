@@ -43,8 +43,8 @@ void net_udp_send_netgame_update();
 #define UPKT_MAX_SIZE 576 // Max size for a packet - just for the buffers
 #define UPKT_GAME_INFO_REQ_SIZE 11 
 #define UPKT_SEQUENCE_SIZE 14
-#define UPKT_PING_SIZE 33
-#define UPKT_PONG_SIZE 6
+#define UPKT_PING_SIZE 37
+#define UPKT_PONG_SIZE 10
 #define UPKT_MBUF_SIZE 454
 
 // UDP-Packet identificators (ubyte).
@@ -118,8 +118,8 @@ typedef struct UDP_mdata_info
 typedef struct UDP_mdata_store
 {
 	int 		used;
-	fix			pkt_initial_timestamp;		// initial timestamp to see if packet is outdated
-	fix			pkt_timestamp[MAX_PLAYERS];	// Packet timestamp
+	fix64			pkt_initial_timestamp;		// initial timestamp to see if packet is outdated
+	fix64			pkt_timestamp[MAX_PLAYERS];	// Packet timestamp
 	int			pkt_num;					// Packet number
 	ubyte		Player_num;					// sender of this packet
 	ubyte		player_ack[MAX_PLAYERS]; 	// 0 if player has not ACK'd this packet, 1 if ACK'd or not connected

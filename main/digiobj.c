@@ -767,7 +767,7 @@ void digi_sound_debug()
 #endif
 
 typedef struct sound_q {
-	fix time_added;
+	fix64 time_added;
 	int soundnum;
 } sound_q;
 
@@ -800,8 +800,6 @@ void SoundQ_end()
 
 void SoundQ_process()
 {
-	fix curtime = timer_get_fixed_seconds();
-
 	if ( SoundQ_channel > -1 )	{
 		if ( digi_is_channel_playing(SoundQ_channel) )
 			return;
@@ -811,7 +809,7 @@ void SoundQ_process()
 	while ( SoundQ_head != SoundQ_tail )	{
 		sound_q * q = &SoundQ[SoundQ_head];
 
-		if ( q->time_added+MAX_LIFE > curtime )	{
+		if ( q->time_added+MAX_LIFE > timer_query() )	{
 			SoundQ_channel = digi_start_sound(q->soundnum, F1_0+1, 0xFFFF/2, 0, -1, -1, -1 );
 			return;
 		} else {
@@ -838,7 +836,7 @@ void digi_start_sound_queued( short soundnum, fix volume )
 		volume = F1_0 + 1;
 
 	if ( i != SoundQ_head )	{
-		SoundQ[SoundQ_tail].time_added = timer_get_fixed_seconds();
+		SoundQ[SoundQ_tail].time_added = timer_query();
 		SoundQ[SoundQ_tail].soundnum = soundnum;
 		SoundQ_num++;
 		SoundQ_tail = i;

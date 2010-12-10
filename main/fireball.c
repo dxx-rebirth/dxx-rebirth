@@ -520,7 +520,7 @@ int choose_drop_segment()
 	int	player_seg;
 	vms_vector tempv,*player_pos;
 
-	d_srand(timer_get_fixed_seconds());
+	d_srand((fix)timer_query());
 
 	cur_drop_depth = BASE_NET_DROP_DEPTH + ((d_rand() * BASE_NET_DROP_DEPTH*2) >> 15);
 

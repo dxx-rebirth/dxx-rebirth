@@ -10,12 +10,28 @@
 #include "timer.h"
 #include "config.h"
 
-fix timer_get_fixed_seconds(void)
+static fix64 F64_RunTime = 0;
+
+void timer_update(void)
 {
-	fix x;
-	unsigned long tv_now = SDL_GetTicks();
-	x=i2f(tv_now/1000) | fixdiv(i2f(tv_now % 1000),i2f(1000));
-	return x;
+	static ubyte init = 1;
+	static u_int32_t last_tv = 0;
+	u_int32_t cur_tv = SDL_GetTicks();
+
+	if (init)
+	{
+		last_tv = cur_tv;
+		init = 0;
+	}
+
+	if (last_tv < cur_tv) // in case SDL_GetTicks wraps, don't update and have a little hickup
+		F64_RunTime += (cur_tv - last_tv)*F1_0/1000; // increment! this value will overflow long after we are all dead... so why bother checking?
+	last_tv = cur_tv;
+}
+
+fix64 timer_query(void)
+{
+	return (F64_RunTime);
 }
 
 void timer_delay(fix seconds)

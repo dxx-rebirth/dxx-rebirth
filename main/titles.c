@@ -87,7 +87,7 @@ static int rescale_y(int y)
 typedef struct title_screen
 {
 	grs_bitmap title_bm;
-	fix timer;
+	fix64 timer;
 	int allow_keys;
 } title_screen;
 
@@ -114,7 +114,7 @@ int title_handler(window *wind, d_event *event, title_screen *ts)
 		case EVENT_IDLE:
 			timer_delay2(50);
 
-			if (timer_get_fixed_seconds() > ts->timer)
+			if (timer_query() > ts->timer)
 			{
 				window_close(wind);
 				return 1;
@@ -165,7 +165,7 @@ int show_title_screen( char * filename, int allow_keys, int from_hog_only )
 		Error( "Error loading briefing screen <%s>, PCX load error: %s (%i)\n",filename, pcx_errormsg(pcx_error), pcx_error);
 	}
 
-	ts->timer = timer_get_fixed_seconds() + i2f(3);
+	ts->timer = timer_query() + i2f(3);
 
 	gr_palette_load( gr_palette );
 
@@ -411,8 +411,8 @@ typedef struct briefing
 	ubyte	dumb_adjust;
 	ubyte	line_adjustment;
 	short	chattering;
-	fix		start_time;
-	fix		delay_count;
+	fix64		start_time;
+	fix64		delay_count;
 	int		robot_num;
 	grs_canvas	*robot_canv;
 	vms_angvec	robot_angles;
@@ -585,7 +585,7 @@ void put_char_delay(briefing *br, int ch)
 	int	w, h, aw;
 
 	str[0] = ch; str[1] = '\0';
-	if (br->delay_count && (timer_get_fixed_seconds() < br->start_time + br->delay_count))
+	if (br->delay_count && (timer_query() < br->start_time + br->delay_count))
 	{
 		br->message--;		// Go back to same character
 		return;
@@ -606,7 +606,7 @@ void put_char_delay(briefing *br, int ch)
 		br->chattering=1;
 	}
 
-	br->start_time = timer_get_fixed_seconds();
+	br->start_time = timer_query();
 }
 
 void init_spinning_robot(briefing *br);
@@ -886,7 +886,7 @@ void flash_cursor(briefing *br, int cursor_flag)
 	if (cursor_flag == 0)
 		return;
 
-	if ((timer_get_fixed_seconds() % (F1_0/2) ) > (F1_0/4))
+	if ((timer_query() % (F1_0/2) ) > (F1_0/4))
 		gr_set_fontcolor(Briefing_text_colors[Current_color], -1);
 	else
 		gr_set_fontcolor(Erase_color, -1);

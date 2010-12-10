@@ -151,7 +151,7 @@ typedef struct  {
 	int             fake_size;
 	UI_GADGET_BUTTON * up_button;
 	UI_GADGET_BUTTON * down_button;
-	unsigned int    last_scrolled;
+	fix64           last_scrolled;
 	short           drag_x, drag_y;
 	int             drag_starting;
 	int             dragging;
@@ -169,7 +169,7 @@ typedef struct  {
 	int             current_item;
 	int             selected_item;
 	int             old_current_item;
-	unsigned int    last_scrolled;
+	fix64           last_scrolled;
 	int             dragging;
 	int             textheight;
 	UI_GADGET_SCROLLBAR * scrollbar;
@@ -206,7 +206,7 @@ typedef struct  {
 	short           bg_saved;
 	grs_bitmap *    background;
 	grs_bitmap *    pointer;
-	unsigned int    time_lastpressed;
+	fix64           time_lastpressed;
 	short           moved;
 } UI_MOUSE;
 

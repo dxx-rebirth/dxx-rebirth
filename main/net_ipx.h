@@ -53,8 +53,8 @@ COPYRIGHT 1993-1999 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 #define PID_OBJECT_DATA     55 // array of bots, players, powerups, ...
 #define PID_GAME_LIST       56 // 0x38 give me the list of your games
 #define PID_GAME_INFO       57 // 0x39 here's a game i've started
-#define PID_PING_SEND       58
-#define PID_PING_RETURN     59
+// #define PID_PING_SEND       58 // removed due to timer change to fix64
+// #define PID_PING_RETURN     59 // removed due to timer change to fix64
 #define PID_GAME_UPDATE     60 // inform about new player/team change
 #define PID_ENDLEVEL_SHORT  61
 #define PID_NAKED_PDATA     62
