@@ -1,5 +1,9 @@
 D2X-Rebirth Changelog
 
+20101221
+--------
+d2x-rebirth.xcodeproj/project.pbxproj, main/menu.c, main/editor/med.c, ui/file.c: Activate EDITOR for Mac OS X in Xcode, d2x target; fix some warnings and errors
+
 20101205
 --------
 arch/carbon/messagebox.c, arch/include/window.h, arch/linux/messagebox.c, arch/sdl/key.c, arch/sdl/mouse.c, arch/sdl/window.c, arch/win32/messagebox.c: Add CON_DEBUG level con_printf's for basic events (not EVENT_IDLE or EVENT_DRAW though)
