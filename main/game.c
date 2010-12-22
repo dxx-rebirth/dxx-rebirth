@@ -365,6 +365,7 @@ int set_screen_mode(int sm)
 			}
 			gr_palette_load( gr_palette );
 
+			game_init_render_buffers(320, 200, VR_NONE);
 			gr_init_sub_canvas( &VR_editor_canvas, &grd_curscreen->sc_canvas, 0, 0, SWIDTH, SHEIGHT );
 			Canv_editor = &VR_editor_canvas;
 			gr_set_current_canvas( Canv_editor );
