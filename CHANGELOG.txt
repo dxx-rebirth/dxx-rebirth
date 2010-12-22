@@ -7,6 +7,7 @@ arch/ogl/ogl.c, include/ogl_init.h, main/ai.c, main/ai.h, main/ai2.c, main/aipat
 d2x-rebirth.xcodeproj/project.pbxproj, main/menu.c, main/editor/med.c, ui/file.c: Activate EDITOR for Mac OS X in Xcode, d2x target; fix some warnings and errors
 main/collide.c, main/object.c, main/object.h, main/state.c: added hitobj_list to struct laser_info to get a bit cleaner code
 main/gamecntl.c, main/gamesave.c: Fix warning for deliberate GameTime64 wrap; change GameTime to GameTime64 for editor
+main/multi.h, main/net_udp.c, main/net_udp.h: in IPv6 builds also send regular broadcast packets to get games found via LAN between IPv4 clients/systems and IPv6 clients/systems; rather than identifying (lite_info) games via IP use randomly generated GameID and game name to prevent duplicated coming from IPv6 builds
 
 20101211
 --------

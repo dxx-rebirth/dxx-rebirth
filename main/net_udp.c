@@ -117,6 +117,9 @@ int num_active_udp_changed = 0;
 static int UDP_Socket[2] = { -1, -1 };
 static char UDP_MyPort[6] = "";
 struct _sockaddr GBcast; // global Broadcast address clients and hosts will use for lite_info exchange over LAN
+#ifdef IPv6
+struct _sockaddr GMcast_v6; // same for IPv6-only
+#endif
 extern obj_position Player_init[MAX_PLAYERS];
 extern ubyte Version_major,Version_minor;
 extern char MaxPowerupsAllowed[MAX_POWERUP_TYPES];
@@ -537,6 +540,9 @@ int net_udp_list_join_poll( newmenu *menu, d_event *event, direct_join *dj )
 			num_active_udp_changed = 1;
 			num_active_udp_games = 0;
 			net_udp_request_game_info(GBcast, 1);
+#ifdef IPv6
+			net_udp_request_game_info(GMcast_v6, 1);
+#endif
 			break;
 		}
 		case EVENT_IDLE:
@@ -571,6 +577,9 @@ int net_udp_list_join_poll( newmenu *menu, d_event *event, direct_join *dj )
 				num_active_udp_changed = 1;
 				num_active_udp_games = 0;
 				net_udp_request_game_info(GBcast, 1);
+#ifdef IPv6
+				net_udp_request_game_info(GMcast_v6, 1);
+#endif
 				break;
 			}
 			if (key == KEY_ESC)
@@ -735,6 +744,10 @@ void net_udp_list_join_game()
 	// prepare broadcast address to discover games
 	memset(&GBcast, '\0', sizeof(struct _sockaddr));
 	udp_dns_filladdr(UDP_BCAST_ADDR, UDP_PORT_DEFAULT, &GBcast);
+#ifdef IPv6
+	memset(&GMcast_v6, '\0', sizeof(struct _sockaddr));
+	udp_dns_filladdr(UDP_MCASTv6_ADDR, UDP_PORT_DEFAULT, &GMcast_v6);
+#endif
 
 	change_playernum_to(1);
 	N_players = 0;
@@ -1952,6 +1965,7 @@ void net_udp_send_game_info(struct _sockaddr sender_addr, ubyte info_upid)
 		PUT_INTEL_SHORT(buf + len, D2XMAJORi); 									len += 2;
 		PUT_INTEL_SHORT(buf + len, D2XMINORi); 									len += 2;
 		PUT_INTEL_SHORT(buf + len, D2XMICROi); 									len += 2;
+		PUT_INTEL_INT(buf + len, Netgame.protocol.udp.GameID);							len += 4;
 		buf[len] = Netgame.version_major;										len++;
 		buf[len] = Netgame.version_minor;										len++;
 		for (i = 0; i < MAX_PLAYERS+4; i++)
@@ -2048,7 +2062,10 @@ void net_udp_send_netgame_update()
 	{
 		net_udp_send_game_info(Netgame.players[i].protocol.udp.addr, UPID_GAME_INFO);
 	}
-	net_udp_send_game_info(GBcast, UPID_GAME_INFO_LITE); 
+	net_udp_send_game_info(GBcast, UPID_GAME_INFO_LITE);
+#ifdef IPv6
+	net_udp_send_game_info(GMcast_v6, UPID_GAME_INFO_LITE);
+#endif
 }
 
 int net_udp_send_request(void)
@@ -2094,6 +2111,7 @@ void net_udp_process_game_info(ubyte *data, int data_len, struct _sockaddr game_
 		if ((recv_game.program_iver[0] != D2XMAJORi) || (recv_game.program_iver[1] != D2XMINORi) || (recv_game.program_iver[2] != D2XMICROi))
 			return;
 
+		recv_game.GameID = GET_INTEL_INT(&(data[len]));					len += 4;
 		memcpy(&recv_game.game_name, &(data[len]), NETGAME_NAME_LEN+1);			len += (NETGAME_NAME_LEN+1);
 		memcpy(&recv_game.mission_title, &(data[len]), MISSION_NAME_LEN+1);		len += (MISSION_NAME_LEN+1);
 		memcpy(&recv_game.mission_name, &(data[len]), 9);						len += 9;
@@ -2110,7 +2128,7 @@ void net_udp_process_game_info(ubyte *data, int data_len, struct _sockaddr game_
 		num_active_udp_changed = 1;
 		
 		for (i = 0; i < num_active_udp_games; i++)
-			if (!strcasecmp(Active_udp_games[i].game_name, recv_game.game_name) && !memcmp((struct _sockaddr *)&Active_udp_games[i].game_addr, (struct _sockaddr *)&recv_game.game_addr, sizeof(struct _sockaddr)))
+			if (!strcasecmp(Active_udp_games[i].game_name, recv_game.game_name) && Active_udp_games[i].GameID == recv_game.GameID)
 				break;
 
 		if (i == UDP_MAX_NETGAMES)
@@ -3286,6 +3304,9 @@ int net_udp_send_sync(void)
 			net_udp_send_game_info(Netgame.players[i].protocol.udp.addr, UPID_GAME_INFO);
 		}
 		net_udp_send_game_info(GBcast, UPID_GAME_INFO_LITE);
+#ifdef IPv6
+		net_udp_send_game_info(GMcast_v6, UPID_GAME_INFO_LITE);
+#endif
 		return -1;
 	}
 
@@ -3452,6 +3473,9 @@ abort:
 			net_udp_send_game_info(Netgame.players[i].protocol.udp.addr, UPID_GAME_INFO);
 		}
 		net_udp_send_game_info(GBcast, UPID_GAME_INFO_LITE);
+#ifdef IPv6
+		net_udp_send_game_info(GMcast_v6, UPID_GAME_INFO_LITE);
+#endif
 		Netgame.numplayers = save_nplayers;
 
 		Network_status = NETSTAT_MENU;
@@ -3548,6 +3572,12 @@ int net_udp_start_game(void)
 	// prepare broadcast address to announce our game
 	memset(&GBcast, '\0', sizeof(struct _sockaddr));
 	udp_dns_filladdr(UDP_BCAST_ADDR, UDP_PORT_DEFAULT, &GBcast);
+#ifdef IPv6
+	memset(&GMcast_v6, '\0', sizeof(struct _sockaddr));
+	udp_dns_filladdr(UDP_MCASTv6_ADDR, UDP_PORT_DEFAULT, &GMcast_v6);
+#endif
+	d_srand( (fix)timer_query() );
+	Netgame.protocol.udp.GameID=d_rand();
 
 	if (is_D2_OEM)
 		UDP_Seq.player.version_minor|=0x10;
@@ -3559,7 +3589,6 @@ int net_udp_start_game(void)
 
 	net_udp_set_game_mode(Netgame.gamemode);
 
-	d_srand( (fix)timer_query() );
 	Netgame.players[0].protocol.udp.isyou = 1; // I am Host. I need to know that y'know? For syncing later.
 	
 	if(net_udp_select_players())
@@ -3572,6 +3601,9 @@ int net_udp_start_game(void)
 		return 0;	// see if we want to tweak the game we setup
 	}
 	net_udp_send_game_info(GBcast, UPID_GAME_INFO_LITE); // game started. broadcast our current status to everyone who wants to know
+#ifdef IPv6
+	net_udp_send_game_info(GMcast_v6, UPID_GAME_INFO_LITE); // game started. broadcast our current status to everyone who wants to know
+#endif
 	
 	return 1;	// don't keep params menu or mission listbox (may want to join a game next time)
 }
@@ -3823,6 +3855,9 @@ void net_udp_leave_game()
 			net_udp_send_game_info(Netgame.players[i].protocol.udp.addr, UPID_GAME_INFO);
 		}
 		net_udp_send_game_info(GBcast, UPID_GAME_INFO_LITE);
+#ifdef IPv6
+		net_udp_send_game_info(GMcast_v6, UPID_GAME_INFO_LITE);
+#endif
 		N_players=nsave;
 	
 	}
@@ -4002,6 +4037,9 @@ void net_udp_do_frame(int force, int listen)
 	{
 		last_bcast_time = time;
 		net_udp_send_game_info(GBcast, UPID_GAME_INFO_LITE);
+#ifdef IPv6
+		net_udp_send_game_info(GMcast_v6, UPID_GAME_INFO_LITE);
+#endif
 	}
 
 	if (listen)
