@@ -20,6 +20,8 @@ COPYRIGHT 1993-1998 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 #include <stdlib.h>
 #include <stdio.h>
 #include <stdarg.h>
+
+#include "window.h"
 #include "u_mem.h"
 #include "fix.h"
 #include "pstypes.h"
@@ -339,6 +341,8 @@ void ui_mega_process()
 	int mx, my, mz;
 	unsigned char k;
 
+	event_process();
+	
 	switch( Record )
 	{
 	case 0:
