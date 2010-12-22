@@ -236,8 +236,8 @@ void multi_sort_kill_list(void);
 void multi_reset_stuff(void);
 void multi_send_data(unsigned char *buf, int len, int priority);
 int get_team(int pnum);
-// void multi_object_to_object_rw(object *obj, object_rw *obj_rw);
-// void multi_object_rw_to_object(object_rw *obj_rw, object *obj);
+void multi_object_to_object_rw(object *obj, object_rw *obj_rw);
+void multi_object_rw_to_object(object_rw *obj_rw, object *obj);
 
 // Exported variables
 
