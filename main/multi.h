@@ -386,6 +386,7 @@ typedef struct netgame_info
 			struct _sockaddr	addr; // IP address of this netgame's host
 			short				program_iver[3]; // IVER of program for version checking
 			sbyte				valid; // Status of Netgame info: -1 = Failed, Wrong version; 0 = No info, yet; 1 = Success
+			fix				GameID;
 		} udp;
 #endif
 	} protocol;	

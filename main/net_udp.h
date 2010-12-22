@@ -24,10 +24,9 @@ int net_udp_level_sync();
 
 // Some defines
 #ifdef IPv6
-#define UDP_BCAST_ADDR "ff02::1"
-#else
-#define UDP_BCAST_ADDR "255.255.255.255"
+#define UDP_MCASTv6_ADDR "ff02::1"
 #endif
+#define UDP_BCAST_ADDR "255.255.255.255"
 #define UDP_PORT_DEFAULT 42424 // Our default port - easy to remember: D = 4, X = 24, X = 24
 #define UDP_REQ_ID "D1XR" // ID string for a request packet
 #define UDP_MAX_NETGAMES 600
@@ -38,7 +37,7 @@ int net_udp_level_sync();
 #define UDP_OBJ_PACKETS_PER_FRAME 1
 
 // Following are static defines for the buffer size of various packets. IF you change the packets, you must change the size, too.
-#define UPKT_MAX_SIZE 576 // Max size for a packet - just for the buffers
+#define UPKT_MAX_SIZE 1024 // Max size for a packet - just for the buffers
 #define UPKT_GAME_INFO_REQ_SIZE 11
 #define UPKT_SEQUENCE_SIZE 14
 #define UPKT_PING_SIZE 37
@@ -70,14 +69,15 @@ int net_udp_level_sync();
 // Structure keeping lite game infos (for netlist, etc.)
 typedef struct UDP_netgame_info_lite
 {
-	struct _sockaddr				game_addr;
-	short							program_iver[3];
+	struct _sockaddr                game_addr;
+	fix                             GameID;
+	short                           program_iver[3];
 	char                            game_name[NETGAME_NAME_LEN+1];
 	char                            mission_title[MISSION_NAME_LEN+1];
 	char                            mission_name[9];
 	int32_t                         levelnum;
 	ubyte                           gamemode;
-	ubyte							RefusePlayers;
+	ubyte                           RefusePlayers;
 	ubyte                           difficulty;
 	ubyte                           game_status;
 	ubyte                           numconnected;

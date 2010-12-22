@@ -7,6 +7,7 @@ arch/ogl/ogl.c, include/ogl_init.h, main/ai.c, main/ai.h, main/aipath.c, main/ai
 main/game.c: Use game_init_render_buffers for editor (for now), fixing crash
 main/gamecntl.c, main/net_udp.c: Fix warning for deliberate GameTime64 wrap; uncomment multi_object_to_object_rw and multi_object_rw_to_object prototypes
 main/collide.c, main/object.c, main/object.h, main/state.c: added hitobj_list to struct laser_info to get a bit cleaner code
+main/multi.h, main/net_udp.c, main/net_udp.h: in IPv6 builds also send regular broadcast packets to get games found via LAN between IPv4 clients/systems and IPv6 clients/systems; rather than identifying (lite_info) games via IP use randomly generated GameID and game name to prevent duplicated coming from IPv6 builds
 
 20101211
 --------
