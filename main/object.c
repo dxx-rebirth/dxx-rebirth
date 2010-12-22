@@ -83,7 +83,6 @@ int free_object_slots(int num_used);
  */
 
 ubyte CollisionResult[MAX_OBJECT_TYPES][MAX_OBJECT_TYPES];
-ubyte hitobj_list[MAX_OBJECTS][MAX_OBJECTS]; // last_hitobj of laser_inof struct can only keep track of one object. Still a persistent laser can hit several objects at the same time. This list keeps track of those while last_hitobj will only represent the most recent (the last) hitobj.
 
 object *ConsoleObject;					//the object that is the player
 
@@ -1289,7 +1288,7 @@ int obj_create(ubyte type,ubyte id,int segnum,vms_vector *pos,
 		obj->mtype.phys_info.flags |= (Weapon_info[obj->id].persistent*PF_PERSISTENT);
 		obj->ctype.laser_info.creation_time = GameTime64;
 		obj->ctype.laser_info.last_hitobj = -1;
-		memset(&hitobj_list[objnum], 0, sizeof(ubyte)*MAX_OBJECTS);
+		memset(&obj->ctype.laser_info.hitobj_list, 0, sizeof(ubyte)*MAX_OBJECTS);
 		obj->ctype.laser_info.multiplier = F1_0;
 	}
 
