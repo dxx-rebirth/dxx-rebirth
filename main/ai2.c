@@ -158,9 +158,9 @@ void init_ai_object(int objnum, int behavior, int hide_segment)
 	ailp->player_awareness_type = 0;
 	aip->GOAL_STATE = AIS_SRCH;
 	aip->CURRENT_STATE = AIS_REST;
-	ailp->time_player_seen = GameTime;
-	ailp->next_misc_sound_time = GameTime;
-	ailp->time_player_sound_attacked = GameTime;
+	ailp->time_player_seen = GameTime64;
+	ailp->next_misc_sound_time = GameTime64;
+	ailp->time_player_sound_attacked = GameTime64;
 
 	if ((behavior == AIB_SNIPE) || (behavior == AIB_STATION) || (behavior == AIB_RUN_FROM) || (behavior == AIB_FOLLOW)) {
 		aip->hide_segment = hide_segment;
@@ -967,10 +967,10 @@ void ai_fire_laser_at_player(object *obj, vms_vector *fire_point, int gun_num, v
 
 	//	If player is cloaked, maybe don't fire based on how long cloaked and randomness.
 	if (Players[Player_num].flags & PLAYER_FLAGS_CLOAKED) {
-		fix	cloak_time = Ai_cloak_info[objnum % MAX_AI_CLOAK_INFO].last_time;
+		fix64	cloak_time = Ai_cloak_info[objnum % MAX_AI_CLOAK_INFO].last_time;
 
-		if (GameTime - cloak_time > CLOAK_TIME_MAX/4)
-			if (d_rand() > fixdiv(GameTime - cloak_time, CLOAK_TIME_MAX)/2) {
+		if (GameTime64 - cloak_time > CLOAK_TIME_MAX/4)
+			if (d_rand() > fixdiv(GameTime64 - cloak_time, CLOAK_TIME_MAX)/2) {
 				set_next_fire_time(obj, ailp, robptr, gun_num);
 				return;
 			}
@@ -1155,7 +1155,7 @@ void move_around_player(object *objp, vms_vector *vec_to_player, int fast_flag)
 			count++;
 		}
 
-	dir = (/*FrameCount*/(GameTime/2000==0?1:GameTime/2000) + (count+1) * (objnum*8 + objnum*4 + objnum)) & dir_change;
+	dir = (/*FrameCount*/(GameTime64/2000==0?1:GameTime64/2000) + (count+1) * (objnum*8 + objnum*4 + objnum)) & dir_change;
 	dir >>= (4+count);
 
 	Assert((dir >= 0) && (dir <= 3));
@@ -1348,7 +1348,7 @@ void ai_move_relative_to_player(object *objp, ai_local *ailp, fix dist_to_player
 		} else {
 			if ((-ailp->next_fire > F1_0 + (objval << 12)) && player_visibility) {
 				//	Usually move away, but sometimes move around player.
-				if ((((GameTime >> 18) & 0x0f) ^ objval) > 4) {
+				if ((((GameTime64 >> 18) & 0x0f) ^ objval) > 4) {
 					move_away_from_player(objp, vec_to_player, 0);
 				} else {
 					move_around_player(objp, vec_to_player, -1);
@@ -1466,11 +1466,11 @@ void compute_vis_and_vec(object *objp, vms_vector *pos, ai_local *ailp, vms_vect
 			fix			delta_time, dist;
 			int			cloak_index = (objp-Objects) % MAX_AI_CLOAK_INFO;
 
-			delta_time = GameTime - Ai_cloak_info[cloak_index].last_time;
+			delta_time = GameTime64 - Ai_cloak_info[cloak_index].last_time;
 			if (delta_time > F1_0*2) {
 				vms_vector	randvec;
 
-				Ai_cloak_info[cloak_index].last_time = GameTime;
+				Ai_cloak_info[cloak_index].last_time = GameTime64;
 				make_random_vector(&randvec);
 				vm_vec_scale_add2(&Ai_cloak_info[cloak_index].last_position, &randvec, 8*delta_time );
 			}
@@ -1479,8 +1479,8 @@ void compute_vis_and_vec(object *objp, vms_vector *pos, ai_local *ailp, vms_vect
 			*player_visibility = player_is_visible_from_object(objp, pos, robptr->field_of_view[Difficulty_level], vec_to_player);
 			// *player_visibility = 2;
 
-			if ((ailp->next_misc_sound_time < GameTime) && ((ailp->next_fire < F1_0) || (ailp->next_fire2 < F1_0)) && (dist < F1_0*20)) {
-				ailp->next_misc_sound_time = GameTime + (d_rand() + F1_0) * (7 - Difficulty_level) / 1;
+			if ((ailp->next_misc_sound_time < GameTime64) && ((ailp->next_fire < F1_0) || (ailp->next_fire2 < F1_0)) && (dist < F1_0*20)) {
+				ailp->next_misc_sound_time = GameTime64 + (d_rand() + F1_0) * (7 - Difficulty_level) / 1;
 				digi_link_sound_to_pos( robptr->see_sound, objp->segnum, 0, pos, 0 , Robot_sound_volume);
 			}
 		} else {
@@ -1504,19 +1504,19 @@ void compute_vis_and_vec(object *objp, vms_vector *pos, ai_local *ailp, vms_vect
 
 			if ((ailp->previous_visibility != *player_visibility) && (*player_visibility == 2)) {
 				if (ailp->previous_visibility == 0) {
-					if (ailp->time_player_seen + F1_0/2 < GameTime) {
+					if (ailp->time_player_seen + F1_0/2 < GameTime64) {
 						digi_link_sound_to_pos( robptr->see_sound, objp->segnum, 0, pos, 0 , Robot_sound_volume);
-						ailp->time_player_sound_attacked = GameTime;
-						ailp->next_misc_sound_time = GameTime + F1_0 + d_rand()*4;
+						ailp->time_player_sound_attacked = GameTime64;
+						ailp->next_misc_sound_time = GameTime64 + F1_0 + d_rand()*4;
 					}
-				} else if (ailp->time_player_sound_attacked + F1_0/4 < GameTime) {
+				} else if (ailp->time_player_sound_attacked + F1_0/4 < GameTime64) {
 					digi_link_sound_to_pos( robptr->attack_sound, objp->segnum, 0, pos, 0 , Robot_sound_volume);
-					ailp->time_player_sound_attacked = GameTime;
+					ailp->time_player_sound_attacked = GameTime64;
 				}
 			} 
 
-			if ((*player_visibility == 2) && (ailp->next_misc_sound_time < GameTime)) {
-				ailp->next_misc_sound_time = GameTime + (d_rand() + F1_0) * (7 - Difficulty_level) / 2;
+			if ((*player_visibility == 2) && (ailp->next_misc_sound_time < GameTime64)) {
+				ailp->next_misc_sound_time = GameTime64 + (d_rand() + F1_0) * (7 - Difficulty_level) / 2;
 				digi_link_sound_to_pos( robptr->attack_sound, objp->segnum, 0, pos, 0 , Robot_sound_volume);
 			}
 			ailp->previous_visibility = *player_visibility;
@@ -1531,7 +1531,7 @@ void compute_vis_and_vec(object *objp, vms_vector *pos, ai_local *ailp, vms_vect
 				*player_visibility = 2;
 				
 		if (*player_visibility) {
-			ailp->time_player_seen = GameTime;
+			ailp->time_player_seen = GameTime64;
 		}
 	}
 
@@ -1799,7 +1799,7 @@ int create_gated_robot( int segnum, int object_id, vms_vector *pos)
 	fix		objsize = Polygon_models[robptr->model_num].rad;
 	int		default_behavior;
 
-	if (GameTime - Last_gate_time < Gate_interval)
+	if (GameTime64 - Last_gate_time < Gate_interval)
 		return -1;
 
 	for (i=0; i<=Highest_object_index; i++)
@@ -1808,7 +1808,7 @@ int create_gated_robot( int segnum, int object_id, vms_vector *pos)
 				count++;
 
 	if (count > 2*Difficulty_level + 6) {
-		Last_gate_time = GameTime - 3*Gate_interval/4;
+		Last_gate_time = GameTime64 - 3*Gate_interval/4;
 		return -1;
 	}
 
@@ -1820,14 +1820,14 @@ int create_gated_robot( int segnum, int object_id, vms_vector *pos)
 
 	//	See if legal to place object here.  If not, move about in segment and try again.
 	if (check_object_object_intersection(&object_pos, objsize, segp)) {
-		Last_gate_time = GameTime - 3*Gate_interval/4;
+		Last_gate_time = GameTime64 - 3*Gate_interval/4;
 		return -1;
 	}
 
 	objnum = obj_create(OBJ_ROBOT, object_id, segnum, &object_pos, &vmd_identity_matrix, objsize, CT_AI, MT_PHYSICS, RT_POLYOBJ);
 
 	if ( objnum < 0 ) {
-		Last_gate_time = GameTime - 3*Gate_interval/4;
+		Last_gate_time = GameTime64 - 3*Gate_interval/4;
 		return -1;
 	}
 
@@ -1861,7 +1861,7 @@ int create_gated_robot( int segnum, int object_id, vms_vector *pos)
 	digi_link_sound_to_pos( Vclip[VCLIP_MORPHING_ROBOT].sound_num, segnum, 0, &object_pos, 0 , F1_0);
 	morph_start(objp);
 
-	Last_gate_time = GameTime;
+	Last_gate_time = GameTime64;
 
 	Players[Player_num].num_robots_level++;
 	Players[Player_num].num_robots_total++;
@@ -1934,7 +1934,7 @@ void init_ai_for_ship(void)
 	int	i;
 
 	for (i=0; i<MAX_AI_CLOAK_INFO; i++) {
-		Ai_cloak_info[i].last_time = GameTime;
+		Ai_cloak_info[i].last_time = GameTime64;
 		Ai_cloak_info[i].last_segment = ConsoleObject->segnum;
 		Ai_cloak_info[i].last_position = ConsoleObject->pos;
 	}
@@ -2002,7 +2002,7 @@ void teleport_boss(object *objp)
 	compute_segment_center(&objp->pos, &Segments[rand_segnum]);
 	obj_relink(objp-Objects, rand_segnum);
 
-	Last_teleport_time = GameTime;
+	Last_teleport_time = GameTime64;
 
 	//	make boss point right at player
 	vm_vec_sub(&boss_dir, &Objects[Players[Player_num].objnum].pos, &objp->pos);
@@ -2023,7 +2023,7 @@ void start_boss_death_sequence(object *objp)
 {
 	if (Robot_info[objp->id].boss_flag) {
 		Boss_dying = 1;
-		Boss_dying_start_time = GameTime;
+		Boss_dying_start_time = GameTime64;
 	}
 
 }
@@ -2032,7 +2032,7 @@ void start_boss_death_sequence(object *objp)
 //	General purpose robot-dies-with-death-roll-and-groan code.
 //	Return true if object just died.
 //	scale: F1_0*4 for boss, much smaller for much smaller guys
-int do_robot_dying_frame(object *objp, fix start_time, fix roll_duration, sbyte *dying_sound_playing, int death_sound, fix expl_scale, fix sound_scale)
+int do_robot_dying_frame(object *objp, fix64 start_time, fix roll_duration, sbyte *dying_sound_playing, int death_sound, fix expl_scale, fix sound_scale)
 {
 	fix	roll_val, temp;
 	fix	sound_duration;
@@ -2040,22 +2040,22 @@ int do_robot_dying_frame(object *objp, fix start_time, fix roll_duration, sbyte 
 	if (!roll_duration)
 		roll_duration = F1_0/4;
 
-	roll_val = fixdiv(GameTime - start_time, roll_duration);
+	roll_val = fixdiv(GameTime64 - start_time, roll_duration);
 
 	fix_sincos(fixmul(roll_val, roll_val), &temp, &objp->mtype.phys_info.rotvel.x);
 	fix_sincos(roll_val, &temp, &objp->mtype.phys_info.rotvel.y);
 	fix_sincos(roll_val-F1_0/8, &temp, &objp->mtype.phys_info.rotvel.z);
 
-	objp->mtype.phys_info.rotvel.x = (GameTime - start_time)/9;
-	objp->mtype.phys_info.rotvel.y = (GameTime - start_time)/5;
-	objp->mtype.phys_info.rotvel.z = (GameTime - start_time)/7;
+	objp->mtype.phys_info.rotvel.x = (GameTime64 - start_time)/9;
+	objp->mtype.phys_info.rotvel.y = (GameTime64 - start_time)/5;
+	objp->mtype.phys_info.rotvel.z = (GameTime64 - start_time)/7;
 
 	if (GameArg.SndDigiSampleRate)
 		sound_duration = fixdiv(GameSounds[digi_xlat_sound(death_sound)].length,GameArg.SndDigiSampleRate);
 	else
 		sound_duration = F1_0;
 
-	if (start_time + roll_duration - sound_duration < GameTime) {
+	if (start_time + roll_duration - sound_duration < GameTime64) {
 		if (!*dying_sound_playing) {
 			*dying_sound_playing = 1;
 			digi_link_sound_to_object2( death_sound, objp-Objects, 0, sound_scale, sound_scale*256 );	//	F1_0*512 means play twice as loud
@@ -2064,7 +2064,7 @@ int do_robot_dying_frame(object *objp, fix start_time, fix roll_duration, sbyte 
 	} else if (d_rand() < FrameTime*8)
 		create_small_fireball_on_object(objp, (F1_0/2 + d_rand()) * (16 * expl_scale/F1_0)/8, 1);
 
-	if (start_time + roll_duration < GameTime || GameTime+(F1_0*2) < start_time)
+	if (start_time + roll_duration < GameTime64 || GameTime64+(F1_0*2) < start_time)
 		return 1;
 	else
 		return 0;
@@ -2073,7 +2073,7 @@ int do_robot_dying_frame(object *objp, fix start_time, fix roll_duration, sbyte 
 //	----------------------------------------------------------------------
 void start_robot_death_sequence(object *objp)
 {
-	objp->ctype.ai_info.dying_start_time = GameTime;
+	objp->ctype.ai_info.dying_start_time = GameTime64;
 	objp->ctype.ai_info.dying_sound_playing = 0;
 	objp->ctype.ai_info.SKIP_AI_COUNT = 0;
 
@@ -2087,7 +2087,7 @@ void do_boss_dying_frame(object *objp)
 	rval = do_robot_dying_frame(objp, Boss_dying_start_time, BOSS_DEATH_DURATION, &Boss_dying_sound_playing, Robot_info[objp->id].deathroll_sound, F1_0*4, F1_0*4);
 
 	if (rval) {
-		Boss_dying_start_time=GameTime; // make sure following only happens one time!
+		Boss_dying_start_time=GameTime64; // make sure following only happens one time!
 		do_controlcen_destroyed_stuff(NULL);
 		explode_object(objp, F1_0/4);
 		digi_link_sound_to_object2(SOUND_BADASS_EXPLOSION, objp-Objects, 0, F2_0, F1_0*512);
@@ -2106,7 +2106,7 @@ int do_any_robot_dying_frame(object *objp)
 		rval = do_robot_dying_frame(objp, objp->ctype.ai_info.dying_start_time, min(death_roll/2+1,6)*F1_0, &objp->ctype.ai_info.dying_sound_playing, Robot_info[objp->id].deathroll_sound, death_roll*F1_0/8, death_roll*F1_0/2);
 
 		if (rval) {
-			objp->ctype.ai_info.dying_start_time = GameTime; // make sure following only happens one time!
+			objp->ctype.ai_info.dying_start_time = GameTime64; // make sure following only happens one time!
 			explode_object(objp, F1_0/4);
 			digi_link_sound_to_object2(SOUND_BADASS_EXPLOSION, objp-Objects, 0, F2_0, F1_0*512);
 			if ((Current_level_num < 0) && (Robot_info[objp->id].thief))
@@ -2167,35 +2167,28 @@ void do_boss_stuff(object *objp, int player_visibility)
 	}
 #endif
 
-	//	New code, fixes stupid bug which meant boss never gated in robots if > 32767 seconds played.
-	if (Last_teleport_time > GameTime)
-		Last_teleport_time = GameTime;
-
-	if (Last_gate_time > GameTime)
-		Last_gate_time = GameTime;
-
 	//	@mk, 10/13/95:  Reason:
 	//		Level 4 boss behind locked door.  But he's allowed to teleport out of there.  So he
 	//		teleports out of there right away, and blasts player right after first door.
-	if (!player_visibility && (GameTime - Boss_hit_time > F1_0*2))
+	if (!player_visibility && (GameTime64 - Boss_hit_time > F1_0*2))
 		return;
 
 	if (!Boss_dying && Boss_teleports[boss_index]) {
 		if (objp->ctype.ai_info.CLOAKED == 1) {
-			Boss_hit_time = GameTime;	//	Keep the cloak:teleport process going.
-			if ((GameTime - Boss_cloak_start_time > BOSS_CLOAK_DURATION/3) && (Boss_cloak_end_time - GameTime > BOSS_CLOAK_DURATION/3) && (GameTime - Last_teleport_time > Boss_teleport_interval)) {
+			Boss_hit_time = GameTime64;	//	Keep the cloak:teleport process going.
+			if ((GameTime64 - Boss_cloak_start_time > BOSS_CLOAK_DURATION/3) && (Boss_cloak_end_time - GameTime64 > BOSS_CLOAK_DURATION/3) && (GameTime64 - Last_teleport_time > Boss_teleport_interval)) {
 				if (ai_multiplayer_awareness(objp, 98))
 					teleport_boss(objp);
-			} else if (GameTime - Boss_hit_time > F1_0*2) {
+			} else if (GameTime64 - Boss_hit_time > F1_0*2) {
 				Last_teleport_time -= Boss_teleport_interval/4;
 			}
 
-			if (GameTime > Boss_cloak_end_time || GameTime < Boss_cloak_start_time)
+			if (GameTime64 > Boss_cloak_end_time || GameTime64 < Boss_cloak_start_time)
 				objp->ctype.ai_info.CLOAKED = 0;
-		} else if ((GameTime - Boss_cloak_end_time > Boss_cloak_interval) || (GameTime - Boss_cloak_end_time < -Boss_cloak_duration)) {
+		} else if ((GameTime64 - Boss_cloak_end_time > Boss_cloak_interval) || (GameTime64 - Boss_cloak_end_time < -Boss_cloak_duration)) {
 			if (ai_multiplayer_awareness(objp, 95)) {
-				Boss_cloak_start_time = GameTime;
-				Boss_cloak_end_time = GameTime+Boss_cloak_duration;
+				Boss_cloak_start_time = GameTime64;
+				Boss_cloak_end_time = GameTime64+Boss_cloak_duration;
 				objp->ctype.ai_info.CLOAKED = 1;
 #ifdef NETWORK
 				if (Game_mode & GM_MULTI)
@@ -2208,58 +2201,6 @@ void do_boss_stuff(object *objp, int player_visibility)
 }
 
 #define	BOSS_TO_PLAYER_GATE_DISTANCE	(F1_0*200)
-
-// -- Obsolete D1 code -- // --------------------------------------------------------------------------------------------------------------------
-// -- Obsolete D1 code -- //	Do special stuff for a boss.
-// -- Obsolete D1 code -- void do_super_boss_stuff(object *objp, fix dist_to_player, int player_visibility)
-// -- Obsolete D1 code -- {
-// -- Obsolete D1 code -- 	static int eclip_state = 0;
-// -- Obsolete D1 code -- 
-// -- Obsolete D1 code -- 	do_boss_stuff(objp, player_visibility);
-// -- Obsolete D1 code -- 
-// -- Obsolete D1 code -- 	// Only master player can cause gating to occur.
-// -- Obsolete D1 code -- 	if ((Game_mode & GM_MULTI) && !network_i_am_master())
-// -- Obsolete D1 code -- 		return; 
-// -- Obsolete D1 code -- 
-// -- Obsolete D1 code -- 	if ((dist_to_player < BOSS_TO_PLAYER_GATE_DISTANCE) || player_visibility || (Game_mode & GM_MULTI)) {
-// -- Obsolete D1 code -- 		if (GameTime - Last_gate_time > Gate_interval/2) {
-// -- Obsolete D1 code -- 			restart_effect(BOSS_ECLIP_NUM);
-// -- Obsolete D1 code -- 			if (eclip_state == 0) {
-// -- Obsolete D1 code -- 				multi_send_boss_actions(objp-Objects, 4, 0, 0);
-// -- Obsolete D1 code -- 				eclip_state = 1;
-// -- Obsolete D1 code -- 			}
-// -- Obsolete D1 code -- 		}
-// -- Obsolete D1 code -- 		else {
-// -- Obsolete D1 code -- 			stop_effect(BOSS_ECLIP_NUM);
-// -- Obsolete D1 code -- 			if (eclip_state == 1) {
-// -- Obsolete D1 code -- 				multi_send_boss_actions(objp-Objects, 5, 0, 0);
-// -- Obsolete D1 code -- 				eclip_state = 0;
-// -- Obsolete D1 code -- 			}
-// -- Obsolete D1 code -- 		}
-// -- Obsolete D1 code -- 
-// -- Obsolete D1 code -- 		if (GameTime - Last_gate_time > Gate_interval)
-// -- Obsolete D1 code -- 			if (ai_multiplayer_awareness(objp, 99)) {
-// -- Obsolete D1 code -- 				int	rtval;
-// -- Obsolete D1 code -- 				int	randtype = (d_rand() * MAX_GATE_INDEX) >> 15;
-// -- Obsolete D1 code -- 
-// -- Obsolete D1 code -- 				Assert(randtype < MAX_GATE_INDEX);
-// -- Obsolete D1 code -- 				randtype = Super_boss_gate_list[randtype];
-// -- Obsolete D1 code -- 				Assert(randtype < N_robot_types);
-// -- Obsolete D1 code -- 
-// -- Obsolete D1 code -- 				rtval = gate_in_robot(randtype, -1);
-// -- Obsolete D1 code -- 				if ((rtval != -1) && (Game_mode & GM_MULTI))
-// -- Obsolete D1 code -- 				{
-// -- Obsolete D1 code -- 					multi_send_boss_actions(objp-Objects, 3, randtype, Net_create_objnums[0]);
-// -- Obsolete D1 code -- 					map_objnum_local_to_local(Net_create_objnums[0]);
-// -- Obsolete D1 code -- 				}
-// -- Obsolete D1 code -- 			}	
-// -- Obsolete D1 code -- 	}
-// -- Obsolete D1 code -- }
-
-//int multi_can_move_robot(object *objp, int awareness_level)
-//{
-//	return 0;
-//}
 
 void ai_multi_send_robot_position(int objnum, int force)
 {

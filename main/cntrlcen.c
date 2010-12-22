@@ -272,7 +272,7 @@ void do_controlcen_destroyed_stuff(object *objp)
 	Dead_controlcen_object_num = objp-Objects;
 }
 
-int	Last_time_cc_vis_check = 0;
+fix64	Last_time_cc_vis_check = 0;
 
 //	-----------------------------------------------------------------------------
 //do whatever this thing does in a frame
@@ -332,13 +332,13 @@ void do_controlcen_frame(object *obj)
 
 	//	Periodically, make the reactor fall asleep if player not visible.
 	if (Control_center_been_hit || Control_center_player_been_seen) {
-		if ((Last_time_cc_vis_check + F1_0*5 < GameTime) || (Last_time_cc_vis_check > GameTime)) {
+		if ((Last_time_cc_vis_check + F1_0*5 < GameTime64) || (Last_time_cc_vis_check > GameTime64)) {
 			vms_vector	vec_to_player;
 			fix			dist_to_player;
 
 			vm_vec_sub(&vec_to_player, &ConsoleObject->pos, &obj->pos);
 			dist_to_player = vm_vec_normalize_quick(&vec_to_player);
-			Last_time_cc_vis_check = GameTime;
+			Last_time_cc_vis_check = GameTime64;
 			if (dist_to_player < F1_0*120) {
 				Control_center_player_been_seen = player_is_visible_from_object(obj, &obj->pos, 0, &vec_to_player);
 				if (!Control_center_player_been_seen)

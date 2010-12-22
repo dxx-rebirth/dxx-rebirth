@@ -191,7 +191,7 @@ static int nd_record_v_start_frame = -1;
 static int nd_record_v_frame_number = -1;
 static short nd_record_v_framebytes_written = 0;
 static int nd_record_v_recordframe = 1;
-static fix nd_record_v_recordframe_last_time = 0;
+static fix64 nd_record_v_recordframe_last_time = 0;
 static int nd_record_v_juststarted = 0;
 static sbyte nd_record_v_no_space;
 static sbyte nd_record_v_objs[MAX_OBJECTS];
@@ -731,7 +731,7 @@ void nd_write_object(object *obj)
 
 	if (obj->type == OBJ_ROBOT) {
 		if (Robot_info[obj->id].boss_flag) {
-			if ((GameTime > Boss_cloak_start_time) && (GameTime < Boss_cloak_end_time))
+			if ((GameTime64 > Boss_cloak_start_time) && (GameTime64 < Boss_cloak_end_time))
 				nd_write_byte(1);
 			else
 				nd_write_byte(0);
@@ -842,13 +842,13 @@ void newdemo_record_start_demo()
 {
 	int i;
 
-	nd_record_v_recordframe_last_time=GameTime-REC_DELAY; // make sure first frame is recorded!
+	nd_record_v_recordframe_last_time=GameTime64-REC_DELAY; // make sure first frame is recorded!
 
 	stop_time();
 	nd_write_byte(ND_EVENT_START_DEMO);
 	nd_write_byte(DEMO_VERSION);
 	nd_write_byte(DEMO_GAME_TYPE);
-	nd_write_fix(GameTime);
+	nd_write_fix(0); // NOTE: This is supposed to write GameTime (in fix). Since our GameTime64 is fix64 and the demos do not NEED this time actually, just write 0.
 
 #ifdef NETWORK
 	if (Game_mode & GM_MULTI)
@@ -932,14 +932,14 @@ void newdemo_record_start_frame(fix frame_time )
 	// First check if if at least REC_DELAY has passed since last recorded frame. If yes, record frame and set nd_record_v_recordframe true.
 	// nd_record_v_recordframe will be used for various other frame-by-frame events to drop some unnecessary bytes.
 	// frame_time must be modified to get the right playback speed.
-	if (nd_record_v_recordframe_last_time > GameTime)
-		nd_record_v_recordframe_last_time=GameTime-REC_DELAY;
+	if (nd_record_v_recordframe_last_time > GameTime64)
+		nd_record_v_recordframe_last_time=GameTime64-REC_DELAY;
 
-	if (nd_record_v_recordframe_last_time + REC_DELAY <= GameTime || frame_time >= REC_DELAY)
+	if (nd_record_v_recordframe_last_time + REC_DELAY <= GameTime64 || frame_time >= REC_DELAY)
 	{
 		if (frame_time < REC_DELAY)
 			frame_time = REC_DELAY;
-		nd_record_v_recordframe_last_time = GameTime-(GameTime-(nd_record_v_recordframe_last_time + REC_DELAY));
+		nd_record_v_recordframe_last_time = GameTime64-(GameTime64-(nd_record_v_recordframe_last_time + REC_DELAY));
 		nd_record_v_recordframe=1;
 
 		stop_time();
@@ -1523,6 +1523,7 @@ int newdemo_read_demo_start(enum purpose_type purpose)
 	sbyte i=0, version=0, game_type=0, laser_level=0, c=0;
 	ubyte energy=0, shield=0;
 	char current_mission[9];
+	fix nd_GameTime32 = 0;
 
 	Rear_view=0;
 
@@ -1553,15 +1554,16 @@ int newdemo_read_demo_start(enum purpose_type purpose)
 		}
 		return 1;
 	}
-	nd_read_fix(&GameTime);
+	nd_read_fix(&nd_GameTime32); // NOTE: Demos write GameTime in fix.
+	GameTime64 = nd_GameTime32;
 	nd_read_int(&Newdemo_game_mode);
 	if (purpose == PURPOSE_REWRITE)
 	{
-		nd_write_fix(GameTime);
+		nd_write_fix(nd_GameTime32);
 		nd_write_int(Newdemo_game_mode);
 	}
 
-	Boss_cloak_start_time=Boss_cloak_end_time=GameTime;
+	Boss_cloak_start_time=Boss_cloak_end_time=GameTime64;
 #ifndef NETWORK
 	if (Newdemo_game_mode & GM_MULTI) {
 		nm_messagebox( NULL, 1, "Ok", "can't playback net game\nwith this version of code\n" );
@@ -1678,10 +1680,10 @@ int newdemo_read_demo_start(enum purpose_type purpose)
 	if (purpose == PURPOSE_REWRITE)
 		nd_write_int(Players[Player_num].flags);
 	if (Players[Player_num].flags & PLAYER_FLAGS_CLOAKED) {
-		Players[Player_num].cloak_time = GameTime - (CLOAK_TIME_MAX / 2);
+		Players[Player_num].cloak_time = GameTime64 - (CLOAK_TIME_MAX / 2);
 	}
 	if (Players[Player_num].flags & PLAYER_FLAGS_INVULNERABLE)
-		Players[Player_num].invulnerable_time = GameTime - (INVULNERABLE_TIME_MAX / 2);
+		Players[Player_num].invulnerable_time = GameTime64 - (INVULNERABLE_TIME_MAX / 2);
 
 	nd_read_byte((sbyte *)&Primary_weapon);
 	nd_read_byte((sbyte *)&Secondary_weapon);
@@ -2219,22 +2221,22 @@ int newdemo_read_frame_information(int rewrite)
 					Players[Player_num].cloak_time = 0;
 				}
 				if ((oflags & PLAYER_FLAGS_CLOAKED) && !(Players[Player_num].flags & PLAYER_FLAGS_CLOAKED)) {
-					Players[Player_num].cloak_time = GameTime - (CLOAK_TIME_MAX / 2);
+					Players[Player_num].cloak_time = GameTime64 - (CLOAK_TIME_MAX / 2);
 				}
 				if (!(oflags & PLAYER_FLAGS_INVULNERABLE) && (Players[Player_num].flags & PLAYER_FLAGS_INVULNERABLE))
 					Players[Player_num].invulnerable_time = 0;
 				if ((oflags & PLAYER_FLAGS_INVULNERABLE) && !(Players[Player_num].flags & PLAYER_FLAGS_INVULNERABLE))
-					Players[Player_num].invulnerable_time = GameTime - (INVULNERABLE_TIME_MAX / 2);
+					Players[Player_num].invulnerable_time = GameTime64 - (INVULNERABLE_TIME_MAX / 2);
 				Players[Player_num].flags = oflags;
 			} else if ((Newdemo_vcr_state == ND_STATE_PLAYBACK) || (Newdemo_vcr_state == ND_STATE_FASTFORWARD) || (Newdemo_vcr_state == ND_STATE_ONEFRAMEFORWARD)) {
 				if (!(oflags & PLAYER_FLAGS_CLOAKED) && (Players[Player_num].flags & PLAYER_FLAGS_CLOAKED)) {
-					Players[Player_num].cloak_time = GameTime - (CLOAK_TIME_MAX / 2);
+					Players[Player_num].cloak_time = GameTime64 - (CLOAK_TIME_MAX / 2);
 				}
 				if ((oflags & PLAYER_FLAGS_CLOAKED) && !(Players[Player_num].flags & PLAYER_FLAGS_CLOAKED)) {
 					Players[Player_num].cloak_time = 0;
 				}
 				if (!(oflags & PLAYER_FLAGS_INVULNERABLE) && (Players[Player_num].flags & PLAYER_FLAGS_INVULNERABLE))
-					Players[Player_num].invulnerable_time = GameTime - (INVULNERABLE_TIME_MAX / 2);
+					Players[Player_num].invulnerable_time = GameTime64 - (INVULNERABLE_TIME_MAX / 2);
 				if ((oflags & PLAYER_FLAGS_INVULNERABLE) && !(Players[Player_num].flags & PLAYER_FLAGS_INVULNERABLE))
 					Players[Player_num].invulnerable_time = 0;
 			}
@@ -2410,7 +2412,7 @@ int newdemo_read_frame_information(int rewrite)
 				Players[pnum].cloak_time = 0;
 			} else if ((Newdemo_vcr_state == ND_STATE_PLAYBACK) || (Newdemo_vcr_state == ND_STATE_FASTFORWARD) || (Newdemo_vcr_state == ND_STATE_ONEFRAMEFORWARD)) {
 				Players[pnum].flags |= PLAYER_FLAGS_CLOAKED;
-				Players[pnum].cloak_time = GameTime  - (CLOAK_TIME_MAX / 2);
+				Players[pnum].cloak_time = GameTime64  - (CLOAK_TIME_MAX / 2);
 			}
 			break;
 		}
@@ -2427,7 +2429,7 @@ int newdemo_read_frame_information(int rewrite)
 
 			if ((Newdemo_vcr_state == ND_STATE_REWINDING) || (Newdemo_vcr_state == ND_STATE_ONEFRAMEBACKWARD)) {
 				Players[pnum].flags |= PLAYER_FLAGS_CLOAKED;
-				Players[pnum].cloak_time = GameTime  - (CLOAK_TIME_MAX / 2);
+				Players[pnum].cloak_time = GameTime64 - (CLOAK_TIME_MAX / 2);
 			} else if ((Newdemo_vcr_state == ND_STATE_PLAYBACK) || (Newdemo_vcr_state == ND_STATE_FASTFORWARD) || (Newdemo_vcr_state == ND_STATE_ONEFRAMEFORWARD)) {
 				Players[pnum].flags &= ~PLAYER_FLAGS_CLOAKED;
 				Players[pnum].cloak_time = 0;
@@ -2953,10 +2955,10 @@ void newdemo_goto_end(int to_rewrite)
 	Players[Player_num].shields = i2f(shield);
 	nd_read_int((int *)&(Players[Player_num].flags));
 	if (Players[Player_num].flags & PLAYER_FLAGS_CLOAKED) {
-		Players[Player_num].cloak_time = GameTime - (CLOAK_TIME_MAX / 2);
+		Players[Player_num].cloak_time = GameTime64 - (CLOAK_TIME_MAX / 2);
 	}
 	if (Players[Player_num].flags & PLAYER_FLAGS_INVULNERABLE)
-		Players[Player_num].invulnerable_time = GameTime - (INVULNERABLE_TIME_MAX / 2);
+		Players[Player_num].invulnerable_time = GameTime64 - (INVULNERABLE_TIME_MAX / 2);
 	nd_read_byte((sbyte *)&Primary_weapon);
 	nd_read_byte((sbyte *)&Secondary_weapon);
 	for (i = 0; i < MAX_PRIMARY_WEAPONS; i++)
@@ -3150,10 +3152,10 @@ void newdemo_playback_one_frame()
 
 	for (i = 0; i < MAX_PLAYERS; i++)
 		if (Players[i].flags & PLAYER_FLAGS_CLOAKED)
-			Players[i].cloak_time = GameTime - (CLOAK_TIME_MAX / 2);
+			Players[i].cloak_time = GameTime64 - (CLOAK_TIME_MAX / 2);
 
 	if (Players[Player_num].flags & PLAYER_FLAGS_INVULNERABLE)
-		Players[Player_num].invulnerable_time = GameTime - (INVULNERABLE_TIME_MAX / 2);
+		Players[Player_num].invulnerable_time = GameTime64 - (INVULNERABLE_TIME_MAX / 2);
 
 	if (Newdemo_vcr_state == ND_STATE_PAUSED)       // render a frame or not
 		return;

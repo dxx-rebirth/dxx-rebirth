@@ -256,7 +256,7 @@ void select_weapon(int weapon_num, int secondary_flag, int print_message, int wa
 			}
 #endif
 			if (wait_for_rearm)
-				Next_laser_fire_time = GameTime + REARM_TIME;
+				Next_laser_fire_time = GameTime64 + REARM_TIME;
 			else
 				Next_laser_fire_time = 0;
 			Global_laser_firing_count = 0;
@@ -286,7 +286,7 @@ void select_weapon(int weapon_num, int secondary_flag, int print_message, int wa
 			}
 #endif
 			if (wait_for_rearm)
-				Next_missile_fire_time = GameTime + REARM_TIME;
+				Next_missile_fire_time = GameTime64 + REARM_TIME;
 			else
 				Next_missile_fire_time = 0;
 			Global_missile_firing_count = 0;
@@ -724,7 +724,7 @@ int pick_up_ammo(int class_flag,int weapon_index,int ammo_count)
 
 #define	SMEGA_SHAKE_TIME		(F1_0*2)
 #define	MAX_SMEGA_DETONATES	4
-fix	Smega_detonate_times[MAX_SMEGA_DETONATES];
+fix64	Smega_detonate_times[MAX_SMEGA_DETONATES];
 
 //	Call this to initialize for a new level.
 //	Sets all super mega missile detonation times to 0 which means there aren't any.
@@ -737,7 +737,7 @@ void init_smega_detonates(void)
 }
 
 fix	Seismic_tremor_magnitude;
-fix	Next_seismic_sound_time;
+fix64	Next_seismic_sound_time;
 int	Seismic_sound_playing = 0;
 int	Seismic_tremor_volume;
 
@@ -753,13 +753,12 @@ void rock_the_mine_frame(void)
 	for (i=0; i<MAX_SMEGA_DETONATES; i++) {
 
 		if (Smega_detonate_times[i] != 0) {
-			fix	delta_time;
-			delta_time = GameTime - Smega_detonate_times[i];
+			fix	delta_time = GameTime64 - Smega_detonate_times[i];
 
 			if (!Seismic_sound_playing) {
 				digi_play_sample_looping(Seismic_sound, F1_0, -1, -1);
 				Seismic_sound_playing = 1;
-				Next_seismic_sound_time = GameTime + d_rand()/2;
+				Next_seismic_sound_time = GameTime64 + d_rand()/2;
 			}
 
 			if (delta_time < SMEGA_SHAKE_TIME) {
@@ -807,11 +806,11 @@ void rock_the_mine_frame(void)
 
 extern	int	Level_shake_frequency, Level_shake_duration;
 #ifdef NETWORK
-extern void multi_send_seismic (fix,fix);
+extern void multi_send_seismic (fix64,fix64);
 #endif
 
 #define	SEISMIC_DISTURBANCE_DURATION	(F1_0*5)
-fix	Seismic_disturbance_start_time = 0, Seismic_disturbance_end_time;
+fix64	Seismic_disturbance_start_time = 0, Seismic_disturbance_end_time;
 
 int Seismic_level=0;
 
@@ -837,12 +836,12 @@ int start_seismic_disturbance(void)
 	rval =  (2 * fixmul(d_rand(), Level_shake_frequency)) < FrameTime;
 
 	if (rval) {
-		Seismic_disturbance_start_time = GameTime;
-		Seismic_disturbance_end_time = GameTime + Level_shake_duration;
+		Seismic_disturbance_start_time = GameTime64;
+		Seismic_disturbance_end_time = GameTime64 + Level_shake_duration;
 		if (!Seismic_sound_playing) {
 			digi_play_sample_looping(Seismic_sound, F1_0, -1, -1);
 			Seismic_sound_playing = 1;
-			Next_seismic_sound_time = GameTime + d_rand()/2;
+			Next_seismic_sound_time = GameTime64 + d_rand()/2;
 		}
 
 #ifdef NETWORK
@@ -857,11 +856,11 @@ int start_seismic_disturbance(void)
 void seismic_disturbance_frame(void)
 {
 	if (Level_shake_frequency) {
-		if (((Seismic_disturbance_start_time < GameTime) && (Seismic_disturbance_end_time > GameTime)) || start_seismic_disturbance()) {
+		if (((Seismic_disturbance_start_time < GameTime64) && (Seismic_disturbance_end_time > GameTime64)) || start_seismic_disturbance()) {
 			fix	delta_time;
 			int	fc, rx, rz;
 
-			delta_time = GameTime - Seismic_disturbance_start_time;
+			delta_time = GameTime64 - Seismic_disturbance_start_time;
 
 			fc = abs(delta_time - (Seismic_disturbance_end_time - Seismic_disturbance_start_time)/2);
 			fc /= F1_0/16;
@@ -901,13 +900,13 @@ void smega_rock_stuff(void)
 	int	i;
 
 	for (i=0; i<MAX_SMEGA_DETONATES; i++) {
-		if (Smega_detonate_times[i] + SMEGA_SHAKE_TIME < GameTime)
+		if (Smega_detonate_times[i] + SMEGA_SHAKE_TIME < GameTime64)
 			Smega_detonate_times[i] = 0;
 	}
 
 	for (i=0; i<MAX_SMEGA_DETONATES; i++) {
 		if (Smega_detonate_times[i] == 0) {
-			Smega_detonate_times[i] = GameTime;
+			Smega_detonate_times[i] = GameTime64;
 			break;
 		}
 	}
@@ -1219,14 +1218,14 @@ void do_seismic_stuff(void)
 			Seismic_sound_playing = 0;
 		}
 
-		if ((GameTime > Next_seismic_sound_time) && Seismic_tremor_volume) {
+		if ((GameTime64 > Next_seismic_sound_time) && Seismic_tremor_volume) {
 			int	volume;
 
 			volume = Seismic_tremor_volume * 2048;
 			if (volume > F1_0)
 				volume = F1_0;
 			digi_change_looping_volume(volume);
-			Next_seismic_sound_time = GameTime + d_rand()/4 + 8192;
+			Next_seismic_sound_time = GameTime64 + d_rand()/4 + 8192;
 		}
 	}
 

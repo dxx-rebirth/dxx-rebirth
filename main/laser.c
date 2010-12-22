@@ -157,9 +157,9 @@ int laser_are_related( int o1, int o2 )
 		if ( (Objects[o1].ctype.laser_info.parent_num==o2) && (Objects[o1].ctype.laser_info.parent_signature==Objects[o2].signature) )
 		{
 			//	o1 is a weapon, o2 is the parent of 1, so if o1 is PROXIMITY_BOMB and o2 is player, they are related only if o1 < 2.0 seconds old
-			if ((Objects[o1].id == PHOENIX_ID && (GameTime > Objects[o1].ctype.laser_info.creation_time + F1_0/4)) ||
-			   (Objects[o1].id == GUIDEDMISS_ID && (GameTime > Objects[o1].ctype.laser_info.creation_time + F1_0*2)) ||
-				(((Objects[o1].id == PROXIMITY_ID) || (Objects[o1].id == SUPERPROX_ID)) && (GameTime > Objects[o1].ctype.laser_info.creation_time + F1_0*4))) {
+			if ((Objects[o1].id == PHOENIX_ID && (GameTime64 > Objects[o1].ctype.laser_info.creation_time + F1_0/4)) ||
+			   (Objects[o1].id == GUIDEDMISS_ID && (GameTime64 > Objects[o1].ctype.laser_info.creation_time + F1_0*2)) ||
+				(((Objects[o1].id == PROXIMITY_ID) || (Objects[o1].id == SUPERPROX_ID)) && (GameTime64 > Objects[o1].ctype.laser_info.creation_time + F1_0*4))) {
 				return 0;
 			} else
 				return 1;
@@ -171,9 +171,9 @@ int laser_are_related( int o1, int o2 )
 		if ( (Objects[o2].ctype.laser_info.parent_num==o1) && (Objects[o2].ctype.laser_info.parent_signature==Objects[o1].signature) )
 		{
 			//	o2 is a weapon, o1 is the parent of 2, so if o2 is PROXIMITY_BOMB and o1 is player, they are related only if o1 < 2.0 seconds old
-			if ((Objects[o2].id == PHOENIX_ID && (GameTime > Objects[o2].ctype.laser_info.creation_time + F1_0/4)) ||
-			   (Objects[o2].id == GUIDEDMISS_ID && (GameTime > Objects[o2].ctype.laser_info.creation_time + F1_0*2)) ||
-				(((Objects[o2].id == PROXIMITY_ID) || (Objects[o2].id == SUPERPROX_ID)) && (GameTime > Objects[o2].ctype.laser_info.creation_time + F1_0*4))) {
+			if ((Objects[o2].id == PHOENIX_ID && (GameTime64 > Objects[o2].ctype.laser_info.creation_time + F1_0/4)) ||
+			   (Objects[o2].id == GUIDEDMISS_ID && (GameTime64 > Objects[o2].ctype.laser_info.creation_time + F1_0*2)) ||
+				(((Objects[o2].id == PROXIMITY_ID) || (Objects[o2].id == SUPERPROX_ID)) && (GameTime64 > Objects[o2].ctype.laser_info.creation_time + F1_0*4))) {
 				return 0;
 			} else
 				return 1;
@@ -191,7 +191,7 @@ int laser_are_related( int o1, int o2 )
 	{
 		if (Objects[o1].id == PROXIMITY_ID  || Objects[o2].id == PROXIMITY_ID || Objects[o1].id == SUPERPROX_ID || Objects[o2].id == SUPERPROX_ID) {
 			//	If neither is older than 1/2 second, then can't blow up!
-			if ((GameTime > (Objects[o1].ctype.laser_info.creation_time + F1_0/2)) || (GameTime > (Objects[o2].ctype.laser_info.creation_time + F1_0/2)))
+			if ((GameTime64 > (Objects[o1].ctype.laser_info.creation_time + F1_0/2)) || (GameTime64 > (Objects[o2].ctype.laser_info.creation_time + F1_0/2)))
 				return 0;
 			else
 				return 1;
@@ -523,7 +523,7 @@ void do_omega_stuff(object *parent_objp, vms_vector *firing_pos, object *weapon_
 			Omega_charge = 0;
 
 		//	Ensure that the lightning cannon can be fired next frame.
-		Next_laser_fire_time = GameTime+1;
+		Next_laser_fire_time = GameTime64+1;
 
 		Last_omega_fire_frame = FrameCount;
 	}
@@ -1495,7 +1495,7 @@ void Laser_do_weapon_sequence(object *obj)
 		fix				speed, max_speed;
 
 		//	For first 1/2 second of life, missile flies straight.
-		if (obj->ctype.laser_info.creation_time + HOMING_MISSILE_STRAIGHT_TIME < GameTime) {
+		if (obj->ctype.laser_info.creation_time + HOMING_MISSILE_STRAIGHT_TIME < GameTime64) {
 
 			int	track_goal = obj->ctype.laser_info.track_goal;
 
@@ -1613,7 +1613,7 @@ void Laser_do_weapon_sequence(object *obj)
 	}
 }
 
-fix	Last_laser_fired_time = 0;
+fix64	Last_laser_fired_time = 0;
 
 extern int Player_fired_laser_this_frame;
 
@@ -1656,10 +1656,10 @@ int do_laser_firing_player(void)
 	if (addval > F1_0)
 		addval = F1_0;
 
-	if ((Last_laser_fired_time + 2*FrameTime < GameTime) || (GameTime < Last_laser_fired_time))
-		Next_laser_fire_time = GameTime;
+	if (Last_laser_fired_time + 2*FrameTime < GameTime64)
+		Next_laser_fire_time = GameTime64;
 
-	Last_laser_fired_time = GameTime;
+	Last_laser_fired_time = GameTime64;
 
 	primary_ammo = (Primary_weapon == GAUSS_INDEX)?(plp->primary_ammo[VULCAN_INDEX]):(plp->primary_ammo[Primary_weapon]);
 
@@ -1668,10 +1668,10 @@ int do_laser_firing_player(void)
 
 if (Zbonkers) {
 	Zbonkers = 0;
-	GameTime = 0;
+	GameTime64 = 0;
 }
 
-	while (Next_laser_fire_time <= GameTime) {
+	while (Next_laser_fire_time <= GameTime64) {
 		if	((plp->energy >= energy_used) && (primary_ammo >= ammo_used)) {
 			int	laser_level, flags;
 
@@ -1715,7 +1715,7 @@ if (Zbonkers) {
 
 		} else {
 			auto_select_weapon(0);		//	Make sure the player can fire from this weapon.
-			Next_laser_fire_time = GameTime;	//	Prevents shots-to-fire from building up.
+			Next_laser_fire_time = GameTime64;	//	Prevents shots-to-fire from building up.
 			break;	//	Couldn't fire weapon, so abort.
 		}
 	}
@@ -2113,7 +2113,7 @@ void do_missile_firing(int drop_bomb)
 
 	if (Guided_missile[Player_num] && Guided_missile[Player_num]->signature==Guided_missile_sig[Player_num]) {
 		release_guided_missile(Player_num);
-		Next_missile_fire_time = GameTime + Weapon_info[Secondary_weapon_to_weapon_info[weapon]].fire_wait;
+		Next_missile_fire_time = GameTime64 + Weapon_info[Secondary_weapon_to_weapon_info[weapon]].fire_wait;
 		return;
 	}
 
@@ -2126,9 +2126,9 @@ void do_missile_firing(int drop_bomb)
 		weapon_id = Secondary_weapon_to_weapon_info[weapon];
 
 		if (Laser_rapid_fire!=0xBADA55)
-			Next_missile_fire_time = GameTime + Weapon_info[weapon_id].fire_wait;
+			Next_missile_fire_time = GameTime64 + Weapon_info[weapon_id].fire_wait;
 		else
-			Next_missile_fire_time = GameTime + F1_0/25;
+			Next_missile_fire_time = GameTime64 + F1_0/25;
 
 		weapon_gun = Secondary_weapon_to_gun_num[weapon];
 

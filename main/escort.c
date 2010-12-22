@@ -99,14 +99,14 @@ int	Max_escort_length = 200;
 int	Escort_kill_object = -1;
 ubyte Stolen_items[MAX_STOLEN_ITEMS];
 int	Stolen_item_index;
-fix	Escort_last_path_created = 0;
+fix64	Escort_last_path_created = 0;
 int	Escort_goal_object = ESCORT_GOAL_UNSPECIFIED, Escort_special_goal = -1, Escort_goal_index = -1, Buddy_messages_suppressed = 0;
-fix	Buddy_sorry_time;
+fix64	Buddy_sorry_time;
 int	Buddy_objnum, Buddy_allowed_to_talk;
 int	Looking_for_marker;
 int	Last_buddy_key;
 
-fix	Last_buddy_message_time;
+fix64	Last_buddy_message_time;
 
 void init_buddy_for_level(void)
 {
@@ -396,7 +396,7 @@ void buddy_message(char * format, ... )
 	if (Game_mode & GM_MULTI)
 		return;
 
-	if ((Last_buddy_message_time + F1_0 < GameTime) || (Last_buddy_message_time > GameTime)) {
+	if (Last_buddy_message_time + F1_0 < GameTime64) {
 		if (ok_for_buddy_to_talk()) {
 			char	gb_str[16], new_format[128];
 			va_list	args;
@@ -417,7 +417,7 @@ void buddy_message(char * format, ... )
 
 			HUD_init_message(HM_DEFAULT, "%s %s", gb_str, new_format);
 
-			Last_buddy_message_time = GameTime;
+			Last_buddy_message_time = GameTime64;
 		}
 	}
 
@@ -526,7 +526,7 @@ void set_escort_special_goal(int special_key)
 		}
 	}
 
-	Last_buddy_message_time = GameTime - 2*F1_0;	//	Allow next message to come through.
+	Last_buddy_message_time = GameTime64 - 2*F1_0;	//	Allow next message to come through.
 
 	say_escort_goal(Escort_special_goal);
 	// -- Escort_goal_object = escort_set_goal_object();
@@ -858,15 +858,15 @@ int escort_set_goal_object(void)
 
 #define	MAX_ESCORT_TIME_AWAY		(F1_0*4)
 
-fix	Buddy_last_seen_player = 0, Buddy_last_player_path_created;
+fix64	Buddy_last_seen_player = 0, Buddy_last_player_path_created;
 
 //	-----------------------------------------------------------------------------
 int time_to_visit_player(object *objp, ai_local *ailp, ai_static *aip)
 {
 	//	Note: This one has highest priority because, even if already going towards player,
 	//	might be necessary to create a new path, as player can move.
-	if (GameTime - Buddy_last_seen_player > MAX_ESCORT_TIME_AWAY)
-		if (GameTime - Buddy_last_player_path_created > F1_0)
+	if (GameTime64 - Buddy_last_seen_player > MAX_ESCORT_TIME_AWAY)
+		if (GameTime64 - Buddy_last_player_path_created > F1_0)
 			return 1;
 
 	if (ailp->mode == AIM_GOTO_PLAYER)
@@ -883,9 +883,9 @@ int time_to_visit_player(object *objp, ai_local *ailp, ai_static *aip)
 
 int	Buddy_objnum;
 int Buddy_dude_cheat;
-fix	Last_come_back_message_time = 0;
+fix64	Last_come_back_message_time = 0;
 
-fix	Buddy_last_missile_time;
+fix64	Buddy_last_missile_time;
 
 //	-----------------------------------------------------------------------------
 void bash_buddy_weapon_info(int weapon_objnum)
@@ -970,15 +970,15 @@ void do_buddy_dude_stuff(void)
 	if (!ok_for_buddy_to_talk())
 		return;
 
-	if (Buddy_last_missile_time > GameTime)
+	if (Buddy_last_missile_time > GameTime64)
 		Buddy_last_missile_time = 0;
 
-	if (Buddy_last_missile_time + F1_0*2 < GameTime) {
+	if (Buddy_last_missile_time + F1_0*2 < GameTime64) {
 		//	See if a robot potentially in view cone
 		for (i=0; i<=Highest_object_index; i++)
 			if ((Objects[i].type == OBJ_ROBOT) && !Robot_info[Objects[i].id].companion)
 				if (maybe_buddy_fire_mega(i)) {
-					Buddy_last_missile_time = GameTime;
+					Buddy_last_missile_time = GameTime64;
 					return;
 				}
 
@@ -986,7 +986,7 @@ void do_buddy_dude_stuff(void)
 		for (i=0; i<=Highest_object_index; i++)
 			if ((Objects[i].type == OBJ_ROBOT) && !Robot_info[Objects[i].id].companion)
 				if (maybe_buddy_fire_smart(i)) {
-					Buddy_last_missile_time = GameTime;
+					Buddy_last_missile_time = GameTime64;
 					return;
 				}
 
@@ -1004,7 +1004,7 @@ void do_escort_frame(object *objp, fix dist_to_player, int player_visibility)
 	Buddy_objnum = objp-Objects;
 
 	if (player_visibility) {
-		Buddy_last_seen_player = GameTime;
+		Buddy_last_seen_player = GameTime64;
 		if (Players[Player_num].flags & PLAYER_FLAGS_HEADLIGHT_ON)	//	DAMN! MK, stupid bug, fixed 12/08/95, changed PLAYER_FLAGS_HEADLIGHT to PLAYER_FLAGS_HEADLIGHT_ON
 			if (f2i(Players[Player_num].energy) < 40)
 				if ((f2i(Players[Player_num].energy)/2) & 2)
@@ -1016,9 +1016,9 @@ void do_escort_frame(object *objp, fix dist_to_player, int player_visibility)
 	if (Buddy_dude_cheat)
 		do_buddy_dude_stuff();
 
-	if (Buddy_sorry_time + F1_0 > GameTime) {
+	if (Buddy_sorry_time + F1_0 > GameTime64) {
 		Last_buddy_message_time = 0;	//	Force this message to get through.
-		if (Buddy_sorry_time < GameTime + F1_0*2)
+		if (Buddy_sorry_time < GameTime64 + F1_0*2)
 			buddy_message("Oops, sorry 'bout that...");
 		Buddy_sorry_time = -F1_0*2;
 	}
@@ -1039,30 +1039,30 @@ void do_escort_frame(object *objp, fix dist_to_player, int player_visibility)
 
 	if (Escort_special_goal == ESCORT_GOAL_SCRAM) {
 		if (player_visibility)
-			if (Escort_last_path_created + F1_0*3 < GameTime) {
+			if (Escort_last_path_created + F1_0*3 < GameTime64) {
 				create_n_segment_path(objp, 10 + d_rand() * 16, ConsoleObject->segnum);
-				Escort_last_path_created = GameTime;
+				Escort_last_path_created = GameTime64;
 			}
 
 		return;
 	}
 
 	//	Force checking for new goal every 5 seconds, and create new path, if necessary.
-	if (((Escort_special_goal != ESCORT_GOAL_SCRAM) && ((Escort_last_path_created + F1_0*5) < GameTime)) ||
-		((Escort_special_goal == ESCORT_GOAL_SCRAM) && ((Escort_last_path_created + F1_0*15) < GameTime))) {
+	if (((Escort_special_goal != ESCORT_GOAL_SCRAM) && ((Escort_last_path_created + F1_0*5) < GameTime64)) ||
+		((Escort_special_goal == ESCORT_GOAL_SCRAM) && ((Escort_last_path_created + F1_0*15) < GameTime64))) {
 		Escort_goal_object = ESCORT_GOAL_UNSPECIFIED;
-		Escort_last_path_created = GameTime;
+		Escort_last_path_created = GameTime64;
 	}
 
 	if ((Escort_special_goal != ESCORT_GOAL_SCRAM) && time_to_visit_player(objp, ailp, aip)) {
 		int	max_len;
 
-		Buddy_last_player_path_created = GameTime;
+		Buddy_last_player_path_created = GameTime64;
 		ailp->mode = AIM_GOTO_PLAYER;
 		if (!player_visibility) {
-			if ((Last_come_back_message_time + F1_0 < GameTime) || (Last_come_back_message_time > GameTime)) {
+			if ((Last_come_back_message_time + F1_0 < GameTime64) || (Last_come_back_message_time > GameTime64)) {
 				buddy_message("Coming back to get you.");
-				Last_come_back_message_time = GameTime;
+				Last_come_back_message_time = GameTime64;
 			}
 		}
 		//	No point in Buddy creating very long path if he's not allowed to talk.  Really kills framerate.
@@ -1072,7 +1072,7 @@ void do_escort_frame(object *objp, fix dist_to_player, int player_visibility)
 		create_path_to_player(objp, max_len, 1);	//	MK!: Last parm used to be 1!
 		aip->path_length = polish_path(objp, &Point_segs[aip->hide_index], aip->path_length);
 		ailp->mode = AIM_GOTO_PLAYER;
-	}	else if (GameTime - Buddy_last_seen_player > MAX_ESCORT_TIME_AWAY) {
+	}	else if (GameTime64 - Buddy_last_seen_player > MAX_ESCORT_TIME_AWAY) {
 		//	This is to prevent buddy from looking for a goal, which he will do because we only allow path creation once/second.
 		return;
 	} else if ((ailp->mode == AIM_GOTO_PLAYER) && (dist_to_player < MIN_ESCORT_DISTANCE)) {
@@ -1209,7 +1209,7 @@ int choose_thief_recreation_segment(void)
 
 extern object * create_morph_robot( segment *segp, vms_vector *object_pos, int object_id);
 
-fix	Re_init_thief_time = 0x3f000000;
+fix64	Re_init_thief_time = 0x3f000000;
 
 //	----------------------------------------------------------------------
 void recreate_thief(object *objp)
@@ -1223,7 +1223,7 @@ void recreate_thief(object *objp)
 
 	new_obj = create_morph_robot( &Segments[segnum], &center_point, objp->id);
 	init_ai_object(new_obj-Objects, AIB_SNIPE, -1);
-	Re_init_thief_time = GameTime + F1_0*10;		//	In 10 seconds, re-initialize thief.
+	Re_init_thief_time = GameTime64 + F1_0*10;		//	In 10 seconds, re-initialize thief.
 }
 
 //	----------------------------------------------------------------------------
@@ -1238,8 +1238,8 @@ void do_thief_frame(object *objp, fix dist_to_player, int player_visibility, vms
 	ai_local		*ailp = &Ai_local_info[objnum];
 	fix			connected_distance;
 
-	if ((Current_level_num < 0) && (Re_init_thief_time < GameTime)) {
-		if (Re_init_thief_time > GameTime - F1_0*2)
+	if ((Current_level_num < 0) && (Re_init_thief_time < GameTime64)) {
+		if (Re_init_thief_time > GameTime64 - F1_0*2)
 			init_thief_for_level();
 		Re_init_thief_time = 0x3f000000;
 	}

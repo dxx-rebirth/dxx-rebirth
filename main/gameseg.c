@@ -880,7 +880,7 @@ typedef struct {
 
 int	Fcd_index = 0;
 fcd_data Fcd_cache[MAX_FCD_CACHE];
-fix	Last_fcd_flush_time;
+fix64	Last_fcd_flush_time;
 
 //	----------------------------------------------------------------------------------------------------------
 void flush_fcd_cache(void)
@@ -961,9 +961,9 @@ fix find_connected_distance(vms_vector *p0, int seg0, vms_vector *p1, int seg1, 
 	}
 
 	//	Periodically flush cache.
-	if ((GameTime - Last_fcd_flush_time > F1_0*2) || (GameTime < Last_fcd_flush_time)) {
+	if ((GameTime64 - Last_fcd_flush_time > F1_0*2) || (GameTime64 < Last_fcd_flush_time)) {
 		flush_fcd_cache();
-		Last_fcd_flush_time = GameTime;
+		Last_fcd_flush_time = GameTime64;
 	}
 
 	//	Can't quickly get distance, so see if in Fcd_cache.

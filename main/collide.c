@@ -80,10 +80,10 @@ COPYRIGHT 1993-1999 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 
 int check_collision_delayfunc_exec()
 {
-	static fix last_play_time=0;
-	if (last_play_time + (F1_0/3) < GameTime || last_play_time > GameTime)
+	static fix64 last_play_time=0;
+	if (last_play_time + (F1_0/3) < GameTime64 || last_play_time > GameTime64)
 	{
-		last_play_time = GameTime;
+		last_play_time = GameTime64;
 		last_play_time -= (d_rand()/2); // add some randomness
 		return 1;
 	}
@@ -385,7 +385,7 @@ void collide_player_and_wall( object * playerobj, fix hitspeed, short hitseg, sh
 	return;
 }
 
-fix	Last_volatile_scrape_sound_time = 0;
+fix64	Last_volatile_scrape_sound_time = 0;
 
 void collide_weapon_and_wall( object * weapon, fix hitspeed, short hitseg, short hitwall, vms_vector * hitpt);
 void collide_debris_and_wall( object * debris, fix hitspeed, short hitseg, short hitwall, vms_vector * hitpt);
@@ -445,10 +445,10 @@ void scrape_object_on_wall(object *obj, short hitseg, short hitside, vms_vector 
 				if ((type=check_volatile_wall(obj,hitseg,hitside,hitpt))!=0) {
 					vms_vector	hit_dir, rand_vec;
 
-					if ((GameTime > Last_volatile_scrape_sound_time + F1_0/4) || (GameTime < Last_volatile_scrape_sound_time)) {
+					if ((GameTime64 > Last_volatile_scrape_sound_time + F1_0/4) || (GameTime64 < Last_volatile_scrape_sound_time)) {
 						int sound = (type==1)?SOUND_VOLATILE_WALL_HISS:SOUND_SHIP_IN_WATER;
 
-						Last_volatile_scrape_sound_time = GameTime;
+						Last_volatile_scrape_sound_time = GameTime64;
 
 						digi_link_sound_to_pos( sound, hitseg, 0, hitpt, 0, F1_0 );
 #ifdef NETWORK
@@ -982,7 +982,7 @@ void collide_robot_and_controlcen( object * obj1, object * obj2, vms_vector *col
 //##	return;
 //##}
 
-fix Last_thief_hit_time;
+fix64 Last_thief_hit_time;
 
 void collide_robot_and_player( object * robot, object * playerobj, vms_vector *collision_point )
 {
@@ -1002,14 +1002,14 @@ void collide_robot_and_player( object * robot, object * playerobj, vms_vector *c
 
 		if (Robot_info[robot->id].thief) {
 			if (Ai_local_info[robot-Objects].mode == AIM_THIEF_ATTACK) {
-				Last_thief_hit_time = GameTime;
+				Last_thief_hit_time = GameTime64;
 				attempt_to_steal_item(robot, playerobj->id);
 				steal_attempt = 1;
-			} else if (GameTime - Last_thief_hit_time < F1_0*2)
+			} else if (GameTime64 - Last_thief_hit_time < F1_0*2)
 				return;		//	ZOUNDS!  BRILLIANT!  Thief not collide with player if not stealing!
 								// NO!  VERY DUMB!  makes thief look very stupid if player hits him while cloaked! -AP
 			else
-				Last_thief_hit_time = GameTime;
+				Last_thief_hit_time = GameTime64;
 		}
 
 		create_awareness_event(playerobj, PA_PLAYER_COLLISION);			// object robot can attract attention to player
@@ -1306,7 +1306,7 @@ void do_final_boss_hacks(void)
 
 	//	If you're not invulnerable, get invulnerable!
 	if (!(Players[Player_num].flags & PLAYER_FLAGS_INVULNERABLE)) {
-		Players[Player_num].invulnerable_time = GameTime;
+		Players[Player_num].invulnerable_time = GameTime64;
 		Players[Player_num].flags |= PLAYER_FLAGS_INVULNERABLE;
 	}
 	if (!(Game_mode & GM_MULTI))
@@ -1333,7 +1333,7 @@ int apply_damage_to_robot(object *robot, fix damage, int killer_objnum)
 	if (robot->shields < 0 ) return 0;	//robot already dead...
 
 	if (Robot_info[robot->id].boss_flag)
-		Boss_hit_time = GameTime;
+		Boss_hit_time = GameTime64;
 
 	//	Buddy invulnerable on level 24 so he can give you his important messages.  Bah.
 	//	Also invulnerable if his cheat for firing weapons is in effect.
@@ -1449,7 +1449,7 @@ extern int boss_spew_robot(object *objp, vms_vector *pos);
 int	Boss_invulnerable_dot = 0;
 
 int	Buddy_gave_hint_count = 5;
-fix	Last_time_buddy_gave_hint = 0;
+fix64	Last_time_buddy_gave_hint = 0;
 
 //	------------------------------------------------------------------------------------------------------
 //	Return true if damage done to boss, else return false.
@@ -1470,7 +1470,7 @@ int do_boss_weapon_collision(object *robot, object *weapon, vms_vector *collisio
 			if (Boss_spew_more[d2_boss_index])
 				if (d_rand() > 16384) {
 					if (boss_spew_robot(robot, collision_point) != -1)
-						Last_gate_time = GameTime - Gate_interval - 1;	//	Force allowing spew of another bot.
+						Last_gate_time = GameTime64 - Gate_interval - 1;	//	Force allowing spew of another bot.
 				}
 			boss_spew_robot(robot, collision_point);
 		}
@@ -1495,11 +1495,11 @@ int do_boss_weapon_collision(object *robot, object *weapon, vms_vector *collisio
 				Last_time_buddy_gave_hint = d_rand()*32 + F1_0*16;
 
 			if (Buddy_gave_hint_count) {
-				if (Last_time_buddy_gave_hint + F1_0*20 < GameTime) {
+				if (Last_time_buddy_gave_hint + F1_0*20 < GameTime64) {
 					int	sval;
 
 					Buddy_gave_hint_count--;
-					Last_time_buddy_gave_hint = GameTime;
+					Last_time_buddy_gave_hint = GameTime64;
 					sval = (d_rand()*4) >> 15;
 					switch (sval) {
 						case 0:	buddy_message("Hit him in the back!");	break;
@@ -1566,7 +1566,7 @@ void collide_robot_and_weapon( object * robot, object * weapon, vms_vector *coll
 			return;
 
 	if (Robot_info[robot->id].boss_flag) {
-		Boss_hit_time = GameTime;
+		Boss_hit_time = GameTime64;
 		if (Robot_info[robot->id].boss_flag >= BOSS_D2) {
 			damage_flag = do_boss_weapon_collision(robot, weapon, collision_point);
 			boss_invul_flag = !damage_flag;
@@ -2075,7 +2075,7 @@ void drop_player_eggs(object *playerobj)
 // -- removed, 09/06/95, MK --
 // -- removed, 09/06/95, MK -- #define	LOSE_WEAPON_THRESHOLD	(F1_0*30)
 
-extern fix Buddy_sorry_time;
+extern fix64 Buddy_sorry_time;
 
 void apply_damage_to_player(object *playerobj, object *killer, fix damage)
 {
@@ -2122,7 +2122,7 @@ void apply_damage_to_player(object *playerobj, object *killer, fix damage)
 
 			if (Buddy_objnum != -1)
 				if (killer && (killer->type == OBJ_ROBOT) && (Robot_info[killer->id].companion))
-					Buddy_sorry_time = GameTime;
+					Buddy_sorry_time = GameTime64;
 		}
 
 		playerobj->shields = Players[Player_num].shields;		//mirror
@@ -2428,7 +2428,7 @@ void collide_weapon_and_debris( object * weapon, object * debris, vms_vector *co
 
 	//	Hack!  Prevent debris from causing bombs spewed at player death to detonate!
 	if ((weapon->id == PROXIMITY_ID) || (weapon->id == SUPERPROX_ID)) {
-		if (weapon->ctype.laser_info.creation_time + F1_0/2 > GameTime)
+		if (weapon->ctype.laser_info.creation_time + F1_0/2 > GameTime64)
 			return;
 	}
 

@@ -135,8 +135,7 @@ COPYRIGHT 1993-1999 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 #define  REMOTE_SLOT_NUM flags[9]   // What slot # is this robot in for remote control purposes (multiplayer use only)
 #define  MULTI_ANGER    flags[10]   // How angry is a robot in multiplayer mode
 
-// This is the stuff that is permanent for an AI object and is
-// therefore saved to disk.
+// This is the stuff that is permanent for an AI object.
 typedef struct ai_static {
 	ubyte   behavior;               //
 	sbyte   flags[MAX_AI_FLAGS];    // various flags, meaning defined by constants
@@ -145,45 +144,85 @@ typedef struct ai_static {
 	short   path_length;            // Length of hide path.
 	sbyte   cur_path_index;         // Current index in path.
 	sbyte   dying_sound_playing;    // !0 if this robot is playing its dying sound.
+	short   danger_laser_num;
+	int     danger_laser_signature;
+	fix64   dying_start_time;       // Time at which this robot started dying.
+} __pack__ ai_static;
 
-	// -- not needed! -- short   follow_path_start_seg;  // Start segment for robot which follows path.
-	// -- not needed! -- short   follow_path_end_seg;    // End segment for robot which follows path.
-
+// Same as above but structure Savegames/Multiplayer objects expect
+typedef struct ai_static_rw {
+	ubyte   behavior;               //
+	sbyte   flags[MAX_AI_FLAGS];    // various flags, meaning defined by constants
+	short   hide_segment;           // Segment to go to for hiding.
+	short   hide_index;             // Index in Path_seg_points
+	short   path_length;            // Length of hide path.
+	sbyte   cur_path_index;         // Current index in path.
+	sbyte   dying_sound_playing;    // !0 if this robot is playing its dying sound.
 	short   danger_laser_num;
 	int     danger_laser_signature;
 	fix     dying_start_time;       // Time at which this robot started dying.
+} __pack__ ai_static_rw;
 
-	//sbyte   extras[28];             // 32 extra bytes for storing stuff so we don't have to change versions on disk
-} __pack__ ai_static;
-
-// This is the stuff which doesn't need to be saved to disk.
+// Rather temporal AI stuff.
 typedef struct ai_local {
 // These used to be bytes, changed to ints so I could set watchpoints on them.
-// player_awareness_type..rapidfire_count used to be bytes
-// goal_segment used to be short.
-	int     player_awareness_type;  // type of awareness of player
-	int     retry_count;            // number of retries in physics last time this object got moved.
-	int     consecutive_retries;    // number of retries in consecutive frames (ie, without a retry_count of 0)
-	int     mode;                   // current mode within behavior
-	int     previous_visibility;    // Visibility of player last time we checked.
-	int     rapidfire_count;        // number of shots fired rapidly
-	int     goal_segment;           // goal segment for current path
-
-	// -- MK, 10/21/95, unused -- fix     last_see_time, last_attack_time; // For sound effects, time at which player last seen, attacked
-
-	fix     next_action_time;           // time in seconds until something happens, mode dependent
-	fix     next_fire;                  // time in seconds until can fire again
-	fix     next_fire2;                 // time in seconds until can fire again from second weapon
-	fix     player_awareness_time;      // time in seconds robot will be aware of player, 0 means not aware of player
-	fix     time_player_seen;           // absolute time in seconds at which player was last seen, might cause to go into follow_path mode
-	fix     time_player_sound_attacked; // absolute time in seconds at which player was last seen with visibility of 2.
-	fix     next_misc_sound_time;       // absolute time in seconds at which this robot last made an angry or lurking sound.
-	fix     time_since_processed;       // time since this robot last processed in do_ai_frame
-	vms_angvec goal_angles[MAX_SUBMODELS];  // angles for each subobject
-	vms_angvec delta_angles[MAX_SUBMODELS]; // angles for each subobject
-	sbyte   goal_state[MAX_SUBMODELS];      // Goal state for this sub-object
-	sbyte   achieved_state[MAX_SUBMODELS];  // Last achieved state
+	int        player_awareness_type;         // type of awareness of player
+	int        retry_count;                   // number of retries in physics last time this object got moved.
+	int        consecutive_retries;           // number of retries in consecutive frames (ie, without a retry_count of 0)
+	int        mode;                          // current mode within behavior
+	int        previous_visibility;           // Visibility of player last time we checked.
+	int        rapidfire_count;               // number of shots fired rapidly
+	int        goal_segment;                  // goal segment for current path
+	fix        next_action_time;              // time in seconds until something happens, mode dependent
+	fix        next_fire;                     // time in seconds until can fire again
+	fix        next_fire2;                    // time in seconds until can fire again from second weapon
+	fix        player_awareness_time;         // time in seconds robot will be aware of player, 0 means not aware of player
+	fix64      time_player_seen;              // absolute time in seconds at which player was last seen, might cause to go into follow_path mode
+	fix64      time_player_sound_attacked;    // absolute time in seconds at which player was last seen with visibility of 2.
+	fix64      next_misc_sound_time;          // absolute time in seconds at which this robot last made an angry or lurking sound.
+	fix        time_since_processed;          // time since this robot last processed in do_ai_frame
+	vms_angvec goal_angles[MAX_SUBMODELS];    // angles for each subobject
+	vms_angvec delta_angles[MAX_SUBMODELS];   // angles for each subobject
+	sbyte      goal_state[MAX_SUBMODELS];     // Goal state for this sub-object
+	sbyte      achieved_state[MAX_SUBMODELS]; // Last achieved state
 } ai_local;
+
+// Same as above but structure Savegames expect
+typedef struct ai_local_rw {
+// These used to be bytes, changed to ints so I could set watchpoints on them.
+	int        player_awareness_type;         // type of awareness of player
+	int        retry_count;                   // number of retries in physics last time this object got moved.
+	int        consecutive_retries;           // number of retries in consecutive frames (ie, without a retry_count of 0)
+	int        mode;                          // current mode within behavior
+	int        previous_visibility;           // Visibility of player last time we checked.
+	int        rapidfire_count;               // number of shots fired rapidly
+	int        goal_segment;                  // goal segment for current path
+	fix        next_action_time;              // time in seconds until something happens, mode dependent
+	fix        next_fire;                     // time in seconds until can fire again
+	fix        next_fire2;                    // time in seconds until can fire again from second weapon
+	fix        player_awareness_time;         // time in seconds robot will be aware of player, 0 means not aware of player
+	fix        time_player_seen;              // absolute time in seconds at which player was last seen, might cause to go into follow_path mode
+	fix        time_player_sound_attacked;    // absolute time in seconds at which player was last seen with visibility of 2.
+	fix        next_misc_sound_time;          // absolute time in seconds at which this robot last made an angry or lurking sound.
+	fix        time_since_processed;          // time since this robot last processed in do_ai_frame
+	vms_angvec goal_angles[MAX_SUBMODELS];    // angles for each subobject
+	vms_angvec delta_angles[MAX_SUBMODELS];   // angles for each subobject
+	sbyte      goal_state[MAX_SUBMODELS];     // Goal state for this sub-object
+	sbyte      achieved_state[MAX_SUBMODELS]; // Last achieved state
+} ai_local_rw;
+
+typedef struct {
+	fix64       last_time;
+	int         last_segment;
+	vms_vector  last_position;
+} ai_cloak_info;
+
+// Same as above but structure Savegames expect
+typedef struct {
+	fix         last_time;
+	int         last_segment;
+	vms_vector  last_position;
+} ai_cloak_info_rw;
 
 typedef struct {
 	int         segnum;

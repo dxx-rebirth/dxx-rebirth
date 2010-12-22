@@ -57,10 +57,10 @@ extern ubyte Boss_invulnerable_energy[NUM_D2_BOSSES];   // Set byte if boss is i
 extern ubyte Boss_invulnerable_matter[NUM_D2_BOSSES];   // Set byte if boss is invulnerable to matter weapons.
 extern ubyte Boss_invulnerable_spot[NUM_D2_BOSSES];     // Set byte if boss is invulnerable in all but a certain spot.  (Dot product fvec|vec_to_collision < BOSS_INVULNERABLE_DOT)
 
-extern fix Boss_cloak_start_time, Boss_cloak_end_time;
+extern fix64 Boss_cloak_start_time, Boss_cloak_end_time;
 extern int Num_boss_teleport_segs;
 extern short Boss_teleport_segs[MAX_BOSS_TELEPORT_SEGS];
-extern fix Last_teleport_time;
+extern fix64 Last_teleport_time;
 extern fix Boss_cloak_duration;
 
 extern ai_local Ai_local_info[MAX_OBJECTS];
@@ -135,12 +135,6 @@ extern fix AI_proc_time;
 #define OVERALL_AGITATION_MAX   100
 #define MAX_AI_CLOAK_INFO       8   // Must be a power of 2!
 
-typedef struct {
-	fix         last_time;
-	int         last_segment;
-	vms_vector  last_position;
-} ai_cloak_info;
-
 #define BOSS_CLOAK_DURATION (F1_0*7)
 #define BOSS_DEATH_DURATION (F1_0*6)
 
@@ -198,7 +192,7 @@ typedef struct awareness_event {
 
 #define FUELCEN_CHECK           1000
 
-extern fix Escort_last_path_created;
+extern fix64 Escort_last_path_created;
 extern int Escort_goal_object, Escort_special_goal, Escort_goal_index;
 
 #define GOAL_WIDTH 11
@@ -215,7 +209,7 @@ extern int Escort_goal_object, Escort_special_goal, Escort_goal_index;
 extern int   Max_escort_length;
 extern int   Escort_kill_object;
 extern ubyte Stolen_items[MAX_STOLEN_ITEMS];
-extern fix   Escort_last_path_created;
+extern fix64   Escort_last_path_created;
 extern int   Escort_goal_object, Escort_special_goal, Escort_goal_index;
 
 extern void  create_buddy_bot(void);
@@ -246,17 +240,17 @@ extern ai_local         Ai_local_info[MAX_OBJECTS];
 extern point_seg        Point_segs[MAX_POINT_SEGS];
 extern point_seg        *Point_segs_free_ptr;
 extern ai_cloak_info    Ai_cloak_info[MAX_AI_CLOAK_INFO];
-extern fix              Boss_cloak_start_time;
-extern fix              Boss_cloak_end_time;
-extern fix              Last_teleport_time;
+extern fix64            Boss_cloak_start_time;
+extern fix64            Boss_cloak_end_time;
+extern fix64            Last_teleport_time;
 extern fix              Boss_teleport_interval;
 extern fix              Boss_cloak_interval;        // Time between cloaks
 extern fix              Boss_cloak_duration;
-extern fix              Last_gate_time;
+extern fix64            Last_gate_time;
 extern fix              Gate_interval;
-extern fix              Boss_dying_start_time;
+extern fix64            Boss_dying_start_time;
 extern sbyte            Boss_dying, Boss_dying_sound_playing;
-extern fix              Boss_hit_time;
+extern fix64            Boss_hit_time;
 // -- extern int              Boss_been_hit;
 // ------ John: End of variables which must be saved as part of gamesave. -----
 

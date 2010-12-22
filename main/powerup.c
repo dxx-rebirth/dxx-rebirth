@@ -236,10 +236,7 @@ int do_powerup(object *obj)
 	if ((Player_is_dead) || (ConsoleObject->type == OBJ_GHOST) || (Players[Player_num].shields < 0))
 		return 0;
 
-	if (obj->ctype.powerup_info.creation_time > GameTime)		//gametime wrapped!
-		obj->ctype.powerup_info.creation_time = 0;				//allow player to pick up
-
-	if ((obj->ctype.powerup_info.flags & PF_SPAT_BY_PLAYER) && obj->ctype.powerup_info.creation_time>0 && GameTime<obj->ctype.powerup_info.creation_time+i2f(2))
+	if ((obj->ctype.powerup_info.flags & PF_SPAT_BY_PLAYER) && obj->ctype.powerup_info.creation_time>0 && GameTime64<obj->ctype.powerup_info.creation_time+i2f(2))
 		return 0;		//not enough time elapsed
 
 	if (Game_mode & GM_MULTI)
@@ -479,7 +476,7 @@ int do_powerup(object *obj)
 				HUD_init_message(HM_DEFAULT|HM_REDUNDANT, "%s %s!",TXT_ALREADY_ARE,TXT_CLOAKED);
 				break;
 			} else {
-				Players[Player_num].cloak_time = (GameTime+CLOAK_TIME_MAX>i2f(0x7fff-600)?GameTime-i2f(0x7fff-600):GameTime);	//	Not! changed by awareness events (like player fires laser).
+				Players[Player_num].cloak_time = GameTime64;	//	Not! changed by awareness events (like player fires laser).
 				Players[Player_num].flags |= PLAYER_FLAGS_CLOAKED;
 				ai_do_cloak_stuff();
 				#ifdef NETWORK
@@ -495,7 +492,7 @@ int do_powerup(object *obj)
 				HUD_init_message(HM_DEFAULT|HM_REDUNDANT, "%s %s!",TXT_ALREADY_ARE,TXT_INVULNERABLE);
 				break;
 			} else {
-				Players[Player_num].invulnerable_time = (GameTime+INVULNERABLE_TIME_MAX>i2f(0x7fff-600)?GameTime-i2f(0x7fff-600):GameTime);
+				Players[Player_num].invulnerable_time = GameTime64;
 				Players[Player_num].flags |= PLAYER_FLAGS_INVULNERABLE;
 				powerup_basic(7, 14, 21, INVULNERABILITY_SCORE, "%s!",TXT_INVULNERABILITY);
 				used = 1;

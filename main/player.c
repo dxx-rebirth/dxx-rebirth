@@ -14,7 +14,7 @@
 static char rcsid[] = "$Id: player.c,v 1.1.1.1 2006/03/17 19:56:48 zicodxx Exp $";
 #endif
 
-void player_swap(player *p, int swap)
+void player_rw_swap(player_rw *p, int swap)
 {
 	int i;
 	
@@ -50,15 +50,6 @@ void player_swap(player *p, int swap)
 	p->hostages_rescued_total = SWAPSHORT(p->hostages_rescued_total);
 	p->hostages_total = SWAPSHORT(p->hostages_total);
 	p->homing_object_dist = SWAPINT(p->homing_object_dist);
-}
-
-/*
- * reads a player struct from a CFILE and swaps if specified
- */
-void player_read_swap(player *p, int swap, CFILE *fp)
-{
-	PHYSFS_read(fp, p, sizeof(player), 1);
-	player_swap(p, swap);
 }
 
 /*

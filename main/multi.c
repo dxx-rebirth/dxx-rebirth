@@ -172,36 +172,6 @@ bitmap_index multi_player_textures[MAX_NUM_NET_PLAYERS][N_PLAYER_SHIP_TEXTURES];
 char RefuseThisPlayer=0,WaitForRefuseAnswer=0,RefuseTeam,RefusePlayerName[12];
 fix64 RefuseTimeLimit=0;
 
-typedef struct netplayer_stats {
-	ubyte  message_type;
-	ubyte  Player_num;              // Who am i?
-	uint   flags;                   // Powerup flags, see below...
-	fix    energy;                  // Amount of energy remaining.
-	fix    shields;                 // shields remaining (protection)
-	ubyte  lives;                   // Lives remaining, 0 = game over.
-	ubyte  laser_level;             // Current level of the laser.
-	ubyte  primary_weapon_flags;    // bit set indicates the player has this weapon.
-	ubyte  secondary_weapon_flags;  // bit set indicates the player has this weapon.
-	ushort primary_ammo[MAX_PRIMARY_WEAPONS];     // How much ammo of each type.
-	ushort secondary_ammo[MAX_SECONDARY_WEAPONS]; // How much ammo of each type.
-	int    last_score;              // Score at beginning of current level.
-	int    score;                   // Current score.
-	fix    cloak_time;              // Time cloaked
-	fix    invulnerable_time;       // Time invulnerable
-	fix    homing_object_dist;      // Distance of nearest homing object.
-	short  KillGoalCount;
-	short  net_killed_total;        // Number of times killed total
-	short  net_kills_total;         // Number of net kills total
-	short  num_kills_level;         // Number of kills this level
-	short  num_kills_total;         // Number of kills total
-	short  num_robots_level;        // Number of initial robots this level
-	short  num_robots_total;        // Number of robots total
-	ushort hostages_rescued_total;  // Total number of hostages rescued.
-	ushort hostages_total;          // Total number of hostages.
-	ubyte  hostages_on_board;       // Number of hostages on ship.
-	ubyte  unused[16];
-} netplayer_stats;
-
 int message_length[MULTI_MAX_TYPE+1] = {
 	25, // POSITION
 	3,  // REAPPEAR
@@ -238,8 +208,8 @@ int message_length[MULTI_MAX_TYPE+1] = {
 	7,  // HOSTAGE_DOOR
 	2+24, // SAVE_GAME      (ubyte slot, uint id, char name[20]) // obsolete
 	2+4,  // RESTORE_GAME   (ubyte slot, uint id) // obsolete
-	1+1,  // MULTI_REQ_PLAYER
-	sizeof(netplayer_stats), // MULTI_SEND_PLAYER
+	-1,  // MULTI_REQ_PLAYER - NEVER USED
+	-1, // MULTI_SEND_PLAYER - NEVER USED
 	55, // MULTI_MARKER
 	12, // MULTI_DROP_WEAPON
 	3+sizeof(shortpos), // MULTI_GUIDED, IF SHORTPOS CHANGES, CHANGE MAC VALUE BELOW
@@ -269,8 +239,6 @@ int message_length[MULTI_MAX_TYPE+1] = {
 	4,  // MULTI_PLAY_BY_PLAY
 };
 
-void extract_netplayer_stats( netplayer_stats *ps, player * pd );
-void use_netplayer_stats( player * ps, netplayer_stats *pd );
 char PowerupsInMine[MAX_POWERUP_TYPES],MaxPowerupsAllowed[MAX_POWERUP_TYPES];
 extern fix ThisLevelTime;
 
@@ -1984,7 +1952,7 @@ multi_do_cloak(char *buf)
 	Assert(pnum < N_players);
 
 	Players[pnum].flags |= PLAYER_FLAGS_CLOAKED;
-	Players[pnum].cloak_time = GameTime;
+	Players[pnum].cloak_time = GameTime64;
 	ai_do_cloak_stuff();
 
 	if (Game_mode & GM_MULTI_ROBOTS)
@@ -2243,31 +2211,6 @@ void multi_do_hostage_door_status(char *buf)
 
 	if (hps < Walls[wallnum].hps)
 		wall_damage(&Segments[Walls[wallnum].segnum], Walls[wallnum].sidenum, Walls[wallnum].hps - hps);
-}
-
-void multi_do_req_player(char *buf)
-{
-	netplayer_stats ps;
-	ubyte player_n;
-	// Send my netplayer_stats to everyone!
-	player_n = *(ubyte *)(buf+1);
-	if ( (player_n == Player_num) || (player_n == 255)  )   {
-		extract_netplayer_stats( &ps, &Players[Player_num] );
-		ps.Player_num = Player_num;
-		ps.message_type = MULTI_SEND_PLAYER;            // SET
-		multi_send_data((char*)&ps, sizeof(netplayer_stats), 1);
-	}
-}
-
-void multi_do_send_player(char *buf)
-{
-	// Got a player packet from someone!!!
-	netplayer_stats * p;
-	p = (netplayer_stats *)buf;
-
-	Assert( p->Player_num <= N_players );
-
-	use_netplayer_stats( &Players[p->Player_num], p );
 }
 
 void
@@ -3104,17 +3047,6 @@ multi_send_score(void)
 }
 
 void
-multi_send_netplayer_stats_request(ubyte player_num)
-{
-	int count = 0;
-
-	multibuf[count] = MULTI_REQ_PLAYER;     count += 1;
-	multibuf[count] = player_num;                   count += 1;
-
-	multi_send_data(multibuf, count, 0 );
-}
-
-void
 multi_send_trigger(int triggernum)
 {
 	// Send an even to trigger something in the mine
@@ -3610,76 +3542,6 @@ int multi_all_players_alive()
 	return (1);
 }
 
-void extract_netplayer_stats( netplayer_stats *ps, player * pd )
-{
-	int i;
-
-	ps->flags = INTEL_INT(pd->flags);                                   // Powerup flags, see below...
-	ps->energy = (fix)INTEL_INT(pd->energy);                            // Amount of energy remaining.
-	ps->shields = (fix)INTEL_INT(pd->shields);                          // shields remaining (protection)
-	ps->lives = pd->lives;                                              // Lives remaining, 0 = game over.
-	ps->laser_level = pd->laser_level;                                  // Current level of the laser.
-	ps->primary_weapon_flags=pd->primary_weapon_flags;                  // bit set indicates the player has this weapon.
-	ps->secondary_weapon_flags=pd->secondary_weapon_flags;              // bit set indicates the player has this weapon.
-	for (i = 0; i < MAX_PRIMARY_WEAPONS; i++)
-		ps->primary_ammo[i] = INTEL_SHORT(pd->primary_ammo[i]);
-	for (i = 0; i < MAX_SECONDARY_WEAPONS; i++)
-		ps->secondary_ammo[i] = INTEL_SHORT(pd->secondary_ammo[i]);
-
-	//memcpy( ps->primary_ammo, pd->primary_ammo, MAX_PRIMARY_WEAPONS*sizeof(short) );        // How much ammo of each type.
-	//memcpy( ps->secondary_ammo, pd->secondary_ammo, MAX_SECONDARY_WEAPONS*sizeof(short) ); // How much ammo of each type.
-
-	ps->last_score=INTEL_INT(pd->last_score);                           // Score at beginning of current level.
-	ps->score=INTEL_INT(pd->score);                                     // Current score.
-	ps->cloak_time=(fix)INTEL_INT(pd->cloak_time);                      // Time cloaked
-	ps->homing_object_dist=(fix)INTEL_INT(pd->homing_object_dist);      // Distance of nearest homing object.
-	ps->invulnerable_time=(fix)INTEL_INT(pd->invulnerable_time);        // Time invulnerable
-	ps->KillGoalCount=INTEL_SHORT(pd->KillGoalCount);
-	ps->net_killed_total=INTEL_SHORT(pd->net_killed_total);             // Number of times killed total
-	ps->net_kills_total=INTEL_SHORT(pd->net_kills_total);               // Number of net kills total
-	ps->num_kills_level=INTEL_SHORT(pd->num_kills_level);               // Number of kills this level
-	ps->num_kills_total=INTEL_SHORT(pd->num_kills_total);               // Number of kills total
-	ps->num_robots_level=INTEL_SHORT(pd->num_robots_level);             // Number of initial robots this level
-	ps->num_robots_total=INTEL_SHORT(pd->num_robots_total);             // Number of robots total
-	ps->hostages_rescued_total=INTEL_SHORT(pd->hostages_rescued_total); // Total number of hostages rescued.
-	ps->hostages_total=INTEL_SHORT(pd->hostages_total);                 // Total number of hostages.
-	ps->hostages_on_board=pd->hostages_on_board;                        // Number of hostages on ship.
-}
-
-void use_netplayer_stats( player * ps, netplayer_stats *pd )
-{
-	int i;
-
-	ps->flags = INTEL_INT(pd->flags);                       // Powerup flags, see below...
-	ps->energy = (fix)INTEL_INT((int)pd->energy);           // Amount of energy remaining.
-	ps->shields = (fix)INTEL_INT((int)pd->shields);         // shields remaining (protection)
-	ps->lives = pd->lives;                                  // Lives remaining, 0 = game over.
-	ps->laser_level = pd->laser_level;                      // Current level of the laser.
-	ps->primary_weapon_flags=pd->primary_weapon_flags;      // bit set indicates the player has this weapon.
-	ps->secondary_weapon_flags=pd->secondary_weapon_flags;  // bit set indicates the player has this weapon.
-	for (i = 0; i < MAX_PRIMARY_WEAPONS; i++)
-		ps->primary_ammo[i] = INTEL_SHORT(pd->primary_ammo[i]);
-	for (i = 0; i < MAX_SECONDARY_WEAPONS; i++)
-		ps->secondary_ammo[i] = INTEL_SHORT(pd->secondary_ammo[i]);
-	//memcpy( ps->primary_ammo, pd->primary_ammo, MAX_PRIMARY_WEAPONS*sizeof(short) );  // How much ammo of each type.
-	//memcpy( ps->secondary_ammo, pd->secondary_ammo, MAX_SECONDARY_WEAPONS*sizeof(short) ); // How much ammo of each type.
-	ps->last_score = INTEL_INT(pd->last_score);             // Score at beginning of current level.
-	ps->score = INTEL_INT(pd->score);                       // Current score.
-	ps->cloak_time = (fix)INTEL_INT((int)pd->cloak_time);   // Time cloaked
-	ps->homing_object_dist = (fix)INTEL_INT((int)pd->homing_object_dist); // Distance of nearest homing object.
-	ps->invulnerable_time = (fix)INTEL_INT((int)pd->invulnerable_time); // Time invulnerable
-	ps->KillGoalCount=INTEL_SHORT(pd->KillGoalCount);
-	ps->net_killed_total = INTEL_SHORT(pd->net_killed_total); // Number of times killed total
-	ps->net_kills_total = INTEL_SHORT(pd->net_kills_total); // Number of net kills total
-	ps->num_kills_level = INTEL_SHORT(pd->num_kills_level); // Number of kills this level
-	ps->num_kills_total = INTEL_SHORT(pd->num_kills_total); // Number of kills total
-	ps->num_robots_level = INTEL_SHORT(pd->num_robots_level); // Number of initial robots this level
-	ps->num_robots_total = INTEL_SHORT(pd->num_robots_total); // Number of robots total
-	ps->hostages_rescued_total = INTEL_SHORT(pd->hostages_rescued_total); // Total number of hostages rescued.
-	ps->hostages_total = INTEL_SHORT(pd->hostages_total);   // Total number of hostages.
-	ps->hostages_on_board=pd->hostages_on_board;            // Number of hostages on ship.
-}
-
 void multi_send_drop_weapon (int objnum,int seed)
 {
 	object *objp;
@@ -3987,24 +3849,42 @@ void multi_check_for_killgoal_winner ()
 	net_destroy_controlcen (objp);
 }
 
-void multi_send_seismic (fix start,fix end)
+extern fix64 Seismic_disturbance_start_time;
+extern fix64 Seismic_disturbance_end_time;
+
+// Sync our seismic time with other players
+// IPX expects BULLSHIT here: Seismic_disturbance_start/end_time is based on GameTime64 which is never synced between players. If everyone starts at the same time this might be fine, but will not work for latecomers! So for all other protocols just send the duration (this packet is sent when Seismic_disturbance_start_time == GameTime64) and let them calculate on their own!
+void multi_send_seismic (fix64 t1,fix64 t2)
 {
 	int count=1;
 
 	multibuf[0]=MULTI_SEISMIC;
-	PUT_INTEL_INT(multibuf+count, start); count+=(sizeof(fix));
-	PUT_INTEL_INT(multibuf+count, end); count+=(sizeof(fix));
-
+	if (MULTI_PROTO_IPX)
+	{
+		PUT_INTEL_INT(multibuf+count, t1); count+=(sizeof(fix));
+		PUT_INTEL_INT(multibuf+count, t2); count+=(sizeof(fix));
+	}
+	else
+	{
+		PUT_INTEL_INT(multibuf+count, 0); count+=(sizeof(fix));
+		PUT_INTEL_INT(multibuf+count, ((fix)t2-t1)); count+=(sizeof(fix));
+	}
 	multi_send_data(multibuf, count, 1);
 }
 
-extern fix Seismic_disturbance_start_time;
-extern fix Seismic_disturbance_end_time;
-
 void multi_do_seismic (char *buf)
 {
-	Seismic_disturbance_start_time = GET_INTEL_INT(buf + 1);
-	Seismic_disturbance_end_time = GET_INTEL_INT(buf + 5);
+	if (MULTI_PROTO_IPX)
+	{
+		Seismic_disturbance_start_time = GET_INTEL_INT(buf + 1);
+		Seismic_disturbance_end_time = GET_INTEL_INT(buf + 5);
+	}
+	else
+	{
+		fix duration = GET_INTEL_INT(buf + 5);
+		Seismic_disturbance_start_time = GameTime64;
+		Seismic_disturbance_end_time = GameTime64 + duration;
+	}
 	digi_play_sample (SOUND_SEISMIC_DISTURBANCE_START, F1_0);
 }
 
@@ -4541,16 +4421,6 @@ void multi_do_drop_flag (char *buf)
 		Players[pnum].flags &= ~(PLAYER_FLAGS_FLAG);
 	}
 }
-
-extern int robot_controlled[MAX_ROBOTS_CONTROLLED];
-extern int robot_agitation[MAX_ROBOTS_CONTROLLED];
-extern fix robot_controlled_time[MAX_ROBOTS_CONTROLLED];
-extern fix robot_last_send_time[MAX_ROBOTS_CONTROLLED];
-extern fix robot_last_message_time[MAX_ROBOTS_CONTROLLED];
-extern int robot_send_pending[MAX_ROBOTS_CONTROLLED];
-extern int robot_fired[MAX_ROBOTS_CONTROLLED];
-extern sbyte robot_fire_buf[MAX_ROBOTS_CONTROLLED][18+3];
-
 
 #define POWERUPADJUSTS 5
 int PowerupAdjustMapping[]={11,19,39,41,44};
@@ -5189,12 +5059,322 @@ multi_process_data(char *buf, int len)
 		if (!Endlevel_sequence) multi_do_create_robot_powerups(buf); break;
 	case MULTI_HOSTAGE_DOOR:
 		if (!Endlevel_sequence) multi_do_hostage_door_status(buf); break;
-	case MULTI_REQ_PLAYER:
-		if (!Endlevel_sequence) multi_do_req_player(buf); break;
-	case MULTI_SEND_PLAYER:
-		if (!Endlevel_sequence) multi_do_send_player(buf); break;
-
 	default:
 		Int3();
 	}
 }
+
+// Following functions convert object to object_rw and back. Mainly this is used for IPX backwards compability. However also for UDP this makes sense as object differs from object_rw mainly between fix/fix64-based timers. Those base on GameTime64 which is never synced between players so we set the times to something sane the clients can safely handle. IF object some day contains something useful clients should know about this should be changed.
+// turn object to object_rw for sending
+void multi_object_to_object_rw(object *obj, object_rw *obj_rw)
+{
+	obj_rw->signature     = obj->signature;
+	obj_rw->type          = obj->type;
+	obj_rw->id            = obj->id;
+	obj_rw->next          = obj->next;
+	obj_rw->prev          = obj->prev;
+	obj_rw->control_type  = obj->control_type;
+	obj_rw->movement_type = obj->movement_type;
+	obj_rw->render_type   = obj->render_type;
+	obj_rw->flags         = obj->flags;
+	obj_rw->segnum        = obj->segnum;
+	obj_rw->attached_obj  = obj->attached_obj;
+	obj_rw->pos.x         = obj->pos.x;
+	obj_rw->pos.y         = obj->pos.y;
+	obj_rw->pos.z         = obj->pos.z;
+	obj_rw->orient.rvec.x = obj->orient.rvec.x;
+	obj_rw->orient.rvec.y = obj->orient.rvec.y;
+	obj_rw->orient.rvec.z = obj->orient.rvec.z;
+	obj_rw->orient.fvec.x = obj->orient.fvec.x;
+	obj_rw->orient.fvec.y = obj->orient.fvec.y;
+	obj_rw->orient.fvec.z = obj->orient.fvec.z;
+	obj_rw->orient.uvec.x = obj->orient.uvec.x;
+	obj_rw->orient.uvec.y = obj->orient.uvec.y;
+	obj_rw->orient.uvec.z = obj->orient.uvec.z;
+	obj_rw->size          = obj->size;
+	obj_rw->shields       = obj->shields;
+	obj_rw->last_pos.x    = obj->last_pos.x;
+	obj_rw->last_pos.y    = obj->last_pos.y;
+	obj_rw->last_pos.z    = obj->last_pos.z;
+	obj_rw->contains_type = obj->contains_type;
+	obj_rw->contains_id   = obj->contains_id;
+	obj_rw->contains_count= obj->contains_count;
+	obj_rw->matcen_creator= obj->matcen_creator;
+	obj_rw->lifeleft      = obj->lifeleft;
+	
+	switch (obj_rw->movement_type)
+	{
+		case MT_PHYSICS:
+			obj_rw->mtype.phys_info.velocity.x  = obj->mtype.phys_info.velocity.x;
+			obj_rw->mtype.phys_info.velocity.y  = obj->mtype.phys_info.velocity.y;
+			obj_rw->mtype.phys_info.velocity.z  = obj->mtype.phys_info.velocity.z;
+			obj_rw->mtype.phys_info.thrust.x    = obj->mtype.phys_info.thrust.x;
+			obj_rw->mtype.phys_info.thrust.y    = obj->mtype.phys_info.thrust.y;
+			obj_rw->mtype.phys_info.thrust.z    = obj->mtype.phys_info.thrust.z;
+			obj_rw->mtype.phys_info.mass        = obj->mtype.phys_info.mass;
+			obj_rw->mtype.phys_info.drag        = obj->mtype.phys_info.drag;
+			obj_rw->mtype.phys_info.brakes      = obj->mtype.phys_info.brakes;
+			obj_rw->mtype.phys_info.rotvel.x    = obj->mtype.phys_info.rotvel.x;
+			obj_rw->mtype.phys_info.rotvel.y    = obj->mtype.phys_info.rotvel.y;
+			obj_rw->mtype.phys_info.rotvel.z    = obj->mtype.phys_info.rotvel.z;
+			obj_rw->mtype.phys_info.rotthrust.x = obj->mtype.phys_info.rotthrust.x;
+			obj_rw->mtype.phys_info.rotthrust.y = obj->mtype.phys_info.rotthrust.y;
+			obj_rw->mtype.phys_info.rotthrust.z = obj->mtype.phys_info.rotthrust.z;
+			obj_rw->mtype.phys_info.turnroll    = obj->mtype.phys_info.turnroll;
+			obj_rw->mtype.phys_info.flags       = obj->mtype.phys_info.flags;
+			break;
+			
+		case MT_SPINNING:
+			obj_rw->mtype.spin_rate.x = obj->mtype.spin_rate.x;
+			obj_rw->mtype.spin_rate.y = obj->mtype.spin_rate.y;
+			obj_rw->mtype.spin_rate.z = obj->mtype.spin_rate.z;
+			break;
+	}
+	
+	switch (obj_rw->control_type)
+	{
+		case CT_WEAPON:
+			obj_rw->ctype.laser_info.parent_type      = obj->ctype.laser_info.parent_type;
+			obj_rw->ctype.laser_info.parent_num       = obj->ctype.laser_info.parent_num;
+			obj_rw->ctype.laser_info.parent_signature = obj->ctype.laser_info.parent_signature;
+			if (obj->ctype.laser_info.creation_time - GameTime64 < F1_0*(-18000))
+				obj_rw->ctype.laser_info.creation_time = F1_0*(-18000);
+			else
+				obj_rw->ctype.laser_info.creation_time = obj->ctype.laser_info.creation_time - GameTime64;
+			obj_rw->ctype.laser_info.last_hitobj      = obj->ctype.laser_info.last_hitobj;
+			obj_rw->ctype.laser_info.track_goal       = obj->ctype.laser_info.track_goal;
+			obj_rw->ctype.laser_info.multiplier       = obj->ctype.laser_info.multiplier;
+			break;
+			
+		case CT_EXPLOSION:
+			obj_rw->ctype.expl_info.spawn_time    = obj->ctype.expl_info.spawn_time;
+			obj_rw->ctype.expl_info.delete_time   = obj->ctype.expl_info.delete_time;
+			obj_rw->ctype.expl_info.delete_objnum = obj->ctype.expl_info.delete_objnum;
+			obj_rw->ctype.expl_info.attach_parent = obj->ctype.expl_info.attach_parent;
+			obj_rw->ctype.expl_info.prev_attach   = obj->ctype.expl_info.prev_attach;
+			obj_rw->ctype.expl_info.next_attach   = obj->ctype.expl_info.next_attach;
+			break;
+			
+		case CT_AI:
+		{
+			int i;
+			obj_rw->ctype.ai_info.behavior               = obj->ctype.ai_info.behavior; 
+			for (i = 0; i < MAX_AI_FLAGS; i++)
+				obj_rw->ctype.ai_info.flags[i]       = obj->ctype.ai_info.flags[i]; 
+			obj_rw->ctype.ai_info.hide_segment           = obj->ctype.ai_info.hide_segment;
+			obj_rw->ctype.ai_info.hide_index             = obj->ctype.ai_info.hide_index;
+			obj_rw->ctype.ai_info.path_length            = obj->ctype.ai_info.path_length;
+			obj_rw->ctype.ai_info.cur_path_index         = obj->ctype.ai_info.cur_path_index;
+			obj_rw->ctype.ai_info.dying_sound_playing    = obj->ctype.ai_info.dying_sound_playing;
+			obj_rw->ctype.ai_info.danger_laser_num       = obj->ctype.ai_info.danger_laser_num;
+			obj_rw->ctype.ai_info.danger_laser_signature = obj->ctype.ai_info.danger_laser_signature;
+			if (obj->ctype.ai_info.dying_start_time - GameTime64 < F1_0*(-18000))
+				obj_rw->ctype.ai_info.dying_start_time = F1_0*(-18000);
+			else
+				obj_rw->ctype.ai_info.dying_start_time = obj->ctype.ai_info.dying_start_time - GameTime64;
+			break;
+		}
+			
+		case CT_LIGHT:
+			obj_rw->ctype.light_info.intensity = obj->ctype.light_info.intensity;
+			break;
+			
+		case CT_POWERUP:
+			obj_rw->ctype.powerup_info.count         = obj->ctype.powerup_info.count;
+			if (obj->ctype.powerup_info.creation_time - GameTime64 < F1_0*(-18000))
+				obj_rw->ctype.powerup_info.creation_time = F1_0*(-18000);
+			else
+				obj_rw->ctype.powerup_info.creation_time = obj->ctype.powerup_info.creation_time - GameTime64;
+			obj_rw->ctype.powerup_info.flags         = obj->ctype.powerup_info.flags;
+			break;
+	}
+	
+	switch (obj_rw->render_type)
+	{
+		case RT_MORPH:
+		case RT_POLYOBJ:
+		case RT_NONE: // HACK below
+		{
+			int i;
+			if (obj->render_type == RT_NONE && obj->type != OBJ_GHOST) // HACK: when a player is dead or not connected yet, clients still expect to get polyobj data - even if render_type == RT_NONE at this time.
+				break;
+			obj_rw->rtype.pobj_info.model_num                = obj->rtype.pobj_info.model_num;
+			for (i=0;i<MAX_SUBMODELS;i++)
+			{
+				obj_rw->rtype.pobj_info.anim_angles[i].p = obj->rtype.pobj_info.anim_angles[i].p;
+				obj_rw->rtype.pobj_info.anim_angles[i].b = obj->rtype.pobj_info.anim_angles[i].b;
+				obj_rw->rtype.pobj_info.anim_angles[i].h = obj->rtype.pobj_info.anim_angles[i].h;
+			}
+			obj_rw->rtype.pobj_info.subobj_flags             = obj->rtype.pobj_info.subobj_flags;
+			obj_rw->rtype.pobj_info.tmap_override            = obj->rtype.pobj_info.tmap_override;
+			obj_rw->rtype.pobj_info.alt_textures             = obj->rtype.pobj_info.alt_textures;
+			break;
+		}
+			
+		case RT_WEAPON_VCLIP:
+		case RT_HOSTAGE:
+		case RT_POWERUP:
+		case RT_FIREBALL:
+			obj_rw->rtype.vclip_info.vclip_num = obj->rtype.vclip_info.vclip_num;
+			obj_rw->rtype.vclip_info.frametime = obj->rtype.vclip_info.frametime;
+			obj_rw->rtype.vclip_info.framenum  = obj->rtype.vclip_info.framenum;
+			break;
+			
+		case RT_LASER:
+			break;
+			
+	}
+}
+
+// turn object_rw to object after receiving
+void multi_object_rw_to_object(object_rw *obj_rw, object *obj)
+{
+	obj->signature     = obj_rw->signature;
+	obj->type          = obj_rw->type;
+	obj->id            = obj_rw->id;
+	obj->next          = obj_rw->next;
+	obj->prev          = obj_rw->prev;
+	obj->control_type  = obj_rw->control_type;
+	obj->movement_type = obj_rw->movement_type;
+	obj->render_type   = obj_rw->render_type;
+	obj->flags         = obj_rw->flags;
+	obj->segnum        = obj_rw->segnum;
+	obj->attached_obj  = obj_rw->attached_obj;
+	obj->pos.x         = obj_rw->pos.x;
+	obj->pos.y         = obj_rw->pos.y;
+	obj->pos.z         = obj_rw->pos.z;
+	obj->orient.rvec.x = obj_rw->orient.rvec.x;
+	obj->orient.rvec.y = obj_rw->orient.rvec.y;
+	obj->orient.rvec.z = obj_rw->orient.rvec.z;
+	obj->orient.fvec.x = obj_rw->orient.fvec.x;
+	obj->orient.fvec.y = obj_rw->orient.fvec.y;
+	obj->orient.fvec.z = obj_rw->orient.fvec.z;
+	obj->orient.uvec.x = obj_rw->orient.uvec.x;
+	obj->orient.uvec.y = obj_rw->orient.uvec.y;
+	obj->orient.uvec.z = obj_rw->orient.uvec.z;
+	obj->size          = obj_rw->size;
+	obj->shields       = obj_rw->shields;
+	obj->last_pos.x    = obj_rw->last_pos.x;
+	obj->last_pos.y    = obj_rw->last_pos.y;
+	obj->last_pos.z    = obj_rw->last_pos.z;
+	obj->contains_type = obj_rw->contains_type;
+	obj->contains_id   = obj_rw->contains_id;
+	obj->contains_count= obj_rw->contains_count;
+	obj->matcen_creator= obj_rw->matcen_creator;
+	obj->lifeleft      = obj_rw->lifeleft;
+	
+	switch (obj->movement_type)
+	{
+		case MT_PHYSICS:
+			obj->mtype.phys_info.velocity.x  = obj_rw->mtype.phys_info.velocity.x;
+			obj->mtype.phys_info.velocity.y  = obj_rw->mtype.phys_info.velocity.y;
+			obj->mtype.phys_info.velocity.z  = obj_rw->mtype.phys_info.velocity.z;
+			obj->mtype.phys_info.thrust.x    = obj_rw->mtype.phys_info.thrust.x;
+			obj->mtype.phys_info.thrust.y    = obj_rw->mtype.phys_info.thrust.y;
+			obj->mtype.phys_info.thrust.z    = obj_rw->mtype.phys_info.thrust.z;
+			obj->mtype.phys_info.mass        = obj_rw->mtype.phys_info.mass;
+			obj->mtype.phys_info.drag        = obj_rw->mtype.phys_info.drag;
+			obj->mtype.phys_info.brakes      = obj_rw->mtype.phys_info.brakes;
+			obj->mtype.phys_info.rotvel.x    = obj_rw->mtype.phys_info.rotvel.x;
+			obj->mtype.phys_info.rotvel.y    = obj_rw->mtype.phys_info.rotvel.y;
+			obj->mtype.phys_info.rotvel.z    = obj_rw->mtype.phys_info.rotvel.z;
+			obj->mtype.phys_info.rotthrust.x = obj_rw->mtype.phys_info.rotthrust.x;
+			obj->mtype.phys_info.rotthrust.y = obj_rw->mtype.phys_info.rotthrust.y;
+			obj->mtype.phys_info.rotthrust.z = obj_rw->mtype.phys_info.rotthrust.z;
+			obj->mtype.phys_info.turnroll    = obj_rw->mtype.phys_info.turnroll;
+			obj->mtype.phys_info.flags       = obj_rw->mtype.phys_info.flags;
+			break;
+			
+		case MT_SPINNING:
+			obj->mtype.spin_rate.x = obj_rw->mtype.spin_rate.x;
+			obj->mtype.spin_rate.y = obj_rw->mtype.spin_rate.y;
+			obj->mtype.spin_rate.z = obj_rw->mtype.spin_rate.z;
+			break;
+	}
+	
+	switch (obj->control_type)
+	{
+		case CT_WEAPON:
+			obj->ctype.laser_info.parent_type      = obj_rw->ctype.laser_info.parent_type;
+			obj->ctype.laser_info.parent_num       = obj_rw->ctype.laser_info.parent_num;
+			obj->ctype.laser_info.parent_signature = obj_rw->ctype.laser_info.parent_signature;
+			obj->ctype.laser_info.creation_time    = obj_rw->ctype.laser_info.creation_time;
+			obj->ctype.laser_info.last_hitobj      = obj_rw->ctype.laser_info.last_hitobj;
+			obj->ctype.laser_info.track_goal       = obj_rw->ctype.laser_info.track_goal;
+			obj->ctype.laser_info.multiplier       = obj_rw->ctype.laser_info.multiplier;
+			break;
+			
+		case CT_EXPLOSION:
+			obj->ctype.expl_info.spawn_time    = obj_rw->ctype.expl_info.spawn_time;
+			obj->ctype.expl_info.delete_time   = obj_rw->ctype.expl_info.delete_time;
+			obj->ctype.expl_info.delete_objnum = obj_rw->ctype.expl_info.delete_objnum;
+			obj->ctype.expl_info.attach_parent = obj_rw->ctype.expl_info.attach_parent;
+			obj->ctype.expl_info.prev_attach   = obj_rw->ctype.expl_info.prev_attach;
+			obj->ctype.expl_info.next_attach   = obj_rw->ctype.expl_info.next_attach;
+			break;
+			
+		case CT_AI:
+		{
+			int i;
+			obj->ctype.ai_info.behavior               = obj_rw->ctype.ai_info.behavior; 
+			for (i = 0; i < MAX_AI_FLAGS; i++)
+				obj->ctype.ai_info.flags[i]       = obj_rw->ctype.ai_info.flags[i]; 
+			obj->ctype.ai_info.hide_segment           = obj_rw->ctype.ai_info.hide_segment;
+			obj->ctype.ai_info.hide_index             = obj_rw->ctype.ai_info.hide_index;
+			obj->ctype.ai_info.path_length            = obj_rw->ctype.ai_info.path_length;
+			obj->ctype.ai_info.cur_path_index         = obj_rw->ctype.ai_info.cur_path_index;
+			obj->ctype.ai_info.dying_sound_playing    = obj_rw->ctype.ai_info.dying_sound_playing;
+			obj->ctype.ai_info.danger_laser_num       = obj_rw->ctype.ai_info.danger_laser_num;
+			obj->ctype.ai_info.danger_laser_signature = obj_rw->ctype.ai_info.danger_laser_signature;
+			obj->ctype.ai_info.dying_start_time       = obj_rw->ctype.ai_info.dying_start_time;
+			break;
+		}
+			
+		case CT_LIGHT:
+			obj->ctype.light_info.intensity = obj_rw->ctype.light_info.intensity;
+			break;
+			
+		case CT_POWERUP:
+			obj->ctype.powerup_info.count         = obj_rw->ctype.powerup_info.count;
+			obj->ctype.powerup_info.creation_time = obj_rw->ctype.powerup_info.creation_time;
+			obj->ctype.powerup_info.flags         = obj_rw->ctype.powerup_info.flags;
+			break;
+	}
+	
+	switch (obj->render_type)
+	{
+		case RT_MORPH:
+		case RT_POLYOBJ:
+		case RT_NONE: // HACK below
+		{
+			int i;
+			if (obj->render_type == RT_NONE && obj->type != OBJ_GHOST) // HACK: when a player is dead or not connected yet, clients still expect to get polyobj data - even if render_type == RT_NONE at this time.
+				break;
+			obj->rtype.pobj_info.model_num                = obj_rw->rtype.pobj_info.model_num;
+			for (i=0;i<MAX_SUBMODELS;i++)
+			{
+				obj->rtype.pobj_info.anim_angles[i].p = obj_rw->rtype.pobj_info.anim_angles[i].p;
+				obj->rtype.pobj_info.anim_angles[i].b = obj_rw->rtype.pobj_info.anim_angles[i].b;
+				obj->rtype.pobj_info.anim_angles[i].h = obj_rw->rtype.pobj_info.anim_angles[i].h;
+			}
+			obj->rtype.pobj_info.subobj_flags             = obj_rw->rtype.pobj_info.subobj_flags;
+			obj->rtype.pobj_info.tmap_override            = obj_rw->rtype.pobj_info.tmap_override;
+			obj->rtype.pobj_info.alt_textures             = obj_rw->rtype.pobj_info.alt_textures;
+			break;
+		}
+			
+		case RT_WEAPON_VCLIP:
+		case RT_HOSTAGE:
+		case RT_POWERUP:
+		case RT_FIREBALL:
+			obj->rtype.vclip_info.vclip_num = obj_rw->rtype.vclip_info.vclip_num;
+			obj->rtype.vclip_info.frametime = obj_rw->rtype.vclip_info.frametime;
+			obj->rtype.vclip_info.framenum  = obj_rw->rtype.vclip_info.framenum;
+			break;
+			
+		case RT_LASER:
+			break;
+			
+	}
+}
+

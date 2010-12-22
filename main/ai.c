@@ -78,16 +78,16 @@ ai_local        Ai_local_info[MAX_OBJECTS];
 point_seg       Point_segs[MAX_POINT_SEGS];
 point_seg       *Point_segs_free_ptr = Point_segs;
 ai_cloak_info   Ai_cloak_info[MAX_AI_CLOAK_INFO];
-fix             Boss_cloak_start_time = 0;
-fix             Boss_cloak_end_time = 0;
-fix             Last_teleport_time = 0;
+fix64           Boss_cloak_start_time = 0;
+fix64           Boss_cloak_end_time = 0;
+fix64           Last_teleport_time = 0;
 fix             Boss_teleport_interval = F1_0*8;
 fix             Boss_cloak_interval = F1_0*10;                    //    Time between cloaks
 fix             Boss_cloak_duration = BOSS_CLOAK_DURATION;
-fix             Last_gate_time = 0;
+fix64           Last_gate_time = 0;
 fix             Gate_interval = F1_0*6;
-fix             Boss_dying_start_time;
-fix             Boss_hit_time;
+fix64           Boss_dying_start_time;
+fix64           Boss_hit_time;
 sbyte           Boss_dying, Boss_dying_sound_playing, unused123, unused234;
 
 // -- MK, 10/21/95, unused! -- int             Boss_been_hit=0;
@@ -848,7 +848,7 @@ _exit_cheat:
 				}
 			}
 
-			if (GameTime - ailp->time_player_seen > CHASE_TIME_LENGTH) {
+			if (GameTime64 - ailp->time_player_seen > CHASE_TIME_LENGTH) {
 
 				if (Game_mode & GM_MULTI)
 					if (!player_visibility && (dist_to_player > F1_0*70)) {
@@ -986,7 +986,7 @@ _exit_cheat:
 					ailp->mode = AIM_CHASE_OBJECT;
 				// This should not just be distance based, but also time-since-player-seen based.
 			} else if ((dist_to_player > F1_0*(20*(2*Difficulty_level + robptr->pursuit)))
-						&& (GameTime - ailp->time_player_seen > (F1_0/2*(Difficulty_level+robptr->pursuit)))
+						&& (GameTime64 - ailp->time_player_seen > (F1_0/2*(Difficulty_level+robptr->pursuit)))
 						&& (player_visibility == 0)
 						&& (aip->behavior == AIB_NORMAL)
 						&& (ailp->mode == AIM_FOLLOW_PATH)) {
@@ -1313,7 +1313,7 @@ void ai_do_cloak_stuff(void)
 	for (i=0; i<MAX_AI_CLOAK_INFO; i++) {
 		Ai_cloak_info[i].last_position = ConsoleObject->pos;
 		Ai_cloak_info[i].last_segment = ConsoleObject->segnum;
-		Ai_cloak_info[i].last_time = GameTime;
+		Ai_cloak_info[i].last_time = GameTime64;
 	}
 
 	// Make work for control centers.
@@ -1516,29 +1516,126 @@ void init_robots_for_level(void)
 	Ai_last_missile_camera = -1;
 }
 
+// Following functions convert ai_local/ai_cloak_info to ai_local/ai_cloak_info_rw to be written to/read from Savegames. Convertin back is not done here - reading is done specifically together with swapping (if necessary). These structs differ in terms of timer values (fix/fix64). as we reset GameTime64 for writing so it can fit into fix it's not necessary to increment savegame version. But if we once store something else into object which might be useful after restoring, it might be handy to increment Savegame version and actually store these new infos.
+void state_ai_local_to_ai_local_rw(ai_local *ail, ai_local_rw *ail_rw)
+{
+	int i = 0;
+
+	ail_rw->player_awareness_type      = ail->player_awareness_type;
+	ail_rw->retry_count                = ail->retry_count;
+	ail_rw->consecutive_retries        = ail->consecutive_retries;
+	ail_rw->mode                       = ail->mode;
+	ail_rw->previous_visibility        = ail->previous_visibility;
+	ail_rw->rapidfire_count            = ail->rapidfire_count;
+	ail_rw->goal_segment               = ail->goal_segment;
+	ail_rw->next_action_time           = ail->next_action_time;
+	ail_rw->next_fire                  = ail->next_fire;
+	ail_rw->next_fire2                 = ail->next_fire2;
+	ail_rw->player_awareness_time      = ail->player_awareness_time;
+	if (ail->time_player_seen - GameTime64 < F1_0*(-18000))
+		ail_rw->time_player_seen = F1_0*(-18000);
+	else
+		ail_rw->time_player_seen = ail->time_player_seen - GameTime64;
+	if (ail->time_player_sound_attacked - GameTime64 < F1_0*(-18000))
+		ail_rw->time_player_sound_attacked = F1_0*(-18000);
+	else
+		ail_rw->time_player_sound_attacked = ail->time_player_sound_attacked - GameTime64;
+	ail_rw->time_player_sound_attacked = ail->time_player_sound_attacked;
+	ail_rw->next_misc_sound_time       = ail->next_misc_sound_time - GameTime64;
+	ail_rw->time_since_processed       = ail->time_since_processed;
+	for (i = 0; i < MAX_SUBMODELS; i++)
+	{
+		ail_rw->goal_angles[i].p   = ail->goal_angles[i].p;
+		ail_rw->goal_angles[i].b   = ail->goal_angles[i].b;
+		ail_rw->goal_angles[i].h   = ail->goal_angles[i].h;
+		ail_rw->delta_angles[i].p  = ail->delta_angles[i].p;
+		ail_rw->delta_angles[i].b  = ail->delta_angles[i].b;
+		ail_rw->delta_angles[i].h  = ail->delta_angles[i].h;
+		ail_rw->goal_state[i]      = ail->goal_state[i];
+		ail_rw->achieved_state[i]  = ail->achieved_state[i];
+	}
+}
+
+void state_ai_cloak_info_to_ai_cloak_info_rw(ai_cloak_info *aic, ai_cloak_info_rw *aic_rw)
+{
+	if (aic->last_time - GameTime64 < F1_0*(-18000))
+		aic_rw->last_time = F1_0*(-18000);
+	else
+		aic_rw->last_time = aic->last_time - GameTime64;
+	aic_rw->last_segment    = aic->last_segment;
+	aic_rw->last_position.x = aic->last_position.x;
+	aic_rw->last_position.x = aic->last_position.y;
+	aic_rw->last_position.z = aic->last_position.z;
+}
+
 int ai_save_state(PHYSFS_file *fp)
 {
+	int i = 0;
+	fix tmptime32 = 0;
+
 	PHYSFS_write(fp, &Ai_initialized, sizeof(int), 1);
 	PHYSFS_write(fp, &Overall_agitation, sizeof(int), 1);
-	PHYSFS_write(fp, Ai_local_info, sizeof(ai_local) * MAX_OBJECTS, 1);
+	//PHYSFS_write(fp, Ai_local_info, sizeof(ai_local) * MAX_OBJECTS, 1);
+	for (i = 0; i < MAX_OBJECTS; i++)
+	{
+		ai_local_rw *ail_rw;
+		MALLOC(ail_rw, ai_local_rw, 1);
+		state_ai_local_to_ai_local_rw(&Ai_local_info[i], ail_rw);
+		PHYSFS_write(fp, ail_rw, sizeof(ai_local_rw), 1);
+		d_free(ail_rw);
+	}
 	PHYSFS_write(fp, Point_segs, sizeof(point_seg) * MAX_POINT_SEGS, 1);
-	PHYSFS_write(fp, Ai_cloak_info, sizeof(ai_cloak_info) * MAX_AI_CLOAK_INFO, 1);
-	PHYSFS_write(fp, &Boss_cloak_start_time, sizeof(fix), 1);
-	PHYSFS_write(fp, &Boss_cloak_end_time, sizeof(fix), 1);
-	PHYSFS_write(fp, &Last_teleport_time, sizeof(fix), 1);
+	//PHYSFS_write(fp, Ai_cloak_info, sizeof(ai_cloak_info) * MAX_AI_CLOAK_INFO, 1);
+	for (i = 0; i < MAX_AI_CLOAK_INFO; i++)
+	{
+		ai_cloak_info_rw *aic_rw;
+		MALLOC(aic_rw, ai_cloak_info_rw, 1);
+		state_ai_cloak_info_to_ai_cloak_info_rw(&Ai_cloak_info[i], aic_rw);
+		PHYSFS_write(fp, aic_rw, sizeof(ai_cloak_info_rw), 1);
+		d_free(aic_rw);
+	}
+	if (Boss_cloak_start_time - GameTime64 < F1_0*(-18000))
+		tmptime32 = F1_0*(-18000);
+	else
+		tmptime32 = Boss_cloak_start_time - GameTime64;
+	PHYSFS_write(fp, &tmptime32, sizeof(fix), 1);
+	if (Boss_cloak_end_time - GameTime64 < F1_0*(-18000))
+		tmptime32 = F1_0*(-18000);
+	else
+		tmptime32 = Boss_cloak_end_time - GameTime64;
+	PHYSFS_write(fp, &tmptime32, sizeof(fix), 1);
+	if (Last_teleport_time - GameTime64 < F1_0*(-18000))
+		tmptime32 = F1_0*(-18000);
+	else
+		tmptime32 = Last_teleport_time - GameTime64;
+	PHYSFS_write(fp, &tmptime32, sizeof(fix), 1);
 	PHYSFS_write(fp, &Boss_teleport_interval, sizeof(fix), 1);
 	PHYSFS_write(fp, &Boss_cloak_interval, sizeof(fix), 1);
 	PHYSFS_write(fp, &Boss_cloak_duration, sizeof(fix), 1);
-	PHYSFS_write(fp, &Last_gate_time, sizeof(fix), 1);
+	if (Last_gate_time - GameTime64 < F1_0*(-18000))
+		tmptime32 = F1_0*(-18000);
+	else
+		tmptime32 = Last_gate_time - GameTime64;
+	PHYSFS_write(fp, &tmptime32, sizeof(fix), 1);
 	PHYSFS_write(fp, &Gate_interval, sizeof(fix), 1);
-	PHYSFS_write(fp, &Boss_dying_start_time, sizeof(fix), 1);
+	if (Boss_dying_start_time - GameTime64 < F1_0*(-18000))
+		tmptime32 = F1_0*(-18000);
+	else
+		tmptime32 = Boss_dying_start_time - GameTime64;
+	PHYSFS_write(fp, &tmptime32, sizeof(fix), 1);
 	PHYSFS_write(fp, &Boss_dying, sizeof(int), 1);
 	PHYSFS_write(fp, &Boss_dying_sound_playing, sizeof(int), 1);
-	PHYSFS_write(fp, &Boss_hit_time, sizeof(fix), 1);
-	// -- MK, 10/21/95, unused! -- PHYSFS_write(fp, &Boss_been_hit, sizeof(int), 1);
-
+	if (Boss_hit_time - GameTime64 < F1_0*(-18000))
+		tmptime32 = F1_0*(-18000);
+	else
+		tmptime32 = Boss_hit_time - GameTime64;
+	PHYSFS_write(fp, &tmptime32, sizeof(fix), 1);
 	PHYSFS_write(fp, &Escort_kill_object, sizeof(Escort_kill_object), 1);
-	PHYSFS_write(fp, &Escort_last_path_created, sizeof(Escort_last_path_created), 1);
+	if (Escort_last_path_created - GameTime64 < F1_0*(-18000))
+		tmptime32 = F1_0*(-18000);
+	else
+		tmptime32 = Escort_last_path_created - GameTime64;
+	PHYSFS_write(fp, &tmptime32, sizeof(fix), 1);
 	PHYSFS_write(fp, &Escort_goal_object, sizeof(Escort_goal_object), 1);
 	PHYSFS_write(fp, &Escort_special_goal, sizeof(Escort_special_goal), 1);
 	PHYSFS_write(fp, &Escort_goal_index, sizeof(Escort_goal_index), 1);
@@ -1569,6 +1666,7 @@ void ai_local_read_n_swap(ai_local *ail, int n, int swap, PHYSFS_file *fp)
 	for (i = 0; i < n; i++, ail++)
 	{
 		int j;
+		fix tmptime32 = 0;
 		
 		ail->player_awareness_type = PHYSFSX_readSXE32(fp, swap);
 		ail->retry_count = PHYSFSX_readSXE32(fp, swap);
@@ -1581,9 +1679,12 @@ void ai_local_read_n_swap(ai_local *ail, int n, int swap, PHYSFS_file *fp)
 		ail->next_fire = PHYSFSX_readSXE32(fp, swap);
 		ail->next_fire2 = PHYSFSX_readSXE32(fp, swap);
 		ail->player_awareness_time = PHYSFSX_readSXE32(fp, swap);
-		ail->time_player_seen = PHYSFSX_readSXE32(fp, swap);
-		ail->time_player_sound_attacked = PHYSFSX_readSXE32(fp, swap);
-		ail->next_misc_sound_time = PHYSFSX_readSXE32(fp, swap);
+		tmptime32 = PHYSFSX_readSXE32(fp, swap);
+		ail->time_player_seen = (fix64)tmptime32;
+		tmptime32 = PHYSFSX_readSXE32(fp, swap);
+		ail->time_player_sound_attacked = (fix64)tmptime32;
+		tmptime32 = PHYSFSX_readSXE32(fp, swap);
+		ail->next_misc_sound_time = (fix64)tmptime32;
 		ail->time_since_processed = PHYSFSX_readSXE32(fp, swap);
 		
 		for (j = 0; j < MAX_SUBMODELS; j++)
@@ -1611,10 +1712,12 @@ void point_seg_read_n_swap(point_seg *ps, int n, int swap, PHYSFS_file *fp)
 void ai_cloak_info_read_n_swap(ai_cloak_info *ci, int n, int swap, PHYSFS_file *fp)
 {
 	int i;
+	fix tmptime32 = 0;
 	
 	for (i = 0; i < n; i++, ci++)
 	{
-		ci->last_time = PHYSFSX_readSXE32(fp, swap);
+		tmptime32 = PHYSFSX_readSXE32(fp, swap);
+		ci->last_time = (fix64)tmptime32;
 		ci->last_segment = PHYSFSX_readSXE32(fp, swap);
 		PHYSFSX_readVectorX(fp, &ci->last_position, swap);
 	}
@@ -1622,28 +1725,37 @@ void ai_cloak_info_read_n_swap(ai_cloak_info *ci, int n, int swap, PHYSFS_file *
 
 int ai_restore_state(PHYSFS_file *fp, int version, int swap)
 {
+	fix tmptime32 = 0;
+
 	Ai_initialized = PHYSFSX_readSXE32(fp, swap);
 	Overall_agitation = PHYSFSX_readSXE32(fp, swap);
 	ai_local_read_n_swap(Ai_local_info, MAX_OBJECTS, swap, fp);
 	point_seg_read_n_swap(Point_segs, MAX_POINT_SEGS, swap, fp);
 	ai_cloak_info_read_n_swap(Ai_cloak_info, MAX_AI_CLOAK_INFO, swap, fp);
-	Boss_cloak_start_time = PHYSFSX_readSXE32(fp, swap);
-	Boss_cloak_end_time = PHYSFSX_readSXE32(fp, swap);
-	Last_teleport_time = PHYSFSX_readSXE32(fp, swap);
+	tmptime32 = PHYSFSX_readSXE32(fp, swap);
+	Boss_cloak_start_time = (fix64)tmptime32;
+	tmptime32 = PHYSFSX_readSXE32(fp, swap);
+	Boss_cloak_end_time = (fix64)tmptime32;
+	tmptime32 = PHYSFSX_readSXE32(fp, swap);
+	Last_teleport_time = (fix64)tmptime32;
 	Boss_teleport_interval = PHYSFSX_readSXE32(fp, swap);
 	Boss_cloak_interval = PHYSFSX_readSXE32(fp, swap);
 	Boss_cloak_duration = PHYSFSX_readSXE32(fp, swap);
-	Last_gate_time = PHYSFSX_readSXE32(fp, swap);
+	tmptime32 = PHYSFSX_readSXE32(fp, swap);
+	Last_gate_time = (fix64)tmptime32;
 	Gate_interval = PHYSFSX_readSXE32(fp, swap);
-	Boss_dying_start_time = PHYSFSX_readSXE32(fp, swap);
+	tmptime32 = PHYSFSX_readSXE32(fp, swap);
+	Boss_dying_start_time = (fix64)tmptime32;
 	Boss_dying = PHYSFSX_readSXE32(fp, swap);
 	Boss_dying_sound_playing = PHYSFSX_readSXE32(fp, swap);
-	Boss_hit_time = PHYSFSX_readSXE32(fp, swap);
+	tmptime32 = PHYSFSX_readSXE32(fp, swap);
+	Boss_hit_time = (fix64)tmptime32;
 	// -- MK, 10/21/95, unused! -- PHYSFS_read(fp, &Boss_been_hit, sizeof(int), 1);
 
 	if (version >= 8) {
 		Escort_kill_object = PHYSFSX_readSXE32(fp, swap);
-		Escort_last_path_created = PHYSFSX_readSXE32(fp, swap);
+		tmptime32 = PHYSFSX_readSXE32(fp, swap);
+		Escort_last_path_created = (fix64)tmptime32;
 		Escort_goal_object = PHYSFSX_readSXE32(fp, swap);
 		Escort_special_goal = PHYSFSX_readSXE32(fp, swap);
 		Escort_goal_index = PHYSFSX_readSXE32(fp, swap);

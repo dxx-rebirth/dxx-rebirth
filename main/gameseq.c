@@ -388,7 +388,7 @@ void init_player_stats_level(int secret_flag)
 	Players[Player_num].homing_object_dist = -F1_0; // Added by RH
 
 	// properly init these cursed globals
-	Next_flare_fire_time = Last_laser_fired_time = Next_laser_fire_time = Next_missile_fire_time = GameTime;
+	Next_flare_fire_time = Last_laser_fired_time = Next_laser_fire_time = Next_missile_fire_time = GameTime64;
 
 	Controls.afterburner_state = 0;
 	Last_afterburner_state = 0;
@@ -1210,20 +1210,20 @@ void ExitSecretLevel(void)
 // ---------------------------------------------------------------------------------------------------------------
 //	Set invulnerable_time and cloak_time in player struct to preserve amount of time left to
 //	be invulnerable or cloaked.
-void do_cloak_invul_secret_stuff(fix old_gametime)
+void do_cloak_invul_secret_stuff(fix64 old_gametime)
 {
 	if (Players[Player_num].flags & PLAYER_FLAGS_INVULNERABLE) {
-		fix	time_used;
+		fix64	time_used;
 
 		time_used = old_gametime - Players[Player_num].invulnerable_time;
-		Players[Player_num].invulnerable_time = GameTime - time_used;
+		Players[Player_num].invulnerable_time = GameTime64 - time_used;
 	}
 
 	if (Players[Player_num].flags & PLAYER_FLAGS_CLOAKED) {
 		fix	time_used;
 
 		time_used = old_gametime - Players[Player_num].cloak_time;
-		Players[Player_num].cloak_time = GameTime - time_used;
+		Players[Player_num].cloak_time = GameTime64 - time_used;
 	}
 }
 
@@ -1233,7 +1233,7 @@ void do_cloak_invul_secret_stuff(fix old_gametime)
 //	Do a savegame.
 void EnterSecretLevel(void)
 {
-	fix	old_gametime;
+	fix64	old_gametime;
 	int	i;
 
 	Assert(! (Game_mode & GM_MULTI) );
@@ -1264,7 +1264,7 @@ void EnterSecretLevel(void)
 	if (! (i<-Last_secret_level))		//didn't find level, so must be last
 		Next_level_num = Last_secret_level;
 
-	old_gametime = GameTime;
+	old_gametime = GameTime64;
 	// NMN 04/09/07  Do a REAL start level routine if we are playing a D1 level so we have
 	//               briefings
 	if (EMULATING_D1)
@@ -1802,7 +1802,7 @@ void StartNewLevel(int level_num, int secret_flag)
 {
 	hide_menus();
 
-	GameTime = 0;
+	GameTime64 = 0;
 	ThisLevelTime=0;
 
 	if ((level_num > 0) && (!secret_flag)) {

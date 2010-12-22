@@ -340,7 +340,6 @@ int weapon_box_user[2]={WBU_WEAPON,WBU_WEAPON};		//see WBU_ constants in gauges.
 int weapon_box_states[2] = {WS_SET, WS_SET};
 fix weapon_box_fade_values[2];
 int	Color_0_31_0 = -1;
-fix	Last_warning_beep_time = 0;		//	Time we last played homing missile warning beep.
 extern fix ThisLevelTime;
 extern fix Omega_charge;
 
@@ -881,7 +880,8 @@ void sb_show_score_added()
 //	-----------------------------------------------------------------------------
 void play_homing_warning(void)
 {
-	fix	beep_delay;
+	fix beep_delay;
+	static fix64 Last_warning_beep_time = 0; // Time we last played homing missile warning beep.
 
 	if (Endlevel_sequence || Player_is_dead)
 		return;
@@ -893,9 +893,9 @@ void play_homing_warning(void)
 		else if (beep_delay < F1_0/8)
 			beep_delay = F1_0/8;
 
-		if (GameTime - Last_warning_beep_time > beep_delay/2 || Last_warning_beep_time > GameTime) {
+		if (GameTime64 - Last_warning_beep_time > beep_delay/2 || Last_warning_beep_time > GameTime64) {
 			digi_play_sample( SOUND_HOMING_WARNING, F1_0 );
-			Last_warning_beep_time = GameTime;
+			Last_warning_beep_time = GameTime64;
 		}
 	}
 }
@@ -914,7 +914,7 @@ void show_homing_warning(void)
 
 	if (Players[Player_num].homing_object_dist >= 0)
 	{
-		if (GameTime & 0x4000)
+		if (GameTime64 & 0x4000)
 		{
 			PAGE_IN_GAUGE( GAUGE_HOMING_WARNING_ON );
 			hud_bitblt( HUD_SCALE_X(HOMING_WARNING_X), HUD_SCALE_Y(HOMING_WARNING_Y), &GameBitmaps[ GET_GAUGE_INDEX(GAUGE_HOMING_WARNING_ON) ]);
@@ -935,7 +935,7 @@ void show_homing_warning(void)
 void hud_show_homing_warning(void)
 {
 	if (Players[Player_num].homing_object_dist >= 0) {
-		if (GameTime & 0x4000) {
+		if (GameTime64 & 0x4000) {
 			gr_set_curfont( GAME_FONT );
 			gr_set_fontcolor(BM_XRGB(0,31,0),-1 );
 			gr_printf(0x8000, grd_curcanv->cv_bitmap.bm_h-LINE_SPACING,TXT_LOCK);
@@ -1363,9 +1363,7 @@ void hud_show_cloak_invuln(void)
 		else
 			y -= LINE_SPACING*4;
 
-		if (Players[Player_num].cloak_time+CLOAK_TIME_MAX-GameTime > F1_0*3 ||
-			Players[Player_num].cloak_time+CLOAK_TIME_MAX-GameTime < 0 ||
-			GameTime & 0x8000)
+		if (Players[Player_num].cloak_time+CLOAK_TIME_MAX-GameTime64 > F1_0*3 || GameTime64 & 0x8000)
 		{
 			gr_printf(FSPACX(1), y, "%s", TXT_CLOAKED);
 		}
@@ -1379,9 +1377,7 @@ void hud_show_cloak_invuln(void)
 		else
 			y -= LINE_SPACING*5;
 
-		if (Players[Player_num].invulnerable_time+INVULNERABLE_TIME_MAX-GameTime > F1_0*4 ||
-			Players[Player_num].invulnerable_time+INVULNERABLE_TIME_MAX-GameTime < 0 ||
-			GameTime & 0x8000)
+		if (Players[Player_num].invulnerable_time+INVULNERABLE_TIME_MAX-GameTime64 > F1_0*4 || GameTime64 & 0x8000)
 		{
 			gr_printf(FSPACX(1), y, "%s", TXT_INVULNERABLE);
 		}
@@ -1779,11 +1775,11 @@ void draw_player_ship(int cloak_state,int x, int y)
 	{
 		static int step = 0;
 
-		if (GameTime-Players[Player_num].cloak_time < F1_0)
+		if (GameTime64-Players[Player_num].cloak_time < F1_0)
 		{
 			step = -2;
 		}
-		else if (Players[Player_num].cloak_time+CLOAK_TIME_MAX-GameTime <= F1_0*3)
+		else if (Players[Player_num].cloak_time+CLOAK_TIME_MAX-GameTime64 <= F1_0*3)
 		{
 			if (cloak_fade_value >= (GR_FADE_LEVELS-1))
 			{
@@ -2240,9 +2236,7 @@ void draw_invulnerable_ship()
 
 	gr_set_current_canvas(NULL);
 
-	if (Players[Player_num].invulnerable_time+INVULNERABLE_TIME_MAX-GameTime > F1_0*4 ||
-		Players[Player_num].invulnerable_time+INVULNERABLE_TIME_MAX-GameTime < 0 ||
-		GameTime & 0x8000)
+	if (Players[Player_num].invulnerable_time+INVULNERABLE_TIME_MAX-GameTime64 > F1_0*4 || GameTime64 & 0x8000)
 	{
 
 		if (PlayerCfg.CockpitMode[1] == CM_STATUS_BAR)	{

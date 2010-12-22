@@ -288,7 +288,7 @@ fix compute_light_intensity(int objnum)
 
 		  	   hoardlight=i2f(Players[obj->id].secondary_ammo[PROXIMITY_INDEX])/2; //i2f(12));
 				hoardlight++;
-		      fix_sincos ((GameTime/2) & 0xFFFF,&s,NULL); // probably a bad way to do it
+		      fix_sincos (((fix)(GameTime64/2)) & 0xFFFF,&s,NULL); // probably a bad way to do it
 			   s+=F1_0; 
 				s>>=1;
 			   hoardlight=fixmul (s,hoardlight);
@@ -323,7 +323,7 @@ fix compute_light_intensity(int objnum)
 						return 0;		//	3/4 of time, omega blobs will cast 0 light!
 
 			if (obj->id == FLARE_ID )
-				return 2* (min(tval, obj->lifeleft) + ((GameTime ^ Obj_light_xlate[objnum&0x0f]) & 0x3fff));
+				return 2* (min(tval, obj->lifeleft) + ((((fix)GameTime64) ^ Obj_light_xlate[objnum&0x0f]) & 0x3fff));
 			else
 				return tval;
 		}
