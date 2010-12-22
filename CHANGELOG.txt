@@ -4,6 +4,7 @@ D1X-Rebirth Changelog
 --------
 arch/sdl/window.c: In window_close() prev window did not get EVENT_WINDOW_ACTIVATED but the recent closed window got it causing previous window not being activated anymore and a bunch of memory errors
 arch/ogl/ogl.c, include/ogl_init.h, main/ai.c, main/ai.h, main/aipath.c, main/aistruct.h, main/collide.c, main/controls.c, main/fuelcen.c, main/game.c, main/game.h, main/gamecntl.c, main/gameseq.c, main/gauges.c, main/laser.c, main/lighting.c, main/mglobal.c, main/multi.c, main/multi.h, main/multibot.c, main/net_ipx.c, main/net_udp.c, main/newdemo.c, main/object.c, main/object.h, main/player.c, main/player.h, main/playsave.c, main/playsave.h, main/powerup.c, main/state.c, main/state.h, main/weapon.c: Made GameTime to GameTime64 using fix64; Changed all structures saving GameTime64 for internal timer purposes to store fix64 and added converting functions to save such times in fix; For Savegames/Demos always reset GameTime64 to 0 while saving and putting all timer values to safe limits, Multiplayer objects are sent in similar fashion
+main/game.c: Use game_init_render_buffers for editor (for now), fixing crash
 
 20101211
 --------
