@@ -142,7 +142,7 @@ int laser_are_related( int o1, int o2 )
 		if ( (Objects[o1].ctype.laser_info.parent_num==o2) && (Objects[o1].ctype.laser_info.parent_signature==Objects[o2].signature) )
                  {
 			//	o1 is a weapon, o2 is the parent of 1, so if o1 is PROXIMITY_BOMB and o2 is player, they are related only if o1 < 2.0 seconds old
-			if ((Objects[o1].id != PROXIMITY_ID) || (Objects[o1].ctype.laser_info.creation_time + F1_0*2 >= GameTime)) {
+			if ((Objects[o1].id != PROXIMITY_ID) || (Objects[o1].ctype.laser_info.creation_time + F1_0*2 >= GameTime64)) {
 				return 1;
 			} else
 				return 0;
@@ -1003,7 +1003,7 @@ void Laser_do_weapon_sequence(object *obj)
 		fix				speed, max_speed;
 
 		//	For first 1/2 second of life, missile flies straight.
-		if (obj->ctype.laser_info.creation_time + HOMING_MISSILE_STRAIGHT_TIME < GameTime) {
+		if (obj->ctype.laser_info.creation_time + HOMING_MISSILE_STRAIGHT_TIME < GameTime64) {
 
 			int	track_goal = obj->ctype.laser_info.track_goal;
 
@@ -1128,7 +1128,7 @@ void Laser_do_weapon_sequence(object *obj)
 }
 
 int	Spreadfire_toggle=0;
-fix	Last_laser_fired_time = 0;
+fix64	Last_laser_fired_time = 0;
 
 extern int Player_fired_laser_this_frame;
 
@@ -1161,15 +1161,15 @@ int do_laser_firing_player(void)
 //        if (addval > F1_0)
 //                addval = F1_0;
 
-	if ((Last_laser_fired_time + 2*FrameTime < GameTime) || (GameTime < Last_laser_fired_time))
-		Next_laser_fire_time = GameTime;
+	if (Last_laser_fired_time + 2*FrameTime < GameTime64)
+		Next_laser_fire_time = GameTime64;
 
-        while (Next_laser_fire_time <= GameTime) {
+        while (Next_laser_fire_time <= GameTime64) {
 		if	((plp->energy >= energy_used) || ((Primary_weapon == VULCAN_INDEX) && (plp->primary_ammo[Primary_weapon] >= ammo_used)) ) {
 			int	laser_level, flags;
 
                         //added/moved on 8/16/98 by Victor Rachels (also from Arne de Bruijn) to fix EBlB
-                        Last_laser_fired_time = GameTime;
+                        Last_laser_fired_time = GameTime64;
                         //end move - Victor Rachels
 
 			if (Laser_rapid_fire!=0xBADA55)
@@ -1477,9 +1477,9 @@ void do_missile_firing(int drop_bomb)
 
 		weapon_index = Secondary_weapon_to_weapon_info[weapon];
 		if (Laser_rapid_fire!=0xBADA55)
-			Next_missile_fire_time = GameTime + Weapon_info[weapon_index].fire_wait;
+			Next_missile_fire_time = GameTime64 + Weapon_info[weapon_index].fire_wait;
 		else
-			Next_missile_fire_time = GameTime + F1_0/25;
+			Next_missile_fire_time = GameTime64 + F1_0/25;
 
 		switch (weapon) {
 			case CONCUSSION_INDEX:

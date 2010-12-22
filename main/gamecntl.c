@@ -151,7 +151,7 @@ void do_weapon_stuff(void);
 
 // Control Functions
 
-fix newdemo_single_frame_time;
+fix64 newdemo_single_frame_time;
 
 void update_vcr_state(void)
 {
@@ -159,9 +159,9 @@ void update_vcr_state(void)
 		Newdemo_vcr_state = ND_STATE_FASTFORWARD;
 	else if ((keyd_pressed[KEY_LSHIFT] || keyd_pressed[KEY_RSHIFT]) && keyd_pressed[KEY_LEFT] && FixedStep & EPS20)
 		Newdemo_vcr_state = ND_STATE_REWINDING;
-	else if (!(keyd_pressed[KEY_LCTRL] || keyd_pressed[KEY_RCTRL]) && keyd_pressed[KEY_RIGHT] && ((GameTime - newdemo_single_frame_time) >= F1_0) && FixedStep & EPS20)
+	else if (!(keyd_pressed[KEY_LCTRL] || keyd_pressed[KEY_RCTRL]) && keyd_pressed[KEY_RIGHT] && ((GameTime64 - newdemo_single_frame_time) >= F1_0) && FixedStep & EPS20)
 		Newdemo_vcr_state = ND_STATE_ONEFRAMEFORWARD;
-	else if (!(keyd_pressed[KEY_LCTRL] || keyd_pressed[KEY_RCTRL]) && keyd_pressed[KEY_LEFT] && ((GameTime - newdemo_single_frame_time) >= F1_0) && FixedStep & EPS20)
+	else if (!(keyd_pressed[KEY_LCTRL] || keyd_pressed[KEY_RCTRL]) && keyd_pressed[KEY_LEFT] && ((GameTime64 - newdemo_single_frame_time) >= F1_0) && FixedStep & EPS20)
 		Newdemo_vcr_state = ND_STATE_ONEFRAMEBACKWARD;
 	else if ((Newdemo_vcr_state == ND_STATE_FASTFORWARD) || (Newdemo_vcr_state == ND_STATE_REWINDING))
 		Newdemo_vcr_state = ND_STATE_PLAYBACK;
@@ -381,11 +381,11 @@ int HandleDemoKey(int key)
 			Newdemo_vcr_state = ND_STATE_PAUSED;
 			break;
 		case KEY_LEFT:
-			newdemo_single_frame_time = GameTime;
+			newdemo_single_frame_time = GameTime64;
 			Newdemo_vcr_state = ND_STATE_ONEFRAMEBACKWARD;
 			break;
 		case KEY_RIGHT:
-			newdemo_single_frame_time = GameTime;
+			newdemo_single_frame_time = GameTime64;
 			Newdemo_vcr_state = ND_STATE_ONEFRAMEFORWARD;
 			break;
 		case KEY_CTRLED + KEY_RIGHT:
@@ -786,7 +786,7 @@ int HandleTestKey(int key)
 					multi_send_cloak();
 #endif
 				ai_do_cloak_stuff();
-				Players[Player_num].cloak_time = (GameTime+CLOAK_TIME_MAX>i2f(0x7fff-600)?GameTime-i2f(0x7fff-600):GameTime);
+				Players[Player_num].cloak_time = GameTime64;
 			}
 			break;
 
@@ -904,9 +904,6 @@ int HandleTestKey(int key)
 			break;
 		}
 
-		case KEY_DEBUGGED+KEY_ALTED+KEY_F5:
-			GameTime = i2f(0x7fff - 840);		//will overflow in 14 minutes
-			break;
 		case KEY_DEBUGGED+KEY_SHIFTED+KEY_B:
 			if (Player_is_dead)
 				return 0;
@@ -914,8 +911,8 @@ int HandleTestKey(int key)
 			kill_and_so_forth();
 			break;
 		case KEY_DEBUGGED+KEY_G:
-			GameTime = i2f(0x7fff - 600) - (F1_0*10);
-			HUD_init_message(HM_DEFAULT, "GameTime %i - Reset in 10 seconds!", GameTime);
+			GameTime64 = (0x7fffffffffffffff) - (F1_0*10);
+			HUD_init_message(HM_DEFAULT, "GameTime %i - Reset in 10 seconds!", GameTime64);
 			break;
 		default:
 			return 0;
@@ -1103,7 +1100,7 @@ void FinalCheats(int key)
 				Players[Player_num].flags ^= PLAYER_FLAGS_INVULNERABLE;
 				HUD_init_message(HM_DEFAULT, "%s %s!", TXT_INVULNERABILITY, (Players[Player_num].flags&PLAYER_FLAGS_INVULNERABLE)?TXT_ON:TXT_OFF);
 				digi_play_sample( SOUND_CHEATER, F1_0);
-				Players[Player_num].invulnerable_time = GameTime+i2f(1000);
+				Players[Player_num].invulnerable_time = GameTime64+i2f(1000);
 
 				cheat_invuln_index = 0;
 			}
@@ -1118,7 +1115,7 @@ void FinalCheats(int key)
 				digi_play_sample( SOUND_CHEATER, F1_0);
 				if (Players[Player_num].flags & PLAYER_FLAGS_CLOAKED) {
 					ai_do_cloak_stuff();
-					Players[Player_num].cloak_time = (GameTime+CLOAK_TIME_MAX>i2f(0x7fff-600)?GameTime-i2f(0x7fff-600):GameTime);
+					Players[Player_num].cloak_time = GameTime64;
 				}
 
 				cheat_cloak_index = 0;
@@ -1274,7 +1271,7 @@ void do_cheat_menu()
 	if (mmn > -1 )  {
 		if ( mm[0].value )  {
 			Players[Player_num].flags |= PLAYER_FLAGS_INVULNERABLE;
-			Players[Player_num].invulnerable_time = GameTime+i2f(1000);
+			Players[Player_num].invulnerable_time = GameTime64+i2f(1000);
 		} else
 			Players[Player_num].flags &= ~PLAYER_FLAGS_INVULNERABLE;
 		if ( mm[1].value )
@@ -1285,7 +1282,7 @@ void do_cheat_menu()
 				multi_send_cloak();
 			#endif
 			ai_do_cloak_stuff();
-			Players[Player_num].cloak_time = (GameTime+CLOAK_TIME_MAX>i2f(0x7fff-600)?GameTime-i2f(0x7fff-600):GameTime);
+			Players[Player_num].cloak_time = GameTime64;
 		}
 		else
 			Players[Player_num].flags &= ~PLAYER_FLAGS_CLOAKED;

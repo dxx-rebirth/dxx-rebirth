@@ -100,7 +100,6 @@ void ogl_do_palfx(void);
 
 void ogl_init_texture_stats(ogl_texture* t){
 	t->prio=0.3;//default prio
-	t->lastrend=0;
 	t->numrend=0;
 }
 
@@ -263,7 +262,6 @@ void ogl_bindbmtex(grs_bitmap *bm){
 	if (bm->gltexture==NULL || bm->gltexture->handle<=0)
 		ogl_loadbmtexture(bm);
 	OGL_BINDTEXTURE(bm->gltexture->handle);
-	bm->gltexture->lastrend=GameTime;
 	bm->gltexture->numrend++;
 }
 
@@ -1438,7 +1436,7 @@ void ogl_freetexture(ogl_texture *gltexture)
 {
 	if (gltexture->handle>0) {
 		r_texcount--;
-		glmprintf((0,"ogl_freetexture(%p):%i (last rend %is) (%i left)\n",gltexture,gltexture->handle,(GameTime-gltexture->lastrend)/f1_0,r_texcount));
+		glmprintf((0,"ogl_freetexture(%p):%i (%i left)\n",gltexture,gltexture->handle,r_texcount));
 		glDeleteTextures( 1, &gltexture->handle );
 //		gltexture->handle=0;
 		ogl_reset_texture(gltexture);

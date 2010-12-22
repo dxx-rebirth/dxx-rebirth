@@ -137,13 +137,13 @@ char	faded_in;
 #endif
 
 int	Game_suspended=0; //if non-zero, nothing moves but player
-fix	Auto_fire_fusion_cannon_time = 0;
+fix64	Auto_fire_fusion_cannon_time = 0;
 fix	Fusion_charge = 0;
 int	Game_turbo_mode = 0;
 int	Game_mode = GM_GAME_OVER;
 int	Global_laser_firing_count = 0;
 int	Global_missile_firing_count = 0;
-fix	Next_flare_fire_time = 0;
+fix64	Next_flare_fire_time = 0;
 
 //	Function prototypes for GAME.C exclusively.
 
@@ -454,10 +454,7 @@ void calc_frame_time()
 	if (FrameTime < 0)				//if bogus frametime...
 		FrameTime = (last_frametime==0?1:last_frametime);		//...then use time from last frame
 
-	GameTime += FrameTime;
-
-	if (GameTime < 0 || GameTime > i2f(0x7fff - 600))
-		GameTime = FrameTime;	//wrap when goes negative, or ~9hrs
+	GameTime64 += FrameTime;
 
 	FixedStepCalc();
 }
@@ -547,8 +544,7 @@ void do_cloak_stuff(void)
 
 	for (i = 0; i < N_players; i++)
 		if (Players[i].flags & PLAYER_FLAGS_CLOAKED) {
-			if (Players[Player_num].cloak_time+CLOAK_TIME_MAX-GameTime < 0 &&
-				Players[Player_num].cloak_time+CLOAK_TIME_MAX-GameTime > -F1_0*2)
+			if (GameTime64 > Players[i].cloak_time+CLOAK_TIME_MAX)
 			{
 				Players[i].flags &= ~PLAYER_FLAGS_CLOAKED;
 				if (i == Player_num) {
@@ -569,8 +565,7 @@ void do_cloak_stuff(void)
 void do_invulnerable_stuff(void)
 {
 	if (Players[Player_num].flags & PLAYER_FLAGS_INVULNERABLE) {
-		if (Players[Player_num].invulnerable_time+INVULNERABLE_TIME_MAX-GameTime < 0 &&
-			Players[Player_num].invulnerable_time+INVULNERABLE_TIME_MAX-GameTime > -F1_0*2)
+		if (GameTime64 > Players[Player_num].invulnerable_time+INVULNERABLE_TIME_MAX)
 		{
 			Players[Player_num].flags ^= PLAYER_FLAGS_INVULNERABLE;
 #ifdef NETWORK
@@ -674,33 +669,28 @@ int allowed_to_fire_laser(void)
 		return 0;
 	}
 
-	//	Make sure enough time has elapsed to fire laser, but if it looks like it will
-	//	be a long while before laser can be fired, then there must be some mistake!
-	if (Next_laser_fire_time > GameTime)
-		if (Next_laser_fire_time < GameTime + 2*F1_0)
-			return 0;
+	//	Make sure enough time has elapsed to fire laser
+	if (Next_laser_fire_time > GameTime64)
+		return 0;
 
 	return 1;
 }
 
 int allowed_to_fire_flare(void)
 {
-	if (Next_flare_fire_time > GameTime)
-		if (Next_flare_fire_time < GameTime + F1_0)	//	In case time is bogus, never wait > 1 second.
-			return 0;
+	if (Next_flare_fire_time > GameTime64)
+		return 0;
 
-	Next_flare_fire_time = GameTime + F1_0/4;
+	Next_flare_fire_time = GameTime64 + F1_0/4;
 
 	return 1;
 }
 
 int allowed_to_fire_missile(void)
 {
-	//	Make sure enough time has elapsed to fire missile, but if it looks like it will
-	//	be a long while before missile can be fired, then there must be some mistake!
-	if (Next_missile_fire_time > GameTime)
-		if (Next_missile_fire_time < GameTime + 5*F1_0)
-			return 0;
+	//	Make sure enough time has elapsed to fire missile
+	if (Next_missile_fire_time > GameTime64)
+		return 0;
 
 	return 1;
 }
@@ -1199,7 +1189,7 @@ void GameProcessFrame(void)
 		if (Auto_fire_fusion_cannon_time) {
 			if (Primary_weapon != FUSION_INDEX)
 				Auto_fire_fusion_cannon_time = 0;
-			else if (GameTime + FrameTime/2 >= Auto_fire_fusion_cannon_time) {
+			else if (GameTime64 + FrameTime/2 >= Auto_fire_fusion_cannon_time) {
 				Auto_fire_fusion_cannon_time = 0;
 				Global_laser_firing_count = 1;
 			} else if (FixedStep & EPS20) {
@@ -1258,7 +1248,7 @@ void FireLaser()
 		if ((Players[Player_num].energy < F1_0*2) && (Auto_fire_fusion_cannon_time == 0)) {
 			Global_laser_firing_count = 0;
 		} else {
-			static int Fusion_next_sound_time = 0;
+			static fix64 Fusion_next_sound_time = 0;
 
 			if (Fusion_charge == 0)
 				Players[Player_num].energy -= F1_0*2;
@@ -1268,19 +1258,19 @@ void FireLaser()
 
 			if (Players[Player_num].energy <= 0) {
 				Players[Player_num].energy = 0;
-				Auto_fire_fusion_cannon_time = GameTime -1;	//	Fire now!
+				Auto_fire_fusion_cannon_time = GameTime64 -1;	//	Fire now!
 			} else
-				Auto_fire_fusion_cannon_time = GameTime + FrameTime/2 + 1;		//	Fire the fusion cannon at this time in the future.
+				Auto_fire_fusion_cannon_time = GameTime64 + FrameTime/2 + 1;		//	Fire the fusion cannon at this time in the future.
 
 			if (Fusion_charge < F1_0*2)
 				PALETTE_FLASH_ADD(Fusion_charge >> 11, 0, Fusion_charge >> 11);
 			else
 				PALETTE_FLASH_ADD(Fusion_charge >> 11, Fusion_charge >> 11, 0);
 
-			if (Fusion_next_sound_time > GameTime + F1_0/8 + D_RAND_MAX/4) //gametime has wrapped or something is screwed
-				Fusion_next_sound_time = GameTime - 1;
+			if (Fusion_next_sound_time > GameTime64 + F1_0/8 + D_RAND_MAX/4) // GameTime64 is smaller than max delay - player in new level?
+				Fusion_next_sound_time = GameTime64 - 1;
 
-			if (Fusion_next_sound_time < GameTime) {
+			if (Fusion_next_sound_time < GameTime64) {
 				if (Fusion_charge > F1_0*2) {
 					digi_play_sample( 11, F1_0 );
 #ifdef NETWORK
@@ -1296,7 +1286,7 @@ void FireLaser()
 						multi_send_play_sound(SOUND_FUSION_WARMUP, F1_0);
 					#endif
 				}
-				Fusion_next_sound_time = GameTime + F1_0/8 + d_rand()/4;
+				Fusion_next_sound_time = GameTime64 + F1_0/8 + d_rand()/4;
 			}
 		}
 	}

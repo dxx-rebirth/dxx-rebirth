@@ -36,13 +36,13 @@ extern struct window *Game_wind;
 
 // from mglobal.c
 extern fix FrameTime;           // time in seconds since last frame
-extern fix GameTime;            // time in game (sum of FrameTime)
+extern fix64 GameTime64;            // time in game (sum of FrameTime)
 extern int FrameCount;          // how many frames rendered
 extern int FixedStep;		//fixed time bytes stored here
-extern fix Next_laser_fire_time;    // Time at which player can next fire his selected laser.
-extern fix Last_laser_fired_time;
-extern fix Next_missile_fire_time;  // Time at which player can next fire his selected missile.
-extern fix Next_flare_fire_time;
+extern fix64 Next_laser_fire_time;    // Time at which player can next fire his selected laser.
+extern fix64 Last_laser_fired_time;
+extern fix64 Next_missile_fire_time;  // Time at which player can next fire his selected missile.
+extern fix64 Next_flare_fire_time;
 extern fix Laser_delay_time;        // Delay between laser fires.
 extern int Cheats_enabled;
 
@@ -117,7 +117,8 @@ extern int Difficulty_level;    // Difficulty level in 0..NDL-1, 0 = easiest, ND
 extern int Global_laser_firing_count;
 extern int Global_missile_firing_count;
 extern int Render_depth;
-extern fix Auto_fire_fusion_cannon_time, Fusion_charge;
+extern fix64 Auto_fire_fusion_cannon_time;
+extern fix Fusion_charge;
 
 extern int PaletteRedAdd, PaletteGreenAdd, PaletteBlueAdd;
 

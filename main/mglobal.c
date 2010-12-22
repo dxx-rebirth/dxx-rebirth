@@ -31,7 +31,7 @@ vms_vector Vertices[MAX_VERTICES];
 g3s_point Segment_points[MAX_VERTICES];
 
 fix FrameTime = 0x1000;		// Time since last frame, in seconds
-fix GameTime = 0;		//	Time in game, in seconds
+fix64 GameTime64 = 0;		//	Time in game, in seconds
 
 //How many frames we've rendered
 int FrameCount = 0;
@@ -86,8 +86,8 @@ int Side_to_verts_int[MAX_SIDES_PER_SEGMENT][4] = {
 int NumTextures = 0;
 bitmap_index Textures[MAX_TEXTURES];		// All textures.
 
-fix	Next_laser_fire_time;			//	Time at which player can next fire his selected laser.
-fix	Next_missile_fire_time;			//	Time at which player can next fire his selected missile.
+fix64	Next_laser_fire_time;			//	Time at which player can next fire his selected laser.
+fix64	Next_missile_fire_time;			//	Time at which player can next fire his selected missile.
 //--unused-- fix	Laser_delay_time = F1_0/6;		//	Delay between laser fires.
 
 #define DEFAULT_DIFFICULTY		1

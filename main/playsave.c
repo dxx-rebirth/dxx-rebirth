@@ -54,7 +54,7 @@ COPYRIGHT 1993-1998 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 #define COMPATIBLE_PLAYER_STRUCT_VERSION 16
 
 struct player_config PlayerCfg;
-saved_game saved_games[N_SAVE_SLOTS];
+saved_game_sw saved_games[N_SAVE_SLOTS];
 extern void InitWeaponOrdering();
 
 int new_player_config()
@@ -729,9 +729,7 @@ int read_player_file()
 
 		for (i=0; i<N_SAVE_SLOTS; i++ )	{
 			if ( saved_games[i].name[0] )	{
-				state_save_old_game(i, saved_games[i].name, &saved_games[i].player, 
-			saved_games[i].difficulty_level, saved_games[i].primary_weapon, 
-				saved_games[i].secondary_weapon, saved_games[i].next_level_num );
+				state_save_old_game(i, saved_games[i].name, &saved_games[i].sg_player, saved_games[i].difficulty_level, saved_games[i].primary_weapon, saved_games[i].secondary_weapon, saved_games[i].next_level_num );
 				// make sure we do not do this again, which would possibly overwrite
 				// a new newstyle savegame
 				saved_games[i].name[0] = 0;

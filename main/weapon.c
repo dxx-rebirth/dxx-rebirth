@@ -180,7 +180,7 @@ void select_weapon(int weapon_num, int secondary_flag, int print_message, int wa
 			}
 #endif
 			if (wait_for_rearm)
-				Next_laser_fire_time = GameTime + REARM_TIME;
+				Next_laser_fire_time = GameTime64 + REARM_TIME;
 			else
 				Next_laser_fire_time = 0;
 			Global_laser_firing_count = 0;
@@ -199,7 +199,7 @@ void select_weapon(int weapon_num, int secondary_flag, int print_message, int wa
 			}
 #endif
 			if (wait_for_rearm)
-				Next_missile_fire_time = GameTime + REARM_TIME;
+				Next_missile_fire_time = GameTime64 + REARM_TIME;
 			else
 				Next_missile_fire_time = 0;
 			Global_missile_firing_count = 0;

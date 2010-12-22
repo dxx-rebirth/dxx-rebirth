@@ -1283,153 +1283,6 @@ void net_ipx_stop_resync(IPX_sequence_packet *their)
 	}
 }
 
-void net_ipx_swap_object(object *obj)
-{
-// swap the short and int entries for this object
-	obj->signature 			= INTEL_INT(obj->signature);
-	obj->next				= INTEL_SHORT(obj->next);
-	obj->prev				= INTEL_SHORT(obj->prev);
-	obj->segnum				= INTEL_SHORT(obj->segnum);
-	obj->attached_obj		= INTEL_SHORT(obj->attached_obj);
-	obj->pos.x 				= INTEL_INT(obj->pos.x);
-	obj->pos.y 				= INTEL_INT(obj->pos.y);
-	obj->pos.z 				= INTEL_INT(obj->pos.z);
-
-	obj->orient.rvec.x 		= INTEL_INT(obj->orient.rvec.x);
-	obj->orient.rvec.y 		= INTEL_INT(obj->orient.rvec.y);
-	obj->orient.rvec.z 		= INTEL_INT(obj->orient.rvec.z);
-	obj->orient.fvec.x 		= INTEL_INT(obj->orient.fvec.x);
-	obj->orient.fvec.y 		= INTEL_INT(obj->orient.fvec.y);
-	obj->orient.fvec.z 		= INTEL_INT(obj->orient.fvec.z);
-	obj->orient.uvec.x 		= INTEL_INT(obj->orient.uvec.x);
-	obj->orient.uvec.y 		= INTEL_INT(obj->orient.uvec.y);
-	obj->orient.uvec.z 		= INTEL_INT(obj->orient.uvec.z);
-
-	obj->size				= INTEL_INT(obj->size);
-	obj->shields			= INTEL_INT(obj->shields);
-
-	obj->last_pos.x 		= INTEL_INT(obj->last_pos.x);
-	obj->last_pos.y 		= INTEL_INT(obj->last_pos.y);
-	obj->last_pos.z 		= INTEL_INT(obj->last_pos.z);
-
-	obj->lifeleft			= INTEL_INT(obj->lifeleft);
-
-	switch (obj->movement_type) {
-
-	case MT_PHYSICS:
-
-		obj->mtype.phys_info.velocity.x = INTEL_INT(obj->mtype.phys_info.velocity.x);
-		obj->mtype.phys_info.velocity.y = INTEL_INT(obj->mtype.phys_info.velocity.y);
-		obj->mtype.phys_info.velocity.z = INTEL_INT(obj->mtype.phys_info.velocity.z);
-
-		obj->mtype.phys_info.thrust.x 	= INTEL_INT(obj->mtype.phys_info.thrust.x);
-		obj->mtype.phys_info.thrust.y 	= INTEL_INT(obj->mtype.phys_info.thrust.y);
-		obj->mtype.phys_info.thrust.z 	= INTEL_INT(obj->mtype.phys_info.thrust.z);
-
-		obj->mtype.phys_info.mass		= INTEL_INT(obj->mtype.phys_info.mass);
-		obj->mtype.phys_info.drag		= INTEL_INT(obj->mtype.phys_info.drag);
-		obj->mtype.phys_info.brakes		= INTEL_INT(obj->mtype.phys_info.brakes);
-
-		obj->mtype.phys_info.rotvel.x	= INTEL_INT(obj->mtype.phys_info.rotvel.x);
-		obj->mtype.phys_info.rotvel.y	= INTEL_INT(obj->mtype.phys_info.rotvel.y);
-		obj->mtype.phys_info.rotvel.z 	= INTEL_INT(obj->mtype.phys_info.rotvel.z);
-
-		obj->mtype.phys_info.rotthrust.x = INTEL_INT(obj->mtype.phys_info.rotthrust.x);
-		obj->mtype.phys_info.rotthrust.y = INTEL_INT(obj->mtype.phys_info.rotthrust.y);
-		obj->mtype.phys_info.rotthrust.z = INTEL_INT(obj->mtype.phys_info.rotthrust.z);
-
-		obj->mtype.phys_info.turnroll	= INTEL_INT(obj->mtype.phys_info.turnroll);
-		obj->mtype.phys_info.flags		= INTEL_SHORT(obj->mtype.phys_info.flags);
-
-		break;
-
-	case MT_SPINNING:
-
-		obj->mtype.spin_rate.x = INTEL_INT(obj->mtype.spin_rate.x);
-		obj->mtype.spin_rate.y = INTEL_INT(obj->mtype.spin_rate.y);
-		obj->mtype.spin_rate.z = INTEL_INT(obj->mtype.spin_rate.z);
-		break;
-	}
-
-	switch (obj->control_type) {
-
-	case CT_WEAPON:
-		obj->ctype.laser_info.parent_type		= INTEL_SHORT(obj->ctype.laser_info.parent_type);
-		obj->ctype.laser_info.parent_num		= INTEL_SHORT(obj->ctype.laser_info.parent_num);
-		obj->ctype.laser_info.parent_signature	= INTEL_SHORT(obj->ctype.laser_info.parent_signature);
-		obj->ctype.laser_info.creation_time		= INTEL_INT(obj->ctype.laser_info.creation_time);
-		obj->ctype.laser_info.last_hitobj		= INTEL_INT(obj->ctype.laser_info.last_hitobj);
-		obj->ctype.laser_info.multiplier		= INTEL_INT(obj->ctype.laser_info.multiplier);
-		break;
-
-	case CT_EXPLOSION:
-		obj->ctype.expl_info.spawn_time		= INTEL_INT(obj->ctype.expl_info.spawn_time);
-		obj->ctype.expl_info.delete_time	= INTEL_INT(obj->ctype.expl_info.delete_time);
-		obj->ctype.expl_info.delete_objnum	= INTEL_SHORT(obj->ctype.expl_info.delete_objnum);
-		obj->ctype.expl_info.attach_parent	= INTEL_SHORT(obj->ctype.expl_info.attach_parent);
-		obj->ctype.expl_info.prev_attach	= INTEL_SHORT(obj->ctype.expl_info.prev_attach);
-		obj->ctype.expl_info.next_attach	= INTEL_SHORT(obj->ctype.expl_info.next_attach);
-		break;
-
-	case CT_AI:
-		obj->ctype.ai_info.hide_segment			= INTEL_SHORT(obj->ctype.ai_info.hide_segment);
-		obj->ctype.ai_info.hide_index			= INTEL_SHORT(obj->ctype.ai_info.hide_index);
-		obj->ctype.ai_info.path_length			= INTEL_SHORT(obj->ctype.ai_info.path_length);
-		obj->ctype.ai_info.cur_path_index		= INTEL_SHORT(obj->ctype.ai_info.cur_path_index);
-		obj->ctype.ai_info.follow_path_start_seg	= INTEL_SHORT(obj->ctype.ai_info.follow_path_start_seg);
-		obj->ctype.ai_info.follow_path_end_seg		= INTEL_SHORT(obj->ctype.ai_info.follow_path_end_seg);
-		obj->ctype.ai_info.danger_laser_signature = INTEL_INT(obj->ctype.ai_info.danger_laser_signature);
-		obj->ctype.ai_info.danger_laser_num		= INTEL_SHORT(obj->ctype.ai_info.danger_laser_num);
-		break;
-
-	case CT_LIGHT:
-		obj->ctype.light_info.intensity = INTEL_INT(obj->ctype.light_info.intensity);
-		break;
-
-	case CT_POWERUP:
-		obj->ctype.powerup_info.count = INTEL_INT(obj->ctype.powerup_info.count);
-		if (obj->id == POW_VULCAN_WEAPON)
-			obj->ctype.powerup_info.count = VULCAN_WEAPON_AMMO_AMOUNT;
-		break;
-
-	}
-
-	switch (obj->render_type) {
-
-	case RT_MORPH:
-	case RT_POLYOBJ: {
-		int i;
-
-		obj->rtype.pobj_info.model_num		= INTEL_INT(obj->rtype.pobj_info.model_num);
-
-		for (i=0;i<MAX_SUBMODELS;i++) {
-			obj->rtype.pobj_info.anim_angles[i].p = INTEL_INT(obj->rtype.pobj_info.anim_angles[i].p);
-			obj->rtype.pobj_info.anim_angles[i].b = INTEL_INT(obj->rtype.pobj_info.anim_angles[i].b);
-			obj->rtype.pobj_info.anim_angles[i].h = INTEL_INT(obj->rtype.pobj_info.anim_angles[i].h);
-		}
-
-		obj->rtype.pobj_info.subobj_flags	= INTEL_INT(obj->rtype.pobj_info.subobj_flags);
-		obj->rtype.pobj_info.tmap_override	= INTEL_INT(obj->rtype.pobj_info.tmap_override);
-		obj->rtype.pobj_info.alt_textures	= INTEL_INT(obj->rtype.pobj_info.alt_textures);
-		break;
-	}
-
-	case RT_WEAPON_VCLIP:
-	case RT_HOSTAGE:
-	case RT_POWERUP:
-	case RT_FIREBALL:
-		obj->rtype.vclip_info.vclip_num	= INTEL_INT(obj->rtype.vclip_info.vclip_num);
-		obj->rtype.vclip_info.frametime	= INTEL_INT(obj->rtype.vclip_info.frametime);
-		break;
-
-	case RT_LASER:
-		break;
-
-	}
-//  END OF SWAPPING OBJECT STRUCTURE
-
-}
-
 ubyte object_buffer[MAX_DATA_SIZE];
 
 void net_ipx_send_objects(void)
@@ -1491,7 +1344,7 @@ void net_ipx_send_objects(void)
 			if ((Network_send_object_mode == 1) && ((object_owner[i] == -1) || (object_owner[i] == player_num)))
 				continue;
 
-			if ( ((MAX_DATA_SIZE-1) - loc) < (sizeof(object)+5) )
+			if ( loc + sizeof(object_rw) + 5 > MAX_DATA_SIZE-1 )
 				break; // Not enough room for another object
 
 			obj_count_frame++;
@@ -1503,8 +1356,12 @@ void net_ipx_send_objects(void)
 			*(short *)(object_buffer+loc) = INTEL_SHORT(i);								loc += 2;
 			object_buffer[loc] = owner;											loc += 1;
 			*(short *)(object_buffer+loc) = INTEL_SHORT(remote_objnum); 				loc += 2;
-			memcpy(object_buffer+loc, &Objects[i], sizeof(object));	loc += sizeof(object);
-			net_ipx_swap_object((object *)&object_buffer[loc]);
+			// use object_rw to send objects for now. if object sometime contains some day contains something useful the client should know about, we should use it. but by now it's also easier to use object_rw because then we also do not need fix64 timer values.
+			multi_object_to_object_rw(&Objects[i], (object_rw *)&object_buffer[loc]);
+#ifdef WORDS_BIGENDIAN
+			object_rw_swap((object_rw *)&object_buffer[loc], 1);
+#endif
+			loc += sizeof(object_rw);
 		}
 
 		if (obj_count_frame) // Send any objects we've buffered
@@ -2170,9 +2027,11 @@ net_ipx_read_object_packet( ubyte *data )
 					obj_unlink(objnum);
 				Assert(obj->segnum == -1);
 				Assert(objnum < MAX_OBJECTS);
-				memcpy(obj,data+loc,sizeof(object));
-				net_ipx_swap_object(obj);
-				loc += sizeof(object);
+#ifdef WORDS_BIGENDIAN
+				object_rw_swap((object_rw *)&data[loc], 1);
+#endif
+				multi_object_rw_to_object((object_rw *)&data[loc], obj);
+				loc += sizeof(object_rw);
 				segnum = obj->segnum;
 				obj->next = obj->prev = obj->segnum = -1;
 				obj->attached_obj = -1;
@@ -2907,6 +2766,7 @@ GetPlayersAgain:
         j=opt_msg;
          while(j==opt_msg)
           {
+		  timer_update();
             j=newmenu_do1( NULL, title, opts, m, net_ipx_start_poll, NULL, 1 );
 
             if(j==opt_msg)
@@ -3281,7 +3141,10 @@ net_ipx_wait_for_sync(void)
 	sprintf( m[0].text, "%s\n'%s' %s", TXT_NET_WAITING, Netgame.players[i].callsign, TXT_NET_TO_ENTER );
 
 	while (choice > -1)
+	{
+		timer_update();
 		choice=newmenu_do( NULL, TXT_WAIT, 2, m, net_ipx_sync_poll, NULL );
+	}
 
 
 	if (Network_status != NETSTAT_PLAYING)

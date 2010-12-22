@@ -276,7 +276,7 @@ fix compute_light_intensity(int objnum)
 			fix tval = Weapon_info[obj->id].light;
 
 			if (obj->id == FLARE_ID )
-				return 2* (min(tval, obj->lifeleft) + ((GameTime ^ Obj_light_xlate[objnum&0x0f]) & 0x3fff));
+				return 2* (min(tval, obj->lifeleft) + ((((fix)GameTime64) ^ Obj_light_xlate[objnum&0x0f]) & 0x3fff));
 			else
 				return tval;
 		}

@@ -639,7 +639,7 @@ void fuelcen_update_all()
 //-------------------------------------------------------------
 fix fuelcen_give_fuel(segment *segp, fix MaxAmountCanTake )
 {
-	static fix last_play_time = 0;
+	static fix64 last_play_time = 0;
         #define REFUEL_SOUND_DELAY (F1_0/3)
 
 	Assert( segp != NULL );
@@ -678,9 +678,9 @@ fix fuelcen_give_fuel(segment *segp, fix MaxAmountCanTake )
 //			}
 
 
-		if (last_play_time + REFUEL_SOUND_DELAY < GameTime || last_play_time > GameTime)
+		if (last_play_time + REFUEL_SOUND_DELAY < GameTime64 || last_play_time > GameTime64)
 		{
-			last_play_time = GameTime;
+			last_play_time = GameTime64;
 			digi_play_sample( SOUND_REFUEL_STATION_GIVING_FUEL, F1_0/2 );
 
 			#ifdef NETWORK

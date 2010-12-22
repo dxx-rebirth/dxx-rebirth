@@ -425,7 +425,7 @@ void create_path_to_player(object *objp, int max_length, int safety_flag)
 	if (max_length == -1)
 		max_length = MAX_DEPTH_TO_SEARCH_FOR_PLAYER;
 
-	ailp->time_player_seen = GameTime;			//	Prevent from resetting path quickly.
+	ailp->time_player_seen = GameTime64;			//	Prevent from resetting path quickly.
 	ailp->goal_segment = ConsoleObject->segnum;
 
 	start_seg = objp->segnum;
@@ -482,7 +482,7 @@ void create_path_to_station(object *objp, int max_length)
 	if (max_length == -1)
 		max_length = MAX_DEPTH_TO_SEARCH_FOR_PLAYER;
 
-	ailp->time_player_seen = GameTime;			//	Prevent from resetting path quickly.
+	ailp->time_player_seen = GameTime64;			//	Prevent from resetting path quickly.
 
 	start_seg = objp->segnum;
 	end_seg = aip->hide_segment;

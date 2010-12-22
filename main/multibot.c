@@ -65,9 +65,9 @@ int multi_add_controlled_robot(int objnum, int agitation);
 
 int robot_controlled[MAX_ROBOTS_CONTROLLED];
 int robot_agitation[MAX_ROBOTS_CONTROLLED];
-fix robot_controlled_time[MAX_ROBOTS_CONTROLLED];
-fix robot_last_send_time[MAX_ROBOTS_CONTROLLED];
-fix robot_last_message_time[MAX_ROBOTS_CONTROLLED];
+fix64 robot_controlled_time[MAX_ROBOTS_CONTROLLED];
+fix64 robot_last_send_time[MAX_ROBOTS_CONTROLLED];
+fix64 robot_last_message_time[MAX_ROBOTS_CONTROLLED];
 int robot_send_pending[MAX_ROBOTS_CONTROLLED];
 int robot_fired[MAX_ROBOTS_CONTROLLED];
 sbyte robot_fire_buf[MAX_ROBOTS_CONTROLLED][18+3];
@@ -118,7 +118,7 @@ multi_can_move_robot(int objnum, int agitation)
 		}
 		else {
 			robot_agitation[slot_num] = agitation;
-			robot_last_message_time[slot_num] = GameTime;
+			robot_last_message_time[slot_num] = GameTime64;
 			rval = 1;
 		}
 	}
@@ -141,15 +141,15 @@ multi_can_move_robot(int objnum, int agitation)
 void
 multi_check_robot_timeout(void)
 {
-	static fix lastcheck = 0;
+	static fix64 lastcheck = 0;
 	int i;
 
-	if (GameTime > lastcheck + F1_0)
+	if (GameTime64 > lastcheck + F1_0 || lastcheck > GameTime64)
 	{
-		lastcheck = GameTime;
+		lastcheck = GameTime64;
 		for (i = 0; i < MAX_ROBOTS_CONTROLLED; i++) 
 		{
-			if ((robot_controlled[i] != -1) && (robot_last_send_time[i] + ROBOT_TIMEOUT < GameTime)) 
+			if ((robot_controlled[i] != -1) && (robot_last_send_time[i] + ROBOT_TIMEOUT < GameTime64)) 
 			{
 				if (Objects[robot_controlled[i]].ctype.ai_info.REMOTE_OWNER != Player_num)
 				{		
@@ -230,7 +230,7 @@ multi_add_controlled_robot(int objnum, int agitation)
 			break;
 		}
 
-		if (robot_last_message_time[i] + ROBOT_TIMEOUT < GameTime) {
+		if (robot_last_message_time[i] + ROBOT_TIMEOUT < GameTime64) {
 			if (robot_send_pending[i])
 				multi_send_robot_position(robot_controlled[i], 1);
 			multi_send_release_robot(robot_controlled[i]);
@@ -238,7 +238,7 @@ multi_add_controlled_robot(int objnum, int agitation)
 			break;
 		}
 
-		if ((robot_controlled[i] != -1) && (robot_agitation[i] < lowest_agitation) && (robot_controlled_time[i] + MIN_CONTROL_TIME < GameTime))
+		if ((robot_controlled[i] != -1) && (robot_agitation[i] < lowest_agitation) && (robot_controlled_time[i] + MIN_CONTROL_TIME < GameTime64))
 		{
 			lowest_agitation = robot_agitation[i];
 			lowest_agitated_bot = i;
@@ -265,8 +265,8 @@ multi_add_controlled_robot(int objnum, int agitation)
 	robot_agitation[i] = agitation;
 	Objects[objnum].ctype.ai_info.REMOTE_OWNER = Player_num;
 	Objects[objnum].ctype.ai_info.REMOTE_SLOT_NUM = i;
-	robot_controlled_time[i] = GameTime;
-	robot_last_send_time[i] = robot_last_message_time[i] = GameTime;
+	robot_controlled_time[i] = GameTime64;
+	robot_last_send_time[i] = robot_last_message_time[i] = GameTime64;
 	return(1);
 }	
 
@@ -441,7 +441,7 @@ multi_send_robot_position(int objnum, int force)
 
 //	Objects[objnum].phys_info.drag = Robot_info[Objects[objnum].id].drag; // Set drag to normal
 
-	robot_last_send_time[Objects[objnum].ctype.ai_info.REMOTE_SLOT_NUM] = GameTime;
+	robot_last_send_time[Objects[objnum].ctype.ai_info.REMOTE_SLOT_NUM] = GameTime64;
 
 	robot_send_pending[Objects[objnum].ctype.ai_info.REMOTE_SLOT_NUM] = 1+force;
 
@@ -961,7 +961,7 @@ multi_do_boss_actions(char *buf)
 				}
 				compute_segment_center(&boss_obj->pos, &Segments[teleport_segnum]);
 				obj_relink(boss_obj-Objects, teleport_segnum);
-				Last_teleport_time = GameTime;
+				Last_teleport_time = GameTime64;
 		
 				vm_vec_sub(&boss_dir, &Objects[Players[pnum].objnum].pos, &boss_obj->pos);
 				vm_vector_2_matrix(&boss_obj->orient, &boss_dir, NULL, NULL);
@@ -983,8 +983,8 @@ multi_do_boss_actions(char *buf)
 			break;
 		case 2: // Cloak
 			Boss_hit_this_frame = 0;
-			Boss_cloak_start_time = GameTime;
-			Boss_cloak_end_time = GameTime + Boss_cloak_duration;
+			Boss_cloak_start_time = GameTime64;
+			Boss_cloak_end_time = GameTime64 + Boss_cloak_duration;
 			boss_obj->ctype.ai_info.CLOAKED = 1;
 			break;
 		case 3: // Gate in robots!

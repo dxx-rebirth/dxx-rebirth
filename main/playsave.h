@@ -30,10 +30,10 @@ COPYRIGHT 1993-1998 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 #define N_SAVE_SLOTS		10
 #define GAME_NAME_LEN	25		//+1 for terminating zero = 26
 
-// NOTE: Obsolete structure - only kept for compability of the plr file
-typedef struct saved_game {
+// NOTE: Obsolete structure - only kept for compability of shareware plr file
+typedef struct saved_game_sw {
 	char		name[GAME_NAME_LEN+1];		//extra char for terminating zero
-	struct player	player;
+	struct player_rw sg_player;
 	int		difficulty_level;		//which level game is played at
 	int		primary_weapon;		//which weapon selected
 	int		secondary_weapon;		//which weapon selected
@@ -41,7 +41,7 @@ typedef struct saved_game {
 	int		window_w,window_h;	//size of player's window
 	int		next_level_num;		//which level we're going to
 	int		auto_leveling_on;		//does player have autoleveling on?
-} __pack__ saved_game;
+} __pack__ saved_game_sw;
 
 typedef struct hli {
 	char	Shortname[9];

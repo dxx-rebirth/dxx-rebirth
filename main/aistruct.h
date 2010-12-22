@@ -10,106 +10,13 @@ CONTAINED HEREIN FOR REVENUE-BEARING PURPOSES.  THE END-USER UNDERSTANDS
 AND AGREES TO THE TERMS HEREIN AND ACCEPTS THE SAME BY USE OF THIS FILE.  
 COPYRIGHT 1993-1998 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 */
+
 /*
- * $Source: /cvsroot/dxx-rebirth/d1x-rebirth/main/aistruct.h,v $
- * $Revision: 1.1.1.1 $
- * $Author: zicodxx $
- * $Date: 2006/03/17 19:44:11 $
  * 
  * Structs and constants for AI system.
  * object.h depends on this.
  * ai.h depends on object.h.
  * Get it?
- * 
- * $Log: aistruct.h,v $
- * Revision 1.1.1.1  2006/03/17 19:44:11  zicodxx
- * initial import
- *
- * Revision 1.1.1.1  1999/06/14 22:12:07  donut
- * Import of d1x 1.37 source.
- *
- * Revision 2.0  1995/02/27  11:30:19  john
- * New version 2.0, which has no anonymous unions, builds with
- * Watcom 10.0, and doesn't require parsing BITMAPS.TBL.
- * 
- * Revision 1.34  1995/01/25  13:50:46  mike
- * Robots make angry sounds.
- * 
- * Revision 1.33  1994/12/29  12:44:56  rob
- * Added new coop robot flag.
- * 
- * Revision 1.32  1994/12/20  20:41:54  rob
- * Added new ai flag for multiplayer robots.
- * 
- * Revision 1.31  1994/12/19  16:37:39  rob
- * Added a new flag for remote controlled objects.
- * 
- * Revision 1.30  1994/12/07  00:36:07  mike
- * fix phys_apply_rot for robots -- ai was bashing effect in next frame.
- * 
- * Revision 1.29  1994/12/02  22:06:28  mike
- * add fields to allow robots to make awareness sounds every so often, not every damn blasted frame
- * 
- * Revision 1.28  1994/11/04  17:18:35  yuan
- * Increased MAX_SEG_POINTS to 2500.
- * 
- * Revision 1.27  1994/10/17  21:19:22  mike
- * robot cloaking.
- * 
- * Revision 1.26  1994/10/12  21:28:38  mike
- * Add new ai mode: AIM_OPEN_DOOR.
- * Add GOALSIDE to aip.
- * 
- * Revision 1.25  1994/09/25  23:41:08  matt
- * Changed the object load & save code to read/write the structure fields one
- * at a time (rather than the whole structure at once).  This mean that the
- * object structure can be changed without breaking the load/save functions.
- * As a result of this change, the local_object data can be and has been 
- * incorporated into the object array.  Also, timeleft is now a property 
- * of all objects, and the object structure has been otherwise cleaned up.
- * 
- * Revision 1.24  1994/09/21  12:28:11  mike
- * Change AI behavior for when player cloaked
- * 
- * Revision 1.23  1994/09/19  21:43:00  mike
- * Add follow_path_start_seg and follow_path_end_seg to aistruct.h.
- * 
- * Revision 1.22  1994/09/18  18:06:14  mike
- * Add Last_uncloaked_time and Last_uncloaked_position variables.
- * 
- * Revision 1.21  1994/09/15  16:31:38  mike
- * Define GREEN_GUY
- * Add previous_visibility to ai_local struct.
- * 
- * Revision 1.20  1994/09/12  19:12:45  mike
- * Change some bytes to ints in ai_local so I could set watchpoints.
- * 
- * Revision 1.19  1994/08/25  21:53:31  mike
- * Add behavior, taking place of what used to be mode.
- * 
- * Revision 1.18  1994/08/23  16:38:09  mike
- * rapidfire_count in ai_local.
- * 
- * Revision 1.17  1994/08/19  17:38:23  mike
- * *** empty log message ***
- * 
- * Revision 1.16  1994/08/17  22:18:58  mike
- * add time_since_processed to ai_local.
- * 
- * Revision 1.15  1994/08/10  19:52:25  mike
- * Add Overall_agitation.
- * 
- * Revision 1.14  1994/08/04  16:32:32  mike
- * Add time_player_seen.
- * 
- * Revision 1.13  1994/07/28  16:58:11  mike
- * Move constants from ai.c
- * 
- * Revision 1.12  1994/07/19  15:26:24  mike
- * New ai_static and ai_local structures.
- * 
- * Revision 1.11  1994/07/15  15:17:19  matt
- * Changes MAX_AI_FLAGS for better alignment
  * 
  */
 
@@ -210,56 +117,88 @@ COPYRIGHT 1993-1998 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 #define  REMOTE_SLOT_NUM flags[9]			// What slot # is this robot in for remote control purposes (multiplayer use only)
 #define  MULTI_ANGER		flags[10]		// How angry is a robot in multiplayer mode
 
-//	This is the stuff that is permanent for an AI object and is therefore saved to disk.
+// This is the stuff that is permanent for an AI object.
 typedef struct ai_static {
-	ubyte			behavior;					// 
-	sbyte			flags[MAX_AI_FLAGS];		// various flags, meaning defined by constants
-	short			hide_segment;				//	Segment to go to for hiding.
-	short			hide_index;					//	Index in Path_seg_points
-	short			path_length;				//	Length of hide path.
-	short			cur_path_index;			//	Current index in path.
-
-	short			follow_path_start_seg;	//	Start segment for robot which follows path.
-	short			follow_path_end_seg;		//	End segment for robot which follows path.
-
-	int			danger_laser_signature;
-	short			danger_laser_num;
-
-//	byte			extras[28];					//	32 extra bytes for storing stuff so we don't have to change versions on disk
+	ubyte   behavior;               // 
+	sbyte   flags[MAX_AI_FLAGS];    // various flags, meaning defined by constants
+	short   hide_segment;           // Segment to go to for hiding.
+	short   hide_index;             // Index in Path_seg_points
+	short   path_length;            // Length of hide path.
+	short   cur_path_index;         // Current index in path.
+	short   follow_path_start_seg;  // Start segment for robot which follows path.
+	short   follow_path_end_seg;    // End segment for robot which follows path.
+	int     danger_laser_signature;
+	short   danger_laser_num;
 } __pack__ ai_static;
 
-//	This is the stuff which doesn't need to be saved to disk.
+// Rather temporal AI stuff.
 typedef struct ai_local {
-//	These used to be bytes, changed to ints so I could set watchpoints on them.
-	sbyte			player_awareness_type;	//	type of awareness of player
-	sbyte			retry_count;				//	number of retries in physics last time this object got moved.
-	sbyte			consecutive_retries;		//	number of retries in consecutive frames (ie, without a retry_count of 0)
-	sbyte			mode;							//	current mode within behavior
-	sbyte			previous_visibility;		//	Visibility of player last time we checked.
-	sbyte			rapidfire_count;			//	number of shots fired rapidly
-	short			goal_segment;				//	goal segment for current path
-	fix			last_see_time, last_attack_time;	//	For sound effects, time at which player last seen, attacked
+// These used to be bytes, changed to ints so I could set watchpoints on them.
+	sbyte      player_awareness_type;           // type of awareness of player
+	sbyte      retry_count;                     // number of retries in physics last time this object got moved.
+	sbyte      consecutive_retries;             // number of retries in consecutive frames (ie, without a retry_count of 0)
+	sbyte      mode;                            // current mode within behavior
+	sbyte      previous_visibility;             // Visibility of player last time we checked.
+	sbyte      rapidfire_count;                 // number of shots fired rapidly
+	short      goal_segment;                    // goal segment for current path
+	fix        last_see_time, last_attack_time; // For sound effects, time at which player last seen, attacked
 
-	fix			wait_time;					// time in seconds until something happens, mode dependent
-	fix			next_fire;					// time in seconds until can fire again
-	fix			player_awareness_time;	//	time in seconds robot will be aware of player, 0 means not aware of player
-	fix			time_player_seen;			//	absolute time in seconds at which player was last seen, might cause to go into follow_path mode
-	fix			time_player_sound_attacked;			//	absolute time in seconds at which player was last seen with visibility of 2.
-	fix			next_misc_sound_time;			//	absolute time in seconds at which this robot last made an angry or lurking sound.
-	fix			time_since_processed;	//	time since this robot last processed in do_ai_frame
-	vms_angvec	goal_angles[MAX_SUBMODELS];	//angles for each subobject
-	vms_angvec	delta_angles[MAX_SUBMODELS];	//angles for each subobject
-	sbyte			goal_state[MAX_SUBMODELS];	// Goal state for this sub-object
-	sbyte			achieved_state[MAX_SUBMODELS];	// Last achieved state
+	fix        wait_time;                       // time in seconds until something happens, mode dependent
+	fix        next_fire;                       // time in seconds until can fire again
+	fix        player_awareness_time;           // time in seconds robot will be aware of player, 0 means not aware of player
+	fix64      time_player_seen;                // absolute time in seconds at which player was last seen, might cause to go into follow_path mode
+	fix64      time_player_sound_attacked;      // absolute time in seconds at which player was last seen with visibility of 2.
+	fix64      next_misc_sound_time;            // absolute time in seconds at which this robot last made an angry or lurking sound.
+	fix        time_since_processed;            // time since this robot last processed in do_ai_frame
+	vms_angvec goal_angles[MAX_SUBMODELS];      // angles for each subobject
+	vms_angvec delta_angles[MAX_SUBMODELS];     // angles for each subobject
+	sbyte      goal_state[MAX_SUBMODELS];       // Goal state for this sub-object
+	sbyte      achieved_state[MAX_SUBMODELS];   // Last achieved state
 } ai_local;
 
+// Same as above but structure Savegames expect
+typedef struct ai_local_rw {
+// These used to be bytes, changed to ints so I could set watchpoints on them.
+	sbyte      player_awareness_type;           // type of awareness of player
+	sbyte      retry_count;                     // number of retries in physics last time this object got moved.
+	sbyte      consecutive_retries;             // number of retries in consecutive frames (ie, without a retry_count of 0)
+	sbyte      mode;                            // current mode within behavior
+	sbyte      previous_visibility;             // Visibility of player last time we checked.
+	sbyte      rapidfire_count;                 // number of shots fired rapidly
+	short      goal_segment;                    // goal segment for current path
+	fix        last_see_time, last_attack_time; // For sound effects, time at which player last seen, attacked
+
+	fix        wait_time;                       // time in seconds until something happens, mode dependent
+	fix        next_fire;                       // time in seconds until can fire again
+	fix        player_awareness_time;           // time in seconds robot will be aware of player, 0 means not aware of player
+	fix        time_player_seen;                // absolute time in seconds at which player was last seen, might cause to go into follow_path mode
+	fix        time_player_sound_attacked;      // absolute time in seconds at which player was last seen with visibility of 2.
+	fix        next_misc_sound_time;            // absolute time in seconds at which this robot last made an angry or lurking sound.
+	fix        time_since_processed;            // time since this robot last processed in do_ai_frame
+	vms_angvec goal_angles[MAX_SUBMODELS];      // angles for each subobject
+	vms_angvec delta_angles[MAX_SUBMODELS];     // angles for each subobject
+	sbyte      goal_state[MAX_SUBMODELS];       // Goal state for this sub-object
+	sbyte      achieved_state[MAX_SUBMODELS];   // Last achieved state
+} ai_local_rw;
+
 typedef struct {
-	int			segnum;
-	vms_vector	point;
+	fix64       last_time;
+	vms_vector  last_position;
+} ai_cloak_info;
+
+// Same as above but structure Savegames expect
+typedef struct {
+	fix         last_time;
+	vms_vector  last_position;
+} ai_cloak_info_rw;
+
+typedef struct {
+	int         segnum;
+	vms_vector  point;
 } point_seg;
 
 typedef struct {
-	short		start, end;
+	short       start, end;
 } seg_seg;
 
 #define	MAX_POINT_SEGS	2500

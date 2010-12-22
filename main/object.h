@@ -170,11 +170,22 @@ typedef struct laser_info {
 	short			parent_type;	 	// The type of the parent of this object
 	short			parent_num; 		// The object's parent's number
 	int			parent_signature;	// The object's parent's signature...
-	fix			creation_time;		//	Absolute time of creation.
+	fix64			creation_time;		//	Absolute time of creation.
 	short			last_hitobj;		//	For persistent weapons (survive object collision), object it most recently hit. NOTE: SEE hitobj_list!!!
 	short			track_goal;			//	Object this object is tracking.
 	fix			multiplier;			//	Power if this is a fusion bolt (or other super weapon to be added).
 } __pack__ laser_info;
+
+// Same as above but structure Savegames/Multiplayer objects expect
+typedef struct laser_info_rw {
+	short			parent_type;	 	// The type of the parent of this object
+	short			parent_num; 		// The object's parent's number
+	int			parent_signature;	// The object's parent's signature...
+	fix			creation_time;		//	Absolute time of creation.
+	short			last_hitobj;		//	For persistent weapons (survive object collision), object it most recently hit. NOTE: SEE hitobj_list!!!
+	short			track_goal;			//	Object this object is tracking.
+	fix			multiplier;			//	Power if this is a fusion bolt (or other super weapon to be added).
+} __pack__ laser_info_rw;
 
 extern ubyte hitobj_list[MAX_OBJECTS][MAX_OBJECTS];
 
@@ -261,6 +272,58 @@ typedef struct object {
 	short pad2;
 #endif
 } __pack__ object;
+
+// Same as above but structure Savegames/Multiplayer objects expect
+typedef struct object_rw {
+	int			signature;		// Every object ever has a unique signature...
+	ubyte			type;				// what type of object this is... robot, weapon, hostage, powerup, fireball
+	ubyte			id;				// which form of object...which powerup, robot, etc.
+#ifdef WORDS_NEED_ALIGNMENT
+	short pad;
+#endif
+	short			next,prev;		// id of next and previous connected object in Objects, -1 = no connection
+	ubyte			control_type;  // how this object is controlled
+	ubyte			movement_type; // how this object moves
+	ubyte			render_type;	//	how this object renders
+	ubyte			flags;			// misc flags
+	short			segnum;			// segment number containing object
+	short			attached_obj;	// number of attached fireball object
+	vms_vector  pos;				// absolute x,y,z coordinate of center of object
+	vms_matrix  orient;			// orientation of object in world
+	fix			size;				// 3d size of object - for collision detection
+	fix			shields; 		// Starts at maximum, when <0, object dies..
+	vms_vector  last_pos;		// where object was last frame
+	sbyte			contains_type;	//	Type of object this object contains (eg, spider contains powerup)
+	sbyte			contains_id;	//	ID of object this object contains (eg, id = blue type = key)
+	sbyte			contains_count;// number of objects of type:id this object contains
+	sbyte			matcen_creator;//	Materialization center that created this object, high bit set if matcen-created
+	fix			lifeleft;		// how long until goes away, or 7fff if immortal
+	
+
+	//movement info, determined by MOVEMENT_TYPE
+	union {
+		physics_info phys_info;			//a physics object
+		vms_vector	 spin_rate;			//for spinning objects
+	} __pack__ mtype;
+
+	//control info, determined by CONTROL_TYPE
+	union {								
+		laser_info_rw 		laser_info;
+		explosion_info	expl_info;		//NOTE: debris uses this also
+		ai_static		ai_info;
+		light_info		light_info;		//why put this here?  Didn't know what else to do with it.
+		powerup_info	powerup_info;
+	} __pack__ ctype;
+
+	//render info, determined by RENDER_TYPE
+	union {
+		polyobj_info pobj_info;			//polygon model
+		vclip_info	 vclip_info;		//vclip
+	} __pack__ rtype;
+#ifdef WORDS_NEED_ALIGNMENT
+	short pad2;
+#endif
+} __pack__ object_rw;
 
 typedef struct obj_position {
 	vms_vector  pos;				// absolute x,y,z coordinate of center of object
@@ -435,13 +498,7 @@ void obj_attach(object *parent,object *sub);
 
 extern void create_small_fireball_on_object(object *objp, fix size_scale, int sound_flag);
 
-extern void object_swap(object *obj, int swap);
-
-/*
- * reads an object struct from a CFILE and swaps if specified.
- * Does not work for reading from level files (.rdl), but does work for state saves
- */
-extern void object_read_n_swap(object *obj, int n, int swap, CFILE *fp);
+extern void object_rw_swap(object_rw *obj_rw, int swap);
 
 #endif
  

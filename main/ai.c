@@ -103,11 +103,6 @@ int	john_cheats_index_2;		//	PORGYS		high speed weapon firing
 
 #define		MAX_AI_CLOAK_INFO	8	//	Must be a power of 2!
 
-typedef struct {
-	fix			last_time;
-	vms_vector	last_position;
-} ai_cloak_info;
-
 #define	BOSS_CLOAK_DURATION	(F1_0*7)
 #define	BOSS_DEATH_DURATION	(F1_0*6)
 #define	BOSS_DEATH_SOUND_DURATION	0x2ae14		//	2.68 seconds
@@ -132,15 +127,15 @@ ai_local			Ai_local_info[MAX_OBJECTS];
 point_seg		Point_segs[MAX_POINT_SEGS];
 point_seg		*Point_segs_free_ptr = Point_segs;
 ai_cloak_info	Ai_cloak_info[MAX_AI_CLOAK_INFO];
-fix				Boss_cloak_start_time = 0;
-fix				Boss_cloak_end_time = 0;
-fix				Last_teleport_time = 0;
+fix64				Boss_cloak_start_time = 0;
+fix64				Boss_cloak_end_time = 0;
+fix64				Last_teleport_time = 0;
 fix				Boss_teleport_interval = F1_0*8;
 fix				Boss_cloak_interval = F1_0*10;					//	Time between cloaks
 fix				Boss_cloak_duration = BOSS_CLOAK_DURATION;
-fix				Last_gate_time = 0;
+fix64				Last_gate_time = 0;
 fix				Gate_interval = F1_0*6;
-fix				Boss_dying_start_time;
+fix64				Boss_dying_start_time;
 int				Boss_dying, Boss_dying_sound_playing, Boss_hit_this_frame;
 int				Boss_been_hit=0;
 
@@ -402,9 +397,9 @@ void init_ai_object(int objnum, int behavior, int hide_segment)
 	ailp->player_awareness_type = 0;
 	aip->GOAL_STATE = AIS_SRCH;
 	aip->CURRENT_STATE = AIS_REST;
-	ailp->time_player_seen = GameTime;
-	ailp->next_misc_sound_time = GameTime;
-	ailp->time_player_sound_attacked = GameTime;
+	ailp->time_player_seen = GameTime64;
+	ailp->next_misc_sound_time = GameTime64;
+	ailp->time_player_sound_attacked = GameTime64;
 
 	if ((behavior == AIB_HIDE) || (behavior == AIB_FOLLOW_PATH) || (behavior == AIB_STATION) || (behavior == AIB_RUN_FROM)) {
 		aip->hide_segment = hide_segment;
@@ -1021,10 +1016,10 @@ void ai_fire_laser_at_player(object *obj, vms_vector *fire_point)
 
 	//	If player is cloaked, maybe don't fire based on how long cloaked and randomness.
 	if (Players[Player_num].flags & PLAYER_FLAGS_CLOAKED) {
-		fix	cloak_time = Ai_cloak_info[objnum % MAX_AI_CLOAK_INFO].last_time;
+		fix64	cloak_time = Ai_cloak_info[objnum % MAX_AI_CLOAK_INFO].last_time;
 
-		if (GameTime - cloak_time > CLOAK_TIME_MAX/4)
-                        if (d_rand() > fixdiv(GameTime - cloak_time, CLOAK_TIME_MAX)/2) {
+		if (GameTime64 - cloak_time > CLOAK_TIME_MAX/4)
+                        if (d_rand() > fixdiv(GameTime64 - cloak_time, CLOAK_TIME_MAX)/2) {
 				set_next_fire_time(ailp, robptr);
 				return;
 			}
@@ -1185,7 +1180,7 @@ void move_around_player(object *objp, vms_vector *vec_to_player, int fast_flag)
 			count++;
 		}
 
-	dir = (/*FrameCount*/(GameTime/2000==0?1:GameTime/2000) + (count+1) * (objnum*8 + objnum*4 + objnum)) & dir_change;
+	dir = (/*FrameCount*/(GameTime64/2000==0?1:GameTime64/2000) + (count+1) * (objnum*8 + objnum*4 + objnum)) & dir_change;
 	dir >>= (4+count);
 
 	Assert((dir >= 0) && (dir <= 3));
@@ -1488,11 +1483,11 @@ void compute_vis_and_vec(object *objp, vms_vector *pos, ai_local *ailp, vms_vect
 			fix			delta_time, dist;
 			int			cloak_index = (objp-Objects) % MAX_AI_CLOAK_INFO;
 
-			delta_time = GameTime - Ai_cloak_info[cloak_index].last_time;
+			delta_time = GameTime64 - Ai_cloak_info[cloak_index].last_time;
 			if (delta_time > F1_0*2) {
 				vms_vector	randvec;
 
-				Ai_cloak_info[cloak_index].last_time = GameTime;
+				Ai_cloak_info[cloak_index].last_time = GameTime64;
 				make_random_vector(&randvec);
 				vm_vec_scale_add2(&Ai_cloak_info[cloak_index].last_position, &randvec, 8*delta_time );
 			}
@@ -1501,8 +1496,8 @@ void compute_vis_and_vec(object *objp, vms_vector *pos, ai_local *ailp, vms_vect
 			*player_visibility = player_is_visible_from_object(objp, pos, robptr->field_of_view[Difficulty_level], vec_to_player);
 			// *player_visibility = 2;
 
-			if ((ailp->next_misc_sound_time < GameTime) && (ailp->next_fire < F1_0) && (dist < F1_0*20)) {
-                                ailp->next_misc_sound_time = GameTime + (d_rand() + F1_0) * (7 - Difficulty_level) / 1;
+			if ((ailp->next_misc_sound_time < GameTime64) && (ailp->next_fire < F1_0) && (dist < F1_0*20)) {
+                                ailp->next_misc_sound_time = GameTime64 + (d_rand() + F1_0) * (7 - Difficulty_level) / 1;
 				digi_link_sound_to_pos( robptr->see_sound, objp->segnum, 0, pos, 0 , Robot_sound_volume);
 			}
 		} else {
@@ -1527,19 +1522,19 @@ void compute_vis_and_vec(object *objp, vms_vector *pos, ai_local *ailp, vms_vect
 
 			if (!Player_exploded && (ailp->previous_visibility != *player_visibility) && (*player_visibility == 2)) {
 				if (ailp->previous_visibility == 0) {
-					if (ailp->time_player_seen + F1_0/2 < GameTime) {
+					if (ailp->time_player_seen + F1_0/2 < GameTime64) {
 						digi_link_sound_to_pos( robptr->see_sound, objp->segnum, 0, pos, 0 , Robot_sound_volume);
-						ailp->time_player_sound_attacked = GameTime;
-                                                ailp->next_misc_sound_time = GameTime + F1_0 + d_rand()*4;
+						ailp->time_player_sound_attacked = GameTime64;
+                                                ailp->next_misc_sound_time = GameTime64 + F1_0 + d_rand()*4;
 					}
-				} else if (ailp->time_player_sound_attacked + F1_0/4 < GameTime) {
+				} else if (ailp->time_player_sound_attacked + F1_0/4 < GameTime64) {
 					digi_link_sound_to_pos( robptr->attack_sound, objp->segnum, 0, pos, 0 , Robot_sound_volume);
-					ailp->time_player_sound_attacked = GameTime;
+					ailp->time_player_sound_attacked = GameTime64;
 				}
 			} 
 
-			if ((*player_visibility == 2) && (ailp->next_misc_sound_time < GameTime)) {
-                                ailp->next_misc_sound_time = GameTime + (d_rand() + F1_0) * (7 - Difficulty_level) / 2;
+			if ((*player_visibility == 2) && (ailp->next_misc_sound_time < GameTime64)) {
+                                ailp->next_misc_sound_time = GameTime64 + (d_rand() + F1_0) * (7 - Difficulty_level) / 2;
 				digi_link_sound_to_pos( robptr->attack_sound, objp->segnum, 0, pos, 0 , Robot_sound_volume);
 			}
 			ailp->previous_visibility = *player_visibility;
@@ -1548,7 +1543,7 @@ void compute_vis_and_vec(object *objp, vms_vector *pos, ai_local *ailp, vms_vect
 		*flag = 1;
 
 		if (*player_visibility) {
-			ailp->time_player_seen = GameTime;
+			ailp->time_player_seen = GameTime64;
 		}
 	}
 
@@ -1770,7 +1765,7 @@ int create_gated_robot( int segnum, int object_id)
 				count++;
 
 	if (count > 2*Difficulty_level + 3) {
-		Last_gate_time = GameTime - 3*Gate_interval/4;
+		Last_gate_time = GameTime64 - 3*Gate_interval/4;
 		return 0;
 	}
 
@@ -1779,14 +1774,14 @@ int create_gated_robot( int segnum, int object_id)
 
 	//	See if legal to place object here.  If not, move about in segment and try again.
 	if (check_object_object_intersection(&object_pos, objsize, segp)) {
-		Last_gate_time = GameTime - 3*Gate_interval/4;
+		Last_gate_time = GameTime64 - 3*Gate_interval/4;
 		return 0;
 	}
 
 	objnum = obj_create(OBJ_ROBOT, object_id, segnum, &object_pos, &vmd_identity_matrix, objsize, CT_AI, MT_PHYSICS, RT_POLYOBJ);
 
 	if ( objnum < 0 ) {
-		Last_gate_time = GameTime - 3*Gate_interval/4;
+		Last_gate_time = GameTime64 - 3*Gate_interval/4;
 		return 0;
 	}
 
@@ -1823,7 +1818,7 @@ int create_gated_robot( int segnum, int object_id)
 	digi_link_sound_to_pos( Vclip[VCLIP_MORPHING_ROBOT].sound_num, segnum, 0, &object_pos, 0 , F1_0);
 	morph_start(objp);
 
-	Last_gate_time = GameTime;
+	Last_gate_time = GameTime64;
 
 	Players[Player_num].num_robots_level++;
 	Players[Player_num].num_robots_total++;
@@ -1993,7 +1988,7 @@ void teleport_boss(object *objp)
 	compute_segment_center(&objp->pos, &Segments[rand_segnum]);
 	obj_relink(objp-Objects, rand_segnum);
 
-	Last_teleport_time = GameTime;
+	Last_teleport_time = GameTime64;
 
 	//	make boss point right at player
 	vm_vec_sub(&boss_dir, &Objects[Players[Player_num].objnum].pos, &objp->pos);
@@ -2013,7 +2008,7 @@ void start_boss_death_sequence(object *objp)
 {
 	if (Robot_info[objp->id].boss_flag) {
 		Boss_dying = 1;
-		Boss_dying_start_time = GameTime;
+		Boss_dying_start_time = GameTime64;
 	}
 
 }
@@ -2023,17 +2018,17 @@ void do_boss_dying_frame(object *objp)
 {
 	fix	boss_roll_val, temp;
 
-	boss_roll_val = fixdiv(GameTime - Boss_dying_start_time, BOSS_DEATH_DURATION);
+	boss_roll_val = fixdiv(GameTime64 - Boss_dying_start_time, BOSS_DEATH_DURATION);
 
 	fix_sincos(fixmul(boss_roll_val, boss_roll_val), &temp, &objp->mtype.phys_info.rotvel.x);
 	fix_sincos(boss_roll_val, &temp, &objp->mtype.phys_info.rotvel.y);
 	fix_sincos(boss_roll_val-F1_0/8, &temp, &objp->mtype.phys_info.rotvel.z);
 
-	objp->mtype.phys_info.rotvel.x = (GameTime - Boss_dying_start_time)/9;
-	objp->mtype.phys_info.rotvel.y = (GameTime - Boss_dying_start_time)/5;
-	objp->mtype.phys_info.rotvel.z = (GameTime - Boss_dying_start_time)/7;
+	objp->mtype.phys_info.rotvel.x = (GameTime64 - Boss_dying_start_time)/9;
+	objp->mtype.phys_info.rotvel.y = (GameTime64 - Boss_dying_start_time)/5;
+	objp->mtype.phys_info.rotvel.z = (GameTime64 - Boss_dying_start_time)/7;
 
-	if (Boss_dying_start_time + BOSS_DEATH_DURATION - BOSS_DEATH_SOUND_DURATION < GameTime) {
+	if (Boss_dying_start_time + BOSS_DEATH_DURATION - BOSS_DEATH_SOUND_DURATION < GameTime64) {
 		if (!Boss_dying_sound_playing) {
 			Boss_dying_sound_playing = 1;
 			digi_link_sound_to_object2( SOUND_BOSS_SHARE_DIE, objp-Objects, 0, F1_0*4, F1_0*1024 );	//	F1_0*512 means play twice as loud
@@ -2042,8 +2037,8 @@ void do_boss_dying_frame(object *objp)
         } else if (d_rand() < FrameTime*8)
                 create_small_fireball_on_object(objp, (F1_0/2 + d_rand()) * 8, 1);
 
-	if (Boss_dying_start_time + BOSS_DEATH_DURATION < GameTime || GameTime+(F1_0*2) < Boss_dying_start_time) {
-		Boss_dying_start_time=GameTime; // make sure following only happens one time!
+	if (Boss_dying_start_time + BOSS_DEATH_DURATION < GameTime64 || GameTime64+(F1_0*2) < Boss_dying_start_time) {
+		Boss_dying_start_time=GameTime64; // make sure following only happens one time!
 		do_controlcen_destroyed_stuff(NULL);
 		explode_object(objp, F1_0/4);
 		digi_link_sound_to_object2(SOUND_BADASS_EXPLOSION, objp-Objects, 0, F2_0, F1_0*512);
@@ -2092,13 +2087,6 @@ fix	Prev_boss_shields = -1;
 //	Do special stuff for a boss.
 void do_boss_stuff(object *objp)
 {
-    //  New code, fixes stupid bug which meant boss never gated in robots if > 32767 seconds played.
-    if (Last_teleport_time > GameTime)
-        Last_teleport_time = GameTime;
-
-    if (Last_gate_time > GameTime)
-        Last_gate_time = GameTime;
-
 #ifndef NDEBUG
 	if (objp->shields != Prev_boss_shields) {
 		Prev_boss_shields = objp->shields;
@@ -2107,7 +2095,7 @@ void do_boss_stuff(object *objp)
 
 	if (!Boss_dying) {
 		if (objp->ctype.ai_info.CLOAKED == 1) {
-			if ((GameTime - Boss_cloak_start_time > BOSS_CLOAK_DURATION/3) && (Boss_cloak_end_time - GameTime > BOSS_CLOAK_DURATION/3) && (GameTime - Last_teleport_time > Boss_teleport_interval)) {
+			if ((GameTime64 - Boss_cloak_start_time > BOSS_CLOAK_DURATION/3) && (Boss_cloak_end_time - GameTime64 > BOSS_CLOAK_DURATION/3) && (GameTime64 - Last_teleport_time > Boss_teleport_interval)) {
 				if (ai_multiplayer_awareness(objp, 98))
 					teleport_boss(objp);
 			} else if (Boss_hit_this_frame) {
@@ -2115,15 +2103,15 @@ void do_boss_stuff(object *objp)
 				Last_teleport_time -= Boss_teleport_interval/4;
 			}
 
-			if (GameTime > Boss_cloak_end_time)
+			if (GameTime64 > Boss_cloak_end_time)
 				objp->ctype.ai_info.CLOAKED = 0;
 		} else {
-			if ((GameTime - Boss_cloak_end_time > Boss_cloak_interval) || Boss_hit_this_frame) {
+			if ((GameTime64 - Boss_cloak_end_time > Boss_cloak_interval) || Boss_hit_this_frame) {
 				if (ai_multiplayer_awareness(objp, 95))
 				{
 					Boss_hit_this_frame = 0;
-					Boss_cloak_start_time = GameTime;
-					Boss_cloak_end_time = GameTime+Boss_cloak_duration;
+					Boss_cloak_start_time = GameTime64;
+					Boss_cloak_end_time = GameTime64+Boss_cloak_duration;
 					objp->ctype.ai_info.CLOAKED = 1;
 #ifndef SHAREWARE
 #ifdef NETWORK
@@ -2159,7 +2147,7 @@ void do_super_boss_stuff(object *objp, fix dist_to_player, int player_visibility
 	#endif
 
 	if ((dist_to_player < BOSS_TO_PLAYER_GATE_DISTANCE) || player_visibility || (Game_mode & GM_MULTI)) {
-		if (GameTime - Last_gate_time > Gate_interval/2) {
+		if (GameTime64 - Last_gate_time > Gate_interval/2) {
 			restart_effect(BOSS_ECLIP_NUM);
 #ifndef SHAREWARE
 #ifdef NETWORK
@@ -2182,7 +2170,7 @@ void do_super_boss_stuff(object *objp, fix dist_to_player, int player_visibility
 #endif
 		}
 
-		if (GameTime - Last_gate_time > Gate_interval)
+		if (GameTime64 - Last_gate_time > Gate_interval)
 			if (ai_multiplayer_awareness(objp, 99)) {
 				int	rtval;
                                 int     randtype = (d_rand() * MAX_GATE_INDEX) >> 15;
@@ -2716,7 +2704,7 @@ void do_ai_frame(object *obj)
 				}
 			}
 
-			if (GameTime - ailp->time_player_seen > CHASE_TIME_LENGTH) {
+			if (GameTime64 - ailp->time_player_seen > CHASE_TIME_LENGTH) {
 
 				if (Game_mode & GM_MULTI)
 					if (!player_visibility && (dist_to_player > F1_0*70)) {
@@ -3121,7 +3109,7 @@ void ai_do_cloak_stuff(void)
 
 	for (i=0; i<MAX_AI_CLOAK_INFO; i++) {
 		Ai_cloak_info[i].last_position = ConsoleObject->pos;
-		Ai_cloak_info[i].last_time = GameTime;
+		Ai_cloak_info[i].last_time = GameTime64;
 	}
 
 	//	Make work for control centers.
@@ -3314,22 +3302,113 @@ void init_robots_for_level(void)
 	Overall_agitation = 0;
 }
 
+// Following functions convert ai_local/ai_cloak_info to ai_local/ai_cloak_info_rw to be written to/read from Savegames. Convertin back is not done here - reading is done specifically together with swapping (if necessary). These structs differ in terms of timer values (fix/fix64). as we reset GameTime64 for writing so it can fit into fix it's not necessary to increment savegame version. But if we once store something else into object which might be useful after restoring, it might be handy to increment Savegame version and actually store these new infos.
+void state_ai_local_to_ai_local_rw(ai_local *ail, ai_local_rw *ail_rw)
+{
+	int i = 0;
+
+	ail_rw->player_awareness_type      = ail->player_awareness_type;
+	ail_rw->retry_count                = ail->retry_count;
+	ail_rw->consecutive_retries        = ail->consecutive_retries;
+	ail_rw->mode                       = ail->mode;
+	ail_rw->previous_visibility        = ail->previous_visibility;
+	ail_rw->rapidfire_count            = ail->rapidfire_count;
+	ail_rw->goal_segment               = ail->goal_segment;
+	ail_rw->last_see_time              = ail->last_see_time;
+	ail_rw->last_attack_time           = ail->last_attack_time;
+	ail_rw->wait_time                  = ail->wait_time;
+	ail_rw->next_fire                  = ail->next_fire;
+	ail_rw->player_awareness_time      = ail->player_awareness_time;
+	if (ail->time_player_seen - GameTime64 < F1_0*(-18000))
+		ail_rw->time_player_seen = F1_0*(-18000);
+	else
+		ail_rw->time_player_seen = ail->time_player_seen - GameTime64;
+	if (ail->time_player_sound_attacked - GameTime64 < F1_0*(-18000))
+		ail_rw->time_player_sound_attacked = F1_0*(-18000);
+	else
+		ail_rw->time_player_sound_attacked = ail->time_player_sound_attacked - GameTime64;
+	ail_rw->time_player_sound_attacked = ail->time_player_sound_attacked;
+	ail_rw->next_misc_sound_time       = ail->next_misc_sound_time - GameTime64;
+	ail_rw->time_since_processed       = ail->time_since_processed;
+	for (i = 0; i < MAX_SUBMODELS; i++)
+	{
+		ail_rw->goal_angles[i].p   = ail->goal_angles[i].p;
+		ail_rw->goal_angles[i].b   = ail->goal_angles[i].b;
+		ail_rw->goal_angles[i].h   = ail->goal_angles[i].h;
+		ail_rw->delta_angles[i].p  = ail->delta_angles[i].p;
+		ail_rw->delta_angles[i].b  = ail->delta_angles[i].b;
+		ail_rw->delta_angles[i].h  = ail->delta_angles[i].h;
+		ail_rw->goal_state[i]      = ail->goal_state[i];
+		ail_rw->achieved_state[i]  = ail->achieved_state[i];
+	}
+}
+
+void state_ai_cloak_info_to_ai_cloak_info_rw(ai_cloak_info *aic, ai_cloak_info_rw *aic_rw)
+{
+	if (aic->last_time - GameTime64 < F1_0*(-18000))
+		aic_rw->last_time = F1_0*(-18000);
+	else
+		aic_rw->last_time = aic->last_time - GameTime64;
+	aic_rw->last_position.x = aic->last_position.x;
+	aic_rw->last_position.x = aic->last_position.y;
+	aic_rw->last_position.z = aic->last_position.z;
+}
+
 int ai_save_state(PHYSFS_file *fp)
 {
+	int i = 0;
+	fix tmptime32 = 0;
+
 	PHYSFS_write(fp, &Ai_initialized, sizeof(int), 1);
 	PHYSFS_write(fp, &Overall_agitation, sizeof(int), 1);
-	PHYSFS_write(fp, Ai_local_info, sizeof(ai_local) * MAX_OBJECTS, 1);
+	//PHYSFS_write(fp, Ai_local_info, sizeof(ai_local) * MAX_OBJECTS, 1);
+	for (i = 0; i < MAX_OBJECTS; i++)
+	{
+		ai_local_rw *ail_rw;
+		MALLOC(ail_rw, ai_local_rw, 1);
+		state_ai_local_to_ai_local_rw(&Ai_local_info[i], ail_rw);
+		PHYSFS_write(fp, ail_rw, sizeof(ai_local_rw), 1);
+		d_free(ail_rw);
+	}
 	PHYSFS_write(fp, Point_segs, sizeof(point_seg) * MAX_POINT_SEGS, 1);
-	PHYSFS_write(fp, Ai_cloak_info, sizeof(ai_cloak_info) * MAX_AI_CLOAK_INFO, 1);
-	PHYSFS_write(fp, &Boss_cloak_start_time, sizeof(fix), 1);
-	PHYSFS_write(fp, &Boss_cloak_end_time, sizeof(fix), 1);
-	PHYSFS_write(fp, &Last_teleport_time, sizeof(fix), 1);
+	//PHYSFS_write(fp, Ai_cloak_info, sizeof(ai_cloak_info) * MAX_AI_CLOAK_INFO, 1);
+	for (i = 0; i < MAX_AI_CLOAK_INFO; i++)
+	{
+		ai_cloak_info_rw *aic_rw;
+		MALLOC(aic_rw, ai_cloak_info_rw, 1);
+		state_ai_cloak_info_to_ai_cloak_info_rw(&Ai_cloak_info[i], aic_rw);
+		PHYSFS_write(fp, aic_rw, sizeof(ai_cloak_info_rw), 1);
+		d_free(aic_rw);
+	}
+	if (Boss_cloak_start_time - GameTime64 < F1_0*(-18000))
+		tmptime32 = F1_0*(-18000);
+	else
+		tmptime32 = Boss_cloak_start_time - GameTime64;
+	PHYSFS_write(fp, &tmptime32, sizeof(fix), 1);
+	if (Boss_cloak_end_time - GameTime64 < F1_0*(-18000))
+		tmptime32 = F1_0*(-18000);
+	else
+		tmptime32 = Boss_cloak_end_time - GameTime64;
+	PHYSFS_write(fp, &tmptime32, sizeof(fix), 1);
+	if (Last_teleport_time - GameTime64 < F1_0*(-18000))
+		tmptime32 = F1_0*(-18000);
+	else
+		tmptime32 = Last_teleport_time - GameTime64;
+	PHYSFS_write(fp, &tmptime32, sizeof(fix), 1);
 	PHYSFS_write(fp, &Boss_teleport_interval, sizeof(fix), 1);
 	PHYSFS_write(fp, &Boss_cloak_interval, sizeof(fix), 1);
 	PHYSFS_write(fp, &Boss_cloak_duration, sizeof(fix), 1);
-	PHYSFS_write(fp, &Last_gate_time, sizeof(fix), 1);
+	if (Last_gate_time - GameTime64 < F1_0*(-18000))
+		tmptime32 = F1_0*(-18000);
+	else
+		tmptime32 = Last_gate_time - GameTime64;
+	PHYSFS_write(fp, &tmptime32, sizeof(fix), 1);
 	PHYSFS_write(fp, &Gate_interval, sizeof(fix), 1);
-	PHYSFS_write(fp, &Boss_dying_start_time, sizeof(fix), 1);
+	if (Boss_dying_start_time - GameTime64 < F1_0*(-18000))
+		tmptime32 = F1_0*(-18000);
+	else
+		tmptime32 = Boss_dying_start_time - GameTime64;
+	PHYSFS_write(fp, &tmptime32, sizeof(fix), 1);
 	PHYSFS_write(fp, &Boss_dying, sizeof(int), 1);
 	PHYSFS_write(fp, &Boss_dying_sound_playing, sizeof(int), 1);
 	PHYSFS_write(fp, &Boss_hit_this_frame, sizeof(int), 1);
@@ -3345,6 +3424,7 @@ void ai_local_read_n_swap(ai_local *ail, int n, int swap, PHYSFS_file *fp)
 	for (i = 0; i < n; i++, ail++)
 	{
 		int j;
+		fix tmptime32 = 0;
 
 		ail->player_awareness_type = cfile_read_byte(fp);
 		ail->retry_count = cfile_read_byte(fp);
@@ -3358,9 +3438,12 @@ void ai_local_read_n_swap(ai_local *ail, int n, int swap, PHYSFS_file *fp)
 		ail->wait_time = PHYSFSX_readSXE32(fp, swap);
 		ail->next_fire = PHYSFSX_readSXE32(fp, swap);
 		ail->player_awareness_time = PHYSFSX_readSXE32(fp, swap);
-		ail->time_player_seen = PHYSFSX_readSXE32(fp, swap);
-		ail->time_player_sound_attacked = PHYSFSX_readSXE32(fp, swap);
-		ail->next_misc_sound_time = PHYSFSX_readSXE32(fp, swap);
+		tmptime32 = PHYSFSX_readSXE32(fp, swap);
+		ail->time_player_seen = (fix64)tmptime32;
+		tmptime32 = PHYSFSX_readSXE32(fp, swap);
+		ail->time_player_sound_attacked = (fix64)tmptime32;
+		tmptime32 = PHYSFSX_readSXE32(fp, swap);
+		ail->next_misc_sound_time = (fix64)tmptime32;
 		ail->time_since_processed = PHYSFSX_readSXE32(fp, swap);
 		
 		for (j = 0; j < MAX_SUBMODELS; j++)
@@ -3388,30 +3471,39 @@ void point_seg_read_n_swap(point_seg *ps, int n, int swap, PHYSFS_file *fp)
 void ai_cloak_info_read_n_swap(ai_cloak_info *ci, int n, int swap, PHYSFS_file *fp)
 {
 	int i;
+	fix tmptime32 = 0;
 	
 	for (i = 0; i < n; i++, ci++)
 	{
-		ci->last_time = PHYSFSX_readSXE32(fp, swap);
+		tmptime32 = PHYSFSX_readSXE32(fp, swap);
+		ci->last_time = (fix64)tmptime32;
 		PHYSFSX_readVectorX(fp, &ci->last_position, swap);
 	}
 }
 
 int ai_restore_state(PHYSFS_file *fp, int swap)
 {
+	fix tmptime32 = 0;
+
 	Ai_initialized = PHYSFSX_readSXE32(fp, swap);
 	Overall_agitation = PHYSFSX_readSXE32(fp, swap);
 	ai_local_read_n_swap(Ai_local_info, MAX_OBJECTS, swap, fp);
 	point_seg_read_n_swap(Point_segs, MAX_POINT_SEGS, swap, fp);
 	ai_cloak_info_read_n_swap(Ai_cloak_info, MAX_AI_CLOAK_INFO, swap, fp);
-	Boss_cloak_start_time = PHYSFSX_readSXE32(fp, swap);
-	Boss_cloak_end_time = PHYSFSX_readSXE32(fp, swap);
-	Last_teleport_time = PHYSFSX_readSXE32(fp, swap);
+	tmptime32 = PHYSFSX_readSXE32(fp, swap);
+	Boss_cloak_start_time = (fix64)tmptime32;
+	tmptime32 = PHYSFSX_readSXE32(fp, swap);
+	Boss_cloak_end_time = (fix64)tmptime32;
+	tmptime32 = PHYSFSX_readSXE32(fp, swap);
+	Last_teleport_time = (fix64)tmptime32;
 	Boss_teleport_interval = PHYSFSX_readSXE32(fp, swap);
 	Boss_cloak_interval = PHYSFSX_readSXE32(fp, swap);
 	Boss_cloak_duration = PHYSFSX_readSXE32(fp, swap);
-	Last_gate_time = PHYSFSX_readSXE32(fp, swap);
+	tmptime32 = PHYSFSX_readSXE32(fp, swap);
+	Last_gate_time = (fix64)tmptime32;
 	Gate_interval = PHYSFSX_readSXE32(fp, swap);
-	Boss_dying_start_time = PHYSFSX_readSXE32(fp, swap);
+	tmptime32 = PHYSFSX_readSXE32(fp, swap);
+	Boss_dying_start_time = (fix64)tmptime32;
 	Boss_dying = PHYSFSX_readSXE32(fp, swap);
 	Boss_dying_sound_playing = PHYSFSX_readSXE32(fp, swap);
 	Boss_hit_this_frame = PHYSFSX_readSXE32(fp, swap);

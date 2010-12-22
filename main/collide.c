@@ -84,10 +84,10 @@ int Ugly_robot_texture = 0;
 
 int check_collision_delayfunc_exec()
 {
-	static fix last_play_time=0;
-	if (last_play_time + (F1_0/3) < GameTime || last_play_time > GameTime)
+	static fix64 last_play_time=0;
+	if (last_play_time + (F1_0/3) < GameTime64 || last_play_time > GameTime64)
 	{
-		last_play_time = GameTime;
+		last_play_time = GameTime64;
 		last_play_time -= (d_rand()/2); // add some randomness
 		return 1;
 	}
@@ -317,7 +317,7 @@ void collide_player_and_wall( object * player, fix hitspeed, short hitseg, short
 	return;
 }
 
-fix	Last_volatile_scrape_sound_time = 0;
+fix64	Last_volatile_scrape_sound_time = 0;
 
 void collide_weapon_and_wall( object * weapon, fix hitspeed, short hitseg, short hitwall, vms_vector * hitpt);
 void collide_debris_and_wall( object * debris, fix hitspeed, short hitseg, short hitwall, vms_vector * hitpt);
@@ -339,8 +339,8 @@ void scrape_object_on_wall(object *obj, short hitseg, short hitside, vms_vector 
 						apply_damage_to_player( obj, obj, damage );
 
 					PALETTE_FLASH_ADD(f2i(damage*4), 0, 0);	//flash red
-					if ((GameTime > Last_volatile_scrape_sound_time + F1_0/4) || (GameTime < Last_volatile_scrape_sound_time)) {
-						Last_volatile_scrape_sound_time = GameTime;
+					if ((GameTime64 > Last_volatile_scrape_sound_time + F1_0/4) || (GameTime64 < Last_volatile_scrape_sound_time)) {
+						Last_volatile_scrape_sound_time = GameTime64;
 						digi_link_sound_to_pos( SOUND_VOLATILE_WALL_HISS,hitseg, 0, hitpt, 0, F1_0 );
 						#ifdef NETWORK
 						if (Game_mode & GM_MULTI)

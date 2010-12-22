@@ -111,8 +111,8 @@ extern int multi_protocol; // set and determinate used protocol
 #define MULTI_SAVE_GAME			33 // obsolete
 #define MULTI_RESTORE_GAME		34 // obsolete
 
-#define MULTI_REQ_PLAYER		35		// Someone requests my player structure
-#define MULTI_SEND_PLAYER		36		// Sending someone my player structure
+#define MULTI_REQ_PLAYER		35 // NEVER USED
+#define MULTI_SEND_PLAYER		36 // NEVER USED
 
 #define MULTI_PLAYER_POWERUP_COUNT	37
 #define MULTI_START_POWERUP_COUNT	38
@@ -209,7 +209,6 @@ void multi_send_audio_taunt(int taunt_num);
 void multi_send_score(void);
 void multi_send_trigger(int trigger);
 void multi_send_hostage_door_status(int wallnum);
-void multi_send_netplayer_stats_request(ubyte player_num);
 void multi_send_player_powerup_count();
 void multi_send_start_powerup_count();
 
@@ -237,7 +236,8 @@ void multi_sort_kill_list(void);
 void multi_reset_stuff(void);
 void multi_send_data(unsigned char *buf, int len, int priority);
 int get_team(int pnum);
-
+// void multi_object_to_object_rw(object *obj, object_rw *obj_rw);
+// void multi_object_rw_to_object(object_rw *obj_rw, object *obj);
 
 // Exported variables
 

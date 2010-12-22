@@ -339,7 +339,7 @@ void init_player_stats_level()
 	Players[Player_num].homing_object_dist = -F1_0; // Added by RH
 
 	// properly init these cursed globals
-	Next_flare_fire_time = Last_laser_fired_time = Next_laser_fire_time = Next_missile_fire_time = GameTime;
+	Next_flare_fire_time = Last_laser_fired_time = Next_laser_fire_time = Next_missile_fire_time = GameTime64;
 
 	init_gauges();
 }
@@ -1294,7 +1294,7 @@ void StartNewLevel(int level_num)
 {
 	hide_menus();
 
-	GameTime = 0;
+	GameTime64 = 0;
 
 	if (!(Game_mode & GM_MULTI)) {
 		do_briefing_screens(Briefing_text_filename, level_num);

@@ -400,7 +400,7 @@ int do_powerup(object *obj)
 				HUD_init_message(HM_DEFAULT|HM_REDUNDANT, "%s %s!",TXT_ALREADY_ARE,TXT_CLOAKED);
 				break;
 			} else {
-				Players[Player_num].cloak_time = (GameTime+CLOAK_TIME_MAX>i2f(0x7fff-600)?GameTime-i2f(0x7fff-600):GameTime);
+				Players[Player_num].cloak_time = GameTime64;
 				Players[Player_num].flags |= PLAYER_FLAGS_CLOAKED;
 				ai_do_cloak_stuff();
 				#ifdef NETWORK
@@ -416,7 +416,7 @@ int do_powerup(object *obj)
 				HUD_init_message(HM_DEFAULT|HM_REDUNDANT, "%s %s!",TXT_ALREADY_ARE,TXT_INVULNERABLE);
 				break;
 			} else {
-				Players[Player_num].invulnerable_time = (GameTime+INVULNERABLE_TIME_MAX>i2f(0x7fff-600)?GameTime-i2f(0x7fff-600):GameTime);
+				Players[Player_num].invulnerable_time = GameTime64;
 				Players[Player_num].flags |= PLAYER_FLAGS_INVULNERABLE;
 				powerup_basic(7, 14, 21, INVULNERABILITY_SCORE, "%s!",TXT_INVULNERABILITY);
 				used = 1;
