@@ -88,7 +88,7 @@ int window_close(window *wind)
 		wind->prev->next = wind->next;
 
 	if ((prev = window_get_front()))
-		WINDOW_SEND_EVENT(wind, EVENT_WINDOW_ACTIVATED);	// Reactivate. May cause flashing of some sort, too bad
+		WINDOW_SEND_EVENT(prev, EVENT_WINDOW_ACTIVATED);	// Reactivate. May cause flashing of some sort, too bad
 	
 	d_free(wind);
 	
