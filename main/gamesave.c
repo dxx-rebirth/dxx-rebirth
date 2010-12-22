@@ -1629,7 +1629,7 @@ int save_level_sub(char * filename, int compiled_version)
 	if (Gamesave_current_version >= 8)
 	{
 		//write the version 8 data (to make file unreadable by 1.0 & 1.1)
-		PHYSFS_writeSLE32(SaveFile, GameTime);
+		PHYSFS_writeSLE32(SaveFile, GameTime64);
 		PHYSFS_writeSLE16(SaveFile, FrameCount);
 		PHYSFSX_writeU8(SaveFile, FrameTime);
 	}
