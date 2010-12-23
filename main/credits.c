@@ -73,7 +73,7 @@ int credits_handler(window *wind, d_event *event, credits *cr)
 			return 1;
 
 		case EVENT_IDLE:
-			timer_delay(F1_0/25);
+			timer_delay(F1_0/17);
 			
 			if (cr->row == 0)
 			{
