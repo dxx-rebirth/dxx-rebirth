@@ -36,10 +36,9 @@ void net_udp_send_netgame_update();
 #define UDP_NETGAMES_PAGES 50 // Pages available on Netlist (UDP_MAX_NETGAMES/UDP_NETGAMES_PPAGE)
 #define UDP_TIMEOUT (10*F1_0) // 10 seconds disconnect timeout
 #define UDP_MDATA_STOR_QUEUE_SIZE	500 // Store up to 500 MDATA packets
-#define UDP_OBJ_PACKETS_PER_FRAME 1
 
 // Following are static defines for the buffer size of various packets. IF you change the packets, you must change the size, too.
-#define UPKT_MAX_SIZE 1024 // Max size for a packet - just for the buffers
+#define UPKT_MAX_SIZE 2048 // Max size for a packet
 #define UPKT_GAME_INFO_REQ_SIZE 11 
 #define UPKT_SEQUENCE_SIZE 14
 #define UPKT_PING_SIZE 37
