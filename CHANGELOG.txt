@@ -3,6 +3,7 @@ D2X-Rebirth Changelog
 20101224
 --------
 d2x-rebirth.xcodeproj/project.pbxproj, include/ui.h, main/editor/centers.c, main/editor/editor.h, main/editor/group.c, main/editor/medrobot.c, main/editor/medwall.c, main/editor/mine.c, main/editor/texpage.h, main/gamesave.c, main/gamesave.h, main/switch.c, main/switch.h, ui/button.c, ui/checkbox.c, ui/func.c, ui/harderr.c, ui/keytrap.c, ui/medfunc.c, ui/menubar.c, ui/mouse.c, ui/radio.c, ui/ui.c, ui/window.c: Copy some editor stuff from d1x-rebirth to d2x-rebirth, like use of the OS native cursor
+arch/carbon/conf.h: Disabling IPv6 support for OS X since in Snow Leopard it's buggy, making all Multiplayer pretty much impossible - re-activating soon as proper patches from Apple are in sight
 
 20101223
 --------
