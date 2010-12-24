@@ -1,5 +1,9 @@
 D1X-Rebirth Changelog
 
+20101224
+--------
+arch/carbon/conf.h: Disabling IPv6 support for OS X since in Snow Leopard it's buggy, making all Multiplayer pretty much impossible - re-activating soon as proper patches from Apple are in sight
+
 20101223
 --------
 main/net_udp.c, main/net_udp.h: Reworked object sending/receiving to work without unnecessary type casting and a bit less error prone; Also increased UDP max packet size to 2048 so we can send 7 objects per frame

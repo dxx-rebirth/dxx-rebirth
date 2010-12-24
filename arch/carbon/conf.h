@@ -47,7 +47,7 @@
 # define USE_UDP
 //# define USE_IPX
 
-#define IPv6
+//#define IPv6
 
 /* Define to 1 if the system has the type `struct timespec'. */
 #define HAVE_STRUCT_TIMESPEC 1
