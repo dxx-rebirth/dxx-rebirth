@@ -13,7 +13,7 @@ COPYRIGHT 1993-1999 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 
 /*
  *
- * FIXME: put description here
+ * Header for editor functions, data strcutures, etc.
  *
  */
 

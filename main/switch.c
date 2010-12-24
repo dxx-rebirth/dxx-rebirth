@@ -675,50 +675,52 @@ void trigger_write(trigger *t, short version, PHYSFS_file *fp)
 {
 	int i;
 
-	if (version != 30)
+	if (version <= 29)
+		PHYSFSX_writeU8(fp, 0);		// unused 'type'
+	else if (version >= 31)
 		PHYSFSX_writeU8(fp, t->type);
 
-	if (version <= 29)
+	if (version <= 30)
 		switch (t->type)
 		{
 			case TT_OPEN_DOOR:
-				PHYSFS_writeSLE16(fp, TRIGGER_CONTROL_DOORS);
+				PHYSFS_writeSLE16(fp, TRIGGER_CONTROL_DOORS | ((t->flags & TF_ONE_SHOT) ? TRIGGER_ONE_SHOT : 0));
 				break;
 
 			case TT_EXIT:
-				PHYSFS_writeSLE16(fp, TRIGGER_EXIT);
+				PHYSFS_writeSLE16(fp, TRIGGER_EXIT | ((t->flags & TF_ONE_SHOT) ? TRIGGER_ONE_SHOT : 0));
 				break;
 
 			case TT_MATCEN:
-				PHYSFS_writeSLE16(fp, TRIGGER_MATCEN);
+				PHYSFS_writeSLE16(fp, TRIGGER_MATCEN | ((t->flags & TF_ONE_SHOT) ? TRIGGER_ONE_SHOT : 0));
 				break;
 
 			case TT_ILLUSION_OFF:
-				PHYSFS_writeSLE16(fp, TRIGGER_ILLUSION_OFF);
+				PHYSFS_writeSLE16(fp, TRIGGER_ILLUSION_OFF | ((t->flags & TF_ONE_SHOT) ? TRIGGER_ONE_SHOT : 0));
 				break;
 
 			case TT_SECRET_EXIT:
-				PHYSFS_writeSLE16(fp, TRIGGER_SECRET_EXIT);
+				PHYSFS_writeSLE16(fp, TRIGGER_SECRET_EXIT | ((t->flags & TF_ONE_SHOT) ? TRIGGER_ONE_SHOT : 0));
 				break;
 
 			case TT_ILLUSION_ON:
-				PHYSFS_writeSLE16(fp, TRIGGER_ILLUSION_ON);
+				PHYSFS_writeSLE16(fp, TRIGGER_ILLUSION_ON | ((t->flags & TF_ONE_SHOT) ? TRIGGER_ONE_SHOT : 0));
 				break;
 
 			case TT_UNLOCK_DOOR:
-				PHYSFS_writeSLE16(fp, TRIGGER_UNLOCK_DOORS);
+				PHYSFS_writeSLE16(fp, TRIGGER_UNLOCK_DOORS | ((t->flags & TF_ONE_SHOT) ? TRIGGER_ONE_SHOT : 0));
 				break;
 
 			case TT_OPEN_WALL:
-				PHYSFS_writeSLE16(fp, TRIGGER_OPEN_WALL);
+				PHYSFS_writeSLE16(fp, TRIGGER_OPEN_WALL | ((t->flags & TF_ONE_SHOT) ? TRIGGER_ONE_SHOT : 0));
 				break;
 
 			case TT_CLOSE_WALL:
-				PHYSFS_writeSLE16(fp, TRIGGER_CLOSE_WALL);
+				PHYSFS_writeSLE16(fp, TRIGGER_CLOSE_WALL | ((t->flags & TF_ONE_SHOT) ? TRIGGER_ONE_SHOT : 0));
 				break;
 
 			case TT_ILLUSORY_WALL:
-				PHYSFS_writeSLE16(fp, TRIGGER_ILLUSORY_WALL);
+				PHYSFS_writeSLE16(fp, TRIGGER_ILLUSORY_WALL | ((t->flags & TF_ONE_SHOT) ? TRIGGER_ONE_SHOT : 0));
 				break;
 
 			default:

@@ -42,7 +42,7 @@ COPYRIGHT 1993-1999 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 #define TT_CLOSE_WALL       10  // Makes a wall closed
 #define TT_ILLUSORY_WALL    11  // Makes a wall illusory
 #define TT_LIGHT_OFF        12  // Turn a light off
-#define TT_LIGHT_ON         13  // Turn s light on
+#define TT_LIGHT_ON         13  // Turn a light on
 #define NUM_TRIGGER_TYPES   14
 
 // Trigger flags

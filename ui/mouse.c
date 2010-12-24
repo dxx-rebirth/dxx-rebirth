@@ -12,20 +12,21 @@ AND AGREES TO THE TERMS HEREIN AND ACCEPTS THE SAME BY USE OF THIS FILE.
 COPYRIGHT 1993-1999 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 */
 
-#ifdef RCS
-static char rcsid[] = "$Id: mouse.c,v 1.1.1.1 2006/03/17 19:52:18 zicodxx Exp $";
-#endif
+/*
+ *
+ * Mouse interface routines.
+ *
+ */
 
 #include <stdlib.h>
-
+#include <SDL/SDL.h>
 #include "u_mem.h"
 #include "fix.h"
 #include "pstypes.h"
 #include "gr.h"
 #include "mouse.h"
-#include "timer.h"
-
 #include "ui.h"
+#include "timer.h"
 
 // 16x16
 
@@ -99,6 +100,9 @@ int ui_mouse_find_gadget(short n)
 
 void ui_mouse_show()
 {
+#ifndef __MSDOS__
+  SDL_ShowCursor(1);
+#else
 	if (Mouse.hidden==1 )   {
 		Mouse.hidden = 0;
 		// Save the background under new pointer
@@ -108,10 +112,12 @@ void ui_mouse_show()
 		// Draw the new pointer
 		gr_bm_ubitbltm( Mouse.pointer->bm_w, Mouse.pointer->bm_h, Mouse.x, Mouse.y, 0, 0, Mouse.pointer, &(grd_curscreen->sc_canvas.cv_bitmap)   );
 	}
+#endif
 }
 
 void ui_mouse_hide()
 {
+#ifdef __MSDOS__
 	if (Mouse.hidden==0 )   {
 		Mouse.hidden = 1;
 		if (Mouse.bg_saved==1)  {
@@ -119,20 +125,23 @@ void ui_mouse_hide()
 			Mouse.bg_saved = 0;
 		}
 	}
+#endif
 }
 
 void ui_mouse_process()
-{   int buttons,w,h;
-
-	//if (Mouse.hidden==0)
-	//    mouse_get_pos( &Mouse.x, &Mouse.y );
-	//else
-	//    mouse_set_pos( Mouse.x, Mouse.y );
-
+{   
+        int buttons,w,h;
+#ifndef __MSDOS__
+	int new_x, new_y;
+	buttons = SDL_GetMouseState(&new_x,&new_y);
+	Mouse.dx = new_x - Mouse.x;
+	Mouse.dy = new_y - Mouse.y;
+#else
 
 	Mouse.dx = Mouse.new_dx;
 	Mouse.dy = Mouse.new_dy;
 	buttons = Mouse.new_buttons;
+#endif
 
 	Mouse.x += Mouse.dx;
 	Mouse.y += Mouse.dy;
@@ -153,6 +162,7 @@ void ui_mouse_process()
 
 	if ( (Mouse.bg_x!=Mouse.x) || (Mouse.bg_y!=Mouse.y) || (Mouse.bg_saved==0) )
 	{
+#ifdef __MSDOS__
 		// Restore the background under old pointer
 		if (Mouse.bg_saved==1)  {
 			gr_bm_ubitblt( Mouse.background->bm_w, Mouse.background->bm_h, Mouse.bg_x, Mouse.bg_y, 0, 0, Mouse.background, &(grd_curscreen->sc_canvas.cv_bitmap)   );
@@ -170,6 +180,7 @@ void ui_mouse_process()
 			// Draw the new pointer
 			gr_bm_ubitbltm( Mouse.pointer->bm_w, Mouse.pointer->bm_h, Mouse.x, Mouse.y, 0, 0, Mouse.pointer, &(grd_curscreen->sc_canvas.cv_bitmap)   );
 		}
+#endif /* __MSDOS__*/
 	}
 
 	Mouse.b1_last_status = Mouse.b1_status;
@@ -235,6 +246,9 @@ void ui_mouse_init()
 {
 	int i, w,h;
 
+#ifndef __MSDOS__
+        SDL_ShowCursor(1);
+#endif
 	//mouse_init();
 
 	w = grd_curscreen->sc_w;
@@ -279,13 +293,16 @@ void ui_mouse_init()
 	Mouse.b3_status = Mouse.b3_last_status = BUTTON_RELEASED;
 	Mouse.bg_x = Mouse.bg_y = 0;
 	Mouse.bg_saved = 0;
+#ifdef __MSDOS__
 	Mouse.pointer = default_pointer;
 	Mouse.background = gr_create_bitmap( Mouse.pointer->bm_w, Mouse.pointer->bm_h );
+#endif
 	Mouse.time_lastpressed = 0;
 	Mouse.moved = 0;
 
 }
 
+#ifdef __MSDOS__
 grs_bitmap * ui_mouse_set_pointer( grs_bitmap * new )
 {
 	grs_bitmap * temp = Mouse.pointer;
@@ -303,11 +320,13 @@ grs_bitmap * ui_mouse_set_pointer( grs_bitmap * new )
 
 }
 
+#endif
 void ui_mouse_close()
 {
+#ifdef __MSDOS__
 	gr_free_sub_bitmap(default_pointer);
 
 	gr_free_bitmap(Mouse.background);
-
+#endif
 }
 

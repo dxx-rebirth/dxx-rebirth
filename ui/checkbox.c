@@ -126,7 +126,7 @@ void ui_checkbox_do( UI_GADGET_CHECKBOX * checkbox, int keypress )
 
 }
 
-void ui_checkbox_check(UI_GADGET_CHECKBOX * checkbox, sbyte check)
+void ui_checkbox_check(UI_GADGET_CHECKBOX * checkbox, int check)
 {
 	check = check != 0;
 	if (checkbox->flag == check)

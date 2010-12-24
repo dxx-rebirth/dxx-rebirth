@@ -111,7 +111,7 @@ void menu_show( MENU * menu )
 
 	gr_set_current_canvas(NULL);
 	// Don't save background it if it's already drawn
-	if (!menu->Displayed) 
+	if (!menu->Displayed && menu->w>0 && menu->h>0) 
 	{
 		// Save the background
 		gr_bm_ubitblt(menu->w, menu->h, 0, 0, menu->x, menu->y, &(grd_curscreen->sc_canvas.cv_bitmap), menu->Background);

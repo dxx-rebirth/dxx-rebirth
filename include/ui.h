@@ -11,6 +11,12 @@ AND AGREES TO THE TERMS HEREIN AND ACCEPTS THE SAME BY USE OF THIS FILE.
 COPYRIGHT 1993-1999 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 */
 
+/*
+ *
+ * Header file for user interface
+ *
+ */
+
 #ifndef _UI_H
 #define _UI_H
 
@@ -204,8 +210,10 @@ typedef struct  {
 	short           b3_last_status;
 	short           bg_x, bg_y;
 	short           bg_saved;
+#ifdef __MSDOS__
 	grs_bitmap *    background;
 	grs_bitmap *    pointer;
+#endif
 	fix64           time_lastpressed;
 	short           moved;
 } UI_MOUSE;
@@ -291,12 +299,12 @@ extern void ui_wprintf_at( UI_WINDOW * wnd, short x, short y, char * format, ...
 extern void ui_draw_radio( UI_GADGET_RADIO * radio );
 extern UI_GADGET_RADIO * ui_add_gadget_radio( UI_WINDOW * wnd, short x, short y, short w, short h, short group, char * text );
 extern void ui_radio_do( UI_GADGET_RADIO * radio, int keypress );
-extern void ui_radio_set_value(UI_GADGET_RADIO *radio, sbyte value);
+extern void ui_radio_set_value(UI_GADGET_RADIO *radio, int value);
 
 extern void ui_draw_checkbox( UI_GADGET_CHECKBOX * checkbox );
 extern UI_GADGET_CHECKBOX * ui_add_gadget_checkbox( UI_WINDOW * wnd, short x, short y, short w, short h, short group, char * text );
 extern void ui_checkbox_do( UI_GADGET_CHECKBOX * checkbox, int keypress );
-extern void ui_checkbox_check(UI_GADGET_CHECKBOX * checkbox, sbyte check);
+extern void ui_checkbox_check(UI_GADGET_CHECKBOX * checkbox, int check);
 
 extern UI_GADGET * ui_gadget_get_prev( UI_GADGET * gadget );
 extern UI_GADGET * ui_gadget_get_next( UI_GADGET * gadget );

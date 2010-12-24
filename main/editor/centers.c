@@ -53,7 +53,7 @@ COPYRIGHT 1993-1998 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 static UI_WINDOW 				*MainWindow = NULL;
 static UI_GADGET_BUTTON 	*QuitButton;
 static UI_GADGET_RADIO		*CenterFlag[MAX_CENTER_TYPES];
-static UI_GADGET_CHECKBOX	*RobotMatFlag[64];	// 2 ints = 64 bits
+static UI_GADGET_CHECKBOX	*RobotMatFlag[MAX_ROBOT_TYPES];
 
 static int old_seg_num;
 
@@ -94,7 +94,7 @@ int do_centers_dialog()
 	CenterFlag[4] = ui_add_gadget_radio( MainWindow, 18, i, 16, 16, 0, "RobotCen" );		i += 24;
 
 	// These are the checkboxes for each robot flag.
-	for (i=0; i < 64; i++)
+	for (i=0; i<N_robot_types; i++)
 		RobotMatFlag[i] = ui_add_gadget_checkbox( MainWindow, 128 + (i%2)*92, 20+(i/2)*24, 16, 16, 0, Robot_names[i]);
 																									  
 	old_seg_num = -2;		// Set to some dummy value so everything works ok on the first frame.
@@ -113,9 +113,7 @@ void close_centers_window()
 void do_centers_window()
 {
 	int i;
-	int robot_flags;
 	int redraw_window;
-	int robot_index;
 
 	if ( MainWindow == NULL ) return;
 
@@ -126,26 +124,20 @@ void do_centers_window()
 	ui_window_do_gadgets(MainWindow);
 
 	//------------------------------------------------------------
-	// If we change walls, we need to reset the ui code for all
-	// of the checkboxes that control the wall flags.  
+	// If we change centers, we need to reset the ui code for all
+	// of the checkboxes that control the center flags.  
 	//------------------------------------------------------------
-	if (old_seg_num != Cursegp-Segments) {
+	if (old_seg_num != Cursegp-Segments)
+	{
+		for (i = 0; i < MAX_CENTER_TYPES; i++)
+			ui_radio_set_value(CenterFlag[i], 0);
+
 		Assert(Curseg2p->special < MAX_CENTER_TYPES);
 		ui_radio_set_value(CenterFlag[Curseg2p->special], 1);
 
 		//	Read materialization center robot bit flags
-		for (i = 0; i < 2; i++)
-		{
-			robot_index = i * 32;
-			robot_flags = RobotCenters[Curseg2p->matcen_num].robot_flags[i];
-			while (robot_flags)
-			{
-				ui_checkbox_check(RobotMatFlag[i], robot_flags & 1);
-				robot_flags >>= 1;
-				robot_index++;
-			}
-		}
-
+		for (i = 0; i < N_robot_types; i++)
+			ui_checkbox_check(RobotMatFlag[i], RobotCenters[Curseg2p->matcen_num].robot_flags[i >= 32 ? 1 : 0] & (1 << (i % 32)));
 	}
 
 	//------------------------------------------------------------
@@ -168,26 +160,12 @@ void do_centers_window()
                  }
 	}
 
-	for (i = 0; i < 2; i++)
+	for (i = 0; i < N_robot_types; i++)
 	{
-		robot_flags = RobotCenters[Curseg2p->matcen_num].robot_flags[i];
-
-		for (robot_index = 0; robot_index < 32; robot_index++)
-		{
-			if (RobotMatFlag[robot_index + i * 32]->flag == 1)
-			{
-				if (!(robot_flags & (1 << robot_index)))
-				{
-					robot_flags |= (1 << robot_index);
-				}
-			}
-			else if (robot_flags & 1 << robot_index)
-			{
-				robot_flags &= ~(1 << robot_index);
-			}
-		}
-
-		RobotCenters[Curseg2p->matcen_num].robot_flags[i] = robot_flags;
+		if ( RobotMatFlag[i]->flag == 1 )
+			RobotCenters[Curseg2p->matcen_num].robot_flags[i >= 32 ? 1 : 0] |= (1 << (i % 32));
+		else
+			RobotCenters[Curseg2p->matcen_num].robot_flags[i >= 32 ? 1 : 0] &= ~(1 << (i % 32));
 	}
 	
 	//------------------------------------------------------------

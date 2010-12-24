@@ -426,14 +426,10 @@ void do_wall_window()
 			ui_checkbox_check(DoorFlag[1], w->flags & WALL_DOOR_AUTO);
 			ui_checkbox_check(DoorFlag[2], w->flags & WALL_ILLUSION_OFF);
 
-			if (Walls[Cursegp->sides[Curside].wall_num].keys & KEY_NONE)
-				ui_radio_set_value(KeyFlag[0], 1);
-			if (Walls[Cursegp->sides[Curside].wall_num].keys & KEY_BLUE)
-				ui_radio_set_value(KeyFlag[1], 1);
-			if (Walls[Cursegp->sides[Curside].wall_num].keys & KEY_RED)
-				ui_radio_set_value(KeyFlag[2], 1);
-			if (Walls[Cursegp->sides[Curside].wall_num].keys & KEY_GOLD)
-				ui_radio_set_value(KeyFlag[3], 1);
+			ui_radio_set_value(KeyFlag[0], w->keys & KEY_NONE);
+			ui_radio_set_value(KeyFlag[1], w->keys & KEY_BLUE);
+			ui_radio_set_value(KeyFlag[2], w->keys & KEY_RED);
+			ui_radio_set_value(KeyFlag[3], w->keys & KEY_GOLD);
 		}
 	}
 	
@@ -464,12 +460,8 @@ void do_wall_window()
 	} else {
 		for (i = 0; i < 2; i++)
 			ui_checkbox_check(DoorFlag[i], 0);
-		for (	i=0; i < 4; i++ )	{
-			if ( KeyFlag[i]->flag == 1 ) {
-				KeyFlag[i]->flag = 0;		
-				KeyFlag[i]->status = 1;		
-			}
-		}
+		for (	i=0; i < 4; i++ )
+			ui_radio_set_value(KeyFlag[i], 0);
 	}
 
 	if (Walls[Cursegp->sides[Curside].wall_num].type == WALL_ILLUSION) {

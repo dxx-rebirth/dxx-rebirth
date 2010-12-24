@@ -11,6 +11,12 @@ AND AGREES TO THE TERMS HEREIN AND ACCEPTS THE SAME BY USE OF THIS FILE.
 COPYRIGHT 1993-1999 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 */
 
+/*
+ *
+ * Radio box gadget stuff.
+ *
+ */
+
 #include <stdlib.h>
 #include <string.h>
 #include "fix.h"
@@ -144,10 +150,11 @@ void ui_radio_do( UI_GADGET_RADIO * radio, int keypress )
 
 }
 
-void ui_radio_set_value(UI_GADGET_RADIO *radio, sbyte value)
+void ui_radio_set_value(UI_GADGET_RADIO *radio, int value)
 {
 	UI_GADGET_RADIO *tmp;
 
+	value = value != 0;
 	if (radio->flag == value)
 		return;
 

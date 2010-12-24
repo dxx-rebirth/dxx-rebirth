@@ -43,7 +43,7 @@ COPYRIGHT 1993-1998 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 #define REMOVE_EXT(s)  (*(strchr( (s), '.' ))='\0')
 
 int CreateDefaultNewSegment();
-int save_mine_data(CFILE * SaveFile);
+int save_mine_data(PHYSFS_file * SaveFile);
 
 static char	 current_tmap_list[MAX_TEXTURES][13];
 
@@ -349,7 +349,7 @@ int med_save_mine(char * filename)
 
 // -----------------------------------------------------------------------------
 // saves to an already-open file
-int save_mine_data(CFILE * SaveFile)
+int save_mine_data(PHYSFS_file * SaveFile)
 {
 	int  header_offset, editor_offset, vertex_offset, segment_offset, doors_offset, texture_offset, walls_offset, triggers_offset; //, links_offset;
 	int  newseg_verts_offset;

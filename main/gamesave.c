@@ -875,15 +875,13 @@ int load_game_data(CFILE *LoadFile)
 
 	//==================== READ TRIGGER INFO ==========================
 
-
-// for MACINTOSH -- assume all triggers >= verion 31 triggers.
-
 	for (i = 0; i < Num_triggers; i++)
 	{
 		if (game_top_fileinfo_version < 31)
 		{
 			v30_trigger trig;
 			int t,type;
+			int flags = 0;
 			type=0;
 
 			if (game_top_fileinfo_version < 30) {
@@ -915,8 +913,8 @@ int load_game_data(CFILE *LoadFile)
 				Int3();
 			else if (trig.flags & TRIGGER_EXIT)
 				type = TT_EXIT;
-			else if (trig.flags & TRIGGER_ONE_SHOT)
-				Int3();
+			//else if (trig.flags & TRIGGER_ONE_SHOT)
+			//	Int3();
 			else if (trig.flags & TRIGGER_MATCEN)
 				type = TT_MATCEN;
 			else if (trig.flags & TRIGGER_ILLUSION_OFF)
@@ -935,8 +933,10 @@ int load_game_data(CFILE *LoadFile)
 				type = TT_ILLUSORY_WALL;
 			else
 				Int3();
+			if (trig.flags & TRIGGER_ONE_SHOT)
+				flags = TF_ONE_SHOT;
 			Triggers[i].type        = type;
-			Triggers[i].flags       = 0;
+			Triggers[i].flags       = flags;
 			Triggers[i].num_links   = trig.num_links;
 			Triggers[i].num_links   = trig.num_links;
 			Triggers[i].value       = trig.value;
@@ -952,12 +952,6 @@ int load_game_data(CFILE *LoadFile)
 
 	//================ READ CONTROL CENTER TRIGGER INFO ===============
 
-#if 0
-	if (game_fileinfo.control_offset > -1)
-		if (!cfseek(LoadFile, game_fileinfo.control_offset, SEEK_SET))
-		{
-			Assert(game_fileinfo.control_sizeof == sizeof(control_center_triggers));
-#endif // 0
 	control_center_triggers_read_n(&ControlCenterTriggers, 1, LoadFile);
 
 	//================ READ MATERIALOGRIFIZATIONATORS INFO ===============
@@ -1069,38 +1063,39 @@ int load_game_data(CFILE *LoadFile)
 
 	//	MK, 10/17/95: Make walls point back at the triggers that control them.
 	//	Go through all triggers, stuffing controlling_trigger field in Walls.
-	{	int t;
+	{
+		int t;
 
-	for (i=0; i<Num_walls; i++)
-		Walls[i].controlling_trigger = -1;
+		for (i=0; i<Num_walls; i++)
+			Walls[i].controlling_trigger = -1;
 
-	for (t=0; t<Num_triggers; t++) {
-		int	l;
-		for (l=0; l<Triggers[t].num_links; l++) {
-			int	seg_num, side_num, wall_num;
+		for (t=0; t<Num_triggers; t++) {
+			int	l;
+			for (l=0; l<Triggers[t].num_links; l++) {
+				int	seg_num, side_num, wall_num;
 
-			seg_num = Triggers[t].seg[l];
-			side_num = Triggers[t].side[l];
-			wall_num = Segments[seg_num].sides[side_num].wall_num;
+				seg_num = Triggers[t].seg[l];
+				side_num = Triggers[t].side[l];
+				wall_num = Segments[seg_num].sides[side_num].wall_num;
 
-			// -- if (Walls[wall_num].controlling_trigger != -1)
-			// -- 	Int3();
+				// -- if (Walls[wall_num].controlling_trigger != -1)
+				// -- 	Int3();
 
-			//check to see that if a trigger requires a wall that it has one,
-			//and if it requires a matcen that it has one
+				//check to see that if a trigger requires a wall that it has one,
+				//and if it requires a matcen that it has one
 
-			if (Triggers[t].type == TT_MATCEN) {
-				if (Segment2s[seg_num].special != SEGMENT_IS_ROBOTMAKER)
-					Int3();		//matcen trigger doesn't point to matcen
-			}
-			else if (Triggers[t].type != TT_LIGHT_OFF && Triggers[t].type != TT_LIGHT_ON) {	//light triggers don't require walls
-				if (wall_num == -1)
-					Int3();	//	This is illegal.  This trigger requires a wall
-				else
-					Walls[wall_num].controlling_trigger = t;
+				if (Triggers[t].type == TT_MATCEN) {
+					if (Segment2s[seg_num].special != SEGMENT_IS_ROBOTMAKER)
+						Int3();		//matcen trigger doesn't point to matcen
+				}
+				else if (Triggers[t].type != TT_LIGHT_OFF && Triggers[t].type != TT_LIGHT_ON) {	//light triggers don't require walls
+					if (wall_num == -1)
+						Int3();	//	This is illegal.  This trigger requires a wall
+					else
+						Walls[wall_num].controlling_trigger = t;
+				}
 			}
 		}
-	}
 	}
 
 	//fix old wall structs
@@ -1210,25 +1205,25 @@ int load_level(char * filename_passed)
 
 	strcpy(filename,filename_passed);
 
-	#ifdef EDITOR
-		//if we have the editor, try the LVL first, no matter what was passed.
-		//if we don't have an LVL, try what was passed or RL2  
-		//if we don't have the editor, we just use what was passed
-	
-		change_filename_extension(filename,filename_passed,".lvl");
-		use_compiled_level = 0;
-	
-		if (!cfexist(filename))
-		{
-			char *p = strrchr(filename_passed, '.');
+#ifdef EDITOR
+	//if we have the editor, try the LVL first, no matter what was passed.
+	//if we don't have an LVL, try what was passed or RL2  
+	//if we don't have the editor, we just use what was passed
 
-			if (stricmp(p, ".lvl"))
-				strcpy(filename, filename_passed);	// set to what was passed
-			else
-				change_filename_extension(filename, filename, ".rl2");
-			use_compiled_level = 1;
-		}		
-	#endif
+	change_filename_extension(filename,filename_passed,".lvl");
+	use_compiled_level = 0;
+
+	if (!cfexist(filename))
+	{
+		char *p = strrchr(filename_passed, '.');
+
+		if (stricmp(p, ".lvl"))
+			strcpy(filename, filename_passed);	// set to what was passed
+		else
+			change_filename_extension(filename, filename, ".rl2");
+		use_compiled_level = 1;
+	}		
+#endif
 
 	if (!cfexist(filename))
 		sprintf(filename,"%s%s",MISSION_DIR,filename_passed);
@@ -1547,7 +1542,7 @@ int save_game_data(PHYSFS_file *SaveFile)
 	return 0;
 }
 
-int save_mine_data(FILE * SaveFile);
+int save_mine_data(PHYSFS_file * SaveFile);
 
 // -----------------------------------------------------------------------------
 // Save game

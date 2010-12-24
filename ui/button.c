@@ -11,6 +11,12 @@ AND AGREES TO THE TERMS HEREIN AND ACCEPTS THE SAME BY USE OF THIS FILE.
 COPYRIGHT 1993-1999 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 */
 
+/*
+ *
+ * Routines for manipulating the button gadgets.
+ *
+ */
+
 #include <stdlib.h>
 #include <string.h>
 

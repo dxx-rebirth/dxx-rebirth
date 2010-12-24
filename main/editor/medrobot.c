@@ -552,6 +552,8 @@ void do_robot_window()
 	// the current AI mode button be flagged as pressed down.
 	//------------------------------------------------------------
 	if (old_object != Cur_object_index )	{
+		for (	i=0; i < NUM_BOXES; i++ )
+			ui_radio_set_value(InitialMode[i], 0);
 		if ( Cur_object_index > -1 ) {
 			int	behavior = Objects[Cur_object_index].ctype.ai_info.behavior;
 			if ( !((behavior >= MIN_BEHAVIOR) && (behavior <= MAX_BEHAVIOR))) {

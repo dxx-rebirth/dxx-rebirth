@@ -1092,7 +1092,7 @@ int med_save_group( char *filename, short *vertex_ids, short *segment_ids, int n
 	group_header.num_segments        =   num_segments;
 
 	// Write the editor info
-	header_offset = cftell(SaveFile);
+	header_offset = PHYSFS_tell(SaveFile);
 	PHYSFS_write( SaveFile, &group_header, sizeof(group_header), 1);
 
 	//===================== SAVE EDITOR INFO ==========================
@@ -1109,13 +1109,13 @@ int med_save_group( char *filename, short *vertex_ids, short *segment_ids, int n
 		group_editor.Groupsegp      	=   0;
 	group_editor.Groupside		 =   Groupside[current_group];
 
-	editor_offset = cftell(SaveFile);
+	editor_offset = PHYSFS_tell(SaveFile);
 	PHYSFS_write( SaveFile, &group_editor, sizeof(group_editor), 1);
 
 
 	//===================== SAVE VERTEX INFO ==========================
 
-	vertex_offset = cftell(SaveFile);
+	vertex_offset = PHYSFS_tell(SaveFile);
 	for (i=0;i<num_vertices;i++) {
 		tvert = Vertices[vertex_ids[i]];	
 		PHYSFS_write( SaveFile, &tvert, sizeof(tvert), 1); 
@@ -1124,7 +1124,7 @@ int med_save_group( char *filename, short *vertex_ids, short *segment_ids, int n
 	//===================== SAVE SEGMENT INFO =========================
 
 
-	segment_offset = cftell(SaveFile);
+	segment_offset = PHYSFS_tell(SaveFile);
 	for (i=0;i<num_segments;i++) {
 		tseg = Segments[segment_ids[i]];
 		
@@ -1152,7 +1152,7 @@ int med_save_group( char *filename, short *vertex_ids, short *segment_ids, int n
 
 	//===================== SAVE TEXTURE INFO ==========================
 
-	texture_offset = cftell(SaveFile);
+	texture_offset = PHYSFS_tell(SaveFile);
 
 	for (i=0;i<NumTextures;i++)
 		strncpy(current_tmap_list[i], TmapInfo[i].filename, 13);

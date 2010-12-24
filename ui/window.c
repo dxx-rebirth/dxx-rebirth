@@ -11,11 +11,15 @@ AND AGREES TO THE TERMS HEREIN AND ACCEPTS THE SAME BY USE OF THIS FILE.
 COPYRIGHT 1993-1999 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 */
 
+/*
+ *
+ * Windowing functions and controller.
+ *
+ */
+
 #include <stdlib.h>
 #include <stdio.h>
 #include <stdarg.h>
- #define _disable()
- #define _enable()
 
 #include "window.h"
 #include "u_mem.h"
@@ -24,8 +28,8 @@ COPYRIGHT 1993-1999 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 #include "gr.h"
 #include "ui.h"
 #include "key.h"
-#include "timer.h"
 #include "mouse.h"
+#include "timer.h"
 #include "error.h"
 
 #define W_BACKGROUND    (wnd->background )
@@ -41,6 +45,10 @@ COPYRIGHT 1993-1999 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 #define W_NEXT          (wnd->next)
 #define W_PREV          (wnd->prev)
 
+#ifndef __MSDOS__
+#define _disable()
+#define _enable()
+#endif
 
 UI_WINDOW * CurWindow = NULL;
 UI_WINDOW * FirstWindow = NULL;

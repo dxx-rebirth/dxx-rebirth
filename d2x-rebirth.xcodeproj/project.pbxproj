@@ -815,16 +815,13 @@
 		EBC651900890CEAE004FCAA3 /* button.c */ = {isa = PBXFileReference; fileEncoding = 30; lastKnownFileType = sourcecode.c.c; path = button.c; sourceTree = "<group>"; };
 		EBC651910890CEAE004FCAA3 /* checkbox.c */ = {isa = PBXFileReference; fileEncoding = 30; lastKnownFileType = sourcecode.c.c; path = checkbox.c; sourceTree = "<group>"; };
 		EBC651920890CEAE004FCAA3 /* file.c */ = {isa = PBXFileReference; fileEncoding = 30; lastKnownFileType = sourcecode.c.c; path = file.c; sourceTree = "<group>"; };
-		EBC651930890CEAE004FCAA3 /* func.c */ = {isa = PBXFileReference; fileEncoding = 30; lastKnownFileType = sourcecode.c.c; path = func.c; sourceTree = "<group>"; };
 		EBC651940890CEAE004FCAA3 /* gadget.c */ = {isa = PBXFileReference; fileEncoding = 30; lastKnownFileType = sourcecode.c.c; path = gadget.c; sourceTree = "<group>"; };
-		EBC651950890CEAE004FCAA3 /* harderr.c */ = {isa = PBXFileReference; fileEncoding = 30; lastKnownFileType = sourcecode.c.c; path = harderr.c; sourceTree = "<group>"; };
 		EBC651960890CEAE004FCAA3 /* icon.c */ = {isa = PBXFileReference; fileEncoding = 30; lastKnownFileType = sourcecode.c.c; path = icon.c; sourceTree = "<group>"; };
 		EBC651970890CEAE004FCAA3 /* inputbox.c */ = {isa = PBXFileReference; fileEncoding = 30; lastKnownFileType = sourcecode.c.c; path = inputbox.c; sourceTree = "<group>"; };
 		EBC651980890CEAE004FCAA3 /* keypad.c */ = {isa = PBXFileReference; fileEncoding = 30; lastKnownFileType = sourcecode.c.c; path = keypad.c; sourceTree = "<group>"; };
 		EBC651990890CEAE004FCAA3 /* keypress.c */ = {isa = PBXFileReference; fileEncoding = 30; lastKnownFileType = sourcecode.c.c; path = keypress.c; sourceTree = "<group>"; };
 		EBC6519A0890CEAE004FCAA3 /* keytrap.c */ = {isa = PBXFileReference; fileEncoding = 30; lastKnownFileType = sourcecode.c.c; path = keytrap.c; sourceTree = "<group>"; };
 		EBC6519B0890CEAE004FCAA3 /* listbox.c */ = {isa = PBXFileReference; fileEncoding = 30; lastKnownFileType = sourcecode.c.c; path = listbox.c; sourceTree = "<group>"; };
-		EBC6519D0890CEAE004FCAA3 /* medfunc.c */ = {isa = PBXFileReference; fileEncoding = 30; lastKnownFileType = sourcecode.c.c; path = medfunc.c; sourceTree = "<group>"; };
 		EBC6519E0890CEAE004FCAA3 /* menu.c */ = {isa = PBXFileReference; fileEncoding = 30; lastKnownFileType = sourcecode.c.c; path = menu.c; sourceTree = "<group>"; };
 		EBC6519F0890CEAE004FCAA3 /* menubar.c */ = {isa = PBXFileReference; fileEncoding = 30; lastKnownFileType = sourcecode.c.c; path = menubar.c; sourceTree = "<group>"; };
 		EBC651A00890CEAE004FCAA3 /* message.c */ = {isa = PBXFileReference; fileEncoding = 30; lastKnownFileType = sourcecode.c.c; path = message.c; sourceTree = "<group>"; };
@@ -1494,16 +1491,13 @@
 				EBC651900890CEAE004FCAA3 /* button.c */,
 				EBC651910890CEAE004FCAA3 /* checkbox.c */,
 				EBC651920890CEAE004FCAA3 /* file.c */,
-				EBC651930890CEAE004FCAA3 /* func.c */,
 				EBC651940890CEAE004FCAA3 /* gadget.c */,
-				EBC651950890CEAE004FCAA3 /* harderr.c */,
 				EBC651960890CEAE004FCAA3 /* icon.c */,
 				EBC651970890CEAE004FCAA3 /* inputbox.c */,
 				EBC651980890CEAE004FCAA3 /* keypad.c */,
 				EBC651990890CEAE004FCAA3 /* keypress.c */,
 				EBC6519A0890CEAE004FCAA3 /* keytrap.c */,
 				EBC6519B0890CEAE004FCAA3 /* listbox.c */,
-				EBC6519D0890CEAE004FCAA3 /* medfunc.c */,
 				EBC6519E0890CEAE004FCAA3 /* menu.c */,
 				EBC6519F0890CEAE004FCAA3 /* menubar.c */,
 				EBC651A00890CEAE004FCAA3 /* message.c */,
