@@ -123,10 +123,10 @@ typedef struct  {
 	BASE_GADGET
 	char 				 *text;
 	short 		    width, height;
-	sbyte            flag;
-	sbyte            pressed;
-	sbyte            position;
-	sbyte            oldposition;
+	sbyte           flag;
+	sbyte           pressed;
+	sbyte           position;
+	sbyte           oldposition;
 	int             trap_key;
 	int          	(*user_function)(void);
 } UI_GADGET_ICON;
@@ -167,8 +167,7 @@ typedef struct  {
 typedef struct  {
 	BASE_GADGET
 	short           width, height;
-        char            *list;
-	int             text_width;
+	char            **list;
 	int             num_items;
 	int             num_items_displayed;
 	int             first_item;
@@ -211,7 +210,7 @@ typedef struct  {
 	short           b3_last_status;
 	short           bg_x, bg_y;
 	short           bg_saved;
-#ifndef __LINUX__ /* Replaced with xwindows mouse cursor */
+#ifdef __MSDOS__
 	grs_bitmap *    background;
 	grs_bitmap *    pointer;
 #endif
@@ -283,7 +282,8 @@ extern void ui_button_do( UI_GADGET_BUTTON * button, int keypress );
 
 extern void ui_listbox_do( UI_GADGET_LISTBOX * listbox, int keypress );
 extern void ui_draw_listbox( UI_GADGET_LISTBOX * listbox );
-extern UI_GADGET_LISTBOX * ui_add_gadget_listbox( UI_WINDOW * wnd, short x, short y, short w, short h, short numitems, char *list, int text_width );
+extern UI_GADGET_LISTBOX *ui_add_gadget_listbox(UI_WINDOW *wnd, short x, short y, short w, short h, short numitems, char **list);
+
 extern void ui_mega_process();
 
 extern void ui_get_button_size( char * text, int * width, int * height );
@@ -299,21 +299,24 @@ extern void ui_wprintf_at( UI_WINDOW * wnd, short x, short y, char * format, ...
 extern void ui_draw_radio( UI_GADGET_RADIO * radio );
 extern UI_GADGET_RADIO * ui_add_gadget_radio( UI_WINDOW * wnd, short x, short y, short w, short h, short group, char * text );
 extern void ui_radio_do( UI_GADGET_RADIO * radio, int keypress );
+extern void ui_radio_set_value(UI_GADGET_RADIO *radio, int value);
 
 extern void ui_draw_checkbox( UI_GADGET_CHECKBOX * checkbox );
 extern UI_GADGET_CHECKBOX * ui_add_gadget_checkbox( UI_WINDOW * wnd, short x, short y, short w, short h, short group, char * text );
 extern void ui_checkbox_do( UI_GADGET_CHECKBOX * checkbox, int keypress );
+extern void ui_checkbox_check(UI_GADGET_CHECKBOX * checkbox, int check);
 
 extern UI_GADGET * ui_gadget_get_prev( UI_GADGET * gadget );
 extern UI_GADGET * ui_gadget_get_next( UI_GADGET * gadget );
 extern void ui_gadget_calc_keys( UI_WINDOW * wnd);
 
-extern void ui_listbox_change( UI_WINDOW * wnd, UI_GADGET_LISTBOX * listbox, short numitems, char *list, int text_width );
+extern void ui_listbox_change(UI_WINDOW *wnd, UI_GADGET_LISTBOX *listbox, short numitems, char **list);
 
 
 extern void ui_draw_inputbox( UI_GADGET_INPUTBOX * inputbox );
 extern UI_GADGET_INPUTBOX * ui_add_gadget_inputbox( UI_WINDOW * wnd, short x, short y, short w, short h, char * text );
 extern void ui_inputbox_do( UI_GADGET_INPUTBOX * inputbox, int keypress );
+extern void ui_inputbox_set_text(UI_GADGET_INPUTBOX *inputbox, char *text);
 
 
 extern void ui_userbox_do( UI_GADGET_USERBOX * userbox, int keypress );
@@ -323,21 +326,8 @@ extern void ui_draw_userbox( UI_GADGET_USERBOX * userbox );
 
 extern int MenuX( int x, int y, int NumButtons, char * text[] );
 
-// Changes to a drive if valid.. 1=A, 2=B, etc
-// If flag, then changes to it.
-// Returns 0 if not-valid, 1 if valid.
-int file_chdrive( int DriveNum, int flag );
-
-// Changes to directory in dir.  Even drive is changed.
-// Returns 1 if failed.
-//  0 = Changed ok.
-//  1 = Invalid disk drive.
-//  2 = Invalid directory.
-
-int file_chdir( char * dir );
-
-int file_getdirlist( int MaxNum, char list[][13] );
-int file_getfilelist( int MaxNum, char list[][13], char * filespec );
+char **file_getdirlist(int *NumFiles, char *dir);
+char **file_getfilelist(int *NumDirs, char *filespec, char *dir);
 int ui_get_filename( char * filename, char * Filespec, char * message  );
 
 
@@ -395,17 +385,13 @@ void ui_pad_read( int n, char * filename );
 int ui_pad_get_current();
 
 void ui_barbox_open( char * text, int length );
-int ui_barbox_update( int position );
+void ui_barbox_update( int position );
 void ui_barbox_close();
 
 void ui_reset_idle_seconds(void);
 int ui_get_idle_seconds(void);
 
-extern char filename_list[300][13];
-extern char directory_list[100][13];
-
 extern int ui_button_any_drawn;
 
 #endif
 
- 

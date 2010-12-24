@@ -7,7 +7,7 @@ IN USING, DISPLAYING,  AND CREATING DERIVATIVE WORKS THEREOF, SO LONG AS
 SUCH USE, DISPLAY OR CREATION IS FOR NON-COMMERCIAL, ROYALTY OR REVENUE
 FREE PURPOSES.  IN NO EVENT SHALL THE END-USER USE THE COMPUTER CODE
 CONTAINED HEREIN FOR REVENUE-BEARING PURPOSES.  THE END-USER UNDERSTANDS
-AND AGREES TO THE TERMS HEREIN AND ACCEPTS THE SAME BY USE OF THIS FILE.  
+AND AGREES TO THE TERMS HEREIN AND ACCEPTS THE SAME BY USE OF THIS FILE.
 COPYRIGHT 1993-1998 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 */
 
@@ -27,8 +27,6 @@ COPYRIGHT 1993-1998 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 #include "key.h"
 #include "ui.h"
 #include "mouse.h"
-
-extern void InstallErrorHandler();
 
 static int Initialized = 0;
 
@@ -62,8 +60,6 @@ void ui_init()
 
 	CurWindow = NULL;
 
-	InstallErrorHandler();
-
 	ui_pad_init();
 	
 	atexit(ui_close );
@@ -82,10 +78,6 @@ void ui_close()
 
 //		mouse_close();
 // 	key_close();
-
-#ifdef __WATCOMC__
-		_harderr( NULL );
-#endif
 
 		gr_close_font( ui_small_font );
 

@@ -169,6 +169,59 @@ void change_filename_extension( char *dest, const char *src, char *ext )
 	strcpy(p+1,ext);
 }
 
+#if !(defined(_WIN32))
+void _splitpath(char *name, char *drive, char *path, char *base, char *ext)
+{
+	char *s, *p;
+
+	p = name;
+	s = strchr(p, ':');
+	if ( s != NULL ) {
+		if (drive) {
+			*s = '\0';
+			strcpy(drive, p);
+			*s = ':';
+		}
+		p = s+1;
+		if (!p)
+			return;
+	} else if (drive)
+		*drive = '\0';
+	
+	s = strrchr(p, '\\');
+	if ( s != NULL) {
+		if (path) {
+			char c;
+			
+			c = *(s+1);
+			*(s+1) = '\0';
+			strcpy(path, p);
+			*(s+1) = c;
+		}
+		p = s+1;
+		if (!p)
+			return;
+	} else if (path)
+		*path = '\0';
+
+	s = strchr(p, '.');
+	if ( s != NULL) {
+		if (base) {
+			*s = '\0';
+			strcpy(base, p);
+			*s = '.';
+		}
+		p = s+1;
+		if (!p)
+			return;
+	} else if (base)
+		*base = '\0';
+		
+	if (ext)
+		strcpy(ext, p);		
+}
+#endif
+
 // create a growing 2D array with a single growing buffer for the text
 // this system is likely to cause less memory fragmentation than having one malloc'd buffer per string
 int string_array_new(char ***list, char **list_buf, int *num_str, int *max_str, int *max_buf)

@@ -7,7 +7,7 @@ IN USING, DISPLAYING,  AND CREATING DERIVATIVE WORKS THEREOF, SO LONG AS
 SUCH USE, DISPLAY OR CREATION IS FOR NON-COMMERCIAL, ROYALTY OR REVENUE
 FREE PURPOSES.  IN NO EVENT SHALL THE END-USER USE THE COMPUTER CODE
 CONTAINED HEREIN FOR REVENUE-BEARING PURPOSES.  THE END-USER UNDERSTANDS
-AND AGREES TO THE TERMS HEREIN AND ACCEPTS THE SAME BY USE OF THIS FILE.  
+AND AGREES TO THE TERMS HEREIN AND ACCEPTS THE SAME BY USE OF THIS FILE.
 COPYRIGHT 1993-1998 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 */
 
@@ -16,7 +16,6 @@ COPYRIGHT 1993-1998 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
  * Med drawing functions.
  *
  */
-
 
 #include <stdio.h>
 #include <stdlib.h>
@@ -674,7 +673,8 @@ void draw_special_segments(void)
 	// Highlight matcens, fuelcens, etc.
 	for (seg=0;seg<=Highest_segment_index;seg++)
 		if (Segments[seg].segnum != -1)
-			switch( Segments[seg].special )	{
+			switch( Segments[seg].special)
+			{
 			case SEGMENT_IS_FUELCEN:
 				color = BM_XRGB( 29, 27, 13 );
 				gr_setcolor(color);
@@ -805,6 +805,8 @@ void draw_world(grs_canvas *screen_canvas,editor_view *v,segment *mine_ptr,int d
 #endif
 
 	ui_mouse_hide();
+
+	//g3_set_points(Segment_points,Vertices);
 
 	viewer_position = v->ev_matrix.fvec;
 	vm_vec_scale(&viewer_position,-v->ev_dist);

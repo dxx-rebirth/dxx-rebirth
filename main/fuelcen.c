@@ -788,6 +788,17 @@ void matcen_info_read_n_swap(matcen_info *mi, int n, int swap, CFILE *fp)
 			matcen_info_swap(&mi[i], swap);
 }
 
+void matcen_info_write(matcen_info *mi, short version, PHYSFS_file *fp)
+{
+	PHYSFS_writeSLE32(fp, mi->robot_flags);
+	if (version >= 27)
+		PHYSFS_writeSLE32(fp, 0 /*mi->robot_flags[1]*/);
+	PHYSFSX_writeFix(fp, mi->hit_points);
+	PHYSFSX_writeFix(fp, mi->interval);
+	PHYSFS_writeSLE16(fp, mi->segnum);
+	PHYSFS_writeSLE16(fp, mi->fuelcen_num);
+}
+
 void fuelcen_swap(FuelCenter *fc, int swap)
 {
 	if (!swap)

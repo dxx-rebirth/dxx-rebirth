@@ -7,28 +7,22 @@ IN USING, DISPLAYING,  AND CREATING DERIVATIVE WORKS THEREOF, SO LONG AS
 SUCH USE, DISPLAY OR CREATION IS FOR NON-COMMERCIAL, ROYALTY OR REVENUE
 FREE PURPOSES.  IN NO EVENT SHALL THE END-USER USE THE COMPUTER CODE
 CONTAINED HEREIN FOR REVENUE-BEARING PURPOSES.  THE END-USER UNDERSTANDS
-AND AGREES TO THE TERMS HEREIN AND ACCEPTS THE SAME BY USE OF THIS FILE.  
+AND AGREES TO THE TERMS HEREIN AND ACCEPTS THE SAME BY USE OF THIS FILE.
 COPYRIGHT 1993-1998 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 */
 
 #include <stdlib.h>
-#include <stdio.h>
-#ifndef __LINUX__
-#include <conio.h>
-#include <dos.h>
-#include <direct.h>
-#endif
-#include <string.h>
 #include <math.h>
+#include <string.h>
 #include "fix.h"
 #include "pstypes.h"
 #include "gr.h"
 #include "key.h"
+#include "cfile.h"
 #include "ui.h"
 #include "u_mem.h"
 #include "func.h"
 #include "error.h"
-#include "cfile.h"
 
 #define MAX_NUM_PADS 20
 
@@ -80,11 +74,11 @@ void LineParse( int n, char * dest, char * source )
 
 	// Go to the n'th line
 	while (cn < n )
-        if ((unsigned char)source[i++] == 179 )
+		if ((unsigned char) source[i++] == 179)
 			cn++;
 
 	// Read up until the next comma
-    while ( (unsigned char)source[i] != 179 )
+	while ((unsigned char) source[i] != 179)
 	{
 		dest[j] = source[i++];
 		j++;		
@@ -245,7 +239,8 @@ static void ui_pad_set_active( int n )
 			if (HotKey1[i] == KeyPad[n]->keycode[j] )
 			{
 				Pad[i]->hotkey1 =  HotKey1[i];
-				Pad[i]->user_function1 = func_nget( KeyPad[n]->function_number[j], &np, &name );			}
+				Pad[i]->user_function1 = func_nget( KeyPad[n]->function_number[j], &np, &name );
+			}
 		}
 	}
 
@@ -401,9 +396,9 @@ void ui_pad_read( int n, char * filename )
 			sprintf( KeyPad[n]->buttontext[7], "%s%s\n", KeyPad[n]->buttontext[7],text );
 			break;
 		case 10:
-			ptr = strrchr( buffer, 179 );
+			ptr = strrchr( buffer, (char) 179 );
 			*ptr = 0;
-			ptr = strrchr( buffer, 180 );	ptr++;
+			ptr = strrchr( buffer, (char) 180 );	ptr++;
 			sprintf( KeyPad[n]->buttontext[7], "%s%s\n", KeyPad[n]->buttontext[7],ptr );
 			break;
 		//======================= ROW 2 ==============================
@@ -469,9 +464,9 @@ void ui_pad_read( int n, char * filename )
 			sprintf( KeyPad[n]->buttontext[14], "%s%s\n", KeyPad[n]->buttontext[14],text );
 			break;
 		case 18:
-			ptr = strrchr( buffer, 179 );
+			ptr = strrchr( buffer, (char) 179 );
 			*ptr = 0;
-			ptr = strrchr( buffer, 180 ); ptr++;
+			ptr = strrchr( buffer, (char) 180 ); ptr++;
 			sprintf( KeyPad[n]->buttontext[14], "%s%s\n", KeyPad[n]->buttontext[14], ptr );
 			break;
 		//======================= ROW 4 =========================
@@ -529,4 +524,3 @@ void ui_pad_read( int n, char * filename )
 	cfclose(infile);
 
 }
-

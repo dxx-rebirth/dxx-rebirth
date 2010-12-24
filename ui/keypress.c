@@ -1,3 +1,4 @@
+/* $Id: keypress.c,v 1.1.1.1 2006/03/17 19:52:24 zicodxx Exp $ */
 /*
 THE COMPUTER CODE CONTAINED HEREIN IS THE SOLE PROPERTY OF PARALLAX
 SOFTWARE CORPORATION ("PARALLAX").  PARALLAX, IN DISTRIBUTING THE CODE TO
@@ -7,36 +8,12 @@ IN USING, DISPLAYING,  AND CREATING DERIVATIVE WORKS THEREOF, SO LONG AS
 SUCH USE, DISPLAY OR CREATION IS FOR NON-COMMERCIAL, ROYALTY OR REVENUE
 FREE PURPOSES.  IN NO EVENT SHALL THE END-USER USE THE COMPUTER CODE
 CONTAINED HEREIN FOR REVENUE-BEARING PURPOSES.  THE END-USER UNDERSTANDS
-AND AGREES TO THE TERMS HEREIN AND ACCEPTS THE SAME BY USE OF THIS FILE.  
+AND AGREES TO THE TERMS HEREIN AND ACCEPTS THE SAME BY USE OF THIS FILE.
 COPYRIGHT 1993-1998 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 */
-/*
- * $Source: /cvsroot/dxx-rebirth/d1x-rebirth/ui/keypress.c,v $
- * $Revision: 1.1.1.1 $
- * $Author: zicodxx $
- * $Date: 2006/03/17 19:39:17 $
- * 
- * 
- * 
- * $Log: keypress.c,v $
- * Revision 1.1.1.1  2006/03/17 19:39:17  zicodxx
- * initial import
- *
- * Revision 1.1.1.1  1999/06/14 22:14:29  donut
- * Import of d1x 1.37 source.
- *
- * Revision 1.2  1994/06/09  12:18:27  john
- * Took out keyboard flushes.
- * 
- * Revision 1.1  1993/12/07  12:30:14  john
- * Initial revision
- * 
- * 
- */
-
 
 #ifdef RCS
-static char rcsid[] = "$Id: keypress.c,v 1.1.1.1 2006/03/17 19:39:17 zicodxx Exp $";
+static char rcsid[] = "$Id: keypress.c,v 1.1.1.1 2006/03/17 19:52:24 zicodxx Exp $";
 #endif
 
 #include <stdio.h>

@@ -7,7 +7,7 @@ IN USING, DISPLAYING,  AND CREATING DERIVATIVE WORKS THEREOF, SO LONG AS
 SUCH USE, DISPLAY OR CREATION IS FOR NON-COMMERCIAL, ROYALTY OR REVENUE
 FREE PURPOSES.  IN NO EVENT SHALL THE END-USER USE THE COMPUTER CODE
 CONTAINED HEREIN FOR REVENUE-BEARING PURPOSES.  THE END-USER UNDERSTANDS
-AND AGREES TO THE TERMS HEREIN AND ACCEPTS THE SAME BY USE OF THIS FILE.  
+AND AGREES TO THE TERMS HEREIN AND ACCEPTS THE SAME BY USE OF THIS FILE.
 COPYRIGHT 1993-1998 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 */
 
@@ -16,7 +16,6 @@ COPYRIGHT 1993-1998 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
  * Created from version 1.11 of main\wall.c
  *
  */
-
 
 #include <stdio.h>
 #include <stdlib.h>
@@ -35,11 +34,11 @@ COPYRIGHT 1993-1998 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 #include "texmerge.h"
 #include "medrobot.h"
 #include "timer.h"
+#include "cntrlcen.h"
 #include "key.h"
 #include "ehostage.h"
 #include "centers.h"
 #include "piggy.h"
-#include "cntrlcen.h"
 
 int wall_add_door_flag(sbyte flag);
 int wall_add_to_side(segment *segp, int side, sbyte type);
@@ -415,32 +414,20 @@ void do_wall_window()
 	// If we change walls, we need to reset the ui code for all
 	// of the checkboxes that control the wall flags.  
 	//------------------------------------------------------------
-	if (old_wall_num != Cursegp->sides[Curside].wall_num) {
-		for (	i=0; i < 3; i++ )	{
-			DoorFlag[i]->flag = 0;		// Tells ui that this button isn't checked
-			DoorFlag[i]->status = 1;	// Tells ui to redraw button
-		}
-		for (	i=0; i < 4; i++ )	{
-			KeyFlag[i]->flag = 0;		// Tells ui that this button isn't checked
-			KeyFlag[i]->status = 1;		// Tells ui to redraw button
-		}
+	if (old_wall_num != Cursegp->sides[Curside].wall_num)
+	{
+		if ( Cursegp->sides[Curside].wall_num != -1)
+		{
+			wall *w = &Walls[Cursegp->sides[Curside].wall_num];
 
-		if ( Cursegp->sides[Curside].wall_num != -1) {
-			if (Walls[Cursegp->sides[Curside].wall_num].flags & WALL_DOOR_LOCKED)			
-				DoorFlag[0]->flag = 1;	// Mark this button as checked
-			if (Walls[Cursegp->sides[Curside].wall_num].flags & WALL_DOOR_AUTO)
-				DoorFlag[1]->flag = 1;	// Mark this button as checked
-			if (Walls[Cursegp->sides[Curside].wall_num].flags & WALL_ILLUSION_OFF)
-				DoorFlag[2]->flag = 1;	// Mark this button as checked
+			ui_checkbox_check(DoorFlag[0], w->flags & WALL_DOOR_LOCKED);
+			ui_checkbox_check(DoorFlag[1], w->flags & WALL_DOOR_AUTO);
+			ui_checkbox_check(DoorFlag[2], w->flags & WALL_ILLUSION_OFF);
 
-			if (Walls[Cursegp->sides[Curside].wall_num].keys & KEY_NONE)
-				KeyFlag[0]->flag = 1;
-			if (Walls[Cursegp->sides[Curside].wall_num].keys & KEY_BLUE)
-				KeyFlag[1]->flag = 1;
-			if (Walls[Cursegp->sides[Curside].wall_num].keys & KEY_RED)
-				KeyFlag[2]->flag = 1;
-			if (Walls[Cursegp->sides[Curside].wall_num].keys & KEY_GOLD)
-				KeyFlag[3]->flag = 1;
+			ui_radio_set_value(KeyFlag[0], w->keys & KEY_NONE);
+			ui_radio_set_value(KeyFlag[1], w->keys & KEY_BLUE);
+			ui_radio_set_value(KeyFlag[2], w->keys & KEY_RED);
+			ui_radio_set_value(KeyFlag[3], w->keys & KEY_GOLD);
 		}
 	}
 	
@@ -469,17 +456,10 @@ void do_wall_window()
 			}
 		}
 	} else {
-		for (	i=0; i < 2; i++ )	
-			if (DoorFlag[i]->flag == 1) { 
-				DoorFlag[i]->flag = 0;		// Tells ui that this button isn't checked
-				DoorFlag[i]->status = 1;	// Tells ui to redraw button
-			}
-		for (	i=0; i < 4; i++ )	{
-			if ( KeyFlag[i]->flag == 1 ) {
-				KeyFlag[i]->flag = 0;		
-				KeyFlag[i]->status = 1;		
-			}
-		}
+		for (i = 0; i < 2; i++)
+			ui_checkbox_check(DoorFlag[i], 0);
+		for (	i=0; i < 4; i++ )
+			ui_radio_set_value(KeyFlag[i], 0);
 	}
 
 	if (Walls[Cursegp->sides[Curside].wall_num].type == WALL_ILLUSION) {
@@ -584,6 +564,8 @@ void do_wall_window()
 
 
 //---------------------------------------------------------------------
+extern void wall_close_door_num(int door_num);
+
 // Restore all walls to original status (closed doors, repaired walls)
 int wall_restore_all()
 {
@@ -602,7 +584,7 @@ int wall_restore_all()
 	}
 
 	for (i=0;i<Num_open_doors;i++)
-		wall_close_door(i);
+		wall_close_door_num(i);
 
 	for (i=0;i<Num_segments;i++)
 		for (j=0;j<MAX_SIDES_PER_SEGMENT;j++) {
@@ -996,7 +978,7 @@ int wall_unlink_door()
 int check_walls() 
 {
 	int w, seg, side, wall_count, trigger_count;
-	int w1, w2, t, l;
+	int w1;
 	count_wall CountedWalls[MAX_WALLS];
 	char Message[DIAGNOSTIC_MESSAGE_MAX];
 	int matcen_num;
@@ -1203,11 +1185,11 @@ void copy_old_wall_data_to_new(int owall, int nwall)
 }
 
 //typedef struct trigger {
-//	byte		type;
+//	sbyte		type;
 //	short		flags;
 //	fix		value;
 //	fix		time;
-//	byte		link_num;
+//	sbyte		link_num;
 //	short 	num_links;
 //	short 	seg[MAX_WALLS_PER_LINK];
 //	short		side[MAX_WALLS_PER_LINK];

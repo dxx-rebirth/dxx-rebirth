@@ -7,7 +7,7 @@ IN USING, DISPLAYING,  AND CREATING DERIVATIVE WORKS THEREOF, SO LONG AS
 SUCH USE, DISPLAY OR CREATION IS FOR NON-COMMERCIAL, ROYALTY OR REVENUE
 FREE PURPOSES.  IN NO EVENT SHALL THE END-USER USE THE COMPUTER CODE
 CONTAINED HEREIN FOR REVENUE-BEARING PURPOSES.  THE END-USER UNDERSTANDS
-AND AGREES TO THE TERMS HEREIN AND ACCEPTS THE SAME BY USE OF THIS FILE.  
+AND AGREES TO THE TERMS HEREIN AND ACCEPTS THE SAME BY USE OF THIS FILE.
 COPYRIGHT 1993-1998 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 */
 
@@ -16,7 +16,6 @@ COPYRIGHT 1993-1998 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
  * Editor switch functions.
  *
  */
-
 
 #include <stdio.h>
 #include <stdlib.h>
@@ -31,9 +30,7 @@ COPYRIGHT 1993-1998 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 #include "gameseg.h"
 #include "wall.h"
 #include "medwall.h"
-
 #include "screens.h"
-
 #include "textures.h"
 #include "texmerge.h"
 #include "medrobot.h"
@@ -181,7 +178,8 @@ int bind_matcen_to_trigger() {
 		return 0;
 	}
 
-	if (!(Cursegp->special & SEGMENT_IS_ROBOTMAKER)) {
+	if (!(Cursegp->special & SEGMENT_IS_ROBOTMAKER))
+	{
 		editor_status("No Matcen at Cursegp.");
 		return 0;
 	}
@@ -253,36 +251,39 @@ int bind_wall_to_trigger() {
 	return 1;
 }
 
-int remove_trigger(segment *seg, short side)
-{    	
-	int trigger_num, t, w;
-
-	if (seg->sides[side].wall_num == -1) {
-		return 0;
-	}
-
-	trigger_num = Walls[seg->sides[side].wall_num].trigger;
-
-	if (trigger_num != -1) {
-		Walls[seg->sides[side].wall_num].trigger = -1;
-		for (t=trigger_num;t<Num_triggers-1;t++)
-			Triggers[t] = Triggers[t+1];
+int remove_trigger_num(int trigger_num)
+{
+	if (trigger_num != -1)
+	{
+		int t, w;
 	
-		for (w=0; w<Num_walls; w++) {
-			if (Walls[w].trigger > trigger_num) 
+		Num_triggers--;
+		for (t = trigger_num; t < Num_triggers; t++)
+			Triggers[t] = Triggers[t + 1];
+	
+		for (w = 0; w < Num_walls; w++)
+		{
+			if (Walls[w].trigger == trigger_num)
+				Walls[w].trigger = -1;	// a trigger can be shared by multiple walls
+			else if (Walls[w].trigger > trigger_num) 
 				Walls[w].trigger--;
 		}
 
-		Num_triggers--;
-		for (t=0;t<Num_walls;t++)
-			if (Walls[seg->sides[side].wall_num].trigger > trigger_num)
-				Walls[seg->sides[side].wall_num].trigger--;
-		
 		return 1;
 	}
 
 	editor_status("No trigger to remove");
 	return 0;
+}
+
+int remove_trigger(segment *seg, short side)
+{    	
+	if (seg->sides[side].wall_num == -1)
+	{
+		return 0;
+	}
+
+	return remove_trigger_num(Walls[seg->sides[side].wall_num].trigger);
 }
 
 
@@ -398,33 +399,22 @@ void do_trigger_window()
 		trigger_num = Walls[Markedwall].trigger;
 	else trigger_num = -1;
 
-	if (old_trigger_num != trigger_num ) {
-		for (	i=0; i < NUM_TRIGGER_FLAGS; i++ )	{
-			TriggerFlag[i]->flag = 0;				// Tells ui that this button isn't checked
-			TriggerFlag[i]->status = 1;				// Tells ui to redraw button
-		}
+	if (old_trigger_num != trigger_num)
+	{
+		if (trigger_num != -1)
+		{
+			trigger *trig = &Triggers[trigger_num];
 
-		if (trigger_num != -1) {
-  			if (Triggers[trigger_num].flags & TRIGGER_CONTROL_DOORS)
-				TriggerFlag[0]->flag = 1;
- 			if (Triggers[trigger_num].flags & TRIGGER_SHIELD_DAMAGE)
-				TriggerFlag[1]->flag = 1;
- 			if (Triggers[trigger_num].flags & TRIGGER_ENERGY_DRAIN)
-				TriggerFlag[2]->flag = 1;
- 			if (Triggers[trigger_num].flags & TRIGGER_EXIT)
-				TriggerFlag[3]->flag = 1;
- 			if (Triggers[trigger_num].flags & TRIGGER_ONE_SHOT)
-				TriggerFlag[4]->flag = 1;
- 			if (Triggers[trigger_num].flags & TRIGGER_ILLUSION_ON)
-				TriggerFlag[5]->flag = 1;
- 			if (Triggers[trigger_num].flags & TRIGGER_ILLUSION_OFF)
-				TriggerFlag[6]->flag = 1;
- 			if (Triggers[trigger_num].flags & TRIGGER_ON)
-				TriggerFlag[7]->flag = 1;
- 			if (Triggers[trigger_num].flags & TRIGGER_MATCEN)
-				TriggerFlag[8]->flag = 1;
- 			if (Triggers[trigger_num].flags & TRIGGER_SECRET_EXIT)
-				TriggerFlag[9]->flag = 1;
+  			ui_checkbox_check(TriggerFlag[0], trig->flags & TRIGGER_CONTROL_DOORS);
+ 			ui_checkbox_check(TriggerFlag[1], trig->flags & TRIGGER_SHIELD_DAMAGE);
+ 			ui_checkbox_check(TriggerFlag[2], trig->flags & TRIGGER_ENERGY_DRAIN);
+ 			ui_checkbox_check(TriggerFlag[3], trig->flags & TRIGGER_EXIT);
+ 			ui_checkbox_check(TriggerFlag[4], trig->flags & TRIGGER_ONE_SHOT);
+ 			ui_checkbox_check(TriggerFlag[5], trig->flags & TRIGGER_ILLUSION_ON);
+ 			ui_checkbox_check(TriggerFlag[6], trig->flags & TRIGGER_ILLUSION_OFF);
+ 			ui_checkbox_check(TriggerFlag[7], trig->flags & TRIGGER_ON);
+ 			ui_checkbox_check(TriggerFlag[8], trig->flags & TRIGGER_MATCEN);
+ 			ui_checkbox_check(TriggerFlag[9], trig->flags & TRIGGER_SECRET_EXIT);
 		}
 	}
 	
@@ -477,12 +467,9 @@ void do_trigger_window()
 			trigger_remove_flag_from_Markedside(TRIGGER_SECRET_EXIT);
 
 	} else
-		for (	i=0; i < NUM_TRIGGER_FLAGS; i++ )
-			if (TriggerFlag[i]->flag == 1) { 
-				TriggerFlag[i]->flag = 0;					// Tells ui that this button isn't checked
-				TriggerFlag[i]->status = 1;				// Tells ui to redraw button
-			}
-	
+		for (i = 0; i < NUM_TRIGGER_FLAGS; i++ )
+			ui_checkbox_check(TriggerFlag[i], 0);
+
 	//------------------------------------------------------------
 	// Draw the wall in the little 64x64 box
 	//------------------------------------------------------------

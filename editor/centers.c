@@ -7,7 +7,7 @@ IN USING, DISPLAYING,  AND CREATING DERIVATIVE WORKS THEREOF, SO LONG AS
 SUCH USE, DISPLAY OR CREATION IS FOR NON-COMMERCIAL, ROYALTY OR REVENUE
 FREE PURPOSES.  IN NO EVENT SHALL THE END-USER USE THE COMPUTER CODE
 CONTAINED HEREIN FOR REVENUE-BEARING PURPOSES.  THE END-USER UNDERSTANDS
-AND AGREES TO THE TERMS HEREIN AND ACCEPTS THE SAME BY USE OF THIS FILE.  
+AND AGREES TO THE TERMS HEREIN AND ACCEPTS THE SAME BY USE OF THIS FILE.
 COPYRIGHT 1993-1998 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 */
 
@@ -16,7 +16,6 @@ COPYRIGHT 1993-1998 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
  * Dialog box stuff for control centers, material centers, etc.
  *
  */
-
 
 #include <stdio.h>
 #include <stdlib.h>
@@ -28,7 +27,6 @@ COPYRIGHT 1993-1998 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 #include "inferno.h"
 #include "segment.h"
 #include "editor.h"
-
 #include "timer.h"
 #include "objpage.h"
 #include "fix.h"
@@ -95,7 +93,7 @@ int do_centers_dialog()
 	CenterFlag[3] = ui_add_gadget_radio( MainWindow, 18, i, 16, 16, 0, "ControlCen" );	i += 24;
 	CenterFlag[4] = ui_add_gadget_radio( MainWindow, 18, i, 16, 16, 0, "RobotCen" );		i += 24;
 
-	// These are the checkboxes for each door flag.
+	// These are the checkboxes for each robot flag.
 	for (i=0; i<N_robot_types; i++)
 		RobotMatFlag[i] = ui_add_gadget_checkbox( MainWindow, 128 + (i%2)*92, 20+(i/2)*24, 16, 16, 0, Robot_names[i]);
 																									  
@@ -127,27 +125,20 @@ void do_centers_window()
 	ui_window_do_gadgets(MainWindow);
 
 	//------------------------------------------------------------
-	// If we change walls, we need to reset the ui code for all
-	// of the checkboxes that control the wall flags.  
+	// If we change centers, we need to reset the ui code for all
+	// of the checkboxes that control the center flags.  
 	//------------------------------------------------------------
-	if (old_seg_num != Cursegp-Segments) {
-		for (	i=0; i < MAX_CENTER_TYPES; i++ ) {
-			CenterFlag[i]->flag = 0;		// Tells ui that this button isn't checked
-			CenterFlag[i]->status = 1;		// Tells ui to redraw button
-		}
+	if (old_seg_num != Cursegp-Segments)
+	{
+		for (i = 0; i < MAX_CENTER_TYPES; i++)
+			ui_radio_set_value(CenterFlag[i], 0);
 
 		Assert(Cursegp->special < MAX_CENTER_TYPES);
-		CenterFlag[Cursegp->special]->flag = 1;
+		ui_radio_set_value(CenterFlag[Cursegp->special], 1);
 
 		//	Read materialization center robot bit flags
-		for (	i=0; i < N_robot_types; i++ ) {
-			RobotMatFlag[i]->status = 1;		// Tells ui to redraw button
-			if (RobotCenters[Cursegp->matcen_num].robot_flags & (1 << i))
-				RobotMatFlag[i]->flag = 1;		// Tells ui that this button is checked
-			else
-				RobotMatFlag[i]->flag = 0;		// Tells ui that this button is not checked
-		}
-
+		for (i = 0; i < N_robot_types; i++)
+			ui_checkbox_check(RobotMatFlag[i], RobotCenters[Cursegp->matcen_num].robot_flags & (1 << i));
 	}
 
 	//------------------------------------------------------------
@@ -161,7 +152,8 @@ void do_centers_window()
                  {
 			if ( i == 0)
 				fuelcen_delete(Cursegp);
-			else if ( Cursegp->special != i ) {
+			else if (Cursegp->special != i)
+			{
 				fuelcen_delete(Cursegp);
 				redraw_window = 1;
 				fuelcen_activate( Cursegp, i );
@@ -169,14 +161,12 @@ void do_centers_window()
                  }
 	}
 
-	for (	i=0; i < N_robot_types; i++ )	{
-		if ( RobotMatFlag[i]->flag == 1 ) {
-			if (!(RobotCenters[Cursegp->matcen_num].robot_flags & (1<<i) )) {
-				RobotCenters[Cursegp->matcen_num].robot_flags |= (1<<i);
-			} 
-		} else if (RobotCenters[Cursegp->matcen_num].robot_flags & 1<<i) {
-			RobotCenters[Cursegp->matcen_num].robot_flags &= ~(1<<i);
-		}
+	for (i = 0; i < N_robot_types; i++)
+	{
+		if ( RobotMatFlag[i]->flag == 1 )
+			RobotCenters[Cursegp->matcen_num].robot_flags |= (1 << i);
+		else
+			RobotCenters[Cursegp->matcen_num].robot_flags &= ~(1 << i);
 	}
 	
 	//------------------------------------------------------------

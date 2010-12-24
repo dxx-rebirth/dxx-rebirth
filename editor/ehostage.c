@@ -7,7 +7,7 @@ IN USING, DISPLAYING,  AND CREATING DERIVATIVE WORKS THEREOF, SO LONG AS
 SUCH USE, DISPLAY OR CREATION IS FOR NON-COMMERCIAL, ROYALTY OR REVENUE
 FREE PURPOSES.  IN NO EVENT SHALL THE END-USER USE THE COMPUTER CODE
 CONTAINED HEREIN FOR REVENUE-BEARING PURPOSES.  THE END-USER UNDERSTANDS
-AND AGREES TO THE TERMS HEREIN AND ACCEPTS THE SAME BY USE OF THIS FILE.  
+AND AGREES TO THE TERMS HEREIN AND ACCEPTS THE SAME BY USE OF THIS FILE.
 COPYRIGHT 1993-1998 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 */
 
@@ -20,11 +20,6 @@ COPYRIGHT 1993-1998 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 
 #include <stdlib.h>
 #include <stdio.h>
-#ifndef __LINUX__
-#include <conio.h>
-#include <dos.h>
-#include <direct.h>
-#endif 
 #include <string.h>
 #include <math.h>
 
@@ -185,9 +180,9 @@ int PlaceHostage()	{
 
 	Assert( ctype != -1 );
 
-	if (place_object(Cursegp, &cur_object_loc, ctype )==0)	{
+	if (place_object(Cursegp, &cur_object_loc, ctype, 0 )==0)	{
 		Int3();		// Debug below
-		i=place_object(Cursegp, &cur_object_loc, ctype );
+		i=place_object(Cursegp, &cur_object_loc, ctype, 0 );
 		return 1;
 	}
 

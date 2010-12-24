@@ -7,7 +7,7 @@ IN USING, DISPLAYING,  AND CREATING DERIVATIVE WORKS THEREOF, SO LONG AS
 SUCH USE, DISPLAY OR CREATION IS FOR NON-COMMERCIAL, ROYALTY OR REVENUE
 FREE PURPOSES.  IN NO EVENT SHALL THE END-USER USE THE COMPUTER CODE
 CONTAINED HEREIN FOR REVENUE-BEARING PURPOSES.  THE END-USER UNDERSTANDS
-AND AGREES TO THE TERMS HEREIN AND ACCEPTS THE SAME BY USE OF THIS FILE.  
+AND AGREES TO THE TERMS HEREIN AND ACCEPTS THE SAME BY USE OF THIS FILE.
 COPYRIGHT 1993-1998 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 */
 
@@ -16,7 +16,6 @@ COPYRIGHT 1993-1998 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
  * Routines for recording/playing/saving macros
  *
  */
-
 
 #include <stdio.h>
 #include <stdlib.h>
@@ -35,10 +34,7 @@ COPYRIGHT 1993-1998 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 #include "bm.h"
 #include "error.h"
 #include "medlisp.h"
-#include "cflib.h"
-
 #include "kdefs.h"
-
 #include "u_mem.h"
 
 #define MAX_NUM_EVENTS 10000
@@ -48,7 +44,7 @@ UI_EVENT * RecordBuffer;
 int MacroNumEvents = 0;
 int MacroStatus = 0;
 
-static char filename[128] = "*.MIN";
+static char filename[PATH_MAX] = "*.MIN";
 
 int MacroRecordAll()
 {
@@ -105,22 +101,38 @@ int MacroSave()
 		return 1;
 	}
 
-	if (ui_get_filename( filename, "*.MAC", "SAVE MACRO" ))   {
+	if (ui_get_filename( filename, "*.MAC", "SAVE MACRO" ))
+	{
+		PHYSFS_file *fp = PHYSFS_openWrite(filename);
+
+		if (!fp) return 0;
 		RecordBuffer[0].type = 7;
 		RecordBuffer[0].frame = 0;
 		RecordBuffer[0].data = MacroNumEvents;
-		WriteFile(  filename, RecordBuffer, sizeof(UI_EVENT)*MacroNumEvents );
+		PHYSFS_write(fp, RecordBuffer, sizeof(UI_EVENT), MacroNumEvents);
+		PHYSFS_close(fp);
 	}
 	return 1;
 }
 
 int MacroLoad()
 {
-	int length;
+	if (ui_get_filename( filename, "*.MAC", "LOAD MACRO" ))
+	{
+		PHYSFS_file *fp = PHYSFS_openRead(filename);
+		int length;
 
-	if (ui_get_filename( filename, "*.MAC", "LOAD MACRO" ))   {
-		if (RecordBuffer) d_free( RecordBuffer );
-		RecordBuffer = (UI_EVENT *)ReadFile( filename, &length );
+		if (!fp)
+			return 0;
+		if (RecordBuffer)
+			d_free( RecordBuffer );
+		length = PHYSFS_fileLength(fp);
+		RecordBuffer = d_malloc(length);
+		if (!RecordBuffer)
+			return 0;
+
+		PHYSFS_read(fp, RecordBuffer, length, 1);
+		PHYSFS_close(fp);
 		MacroNumEvents = RecordBuffer[0].data;
 	}
 	return 1;

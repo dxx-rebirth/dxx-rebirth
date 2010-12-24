@@ -1,3 +1,4 @@
+/* $Id: seguvs.h,v 1.1.1.1 2006/03/17 19:58:39 zicodxx Exp $ */
 /*
 THE COMPUTER CODE CONTAINED HEREIN IS THE SOLE PROPERTY OF PARALLAX
 SOFTWARE CORPORATION ("PARALLAX").  PARALLAX, IN DISTRIBUTING THE CODE TO
@@ -7,41 +8,15 @@ IN USING, DISPLAYING,  AND CREATING DERIVATIVE WORKS THEREOF, SO LONG AS
 SUCH USE, DISPLAY OR CREATION IS FOR NON-COMMERCIAL, ROYALTY OR REVENUE
 FREE PURPOSES.  IN NO EVENT SHALL THE END-USER USE THE COMPUTER CODE
 CONTAINED HEREIN FOR REVENUE-BEARING PURPOSES.  THE END-USER UNDERSTANDS
-AND AGREES TO THE TERMS HEREIN AND ACCEPTS THE SAME BY USE OF THIS FILE.  
+AND AGREES TO THE TERMS HEREIN AND ACCEPTS THE SAME BY USE OF THIS FILE.
 COPYRIGHT 1993-1998 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 */
+
 /*
- * $Source: /cvsroot/dxx-rebirth/d1x-rebirth/include/editor/seguvs.h,v $
- * $Revision: 1.1.1.1 $
- * $Author: zicodxx $
- * $Date: 2006/03/17 19:46:43 $
- * 
+ *
  * Header for seguvs.c
- * 
- * $Log: seguvs.h,v $
- * Revision 1.1.1.1  2006/03/17 19:46:43  zicodxx
- * initial import
  *
- * Revision 1.1.1.1  1999/06/14 22:02:40  donut
- * Import of d1x 1.37 source.
- *
- * Revision 2.0  1995/02/27  11:34:58  john
- * Version 2.0! No anonymous unions, Watcom 10.0, with no need
- * for bitmaps.tbl.
- * 
- * Revision 1.3  1994/08/03  10:32:28  mike
- * Add stretch_uvs_from_curedge.
- * 
- * Revision 1.2  1994/05/14  18:00:58  matt
- * Got rid of externs in source (non-header) files
- * 
- * Revision 1.1  1994/05/14  17:27:26  matt
- * Initial revision
- * 
- * 
  */
-
-
 
 #ifndef _SEGUVS_H
 #define _SEGUVS_H

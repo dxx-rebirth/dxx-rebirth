@@ -7,7 +7,7 @@ IN USING, DISPLAYING,  AND CREATING DERIVATIVE WORKS THEREOF, SO LONG AS
 SUCH USE, DISPLAY OR CREATION IS FOR NON-COMMERCIAL, ROYALTY OR REVENUE
 FREE PURPOSES.  IN NO EVENT SHALL THE END-USER USE THE COMPUTER CODE
 CONTAINED HEREIN FOR REVENUE-BEARING PURPOSES.  THE END-USER UNDERSTANDS
-AND AGREES TO THE TERMS HEREIN AND ACCEPTS THE SAME BY USE OF THIS FILE.  
+AND AGREES TO THE TERMS HEREIN AND ACCEPTS THE SAME BY USE OF THIS FILE.
 COPYRIGHT 1993-1998 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 */
 
@@ -38,24 +38,25 @@ void ui_draw_radio( UI_GADGET_RADIO * radio )
 		ui_mouse_hide();
 		gr_set_current_canvas( radio->canvas );
 
-		if (radio->flag)
-			gr_set_fontcolor( CRED, -1 );
+		if (CurWindow->keyboard_focus_gadget == (UI_GADGET *) radio)
+			gr_set_fontcolor(CRED, -1);
 		else
-			gr_set_fontcolor( CBLACK, -1 );
+			gr_set_fontcolor(CBLACK, -1);
 
 		if (radio->position == 0 )
 		{
 			ui_draw_box_out( 0, 0, radio->width-1, radio->height-1 );
-			ui_string_centered(  Middle(radio->width), Middle(radio->height), "�" );
+			if (radio->flag)
+				ui_string_centered(Middle(radio->width), Middle(radio->height), "O");
+			else
+				ui_string_centered(Middle(radio->width), Middle(radio->height), " ");
 		} else {
 			ui_draw_box_in( 0, 0, radio->width-1, radio->height-1 );
-			ui_string_centered(  Middle(radio->width)+1, Middle(radio->height)+1, "�" );
+			if (radio->flag)
+				ui_string_centered(Middle(radio->width) + 1, Middle(radio->height) + 1, "O");
+			else
+				ui_string_centered(Middle(radio->width) + 1, Middle(radio->height) + 1, " ");
 		}
-
-		if (CurWindow->keyboard_focus_gadget == (UI_GADGET *)radio)
-			gr_set_fontcolor( CRED, CWHITE );
-		else
-			gr_set_fontcolor( CBLACK, CWHITE );
 
 		gr_ustring( radio->width+4, 2, radio->text );
 
@@ -149,4 +150,26 @@ void ui_radio_do( UI_GADGET_RADIO * radio, int keypress )
 
 }
 
+void ui_radio_set_value(UI_GADGET_RADIO *radio, int value)
+{
+	UI_GADGET_RADIO *tmp;
 
+	value = value != 0;
+	if (radio->flag == value)
+		return;
+
+	radio->flag = value;
+	radio->status = 1;	// redraw
+
+	tmp = (UI_GADGET_RADIO *) radio->next;
+
+	while (tmp != radio)
+	{
+		if ((tmp->kind == 4) && (tmp->group == radio->group) && tmp->flag)
+		{
+			tmp->flag = 0;
+			tmp->status = 1;
+		}
+		tmp = (UI_GADGET_RADIO *) tmp->next;
+	}
+}

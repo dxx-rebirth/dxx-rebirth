@@ -1,3 +1,4 @@
+/* $Id: switch.h,v 1.1.1.1 2006/03/17 19:55:25 zicodxx Exp $ */
 /*
 THE COMPUTER CODE CONTAINED HEREIN IS THE SOLE PROPERTY OF PARALLAX
 SOFTWARE CORPORATION ("PARALLAX").  PARALLAX, IN DISTRIBUTING THE CODE TO
@@ -7,14 +8,14 @@ IN USING, DISPLAYING,  AND CREATING DERIVATIVE WORKS THEREOF, SO LONG AS
 SUCH USE, DISPLAY OR CREATION IS FOR NON-COMMERCIAL, ROYALTY OR REVENUE
 FREE PURPOSES.  IN NO EVENT SHALL THE END-USER USE THE COMPUTER CODE
 CONTAINED HEREIN FOR REVENUE-BEARING PURPOSES.  THE END-USER UNDERSTANDS
-AND AGREES TO THE TERMS HEREIN AND ACCEPTS THE SAME BY USE OF THIS FILE.  
+AND AGREES TO THE TERMS HEREIN AND ACCEPTS THE SAME BY USE OF THIS FILE.
 COPYRIGHT 1993-1998 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 */
 
 /*
- * 
+ *
  * Triggers and Switches.
- * 
+ *
  */
 
 #ifndef _SWITCH_H
@@ -23,11 +24,11 @@ COPYRIGHT 1993-1998 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 #include "inferno.h"
 #include "segment.h"
 
-#define	MAX_WALLS_PER_LINK		10
+#define MAX_TRIGGERS        100
+#define MAX_WALLS_PER_LINK  10
 
 #define	TRIGGER_DEFAULT			2*F1_0
 
-#define	MAX_TRIGGERS				100
 #define	MAX_WALL_SWITCHES			50
 #define	MAX_WALL_LINKS				100
 
@@ -40,8 +41,8 @@ COPYRIGHT 1993-1998 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 #define	TRIGGER_ONE_SHOT			  32	// If Trigger can only be triggered once
 #define	TRIGGER_MATCEN				  64	// Trigger for materialization centers
 #define	TRIGGER_ILLUSION_OFF		 128	// Switch Illusion OFF trigger
-#define	TRIGGER_ILLUSION_ON		 512	// Switch Illusion ON trigger
 #define	TRIGGER_SECRET_EXIT		 256	// Exit to secret level
+#define	TRIGGER_ILLUSION_ON		 512	// Switch Illusion ON trigger
 
 // Trigger delay times before they can be retriggered (Recharge time)
 #define	TRIGGER_DELAY_DOOR		F1_0*1	// 1 second for doors
@@ -92,6 +93,8 @@ extern void trigger_read(trigger *t, CFILE *fp);
  * reads n trigger structs from a CFILE and swaps if specified
  */
 extern void trigger_read_n_swap(trigger *t, int n, int swap, CFILE *fp);
+
+extern void trigger_write(trigger *t, short version, PHYSFS_file *fp);
 
 #endif
  

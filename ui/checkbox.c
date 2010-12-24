@@ -1,3 +1,4 @@
+/* $Id: checkbox.c,v 1.1.1.1 2006/03/17 19:52:20 zicodxx Exp $ */
 /*
 THE COMPUTER CODE CONTAINED HEREIN IS THE SOLE PROPERTY OF PARALLAX
 SOFTWARE CORPORATION ("PARALLAX").  PARALLAX, IN DISTRIBUTING THE CODE TO
@@ -7,43 +8,13 @@ IN USING, DISPLAYING,  AND CREATING DERIVATIVE WORKS THEREOF, SO LONG AS
 SUCH USE, DISPLAY OR CREATION IS FOR NON-COMMERCIAL, ROYALTY OR REVENUE
 FREE PURPOSES.  IN NO EVENT SHALL THE END-USER USE THE COMPUTER CODE
 CONTAINED HEREIN FOR REVENUE-BEARING PURPOSES.  THE END-USER UNDERSTANDS
-AND AGREES TO THE TERMS HEREIN AND ACCEPTS THE SAME BY USE OF THIS FILE.  
+AND AGREES TO THE TERMS HEREIN AND ACCEPTS THE SAME BY USE OF THIS FILE.
 COPYRIGHT 1993-1998 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 */
-/*
- * $Source: /cvsroot/dxx-rebirth/d1x-rebirth/ui/checkbox.c,v $
- * $Revision: 1.1.1.1 $
- * $Author: zicodxx $
- * $Date: 2006/03/17 19:39:13 $
- *
- * Routines for doing checkbox gadgets.
- *
- * $Log: checkbox.c,v $
- * Revision 1.1.1.1  2006/03/17 19:39:13  zicodxx
- * initial import
- *
- * Revision 1.1.1.1  1999/06/14 22:14:20  donut
- * Import of d1x 1.37 source.
- *
- * Revision 1.4  1993/12/07  12:30:47  john
- * new version.
- * 
- * Revision 1.3  1993/10/26  13:46:20  john
- * *** empty log message ***
- * 
- * Revision 1.2  1993/10/05  17:30:42  john
- * *** empty log message ***
- * 
- * Revision 1.1  1993/09/20  10:35:07  john
- * Initial revision
- * 
- *
- */
 
 #ifdef RCS
-static char rcsid[] = "$Id: checkbox.c,v 1.1.1.1 2006/03/17 19:39:13 zicodxx Exp $";
+static char rcsid[] = "$Id: checkbox.c,v 1.1.1.1 2006/03/17 19:52:20 zicodxx Exp $";
 #endif
-
 
 #include <stdlib.h>
 #include <string.h>
@@ -100,7 +71,7 @@ UI_GADGET_CHECKBOX * ui_add_gadget_checkbox( UI_WINDOW * wnd, short x, short y, 
 
 	checkbox = (UI_GADGET_CHECKBOX *)ui_gadget_add( wnd, 5, x, y, x+w-1, y+h-1 );
 
-	checkbox->text = d_malloc(strlen(text)+5);
+	checkbox->text = d_malloc(strlen(text) + 5);
 	strcpy(checkbox->text,text);
 	checkbox->width = w;
 	checkbox->height = h;
@@ -153,4 +124,14 @@ void ui_checkbox_do( UI_GADGET_CHECKBOX * checkbox, int keypress )
 
 	ui_draw_checkbox( checkbox );
 
+}
+
+void ui_checkbox_check(UI_GADGET_CHECKBOX * checkbox, int check)
+{
+	check = check != 0;
+	if (checkbox->flag == check)
+		return;
+	
+	checkbox->flag = check;
+	checkbox->status = 1;	// redraw
 }

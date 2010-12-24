@@ -7,7 +7,7 @@ IN USING, DISPLAYING,  AND CREATING DERIVATIVE WORKS THEREOF, SO LONG AS
 SUCH USE, DISPLAY OR CREATION IS FOR NON-COMMERCIAL, ROYALTY OR REVENUE
 FREE PURPOSES.  IN NO EVENT SHALL THE END-USER USE THE COMPUTER CODE
 CONTAINED HEREIN FOR REVENUE-BEARING PURPOSES.  THE END-USER UNDERSTANDS
-AND AGREES TO THE TERMS HEREIN AND ACCEPTS THE SAME BY USE OF THIS FILE.  
+AND AGREES TO THE TERMS HEREIN AND ACCEPTS THE SAME BY USE OF THIS FILE.
 COPYRIGHT 1993-1998 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 */
 
@@ -17,15 +17,16 @@ COPYRIGHT 1993-1998 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
  *
  */
 
-
 #include <stdio.h>
 #include <stdlib.h>
 #include <stdarg.h>
 #include <math.h>
 #include <string.h>
+
 #include "inferno.h"
 #include "segment.h"
 #include "editor.h"
+
 #include "objpage.h"
 #include "fix.h"
 #include "error.h"
@@ -37,12 +38,14 @@ COPYRIGHT 1993-1998 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 #include "bm.h"
 #include "3d.h"		//	For g3_point_to_vec
 #include	"fvi.h"
+
 #include "powerup.h"
 #include "fuelcen.h"
 #include "hostage.h"
 #include "medrobot.h"
 #include "player.h"
 #include "gameseg.h"
+#include "cntrlcen.h"
 
 #define	OBJ_SCALE		(F1_0/2)
 #define	OBJ_DEL_SIZE	(F1_0/2)
@@ -102,7 +105,7 @@ int get_next_object(segment *seg,int id)
 //@@}
 
 //	------------------------------------------------------------------------------------
-int place_object(segment *segp, vms_vector *object_pos, int object_type)
+int place_object(segment *segp, vms_vector *object_pos, short object_type, short object_id)
 {
         short objnum=0;
 	object *obj;
@@ -110,9 +113,10 @@ int place_object(segment *segp, vms_vector *object_pos, int object_type)
 
 	med_extract_matrix_from_segment(segp,&seg_matrix);
 
-	switch(ObjType[object_type]) {
+	switch (object_type)
+	{
 
-		case OL_HOSTAGE:
+		case OBJ_HOSTAGE:
 
 			objnum = obj_create(OBJ_HOSTAGE, -1, 
 					segp-Segments,object_pos,&seg_matrix,HOSTAGE_SIZE,
@@ -128,17 +132,17 @@ int place_object(segment *segp, vms_vector *object_pos, int object_type)
 		
 			obj->control_type = CT_POWERUP;
 			
-			obj->rtype.vclip_info.vclip_num = Hostage_vclip_num[ObjId[object_type]];
+			obj->rtype.vclip_info.vclip_num = Hostage_vclip_num[object_id];
 			obj->rtype.vclip_info.frametime = Vclip[obj->rtype.vclip_info.vclip_num].frame_time;
 			obj->rtype.vclip_info.framenum = 0;
 
 			break;
 
-		case OL_ROBOT:
+		case OBJ_ROBOT:
 
-			objnum = obj_create(OBJ_ROBOT,ObjId[object_type],segp-Segments,object_pos,
-				&seg_matrix,Polygon_models[Robot_info[ObjId[object_type]].model_num].rad,
-				CT_AI,MT_PHYSICS,RT_POLYOBJ);
+			objnum = obj_create(OBJ_ROBOT, object_id, segp - Segments, object_pos,
+				&seg_matrix, Polygon_models[Robot_info[object_id].model_num].rad,
+				CT_AI, MT_PHYSICS, RT_POLYOBJ);
 
 			if ( objnum < 0 )
 				return 0;
@@ -172,11 +176,11 @@ int place_object(segment *segp, vms_vector *object_pos, int object_type)
 			}
 			break;
 
-		case OL_POWERUP:
+		case OBJ_POWERUP:
 
-			objnum = obj_create(OBJ_POWERUP,ObjId[object_type],
-					segp-Segments,object_pos,&seg_matrix,Powerup_info[ObjId[object_type]].size,
-					CT_POWERUP,MT_NONE,RT_POWERUP);
+			objnum = obj_create(OBJ_POWERUP, object_id,
+					segp - Segments, object_pos, &seg_matrix, Powerup_info[object_id].size,
+					CT_POWERUP, MT_NONE, RT_POWERUP);
 
 			if ( objnum < 0 )
 				return 0;
@@ -196,43 +200,29 @@ int place_object(segment *segp, vms_vector *object_pos, int object_type)
 
 			break;
 
-		case OL_CLUTTER:
-		case OL_CONTROL_CENTER: 
+		case OBJ_CNTRLCEN: 
 		{
-			int obj_type,control_type;
-
-			if (ObjType[object_type]==OL_CONTROL_CENTER) {
-				obj_type = OBJ_CNTRLCEN;
-				control_type = CT_CNTRLCEN;
-			}
-			else {
-				obj_type = OBJ_CLUTTER;
-				control_type = CT_NONE;
-			}
-
-			objnum = obj_create(obj_type,object_type,segp-Segments,object_pos,
-					&seg_matrix,Polygon_models[ObjId[object_type]].rad,
-					control_type,MT_NONE,RT_POLYOBJ);
+			objnum = obj_create(OBJ_CNTRLCEN, object_id, segp - Segments, object_pos,
+					&seg_matrix, Polygon_models[object_id].rad,
+					CT_CNTRLCEN, MT_NONE, RT_POLYOBJ);
 
 			if ( objnum < 0 )
 				return 0;
 
 			obj = &Objects[objnum];
 
-			obj->shields = ObjStrength[object_type];
-
 			//Set polygon-object-specific data 
-			obj->shields = ObjStrength[object_type];
+			obj->shields = 0;	// stored in Reactor_strength or calculated
 			obj->rtype.pobj_info.model_num = ObjId[object_type];
 			obj->rtype.pobj_info.subobj_flags = 0;
 
 			break;
 		}
 
-		case OL_PLAYER:	{
-			objnum = obj_create(OBJ_PLAYER,ObjId[object_type],segp-Segments,object_pos,
-				&seg_matrix,Polygon_models[Player_ship->model_num].rad,
-				CT_NONE,MT_PHYSICS,RT_POLYOBJ);
+		case OBJ_PLAYER:	{
+			objnum = obj_create(OBJ_PLAYER, object_id, segp - Segments, object_pos,
+				&seg_matrix, Polygon_models[Player_ship->model_num].rad,
+				CT_NONE, MT_PHYSICS, RT_POLYOBJ);
 
 			if ( objnum < 0 )
 				return 0;
@@ -309,7 +299,8 @@ int ObjectPlaceObject(void)
 	vms_vector	cur_object_loc;
 
 #ifdef SHAREWARE
-	if (ObjType[Cur_robot_type] == OL_PLAYER) {
+	if (Cur_object_type == OBJ_PLAYER)
+	{
 		int num_players = compute_num_players();
 		Assert(num_players <= MAX_PLAYERS);
 		if (num_players == MAX_PLAYERS) {
@@ -320,7 +311,8 @@ int ObjectPlaceObject(void)
 #endif
 
 #ifndef SHAREWARE
-	if (ObjType[Cur_robot_type] == OL_PLAYER) {
+	if (Cur_object_type == OBJ_PLAYER)
+	{
 		int num_players = compute_num_players();
 		Assert(num_players <= MAX_MULTI_PLAYERS);
 		if (num_players > MAX_PLAYERS)
@@ -336,7 +328,7 @@ int ObjectPlaceObject(void)
 	compute_segment_center(&cur_object_loc, Cursegp);
 
 	old_cur_object_index = Cur_object_index;
-	rval = place_object(Cursegp, &cur_object_loc, Cur_robot_type);
+	rval = place_object(Cursegp, &cur_object_loc, Cur_object_type, Cur_object_id);
 
 	if (old_cur_object_index != Cur_object_index)
 		Objects[Cur_object_index].rtype.pobj_info.tmap_override = -1;
@@ -356,7 +348,7 @@ int ObjectPlaceObjectTmap(void)
 	compute_segment_center(&cur_object_loc, Cursegp);
 
 	old_cur_object_index = Cur_object_index;
-	rval = place_object(Cursegp, &cur_object_loc, Cur_robot_type);
+	rval = place_object(Cursegp, &cur_object_loc, Cur_object_type, Cur_object_id);
 
 	if ((Cur_object_index != old_cur_object_index) && (Objects[Cur_object_index].render_type == RT_POLYOBJ))
 		Objects[Cur_object_index].rtype.pobj_info.tmap_override = CurrentTexture;
@@ -477,7 +469,8 @@ int move_object_within_mine(object * obj, vms_vector *newpos )
 	int segnum;
 
 	for (segnum=0;segnum <= Highest_segment_index; segnum++) {
-		segmasks	result = get_seg_masks(&obj->pos,segnum,0,__FILE__,__LINE__);
+		segmasks result = get_seg_masks(&obj->pos, segnum, 0, __FILE__, __LINE__);
+
 		if (result.centermask == 0) {
 			int	fate;
 			fvi_info	hit_info;
@@ -511,7 +504,7 @@ int move_object_within_mine(object * obj, vms_vector *newpos )
 //	Return 0 if object is in expected segment, else return 1
 int verify_object_seg(object *objp, vms_vector *newpos)
 {
-	segmasks	result = get_seg_masks(newpos, objp->segnum, objp->size, __FILE__, __LINE__);
+	segmasks result = get_seg_masks(newpos, objp->segnum, objp->size, __FILE__, __LINE__);
 
 	if (result.facemask == 0)
 		return 0;
@@ -836,12 +829,11 @@ int ObjectIncreaseHeadingBig()	{return rotate_object(Cur_object_index, 0, 0, (RO
 //			t = - ----------------------
 //					  VxFx + VyFy + VzFz
 
-
 void move_object_to_position(int objnum, vms_vector *newpos)
 {
 	object	*objp = &Objects[objnum];
 
-	segmasks	result = get_seg_masks(newpos, objp->segnum, objp->size, __FILE__, __LINE__);
+	segmasks result = get_seg_masks(newpos, objp->segnum, objp->size, __FILE__, __LINE__);
 
 	if (result.facemask == 0) {
 		objp->pos = *newpos;

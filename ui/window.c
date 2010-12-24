@@ -7,7 +7,7 @@ IN USING, DISPLAYING,  AND CREATING DERIVATIVE WORKS THEREOF, SO LONG AS
 SUCH USE, DISPLAY OR CREATION IS FOR NON-COMMERCIAL, ROYALTY OR REVENUE
 FREE PURPOSES.  IN NO EVENT SHALL THE END-USER USE THE COMPUTER CODE
 CONTAINED HEREIN FOR REVENUE-BEARING PURPOSES.  THE END-USER UNDERSTANDS
-AND AGREES TO THE TERMS HEREIN AND ACCEPTS THE SAME BY USE OF THIS FILE.  
+AND AGREES TO THE TERMS HEREIN AND ACCEPTS THE SAME BY USE OF THIS FILE.
 COPYRIGHT 1993-1998 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 */
 
@@ -45,7 +45,7 @@ COPYRIGHT 1993-1998 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 #define W_NEXT          (wnd->next)
 #define W_PREV          (wnd->prev)
 
-#ifdef __LINUX__
+#ifndef __MSDOS__
 #define _disable()
 #define _enable()
 #endif
@@ -206,7 +206,7 @@ UI_WINDOW * ui_open_window( short x, short y, short w, short h, int flags )
 	UI_WINDOW * wnd;
 	int sw, sh, req_w, req_h;
 
-	wnd = (UI_WINDOW *)d_malloc(sizeof(UI_WINDOW));
+	wnd = (UI_WINDOW *) d_malloc(sizeof(UI_WINDOW));
 	if (wnd==NULL) Error("Could not create window: Out of memory");
 
 	W_NEXT = NULL;
@@ -217,7 +217,7 @@ UI_WINDOW * ui_open_window( short x, short y, short w, short h, int flags )
 	sw = grd_curscreen->sc_w;
 	sh = grd_curscreen->sc_h;
 
-// 	mouse_set_limits( 0,0, sw-1, sh-1 );
+	//mouse_set_limits(0, 0, sw - 1, sh - 1);
 
 	req_w = w;
 	req_h = h;
@@ -333,16 +333,16 @@ void ui_reset_idle_seconds()
 
 int ui_get_idle_seconds()
 {
-	return (((timer_query() - last_event)*10)/182);
+	return (timer_query() - last_event)/F1_0;
 }
 
 void ui_mega_process()
 {
 	int mx, my, mz;
 	unsigned char k;
-
-	event_process();
 	
+	event_process();
+
 	switch( Record )
 	{
 	case 0:

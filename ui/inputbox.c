@@ -1,3 +1,4 @@
+/* $Id: inputbox.c,v 1.1.1.1 2006/03/17 19:52:23 zicodxx Exp $ */
 /*
 THE COMPUTER CODE CONTAINED HEREIN IS THE SOLE PROPERTY OF PARALLAX
 SOFTWARE CORPORATION ("PARALLAX").  PARALLAX, IN DISTRIBUTING THE CODE TO
@@ -7,47 +8,12 @@ IN USING, DISPLAYING,  AND CREATING DERIVATIVE WORKS THEREOF, SO LONG AS
 SUCH USE, DISPLAY OR CREATION IS FOR NON-COMMERCIAL, ROYALTY OR REVENUE
 FREE PURPOSES.  IN NO EVENT SHALL THE END-USER USE THE COMPUTER CODE
 CONTAINED HEREIN FOR REVENUE-BEARING PURPOSES.  THE END-USER UNDERSTANDS
-AND AGREES TO THE TERMS HEREIN AND ACCEPTS THE SAME BY USE OF THIS FILE.  
+AND AGREES TO THE TERMS HEREIN AND ACCEPTS THE SAME BY USE OF THIS FILE.
 COPYRIGHT 1993-1998 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 */
-/*
- * $Source: /cvsroot/dxx-rebirth/d1x-rebirth/ui/inputbox.c,v $
- * $Revision: 1.1.1.1 $
- * $Author: zicodxx $
- * $Date: 2006/03/17 19:39:16 $
- *
- * Routines for doing inputbox gadgets.
- *
- * $Log: inputbox.c,v $
- * Revision 1.1.1.1  2006/03/17 19:39:16  zicodxx
- * initial import
- *
- * Revision 1.1.1.1  1999/06/14 22:14:27  donut
- * Import of d1x 1.37 source.
- *
- * Revision 1.6  1994/11/18  23:07:30  john
- * Changed a bunch of shorts to ints.
- * 
- * Revision 1.5  1994/07/22  17:02:17  john
- * fixed bug with inputbox not sucking up its keypresses.
- * 
- * Revision 1.4  1993/12/07  12:30:55  john
- * new version.
- * 
- * Revision 1.3  1993/10/26  13:45:59  john
- * *** empty log message ***
- * 
- * Revision 1.2  1993/10/05  17:30:50  john
- * *** empty log message ***
- * 
- * Revision 1.1  1993/09/20  10:35:12  john
- * Initial revision
- * 
- *
- */
 
 #ifdef RCS
-static char rcsid[] = "$Id: inputbox.c,v 1.1.1.1 2006/03/17 19:39:16 zicodxx Exp $";
+static char rcsid[] = "$Id: inputbox.c,v 1.1.1.1 2006/03/17 19:52:23 zicodxx Exp $";
 #endif
 
 #include <stdlib.h>
@@ -126,7 +92,7 @@ UI_GADGET_INPUTBOX * ui_add_gadget_inputbox( UI_WINDOW * wnd, short x, short y, 
 
 	f = 0;
 
-	inputbox->text = d_malloc( length + 1);
+	inputbox->text = d_malloc(length + 1);
 	strncpy( inputbox->text, text, length );
 	inputbox->position = strlen(inputbox->text);
 	inputbox->oldposition = inputbox->position;
@@ -148,7 +114,7 @@ UI_GADGET_INPUTBOX * ui_add_gadget_inputbox( UI_WINDOW * wnd, short x, short y, 
 
 void ui_inputbox_do( UI_GADGET_INPUTBOX * inputbox, int keypress )
 {
-    unsigned char ascii;
+	unsigned char ascii;
 	inputbox->oldposition = inputbox->position;
 
 	inputbox->pressed=0;
@@ -195,3 +161,13 @@ void ui_inputbox_do( UI_GADGET_INPUTBOX * inputbox, int keypress )
 	ui_draw_inputbox( inputbox );
 
 }
+
+void ui_inputbox_set_text(UI_GADGET_INPUTBOX *inputbox, char *text)
+{
+	strncpy(inputbox->text, text, inputbox->length + 1);
+	inputbox->position = strlen(text);
+	inputbox->oldposition = inputbox->position;
+	inputbox->status = 1;		// redraw
+	inputbox->first_time = 1;	// select all
+}
+

@@ -1,3 +1,4 @@
+/* $Id: listbox.c,v 1.1.1.1 2006/03/17 19:52:20 zicodxx Exp $ */
 /*
 THE COMPUTER CODE CONTAINED HEREIN IS THE SOLE PROPERTY OF PARALLAX
 SOFTWARE CORPORATION ("PARALLAX").  PARALLAX, IN DISTRIBUTING THE CODE TO
@@ -7,44 +8,12 @@ IN USING, DISPLAYING,  AND CREATING DERIVATIVE WORKS THEREOF, SO LONG AS
 SUCH USE, DISPLAY OR CREATION IS FOR NON-COMMERCIAL, ROYALTY OR REVENUE
 FREE PURPOSES.  IN NO EVENT SHALL THE END-USER USE THE COMPUTER CODE
 CONTAINED HEREIN FOR REVENUE-BEARING PURPOSES.  THE END-USER UNDERSTANDS
-AND AGREES TO THE TERMS HEREIN AND ACCEPTS THE SAME BY USE OF THIS FILE.  
+AND AGREES TO THE TERMS HEREIN AND ACCEPTS THE SAME BY USE OF THIS FILE.
 COPYRIGHT 1993-1998 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 */
-/*
- * $Source: /cvsroot/dxx-rebirth/d1x-rebirth/ui/listbox.c,v $
- * $Revision: 1.1.1.1 $
- * $Author: zicodxx $
- * $Date: 2006/03/17 19:39:13 $
- *
- * Routines for doing listbox gadgets.
- *
- * $Log: listbox.c,v $
- * Revision 1.1.1.1  2006/03/17 19:39:13  zicodxx
- * initial import
- *
- * Revision 1.1.1.1  1999/06/14 22:14:33  donut
- * Import of d1x 1.37 source.
- *
- * Revision 1.5  1994/11/18  23:07:32  john
- * Changed a bunch of shorts to ints.
- * 
- * Revision 1.4  1993/12/07  12:31:02  john
- * new version.
- * 
- * Revision 1.3  1993/10/26  13:46:16  john
- * *** empty log message ***
- * 
- * Revision 1.2  1993/10/05  17:30:15  john
- * *** empty log message ***
- * 
- * Revision 1.1  1993/09/20  10:34:45  john
- * Initial revision
- * 
- *
- */
 
 #ifdef RCS
-static char rcsid[] = "$Id: listbox.c,v 1.1.1.1 2006/03/17 19:39:13 zicodxx Exp $";
+static char rcsid[] = "$Id: listbox.c,v 1.1.1.1 2006/03/17 19:52:20 zicodxx Exp $";
 #endif
 
 #include <stdlib.h>
@@ -98,15 +67,16 @@ void ui_draw_listbox( UI_GADGET_LISTBOX * listbox )
 			else
 				gr_set_fontcolor( CBLACK, CGREY );
 		}
-		gr_string( x+2, y, listbox->list+i*listbox->text_width );
-		gr_get_string_size(listbox->list+i*listbox->text_width, &w, &h,&aw );
+		gr_string(x + 2, y, listbox->list[i]);
+		gr_get_string_size(listbox->list[i], &w, &h, &aw);
 
 		if (i==listbox->current_item)
 			gr_setcolor( CGREY );
 		else
 			gr_setcolor( CBLACK );
 
-		gr_rect( x+w+2, y, listbox->width-1, y+h-1 );
+		if (x + w + 2 < listbox->width - 1)
+			gr_rect(x + w + 2, y, listbox->width - 1, y + h - 1);
 		gr_rect( x, y, x+1, y+h-1 );
 
 		y += h;
@@ -138,7 +108,7 @@ void gr_draw_sunken_border( short x1, short y1, short x2, short y2 )
 }
 
 
-UI_GADGET_LISTBOX * ui_add_gadget_listbox( UI_WINDOW * wnd, short x, short y, short w, short h, short numitems, char *list, int text_width )
+UI_GADGET_LISTBOX * ui_add_gadget_listbox(UI_WINDOW *wnd, short x, short y, short w, short h, short numitems, char **list)
 {
 	int tw, th, taw, i;
 
@@ -151,8 +121,7 @@ UI_GADGET_LISTBOX * ui_add_gadget_listbox( UI_WINDOW * wnd, short x, short y, sh
 
 	listbox = (UI_GADGET_LISTBOX *)ui_gadget_add( wnd, 2, x, y, x+w-1, y+h-1 );
 
-    listbox->list = list;
-	listbox->text_width = text_width;
+	listbox->list = list;
 	listbox->width = w;
 	listbox->height = h;
 	listbox->num_items = numitems;
@@ -316,15 +285,15 @@ void ui_listbox_do( UI_GADGET_LISTBOX * listbox, int keypress )
 			else
 				mitem = (Mouse.y - listbox->y1)/listbox->textheight;
 
-			if  ( (mitem < 0 ) && ( timer_query() > listbox->last_scrolled+1) )
+			if ((mitem < 0) && (timer_query() > listbox->last_scrolled + 1))
 			{
 				listbox->current_item--;
 				listbox->last_scrolled = timer_query();
 				listbox->moved = 1;
 			}
 
-			if ( ( mitem >= listbox->num_items_displayed ) &&
-				 ( timer_query() > listbox->last_scrolled+1)         )
+			if ((mitem >= listbox->num_items_displayed) &&
+				 (timer_query() > listbox->last_scrolled + 1))
 			{
 				listbox->current_item++;
 				listbox->last_scrolled = timer_query();
@@ -386,7 +355,7 @@ void ui_listbox_do( UI_GADGET_LISTBOX * listbox, int keypress )
 
 }
 
-void ui_listbox_change( UI_WINDOW * wnd, UI_GADGET_LISTBOX * listbox, short numitems, char * list, int text_width )
+void ui_listbox_change(UI_WINDOW *wnd, UI_GADGET_LISTBOX *listbox, short numitems, char **list)
 {
 	int stop, start;
 	UI_GADGET_SCROLLBAR * scrollbar;
@@ -394,7 +363,6 @@ void ui_listbox_change( UI_WINDOW * wnd, UI_GADGET_LISTBOX * listbox, short numi
 	wnd = wnd;
 
 	listbox->list = list;
-	listbox->text_width = text_width;
 	listbox->num_items = numitems;
 	listbox->first_item = 0;
 	listbox->current_item = -1;

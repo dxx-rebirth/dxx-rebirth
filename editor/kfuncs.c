@@ -7,18 +7,17 @@ IN USING, DISPLAYING,  AND CREATING DERIVATIVE WORKS THEREOF, SO LONG AS
 SUCH USE, DISPLAY OR CREATION IS FOR NON-COMMERCIAL, ROYALTY OR REVENUE
 FREE PURPOSES.  IN NO EVENT SHALL THE END-USER USE THE COMPUTER CODE
 CONTAINED HEREIN FOR REVENUE-BEARING PURPOSES.  THE END-USER UNDERSTANDS
-AND AGREES TO THE TERMS HEREIN AND ACCEPTS THE SAME BY USE OF THIS FILE.  
+AND AGREES TO THE TERMS HEREIN AND ACCEPTS THE SAME BY USE OF THIS FILE.
 COPYRIGHT 1993-1998 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 */
 
 /*
+ *
  * .
  *
  */
 
-
 #include <stdlib.h>
-
 #include "inferno.h"
 #include "func.h"
 #include "editor/kdefs.h"
@@ -30,8 +29,7 @@ COPYRIGHT 1993-1998 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 #include "editor/eobject.h"
 #include "editor/medwall.h"
 
-// Test function prototypes (replace Test1, 2 and 3 with whatever function 
-//										you wish to test.)
+// Test function prototypes (replace Test1, 2 and 3 with whatever function you wish to test.)
 extern void test_create_path();
 extern void test_create_all_paths();
 extern void test_create_path_many();
@@ -236,8 +234,10 @@ FUNCTION med_functions[] = {
 {   "med-segment-exchange",             0,      ExchangeMarkandCurseg },
 {   "med-segment-mark",                 0,      CopySegToMarked },
 {	 "med-about",								 0,      ShowAbout },
+#ifndef NDEBUG
 {	 "med-mark-start",						 0,		MarkStart },
 {	 "med-mark-end",						 	 0,		MarkEnd },
+#endif
 
 //	In group.c
 {	 "med-group-load",						 0, 		LoadGroup },
@@ -346,7 +346,7 @@ FUNCTION med_functions[] = {
 
 {   "med-increase-draw-depth",          0,        IncreaseDrawDepth },
 {   "med-decrease-draw-depth",          0,        DecreaseDrawDepth },
-{   "med-goto-game",                    0,        GotoGame },
+{   "med-goto-main-menu",                    0,        GotoMainMenu },
 {   "med-goto-game-screen",             0,        GotoGameScreen },
 {   "med-drop-into-debugger",           0,        DropIntoDebugger },
 // {   "med-sync-large-view",              0,        SyncLargeView },
@@ -394,4 +394,5 @@ void init_med_functions()
 {
 	func_init(med_functions, (sizeof(med_functions)/sizeof(FUNCTION))-1 );
 }
+
 

@@ -1,3 +1,4 @@
+/* $Id: uidraw.c,v 1.1.1.1 2006/03/17 19:52:16 zicodxx Exp $ */
 /*
 THE COMPUTER CODE CONTAINED HEREIN IS THE SOLE PROPERTY OF PARALLAX
 SOFTWARE CORPORATION ("PARALLAX").  PARALLAX, IN DISTRIBUTING THE CODE TO
@@ -7,45 +8,14 @@ IN USING, DISPLAYING,  AND CREATING DERIVATIVE WORKS THEREOF, SO LONG AS
 SUCH USE, DISPLAY OR CREATION IS FOR NON-COMMERCIAL, ROYALTY OR REVENUE
 FREE PURPOSES.  IN NO EVENT SHALL THE END-USER USE THE COMPUTER CODE
 CONTAINED HEREIN FOR REVENUE-BEARING PURPOSES.  THE END-USER UNDERSTANDS
-AND AGREES TO THE TERMS HEREIN AND ACCEPTS THE SAME BY USE OF THIS FILE.  
+AND AGREES TO THE TERMS HEREIN AND ACCEPTS THE SAME BY USE OF THIS FILE.
 COPYRIGHT 1993-1998 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 */
-/*
- * $Source: /cvsroot/dxx-rebirth/d1x-rebirth/ui/uidraw.c,v $
- * $Revision: 1.1.1.1 $
- * $Author: zicodxx $
- * $Date: 2006/03/17 19:39:10 $
- *
- * Graphics primatives for the ui gadgets and windows.
- *
- * $Log: uidraw.c,v $
- * Revision 1.1.1.1  2006/03/17 19:39:10  zicodxx
- * initial import
- *
- * Revision 1.1.1.1  1999/06/14 22:14:43  donut
- * Import of d1x 1.37 source.
- *
- * Revision 1.5  1994/11/18  23:07:34  john
- * Changed a bunch of shorts to ints.
- * 
- * Revision 1.4  1994/09/13  11:20:22  john
- * Made ui_string_centered not clip.
- * 
- * Revision 1.3  1993/10/26  13:46:33  john
- * *** empty log message ***
- * 
- * Revision 1.2  1993/10/05  17:31:00  john
- * *** empty log message ***
- * 
- * Revision 1.1  1993/09/20  10:35:41  john
- * Initial revision
- * 
- *
- */
 
 #ifdef RCS
-static char rcsid[] = "$Id: uidraw.c,v 1.1.1.1 2006/03/17 19:39:10 zicodxx Exp $";
+static char rcsid[] = "$Id: uidraw.c,v 1.1.1.1 2006/03/17 19:52:16 zicodxx Exp $";
 #endif
+
 #include "fix.h"
 #include "pstypes.h"
 #include "gr.h"

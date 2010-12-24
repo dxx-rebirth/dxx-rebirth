@@ -79,6 +79,9 @@ extern sbyte	ObjId[MAX_OBJTYPE];			// ID of a robot, within its class, eg if Obj
 extern fix	ObjStrength[MAX_OBJTYPE];	// initial strength of each object
 
 #define MAX_OBJ_BITMAPS				210
+
+extern int  Num_object_subtypes;     // Number of possible IDs for the current type of object to be placed
+
 extern bitmap_index ObjBitmaps[MAX_OBJ_BITMAPS];
 extern ushort ObjBitmapPtrs[MAX_OBJ_BITMAPS];
 extern int First_multi_bitmap_num;

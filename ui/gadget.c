@@ -1,3 +1,4 @@
+/* $Id: gadget.c,v 1.1.1.1 2006/03/17 19:52:21 zicodxx Exp $ */
 /*
 THE COMPUTER CODE CONTAINED HEREIN IS THE SOLE PROPERTY OF PARALLAX
 SOFTWARE CORPORATION ("PARALLAX").  PARALLAX, IN DISTRIBUTING THE CODE TO
@@ -7,47 +8,12 @@ IN USING, DISPLAYING,  AND CREATING DERIVATIVE WORKS THEREOF, SO LONG AS
 SUCH USE, DISPLAY OR CREATION IS FOR NON-COMMERCIAL, ROYALTY OR REVENUE
 FREE PURPOSES.  IN NO EVENT SHALL THE END-USER USE THE COMPUTER CODE
 CONTAINED HEREIN FOR REVENUE-BEARING PURPOSES.  THE END-USER UNDERSTANDS
-AND AGREES TO THE TERMS HEREIN AND ACCEPTS THE SAME BY USE OF THIS FILE.  
+AND AGREES TO THE TERMS HEREIN AND ACCEPTS THE SAME BY USE OF THIS FILE.
 COPYRIGHT 1993-1998 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 */
-/*
- * $Source: /cvsroot/dxx-rebirth/d1x-rebirth/ui/gadget.c,v $
- * $Revision: 1.1.1.1 $
- * $Author: zicodxx $
- * $Date: 2006/03/17 19:39:14 $
- *
- * General routines for all the low-level gadgets.
- *
- * $Log: gadget.c,v $
- * Revision 1.1.1.1  2006/03/17 19:39:14  zicodxx
- * initial import
- *
- * Revision 1.1.1.1  1999/06/14 22:14:26  donut
- * Import of d1x 1.37 source.
- *
- * Revision 1.6  1994/08/09  09:56:48  matt
- * Save & restore curwindow around button processing
- * 
- * Revision 1.5  1994/04/22  11:10:13  john
- * *** empty log message ***
- * 
- * Revision 1.4  1993/12/07  12:31:11  john
- * new version.
- * 
- * Revision 1.3  1993/10/26  13:46:19  john
- * *** empty log message ***
- * 
- * Revision 1.2  1993/10/05  17:30:06  john
- * ,
- * 
- * Revision 1.1  1993/09/20  10:34:54  john
- * Initial revision
- * 
- *
- */
 
 #ifdef RCS
-static char rcsid[] = "$Id: gadget.c,v 1.1.1.1 2006/03/17 19:39:14 zicodxx Exp $";
+static char rcsid[] = "$Id: gadget.c,v 1.1.1.1 2006/03/17 19:52:21 zicodxx Exp $";
 #endif
 
 #include <stdio.h>
@@ -68,7 +34,7 @@ UI_GADGET * ui_gadget_add( UI_WINDOW * wnd, short kind, short x1, short y1, shor
 {
 	UI_GADGET * gadget;
 
-	gadget = (UI_GADGET *)d_malloc( sizeof(UI_GADGET) );
+	gadget = (UI_GADGET *) d_malloc(sizeof(UI_GADGET));
 	if (gadget==NULL) Error("Could not create gadget: Out of memory");
 
 	if (wnd->gadget == NULL )
@@ -109,6 +75,8 @@ UI_GADGET * ui_gadget_add( UI_WINDOW * wnd, short kind, short x1, short y1, shor
 void ui_gadget_delete_all( UI_WINDOW * wnd )
 {
 	UI_GADGET * tmp;
+
+	ui_pad_deactivate();
 
 	while( wnd->gadget != NULL )
 	{

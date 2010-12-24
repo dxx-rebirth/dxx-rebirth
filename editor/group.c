@@ -7,7 +7,7 @@ IN USING, DISPLAYING,  AND CREATING DERIVATIVE WORKS THEREOF, SO LONG AS
 SUCH USE, DISPLAY OR CREATION IS FOR NON-COMMERCIAL, ROYALTY OR REVENUE
 FREE PURPOSES.  IN NO EVENT SHALL THE END-USER USE THE COMPUTER CODE
 CONTAINED HEREIN FOR REVENUE-BEARING PURPOSES.  THE END-USER UNDERSTANDS
-AND AGREES TO THE TERMS HEREIN AND ACCEPTS THE SAME BY USE OF THIS FILE.  
+AND AGREES TO THE TERMS HEREIN AND ACCEPTS THE SAME BY USE OF THIS FILE.
 COPYRIGHT 1993-1998 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 */
 
@@ -16,7 +16,6 @@ COPYRIGHT 1993-1998 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
  * group functions
  *
  */
-
 
 #include <stdio.h>
 #include <string.h>
@@ -82,6 +81,213 @@ int		current_group=-1;
 int		num_groups=0;
 
 extern void validate_segment_side(segment *sp, int sidenum);
+
+// -- void swap_negate_columns(vms_matrix *rotmat, int col1, int col2)
+// -- {
+// -- 	fix	col1_1,col1_2,col1_3;
+// -- 	fix	col2_1,col2_2,col2_3;
+// -- 
+// -- 	switch (col1) {
+// -- 		case 0:
+// -- 			col1_1 = rotmat->m1;
+// -- 			col1_2 = rotmat->m2;
+// -- 			col1_3 = rotmat->m3;
+// -- 			break;
+// -- 
+// -- 		case 1:
+// -- 			col1_1 = rotmat->m4;
+// -- 			col1_2 = rotmat->m5;
+// -- 			col1_3 = rotmat->m6;
+// -- 			break;
+// -- 
+// -- 		case 2:
+// -- 			col1_1 = rotmat->m7;
+// -- 			col1_2 = rotmat->m8;
+// -- 			col1_3 = rotmat->m9;
+// -- 			break;
+// -- 	}
+// -- 
+// -- 	switch (col2) {
+// -- 		case 0:
+// -- 			col2_1 = rotmat->m1;
+// -- 			col2_2 = rotmat->m2;
+// -- 			col2_3 = rotmat->m3;
+// -- 			break;
+// -- 
+// -- 		case 1:
+// -- 			col2_1 = rotmat->m4;
+// -- 			col2_2 = rotmat->m5;
+// -- 			col2_3 = rotmat->m6;
+// -- 			break;
+// -- 
+// -- 		case 2:
+// -- 			col2_1 = rotmat->m7;
+// -- 			col2_2 = rotmat->m8;
+// -- 			col2_3 = rotmat->m9;
+// -- 			break;
+// -- 	}
+// -- 
+// -- 	switch (col2) {
+// -- 		case 0:
+// -- 			rotmat->m1 = -col1_1;
+// -- 			rotmat->m2 = -col1_2;
+// -- 			rotmat->m3 = -col1_3;
+// -- 			break;
+// -- 
+// -- 		case 1:
+// -- 			rotmat->m4 = -col1_1;
+// -- 			rotmat->m5 = -col1_2;
+// -- 			rotmat->m6 = -col1_3;
+// -- 			break;
+// -- 
+// -- 		case 2:
+// -- 			rotmat->m7 = -col1_1;
+// -- 			rotmat->m8 = -col1_2;
+// -- 			rotmat->m9 = -col1_3;
+// -- 			break;
+// -- 	}
+// -- 
+// -- 	switch (col1) {
+// -- 		case 0:
+// -- 			rotmat->m1 = -col2_1;
+// -- 			rotmat->m2 = -col2_2;
+// -- 			rotmat->m3 = -col2_3;
+// -- 			break;
+// -- 
+// -- 		case 1:
+// -- 			rotmat->m4 = -col2_1;
+// -- 			rotmat->m5 = -col2_2;
+// -- 			rotmat->m6 = -col2_3;
+// -- 			break;
+// -- 
+// -- 		case 2:
+// -- 			rotmat->m7 = -col2_1;
+// -- 			rotmat->m8 = -col2_2;
+// -- 			rotmat->m9 = -col2_3;
+// -- 			break;
+// -- 	}
+// -- 
+// -- }
+// -- 
+// -- void swap_negate_rows(vms_matrix *rotmat, int row1, int row2)
+// -- {
+// -- 	fix	row1_1,row1_2,row1_3;
+// -- 	fix	row2_1,row2_2,row2_3;
+// -- 
+// -- 	switch (row1) {
+// -- 		case 0:
+// -- 			row1_1 = rotmat->m1;
+// -- 			row1_2 = rotmat->m4;
+// -- 			row1_3 = rotmat->m7;
+// -- 			break;
+// -- 
+// -- 		case 1:
+// -- 			row1_1 = rotmat->m2;
+// -- 			row1_2 = rotmat->m5;
+// -- 			row1_3 = rotmat->m8;
+// -- 			break;
+// -- 
+// -- 		case 2:
+// -- 			row1_1 = rotmat->m3;
+// -- 			row1_2 = rotmat->m6;
+// -- 			row1_3 = rotmat->m9;
+// -- 			break;
+// -- 	}
+// -- 
+// -- 	switch (row2) {
+// -- 		case 0:
+// -- 			row2_1 = rotmat->m1;
+// -- 			row2_2 = rotmat->m4;
+// -- 			row2_3 = rotmat->m7;
+// -- 			break;
+// -- 
+// -- 		case 1:
+// -- 			row2_1 = rotmat->m2;
+// -- 			row2_2 = rotmat->m5;
+// -- 			row2_3 = rotmat->m8;
+// -- 			break;
+// -- 
+// -- 		case 2:
+// -- 			row2_1 = rotmat->m3;
+// -- 			row2_2 = rotmat->m6;
+// -- 			row2_3 = rotmat->m9;
+// -- 			break;
+// -- 	}
+// -- 
+// -- 	switch (row2) {
+// -- 		case 0:
+// -- 			rotmat->m1 = -row1_1;
+// -- 			rotmat->m4 = -row1_2;
+// -- 			rotmat->m7 = -row1_3;
+// -- 			break;
+// -- 
+// -- 		case 1:
+// -- 			rotmat->m2 = -row1_1;
+// -- 			rotmat->m5 = -row1_2;
+// -- 			rotmat->m8 = -row1_3;
+// -- 			break;
+// -- 
+// -- 		case 2:
+// -- 			rotmat->m3 = -row1_1;
+// -- 			rotmat->m6 = -row1_2;
+// -- 			rotmat->m9 = -row1_3;
+// -- 			break;
+// -- 	}
+// -- 
+// -- 	switch (row1) {
+// -- 		case 0:
+// -- 			rotmat->m1 = -row2_1;
+// -- 			rotmat->m4 = -row2_2;
+// -- 			rotmat->m7 = -row2_3;
+// -- 			break;
+// -- 
+// -- 		case 1:
+// -- 			rotmat->m2 = -row2_1;
+// -- 			rotmat->m5 = -row2_2;
+// -- 			rotmat->m8 = -row2_3;
+// -- 			break;
+// -- 
+// -- 		case 2:
+// -- 			rotmat->m3 = -row2_1;
+// -- 			rotmat->m6 = -row2_2;
+// -- 			rotmat->m9 = -row2_3;
+// -- 			break;
+// -- 	}
+// -- 
+// -- }
+// -- 
+// -- // ------------------------------------------------------------------------------------------------
+// -- void	side_based_matrix(vms_matrix *rotmat,int destside)
+// -- {
+// -- 	vms_angvec	rotvec;
+// -- 	vms_matrix	r1,rtemp;
+// -- 
+// -- 	switch (destside) {
+// -- 		case WLEFT:
+// -- //			swap_negate_columns(rotmat,1,2);
+// -- //			swap_negate_rows(rotmat,1,2);
+// -- 			break;
+// -- 
+// -- 		case WTOP:
+// -- 			break;
+// -- 
+// -- 		case WRIGHT:
+// -- //			swap_negate_columns(rotmat,1,2);
+// -- //			swap_negate_rows(rotmat,1,2);
+// -- 			break;
+// -- 
+// -- 		case WBOTTOM:
+// -- 			break;
+// -- 
+// -- 		case WFRONT:
+// -- 			break;
+// -- 
+// -- 		case WBACK:
+// -- 			break;
+// -- 	}
+// -- 
+// -- }
+
 
 // ------------------------------------------------------------------------------------------------
 //	Rotate a group about a point.
@@ -586,6 +792,7 @@ int med_move_group(int delta_flag, segment *base_seg, int base_side, segment *gr
 			objnum = Objects[objnum].next;
 		}
 	}
+
 	//	Now, rotate segments in group so orientation of group_seg is same as base_seg.
 	med_create_group_rotation_matrix(&rotmat, delta_flag, group_seg, group_side, base_seg, base_side, orient_matrix, orientation);
 	med_rotate_group(&rotmat, GroupList[current_group].segments, GroupList[current_group].num_segments, group_seg, group_side);
@@ -877,7 +1084,7 @@ int med_save_group( char *filename, short *vertex_ids, short *segment_ids, int n
 	group_fileinfo.texture_sizeof    =   13;  // num characters in a name
 
 	// Write the fileinfo
-	PHYSFS_write( SaveFile, &group_fileinfo, sizeof(group_fileinfo), 1 );
+	PHYSFS_write( SaveFile, &group_fileinfo, sizeof(group_fileinfo), 1);
 
 	//===================== SAVE HEADER INFO ========================
 
@@ -886,7 +1093,7 @@ int med_save_group( char *filename, short *vertex_ids, short *segment_ids, int n
 
 	// Write the editor info
 	header_offset = PHYSFS_tell(SaveFile);
-	PHYSFS_write( SaveFile, &group_header, sizeof(group_header), 1 );
+	PHYSFS_write( SaveFile, &group_header, sizeof(group_header), 1);
 
 	//===================== SAVE EDITOR INFO ==========================
 	group_editor.newsegment_offset   =   -1; // To be written
@@ -903,7 +1110,7 @@ int med_save_group( char *filename, short *vertex_ids, short *segment_ids, int n
 	group_editor.Groupside		 =   Groupside[current_group];
 
 	editor_offset = PHYSFS_tell(SaveFile);
-	PHYSFS_write( SaveFile, &group_editor, sizeof(group_editor), 1 );
+	PHYSFS_write( SaveFile, &group_editor, sizeof(group_editor), 1);
 
 
 	//===================== SAVE VERTEX INFO ==========================
@@ -911,7 +1118,7 @@ int med_save_group( char *filename, short *vertex_ids, short *segment_ids, int n
 	vertex_offset = PHYSFS_tell(SaveFile);
 	for (i=0;i<num_vertices;i++) {
 		tvert = Vertices[vertex_ids[i]];	
-		PHYSFS_write( SaveFile, &tvert, sizeof(tvert), 1 ); 
+		PHYSFS_write( SaveFile, &tvert, sizeof(tvert), 1); 
 	}
 
 	//===================== SAVE SEGMENT INFO =========================
@@ -939,7 +1146,7 @@ int med_save_group( char *filename, short *vertex_ids, short *segment_ids, int n
 					break;
 					}
 
-		PHYSFS_write( SaveFile, &tseg, sizeof(tseg), 1 );
+		PHYSFS_write( SaveFile, &tseg, sizeof(tseg), 1);
 
 	 }
 
@@ -950,7 +1157,7 @@ int med_save_group( char *filename, short *vertex_ids, short *segment_ids, int n
 	for (i=0;i<NumTextures;i++)
 		strncpy(current_tmap_list[i], TmapInfo[i].filename, 13);
 
-	PHYSFS_write( SaveFile, current_tmap_list, 13, NumTextures );
+	PHYSFS_write( SaveFile, current_tmap_list, 13, NumTextures);
 
 	//============= REWRITE FILE INFO, TO SAVE OFFSETS ===============
 
@@ -963,7 +1170,7 @@ int med_save_group( char *filename, short *vertex_ids, short *segment_ids, int n
 	
 	// Write the fileinfo
 	cfseek(  SaveFile, 0, SEEK_SET );  // Move to TOF
-	PHYSFS_write( SaveFile, &group_fileinfo, sizeof(group_fileinfo), 1 );
+	PHYSFS_write( SaveFile, &group_fileinfo, sizeof(group_fileinfo), 1);
 
 	//==================== CLOSE THE FILE =============================
 	PHYSFS_close(SaveFile);
@@ -1213,7 +1420,7 @@ int med_load_group( char *filename, short *vertex_ids, short *segment_ids, int *
 	return 0;
 }
 
-char group_filename[128] = "*.GRP";
+char group_filename[PATH_MAX] = "*.GRP";
 
 void checkforgrpext( char * f )
 {

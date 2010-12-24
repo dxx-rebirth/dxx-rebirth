@@ -1,3 +1,4 @@
+/* $Id: medwall.h,v 1.1.1.1 2006/03/17 19:58:48 zicodxx Exp $ */
 /*
 THE COMPUTER CODE CONTAINED HEREIN IS THE SOLE PROPERTY OF PARALLAX
 SOFTWARE CORPORATION ("PARALLAX").  PARALLAX, IN DISTRIBUTING THE CODE TO
@@ -7,58 +8,14 @@ IN USING, DISPLAYING,  AND CREATING DERIVATIVE WORKS THEREOF, SO LONG AS
 SUCH USE, DISPLAY OR CREATION IS FOR NON-COMMERCIAL, ROYALTY OR REVENUE
 FREE PURPOSES.  IN NO EVENT SHALL THE END-USER USE THE COMPUTER CODE
 CONTAINED HEREIN FOR REVENUE-BEARING PURPOSES.  THE END-USER UNDERSTANDS
-AND AGREES TO THE TERMS HEREIN AND ACCEPTS THE SAME BY USE OF THIS FILE.  
+AND AGREES TO THE TERMS HEREIN AND ACCEPTS THE SAME BY USE OF THIS FILE.
 COPYRIGHT 1993-1998 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 */
+
 /*
- * $Source: /cvsroot/dxx-rebirth/d1x-rebirth/include/editor/medwall.h,v $
- * $Revision: 1.1.1.1 $
- * $Author: zicodxx $
- * $Date: 2006/03/17 19:46:43 $
- * 
+ *
  * Created from version 1.6 of main\wall.h
- * 
- * $Log: medwall.h,v $
- * Revision 1.1.1.1  2006/03/17 19:46:43  zicodxx
- * initial import
  *
- * Revision 1.1.1.1  1999/06/14 22:02:40  donut
- * Import of d1x 1.37 source.
- *
- * Revision 2.0  1995/02/27  11:35:10  john
- * Version 2.0! No anonymous unions, Watcom 10.0, with no need
- * for bitmaps.tbl.
- * 
- * Revision 1.9  1994/09/28  17:31:51  mike
- * Prototype copy_group_walls().
- * 
- * Revision 1.8  1994/08/05  21:18:16  matt
- * Allow two doors to be linked together
- * 
- * Revision 1.7  1994/06/20  22:30:10  yuan
- * Fixed crazy runaway trigger bug that Adam found
- * 
- * Revision 1.6  1994/05/30  20:22:58  yuan
- * New triggers.
- * 
- * Revision 1.5  1994/05/25  18:08:37  yuan
- * Revamping walls and triggers interface.
- * Wall interface complete, but triggers are still in progress.
- * 
- * Revision 1.4  1994/05/18  18:22:04  yuan
- * Fixed delete segment and walls bug.
- * 
- * Revision 1.3  1994/03/17  18:08:41  yuan
- * New wall stuff... Cut out switches....
- * 
- * Revision 1.2  1994/03/15  16:34:10  yuan
- * Fixed bm loader (might have some changes in walls and switches)
- * 
- * Revision 1.1  1994/02/10  17:52:01  matt
- * Initial revision
- * 
- * 
- * 
  */
 
 #ifndef _MEDWALL_H

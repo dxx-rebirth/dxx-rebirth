@@ -19,6 +19,10 @@ ui/window.c: Put event_process() in ui_mega_process(), hopefully getting editor 
 --------
 arch/include/key.h, arch/include/mouse.h, arch/sdl/event.c, arch/sdl/joy.c, arch/sdl/key.c, arch/sdl/mouse.c, arch/sdl/rbaudio.c, arch/sdl/timer.c, editor/ehostage.c, editor/medrobot.c, editor/medwall.c, include/maths.h, include/timer.h, include/ui.h, main/automap.c, main/console.c, main/digiobj.c, main/fireball.c, main/game.c, main/inferno.c, main/kmatrix.c, main/laser.c, main/laser.h, main/lighting.c, main/menu.c, main/multi.c, main/multi.h, main/multibot.c, main/net_ipx.c, main/net_ipx.h, main/net_udp.c, main/net_udp.h, main/newmenu.c, main/scores.c, main/titles.c, ui/listbox.c, ui/mouse.c, ui/scroll.c, ui/window.c: Introduced new data type fix64 to be used for new timers which can last 4462756 years instead of 9 hours; Introduced new timer functions to update and query program time; Used new timer all over the program except GameTime (which comes next)
 
+20101221
+--------
+d1x-rebirth.xcodeproj/project.pbxproj, editor/med.c, main/menu.c: Activate EDITOR for Mac OS X in Xcode, d1x target; fix some warnings and errors but it won't compile yet
+
 20101205
 --------
 arch/carbon/messagebox.c, arch/include/window.h, arch/linux/messagebox.c, arch/sdl/key.c, arch/sdl/mouse.c, arch/sdl/window.c, arch/win32/messagebox.c: Add CON_DEBUG level con_printf's for basic events (not EVENT_IDLE or EVENT_DRAW though)

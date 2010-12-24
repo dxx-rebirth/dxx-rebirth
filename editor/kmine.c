@@ -7,7 +7,7 @@ IN USING, DISPLAYING,  AND CREATING DERIVATIVE WORKS THEREOF, SO LONG AS
 SUCH USE, DISPLAY OR CREATION IS FOR NON-COMMERCIAL, ROYALTY OR REVENUE
 FREE PURPOSES.  IN NO EVENT SHALL THE END-USER USE THE COMPUTER CODE
 CONTAINED HEREIN FOR REVENUE-BEARING PURPOSES.  THE END-USER UNDERSTANDS
-AND AGREES TO THE TERMS HEREIN AND ACCEPTS THE SAME BY USE OF THIS FILE.  
+AND AGREES TO THE TERMS HEREIN AND ACCEPTS THE SAME BY USE OF THIS FILE.
 COPYRIGHT 1993-1998 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 */
 
@@ -21,6 +21,7 @@ COPYRIGHT 1993-1998 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 #include <stdio.h>
 #include <stdlib.h>
 #include "error.h"
+#include "strutil.h"
 #include "inferno.h"
 #include "editor.h"
 #include "ui.h"
@@ -35,10 +36,10 @@ COPYRIGHT 1993-1998 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 
 #define MINESAVE_CRIPPLED	0
 
-char mine_filename[128] = "*.MIN";
-char sit_filename[128] = "*.SIT";
+char mine_filename[PATH_MAX] = "*.MIN";
+char sit_filename[PATH_MAX] = "*.SIT";
 
-#define MAX_NAME_LENGTH 128
+#define MAX_NAME_LENGTH PATH_MAX
 
 //	See if filename f contains an extent.  If not, add extent ext.
 void checkforext( char * f, char *ext )
@@ -197,9 +198,7 @@ int med_save_situation(char * filename)
 
 	//	Write mine name.
 //	strcpy(mine_name, filename);
-#ifndef __LINUX__
-_splitpath(filename,NULL,NULL,mine_name,NULL);
-#endif
+	_splitpath(filename, NULL, NULL, mine_name, NULL);
 	set_extension(mine_name, "min");
 	PHYSFSX_printf(SaveFile, "%s\n", mine_name);
 

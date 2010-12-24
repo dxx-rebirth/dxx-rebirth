@@ -1,3 +1,4 @@
+/* $Id: scroll.c,v 1.1.1.1 2006/03/17 19:52:16 zicodxx Exp $ */
 /*
 THE COMPUTER CODE CONTAINED HEREIN IS THE SOLE PROPERTY OF PARALLAX
 SOFTWARE CORPORATION ("PARALLAX").  PARALLAX, IN DISTRIBUTING THE CODE TO
@@ -7,44 +8,12 @@ IN USING, DISPLAYING,  AND CREATING DERIVATIVE WORKS THEREOF, SO LONG AS
 SUCH USE, DISPLAY OR CREATION IS FOR NON-COMMERCIAL, ROYALTY OR REVENUE
 FREE PURPOSES.  IN NO EVENT SHALL THE END-USER USE THE COMPUTER CODE
 CONTAINED HEREIN FOR REVENUE-BEARING PURPOSES.  THE END-USER UNDERSTANDS
-AND AGREES TO THE TERMS HEREIN AND ACCEPTS THE SAME BY USE OF THIS FILE.  
+AND AGREES TO THE TERMS HEREIN AND ACCEPTS THE SAME BY USE OF THIS FILE.
 COPYRIGHT 1993-1998 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 */
-/*
- * $Source: /cvsroot/dxx-rebirth/d1x-rebirth/ui/scroll.c,v $
- * $Revision: 1.1.1.1 $
- * $Author: zicodxx $
- * $Date: 2006/03/17 19:39:10 $
- *
- * Routines for doing vertical scroll bars.
- *
- * $Log: scroll.c,v $
- * Revision 1.1.1.1  2006/03/17 19:39:10  zicodxx
- * initial import
- *
- * Revision 1.1.1.1  1999/06/14 22:14:42  donut
- * Import of d1x 1.37 source.
- *
- * Revision 1.5  1994/11/18  23:07:33  john
- * Changed a bunch of shorts to ints.
- * 
- * Revision 1.4  1993/12/07  12:30:35  john
- * new version.
- * 
- * Revision 1.3  1993/10/26  13:46:10  john
- * *** empty log message ***
- * 
- * Revision 1.2  1993/10/05  17:31:04  john
- * *** empty log message ***
- * 
- * Revision 1.1  1993/09/20  10:35:29  john
- * Initial revision
- * 
- *
- */
 
 #ifdef RCS
-static char rcsid[] = "$Id: scroll.c,v 1.1.1.1 2006/03/17 19:39:10 zicodxx Exp $";
+static char rcsid[] = "$Id: scroll.c,v 1.1.1.1 2006/03/17 19:52:16 zicodxx Exp $";
 #endif
 
 #include <stdlib.h>
@@ -157,7 +126,7 @@ void ui_scrollbar_do( UI_GADGET_SCROLLBAR * scrollbar, int keypress )
 
 	if ( (scrollbar->up_button->position!=0) || (keyfocus && keyd_pressed[KEY_UP]) )
 	{
-		if (timer_query() > scrollbar->last_scrolled+1)
+		if (timer_query() > scrollbar->last_scrolled + 1)
 		{
 			scrollbar->last_scrolled = timer_query();
 			scrollbar->position--;
@@ -171,7 +140,7 @@ void ui_scrollbar_do( UI_GADGET_SCROLLBAR * scrollbar, int keypress )
 
 	if ( (scrollbar->down_button->position!=0) || (keyfocus && keyd_pressed[KEY_DOWN]) )
 	{
-		if (timer_query() > scrollbar->last_scrolled+1)
+		if (timer_query() > scrollbar->last_scrolled + 1)
 		{
 			scrollbar->last_scrolled = timer_query();
 			scrollbar->position++;
@@ -207,7 +176,7 @@ void ui_scrollbar_do( UI_GADGET_SCROLLBAR * scrollbar, int keypress )
 		scrollbar->drag_starting = scrollbar->fake_position;
 	}
 
-	if  ( B1_PRESSED && OnMe && !OnSlider && (timer_query() > scrollbar->last_scrolled+4) )
+	if  (B1_PRESSED && OnMe && !OnSlider && (timer_query() > scrollbar->last_scrolled + 4))
 	{
 		scrollbar->last_scrolled = timer_query();
 

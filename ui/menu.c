@@ -1,3 +1,4 @@
+/* $Id: menu.c,v 1.1.1.1 2006/03/17 19:52:19 zicodxx Exp $ */
 /*
 THE COMPUTER CODE CONTAINED HEREIN IS THE SOLE PROPERTY OF PARALLAX
 SOFTWARE CORPORATION ("PARALLAX").  PARALLAX, IN DISTRIBUTING THE CODE TO
@@ -7,44 +8,12 @@ IN USING, DISPLAYING,  AND CREATING DERIVATIVE WORKS THEREOF, SO LONG AS
 SUCH USE, DISPLAY OR CREATION IS FOR NON-COMMERCIAL, ROYALTY OR REVENUE
 FREE PURPOSES.  IN NO EVENT SHALL THE END-USER USE THE COMPUTER CODE
 CONTAINED HEREIN FOR REVENUE-BEARING PURPOSES.  THE END-USER UNDERSTANDS
-AND AGREES TO THE TERMS HEREIN AND ACCEPTS THE SAME BY USE OF THIS FILE.  
+AND AGREES TO THE TERMS HEREIN AND ACCEPTS THE SAME BY USE OF THIS FILE.
 COPYRIGHT 1993-1998 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 */
-/*
- * $Source: /cvsroot/dxx-rebirth/d1x-rebirth/ui/menu.c,v $
- * $Revision: 1.1.1.1 $
- * $Author: zicodxx $
- * $Date: 2006/03/17 19:39:12 $
- *
- * Routines for doing popup menus.
- *
- * $Log: menu.c,v $
- * Revision 1.1.1.1  2006/03/17 19:39:12  zicodxx
- * initial import
- *
- * Revision 1.1.1.1  1999/06/14 22:14:34  donut
- * Import of d1x 1.37 source.
- *
- * Revision 1.5  1994/11/18  23:07:19  john
- * Changed a bunch of shorts to ints.
- * 
- * Revision 1.4  1993/12/07  12:30:24  john
- * new version.
- * 
- * Revision 1.3  1993/10/26  13:46:18  john
- * *** empty log message ***
- * 
- * Revision 1.2  1993/10/05  17:31:25  john
- * *** empty log message ***
- * 
- * Revision 1.1  1993/09/20  10:35:16  john
- * Initial revision
- * 
- *
- */
 
 #ifdef RCS
-static char rcsid[] = "$Id: menu.c,v 1.1.1.1 2006/03/17 19:39:12 zicodxx Exp $";
+static char rcsid[] = "$Id: menu.c,v 1.1.1.1 2006/03/17 19:52:19 zicodxx Exp $";
 #endif
 
 #include <stdlib.h>
@@ -72,8 +41,8 @@ int MenuX( int x, int y, int NumButtons, char * text[] )
 
 	int choice;
 
-	ButtonG = (UI_GADGET_BUTTON **)d_malloc( sizeof(UI_GADGET_BUTTON *)*NumButtons );
-	Button = (char **)d_malloc( sizeof(char *)*NumButtons );
+	ButtonG = (UI_GADGET_BUTTON **) d_malloc(sizeof(UI_GADGET_BUTTON *)*NumButtons);
+	Button = (char **) d_malloc(sizeof(char *)*NumButtons);
 
 	button_width = button_height = 0;
 
@@ -144,7 +113,6 @@ int MenuX( int x, int y, int NumButtons, char * text[] )
 			choice = -1;
 			break;
 		}
-
 	}
 
 	ui_close_window(wnd);

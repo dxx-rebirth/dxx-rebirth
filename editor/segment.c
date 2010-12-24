@@ -7,7 +7,7 @@ IN USING, DISPLAYING,  AND CREATING DERIVATIVE WORKS THEREOF, SO LONG AS
 SUCH USE, DISPLAY OR CREATION IS FOR NON-COMMERCIAL, ROYALTY OR REVENUE
 FREE PURPOSES.  IN NO EVENT SHALL THE END-USER USE THE COMPUTER CODE
 CONTAINED HEREIN FOR REVENUE-BEARING PURPOSES.  THE END-USER UNDERSTANDS
-AND AGREES TO THE TERMS HEREIN AND ACCEPTS THE SAME BY USE OF THIS FILE.  
+AND AGREES TO THE TERMS HEREIN AND ACCEPTS THE SAME BY USE OF THIS FILE.
 COPYRIGHT 1993-1998 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 */
 
@@ -34,11 +34,12 @@ COPYRIGHT 1993-1998 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 #include "wall.h"
 #include "switch.h"
 #include "fuelcen.h"
+#include "cntrlcen.h"
 #include "seguvs.h"
 #include "gameseq.h"
+
 #include "medwall.h"
 #include "hostage.h"
-#include "cntrlcen.h"
 
 int	Do_duplicate_vertex_check = 0;		// Gets set to 1 in med_create_duplicate_vertex, means to check for duplicate vertices in compress_mine
 
@@ -480,7 +481,7 @@ int med_set_vertex(int vnum,vms_vector *vp)
 //	A side is determined to be degenerate if the cross products of 3 consecutive points does not point outward.
 int check_for_degenerate_side(segment *sp, int sidenum)
 {
-	sbyte			*vp = Side_to_verts[sidenum];
+	sbyte		*vp = Side_to_verts[sidenum];
 	vms_vector	vec1, vec2, cross, vec_to_center;
 	vms_vector	segc, sidec;
 	fix			dot;
@@ -935,7 +936,7 @@ void copy_tmap_ids(segment *dseg, segment *sseg)
 //	 4 = already a face attached on destseg:destside
 int med_attach_segment_rotated(segment *destseg, segment *newseg, int destside, int newside,vms_matrix *attmat)
 {
-	sbyte			*dvp;
+	sbyte		*dvp;
 	segment		*nsp;
 	int			side,v;
 	vms_matrix	rotmat,rotmat1,rotmat2,rotmat3,rotmat4;
@@ -1448,7 +1449,7 @@ void assign_default_uvs_to_curseg(void)
 //		2			unable to form joint because side1 is already used
 int med_form_joint(segment *seg1, int side1, segment *seg2, int side2)
 {
-	sbyte		*vp1,*vp2;
+	sbyte	*vp1,*vp2;
 	int		bfi,v,s,sv,s1,nv;
 	int		lost_vertices[4],remap_vertices[4];
 	int		validation_list[MAX_VALIDATIONS];
@@ -1526,7 +1527,7 @@ int med_form_joint(segment *seg1, int side1, segment *seg2, int side2)
 int med_form_bridge_segment(segment *seg1, int side1, segment *seg2, int side2)
 {
 	segment		*bs;
-	sbyte			*sv;
+	sbyte		*sv;
 	int			v,bfi,i;
 
 	if (IS_CHILD(seg1->children[side1]) || IS_CHILD(seg2->children[side2]))
@@ -1763,8 +1764,11 @@ int create_new_mine(void)
 	num_groups = 0;
 	current_group = -1;
 
+
 	Num_vertices = 0;		// Number of vertices in global array.
+	Highest_vertex_index = 0;
 	Num_segments = 0;		// Number of segments in global array, will get increased in med_create_segment
+	Highest_segment_index = 0;
 	Cursegp = Segments;	// Say current segment is the only segment.
 	Curside = WBACK;		// The active side is the back side
 	Markedsegp = 0;		// Say there is no marked segment.

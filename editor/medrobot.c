@@ -7,7 +7,7 @@ IN USING, DISPLAYING,  AND CREATING DERIVATIVE WORKS THEREOF, SO LONG AS
 SUCH USE, DISPLAY OR CREATION IS FOR NON-COMMERCIAL, ROYALTY OR REVENUE
 FREE PURPOSES.  IN NO EVENT SHALL THE END-USER USE THE COMPUTER CODE
 CONTAINED HEREIN FOR REVENUE-BEARING PURPOSES.  THE END-USER UNDERSTANDS
-AND AGREES TO THE TERMS HEREIN AND ACCEPTS THE SAME BY USE OF THIS FILE.  
+AND AGREES TO THE TERMS HEREIN AND ACCEPTS THE SAME BY USE OF THIS FILE.
 COPYRIGHT 1993-1998 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 */
 
@@ -19,13 +19,9 @@ COPYRIGHT 1993-1998 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 
 #include <stdlib.h>
 #include <stdio.h>
-#ifndef __LINUX__
-#include <conio.h>
-#include <direct.h>
-#include <dos.h>
-#endif
 #include <math.h>
 #include <string.h>
+
 #include "screens.h"
 #include "inferno.h"
 #include "segment.h"
@@ -153,7 +149,7 @@ int RobotNextType()
 			obj->shields = Robot_info[obj->id].strength;
 			call_init_ai_object(obj, AIB_NORMAL);
 
-			Cur_robot_type = obj->id;
+			Cur_object_id = obj->id;
 		}
 	}
 	Update_flags |= UF_WORLD_CHANGED;
@@ -182,7 +178,7 @@ int RobotPrevType()
 			obj->shields = Robot_info[obj->id].strength;
 			call_init_ai_object(obj, AIB_NORMAL);
 
-			Cur_robot_type = obj->id;
+			Cur_object_id = obj->id;
 		}
 	}
 	Update_flags |= UF_WORLD_CHANGED;
@@ -454,10 +450,11 @@ int LocalObjectPlaceObject(void)
 
 	Cur_goody_count = 0;
 
-	while (ObjType[Cur_robot_type] != OL_ROBOT) { // && (ObjType[Cur_robot_type] != OL_POWERUP)) {
-		Cur_robot_type++;
-		if (Cur_robot_type >= N_robot_types)
-			Cur_robot_type = 0;
+	if (Cur_object_type != OBJ_ROBOT)
+	{
+		Cur_object_type = OBJ_ROBOT;
+		Cur_object_id = 3;	// class 1 drone
+		Num_object_subtypes = N_robot_types;
 	}
 
 	rval = ObjectPlaceObject();
@@ -587,17 +584,15 @@ void do_robot_window()
 	// the current AI mode button be flagged as pressed down.
 	//------------------------------------------------------------
 	if (old_object != Cur_object_index )	{
-		for (	i=0; i < NUM_BOXES; i++ )	{
-			InitialMode[i]->flag = 0;		// Tells ui that this button isn't checked
-			InitialMode[i]->status = 1;	// Tells ui to redraw button
-		}
+		for (	i=0; i < NUM_BOXES; i++ )
+			ui_radio_set_value(InitialMode[i], 0);
 		if ( Cur_object_index > -1 ) {
 			int	behavior = Objects[Cur_object_index].ctype.ai_info.behavior;
 			if ( !((behavior >= MIN_BEHAVIOR) && (behavior <= MAX_BEHAVIOR))) {
 				Objects[Cur_object_index].ctype.ai_info.behavior = AIB_NORMAL;
 				behavior = AIB_NORMAL;
 			}
-			InitialMode[behavior - MIN_BEHAVIOR]->flag = 1;	// Mark this button as checked
+			ui_radio_set_value(InitialMode[behavior - MIN_BEHAVIOR], 1);
 		}
 	}
 
@@ -624,13 +619,10 @@ void do_robot_window()
 	// Redraw the object in the little 64x64 box
 	//------------------------------------------------------------
 	if (Cur_object_index > -1 )	{
-		int id;
+		object *obj = &Objects[Cur_object_index];
+
 		gr_set_current_canvas( RobotViewBox->canvas );
-		id = get_object_id(&Objects[Cur_object_index]);
-		if ( id > -1 )	
-			draw_robot_picture(id, &angles, -1 );
-		else
-			gr_clear_canvas( CGREY );
+		draw_object_picture(obj->id, &angles, obj->type );
 		angles.h += fixmul(0x1000, DeltaTime );
 	} else {
 		// no object, so just blank out
@@ -644,21 +636,10 @@ void do_robot_window()
 	// Redraw the contained object in the other little box
 	//------------------------------------------------------------
 	if ((Cur_object_index > -1 ) && (Cur_goody_count > 0))	{
-		int id;
-
 		gr_set_current_canvas( ContainsViewBox->canvas );
-		id = Cur_goody_id;
-		if ( id > -1 )	 {
-                        int ol_type=0;
-			if (Cur_goody_type == OBJ_ROBOT)
-				ol_type = OL_ROBOT;
-			else if (Cur_goody_type == OBJ_POWERUP)
-				ol_type = OL_POWERUP;
-			else
-				Int3();	//	Error?  Unknown goody type!
-
-			draw_robot_picture(id, &goody_angles, ol_type );
-		} else
+		if ( Cur_goody_id > -1 )
+			draw_object_picture(Cur_goody_id, &goody_angles, Cur_goody_type);
+		else
 			gr_clear_canvas( CGREY );
 		goody_angles.h += fixmul(0x1000, DeltaTime );
 	} else {

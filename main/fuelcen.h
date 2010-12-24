@@ -153,6 +153,8 @@ void matcen_info_read(matcen_info *ps, CFILE *fp, int version);
  */
 void matcen_info_read_n_swap(matcen_info *mi, int n, int swap, CFILE *fp);
 
+void matcen_info_write(matcen_info *mi, short version, PHYSFS_file *fp);
+
 /*
  * reads n FuelCenter structs from a CFILE and swaps if specified
  */

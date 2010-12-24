@@ -76,5 +76,7 @@ extern int control_center_triggers_read_n(control_center_triggers *cct, int n, C
  */
 void control_center_triggers_read_n_swap(control_center_triggers *cct, int n, int swap, CFILE *fp);
 
+extern int control_center_triggers_write(control_center_triggers *cct, PHYSFS_file *fp);
+
 #endif
  

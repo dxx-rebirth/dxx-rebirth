@@ -1,3 +1,4 @@
+/* $Id: gamesave.h,v 1.1.1.1 2006/03/17 19:57:20 zicodxx Exp $ */
 /*
 THE COMPUTER CODE CONTAINED HEREIN IS THE SOLE PROPERTY OF PARALLAX
 SOFTWARE CORPORATION ("PARALLAX").  PARALLAX, IN DISTRIBUTING THE CODE TO
@@ -7,64 +8,15 @@ IN USING, DISPLAYING,  AND CREATING DERIVATIVE WORKS THEREOF, SO LONG AS
 SUCH USE, DISPLAY OR CREATION IS FOR NON-COMMERCIAL, ROYALTY OR REVENUE
 FREE PURPOSES.  IN NO EVENT SHALL THE END-USER USE THE COMPUTER CODE
 CONTAINED HEREIN FOR REVENUE-BEARING PURPOSES.  THE END-USER UNDERSTANDS
-AND AGREES TO THE TERMS HEREIN AND ACCEPTS THE SAME BY USE OF THIS FILE.  
+AND AGREES TO THE TERMS HEREIN AND ACCEPTS THE SAME BY USE OF THIS FILE.
 COPYRIGHT 1993-1998 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 */
-/*
- * $Source: /cvsroot/dxx-rebirth/d1x-rebirth/main/gamesave.h,v $
- * $Revision: 1.1.1.1 $
- * $Author: zicodxx $
- * $Date: 2006/03/17 19:44:31 $
- * 
- * Headers for gamesave.c
- * 
- * $Log: gamesave.h,v $
- * Revision 1.1.1.1  2006/03/17 19:44:31  zicodxx
- * initial import
- *
- * Revision 1.1.1.1  1999/06/14 22:12:23  donut
- * Import of d1x 1.37 source.
- *
- * Revision 2.0  1995/02/27  11:30:25  john
- * New version 2.0, which has no anonymous unions, builds with
- * Watcom 10.0, and doesn't require parsing BITMAPS.TBL.
- * 
- * Revision 1.11  1994/11/23  12:19:32  mike
- * detail level menu.
- * 
- * Revision 1.10  1994/10/20  12:47:30  matt
- * Replace old save files (MIN/SAV/HOT) with new LVL files
- * 
- * Revision 1.9  1994/09/27  17:08:47  mike
- * Message boxes when you load bogus mines.
- * 
- * Revision 1.8  1994/09/27  15:43:05  mike
- * Prototype write_game_text.
- * 
- * Revision 1.7  1994/09/14  15:46:39  matt
- * Added function load_mine_only()
- * 
- * Revision 1.6  1994/07/22  12:36:28  matt
- * Cleaned up editor/game interactions some more.
- * 
- * Revision 1.5  1994/07/20  13:38:14  matt
- * Added get_level_name() prototype
- * 
- * Revision 1.4  1994/06/20  22:19:41  john
- * Added Gamesave_num_org_robots.
- * 
- * Revision 1.3  1994/06/14  11:32:49  john
- * Made Newdemo record & restore the current mine.
- * 
- * Revision 1.2  1994/05/14  17:16:25  matt
- * Got rid of externs in source (non-header) files
- * 
- * Revision 1.1  1994/05/14  16:01:26  matt
- * Initial revision
- * 
- * 
- */
 
+/*
+ *
+ * Headers for gamesave.c
+ *
+ */
 
 
 #ifndef _GAMESAVE_H
@@ -81,14 +33,8 @@ void LoadGame(void);
 void SaveGame(void);
 int get_level_name(void);
 
-//extern int load_game(char *filename);
-//extern int save_game(char *filename);
-
 extern int load_level(char *filename);
 extern int save_level(char *filename);
-
-//called in place of load_game() to only load the .min data
-//extern load_mine_only(char * filename);
 
 extern char Gamesave_current_filename[];
 
@@ -96,9 +42,9 @@ extern int Gamesave_current_version;
 
 extern int Gamesave_num_org_robots;
 
-//	In dumpmine.c
+// In dumpmine.c
 extern void write_game_text_file(char *filename);
 
-extern	int	Errors_in_mine;
+extern int Errors_in_mine;
 
-#endif
+#endif /* _GAMESAVE_H */

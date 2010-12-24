@@ -7,17 +7,10 @@ IN USING, DISPLAYING,  AND CREATING DERIVATIVE WORKS THEREOF, SO LONG AS
 SUCH USE, DISPLAY OR CREATION IS FOR NON-COMMERCIAL, ROYALTY OR REVENUE
 FREE PURPOSES.  IN NO EVENT SHALL THE END-USER USE THE COMPUTER CODE
 CONTAINED HEREIN FOR REVENUE-BEARING PURPOSES.  THE END-USER UNDERSTANDS
-AND AGREES TO THE TERMS HEREIN AND ACCEPTS THE SAME BY USE OF THIS FILE.  
+AND AGREES TO THE TERMS HEREIN AND ACCEPTS THE SAME BY USE OF THIS FILE.
 COPYRIGHT 1993-1998 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 */
 
-/*
- * .
- *
- */
-
-
-#include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
 #include <ctype.h>
@@ -27,9 +20,10 @@ COPYRIGHT 1993-1998 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 #include "gr.h"
 #include "ui.h"
 #include "key.h"
+#include "cfile.h"
 #include "func.h"
 #include "error.h"
-#include "cfile.h"
+
 
 #define MAXMENUS 30
 #define MAXITEMS 40
@@ -117,7 +111,7 @@ void menu_show( MENU * menu )
 
 	gr_set_current_canvas(NULL);
 	// Don't save background it if it's already drawn
-        if (!menu->Displayed && menu->w>0 && menu->h>0) 
+	if (!menu->Displayed && menu->w>0 && menu->h>0) 
 	{
 		// Save the background
 		gr_bm_ubitblt(menu->w, menu->h, 0, 0, menu->x, menu->y, &(grd_curscreen->sc_canvas.cv_bitmap), menu->Background);
@@ -201,7 +195,7 @@ int menu_match_keypress( MENU * menu, int keypress )
 			
 	for (i=0; i< menu->NumItems; i++ )
 	{
-		letter = strrchr( menu->Item[i].Text, '&' );
+		letter = strrchr( menu->Item[i].Text, CC_UNDERLINE );
 		if (letter)
 		{
 			letter++;
@@ -626,6 +620,14 @@ void CommaParse( int n, char * dest, char * source )
 	dest[j++] = 0;
 }
 
+//translate '&' characters to the underline character
+void ul_xlate(char *s)
+{
+	while ((s=strchr(s,'&'))!=NULL)
+		*s = CC_UNDERLINE;
+}
+
+
 void menubar_init( char * file )
 {
 	int i,j, np;
@@ -650,7 +652,7 @@ void menubar_init( char * file )
 		{
 			Menu[i].Item[j].x = Menu[i].Item[j].y = Menu[i].Item[j].w = Menu[i].Item[j].h = 0;
 			Menu[i].Item[j].Text = NULL;
-			Menu[i].Item[j].Hotkey = 0;
+			Menu[i].Item[j].Hotkey = -1;
 			Menu[i].Item[j].user_function = NULL;
 		}
 	}
@@ -665,9 +667,17 @@ void menubar_init( char * file )
 		
 		CommaParse( 0, buf1, buffer );
 		menu = atoi( buf1 );
+		if (menu >= MAXMENUS)
+			Error("Too many menus (%d).",menu);
+
 		CommaParse( 1, buf1, buffer );
 		item = atoi(buf1 );
+		if (item >= MAXITEMS)
+			Error("Too many items (%d) in menu %d.",item+1,menu);
+
 		CommaParse( 2, buf1, buffer );
+		ul_xlate(buf1);
+
 		if (buf1[0] != '-' )
 		{
 			sprintf( buf2, " %s ", buf1 );
@@ -681,7 +691,7 @@ void menubar_init( char * file )
 		for (i=0; i<=strlen(Menu[menu].Item[item].Text); i++ )
 		{
 			np = Menu[menu].Item[item].Text[i];
-			if (np != '&') 
+			if (np != CC_UNDERLINE) 
 				Menu[menu].Item[item].InactiveText[j++] = np;
 		}
 

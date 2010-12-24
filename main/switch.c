@@ -288,3 +288,50 @@ void trigger_read_n_swap(trigger *t, int n, int swap, CFILE *fp)
 			trigger_swap(&t[i], swap);
 }
 
+void trigger_write(trigger *t, short version, PHYSFS_file *fp)
+{
+	int i;
+
+	if (version <= 29)
+		PHYSFSX_writeU8(fp, 0);	// unused 'type'
+	else if (version >= 31)
+	{
+		if (t->flags & TRIGGER_CONTROL_DOORS)
+			PHYSFSX_writeU8(fp, 0); // door
+		else if (t->flags & TRIGGER_MATCEN)
+			PHYSFSX_writeU8(fp, 2); // matcen
+		else if (t->flags & TRIGGER_EXIT)
+			PHYSFSX_writeU8(fp, 3); // exit
+		else if (t->flags & TRIGGER_SECRET_EXIT)
+			PHYSFSX_writeU8(fp, 4); // secret exit
+		else if (t->flags & TRIGGER_ILLUSION_OFF)
+			PHYSFSX_writeU8(fp, 5); // illusion off
+		else if (t->flags & TRIGGER_ILLUSION_ON)
+			PHYSFSX_writeU8(fp, 6); // illusion on
+	}
+	
+	if (version <= 30)
+		PHYSFS_writeSLE16(fp, t->flags);
+	else
+		PHYSFSX_writeU8(fp, (t->flags & TRIGGER_ONE_SHOT) ? 2 : 0);		// flags
+	
+	if (version >= 30)
+	{
+		PHYSFSX_writeU8(fp, t->num_links);
+		PHYSFSX_writeU8(fp, 0);	// t->pad
+	}
+	
+	PHYSFSX_writeFix(fp, t->value);
+	PHYSFSX_writeFix(fp, t->time);
+	
+	if (version <= 29)
+	{
+		PHYSFSX_writeU8(fp, t->link_num);
+		PHYSFS_writeSLE16(fp, t->num_links);
+	}
+	
+	for (i = 0; i < MAX_WALLS_PER_LINK; i++)
+		PHYSFS_writeSLE16(fp, t->seg[i]);
+	for (i = 0; i < MAX_WALLS_PER_LINK; i++)
+		PHYSFS_writeSLE16(fp, t->side[i]);
+}

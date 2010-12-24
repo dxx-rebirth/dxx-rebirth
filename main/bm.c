@@ -59,6 +59,10 @@ COPYRIGHT 1993-1998 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 ubyte Sounds[MAX_SOUNDS];
 ubyte AltSounds[MAX_SOUNDS];
 
+#ifdef EDITOR
+int Num_object_subtypes = 1;
+#endif
+
 int Num_total_object_types;
 
 sbyte	ObjType[MAX_OBJTYPE];

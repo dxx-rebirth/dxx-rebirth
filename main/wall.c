@@ -576,6 +576,48 @@ void do_door_open(int door_num)
 
 }
 
+//-----------------------------------------------------------------
+// This function closes the specified door and restores the closed
+//  door texture.  This is called when the animation is done
+void wall_close_door_num(int door_num)
+{
+	int p;
+	active_door *d;
+	int i, cwall_num;
+	
+	d = &ActiveDoors[door_num];
+	
+	for (p=0;p<d->n_parts;p++) {
+		wall *w;
+		int Connectside, side;
+		segment *csegp, *seg;
+		
+		w = &Walls[d->front_wallnum[p]];
+		
+		seg = &Segments[w->segnum];
+		side = w->sidenum;
+		
+		Assert(seg->sides[side].wall_num != -1);		//Closing door on illegal wall
+		
+		csegp = &Segments[seg->children[side]];
+		Connectside = find_connect_side(seg, csegp);
+		Assert(Connectside != -1);
+		cwall_num = csegp->sides[Connectside].wall_num;
+		Walls[seg->sides[side].wall_num].state = WALL_DOOR_CLOSED;
+		if (cwall_num > -1)
+			Walls[cwall_num].state = WALL_DOOR_CLOSED;
+		
+		wall_set_tmap_num(seg,side,csegp,Connectside,w->clip_num,0);
+		
+	}
+	
+	for (i=door_num;i<Num_open_doors;i++)
+		ActiveDoors[i] = ActiveDoors[i+1];
+	
+	Num_open_doors--;
+	
+}
+
 int check_poke(int objnum,int segnum,int side)
 {
 	object *obj = &Objects[objnum];
@@ -1121,4 +1163,39 @@ void active_door_read_n_swap(active_door *ad, int n, int swap, CFILE *fp)
 	if (swap)
 		for (i = 0; i < n; i++)
 			active_door_swap(&ad[i], swap);
+}
+
+void wall_write(wall *w, short version, CFILE *fp)
+{
+	if (version >= 17)
+	{
+		PHYSFS_writeSLE32(fp, w->segnum);
+		PHYSFS_writeSLE32(fp, w->sidenum);
+	}
+	
+	if (version >= 20)
+	{
+		PHYSFSX_writeFix(fp, w->hps);
+		PHYSFS_writeSLE32(fp, w->linked_wall);
+	}
+	
+	PHYSFSX_writeU8(fp, w->type);
+	PHYSFSX_writeU8(fp, w->flags);
+	
+	if (version < 20)
+		PHYSFSX_writeFix(fp, w->hps);
+	else
+		PHYSFSX_writeU8(fp, w->state);
+	
+	PHYSFSX_writeU8(fp, w->trigger);
+	PHYSFSX_writeU8(fp, w->clip_num);
+	PHYSFSX_writeU8(fp, w->keys);
+	
+	if (version >= 20)
+	{
+		PHYSFSX_writeU8(fp, 0);	// w->controlling_trigger
+		PHYSFSX_writeU8(fp, 0);	// w->cloak_value
+	}
+	else if (version >= 17)
+		PHYSFS_writeSLE32(fp, w->linked_wall);
 }

@@ -273,5 +273,7 @@ extern void active_door_read_n_swap(active_door *ad, int n, int swap, CFILE *fp)
  */
 void wall_read_n_swap(wall *w, int n, int swap, CFILE *fp);
 
+extern void wall_write(wall *w, short version, PHYSFS_file *fp);
+
 #endif
 

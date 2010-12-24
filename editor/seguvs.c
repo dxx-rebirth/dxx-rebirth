@@ -7,7 +7,7 @@ IN USING, DISPLAYING,  AND CREATING DERIVATIVE WORKS THEREOF, SO LONG AS
 SUCH USE, DISPLAY OR CREATION IS FOR NON-COMMERCIAL, ROYALTY OR REVENUE
 FREE PURPOSES.  IN NO EVENT SHALL THE END-USER USE THE COMPUTER CODE
 CONTAINED HEREIN FOR REVENUE-BEARING PURPOSES.  THE END-USER UNDERSTANDS
-AND AGREES TO THE TERMS HEREIN AND ACCEPTS THE SAME BY USE OF THIS FILE.  
+AND AGREES TO THE TERMS HEREIN AND ACCEPTS THE SAME BY USE OF THIS FILE.
 COPYRIGHT 1993-1998 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 */
 
@@ -16,7 +16,6 @@ COPYRIGHT 1993-1998 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
  * u,v coordinate computation for segment faces
  *
  */
-
 
 #include <stdio.h>
 #include <stdlib.h>
@@ -384,7 +383,7 @@ void validate_uv_coordinates_on_side(segment *segp, int sidenum)
 //	vms_vector	tvec;
 //	fix			dist_ratios[MAX_VERTICES_PER_POLY];
 	side			*sidep = &segp->sides[sidenum];
-//	byte			*vp = Side_to_verts[sidenum];
+//	sbyte			*vp = Side_to_verts[sidenum];
 
 //	This next hunk doesn't seem to affect anything. @mk, 02/13/94
 //	for (v=1; v<4; v++) {
@@ -803,7 +802,6 @@ void med_assign_uvs_to_side(segment *con_seg, int con_common_side, segment *base
 	//	     cv1, cv2 are segment relative vertices in conn segment which are the same as absolute vertices abs_id1, abs_id2
 
 	Assert((bv1 != -1) && (bv2 != -1) && (cv1 != -1) && (cv2 != -1));
-	Assert((uv1.u != uv2.u) || (uv1.v != uv2.v));
 
 	//	Now, scan 4 vertices in base side and 4 vertices in connected side.
 	//	Set uv1, uv2 to uv coordinates from base side which correspond to vertices bv1, bv2.
@@ -823,6 +821,7 @@ void med_assign_uvs_to_side(segment *con_seg, int con_common_side, segment *base
 			vv2 = v;
 	}
 
+	Assert((uv1.u != uv2.u) || (uv1.v != uv2.v));
 	Assert( (vv1 != -1) && (vv2 != -1) );
 	assign_uvs_to_side(con_seg, con_common_side, &uv1, &uv2, vv1, vv2);
 }
@@ -837,7 +836,7 @@ void med_assign_uvs_to_side(segment *con_seg, int con_common_side, segment *base
 //	great confusion.
 void get_side_ids(segment *base_seg, segment *con_seg, int base_side, int con_side, int abs_id1, int abs_id2, int *base_common_side, int *con_common_side)
 {
-	sbyte		*base_vp,*con_vp;
+	sbyte	*base_vp,*con_vp;
 	int		v0,side;
 
 	*base_common_side = -1;
@@ -1298,7 +1297,7 @@ void calim_zero_light_values(void)
 			for (vertnum=0; vertnum<4; vertnum++)
 				sidep->uvls[vertnum].l = F1_0/64;	// Put a tiny bit of light here.
 		}
-		Segments[segnum].static_light = F1_0/64;
+		Segments[segnum].static_light = F1_0 / 64;
 	}
 }
 

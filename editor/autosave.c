@@ -7,7 +7,7 @@ IN USING, DISPLAYING,  AND CREATING DERIVATIVE WORKS THEREOF, SO LONG AS
 SUCH USE, DISPLAY OR CREATION IS FOR NON-COMMERCIAL, ROYALTY OR REVENUE
 FREE PURPOSES.  IN NO EVENT SHALL THE END-USER USE THE COMPUTER CODE
 CONTAINED HEREIN FOR REVENUE-BEARING PURPOSES.  THE END-USER UNDERSTANDS
-AND AGREES TO THE TERMS HEREIN AND ACCEPTS THE SAME BY USE OF THIS FILE.  
+AND AGREES TO THE TERMS HEREIN AND ACCEPTS THE SAME BY USE OF THIS FILE.
 COPYRIGHT 1993-1998 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 */
 
@@ -18,15 +18,11 @@ COPYRIGHT 1993-1998 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
  *
  */
 
-
 #include <stdio.h>
 #include <stdlib.h>
 #include <stdarg.h>
 #include <math.h>
 #include <string.h>
-#ifndef __LINUX__
-#include <process.h>
-#endif
 #include <time.h>
 
 #include "error.h"
@@ -35,7 +31,6 @@ COPYRIGHT 1993-1998 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 #include "editor.h"
 #include "u_mem.h"
 #include "ui.h"
-#include "strutil.h"
 
 #define AUTOSAVE_PERIOD 5			// Number of minutes for timed autosave
 
@@ -70,7 +65,7 @@ void close_autosave(void) {
 
     for (i=0;i<Autosave_total;i++) {
 
-	MALLOC(delname, char, 128);
+	MALLOC(delname, char, PATH_MAX);
 
         strcpy ( delname, mine_filename );
         strupr( delname );
@@ -82,8 +77,8 @@ void close_autosave(void) {
         remove( delname );
         d_free( delname );
     }
-    //for (i=0;i<10;i++) free( undo_status[i] );
-    //free( undo_status );
+    //for (i = 0; i < 10; i++) d_free( undo_status[i] );
+    //d_free( undo_status );
 
 }
 
@@ -92,7 +87,7 @@ void autosave_mine(char *name) {
 
 	if (Autosave_flag) {
 	
-	    MALLOC(savename, char, 128);
+	    MALLOC(savename, char, PATH_MAX);
 
 	
 	    strcpy ( savename, name );

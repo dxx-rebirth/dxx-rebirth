@@ -72,6 +72,7 @@ COPYRIGHT 1993-1998 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 #endif
 #ifdef EDITOR
 #include "editor/editor.h"
+#include "editor/kdefs.h"
 #endif
 
 

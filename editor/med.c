@@ -7,7 +7,7 @@ IN USING, DISPLAYING,  AND CREATING DERIVATIVE WORKS THEREOF, SO LONG AS
 SUCH USE, DISPLAY OR CREATION IS FOR NON-COMMERCIAL, ROYALTY OR REVENUE
 FREE PURPOSES.  IN NO EVENT SHALL THE END-USER USE THE COMPUTER CODE
 CONTAINED HEREIN FOR REVENUE-BEARING PURPOSES.  THE END-USER UNDERSTANDS
-AND AGREES TO THE TERMS HEREIN AND ACCEPTS THE SAME BY USE OF THIS FILE.  
+AND AGREES TO THE TERMS HEREIN AND ACCEPTS THE SAME BY USE OF THIS FILE.
 COPYRIGHT 1993-1998 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 */
 
@@ -28,26 +28,18 @@ COPYRIGHT 1993-1998 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 #include <string.h>
 #include <time.h>
 
-#ifdef __MSDOS__
-#include <process.h>
-#endif
-
-
-//#define INCLUDE_XLISP
-
 #include "inferno.h"
+#include "messagebox.h"
 #include "segment.h"
 #include "gr.h"
 #include "ui.h"
 #include "editor.h"
 #include "gamesave.h"
 #include "gameseg.h"
-#include "console.h"
 #include "key.h"
 #include "error.h"
 #include "kfuncs.h"
 #include "macro.h"
-
 #ifdef INCLUDE_XLISP
 #include "medlisp.h"
 #endif
@@ -65,7 +57,7 @@ COPYRIGHT 1993-1998 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 #include "wall.h"
 #include "info.h"
 #include "ai.h"
-
+#include "console.h"
 #include "texpage.h"		// Textue selection paging stuff
 #include "objpage.h"		// Object selection paging stuff
 
@@ -271,7 +263,8 @@ int ExitEditor()
 	return 1;
 }
 
-int	GotoGameCommon(int mode) {
+int	GotoGameScreen()
+{
 	stop_time();
 
 //@@	init_player_stats();
@@ -293,18 +286,14 @@ int	GotoGameCommon(int mode) {
 
 	start_time();
 
-	ModeFlag = mode;
+	ModeFlag = 3;
 	return 1;
 }
 
-int GotoGameScreen()
+int GotoMainMenu()
 {
-	return GotoGameCommon(3);
-}
-
-int GotoGame()
-{
-	return GotoGameCommon(2);
+	ModeFlag = 2;
+	return 1;
 }
 
 
@@ -424,7 +413,7 @@ int SetPlayerFromCurseg()
 int fuelcen_create_from_curseg()
 {
 	Cursegp->special = SEGMENT_IS_FUELCEN;
-	fuelcen_activate( Cursegp, Cursegp->special);
+	fuelcen_activate(Cursegp, Cursegp->special);
 	return 1;
 }
 
@@ -432,21 +421,21 @@ int repaircen_create_from_curseg()
 {
 	Int3();	//	-- no longer supported!
 //	Cursegp->special = SEGMENT_IS_REPAIRCEN;
-//	fuelcen_activate( Cursegp, Cursegp->special);
+//	fuelcen_activate(Cursegp, Cursegp->special);
 	return 1;
 }
 
 int controlcen_create_from_curseg()
 {
 	Cursegp->special = SEGMENT_IS_CONTROLCEN;
-	fuelcen_activate( Cursegp, Cursegp->special);
+	fuelcen_activate(Cursegp, Cursegp->special);
 	return 1;
 }
 
 int robotmaker_create_from_curseg()
 {
 	Cursegp->special = SEGMENT_IS_ROBOTMAKER;
-	fuelcen_activate( Cursegp, Cursegp->special);
+	fuelcen_activate(Cursegp, Cursegp->special);
 	return 1;
 }
 
@@ -616,8 +605,10 @@ int FindConcaveSegs()
 
 int DosShell()
 {
-	int w, h;
+	int ok, w, h;
 	grs_bitmap * save_bitmap;
+
+	ok = 1;
 
 	// Save the current graphics state.
 
@@ -627,14 +618,14 @@ int DosShell()
 	save_bitmap = gr_create_bitmap( w, h );
 	gr_bm_ubitblt(w, h, 0, 0, 0, 0, &(grd_curscreen->sc_canvas.cv_bitmap), save_bitmap );
 
-	gr_set_mode( SM_ORIGINAL );
+	// gr_set_mode( SM_ORIGINAL );
 
 	fflush(stdout);
 
 	key_close();
-#ifndef __LINUX__
+#ifdef __MSDOS__
 	ok = spawnl(P_WAIT,getenv("COMSPEC"), NULL );
-#else
+#elif defined(__linux__)
         system("");
 #endif
 	key_init();
@@ -645,12 +636,14 @@ int DosShell()
 	//gr_pal_setblock( 0, 256, grd_curscreen->pal );
 	//gr_use_palette_table();
 
-	return 1;
+	return ok;
 
 }
 
 int ToggleOutlineMode()
-{	int mode;
+{
+#ifndef NDEBUG
+	int mode;
 
 	mode=toggle_outline_mode();
 
@@ -671,6 +664,9 @@ int ToggleOutlineMode()
 
 	Update_flags |= UF_GAME_VIEW_CHANGED;
 	return mode;
+#else
+	return 1;
+#endif
 }
 
 //@@int do_reset_orient()
@@ -869,13 +865,10 @@ int SafetyCheck()
 	int x;
 			
 	if (mine_changed) {
-		stop_time();				
 		x = nm_messagebox( "Warning!", 2, "Cancel", "OK", "You are about to lose work." );
 		if (x<1) {
-			start_time();
 			return 0;
 		}
-		start_time();
 	}
 	return 1;
 }
@@ -1180,10 +1173,10 @@ void editor(void)
 
 		if (ModeFlag==2) //-- && MacroStatus==UI_STATUS_NORMAL )
 		{
-			ui_mouse_hide();
-			Function_mode = FMODE_GAME;
-			gr_bm_ubitblt( w, h, 0, 0, 0, 0, savedbitmap, &GameViewBox->canvas->cv_bitmap);
-			gr_free_bitmap( savedbitmap );
+			close_editor_screen();
+			Function_mode = FMODE_MENU;
+			set_screen_mode(SCREEN_MENU);		//put up menu screen
+			gr_free_bitmap(savedbitmap);
 			break;
 		}
 
@@ -1354,7 +1347,6 @@ void editor(void)
 		} else {
 			ui_mouse_show();
 		}
-
 	}
 
 //	_MARK_("end of editor");//Nuked to compile -KRB
@@ -1413,26 +1405,27 @@ void dump_stuff(void)
 	con_printf(CON_DEBUG,"Colors indexed by intensity:\n");
 	con_printf(CON_DEBUG,". = change from previous, * = no change\n");
 	for (j=0; j<256; j++) {
-		printf("%3i: ",j);
+		con_printf(CON_DEBUG,"%3i: ",j);
 		prev_color = -1;
 		for (i=0; i<16; i++) {
 			int	c = gr_fade_table[i*256 + j];
 			if (c == prev_color)
-				printf("*");
+				con_printf(CON_DEBUG,"*");
 			else
-				printf(".");
+				con_printf(CON_DEBUG,".");
 			prev_color = c;
 		}
-		printf("  ");
+		con_printf(CON_DEBUG,"  ");
 		for (i=0; i<16; i++) {
 			int	c = gr_fade_table[i*256 + j];
 			con_printf(CON_DEBUG,"[%3i %2i %2i %2i] ", c, gr_palette[3*c], gr_palette[3*c+1], gr_palette[3*c+2]);
 		}
 		con_printf(CON_DEBUG,"\n");
 	}
+
 }
 
-
+#ifndef NDEBUG
 int MarkStart(void)
 {
 	char mystr[30];
@@ -1451,4 +1444,4 @@ int MarkEnd(void)
 
 	return 1;
 }
-
+#endif
