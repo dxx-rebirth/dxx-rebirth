@@ -229,7 +229,7 @@ int pause_handler(window *wind, d_event *event, char *msg)
 	{
 		case EVENT_WINDOW_ACTIVATED:
 			game_flush_inputs();
-			mouse_toggle_cursor(1);
+			event_toggle_focus(0);
 			break;
 
 		case EVENT_KEY_COMMAND:
@@ -263,7 +263,7 @@ int pause_handler(window *wind, d_event *event, char *msg)
 			break;
 
 		case EVENT_WINDOW_CLOSE:
-			mouse_toggle_cursor(0);
+			event_toggle_focus(1);
 			songs_resume();
 			d_free(msg);
 			break;

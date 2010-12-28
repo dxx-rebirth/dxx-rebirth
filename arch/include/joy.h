@@ -25,6 +25,6 @@ extern int joy_get_button_down_cnt(int btn);
 extern void joystick_read_raw_axis(int *axis);
 extern void joy_flush();
 extern int joy_get_button_state(int btn);
-extern int joy_get_scaled_reading(int raw, int axn);
+extern int joy_get_scaled_reading(int raw);
 
 #endif // _JOY_H

@@ -990,7 +990,7 @@ int game_handler(window *wind, d_event *event, void *data)
 		case EVENT_WINDOW_ACTIVATED:
 			set_screen_mode(SCREEN_GAME);
 
-			mouse_toggle_cursor(0);
+			event_toggle_focus(1);
 			game_flush_inputs();
 
 			if (time_paused)
@@ -1015,7 +1015,7 @@ int game_handler(window *wind, d_event *event, void *data)
 			if (!((Game_mode & GM_MULTI) && (Newdemo_state != ND_STATE_PLAYBACK)))
 				palette_save();
 
-			mouse_toggle_cursor(1);
+			event_toggle_focus(0);
 			break;
 
 		case EVENT_MOUSE_BUTTON_UP:
@@ -1060,7 +1060,7 @@ int game_handler(window *wind, d_event *event, void *data)
 			Game_mode = GM_GAME_OVER;
 			show_menus();
 			Game_wind = NULL;
-			mouse_toggle_cursor(1);
+			event_toggle_focus(0);
 			break;
 
 		case EVENT_WINDOW_CLOSED:

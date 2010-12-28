@@ -75,10 +75,9 @@ int new_player_config()
 	PlayerCfg.NHighestLevels = 1;
 	PlayerCfg.HighestLevels[0].Shortname[0] = 0; //no name for mission 0
 	PlayerCfg.HighestLevels[0].LevelNum = 1; //was highest level in old struct
-	PlayerCfg.JoystickSensitivityX = 8;
-	PlayerCfg.JoystickSensitivityY = 8;
-	PlayerCfg.MouseSensitivityX = 8;
-	PlayerCfg.MouseSensitivityY = 8;
+	PlayerCfg.JoystickSens[0] = PlayerCfg.JoystickSens[1] = PlayerCfg.JoystickSens[2] = PlayerCfg.JoystickSens[3] = PlayerCfg.JoystickSens[4] = 8;
+	PlayerCfg.JoystickDead[0] = PlayerCfg.JoystickDead[1] = PlayerCfg.JoystickDead[2] = PlayerCfg.JoystickDead[3] = PlayerCfg.JoystickDead[4] = 0;
+	PlayerCfg.MouseSens[0] = PlayerCfg.MouseSens[1] = PlayerCfg.MouseSens[2] = PlayerCfg.MouseSens[3] = PlayerCfg.MouseSens[4] = 8;
 	PlayerCfg.MouseFilter = 0;
 	PlayerCfg.CockpitMode[0] = PlayerCfg.CockpitMode[1] = CM_FULL_COCKPIT;
 	PlayerCfg.ReticleOn = 1;
@@ -203,12 +202,26 @@ int read_player_d1x(char *filename)
 	
 			while(!strstr(word,"END") && !PHYSFS_eof(f))
 			{
-				if(!strcmp(word,"SENSITIVITYX"))
-					PlayerCfg.JoystickSensitivityX = atoi(line);
-				if(!strcmp(word,"SENSITIVITYY"))
-					PlayerCfg.JoystickSensitivityY = atoi(line);
-				if(!strcmp(word,"DEADZONE"))
-					PlayerCfg.JoystickDeadzone = atoi(line);
+				if(!strcmp(word,"SENSITIVITY0"))
+					PlayerCfg.JoystickSens[0] = atoi(line);
+				if(!strcmp(word,"SENSITIVITY1"))
+					PlayerCfg.JoystickSens[1] = atoi(line);
+				if(!strcmp(word,"SENSITIVITY2"))
+					PlayerCfg.JoystickSens[2] = atoi(line);
+				if(!strcmp(word,"SENSITIVITY3"))
+					PlayerCfg.JoystickSens[3] = atoi(line);
+				if(!strcmp(word,"SENSITIVITY4"))
+					PlayerCfg.JoystickSens[4] = atoi(line);
+				if(!strcmp(word,"DEADZONE0"))
+					PlayerCfg.JoystickDead[0] = atoi(line);
+				if(!strcmp(word,"DEADZONE1"))
+					PlayerCfg.JoystickDead[1] = atoi(line);
+				if(!strcmp(word,"DEADZONE2"))
+					PlayerCfg.JoystickDead[2] = atoi(line);
+				if(!strcmp(word,"DEADZONE3"))
+					PlayerCfg.JoystickDead[3] = atoi(line);
+				if(!strcmp(word,"DEADZONE4"))
+					PlayerCfg.JoystickDead[4] = atoi(line);
 				d_free(word);
 				cfgets(line,50,f);
 				word=splitword(line,'=');
@@ -224,10 +237,16 @@ int read_player_d1x(char *filename)
 	
 			while(!strstr(word,"END") && !PHYSFS_eof(f))
 			{
-				if(!strcmp(word,"SENSITIVITYX"))
-					PlayerCfg.MouseSensitivityX = atoi(line);
-				if(!strcmp(word,"SENSITIVITYY"))
-					PlayerCfg.MouseSensitivityY = atoi(line);
+				if(!strcmp(word,"SENSITIVITY0"))
+					PlayerCfg.MouseSens[0] = atoi(line);
+				if(!strcmp(word,"SENSITIVITY1"))
+					PlayerCfg.MouseSens[1] = atoi(line);
+				if(!strcmp(word,"SENSITIVITY2"))
+					PlayerCfg.MouseSens[2] = atoi(line);
+				if(!strcmp(word,"SENSITIVITY3"))
+					PlayerCfg.MouseSens[3] = atoi(line);
+				if(!strcmp(word,"SENSITIVITY4"))
+					PlayerCfg.MouseSens[4] = atoi(line);
 				if(!strcmp(word,"FILTER"))
 					PlayerCfg.MouseFilter = atoi(line);
 				d_free(word);
@@ -527,13 +546,23 @@ int write_player_d1x(char *filename)
 		PHYSFSX_printf(fout,"cycle secondary=0x%x,0x%x\n",PlayerCfg.KeySettingsD1X[22],PlayerCfg.KeySettingsD1X[23]);
 		PHYSFSX_printf(fout,"[end]\n");
 		PHYSFSX_printf(fout,"[joystick]\n");
-		PHYSFSX_printf(fout,"sensitivityx=%d\n",PlayerCfg.JoystickSensitivityX);
-		PHYSFSX_printf(fout,"sensitivityy=%d\n",PlayerCfg.JoystickSensitivityY);
-		PHYSFSX_printf(fout,"deadzone=%i\n",PlayerCfg.JoystickDeadzone);
+		PHYSFSX_printf(fout,"sensitivity0=%d\n",PlayerCfg.JoystickSens[0]);
+		PHYSFSX_printf(fout,"sensitivity1=%d\n",PlayerCfg.JoystickSens[1]);
+		PHYSFSX_printf(fout,"sensitivity2=%d\n",PlayerCfg.JoystickSens[2]);
+		PHYSFSX_printf(fout,"sensitivity3=%d\n",PlayerCfg.JoystickSens[3]);
+		PHYSFSX_printf(fout,"sensitivity4=%d\n",PlayerCfg.JoystickSens[4]);
+		PHYSFSX_printf(fout,"deadzone0=%d\n",PlayerCfg.JoystickDead[0]);
+		PHYSFSX_printf(fout,"deadzone1=%d\n",PlayerCfg.JoystickDead[1]);
+		PHYSFSX_printf(fout,"deadzone2=%d\n",PlayerCfg.JoystickDead[2]);
+		PHYSFSX_printf(fout,"deadzone3=%d\n",PlayerCfg.JoystickDead[3]);
+		PHYSFSX_printf(fout,"deadzone4=%d\n",PlayerCfg.JoystickDead[4]);
 		PHYSFSX_printf(fout,"[end]\n");
 		PHYSFSX_printf(fout,"[mouse]\n");
-		PHYSFSX_printf(fout,"sensitivityx=%d\n",PlayerCfg.MouseSensitivityX);
-		PHYSFSX_printf(fout,"sensitivityy=%d\n",PlayerCfg.MouseSensitivityY);
+		PHYSFSX_printf(fout,"sensitivity0=%d\n",PlayerCfg.MouseSens[0]);
+		PHYSFSX_printf(fout,"sensitivity1=%d\n",PlayerCfg.MouseSens[1]);
+		PHYSFSX_printf(fout,"sensitivity2=%d\n",PlayerCfg.MouseSens[2]);
+		PHYSFSX_printf(fout,"sensitivity3=%d\n",PlayerCfg.MouseSens[3]);
+		PHYSFSX_printf(fout,"sensitivity4=%d\n",PlayerCfg.MouseSens[4]);
 		PHYSFSX_printf(fout,"filter=%d\n",PlayerCfg.MouseFilter);
 		PHYSFSX_printf(fout,"[end]\n");
 		PHYSFSX_printf(fout,"[cockpit]\n");
@@ -899,7 +928,7 @@ int write_player_file()
 	
 		if(errno_ret == EZERO)
 		{
-			ubyte old_avg_joy_sensitivity = ((PlayerCfg.JoystickSensitivityX+PlayerCfg.JoystickSensitivityY+1)/2);
+			ubyte old_avg_joy_sensitivity = 8;
 			if (PHYSFS_write( file,  &PlayerCfg.ControlType, sizeof(ubyte), 1 )!=1)
 				errno_ret=errno;
 			else if (PHYSFS_write( file, &old_avg_joy_sensitivity, sizeof(ubyte), 1 )!=1)

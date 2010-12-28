@@ -1461,11 +1461,11 @@ int newmenu_handler(window *wind, d_event *event, newmenu *menu)
 	{
 		case EVENT_WINDOW_ACTIVATED:
 			game_flush_inputs();
-			mouse_toggle_cursor(1);
+			event_toggle_focus(0);
 			break;
 
 		case EVENT_WINDOW_DEACTIVATED:
-			mouse_toggle_cursor(0);
+			event_toggle_focus(1);
 			menu->mouse_state = 0;
 			break;
 
@@ -2009,11 +2009,11 @@ int listbox_handler(window *wind, d_event *event, listbox *lb)
 	{
 		case EVENT_WINDOW_ACTIVATED:
 			game_flush_inputs();
-			mouse_toggle_cursor(1);
+			event_toggle_focus(0);
 			break;
 
 		case EVENT_WINDOW_DEACTIVATED:
-			mouse_toggle_cursor(0);
+			event_toggle_focus(1);
 			break;
 
 		case EVENT_MOUSE_BUTTON_DOWN:

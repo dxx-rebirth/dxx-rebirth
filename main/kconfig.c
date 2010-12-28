@@ -791,7 +791,7 @@ int kconfig_handler(window *wind, d_event *event, kc_menu *menu)
 	{
 		case EVENT_WINDOW_ACTIVATED:
 			game_flush_inputs();
-			mouse_toggle_cursor(1);
+			event_toggle_focus(0);
 			break;
 			
 		case EVENT_WINDOW_DEACTIVATED:
@@ -844,7 +844,7 @@ int kconfig_handler(window *wind, d_event *event, kc_menu *menu)
 			break;
 			
 		case EVENT_WINDOW_CLOSE:
-			mouse_toggle_cursor(0);
+			event_toggle_focus(1);
 			d_free(menu);
 			
 			// Update save values...
@@ -1162,12 +1162,22 @@ void controls_read_all(int automap_flag)
 
 		for (i = 0; i < joy_num_axes; i++)
 		{
-			int joy_null_value = 10;
+			int joy_null_value = 0;
 
-			raw_joy_axis[i] = joy_get_scaled_reading( raw_joy_axis[i], i );
+			raw_joy_axis[i] = joy_get_scaled_reading( raw_joy_axis[i] );
 
-			if (kc_joystick[23].value==i)		// If this is the throttle
-				joy_null_value = 20;		// Then use a larger dead-zone
+			if (i == kc_joystick[13].value) // Pitch U/D Deadzone
+				joy_null_value = PlayerCfg.JoystickDead[1]*8;
+			if (i == kc_joystick[15].value) // Turn L/R Deadzone
+				joy_null_value = PlayerCfg.JoystickDead[0]*8;
+			if (i == kc_joystick[17].value) // Slide L/R Deadzone
+				joy_null_value = PlayerCfg.JoystickDead[2]*8;
+			if (i == kc_joystick[19].value) // Slide U/D Deadzone
+				joy_null_value = PlayerCfg.JoystickDead[3]*8;
+			if (i == kc_joystick[21].value) // Bank Deadzone
+				joy_null_value = PlayerCfg.JoystickDead[4]*8;
+			if (i == kc_joystick[23].value) // Throttle - default deadzone
+				joy_null_value = 20;
 
 			if (raw_joy_axis[i] > joy_null_value) 
 				raw_joy_axis[i] = ((raw_joy_axis[i]-joy_null_value)*128)/(128-joy_null_value);
@@ -1315,17 +1325,17 @@ void controls_read_all(int automap_flag)
 		// From joystick...
 		if ( (use_joystick)&&(kc_joystick[13].value < 255 ))	{
 			if ( !kc_joystick[14].value )		// If not inverted...
-				Controls.pitch_time -= (joy_axis[kc_joystick[13].value]*PlayerCfg.JoystickSensitivityY)/8;
+				Controls.pitch_time -= (joy_axis[kc_joystick[13].value]*PlayerCfg.JoystickSens[1])/8;
 			else
-				Controls.pitch_time += (joy_axis[kc_joystick[13].value]*PlayerCfg.JoystickSensitivityY)/8;
+				Controls.pitch_time += (joy_axis[kc_joystick[13].value]*PlayerCfg.JoystickSens[1])/8;
 		}
 	
 		// From mouse...
 		if ( (use_mouse)&&(kc_mouse[13].value < 255) )	{
 			if ( !kc_mouse[14].value )		// If not inverted...
-				Controls.pitch_time -= (mouse_axis[kc_mouse[13].value]*PlayerCfg.MouseSensitivityY)/8;
+				Controls.pitch_time -= (mouse_axis[kc_mouse[13].value]*PlayerCfg.MouseSens[1])/8;
 			else
-				Controls.pitch_time += (mouse_axis[kc_mouse[13].value]*PlayerCfg.MouseSensitivityY)/8;
+				Controls.pitch_time += (mouse_axis[kc_mouse[13].value]*PlayerCfg.MouseSens[1])/8;
 		}
 	} else {
 		Controls.pitch_time = 0;
@@ -1354,17 +1364,17 @@ void controls_read_all(int automap_flag)
 			// From joystick...
 			if ((use_joystick)&&( kc_joystick[13].value < 255 ))	{
 				if ( !kc_joystick[14].value )		// If not inverted...
-					Controls.vertical_thrust_time += (joy_axis[kc_joystick[13].value]*PlayerCfg.JoystickSensitivityY)/8;
+					Controls.vertical_thrust_time += (joy_axis[kc_joystick[13].value]*PlayerCfg.JoystickSens[3])/8;
 				else
-					Controls.vertical_thrust_time -= (joy_axis[kc_joystick[13].value]*PlayerCfg.JoystickSensitivityY)/8;
+					Controls.vertical_thrust_time -= (joy_axis[kc_joystick[13].value]*PlayerCfg.JoystickSens[3])/8;
 			}
 		
 			// From mouse...
 			if ( (use_mouse)&&(kc_mouse[13].value < 255 ))	{
 				if ( !kc_mouse[14].value )		// If not inverted...
-					Controls.vertical_thrust_time -= (mouse_axis[kc_mouse[13].value]*PlayerCfg.MouseSensitivityY)/8;
+					Controls.vertical_thrust_time -= (mouse_axis[kc_mouse[13].value]*PlayerCfg.MouseSens[3])/8;
 				else
-					Controls.vertical_thrust_time += (mouse_axis[kc_mouse[13].value]*PlayerCfg.MouseSensitivityY)/8;
+					Controls.vertical_thrust_time += (mouse_axis[kc_mouse[13].value]*PlayerCfg.MouseSens[3])/8;
 			}
 		}
 	
@@ -1377,9 +1387,9 @@ void controls_read_all(int automap_flag)
 		// From joystick...
 		if ((use_joystick)&&( kc_joystick[19].value < 255 ))	{
 			if ( !kc_joystick[20].value )		// If not inverted...
-				Controls.vertical_thrust_time -= (joy_axis[kc_joystick[19].value]*PlayerCfg.JoystickSensitivityY)/8;
+				Controls.vertical_thrust_time -= (joy_axis[kc_joystick[19].value]*PlayerCfg.JoystickSens[3])/8;
 			else
-				Controls.vertical_thrust_time += (joy_axis[kc_joystick[19].value]*PlayerCfg.JoystickSensitivityY)/8;
+				Controls.vertical_thrust_time += (joy_axis[kc_joystick[19].value]*PlayerCfg.JoystickSens[3])/8;
 		}
 	
 		// From joystick buttons
@@ -1395,9 +1405,9 @@ void controls_read_all(int automap_flag)
 		// From mouse...
 		if ( (use_mouse)&&(kc_mouse[19].value < 255 ))	{
 			if ( !kc_mouse[20].value )		// If not inverted...
-				Controls.vertical_thrust_time += (mouse_axis[kc_mouse[19].value]*PlayerCfg.MouseSensitivityY)/8;
+				Controls.vertical_thrust_time += (mouse_axis[kc_mouse[19].value]*PlayerCfg.MouseSens[3])/8;
 			else
-				Controls.vertical_thrust_time -= (mouse_axis[kc_mouse[19].value]*PlayerCfg.MouseSensitivityY)/8;
+				Controls.vertical_thrust_time -= (mouse_axis[kc_mouse[19].value]*PlayerCfg.MouseSens[3])/8;
 		}
 
 		//Read primary cycle
@@ -1453,17 +1463,17 @@ void controls_read_all(int automap_flag)
 		// From joystick...
 		if ( (use_joystick)&&(kc_joystick[15].value < 255 ))	{
 			if ( !kc_joystick[16].value )		// If not inverted...
-				Controls.heading_time += (joy_axis[kc_joystick[15].value]*PlayerCfg.JoystickSensitivityX)/8;
+				Controls.heading_time += (joy_axis[kc_joystick[15].value]*PlayerCfg.JoystickSens[0])/8;
 			else
-				Controls.heading_time -= (joy_axis[kc_joystick[15].value]*PlayerCfg.JoystickSensitivityX)/8;
+				Controls.heading_time -= (joy_axis[kc_joystick[15].value]*PlayerCfg.JoystickSens[0])/8;
 		}
 	
 		// From mouse...
 		if ( (use_mouse)&&(kc_mouse[15].value < 255 ))	{
 			if ( !kc_mouse[16].value )		// If not inverted...
-				Controls.heading_time += (mouse_axis[kc_mouse[15].value]*PlayerCfg.MouseSensitivityX)/8;
+				Controls.heading_time += (mouse_axis[kc_mouse[15].value]*PlayerCfg.MouseSens[0])/8;
 			else
-				Controls.heading_time -= (mouse_axis[kc_mouse[15].value]*PlayerCfg.MouseSensitivityX)/8;
+				Controls.heading_time -= (mouse_axis[kc_mouse[15].value]*PlayerCfg.MouseSens[0])/8;
 		}
 	} else {
 		Controls.heading_time = 0;
@@ -1489,17 +1499,17 @@ void controls_read_all(int automap_flag)
 			// From joystick...
 			if ( (use_joystick)&&(kc_joystick[15].value < 255 ))	{
 				if ( !kc_joystick[16].value )		// If not inverted...
-					Controls.sideways_thrust_time += (joy_axis[kc_joystick[15].value]*PlayerCfg.JoystickSensitivityX)/8;
+					Controls.sideways_thrust_time += (joy_axis[kc_joystick[15].value]*PlayerCfg.JoystickSens[2])/8;
 				else
-					Controls.sideways_thrust_time -= (joy_axis[kc_joystick[15].value]*PlayerCfg.JoystickSensitivityX)/8;
+					Controls.sideways_thrust_time -= (joy_axis[kc_joystick[15].value]*PlayerCfg.JoystickSens[2])/8;
 			}
 			
 			// From mouse...
 			if ( (use_mouse)&&(kc_mouse[15].value < 255 ))	{
 				if ( !kc_mouse[16].value )		// If not inverted...
-					Controls.sideways_thrust_time += (mouse_axis[kc_mouse[15].value]*PlayerCfg.MouseSensitivityX)/8;
+					Controls.sideways_thrust_time += (mouse_axis[kc_mouse[15].value]*PlayerCfg.MouseSens[2])/8;
 				else
-					Controls.sideways_thrust_time -= (mouse_axis[kc_mouse[15].value]*PlayerCfg.MouseSensitivityX)/8;
+					Controls.sideways_thrust_time -= (mouse_axis[kc_mouse[15].value]*PlayerCfg.MouseSens[2])/8;
 			}
 		}
 	
@@ -1512,9 +1522,9 @@ void controls_read_all(int automap_flag)
 		// From joystick...
 		if ( (use_joystick)&&(kc_joystick[17].value < 255 ))	{
 			if ( !kc_joystick[18].value )		// If not inverted...
-				Controls.sideways_thrust_time += (joy_axis[kc_joystick[17].value]*PlayerCfg.JoystickSensitivityX)/8;
+				Controls.sideways_thrust_time += (joy_axis[kc_joystick[17].value]*PlayerCfg.JoystickSens[2])/8;
 			else
-				Controls.sideways_thrust_time -= (joy_axis[kc_joystick[17].value]*PlayerCfg.JoystickSensitivityX)/8;
+				Controls.sideways_thrust_time -= (joy_axis[kc_joystick[17].value]*PlayerCfg.JoystickSens[2])/8;
 		}
 	
 		// From joystick buttons
@@ -1530,9 +1540,9 @@ void controls_read_all(int automap_flag)
 		// From mouse...
 		if ( (use_mouse)&&(kc_mouse[17].value < 255 ))	{
 			if ( !kc_mouse[18].value )		// If not inverted...
-				Controls.sideways_thrust_time += (mouse_axis[kc_mouse[17].value]*PlayerCfg.MouseSensitivityX)/8;
+				Controls.sideways_thrust_time += (mouse_axis[kc_mouse[17].value]*PlayerCfg.MouseSens[2])/8;
 			else
-				Controls.sideways_thrust_time -= (mouse_axis[kc_mouse[17].value]*PlayerCfg.MouseSensitivityX)/8;
+				Controls.sideways_thrust_time -= (mouse_axis[kc_mouse[17].value]*PlayerCfg.MouseSens[2])/8;
 		}
 	}
 
@@ -1553,17 +1563,17 @@ void controls_read_all(int automap_flag)
 		// From joystick...
 		if ( (use_joystick)&&(kc_joystick[15].value < 255) )	{
 			if ( !kc_joystick[16].value )		// If not inverted...
-				Controls.bank_time -= (joy_axis[kc_joystick[15].value]*PlayerCfg.JoystickSensitivityX)/8;
+				Controls.bank_time -= (joy_axis[kc_joystick[15].value]*PlayerCfg.JoystickSens[4])/8;
 			else
-				Controls.bank_time += (joy_axis[kc_joystick[15].value]*PlayerCfg.JoystickSensitivityX)/8;
+				Controls.bank_time += (joy_axis[kc_joystick[15].value]*PlayerCfg.JoystickSens[4])/8;
 		}
 	
 		// From mouse...
 		if ( (use_mouse)&&(kc_mouse[15].value < 255 ))	{
 			if ( !kc_mouse[16].value )		// If not inverted...
-				Controls.bank_time += (mouse_axis[kc_mouse[15].value]*PlayerCfg.MouseSensitivityX)/8;
+				Controls.bank_time += (mouse_axis[kc_mouse[15].value]*PlayerCfg.MouseSens[4])/8;
 			else
-				Controls.bank_time -= (mouse_axis[kc_mouse[15].value]*PlayerCfg.MouseSensitivityX)/8;
+				Controls.bank_time -= (mouse_axis[kc_mouse[15].value]*PlayerCfg.MouseSens[4])/8;
 		}
 	}
 
