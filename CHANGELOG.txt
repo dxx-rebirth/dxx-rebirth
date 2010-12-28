@@ -4,6 +4,7 @@ D2X-Rebirth Changelog
 --------
 d2x-rebirth.xcodeproj/project.pbxproj, editor, include/editor, main/editor, SConstruct: Move main/editor to editor and move headers to include/editor, like d1x
 editor/info.c, editor/med.c, include/editor/editor.h, include/editor/info.h: Make the keypad info display into a window
+arch/include/event.h, arch/include/joy.h, arch/include/mouse.h, arch/sdl/event.c, arch/sdl/joy.c, arch/sdl/mouse.c, d2x.ini, include/args.h, main/automap.c, main/config.c, main/config.h, main/game.c, main/gamecntl.c, main/inferno.c, main/kconfig.c, main/menu.c, main/newmenu.c, main/playsave.c, main/playsave.h, misc/args.c: Added Sensitivity/Deadzone menu with sliders for each movement based action seperated for joystick and mouse to support all kinds of configuration - regardless the amount of joystick axes and whatnot; SDL_WM_GrabInput does not only capture mouse but also focus keyboard input - changed code to respect this fact and made grabbing a menu option which is enabled by default
 
 20101224
 --------

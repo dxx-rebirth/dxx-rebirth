@@ -301,15 +301,7 @@ int joy_get_button_state( int btn )
 	return Joystick.buttons[btn].state;
 }
 
-int joy_get_scaled_reading( int raw, int axis_num )
+int joy_get_scaled_reading( int raw )
 {
-	int x, d;
-
-	d =  (PlayerCfg.JoystickDeadzone) * 6;
-	if (((raw/256) > (-1*d)) && ((raw/256) < d))
-		x = 0;
-	else
-		x = raw/256;
-
-	return x;
+	return raw/256;
 }

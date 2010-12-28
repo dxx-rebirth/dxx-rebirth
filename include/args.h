@@ -57,7 +57,6 @@ typedef struct Arg
 	int CtlNoMouse;
 	int CtlNoJoystick;
 	int CtlMouselook;
-	int CtlGrabMouse;
 	int SndNoSound;
 	int SndNoMusic;
 	int SndDigiSampleRate;

@@ -1038,7 +1038,47 @@ void change_res()
 	}
 }
 
-int input_menuset(newmenu *menu, d_event *event, void *userdata)
+void input_config_sensitivity()
+{
+	newmenu_item m[20];
+	int i = 0, nitems = 0, joysens = 0, joydead = 0, mousesens = 0;
+
+	m[nitems].type = NM_TYPE_TEXT; m[nitems].text = "Joystick Sensitivity:"; nitems++;
+	joysens = nitems;
+	m[nitems].type = NM_TYPE_SLIDER; m[nitems].text = TXT_TURN_LR; m[nitems].value = PlayerCfg.JoystickSens[0]; m[nitems].min_value = 0; m[nitems].max_value = 16; nitems++;
+	m[nitems].type = NM_TYPE_SLIDER; m[nitems].text = TXT_PITCH_UD; m[nitems].value = PlayerCfg.JoystickSens[1]; m[nitems].min_value = 0; m[nitems].max_value = 16; nitems++;
+	m[nitems].type = NM_TYPE_SLIDER; m[nitems].text = TXT_SLIDE_LR; m[nitems].value = PlayerCfg.JoystickSens[2]; m[nitems].min_value = 0; m[nitems].max_value = 16; nitems++;
+	m[nitems].type = NM_TYPE_SLIDER; m[nitems].text = TXT_SLIDE_UD; m[nitems].value = PlayerCfg.JoystickSens[3]; m[nitems].min_value = 0; m[nitems].max_value = 16; nitems++;
+	m[nitems].type = NM_TYPE_SLIDER; m[nitems].text = TXT_BANK_LR; m[nitems].value = PlayerCfg.JoystickSens[4]; m[nitems].min_value = 0; m[nitems].max_value = 16; nitems++;
+	m[nitems].type = NM_TYPE_TEXT; m[nitems].text = ""; nitems++;
+	m[nitems].type = NM_TYPE_TEXT; m[nitems].text = "Joystick Deadzone:"; nitems++;
+	joydead = nitems;
+	m[nitems].type = NM_TYPE_SLIDER; m[nitems].text = TXT_TURN_LR; m[nitems].value = PlayerCfg.JoystickDead[0]; m[nitems].min_value = 0; m[nitems].max_value = 16; nitems++;
+	m[nitems].type = NM_TYPE_SLIDER; m[nitems].text = TXT_PITCH_UD; m[nitems].value = PlayerCfg.JoystickDead[1]; m[nitems].min_value = 0; m[nitems].max_value = 16; nitems++;
+	m[nitems].type = NM_TYPE_SLIDER; m[nitems].text = TXT_SLIDE_LR; m[nitems].value = PlayerCfg.JoystickDead[2]; m[nitems].min_value = 0; m[nitems].max_value = 16; nitems++;
+	m[nitems].type = NM_TYPE_SLIDER; m[nitems].text = TXT_SLIDE_UD; m[nitems].value = PlayerCfg.JoystickDead[3]; m[nitems].min_value = 0; m[nitems].max_value = 16; nitems++;
+	m[nitems].type = NM_TYPE_SLIDER; m[nitems].text = TXT_BANK_LR; m[nitems].value = PlayerCfg.JoystickDead[4]; m[nitems].min_value = 0; m[nitems].max_value = 16; nitems++;
+	m[nitems].type = NM_TYPE_TEXT; m[nitems].text = ""; nitems++;
+	m[nitems].type = NM_TYPE_TEXT; m[nitems].text = "Mouse Sensitivity:"; nitems++;
+	mousesens = nitems;
+	m[nitems].type = NM_TYPE_SLIDER; m[nitems].text = TXT_TURN_LR; m[nitems].value = PlayerCfg.MouseSens[0]; m[nitems].min_value = 0; m[nitems].max_value = 16; nitems++;
+	m[nitems].type = NM_TYPE_SLIDER; m[nitems].text = TXT_PITCH_UD; m[nitems].value = PlayerCfg.MouseSens[1]; m[nitems].min_value = 0; m[nitems].max_value = 16; nitems++;
+	m[nitems].type = NM_TYPE_SLIDER; m[nitems].text = TXT_SLIDE_LR; m[nitems].value = PlayerCfg.MouseSens[2]; m[nitems].min_value = 0; m[nitems].max_value = 16; nitems++;
+	m[nitems].type = NM_TYPE_SLIDER; m[nitems].text = TXT_SLIDE_UD; m[nitems].value = PlayerCfg.MouseSens[3]; m[nitems].min_value = 0; m[nitems].max_value = 16; nitems++;
+	m[nitems].type = NM_TYPE_SLIDER; m[nitems].text = TXT_BANK_LR; m[nitems].value = PlayerCfg.MouseSens[4]; m[nitems].min_value = 0; m[nitems].max_value = 16; nitems++;
+
+	newmenu_do1(NULL, "SENSITIVITY & DEADZONE", nitems, m, NULL, NULL, 1);
+
+	for (i = 0; i <= 4; i++)
+	{
+		PlayerCfg.JoystickSens[i] = m[joysens+i].value;
+		PlayerCfg.JoystickDead[i] = m[joydead+i].value;
+		PlayerCfg.MouseSens[i] = m[mousesens+i].value;
+	}
+}
+
+static int opt_ic_usejoy = 0, opt_ic_usemouse = 0, opt_ic_confkey = 0, opt_ic_confjoy = 0, opt_ic_confmouse = 0, opt_ic_confweap = 0, opt_ic_joymousesens = 0, opt_ic_grabinput = 0, opt_ic_mousefilt = 0, opt_ic_help0 = 0, opt_ic_help1 = 0, opt_ic_help2 = 0;
+int input_config_menuset(newmenu *menu, d_event *event, void *userdata)
 {
 	newmenu_item *items = newmenu_get_items(menu);
 	int citem = newmenu_get_citem(menu);
@@ -1048,44 +1088,33 @@ int input_menuset(newmenu *menu, d_event *event, void *userdata)
 	switch (event->type)
 	{
 		case EVENT_NEWMENU_CHANGED:
-			switch (citem)
-			{
-				case 0:		(items[citem].value)?(PlayerCfg.ControlType|=CONTROL_USING_JOYSTICK):(PlayerCfg.ControlType&=~CONTROL_USING_JOYSTICK); break;
-				case 1:		(items[citem].value)?(PlayerCfg.ControlType|=CONTROL_USING_MOUSE):(PlayerCfg.ControlType&=~CONTROL_USING_MOUSE); break;
-				case 9:		PlayerCfg.JoystickSensitivityX = items[citem].value; break;
-				case 10:	PlayerCfg.JoystickSensitivityY = items[citem].value; break;
-				case 11:	PlayerCfg.JoystickDeadzone = items[citem].value; break;
-				case 14:	PlayerCfg.MouseSensitivityX = items[citem].value; break;
-				case 15:	PlayerCfg.MouseSensitivityY = items[citem].value; break;
-				case 16:	PlayerCfg.MouseFilter = items[citem].value; break;
-			}
+			if (citem == opt_ic_usejoy)
+				(items[citem].value)?(PlayerCfg.ControlType|=CONTROL_USING_JOYSTICK):(PlayerCfg.ControlType&=~CONTROL_USING_JOYSTICK);
+			if (citem == opt_ic_usemouse)
+				(items[citem].value)?(PlayerCfg.ControlType|=CONTROL_USING_MOUSE):(PlayerCfg.ControlType&=~CONTROL_USING_MOUSE);
+			if (citem == opt_ic_grabinput)
+				GameCfg.Grabinput = items[citem].value;
+			if (citem == opt_ic_mousefilt)
+				PlayerCfg.MouseFilter = items[citem].value;
 			break;
 
 		case EVENT_NEWMENU_SELECTED:
-			switch (citem)
-			{
-				case 3:
-					kconfig(0, "KEYBOARD");
-					break;
-				case 4:
-					kconfig(1, "JOYSTICK");
-					break;
-				case 5:
-					kconfig(2, "MOUSE");
-					break;
-				case 6:
-					kconfig(3, "WEAPON KEYS");
-					break;
-				case 18:
-					show_help();
-					break;
-				case 19:
-					show_netgame_help();
-					break;
-				case 20:
-					show_newdemo_help();
-					break;
-			}
+			if (citem == opt_ic_confkey)
+				kconfig(0, "KEYBOARD");
+			if (citem == opt_ic_confjoy)
+				kconfig(1, "JOYSTICK");
+			if (citem == opt_ic_confmouse)
+				kconfig(2, "MOUSE");
+			if (citem == opt_ic_confweap)
+				kconfig(3, "WEAPON KEYS");
+			if (citem == opt_ic_joymousesens)
+				input_config_sensitivity();
+			if (citem == opt_ic_help0)
+				show_help();
+			if (citem == opt_ic_help1)
+				show_netgame_help();
+			if (citem == opt_ic_help2)
+				show_newdemo_help();
 			return 1;		// stay in menu
 			break;
 
@@ -1098,32 +1127,39 @@ int input_menuset(newmenu *menu, d_event *event, void *userdata)
 
 void input_config()
 {
-	newmenu_item m[21];
-	int nitems = 21;
+	newmenu_item m[16];
+	int nitems = 0;
 
-	m[0].type = NM_TYPE_CHECK;  m[0].text = "USE JOYSTICK"; m[0].value = (PlayerCfg.ControlType&CONTROL_USING_JOYSTICK);
-	m[1].type = NM_TYPE_CHECK;  m[1].text = "USE MOUSE"; m[1].value = (PlayerCfg.ControlType&CONTROL_USING_MOUSE);
-	m[2].type = NM_TYPE_TEXT;   m[2].text = "";
-	m[3].type = NM_TYPE_MENU;   m[3].text = "CUSTOMIZE KEYBOARD";
-	m[4].type = NM_TYPE_MENU;   m[4].text = "CUSTOMIZE JOYSTICK";
-	m[5].type = NM_TYPE_MENU;   m[5].text = "CUSTOMIZE MOUSE";
-	m[6].type = NM_TYPE_MENU;   m[6].text = "CUSTOMIZE WEAPON KEYS";
-	m[7].type = NM_TYPE_TEXT;   m[7].text = "";
-	m[8].type = NM_TYPE_TEXT;   m[8].text = "Joystick";
-	m[9].type = NM_TYPE_SLIDER; m[9].text="X Sensitivity"; m[9].value=PlayerCfg.JoystickSensitivityX; m[9].min_value = 0; m[9].max_value = 16;
-	m[10].type = NM_TYPE_SLIDER; m[10].text="Y Sensitivity"; m[10].value=PlayerCfg.JoystickSensitivityY; m[10].min_value = 0; m[10].max_value = 16;
-	m[11].type = NM_TYPE_SLIDER; m[11].text="Deadzone"; m[11].value=PlayerCfg.JoystickDeadzone; m[11].min_value=0; m[11].max_value = 16;
-	m[12].type = NM_TYPE_TEXT;   m[12].text = "";
-	m[13].type = NM_TYPE_TEXT;   m[13].text = "Mouse";
-	m[14].type = NM_TYPE_SLIDER; m[14].text="X Sensitivity"; m[14].value=PlayerCfg.MouseSensitivityX; m[14].min_value = 0; m[14].max_value = 16;
-	m[15].type = NM_TYPE_SLIDER; m[15].text="Y Sensitivity"; m[15].value=PlayerCfg.MouseSensitivityY; m[15].min_value = 0; m[15].max_value = 16;
-	m[16].type = NM_TYPE_CHECK;  m[16].text="Mouse Smoothing/Filtering"; m[16].value=PlayerCfg.MouseFilter;
-	m[17].type = NM_TYPE_TEXT;   m[17].text = "";
-	m[18].type = NM_TYPE_MENU;   m[18].text = "GAME SYSTEM KEYS";
-	m[19].type = NM_TYPE_MENU;   m[19].text = "NETGAME SYSTEM KEYS";
-	m[20].type = NM_TYPE_MENU;   m[20].text = "DEMO SYSTEM KEYS";
+	opt_ic_usejoy = nitems;
+	m[nitems].type = NM_TYPE_CHECK; m[nitems].text = "USE JOYSTICK"; m[nitems].value = (PlayerCfg.ControlType&CONTROL_USING_JOYSTICK); nitems++;
+	opt_ic_usemouse = nitems;
+	m[nitems].type = NM_TYPE_CHECK; m[nitems].text = "USE MOUSE"; m[nitems].value = (PlayerCfg.ControlType&CONTROL_USING_MOUSE); nitems++;
+	m[nitems].type = NM_TYPE_TEXT; m[nitems].text = ""; nitems++;
+	opt_ic_confkey = nitems;
+	m[nitems].type = NM_TYPE_MENU; m[nitems].text = "CUSTOMIZE KEYBOARD"; nitems++;
+	opt_ic_confjoy = nitems;
+	m[nitems].type = NM_TYPE_MENU; m[nitems].text = "CUSTOMIZE JOYSTICK"; nitems++;
+	opt_ic_confmouse = nitems;
+	m[nitems].type = NM_TYPE_MENU; m[nitems].text = "CUSTOMIZE MOUSE"; nitems++;
+	opt_ic_confweap = nitems;
+	m[nitems].type = NM_TYPE_MENU; m[nitems].text = "CUSTOMIZE WEAPON KEYS"; nitems++;
+	m[nitems].type = NM_TYPE_TEXT; m[nitems].text = ""; nitems++;
+	opt_ic_joymousesens = nitems;
+	m[nitems].type = NM_TYPE_MENU; m[nitems].text = "SENSITIVITY & DEADZONE"; nitems++;
+	m[nitems].type = NM_TYPE_TEXT; m[nitems].text = ""; nitems++;
+	opt_ic_grabinput = nitems;
+	m[nitems].type = NM_TYPE_CHECK; m[nitems].text= "Keyboard/Mouse input focused"; m[nitems].value = GameCfg.Grabinput; nitems++;
+	opt_ic_mousefilt = nitems;
+	m[nitems].type = NM_TYPE_CHECK; m[nitems].text= "Mouse Smoothing/Filtering"; m[nitems].value = PlayerCfg.MouseFilter; nitems++;
+	m[nitems].type = NM_TYPE_TEXT; m[nitems].text = ""; nitems++;
+	opt_ic_help0 = nitems;
+	m[nitems].type = NM_TYPE_MENU; m[nitems].text = "GAME SYSTEM KEYS"; nitems++;
+	opt_ic_help1 = nitems;
+	m[nitems].type = NM_TYPE_MENU; m[nitems].text = "NETGAME SYSTEM KEYS"; nitems++;
+	opt_ic_help2 = nitems;
+	m[nitems].type = NM_TYPE_MENU; m[nitems].text = "DEMO SYSTEM KEYS"; nitems++;
 
-	newmenu_do1(NULL, TXT_CONTROLS, nitems, m, input_menuset, NULL, 3);
+	newmenu_do1(NULL, TXT_CONTROLS, nitems, m, input_config_menuset, NULL, 3);
 }
 
 void do_graphics_menu()

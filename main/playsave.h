@@ -46,12 +46,10 @@ typedef struct player_config
 	int AutoLeveling;
 	short NHighestLevels;
 	hli HighestLevels[MAX_MISSIONS];
-	ubyte MouseSensitivityX;
-	ubyte MouseSensitivityY;
+	int JoystickSens[5];
+	int JoystickDead[5];
+	int MouseSens[5];
 	int MouseFilter;
-	ubyte JoystickSensitivityX;
-	ubyte JoystickSensitivityY;
-	int JoystickDeadzone;
 	int CockpitMode[2]; // 0 saves the "real" cockpit, 1 also saves letterbox and rear. Used to properly switch between modes and restore the real one.
 	int Cockpit3DView[2];
 	char NetworkMessageMacro[4][MAX_MESSAGE_LEN];

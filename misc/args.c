@@ -157,7 +157,6 @@ void ReadCmdArgs(void)
 	GameArg.CtlNoMouse 		= FindArg("-nomouse");
 	GameArg.CtlNoJoystick 		= FindArg("-nojoystick");
 	GameArg.CtlMouselook 		= FindArg("-mouselook");
-	GameArg.CtlGrabMouse 		= FindArg("-grabmouse");
 	if (FindArg("-nostickykeys")) // no GameArg, just an environment variable. Must happen before SDL_Init!
 		SDL_putenv("SDL_DISABLE_LOCK_KEYS=1");
 	else

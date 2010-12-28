@@ -59,4 +59,6 @@ int call_default_handler(d_event *event);
 // Sends input, idle and draw events to event handlers
 void event_process();
 
+void event_toggle_focus(int activate_focus);
+
 #endif
