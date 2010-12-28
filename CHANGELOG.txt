@@ -1,7 +1,12 @@
 D1X-Rebirth Changelog
 
+20101228
+--------
+editor/info.c, editor/med.c, include/editor/editor.h, include/editor/info.h: Make the keypad info display into a window
+
 20101224
 --------
+CHANGELOG.txt, SConstruct, d1x-rebirth.xcodeproj/project.pbxproj, editor/autosave.c, editor/centers.c, editor/curves.c, editor/eglobal.c, editor/ehostage.c, editor/elight.c, editor/eobject.c, editor/eswitch.c, editor/fixseg.c, editor/func.c, editor/group.c, editor/info.c, editor/kbuild.c, editor/kcurve.c, editor/kfuncs.c, editor/kgame.c, editor/kgroup.c, editor/khelp.c, editor/kmine.c, editor/ksegmove.c, editor/ksegsel.c, editor/ksegsize.c, editor/ktmap.c, editor/kview.c, editor/macro.c, editor/med.c, editor/meddraw.c, editor/medmisc.c, editor/medrobot.c, editor/medsel.c, editor/medwall.c, editor/mine.c, editor/objpage.c, editor/segment.c, editor/seguvs.c, editor/texpage.c, editor/texture.c, include/editor/centers.h, include/editor/editor.h, include/editor/ehostage.h, include/editor/eobject.h, include/editor/eswitch.h, include/editor/info.h, include/editor/kdefs.h, include/editor/kfuncs.h, include/editor/macro.h, include/editor/meddraw.h, include/editor/medlisp.h, include/editor/medmisc.h, include/editor/medrobot.h, include/editor/medsel.h, include/editor/medwall.h, include/editor/objpage.h, include/editor/seguvs.h, include/editor/texpage.h, include/makesig.h, include/ui.h, main/bm.c, main/bm.h, main/cntrlcen.c, main/cntrlcen.h, main/fuelcen.c, main/fuelcen.h, main/gamemine.h, main/gamesave.c, main/gamesave.h, main/menu.c, main/switch.c, main/switch.h, main/wall.c, main/wall.h, misc/strutil.c, ui/button.c, ui/checkbox.c, ui/file.c, ui/gadget.c, ui/inputbox.c, ui/keypad.c, ui/keypress.c, ui/keytrap.c, ui/lfile.c, ui/listbox.c, ui/menu.c, ui/menubar.c, ui/message.c, ui/mouse.c, ui/popup.c, ui/radio.c, ui/scroll.c, ui/ui.c, ui/uidraw.c, ui/userbox.c, ui/window.c: Copy lots of editor stuff from d2x-rebirth to d1x-rebirth, getting it to work on Mac OS X
 arch/carbon/conf.h: Disabling IPv6 support for OS X since in Snow Leopard it's buggy, making all Multiplayer pretty much impossible - re-activating soon as proper patches from Apple are in sight
 
 20101223

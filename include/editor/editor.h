@@ -26,6 +26,8 @@ COPYRIGHT 1993-1998 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 #include "gr.h"
 #include "ui.h"
 
+struct window;
+
 /*
  * Constants
  *
@@ -175,7 +177,7 @@ extern	segment	*Markedsegp;			// Marked segment, used in conjunction with *Curse
 extern	int		Markedside;				// Marked side on Markedsegp.
 extern  sbyte   Vertex_active[MAX_VERTICES]; // !0 means vertex is in use, 0 means not in use.
 
-extern	grs_canvas *Pad_text_canvas;		// Keypad text
+extern	struct window *Pad_info;		// Keypad text
 
 // The extra group in the following arrays is used for group rotation.
 extern 	group		GroupList[MAX_GROUPS+1];
@@ -622,7 +624,7 @@ extern grs_canvas *Canv_editor;			//the editor screen
 extern grs_canvas *Canv_editor_game; //the game on the editor screen
 
 extern grs_canvas *canv_offscreen;		//for off-screen rendering
-extern grs_canvas *Pad_text_canvas;		// Keypad text
+extern struct window *Pad_info;		// Keypad text
 
 //where the editor is looking
 extern vms_vector Ed_view_target;

@@ -29,6 +29,7 @@ COPYRIGHT 1993-1998 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 #include <time.h>
 
 #include "inferno.h"
+#include "window.h"
 #include "messagebox.h"
 #include "segment.h"
 #include "gr.h"
@@ -91,7 +92,7 @@ grs_canvas *Canv_editor;			//the editor screen
 grs_canvas *Canv_editor_game=&_canv_editor_game; //the game on the editor screen
 
 grs_canvas *canv_offscreen;		//for off-screen rendering
-grs_canvas *Pad_text_canvas;		// Keypad text
+window *Pad_info;		// Keypad text
 
 grs_font *editor_font=NULL;
 
@@ -779,7 +780,7 @@ void init_editor_screen()
 	//ui_add_gadget_button( EditorWindow, 640, 540, 50, 25, "Shell", DosShell );
 
 	ui_pad_activate( EditorWindow, PAD_X, PAD_Y );
-	Pad_text_canvas = gr_create_sub_canvas(Canv_editor, PAD_X + 250, PAD_Y + 8, 180, 160);
+	Pad_info = info_window_create();
 	ui_add_gadget_button( EditorWindow, PAD_X+6, PAD_Y+(30*5)+22, PAD_WIDTH, 20, "<<",  med_keypad_goto_prev );
 	ui_add_gadget_button( EditorWindow, PAD_X+PAD_WIDTH1+6, PAD_Y+(30*5)+22, PAD_WIDTH, 20, ">>",  med_keypad_goto_next );
 
@@ -833,7 +834,7 @@ void close_editor_screen()
 
 	editor_screen_open = 0;
 	ui_pad_deactivate();
-	gr_free_sub_canvas(Pad_text_canvas);
+	window_close(Pad_info);
 
 	ui_close_window(EditorWindow);
 
@@ -1050,7 +1051,6 @@ void editor(void)
 	while (Function_mode == FMODE_EDITOR) {
 
 		gr_set_curfont(editor_font);
-		info_display_all(EditorWindow);
 
 		ModeFlag = 0;
 
