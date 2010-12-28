@@ -21,7 +21,9 @@ COPYRIGHT 1993-1998 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 #ifndef _INFO_H
 #define _INFO_H
 
-void info_display_all( UI_WINDOW * wnd );
+struct window;
+
+struct window *info_window_create(void);
 
 extern int init_info;
 
