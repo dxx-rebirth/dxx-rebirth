@@ -1,5 +1,9 @@
 D1X-Rebirth Changelog
 
+20101230
+--------
+main/newmenu.c, main/menu.c: Fixed glitch in scroll arrow position; Added newmenu_scroll which can scroll through all kind is menu structures including automatically handling NM_TYPE_TEXT items as well as automatically updating scroll_offset; PageUp/Down now scrolls by 10 items, Home/end will select first/last/items of menu creating consistency to listbox behaviour; Fit text for GrabInput to be more understandable
+
 20101228
 --------
 editor/info.c, editor/med.c, include/editor/editor.h, include/editor/info.h: Make the keypad info display into a window

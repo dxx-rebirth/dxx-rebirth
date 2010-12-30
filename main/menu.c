@@ -1107,7 +1107,7 @@ void input_config()
 	m[nitems].type = NM_TYPE_MENU; m[nitems].text = "SENSITIVITY & DEADZONE"; nitems++;
 	m[nitems].type = NM_TYPE_TEXT; m[nitems].text = ""; nitems++;
 	opt_ic_grabinput = nitems;
-	m[nitems].type = NM_TYPE_CHECK; m[nitems].text= "Keyboard/Mouse input focused"; m[nitems].value = GameCfg.Grabinput; nitems++;
+	m[nitems].type = NM_TYPE_CHECK; m[nitems].text= "Keep Keyboard/Mouse focus"; m[nitems].value = GameCfg.Grabinput; nitems++;
 	opt_ic_mousefilt = nitems;
 	m[nitems].type = NM_TYPE_CHECK; m[nitems].text= "Mouse Smoothing/Filtering"; m[nitems].value = PlayerCfg.MouseFilter; nitems++;
 	m[nitems].type = NM_TYPE_TEXT; m[nitems].text = ""; nitems++;

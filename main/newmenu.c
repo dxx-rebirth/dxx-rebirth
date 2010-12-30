@@ -534,6 +534,68 @@ window *newmenu_get_window(newmenu *menu)
 	return menu->wind;
 }
 
+void newmenu_scroll(newmenu *menu, int amount)
+{
+	int i = 0, first = 0, last = 0;
+
+	if (amount == 0 || menu->all_text) // nothing to do for us
+		return;
+
+	for (i = 0; i < menu->nitems; i++) // find first "usable" item
+	{
+		if (menu->items[i].type != NM_TYPE_TEXT)
+		{
+			first = i;
+			break;
+		}
+	}
+	for (i = menu->nitems-1; i >= first; i--) // find last "usable" item
+	{
+		if (menu->items[i].type != NM_TYPE_TEXT)
+		{
+			last = i;
+			break;
+		}
+	}
+
+	if (first == last) // nothing to do for us
+		return;
+
+	i = 0;
+	if (amount > 0) // down the list
+	{
+		do // count down until we reached a non NM_TYPE_TEXT item and reached our amount
+		{
+			if (menu->citem == last) // stop if we reached the last item
+				return;
+			i++;
+			menu->citem++;
+			if (menu->is_scroll_box) // update scroll_offset as we go down the menu
+			{
+				menu->last_scroll_check=-1;
+				if (menu->citem+4>=menu->max_on_menu+menu->scroll_offset && menu->scroll_offset < menu->nitems-menu->max_on_menu)
+					menu->scroll_offset++;
+			}
+		} while (menu->items[menu->citem].type == NM_TYPE_TEXT || i < amount);
+	}
+	else if (amount < 0) // up the list
+	{
+		do // count up until we reached a non NM_TYPE_TEXT item and reached our amount
+		{
+			if (menu->citem == first)  // stop if we reached the first item
+				return;
+			i--;
+			menu->citem--;
+			if (menu->is_scroll_box) // update scroll_offset as we go up the menu
+			{
+				menu->last_scroll_check=-1;
+				if (menu->citem-4<menu->scroll_offset && menu->scroll_offset > 0)
+					menu->scroll_offset--;
+			}
+		} while (menu->items[menu->citem].type == NM_TYPE_TEXT || i > amount);
+	}
+}
+
 int newmenu_mouse(window *wind, d_event *event, newmenu *menu)
 {
 	int old_choice, i;
@@ -612,32 +674,22 @@ int newmenu_mouse(window *wind, d_event *event, newmenu *menu)
 
 			if (menu->scroll_offset != 0) {
 				gr_get_string_size(UP_ARROW_MARKER, &arrow_width, &arrow_height, &aw);
-				x2 = grd_curcanv->cv_bitmap.bm_x + menu->items[menu->scroll_offset].x-FSPACX(13);
+				x1 = grd_curcanv->cv_bitmap.bm_x+BORDERX-FSPACX(11);
 				y1 = grd_curcanv->cv_bitmap.bm_y + menu->items[menu->scroll_offset].y-(((int)LINE_SPACING)*menu->scroll_offset);
-				x1 = x2 - arrow_width;
+				x2 = x1 + arrow_width;
 				y2 = y1 + arrow_height;
 				if (((mx > x1) && (mx < x2)) && ((my > y1) && (my < y2)) && ScrollAllow) {
-					menu->citem--;
-					menu->last_scroll_check=-1;
-					if (menu->citem-4<menu->scroll_offset && menu->scroll_offset > 0)
-					{
-						menu->scroll_offset--;
-					}
+					newmenu_scroll(menu, -1);
 				}
 			}
 			if (menu->scroll_offset+menu->max_displayable<menu->nitems) {
 				gr_get_string_size(DOWN_ARROW_MARKER, &arrow_width, &arrow_height, &aw);
-				x2 = grd_curcanv->cv_bitmap.bm_x + menu->items[menu->scroll_offset+menu->max_displayable-1].x-FSPACX(13);
+				x1 = grd_curcanv->cv_bitmap.bm_x+BORDERX-FSPACX(11);
 				y1 = grd_curcanv->cv_bitmap.bm_y + menu->items[menu->scroll_offset+menu->max_displayable-1].y-(((int)LINE_SPACING)*menu->scroll_offset);
-				x1 = x2 - arrow_width;
+				x2 = x1 + arrow_width;
 				y2 = y1 + arrow_height;
 				if (((mx > x1) && (mx < x2)) && ((my > y1) && (my < y2)) && ScrollAllow) {
-					menu->citem++;
-					menu->last_scroll_check=-1;
-					if (menu->citem+4>=menu->max_on_menu+menu->scroll_offset && menu->scroll_offset < menu->nitems-menu->max_on_menu)
-					{
-						menu->scroll_offset++;
-					}
+					newmenu_scroll(menu, 1);
 				}
 			}
 		}
@@ -798,34 +850,22 @@ int newmenu_key_command(window *wind, d_event *event, newmenu *menu)
 	old_choice = menu->citem;
 
 	switch( k )	{
+		case KEY_HOME:
+		case KEY_PAD7:
+			newmenu_scroll(menu, -menu->nitems);
+			break;
+		case KEY_END:
+		case KEY_PAD1:
+			newmenu_scroll(menu, menu->nitems);
+			break;
 		case KEY_TAB + KEY_SHIFTED:
 		case KEY_UP:
+		case KEY_PAGEUP:
 		case KEY_PAD8:
-			if (menu->all_text) break;
-			do {
-				menu->citem--;
-
-				if (menu->is_scroll_box)
-				{
-					menu->last_scroll_check=-1;
-					if (menu->citem<0)
-					{
-						menu->citem=menu->nitems-1;
-						menu->scroll_offset = menu->nitems-menu->max_on_menu;
-						break;
-					}
-
-					if (menu->citem-4<menu->scroll_offset && menu->scroll_offset > 0)
-					{
-						menu->scroll_offset--;
-					}
-				}
-				else
-				{
-					if (menu->citem >= menu->nitems ) menu->citem=0;
-					if (menu->citem < 0 ) menu->citem=menu->nitems-1;
-				}
-			} while ( menu->items[menu->citem].type==NM_TYPE_TEXT );
+			if (k == KEY_PAGEUP)
+				newmenu_scroll(menu, -10);
+			else
+				newmenu_scroll(menu, -1);
 
 			if ((menu->items[menu->citem].type==NM_TYPE_INPUT) && (menu->citem!=old_choice))
 				menu->items[menu->citem].value = -1;
@@ -837,34 +877,12 @@ int newmenu_key_command(window *wind, d_event *event, newmenu *menu)
 			break;
 		case KEY_TAB:
 		case KEY_DOWN:
+		case KEY_PAGEDOWN:
 		case KEY_PAD2:
-			if (menu->all_text) break;
-			do {
-				menu->citem++;
-
-				if (menu->is_scroll_box)
-				{
-					menu->last_scroll_check=-1;
-
-					if (menu->citem==menu->nitems)
-					{
-						menu->citem=0;
-						menu->scroll_offset=0;
-						break;
-					}
-
-					if (menu->citem+4>=menu->max_on_menu+menu->scroll_offset && menu->scroll_offset < menu->nitems-menu->max_on_menu)
-					{
-						menu->scroll_offset++;
-					}
-				}
-				else
-				{
-					if (menu->citem < 0 ) menu->citem=menu->nitems-1;
-					if (menu->citem >= menu->nitems ) menu->citem=0;
-				}
-
-			} while ( menu->items[menu->citem].type==NM_TYPE_TEXT );
+			if (k == KEY_PAGEDOWN)
+				newmenu_scroll(menu, 10);
+			else
+				newmenu_scroll(menu, 1);
 
 			if ((menu->items[menu->citem].type==NM_TYPE_INPUT) && (menu->citem!=old_choice))
 				menu->items[menu->citem].value = -1;
@@ -1053,15 +1071,10 @@ int newmenu_key_command(window *wind, d_event *event, newmenu *menu)
 						menu->citem = choice1;
 					}
 
-					while (menu->citem > menu->scroll_offset+menu->max_displayable-1)
-					{
+					while (menu->citem+4>=menu->max_on_menu+menu->scroll_offset && menu->scroll_offset < menu->nitems-menu->max_on_menu)
 						menu->scroll_offset++;
-					}
-					while (menu->citem < menu->scroll_offset)
-					{
+					while (menu->citem-4<menu->scroll_offset && menu->scroll_offset > 0)
 						menu->scroll_offset--;
-					}
-
 				} while (choice1 != menu->citem );
 			}
 		}
@@ -1405,21 +1418,20 @@ int newmenu_draw(window *wind, newmenu *menu)
 		gr_set_curfont(MEDIUM2_FONT);
 
 		sy=menu->items[menu->scroll_offset].y-(((int)LINE_SPACING)*menu->scroll_offset);
-		sx=menu->items[menu->scroll_offset].x-FSPACX(11);
-
+		sx=BORDERX-FSPACX(11);
 
 		if (menu->scroll_offset!=0)
-			nm_rstring( FSPACX(11), sx, sy, UP_ARROW_MARKER );
+			gr_printf( sx, sy, UP_ARROW_MARKER );
 		else
-			nm_rstring( FSPACX(11), sx, sy, "  " );
+			gr_printf( sx, sy, "  " );
 
 		sy=menu->items[menu->scroll_offset+menu->max_displayable-1].y-(((int)LINE_SPACING)*menu->scroll_offset);
-		sx=menu->items[menu->scroll_offset+menu->max_displayable-1].x-FSPACX(11);
+		sx=BORDERX-FSPACX(11);
 
 		if (menu->scroll_offset+menu->max_displayable<menu->nitems)
-			nm_rstring( FSPACX(11), sx, sy, DOWN_ARROW_MARKER );
+			gr_printf( sx, sy, DOWN_ARROW_MARKER );
 		else
-			nm_rstring( FSPACX(11), sx, sy, "  " );
+			gr_printf( sx, sy, "  " );
 
 	}
 
@@ -1698,7 +1710,7 @@ void listbox_delete_item(listbox *lb, int item)
 void update_scroll_position(listbox *lb)
 {
 	if (lb->citem<0)
-		lb->citem=0;
+		lb->citem = 0;
 
 	if (lb->citem>=lb->nitems)
 		lb->citem = lb->nitems-1;
