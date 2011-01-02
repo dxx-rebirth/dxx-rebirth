@@ -863,19 +863,22 @@ int newmenu_key_command(window *wind, d_event *event, newmenu *menu)
 	int changed = 0;
 	int rval = 1;
 
-	switch( k )
+	if (keyd_pressed[KEY_NUMLOCK])
 	{
-		case KEY_PAD0: k = KEY_0;  break;
-		case KEY_PAD1: k = KEY_1;  break;
-		case KEY_PAD2: k = KEY_2;  break;
-		case KEY_PAD3: k = KEY_3;  break;
-		case KEY_PAD4: k = KEY_4;  break;
-		case KEY_PAD5: k = KEY_5;  break;
-		case KEY_PAD6: k = KEY_6;  break;
-		case KEY_PAD7: k = KEY_7;  break;
-		case KEY_PAD8: k = KEY_8;  break;
-		case KEY_PAD9: k = KEY_9;  break;
-		case KEY_PADPERIOD: k = KEY_PERIOD; break;
+		switch( k )
+		{
+			case KEY_PAD0: k = KEY_0;  break;
+			case KEY_PAD1: k = KEY_1;  break;
+			case KEY_PAD2: k = KEY_2;  break;
+			case KEY_PAD3: k = KEY_3;  break;
+			case KEY_PAD4: k = KEY_4;  break;
+			case KEY_PAD5: k = KEY_5;  break;
+			case KEY_PAD6: k = KEY_6;  break;
+			case KEY_PAD7: k = KEY_7;  break;
+			case KEY_PAD8: k = KEY_8;  break;
+			case KEY_PAD9: k = KEY_9;  break;
+			case KEY_PADPERIOD: k = KEY_PERIOD; break;
+		}
 	}
 
 	old_choice = menu->citem;
