@@ -3,6 +3,7 @@ D1X-Rebirth Changelog
 20110102
 --------
 main/credits.c, main/kconfig.c, main/menu.c, main/net_udp.c, main/newmenu.c, main/scores.c: Increasing general mouse functionality all over the game: Mouse wheel now can scroll through menu/listbox items; Right mouse button closes a menu (without the need of these ugly close boxes); Also added mouse-closing capabilities to credits, scores and kconfig menus; While being in UDP Netgames list, override keycode at PAGEUP/DOWN keypress to only flip pages without modifying citem also added messagebox showing TXT_INVALID_CHOICE when invalid netgame was chosen
+arch/include/key.h, arch/sdl/key.c, main/newmenu.c: Introduced function key_ismodlck to get the status of modifier keys or sticky keys; Let sticky keys survive flush so we can accurately use their real states; Added key repeating via SDL; Depending on status of KEY_NUMLOCK keypad will either be used as numerical or arrow input in menus
 
 20101230
 --------

@@ -25,6 +25,8 @@ COPYRIGHT 1993-1999 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 #include "event.h"
 
 #define KEY_BUFFER_SIZE 16
+#define KEY_REPEAT_DELAY 1000
+#define KEY_REPEAT_INTERVAL 100
 
 typedef struct d_event_keycommand
 {
@@ -92,6 +94,10 @@ extern unsigned int key_up_count(int scancode);
 //void key_clear_counts();
 
 extern char * key_text[256];
+
+// for key_ismodlck
+#define KEY_ISMOD	1
+#define KEY_ISLCK	2
 
 #define KEY_SHIFTED     0x100
 #define KEY_ALTED       0x200

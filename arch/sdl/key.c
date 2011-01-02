@@ -21,7 +21,7 @@
 static unsigned char Installed = 0;
 
 //-------- Variable accessed by outside functions ---------
-unsigned char 		keyd_buffer_type;		// 0=No buffer, 1=buffer ASCII, 2=buffer scans
+int			keyd_repeat = 0; // 1 = use repeats, 0 no repeats
 unsigned char 		keyd_editor_mode;
 volatile unsigned char 	keyd_last_pressed;
 volatile unsigned char 	keyd_last_released;
@@ -32,7 +32,6 @@ unsigned char		unicode_frame_buffer[KEY_BUFFER_SIZE] = { '\0', '\0', '\0', '\0',
 typedef struct Key_info {
 	ubyte		state;			// state of key 1 == down, 0 == up
 	ubyte		last_state;		// previous state of key
-	int		counter;		// incremented each time key is down in handler
 	fix64		timewentdown;	// simple counter incremented each time in interrupt and key is down
 	fix64		timehelddown;	// counter to tell how long key is down -- gets reset to 0 by key routines
 	ubyte		downcount;		// number of key counts key was down
@@ -315,6 +314,28 @@ key_props key_properties[256] = {
 
 char *key_text[256];
 
+int key_ismodlck(int keycode)
+{
+	switch (keycode)
+	{
+		case KEY_LSHIFT:
+		case KEY_RSHIFT:
+		case KEY_LALT:
+		case KEY_RALT:
+		case KEY_LCTRL:
+		case KEY_RCTRL:
+		case KEY_LMETA:
+		case KEY_RMETA:
+			return KEY_ISMOD;
+		case KEY_NUMLOCK:
+		case KEY_SCROLLOCK:
+		case KEY_CAPSLOCK:
+			return KEY_ISLCK;
+		default:
+			return 0;
+	}
+}
+
 unsigned char key_ascii()
 {
 	static unsigned char unibuffer[KEY_BUFFER_SIZE] = { '\0', '\0', '\0', '\0', '\0', '\0', '\0', '\0', '\0', '\0', '\0', '\0', '\0', '\0', '\0', '\0' };
@@ -379,7 +400,6 @@ void key_handler(SDL_KeyboardEvent *event)
 
 		if ( key->last_state == state )	{
 			if (state) {
-				key->counter++;
 				keyd_last_pressed = keycode;
 				keyd_time_when_last_pressed = timer_query();
 			}
@@ -390,17 +410,15 @@ void key_handler(SDL_KeyboardEvent *event)
 				key->downcount += state;
 				key->state = 1;
 				key->timewentdown = keyd_time_when_last_pressed = timer_query();
-				key->counter++;
 			} else {	
 				keyd_pressed[keycode] = 0;
 				keyd_last_released = keycode;
 				key->upcount += key->state;
 				key->state = 0;
-				key->counter = 0;
 				key->timehelddown += timer_query() - key->timewentdown;
 			}
 		}
-		if ( (state && !key->last_state) || (state && key->last_state && (key->counter > 30) && (key->counter & 0x01)) ) {
+		if ( (state && !key->last_state) || (state && key->last_state && keyd_repeat && !key_ismodlck(i)) ) {
 			if ( keyd_pressed[KEY_LSHIFT] || keyd_pressed[KEY_RSHIFT])
 				keycode |= KEY_SHIFTED;
 			if ( keyd_pressed[KEY_LALT] || keyd_pressed[KEY_RALT])
@@ -465,9 +483,10 @@ void key_init()
 
 	Installed=1;
 	SDL_EnableUNICODE(1);
+	if (SDL_EnableKeyRepeat(KEY_REPEAT_DELAY, KEY_REPEAT_INTERVAL) == 0)
+		keyd_repeat = 1;
 
 	keyd_time_when_last_pressed = timer_query();
-	keyd_buffer_type = 1;
 	
 	for(i=0; i<256; i++)
 		key_text[i] = key_properties[i].key_text;
@@ -479,6 +498,7 @@ void key_init()
 void key_flush()
 {
  	int i;
+	Uint8 *keystate = SDL_GetKeyState(NULL);
 
 	if (!Installed)
 		key_init();
@@ -493,14 +513,26 @@ void key_flush()
 	}
 
 	for (i=0; i<256; i++ )	{
-		keyd_pressed[i] = 0;
-		key_data.keys[i].state = 1;
-		key_data.keys[i].last_state = 0;
-		key_data.keys[i].timewentdown = timer_query();
-		key_data.keys[i].downcount=0;
-		key_data.keys[i].upcount=0;
-		key_data.keys[i].timehelddown = 0;
-		key_data.keys[i].counter = 0;
+		if (key_ismodlck(i) == KEY_ISLCK && keystate[key_properties[i].sym]) // do not flush status of sticky keys
+		{
+			keyd_pressed[i] = 1;
+			key_data.keys[i].state = 0;
+			key_data.keys[i].last_state = 1;
+			key_data.keys[i].timewentdown = timer_query();
+			key_data.keys[i].downcount=1;
+			key_data.keys[i].upcount=0;
+			key_data.keys[i].timehelddown = 1;
+		}
+		else
+		{
+			keyd_pressed[i] = 0;
+			key_data.keys[i].state = 1;
+			key_data.keys[i].last_state = 0;
+			key_data.keys[i].timewentdown = timer_query();
+			key_data.keys[i].downcount=0;
+			key_data.keys[i].upcount=0;
+			key_data.keys[i].timehelddown = 0;
+		}
 	}
 }
 
@@ -556,27 +588,6 @@ int key_getch()
 	while (!key_checkch())
 		dummy++;
 	return key_inkey();
-}
-
-unsigned int key_get_shift_status()
-{
-	unsigned int shift_status = 0;
-
-	if ( keyd_pressed[KEY_LSHIFT] || keyd_pressed[KEY_RSHIFT] )
-		shift_status |= KEY_SHIFTED;
-
-	if ( keyd_pressed[KEY_LALT] || keyd_pressed[KEY_RALT] )
-		shift_status |= KEY_ALTED;
-
-	if ( keyd_pressed[KEY_LCTRL] || keyd_pressed[KEY_RCTRL] )
-		shift_status |= KEY_CTRLED;
-
-#ifndef NDEBUG
-	if (keyd_pressed[KEY_DELETE])
-		shift_status |=KEY_DEBUGGED;
-#endif
-
-	return shift_status;
 }
 
 // Returns the number of seconds this key has been down since last call.
