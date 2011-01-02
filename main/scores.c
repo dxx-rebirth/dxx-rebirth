@@ -28,6 +28,7 @@ COPYRIGHT 1993-1999 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 #include "window.h"
 #include "gr.h"
 #include "key.h"
+#include "mouse.h"
 #include "palette.h"
 #include "game.h"
 #include "gamefont.h"
@@ -356,7 +357,16 @@ int scores_handler(window *wind, d_event *event, scores_menu *menu)
 					return 1;
 			}
 			break;
-			
+
+		case EVENT_MOUSE_BUTTON_DOWN:
+		case EVENT_MOUSE_BUTTON_UP:
+			if (mouse_get_button(event) == MBTN_LEFT || mouse_get_button(event) == MBTN_RIGHT)
+			{
+				window_close(wind);
+				return 1;
+			}
+			break;
+
 		case EVENT_IDLE:
 			timer_delay2(50);
 			break;

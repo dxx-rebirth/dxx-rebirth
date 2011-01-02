@@ -854,7 +854,13 @@ int kconfig_handler(window *wind, d_event *event, kc_menu *menu)
 				return 1;
 			}
 
-			if (mouse_get_button(event) != 0)
+			if (mouse_get_button(event) == MBTN_RIGHT)
+			{
+				if (!menu->changing)
+					window_close(wind);
+				return 1;
+			}
+			else if (mouse_get_button(event) != MBTN_LEFT)
 				return 0;
 
 			menu->mouse_state = (event->type == EVENT_MOUSE_BUTTON_DOWN);

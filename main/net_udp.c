@@ -561,6 +561,7 @@ int net_udp_list_join_poll( newmenu *menu, d_event *event, direct_join *dj )
 				newpage++;
 				if (NLPage < 0)
 					NLPage = UDP_NETGAMES_PAGES-1;
+				((d_event_keycommand *)event)->keycode = 0;
 				break;
 			}
 			if (key == KEY_PAGEDOWN)
@@ -569,6 +570,7 @@ int net_udp_list_join_poll( newmenu *menu, d_event *event, direct_join *dj )
 				newpage++;
 				if (NLPage >= UDP_NETGAMES_PAGES)
 					NLPage = 0;
+				((d_event_keycommand *)event)->keycode = 0;
 				break;
 			}
 			if (key == KEY_F5)
@@ -595,7 +597,7 @@ int net_udp_list_join_poll( newmenu *menu, d_event *event, direct_join *dj )
 		}
 		case EVENT_NEWMENU_SELECTED:
 		{
-			if (((citem+(NLPage*UDP_NETGAMES_PPAGE)) >= 2) && (((citem+(NLPage*UDP_NETGAMES_PPAGE))-2) <= num_active_udp_games))
+			if (((citem+(NLPage*UDP_NETGAMES_PPAGE)) >= 2) && (((citem+(NLPage*UDP_NETGAMES_PPAGE))-2) <= num_active_udp_games-1))
 			{
 				N_players = 0;
 				change_playernum_to(1);
@@ -605,6 +607,11 @@ int net_udp_list_join_poll( newmenu *menu, d_event *event, direct_join *dj )
 				memcpy((struct _sockaddr *)&Netgame.players[0].protocol.udp.addr, (struct _sockaddr *)&dj->host_addr, sizeof(struct _sockaddr));
 				dj->connecting = 1;
 				return 1;
+			}
+			else
+			{
+				nm_messagebox(TXT_SORRY, 1, TXT_OK, TXT_INVALID_CHOICE);
+				return -1; // invalid game selected - stay in the menu
 			}
 			break;
 		}
