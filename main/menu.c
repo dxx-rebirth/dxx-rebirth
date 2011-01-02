@@ -25,6 +25,7 @@ COPYRIGHT 1993-1998 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 #include "game.h"
 #include "gr.h"
 #include "key.h"
+#include "mouse.h"
 #include "iff.h"
 #include "u_mem.h"
 #include "error.h"
@@ -409,6 +410,13 @@ int main_menu_handler(newmenu *menu, d_event *event, int *menu_choice )
 		case EVENT_KEY_COMMAND:
 			// Don't allow them to hit ESC in the main menu.
 			if (((d_event_keycommand *)event)->keycode==KEY_ESC)
+				return 1;
+			break;
+
+		case EVENT_MOUSE_BUTTON_DOWN:
+		case EVENT_MOUSE_BUTTON_UP:
+			// Don't allow mousebutton-closing in main menu.
+			if (mouse_get_button(event) == MBTN_RIGHT)
 				return 1;
 			break;
 

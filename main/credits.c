@@ -28,6 +28,7 @@ COPYRIGHT 1993-1998 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 #include "gr.h"
 #include "window.h"
 #include "key.h"
+#include "mouse.h"
 #include "palette.h"
 #include "game.h"
 #include "timer.h"
@@ -71,6 +72,15 @@ int credits_handler(window *wind, d_event *event, credits *cr)
 			if (!call_default_handler(event))	// if not print screen, debug etc
 				window_close(wind);
 			return 1;
+
+		case EVENT_MOUSE_BUTTON_DOWN:
+		case EVENT_MOUSE_BUTTON_UP:
+			if (mouse_get_button(event) == MBTN_LEFT || mouse_get_button(event) == MBTN_RIGHT)
+			{
+				window_close(wind);
+				return 1;
+			}
+			break;
 
 		case EVENT_IDLE:
 			timer_delay(F1_0/17);
