@@ -6,6 +6,7 @@ import os
 import SCons.Util
 
 PROGRAM_NAME = 'D1X-Rebirth'
+target = 'd1x-rebirth'
 
 # version number
 D1XMAJOR = 0
@@ -24,15 +25,26 @@ DATA_DIR = PREFIX + DATA_SUBDIR
 sharepath = str(ARGUMENTS.get('sharepath', DATA_DIR))
 debug = int(ARGUMENTS.get('debug', 0))
 profiler = int(ARGUMENTS.get('profiler', 0))
-sdl_only = int(ARGUMENTS.get('sdl_only', 0))
+opengl = int(ARGUMENTS.get('opengl', 1))
 asm = int(ARGUMENTS.get('asm', 0))
 editor = int(ARGUMENTS.get('editor', 0))
-sdlmixer = int(ARGUMENTS.get('sdlmixer', 0))
-arm = int(ARGUMENTS.get('arm', 0))
+sdlmixer = int(ARGUMENTS.get('sdlmixer', 1))
 ipv6 = int(ARGUMENTS.get('ipv6', 0))
 use_udp = int(ARGUMENTS.get('use_udp', 1))
 use_ipx = int(ARGUMENTS.get('use_ipx', 1))
 verbosebuild = int(ARGUMENTS.get('verbosebuild', 0))
+
+# endianess-checker
+def checkEndian():
+    import struct
+    array = struct.pack('cccc', '\x01', '\x02', '\x03', '\x04')
+    i = struct.unpack('i', array)
+    if i == struct.unpack('<i', array):
+        return "little"
+    elif i == struct.unpack('>i', array):
+        return "big"
+    return "unknown"
+
 
 print '\n===== ' + PROGRAM_NAME + VERSION_STRING + ' =====\n'
 
@@ -223,7 +235,7 @@ arch_ogl_sources = [
 'arch/ogl/ogl.c',
 ]
 
-# for sdl
+# for non-ogl
 arch_sdl_sources = [
 'arch/sdl/gr.c',
 'texmap/tmapflat.c'
@@ -344,23 +356,34 @@ else:
 	ogllibs = ['GL', 'GLU']
 	lflags = '-L/usr/X11R6/lib'
 
-# arm architecture?
-if (arm == 1):
+# set endianess
+if (checkEndian() == "big"):
+	print "BigEndian machine detected"
 	asm = 0
-	env.Append(CPPDEFINES = ['WORDS_NEED_ALIGNMENT'])
-	env.Append(CPPFLAGS = ['-mstructure-size-boundary=8'])
+	env.Append(CPPDEFINES = ['WORDS_BIGENDIAN'])
+elif (checkEndian() == "little"):
+	print "LittleEndian machine detected"
 
-# sdl or opengl?
-if (sdl_only == 1):
-	print "building with SDL"
-	target = 'd1x-rebirth-sdl'
-	common_sources += arch_sdl_sources
-else:
+# opengl or software renderer?
+if (opengl == 1):
 	print "building with OpenGL"
-	target = 'd1x-rebirth-gl'
 	env.Append(CPPDEFINES = ogldefines)
 	common_sources += arch_ogl_sources
 	libs += ogllibs
+else:
+	print "building with Software Renderer"
+	common_sources += arch_sdl_sources
+
+# assembler code?
+if (asm == 1) and (opengl == 0):
+	print "including: ASSEMBLER"
+	Object(['texmap/tmappent.S', 'texmap/tmapppro.S'], AS='gcc', ASFLAGS='-D' + str(osdef) + ' -c ')
+	env.Replace(AS = 'nasm')
+	env.Append(ASCOM = ' -f ' + str(osasmdef) + ' -d' + str(osdef) + ' -Itexmap/ ')
+	common_sources += asm_sources + ['texmap/tmappent.o', 'texmap/tmapppro.o']
+else:
+	env.Append(CPPDEFINES = ['NO_ASM'])
+	common_sources += noasm_sources
 
 # SDL_mixer support?
 if (sdlmixer == 1):
@@ -382,17 +405,6 @@ else:
 if (profiler == 1):
 	env.Append(CPPFLAGS = ['-pg'])
 	lflags += ' -pg'
-
-# assembler code?
-if (asm == 1) and (sdl_only == 1):
-	print "including: ASSEMBLER"
-	Object(['texmap/tmappent.S', 'texmap/tmapppro.S'], AS='gcc', ASFLAGS='-D' + str(osdef) + ' -c ')
-	env.Replace(AS = 'nasm')
-	env.Append(ASCOM = ' -f ' + str(osasmdef) + ' -d' + str(osdef) + ' -Itexmap/ ')
-	common_sources += asm_sources + ['texmap/tmappent.o', 'texmap/tmapppro.o']
-else:
-	env.Append(CPPDEFINES = ['NO_ASM'])
-	common_sources += noasm_sources
 
 #editor build?
 if (editor == 1):
@@ -441,18 +453,17 @@ Help(PROGRAM_NAME + ', SConstruct file help:' +
 	
 	Extra options (add them to command line, like 'scons extraoption=value'):
 	
-	'sharepath=DIR'   (non-Mac OS *NIX only) use DIR for shared game data. (default: /usr/local/share/games/d1x-rebirth)
-	'sdl_only=1'      don't include OpenGL, use SDL-only instead
-	'sdlmixer=1'      use SDL_Mixer for sound (includes external music support)
-	'asm=1'           use ASSEMBLER code (only with sdl_only=1, requires NASM and x86)
-	'debug=1'         build DEBUG binary which includes asserts, debugging output, cheats and more output
-	'profiler=1'      do profiler build
-	'editor=1'        build editor !EXPERIMENTAL!
-	'arm=1'           compile for ARM architecture
-	'ipv6=1'          enables IPv6 copability
-	'use_udp=0'	  disable UDP support
-	'use_ipx=0'	  disable IPX support (IPX available on Linux and Windows, only)
-	'verbosebuild=1'  print out all compiler/linker messages during building
+	'sharepath=[DIR]'     (non-Mac OS *NIX only) use [DIR] for shared game data. [default: /usr/local/share/games/d1x-rebirth]
+	'opengl=[0/1]'        build with OpenGL support [default: 1]
+	'sdlmixer=[0/1]'      build with SDL_Mixer support for sound and music (includes external music support) [default: 1]
+	'asm=[0/1]'           build with ASSEMBLER code (only with opengl=0, requires NASM and x86) [default: 0]
+	'debug=[0/1]'         build DEBUG binary which includes asserts, debugging output, cheats and more output [default: 0]
+	'profiler=[0/1]'      profiler build [default: 0]
+	'editor=[0/1]'        include editor into build (!EXPERIMENTAL!) [default: 0]
+	'ipv6=[0/1]'          enable IPv6 compability [default: 0]
+	'use_udp=[0/1]'       enable UDP support [default: 1]
+	'use_ipx=[0/1]'       enable IPX support (IPX available on Linux and Windows, only) [default: 1]
+	'verbosebuild=[0/1]'  print out all compiler/linker messages during building [default: 0]
 		
 	Default values:
 	""" + ' sharepath = ' + DATA_DIR + """

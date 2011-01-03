@@ -21,11 +21,11 @@ Compiling:
    *NIX:
    -----
    Type 'scons' to compile the source.
-   You can also give additional options like 'scons sdl_only=1 asm=1'. See 'scons -h' for available options.
+   You can also give additional options like 'scons use_ipx=0'. See 'scons -h' for available options.
    To install, use 'scons install' but remember to use all your options as well or SCons will re-compile and
    install without any options given to prior compiling. However it's STRONGLY recommended NOT to use the
    'install' argument but to create a package for your Linux distribution or operating system. 'install' will
-   compile the resulting binary (d1x-rebirth-gl/sdl) to /usr/local/bin/ by default so to uninstall, just
+   compile the resulting binary (d1x-rebirth) to /usr/local/bin/ by default so to uninstall, just
    delete the binary.
 
    MacOS:
