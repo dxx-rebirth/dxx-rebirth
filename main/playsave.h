@@ -71,6 +71,9 @@ typedef struct player_config
 	int HudMode;
 	int PersistentDebris;
 	int PRShot;
+	ubyte NoRedundancy;
+	ubyte MultiMessages;
+	ubyte BombGauge;
 	int OglAlphaEffects;
 	int OglReticle;
 } __pack__ player_config;

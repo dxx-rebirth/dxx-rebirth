@@ -84,6 +84,9 @@ int new_player_config()
 	PlayerCfg.HudMode = 0;
 	PlayerCfg.PersistentDebris = 0;
 	PlayerCfg.PRShot = 0;
+	PlayerCfg.NoRedundancy = 0;
+	PlayerCfg.MultiMessages = 0;
+	PlayerCfg.BombGauge = 1;
 	PlayerCfg.OglAlphaEffects = 0;
 	PlayerCfg.OglReticle = 0;
 
@@ -263,6 +266,12 @@ int read_player_d1x(char *filename)
 					PlayerCfg.PersistentDebris = atoi(line);
 				else if(!strcmp(word,"PRSHOT"))
 					PlayerCfg.PRShot = atoi(line);
+				if(!strcmp(word,"NOREDUNDANCY"))
+					PlayerCfg.NoRedundancy = atoi(line);
+				if(!strcmp(word,"MULTIMESSAGES"))
+					PlayerCfg.MultiMessages = atoi(line);
+				if(!strcmp(word,"BOMBGAUGE"))
+					PlayerCfg.BombGauge = atoi(line);
 				d_free(word);
 				cfgets(line,50,f);
 				word=splitword(line,'=');
@@ -543,6 +552,9 @@ int write_player_d1x(char *filename)
 		PHYSFSX_printf(fout,"reticle=%i\n",PlayerCfg.ReticleOn);
 		PHYSFSX_printf(fout,"persistentdebris=%i\n",PlayerCfg.PersistentDebris);
 		PHYSFSX_printf(fout,"prshot=%i\n",PlayerCfg.PRShot);
+		PHYSFSX_printf(fout,"noredundancy=%i\n",PlayerCfg.NoRedundancy);
+		PHYSFSX_printf(fout,"multimessages=%i\n",PlayerCfg.MultiMessages);
+		PHYSFSX_printf(fout,"bombgauge=%i\n",PlayerCfg.BombGauge);
 		PHYSFSX_printf(fout,"[end]\n");
 		PHYSFSX_printf(fout,"[opengl]\n");
 		PHYSFSX_printf(fout,"oglalphaeffects=%i\n",PlayerCfg.OglAlphaEffects);

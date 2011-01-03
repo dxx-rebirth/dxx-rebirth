@@ -52,7 +52,6 @@ typedef struct Arg
 	int SysWindow;
 	int SysAutoDemo;
 	int SysNoTitles;
-	int SysNoRedundancy;
 	int CtlNoMouse;
 	int CtlNoJoystick;
 	int CtlMouselook;
@@ -65,7 +64,6 @@ typedef struct Arg
 	int OglFixedFont;
 #endif
 	int EdiNoBm;
-	int MplTxtMessages;
 	const char *MplIpxNetwork;
 	const char *MplUdpHostAddr;
 	int MplUdpHostPort;

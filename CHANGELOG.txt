@@ -3,6 +3,7 @@ D1X-Rebirth Changelog
 20110103
 --------
 arch/sdl/joy.c, arch/sdl/key.c, arch/sdl/mouse.c, include/args.h, main/kconfig.c, main/kconfig.h, main/playsave.c, misc/args.c: Added Cycle Primary/Secondary to the config panels for keyboard and joystick like in D2X-Rebirth and store them in the designated key/button arrays; Added Cycle Primary/Secondary for Mouse which makes wheel axis cycling unnecessary and also let Weapon Keys be assigned to a Mouse button; If GameArg.NoStickyKeys do flush these keys so they can be used as normal game keys - otherwise ban them; Fixed crash when reassigning mouse button greater than 3; Joystick/Mouse function taking button as argument now check for sanity of this value so they can safely be used in kconfig code and deal with unassigned key values
+d1x.ini, include/args.h, main/gauges.c, main/hud.c, main/inferno.c, main/menu.c, main/playsave.c, main/playsave.h, misc/args.c: Added feature to disable D2-style Prox. Bomb Gauge; Moved NoRedundancy and MultiMessages toggles from GameArg to PlayerCfg to be set via Misc Options
 
 20110102
 --------

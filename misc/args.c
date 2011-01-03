@@ -152,7 +152,6 @@ void ReadCmdArgs(void)
 	GameArg.SysWindow 		= FindArg("-window");
 	GameArg.SysNoTitles 		= FindArg("-notitles");
 	GameArg.SysAutoDemo 		= FindArg("-autodemo");
-	GameArg.SysNoRedundancy 	= FindArg("-noredundancy");
 
 	// Control Options
 
@@ -188,7 +187,6 @@ void ReadCmdArgs(void)
 
 	// Multiplayer Options
 
-	GameArg.MplTxtMessages 		= FindArg("-multimessages");
 	GameArg.MplIpxNetwork 		= get_str_arg("-ipxnetwork", NULL);
 	GameArg.MplUdpHostAddr		= get_str_arg("-udp_hostaddr", "localhost");
 	GameArg.MplUdpHostPort		= get_int_arg("-udp_hostport", 0);

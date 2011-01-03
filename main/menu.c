@@ -1732,7 +1732,7 @@ void do_sound_menu()
 
 void do_misc_menu()
 {
-	newmenu_item m[4];
+	newmenu_item m[7];
 	int i = 0;
 
 	do {
@@ -1740,6 +1740,9 @@ void do_misc_menu()
 		ADD_CHECK(1, "Show reticle", PlayerCfg.ReticleOn);
 		ADD_CHECK(2, "Persistent Debris",PlayerCfg.PersistentDebris);
 		ADD_CHECK(3, "Screenshots w/o HUD",PlayerCfg.PRShot);
+		ADD_CHECK(4, "Disable redundant pickup messages",PlayerCfg.NoRedundancy);
+		ADD_CHECK(5, "Only show Player msgs in Multipl.",PlayerCfg.MultiMessages);
+		ADD_CHECK(6, "Show D2-style Prox. Bomb Gauge",PlayerCfg.BombGauge);
 
 		i = newmenu_do1( NULL, "Misc Options", sizeof(m)/sizeof(*m), m, NULL, NULL, i );
 
@@ -1747,6 +1750,9 @@ void do_misc_menu()
 		PlayerCfg.ReticleOn		= m[1].value;
 		PlayerCfg.PersistentDebris	= m[2].value;
 		PlayerCfg.PRShot 		= m[3].value;
+		PlayerCfg.NoRedundancy 		= m[4].value;
+		PlayerCfg.MultiMessages 	= m[5].value;
+		PlayerCfg.BombGauge 		= m[6].value;
 
 	} while( i>-1 );
 
