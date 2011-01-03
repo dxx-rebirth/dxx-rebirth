@@ -145,8 +145,8 @@ typedef struct advanced_ext_control_info {
 
 #define CONTROL_USING_JOYSTICK	1
 #define CONTROL_USING_MOUSE		2
-#define NUM_D2X_CONTROLS    20
-#define MAX_D2X_CONTROLS    40
+#define NUM_D2X_CONTROLS    30
+#define MAX_D2X_CONTROLS    30
 #define NUM_KEY_CONTROLS    57
 #define NUM_JOYSTICK_CONTROLS  56
 #define NUM_MOUSE_CONTROLS  30

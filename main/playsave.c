@@ -68,10 +68,9 @@ COPYRIGHT 1993-1999 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 //version 21 -> 22: save lifetime netstats 
 //version 22 -> 23: ??
 //version 23 -> 24: add name of joystick for windows version.
-//version 24 -> 25: add d2x keys array
 
 #define SAVE_FILE_ID MAKE_SIG('D','P','L','R')
-#define PLAYER_FILE_VERSION 25 //increment this every time the player file changes
+#define PLAYER_FILE_VERSION 24 //increment this every time the player file changes
 #define COMPATIBLE_PLAYER_FILE_VERSION 17
 
 struct player_config PlayerCfg;
@@ -202,6 +201,30 @@ int read_player_d2x(char *filename)
 				strupr(word);
 			}
 		}
+		else if (strstr(word,"WEAPON KEYS V2"))
+		{
+			d_free(word);
+			cfgets(line,50,f);
+			word=splitword(line,'=');
+			strupr(word);
+			while(!strstr(word,"END") && !PHYSFS_eof(f))
+			{
+				int kc1=0,kc2=0,kc3=0;
+				int i=atoi(word);
+				
+				if(i==0) i=10;
+					i=(i-1)*3;
+		
+				sscanf(line,"0x%x,0x%x,0x%x",&kc1,&kc2,&kc3);
+				PlayerCfg.KeySettingsD2X[i]   = kc1;
+				PlayerCfg.KeySettingsD2X[i+1] = kc2;
+				PlayerCfg.KeySettingsD2X[i+2] = kc3;
+				d_free(word);
+				cfgets(line,50,f);
+				word=splitword(line,'=');
+				strupr(word);
+			}
+		}
 		else if (strstr(word,"COCKPIT"))
 		{
 			d_free(word);
@@ -323,6 +346,18 @@ int write_player_d2x(char *filename)
 		PHYSFSX_printf(fout,"sensitivity3=%d\n",PlayerCfg.MouseSens[3]);
 		PHYSFSX_printf(fout,"sensitivity4=%d\n",PlayerCfg.MouseSens[4]);
 		PHYSFSX_printf(fout,"filter=%d\n",PlayerCfg.MouseFilter);
+		PHYSFSX_printf(fout,"[end]\n");
+		PHYSFSX_printf(fout,"[weapon keys v2]\n");
+		PHYSFSX_printf(fout,"1=0x%x,0x%x,0x%x\n",PlayerCfg.KeySettingsD2X[0],PlayerCfg.KeySettingsD2X[1],PlayerCfg.KeySettingsD2X[2]);
+		PHYSFSX_printf(fout,"2=0x%x,0x%x,0x%x\n",PlayerCfg.KeySettingsD2X[3],PlayerCfg.KeySettingsD2X[4],PlayerCfg.KeySettingsD2X[5]);
+		PHYSFSX_printf(fout,"3=0x%x,0x%x,0x%x\n",PlayerCfg.KeySettingsD2X[6],PlayerCfg.KeySettingsD2X[7],PlayerCfg.KeySettingsD2X[8]);
+		PHYSFSX_printf(fout,"4=0x%x,0x%x,0x%x\n",PlayerCfg.KeySettingsD2X[9],PlayerCfg.KeySettingsD2X[10],PlayerCfg.KeySettingsD2X[11]);
+		PHYSFSX_printf(fout,"5=0x%x,0x%x,0x%x\n",PlayerCfg.KeySettingsD2X[12],PlayerCfg.KeySettingsD2X[13],PlayerCfg.KeySettingsD2X[14]);
+		PHYSFSX_printf(fout,"6=0x%x,0x%x,0x%x\n",PlayerCfg.KeySettingsD2X[15],PlayerCfg.KeySettingsD2X[16],PlayerCfg.KeySettingsD2X[17]);
+		PHYSFSX_printf(fout,"7=0x%x,0x%x,0x%x\n",PlayerCfg.KeySettingsD2X[18],PlayerCfg.KeySettingsD2X[19],PlayerCfg.KeySettingsD2X[20]);
+		PHYSFSX_printf(fout,"8=0x%x,0x%x,0x%x\n",PlayerCfg.KeySettingsD2X[21],PlayerCfg.KeySettingsD2X[22],PlayerCfg.KeySettingsD2X[23]);
+		PHYSFSX_printf(fout,"9=0x%x,0x%x,0x%x\n",PlayerCfg.KeySettingsD2X[24],PlayerCfg.KeySettingsD2X[25],PlayerCfg.KeySettingsD2X[26]);
+		PHYSFSX_printf(fout,"0=0x%x,0x%x,0x%x\n",PlayerCfg.KeySettingsD2X[27],PlayerCfg.KeySettingsD2X[28],PlayerCfg.KeySettingsD2X[29]);
 		PHYSFSX_printf(fout,"[end]\n");
 		PHYSFSX_printf(fout,"[cockpit]\n");
 		PHYSFSX_printf(fout,"hud=%i\n",PlayerCfg.HudMode);
@@ -535,12 +570,6 @@ int read_player_file()
 			PHYSFSX_readString(file, buf);			// Just read it in fpr DPS.
 	}
 
-	if (player_file_version >= 25)
-		PHYSFS_read(file, PlayerCfg.KeySettingsD2X, MAX_D2X_CONTROLS, 1);
-	else
-		for(i=0; i < MAX_D2X_CONTROLS; i++)
-			PlayerCfg.KeySettingsD2X[i] = DefaultKeySettingsD2X[i];
-
 	if (!PHYSFS_close(file))
 		goto read_player_file_failed;
 
@@ -730,8 +759,6 @@ int write_player_file()
 		strcpy(buf, "DOS joystick");
 		PHYSFSX_writeString(file, buf);		// Write out current joystick for player.
 	}
-
-	PHYSFS_write(file, PlayerCfg.KeySettingsD2X, MAX_D2X_CONTROLS, 1);
 
 	if (!PHYSFS_close(file))
 		goto write_player_file_failed;

@@ -17,6 +17,7 @@
 #include "timer.h"
 #include "window.h"
 #include "console.h"
+#include "args.h"
 
 static unsigned char Installed = 0;
 
@@ -513,7 +514,7 @@ void key_flush()
 	}
 
 	for (i=0; i<256; i++ )	{
-		if (key_ismodlck(i) == KEY_ISLCK && keystate[key_properties[i].sym]) // do not flush status of sticky keys
+		if (key_ismodlck(i) == KEY_ISLCK && keystate[key_properties[i].sym] && !GameArg.CtlNoStickyKeys) // do not flush status of sticky keys
 		{
 			keyd_pressed[i] = 1;
 			key_data.keys[i].state = 0;

@@ -203,7 +203,8 @@ fix64 mouse_button_down_time(int button)
 {
 	fix64 time_down, time;
 
-//	event_poll();
+	if (button < 0 || button >= MOUSE_MAX_BUTTONS)
+		return 0;
 
 	if (!Mouse.buttons[button].pressed) {
 		time_down = Mouse.buttons[button].time_held_down;
@@ -221,7 +222,8 @@ int mouse_button_down_count(int button)
 {
 	int count;
 
-//	event_poll();
+	if (button < 0 || button >= MOUSE_MAX_BUTTONS)
+		return 0;
 
 	count = Mouse.buttons[button].num_downs;
 	Mouse.buttons[button].num_downs = 0;
@@ -232,7 +234,9 @@ int mouse_button_down_count(int button)
 // Returns 1 if this button is currently down
 int mouse_button_state(int button)
 {
-//	event_poll();
+	if (button < 0 || button >= MOUSE_MAX_BUTTONS)
+		return 0;
+
 	return Mouse.buttons[button].pressed;
 }
 

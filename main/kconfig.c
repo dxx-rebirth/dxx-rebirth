@@ -78,13 +78,12 @@ char *invert_text[2] = { "N", "Y" };
 char *joybutton_text[JOY_MAX_BUTTONS];
 char *joyaxis_text[JOY_MAX_AXES];
 char *mouseaxis_text[3] = { "L/R", "F/B", "WHEEL" };
-char *mousebutton_text[3] = { "LEFT", "RIGHT", "MID" };
-char *mousebutton_textra[13] = { "M4", "M5", "M6", "M7", "M8", "M9", "M10","M11","M12","M13","M14","M15","M16" };//text for buttons above 3. -MPM
+char *mousebutton_text[16] = { "LEFT", "RIGHT", "MID", "M4", "M5", "M6", "M7", "M8", "M9", "M10","M11","M12","M13","M14","M15","M16" };
 
 #ifdef D2X_KEYS
-ubyte system_keys[] = { KEY_ESC, KEY_F1, KEY_F2, KEY_F3, KEY_F4, KEY_F5, KEY_F6, KEY_F7, KEY_F8, KEY_F9, KEY_F10, KEY_F11, KEY_F12, KEY_MINUS, KEY_EQUAL, KEY_PRINT_SCREEN };
+ubyte system_keys[19] = { KEY_ESC, KEY_F1, KEY_F2, KEY_F3, KEY_F4, KEY_F5, KEY_F6, KEY_F7, KEY_F8, KEY_F9, KEY_F10, KEY_F11, KEY_F12, KEY_MINUS, KEY_EQUAL, KEY_PRINT_SCREEN, KEY_CAPSLOCK, KEY_SCROLLOCK, KEY_NUMLOCK }; // KEY_*LOCK should always be last since we wanna skip these if -nostickykeys
 #else
-ubyte system_keys[] = { KEY_ESC, KEY_F1, KEY_F2, KEY_F3, KEY_F4, KEY_F5, KEY_F6, KEY_F7, KEY_F8, KEY_F9, KEY_F10, KEY_F11, KEY_F12, KEY_0, KEY_1, KEY_2, KEY_3, KEY_4, KEY_5, KEY_6, KEY_7, KEY_8, KEY_9, KEY_0, KEY_MINUS, KEY_EQUAL, KEY_PRINT_SCREEN };
+ubyte system_keys[30] = { KEY_ESC, KEY_F1, KEY_F2, KEY_F3, KEY_F4, KEY_F5, KEY_F6, KEY_F7, KEY_F8, KEY_F9, KEY_F10, KEY_F11, KEY_F12, KEY_0, KEY_1, KEY_2, KEY_3, KEY_4, KEY_5, KEY_6, KEY_7, KEY_8, KEY_9, KEY_0, KEY_MINUS, KEY_EQUAL, KEY_PRINT_SCREEN, KEY_CAPSLOCK, KEY_SCROLLOCK, KEY_NUMLOCK }; // KEY_*LOCK should always be last since we wanna skip these if -nostickykeys
 #endif
 
 extern void transfer_energy_to_shield(fix);
@@ -136,9 +135,11 @@ typedef struct kc_menu
 ubyte DefaultKeySettings[3][MAX_CONTROLS] = {
 {0xc8,0x48,0xd0,0x50,0xcb,0x4b,0xcd,0x4d,0x38,0xff,0xff,0x4f,0xff,0x51,0xff,0x4a,0xff,0x4e,0xff,0xff,0x10,0x47,0x12,0x49,0x1d,0x9d,0x39,0xff,0x21,0xff,0x1e,0xff,0x2c,0xff,0x30,0xff,0x13,0xff,0xff,0xff,0xff,0xff,0xff,0xff,0xf,0xff,0x1f,0xff,0x33,0xff,0x34,0xff,0x23,0xff,0x14,0xff,0xff,0xff,0x0,0x0},
 {0x0,0x1,0xff,0xff,0xff,0xff,0xff,0xff,0xff,0xff,0xff,0xff,0xff,0x1,0x0,0x0,0x0,0xff,0x0,0xff,0x0,0xff,0x0,0xff,0x0,0xff,0xff,0xff,0xff,0xff,0xff,0xff,0xff,0xff,0xff,0xff,0xff,0xff,0xff,0xff,0xff,0xff,0xff,0xff,0xff,0xff,0xff,0xff,0xff,0xff,0xff,0xff,0xff,0xff,0xff,0xff,0x0,0x0,0x0,0x0},
-{0x0,0x1,0xff,0xff,0xff,0xff,0xff,0xff,0xff,0xff,0xff,0xff,0xff,0x1,0x0,0x0,0x0,0xff,0x0,0xff,0x0,0xff,0x0,0xff,0x0,0xff,0xff,0xff,0xff,0x0,0xff,0xff,0xff,0xff,0xff,0xff,0xff,0xff,0xff,0xff,0xff,0xff,0xff,0xff,0xff,0xff,0xff,0xff,0xff,0xff,0xff,0xff,0xff,0xff,0xff,0x0,0x0,0x0,0x0,0x0},
+{0x0,0x1,0xff,0xff,0xff,0xff,0xff,0xff,0xff,0xff,0xff,0xff,0xff,0x1,0x0,0x0,0x0,0xff,0x0,0xff,0x0,0xff,0x0,0xff,0x0,0xff,0xff,0xff,0xff,0xff,0xff,0xff,0xff,0xff,0xff,0xff,0xff,0xff,0xff,0xff,0xff,0xff,0xff,0xff,0xff,0xff,0xff,0xff,0xff,0xff,0xff,0xff,0xff,0xff,0xff,0x0,0x0,0x0,0x0,0x0},
 };
+ubyte DefaultKeySettingsD2X[MAX_D2X_CONTROLS] = { 0x2,0xff,0xff,0x3,0xff,0xff,0x4,0xff,0xff,0x5,0xff,0xff,0x6,0xff,0xff,0x7,0xff,0xff,0x8,0xff,0xff,0x9,0xff,0xff,0xa,0xff,0xff,0xb,0xff,0xff };
 
+//	  id,  x,  y, w1, w2,  u,  d,   l, r,     text,   type, value
 kc_item kc_keyboard[NUM_KEY_CONTROLS] = {
 	{  0, 15, 49, 71, 26, 55,  2, 56,  1,"Pitch forward", BT_KEY, 255 },
 	{  1, 15, 49,100, 26, 50,  3,  0, 24,"Pitch forward", BT_KEY, 255 },
@@ -190,8 +191,8 @@ kc_item kc_keyboard[NUM_KEY_CONTROLS] = {
 	{ 47,158,121,112, 26, 33, 39, 46, 18,"Afterburner", BT_KEY, 255 },
 	{ 48, 15,161, 71, 26, 22, 50, 43, 49,"Cycle Primary", BT_KEY, 255 },
 	{ 49, 15,161,100, 26, 23, 51, 48, 52,"Cycle Primary", BT_KEY, 255 },
-	{ 50, 15,169, 71, 26, 48,  1, 53, 51,"Cycle Second", BT_KEY, 255 },
-	{ 51, 15,169,100, 26, 49, 24, 50, 54,"Cycle Second", BT_KEY, 255 },
+	{ 50, 15,169, 71, 26, 48,  1, 53, 51,"Cycle Second.", BT_KEY, 255 },
+	{ 51, 15,169,100, 26, 49, 24, 50, 54,"Cycle Second.", BT_KEY, 255 },
 	{ 52,158,163, 83, 26, 42, 54, 49, 53,"Headlight", BT_KEY, 255 },
 	{ 53,158,163,112, 26, 43, 55, 52, 50,"Headlight", BT_KEY, 255 },
 	{ 54,158,171, 83, 26, 52, 56, 51, 55,"Energy->Shield", BT_KEY, 255 },
@@ -220,10 +221,10 @@ kc_item kc_joystick[NUM_JOYSTICK_CONTROLS] = {
 	{ 18,164,154,106,  8, 54, 20, 17, 15,"Slide L/R", BT_INVERT, 255 },
 	{ 19,164,162, 58, 26, 17, 21, 16, 20,"Slide U/D", BT_JOY_AXIS, 255 },
 	{ 20,164,162,106,  8, 18, 22, 19, 21,"Slide U/D", BT_INVERT, 255 },
-	{ 21,164,172, 58, 26, 19, 23, 20, 22,"Bank L/R", BT_JOY_AXIS, 255 },
-	{ 22,164,172,106,  8, 20, 24, 21, 23,"Bank L/R", BT_INVERT, 255 },
-	{ 23,164,180, 58, 26, 21,  5, 22, 24,"throttle", BT_JOY_AXIS, 255 },
-	{ 24,164,180,106,  8, 22, 36, 23,  0,"throttle", BT_INVERT, 255 },
+	{ 21,164,170, 58, 26, 19, 23, 20, 22,"Bank L/R", BT_JOY_AXIS, 255 },
+	{ 22,164,170,106,  8, 20, 24, 21, 23,"Bank L/R", BT_INVERT, 255 },
+	{ 23,164,178, 58, 26, 21,  5, 22, 24,"throttle", BT_JOY_AXIS, 255 },
+	{ 24,164,178,106,  8, 22, 36, 23,  0,"throttle", BT_INVERT, 255 },
 	{ 25, 22, 94, 80, 26,  3, 27, 41, 44,"REAR VIEW", BT_JOY_BUTTON, 255 },
 	{ 26, 22, 70, 80, 26,  4,  2, 38, 45,"Drop Bomb", BT_JOY_BUTTON, 255 },
 	{ 27, 22,102, 80, 26, 25, 30, 42, 46,"Afterburner", BT_JOY_BUTTON, 255 },
@@ -256,69 +257,73 @@ kc_item kc_joystick[NUM_JOYSTICK_CONTROLS] = {
 	{ 54,174,126, 74, 26, 29, 18, 51, 55,"Toggle Bomb", BT_JOY_BUTTON, 255 },
 	{ 55,174,126,104, 26, 48, 13, 54, 13,"Toggle Bomb", BT_JOY_BUTTON, 255 },
 };
-
 kc_item kc_mouse[NUM_MOUSE_CONTROLS] = {
 	{  0, 25, 46, 85, 26, 19,  1, 20,  5,"Fire primary", BT_MOUSE_BUTTON, 255 },
 	{  1, 25, 54, 85, 26,  0,  4,  5,  6,"Fire secondary", BT_MOUSE_BUTTON, 255 },
 	{  2, 25, 78, 85, 26, 26,  3,  8,  9,"Accelerate", BT_MOUSE_BUTTON, 255 },
 	{  3, 25, 86, 85, 26,  2, 25,  9, 10,"reverse", BT_MOUSE_BUTTON, 255 },
 	{  4, 25, 62, 85, 26,  1, 26,  6,  7,"Fire flare", BT_MOUSE_BUTTON, 255 },
-	{  5,180, 46, 59, 26, 28,  6,  0,  1,"Slide on", BT_MOUSE_BUTTON, 255 },
+	{  5,180, 46, 59, 26, 23,  6,  0,  1,"Slide on", BT_MOUSE_BUTTON, 255 },
 	{  6,180, 54, 59, 26,  5,  7,  1,  4,"Slide left", BT_MOUSE_BUTTON, 255 },
 	{  7,180, 62, 59, 26,  6,  8,  4, 26,"Slide right", BT_MOUSE_BUTTON, 255 },
 	{  8,180, 70, 59, 26,  7,  9, 26,  2,"Slide up", BT_MOUSE_BUTTON, 255 },
 	{  9,180, 78, 59, 26,  8, 10,  2,  3,"Slide down", BT_MOUSE_BUTTON, 255 },
 	{ 10,180, 86, 59, 26,  9, 11,  3, 25,"Bank on", BT_MOUSE_BUTTON, 255 },
 	{ 11,180, 94, 59, 26, 10, 12, 25, 27,"Bank left", BT_MOUSE_BUTTON, 255 },
-	{ 12,180,102, 59, 26, 11, 22, 27, 13,"Bank right", BT_MOUSE_BUTTON, 255 },
-	{ 13, 25,138, 58, 26, 29, 15, 12, 14,"Pitch U/D", BT_MOUSE_AXIS, 255 },
-	{ 14, 25,138,106,  8, 27, 16, 13, 21,"Pitch U/D", BT_INVERT, 255 },
-	{ 15, 25,146, 58, 26, 13, 17, 22, 16,"Turn L/R", BT_MOUSE_AXIS, 255 },
-	{ 16, 25,146,106,  8, 14, 18, 15, 23,"Turn L/R", BT_INVERT, 255 },
-	{ 17, 25,154, 58, 26, 15, 19, 24, 18,"Slide L/R", BT_MOUSE_AXIS, 255 },
-	{ 18, 25,154,106,  8, 16, 20, 17, 28,"Slide L/R", BT_INVERT, 255 },
-	{ 19, 25,162, 58, 26, 17,  0, 29, 20,"Slide U/D", BT_MOUSE_AXIS, 255 },
-	{ 20, 25,162,106,  8, 18, 21, 19,  0,"Slide U/D", BT_INVERT, 255 },
-	{ 21,180,138, 58, 26, 20, 23, 14, 22,"Bank L/R", BT_MOUSE_AXIS, 255 },
-	{ 22,180,138,106,  8, 12, 24, 21, 15,"Bank L/R", BT_INVERT, 255 },
-	{ 23,180,146, 58, 26, 21, 28, 16, 24,"throttle", BT_MOUSE_AXIS, 255 },
-	{ 24,180,146,106,  8, 22, 29, 23, 17,"throttle", BT_INVERT, 255 },
+	{ 12,180,102, 59, 26, 11, 22, 27, 28,"Bank right", BT_MOUSE_BUTTON, 255 },
+	{ 13, 25,154, 58, 26, 24, 15, 29, 14,"Pitch U/D", BT_MOUSE_AXIS, 255 },
+	{ 14, 25,154,106,  8, 29, 16, 13, 21,"Pitch U/D", BT_INVERT, 255 },
+	{ 15, 25,162, 58, 26, 13, 17, 22, 16,"Turn L/R", BT_MOUSE_AXIS, 255 },
+	{ 16, 25,162,106,  8, 14, 18, 15, 23,"Turn L/R", BT_INVERT, 255 },
+	{ 17, 25,170, 58, 26, 15, 19, 24, 18,"Slide L/R", BT_MOUSE_AXIS, 255 },
+	{ 18, 25,170,106,  8, 16, 20, 17, 19,"Slide L/R", BT_INVERT, 255 },
+	{ 19, 25,178, 58, 26, 17,  0, 18, 20,"Slide U/D", BT_MOUSE_AXIS, 255 },
+	{ 20, 25,178,106,  8, 18, 21, 19,  0,"Slide U/D", BT_INVERT, 255 },
+	{ 21,180,154, 58, 26, 20, 23, 14, 22,"Bank L/R", BT_MOUSE_AXIS, 255 },
+	{ 22,180,154,106,  8, 12, 24, 21, 15,"Bank L/R", BT_INVERT, 255 },
+	{ 23,180,162, 58, 26, 21,  5, 16, 24,"Throttle", BT_MOUSE_AXIS, 255 },
+	{ 24,180,162,106,  8, 22, 13, 23, 17,"Throttle", BT_INVERT, 255 },
 	{ 25, 25, 94, 85, 26,  3, 27, 10, 11,"REAR VIEW", BT_MOUSE_BUTTON, 255 },
 	{ 26, 25, 70, 85, 26,  4,  2,  7,  8,"Drop Bomb", BT_MOUSE_BUTTON, 255 },
-	{ 27, 25,102, 85, 26, 25, 14, 11, 12,"Afterburner", BT_MOUSE_BUTTON, 255 },
-	{ 28,180,154, 58, 26, 23,  5, 18, 29,"Cycle WPN", BT_MOUSE_AXIS, 255 },
-	{ 29,180,154,106,  8, 24, 13, 28, 19,"Cycle WPN", BT_INVERT, 255 },
+	{ 27, 25,102, 85, 26, 25, 28, 11, 12,"Afterburner", BT_MOUSE_BUTTON, 255 },
+	{ 28, 25,110, 85, 26, 27, 29, 12, 29,"Cycle Primary", BT_MOUSE_BUTTON, 255 },
+	{ 29, 25,118, 85, 26, 28, 14, 28, 13,"Cycle Secondary", BT_MOUSE_BUTTON, 255 },
 };
 
 #ifdef D2X_KEYS
-kc_item kc_d2x[NUM_D2X_CONTROLS] = {                                                  
-        {  0, 15, 69,142, 26, 19,  2, 19,  1,"(SUPER)LASER CANNON", BT_KEY, 255 },    
-        {  1, 15, 69,200, 26, 18,  3,  0,  2,"(SUPER)LASER CANNON", BT_JOY_BUTTON, 255 },
-        {  2, 15, 77,142, 26,  0,  4,  1,  3,"VULCAN/GAUSS CANNON", BT_KEY, 255 },
-        {  3, 15, 77,200, 26,  1,  5,  2,  4,"VULCAN/GAUSS CANNON", BT_JOY_BUTTON, 255 },
-        {  4, 15, 85,142, 26,  2,  6,  3,  5,"SPREADFIRE/HELIX CANNON", BT_KEY, 255 },
-        {  5, 15, 85,200, 26,  3,  7,  4,  6,"SPREADFIRE/HELIX CANNON", BT_JOY_BUTTON, 255 },
-        {  6, 15, 93,142, 26,  4,  8,  5,  7,"PLASMA/PHOENIX CANNON", BT_KEY, 255 },
-        {  7, 15, 93,200, 26,  5,  9,  6,  8,"PLASMA/PHOENIX CANNON", BT_JOY_BUTTON, 255 },
-        {  8, 15,101,142, 26,  6, 10,  7,  9,"FUSION/OMEGA CANNON", BT_KEY, 255 },
-        {  9, 15,101,200, 26,  7, 11,  8, 10,"FUSION/OMEGA CANNON", BT_JOY_BUTTON, 255 },
-        { 10, 15,109,142, 26,  8, 12,  9, 11,"CONCUSSION/FLASH MISSILE", BT_KEY, 255 },
-        { 11, 15,109,200, 26,  9, 13, 10, 12,"CONCUSSION/FLASH MISSILE", BT_JOY_BUTTON, 255 },
-        { 12, 15,117,142, 26, 10, 14, 11, 13,"HOMING/GUIDED MISSILE", BT_KEY, 255 },
-        { 13, 15,117,200, 26, 11, 15, 12, 14,"HOMING/GUIDED MISSILE", BT_JOY_BUTTON, 255 },
-        { 14, 15,125,142, 26, 12, 16, 13, 15,"PROXIMITY BOMB/SMART MINE", BT_KEY, 255 },
-        { 15, 15,125,200, 26, 13, 17, 14, 16,"PROXIMITY BOMB/SMART MINE", BT_JOY_BUTTON, 255 },
-        { 16, 15,133,142, 26, 14, 18, 15, 17,"SMART/MERCURY MISSILE", BT_KEY, 255 },
-        { 17, 15,133,200, 26, 15, 19, 16, 18,"SMART/MERCURY MISSILE", BT_JOY_BUTTON, 255 },
-        { 18, 15,141,142, 26, 16,  1, 17, 19,"MEGA/EARTHSHAKER MISSILE", BT_KEY, 255 },
-        { 19, 15,141,200, 26, 17,  0, 18,  0,"MEGA/EARTHSHAKER MISSILE", BT_JOY_BUTTON, 255 },
+kc_item kc_d2x[NUM_D2X_CONTROLS] = {
+	{  0, 15, 69,142, 26, 29,  3, 29,  1,"(SUPER)LASER CANNON", BT_KEY, 255 },
+	{  1, 15, 69,200, 26, 27,  4,  0,  2,"(SUPER)LASER CANNON", BT_JOY_BUTTON, 255 },
+	{  2, 15, 69,258, 26, 28,  5,  1,  3,"(SUPER)LASER CANNON", BT_MOUSE_BUTTON, 255 },
+	{  3, 15, 77,142, 26,  0,  6,  2,  4,"VULCAN/GAUSS CANNON", BT_KEY, 255 },
+	{  4, 15, 77,200, 26,  1,  7,  3,  5,"VULCAN/GAUSS CANNON", BT_JOY_BUTTON, 255 },
+	{  5, 15, 77,258, 26,  2,  8,  4,  6,"VULCAN/GAUSS CANNON", BT_MOUSE_BUTTON, 255 },
+	{  6, 15, 85,142, 26,  3,  9,  5,  7,"SPREADFIRE/HELIX CANNON", BT_KEY, 255 },
+	{  7, 15, 85,200, 26,  4, 10,  6,  8,"SPREADFIRE/HELIX CANNON", BT_JOY_BUTTON, 255 },
+	{  8, 15, 85,258, 26,  5, 11,  7,  9,"SPREADFIRE/HELIX CANNON", BT_MOUSE_BUTTON, 255 },
+	{  9, 15, 93,142, 26,  6, 12,  8, 10,"PLASMA/PHOENIX CANNON", BT_KEY, 255 },
+	{ 10, 15, 93,200, 26,  7, 13,  9, 11,"PLASMA/PHOENIX CANNON", BT_JOY_BUTTON, 255 },
+	{ 11, 15, 93,258, 26,  8, 14, 10, 12,"PLASMA/PHOENIX CANNON", BT_MOUSE_BUTTON, 255 },
+	{ 12, 15,101,142, 26,  9, 15, 11, 13,"FUSION/OMEGA CANNON", BT_KEY, 255 },
+	{ 13, 15,101,200, 26, 10, 16, 12, 14,"FUSION/OMEGA CANNON", BT_JOY_BUTTON, 255 },
+	{ 14, 15,101,258, 26, 11, 17, 13, 15,"FUSION/OMEGA CANNON", BT_JOY_BUTTON, 255 },
+	{ 15, 15,109,142, 26, 12, 18, 14, 16,"CONCUSSION/FLASH MISSILE", BT_KEY, 255 },
+	{ 16, 15,109,200, 26, 13, 19, 15, 17,"CONCUSSION/FLASH MISSILE", BT_JOY_BUTTON, 255 },
+	{ 17, 15,109,258, 26, 14, 20, 16, 18,"CONCUSSION/FLASH MISSILE", BT_MOUSE_BUTTON, 255 },
+	{ 18, 15,117,142, 26, 15, 21, 17, 19,"HOMING/GUIDED MISSILE", BT_KEY, 255 },
+	{ 19, 15,117,200, 26, 16, 22, 18, 20,"HOMING/GUIDED MISSILE", BT_JOY_BUTTON, 255 },
+	{ 20, 15,117,258, 26, 17, 23, 19, 21,"HOMING/GUIDED MISSILE", BT_MOUSE_BUTTON, 255 },
+	{ 21, 15,125,142, 26, 18, 24, 20, 22,"PROXIMITY BOMB/SMART MINE", BT_KEY, 255 },
+	{ 22, 15,125,200, 26, 19, 25, 21, 23,"PROXIMITY BOMB/SMART MINE", BT_JOY_BUTTON, 255 },
+	{ 23, 15,125,258, 26, 20, 26, 22, 24,"PROXIMITY BOMB/SMART MINE", BT_MOUSE_BUTTON, 255 },
+	{ 24, 15,133,142, 26, 21, 27, 23, 25,"SMART/MERCURY MISSILE", BT_KEY, 255 },
+	{ 25, 15,133,200, 26, 22, 28, 24, 26,"SMART/MERCURY MISSILE", BT_JOY_BUTTON, 255 },
+	{ 26, 15,133,258, 26, 23, 29, 25, 27,"SMART/MERCURY MISSILE", BT_MOUSE_BUTTON, 255 },
+	{ 27, 15,141,142, 26, 24,  1, 26, 28,"MEGA/EARTHSHAKER MISSILE", BT_KEY, 255 },
+	{ 28, 15,141,200, 26, 25,  2, 27, 29,"MEGA/EARTHSHAKER MISSILE", BT_JOY_BUTTON, 255 },
+	{ 29, 15,141,258, 26, 26,  0, 28,  0,"MEGA/EARTHSHAKER MISSILE", BT_MOUSE_BUTTON, 255 },
 };
 #endif
-
-ubyte DefaultKeySettingsD2X[MAX_D2X_CONTROLS] = {
- 0x2 ,0xff,0x3 ,0xff,0x4 ,0xff,0x5 ,0xff,0x6 ,0xff,0x7 ,0xff,0x8 ,0xff,0x9 ,
- 0xff,0xa ,0xff,0xb ,0xff,0xff,0xff,0xff,0xff,0xff,0xff,0xff,0xff,0xff,0xff,
- 0xff,0xff,0xff,0xff,0xff,0xff,0xff,0xff,0xff,0xff };
 
 void kc_drawitem( kc_item *item, int is_current );
 void kc_change_key( kc_menu *menu, kc_item * item );
@@ -545,12 +550,12 @@ void kconfig_draw(kc_menu *menu)
 		gr_set_fontcolor( BM_XRGB(31,27,6), -1 );
 		gr_setcolor( BM_XRGB(31,27,6) );
 		gr_string( 0x8000, FSPACY(35), TXT_BUTTONS );
-		gr_string( 0x8000,FSPACY(122), TXT_AXES );
+		gr_string( 0x8000,FSPACY(137), TXT_AXES );
 		gr_set_fontcolor( BM_XRGB(28,28,28), -1 );
-		gr_string( FSPACX(91), FSPACY(129), TXT_AXIS );
-		gr_string( FSPACX(121), FSPACY(129), TXT_INVERT );
-		gr_string( FSPACX(246), FSPACY(129), TXT_AXIS );
-		gr_string( FSPACX(276), FSPACY(129), TXT_INVERT );
+		gr_string( FSPACX( 87), FSPACY(145), TXT_AXIS );
+		gr_string( FSPACX(120), FSPACY(145), TXT_INVERT );
+		gr_string( FSPACX(242), FSPACY(145), TXT_AXIS );
+		gr_string( FSPACX(274), FSPACY(145), TXT_INVERT );
 	}
 #ifdef D2X_KEYS
 	else if ( menu->items == kc_d2x )
@@ -560,6 +565,7 @@ void kconfig_draw(kc_menu *menu)
 
 		gr_string(FSPACX(152), FSPACY(60), "KEYBOARD");
 		gr_string(FSPACX(210), FSPACY(60), "JOYSTICK");
+		gr_string(FSPACX(273), FSPACY(60), "MOUSE");
 	}
 #endif
 	
@@ -968,7 +974,7 @@ void kc_drawitem( kc_item *item, int is_current )
 			case BT_KEY:
 				strncpy( btext, key_text[item->value], 10 ); break;
 			case BT_MOUSE_BUTTON:
-				strncpy( btext, (item->value < 3)?mousebutton_text[item->value]:mousebutton_textra[item->value-3], 10 ); break;
+				strncpy( btext, mousebutton_text[item->value], 10 ); break;
 			case BT_MOUSE_AXIS:
 				strncpy( btext, mouseaxis_text[item->value], 10 ); break;
 			case BT_JOY_BUTTON:
@@ -1035,7 +1041,7 @@ void kc_change_key( kc_menu *menu, kc_item * item )
 	for (i=0; i<256; i++ )	{
 		if (keyd_pressed[i] && (strlen(key_text[i])>0))	{
 			f = 0;
-			for (n=0; n<sizeof(system_keys); n++ )
+			for (n=0; n<(GameArg.CtlNoStickyKeys?sizeof(system_keys)-3:sizeof(system_keys)); n++ )
 				if ( system_keys[n] == i )
 					f=1;
 			if (!f)	
@@ -1193,10 +1199,6 @@ int VR_sense_range[3] = { 25, 50, 75 };
 
 fix	joy_axis[JOY_MAX_AXES];
 
-#ifdef D2X_KEYS
-int d2x_joystick_ostate[20]={0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0};
-#endif
-
 void controls_read_all(int automap_flag)
 {
 	int i;
@@ -1285,65 +1287,48 @@ void controls_read_all(int automap_flag)
 	//--------- Read primary weapon select -------------
 	if (!Player_is_dead && !automap_flag)
 	{
-		int d2x_joystick_state[10];
-
-		for(i=0;i<10;i++)
-			d2x_joystick_state[i] = joy_get_button_state(kc_d2x[i*2+1].value);
-
-
 		//----------------Weapon 1----------------
-		if((key_down_count(kc_d2x[0].value) && !((keyd_pressed[KEY_LSHIFT] || keyd_pressed[KEY_RSHIFT]))) ||
-			(joy_get_button_state(kc_d2x[1].value) &&
-			(d2x_joystick_state[0]!=d2x_joystick_ostate[0]) ) )
+		if ( (key_down_count(kc_d2x[0].value) && !((keyd_pressed[KEY_LSHIFT] || keyd_pressed[KEY_RSHIFT]))) ||
+			(use_joystick && joy_get_button_down_cnt(kc_d2x[1].value)) || (use_mouse && mouse_button_down_count(kc_d2x[2].value)) )
 				do_weapon_select(0,0);
 		//----------------Weapon 2----------------
-		if((key_down_count(kc_d2x[2].value) && !((keyd_pressed[KEY_LSHIFT] || keyd_pressed[KEY_RSHIFT]))) ||
-			(joy_get_button_state(kc_d2x[3].value) &&
-			(d2x_joystick_state[1]!=d2x_joystick_ostate[1]) ) )
+		if ( (key_down_count(kc_d2x[3].value) && !((keyd_pressed[KEY_LSHIFT] || keyd_pressed[KEY_RSHIFT]))) ||
+			(use_joystick && joy_get_button_down_cnt(kc_d2x[4].value)) || (use_mouse && mouse_button_down_count(kc_d2x[5].value)) )
 				do_weapon_select(1,0);
 		//----------------Weapon 3----------------
-		if((key_down_count(kc_d2x[4].value) && !((keyd_pressed[KEY_LSHIFT] || keyd_pressed[KEY_RSHIFT]))) ||
-			(joy_get_button_state(kc_d2x[5].value) &&
-			(d2x_joystick_state[2]!=d2x_joystick_ostate[2]) ) )
+		if ( (key_down_count(kc_d2x[6].value) && !((keyd_pressed[KEY_LSHIFT] || keyd_pressed[KEY_RSHIFT]))) ||
+			(use_joystick && joy_get_button_down_cnt(kc_d2x[7].value)) || (use_mouse && mouse_button_down_count(kc_d2x[8].value)) )
 				do_weapon_select(2,0);
 		//----------------Weapon 4----------------
-		if((key_down_count(kc_d2x[6].value) && !((keyd_pressed[KEY_LSHIFT] || keyd_pressed[KEY_RSHIFT]))) ||
-			(joy_get_button_state(kc_d2x[7].value) &&
-			(d2x_joystick_state[3]!=d2x_joystick_ostate[3]) ) )
+		if ( (key_down_count(kc_d2x[9].value) && !((keyd_pressed[KEY_LSHIFT] || keyd_pressed[KEY_RSHIFT]))) ||
+			(use_joystick && joy_get_button_down_cnt(kc_d2x[10].value)) || (use_mouse && mouse_button_down_count(kc_d2x[11].value)) )
 				do_weapon_select(3,0);
 		//----------------Weapon 5----------------
-		if((key_down_count(kc_d2x[8].value) && !((keyd_pressed[KEY_LSHIFT] || keyd_pressed[KEY_RSHIFT]))) ||
-			(joy_get_button_state(kc_d2x[9].value) &&
-			(d2x_joystick_state[4]!=d2x_joystick_ostate[4]) ) )
+		if ( (key_down_count(kc_d2x[12].value) && !((keyd_pressed[KEY_LSHIFT] || keyd_pressed[KEY_RSHIFT]))) ||
+			(use_joystick && joy_get_button_down_cnt(kc_d2x[13].value)) || (use_mouse && mouse_button_down_count(kc_d2x[14].value)) )
 				do_weapon_select(4,0);
 
 		//--------- Read secondary weapon select ----------
 		//----------------Weapon 6----------------
-		if((key_down_count(kc_d2x[10].value) && !((keyd_pressed[KEY_LSHIFT] || keyd_pressed[KEY_RSHIFT]))) ||
-			(joy_get_button_state(kc_d2x[11].value) &&
-			(d2x_joystick_state[5]!=d2x_joystick_ostate[5]) ) )
+		if ( (key_down_count(kc_d2x[15].value) && !((keyd_pressed[KEY_LSHIFT] || keyd_pressed[KEY_RSHIFT]))) ||
+			(use_joystick && joy_get_button_down_cnt(kc_d2x[16].value)) || (use_mouse && mouse_button_down_count(kc_d2x[17].value)) )
 				do_weapon_select(0,1);
 		//----------------Weapon 7----------------
-		if((key_down_count(kc_d2x[12].value) && !((keyd_pressed[KEY_LSHIFT] || keyd_pressed[KEY_RSHIFT]))) ||
-			(joy_get_button_state(kc_d2x[13].value) &&
-			(d2x_joystick_state[6]!=d2x_joystick_ostate[6]) ) )
+		if ( (key_down_count(kc_d2x[18].value) && !((keyd_pressed[KEY_LSHIFT] || keyd_pressed[KEY_RSHIFT]))) ||
+			(use_joystick && joy_get_button_down_cnt(kc_d2x[19].value)) || (use_mouse && mouse_button_down_count(kc_d2x[20].value)) )
 				do_weapon_select(1,1);
 		//----------------Weapon 8----------------
-		if((key_down_count(kc_d2x[14].value) && !((keyd_pressed[KEY_LSHIFT] || keyd_pressed[KEY_RSHIFT]))) ||
-			(joy_get_button_state(kc_d2x[15].value) &&
-			(d2x_joystick_state[7]!=d2x_joystick_ostate[7]) ) )
+		if ( (key_down_count(kc_d2x[21].value) && !((keyd_pressed[KEY_LSHIFT] || keyd_pressed[KEY_RSHIFT]))) ||
+			(use_joystick && joy_get_button_down_cnt(kc_d2x[22].value)) || (use_mouse && mouse_button_down_count(kc_d2x[23].value)) )
 				do_weapon_select(2,1);
 		//----------------Weapon 9----------------
-		if((key_down_count(kc_d2x[16].value) && !((keyd_pressed[KEY_LSHIFT] || keyd_pressed[KEY_RSHIFT]))) ||
-			(joy_get_button_state(kc_d2x[17].value) &&
-			(d2x_joystick_state[8]!=d2x_joystick_ostate[8]) ) )
+		if ( (key_down_count(kc_d2x[24].value) && !((keyd_pressed[KEY_LSHIFT] || keyd_pressed[KEY_RSHIFT]))) ||
+			(use_joystick && joy_get_button_down_cnt(kc_d2x[25].value)) || (use_mouse && mouse_button_down_count(kc_d2x[26].value)) )
 				do_weapon_select(3,1);
 		//----------------Weapon 0----------------
-		if((key_down_count(kc_d2x[18].value) && !((keyd_pressed[KEY_LSHIFT] || keyd_pressed[KEY_RSHIFT]))) ||
-			(joy_get_button_state(kc_d2x[19].value) &&
-			(d2x_joystick_state[9]!=d2x_joystick_ostate[9]) ) )
+		if ( (key_down_count(kc_d2x[27].value) && !((keyd_pressed[KEY_LSHIFT] || keyd_pressed[KEY_RSHIFT]))) ||
+			(use_joystick && joy_get_button_down_cnt(kc_d2x[28].value)) || (use_mouse && mouse_button_down_count(kc_d2x[29].value)) )
 				do_weapon_select(4,1);
-		memcpy(d2x_joystick_ostate,d2x_joystick_state,10*sizeof(int));
 	}//end "if (!Player_is_dead)" - WraithX
 #endif
 
@@ -1658,8 +1643,6 @@ void controls_read_all(int automap_flag)
 	// done so that dead players can't move
 	if (!Player_is_dead)
 	{
-		static int mouse_pricycle_lock=0, mouse_seccycle_lock=0;
-
 	//----------- Read forward_thrust_time -------------
 	
 		// From keyboard...
@@ -1727,11 +1710,8 @@ void controls_read_all(int automap_flag)
 			Controls.cycle_primary_count+=joy_get_button_down_cnt(kc_joystick[28].value);
 		if ((use_joystick)&&(kc_joystick[47].value < 255 )) 
 			Controls.cycle_primary_count+=joy_get_button_down_cnt(kc_joystick[47].value);
-		// maybe we want to go tru the weapons with the mouse... obviously the wheel. The wheel is an axis... okay...
-		// axes are scaled. so to prevent weapon cacle in the scale-rythm, we need to be sure the wheel was once 0 between cycling... god this is stupid...
-		if ( (use_mouse)&&(kc_mouse[28].value < 255) && !mouse_pricycle_lock)
-			Controls.cycle_primary_count = kc_mouse[29].value?(mouse_axis[kc_mouse[28].value]<0):(mouse_axis[kc_mouse[28].value]>0);
-		mouse_pricycle_lock=mouse_axis[kc_mouse[28].value];
+		if ((use_mouse)&&(kc_mouse[28].value < 255 ))
+			Controls.cycle_primary_count += mouse_button_down_count(kc_mouse[28].value);
 	
 	
 	//--------Read Cycle Secondary Key------------------
@@ -1744,11 +1724,8 @@ void controls_read_all(int automap_flag)
 			Controls.cycle_secondary_count+=joy_get_button_down_cnt(kc_joystick[29].value);
 		if ((use_joystick)&&(kc_joystick[48].value < 255 )) 
 			Controls.cycle_secondary_count+=joy_get_button_down_cnt(kc_joystick[48].value);
-		// maybe we want to go tru the weapons with the mouse... obviously the wheel. The wheel is an axis... okay...
-		// axes are scaled. so to prevent weapon cacle in the scale-rythm, we need to be sure the wheel was once 0 between cycling... god this is stupid...
-		if ( (use_mouse)&&(kc_mouse[28].value < 255) && !mouse_seccycle_lock)
-			Controls.cycle_secondary_count = kc_mouse[29].value?(mouse_axis[kc_mouse[28].value]>0):(mouse_axis[kc_mouse[28].value]<0);
-		mouse_seccycle_lock=mouse_axis[kc_mouse[28].value];
+		if ((use_mouse)&&(kc_mouse[29].value < 255 ))
+			Controls.cycle_primary_count += mouse_button_down_count(kc_mouse[29].value);
 	
 	//--------Read Toggle Bomb key----------------------
 	
