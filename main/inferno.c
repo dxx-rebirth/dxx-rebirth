@@ -134,7 +134,6 @@ void print_commandline_help()
 	printf( "  -autodemo          %s\n", "Start in demo mode");
 	printf( "  -window            %s\n", "Run the game in a window");
 	printf( "  -nomovies          %s\n", "Don't play movies");
-	printf( "  -noredundancy      %s\n", "Do not send messages when picking up redundant items");
 
 	printf( "\n Controls:\n\n");
 	printf( "  -nomouse           %s\n", "Deactivate mouse");
@@ -160,8 +159,6 @@ void print_commandline_help()
 
 #ifdef    NETWORK
 	printf( "\n Multiplayer:\n\n");
-	printf( "  -norankings        %s\n", "Disable multiplayer ranking system");
-	printf( "  -multimessages     %s\n", "Only show player-chat important Multiplayer messages");
 	printf( "  -ipxnetwork <n>    %s\n", "Use IPX network number <n>");
 	printf( "  -udp_hostaddr <n>  %s\n", "When manually joining a game use default IP Address <n> to connect to");
 	printf( "  -udp_hostport <n>  %s\n", "When manually joining a game use default UDP Port <n> to connect to");

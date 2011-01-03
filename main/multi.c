@@ -4574,7 +4574,7 @@ void multi_add_lifetime_kills ()
 	if (oldrank!=GetMyNetRanking())
 	{
 		multi_send_ranking();
-		if (!GameArg.MplNoRankings)
+		if (!PlayerCfg.NoRankings)
 		{
 			HUD_init_message(HM_MULTI, "You have been promoted to %s!",RankStrings[GetMyNetRanking()]);
 			digi_play_sample (SOUND_BUDDY_MET_GOAL,F1_0*2);
@@ -4603,7 +4603,7 @@ void multi_add_lifetime_killed ()
 		multi_send_ranking();
 		Netgame.players[Player_num].rank=GetMyNetRanking();
 
-		if (!GameArg.MplNoRankings)
+		if (!PlayerCfg.NoRankings)
 			HUD_init_message(HM_MULTI, "You have been demoted to %s!",RankStrings[GetMyNetRanking()]);
 
 	}
@@ -4635,7 +4635,7 @@ void multi_do_ranking (char *buf)
 
 	Netgame.players[(int)pnum].rank=rank;
 
-	if (!GameArg.MplNoRankings)
+	if (!PlayerCfg.NoRankings)
 		HUD_init_message(HM_MULTI, "%s has been %s to %s!",Players[(int)pnum].callsign,rankstr,RankStrings[(int)rank]);
 }
 

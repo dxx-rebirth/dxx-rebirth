@@ -1778,7 +1778,7 @@ void do_sound_menu()
 
 void do_misc_menu()
 {
-	newmenu_item m[9];
+	newmenu_item m[12];
 	int i = 0;
 
 	do {
@@ -1791,6 +1791,9 @@ void do_misc_menu()
 		ADD_CHECK(6, "Persistent Debris",PlayerCfg.PersistentDebris);
 		ADD_CHECK(7, "Screenshots w/o HUD",PlayerCfg.PRShot);
 		ADD_CHECK(8, "Movie Subtitles",GameCfg.MovieSubtitles);
+		ADD_CHECK(9, "Disable redundant pickup messages",PlayerCfg.NoRedundancy);
+		ADD_CHECK(10, "Only show Player msgs in Multipl.",PlayerCfg.MultiMessages);
+		ADD_CHECK(11, "Disable Multiplayer Rankings",PlayerCfg.NoRankings);
 
 		i = newmenu_do1( NULL, "Misc Options", sizeof(m)/sizeof(*m), m, NULL, NULL, i );
 
@@ -1803,6 +1806,9 @@ void do_misc_menu()
 		PlayerCfg.PersistentDebris	= m[6].value;
 		PlayerCfg.PRShot 		= m[7].value;
 		GameCfg.MovieSubtitles 		= m[8].value;
+		PlayerCfg.NoRedundancy 		= m[9].value;
+		PlayerCfg.MultiMessages 	= m[10].value;
+		PlayerCfg.NoRankings 		= m[11].value;
 
 	} while( i>-1 );
 

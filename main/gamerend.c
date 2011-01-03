@@ -268,7 +268,7 @@ void show_netplayerinfo()
 		else
 			gr_printf(0x8000,y,"%s has the record at %d points.",Players[PhallicMan].callsign,PhallicLimit);
 	}
-	else if (!GameArg.MplNoRankings)
+	else if (!PlayerCfg.NoRankings)
 	{
 		gr_printf(0x8000,y,"Your lifetime efficiency of %d%% (%d/%d)",eff,PlayerCfg.NetlifeKills,PlayerCfg.NetlifeKilled);
 		y+=LINE_SPACING;

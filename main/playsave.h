@@ -65,6 +65,9 @@ typedef struct player_config
 	int EscortHotKeys;
 	int PersistentDebris;
 	int PRShot;
+	ubyte NoRedundancy;
+	ubyte MultiMessages;
+	ubyte NoRankings;
 	int OglAlphaEffects;
 	int OglReticle;
 } __pack__ player_config;

@@ -1118,7 +1118,7 @@ net_ipx_new_player(IPX_sequence_packet *their)
 
 	ClipRank (&their->player.rank);
 
-	if (GameArg.MplNoRankings)
+	if (PlayerCfg.NoRankings)
 		HUD_init_message(HM_MULTI, "'%s' %s\n",their->player.callsign, TXT_JOINING);
 	else
 		HUD_init_message(HM_MULTI, "%s'%s' %s\n",RankStrings[their->player.rank],their->player.callsign, TXT_JOINING);
@@ -1268,7 +1268,7 @@ void net_ipx_welcome_player(IPX_sequence_packet *their)
 
 		digi_play_sample(SOUND_HUD_MESSAGE, F1_0);
 
-		if (GameArg.MplNoRankings)
+		if (PlayerCfg.NoRankings)
 			HUD_init_message(HM_MULTI, "'%s' %s", Players[player_num].callsign, TXT_REJOIN);
 		else
 			HUD_init_message(HM_MULTI, "%s'%s' %s", RankStrings[Netgame.players[player_num].rank],Players[player_num].callsign, TXT_REJOIN);
@@ -2775,7 +2775,7 @@ int net_ipx_start_poll( newmenu *menu, d_event *event, void *userdata )
 	{
 		digi_play_sample(SOUND_HUD_MESSAGE, F1_0);
 
-		if (GameArg.MplNoRankings)
+		if (PlayerCfg.NoRankings)
 	      sprintf( menus[N_players-1].text, "%d. %-20s", N_players,Netgame.players[N_players-1].callsign );
 		else
 	      sprintf( menus[N_players-1].text, "%d. %s%-20s", N_players, RankStrings[Netgame.players[N_players-1].rank],Netgame.players[N_players-1].callsign );
@@ -2793,7 +2793,7 @@ int net_ipx_start_poll( newmenu *menu, d_event *event, void *userdata )
 
 		for (i=0; i<N_players; i++ )
 		{
-			if (GameArg.MplNoRankings)
+			if (PlayerCfg.NoRankings)
 				sprintf( menus[i].text, "%d. %-20s", i+1, Netgame.players[i].callsign );
 			else
 				sprintf( menus[i].text, "%d. %s%-20s", i+1, RankStrings[Netgame.players[i].rank],Netgame.players[i].callsign );
@@ -3387,7 +3387,7 @@ net_ipx_select_players(void)
 
 	m[0].value = 1;                         // Assume server will play...
 
-	if (GameArg.MplNoRankings)
+	if (PlayerCfg.NoRankings)
 		sprintf( text[0], "%d. %-20s", 1, Players[Player_num].callsign );
 	else
 		sprintf( text[0], "%d. %s%-20s", 1, RankStrings[Netgame.players[Player_num].rank],Players[Player_num].callsign );
@@ -4691,7 +4691,7 @@ void net_ipx_read_pdata_packet(IPX_frame_info *pd)
 
 		ClipRank (&Netgame.players[TheirPlayernum].rank);
 
-		if (GameArg.MplNoRankings)
+		if (PlayerCfg.NoRankings)
 			HUD_init_message(HM_MULTI,  "'%s' %s", Players[TheirPlayernum].callsign, TXT_REJOIN );
 		else
 			HUD_init_message(HM_MULTI,  "%s'%s' %s", RankStrings[Netgame.players[TheirPlayernum].rank],Players[TheirPlayernum].callsign, TXT_REJOIN );
@@ -4793,7 +4793,7 @@ void net_ipx_read_pdata_short_packet(IPX_short_frame_info *pd)
 		digi_play_sample( SOUND_HUD_MESSAGE, F1_0);
 		ClipRank (&Netgame.players[TheirPlayernum].rank);
 
-		if (GameArg.MplNoRankings)
+		if (PlayerCfg.NoRankings)
 			HUD_init_message(HM_MULTI,  "'%s' %s", Players[TheirPlayernum].callsign, TXT_REJOIN );
 		else
 			HUD_init_message(HM_MULTI,  "%s'%s' %s", RankStrings[Netgame.players[TheirPlayernum].rank],Players[TheirPlayernum].callsign, TXT_REJOIN );
@@ -5114,7 +5114,7 @@ void net_ipx_do_refuse_stuff (IPX_sequence_packet *their)
 
 		if (Game_mode & GM_TEAM)
 		{
-			if (!GameArg.MplNoRankings)
+			if (!PlayerCfg.NoRankings)
 			{
 				HUD_init_message(HM_MULTI, "%s %s wants to join",RankStrings[their->player.rank],their->player.callsign);
 			}
@@ -5379,7 +5379,7 @@ void net_ipx_process_names_return (ubyte *data)
 
 	  for (t=0;t<CALLSIGN_LEN+1;t++)
 		 temp[t]=data[count++];
-     if (GameArg.MplNoRankings)
+     if (PlayerCfg.NoRankings)
 	     sprintf (mtext[num],"%s",temp);
 	  else
 	     sprintf (mtext[num],"%s%s",RankStrings[l],temp);
