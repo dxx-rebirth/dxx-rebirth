@@ -143,56 +143,6 @@ int read_player_d1x(char *filename)
 				strupr(word);
 			}
 		}
-		else if (strstr(word,"WEAPON KEYS"))
-		{
-			d_free(word);
-			cfgets(line,50,f);
-			word=splitword(line,'=');
-			strupr(word);
-			while(!strstr(word,"END") && !PHYSFS_eof(f))
-			{
-				int kc1=0,kc2=0;
-				int i=atoi(word);
-				
-				if(i==0) i=10;
-					i=(i-1)*2;
-		
-				sscanf(line,"0x%x,0x%x",&kc1,&kc2);
-				PlayerCfg.KeySettingsD1X[i]   = kc1;
-				PlayerCfg.KeySettingsD1X[i+1] = kc2;
-				d_free(word);
-				cfgets(line,50,f);
-				word=splitword(line,'=');
-				strupr(word);
-			}
-		}
-		else if (strstr(word,"CYCLE KEYS"))
-		{
-			d_free(word);
-			cfgets(line,50,f);
-			word=splitword(line,'=');
-			strupr(word);
-			while(!strstr(word,"END") && !PHYSFS_eof(f))
-			{
-				int kc1=0, kc2=0;
-				if(!strcmp(word,"CYCLE PRIMARY"))
-				{
-					sscanf(line,"0x%x,0x%x",&kc1,&kc2);
-					PlayerCfg.KeySettingsD1X[20]=kc1;
-					PlayerCfg.KeySettingsD1X[21]=kc2;
-				}
-				else if(!strcmp(word,"CYCLE SECONDARY"))
-				{
-					sscanf(line,"0x%x,0x%x",&kc1,&kc2);
-					PlayerCfg.KeySettingsD1X[22]=kc1;
-					PlayerCfg.KeySettingsD1X[23]=kc2;
-				}
-				d_free(word);
-				cfgets(line,50,f);
-				word=splitword(line,'=');
-				strupr(word);
-			}
-		}
 		else if (strstr(word,"JOYSTICK"))
 		{
 			d_free(word);
@@ -249,6 +199,30 @@ int read_player_d1x(char *filename)
 					PlayerCfg.MouseSens[4] = atoi(line);
 				if(!strcmp(word,"FILTER"))
 					PlayerCfg.MouseFilter = atoi(line);
+				d_free(word);
+				cfgets(line,50,f);
+				word=splitword(line,'=');
+				strupr(word);
+			}
+		}
+		else if (strstr(word,"WEAPON KEYS V2"))
+		{
+			d_free(word);
+			cfgets(line,50,f);
+			word=splitword(line,'=');
+			strupr(word);
+			while(!strstr(word,"END") && !PHYSFS_eof(f))
+			{
+				int kc1=0,kc2=0,kc3=0;
+				int i=atoi(word);
+				
+				if(i==0) i=10;
+					i=(i-1)*3;
+		
+				sscanf(line,"0x%x,0x%x,0x%x",&kc1,&kc2,&kc3);
+				PlayerCfg.KeySettingsD1X[i]   = kc1;
+				PlayerCfg.KeySettingsD1X[i+1] = kc2;
+				PlayerCfg.KeySettingsD1X[i+2] = kc3;
 				d_free(word);
 				cfgets(line,50,f);
 				word=splitword(line,'=');
@@ -529,22 +503,6 @@ int write_player_d1x(char *filename)
 		PHYSFSX_printf(fout,"primary=0x%x,0x%x,0x%x,0x%x,0x%x,0x%x\n",PlayerCfg.PrimaryOrder[0], PlayerCfg.PrimaryOrder[1], PlayerCfg.PrimaryOrder[2],PlayerCfg.PrimaryOrder[3], PlayerCfg.PrimaryOrder[4], PlayerCfg.PrimaryOrder[5]);
 		PHYSFSX_printf(fout,"secondary=0x%x,0x%x,0x%x,0x%x,0x%x,0x%x\n",PlayerCfg.SecondaryOrder[0], PlayerCfg.SecondaryOrder[1], PlayerCfg.SecondaryOrder[2],PlayerCfg.SecondaryOrder[3], PlayerCfg.SecondaryOrder[4], PlayerCfg.SecondaryOrder[5]);
 		PHYSFSX_printf(fout,"[end]\n");
-		PHYSFSX_printf(fout,"[weapon keys]\n");
-		PHYSFSX_printf(fout,"1=0x%x,0x%x\n",PlayerCfg.KeySettingsD1X[0],PlayerCfg.KeySettingsD1X[1]);
-		PHYSFSX_printf(fout,"2=0x%x,0x%x\n",PlayerCfg.KeySettingsD1X[2],PlayerCfg.KeySettingsD1X[3]);
-		PHYSFSX_printf(fout,"3=0x%x,0x%x\n",PlayerCfg.KeySettingsD1X[4],PlayerCfg.KeySettingsD1X[5]);
-		PHYSFSX_printf(fout,"4=0x%x,0x%x\n",PlayerCfg.KeySettingsD1X[6],PlayerCfg.KeySettingsD1X[7]);
-		PHYSFSX_printf(fout,"5=0x%x,0x%x\n",PlayerCfg.KeySettingsD1X[8],PlayerCfg.KeySettingsD1X[9]);
-		PHYSFSX_printf(fout,"6=0x%x,0x%x\n",PlayerCfg.KeySettingsD1X[10],PlayerCfg.KeySettingsD1X[11]);
-		PHYSFSX_printf(fout,"7=0x%x,0x%x\n",PlayerCfg.KeySettingsD1X[12],PlayerCfg.KeySettingsD1X[13]);
-		PHYSFSX_printf(fout,"8=0x%x,0x%x\n",PlayerCfg.KeySettingsD1X[14],PlayerCfg.KeySettingsD1X[15]);
-		PHYSFSX_printf(fout,"9=0x%x,0x%x\n",PlayerCfg.KeySettingsD1X[16],PlayerCfg.KeySettingsD1X[17]);
-		PHYSFSX_printf(fout,"0=0x%x,0x%x\n",PlayerCfg.KeySettingsD1X[18],PlayerCfg.KeySettingsD1X[19]);
-		PHYSFSX_printf(fout,"[end]\n");
-		PHYSFSX_printf(fout,"[cycle keys]\n");
-		PHYSFSX_printf(fout,"cycle primary=0x%x,0x%x\n",PlayerCfg.KeySettingsD1X[20],PlayerCfg.KeySettingsD1X[21]);
-		PHYSFSX_printf(fout,"cycle secondary=0x%x,0x%x\n",PlayerCfg.KeySettingsD1X[22],PlayerCfg.KeySettingsD1X[23]);
-		PHYSFSX_printf(fout,"[end]\n");
 		PHYSFSX_printf(fout,"[joystick]\n");
 		PHYSFSX_printf(fout,"sensitivity0=%d\n",PlayerCfg.JoystickSens[0]);
 		PHYSFSX_printf(fout,"sensitivity1=%d\n",PlayerCfg.JoystickSens[1]);
@@ -564,6 +522,18 @@ int write_player_d1x(char *filename)
 		PHYSFSX_printf(fout,"sensitivity3=%d\n",PlayerCfg.MouseSens[3]);
 		PHYSFSX_printf(fout,"sensitivity4=%d\n",PlayerCfg.MouseSens[4]);
 		PHYSFSX_printf(fout,"filter=%d\n",PlayerCfg.MouseFilter);
+		PHYSFSX_printf(fout,"[end]\n");
+		PHYSFSX_printf(fout,"[weapon keys v2]\n");
+		PHYSFSX_printf(fout,"1=0x%x,0x%x,0x%x\n",PlayerCfg.KeySettingsD1X[0],PlayerCfg.KeySettingsD1X[1],PlayerCfg.KeySettingsD1X[2]);
+		PHYSFSX_printf(fout,"2=0x%x,0x%x,0x%x\n",PlayerCfg.KeySettingsD1X[3],PlayerCfg.KeySettingsD1X[4],PlayerCfg.KeySettingsD1X[5]);
+		PHYSFSX_printf(fout,"3=0x%x,0x%x,0x%x\n",PlayerCfg.KeySettingsD1X[6],PlayerCfg.KeySettingsD1X[7],PlayerCfg.KeySettingsD1X[8]);
+		PHYSFSX_printf(fout,"4=0x%x,0x%x,0x%x\n",PlayerCfg.KeySettingsD1X[9],PlayerCfg.KeySettingsD1X[10],PlayerCfg.KeySettingsD1X[11]);
+		PHYSFSX_printf(fout,"5=0x%x,0x%x,0x%x\n",PlayerCfg.KeySettingsD1X[12],PlayerCfg.KeySettingsD1X[13],PlayerCfg.KeySettingsD1X[14]);
+		PHYSFSX_printf(fout,"6=0x%x,0x%x,0x%x\n",PlayerCfg.KeySettingsD1X[15],PlayerCfg.KeySettingsD1X[16],PlayerCfg.KeySettingsD1X[17]);
+		PHYSFSX_printf(fout,"7=0x%x,0x%x,0x%x\n",PlayerCfg.KeySettingsD1X[18],PlayerCfg.KeySettingsD1X[19],PlayerCfg.KeySettingsD1X[20]);
+		PHYSFSX_printf(fout,"8=0x%x,0x%x,0x%x\n",PlayerCfg.KeySettingsD1X[21],PlayerCfg.KeySettingsD1X[22],PlayerCfg.KeySettingsD1X[23]);
+		PHYSFSX_printf(fout,"9=0x%x,0x%x,0x%x\n",PlayerCfg.KeySettingsD1X[24],PlayerCfg.KeySettingsD1X[25],PlayerCfg.KeySettingsD1X[26]);
+		PHYSFSX_printf(fout,"0=0x%x,0x%x,0x%x\n",PlayerCfg.KeySettingsD1X[27],PlayerCfg.KeySettingsD1X[28],PlayerCfg.KeySettingsD1X[29]);
 		PHYSFSX_printf(fout,"[end]\n");
 		PHYSFSX_printf(fout,"[cockpit]\n");
 		PHYSFSX_printf(fout,"mode=%i\n",PlayerCfg.CockpitMode[0]);

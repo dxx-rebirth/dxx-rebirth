@@ -227,7 +227,7 @@ int joy_get_button_down_cnt( int btn )
 {
 	int num_downs;
 
-	if (!num_joysticks)
+	if (!num_joysticks || btn < 0 || btn >= JOY_MAX_BUTTONS)
 		return 0;
 
 //	event_poll();
@@ -242,7 +242,7 @@ fix joy_get_button_down_time(int btn)
 {
 	fix time = F0_0;
 
-	if (!num_joysticks)
+	if (!num_joysticks  || btn < 0 || btn >= JOY_MAX_BUTTONS)
 		return 0;
 
 //	event_poll();
