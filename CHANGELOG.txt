@@ -1,5 +1,9 @@
 D2X-Rebirth Changelog
 
+20110104
+--------
+d2x.ini, include/args.h, main/gauges.c, main/inferno.c, main/kconfig.c, main/kconfig.h, main/menu.c, main/playsave.c, main/playsave.h, misc/args.c: Introduced FlightSim control scheme for mouse which adds delta values to absolute position to behave like a Joystick; Added Deadzone slider for FlightSim as well as an optional Reticle display to show the positional data on screen; Removed old Mouselook hack in favor of this new feature
+
 20110103
 --------
 arch/sdl/joy.c, arch/sdl/key.c, arch/sdl/mouse.c, include/args.h, main/kconfig.c, main/kconfig.h, main/playsave.c, misc/args.c: Saving  weapon keys in PLX like in D1X-Rebirth; Added Cycle Primary/Secondary for Mouse which makes wheel axis cycling unnecessary and also let Weapon Keys be assigned to a Mouse button; If GameArg.NoStickyKeys do flush these keys so they can be used as normal game keys - otherwise ban them; Fixed crash when reassigning mouse button greater than 3; Joystick/Mouse function taking button as argument now check for sanity of this value so they can safely be used in kconfig code and deal with unassigned key values

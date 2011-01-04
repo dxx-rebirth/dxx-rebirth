@@ -1048,8 +1048,8 @@ void change_res()
 
 void input_config_sensitivity()
 {
-	newmenu_item m[20];
-	int i = 0, nitems = 0, joysens = 0, joydead = 0, mousesens = 0;
+	newmenu_item m[23];
+	int i = 0, nitems = 0, joysens = 0, joydead = 0, mousesens = 0, mousefsdead;
 
 	m[nitems].type = NM_TYPE_TEXT; m[nitems].text = "Joystick Sensitivity:"; nitems++;
 	joysens = nitems;
@@ -1074,6 +1074,10 @@ void input_config_sensitivity()
 	m[nitems].type = NM_TYPE_SLIDER; m[nitems].text = TXT_SLIDE_LR; m[nitems].value = PlayerCfg.MouseSens[2]; m[nitems].min_value = 0; m[nitems].max_value = 16; nitems++;
 	m[nitems].type = NM_TYPE_SLIDER; m[nitems].text = TXT_SLIDE_UD; m[nitems].value = PlayerCfg.MouseSens[3]; m[nitems].min_value = 0; m[nitems].max_value = 16; nitems++;
 	m[nitems].type = NM_TYPE_SLIDER; m[nitems].text = TXT_BANK_LR; m[nitems].value = PlayerCfg.MouseSens[4]; m[nitems].min_value = 0; m[nitems].max_value = 16; nitems++;
+	m[nitems].type = NM_TYPE_TEXT; m[nitems].text = ""; nitems++;
+	m[nitems].type = NM_TYPE_TEXT; m[nitems].text = "Mouse FlightSim Deadzone:"; nitems++;
+	mousefsdead = nitems;
+	m[nitems].type = NM_TYPE_SLIDER; m[nitems].text = "X/Y"; m[nitems].value = PlayerCfg.MouseFSDead; m[nitems].min_value = 0; m[nitems].max_value = 16; nitems++;
 
 	newmenu_do1(NULL, "SENSITIVITY & DEADZONE", nitems, m, NULL, NULL, 1);
 
@@ -1083,9 +1087,10 @@ void input_config_sensitivity()
 		PlayerCfg.JoystickDead[i] = m[joydead+i].value;
 		PlayerCfg.MouseSens[i] = m[mousesens+i].value;
 	}
+	PlayerCfg.MouseFSDead = m[mousefsdead].value;
 }
 
-static int opt_ic_usejoy = 0, opt_ic_usemouse = 0, opt_ic_confkey = 0, opt_ic_confjoy = 0, opt_ic_confmouse = 0, opt_ic_confweap = 0, opt_ic_joymousesens = 0, opt_ic_grabinput = 0, opt_ic_mousefilt = 0, opt_ic_help0 = 0, opt_ic_help1 = 0, opt_ic_help2 = 0;
+static int opt_ic_usejoy = 0, opt_ic_usemouse = 0, opt_ic_confkey = 0, opt_ic_confjoy = 0, opt_ic_confmouse = 0, opt_ic_confweap = 0, opt_ic_mouseflightsim = 0, opt_ic_joymousesens = 0, opt_ic_grabinput = 0, opt_ic_mousefsgauge = 0, opt_ic_mousefilt = 0, opt_ic_help0 = 0, opt_ic_help1 = 0, opt_ic_help2 = 0;
 int input_config_menuset(newmenu *menu, d_event *event, void *userdata)
 {
 	newmenu_item *items = newmenu_get_items(menu);
@@ -1100,8 +1105,14 @@ int input_config_menuset(newmenu *menu, d_event *event, void *userdata)
 				(items[citem].value)?(PlayerCfg.ControlType|=CONTROL_USING_JOYSTICK):(PlayerCfg.ControlType&=~CONTROL_USING_JOYSTICK);
 			if (citem == opt_ic_usemouse)
 				(items[citem].value)?(PlayerCfg.ControlType|=CONTROL_USING_MOUSE):(PlayerCfg.ControlType&=~CONTROL_USING_MOUSE);
+			if (citem == opt_ic_mouseflightsim)
+				PlayerCfg.MouseFlightSim = 0;
+			if (citem == opt_ic_mouseflightsim+1)
+				PlayerCfg.MouseFlightSim = 1;
 			if (citem == opt_ic_grabinput)
 				GameCfg.Grabinput = items[citem].value;
+			if (citem == opt_ic_mousefsgauge)
+				PlayerCfg.MouseFSReticle = items[citem].value;
 			if (citem == opt_ic_mousefilt)
 				PlayerCfg.MouseFilter = items[citem].value;
 			break;
@@ -1135,7 +1146,7 @@ int input_config_menuset(newmenu *menu, d_event *event, void *userdata)
 
 void input_config()
 {
-	newmenu_item m[16];
+	newmenu_item m[21];
 	int nitems = 0;
 
 	opt_ic_usejoy = nitems;
@@ -1152,11 +1163,18 @@ void input_config()
 	opt_ic_confweap = nitems;
 	m[nitems].type = NM_TYPE_MENU; m[nitems].text = "CUSTOMIZE WEAPON KEYS"; nitems++;
 	m[nitems].type = NM_TYPE_TEXT; m[nitems].text = ""; nitems++;
+	m[nitems].type = NM_TYPE_TEXT; m[nitems].text = "MOUSE CONTROL TYPE:"; nitems++;
+	opt_ic_mouseflightsim = nitems;
+	m[nitems].type = NM_TYPE_RADIO; m[nitems].text = "normal"; m[nitems].value = !PlayerCfg.MouseFlightSim; m[nitems].group = 0; nitems++;
+	m[nitems].type = NM_TYPE_RADIO; m[nitems].text = "FlightSim"; m[nitems].value = PlayerCfg.MouseFlightSim; m[nitems].group = 0; nitems++;
+	m[nitems].type = NM_TYPE_TEXT; m[nitems].text = ""; nitems++;
 	opt_ic_joymousesens = nitems;
 	m[nitems].type = NM_TYPE_MENU; m[nitems].text = "SENSITIVITY & DEADZONE"; nitems++;
 	m[nitems].type = NM_TYPE_TEXT; m[nitems].text = ""; nitems++;
 	opt_ic_grabinput = nitems;
 	m[nitems].type = NM_TYPE_CHECK; m[nitems].text= "Keep Keyboard/Mouse focus"; m[nitems].value = GameCfg.Grabinput; nitems++;
+	opt_ic_mousefsgauge = nitems;
+	m[nitems].type = NM_TYPE_CHECK; m[nitems].text= "Mouse FlightSim Reticle"; m[nitems].value = PlayerCfg.MouseFSReticle; nitems++;
 	opt_ic_mousefilt = nitems;
 	m[nitems].type = NM_TYPE_CHECK; m[nitems].text= "Mouse Smoothing/Filtering"; m[nitems].value = PlayerCfg.MouseFilter; nitems++;
 	m[nitems].type = NM_TYPE_TEXT; m[nitems].text = ""; nitems++;

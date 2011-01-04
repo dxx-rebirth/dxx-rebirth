@@ -24,127 +24,37 @@ COPYRIGHT 1993-1999 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 
 #include "config.h"
 #include "gamestat.h"
+#include "key.h"
+#include "joy.h"
+#include "mouse.h"
 
 typedef struct _control_info {
+	fix joy_axis[JOY_MAX_AXES], raw_joy_axis[JOY_MAX_AXES], mouse_axis[3], raw_mouse_axis[3];
 	fix pitch_time;
 	fix vertical_thrust_time;
 	fix heading_time;
 	fix sideways_thrust_time;
 	fix bank_time;
 	fix forward_thrust_time;
-
 	ubyte rear_view_down_count;
 	ubyte rear_view_down_state;
-
 	ubyte fire_primary_down_count;
 	ubyte fire_primary_state;
 	ubyte fire_secondary_state;
 	ubyte fire_secondary_down_count;
 	ubyte fire_flare_down_count;
-
 	ubyte drop_bomb_down_count;
-
 	ubyte automap_down_count;
 	ubyte automap_state;
-
-	ubyte afterburner_state;
 	ubyte cycle_primary_count;
 	ubyte cycle_secondary_count;
+	ubyte afterburner_state;
 	ubyte headlight_count;
 } control_info;
 
-typedef struct ext_control_info {
-	fix pitch_time;
-	fix vertical_thrust_time;
-	fix heading_time;
-	fix sideways_thrust_time;
-	fix bank_time;
-	fix forward_thrust_time;
-
-	ubyte rear_view_down_count;
-	ubyte rear_view_down_state;
-
-	ubyte fire_primary_down_count;
-	ubyte fire_primary_state;
-	ubyte fire_secondary_state;
-	ubyte fire_secondary_down_count;
-	ubyte fire_flare_down_count;
-
-	ubyte drop_bomb_down_count;
-
-	ubyte automap_down_count;
-	ubyte automap_state;
-
-} ext_control_info;
-
-typedef struct advanced_ext_control_info {
-	fix pitch_time;
-	fix vertical_thrust_time;
-	fix heading_time;
-	fix sideways_thrust_time;
-	fix bank_time;
-	fix forward_thrust_time;
-
-	ubyte rear_view_down_count;
-	ubyte rear_view_down_state;
-
-	ubyte fire_primary_down_count;
-	ubyte fire_primary_state;
-	ubyte fire_secondary_state;
-	ubyte fire_secondary_down_count;
-	ubyte fire_flare_down_count;
-
-	ubyte drop_bomb_down_count;
-
-	ubyte automap_down_count;
-	ubyte automap_state;
-
-	// everything below this line is for version >=1.0
-
-	vms_angvec heading;
-	char oem_message[64];
-
-	// everything below this line is for version >=2.0
-
-	vms_vector ship_pos;
-	vms_matrix ship_orient;
-
-	// everything below this line is for version >=3.0
-
-	ubyte cycle_primary_count;
-	ubyte cycle_secondary_count;
-	ubyte afterburner_state;
-	ubyte headlight_count;
-
-	// everything below this line is for version >=4.0
-
-	int primary_weapon_flags;
-	int secondary_weapon_flags;
-	ubyte current_primary_weapon;
-	ubyte current_secondary_weapon;
-
-	vms_vector force_vector;
-	vms_matrix force_matrix;
-	int joltinfo[3];
-	int x_vibrate_info[2];
-	int y_vibrate_info[2];
-
-	int x_vibrate_clear;
-	int y_vibrate_clear;
-
-	ubyte game_status;
-
-	ubyte headlight_state;
-	ubyte current_guidebot_command;
-
-	ubyte keyboard[128];    // scan code array, not ascii
-
-	ubyte Reactor_blown;
-
-} advanced_ext_control_info;
-
 #define CONTROL_USING_JOYSTICK	1
 #define CONTROL_USING_MOUSE		2
+#define MOUSEFS_DELTA_RANGE 512
 #define NUM_D2X_CONTROLS    30
 #define MAX_D2X_CONTROLS    30
 #define NUM_KEY_CONTROLS    57
