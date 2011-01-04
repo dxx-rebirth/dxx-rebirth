@@ -2083,6 +2083,28 @@ void show_reticle()
 #endif
 }
 
+void show_mousefs_reticle()
+{
+	int size, x, y, axscale, xaxpos, yaxpos, zaxpos;
+	size = GHEIGHT/4;
+	x = (GWIDTH/2)-(size/2);
+	y = (GHEIGHT/2)-(size/2);
+	axscale = (MOUSEFS_DELTA_RANGE*2)/size;
+	xaxpos = (GWIDTH/2)+(Controls.raw_mouse_axis[0]/axscale);
+	yaxpos = (GHEIGHT/2)+(Controls.raw_mouse_axis[1]/axscale);
+	zaxpos = (GHEIGHT/2)+(Controls.raw_mouse_axis[2]/axscale);
+
+	gr_setcolor(BM_XRGB(0,31,0));
+
+	gr_uline(i2f(xaxpos), i2f(y), i2f(xaxpos), i2f(y+(size/4)));
+	gr_uline(i2f(xaxpos), i2f(y+size), i2f(xaxpos), i2f(y+size-(size/4)));
+
+	gr_uline(i2f(x), i2f(yaxpos), i2f(x+(size/4)), i2f(yaxpos));
+	gr_uline(i2f(x+size), i2f(yaxpos), i2f(x+size-(size/4)), i2f(yaxpos));
+
+	gr_uline(i2f(x+size+HUD_SCALE_X_AR(2)), i2f(y+(size/2)), i2f(x+size+HUD_SCALE_X_AR(2)), i2f(zaxpos));
+}
+
 #ifdef NETWORK
 void hud_show_kill_list()
 {
@@ -2232,6 +2254,9 @@ void draw_hud()
 #endif
 		if (PlayerCfg.CockpitMode[1] != CM_LETTERBOX && PlayerCfg.ReticleOn)
 			show_reticle();
+		if (PlayerCfg.CockpitMode[1] != CM_LETTERBOX && Newdemo_state != ND_STATE_PLAYBACK && PlayerCfg.MouseFlightSim && PlayerCfg.MouseFSReticle)
+			show_mousefs_reticle();
+
 		HUD_render_message_frame();
 
 		if (PlayerCfg.CockpitMode[1]!=CM_STATUS_BAR)

@@ -77,7 +77,10 @@ int new_player_config()
 	PlayerCfg.HighestLevels[0].LevelNum = 1; //was highest level in old struct
 	PlayerCfg.JoystickSens[0] = PlayerCfg.JoystickSens[1] = PlayerCfg.JoystickSens[2] = PlayerCfg.JoystickSens[3] = PlayerCfg.JoystickSens[4] = 8;
 	PlayerCfg.JoystickDead[0] = PlayerCfg.JoystickDead[1] = PlayerCfg.JoystickDead[2] = PlayerCfg.JoystickDead[3] = PlayerCfg.JoystickDead[4] = 0;
+	PlayerCfg.MouseFlightSim = 0;
 	PlayerCfg.MouseSens[0] = PlayerCfg.MouseSens[1] = PlayerCfg.MouseSens[2] = PlayerCfg.MouseSens[3] = PlayerCfg.MouseSens[4] = 8;
+	PlayerCfg.MouseFSDead = 0;
+	PlayerCfg.MouseFSReticle = 1;
 	PlayerCfg.MouseFilter = 0;
 	PlayerCfg.CockpitMode[0] = PlayerCfg.CockpitMode[1] = CM_FULL_COCKPIT;
 	PlayerCfg.ReticleOn = 1;
@@ -190,6 +193,8 @@ int read_player_d1x(char *filename)
 	
 			while(!strstr(word,"END") && !PHYSFS_eof(f))
 			{
+				if(!strcmp(word,"FLIGHTSIM"))
+					PlayerCfg.MouseFlightSim = atoi(line);
 				if(!strcmp(word,"SENSITIVITY0"))
 					PlayerCfg.MouseSens[0] = atoi(line);
 				if(!strcmp(word,"SENSITIVITY1"))
@@ -200,6 +205,10 @@ int read_player_d1x(char *filename)
 					PlayerCfg.MouseSens[3] = atoi(line);
 				if(!strcmp(word,"SENSITIVITY4"))
 					PlayerCfg.MouseSens[4] = atoi(line);
+				if(!strcmp(word,"FSDEAD"))
+					PlayerCfg.MouseFSDead = atoi(line);
+				if(!strcmp(word,"FSGAUGE"))
+					PlayerCfg.MouseFSReticle = atoi(line);
 				if(!strcmp(word,"FILTER"))
 					PlayerCfg.MouseFilter = atoi(line);
 				d_free(word);
@@ -525,11 +534,14 @@ int write_player_d1x(char *filename)
 		PHYSFSX_printf(fout,"deadzone4=%d\n",PlayerCfg.JoystickDead[4]);
 		PHYSFSX_printf(fout,"[end]\n");
 		PHYSFSX_printf(fout,"[mouse]\n");
+		PHYSFSX_printf(fout,"flightsim=%d\n",PlayerCfg.MouseFlightSim);
 		PHYSFSX_printf(fout,"sensitivity0=%d\n",PlayerCfg.MouseSens[0]);
 		PHYSFSX_printf(fout,"sensitivity1=%d\n",PlayerCfg.MouseSens[1]);
 		PHYSFSX_printf(fout,"sensitivity2=%d\n",PlayerCfg.MouseSens[2]);
 		PHYSFSX_printf(fout,"sensitivity3=%d\n",PlayerCfg.MouseSens[3]);
 		PHYSFSX_printf(fout,"sensitivity4=%d\n",PlayerCfg.MouseSens[4]);
+		PHYSFSX_printf(fout,"fsdead=%d\n",PlayerCfg.MouseFSDead);
+		PHYSFSX_printf(fout,"fsgauge=%d\n",PlayerCfg.MouseFSReticle);
 		PHYSFSX_printf(fout,"filter=%d\n",PlayerCfg.MouseFilter);
 		PHYSFSX_printf(fout,"[end]\n");
 		PHYSFSX_printf(fout,"[weapon keys v2]\n");

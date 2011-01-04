@@ -61,7 +61,10 @@ typedef struct player_config
 	hli HighestLevels[MAX_MISSIONS];
 	int JoystickSens[5];
 	int JoystickDead[5];
+	ubyte MouseFlightSim;
 	int MouseSens[5];
+	int MouseFSDead;
+	int MouseFSReticle;
 	int MouseFilter;
 	int CockpitMode[2]; // 0 saves the "real" cockpit, 1 also saves letterbox and rear. Used to properly switch between modes and restore the real one.
 	char NetworkMessageMacro[4][MAX_MESSAGE_LEN];

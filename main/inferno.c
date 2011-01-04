@@ -119,7 +119,6 @@ void print_commandline_help()
 	printf( "\n Controls:\n\n");
 	printf( "  -nomouse           %s\n", "Deactivate mouse");
 	printf( "  -nojoystick        %s\n", "Deactivate joystick");
-	printf( "  -mouselook         %s\n", "Activate mouselook. Works in singleplayer only");
 	printf( "  -nostickykeys      %s\n", "Make CapsLock and NumLock non-sticky so they can be used as normal keys");
 
 	printf( "\n Sound:\n\n");
