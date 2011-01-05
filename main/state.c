@@ -222,8 +222,8 @@ void state_object_to_object_rw(object *obj, object_rw *obj_rw)
 			obj_rw->ctype.ai_info.dying_sound_playing    = obj->ctype.ai_info.dying_sound_playing;
 			obj_rw->ctype.ai_info.danger_laser_num       = obj->ctype.ai_info.danger_laser_num;
 			obj_rw->ctype.ai_info.danger_laser_signature = obj->ctype.ai_info.danger_laser_signature;
-			if (obj->ctype.ai_info.dying_start_time - GameTime64 < F1_0*(-18000))
-				obj_rw->ctype.ai_info.dying_start_time = F1_0*(-18000);
+			if (obj->ctype.ai_info.dying_start_time == 0) // if bot not dead, anything but 0 will kill it
+				obj_rw->ctype.ai_info.dying_start_time = 0;
 			else
 				obj_rw->ctype.ai_info.dying_start_time = obj->ctype.ai_info.dying_start_time - GameTime64;
 			break;
