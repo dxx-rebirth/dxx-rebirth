@@ -346,6 +346,8 @@ void draw_automap(automap *am)
 	g3_end_frame();
 
 	name_frame(am);
+
+	show_mousefs_reticle(GWIDTH-(GHEIGHT/8), GHEIGHT-(GHEIGHT/8), GHEIGHT/5);
 }
 
 #define LEAVE_TIME 0x4000

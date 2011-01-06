@@ -43,6 +43,7 @@ void render_gauges(void);
 void init_gauges(void);
 void close_gauges(void);
 void cockpit_decode_alpha(grs_bitmap *bm);
+void show_mousefs_reticle(int x, int y, int size);
 extern void check_erase_message(void);
 
 extern void draw_hud();		//draw all the HUD stuff

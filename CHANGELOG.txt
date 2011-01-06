@@ -3,6 +3,7 @@ D1X-Rebirth Changelog
 20110106
 --------
 SConstruct, arch/ogl/gr.c, arch/ogl/ogl.c, include/loadgl.h, include/ogl_init.h, main/gamecntl.c, main/state.c, misc/args.c: Added OpenGL ES support - contributed by Florian Feucht and Oliver Haag
+main/automap.c, main/gauges.c, main/gauges.h: Draw FlightSim Reticle on Automap display, too
 
 20110104
 --------
