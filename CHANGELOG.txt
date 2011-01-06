@@ -4,6 +4,7 @@ D2X-Rebirth Changelog
 --------
 main/multi.c, main/state.c: Fixed but in object to object_rw conversion - if a bot is not dead, leave dying_start_time at 0 as anything else would kill it
 3d/rod.c, SConstruct, arch/ogl/gr.c, arch/ogl/ogl.c, include/3d.h, include/ogl_init.h, main/gamecntl.c, main/object.c, main/state.c, misc/args.c: Added OpenGL ES support - contributed by Florian Feucht and Oliver Haag
+main/automap.c, main/gauges.c, main/gauges.h: Draw FlightSim Reticle on Automap display, too; Fixed small glitch showing Vulcan/Gauss ammo in alt hud mode on all cockpit modes instead of CM_FULL_SCREEN only
 
 20110104
 --------

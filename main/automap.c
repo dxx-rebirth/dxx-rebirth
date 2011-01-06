@@ -529,6 +529,8 @@ void draw_automap(automap *am)
 		sprintf(msg,"Marker %d: %s",HighlightMarker+1,MarkerMessage[(Player_num*2)+HighlightMarker]);
 		gr_printf((SWIDTH/64),(SHEIGHT/18),"%s", msg);
 	}
+
+	show_mousefs_reticle(GWIDTH-(GHEIGHT/8), GHEIGHT-(GHEIGHT/8), GHEIGHT/5);
 }
 
 #define LEAVE_TIME 0x4000
