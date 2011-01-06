@@ -50,7 +50,14 @@
 #if defined(__APPLE__) && defined(__MACH__)
 #include <OpenGL/glu.h>
 #else
+#ifdef OGLES
+#include <GLES/egl.h>
+#include <X11/Xlib.h>
+#include <X11/Xutil.h>
+#include <SDL/SDL_syswm.h>
+#else
 #include <GL/glu.h>
+#endif
 #endif
 
 int gr_installed = 0;
@@ -59,13 +66,50 @@ int ogl_fullscreen=0;
 static int curx=-1,cury=-1,curfull=0;
 int linedotscale=1; // scalar of glLinewidth and glPointSize - only calculated once when resolution changes
 
+#ifdef OGLES
+EGLDisplay eglDisplay;
+EGLConfig eglConfig;
+EGLSurface eglSurface;
+EGLContext eglContext;
+
+bool TestEGLError(char* pszLocation)
+{
+	/*
+	 * eglGetError returns the last error that has happened using egl,
+	 * not the status of the last called function. The user has to
+	 * check after every single egl call or at least once every frame.
+	*/
+	EGLint iErr = eglGetError();
+	if (iErr != EGL_SUCCESS)
+	{
+		con_printf(CON_URGENT, "%s failed (%d).\n", pszLocation, iErr);
+		return 0;
+	}
+	
+	return 1;
+}
+#endif
+
 void ogl_swap_buffers_internal(void)
 {
+#ifdef OGLES
+	eglSwapBuffers(eglDisplay, eglSurface);
+#else
 	SDL_GL_SwapBuffers();
+#endif
 }
 
 int ogl_init_window(int x, int y)
 {
+#ifdef OGLES
+	SDL_SysWMinfo info;
+	Window    x11Window = 0;
+	Display*  x11Display = 0;
+	EGLint    ver_maj, ver_min;
+	EGLint configAttribs[] = { EGL_SURFACE_TYPE, EGL_WINDOW_BIT, EGL_NONE };
+	int iConfigs;
+#endif
+	
 	if (gl_initialized){
 		if (x==curx && y==cury && curfull==ogl_fullscreen)
 			return 0;
@@ -74,10 +118,61 @@ int ogl_init_window(int x, int y)
 
 	SDL_WM_SetCaption(DESCENT_VERSION, "Descent");
 	SDL_WM_SetIcon( SDL_LoadBMP( "d1x-rebirth.bmp" ), NULL );
+#ifdef OGLES
+	if (!SDL_SetVideoMode(x, y, GameArg.DbgBpp, (ogl_fullscreen ? SDL_FULLSCREEN : 0)))
+	{
+		Error("Could not set %dx%dx%d opengl video mode: %s\n", x, y, GameArg.DbgBpp, SDL_GetError());
+	}
+	
+	SDL_VERSION(&info.version);
+	
+	if (SDL_GetWMInfo(&info) > 0) {
+		if (info.subsystem == SDL_SYSWM_X11) {
+			x11Display = info.info.x11.display;
+			x11Window = info.info.x11.window;
+			printf ("Display: %p, Window: %i ===\n", x11Display, x11Window);
+		}
+	}
+	
+	eglDisplay = eglGetDisplay((NativeDisplayType)x11Display);
+	if (!eglInitialize(eglDisplay, &ver_maj, &ver_min)) {
+		con_printf(CON_URGENT, "EGL: Error initializing EGL\n");
+	} else {
+		con_printf(CON_URGENT, "EGL: Initialized, version: major %i minor %i\n", ver_maj, ver_min);
+	}
+	
+	if (!eglChooseConfig(eglDisplay, configAttribs, &eglConfig, 1, &iConfigs) || (iConfigs != 1)) {
+		con_printf(CON_URGENT, "EGL: Error choosing config\n");
+	} else {
+		con_printf(CON_URGENT, "EGL: Choosed config\n", ver_maj, ver_min);
+	}
+	
+	eglSurface = eglCreateWindowSurface(eglDisplay, eglConfig, (NativeWindowType)x11Window, NULL);
+	if (!TestEGLError("eglCreateWindowSurface")) {
+		con_printf(CON_URGENT, "EGL: Error creating window surface\n");
+	} else {
+		con_printf(CON_URGENT, "EGL: Created window surface\n");
+	}
+	
+	eglContext = eglCreateContext(eglDisplay, eglConfig, NULL, NULL);
+	if (!TestEGLError("eglCreateContext")) {
+		con_printf(CON_URGENT, "EGL: Error creating context\n");
+	} else {
+		con_printf(CON_URGENT, "EGL: Created context\n");
+	}
+	
+	eglMakeCurrent(eglDisplay, eglSurface, eglSurface, eglContext);
+	if (!TestEGLError("eglMakeCurrent")) {
+		con_printf(CON_URGENT, "EGL: Error making current\n");
+	} else {
+		con_printf(CON_URGENT, "EGL: Created current\n");
+	}
+#else
 	if (!SDL_SetVideoMode(x, y, GameArg.DbgBpp, SDL_OPENGL | (ogl_fullscreen ? SDL_FULLSCREEN : 0)))
 	{
 		Error("Could not set %dx%dx%d opengl video mode: %s\n", x, y, GameArg.DbgBpp, SDL_GetError());
 	}
+#endif
 	SDL_ShowCursor(0);
 
 	curx=x;cury=y;curfull=ogl_fullscreen;
@@ -98,7 +193,11 @@ void gr_do_fullscreen(int f)
 	ogl_fullscreen=f;
 	if (gl_initialized)
 	{
-		if (!SDL_VideoModeOK(curx, cury, GameArg.DbgBpp, SDL_OPENGL | (ogl_fullscreen?SDL_FULLSCREEN:0)))
+		if (!SDL_VideoModeOK(curx, cury, GameArg.DbgBpp, 
+#ifndef OGLES
+			SDL_OPENGL | 
+#endif
+			(ogl_fullscreen?SDL_FULLSCREEN:0)))
 		{
 			con_printf(CON_URGENT,"Cannot set %ix%i. Fallback to 640x480\n",curx,cury);
 			curx=640;
@@ -118,7 +217,11 @@ int gr_toggle_fullscreen(void)
 	{
 		glMatrixMode(GL_PROJECTION);
 		glLoadIdentity();
-		glOrtho(0.0, 1.0, 0.0, 1.0, -1.0, 1.0);
+#ifdef OGLES
+		glOrthof(0.0, 1.0, 0.0, 1.0, -1.0, 1.0);
+#else
+ 		glOrtho(0.0, 1.0, 0.0, 1.0, -1.0, 1.0);
+#endif
 		glMatrixMode(GL_MODELVIEW);
 		glLoadIdentity();//clear matrix
 		glEnable(GL_BLEND);
@@ -139,7 +242,11 @@ void ogl_init_state(void)
 	/* initialize viewing values */
 	glMatrixMode(GL_PROJECTION);
 	glLoadIdentity();
-	glOrtho(0.0, 1.0, 0.0, 1.0, -1.0, 1.0);
+#ifdef OGLES
+	glOrthof(0.0, 1.0, 0.0, 1.0, -1.0, 1.0);
+#else
+ 	glOrtho(0.0, 1.0, 0.0, 1.0, -1.0, 1.0);
+#endif
 	glMatrixMode(GL_MODELVIEW);
 	glLoadIdentity();//clear matrix
 	glEnable(GL_BLEND);
@@ -152,13 +259,16 @@ void ogl_init_state(void)
 // Set the buffer to draw to. 0 is front, 1 is back
 void gr_set_draw_buffer(int buf)
 {
+#ifndef OGLES
 	glDrawBuffer((buf == 0) ? GL_FRONT : GL_BACK);
+#endif
 }
 
 const char *gl_vendor, *gl_renderer, *gl_version, *gl_extensions;
 
 void ogl_get_verinfo(void)
 {
+#ifdef OGLES
 	gl_vendor = (const char *) glGetString (GL_VENDOR);
 	gl_renderer = (const char *) glGetString (GL_RENDERER);
 	gl_version = (const char *) glGetString (GL_VERSION);
@@ -195,6 +305,7 @@ void ogl_get_verinfo(void)
 #ifndef NDEBUG
 	con_printf(CON_VERBOSE,"gl_intensity4:%i gl_luminance4_alpha4:%i gl_rgba2:%i gl_readpixels:%i gl_gettexlevelparam:%i\n",GameArg.DbgGlIntensity4Ok,GameArg.DbgGlLuminance4Alpha4Ok,GameArg.DbgGlRGBA2Ok,GameArg.DbgGlReadPixelsOk,GameArg.DbgGlGetTexLevelParamOk);
 #endif
+#endif
 }
 
 // returns possible (fullscreen) resolutions if any.
@@ -202,7 +313,11 @@ int gr_list_modes( u_int32_t gsmodes[] )
 {
 	SDL_Rect** modes;
 	int i = 0, modesnum = 0;
+#ifdef OGLES
+	int sdl_check_flags = SDL_FULLSCREEN; // always use Fullscreen as lead.
+#else
 	int sdl_check_flags = SDL_OPENGL | SDL_FULLSCREEN; // always use Fullscreen as lead.
+#endif
 
 	modes = SDL_ListModes(NULL, sdl_check_flags);
 
@@ -237,7 +352,11 @@ int gr_check_mode(u_int32_t mode)
 	w=SM_W(mode);
 	h=SM_H(mode);
 
-	return SDL_VideoModeOK(w, h, GameArg.DbgBpp, SDL_OPENGL | (ogl_fullscreen?SDL_FULLSCREEN:0));
+	return SDL_VideoModeOK(w, h, GameArg.DbgBpp, 
+#ifndef OGLES
+			SDL_OPENGL |
+#endif
+			(ogl_fullscreen?SDL_FULLSCREEN:0));
 }
 
 int gr_set_mode(u_int32_t mode)
@@ -251,7 +370,7 @@ int gr_set_mode(u_int32_t mode)
 	w=SM_W(mode);
 	h=SM_H(mode);
 
-	if (!SDL_VideoModeOK(w, h, GameArg.DbgBpp, SDL_OPENGL | (ogl_fullscreen?SDL_FULLSCREEN:0)))
+	if (!gr_check_mode(mode))
 	{
 		con_printf(CON_URGENT,"Cannot set %ix%i. Fallback to 640x480\n",w,h);
 		w=640;
@@ -327,6 +446,7 @@ int ogl_init_load_library(void)
 
 void gr_set_attributes(void)
 {
+#ifndef OGLES
 	SDL_GL_SetAttribute(SDL_GL_DEPTH_SIZE, 16);
 	SDL_GL_SetAttribute(SDL_GL_STENCIL_SIZE,0);
 	SDL_GL_SetAttribute(SDL_GL_ACCUM_RED_SIZE,0);
@@ -345,6 +465,7 @@ void gr_set_attributes(void)
 		SDL_GL_SetAttribute(SDL_GL_MULTISAMPLEBUFFERS, 0);
 		SDL_GL_SetAttribute(SDL_GL_MULTISAMPLESAMPLES, 0);
 	}
+#endif
 	ogl_smash_texture_list_internal();
 }
 
@@ -415,19 +536,30 @@ void gr_close()
 extern int r_upixelc;
 void ogl_upixelc(int x, int y, int c)
 {
+	GLfloat vertex_array[] = { (x+grd_curcanv->cv_bitmap.bm_x)/(float)last_width, 1.0-(y+grd_curcanv->cv_bitmap.bm_y)/(float)last_height };
+	GLfloat color_array[] = { CPAL2Tr(c), CPAL2Tg(c), CPAL2Tb(c), 1.0, CPAL2Tr(c), CPAL2Tg(c), CPAL2Tb(c), 1.0, CPAL2Tr(c), CPAL2Tg(c), CPAL2Tb(c), 1.0, CPAL2Tr(c), CPAL2Tg(c), CPAL2Tb(c), 1.0 };
+
 	r_upixelc++;
 	OGL_DISABLE(TEXTURE_2D);
 	glPointSize(linedotscale);
-	glBegin(GL_POINTS);
-	glColor3f(CPAL2Tr(c),CPAL2Tg(c),CPAL2Tb(c));
-	glVertex2f((x + grd_curcanv->cv_bitmap.bm_x + 0.5) / (float)last_width, 1.0 - (y + grd_curcanv->cv_bitmap.bm_y + 0.5) / (float)last_height);
-	glEnd();
+	glEnableClientState(GL_VERTEX_ARRAY);
+	glEnableClientState(GL_COLOR_ARRAY);
+	glVertexPointer(2, GL_FLOAT, 0, vertex_array);
+	glColorPointer(4, GL_FLOAT, 0, color_array);
+	glDrawArrays(GL_POINTS, 0, 1);
+	glDisableClientState(GL_VERTEX_ARRAY);
+	glDisableClientState(GL_COLOR_ARRAY);
 }
 
 void ogl_urect(int left,int top,int right,int bot)
 {
-	GLfloat xo,yo,xf,yf;
+	GLfloat xo, yo, xf, yf, color_r, color_g, color_b, color_a;
+	GLfloat color_array[] = { 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0 };
+	GLfloat vertex_array[] = { 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0 };
 	int c=COLOR;
+
+	glEnableClientState(GL_VERTEX_ARRAY);
+	glEnableClientState(GL_COLOR_ARRAY);
 
 	xo=(left+grd_curcanv->cv_bitmap.bm_x)/(float)last_width;
 	xf = (right + 1 + grd_curcanv->cv_bitmap.bm_x) / (float)last_width;
@@ -435,33 +567,62 @@ void ogl_urect(int left,int top,int right,int bot)
 	yf = 1.0 - (bot + 1 + grd_curcanv->cv_bitmap.bm_y) / (float)last_height;
 
 	OGL_DISABLE(TEXTURE_2D);
+
+	color_r = CPAL2Tr(c);
+	color_g = CPAL2Tg(c);
+	color_b = CPAL2Tb(c);
+
 	if (Gr_scanline_darkening_level >= GR_FADE_LEVELS)
-		glColor3f(CPAL2Tr(c), CPAL2Tg(c), CPAL2Tb(c));
+		color_a = 1.0;
 	else
-		glColor4f(CPAL2Tr(c), CPAL2Tg(c), CPAL2Tb(c), 1.0 - (float)Gr_scanline_darkening_level / ((float)GR_FADE_LEVELS - 1.0));
-	glBegin(GL_QUADS);
-	glVertex2f(xo,yo);
-	glVertex2f(xo,yf);
-	glVertex2f(xf,yf);
-	glVertex2f(xf,yo);
-	glEnd();
+		color_a = 1.0 - (float)Gr_scanline_darkening_level / ((float)GR_FADE_LEVELS - 1.0);
+
+	color_array[0] = color_array[4] = color_array[8] = color_array[12] = color_r;
+	color_array[1] = color_array[5] = color_array[9] = color_array[13] = color_g;
+	color_array[2] = color_array[6] = color_array[10] = color_array[14] = color_b;
+	color_array[3] = color_array[7] = color_array[11] = color_array[15] = color_a;
+
+	vertex_array[0] = xo;
+	vertex_array[1] = yo;
+	vertex_array[2] = xo;
+	vertex_array[3] = yf;
+	vertex_array[4] = xf;
+	vertex_array[5] = yf;
+	vertex_array[6] = xf;
+	vertex_array[7] = yo;
+	
+	glVertexPointer(2, GL_FLOAT, 0, vertex_array);
+	glColorPointer(4, GL_FLOAT, 0, color_array);
+	glDrawArrays(GL_TRIANGLE_FAN, 0, 4);//replaced GL_QUADS
+	glDisableClientState(GL_VERTEX_ARRAY);
 }
 
 void ogl_ulinec(int left,int top,int right,int bot,int c)
 {
 	GLfloat xo,yo,xf,yf;
+	GLfloat color_array[] = { CPAL2Tr(c), CPAL2Tg(c), CPAL2Tb(c), 1.0, CPAL2Tr(c), CPAL2Tg(c), CPAL2Tb(c), 1.0, CPAL2Tr(c), CPAL2Tg(c), CPAL2Tb(c), 1.0, CPAL2Tr(c), CPAL2Tg(c), CPAL2Tb(c), 1.0 };
+	GLfloat vertex_array[] = { 0.0, 0.0, 0.0, 0.0 };
 
+	glEnableClientState(GL_VERTEX_ARRAY);
+	glEnableClientState(GL_COLOR_ARRAY);
+	
 	xo = (left + grd_curcanv->cv_bitmap.bm_x + 0.5) / (float)last_width;
 	xf = (right + grd_curcanv->cv_bitmap.bm_x + 0.5) / (float)last_width;
 	yo = 1.0 - (top + grd_curcanv->cv_bitmap.bm_y + 0.5) / (float)last_height;
 	yf = 1.0 - (bot + grd_curcanv->cv_bitmap.bm_y + 0.5) / (float)last_height;
-
+ 
 	OGL_DISABLE(TEXTURE_2D);
-	glColor3f(CPAL2Tr(c),CPAL2Tg(c),CPAL2Tb(c));
-	glBegin(GL_LINES);
-	glVertex2f(xo,yo);
-	glVertex2f(xf,yf);
-	glEnd();
+
+	vertex_array[0] = xo;
+	vertex_array[1] = yo;
+	vertex_array[2] = xf;
+	vertex_array[3] = yf;
+
+	glVertexPointer(2, GL_FLOAT, 0, vertex_array);
+	glColorPointer(4, GL_FLOAT, 0, color_array);
+	glDrawArrays(GL_LINES, 0, 2);
+	glDisableClientState(GL_VERTEX_ARRAY);
+	glDisableClientState(GL_COLOR_ARRAY);
 }
 
 GLfloat last_r=0, last_g=0, last_b=0;
@@ -469,23 +630,27 @@ int do_pal_step=0;
 
 void ogl_do_palfx(void)
 {
+	GLfloat color_array[] = { last_r, last_g, last_b, 1.0, last_r, last_g, last_b, 1.0, last_r, last_g, last_b, 1.0, last_r, last_g, last_b, 1.0 };
+	GLfloat vertex_array[] = { 0,0,0,1,1,1,1,0 };
+
 	OGL_DISABLE(TEXTURE_2D);
 
+	glEnableClientState(GL_VERTEX_ARRAY);
+	glEnableClientState(GL_COLOR_ARRAY);
+ 
 	if (do_pal_step)
 	{
 		glEnable(GL_BLEND);
 		glBlendFunc(GL_ONE,GL_ONE);
-		glColor3f(last_r,last_g,last_b);
 	}
 	else
 		return;
-
-	glBegin(GL_QUADS);
-	glVertex2f(0,0);
-	glVertex2f(0,1);
-	glVertex2f(1,1);
-	glVertex2f(1,0);
-	glEnd();
+ 
+	glVertexPointer(2, GL_FLOAT, 0, vertex_array);
+	glColorPointer(4, GL_FLOAT, 0, color_array);
+	glDrawArrays(GL_TRIANGLE_FAN, 0, 4);//replaced GL_QUADS
+	glDisableClientState(GL_VERTEX_ARRAY);
+	glDisableClientState(GL_COLOR_ARRAY);
 	glEnable(GL_BLEND);
 	glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
 }
@@ -562,10 +727,25 @@ void write_bmp(char *savename,int w,int h,unsigned char *buf)
 	PHYSFS_file* TGAFile;
 	TGA_header TGA;
 	GLbyte HeightH,HeightL,WidthH,WidthL;
+#ifdef OGLES
+	unsigned int pixel;
+	unsigned char *rgbaBuf;
+#endif
 
 	buf = (unsigned char*)d_calloc(w*h*3,sizeof(unsigned char));
 
+#ifdef OGLES
+	rgbaBuf = (unsigned char*) d_calloc(w * h * 4, sizeof(unsigned char));
+	glReadPixels(0, 0, w, h, GL_RGBA, GL_UNSIGNED_BYTE, rgbaBuf);
+	for(pixel = 0; pixel < w * h; pixel++) {
+		*(buf + pixel * 3) = *(rgbaBuf + pixel * 4 + 2);
+		*(buf + pixel * 3 + 1) = *(rgbaBuf + pixel * 4 + 1);
+		*(buf + pixel * 3 + 2) = *(rgbaBuf + pixel * 4);
+	}
+	d_free(rgbaBuf);
+#else
 	glReadPixels(0,0,w,h,GL_BGR_EXT,GL_UNSIGNED_BYTE,buf);
+#endif
 
 	if (!(TGAFile = PHYSFSX_openWriteBuffered(savename)))
 	{
@@ -631,7 +811,9 @@ void save_screen_shot(int automap_flag)
 	if (!automap_flag)
 		HUD_init_message(HM_DEFAULT, message);
 
+#ifndef OGLES
 	glReadBuffer(GL_FRONT);
+#endif
 
 	buf = d_malloc(grd_curscreen->sc_w*grd_curscreen->sc_h*3);
 	write_bmp(savename,grd_curscreen->sc_w,grd_curscreen->sc_h,buf);

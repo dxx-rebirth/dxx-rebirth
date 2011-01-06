@@ -1,5 +1,9 @@
 D1X-Rebirth Changelog
 
+20110106
+--------
+SConstruct, arch/ogl/gr.c, arch/ogl/ogl.c, include/loadgl.h, include/ogl_init.h, main/gamecntl.c, main/state.c, misc/args.c: Added OpenGL ES support - contributed by Florian Feucht and Oliver Haag
+
 20110104
 --------
 d1x.ini, include/args.h, main/gauges.c, main/inferno.c, main/kconfig.c, main/kconfig.h, main/menu.c, main/playsave.c, main/playsave.h, misc/args.c: Introduced FlightSim control scheme for mouse which adds delta values to absolute position to behave like a Joystick; Added Deadzone slider for FlightSim as well as an optional Reticle display to show the positional data on screen; Removed old Mouselook hack in favor of this new feature
