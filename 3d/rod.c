@@ -132,7 +132,7 @@ int checkmuldiv(fix *r,fix a,fix b,fix c);
 #ifndef OGL
 //draws a bitmap with the specified 3d width & height 
 //returns 1 if off screen, 0 if drew
-bool g3_draw_bitmap(vms_vector *pos,fix width,fix height,grs_bitmap *bm, int orientation)
+bool g3_draw_bitmap(vms_vector *pos,fix width,fix height,grs_bitmap *bm)
 {
 #ifndef __powerc
 	g3s_point pnt;

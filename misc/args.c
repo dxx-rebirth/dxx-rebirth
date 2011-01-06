@@ -20,15 +20,6 @@ COPYRIGHT 1993-1998 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 #include <stdlib.h>
 #include <string.h>
 #include <SDL/SDL_stdinc.h>
-
-#ifdef OGL
-#if defined(__APPLE__) && defined(__MACH__)
-#include <OpenGL/glu.h>
-#else
-#include <GL/glu.h>
-#endif
-#endif
-
 #include "physfsx.h"
 #include "args.h"
 #include "u_mem.h"

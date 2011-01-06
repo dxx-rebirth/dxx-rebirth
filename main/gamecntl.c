@@ -556,16 +556,18 @@ int HandleDemoKey(int key)
 				render_frame(0, 0);
 				gr_set_curfont(MEDIUM2_FONT);
 				gr_printf(SWIDTH-FSPACX(92),SHEIGHT-LINE_SPACING,"DXX-Rebirth\n");
-				gr_flip();
 				save_screen_shot(0);
+				gr_flip();
 			}
 			else
 			{
 				int old_state;
 				old_state = Newdemo_show_percentage;
 				Newdemo_show_percentage = 0;
-				game_render_frame_mono(GameArg.DbgUseDoubleBuffer);
+				game_render_frame_mono(0);
 				save_screen_shot(0);
+				if (GameArg.DbgUseDoubleBuffer)
+					gr_flip();
 				Newdemo_show_percentage = old_state;
 			}
 			break;
@@ -808,9 +810,16 @@ int HandleSystemKey(int key)
 				render_frame(0, 0);
 				gr_set_curfont(MEDIUM2_FONT);
 				gr_printf(SWIDTH-FSPACX(92),SHEIGHT-LINE_SPACING,"DXX-Rebirth\n");
+				save_screen_shot(0);
 				gr_flip();
 			}
-			save_screen_shot(0);
+			else
+			{
+				game_render_frame_mono(0);
+				save_screen_shot(0);
+				if(GameArg.DbgUseDoubleBuffer)
+					gr_flip();
+			}
 			break;
 		}
 

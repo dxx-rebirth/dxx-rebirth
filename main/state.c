@@ -879,20 +879,21 @@ int state_save_all_sub(char *filename, char *desc, int between_levels)
 		render_frame(0, 0);
 
 #if defined(OGL)
-		buf = d_malloc(THUMBNAIL_W * THUMBNAIL_H * 3);
-		glGetIntegerv(GL_DRAW_BUFFER, &gl_draw_buffer);
-		glReadBuffer(gl_draw_buffer);
-		glReadPixels(0, SHEIGHT - THUMBNAIL_H, THUMBNAIL_W, THUMBNAIL_H, GL_RGB, GL_UNSIGNED_BYTE, buf);
+		buf = d_malloc(THUMBNAIL_W * THUMBNAIL_H * 4);
+#ifndef OGLES
+ 		glGetIntegerv(GL_DRAW_BUFFER, &gl_draw_buffer);
+ 		glReadBuffer(gl_draw_buffer);
+#endif
+		glReadPixels(0, SHEIGHT - THUMBNAIL_H, THUMBNAIL_W, THUMBNAIL_H, GL_RGBA, GL_UNSIGNED_BYTE, buf);
 		k = THUMBNAIL_H;
 		for (i = 0; i < THUMBNAIL_W * THUMBNAIL_H; i++) {
 			if (!(j = i % THUMBNAIL_W))
 				k--;
 			cnv->cv_bitmap.bm_data[THUMBNAIL_W * k + j] =
-				gr_find_closest_color(buf[3*i]/4, buf[3*i+1]/4, buf[3*i+2]/4);
+				gr_find_closest_color(buf[4*i]/4, buf[4*i+1]/4, buf[4*i+2]/4);
 		}
 		d_free(buf);
 #endif
-
 		pal = gr_palette;
 
 		PHYSFS_write(fp, cnv->cv_bitmap.bm_data, THUMBNAIL_W * THUMBNAIL_H, 1);

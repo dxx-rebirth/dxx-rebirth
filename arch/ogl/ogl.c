@@ -13,8 +13,12 @@
 #include <OpenGL/gl.h>
 #include <OpenGL/glu.h>
 #else
+#ifdef OGLES
+#include <GLES/gl.h>
+#else
 #include <GL/gl.h>
 #include <GL/glu.h>
+#endif
 #endif
 #include <string.h>
 #include <math.h>
@@ -64,6 +68,9 @@
 #define sinf(a) sin(a)
 #endif
 
+#define BRIGHT_G        0.125, 1.0, 0.125, 1.0
+#define DARK_G          0.125, 0.54, 0.125, 0.6
+
 unsigned char *ogl_pal=gr_palette;
 
 int last_width=-1,last_height=-1;
@@ -71,12 +78,69 @@ int GL_TEXTURE_2D_enabled=-1;
 int GL_texclamp_enabled=-1;
 
 int r_texcount = 0, r_cachedtexcount = 0;
+#ifdef OGLES
+int ogl_rgba_internalformat = GL_RGBA;
+int ogl_rgb_internalformat = GL_RGB;
+#else
 int ogl_rgba_internalformat = GL_RGBA8;
 int ogl_rgb_internalformat = GL_RGB8;
-int sphereh=0;
-int cross_lh[2]={0,0};
-int primary_lh[3]={0,0,0};
-int secondary_lh[5]={0,0,0,0,0};
+#endif
+GLfloat dark_lca[16 * 4] = {
+        DARK_G, DARK_G, DARK_G, DARK_G,
+        DARK_G, DARK_G, DARK_G, DARK_G,
+        DARK_G, DARK_G, DARK_G, DARK_G,
+        DARK_G, DARK_G, DARK_G, DARK_G
+};
+GLfloat bright_lca[16 * 4] = {
+        BRIGHT_G, BRIGHT_G, BRIGHT_G, BRIGHT_G,
+        BRIGHT_G, BRIGHT_G, BRIGHT_G, BRIGHT_G,
+        BRIGHT_G, BRIGHT_G, BRIGHT_G, BRIGHT_G,
+        BRIGHT_G, BRIGHT_G, BRIGHT_G, BRIGHT_G
+};
+GLfloat *sphere_va = NULL;
+GLfloat cross_lca[8 * 4] = {
+	DARK_G, BRIGHT_G,
+	DARK_G, BRIGHT_G,
+	DARK_G, BRIGHT_G,
+	DARK_G, BRIGHT_G
+};
+GLfloat cross_lva[8 * 2] = {
+	-4.0, 2.0, -2.0, 0,
+	-3.0, -4.0, -2.0, -3.0,
+	4.0, 2.0, 2.0, 0,
+	3.0, -4.0, 2.0, -3.0,
+};
+GLfloat primary_lca[2][4 * 4] = {
+	{BRIGHT_G, BRIGHT_G, DARK_G, DARK_G},
+	{DARK_G, DARK_G, BRIGHT_G, BRIGHT_G}
+};
+GLfloat primary_lva[4][4 * 2] = {
+	{
+		-5.5, -5.0,
+		-6.5, -7.5,
+		-10.0, -7.0,
+		-10.0, -8.7
+	},
+	{
+		-10.0, -7.0,
+		-10.0, -8.7,
+		-15.0, -8.5,
+		-15.0, -9.5
+	},
+	{
+		5.5, -5.0,
+		6.5, -7.5,
+		10.0, -7.0,
+		10.0, -8.7
+	},
+	{
+		10.0, -7.0,
+		10.0, -8.7,
+		15.0, -8.5,
+		15.0, -9.5
+	}
+};
+GLfloat *secondary_lva[3]={NULL, NULL, NULL};
 int r_polyc,r_tpolyc,r_bitmapc,r_ubitbltc,r_upixelc;
 extern int linedotscale;
 #define f2glf(x) (f2fl(x))
@@ -98,6 +162,27 @@ int ogl_loadtexture(unsigned char *data, int dxo, int dyo, ogl_texture *tex, int
 void ogl_freetexture(ogl_texture *gltexture);
 void ogl_do_palfx(void);
 
+#ifdef OGLES
+// Replacement for gluPerspective
+void perspective(double fovy, double aspect, double zNear, double zFar)
+{
+	double xmin, xmax, ymin, ymax;
+
+	glMatrixMode(GL_PROJECTION);
+	glLoadIdentity();
+
+	ymax = zNear * tan(fovy * M_PI / 360.0);
+	ymin = -ymax;
+	xmin = ymin * aspect;
+	xmax = ymax * aspect;
+
+	glFrustumf(xmin, xmax, ymin, ymax, zNear, zFar);
+	glMatrixMode(GL_MODELVIEW);
+	glHint(GL_PERSPECTIVE_CORRECTION_HINT, GL_NICEST);	
+	glDepthMask(GL_TRUE);
+}
+#endif
+
 void ogl_init_texture_stats(ogl_texture* t){
 	t->prio=0.3;//default prio
 	t->numrend=0;
@@ -106,6 +191,7 @@ void ogl_init_texture_stats(ogl_texture* t){
 void ogl_init_texture(ogl_texture* t, int w, int h, int flags)
 {
 	t->handle = 0;
+#ifndef OGLES
 	if (flags & OGL_FLAG_NOCOLOR)
 	{
 		// use GL_INTENSITY instead of GL_RGB
@@ -141,6 +227,7 @@ void ogl_init_texture(ogl_texture* t, int w, int h, int flags)
 	}
 	else
 	{
+#endif
 		if (flags & OGL_FLAG_ALPHA)
 		{
 			t->internalformat = ogl_rgba_internalformat;
@@ -151,7 +238,9 @@ void ogl_init_texture(ogl_texture* t, int w, int h, int flags)
 			t->internalformat = ogl_rgb_internalformat;
 			t->format = GL_RGB;
 		}
+#ifndef OGLES
 	}
+#endif
 	t->wrapstate = -1;
 	t->lw = t->w = w;
 	t->h = h;
@@ -181,10 +270,18 @@ void ogl_init_texture_list_internal(void){
 
 void ogl_smash_texture_list_internal(void){
 	int i;
-	sphereh=0;
-	memset(cross_lh,0,sizeof(cross_lh));
-	memset(primary_lh,0,sizeof(primary_lh));
-	memset(secondary_lh,0,sizeof(secondary_lh));
+	if (sphere_va != NULL)
+	{
+		d_free(sphere_va);
+		sphere_va = NULL;
+	}
+	for(i = 0; i < 3; i++) {
+		if (secondary_lva[i] != NULL)
+		{
+			d_free(secondary_lva[i]);
+			secondary_lva[i] = NULL;
+		}
+	}
 	for (i=0;i<OGL_TEXTURE_LIST_SIZE;i++){
 		if (ogl_texture_list[i].handle>0){
 			glDeleteTextures( 1, &ogl_texture_list[i].handle );
@@ -231,20 +328,26 @@ void ogl_texture_stats(void)
 				usedrgba++;
 			else if (t->format == GL_RGB)
 				usedrgb++;
+#ifndef OGLES
 			else if (t->format == GL_COLOR_INDEX)
 				usedidx++;
+#endif
 			else
 				usedother++;
 		}
 	}
 
 	res = SWIDTH * SHEIGHT;
+#ifndef OGLES
 	glGetIntegerv(GL_INDEX_BITS, &idx);
+#endif
 	glGetIntegerv(GL_RED_BITS, &r);
 	glGetIntegerv(GL_GREEN_BITS, &g);
 	glGetIntegerv(GL_BLUE_BITS, &b);
 	glGetIntegerv(GL_ALPHA_BITS, &a);
+#ifndef OGLES
 	glGetIntegerv(GL_DOUBLEBUFFER, &dbl);
+#endif
 	dbl += 1;
 	glGetIntegerv(GL_DEPTH_BITS, &depth);
 	gr_set_current_canvas(NULL);
@@ -445,49 +548,67 @@ void ogl_cache_level_textures(void)
 bool g3_draw_line(g3s_point *p0,g3s_point *p1)
 {
 	int c;
+	GLfloat color_r, color_g, color_b;
+	GLfloat color_array[] = { 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0 };
+	GLfloat vertex_array[] = { f2glf(p0->p3_vec.x),f2glf(p0->p3_vec.y),-f2glf(p0->p3_vec.z), f2glf(p1->p3_vec.x),f2glf(p1->p3_vec.y),-f2glf(p1->p3_vec.z) };
+  
 	c=grd_curcanv->cv_color;
+	glEnableClientState(GL_VERTEX_ARRAY);
+	glEnableClientState(GL_COLOR_ARRAY);
 	OGL_DISABLE(TEXTURE_2D);
-	glColor3f(PAL2Tr(c),PAL2Tg(c),PAL2Tb(c));
-	glBegin(GL_LINES);
-	glVertex3f(f2glf(p0->p3_vec.x),f2glf(p0->p3_vec.y),-f2glf(p0->p3_vec.z));
-	glVertex3f(f2glf(p1->p3_vec.x),f2glf(p1->p3_vec.y),-f2glf(p1->p3_vec.z));
-	glEnd();
+	color_r = PAL2Tr(c);
+	color_g = PAL2Tg(c);
+	color_b = PAL2Tb(c);
+	color_array[0] = color_array[4] = color_r;
+	color_array[1] = color_array[5] = color_g;
+	color_array[2] = color_array[6] = color_b;
+	color_array[3] = color_array[7] = 1.0;
+	glVertexPointer(3, GL_FLOAT, 0, vertex_array);
+	glColorPointer(4, GL_FLOAT, 0, color_array);
+	glDrawArrays(GL_LINES, 0, 2);
+	glDisableClientState(GL_VERTEX_ARRAY);
+	glDisableClientState(GL_COLOR_ARRAY);
+
 	return 1;
 }
 
-void ogl_drawcircle2(int nsides,int type,float xsc,float xo,float ysc,float yo){
+void ogl_drawcircle(int nsides, int type, GLfloat *vertex_array)
+{
+	glEnableClientState(GL_VERTEX_ARRAY);
+	glVertexPointer(2, GL_FLOAT, 0, vertex_array);
+	glDrawArrays(type, 0, nsides);
+	glDisableClientState(GL_VERTEX_ARRAY);
+}
+
+GLfloat *circle_array_init(int nsides)
+{
 	int i;
 	float ang;
-	glBegin(type);
-	for (i=0; i<nsides; i++) {
-		ang = 2.0*M_PI*i/nsides;
-		glVertex2f(cosf(ang)*xsc+xo,sinf(ang)*ysc+yo);
+	GLfloat *vertex_array = (GLfloat *) d_malloc(sizeof(GLfloat) * nsides * 2);
+	
+	for(i = 0; i < nsides; i++) {
+		ang = 2.0 * M_PI * i / nsides;
+		vertex_array[i * 2] = cosf(ang);
+        	vertex_array[i * 2 + 1] = sinf(ang);
 	}
-	glEnd();
+	
+	return vertex_array;
 }
-
-void ogl_drawcircle(int nsides,int type){
-	int i;
-	float ang;
-	glBegin(type);
-	for (i=0; i<nsides; i++) {
-		ang = 2.0*M_PI*i/nsides;
-		glVertex2f(cosf(ang),sinf(ang));
+ 
+GLfloat *circle_array_init_2(int nsides, float xsc, float xo, float ysc, float yo)
+{
+ 	int i;
+ 	float ang;
+	GLfloat *vertex_array = (GLfloat *) d_malloc(sizeof(GLfloat) * nsides * 2);
+	
+	for(i = 0; i < nsides; i++) {
+		ang = 2.0 * M_PI * i / nsides;
+		vertex_array[i * 2] = cosf(ang) * xsc + xo;
+		vertex_array[i * 2 + 1] = sinf(ang) * ysc + yo;
 	}
-	glEnd();
+	
+	return vertex_array;
 }
-
-int circle_list_init(int nsides,int type,int mode) {
-	int hand=glGenLists(1);
-	glNewList(hand, mode);
-	/* draw a unit radius circle in xy plane centered on origin */
-	ogl_drawcircle(nsides,type);
-	glEndList();
-	return hand;
-}
-
-float bright_g[4]={	32.0/256,	255.0/256,	32.0/256,	1.0};
-float dark_g[4]={	32.0/256,	138.0/256,	32.0/256,	0.6};
 
 void ogl_draw_reticle(int cross,int primary,int secondary)
 {
@@ -511,144 +632,95 @@ void ogl_draw_reticle(int cross,int primary,int secondary)
 	glLineWidth(linedotscale*2);
 	OGL_DISABLE(TEXTURE_2D);
 	glDisable(GL_CULL_FACE);
-	if (!cross_lh[cross])
-	{
-		cross_lh[cross]=glGenLists(1);
-		glNewList(cross_lh[cross], GL_COMPILE_AND_EXECUTE);
-		glBegin(GL_LINES);
-		//cross top left
-		glColor4fv(dark_g);
-		glVertex2f(-4.0,2.0);
-		if (cross)
-			glColor4fv(bright_g);
-		else
-			glColor4fv(dark_g);
-		glVertex2f(-2.0,0.0);
-		//cross bottom left
-		glColor4fv(dark_g);
-		glVertex2f(-3.0,-4.0);
-		if (cross)
-			glColor4fv(bright_g);
-		glVertex2f(-2.0,-3.0);
-		//cross top right
-		glColor4fv(dark_g);
-		glVertex2f(4.0,2.0);
-		if (cross)
-			glColor4fv(bright_g);
-		else
-			glColor4fv(dark_g);
-		glVertex2f(2.0,0.0);
-		//cross bottom right
-		glColor4fv(dark_g);
-		glVertex2f(3.0,-4.0);
-		if (cross)
-			glColor3fv(bright_g);
-		glVertex2f(2.0,-3.0);
-		glEnd();
-		glEndList();
-	}
+	glEnableClientState(GL_VERTEX_ARRAY);
+	glEnableClientState(GL_COLOR_ARRAY);
+	
+	//cross
+	if(cross)
+		glColorPointer(4, GL_FLOAT, 0, cross_lca);
 	else
-		glCallList(cross_lh[cross]);
-
-	if (!primary_lh[primary])
-	{
-		primary_lh[primary]=glGenLists(1);
-		glNewList(primary_lh[primary], GL_COMPILE_AND_EXECUTE);
-		//left primary bar
-		glBegin(GL_POLYGON);
-		if (primary==0)
-			glColor4fv(dark_g);
-		else
-			glColor4fv(bright_g);
-		glVertex3f( -5.5f,  -5.0f, 0.0f);
-		glVertex3f( -6.5f,  -7.5f, 0.0f);
-		glColor4fv(dark_g);
-		glVertex3f( -10.0f, -8.7f, 0.0f);
-		glVertex3f( -10.0f, -7.0f, 0.0f);
-		glEnd();
-		glBegin(GL_POLYGON);
-		glColor4fv(dark_g);
-		glVertex3f( -10.0f, -8.7f, 0.0f);
-		glVertex3f( -10.0f, -7.0f, 0.0f);
-		if (primary!=2)
-			glColor4fv(dark_g);
-		else
-			glColor4fv(bright_g);
-		glVertex3f( -15.0f, -8.5f, 0.0f);
-		glVertex3f( -15.0f, -9.5f, 0.0f);
-		glEnd();
-		//right primary bar
-		glBegin(GL_POLYGON);
-		if (primary==0)
-			glColor4fv(dark_g);
-		else
-			glColor4fv(bright_g);
-		glVertex3f( 5.5f,  -5.0f, 0.0f);
-		glVertex3f( 6.5f,  -7.5f, 0.0f);
-		glColor4fv(dark_g);
-		glVertex3f( 10.0f, -8.7f, 0.0f);
-		glVertex3f( 10.0f, -7.0f, 0.0f);
-		glEnd();
-		glBegin(GL_POLYGON);
-		glColor4fv(dark_g);
-		glVertex3f( 10.0f, -8.7f, 0.0f);
-		glVertex3f( 10.0f, -7.0f, 0.0f);
-		if (primary!=2)
-			glColor4fv(dark_g);
-		else
-			glColor4fv(bright_g);
-		glVertex3f( 15.0f, -8.5f, 0.0f);
-		glVertex3f( 15.0f, -9.5f, 0.0f);
-		glEnd();
-
-		glEndList();
-	}
+		glColorPointer(4, GL_FLOAT, 0, dark_lca);
+	glVertexPointer(2, GL_FLOAT, 0, cross_lva);
+	glDrawArrays(GL_LINES, 0, 8);
+	
+	//left primary bar
+	if(primary == 0)
+		glColorPointer(4, GL_FLOAT, 0, dark_lca);
 	else
-		glCallList(primary_lh[primary]);
-
-	if (!secondary_lh[secondary])
-	{
-		secondary_lh[secondary]=glGenLists(1);
-		glNewList(secondary_lh[secondary], GL_COMPILE_AND_EXECUTE);
-		if (secondary<=2){
-			//left secondary
-			if (secondary!=1)
-				glColor4fv(dark_g);
-			else
-				glColor4fv(bright_g);
-			ogl_drawcircle2(16,GL_LINE_LOOP,2.0,-10.0,2.0,-2.0);
-			//right secondary
-			if (secondary!=2)
-				glColor4fv(dark_g);
-			else
-				glColor4fv(bright_g);
-			ogl_drawcircle2(16,GL_LINE_LOOP,2.0,10.0,2.0,-2.0);
-		}
-		else
-		{
-			//bottom/middle secondary
-			if (secondary!=4)
-				glColor4fv(dark_g);
-			else
-				glColor4fv(bright_g);
-			ogl_drawcircle2(16,GL_LINE_LOOP,2.0,0.0,2.0,-8.0);
-		}
-		glEndList();
-	}
+		glColorPointer(4, GL_FLOAT, 0, primary_lca[0]);
+	glVertexPointer(2, GL_FLOAT, 0, primary_lva[0]);
+	glDrawArrays(GL_TRIANGLE_STRIP, 0, 4);
+	if(primary != 2)
+		glColorPointer(4, GL_FLOAT, 0, dark_lca);
 	else
-		glCallList(secondary_lh[secondary]);
-
+		glColorPointer(4, GL_FLOAT, 0, primary_lca[1]);
+	glVertexPointer(2, GL_FLOAT, 0, primary_lva[1]);
+	glDrawArrays(GL_TRIANGLE_STRIP, 0, 4);
+	//right primary bar
+	if(primary == 0)
+		glColorPointer(4, GL_FLOAT, 0, dark_lca);
+	else
+		glColorPointer(4, GL_FLOAT, 0, primary_lca[0]);
+	glVertexPointer(2, GL_FLOAT, 0, primary_lva[2]);
+	glDrawArrays(GL_TRIANGLE_STRIP, 0, 4);
+	if(primary != 2)
+		glColorPointer(4, GL_FLOAT, 0, dark_lca);
+	else
+		glColorPointer(4, GL_FLOAT, 0, primary_lca[1]);
+	glVertexPointer(2, GL_FLOAT, 0, primary_lva[3]);
+	glDrawArrays(GL_TRIANGLE_STRIP, 0, 4);
+	
+	if (secondary<=2){
+		//left secondary
+		if (secondary != 1)
+			glColorPointer(4, GL_FLOAT, 0, dark_lca);
+		else
+			glColorPointer(4, GL_FLOAT, 0, bright_lca);
+		if(!secondary_lva[0])
+			secondary_lva[0] = circle_array_init_2(16, 2.0, -10.0, 2.0, -2.0);
+		ogl_drawcircle(16, GL_LINE_LOOP, secondary_lva[0]);
+		//right secondary
+		if (secondary != 2)
+			glColorPointer(4, GL_FLOAT, 0, dark_lca);
+		else
+			glColorPointer(4, GL_FLOAT, 0, bright_lca);
+		if(!secondary_lva[1])
+			secondary_lva[1] = circle_array_init_2(16, 2.0, 10.0, 2.0, -2.0);
+		ogl_drawcircle(16, GL_LINE_LOOP, secondary_lva[1]);
+	}
+	else {
+		//bottom/middle secondary
+		if (secondary != 4)
+			glColorPointer(4, GL_FLOAT, 0, dark_lca);
+		else
+			glColorPointer(4, GL_FLOAT, 0, bright_lca);
+		if(!secondary_lva[2])
+			secondary_lva[2] = circle_array_init_2(16, 2.0, 0.0, 2.0, -8.0);
+		ogl_drawcircle(16, GL_LINE_LOOP, secondary_lva[2]);
+	}
+	
+	//glDisableClientState(GL_VERTEX_ARRAY);
+	glDisableClientState(GL_COLOR_ARRAY);
 	glPopMatrix();
 }
 
+/*
+ * Stars on heaven in exit sequence, automap objects
+ */
 int g3_draw_sphere(g3s_point *pnt,fix rad){
-	int c;
+	int c=grd_curcanv->cv_color, i;
 	float scale = ((float)grd_curcanv->cv_bitmap.bm_w/grd_curcanv->cv_bitmap.bm_h);
-
-	c=grd_curcanv->cv_color;
+	GLfloat color_array[20*4];
+	
+	for (i = 0; i < 20*4; i += 4)
+	{
+		color_array[i] = CPAL2Tr(c);
+		color_array[i+1] = CPAL2Tg(c);
+		color_array[i+2] = CPAL2Tb(c);
+		color_array[i+3] = 1.0;
+	}
 	OGL_DISABLE(TEXTURE_2D);
 	glDisable(GL_CULL_FACE);
-	glColor3f(CPAL2Tr(c),CPAL2Tg(c),CPAL2Tb(c));
 	glPushMatrix();
 	glTranslatef(f2glf(pnt->p3_vec.x),f2glf(pnt->p3_vec.y),-f2glf(pnt->p3_vec.z));
 	if (scale >= 1)
@@ -661,24 +733,29 @@ int g3_draw_sphere(g3s_point *pnt,fix rad){
 		rad*=scale;
 		glScalef(f2glf(rad/scale),f2glf(rad),f2glf(rad));
 	}
-	if (!sphereh) sphereh=circle_list_init(20,GL_POLYGON,GL_COMPILE_AND_EXECUTE);
-	else glCallList(sphereh);
+	if(!sphere_va)
+		sphere_va = circle_array_init(20);
+	glEnableClientState(GL_COLOR_ARRAY);
+	glColorPointer(4, GL_FLOAT, 0, color_array);
+	ogl_drawcircle(20, GL_TRIANGLE_FAN, sphere_va);
+	glDisableClientState(GL_COLOR_ARRAY);
 	glPopMatrix();
 	return 0;
 }
 
 int gr_ucircle(fix xc1, fix yc1, fix r1)
 {
-	int c;
+	int c, nsides;
 	c=grd_curcanv->cv_color;
 	OGL_DISABLE(TEXTURE_2D);
-	glColor3f(CPAL2Tr(c),CPAL2Tg(c),CPAL2Tb(c));
+	glColor4f(CPAL2Tr(c),CPAL2Tg(c),CPAL2Tb(c),1.0);
 	glPushMatrix();
 	glTranslatef(
 	             (f2fl(xc1) + grd_curcanv->cv_bitmap.bm_x + 0.5) / (float)last_width,
 	             1.0 - (f2fl(yc1) + grd_curcanv->cv_bitmap.bm_y + 0.5) / (float)last_height,0);
 	glScalef(f2fl(r1) / last_width, f2fl(r1) / last_height, 1.0);
-	ogl_drawcircle(10 + 2 * (int)(M_PI * f2fl(r1) / 19), GL_LINE_LOOP);
+	nsides = 10 + 2 * (int)(M_PI * f2fl(r1) / 19);
+	ogl_drawcircle(nsides, GL_LINE_LOOP, circle_array_init(nsides));
 	glPopMatrix();
 	return 0;
 }
@@ -687,23 +764,49 @@ int gr_circle(fix xc1,fix yc1,fix r1){
 	return gr_ucircle(xc1,yc1,r1);
 }
 
+/*
+ * Draw flat-shaded Polygon (Lasers, Drone-arms, Driller-ears)
+ */
 bool g3_draw_poly(int nv,g3s_point **pointlist)
 {
-	int c;
+	int c, index3, index4;
+	float color_r, color_g, color_b, color_a;
 	r_polyc++;
-	c=grd_curcanv->cv_color;
+	GLfloat vertex_array[nv*3];
+	GLfloat color_array[nv*4];
+
+	glEnableClientState(GL_VERTEX_ARRAY);
+	glEnableClientState(GL_COLOR_ARRAY);
+	c = grd_curcanv->cv_color;
 	OGL_DISABLE(TEXTURE_2D);
+	color_r = PAL2Tr(c);
+	color_g = PAL2Tg(c);
+	color_b = PAL2Tb(c);
+
 	if (Gr_scanline_darkening_level >= GR_FADE_LEVELS) {
-		glColor3f(PAL2Tr(c), PAL2Tg(c), PAL2Tb(c));
-	}else{
+		color_a = 1.0;
+	} else {
 		glDepthMask(GL_FALSE);
-		glColor4f(PAL2Tr(c), PAL2Tg(c), PAL2Tb(c), 1.0 - (float)Gr_scanline_darkening_level / ((float)GR_FADE_LEVELS - 1.0));
+		color_a = 1.0 - (float)Gr_scanline_darkening_level / ((float)GR_FADE_LEVELS - 1.0);
 	}
-	glBegin(GL_TRIANGLE_FAN);
-	for (c=0;c<nv;c++){
-		glVertex3f(f2glf(pointlist[c]->p3_vec.x),f2glf(pointlist[c]->p3_vec.y),-f2glf(pointlist[c]->p3_vec.z));
+
+	for (c=0; c<nv; c++){
+		index3 = c * 3;
+		index4 = c * 4;
+		color_array[index4]    = color_r;
+		color_array[index4+1]  = color_g;
+		color_array[index4+2]  = color_b;
+		color_array[index4+3]  = color_a;
+		vertex_array[index3]   = f2glf(pointlist[c]->p3_vec.x);
+		vertex_array[index3+1] = f2glf(pointlist[c]->p3_vec.y);
+		vertex_array[index3+2] = -f2glf(pointlist[c]->p3_vec.z);
 	}
-	glEnd();
+
+	glVertexPointer(3, GL_FLOAT, 0, vertex_array);
+	glColorPointer(4, GL_FLOAT, 0, color_array);
+	glDrawArrays(GL_TRIANGLE_FAN, 0, nv);
+	glDisableClientState(GL_VERTEX_ARRAY);
+	glDisableClientState(GL_COLOR_ARRAY);
 	glDepthMask(GL_TRUE);
 	return 0;
 }
@@ -717,98 +820,155 @@ void draw_tmap_flat(grs_bitmap *bm,int nv,g3s_point **vertlist){
 }
 
 extern void (*tmap_drawer_ptr)(grs_bitmap *bm,int nv,g3s_point **vertlist);
+
+/*
+ * Everything texturemapped (walls, robots, ship)
+ */ 
 bool g3_draw_tmap(int nv,g3s_point **pointlist,g3s_uvl *uvl_list,grs_bitmap *bm)
 {
-	int c;
-	float l;
-	if (tmap_drawer_ptr==draw_tmap_flat){
-		OGL_DISABLE(TEXTURE_2D);
-		glColor4f(0,0,0,1.0-(Gr_scanline_darkening_level/(float)NUM_LIGHTING_LEVELS));
-		glBegin(GL_TRIANGLE_FAN);
-		for (c=0;c<nv;c++){
-			glVertex3f(f2glf(pointlist[c]->p3_vec.x),f2glf(pointlist[c]->p3_vec.y),-f2glf(pointlist[c]->p3_vec.z));
-		}
-		glEnd();
-	}else if (tmap_drawer_ptr==draw_tmap){
-		r_tpolyc++;
+	int c, index2, index3, index4;
+	GLfloat vertex_array[nv*3];
+	GLfloat color_array[nv*4];
+	GLfloat texcoord_array[nv*2];
+	GLfloat color_alpha = 1.0;
+	
+	glEnableClientState(GL_VERTEX_ARRAY);
+	glEnableClientState(GL_COLOR_ARRAY);
+	
+	if (tmap_drawer_ptr == draw_tmap) {
+		glEnableClientState(GL_TEXTURE_COORD_ARRAY);
 		OGL_ENABLE(TEXTURE_2D);
 		ogl_bindbmtex(bm);
-		ogl_texwrap(bm->gltexture,GL_REPEAT);
-		glBegin(GL_TRIANGLE_FAN);
-		for (c=0;c<nv;c++){
-			if (bm->bm_flags&BM_FLAG_NO_LIGHTING){
-				l=1.0;
-			}else{
-				l=f2fl(uvl_list[c].l);
-			}
-			glColor3f(l,l,l);
-			glTexCoord2f(f2glf(uvl_list[c].u),f2glf(uvl_list[c].v));
-			glVertex3f(f2glf(pointlist[c]->p3_vec.x),f2glf(pointlist[c]->p3_vec.y),-f2glf(pointlist[c]->p3_vec.z));
-		}
-		glEnd();
-	}else{
+		ogl_texwrap(bm->gltexture, GL_REPEAT);
+		r_tpolyc++;
+	} else if (tmap_drawer_ptr == draw_tmap_flat) {
+		OGL_DISABLE(TEXTURE_2D);
+		/* for cloaked state faces */
+		color_alpha = 1.0 - (Gr_scanline_darkening_level/(GLfloat)NUM_LIGHTING_LEVELS);
+	} else {
 		glmprintf((0,"g3_draw_tmap: unhandled tmap_drawer %p\n",tmap_drawer_ptr));
+		return 0;
 	}
-
+	
+	for (c=0; c<nv; c++) {
+		index2 = c * 2;
+		index3 = c * 3;
+		index4 = c * 4;
+		
+		vertex_array[index3]     = f2glf(pointlist[c]->p3_vec.x);
+		vertex_array[index3+1]   = f2glf(pointlist[c]->p3_vec.y);
+		vertex_array[index3+2]   = -f2glf(pointlist[c]->p3_vec.z);
+		if (tmap_drawer_ptr == draw_tmap_flat) {
+			color_array[index4]      = 0;
+		} else { 
+			color_array[index4]    = bm->bm_flags & BM_FLAG_NO_LIGHTING ? 1.0 : f2glf(uvl_list[c].l);
+		}
+		color_array[index4+1]    = color_array[index4];
+		color_array[index4+2]    = color_array[index4];
+		color_array[index4+3]  = color_alpha;
+		texcoord_array[index2]   = f2glf(uvl_list[c].u);
+		texcoord_array[index2+1] = f2glf(uvl_list[c].v);
+	}
+	
+	glVertexPointer(3, GL_FLOAT, 0, vertex_array);
+	glColorPointer(4, GL_FLOAT, 0, color_array);
+	if (tmap_drawer_ptr == draw_tmap) {
+		glTexCoordPointer(2, GL_FLOAT, 0, texcoord_array);  
+	}
+	
+	glDrawArrays(GL_TRIANGLE_FAN, 0, nv);
+	
+	glDisableClientState(GL_VERTEX_ARRAY);
+	glDisableClientState(GL_COLOR_ARRAY);
+	glDisableClientState(GL_TEXTURE_COORD_ARRAY);
+	
 	return 0;
 }
 
+/*
+ * Everything texturemapped with secondary texture (walls with secondary texture)
+ */
 bool g3_draw_tmap_2(int nv, g3s_point **pointlist, g3s_uvl *uvl_list, grs_bitmap *bmbot, grs_bitmap *bm, int orient)
 {
-	int c;
-	float l,u1,v1;
-
+	int c, index2, index3, index4;;
+	GLfloat vertex_array[nv*3], color_array[nv*4], texcoord_array[nv*2];
+	
 	g3_draw_tmap(nv,pointlist,uvl_list,bmbot);//draw the bottom texture first.. could be optimized with multitexturing..
-
+	
+	glEnableClientState(GL_VERTEX_ARRAY);
+	glEnableClientState(GL_COLOR_ARRAY);
+	glEnableClientState(GL_TEXTURE_COORD_ARRAY);
+	
 	r_tpolyc++;
 	OGL_ENABLE(TEXTURE_2D);
 	ogl_bindbmtex(bm);
 	ogl_texwrap(bm->gltexture,GL_REPEAT);
-	glBegin(GL_TRIANGLE_FAN);
-	for (c=0;c<nv;c++){
+	
+	for (c=0; c<nv; c++) {
+		index2 = c * 2;
+		index3 = c * 3;
+		index4 = c * 4;
+		
 		switch(orient){
 			case 1:
-				u1=1.0-f2glf(uvl_list[c].v);
-				v1=f2glf(uvl_list[c].u);
+				texcoord_array[index2]   = 1.0-f2glf(uvl_list[c].v);
+				texcoord_array[index2+1] = f2glf(uvl_list[c].u);
 				break;
 			case 2:
-				u1=1.0-f2glf(uvl_list[c].u);
-				v1=1.0-f2glf(uvl_list[c].v);
+				texcoord_array[index2]   = 1.0-f2glf(uvl_list[c].u);
+				texcoord_array[index2+1] = 1.0-f2glf(uvl_list[c].v);
 				break;
 			case 3:
-				u1=f2glf(uvl_list[c].v);
-				v1=1.0-f2glf(uvl_list[c].u);
+				texcoord_array[index2]   = f2glf(uvl_list[c].v);
+				texcoord_array[index2+1] = 1.0-f2glf(uvl_list[c].u);
 				break;
 			default:
-				u1=f2glf(uvl_list[c].u);
-				v1=f2glf(uvl_list[c].v);
+				texcoord_array[index2]   = f2glf(uvl_list[c].u);
+				texcoord_array[index2+1] = f2glf(uvl_list[c].v);
 				break;
 		}
-		if (bm->bm_flags&BM_FLAG_NO_LIGHTING){
-			l=1.0;
-		}else{
-			l=f2fl(uvl_list[c].l);
-		}
-		glColor3f(l,l,l);
-		glTexCoord2f(u1,v1);
-		glVertex3f(f2glf(pointlist[c]->p3_vec.x),f2glf(pointlist[c]->p3_vec.y),-f2glf(pointlist[c]->p3_vec.z));
+		
+		color_array[index4]      = bm->bm_flags & BM_FLAG_NO_LIGHTING ? 1.0 : f2glf(uvl_list[c].l);
+		color_array[index4+1]    = color_array[c*4];
+		color_array[index4+2]    = color_array[c*4];
+		color_array[index4+3]    = 1.0;
+		
+		vertex_array[index3]     = f2glf(pointlist[c]->p3_vec.x);
+		vertex_array[index3+1]   = f2glf(pointlist[c]->p3_vec.y);
+		vertex_array[index3+2]   = -f2glf(pointlist[c]->p3_vec.z);
 	}
-	glEnd();
+	
+	glVertexPointer(3, GL_FLOAT, 0, vertex_array);
+	glColorPointer(4, GL_FLOAT, 0, color_array);
+	glTexCoordPointer(2, GL_FLOAT, 0, texcoord_array);  
+	glDrawArrays(GL_TRIANGLE_FAN, 0, nv);
+	glDisableClientState(GL_VERTEX_ARRAY);
+	glDisableClientState(GL_COLOR_ARRAY);
+	glDisableClientState(GL_TEXTURE_COORD_ARRAY);
+	
 	return 0;
 }
 
-bool g3_draw_bitmap(vms_vector *pos,fix width,fix height,grs_bitmap *bm, int orientation, object *obj)
+/*
+ * 2d Sprites (Fireaballs, powerups, explosions). NOT hostages
+ */
+bool g3_draw_bitmap(vms_vector *pos,fix width,fix height,grs_bitmap *bm, object *obj)
 {
 	vms_vector pv,v1;
 	int i;
+	float color_a;
+	GLfloat vertex_array[12], color_array[16], texcoord_array[8];
+
 	r_bitmapc++;
 	v1.z=0;
+	
+	glEnableClientState(GL_VERTEX_ARRAY);
+	glEnableClientState(GL_COLOR_ARRAY);
+	glEnableClientState(GL_TEXTURE_COORD_ARRAY);
 
 	OGL_ENABLE(TEXTURE_2D);
 	ogl_bindbmtex(bm);
 	ogl_texwrap(bm->gltexture,GL_CLAMP_TO_EDGE);
-
-	glBegin(GL_QUADS);
 
 	// Define alpha by looking for object TYPE or ID. We do this here so we have it seperated from the rest of the code.
 	if (PlayerCfg.OglAlphaEffects && // if -gl_transparency draw following bitmaps
@@ -820,9 +980,9 @@ bool g3_draw_bitmap(vms_vector *pos,fix width,fix height,grs_bitmap *bm, int ori
 		obj->id==POW_CLOAK || // cloak
 		obj->id==POW_INVULNERABILITY || // invulnerability
 		obj->id==POW_HOARD_ORB)) // Hoard Orb
-		glColor4f(1.0,1.0,1.0,0.6); // ... with 0.6 alpha
+		color_a = 0.6; // ... with 0.6 alpha
 	else
-		glColor3f(1.0,1.0,1.0);
+		color_a = 1.0;
 
 	width = fixmul(width,Matrix_scale.x);
 	height = fixmul(height,Matrix_scale.y);
@@ -831,22 +991,26 @@ bool g3_draw_bitmap(vms_vector *pos,fix width,fix height,grs_bitmap *bm, int ori
 		vm_vec_rotate(&pv,&v1,&View_matrix);
 		switch (i){
 			case 0:
-				glTexCoord2f(0.0, 0.0);
+				texcoord_array[i*2] = 0.0;
+				texcoord_array[i*2+1] = 0.0;
 				pv.x+=-width;
 				pv.y+=height;
 				break;
 			case 1:
-				glTexCoord2f(bm->gltexture->u, 0.0);
+				texcoord_array[i*2] = bm->gltexture->u;
+				texcoord_array[i*2+1] = 0.0;
 				pv.x+=width;
 				pv.y+=height;
 				break;
 			case 2:
-				glTexCoord2f(bm->gltexture->u, bm->gltexture->v);
+				texcoord_array[i*2] = bm->gltexture->u;
+				texcoord_array[i*2+1] = bm->gltexture->v;
 				pv.x+=width;
 				pv.y+=-height;
 				break;
 			case 3:
-				glTexCoord2f(0.0, bm->gltexture->v);
+				texcoord_array[i*2] = 0.0;
+				texcoord_array[i*2+1] = bm->gltexture->v;
 				pv.x+=-width;
 				pv.y+=-height;
 				break;
@@ -855,17 +1019,37 @@ bool g3_draw_bitmap(vms_vector *pos,fix width,fix height,grs_bitmap *bm, int ori
 		if (obj->id == 5 && obj->type == 1) // create small z-Offset for missile exploding effect - prevents ugly wall-clipping
 			pv.z -= F1_0;
 
-		glVertex3f(f2glf(pv.x),f2glf(pv.y),-f2glf(pv.z));
+		color_array[i*4]    = 1.0;
+		color_array[i*4+1]  = 1.0;
+		color_array[i*4+2]  = 1.0;
+		color_array[i*4+3]  = color_a;
+		
+		vertex_array[i*3]   = f2glf(pv.x);
+		vertex_array[i*3+1] = f2glf(pv.y);
+		vertex_array[i*3+2] = -f2glf(pv.z);
 	}
-	glEnd();
+	glVertexPointer(3, GL_FLOAT, 0, vertex_array);
+	glColorPointer(4, GL_FLOAT, 0, color_array);
+	glTexCoordPointer(2, GL_FLOAT, 0, texcoord_array);  
+	glDrawArrays(GL_TRIANGLE_FAN, 0, 4); // Replaced GL_QUADS
+	glDisableClientState(GL_VERTEX_ARRAY);
+	glDisableClientState(GL_COLOR_ARRAY);
+	glDisableClientState(GL_TEXTURE_COORD_ARRAY);
 
 	return 0;
 }
 
 bool ogl_ubitmapm_c(int x, int y,grs_bitmap *bm,int c)
 {
-	GLfloat xo,yo,xf,yf;
-	GLfloat u1,u2,v1,v2;
+	GLfloat xo,yo,xf,yf,u1,u2,v1,v2,color_r,color_g,color_b;
+	GLfloat color_array[] = { 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0 };
+	GLfloat vertex_array[] = { 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0 };
+	GLfloat texcoord_array[] = { 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0 };
+
+	glEnableClientState(GL_VERTEX_ARRAY);
+	glEnableClientState(GL_COLOR_ARRAY);
+	glEnableClientState(GL_TEXTURE_COORD_ARRAY);
+
 	x+=grd_curcanv->cv_bitmap.bm_x;
 	y+=grd_curcanv->cv_bitmap.bm_y;
 	xo=x/(float)last_width;
@@ -898,16 +1082,46 @@ bool ogl_ubitmapm_c(int x, int y,grs_bitmap *bm,int c)
 		v2=(bm->bm_h+bm->bm_y)/(float)bm->gltexture->th;
 	}
 
-	glBegin(GL_QUADS);
-	if (c<0)
-		glColor3f(1.0,1.0,1.0);
-	else
-		glColor3f(CPAL2Tr(c),CPAL2Tg(c),CPAL2Tb(c));
-	glTexCoord2f(u1, v1); glVertex2f(xo, yo);
-	glTexCoord2f(u2, v1); glVertex2f(xf, yo);
-	glTexCoord2f(u2, v2); glVertex2f(xf, yf);
-	glTexCoord2f(u1, v2); glVertex2f(xo, yf);
-	glEnd();
+	if (c<0) {
+		color_r = 1.0;
+		color_g = 1.0;
+		color_b = 1.0;
+	} else {
+		color_r = CPAL2Tr(c);
+		color_g = CPAL2Tg(c);
+		color_b = CPAL2Tb(c);
+	}
+
+	color_array[0] = color_array[4] = color_array[8] = color_array[12] = color_r;
+	color_array[1] = color_array[5] = color_array[9] = color_array[13] = color_g;
+	color_array[2] = color_array[6] = color_array[10] = color_array[14] = color_b;
+	color_array[3] = color_array[7] = color_array[11] = color_array[15] = 1.0;
+
+	vertex_array[0] = xo;
+	vertex_array[1] = yo;
+	vertex_array[2] = xf;
+	vertex_array[3] = yo;
+	vertex_array[4] = xf;
+	vertex_array[5] = yf;
+	vertex_array[6] = xo;
+	vertex_array[7] = yf;
+
+	texcoord_array[0] = u1;
+	texcoord_array[1] = v1;
+	texcoord_array[2] = u2;
+	texcoord_array[3] = v1;
+	texcoord_array[4] = u2;
+	texcoord_array[5] = v2;
+	texcoord_array[6] = u1;
+	texcoord_array[7] = v2;
+	
+	glVertexPointer(2, GL_FLOAT, 0, vertex_array);
+	glColorPointer(4, GL_FLOAT, 0, color_array);
+	glTexCoordPointer(2, GL_FLOAT, 0, texcoord_array);  
+	glDrawArrays(GL_TRIANGLE_FAN, 0, 4); // replaced GL_QUADS
+	glDisableClientState(GL_VERTEX_ARRAY);
+	glDisableClientState(GL_COLOR_ARRAY);
+	glDisableClientState(GL_TEXTURE_COORD_ARRAY);
 	
 	return 0;
 }
@@ -916,12 +1130,21 @@ bool ogl_ubitmapm(int x, int y,grs_bitmap *bm){
 	return ogl_ubitmapm_c(x,y,bm,-1);
 }
 
+/*
+ * Movies
+ */
 bool ogl_ubitblt_i(int dw,int dh,int dx,int dy, int sw, int sh, int sx, int sy, grs_bitmap * src, grs_bitmap * dest, int mipmap)
 {
-	GLfloat xo,yo,xs,ys;
-	GLfloat u1,v1;
+	GLfloat xo,yo,xs,ys,u1,v1;
+	GLfloat color_array[] = { 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0 };
+	GLfloat texcoord_array[] = { 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0 };
+	GLfloat vertex_array[] = { 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0 };
 	ogl_texture tex;
 	r_ubitbltc++;
+
+	glEnableClientState(GL_VERTEX_ARRAY);
+	glEnableClientState(GL_COLOR_ARRAY);
+	glEnableClientState(GL_TEXTURE_COORD_ARRAY);
 
 	ogl_init_texture(&tex, sw, sh, (mipmap?OGL_FLAG_MIPMAP:OGL_FLAG_ALPHA));
 	tex.prio = 0.0;
@@ -945,13 +1168,32 @@ bool ogl_ubitblt_i(int dw,int dh,int dx,int dy, int sw, int sh, int sx, int sy, 
 	
 	ogl_texwrap(&tex,GL_CLAMP_TO_EDGE);
 
-	glBegin(GL_QUADS);
-	glColor3f(1.0,1.0,1.0);
-	glTexCoord2f(u1, v1); glVertex2f(xo, yo);
-	glTexCoord2f(tex.u, v1); glVertex2f(xo+xs, yo);
-	glTexCoord2f(tex.u, tex.v); glVertex2f(xo+xs, yo-ys);
-	glTexCoord2f(u1, tex.v); glVertex2f(xo, yo-ys);
-	glEnd();
+	vertex_array[0] = xo;
+	vertex_array[1] = yo;
+	vertex_array[2] = xo+xs;
+	vertex_array[3] = yo;
+	vertex_array[4] = xo+xs;
+	vertex_array[5] = ys-ys;
+	vertex_array[6] = xo;
+	vertex_array[7] = yo-ys;
+
+	texcoord_array[0] = u1;
+	texcoord_array[1] = v1;
+	texcoord_array[2] = tex.u;
+	texcoord_array[3] = v1;
+	texcoord_array[4] = tex.u;
+	texcoord_array[5] = tex.v;
+	texcoord_array[6] = u1;
+	texcoord_array[7] = tex.v;
+
+	glVertexPointer(2, GL_FLOAT, 0, vertex_array);
+	glColorPointer(4, GL_FLOAT, 0, color_array);
+	glTexCoordPointer(2, GL_FLOAT, 0, texcoord_array);  
+	glDrawArrays(GL_TRIANGLE_FAN, 0, 4);//replaced GL_QUADS
+
+	glDisableClientState(GL_VERTEX_ARRAY);
+	glDisableClientState(GL_COLOR_ARRAY);
+	glDisableClientState(GL_TEXTURE_COORD_ARRAY);
 	ogl_freetexture(&tex);
 	return 0;
 }
@@ -984,7 +1226,11 @@ void ogl_start_frame(void){
 	glShadeModel(GL_SMOOTH);
 	glMatrixMode(GL_PROJECTION);
 	glLoadIdentity();//clear matrix
+#ifdef OGLES
+	perspective(90.0,1.0,1.0,1000.0);   
+#else
 	gluPerspective(90.0,1.0,1.0,1000.0);
+#endif
 	glMatrixMode(GL_MODELVIEW);
 	glLoadIdentity();//clear matrix
 }
@@ -993,7 +1239,11 @@ void ogl_end_frame(void){
 	OGL_VIEWPORT(0,0,grd_curscreen->sc_w,grd_curscreen->sc_h);
 	glMatrixMode(GL_PROJECTION);
 	glLoadIdentity();//clear matrix
+#ifdef OGLES
+	glOrthof(0.0, 1.0, 0.0, 1.0, -1.0, 1.0);
+#else
 	glOrtho(0.0, 1.0, 0.0, 1.0, -1.0, 1.0);
+#endif
 	glMatrixMode(GL_MODELVIEW);
 	glLoadIdentity();//clear matrix
 	glDisable(GL_CULL_FACE);
@@ -1010,7 +1260,9 @@ void gr_flip(void)
 	glClear(GL_COLOR_BUFFER_BIT);
 }
 
-int tex_format_supported(int iformat,int format){
+int tex_format_supported(int iformat,int format)
+{
+#ifndef OGLES
 	switch (iformat){
 		case GL_INTENSITY4:
 			if (!GameArg.DbgGlIntensity4Ok) return 0; break;
@@ -1028,6 +1280,7 @@ int tex_format_supported(int iformat,int format){
 				&internalFormat);
 		return (internalFormat==iformat);
 	}else
+#endif
 		return 1;
 }
 
@@ -1112,9 +1365,11 @@ void ogl_filltexbuf(unsigned char *data, GLubyte *texp, int truewidth, int width
 						(*(texp++)) = 255;
 						(*(texp++)) = 0; // transparent pixel
 						break;
+#ifndef OGLES
 					case GL_COLOR_INDEX:
 						(*(texp++)) = c;
 						break;
+#endif
 					default:
 						Error("ogl_filltexbuf unhandled super-transparent texformat\n");
 						break;
@@ -1142,9 +1397,11 @@ void ogl_filltexbuf(unsigned char *data, GLubyte *texp, int truewidth, int width
 						(*(texp++))=0;
 						(*(texp++))=0;//transparent pixel
 						break;
+#ifndef OGLES
 					case GL_COLOR_INDEX:
 						(*(texp++)) = c;
 						break;
+#endif
 					default:
 						Error("ogl_filltexbuf unknown texformat\n");
 						break;
@@ -1172,9 +1429,11 @@ void ogl_filltexbuf(unsigned char *data, GLubyte *texp, int truewidth, int width
 						(*(texp++))=ogl_pal[c*3+2]*4;
 						(*(texp++))=255;//not transparent
 						break;
+#ifndef OGLES
 					case GL_COLOR_INDEX:
 						(*(texp++)) = c;
 						break;
+#endif
 					default:
 						Error("ogl_filltexbuf unknown texformat\n");
 						break;
@@ -1188,6 +1447,13 @@ int tex_format_verify(ogl_texture *tex){
 	while (!tex_format_supported(tex->internalformat,tex->format)){
 		glmprintf((0,"tex format %x not supported",tex->internalformat));
 		switch (tex->internalformat){
+#ifdef OGLES
+			case GL_RGB:
+				tex->format=GL_RGB;
+				break;
+			case GL_RGBA:
+				tex->format=GL_RGBA;
+#else
 			case GL_INTENSITY4:
 				if (GameArg.DbgGlLuminance4Alpha4Ok){
 					tex->internalformat=GL_LUMINANCE4_ALPHA4;
@@ -1207,6 +1473,7 @@ int tex_format_verify(ogl_texture *tex){
 				tex->internalformat = ogl_rgba_internalformat;
 				tex->format=GL_RGBA;
 				break;
+#endif // OGLES
 			default:
 				glmprintf((0,"...no tex format to fall back on\n"));
 				return 1;
@@ -1236,6 +1503,7 @@ void tex_set_size1(ogl_texture *tex,int dbits,int bits,int w, int h){
 void tex_set_size(ogl_texture *tex){
 	GLint w,h;
 	int bi=16,a=0;
+#ifndef OGLES
 	if (GameArg.DbgGlGetTexLevelParamOk){
 		GLint t;
 		glGetTexLevelParameteriv(GL_TEXTURE_2D,0,GL_TEXTURE_WIDTH,&w);
@@ -1246,7 +1514,10 @@ void tex_set_size(ogl_texture *tex){
 		glGetTexLevelParameteriv(GL_TEXTURE_2D,0,GL_TEXTURE_GREEN_SIZE,&t);a+=t;
 		glGetTexLevelParameteriv(GL_TEXTURE_2D,0,GL_TEXTURE_BLUE_SIZE,&t);a+=t;
 		glGetTexLevelParameteriv(GL_TEXTURE_2D,0,GL_TEXTURE_ALPHA_SIZE,&t);a+=t;
-	}else{
+	}
+	else
+#endif
+	{
 		w=tex->tw;
 		h=tex->th;
 	}
@@ -1261,9 +1532,11 @@ void tex_set_size(ogl_texture *tex){
 		case GL_RGBA:
 			bi=16;
 			break;
+#ifndef OGLES
 		case GL_COLOR_INDEX:
 			bi = 8;
 			break;
+#endif
 		default:
 			Error("tex_set_size unknown texformat\n");
 			break;
@@ -1315,31 +1588,47 @@ int ogl_loadtexture (unsigned char *data, int dxo, int dyo, ogl_texture *tex, in
 	}
 	// Generate OpenGL texture IDs.
 	glGenTextures (1, &tex->handle);
+#ifndef OGLES
 	//set priority
 	glPrioritizeTextures (1, &tex->handle, &tex->prio);
+#endif
 	// Give our data to OpenGL.
 	OGL_BINDTEXTURE(tex->handle);
 	glTexEnvi (GL_TEXTURE_ENV, GL_TEXTURE_ENV_MODE, GL_MODULATE);
-	if (tex->wantmip){
+
+	if (tex->wantmip)
+	{
+#ifdef OGLES // in OpenGL ES 1.1 the mipmaps are automatically generated by a parameter
+		glTexParameteri (GL_TEXTURE_2D, GL_GENERATE_MIPMAP, GameCfg.TexFilt ? GL_TRUE : GL_FALSE);
+#endif
 		glTexParameteri (GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
 		glTexParameteri (GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, (GameCfg.TexFilt==2?GL_LINEAR_MIPMAP_LINEAR:GL_LINEAR_MIPMAP_NEAREST));
-		}
-	else{
+	}
+	else
+	{
 		glTexParameteri (GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_NEAREST);
 		glTexParameteri (GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_NEAREST);
-		}
+	}
+
+#ifndef OGLES // see comment above
 	if (tex->wantmip)
+	{
 		gluBuild2DMipmaps (
 				GL_TEXTURE_2D, tex->internalformat, 
 				tex->tw, tex->th, tex->format, 
 				GL_UNSIGNED_BYTE, 
 				bufP);
+	}
 	else
+#endif
+	{
 		glTexImage2D (
 			GL_TEXTURE_2D, 0, tex->internalformat,
 			tex->tw, tex->th, 0, tex->format, // RGBA textures.
 			GL_UNSIGNED_BYTE, // imageData is a GLubyte pointer.
 			bufP);
+	}
+
 	tex_set_size (tex);
 	r_texcount++;
 	return 0;
@@ -1449,17 +1738,26 @@ void ogl_freebmtexture(grs_bitmap *bm){
 	}
 }
 
+/*
+ * Menu / gauges 
+ */
 bool ogl_ubitmapm_cs(int x, int y,int dw, int dh, grs_bitmap *bm,int c, int scale) // to scale bitmaps
 {
-	GLfloat xo,yo,xf,yf;
-	GLfloat u1,u2,v1,v2;
-	GLdouble h,a;
+	GLfloat xo,yo,xf,yf,u1,u2,v1,v2,color_r,color_g,color_b,h,a;
+	GLfloat color_array[] = { 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0 };
+	GLfloat texcoord_array[] = { 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0 };
+	GLfloat vertex_array[] = { 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0 };
+	
 	x+=grd_curcanv->cv_bitmap.bm_x;
 	y+=grd_curcanv->cv_bitmap.bm_y;
 	xo=x/(float)last_width;
 	xf=(bm->bm_w+x)/(float)last_width;
 	yo=1.0-y/(float)last_height;
 	yf=1.0-(bm->bm_h+y)/(float)last_height;
+
+	glEnableClientState(GL_VERTEX_ARRAY);
+	glEnableClientState(GL_COLOR_ARRAY);
+	glEnableClientState(GL_TEXTURE_COORD_ARRAY);
 
 	if (dw < 0)
 		dw = grd_curcanv->cv_bitmap.bm_w;
@@ -1503,16 +1801,46 @@ bool ogl_ubitmapm_cs(int x, int y,int dw, int dh, grs_bitmap *bm,int c, int scal
 		v2=(bm->bm_h+bm->bm_y)/(float)bm->gltexture->th;
 	}
 
-	glBegin(GL_QUADS);
-	if (c<0)
-		glColor3f(1.0,1.0,1.0);
-	else
-		glColor3f(CPAL2Tr(c),CPAL2Tg(c),CPAL2Tb(c));
-	glTexCoord2f(u1, v1); glVertex2f(xo, yo);
-	glTexCoord2f(u2, v1); glVertex2f(xf, yo);
-	glTexCoord2f(u2, v2); glVertex2f(xf, yf);
-	glTexCoord2f(u1, v2); glVertex2f(xo, yf);
-	glEnd();
+	if (c < 0) {
+		color_r = 1.0;
+		color_g = 1.0;
+		color_b = 1.0;
+	} else {
+		color_r = CPAL2Tr(c);
+		color_g = CPAL2Tg(c);
+		color_b = CPAL2Tb(c);
+	}  
+
+	color_array[0] = color_array[4] = color_array[8] = color_array[12] = color_r;
+	color_array[1] = color_array[5] = color_array[9] = color_array[13] = color_g;
+	color_array[2] = color_array[6] = color_array[10] = color_array[14] = color_b;
+	color_array[3] = color_array[7] = color_array[11] = color_array[15] = 1.0;
+
+	vertex_array[0] = xo;
+	vertex_array[1] = yo;
+	vertex_array[2] = xf;
+	vertex_array[3] = yo;
+	vertex_array[4] = xf;
+	vertex_array[5] = yf;
+	vertex_array[6] = xo;
+	vertex_array[7] = yf;
+
+	texcoord_array[0] = u1;
+	texcoord_array[1] = v1;
+	texcoord_array[2] = u2;
+	texcoord_array[3] = v1;
+	texcoord_array[4] = u2;
+	texcoord_array[5] = v2;
+	texcoord_array[6] = u1;
+	texcoord_array[7] = v2;
+
+	glVertexPointer(2, GL_FLOAT, 0, vertex_array);
+	glColorPointer(4, GL_FLOAT, 0, color_array);
+	glTexCoordPointer(2, GL_FLOAT, 0, texcoord_array);  
+	glDrawArrays(GL_TRIANGLE_FAN, 0, 4);//replaced GL_QUADS
+	glDisableClientState(GL_VERTEX_ARRAY);
+	glDisableClientState(GL_COLOR_ARRAY);
+	glDisableClientState(GL_TEXTURE_COORD_ARRAY);
 	
 	return 0;
 }

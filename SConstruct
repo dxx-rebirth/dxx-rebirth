@@ -26,6 +26,7 @@ sharepath = str(ARGUMENTS.get('sharepath', DATA_DIR))
 debug = int(ARGUMENTS.get('debug', 0))
 profiler = int(ARGUMENTS.get('profiler', 0))
 opengl = int(ARGUMENTS.get('opengl', 1))
+opengles = int(ARGUMENTS.get('opengl', 0))
 asm = int(ARGUMENTS.get('asm', 0))
 editor = int(ARGUMENTS.get('editor', 0))
 sdlmixer = int(ARGUMENTS.get('sdlmixer', 1))
@@ -363,7 +364,10 @@ else:
 	if (use_ipx == 1):
 		common_sources += ['arch/linux/ipx.c', 'arch/linux/ipx_kali.c', 'arch/linux/ukali.c']
 	libs += env['LIBS']
-	ogllibs = ['GL', 'GLU']
+	if (opengles == 1):
+		ogllibs = ['GLES_CM', 'EGL']
+	else:
+		ogllibs = ['GL', 'GLU']
 	lflags = '-L/usr/X11R6/lib'
 
 # set endianess
@@ -375,8 +379,12 @@ elif (checkEndian() == "little"):
 	print "LittleEndian machine detected"
 
 # opengl or software renderer?
-if (opengl == 1):
-	print "building with OpenGL"
+if (opengl == 1) or (opengles == 1):
+	if (opengles == 1):
+		print "building with OpenGL ES"
+		env.Append(CPPDEFINES = ['OGLES'])
+	else:
+		print "building with OpenGL"
 	env.Append(CPPDEFINES = ogldefines)
 	common_sources += arch_ogl_sources
 	libs += ogllibs
@@ -465,6 +473,7 @@ Help(PROGRAM_NAME + ', SConstruct file help:' +
 	
 	'sharepath=[DIR]' (non-Mac OS *NIX only) use [DIR] for shared game data. [default: /usr/local/share/games/d2x-rebirth]
 	'opengl=[0/1]'        build with OpenGL support [default: 1]
+	'opengles=[0/1]'      build with OpenGL ES support [default: 0]
 	'sdlmixer=[0/1]'      build with SDL_Mixer support for sound and music (includes external music support) [default: 1]
 	'asm=[0/1]'           build with ASSEMBLER code (only with opengl=0, requires NASM and x86) [default: 0]
 	'debug=[0/1]'         build DEBUG binary which includes asserts, debugging output, cheats and more output [default: 0]
