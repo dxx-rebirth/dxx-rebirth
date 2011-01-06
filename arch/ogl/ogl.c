@@ -1173,7 +1173,7 @@ bool ogl_ubitblt_i(int dw,int dh,int dx,int dy, int sw, int sh, int sx, int sy, 
 	vertex_array[2] = xo+xs;
 	vertex_array[3] = yo;
 	vertex_array[4] = xo+xs;
-	vertex_array[5] = ys-ys;
+	vertex_array[5] = yo-ys;
 	vertex_array[6] = xo;
 	vertex_array[7] = yo-ys;
 
@@ -1185,7 +1185,7 @@ bool ogl_ubitblt_i(int dw,int dh,int dx,int dy, int sw, int sh, int sx, int sy, 
 	texcoord_array[5] = tex.v;
 	texcoord_array[6] = u1;
 	texcoord_array[7] = tex.v;
-
+	
 	glVertexPointer(2, GL_FLOAT, 0, vertex_array);
 	glColorPointer(4, GL_FLOAT, 0, color_array);
 	glTexCoordPointer(2, GL_FLOAT, 0, texcoord_array);  
