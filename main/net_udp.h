@@ -38,7 +38,7 @@ void net_udp_send_netgame_update();
 #define UDP_MDATA_STOR_QUEUE_SIZE	500 // Store up to 500 MDATA packets
 
 // Following are static defines for the buffer size of various packets. IF you change the packets, you must change the size, too.
-#define UPKT_MAX_SIZE 2048 // Max size for a packet
+#define UPKT_MAX_SIZE 1024 // Max size for a packet
 #define UPKT_GAME_INFO_REQ_SIZE 11 
 #define UPKT_SEQUENCE_SIZE 14
 #define UPKT_PING_SIZE 37
