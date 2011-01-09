@@ -217,7 +217,7 @@ static int get_event(hmp_file *hmp, event *ev) {
 
 		if (hmp->loop_start && hmp->looping)
 			if (trk->cur == trk->loop)
-				delta = 0;
+				delta = trk->loop_start - hmp->loop_start;
 
         delta += trk->cur_time - hmp->cur_time;
 		if (delta < mindelta) {
@@ -232,7 +232,7 @@ static int get_event(hmp_file *hmp, event *ev) {
 
 	if (hmp->loop_start && hmp->looping)
 		if (trk->cur == trk->loop)
-			delta = 0;
+			delta = trk->loop_start - hmp->loop_start;
 
 	trk->cur_time += delta;
 
@@ -249,8 +249,9 @@ static int get_event(hmp_file *hmp, event *ev) {
 	if (!hmp->loop_end && *(trk->cur + got) >> 4 == MIDI_CONTROL_CHANGE && *(trk->cur + got + 1) == HMP_LOOP_END)
 		hmp->loop_end = trk->cur_time;
 
-	if (hmp->loop_start && !trk->loop_set && trk->cur_time == hmp->loop_start)
+	if (hmp->loop_start && !trk->loop_set && trk->cur_time >= hmp->loop_start)
 	{
+		trk->loop_start = trk->cur_time;
 		trk->loop = trk->cur;
 		trk->len = trk->left;
 		trk->loop_set = 1;
