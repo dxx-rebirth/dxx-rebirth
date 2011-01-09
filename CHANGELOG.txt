@@ -3,6 +3,7 @@ D2X-Rebirth Changelog
 20110109
 --------
 main/net_udp.h: Set max UDP packet size to 1024 again (seems some configuration DO have problems with larger packets after all)
+main/net_udp.c: Fix for rev968: my_pnum must be defined static
 
 20110106
 --------
