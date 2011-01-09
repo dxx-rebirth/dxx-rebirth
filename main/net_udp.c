@@ -1459,8 +1459,8 @@ void net_udp_read_object_packet( ubyte *data )
 {
 	// Object from another net player we need to sync with
 	object *obj;
-	sbyte obj_owner, my_pnum = 0;
-	static int mode = 0, object_count = 0;
+	sbyte obj_owner;
+	static int mode = 0, object_count = 0, my_pnum = 0;
 	int i = 0, segnum = 0, objnum = 0, remote_objnum = 0, nobj = 0, loc = 5;
 	
 	nobj = GET_INTEL_INT(data + 1);
