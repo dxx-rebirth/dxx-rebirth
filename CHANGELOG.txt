@@ -5,6 +5,7 @@ D1X-Rebirth Changelog
 main/net_udp.h: Set max UDP packet size to 1024 again (seems some configuration DO have problems with larger packets after all)
 main/net_udp.c: Fix for rev959: my_pnum must be defined static
 arch/sdl/digi.c, inlcude/hmp.h, misc/hmp.c: Improvement on the HMP track loop feature by TURRICAN; Added small template fix for descent.hmp which is supposed to be activated soon as we have some kind or Checksum function
+main/kconfig.c: Mousebutton assigned to CYCLE SECONADARY was actually calling CYCLE PRIMARY
 
 20110106
 --------
