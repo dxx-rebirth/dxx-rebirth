@@ -1,9 +1,14 @@
 D1X-Rebirth Changelog
 
+20110109
+--------
+main/net_udp.h: Set max UDP packet size to 1024 again (seems some configuration DO have problems with larger packets after all)
+
 20110106
 --------
 SConstruct, arch/ogl/gr.c, arch/ogl/ogl.c, include/loadgl.h, include/ogl_init.h, main/gamecntl.c, main/state.c, misc/args.c: Added OpenGL ES support - contributed by Florian Feucht and Oliver Haag
 main/automap.c, main/gauges.c, main/gauges.h: Draw FlightSim Reticle on Automap display, too
+arch/ogl/ogl.c: Fix small bug in vertex_array for ogl_ubitblt_i
 
 20110104
 --------
