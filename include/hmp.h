@@ -50,6 +50,7 @@ typedef struct hmp_track {
 	unsigned char *cur;
 	unsigned int left;
 	unsigned int cur_time;
+	unsigned int loop_start;
 	int loop_set;
 } hmp_track;
 
