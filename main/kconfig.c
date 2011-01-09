@@ -1740,7 +1740,7 @@ void controls_read_all(int automap_flag)
 		if ((use_joystick)&&(kc_joystick[48].value < 255 )) 
 			Controls.cycle_secondary_count+=joy_get_button_down_cnt(kc_joystick[48].value);
 		if ((use_mouse)&&(kc_mouse[29].value < 255 ))
-			Controls.cycle_primary_count += mouse_button_down_count(kc_mouse[29].value);
+			Controls.cycle_secondary_count += mouse_button_down_count(kc_mouse[29].value);
 	
 	//--------Read Toggle Bomb key----------------------
 	
