@@ -15,8 +15,8 @@ static fix64 F64_RunTime = 0;
 void timer_update(void)
 {
 	static ubyte init = 1;
-	static unsigned long last_tv = 0;
-	unsigned long cur_tv = i2f(SDL_GetTicks()/1000) | fixdiv(i2f(SDL_GetTicks() % 1000),i2f(1000));
+	static fix64 last_tv = 0;
+	fix64 cur_tv = SDL_GetTicks()*F1_0/1000;
 
 	if (init)
 	{
