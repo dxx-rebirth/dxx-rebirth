@@ -2296,7 +2296,7 @@ void show_reticle(int reticle_type)
 
 	x = grd_curcanv->cv_bitmap.bm_w/2;
 	y = grd_curcanv->cv_bitmap.bm_h/2;
-	size = (grd_curcanv->cv_bitmap.bm_h / 32)*(1+(PlayerCfg.ReticleSize/10));
+	size = (grd_curcanv->cv_bitmap.bm_h / (32-(PlayerCfg.ReticleSize*4)));
 
 	laser_ready = allowed_to_fire_laser();
 	missile_ready = allowed_to_fire_missile();
