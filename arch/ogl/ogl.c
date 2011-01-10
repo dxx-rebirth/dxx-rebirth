@@ -68,9 +68,6 @@
 #define sinf(a) sin(a)
 #endif
 
-#define BRIGHT_G        0.125, 1.0, 0.125, 1.0
-#define DARK_G          0.125, 0.54, 0.125, 0.6
-
 unsigned char *ogl_pal=gr_palette;
 
 int last_width=-1,last_height=-1;
@@ -85,61 +82,7 @@ int ogl_rgb_internalformat = GL_RGB;
 int ogl_rgba_internalformat = GL_RGBA8;
 int ogl_rgb_internalformat = GL_RGB8;
 #endif
-GLfloat dark_lca[16 * 4] = {
-        DARK_G, DARK_G, DARK_G, DARK_G,
-        DARK_G, DARK_G, DARK_G, DARK_G,
-        DARK_G, DARK_G, DARK_G, DARK_G,
-        DARK_G, DARK_G, DARK_G, DARK_G
-};
-GLfloat bright_lca[16 * 4] = {
-        BRIGHT_G, BRIGHT_G, BRIGHT_G, BRIGHT_G,
-        BRIGHT_G, BRIGHT_G, BRIGHT_G, BRIGHT_G,
-        BRIGHT_G, BRIGHT_G, BRIGHT_G, BRIGHT_G,
-        BRIGHT_G, BRIGHT_G, BRIGHT_G, BRIGHT_G
-};
 GLfloat *sphere_va = NULL;
-GLfloat cross_lca[8 * 4] = {
-	DARK_G, BRIGHT_G,
-	DARK_G, BRIGHT_G,
-	DARK_G, BRIGHT_G,
-	DARK_G, BRIGHT_G
-};
-GLfloat cross_lva[8 * 2] = {
-	-4.0, 2.0, -2.0, 0,
-	-3.0, -4.0, -2.0, -3.0,
-	4.0, 2.0, 2.0, 0,
-	3.0, -4.0, 2.0, -3.0,
-};
-GLfloat primary_lca[2][4 * 4] = {
-	{BRIGHT_G, BRIGHT_G, DARK_G, DARK_G},
-	{DARK_G, DARK_G, BRIGHT_G, BRIGHT_G}
-};
-GLfloat primary_lva[4][4 * 2] = {
-	{
-		-5.5, -5.0,
-		-6.5, -7.5,
-		-10.0, -7.0,
-		-10.0, -8.7
-	},
-	{
-		-10.0, -7.0,
-		-10.0, -8.7,
-		-15.0, -8.5,
-		-15.0, -9.5
-	},
-	{
-		5.5, -5.0,
-		6.5, -7.5,
-		10.0, -7.0,
-		10.0, -8.7
-	},
-	{
-		10.0, -7.0,
-		10.0, -8.7,
-		15.0, -8.5,
-		15.0, -9.5
-	}
-};
 GLfloat *secondary_lva[3]={NULL, NULL, NULL};
 int r_polyc,r_tpolyc,r_bitmapc,r_ubitbltc,r_upixelc;
 extern int linedotscale;
@@ -610,10 +553,82 @@ GLfloat *circle_array_init_2(int nsides, float xsc, float xo, float ysc, float y
 	return vertex_array;
 }
 
-void ogl_draw_reticle(int cross,int primary,int secondary)
+void ogl_draw_vertex_reticle(int cross,int primary,int secondary,int color,int alpha,int size_offs)
 {
-	fix size=270;
-	float scale = ((float)SWIDTH/SHEIGHT);
+	int size=270+(size_offs*20), i;
+	float scale = ((float)SWIDTH/SHEIGHT), ret_rgba[4], ret_dark_rgba[4];
+	GLfloat cross_lva[8 * 2] = {
+		-4.0, 2.0, -2.0, 0, -3.0, -4.0, -2.0, -3.0, 4.0, 2.0, 2.0, 0, 3.0, -4.0, 2.0, -3.0,
+	};
+	GLfloat primary_lva[4][4 * 2] = {
+		{ -5.5, -5.0, -6.5, -7.5, -10.0, -7.0, -10.0, -8.7 },
+		{ -10.0, -7.0, -10.0, -8.7, -15.0, -8.5, -15.0, -9.5 },
+		{ 5.5, -5.0, 6.5, -7.5, 10.0, -7.0, 10.0, -8.7 },
+		{ 10.0, -7.0, 10.0, -8.7, 15.0, -8.5, 15.0, -9.5 }
+	};
+	GLfloat dark_lca[16 * 4] = {
+		0.125, 0.54, 0.125, 0.6, 0.125, 0.54, 0.125, 0.6, 0.125, 0.54, 0.125, 0.6, 0.125, 0.54, 0.125, 0.6,
+		0.125, 0.54, 0.125, 0.6, 0.125, 0.54, 0.125, 0.6, 0.125, 0.54, 0.125, 0.6, 0.125, 0.54, 0.125, 0.6,
+		0.125, 0.54, 0.125, 0.6, 0.125, 0.54, 0.125, 0.6, 0.125, 0.54, 0.125, 0.6, 0.125, 0.54, 0.125, 0.6,
+		0.125, 0.54, 0.125, 0.6, 0.125, 0.54, 0.125, 0.6, 0.125, 0.54, 0.125, 0.6, 0.125, 0.54, 0.125, 0.6
+	};
+	GLfloat bright_lca[16 * 4] = {
+		0.125, 1.0, 0.125, 1.0, 0.125, 1.0, 0.125, 1.0, 0.125, 1.0, 0.125, 1.0, 0.125, 1.0, 0.125, 1.0,
+		0.125, 1.0, 0.125, 1.0, 0.125, 1.0, 0.125, 1.0, 0.125, 1.0, 0.125, 1.0, 0.125, 1.0, 0.125, 1.0,
+		0.125, 1.0, 0.125, 1.0, 0.125, 1.0, 0.125, 1.0, 0.125, 1.0, 0.125, 1.0, 0.125, 1.0, 0.125, 1.0,
+		0.125, 1.0, 0.125, 1.0, 0.125, 1.0, 0.125, 1.0, 0.125, 1.0, 0.125, 1.0, 0.125, 1.0, 0.125, 1.0
+	};
+	GLfloat cross_lca[8 * 4] = {
+		0.125, 0.54, 0.125, 0.6, 0.125, 1.0, 0.125, 1.0,
+		0.125, 0.54, 0.125, 0.6, 0.125, 1.0, 0.125, 1.0,
+		0.125, 0.54, 0.125, 0.6, 0.125, 1.0, 0.125, 1.0,
+		0.125, 0.54, 0.125, 0.6, 0.125, 1.0, 0.125, 1.0
+	};
+	GLfloat primary_lca[2][4 * 4] = {
+		{0.125, 1.0, 0.125, 1.0, 0.125, 1.0, 0.125, 1.0, 0.125, 0.54, 0.125, 0.6, 0.125, 0.54, 0.125, 0.6},
+		{0.125, 0.54, 0.125, 0.6, 0.125, 0.54, 0.125, 0.6, 0.125, 1.0, 0.125, 1.0, 0.125, 1.0, 0.125, 1.0}
+	};
+	
+	ret_rgba[0] = PAL2Tr(color);
+	ret_dark_rgba[0] = ret_rgba[0]/2;
+	ret_rgba[1] = PAL2Tg(color);
+	ret_dark_rgba[1] = ret_rgba[1]/2;
+	ret_rgba[2] = PAL2Tb(color);
+	ret_dark_rgba[2] = ret_rgba[2]/2;
+	ret_rgba[3] = 1.0 - ((float)alpha / ((float)GR_FADE_LEVELS));
+	ret_dark_rgba[3] = ret_rgba[3]/2;
+
+	for (i = 0; i < 16*4; i += 4)
+	{
+		bright_lca[i] = ret_rgba[0];
+		dark_lca[i] = ret_dark_rgba[0];
+		bright_lca[i+1] = ret_rgba[1];
+		dark_lca[i+1] = ret_dark_rgba[1];
+		bright_lca[i+2] = ret_rgba[2];
+		dark_lca[i+2] = ret_dark_rgba[2];
+		bright_lca[i+3] = ret_rgba[3];
+		dark_lca[i+3] = ret_dark_rgba[3];
+	}
+	for (i = 0; i < 8*4; i += 8)
+	{
+		cross_lca[i] = ret_dark_rgba[0];
+		cross_lca[i+1] = ret_dark_rgba[1];
+		cross_lca[i+2] = ret_dark_rgba[2];
+		cross_lca[i+3] = ret_dark_rgba[3];
+		cross_lca[i+4] = ret_rgba[0];
+		cross_lca[i+5] = ret_rgba[1];
+		cross_lca[i+6] = ret_rgba[2];
+		cross_lca[i+7] = ret_rgba[3];
+	}
+
+	primary_lca[0][0] = primary_lca[0][4] = primary_lca[1][8] = primary_lca[1][12] = ret_rgba[0];
+	primary_lca[0][1] = primary_lca[0][5] = primary_lca[1][9] = primary_lca[1][13] = ret_rgba[1];
+	primary_lca[0][2] = primary_lca[0][6] = primary_lca[1][10] = primary_lca[1][14] = ret_rgba[2];
+	primary_lca[0][3] = primary_lca[0][7] = primary_lca[1][11] = primary_lca[1][15] = ret_rgba[3];
+	primary_lca[1][0] = primary_lca[1][4] = primary_lca[0][8] = primary_lca[0][12] = ret_dark_rgba[0];
+	primary_lca[1][1] = primary_lca[1][5] = primary_lca[0][9] = primary_lca[0][13] = ret_dark_rgba[1];
+	primary_lca[1][2] = primary_lca[1][6] = primary_lca[0][10] = primary_lca[0][14] = ret_dark_rgba[2];
+	primary_lca[1][3] = primary_lca[1][7] = primary_lca[0][11] = primary_lca[0][15] = ret_dark_rgba[3];
 
 	glPushMatrix();
 	glTranslatef((grd_curcanv->cv_bitmap.bm_w/2+grd_curcanv->cv_bitmap.bm_x)/(float)last_width,1.0-(grd_curcanv->cv_bitmap.bm_h/2+grd_curcanv->cv_bitmap.bm_y)/(float)last_height,0);
@@ -748,7 +763,7 @@ int gr_ucircle(fix xc1, fix yc1, fix r1)
 	int c, nsides;
 	c=grd_curcanv->cv_color;
 	OGL_DISABLE(TEXTURE_2D);
-	glColor4f(CPAL2Tr(c),CPAL2Tg(c),CPAL2Tb(c),1.0);
+	glColor4f(CPAL2Tr(c),CPAL2Tg(c),CPAL2Tb(c),1.0 - (float)Gr_scanline_darkening_level / ((float)GR_FADE_LEVELS - 1.0));
 	glPushMatrix();
 	glTranslatef(
 	             (f2fl(xc1) + grd_curcanv->cv_bitmap.bm_x + 0.5) / (float)last_width,
@@ -762,6 +777,23 @@ int gr_ucircle(fix xc1, fix yc1, fix r1)
 
 int gr_circle(fix xc1,fix yc1,fix r1){
 	return gr_ucircle(xc1,yc1,r1);
+}
+
+int gr_disk(fix x,fix y,fix r)
+{
+	int c, nsides;
+	c=grd_curcanv->cv_color;
+	OGL_DISABLE(TEXTURE_2D);
+	glColor4f(CPAL2Tr(c),CPAL2Tg(c),CPAL2Tb(c),1.0 - (float)Gr_scanline_darkening_level / ((float)GR_FADE_LEVELS - 1.0));
+	glPushMatrix();
+	glTranslatef(
+	             (f2fl(x) + grd_curcanv->cv_bitmap.bm_x + 0.5) / (float)last_width,
+	             1.0 - (f2fl(y) + grd_curcanv->cv_bitmap.bm_y + 0.5) / (float)last_height,0);
+	glScalef(f2fl(r) / last_width, f2fl(r) / last_height, 1.0);
+	nsides = 10 + 2 * (int)(M_PI * f2fl(r) / 19);
+	ogl_drawcircle(nsides, GL_TRIANGLE_FAN, circle_array_init(nsides));
+	glPopMatrix();
+	return 0;
 }
 
 /*
@@ -1091,10 +1123,10 @@ bool ogl_ubitmapm_c(int x, int y,grs_bitmap *bm,int c)
 		color_b = CPAL2Tb(c);
 	}
 
-	color_array[0] = color_array[4] = color_array[8] = color_array[12] = color_r;
-	color_array[1] = color_array[5] = color_array[9] = color_array[13] = color_g;
-	color_array[2] = color_array[6] = color_array[10] = color_array[14] = color_b;
-	color_array[3] = color_array[7] = color_array[11] = color_array[15] = 1.0;
+	color_array[0] = color_array[4] = color_array[8] = color_r;
+	color_array[1] = color_array[5] = color_array[9] = color_g;
+	color_array[2] = color_array[6] = color_array[10] = color_b;
+	color_array[3] = color_array[7] = color_array[11] = 1.0;
 
 	vertex_array[0] = xo;
 	vertex_array[1] = yo;

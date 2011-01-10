@@ -41,6 +41,7 @@ COPYRIGHT 1993-1998 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 #include "byteswap.h"
 #include "physfsx.h"
 #include "newdemo.h"
+#include "gauges.h"
 
 //version 5 -> 6: added new highest level information
 //version 6 -> 7: stripped out the old saved_game array.
@@ -80,10 +81,12 @@ int new_player_config()
 	PlayerCfg.MouseFlightSim = 0;
 	PlayerCfg.MouseSens[0] = PlayerCfg.MouseSens[1] = PlayerCfg.MouseSens[2] = PlayerCfg.MouseSens[3] = PlayerCfg.MouseSens[4] = 8;
 	PlayerCfg.MouseFSDead = 0;
-	PlayerCfg.MouseFSReticle = 1;
+	PlayerCfg.MouseFSIndicator = 1;
 	PlayerCfg.MouseFilter = 0;
 	PlayerCfg.CockpitMode[0] = PlayerCfg.CockpitMode[1] = CM_FULL_COCKPIT;
-	PlayerCfg.ReticleOn = 1;
+	PlayerCfg.ReticleType = RET_TYPE_CLASSIC;
+	PlayerCfg.ReticleRGBA[0] = RET_COLOR_DEFAULT_R; PlayerCfg.ReticleRGBA[1] = RET_COLOR_DEFAULT_G; PlayerCfg.ReticleRGBA[2] = RET_COLOR_DEFAULT_B; PlayerCfg.ReticleRGBA[3] = RET_COLOR_DEFAULT_A;
+	PlayerCfg.ReticleSize = 1;
 	PlayerCfg.HudMode = 0;
 	PlayerCfg.PersistentDebris = 0;
 	PlayerCfg.PRShot = 0;
@@ -91,7 +94,6 @@ int new_player_config()
 	PlayerCfg.MultiMessages = 0;
 	PlayerCfg.BombGauge = 1;
 	PlayerCfg.OglAlphaEffects = 0;
-	PlayerCfg.OglReticle = 0;
 
 	// Default taunt macros
 	#ifdef NETWORK
@@ -207,8 +209,8 @@ int read_player_d1x(char *filename)
 					PlayerCfg.MouseSens[4] = atoi(line);
 				if(!strcmp(word,"FSDEAD"))
 					PlayerCfg.MouseFSDead = atoi(line);
-				if(!strcmp(word,"FSGAUGE"))
-					PlayerCfg.MouseFSReticle = atoi(line);
+				if(!strcmp(word,"FSINDI"))
+					PlayerCfg.MouseFSIndicator = atoi(line);
 				if(!strcmp(word,"FILTER"))
 					PlayerCfg.MouseFilter = atoi(line);
 				d_free(word);
@@ -254,6 +256,12 @@ int read_player_d1x(char *filename)
 					PlayerCfg.CockpitMode[0] = PlayerCfg.CockpitMode[1] = atoi(line);
 				else if(!strcmp(word,"HUD"))
 					PlayerCfg.HudMode = atoi(line);
+				else if(!strcmp(word,"RETTYPE"))
+					PlayerCfg.ReticleType = atoi(line);
+				else if(!strcmp(word,"RETRGBA"))
+					sscanf(line,"%i,%i,%i,%i",&PlayerCfg.ReticleRGBA[0],&PlayerCfg.ReticleRGBA[1],&PlayerCfg.ReticleRGBA[2],&PlayerCfg.ReticleRGBA[3]);
+				else if(!strcmp(word,"RETSIZE"))
+					PlayerCfg.ReticleSize = atoi(line);
 				d_free(word);
 				cfgets(line,50,f);
 				word=splitword(line,'=');
@@ -269,11 +277,9 @@ int read_player_d1x(char *filename)
 	
 			while(!strstr(word,"END") && !PHYSFS_eof(f))
 			{
-				if(!strcmp(word,"RETICLE"))
-					PlayerCfg.ReticleOn = atoi(line);
-				else if(!strcmp(word,"PERSISTENTDEBRIS"))
+				if(!strcmp(word,"PERSISTENTDEBRIS"))
 					PlayerCfg.PersistentDebris = atoi(line);
-				else if(!strcmp(word,"PRSHOT"))
+				if(!strcmp(word,"PRSHOT"))
 					PlayerCfg.PRShot = atoi(line);
 				if(!strcmp(word,"NOREDUNDANCY"))
 					PlayerCfg.NoRedundancy = atoi(line);
@@ -298,8 +304,6 @@ int read_player_d1x(char *filename)
 			{
 				if(!strcmp(word,"OGLALPHAEFFECTS"))
 					PlayerCfg.OglAlphaEffects = atoi(line);
-				else if(!strcmp(word,"OGLRETICLE"))
-					PlayerCfg.OglReticle = atoi(line);
 				d_free(word);
 				cfgets(line,50,f);
 				word=splitword(line,'=');
@@ -541,7 +545,7 @@ int write_player_d1x(char *filename)
 		PHYSFSX_printf(fout,"sensitivity3=%d\n",PlayerCfg.MouseSens[3]);
 		PHYSFSX_printf(fout,"sensitivity4=%d\n",PlayerCfg.MouseSens[4]);
 		PHYSFSX_printf(fout,"fsdead=%d\n",PlayerCfg.MouseFSDead);
-		PHYSFSX_printf(fout,"fsgauge=%d\n",PlayerCfg.MouseFSReticle);
+		PHYSFSX_printf(fout,"fsindi=%d\n",PlayerCfg.MouseFSIndicator);
 		PHYSFSX_printf(fout,"filter=%d\n",PlayerCfg.MouseFilter);
 		PHYSFSX_printf(fout,"[end]\n");
 		PHYSFSX_printf(fout,"[weapon keys v2]\n");
@@ -559,9 +563,11 @@ int write_player_d1x(char *filename)
 		PHYSFSX_printf(fout,"[cockpit]\n");
 		PHYSFSX_printf(fout,"mode=%i\n",PlayerCfg.CockpitMode[0]);
 		PHYSFSX_printf(fout,"hud=%i\n",PlayerCfg.HudMode);
+		PHYSFSX_printf(fout,"rettype=%i\n",PlayerCfg.ReticleType);
+		PHYSFSX_printf(fout,"retrgba=%i,%i,%i,%i\n",PlayerCfg.ReticleRGBA[0],PlayerCfg.ReticleRGBA[1],PlayerCfg.ReticleRGBA[2],PlayerCfg.ReticleRGBA[3]);
+		PHYSFSX_printf(fout,"retsize=%i\n",PlayerCfg.ReticleSize);
 		PHYSFSX_printf(fout,"[end]\n");
 		PHYSFSX_printf(fout,"[toggles]\n");
-		PHYSFSX_printf(fout,"reticle=%i\n",PlayerCfg.ReticleOn);
 		PHYSFSX_printf(fout,"persistentdebris=%i\n",PlayerCfg.PersistentDebris);
 		PHYSFSX_printf(fout,"prshot=%i\n",PlayerCfg.PRShot);
 		PHYSFSX_printf(fout,"noredundancy=%i\n",PlayerCfg.NoRedundancy);
@@ -570,7 +576,6 @@ int write_player_d1x(char *filename)
 		PHYSFSX_printf(fout,"[end]\n");
 		PHYSFSX_printf(fout,"[opengl]\n");
 		PHYSFSX_printf(fout,"oglalphaeffects=%i\n",PlayerCfg.OglAlphaEffects);
-		PHYSFSX_printf(fout,"oglreticle=%i\n",PlayerCfg.OglReticle);
 		PHYSFSX_printf(fout,"[end]\n");
 		PHYSFSX_printf(fout,"[plx version]\n");
 		PHYSFSX_printf(fout,"plx version=%s\n",VERSION);

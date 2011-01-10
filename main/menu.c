@@ -858,7 +858,7 @@ int do_load_level_menu(void)
 void do_sound_menu();
 void input_config();
 void change_res();
-void do_graphics_menu();
+void graphics_config();
 void do_misc_menu();
 
 int options_menuset(newmenu *menu, d_event *event, void *userdata)
@@ -866,10 +866,6 @@ int options_menuset(newmenu *menu, d_event *event, void *userdata)
 	switch (event->type)
 	{
 		case EVENT_NEWMENU_CHANGED:
-			if ( newmenu_get_citem(menu)==4)
-			{
-				gr_palette_set_gamma(newmenu_get_items(menu)[4].value);
-			}
 			break;
 
 		case EVENT_NEWMENU_SELECTED:
@@ -877,11 +873,11 @@ int options_menuset(newmenu *menu, d_event *event, void *userdata)
 			{
 				case  0: do_sound_menu();		break;
 				case  2: input_config();		break;
-				case  5: change_res();			break;
-				case  6: do_graphics_menu();		break;
-				case  8: ReorderPrimary();		break;
-				case  9: ReorderSecondary();		break;
-				case 10: do_misc_menu();		break;
+				case  4: change_res();			break;
+				case  5: graphics_config();		break;
+				case  7: ReorderPrimary();		break;
+				case  8: ReorderSecondary();		break;
+				case  9: do_misc_menu();		break;
 			}
 			return 1;	// stay in menu until escape
 			break;
@@ -1071,7 +1067,7 @@ int input_config_menuset(newmenu *menu, d_event *event, void *userdata)
 			if (citem == opt_ic_grabinput)
 				GameCfg.Grabinput = items[citem].value;
 			if (citem == opt_ic_mousefsgauge)
-				PlayerCfg.MouseFSReticle = items[citem].value;
+				PlayerCfg.MouseFSIndicator = items[citem].value;
 			if (citem == opt_ic_mousefilt)
 				PlayerCfg.MouseFilter = items[citem].value;
 			break;
@@ -1133,7 +1129,7 @@ void input_config()
 	opt_ic_grabinput = nitems;
 	m[nitems].type = NM_TYPE_CHECK; m[nitems].text= "Keep Keyboard/Mouse focus"; m[nitems].value = GameCfg.Grabinput; nitems++;
 	opt_ic_mousefsgauge = nitems;
-	m[nitems].type = NM_TYPE_CHECK; m[nitems].text= "Mouse FlightSim Reticle"; m[nitems].value = PlayerCfg.MouseFSReticle; nitems++;
+	m[nitems].type = NM_TYPE_CHECK; m[nitems].text= "Mouse FlightSim Indicator"; m[nitems].value = PlayerCfg.MouseFSIndicator; nitems++;
 	opt_ic_mousefilt = nitems;
 	m[nitems].type = NM_TYPE_CHECK; m[nitems].text= "Mouse Smoothing/Filtering"; m[nitems].value = PlayerCfg.MouseFilter; nitems++;
 	m[nitems].type = NM_TYPE_TEXT; m[nitems].text = ""; nitems++;
@@ -1147,39 +1143,140 @@ void input_config()
 	newmenu_do1(NULL, TXT_CONTROLS, nitems, m, input_config_menuset, NULL, 3);
 }
 
-void do_graphics_menu()
+void reticle_config()
 {
-	newmenu_item m[9];
-	int i = 0, j = 0;
+#ifdef OGL
+	newmenu_item m[18];
+#else
+	newmenu_item m[17];
+#endif
+	int nitems = 0, i, opt_ret_type, opt_ret_rgba, opt_ret_size;
+	
+	m[nitems].type = NM_TYPE_TEXT; m[nitems].text = "Reticle Type:"; nitems++;
+	opt_ret_type = nitems;
+	m[nitems].type = NM_TYPE_RADIO; m[nitems].text = "Classic"; m[nitems].value = 0; m[nitems].group = 0; nitems++;
+#ifdef OGL
+	m[nitems].type = NM_TYPE_RADIO; m[nitems].text = "Classic Reboot"; m[nitems].value = 0; m[nitems].group = 0; nitems++;
+#endif
+	m[nitems].type = NM_TYPE_RADIO; m[nitems].text = "None"; m[nitems].value = 0; m[nitems].group = 0; nitems++;
+	m[nitems].type = NM_TYPE_RADIO; m[nitems].text = "X"; m[nitems].value = 0; m[nitems].group = 0; nitems++;
+	m[nitems].type = NM_TYPE_RADIO; m[nitems].text = "Dot"; m[nitems].value = 0; m[nitems].group = 0; nitems++;
+	m[nitems].type = NM_TYPE_RADIO; m[nitems].text = "Circle"; m[nitems].value = 0; m[nitems].group = 0; nitems++;
+	m[nitems].type = NM_TYPE_RADIO; m[nitems].text = "Cross V1"; m[nitems].value = 0; m[nitems].group = 0; nitems++;
+	m[nitems].type = NM_TYPE_RADIO; m[nitems].text = "Cross V2"; m[nitems].value = 0; m[nitems].group = 0; nitems++;
+	m[nitems].type = NM_TYPE_RADIO; m[nitems].text = "Angle"; m[nitems].value = 0; m[nitems].group = 0; nitems++;
+	m[nitems].type = NM_TYPE_TEXT; m[nitems].text = ""; nitems++;
+	m[nitems].type = NM_TYPE_TEXT; m[nitems].text = "Reticle Color:"; nitems++;
+	opt_ret_rgba = nitems;
+	m[nitems].type = NM_TYPE_SLIDER; m[nitems].text = "Red"; m[nitems].value = (PlayerCfg.ReticleRGBA[0]/2); m[nitems].min_value = 0; m[nitems].max_value = 16; nitems++;
+	m[nitems].type = NM_TYPE_SLIDER; m[nitems].text = "Green"; m[nitems].value = (PlayerCfg.ReticleRGBA[1]/2); m[nitems].min_value = 0; m[nitems].max_value = 16; nitems++;
+	m[nitems].type = NM_TYPE_SLIDER; m[nitems].text = "Blue"; m[nitems].value = (PlayerCfg.ReticleRGBA[2]/2); m[nitems].min_value = 0; m[nitems].max_value = 16; nitems++;
+	m[nitems].type = NM_TYPE_SLIDER; m[nitems].text = "Alpha"; m[nitems].value = (PlayerCfg.ReticleRGBA[3]/2); m[nitems].min_value = 0; m[nitems].max_value = 16; nitems++;
+	m[nitems].type = NM_TYPE_TEXT; m[nitems].text = ""; nitems++;
+	opt_ret_size = nitems;
+	m[nitems].type = NM_TYPE_SLIDER; m[nitems].text = "Reticle Size:"; m[nitems].value = PlayerCfg.ReticleSize; m[nitems].min_value = 0; m[nitems].max_value = 4; nitems++;
 
-	do {
-		m[0].type = NM_TYPE_TEXT;   m[0].text="Texture Filtering (restart required):";
-		m[1].type = NM_TYPE_RADIO;  m[1].text = "None (Classical)";       m[1].value = 0; m[1].group = 0;
-		m[2].type = NM_TYPE_RADIO;  m[2].text = "Bilinear";               m[2].value = 0; m[2].group = 0;
-		m[3].type = NM_TYPE_RADIO;  m[3].text = "Trilinear";              m[3].value = 0; m[3].group = 0;
-		m[4].type = NM_TYPE_TEXT;   m[4].text="";
-		m[5].type = NM_TYPE_CHECK;  m[5].text="Transparency Effects";     m[5].value = PlayerCfg.OglAlphaEffects;
-		m[6].type = NM_TYPE_CHECK;  m[6].text="Vectorial Reticle";        m[6].value = PlayerCfg.OglReticle;
-		m[7].type = NM_TYPE_CHECK;  m[7].text="VSync";                    m[7].value = GameCfg.VSync;
-		m[8].type = NM_TYPE_CHECK;  m[8].text="4x multisampling";         m[8].value = GameCfg.Multisample;
+	i = PlayerCfg.ReticleType;
+#ifndef OGL
+	if (i > 1) i--;
+#endif
+	m[opt_ret_type+i].value=1;
 
-		m[GameCfg.TexFilt+1].value=1;
+	newmenu_do1( NULL, "Reticle Options", nitems, m, NULL, NULL, 1 );
 
-		i = newmenu_do1( NULL, "Graphics Options", sizeof(m)/sizeof(*m), m, NULL, NULL, i );
+#ifdef OGL
+	for (i = 0; i < 9; i++)
+		if (m[i+opt_ret_type].value)
+			PlayerCfg.ReticleType = i;
+#else
+	for (i = 0; i < 8; i++)
+		if (m[i+opt_ret_type].value)
+			PlayerCfg.ReticleType = i;
+	if (PlayerCfg.ReticleType > 1) PlayerCfg.ReticleType++;
+#endif
+	for (i = 0; i < 4; i++)
+		PlayerCfg.ReticleRGBA[i] = (m[i+opt_ret_rgba].value*2);
+	PlayerCfg.ReticleSize = m[opt_ret_size].value;
+}
 
-		if (GameCfg.VSync != m[7].value || GameCfg.Multisample != m[8].value)
-			nm_messagebox( NULL, 1, TXT_OK, "To apply VSync or 4x Multisample\nyou need to restart the program");
+int opt_gr_texfilt, opt_gr_brightness, opt_gr_reticlemenu, opt_gr_alphafx, opt_gr_vsync, opt_gr_multisample;
+int graphics_config_menuset(newmenu *menu, d_event *event, void *userdata)
+{
+	newmenu_item *items = newmenu_get_items(menu);
+	int citem = newmenu_get_citem(menu);
 
-		for (j = 0; j <= 2; j++)
-			if (m[j+1].value)
-				GameCfg.TexFilt = j;
-		PlayerCfg.OglAlphaEffects = m[5].value;
-		PlayerCfg.OglReticle = m[6].value;
-		GameCfg.VSync = m[7].value;
-		GameCfg.Multisample = m[8].value;
-		gr_set_attributes();
-		gr_set_mode(Game_screen_mode);
-	} while( i>-1 );
+	userdata = userdata;
+
+	switch (event->type)
+	{
+		case EVENT_NEWMENU_CHANGED:
+			if ( citem == opt_gr_brightness)
+				gr_palette_set_gamma(items[citem].value);
+			break;
+
+		case EVENT_NEWMENU_SELECTED:
+			if (citem == opt_gr_reticlemenu)
+				reticle_config();
+			return 1;		// stay in menu
+			break;
+
+		default:
+			break;
+	}
+
+	return 0;
+}
+
+void graphics_config()
+{
+#ifdef OGL
+	newmenu_item m[11];
+#else
+	newmenu_item m[2];
+#endif
+	int nitems = 0, i = 0;
+
+#ifdef OGL
+	m[nitems].type = NM_TYPE_TEXT; m[nitems].text = "Texture Filtering (restart required):"; nitems++;
+	opt_gr_texfilt = nitems;
+	m[nitems].type = NM_TYPE_RADIO; m[nitems].text = "None (Classical)"; m[nitems].value = 0; m[nitems].group = 0; nitems++;
+	m[nitems].type = NM_TYPE_RADIO; m[nitems].text = "Bilinear"; m[nitems].value = 0; m[nitems].group = 0; nitems++;
+	m[nitems].type = NM_TYPE_RADIO; m[nitems].text = "Trilinear"; m[nitems].value = 0; m[nitems].group = 0; nitems++;
+	m[nitems].type = NM_TYPE_TEXT; m[nitems].text = ""; nitems++;
+#endif
+	opt_gr_brightness = nitems;
+	m[nitems].type = NM_TYPE_SLIDER; m[nitems].text = TXT_BRIGHTNESS; m[nitems].value = gr_palette_get_gamma(); m[nitems].min_value = 0; m[nitems].max_value = 16; nitems++;
+	opt_gr_reticlemenu = nitems;
+	m[nitems].type = NM_TYPE_MENU; m[nitems].text = "Reticle Options"; nitems++;
+#ifdef OGL
+	opt_gr_alphafx = nitems;
+	m[nitems].type = NM_TYPE_CHECK; m[nitems].text = "Transparency Effects"; m[nitems].value = PlayerCfg.OglAlphaEffects; nitems++;
+	opt_gr_vsync = nitems;
+	m[nitems].type = NM_TYPE_CHECK; m[nitems].text="VSync"; m[nitems].value = GameCfg.VSync; nitems++;
+	opt_gr_multisample = nitems;
+	m[nitems].type = NM_TYPE_CHECK; m[nitems].text="4x multisampling"; m[nitems].value = GameCfg.Multisample; nitems++;
+
+	m[opt_gr_texfilt+GameCfg.TexFilt].value=1;
+#endif
+
+	newmenu_do1( NULL, "Graphics Options", nitems, m, graphics_config_menuset, NULL, 1 );
+
+#ifdef OGL
+	if (GameCfg.VSync != m[opt_gr_vsync].value || GameCfg.Multisample != m[opt_gr_multisample].value)
+		nm_messagebox( NULL, 1, TXT_OK, "To apply VSync or 4x Multisample\nyou need to restart the program");
+
+	for (i = 0; i <= 2; i++)
+		if (m[i+opt_gr_texfilt].value)
+			GameCfg.TexFilt = i;
+	PlayerCfg.OglAlphaEffects = m[opt_gr_alphafx].value;
+	GameCfg.VSync = m[opt_gr_vsync].value;
+	GameCfg.Multisample = m[opt_gr_multisample].value;
+#endif
+	GameCfg.GammaLevel = m[opt_gr_brightness].value;
+#ifdef OGL
+	gr_set_attributes();
+	gr_set_mode(Game_screen_mode);
+#endif
 }
 
 #if PHYSFS_VER_MAJOR >= 2
@@ -1750,27 +1847,25 @@ void do_sound_menu()
 
 void do_misc_menu()
 {
-	newmenu_item m[7];
+	newmenu_item m[6];
 	int i = 0;
 
 	do {
 		ADD_CHECK(0, "Ship auto-leveling", PlayerCfg.AutoLeveling);
-		ADD_CHECK(1, "Show reticle", PlayerCfg.ReticleOn);
-		ADD_CHECK(2, "Persistent Debris",PlayerCfg.PersistentDebris);
-		ADD_CHECK(3, "Screenshots w/o HUD",PlayerCfg.PRShot);
-		ADD_CHECK(4, "Disable redundant pickup messages",PlayerCfg.NoRedundancy);
-		ADD_CHECK(5, "Only show Player msgs in Multipl.",PlayerCfg.MultiMessages);
-		ADD_CHECK(6, "Show D2-style Prox. Bomb Gauge",PlayerCfg.BombGauge);
+		ADD_CHECK(1, "Persistent Debris",PlayerCfg.PersistentDebris);
+		ADD_CHECK(2, "Screenshots w/o HUD",PlayerCfg.PRShot);
+		ADD_CHECK(3, "Disable redundant pickup messages",PlayerCfg.NoRedundancy);
+		ADD_CHECK(4, "Only show Player msgs in Multipl.",PlayerCfg.MultiMessages);
+		ADD_CHECK(5, "Show D2-style Prox. Bomb Gauge",PlayerCfg.BombGauge);
 
 		i = newmenu_do1( NULL, "Misc Options", sizeof(m)/sizeof(*m), m, NULL, NULL, i );
 
 		PlayerCfg.AutoLeveling		= m[0].value;
-		PlayerCfg.ReticleOn		= m[1].value;
-		PlayerCfg.PersistentDebris	= m[2].value;
-		PlayerCfg.PRShot 		= m[3].value;
-		PlayerCfg.NoRedundancy 		= m[4].value;
-		PlayerCfg.MultiMessages 	= m[5].value;
-		PlayerCfg.BombGauge 		= m[6].value;
+		PlayerCfg.PersistentDebris	= m[1].value;
+		PlayerCfg.PRShot 		= m[2].value;
+		PlayerCfg.NoRedundancy 		= m[3].value;
+		PlayerCfg.MultiMessages 	= m[4].value;
+		PlayerCfg.BombGauge 		= m[5].value;
 
 	} while( i>-1 );
 
@@ -1845,7 +1940,7 @@ void do_options_menu()
 {
 	newmenu_item *m;
 
-	MALLOC(m, newmenu_item, 11);
+	MALLOC(m, newmenu_item, 10);
 	if (!m)
 		return;
 
@@ -1853,26 +1948,14 @@ void do_options_menu()
 	m[ 1].type = NM_TYPE_TEXT;   m[ 1].text="";
 	m[ 2].type = NM_TYPE_MENU;   m[ 2].text=TXT_CONTROLS_;
 	m[ 3].type = NM_TYPE_TEXT;   m[ 3].text="";
-
-	m[ 4].type = NM_TYPE_SLIDER;
-	m[ 4].text = TXT_BRIGHTNESS;
-	m[ 4].value = gr_palette_get_gamma();
-	m[ 4].min_value = 0;
-	m[ 4].max_value = 16;
-
-	m[ 5].type = NM_TYPE_MENU;   m[ 5].text="Screen resolution...";
-#ifdef OGL
-	m[ 6].type = NM_TYPE_MENU;   m[ 6].text="Graphics Options...";
-#else
+	m[ 4].type = NM_TYPE_MENU;   m[ 4].text="Screen resolution...";
+	m[ 5].type = NM_TYPE_MENU;   m[ 5].text="Graphics Options...";
 	m[ 6].type = NM_TYPE_TEXT;   m[ 6].text="";
-#endif
-
-	m[ 7].type = NM_TYPE_TEXT;   m[ 7].text="";
-	m[ 8].type = NM_TYPE_MENU;   m[ 8].text="Primary autoselect ordering...";
-	m[ 9].type = NM_TYPE_MENU;   m[ 9].text="Secondary autoselect ordering...";
-	m[10].type = NM_TYPE_MENU;   m[10].text="Misc Options...";
+	m[ 7].type = NM_TYPE_MENU;   m[ 7].text="Primary autoselect ordering...";
+	m[ 8].type = NM_TYPE_MENU;   m[ 8].text="Secondary autoselect ordering...";
+	m[ 9].type = NM_TYPE_MENU;   m[ 9].text="Misc Options...";
 
 	// Fall back to main event loop
 	// Allows clean closing and re-opening when resolution changes
-	newmenu_do3( NULL, TXT_OPTIONS, 11, m, options_menuset, NULL, 0, NULL );
+	newmenu_do3( NULL, TXT_OPTIONS, 10, m, options_menuset, NULL, 0, NULL );
 }

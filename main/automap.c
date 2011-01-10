@@ -70,6 +70,7 @@ COPYRIGHT 1993-1999 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 #include "config.h"
 #include "rbaudio.h"
 #include "window.h"
+#include "playsave.h"
 
 #define EF_USED     1   // This edge is used
 #define EF_DEFINING 2   // A structure defining edge that should always draw.
@@ -347,7 +348,8 @@ void draw_automap(automap *am)
 
 	name_frame(am);
 
-	show_mousefs_reticle(GWIDTH-(GHEIGHT/8), GHEIGHT-(GHEIGHT/8), GHEIGHT/5);
+	if (PlayerCfg.MouseFlightSim && PlayerCfg.MouseFSIndicator)
+		show_mousefs_indicator(GWIDTH-(GHEIGHT/8), GHEIGHT-(GHEIGHT/8), GHEIGHT/5);
 }
 
 #define LEAVE_TIME 0x4000

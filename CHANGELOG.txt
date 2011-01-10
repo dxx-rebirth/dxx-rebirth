@@ -1,5 +1,9 @@
 D1X-Rebirth Changelog
 
+20110110
+--------
+2d/disc.c, arch/ogl/gr.c, arch/ogl/ogl.c, include/gr.h, include/ogl_init.h, main/automap.c, main/gauges.c, main/gauges.h, main/menu.c, main/playsave.c, main/playsave.h: Added different reticle types with RGBA and size settings; Apply RGBA and size to FlightSim Indicator; Added Brightness Slider to Graphics options menu; Added OpenGL usage for gr_disk
+
 20110109
 --------
 main/net_udp.h: Set max UDP packet size to 1024 again (seems some configuration DO have problems with larger packets after all)

@@ -1956,15 +1956,16 @@ xy primary_offsets[4] = 	{ {-30,14}, {-16,6},	{-15,6}, {-8, 2} };
 xy secondary_offsets[4] =	{ {-24,2},	{-12,0}, {-12,1}, {-6,-2} };
 
 //draw the reticle
-void show_reticle()
+void show_reticle(int reticle_type)
 {
-	int x,y;
+	int x,y,size;
 	int laser_ready,missile_ready,laser_ammo,missile_ammo;
 	int cross_bm_num,primary_bm_num,secondary_bm_num;
 	int use_hires_reticle,ofs;
 
 	x = grd_curcanv->cv_bitmap.bm_w/2;
 	y = grd_curcanv->cv_bitmap.bm_h/2;
+	size = (grd_curcanv->cv_bitmap.bm_h / (32-(PlayerCfg.ReticleSize*4)));
 
 	laser_ready = allowed_to_fire_laser();
 	missile_ready = allowed_to_fire_missile();
@@ -1988,111 +1989,86 @@ void show_reticle()
 	Assert(primary_bm_num <= 2);
 	Assert(secondary_bm_num <= 4);
 	Assert(cross_bm_num <= 1);
+
+	gr_setcolor(BM_XRGB(PlayerCfg.ReticleRGBA[0],PlayerCfg.ReticleRGBA[1],PlayerCfg.ReticleRGBA[2]));
+	Gr_scanline_darkening_level = PlayerCfg.ReticleRGBA[3];
+
+	switch (reticle_type)
+	{
+		case RET_TYPE_CLASSIC:
+		{
+			grs_bitmap *cross, *primary, *secondary;
+
+			use_hires_reticle = (HIRESMODE != 0);
+			ofs = (use_hires_reticle?0:2);
+
+			PIGGY_PAGE_IN(Gauges[RETICLE_CROSS + cross_bm_num]);
+			cross = &GameBitmaps[Gauges[RETICLE_CROSS + cross_bm_num].index];
+			hud_bitblt_free(x+HUD_SCALE_X_AR(cross_offsets[ofs].x),y+HUD_SCALE_Y_AR(cross_offsets[ofs].y), HUD_SCALE_X_AR(cross->bm_w), HUD_SCALE_Y_AR(cross->bm_h), cross);
+
+			PIGGY_PAGE_IN(Gauges[RETICLE_PRIMARY + primary_bm_num]);
+			primary = &GameBitmaps[Gauges[RETICLE_PRIMARY + primary_bm_num].index];
+			hud_bitblt_free(x+HUD_SCALE_X_AR(primary_offsets[ofs].x),y+HUD_SCALE_Y_AR(primary_offsets[ofs].y), HUD_SCALE_X_AR(primary->bm_w), HUD_SCALE_Y_AR(primary->bm_h), primary);
+
+			PIGGY_PAGE_IN(Gauges[RETICLE_SECONDARY + secondary_bm_num]);
+			secondary = &GameBitmaps[Gauges[RETICLE_SECONDARY + secondary_bm_num].index];
+			hud_bitblt_free(x+HUD_SCALE_X_AR(secondary_offsets[ofs].x),y+HUD_SCALE_Y_AR(secondary_offsets[ofs].y), HUD_SCALE_X_AR(secondary->bm_w), HUD_SCALE_Y_AR(secondary->bm_h), secondary);
+			break;
+		}
+		case RET_TYPE_CLASSIC_REBOOT:
+		{
 #ifdef OGL
-	if (PlayerCfg.OglReticle)
-	{
-		ogl_draw_reticle(cross_bm_num,primary_bm_num,secondary_bm_num);
-	}
-	else
+			ogl_draw_vertex_reticle(cross_bm_num,primary_bm_num,secondary_bm_num,BM_XRGB(PlayerCfg.ReticleRGBA[0],PlayerCfg.ReticleRGBA[1],PlayerCfg.ReticleRGBA[2]),PlayerCfg.ReticleRGBA[3],PlayerCfg.ReticleSize);
 #endif
+			break;
 
-	if (grd_curcanv->cv_bitmap.bm_w > 200) {
-		grs_bitmap *cross, *primary, *secondary;
-
-		use_hires_reticle = (HIRESMODE != 0);
-		ofs = (use_hires_reticle?0:2);
-
-		PIGGY_PAGE_IN(Gauges[RETICLE_CROSS + cross_bm_num]);
-		cross = &GameBitmaps[Gauges[RETICLE_CROSS + cross_bm_num].index];
-		hud_bitblt_free(x+HUD_SCALE_X_AR(cross_offsets[ofs].x),y+HUD_SCALE_Y_AR(cross_offsets[ofs].y), HUD_SCALE_X_AR(cross->bm_w), HUD_SCALE_Y_AR(cross->bm_h), cross);
-
-		PIGGY_PAGE_IN(Gauges[RETICLE_PRIMARY + primary_bm_num]);
-		primary = &GameBitmaps[Gauges[RETICLE_PRIMARY + primary_bm_num].index];
-		hud_bitblt_free(x+HUD_SCALE_X_AR(primary_offsets[ofs].x),y+HUD_SCALE_Y_AR(primary_offsets[ofs].y), HUD_SCALE_X_AR(primary->bm_w), HUD_SCALE_Y_AR(primary->bm_h), primary);
-
-		PIGGY_PAGE_IN(Gauges[RETICLE_SECONDARY + secondary_bm_num]);
-		secondary = &GameBitmaps[Gauges[RETICLE_SECONDARY + secondary_bm_num].index];
-		hud_bitblt_free(x+HUD_SCALE_X_AR(secondary_offsets[ofs].x),y+HUD_SCALE_Y_AR(secondary_offsets[ofs].y), HUD_SCALE_X_AR(secondary->bm_w), HUD_SCALE_Y_AR(secondary->bm_h), secondary);
-	}
-
-#ifndef SHAREWARE
-#ifdef NETWORK
-	if ((Newdemo_state == ND_STATE_PLAYBACK) || (((Game_mode & GM_MULTI_COOP) || (Game_mode & GM_TEAM)) && Show_reticle_name))
-	{
-		// Draw player callsign for player in sights
-		fvi_query fq;
-		vms_vector orient;
-		int Hit_type;
-		fvi_info Hit_data;
-
-		fq.p0 		= &ConsoleObject->pos;
-		orient 		= ConsoleObject->orient.fvec;
-		vm_vec_scale(&orient, F1_0*1024);
-		vm_vec_add2(&orient, fq.p0);
-		fq.p1 		= &orient;
-		fq.rad 		= 0;
-		fq.thisobjnum = ConsoleObject - Objects;
-		fq.flags 	= FQ_TRANSWALL | FQ_CHECK_OBJS;
-		fq.startseg	= ConsoleObject->segnum;
-		fq.ignore_obj_list = NULL;
-
-		Hit_type = find_vector_intersection(&fq, &Hit_data);
-		if ((Hit_type == HIT_OBJECT) && (Objects[Hit_data.hit_object].type == OBJ_PLAYER))
-		{
-			// Draw callsign on HUD
-			char s[CALLSIGN_LEN+1];
-			int w, h, aw;
-			int x1, y1;
-			int pnum;
-			int color_num;
-
-			pnum = Objects[Hit_data.hit_object].id;
-
-			if ((Game_mode & GM_TEAM) && (get_team(pnum) != get_team(Player_num)) && (Newdemo_state != ND_STATE_PLAYBACK))
-				return;
-
-			if (Game_mode & GM_TEAM)
-				color_num = get_team(pnum);
-			else
-				color_num = pnum;
-			sprintf(s, "%s", Players[pnum].callsign);
-			gr_get_string_size(s, &w, &h, &aw);
-			gr_set_fontcolor(BM_XRGB(player_rgb[color_num].r,player_rgb[color_num].g,player_rgb[color_num].b),-1 );
-			x1 = x-(w/2);
-			y1 = y+HUD_SCALE_Y(12);
-			gr_string (x1, y1, s);
 		}
-#ifndef NDEBUG
-		else if ((Hit_type == HIT_OBJECT) && (Objects[Hit_data.hit_object].type == OBJ_ROBOT))
-		{
-			char s[CALLSIGN_LEN+1];
-			int w, h, aw;
-			int x1, y1;
-			int color_num = 0;
-
-			sprintf(s, "%d", Hit_data.hit_object);
-			gr_get_string_size(s, &w, &h, &aw);
-			gr_set_fontcolor(BM_XRGB(player_rgb[color_num].r,player_rgb[color_num].g,player_rgb[color_num].b),-1 );
-			x1 = x-(w/2);
-			y1 = y+(HUD_SCALE_Y(12));
-			gr_string (x1, y1, s);
-		}
-#endif
+		case RET_TYPE_X:
+			gr_uline(i2f(x-(size/2)), i2f(y-(size/2)), i2f(x-(size/5)), i2f(y-(size/5)));
+			gr_uline(i2f(x+(size/2)), i2f(y-(size/2)), i2f(x+(size/5)), i2f(y-(size/5)));
+			gr_uline(i2f(x-(size/2)), i2f(y+(size/2)), i2f(x-(size/5)), i2f(y+(size/5)));
+			gr_uline(i2f(x+(size/2)), i2f(y+(size/2)), i2f(x+(size/5)), i2f(y+(size/5)));
+			break;
+		case RET_TYPE_DOT:
+			gr_disk(i2f(x),i2f(y),i2f(size/4));
+			break;
+		case RET_TYPE_CIRCLE:
+			gr_ucircle(i2f(x),i2f(y),i2f(size/4));
+			break;
+		case RET_TYPE_CROSS_V1:
+			gr_uline(i2f(x),i2f(y-(size/2)),i2f(x),i2f(y+(size/2)+1));
+			gr_uline(i2f(x-(size/2)),i2f(y),i2f(x+(size/2)+1),i2f(y));
+			break;
+		case RET_TYPE_CROSS_V2:
+			gr_uline(i2f(x), i2f(y-(size/2)), i2f(x), i2f(y-(size/6)));
+			gr_uline(i2f(x), i2f(y+(size/2)), i2f(x), i2f(y+(size/6)));
+			gr_uline(i2f(x-(size/2)), i2f(y), i2f(x-(size/6)), i2f(y));
+			gr_uline(i2f(x+(size/2)), i2f(y), i2f(x+(size/6)), i2f(y));
+			break;
+		case RET_TYPE_ANGLE:
+			gr_uline(i2f(x),i2f(y),i2f(x),i2f(y+(size/2)));
+			gr_uline(i2f(x),i2f(y),i2f(x+(size/2)),i2f(y));
+			break;
+		case RET_TYPE_NONE:
+			break;
+		default:
+			break;
 	}
-#endif
-#endif
+	Gr_scanline_darkening_level = GR_FADE_LEVELS;
 }
 
-void show_mousefs_reticle(int x, int y, int size)
+void show_mousefs_indicator(int x, int y, int size)
 {
 	int axscale = (MOUSEFS_DELTA_RANGE*2)/size, xaxpos = x+(Controls.raw_mouse_axis[0]/axscale), yaxpos = y+(Controls.raw_mouse_axis[1]/axscale), zaxpos = y+(Controls.raw_mouse_axis[2]/axscale);
 
-	gr_setcolor(BM_XRGB(0,31,0));
-	gr_uline(i2f(xaxpos), i2f(y-(size/2)), i2f(xaxpos), i2f(y-(size/2)+(size/4)));
-	gr_uline(i2f(xaxpos), i2f(y+(size/2)), i2f(xaxpos), i2f(y+(size/2)-(size/4)));
-	gr_uline(i2f(x-(size/2)), i2f(yaxpos), i2f(x-(size/2)+(size/4)), i2f(yaxpos));
-	gr_uline(i2f(x+(size/2)), i2f(yaxpos), i2f(x+(size/2)-(size/4)), i2f(yaxpos));
+	gr_setcolor(BM_XRGB(PlayerCfg.ReticleRGBA[0],PlayerCfg.ReticleRGBA[1],PlayerCfg.ReticleRGBA[2]));
+	Gr_scanline_darkening_level = PlayerCfg.ReticleRGBA[3];
+	gr_uline(i2f(xaxpos), i2f(y-(size/2)), i2f(xaxpos), i2f(y-(size/4)));
+	gr_uline(i2f(xaxpos), i2f(y+(size/2)), i2f(xaxpos), i2f(y+(size/4)));
+	gr_uline(i2f(x-(size/2)), i2f(yaxpos), i2f(x-(size/4)), i2f(yaxpos));
+	gr_uline(i2f(x+(size/2)), i2f(yaxpos), i2f(x+(size/4)), i2f(yaxpos));
 	gr_uline(i2f(x+(size/2)+HUD_SCALE_X_AR(2)), i2f(y), i2f(x+(size/2)+HUD_SCALE_X_AR(2)), i2f(zaxpos));
+	Gr_scanline_darkening_level = GR_FADE_LEVELS;
 }
 
 #ifdef NETWORK
@@ -2209,6 +2185,76 @@ void hud_show_kill_list()
 }
 #endif
 
+void show_HUD_names()
+{
+#ifdef NETWORK
+	int x = grd_curcanv->cv_bitmap.bm_w/2, y = grd_curcanv->cv_bitmap.bm_h/2;
+
+	if ((Newdemo_state == ND_STATE_PLAYBACK) || (((Game_mode & GM_MULTI_COOP) || (Game_mode & GM_TEAM)) && Show_reticle_name))
+	{
+		// Draw player callsign for player in sights
+		fvi_query fq;
+		vms_vector orient;
+		int Hit_type;
+		fvi_info Hit_data;
+
+		fq.p0 		= &ConsoleObject->pos;
+		orient 		= ConsoleObject->orient.fvec;
+		vm_vec_scale(&orient, F1_0*1024);
+		vm_vec_add2(&orient, fq.p0);
+		fq.p1 		= &orient;
+		fq.rad 		= 0;
+		fq.thisobjnum = ConsoleObject - Objects;
+		fq.flags 	= FQ_TRANSWALL | FQ_CHECK_OBJS;
+		fq.startseg	= ConsoleObject->segnum;
+		fq.ignore_obj_list = NULL;
+
+		Hit_type = find_vector_intersection(&fq, &Hit_data);
+		if ((Hit_type == HIT_OBJECT) && (Objects[Hit_data.hit_object].type == OBJ_PLAYER))
+		{
+			// Draw callsign on HUD
+			char s[CALLSIGN_LEN+1];
+			int w, h, aw;
+			int x1, y1;
+			int pnum;
+			int color_num;
+
+			pnum = Objects[Hit_data.hit_object].id;
+
+			if ((Game_mode & GM_TEAM) && (get_team(pnum) != get_team(Player_num)) && (Newdemo_state != ND_STATE_PLAYBACK))
+				return;
+
+			if (Game_mode & GM_TEAM)
+				color_num = get_team(pnum);
+			else
+				color_num = pnum;
+			sprintf(s, "%s", Players[pnum].callsign);
+			gr_get_string_size(s, &w, &h, &aw);
+			gr_set_fontcolor(BM_XRGB(player_rgb[color_num].r,player_rgb[color_num].g,player_rgb[color_num].b),-1 );
+			x1 = x-(w/2);
+			y1 = y+HUD_SCALE_Y(12);
+			gr_string (x1, y1, s);
+		}
+#ifndef NDEBUG
+		else if ((Hit_type == HIT_OBJECT) && (Objects[Hit_data.hit_object].type == OBJ_ROBOT))
+		{
+			char s[CALLSIGN_LEN+1];
+			int w, h, aw;
+			int x1, y1;
+			int color_num = 0;
+
+			sprintf(s, "%d", Hit_data.hit_object);
+			gr_get_string_size(s, &w, &h, &aw);
+			gr_set_fontcolor(BM_XRGB(player_rgb[color_num].r,player_rgb[color_num].g,player_rgb[color_num].b),-1 );
+			x1 = x-(w/2);
+			y1 = y+(HUD_SCALE_Y(12));
+			gr_string (x1, y1, s);
+		}
+#endif
+	}
+#endif
+}
+
 //draw all the things on the HUD
 
 void draw_hud()
@@ -2242,10 +2288,12 @@ void draw_hud()
 			show_time();
 #endif
 #endif
-		if (PlayerCfg.CockpitMode[1] != CM_LETTERBOX && PlayerCfg.ReticleOn)
-			show_reticle();
-		if (PlayerCfg.CockpitMode[1] != CM_LETTERBOX && Newdemo_state != ND_STATE_PLAYBACK && PlayerCfg.MouseFlightSim && PlayerCfg.MouseFSReticle)
-			show_mousefs_reticle(GWIDTH/2, GHEIGHT/2, GHEIGHT/4);
+		if (PlayerCfg.CockpitMode[1] != CM_LETTERBOX)
+			show_reticle(PlayerCfg.ReticleType);
+		if (PlayerCfg.CockpitMode[1] != CM_LETTERBOX && Newdemo_state != ND_STATE_PLAYBACK && PlayerCfg.MouseFlightSim && PlayerCfg.MouseFSIndicator)
+			show_mousefs_indicator(GWIDTH/2, GHEIGHT/2, GHEIGHT/4);
+
+		show_HUD_names();
 
 		HUD_render_message_frame();
 
