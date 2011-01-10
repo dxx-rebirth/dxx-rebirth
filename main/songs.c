@@ -325,7 +325,7 @@ int songs_play_song( int songnum, int repeat )
 			//Song_playing = 0;		// keep playing current music if chosen song is unavailable (e.g. SONG_ENDLEVEL)
 			if ((songnum == SONG_TITLE) && (REDBOOK_TITLE_TRACK <= num_tracks))
 			{
-				if (RBAPlayTracks(REDBOOK_TITLE_TRACK, 0, repeat ? play_credits_track : NULL))
+				if (RBAPlayTracks(REDBOOK_TITLE_TRACK, REDBOOK_TITLE_TRACK, repeat ? play_credits_track : NULL))
 				{
 					Redbook_playing = REDBOOK_TITLE_TRACK;
 					Song_playing = songnum;
@@ -333,7 +333,7 @@ int songs_play_song( int songnum, int repeat )
 			}
 			else if ((songnum == SONG_CREDITS) && (REDBOOK_CREDITS_TRACK <= num_tracks))
 			{
-				if (RBAPlayTracks(REDBOOK_CREDITS_TRACK, 0, repeat ? play_credits_track : NULL))
+				if (RBAPlayTracks(REDBOOK_CREDITS_TRACK, REDBOOK_CREDITS_TRACK, repeat ? play_credits_track : NULL))
 				{
 					Redbook_playing = REDBOOK_CREDITS_TRACK;
 					Song_playing = songnum;
