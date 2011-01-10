@@ -46,7 +46,8 @@ void render_gauges(void);
 void init_gauges(void);
 void close_gauges(void);
 void cockpit_decode_alpha(grs_bitmap *bm);
-void show_mousefs_reticle(int x, int y, int size);
+void show_reticle(int reticle_type);
+void show_mousefs_indicator(int x, int y, int size);
 extern void check_erase_message(void);
 
 extern void draw_hud();     // draw all the HUD stuff
@@ -96,5 +97,21 @@ extern span weapon_window_left[],weapon_window_left_hires[],weapon_window_right[
 
 #define WinBoxLeft (HIRESMODE?weapon_window_left_hires:weapon_window_left)
 #define WinBoxRight (HIRESMODE?weapon_window_right_hires:weapon_window_right)
+
+// defines for the reticle(s)
+#define RET_TYPE_CLASSIC        0
+#define RET_TYPE_CLASSIC_REBOOT 1
+#define RET_TYPE_NONE           2
+#define RET_TYPE_X              3
+#define RET_TYPE_DOT            4
+#define RET_TYPE_CIRCLE         5
+#define RET_TYPE_CROSS_V1       6
+#define RET_TYPE_CROSS_V2       7
+#define RET_TYPE_ANGLE          8
+
+#define RET_COLOR_DEFAULT_R     0
+#define RET_COLOR_DEFAULT_G     32
+#define RET_COLOR_DEFAULT_B     0
+#define RET_COLOR_DEFAULT_A     0
 
 #endif /* _GAUGES_H */

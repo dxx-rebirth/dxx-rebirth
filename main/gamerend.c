@@ -680,7 +680,6 @@ void show_extra_views()
 
 int BigWindowSwitch=0;
 extern int force_cockpit_redraw;
-void draw_guided_crosshair(void);
 void update_cockpits();
 
 //render a frame for the game
@@ -714,7 +713,7 @@ void game_render_frame_mono(int flip)
 
 		gr_printf(0x8000, FSPACY(1), "Guided Missile View");
 
-		draw_guided_crosshair();
+		show_reticle(RET_TYPE_CROSS_V1);
 
 		HUD_render_message_frame();
 
@@ -861,28 +860,6 @@ void game_render_frame()
 		game_render_frame_mono(GameArg.DbgUseDoubleBuffer);
 
 	FrameCount++;
-}
-
-extern int Color_0_31_0;
-
-//draw a crosshair for the guided missile
-void draw_guided_crosshair(void)
-{
-	int x,y,w,h;
-
-	gr_setcolor(Color_0_31_0);
-
-	w = grd_curcanv->cv_bitmap.bm_w>>5;
-	if (w < 5)
-		w = 5;
-
-	h = i2f(w) / grd_curscreen->sc_aspect;
-
-	x = grd_curcanv->cv_bitmap.bm_w / 2;
-	y = grd_curcanv->cv_bitmap.bm_h / 2;
-
-	gr_uline(i2f(x-1),i2f(y-h/2),i2f(x-1),i2f(y+h/2));
-	gr_uline(i2f(x-w/2),i2f(y),i2f(x+w/2),i2f(y));
 }
 
 //show a message in a nice little box

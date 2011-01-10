@@ -329,7 +329,6 @@ static inline void _page_in_gauge(int x)
 #endif
 
 void draw_ammo_info(int x,int y,int ammo_count,int primary);
-extern void draw_guided_crosshair(void);
 
 static int score_display;
 static fix score_time;
@@ -2285,9 +2284,9 @@ xy primary_offsets[4] = 	{ {-30,14}, {-16,6},	{-15,6}, {-8, 2} };
 xy secondary_offsets[4] =	{ {-24,2},	{-12,0}, {-12,1}, {-6,-2} };
 
 //draw the reticle
-void show_reticle()
+void show_reticle(int reticle_type)
 {
-	int x,y;
+	int x,y,size;
 	int laser_ready,missile_ready,laser_ammo,missile_ammo;
 	int cross_bm_num,primary_bm_num,secondary_bm_num;
 	int use_hires_reticle,ofs,gauge_index;
@@ -2297,6 +2296,7 @@ void show_reticle()
 
 	x = grd_curcanv->cv_bitmap.bm_w/2;
 	y = grd_curcanv->cv_bitmap.bm_h/2;
+	size = (grd_curcanv->cv_bitmap.bm_h / 32)*(1+(PlayerCfg.ReticleSize/10));
 
 	laser_ready = allowed_to_fire_laser();
 	missile_ready = allowed_to_fire_missile();
@@ -2320,45 +2320,88 @@ void show_reticle()
 	Assert(primary_bm_num <= 2);
 	Assert(secondary_bm_num <= 4);
 	Assert(cross_bm_num <= 1);
-#ifdef OGL // scale reticle in OGL ...
-	if (PlayerCfg.OglReticle)
+
+	gr_setcolor(BM_XRGB(PlayerCfg.ReticleRGBA[0],PlayerCfg.ReticleRGBA[1],PlayerCfg.ReticleRGBA[2]));
+	Gr_scanline_darkening_level = PlayerCfg.ReticleRGBA[3];
+
+	switch (reticle_type)
 	{
-		ogl_draw_reticle(cross_bm_num,primary_bm_num,secondary_bm_num);
-	}
-	else
+		case RET_TYPE_CLASSIC:
+		{
+			grs_bitmap *cross, *primary, *secondary;
+
+			use_hires_reticle = (HIRESMODE != 0);
+			ofs = (use_hires_reticle?0:2);
+			gauge_index = RETICLE_CROSS + cross_bm_num;
+			PAGE_IN_GAUGE( gauge_index );
+			cross = &GameBitmaps[GET_GAUGE_INDEX(gauge_index)];
+			hud_bitblt_free(x+HUD_SCALE_X_AR(cross_offsets[ofs].x),y+HUD_SCALE_Y_AR(cross_offsets[ofs].y), HUD_SCALE_X_AR(cross->bm_w), HUD_SCALE_Y_AR(cross->bm_h), cross);
+
+			gauge_index = RETICLE_PRIMARY + primary_bm_num;
+			PAGE_IN_GAUGE( gauge_index );
+			primary = &GameBitmaps[GET_GAUGE_INDEX(gauge_index)];
+			hud_bitblt_free(x+HUD_SCALE_X_AR(primary_offsets[ofs].x),y+HUD_SCALE_Y_AR(primary_offsets[ofs].y), HUD_SCALE_X_AR(primary->bm_w), HUD_SCALE_Y_AR(primary->bm_h), primary);
+
+			gauge_index = RETICLE_SECONDARY + secondary_bm_num;
+			PAGE_IN_GAUGE( gauge_index );
+			secondary = &GameBitmaps[GET_GAUGE_INDEX(gauge_index)];
+			hud_bitblt_free(x+HUD_SCALE_X_AR(secondary_offsets[ofs].x),y+HUD_SCALE_Y_AR(secondary_offsets[ofs].y), HUD_SCALE_X_AR(secondary->bm_w), HUD_SCALE_Y_AR(secondary->bm_h), secondary);
+			break;
+		}
+		case RET_TYPE_CLASSIC_REBOOT:
+		{
+#ifdef OGL
+			ogl_draw_vertex_reticle(cross_bm_num,primary_bm_num,secondary_bm_num,BM_XRGB(PlayerCfg.ReticleRGBA[0],PlayerCfg.ReticleRGBA[1],PlayerCfg.ReticleRGBA[2]),PlayerCfg.ReticleRGBA[3],PlayerCfg.ReticleSize);
 #endif
-	{
-		grs_bitmap *cross, *primary, *secondary;
+			break;
 
-		use_hires_reticle = (HIRESMODE != 0);
-		ofs = (use_hires_reticle?0:2);
-		gauge_index = RETICLE_CROSS + cross_bm_num;
-		PAGE_IN_GAUGE( gauge_index );
-		cross = &GameBitmaps[GET_GAUGE_INDEX(gauge_index)];
-		hud_bitblt_free(x+HUD_SCALE_X_AR(cross_offsets[ofs].x),y+HUD_SCALE_Y_AR(cross_offsets[ofs].y), HUD_SCALE_X_AR(cross->bm_w), HUD_SCALE_Y_AR(cross->bm_h), cross);
-
-		gauge_index = RETICLE_PRIMARY + primary_bm_num;
-		PAGE_IN_GAUGE( gauge_index );
-		primary = &GameBitmaps[GET_GAUGE_INDEX(gauge_index)];
-		hud_bitblt_free(x+HUD_SCALE_X_AR(primary_offsets[ofs].x),y+HUD_SCALE_Y_AR(primary_offsets[ofs].y), HUD_SCALE_X_AR(primary->bm_w), HUD_SCALE_Y_AR(primary->bm_h), primary);
-
-		gauge_index = RETICLE_SECONDARY + secondary_bm_num;
-		PAGE_IN_GAUGE( gauge_index );
-		secondary = &GameBitmaps[GET_GAUGE_INDEX(gauge_index)];
-		hud_bitblt_free(x+HUD_SCALE_X_AR(secondary_offsets[ofs].x),y+HUD_SCALE_Y_AR(secondary_offsets[ofs].y), HUD_SCALE_X_AR(secondary->bm_w), HUD_SCALE_Y_AR(secondary->bm_h), secondary);
+		}
+		case RET_TYPE_X:
+			gr_uline(i2f(x-(size/2)), i2f(y-(size/2)), i2f(x-(size/5)), i2f(y-(size/5)));
+			gr_uline(i2f(x+(size/2)), i2f(y-(size/2)), i2f(x+(size/5)), i2f(y-(size/5)));
+			gr_uline(i2f(x-(size/2)), i2f(y+(size/2)), i2f(x-(size/5)), i2f(y+(size/5)));
+			gr_uline(i2f(x+(size/2)), i2f(y+(size/2)), i2f(x+(size/5)), i2f(y+(size/5)));
+			break;
+		case RET_TYPE_DOT:
+			gr_disk(i2f(x),i2f(y),i2f(size/4));
+			break;
+		case RET_TYPE_CIRCLE:
+			gr_ucircle(i2f(x),i2f(y),i2f(size/4));
+			break;
+		case RET_TYPE_CROSS_V1:
+			gr_uline(i2f(x),i2f(y-(size/2)),i2f(x),i2f(y+(size/2)+1));
+			gr_uline(i2f(x-(size/2)),i2f(y),i2f(x+(size/2)+1),i2f(y));
+			break;
+		case RET_TYPE_CROSS_V2:
+			gr_uline(i2f(x), i2f(y-(size/2)), i2f(x), i2f(y-(size/6)));
+			gr_uline(i2f(x), i2f(y+(size/2)), i2f(x), i2f(y+(size/6)));
+			gr_uline(i2f(x-(size/2)), i2f(y), i2f(x-(size/6)), i2f(y));
+			gr_uline(i2f(x+(size/2)), i2f(y), i2f(x+(size/6)), i2f(y));
+			break;
+		case RET_TYPE_ANGLE:
+			gr_uline(i2f(x),i2f(y),i2f(x),i2f(y+(size/2)));
+			gr_uline(i2f(x),i2f(y),i2f(x+(size/2)),i2f(y));
+			break;
+		case RET_TYPE_NONE:
+			break;
+		default:
+			break;
 	}
+	Gr_scanline_darkening_level = GR_FADE_LEVELS;
 }
 
-void show_mousefs_reticle(int x, int y, int size)
+void show_mousefs_indicator(int x, int y, int size)
 {
 	int axscale = (MOUSEFS_DELTA_RANGE*2)/size, xaxpos = x+(Controls.raw_mouse_axis[0]/axscale), yaxpos = y+(Controls.raw_mouse_axis[1]/axscale), zaxpos = y+(Controls.raw_mouse_axis[2]/axscale);
 
-	gr_setcolor(BM_XRGB(0,31,0));
-	gr_uline(i2f(xaxpos), i2f(y-(size/2)), i2f(xaxpos), i2f(y-(size/2)+(size/4)));
-	gr_uline(i2f(xaxpos), i2f(y+(size/2)), i2f(xaxpos), i2f(y+(size/2)-(size/4)));
-	gr_uline(i2f(x-(size/2)), i2f(yaxpos), i2f(x-(size/2)+(size/4)), i2f(yaxpos));
-	gr_uline(i2f(x+(size/2)), i2f(yaxpos), i2f(x+(size/2)-(size/4)), i2f(yaxpos));
+	gr_setcolor(BM_XRGB(PlayerCfg.ReticleRGBA[0],PlayerCfg.ReticleRGBA[1],PlayerCfg.ReticleRGBA[2]));
+	Gr_scanline_darkening_level = PlayerCfg.ReticleRGBA[3];
+	gr_uline(i2f(xaxpos), i2f(y-(size/2)), i2f(xaxpos), i2f(y-(size/4)));
+	gr_uline(i2f(xaxpos), i2f(y+(size/2)), i2f(xaxpos), i2f(y+(size/4)));
+	gr_uline(i2f(x-(size/2)), i2f(yaxpos), i2f(x-(size/4)), i2f(yaxpos));
+	gr_uline(i2f(x+(size/2)), i2f(yaxpos), i2f(x+(size/4)), i2f(yaxpos));
 	gr_uline(i2f(x+(size/2)+HUD_SCALE_X_AR(2)), i2f(y), i2f(x+(size/2)+HUD_SCALE_X_AR(2)), i2f(zaxpos));
+	Gr_scanline_darkening_level = GR_FADE_LEVELS;
 }
 
 #ifdef NETWORK
@@ -2648,10 +2691,10 @@ void draw_hud()
 			show_time();
 		#endif
 		#endif
-		if (PlayerCfg.ReticleOn && PlayerCfg.CockpitMode[1] != CM_LETTERBOX)
-			show_reticle();
-		if (PlayerCfg.CockpitMode[1] != CM_LETTERBOX && Newdemo_state != ND_STATE_PLAYBACK && PlayerCfg.MouseFlightSim && PlayerCfg.MouseFSReticle)
-			show_mousefs_reticle(GWIDTH/2, GHEIGHT/2, GHEIGHT/4);
+		if (PlayerCfg.CockpitMode[1] != CM_LETTERBOX)
+			show_reticle(PlayerCfg.ReticleType);
+		if (PlayerCfg.CockpitMode[1] != CM_LETTERBOX && Newdemo_state != ND_STATE_PLAYBACK && PlayerCfg.MouseFlightSim && PlayerCfg.MouseFSIndicator)
+			show_mousefs_indicator(GWIDTH/2, GHEIGHT/2, GHEIGHT/4);
 
 #ifdef NETWORK
 		show_HUD_names();
@@ -2879,7 +2922,7 @@ void do_cockpit_window_view(int win,object *viewer,int rear_view_flag,int user,c
 	}
 
 	if (user == WBU_GUIDED)
-		draw_guided_crosshair();
+		show_reticle(RET_TYPE_CROSS_V1);
 
 	if (PlayerCfg.CockpitMode[1] == CM_FULL_SCREEN) {
 		int small_window_bottom,big_window_bottom,extra_part_h;
