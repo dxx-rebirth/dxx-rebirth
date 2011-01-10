@@ -4,6 +4,7 @@ D1X-Rebirth Changelog
 --------
 2d/disc.c, arch/ogl/gr.c, arch/ogl/ogl.c, include/gr.h, include/ogl_init.h, main/automap.c, main/gauges.c, main/gauges.h, main/menu.c, main/playsave.c, main/playsave.h: Added different reticle types with RGBA and size settings; Apply RGBA and size to FlightSim Indicator; Added Brightness Slider to Graphics options menu; Added OpenGL usage for gr_disk
 main/credits.c, main/songs.c, misc/hmp.c: Let credits track fade out at the end of text sequence; Fixed usage for RBAPlayTracks - when playing only one track last must be equal first, not 0; In hmp_open changed data from long to int, preventing memory explosion depending on optimisation of the code
+arch/sdl/timer.c: In timer_update() use i2f and fixdiv for SDL_GetTicks() to get more accurate values to F64_RunTime; Added rollover check for SDL_GetTicks() to timer_delay2()
 
 20110109
 --------

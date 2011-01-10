@@ -15,8 +15,8 @@ static fix64 F64_RunTime = 0;
 void timer_update(void)
 {
 	static ubyte init = 1;
-	static u_int32_t last_tv = 0;
-	u_int32_t cur_tv = SDL_GetTicks();
+	static unsigned long last_tv = 0;
+	unsigned long cur_tv = i2f(SDL_GetTicks()/1000) | fixdiv(i2f(SDL_GetTicks() % 1000),i2f(1000));
 
 	if (init)
 	{
@@ -25,7 +25,7 @@ void timer_update(void)
 	}
 
 	if (last_tv < cur_tv) // in case SDL_GetTicks wraps, don't update and have a little hickup
-		F64_RunTime += (cur_tv - last_tv)*F1_0/1000; // increment! this value will overflow long after we are all dead... so why bother checking?
+		F64_RunTime += (cur_tv - last_tv); // increment! this value will overflow long after we are all dead... so why bother checking?
 	last_tv = cur_tv;
 }
 
@@ -47,9 +47,12 @@ void timer_delay2(int fps)
 
 	while (FrameLoop < 1000/(GameCfg.VSync?MAXIMUM_FPS:fps))
 	{
+		u_int32_t tv_now = SDL_GetTicks();
+		if (FrameStart > tv_now)
+			FrameStart = tv_now;
 		if (!GameCfg.VSync)
 			SDL_Delay(1);
-		FrameLoop=SDL_GetTicks()-FrameStart;
+		FrameLoop=tv_now-FrameStart;
 	}
 
 	FrameStart=SDL_GetTicks();
