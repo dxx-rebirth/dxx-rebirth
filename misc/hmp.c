@@ -43,12 +43,10 @@ void hmp_close(hmp_file *hmp)
 }
 
 hmp_file *hmp_open(const char *filename) {
-	int i;
+	int i, data, num_tracks;
 	char buf[256];
-	long data;
 	CFILE *fp;
 	hmp_file *hmp;
-	int num_tracks;
 	unsigned char *p;
 
 	if (!(fp = cfopen((char *)filename, "rb")))

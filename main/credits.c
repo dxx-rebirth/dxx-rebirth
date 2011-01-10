@@ -42,6 +42,7 @@ COPYRIGHT 1993-1998 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 #include "text.h"
 #include "songs.h"
 #include "menu.h"
+#include "config.h"
 
 #define ROW_SPACING			(SHEIGHT / 17)
 #define NUM_LINES			20 //14
@@ -62,9 +63,8 @@ typedef struct credits
 
 int credits_handler(window *wind, d_event *event, credits *cr)
 {
-	int j, l;
+	int j, l, y;
 	char * tempp;
-	int y;
 	
 	switch (event->type)
 	{
@@ -104,6 +104,17 @@ int credits_handler(window *wind, d_event *event, credits *cr)
 				cr->extra_inc = 0;
 			}
 			
+			// cheap but effective: towards end of credits sequence, fade out the music volume
+			if (cr->done >= NUM_LINES-16)
+			{
+				static int curvol = 8;
+				if (curvol != (NUM_LINES-cr->done)/2)
+				{
+					curvol = (NUM_LINES-cr->done)/2;
+					songs_set_volume(curvol);
+				}
+			}
+
 			if (cr->done>NUM_LINES)
 			{
 				window_close(wind);
@@ -150,6 +161,7 @@ int credits_handler(window *wind, d_event *event, credits *cr)
 		case EVENT_WINDOW_CLOSE:
 			gr_free_bitmap_data (&cr->backdrop);
 			cfclose(cr->file);
+			songs_set_volume(GameCfg.MusicVolume);
 			songs_play_song( SONG_TITLE, 1 );
 			d_free(cr);
 			break;

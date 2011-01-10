@@ -312,7 +312,7 @@ int songs_play_song( int songnum, int repeat )
 			Song_playing = 0;
 			if ((songnum < SONG_ENDGAME) && (songnum + 2 <= num_tracks))
 			{
-				if (RBAPlayTracks(songnum + 2, 0, repeat ? redbook_repeat_func : NULL))
+				if (RBAPlayTracks(songnum + 2, songnum + 2, repeat ? redbook_repeat_func : NULL))
 				{
 					Redbook_playing = songnum + 2;
 					Song_playing = songnum;
@@ -320,7 +320,7 @@ int songs_play_song( int songnum, int repeat )
 			}
 			else if ((songnum == SONG_ENDGAME) && (REDBOOK_ENDGAME_TRACK <= num_tracks)) // The endgame track is the last track
 			{
-				if (RBAPlayTracks(REDBOOK_ENDGAME_TRACK, 0, repeat ? redbook_repeat_func : NULL))
+				if (RBAPlayTracks(REDBOOK_ENDGAME_TRACK, REDBOOK_ENDGAME_TRACK, repeat ? redbook_repeat_func : NULL))
 				{
 					Redbook_playing = REDBOOK_ENDGAME_TRACK;
 					Song_playing = songnum;
@@ -328,7 +328,7 @@ int songs_play_song( int songnum, int repeat )
 			}
 			else if ((songnum > SONG_ENDGAME) && (songnum + 1 <= num_tracks))
 			{
-				if (RBAPlayTracks(songnum + 1, 0, repeat ? redbook_repeat_func : NULL))
+				if (RBAPlayTracks(songnum + 1, songnum + 1, repeat ? redbook_repeat_func : NULL))
 				{
 					Redbook_playing = songnum + 1;
 					Song_playing = songnum;
