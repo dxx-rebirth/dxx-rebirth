@@ -1,5 +1,9 @@
 D1X-Rebirth Changelog
 
+20110111
+--------
+main/net_udp.c: Fixed Menu setting for AllowedItems which was broken due to changed return value of newmenu_do1
+
 20110110
 --------
 2d/disc.c, arch/ogl/gr.c, arch/ogl/ogl.c, include/gr.h, include/ogl_init.h, main/automap.c, main/gauges.c, main/gauges.h, main/menu.c, main/playsave.c, main/playsave.h: Added different reticle types with RGBA and size settings; Apply RGBA and size to FlightSim Indicator; Added Brightness Slider to Graphics options menu; Added OpenGL usage for gr_disk
