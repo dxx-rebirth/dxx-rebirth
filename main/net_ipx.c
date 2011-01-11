@@ -4888,15 +4888,12 @@ void net_ipx_set_power (void)
 		m[i].type = NM_TYPE_CHECK; m[i].text = multi_allow_powerup_text[i]; m[i].value = (Netgame.AllowedItems >> i) & 1;
 	}
 
-	i = newmenu_do1( NULL, "Objects to allow", MULTI_ALLOW_POWERUP_MAX, m, NULL, NULL, 0 );
+	newmenu_do1( NULL, "Objects to allow", MULTI_ALLOW_POWERUP_MAX, m, NULL, NULL, 0 );
 
-	if (i > -1)
-	{
-		Netgame.AllowedItems &= ~NETFLAG_DOPOWERUP;
-		for (i = 0; i < MULTI_ALLOW_POWERUP_MAX; i++)
-			if (m[i].value)
-				Netgame.AllowedItems |= (1 << i);
-	}
+	Netgame.AllowedItems &= ~NETFLAG_DOPOWERUP;
+	for (i = 0; i < MULTI_ALLOW_POWERUP_MAX; i++)
+		if (m[i].value)
+			Netgame.AllowedItems |= (1 << i);
 }
 
 int net_ipx_more_options_handler( newmenu *menu, d_event *event, void *userdata );
