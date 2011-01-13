@@ -331,7 +331,7 @@ int scores_handler(window *wind, d_event *event, scores_menu *menu)
 			break;
 			
 		case EVENT_KEY_COMMAND:
-			k = ((d_event_keycommand *)event)->keycode;
+			k = event_key_get(event);
 			switch( k )	{
 				case KEY_CTRLED+KEY_R:		
 					if ( menu->citem < 0 )		{

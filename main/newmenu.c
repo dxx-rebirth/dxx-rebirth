@@ -853,7 +853,7 @@ int newmenu_mouse(window *wind, d_event *event, newmenu *menu, int button)
 int newmenu_key_command(window *wind, d_event *event, newmenu *menu)
 {
 	newmenu_item *item = &menu->items[menu->citem];
-	int k = ((d_event_keycommand *)event)->keycode;
+	int k = event_key_get(event);
 	int old_choice, i;
 	char *Temp,TempVal;
 	int changed = 0;
@@ -1514,7 +1514,7 @@ int newmenu_handler(window *wind, d_event *event, newmenu *menu)
 		case EVENT_MOUSE_BUTTON_DOWN:
 		case EVENT_MOUSE_BUTTON_UP:
 		{
-			int button = mouse_get_button(event);
+			int button = event_mouse_get_button(event);
 			menu->mouse_state = event->type == EVENT_MOUSE_BUTTON_DOWN;
 			return newmenu_mouse(wind, event, menu, button);
 		}
@@ -1848,7 +1848,7 @@ int listbox_mouse(window *wind, d_event *event, listbox *lb, int button)
 
 int listbox_key_command(window *wind, d_event *event, listbox *lb)
 {
-	int key = ((d_event_keycommand *)event)->keycode;
+	int key = event_key_get(event);
 	int rval = 1;
 
 	switch(key)	{
@@ -2096,7 +2096,7 @@ int listbox_handler(window *wind, d_event *event, listbox *lb)
 		case EVENT_MOUSE_BUTTON_DOWN:
 		case EVENT_MOUSE_BUTTON_UP:
 		{
-			int button = mouse_get_button(event);
+			int button = event_mouse_get_button(event);
 			lb->mouse_state = event->type == EVENT_MOUSE_BUTTON_DOWN;
 			return listbox_mouse(wind, event, lb, button);
 		}

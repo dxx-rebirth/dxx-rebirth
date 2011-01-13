@@ -35,6 +35,12 @@ typedef struct d_event_mousebutton
 	int button;
 } d_event_mousebutton;
 
+typedef struct d_event_mouse_moved
+{
+	event_type	type;	// EVENT_MOUSE_MOVED
+	short		dx, dy, dz;
+} d_event_mouse_moved;
+
 void mouse_init(void)
 {
 	memset(&Mouse,0,sizeof(Mouse));
@@ -71,7 +77,6 @@ void mouse_button_handler(SDL_MouseButtonEvent *mbe)
 
 	int button = button_remap[mbe->button - 1]; // -1 since SDL seems to start counting at 1
 	d_event_mousebutton event;
-	window *wind;
 
 	if (GameArg.CtlNoMouse)
 		return;
@@ -79,6 +84,8 @@ void mouse_button_handler(SDL_MouseButtonEvent *mbe)
 	Mouse.cursor_time = timer_query();
 
 	if (mbe->state == SDL_PRESSED) {
+		d_event_mouse_moved event2 = { EVENT_MOUSE_MOVED, 0, 0, 0 };
+
 		Mouse.buttons[button].pressed = 1;
 		Mouse.buttons[button].time_went_down = timer_query();
 		Mouse.buttons[button].num_downs++;
@@ -86,9 +93,18 @@ void mouse_button_handler(SDL_MouseButtonEvent *mbe)
 		if (button == MBTN_Z_UP) {
 			Mouse.delta_z += Z_SENSITIVITY;
 			Mouse.z += Z_SENSITIVITY;
+			event2.dz = Z_SENSITIVITY;
 		} else if (button == MBTN_Z_DOWN) {
 			Mouse.delta_z -= Z_SENSITIVITY;
 			Mouse.z -= Z_SENSITIVITY;
+			event2.dz = -1*Z_SENSITIVITY;
+		}
+		
+		if (event2.dz)
+		{
+			//con_printf(CON_DEBUG, "Sending event EVENT_MOUSE_MOVED, relative motion %d,%d,%d\n",
+			//		   event2.dx, event2.dy, event2.dz);
+			event_send((d_event *)&event2);
 		}
 	} else {
 		Mouse.buttons[button].pressed = 0;
@@ -99,25 +115,40 @@ void mouse_button_handler(SDL_MouseButtonEvent *mbe)
 	event.type = (mbe->state == SDL_PRESSED) ? EVENT_MOUSE_BUTTON_DOWN : EVENT_MOUSE_BUTTON_UP;
 	event.button = button;
 	
-	if ((wind = window_get_front()))
-	{
-		con_printf(CON_DEBUG, "Sending event %s, button %d, coords %d,%d,%d\n",
-				   (mbe->state == SDL_PRESSED) ? "EVENT_MOUSE_BUTTON_DOWN" : "EVENT_MOUSE_BUTTON_UP", event.button, Mouse.x, Mouse.y, Mouse.z);
-		if (!window_send_event(wind, (d_event *)&event))
-			call_default_handler((d_event *)&event);
-	}
-	else
-		call_default_handler((d_event *)&event);
+	con_printf(CON_DEBUG, "Sending event %s, button %d, coords %d,%d,%d\n",
+			   (mbe->state == SDL_PRESSED) ? "EVENT_MOUSE_BUTTON_DOWN" : "EVENT_MOUSE_BUTTON_UP", event.button, Mouse.x, Mouse.y, Mouse.z);
+	event_send((d_event *)&event);
 }
 
 void mouse_motion_handler(SDL_MouseMotionEvent *mme)
 {
+	d_event_mouse_moved event;
+	
 	if (GameArg.CtlNoMouse)
 		return;
 
 	Mouse.cursor_time = timer_query();
 	Mouse.x += mme->xrel;
 	Mouse.y += mme->yrel;
+	
+	event.type = EVENT_MOUSE_MOVED;
+	event.dx = mme->xrel;
+	event.dy = mme->yrel;
+	event.dz = 0;		// handled in mouse_button_handler
+	
+	// filter delta?
+	if (PlayerCfg.MouseFilter)
+	{
+		event.dx = (event.dx + Mouse.old_delta_x) * 0.5;
+		event.dy = (event.dy + Mouse.old_delta_y) * 0.5;
+	}
+	
+	Mouse.old_delta_x = event.dx;
+	Mouse.old_delta_y = event.dy;
+	
+	//con_printf(CON_DEBUG, "Sending event EVENT_MOUSE_MOVED, relative motion %d,%d,%d\n",
+	//		   event.dx, event.dy, event.dz);
+	event_send((d_event *)&event);
 }
 
 void mouse_flush()	// clears all mice events...
@@ -175,7 +206,16 @@ void mouse_get_delta( int *dx, int *dy, int *dz )
 	Mouse.delta_z = 0;
 }
 
-int mouse_get_button(d_event *event)
+void event_mouse_get_delta(d_event *event, int *dx, int *dy, int *dz)
+{
+	Assert(event->type == EVENT_MOUSE_MOVED);
+
+	*dx = ((d_event_mouse_moved *)event)->dx;
+	*dy = ((d_event_mouse_moved *)event)->dy;
+	*dz = ((d_event_mouse_moved *)event)->dz;
+}
+
+int event_mouse_get_button(d_event *event)
 {
 	Assert((event->type == EVENT_MOUSE_BUTTON_DOWN) || (event->type == EVENT_MOUSE_BUTTON_UP));
 	return ((d_event_mousebutton *)event)->button;

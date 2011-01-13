@@ -622,7 +622,7 @@ int net_ipx_endlevel_poll( newmenu *menu, d_event *event, int *secret )
 	switch (event->type)
 	{
 		case EVENT_KEY_COMMAND:
-			if (((d_event_keycommand *)event)->keycode != KEY_ESC)
+			if (event_key_get(event) != KEY_ESC)
 				return 0;
 
 			{
@@ -3049,7 +3049,7 @@ int net_ipx_join_poll( newmenu *menu, d_event *event, void *menu_text )
 	switch (event->type)
 	{
 		case EVENT_KEY_COMMAND:
-			key = ((d_event_keycommand *)event)->keycode;
+			key = event_key_get(event);
 
 			if ( IPX_allow_socket_changes ) {
 				int osocket;
@@ -3828,7 +3828,7 @@ static int show_game_rules_handler(window *wind, d_event *event, netgame_info *n
 			break;
 
 		case EVENT_KEY_COMMAND:
-			k = ((d_event_keycommand *)event)->keycode;
+			k = event_key_get(event);
 			switch (k)
 			{
 				case KEY_ENTER:

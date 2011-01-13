@@ -20,7 +20,11 @@ COPYRIGHT 1993-1998 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 
 #include <stdlib.h>
 #include <SDL/SDL.h>
+
+#include "event.h"
 #include "u_mem.h"
+#include "error.h"
+#include "console.h"
 #include "fix.h"
 #include "pstypes.h"
 #include "gr.h"
@@ -128,23 +132,22 @@ void ui_mouse_hide()
 #endif
 }
 
-void ui_mouse_process()
+int ui_mouse_motion_process(d_event *event)
 {   
-        int buttons,w,h;
-#ifndef __MSDOS__
-	int new_x, new_y;
-	buttons = SDL_GetMouseState(&new_x,&new_y);
-	Mouse.dx = new_x - Mouse.x;
-	Mouse.dy = new_y - Mouse.y;
-#else
+	int w,h;
+	int mx, my, mz;
 
-	Mouse.dx = Mouse.new_dx;
-	Mouse.dy = Mouse.new_dy;
-	buttons = Mouse.new_buttons;
-#endif
+	Assert(event->type == EVENT_MOUSE_MOVED);
+	event_mouse_get_delta(event, &mx, &my, &mz);
+	
+	Mouse.dx = mx;
+	Mouse.dy = my;
 
-	Mouse.x += Mouse.dx;
-	Mouse.y += Mouse.dy;
+	//Mouse.x += Mouse.dx;
+	//Mouse.y += Mouse.dy;
+	mouse_get_pos(&mx, &my, &mz);
+	Mouse.x = mx;
+	Mouse.y = my;
 
 	w = grd_curscreen->sc_w;
 	h = grd_curscreen->sc_h;
@@ -182,35 +185,66 @@ void ui_mouse_process()
 		}
 #endif /* __MSDOS__*/
 	}
+	
+	return 1;
+}
+
+// straight from mouse.c's counterpart in arch/sdl
+typedef struct d_event_mousebutton
+{
+	event_type type;
+	int button;
+} d_event_mousebutton;
+
+int ui_mouse_button_process(d_event *event)
+{
+//	int mx, my, mz;
+	int button = -1;
+	int pressed;
+
+	Assert((event->type == EVENT_MOUSE_BUTTON_DOWN) || (event->type == EVENT_MOUSE_BUTTON_UP) || (event->type == EVENT_IDLE));
+	
+	if (event->type != EVENT_IDLE)
+		button = event_mouse_get_button(event);
+
+	// Get the mouse's position
+	//mouse_get_pos(&mx, &my, &mz);
+	//Mouse.x = mx;
+	//Mouse.y = my;
+
+	pressed = event->type == EVENT_MOUSE_BUTTON_DOWN;
 
 	Mouse.b1_last_status = Mouse.b1_status;
 	Mouse.b2_last_status = Mouse.b2_status;
+	Mouse.b1_status &= (BUTTON_PRESSED | BUTTON_RELEASED);
+	Mouse.b2_status &= (BUTTON_PRESSED | BUTTON_RELEASED);
+	
+	if (event->type == EVENT_IDLE)
+		return 0;
 
 	if ( Mouse.backwards== 0 )
 	{
-		if (buttons & MOUSE_LBTN )
-			Mouse.b1_status = BUTTON_PRESSED;
-		else
-			Mouse.b1_status = BUTTON_RELEASED;
-		if (buttons & MOUSE_RBTN )
-			Mouse.b2_status = BUTTON_PRESSED;
-		else
-			Mouse.b2_status = BUTTON_RELEASED;
+		if (button == MBTN_LEFT)
+			Mouse.b1_status = pressed ? BUTTON_PRESSED : BUTTON_RELEASED;
+		else if (button == MBTN_RIGHT)
+			Mouse.b2_status = pressed ? BUTTON_PRESSED : BUTTON_RELEASED;
 	} else {
-		if (buttons & MOUSE_LBTN )
-			Mouse.b2_status = BUTTON_PRESSED;
-		else
-			Mouse.b2_status = BUTTON_RELEASED;
-		if (buttons & MOUSE_RBTN )
-			Mouse.b1_status = BUTTON_PRESSED;
-		else
-			Mouse.b1_status = BUTTON_RELEASED;
+		if (button == MBTN_LEFT)
+			Mouse.b2_status = pressed ? BUTTON_PRESSED : BUTTON_RELEASED;
+		else if (button == MBTN_RIGHT)
+			Mouse.b1_status = pressed ? BUTTON_PRESSED : BUTTON_RELEASED;
 	}
 
 	if ((Mouse.b1_status & BUTTON_PRESSED) && (Mouse.b1_last_status & BUTTON_RELEASED) )
 	{
 		if ((timer_query() <= Mouse.time_lastpressed + F1_0/5))  //&& (Mouse.moved==0)
+		{
+			d_event_mousebutton event = { EVENT_MOUSE_DOUBLE_CLICKED, MBTN_LEFT };
 			Mouse.b1_status |= BUTTON_DOUBLE_CLICKED;
+			con_printf(CON_DEBUG, "Sending event EVENT_MOUSE_DOUBLE_CLICKED, button %d, coords %d,%d\n",
+					   event.button, Mouse.x, Mouse.y);
+			event_send((d_event *)&event);
+		}
 
 		Mouse.moved = 0;
 		Mouse.time_lastpressed = timer_query();
@@ -224,6 +258,8 @@ void ui_mouse_process()
 		Mouse.b2_status |= BUTTON_JUST_PRESSED;
 	else if ((Mouse.b2_status & BUTTON_RELEASED) && (Mouse.b2_last_status & BUTTON_PRESSED) )
 		Mouse.b2_status |= BUTTON_JUST_RELEASED;
+	
+	return 1;
 }
 
 void ui_mouse_flip_buttons()

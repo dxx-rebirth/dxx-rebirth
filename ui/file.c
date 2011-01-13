@@ -14,6 +14,7 @@ COPYRIGHT 1993-1999 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 #include <stdlib.h>
 #include <string.h>
 
+#include "event.h"
 #include "physfsx.h"
 #include "fix.h"
 #include "pstypes.h"
@@ -193,7 +194,7 @@ int ui_get_filename( char * filename, char * Filespec, char * message  )
 
 	while( 1 )
 	{
-		ui_mega_process();
+		event_process();
 		ui_window_do_gadgets(wnd);
 
 		if ( Button2->pressed )

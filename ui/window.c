@@ -65,13 +65,12 @@ static UI_EVENT *   EventBuffer = NULL;
 static int          Record = 0;
 static int          RecordFlags = 0;
 
-static short MouseDX=0, MouseDY=0, MouseButtons=0;
-
 static unsigned char SavedState[256];
 
 static int PlaybackSpeed = 1;
 
 extern void ui_draw_frame( short x1, short y1, short x2, short y2 );
+extern void save_screen_shot(int automap_flag);		// avoids conflict with FrameCount when including game.h
 
 // 1=1x faster, 2=2x faster, etc
 void ui_set_playback_speed( int speed )
@@ -336,6 +335,7 @@ int ui_get_idle_seconds()
 	return (timer_query() - last_event)/F1_0;
 }
 
+#if 0
 void ui_mega_process()
 {
 	int mx, my, mz;
@@ -585,6 +585,74 @@ void ui_mega_process()
 
 	ui_mouse_process();
 
+}
+#endif // 0
+
+// Base level event handler
+// Mainly for setting global variables for state-based event polling,
+// which will eventually be replaced with direct event handling
+// so we could then stick with standard_handler in inferno.c
+int ui_event_handler(d_event *event)
+{
+	timer_update();
+	last_keypress = 0;
+	
+	switch (event->type)
+	{
+		case EVENT_MOUSE_BUTTON_DOWN:
+		case EVENT_MOUSE_BUTTON_UP:
+			ui_mouse_button_process(event);
+			last_event = timer_query();
+			break;
+
+		case EVENT_MOUSE_MOVED:
+			ui_mouse_motion_process(event);
+			last_event = timer_query();
+			break;
+			
+		case EVENT_KEY_COMMAND:
+			last_keypress = event_key_get(event);
+			last_event = timer_query();
+			
+			switch (last_keypress)
+			{
+#ifdef macintosh
+				case KEY_COMMAND + KEY_SHIFTED + KEY_3:
+#endif
+				case KEY_PRINT_SCREEN:
+				{
+					gr_set_current_canvas(NULL);
+					save_screen_shot(0);
+					return 1;
+				}
+					
+				case KEY_ALTED+KEY_ENTER:
+				case KEY_ALTED+KEY_PADENTER:
+					gr_toggle_fullscreen();
+					return 1;
+					
+#ifndef NDEBUG
+				case KEY_BACKSP:
+					Int3();
+					return 1;
+#endif
+			}
+			break;
+			
+		case EVENT_IDLE:
+			// Make sure button pressing works correctly
+			// Won't be needed when all of the editor uses mouse button events rather than polling
+			return ui_mouse_button_process(event);
+			
+		case EVENT_QUIT:
+			//Quitting = 1;
+			return 1;
+			
+		default:
+			break;
+	}
+	
+	return 0;
 }
 
 void ui_wprintf( UI_WINDOW * wnd, char * format, ... )

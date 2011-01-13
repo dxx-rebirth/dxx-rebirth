@@ -22,6 +22,8 @@ COPYRIGHT 1993-1998 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 
 #include <setjmp.h>
 
+struct d_event;
+
 #if defined(__APPLE__) || defined(macintosh)
 #define KEY_MAC(x) x
 #else
@@ -57,5 +59,8 @@ extern int Quitting;
 extern int Function_mode;			//in game or editor?
 extern int Screen_mode;				//editor screen or game screen?
 extern int MacHog;
+
+// Default event handler for everything except the editor
+int standard_handler(struct d_event *event);
 
 #endif

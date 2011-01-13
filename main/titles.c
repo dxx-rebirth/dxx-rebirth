@@ -90,7 +90,7 @@ int title_handler(window *wind, d_event *event, title_screen *ts)
 	switch (event->type)
 	{
 		case EVENT_MOUSE_BUTTON_DOWN:
-			if (mouse_get_button(event) != 0)
+			if (event_mouse_get_button(event) != 0)
 				return 0;
 			else if (ts->allow_keys)
 			{
@@ -1059,7 +1059,7 @@ int briefing_handler(window *wind, d_event *event, briefing *br)
 			break;
 
 		case EVENT_MOUSE_BUTTON_DOWN:
-			if (mouse_get_button(event) == 0)
+			if (event_mouse_get_button(event) == 0)
 			{
 				if (br->new_screen)
 				{
@@ -1080,7 +1080,7 @@ int briefing_handler(window *wind, d_event *event, briefing *br)
 
 		case EVENT_KEY_COMMAND:
 		{
-			int key = ((d_event_keycommand *)event)->keycode;
+			int key = event_key_get(event);
 
 			switch (key)
 			{

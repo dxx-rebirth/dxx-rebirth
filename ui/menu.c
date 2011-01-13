@@ -22,6 +22,7 @@ static char rcsid[] = "$Id: menu.c,v 1.1.1.1 2006/03/17 19:52:19 zicodxx Exp $";
 #include "fix.h"
 #include "pstypes.h"
 #include "gr.h"
+#include "event.h"
 #include "ui.h"
 
 
@@ -98,7 +99,7 @@ int MenuX( int x, int y, int NumButtons, char * text[] )
 
 	while(choice==0)
 	{
-		ui_mega_process();
+		event_process();
 		ui_window_do_gadgets(wnd);
 
 		for (i=0; i<NumButtons; i++ )

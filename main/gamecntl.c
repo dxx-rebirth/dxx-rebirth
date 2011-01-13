@@ -233,7 +233,7 @@ int pause_handler(window *wind, d_event *event, char *msg)
 			break;
 
 		case EVENT_KEY_COMMAND:
-			key = ((d_event_keycommand *)event)->keycode;
+			key = event_key_get(event);
 
 			switch (key)
 			{
@@ -1399,7 +1399,7 @@ int ReadControls(d_event *event)
 
 	if (event->type == EVENT_KEY_COMMAND)
 	{
-		key = ((d_event_keycommand *)event)->keycode;
+		key = event_key_get(event);
 
 		if (con_events(key) && con_render)
 			return 1;

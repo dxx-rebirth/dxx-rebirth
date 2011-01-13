@@ -386,7 +386,7 @@ static int manual_join_game_handler(newmenu *menu, d_event *event, direct_join *
 	switch (event->type)
 	{
 		case EVENT_KEY_COMMAND:
-			if (dj->connecting && ((d_event_keycommand *)event)->keycode == KEY_ESC)
+			if (dj->connecting && event_key_get(event) == KEY_ESC)
 			{
 				dj->connecting = 0;
 				items[6].text = blank;
@@ -530,7 +530,7 @@ int net_udp_list_join_poll( newmenu *menu, d_event *event, direct_join *dj )
 			break;
 		case EVENT_KEY_COMMAND:
 		{
-			int key = ((d_event_keycommand *)event)->keycode;
+			int key = event_key_get(event);
 			if (key == KEY_PAGEUP)
 			{
 				NLPage--;
@@ -4444,7 +4444,7 @@ static int show_game_rules_handler(window *wind, d_event *event, netgame_info *n
 			break;
 			
 		case EVENT_KEY_COMMAND:
-			k = ((d_event_keycommand *)event)->keycode;
+			k = event_key_get(event);
 			switch (k)
 			{
 				case KEY_ENTER:

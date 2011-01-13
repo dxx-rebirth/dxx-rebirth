@@ -29,10 +29,11 @@ COPYRIGHT 1993-1998 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 #include <time.h>
 
 #include "inferno.h"
-#include "window.h"
-#include "messagebox.h"
 #include "segment.h"
 #include "gr.h"
+#include "event.h"
+#include "window.h"
+#include "messagebox.h"
 #include "ui.h"
 #include "editor.h"
 #include "gamesave.h"
@@ -1047,6 +1048,8 @@ void editor(void)
 	ui_pad_goto(padnum);
 
 	gamestate_restore_check();
+	
+	set_default_handler(ui_event_handler);
 
 	while (Function_mode == FMODE_EDITOR) {
 
@@ -1063,7 +1066,7 @@ void editor(void)
 
 		//do editor stuff
 		gr_set_curfont(editor_font);
-		ui_mega_process();
+		event_process();
 		last_keypress &= ~KEY_DEBUGGED;		//	mask off delete key bit which has no function in editor.
 		ui_window_do_gadgets(EditorWindow);
 		do_robot_window();
@@ -1349,6 +1352,8 @@ void editor(void)
 		}
 	}
 
+	set_default_handler(standard_handler);
+	
 //	_MARK_("end of editor");//Nuked to compile -KRB
 
 	set_warn_func(msgbox_warning);

@@ -18,6 +18,7 @@ COPYRIGHT 1993-1998 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 #include "fix.h"
 #include "pstypes.h"
 #include "gr.h"
+#include "event.h"
 #include "ui.h"
 #include "key.h"
 #include "cfile.h"
@@ -578,7 +579,7 @@ void menubar_do( int keypress )
 	
 	while (state > 0 )
 	{
-		ui_mega_process();
+		event_process();
 		switch(state)
 		{
 		case 1:
