@@ -369,8 +369,8 @@ void ipxdrv_send_packet_data( ubyte * data, int datasize, ubyte *network, ubyte 
 	if (driver->usepacketnum)
 	{
 		ubyte buf[MAX_IPX_DATA];
-		*(uint *)buf = ipx_packetnum++;
-
+		memcpy(buf, &ipx_packetnum, 4);
+		ipx_packetnum++;
 		memcpy(buf + 4, data, datasize);
 		driver->send_packet(&socket_data, &ipx_header, buf, datasize + 4);
 	}
@@ -1062,6 +1062,7 @@ net_ipx_new_player(IPX_sequence_packet *their)
 {
 	int objnum;
 	int pnum;
+	uint server;
 
 	pnum = their->player.connected;
 
@@ -1090,7 +1091,8 @@ net_ipx_new_player(IPX_sequence_packet *their)
 	Netgame.players[pnum].version_minor=their->player.version_minor;
 	net_ipx_check_for_old_version(pnum);
 
-	if ( (*(uint *)their->player.protocol.ipx.server) != 0 )
+	memcpy(&server, their->player.protocol.ipx.server, 4);
+	if ( server != 0 )
 		ipxdrv_get_local_target( their->player.protocol.ipx.server, their->player.protocol.ipx.node, Players[pnum].net_address );
 	else
 		memcpy(Players[pnum].net_address, their->player.protocol.ipx.node, 6);
@@ -1134,6 +1136,7 @@ void net_ipx_welcome_player(IPX_sequence_packet *their)
 	ubyte local_address[6];
 	int player_num;
 	int i;
+	uint server;
 
 	WaitForRefuseAnswer=0;
 
@@ -1174,7 +1177,8 @@ void net_ipx_welcome_player(IPX_sequence_packet *their)
 	memset(&IPX_sync_player, 0, sizeof(IPX_sequence_packet));
 	Network_player_added = 0;
 
-	if ( (*(uint *)their->player.protocol.ipx.server) != 0 )
+	memcpy(&server, their->player.protocol.ipx.server, 4);
+	if ( server != 0 )
 		ipxdrv_get_local_target( their->player.protocol.ipx.server, their->player.protocol.ipx.node, local_address );
 	else
 		memcpy(local_address, their->player.protocol.ipx.node, 6);
@@ -3127,6 +3131,7 @@ void net_ipx_read_sync_packet( netgame_info * sp, int rsinit)
 	int i, j;
 	char temp_callsign[CALLSIGN_LEN+1];
 	netgame_info tmp_info;
+	uint server;
 
 	if (sp != &Netgame)
 	{
@@ -3180,12 +3185,12 @@ void net_ipx_read_sync_packet( netgame_info * sp, int rsinit)
 		memcpy( Players[i].callsign, TempPlayersInfo->players[i].callsign, CALLSIGN_LEN+1 );
 
 #ifdef WORDS_NEED_ALIGNMENT
-		uint server;
-		memcpy(&server, TempPlayersInfo->players[i].protocol.ipx.server, 4);
+		memcpy(&server, sp->players[i].protocol.ipx.server, 4);
 		if (server != 0)
 			ipxdrv_get_local_target((ubyte *)&server, TempPlayersInfo->players[i].protocol.ipx.node, Players[i].net_address);
 #else // WORDS_NEED_ALIGNMENT
-		if ((*(uint *)TempPlayersInfo->players[i].protocol.ipx.server) != 0)
+		memcpy(&server, sp->players[i].protocol.ipx.server, 4);
+		if ( server != 0 )
 			ipxdrv_get_local_target(TempPlayersInfo->players[i].protocol.ipx.server, TempPlayersInfo->players[i].protocol.ipx.node, Players[i].net_address);
 #endif // WORDS_NEED_ALIGNMENT
 		else
