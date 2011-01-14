@@ -356,6 +356,7 @@ extern object *Dead_player_camera;
 extern object Follow;
 extern int Player_is_dead;				//	!0 means player is dead!
 extern int Player_exploded;
+extern int Player_eggs_dropped;
 extern int Death_sequence_aborted;
 extern int Player_fired_laser_this_frame;
 

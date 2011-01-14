@@ -760,7 +760,11 @@ multi_leave_game(void)
 		Net_create_loc = 0;
 		multi_send_position(Players[Player_num].objnum);
 		multi_powcap_cap_objects();
-		drop_player_eggs(ConsoleObject);
+		if (!Player_eggs_dropped)
+		{
+			drop_player_eggs(ConsoleObject);
+			Player_eggs_dropped = 1;
+		}
 		multi_send_player_explode(MULTI_PLAYER_DROP);
 	}
 
@@ -2272,8 +2276,8 @@ void multi_powcap_cap_objects()
 		if (PowerupsInMine[(int)type]>=MaxPowerupsAllowed[(int)type])
 			if(Players[Player_num].primary_weapon_flags & (1 << index))
 			{
-				con_printf(CON_NORMAL,"PIM=%d MPA=%d\n",PowerupsInMine[(int)type],MaxPowerupsAllowed[(int)type]);
-				con_printf(CON_NORMAL,"Killing a primary cuz there's too many! (%d)\n",type);
+				con_printf(CON_VERBOSE,"PIM=%d MPA=%d\n",PowerupsInMine[(int)type],MaxPowerupsAllowed[(int)type]);
+				con_printf(CON_VERBOSE,"Killing a primary cuz there's too many! (%d)\n",type);
 				Players[Player_num].primary_weapon_flags&=(~(1 << index));
 			}
 	}
@@ -2291,7 +2295,7 @@ void multi_powcap_cap_objects()
 				Players[Player_num].secondary_ammo[index]=0;
 			else
 				Players[Player_num].secondary_ammo[index]=(MaxPowerupsAllowed[(int)type]-PowerupsInMine[(int)type]);
-			con_printf(CON_NORMAL,"Hey! I killed secondary type %d because PIM=%d MPA=%d\n",type,PowerupsInMine[(int)type],MaxPowerupsAllowed[(int)type]);
+			con_printf(CON_VERBOSE,"Hey! I killed secondary type %d because PIM=%d MPA=%d\n",type,PowerupsInMine[(int)type],MaxPowerupsAllowed[(int)type]);
 		}
 	}
 
