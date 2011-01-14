@@ -90,7 +90,6 @@ void net_ipx_read_endlevel_short_packet(ubyte *data );
 void net_ipx_process_names_return(ubyte *data);
 void net_ipx_send_player_names(IPX_sequence_packet *their);
 void net_ipx_more_game_options();
-void net_ipx_count_powerups_in_mine();
 int  net_ipx_wait_for_all_info(int choice);
 void net_ipx_do_big_wait(int choice);
 void net_ipx_send_extras();
@@ -1583,8 +1582,6 @@ void net_ipx_send_objects(void)
 		} // i > Highest_object_index
 	} // For PACKETS_PER_FRAME
 }
-
-extern void multi_send_powerup_update();
 
 void net_ipx_send_rejoin_sync(int player_num)
 {
@@ -3899,7 +3896,7 @@ net_ipx_level_sync(void)
 	else
 		result = net_ipx_wait_for_sync();
 
-   net_ipx_count_powerups_in_mine();
+	multi_powcap_count_powerups_in_mine();
 
 	if (result)
 	{
@@ -3913,25 +3910,6 @@ net_ipx_level_sync(void)
 	}
 	return(0);
 }
-
-void net_ipx_count_powerups_in_mine(void)
- {
-  int i;
-
-  for (i=0;i<MAX_POWERUP_TYPES;i++)
-	PowerupsInMine[i]=0;
-
-  for (i=0;i<=Highest_object_index;i++)
-	{
-	 if (Objects[i].type==OBJ_POWERUP)
-	  {
-		PowerupsInMine[Objects[i].id]++;
-		if (multi_powerup_is_4pack(Objects[i].id))
-		   PowerupsInMine[Objects[i].id-1]+=4;
-	  }
-	}
-
- }
 
 int net_ipx_do_join_game(int choice)
 {
@@ -5242,7 +5220,7 @@ void net_ipx_send_extras ()
    if (Network_sending_extras==15)
 		net_ipx_send_player_flags();
    if (Network_sending_extras==10)
-		multi_send_powerup_update();
+		multi_send_powcap_update();
  //  if (Network_sending_extras==5)
 //		net_ipx_send_door_updates(Player_joining_extras); // twice!
 

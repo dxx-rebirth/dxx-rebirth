@@ -242,6 +242,7 @@ void verify_object( object * obj )	{
 		obj->ctype.powerup_info.creation_time = 0;
 
 #ifdef NETWORK
+#ifdef OLDPOWCAP
 		if (Game_mode & GM_NETWORK)
 			{
 			  if (multi_powerup_is_4pack(obj->id))
@@ -252,6 +253,21 @@ void verify_object( object * obj )	{
 			  PowerupsInMine[obj->id]++;
 		     MaxPowerupsAllowed[obj->id]++;
 		 	}
+#else
+		if (Game_mode & GM_NETWORK)
+		{
+			if (multi_powerup_is_4pack(obj->id))
+			{
+				PowerupsInMine[obj->id-1]+=4;
+				MaxPowerupsAllowed[obj->id-1]+=4;
+			}
+			else
+			{
+				PowerupsInMine[obj->id]++;
+				MaxPowerupsAllowed[obj->id]++;
+			}
+		}
+#endif
 #endif
 
 	}

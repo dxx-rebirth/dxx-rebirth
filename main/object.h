@@ -528,8 +528,6 @@ int drop_marker_object(vms_vector *pos, int segnum, vms_matrix *orient, int mark
 
 extern void wake_up_rendered_objects(object *gmissp, int window_num);
 
-extern void AdjustMineSpawn();
-
 void reset_player_object(void);
 
 extern void object_rw_swap(object_rw *obj_rw, int swap);

@@ -63,8 +63,6 @@ extern int multi_protocol; // set and determinate used protocol
 //   3 Descent II Shareware
 //   4 Descent II Commercial
 #define MULTI_PROTO_VERSION 4
-// this define should become obsolete due to strict version checking in UDP
-#define MULTI_PROTO_D2X_VER	7  // Increment everytime we change networking features - based on ubyte, must never be > 255
 // PROTOCOL VARIABLES AND DEFINES - END
 
 
@@ -122,7 +120,7 @@ extern int multi_protocol; // set and determinate used protocol
 #define MULTI_START_TRIGGER     46
 #define MULTI_FLAGS             47
 #define MULTI_DROP_BLOB         48
-#define MULTI_POWERUP_UPDATE    49
+#define MULTI_POWCAP_UPDATE     49
 #define MULTI_ACTIVE_DOOR       50
 #define MULTI_SOUND_FUNCTION    51
 #define MULTI_CAPTURE_BONUS     52
@@ -338,8 +336,7 @@ extern int multi_sending_message;
 extern int multi_defining_message;
 extern int multi_message_input_sub(int key);
 extern void multi_send_message_start();
-
-extern int multi_powerup_is_4pack(int );
+extern int multi_powerup_is_4pack(int);
 extern void multi_send_orb_bonus( char pnum );
 extern void multi_send_got_orb( char pnum );
 extern void multi_add_lifetime_kills(void);
@@ -374,6 +371,12 @@ extern struct AllNetPlayers_info NetPlayers;
 int multi_i_am_master(void);
 int multi_who_is_master(void);
 void change_playernum_to(int new_pnum);
+
+// Multiplayer powerup capping
+extern void multi_powcap_count_powerups_in_mine(void);
+extern void multi_powcap_cap_objects();
+extern void multi_do_powcap_update();
+extern void multi_send_powcap_update();
 
 //how to encode missiles & flares in weapon packets
 #define MISSILE_ADJUST  100

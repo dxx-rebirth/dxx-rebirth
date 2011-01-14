@@ -591,10 +591,10 @@ void maybe_drop_net_powerup(int powerup_type)
 		vms_vector	new_pos;
 
 		if (Game_mode & GM_NETWORK)
-			{
-				if (PowerupsInMine[powerup_type]>=MaxPowerupsAllowed[powerup_type])
-					return;
-			}
+		{
+			if (PowerupsInMine[powerup_type]>=MaxPowerupsAllowed[powerup_type])
+				return;
+		}
 
 
 		if (Control_center_destroyed || Endlevel_sequence)

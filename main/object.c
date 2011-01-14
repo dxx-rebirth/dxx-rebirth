@@ -1479,7 +1479,6 @@ void set_camera_pos(vms_vector *camera_pos, object *objp)
 extern void drop_player_eggs(object *objp);
 extern int get_explosion_vclip(object *obj,int stage);
 extern void multi_cap_objects();
-extern int Proximity_dropped,Smartmines_dropped;
 
 //	------------------------------------------------------------------------------------------------------------------
 void dead_player_frame(void)
@@ -1550,10 +1549,7 @@ void dead_player_frame(void)
 				Player_exploded = 1;
 #ifdef NETWORK
 				if (Game_mode & GM_NETWORK)
-				 {
-					AdjustMineSpawn ();
-					multi_cap_objects();
-				 }
+					multi_powcap_cap_objects();
 #endif
 				
 				drop_player_eggs(ConsoleObject);
@@ -1590,10 +1586,7 @@ void dead_player_frame(void)
 			
 #ifdef NETWORK
 				if (Game_mode & GM_NETWORK)
-				 {
-					AdjustMineSpawn();
-					multi_cap_objects();
-				 }
+					multi_powcap_cap_objects();
 #endif
 				
 				drop_player_eggs(ConsoleObject);
@@ -1612,21 +1605,6 @@ void dead_player_frame(void)
 	else
 		time_dead = 0;
 }
-
-
-void AdjustMineSpawn()
- {
-   if (!(Game_mode & GM_NETWORK))
-		return;  // No need for this function in any other mode
-
-   if (!(Game_mode & GM_HOARD))
-	  	Players[Player_num].secondary_ammo[PROXIMITY_INDEX]+=Proximity_dropped;
-   Players[Player_num].secondary_ammo[SMART_MINE_INDEX]+=Smartmines_dropped;
-	Proximity_dropped=0;
-	Smartmines_dropped=0;
- }
-
-
 
 int Killed_in_frame = -1;
 short Killed_objnum = -1;

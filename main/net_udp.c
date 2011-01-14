@@ -93,12 +93,10 @@ void net_udp_noloss_init_mdata_queue(void);
 void net_udp_noloss_clear_mdata_got(ubyte player_num);
 void net_udp_noloss_process_queue(fix64 time);
 void net_udp_check_for_old_version (char pnum);
-void net_udp_count_powerups_in_mine(void);
 void net_udp_send_extras ();
 extern void multi_reset_object_texture(object *objp);
 extern void multi_send_stolen_items ();
 extern void multi_send_kill_goal_counts();
-extern void multi_send_powerup_update ();
 extern void multi_send_door_open_specific(int pnum,int segnum, int side,ubyte flag);
 extern void multi_send_wall_status_specific (int pnum,int wallnum,ubyte type,ubyte flags,ubyte state);
 extern void multi_send_light_specific (int pnum,int segnum,ubyte val);
@@ -3701,7 +3699,7 @@ net_udp_level_sync(void)
 	else
 		result = net_udp_wait_for_sync();
 
-   net_udp_count_powerups_in_mine();
+	multi_powcap_count_powerups_in_mine();
 
 	if (result)
 	{
@@ -3715,25 +3713,6 @@ net_udp_level_sync(void)
 	}
 	return(0);
 }
-
-void net_udp_count_powerups_in_mine(void)
- {
-  int i;
-
-  for (i=0;i<MAX_POWERUP_TYPES;i++)
-	PowerupsInMine[i]=0;
-	
-  for (i=0;i<=Highest_object_index;i++) 
-	{
-	 if (Objects[i].type==OBJ_POWERUP)
-	  {
-		PowerupsInMine[Objects[i].id]++;
-		if (multi_powerup_is_4pack(Objects[i].id))
-		   PowerupsInMine[Objects[i].id-1]+=4;
-	  }
-	}
-		  
- }
 
 int net_udp_do_join_game()
 {
@@ -4863,7 +4842,7 @@ void net_udp_send_extras ()
 	if (Network_sending_extras==15)
 		net_udp_send_player_flags();    
 	if (Network_sending_extras==10)
-		multi_send_powerup_update();  
+		multi_send_powcap_update();  
 
 	Network_sending_extras--;
 	if (!Network_sending_extras)
