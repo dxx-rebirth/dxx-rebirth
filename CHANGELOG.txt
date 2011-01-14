@@ -8,6 +8,7 @@ main/gamesave.c, main/multi.c, main/object.h: In multi_leave_game check for Play
 main/gameseq.c: Using timer_query() instead of clock() in InitPlayerPositions(); Also decreasing check value for closest_dist to D1-level to actually make it less likely to start at total random unchecked location where another player could be
 main/net_ipx.c, main/net_udp.c: When displaying kill goals in game rules, value must be multiplied by 5 to show the correct limit
 main/collide.c, main/multi.c, main/multi.h, main/net_udp.c: Added feature to optionally disable friendly fire in Team and Coop games
+main/newmenu.c: Moved scroll arrow one unit to the left to be not pixel-aligned to possible checkbox; Made newmenu sliders only react to spacebar, backspace, left and right since pageup/down is already taken for menu scrolling and all other previous key assignments will not work on most spread keyboard layouts
 
 20110111
 --------
