@@ -1969,7 +1969,7 @@ int ReadControls(d_event *event)
 
 	Player_fired_laser_this_frame=-1;
 
-	if (!Endlevel_sequence && !con_render)  //this was taken out of the if statement by WraithX
+	if (!Endlevel_sequence)  //this was taken out of the if statement by WraithX
 	{
 
 		if ( (Newdemo_state == ND_STATE_PLAYBACK) || (DefiningMarkerMessage)
@@ -1993,7 +1993,7 @@ int ReadControls(d_event *event)
 		do_weapon_stuff();
 	}
 
-	if (Player_exploded && !con_render) {
+	if (Player_exploded) {
 
 		if (exploding_flag==0)  {
 			exploding_flag = 1;			// When player starts exploding, clear all input devices...
@@ -2020,9 +2020,6 @@ int ReadControls(d_event *event)
 	if (event->type == EVENT_KEY_COMMAND)
 	{
 		key = event_key_get(event);
-
-		if (con_events(key) && con_render)
-			return 1;
 
 		if (DefiningMarkerMessage)
 		{

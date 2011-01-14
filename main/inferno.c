@@ -282,6 +282,9 @@ int standard_handler(d_event *event)
 					Quitting = 1;
 					return 1;
 #endif
+				case KEY_CTRLED + KEY_ESC:
+					con_showup();
+					return 1;
 			}
 			break;
 

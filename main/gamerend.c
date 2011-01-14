@@ -757,8 +757,6 @@ void game_render_frame_mono(int flip)
 #endif
 
 	show_extra_views();		//missile view, buddy bot, etc.
-
-	con_show();
 }
 
 void toggle_cockpit()

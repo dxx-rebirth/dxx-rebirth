@@ -304,6 +304,7 @@ int MovieHandler(window *wind, d_event *event, movie *m)
 
 		case EVENT_WINDOW_DEACTIVATED:
 			m->paused = 1;
+			MVE_rmHoldMovie();
 			break;
 
 		case EVENT_KEY_COMMAND:

@@ -543,7 +543,7 @@ int net_udp_list_join_poll( newmenu *menu, d_event *event, direct_join *dj )
 #endif
 			break;
 		}
-		case EVENT_IDLE:
+		case EVENT_WINDOW_DRAW:
 			if (dj->connecting)
 			{
 				if (net_udp_game_connect(dj))
@@ -901,7 +901,7 @@ int net_udp_how_many_connected()
 int net_udp_kmatrix_poll1( newmenu *menu, d_event *event, void *userdata )
 {
 	// Polling loop for End-of-level menu
-	if (event->type != EVENT_IDLE)
+	if (event->type != EVENT_WINDOW_DRAW)
 		return 0;
 	
 	menu = menu;
@@ -919,7 +919,7 @@ int net_udp_kmatrix_poll2( newmenu *menu, d_event *event, void *userdata )
 	int rval = 0;
 
 	// Polling loop for End-of-level menu
-	if (event->type != EVENT_IDLE)
+	if (event->type != EVENT_WINDOW_DRAW)
 		return 0;
 	
 	menu = menu;
@@ -2587,7 +2587,7 @@ int net_udp_sync_poll( newmenu *menu, d_event *event, void *userdata )
 	static fix64 t1 = 0;
 	int rval = 0;
 
-	if (event->type != EVENT_IDLE)
+	if (event->type != EVENT_WINDOW_DRAW)
 		return 0;
 	
 	menu = menu;
@@ -2624,7 +2624,7 @@ int net_udp_start_poll( newmenu *menu, d_event *event, void *userdata )
 	int nitems = newmenu_get_nitems(menu);
 	int i,n,nm;
 
-	if (event->type != EVENT_IDLE)
+	if (event->type != EVENT_WINDOW_DRAW)
 		return 0;
 	
 	userdata = userdata;
@@ -3616,7 +3616,7 @@ int net_udp_request_poll( newmenu *menu, d_event *event, void *userdata )
 	int i = 0;
 	int num_ready = 0;
 
-	if (event->type != EVENT_IDLE)
+	if (event->type != EVENT_WINDOW_DRAW)
 		return 0;
 	
 	menu = menu;
@@ -4885,11 +4885,9 @@ static int show_game_rules_handler(window *wind, d_event *event, netgame_info *n
 			}
 			break;
 			
-		case EVENT_IDLE:
-			timer_delay2(50);
-			break;
-
 		case EVENT_WINDOW_DRAW:
+			timer_delay2(50);
+
 			gr_set_current_canvas(NULL);
 			nm_draw_background(((SWIDTH-w)/2)-BORDERX,((SHEIGHT-h)/2)-BORDERY,((SWIDTH-w)/2)+w+BORDERX,((SHEIGHT-h)/2)+h+BORDERY);
 			

@@ -875,7 +875,7 @@ int net_ipx_kmatrix_poll1( newmenu *menu, d_event *event, void *userdata )
 	menu = menu;
 	userdata = userdata;
 
-	if (event->type != EVENT_IDLE)
+	if (event->type != EVENT_WINDOW_DRAW)
 		return 0;
 
 	// Send our endlevel packet at regular intervals
@@ -919,7 +919,7 @@ int net_ipx_kmatrix_poll2( newmenu *menu, d_event *event, void *userdata )
 	menu = menu;
 	userdata = userdata;
 
-	if (event->type != EVENT_IDLE)
+	if (event->type != EVENT_WINDOW_DRAW)
 		return 0;
 
 	if (timer_query() > (StartAbortMenuTime+(F1_0 * 8)))
@@ -2692,7 +2692,7 @@ int net_ipx_sync_poll( newmenu *menu, d_event *event, void *userdata )
 	menu = menu;
 	userdata = userdata;
 
-	if (event->type != EVENT_IDLE)
+	if (event->type != EVENT_WINDOW_DRAW)
 		return 0;
 
 	net_ipx_listen();
@@ -2722,7 +2722,7 @@ int net_ipx_start_poll( newmenu *menu, d_event *event, void *userdata )
 	int nitems = newmenu_get_nitems(menu);
 	int i,n,nm;
 
-	if (event->type != EVENT_IDLE)
+	if (event->type != EVENT_WINDOW_DRAW)
 		return 0;
 
 	userdata = userdata;
@@ -3808,7 +3808,7 @@ int net_ipx_request_poll( newmenu *menu, d_event *event, void *userdata )
 	int i = 0;
 	int num_ready = 0;
 
-	if (event->type != EVENT_IDLE)
+	if (event->type != EVENT_WINDOW_DRAW)
 		return 0;
 
 	menu = menu;
@@ -4064,7 +4064,7 @@ int net_ipx_wait_all_poll( newmenu *menu, d_event *event, void *userdata )
   menu=menu;
   userdata=userdata;
 
-	 if (event->type != EVENT_IDLE)
+	 if (event->type != EVENT_WINDOW_DRAW)
 		 return 0;
 
   if (timer_query() > t1+ALL_INFO_REQUEST_INTERVAL)
@@ -5449,11 +5449,9 @@ static int show_game_rules_handler(window *wind, d_event *event, netgame_info *n
 			}
 			break;
 
-		case EVENT_IDLE:
-			timer_delay2(50);
-			break;
-
 		case EVENT_WINDOW_DRAW:
+			timer_delay2(50);
+
 			gr_set_current_canvas(NULL);
 			nm_draw_background(((SWIDTH-w)/2)-BORDERX,((SHEIGHT-h)/2)-BORDERY,((SWIDTH-w)/2)+w+BORDERX,((SHEIGHT-h)/2)+h+BORDERY);
 
