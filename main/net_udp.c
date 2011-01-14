@@ -4935,7 +4935,7 @@ static int show_game_rules_handler(window *wind, d_event *event, netgame_info *n
 			gr_set_fontcolor(BM_XRGB(255,255,255),-1);
 			gr_printf( FSPACX(115),FSPACY( 35), "%i Min", netgame->control_invul_time/F1_0/60);
 			gr_printf( FSPACX(115),FSPACY( 41), "%i Min", netgame->PlayTimeAllowed*5);
-			gr_printf( FSPACX(115),FSPACY( 47), "%i", netgame->KillGoal);
+			gr_printf( FSPACX(115),FSPACY( 47), "%i", netgame->KillGoal*5);
 			gr_printf( FSPACX(115),FSPACY( 53), "%i", netgame->PacketsPerSec);
 			gr_printf( FSPACX(275),FSPACY( 35), netgame->InvulAppear?"ON":"OFF");
 			gr_printf( FSPACX(275),FSPACY( 41), netgame->Allow_marker_view?"ON":"OFF");
