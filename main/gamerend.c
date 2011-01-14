@@ -172,6 +172,8 @@ void show_netplayerinfo()
 	y+=LINE_SPACING;
 	gr_printf(x,y,"total time: %i:%02i:%02i",Players[Player_num].hours_total,f2i(Players[Player_num].time_total) / 60 % 60,f2i(Players[Player_num].time_total) % 60);
 	y+=LINE_SPACING;
+	if (Netgame.KillGoal)
+		gr_printf(x,y,"Kill goal: %d",Netgame.KillGoal*5);
 	
 	// player information (name, kills, ping, game efficiency)
 	y+=LINE_SPACING*2;

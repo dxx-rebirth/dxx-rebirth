@@ -166,6 +166,16 @@ void object_goto_next_viewer()
 }
 #endif
 
+object *obj_find_first_of_type (int type)
+{
+	int i;
+
+	for (i=0;i<=Highest_object_index;i++)
+		if (Objects[i].type==type)
+			return (&Objects[i]);
+	return ((object *)NULL);
+}
+
 //draw an object that has one bitmap & doesn't rotate
 void draw_object_blob(object *obj,bitmap_index bmi)
 {
@@ -329,6 +339,13 @@ void draw_polygon_object(object *obj)
 	fix engine_glow_value;
 
 	light = compute_object_light(obj,NULL);
+
+	//	If option set for bright players in netgame, brighten them!
+#ifdef NETWORK
+	if (Game_mode & GM_MULTI)
+		if (Netgame.BrightPlayers)
+			light = F1_0*2;
+#endif
 
 	imsave = Interpolation_method;
 	if (Linear_tmap_polygon_objects)

@@ -105,6 +105,7 @@ int	Mark_count = 0;                 // number of debugging marks set
 #endif
 
 static fix64 last_timer_value=0;
+fix ThisLevelTime=0;
 
 fix			VR_eye_width = F1_0;
 int			VR_render_mode = VR_NONE;
@@ -151,6 +152,9 @@ void GameProcessFrame(void);
 void FireLaser(void);
 void powerup_grab_cheat_all(void);
 void game_init_render_sub_buffers(int x, int y, int w, int h);
+
+//	Other functions
+extern void multi_check_for_killgoal_winner();
 
 extern int ReadControls(d_event *event);		// located in gamecntl.c
 //	==============================================================================================
@@ -562,6 +566,8 @@ void do_cloak_stuff(void)
 		}
 }
 
+int FakingInvul=0;
+
 //	------------------------------------------------------------------------------------
 void do_invulnerable_stuff(void)
 {
@@ -569,14 +575,18 @@ void do_invulnerable_stuff(void)
 		if (GameTime64 > Players[Player_num].invulnerable_time+INVULNERABLE_TIME_MAX)
 		{
 			Players[Player_num].flags ^= PLAYER_FLAGS_INVULNERABLE;
-#ifdef NETWORK
-			maybe_drop_net_powerup(POW_INVULNERABILITY);
-#endif
-			digi_play_sample( SOUND_INVULNERABILITY_OFF, F1_0);
-#ifdef NETWORK
-			if (Game_mode & GM_MULTI)
-				multi_send_play_sound(SOUND_INVULNERABILITY_OFF, F1_0);
-#endif
+			if (FakingInvul==0)
+			{
+				digi_play_sample( SOUND_INVULNERABILITY_OFF, F1_0);
+				#ifdef NETWORK
+				if (Game_mode & GM_MULTI)
+				{
+					multi_send_play_sound(SOUND_INVULNERABILITY_OFF, F1_0);
+					maybe_drop_net_powerup(POW_INVULNERABILITY);
+				}
+				#endif
+			}
+			FakingInvul=0;
 		}
 	}
 }
@@ -1130,12 +1140,21 @@ void GameProcessFrame(void)
 
 #ifdef NETWORK
 	if (Game_mode & GM_MULTI)
+	{
 		multi_do_frame();
+		if (Netgame.PlayTimeAllowed && ThisLevelTime>=i2f((Netgame.PlayTimeAllowed*5*60)))
+			multi_check_for_killgoal_winner();
+	}
 #endif
 
 	dead_player_frame();
 	if (Newdemo_state != ND_STATE_PLAYBACK)
 		do_controlcen_dead_frame();
+
+#ifdef NETWORK
+	if ((Game_mode & GM_MULTI) && Netgame.PlayTimeAllowed)
+		ThisLevelTime +=FrameTime;
+#endif
 
 	digi_sync_sounds();
 
@@ -1227,6 +1246,14 @@ void GameProcessFrame(void)
 	if (Do_appearance_effect) {
 		create_player_appearance_effect(ConsoleObject);
 		Do_appearance_effect = 0;
+#ifdef NETWORK
+		if ((Game_mode & GM_MULTI) && Netgame.InvulAppear)
+		{
+			Players[Player_num].flags |= PLAYER_FLAGS_INVULNERABLE;
+			Players[Player_num].invulnerable_time = GameTime64-i2f(27);
+			FakingInvul=1;
+		}
+#endif
 	}
 
 	// Check if we have to close in-game menus for multiplayer

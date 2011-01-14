@@ -97,6 +97,7 @@ typedef struct player {
 	fix64		cloak_time;						// Time cloaked
 	fix64		invulnerable_time;			// Time invulnerable
 
+	short   	KillGoalCount;          // Num of players killed this level
 	short		net_killed_total;				// Number of times killed total
  	short		net_kills_total;				// Number of net kills total
 	short		num_kills_level;				// Number of kills this level

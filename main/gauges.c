@@ -48,6 +48,7 @@ COPYRIGHT 1993-1998 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 #include "playsave.h"
 #include "rle.h"
 #include "byteswap.h"
+#include "cntrlcen.h"
 #ifdef OGL
 #include "ogl_init.h"
 #endif
@@ -335,6 +336,7 @@ static int invulnerable_frame = 0;
 int weapon_box_states[2];
 fix weapon_box_fade_values[2];
 int Color_0_31_0 = -1;
+extern fix ThisLevelTime;
 
 typedef struct gauge_box {
 	int left,top;
@@ -722,6 +724,38 @@ void hud_show_score()
 	gr_set_fontcolor(Color_0_31_0, -1);
 
 	gr_printf(grd_curcanv->cv_bitmap.bm_w-w-FSPACX(1), FSPACY(1), score_str);
+}
+
+void hud_show_timer_count()
+{
+#ifdef NETWORK
+	char	score_str[20];
+	int	w, h, aw,i;
+	fix timevar=0;
+#endif
+
+	if (HUD_toolong)
+		return;
+
+#ifdef NETWORK
+	if ((Game_mode & GM_NETWORK) && Netgame.PlayTimeAllowed)
+	{
+		timevar=i2f (Netgame.PlayTimeAllowed*5*60);
+		i=f2i(timevar-ThisLevelTime);
+		i++;
+
+		sprintf(score_str, "T - %5d", i);
+		gr_get_string_size(score_str, &w, &h, &aw );
+
+		if (Color_0_31_0 == -1)
+			Color_0_31_0 = BM_XRGB(0,31,0);
+
+		gr_set_fontcolor(Color_0_31_0, -1);
+
+		if (i>-1 && !Control_center_destroyed)
+			gr_printf(grd_curcanv->cv_bitmap.bm_w-w-FSPACX(12), LINE_SPACING+FSPACY(1), score_str);
+	}
+#endif
 }
 
 void hud_show_score_added()
@@ -2128,6 +2162,13 @@ void hud_show_kill_list()
 			if (i==n_left)
 				y = save_y;
 
+			if (Netgame.KillGoal || Netgame.PlayTimeAllowed)
+				x1-=FSPACX(18);
+		}
+		else  if (Netgame.KillGoal || Netgame.PlayTimeAllowed)
+		{
+			x1 = FSPACX(43);
+			x1 -=FSPACX(18);
 		}
 
 		if (Show_kill_list == 3)
@@ -2177,6 +2218,8 @@ void hud_show_kill_list()
 			gr_printf(x1,y,"%3d",team_kills[i]);
 		else if (Game_mode & GM_MULTI_COOP)
 			gr_printf(x1,y,"%-6d",Players[player_num].score);
+		else if (Netgame.PlayTimeAllowed || Netgame.KillGoal)
+			gr_printf(x1,y,"%3d(%d)",Players[player_num].net_kills_total,Players[player_num].KillGoalCount);
 		else
 			gr_printf(x1,y,"%3d",Players[player_num].net_kills_total);
 
@@ -2265,6 +2308,9 @@ void draw_hud()
 		if (score_time)
 			hud_show_score_added();
 	}
+
+	if ( !Rear_view && PlayerCfg.CockpitMode[1]!=CM_REAR_VIEW)
+		hud_show_timer_count();
 
 	// Show other stuff if not in rearview or letterbox.
 	if (!Rear_view && PlayerCfg.CockpitMode[1]!=CM_REAR_VIEW) {

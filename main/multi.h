@@ -112,8 +112,10 @@ extern int multi_protocol; // set and determinate used protocol
 #define MULTI_SEND_PLAYER		36 // NEVER USED
 
 #define MULTI_POWCAP_UPDATE     	37
+#define MULTI_HEARTBEAT         	38
+#define MULTI_KILLGOALS			39
 
-#define MULTI_MAX_TYPE                  37
+#define MULTI_MAX_TYPE                  39
 
 #define MAX_MULTI_MESSAGE_LEN  90 //didn't change it, just moved it up
 
@@ -410,8 +412,8 @@ typedef struct netgame_info
 	ubyte   					game_flags;
 	ubyte   					team_vector;
 	u_int32_t					AllowedItems;
-	short						Allow_marker_view; // (unused in D1)
-	short						AlwaysLighting; // (unused in D1)
+	short						Allow_marker_view; // (unused in D1 - no markers in game)
+	short						AlwaysLighting; // (unused in D1 - cannot destroy lights after all)
 	short						ShowAllNames; // (unused in D1 - solved with Show_reticle_name by Client)
 	short						BrightPlayers; // (unused in D1)
 	short						InvulAppear; // (unused in D1)
@@ -422,8 +424,8 @@ typedef struct netgame_info
 	short						team_kills[2];
 	short						killed[MAX_PLAYERS];
 	short						player_kills[MAX_PLAYERS];
-	int							KillGoal; // (unused in D1)
-	fix							PlayTimeAllowed; // (unused in D1)
+	int							KillGoal;
+	fix							PlayTimeAllowed;
 	fix							level_time;
 	int							control_invul_time;
 	int							monitor_vector;

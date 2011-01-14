@@ -86,6 +86,7 @@ void net_udp_noloss_clear_mdata_got(ubyte player_num);
 void net_udp_noloss_process_queue(fix64 time);
 void net_udp_send_extras ();
 extern void game_disable_cheats();
+extern void multi_send_kill_goal_counts();
 
 // Variables
 UDP_mdata_info		UDP_MData;
@@ -1051,6 +1052,7 @@ net_udp_new_player(UDP_sequence_packet *their)
 	memset(kill_matrix[pnum], 0, MAX_PLAYERS*sizeof(short)); 
 	Players[pnum].score = 0;
 	Players[pnum].flags = 0;
+	Players[pnum].KillGoalCount=0;
 
 	if (pnum == N_players)
 	{
@@ -1194,6 +1196,8 @@ void net_udp_welcome_player(UDP_sequence_packet *their)
 
 		HUD_init_message(HM_MULTI, "'%s' %s", Players[player_num].callsign, TXT_REJOIN);
 	}
+
+	Players[player_num].KillGoalCount=0;
 
 	// Send updated Objects data to the new/returning player
 
@@ -1446,7 +1450,7 @@ void net_udp_send_objects(void)
 			Network_send_objects = 0;
 			obj_count = 0;
 
-			Network_sending_extras=10; // start to send extras
+			Network_sending_extras=25; // start to send extras
 			VerifyPlayerJoined = Player_joining_extras = player_num;
 
 			return;
@@ -1677,6 +1681,7 @@ void net_udp_add_player(UDP_sequence_packet *p)
 	Netgame.players[N_players].version_minor=p->player.version_minor;
 	Netgame.players[N_players].rank=p->player.rank;
 	Netgame.players[N_players].connected = CONNECT_PLAYING;
+	Players[N_players].KillGoalCount=0;
 	Players[N_players].connected = CONNECT_PLAYING;
 	Netgame.players[N_players].LastPacketTime = timer_query();
 	N_players++;
@@ -1876,6 +1881,8 @@ int net_udp_check_game_info_request(ubyte *data, int data_len)
 	return 1;
 }
 
+extern fix ThisLevelTime;
+
 void net_udp_send_game_info(struct _sockaddr sender_addr, ubyte info_upid)
 {
 	// Send game info to someone who requested it
@@ -1906,13 +1913,13 @@ void net_udp_send_game_info(struct _sockaddr sender_addr, ubyte info_upid)
 		tmpvar = Netgame.game_status;
 		if (Endlevel_sequence || Control_center_destroyed)
 			tmpvar = NETSTAT_ENDLEVEL;
-//		if (Netgame.PlayTimeAllowed)
-//		{
-//			if ( (f2i((i2f (Netgame.PlayTimeAllowed*5*60))-ThisLevelTime)) < 30 )
-//			{
-//				tmpvar = NETSTAT_ENDLEVEL;
-//			}
-//		}
+		if (Netgame.PlayTimeAllowed)
+		{
+			if ( (f2i((i2f (Netgame.PlayTimeAllowed*5*60))-ThisLevelTime)) < 30 )
+			{
+				tmpvar = NETSTAT_ENDLEVEL;
+			}
+		}
 		buf[len] = tmpvar;														len++;
 		buf[len] = Netgame.numconnected;										len++;
 		buf[len] = Netgame.max_numplayers;										len++;
@@ -1957,13 +1964,13 @@ void net_udp_send_game_info(struct _sockaddr sender_addr, ubyte info_upid)
 		tmpvar = Netgame.game_status;
 		if (Endlevel_sequence || Control_center_destroyed)
 			tmpvar = NETSTAT_ENDLEVEL;
-//		if (Netgame.PlayTimeAllowed)
-//		{
-//			if ( (f2i((i2f (Netgame.PlayTimeAllowed*5*60))-ThisLevelTime)) < 30 )
-//			{
-//				tmpvar = NETSTAT_ENDLEVEL;
-//			}
-//		}
+		if (Netgame.PlayTimeAllowed)
+		{
+			if ( (f2i((i2f (Netgame.PlayTimeAllowed*5*60))-ThisLevelTime)) < 30 )
+			{
+				tmpvar = NETSTAT_ENDLEVEL;
+			}
+		}
 		buf[len] = tmpvar;														len++;
 		buf[len] = Netgame.numplayers;											len++;
 		buf[len] = Netgame.max_numplayers;										len++;
@@ -2553,7 +2560,7 @@ int net_udp_start_poll( newmenu *menu, d_event *event, void *userdata )
 }
 
 static int opt_cinvul, opt_show_on_map;
-static int opt_show_on_map, opt_difficulty, opt_setpower, opt_port, opt_packets, opt_plp;
+static int opt_show_on_map, opt_difficulty, opt_setpower, opt_playtime, opt_killgoal, opt_port, opt_packets, opt_plp, opt_bright, opt_start_invul;
 
 void net_udp_set_power (void)
 {
@@ -2578,8 +2585,8 @@ int net_udp_more_options_handler( newmenu *menu, d_event *event, void *userdata 
 void net_udp_more_game_options ()
 {
 	int opt=0,i=0;
-	char srinvul[50],packstring[5];
-	newmenu_item m[9];
+	char PlayText[80],KillText[80],srinvul[50],packstring[5];
+	newmenu_item m[13];
 
 	snprintf(packstring,sizeof(char)*4,"%d",Netgame.PacketsPerSec);
 	
@@ -2590,8 +2597,22 @@ void net_udp_more_game_options ()
 	sprintf( srinvul, "%s: %d %s", TXT_REACTOR_LIFE, Netgame.control_invul_time/F1_0/60, TXT_MINUTES_ABBREV );
 	m[opt].type = NM_TYPE_SLIDER; m[opt].value=Netgame.control_invul_time/5/F1_0/60; m[opt].text= srinvul; m[opt].min_value=0; m[opt].max_value=10; opt++;
 
+	opt_playtime=opt;
+	sprintf( PlayText, "Max time: %d %s", Netgame.PlayTimeAllowed*5, TXT_MINUTES_ABBREV );
+	m[opt].type = NM_TYPE_SLIDER; m[opt].value=Netgame.PlayTimeAllowed; m[opt].text= PlayText; m[opt].min_value=0; m[opt].max_value=10; opt++;
+
+	opt_killgoal=opt;
+	sprintf( KillText, "Kill Goal: %d kills", Netgame.KillGoal*5);
+	m[opt].type = NM_TYPE_SLIDER; m[opt].value=Netgame.KillGoal; m[opt].text= KillText; m[opt].min_value=0; m[opt].max_value=10; opt++;
+
 	opt_show_on_map=opt;
 	m[opt].type = NM_TYPE_CHECK; m[opt].text = TXT_SHOW_ON_MAP; m[opt].value=(Netgame.game_flags & NETGAME_FLAG_SHOW_MAP); opt_show_on_map=opt; opt++;
+
+	opt_start_invul=opt;
+	m[opt].type = NM_TYPE_CHECK; m[opt].text = "Invulnerable when reappearing"; m[opt].value=Netgame.InvulAppear; opt++;
+
+	opt_bright = opt;
+	m[opt].type = NM_TYPE_CHECK; m[opt].text = "Bright player ships"; m[opt].value=Netgame.BrightPlayers; opt++;
 
 	opt_setpower = opt;
 	m[opt].type = NM_TYPE_MENU;  m[opt].text = "Set Objects allowed..."; opt++;
@@ -2636,7 +2657,9 @@ menu:
 		snprintf (UDP_MyPort, sizeof(UDP_MyPort), "%d", UDP_PORT_DEFAULT);
 		nm_messagebox(TXT_ERROR, 1, TXT_OK, "Illegal port");
 	}
-	
+
+	Netgame.InvulAppear=m[opt_start_invul].value;	
+	Netgame.BrightPlayers=m[opt_bright].value;
 	Netgame.difficulty=Difficulty_level = m[opt_difficulty].value;
 	if (m[opt_show_on_map].value)
 		Netgame.game_flags |= NETGAME_FLAG_SHOW_MAP;
@@ -2648,12 +2671,37 @@ menu:
 int net_udp_more_options_handler( newmenu *menu, d_event *event, void *userdata )
 {
 	newmenu_item *menus = newmenu_get_items(menu);
+	int citem = newmenu_get_citem(menu);
 	
 	switch (event->type)
 	{
 		case EVENT_NEWMENU_CHANGED:
-			if (newmenu_get_citem(menu) == opt_cinvul)
+			if (citem == opt_cinvul)
 				sprintf( menus[opt_cinvul].text, "%s: %d %s", TXT_REACTOR_LIFE, menus[opt_cinvul].value*5, TXT_MINUTES_ABBREV );
+			else if (citem == opt_playtime)
+			{
+				if (Game_mode & GM_MULTI_COOP)
+				{
+					nm_messagebox ("Sorry",1,TXT_OK,"You can't change those for coop!");
+					menus[opt_playtime].value=0;
+					return 0;
+				}
+				
+				Netgame.PlayTimeAllowed=menus[opt_playtime].value;
+				sprintf( menus[opt_playtime].text, "Max Time: %d %s", Netgame.PlayTimeAllowed*5, TXT_MINUTES_ABBREV );
+			}
+			else if (citem == opt_killgoal)
+			{
+				if (Game_mode & GM_MULTI_COOP)
+				{
+					nm_messagebox ("Sorry",1,TXT_OK,"You can't change those for coop!");
+					menus[opt_killgoal].value=0;
+					return 0;
+				}
+				
+				Netgame.KillGoal=menus[opt_killgoal].value;
+				sprintf( menus[opt_killgoal].text, "Kill Goal: %d kills", Netgame.KillGoal*5);
+			}
 			break;
 			
 		default:
@@ -2707,6 +2755,12 @@ int net_udp_game_param_handler( newmenu *menu, d_event *event, param_opt *opt )
 				
 				if (!(Netgame.game_flags & NETGAME_FLAG_SHOW_MAP))
 					Netgame.game_flags |= NETGAME_FLAG_SHOW_MAP;
+
+				if (Netgame.PlayTimeAllowed || Netgame.KillGoal)
+				{
+					Netgame.PlayTimeAllowed=0;
+					Netgame.KillGoal=0;
+				}
 			}
 			else // if !Coop game
 			{
@@ -2828,6 +2882,8 @@ int net_udp_setup_game()
 			Players[i].callsign[0]=0;
 
 	MaxNumNetPlayers = MAX_NUM_NET_PLAYERS;
+	Netgame.KillGoal=0;
+	Netgame.PlayTimeAllowed=0;
 	Netgame.RefusePlayers=0;
 	sprintf( Netgame.game_name, "%s%s", Players[Player_num].callsign, TXT_S_GAME );
 	Netgame.difficulty=PlayerCfg.DefaultDifficulty;
@@ -2836,6 +2892,7 @@ int net_udp_setup_game()
 		snprintf (UDP_MyPort, sizeof(UDP_MyPort), "%d", GameArg.MplUdpMyPort);
 	else
 		snprintf (UDP_MyPort, sizeof(UDP_MyPort), "%d", UDP_PORT_DEFAULT);
+	Netgame.BrightPlayers = Netgame.InvulAppear = 0;
 	Netgame.AllowedItems=0;
 	Netgame.AllowedItems |= NETFLAG_DOPOWERUP;
 	Netgame.PacketLossPrevention = 1;
@@ -4492,6 +4549,8 @@ void net_udp_send_extras ()
 {
 	Assert (Player_joining_extras>-1);
 
+	if (Network_sending_extras==25 && (Netgame.PlayTimeAllowed || Netgame.KillGoal))
+		multi_send_kill_goal_counts();
 	if (Network_sending_extras==10)
 		multi_send_powcap_update();  
 
@@ -4542,8 +4601,12 @@ static int show_game_rules_handler(window *wind, d_event *event, netgame_info *n
 			
 			
 			gr_printf( FSPACX( 25),FSPACY( 55), "Reactor Life:");
-			gr_printf( FSPACX( 25),FSPACY( 67), "Pakets per second:");
-			gr_printf( FSPACX( 25),FSPACY( 73), "Show All Players On Automap:");
+			gr_printf( FSPACX( 25),FSPACY( 61), "Max Time:");
+			gr_printf( FSPACX( 25),FSPACY( 67), "Kill Goal:");
+			gr_printf( FSPACX( 25),FSPACY( 73), "Pakets per second:");
+			gr_printf( FSPACX( 25),FSPACY( 79), "Show All Players On Automap:");
+			gr_printf( FSPACX( 25),FSPACY( 85), "Invul when reappearing:");
+			gr_printf( FSPACX( 25),FSPACY( 91), "Bright player ships:");
 			
 			gr_printf( FSPACX( 25),FSPACY(100), "Allowed Objects");
 			gr_printf( FSPACX( 25),FSPACY(110), "Laser Upgrade:");
@@ -4561,8 +4624,12 @@ static int show_game_rules_handler(window *wind, d_event *event, netgame_info *n
 			
 			gr_set_fontcolor(gr_find_closest_color_current(255,255,255),-1);
 			gr_printf( FSPACX(170),FSPACY( 55), "%i Min", netgame->control_invul_time/F1_0/60);
-			gr_printf( FSPACX(170),FSPACY( 67), "%i", netgame->PacketsPerSec);
-			gr_printf( FSPACX(170),FSPACY( 73), netgame->game_flags&NETGAME_FLAG_SHOW_MAP?"ON":"OFF");
+			gr_printf( FSPACX(170),FSPACY( 61), "%i Min", netgame->PlayTimeAllowed*5);
+			gr_printf( FSPACX(170),FSPACY( 67), "%i", netgame->KillGoal*5);
+			gr_printf( FSPACX(170),FSPACY( 73), "%i", netgame->PacketsPerSec);
+			gr_printf( FSPACX(170),FSPACY( 79), netgame->game_flags&NETGAME_FLAG_SHOW_MAP?"ON":"OFF");
+			gr_printf( FSPACX(170),FSPACY( 85), netgame->InvulAppear?"ON":"OFF");
+			gr_printf( FSPACX(170),FSPACY( 91), netgame->BrightPlayers?"ON":"OFF");
 			
 			
 			gr_printf( FSPACX(130),FSPACY(110), netgame->AllowedItems&NETFLAG_DOLASER?"YES":"NO");

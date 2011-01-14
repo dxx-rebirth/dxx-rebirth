@@ -129,6 +129,8 @@ obj_position	Player_init[MAX_PLAYERS];
 int MaxNumNetPlayers = -1;
 int NumNetPlayerPositions = -1;
 
+extern fix ThisLevelTime;
+
 // Extern from game.c to fix a bug in the cockpit!
 
 extern int last_drawn_cockpit;
@@ -266,6 +268,7 @@ void init_player_stats_game()
 	Players[Player_num].num_kills_total = 0;
 	Players[Player_num].num_robots_level = 0;
 	Players[Player_num].num_robots_total = 0;
+	Players[Player_num].KillGoalCount = 0;
 
 	Players[Player_num].hostages_rescued_total = 0;
 	Players[Player_num].hostages_level = 0;
@@ -1311,6 +1314,7 @@ void StartNewLevel(int level_num)
 	hide_menus();
 
 	GameTime64 = 0;
+        ThisLevelTime=0;
 
 	if (!(Game_mode & GM_MULTI)) {
 		do_briefing_screens(Briefing_text_filename, level_num);

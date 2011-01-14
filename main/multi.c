@@ -76,6 +76,9 @@ COPYRIGHT 1993-1998 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 void reset_player_object(void); // In object.c but not in object.h
 void drop_player_eggs(object *playerobj); // from collide.c
 void StartLevel(void); // From gameseq.c
+void multi_do_heartbeat(char *buf);
+void multi_send_heartbeat();
+void multi_do_kill_goal_counts(char *buf);
 void multi_powcap_cap_objects();
 void multi_powcap_adjust_remote_cap(int pnum);
 
@@ -149,6 +152,7 @@ char RefuseThisPlayer=0,WaitForRefuseAnswer=0,RefuseTeam,RefusePlayerName[12];
 fix64 RefuseTimeLimit=0;
 
 char PowerupsInMine[MAX_POWERUP_TYPES],MaxPowerupsAllowed[MAX_POWERUP_TYPES];
+extern fix ThisLevelTime;
 
 int message_length[MULTI_MAX_TYPE+1] = {
         25, // POSITION
@@ -189,6 +193,8 @@ int message_length[MULTI_MAX_TYPE+1] = {
 	-1,	// MULTI_REQ_PLAYER - NEVER USED
 	-1,	// MULTI_SEND_PLAYER - NEVER USED
 	MAX_POWERUP_TYPES+1, // MULTI_POWCAP_UPDATE
+	5,  // MULTI_HEARTBEAT
+	9,  // MULTI_KILLGOALS
 };
 
 void multi_reset_player_object(object *objp);
@@ -375,6 +381,8 @@ multi_endlevel_score(void)
 			Players[i].flags &= ~(PLAYER_FLAGS_BLUE_KEY | PLAYER_FLAGS_RED_KEY | PLAYER_FLAGS_GOLD_KEY);
 	}
 
+	for (i=0;i<MAX_PLAYERS;i++)
+		Players[i].KillGoalCount=0;
 	for (i=0;i<MAX_POWERUP_TYPES;i++)
 	{
 		MaxPowerupsAllowed[i]=0;
@@ -413,6 +421,7 @@ multi_new_game(void)
 		Players[i].net_killed_total = 0;
 		Players[i].net_kills_total = 0;
 		Players[i].flags = 0;
+		Players[i].KillGoalCount=0;
 	}
 
 	for (i = 0; i < MAX_ROBOTS_CONTROLLED; i++)
@@ -530,6 +539,8 @@ multi_sort_kill_list(void)
 	}
 }
 
+extern object *obj_find_first_of_type (int);
+
 void multi_compute_kill(int killer, int killed)
 {
 	// Figure out the results of a network kills and add it to the
@@ -537,6 +548,7 @@ void multi_compute_kill(int killer, int killed)
 
 	int killed_pnum, killed_type;
 	int killer_pnum, killer_type;
+	int TheGoal;
 	char killed_name[(CALLSIGN_LEN*2)+4];
 	char killer_name[(CALLSIGN_LEN*2)+4];
 
@@ -651,6 +663,7 @@ void multi_compute_kill(int killer, int killed)
 				team_kills[get_team(killer_pnum)] += 1;
 		}
 		Players[killer_pnum].net_kills_total += 1;
+		Players[killer_pnum].KillGoalCount+=1;
 
 		if (Newdemo_state == ND_STATE_RECORDING)
 			newdemo_record_multi_kill(killer_pnum, 1);
@@ -672,6 +685,26 @@ void multi_compute_kill(int killer, int killed)
 		else
 			HUD_init_message(HM_MULTI, "%s %s %s!", killer_name, TXT_KILLED, killed_name);
 	}
+
+	TheGoal=Netgame.KillGoal*5;
+
+	if (Netgame.KillGoal>0)
+	{
+		if (Players[killer_pnum].KillGoalCount>=TheGoal)
+		{
+			if (killer_pnum==Player_num)
+			{
+				HUD_init_message(HM_MULTI, "You reached the kill goal!");
+				Players[Player_num].shields=i2f(200);
+			}
+			else
+				HUD_init_message(HM_MULTI, "%s has reached the kill goal!",Players[killer_pnum].callsign);
+
+			HUD_init_message(HM_MULTI, "The control center has been destroyed!");
+			net_destroy_controlcen (obj_find_first_of_type (OBJ_CNTRLCEN));
+		}
+	}
+
 	multi_sort_kill_list();
 	multi_show_player_list();
 }
@@ -698,10 +731,27 @@ void multi_do_protocol_frame(int force, int listen)
 
 void multi_do_frame(void)
 {
+	static int lasttime=0;
+	int i;
+
 	if (!(Game_mode & GM_MULTI) || Newdemo_state == ND_STATE_PLAYBACK)
 	{
 		Int3();
 		return;
+	}
+
+	if ((Game_mode & GM_NETWORK) && Netgame.PlayTimeAllowed && lasttime!=f2i (ThisLevelTime))
+	{
+		for (i=0;i<N_players;i++)
+			if (Players[i].connected)
+			{
+				if (i==Player_num)
+				{
+					multi_send_heartbeat();
+					lasttime=f2i(ThisLevelTime);
+				}
+				break;
+			}
 	}
 
 	multi_send_message(); // Send any waiting messages
@@ -2055,6 +2105,10 @@ multi_process_data(char *buf, int len)
 			if (!Endlevel_sequence) multi_do_hostage_door_status(buf); break;
 		case MULTI_POWCAP_UPDATE:
 			if (!Endlevel_sequence) multi_do_powcap_update(buf); break;
+		case MULTI_HEARTBEAT:
+			if (!Endlevel_sequence) multi_do_heartbeat (buf); break;
+		case MULTI_KILLGOALS:
+			if (!Endlevel_sequence) multi_do_kill_goal_counts (buf); break;
 		default:
 			Int3();
 	}
@@ -3062,6 +3116,83 @@ int multi_powerup_is_4pack (int id)
 		if (id==PowerupAdjustMapping[i])
 			return (1);
 	return (0);
+}
+
+void multi_send_kill_goal_counts()
+{
+	int i,count=1;
+	multibuf[0]=MULTI_KILLGOALS;
+
+	for (i=0;i<MAX_PLAYERS;i++)
+	{
+		*(char *)(multibuf+count)=(char)Players[i].KillGoalCount;
+		count++;
+	}
+
+	multi_send_data(multibuf, count, 1);
+}
+
+void multi_do_kill_goal_counts(char *buf)
+{
+	int i,count=1;
+
+	for (i=0;i<MAX_PLAYERS;i++)
+	{
+		Players[i].KillGoalCount=*(char *)(buf+count);
+		count++;
+	}
+
+}
+
+void multi_send_heartbeat ()
+{
+	if (!Netgame.PlayTimeAllowed)
+		return;
+
+	multibuf[0]=MULTI_HEARTBEAT;
+	PUT_INTEL_INT(multibuf+1, ThisLevelTime);
+	multi_send_data(multibuf, 5, 0);
+}
+
+void multi_do_heartbeat (char *buf)
+{
+	fix num;
+
+	num = GET_INTEL_INT(buf + 1);
+
+	ThisLevelTime=num;
+}
+
+void multi_check_for_killgoal_winner ()
+{
+	int i,best=0,bestnum=0;
+	object *objp;
+
+	if (Control_center_destroyed)
+		return;
+
+	for (i=0;i<N_players;i++)
+	{
+		if (Players[i].KillGoalCount>best)
+		{
+			best=Players[i].KillGoalCount;
+			bestnum=i;
+		}
+	}
+
+	if (bestnum==Player_num)
+	{
+		HUD_init_message(HM_MULTI, "You have the best score at %d kills!",best);
+		//Players[Player_num].shields=i2f(200);
+	}
+	else
+
+		HUD_init_message(HM_MULTI, "%s has the best score with %d kills!",Players[bestnum].callsign,best);
+
+	HUD_init_message(HM_MULTI, "The control center has been destroyed!");
+
+	objp=obj_find_first_of_type (OBJ_CNTRLCEN);
+	net_destroy_controlcen (objp);
 }
 
 void multi_add_lifetime_kills ()
