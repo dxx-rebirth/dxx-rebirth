@@ -10,6 +10,7 @@
 #include <string.h>
 #include <time.h>
 #include <SDL/SDL.h>
+#include "window.h"
 #include "console.h"
 #include "args.h"
 #include "gr.h"
@@ -21,8 +22,8 @@
 
 PHYSFS_file *gamelog_fp=NULL;
 struct console_buffer con_buffer[CON_LINES_MAX];
-int con_render=0;
-static int con_scroll_offset=0;
+static int con_state = CON_STATE_CLOSED, con_scroll_offset = 0, con_size = 0;
+extern void game_flush_inputs();
 
 void con_add_buffer_line(int priority, char *buffer)
 {
@@ -104,36 +105,16 @@ void con_printf(int priority, char *fmt, ...)
 	}
 }
 
-void con_show(void)
+void con_draw(void)
 {
-	int i=0, y;
-	static int con_size=0;
-	static fix64 last_scroll_time = 0;
-	int done=0;
+	int i = 0, y = 0, done = 0;
 
-	if (con_render)
-	{
-		if (con_size < CON_LINES_ONSCREEN && timer_query() >= last_scroll_time+(F1_0/30))
-		{
-			last_scroll_time = timer_query();
-			con_size++;
-		}
-	}
-	else
-	{
-		if (con_size > 0 && timer_query() >= last_scroll_time+(F1_0/30))
-		{
-			last_scroll_time = timer_query();
-			con_size--;
-		}
-	}
-
-	if (!con_size)
+	if (con_size <= 0)
 		return;
 
 	gr_set_current_canvas(NULL);
 	gr_set_curfont(GAME_FONT);
-	gr_setcolor(0);
+	gr_setcolor(BM_XRGB(0,0,0));
 	Gr_scanline_darkening_level = 1*7;
 	gr_rect(0,0,SWIDTH,(LINE_SPACING*(con_size))+FSPACY(1));
 	Gr_scanline_darkening_level = GR_FADE_LEVELS;
@@ -159,7 +140,7 @@ void con_show(void)
 				gr_set_fontcolor(BM_XRGB(0,28,0),-1);
 				break;
 			default:
-				gr_set_fontcolor(255,-1);
+				gr_set_fontcolor(BM_XRGB(255,255,255),-1);
 				break;
 		}
 		gr_get_string_size(con_buffer[CON_LINES_MAX-1-i].line,&w,&h,&aw);
@@ -170,34 +151,112 @@ void con_show(void)
 		if (y<=0 || CON_LINES_MAX-1-i <= 0 || i < 0)
 			done=1;
 	}
-	gr_setcolor(0);
+	gr_setcolor(BM_XRGB(0,0,0));
 	gr_rect(0,0,SWIDTH,LINE_SPACING);
-	gr_set_fontcolor(255,-1);
+	gr_set_fontcolor(BM_XRGB(255,255,255),-1);
 	gr_printf(FSPACX(1),FSPACY(1),"%s LOG", DESCENT_VERSION);
 	gr_printf(SWIDTH-FSPACX(110),FSPACY(1),"PAGE-UP/DOWN TO SCROLL");
 }
 
-int con_events(int key)
+int con_handler(window *wind, d_event *event)
 {
-	switch (key)
+	int key;
+	static fix64 last_scroll_time = 0;
+	
+	switch (event->type)
 	{
-		case KEY_PAGEUP:
-			con_scroll_offset+=CON_SCROLL_OFFSET;
-			if (con_scroll_offset >= CON_LINES_MAX-1)
-				con_scroll_offset = CON_LINES_MAX-1;
-			while (con_buffer[CON_LINES_MAX-1-con_scroll_offset].line[0]=='\0')
-				con_scroll_offset--;
+		case EVENT_WINDOW_ACTIVATED:
+			break;
+
+		case EVENT_WINDOW_DEACTIVATED:
+			con_size = 0;
+			con_state = CON_STATE_CLOSED;
+			break;
+
+		case EVENT_KEY_COMMAND:
+			key = event_key_get(event);
+			switch (key)
+			{
+				case KEY_CTRLED + KEY_ESC:
+					switch (con_state)
+					{
+						case CON_STATE_OPEN:
+						case CON_STATE_OPENING:
+							con_state = CON_STATE_CLOSING;
+							break;
+						case CON_STATE_CLOSED:
+						case CON_STATE_CLOSING:
+							con_state = CON_STATE_OPENING;
+						default:
+							break;
+					}
+					break;
+				case KEY_PAGEUP:
+					con_scroll_offset+=CON_SCROLL_OFFSET;
+					if (con_scroll_offset >= CON_LINES_MAX-1)
+						con_scroll_offset = CON_LINES_MAX-1;
+					while (con_buffer[CON_LINES_MAX-1-con_scroll_offset].line[0]=='\0')
+						con_scroll_offset--;
+					break;
+				case KEY_PAGEDOWN:
+					con_scroll_offset-=CON_SCROLL_OFFSET;
+					if (con_scroll_offset<0)
+						con_scroll_offset=0;
+					break;
+				default:
+					break;
+			}
 			return 1;
-		case KEY_PAGEDOWN:
-			con_scroll_offset-=CON_SCROLL_OFFSET;
-			if (con_scroll_offset<0)
-				con_scroll_offset=0;
-			return 1;
-		case KEY_SHIFTED + KEY_ESC:
-			con_render=!con_render;
-			return 1;
+
+		case EVENT_WINDOW_DRAW:
+			if (con_state == CON_STATE_OPENING)
+			{
+				if (con_size < CON_LINES_ONSCREEN && timer_query() >= last_scroll_time+(F1_0/30))
+				{
+					last_scroll_time = timer_query();
+					con_size++;
+				}
+			}
+			else if (con_state == CON_STATE_CLOSING)
+			{
+				if (con_size > 0 && timer_query() >= last_scroll_time+(F1_0/30))
+				{
+					last_scroll_time = timer_query();
+					con_size--;
+				}
+			}
+			if (con_size >= CON_LINES_ONSCREEN)
+				con_state = CON_STATE_OPEN;
+			else if (con_size <= 0)
+				con_state = CON_STATE_CLOSED;
+			if (con_state == CON_STATE_CLOSED && wind)
+				window_close(wind);
+
+			con_draw();
+			break;
+		case EVENT_WINDOW_CLOSE:
+			break;
+		default:
+			break;
 	}
+	
 	return 0;
+}
+
+void con_showup(void)
+{
+	window *wind;
+
+	game_flush_inputs();
+	con_state = CON_STATE_OPENING;
+	wind = window_create(&grd_curscreen->sc_canvas, 0, 0, SWIDTH, SHEIGHT, (int (*)(window *, d_event *, void *))con_handler, NULL);
+	
+	if (!wind)
+	{
+		d_event event = { EVENT_WINDOW_CLOSE };
+		con_handler(NULL, &event);
+		return;
+	}
 }
 
 void con_close(void)

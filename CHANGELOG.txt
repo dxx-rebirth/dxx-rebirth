@@ -9,6 +9,7 @@ main/gameseq.c: Using timer_query() instead of clock() in InitPlayerPositions();
 main/game.c, main/gamerend.c, main/gameseq.c, main/gauges.c, main/multi.c, main/multi.h, main/net_udp.c, main/object.c, main/player.h: Added Descent2 Multiplayer features: Kill goals, Allowed play time; Bright players, Invulnerable when reappearing
 main/collide.c, main/multi.c, main/multi.h, main/net_udp.c: Added feature to optionally disable friendly fire in Team and Coop games
 main/newmenu.c: Moved scroll arrow one unit to the left to be not pixel-aligned to possible checkbox; Made newmenu sliders only react to spacebar, backspace, left and right since pageup/down is already taken for menu scrolling and all other previous key assignments will not work on most spread keyboard layouts
+include/console.h, main/console.c, main/gamecntl.c, main/gamerend.c, main/inferno.c, main/kmatrix.c, main/net_ipx.c, main/net_udp.c: Converted console into a window and allow it to show in every part of the game; Fit several poll functions and kmatrix so they won't get interrupted by the console
 
 20110113
 --------

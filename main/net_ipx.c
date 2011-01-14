@@ -652,7 +652,7 @@ int net_ipx_endlevel_poll( newmenu *menu, d_event *event, int *secret )
 			}
 
 
-		case EVENT_IDLE:
+		case EVENT_WINDOW_DRAW:
 			// Send our endlevel packet at regular intervals
 
 			if (timer_query() > t1+ENDLEVEL_SEND_INTERVAL)
@@ -747,7 +747,7 @@ int net_ipx_endlevel_poll2( newmenu *menu, d_event *event, int *secret )
 
 	menu = menu;
 
-	if (event->type != EVENT_IDLE)
+	if (event->type != EVENT_WINDOW_DRAW)
 		return 0;
 
 	// Send our endlevel packet at regular intervals
@@ -791,7 +791,7 @@ int net_ipx_kmatrix_poll1( newmenu *menu, d_event *event, void *userdata )
 	menu = menu;
 	userdata = userdata;
 
-	if (event->type != EVENT_IDLE)
+	if (event->type != EVENT_WINDOW_DRAW)
 		return 0;
 
 	// Send our endlevel packet at regular intervals
@@ -2067,7 +2067,7 @@ int net_ipx_sync_poll( newmenu *menu, d_event *event, void *userdata )
 	menu = menu;
 	userdata = userdata;
 
-	if (event->type != EVENT_IDLE)
+	if (event->type != EVENT_WINDOW_DRAW)
 		return 0;
 
 	net_ipx_listen();
@@ -2097,7 +2097,7 @@ int net_ipx_start_poll( newmenu *menu, d_event *event, void *userdata )
 	int nitems = newmenu_get_nitems(menu);
 	int i,n,nm;
 
-	if (event->type != EVENT_IDLE)
+	if (event->type != EVENT_WINDOW_DRAW)
 		return 0;
 
 	userdata = userdata;
@@ -3178,7 +3178,7 @@ int net_ipx_request_poll( newmenu *menu, d_event *event, void *userdata )
 	int i = 0;
 	int num_ready = 0;
 
-	if (event->type != EVENT_IDLE)
+	if (event->type != EVENT_WINDOW_DRAW)
 		return 0;
 
 	menu = menu;
@@ -3846,11 +3846,9 @@ static int show_game_rules_handler(window *wind, d_event *event, netgame_info *n
 			}
 			break;
 
-		case EVENT_IDLE:
-			timer_delay2(50);
-			break;
-
 		case EVENT_WINDOW_DRAW:
+			timer_delay2(50);
+
 			gr_set_current_canvas(NULL);
 			nm_draw_background(((SWIDTH-w)/2)-BORDERX,((SHEIGHT-h)/2)-BORDERY,((SWIDTH-w)/2)+w+BORDERX,((SHEIGHT-h)/2)+h+BORDERY);
 

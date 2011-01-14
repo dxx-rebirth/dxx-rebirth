@@ -404,7 +404,6 @@ void game_render_frame_mono(int flip)
 	if (netplayerinfo_on)
 		show_netplayerinfo();
 #endif
-	con_show();
 }
 
 void toggle_cockpit()

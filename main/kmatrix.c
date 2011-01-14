@@ -208,7 +208,7 @@ int kmatrix_ipx_handler(window *wind, d_event *event, kmatrix_ipx_screen *km)
 			}
 			break;
 			
-		case EVENT_IDLE:
+		case EVENT_WINDOW_DRAW:
 			timer_delay2(50);
 
 			if (timer_query() >= (km->entry_time+MAX_VIEW_TIME))
@@ -216,9 +216,7 @@ int kmatrix_ipx_handler(window *wind, d_event *event, kmatrix_ipx_screen *km)
 			
 			if (km->network && (Game_mode & GM_NETWORK))
 				multi_endlevel_poll1(NULL, event, NULL);
-			break;
 
-		case EVENT_WINDOW_DRAW:
 			kmatrix_ipx_redraw(km);
 			break;
 			
@@ -504,7 +502,7 @@ int kmatrix_handler(window *wind, d_event *event, kmatrix_screen *km)
 			}
 			break;
 			
-		case EVENT_IDLE:
+		case EVENT_WINDOW_DRAW:
 			timer_delay2(50);
 
 			if (km->network)
@@ -534,9 +532,7 @@ int kmatrix_handler(window *wind, d_event *event, kmatrix_screen *km)
 				
 				window_close(wind);
 			}
-			break;
 
-		case EVENT_WINDOW_DRAW:
 			kmatrix_redraw(km);
 			
 			if (km->playing)

@@ -18,17 +18,20 @@
 #define CON_LINES_MAX      128
 #define CON_LINE_LENGTH    512
 
+#define CON_STATE_OPEN 2
+#define CON_STATE_OPENING 1
+#define CON_STATE_CLOSING -1
+#define CON_STATE_CLOSED -2
+
 typedef struct console_buffer
 {
 	char line[CON_LINE_LENGTH];
 	int priority;
 } __pack__ console_buffer;
 
-extern int con_render;
 void con_init(void);
 void con_printf(int level, char *fmt, ...);
-void con_show(void);
-int con_events(int key);
+void con_showup(void);
 
 #endif /* _CONSOLE_H_ */
 
