@@ -5,6 +5,7 @@ D1X-Rebirth Changelog
 main/credits.c, main/menu.c, main/net_udp.c, main/scores.c: Fix compile errors introduced when merging
 main/collide.c, main/fireball.c, main/gamesave.c, main/gameseq.c, main/gameseq.h, main/laser.c, main/multi.c, main/multi.h, main/multibot.c, main/net_ipx.c, main/net_udp.c, main/object.c, main/powerup.c, main/powerup.h, main/weapon.c, main/weapon.h: Removed D1X implementation of multiplayer powerup capping and added D2X code to replace this (UDP-only); Added a bunch of D2X code for general and multiplayer powerup dropping to make codes more consistent to each other; Removed MULTI_PROTO_D1X_VER and MULTI_PROTO_D1X_MINOR defines since they are not needed anymore
 main/gamesave.c, main/multi.c, main/object.h: In multi_leave_game check for Player_eggs_Dropped before actually dropping to prevent multiple drops in case player quits game after being killed; put console output level of multiplayer powerup cap messagers to CON_VERBOSE; Fixed small compiler warning in gamesave.c due to last commit
+main/gameseq.c: Using timer_query() instead of clock() in InitPlayerPositions(); Also check up distance up to 10 segments
 
 20110113
 --------

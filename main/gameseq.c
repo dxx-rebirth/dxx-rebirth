@@ -1332,9 +1332,9 @@ void InitPlayerPosition(int random)
 		int i, closest = -1, trys=0;
 		fix closest_dist = 0x7ffffff, dist;
 
-		d_srand(clock());
-
 		do {
+			timer_update();
+			d_srand((fix)timer_query());
 			trys++;
 			NewPlayer = d_rand() % NumNetPlayerPositions;
 
@@ -1343,7 +1343,7 @@ void InitPlayerPosition(int random)
 
 			for (i=0; i<N_players; i++ )	{
 				if ( (i!=Player_num) && (Objects[Players[i].objnum].type == OBJ_PLAYER) )	{
-					dist = find_connected_distance(&Objects[Players[i].objnum].pos, Objects[Players[i].objnum].segnum, &Player_init[NewPlayer].pos, Player_init[NewPlayer].segnum, 5, WID_FLY_FLAG );
+					dist = find_connected_distance(&Objects[Players[i].objnum].pos, Objects[Players[i].objnum].segnum, &Player_init[NewPlayer].pos, Player_init[NewPlayer].segnum, 10, WID_FLY_FLAG );
 					if ( (dist < closest_dist) && (dist >= 0) )	{
 						closest_dist = dist;
 						closest = i;
