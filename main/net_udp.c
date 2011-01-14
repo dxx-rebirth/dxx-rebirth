@@ -2141,6 +2141,7 @@ void net_udp_send_game_info(struct _sockaddr sender_addr, ubyte info_upid)
 		}
 		PUT_INTEL_SHORT(buf + len, Netgame.PacketsPerSec);						len += 2;
 		buf[len] = Netgame.PacketLossPrevention;								len++;
+		buf[len] = Netgame.NoFriendlyFire;								len++;
 		
 		sendto (UDP_Socket[0], buf, len, 0, (struct sockaddr *)&sender_addr, sizeof(struct _sockaddr));
 	}
@@ -2339,6 +2340,7 @@ void net_udp_process_game_info(ubyte *data, int data_len, struct _sockaddr game_
 		}
 		Netgame.PacketsPerSec = GET_INTEL_SHORT(&(data[len]));					len += 2;
 		Netgame.PacketLossPrevention = data[len];								len++;
+		Netgame.NoFriendlyFire = data[len];								len++;
 		
 		Netgame.protocol.udp.valid = 1; // This game is valid! YAY!
 	}
@@ -2709,7 +2711,7 @@ int net_udp_start_poll( newmenu *menu, d_event *event, void *userdata )
 
 static int opt_cinvul, opt_show_on_map;
 static int opt_setpower,opt_playtime,opt_killgoal,opt_port,opt_marker_view,opt_light;
-static int opt_difficulty,opt_packets, opt_bright,opt_start_invul, opt_show_names, opt_plp;
+static int opt_difficulty,opt_packets, opt_bright,opt_start_invul, opt_show_names, opt_plp, opt_ffire;
 
 void net_udp_set_power (void)
 {
@@ -2735,7 +2737,7 @@ void net_udp_more_game_options ()
 {
 	int opt=0,i;
 	char PlayText[80],KillText[80],srinvul[50],packstring[5];
-	newmenu_item m[16];
+	newmenu_item m[17];
 
 	snprintf(packstring,sizeof(char)*4,"%d",Netgame.PacketsPerSec);
 	
@@ -2770,6 +2772,9 @@ void net_udp_more_game_options ()
 	
 	opt_show_on_map=opt;
 	m[opt].type = NM_TYPE_CHECK; m[opt].text = TXT_SHOW_ON_MAP; m[opt].value=(Netgame.game_flags & NETGAME_FLAG_SHOW_MAP); opt_show_on_map=opt; opt++;
+
+	opt_ffire=opt;
+	m[opt].type = NM_TYPE_CHECK; m[opt].text = "No friendly fire (Team, Coop)"; m[opt].value=Netgame.NoFriendlyFire; opt++;
 	
 	opt_setpower = opt;
 	m[opt].type = NM_TYPE_MENU;  m[opt].text = "Set Objects allowed..."; opt++;
@@ -2826,6 +2831,7 @@ menu:
 		Netgame.game_flags |= NETGAME_FLAG_SHOW_MAP;
 	else
 		Netgame.game_flags &= ~NETGAME_FLAG_SHOW_MAP;
+	Netgame.NoFriendlyFire = m[opt_ffire].value;
 	Netgame.PacketLossPrevention = m[opt_plp].value;
 }
 
@@ -3051,6 +3057,7 @@ int net_udp_setup_game()
 	Netgame.AllowedItems = 0;
 	Netgame.AllowedItems |= NETFLAG_DOPOWERUP;
 	Netgame.PacketLossPrevention = 1;
+	Netgame.NoFriendlyFire = 0;
 
 	strcpy(Netgame.mission_name, Current_mission_filename);
 	strcpy(Netgame.mission_title, Current_mission_longname);
@@ -4904,6 +4911,7 @@ static int show_game_rules_handler(window *wind, d_event *event, netgame_info *n
 			gr_printf( FSPACX(155),FSPACY( 53), "Bright player ships:");
 			gr_printf( FSPACX(155),FSPACY( 59), "Show enemy names on hud:");
 			gr_printf( FSPACX(155),FSPACY( 65), "Show players on automap:");
+			gr_printf( FSPACX(155),FSPACY( 71), "No friendly Fire:");
 			gr_printf( FSPACX( 25),FSPACY( 80), "Allowed Objects");
 			gr_printf( FSPACX( 25),FSPACY( 90), "Laser Upgrade:");
 			gr_printf( FSPACX( 25),FSPACY( 96), "Super Laser:");
@@ -4943,6 +4951,7 @@ static int show_game_rules_handler(window *wind, d_event *event, netgame_info *n
 			gr_printf( FSPACX(275),FSPACY( 53), netgame->BrightPlayers?"ON":"OFF");
 			gr_printf( FSPACX(275),FSPACY( 59), netgame->ShowAllNames?"ON":"OFF");
 			gr_printf( FSPACX(275),FSPACY( 65), netgame->game_flags & NETGAME_FLAG_SHOW_MAP?"ON":"OFF");
+			gr_printf( FSPACX(275),FSPACY( 71), netgame->NoFriendlyFire?"ON":"OFF");
 			gr_printf( FSPACX(130),FSPACY( 90), netgame->AllowedItems & NETFLAG_DOLASER?"YES":"NO");
 			gr_printf( FSPACX(130),FSPACY( 96), netgame->AllowedItems & NETFLAG_DOSUPERLASER?"YES":"NO");
 			gr_printf( FSPACX(130),FSPACY(102), netgame->AllowedItems & NETFLAG_DOQUAD?"YES":"NO");

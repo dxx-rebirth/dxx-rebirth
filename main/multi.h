@@ -277,6 +277,7 @@ void multi_sort_kill_list(void);
 void multi_reset_stuff(void);
 void multi_send_data(char *buf, int len, int priority);
 int get_team(int pnum);
+int multi_maybe_disable_friendly_fire(object *killer);
 void multi_object_to_object_rw(object *obj, object_rw *obj_rw);
 void multi_object_rw_to_object(object_rw *obj_rw, object *obj);
 
@@ -496,5 +497,6 @@ typedef struct netgame_info
 	ubyte						player_flags[MAX_PLAYERS];
 	short						PacketsPerSec;
 	ubyte						PacketLossPrevention;
+	ubyte						NoFriendlyFire;
 } __pack__ netgame_info;
 #endif /* _MULTI_H */

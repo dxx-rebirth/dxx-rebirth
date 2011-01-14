@@ -4795,6 +4795,27 @@ void multi_do_play_by_play (char *buf)
 	}
 }
 
+// Decide if fire from "killer" is friendly. If yes return 1 (no harm to me) otherwise 0 (damage me)
+int multi_maybe_disable_friendly_fire(object *killer)
+{
+	if (!(Game_mode & GM_NETWORK)) // no Multiplayer game -> always harm me!
+		return 0;
+	if (!Netgame.NoFriendlyFire) // friendly fire is activated -> harm me!
+		return 0;
+	if (killer->type != OBJ_PLAYER) // not a player -> harm me!
+		return 0;
+	if (Game_mode & GM_MULTI_COOP) // coop mode -> don't harm me!
+		return 1;
+	else if (Game_mode & GM_TEAM) // team mode - find out if killer is in my team
+	{
+		if (get_team(Player_num) == get_team(killer->id)) // in my team -> don't harm me!
+			return 1;
+		else // opposite team -> harm me!
+			return 0;
+	}
+	return 0; // all other cases -> harm me!
+}
+
 ///
 /// CODE TO LOAD HOARD DATA
 ///

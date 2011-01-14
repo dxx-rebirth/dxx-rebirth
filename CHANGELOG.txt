@@ -7,6 +7,7 @@ main/fireball.c, main/gamesave.c, main/multi.c, main/multi.h, main/net_ipx.c, ma
 main/gamesave.c, main/multi.c, main/object.h: In multi_leave_game check for Player_eggs_Dropped before actually dropping to prevent multiple drops in case player quits game after being killed; put console output level of multiplayer powerup cap messagers to CON_VERBOSE
 main/gameseq.c: Using timer_query() instead of clock() in InitPlayerPositions(); Also decreasing check value for closest_dist to D1-level to actually make it less likely to start at total random unchecked location where another player could be
 main/net_ipx.c, main/net_udp.c: When displaying kill goals in game rules, value must be multiplied by 5 to show the correct limit
+main/collide.c, main/multi.c, main/multi.h, main/net_udp.c: Added feature to optionally disable friendly fire in Team and Coop games
 
 20110111
 --------
