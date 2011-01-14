@@ -677,7 +677,7 @@ int newmenu_mouse(window *wind, d_event *event, newmenu *menu, int button)
 
 					if (menu->scroll_offset != 0) {
 						gr_get_string_size(UP_ARROW_MARKER, &arrow_width, &arrow_height, &aw);
-						x1 = grd_curcanv->cv_bitmap.bm_x+BORDERX-FSPACX(11);
+						x1 = grd_curcanv->cv_bitmap.bm_x+BORDERX-FSPACX(12);
 						y1 = grd_curcanv->cv_bitmap.bm_y + menu->items[menu->scroll_offset].y-(((int)LINE_SPACING)*menu->scroll_offset);
 						x2 = x1 + arrow_width;
 						y2 = y1 + arrow_height;
@@ -687,7 +687,7 @@ int newmenu_mouse(window *wind, d_event *event, newmenu *menu, int button)
 					}
 					if (menu->scroll_offset+menu->max_displayable<menu->nitems) {
 						gr_get_string_size(DOWN_ARROW_MARKER, &arrow_width, &arrow_height, &aw);
-						x1 = grd_curcanv->cv_bitmap.bm_x+BORDERX-FSPACX(11);
+						x1 = grd_curcanv->cv_bitmap.bm_x+BORDERX-FSPACX(12);
 						y1 = grd_curcanv->cv_bitmap.bm_y + menu->items[menu->scroll_offset+menu->max_displayable-1].y-(((int)LINE_SPACING)*menu->scroll_offset);
 						x2 = x1 + arrow_width;
 						y2 = y1 + arrow_height;
@@ -1112,34 +1112,22 @@ int newmenu_key_command(window *wind, d_event *event, newmenu *menu)
 		if ( (item->type==NM_TYPE_NUMBER) || (item->type==NM_TYPE_SLIDER))
 		{
 			switch( k ) {
-				case KEY_PAD4:
 				case KEY_LEFT:
-				case KEY_MINUS:
-				case KEY_MINUS+KEY_SHIFTED:
-				case KEY_PADMINUS:
 					item->value -= 1;
 					changed = 1;
 					rval = 1;
 					break;
 				case KEY_RIGHT:
-				case KEY_PAD6:
-				case KEY_EQUAL:
-				case KEY_EQUAL+KEY_SHIFTED:
-				case KEY_PADPLUS:
 					item->value++;
 					changed = 1;
 					rval = 1;
 					break;
-				case KEY_PAGEUP:
-				case KEY_PAD9:
 				case KEY_SPACEBAR:
 					item->value += 10;
 					changed = 1;
 					rval = 1;
 					break;
-				case KEY_PAGEDOWN:
 				case KEY_BACKSP:
-				case KEY_PAD3:
 					item->value -= 10;
 					changed = 1;
 					rval = 1;
@@ -1448,7 +1436,7 @@ int newmenu_draw(window *wind, newmenu *menu)
 		gr_set_curfont(MEDIUM2_FONT);
 
 		sy=menu->items[menu->scroll_offset].y-(((int)LINE_SPACING)*menu->scroll_offset);
-		sx=BORDERX-FSPACX(11);
+		sx=BORDERX-FSPACX(12);
 
 		if (menu->scroll_offset!=0)
 			gr_printf( sx, sy, UP_ARROW_MARKER );
@@ -1456,7 +1444,7 @@ int newmenu_draw(window *wind, newmenu *menu)
 			gr_printf( sx, sy, "  " );
 
 		sy=menu->items[menu->scroll_offset+menu->max_displayable-1].y-(((int)LINE_SPACING)*menu->scroll_offset);
-		sx=BORDERX-FSPACX(11);
+		sx=BORDERX-FSPACX(12);
 
 		if (menu->scroll_offset+menu->max_displayable<menu->nitems)
 			gr_printf( sx, sy, DOWN_ARROW_MARKER );
