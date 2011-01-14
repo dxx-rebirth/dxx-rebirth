@@ -537,7 +537,7 @@ int net_udp_list_join_poll( newmenu *menu, d_event *event, direct_join *dj )
 				newpage++;
 				if (NLPage < 0)
 					NLPage = UDP_NETGAMES_PAGES-1;
-				((d_event_keycommand *)event)->keycode = 0;
+				key = 0;
 				break;
 			}
 			if (key == KEY_PAGEDOWN)
@@ -546,7 +546,7 @@ int net_udp_list_join_poll( newmenu *menu, d_event *event, direct_join *dj )
 				newpage++;
 				if (NLPage >= UDP_NETGAMES_PAGES)
 					NLPage = 0;
-				((d_event_keycommand *)event)->keycode = 0;
+				key = 0;
 				break;
 			}
 			if (key == KEY_F5)

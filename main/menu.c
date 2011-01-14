@@ -416,7 +416,7 @@ int main_menu_handler(newmenu *menu, d_event *event, int *menu_choice )
 		case EVENT_MOUSE_BUTTON_DOWN:
 		case EVENT_MOUSE_BUTTON_UP:
 			// Don't allow mousebutton-closing in main menu.
-			if (mouse_get_button(event) == MBTN_RIGHT)
+			if (event_mouse_get_button(event) == MBTN_RIGHT)
 				return 1;
 			break;
 
@@ -1231,10 +1231,11 @@ void graphics_config()
 {
 #ifdef OGL
 	newmenu_item m[11];
+	int i = 0;
 #else
 	newmenu_item m[2];
 #endif
-	int nitems = 0, i = 0;
+	int nitems = 0;
 
 #ifdef OGL
 	m[nitems].type = NM_TYPE_TEXT; m[nitems].text = "Texture Filtering (restart required):"; nitems++;
