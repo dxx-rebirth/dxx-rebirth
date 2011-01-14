@@ -1,5 +1,9 @@
 D1X-Rebirth Changelog
 
+20110115
+--------
+arch/linux/ipx.c, main/net_ipx.c: Fixed some compiler warnings
+
 20110114
 --------
 main/credits.c, main/menu.c, main/net_udp.c, main/scores.c: Fix compile errors introduced when merging
