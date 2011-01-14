@@ -1200,6 +1200,9 @@ void apply_damage_to_player(object *player, object *killer, fix damage)
 	if (Players[Player_num].flags & PLAYER_FLAGS_INVULNERABLE)
 		return;
 
+	if (multi_maybe_disable_friendly_fire(killer))
+		return;
+
 	if (Endlevel_sequence)
 		return;
 
@@ -1209,21 +1212,8 @@ void apply_damage_to_player(object *player, object *killer, fix damage)
 	//be a mirror of the value in the Player structure.
 
 	if (player->id == Player_num) {		//is this the local player?
-
-		if (Players[Player_num].flags & PLAYER_FLAGS_INVULNERABLE) {
-
-			//invincible, so just do blue flash
-
-			PALETTE_FLASH_ADD(0,0,f2i(damage)*4);	//flash blue
-
-		}
-		else {		//take damage, do red flash
-
-			Players[Player_num].shields -= damage;
-
-			PALETTE_FLASH_ADD(f2i(damage)*4,-f2i(damage/2),-f2i(damage/2));	//flash red
-
-		}
+		Players[Player_num].shields -= damage;
+		PALETTE_FLASH_ADD(f2i(damage)*4,-f2i(damage/2),-f2i(damage/2));	//flash red
 
 		if (Players[Player_num].shields < 0)	{
 

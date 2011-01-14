@@ -7,6 +7,7 @@ main/collide.c, main/fireball.c, main/gamesave.c, main/gameseq.c, main/gameseq.h
 main/gamesave.c, main/multi.c, main/object.h: In multi_leave_game check for Player_eggs_Dropped before actually dropping to prevent multiple drops in case player quits game after being killed; put console output level of multiplayer powerup cap messagers to CON_VERBOSE; Fixed small compiler warning in gamesave.c due to last commit
 main/gameseq.c: Using timer_query() instead of clock() in InitPlayerPositions(); Also check up distance up to 10 segments
 main/game.c, main/gamerend.c, main/gameseq.c, main/gauges.c, main/multi.c, main/multi.h, main/net_udp.c, main/object.c, main/player.h: Added Descent2 Multiplayer features: Kill goals, Allowed play time; Bright players, Invulnerable when reappearing
+main/collide.c, main/multi.c, main/multi.h, main/net_udp.c: Added feature to optionally disable friendly fire in Team and Coop games
 
 20110113
 --------

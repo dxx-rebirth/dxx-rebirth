@@ -2021,6 +2021,7 @@ void net_udp_send_game_info(struct _sockaddr sender_addr, ubyte info_upid)
 		}
 		PUT_INTEL_SHORT(buf + len, Netgame.PacketsPerSec);						len += 2;
 		buf[len] = Netgame.PacketLossPrevention;								len++;
+		buf[len] = Netgame.NoFriendlyFire;								len++;
 
 		sendto (UDP_Socket[0], buf, len, 0, (struct sockaddr *)&sender_addr, sizeof(struct _sockaddr));
 	}
@@ -2201,6 +2202,7 @@ void net_udp_process_game_info(ubyte *data, int data_len, struct _sockaddr game_
 		}
 		Netgame.PacketsPerSec = GET_INTEL_SHORT(&(data[len]));					len += 2;
 		Netgame.PacketLossPrevention = data[len];								len++;
+		Netgame.NoFriendlyFire = data[len];								len++;
 
 		Netgame.protocol.udp.valid = 1; // This game is valid! YAY!
 	}
@@ -2560,7 +2562,7 @@ int net_udp_start_poll( newmenu *menu, d_event *event, void *userdata )
 }
 
 static int opt_cinvul, opt_show_on_map;
-static int opt_show_on_map, opt_difficulty, opt_setpower, opt_playtime, opt_killgoal, opt_port, opt_packets, opt_plp, opt_bright, opt_start_invul;
+static int opt_show_on_map, opt_difficulty, opt_setpower, opt_playtime, opt_killgoal, opt_port, opt_packets, opt_plp, opt_bright, opt_start_invul, opt_ffire;
 
 void net_udp_set_power (void)
 {
@@ -2586,7 +2588,7 @@ void net_udp_more_game_options ()
 {
 	int opt=0,i=0;
 	char PlayText[80],KillText[80],srinvul[50],packstring[5];
-	newmenu_item m[13];
+	newmenu_item m[14];
 
 	snprintf(packstring,sizeof(char)*4,"%d",Netgame.PacketsPerSec);
 	
@@ -2613,6 +2615,9 @@ void net_udp_more_game_options ()
 
 	opt_bright = opt;
 	m[opt].type = NM_TYPE_CHECK; m[opt].text = "Bright player ships"; m[opt].value=Netgame.BrightPlayers; opt++;
+
+	opt_ffire=opt;
+	m[opt].type = NM_TYPE_CHECK; m[opt].text = "No friendly fire (Team, Coop)"; m[opt].value=Netgame.NoFriendlyFire; opt++;
 
 	opt_setpower = opt;
 	m[opt].type = NM_TYPE_MENU;  m[opt].text = "Set Objects allowed..."; opt++;
@@ -2665,6 +2670,7 @@ menu:
 		Netgame.game_flags |= NETGAME_FLAG_SHOW_MAP;
 	else
 		Netgame.game_flags &= ~NETGAME_FLAG_SHOW_MAP;
+	Netgame.NoFriendlyFire = m[opt_ffire].value;
 	Netgame.PacketLossPrevention = m[opt_plp].value;
 }
 
@@ -2896,6 +2902,7 @@ int net_udp_setup_game()
 	Netgame.AllowedItems=0;
 	Netgame.AllowedItems |= NETFLAG_DOPOWERUP;
 	Netgame.PacketLossPrevention = 1;
+	Netgame.NoFriendlyFire = 0;
 
 
 	strcpy(Netgame.mission_name, Current_mission_filename);
@@ -4604,9 +4611,10 @@ static int show_game_rules_handler(window *wind, d_event *event, netgame_info *n
 			gr_printf( FSPACX( 25),FSPACY( 61), "Max Time:");
 			gr_printf( FSPACX( 25),FSPACY( 67), "Kill Goal:");
 			gr_printf( FSPACX( 25),FSPACY( 73), "Pakets per second:");
-			gr_printf( FSPACX( 25),FSPACY( 79), "Show All Players On Automap:");
-			gr_printf( FSPACX( 25),FSPACY( 85), "Invul when reappearing:");
-			gr_printf( FSPACX( 25),FSPACY( 91), "Bright player ships:");
+			gr_printf( FSPACX(155),FSPACY( 55), "Show Players On Automap:");
+			gr_printf( FSPACX(155),FSPACY( 61), "Invul when reappearing:");
+			gr_printf( FSPACX(155),FSPACY( 67), "Bright player ships:");
+			gr_printf( FSPACX(155),FSPACY( 73), "No friendly Fire:");
 			
 			gr_printf( FSPACX( 25),FSPACY(100), "Allowed Objects");
 			gr_printf( FSPACX( 25),FSPACY(110), "Laser Upgrade:");
@@ -4623,13 +4631,14 @@ static int show_game_rules_handler(window *wind, d_event *event, netgame_info *n
 			gr_printf( FSPACX( 25),FSPACY(156), "Cloak:");
 			
 			gr_set_fontcolor(gr_find_closest_color_current(255,255,255),-1);
-			gr_printf( FSPACX(170),FSPACY( 55), "%i Min", netgame->control_invul_time/F1_0/60);
-			gr_printf( FSPACX(170),FSPACY( 61), "%i Min", netgame->PlayTimeAllowed*5);
-			gr_printf( FSPACX(170),FSPACY( 67), "%i", netgame->KillGoal*5);
-			gr_printf( FSPACX(170),FSPACY( 73), "%i", netgame->PacketsPerSec);
-			gr_printf( FSPACX(170),FSPACY( 79), netgame->game_flags&NETGAME_FLAG_SHOW_MAP?"ON":"OFF");
-			gr_printf( FSPACX(170),FSPACY( 85), netgame->InvulAppear?"ON":"OFF");
-			gr_printf( FSPACX(170),FSPACY( 91), netgame->BrightPlayers?"ON":"OFF");
+			gr_printf( FSPACX(115),FSPACY( 55), "%i Min", netgame->control_invul_time/F1_0/60);
+			gr_printf( FSPACX(115),FSPACY( 61), "%i Min", netgame->PlayTimeAllowed*5);
+			gr_printf( FSPACX(115),FSPACY( 67), "%i", netgame->KillGoal*5);
+			gr_printf( FSPACX(115),FSPACY( 73), "%i", netgame->PacketsPerSec);
+			gr_printf( FSPACX(275),FSPACY( 55), netgame->game_flags&NETGAME_FLAG_SHOW_MAP?"ON":"OFF");
+			gr_printf( FSPACX(275),FSPACY( 61), netgame->InvulAppear?"ON":"OFF");
+			gr_printf( FSPACX(275),FSPACY( 67), netgame->BrightPlayers?"ON":"OFF");
+			gr_printf( FSPACX(275),FSPACY( 73), netgame->NoFriendlyFire?"ON":"OFF");
 			
 			
 			gr_printf( FSPACX(130),FSPACY(110), netgame->AllowedItems&NETFLAG_DOLASER?"YES":"NO");

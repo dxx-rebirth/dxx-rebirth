@@ -3211,6 +3211,27 @@ void multi_add_lifetime_killed ()
 	PlayerCfg.NetlifeKilled++;
 }
 
+// Decide if fire from "killer" is friendly. If yes return 1 (no harm to me) otherwise 0 (damage me)
+int multi_maybe_disable_friendly_fire(object *killer)
+{
+	if (!(Game_mode & GM_NETWORK)) // no Multiplayer game -> always harm me!
+		return 0;
+	if (!Netgame.NoFriendlyFire) // friendly fire is activated -> harm me!
+		return 0;
+	if (killer->type != OBJ_PLAYER) // not a player -> harm me!
+		return 0;
+	if (Game_mode & GM_MULTI_COOP) // coop mode -> don't harm me!
+		return 1;
+	else if (Game_mode & GM_TEAM) // team mode - find out if killer is in my team
+	{
+		if (get_team(Player_num) == get_team(killer->id)) // in my team -> don't harm me!
+			return 1;
+		else // opposite team -> harm me!
+			return 0;
+	}
+	return 0; // all other cases -> harm me!
+}
+
 // Following functions convert object to object_rw and back. Mainly this is used for IPX backwards compability. However also for UDP this makes sense as object differs from object_rw mainly between fix/fix64-based timers. Those base on GameTime64 which is never synced between players so we set the times to something sane the clients can safely handle. IF object some day contains something useful clients should know about this should be changed.
 // turn object to object_rw for sending
 void multi_object_to_object_rw(object *obj, object_rw *obj_rw)
