@@ -337,7 +337,7 @@ int scores_handler(window *wind, d_event *event, scores_menu *menu)
 			break;
 			
 		case EVENT_KEY_COMMAND:
-			k = ((d_event_keycommand *)event)->keycode;
+			k = event_key_get(event);
 			switch( k )	{
 				case KEY_CTRLED+KEY_R:		
 					if ( menu->citem < 0 )		{
@@ -360,7 +360,7 @@ int scores_handler(window *wind, d_event *event, scores_menu *menu)
 
 		case EVENT_MOUSE_BUTTON_DOWN:
 		case EVENT_MOUSE_BUTTON_UP:
-			if (mouse_get_button(event) == MBTN_LEFT || mouse_get_button(event) == MBTN_RIGHT)
+			if (event_mouse_get_button(event) == MBTN_LEFT || event_mouse_get_button(event) == MBTN_RIGHT)
 			{
 				window_close(wind);
 				return 1;

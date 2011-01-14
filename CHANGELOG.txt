@@ -1,5 +1,9 @@
 D2X-Rebirth Changelog
 
+20110114
+--------
+arch/include/event.h, arch/include/key.h, arch/include/mouse.h, arch/sdl/event.c, arch/sdl/key.c, arch/sdl/mouse.c, editor/med.c, include/ui.h, main/automap.c, main/credits.c, main/escort.c, main/gamecntl.c, main/inferno.c, main/inferno.h, main/kconfig.c, main/kmatrix.c, main/menu.c, main/movie.c, main/net_ipx.c, main/net_udp.c, main/newmenu.c, main/scores.c, main/titles.c, ui/file.c, ui/keypress.c, ui/menu.c, ui/menubar.c, ui/message.c, ui/mouse.c, ui/popup.c, ui/window.c: For editor, replace use of ui_mega_process() with event_process(), with the editor's own default event handler; add EVENT_MOUSE_MOVED event with event_mouse_get_delta() accessor; add event_key_get() to replace ugly casting; rename mouse_get_button() with event_mouse_get_button() to keep with name convention; only send idle events when there are no input events so editor still works properly (or the same anyway); add and use event_send() function for input events (including idle)
+
 20110111
 --------
 main/net_ipx.c, main/net_udp.c: Fixed Menu setting for AllowedItems which was broken due to changed return value of newmenu_do1

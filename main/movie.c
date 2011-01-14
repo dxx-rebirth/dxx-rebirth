@@ -256,7 +256,7 @@ int show_pause_message(window *wind, d_event *event, void *userdata)
 	switch (event->type)
 	{
 		case EVENT_MOUSE_BUTTON_DOWN:
-			if (mouse_get_button(event) != 0)
+			if (event_mouse_get_button(event) != 0)
 				return 0;
 			// else fall through
 
@@ -307,7 +307,7 @@ int MovieHandler(window *wind, d_event *event, movie *m)
 			break;
 
 		case EVENT_KEY_COMMAND:
-			key = ((d_event_keycommand *)event)->keycode;
+			key = event_key_get(event);
 
 			// If ESCAPE pressed, then quit movie.
 			if (key == KEY_ESC) {

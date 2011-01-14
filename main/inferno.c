@@ -246,7 +246,7 @@ int standard_handler(d_event *event)
 			break;
 
 		case EVENT_KEY_COMMAND:
-			key = ((d_event_keycommand *)event)->keycode;
+			key = event_key_get(event);
 
 			// Don't let modifier(s) on their own do something unless we explicitly want that
 			// (e.g. if it's a game control like fire primary)

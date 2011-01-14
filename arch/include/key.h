@@ -28,12 +28,6 @@ COPYRIGHT 1993-1999 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 #define KEY_REPEAT_DELAY 1000
 #define KEY_REPEAT_INTERVAL 100
 
-typedef struct d_event_keycommand
-{
-	event_type	type;	// EVENT_KEY_COMMAND
-	int			keycode;
-} d_event_keycommand;
-
 //==========================================================================
 // This installs the int9 vector and initializes the keyboard in buffered
 // ASCII mode. key_close simply undoes that.
@@ -65,6 +59,7 @@ extern void key_flush();    // Clears the 256 char buffer
 extern int key_checkch();   // Returns 1 if a char is waiting
 extern int key_getch();     // Gets key if one waiting other waits for one.
 extern int key_inkey();     // Gets key if one, other returns 0.
+extern int event_key_get(d_event *event);	// Get the keycode from the EVENT_KEY_COMMAND event
 extern int key_peekkey();   // Same as inkey, but doesn't remove key from buffer.
 
 extern unsigned char key_ascii();

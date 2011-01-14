@@ -3689,7 +3689,7 @@ int net_ipx_join_poll( newmenu *menu, d_event *event, void *menu_text )
 	switch (event->type)
 	{
 		case EVENT_KEY_COMMAND:
-			key = ((d_event_keycommand *)event)->keycode;
+			key = event_key_get(event);
 
 			if ( IPX_allow_socket_changes ) {
 				int osocket;
@@ -5460,7 +5460,7 @@ static int show_game_rules_handler(window *wind, d_event *event, netgame_info *n
 			break;
 
 		case EVENT_KEY_COMMAND:
-			k = ((d_event_keycommand *)event)->keycode;
+			k = event_key_get(event);
 			switch (k)
 			{
 				case KEY_ENTER:

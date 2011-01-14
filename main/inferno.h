@@ -35,6 +35,8 @@ COPYRIGHT 1993-1999 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 #define WIN(x)
 #endif
 
+struct d_event;
+
 #if defined(__APPLE__) || defined(macintosh)
 #define KEY_MAC(x) x
 #else
@@ -71,6 +73,9 @@ extern int Screen_mode;			// editor screen or game screen?
 
 // The version number of the game
 extern ubyte Version_major, Version_minor;
+
+// Default event handler for everything except the editor
+int standard_handler(struct d_event *event);
 
 #endif
 

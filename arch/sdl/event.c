@@ -32,11 +32,13 @@ void event_poll()
 	SDL_Event event;
 	int clean_uniframe=1;
 	window *wind = window_get_front();
-
+	int idle = 1;
+	
 	// If the front window changes, exit this loop, otherwise unintended behavior can occur
 	// like pressing 'Return' really fast at 'Difficulty Level' causing multiple games to be started
 	while ((wind == window_get_front()) && SDL_PollEvent(&event))
 	{
+		idle = 0;
 		switch(event.type) {
 			case SDL_KEYDOWN:
 			case SDL_KEYUP:
@@ -71,6 +73,16 @@ void event_poll()
 		}
 	}
 
+	// Send the idle event if there were no other events
+	if (idle)
+	{
+		d_event event;
+		
+		event.type = EVENT_IDLE;
+		event_send(&event);
+		return;
+	}
+	
 	mouse_cursor_autohide();
 }
 
@@ -104,6 +116,19 @@ int call_default_handler(d_event *event)
 	return 0;
 }
 
+void event_send(d_event *event)
+{
+	window *wind;
+
+	if ((wind = window_get_front()))
+	{
+		if (!window_send_event(wind, event))
+			call_default_handler(event);
+	}
+	else
+		call_default_handler(event);
+}
+
 // Process the first event in queue, sending to the appropriate handler
 // This is the new object-oriented system
 // Uses the old system for now, but this may change
@@ -114,20 +139,8 @@ void event_process(void)
 
 	event_poll();	// send input events first
 
-	// Doing this prevents problems when an idle event can create a newmenu,
+	// Doing this prevents problems when a draw event can create a newmenu,
 	// such as some network menus when they report a problem
-	if (window_get_front() != wind)
-		return;
-
-	event.type = EVENT_IDLE;
-	if ((wind = window_get_front()))
-	{
-		if (!window_send_event(wind, &event))
-			call_default_handler(&event);
-	}
-	else
-		call_default_handler(&event);
-	
 	if (window_get_front() != wind)
 		return;
 	

@@ -1628,7 +1628,7 @@ int escort_menu_keycommand(window *wind, d_event *event, escort_menu *menu)
 {
 	int	key;
 	
-	key = ((d_event_keycommand *)event)->keycode;
+	key = event_key_get(event);
 	
 	switch (key) {
 		case KEY_0:

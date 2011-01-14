@@ -20,6 +20,8 @@ COPYRIGHT 1993-1999 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 #ifndef _UI_H
 #define _UI_H
 
+struct d_event;
+
 typedef struct {
 	char	description[100];
 	char 	* buttontext[17];
@@ -258,7 +260,8 @@ int PopupMenu( int NumItems, char * text[] );
 extern void ui_mouse_init();
 extern grs_bitmap * ui_mouse_set_pointer( grs_bitmap * new );
 
-extern void ui_mouse_process();
+extern int ui_mouse_button_process(struct d_event *event);
+extern int ui_mouse_motion_process(struct d_event *event);
 extern void ui_mouse_hide();
 extern void ui_mouse_show();
 
@@ -285,6 +288,7 @@ extern void ui_draw_listbox( UI_GADGET_LISTBOX * listbox );
 extern UI_GADGET_LISTBOX *ui_add_gadget_listbox(UI_WINDOW *wnd, short x, short y, short w, short h, short numitems, char **list);
 
 extern void ui_mega_process();
+extern int ui_event_handler(struct d_event *event);
 
 extern void ui_get_button_size( char * text, int * width, int * height );
 

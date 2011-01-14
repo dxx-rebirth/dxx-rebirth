@@ -666,7 +666,7 @@ int kconfig_key_command(window *wind, d_event *event, kc_menu *menu)
 {
 	int i,k;
 
-	k = ((d_event_keycommand *)event)->keycode;
+	k = event_key_get(event);
 
 	// when changing, process no keys instead of ESC
 	if (menu->changing && (k != -2 && k != KEY_ESC))
@@ -857,13 +857,13 @@ int kconfig_handler(window *wind, d_event *event, kc_menu *menu)
 				return 1;
 			}
 
-			if (mouse_get_button(event) == MBTN_RIGHT)
+			if (event_mouse_get_button(event) == MBTN_RIGHT)
 			{
 				if (!menu->changing)
 					window_close(wind);
 				return 1;
 			}
-			else if (mouse_get_button(event) != MBTN_LEFT)
+			else if (event_mouse_get_button(event) != MBTN_LEFT)
 				return 0;
 
 			menu->mouse_state = (event->type == EVENT_MOUSE_BUTTON_DOWN);
@@ -1087,7 +1087,7 @@ void kc_change_mousebutton( kc_menu *menu, d_event *event, kc_item * item )
 {
 	int n,i,b;
 
-	b = mouse_get_button(event);
+	b = event_mouse_get_button(event);
 
 	for (i=0; i<menu->nitems; i++)
 	{

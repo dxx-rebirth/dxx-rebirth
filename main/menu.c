@@ -220,7 +220,7 @@ int player_menu_keycommand( listbox *lb, d_event *event )
 	char **items = listbox_get_items(lb);
 	int citem = listbox_get_citem(lb);
 
-	switch (((d_event_keycommand *)event)->keycode)
+	switch (event_key_get(event))
 	{
 		case KEY_CTRLED+KEY_D:
 			if (citem > 0)
@@ -424,14 +424,14 @@ int main_menu_handler(newmenu *menu, d_event *event, int *menu_choice )
 
 		case EVENT_KEY_COMMAND:
 			// Don't allow them to hit ESC in the main menu.
-			if (((d_event_keycommand *)event)->keycode==KEY_ESC)
+			if (event_key_get(event)==KEY_ESC)
 				return 1;
 			break;
 
 		case EVENT_MOUSE_BUTTON_DOWN:
 		case EVENT_MOUSE_BUTTON_UP:
 			// Don't allow mousebutton-closing in main menu.
-			if (mouse_get_button(event) == MBTN_RIGHT)
+			if (event_mouse_get_button(event) == MBTN_RIGHT)
 				return 1;
 			break;
 
@@ -693,7 +693,7 @@ int demo_menu_keycommand( listbox *lb, d_event *event )
 	char **items = listbox_get_items(lb);
 	int citem = listbox_get_citem(lb);
 
-	switch (((d_event_keycommand *)event)->keycode)
+	switch (event_key_get(event))
 	{
 		case KEY_CTRLED+KEY_D:
 			if (citem >= 0)
@@ -1272,10 +1272,11 @@ void graphics_config()
 {
 #ifdef OGL
 	newmenu_item m[11];
+	int i = 0;
 #else
 	newmenu_item m[2];
 #endif
-	int nitems = 0, i = 0;
+	int nitems = 0;
 
 #ifdef OGL
 	m[nitems].type = NM_TYPE_TEXT; m[nitems].text = "Texture Filtering (restart required):"; nitems++;
@@ -1400,7 +1401,7 @@ int select_file_handler(listbox *menu, d_event *event, browser *b)
 #ifdef _WIN32
 		case EVENT_KEY_COMMAND:
 		{
-			if (((d_event_keycommand *)event)->keycode == KEY_CTRLED + KEY_D)
+			if (event_key_get(event) == KEY_CTRLED + KEY_D)
 			{
 				newmenu_item *m;
 				char *text = NULL;

@@ -313,6 +313,12 @@ key_props key_properties[256] = {
 { "",       255,    -1                 }, // 255
 };
 
+typedef struct d_event_keycommand
+{
+	event_type	type;	// EVENT_KEY_COMMAND
+	int			keycode;
+} d_event_keycommand;
+
 char *key_text[256];
 
 int key_ismodlck(int keycode)
@@ -449,25 +455,18 @@ void key_handler(SDL_KeyboardEvent *event)
 	if (key_command || unicode_frame_buffer[0] != '\0')
 	{
 		d_event_keycommand event;
-		window *wind;
 		
 		event.type = EVENT_KEY_COMMAND;
 		event.keycode = key_command;
-		if ((wind = window_get_front()))
-		{
-			con_printf(CON_DEBUG, "Sending event EVENT_KEY_COMMAND: %s %s %s %s %s %s\n",
-					   (key_command & KEY_METAED)	? "META" : "",
-					   (key_command & KEY_DEBUGGED)	? "DEBUG" : "",
-					   (key_command & KEY_CTRLED)	? "CTRL" : "",
-					   (key_command & KEY_ALTED)	? "ALT" : "",
-					   (key_command & KEY_SHIFTED)	? "SHIFT" : "",
-					   key_properties[key_command & 0xff].key_text
-			);
-			if (!window_send_event(wind, (d_event *)&event))
-				call_default_handler((d_event *)&event);
-		}
-		else
-			call_default_handler((d_event *)&event);
+		con_printf(CON_DEBUG, "Sending event EVENT_KEY_COMMAND: %s %s %s %s %s %s\n",
+				   (key_command & KEY_METAED)	? "META" : "",
+				   (key_command & KEY_DEBUGGED)	? "DEBUG" : "",
+				   (key_command & KEY_CTRLED)	? "CTRL" : "",
+				   (key_command & KEY_ALTED)	? "ALT" : "",
+				   (key_command & KEY_SHIFTED)	? "SHIFT" : "",
+				   key_properties[key_command & 0xff].key_text
+				   );
+		event_send((d_event *)&event);
 	}
 }
 
@@ -566,6 +565,12 @@ int key_inkey()
 	}
 
         return key;
+}
+
+int event_key_get(d_event *event)
+{
+	Assert(event->type == EVENT_KEY_COMMAND);
+	return ((d_event_keycommand *)event)->keycode;
 }
 
 int key_peekkey()

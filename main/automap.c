@@ -543,7 +543,7 @@ extern int set_segment_depths(int start_seg, ubyte *segbuf);
 
 int automap_key_command(window *wind, d_event *event, automap *am)
 {
-	int c = ((d_event_keycommand *)event)->keycode;
+	int c = event_key_get(event);
 	int marker_num;
 	char maxdrop;
 
