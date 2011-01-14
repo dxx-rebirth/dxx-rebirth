@@ -1830,11 +1830,10 @@ void InitPlayerPosition(int random_flag)
 		int i, closest = -1, trys=0;
 		fix closest_dist = 0x7ffffff, dist;
 
-		d_srand(clock());
-
 		do {
+			timer_update();
+			d_srand((fix)timer_query());
 			trys++;
-
 			NewPlayer = d_rand() % NumNetPlayerPositions;
 
 			closest = -1;
@@ -1850,7 +1849,7 @@ void InitPlayerPosition(int random_flag)
 				}
 			}
 
-		} while ( (closest_dist<i2f(15*20)) && (trys<MAX_NUM_NET_PLAYERS*2) );
+		} while ( (closest_dist<i2f(10*20)) && (trys<MAX_NUM_NET_PLAYERS*2) );
 	}
 	else {
 		goto done; // If deathmatch and not random, positions were already determined by sync packet
