@@ -1243,8 +1243,6 @@ void StartNewLevelSub(int level_num, int page_in_textures)
 
 	gameseq_remove_unused_players();
 
-	count_powerup_start_level();
-
 	Game_suspended = 0;
 
 	Control_center_destroyed = 0;
@@ -1287,6 +1285,24 @@ void StartNewLevelSub(int level_num, int page_in_textures)
 
 	if (!Game_wind)
 		game();
+}
+
+#ifdef NETWORK
+extern char PowerupsInMine[MAX_POWERUP_TYPES], MaxPowerupsAllowed[MAX_POWERUP_TYPES];
+#endif
+void bash_to_shield (int i,char *s)
+{
+#ifdef NETWORK
+	int type=Objects[i].id;
+#endif
+
+#ifdef NETWORK
+	PowerupsInMine[type]=MaxPowerupsAllowed[type]=0;
+#endif
+
+	Objects[i].id = POW_SHIELD_BOOST;
+	Objects[i].rtype.vclip_info.vclip_num = Powerup_info[Objects[i].id].vclip_num;
+	Objects[i].rtype.vclip_info.frametime = Vclip[Objects[i].rtype.vclip_info.vclip_num].frame_time;
 }
 
 //called when the player is starting a new level for normal game model

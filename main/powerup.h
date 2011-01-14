@@ -117,26 +117,6 @@ extern void do_megawow_powerup(int quantity);
 
 extern void powerup_basic(int redadd, int greenadd, int blueadd, int score, char *format, ...);
 
-extern void count_powerup_start_level();
-
-extern int powerup_start_level[MAX_POWERUP_TYPES];
-
-extern void pow_count_level();
-
-extern void pow_add_random();
-
-// add pow_count to powerup_start_level
-extern void pow_add_level_pow_count(int *pow_count);
-
-// fill pow_count with items that would be dropped if player dies
-extern void player_to_pow_count(player *player, int *pow_count);
-
-#define NUM_PLAYER_DROP_POWERUPS 16
-extern int player_drop_powerups[NUM_PLAYER_DROP_POWERUPS];
-
-// reduce player drop powerups
-extern void clip_player_pow_count(int *pow_count);
-
 // may this powerup be added to the level?
 // returns number of powerups left if true, otherwise 0.
 extern int may_create_powerup(int powerup);

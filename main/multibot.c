@@ -1044,8 +1044,6 @@ multi_do_create_robot_powerups(char *buf)
 	if (egg_objnum == -1)
 		return; // Object buffer full
 
-	pow_add_random(&del_obj);
-
 //	Assert(egg_objnum > -1);
 	Assert((Net_create_loc > 0) && (Net_create_loc <= MAX_ROBOT_POWERUPS));
 
@@ -1125,7 +1123,6 @@ multi_drop_robot_powerups(int objnum)
 	if (egg_objnum >= 0) {
 		// Transmit the object creation to the other players	 	
 		multi_send_create_robot_powerups(del_obj);
-		pow_add_random(del_obj);
 	}
 }
 

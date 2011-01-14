@@ -1457,14 +1457,12 @@ void create_smart_children(object *objp)
 #define	MEGA_GUN				7
 
 
-int Missile_gun=0;
+int Missile_gun=0, Proximity_dropped = 0;
 
 //	-------------------------------------------------------------------------------------------
 //changed on 9/16/98 by adb to distinguish between drop bomb and secondary fire
 void do_missile_firing(int drop_bomb)
 {
-	static int proximity = 0;
-
 	int weapon = (drop_bomb) ? PROXIMITY_INDEX : Secondary_weapon;
 
 	Assert(weapon < MAX_SECONDARY_WEAPONS);
@@ -1488,10 +1486,10 @@ void do_missile_firing(int drop_bomb)
 				break;
 
 			case PROXIMITY_INDEX:
-				proximity ++;
-				if (proximity == 4)
+				Proximity_dropped ++;
+				if (Proximity_dropped == 4)
 				{
-					proximity = 0;
+					Proximity_dropped = 0;
 					#ifdef NETWORK
 					maybe_drop_net_powerup(POW_PROXIMITY_WEAPON);
 					#endif

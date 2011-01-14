@@ -92,6 +92,8 @@ IPX_sequence_packet IPX_Seq;
 extern obj_position Player_init[MAX_PLAYERS];
 extern void game_disable_cheats();
 int net_ipx_wait_for_snyc();
+extern char MaxPowerupsAllowed[MAX_POWERUP_TYPES];
+extern char PowerupsInMine[MAX_POWERUP_TYPES];
 
 /* General IPX functions - START */
 ubyte broadcast_addr[] = { 0xff, 0xff, 0xff, 0xff, 0xff, 0xff };
@@ -426,7 +428,7 @@ void net_ipx_send_sequence_packet(IPX_sequence_packet seq, ubyte *server, ubyte 
 	tmps = INTEL_SHORT(seq.player.protocol.ipx.socket);
 	memcpy(&(out_buffer[loc]), &tmps, 2);		loc += 2;
 	out_buffer[loc] = seq.player.connected;	loc++;
-	out_buffer[loc] = MULTI_PROTO_D1X_MINOR; loc++;
+	out_buffer[loc] = 1; loc++; // 1 was MULTI_PROTO_D1X_MINOR
 
 	if (net_address != NULL)
 		ipxdrv_send_packet_data( out_buffer, loc, server, node, net_address);
@@ -563,7 +565,13 @@ net_ipx_init(void)
 	// So you want to play a netgame, eh?  Let's a get a few things
 	// straight
 
-	int save_pnum = Player_num;
+	int save_pnum = Player_num, t;
+
+	for (t=0;t<MAX_POWERUP_TYPES;t++)
+	{
+		MaxPowerupsAllowed[t]=0;
+		PowerupsInMine[t]=0;
+	}
 
 	memset(&Netgame, 0, sizeof(netgame_info));
 	memset(&IPX_Seq, 0, sizeof(IPX_sequence_packet));
@@ -2584,7 +2592,6 @@ void net_ipx_read_sync_packet( ubyte * data )
 	if (data) { // adb: master does have this info
 		Netgame.PacketsPerSec = 10;
 	}
-	multi_allow_powerup = NETFLAG_DOPOWERUP;
 
         Network_status = NETSTAT_PLAYING;
 	multi_sort_kill_list();

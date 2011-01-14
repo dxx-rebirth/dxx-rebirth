@@ -1075,99 +1075,55 @@ void collide_player_and_player( object * player1, object * player2, vms_vector *
 	return;
 }
 
-// drop powerups in pow_count around object obj.
-// special behavior:
-// -  POW_MISSILE_1 and POW_HOMING_AMMO_1 are split into
-//	  POW_MISSILE_1/4 and POW_HOMING_AMMO_1/4 respectivily.
-// -  for single player:
-//    when dropping POW_VULCAN_WEAPON it gets all ammo (POW_VULCAN_AMMO),
-//	  and no vulcan ammo is dropped.
-//    for multi player:
-//    when dropping POW_VULCAN_WEAPON it gets VULCAN_WEAPON_AMMO_AMOUNT
-//    ammo, and that's subtracted from the to be dropped ammo packages.
-// -  when dropping vulcan ammo w/o cannon, ammo is limited to 200 max
-void drop_pow_count(object *obj, int *pow_count)
+int maybe_drop_primary_weapon_egg(object *playerobj, int weapon_index)
 {
-	int i, j;
-	int count;
-	int objnum;
-	int powerup_in_level[MAX_POWERUP_TYPES];
+	int weapon_flag = HAS_FLAG(weapon_index);
+	int powerup_num;
 
-	pow_count_level(powerup_in_level);
+	powerup_num = Primary_weapon_to_powerup[weapon_index];
 
-	for (j = 0; j < NUM_PLAYER_DROP_POWERUPS; j++)
-         {
-		count = pow_count[(i = player_drop_powerups[j])];
-
-		// limit powerups in D1X network games
-#ifdef USE_IPX
-		if ((Game_mode & GM_NETWORK) &&
-                    (Netgame.protocol.ipx.protocol_version == MULTI_PROTO_D1X_VER))
-                 {
-                    if (multi_allow_powerup_mask[i])
-                     { // only check 'important' powerups (no shield,energy,conc)
-                       int pow_max = max(powerup_start_level[i] - powerup_in_level[i], 0);
-
-//-killed-                     #ifdef NETWORK
-                        while (count > pow_max)
-                         {
-                           // create dummy Net_create_objnums entries to keep objnums in sync
-                            if (Net_create_loc >= MAX_NET_CREATE_OBJECTS)
-                             {
-                               return;
-                             }
-                           Net_create_objnums[Net_create_loc++] = -1;
-                           count--;
-                         }
-//-killed-                    #else
-//-killed-                    if (count > pow_max) count = pow_max;
-//-killed-                    #endif
-                    }
-                 }
-#endif
-
-		if (count > 0)
-			switch (i)
-                         {
-				case POW_MISSILE_1:
-				case POW_HOMING_AMMO_1:
-					call_object_create_egg(obj, count / 4, OBJ_POWERUP, i + 1);
-					call_object_create_egg(obj, count % 4, OBJ_POWERUP, i);
-					break;
-				case POW_VULCAN_WEAPON:
-					if ((objnum = call_object_create_egg(obj, count, OBJ_POWERUP, POW_VULCAN_WEAPON)) != -1)
-                                         {
-                                                //added/changed on 9/5/98 by adb (from Matthew Mueller) to drop ammo in multi even with cannon
-						if (Game_mode & GM_MULTI) {
-							Objects[objnum].ctype.powerup_info.count = VULCAN_WEAPON_AMMO_AMOUNT;
-						} else
-							Objects[objnum].ctype.powerup_info.count = pow_count[POW_VULCAN_AMMO];
-                                                //end change - adb (from Matthew Mueller)
-                                         }
-					break;
-				case POW_VULCAN_AMMO:
-					//changed by adb on 980905 to drop ammo in multi even with cannon
-					if (pow_count[POW_VULCAN_WEAPON])
-						count -= VULCAN_WEAPON_AMMO_AMOUNT;
-					if (count > 0 && (pow_count[POW_VULCAN_WEAPON] == 0 || (Game_mode & GM_MULTI))) {
-						if (count > 200) {
-							count = 200;
-						}
-						call_object_create_egg(obj, (count + VULCAN_AMMO_AMOUNT - 1) / VULCAN_AMMO_AMOUNT, OBJ_POWERUP, POW_VULCAN_AMMO);
-					}
-					//end changes by adb
-					break;
-				default:
-						call_object_create_egg(obj, count, OBJ_POWERUP, i);
-                         }
-         }
+	if (Players[playerobj->id].primary_weapon_flags & weapon_flag)
+		return call_object_create_egg(playerobj, 1, OBJ_POWERUP, powerup_num);
+	else
+		return -1;
 }
 
-void drop_player_eggs(object *player)
+void maybe_drop_secondary_weapon_egg(object *playerobj, int weapon_index, int count)
 {
-	if ((player->type == OBJ_PLAYER) || (player->type == OBJ_GHOST)) {
-		int	pnum = player->id;
-		int pow_count[MAX_POWERUP_TYPES];
+	int weapon_flag = HAS_FLAG(weapon_index);
+	int powerup_num;
+
+	powerup_num = Secondary_weapon_to_powerup[weapon_index];
+
+	if (Players[playerobj->id].secondary_weapon_flags & weapon_flag) {
+		int	i, max_count;
+
+		max_count = min(count, 3);
+		for (i=0; i<max_count; i++)
+			call_object_create_egg(playerobj, 1, OBJ_POWERUP, powerup_num);
+	}
+}
+
+void drop_missile_1_or_4(object *playerobj,int missile_index)
+{
+	int num_missiles,powerup_id;
+
+	num_missiles = Players[playerobj->id].secondary_ammo[missile_index];
+	powerup_id = Secondary_weapon_to_powerup[missile_index];
+
+	if (num_missiles > 10)
+		num_missiles = 10;
+
+	call_object_create_egg(playerobj, num_missiles/4, OBJ_POWERUP, powerup_id+1);
+	call_object_create_egg(playerobj, num_missiles%4, OBJ_POWERUP, powerup_id);
+}
+
+void drop_player_eggs(object *playerobj)
+{
+	if ((playerobj->type == OBJ_PLAYER) || (playerobj->type == OBJ_GHOST)) {
+		int	pnum = playerobj->id;
+		int	objnum;
+		int	vulcan_ammo=0;
 
 		// Seed the random number generator so in net play the eggs will always
 		// drop the same way
@@ -1179,9 +1135,60 @@ void drop_player_eggs(object *player)
 		}
 		#endif
 
-		player_to_pow_count(&Players[pnum], pow_count);
-		clip_player_pow_count(pow_count);
-		drop_pow_count(player, pow_count);
+		//	If the player dies and he has powerful lasers, create the powerups here.
+
+		if (Players[pnum].laser_level >= 1)
+			call_object_create_egg(playerobj, Players[pnum].laser_level, OBJ_POWERUP, POW_LASER);	// Note: laser_level = 0 for laser level 1.
+
+		//	Drop quad laser if appropos
+		if (Players[pnum].flags & PLAYER_FLAGS_QUAD_LASERS)
+			call_object_create_egg(playerobj, 1, OBJ_POWERUP, POW_QUAD_FIRE);
+
+		if (Players[pnum].flags & PLAYER_FLAGS_CLOAKED)
+			call_object_create_egg(playerobj, 1, OBJ_POWERUP, POW_CLOAK);
+
+		//Drop the vulcan, gauss, and ammo
+		vulcan_ammo = Players[pnum].primary_ammo[VULCAN_INDEX];
+		if (vulcan_ammo < VULCAN_AMMO_AMOUNT)
+			vulcan_ammo = VULCAN_AMMO_AMOUNT;	//make sure gun has at least as much as a powerup
+		objnum = maybe_drop_primary_weapon_egg(playerobj, VULCAN_INDEX);
+		if (objnum!=-1)
+			Objects[objnum].ctype.powerup_info.count = vulcan_ammo;
+
+		//	Drop the rest of the primary weapons
+		maybe_drop_primary_weapon_egg(playerobj, SPREADFIRE_INDEX);
+		maybe_drop_primary_weapon_egg(playerobj, PLASMA_INDEX);
+		maybe_drop_primary_weapon_egg(playerobj, FUSION_INDEX);
+
+		//	Drop the secondary weapons
+		//	Note, proximity weapon only comes in packets of 4.  So drop n/2, but a max of 3 (handled inside maybe_drop..)  Make sense?
+
+		maybe_drop_secondary_weapon_egg(playerobj, PROXIMITY_INDEX, (Players[playerobj->id].secondary_ammo[PROXIMITY_INDEX])/4);
+
+		maybe_drop_secondary_weapon_egg(playerobj, SMART_INDEX, Players[playerobj->id].secondary_ammo[SMART_INDEX]);
+		maybe_drop_secondary_weapon_egg(playerobj, MEGA_INDEX, Players[playerobj->id].secondary_ammo[MEGA_INDEX]);
+
+		//	Drop the player's missiles in packs of 1 and/or 4
+		drop_missile_1_or_4(playerobj,HOMING_INDEX);
+		drop_missile_1_or_4(playerobj,CONCUSSION_INDEX);
+
+		//	If player has vulcan ammo, but no vulcan cannon, drop the ammo.
+		if (!(Players[playerobj->id].primary_weapon_flags & HAS_VULCAN_FLAG)) {
+			int	amount = Players[playerobj->id].primary_ammo[VULCAN_INDEX];
+			if (amount > 200) {
+				amount = 200;
+			}
+			while (amount > 0) {
+				call_object_create_egg(playerobj, 1, OBJ_POWERUP, POW_VULCAN_AMMO);
+				amount -= VULCAN_AMMO_AMOUNT;
+			}
+		}
+
+		//	Always drop a shield and energy powerup.
+		if (Game_mode & GM_MULTI) {
+			call_object_create_egg(playerobj, 1, OBJ_POWERUP, POW_SHIELD_BOOST);
+			call_object_create_egg(playerobj, 1, OBJ_POWERUP, POW_ENERGY);
+		}
 	}
 }
 

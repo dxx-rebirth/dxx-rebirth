@@ -68,9 +68,6 @@ extern int multi_protocol; // set and determinate used protocol
 //   3 Descent II Shareware
 //   4 Descent II Commercial
 #define MULTI_PROTO_VERSION	2
-// these two defines should become obsolete due to strict version checking in UDP
-#define MULTI_PROTO_D1X_VER	7  // Increment everytime we change networking features - based on ubyte, must never be > 255
-#define MULTI_PROTO_D1X_MINOR	1 //Incrementing this seems the only way possible.  Still stays backwards compitible.
 // PROTOCOL VARIABLES AND DEFINES - END
 
 
@@ -114,10 +111,9 @@ extern int multi_protocol; // set and determinate used protocol
 #define MULTI_REQ_PLAYER		35 // NEVER USED
 #define MULTI_SEND_PLAYER		36 // NEVER USED
 
-#define MULTI_PLAYER_POWERUP_COUNT	37
-#define MULTI_START_POWERUP_COUNT	38
+#define MULTI_POWCAP_UPDATE     	37
 
-#define MULTI_MAX_TYPE                  38
+#define MULTI_MAX_TYPE                  37
 
 #define MAX_MULTI_MESSAGE_LEN  90 //didn't change it, just moved it up
 
@@ -209,8 +205,6 @@ void multi_send_audio_taunt(int taunt_num);
 void multi_send_score(void);
 void multi_send_trigger(int trigger);
 void multi_send_hostage_door_status(int wallnum);
-void multi_send_player_powerup_count();
-void multi_send_start_powerup_count();
 
 void multi_endlevel_score(void);
 void multi_consistency_error(int reset);
@@ -254,6 +248,9 @@ extern int Network_send_object_mode;
 extern int Network_send_objnum;
 extern int Network_rejoined;
 extern int Network_new_game;
+extern int Network_sending_extras;
+extern int VerifyPlayerJoined;
+extern int Player_joining_extras;
 extern int Network_player_added;
 
 extern int message_length[MULTI_MAX_TYPE+1];
@@ -295,6 +292,7 @@ extern int multi_sending_message;
 extern int multi_defining_message;
 extern int multi_message_input_sub(int key);
 extern void multi_send_message_start();
+extern int multi_powerup_is_4pack(int);
 extern void multi_message_feedback();
 
 extern int control_invul_time;
@@ -316,12 +314,16 @@ int multi_i_am_master(void);
 int multi_who_is_master(void);
 void change_playernum_to(int new_pnum);
 
+// Multiplayer powerup capping
+extern void multi_powcap_count_powerups_in_mine(void);
+extern void multi_powcap_cap_objects();
+extern void multi_do_powcap_update();
+extern void multi_send_powcap_update();
+
 // Globals for protocol-bound Refuse-functions
 extern char RefuseThisPlayer,WaitForRefuseAnswer,RefuseTeam,RefusePlayerName[12];
 extern fix64 RefuseTimeLimit;
 #define REFUSE_INTERVAL (F1_0*8)
-
-extern uint multi_allow_powerup;
 
 extern struct netgame_info Netgame;
 

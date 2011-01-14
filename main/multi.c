@@ -74,8 +74,10 @@ COPYRIGHT 1993-1998 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 #define vm_angvec_zero(v) (v)->p=(v)->b=(v)->h=0
 
 void reset_player_object(void); // In object.c but not in object.h
-void drop_player_eggs(object *player); // from collide.c
+void drop_player_eggs(object *playerobj); // from collide.c
 void StartLevel(void); // From gameseq.c
+void multi_powcap_cap_objects();
+void multi_powcap_adjust_remote_cap(int pnum);
 
 //
 // Global variables
@@ -126,15 +128,15 @@ int	Network_send_object_mode = 0; // What type of objects are we sending, static
 int 	Network_send_objnum = -1;   // What object are we sending next?
 int     Network_rejoined = 0;       // Did WE rejoin this game?
 int     Network_new_game = 0;            // Is this the first level of a new game?
+int     Network_sending_extras=0;
+int     VerifyPlayerJoined=-1;      // Player (num) to enter game before any ingame/extra stuff is being sent
+int     Player_joining_extras=-1;  // This is so we know who to send 'latecomer' packets to.
 int     Network_player_added = 0;   // Is this a new player or a returning player?
 
 //added 02/26/99 Matt Mueller - reactor kill stats
 short reactor_kills[MAX_NUM_NET_PLAYERS];
 int reactor_kills_total;
 //end addition -MM
-
-uint	multi_allow_powerup;
-uint	multi_got_pow_count;
 
 ushort          my_segments_checksum = 0;
 
@@ -145,6 +147,8 @@ bitmap_index multi_player_textures[MAX_NUM_NET_PLAYERS][N_PLAYER_SHIP_TEXTURES];
 // Globals for protocol-bound Refuse-functions
 char RefuseThisPlayer=0,WaitForRefuseAnswer=0,RefuseTeam,RefusePlayerName[12];
 fix64 RefuseTimeLimit=0;
+
+char PowerupsInMine[MAX_POWERUP_TYPES],MaxPowerupsAllowed[MAX_POWERUP_TYPES];
 
 int message_length[MULTI_MAX_TYPE+1] = {
         25, // POSITION
@@ -184,8 +188,7 @@ int message_length[MULTI_MAX_TYPE+1] = {
 	2+4,	//RESTORE_GAME   (ubyte slot, uint id) // obsolete
 	-1,	// MULTI_REQ_PLAYER - NEVER USED
 	-1,	// MULTI_SEND_PLAYER - NEVER USED
-	19, // PLAYER_POWERUP_COUNT
-	19, // START_POWERUP_COUNT
+	MAX_POWERUP_TYPES+1, // MULTI_POWCAP_UPDATE
 };
 
 void multi_reset_player_object(object *objp);
@@ -371,6 +374,12 @@ multi_endlevel_score(void)
 		// Reset keys
 			Players[i].flags &= ~(PLAYER_FLAGS_BLUE_KEY | PLAYER_FLAGS_RED_KEY | PLAYER_FLAGS_GOLD_KEY);
 	}
+
+	for (i=0;i<MAX_POWERUP_TYPES;i++)
+	{
+		MaxPowerupsAllowed[i]=0;
+		PowerupsInMine[i]=0;
+	}
 }
 
 int
@@ -421,8 +430,6 @@ multi_new_game(void)
 	game_disable_cheats();
 	Player_exploded = 0;
 	Dead_player_camera = 0;
-	multi_allow_powerup = NETFLAG_DOPOWERUP;
-	multi_got_pow_count = 0;
 }
 	
 void
@@ -752,6 +759,7 @@ multi_leave_game(void)
 	{
 		Net_create_loc = 0;
 		multi_send_position(Players[Player_num].objnum);
+		multi_powcap_cap_objects();
 		drop_player_eggs(ConsoleObject);
 		multi_send_player_explode(MULTI_PLAYER_DROP);
 	}
@@ -1370,39 +1378,6 @@ multi_do_reappear(char *buf)
 }
 
 void
-multi_do_powerup_count(char *buf)
-{
-	int pnum = buf[1];
-	int count;
-	int pow_count[MAX_POWERUP_TYPES];
-	int i, pow;
-
-	memset(pow_count, 0, sizeof(pow_count));
-	count = 2;
-	for (i = 0; i < NUM_PLAYER_DROP_POWERUPS; i++)
-	{
-		pow = player_drop_powerups[i];
-		if (pow == POW_VULCAN_AMMO)
-		{
-			pow_count[pow] = *((short *)&buf[count]); count += 2;
-		}
-		else
-			pow_count[pow] = buf[count++];
-	}
-
-	if ((multi_got_pow_count & (1 << pnum)))
-                return; // already got pow_count from this player
-	if (buf[0] == MULTI_START_POWERUP_COUNT)
-	{
-		memset(powerup_start_level, 0, sizeof(powerup_start_level));
-		multi_got_pow_count = -1;
-	}
-	else
-		multi_got_pow_count |= (1 << pnum);
-	pow_add_level_pow_count(pow_count);
-}
-        
-void
 multi_do_player_explode(char *buf)
 {
 	// Only call this for players, not robots.  pnum is player number, not
@@ -1445,6 +1420,8 @@ multi_do_player_explode(char *buf)
 	Players[pnum].secondary_ammo[PROXIMITY_INDEX] = buf[count]; count++;
 	Players[pnum].primary_ammo[VULCAN_INDEX] = GET_INTEL_SHORT(buf + count); count += 2;
 	Players[pnum].flags = GET_INTEL_INT(buf + count);               count += 4;
+
+	multi_powcap_adjust_remote_cap (pnum);
 
 	objp = Objects+Players[pnum].objnum;
 
@@ -1610,6 +1587,23 @@ multi_do_remobj(char *buf)
 	{
 		Network_send_objnum = -1;
 	}
+
+	if (Objects[local_objnum].type==OBJ_POWERUP)
+		if (Game_mode & GM_NETWORK)
+		{
+			if (multi_powerup_is_4pack (Objects[local_objnum].id))
+			{
+				if (PowerupsInMine[Objects[local_objnum].id-1]-4<0)
+					PowerupsInMine[Objects[local_objnum].id-1]=0;
+				else
+					PowerupsInMine[Objects[local_objnum].id-1]-=4;
+			}
+			else
+			{
+				if (PowerupsInMine[Objects[local_objnum].id]>0)
+					PowerupsInMine[Objects[local_objnum].id]--;
+			}
+		}
 
 	Objects[local_objnum].flags |= OF_SHOULD_BE_DEAD; // quick and painless
 	
@@ -1790,9 +1784,6 @@ multi_do_create_powerup(char *buf)
 	new_pos.z = (fix)SWAPINT((int)new_pos.z);
 #endif
 
-	if (!may_create_powerup(powerup_type))
-		return;
-
 	Net_create_loc = 0;
 	my_objnum = call_object_create_egg(&Objects[Players[pnum].objnum], 1, OBJ_POWERUP, powerup_type);
 
@@ -1814,6 +1805,14 @@ multi_do_create_powerup(char *buf)
 	map_objnum_local_to_remote(my_objnum, objnum, pnum);
 
 	object_create_explosion(segnum, &new_pos, i2f(5), VCLIP_POWERUP_DISAPPEARANCE);
+
+	if (Game_mode & GM_NETWORK)
+	{
+		if (multi_powerup_is_4pack((int)powerup_type))
+			PowerupsInMine[(int)(powerup_type-1)]+=4;
+		else
+			PowerupsInMine[(int)powerup_type]++;
+	}
 }
 
 void
@@ -2050,9 +2049,8 @@ multi_process_data(char *buf, int len)
 			if (!Endlevel_sequence) multi_do_create_robot_powerups(buf); break;
 		case MULTI_HOSTAGE_DOOR:
 			if (!Endlevel_sequence) multi_do_hostage_door_status(buf); break;
-		case MULTI_PLAYER_POWERUP_COUNT:
-		case MULTI_START_POWERUP_COUNT:
-			if (!Endlevel_sequence) multi_do_powerup_count(buf); break;
+		case MULTI_POWCAP_UPDATE:
+			if (!Endlevel_sequence) multi_do_powcap_update(buf); break;
 		default:
 			Int3();
 	}
@@ -2164,42 +2162,6 @@ multi_send_endlevel_start(int secret)
 }
 
 void
-multi_send_powerup_count(char type, int *pow_count)
-{
-	int i, pow;
-	int count = 0;
-
-	multibuf[count++] = type;
-	multibuf[count++] = Player_num;
-	for (i = 0; i < NUM_PLAYER_DROP_POWERUPS; i++)
-	{
-		pow = player_drop_powerups[i];
-		if (pow == POW_VULCAN_AMMO)
-		{
-			*((short *)&multibuf[count]) = pow_count[pow]; count += 2;
-		}
-		else
-			multibuf[count++] = pow_count[pow];
-	}
-	multi_send_data(multibuf, count, 1);
-}
-
-void
-multi_send_player_powerup_count()
-{
-	int pow_count[MAX_POWERUP_TYPES];
-
-	player_to_pow_count(&Players[Player_num], pow_count);
-	multi_send_powerup_count(MULTI_PLAYER_POWERUP_COUNT, pow_count);
-}
-
-void
-multi_send_start_powerup_count()
-{
-	multi_send_powerup_count(MULTI_START_POWERUP_COUNT, powerup_start_level);
-}
-
-void
 multi_send_player_explode(char type)
 {
 	int count = 0;
@@ -2260,6 +2222,152 @@ multi_send_player_explode(char type)
 		multi_send_decloak();
 
 	multi_strip_robots(Player_num);
+}
+
+extern ubyte Secondary_weapon_to_powerup[], Primary_weapon_to_powerup[];
+extern int Proximity_dropped;
+
+/*
+ * Powerup capping: Keep track of how many powerups are in level and kill these which would exceed initial limit.
+ * NOTE: Code from D2 - never been in D1, so disable in IPX
+ */
+
+// Count the initial amount of Powerups in the level
+void multi_powcap_count_powerups_in_mine(void)
+{
+	int i;
+
+	for (i=0;i<MAX_POWERUP_TYPES;i++)
+		PowerupsInMine[i]=0;
+		
+	for (i=0;i<=Highest_object_index;i++) 
+	{
+		if (Objects[i].type==OBJ_POWERUP)
+		{
+			if (multi_powerup_is_4pack(Objects[i].id))
+				PowerupsInMine[Objects[i].id-1]+=4;
+			else
+				PowerupsInMine[Objects[i].id]++;
+		}
+	}
+}
+
+// We want to drop something. Kill every Powerup which exceeds the level limit
+void multi_powcap_cap_objects()
+{
+	char type;
+	int index;
+
+	if (multi_protocol == MULTI_PROTO_IPX)
+		return;
+	if (!(Game_mode & GM_NETWORK))
+		return;
+
+	Players[Player_num].secondary_ammo[PROXIMITY_INDEX]+=Proximity_dropped;
+	Proximity_dropped=0;
+
+	for (index=0;index<MAX_PRIMARY_WEAPONS;index++)
+	{
+		type=Primary_weapon_to_powerup[index];
+		if (PowerupsInMine[(int)type]>=MaxPowerupsAllowed[(int)type])
+			if(Players[Player_num].primary_weapon_flags & (1 << index))
+			{
+				con_printf(CON_NORMAL,"PIM=%d MPA=%d\n",PowerupsInMine[(int)type],MaxPowerupsAllowed[(int)type]);
+				con_printf(CON_NORMAL,"Killing a primary cuz there's too many! (%d)\n",type);
+				Players[Player_num].primary_weapon_flags&=(~(1 << index));
+			}
+	}
+
+
+	Players[Player_num].secondary_ammo[2]/=4;
+
+	for (index=0;index<MAX_SECONDARY_WEAPONS;index++)
+	{
+		type=Secondary_weapon_to_powerup[index];
+
+		if ((Players[Player_num].secondary_ammo[index]+PowerupsInMine[(int)type])>MaxPowerupsAllowed[(int)type])
+		{
+			if (MaxPowerupsAllowed[(int)type]-PowerupsInMine[(int)type]<0)
+				Players[Player_num].secondary_ammo[index]=0;
+			else
+				Players[Player_num].secondary_ammo[index]=(MaxPowerupsAllowed[(int)type]-PowerupsInMine[(int)type]);
+			con_printf(CON_NORMAL,"Hey! I killed secondary type %d because PIM=%d MPA=%d\n",type,PowerupsInMine[(int)type],MaxPowerupsAllowed[(int)type]);
+		}
+	}
+
+	Players[Player_num].secondary_ammo[2]*=4;
+
+	if (Players[Player_num].flags & PLAYER_FLAGS_QUAD_LASERS)
+		if (PowerupsInMine[POW_QUAD_FIRE]+1 > MaxPowerupsAllowed[POW_QUAD_FIRE])
+			Players[Player_num].flags&=(~PLAYER_FLAGS_QUAD_LASERS);
+
+	if (Players[Player_num].flags & PLAYER_FLAGS_CLOAKED)
+		if (PowerupsInMine[POW_CLOAK]+1 > MaxPowerupsAllowed[POW_CLOAK])
+			Players[Player_num].flags&=(~PLAYER_FLAGS_CLOAKED);
+}
+
+// Adds players inventory to multi cap
+void multi_powcap_adjust_cap_for_player(int pnum)
+{
+	char type;
+
+	int index;
+
+	if (!(Game_mode & GM_NETWORK))
+		return;
+
+	for (index=0;index<MAX_PRIMARY_WEAPONS;index++)
+	{
+		type=Primary_weapon_to_powerup[index];
+		if (Players[pnum].primary_weapon_flags & (1 << index))
+		    MaxPowerupsAllowed[(int)type]++;
+	}
+
+	for (index=0;index<MAX_SECONDARY_WEAPONS;index++)
+	{
+		type=Secondary_weapon_to_powerup[index];
+		MaxPowerupsAllowed[(int)type]+=Players[pnum].secondary_ammo[index];
+	}
+
+	if (Players[pnum].flags & PLAYER_FLAGS_QUAD_LASERS)
+		MaxPowerupsAllowed[POW_QUAD_FIRE]++;
+
+	if (Players[pnum].flags & PLAYER_FLAGS_CLOAKED)
+		MaxPowerupsAllowed[POW_CLOAK]++;
+}
+
+void multi_powcap_adjust_remote_cap(int pnum)
+{
+	char type;
+
+	int index;
+
+	if (!(Game_mode & GM_NETWORK))
+		return;
+
+	for (index=0;index<MAX_PRIMARY_WEAPONS;index++)
+	{
+		type=Primary_weapon_to_powerup[index];
+		if (Players[pnum].primary_weapon_flags & (1 << index))
+		    PowerupsInMine[(int)type]++;
+	}
+
+	for (index=0;index<MAX_SECONDARY_WEAPONS;index++)
+	{
+		type=Secondary_weapon_to_powerup[index];
+
+		if (index==2) // PROX? Those bastards...
+			PowerupsInMine[(int)type]+=(Players[pnum].secondary_ammo[index]/4);
+		else
+			PowerupsInMine[(int)type]+=Players[pnum].secondary_ammo[index];
+
+	}
+
+	if (Players[pnum].flags & PLAYER_FLAGS_QUAD_LASERS)
+		PowerupsInMine[POW_QUAD_FIRE]++;
+
+	if (Players[pnum].flags & PLAYER_FLAGS_CLOAKED)
+		PowerupsInMine[POW_CLOAK]++;
 }
 
 void
@@ -2357,6 +2465,22 @@ multi_send_remobj(int objnum)
 
 	sbyte obj_owner;
 	short remote_objnum;
+
+	if (Objects[objnum].type==OBJ_POWERUP && (Game_mode & GM_NETWORK))
+	{
+		if (multi_powerup_is_4pack (Objects[objnum].id))
+		{
+			if (PowerupsInMine[Objects[objnum].id-1]-4<0)
+				PowerupsInMine[Objects[objnum].id-1]=0;
+			else
+				PowerupsInMine[Objects[objnum].id-1]-=4;
+		}
+		else
+		{
+			if (PowerupsInMine[Objects[objnum].id]>0)
+				PowerupsInMine[Objects[objnum].id]--;
+		}
+	}
 
 	multibuf[0] = (char)MULTI_REMOVE_OBJECT;
 
@@ -2478,6 +2602,14 @@ multi_send_create_powerup(int powerup_type, int segnum, int objnum, vms_vector *
 	int count = 0;
 
 	multi_send_position(Players[Player_num].objnum);
+
+	if (Game_mode & GM_NETWORK)
+	{
+		if (multi_powerup_is_4pack(powerup_type))
+			PowerupsInMine[powerup_type-1]+=4;
+		else
+			PowerupsInMine[powerup_type]++;
+	}
 
 	multibuf[count] = MULTI_CREATE_POWERUP;			count += 1;
 	multibuf[count] = Player_num;				count += 1;
@@ -2657,6 +2789,12 @@ multi_prep_level(void)
 		multi_set_robot_ai(); // Set all Robot AI to types we can cope with
 	}
 
+	if (Game_mode & GM_NETWORK)
+	{
+		multi_powcap_adjust_cap_for_player(Player_num);
+		multi_send_powcap_update();
+	}
+
 	inv_count = 0;
 	cloak_count = 0;
 	for (i=0; i<=Highest_object_index; i++)
@@ -2681,31 +2819,33 @@ multi_prep_level(void)
 
 		if (Objects[i].type == OBJ_POWERUP)
 		{
-			if (Objects[i].id == POW_EXTRA_LIFE) 
+			if (Objects[i].id == POW_EXTRA_LIFE)
 			{
-				Objects[i].id = POW_INVULNERABILITY;
-				Objects[i].rtype.vclip_info.vclip_num = Powerup_info[Objects[i].id].vclip_num;
-				Objects[i].rtype.vclip_info.frametime = Vclip[Objects[i].rtype.vclip_info.vclip_num].frame_time;
+				if (!(Netgame.AllowedItems & NETFLAG_DOINVUL))
+				{
+					Objects[i].id = POW_SHIELD_BOOST;
+					Objects[i].rtype.vclip_info.vclip_num = Powerup_info[Objects[i].id].vclip_num;
+					Objects[i].rtype.vclip_info.frametime = Vclip[Objects[i].rtype.vclip_info.vclip_num].frame_time;
+				}
+				else
+				{
+					Objects[i].id = POW_INVULNERABILITY;
+					Objects[i].rtype.vclip_info.vclip_num = Powerup_info[Objects[i].id].vclip_num;
+					Objects[i].rtype.vclip_info.frametime = Vclip[Objects[i].rtype.vclip_info.vclip_num].frame_time;
+				}
+
 			}
 
-			if ((multi_allow_powerup & multi_allow_powerup_mask[Objects[i].id]) != multi_allow_powerup_mask[Objects[i].id]) {
-				Objects[i].id = POW_SHIELD_BOOST;
-				Objects[i].rtype.vclip_info.vclip_num = Powerup_info[Objects[i].id].vclip_num;
-                                Objects[i].rtype.vclip_info.frametime = Vclip[Objects[i].rtype.vclip_info.vclip_num].frame_time;
-			}
-
-			if (Game_mode & GM_MULTI_COOP)
-				continue;
-
-			if ((Objects[i].id >= POW_KEY_BLUE) && (Objects[i].id <= POW_KEY_GOLD))
-			{
-				Objects[i].id = POW_SHIELD_BOOST;
-				Objects[i].rtype.vclip_info.vclip_num = Powerup_info[Objects[i].id].vclip_num;
-				Objects[i].rtype.vclip_info.frametime = Vclip[Objects[i].rtype.vclip_info.vclip_num].frame_time;
-			}
+			if (!(Game_mode & GM_MULTI_COOP))
+				if ((Objects[i].id >= POW_KEY_BLUE) && (Objects[i].id <= POW_KEY_GOLD))
+				{
+					Objects[i].id = POW_SHIELD_BOOST;
+					Objects[i].rtype.vclip_info.vclip_num = Powerup_info[Objects[i].id].vclip_num;
+					Objects[i].rtype.vclip_info.frametime = Vclip[Objects[i].rtype.vclip_info.vclip_num].frame_time;
+				}
 
 			if (Objects[i].id == POW_INVULNERABILITY) {
-				if (inv_count >= 3) {
+				if (inv_count >= 3 || (!(Netgame.AllowedItems & NETFLAG_DOINVUL))) {
 					Objects[i].id = POW_SHIELD_BOOST;
 					Objects[i].rtype.vclip_info.vclip_num = Powerup_info[Objects[i].id].vclip_num;
 					Objects[i].rtype.vclip_info.frametime = Vclip[Objects[i].rtype.vclip_info.vclip_num].frame_time;
@@ -2714,13 +2854,38 @@ multi_prep_level(void)
 			}
 
 			if (Objects[i].id == POW_CLOAK) {
-				if (cloak_count >= 3) {
+				if (cloak_count >= 3 || (!(Netgame.AllowedItems & NETFLAG_DOCLOAK))) {
 					Objects[i].id = POW_SHIELD_BOOST;
 					Objects[i].rtype.vclip_info.vclip_num = Powerup_info[Objects[i].id].vclip_num;
 					Objects[i].rtype.vclip_info.frametime = Vclip[Objects[i].rtype.vclip_info.vclip_num].frame_time;
 				} else
 					cloak_count++;
 			}
+
+			if (Objects[i].id == POW_FUSION_WEAPON && !(Netgame.AllowedItems & NETFLAG_DOFUSION))
+				bash_to_shield (i,"fusion");
+			if (Objects[i].id == POW_MEGA_WEAPON && !(Netgame.AllowedItems & NETFLAG_DOMEGA))
+				bash_to_shield (i,"mega");
+			if (Objects[i].id == POW_SMARTBOMB_WEAPON && !(Netgame.AllowedItems & NETFLAG_DOSMART))
+				bash_to_shield (i,"smartmissile");
+			if (Objects[i].id == POW_VULCAN_WEAPON && !(Netgame.AllowedItems & NETFLAG_DOVULCAN))
+				bash_to_shield (i,"vulcan");
+			if (Objects[i].id == POW_PLASMA_WEAPON && !(Netgame.AllowedItems & NETFLAG_DOPLASMA))
+				bash_to_shield (i,"plasma");
+			if (Objects[i].id == POW_PROXIMITY_WEAPON && !(Netgame.AllowedItems & NETFLAG_DOPROXIM))
+				bash_to_shield (i,"proximity");
+			if (Objects[i].id==POW_VULCAN_AMMO && (!(Netgame.AllowedItems & NETFLAG_DOVULCAN)))
+				bash_to_shield(i,"vulcan ammo");
+			if (Objects[i].id == POW_SPREADFIRE_WEAPON && !(Netgame.AllowedItems & NETFLAG_DOSPREAD))
+				bash_to_shield (i,"spread");
+			if (Objects[i].id == POW_LASER && !(Netgame.AllowedItems & NETFLAG_DOLASER))
+				bash_to_shield (i,"Laser powerup");
+			if (Objects[i].id == POW_HOMING_AMMO_1 && !(Netgame.AllowedItems & NETFLAG_DOHOMING))
+				bash_to_shield (i,"Homing");
+			if (Objects[i].id == POW_HOMING_AMMO_4 && !(Netgame.AllowedItems & NETFLAG_DOHOMING))
+				bash_to_shield (i,"Homing");
+			if (Objects[i].id == POW_QUAD_FIRE && !(Netgame.AllowedItems & NETFLAG_DOQUAD))
+				bash_to_shield (i,"Quad Lasers");
 		}
 	}
 	
@@ -2731,16 +2896,6 @@ multi_prep_level(void)
 	ConsoleObject->control_type = CT_FLYING;
 
 	reset_player_object();
-
-	multi_got_pow_count = 0;
-
-#ifdef USE_IPX
-	// send player powerups (assumes sync already send)
-	if ((Game_mode & GM_NETWORK) &&
-	    Netgame.protocol.ipx.protocol_version == MULTI_PROTO_D1X_VER &&
-	    !Network_rejoined)
-		multi_send_player_powerup_count();
-#endif
 }
 
 int multi_level_sync(void)
@@ -2864,6 +3019,45 @@ void change_playernum_to( int new_Player_num )
 	}
 
 	Player_num = new_Player_num;
+}
+
+void multi_send_powcap_update ()
+{
+	int i;
+
+	if (multi_protocol == MULTI_PROTO_IPX)
+		return;
+
+	multibuf[0]=MULTI_POWCAP_UPDATE;
+	for (i=0;i<MAX_POWERUP_TYPES;i++)
+		multibuf[i+1]=MaxPowerupsAllowed[i];
+
+	multi_send_data(multibuf, MAX_POWERUP_TYPES+1, 1);
+}
+
+void multi_do_powcap_update (char *buf)
+{
+	int i;
+
+	if (multi_protocol == MULTI_PROTO_IPX)
+		return;
+
+	for (i=0;i<MAX_POWERUP_TYPES;i++)
+		if (buf[i+1]>MaxPowerupsAllowed[i])
+			MaxPowerupsAllowed[i]=buf[i+1];
+}
+
+#define POWERUPADJUSTS 2
+int PowerupAdjustMapping[]={11,19};
+
+int multi_powerup_is_4pack (int id)
+{
+	int i;
+
+	for (i=0;i<POWERUPADJUSTS;i++)
+		if (id==PowerupAdjustMapping[i])
+			return (1);
+	return (0);
 }
 
 void multi_add_lifetime_kills ()

@@ -277,6 +277,20 @@ void verify_object( object * obj )	{
 		obj->control_type = CT_POWERUP;
 
 		obj->size = Powerup_info[obj->id].size;
+
+		if (Game_mode & GM_NETWORK)
+		{
+			if (multi_powerup_is_4pack(obj->id))
+			{
+				PowerupsInMine[obj->id-1]+=4;
+				MaxPowerupsAllowed[obj->id-1]+=4;
+			}
+			else
+			{
+				PowerupsInMine[obj->id]++;
+				MaxPowerupsAllowed[obj->id]++;
+			}
+		}
 	}
 
 	if ( obj->type == OBJ_WEAPON )	{

@@ -84,6 +84,7 @@ void net_udp_noloss_got_ack(ubyte *data, int data_len);
 void net_udp_noloss_init_mdata_queue(void);
 void net_udp_noloss_clear_mdata_got(ubyte player_num);
 void net_udp_noloss_process_queue(fix64 time);
+void net_udp_send_extras ();
 extern void game_disable_cheats();
 
 // Variables
@@ -102,6 +103,8 @@ struct _sockaddr GBcast; // global Broadcast address clients and hosts will use 
 struct _sockaddr GMcast_v6; // same for IPv6-only
 #endif
 extern obj_position Player_init[MAX_PLAYERS];
+extern char MaxPowerupsAllowed[MAX_POWERUP_TYPES];
+extern char PowerupsInMine[MAX_POWERUP_TYPES];
 
 /* General UDP functions - START */
 // Resolve address
@@ -735,6 +738,7 @@ void net_udp_list_join_game()
 	change_playernum_to(1);
 	N_players = 0;
 	Network_send_objects = 0;
+	Network_sending_extras=0;
 	Network_rejoined=0;
 
 	Network_status = NETSTAT_BROWSING; // We are looking at a game menu
@@ -803,7 +807,7 @@ void net_udp_init()
 	// So you want to play a netgame, eh?  Let's a get a few things
 	// straight
 
-	int save_pnum = Player_num;
+	int save_pnum = Player_num, t;
 
 #ifdef _WIN32
 {
@@ -822,6 +826,12 @@ void net_udp_init()
 		udp_close_socket(1);
 
 	game_disable_cheats();
+
+	for (t=0;t<MAX_POWERUP_TYPES;t++)
+	{
+		MaxPowerupsAllowed[t]=0;
+		PowerupsInMine[t]=0;
+	}
 
 	memset(&Netgame, 0, sizeof(netgame_info));
 	memset(&UDP_Seq, 0, sizeof(UDP_sequence_packet));
@@ -983,6 +993,9 @@ net_udp_disconnect_player(int playernum)
 	Players[playernum].connected = CONNECT_DISCONNECTED;
 	Netgame.players[playernum].connected = CONNECT_DISCONNECTED;
 
+	if (VerifyPlayerJoined==playernum)
+		VerifyPlayerJoined=-1;
+
 	if (Network_status == NETSTAT_PLAYING)
 	{
 		multi_make_player_ghost(playernum);
@@ -1071,7 +1084,7 @@ void net_udp_welcome_player(UDP_sequence_packet *their)
 		return; 
 	}
 
-	if (Network_send_objects)
+	if (Network_send_objects || Network_sending_extras)
 	{
 		// Ignore silently, we're already responding to someone and we can't
 		// do more than one person at a time.  If we don't dump them they will
@@ -1321,7 +1334,9 @@ void net_udp_stop_resync(UDP_sequence_packet *their)
 		(!stricmp(UDP_sync_player.player.callsign, their->player.callsign)) )
 	{
 		Network_send_objects = 0;
+		Network_sending_extras=0;
 		Network_rejoined=0;
+		Player_joining_extras=-1;
 		Network_send_objnum = -1;
 	}
 }
@@ -1430,6 +1445,9 @@ void net_udp_send_objects(void)
 			Network_send_objnum = -1;
 			Network_send_objects = 0;
 			obj_count = 0;
+
+			Network_sending_extras=10; // start to send extras
+			VerifyPlayerJoined = Player_joining_extras = player_num;
 
 			return;
 		} // mode == 1;
@@ -1557,7 +1575,9 @@ void net_udp_send_rejoin_sync(int player_num)
 		// have to stop and try again after the level.
 
 		net_udp_dump_player(UDP_sync_player.player.protocol.udp.addr, DUMP_ENDLEVEL);
+
 		Network_send_objects = 0; 
+		Network_sending_extras=0;
 		return;
 	}
 
@@ -1595,6 +1615,31 @@ void net_udp_send_rejoin_sync(int player_num)
 	net_udp_send_door_updates();
 
 	return;
+}
+
+void net_udp_resend_sync_due_to_packet_loss()
+{
+	int i,j;
+
+	if (!multi_i_am_master())
+		return;
+
+	net_udp_update_netgame();
+
+	// Fill in the kill list
+	for (j=0; j<MAX_PLAYERS; j++)
+	{
+		for (i=0; i<MAX_PLAYERS;i++)
+			Netgame.kills[j][i] = kill_matrix[j][i];
+		Netgame.killed[j] = Players[j].net_killed_total;
+		Netgame.player_kills[j] = Players[j].net_kills_total;
+		Netgame.player_score[j] = Players[j].score;
+	}
+
+	Netgame.level_time = Players[Player_num].time_level;
+	Netgame.monitor_vector = net_udp_create_monitor_vector();
+
+	net_udp_send_game_info(UDP_sync_player.player.protocol.udp.addr, UPID_SYNC);
 }
 
 char * net_udp_get_player_name( int objnum )
@@ -2972,8 +3017,6 @@ void net_udp_read_sync_packet( ubyte * data, int data_len, struct _sockaddr send
 	
 	Objects[Players[Player_num].objnum].type = OBJ_PLAYER;
 
-	multi_allow_powerup = NETFLAG_DOPOWERUP;
-
 	Network_status = NETSTAT_PLAYING;
 	multi_sort_kill_list();
 }
@@ -3491,6 +3534,9 @@ void net_udp_leave_game()
 
 	if ((multi_i_am_master()))
 	{
+		while (Network_sending_extras>1 && Player_joining_extras!=-1)
+			net_udp_send_extras();
+
 		Netgame.numplayers = 0;
 		nsave=N_players;
 		N_players=0;
@@ -3688,8 +3734,12 @@ void net_udp_do_frame(int force, int listen)
 	{
 		net_udp_timeout_check(time);
 		net_udp_listen();
+		if (VerifyPlayerJoined!=-1 && !(FrameCount & 63))
+			net_udp_resend_sync_due_to_packet_loss(); // This will resend to UDP_sync_player
 		if (Network_send_objects)
 			net_udp_send_objects();
+		if (Network_sending_extras && VerifyPlayerJoined==-1)
+			net_udp_send_extras();
 	}
 
 	PacketUrgent = 0;
@@ -4182,6 +4232,12 @@ void net_udp_read_pdata_short_packet(UDP_frame_info *pd)
 	TheirPlayernum = pd->Player_num;
 	TheirObjnum = Players[pd->Player_num].objnum;
 
+	if (VerifyPlayerJoined!=-1 && TheirPlayernum==VerifyPlayerJoined)
+	{
+		// Hurray! Someone really really got in the game (I think).
+		VerifyPlayerJoined=-1;
+	}
+
 	if (!multi_quit_game && (TheirPlayernum >= N_players))
 	{
 		if (Network_status!=NETSTAT_WAITING)
@@ -4431,6 +4487,18 @@ int net_udp_get_new_player_num (UDP_sequence_packet *their)
 	    return (oldest_player);
 	  }
   }
+
+void net_udp_send_extras ()
+{
+	Assert (Player_joining_extras>-1);
+
+	if (Network_sending_extras==10)
+		multi_send_powcap_update();  
+
+	Network_sending_extras--;
+	if (!Network_sending_extras)
+		Player_joining_extras=-1;
+}
 
 static int show_game_rules_handler(window *wind, d_event *event, netgame_info *netgame)
 {

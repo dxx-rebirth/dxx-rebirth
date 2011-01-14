@@ -1298,7 +1298,7 @@ void set_camera_pos(vms_vector *camera_pos, object *objp)
 	}
 }
 
-extern void drop_player_eggs(object *objp);
+extern void drop_player_eggs(object *playerobj);
 extern int get_explosion_vclip(object *obj,int stage);
 
 //	------------------------------------------------------------------------------------------------------------------
@@ -1365,14 +1365,18 @@ void dead_player_frame(void)
 				HUD_init_message(HM_DEFAULT, TXT_SHIP_DESTROYED_0);
 
 				Player_exploded = 1;
-                                drop_player_eggs(ConsoleObject);
-                                Player_eggs_dropped = 1;
-                                #ifdef NETWORK
-                                 if (Game_mode & GM_MULTI)
-                                  {
-                                    multi_send_player_explode(MULTI_PLAYER_EXPLODE);
-                                  }
-                                #endif
+#ifdef NETWORK
+				if (Game_mode & GM_NETWORK)
+					multi_powcap_cap_objects();
+#endif
+				drop_player_eggs(ConsoleObject);
+				Player_eggs_dropped = 1;
+#ifdef NETWORK
+				if (Game_mode & GM_MULTI)
+				{
+					multi_send_player_explode(MULTI_PLAYER_EXPLODE);
+				}
+#endif
 
 				explode_badass_player(ConsoleObject);
 
@@ -1393,21 +1397,25 @@ void dead_player_frame(void)
 		}
 
 
-                if (Death_sequence_aborted)
-                 {
-                  if (!Player_eggs_dropped)
-                   {
-                     drop_player_eggs(ConsoleObject);
-                     Player_eggs_dropped = 1;
-                     #ifdef NETWORK
-                      if (Game_mode & GM_MULTI)
-                       {
-                          multi_send_player_explode(MULTI_PLAYER_EXPLODE);
-                       }
-                     #endif
-                   }
-                  DoPlayerDead();         //kill_player();
-                 }
+		if (Death_sequence_aborted)
+		{
+			if (!Player_eggs_dropped)
+			{
+#ifdef NETWORK
+				if (Game_mode & GM_NETWORK)
+					multi_powcap_cap_objects();
+#endif
+				drop_player_eggs(ConsoleObject);
+				Player_eggs_dropped = 1;
+#ifdef NETWORK
+				if (Game_mode & GM_MULTI)
+				{
+					multi_send_player_explode(MULTI_PLAYER_EXPLODE);
+				}
+#endif
+			}
+			DoPlayerDead();         //kill_player();
+		}
 	}
 	else
 		time_dead = 0;

@@ -116,4 +116,6 @@ extern void DoEndLevelScoreGlitz(int network);
 extern int MaxNumNetPlayers;
 extern int NumNetPlayerPositions;
 
+void bash_to_shield(int, char *);
+
 #endif /* _GAMESEQ_H */

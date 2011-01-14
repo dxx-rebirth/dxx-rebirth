@@ -90,6 +90,9 @@ typedef struct weapon_info {
 #define	MAX_PRIMARY_WEAPONS		5
 #define	MAX_SECONDARY_WEAPONS	5
 
+//given a weapon index, return the flag value
+#define  HAS_FLAG(index)  (1<<(index))
+
 //	Weapon flags, if player->weapon_flags & WEAPON_FLAG is set, then the player has this weapon
 #define	HAS_LASER_FLAG				0x001
 #define	HAS_VULCAN_FLAG			0x002
@@ -130,6 +133,10 @@ extern sbyte	Primary_weapon, Secondary_weapon;
 
 extern ubyte Primary_weapon_to_weapon_info[MAX_PRIMARY_WEAPONS];
 extern ubyte Secondary_weapon_to_weapon_info[MAX_SECONDARY_WEAPONS];
+//for each primary weapon, what kind of powerup gives weapon
+extern ubyte Primary_weapon_to_powerup[MAX_SECONDARY_WEAPONS];
+//for each Secondary weapon, what kind of powerup gives weapon
+extern ubyte Secondary_weapon_to_powerup[MAX_SECONDARY_WEAPONS];
 extern void auto_select_weapon(int weapon_type);		//parm is primary or secondary
 extern void select_weapon(int weapon_num, int secondary_flag, int print_message,int wait_for_rearm);
 

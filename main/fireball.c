@@ -433,6 +433,7 @@ int choose_drop_segment(void)
 
 }
 
+extern char PowerupsInMine[],MaxPowerupsAllowed[];
 //	------------------------------------------------------------------------------------------------------
 //	Drop cloak powerup if in a network game.
 void maybe_drop_net_powerup(int powerup_type)
@@ -441,8 +442,13 @@ void maybe_drop_net_powerup(int powerup_type)
 		int	segnum, objnum;
 		vms_vector	new_pos;
 
-		if (Control_center_destroyed || Endlevel_sequence ||
-		    !may_create_powerup(powerup_type))
+		if (Game_mode & GM_NETWORK)
+		{
+			if (PowerupsInMine[powerup_type]>=MaxPowerupsAllowed[powerup_type])
+				return;
+		}
+
+		if (Control_center_destroyed || Endlevel_sequence)
 			return;
 
 		segnum = choose_drop_segment();
@@ -964,8 +970,7 @@ void do_explosion_sequence(object *obj)
 			//	If dropping a weapon that the player has, drop energy instead, unless it's vulcan, in which case drop vulcan ammo.
 			if (del_obj->contains_type == OBJ_POWERUP)
 				maybe_replace_powerup_with_energy(del_obj);
-			if (object_create_egg(del_obj) >= 0)
-				pow_add_random(del_obj);
+			object_create_egg(del_obj);
 		} else if ((del_obj->type == OBJ_ROBOT) && !(Game_mode & GM_MULTI)) { // Multiplayer handled outside this code!!
 			robot_info	*robptr = &Robot_info[del_obj->id];
 			if (robptr->contains_count) {
@@ -974,8 +979,7 @@ void do_explosion_sequence(object *obj)
 					del_obj->contains_type = robptr->contains_type;
 					del_obj->contains_id = robptr->contains_id;
 					maybe_replace_powerup_with_energy(del_obj);
-					if (object_create_egg(del_obj) >= 0)
-						pow_add_random(del_obj);
+					object_create_egg(del_obj);
 				}
 			}
 		}
