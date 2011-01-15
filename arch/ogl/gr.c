@@ -606,7 +606,7 @@ void ogl_urect(int left,int top,int right,int bot)
 void ogl_ulinec(int left,int top,int right,int bot,int c)
 {
 	GLfloat xo,yo,xf,yf;
-	GLfloat color_array[] = { CPAL2Tr(c), CPAL2Tg(c), CPAL2Tb(c), 1.0 - (float)Gr_scanline_darkening_level / ((float)GR_FADE_LEVELS - 1.0), CPAL2Tr(c), CPAL2Tg(c), CPAL2Tb(c), 1.0 - (float)Gr_scanline_darkening_level / ((float)GR_FADE_LEVELS - 1.0), CPAL2Tr(c), CPAL2Tg(c), CPAL2Tb(c), 1.0, CPAL2Tr(c), CPAL2Tg(c), CPAL2Tb(c), 1.0 - (float)Gr_scanline_darkening_level / ((float)GR_FADE_LEVELS - 1.0) };
+	GLfloat color_array[] = { CPAL2Tr(c), CPAL2Tg(c), CPAL2Tb(c), (Gr_scanline_darkening_level >= GR_FADE_LEVELS)?1.0:1.0 - (float)Gr_scanline_darkening_level / ((float)GR_FADE_LEVELS - 1.0), CPAL2Tr(c), CPAL2Tg(c), CPAL2Tb(c), (Gr_scanline_darkening_level >= GR_FADE_LEVELS)?1.0:1.0 - (float)Gr_scanline_darkening_level / ((float)GR_FADE_LEVELS - 1.0), CPAL2Tr(c), CPAL2Tg(c), CPAL2Tb(c), 1.0, CPAL2Tr(c), CPAL2Tg(c), CPAL2Tb(c), (Gr_scanline_darkening_level >= GR_FADE_LEVELS)?1.0:1.0 - (float)Gr_scanline_darkening_level / ((float)GR_FADE_LEVELS - 1.0) };
 	GLfloat vertex_array[] = { 0.0, 0.0, 0.0, 0.0 };
 
 	glEnableClientState(GL_VERTEX_ARRAY);
