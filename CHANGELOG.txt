@@ -4,6 +4,7 @@ D1X-Rebirth Changelog
 --------
 arch/linux/ipx.c, main/net_ipx.c: Fixed some compiler warnings
 main/game.c: Due to recent changes in event_poll() game_handler() must call ReadControls() for EVENT_MOUSE_MOVED, too; Little fix for FixedStepCalc()
+arch/ogl/gr.c, arch/ogl/ogl.c: Fixed alpha limit for ogl_ulinec(), gr_uricle(), gr_disk()
 
 20110114
 --------
