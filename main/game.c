@@ -436,21 +436,21 @@ void FixedStepCalc()
 	if (Timer4 >= F1_0/4)
 	{
 		StepRes |= EPS4;
-		Timer4 = 0 + (Timer4-F1_0/4);
+		Timer4 = (Timer4-(F1_0/4));
 	}
 
 	Timer20 += FrameTime;
 	if (Timer20 >= F1_0/20)
 	{
 		StepRes |= EPS20;
-		Timer20 = 0 + (Timer20-F1_0/20);
+		Timer20 = (Timer20-(F1_0/20));
 	}
 
 	Timer30 += FrameTime;
 	if (Timer30 >= F1_0/30)
 	{
 		StepRes |= EPS30;
-		Timer30 = 0 + (Timer30-F1_0/30);
+		Timer30 = (Timer30-(F1_0/30));
 	}
 
 	FixedStep = StepRes;
@@ -1189,6 +1189,7 @@ int game_handler(window *wind, d_event *event, void *data)
 
 		case EVENT_MOUSE_BUTTON_UP:
 		case EVENT_MOUSE_BUTTON_DOWN:
+		case EVENT_MOUSE_MOVED:
 		case EVENT_KEY_COMMAND:
 		case EVENT_IDLE:		// EVENT_IDLE will be removed once all input events are in place
 			return ReadControls(event);

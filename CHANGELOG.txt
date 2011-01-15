@@ -3,6 +3,7 @@ D2X-Rebirth Changelog
 20110115
 --------
 arch/linux/ipx.c, main/net_ipx.c: Fixed some compiler warnings
+main/game.c: Due to recent changes in event_poll() game_handler() must call ReadControls() for EVENT_MOUSE_MOVED, too; Little fix for FixedStepCalc()
 
 20110114
 --------
