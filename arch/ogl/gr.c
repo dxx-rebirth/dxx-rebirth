@@ -307,6 +307,13 @@ void ogl_get_verinfo(void)
 #ifndef NDEBUG
 	con_printf(CON_VERBOSE,"gl_intensity4:%i gl_luminance4_alpha4:%i gl_rgba2:%i gl_readpixels:%i gl_gettexlevelparam:%i\n",GameArg.DbgGlIntensity4Ok,GameArg.DbgGlLuminance4Alpha4Ok,GameArg.DbgGlRGBA2Ok,GameArg.DbgGlReadPixelsOk,GameArg.DbgGlGetTexLevelParamOk);
 #endif
+	if (!stricmp(gl_extensions,"GL_EXT_texture_filter_anisotropic")==0)
+	{
+		glGetFloatv(GL_MAX_TEXTURE_MAX_ANISOTROPY_EXT, &ogl_maxanisotropy);
+		con_printf(CON_VERBOSE,"ogl_maxanisotropy:%f\n",ogl_maxanisotropy);
+	}
+	else if (GameCfg.TexFilt >= 3)
+		GameCfg.TexFilt = 2;
 #endif
 }
 

@@ -32,6 +32,10 @@ int ogl_init_load_library(void);
 # endif
 #endif
 
+#include "gr.h"
+#include "palette.h"
+#include "pstypes.h"
+
 #ifndef GL_VERSION_1_1
 #ifdef GL_EXT_texture
 #define GL_INTENSITY4 GL_INTENSITY4_EXT
@@ -39,9 +43,12 @@ int ogl_init_load_library(void);
 #endif
 #endif
 
-#include "gr.h"
-#include "palette.h"
-#include "pstypes.h"
+#ifndef GL_TEXTURE_MAX_ANISOTROPY_EXT
+#define GL_TEXTURE_MAX_ANISOTROPY_EXT 0x84FE
+#endif
+#ifndef GL_MAX_TEXTURE_MAX_ANISOTROPY_EXT
+#define GL_MAX_TEXTURE_MAX_ANISOTROPY_EXT 0x84FF
+#endif
 
 /* we need to export ogl_texture for 2d/font.c */
 typedef struct _ogl_texture {
@@ -55,7 +62,6 @@ typedef struct _ogl_texture {
 	GLfloat prio;
 	int wrapstate;
 	unsigned long numrend;
-	char wantmip;
 } ogl_texture;
 
 extern ogl_texture* ogl_get_free_texture();
@@ -69,6 +75,8 @@ void ogl_init_shared_palette(void);
 extern int gl_initialized;
 
 extern int active_texture_unit;
+extern GLfloat ogl_maxanisotropy;
+
 void ogl_setActiveTexture(int t);
 
 int ogl_init_window(int x, int y);//create a window/switch modes/etc
@@ -76,7 +84,7 @@ int ogl_init_window(int x, int y);//create a window/switch modes/etc
 #define OGL_FLAG_MIPMAP (1 << 0)
 #define OGL_FLAG_NOCOLOR (1 << 1)
 #define OGL_FLAG_ALPHA (1 << 31) // not required for ogl_loadbmtexture, since it uses the BM_FLAG_TRANSPARENT, but is needed for ogl_init_texture.
-void ogl_loadbmtexture_f(grs_bitmap *bm, int flags);
+void ogl_loadbmtexture_f(grs_bitmap *bm, int texfilt);
 void ogl_freebmtexture(grs_bitmap *bm);
 
 void ogl_start_frame(void);
@@ -86,10 +94,8 @@ void ogl_set_screen_mode(void);
 void ogl_cache_level_textures(void);
 
 void ogl_urect(int left, int top, int right, int bot);
-bool ogl_ubitmapm_c(int x, int y, grs_bitmap *bm, int c);
 bool ogl_ubitmapm_cs(int x, int y,int dw, int dh, grs_bitmap *bm,int c, int scale);
-bool ogl_ubitmapm(int x, int y, grs_bitmap *bm);
-bool ogl_ubitblt_i(int dw, int dh, int dx, int dy, int sw, int sh, int sx, int sy, grs_bitmap * src, grs_bitmap * dest, int mipmap);
+bool ogl_ubitblt_i(int dw, int dh, int dx, int dy, int sw, int sh, int sx, int sy, grs_bitmap * src, grs_bitmap * dest, int texfilt);
 bool ogl_ubitblt(int w, int h, int dx, int dy, int sx, int sy, grs_bitmap * src, grs_bitmap * dest);
 void ogl_upixelc(int x, int y, int c);
 void ogl_ulinec(int left, int top, int right, int bot, int c);
