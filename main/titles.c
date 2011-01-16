@@ -137,7 +137,7 @@ int show_title_screen( char * filename, int allow_keys, int from_hog_only )
 	title_screen *ts;
 	window *wind;
 	int pcx_error;
-	char new_filename[FILENAME_LEN+1] = "";
+	char new_filename[PATH_MAX] = "";
 
 	MALLOC(ts, title_screen, 1);
 	if (!ts)
@@ -179,7 +179,7 @@ int show_title_screen( char * filename, int allow_keys, int from_hog_only )
 
 void show_titles(void)
 {
-	char    publisher[16];
+	char    publisher[PATH_MAX];
 
 	songs_play_song( SONG_TITLE, 1 );
 
@@ -199,7 +199,7 @@ void show_titles(void)
 
 void show_order_form()
 {
-	char    exit_screen[16];
+	char    exit_screen[PATH_MAX];
 
 	strcpy(exit_screen, "warning.pcx");	// D1 Registered
 	if (! cfexist(exit_screen))
@@ -212,7 +212,7 @@ void show_order_form()
 
 //-----------------------------------------------------------------------------
 typedef struct {
-	char    bs_name[16];                //  filename, eg merc01.  Assumes .lbm suffix.
+	char    bs_name[PATH_MAX];                //  filename, eg merc01.  Assumes .lbm suffix.
 	sbyte   level_num;
 	sbyte   message_num;
 	short   text_ulx, text_uly;         //  upper left x,y of text window
@@ -300,7 +300,7 @@ typedef struct briefing
 	short	cur_screen;
 	briefing_screen	*screen;
 	grs_bitmap background;
-	char	background_name[16];
+	char	background_name[PATH_MAX];
 	char	*text;
 	char	*message;
 	int		text_x, text_y;
@@ -904,9 +904,9 @@ int load_briefing_screen(briefing *br, char *fname)
 		char *ptr;
 		if ((ptr = strrchr(fname2,'.')))
 			*ptr = '\0';
-		strncat(fname2, "h.pcx", sizeof(char)*FILENAME_LEN);
+		strncat(fname2, "h.pcx", sizeof(char)*PATH_MAX);
 		if (!cfexist(fname2))
-			snprintf(fname2, sizeof(char)*FILENAME_LEN, "%s", fname);
+			snprintf(fname2, sizeof(char)*PATH_MAX, "%s", fname);
 	}
 	d_free(forigin);
 

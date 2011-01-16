@@ -4,6 +4,7 @@ D1X-Rebirth Changelog
 --------
 2d/bitblt.c, arch/ogl/gr.c, arch/ogl/ogl.c, include/ogl_init.h, main/menu.c: Added feature to enable Anisotropic filtering is supported by hardware or driver; Reworked way of handling texture filtering information so ingame switching is possible again; Little fix for ogl_get_verinfo which was taken out for ordinary OGL code but should for OGLES
 main/menu.c: When changing resolutions and Game_wind is present, send EVENT_WINDOW_ACTIVATE shortly so it's canvase will align to the new resolution seamlessly
+main/titles.c: Generally use PATH_MAX for filename arrays in titles code
 
 20110115
 --------
