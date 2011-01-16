@@ -1788,7 +1788,7 @@ void do_sound_menu()
 	m[nitems].type = NM_TYPE_TEXT; m[nitems++].text = "cd music options:";
 
 	opt_sm_redbook_playorder = nitems;
-	m[nitems].type = NM_TYPE_CHECK; m[nitems].text = "force mac descent cd track order"; m[nitems++].value = GameCfg.OrigTrackOrder;
+	m[nitems].type = NM_TYPE_CHECK; m[nitems].text = "force mac cd track order"; m[nitems++].value = GameCfg.OrigTrackOrder;
 
 #ifdef USE_SDLMIXER
 	m[nitems].type = NM_TYPE_TEXT; m[nitems++].text = "";

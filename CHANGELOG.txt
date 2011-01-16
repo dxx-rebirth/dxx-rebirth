@@ -6,6 +6,7 @@ D1X-Rebirth Changelog
 main/menu.c: When changing resolutions and Game_wind is present, send EVENT_WINDOW_ACTIVATE shortly so it's canvase will align to the new resolution seamlessly
 main/titles.c: Generally use PATH_MAX for filename arrays in titles code
 main/console.c, main/inferno.c: Toggle console by KEY_SHIFTED+KEY_ESC again - as it should be
+arch/ogl/ogl.c, main/menu.c: in ogl_filltexbuf add pixel row matching color of bitmap edge to get a clean border when filtering cockpit overlay bitmaps; Small text correction for sound menu to fit better on screen
 
 20110115
 --------
