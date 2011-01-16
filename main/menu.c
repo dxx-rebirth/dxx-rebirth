@@ -998,8 +998,16 @@ void change_res()
 	newmenu_free_background();
 	set_screen_mode(SCREEN_MENU);
 	if (new_mode != Game_screen_mode)
+	{
 		gr_set_mode(new_mode);
-	Game_screen_mode = new_mode;
+		Game_screen_mode = new_mode;
+		if (Game_wind) // shortly activate Game_wind so it's canvas will align to new resolution. really minor glitch but whatever
+		{
+			d_event event;
+			WINDOW_SEND_EVENT(Game_wind, EVENT_WINDOW_ACTIVATED);
+			WINDOW_SEND_EVENT(Game_wind, EVENT_WINDOW_DEACTIVATED);
+		}
+	}
 	game_init_render_buffers(SM_W(Game_screen_mode), SM_H(Game_screen_mode), VR_NONE);
 	}
 }
