@@ -143,7 +143,7 @@ int show_title_screen( char * filename, int allow_keys, int from_hog_only )
 	title_screen *ts;
 	window *wind;
 	int pcx_error;
-	char new_filename[FILENAME_LEN+1] = "";
+	char new_filename[PATH_MAX] = "";
 
 	MALLOC(ts, title_screen, 1);
 	if (!ts)
@@ -187,14 +187,13 @@ int intro_played = 0;
 
 void show_titles(void)
 {
+	char filename[PATH_MAX];
 	int played=MOVIE_NOT_PLAYED;    //default is not played
 	int song_playing = 0;
 
 #define MOVIE_REQUIRED 1	//(!is_D2_OEM && !is_SHAREWARE && !is_MAC_SHARE)	// causes segfault
 
 	{       //show bundler screens
-		char filename[FILENAME_LEN];
-
 		played=MOVIE_NOT_PLAYED;        //default is not played
 
 		played = PlayMovie("pre_i.mve",0);
@@ -223,8 +222,6 @@ void show_titles(void)
 
 		if (played == MOVIE_NOT_PLAYED)
 		{
-			char filename[FILENAME_LEN];
-
 			con_printf( CON_DEBUG, "\nPlaying title song..." );
 			songs_play_song( SONG_TITLE, 1);
 			song_playing = 1;
@@ -249,8 +246,6 @@ void show_titles(void)
 	}
 
 	{       //show bundler movie or screens
-
-		char filename[FILENAME_LEN];
 		PHYSFS_file *movie_handle;
 
 		played=MOVIE_NOT_PLAYED;        //default is not played
@@ -277,13 +272,20 @@ void show_titles(void)
 	}
 
 	if (!song_playing)
+	{
+		con_printf( CON_DEBUG, "\nPlaying title song..." );
 		songs_play_song( SONG_TITLE, 1);
+	}
+	con_printf( CON_DEBUG, "\nShowing logo screen..." );
+	strcpy(filename, HIRESMODE?"descentb.pcx":"descent.pcx");
+	if (cfexist(filename))
+		show_title_screen(filename, 1, 1);
 }
 
 void show_order_form()
 {
 #ifndef EDITOR
-	char    exit_screen[16];
+	char    exit_screen[PATH_MAX];
 
 	key_flush();
 
@@ -305,7 +307,7 @@ void show_order_form()
 
 //-----------------------------------------------------------------------------
 typedef struct {
-	char    bs_name[16];                //  filename, eg merc01.  Assumes .lbm suffix.
+	char    bs_name[PATH_MAX];                //  filename, eg merc01.  Assumes .lbm suffix.
 	sbyte   level_num;
 	sbyte   message_num;
 	short   text_ulx, text_uly;         //  upper left x,y of text window
@@ -396,7 +398,7 @@ typedef struct briefing
 	short	cur_screen;
 	briefing_screen	*screen;
 	grs_bitmap background;
-	char	background_name[16];
+	char	background_name[PATH_MAX];
 	int		got_z;
 	int		hum_channel, printing_channel;
 	char	*text;
