@@ -75,6 +75,9 @@ COPYRIGHT 1993-1998 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 #include "editor/editor.h"
 #include "editor/kdefs.h"
 #endif
+#ifdef OGL
+#include "ogl_init.h"
+#endif
 
 
 // Menu IDs...
@@ -1210,6 +1213,12 @@ int graphics_config_menuset(newmenu *menu, d_event *event, void *userdata)
 	switch (event->type)
 	{
 		case EVENT_NEWMENU_CHANGED:
+			if ( citem == opt_gr_texfilt + 3 && ogl_maxanisotropy <= 1.0 )
+			{
+				nm_messagebox( TXT_ERROR, 1, TXT_OK, "Anisotropic Filtering not\nsupported by your hardware/driver.");
+				items[opt_gr_texfilt + 3].value = 0;
+				items[opt_gr_texfilt + 2].value = 1;
+			}
 			if ( citem == opt_gr_brightness)
 				gr_palette_set_gamma(items[citem].value);
 			break;
@@ -1238,11 +1247,12 @@ void graphics_config()
 	int nitems = 0;
 
 #ifdef OGL
-	m[nitems].type = NM_TYPE_TEXT; m[nitems].text = "Texture Filtering (restart required):"; nitems++;
+	m[nitems].type = NM_TYPE_TEXT; m[nitems].text = "Texture Filtering:"; nitems++;
 	opt_gr_texfilt = nitems;
 	m[nitems].type = NM_TYPE_RADIO; m[nitems].text = "None (Classical)"; m[nitems].value = 0; m[nitems].group = 0; nitems++;
 	m[nitems].type = NM_TYPE_RADIO; m[nitems].text = "Bilinear"; m[nitems].value = 0; m[nitems].group = 0; nitems++;
 	m[nitems].type = NM_TYPE_RADIO; m[nitems].text = "Trilinear"; m[nitems].value = 0; m[nitems].group = 0; nitems++;
+	m[nitems].type = NM_TYPE_RADIO; m[nitems].text = "Anisotropic"; m[nitems].value = 0; m[nitems].group = 0; nitems++;
 	m[nitems].type = NM_TYPE_TEXT; m[nitems].text = ""; nitems++;
 #endif
 	opt_gr_brightness = nitems;
@@ -1266,7 +1276,7 @@ void graphics_config()
 	if (GameCfg.VSync != m[opt_gr_vsync].value || GameCfg.Multisample != m[opt_gr_multisample].value)
 		nm_messagebox( NULL, 1, TXT_OK, "To apply VSync or 4x Multisample\nyou need to restart the program");
 
-	for (i = 0; i <= 2; i++)
+	for (i = 0; i <= 3; i++)
 		if (m[i+opt_gr_texfilt].value)
 			GameCfg.TexFilt = i;
 	PlayerCfg.OglAlphaEffects = m[opt_gr_alphafx].value;

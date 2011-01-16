@@ -202,7 +202,7 @@ void gr_ubitmap( int x, int y, grs_bitmap *bm )
 			return;
 #ifdef OGL
 		case BM_OGL:
-			ogl_ubitmapm(x,y,bm);
+			ogl_ubitmapm_cs(x,y,-1,-1,bm,255,F1_0);
 			return;
 #endif
 		default:
@@ -232,7 +232,7 @@ void gr_ubitmapm( int x, int y, grs_bitmap *bm )
 			return;
 #ifdef OGL
 		case BM_OGL:
-			ogl_ubitmapm(x,y,bm);
+			ogl_ubitmapm_cs(x,y,-1,-1,bm,255,F1_0);
 			return;
 #endif
 		default:
