@@ -177,7 +177,7 @@ int con_handler(window *wind, d_event *event)
 			key = event_key_get(event);
 			switch (key)
 			{
-				case KEY_SHIFTEDED + KEY_ESC:
+				case KEY_SHIFTED + KEY_ESC:
 					switch (con_state)
 					{
 						case CON_STATE_OPEN:
