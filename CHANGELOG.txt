@@ -5,6 +5,7 @@ D2X-Rebirth Changelog
 2d/bitblt.c, arch/ogl/gr.c, arch/ogl/ogl.c, include/ogl_init.h, main/menu.c: Added feature to enable Anisotropic filtering is supported by hardware or driver; Reworked way of handling texture filtering information so ingame switching is possible again
 main/menu.c: When changing resolutions and Game_wind is present, send EVENT_WINDOW_ACTIVATE shortly so it's canvase will align to the new resolution seamlessly
 main/titles.c: For more consistency to original game, show descent(b).pcx before pilot selection if available; Generally use PATH_MAX for filename arrays in titles code
+main/console.c, main/inferno.c: Toggle console by KEY_SHIFTED+KEY_ESC again - as it should be
 
 20110115
 --------
