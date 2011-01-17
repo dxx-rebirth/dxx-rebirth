@@ -102,7 +102,7 @@ vms_vector Ed_view_target={0,0,0};
 
 int gamestate_not_restored = 0;
 
-UI_WINDOW * EditorWindow;
+UI_DIALOG * EditorWindow;
 
 int	Large_view_index = -1;
 
@@ -744,7 +744,7 @@ void init_editor_screen()
 	gr_set_curfont(editor_font);
 	gr_set_fontcolor( CBLACK, CWHITE );
 
-	EditorWindow = ui_open_window( 0 , 0, ED_SCREEN_W, ED_SCREEN_H, WIN_FILLED );
+	EditorWindow = ui_create_dialog( 0 , 0, ED_SCREEN_W, ED_SCREEN_H, DF_FILLED, NULL, NULL );
 
 	LargeViewBox	= ui_add_gadget_userbox( EditorWindow,LVIEW_X,LVIEW_Y,LVIEW_W,LVIEW_H);
 #if ORTHO_VIEWS
@@ -837,7 +837,7 @@ void close_editor_screen()
 	ui_pad_deactivate();
 	window_close(Pad_info);
 
-	ui_close_window(EditorWindow);
+	ui_close_dialog(EditorWindow);
 
 	close_all_windows();
 
@@ -1068,7 +1068,7 @@ void editor(void)
 		gr_set_curfont(editor_font);
 		event_process();
 		last_keypress &= ~KEY_DEBUGGED;		//	mask off delete key bit which has no function in editor.
-		ui_window_do_gadgets(EditorWindow);
+		ui_dialog_do_gadgets(EditorWindow);
 		do_robot_window();
 		do_object_window();
 		do_wall_window();

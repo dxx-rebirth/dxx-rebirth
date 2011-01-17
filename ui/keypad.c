@@ -88,14 +88,14 @@ void LineParse( int n, char * dest, char * source )
 	dest[j++] = 0;
 }
 
-void ui_pad_activate( UI_WINDOW * wnd, int x, int y )
+void ui_pad_activate( UI_DIALOG * dlg, int x, int y )
 {
 	int w,h,row,col, n;
 	int bh, bw;
 
 	bw = 56; bh = 30;
 
-	gr_set_current_canvas( wnd->canvas );
+	gr_set_current_canvas( dlg->canvas );
 	ui_draw_box_in( x, y, x+(bw*4)+10 + 200, y+(bh*5)+45 );
 
 	x += 5;
@@ -105,55 +105,55 @@ void ui_pad_activate( UI_WINDOW * wnd, int x, int y )
 	desc_y = y-17;
 		
 	n=0; row = 0; col = 0; w = 1; h = 1;
-	Pad[n] = ui_add_gadget_button( wnd, x+(bw*col), y+(bh*row), bw*w, bh*h, NULL, NULL );
+	Pad[n] = ui_add_gadget_button( dlg, x+(bw*col), y+(bh*row), bw*w, bh*h, NULL, NULL );
 	Pad[n]->canvas->cv_font = ui_small_font;
 	n=1; row = 0; col = 1; w = 1; h = 1;
-	Pad[n] = ui_add_gadget_button( wnd, x+(bw*col), y+(bh*row), bw*w, bh*h, NULL, NULL );
+	Pad[n] = ui_add_gadget_button( dlg, x+(bw*col), y+(bh*row), bw*w, bh*h, NULL, NULL );
 	Pad[n]->canvas->cv_font = ui_small_font;
 	n=2; row = 0; col = 2; w = 1; h = 1;
-	Pad[n] = ui_add_gadget_button( wnd, x+(bw*col), y+(bh*row), bw*w, bh*h, NULL, NULL );
+	Pad[n] = ui_add_gadget_button( dlg, x+(bw*col), y+(bh*row), bw*w, bh*h, NULL, NULL );
 	Pad[n]->canvas->cv_font = ui_small_font;
 	n=3; row = 0; col = 3; w = 1; h = 1;
-	Pad[n] = ui_add_gadget_button( wnd, x+(bw*col), y+(bh*row), bw*w, bh*h, NULL, NULL );
+	Pad[n] = ui_add_gadget_button( dlg, x+(bw*col), y+(bh*row), bw*w, bh*h, NULL, NULL );
 	Pad[n]->canvas->cv_font = ui_small_font;
 	n=4; row = 1; col = 0; w = 1; h = 1; 
-	Pad[n] = ui_add_gadget_button( wnd, x+(bw*col), y+(bh*row), bw*w, bh*h, NULL, NULL );
+	Pad[n] = ui_add_gadget_button( dlg, x+(bw*col), y+(bh*row), bw*w, bh*h, NULL, NULL );
 	Pad[n]->canvas->cv_font = ui_small_font;
 	n=5; row = 1; col = 1; w = 1; h = 1; 
-	Pad[n] = ui_add_gadget_button( wnd, x+(bw*col), y+(bh*row), bw*w, bh*h, NULL, NULL );
+	Pad[n] = ui_add_gadget_button( dlg, x+(bw*col), y+(bh*row), bw*w, bh*h, NULL, NULL );
 	Pad[n]->canvas->cv_font = ui_small_font;
 	n=6; row = 1; col = 2; w = 1; h = 1; 
-	Pad[n] = ui_add_gadget_button( wnd, x+(bw*col), y+(bh*row), bw*w, bh*h, NULL, NULL );
+	Pad[n] = ui_add_gadget_button( dlg, x+(bw*col), y+(bh*row), bw*w, bh*h, NULL, NULL );
 	Pad[n]->canvas->cv_font = ui_small_font;
 	n=7; row = 1; col = 3; w = 1; h = 2; 
-	Pad[n] = ui_add_gadget_button( wnd, x+(bw*col), y+(bh*row), bw*w, bh*h, NULL, NULL );
+	Pad[n] = ui_add_gadget_button( dlg, x+(bw*col), y+(bh*row), bw*w, bh*h, NULL, NULL );
 	Pad[n]->canvas->cv_font = ui_small_font;
 	n=8; row = 2; col = 0; w = 1; h = 1; 
-	Pad[n] = ui_add_gadget_button( wnd, x+(bw*col), y+(bh*row), bw*w, bh*h, NULL, NULL );
+	Pad[n] = ui_add_gadget_button( dlg, x+(bw*col), y+(bh*row), bw*w, bh*h, NULL, NULL );
 	Pad[n]->canvas->cv_font = ui_small_font;
 	n=9; row = 2; col = 1; w = 1; h = 1; 
-	Pad[n] = ui_add_gadget_button( wnd, x+(bw*col), y+(bh*row), bw*w, bh*h, NULL, NULL );
+	Pad[n] = ui_add_gadget_button( dlg, x+(bw*col), y+(bh*row), bw*w, bh*h, NULL, NULL );
 	Pad[n]->canvas->cv_font = ui_small_font;
 	n=10; row = 2; col = 2; w = 1; h = 1;
-	Pad[n] = ui_add_gadget_button( wnd, x+(bw*col), y+(bh*row), bw*w, bh*h, NULL, NULL );
+	Pad[n] = ui_add_gadget_button( dlg, x+(bw*col), y+(bh*row), bw*w, bh*h, NULL, NULL );
 	Pad[n]->canvas->cv_font = ui_small_font;
 	n=11; row = 3; col = 0; w = 1; h = 1;
-	Pad[n] = ui_add_gadget_button( wnd, x+(bw*col), y+(bh*row), bw*w, bh*h, NULL, NULL );
+	Pad[n] = ui_add_gadget_button( dlg, x+(bw*col), y+(bh*row), bw*w, bh*h, NULL, NULL );
 	Pad[n]->canvas->cv_font = ui_small_font;
 	n=12; row = 3; col = 1; w = 1; h = 1;
-	Pad[n] = ui_add_gadget_button( wnd, x+(bw*col), y+(bh*row), bw*w, bh*h, NULL, NULL );
+	Pad[n] = ui_add_gadget_button( dlg, x+(bw*col), y+(bh*row), bw*w, bh*h, NULL, NULL );
 	Pad[n]->canvas->cv_font = ui_small_font;
 	n=13; row = 3; col = 2; w = 1; h = 1;
-	Pad[n] = ui_add_gadget_button( wnd, x+(bw*col), y+(bh*row), bw*w, bh*h, NULL, NULL );
+	Pad[n] = ui_add_gadget_button( dlg, x+(bw*col), y+(bh*row), bw*w, bh*h, NULL, NULL );
 	Pad[n]->canvas->cv_font = ui_small_font;
 	n=14; row = 3; col = 3; w = 1; h = 2; 
-	Pad[n] = ui_add_gadget_button( wnd, x+(bw*col), y+(bh*row), bw*w, bh*h, NULL, NULL );
+	Pad[n] = ui_add_gadget_button( dlg, x+(bw*col), y+(bh*row), bw*w, bh*h, NULL, NULL );
 	Pad[n]->canvas->cv_font = ui_small_font;
 	n=15; row = 4; col = 0; w = 2; h = 1;
-	Pad[n] = ui_add_gadget_button( wnd, x+(bw*col), y+(bh*row), bw*w, bh*h, NULL, NULL );
+	Pad[n] = ui_add_gadget_button( dlg, x+(bw*col), y+(bh*row), bw*w, bh*h, NULL, NULL );
 	Pad[n]->canvas->cv_font = ui_small_font;
 	n=16; row = 4; col = 2; w = 1; h = 1; 
-	Pad[n] = ui_add_gadget_button( wnd, x+(bw*col), y+(bh*row), bw*w, bh*h, NULL, NULL );
+	Pad[n] = ui_add_gadget_button( dlg, x+(bw*col), y+(bh*row), bw*w, bh*h, NULL, NULL );
 	Pad[n]->canvas->cv_font = ui_small_font;
 
 	HotKey[0] = KEY_CTRLED + KEY_NUMLOCK;

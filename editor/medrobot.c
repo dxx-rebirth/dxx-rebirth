@@ -53,7 +53,7 @@ void robot_close_window();
 //-------------------------------------------------------------------------
 // Variables for this module...
 //-------------------------------------------------------------------------
-static UI_WINDOW 				*MainWindow = NULL;
+static UI_DIALOG 				*MainWindow = NULL;
 static UI_GADGET_USERBOX	*RobotViewBox;
 static UI_GADGET_USERBOX	*ContainsViewBox;
 static UI_GADGET_BUTTON 	*QuitButton;
@@ -495,7 +495,7 @@ int do_robot_dialog()
 	Cur_goody_count = 0;
 
 	// Open a window with a quit button
-	MainWindow = ui_open_window( TMAPBOX_X+20, TMAPBOX_Y+20, 765-TMAPBOX_X, 545-TMAPBOX_Y, WIN_DIALOG );
+	MainWindow = ui_create_dialog( TMAPBOX_X+20, TMAPBOX_Y+20, 765-TMAPBOX_X, 545-TMAPBOX_Y, DF_DIALOG, NULL, NULL );
 	QuitButton = ui_add_gadget_button( MainWindow, 20, 286, 40, 32, "Done", NULL );
 
 	ui_add_gadget_button( MainWindow, GOODY_X+50, GOODY_Y-3, 25, 22, "<<", GoodyPrevType );
@@ -547,7 +547,7 @@ int do_robot_dialog()
 void robot_close_window()
 {
 	if ( MainWindow!=NULL )	{
-		ui_close_window( MainWindow );
+		ui_close_dialog( MainWindow );
 		MainWindow = NULL;
 	}
 
@@ -576,7 +576,7 @@ void do_robot_window()
 	// Call the ui code..
 	//------------------------------------------------------------
 	ui_button_any_drawn = 0;
-	ui_window_do_gadgets(MainWindow);
+	ui_dialog_do_gadgets(MainWindow);
 
 	//------------------------------------------------------------
 	// If we change objects, we need to reset the ui code for all
@@ -667,9 +667,9 @@ void do_robot_window()
 			Cur_goody_count = Objects[Cur_object_index].contains_count;
 		}
 
-		ui_wprintf_at( MainWindow, GOODY_X, GOODY_Y,    " Type:");
-		ui_wprintf_at( MainWindow, GOODY_X, GOODY_Y+24, "   ID:");
-		ui_wprintf_at( MainWindow, GOODY_X, GOODY_Y+48, "Count:");
+		ui_dprintf_at( MainWindow, GOODY_X, GOODY_Y,    " Type:");
+		ui_dprintf_at( MainWindow, GOODY_X, GOODY_Y+24, "   ID:");
+		ui_dprintf_at( MainWindow, GOODY_X, GOODY_Y+48, "Count:");
 
 		for (i=0; i<STRING_LENGTH; i++)
 			id_text[i] = ' ';
@@ -693,9 +693,9 @@ void do_robot_window()
 				break;
 		}
 
-		ui_wprintf_at( MainWindow, GOODY_X+108, GOODY_Y, type_text);
-		ui_wprintf_at( MainWindow, GOODY_X+108, GOODY_Y+24, id_text);
-		ui_wprintf_at( MainWindow, GOODY_X+108, GOODY_Y+48, "%i", Cur_goody_count);
+		ui_dprintf_at( MainWindow, GOODY_X+108, GOODY_Y, type_text);
+		ui_dprintf_at( MainWindow, GOODY_X+108, GOODY_Y+24, id_text);
+		ui_dprintf_at( MainWindow, GOODY_X+108, GOODY_Y+48, "%i", Cur_goody_count);
 
 		if ( Cur_object_index > -1 )	{
 			int	id = Objects[Cur_object_index].id;
@@ -708,14 +708,14 @@ void do_robot_window()
 
 			strncpy(id_text, Robot_names[id], strlen(Robot_names[id]));
 
-			ui_wprintf_at( MainWindow, 12,  6, "Robot: %3d ", Cur_object_index );
-			ui_wprintf_at( MainWindow, 12, 22, "   Id: %3d", id);
-			ui_wprintf_at( MainWindow, 12, 38, " Name: %8s", id_text);
+			ui_dprintf_at( MainWindow, 12,  6, "Robot: %3d ", Cur_object_index );
+			ui_dprintf_at( MainWindow, 12, 22, "   Id: %3d", id);
+			ui_dprintf_at( MainWindow, 12, 38, " Name: %8s", id_text);
 
 		}	else {
-			ui_wprintf_at( MainWindow, 12,  6, "Robot: none" );
-			ui_wprintf_at( MainWindow, 12, 22, " Type: ?  "  );
-			ui_wprintf_at( MainWindow, 12, 38, " Name: ________" );
+			ui_dprintf_at( MainWindow, 12,  6, "Robot: none" );
+			ui_dprintf_at( MainWindow, 12, 22, " Type: ?  "  );
+			ui_dprintf_at( MainWindow, 12, 38, " Name: ________" );
 		}
 		Update_flags |= UF_WORLD_CHANGED;
 	}
@@ -733,12 +733,12 @@ void do_robot_window()
 
 #define	MATT_LEN				20
 
-static UI_WINDOW 				*MattWindow = NULL;
+static UI_DIALOG 				*MattWindow = NULL;
 
 void object_close_window()
 {
 	if ( MattWindow!=NULL )	{
-		ui_close_window( MattWindow );
+		ui_close_dialog( MattWindow );
 		MattWindow = NULL;
 	}
 
@@ -765,7 +765,7 @@ int do_object_dialog()
 	Cur_goody_count = 0;
 
 	// Open a window with a quit button
-	MattWindow = ui_open_window( TMAPBOX_X+20, TMAPBOX_Y+20, 765-TMAPBOX_X, 545-TMAPBOX_Y, WIN_DIALOG );
+	MattWindow = ui_create_dialog( TMAPBOX_X+20, TMAPBOX_Y+20, 765-TMAPBOX_X, 545-TMAPBOX_Y, DF_DIALOG, NULL, NULL );
 	QuitButton = ui_add_gadget_button( MattWindow, 20, 286, 40, 32, "Done", NULL );
 
 	QuitButton->hotkey = KEY_ENTER;
@@ -780,13 +780,13 @@ int do_object_dialog()
 	sprintf(Ymessage,"%.2f",f2fl(obj->mtype.spin_rate.y));
 	sprintf(Zmessage,"%.2f",f2fl(obj->mtype.spin_rate.z));
 
-	ui_wprintf_at( MattWindow, 10, 132,"&X:" );
+	ui_dprintf_at( MattWindow, 10, 132,"&X:" );
 	Xtext = ui_add_gadget_inputbox( MattWindow, 30, 132, MATT_LEN, MATT_LEN, Xmessage );
 
-	ui_wprintf_at( MattWindow, 10, 162,"&Y:" );
+	ui_dprintf_at( MattWindow, 10, 162,"&Y:" );
 	Ytext = ui_add_gadget_inputbox( MattWindow, 30, 162, MATT_LEN, MATT_LEN, Ymessage );
 
-	ui_wprintf_at( MattWindow, 10, 192,"&Z:" );
+	ui_dprintf_at( MattWindow, 10, 192,"&Z:" );
 	Ztext = ui_add_gadget_inputbox( MattWindow, 30, 192, MATT_LEN, MATT_LEN, Zmessage );
 
 	ui_gadget_calc_keys(MattWindow);
@@ -807,7 +807,7 @@ void do_object_window()
 	// Call the ui code..
 	//------------------------------------------------------------
 	ui_button_any_drawn = 0;
-	ui_window_do_gadgets(MattWindow);
+	ui_dialog_do_gadgets(MattWindow);
 
 
 	if ( QuitButton->pressed || (last_keypress==KEY_ESC))	{

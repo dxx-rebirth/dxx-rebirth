@@ -386,7 +386,7 @@
 		EBECB67712C041E500D660B3 /* ui.c in Sources */ = {isa = PBXBuildFile; fileRef = EBC651A60890CEAE004FCAA3 /* ui.c */; };
 		EBECB67812C041E800D660B3 /* uidraw.c in Sources */ = {isa = PBXBuildFile; fileRef = EBC651A70890CEAE004FCAA3 /* uidraw.c */; };
 		EBECB67912C041EA00D660B3 /* userbox.c in Sources */ = {isa = PBXBuildFile; fileRef = EBC651A80890CEAE004FCAA3 /* userbox.c */; };
-		EBECB67A12C041EB00D660B3 /* window.c in Sources */ = {isa = PBXBuildFile; fileRef = EBC651A90890CEAE004FCAA3 /* window.c */; };
+		EBECB67A12C041EB00D660B3 /* dialog.c in Sources */ = {isa = PBXBuildFile; fileRef = EBC651A90890CEAE004FCAA3 /* dialog.c */; };
 		EBEEB0AE0D2A2AEE00FF39B4 /* bitmap.h in Headers */ = {isa = PBXBuildFile; fileRef = EBEEB0AA0D2A2AEE00FF39B4 /* bitmap.h */; };
 		EBEEB0AF0D2A2AEE00FF39B4 /* clip.h in Headers */ = {isa = PBXBuildFile; fileRef = EBEEB0AB0D2A2AEE00FF39B4 /* clip.h */; };
 		EBEEB0B20D2A2AEF00FF39B4 /* bitmap.h in Headers */ = {isa = PBXBuildFile; fileRef = EBEEB0AA0D2A2AEE00FF39B4 /* bitmap.h */; };
@@ -721,7 +721,7 @@
 		EBC651A60890CEAE004FCAA3 /* ui.c */ = {isa = PBXFileReference; fileEncoding = 30; lastKnownFileType = sourcecode.c.c; path = ui.c; sourceTree = "<group>"; };
 		EBC651A70890CEAE004FCAA3 /* uidraw.c */ = {isa = PBXFileReference; fileEncoding = 30; lastKnownFileType = sourcecode.c.c; path = uidraw.c; sourceTree = "<group>"; };
 		EBC651A80890CEAE004FCAA3 /* userbox.c */ = {isa = PBXFileReference; fileEncoding = 30; lastKnownFileType = sourcecode.c.c; path = userbox.c; sourceTree = "<group>"; };
-		EBC651A90890CEAE004FCAA3 /* window.c */ = {isa = PBXFileReference; fileEncoding = 30; lastKnownFileType = sourcecode.c.c; path = window.c; sourceTree = "<group>"; };
+		EBC651A90890CEAE004FCAA3 /* dialog.c */ = {isa = PBXFileReference; fileEncoding = 30; lastKnownFileType = sourcecode.c.c; path = dialog.c; sourceTree = "<group>"; };
 		EBC652010890D632004FCAA3 /* bmread.c */ = {isa = PBXFileReference; fileEncoding = 30; lastKnownFileType = sourcecode.c.c; path = bmread.c; sourceTree = "<group>"; };
 		EBC652020890D632004FCAA3 /* dumpmine.c */ = {isa = PBXFileReference; fileEncoding = 30; lastKnownFileType = sourcecode.c.c; path = dumpmine.c; sourceTree = "<group>"; };
 		EBC6520F0890D6B7004FCAA3 /* ui.h */ = {isa = PBXFileReference; fileEncoding = 30; lastKnownFileType = sourcecode.c.h; path = ui.h; sourceTree = "<group>"; };
@@ -1399,7 +1399,7 @@
 				EBC651A60890CEAE004FCAA3 /* ui.c */,
 				EBC651A70890CEAE004FCAA3 /* uidraw.c */,
 				EBC651A80890CEAE004FCAA3 /* userbox.c */,
-				EBC651A90890CEAE004FCAA3 /* window.c */,
+				EBC651A90890CEAE004FCAA3 /* dialog.c */,
 			);
 			path = ui;
 			sourceTree = "<group>";
@@ -1851,7 +1851,7 @@
 				EBECB67712C041E500D660B3 /* ui.c in Sources */,
 				EBECB67812C041E800D660B3 /* uidraw.c in Sources */,
 				EBECB67912C041EA00D660B3 /* userbox.c in Sources */,
-				EBECB67A12C041EB00D660B3 /* window.c in Sources */,
+				EBECB67A12C041EB00D660B3 /* dialog.c in Sources */,
 				EB2C86E612C36FFB0073E30E /* file.c in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;

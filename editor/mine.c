@@ -34,7 +34,7 @@ COPYRIGHT 1993-1998 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 #include "gamemine.h"
 #include "gamesave.h"
 #include "gameseg.h"
-#include "ui.h"			// Because texpage.h need UI_WINDOW type
+#include "ui.h"			// Because texpage.h need UI_DIALOG type
 #include "texpage.h"		// For texpage_goto_first
 #include "medwall.h"
 #include "switch.h"

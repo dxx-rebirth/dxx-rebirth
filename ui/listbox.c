@@ -108,7 +108,7 @@ void gr_draw_sunken_border( short x1, short y1, short x2, short y2 )
 }
 
 
-UI_GADGET_LISTBOX * ui_add_gadget_listbox(UI_WINDOW *wnd, short x, short y, short w, short h, short numitems, char **list)
+UI_GADGET_LISTBOX * ui_add_gadget_listbox(UI_DIALOG *dlg, short x, short y, short w, short h, short numitems, char **list)
 {
 	int tw, th, taw, i;
 
@@ -119,7 +119,7 @@ UI_GADGET_LISTBOX * ui_add_gadget_listbox(UI_WINDOW *wnd, short x, short y, shor
 	i = h / th;
 	h = i * th;
 
-	listbox = (UI_GADGET_LISTBOX *)ui_gadget_add( wnd, 2, x, y, x+w-1, y+h-1 );
+	listbox = (UI_GADGET_LISTBOX *)ui_gadget_add( dlg, 2, x, y, x+w-1, y+h-1 );
 
 	listbox->list = list;
 	listbox->width = w;
@@ -134,7 +134,7 @@ UI_GADGET_LISTBOX * ui_add_gadget_listbox(UI_WINDOW *wnd, short x, short y, shor
 	listbox->selected_item = -1;
 	listbox->moved = 1;
 
-	listbox->scrollbar = ui_add_gadget_scrollbar( wnd, x+w+3, y, 0, h, 0, numitems-i, 0, i );
+	listbox->scrollbar = ui_add_gadget_scrollbar( dlg, x+w+3, y, 0, h, 0, numitems-i, 0, i );
 	listbox->scrollbar->parent = (UI_GADGET *)listbox;
 
 	gr_set_current_canvas( listbox->canvas );
@@ -355,12 +355,12 @@ void ui_listbox_do( UI_GADGET_LISTBOX * listbox, int keypress )
 
 }
 
-void ui_listbox_change(UI_WINDOW *wnd, UI_GADGET_LISTBOX *listbox, short numitems, char **list)
+void ui_listbox_change(UI_DIALOG *dlg, UI_GADGET_LISTBOX *listbox, short numitems, char **list)
 {
 	int stop, start;
 	UI_GADGET_SCROLLBAR * scrollbar;
 
-	wnd = wnd;
+	dlg = dlg;
 
 	listbox->list = list;
 	listbox->num_items = numitems;

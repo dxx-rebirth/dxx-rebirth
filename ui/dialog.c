@@ -32,27 +32,27 @@ COPYRIGHT 1993-1998 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 #include "timer.h"
 #include "error.h"
 
-#define W_BACKGROUND    (wnd->background )
-#define W_X             (wnd->x)
-#define W_Y             (wnd->y)
-#define W_WIDTH         (wnd->width)
-#define W_HEIGHT        (wnd->height)
-#define W_OLDCANVAS     (wnd->oldcanvas)
-#define W_CANVAS        (wnd->canvas)
-#define W_GADGET        (wnd->gadget)
-#define W_TEXT_X        (wnd->text_x)
-#define W_TEXT_Y        (wnd->text_y)
-#define W_NEXT          (wnd->next)
-#define W_PREV          (wnd->prev)
+#define D_BACKGROUND    (dlg->background )
+#define D_X             (dlg->x)
+#define D_Y             (dlg->y)
+#define D_WIDTH         (dlg->width)
+#define D_HEIGHT        (dlg->height)
+#define D_OLDCANVAS     (dlg->oldcanvas)
+#define D_CANVAS        (dlg->canvas)
+#define D_GADGET        (dlg->gadget)
+#define D_TEXT_X        (dlg->text_x)
+#define D_TEXT_Y        (dlg->text_y)
+#define D_NEXT          (dlg->next)
+#define D_PREV          (dlg->prev)
 
 #ifndef __MSDOS__
 #define _disable()
 #define _enable()
 #endif
 
-UI_WINDOW * CurWindow = NULL;
-UI_WINDOW * FirstWindow = NULL;
-UI_WINDOW * LastWindow = NULL;
+UI_DIALOG * CurWindow = NULL;
+UI_DIALOG * FirstWindow = NULL;
+UI_DIALOG * LastWindow = NULL;
 
 int last_keypress = 0;
 
@@ -139,30 +139,30 @@ int ui_recorder_status()
 	return Record;
 }
 
-void add_window_to_end( UI_WINDOW * wnd )
+void add_window_to_end( UI_DIALOG * dlg )
 {
 	if (LastWindow) {
-		W_PREV = LastWindow;
-		LastWindow->next = wnd;
+		D_PREV = LastWindow;
+		LastWindow->next = dlg;
 	}
-	LastWindow = wnd;
+	LastWindow = dlg;
 	if (!FirstWindow)
-		FirstWindow = wnd;
+		FirstWindow = dlg;
 }
 
-void add_window_to_beg( UI_WINDOW * wnd )
+void add_window_to_beg( UI_DIALOG * dlg )
 {
 	if (FirstWindow) {
-		W_NEXT = FirstWindow;
-		FirstWindow->prev = wnd;
+		D_NEXT = FirstWindow;
+		FirstWindow->prev = dlg;
 	}
-	FirstWindow = wnd;
+	FirstWindow = dlg;
 	if (!LastWindow)
-		LastWindow = wnd;
+		LastWindow = dlg;
 }
 
 // Add w1 after w2
-void add_window_after( UI_WINDOW * w1, UI_WINDOW * w2 )
+void add_window_after( UI_DIALOG * w1, UI_DIALOG * w2 )
 {
 	w1->prev = w2;
 	w1->next = w2->next;
@@ -175,43 +175,100 @@ void add_window_after( UI_WINDOW * w1, UI_WINDOW * w2 )
 
 void close_all()
 {
-	UI_WINDOW *sav, *wnd = LastWindow;
+	UI_DIALOG *sav, *dlg = LastWindow;
 
-	while(wnd)
+	while(dlg)
 	{
-		sav = W_PREV;
-		ui_close_window(wnd);
-		wnd = sav;
+		sav = D_PREV;
+		ui_close_dialog(dlg);
+		dlg = sav;
 	}
 }
 
-void remove_window( UI_WINDOW * wnd )
+void remove_window( UI_DIALOG * dlg )
 {
-	if (W_NEXT)
-		W_NEXT->prev = W_PREV;
-	if (W_PREV)
-		W_PREV->next = W_NEXT;
-	if (FirstWindow == wnd )
-		FirstWindow = W_NEXT;
-	if (LastWindow == wnd )
-		LastWindow = W_PREV;
-	W_NEXT = W_PREV = NULL;
+	if (D_NEXT)
+		D_NEXT->prev = D_PREV;
+	if (D_PREV)
+		D_PREV->next = D_NEXT;
+	if (FirstWindow == dlg )
+		FirstWindow = D_NEXT;
+	if (LastWindow == dlg )
+		LastWindow = D_PREV;
+	D_NEXT = D_PREV = NULL;
+}
+
+int ui_dialog_mouse(window *wind, d_event *event, UI_DIALOG *dlg)
+{
+	return 0;
+}
+
+int ui_dialog_key(window *wind, d_event *event, UI_DIALOG *dlg)
+{
+	return 0;
+}
+
+int ui_dialog_draw(window *wind, UI_DIALOG *dlg)
+{
+	return 0;
 }
 
 
-
-UI_WINDOW * ui_open_window( short x, short y, short w, short h, int flags )
+// The dialog handler borrows heavily from the newmenu_handler
+int ui_dialog_handler(window *wind, d_event *event, UI_DIALOG *dlg)
 {
-	UI_WINDOW * wnd;
+	if (event->type == EVENT_WINDOW_CLOSED)
+		return 0;
+
+	if (dlg->callback)
+		if ((*dlg->callback)(dlg, event, dlg->userdata))
+			return 1;		// event handled
+
+	switch (event->type)
+	{
+		case EVENT_WINDOW_ACTIVATED:
+			break;
+			
+		case EVENT_WINDOW_DEACTIVATED:
+			break;
+			
+		case EVENT_MOUSE_BUTTON_DOWN:
+		case EVENT_MOUSE_BUTTON_UP:
+			return ui_dialog_mouse(wind, event, dlg);
+			
+		case EVENT_KEY_COMMAND:
+			return ui_dialog_key(wind, event, dlg);
+
+		case EVENT_IDLE:
+			timer_delay2(50);
+			return ui_dialog_mouse(wind, event, dlg);
+			
+		case EVENT_WINDOW_DRAW:
+			return ui_dialog_draw(wind, dlg);
+
+		case EVENT_WINDOW_CLOSE:
+			//ui_close_dialog(dlg);		// need to hide this function and make it not call window_close first
+			break;
+			
+		default:
+			break;
+	}
+	
+	return 0;
+}
+
+UI_DIALOG * ui_create_dialog( short x, short y, short w, short h, int flags, int (*callback)(UI_DIALOG *, d_event *, void *), void *userdata )
+{
+	UI_DIALOG	*dlg;
 	int sw, sh, req_w, req_h;
 
-	wnd = (UI_WINDOW *) d_malloc(sizeof(UI_WINDOW));
-	if (wnd==NULL) Error("Could not create window: Out of memory");
+	dlg = (UI_DIALOG *) d_malloc(sizeof(UI_DIALOG));
+	if (dlg==NULL) Error("Could not create dialog: Out of memory");
 
-	W_NEXT = NULL;
-	W_PREV = NULL;
+	D_NEXT = NULL;
+	D_PREV = NULL;
 
-	add_window_to_end( wnd );
+	add_window_to_end( dlg );
 
 	sw = grd_curscreen->sc_w;
 	sh = grd_curscreen->sc_h;
@@ -221,7 +278,7 @@ UI_WINDOW * ui_open_window( short x, short y, short w, short h, int flags )
 	req_w = w;
 	req_h = h;
 
-	if (flags & WIN_BORDER)
+	if (flags & DF_BORDER)
 	{
 		x -= BORDER_WIDTH;
 		y -= BORDER_WIDTH;
@@ -234,79 +291,94 @@ UI_WINDOW * ui_open_window( short x, short y, short w, short h, int flags )
 	if ( y < 0 ) y = 0;
 	if ( (y+h-1) >= sh ) y = sh - h;
 
-	W_X = x;
-	W_Y = y;
-	W_WIDTH = w;
-	W_HEIGHT = h;
-	W_OLDCANVAS = grd_curcanv;
-	W_GADGET = NULL;
-	wnd->keyboard_focus_gadget = NULL;
+	D_X = x;
+	D_Y = y;
+	D_WIDTH = w;
+	D_HEIGHT = h;
+	D_OLDCANVAS = grd_curcanv;
+	D_GADGET = NULL;
+	dlg->keyboard_focus_gadget = NULL;
 
 	ui_mouse_hide();
 
-	if (flags & WIN_SAVE_BG)
+	if (flags & DF_SAVE_BG)
 	{
-		W_BACKGROUND = gr_create_bitmap( w, h );
-		gr_bm_ubitblt(w, h, 0, 0, x, y, &(grd_curscreen->sc_canvas.cv_bitmap), W_BACKGROUND );
+		D_BACKGROUND = gr_create_bitmap( w, h );
+		gr_bm_ubitblt(w, h, 0, 0, x, y, &(grd_curscreen->sc_canvas.cv_bitmap), D_BACKGROUND );
 	}
 	else
-		W_BACKGROUND = NULL;
+		D_BACKGROUND = NULL;
 
-	if (flags & WIN_BORDER)
+	if (flags & DF_BORDER)
 	{
-		W_CANVAS = gr_create_sub_canvas( &(grd_curscreen->sc_canvas), x+BORDER_WIDTH, y+BORDER_WIDTH, req_w, req_h );
+		D_CANVAS = gr_create_sub_canvas( &(grd_curscreen->sc_canvas), x+BORDER_WIDTH, y+BORDER_WIDTH, req_w, req_h );
 		gr_set_current_canvas( NULL );
 		ui_draw_frame( x, y, x+w-1, y+h-1 );
 	}
 	else
-		W_CANVAS = gr_create_sub_canvas( &(grd_curscreen->sc_canvas), x, y, req_w, req_h );
+		D_CANVAS = gr_create_sub_canvas( &(grd_curscreen->sc_canvas), x, y, req_w, req_h );
 
-	gr_set_current_canvas( W_CANVAS );
+	gr_set_current_canvas( D_CANVAS );
+	
+	dlg->callback = callback;
+	dlg->userdata = userdata;
+	dlg->wind = window_create(&grd_curscreen->sc_canvas,
+						 x + ((flags & DF_BORDER) ? BORDER_WIDTH : 0),
+						 y + ((flags & DF_BORDER) ? BORDER_WIDTH : 0),
+						 req_w, req_h, (int (*)(window *, d_event *, void *)) ui_dialog_handler, dlg);
+	if (!dlg->wind)
+	{
+		ui_close_dialog(dlg);
+		return NULL;
+	}
 
-	if (flags & WIN_FILLED)
+	if (flags & DF_FILLED)
 		ui_draw_box_out( 0, 0, req_w-1, req_h-1 );
 
 	gr_set_fontcolor( CBLACK, CWHITE );
 
 	selected_gadget = NULL;
 
-	W_TEXT_X = 0;
-	W_TEXT_Y = 0;
+	D_TEXT_X = 0;
+	D_TEXT_Y = 0;
 
-	return wnd;
+	return dlg;
 
 }
 
-void ui_close_window( UI_WINDOW * wnd )
+void ui_close_dialog( UI_DIALOG * dlg )
 {
 
 	ui_mouse_hide();
 
-	ui_gadget_delete_all( wnd );
+	ui_gadget_delete_all( dlg );
 
-	if (W_BACKGROUND)
+	if (D_BACKGROUND)
 	{
-		gr_bm_ubitblt(W_WIDTH, W_HEIGHT, W_X, W_Y, 0, 0, W_BACKGROUND, &(grd_curscreen->sc_canvas.cv_bitmap));
-		gr_free_bitmap( W_BACKGROUND );
+		gr_bm_ubitblt(D_WIDTH, D_HEIGHT, D_X, D_Y, 0, 0, D_BACKGROUND, &(grd_curscreen->sc_canvas.cv_bitmap));
+		gr_free_bitmap( D_BACKGROUND );
 	} else
 	{
 		gr_set_current_canvas( NULL );
 		gr_setcolor( CBLACK );
-		gr_rect( W_X, W_Y, W_X+W_WIDTH-1, W_Y+W_HEIGHT-1 );
+		gr_rect( D_X, D_Y, D_X+D_WIDTH-1, D_Y+D_HEIGHT-1 );
 	}
 
-	gr_free_sub_canvas( W_CANVAS );
+	gr_free_sub_canvas( D_CANVAS );
 
-	gr_set_current_canvas( W_OLDCANVAS );
+	gr_set_current_canvas( D_OLDCANVAS );
 
 	selected_gadget = NULL;
 
-	remove_window( wnd );
+	remove_window( dlg );
 
-	if (CurWindow==wnd)
+	if (CurWindow==dlg)
 		CurWindow = NULL;
+	
+	if (dlg->wind)
+		window_close(dlg->wind);
 
-	d_free( wnd );
+	d_free( dlg );
 
 	ui_mouse_show();
 }
@@ -655,7 +727,7 @@ int ui_event_handler(d_event *event)
 	return 0;
 }
 
-void ui_wprintf( UI_WINDOW * wnd, char * format, ... )
+void ui_dprintf( UI_DIALOG * dlg, char * format, ... )
 {
 	char buffer[1000];
 	va_list args;
@@ -663,14 +735,14 @@ void ui_wprintf( UI_WINDOW * wnd, char * format, ... )
 	va_start(args, format );
 	vsprintf(buffer,format,args);
 
-	gr_set_current_canvas( W_CANVAS );
+	gr_set_current_canvas( D_CANVAS );
 
 	ui_mouse_hide();
-	W_TEXT_X = gr_string( W_TEXT_X, W_TEXT_Y, buffer );
+	D_TEXT_X = gr_string( D_TEXT_X, D_TEXT_Y, buffer );
 	ui_mouse_show();
 }
 
-void ui_wprintf_at( UI_WINDOW * wnd, short x, short y, char * format, ... )
+void ui_dprintf_at( UI_DIALOG * dlg, short x, short y, char * format, ... )
 {
 	char buffer[1000];
 	va_list args;
@@ -678,7 +750,7 @@ void ui_wprintf_at( UI_WINDOW * wnd, short x, short y, char * format, ... )
 	va_start(args, format );
 	vsprintf(buffer,format,args);
 
-	gr_set_current_canvas( W_CANVAS );
+	gr_set_current_canvas( D_CANVAS );
 
 	ui_mouse_hide();
 	gr_string( x, y, buffer );

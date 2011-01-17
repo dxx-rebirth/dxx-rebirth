@@ -99,11 +99,11 @@ void ui_draw_button( UI_GADGET_BUTTON * button )
 }
 
 
-UI_GADGET_BUTTON * ui_add_gadget_button( UI_WINDOW * wnd, short x, short y, short w, short h, char * text, int (*function_to_call)(void) )
+UI_GADGET_BUTTON * ui_add_gadget_button( UI_DIALOG * dlg, short x, short y, short w, short h, char * text, int (*function_to_call)(void) )
 {
 	UI_GADGET_BUTTON * button;
 
-	button = (UI_GADGET_BUTTON *)ui_gadget_add( wnd, 1, x, y, x+w-1, y+h-1 );
+	button = (UI_GADGET_BUTTON *)ui_gadget_add( dlg, 1, x, y, x+w-1, y+h-1 );
 
 	if ( text )
 	{

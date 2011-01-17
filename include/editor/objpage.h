@@ -26,7 +26,7 @@ COPYRIGHT 1993-1998 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 int objpage_grab_current(int n);
 int objpage_goto_first();
 
-void objpage_init( UI_WINDOW *win );
+void objpage_init( UI_DIALOG *dlg );
 void objpage_close();
 void objpage_do();
 

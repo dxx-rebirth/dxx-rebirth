@@ -52,7 +52,7 @@ COPYRIGHT 1993-1998 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 //-------------------------------------------------------------------------
 // Variables for this module...
 //-------------------------------------------------------------------------
-static UI_WINDOW 				*MainWindow = NULL;
+static UI_DIALOG 				*MainWindow = NULL;
 static UI_GADGET_USERBOX	*HostageViewBox;
 static UI_GADGET_INPUTBOX	*HostageText;
 static UI_GADGET_BUTTON 	*QuitButton;
@@ -344,10 +344,10 @@ int do_hostage_dialog()
 	SelectClosestHostage();
 
 	// Open a window with a quit button
-	MainWindow = ui_open_window( TMAPBOX_X+10, TMAPBOX_Y+20, 765-TMAPBOX_X, 545-TMAPBOX_Y, WIN_DIALOG );
+	MainWindow = ui_create_dialog( TMAPBOX_X+10, TMAPBOX_Y+20, 765-TMAPBOX_X, 545-TMAPBOX_Y, DF_DIALOG, NULL, NULL );
 	QuitButton = ui_add_gadget_button( MainWindow, 20, 222, 48, 40, "Done", NULL );
 
-	ui_wprintf_at( MainWindow, 10, 32,"&Message:" );
+	ui_dprintf_at( MainWindow, 10, 32,"&Message:" );
 	HostageText = ui_add_gadget_inputbox( MainWindow, 10, 50, HOSTAGE_MESSAGE_LEN, HOSTAGE_MESSAGE_LEN, HostageMessage );
 
 	// The little box the hostage vclip will play in.
@@ -383,7 +383,7 @@ int do_hostage_dialog()
 void hostage_close_window()
 {
 	if ( MainWindow!=NULL )	{
-		ui_close_window( MainWindow );
+		ui_close_dialog( MainWindow );
 		MainWindow = NULL;
 	}
 }
@@ -401,7 +401,7 @@ void do_hostage_window()
 	// Call the ui code..
 	//------------------------------------------------------------
 	ui_button_any_drawn = 0;
-	ui_window_do_gadgets(MainWindow);
+	ui_dialog_do_gadgets(MainWindow);
 
 	//------------------------------------------------------------
 	// If we change objects, we need to reset the ui code for all
@@ -465,13 +465,13 @@ void do_hostage_window()
 	//------------------------------------------------------------
 	if (ui_button_any_drawn || (LastHostageIndex != CurrentHostageIndex) )	{
 		if ( CurrentHostageIndex > -1 )	{
-			ui_wprintf_at( MainWindow, 10, 15, "Hostage: %d   Object: %d", CurrentHostageIndex, Hostages[CurrentHostageIndex].objnum );
-			//@@ui_wprintf_at( MainWindow, 10, 73, "Type: %d   Sound: %d   ", Hostages[CurrentHostageIndex].type, Hostages[CurrentHostageIndex].sound_num );
-			ui_wprintf_at( MainWindow, 10, 73, "Face: %d   ", Hostages[CurrentHostageIndex].vclip_num);
+			ui_dprintf_at( MainWindow, 10, 15, "Hostage: %d   Object: %d", CurrentHostageIndex, Hostages[CurrentHostageIndex].objnum );
+			//@@ui_dprintf_at( MainWindow, 10, 73, "Type: %d   Sound: %d   ", Hostages[CurrentHostageIndex].type, Hostages[CurrentHostageIndex].sound_num );
+			ui_dprintf_at( MainWindow, 10, 73, "Face: %d   ", Hostages[CurrentHostageIndex].vclip_num);
 		}	else {
-			ui_wprintf_at( MainWindow, 10, 15, "Hostage: none " );
-			//@@ui_wprintf_at( MainWindow, 10, 73, "Type:    Sound:       " );
-			ui_wprintf_at( MainWindow, 10, 73, "Face:         " );
+			ui_dprintf_at( MainWindow, 10, 15, "Hostage: none " );
+			//@@ui_dprintf_at( MainWindow, 10, 73, "Type:    Sound:       " );
+			ui_dprintf_at( MainWindow, 10, 73, "Face:         " );
 		}
 		Update_flags |= UF_WORLD_CHANGED;
 	}

@@ -31,7 +31,7 @@ static char rcsid[] = "$Id: menu.c,v 1.1.1.1 2006/03/17 19:52:19 zicodxx Exp $";
 
 int MenuX( int x, int y, int NumButtons, char * text[] )
 {
-	UI_WINDOW * wnd;
+	UI_DIALOG * dlg;
 	UI_GADGET_BUTTON ** ButtonG;
 	char ** Button;
 
@@ -84,14 +84,14 @@ int MenuX( int x, int y, int NumButtons, char * text[] )
 		y = h - height;
 	}
 
-	wnd = ui_open_window( x, y, width, height, WIN_FILLED | WIN_SAVE_BG );
+	dlg = ui_create_dialog( x, y, width, height, DF_FILLED | DF_SAVE_BG, NULL, NULL );
 
 	x = MENU_BORDER+3;
 	y = MENU_BORDER+3;
 
 	for (i=0; i<NumButtons; i++ )
 	{
-		ButtonG[i] = ui_add_gadget_button( wnd, x, y, button_width, button_height, Button[i], NULL );
+		ButtonG[i] = ui_add_gadget_button( dlg, x, y, button_width, button_height, Button[i], NULL );
 		y += button_height+MENU_VERT_SPACING;
 	}
 
@@ -100,7 +100,7 @@ int MenuX( int x, int y, int NumButtons, char * text[] )
 	while(choice==0)
 	{
 		event_process();
-		ui_window_do_gadgets(wnd);
+		ui_dialog_do_gadgets(dlg);
 
 		for (i=0; i<NumButtons; i++ )
 		{
@@ -116,7 +116,7 @@ int MenuX( int x, int y, int NumButtons, char * text[] )
 		}
 	}
 
-	ui_close_window(wnd);
+	ui_close_dialog(dlg);
 	d_free(Button);
 	d_free(ButtonG);
 

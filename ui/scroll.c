@@ -51,7 +51,7 @@ void ui_draw_scrollbar( UI_GADGET_SCROLLBAR * scrollbar )
 
 }
 
-UI_GADGET_SCROLLBAR * ui_add_gadget_scrollbar( UI_WINDOW * wnd, short x, short y, short w, short h, int start, int stop, int position, int window_size  )
+UI_GADGET_SCROLLBAR * ui_add_gadget_scrollbar( UI_DIALOG * dlg, short x, short y, short w, short h, int start, int stop, int position, int window_size  )
 {
 	int tw, th, taw;
 
@@ -67,12 +67,12 @@ UI_GADGET_SCROLLBAR * ui_add_gadget_scrollbar( UI_WINDOW * wnd, short x, short y
 
 	if (stop < start ) stop = start;
 
-	scrollbar = (UI_GADGET_SCROLLBAR *)ui_gadget_add( wnd, 3, x, y+w, x+w-1, y+h-w-1 );
+	scrollbar = (UI_GADGET_SCROLLBAR *)ui_gadget_add( dlg, 3, x, y+w, x+w-1, y+h-w-1 );
 
-	scrollbar->up_button = ui_add_gadget_button( wnd, x, y, w, w, up, NULL );
+	scrollbar->up_button = ui_add_gadget_button( dlg, x, y, w, w, up, NULL );
 	scrollbar->up_button->parent = (UI_GADGET *)scrollbar;
 
-	scrollbar->down_button =ui_add_gadget_button( wnd, x, y+h-w, w, w, down, NULL );
+	scrollbar->down_button =ui_add_gadget_button( dlg, x, y+h-w, w, w, down, NULL );
 	scrollbar->down_button->parent = (UI_GADGET *)scrollbar;
 
 	scrollbar->horz = 0;

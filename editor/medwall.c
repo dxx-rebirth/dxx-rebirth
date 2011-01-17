@@ -46,7 +46,7 @@ int wall_remove_door_flag(sbyte flag);
 //-------------------------------------------------------------------------
 // Variables for this module...
 //-------------------------------------------------------------------------
-static UI_WINDOW 				*MainWindow = NULL;
+static UI_DIALOG 				*MainWindow = NULL;
 static UI_GADGET_USERBOX	*WallViewBox;
 static UI_GADGET_BUTTON 	*QuitButton;
 static UI_GADGET_CHECKBOX	*DoorFlag[4];
@@ -350,7 +350,7 @@ int do_wall_dialog()
 	close_all_windows();
 
 	// Open a window with a quit button
-	MainWindow = ui_open_window( TMAPBOX_X+20, TMAPBOX_Y+20, 765-TMAPBOX_X, 545-TMAPBOX_Y, WIN_DIALOG );
+	MainWindow = ui_create_dialog( TMAPBOX_X+20, TMAPBOX_Y+20, 765-TMAPBOX_X, 545-TMAPBOX_Y, DF_DIALOG, NULL, NULL );
 	QuitButton = ui_add_gadget_button( MainWindow, 20, 252, 48, 40, "Done", NULL );
 
 	// These are the checkboxes for each door flag.
@@ -390,7 +390,7 @@ int do_wall_dialog()
 void close_wall_window()
 {
 	if ( MainWindow!=NULL )	{
-		ui_close_window( MainWindow );
+		ui_close_dialog( MainWindow );
 		MainWindow = NULL;
 	}
 }
@@ -408,7 +408,7 @@ void do_wall_window()
 	// Call the ui code..
 	//------------------------------------------------------------
 	ui_button_any_drawn = 0;
-	ui_window_do_gadgets(MainWindow);
+	ui_dialog_do_gadgets(MainWindow);
 
 	//------------------------------------------------------------
 	// If we change walls, we need to reset the ui code for all
@@ -516,41 +516,41 @@ void do_wall_window()
 	//------------------------------------------------------------
 	if (ui_button_any_drawn || (old_wall_num != Cursegp->sides[Curside].wall_num) )	{
 		if ( Cursegp->sides[Curside].wall_num > -1 )	{
-			ui_wprintf_at( MainWindow, 12, 6, "Wall: %d    ", Cursegp->sides[Curside].wall_num);
+			ui_dprintf_at( MainWindow, 12, 6, "Wall: %d    ", Cursegp->sides[Curside].wall_num);
 			switch (Walls[Cursegp->sides[Curside].wall_num].type) {
 				case WALL_NORMAL:
-					ui_wprintf_at( MainWindow, 12, 23, " Type: Normal   " );
+					ui_dprintf_at( MainWindow, 12, 23, " Type: Normal   " );
 					break;
 				case WALL_BLASTABLE:
-					ui_wprintf_at( MainWindow, 12, 23, " Type: Blastable" );
+					ui_dprintf_at( MainWindow, 12, 23, " Type: Blastable" );
 					break;
 				case WALL_DOOR:
-					ui_wprintf_at( MainWindow, 12, 23, " Type: Door     " );
-					ui_wprintf_at( MainWindow, 223, 6, "%s", WallAnims[Walls[Cursegp->sides[Curside].wall_num].clip_num].filename);
+					ui_dprintf_at( MainWindow, 12, 23, " Type: Door     " );
+					ui_dprintf_at( MainWindow, 223, 6, "%s", WallAnims[Walls[Cursegp->sides[Curside].wall_num].clip_num].filename);
 					break;
 				case WALL_ILLUSION:
-					ui_wprintf_at( MainWindow, 12, 23, " Type: Illusion " );
+					ui_dprintf_at( MainWindow, 12, 23, " Type: Illusion " );
 					break;
 				case WALL_OPEN:
-					ui_wprintf_at( MainWindow, 12, 23, " Type: Open     " );
+					ui_dprintf_at( MainWindow, 12, 23, " Type: Open     " );
 					break;
 				case WALL_CLOSED:
-					ui_wprintf_at( MainWindow, 12, 23, " Type: Closed   " );
+					ui_dprintf_at( MainWindow, 12, 23, " Type: Closed   " );
 					break;
 				default:
-					ui_wprintf_at( MainWindow, 12, 23, " Type: Unknown  " );
+					ui_dprintf_at( MainWindow, 12, 23, " Type: Unknown  " );
 					break;
 			}			
 			if (Walls[Cursegp->sides[Curside].wall_num].type != WALL_DOOR)
-					ui_wprintf_at( MainWindow, 223, 6, "            " );
+					ui_dprintf_at( MainWindow, 223, 6, "            " );
 
-			ui_wprintf_at( MainWindow, 12, 40, " Clip: %d   ", Walls[Cursegp->sides[Curside].wall_num].clip_num );
-			ui_wprintf_at( MainWindow, 12, 57, " Trigger: %d  ", Walls[Cursegp->sides[Curside].wall_num].trigger );
+			ui_dprintf_at( MainWindow, 12, 40, " Clip: %d   ", Walls[Cursegp->sides[Curside].wall_num].clip_num );
+			ui_dprintf_at( MainWindow, 12, 57, " Trigger: %d  ", Walls[Cursegp->sides[Curside].wall_num].trigger );
 		}	else {
-			ui_wprintf_at( MainWindow, 12, 6, "Wall: none ");
-			ui_wprintf_at( MainWindow, 12, 23, " Type: none ");
-			ui_wprintf_at( MainWindow, 12, 40, " Clip: none   ");
-			ui_wprintf_at( MainWindow, 12, 57, " Trigger: none  ");
+			ui_dprintf_at( MainWindow, 12, 6, "Wall: none ");
+			ui_dprintf_at( MainWindow, 12, 23, " Type: none ");
+			ui_dprintf_at( MainWindow, 12, 40, " Clip: none   ");
+			ui_dprintf_at( MainWindow, 12, 57, " Trigger: none  ");
 		}
 		Update_flags |= UF_WORLD_CHANGED;
 	}

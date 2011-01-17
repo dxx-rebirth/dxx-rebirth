@@ -45,7 +45,7 @@ COPYRIGHT 1993-1998 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 //-------------------------------------------------------------------------
 #define NUM_TRIGGER_FLAGS 10
 
-static UI_WINDOW 				*MainWindow = NULL;
+static UI_DIALOG 				*MainWindow = NULL;
 static UI_GADGET_USERBOX	*WallViewBox;
 static UI_GADGET_BUTTON 	*QuitButton;
 static UI_GADGET_CHECKBOX	*TriggerFlag[NUM_TRIGGER_FLAGS];
@@ -332,7 +332,7 @@ int do_trigger_dialog()
 	hostage_close_window();
 
 	// Open a window with a quit button
-	MainWindow = ui_open_window( TMAPBOX_X+20, TMAPBOX_Y+20, 765-TMAPBOX_X, 545-TMAPBOX_Y, WIN_DIALOG );
+	MainWindow = ui_create_dialog( TMAPBOX_X+20, TMAPBOX_Y+20, 765-TMAPBOX_X, 545-TMAPBOX_Y, DF_DIALOG, NULL, NULL );
 
 	// These are the checkboxes for each door flag.
 	i = 44;
@@ -368,7 +368,7 @@ int do_trigger_dialog()
 void close_trigger_window()
 {
 	if ( MainWindow!=NULL )	{
-		ui_close_window( MainWindow );
+		ui_close_dialog( MainWindow );
 		MainWindow = NULL;
 	}
 }
@@ -388,7 +388,7 @@ void do_trigger_window()
 	// Call the ui code..
 	//------------------------------------------------------------
 	ui_button_any_drawn = 0;
-	ui_window_do_gadgets(MainWindow);
+	ui_dialog_do_gadgets(MainWindow);
 	
 	//------------------------------------------------------------
 	// If we change walls, we need to reset the ui code for all
@@ -495,9 +495,9 @@ void do_trigger_window()
 	//------------------------------------------------------------
 	if (ui_button_any_drawn || (old_trigger_num != trigger_num) ) {
 		if ( Markedsegp->sides[Markedside].wall_num > -1 )	{
-			ui_wprintf_at( MainWindow, 12, 6, "Trigger: %d    ", trigger_num);
+			ui_dprintf_at( MainWindow, 12, 6, "Trigger: %d    ", trigger_num);
 		}	else {
-			ui_wprintf_at( MainWindow, 12, 6, "Trigger: none ");
+			ui_dprintf_at( MainWindow, 12, 6, "Trigger: none ");
 		}
 		Update_flags |= UF_WORLD_CHANGED;
 	}

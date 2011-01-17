@@ -631,7 +631,7 @@ extern vms_vector Ed_view_target;
 
 extern int gamestate_not_restored;
 
-extern UI_WINDOW * EditorWindow;
+extern UI_DIALOG * EditorWindow;
 
 extern int     Large_view_index;
 
