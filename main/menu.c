@@ -1262,7 +1262,11 @@ int graphics_config_menuset(newmenu *menu, d_event *event, void *userdata)
 	switch (event->type)
 	{
 		case EVENT_NEWMENU_CHANGED:
-			if ( citem == opt_gr_texfilt + 3 && ogl_maxanisotropy <= 1.0 )
+			if ( citem == opt_gr_texfilt + 3
+#ifdef OGL
+				&& ogl_maxanisotropy <= 1.0
+#endif
+				)
 			{
 				nm_messagebox( TXT_ERROR, 1, TXT_OK, "Anisotropic Filtering not\nsupported by your hardware/driver.");
 				items[opt_gr_texfilt + 3].value = 0;
