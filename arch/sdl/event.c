@@ -38,7 +38,6 @@ void event_poll()
 	// like pressing 'Return' really fast at 'Difficulty Level' causing multiple games to be started
 	while ((wind == window_get_front()) && SDL_PollEvent(&event))
 	{
-		idle = 0;
 		switch(event.type) {
 			case SDL_KEYDOWN:
 			case SDL_KEYUP:
@@ -46,13 +45,16 @@ void event_poll()
 					memset(unicode_frame_buffer,'\0',sizeof(unsigned char)*KEY_BUFFER_SIZE);
 				clean_uniframe=0;
 				key_handler((SDL_KeyboardEvent *)&event);
+				idle = 0;
 				break;
 			case SDL_MOUSEBUTTONDOWN:
 			case SDL_MOUSEBUTTONUP:
 				mouse_button_handler((SDL_MouseButtonEvent *)&event);
+				idle = 0;
 				break;
 			case SDL_MOUSEMOTION:
 				mouse_motion_handler((SDL_MouseMotionEvent *)&event);
+				idle = 0;
 				break;
 			case SDL_JOYBUTTONDOWN:
 			case SDL_JOYBUTTONUP:
@@ -69,6 +71,7 @@ void event_poll()
 			case SDL_QUIT: {
 				d_event event = { EVENT_QUIT };
 				call_default_handler(&event);
+				idle = 0;
 			} break;
 		}
 	}
