@@ -5,6 +5,7 @@ D2X-Rebirth Changelog
 arch/sdl/event.c: Still send idle events when receiving SDL joystick events, fixing possible joystick issues
 main/menu.c: No referring to non-existent ogl_maxanisotropy for non-OGL build
 main/kconfig.c, main/newmenu.c, ui/mouse.c: Fix cursor recentering issues - comment out redundant event_toggle_focus(1) calls in kconfig.c and newmenu.c and use event_toggle_focus(0) in ui_mouse_show()
+arch/ogl/ogl.c, main/gauges.c: Before duplicating last pixel column or row in ogl_filltexbuf, make sure we are still in actual bitmap boundaries; Incrementing defines SHIELD_GAUGE_Y, SHIP_GAUGE_Y for HIRESMODE to fit these gauges pixel-correct in Cockpit mode
 
 20110116
 --------
