@@ -1287,11 +1287,11 @@ void ogl_filltexbuf(unsigned char *data, GLubyte *texp, int truewidth, int width
 					c = data[i++];
 				}
 			}
-			else if (x==width) // end of bitmap reached - fill this pixel with last color to make a clean border when filtering this texture
+			else if (x == width && y < height) // end of bitmap reached - fill this pixel with last color to make a clean border when filtering this texture
 			{
 				c = data[(width*(y+1))-1];
 			}
-			else if (y==height) // end of bitmap reached - fill this row with color or last row to make a clean border when filtering this texture
+			else if (y == height && x < width) // end of bitmap reached - fill this row with color or last row to make a clean border when filtering this texture
 			{
 				c = data[(width*(height-1))+x];
 			}

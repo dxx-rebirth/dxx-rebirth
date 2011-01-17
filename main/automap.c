@@ -477,7 +477,9 @@ int automap_idle(window *wind, d_event *event, automap *am)
 	}
 	
 	vm_angles_2_matrix(&tempm,&am->tangles);
-	vm_matrix_x_matrix(&am->viewMatrix,&Objects[Players[Player_num].objnum].orient,&tempm);
+// 	vm_matrix_x_matrix(&am->viewMatrix,&Objects[Players[Player_num].objnum].orient,&tempm);
+	Objects[Players[Player_num].objnum].orient = am->viewMatrix = tempm;
+	
 	
 	if ( am->viewDist < ZOOM_MIN_VALUE ) am->viewDist = ZOOM_MIN_VALUE;
 	if ( am->viewDist > ZOOM_MAX_VALUE ) am->viewDist = ZOOM_MAX_VALUE;
