@@ -339,7 +339,7 @@ int objpage_reset_orient()
 
 // INIT TEXTURE STUFF
 
-void objpage_init( UI_WINDOW *win )
+void objpage_init( UI_DIALOG *dlg )
 {
 	int i;
 
@@ -350,26 +350,26 @@ void objpage_init( UI_WINDOW *win )
 	//Assert (N_powerup_types < MAX_POWERUP_TYPES );
 	// Assert (N_robot_types < MAX_ROBOTS);
 
-	ui_add_gadget_button( win, OBJCURBOX_X + 00, OBJCURBOX_Y - 27, 30, 20, "<<", objpage_goto_prev );
-	ui_add_gadget_button( win, OBJCURBOX_X + 32, OBJCURBOX_Y - 27, 30, 20, ">>", objpage_goto_next );
+	ui_add_gadget_button( dlg, OBJCURBOX_X + 00, OBJCURBOX_Y - 27, 30, 20, "<<", objpage_goto_prev );
+	ui_add_gadget_button( dlg, OBJCURBOX_X + 32, OBJCURBOX_Y - 27, 30, 20, ">>", objpage_goto_next );
 
-	ui_add_gadget_button( win, OBJCURBOX_X + 00, OBJCURBOX_Y - 54, 30, 20, "B", objpage_goto_first );
-	ui_add_gadget_button( win, OBJCURBOX_X + 32, OBJCURBOX_Y - 54, 30, 20, "E", objpage_goto_last );
+	ui_add_gadget_button( dlg, OBJCURBOX_X + 00, OBJCURBOX_Y - 54, 30, 20, "B", objpage_goto_first );
+	ui_add_gadget_button( dlg, OBJCURBOX_X + 32, OBJCURBOX_Y - 54, 30, 20, "E", objpage_goto_last );
 
-	ui_add_gadget_button( win, OBJCURBOX_X + 25, OBJCURBOX_Y + 62, 22, 13, "P-", objpage_decrease_pitch );
-	ui_add_gadget_button( win, OBJCURBOX_X + 25, OBJCURBOX_Y + 90, 22, 13, "P+", objpage_increase_pitch );
-	ui_add_gadget_button( win, OBJCURBOX_X + 00, OBJCURBOX_Y + 90, 22, 13, "B-", objpage_decrease_bank );
-	ui_add_gadget_button( win, OBJCURBOX_X + 50, OBJCURBOX_Y + 90, 22, 13, "B+", objpage_increase_bank );
-	ui_add_gadget_button( win, OBJCURBOX_X + 00, OBJCURBOX_Y + 76, 22, 13, "H-", objpage_decrease_heading );
-	ui_add_gadget_button( win, OBJCURBOX_X + 50, OBJCURBOX_Y + 76, 22, 13, "H+", objpage_increase_heading );
-	ui_add_gadget_button( win, OBJCURBOX_X + 00, OBJCURBOX_Y + 62, 22, 13, "Z+", objpage_increase_z );
-	ui_add_gadget_button( win, OBJCURBOX_X + 50, OBJCURBOX_Y + 62, 22, 13, "Z-", objpage_decrease_z );
-	ui_add_gadget_button( win, OBJCURBOX_X + 25, OBJCURBOX_Y + 76, 22, 13, "R", objpage_reset_orient );
+	ui_add_gadget_button( dlg, OBJCURBOX_X + 25, OBJCURBOX_Y + 62, 22, 13, "P-", objpage_decrease_pitch );
+	ui_add_gadget_button( dlg, OBJCURBOX_X + 25, OBJCURBOX_Y + 90, 22, 13, "P+", objpage_increase_pitch );
+	ui_add_gadget_button( dlg, OBJCURBOX_X + 00, OBJCURBOX_Y + 90, 22, 13, "B-", objpage_decrease_bank );
+	ui_add_gadget_button( dlg, OBJCURBOX_X + 50, OBJCURBOX_Y + 90, 22, 13, "B+", objpage_increase_bank );
+	ui_add_gadget_button( dlg, OBJCURBOX_X + 00, OBJCURBOX_Y + 76, 22, 13, "H-", objpage_decrease_heading );
+	ui_add_gadget_button( dlg, OBJCURBOX_X + 50, OBJCURBOX_Y + 76, 22, 13, "H+", objpage_increase_heading );
+	ui_add_gadget_button( dlg, OBJCURBOX_X + 00, OBJCURBOX_Y + 62, 22, 13, "Z+", objpage_increase_z );
+	ui_add_gadget_button( dlg, OBJCURBOX_X + 50, OBJCURBOX_Y + 62, 22, 13, "Z-", objpage_decrease_z );
+	ui_add_gadget_button( dlg, OBJCURBOX_X + 25, OBJCURBOX_Y + 76, 22, 13, "R", objpage_reset_orient );
 
 	for (i=0;i<OBJS_PER_PAGE;i++)
-		ObjBox[i] = ui_add_gadget_userbox( win, OBJBOX_X + (i/2)*(2+OBJBOX_W), OBJBOX_Y + (i%2)*(2+OBJBOX_H), OBJBOX_W, OBJBOX_H);
+		ObjBox[i] = ui_add_gadget_userbox( dlg, OBJBOX_X + (i/2)*(2+OBJBOX_W), OBJBOX_Y + (i%2)*(2+OBJBOX_H), OBJBOX_W, OBJBOX_H);
 
-	ObjCurrent = ui_add_gadget_userbox( win, OBJCURBOX_X, OBJCURBOX_Y-5, 64, 64 );
+	ObjCurrent = ui_add_gadget_userbox( dlg, OBJCURBOX_X, OBJCURBOX_Y-5, 64, 64 );
 
 	objpage_reset_orient();
 

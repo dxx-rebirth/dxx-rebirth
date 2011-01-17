@@ -116,7 +116,7 @@ int ui_get_filename( char * filename, char * Filespec, char * message  )
 	char		**filename_list;
 	char		**directory_list;
 	char		Spaces[35];
-	UI_WINDOW			*wnd;
+	UI_DIALOG			*dlg;
 	UI_GADGET_BUTTON	*Button1, *Button2, *HelpButton;
 	UI_GADGET_LISTBOX	*ListBox1;
 	UI_GADGET_LISTBOX	*ListBox2;
@@ -159,24 +159,24 @@ int ui_get_filename( char * filename, char * Filespec, char * message  )
 		Spaces[i] = ' ';
 	Spaces[34] = 0;
 
-	wnd = ui_open_window( 200, 100, 400, 370, WIN_DIALOG );
+	dlg = ui_create_dialog( 200, 100, 400, 370, DF_DIALOG, NULL, NULL );
 
-	ui_wprintf_at( wnd, 10, 5, message );
+	ui_dprintf_at( dlg, 10, 5, message );
 
-	ui_wprintf_at( wnd, 20, 32,"N&ame" );
-	UserFile  = ui_add_gadget_inputbox( wnd, 60, 30, PATH_MAX, 40, InputText );
+	ui_dprintf_at( dlg, 20, 32,"N&ame" );
+	UserFile  = ui_add_gadget_inputbox( dlg, 60, 30, PATH_MAX, 40, InputText );
 
-	ui_wprintf_at( wnd, 20, 86,"&Files" );
-	ui_wprintf_at( wnd, 210, 86,"&Dirs" );
+	ui_dprintf_at( dlg, 20, 86,"&Files" );
+	ui_dprintf_at( dlg, 210, 86,"&Dirs" );
 
-	ListBox1 = ui_add_gadget_listbox(wnd,  20, 110, 125, 200, NumFiles, filename_list);
-	ListBox2 = ui_add_gadget_listbox(wnd, 210, 110, 100, 200, NumDirs, directory_list);
+	ListBox1 = ui_add_gadget_listbox(dlg,  20, 110, 125, 200, NumFiles, filename_list);
+	ListBox2 = ui_add_gadget_listbox(dlg, 210, 110, 100, 200, NumDirs, directory_list);
 
-	Button1 = ui_add_gadget_button( wnd,     20, 330, 60, 25, "Ok", NULL );
-	Button2 = ui_add_gadget_button( wnd,    100, 330, 60, 25, "Cancel", NULL );
-	HelpButton = ui_add_gadget_button( wnd, 180, 330, 60, 25, "Help", NULL );
+	Button1 = ui_add_gadget_button( dlg,     20, 330, 60, 25, "Ok", NULL );
+	Button2 = ui_add_gadget_button( dlg,    100, 330, 60, 25, "Cancel", NULL );
+	HelpButton = ui_add_gadget_button( dlg, 180, 330, 60, 25, "Help", NULL );
 
-	wnd->keyboard_focus_gadget = (UI_GADGET *)UserFile;
+	dlg->keyboard_focus_gadget = (UI_GADGET *)UserFile;
 
 	Button1->hotkey = KEY_CTRLED + KEY_ENTER;
 	Button2->hotkey = KEY_ESC;
@@ -185,23 +185,23 @@ int ui_get_filename( char * filename, char * Filespec, char * message  )
 	ListBox2->hotkey = KEY_ALTED + KEY_D;
 	UserFile->hotkey = KEY_ALTED + KEY_A;
 
-	ui_gadget_calc_keys(wnd);
+	ui_gadget_calc_keys(dlg);
 
-	ui_wprintf_at( wnd, 20, 60, "%s", Spaces );
-	ui_wprintf_at( wnd, 20, 60, "%s", ViewDir );
+	ui_dprintf_at( dlg, 20, 60, "%s", Spaces );
+	ui_dprintf_at( dlg, 20, 60, "%s", ViewDir );
 
 	new_listboxes = 0;
 
 	while( 1 )
 	{
 		event_process();
-		ui_window_do_gadgets(wnd);
+		ui_dialog_do_gadgets(dlg);
 
 		if ( Button2->pressed )
 		{
 			PHYSFS_freeList(filename_list);
 			PHYSFS_freeList(directory_list);
-			ui_close_window(wnd);
+			ui_close_dialog(dlg);
 			return 0;
 		}
 
@@ -294,12 +294,12 @@ int ui_get_filename( char * filename, char * Filespec, char * message  )
 					return 0;
 				}
 
-				ui_listbox_change(wnd, ListBox1, NumFiles, filename_list);
-				ui_listbox_change(wnd, ListBox2, NumDirs, directory_list);
+				ui_listbox_change(dlg, ListBox1, NumFiles, filename_list);
+				ui_listbox_change(dlg, ListBox2, NumDirs, directory_list);
 				new_listboxes = 0;
 
-				ui_wprintf_at( wnd, 20, 60, "%s", Spaces );
-				ui_wprintf_at( wnd, 20, 60, "%s", ViewDir );
+				ui_dprintf_at( dlg, 20, 60, "%s", Spaces );
+				ui_dprintf_at( dlg, 20, 60, "%s", ViewDir );
 
 				//i = TICKER;
 				//while ( TICKER < i+2 );
@@ -313,7 +313,7 @@ int ui_get_filename( char * filename, char * Filespec, char * message  )
 
 	//key_flush();
 
-	ui_close_window(wnd);
+	ui_close_dialog(dlg);
 	if (filename_list)
 		PHYSFS_freeList(filename_list);
 	if (directory_list)

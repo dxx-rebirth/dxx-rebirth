@@ -47,11 +47,11 @@ void ui_draw_userbox( UI_GADGET_USERBOX * userbox )
 }
 
 
-UI_GADGET_USERBOX * ui_add_gadget_userbox( UI_WINDOW * wnd, short x, short y, short w, short h )
+UI_GADGET_USERBOX * ui_add_gadget_userbox( UI_DIALOG * dlg, short x, short y, short w, short h )
 {
 	UI_GADGET_USERBOX * userbox;
 
-	userbox = (UI_GADGET_USERBOX *)ui_gadget_add( wnd, 7, x, y, x+w-1, y+h-1 );
+	userbox = (UI_GADGET_USERBOX *)ui_gadget_add( dlg, 7, x, y, x+w-1, y+h-1 );
 
 	userbox->width = w;
 	userbox->height = h;

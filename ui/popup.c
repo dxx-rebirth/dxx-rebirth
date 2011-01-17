@@ -31,7 +31,7 @@ extern void ui_mouse_flip_buttons();
 
 int PopupMenu( int NumButtons, char * text[] )
 {
-	UI_WINDOW * wnd;
+	UI_DIALOG * dlg;
 	UI_GADGET_BUTTON * ButtonG[10];
 
 	short SavedMouseX, SavedMouseY;
@@ -107,7 +107,7 @@ int PopupMenu( int NumButtons, char * text[] )
 		Mouse.y = y + (MENU_BORDER+3) + button_height/2;
 	}
 
-	wnd = ui_open_window( x, y, width, height, WIN_DIALOG );
+	dlg = ui_create_dialog( x, y, width, height, DF_DIALOG, NULL, NULL );
 
 	//mouse_set_pos(Mouse.x, Mouse.y);
 
@@ -116,7 +116,7 @@ int PopupMenu( int NumButtons, char * text[] )
 
 	for (i=0; i<NumButtons; i++ )
 	{
-		ButtonG[i] = ui_add_gadget_button( wnd, x, y, button_width, button_height, Button[i], NULL );
+		ButtonG[i] = ui_add_gadget_button( dlg, x, y, button_width, button_height, Button[i], NULL );
 		y += button_height+MENU_VERT_SPACING;
 	}
 
@@ -125,7 +125,7 @@ int PopupMenu( int NumButtons, char * text[] )
 	while(choice==0)
 	{
 		event_process();
-		ui_window_do_gadgets(wnd);
+		ui_dialog_do_gadgets(dlg);
 
 		for (i=0; i<NumButtons; i++ )
 		{
@@ -141,7 +141,7 @@ int PopupMenu( int NumButtons, char * text[] )
 		}
 	}
 
-	ui_close_window(wnd);
+	ui_close_dialog(dlg);
 
 	ui_mouse_flip_buttons();
 

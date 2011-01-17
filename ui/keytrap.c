@@ -21,11 +21,11 @@ COPYRIGHT 1993-1998 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 #include "key.h"
 
 
-UI_GADGET_KEYTRAP * ui_add_gadget_keytrap( UI_WINDOW * wnd, int key_to_trap, int (*function_to_call)(void)  )
+UI_GADGET_KEYTRAP * ui_add_gadget_keytrap( UI_DIALOG * dlg, int key_to_trap, int (*function_to_call)(void)  )
 {
 	UI_GADGET_KEYTRAP * keytrap;
 
-	keytrap = (UI_GADGET_KEYTRAP *)ui_gadget_add( wnd, 8, 0, 0, 0, 0 );
+	keytrap = (UI_GADGET_KEYTRAP *)ui_gadget_add( dlg, 8, 0, 0, 0, 0 );
 	keytrap->parent = (UI_GADGET *)keytrap;
 
 	keytrap->trap_key = key_to_trap;

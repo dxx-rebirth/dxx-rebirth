@@ -218,6 +218,7 @@ editor_sources = [
 'main/bmread.c',
 'ui/button.c',
 'ui/checkbox.c',
+'ui/dialog.c',
 'ui/file.c',
 'ui/gadget.c',
 'ui/icon.c',
@@ -235,8 +236,7 @@ editor_sources = [
 'ui/scroll.c',
 'ui/ui.c',
 'ui/uidraw.c',
-'ui/userbox.c',
-'ui/window.c'
+'ui/userbox.c'
 ]
 
 # SDL_mixer sound implementation

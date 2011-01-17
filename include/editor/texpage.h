@@ -28,7 +28,7 @@ extern int TextureMetals;
 
 int texpage_grab_current(int n);
 int texpage_goto_first();
-void texpage_init( UI_WINDOW * win );
+void texpage_init( UI_DIALOG * dlg );
 void texpage_close();
 void texpage_do();
 

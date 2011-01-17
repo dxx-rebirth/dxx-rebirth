@@ -38,7 +38,7 @@ static char rcsid[] = "$Id: message.c,v 1.1.1.1 2006/03/17 19:52:21 zicodxx Exp 
 int MessageBoxN( short xc, short yc, int NumButtons, char * text, char * Button[] )
 {
 	grs_font * temp_font;
-	UI_WINDOW * wnd;
+	UI_DIALOG * dlg;
 	UI_GADGET_BUTTON * ButtonG[10];
 
 	int i, width, height, avg, x, y;
@@ -116,7 +116,7 @@ int MessageBoxN( short xc, short yc, int NumButtons, char * text, char * Button[
 		y = h - height;
 	}
 
-	wnd = ui_open_window( x, y, width, height, WIN_DIALOG );
+	dlg = ui_create_dialog( x, y, width, height, DF_DIALOG, NULL, NULL );
 
 	//ui_draw_line_in( MESSAGEBOX_BORDER, MESSAGEBOX_BORDER, width-MESSAGEBOX_BORDER, height-MESSAGEBOX_BORDER );
 
@@ -139,21 +139,21 @@ int MessageBoxN( short xc, short yc, int NumButtons, char * text, char * Button[
 
 		x = EVEN_DIVIDE(width,button_width,NumButtons,i);
 
-		ButtonG[i] = ui_add_gadget_button( wnd, x, y, button_width, button_height, Button[i], NULL );
+		ButtonG[i] = ui_add_gadget_button( dlg, x, y, button_width, button_height, Button[i], NULL );
 	}
 
-	ui_gadget_calc_keys(wnd);
+	ui_gadget_calc_keys(dlg);
 
 	//key_flush();
 
-	wnd->keyboard_focus_gadget = (UI_GADGET *)ButtonG[0];
+	dlg->keyboard_focus_gadget = (UI_GADGET *)ButtonG[0];
 
 	choice = 0;
 
 	while(choice==0)
 	{
 		event_process();
-		ui_window_do_gadgets(wnd);
+		ui_dialog_do_gadgets(dlg);
 
 		for (i=0; i<NumButtons; i++ )
 		{
@@ -164,7 +164,7 @@ int MessageBoxN( short xc, short yc, int NumButtons, char * text, char * Button[
 		}
 	}
 
-	ui_close_window(wnd);
+	ui_close_dialog(dlg);
 	
 	grd_curscreen->sc_canvas.cv_font = temp_font;
 

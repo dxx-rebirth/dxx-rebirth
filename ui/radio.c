@@ -65,11 +65,11 @@ void ui_draw_radio( UI_GADGET_RADIO * radio )
 }
 
 
-UI_GADGET_RADIO * ui_add_gadget_radio( UI_WINDOW * wnd, short x, short y, short w, short h, short group, char * text )
+UI_GADGET_RADIO * ui_add_gadget_radio( UI_DIALOG * dlg, short x, short y, short w, short h, short group, char * text )
 {
 	UI_GADGET_RADIO * radio;
 
-	radio = (UI_GADGET_RADIO *)ui_gadget_add( wnd, 4, x, y, x+w-1, y+h-1 );
+	radio = (UI_GADGET_RADIO *)ui_gadget_add( dlg, 4, x, y, x+w-1, y+h-1 );
 
 	radio->text = d_strdup(text);
 	radio->width = w;

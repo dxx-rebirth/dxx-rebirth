@@ -30,23 +30,23 @@ static char rcsid[] = "$Id: gadget.c,v 1.1.1.1 2006/03/17 19:52:21 zicodxx Exp $
 
 UI_GADGET * selected_gadget;
 
-UI_GADGET * ui_gadget_add( UI_WINDOW * wnd, short kind, short x1, short y1, short x2, short y2 )
+UI_GADGET * ui_gadget_add( UI_DIALOG * dlg, short kind, short x1, short y1, short x2, short y2 )
 {
 	UI_GADGET * gadget;
 
 	gadget = (UI_GADGET *) d_malloc(sizeof(UI_GADGET));
 	if (gadget==NULL) Error("Could not create gadget: Out of memory");
 
-	if (wnd->gadget == NULL )
+	if (dlg->gadget == NULL )
 	{
-		wnd->gadget = gadget;
+		dlg->gadget = gadget;
 		gadget->prev = gadget;
 		gadget->next = gadget;
 	} else {
-		wnd->gadget->prev->next = gadget;
-		gadget->next = wnd->gadget;
-		gadget->prev = wnd->gadget->prev;
-		wnd->gadget->prev = gadget;
+		dlg->gadget->prev->next = gadget;
+		gadget->next = dlg->gadget;
+		gadget->prev = dlg->gadget->prev;
+		dlg->gadget->prev = gadget;
 	}
 
 	gadget->when_tab = NULL;
@@ -61,7 +61,7 @@ UI_GADGET * ui_gadget_add( UI_WINDOW * wnd, short kind, short x1, short y1, shor
 	if ( x1==0 && x2==0 && y1==0 && y2== 0 )
 		gadget->canvas = NULL;
 	else
-		gadget->canvas = gr_create_sub_canvas( wnd->canvas, x1, y1, x2-x1+1, y2-y1+1 );
+		gadget->canvas = gr_create_sub_canvas( dlg->canvas, x1, y1, x2-x1+1, y2-y1+1 );
 	gadget->x1 = gadget->canvas->cv_bitmap.bm_x;
 	gadget->y1 = gadget->canvas->cv_bitmap.bm_y;
 	gadget->x2 = gadget->canvas->cv_bitmap.bm_x+x2-x1+1;
@@ -72,22 +72,22 @@ UI_GADGET * ui_gadget_add( UI_WINDOW * wnd, short kind, short x1, short y1, shor
 
 }
 
-void ui_gadget_delete_all( UI_WINDOW * wnd )
+void ui_gadget_delete_all( UI_DIALOG * dlg )
 {
 	UI_GADGET * tmp;
 
 	ui_pad_deactivate();
 
-	while( wnd->gadget != NULL )
+	while( dlg->gadget != NULL )
 	{
-		tmp = wnd->gadget;
+		tmp = dlg->gadget;
 		if (tmp->next == tmp )
 		{
-			wnd->gadget = NULL;
+			dlg->gadget = NULL;
 		} else {
 			tmp->next->prev = tmp->prev;
 			tmp->prev->next = tmp->next;
-			wnd->gadget = tmp->next;
+			dlg->gadget = tmp->next;
 		}
 		if (tmp->canvas)
 			gr_free_sub_canvas( tmp->canvas );
@@ -124,11 +124,11 @@ void ui_gadget_delete_all( UI_WINDOW * wnd )
 }
 
 
-int is_under_another_window( UI_WINDOW * win, UI_GADGET * gadget )
+int is_under_another_window( UI_DIALOG * dlg, UI_GADGET * gadget )
 {
-	UI_WINDOW * temp;
+	UI_DIALOG * temp;
 
-	temp = win->next;
+	temp = dlg->next;
 
 	while( temp != NULL )	{
 		if (	( gadget->x1 > temp->x)						&&
@@ -169,23 +169,23 @@ int ui_mouse_on_gadget( UI_GADGET * gadget )
 		return 0;
 }
 
-void ui_window_do_gadgets( UI_WINDOW * wnd )
+void ui_dialog_do_gadgets( UI_DIALOG * dlg )
 {
 	int keypress;
 	UI_GADGET * tmp, * tmp1;
 
-	CurWindow = wnd;
+	CurWindow = dlg;
 
 	keypress = last_keypress;
 
-	tmp = wnd->gadget;
+	tmp = dlg->gadget;
 
 	if (tmp == NULL ) return;
 
 	if (selected_gadget==NULL)
 		selected_gadget = tmp;
 
-	tmp1 = wnd->keyboard_focus_gadget;
+	tmp1 = dlg->keyboard_focus_gadget;
 
 	do
 	{
@@ -196,67 +196,67 @@ void ui_window_do_gadgets( UI_WINDOW * wnd )
 			{
 				while (tmp->parent != NULL )
 					tmp = tmp->parent;
-				wnd->keyboard_focus_gadget = tmp;
+				dlg->keyboard_focus_gadget = tmp;
 				break;
 			}
 			else
 			{
-				wnd->keyboard_focus_gadget = tmp;
+				dlg->keyboard_focus_gadget = tmp;
 				break;
 			}
 		}
 		if ( tmp->hotkey == keypress )
 		{
-			wnd->keyboard_focus_gadget = tmp;
+			dlg->keyboard_focus_gadget = tmp;
 			break;
 		}
 		tmp = tmp->next;
-	} while( tmp != wnd->gadget );
+	} while( tmp != dlg->gadget );
 
-	if (wnd->keyboard_focus_gadget != NULL)
+	if (dlg->keyboard_focus_gadget != NULL)
 	{
 		switch (keypress )
 		{
 			case (KEY_TAB):
-				if ( wnd->keyboard_focus_gadget->when_tab != NULL )
-					wnd->keyboard_focus_gadget = wnd->keyboard_focus_gadget->when_tab;
+				if ( dlg->keyboard_focus_gadget->when_tab != NULL )
+					dlg->keyboard_focus_gadget = dlg->keyboard_focus_gadget->when_tab;
 				break;
 			case (KEY_TAB+KEY_SHIFTED):
-				if ( wnd->keyboard_focus_gadget->when_btab != NULL )
-					wnd->keyboard_focus_gadget = wnd->keyboard_focus_gadget->when_btab;
+				if ( dlg->keyboard_focus_gadget->when_btab != NULL )
+					dlg->keyboard_focus_gadget = dlg->keyboard_focus_gadget->when_btab;
 				break;
 			case (KEY_UP):
-				if ( wnd->keyboard_focus_gadget->when_up != NULL )
-					wnd->keyboard_focus_gadget = wnd->keyboard_focus_gadget->when_up;
+				if ( dlg->keyboard_focus_gadget->when_up != NULL )
+					dlg->keyboard_focus_gadget = dlg->keyboard_focus_gadget->when_up;
 	  			break;
 			case (KEY_DOWN):
-				if ( wnd->keyboard_focus_gadget->when_down != NULL )
-					wnd->keyboard_focus_gadget = wnd->keyboard_focus_gadget->when_down;
+				if ( dlg->keyboard_focus_gadget->when_down != NULL )
+					dlg->keyboard_focus_gadget = dlg->keyboard_focus_gadget->when_down;
 				break;
 			case (KEY_LEFT):
-				if ( wnd->keyboard_focus_gadget->when_left != NULL )
-					wnd->keyboard_focus_gadget = wnd->keyboard_focus_gadget->when_left;
+				if ( dlg->keyboard_focus_gadget->when_left != NULL )
+					dlg->keyboard_focus_gadget = dlg->keyboard_focus_gadget->when_left;
 				break;
 			case (KEY_RIGHT):
-				if ( wnd->keyboard_focus_gadget->when_right != NULL )
-					wnd->keyboard_focus_gadget = wnd->keyboard_focus_gadget->when_right;
+				if ( dlg->keyboard_focus_gadget->when_right != NULL )
+					dlg->keyboard_focus_gadget = dlg->keyboard_focus_gadget->when_right;
 				break;
 		}
 	}
 
-	if (wnd->keyboard_focus_gadget != tmp1)
+	if (dlg->keyboard_focus_gadget != tmp1)
 	{
-		if (wnd->keyboard_focus_gadget != NULL )
-			wnd->keyboard_focus_gadget->status = 1;
+		if (dlg->keyboard_focus_gadget != NULL )
+			dlg->keyboard_focus_gadget->status = 1;
 		if (tmp1 != NULL )
 			tmp1->status = 1;
 	}
 
-	tmp = wnd->gadget;
+	tmp = dlg->gadget;
 	do
 	{
 		if (!is_under_another_window( CurWindow, tmp ))	{
-			UI_WINDOW *curwindow_save=CurWindow;
+			UI_DIALOG *curwindow_save=CurWindow;
 
 			switch( tmp->kind )
 			{
@@ -293,7 +293,7 @@ void ui_window_do_gadgets( UI_WINDOW * wnd )
 		}
 
 		tmp = tmp->next;
-	} while( tmp != wnd->gadget );
+	} while( tmp != dlg->gadget );
 }
 
 
@@ -322,11 +322,11 @@ UI_GADGET * ui_gadget_get_prev( UI_GADGET * gadget )
 	return tmp;
 }
 
-void ui_gadget_calc_keys( UI_WINDOW * wnd)
+void ui_gadget_calc_keys( UI_DIALOG * dlg)
 {
 	UI_GADGET * tmp;
 
-	tmp = wnd->gadget;
+	tmp = dlg->gadget;
 
 	if (tmp==NULL) return;
 
@@ -336,6 +336,6 @@ void ui_gadget_calc_keys( UI_WINDOW * wnd)
 		tmp->when_btab = ui_gadget_get_prev(tmp);
 
 		tmp = tmp->next;
-	} while( tmp != wnd->gadget );
+	} while( tmp != dlg->gadget );
 
 }

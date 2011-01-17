@@ -104,38 +104,38 @@ int DecodeKeyText( char * text )
 
 int GetKeyCode(char * text)
 {
-	UI_WINDOW * wnd;
+	UI_DIALOG * dlg;
 	UI_GADGET_BUTTON * DoneButton;
 	char temp_text[100];
 
 	text = text;
 
-	wnd = ui_open_window( 200, 200, 400, 200, WIN_DIALOG );
+	dlg = ui_create_dialog( 200, 200, 400, 200, DF_DIALOG, NULL, NULL );
 
-	DoneButton = ui_add_gadget_button( wnd, 170, 165, 60, 25, "Ok", NULL );
+	DoneButton = ui_add_gadget_button( dlg, 170, 165, 60, 25, "Ok", NULL );
 
-	ui_gadget_calc_keys(wnd);
+	ui_gadget_calc_keys(dlg);
 
 	//key_flush();
 
-	wnd->keyboard_focus_gadget = (UI_GADGET *)DoneButton;
+	dlg->keyboard_focus_gadget = (UI_GADGET *)DoneButton;
 
 	while(1)
 	{
 		event_process();
-		ui_window_do_gadgets(wnd);
+		ui_dialog_do_gadgets(dlg);
 
 		if (last_keypress > 0)
 		{
 			GetKeyDescription( temp_text, last_keypress );
-			ui_wprintf_at( wnd, 10, 100, "%s     ", temp_text  );
+			ui_dprintf_at( dlg, 10, 100, "%s     ", temp_text  );
 		}
 
 		if (DoneButton->pressed)
 			break;
 	}
 
-	ui_close_window(wnd);
+	ui_close_dialog(dlg);
 
 	return 0;
 }
