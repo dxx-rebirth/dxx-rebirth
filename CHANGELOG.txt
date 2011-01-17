@@ -1,5 +1,9 @@
 D2X-Rebirth Changelog
 
+20110117
+--------
+arch/sdl/event.c: Still send idle events when receiving SDL joystick events, fixing possible joystick issues
+
 20110116
 --------
 2d/bitblt.c, arch/ogl/gr.c, arch/ogl/ogl.c, include/ogl_init.h, main/menu.c: Added feature to enable Anisotropic filtering is supported by hardware or driver; Reworked way of handling texture filtering information so ingame switching is possible again
