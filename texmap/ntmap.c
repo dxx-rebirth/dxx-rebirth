@@ -71,10 +71,7 @@ int	window_top;
 int	window_bottom;
 int  	window_width;
 int  	window_height;
-
-#define MAX_Y_POINTERS  1024
-
-int	y_pointers[MAX_Y_POINTERS];
+int	*y_pointers=NULL;
 
 fix fix_recip[FIX_RECIP_TABLE_SIZE];
 
@@ -107,6 +104,15 @@ void init_fix_recip_table(void)
 	Fix_recip_table_computed = 1;
 }
 
+void free_ypointers()
+{
+	if (y_pointers != NULL)
+	{
+		d_free(y_pointers);
+		y_pointers = NULL;
+	}
+}
+
 // -------------------------------------------------------------------------------------
 //	Initialize interface variables to assembler.
 //	These things used to be constants.  This routine is now (10/6/93) getting called for
@@ -115,12 +121,19 @@ void init_fix_recip_table(void)
 void init_interface_vars_to_assembler(void)
 {
 	grs_bitmap	*bp;
+	static int callclose = 1;
 
 	bp = &grd_curcanv->cv_bitmap;
 
 	Assert(bp!=NULL);
 	Assert(bp->bm_data!=NULL);
-	Assert(bp->bm_h <= MAX_Y_POINTERS);
+
+	if (y_pointers != NULL)
+	{
+		d_free(y_pointers);
+		y_pointers = NULL;
+	}
+	MALLOC(y_pointers, int, bp->bm_h);
 
 	//	If bytes_per_row has changed, create new table of pointers.
 	if (bytes_per_row != (int) bp->bm_rowsize) {
@@ -129,7 +142,7 @@ void init_interface_vars_to_assembler(void)
 		bytes_per_row = (int) bp->bm_rowsize;
 
 		y_val = 0;
-		for (i=0; i<MAX_Y_POINTERS; i++) {
+		for (i=0; i<bp->bm_h; i++) {
 			y_pointers[i] = y_val;
 			y_val += bytes_per_row;
 		}
@@ -152,6 +165,12 @@ void init_interface_vars_to_assembler(void)
 
 	if (!Fix_recip_table_computed)
 		init_fix_recip_table();
+
+	if (callclose)
+	{
+		callclose=0;
+		atexit(free_ypointers);
+	}
 }
 
 // -------------------------------------------------------------------------------------

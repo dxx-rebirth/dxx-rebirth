@@ -443,6 +443,7 @@ void build_light_table()
 		d_free(light_array);
 
 	MALLOC(light_array,ubyte,grid_w*grid_h);
+	memset(light_array, 0, grid_w*grid_h);
 
 	for (i=1;i<grid_w;i++)
 		for (j=1;j<grid_h;j++) {
