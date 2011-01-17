@@ -8,6 +8,7 @@ main/kconfig.c, main/newmenu.c, ui/mouse.c: Fix cursor recentering issues - comm
 arch/ogl/ogl.c: Before duplicating last pixel column or row in ogl_filltexbuf, make sure we are still in actual bitmap boundaries
 SConstruct, d1x-rebirth.xcodeproj/project.pbxproj, editor/centers.c, editor/ehostage.c, editor/eswitch.c, editor/med.c, editor/medrobot.c, editor/medwall.c, editor/mine.c, editor/objpage.c, editor/texpage.c, include/editor/editor.h, include/editor/objpage.h, include/editor/texpage.h, include/ui.h, ui/button.c, ui/checkbox.c, ui/dialog.c, ui/file.c, ui/gadget.c, ui/icon.c, ui/inputbox.c, ui/keypad.c, ui/keypress.c, ui/keytrap.c, ui/listbox.c, ui/menu.c, ui/message.c, ui/popup.c, ui/radio.c, ui/scroll.c, ui/userbox.c: Rename ui/window.c to ui/dialog.c to avoid confusion with arch/sdl/window.c, also rename UI_WINDOW to UI_DIALOG, rename all associated functions, constants, parameters, local variables etc too; make a window when making a UI_DIALOG (does nothing yet)
 SConstruct: opengles variable in SConstruct could be activated by command-line argument opengl
+main/terrain.c texmap/ntmap.c, texmap/scanline.c: Fixing memory corruptions produced by the scanline renderer; Dynamically allocate y_pointers to free scanline renderer from resolution limits
 
 20110116
 --------

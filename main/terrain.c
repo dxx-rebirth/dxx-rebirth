@@ -167,11 +167,11 @@ void render_terrain(vms_vector *org_point,int org_2dx,int org_2dy)
 	vms_vector delta_i,delta_j;		//delta_y;
 	g3s_point p,last_p,save_p_low,save_p_high;
 	g3s_point last_p2;
-	int i,j;
-	int low_i,high_i,low_j,high_j;
-	int viewer_i,viewer_j;
+	int i=0,j=0;
+	int low_i=0,high_i=0,low_j=0,high_j=0;
+	int viewer_i=0,viewer_j=0;
 	vms_vector tv;
-
+vm_vec_zero(&delta_i);vm_vec_zero(&delta_j);vm_vec_zero(&tv);
 	mine_tiles_drawn = 0;	//clear flags
 
 	org_i = org_2dy;
@@ -439,6 +439,8 @@ void build_light_table()
 		d_free(light_array);
 
 	MALLOC(light_array,ubyte,grid_w*grid_h);
+	memset(light_array, 0, grid_w*grid_h);
+
 	for (i=1;i<grid_w;i++)
 		for (j=1;j<grid_h;j++) {
 			l = get_avg_light(i,j);

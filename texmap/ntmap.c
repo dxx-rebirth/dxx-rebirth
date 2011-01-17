@@ -7,7 +7,7 @@ IN USING, DISPLAYING,  AND CREATING DERIVATIVE WORKS THEREOF, SO LONG AS
 SUCH USE, DISPLAY OR CREATION IS FOR NON-COMMERCIAL, ROYALTY OR REVENUE
 FREE PURPOSES.  IN NO EVENT SHALL THE END-USER USE THE COMPUTER CODE
 CONTAINED HEREIN FOR REVENUE-BEARING PURPOSES.  THE END-USER UNDERSTANDS
-AND AGREES TO THE TERMS HEREIN AND ACCEPTS THE SAME BY USE OF THIS FILE.  
+AND AGREES TO THE TERMS HEREIN AND ACCEPTS THE SAME BY USE OF THIS FILE.
 COPYRIGHT 1993-1998 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 */
 
@@ -25,19 +25,17 @@ COPYRIGHT 1993-1998 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 #define WIREFRAME 0
 #define PERSPECTIVE 1
 
-#include <math.h>
-#include <limits.h>
-#include <stdio.h>
-#include <stdlib.h>
-#include "3d.h"
+#include "pstypes.h"
+#include "fix.h"
+#include "vecmat.h"
 #include "gr.h"
+#include "3d.h"
 #include "error.h"
+#include "render.h"
 #include "texmap.h"
 #include "texmapl.h"
 #include "rle.h"
 #include "scanline.h"
-#include "render.h"
-#include "../main/textures.h"
 
 #ifdef EDITOR
 #define EDITOR_TMAP 1       //if in, include extra stuff
@@ -73,13 +71,7 @@ int	window_top;
 int	window_bottom;
 int  	window_width;
 int  	window_height;
-
-#ifdef EDITOR_TMAP
-#define MAX_Y_POINTERS  1024
-#else
-#define MAX_Y_POINTERS  1024
-#endif
-int	y_pointers[MAX_Y_POINTERS];
+int	*y_pointers=NULL;
 
 fix fix_recip[FIX_RECIP_TABLE_SIZE];
 
@@ -112,6 +104,15 @@ void init_fix_recip_table(void)
 	Fix_recip_table_computed = 1;
 }
 
+void free_ypointers()
+{
+	if (y_pointers != NULL)
+	{
+		d_free(y_pointers);
+		y_pointers = NULL;
+	}
+}
+
 // -------------------------------------------------------------------------------------
 //	Initialize interface variables to assembler.
 //	These things used to be constants.  This routine is now (10/6/93) getting called for
@@ -120,12 +121,19 @@ void init_fix_recip_table(void)
 void init_interface_vars_to_assembler(void)
 {
 	grs_bitmap	*bp;
+	static int callclose = 1;
 
 	bp = &grd_curcanv->cv_bitmap;
 
 	Assert(bp!=NULL);
 	Assert(bp->bm_data!=NULL);
-	Assert(bp->bm_h <= MAX_Y_POINTERS);
+
+	if (y_pointers != NULL)
+	{
+		d_free(y_pointers);
+		y_pointers = NULL;
+	}
+	MALLOC(y_pointers, int, bp->bm_h);
 
 	//	If bytes_per_row has changed, create new table of pointers.
 	if (bytes_per_row != (int) bp->bm_rowsize) {
@@ -134,7 +142,7 @@ void init_interface_vars_to_assembler(void)
 		bytes_per_row = (int) bp->bm_rowsize;
 
 		y_val = 0;
-		for (i=0; i<MAX_Y_POINTERS; i++) {
+		for (i=0; i<bp->bm_h; i++) {
 			y_pointers[i] = y_val;
 			y_val += bytes_per_row;
 		}
@@ -157,6 +165,12 @@ void init_interface_vars_to_assembler(void)
 
 	if (!Fix_recip_table_computed)
 		init_fix_recip_table();
+
+	if (callclose)
+	{
+		callclose=0;
+		atexit(free_ypointers);
+	}
 }
 
 // -------------------------------------------------------------------------------------
@@ -1018,4 +1032,3 @@ void draw_tmap(grs_bitmap *bp,int nverts,g3s_point **vertbuf)
 	Lighting_on = lighting_on_save;
 
 }
-
