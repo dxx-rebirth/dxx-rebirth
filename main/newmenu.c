@@ -1500,7 +1500,7 @@ int newmenu_handler(window *wind, d_event *event, newmenu *menu)
 			break;
 
 		case EVENT_WINDOW_DEACTIVATED:
-			event_toggle_focus(1);
+			//event_toggle_focus(1);	// No cursor recentering
 			menu->mouse_state = 0;
 			break;
 
@@ -2083,7 +2083,7 @@ int listbox_handler(window *wind, d_event *event, listbox *lb)
 			break;
 
 		case EVENT_WINDOW_DEACTIVATED:
-			event_toggle_focus(1);
+			//event_toggle_focus(1);	// No cursor recentering
 			break;
 
 		case EVENT_MOUSE_BUTTON_DOWN:

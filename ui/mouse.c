@@ -105,7 +105,7 @@ int ui_mouse_find_gadget(short n)
 void ui_mouse_show()
 {
 #ifndef __MSDOS__
-  SDL_ShowCursor(1);
+	event_toggle_focus(0);
 #else
 	if (Mouse.hidden==1 )   {
 		Mouse.hidden = 0;
@@ -121,7 +121,9 @@ void ui_mouse_show()
 
 void ui_mouse_hide()
 {
-#ifdef __MSDOS__
+#ifndef __MSDOS__
+//	event_toggle_focus(1);		// causes cursor to recenter
+#else
 	if (Mouse.hidden==0 )   {
 		Mouse.hidden = 1;
 		if (Mouse.bg_saved==1)  {

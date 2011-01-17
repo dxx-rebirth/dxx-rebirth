@@ -900,7 +900,7 @@ int kconfig_handler(window *wind, d_event *event, kc_menu *menu)
 			break;
 			
 		case EVENT_WINDOW_CLOSE:
-			event_toggle_focus(1);
+			//event_toggle_focus(1);	// No cursor recentering
 			d_free(menu);
 			
 			// Update save values...
