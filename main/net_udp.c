@@ -543,7 +543,7 @@ int net_udp_list_join_poll( newmenu *menu, d_event *event, direct_join *dj )
 #endif
 			break;
 		}
-		case EVENT_WINDOW_DRAW:
+		case EVENT_IDLE:
 			if (dj->connecting)
 			{
 				if (net_udp_game_connect(dj))

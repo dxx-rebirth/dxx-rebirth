@@ -1,5 +1,9 @@
 D2X-Rebirth Changelog
 
+20110118
+--------
+main/net_udp.c: Fixed small bug in net_udp_list_join_poll() which was introduced when I reorganized the events for making console render global
+
 20110117
 --------
 arch/sdl/event.c: Still send idle events when receiving SDL joystick events, fixing possible joystick issues
