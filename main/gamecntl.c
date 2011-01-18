@@ -926,7 +926,7 @@ int HandleSystemKey(int key)
 		KEY_MAC(case KEY_COMMAND+KEY_O:)
 		KEY_MAC(case KEY_COMMAND+KEY_ALTED+KEY_3:)
 		case KEY_ALTED+KEY_F3:
-			if (!Player_is_dead && !((Game_mode & GM_MULTI) && !(Game_mode & GM_MULTI_COOP)))
+			if (!((Game_mode & GM_MULTI) && !(Game_mode & GM_MULTI_COOP)))
 				state_restore_all(1, 0, NULL);
 			break;
 
