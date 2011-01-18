@@ -1449,6 +1449,11 @@ void net_udp_send_objects(void)
 	sbyte owner, player_num = UDP_sync_player.player.connected;
 	static int obj_count = 0;
 	int loc = 0, i = 0, remote_objnum = 0, obj_count_frame = 0;
+	static fix64 last_send_time = 0;
+	
+	if (last_send_time + (F1_0/10) > timer_query())
+		return;
+	last_send_time = timer_query();
 
 	// Send clear objects array trigger and send player num
 
@@ -1549,7 +1554,7 @@ void net_udp_send_objects(void)
 			Network_send_objects = 0;
 			obj_count = 0;
 
-			Network_sending_extras=40; // start to send extras
+			Network_sending_extras=8; // start to send extras
 			VerifyPlayerJoined = Player_joining_extras = player_num;
 
 			return;
@@ -4833,23 +4838,29 @@ int net_udp_get_new_player_num (UDP_sequence_packet *their)
 
 void net_udp_send_extras ()
 {
+	static fix64 last_send_time = 0;
+	
+	if (last_send_time + (F1_0/10) > timer_query())
+		return;
+	last_send_time = timer_query();
+
 	Assert (Player_joining_extras>-1);
 
-	if (Network_sending_extras==40)
+	if (Network_sending_extras==8)
 		net_udp_send_fly_thru_triggers(Player_joining_extras);
-	if (Network_sending_extras==38)
+	if (Network_sending_extras==7)
 		net_udp_send_door_updates(Player_joining_extras);
-	if (Network_sending_extras==35)
+	if (Network_sending_extras==6)
 		net_udp_send_markers();
-	if (Network_sending_extras==30 && (Game_mode & GM_MULTI_ROBOTS))
+	if (Network_sending_extras==5 && (Game_mode & GM_MULTI_ROBOTS))
 		multi_send_stolen_items();
-	if (Network_sending_extras==25 && (Netgame.PlayTimeAllowed || Netgame.KillGoal))
+	if (Network_sending_extras==4 && (Netgame.PlayTimeAllowed || Netgame.KillGoal))
 		multi_send_kill_goal_counts();
-	if (Network_sending_extras==20)
+	if (Network_sending_extras==3)
 		net_udp_send_smash_lights(Player_joining_extras);
-	if (Network_sending_extras==15)
+	if (Network_sending_extras==2)
 		net_udp_send_player_flags();    
-	if (Network_sending_extras==10)
+	if (Network_sending_extras==1)
 		multi_send_powcap_update();  
 
 	Network_sending_extras--;
