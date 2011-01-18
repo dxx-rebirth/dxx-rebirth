@@ -339,11 +339,7 @@ void init_player_stats_level()
 		Players[Player_num].flags |= (KEY_BLUE | KEY_RED | KEY_GOLD);
 
 	Player_is_dead = 0; // Added by RH
-	if (Dead_player_camera != NULL)
-	{
-		obj_delete(Dead_player_camera-Objects);
-		Dead_player_camera = NULL;
-	}
+	Dead_player_camera = NULL;
 	Players[Player_num].homing_object_dist = -F1_0; // Added by RH
 
 	// properly init these cursed globals
