@@ -1,5 +1,9 @@
 D1X-Rebirth Changelog
 
+20110118
+--------
+main/gamecntl.c, main/gameseq.c: Allowing loading a savestate while being in death sequence and resetting Dead_player_camera correctly in init_player_stats_level() so forther death sequences won't screw up
+
 20110117
 --------
 arch/sdl/event.c: Still send idle events when receiving SDL joystick events, fixing possible joystick issues
