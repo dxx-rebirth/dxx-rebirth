@@ -1308,6 +1308,11 @@ void net_ipx_send_objects(void)
 
 	int obj_count_frame = 0;
 	int player_num = IPX_sync_player.player.connected;
+	static fix64 last_send_time = 0;
+	
+	if (last_send_time + (F1_0/10) > timer_query())
+		return;
+	last_send_time = timer_query();
 
 	// Send clear objects array trigger and send player num
 

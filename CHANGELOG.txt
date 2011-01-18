@@ -4,6 +4,7 @@ D1X-Rebirth Changelog
 --------
 main/gamecntl.c, main/gameseq.c: Allowing loading a savestate while being in death sequence and resetting Dead_player_camera correctly in init_player_stats_level() so forther death sequences won't screw up
 main/net_udp.c: In net_udp_send_objects() player_num byte was not considered for mode 1 resulting on incorrect object count for this mode
+main/net_ipx.c, main/net_udp.c: Instead of calling object/extras sending every frame, use a delay of 100ms between packet send to not overload the network stack
 
 20110117
 --------

@@ -1352,6 +1352,11 @@ void net_udp_send_objects(void)
 	sbyte owner, player_num = UDP_sync_player.player.connected;
 	static int obj_count = 0;
 	int loc = 0, i = 0, remote_objnum = 0, obj_count_frame = 0;
+	static fix64 last_send_time = 0;
+	
+	if (last_send_time + (F1_0/10) > timer_query())
+		return;
+	last_send_time = timer_query();
 
 	// Send clear objects array trigger and send player num
 
@@ -1451,7 +1456,7 @@ void net_udp_send_objects(void)
 			Network_send_objects = 0;
 			obj_count = 0;
 
-			Network_sending_extras=25; // start to send extras
+			Network_sending_extras=2; // start to send extras
 			VerifyPlayerJoined = Player_joining_extras = player_num;
 
 			return;
@@ -4555,11 +4560,17 @@ int net_udp_get_new_player_num (UDP_sequence_packet *their)
 
 void net_udp_send_extras ()
 {
+	static fix64 last_send_time = 0;
+	
+	if (last_send_time + (F1_0/10) > timer_query())
+		return;
+	last_send_time = timer_query();
+
 	Assert (Player_joining_extras>-1);
 
-	if (Network_sending_extras==25 && (Netgame.PlayTimeAllowed || Netgame.KillGoal))
+	if (Network_sending_extras==2 && (Netgame.PlayTimeAllowed || Netgame.KillGoal))
 		multi_send_kill_goal_counts();
-	if (Network_sending_extras==10)
+	if (Network_sending_extras==1)
 		multi_send_powcap_update();  
 
 	Network_sending_extras--;
