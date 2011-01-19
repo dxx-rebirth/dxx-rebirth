@@ -26,7 +26,6 @@ COPYRIGHT 1993-1998 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 
 //#define USE_ISQRT 1
 
-#ifdef NO_ASM
 vms_vector vmd_zero_vector = {0, 0, 0};
 vms_matrix vmd_identity_matrix = { { f1_0, 0, 0 },
                                    { 0, f1_0, 0 },
@@ -813,8 +812,6 @@ vms_matrix *vm_matrix_x_matrix(vms_matrix *dest,vms_matrix *src0,vms_matrix *src
 
 	return dest;
 }
-#endif
-
 
 //extract angles from a matrix 
 vms_angvec *vm_extract_angles_matrix(vms_angvec *a,vms_matrix *m)

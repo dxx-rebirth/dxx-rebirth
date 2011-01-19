@@ -1073,7 +1073,7 @@ grs_font * gr_init_font( char * fontname )
 
 		colormap[TRANSPARENCY_COLOR] = TRANSPARENCY_COLOR;              // changed from colormap[255] = 255 to this for macintosh
 
-		decode_data_asm(font->ft_data, ptr - font->ft_data, colormap, freq );
+		decode_data(font->ft_data, ptr - font->ft_data, colormap, freq );
 
 	}
 
@@ -1169,7 +1169,7 @@ void gr_remap_font( grs_font *font, char * fontname, char *font_data )
 
 		colormap[TRANSPARENCY_COLOR] = TRANSPARENCY_COLOR;              // changed from colormap[255] = 255 to this for macintosh
 
-		decode_data_asm(font->ft_data, ptr - font->ft_data, colormap, freq );
+		decode_data(font->ft_data, ptr - font->ft_data, colormap, freq );
 
 	}
 

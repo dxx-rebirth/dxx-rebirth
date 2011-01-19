@@ -163,6 +163,10 @@ common_sources = [
 'main/vclip.c',
 'main/wall.c',
 'main/weapon.c',
+'maths/fixc.c',
+'maths/rand.c',
+'maths/tables.c',
+'maths/vecmat.c',
 'mem/mem.c',
 'misc/args.c',
 'misc/dl_list.c',
@@ -260,24 +264,11 @@ arch_sdl_sources = [
 
 # assembler related
 asm_sources = [
-'2d/linear.asm',
-'2d/tmerge_a.asm',
-'maths/fix.asm',
-'maths/rand.c',
-'maths/vecmat.c',
-'maths/vecmata.asm',
 'texmap/tmap_ll.asm',
 'texmap/tmap_flt.asm',
 'texmap/tmapfade.asm',
 'texmap/tmap_lin.asm',
 'texmap/tmap_per.asm'
-]
-
-noasm_sources = [
-'maths/fixc.c',
-'maths/rand.c',
-'maths/tables.c',
-'maths/vecmat.c'
 ]
 
 # Acquire environment object...
@@ -395,13 +386,11 @@ else:
 # assembler code?
 if (asm == 1) and (opengl == 0):
 	print "including: ASSEMBLER"
-	Object(['texmap/tmappent.S', 'texmap/tmapppro.S'], AS='gcc', ASFLAGS='-D' + str(osdef) + ' -c ')
 	env.Replace(AS = 'nasm')
 	env.Append(ASCOM = ' -f ' + str(osasmdef) + ' -d' + str(osdef) + ' -Itexmap/ ')
-	common_sources += asm_sources + ['texmap/tmappent.o', 'texmap/tmapppro.o']
+	common_sources += asm_sources
 else:
 	env.Append(CPPDEFINES = ['NO_ASM'])
-	common_sources += noasm_sources
 
 # SDL_mixer support?
 if (sdlmixer == 1):

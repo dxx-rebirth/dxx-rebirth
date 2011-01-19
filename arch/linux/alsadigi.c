@@ -9,7 +9,6 @@
 #include <string.h>
 #include <alsa/asoundlib.h>
 #include <pthread.h>
-
 #include "error.h"
 #include "fix.h"
 #include "vecmat.h"
@@ -21,27 +20,7 @@
 #include "newdemo.h"
 #include "kconfig.h"
 
-//edited 05/17/99 Matt Mueller - added ifndef NO_ASM
-//added on 980905 by adb to add inline fixmul for mixer on i386
-#ifndef NO_ASM
-#ifdef __i386__
-#define do_fixmul(x,y)				\
-({						\
-	int _ax, _dx;				\
-	asm("imull %2\n\tshrdl %3,%1,%0"	\
-	    : "=a"(_ax), "=d"(_dx)		\
-	    : "rm"(y), "i"(16), "0"(x));	\
-	_ax;					\
-})
-extern inline fix fixmul(fix x, fix y) { return do_fixmul(x,y); }
-#endif
-#endif
-//end edit by adb
-//end edit -MM
-
-//changed on 980905 by adb to increase number of concurrent sounds
 #define MAX_SOUND_SLOTS 32
-//end changes by adb
 #define SOUND_BUFFER_SIZE 512
 
 #define MIN_VOLUME 10
@@ -546,19 +525,3 @@ void digi_end_sound(int channel)
 	}
 	UNLOCK();
 }
-
-
-// MIDI stuff follows.
-//added/killed on 11/25/98 by Matthew Mueller
-//void digi_set_midi_volume( int mvolume ) { }
-//void digi_play_midi_song( char * filename, char * melodic_bank, char * drum_bank, int loop ) {}
-//void digi_stop_current_song()
-//{
-//#ifdef HMIPLAY
-//        char buf[10];
-//    
-//        sprintf(buf,"s");
-//        send_ipc(buf);
-//#endif
-//}
-//end this section kill - MM

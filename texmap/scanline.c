@@ -1067,22 +1067,6 @@ void select_tmap(char *type)
 		cur_tmap_scanline_flat=asm_tmap_scanline_flat;
 		cur_tmap_scanline_shaded=asm_tmap_scanline_shaded;
 	}
-	else if (stricmp(type,"pent")==0){
-		cur_tmap_scanline_per=asm_pent_tmap_scanline_per;
-		cur_tmap_scanline_per_nolight=asm_pent_tmap_scanline_per;
-		cur_tmap_scanline_lin=asm_tmap_scanline_lin_lighted;
-		cur_tmap_scanline_lin_nolight=asm_tmap_scanline_lin;
-		cur_tmap_scanline_flat=asm_tmap_scanline_flat;
-		cur_tmap_scanline_shaded=asm_tmap_scanline_shaded;
-	}
-	else if (stricmp(type,"ppro")==0){
-		cur_tmap_scanline_per=asm_ppro_tmap_scanline_per;
-		cur_tmap_scanline_per_nolight=asm_ppro_tmap_scanline_per;
-		cur_tmap_scanline_lin=asm_tmap_scanline_lin_lighted;
-		cur_tmap_scanline_lin_nolight=asm_tmap_scanline_lin;
-		cur_tmap_scanline_flat=asm_tmap_scanline_flat;
-		cur_tmap_scanline_shaded=asm_tmap_scanline_shaded;
-	}
 	else
 #elif defined(macintosh) && !defined(OGL)
 	if (stricmp(type,"ppc")==0){
