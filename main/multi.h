@@ -135,8 +135,9 @@ extern int multi_protocol; // set and determinate used protocol
 #define MULTI_GOT_ORB           61
 #define MULTI_DROP_ORB          62
 #define MULTI_PLAY_BY_PLAY      63
+#define MULTI_DO_BOUNTY		64
 
-#define MULTI_MAX_TYPE          63
+#define MULTI_MAX_TYPE          64
 
 #define MAX_NET_CREATE_OBJECTS  40
 
@@ -149,6 +150,7 @@ extern int multi_protocol; // set and determinate used protocol
 #define NETGAME_CAPTURE_FLAG    4
 #define NETGAME_HOARD           5
 #define NETGAME_TEAM_HOARD      6
+#define NETGAME_BOUNTY		7
 
 #define NETSTAT_MENU                0
 #define NETSTAT_PLAYING             1
@@ -251,7 +253,7 @@ void multi_send_hostage_door_status(int wallnum);
 void multi_send_drop_weapon (int objnum,int seed);
 void multi_send_drop_marker (int player,vms_vector position,char messagenum,char text[]);
 void multi_send_guided_info (object *miss,char);
-
+void multi_send_bounty( void );
 
 void multi_endlevel_score(void);
 void multi_consistency_error(int reset);
@@ -343,6 +345,7 @@ extern void multi_send_got_orb( char pnum );
 extern void multi_add_lifetime_kills(void);
 
 extern int PhallicLimit,PhallicMan;
+extern int Bounty_target;
 
 #define N_PLAYER_SHIP_TEXTURES 6
 

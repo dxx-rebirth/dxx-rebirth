@@ -1,5 +1,9 @@
 D2X-Rebirth Changelog
 
+20110119
+--------
+main/game.h, main/gamerend.c, main/gauges.c, main/multi.c, main/multi.h, main/net_udp.c: Introducing new BOUNTY Multiplayer game mode by Matt "1360" Vandermeulen <matt1360@gmail.com>
+
 20110118
 --------
 main/net_udp.c: Fixed small bug in net_udp_list_join_poll() which was introduced when I reorganized the events for making console render global

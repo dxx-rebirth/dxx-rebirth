@@ -91,6 +91,8 @@ void multi_do_orb_bonus(char *buf);
 void multi_send_drop_flag(int objnum,int seed);
 void multi_send_ranking();
 void multi_do_play_by_play(char *buf);
+void multi_new_bounty_target( int pnum );
+void multi_do_bounty( char *buf );
 
 //
 // Local macros and prototypes
@@ -122,6 +124,7 @@ fix Show_kill_list_timer = 0;
 
 char Multi_is_guided=0;
 char PKilledFlags[MAX_NUM_NET_PLAYERS];
+int Bounty_target = 0; // Target for bounty mode netgame
 
 int multi_sending_message = 0;
 int multi_defining_message = 0;
@@ -237,6 +240,7 @@ int message_length[MULTI_MAX_TYPE+1] = {
 	2,  // MULTI_GOT_ORB
 	12, // MULTI_DROP_ORB
 	4,  // MULTI_PLAY_BY_PLAY
+	2,  // MULTI_DO_BOUNTY
 };
 
 char PowerupsInMine[MAX_POWERUP_TYPES],MaxPowerupsAllowed[MAX_POWERUP_TYPES];
@@ -748,6 +752,24 @@ void multi_compute_kill(int killer, int killed)
 		}
 		else
 			HUD_init_message(HM_MULTI, "%s %s", killed_name, TXT_SUICIDE);
+		
+		/* Bounty mode needs some lovin' */
+		if( Game_mode & GM_BOUNTY && killed_pnum == Bounty_target && multi_i_am_master() )
+		{
+			/* Select a random number */
+			int new_bounty_target = d_rand() % MAX_NUM_NET_PLAYERS;
+			
+			/* Make sure they're valid: Don't check against kill flags,
+			 * just in case everyone's dead! */
+			while( !Players[new_bounty_target].connected )
+				new_bounty_target = d_rand() % MAX_NUM_NET_PLAYERS;
+			
+			/* Select new target */
+			multi_new_bounty_target( new_bounty_target );
+			
+			/* Send this new data */
+			multi_send_bounty();
+		}
 	}
 
 	else
@@ -761,11 +783,32 @@ void multi_compute_kill(int killer, int killed)
 				else
 					team_kills[get_team(killer_pnum)] += 1;
 			}
-
-			Players[killer_pnum].net_kills_total += 1;
-			Players[killer_pnum].KillGoalCount+=1;
-
-			if (Newdemo_state == ND_STATE_RECORDING)
+			
+			if( Game_mode & GM_BOUNTY )
+			{
+				/* Did the target die?  Did the target get a kill? */
+				if( killed_pnum == Bounty_target || killer_pnum == Bounty_target )
+				{
+					/* Increment kill counts */
+					Players[killer_pnum].net_kills_total++;
+					Players[killer_pnum].KillGoalCount++;
+					
+					/* Record the kill in a demo */
+					if( Newdemo_state == ND_STATE_RECORDING )
+						newdemo_record_multi_kill( killer_pnum, 1 );
+					
+					/* If the target died, the new one is set! */
+					if( killed_pnum == Bounty_target )
+						multi_new_bounty_target( killer_pnum );
+				}
+			}
+			else
+			{
+				Players[killer_pnum].net_kills_total += 1;
+				Players[killer_pnum].KillGoalCount+=1;
+			}
+			
+			if (Newdemo_state == ND_STATE_RECORDING && !( Game_mode & GM_BOUNTY ) )
 				newdemo_record_multi_kill(killer_pnum, 1);
 		}
 		else
@@ -3210,6 +3253,7 @@ void multi_prep_level(void)
 	PhallicLimit=0;
 	PhallicMan=-1;
 	Drop_afterburner_blob_flag=0;
+	Bounty_target = 0;
 	multi_consistency_error(1);
 
 	for (i=0;i<MAX_NUM_NET_PLAYERS;i++)
@@ -4816,6 +4860,44 @@ int multi_maybe_disable_friendly_fire(object *killer)
 	return 0; // all other cases -> harm me!
 }
 
+/* Bounty packer sender and handler */
+void multi_send_bounty( void )
+{
+	/* Test game mode */
+	if( !( Game_mode & GM_BOUNTY ) )
+		return;
+	
+	/* Add opcode and target ID */
+	multibuf[0] = MULTI_DO_BOUNTY;
+	multibuf[1] = (char)Bounty_target;
+	
+	/* Send data */
+	multi_send_data( multibuf, 2, 1 );
+}
+
+void multi_do_bounty( char *buf )
+{
+	/* New target! */
+	multi_new_bounty_target( buf[1] );
+}
+
+void multi_new_bounty_target( int pnum )
+{
+	/* If it's already the same, don't do it */
+	if( Bounty_target == pnum )
+		return;
+	
+	/* Set the target */
+	Bounty_target = pnum;
+	
+	/* Send a message */
+	HUD_init_message( HM_MULTI, "%c%c%s is the new target!", CC_COLOR,
+		BM_XRGB( player_rgb[Bounty_target].r, player_rgb[Bounty_target].g, player_rgb[Bounty_target].b ),
+		Players[Bounty_target].callsign );
+
+	digi_play_sample( SOUND_BUDDY_MET_GOAL, F1_0 * 2 );
+}
+
 ///
 /// CODE TO LOAD HOARD DATA
 ///
@@ -5183,6 +5265,8 @@ multi_process_data(char *buf, int len)
 		if (!Endlevel_sequence) multi_do_create_robot_powerups(buf); break;
 	case MULTI_HOSTAGE_DOOR:
 		if (!Endlevel_sequence) multi_do_hostage_door_status(buf); break;
+	case MULTI_DO_BOUNTY:
+		if( !Endlevel_sequence ) multi_do_bounty( buf ); break;
 	default:
 		Int3();
 	}

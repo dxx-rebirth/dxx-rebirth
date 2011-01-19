@@ -86,6 +86,7 @@ extern int ft_preference;
 #define GM_TEAM         256     // Team mode for network play
 #define GM_CAPTURE      512     // Capture the flag mode for D2
 #define GM_HOARD        1024    // New hoard mode for D2 Christmas
+#define GM_BOUNTY	2048	/* New bounty mode by Matt1360 */
 #define GM_NORMAL       0       // You are in normal play mode, no multiplayer stuff
 #define GM_MULTI        38      // You are in some type of multiplayer game
 

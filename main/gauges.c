@@ -2497,6 +2497,8 @@ void hud_show_kill_list()
 
 		if (Show_kill_list == 3)
 			strcpy(name, Netgame.team_name[i]);
+		else if (Game_mode & GM_BOUNTY && GameTime64&0x10000)
+			strcpy(name,"[TARGET]");
 		else
 			strcpy(name,Players[player_num].callsign);	// Note link to above if!!
 		gr_get_string_size(name,&sw,&sh,&aw);
@@ -2553,39 +2555,40 @@ int see_object(int objnum)
 //show names of teammates & players carrying flags
 void show_HUD_names()
 {
-	int show_team_names,show_all_names,show_flags,player_team;
-	int p;
+	int show_team_names,show_all_names,show_indi,player_team;
+	int pnum;
 
 	show_all_names = ((Newdemo_state == ND_STATE_PLAYBACK) || (Netgame.ShowAllNames && Show_reticle_name));
 	show_team_names = (((Game_mode & GM_MULTI_COOP) || (Game_mode & GM_TEAM)) && Show_reticle_name);
-	show_flags = (Game_mode & GM_CAPTURE) | (Game_mode & GM_HOARD);
+	show_indi = Game_mode & ( GM_CAPTURE | GM_HOARD | GM_BOUNTY );
 
-	if (! (show_all_names || show_team_names || show_flags))
+	if (! (show_all_names || show_team_names || show_indi))
 		return;
 
 	player_team = get_team(Player_num);
 
-	for (p=0;p<N_players;p++) {	//check all players
+	for (pnum=0;pnum<N_players;pnum++) {	//check all players
 		int objnum;
-		int show_name,has_flag;
+		int show_name,has_indi;
+		int show_bounty = ( Game_mode & GM_BOUNTY && pnum == Bounty_target );
 
-		show_name = ((show_all_names && !(Players[p].flags & PLAYER_FLAGS_CLOAKED)) || (show_team_names && get_team(p)==player_team));
-		has_flag = (Players[p].connected && Players[p].flags & PLAYER_FLAGS_FLAG);
-
+		show_name = ((show_all_names && !(Players[pnum].flags & PLAYER_FLAGS_CLOAKED)) || (show_team_names && get_team(pnum)==player_team)) || show_bounty;
+		has_indi = (Players[pnum].connected && Players[pnum].flags & PLAYER_FLAGS_FLAG) || show_bounty;
+		
 		if (Newdemo_state == ND_STATE_PLAYBACK) {
 			//if this is a demo, the objnum in the player struct is wrong,
 			//so we search the object list for the objnum
 
 			for (objnum=0;objnum<=Highest_object_index;objnum++)
-				if (Objects[objnum].type==OBJ_PLAYER && Objects[objnum].id == p)
+				if (Objects[objnum].type==OBJ_PLAYER && Objects[objnum].id == pnum)
 					break;
 			if (objnum > Highest_object_index)		//not in list, thus not visible
-				show_name = has_flag = 0;				//..so don't show name
+				show_name = has_indi = 0;				//..so don't show name
 		}
 		else
-			objnum = Players[p].objnum;
+			objnum = Players[pnum].objnum;
 
-		if ((show_name || has_flag) && see_object(objnum)) {
+		if ((show_name || has_indi) && see_object(objnum)) {
 			g3s_point player_point;
 
 			g3_rotate_point(&player_point,&Objects[objnum].pos);
@@ -2606,9 +2609,14 @@ void show_HUD_names()
 						int x1, y1;
 						int color_num;
 
-						color_num = (Game_mode & GM_TEAM)?get_team(p):p;
+						color_num = (Game_mode & GM_TEAM)?get_team(pnum):pnum;
 
-						sprintf(s, "%s", Players[p].callsign);
+						/* Set the text to show */
+						if( Game_mode & GM_BOUNTY && pnum == Bounty_target )
+							strcpy( s, "Target" );
+						else
+							sprintf(s, "%s", Players[pnum].callsign);
+						
 						gr_get_string_size(s, &w, &h, &aw);
 						gr_set_fontcolor(BM_XRGB(player_rgb[color_num].r,player_rgb[color_num].g,player_rgb[color_num].b),-1 );
 						x1 = f2i(x)-w/2;
@@ -2616,7 +2624,9 @@ void show_HUD_names()
 						gr_string (x1, y1, s);
 					}
 
-					if (has_flag) {				// Draw box on HUD
+					/* Draw box on HUD */
+					if (has_indi)
+					{
 						fix dx,dy,w,h;
 
 						dy = -fixmuldiv(fixmul(Objects[objnum].size,Matrix_scale.y),i2f(grd_curcanv->cv_bitmap.bm_h)/2,player_point.p3_z);
@@ -2626,14 +2636,16 @@ void show_HUD_names()
 						h = dy/4;
 
 						if (Game_mode & GM_CAPTURE)
-							gr_setcolor((get_team(p) == TEAM_BLUE)?BM_XRGB(31,0,0):BM_XRGB(0,0,31));
+							gr_setcolor((get_team(pnum) == TEAM_BLUE)?BM_XRGB(31,0,0):BM_XRGB(0,0,31));
 						else if (Game_mode & GM_HOARD)
 						{
 							if (Game_mode & GM_TEAM)
-								gr_setcolor((get_team(p) == TEAM_RED)?BM_XRGB(31,0,0):BM_XRGB(0,0,31));
+								gr_setcolor((get_team(pnum) == TEAM_RED)?BM_XRGB(31,0,0):BM_XRGB(0,0,31));
 							else
 								gr_setcolor(BM_XRGB(0,31,0));
 						}
+						else if( Game_mode & GM_BOUNTY )
+							gr_setcolor( BM_XRGB( player_rgb[pnum].r, player_rgb[pnum].g, player_rgb[pnum].b ) );
 
 						gr_line(x+dx-w,y-dy,x+dx,y-dy);
 						gr_line(x+dx,y-dy,x+dx,y-dy+h);
@@ -2702,9 +2714,11 @@ void draw_hud()
 		if (PlayerCfg.CockpitMode[1] != CM_LETTERBOX && PlayerCfg.CockpitMode[1] != CM_REAR_VIEW)
 			hud_show_flag();
 
-		if (PlayerCfg.CockpitMode[1] != CM_LETTERBOX && PlayerCfg.CockpitMode[1] != CM_REAR_VIEW)
+		if( PlayerCfg.CockpitMode[1] != CM_LETTERBOX && PlayerCfg.CockpitMode[1] != CM_REAR_VIEW )
+		{
 			hud_show_orbs();
-
+		}
+		
 #endif
 		HUD_render_message_frame();
 
