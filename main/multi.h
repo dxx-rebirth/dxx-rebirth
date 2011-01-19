@@ -318,6 +318,9 @@ extern short team_kills[2];
 
 extern int multi_goto_secret;
 
+extern char *GMNames[9];
+extern char *GMNamesShrt[9];
+
 extern ushort my_segments_checksum;
 
 //do we draw the kill list on the HUD?

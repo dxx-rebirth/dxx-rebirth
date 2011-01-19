@@ -160,7 +160,6 @@ void show_netplayerinfo()
 {
 	int x=0, y=0, i=0, color=0, eff=0;
 	char *eff_strings[]={"trashing","really hurting","seriously effecting","hurting","effecting","tarnishing"};
-	char *NetworkModeNames[]={"Anarchy","Team Anarchy","Robo Anarchy","Cooperative","Capture the Flag","Hoard","Team Hoard","Bounty","Unknown"};
 
 	gr_set_current_canvas(NULL);
 	gr_set_curfont(GAME_FONT);
@@ -182,7 +181,7 @@ void show_netplayerinfo()
 
 	x+=FSPACX(8);
 	y+=LINE_SPACING*2;
-	gr_printf(x,y,"game mode: %s",NetworkModeNames[Netgame.gamemode]);
+	gr_printf(x,y,"game mode: %s",GMNames[Netgame.gamemode]);
 	y+=LINE_SPACING;
 	gr_printf(x,y,"difficulty: %s",MENU_DIFFICULTY_TEXT(Netgame.difficulty));
 	y+=LINE_SPACING;

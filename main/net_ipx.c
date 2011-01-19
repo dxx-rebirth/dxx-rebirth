@@ -3561,8 +3561,6 @@ void restart_net_searching(newmenu_item * m)
 	num_active_ipx_changed = 1;
 }
 
-char *ModeLetters[]={"ANRCHY","TEAM","ROBO","COOP","FLAG","HOARD","TMHOARD"};
-
 void net_ipx_join_listen(newmenu *menu)
 {
 	newmenu_item *menus = newmenu_get_items(menu);
@@ -3644,7 +3642,7 @@ void net_ipx_join_listen(newmenu *menu)
 		if (game_status == NETSTAT_STARTING)
 		{
 			sprintf (menus[i+2].text,"%d.\t%s \t%s \t  %d/%d \t%s \t %s \t%s",
-					 i+1,GameName,ModeLetters[Active_ipx_games[i].gamemode],nplayers,
+					 i+1,GameName,GMNamesShrt[Active_ipx_games[i].gamemode],nplayers,
 					 Active_ipx_games[i].max_numplayers,MissName,levelname,"Forming");
 		}
 		else if (game_status == NETSTAT_PLAYING)
@@ -3653,25 +3651,25 @@ void net_ipx_join_listen(newmenu *menu)
 
 			if (join_status==1)
 				sprintf (menus[i+2].text,"%d.\t%s \t%s \t  %d/%d \t%s \t %s \t%s",
-						 i+1,GameName,ModeLetters[Active_ipx_games[i].gamemode],nplayers,
+						 i+1,GameName,GMNamesShrt[Active_ipx_games[i].gamemode],nplayers,
 						 Active_ipx_games[i].max_numplayers,MissName,levelname,"Open");
 			else if (join_status==2)
 				sprintf (menus[i+2].text,"%d.\t%s \t%s \t  %d/%d \t%s \t %s \t%s",
-						 i+1,GameName,ModeLetters[Active_ipx_games[i].gamemode],nplayers,
+						 i+1,GameName,GMNamesShrt[Active_ipx_games[i].gamemode],nplayers,
 						 Active_ipx_games[i].max_numplayers,MissName,levelname,"Full");
 			else if (join_status==3)
 				sprintf (menus[i+2].text,"%d.\t%s \t%s \t  %d/%d \t%s \t %s \t%s",
-						 i+1,GameName,ModeLetters[Active_ipx_games[i].gamemode],nplayers,
+						 i+1,GameName,GMNamesShrt[Active_ipx_games[i].gamemode],nplayers,
 						 Active_ipx_games[i].max_numplayers,MissName,levelname,"Restrict");
 			else
 				sprintf (menus[i+2].text,"%d.\t%s \t%s \t  %d/%d \t%s \t %s \t%s",
-						 i+1,GameName,ModeLetters[Active_ipx_games[i].gamemode],nplayers,
+						 i+1,GameName,GMNamesShrt[Active_ipx_games[i].gamemode],nplayers,
 						 Active_ipx_games[i].max_numplayers,MissName,levelname,"Closed");
 
 		}
 		else
 			sprintf (menus[i+2].text,"%d.\t%s \t%s \t  %d/%d \t%s \t %s \t%s",
-					 i+1,GameName,ModeLetters[Active_ipx_games[i].gamemode],nplayers,
+					 i+1,GameName,GMNamesShrt[Active_ipx_games[i].gamemode],nplayers,
 					 Active_ipx_games[i].max_numplayers,MissName,levelname,"Between");
 
 
@@ -5590,7 +5588,6 @@ static int show_game_info_handler(newmenu *menu, d_event *event, netgame_info *n
 int net_ipx_show_game_stats(int choice)
 {
 	char rinfo[512],*info=rinfo;
-	char *NetworkModeNames[]={"Anarchy","Team Anarchy","Robo Anarchy","Cooperative","Capture the Flag","Hoard","Team Hoard","Unknown"};
 	int c;
 	netgame_info *netgame = &Active_ipx_games[choice];
 
@@ -5605,7 +5602,7 @@ int net_ipx_show_game_stats(int choice)
 
 	info+=sprintf (info," - Lvl %i",netgame->levelnum);
 	info+=sprintf (info,"\n\nDifficulty: %s",MENU_DIFFICULTY_TEXT(netgame->difficulty));
-	info+=sprintf (info,"\nGame Mode: %s",NetworkModeNames[netgame->gamemode]);
+	info+=sprintf (info,"\nGame Mode: %s",GMNames[netgame->gamemode]);
 	info+=sprintf (info,"\nPlayers: %i/%i",netgame->numconnected,netgame->max_numplayers);
 
 	c=nm_messagebox1("WELCOME", (int (*)(newmenu *, d_event *, void *))show_game_info_handler, netgame, 2, "JOIN GAME", "GAME INFO", rinfo);

@@ -709,7 +709,7 @@ int net_udp_list_join_poll( newmenu *menu, d_event *event, direct_join *dj )
 		else
 			snprintf(status, sizeof(status), "BETWEEN ");
 		
-		snprintf (menus[i+2].text,sizeof(char)*74,"%d.\t%s \t%s \t  %d/%d \t%s \t %s \t%s",(i+(NLPage*UDP_NETGAMES_PPAGE))+1,GameName,MODE_NAMES(Active_udp_games[(i+(NLPage*UDP_NETGAMES_PPAGE))].gamemode),nplayers, Active_udp_games[(i+(NLPage*UDP_NETGAMES_PPAGE))].max_numplayers,MissName,levelname,status);
+		snprintf (menus[i+2].text,sizeof(char)*74,"%d.\t%s \t%s \t  %d/%d \t%s \t %s \t%s",(i+(NLPage*UDP_NETGAMES_PPAGE))+1,GameName,GMNamesShrt[Active_udp_games[(i+(NLPage*UDP_NETGAMES_PPAGE))].gamemode],nplayers, Active_udp_games[(i+(NLPage*UDP_NETGAMES_PPAGE))].max_numplayers,MissName,levelname,status);
 			
 		Assert(strlen(menus[i+2].text) < 75);
 	}
@@ -5030,7 +5030,6 @@ static int show_game_info_handler(newmenu *menu, d_event *event, netgame_info *n
 int net_udp_show_game_info()
 {
 	char rinfo[512],*info=rinfo;
-	char *NetworkModeNames[]={"Anarchy","Team Anarchy","Robo Anarchy","Cooperative","Capture the Flag","Hoard","Team Hoard","Bounty","Unknown"};
 	int c;
 	netgame_info *netgame = &Netgame;
 
@@ -5045,7 +5044,7 @@ int net_udp_show_game_info()
 
 	info+=sprintf (info," - Lvl %i",netgame->levelnum);
 	info+=sprintf (info,"\n\nDifficulty: %s",MENU_DIFFICULTY_TEXT(netgame->difficulty));
-	info+=sprintf (info,"\nGame Mode: %s",NetworkModeNames[netgame->gamemode]);
+	info+=sprintf (info,"\nGame Mode: %s",GMNames[netgame->gamemode]);
 	info+=sprintf (info,"\nPlayers: %i/%i",netgame->numconnected,netgame->max_numplayers);
 
 	c=nm_messagebox1("WELCOME", (int (*)(newmenu *, d_event *, void *))show_game_info_handler, netgame, 2, "JOIN GAME", "GAME INFO", rinfo);

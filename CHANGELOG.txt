@@ -4,6 +4,7 @@ D2X-Rebirth Changelog
 --------
 main/game.h, main/gamerend.c, main/gauges.c, main/multi.c, main/multi.h, main/net_udp.c: Introducing new BOUNTY Multiplayer game mode by Matt "1360" Vandermeulen <matt1360@gmail.com>
 main/gauges.c, main/multi.c: Fix for showing bounty target in kill list - was not actually checking if player_num == Bounty_target; When Bounty_target player leaves game host must select a new target so the game can proceed
+main/gamerend.c, main/multi.c, main/multi.h, main/net_ipx.c, main/net_udp.c, main/text.h: On NETGAMES list Bounty mode was not shown since MODE_NAMES define was not adjusted - so in the end introduced GMNames and GMNamesShrt Arrays in multi.c for globally displaying full or short Multiplayer game mode names
 
 20110118
 --------
