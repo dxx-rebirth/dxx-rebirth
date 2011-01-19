@@ -749,8 +749,6 @@ extern char *Text_string[];
 #define CONNECT_STATES(state_num) (*(&TXT_NET_DISCONNECTED + (state_num)))
 // Network dump strings
 #define NET_DUMP_STRINGS(dump_num) (*(&TXT_NET_GAME_CLOSED + (dump_num)))
-#define MODE_NAMES(mode_num) (*(&TXT_ANARCHY + (mode_num)))
-#define MODEM_ERROR_MESS(error_num) (*(&TXT_NO_DIAL_TONE + (error_num)))
 #define MENU_DIFFICULTY_TEXT(difficulty) (*(&TXT_DIFFICULTY_1 + (difficulty)))
 #define MENU_DETAIL_TEXT(detail) (*(&TXT_DETAIL_1 + (detail)))
 

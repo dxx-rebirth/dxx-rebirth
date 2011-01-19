@@ -127,6 +127,8 @@ int 	multi_goto_secret = 0;
 short	team_kills[2];
 int 	multi_quit_game = 0;
 int 	PacketUrgent = 0;
+char *GMNames[8]={"Anarchy","Team Anarchy","Robo Anarchy","Cooperative","Unknown","","","Bounty"};
+char *GMNamesShrt[8]={"ANRCHY","TEAM","ROBO","COOP","UNKNOWN","","","BOUNTY"};
 
 // For rejoin object syncing (used here and all protocols - globally)
 

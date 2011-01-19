@@ -273,6 +273,8 @@ extern short kill_matrix[MAX_NUM_NET_PLAYERS][MAX_NUM_NET_PLAYERS];
 extern short team_kills[2];
 
 extern int multi_goto_secret;
+extern char *GMNames[8];
+extern char *GMNamesShrt[8];
 
 extern ushort my_segments_checksum;
 
