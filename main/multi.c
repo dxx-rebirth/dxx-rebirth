@@ -1998,6 +1998,24 @@ multi_do_quit(char *buf)
 		{
 			HUD_init_message(HM_MULTI, "You are the only person remaining in this netgame");
 		}
+
+		// Bounty target left - select a new one
+		if( Game_mode & GM_BOUNTY && buf[1] == Bounty_target && multi_i_am_master() )
+		{
+			/* Select a random number */
+			int new_bounty_target = d_rand() % MAX_NUM_NET_PLAYERS;
+			
+			/* Make sure they're valid: Don't check against kill flags,
+			 * just in case everyone's dead! */
+			while( !Players[new_bounty_target].connected )
+				new_bounty_target = d_rand() % MAX_NUM_NET_PLAYERS;
+			
+			/* Select new target */
+			multi_new_bounty_target( new_bounty_target );
+			
+			/* Send this new data */
+			multi_send_bounty();
+		}
 	}
 
 	return;
