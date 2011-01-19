@@ -37,24 +37,6 @@
 #define MIX_OUTPUT_FORMAT	AUDIO_S16
 #define MIX_OUTPUT_CHANNELS	2
 
-//edited 05/17/99 Matt Mueller - added ifndef NO_ASM
-//added on 980905 by adb to add inline fixmul for mixer on i386
-#ifndef NO_ASM
-#ifdef __i386__
-#define do_fixmul(x,y)				\
-({						\
-	int _ax, _dx;				\
-	asm("imull %2\n\tshrdl %3,%1,%0"	\
-	    : "=a"(_ax), "=d"(_dx)		\
-	    : "rm"(y), "i"(16), "0"(x));	\
-	_ax;					\
-})
-extern inline fix fixmul(fix x, fix y) { return do_fixmul(x,y); }
-#endif
-#endif
-//end edit by adb
-//end edit -MM
-
 #define MAX_SOUND_SLOTS 64
 #if !((defined(__APPLE__) && defined(__MACH__)) || defined(macintosh))
 #define SOUND_BUFFER_SIZE 2048

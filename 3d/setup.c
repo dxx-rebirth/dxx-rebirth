@@ -1,3 +1,4 @@
+/* $Id: setup.c,v 1.1.1.1 2006/03/17 19:52:10 zicodxx Exp $ */
 /*
 THE COMPUTER CODE CONTAINED HEREIN IS THE SOLE PROPERTY OF PARALLAX
 SOFTWARE CORPORATION ("PARALLAX").  PARALLAX, IN DISTRIBUTING THE CODE TO
@@ -11,47 +12,13 @@ AND AGREES TO THE TERMS HEREIN AND ACCEPTS THE SAME BY USE OF THIS FILE.
 COPYRIGHT 1993-1998 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 */
 /*
- * $Source: /cvsroot/dxx-rebirth/d1x-rebirth/3d/setup.c,v $
- * $Revision: 1.1.1.1 $
- * $Author: zicodxx $
- * $Date: 2006/03/17 19:39:03 $
  * 
  * Setup for 3d library
  * 
- * $Log: setup.c,v $
- * Revision 1.1.1.1  2006/03/17 19:39:03  zicodxx
- * initial import
- *
- * Revision 1.3  1999/10/07 02:27:14  donut
- * OGL includes to remove warnings
- *
- * Revision 1.2  1999/09/21 04:05:55  donut
- * mostly complete OGL implementation (still needs bitmap handling (reticle), and door/fan textures are corrupt)
- *
- * Revision 1.1.1.1  1999/06/14 21:57:50  donut
- * Import of d1x 1.37 source.
- *
- * Revision 1.4  1995/10/11  00:27:04  allender
- * bash free_num_points to 0
- *
- * Revision 1.3  1995/09/13  11:31:58  allender
- * calc for fCanv_w2 and fCanv_h2
- *
- * Revision 1.2  1995/06/25  21:57:57  allender
- * *** empty log message ***
- *
- * Revision 1.1  1995/05/05  08:52:54  allender
- * Initial revision
- *
- * Revision 1.1  1995/04/17  03:59:01  matt
- * Initial revision
- * 
- * 
  */
 
-
 #ifdef RCS
-static char rcsid[] = "$Id: setup.c,v 1.1.1.1 2006/03/17 19:39:03 zicodxx Exp $";
+static char rcsid[] = "$Id: setup.c,v 1.1.1.1 2006/03/17 19:52:10 zicodxx Exp $";
 #endif
 
 #include <stdlib.h>
@@ -65,9 +32,9 @@ static char rcsid[] = "$Id: setup.c,v 1.1.1.1 2006/03/17 19:39:03 zicodxx Exp $"
 
 #ifdef OGL
 #include "ogl_init.h"
+#else
+#include "texmap.h"  // for init_interface_vars_to_assembler()
 #endif
-
-extern void init_interface_vars_to_assembler(void);
 
 //start the frame
 void g3_start_frame(void)
@@ -99,24 +66,16 @@ void g3_start_frame(void)
 
 	init_free_points();
 
-#ifdef D1XD3D
-	Win32_start_frame ();
-#else
 #ifdef OGL
 	ogl_start_frame();
 #else
 	init_interface_vars_to_assembler();		//for the texture-mapper
 #endif
-#endif
-
 }
 
 //this doesn't do anything, but is here for completeness
 void g3_end_frame(void)
 {
-#ifdef D1XD3D
-	Win32_end_frame ();
-#endif
 #ifdef OGL
 	ogl_end_frame();
 #endif

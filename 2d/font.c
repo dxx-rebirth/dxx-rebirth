@@ -990,7 +990,7 @@ grs_font * gr_init_font( char * fontname )
 		
 		colormap[255] = 255;
 		
-		decode_data_asm(newfont->ft_data, ptr-newfont->ft_data, colormap, freq );
+		decode_data(newfont->ft_data, ptr-newfont->ft_data, colormap, freq );
 	}
 	
 	cfclose(fontfile);

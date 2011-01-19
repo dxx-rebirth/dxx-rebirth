@@ -7,7 +7,7 @@ IN USING, DISPLAYING,  AND CREATING DERIVATIVE WORKS THEREOF, SO LONG AS
 SUCH USE, DISPLAY OR CREATION IS FOR NON-COMMERCIAL, ROYALTY OR REVENUE
 FREE PURPOSES.  IN NO EVENT SHALL THE END-USER USE THE COMPUTER CODE
 CONTAINED HEREIN FOR REVENUE-BEARING PURPOSES.  THE END-USER UNDERSTANDS
-AND AGREES TO THE TERMS HEREIN AND ACCEPTS THE SAME BY USE OF THIS FILE.  
+AND AGREES TO THE TERMS HEREIN AND ACCEPTS THE SAME BY USE OF THIS FILE.
 COPYRIGHT 1993-1998 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 */
 
@@ -18,7 +18,7 @@ COPYRIGHT 1993-1998 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
  */
 
 #include <stdlib.h>
-#include <math.h>			// for sqrt
+#include <math.h>           // for sqrt
 
 #include "maths.h"
 #include "vecmat.h"
@@ -26,11 +26,10 @@ COPYRIGHT 1993-1998 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 
 //#define USE_ISQRT 1
 
-#ifdef NO_ASM
-vms_vector vmd_zero_vector = {0,0,0};
-vms_matrix vmd_identity_matrix = {	{ f1_0,0,0 },
-												{ 0,f1_0,0 },
-												{0,0,f1_0} };
+vms_vector vmd_zero_vector = {0, 0, 0};
+vms_matrix vmd_identity_matrix = { { f1_0, 0, 0 },
+                                   { 0, f1_0, 0 },
+                                   { 0, 0, f1_0 } };
 
 //adds two vectors, fills in dest, returns ptr to dest
 //ok for dest to equal either source, but should use vm_vec_add2() if so
@@ -147,9 +146,17 @@ vms_vector *vm_vec_scale_add2(vms_vector *dest,vms_vector *src,fix k)
 //dest *= n/d
 vms_vector *vm_vec_scale2(vms_vector *dest,fix n,fix d)
 {
+#if 1 // DPH: Kludge: this was overflowing a lot, so I made it use the FPU.
+	float nd;
+	nd = f2fl(n) / f2fl(d);
+	dest->x = fl2f( f2fl(dest->x) * nd);
+	dest->y = fl2f( f2fl(dest->y) * nd);
+	dest->z = fl2f( f2fl(dest->z) * nd);
+#else
 	dest->x = fixmuldiv(dest->x,n,d);
 	dest->y = fixmuldiv(dest->y,n,d);
 	dest->z = fixmuldiv(dest->z,n,d);
+#endif
 
 	return dest;
 }
@@ -157,7 +164,7 @@ vms_vector *vm_vec_scale2(vms_vector *dest,fix n,fix d)
 fix vm_vec_dotprod(vms_vector *v0,vms_vector *v1)
 {
 #if 0
-	quad q;
+	quadint q;
 
 	q.low = q.high = 0;
 
@@ -179,7 +186,7 @@ fix vm_vec_dotprod(vms_vector *v0,vms_vector *v1)
 fix vm_vec_dot3(fix x,fix y,fix z,vms_vector *v)
 {
 #if 0
-	quad q;
+	quadint q;
 
 	q.low = q.high = 0;
 
@@ -201,7 +208,7 @@ fix vm_vec_dot3(fix x,fix y,fix z,vms_vector *v)
 //returns magnitude of a vector
 fix vm_vec_mag(vms_vector *v)
 {
-	quad q;
+	quadint q;
 
 	q.low = q.high = 0;
 
@@ -307,7 +314,7 @@ fix vm_vec_copy_normalize_quick(vms_vector *dest,vms_vector *src)
 //returns approximation of 1/magnitude of a vector
 fix vm_vec_imag(vms_vector *v)
 {
-	quad q;
+	quadint q;
 
 	q.low = q.high = 0;
 
@@ -463,7 +470,7 @@ vms_vector *vm_vec_crossprod(vms_vector *dest,vms_vector *src0,vms_vector *src1)
 
 vms_vector *vm_vec_crossprod(vms_vector *dest,vms_vector *src0,vms_vector *src1)
 {
-	quad q;
+	quadint q;
 
 	Assert(dest!=src0 && dest!=src1);
 
@@ -805,8 +812,6 @@ vms_matrix *vm_matrix_x_matrix(vms_matrix *dest,vms_matrix *src0,vms_matrix *src
 
 	return dest;
 }
-#endif
-
 
 //extract angles from a matrix 
 vms_angvec *vm_extract_angles_matrix(vms_angvec *a,vms_matrix *m)
@@ -893,9 +898,8 @@ fix vm_dist_to_plane(vms_vector *checkp,vms_vector *norm,vms_vector *planep)
 
 }
 
-vms_vector *vm_vec_make(vms_vector *v,fix x,fix y,fix z) {
+vms_vector *vm_vec_make(vms_vector *v,fix x,fix y,fix z)
+{
 	v->x=x; v->y=y; v->z=z;
 	return v;
 }
-
-

@@ -78,9 +78,6 @@ typedef struct g3s_codes {
 //if rotated, and flag to indicate if projected.
 typedef struct g3s_point {
 	vms_vector p3_vec;         //reference as vector...
-#ifdef D1XD3D
-	vms_vector p3_orig;
-#endif
 	fix p3_u,p3_v,p3_l;
 	fix p3_sx,p3_sy;		//screen x&y
 	ubyte p3_codes;		//clipping codes

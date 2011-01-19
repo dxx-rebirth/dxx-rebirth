@@ -1,3 +1,4 @@
+/* $Id: matrix.c,v 1.1.1.1 2006/03/17 19:52:11 zicodxx Exp $ */
 /*
 THE COMPUTER CODE CONTAINED HEREIN IS THE SOLE PROPERTY OF PARALLAX
 SOFTWARE CORPORATION ("PARALLAX").  PARALLAX, IN DISTRIBUTING THE CODE TO
@@ -11,32 +12,13 @@ AND AGREES TO THE TERMS HEREIN AND ACCEPTS THE SAME BY USE OF THIS FILE.
 COPYRIGHT 1993-1998 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 */
 /*
- * $Source: /cvsroot/dxx-rebirth/d1x-rebirth/3d/matrix.c,v $
- * $Revision: 1.1.1.1 $
- * $Author: zicodxx $
- * $Date: 2006/03/17 19:39:04 $
  * 
  * Matrix setup & manipulation routines
  * 
- * $Log: matrix.c,v $
- * Revision 1.1.1.1  2006/03/17 19:39:04  zicodxx
- * initial import
- *
- * Revision 1.1.1.1  1999/06/14 21:57:48  donut
- * Import of d1x 1.37 source.
- *
- * Revision 1.1  1995/05/05  08:52:11  allender
- * Initial revision
- *
- * Revision 1.1  1995/04/17  04:14:34  matt
- * Initial revision
- * 
- * 
  */
  
-
 #ifdef RCS
-static char rcsid[] = "$Id: matrix.c,v 1.1.1.1 2006/03/17 19:39:04 zicodxx Exp $";
+static char rcsid[] = "$Id: matrix.c,v 1.1.1.1 2006/03/17 19:52:11 zicodxx Exp $";
 #endif
 
 #include "3d.h"
@@ -52,10 +34,6 @@ void g3_set_view_angles(vms_vector *view_pos,vms_angvec *view_orient,fix zoom)
 
 	vm_angles_2_matrix(&View_matrix,view_orient);
 
-#ifdef D1XD3D
-	Win32_set_view_matrix ();
-#endif
-
 	scale_matrix();
 }
 
@@ -66,10 +44,6 @@ void g3_set_view_matrix(vms_vector *view_pos,vms_matrix *view_matrix,fix zoom)
 	View_position = *view_pos;
 
 	View_matrix = *view_matrix;
-
-#ifdef D1XD3D
-	Win32_set_view_matrix ();
-#endif
 
 	scale_matrix();
 }

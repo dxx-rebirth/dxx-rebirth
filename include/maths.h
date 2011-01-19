@@ -5,7 +5,7 @@
 
 #define NO_FIX_INLINE 1
 
-#include <stdlib.h>		// for RAND_MAX
+#include <stdlib.h>
 #include "pstypes.h"
 
 
@@ -22,12 +22,12 @@ typedef int64_t fix64;		//64 bits int, for timers
 typedef int32_t fix;		//16 bits int, 16 bits frac
 typedef int16_t fixang;		//angles
 
-typedef struct quad
+typedef struct quadint // integer 64 bit, previously called "quad"
   {
     u_int32_t low;
     int32_t high;
   }
-quad;
+quadint;
 
 
 //Convert an int to a fix/fix64 and back
@@ -70,115 +70,25 @@ fix fixdiv (fix a, fix b);
 
 //multiply two fixes, then divide by a third, return a fix
 fix fixmuldiv (fix a, fix b, fix c);
-#if 0
 
-//#else
+//multiply two fixes, and add 64-bit product to a quadint
+void fixmulaccum (quadint * q, fix a, fix b);
 
-//#ifdef __WATCOMC__
-fix fixmul (fix a, fix b);
+//extract a fix from a quadint product
+fix fixquadadjust (quadint * q);
 
-#pragma aux fixmul parm [eax] [edx] = \
-"imul	edx" \
-"shrd	eax,edx,16";
-
-
-
-fix fixdiv (fix a, fix b);
-
-#pragma aux fixdiv parm [eax] [ebx] modify exact [eax edx] = \
-"mov	edx,eax" \
-"sar	edx,16" \
-"shl	eax,16" \
-"idiv	ebx";
-
-
-fix fixmuldiv (fix a, fix b, fix c);
-
-#pragma aux fixmuldiv parm [eax] [edx] [ebx] modify exact [eax edx] = \
-"imul	edx" \
-"idiv	ebx";
-
-//#elif defined (__GNUC__)
-/*
-static inline fix
-fixmul (fix a, fix b)
-{
-  
-    fix __retval;
-  
-    asm (" imul   %2;"
-	 " shrd   $16,%%edx,%%eax" 
-: "=a" (__retval): "a" (a), "d" (b):"%edx");
-  
-    return __retval;
-  
-} */
-
-//multiply two fixes, return a fix
-fix fixmul (fix a, fix b);
-
-
-//divide two fixes, return a fix
-fix fixdiv (fix a, fix b);
-
-//multiply two fixes, then divide by a third, return a fix
-fix fixmuldiv (fix a, fix b, fix c);
-
-//#if 0
-static inline fix
-fixdiv (fix a, fix b)
-{
-  
-    register fix __retval;
-  
-    asm (" mov %%eax,%%edx;" 
-	 " sar $16,%%edx;" 
-	 " shl $16,%%eax;" 
-	 " idiv %%ecx" /* adb: how to make this %0 w/o chance of edx? */  
-: "=a" (__retval): "a" (a), "c" (b):"%edx");
-  
-    return __retval;
-  
-}
-
-static inline fix
-fixmuldiv (fix a, fix b, fix c)
-{
-  
-    register fix __retval;
-  
-    asm (" imul   %0;" 
-	 " idiv   %%ecx" /* adb: how to make this %0 w/o chance of edx? */  
-: "=a" (__retval): "a" (a), "r" (b), "c" (c):"%edx");
-  
-    return __retval;
-
-}
-//#endif
-
-//#endif // __GNUC__ / __WATCOMC__
-//#endif /* defined NO_FIX_INLINE || (!defined __GNUC__ && !defined __WATCOMC__) */
-
-#endif
-
-//multiply two fixes, and add 64-bit product to a quad
-void fixmulaccum (quad * q, fix a, fix b);
-
-//extract a fix from a quad product
-fix fixquadadjust (quad * q);
-
-//divide a quad by a long
+//divide a quadint by a long
 int32_t fixdivquadlong (u_int32_t qlow, u_int32_t qhigh, u_int32_t d);
 
-//negate a quad
-void fixquadnegate (quad * q);
+//negate a quadint
+void fixquadnegate (quadint * q);
 
 //computes the square root of a long, returning a short
 ushort long_sqrt (int32_t a);
 
-//computes the square root of a quad, returning a long
+//computes the square root of a quadint, returning a long
 u_int32_t quad_sqrt (u_int32_t low, int32_t high);
-//ulong quad_sqrt (long low, long high);
+//unsigned long quad_sqrt (long low, long high);
 
 //computes the square root of a fix, returning a fix
 fix fix_sqrt (fix a);

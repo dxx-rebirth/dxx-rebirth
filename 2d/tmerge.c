@@ -1,8 +1,6 @@
 // tmerge.c - C Texture merge routines for use with D1X
 // Ripped from ldescent by <dph-man@iname.com>
 
-#ifdef NO_ASM // If for some reason we have elected not to use assembler...
-
 #include "gr.h"
 
 void gr_merge_textures( ubyte * lower, ubyte * upper, ubyte * dest )
@@ -55,6 +53,3 @@ void gr_merge_textures_3( ubyte * lower, ubyte * upper, ubyte * dest )
 			*dest++ = c;
 		}
 }
-
-
-#endif

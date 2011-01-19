@@ -1,3 +1,4 @@
+/* $Id: points.c,v 1.1.1.1 2006/03/17 19:52:10 zicodxx Exp $ */
 /*
 THE COMPUTER CODE CONTAINED HEREIN IS THE SOLE PROPERTY OF PARALLAX
 SOFTWARE CORPORATION ("PARALLAX").  PARALLAX, IN DISTRIBUTING THE CODE TO
@@ -11,39 +12,14 @@ AND AGREES TO THE TERMS HEREIN AND ACCEPTS THE SAME BY USE OF THIS FILE.
 COPYRIGHT 1993-1998 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 */
 /*
- * $Source: /cvsroot/dxx-rebirth/d1x-rebirth/3d/points.c,v $
- * $Revision: 1.1.1.1 $
- * $Author: zicodxx $
- * $Date: 2006/03/17 19:39:03 $
  * 
  * Routines for point definition, rotation, etc.
- * 
- * $Log: points.c,v $
- * Revision 1.1.1.1  2006/03/17 19:39:03  zicodxx
- * initial import
- *
- * Revision 1.1.1.1  1999/06/14 21:57:49  donut
- * Import of d1x 1.37 source.
- *
- * Revision 1.3  1995/09/21  17:29:40  allender
- * changed project_point to overflow if z <= 0
- *
- * Revision 1.2  1995/09/13  11:31:28  allender
- * removed checkmuldiv from g3_project_point
- *
- * Revision 1.1  1995/05/05  08:52:35  allender
- * Initial revision
- *
- * Revision 1.1  1995/04/17  04:32:25  matt
- * Initial revision
- * 
  * 
  */
 
 #ifdef RCS
-static char rcsid[] = "$Id: points.c,v 1.1.1.1 2006/03/17 19:39:03 zicodxx Exp $";
+static char rcsid[] = "$Id: points.c,v 1.1.1.1 2006/03/17 19:52:10 zicodxx Exp $";
 #endif
-
 
 #include "3d.h"
 #include "globvars.h"
@@ -78,10 +54,6 @@ ubyte g3_rotate_point(g3s_point *dest,vms_vector *src)
 {
 	vms_vector tempv;
 
-#ifdef D1XD3D
-	dest->p3_orig = *src;
-#endif
-
 	vm_vec_sub(&tempv,src,&View_position);
 
 	vm_vec_rotate(&dest->p3_vec,&tempv,&View_matrix);
@@ -96,7 +68,7 @@ ubyte g3_rotate_point(g3s_point *dest,vms_vector *src)
 //returns true if div is ok, else false
 int checkmuldiv(fix *r,fix a,fix b,fix c)
 {
-	quad q,qt;
+	quadint q,qt;
 
 	q.low=q.high=0;
 	fixmulaccum(&q,a,b);
@@ -216,7 +188,7 @@ ubyte g3_add_delta_vec(g3s_point *dest,g3s_point *src,vms_vector *deltav)
 //calculate the depth of a point - returns the z coord of the rotated point
 fix g3_calc_point_depth(vms_vector *pnt)
 {
-	quad q;
+	quadint q;
 
 	q.low=q.high=0;
 	fixmulaccum(&q,(pnt->x - View_position.x),View_matrix.fvec.x);

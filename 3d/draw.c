@@ -1,3 +1,4 @@
+/* $Id: draw.c,v 1.1.1.1 2006/03/17 19:52:10 zicodxx Exp $ */
 /*
 THE COMPUTER CODE CONTAINED HEREIN IS THE SOLE PROPERTY OF PARALLAX
 SOFTWARE CORPORATION ("PARALLAX").  PARALLAX, IN DISTRIBUTING THE CODE TO
@@ -11,50 +12,13 @@ AND AGREES TO THE TERMS HEREIN AND ACCEPTS THE SAME BY USE OF THIS FILE.
 COPYRIGHT 1993-1998 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 */
 /*
- * $Source: /cvsroot/dxx-rebirth/d1x-rebirth/3d/draw.c,v $
- * $Revision: 1.1.1.1 $
- * $Author: zicodxx $
- * $Date: 2006/03/17 19:39:04 $
  * 
  * Drawing routines
- * 
- * $Log: draw.c,v $
- * Revision 1.1.1.1  2006/03/17 19:39:04  zicodxx
- * initial import
- *
- * Revision 1.3  1999/09/30 23:02:27  donut
- * opengl direct support for ingame and normal menus, fonts as textures, and automap support
- *
- * Revision 1.2  1999/09/21 04:05:54  donut
- * mostly complete OGL implementation (still needs bitmap handling (reticle), and door/fan textures are corrupt)
- *
- * Revision 1.1.1.1  1999/06/14 21:57:44  donut
- * Import of d1x 1.37 source.
- *
- * Revision 1.5  1995/10/11  00:27:17  allender
- * remove free_num_point settings to 0
- *
- * Revision 1.4  1995/09/14  14:08:27  allender
- * co -l 3d.h
- * g3_draw_sphere need to return value in new PPC stuff
- *
- * Revision 1.3  1995/09/13  11:30:35  allender
- * removed checkmuldiv in PPC implementation
- *
- * Revision 1.2  1995/06/25  21:57:41  allender
- * free_point_num problem
- *
- * Revision 1.1  1995/05/05  08:50:26  allender
- * Initial revision
- *
- * Revision 1.1  1995/04/17  05:13:45  matt
- * Initial revision
- * 
  * 
  */
 
 #ifdef RCS
-static char rcsid[] = "$Id: draw.c,v 1.1.1.1 2006/03/17 19:39:04 zicodxx Exp $";
+static char rcsid[] = "$Id: draw.c,v 1.1.1.1 2006/03/17 19:52:10 zicodxx Exp $";
 #endif
 
 #include "error.h"
@@ -231,7 +195,7 @@ free_points:
 	return ret;
 }
 
-#if (!(defined(D1XD3D) || defined(OGL)))
+#ifndef OGL
 //draw a flat-shaded face.
 //returns 1 if off screen, 0 if drew
 bool g3_draw_poly(int nv,g3s_point **pointlist)

@@ -162,9 +162,6 @@ bitmap_index piggy_register_bitmap( grs_bitmap * bmp, char * name, int in_file )
 {
 	bitmap_index temp;
 	Assert( Num_bitmap_files < MAX_BITMAP_FILES );
-#ifdef D1XD3D
-	Assert (bmp->iMagic == BM_MAGIC_NUMBER);
-#endif
 
 	temp.index = Num_bitmap_files;
 

@@ -1,3 +1,4 @@
+/* $Id: instance.c,v 1.1.1.1 2006/03/17 19:52:10 zicodxx Exp $ */
 /*
 THE COMPUTER CODE CONTAINED HEREIN IS THE SOLE PROPERTY OF PARALLAX
 SOFTWARE CORPORATION ("PARALLAX").  PARALLAX, IN DISTRIBUTING THE CODE TO
@@ -11,35 +12,10 @@ AND AGREES TO THE TERMS HEREIN AND ACCEPTS THE SAME BY USE OF THIS FILE.
 COPYRIGHT 1993-1998 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 */
 /*
- * $Source: /cvsroot/dxx-rebirth/d1x-rebirth/3d/instance.c,v $
- * $Revision: 1.1.1.1 $
- * $Author: zicodxx $
- * $Date: 2006/03/17 19:39:04 $
  * 
  * Instancing routines
  * 
- * $Log: instance.c,v $
- * Revision 1.1.1.1  2006/03/17 19:39:04  zicodxx
- * initial import
- *
- * Revision 1.1.1.1  1999/06/14 21:57:45  donut
- * Import of d1x 1.37 source.
- *
- * Revision 1.2  1995/06/12  12:36:57  allender
- * fixed bug where g3_start_instance_angles recursively called itself
- *
- * Revision 1.1  1995/05/05  08:51:27  allender
- * Initial revision
- *
- * Revision 1.1  1995/04/17  06:43:29  matt
- * Initial revision
- * 
- * 
  */
-
-#ifdef RCS
-static char rcsid[] = "$Id: instance.c,v 1.1.1.1 2006/03/17 19:39:04 zicodxx Exp $";
-#endif
 
 #include <stdlib.h>
 #include "error.h"
@@ -62,10 +38,6 @@ void g3_start_instance_matrix(vms_vector *pos,vms_matrix *orient)
 {
 	vms_vector tempv;
 	vms_matrix tempm,tempm2;
-
-#ifdef D1XD3D
-	Win32_start_instance_matrix (pos, orient);
-#endif
 
 	Assert(instance_depth<MAX_INSTANCE_DEPTH);
 
@@ -115,10 +87,6 @@ void g3_start_instance_angles(vms_vector *pos,vms_angvec *angles)
 //pops the old context
 void g3_done_instance()
 {
-#ifdef D1XD3D
-	Win32_done_instance ();
-#endif
-
 	instance_depth--;
 
 	Assert(instance_depth >= 0);

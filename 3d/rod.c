@@ -1,3 +1,4 @@
+/* $Id: rod.c,v 1.1.1.1 2006/03/17 19:52:09 zicodxx Exp $ */
 /*
 THE COMPUTER CODE CONTAINED HEREIN IS THE SOLE PROPERTY OF PARALLAX
 SOFTWARE CORPORATION ("PARALLAX").  PARALLAX, IN DISTRIBUTING THE CODE TO
@@ -11,37 +12,13 @@ AND AGREES TO THE TERMS HEREIN AND ACCEPTS THE SAME BY USE OF THIS FILE.
 COPYRIGHT 1993-1998 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 */
 /*
- * $Source: /cvsroot/dxx-rebirth/d1x-rebirth/3d/rod.c,v $
- * $Revision: 1.1.1.1 $
- * $Author: zicodxx $
- * $Date: 2006/03/17 19:39:03 $
  * 
  * Rod routines
- * 
- * $Log: rod.c,v $
- * Revision 1.1.1.1  2006/03/17 19:39:03  zicodxx
- * initial import
- *
- * Revision 1.2  1999/09/21 04:05:55  donut
- * mostly complete OGL implementation (still needs bitmap handling (reticle), and door/fan textures are corrupt)
- *
- * Revision 1.1.1.1  1999/06/14 21:57:50  donut
- * Import of d1x 1.37 source.
- *
- * Revision 1.2  1995/09/13  11:31:46  allender
- * removed checkmuldiv in PPC implemenation
- *
- * Revision 1.1  1995/05/05  08:52:45  allender
- * Initial revision
- *
- * Revision 1.1  1995/04/17  06:42:08  matt
- * Initial revision
- * 
  * 
  */
 
 #ifdef RCS
-static char rcsid[] = "$Id: rod.c,v 1.1.1.1 2006/03/17 19:39:03 zicodxx Exp $";
+static char rcsid[] = "$Id: rod.c,v 1.1.1.1 2006/03/17 19:52:09 zicodxx Exp $";
 #endif
 
 #include "3d.h"
@@ -152,7 +129,7 @@ bool g3_draw_rod_tmap(grs_bitmap *bitmap,g3s_point *bot_point,fix bot_width,g3s_
 int checkmuldiv(fix *r,fix a,fix b,fix c);
 #endif
 
-#if (!(defined(D1XD3D) || defined(OGL)))
+#ifndef OGL
 //draws a bitmap with the specified 3d width & height 
 //returns 1 if off screen, 0 if drew
 bool g3_draw_bitmap(vms_vector *pos,fix width,fix height,grs_bitmap *bm)
@@ -184,7 +161,7 @@ bool g3_draw_bitmap(vms_vector *pos,fix width,fix height,grs_bitmap *bm)
 	blob_vertices[1].x = blob_vertices[2].x = pnt.p3_sx + w;
 	blob_vertices[2].y = pnt.p3_sy + h;
 
-	scale_bitmap(bm,blob_vertices);
+	scale_bitmap(bm,blob_vertices,0);
 
 	return 0;
 #else
@@ -212,7 +189,7 @@ bool g3_draw_bitmap(vms_vector *pos,fix width,fix height,grs_bitmap *bm)
 	blob_vertices[1].x = blob_vertices[2].x = pnt.p3_sx + w;
 	blob_vertices[2].y = pnt.p3_sy + h;
 
-	scale_bitmap(bm,blob_vertices);
+	scale_bitmap(bm, blob_vertices, 0);
 
 	return 0;
 #endif

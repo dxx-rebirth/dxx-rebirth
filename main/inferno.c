@@ -153,7 +153,7 @@ void print_commandline_help()
 	printf( "  -norun             %s\n", "Bail out after initialization");
 	printf( "  -renderstats       %s\n", "Enable renderstats info by default");
 	printf( "  -text <s>          %s\n", "Specify alternate .tex file");
-	printf( "  -tmap <s>          %s\n", "Select texmapper to use (c,fp,quad,i386,pent,ppro)");
+	printf( "  -tmap <s>          %s\n", "Select texmapper to use (c,fp,quad,i386)");
 	printf( "  -showmeminfo       %s\n", "Show memory statistics");
 	printf( "  -nodoublebuffer    %s\n", "Disable Doublebuffering");
 	printf( "  -bigpig            %s\n", "Use uncompressed RLE bitmaps");

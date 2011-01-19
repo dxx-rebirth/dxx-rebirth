@@ -5,7 +5,6 @@
 #include <string.h>
 #include <alsa/asoundlib.h>
 #include <pthread.h>
-
 #include "error.h"
 #include "fix.h"
 #include "vecmat.h"
@@ -16,32 +15,10 @@
 #include "wall.h"
 #include "newdemo.h"
 #include "kconfig.h"
-
 #include "altsound.h"
 
-//edited 05/17/99 Matt Mueller - added ifndef NO_ASM
-//added on 980905 by adb to add inline fixmul for mixer on i386
-#ifndef NO_ASM
-#ifdef __i386__
-#define do_fixmul(x,y)				\
-({						\
-	int _ax, _dx;				\
-	asm("imull %2\n\tshrdl %3,%1,%0"	\
-	    : "=a"(_ax), "=d"(_dx)		\
-	    : "rm"(y), "i"(16), "0"(x));	\
-	_ax;					\
-})
-extern inline fix fixmul(fix x, fix y) { return do_fixmul(x,y); }
-#endif
-#endif
-//end edit by adb
-//end edit -MM
-
-//changed on 980905 by adb to increase number of concurrent sounds
 #define MAX_SOUND_SLOTS 32
-//end changes by adb
 #define SOUND_BUFFER_SIZE 512
-
 #define MIN_VOLUME 10
 
 /* This table is used to add two sound values together and pin

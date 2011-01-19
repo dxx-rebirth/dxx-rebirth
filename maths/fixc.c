@@ -7,7 +7,7 @@ IN USING, DISPLAYING,  AND CREATING DERIVATIVE WORKS THEREOF, SO LONG AS
 SUCH USE, DISPLAY OR CREATION IS FOR NON-COMMERCIAL, ROYALTY OR REVENUE
 FREE PURPOSES.  IN NO EVENT SHALL THE END-USER USE THE COMPUTER CODE
 CONTAINED HEREIN FOR REVENUE-BEARING PURPOSES.  THE END-USER UNDERSTANDS
-AND AGREES TO THE TERMS HEREIN AND ACCEPTS THE SAME BY USE OF THIS FILE.  
+AND AGREES TO THE TERMS HEREIN AND ACCEPTS THE SAME BY USE OF THIS FILE.
 COPYRIGHT 1993-1998 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 */
 
@@ -17,20 +17,19 @@ COPYRIGHT 1993-1998 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
  *
  */
 
-
 #include <stdlib.h>
 #include <math.h>
 
 #include "error.h"
 #include "maths.h"
 
-/* #ifdef NO_FIX_INLINE
+#ifdef NO_FIX_INLINE
 #ifdef _MSC_VER
 #pragma message ("warning: FIX NOT INLINED")
 #else
-#warning "FIX NOT INLINED"
+// #warning "FIX NOT INLINED"        fixc is now stable
 #endif
-#endif */
+#endif
 
 extern ubyte guess_table[];
 extern short sincos_table[];
@@ -39,14 +38,14 @@ extern ushort acos_table[];
 extern fix isqrt_guess_table[];
 
 //negate a quad
-void fixquadnegate(quad *q)
+void fixquadnegate(quadint *q)
 {
 	q->low  = 0 - q->low;
 	q->high = 0 - q->high - (q->low != 0);
 }
 
 //multiply two ints & add 64-bit result to 64-bit sum
-void fixmulaccum(quad *q,fix a,fix b)
+void fixmulaccum(quadint *q,fix a,fix b)
 {
 	u_int32_t aa,bb;
 	u_int32_t ah,al,bh,bl;
@@ -81,7 +80,7 @@ void fixmulaccum(quad *q,fix a,fix b)
 }
 
 //extract a fix from a quad product
-fix fixquadadjust(quad *q)
+fix fixquadadjust(quadint *q)
 {
 	return (q->high<<16) + (q->low>>16);
 }
@@ -102,7 +101,7 @@ fix fixmul(fix a, fix b) {
 	asm("imul %%edx; shrd $16,%%edx,%%eax" : "=a" (ret) : "a" (a), "d" (b) : "%edx");
         return ret;                                 */
 //         return (fix)((((QLONG)a)*b) >> 16);
-return (fix)((((QLONG) a) * b) / 65536);
+	return (fix)((((QLONG) a) * b) / 65536);
 }
 
 fix fixdiv(fix a, fix b)
@@ -112,7 +111,7 @@ fix fixdiv(fix a, fix b)
 /*        register fix ret;
 	asm("mov %%eax,%%edx; sar $16,%%edx; shl $16,%%eax; idiv %%ebx" : "=a" (ret) : "a" (a), "b" (b) : "%edx");
     return ret; */
-return b ? (fix)((((QLONG)a) *65536)/b) : 1;
+	return b ? (fix)((((QLONG)a) *65536)/b) : 1;
 }
 
 fix fixmuldiv(fix a, fix b, fix c)
@@ -127,7 +126,7 @@ fix fixmuldiv(fix a, fix b, fix c)
 	return (fix)(d / (double) c);
 */
 //         return (fix)((((QLONG)a)*b)/c);
-return c ? (fix)((((QLONG)a)*b)/c) : 1;
+	return c ? (fix)((((QLONG)a)*b)/c) : 1;
 }
 #endif
 
@@ -167,150 +166,23 @@ fixang fix_atan2(fix cos,fix sin)
 	}
 }
 
-#if 0
-#ifdef NO_FIX_INLINE
-//divide a quad by a fix, returning a fix
 int32_t fixdivquadlong(u_int32_t nl,u_int32_t nh,u_int32_t d)
 {
-	int i;
-	u_int32_t tmp0;
-	ubyte tmp1;
-	u_int32_t r;
-	ubyte T,Q,M;
-
-	r = 0;
-
-	Q = ((nh&0x80000000)!=0);
-	M = ((d&0x80000000)!=0);
-	T = (M!=Q);
-
-	if (M == 0)
-	{
-		for (i=0; i<32; i++ )   {
-	
-			r <<= 1;
-			r |= T;
-			T = ((nl&0x80000000L)!=0);
-			nl <<= 1;
-	
-			switch( Q ) {
-		
-			case 0:
-				Q = (unsigned char)((0x80000000L & nh) != 0 );
-				nh = (nh << 1) | (u_int32_t)T;
-
-				tmp0 = nh;
-				nh -= d;
-				tmp1 = (nh>tmp0);
-				if (Q == 0)
-					Q = tmp1;
-				else
-					Q = (unsigned char)(tmp1 == 0);
-				break;
-			case 1:
-				Q = (unsigned char)((0x80000000L & nh) != 0 );
-				nh = (nh << 1) | (u_int32_t)T;
-
-				tmp0 = nh;
-				nh += d;
-				tmp1 = (nh<tmp0);
-				if (Q == 0)
-					Q = tmp1;
-				else
-					Q = (unsigned char)(tmp1 == 0);
-				break;
-			}
-			T = (Q==M);
-		}
-	}
-	else
-	{
-		for (i=0; i<32; i++ )   {
-	
-			r <<= 1;
-			r |= T;
-			T = ((nl&0x80000000L)!=0);
-			nl <<= 1;
-	
-			switch( Q ) {
-		
-			case 0:
-				Q = (unsigned char)((0x80000000L & nh) != 0 );
-				nh = (nh << 1) | (u_int32_t)T;
-
-				tmp0 = nh;
-				nh += d;
-				tmp1 = (nh<tmp0);
-				if (Q == 1)
-					Q = tmp1;
-				else
-					Q = (unsigned char)(tmp1 == 0);
-				break;
-			case 1: 
-				Q = (unsigned char)((0x80000000L & nh) != 0 );
-				nh = (nh << 1) | (u_int32_t)T;
-
-				tmp0 = nh;
-				nh = nh - d;
-				tmp1 = (nh>tmp0);
-				if (Q == 1)
-					Q = tmp1;
-				else
-					Q = (unsigned char)(tmp1 == 0);
-				break;
-			}
-			T = (Q==M);
-		}
-	}
-
-	r = (r << 1) | T;
-
-	return r;
+	int64_t n = (int64_t)nl | (((int64_t)nh) << 32 );
+	return (signed int) (n / ((int64_t)d));
 }
 
 unsigned int fixdivquadlongu(uint nl, uint nh, uint d)
 {
-  return fixdivquadlong((u_int32_t) nl,(u_int32_t) nh,(u_int32_t) d);
+	u_int64_t n = (u_int64_t)nl | (((u_int64_t)nh) << 32 );
+	return (unsigned int) (n / ((u_int64_t)d));
 }
-#else
-int32_t fixdivquadlong(u_int32_t nl,u_int32_t nh,u_int32_t d) {
-int32_t a;
-__asm__("idivl %3"
-         :"=a" (a)
-         :"a" (nl), "d" (nh), "r" (d)
-         :"ax", "dx"
-         );
-return (a);
-}
-static inline u_int32_t fixdivquadlongu(u_int32_t nl,u_int32_t nh,u_int32_t d) {
-u_int32_t a;
-__asm__("divl %3"
-         :"=a" (a)
-	 :"a" (nl), "d" (nh), "r" (d)
-         :"ax", "dx"
-         );
-return (a);
-}
-#endif
-#else
-int32_t fixdivquadlong(u_int32_t nl,u_int32_t nh,u_int32_t d)
-{
-   int64_t n = (int64_t)nl | (((int64_t)nh) << 32 );
-   return (signed int) (n / ((int64_t)d));
-}
-
-unsigned int fixdivquadlongu(uint nl, uint nh, uint d)
-{
-   u_int64_t n = (u_int64_t)nl | (((u_int64_t)nh) << 32 );
-   return (unsigned int) (n / ((u_int64_t)d));
-}
-#endif
 
 u_int32_t quad_sqrt(u_int32_t low,int32_t high)
 {
 	int i, cnt;
 	u_int32_t r,old_r,t;
-	quad tq;
+	quadint tq;
 
 	if (high<0)
 		return 0;
@@ -332,9 +204,9 @@ u_int32_t quad_sqrt(u_int32_t low,int32_t high)
 
 	//quad loop usually executed 4 times
 
-	r = (fixdivquadlongu(low,high,r)+r)/2;
-	r = (fixdivquadlongu(low,high,r)+r)/2;
-	r = (fixdivquadlongu(low,high,r)+r)/2;
+	r = fixdivquadlongu(low,high,r)/2 + r/2;
+	r = fixdivquadlongu(low,high,r)/2 + r/2;
+	r = fixdivquadlongu(low,high,r)/2 + r/2;
 
 	do {
 
@@ -344,7 +216,7 @@ u_int32_t quad_sqrt(u_int32_t low,int32_t high)
 		if (t==r)	//got it!
 			return r;
  
-		r = (t+r)/2;
+		r = t/2 + r/2;
 
 	} while (!(r==t || r==old_r));
 
@@ -519,4 +391,3 @@ fix fix_isqrt( fix a )
 
 	return r;	
 }
-
