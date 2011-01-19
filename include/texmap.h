@@ -176,5 +176,7 @@ extern	int	SC2000;
 #define FIX_XLIMIT	(639 * F1_0)
 #define FIX_YLIMIT	(479 * F1_0)
 
+extern void init_interface_vars_to_assembler(void);
+
 #endif
 

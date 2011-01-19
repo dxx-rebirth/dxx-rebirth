@@ -349,7 +349,7 @@ void gr_get_string_size(char *s, int *string_width, int *string_height, int *ave
 void rotate_bitmap(grs_bitmap *bp, grs_point *vertbuf, int light_value);
 
 // From scale.c
-void scale_bitmap(grs_bitmap *bp, grs_point *vertbuf );
+void scale_bitmap(grs_bitmap *bp, grs_point *vertbuf, int orientation );
 
 //===========================================================================
 // Global variables

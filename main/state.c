@@ -515,7 +515,7 @@ int state_callback(newmenu *menu, d_event *event, grs_bitmap *sc_bmp[])
 			grs_canvas *temp_canv = gr_create_canvas(THUMBNAIL_W*2,(THUMBNAIL_H*24/10));
 			grs_point vertbuf[3] = {{0,0}, {0,0}, {i2f(THUMBNAIL_W*2),i2f(THUMBNAIL_H*24/10)} };
 			gr_set_current_canvas(temp_canv);
-			scale_bitmap(sc_bmp[citem-1], vertbuf);
+			scale_bitmap(sc_bmp[citem-1], vertbuf, 0);
 			gr_set_current_canvas( save_canv );
 #ifndef OGL
 			gr_bitmap( (grd_curcanv->cv_bitmap.bm_w-THUMBNAIL_W*2)/2,items[0].y-3, &temp_canv->cv_bitmap);
