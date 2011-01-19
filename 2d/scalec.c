@@ -216,56 +216,6 @@ void rls_stretch_scanline( )
 	}
 }
 
-#if 0
-void rls_stretch_scanline()
-{
-	ubyte   c;
-	int i, j, len, ErrorTerm, x;
-
-	// Setup initial variables
-	ErrorTerm = scale_error_term;
-
-	// Draw the first, partial run of pixels
-
-	c = *scale_source_ptr++;
-	if ( c != TRANSPARENCY_COLOR )  {
-		for (i=0; i<scale_initial_pixel_count; i++ )
-			*scale_dest_ptr++ = c;
-	} else {
-		scale_dest_ptr += scale_initial_pixel_count;
-	}
-
-	// Draw all full runs
-
-	for (j=0; j<scale_ydelta_minus_1; j++)	{
-		len = scale_whole_step;		// run is at least this long
-
- 		// Advance the error term and add an extra pixel if the error term so indicates
-		if ((ErrorTerm += scale_adj_up) > 0)	{
-			len++;
-			ErrorTerm -= scale_adj_down;   // reset the error term
-		}
-
-		// Draw this run o' pixels
-		c = *scale_source_ptr++;
-		if ( c != TRANSPARENCY_COLOR )	{
-			for (i=len; i>0; i-- )
-				*scale_dest_ptr++ = c;
-		} else {
-			scale_dest_ptr += len;
-		}
-	}
-
-	// Draw the final run of pixels
-	c = *scale_source_ptr++;
-	if ( c != TRANSPARENCY_COLOR )	{
-		for (i=0; i<scale_final_pixel_count; i++ )
-			*scale_dest_ptr++ = c;
-	} else {
-		scale_dest_ptr += scale_final_pixel_count;
-	}
-}
-#endif
 // old stuff here...
 
 void scale_bitmap_c(grs_bitmap *source_bmp, grs_bitmap *dest_bmp, int x0, int y0, int x1, int y1, fix u0, fix v0,  fix u1, fix v1, int orientation  )
@@ -306,20 +256,8 @@ void scale_bitmap_c(grs_bitmap *source_bmp, grs_bitmap *dest_bmp, int x0, int y0
 	}
 }
 
-void scale_row_asm_transparent( ubyte * sbits, ubyte * dbits, int width, fix u, fix du )
+void scale_row_transparent( ubyte * sbits, ubyte * dbits, int width, fix u, fix du )
 {
-#if 0
-	int i;
-	ubyte c;
-
-	for (i=0; i<width; i++ )	{
-		c = sbits[ u >> 16 ];
-		if ( c!=TRANSPARENCY_COLOR)
-			*dbits = c;
-		dbits++;
-		u += du;
-	}
-#endif
 	int i;
 	ubyte c;
 	ubyte *dbits_end = &dbits[width-1];
@@ -416,7 +354,7 @@ void scale_bitmap_c_rle(grs_bitmap *source_bmp, grs_bitmap *dest_bmp, int x0, in
 			last_row = f2i(v);
 			decode_row( source_bmp, last_row );
 		}
-		scale_row_asm_transparent( scale_rle_data, &dest_bmp->bm_data[dest_bmp->bm_rowsize*y+x0], x1-x0+1, u0, du );
+		scale_row_transparent( scale_rle_data, &dest_bmp->bm_data[dest_bmp->bm_rowsize*y+x0], x1-x0+1, u0, du );
 		v += dv;
 	}
 }
