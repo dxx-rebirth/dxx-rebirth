@@ -1742,6 +1742,24 @@ multi_do_quit(char *buf)
 		{
 			HUD_init_message(HM_MULTI, "You are the only person remaining in this netgame");
 		}
+
+		// Bounty target left - select a new one
+		if( Game_mode & GM_BOUNTY && buf[1] == Bounty_target && multi_i_am_master() )
+		{
+			/* Select a random number */
+			int new_bounty_target = d_rand() % MAX_NUM_NET_PLAYERS;
+			
+			/* Make sure they're valid: Don't check against kill flags,
+			 * just in case everyone's dead! */
+			while( !Players[new_bounty_target].connected )
+				new_bounty_target = d_rand() % MAX_NUM_NET_PLAYERS;
+			
+			/* Select new target */
+			multi_new_bounty_target( new_bounty_target );
+			
+			/* Send this new data */
+			multi_send_bounty();
+		}
 	}
 
 	return;
@@ -3315,7 +3333,7 @@ void multi_new_bounty_target( int pnum )
 		BM_XRGB( player_rgb[Bounty_target].r, player_rgb[Bounty_target].g, player_rgb[Bounty_target].b ),
 		Players[Bounty_target].callsign );
 
-	digi_play_sample( SOUND_CONTROL_CENTER_WARNING_SIREN, F1_0 * 2 );
+	digi_play_sample( SOUND_CONTROL_CENTER_WARNING_SIREN, F1_0 * 3 );
 }
 
 // Following functions convert object to object_rw and back. Mainly this is used for IPX backwards compability. However also for UDP this makes sense as object differs from object_rw mainly between fix/fix64-based timers. Those base on GameTime64 which is never synced between players so we set the times to something sane the clients can safely handle. IF object some day contains something useful clients should know about this should be changed.

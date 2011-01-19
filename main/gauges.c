@@ -2198,7 +2198,7 @@ void hud_show_kill_list()
 
 		if (Show_kill_list == 3)
 			strcpy(name, Netgame.team_name[i]);
-		else if (Game_mode & GM_BOUNTY && GameTime64&0x10000)
+		else if (Game_mode & GM_BOUNTY && player_num == Bounty_target && GameTime64&0x10000)
 			strcpy(name,"[TARGET]");
 		else
 			strcpy(name,Players[player_num].callsign);	// Note link to above if!!

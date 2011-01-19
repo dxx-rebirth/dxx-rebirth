@@ -3,6 +3,7 @@ D1X-Rebirth Changelog
 20110119
 --------
 include/3d.h, main/game.h, main/gamerend.c, main/gauges.c, main/multi.c, main/multi.h, main/net_udp.c: Introducing new BOUNTY Multiplayer game mode by Matt "1360" Vandermeulen <matt1360@gmail.com>; Fit show_HUD_names code to be more similar to D2X - names display still client-decided tho
+main/gauges.c, main/multi.c: Fix for showing bounty target in kill list - was not actually checking if player_num == Bounty_target; When Bounty_target player leaves game host must select a new target so the game can proceed; Made Bounty sound play a bit louder
 
 20110118
 --------
