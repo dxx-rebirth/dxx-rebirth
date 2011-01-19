@@ -71,6 +71,7 @@ extern int ft_preference;
 #define GM_UNKNOWN      64      // You are not in any mode, kind of dangerous...
 #define GM_GAME_OVER    128     // Game has been finished
 #define GM_TEAM         256     // Team mode for network play
+#define GM_BOUNTY       512     // New bounty mode by Matt1360
 #define GM_NORMAL       0       // You are in normal play mode, no multiplayer stuff
 #define GM_MULTI        38      // You are in some type of multiplayer game
 

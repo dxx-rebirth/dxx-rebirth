@@ -114,8 +114,9 @@ extern int multi_protocol; // set and determinate used protocol
 #define MULTI_POWCAP_UPDATE     	37
 #define MULTI_HEARTBEAT         	38
 #define MULTI_KILLGOALS			39
+#define MULTI_DO_BOUNTY                 40
 
-#define MULTI_MAX_TYPE                  39
+#define MULTI_MAX_TYPE                  40
 
 #define MAX_MULTI_MESSAGE_LEN  90 //didn't change it, just moved it up
 
@@ -127,6 +128,7 @@ extern int multi_protocol; // set and determinate used protocol
 #define NETGAME_TEAM_ANARCHY            1
 #define NETGAME_ROBOT_ANARCHY           2
 #define NETGAME_COOPERATIVE             3
+#define NETGAME_BOUNTY                  7
 
 #define NETSTAT_MENU                            0
 #define NETSTAT_PLAYING				1
@@ -208,6 +210,7 @@ void multi_send_score(void);
 void multi_send_trigger(int trigger);
 void multi_send_hostage_door_status(int wallnum);
 
+void multi_send_bounty( void );
 void multi_endlevel_score(void);
 void multi_consistency_error(int reset);
 void multi_prep_level(void);
@@ -299,6 +302,7 @@ extern int multi_powerup_is_4pack(int);
 extern void multi_message_feedback();
 
 extern int control_invul_time;
+extern int Bounty_target;
 
 #define N_PLAYER_SHIP_TEXTURES 6
 

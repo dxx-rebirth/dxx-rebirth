@@ -45,6 +45,7 @@ COPYRIGHT 1993-1998 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 struct object;
 
 extern int g3d_interp_outline;		//if on, polygon models outlined in white
+extern vms_vector Matrix_scale;     //how the matrix is currently scaled
 extern short highest_texture_num;
 
 //Structure for storing u,v,light values.  This structure doesn't have a

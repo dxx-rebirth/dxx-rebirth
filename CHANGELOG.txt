@@ -1,5 +1,9 @@
 D1X-Rebirth Changelog
 
+20110119
+--------
+include/3d.h, main/game.h, main/gamerend.c, main/gauges.c, main/multi.c, main/multi.h, main/net_udp.c: Introducing new BOUNTY Multiplayer game mode by Matt "1360" Vandermeulen <matt1360@gmail.com>; Fit show_HUD_names code to be more similar to D2X - names display still client-decided tho
+
 20110118
 --------
 main/gamecntl.c, main/gameseq.c: Allowing loading a savestate while being in death sequence and resetting Dead_player_camera correctly in init_player_stats_level() so forther death sequences won't screw up

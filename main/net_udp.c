@@ -1456,7 +1456,7 @@ void net_udp_send_objects(void)
 			Network_send_objects = 0;
 			obj_count = 0;
 
-			Network_sending_extras=2; // start to send extras
+			Network_sending_extras=3; // start to send extras
 			VerifyPlayerJoined = Player_joining_extras = player_num;
 
 			return;
@@ -2815,7 +2815,7 @@ int net_udp_game_param_handler( newmenu *menu, d_event *event, param_opt *opt )
 				Netgame.max_numplayers=MaxNumNetPlayers;
 			}
 
-			if ((citem >= opt->mode) && (citem <= opt->mode + 3))
+			if ((citem >= opt->mode) && (citem <= opt->mode + 4))
 			{
 				if ( menus[opt->mode].value )
 					Netgame.gamemode = NETGAME_ANARCHY;
@@ -2834,6 +2834,8 @@ int net_udp_game_param_handler( newmenu *menu, d_event *event, param_opt *opt )
 					Netgame.gamemode = NETGAME_ROBOT_ANARCHY;
 				else if ( menus[opt->mode+3].value ) 
 					Netgame.gamemode = NETGAME_COOPERATIVE;
+				else if ( menus[opt->mode+4].value )
+					Netgame.gamemode = NETGAME_BOUNTY;
 				else Int3(); // Invalid mode -- see Rob
 			}
 
@@ -2880,7 +2882,7 @@ int net_udp_setup_game()
 	int i;
 	int optnum;
 	param_opt opt;
-	newmenu_item m[21];
+	newmenu_item m[22];
 	char slevel[5];
 	char level_text[32];
 	char srmaxnet[50];
@@ -2943,6 +2945,7 @@ int net_udp_setup_game()
 	m[optnum].type = NM_TYPE_RADIO; m[optnum].text = TXT_TEAM_ANARCHY; m[optnum].value=(Netgame.gamemode == NETGAME_TEAM_ANARCHY); m[optnum].group=0; opt.team_anarchy=optnum; optnum++;
 	m[optnum].type = NM_TYPE_RADIO; m[optnum].text = TXT_ANARCHY_W_ROBOTS; m[optnum].value=(Netgame.gamemode == NETGAME_ROBOT_ANARCHY); m[optnum].group=0; optnum++;
 	m[optnum].type = NM_TYPE_RADIO; m[optnum].text = TXT_COOPERATIVE; m[optnum].value=(Netgame.gamemode == NETGAME_COOPERATIVE); m[optnum].group=0; opt.coop=optnum; optnum++;
+	m[optnum].type = NM_TYPE_RADIO; m[optnum].text = "Bounty"; m[optnum].value = ( Netgame.gamemode & NETGAME_BOUNTY ); m[optnum].group = 0; optnum++;
 
 	m[optnum].type = NM_TYPE_TEXT; m[optnum].text = ""; optnum++;
 
@@ -2986,6 +2989,8 @@ net_udp_set_game_mode(int gamemode)
 		Game_mode = GM_NETWORK | GM_TEAM;
                 Show_kill_list = 3;
 	}
+	else if( gamemode == NETGAME_BOUNTY )
+		Game_mode = GM_NETWORK | GM_BOUNTY;
 	else
 		Int3();
 }
@@ -4568,10 +4573,12 @@ void net_udp_send_extras ()
 
 	Assert (Player_joining_extras>-1);
 
-	if (Network_sending_extras==2 && (Netgame.PlayTimeAllowed || Netgame.KillGoal))
+	if (Network_sending_extras==3 && (Netgame.PlayTimeAllowed || Netgame.KillGoal))
 		multi_send_kill_goal_counts();
-	if (Network_sending_extras==1)
-		multi_send_powcap_update();  
+	if (Network_sending_extras==2)
+		multi_send_powcap_update();
+	if (Network_sending_extras==1 && Game_mode & GM_BOUNTY)
+		multi_send_bounty();
 
 	Network_sending_extras--;
 	if (!Network_sending_extras)
@@ -4697,7 +4704,7 @@ static int show_game_info_handler(newmenu *menu, d_event *event, netgame_info *n
 int net_udp_show_game_info()
 {
 	char rinfo[512],*info=rinfo;
-	char *NetworkModeNames[]={"Anarchy","Team Anarchy","Robo Anarchy","Cooperative","Unknown"};
+	char *NetworkModeNames[]={"Anarchy","Team Anarchy","Robo Anarchy","Cooperative","Unknown","","","Bounty"};
 	int c;
 	netgame_info *netgame = &Netgame;
 

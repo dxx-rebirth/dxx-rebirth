@@ -140,7 +140,7 @@ void show_framerate()
 void show_netplayerinfo()
 {
 	int x=0, y=0, i=0, color=0;
-	char *NetworkModeNames[]={"Anarchy","Team Anarchy","Robo Anarchy","Cooperative","Capture the Flag","Hoard","Team Hoard","Unknown"};
+	char *NetworkModeNames[]={"Anarchy","Team Anarchy","Robo Anarchy","Cooperative","Unknown","","","Bounty"};
 	
 	gr_set_current_canvas(NULL);
 	gr_set_curfont(GAME_FONT);

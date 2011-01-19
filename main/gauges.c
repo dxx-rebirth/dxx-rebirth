@@ -2198,6 +2198,8 @@ void hud_show_kill_list()
 
 		if (Show_kill_list == 3)
 			strcpy(name, Netgame.team_name[i]);
+		else if (Game_mode & GM_BOUNTY && GameTime64&0x10000)
+			strcpy(name,"[TARGET]");
 		else
 			strcpy(name,Players[player_num].callsign);	// Note link to above if!!
 		gr_get_string_size(name,&sw,&sh,&aw);
@@ -2228,74 +2230,129 @@ void hud_show_kill_list()
 }
 #endif
 
+//returns true if viewer can see object
+int see_object(int objnum)
+{
+	fvi_query fq;
+	int hit_type;
+	fvi_info hit_data;
+
+	//see if we can see this player
+
+	fq.p0 					= &Viewer->pos;
+	fq.p1 					= &Objects[objnum].pos;
+	fq.rad 					= 0;
+	fq.thisobjnum			= Viewer - Objects;
+	fq.flags 				= FQ_TRANSWALL | FQ_CHECK_OBJS;
+	fq.startseg				= Viewer->segnum;
+	fq.ignore_obj_list	= NULL;
+
+	hit_type = find_vector_intersection(&fq, &hit_data);
+
+	return (hit_type == HIT_OBJECT && hit_data.hit_object == objnum);
+}
+
 void show_HUD_names()
 {
-#ifdef NETWORK
-	int x = grd_curcanv->cv_bitmap.bm_w/2, y = grd_curcanv->cv_bitmap.bm_h/2;
+	int show_team_names,show_all_names,show_indi,player_team;
+	int pnum;
 
-	if ((Newdemo_state == ND_STATE_PLAYBACK) || (((Game_mode & GM_MULTI_COOP) || (Game_mode & GM_TEAM)) && Show_reticle_name))
-	{
-		// Draw player callsign for player in sights
-		fvi_query fq;
-		vms_vector orient;
-		int Hit_type;
-		fvi_info Hit_data;
+	show_all_names = ((Newdemo_state == ND_STATE_PLAYBACK) || (Show_reticle_name));
+	show_team_names = (((Game_mode & GM_MULTI_COOP) || (Game_mode & GM_TEAM)) && Show_reticle_name);
+	show_indi = Game_mode & GM_BOUNTY ;
 
-		fq.p0 		= &ConsoleObject->pos;
-		orient 		= ConsoleObject->orient.fvec;
-		vm_vec_scale(&orient, F1_0*1024);
-		vm_vec_add2(&orient, fq.p0);
-		fq.p1 		= &orient;
-		fq.rad 		= 0;
-		fq.thisobjnum = ConsoleObject - Objects;
-		fq.flags 	= FQ_TRANSWALL | FQ_CHECK_OBJS;
-		fq.startseg	= ConsoleObject->segnum;
-		fq.ignore_obj_list = NULL;
+	if (! (show_all_names || show_team_names || show_indi))
+		return;
 
-		Hit_type = find_vector_intersection(&fq, &Hit_data);
-		if ((Hit_type == HIT_OBJECT) && (Objects[Hit_data.hit_object].type == OBJ_PLAYER))
-		{
-			// Draw callsign on HUD
-			char s[CALLSIGN_LEN+1];
-			int w, h, aw;
-			int x1, y1;
-			int pnum;
-			int color_num;
+	player_team = get_team(Player_num);
 
-			pnum = Objects[Hit_data.hit_object].id;
+	for (pnum=0;pnum<N_players;pnum++) {	//check all players
+		int objnum;
+		int show_name,has_indi;
+		int show_bounty = ( Game_mode & GM_BOUNTY && pnum == Bounty_target );
 
-			if ((Game_mode & GM_TEAM) && (get_team(pnum) != get_team(Player_num)) && (Newdemo_state != ND_STATE_PLAYBACK))
-				return;
+		show_name = ((show_all_names && !(Players[pnum].flags & PLAYER_FLAGS_CLOAKED)) || (show_team_names && get_team(pnum)==player_team)) || show_bounty;
+		has_indi = show_bounty;
+		
+		if (Newdemo_state == ND_STATE_PLAYBACK) {
+			//if this is a demo, the objnum in the player struct is wrong,
+			//so we search the object list for the objnum
 
-			if (Game_mode & GM_TEAM)
-				color_num = get_team(pnum);
-			else
-				color_num = pnum;
-			sprintf(s, "%s", Players[pnum].callsign);
-			gr_get_string_size(s, &w, &h, &aw);
-			gr_set_fontcolor(BM_XRGB(player_rgb[color_num].r,player_rgb[color_num].g,player_rgb[color_num].b),-1 );
-			x1 = x-(w/2);
-			y1 = y+HUD_SCALE_Y(12);
-			gr_string (x1, y1, s);
+			for (objnum=0;objnum<=Highest_object_index;objnum++)
+				if (Objects[objnum].type==OBJ_PLAYER && Objects[objnum].id == pnum)
+					break;
+			if (objnum > Highest_object_index)		//not in list, thus not visible
+				show_name = has_indi = 0;				//..so don't show name
 		}
-#ifndef NDEBUG
-		else if ((Hit_type == HIT_OBJECT) && (Objects[Hit_data.hit_object].type == OBJ_ROBOT))
-		{
-			char s[CALLSIGN_LEN+1];
-			int w, h, aw;
-			int x1, y1;
-			int color_num = 0;
+		else
+			objnum = Players[pnum].objnum;
 
-			sprintf(s, "%d", Hit_data.hit_object);
-			gr_get_string_size(s, &w, &h, &aw);
-			gr_set_fontcolor(BM_XRGB(player_rgb[color_num].r,player_rgb[color_num].g,player_rgb[color_num].b),-1 );
-			x1 = x-(w/2);
-			y1 = y+(HUD_SCALE_Y(12));
-			gr_string (x1, y1, s);
+		if ((show_name || has_indi) && see_object(objnum)) {
+			g3s_point player_point;
+
+			g3_rotate_point(&player_point,&Objects[objnum].pos);
+
+			if (player_point.p3_codes == 0) {	//on screen
+
+				g3_project_point(&player_point);
+
+				if (! (player_point.p3_flags & PF_OVERFLOW)) {
+					fix x,y;
+
+					x = player_point.p3_sx;
+					y = player_point.p3_sy;
+
+					if (show_name) {				// Draw callsign on HUD
+						char s[CALLSIGN_LEN+1];
+						int w, h, aw;
+						int x1, y1;
+						int color_num;
+
+						color_num = (Game_mode & GM_TEAM)?get_team(pnum):pnum;
+
+						/* Set the text to show */
+						if( Game_mode & GM_BOUNTY && pnum == Bounty_target )
+							strcpy( s, "Target" );
+						else
+							sprintf(s, "%s", Players[pnum].callsign);
+						
+						gr_get_string_size(s, &w, &h, &aw);
+						gr_set_fontcolor(BM_XRGB(player_rgb[color_num].r,player_rgb[color_num].g,player_rgb[color_num].b),-1 );
+						x1 = f2i(x)-w/2;
+						y1 = f2i(y)-h/2;
+						gr_string (x1, y1, s);
+					}
+
+					/* Draw box on HUD */
+					if (has_indi)
+					{
+						fix dx,dy,w,h;
+
+						dy = -fixmuldiv(fixmul(Objects[objnum].size,Matrix_scale.y),i2f(grd_curcanv->cv_bitmap.bm_h)/2,player_point.p3_z);
+						dx = fixmul(dy,grd_curscreen->sc_aspect);
+
+						w = dx/4;
+						h = dy/4;
+
+						if( Game_mode & GM_BOUNTY )
+							gr_setcolor( BM_XRGB( player_rgb[pnum].r, player_rgb[pnum].g, player_rgb[pnum].b ) );
+
+						gr_line(x+dx-w,y-dy,x+dx,y-dy);
+						gr_line(x+dx,y-dy,x+dx,y-dy+h);
+
+						gr_line(x-dx,y-dy,x-dx+w,y-dy);
+						gr_line(x-dx,y-dy,x-dx,y-dy+h);
+
+						gr_line(x+dx-w,y+dy,x+dx,y+dy);
+						gr_line(x+dx,y+dy,x+dx,y+dy-h);
+
+						gr_line(x-dx,y+dy,x-dx+w,y+dy);
+						gr_line(x-dx,y+dy,x-dx,y+dy-h);
+					}
+				}
+			}
 		}
-#endif
 	}
-#endif
 }
 
 //draw all the things on the HUD
