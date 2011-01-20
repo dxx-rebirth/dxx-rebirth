@@ -1,5 +1,9 @@
 D2X-Rebirth Changelog
 
+20110120
+--------
+arch/sdl/jukebox.c, main/digi.h, main/menu.c, main/songs.c: Added a simple random function for the Jukebox; Removed one small printf I once added for debugging
+
 20110119
 --------
 main/game.h, main/gamerend.c, main/gauges.c, main/multi.c, main/multi.h, main/net_udp.c: Introducing new BOUNTY Multiplayer game mode by Matt "1360" Vandermeulen <matt1360@gmail.com>

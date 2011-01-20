@@ -1624,7 +1624,7 @@ int select_file_recursive(char *title, const char *orig_path, char **ext_list, i
 
 #endif
 
-int opt_sm_digivol = -1, opt_sm_musicvol = -1, opt_sm_revstereo = -1, opt_sm_mtype0 = -1, opt_sm_mtype1 = -1, opt_sm_mtype2 = -1, opt_sm_mtype3 = -1, opt_sm_redbook_playorder = -1, opt_sm_mtype3_lmpath = -1, opt_sm_mtype3_lmplayorder1 = -1, opt_sm_mtype3_lmplayorder2 = -1, opt_sm_cm_mtype3_file1_b = -1, opt_sm_cm_mtype3_file1 = -1, opt_sm_cm_mtype3_file2_b = -1, opt_sm_cm_mtype3_file2 = -1, opt_sm_cm_mtype3_file3_b = -1, opt_sm_cm_mtype3_file3 = -1, opt_sm_cm_mtype3_file4_b = -1, opt_sm_cm_mtype3_file4 = -1, opt_sm_cm_mtype3_file5_b = -1, opt_sm_cm_mtype3_file5 = -1;
+int opt_sm_digivol = -1, opt_sm_musicvol = -1, opt_sm_revstereo = -1, opt_sm_mtype0 = -1, opt_sm_mtype1 = -1, opt_sm_mtype2 = -1, opt_sm_mtype3 = -1, opt_sm_redbook_playorder = -1, opt_sm_mtype3_lmpath = -1, opt_sm_mtype3_lmplayorder1 = -1, opt_sm_mtype3_lmplayorder2 = -1, opt_sm_mtype3_lmplayorder3 = -1, opt_sm_cm_mtype3_file1_b = -1, opt_sm_cm_mtype3_file1 = -1, opt_sm_cm_mtype3_file2_b = -1, opt_sm_cm_mtype3_file2 = -1, opt_sm_cm_mtype3_file3_b = -1, opt_sm_cm_mtype3_file3 = -1, opt_sm_cm_mtype3_file4_b = -1, opt_sm_cm_mtype3_file4 = -1, opt_sm_cm_mtype3_file5_b = -1, opt_sm_cm_mtype3_file5 = -1;
 
 void set_extmusic_volume(int volume);
 
@@ -1702,6 +1702,11 @@ int sound_menuset(newmenu *menu, d_event *event, void *userdata)
 				GameCfg.CMLevelMusicPlayOrder = MUSIC_CM_PLAYORDER_LEVEL;
 				replay = (Game_wind != NULL);
 			}
+			else if (citem == opt_sm_mtype3_lmplayorder3)
+			{
+				GameCfg.CMLevelMusicPlayOrder = MUSIC_CM_PLAYORDER_RAND;
+				replay = (Game_wind != NULL);
+			}
 #endif
 			break;
 
@@ -1777,7 +1782,7 @@ int sound_menuset(newmenu *menu, d_event *event, void *userdata)
 }
 
 #ifdef USE_SDLMIXER
-#define SOUND_MENU_NITEMS 32
+#define SOUND_MENU_NITEMS 33
 #else
 #ifdef _WIN32
 #define SOUND_MENU_NITEMS 11
@@ -1860,6 +1865,9 @@ void do_sound_menu()
 
 	opt_sm_mtype3_lmplayorder2 = nitems;
 	m[nitems].type = NM_TYPE_RADIO; m[nitems].text = "one track per level"; m[nitems].value = (GameCfg.CMLevelMusicPlayOrder == MUSIC_CM_PLAYORDER_LEVEL); m[nitems].group = 1; nitems++;
+
+	opt_sm_mtype3_lmplayorder3 = nitems;
+	m[nitems].type = NM_TYPE_RADIO; m[nitems].text = "random"; m[nitems].value = (GameCfg.CMLevelMusicPlayOrder == MUSIC_CM_PLAYORDER_RAND); m[nitems].group = 1; nitems++;
 
 	m[nitems].type = NM_TYPE_TEXT; m[nitems++].text = "";
 

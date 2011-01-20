@@ -187,7 +187,7 @@ void jukebox_load()
 			return;
 		}
 		
-		for (i = 0; JukeboxSongs.list[i]; i++) {printf("%s\n",JukeboxSongs.list[i]);}
+		for (i = 0; JukeboxSongs.list[i]; i++) {}
 		JukeboxSongs.num_songs = i;
 
 		if (new_path)
@@ -216,7 +216,10 @@ void jukebox_hook_next()
 {
 	if (!JukeboxSongs.list || GameCfg.CMLevelMusicTrack[0] == -1) return;
 
-	GameCfg.CMLevelMusicTrack[0]++;
+	if (GameCfg.CMLevelMusicPlayOrder == MUSIC_CM_PLAYORDER_RAND)
+		GameCfg.CMLevelMusicTrack[0] = d_rand() % GameCfg.CMLevelMusicTrack[1]; // simply a random selection - no check if this song has already been played. But that's how I roll!
+	else
+		GameCfg.CMLevelMusicTrack[0]++;
 	if (GameCfg.CMLevelMusicTrack[0] + 1 > GameCfg.CMLevelMusicTrack[1])
 		GameCfg.CMLevelMusicTrack[0] = 0;
 
@@ -242,7 +245,7 @@ int jukebox_play()
 	memset(full_filename, '\0', strlen(GameCfg.CMLevelMusicPath)+strlen(music_filename)+1);
 	snprintf(full_filename, strlen(GameCfg.CMLevelMusicPath)+strlen(music_filename)+1, "%s%s", GameCfg.CMLevelMusicPath, music_filename);
 
-	if (!mix_play_file(full_filename, ((GameCfg.CMLevelMusicPlayOrder == MUSIC_CM_PLAYORDER_CONT)?0:1), ((GameCfg.CMLevelMusicPlayOrder == MUSIC_CM_PLAYORDER_CONT)?jukebox_hook_next:NULL)))
+	if (!mix_play_file(full_filename, ((GameCfg.CMLevelMusicPlayOrder == MUSIC_CM_PLAYORDER_LEVEL)?1:0), ((GameCfg.CMLevelMusicPlayOrder == MUSIC_CM_PLAYORDER_LEVEL)?NULL:jukebox_hook_next)))
 	{
 		d_free(full_filename);
 		return 0;	// whoops, got an error
