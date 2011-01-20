@@ -111,6 +111,7 @@ extern void digi_start_sound_queued( short soundnum, fix volume );
 // play-order definitions for custom music
 #define MUSIC_CM_PLAYORDER_CONT 0
 #define MUSIC_CM_PLAYORDER_LEVEL 1
+#define MUSIC_CM_PLAYORDER_RAND 2
 
 #define SOUND_MAX_VOLUME F1_0 / 2
 
