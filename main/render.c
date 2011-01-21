@@ -1018,7 +1018,7 @@ int find_seg_side(segment *seg,short *verts,int notside)
 		}
 	}
 
-	if (vv0 == -1 || vv1 != -1)
+	if (vv0 == -1 || vv1 == -1)
 		return -1;
 
 	eptr = Edge_to_sides[vv0][vv1];

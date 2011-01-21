@@ -1,5 +1,9 @@
 D2X-Rebirth Changelog
 
+20110121
+--------
+main/render.c: Protection for negative array index in find_seg_side was accidentially checking for vv1 != -1 - fixed that
+
 20110120
 --------
 arch/sdl/jukebox.c, main/digi.h, main/menu.c, main/songs.c: Added a simple random function for the Jukebox; Removed one small printf I once added for debugging
