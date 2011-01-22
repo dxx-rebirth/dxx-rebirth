@@ -6,6 +6,7 @@ main/console.c, main/game.c, main/gamerend.c, main/gauges.c: Added timer_update(
 main/cntrlcen.c, main/cntrlcen.h, main/fuelcen.c, main/multi.c, main/state.c: Handling Controlcen countdown Descent2-way to make code more similar but more importantly to avoid issues in Multiplayer levels which do not even have a Controlcen type Station causing the game get stuck in an infinite loop; Fixed small issue parsing killreactor command in Multiplayer
 main/polyobj.h: _POLYOBJ_H definition was not terminated at end of file causing compiling to fail with WORDS_NEED_ALIGNMENT define
 include/byteswap.h: Added swapping for 64Bit sized integers in case we want to store/read them some day (i.e. new Savegame version storing object instead of object_rw)
+main/gamerend.c: in show_framerate do not use gr_get_string_size at all but rather use hardcoded coordinates - less CPU-intense
 
 20110121
 --------

@@ -82,12 +82,9 @@ void game_draw_multi_message()
 
 void show_framerate()
 {
-	static int fps_count = 0, fps_rate = 0, aw = 0, w = 0, h = 0;
+	static int fps_count = 0, fps_rate = 0;
 	int y = GHEIGHT;
 	static fix64 fps_time = 0;
-
-	if (w == 0) // w is static so size will only be calculated once
-		gr_get_string_size(GameArg.SysMaxFPS>999?"FPS: 0000":"FPS: 000",&w,&h,&aw);
 
 	gr_set_curfont(GAME_FONT);
 	gr_set_fontcolor(BM_XRGB(0,31,0),-1);
@@ -116,7 +113,7 @@ void show_framerate()
 		fps_count = 0;
 		fps_time = timer_query();
 	}
-	gr_printf(SWIDTH-w-FSPACX(1),y,"FPS: %i",fps_rate);
+	gr_printf(SWIDTH-(GameArg.SysMaxFPS>999?FSPACX(43):FSPACX(37)),y,"FPS: %i",fps_rate);
 }
 
 #ifdef NETWORK
