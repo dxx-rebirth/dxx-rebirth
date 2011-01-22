@@ -6,6 +6,7 @@ main/console.c, main/game.c, main/gamerend.c, main/gauges.c: Added timer_update(
 main/multi.c: Fixed small issue parsing killreactor command in Multiplayer
 include/byteswap.h: Added swapping for 64Bit sized integers in case we want to store/read them some day (i.e. new Savegame version storing object instead of object_rw)
 main/gamerend.c: in show_framerate do not use gr_get_string_size at all but rather use hardcoded coordinates - less CPU-intense
+main/fvi.c: Removed fvi_a.h and added the asm code from it as comment to fvi.c in case we need it again some day
 
 20110121
 --------
