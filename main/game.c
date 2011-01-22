@@ -366,6 +366,7 @@ void stop_time()
 {
 	if (time_paused==0) {
 		fix64 time;
+		timer_update();
 		time = timer_query();
 		last_timer_value = time - last_timer_value;
 		if (last_timer_value < 0) {
@@ -381,6 +382,7 @@ void start_time()
 	Assert(time_paused >= 0);
 	if (time_paused==0) {
 		fix64 time;
+		timer_update();
 		time = timer_query();
 		last_timer_value = time - last_timer_value;
 	}
@@ -431,6 +433,7 @@ void FixedStepCalc()
 
 void reset_time()
 {
+	timer_update();
 	last_timer_value = timer_query();
 }
 

@@ -1313,7 +1313,7 @@ void show_time()
 		Color_0_31_0 = BM_XRGB(0,31,0);
 	gr_set_fontcolor(Color_0_31_0, -1 );
 
-	gr_printf(SWIDTH-FSPACX(25),(SHEIGHT/2),"%d:%02d", mins, secs);
+	gr_printf(SWIDTH-FSPACX(30),GHEIGHT-(LINE_SPACING*11),"%d:%02d", mins, secs);
 }
 #endif
 

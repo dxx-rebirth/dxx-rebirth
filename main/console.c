@@ -209,6 +209,7 @@ int con_handler(window *wind, d_event *event)
 			return 1;
 
 		case EVENT_WINDOW_DRAW:
+			timer_delay2(50);
 			if (con_state == CON_STATE_OPENING)
 			{
 				if (con_size < CON_LINES_ONSCREEN && timer_query() >= last_scroll_time+(F1_0/30))
