@@ -1,5 +1,9 @@
 D2X-Rebirth Changelog
 
+20110122
+--------
+main/console.c, main/game.c, main/gamerend.c, main/gauges.c: Added timer_update() to stop/start/reset_time() functions so resumed last_timer_value will be precise; Added new FPS counter which actually does count the frames rendered per second and is less irritating; Added timer_dleay2 call to console to not stress CPU too much; Imporoved placement for show_time(), multi messages, marker messages and orb counts
+
 20110121
 --------
 main/render.c: Protection for negative array index in find_seg_side was accidentially checking for vv1 != -1 - fixed that

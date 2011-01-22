@@ -972,15 +972,13 @@ extern grs_bitmap Orb_icons[2];
 void hud_show_orbs (void)
 {
 	if (Game_mode & GM_HOARD) {
-		int x=0,y=0;
+		int x=0,y=LINE_SPACING+FSPACY(1);
 		grs_bitmap *bm;
 
 		if (PlayerCfg.CockpitMode[1] == CM_FULL_COCKPIT) {
-			y=HUD_SCALE_Y_AR(GameBitmaps[ GET_GAUGE_INDEX(GAUGE_LIVES) ].bm_h+2)+FSPACY(1);
-			x = (SWIDTH/10);
+			x = (SWIDTH/18);
 		}
 		else if (PlayerCfg.CockpitMode[1] == CM_STATUS_BAR) {
-			y=HUD_SCALE_Y_AR(GameBitmaps[ GET_GAUGE_INDEX(GAUGE_LIVES) ].bm_h+2)+FSPACY(1);
 			x = FSPACX(2);
 		}
 		else if (PlayerCfg.CockpitMode[1] == CM_FULL_SCREEN) {
@@ -1497,7 +1495,7 @@ void show_time()
 		Color_0_31_0 = BM_XRGB(0,31,0);
 	gr_set_fontcolor(Color_0_31_0, -1 );
 
-	gr_printf(SWIDTH-FSPACX(25),(SHEIGHT/2),"%d:%02d", mins, secs);
+	gr_printf(SWIDTH-FSPACX(30),GHEIGHT-(LINE_SPACING*11),"%d:%02d", mins, secs);
 }
 #endif
 

@@ -20,7 +20,7 @@ COPYRIGHT 1993-1999 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 #include <stdio.h>
 #include <string.h>
 #include <stdlib.h>
-
+#include "timer.h"
 #include "pstypes.h"
 #include "console.h"
 #include "inferno.h"
@@ -73,7 +73,7 @@ void game_draw_marker_message()
 		gr_set_curfont(GAME_FONT);
 		gr_set_fontcolor(BM_XRGB(0,63,0),-1);
 		sprintf( temp_string, "Marker: %s_", Marker_input );
-		gr_printf(0x8000, (SHEIGHT/5.555), temp_string );
+		gr_printf(0x8000, (LINE_SPACING*5)+FSPACY(1), temp_string );
 	}
 
 }
@@ -87,72 +87,55 @@ void game_draw_multi_message()
 		gr_set_curfont(GAME_FONT);
 		gr_set_fontcolor(BM_XRGB(0,63,0),-1);
 		sprintf( temp_string, "%s: %s_", TXT_MESSAGE, Network_message );
-		gr_printf(0x8000, (SHEIGHT/5.555), temp_string );
+		gr_printf(0x8000, (LINE_SPACING*5)+FSPACY(1), temp_string );
 	}
 
 	if ( (Game_mode&GM_MULTI) && (multi_defining_message))	{
 		gr_set_curfont(GAME_FONT);
 		gr_set_fontcolor(BM_XRGB(0,63,0),-1);
 		sprintf( temp_string, "%s #%d: %s_", TXT_MACRO, multi_defining_message, Network_message );
-		gr_printf(0x8000, (SHEIGHT/5.555), temp_string );
+		gr_printf(0x8000, (LINE_SPACING*5)+FSPACY(1), temp_string );
 	}
 }
 #endif
 
-fix frame_time_list[8] = {0,0,0,0,0,0,0,0};
-fix frame_time_total=0;
-int frame_time_cntr=0;
-
-void ftoa(char *string, fix f)
-{
-	int decimal, fractional;
-	
-	decimal = f2i(f);
-	fractional = ((f & 0xffff)*100)/65536;
-	if (fractional < 0 )
-		fractional *= -1;
-	if (fractional > 99 ) fractional = 99;
-	sprintf( string, "FPS: %d.%02d", decimal, fractional );
-}
-
 void show_framerate()
 {
-	char temp[13];
-	fix rate;
-	int aw,w,h;
+	static int fps_count = 0, fps_rate = 0, aw = 0, w = 0, h = 0;
+	int y = GHEIGHT;
+	static fix64 fps_time = 0;
 
-	frame_time_total += FrameTime - frame_time_list[frame_time_cntr];
-	frame_time_list[frame_time_cntr] = FrameTime;
-	frame_time_cntr = (frame_time_cntr+1)%8;
+	if (w == 0) // w is static so size will only be calculated once
+		gr_get_string_size(GameArg.SysMaxFPS>999?"FPS: 0000":"FPS: 000",&w,&h,&aw);
 
-	if (frame_time_total) {
-		int y=GHEIGHT;
-		if (PlayerCfg.CockpitMode[1]==CM_FULL_SCREEN) {
-			if ((Game_mode & GM_MULTI) || (Newdemo_state == ND_STATE_PLAYBACK && Newdemo_game_mode && GM_MULTI))
-				y -= LINE_SPACING * 10;
-			else
-				y -= LINE_SPACING * 5;
-		} else if (PlayerCfg.CockpitMode[1] == CM_STATUS_BAR) {
-			if ((Game_mode & GM_MULTI) || (Newdemo_state == ND_STATE_PLAYBACK && Newdemo_game_mode && GM_MULTI))
-				y -= LINE_SPACING * 6;
-			else
-				y -= LINE_SPACING * 1;
-		} else {
-			if ((Game_mode & GM_MULTI) || (Newdemo_state == ND_STATE_PLAYBACK && Newdemo_game_mode && GM_MULTI))
-				y -= LINE_SPACING * 7;
-			else
-				y -= LINE_SPACING * 2;
-		}
+	gr_set_curfont(GAME_FONT);
+	gr_set_fontcolor(BM_XRGB(0,31,0),-1);
 
-		rate = fixdiv(f1_0*8,frame_time_total);
-
-		gr_set_curfont(GAME_FONT);
-		gr_set_fontcolor(BM_XRGB(0,31,0),-1);
-
-		ftoa( temp, rate );
-		gr_get_string_size("FPS: 000.00",&w,&h,&aw);
-		gr_printf(SWIDTH-w-FSPACX(1),y,"%s", temp );
+	if (PlayerCfg.CockpitMode[1] == CM_FULL_SCREEN) {
+		if ((Game_mode & GM_MULTI) || (Newdemo_state == ND_STATE_PLAYBACK && Newdemo_game_mode & GM_MULTI))
+			y -= LINE_SPACING * 10;
+		else
+			y -= LINE_SPACING * 4;
+	} else if (PlayerCfg.CockpitMode[1] == CM_STATUS_BAR) {
+		if ((Game_mode & GM_MULTI) || (Newdemo_state == ND_STATE_PLAYBACK && Newdemo_game_mode & GM_MULTI))
+			y -= LINE_SPACING * 6;
+		else
+			y -= LINE_SPACING * 1;
+	} else {
+		if ((Game_mode & GM_MULTI) || (Newdemo_state == ND_STATE_PLAYBACK && Newdemo_game_mode & GM_MULTI))
+			y -= LINE_SPACING * 7;
+		else
+			y -= LINE_SPACING * 2;
 	}
+
+	fps_count++;
+	if (timer_query() >= fps_time + F1_0)
+	{
+		fps_rate = fps_count;
+		fps_count = 0;
+		fps_time = timer_query();
+	}
+	gr_printf(SWIDTH-w-FSPACX(1),y,"FPS: %i",fps_rate);
 }
 
 #ifdef NETWORK
@@ -352,7 +335,7 @@ void render_countdown_gauge()
 
 		gr_set_curfont(GAME_FONT);
 		gr_set_fontcolor(BM_XRGB(0,63,0),-1);
-		gr_printf(0x8000, (SHEIGHT/6.666), "T-%d s", Countdown_seconds_left );
+		gr_printf(0x8000, (LINE_SPACING*6)+FSPACY(1), "T-%d s", Countdown_seconds_left );
 	}
 }
 
