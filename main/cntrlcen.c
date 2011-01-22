@@ -29,6 +29,7 @@ COPYRIGHT 1993-1998 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 #include "wall.h"
 #include "object.h"
 #include "robot.h"
+#include "endlevel.h"
 #include "byteswap.h"
 
 vms_vector controlcen_gun_points[MAX_CONTROLCEN_GUNS];
@@ -43,6 +44,8 @@ int	Control_center_next_fire_time;
 int	Control_center_present;
 
 vms_vector	Gun_pos[MAX_CONTROLCEN_GUNS], Gun_dir[MAX_CONTROLCEN_GUNS];
+
+void do_countdown_frame();
 
 //	-----------------------------------------------------------------------------
 //return the position & orientation of a gun on the control center object 
@@ -102,16 +105,98 @@ int calc_best_gun(int num_guns, vms_vector *gun_pos, vms_vector *gun_dir, vms_ve
 
 int	Dead_controlcen_object_num=-1;
 
+int Control_center_destroyed = 0;
+fix Countdown_timer=0;
+int Countdown_seconds_left=0, Total_countdown_time=0;		//in whole seconds
+
+int	Alan_pavlish_reactor_times[NDL] = {50, 45, 40, 35, 30};
+
 //	-----------------------------------------------------------------------------
 //	Called every frame.  If control center been destroyed, then actually do something.
 void do_controlcen_dead_frame(void)
 {
-	if (!Control_center_present)
-		return;
+// 	if (!Control_center_present)
+// 		return;
 
 	if ((Dead_controlcen_object_num != -1) && (Countdown_seconds_left > 0))
 		if (d_rand() < FrameTime*4)
 			create_small_fireball_on_object(&Objects[Dead_controlcen_object_num], F1_0*3, 1);
+
+	if (Control_center_destroyed && !Endlevel_sequence)
+		do_countdown_frame();
+}
+
+#define COUNTDOWN_VOICE_TIME fl2f(12.75)
+
+void do_countdown_frame()
+{
+	fix	old_time;
+	int	fc, div_scale;
+
+	if (!Control_center_destroyed)	return;
+
+	//	Control center destroyed, rock the player's ship.
+	fc = Countdown_seconds_left;
+	if (fc > 16)
+		fc = 16;
+
+	//	At Trainee, decrease rocking of ship by 4x.
+	div_scale = 1;
+	if (Difficulty_level == 0)
+		div_scale = 4;
+
+	if (FixedStep & EPS20)
+	{
+		ConsoleObject->mtype.phys_info.rotvel.x += (fixmul(d_rand() - 16384, 3*F1_0/16 + (F1_0*(16-fc))/32))/div_scale;
+		ConsoleObject->mtype.phys_info.rotvel.z += (fixmul(d_rand() - 16384, 3*F1_0/16 + (F1_0*(16-fc))/32))/div_scale;
+	}
+	//	Hook in the rumble sound effect here.
+
+	old_time = Countdown_timer;
+	Countdown_timer -= FrameTime;
+	Countdown_seconds_left = f2i(Countdown_timer + F1_0*7/8);
+
+	if ( (old_time > COUNTDOWN_VOICE_TIME ) && (Countdown_timer <= COUNTDOWN_VOICE_TIME) )	{
+		digi_play_sample( SOUND_COUNTDOWN_13_SECS, F3_0 );
+	}
+	if ( f2i(old_time + F1_0*7/8) != Countdown_seconds_left )	{
+		if ( (Countdown_seconds_left>=0) && (Countdown_seconds_left<10) )
+			digi_play_sample( SOUND_COUNTDOWN_0_SECS+Countdown_seconds_left, F3_0 );
+		if ( Countdown_seconds_left==Total_countdown_time-1)
+			digi_play_sample( SOUND_COUNTDOWN_29_SECS, F3_0 );
+	}						
+
+	if (Countdown_timer > 0) {
+		fix size,old_size;
+		size = (i2f(Total_countdown_time)-Countdown_timer) / fl2f(0.65);
+		old_size = (i2f(Total_countdown_time)-old_time) / fl2f(0.65);
+		if (size != old_size && (Countdown_seconds_left < (Total_countdown_time-5) ))		{			// Every 2 seconds!
+			//@@if (Dead_controlcen_object_num != -1) {
+			//@@	vms_vector vp;	//,v,c;
+			//@@	compute_segment_center(&vp, &Segments[Objects[Dead_controlcen_object_num].segnum]);
+			//@@	object_create_explosion( Objects[Dead_controlcen_object_num].segnum, &vp, size*10, VCLIP_SMALL_EXPLOSION);
+			//@@}
+
+			digi_play_sample( SOUND_CONTROL_CENTER_WARNING_SIREN, F3_0 );
+		}
+	}  else {
+		int flash_value;
+
+		if (old_time > 0)
+			digi_play_sample( SOUND_MINE_BLEW_UP, F1_0 );
+
+		flash_value = f2i(-Countdown_timer * (64 / 4));	// 4 seconds to total whiteness
+		PALETTE_FLASH_SET(flash_value,flash_value,flash_value);
+
+		if (PaletteBlueAdd > 64 )	{
+			gr_set_current_canvas( NULL );
+			gr_clear_canvas(BM_XRGB(31,31,31));				//make screen all white to match palette effect
+			reset_palette_add();							//restore palette for death message
+			//controlcen->MaxCapacity = Fuelcen_max_amount;
+			//gauge_message( "Control Center Reset" );
+			DoPlayerDead();		//kill_player();
+		}																				
+	}
 }
 
 //	-----------------------------------------------------------------------------
@@ -130,6 +215,9 @@ void do_controlcen_destroyed_stuff(object *objp)
 	// And start the countdown stuff.
 	Control_center_destroyed = 1;
 
+	Total_countdown_time = Alan_pavlish_reactor_times[Difficulty_level];
+
+	Countdown_timer = i2f(Total_countdown_time);
 
 	if (!Control_center_present)
 		return;

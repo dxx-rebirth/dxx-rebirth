@@ -64,6 +64,7 @@ extern void init_controlcen_for_level(void);
 extern void do_controlcen_destroyed_stuff(object *objp);
 extern void do_controlcen_dead_frame(void);
 
+extern fix Countdown_timer;
 extern int Control_center_destroyed, Countdown_seconds_left;
 
 /*

@@ -1219,7 +1219,7 @@ void multi_send_message_end()
 			}
 	}
 	
-	else if (!strnicmp (Network_message,"KillReactor",11) && (Game_mode & GM_NETWORK) && !Control_center_destroyed)
+	else if (!strnicmp (Network_message,"killreactor",11) && (Game_mode & GM_NETWORK) && !Control_center_destroyed)
 	{	
 		if (!multi_i_am_master())
 			HUD_init_message(HM_MULTI, "Only %s can kill the reactor this way!",Players[multi_who_is_master()].callsign);

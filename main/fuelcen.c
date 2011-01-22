@@ -61,9 +61,6 @@ fix Fuelcen_max_amount = i2f(100);
 // by this amount... when capacity gets to 0, no more morphers...
 fix EnergyToCreateOneRobot = i2f(1);
 
-int Control_center_destroyed = 0;
-int Countdown_seconds_left = 0;
-
 #define MATCEN_HP_DEFAULT			F1_0*500; // Hitpoints
 #define MATCEN_INTERVAL_DEFAULT	F1_0*5;	//  5 seconds
 
@@ -95,7 +92,6 @@ void fuelcen_reset()
 	for(i=0; i<MAX_SEGMENTS; i++ )
 		Segments[i].special = SEGMENT_IS_NOTHING;
 
-	Control_center_destroyed = 0;
 	Num_robot_centers = 0;
 
 }
@@ -534,76 +530,6 @@ void robotmaker_proc( FuelCenter * robotcen )
 	}
 }
 
-#define	BASE_CONTROL_CENTER_EXPLOSION_TIME	30
-#define	DIFF_CONTROL_CENTER_EXPLOSION_TIME	(BASE_CONTROL_CENTER_EXPLOSION_TIME + (NDL-Difficulty_level-1)*5)
-
-#define COUNTDOWN_VOICE_TIME (i2f(DIFF_CONTROL_CENTER_EXPLOSION_TIME)-fl2f(12.75))
-
-void controlcen_proc( FuelCenter * controlcen )
-{
-	fix old_time;
-	int	fc;
-
-	if (!Control_center_destroyed)	return;
-
-	//	Control center destroyed, rock the player's ship.
-	fc = Countdown_seconds_left;
-	if (fc > 16)
-		fc = 16;
-	if (FixedStep & EPS20)
-	{
-		ConsoleObject->mtype.phys_info.rotvel.x += fixmul(d_rand() - 16384, 3*F1_0/16 + (F1_0*(16-fc))/32);
-		ConsoleObject->mtype.phys_info.rotvel.z += fixmul(d_rand() - 16384, 3*F1_0/16 + (F1_0*(16-fc))/32);
-	}
-	//	Hook in the rumble sound effect here.
-
-	old_time = controlcen->Timer;
-	controlcen->Timer += FrameTime;			//timer_get_approx_seconds
-	Countdown_seconds_left = DIFF_CONTROL_CENTER_EXPLOSION_TIME - f2i(controlcen->Timer);
-	if ( (old_time < COUNTDOWN_VOICE_TIME ) && (controlcen->Timer >= COUNTDOWN_VOICE_TIME) )	{
-			digi_play_sample( SOUND_COUNTDOWN_13_SECS, F3_0 );
-	}
-	if ( f2i(old_time) != f2i(controlcen->Timer) )	{
-		if ( (Countdown_seconds_left>=0) && (Countdown_seconds_left<10) ) 
-			digi_play_sample( SOUND_COUNTDOWN_0_SECS+Countdown_seconds_left, F3_0 );
-		if ( Countdown_seconds_left==DIFF_CONTROL_CENTER_EXPLOSION_TIME-1)
-			digi_play_sample( SOUND_COUNTDOWN_29_SECS, F3_0 );
-	}						
-
-	if (controlcen->Timer < i2f(DIFF_CONTROL_CENTER_EXPLOSION_TIME)) {
-		vms_vector vp;	//,v,c;
-		fix size;
-		compute_segment_center(&vp, &Segments[controlcen->segnum]);
-		size = (0x50000*f2i(controlcen->Timer)*(FrameTime & 0xF))/16;
-		size = controlcen->Timer / (fl2f(0.65));
-		old_time = old_time / (fl2f(0.65));
-		if (size != old_time && (controlcen->Timer > (5*F1_0) ))		{			// Every 2 seconds!
-			//@@object_create_explosion( controlcen->segnum, &vp, size*10, FrameTime & 7);
-			object_create_explosion( controlcen->segnum, &vp, size*10, VCLIP_SMALL_EXPLOSION);
-			digi_play_sample( SOUND_CONTROL_CENTER_WARNING_SIREN, F3_0 );
-		}
-	}  else {
-		int flash_value;
-
-		if (old_time < i2f(DIFF_CONTROL_CENTER_EXPLOSION_TIME))
-			digi_play_sample( SOUND_MINE_BLEW_UP, F1_0 );
-
-		flash_value = f2i( (controlcen->Timer-i2f(DIFF_CONTROL_CENTER_EXPLOSION_TIME))*(64/4));	// 4 seconds to total whiteness
-		PALETTE_FLASH_SET(flash_value,flash_value,flash_value);
-
-		//gauge_message( "YOU'RE TOO SLOW! THE MINE BLEW UP!" );
-		if (PaletteBlueAdd > 64 )	{
-			gr_set_current_canvas( NULL );		
-			gr_clear_canvas(BM_XRGB(31,31,31));		//make screen all white to match palette effect
-			reset_palette_add();							//restore palette for death message
-			controlcen->Timer = -1;
-			controlcen->MaxCapacity = Fuelcen_max_amount;
-			//gauge_message( "Control Center Reset" );
-			DoPlayerDead();		//kill_player();
-		}																				
-	}
-}
-
 #ifndef M_PI
 #define M_PI 3.14159
 #endif
@@ -621,9 +547,9 @@ void fuelcen_update_all()
 		if ( Station[i].Type == SEGMENT_IS_ROBOTMAKER )	{
 			if (! (Game_suspended & SUSP_ROBOTS))
 				robotmaker_proc( &Station[i] );
-		} else if ( Station[i].Type == SEGMENT_IS_CONTROLCEN )	{
-			controlcen_proc( &Station[i] );
-	
+// 		} else if ( Station[i].Type == SEGMENT_IS_CONTROLCEN )	{
+// 			controlcen_proc( &Station[i] );
+// 	
 		} else if ( (Station[i].MaxCapacity > 0) && (PlayerSegment!=&Segments[Station[i].segnum]) )	{
 			if ( Station[i].Capacity < Station[i].MaxCapacity )	{
  				Station[i].Capacity += AmountToreplenish;

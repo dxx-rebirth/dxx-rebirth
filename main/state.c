@@ -989,7 +989,14 @@ int state_save_all_sub(char *filename, char *desc, int between_levels)
 		PHYSFS_write(fp, RobotCenters, sizeof(matcen_info), Num_robot_centers);
 		PHYSFS_write(fp, &ControlCenterTriggers, sizeof(control_center_triggers), 1);
 		PHYSFS_write(fp, &Num_fuelcenters, sizeof(int), 1);
-		PHYSFS_write(fp, Station, sizeof(FuelCenter), Num_fuelcenters);
+		for (i = 0; i < Num_fuelcenters; i++)
+		{
+			// NOTE: Usually Descent1 handles countdown by Timer value of the Reactor Station. Since we now use Descent2 code to handle countdown (which we do in case there IS NO Reactor Station which causes potential trouble in Multiplayer), let's find the Reactor here and store the timer in it.
+			if (Station[i].Type == SEGMENT_IS_CONTROLCEN)
+				Station[i].Timer = Countdown_timer;
+			PHYSFS_write(fp, &Station[i], sizeof(FuelCenter), 1);
+		}
+// 		PHYSFS_write(fp, Station, sizeof(FuelCenter), Num_fuelcenters);
 	
 	// Save the control cen info
 		PHYSFS_write(fp, &Control_center_been_hit, sizeof(int), 1);
@@ -1291,6 +1298,13 @@ RetryObjectLoading:
 		control_center_triggers_read_n_swap(&ControlCenterTriggers, 1, swap, fp);
 		Num_fuelcenters = PHYSFSX_readSXE32(fp, swap);
 		fuelcen_read_n_swap(Station, Num_fuelcenters, swap, fp);
+		Countdown_timer = 0;
+		for (i = 0; i < Num_fuelcenters; i++)
+		{
+			// NOTE: Usually Descent1 handles countdown by Timer value of the Reactor Station. Since we now use Descent2 code to handle countdown (which we do in case there IS NO Reactor Station which causes potential trouble in Multiplayer), let's find the Reactor here and read the timer from it.
+			if (Station[i].Type == SEGMENT_IS_CONTROLCEN)
+				Countdown_timer = Station[i].Timer;
+		}
 	
 		// Restore the control cen info
 		Control_center_been_hit = PHYSFSX_readSXE32(fp, swap);
