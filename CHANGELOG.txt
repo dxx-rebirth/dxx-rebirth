@@ -4,6 +4,7 @@ D2X-Rebirth Changelog
 --------
 main/console.c, main/game.c, main/gamerend.c, main/gauges.c: Added timer_update() to stop/start/reset_time() functions so resumed last_timer_value will be precise; Added new FPS counter which actually does count the frames rendered per second and is less irritating; Added timer_dleay2 call to console to not stress CPU too much; Imporoved placement for show_time(), multi messages, marker messages and orb counts
 main/multi.c: Fixed small issue parsing killreactor command in Multiplayer
+include/byteswap.h: Added swapping for 64Bit sized integers in case we want to store/read them some day (i.e. new Savegame version storing object instead of object_rw)
 
 20110121
 --------
