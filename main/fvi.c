@@ -32,12 +32,35 @@ COPYRIGHT 1993-1998 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 #include "piggy.h"
 #include "player.h"
 #include "fix.h"
-#include "fvi_a.h"
 
 extern int Physics_cheat_flag;
 
 #define face_type_num(nfaces,face_num,tri_edge) ((nfaces==1)?0:(tri_edge*2 + face_num))
 
+// keep the original ASM code here in case we need it again one day...
+// static inline int oflow_check(fix a,fix b) {
+//   register int __ret;
+//   int dummy;
+//   __asm__ (
+//     " cdq;"
+//     " xorl  %%edx,%%eax;"
+//     " subl  %%edx,%%eax;"
+//     " xchgl %%ebx,%%eax;"
+//     " cdq;"
+//     " xorl  %%edx,%%eax;"
+//     " subl  %%edx,%%eax;"
+//     " imull  %%ebx;"
+//     " sarl  $15,%%edx;"
+//     " orw   %%dx,%%dx;"
+//     " setnz %%al;"
+//     " movzbl %%al,%%eax"
+//      : "=a" (__ret), "=b" (dummy) : "a" (a), "1" (b) : "%edx");
+//     return __ret;
+// }
+
+static int oflow_check(fix a,fix b) {
+	return 0; /* hoping the floating point fix-math is used */
+}
 
 //find the point on the specified plane where the line intersects
 //returns true if point found, false if line parallel to plane
