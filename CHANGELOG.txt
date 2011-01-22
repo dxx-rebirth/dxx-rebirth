@@ -4,6 +4,7 @@ D1X-Rebirth Changelog
 --------
 main/console.c, main/game.c, main/gamerend.c, main/gauges.c: Added timer_update() to stop/start/reset_time() functions so resumed last_timer_value will be precise; Added new FPS counter which actually does count the frames rendered per second and is less irritating; Added timer_dleay2 call to console to not stress CPU too much; Imporoved placement for show_time(), multi messages
 main/cntrlcen.c, main/cntrlcen.h, main/fuelcen.c, main/multi.c, main/state.c: Handling Controlcen countdown Descent2-way to make code more similar but more importantly to avoid issues in Multiplayer levels which do not even have a Controlcen type Station causing the game get stuck in an infinite loop; Fixed small issue parsing killreactor command in Multiplayer
+main/polyobj.h: _POLYOBJ_H definition was not terminated at end of file causing compiling to fail with WORDS_NEED_ALIGNMENT define
 
 20110121
 --------

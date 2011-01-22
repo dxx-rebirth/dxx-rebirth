@@ -96,8 +96,6 @@ extern grs_bitmap *texture_list[MAX_POLYOBJ_TEXTURES];
 extern bitmap_index texture_list_index[MAX_POLYOBJ_TEXTURES];
 extern g3s_point robot_points[];
 
-#endif
-
 #ifdef WORDS_NEED_ALIGNMENT
 /*
  * A chunk struct (as used for alignment) contains all relevant data
@@ -130,3 +128,5 @@ extern int polymodel_read_n(polymodel *pm, int n, CFILE *fp);
  * routine which allocates, reads, and inits a polymodel's model_data
  */
 extern void polygon_model_data_read(polymodel *pm, CFILE *fp);
+
+#endif
