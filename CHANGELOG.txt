@@ -4,6 +4,7 @@ D1X-Rebirth Changelog
 --------
 main/ai.c: Taking out one Assert in init_boss_segments() stopping the program if there is more than one boss in level - taking out because it's not fatal or unsafe to do that
 main/physics.c: Increasing the collision count for objects so there can be 8 for all objects; also do not increase count when colliding with a powerup as it should not change our movement
+main/playsave.c: For new player, set ReticleSize to 0 which is the smallest size
 
 20110122
 --------

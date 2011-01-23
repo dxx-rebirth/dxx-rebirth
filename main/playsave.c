@@ -86,7 +86,7 @@ int new_player_config()
 	PlayerCfg.CockpitMode[0] = PlayerCfg.CockpitMode[1] = CM_FULL_COCKPIT;
 	PlayerCfg.ReticleType = RET_TYPE_CLASSIC;
 	PlayerCfg.ReticleRGBA[0] = RET_COLOR_DEFAULT_R; PlayerCfg.ReticleRGBA[1] = RET_COLOR_DEFAULT_G; PlayerCfg.ReticleRGBA[2] = RET_COLOR_DEFAULT_B; PlayerCfg.ReticleRGBA[3] = RET_COLOR_DEFAULT_A;
-	PlayerCfg.ReticleSize = 1;
+	PlayerCfg.ReticleSize = 0;
 	PlayerCfg.HudMode = 0;
 	PlayerCfg.PersistentDebris = 0;
 	PlayerCfg.PRShot = 0;
