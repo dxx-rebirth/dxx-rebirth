@@ -1888,13 +1888,10 @@ void init_boss_segments(short segptr[], int *num_segs, int size_check)
 	N_selected_segs = 0;
 #endif
 
-
 	//	See if there is a boss.  If not, quick out.
 	for (i=0; i<=Highest_object_index; i++)
-		if ((Objects[i].type == OBJ_ROBOT) && (Robot_info[Objects[i].id].boss_flag)) {
-			Assert(boss_objnum == -1);		//	There are two bosses in this mine!  i and boss_objnum!
-			boss_objnum = i;
-		}
+		if ((Objects[i].type == OBJ_ROBOT) && (Robot_info[Objects[i].id].boss_flag))
+			boss_objnum = i; // if != 1 then there is more than one boss here.
 
 	if (boss_objnum != -1) {
 		int			original_boss_seg;
