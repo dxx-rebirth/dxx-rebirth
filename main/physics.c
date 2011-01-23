@@ -423,13 +423,7 @@ void do_physics_sim(object *obj)
 		count++;
 
 		//	If retry count is getting large, then we are trying to do something stupid.
-		if ( count > 3) 	{
-			if (obj->type == OBJ_PLAYER) {
-				if (count > 8)
-					break;
-			} else
-				break;
-		}
+		if (count > 8) break; // in original code this was 3 for all non-player objects. still leave us some limit in case fvi goes apeshit.
 
 		vm_vec_add(&new_pos,&obj->pos,&frame_vec);
 
@@ -458,7 +452,7 @@ void do_physics_sim(object *obj)
 		if (fate == HIT_OBJECT) {
 			object	*objp = &Objects[hit_info.hit_object];
 
-			if ((objp->type == OBJ_WEAPON) && (objp->id == PROXIMITY_ID))
+			if (((objp->type == OBJ_WEAPON) && (objp->id == PROXIMITY_ID)) || objp->type == OBJ_POWERUP) // do not increase count for powerups since they *should* not change our movement
 				count--;
 		}
 
