@@ -103,7 +103,7 @@ int new_player_config()
 	PlayerCfg.Cockpit3DView[1]=CV_NONE;
 	PlayerCfg.ReticleType = RET_TYPE_CLASSIC;
 	PlayerCfg.ReticleRGBA[0] = RET_COLOR_DEFAULT_R; PlayerCfg.ReticleRGBA[1] = RET_COLOR_DEFAULT_G; PlayerCfg.ReticleRGBA[2] = RET_COLOR_DEFAULT_B; PlayerCfg.ReticleRGBA[3] = RET_COLOR_DEFAULT_A;
-	PlayerCfg.ReticleSize = 1;
+	PlayerCfg.ReticleSize = 0;
 	PlayerCfg.MissileViewEnabled = 1;
 	PlayerCfg.HeadlightActiveDefault = 1;
 	PlayerCfg.GuidedInBigWindow = 0;
