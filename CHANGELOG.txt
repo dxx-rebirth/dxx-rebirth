@@ -1,5 +1,9 @@
 D1X-Rebirth Changelog
 
+20110124
+--------
+main/physics.c: Revamped what previously was the BUMP_HACK by checking if an object is actually intersecting a segment and move it out towards segment center just after the initial object movement composed by fvi and before velocity is made - should make inaccurate wall collisions a bit smoother and prevent objects from goind inside or through walls, too
+
 20110123
 --------
 main/ai.c: Taking out one Assert in init_boss_segments() stopping the program if there is more than one boss in level - taking out because it's not fatal or unsafe to do that

@@ -35,7 +35,6 @@ COPYRIGHT 1993-1998 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 #define ROLL_RATE	0x2000
 #define DAMP_ANG 	0x400 //min angle to bank
 #define TURNROLL_SCALE	(0x4ec4/2)
-#define BUMP_HACK	1 //if defined, bump player when he gets stuck
 
 //check point against each side of segment. return bitmask, where bit
 //set means behind that side
@@ -497,6 +496,20 @@ void do_physics_sim(object *obj)
 		if ( iseg != obj->segnum )
 			obj_relink(objnum, iseg );
 
+		/*
+		 * On joining edges fvi tends to get inaccurate as hell due to object size. And I have no means to fix that - shame on me (that whole code should be rewritten). Approach is to check if the object interects with the wall and if so, move it out towards segment center. Two things to improve:
+		 * 1) object_intersects_wall() does not say how far we went inside the wall which is why we use while to move out until we do not intersect anymore. This should be improved so we only move one time.
+		 * 2) we move the object towards segment center. Depending on the level architecture this is safe. However this will heavily influence velocity and reduce sliding speed near joining edges. Also depending on velocity it's still possible we might not pass an endge leading into another segment since we are pulled back to the old one.
+		 */
+		while (object_intersects_wall(obj))
+		{
+			vms_vector center,bump_vec;
+			//bump player a little towards center of segment to unstick
+			compute_segment_center(&center,&Segments[iseg]);
+			vm_vec_normalized_dir_quick(&bump_vec,&center,&obj->pos);
+			vm_vec_scale_add2(&obj->pos,&bump_vec,F0_1);
+		}
+
 		//if start point not in segment, move object to center of segment
                 if (get_seg_masks(&obj->pos,obj->segnum,0,__FILE__,__LINE__).centermask!=0) {
 			int n;
@@ -699,24 +712,6 @@ void do_physics_sim(object *obj)
 		vms_vector moved_vec;
 		vm_vec_sub(&moved_vec,&obj->pos,&start_pos);
 		vm_vec_copy_scale(&obj->mtype.phys_info.velocity,&moved_vec,fixdiv(f1_0,FrameTime));
-
-#ifdef BUMP_HACK
-		/*
-		    FIXME: Instead of judging by velocity and thrust, we just need to know *if* we are stuck into the wall
-			   and "bump" back by the value saying how far we are in already.
-		*/
-		if (
-			obj==ConsoleObject && fate == HIT_WALL && (obj->mtype.phys_info.velocity.x==0 && obj->mtype.phys_info.velocity.y==0 && obj->mtype.phys_info.velocity.z==0) &&
-			!(obj->mtype.phys_info.thrust.x==0 && obj->mtype.phys_info.thrust.y==0 && obj->mtype.phys_info.thrust.z==0))
-		{
-			vms_vector center,bump_vec;
-
-			//bump player a little towards center of segment to unstick
-			compute_segment_center(&center,&Segments[obj->segnum]);
-			vm_vec_normalized_dir_quick(&bump_vec,&center,&obj->pos);
-			vm_vec_scale_add2(&obj->pos,&bump_vec,obj->size/5);
-		}
-#endif
 	}
 
 	//Assert(check_point_in_seg(&obj->pos,obj->segnum,0).centermask==0);
