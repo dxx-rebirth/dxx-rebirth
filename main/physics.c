@@ -514,7 +514,7 @@ void do_physics_sim(object *obj)
 		 * 1) object_intersects_wall() does not say how far we went inside the wall which is why we use while to move out until we do not intersect anymore. This should be improved so we only move one time.
 		 * 2) we move the object towards segment center. Depending on the level architecture this is safe. However this will heavily influence velocity and reduce sliding speed near joining edges. Also depending on velocity it's still possible we might not pass an endge leading into another segment since we are pulled back to the old one.
 		 */
-		if ((obj->type == OBJ_PLAYER || obj->type == OBJ_ROBOT) && !(obj->flags&OF_SHOULD_BE_DEAD))
+		if (obj->type == OBJ_PLAYER || obj->type == OBJ_ROBOT)
 			while (object_intersects_wall(obj) && bumpcount++ < 64)
 			{
 				vms_vector center,bump_vec;
