@@ -589,7 +589,7 @@ void collide_weapon_and_wall( object * weapon, fix hitspeed, short hitseg, short
 //##}
 
 void collide_debris_and_wall( object * debris, fix hitspeed, short hitseg, short hitwall, vms_vector * hitpt)	{
-	if (!PERSISTENT_DEBRIS)
+	if (!PERSISTENT_DEBRIS || TmapInfo[Segments[hitseg].sides[hitwall].tmap_num].damage)
 		explode_object(debris,0);
 	return;
 }
