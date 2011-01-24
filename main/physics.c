@@ -298,7 +298,7 @@ void do_physics_sim(object *obj)
 	int fate=0;
 	vms_vector frame_vec;			//movement in this frame
 	vms_vector new_pos,ipos;		//position after this frame
-	int count=0;
+	int count=0,bumpcount=0;
 	int objnum;
 	int WallHitSeg, WallHitSide;
 	fvi_info hit_info;
@@ -501,14 +501,15 @@ void do_physics_sim(object *obj)
 		 * 1) object_intersects_wall() does not say how far we went inside the wall which is why we use while to move out until we do not intersect anymore. This should be improved so we only move one time.
 		 * 2) we move the object towards segment center. Depending on the level architecture this is safe. However this will heavily influence velocity and reduce sliding speed near joining edges. Also depending on velocity it's still possible we might not pass an endge leading into another segment since we are pulled back to the old one.
 		 */
-		while (object_intersects_wall(obj))
-		{
-			vms_vector center,bump_vec;
-			//bump player a little towards center of segment to unstick
-			compute_segment_center(&center,&Segments[iseg]);
-			vm_vec_normalized_dir_quick(&bump_vec,&center,&obj->pos);
-			vm_vec_scale_add2(&obj->pos,&bump_vec,F0_1);
-		}
+		if ((obj->type == OBJ_PLAYER || obj->type == OBJ_ROBOT) && !(obj->flags&OF_SHOULD_BE_DEAD))
+			while (object_intersects_wall(obj) && bumpcount++ < 64)
+			{
+				vms_vector center,bump_vec;
+				//bump player a little towards center of segment to unstick
+				compute_segment_center(&center,&Segments[iseg]);
+				vm_vec_normalized_dir_quick(&bump_vec,&center,&obj->pos);
+				vm_vec_scale_add2(&obj->pos,&bump_vec,F0_1);
+			}
 
 		//if start point not in segment, move object to center of segment
                 if (get_seg_masks(&obj->pos,obj->segnum,0,__FILE__,__LINE__).centermask!=0) {
