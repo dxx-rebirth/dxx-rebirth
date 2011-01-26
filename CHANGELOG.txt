@@ -1,5 +1,9 @@
 D1X-Rebirth Changelog
 
+20110126
+--------
+arc/sdl/event.c: In event_process() check for wind->next before sending EVENT_WINDOW_DRAW in case drawing will free wind
+
 20110124
 --------
 main/physics.c: Revamped what previously was the BUMP_HACK by checking if an object is actually intersecting a segment and move it out towards segment center just after the initial object movement composed by fvi and before velocity is made - should make inaccurate wall collisions a bit smoother and prevent objects from goind inside or through walls, too
