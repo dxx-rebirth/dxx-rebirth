@@ -1451,7 +1451,7 @@ void net_udp_send_objects(void)
 	int loc = 0, i = 0, remote_objnum = 0, obj_count_frame = 0;
 	static fix64 last_send_time = 0;
 	
-	if (last_send_time + (F1_0/10) > timer_query())
+	if (last_send_time + (F1_0/50) > timer_query())
 		return;
 	last_send_time = timer_query();
 
@@ -4846,7 +4846,7 @@ void net_udp_send_extras ()
 {
 	static fix64 last_send_time = 0;
 	
-	if (last_send_time + (F1_0/10) > timer_query())
+	if (last_send_time + (F1_0/50) > timer_query())
 		return;
 	last_send_time = timer_query();
 

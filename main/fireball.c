@@ -506,8 +506,7 @@ int pick_connected_segment(object *objp, int max_depth)
 	return -1;
 }
 
-#ifdef NETWORK
-#define	BASE_NET_DROP_DEPTH	8
+#define BASE_NET_DROP_DEPTH 8
 
 //	------------------------------------------------------------------------------------------------------
 //	Choose segment to drop a powerup in.
@@ -574,14 +573,14 @@ int choose_drop_segment()
 	}
 
 	if (segnum == -1) {
-		return (d_rand() * Highest_segment_index) >> 15;
+		while (cur_drop_depth > 0 && segnum == -1) // before dropping in random segment, try to find ANY segment which is connected to the player responsible for the drop so object will not spawn in inaccessible areas
+			segnum = pick_connected_segment(&Objects[Players[Player_num].objnum], --cur_drop_depth);
+		return ((segnum == -1)?((d_rand() * Highest_segment_index) >> 15):segnum); // basically it should be impossible segnum == -1 now... but oh well...
 	} else
 		return segnum;
 
 }
 
-#endif // NETWORK
-#ifdef NETWORK
 //	------------------------------------------------------------------------------------------------------
 //	Drop cloak powerup if in a network game.
 
@@ -628,7 +627,6 @@ void maybe_drop_net_powerup(int powerup_type)
 		object_create_explosion(segnum, &new_pos, i2f(5), VCLIP_POWERUP_DISAPPEARANCE );
 	}
 }
-#endif
 
 //	------------------------------------------------------------------------------------------------------
 //	Return true if current segment contains some object.
