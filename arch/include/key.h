@@ -34,59 +34,23 @@ COPYRIGHT 1993-1999 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 extern void key_init();
 extern void key_close();
 
-//==========================================================================
-// These are configuration parameters to setup how the buffer works.
-// set keyd_buffer_type to 0 for no key buffering.
-// set it to 1 and it will buffer scancodes.
-extern unsigned char keyd_buffer_type;
-
-// keyd_editor_mode... 0=game mode, 1=editor mode.
-// Editor mode makes key_down_time always return 0 if modifiers are down.
-extern unsigned char keyd_editor_mode;		
-
 // Time in seconds when last key was pressed...
 extern fix64 keyd_time_when_last_pressed;
 
 // Stores Unicode values registered in one event_loop call
 unsigned char unicode_frame_buffer[KEY_BUFFER_SIZE];
 
-//==========================================================================
-// These are the "buffered" keypress routines.  Use them by setting the
-// "keyd_buffer_type" variable.
-
-extern void key_putkey (unsigned short); // simulates a keystroke
 extern void key_flush();    // Clears the 256 char buffer
-extern int key_checkch();   // Returns 1 if a char is waiting
-extern int key_getch();     // Gets key if one waiting other waits for one.
-extern int key_inkey();     // Gets key if one, other returns 0.
 extern int event_key_get(d_event *event);	// Get the keycode from the EVENT_KEY_COMMAND event
-extern int key_peekkey();   // Same as inkey, but doesn't remove key from buffer.
-
+extern int event_key_get_raw(d_event *event);	// same as above but without mod states
 extern unsigned char key_ascii();
-
-extern void key_debug();    // Does an INT3
-
-//==========================================================================
-// These are the unbuffered routines. Index by the keyboard scancode.
 
 // Set to 1 if the key is currently down, else 0
 extern volatile unsigned char keyd_pressed[];
 extern volatile unsigned char keyd_last_pressed;
 extern volatile unsigned char keyd_last_released;
 
-// Returns the seconds this key has been down since last call.
-extern fix64 key_down_time(int scancode);
-
-// Returns number of times key has went from up to down since last call.
-extern unsigned int key_down_count(int scancode);
-
-// Returns number of times key has went from down to up since last call.
-extern unsigned int key_up_count(int scancode);
-
-// Clears the times & counts used by the above functions
-// Took out... use key_flush();
-//void key_clear_times();
-//void key_clear_counts();
+extern void key_toggle_repeat(int enable);
 
 extern char * key_text[256];
 

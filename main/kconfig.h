@@ -23,6 +23,7 @@ COPYRIGHT 1993-1998 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 #define _KCONFIG_H
 
 #include "config.h"
+#include "event.h"
 #include "key.h"
 #include "joy.h"
 #include "mouse.h"
@@ -35,18 +36,25 @@ typedef struct _control_info {
 	fix sideways_thrust_time;
 	fix bank_time;
 	fix forward_thrust_time;
-	ubyte rear_view_down_count;
-	ubyte rear_view_down_state;
-	ubyte fire_primary_down_count;
+	ubyte pitch_forward_state, pitch_backward_state;
+	ubyte heading_left_state, heading_right_state;
+	ubyte slide_on_state, slide_left_state, slide_right_state, slide_up_state, slide_down_state;
+	ubyte bank_on_state, bank_left_state, bank_right_state;
+	ubyte accelerate_state, reverse_state;
+	ubyte cruise_plus_state, cruise_minus_state, cruise_off_count;
+	ubyte rear_view_state;
+	ubyte rear_view_count;
 	ubyte fire_primary_state;
+	ubyte fire_primary_count;
 	ubyte fire_secondary_state;
-	ubyte fire_secondary_down_count;
-	ubyte fire_flare_down_count;
-	ubyte drop_bomb_down_count;
-	ubyte automap_down_count;
+	ubyte fire_secondary_count;
+	ubyte fire_flare_count;
+	ubyte drop_bomb_count;
 	ubyte automap_state;
+	ubyte automap_count;
 	ubyte cycle_primary_count;
 	ubyte cycle_secondary_count;
+	ubyte select_weapon_count;
 } control_info;
 
 #define CONTROL_USING_JOYSTICK	1
@@ -60,7 +68,7 @@ typedef struct _control_info {
 #define MAX_CONTROLS 50
 
 extern control_info Controls;
-extern void controls_read_all(int automap_flag);
+extern void kconfig_read_controls(d_event *event, int automap_flag);
 extern void kconfig(int n, char *title);
 
 extern ubyte DefaultKeySettingsD1X[MAX_D1X_CONTROLS];

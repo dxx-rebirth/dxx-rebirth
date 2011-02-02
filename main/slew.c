@@ -181,13 +181,20 @@ int do_slew_movement(object *obj, int check_keys )
 
 	if (check_keys) {
 		if (Function_mode == FMODE_EDITOR) {
-			obj->mtype.phys_info.velocity.x += VEL_SPEED * (key_down_time(KEY_PAD9) - key_down_time(KEY_PAD7));
-			obj->mtype.phys_info.velocity.y += VEL_SPEED * (key_down_time(KEY_PADMINUS) - key_down_time(KEY_PADPLUS));
-			obj->mtype.phys_info.velocity.z += VEL_SPEED * (key_down_time(KEY_PAD8) - key_down_time(KEY_PAD2));
+			obj->mtype.phys_info.velocity.x += VEL_SPEED * keyd_pressed[KEY_PAD9] * FrameTime;
+			obj->mtype.phys_info.velocity.x -= VEL_SPEED * keyd_pressed[KEY_PAD7] * FrameTime;
+			obj->mtype.phys_info.velocity.y += VEL_SPEED * keyd_pressed[KEY_PADMINUS] * FrameTime;
+			obj->mtype.phys_info.velocity.y -= VEL_SPEED * keyd_pressed[KEY_PADPLUS] * FrameTime;
+			obj->mtype.phys_info.velocity.z += VEL_SPEED * keyd_pressed[KEY_PAD8] * FrameTime;
+			obj->mtype.phys_info.velocity.z -= VEL_SPEED * keyd_pressed[KEY_PAD2] * FrameTime;
 
-			rotang.p = (key_down_time(KEY_LBRACKET) - key_down_time(KEY_RBRACKET))/ROT_SPEED ;
-			rotang.b  = (key_down_time(KEY_PAD1) - key_down_time(KEY_PAD3))/ROT_SPEED;
-			rotang.h  = (key_down_time(KEY_PAD6) - key_down_time(KEY_PAD4))/ROT_SPEED;
+			rotang.p = rotang.b  = rotang.h  = 0;
+			rotang.p += keyd_pressed[KEY_LBRACKET] * FrameTime / ROT_SPEED;
+			rotang.p -= keyd_pressed[KEY_RBRACKET] * FrameTime / ROT_SPEED;
+			rotang.b  += keyd_pressed[KEY_PAD1] * FrameTime / ROT_SPEED;
+			rotang.b  -= keyd_pressed[KEY_PAD3] * FrameTime / ROT_SPEED;
+			rotang.h  += keyd_pressed[KEY_PAD6] * FrameTime / ROT_SPEED;
+			rotang.h  -= keyd_pressed[KEY_PAD4] * FrameTime / ROT_SPEED;
 		}
 		else {
 			obj->mtype.phys_info.velocity.x += VEL_SPEED * Controls.sideways_thrust_time;

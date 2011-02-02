@@ -13,16 +13,8 @@
 #include "mouse.h"
 #include "playsave.h"
 
-struct mousebutton {
-	ubyte pressed;
-	fix64 time_went_down;
-	fix64 time_held_down;
-	uint  num_downs;
-	uint  num_ups;
-};
-
 static struct mouseinfo {
-	struct mousebutton buttons[MOUSE_MAX_BUTTONS];
+	ubyte  button_state[MOUSE_MAX_BUTTONS];
 	int    delta_x, delta_y, delta_z, old_delta_x, old_delta_y;
 	int    x,y,z;
 	int    cursor_enabled;
@@ -86,9 +78,7 @@ void mouse_button_handler(SDL_MouseButtonEvent *mbe)
 	if (mbe->state == SDL_PRESSED) {
 		d_event_mouse_moved event2 = { EVENT_MOUSE_MOVED, 0, 0, 0 };
 
-		Mouse.buttons[button].pressed = 1;
-		Mouse.buttons[button].time_went_down = timer_query();
-		Mouse.buttons[button].num_downs++;
+		Mouse.button_state[button] = 1;
 
 		if (button == MBTN_Z_UP) {
 			Mouse.delta_z += Z_SENSITIVITY;
@@ -107,9 +97,7 @@ void mouse_button_handler(SDL_MouseButtonEvent *mbe)
 			event_send((d_event *)&event2);
 		}
 	} else {
-		Mouse.buttons[button].pressed = 0;
-		Mouse.buttons[button].time_held_down += timer_query() - Mouse.buttons[button].time_went_down;
-		Mouse.buttons[button].num_ups++;
+		Mouse.button_state[button] = 0;
 	}
 	
 	event.type = (mbe->state == SDL_PRESSED) ? EVENT_MOUSE_BUTTON_DOWN : EVENT_MOUSE_BUTTON_UP;
@@ -157,13 +145,8 @@ void mouse_flush()	// clears all mice events...
 
 //	event_poll();
 
-	for (i=0; i<MOUSE_MAX_BUTTONS; i++) {
-		Mouse.buttons[i].pressed=0;
-		Mouse.buttons[i].time_went_down=timer_query();
-		Mouse.buttons[i].time_held_down=0;
-		Mouse.buttons[i].num_ups=0;
-		Mouse.buttons[i].num_downs=0;
-	}
+	for (i=0; i<MOUSE_MAX_BUTTONS; i++)
+		Mouse.button_state[i]=0;
 	Mouse.delta_x = 0;
 	Mouse.delta_y = 0;
 	Mouse.delta_z = 0;
@@ -230,54 +213,12 @@ int mouse_get_btns()
 //	event_poll();
 
 	for (i=0; i<MOUSE_MAX_BUTTONS; i++ ) {
-		if (Mouse.buttons[i].pressed)
+		if (Mouse.button_state[i])
 			status |= flag;
 		flag <<= 1;
 	}
 
 	return status;
-}
-
-// Returns how long this button has been down since last call.
-fix64 mouse_button_down_time(int button)
-{
-	fix64 time_down, time;
-
-	if (button < 0 || button >= MOUSE_MAX_BUTTONS)
-		return 0;
-
-	if (!Mouse.buttons[button].pressed) {
-		time_down = Mouse.buttons[button].time_held_down;
-		Mouse.buttons[button].time_held_down = 0;
-	} else {
-		time = timer_query();
-		time_down = time - Mouse.buttons[button].time_held_down;
-		Mouse.buttons[button].time_held_down = time;
-	}
-	return time_down;
-}
-
-// Returns how many times this button has went down since last call
-int mouse_button_down_count(int button)
-{
-	int count;
-
-	if (button < 0 || button >= MOUSE_MAX_BUTTONS)
-		return 0;
-
-	count = Mouse.buttons[button].num_downs;
-	Mouse.buttons[button].num_downs = 0;
-
-	return count;
-}
-
-// Returns 1 if this button is currently down
-int mouse_button_state(int button)
-{
-	if (button < 0 || button >= MOUSE_MAX_BUTTONS)
-		return 0;
-
-	return Mouse.buttons[button].pressed;
 }
 
 void mouse_toggle_cursor(int activate)
@@ -291,13 +232,17 @@ void mouse_toggle_cursor(int activate)
 void mouse_cursor_autohide()
 {
 	int show = SDL_ShowCursor(SDL_QUERY);
+	static fix64 hidden_time = 0;
 
 	if (Mouse.cursor_enabled)
 	{
-		if ( (Mouse.cursor_time + (F1_0*2)) >= timer_query() && !show)
+		if ( (Mouse.cursor_time + (F1_0*2)) >= timer_query() && hidden_time + (F1_0/2) < timer_query() && !show)
 			SDL_ShowCursor(SDL_ENABLE);
 		else if ( (Mouse.cursor_time + (F1_0*2)) < timer_query() && show)
+		{
 			SDL_ShowCursor(SDL_DISABLE);
+			hidden_time = timer_query();
+		}
 	}
 	else
 	{

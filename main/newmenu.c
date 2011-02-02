@@ -1492,10 +1492,12 @@ int newmenu_handler(window *wind, d_event *event, newmenu *menu)
 		case EVENT_WINDOW_ACTIVATED:
 			game_flush_inputs();
 			event_toggle_focus(0);
+			key_toggle_repeat(1);
 			break;
 
 		case EVENT_WINDOW_DEACTIVATED:
 			//event_toggle_focus(1);	// No cursor recentering
+			key_toggle_repeat(0);
 			menu->mouse_state = 0;
 			break;
 
@@ -2075,10 +2077,12 @@ int listbox_handler(window *wind, d_event *event, listbox *lb)
 		case EVENT_WINDOW_ACTIVATED:
 			game_flush_inputs();
 			event_toggle_focus(0);
+			key_toggle_repeat(1);
 			break;
 
 		case EVENT_WINDOW_DEACTIVATED:
 			//event_toggle_focus(1);	// No cursor recentering
+			key_toggle_repeat(0);
 			break;
 
 		case EVENT_MOUSE_BUTTON_DOWN:

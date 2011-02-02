@@ -146,7 +146,7 @@ void play_test_sound(void);
 #define key_isfunc(k) (((k&0xff)>=KEY_F1 && (k&0xff)<=KEY_F10) || (k&0xff)==KEY_F11 || (k&0xff)==KEY_F12)
 
 void update_vcr_state();
-void do_weapon_stuff(void);
+void do_weapon_n_item_stuff(void);
 
 
 // Control Functions
@@ -167,39 +167,48 @@ void update_vcr_state(void)
 		Newdemo_vcr_state = ND_STATE_PLAYBACK;
 }
 
-void do_weapon_stuff()
+void do_weapon_n_item_stuff()
 {
 	int i;
 
-	if (Controls.fire_flare_down_count)
+	if (Controls.fire_flare_count > 0)
+	{
+		Controls.fire_flare_count = 0;
 		if (allowed_to_fire_flare())
 			Flare_create(ConsoleObject);
+	}
 
-	if (allowed_to_fire_missile())
-		Global_missile_firing_count += Weapon_info[Secondary_weapon_to_weapon_info[Secondary_weapon]].fire_count * (Controls.fire_secondary_state || Controls.fire_secondary_down_count);
+	if (allowed_to_fire_missile() && Controls.fire_secondary_state)
+		Global_missile_firing_count += Weapon_info[Secondary_weapon_to_weapon_info[Secondary_weapon]].fire_count;
 
 	if (Global_missile_firing_count) {
 		do_missile_firing(0);
 		Global_missile_firing_count--;
 	}
 
-	if (Controls.cycle_primary_count)
+	if (Controls.cycle_primary_count > 0)
 	{
 		for (i=0;i<Controls.cycle_primary_count;i++)
 			CyclePrimary ();
+		Controls.cycle_primary_count = 0;
 	}
-	if (Controls.cycle_secondary_count)
+	if (Controls.cycle_secondary_count > 0)
 	{
 		for (i=0;i<Controls.cycle_secondary_count;i++)
 			CycleSecondary ();
+		Controls.cycle_secondary_count = 0;
 	}
-
+	if (Controls.select_weapon_count)
+	{
+		do_weapon_select(Controls.select_weapon_count>4?Controls.select_weapon_count-5:Controls.select_weapon_count,Controls.select_weapon_count>4?1:0);
+		Controls.select_weapon_count = 0;
+	}
 	if (Global_missile_firing_count < 0)
 		Global_missile_firing_count = 0;
 
 	//	Drop proximity bombs.
-	if (Controls.drop_bomb_down_count) {
-		while (Controls.drop_bomb_down_count--)
+	if (Controls.drop_bomb_count > 0) {
+		while (Controls.drop_bomb_count--)
 			do_missile_firing(1);
 	}
 }
@@ -229,7 +238,6 @@ int pause_handler(window *wind, d_event *event, char *msg)
 	{
 		case EVENT_WINDOW_ACTIVATED:
 			game_flush_inputs();
-			event_toggle_focus(0);
 			break;
 
 		case EVENT_KEY_COMMAND:
@@ -263,7 +271,6 @@ int pause_handler(window *wind, d_event *event, char *msg)
 			break;
 
 		case EVENT_WINDOW_CLOSE:
-			event_toggle_focus(1);
 			songs_resume();
 			d_free(msg);
 			break;
@@ -326,15 +333,21 @@ int HandleEndlevelKey(int key)
 	return 0;
 }
 
-int HandleDeathKey(int key)
+int HandleDeathInput(d_event *event)
 {
-	if (Player_exploded && !key_isfunc(key) && key)
-		Death_sequence_aborted  = 1;		//Any key but func or modifier aborts
+	if (event->type == EVENT_KEY_COMMAND)
+	{
+		int key = event_key_get(event);
 
-	if (key == KEY_ESC) {
-		if (ConsoleObject->flags & OF_EXPLODING)
-			Death_sequence_aborted = 1;
+		if (Player_exploded && !key_isfunc(key) && key)
+			Death_sequence_aborted  = 1;		//Any key but func or modifier aborts
+		if (key == KEY_ESC)
+			if (ConsoleObject->flags & OF_EXPLODING)
+				Death_sequence_aborted = 1;
 	}
+
+	if (Player_exploded && (event->type == EVENT_JOYSTICK_BUTTON_UP || event->type == EVENT_MOUSE_BUTTON_UP))
+		Death_sequence_aborted = 1;
 
 	if (Death_sequence_aborted)
 	{
@@ -1349,52 +1362,18 @@ int ReadControls(d_event *event)
 
 	Player_fired_laser_this_frame=-1;
 
-	if (!Endlevel_sequence)  //this was taken out of the if statement by WraithX
-	{
-
-		if ( (Newdemo_state == ND_STATE_PLAYBACK)
-#ifdef NETWORK
-			|| multi_sending_message || multi_defining_message
-#endif
-			) 	// WATCH OUT!!! WEIRD CODE ABOVE!!!
-			memset( &Controls, 0, sizeof(control_info) );
-		else
-			controls_read_all(0);		//NOTE LINK TO ABOVE!!!
-
-		check_rear_view();
-
-		// If automap key pressed, enable automap unless you are in network mode, control center destroyed and < 10 seconds left
-		if ( Controls.automap_down_count && !((Game_mode & GM_MULTI) && Control_center_destroyed && (Countdown_seconds_left < 10)))
-		{
-			do_automap(0);
-			return 1;
-		}
-
-		do_weapon_stuff();
-	}
-
 	if (Player_exploded) {
-
 		if (exploding_flag==0)  {
 			exploding_flag = 1;			// When player starts exploding, clear all input devices...
 			game_flush_inputs();
-		} else {
-			int i;
-
-			for (i=0; i < JOY_MAX_BUTTONS; i++ )
-				if (joy_get_button_down_cnt(i) > 0) Death_sequence_aborted = 1;
-
-			for (i = 0; i < MOUSE_MAX_BUTTONS; i++)
-				if (mouse_button_down_count(i) > 0) Death_sequence_aborted = 1;
-
-			if (Death_sequence_aborted)
-				game_flush_inputs();
 		}
 	} else {
 		exploding_flag=0;
 	}
+	if (Player_is_dead)
+		return HandleDeathInput(event);
 
-	if (Newdemo_state == ND_STATE_PLAYBACK )
+	if (Newdemo_state == ND_STATE_PLAYBACK)
 		update_vcr_state();
 
 	if (event->type == EVENT_KEY_COMMAND)
@@ -1442,9 +1421,26 @@ int ReadControls(d_event *event)
 
 		if (call_default_handler(event))
 			return 1;
+	}
 
-		if (Player_is_dead)
-			return HandleDeathKey(key);
+	if (!Endlevel_sequence && !Player_is_dead && (Newdemo_state != ND_STATE_PLAYBACK))
+	{
+		kconfig_read_controls(event, 0);
+
+		check_rear_view();
+
+		// If automap key pressed, enable automap unless you are in network mode, control center destroyed and < 10 seconds left
+		if ( Controls.automap_count > 0 )
+		{
+			Controls.automap_count = 0;
+			if (!((Game_mode & GM_MULTI) && Control_center_destroyed && (Countdown_seconds_left < 10)))
+			{
+				do_automap(0);
+				return 1;
+			}
+		}
+
+		do_weapon_n_item_stuff();
 	}
 
 	return 0;

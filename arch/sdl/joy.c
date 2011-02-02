@@ -22,30 +22,29 @@ extern char *joyaxis_text[]; //from kconfig.c
 int num_joysticks = 0;
 int joy_num_axes = 0;
 
-struct joybutton {
-	int   state;
-	int   last_state;
-	fix64 time_went_down;
-	int   num_downs;
-	int   num_ups;
-};
-
-struct joyaxis {
-	int value;
-	int min_val;
-	int center_val;
-	int max_val;
-};
-
 /* This struct is a "virtual" joystick, which includes all the axes
  * and buttons of every joystick found.
  */
 static struct joyinfo {
 	int n_axes;
 	int n_buttons;
-	struct joyaxis axes[JOY_MAX_AXES];
-	struct joybutton buttons[JOY_MAX_BUTTONS];
+	int axis_value[JOY_MAX_AXES];
+	ubyte button_state[JOY_MAX_BUTTONS];
+	ubyte button_last_state[JOY_MAX_BUTTONS]; // for HAT movement only
 } Joystick;
+
+typedef struct d_event_joystickbutton
+{
+	event_type type;
+	int button;
+} d_event_joystickbutton;
+
+typedef struct d_event_joystick_moved
+{
+	event_type	type;	// EVENT_JOYSTICK_MOVED
+	int		axis;
+	int 		value;
+} d_event_joystick_moved;
 
 /* This struct is an array, with one entry for each physical joystick
  * found.
@@ -63,62 +62,74 @@ static struct {
 void joy_button_handler(SDL_JoyButtonEvent *jbe)
 {
 	int button;
+	d_event_joystickbutton event;
 
 	button = SDL_Joysticks[jbe->which].button_map[jbe->button];
 
-	Joystick.buttons[button].state = jbe->state;
+	Joystick.button_state[button] = jbe->state;
 
-	switch (jbe->type) {
-	case SDL_JOYBUTTONDOWN:
-		Joystick.buttons[button].time_went_down = timer_query();
-		Joystick.buttons[button].num_downs++;
-		break;
-	case SDL_JOYBUTTONUP:
-		Joystick.buttons[button].num_ups++;
-		break;
-	}
+	event.type = (jbe->type == SDL_JOYBUTTONDOWN) ? EVENT_JOYSTICK_BUTTON_DOWN : EVENT_JOYSTICK_BUTTON_UP;
+	event.button = button;
+	con_printf(CON_DEBUG, "Sending event %s, button %d\n", (jbe->type == SDL_JOYBUTTONDOWN) ? "EVENT_JOYSTICK_BUTTON_DOWN" : "EVENT_JOYSTICK_JOYSTICK_UP", event.button);
+	event_send((d_event *)&event);
 }
 
 void joy_hat_handler(SDL_JoyHatEvent *jhe)
 {
 	int hat = SDL_Joysticks[jhe->which].hat_map[jhe->hat];
 	int hbi;
+	d_event_joystickbutton event;
 
 	//Save last state of the hat-button
-	Joystick.buttons[hat  ].last_state = Joystick.buttons[hat  ].state;
-	Joystick.buttons[hat+1].last_state = Joystick.buttons[hat+1].state;
-	Joystick.buttons[hat+2].last_state = Joystick.buttons[hat+2].state;
-	Joystick.buttons[hat+3].last_state = Joystick.buttons[hat+3].state;
+	Joystick.button_last_state[hat  ] = Joystick.button_state[hat  ];
+	Joystick.button_last_state[hat+1] = Joystick.button_state[hat+1];
+	Joystick.button_last_state[hat+2] = Joystick.button_state[hat+2];
+	Joystick.button_last_state[hat+3] = Joystick.button_state[hat+3];
 
 	//get current state of the hat-button
-	Joystick.buttons[hat  ].state = ((jhe->value & SDL_HAT_UP)>0);
-	Joystick.buttons[hat+1].state = ((jhe->value & SDL_HAT_RIGHT)>0);
-	Joystick.buttons[hat+2].state = ((jhe->value & SDL_HAT_DOWN)>0);
-	Joystick.buttons[hat+3].state = ((jhe->value & SDL_HAT_LEFT)>0);
+	Joystick.button_state[hat  ] = ((jhe->value & SDL_HAT_UP)>0);
+	Joystick.button_state[hat+1] = ((jhe->value & SDL_HAT_RIGHT)>0);
+	Joystick.button_state[hat+2] = ((jhe->value & SDL_HAT_DOWN)>0);
+	Joystick.button_state[hat+3] = ((jhe->value & SDL_HAT_LEFT)>0);
 
 	//determine if a hat-button up or down event based on state and last_state
 	for(hbi=0;hbi<4;hbi++)
 	{
-		if(	!Joystick.buttons[hat+hbi].last_state && Joystick.buttons[hat+hbi].state) //last_state up, current state down
+		if( !Joystick.button_last_state[hat+hbi] && Joystick.button_state[hat+hbi]) //last_state up, current state down
 		{
-			Joystick.buttons[hat+hbi].time_went_down
-				= timer_query();
-			Joystick.buttons[hat+hbi].num_downs++;
+			event.type = EVENT_JOYSTICK_BUTTON_DOWN;
+			event.button = hat+hbi;
+			con_printf(CON_DEBUG, "Sending event EVENT_JOYSTICK_BUTTON_DOWN, button %d\n", event.button);
+			event_send((d_event *)&event);
 		}
-		else if(Joystick.buttons[hat+hbi].last_state && !Joystick.buttons[hat+hbi].state)  //last_state down, current state up
+		else if(Joystick.button_last_state[hat+hbi] && !Joystick.button_state[hat+hbi])  //last_state down, current state up
 		{
-			Joystick.buttons[hat+hbi].num_ups++;
+			event.type = EVENT_JOYSTICK_BUTTON_UP;
+			event.button = hat+hbi;
+			con_printf(CON_DEBUG, "Sending event EVENT_JOYSTICK_BUTTON_UP, button %d\n", event.button);
+			event_send((d_event *)&event);
 		}
 	}
 }
 
-void joy_axis_handler(SDL_JoyAxisEvent *jae)
+int joy_axis_handler(SDL_JoyAxisEvent *jae)
 {
 	int axis;
+	d_event_joystick_moved event;
 
 	axis = SDL_Joysticks[jae->which].axis_map[jae->axis];
-	
-	Joystick.axes[axis].value = jae->value;
+
+	// inaccurate stick is inaccurate. SDL might send SDL_JoyAxisEvent even if the value is the same as before.
+	if (Joystick.axis_value[axis] == jae->value/256)
+		return 0;
+
+	event.type = EVENT_JOYSTICK_MOVED;
+	event.axis = axis;
+	event.value = Joystick.axis_value[axis] = jae->value/256;
+	con_printf(CON_DEBUG, "Sending event EVENT_JOYSTICK_MOVED, axis: %d, value: %d\n",event.axis, event.value);
+	event_send((d_event *)&event);
+
+	return 1;
 }
 
 
@@ -223,54 +234,12 @@ void joy_close()
 		d_free(joybutton_text[Joystick.n_buttons]);
 }
 
-int joy_get_button_down_cnt( int btn )
+void event_joystick_get_axis(d_event *event, int *axis, int *value)
 {
-	int num_downs;
+	Assert(event->type == EVENT_JOYSTICK_MOVED);
 
-	if (!num_joysticks || btn < 0 || btn >= JOY_MAX_BUTTONS)
-		return 0;
-
-//	event_poll();
-
-	num_downs = Joystick.buttons[btn].num_downs;
-	Joystick.buttons[btn].num_downs = 0;
-
-	return num_downs;
-}
-
-fix joy_get_button_down_time(int btn)
-{
-	fix time = F0_0;
-
-	if (!num_joysticks  || btn < 0 || btn >= JOY_MAX_BUTTONS)
-		return 0;
-
-//	event_poll();
-
-	switch (Joystick.buttons[btn].state) {
-	case SDL_PRESSED:
-		time = timer_query() - Joystick.buttons[btn].time_went_down;
-		Joystick.buttons[btn].time_went_down = timer_query();
-		break;
-	case SDL_RELEASED:
-		time = 0;
-		break;
-	}
-
-	return time;
-}
-
-void joystick_read_raw_axis( int * axis )
-{
-	int i;
-	
-	if (!num_joysticks)
-		return;
-
-//	event_poll();
-
-	for (i = 0; i < Joystick.n_axes; i++)
-		axis[i] = Joystick.axes[i].value;
+	*axis  = ((d_event_joystick_moved *)event)->axis;
+	*value = ((d_event_joystick_moved *)event)->value;
 }
 
 void joy_flush()
@@ -280,28 +249,12 @@ void joy_flush()
 	if (!num_joysticks)
 		return;
 
-	for (i = 0; i < Joystick.n_buttons; i++) {
-		Joystick.buttons[i].time_went_down = 0;
-		Joystick.buttons[i].num_downs = 0;
-		Joystick.buttons[i].state = SDL_RELEASED;
-	}
-	
+	for (i = 0; i < Joystick.n_buttons; i++)
+		Joystick.button_state[i] = SDL_RELEASED;
 }
 
-int joy_get_button_state( int btn )
+int event_joystick_get_button(d_event *event)
 {
-	if (!num_joysticks)
-		return 0;
-
-	if(btn >= Joystick.n_buttons)
-		return 0;
-
-//	event_poll();
-
-	return Joystick.buttons[btn].state;
-}
-
-int joy_get_scaled_reading( int raw )
-{
-	return raw/256;
+	Assert((event->type == EVENT_JOYSTICK_BUTTON_DOWN) || (event->type == EVENT_JOYSTICK_BUTTON_UP));
+	return ((d_event_joystickbutton *)event)->button;
 }

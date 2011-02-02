@@ -10,6 +10,8 @@
 #include "pstypes.h"
 #include "fix.h"
 
+struct d_event;
+
 #define MAX_JOYSTICKS				8
 #define MAX_AXES_PER_JOYSTICK		128
 #define MAX_BUTTONS_PER_JOYSTICK	128
@@ -20,11 +22,8 @@
 extern int joy_num_axes; // set to Joystick.n_axes. solve different?
 extern void joy_init();
 extern void joy_close();
-extern fix joy_get_button_down_time(int btn);
-extern int joy_get_button_down_cnt(int btn);
-extern void joystick_read_raw_axis(int *axis);
+extern void event_joystick_get_axis(struct d_event *event, int *axis, int *value);
 extern void joy_flush();
-extern int joy_get_button_state(int btn);
-extern int joy_get_scaled_reading(int raw);
+extern int event_joystick_get_button(struct d_event *event);
 
 #endif // _JOY_H
