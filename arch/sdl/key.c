@@ -23,27 +23,14 @@ static unsigned char Installed = 0;
 
 //-------- Variable accessed by outside functions ---------
 int			keyd_repeat = 0; // 1 = use repeats, 0 no repeats
-unsigned char 		keyd_editor_mode;
 volatile unsigned char 	keyd_last_pressed;
 volatile unsigned char 	keyd_last_released;
 volatile unsigned char	keyd_pressed[256];
 fix64			keyd_time_when_last_pressed;
 unsigned char		unicode_frame_buffer[KEY_BUFFER_SIZE] = { '\0', '\0', '\0', '\0', '\0', '\0', '\0', '\0', '\0', '\0', '\0', '\0', '\0', '\0', '\0', '\0' };
 
-typedef struct Key_info {
-	ubyte		state;			// state of key 1 == down, 0 == up
-	ubyte		last_state;		// previous state of key
-	fix64		timewentdown;	// simple counter incremented each time in interrupt and key is down
-	fix64		timehelddown;	// counter to tell how long key is down -- gets reset to 0 by key routines
-	ubyte		downcount;		// number of key counts key was down
-	ubyte		upcount;		// number of times key was released
-} Key_info;
-
 typedef struct keyboard	{
-	unsigned short		keybuffer[KEY_BUFFER_SIZE];
-	Key_info		keys[256];
-	fix64			time_pressed[KEY_BUFFER_SIZE];
-	unsigned int 		keyhead, keytail;
+	ubyte state[256];
 } keyboard;
 
 static keyboard key_data;
@@ -315,7 +302,7 @@ key_props key_properties[256] = {
 
 typedef struct d_event_keycommand
 {
-	event_type	type;	// EVENT_KEY_COMMAND
+	event_type	type;	// EVENT_KEY_COMMAND/RELEASE
 	int			keycode;
 } d_event_keycommand;
 
@@ -375,97 +362,74 @@ unsigned char key_ascii()
 
 void key_handler(SDL_KeyboardEvent *event)
 {
-	ubyte state;
-	int i, keycode, event_keysym=-1, key_state;
-	Key_info *key;
-	unsigned char temp;
-	int key_command = 0;
+	int keycode, event_keysym=-1, key_state;
 
 	// Read SDLK symbol and state
         event_keysym = event->keysym.sym;
-        key_state = (event->state == SDL_PRESSED);
+        key_state = (event->state == SDL_PRESSED)?1:0;
 
 	// fill the unicode frame-related unicode buffer 
 	if (key_state && event->keysym.unicode > 31 && event->keysym.unicode < 255)
+	{
+		int i = 0;
 		for (i = 0; i < KEY_BUFFER_SIZE; i++)
 			if (unicode_frame_buffer[i] == '\0')
 			{
 				unicode_frame_buffer[i] = event->keysym.unicode;
 				break;
 			}
-
-	//=====================================================
-
-	for (i = 255; i >= 0; i--) {
-		keycode = i;
-		key = &(key_data.keys[keycode]);
-
-		if (key_properties[i].sym == event_keysym)
-			state = key_state;
-		else
-			state = key->last_state;
-
-		if ( key->last_state == state )	{
-			if (state) {
-				keyd_last_pressed = keycode;
-				keyd_time_when_last_pressed = timer_query();
-			}
-		} else {
-			if (state)	{
-				keyd_last_pressed = keycode;
-				keyd_pressed[keycode] = 1;
-				key->downcount += state;
-				key->state = 1;
-				key->timewentdown = keyd_time_when_last_pressed = timer_query();
-			} else {	
-				keyd_pressed[keycode] = 0;
-				keyd_last_released = keycode;
-				key->upcount += key->state;
-				key->state = 0;
-				key->timehelddown += timer_query() - key->timewentdown;
-			}
-		}
-		if ( (state && !key->last_state) || (state && key->last_state && keyd_repeat && !key_ismodlck(i)) ) {
-			if ( keyd_pressed[KEY_LSHIFT] || keyd_pressed[KEY_RSHIFT])
-				keycode |= KEY_SHIFTED;
-			if ( keyd_pressed[KEY_LALT] || keyd_pressed[KEY_RALT])
-				keycode |= KEY_ALTED;
-			if ( keyd_pressed[KEY_LCTRL] || keyd_pressed[KEY_RCTRL])
-				keycode |= KEY_CTRLED;
-			if ( keyd_pressed[KEY_DELETE] )
-				keycode |= KEY_DEBUGGED;
-			if ( keyd_pressed[KEY_LMETA] || keyd_pressed[KEY_RMETA])
-				keycode |= KEY_METAED;
-			
-			key_command = keycode;
-			
-			temp = key_data.keytail+1;
-			if ( temp >= KEY_BUFFER_SIZE ) temp=0;
-			if (temp!=key_data.keyhead)	{
-				key_data.keybuffer[key_data.keytail] = keycode;
-				key_data.time_pressed[key_data.keytail] = keyd_time_when_last_pressed;
-				key_data.keytail = temp;
-			}
-		}
-		key->last_state = state;
 	}
 
-	// We allowed the key to be added to the queue for now,
-	// because there are still input loops without associated windows
-	if (key_command || unicode_frame_buffer[0] != '\0')
+	//=====================================================
+	for (keycode = 255; keycode > 0; keycode--)
+		if (key_properties[keycode].sym == event_keysym)
+			break;
+
+	if (keycode == 0)
+		return;
+
+	/* 
+	 * process the key if:
+	 * - it's a valid key AND
+	 * - if the keystate has changed OR
+	 * - key state same as last one and game accepts key repeats but keep out mod/lock keys
+	 */
+	if (key_state != keyd_pressed[keycode] || (keyd_repeat && !key_ismodlck(keycode)))
 	{
 		d_event_keycommand event;
-		
-		event.type = EVENT_KEY_COMMAND;
-		event.keycode = key_command;
-		con_printf(CON_DEBUG, "Sending event EVENT_KEY_COMMAND: %s %s %s %s %s %s\n",
-				   (key_command & KEY_METAED)	? "META" : "",
-				   (key_command & KEY_DEBUGGED)	? "DEBUG" : "",
-				   (key_command & KEY_CTRLED)	? "CTRL" : "",
-				   (key_command & KEY_ALTED)	? "ALT" : "",
-				   (key_command & KEY_SHIFTED)	? "SHIFT" : "",
-				   key_properties[key_command & 0xff].key_text
-				   );
+
+		// now update the key props
+		if (key_state) {
+			keyd_last_pressed = keycode;
+			keyd_pressed[keycode] = key_data.state[keycode] = 1;
+		} else {
+			keyd_pressed[keycode] = key_data.state[keycode] = 0;
+		}
+
+		if ( keyd_pressed[KEY_LSHIFT] || keyd_pressed[KEY_RSHIFT])
+			keycode |= KEY_SHIFTED;
+		if ( keyd_pressed[KEY_LALT] || keyd_pressed[KEY_RALT])
+			keycode |= KEY_ALTED;
+		if ( keyd_pressed[KEY_LCTRL] || keyd_pressed[KEY_RCTRL])
+			keycode |= KEY_CTRLED;
+		if ( keyd_pressed[KEY_DELETE] )
+			keycode |= KEY_DEBUGGED;
+		if ( keyd_pressed[KEY_LMETA] || keyd_pressed[KEY_RMETA])
+			keycode |= KEY_METAED;
+
+		// We allowed the key to be added to the queue for now,
+		// because there are still input loops without associated windows
+		event.type = key_state?EVENT_KEY_COMMAND:EVENT_KEY_RELEASE;
+		event.keycode = keycode;
+		con_printf(CON_DEBUG, "Sending event %s: %s %s %s %s %s %s\n",
+				(key_state)                  ? "EVENT_KEY_COMMAND": "EVENT_KEY_RELEASE",
+				(keycode & KEY_METAED)	? "META" : "",
+				(keycode & KEY_DEBUGGED)	? "DEBUG" : "",
+				(keycode & KEY_CTRLED)	? "CTRL" : "",
+				(keycode & KEY_ALTED)	? "ALT" : "",
+				(keycode & KEY_SHIFTED)	? "SHIFT" : "",
+				key_properties[keycode & 0xff].key_text
+				);
 		event_send((d_event *)&event);
 	}
 }
@@ -483,8 +447,7 @@ void key_init()
 
 	Installed=1;
 	SDL_EnableUNICODE(1);
-	if (SDL_EnableKeyRepeat(KEY_REPEAT_DELAY, KEY_REPEAT_INTERVAL) == 0)
-		keyd_repeat = 1;
+	key_toggle_repeat(1);
 
 	keyd_time_when_last_pressed = timer_query();
 	
@@ -503,139 +466,54 @@ void key_flush()
 	if (!Installed)
 		key_init();
 
-	key_data.keyhead = key_data.keytail = 0;
-
-	//Clear the keyboard buffer
-	for (i=0; i<KEY_BUFFER_SIZE; i++ )	{
-		key_data.keybuffer[i] = 0;
-		key_data.time_pressed[i] = 0;
+	//Clear the unicode buffer
+	for (i=0; i<KEY_BUFFER_SIZE; i++ )
 		unicode_frame_buffer[i] = '\0';
-	}
 
 	for (i=0; i<256; i++ )	{
 		if (key_ismodlck(i) == KEY_ISLCK && keystate[key_properties[i].sym] && !GameArg.CtlNoStickyKeys) // do not flush status of sticky keys
 		{
 			keyd_pressed[i] = 1;
-			key_data.keys[i].state = 0;
-			key_data.keys[i].last_state = 1;
-			key_data.keys[i].timewentdown = timer_query();
-			key_data.keys[i].downcount=1;
-			key_data.keys[i].upcount=0;
-			key_data.keys[i].timehelddown = 1;
+			key_data.state[i] = 0;
 		}
 		else
 		{
 			keyd_pressed[i] = 0;
-			key_data.keys[i].state = 1;
-			key_data.keys[i].last_state = 0;
-			key_data.keys[i].timewentdown = timer_query();
-			key_data.keys[i].downcount=0;
-			key_data.keys[i].upcount=0;
-			key_data.keys[i].timehelddown = 0;
+			key_data.state[i] = 1;
 		}
 	}
 }
 
-int add_one(int n)
-{
-	n++;
-	if ( n >= KEY_BUFFER_SIZE )
-		n=0;
-	return n;
-}
-
-int key_checkch()
-{
-	int is_one_waiting = 0;
-//	event_poll();
-	if (key_data.keytail!=key_data.keyhead)
-		is_one_waiting = 1;
-	return is_one_waiting;
-}
-
-int key_inkey()
-{
-	int key = 0;
-	if (!Installed)
-		key_init();
-//        event_poll();
-	if (key_data.keytail!=key_data.keyhead) {
-		key = key_data.keybuffer[key_data.keyhead];
-		key_data.keyhead = add_one(key_data.keyhead);
-	}
-
-        return key;
-}
-
 int event_key_get(d_event *event)
 {
-	Assert(event->type == EVENT_KEY_COMMAND);
+	Assert(event->type == EVENT_KEY_COMMAND || event->type == EVENT_KEY_RELEASE);
 	return ((d_event_keycommand *)event)->keycode;
 }
 
-int key_peekkey()
+// same as above but without mod states
+int event_key_get_raw(d_event *event)
 {
-	int key = 0;
-//        event_poll();
-	if (key_data.keytail!=key_data.keyhead)
-		key = key_data.keybuffer[key_data.keyhead];
-
-	return key;
+	int keycode = ((d_event_keycommand *)event)->keycode;
+	Assert(event->type == EVENT_KEY_COMMAND || event->type == EVENT_KEY_RELEASE);
+	if ( keycode & KEY_SHIFTED ) keycode &= ~KEY_SHIFTED;
+	if ( keycode & KEY_ALTED ) keycode &= ~KEY_ALTED;
+	if ( keycode & KEY_CTRLED ) keycode &= ~KEY_CTRLED;
+	if ( keycode & KEY_DEBUGGED ) keycode &= ~KEY_DEBUGGED;
+	if ( keycode & KEY_METAED ) keycode &= ~KEY_METAED;
+	return keycode;
 }
 
-int key_getch()
+void key_toggle_repeat(int enable)
 {
-	int dummy=0;
-
-	if (!Installed)
-		return 0;
-//		return getch();
-
-	while (!key_checkch())
-		dummy++;
-	return key_inkey();
-}
-
-// Returns the number of seconds this key has been down since last call.
-fix64 key_down_time(int scancode)
-{
-	fix64 time_down, time;
-
-//	event_poll();
-        if ((scancode<0)|| (scancode>255)) return 0;
-
-	if (!keyd_pressed[scancode]) {
-		time_down = key_data.keys[scancode].timehelddown;
-		key_data.keys[scancode].timehelddown = 0;
-	} else {
-		time = timer_query();
-		time_down = time - key_data.keys[scancode].timewentdown;
-		key_data.keys[scancode].timewentdown = time;
+	if (enable)
+	{
+		if (SDL_EnableKeyRepeat(KEY_REPEAT_DELAY, KEY_REPEAT_INTERVAL) == 0)
+			keyd_repeat = 1;
 	}
-
-	return time_down;
-}
-
-unsigned int key_down_count(int scancode)
-{
-	int n;
-//        event_poll();
-        if ((scancode<0)|| (scancode>255)) return 0;
-
-	n = key_data.keys[scancode].downcount;
-	key_data.keys[scancode].downcount = 0;
-
-	return n;
-}
-
-unsigned int key_up_count(int scancode)
-{
-	int n;
-//        event_poll();
-        if ((scancode<0)|| (scancode>255)) return 0;
-
-	n = key_data.keys[scancode].upcount;
-	key_data.keys[scancode].upcount = 0;
-
-	return n;
+	else
+	{
+		SDL_EnableKeyRepeat(0, 0);
+		keyd_repeat = 0;
+	}
+	key_flush();
 }

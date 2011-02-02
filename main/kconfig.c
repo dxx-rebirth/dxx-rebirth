@@ -77,13 +77,8 @@ char *joyaxis_text[JOY_MAX_AXES];
 char *mouseaxis_text[3] = { "L/R", "F/B", "WHEEL" };
 char *mousebutton_text[16] = { "LEFT", "RIGHT", "MID", "M4", "M5", "M6", "M7", "M8", "M9", "M10","M11","M12","M13","M14","M15","M16" };
 
-#ifdef D2X_KEYS
 ubyte system_keys[19] = { KEY_ESC, KEY_F1, KEY_F2, KEY_F3, KEY_F4, KEY_F5, KEY_F6, KEY_F7, KEY_F8, KEY_F9, KEY_F10, KEY_F11, KEY_F12, KEY_MINUS, KEY_EQUAL, KEY_PRINT_SCREEN, KEY_CAPSLOCK, KEY_SCROLLOCK, KEY_NUMLOCK }; // KEY_*LOCK should always be last since we wanna skip these if -nostickykeys
-#else
-ubyte system_keys[30] = { KEY_ESC, KEY_F1, KEY_F2, KEY_F3, KEY_F4, KEY_F5, KEY_F6, KEY_F7, KEY_F8, KEY_F9, KEY_F10, KEY_F11, KEY_F12, KEY_0, KEY_1, KEY_2, KEY_3, KEY_4, KEY_5, KEY_6, KEY_7, KEY_8, KEY_9, KEY_0, KEY_MINUS, KEY_EQUAL, KEY_PRINT_SCREEN, KEY_CAPSLOCK, KEY_SCROLLOCK, KEY_NUMLOCK }; // KEY_*LOCK should always be last since we wanna skip these if -nostickykeys
-#endif
 
-extern void transfer_energy_to_shield(fix);
 extern void CyclePrimary(),CycleSecondary(),InitMarkerInput();
 extern ubyte DefiningMarkerMessage;
 
@@ -97,6 +92,11 @@ fix Cruise_speed=0;
 #define BT_JOY_BUTTON 		3
 #define BT_JOY_AXIS		4
 #define BT_INVERT		5
+#define STATE_BIT1		1
+#define STATE_BIT2		2
+#define STATE_BIT3		4
+#define STATE_BIT4		8
+#define STATE_BIT5		16
 
 char *btype_text[] = { "BT_KEY", "BT_MOUSE_BUTTON", "BT_MOUSE_AXIS", "BT_JOY_BUTTON", "BT_JOY_AXIS", "BT_INVERT" };
 
@@ -112,18 +112,20 @@ typedef struct kc_item {
         char *text;
 	ubyte type;
 	ubyte value;		// what key,button,etc
+	ubyte *ci_state_ptr;
+	int state_bit;
+	ubyte *ci_count_ptr;
 } kc_item;
-
-int Num_items=28;
 
 typedef struct kc_menu
 {
 	window	*wind;
 	kc_item	*items;
 	char	*title;
-	int		nitems;
-	int		citem;
-	int		old_axis[JOY_MAX_AXES];
+	int	nitems;
+	int	citem;
+	int	old_jaxis[JOY_MAX_AXES];
+	int	old_maxis[3];
 	ubyte	changing;
 	ubyte	q_fade_i;	// for flashing the question mark
 	ubyte	mouse_state;
@@ -138,196 +140,194 @@ ubyte DefaultKeySettingsD2X[MAX_D2X_CONTROLS] = { 0x2,0xff,0xff,0x3,0xff,0xff,0x
 
 //	  id,  x,  y, w1, w2,  u,  d,   l, r,     text,   type, value
 kc_item kc_keyboard[NUM_KEY_CONTROLS] = {
-	{  0, 15, 49, 71, 26, 55,  2, 56,  1,"Pitch forward", BT_KEY, 255 },
-	{  1, 15, 49,100, 26, 50,  3,  0, 24,"Pitch forward", BT_KEY, 255 },
-	{  2, 15, 57, 71, 26,  0,  4, 25,  3,"Pitch backward", BT_KEY, 255 },
-	{  3, 15, 57,100, 26,  1,  5,  2, 26,"Pitch backward", BT_KEY, 255 },
-	{  4, 15, 65, 71, 26,  2,  6, 27,  5,"Turn left", BT_KEY, 255 },
-	{  5, 15, 65,100, 26,  3,  7,  4, 28,"Turn left", BT_KEY, 255 },
-	{  6, 15, 73, 71, 26,  4,  8, 29,  7,"Turn right", BT_KEY, 255 },
-	{  7, 15, 73,100, 26,  5,  9,  6, 34,"Turn right", BT_KEY, 255 },
-	{  8, 15, 85, 71, 26,  6, 10, 35,  9,"Slide on", BT_KEY, 255 },
-	{  9, 15, 85,100, 26,  7, 11,  8, 36,"Slide on", BT_KEY, 255 },
-	{ 10, 15, 93, 71, 26,  8, 12, 37, 11,"Slide left", BT_KEY, 255 },
-	{ 11, 15, 93,100, 26,  9, 13, 10, 44,"Slide left", BT_KEY, 255 },
-	{ 12, 15,101, 71, 26, 10, 14, 45, 13,"Slide right", BT_KEY, 255 },
-	{ 13, 15,101,100, 26, 11, 15, 12, 30,"Slide right", BT_KEY, 255 },
-	{ 14, 15,109, 71, 26, 12, 16, 31, 15,"Slide up", BT_KEY, 255 },
-	{ 15, 15,109,100, 26, 13, 17, 14, 32,"Slide up", BT_KEY, 255 },
-	{ 16, 15,117, 71, 26, 14, 18, 33, 17,"Slide down", BT_KEY, 255 },
-	{ 17, 15,117,100, 26, 15, 19, 16, 46,"Slide down", BT_KEY, 255 },
-	{ 18, 15,129, 71, 26, 16, 20, 47, 19,"Bank on", BT_KEY, 255 },
-	{ 19, 15,129,100, 26, 17, 21, 18, 38,"Bank on", BT_KEY, 255 },
-	{ 20, 15,137, 71, 26, 18, 22, 39, 21,"Bank left", BT_KEY, 255 },
-	{ 21, 15,137,100, 26, 19, 23, 20, 40,"Bank left", BT_KEY, 255 },
-	{ 22, 15,145, 71, 26, 20, 48, 41, 23,"Bank right", BT_KEY, 255 },
-	{ 23, 15,145,100, 26, 21, 49, 22, 42,"Bank right", BT_KEY, 255 },
-	{ 24,158, 49, 83, 26, 51, 26,  1, 25,"Fire primary", BT_KEY, 255 },
-	{ 25,158, 49,112, 26, 56, 27, 24,  2,"Fire primary", BT_KEY, 255 },
-	{ 26,158, 57, 83, 26, 24, 28,  3, 27,"Fire secondary", BT_KEY, 255 },
-	{ 27,158, 57,112, 26, 25, 29, 26,  4,"Fire secondary", BT_KEY, 255 },
-	{ 28,158, 65, 83, 26, 26, 34,  5, 29,"Fire flare", BT_KEY, 255 },
-	{ 29,158, 65,112, 26, 27, 35, 28,  6,"Fire flare", BT_KEY, 255 },
-	{ 30,158,105, 83, 26, 44, 32, 13, 31,"Accelerate", BT_KEY, 255 },
-	{ 31,158,105,112, 26, 45, 33, 30, 14,"Accelerate", BT_KEY, 255 },
-	{ 32,158,113, 83, 26, 30, 46, 15, 33,"reverse", BT_KEY, 255 },
-	{ 33,158,113,112, 26, 31, 47, 32, 16,"reverse", BT_KEY, 255 },
-	{ 34,158, 73, 83, 26, 28, 36,  7, 35,"Drop Bomb", BT_KEY, 255 },
-	{ 35,158, 73,112, 26, 29, 37, 34,  8,"Drop Bomb", BT_KEY, 255 },
-	{ 36,158, 85, 83, 26, 34, 44,  9, 37,"REAR VIEW", BT_KEY, 255 },
-	{ 37,158, 85,112, 26, 35, 45, 36, 10,"REAR VIEW", BT_KEY, 255 },
-	{ 38,158,133, 83, 26, 46, 40, 19, 39,"Cruise Faster", BT_KEY, 255 },
-	{ 39,158,133,112, 26, 47, 41, 38, 20,"Cruise Faster", BT_KEY, 255 },
-	{ 40,158,141, 83, 26, 38, 42, 21, 41,"Cruise Slower", BT_KEY, 255 },
-	{ 41,158,141,112, 26, 39, 43, 40, 22,"Cruise Slower", BT_KEY, 255 },
-	{ 42,158,149, 83, 26, 40, 52, 23, 43,"Cruise Off", BT_KEY, 255 },
-	{ 43,158,149,112, 26, 41, 53, 42, 48,"Cruise Off", BT_KEY, 255 },
-	{ 44,158, 93, 83, 26, 36, 30, 11, 45,"Automap", BT_KEY, 255 },
-	{ 45,158, 93,112, 26, 37, 31, 44, 12,"Automap", BT_KEY, 255 },
-	{ 46,158,121, 83, 26, 32, 38, 17, 47,"Afterburner", BT_KEY, 255 },
-	{ 47,158,121,112, 26, 33, 39, 46, 18,"Afterburner", BT_KEY, 255 },
-	{ 48, 15,161, 71, 26, 22, 50, 43, 49,"Cycle Primary", BT_KEY, 255 },
-	{ 49, 15,161,100, 26, 23, 51, 48, 52,"Cycle Primary", BT_KEY, 255 },
-	{ 50, 15,169, 71, 26, 48,  1, 53, 51,"Cycle Second.", BT_KEY, 255 },
-	{ 51, 15,169,100, 26, 49, 24, 50, 54,"Cycle Second.", BT_KEY, 255 },
-	{ 52,158,163, 83, 26, 42, 54, 49, 53,"Headlight", BT_KEY, 255 },
-	{ 53,158,163,112, 26, 43, 55, 52, 50,"Headlight", BT_KEY, 255 },
-	{ 54,158,171, 83, 26, 52, 56, 51, 55,"Energy->Shield", BT_KEY, 255 },
-	{ 55,158,171,112, 26, 53,  0, 54, 56,"Energy->Shield", BT_KEY, 255 },
-	{ 56,158,179, 83, 26, 54, 25, 55,  0,"Toggle Bomb", BT_KEY, 255 },
+	{  0, 15, 49, 71, 26, 55,  2, 56,  1,"Pitch forward", BT_KEY, 255, &Controls.pitch_forward_state, STATE_BIT1, NULL },
+	{  1, 15, 49,100, 26, 50,  3,  0, 24,"Pitch forward", BT_KEY, 255, &Controls.pitch_forward_state, STATE_BIT2, NULL },
+	{  2, 15, 57, 71, 26,  0,  4, 25,  3,"Pitch backward", BT_KEY, 255, &Controls.pitch_backward_state, STATE_BIT1, NULL },
+	{  3, 15, 57,100, 26,  1,  5,  2, 26,"Pitch backward", BT_KEY, 255, &Controls.pitch_backward_state, STATE_BIT2, NULL },
+	{  4, 15, 65, 71, 26,  2,  6, 27,  5,"Turn left", BT_KEY, 255, &Controls.heading_left_state, STATE_BIT1, NULL },
+	{  5, 15, 65,100, 26,  3,  7,  4, 28,"Turn left", BT_KEY, 255, &Controls.heading_left_state, STATE_BIT2, NULL },
+	{  6, 15, 73, 71, 26,  4,  8, 29,  7,"Turn right", BT_KEY, 255, &Controls.heading_right_state, STATE_BIT1, NULL },
+	{  7, 15, 73,100, 26,  5,  9,  6, 34,"Turn right", BT_KEY, 255, &Controls.heading_right_state, STATE_BIT2, NULL },
+	{  8, 15, 85, 71, 26,  6, 10, 35,  9,"Slide on", BT_KEY, 255, &Controls.slide_on_state, STATE_BIT1, NULL },
+	{  9, 15, 85,100, 26,  7, 11,  8, 36,"Slide on", BT_KEY, 255, &Controls.slide_on_state, STATE_BIT2, NULL },
+	{ 10, 15, 93, 71, 26,  8, 12, 37, 11,"Slide left", BT_KEY, 255, &Controls.slide_left_state, STATE_BIT1, NULL },
+	{ 11, 15, 93,100, 26,  9, 13, 10, 44,"Slide left", BT_KEY, 255, &Controls.slide_left_state, STATE_BIT2, NULL },
+	{ 12, 15,101, 71, 26, 10, 14, 45, 13,"Slide right", BT_KEY, 255, &Controls.slide_right_state, STATE_BIT1, NULL },
+	{ 13, 15,101,100, 26, 11, 15, 12, 30,"Slide right", BT_KEY, 255, &Controls.slide_right_state, STATE_BIT2, NULL },
+	{ 14, 15,109, 71, 26, 12, 16, 31, 15,"Slide up", BT_KEY, 255, &Controls.slide_up_state, STATE_BIT1, NULL },
+	{ 15, 15,109,100, 26, 13, 17, 14, 32,"Slide up", BT_KEY, 255, &Controls.slide_up_state, STATE_BIT2, NULL },
+	{ 16, 15,117, 71, 26, 14, 18, 33, 17,"Slide down", BT_KEY, 255, &Controls.slide_down_state, STATE_BIT1, NULL },
+	{ 17, 15,117,100, 26, 15, 19, 16, 46,"Slide down", BT_KEY, 255, &Controls.slide_down_state, STATE_BIT2, NULL },
+	{ 18, 15,129, 71, 26, 16, 20, 47, 19,"Bank on", BT_KEY, 255, &Controls.bank_on_state, STATE_BIT1, NULL },
+	{ 19, 15,129,100, 26, 17, 21, 18, 38,"Bank on", BT_KEY, 255, &Controls.bank_on_state, STATE_BIT2, NULL },
+	{ 20, 15,137, 71, 26, 18, 22, 39, 21,"Bank left", BT_KEY, 255, &Controls.bank_left_state, STATE_BIT1, NULL },
+	{ 21, 15,137,100, 26, 19, 23, 20, 40,"Bank left", BT_KEY, 255, &Controls.bank_left_state, STATE_BIT2, NULL },
+	{ 22, 15,145, 71, 26, 20, 48, 41, 23,"Bank right", BT_KEY, 255, &Controls.bank_right_state, STATE_BIT1, NULL },
+	{ 23, 15,145,100, 26, 21, 49, 22, 42,"Bank right", BT_KEY, 255, &Controls.bank_right_state, STATE_BIT2, NULL },
+	{ 24,158, 49, 83, 26, 51, 26,  1, 25,"Fire primary", BT_KEY, 255, &Controls.fire_primary_state, STATE_BIT1, &Controls.fire_primary_count },
+	{ 25,158, 49,112, 26, 56, 27, 24,  2,"Fire primary", BT_KEY, 255, &Controls.fire_primary_state, STATE_BIT2, &Controls.fire_primary_count },
+	{ 26,158, 57, 83, 26, 24, 28,  3, 27,"Fire secondary", BT_KEY, 255, &Controls.fire_secondary_state, STATE_BIT1, &Controls.fire_secondary_count },
+	{ 27,158, 57,112, 26, 25, 29, 26,  4,"Fire secondary", BT_KEY, 255, &Controls.fire_secondary_state, STATE_BIT2, &Controls.fire_secondary_count },
+	{ 28,158, 65, 83, 26, 26, 34,  5, 29,"Fire flare", BT_KEY, 255, NULL, 0, &Controls.fire_flare_count },
+	{ 29,158, 65,112, 26, 27, 35, 28,  6,"Fire flare", BT_KEY, 255, NULL, 0, &Controls.fire_flare_count },
+	{ 30,158,105, 83, 26, 44, 32, 13, 31,"Accelerate", BT_KEY, 255, &Controls.accelerate_state, STATE_BIT1, NULL },
+	{ 31,158,105,112, 26, 45, 33, 30, 14,"Accelerate", BT_KEY, 255, &Controls.accelerate_state, STATE_BIT2, NULL },
+	{ 32,158,113, 83, 26, 30, 46, 15, 33,"reverse", BT_KEY, 255, &Controls.reverse_state, STATE_BIT1, NULL },
+	{ 33,158,113,112, 26, 31, 47, 32, 16,"reverse", BT_KEY, 255, &Controls.reverse_state, STATE_BIT2, NULL },
+	{ 34,158, 73, 83, 26, 28, 36,  7, 35,"Drop Bomb", BT_KEY, 255, NULL, 0, &Controls.drop_bomb_count },
+	{ 35,158, 73,112, 26, 29, 37, 34,  8,"Drop Bomb", BT_KEY, 255, NULL, 0, &Controls.drop_bomb_count },
+	{ 36,158, 85, 83, 26, 34, 44,  9, 37,"REAR VIEW", BT_KEY, 255, &Controls.rear_view_state, STATE_BIT1, &Controls.rear_view_count },
+	{ 37,158, 85,112, 26, 35, 45, 36, 10,"REAR VIEW", BT_KEY, 255, &Controls.rear_view_state, STATE_BIT2, &Controls.rear_view_count },
+	{ 38,158,133, 83, 26, 46, 40, 19, 39,"Cruise Faster", BT_KEY, 255, &Controls.cruise_plus_state, STATE_BIT1, NULL },
+	{ 39,158,133,112, 26, 47, 41, 38, 20,"Cruise Faster", BT_KEY, 255, &Controls.cruise_plus_state, STATE_BIT2, NULL },
+	{ 40,158,141, 83, 26, 38, 42, 21, 41,"Cruise Slower", BT_KEY, 255, &Controls.cruise_minus_state, STATE_BIT1, NULL },
+	{ 41,158,141,112, 26, 39, 43, 40, 22,"Cruise Slower", BT_KEY, 255, &Controls.cruise_minus_state, STATE_BIT2, NULL },
+	{ 42,158,149, 83, 26, 40, 52, 23, 43,"Cruise Off", BT_KEY, 255, NULL, 0, &Controls.cruise_off_count },
+	{ 43,158,149,112, 26, 41, 53, 42, 48,"Cruise Off", BT_KEY, 255, NULL, 0, &Controls.cruise_off_count },
+	{ 44,158, 93, 83, 26, 36, 30, 11, 45,"Automap", BT_KEY, 255, &Controls.automap_state, STATE_BIT1, &Controls.automap_count },
+	{ 45,158, 93,112, 26, 37, 31, 44, 12,"Automap", BT_KEY, 255, &Controls.automap_state, STATE_BIT2, &Controls.automap_count },
+	{ 46,158,121, 83, 26, 32, 38, 17, 47,"Afterburner", BT_KEY, 255, &Controls.afterburner_state, STATE_BIT1, NULL },
+	{ 47,158,121,112, 26, 33, 39, 46, 18,"Afterburner", BT_KEY, 255, &Controls.afterburner_state, STATE_BIT2, NULL },
+	{ 48, 15,161, 71, 26, 22, 50, 43, 49,"Cycle Primary", BT_KEY, 255, NULL, 0, &Controls.cycle_primary_count },
+	{ 49, 15,161,100, 26, 23, 51, 48, 52,"Cycle Primary", BT_KEY, 255, NULL, 0, &Controls.cycle_primary_count },
+	{ 50, 15,169, 71, 26, 48,  1, 53, 51,"Cycle Second.", BT_KEY, 255, NULL, 0, &Controls.cycle_secondary_count },
+	{ 51, 15,169,100, 26, 49, 24, 50, 54,"Cycle Second.", BT_KEY, 255, NULL, 0, &Controls.cycle_secondary_count },
+	{ 52,158,163, 83, 26, 42, 54, 49, 53,"Headlight", BT_KEY, 255, NULL, 0, &Controls.headlight_count },
+	{ 53,158,163,112, 26, 43, 55, 52, 50,"Headlight", BT_KEY, 255, NULL, 0, &Controls.headlight_count },
+	{ 54,158,171, 83, 26, 52, 56, 51, 55,"Energy->Shield", BT_KEY, 255, &Controls.energy_to_shield_state, STATE_BIT1, NULL },
+	{ 55,158,171,112, 26, 53,  0, 54, 56,"Energy->Shield", BT_KEY, 255, &Controls.energy_to_shield_state, STATE_BIT2, NULL },
+	{ 56,158,179, 83, 26, 54, 25, 55,  0,"Toggle Bomb", BT_KEY, 255, NULL, 0, &Controls.toggle_bomb_count },
 };
 kc_item kc_joystick[NUM_JOYSTICK_CONTROLS] = {
-	{  0, 22, 46, 80, 26, 15,  1, 24, 31,"Fire primary", BT_JOY_BUTTON, 255 },
-	{  1, 22, 54, 80, 26,  0,  4, 36, 32,"Fire secondary", BT_JOY_BUTTON, 255 },
-	{  2, 22, 78, 80, 26, 26,  3, 39, 33,"Accelerate", BT_JOY_BUTTON, 255 },
-	{  3, 22, 86, 80, 26,  2, 25, 40, 34,"reverse", BT_JOY_BUTTON, 255 },
-	{  4, 22, 62, 80, 26,  1, 26, 37, 35,"Fire flare", BT_JOY_BUTTON, 255 },
-	{  5,174, 46, 74, 26, 23,  6, 31, 36,"Slide on", BT_JOY_BUTTON, 255 },
-	{  6,174, 54, 74, 26,  5,  7, 32, 37,"Slide left", BT_JOY_BUTTON, 255 },
-	{  7,174, 62, 74, 26,  6,  8, 35, 38,"Slide right", BT_JOY_BUTTON, 255 },
-	{  8,174, 70, 74, 26,  7,  9, 45, 39,"Slide up", BT_JOY_BUTTON, 255 },
-	{  9,174, 78, 74, 26,  8, 10, 33, 40,"Slide down", BT_JOY_BUTTON, 255 },
-	{ 10,174, 86, 74, 26,  9, 11, 34, 41,"Bank on", BT_JOY_BUTTON, 255 },
-	{ 11,174, 94, 74, 26, 10, 12, 44, 42,"Bank left", BT_JOY_BUTTON, 255 },
-	{ 12,174,102, 74, 26, 11, 28, 46, 43,"Bank right", BT_JOY_BUTTON, 255 },
-	{ 13, 22,154, 51, 26, 55, 15, 55, 14,"Pitch U/D", BT_JOY_AXIS, 255 },
-	{ 14, 22,154, 99,  8, 50, 16, 13, 17,"Pitch U/D", BT_INVERT, 255 },
-	{ 15, 22,162, 51, 26, 13,  0, 18, 16,"Turn L/R", BT_JOY_AXIS, 255 },
-	{ 16, 22,162, 99,  8, 14, 31, 15, 19,"Turn L/R", BT_INVERT, 255 },
-	{ 17,164,154, 58, 26, 51, 19, 14, 18,"Slide L/R", BT_JOY_AXIS, 255 },
-	{ 18,164,154,106,  8, 54, 20, 17, 15,"Slide L/R", BT_INVERT, 255 },
-	{ 19,164,162, 58, 26, 17, 21, 16, 20,"Slide U/D", BT_JOY_AXIS, 255 },
-	{ 20,164,162,106,  8, 18, 22, 19, 21,"Slide U/D", BT_INVERT, 255 },
-	{ 21,164,170, 58, 26, 19, 23, 20, 22,"Bank L/R", BT_JOY_AXIS, 255 },
-	{ 22,164,170,106,  8, 20, 24, 21, 23,"Bank L/R", BT_INVERT, 255 },
-	{ 23,164,178, 58, 26, 21,  5, 22, 24,"throttle", BT_JOY_AXIS, 255 },
-	{ 24,164,178,106,  8, 22, 36, 23,  0,"throttle", BT_INVERT, 255 },
-	{ 25, 22, 94, 80, 26,  3, 27, 41, 44,"REAR VIEW", BT_JOY_BUTTON, 255 },
-	{ 26, 22, 70, 80, 26,  4,  2, 38, 45,"Drop Bomb", BT_JOY_BUTTON, 255 },
-	{ 27, 22,102, 80, 26, 25, 30, 42, 46,"Afterburner", BT_JOY_BUTTON, 255 },
-	{ 28,174,110, 74, 26, 12, 29, 49, 47,"Cycle Primary", BT_JOY_BUTTON, 255 },
-	{ 29,174,118, 74, 26, 28, 54, 53, 48,"Cycle Secondary", BT_JOY_BUTTON, 255 },
-	{ 30, 22,110, 80, 26, 27, 52, 43, 49,"Headlight", BT_JOY_BUTTON, 255 },
-	{ 31, 22, 46,110, 26, 16, 32,  0,  5,"Fire primary", BT_JOY_BUTTON, 255 },
-	{ 32, 22, 54,110, 26, 31, 35,  1,  6,"Fire secondary", BT_JOY_BUTTON, 255 },
-	{ 33, 22, 78,110, 26, 45, 34,  2,  9,"Accelerate", BT_JOY_BUTTON, 255 },
-	{ 34, 22, 86,110, 26, 33, 44,  3, 10,"reverse", BT_JOY_BUTTON, 255 },
-	{ 35, 22, 62,110, 26, 32, 45,  4,  7,"Fire flare", BT_JOY_BUTTON, 255 },
-	{ 36,174, 46,104, 26, 24, 37,  5,  1,"Slide on", BT_JOY_BUTTON, 255 },
-	{ 37,174, 54,104, 26, 36, 38,  6,  4,"Slide left", BT_JOY_BUTTON, 255 },
-	{ 38,174, 62,104, 26, 37, 39,  7, 26,"Slide right", BT_JOY_BUTTON, 255 },
-	{ 39,174, 70,104, 26, 38, 40,  8,  2,"Slide up", BT_JOY_BUTTON, 255 },
-	{ 40,174, 78,104, 26, 39, 41,  9,  3,"Slide down", BT_JOY_BUTTON, 255 },
-	{ 41,174, 86,104, 26, 40, 42, 10, 25,"Bank on", BT_JOY_BUTTON, 255 },
-	{ 42,174, 94,104, 26, 41, 43, 11, 27,"Bank left", BT_JOY_BUTTON, 255 },
-	{ 43,174,102,104, 26, 42, 47, 12, 30,"Bank right", BT_JOY_BUTTON, 255 },
-	{ 44, 22, 94,110, 26, 34, 46, 25, 11,"REAR VIEW", BT_JOY_BUTTON, 255 },
-	{ 45, 22, 70,110, 26, 35, 33, 26,  8,"Drop Bomb", BT_JOY_BUTTON, 255 },
-	{ 46, 22,102,110, 26, 44, 49, 27, 12,"Afterburner", BT_JOY_BUTTON, 255 },
-	{ 47,174,110,104, 26, 43, 48, 28, 52,"Cycle Primary", BT_JOY_BUTTON, 255 },
-	{ 48,174,118,104, 26, 47, 55, 29, 50,"Cycle Secondary", BT_JOY_BUTTON, 255 },
-	{ 49, 22,110,110, 26, 46, 53, 30, 28,"Headlight", BT_JOY_BUTTON, 255 },
-	{ 50, 22,126, 80, 26, 52, 14, 48, 51,"Automap", BT_JOY_BUTTON, 255 },
-	{ 51, 22,126,110, 26, 53, 17, 50, 54,"Automap", BT_JOY_BUTTON, 255 },
-	{ 52, 22,118, 80, 26, 30, 50, 47, 53,"Energy->Shield", BT_JOY_BUTTON, 255 },
-	{ 53, 22,118,110, 26, 49, 51, 52, 29,"Energy->Shield", BT_JOY_BUTTON, 255 },
-	{ 54,174,126, 74, 26, 29, 18, 51, 55,"Toggle Bomb", BT_JOY_BUTTON, 255 },
-	{ 55,174,126,104, 26, 48, 13, 54, 13,"Toggle Bomb", BT_JOY_BUTTON, 255 },
+	{  0, 22, 46, 80, 26, 15,  1, 24, 31,"Fire primary", BT_JOY_BUTTON, 255, &Controls.fire_primary_state, STATE_BIT3, &Controls.fire_primary_count },
+	{  1, 22, 54, 80, 26,  0,  4, 36, 32,"Fire secondary", BT_JOY_BUTTON, 255, &Controls.fire_secondary_state, STATE_BIT3, &Controls.fire_secondary_count },
+	{  2, 22, 78, 80, 26, 26,  3, 39, 33,"Accelerate", BT_JOY_BUTTON, 255, &Controls.accelerate_state, STATE_BIT3, NULL },
+	{  3, 22, 86, 80, 26,  2, 25, 40, 34,"reverse", BT_JOY_BUTTON, 255, &Controls.reverse_state, STATE_BIT3, NULL },
+	{  4, 22, 62, 80, 26,  1, 26, 37, 35,"Fire flare", BT_JOY_BUTTON, 255, NULL, 0, &Controls.fire_flare_count },
+	{  5,174, 46, 74, 26, 23,  6, 31, 36,"Slide on", BT_JOY_BUTTON, 255, &Controls.slide_on_state, STATE_BIT3, NULL },
+	{  6,174, 54, 74, 26,  5,  7, 32, 37,"Slide left", BT_JOY_BUTTON, 255, &Controls.slide_left_state, STATE_BIT3, NULL },
+	{  7,174, 62, 74, 26,  6,  8, 35, 38,"Slide right", BT_JOY_BUTTON, 255, &Controls.slide_right_state, STATE_BIT3, NULL },
+	{  8,174, 70, 74, 26,  7,  9, 45, 39,"Slide up", BT_JOY_BUTTON, 255, &Controls.slide_up_state, STATE_BIT3, NULL },
+	{  9,174, 78, 74, 26,  8, 10, 33, 40,"Slide down", BT_JOY_BUTTON, 255, &Controls.slide_down_state, STATE_BIT3, NULL },
+	{ 10,174, 86, 74, 26,  9, 11, 34, 41,"Bank on", BT_JOY_BUTTON, 255, &Controls.bank_on_state, STATE_BIT3, NULL },
+	{ 11,174, 94, 74, 26, 10, 12, 44, 42,"Bank left", BT_JOY_BUTTON, 255, &Controls.bank_left_state, STATE_BIT3, NULL },
+	{ 12,174,102, 74, 26, 11, 28, 46, 43,"Bank right", BT_JOY_BUTTON, 255, &Controls.bank_right_state, STATE_BIT3, NULL },
+	{ 13, 22,154, 51, 26, 55, 15, 55, 14,"Pitch U/D", BT_JOY_AXIS, 255, NULL, 0, NULL },
+	{ 14, 22,154, 99,  8, 50, 16, 13, 17,"Pitch U/D", BT_INVERT, 255, NULL, 0, NULL },
+	{ 15, 22,162, 51, 26, 13,  0, 18, 16,"Turn L/R", BT_JOY_AXIS, 255, NULL, 0, NULL },
+	{ 16, 22,162, 99,  8, 14, 31, 15, 19,"Turn L/R", BT_INVERT, 255, NULL, 0, NULL },
+	{ 17,164,154, 58, 26, 51, 19, 14, 18,"Slide L/R", BT_JOY_AXIS, 255, NULL, 0, NULL },
+	{ 18,164,154,106,  8, 54, 20, 17, 15,"Slide L/R", BT_INVERT, 255, NULL, 0, NULL },
+	{ 19,164,162, 58, 26, 17, 21, 16, 20,"Slide U/D", BT_JOY_AXIS, 255, NULL, 0, NULL },
+	{ 20,164,162,106,  8, 18, 22, 19, 21,"Slide U/D", BT_INVERT, 255, NULL, 0, NULL },
+	{ 21,164,170, 58, 26, 19, 23, 20, 22,"Bank L/R", BT_JOY_AXIS, 255, NULL, 0, NULL },
+	{ 22,164,170,106,  8, 20, 24, 21, 23,"Bank L/R", BT_INVERT, 255, NULL, 0, NULL },
+	{ 23,164,178, 58, 26, 21,  5, 22, 24,"throttle", BT_JOY_AXIS, 255, NULL, 0, NULL },
+	{ 24,164,178,106,  8, 22, 36, 23,  0,"throttle", BT_INVERT, 255, NULL, 0, NULL },
+	{ 25, 22, 94, 80, 26,  3, 27, 41, 44,"REAR VIEW", BT_JOY_BUTTON, 255, &Controls.rear_view_state, STATE_BIT3, &Controls.rear_view_count },
+	{ 26, 22, 70, 80, 26,  4,  2, 38, 45,"Drop Bomb", BT_JOY_BUTTON, 255, NULL, 0, &Controls.drop_bomb_count },
+	{ 27, 22,102, 80, 26, 25, 30, 42, 46,"Afterburner", BT_JOY_BUTTON, 255, &Controls.afterburner_state, STATE_BIT3, NULL },
+	{ 28,174,110, 74, 26, 12, 29, 49, 47,"Cycle Primary", BT_JOY_BUTTON, 255, NULL, 0, &Controls.cycle_primary_count },
+	{ 29,174,118, 74, 26, 28, 54, 53, 48,"Cycle Secondary", BT_JOY_BUTTON, 255, NULL, 0, &Controls.cycle_secondary_count },
+	{ 30, 22,110, 80, 26, 27, 52, 43, 49,"Headlight", BT_JOY_BUTTON, 255, NULL, 0, &Controls.headlight_count },
+	{ 31, 22, 46,110, 26, 16, 32,  0,  5,"Fire primary", BT_JOY_BUTTON, 255, &Controls.fire_primary_state, STATE_BIT4, &Controls.fire_primary_count },
+	{ 32, 22, 54,110, 26, 31, 35,  1,  6,"Fire secondary", BT_JOY_BUTTON, 255, &Controls.fire_secondary_state, STATE_BIT4, &Controls.fire_secondary_count },
+	{ 33, 22, 78,110, 26, 45, 34,  2,  9,"Accelerate", BT_JOY_BUTTON, 255, &Controls.accelerate_state, STATE_BIT4, NULL },
+	{ 34, 22, 86,110, 26, 33, 44,  3, 10,"reverse", BT_JOY_BUTTON, 255, &Controls.reverse_state, STATE_BIT4, NULL },
+	{ 35, 22, 62,110, 26, 32, 45,  4,  7,"Fire flare", BT_JOY_BUTTON, 255, NULL, 0, &Controls.fire_flare_count },
+	{ 36,174, 46,104, 26, 24, 37,  5,  1,"Slide on", BT_JOY_BUTTON, 255, &Controls.slide_on_state, STATE_BIT4, NULL },
+	{ 37,174, 54,104, 26, 36, 38,  6,  4,"Slide left", BT_JOY_BUTTON, 255, &Controls.slide_left_state, STATE_BIT4, NULL },
+	{ 38,174, 62,104, 26, 37, 39,  7, 26,"Slide right", BT_JOY_BUTTON, 255, &Controls.slide_right_state, STATE_BIT4, NULL },
+	{ 39,174, 70,104, 26, 38, 40,  8,  2,"Slide up", BT_JOY_BUTTON, 255, &Controls.slide_up_state, STATE_BIT4, NULL },
+	{ 40,174, 78,104, 26, 39, 41,  9,  3,"Slide down", BT_JOY_BUTTON, 255, &Controls.slide_down_state, STATE_BIT4, NULL },
+	{ 41,174, 86,104, 26, 40, 42, 10, 25,"Bank on", BT_JOY_BUTTON, 255, &Controls.bank_on_state, STATE_BIT4, NULL },
+	{ 42,174, 94,104, 26, 41, 43, 11, 27,"Bank left", BT_JOY_BUTTON, 255, &Controls.bank_left_state, STATE_BIT4, NULL },
+	{ 43,174,102,104, 26, 42, 47, 12, 30,"Bank right", BT_JOY_BUTTON, 255, &Controls.bank_right_state, STATE_BIT4, NULL },
+	{ 44, 22, 94,110, 26, 34, 46, 25, 11,"REAR VIEW", BT_JOY_BUTTON, 255, &Controls.rear_view_state, STATE_BIT4, &Controls.rear_view_count },
+	{ 45, 22, 70,110, 26, 35, 33, 26,  8,"Drop Bomb", BT_JOY_BUTTON, 255, NULL, 0, &Controls.drop_bomb_count },
+	{ 46, 22,102,110, 26, 44, 49, 27, 12,"Afterburner", BT_JOY_BUTTON, 255, &Controls.afterburner_state, STATE_BIT4, NULL },
+	{ 47,174,110,104, 26, 43, 48, 28, 52,"Cycle Primary", BT_JOY_BUTTON, 255, NULL, 0, &Controls.cycle_primary_count },
+	{ 48,174,118,104, 26, 47, 55, 29, 50,"Cycle Secondary", BT_JOY_BUTTON, 255, NULL, 0, &Controls.cycle_secondary_count },
+	{ 49, 22,110,110, 26, 46, 53, 30, 28,"Headlight", BT_JOY_BUTTON, 255, NULL, 0, &Controls.headlight_count },
+	{ 50, 22,126, 80, 26, 52, 14, 48, 51,"Automap", BT_JOY_BUTTON, 255, &Controls.automap_state, STATE_BIT3, &Controls.automap_count },
+	{ 51, 22,126,110, 26, 53, 17, 50, 54,"Automap", BT_JOY_BUTTON, 255, &Controls.automap_state, STATE_BIT4, &Controls.automap_count },
+	{ 52, 22,118, 80, 26, 30, 50, 47, 53,"Energy->Shield", BT_JOY_BUTTON, 255, &Controls.energy_to_shield_state, STATE_BIT3, NULL },
+	{ 53, 22,118,110, 26, 49, 51, 52, 29,"Energy->Shield", BT_JOY_BUTTON, 255, &Controls.energy_to_shield_state, STATE_BIT4, NULL },
+	{ 54,174,126, 74, 26, 29, 18, 51, 55,"Toggle Bomb", BT_JOY_BUTTON, 255, NULL, 0, &Controls.toggle_bomb_count },
+	{ 55,174,126,104, 26, 48, 13, 54, 13,"Toggle Bomb", BT_JOY_BUTTON, 255, NULL, 0, &Controls.toggle_bomb_count },
 };
 kc_item kc_mouse[NUM_MOUSE_CONTROLS] = {
-	{  0, 25, 46, 85, 26, 19,  1, 20,  5,"Fire primary", BT_MOUSE_BUTTON, 255 },
-	{  1, 25, 54, 85, 26,  0,  4,  5,  6,"Fire secondary", BT_MOUSE_BUTTON, 255 },
-	{  2, 25, 78, 85, 26, 26,  3,  8,  9,"Accelerate", BT_MOUSE_BUTTON, 255 },
-	{  3, 25, 86, 85, 26,  2, 25,  9, 10,"reverse", BT_MOUSE_BUTTON, 255 },
-	{  4, 25, 62, 85, 26,  1, 26,  6,  7,"Fire flare", BT_MOUSE_BUTTON, 255 },
-	{  5,180, 46, 59, 26, 23,  6,  0,  1,"Slide on", BT_MOUSE_BUTTON, 255 },
-	{  6,180, 54, 59, 26,  5,  7,  1,  4,"Slide left", BT_MOUSE_BUTTON, 255 },
-	{  7,180, 62, 59, 26,  6,  8,  4, 26,"Slide right", BT_MOUSE_BUTTON, 255 },
-	{  8,180, 70, 59, 26,  7,  9, 26,  2,"Slide up", BT_MOUSE_BUTTON, 255 },
-	{  9,180, 78, 59, 26,  8, 10,  2,  3,"Slide down", BT_MOUSE_BUTTON, 255 },
-	{ 10,180, 86, 59, 26,  9, 11,  3, 25,"Bank on", BT_MOUSE_BUTTON, 255 },
-	{ 11,180, 94, 59, 26, 10, 12, 25, 27,"Bank left", BT_MOUSE_BUTTON, 255 },
-	{ 12,180,102, 59, 26, 11, 22, 27, 28,"Bank right", BT_MOUSE_BUTTON, 255 },
-	{ 13, 25,154, 58, 26, 24, 15, 29, 14,"Pitch U/D", BT_MOUSE_AXIS, 255 },
-	{ 14, 25,154,106,  8, 29, 16, 13, 21,"Pitch U/D", BT_INVERT, 255 },
-	{ 15, 25,162, 58, 26, 13, 17, 22, 16,"Turn L/R", BT_MOUSE_AXIS, 255 },
-	{ 16, 25,162,106,  8, 14, 18, 15, 23,"Turn L/R", BT_INVERT, 255 },
-	{ 17, 25,170, 58, 26, 15, 19, 24, 18,"Slide L/R", BT_MOUSE_AXIS, 255 },
-	{ 18, 25,170,106,  8, 16, 20, 17, 19,"Slide L/R", BT_INVERT, 255 },
-	{ 19, 25,178, 58, 26, 17,  0, 18, 20,"Slide U/D", BT_MOUSE_AXIS, 255 },
-	{ 20, 25,178,106,  8, 18, 21, 19,  0,"Slide U/D", BT_INVERT, 255 },
-	{ 21,180,154, 58, 26, 20, 23, 14, 22,"Bank L/R", BT_MOUSE_AXIS, 255 },
-	{ 22,180,154,106,  8, 12, 24, 21, 15,"Bank L/R", BT_INVERT, 255 },
-	{ 23,180,162, 58, 26, 21,  5, 16, 24,"Throttle", BT_MOUSE_AXIS, 255 },
-	{ 24,180,162,106,  8, 22, 13, 23, 17,"Throttle", BT_INVERT, 255 },
-	{ 25, 25, 94, 85, 26,  3, 27, 10, 11,"REAR VIEW", BT_MOUSE_BUTTON, 255 },
-	{ 26, 25, 70, 85, 26,  4,  2,  7,  8,"Drop Bomb", BT_MOUSE_BUTTON, 255 },
-	{ 27, 25,102, 85, 26, 25, 28, 11, 12,"Afterburner", BT_MOUSE_BUTTON, 255 },
-	{ 28, 25,110, 85, 26, 27, 29, 12, 29,"Cycle Primary", BT_MOUSE_BUTTON, 255 },
-	{ 29, 25,118, 85, 26, 28, 14, 28, 13,"Cycle Secondary", BT_MOUSE_BUTTON, 255 },
+	{  0, 25, 46, 85, 26, 19,  1, 20,  5,"Fire primary", BT_MOUSE_BUTTON, 255, &Controls.fire_primary_state, STATE_BIT5, &Controls.fire_primary_count },
+	{  1, 25, 54, 85, 26,  0,  4,  5,  6,"Fire secondary", BT_MOUSE_BUTTON, 255, &Controls.fire_secondary_state, STATE_BIT5, &Controls.fire_secondary_count },
+	{  2, 25, 78, 85, 26, 26,  3,  8,  9,"Accelerate", BT_MOUSE_BUTTON, 255, &Controls.accelerate_state, STATE_BIT5, NULL },
+	{  3, 25, 86, 85, 26,  2, 25,  9, 10,"reverse", BT_MOUSE_BUTTON, 255, &Controls.reverse_state, STATE_BIT5, NULL },
+	{  4, 25, 62, 85, 26,  1, 26,  6,  7,"Fire flare", BT_MOUSE_BUTTON, 255, NULL, 0, &Controls.fire_flare_count },
+	{  5,180, 46, 59, 26, 23,  6,  0,  1,"Slide on", BT_MOUSE_BUTTON, 255, &Controls.slide_on_state, STATE_BIT5, NULL },
+	{  6,180, 54, 59, 26,  5,  7,  1,  4,"Slide left", BT_MOUSE_BUTTON, 255, &Controls.slide_left_state, STATE_BIT5, NULL },
+	{  7,180, 62, 59, 26,  6,  8,  4, 26,"Slide right", BT_MOUSE_BUTTON, 255, &Controls.slide_right_state, STATE_BIT5, NULL },
+	{  8,180, 70, 59, 26,  7,  9, 26,  2,"Slide up", BT_MOUSE_BUTTON, 255, &Controls.slide_up_state, STATE_BIT5, NULL },
+	{  9,180, 78, 59, 26,  8, 10,  2,  3,"Slide down", BT_MOUSE_BUTTON, 255, &Controls.slide_down_state, STATE_BIT5, NULL },
+	{ 10,180, 86, 59, 26,  9, 11,  3, 25,"Bank on", BT_MOUSE_BUTTON, 255, &Controls.bank_on_state, STATE_BIT5, NULL },
+	{ 11,180, 94, 59, 26, 10, 12, 25, 27,"Bank left", BT_MOUSE_BUTTON, 255, &Controls.bank_left_state, STATE_BIT5, NULL },
+	{ 12,180,102, 59, 26, 11, 22, 27, 28,"Bank right", BT_MOUSE_BUTTON, 255, &Controls.bank_right_state, STATE_BIT5, NULL },
+	{ 13, 25,154, 58, 26, 24, 15, 29, 14,"Pitch U/D", BT_MOUSE_AXIS, 255, NULL, 0, NULL },
+	{ 14, 25,154,106,  8, 29, 16, 13, 21,"Pitch U/D", BT_INVERT, 255, NULL, 0, NULL },
+	{ 15, 25,162, 58, 26, 13, 17, 22, 16,"Turn L/R", BT_MOUSE_AXIS, 255, NULL, 0, NULL },
+	{ 16, 25,162,106,  8, 14, 18, 15, 23,"Turn L/R", BT_INVERT, 255, NULL, 0, NULL },
+	{ 17, 25,170, 58, 26, 15, 19, 24, 18,"Slide L/R", BT_MOUSE_AXIS, 255, NULL, 0, NULL },
+	{ 18, 25,170,106,  8, 16, 20, 17, 19,"Slide L/R", BT_INVERT, 255, NULL, 0, NULL },
+	{ 19, 25,178, 58, 26, 17,  0, 18, 20,"Slide U/D", BT_MOUSE_AXIS, 255, NULL, 0, NULL },
+	{ 20, 25,178,106,  8, 18, 21, 19,  0,"Slide U/D", BT_INVERT, 255, NULL, 0, NULL },
+	{ 21,180,154, 58, 26, 20, 23, 14, 22,"Bank L/R", BT_MOUSE_AXIS, 255, NULL, 0, NULL },
+	{ 22,180,154,106,  8, 12, 24, 21, 15,"Bank L/R", BT_INVERT, 255, NULL, 0, NULL },
+	{ 23,180,162, 58, 26, 21,  5, 16, 24,"Throttle", BT_MOUSE_AXIS, 255, NULL, 0, NULL },
+	{ 24,180,162,106,  8, 22, 13, 23, 17,"Throttle", BT_INVERT, 255, NULL, 0, NULL },
+	{ 25, 25, 94, 85, 26,  3, 27, 10, 11,"REAR VIEW", BT_MOUSE_BUTTON, 255, &Controls.rear_view_state, STATE_BIT5, &Controls.rear_view_count },
+	{ 26, 25, 70, 85, 26,  4,  2,  7,  8,"Drop Bomb", BT_MOUSE_BUTTON, 255, NULL, 0, &Controls.drop_bomb_count },
+	{ 27, 25,102, 85, 26, 25, 28, 11, 12,"Afterburner", BT_MOUSE_BUTTON, 255, &Controls.afterburner_state, STATE_BIT5, NULL },
+	{ 28, 25,110, 85, 26, 27, 29, 12, 29,"Cycle Primary", BT_MOUSE_BUTTON, 255, NULL, 0, &Controls.cycle_primary_count },
+	{ 29, 25,118, 85, 26, 28, 14, 28, 13,"Cycle Secondary", BT_MOUSE_BUTTON, 255, NULL, 0, &Controls.cycle_secondary_count },
 };
 
-#ifdef D2X_KEYS
 kc_item kc_d2x[NUM_D2X_CONTROLS] = {
-	{  0, 15, 69,142, 26, 29,  3, 29,  1,"(SUPER)LASER CANNON", BT_KEY, 255 },
-	{  1, 15, 69,200, 26, 27,  4,  0,  2,"(SUPER)LASER CANNON", BT_JOY_BUTTON, 255 },
-	{  2, 15, 69,258, 26, 28,  5,  1,  3,"(SUPER)LASER CANNON", BT_MOUSE_BUTTON, 255 },
-	{  3, 15, 77,142, 26,  0,  6,  2,  4,"VULCAN/GAUSS CANNON", BT_KEY, 255 },
-	{  4, 15, 77,200, 26,  1,  7,  3,  5,"VULCAN/GAUSS CANNON", BT_JOY_BUTTON, 255 },
-	{  5, 15, 77,258, 26,  2,  8,  4,  6,"VULCAN/GAUSS CANNON", BT_MOUSE_BUTTON, 255 },
-	{  6, 15, 85,142, 26,  3,  9,  5,  7,"SPREADFIRE/HELIX CANNON", BT_KEY, 255 },
-	{  7, 15, 85,200, 26,  4, 10,  6,  8,"SPREADFIRE/HELIX CANNON", BT_JOY_BUTTON, 255 },
-	{  8, 15, 85,258, 26,  5, 11,  7,  9,"SPREADFIRE/HELIX CANNON", BT_MOUSE_BUTTON, 255 },
-	{  9, 15, 93,142, 26,  6, 12,  8, 10,"PLASMA/PHOENIX CANNON", BT_KEY, 255 },
-	{ 10, 15, 93,200, 26,  7, 13,  9, 11,"PLASMA/PHOENIX CANNON", BT_JOY_BUTTON, 255 },
-	{ 11, 15, 93,258, 26,  8, 14, 10, 12,"PLASMA/PHOENIX CANNON", BT_MOUSE_BUTTON, 255 },
-	{ 12, 15,101,142, 26,  9, 15, 11, 13,"FUSION/OMEGA CANNON", BT_KEY, 255 },
-	{ 13, 15,101,200, 26, 10, 16, 12, 14,"FUSION/OMEGA CANNON", BT_JOY_BUTTON, 255 },
-	{ 14, 15,101,258, 26, 11, 17, 13, 15,"FUSION/OMEGA CANNON", BT_JOY_BUTTON, 255 },
-	{ 15, 15,109,142, 26, 12, 18, 14, 16,"CONCUSSION/FLASH MISSILE", BT_KEY, 255 },
-	{ 16, 15,109,200, 26, 13, 19, 15, 17,"CONCUSSION/FLASH MISSILE", BT_JOY_BUTTON, 255 },
-	{ 17, 15,109,258, 26, 14, 20, 16, 18,"CONCUSSION/FLASH MISSILE", BT_MOUSE_BUTTON, 255 },
-	{ 18, 15,117,142, 26, 15, 21, 17, 19,"HOMING/GUIDED MISSILE", BT_KEY, 255 },
-	{ 19, 15,117,200, 26, 16, 22, 18, 20,"HOMING/GUIDED MISSILE", BT_JOY_BUTTON, 255 },
-	{ 20, 15,117,258, 26, 17, 23, 19, 21,"HOMING/GUIDED MISSILE", BT_MOUSE_BUTTON, 255 },
-	{ 21, 15,125,142, 26, 18, 24, 20, 22,"PROXIMITY BOMB/SMART MINE", BT_KEY, 255 },
-	{ 22, 15,125,200, 26, 19, 25, 21, 23,"PROXIMITY BOMB/SMART MINE", BT_JOY_BUTTON, 255 },
-	{ 23, 15,125,258, 26, 20, 26, 22, 24,"PROXIMITY BOMB/SMART MINE", BT_MOUSE_BUTTON, 255 },
-	{ 24, 15,133,142, 26, 21, 27, 23, 25,"SMART/MERCURY MISSILE", BT_KEY, 255 },
-	{ 25, 15,133,200, 26, 22, 28, 24, 26,"SMART/MERCURY MISSILE", BT_JOY_BUTTON, 255 },
-	{ 26, 15,133,258, 26, 23, 29, 25, 27,"SMART/MERCURY MISSILE", BT_MOUSE_BUTTON, 255 },
-	{ 27, 15,141,142, 26, 24,  1, 26, 28,"MEGA/EARTHSHAKER MISSILE", BT_KEY, 255 },
-	{ 28, 15,141,200, 26, 25,  2, 27, 29,"MEGA/EARTHSHAKER MISSILE", BT_JOY_BUTTON, 255 },
-	{ 29, 15,141,258, 26, 26,  0, 28,  0,"MEGA/EARTHSHAKER MISSILE", BT_MOUSE_BUTTON, 255 },
+	{  0, 15, 69,142, 26, 29,  3, 29,  1,"(SUPER)LASER CANNON", BT_KEY, 255, NULL, 0, &Controls.select_weapon_count },
+	{  1, 15, 69,200, 26, 27,  4,  0,  2,"(SUPER)LASER CANNON", BT_JOY_BUTTON, 255, NULL, 0, &Controls.select_weapon_count },
+	{  2, 15, 69,258, 26, 28,  5,  1,  3,"(SUPER)LASER CANNON", BT_MOUSE_BUTTON, 255, NULL, 0, &Controls.select_weapon_count },
+	{  3, 15, 77,142, 26,  0,  6,  2,  4,"VULCAN/GAUSS CANNON", BT_KEY, 255, NULL, 0, &Controls.select_weapon_count },
+	{  4, 15, 77,200, 26,  1,  7,  3,  5,"VULCAN/GAUSS CANNON", BT_JOY_BUTTON, 255, NULL, 0, &Controls.select_weapon_count },
+	{  5, 15, 77,258, 26,  2,  8,  4,  6,"VULCAN/GAUSS CANNON", BT_MOUSE_BUTTON, 255, NULL, 0, &Controls.select_weapon_count },
+	{  6, 15, 85,142, 26,  3,  9,  5,  7,"SPREADFIRE/HELIX CANNON", BT_KEY, 255, NULL, 0, &Controls.select_weapon_count },
+	{  7, 15, 85,200, 26,  4, 10,  6,  8,"SPREADFIRE/HELIX CANNON", BT_JOY_BUTTON, 255, NULL, 0, &Controls.select_weapon_count },
+	{  8, 15, 85,258, 26,  5, 11,  7,  9,"SPREADFIRE/HELIX CANNON", BT_MOUSE_BUTTON, 255, NULL, 0, &Controls.select_weapon_count },
+	{  9, 15, 93,142, 26,  6, 12,  8, 10,"PLASMA/PHOENIX CANNON", BT_KEY, 255, NULL, 0, &Controls.select_weapon_count },
+	{ 10, 15, 93,200, 26,  7, 13,  9, 11,"PLASMA/PHOENIX CANNON", BT_JOY_BUTTON, 255, NULL, 0, &Controls.select_weapon_count },
+	{ 11, 15, 93,258, 26,  8, 14, 10, 12,"PLASMA/PHOENIX CANNON", BT_MOUSE_BUTTON, 255, NULL, 0, &Controls.select_weapon_count },
+	{ 12, 15,101,142, 26,  9, 15, 11, 13,"FUSION/OMEGA CANNON", BT_KEY, 255, NULL, 0, &Controls.select_weapon_count },
+	{ 13, 15,101,200, 26, 10, 16, 12, 14,"FUSION/OMEGA CANNON", BT_JOY_BUTTON, 255, NULL, 0, &Controls.select_weapon_count },
+	{ 14, 15,101,258, 26, 11, 17, 13, 15,"FUSION/OMEGA CANNON", BT_JOY_BUTTON, 255, NULL, 0, &Controls.select_weapon_count },
+	{ 15, 15,109,142, 26, 12, 18, 14, 16,"CONCUSSION/FLASH MISSILE", BT_KEY, 255, NULL, 0, &Controls.select_weapon_count },
+	{ 16, 15,109,200, 26, 13, 19, 15, 17,"CONCUSSION/FLASH MISSILE", BT_JOY_BUTTON, 255, NULL, 0, &Controls.select_weapon_count },
+	{ 17, 15,109,258, 26, 14, 20, 16, 18,"CONCUSSION/FLASH MISSILE", BT_MOUSE_BUTTON, 255, NULL, 0, &Controls.select_weapon_count },
+	{ 18, 15,117,142, 26, 15, 21, 17, 19,"HOMING/GUIDED MISSILE", BT_KEY, 255, NULL, 0, &Controls.select_weapon_count },
+	{ 19, 15,117,200, 26, 16, 22, 18, 20,"HOMING/GUIDED MISSILE", BT_JOY_BUTTON, 255, NULL, 0, &Controls.select_weapon_count },
+	{ 20, 15,117,258, 26, 17, 23, 19, 21,"HOMING/GUIDED MISSILE", BT_MOUSE_BUTTON, 255, NULL, 0, &Controls.select_weapon_count },
+	{ 21, 15,125,142, 26, 18, 24, 20, 22,"PROXIMITY BOMB/SMART MINE", BT_KEY, 255, NULL, 0, &Controls.select_weapon_count },
+	{ 22, 15,125,200, 26, 19, 25, 21, 23,"PROXIMITY BOMB/SMART MINE", BT_JOY_BUTTON, 255, NULL, 0, &Controls.select_weapon_count },
+	{ 23, 15,125,258, 26, 20, 26, 22, 24,"PROXIMITY BOMB/SMART MINE", BT_MOUSE_BUTTON, 255, NULL, 0, &Controls.select_weapon_count },
+	{ 24, 15,133,142, 26, 21, 27, 23, 25,"SMART/MERCURY MISSILE", BT_KEY, 255, NULL, 0, &Controls.select_weapon_count },
+	{ 25, 15,133,200, 26, 22, 28, 24, 26,"SMART/MERCURY MISSILE", BT_JOY_BUTTON, 255, NULL, 0, &Controls.select_weapon_count },
+	{ 26, 15,133,258, 26, 23, 29, 25, 27,"SMART/MERCURY MISSILE", BT_MOUSE_BUTTON, 255, NULL, 0, &Controls.select_weapon_count },
+	{ 27, 15,141,142, 26, 24,  1, 26, 28,"MEGA/EARTHSHAKER MISSILE", BT_KEY, 255, NULL, 0, &Controls.select_weapon_count },
+	{ 28, 15,141,200, 26, 25,  2, 27, 29,"MEGA/EARTHSHAKER MISSILE", BT_JOY_BUTTON, 255, NULL, 0, &Controls.select_weapon_count },
+	{ 29, 15,141,258, 26, 26,  0, 28,  0,"MEGA/EARTHSHAKER MISSILE", BT_MOUSE_BUTTON, 255, NULL, 0, &Controls.select_weapon_count },
 };
-#endif
 
 void kc_drawitem( kc_item *item, int is_current );
-void kc_change_key( kc_menu *menu, kc_item * item );
-void kc_change_joybutton( kc_menu *menu, kc_item * item );
+void kc_change_key( kc_menu *menu, d_event *event, kc_item * item );
+void kc_change_joybutton( kc_menu *menu, d_event *event, kc_item * item );
 void kc_change_mousebutton( kc_menu *menu, d_event *event, kc_item * item );
-void kc_change_joyaxis( kc_menu *menu, kc_item * item );
-void kc_change_mouseaxis( kc_menu *menu, kc_item * item );
+void kc_change_joyaxis( kc_menu *menu, d_event *event, kc_item * item );
+void kc_change_mouseaxis( kc_menu *menu, d_event *event, kc_item * item );
 void kc_change_invert( kc_menu *menu, kc_item * item );
 
 #ifdef TABLE_CREATION
@@ -554,7 +554,6 @@ void kconfig_draw(kc_menu *menu)
 		gr_string( FSPACX(242), FSPACY(145), TXT_AXIS );
 		gr_string( FSPACX(274), FSPACY(145), TXT_INVERT );
 	}
-#ifdef D2X_KEYS
 	else if ( menu->items == kc_d2x )
 	{
 		gr_set_fontcolor( BM_XRGB(31,27,6), -1 );
@@ -564,7 +563,6 @@ void kconfig_draw(kc_menu *menu)
 		gr_string(FSPACX(210), FSPACY(60), "JOYSTICK");
 		gr_string(FSPACX(273), FSPACY(60), "MOUSE");
 	}
-#endif
 	
 	for (i=0; i<menu->nitems; i++ )	{
 		kc_drawitem( &menu->items[i], 0 );
@@ -599,11 +597,6 @@ void kconfig_start_changing(kc_menu *menu)
 	
 	gr_set_fontcolor( BM_XRGB(28,28,28), -1 );
 	menu->q_fade_i = 0;	// start question mark flasher
-	
-	game_flush_inputs();
-	if (menu->items[menu->citem].type == BT_JOY_AXIS)
-		joystick_read_raw_axis( menu->old_axis );
-	
 	menu->changing = 1;
 }
 
@@ -652,7 +645,6 @@ int kconfig_mouse(window *wind, d_event *event, kc_menu *menu)
 		{
 			// Click out of changing mode - kreatordxx
 			menu->changing = 0;
-			game_flush_inputs();
 			rval = 1;
 		}
 	}
@@ -689,11 +681,9 @@ int kconfig_key_command(window *wind, d_event *event, kc_menu *menu)
 			if ( menu->items==kc_mouse )
 				for (i=0; i<NUM_MOUSE_CONTROLS; i++ )
 					menu->items[i].value = DefaultKeySettings[2][i];
-#ifdef D2X_KEYS
 			if ( menu->items==kc_d2x )
 				for(i=0;i<NUM_D2X_CONTROLS;i++)
 					menu->items[i].value=DefaultKeySettingsD2X[i];
-#endif
 			return 1;
 		case KEY_DELETE:
 			menu->items[menu->citem].value=255;
@@ -841,7 +831,6 @@ int kconfig_handler(window *wind, d_event *event, kc_menu *menu)
 	{
 		case EVENT_WINDOW_ACTIVATED:
 			game_flush_inputs();
-			event_toggle_focus(0);
 			break;
 			
 		case EVENT_WINDOW_DEACTIVATED:
@@ -869,38 +858,48 @@ int kconfig_handler(window *wind, d_event *event, kc_menu *menu)
 			menu->mouse_state = (event->type == EVENT_MOUSE_BUTTON_DOWN);
 			return kconfig_mouse(wind, event, menu);
 
+		case EVENT_MOUSE_MOVED:
+			if (menu->changing && menu->items[menu->citem].type == BT_MOUSE_AXIS) kc_change_mouseaxis(menu, event, &menu->items[menu->citem]);
+			else
+				event_mouse_get_delta( event, &menu->old_maxis[0], &menu->old_maxis[1], &menu->old_maxis[2]);
+			break;
+
+		case EVENT_JOYSTICK_BUTTON_DOWN:
+			if (menu->changing && menu->items[menu->citem].type == BT_JOY_BUTTON) kc_change_joybutton(menu, event, &menu->items[menu->citem]);
+			break;
+
+		case EVENT_JOYSTICK_MOVED:
+			if (menu->changing && menu->items[menu->citem].type == BT_JOY_AXIS) kc_change_joyaxis(menu, event, &menu->items[menu->citem]);
+			else
+			{
+				int axis, value;
+				event_joystick_get_axis( event, &axis, &value );
+				menu->old_jaxis[axis] = value;
+			}
+			break;
+
 		case EVENT_KEY_COMMAND:
-			return kconfig_key_command(wind, event, menu);
+		{
+			int rval = kconfig_key_command(wind, event, menu);
+			if (rval)
+				return rval;
+			if (menu->changing && menu->items[menu->citem].type == BT_KEY) kc_change_key(menu, event, &menu->items[menu->citem]);
+			return 0;
+		}
 
 		case EVENT_IDLE:
 			kconfig_mouse(wind, event, menu);
-
+			break;
+			
+		case EVENT_WINDOW_DRAW:
 			if (menu->changing)
 				timer_delay(f0_1/10);
 			else
 				timer_delay2(50);
-			
-			if (menu->changing)
-			{
-				switch( menu->items[menu->citem].type )
-				{
-					case BT_KEY:            kc_change_key(         menu, &menu->items[menu->citem] ); break;
-					case BT_MOUSE_AXIS:     kc_change_mouseaxis(   menu, &menu->items[menu->citem] ); break;
-					case BT_JOY_BUTTON:     kc_change_joybutton(   menu, &menu->items[menu->citem] ); break;
-					case BT_JOY_AXIS:       kc_change_joyaxis(     menu, &menu->items[menu->citem] ); break;
-				}
-				
-				if (!menu->changing)
-					game_flush_inputs();
-			}
-			break;
-			
-		case EVENT_WINDOW_DRAW:
 			kconfig_draw(menu);
 			break;
 			
 		case EVENT_WINDOW_CLOSE:
-			//event_toggle_focus(1);	// No cursor recentering
 			d_free(menu);
 			
 			// Update save values...
@@ -914,10 +913,8 @@ int kconfig_handler(window *wind, d_event *event, kc_menu *menu)
 			for (i=0; i<NUM_MOUSE_CONTROLS; i++ ) 
 				PlayerCfg.KeySettings[2][i] = kc_mouse[i].value;
 			
-#ifdef D2X_KEYS
 			for (i=0; i<NUM_D2X_CONTROLS; i++)
 				PlayerCfg.KeySettingsD2X[i] = kc_d2x[i].value;
-#endif
 			return 0;	// continue closing
 			break;
 			
@@ -1030,133 +1027,114 @@ void kc_drawquestion( kc_menu *menu, kc_item *item )
 	gr_string( x, FSPACY(item->y), "?" );
 }
 
-void kc_change_key( kc_menu *menu, kc_item * item )
+void kc_change_key( kc_menu *menu, d_event *event, kc_item * item )
 {
-	int i,n,f;
+	int i,n;
 	ubyte keycode = 255;
 
-	for (i=0; i<256; i++ )	{
-		if (keyd_pressed[i] && (strlen(key_text[i])>0))	{
-			f = 0;
-			for (n=0; n<(GameArg.CtlNoStickyKeys?sizeof(system_keys)-3:sizeof(system_keys)); n++ )
-				if ( system_keys[n] == i )
-					f=1;
-			if (!f)	
-				keycode=i;
-		}
-	}
+	Assert(event->type == EVENT_KEY_COMMAND);
+	keycode = event_key_get_raw(event);
 
-	if (keycode != 255)	{
-		for (i=0; i<menu->nitems; i++ )	{
-			n = item - menu->items;
-			if ( (i!=n) && (menu->items[i].type==BT_KEY) && (menu->items[i].value==keycode) )		{
-				menu->items[i].value = 255;
-			}
+	if (strlen(key_text[keycode])<=0)
+		return;
+
+	for (n=0; n<(GameArg.CtlNoStickyKeys?sizeof(system_keys)-3:sizeof(system_keys)); n++ )
+		if ( system_keys[n] == keycode )
+			return;
+
+	for (i=0; i<menu->nitems; i++ )
+	{
+		n = item - menu->items;
+		if ( (i!=n) && (menu->items[i].type==BT_KEY) && (menu->items[i].value==keycode) )
+		{
+			menu->items[i].value = 255;
 		}
-		item->value = keycode;
-		menu->changing = 0;
 	}
+	item->value = keycode;
+	menu->changing = 0;
 }
 
-void kc_change_joybutton( kc_menu *menu, kc_item * item )
+void kc_change_joybutton( kc_menu *menu, d_event *event, kc_item * item )
 {
-	int n,i;
-	ubyte code = 255;
+	int n,i,button = 255;
 
-	for (i = 0; i < JOY_MAX_BUTTONS; i++)
+	Assert(event->type == EVENT_JOYSTICK_BUTTON_DOWN);
+	button = event_joystick_get_button(event);
+
+	for (i=0; i<menu->nitems; i++ )
 	{
-		if ( joy_get_button_state(i) )
-		{
-			code = i;
-			menu->changing = 0;
-		}
+		n = item - menu->items;
+		if ( (i!=n) && (menu->items[i].type==BT_JOY_BUTTON) && (menu->items[i].value==button) )
+			menu->items[i].value = 255;
 	}
-	if (code!=255)	{
-		for (i=0; i<menu->nitems; i++ )	{
-			n = item - menu->items;
-			if ( (i!=n) && (menu->items[i].type==BT_JOY_BUTTON) && (menu->items[i].value==code) ) {
-				menu->items[i].value = 255;
-			}
-		}
-		item->value = code;
-		menu->changing = 0;
-	}
+	item->value = button;
+	menu->changing = 0;
 }
 
 void kc_change_mousebutton( kc_menu *menu, d_event *event, kc_item * item )
 {
-	int n,i,b;
+	int n,i,button;
 
-	b = event_mouse_get_button(event);
+	Assert(event->type == EVENT_MOUSE_BUTTON_DOWN);
+	button = event_mouse_get_button(event);
 
 	for (i=0; i<menu->nitems; i++)
 	{
 		n = item - menu->items;
-		if ( (i!=n) && (menu->items[i].type==BT_MOUSE_BUTTON) && (menu->items[i].value==b) )
+		if ( (i!=n) && (menu->items[i].type==BT_MOUSE_BUTTON) && (menu->items[i].value==button) )
 			menu->items[i].value = 255;
 	}
-
-	item->value = b;
+	item->value = button;
 	menu->changing = 0;
 }
 
-void kc_change_joyaxis( kc_menu *menu, kc_item * item )
+void kc_change_joyaxis( kc_menu *menu, d_event *event, kc_item * item )
 {
-	int axis[JOY_MAX_AXES];
-	int numaxis = joy_num_axes;
-	int n,i;
+	int i, n, axis, value;
+
+	Assert(event->type == EVENT_JOYSTICK_MOVED);
+	event_joystick_get_axis( event, &axis, &value );
+
+	if ( abs(value-menu->old_jaxis[axis])<32 )
+		return;
+	con_printf(CON_DEBUG, "Axis Movement detected: Axis %i\n", axis);
+
+	for (i=0; i<menu->nitems; i++ )
+	{
+		n = item - menu->items;
+		if ( (i!=n) && (menu->items[i].type==BT_JOY_AXIS) && (menu->items[i].value==axis) )
+			menu->items[i].value = 255;
+	}
+	item->value = axis;
+	menu->changing = 0;
+}
+
+void kc_change_mouseaxis( kc_menu *menu, d_event *event, kc_item * item )
+{
+	int i, n, dx, dy, dz;
 	ubyte code = 255;
 
-	joystick_read_raw_axis( axis );
+	Assert(event->type == EVENT_MOUSE_MOVED);
+	event_mouse_get_delta( event, &dx, &dy, &dz );
+	if ( abs(dx)>5 ) code = 0;
+	if ( abs(dy)>5 ) code = 1;
+	if ( abs(dz)>5 ) code = 2;
 
-	for (i=0; i<numaxis; i++ )	{
-		if ( abs(axis[i]-menu->old_axis[i])>4096 )
+	if (code!=255)
+	{
+		for (i=0; i<menu->nitems; i++ )
 		{
-			code = i;
-			con_printf(CON_DEBUG, "Axis Movement detected: Axis %i\n", i);
-		}
-	}
-	if (code!=255)	{
-		for (i=0; i<menu->nitems; i++ )	{
 			n = item - menu->items;
-			if ( (i!=n) && (menu->items[i].type==BT_JOY_AXIS) && (menu->items[i].value==code) )	{
+			if ( (i!=n) && (menu->items[i].type==BT_MOUSE_AXIS) && (menu->items[i].value==code) )
 				menu->items[i].value = 255;
-			}
-		}
-
-		item->value = code;
-		menu->changing = 0;
-	}
-}
-
-void kc_change_mouseaxis( kc_menu *menu, kc_item * item )
-{
-	int i,n;
-	ubyte code = 255;
-	int dx,dy,dz;
-
-	mouse_get_delta( &dx, &dy, &dz );
-	if ( abs(dx)>20 ) code = 0;
-	if ( abs(dy)>20 ) code = 1;
-	if ( abs(dz)>20 ) code = 2;
-
-	if (code!=255)	{
-		for (i=0; i<menu->nitems; i++ )	{
-			n = item - menu->items;
-			if ( (i!=n) && (menu->items[i].type==BT_MOUSE_AXIS) && (menu->items[i].value==code) ) {
-				menu->items[i].value = 255;
-			}
 		}
 		item->value = code;
 		menu->changing = 0;
 	}
 }
-
 
 void kc_change_invert( kc_menu *menu, kc_item * item )
 {
-	game_flush_inputs();
-
 	if (item->value)
 		item->value = 0;
 	else 
@@ -1177,9 +1155,7 @@ void kconfig(int n, char * title)
 		case 0:kconfig_sub( kc_keyboard,NUM_KEY_CONTROLS,  title); break;
 		case 1:kconfig_sub( kc_joystick,NUM_JOYSTICK_CONTROLS,title); break;
 		case 2:kconfig_sub( kc_mouse,   NUM_MOUSE_CONTROLS,    title); break;
-#ifdef D2X_KEYS
 		case 3:kconfig_sub( kc_d2x, NUM_D2X_CONTROLS, title ); break;
-#endif
 		default:
 			Int3();
 			return;
@@ -1194,196 +1170,182 @@ ubyte Last_angles_read = 0;
 extern int VR_sensitivity;
 int VR_sense_range[3] = { 25, 50, 75 };
 
-void controls_read_all(int automap_flag)
+void kconfig_read_controls(d_event *event, int automap_flag)
 {
-	int i = 0, slide_on = 0, bank_on = 0, mouse_buttons = 0, use_mouse = 0, use_joystick = 0, speed_factor = 1;
-	fix k0, k1, k2, k3, kp, k4, k5, k6, k7, kh;
+	int i = 0, j = 0, speed_factor = Game_turbo_mode?2:1;
+	static fix64 mouse_delta_time = 0;
 
-	if (Game_turbo_mode)
-		speed_factor = 2;
-	
-	Controls.vertical_thrust_time=0;
-	Controls.sideways_thrust_time=0;
-	Controls.bank_time=0;
-	Controls.forward_thrust_time=0;
-	Controls.rear_view_down_count=0;
-	Controls.rear_view_down_state=0;
-	Controls.fire_primary_down_count=0;
-	Controls.fire_primary_state=0;
-	Controls.fire_secondary_state=0;
-	Controls.fire_secondary_down_count=0;
-	Controls.fire_flare_down_count=0;
-	Controls.drop_bomb_down_count=0;
-	Controls.automap_down_count=0;
-	Controls.automap_state=0;
-	Controls.cycle_primary_count=0;
-	Controls.cycle_secondary_count=0;
-	Controls.afterburner_state=0;
-	Controls.headlight_count=0;
-
-	//---------  Read Joystick -----------
-	if ( PlayerCfg.ControlType & CONTROL_USING_JOYSTICK ) {
-		joystick_read_raw_axis( Controls.raw_joy_axis );
-
-		for (i = 0; i < joy_num_axes; i++)
-		{
-			int joy_null_value = 0;
-
-			Controls.raw_joy_axis[i] = joy_get_scaled_reading( Controls.raw_joy_axis[i] );
-
-			if (i == kc_joystick[13].value) // Pitch U/D Deadzone
-				joy_null_value = PlayerCfg.JoystickDead[1]*8;
-			if (i == kc_joystick[15].value) // Turn L/R Deadzone
-				joy_null_value = PlayerCfg.JoystickDead[0]*8;
-			if (i == kc_joystick[17].value) // Slide L/R Deadzone
-				joy_null_value = PlayerCfg.JoystickDead[2]*8;
-			if (i == kc_joystick[19].value) // Slide U/D Deadzone
-				joy_null_value = PlayerCfg.JoystickDead[3]*8;
-			if (i == kc_joystick[21].value) // Bank Deadzone
-				joy_null_value = PlayerCfg.JoystickDead[4]*8;
-			if (i == kc_joystick[23].value) // Throttle - default deadzone
-				joy_null_value = 20;
-
-			if (Controls.raw_joy_axis[i] > joy_null_value) 
-				Controls.raw_joy_axis[i] = ((Controls.raw_joy_axis[i]-joy_null_value)*128)/(128-joy_null_value);
-			else if (Controls.raw_joy_axis[i] < -joy_null_value)
-				Controls.raw_joy_axis[i] = ((Controls.raw_joy_axis[i]+joy_null_value)*128)/(128-joy_null_value);
-			else
-				Controls.raw_joy_axis[i] = 0;
-			Controls.joy_axis[i]	= (Controls.raw_joy_axis[i]*FrameTime)/128;	
-		}
-		use_joystick=1;
-	} else {
-		for (i = 0; i < joy_num_axes; i++)
-			Controls.joy_axis[i] = 0;
-		use_joystick=0;
-	}
-
-	if ( PlayerCfg.ControlType & CONTROL_USING_MOUSE) {
-		//---------  Read Mouse -----------
-		if (PlayerCfg.MouseFlightSim)
-		{
-			int ax[3];
-			mouse_get_delta( &ax[0], &ax[1], &ax[2] );
-			for (i = 0; i <= 2; i++)
-			{
-				int mouse_null_value = (i==2?16:PlayerCfg.MouseFSDead*8);
-				Controls.raw_mouse_axis[i] += ax[i];
-				if (Controls.raw_mouse_axis[i] < -MOUSEFS_DELTA_RANGE)
-					Controls.raw_mouse_axis[i] = -MOUSEFS_DELTA_RANGE;
-				if (Controls.raw_mouse_axis[i] > MOUSEFS_DELTA_RANGE)
-					Controls.raw_mouse_axis[i] = MOUSEFS_DELTA_RANGE;
-				if (Controls.raw_mouse_axis[i] > mouse_null_value) 
-					Controls.mouse_axis[i] = (((Controls.raw_mouse_axis[i]-mouse_null_value)*MOUSEFS_DELTA_RANGE)/(MOUSEFS_DELTA_RANGE-mouse_null_value)*FrameTime)/MOUSEFS_DELTA_RANGE;
-				else if (Controls.raw_mouse_axis[i] < -mouse_null_value)
-					Controls.mouse_axis[i] = (((Controls.raw_mouse_axis[i]+mouse_null_value)*MOUSEFS_DELTA_RANGE)/(MOUSEFS_DELTA_RANGE-mouse_null_value)*FrameTime)/MOUSEFS_DELTA_RANGE;
-				else
-					Controls.mouse_axis[i] = 0;
-			}
-		}
-		else if (FixedStep & EPS30) // as the mouse won't get delta in each frame (at high FPS) and we have a capped movement, read time-based
-		{
-			mouse_get_delta( &Controls.raw_mouse_axis[0], &Controls.raw_mouse_axis[1], &Controls.raw_mouse_axis[2] );
-			Controls.mouse_axis[0] = (Controls.raw_mouse_axis[0]*FrameTime)/25;
-			Controls.mouse_axis[1] = (Controls.raw_mouse_axis[1]*FrameTime)/25;
-			Controls.mouse_axis[2] = (Controls.raw_mouse_axis[2]*FrameTime);
-		}
-		mouse_buttons = mouse_get_btns();
-		use_mouse=1;
-	} else {
-		Controls.mouse_axis[0] = 0;
-		Controls.mouse_axis[1] = 0;
-		Controls.mouse_axis[2] = 0;
-		mouse_buttons = 0;
-		use_mouse=0;
-	}
-
-#ifdef D2X_KEYS
-	//--------- Read primary weapon select -------------
-	if (!Player_is_dead && !automap_flag)
+#ifndef NDEBUG
+	// --- Don't do anything if in debug mode ---
+	if ( keyd_pressed[KEY_DELETE] )
 	{
-		//----------------Weapon 1----------------
-		if ( (key_down_count(kc_d2x[0].value) && !((keyd_pressed[KEY_LSHIFT] || keyd_pressed[KEY_RSHIFT]))) ||
-			(use_joystick && joy_get_button_down_cnt(kc_d2x[1].value)) || (use_mouse && mouse_button_down_count(kc_d2x[2].value)) )
-				do_weapon_select(0,0);
-		//----------------Weapon 2----------------
-		if ( (key_down_count(kc_d2x[3].value) && !((keyd_pressed[KEY_LSHIFT] || keyd_pressed[KEY_RSHIFT]))) ||
-			(use_joystick && joy_get_button_down_cnt(kc_d2x[4].value)) || (use_mouse && mouse_button_down_count(kc_d2x[5].value)) )
-				do_weapon_select(1,0);
-		//----------------Weapon 3----------------
-		if ( (key_down_count(kc_d2x[6].value) && !((keyd_pressed[KEY_LSHIFT] || keyd_pressed[KEY_RSHIFT]))) ||
-			(use_joystick && joy_get_button_down_cnt(kc_d2x[7].value)) || (use_mouse && mouse_button_down_count(kc_d2x[8].value)) )
-				do_weapon_select(2,0);
-		//----------------Weapon 4----------------
-		if ( (key_down_count(kc_d2x[9].value) && !((keyd_pressed[KEY_LSHIFT] || keyd_pressed[KEY_RSHIFT]))) ||
-			(use_joystick && joy_get_button_down_cnt(kc_d2x[10].value)) || (use_mouse && mouse_button_down_count(kc_d2x[11].value)) )
-				do_weapon_select(3,0);
-		//----------------Weapon 5----------------
-		if ( (key_down_count(kc_d2x[12].value) && !((keyd_pressed[KEY_LSHIFT] || keyd_pressed[KEY_RSHIFT]))) ||
-			(use_joystick && joy_get_button_down_cnt(kc_d2x[13].value)) || (use_mouse && mouse_button_down_count(kc_d2x[14].value)) )
-				do_weapon_select(4,0);
-
-		//--------- Read secondary weapon select ----------
-		//----------------Weapon 6----------------
-		if ( (key_down_count(kc_d2x[15].value) && !((keyd_pressed[KEY_LSHIFT] || keyd_pressed[KEY_RSHIFT]))) ||
-			(use_joystick && joy_get_button_down_cnt(kc_d2x[16].value)) || (use_mouse && mouse_button_down_count(kc_d2x[17].value)) )
-				do_weapon_select(0,1);
-		//----------------Weapon 7----------------
-		if ( (key_down_count(kc_d2x[18].value) && !((keyd_pressed[KEY_LSHIFT] || keyd_pressed[KEY_RSHIFT]))) ||
-			(use_joystick && joy_get_button_down_cnt(kc_d2x[19].value)) || (use_mouse && mouse_button_down_count(kc_d2x[20].value)) )
-				do_weapon_select(1,1);
-		//----------------Weapon 8----------------
-		if ( (key_down_count(kc_d2x[21].value) && !((keyd_pressed[KEY_LSHIFT] || keyd_pressed[KEY_RSHIFT]))) ||
-			(use_joystick && joy_get_button_down_cnt(kc_d2x[22].value)) || (use_mouse && mouse_button_down_count(kc_d2x[23].value)) )
-				do_weapon_select(2,1);
-		//----------------Weapon 9----------------
-		if ( (key_down_count(kc_d2x[24].value) && !((keyd_pressed[KEY_LSHIFT] || keyd_pressed[KEY_RSHIFT]))) ||
-			(use_joystick && joy_get_button_down_cnt(kc_d2x[25].value)) || (use_mouse && mouse_button_down_count(kc_d2x[26].value)) )
-				do_weapon_select(3,1);
-		//----------------Weapon 0----------------
-		if ( (key_down_count(kc_d2x[27].value) && !((keyd_pressed[KEY_LSHIFT] || keyd_pressed[KEY_RSHIFT]))) ||
-			(use_joystick && joy_get_button_down_cnt(kc_d2x[28].value)) || (use_mouse && mouse_button_down_count(kc_d2x[29].value)) )
-				do_weapon_select(4,1);
-	}//end "if (!Player_is_dead)" - WraithX
+		memset( &Controls, 0, sizeof(control_info) );
+		return;
+	}
 #endif
 
+	Controls.pitch_time = Controls.vertical_thrust_time = Controls.heading_time = Controls.sideways_thrust_time = Controls.bank_time = Controls.forward_thrust_time = 0;
 
-//------------- Read slide_on -------------
-	
-	// From keyboard...
-	if ( kc_keyboard[8].value < 255 ) slide_on |= keyd_pressed[ kc_keyboard[8].value ];
-	if ( kc_keyboard[9].value < 255 ) slide_on |= keyd_pressed[ kc_keyboard[9].value ];
-	// From joystick...
-	if ((use_joystick)&&(kc_joystick[5].value<255)) slide_on |= joy_get_button_state( kc_joystick[5].value );
-	if ((use_joystick)&&(kc_joystick[36].value<255)) slide_on |= joy_get_button_state( kc_joystick[36].value );
-	// From mouse...
-	if ((use_mouse)&&(kc_mouse[5].value<255)) slide_on |= mouse_buttons & (1<<kc_mouse[5].value);
+	switch (event->type)
+	{
+		case EVENT_KEY_COMMAND:
+		case EVENT_KEY_RELEASE:
+			for (i = 0; i < NUM_KEY_CONTROLS; i++)
+			{
+				if (kc_keyboard[i].value < 255 && kc_keyboard[i].value == event_key_get_raw(event))
+				{
+					if (kc_keyboard[i].ci_state_ptr != NULL)
+					{
+						if (event->type==EVENT_KEY_COMMAND)
+							*kc_keyboard[i].ci_state_ptr |= kc_keyboard[i].state_bit;
+						else
+							*kc_keyboard[i].ci_state_ptr &= ~kc_keyboard[i].state_bit;
+					}
+					if (kc_keyboard[i].ci_count_ptr != NULL && event->type==EVENT_KEY_COMMAND)
+						*kc_keyboard[i].ci_count_ptr += 1;
+				}
+			}
+			if (!automap_flag && event->type == EVENT_KEY_COMMAND)
+				for (i = 0, j = 0; i < 28; i += 3, j++)
+					if (kc_d2x[i].value < 255 && kc_d2x[i].value == event_key_get_raw(event))
+					{
+						Controls.select_weapon_count = j;
+						break;
+					}
+			break;
+		case EVENT_JOYSTICK_BUTTON_DOWN:
+		case EVENT_JOYSTICK_BUTTON_UP:
+			if (!(PlayerCfg.ControlType & CONTROL_USING_JOYSTICK))
+				break;
+			for (i = 0; i < NUM_JOYSTICK_CONTROLS; i++)
+			{
+				if (kc_joystick[i].value < 255 && kc_joystick[i].type == BT_JOY_BUTTON && kc_joystick[i].value == event_joystick_get_button(event))
+				{
+					if (kc_joystick[i].ci_state_ptr != NULL)
+					{
+						if (event->type==EVENT_JOYSTICK_BUTTON_DOWN)
+							*kc_joystick[i].ci_state_ptr |= kc_joystick[i].state_bit;
+						else
+							*kc_joystick[i].ci_state_ptr &= ~kc_joystick[i].state_bit;
+					}
+					if (kc_joystick[i].ci_count_ptr != NULL && event->type==EVENT_JOYSTICK_BUTTON_DOWN)
+						*kc_joystick[i].ci_count_ptr += 1;
+				}
+			}
+			if (!automap_flag && event->type == EVENT_JOYSTICK_BUTTON_DOWN)
+				for (i = 1, j = 0; i < 29; i += 3, j++)
+					if (kc_d2x[i].value < 255 && kc_d2x[i].value == event_joystick_get_button(event))
+					{
+						Controls.select_weapon_count = j;
+						break;
+					}
+			break;
+		case EVENT_MOUSE_BUTTON_DOWN:
+		case EVENT_MOUSE_BUTTON_UP:
+			if (!(PlayerCfg.ControlType & CONTROL_USING_MOUSE))
+				break;
+			for (i = 0; i < NUM_MOUSE_CONTROLS; i++)
+			{
+				if (kc_mouse[i].value < 255 && kc_mouse[i].type == BT_MOUSE_BUTTON && kc_mouse[i].value == event_mouse_get_button(event))
+				{
+					if (kc_mouse[i].ci_state_ptr != NULL)
+					{
+						if (event->type==EVENT_MOUSE_BUTTON_DOWN)
+							*kc_mouse[i].ci_state_ptr |= kc_mouse[i].state_bit;
+						else
+							*kc_mouse[i].ci_state_ptr &= ~kc_mouse[i].state_bit;
+					}
+					if (kc_mouse[i].ci_count_ptr != NULL && event->type==EVENT_MOUSE_BUTTON_DOWN)
+						*kc_mouse[i].ci_count_ptr += 1;
+				}
+			}
+			if (!automap_flag && event->type == EVENT_MOUSE_BUTTON_DOWN)
+				for (i = 2, j = 0; i < 30; i += 3, j++)
+					if (kc_d2x[i].value < 255 && kc_d2x[i].value == event_mouse_get_button(event))
+					{
+						Controls.select_weapon_count = j;
+						break;
+					}
+			break;
+		case EVENT_JOYSTICK_MOVED:
+		{
+			int axis = 0, value = 0, joy_null_value = 0;
+			if (!(PlayerCfg.ControlType & CONTROL_USING_JOYSTICK))
+				break;
+			event_joystick_get_axis(event, &axis, &value);
 
-//------------- Read bank_on ---------------
+			Controls.raw_joy_axis[axis] = value;
 
-	// From keyboard...
-	if ( kc_keyboard[18].value < 255 ) bank_on |= keyd_pressed[ kc_keyboard[18].value ];
-	if ( kc_keyboard[19].value < 255 ) bank_on |= keyd_pressed[ kc_keyboard[19].value ];
-	// From joystick...
-	if ( (use_joystick)&&(kc_joystick[10].value < 255 )) bank_on |= joy_get_button_state( kc_joystick[10].value );
-	if ( (use_joystick)&&(kc_joystick[41].value < 255 )) bank_on |= joy_get_button_state( kc_joystick[41].value );
-	// From mouse...
-	if ( (use_mouse)&&(kc_mouse[10].value < 255 )) bank_on |= mouse_buttons & (1<<kc_mouse[10].value);
+			if (axis == kc_joystick[13].value) // Pitch U/D Deadzone
+				joy_null_value = PlayerCfg.JoystickDead[1]*8;
+			if (axis == kc_joystick[15].value) // Turn L/R Deadzone
+				joy_null_value = PlayerCfg.JoystickDead[0]*8;
+			if (axis == kc_joystick[17].value) // Slide L/R Deadzone
+				joy_null_value = PlayerCfg.JoystickDead[2]*8;
+			if (axis == kc_joystick[19].value) // Slide U/D Deadzone
+				joy_null_value = PlayerCfg.JoystickDead[3]*8;
+			if (axis == kc_joystick[21].value) // Bank Deadzone
+				joy_null_value = PlayerCfg.JoystickDead[4]*8;
+			if (axis == kc_joystick[23].value) // Throttle - default deadzone
+				joy_null_value = 20;
 
-//------------ Read pitch_time -----------
-	if ( !slide_on )	{
-		kp = 0;
-		k0 = speed_factor*key_down_time( kc_keyboard[0].value )/2;	// Divide by two since we want pitch to go slower
-		k1 = speed_factor*key_down_time( kc_keyboard[1].value )/2;
-		k2 = speed_factor*key_down_time( kc_keyboard[2].value )/2;
-		k3 = speed_factor*key_down_time( kc_keyboard[3].value )/2;
+			if (Controls.raw_joy_axis[axis] > joy_null_value) 
+				Controls.raw_joy_axis[axis] = ((Controls.raw_joy_axis[axis]-joy_null_value)*128)/(128-joy_null_value);
+			else if (Controls.raw_joy_axis[axis] < -joy_null_value)
+				Controls.raw_joy_axis[axis] = ((Controls.raw_joy_axis[axis]+joy_null_value)*128)/(128-joy_null_value);
+			else
+				Controls.raw_joy_axis[axis] = 0;
+			Controls.joy_axis[axis] = (Controls.raw_joy_axis[axis]*FrameTime)/128;
+			break;
+		}
+		case EVENT_MOUSE_MOVED:
+		{
+			if (!(PlayerCfg.ControlType & CONTROL_USING_MOUSE))
+				break;
+			if (PlayerCfg.MouseFlightSim)
+			{
+				int ax[3];
+				event_mouse_get_delta( event, &ax[0], &ax[1], &ax[2] );
+				for (i = 0; i <= 2; i++)
+				{
+					int mouse_null_value = (i==2?16:PlayerCfg.MouseFSDead*8);
+					Controls.raw_mouse_axis[i] += ax[i];
+					if (Controls.raw_mouse_axis[i] < -MOUSEFS_DELTA_RANGE)
+						Controls.raw_mouse_axis[i] = -MOUSEFS_DELTA_RANGE;
+					if (Controls.raw_mouse_axis[i] > MOUSEFS_DELTA_RANGE)
+						Controls.raw_mouse_axis[i] = MOUSEFS_DELTA_RANGE;
+					if (Controls.raw_mouse_axis[i] > mouse_null_value) 
+						Controls.mouse_axis[i] = (((Controls.raw_mouse_axis[i]-mouse_null_value)*MOUSEFS_DELTA_RANGE)/(MOUSEFS_DELTA_RANGE-mouse_null_value)*FrameTime)/MOUSEFS_DELTA_RANGE;
+					else if (Controls.raw_mouse_axis[i] < -mouse_null_value)
+						Controls.mouse_axis[i] = (((Controls.raw_mouse_axis[i]+mouse_null_value)*MOUSEFS_DELTA_RANGE)/(MOUSEFS_DELTA_RANGE-mouse_null_value)*FrameTime)/MOUSEFS_DELTA_RANGE;
+					else
+						Controls.mouse_axis[i] = 0;
+				}
+			}
+			else if (mouse_delta_time < timer_query())
+			{
+				event_mouse_get_delta( event, &Controls.raw_mouse_axis[0], &Controls.raw_mouse_axis[1], &Controls.raw_mouse_axis[2] );
+				Controls.mouse_axis[0] = (Controls.raw_mouse_axis[0]*FrameTime)/15;
+				Controls.mouse_axis[1] = (Controls.raw_mouse_axis[1]*FrameTime)/15;
+				Controls.mouse_axis[2] = (Controls.raw_mouse_axis[2]*FrameTime);
+				mouse_delta_time = timer_query() + (F1_0/30);
+			}
+			break;
+		}
+		case EVENT_IDLE:
+		default:
+			if (!PlayerCfg.MouseFlightSim && mouse_delta_time < timer_query())
+				Controls.mouse_axis[0] = Controls.mouse_axis[1] = Controls.mouse_axis[2] = 0;
+			break;
+	}
 
-		// From keyboard...
-		if ( kc_keyboard[0].value < 255 ) kp += k0;
-		if ( kc_keyboard[1].value < 255 ) kp += k1;
-		if ( kc_keyboard[2].value < 255 ) kp -= k2;
-		if ( kc_keyboard[3].value < 255 ) kp -= k3;
-
+	//------------ Read pitch_time -----------
+	if ( !Controls.slide_on_state )
+	{
+		int kp = 0;
+		// From keyboard/buttons...
+		if ( Controls.pitch_forward_state ) kp += speed_factor*FrameTime/2;
+		if ( Controls.pitch_backward_state ) kp -= speed_factor*FrameTime/2;
 		if (kp == 0)
 			Controls.pitch_time = 0;
 		else if (kp > 0) {
@@ -1393,109 +1355,59 @@ void controls_read_all(int automap_flag)
 			if (Controls.pitch_time > 0)
 				Controls.pitch_time = 0;
 		Controls.pitch_time += kp;
-	
 		// From joystick...
-		if ( (use_joystick)&&(kc_joystick[13].value < 255 ))	{
-			if ( !kc_joystick[14].value )		// If not inverted...
-				Controls.pitch_time -= (Controls.joy_axis[kc_joystick[13].value]*PlayerCfg.JoystickSens[1])/8;
-			else
-				Controls.pitch_time += (Controls.joy_axis[kc_joystick[13].value]*PlayerCfg.JoystickSens[1])/8;
-		}
-	
+		if ( !kc_joystick[14].value ) // If not inverted...
+			Controls.pitch_time -= (Controls.joy_axis[kc_joystick[13].value]*PlayerCfg.JoystickSens[1])/8;
+		else
+			Controls.pitch_time += (Controls.joy_axis[kc_joystick[13].value]*PlayerCfg.JoystickSens[1])/8;
 		// From mouse...
-		if ( (use_mouse)&&(kc_mouse[13].value < 255) )	{
-			if ( !kc_mouse[14].value )		// If not inverted...
-				Controls.pitch_time -= (Controls.mouse_axis[kc_mouse[13].value]*PlayerCfg.MouseSens[1])/8;
-			else
-				Controls.pitch_time += (Controls.mouse_axis[kc_mouse[13].value]*PlayerCfg.MouseSens[1])/8;
-		}
-	} else {
-		Controls.pitch_time = 0;
+		if ( !kc_mouse[14].value ) // If not inverted...
+			Controls.pitch_time -= (Controls.mouse_axis[kc_mouse[13].value]*PlayerCfg.MouseSens[1])/8;
+		else
+			Controls.pitch_time += (Controls.mouse_axis[kc_mouse[13].value]*PlayerCfg.MouseSens[1])/8;
 	}
+	else Controls.pitch_time = 0;
 
 
-	// done so that dead players can't move
-	if (!Player_is_dead)
-	{
 	//----------- Read vertical_thrust_time -----------------
-	
-		if ( slide_on )	{
-			k0 = speed_factor*key_down_time( kc_keyboard[0].value );
-			k1 = speed_factor*key_down_time( kc_keyboard[1].value );
-			k2 = speed_factor*key_down_time( kc_keyboard[2].value );
-			k3 = speed_factor*key_down_time( kc_keyboard[3].value );
-
-			// From keyboard...
-			if ( kc_keyboard[0].value < 255 ) Controls.vertical_thrust_time += k0;
-			if ( kc_keyboard[1].value < 255 ) Controls.vertical_thrust_time += k1;
-			if ( kc_keyboard[2].value < 255 ) Controls.vertical_thrust_time -= k2;
-			if ( kc_keyboard[3].value < 255 ) Controls.vertical_thrust_time -= k3;
-	
-			// From joystick...
-			if ((use_joystick)&&( kc_joystick[13].value < 255 ))	{
-				if ( !kc_joystick[14].value )		// If not inverted...
-					Controls.vertical_thrust_time += (Controls.joy_axis[kc_joystick[13].value]*PlayerCfg.JoystickSens[3])/8;
-				else
-					Controls.vertical_thrust_time -= (Controls.joy_axis[kc_joystick[13].value]*PlayerCfg.JoystickSens[3])/8;
-			}
-		
-			// From mouse...
-			if ( (use_mouse)&&(kc_mouse[13].value < 255 ))	{
-				if ( !kc_mouse[14].value )		// If not inverted...
-					Controls.vertical_thrust_time -= (Controls.mouse_axis[kc_mouse[13].value]*PlayerCfg.MouseSens[3])/8;
-				else
-					Controls.vertical_thrust_time += (Controls.mouse_axis[kc_mouse[13].value]*PlayerCfg.MouseSens[3])/8;
-			}
-		}
-	
-		// From keyboard...
-		if ( kc_keyboard[14].value < 255 ) Controls.vertical_thrust_time += speed_factor*key_down_time( kc_keyboard[14].value );
-		if ( kc_keyboard[15].value < 255 ) Controls.vertical_thrust_time += speed_factor*key_down_time( kc_keyboard[15].value );
-		if ( kc_keyboard[16].value < 255 ) Controls.vertical_thrust_time -= speed_factor*key_down_time( kc_keyboard[16].value );
-		if ( kc_keyboard[17].value < 255 ) Controls.vertical_thrust_time -= speed_factor*key_down_time( kc_keyboard[17].value );
-
+	if ( Controls.slide_on_state )
+	{
+		// From keyboard/buttons...
+		if ( Controls.pitch_forward_state ) Controls.vertical_thrust_time += speed_factor*FrameTime;
+		if ( Controls.pitch_backward_state ) Controls.vertical_thrust_time -= speed_factor*FrameTime;
 		// From joystick...
-		if ((use_joystick)&&( kc_joystick[19].value < 255 ))	{
-			if ( !kc_joystick[20].value )		// If not inverted...
-				Controls.vertical_thrust_time -= (Controls.joy_axis[kc_joystick[19].value]*PlayerCfg.JoystickSens[3])/8;
-			else
-				Controls.vertical_thrust_time += (Controls.joy_axis[kc_joystick[19].value]*PlayerCfg.JoystickSens[3])/8;
-		}
-	
-		// From joystick buttons
-		if ( (use_joystick)&&(kc_joystick[8].value < 255 )) Controls.vertical_thrust_time += joy_get_button_down_time( kc_joystick[8].value );
-		if ( (use_joystick)&&(kc_joystick[39].value < 255 )) Controls.vertical_thrust_time += joy_get_button_down_time( kc_joystick[39].value );
-		if ( (use_joystick)&&(kc_joystick[9].value < 255 )) Controls.vertical_thrust_time -= joy_get_button_down_time( kc_joystick[9].value );
-		if ( (use_joystick)&&(kc_joystick[40].value < 255 )) Controls.vertical_thrust_time -= joy_get_button_down_time( kc_joystick[40].value );
-	
-		// From mouse buttons
-		if ( (use_mouse)&&(kc_mouse[8].value < 255 )) Controls.vertical_thrust_time += mouse_button_down_time( kc_mouse[8].value );
-		if ( (use_mouse)&&(kc_mouse[9].value < 255 )) Controls.vertical_thrust_time -= mouse_button_down_time( kc_mouse[9].value );
-	
+		if ( !kc_joystick[14].value )		// If not inverted...
+			Controls.vertical_thrust_time += (Controls.joy_axis[kc_joystick[13].value]*PlayerCfg.JoystickSens[3])/8;
+		else
+			Controls.vertical_thrust_time -= (Controls.joy_axis[kc_joystick[13].value]*PlayerCfg.JoystickSens[3])/8;
 		// From mouse...
-		if ( (use_mouse)&&(kc_mouse[19].value < 255 ))	{
-			if ( !kc_mouse[20].value )		// If not inverted...
-				Controls.vertical_thrust_time += (Controls.mouse_axis[kc_mouse[19].value]*PlayerCfg.MouseSens[3])/8;
-			else
-				Controls.vertical_thrust_time -= (Controls.mouse_axis[kc_mouse[19].value]*PlayerCfg.MouseSens[3])/8;
-		}
+		if ( !kc_mouse[14].value )		// If not inverted...
+			Controls.vertical_thrust_time -= (Controls.mouse_axis[kc_mouse[13].value]*PlayerCfg.MouseSens[3])/8;
+		else
+			Controls.vertical_thrust_time += (Controls.mouse_axis[kc_mouse[13].value]*PlayerCfg.MouseSens[3])/8;
 	}
+	// From keyboard/buttons...
+	if ( Controls.slide_up_state ) Controls.vertical_thrust_time += speed_factor*FrameTime/2;
+	if ( Controls.slide_down_state ) Controls.vertical_thrust_time -= speed_factor*FrameTime/2;
+	// From joystick...
+	if ( !kc_joystick[20].value )		// If not inverted...
+		Controls.vertical_thrust_time += (Controls.joy_axis[kc_joystick[19].value]*PlayerCfg.JoystickSens[3])/8;
+	else
+		Controls.vertical_thrust_time -= (Controls.joy_axis[kc_joystick[19].value]*PlayerCfg.JoystickSens[3])/8;
+	// From mouse...
+	if ( !kc_mouse[20].value )		// If not inverted...
+		Controls.vertical_thrust_time += (Controls.mouse_axis[kc_mouse[19].value]*PlayerCfg.MouseSens[3])/8;
+	else
+		Controls.vertical_thrust_time -= (Controls.mouse_axis[kc_mouse[19].value]*PlayerCfg.MouseSens[3])/8;
 
-//---------- Read heading_time -----------
+	//---------- Read heading_time -----------
+	if (!Controls.slide_on_state && !Controls.bank_on_state)
+	{
+		int kh = 0;
 
-	if (!slide_on && !bank_on)	{
-		kh = 0;
-		k4 = speed_factor*key_down_time( kc_keyboard[4].value );
-		k5 = speed_factor*key_down_time( kc_keyboard[5].value );
-		k6 = speed_factor*key_down_time( kc_keyboard[6].value );
-		k7 = speed_factor*key_down_time( kc_keyboard[7].value );
-
-		// From keyboard...
-		if ( kc_keyboard[4].value < 255 ) kh -= k4;
-		if ( kc_keyboard[5].value < 255 ) kh -= k5;
-		if ( kc_keyboard[6].value < 255 ) kh += k6;
-		if ( kc_keyboard[7].value < 255 ) kh += k7;
-
+		// From keyboard/buttons...
+		if ( Controls.heading_right_state ) kh += speed_factor*FrameTime;
+		if ( Controls.heading_left_state ) kh -= speed_factor*FrameTime;
 		if (kh == 0)
 			Controls.heading_time = 0;
 		else if (kh > 0) {
@@ -1505,392 +1417,117 @@ void controls_read_all(int automap_flag)
 			if (Controls.heading_time > 0)
 				Controls.heading_time = 0;
 		Controls.heading_time += kh;
-
 		// From joystick...
-		if ( (use_joystick)&&(kc_joystick[15].value < 255 ))	{
-			if ( !kc_joystick[16].value )		// If not inverted...
-				Controls.heading_time += (Controls.joy_axis[kc_joystick[15].value]*PlayerCfg.JoystickSens[0])/8;
-			else
-				Controls.heading_time -= (Controls.joy_axis[kc_joystick[15].value]*PlayerCfg.JoystickSens[0])/8;
-		}
-	
+		if ( !kc_joystick[16].value )		// If not inverted...
+			Controls.heading_time += (Controls.joy_axis[kc_joystick[15].value]*PlayerCfg.JoystickSens[0])/8;
+		else
+			Controls.heading_time -= (Controls.joy_axis[kc_joystick[15].value]*PlayerCfg.JoystickSens[0])/8;
 		// From mouse...
-		if ( (use_mouse)&&(kc_mouse[15].value < 255 ))	{
-			if ( !kc_mouse[16].value )		// If not inverted...
-				Controls.heading_time += (Controls.mouse_axis[kc_mouse[15].value]*PlayerCfg.MouseSens[0])/8;
-			else
-				Controls.heading_time -= (Controls.mouse_axis[kc_mouse[15].value]*PlayerCfg.MouseSens[0])/8;
-		}
-	} else {
-		Controls.heading_time = 0;
+		if ( !kc_mouse[16].value )		// If not inverted...
+			Controls.heading_time += (Controls.mouse_axis[kc_mouse[15].value]*PlayerCfg.MouseSens[0])/8;
+		else
+			Controls.heading_time -= (Controls.mouse_axis[kc_mouse[15].value]*PlayerCfg.MouseSens[0])/8;
 	}
+	else Controls.heading_time = 0;
 
-	// done so that dead players can't move
-	if (!Player_is_dead)
-	{
 	//----------- Read sideways_thrust_time -----------------
-	
-		if ( slide_on )	{
-			k0 = speed_factor*key_down_time( kc_keyboard[4].value );
-			k1 = speed_factor*key_down_time( kc_keyboard[5].value );
-			k2 = speed_factor*key_down_time( kc_keyboard[6].value );
-			k3 = speed_factor*key_down_time( kc_keyboard[7].value );
-	
-			// From keyboard...
-			if ( kc_keyboard[4].value < 255 ) Controls.sideways_thrust_time -= k0;
-			if ( kc_keyboard[5].value < 255 ) Controls.sideways_thrust_time -= k1;
-			if ( kc_keyboard[6].value < 255 ) Controls.sideways_thrust_time += k2;
-			if ( kc_keyboard[7].value < 255 ) Controls.sideways_thrust_time += k3;
-		
-			// From joystick...
-			if ( (use_joystick)&&(kc_joystick[15].value < 255 ))	{
-				if ( !kc_joystick[16].value )		// If not inverted...
-					Controls.sideways_thrust_time += (Controls.joy_axis[kc_joystick[15].value]*PlayerCfg.JoystickSens[2])/8;
-				else
-					Controls.sideways_thrust_time -= (Controls.joy_axis[kc_joystick[15].value]*PlayerCfg.JoystickSens[2])/8;
-			}
-			
-			// From mouse...
-			if ( (use_mouse)&&(kc_mouse[15].value < 255 ))	{
-				if ( !kc_mouse[16].value )		// If not inverted...
-					Controls.sideways_thrust_time += (Controls.mouse_axis[kc_mouse[15].value]*PlayerCfg.MouseSens[2])/8;
-				else
-					Controls.sideways_thrust_time -= (Controls.mouse_axis[kc_mouse[15].value]*PlayerCfg.MouseSens[2])/8;
-			}
-		}
-	
-		// From keyboard...
-		if ( kc_keyboard[10].value < 255 ) Controls.sideways_thrust_time -= speed_factor*key_down_time( kc_keyboard[10].value );
-		if ( kc_keyboard[11].value < 255 ) Controls.sideways_thrust_time -= speed_factor*key_down_time( kc_keyboard[11].value );
-		if ( kc_keyboard[12].value < 255 ) Controls.sideways_thrust_time += speed_factor*key_down_time( kc_keyboard[12].value );
-		if ( kc_keyboard[13].value < 255 ) Controls.sideways_thrust_time += speed_factor*key_down_time( kc_keyboard[13].value );
-		
+	if ( Controls.slide_on_state )
+	{
+		// From keyboard/buttons...
+		if ( Controls.heading_right_state ) Controls.sideways_thrust_time += speed_factor*FrameTime;
+		if ( Controls.heading_left_state ) Controls.sideways_thrust_time -= speed_factor*FrameTime;
 		// From joystick...
-		if ( (use_joystick)&&(kc_joystick[17].value < 255 ))	{
-			if ( !kc_joystick[18].value )		// If not inverted...
-				Controls.sideways_thrust_time += (Controls.joy_axis[kc_joystick[17].value]*PlayerCfg.JoystickSens[2])/8;
-			else
-				Controls.sideways_thrust_time -= (Controls.joy_axis[kc_joystick[17].value]*PlayerCfg.JoystickSens[2])/8;
-		}
-	
-		// From joystick buttons
-		if ( (use_joystick)&&(kc_joystick[6].value < 255 )) Controls.sideways_thrust_time -= joy_get_button_down_time( kc_joystick[6].value );
-		if ( (use_joystick)&&(kc_joystick[37].value < 255 )) Controls.sideways_thrust_time -= joy_get_button_down_time( kc_joystick[37].value );
-		if ( (use_joystick)&&(kc_joystick[7].value < 255 )) Controls.sideways_thrust_time += joy_get_button_down_time( kc_joystick[7].value );
-		if ( (use_joystick)&&(kc_joystick[38].value < 255 )) Controls.sideways_thrust_time += joy_get_button_down_time( kc_joystick[38].value );
-	
-		// From mouse buttons
-		if ( (use_mouse)&&(kc_mouse[6].value < 255 )) Controls.sideways_thrust_time -= mouse_button_down_time( kc_mouse[6].value );
-		if ( (use_mouse)&&(kc_mouse[7].value < 255 )) Controls.sideways_thrust_time += mouse_button_down_time( kc_mouse[7].value );
-	
+		if ( !kc_joystick[16].value )		// If not inverted...
+			Controls.sideways_thrust_time += (Controls.joy_axis[kc_joystick[15].value]*PlayerCfg.JoystickSens[2])/8;
+		else
+			Controls.sideways_thrust_time -= (Controls.joy_axis[kc_joystick[15].value]*PlayerCfg.JoystickSens[2])/8;
 		// From mouse...
-		if ( (use_mouse)&&(kc_mouse[17].value < 255 ))	{
-			if ( !kc_mouse[18].value )		// If not inverted...
-				Controls.sideways_thrust_time += (Controls.mouse_axis[kc_mouse[17].value]*PlayerCfg.MouseSens[2])/8;
-			else
-				Controls.sideways_thrust_time -= (Controls.mouse_axis[kc_mouse[17].value]*PlayerCfg.MouseSens[2])/8;
-		}
+		if ( !kc_mouse[16].value )		// If not inverted...
+			Controls.sideways_thrust_time += (Controls.mouse_axis[kc_mouse[15].value]*PlayerCfg.MouseSens[2])/8;
+		else
+			Controls.sideways_thrust_time -= (Controls.mouse_axis[kc_mouse[15].value]*PlayerCfg.MouseSens[2])/8;
 	}
-
-//----------- Read bank_time -----------------
-
-	if ( bank_on )	{
-		k0 = speed_factor*key_down_time( kc_keyboard[4].value );
-		k1 = speed_factor*key_down_time( kc_keyboard[5].value );
-		k2 = speed_factor*key_down_time( kc_keyboard[6].value );
-		k3 = speed_factor*key_down_time( kc_keyboard[7].value );
-
-		// From keyboard...
-		if ( kc_keyboard[4].value < 255 ) Controls.bank_time += k0;
-		if ( kc_keyboard[5].value < 255 ) Controls.bank_time += k1;
-		if ( kc_keyboard[6].value < 255 ) Controls.bank_time -= k2;
-		if ( kc_keyboard[7].value < 255 ) Controls.bank_time -= k3;
-
-		// From joystick...
-		if ( (use_joystick)&&(kc_joystick[15].value < 255) )	{
-			if ( !kc_joystick[16].value )		// If not inverted...
-				Controls.bank_time -= (Controls.joy_axis[kc_joystick[15].value]*PlayerCfg.JoystickSens[4])/8;
-			else
-				Controls.bank_time += (Controls.joy_axis[kc_joystick[15].value]*PlayerCfg.JoystickSens[4])/8;
-		}
-	
-		// From mouse...
-		if ( (use_mouse)&&(kc_mouse[15].value < 255 ))	{
-			if ( !kc_mouse[16].value )		// If not inverted...
-				Controls.bank_time += (Controls.mouse_axis[kc_mouse[15].value]*PlayerCfg.MouseSens[4])/8;
-			else
-				Controls.bank_time -= (Controls.mouse_axis[kc_mouse[15].value]*PlayerCfg.MouseSens[4])/8;
-		}
-	}
-
-	// From keyboard...
-	if ( kc_keyboard[20].value < 255 ) Controls.bank_time += speed_factor*key_down_time( kc_keyboard[20].value );
-	if ( kc_keyboard[21].value < 255 ) Controls.bank_time += speed_factor*key_down_time( kc_keyboard[21].value );
-	if ( kc_keyboard[22].value < 255 ) Controls.bank_time -= speed_factor*key_down_time( kc_keyboard[22].value );
-	if ( kc_keyboard[23].value < 255 ) Controls.bank_time -= speed_factor*key_down_time( kc_keyboard[23].value );
-
+	// From keyboard/buttons...
+	if ( Controls.slide_left_state ) Controls.sideways_thrust_time -= speed_factor*FrameTime;
+	if ( Controls.slide_right_state ) Controls.sideways_thrust_time += speed_factor*FrameTime;
 	// From joystick...
-	if ( (use_joystick)&&(kc_joystick[21].value < 255) )	{
-		if ( !kc_joystick[22].value )		// If not inverted...
-			Controls.bank_time -= Controls.joy_axis[kc_joystick[21].value];
-		else
-			Controls.bank_time += Controls.joy_axis[kc_joystick[21].value];
-	}
-
-	// From joystick buttons
-	if ( (use_joystick)&&(kc_joystick[11].value < 255 )) Controls.bank_time += joy_get_button_down_time( kc_joystick[11].value );
-	if ( (use_joystick)&&(kc_joystick[42].value < 255 )) Controls.bank_time += joy_get_button_down_time( kc_joystick[42].value );
-	if ( (use_joystick)&&(kc_joystick[12].value < 255 )) Controls.bank_time -= joy_get_button_down_time( kc_joystick[12].value );
-	if ( (use_joystick)&&(kc_joystick[43].value < 255 )) Controls.bank_time -= joy_get_button_down_time( kc_joystick[43].value );
-
-	// From mouse buttons
-	if ( (use_mouse)&&(kc_mouse[11].value < 255 )) Controls.bank_time += mouse_button_down_time( kc_mouse[11].value );
-	if ( (use_mouse)&&(kc_mouse[12].value < 255 )) Controls.bank_time -= mouse_button_down_time( kc_mouse[12].value );
-
+	if ( !kc_joystick[18].value )		// If not inverted...
+		Controls.sideways_thrust_time += (Controls.joy_axis[kc_joystick[17].value]*PlayerCfg.JoystickSens[2])/8;
+	else
+		Controls.sideways_thrust_time -= (Controls.joy_axis[kc_joystick[17].value]*PlayerCfg.JoystickSens[2])/8;
 	// From mouse...
-	if ( (use_mouse)&&(kc_mouse[21].value < 255 ))	{
-		if ( !kc_mouse[22].value )		// If not inverted...
-			Controls.bank_time += Controls.mouse_axis[kc_mouse[21].value];
-		else
-			Controls.bank_time -= Controls.mouse_axis[kc_mouse[21].value];
-	}
+	if ( !kc_mouse[18].value )		// If not inverted...
+		Controls.sideways_thrust_time += (Controls.mouse_axis[kc_mouse[17].value]*PlayerCfg.MouseSens[2])/8;
+	else
+		Controls.sideways_thrust_time -= (Controls.mouse_axis[kc_mouse[17].value]*PlayerCfg.MouseSens[2])/8;
 
-	// done so that dead players can't move
-	if (!Player_is_dead)
+	//----------- Read bank_time -----------------
+	if ( Controls.bank_on_state )
 	{
-	//----------- Read forward_thrust_time -------------
-	
-		// From keyboard...
-		if ( kc_keyboard[30].value < 255 ) Controls.forward_thrust_time += speed_factor*key_down_time( kc_keyboard[30].value );
-		if ( kc_keyboard[31].value < 255 ) Controls.forward_thrust_time += speed_factor*key_down_time( kc_keyboard[31].value );
-		if ( kc_keyboard[32].value < 255 ) Controls.forward_thrust_time -= speed_factor*key_down_time( kc_keyboard[32].value );
-		if ( kc_keyboard[33].value < 255 ) Controls.forward_thrust_time -= speed_factor*key_down_time( kc_keyboard[33].value );
-	
+		// From keyboard/buttons...
+		if ( Controls.heading_left_state ) Controls.bank_time += speed_factor*FrameTime;
+		if ( Controls.heading_right_state ) Controls.bank_time -= speed_factor*FrameTime;
 		// From joystick...
-		if ( (use_joystick)&&(kc_joystick[23].value < 255 ))	{
-			if ( !kc_joystick[24].value )		// If not inverted...
-				Controls.forward_thrust_time -= Controls.joy_axis[kc_joystick[23].value];
-			else
-				Controls.forward_thrust_time += Controls.joy_axis[kc_joystick[23].value];
-		}
-	
-		// From joystick buttons
-		if ( (use_joystick)&&(kc_joystick[2].value < 255 )) Controls.forward_thrust_time += joy_get_button_down_time( kc_joystick[2].value );
-		if ( (use_joystick)&&(kc_joystick[33].value < 255 )) Controls.forward_thrust_time += joy_get_button_down_time( kc_joystick[33].value );
-		if ( (use_joystick)&&(kc_joystick[3].value < 255 )) Controls.forward_thrust_time -= joy_get_button_down_time( kc_joystick[3].value );
-		if ( (use_joystick)&&(kc_joystick[34].value < 255 )) Controls.forward_thrust_time -= joy_get_button_down_time( kc_joystick[34].value );
-	
+		if ( !kc_joystick[16].value )		// If not inverted...
+			Controls.bank_time -= (Controls.joy_axis[kc_joystick[15].value]*PlayerCfg.JoystickSens[4])/8;
+		else
+			Controls.bank_time += (Controls.joy_axis[kc_joystick[15].value]*PlayerCfg.JoystickSens[4])/8;
 		// From mouse...
-		if ( (use_mouse)&&(kc_mouse[23].value < 255 ))	{
-			if ( !kc_mouse[24].value )		// If not inverted...
-				Controls.forward_thrust_time -= Controls.mouse_axis[kc_mouse[23].value];
-			else
-				Controls.forward_thrust_time += Controls.mouse_axis[kc_mouse[23].value];
-		}
-	
-		// From mouse buttons
-		if ( (use_mouse)&&(kc_mouse[2].value < 255 )) Controls.forward_thrust_time += mouse_button_down_time( kc_mouse[2].value );
-		if ( (use_mouse)&&(kc_mouse[3].value < 255 )) Controls.forward_thrust_time -= mouse_button_down_time( kc_mouse[3].value );
-	
-	//----------- Read afterburner_state -------------
-	
-		// From keyboard...
-		if ( kc_keyboard[46].value < 255 ) Controls.afterburner_state |= keyd_pressed[kc_keyboard[46].value];
-		if ( kc_keyboard[47].value < 255 ) Controls.afterburner_state |= keyd_pressed[kc_keyboard[47].value];
-	
-		if ( (use_mouse)&&(kc_mouse[27].value < 255 )) Controls.afterburner_state |= mouse_button_state(kc_mouse[27].value);
-	
-		if ( (use_joystick)&&(kc_joystick[27].value < 255 )) Controls.afterburner_state |= joy_get_button_state(kc_joystick[27].value);
-		if ( (use_joystick)&&(kc_joystick[46].value < 255 )) Controls.afterburner_state |= joy_get_button_state(kc_joystick[46].value);
-	
-	//-------Read headlight key--------------------------
-	
-		if (kc_keyboard[52].value < 255 )
-			Controls.headlight_count=key_down_count(kc_keyboard[52].value);
-		if (kc_keyboard[53].value < 255 )
-			Controls.headlight_count+=key_down_count(kc_keyboard[53].value);
-		if ((use_joystick)&&(kc_joystick[30].value < 255 )) 
-		Controls.headlight_count+=joy_get_button_down_cnt(kc_joystick[30].value);
-		if ((use_joystick)&&(kc_joystick[49].value < 255 )) 
-		Controls.headlight_count+=joy_get_button_down_cnt(kc_joystick[49].value);
-	
-	
-	//--------Read Cycle Primary Key------------------
-	
-		if (kc_keyboard[48].value<255)
-			Controls.cycle_primary_count=key_down_count(kc_keyboard[48].value);
-		if (kc_keyboard[49].value<255)
-			Controls.cycle_primary_count+=key_down_count(kc_keyboard[49].value);
-		if ((use_joystick)&&(kc_joystick[28].value < 255 )) 
-			Controls.cycle_primary_count+=joy_get_button_down_cnt(kc_joystick[28].value);
-		if ((use_joystick)&&(kc_joystick[47].value < 255 )) 
-			Controls.cycle_primary_count+=joy_get_button_down_cnt(kc_joystick[47].value);
-		if ((use_mouse)&&(kc_mouse[28].value < 255 ))
-			Controls.cycle_primary_count += mouse_button_down_count(kc_mouse[28].value);
-	
-	
-	//--------Read Cycle Secondary Key------------------
-	
-		if (kc_keyboard[50].value<255)
-			Controls.cycle_secondary_count=key_down_count(kc_keyboard[50].value);
-		if (kc_keyboard[51].value<255)
-			Controls.cycle_secondary_count+=key_down_count(kc_keyboard[51].value);
-		if ((use_joystick)&&(kc_joystick[29].value < 255 )) 
-			Controls.cycle_secondary_count+=joy_get_button_down_cnt(kc_joystick[29].value);
-		if ((use_joystick)&&(kc_joystick[48].value < 255 )) 
-			Controls.cycle_secondary_count+=joy_get_button_down_cnt(kc_joystick[48].value);
-		if ((use_mouse)&&(kc_mouse[29].value < 255 ))
-			Controls.cycle_secondary_count += mouse_button_down_count(kc_mouse[29].value);
-	
-	//--------Read Toggle Bomb key----------------------
-	
-		if ((kc_keyboard[56].value<255 && key_down_count(kc_keyboard[56].value)) || ((use_joystick)&&(kc_joystick[54].value < 255 && joy_get_button_down_cnt(kc_joystick[54].value))) || ((use_joystick)&&(kc_joystick[55].value < 255 && joy_get_button_down_cnt(kc_joystick[55].value))))
-		{
-		int bomb = Secondary_last_was_super[PROXIMITY_INDEX]?PROXIMITY_INDEX:SMART_MINE_INDEX;
-	
-				if (!Players[Player_num].secondary_ammo[PROXIMITY_INDEX] &&
-					!Players[Player_num].secondary_ammo[SMART_MINE_INDEX])
-				{
-					digi_play_sample_once( SOUND_BAD_SELECTION, F1_0 );
-					HUD_init_message(HM_DEFAULT, "No bombs available!");
-					}
-				else
-					{	
-					if (Players[Player_num].secondary_ammo[bomb]==0)
-						{
-						digi_play_sample_once( SOUND_BAD_SELECTION, F1_0 );
-						HUD_init_message(HM_DEFAULT, "No %s available!",(bomb==SMART_MINE_INDEX)?"Smart mines":"Proximity bombs");
-						}
-					else
-						{
-				Secondary_last_was_super[PROXIMITY_INDEX]=!Secondary_last_was_super[PROXIMITY_INDEX];
-						digi_play_sample_once( SOUND_GOOD_SELECTION_SECONDARY, F1_0 );
-						}
-					}
-				}
-		
-	//---------Read Energy->Shield key----------
-	
-		if ((Players[Player_num].flags & PLAYER_FLAGS_CONVERTER) && keyd_pressed[kc_keyboard[54].value])
-			transfer_energy_to_shield(key_down_time(kc_keyboard[54].value));
-		if ((Players[Player_num].flags & PLAYER_FLAGS_CONVERTER) && keyd_pressed[kc_keyboard[55].value])
-			transfer_energy_to_shield(key_down_time(kc_keyboard[55].value));
-			if ((use_joystick) && (Players[Player_num].flags & PLAYER_FLAGS_CONVERTER) && (kc_joystick[52].value < 255) && joy_get_button_state(kc_joystick[52].value))
-			transfer_energy_to_shield(joy_get_button_down_time(kc_joystick[52].value));
-		if ((use_joystick) && (Players[Player_num].flags & PLAYER_FLAGS_CONVERTER) && (kc_joystick[53].value < 255) && joy_get_button_state(kc_joystick[53].value))
-			transfer_energy_to_shield(joy_get_button_down_time(kc_joystick[53].value));
-	//----------- Read fire_primary_down_count
-		if (kc_keyboard[24].value < 255 ) Controls.fire_primary_down_count += key_down_count(kc_keyboard[24].value);
-		if (kc_keyboard[25].value < 255 ) Controls.fire_primary_down_count += key_down_count(kc_keyboard[25].value);
-		if ((use_joystick)&&(kc_joystick[0].value < 255 )) Controls.fire_primary_down_count += joy_get_button_down_cnt(kc_joystick[0].value);
-		if ((use_joystick)&&(kc_joystick[31].value < 255 )) Controls.fire_primary_down_count += joy_get_button_down_cnt(kc_joystick[31].value);
-	
-		if ((use_mouse)&&(kc_mouse[0].value < 255 )) Controls.fire_primary_down_count += mouse_button_down_count(kc_mouse[0].value);
-	
-	//----------- Read fire_primary_state
-		if (kc_keyboard[24].value < 255 ) Controls.fire_primary_state |= keyd_pressed[kc_keyboard[24].value];
-		if (kc_keyboard[25].value < 255 ) Controls.fire_primary_state |= keyd_pressed[kc_keyboard[25].value];
-		if ((use_joystick)&&(kc_joystick[0].value < 255 )) Controls.fire_primary_state |= joy_get_button_state(kc_joystick[0].value);
-		if ((use_joystick)&&(kc_joystick[31].value < 255 )) Controls.fire_primary_state |= joy_get_button_state(kc_joystick[31].value);
-	
-		if ((use_mouse)&&(kc_mouse[0].value < 255) ) Controls.fire_primary_state |= mouse_button_state(kc_mouse[0].value);
-	
-	//----------- Read fire_secondary_down_count
-		if (kc_keyboard[26].value < 255 ) Controls.fire_secondary_down_count += key_down_count(kc_keyboard[26].value);
-		if (kc_keyboard[27].value < 255 ) Controls.fire_secondary_down_count += key_down_count(kc_keyboard[27].value);
-		if ((use_joystick)&&(kc_joystick[1].value < 255 )) Controls.fire_secondary_down_count += joy_get_button_down_cnt(kc_joystick[1].value);
-		if ((use_joystick)&&(kc_joystick[32].value < 255 )) Controls.fire_secondary_down_count += joy_get_button_down_cnt(kc_joystick[32].value);
-		if ((use_mouse)&&(kc_mouse[1].value < 255 )) Controls.fire_secondary_down_count += mouse_button_down_count(kc_mouse[1].value);
-	
-	//----------- Read fire_secondary_state
-		if (kc_keyboard[26].value < 255 ) Controls.fire_secondary_state |= keyd_pressed[kc_keyboard[26].value];
-		if (kc_keyboard[27].value < 255 ) Controls.fire_secondary_state |= keyd_pressed[kc_keyboard[27].value];
-		if ((use_joystick)&&(kc_joystick[1].value < 255 )) Controls.fire_secondary_state |= joy_get_button_state(kc_joystick[1].value);
-		if ((use_joystick)&&(kc_joystick[32].value < 255 )) Controls.fire_secondary_state |= joy_get_button_state(kc_joystick[32].value);
-		if ((use_mouse)&&(kc_mouse[1].value < 255) ) Controls.fire_secondary_state |= mouse_button_state(kc_mouse[1].value);
-
-	//----------- Read fire_flare_down_count
-		if (kc_keyboard[28].value < 255 ) Controls.fire_flare_down_count += key_down_count(kc_keyboard[28].value);
-		if (kc_keyboard[29].value < 255 ) Controls.fire_flare_down_count += key_down_count(kc_keyboard[29].value);
-		if ((use_joystick)&&(kc_joystick[4].value < 255 )) Controls.fire_flare_down_count += joy_get_button_down_cnt(kc_joystick[4].value);
-		if ((use_joystick)&&(kc_joystick[35].value < 255 )) Controls.fire_flare_down_count += joy_get_button_down_cnt(kc_joystick[35].value);
-		if ((use_mouse)&&(kc_mouse[4].value < 255 )) Controls.fire_flare_down_count += mouse_button_down_count(kc_mouse[4].value);
-	
-	//----------- Read drop_bomb_down_count
-		if (kc_keyboard[34].value < 255 ) Controls.drop_bomb_down_count += key_down_count(kc_keyboard[34].value);
-		if (kc_keyboard[35].value < 255 ) Controls.drop_bomb_down_count += key_down_count(kc_keyboard[35].value);
-		if ((use_joystick)&&(kc_joystick[26].value < 255 )) Controls.drop_bomb_down_count += joy_get_button_down_cnt(kc_joystick[26].value);
-		if ((use_joystick)&&(kc_joystick[45].value < 255 )) Controls.drop_bomb_down_count += joy_get_button_down_cnt(kc_joystick[45].value);
-		if ((use_mouse)&&(kc_mouse[26].value < 255 )) Controls.drop_bomb_down_count += mouse_button_down_count(kc_mouse[26].value);
-	
-	//----------- Read rear_view_down_count
-		if (kc_keyboard[36].value < 255 ) Controls.rear_view_down_count += key_down_count(kc_keyboard[36].value);
-		if (kc_keyboard[37].value < 255 ) Controls.rear_view_down_count += key_down_count(kc_keyboard[37].value);
-		if ((use_joystick)&&(kc_joystick[25].value < 255 )) Controls.rear_view_down_count += joy_get_button_down_cnt(kc_joystick[25].value);
-		if ((use_joystick)&&(kc_joystick[44].value < 255 )) Controls.rear_view_down_count += joy_get_button_down_cnt(kc_joystick[44].value);
-	
-		if ((use_mouse)&&(kc_mouse[25].value < 255 )) Controls.rear_view_down_count += mouse_button_down_count(kc_mouse[25].value);
-	
-	//----------- Read rear_view_down_state
-		if (kc_keyboard[36].value < 255 ) Controls.rear_view_down_state |= keyd_pressed[kc_keyboard[36].value];
-		if (kc_keyboard[37].value < 255 ) Controls.rear_view_down_state |= keyd_pressed[kc_keyboard[37].value];
-		
-		if ((use_mouse)&&(kc_mouse[25].value < 255 )) Controls.rear_view_down_state |= mouse_button_state(kc_mouse[25].value);
-	
-	}//end "if" added by WraithX
-
-//----------- Read automap_down_count
-	if (kc_keyboard[44].value < 255 ) Controls.automap_down_count += key_down_count(kc_keyboard[44].value);
-	if (kc_keyboard[45].value < 255 ) Controls.automap_down_count += key_down_count(kc_keyboard[45].value);
-	if ((use_joystick)&&(kc_joystick[50].value < 255 )) Controls.automap_down_count += joy_get_button_down_cnt(kc_joystick[50].value);
-	if ((use_joystick)&&(kc_joystick[51].value < 255 )) Controls.automap_down_count += joy_get_button_down_cnt(kc_joystick[51].value);
-
-//----------- Read automap_state
-	if (kc_keyboard[44].value < 255 ) Controls.automap_state |= keyd_pressed[kc_keyboard[44].value];
-	if (kc_keyboard[45].value < 255 ) Controls.automap_state |= keyd_pressed[kc_keyboard[45].value];
-	
-
-//----------- Read stupid-cruise-control-type of throttle.
-	{
-		if ( kc_keyboard[38].value < 255 ) Cruise_speed += speed_factor*key_down_time( kc_keyboard[38].value )*80;
-		if ( kc_keyboard[39].value < 255 ) Cruise_speed += speed_factor*key_down_time( kc_keyboard[39].value )*80;
-		if ( kc_keyboard[40].value < 255 ) Cruise_speed -= speed_factor*key_down_time( kc_keyboard[40].value )*80;
-		if ( kc_keyboard[41].value < 255 ) Cruise_speed -= speed_factor*key_down_time( kc_keyboard[41].value )*80;
-		if ( (kc_keyboard[42].value < 255) && (key_down_count(kc_keyboard[42].value)) )
-			Cruise_speed = 0;
-		if ( (kc_keyboard[43].value < 255) && (key_down_count(kc_keyboard[43].value)) )
-			Cruise_speed = 0;
-	
-		if (Cruise_speed > i2f(100) ) Cruise_speed = i2f(100);
-		if (Cruise_speed < 0 ) Cruise_speed = 0;
-	
-		if (Controls.forward_thrust_time==0)
-			Controls.forward_thrust_time = fixmul(Cruise_speed,FrameTime)/100;
+		if ( !kc_mouse[16].value )		// If not inverted...
+			Controls.bank_time += (Controls.mouse_axis[kc_mouse[15].value]*PlayerCfg.MouseSens[4])/8;
+		else
+			Controls.bank_time -= (Controls.mouse_axis[kc_mouse[15].value]*PlayerCfg.MouseSens[4])/8;
 	}
+	// From keyboard/buttons...
+	if ( Controls.bank_left_state ) Controls.bank_time += speed_factor*FrameTime;
+	if ( Controls.bank_right_state ) Controls.bank_time -= speed_factor*FrameTime;
+	// From joystick...
+	if ( !kc_joystick[22].value )		// If not inverted...
+		Controls.bank_time -= Controls.joy_axis[kc_joystick[21].value];
+	else
+		Controls.bank_time += Controls.joy_axis[kc_joystick[21].value];
+	// From mouse...
+	if ( !kc_mouse[22].value )		// If not inverted...
+		Controls.bank_time += Controls.mouse_axis[kc_mouse[21].value];
+	else
+		Controls.bank_time -= Controls.mouse_axis[kc_mouse[21].value];
 
-//----------- Clamp values between -FrameTime and FrameTime
+	//----------- Read forward_thrust_time -------------
+	// From keyboard/buttons...
+	if ( Controls.accelerate_state ) Controls.forward_thrust_time += speed_factor*FrameTime;
+	if ( Controls.reverse_state ) Controls.forward_thrust_time -= speed_factor*FrameTime;
+	// From joystick...
+	if ( !kc_joystick[24].value )		// If not inverted...
+		Controls.forward_thrust_time -= Controls.joy_axis[kc_joystick[23].value];
+	else
+		Controls.forward_thrust_time += Controls.joy_axis[kc_joystick[23].value];
+	// From mouse...
+	if ( !kc_mouse[24].value )		// If not inverted...
+		Controls.forward_thrust_time -= Controls.mouse_axis[kc_mouse[23].value];
+	else
+		Controls.forward_thrust_time += Controls.mouse_axis[kc_mouse[23].value];
+
+	//----------- Read cruise-control-type of throttle.
+	if ( Controls.cruise_plus_state ) Cruise_speed += speed_factor*FrameTime*80;
+	if ( Controls.cruise_minus_state ) Cruise_speed -= speed_factor*FrameTime*80;
+	if ( Controls.cruise_off_count > 0 ) Controls.cruise_off_count = Cruise_speed = 0;
+	if (Cruise_speed > i2f(100) ) Cruise_speed = i2f(100);
+	if (Cruise_speed < 0 ) Cruise_speed = 0;
+	if (Controls.forward_thrust_time==0) Controls.forward_thrust_time = fixmul(Cruise_speed,FrameTime)/100;
+
+	//----------- Clamp values between -FrameTime and FrameTime
 	if (Controls.pitch_time > FrameTime/2 ) Controls.pitch_time = FrameTime/2;
 	if (Controls.heading_time > FrameTime ) Controls.heading_time = FrameTime;
 	if (Controls.pitch_time < -FrameTime/2 ) Controls.pitch_time = -FrameTime/2;
 	if (Controls.heading_time < -FrameTime ) Controls.heading_time = -FrameTime;
-
 	if (Controls.vertical_thrust_time > FrameTime ) Controls.vertical_thrust_time = FrameTime;
 	if (Controls.sideways_thrust_time > FrameTime ) Controls.sideways_thrust_time = FrameTime;
 	if (Controls.bank_time > FrameTime ) Controls.bank_time = FrameTime;
 	if (Controls.forward_thrust_time > FrameTime ) Controls.forward_thrust_time = FrameTime;
-
 	if (Controls.vertical_thrust_time < -FrameTime ) Controls.vertical_thrust_time = -FrameTime;
 	if (Controls.sideways_thrust_time < -FrameTime ) Controls.sideways_thrust_time = -FrameTime;
 	if (Controls.bank_time < -FrameTime ) Controls.bank_time = -FrameTime;
 	if (Controls.forward_thrust_time < -FrameTime ) Controls.forward_thrust_time = -FrameTime;
-
-
-//--------- Don't do anything if in debug mode
-#ifndef NDEBUG
-	if ( keyd_pressed[KEY_DELETE] )	{
-		memset( &Controls, 0, sizeof(control_info) );
-	}
-#endif
 }
 
 void reset_cruise(void)
@@ -1928,10 +1565,8 @@ void kc_set_controls()
 		}
 	}
 
-#ifdef D2X_KEYS
 	for (i=0; i<NUM_D2X_CONTROLS; i++ )
 		kc_d2x[i].value = PlayerCfg.KeySettingsD2X[i];
-#endif
 }
 
 char GetKeyValue (char key)

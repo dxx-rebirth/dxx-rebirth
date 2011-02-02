@@ -123,7 +123,7 @@ unsigned int FileRead(void *handle, void *buf, unsigned int count)
 int PlayMovie(const char *filename, int must_have)
 {
 	char name[FILENAME_LEN],*p;
-	int c, ret;
+	int ret;
 
 	if (GameArg.SysNoMovies)
 		return MOVIE_NOT_PLAYED;
@@ -132,11 +132,6 @@ int PlayMovie(const char *filename, int must_have)
 
 	if ((p=strchr(name,'.')) == NULL)		//add extension, if missing
 		strcat(name,".mve");
-
-	//check for escape already pressed & abort if so
-	while ((c=key_inkey()) != 0)
-		if (c == KEY_ESC)
-			return MOVIE_ABORTED;
 
 	// Stop all digital sounds currently playing.
 	digi_stop_digi_sounds();

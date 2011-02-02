@@ -43,7 +43,6 @@ char copyright[] = "DESCENT II  COPYRIGHT (C) 1994-1996 PARALLAX SOFTWARE CORPOR
 #include "fix.h"
 #include "vecmat.h"
 #include "key.h"
-#include "timer.h"
 #include "3d.h"
 #include "bm.h"
 #include "inferno.h"
@@ -199,16 +198,12 @@ void print_commandline_help()
 	printf( "\n\n");
 }
 
-#define key_ismod(k)  ((k&0xff)==KEY_LALT || (k&0xff)==KEY_RALT || (k&0xff)==KEY_LSHIFT || (k&0xff)==KEY_RSHIFT || (k&0xff)==KEY_LCTRL || (k&0xff)==KEY_RCTRL || (k&0xff)==KEY_LMETA || (k&0xff)==KEY_RMETA)
-
 int Quitting = 0;
 
 // Default event handler for everything except the editor
 int standard_handler(d_event *event)
 {
 	int key;
-
-	timer_update();
 
 	if (Quitting)
 	{
@@ -247,11 +242,6 @@ int standard_handler(d_event *event)
 
 		case EVENT_KEY_COMMAND:
 			key = event_key_get(event);
-
-			// Don't let modifier(s) on their own do something unless we explicitly want that
-			// (e.g. if it's a game control like fire primary)
-			if (key_ismod(key))
-				return 1;
 
 			switch (key)
 			{

@@ -21,7 +21,7 @@ extern void mouse_button_handler(SDL_MouseButtonEvent *mbe);
 extern void mouse_motion_handler(SDL_MouseMotionEvent *mme);
 extern void joy_button_handler(SDL_JoyButtonEvent *jbe);
 extern void joy_hat_handler(SDL_JoyHatEvent *jhe);
-extern void joy_axis_handler(SDL_JoyAxisEvent *jae);
+extern int joy_axis_handler(SDL_JoyAxisEvent *jae);
 extern void mouse_cursor_autohide();
 extern void mouse_toggle_cursor(int activate);
 
@@ -59,12 +59,15 @@ void event_poll()
 			case SDL_JOYBUTTONDOWN:
 			case SDL_JOYBUTTONUP:
 				joy_button_handler((SDL_JoyButtonEvent *)&event);
+				idle = 0;
 				break;
 			case SDL_JOYAXISMOTION:
-				joy_axis_handler((SDL_JoyAxisEvent *)&event);
+				if (joy_axis_handler((SDL_JoyAxisEvent *)&event))
+					idle = 0;
 				break;
 			case SDL_JOYHATMOTION:
 				joy_hat_handler((SDL_JoyHatEvent *)&event);
+				idle = 0;
 				break;
 			case SDL_JOYBALLMOTION:
 				break;
@@ -83,7 +86,6 @@ void event_poll()
 		
 		event.type = EVENT_IDLE;
 		event_send(&event);
-		return;
 	}
 	
 	mouse_cursor_autohide();
@@ -139,6 +141,8 @@ void event_process(void)
 {
 	d_event event;
 	window *wind = window_get_front();
+
+	timer_update();
 
 	event_poll();	// send input events first
 

@@ -1000,7 +1000,8 @@ void check_rear_view()
 	if (Newdemo_state == ND_STATE_PLAYBACK)
 		return;
 
-	if ( Controls.rear_view_down_count ) {	//key/button has gone down
+	if ( Controls.rear_view_count > 0) {	//key/button has gone down
+		Controls.rear_view_count = 0;
 
 		if (Rear_view) {
 			Rear_view = 0;
@@ -1022,7 +1023,7 @@ void check_rear_view()
 		}
 	}
 	else
-		if (Controls.rear_view_down_state) {
+		if (Controls.rear_view_state) {
 
 			if (leave_mode == 0 && (timer_query() - entry_time) > LEAVE_TIME)
 				leave_mode = 1;
@@ -1163,6 +1164,7 @@ int game_handler(window *wind, d_event *event, void *data)
 			set_screen_mode(SCREEN_GAME);
 
 			event_toggle_focus(1);
+			key_toggle_repeat(0);
 			game_flush_inputs();
 
 			if (time_paused)
@@ -1188,13 +1190,18 @@ int game_handler(window *wind, d_event *event, void *data)
 				full_palette_save();
 
 			event_toggle_focus(0);
+			key_toggle_repeat(1);
 			break;
 
+		case EVENT_JOYSTICK_BUTTON_UP:
+		case EVENT_JOYSTICK_BUTTON_DOWN:
+		case EVENT_JOYSTICK_MOVED:
 		case EVENT_MOUSE_BUTTON_UP:
 		case EVENT_MOUSE_BUTTON_DOWN:
 		case EVENT_MOUSE_MOVED:
 		case EVENT_KEY_COMMAND:
-		case EVENT_IDLE:		// EVENT_IDLE will be removed once all input events are in place
+		case EVENT_KEY_RELEASE:
+		case EVENT_IDLE:
 			return ReadControls(event);
 
 		case EVENT_WINDOW_DRAW:
@@ -1234,6 +1241,7 @@ int game_handler(window *wind, d_event *event, void *data)
 			show_menus();
 			Game_wind = NULL;
 			event_toggle_focus(0);
+			key_toggle_repeat(1);
 			break;
 
 		case EVENT_WINDOW_CLOSED:
@@ -1737,7 +1745,7 @@ int add_flicker(int segnum, int sidenum, fix delay, unsigned long mask)
 void FireLaser()
 {
 
-	Global_laser_firing_count = Weapon_info[Primary_weapon_to_weapon_info[Primary_weapon]].fire_count * (Controls.fire_primary_state || Controls.fire_primary_down_count);
+	Global_laser_firing_count = Controls.fire_primary_state?Weapon_info[Primary_weapon_to_weapon_info[Primary_weapon]].fire_count:0;
 
 	if ((Primary_weapon == FUSION_INDEX) && (Global_laser_firing_count)) {
 		if ((Players[Player_num].energy < F1_0*2) && (Auto_fire_fusion_cannon_time == 0)) {
