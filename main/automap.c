@@ -529,6 +529,8 @@ int automap_handler(window *wind, d_event *event, automap *am)
 		case EVENT_MOUSE_BUTTON_UP:
 		case EVENT_MOUSE_BUTTON_DOWN:
 		case EVENT_MOUSE_MOVED:
+			kconfig_read_controls(event, 1);
+			break;
 		case EVENT_KEY_COMMAND:
 		case EVENT_KEY_RELEASE:
 			kconfig_read_controls(event, 1);
