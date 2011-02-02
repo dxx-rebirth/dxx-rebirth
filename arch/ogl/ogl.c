@@ -717,6 +717,7 @@ void ogl_draw_vertex_reticle(int cross,int primary,int secondary,int color,int a
 	//glDisableClientState(GL_VERTEX_ARRAY);
 	glDisableClientState(GL_COLOR_ARRAY);
 	glPopMatrix();
+	glLineWidth(linedotscale);
 }
 
 /*

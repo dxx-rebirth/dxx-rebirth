@@ -3,6 +3,7 @@ D1X-Rebirth Changelog
 20110202
 --------
 arch/include/event.h, arch/include/joy.h, arch/include/key.h, arch/include/mouse.h, arch/sdl/event.c, arch/sdl/joy.c, arch/sdl/key.c, arch/sdl/mouse.c, main/automap.c, main/endlevel.c, main/game.c, main/gamecntl.c, main/inferno.c, main/kconfig.c, main/kconfig.h, main/multi.c, main/newmenu.c, main/slew.c: Added event types for all input actions; Rewrote kconfig code to work with events; static defined inputs will not trigger kconfig-mapped inputs anymore; Simplified keyboard, mouse and joystick code a lot due to event-based handling; Added function to toggle SDL key repeats on and off; Put timer_update() to event_process; Removed return when event_poll() is idle to get cursor hiding to work again; Added a small delay between cursoe hiding and re-enabling to cursor will not accidentially enable by SDL event centering cursor while hiding
+arch/ogl/ogl.c: After rendering Reboot reticle, reset glLineWidth to default value again
 
 20110126
 --------
