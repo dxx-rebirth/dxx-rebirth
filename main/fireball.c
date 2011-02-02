@@ -393,9 +393,8 @@ int pick_connected_segment(object *objp, int max_depth)
 	return -1;
 }
 
-#define	BASE_NET_DROP_DEPTH	10
+#define BASE_NET_DROP_DEPTH 10
 
-#ifdef NETWORK
 //	------------------------------------------------------------------------------------------------------
 //	Choose segment to drop a powerup in.
 //	For all active net players, try to create a N segment path from the player.  If possible, return that
@@ -430,7 +429,9 @@ int choose_drop_segment(void)
 	}
 
 	if (segnum == -1) {
-		return (d_rand() * Highest_segment_index) >> 15;
+		while (cur_drop_depth > 0 && segnum == -1) // before dropping in random segment, try to find ANY segment which is connected to the player responsible for the drop so object will not spawn in inaccessible areas
+			segnum = pick_connected_segment(&Objects[Players[Player_num].objnum], --cur_drop_depth);
+		return ((segnum == -1)?((d_rand() * Highest_segment_index) >> 15):segnum); // basically it should be impossible segnum == -1 now... but oh well...
 	} else
 		return segnum;
 
@@ -483,7 +484,6 @@ void maybe_drop_net_powerup(int powerup_type)
 		object_create_explosion(segnum, &new_pos, i2f(5), VCLIP_POWERUP_DISAPPEARANCE );
 	}
 }
-#endif
 
 //	------------------------------------------------------------------------------------------------------
 //	Return true if current segment contains some object.

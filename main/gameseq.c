@@ -1331,15 +1331,14 @@ void InitPlayerPosition(int random)
 
 	if (! ((Game_mode & GM_MULTI) && !(Game_mode&GM_MULTI_COOP)) ) // If not deathmatch
 		NewPlayer = Player_num;
-#ifdef NETWORK
 	else if (random == 1)
 	{
 		int i, closest = -1, trys=0;
 		fix closest_dist = 0x7ffffff, dist;
 
+		timer_update();
+		d_srand((fix)timer_query());
 		do {
-			timer_update();
-			d_srand((fix)timer_query());
 			trys++;
 			NewPlayer = d_rand() % NumNetPlayerPositions;
 
@@ -1348,28 +1347,28 @@ void InitPlayerPosition(int random)
 
 			for (i=0; i<N_players; i++ )	{
 				if ( (i!=Player_num) && (Objects[Players[i].objnum].type == OBJ_PLAYER) )	{
-					dist = find_connected_distance(&Objects[Players[i].objnum].pos, Objects[Players[i].objnum].segnum, &Player_init[NewPlayer].pos, Player_init[NewPlayer].segnum, 10, WID_FLY_FLAG );
+					dist = find_connected_distance(&Objects[Players[i].objnum].pos, Objects[Players[i].objnum].segnum, &Player_init[NewPlayer].pos, Player_init[NewPlayer].segnum, 15, WID_FLY_FLAG ); // Used to be 5, search up to 15 segments
 					if ( (dist < closest_dist) && (dist >= 0) )	{
 						closest_dist = dist;
 						closest = i;
 					}
 				}
 			}
-		} while ( (closest_dist<i2f(10*20)) && (trys<MAX_NUM_NET_PLAYERS*2) );
+		} while ( (closest_dist<i2f(15*20)) && (trys<MAX_NUM_NET_PLAYERS*2) );
 	}
-#endif
-	else {
-		goto done; // If deathmatch and not random, positions were already determined by sync packet
+	else
+	{
+		// If deathmatch and not random, positions were already determined by sync packet
+		reset_player_object();
+		reset_cruise();
+		return;
 	}
+
 	Assert(NewPlayer >= 0);
 	Assert(NewPlayer < NumNetPlayerPositions);
-
 	ConsoleObject->pos = Player_init[NewPlayer].pos;
 	ConsoleObject->orient = Player_init[NewPlayer].orient;
-
- 	obj_relink(ConsoleObject-Objects,Player_init[NewPlayer].segnum);
-
-done:
+	obj_relink(ConsoleObject-Objects,Player_init[NewPlayer].segnum);
 	reset_player_object();
 	reset_cruise();
 }

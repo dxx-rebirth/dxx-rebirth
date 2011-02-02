@@ -1310,7 +1310,7 @@ void net_ipx_send_objects(void)
 	int player_num = IPX_sync_player.player.connected;
 	static fix64 last_send_time = 0;
 	
-	if (last_send_time + (F1_0/10) > timer_query())
+	if (last_send_time + (F1_0/50) > timer_query())
 		return;
 	last_send_time = timer_query();
 
