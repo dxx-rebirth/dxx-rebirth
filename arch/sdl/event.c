@@ -152,16 +152,19 @@ void event_process(void)
 		return;
 	
 	event.type = EVENT_WINDOW_DRAW;	// then draw all visible windows
-	wind = window_get_first();
-	while (wind != NULL)
-	{
-		window *next_wind = window_get_next(wind); // check this in now in case this window closes during EVENT_WINDOW_DRAW
+	for (wind = window_get_first(); wind != NULL; wind = window_get_next(wind))
 		if (window_is_visible(wind))
 			window_send_event(wind, &event);
-		wind = next_wind;
-	}
 
 	gr_flip();
+
+	wind = window_get_first();
+	while (wind != NULL) // go through all windows and actually close them if they want to
+	{
+		window *next_wind = window_get_next(wind);
+		window_do_close(wind);
+		wind = next_wind;
+	}
 }
 
 void event_toggle_focus(int activate_focus)

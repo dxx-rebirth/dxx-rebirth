@@ -3,6 +3,7 @@ D1X-Rebirth Changelog
 20110203
 --------
 main/automap.c, main/gamecntl.c: Little fixes for recent kconfig/event overhaul: Automap inputs read by kconfig should be processed by input rather than idle and automap frame calculations should be done while drawing; Fixed drop_bomb_count which could roll over to 255 dropping bombs without end
+arch/include/window.h, arch/sdl/event.c, arch/sdl/window.c: Included new window structure flag w_closing_state and let window_close() set this flag - after drawing all windows, check them again and call window_do_close() which then actually closes the window(s) marked to.  Solving all sorts of problems when windows close while being drawn (network error messageboxes, game_leave_menus(), etc.)
 
 20110202
 --------

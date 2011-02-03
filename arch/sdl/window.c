@@ -18,6 +18,7 @@ struct window
 	grs_canvas w_canv;					// the window's canvas to draw to
 	int (*w_callback)(window *wind, d_event *event, void *data);	// the event handler
 	int w_visible;						// whether it's visible
+	ubyte w_closing_state;
 	void *data;							// whatever the user wants (eg menu data for 'newmenu' menus)
 	struct window *prev;				// the previous window in the doubly linked list
 	struct window *next;				// the next window in the doubly linked list
@@ -41,6 +42,7 @@ window *window_create(grs_canvas *src, int x, int y, int w, int h, int (*event_c
 	gr_init_sub_canvas(&wind->w_canv, src, x, y, w, h);
 	wind->w_callback = event_callback;
 	wind->w_visible = 1;	// default to visible
+	wind->w_closing_state = 0;
 	wind->data = data;
 
 	if (FirstWindow == NULL)
@@ -60,10 +62,19 @@ window *window_create(grs_canvas *src, int x, int y, int w, int h, int (*event_c
 
 int window_close(window *wind)
 {
+	wind->w_closing_state = 1; // mark this window to close
+
+	return 1;
+}
+
+int window_do_close(window *wind)
+{
 	window *prev;
 	d_event event;
 	int (*w_callback)(window *wind, d_event *event, void *data) = wind->w_callback;
 
+	if (!wind->w_closing_state)
+		return 0;
 	if (wind == window_get_front())
 		WINDOW_SEND_EVENT(wind, EVENT_WINDOW_DEACTIVATED);	// Deactivate first
 
@@ -74,7 +85,10 @@ int window_close(window *wind)
 	{
 		// User 'handled' the event, cancelling close
 		if (wind == window_get_front())
-			WINDOW_SEND_EVENT(wind, EVENT_WINDOW_ACTIVATED);	// Reactivate. May cause flashing of some sort, too bad
+		{
+			WINDOW_SEND_EVENT(wind, EVENT_WINDOW_ACTIVATED);
+			wind->w_closing_state = 0;
+		}
 		return 0;
 	}
 
@@ -88,8 +102,8 @@ int window_close(window *wind)
 		wind->prev->next = wind->next;
 
 	if ((prev = window_get_front()))
-		WINDOW_SEND_EVENT(prev, EVENT_WINDOW_ACTIVATED);	// Reactivate. May cause flashing of some sort, too bad
-	
+		WINDOW_SEND_EVENT(prev, EVENT_WINDOW_ACTIVATED);
+
 	d_free(wind);
 	
 	event.type = EVENT_WINDOW_CLOSED;
