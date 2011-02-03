@@ -3,6 +3,7 @@ D2X-Rebirth Changelog
 20110203
 --------
 main/automap.c, main/gamecntl.c: Little fixes for recent kconfig/event overhaul: Automap inputs read by kconfig should be processed by input rather than idle and automap frame calculations should be done while drawing; Fixed drop_bomb_count which could roll over to 255 dropping bombs without end
+main/gauges: Corrected values for gr_ubox while drawing a window_view to not mess up at some widescreen resolutions
 
 20110202
 --------

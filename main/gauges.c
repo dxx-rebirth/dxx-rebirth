@@ -2941,7 +2941,7 @@ void do_cockpit_window_view(int win,object *viewer,int rear_view_flag,int user,c
 
 		{
 			gr_setcolor(BM_XRGB(0,0,32));
-			gr_ubox(-1,0,grd_curcanv->cv_bitmap.bm_w-1,grd_curcanv->cv_bitmap.bm_h-1);
+			gr_ubox(0,0,grd_curcanv->cv_bitmap.bm_w,grd_curcanv->cv_bitmap.bm_h);
 		}
 
 		//if the window only partially overlaps the big 3d window, copy
