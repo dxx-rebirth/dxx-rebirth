@@ -72,6 +72,8 @@ COPYRIGHT 1993-1999 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 #include "window.h"
 #include "playsave.h"
 
+#define LEAVE_TIME 0x4000
+
 #define EF_USED     1   // This edge is used
 #define EF_DEFINING 2   // A structure defining edge that should always draw.
 #define EF_FRONTIER 4   // An edge between the known and the unknown.
@@ -252,6 +254,14 @@ void draw_automap(automap *am)
 	vms_vector viewer_position;
 	g3s_point sphere_point;
 
+	if (!am->pause_game)	{
+		ConsoleObject->mtype.phys_info.flags |= am->old_wiggle;		// Restore wiggle
+		Controls = am->saved_control_info;							// Restore controls
+	}
+	
+	if ( am->leave_mode==0 && Controls.automap_state && (timer_query()-am->entry_time)>LEAVE_TIME)
+		am->leave_mode = 1;
+
 	gr_set_current_canvas(NULL);
 	show_fullscr(&am->automap_background);
 	gr_set_curfont(HUGE_FONT);
@@ -350,9 +360,29 @@ void draw_automap(automap *am)
 
 	if (PlayerCfg.MouseFlightSim && PlayerCfg.MouseFSIndicator)
 		show_mousefs_indicator(GWIDTH-(GHEIGHT/8), GHEIGHT-(GHEIGHT/8), GHEIGHT/5);
-}
 
-#define LEAVE_TIME 0x4000
+	am->t2 = timer_query();
+	while (am->t2 - am->t1 < F1_0 / (GameCfg.VSync?MAXIMUM_FPS:GameArg.SysMaxFPS)) // ogl is fast enough that the automap can read the input too fast and you start to turn really slow.  So delay a bit (and free up some cpu :)
+	{
+		if (GameArg.SysUseNiceFPS && !GameCfg.VSync)
+			timer_delay(f1_0 / GameArg.SysMaxFPS - (am->t2 - am->t1));
+		timer_update();
+		am->t2 = timer_query();
+	}
+	if (am->pause_game)
+	{
+		FrameTime=am->t2-am->t1;
+		FixedStepCalc();
+	}
+	am->t1 = am->t2;
+	
+	if (!am->pause_game)	{
+		am->saved_control_info = Controls;					// Save controls so we can zero them
+		memset(&Controls,0,sizeof(control_info));			// Clear everything...
+		am->old_wiggle = ConsoleObject->mtype.phys_info.flags & PF_WIGGLE;	// Save old wiggle
+		ConsoleObject->mtype.phys_info.flags &= ~PF_WIGGLE;		// Turn off wiggle
+	}
+}
 
 extern int set_segment_depths(int start_seg, ubyte *segbuf);
 
@@ -419,18 +449,10 @@ int automap_key_command(window *wind, d_event *event, automap *am)
 	return 0;
 }
 
-int automap_idle(window *wind, d_event *event, automap *am)
+int automap_process_input(window *wind, d_event *event, automap *am)
 {
 	vms_matrix	tempm;
 
-	if (!am->pause_game)	{
-		ConsoleObject->mtype.phys_info.flags |= am->old_wiggle;		// Restore wiggle
-		Controls = am->saved_control_info;							// Restore controls
-	}
-	
-	if ( am->leave_mode==0 && Controls.automap_state && (timer_query()-am->entry_time)>LEAVE_TIME)
-		am->leave_mode = 1;
-	
 	if ( !Controls.automap_state && (am->leave_mode==1) )
 	{
 		window_close(wind);
@@ -483,28 +505,6 @@ int automap_idle(window *wind, d_event *event, automap *am)
 	if ( am->viewDist < ZOOM_MIN_VALUE ) am->viewDist = ZOOM_MIN_VALUE;
 	if ( am->viewDist > ZOOM_MAX_VALUE ) am->viewDist = ZOOM_MAX_VALUE;
 	
-	am->t2 = timer_query();
-	while (am->t2 - am->t1 < F1_0 / (GameCfg.VSync?MAXIMUM_FPS:GameArg.SysMaxFPS)) // ogl is fast enough that the automap can read the input too fast and you start to turn really slow.  So delay a bit (and free up some cpu :)
-	{
-		if (GameArg.SysUseNiceFPS && !GameCfg.VSync)
-			timer_delay(f1_0 / GameArg.SysMaxFPS - (am->t2 - am->t1));
-		timer_update();
-		am->t2 = timer_query();
-	}
-	if (am->pause_game)
-	{
-		FrameTime=am->t2-am->t1;
-		FixedStepCalc();
-	}
-	am->t1 = am->t2;
-	
-	if (!am->pause_game)	{
-		am->saved_control_info = Controls;					// Save controls so we can zero them
-		memset(&Controls,0,sizeof(control_info));			// Clear everything...
-		am->old_wiggle = ConsoleObject->mtype.phys_info.flags & PF_WIGGLE;	// Save old wiggle
-		ConsoleObject->mtype.phys_info.flags &= ~PF_WIGGLE;		// Turn off wiggle
-	}
-	
 	return 0;
 }
 
@@ -523,6 +523,7 @@ int automap_handler(window *wind, d_event *event, automap *am)
 			key_toggle_repeat(1);
 			break;
 
+		case EVENT_IDLE:
 		case EVENT_JOYSTICK_BUTTON_UP:
 		case EVENT_JOYSTICK_BUTTON_DOWN:
 		case EVENT_JOYSTICK_MOVED:
@@ -530,16 +531,13 @@ int automap_handler(window *wind, d_event *event, automap *am)
 		case EVENT_MOUSE_BUTTON_DOWN:
 		case EVENT_MOUSE_MOVED:
 			kconfig_read_controls(event, 1);
+			automap_process_input(wind, event, am);
 			break;
 		case EVENT_KEY_COMMAND:
 		case EVENT_KEY_RELEASE:
 			kconfig_read_controls(event, 1);
+			automap_process_input(wind, event, am);
 			return automap_key_command(wind, event, am);
-
-		case EVENT_IDLE:
-			kconfig_read_controls(event, 1);
-			return automap_idle(wind, event, am);
-			break;
 			
 		case EVENT_WINDOW_DRAW:
 			draw_automap(am);

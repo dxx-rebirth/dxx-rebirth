@@ -207,9 +207,10 @@ void do_weapon_n_item_stuff()
 		Global_missile_firing_count = 0;
 
 	//	Drop proximity bombs.
-	if (Controls.drop_bomb_count > 0) {
-		while (Controls.drop_bomb_count--)
-			do_missile_firing(1);
+	while (Controls.drop_bomb_count > 0)
+	{
+		do_missile_firing(1);
+		Controls.drop_bomb_count--;
 	}
 }
 
