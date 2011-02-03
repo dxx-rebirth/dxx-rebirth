@@ -252,6 +252,7 @@ void draw_automap(automap *am)
 	int color;
 	object * objp;
 	vms_vector viewer_position;
+	vms_matrix tempm;
 	g3s_point sphere_point;
 
 	if (!am->pause_game)	{
@@ -361,6 +362,42 @@ void draw_automap(automap *am)
 	if (PlayerCfg.MouseFlightSim && PlayerCfg.MouseFSIndicator)
 		show_mousefs_indicator(GWIDTH-(GHEIGHT/8), GHEIGHT-(GHEIGHT/8), GHEIGHT/5);
 
+	if ( Controls.fire_primary_count > 0)	{
+		// Reset orientation
+		am->viewDist = ZOOM_DEFAULT;
+		am->tangles.p = PITCH_DEFAULT;
+		am->tangles.h  = 0;
+		am->tangles.b  = 0;
+		am->view_target = Objects[Players[Player_num].objnum].pos;
+		Controls.fire_primary_count = 0;
+	}
+	
+	am->viewDist -= Controls.forward_thrust_time*ZOOM_SPEED_FACTOR;
+	
+	am->tangles.p += fixdiv( Controls.pitch_time, ROT_SPEED_DIVISOR );
+	am->tangles.h  += fixdiv( Controls.heading_time, ROT_SPEED_DIVISOR );
+	am->tangles.b  += fixdiv( Controls.bank_time, ROT_SPEED_DIVISOR*2 );
+	
+	if ( Controls.vertical_thrust_time || Controls.sideways_thrust_time )	{
+		vms_angvec	tangles1;
+		vms_vector	old_vt;
+		old_vt = am->view_target;
+		tangles1 = am->tangles;
+		vm_angles_2_matrix(&tempm,&tangles1);
+		vm_matrix_x_matrix(&am->viewMatrix,&Objects[Players[Player_num].objnum].orient,&tempm);
+		vm_vec_scale_add2( &am->view_target, &am->viewMatrix.uvec, Controls.vertical_thrust_time*SLIDE_SPEED );
+		vm_vec_scale_add2( &am->view_target, &am->viewMatrix.rvec, Controls.sideways_thrust_time*SLIDE_SPEED );
+		if ( vm_vec_dist_quick( &am->view_target, &Objects[Players[Player_num].objnum].pos) > i2f(1000) )	{
+			am->view_target = old_vt;
+		}
+	}
+	
+	vm_angles_2_matrix(&tempm,&am->tangles);
+	vm_matrix_x_matrix(&am->viewMatrix,&Objects[Players[Player_num].objnum].orient,&tempm);
+	
+	if ( am->viewDist < ZOOM_MIN_VALUE ) am->viewDist = ZOOM_MIN_VALUE;
+	if ( am->viewDist > ZOOM_MAX_VALUE ) am->viewDist = ZOOM_MAX_VALUE;
+
 	am->t2 = timer_query();
 	while (am->t2 - am->t1 < F1_0 / (GameCfg.VSync?MAXIMUM_FPS:GameArg.SysMaxFPS)) // ogl is fast enough that the automap can read the input too fast and you start to turn really slow.  So delay a bit (and free up some cpu :)
 	{
@@ -451,8 +488,6 @@ int automap_key_command(window *wind, d_event *event, automap *am)
 
 int automap_process_input(window *wind, d_event *event, automap *am)
 {
-	vms_matrix	tempm;
-
 	if ( !Controls.automap_state && (am->leave_mode==1) )
 	{
 		window_close(wind);
@@ -468,42 +503,6 @@ int automap_process_input(window *wind, d_event *event, automap *am)
 			return 1;
 		}
 	}
-	
-	if ( Controls.fire_primary_count > 0)	{
-		// Reset orientation
-		am->viewDist = ZOOM_DEFAULT;
-		am->tangles.p = PITCH_DEFAULT;
-		am->tangles.h  = 0;
-		am->tangles.b  = 0;
-		am->view_target = Objects[Players[Player_num].objnum].pos;
-		Controls.fire_primary_count = 0;
-	}
-	
-	am->viewDist -= Controls.forward_thrust_time*ZOOM_SPEED_FACTOR;
-	
-	am->tangles.p += fixdiv( Controls.pitch_time, ROT_SPEED_DIVISOR );
-	am->tangles.h  += fixdiv( Controls.heading_time, ROT_SPEED_DIVISOR );
-	am->tangles.b  += fixdiv( Controls.bank_time, ROT_SPEED_DIVISOR*2 );
-	
-	if ( Controls.vertical_thrust_time || Controls.sideways_thrust_time )	{
-		vms_angvec	tangles1;
-		vms_vector	old_vt;
-		old_vt = am->view_target;
-		tangles1 = am->tangles;
-		vm_angles_2_matrix(&tempm,&tangles1);
-		vm_matrix_x_matrix(&am->viewMatrix,&Objects[Players[Player_num].objnum].orient,&tempm);
-		vm_vec_scale_add2( &am->view_target, &am->viewMatrix.uvec, Controls.vertical_thrust_time*SLIDE_SPEED );
-		vm_vec_scale_add2( &am->view_target, &am->viewMatrix.rvec, Controls.sideways_thrust_time*SLIDE_SPEED );
-		if ( vm_vec_dist_quick( &am->view_target, &Objects[Players[Player_num].objnum].pos) > i2f(1000) )	{
-			am->view_target = old_vt;
-		}
-	}
-	
-	vm_angles_2_matrix(&tempm,&am->tangles);
-	vm_matrix_x_matrix(&am->viewMatrix,&Objects[Players[Player_num].objnum].orient,&tempm);
-	
-	if ( am->viewDist < ZOOM_MIN_VALUE ) am->viewDist = ZOOM_MIN_VALUE;
-	if ( am->viewDist > ZOOM_MAX_VALUE ) am->viewDist = ZOOM_MAX_VALUE;
 	
 	return 0;
 }
