@@ -19,6 +19,7 @@ typedef struct window window;
 
 extern window *window_create(grs_canvas *src, int x, int y, int w, int h, int (*event_callback)(window *wind, d_event *event, void *data), void *data);
 extern int window_close(window *wind);
+extern int window_do_close(window *wind);
 extern int window_exists(window *wind);
 extern window *window_get_front(void);
 extern window *window_get_first(void);
