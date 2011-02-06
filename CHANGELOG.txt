@@ -1,5 +1,9 @@
 D2X-Rebirth Changelog
 
+20110206
+--------
+arch/include/key.h, main/automap.c: Increased key repeat values to react a little more like the MS-DOS version of the game but a little slower so I can still stop at the correct item; In automap reorganized control_info swapping as well as wiggle state handling to properly work in connection with the new input handling and Multiplayer where game is not paused
+
 20110203
 --------
 main/automap.c, main/gamecntl.c: Little fixes for recent kconfig/event overhaul: Automap inputs read by kconfig should be processed by input rather than idle and automap frame calculations should be done while drawing; Fixed drop_bomb_count which could roll over to 255 dropping bombs without end

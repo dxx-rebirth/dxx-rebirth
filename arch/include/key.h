@@ -25,8 +25,8 @@ COPYRIGHT 1993-1999 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 #include "event.h"
 
 #define KEY_BUFFER_SIZE 16
-#define KEY_REPEAT_DELAY 1000
-#define KEY_REPEAT_INTERVAL 100
+#define KEY_REPEAT_DELAY 400
+#define KEY_REPEAT_INTERVAL 50
 
 //==========================================================================
 // This installs the int9 vector and initializes the keyboard in buffered
