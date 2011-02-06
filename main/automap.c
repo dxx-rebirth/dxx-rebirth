@@ -133,7 +133,7 @@ typedef struct automap
 	int			white_63;
 	int			blue_48;
 	int			red_48;
-	control_info saved_control_info;
+	control_info controls;
 } automap;
 
 #define MAX_EDGES_FROM_VERTS(v)     ((v)*4)
@@ -254,13 +254,8 @@ void draw_automap(automap *am)
 	vms_vector viewer_position;
 	vms_matrix tempm;
 	g3s_point sphere_point;
-
-	if (!am->pause_game)	{
-		ConsoleObject->mtype.phys_info.flags |= am->old_wiggle;		// Restore wiggle
-		Controls = am->saved_control_info;							// Restore controls
-	}
 	
-	if ( am->leave_mode==0 && Controls.automap_state && (timer_query()-am->entry_time)>LEAVE_TIME)
+	if ( am->leave_mode==0 && am->controls.automap_state && (timer_query()-am->entry_time)>LEAVE_TIME)
 		am->leave_mode = 1;
 
 	gr_set_current_canvas(NULL);
@@ -362,31 +357,31 @@ void draw_automap(automap *am)
 	if (PlayerCfg.MouseFlightSim && PlayerCfg.MouseFSIndicator)
 		show_mousefs_indicator(GWIDTH-(GHEIGHT/8), GHEIGHT-(GHEIGHT/8), GHEIGHT/5);
 
-	if ( Controls.fire_primary_count > 0)	{
+	if ( am->controls.fire_primary_count > 0)	{
 		// Reset orientation
 		am->viewDist = ZOOM_DEFAULT;
 		am->tangles.p = PITCH_DEFAULT;
 		am->tangles.h  = 0;
 		am->tangles.b  = 0;
 		am->view_target = Objects[Players[Player_num].objnum].pos;
-		Controls.fire_primary_count = 0;
+		am->controls.fire_primary_count = 0;
 	}
 	
-	am->viewDist -= Controls.forward_thrust_time*ZOOM_SPEED_FACTOR;
+	am->viewDist -= am->controls.forward_thrust_time*ZOOM_SPEED_FACTOR;
 	
-	am->tangles.p += fixdiv( Controls.pitch_time, ROT_SPEED_DIVISOR );
-	am->tangles.h  += fixdiv( Controls.heading_time, ROT_SPEED_DIVISOR );
-	am->tangles.b  += fixdiv( Controls.bank_time, ROT_SPEED_DIVISOR*2 );
+	am->tangles.p += fixdiv( am->controls.pitch_time, ROT_SPEED_DIVISOR );
+	am->tangles.h  += fixdiv( am->controls.heading_time, ROT_SPEED_DIVISOR );
+	am->tangles.b  += fixdiv( am->controls.bank_time, ROT_SPEED_DIVISOR*2 );
 	
-	if ( Controls.vertical_thrust_time || Controls.sideways_thrust_time )	{
+	if ( am->controls.vertical_thrust_time || am->controls.sideways_thrust_time )	{
 		vms_angvec	tangles1;
 		vms_vector	old_vt;
 		old_vt = am->view_target;
 		tangles1 = am->tangles;
 		vm_angles_2_matrix(&tempm,&tangles1);
 		vm_matrix_x_matrix(&am->viewMatrix,&Objects[Players[Player_num].objnum].orient,&tempm);
-		vm_vec_scale_add2( &am->view_target, &am->viewMatrix.uvec, Controls.vertical_thrust_time*SLIDE_SPEED );
-		vm_vec_scale_add2( &am->view_target, &am->viewMatrix.rvec, Controls.sideways_thrust_time*SLIDE_SPEED );
+		vm_vec_scale_add2( &am->view_target, &am->viewMatrix.uvec, am->controls.vertical_thrust_time*SLIDE_SPEED );
+		vm_vec_scale_add2( &am->view_target, &am->viewMatrix.rvec, am->controls.sideways_thrust_time*SLIDE_SPEED );
 		if ( vm_vec_dist_quick( &am->view_target, &Objects[Players[Player_num].objnum].pos) > i2f(1000) )	{
 			am->view_target = old_vt;
 		}
@@ -412,13 +407,6 @@ void draw_automap(automap *am)
 		FixedStepCalc();
 	}
 	am->t1 = am->t2;
-	
-	if (!am->pause_game)	{
-		am->saved_control_info = Controls;					// Save controls so we can zero them
-		memset(&Controls,0,sizeof(control_info));			// Clear everything...
-		am->old_wiggle = ConsoleObject->mtype.phys_info.flags & PF_WIGGLE;	// Save old wiggle
-		ConsoleObject->mtype.phys_info.flags &= ~PF_WIGGLE;		// Turn off wiggle
-	}
 }
 
 extern int set_segment_depths(int start_seg, ubyte *segbuf);
@@ -488,15 +476,20 @@ int automap_key_command(window *wind, d_event *event, automap *am)
 
 int automap_process_input(window *wind, d_event *event, automap *am)
 {
-	if ( !Controls.automap_state && (am->leave_mode==1) )
+	Controls = am->controls;
+	kconfig_read_controls(event, 1);
+	am->controls = Controls;
+	memset(&Controls, 0, sizeof(control_info));
+
+	if ( !am->controls.automap_state && (am->leave_mode==1) )
 	{
 		window_close(wind);
 		return 1;
 	}
 	
-	if ( Controls.automap_count > 0)
+	if ( am->controls.automap_count > 0)
 	{
-		Controls.automap_count = 0;
+		am->controls.automap_count = 0;
 		if (am->leave_mode==0)
 		{
 			window_close(wind);
@@ -529,12 +522,10 @@ int automap_handler(window *wind, d_event *event, automap *am)
 		case EVENT_MOUSE_BUTTON_UP:
 		case EVENT_MOUSE_BUTTON_DOWN:
 		case EVENT_MOUSE_MOVED:
-			kconfig_read_controls(event, 1);
 			automap_process_input(wind, event, am);
 			break;
 		case EVENT_KEY_COMMAND:
 		case EVENT_KEY_RELEASE:
-			kconfig_read_controls(event, 1);
 			automap_process_input(wind, event, am);
 			return automap_key_command(wind, event, am);
 			
@@ -543,6 +534,8 @@ int automap_handler(window *wind, d_event *event, automap *am)
 			break;
 			
 		case EVENT_WINDOW_CLOSE:
+			if (!am->pause_game)
+				ConsoleObject->mtype.phys_info.flags |= am->old_wiggle;		// Restore wiggle
 			event_toggle_focus(0);
 			key_toggle_repeat(1);
 #ifdef OGL
@@ -618,6 +611,10 @@ void do_automap( int key_code )
 
 	if (am->pause_game) {
 		window_set_visible(Game_wind, 0);
+	}
+	if (!am->pause_game)	{
+		am->old_wiggle = ConsoleObject->mtype.phys_info.flags & PF_WIGGLE;	// Save old wiggle
+		ConsoleObject->mtype.phys_info.flags &= ~PF_WIGGLE;		// Turn off wiggle
 	}
 
 	//Max_edges = min(MAX_EDGES_FROM_VERTS(Num_vertices),MAX_EDGES); //make maybe smaller than max
