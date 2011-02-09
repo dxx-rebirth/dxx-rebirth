@@ -52,12 +52,10 @@ static char rcsid[] = "$Id: titles.c,v 1.2 2006/03/18 23:08:13 michaelstather Ex
 #include "piggy.h"
 #include "songs.h"
 #include "newmenu.h"
-#include "state.h"
 #include "menu.h"
 #include "mouse.h"
 #include "console.h"
 
-void title_save_game();
 void set_briefing_fontcolor ();
 
 #define MAX_BRIEFING_COLORS     7
@@ -1017,37 +1015,6 @@ int new_briefing_screen(briefing *br, int first)
 	return 1;
 }
 
-
-//-----------------------------------------------------------------------------
-void title_save_game()
-{
-	grs_canvas * save_canv;
-	grs_canvas * save_canv_data;
-	grs_font * save_font;
-	ubyte palette[768];
-
-	if ( Next_level_num == 0 ) return;
-
-	save_canv = grd_curcanv;
-	save_font = grd_curcanv->cv_font;
-
-	save_canv_data = gr_create_canvas( grd_curcanv->cv_bitmap.bm_w, grd_curcanv->cv_bitmap.bm_h );
-	gr_set_current_canvas(save_canv_data);
-	gr_ubitmap(0,0,&save_canv->cv_bitmap);
-	gr_set_current_canvas(save_canv);
-	gr_clear_canvas(gr_find_closest_color_current( 0, 0, 0));
-	gr_palette_read( palette );
-	gr_palette_load( gr_palette );
-#ifndef SHAREWARE
-	state_save_all(1, 0);
-#endif
-
-	gr_set_current_canvas(save_canv);
-	gr_ubitmap(0,0,&save_canv_data->cv_bitmap);
-	gr_palette_load( palette );
-	gr_set_curfont(save_font);
-}
-
 //-----------------------------------------------------------------------------
 int briefing_handler(window *wind, d_event *event, briefing *br)
 {
@@ -1084,10 +1051,6 @@ int briefing_handler(window *wind, d_event *event, briefing *br)
 
 			switch (key)
 			{
-				case KEY_ALTED+KEY_F2:
-					title_save_game();
-					return 1;
-
 				case KEY_ESC:
 					window_close(wind);
 					return 1;

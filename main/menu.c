@@ -640,12 +640,13 @@ int do_option ( int select)
 void delete_player_saved_games(char * name)
 {
 	int i;
-	char filename[FILENAME_LEN + 9];
+	char filename[PATH_MAX];
 
 	for (i=0;i<10; i++)
 	{
-		sprintf( filename, GameArg.SysUsePlayersDir? "Players/%s.sg%x" : "%s.sg%x", name, i );
-
+		snprintf( filename, PATH_MAX, GameArg.SysUsePlayersDir? "Players/%s.sg%x" : "%s.sg%x", name, i );
+		PHYSFS_delete(filename);
+		snprintf( filename, PATH_MAX, GameArg.SysUsePlayersDir? "Players/%s.mg%x" : "%s.mg%x", name, i );
 		PHYSFS_delete(filename);
 	}
 }

@@ -104,13 +104,10 @@ extern int multi_protocol; // set and determinate used protocol
 #define MULTI_BOSS_ACTIONS		30
 #define MULTI_CREATE_ROBOT_POWERUPS	31
 #define MULTI_HOSTAGE_DOOR		32
-
-#define MULTI_SAVE_GAME			33 // obsolete
-#define MULTI_RESTORE_GAME		34 // obsolete
-
+#define MULTI_SAVE_GAME			33
+#define MULTI_RESTORE_GAME		34
 #define MULTI_REQ_PLAYER		35 // NEVER USED
 #define MULTI_SEND_PLAYER		36 // NEVER USED
-
 #define MULTI_POWCAP_UPDATE     	37
 #define MULTI_HEARTBEAT         	38
 #define MULTI_KILLGOALS			39
@@ -227,6 +224,7 @@ void multi_send_message_dialog(void);
 int multi_delete_extra_objects(void);
 void multi_make_ghost_player(int objnum);
 void multi_make_player_ghost(int objnum);
+void multi_reset_player_object(object *objp);
 void multi_define_macro(int key);
 void multi_send_macro(int key);
 int multi_get_kill_list(int *plist);
@@ -236,6 +234,9 @@ void multi_reset_stuff(void);
 void multi_send_data(unsigned char *buf, int len, int priority);
 int get_team(int pnum);
 int multi_maybe_disable_friendly_fire(object *killer);
+void multi_initiate_save_game();
+void multi_initiate_restore_game();
+void multi_disconnect_player(int pnum);
 void multi_object_to_object_rw(object *obj, object_rw *obj_rw);
 void multi_object_rw_to_object(object_rw *obj_rw, object *obj);
 
