@@ -65,6 +65,7 @@ COPYRIGHT 1993-1999 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 #include "cfile.h"
 #include "effects.h"
 #include "iff.h"
+#include "state.h"
 #ifdef USE_IPX
 #include "net_ipx.h"
 #endif
@@ -93,6 +94,10 @@ void multi_send_ranking();
 void multi_do_play_by_play(char *buf);
 void multi_new_bounty_target( int pnum );
 void multi_do_bounty( char *buf );
+void multi_save_game(ubyte slot, uint id, char *desc);
+void multi_restore_game(ubyte slot, uint id);
+void multi_do_save_game(char *buf);
+void multi_do_restore_game(char *buf);
 
 //
 // Local macros and prototypes
@@ -1970,62 +1975,67 @@ multi_do_remobj(char *buf)
 
 }
 
+void multi_disconnect_player(int pnum)
+{
+	int i, n = 0;
+
+	if (!(Game_mode & GM_NETWORK))
+		return
+
+	digi_play_sample( SOUND_HUD_MESSAGE, F1_0 );
+
+	HUD_init_message(HM_MULTI,  "%s %s", Players[pnum].callsign, TXT_HAS_LEFT_THE_GAME);
+
+	switch (multi_protocol)
+	{
+#ifdef USE_IPX
+		case MULTI_PROTO_IPX:
+			net_ipx_disconnect_player(pnum);
+			break;
+#endif
+#ifdef USE_UDP
+		case MULTI_PROTO_UDP:
+			net_udp_disconnect_player(pnum);
+			break;
+#endif
+		default:
+			Error("Protocol handling missing in multi_disconnect_player\n");
+			break;
+	}
+
+	for (i = 0; i < N_players; i++)
+		if (Players[i].connected) n++;
+	if (n == 1)
+	{
+		HUD_init_message(HM_MULTI, "You are the only person remaining in this netgame");
+	}
+
+	// Bounty target left - select a new one
+	if( Game_mode & GM_BOUNTY && pnum == Bounty_target && multi_i_am_master() )
+	{
+		/* Select a random number */
+		int new_bounty_target = d_rand() % MAX_NUM_NET_PLAYERS;
+		
+		/* Make sure they're valid: Don't check against kill flags,
+			* just in case everyone's dead! */
+		while( !Players[new_bounty_target].connected )
+			new_bounty_target = d_rand() % MAX_NUM_NET_PLAYERS;
+		
+		/* Select new target */
+		multi_new_bounty_target( new_bounty_target );
+		
+		/* Send this new data */
+		multi_send_bounty();
+	}
+}
+
 void
 multi_do_quit(char *buf)
 {
 
-	if (Game_mode & GM_NETWORK)
-	{
-		int i, n = 0;
-
-		digi_play_sample( SOUND_HUD_MESSAGE, F1_0 );
-
-		HUD_init_message(HM_MULTI,  "%s %s", Players[(int)buf[1]].callsign, TXT_HAS_LEFT_THE_GAME);
-
-		switch (multi_protocol)
-		{
-#ifdef USE_IPX
-			case MULTI_PROTO_IPX:
-				net_ipx_disconnect_player(buf[1]);
-				break;
-#endif
-#ifdef USE_UDP
-			case MULTI_PROTO_UDP:
-				net_udp_disconnect_player(buf[1]);
-				break;
-#endif
-			default:
-				Error("Protocol handling missing in multi_do_quit\n");
-				break;
-		}
-
-		for (i = 0; i < N_players; i++)
-			if (Players[i].connected) n++;
-		if (n == 1)
-		{
-			HUD_init_message(HM_MULTI, "You are the only person remaining in this netgame");
-		}
-
-		// Bounty target left - select a new one
-		if( Game_mode & GM_BOUNTY && buf[1] == Bounty_target && multi_i_am_master() )
-		{
-			/* Select a random number */
-			int new_bounty_target = d_rand() % MAX_NUM_NET_PLAYERS;
-			
-			/* Make sure they're valid: Don't check against kill flags,
-			 * just in case everyone's dead! */
-			while( !Players[new_bounty_target].connected )
-				new_bounty_target = d_rand() % MAX_NUM_NET_PLAYERS;
-			
-			/* Select new target */
-			multi_new_bounty_target( new_bounty_target );
-			
-			/* Send this new data */
-			multi_send_bounty();
-		}
-	}
-
-	return;
+	if (!(Game_mode & GM_NETWORK))
+		return;
+	multi_disconnect_player((int)buf[1]);
 }
 
 void
@@ -2343,8 +2353,10 @@ multi_reset_player_object(object *objp)
 	objp->mtype.phys_info.brakes = objp->mtype.phys_info.turnroll = 0;
 	objp->mtype.phys_info.mass = Player_ship->mass;
 	objp->mtype.phys_info.drag = Player_ship->drag;
-	//      objp->mtype.phys_info.flags &= ~(PF_TURNROLL | PF_LEVELLING | PF_WIGGLE | PF_USES_THRUST);
-	objp->mtype.phys_info.flags &= ~(PF_TURNROLL | PF_LEVELLING | PF_WIGGLE);
+	if (objp->type == OBJ_PLAYER)
+		objp->mtype.phys_info.flags |= PF_TURNROLL | PF_LEVELLING | PF_WIGGLE;
+	else
+		objp->mtype.phys_info.flags &= ~(PF_TURNROLL | PF_LEVELLING | PF_WIGGLE);
 
 	//Init render info
 
@@ -4923,6 +4935,200 @@ void multi_new_bounty_target( int pnum )
 	digi_play_sample( SOUND_BUDDY_MET_GOAL, F1_0 * 2 );
 }
 
+void multi_do_save_game(char *buf)
+{
+	int count = 1;
+	ubyte slot;
+	uint id;
+	char desc[25];
+
+	slot = *(ubyte *)(buf+count);			count += 1;
+	id = GET_INTEL_INT(buf+count);			count += 4;
+	memcpy( desc, &buf[count], 20 );		count += 20;
+
+	multi_save_game( slot, id, desc );
+}
+
+void multi_do_restore_game(char *buf)
+{
+	int count = 1;
+	ubyte slot;
+	uint id;
+
+	slot = *(ubyte *)(buf+count);			count += 1;
+	id = GET_INTEL_INT(buf+count);			count += 4;
+
+	multi_restore_game( slot, id );
+}
+
+void multi_send_save_game(ubyte slot, uint id, char * desc)
+{
+	int count = 0;
+	
+	multibuf[count] = MULTI_SAVE_GAME;		count += 1;
+	multibuf[count] = slot;				count += 1; // Save slot=0
+	PUT_INTEL_INT( multibuf+count, id );		count += 4; // Save id
+	memcpy( &multibuf[count], desc, 20 );		count += 20;
+
+	multi_send_data(multibuf, count, 1);
+}
+
+void multi_send_restore_game(ubyte slot, uint id)
+{
+	int count = 0;
+	
+	multibuf[count] = MULTI_RESTORE_GAME;		count += 1;
+	multibuf[count] = slot;				count += 1; // Save slot=0
+	PUT_INTEL_INT( multibuf+count, id );		count += 4; // Save id
+
+	multi_send_data(multibuf, count, 1);
+}
+
+void multi_initiate_save_game()
+{
+	fix game_id = 0;
+	int i, j, slot;
+	char filename[PATH_MAX];
+	char desc[24];
+
+	if (multi_protocol == MULTI_PROTO_IPX)
+		return;
+
+	if ((Endlevel_sequence) || (Control_center_destroyed))
+		return;
+
+	if (!multi_i_am_master())
+	{
+		HUD_init_message(HM_MULTI, "Only host is allowed to save a game!");
+		return;
+	}
+	if (!multi_all_players_alive())
+	{
+		HUD_init_message(HM_MULTI, "Can't save! All players must be alive!");
+		return;
+	}
+	for (i = 0; i < N_players; i++)
+	{
+		for (j = 0; j < N_players; j++)
+		{
+			if (i != j && !stricmp(Players[i].callsign, Players[j].callsign))
+			{
+				HUD_init_message(HM_MULTI, "Can't save! Multiple players with same callsign!");
+				return;
+			}
+		}
+	}
+
+	memset(&filename, '\0', PATH_MAX);
+	memset(&desc, '\0', 24);
+	slot = state_get_save_file(filename, desc, 0 );
+	if (!slot)
+		return;
+	slot--;
+
+	// Make a unique game id
+	game_id = ((fix)timer_query());
+	game_id ^= N_players<<4;
+	for (i = 0; i < N_players; i++ )
+		game_id ^= *(fix *)Players[i].callsign;
+	if ( game_id == 0 )
+		game_id = 1; // 0 is invalid
+
+	multi_send_save_game( slot, game_id, desc );
+	multi_do_frame();
+	multi_save_game( slot,game_id, desc );
+}
+
+extern int state_get_game_id(char *);
+
+void multi_initiate_restore_game()
+{
+	int i, j, slot;
+	char filename[PATH_MAX];
+
+	if (multi_protocol == MULTI_PROTO_IPX)
+		return;
+
+	if ((Endlevel_sequence) || (Control_center_destroyed))
+		return;
+
+	if (!multi_i_am_master())
+	{
+		HUD_init_message(HM_MULTI, "Only host is allowed to load a game!");
+		return;
+	}
+	if (!multi_all_players_alive())
+	{
+		HUD_init_message(HM_MULTI, "Can't load! All players must be alive!");
+		return;
+	}
+	for (i = 0; i < N_players; i++)
+	{
+		for (j = 0; j < N_players; j++)
+		{
+			if (i != j && !stricmp(Players[i].callsign, Players[j].callsign))
+			{
+				HUD_init_message(HM_MULTI, "Can't load! Multiple players with same callsign!");
+				return;
+			}
+		}
+	}
+	slot = state_get_restore_file(filename);
+	if (!slot)
+		return;
+	state_game_id = state_get_game_id(filename);
+	if (!state_game_id)
+		return;
+	slot--;
+	multi_send_restore_game(slot,state_game_id);
+	multi_do_frame();
+	multi_restore_game(slot,state_game_id);
+}
+
+void multi_save_game(ubyte slot, uint id, char *desc)
+{
+	char filename[PATH_MAX];
+
+	if ((Endlevel_sequence) || (Control_center_destroyed))
+		return;
+
+	snprintf(filename, PATH_MAX, GameArg.SysUsePlayersDir? "Players/%s.mg%d" : "%s.mg%d", Players[Player_num].callsign, slot);
+	HUD_init_message(HM_MULTI,  "Saving game #%d, '%s'", slot, desc);
+	stop_time();
+	state_game_id = id;
+	state_save_all_sub(filename, desc );
+}
+
+void multi_restore_game(ubyte slot, uint id)
+{
+	char filename[PATH_MAX];
+	player saved_player;
+	int pnum,i;
+	int thisid;
+
+	if ((Endlevel_sequence) || (Control_center_destroyed))
+		return;
+
+	saved_player = Players[Player_num];
+	snprintf(filename, PATH_MAX, GameArg.SysUsePlayersDir? "Players/%s.mg%d" : "%s.mg%d", Players[Player_num].callsign, slot);
+   
+	for (i = 0; i < N_players; i++)
+		multi_strip_robots(i);
+	if (multi_i_am_master()) // put all players to wait-state again so we can sync up properly
+		for (i = 0; i < MAX_PLAYERS; i++)
+			if (Players[i].connected == CONNECT_PLAYING && i != Player_num)
+				Players[i].connected = CONNECT_WAITING;
+   
+	thisid=state_get_game_id(filename);
+	if (thisid!=id)
+	{
+		nm_messagebox(NULL, 1, TXT_OK, "A multi-save game was restored\nthat you are missing or does not\nmatch that of the others.\nYou must rejoin if you wish to\ncontinue.");
+		return;
+	}
+  
+	pnum = state_restore_all_sub( filename, 0 );
+}
+
 ///
 /// CODE TO LOAD HOARD DATA
 ///
@@ -5224,7 +5430,6 @@ multi_process_data(char *buf, int len)
 	case MULTI_LIGHT:
 		if (!Endlevel_sequence) multi_do_light (buf); break;
 	case MULTI_KILLGOALS:
-
 		if (!Endlevel_sequence) multi_do_kill_goal_counts (buf); break;
 	case MULTI_ENDLEVEL_START:
 		if (!Endlevel_sequence) multi_do_escape(buf); break;
@@ -5290,6 +5495,10 @@ multi_process_data(char *buf, int len)
 		if (!Endlevel_sequence) multi_do_create_robot_powerups(buf); break;
 	case MULTI_HOSTAGE_DOOR:
 		if (!Endlevel_sequence) multi_do_hostage_door_status(buf); break;
+	case MULTI_SAVE_GAME:
+		if (!Endlevel_sequence) multi_do_save_game(buf); break;
+	case MULTI_RESTORE_GAME:
+		if (!Endlevel_sequence) multi_do_restore_game(buf); break;
 	case MULTI_DO_BOUNTY:
 		if( !Endlevel_sequence ) multi_do_bounty( buf ); break;
 	default:

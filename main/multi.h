@@ -102,12 +102,10 @@ extern int multi_protocol; // set and determinate used protocol
 #define MULTI_BOSS_ACTIONS      30
 #define MULTI_CREATE_ROBOT_POWERUPS 31
 #define MULTI_HOSTAGE_DOOR      32
-
-#define MULTI_SAVE_GAME         33 // obsolete
-#define MULTI_RESTORE_GAME      34 // obsolete
-
-#define MULTI_REQ_PLAYER        35  // Someone requests my player structure
-#define MULTI_SEND_PLAYER       36  // Sending someone my player structure
+#define MULTI_SAVE_GAME         33 
+#define MULTI_RESTORE_GAME      34
+#define MULTI_REQ_PLAYER        35 // NEVER USED
+#define MULTI_SEND_PLAYER       36 // NEVER USED
 #define MULTI_MARKER            37
 #define MULTI_DROP_WEAPON       38
 #define MULTI_GUIDED            39
@@ -126,7 +124,7 @@ extern int multi_protocol; // set and determinate used protocol
 #define MULTI_CAPTURE_BONUS     52
 #define MULTI_GOT_FLAG          53
 #define MULTI_DROP_FLAG         54
-#define MULTI_ROBOT_CONTROLS    55 // unused!
+#define MULTI_ROBOT_CONTROLS    55 // NEVER USED
 #define MULTI_FINISH_GAME       56
 #define MULTI_RANK              57
 #define MULTI_MODEM_PING        58
@@ -271,6 +269,7 @@ void multi_send_message_dialog(void);
 int multi_delete_extra_objects(void);
 void multi_make_ghost_player(int objnum);
 void multi_make_player_ghost(int objnum);
+void multi_reset_player_object(object *objp);
 void multi_define_macro(int key);
 void multi_send_macro(int key);
 int multi_get_kill_list(int *plist);
@@ -280,6 +279,9 @@ void multi_reset_stuff(void);
 void multi_send_data(char *buf, int len, int priority);
 int get_team(int pnum);
 int multi_maybe_disable_friendly_fire(object *killer);
+void multi_initiate_save_game();
+void multi_initiate_restore_game();
+void multi_disconnect_player(int pnum);
 void multi_object_to_object_rw(object *obj, object_rw *obj_rw);
 void multi_object_rw_to_object(object_rw *obj_rw, object *obj);
 

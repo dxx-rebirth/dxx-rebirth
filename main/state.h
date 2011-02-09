@@ -25,13 +25,17 @@ COPYRIGHT 1993-1999 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 #define SECRETB_FILENAME	GameArg.SysUsePlayersDir? "Players/secret.sgb" : "secret.sgb"
 #define SECRETC_FILENAME	GameArg.SysUsePlayersDir? "Players/secret.sgc" : "secret.sgc"
 
-int state_save_all(int between_levels, int secret_save, char *filename_override, int blind_save);
+int state_save_all(int secret_save, char *filename_override, int blind_save);
 int state_restore_all(int in_game, int secret_restore, char *filename_override);
 
 extern uint state_game_id;
 extern int state_quick_item;
 
+int state_save_all_sub(char *filename, char *desc);
+int state_restore_all_sub(char *filename, int secret_restore);
+
 int state_get_save_file(char *fname, char * dsc, int blind_save);
 int state_get_restore_file(char *fname);
+int state_get_game_id(char *filename);
 
 #endif /* _STATE_H */
