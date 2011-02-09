@@ -3,6 +3,7 @@ D2X-Rebirth Changelog
 20110209
 --------
 main/ai.c, main/game.c, main/gamecntl.c, main/gameseq.c, main/menu.c, main/multi.c, main/multi.h, main/state.c, main/state.h: Reintroduced Savegames for Coop games using the original Descent2 implementation but correctly handling player slots in their pre-loading state preventing accidential player shifting which never really worked in the original game and we do not want with UDP anyways - was all tested but still might need a fix or two; Added some missing initializations for saving players and AI stuff; Completely ripped out remnants of saving between levels code
+main/movie.c: Fixed little memory issue while playing movies introduced by overhaul of window closing
 
 20110206
 --------
