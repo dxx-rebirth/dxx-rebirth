@@ -83,7 +83,7 @@ int ogl_rgb_internalformat = GL_RGB;
 int ogl_rgba_internalformat = GL_RGBA8;
 int ogl_rgb_internalformat = GL_RGB8;
 #endif
-GLfloat *sphere_va = NULL;
+GLfloat *sphere_va = NULL, *circle_va = NULL, *disk_va = NULL;
 GLfloat *secondary_lva[3]={NULL, NULL, NULL};
 int r_polyc,r_tpolyc,r_bitmapc,r_ubitbltc,r_upixelc;
 extern int linedotscale;
@@ -217,6 +217,16 @@ void ogl_smash_texture_list_internal(void){
 	{
 		d_free(sphere_va);
 		sphere_va = NULL;
+	}
+	if (circle_va != NULL)
+	{
+		d_free(circle_va);
+		circle_va = NULL;
+	}
+	if (disk_va != NULL)
+	{
+		d_free(disk_va);
+		disk_va = NULL;
 	}
 	for(i = 0; i < 3; i++) {
 		if (secondary_lva[i] != NULL)
@@ -771,7 +781,9 @@ int gr_ucircle(fix xc1, fix yc1, fix r1)
 	             1.0 - (f2fl(yc1) + grd_curcanv->cv_bitmap.bm_y + 0.5) / (float)last_height,0);
 	glScalef(f2fl(r1) / last_width, f2fl(r1) / last_height, 1.0);
 	nsides = 10 + 2 * (int)(M_PI * f2fl(r1) / 19);
-	ogl_drawcircle(nsides, GL_LINE_LOOP, circle_array_init(nsides));
+	if(!circle_va)
+		circle_va = circle_array_init(nsides);
+	ogl_drawcircle(nsides, GL_LINE_LOOP, circle_va);
 	glPopMatrix();
 	return 0;
 }
@@ -792,7 +804,9 @@ int gr_disk(fix x,fix y,fix r)
 	             1.0 - (f2fl(y) + grd_curcanv->cv_bitmap.bm_y + 0.5) / (float)last_height,0);
 	glScalef(f2fl(r) / last_width, f2fl(r) / last_height, 1.0);
 	nsides = 10 + 2 * (int)(M_PI * f2fl(r) / 19);
-	ogl_drawcircle(nsides, GL_TRIANGLE_FAN, circle_array_init(nsides));
+	if(!disk_va)
+		disk_va = circle_array_init(nsides);
+	ogl_drawcircle(nsides, GL_LINE_LOOP, disk_va);
 	glPopMatrix();
 	return 0;
 }
