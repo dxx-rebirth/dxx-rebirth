@@ -5030,7 +5030,11 @@ void multi_initiate_save_game()
 	game_id = ((fix)timer_query());
 	game_id ^= N_players<<4;
 	for (i = 0; i < N_players; i++ )
-		game_id ^= *(fix *)Players[i].callsign;
+	{
+		fix call2i;
+		memcpy(&call2i, Players[i].callsign, sizeof(fix));
+		game_id ^= call2i;
+	}
 	if ( game_id == 0 )
 		game_id = 1; // 0 is invalid
 
