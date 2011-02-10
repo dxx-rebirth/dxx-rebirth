@@ -806,7 +806,7 @@ int gr_disk(fix x,fix y,fix r)
 	nsides = 10 + 2 * (int)(M_PI * f2fl(r) / 19);
 	if(!disk_va)
 		disk_va = circle_array_init(nsides);
-	ogl_drawcircle(nsides, GL_LINE_LOOP, disk_va);
+	ogl_drawcircle(nsides, GL_TRIANGLE_FAN, disk_va);
 	glPopMatrix();
 	return 0;
 }

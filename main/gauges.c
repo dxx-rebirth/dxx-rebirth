@@ -1990,7 +1990,7 @@ xy primary_offsets[4] = 	{ {-30,14}, {-16,6},	{-15,6}, {-8, 2} };
 xy secondary_offsets[4] =	{ {-24,2},	{-12,0}, {-12,1}, {-6,-2} };
 
 //draw the reticle
-void show_reticle(int reticle_type)
+void show_reticle(int reticle_type, int secondary_display)
 {
 	int x,y,size;
 	int laser_ready,missile_ready,laser_ammo,missile_ammo;
@@ -2058,30 +2058,66 @@ void show_reticle(int reticle_type)
 
 		}
 		case RET_TYPE_X:
-			gr_uline(i2f(x-(size/2)), i2f(y-(size/2)), i2f(x-(size/5)), i2f(y-(size/5)));
-			gr_uline(i2f(x+(size/2)), i2f(y-(size/2)), i2f(x+(size/5)), i2f(y-(size/5)));
-			gr_uline(i2f(x-(size/2)), i2f(y+(size/2)), i2f(x-(size/5)), i2f(y+(size/5)));
-			gr_uline(i2f(x+(size/2)), i2f(y+(size/2)), i2f(x+(size/5)), i2f(y+(size/5)));
+			gr_uline(i2f(x-(size/2)), i2f(y-(size/2)), i2f(x-(size/5)), i2f(y-(size/5))); // top-left
+			gr_uline(i2f(x+(size/2)), i2f(y-(size/2)), i2f(x+(size/5)), i2f(y-(size/5))); // top-right
+			gr_uline(i2f(x-(size/2)), i2f(y+(size/2)), i2f(x-(size/5)), i2f(y+(size/5))); // bottom-left
+			gr_uline(i2f(x+(size/2)), i2f(y+(size/2)), i2f(x+(size/5)), i2f(y+(size/5))); // bottom-right
+			if (secondary_display && secondary_bm_num == 1)
+				gr_uline(i2f(x-(size/2)-(size/5)), i2f(y-(size/2)), i2f(x-(size/5)-(size/5)), i2f(y-(size/5)));
+			else if (secondary_display && secondary_bm_num == 2)
+				gr_uline(i2f(x+(size/2)+(size/5)), i2f(y-(size/2)), i2f(x+(size/5)+(size/5)), i2f(y-(size/5)));
+			else if (secondary_display && secondary_bm_num == 4)
+				gr_uline(i2f(x+(size/2)), i2f(y+(size/2)+(size/5)), i2f(x+(size/5)), i2f(y+(size/5)+(size/5)));
 			break;
 		case RET_TYPE_DOT:
-			gr_disk(i2f(x),i2f(y),i2f(size/4));
+			gr_disk(i2f(x),i2f(y),i2f(size/5));
+			if (secondary_display && secondary_bm_num == 1)
+				gr_uline(i2f(x-(size/2)-(size/5)), i2f(y-(size/2)), i2f(x-(size/5)-(size/5)), i2f(y-(size/5)));
+			else if (secondary_display && secondary_bm_num == 2)
+				gr_uline(i2f(x+(size/2)+(size/5)), i2f(y-(size/2)), i2f(x+(size/5)+(size/5)), i2f(y-(size/5)));
+			else if (secondary_display && secondary_bm_num == 4)
+				gr_uline(i2f(x), i2f(y+(size/2)+(size/5)), i2f(x), i2f(y+(size/5)+(size/5)));
 			break;
 		case RET_TYPE_CIRCLE:
 			gr_ucircle(i2f(x),i2f(y),i2f(size/4));
+			if (secondary_display && secondary_bm_num == 1)
+				gr_uline(i2f(x-(size/2)-(size/5)), i2f(y-(size/2)), i2f(x-(size/5)-(size/5)), i2f(y-(size/5)));
+			else if (secondary_display && secondary_bm_num == 2)
+				gr_uline(i2f(x+(size/2)+(size/5)), i2f(y-(size/2)), i2f(x+(size/5)+(size/5)), i2f(y-(size/5)));
+			else if (secondary_display && secondary_bm_num == 4)
+				gr_uline(i2f(x), i2f(y+(size/2)+(size/5)), i2f(x), i2f(y+(size/5)+(size/5)));
 			break;
 		case RET_TYPE_CROSS_V1:
-			gr_uline(i2f(x),i2f(y-(size/2)),i2f(x),i2f(y+(size/2)+1));
-			gr_uline(i2f(x-(size/2)),i2f(y),i2f(x+(size/2)+1),i2f(y));
+			gr_uline(i2f(x),i2f(y-(size/2)),i2f(x),i2f(y+(size/2)+1)); // horiz
+			gr_uline(i2f(x-(size/2)),i2f(y),i2f(x+(size/2)+1),i2f(y)); // vert
+			if (secondary_display && secondary_bm_num == 1)
+				gr_uline(i2f(x-(size/2)), i2f(y-(size/2)), i2f(x-(size/5)), i2f(y-(size/5)));
+			else if (secondary_display && secondary_bm_num == 2)
+				gr_uline(i2f(x+(size/2)), i2f(y-(size/2)), i2f(x+(size/5)), i2f(y-(size/5)));
+			else if (secondary_display && secondary_bm_num == 4)
+				gr_uline(i2f(x-(size/2)), i2f(y+(size/2)), i2f(x-(size/5)), i2f(y+(size/5)));
 			break;
 		case RET_TYPE_CROSS_V2:
-			gr_uline(i2f(x), i2f(y-(size/2)), i2f(x), i2f(y-(size/6)));
-			gr_uline(i2f(x), i2f(y+(size/2)), i2f(x), i2f(y+(size/6)));
-			gr_uline(i2f(x-(size/2)), i2f(y), i2f(x-(size/6)), i2f(y));
-			gr_uline(i2f(x+(size/2)), i2f(y), i2f(x+(size/6)), i2f(y));
+			gr_uline(i2f(x), i2f(y-(size/2)), i2f(x), i2f(y-(size/6))); // vert-top
+			gr_uline(i2f(x), i2f(y+(size/2)), i2f(x), i2f(y+(size/6))); // vert-bottom
+			gr_uline(i2f(x-(size/2)), i2f(y), i2f(x-(size/6)), i2f(y)); // horiz-left
+			gr_uline(i2f(x+(size/2)), i2f(y), i2f(x+(size/6)), i2f(y)); // horiz-right
+			if (secondary_display && secondary_bm_num == 1)
+				gr_uline(i2f(x-(size/2)), i2f(y-(size/2)), i2f(x-(size/5)), i2f(y-(size/5)));
+			else if (secondary_display && secondary_bm_num == 2)
+				gr_uline(i2f(x+(size/2)), i2f(y-(size/2)), i2f(x+(size/5)), i2f(y-(size/5)));
+			else if (secondary_display && secondary_bm_num == 4)
+				gr_uline(i2f(x-(size/2)), i2f(y+(size/2)), i2f(x-(size/5)), i2f(y+(size/5)));
 			break;
 		case RET_TYPE_ANGLE:
-			gr_uline(i2f(x),i2f(y),i2f(x),i2f(y+(size/2)));
-			gr_uline(i2f(x),i2f(y),i2f(x+(size/2)),i2f(y));
+			gr_uline(i2f(x),i2f(y),i2f(x),i2f(y+(size/2))); // vert
+			gr_uline(i2f(x),i2f(y),i2f(x+(size/2)),i2f(y)); // horiz
+			if (secondary_display && secondary_bm_num == 1)
+				gr_uline(i2f(x-(size/2)), i2f(y-(size/2)), i2f(x-(size/5)), i2f(y-(size/5)));
+			else if (secondary_display && secondary_bm_num == 2)
+				gr_uline(i2f(x+(size/2)), i2f(y-(size/2)), i2f(x+(size/5)), i2f(y-(size/5)));
+			else if (secondary_display && secondary_bm_num == 4)
+				gr_uline(i2f(x-(size/2)), i2f(y+(size/2)), i2f(x-(size/5)), i2f(y+(size/5)));
 			break;
 		case RET_TYPE_NONE:
 			break;
@@ -2392,7 +2428,7 @@ void draw_hud()
 #endif
 #endif
 		if (PlayerCfg.CockpitMode[1] != CM_LETTERBOX)
-			show_reticle(PlayerCfg.ReticleType);
+			show_reticle(PlayerCfg.ReticleType, 1);
 		if (PlayerCfg.CockpitMode[1] != CM_LETTERBOX && Newdemo_state != ND_STATE_PLAYBACK && PlayerCfg.MouseFlightSim && PlayerCfg.MouseFSIndicator)
 			show_mousefs_indicator(Controls.raw_mouse_axis[0], Controls.raw_mouse_axis[1], Controls.raw_mouse_axis[2], GWIDTH/2, GHEIGHT/2, GHEIGHT/4);
 
