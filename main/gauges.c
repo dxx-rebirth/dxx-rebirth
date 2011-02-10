@@ -2388,9 +2388,9 @@ void show_reticle(int reticle_type)
 	Gr_scanline_darkening_level = GR_FADE_LEVELS;
 }
 
-void show_mousefs_indicator(int x, int y, int size)
+void show_mousefs_indicator(int mx, int my, int mz, int x, int y, int size)
 {
-	int axscale = (MOUSEFS_DELTA_RANGE*2)/size, xaxpos = x+(Controls.raw_mouse_axis[0]/axscale), yaxpos = y+(Controls.raw_mouse_axis[1]/axscale), zaxpos = y+(Controls.raw_mouse_axis[2]/axscale);
+	int axscale = (MOUSEFS_DELTA_RANGE*2)/size, xaxpos = x+(mx/axscale), yaxpos = y+(my/axscale), zaxpos = y+(mz/axscale);
 
 	gr_setcolor(BM_XRGB(PlayerCfg.ReticleRGBA[0],PlayerCfg.ReticleRGBA[1],PlayerCfg.ReticleRGBA[2]));
 	Gr_scanline_darkening_level = PlayerCfg.ReticleRGBA[3];
@@ -2704,7 +2704,7 @@ void draw_hud()
 		if (PlayerCfg.CockpitMode[1] != CM_LETTERBOX)
 			show_reticle(PlayerCfg.ReticleType);
 		if (PlayerCfg.CockpitMode[1] != CM_LETTERBOX && Newdemo_state != ND_STATE_PLAYBACK && PlayerCfg.MouseFlightSim && PlayerCfg.MouseFSIndicator)
-			show_mousefs_indicator(GWIDTH/2, GHEIGHT/2, GHEIGHT/4);
+			show_mousefs_indicator(Controls.raw_mouse_axis[0], Controls.raw_mouse_axis[1], Controls.raw_mouse_axis[2], GWIDTH/2, GHEIGHT/2, GHEIGHT/4);
 
 #ifdef NETWORK
 		show_HUD_names();

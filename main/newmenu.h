@@ -156,18 +156,30 @@ extern void newmenu_free_background();
 
 #define NEWMENU_MOUSE
 
-#define NORMAL_CHECK_BOX    ""
-#define CHECKED_CHECK_BOX   "‚"
+// #define NORMAL_CHECK_BOX    ""
+// #define CHECKED_CHECK_BOX   "‚"
+// 
+// #define NORMAL_RADIO_BOX    ""
+// #define CHECKED_RADIO_BOX   "€"
+// #define CURSOR_STRING       "_"
+// #define SLIDER_LEFT         "ƒ"  // 131
+// #define SLIDER_RIGHT        "„"  // 132
+// #define SLIDER_MIDDLE       "…"  // 133
+// #define SLIDER_MARKER       "†"  // 134
+// #define UP_ARROW_MARKER     "‡"  // 135
+// #define DOWN_ARROW_MARKER   "ˆ"  // 136
+#define NORMAL_CHECK_BOX    "\201"
+#define CHECKED_CHECK_BOX   "\202"
 
-#define NORMAL_RADIO_BOX    ""
-#define CHECKED_RADIO_BOX   "€"
+#define NORMAL_RADIO_BOX    "\177"
+#define CHECKED_RADIO_BOX   "\200"
 #define CURSOR_STRING       "_"
-#define SLIDER_LEFT         "ƒ"  // 131
-#define SLIDER_RIGHT        "„"  // 132
-#define SLIDER_MIDDLE       "…"  // 133
-#define SLIDER_MARKER       "†"  // 134
-#define UP_ARROW_MARKER     "‡"  // 135
-#define DOWN_ARROW_MARKER   "ˆ"  // 136
+#define SLIDER_LEFT         "\203"  // 131
+#define SLIDER_RIGHT        "\204"  // 132
+#define SLIDER_MIDDLE       "\205"  // 133
+#define SLIDER_MARKER       "\206"  // 134
+#define UP_ARROW_MARKER     ((grd_curcanv->cv_font==GAME_FONT)?"\202":"\207")  // 135
+#define DOWN_ARROW_MARKER   ((grd_curcanv->cv_font==GAME_FONT)?"\200":"\210")  // 136
 
 #define BORDERX (15*(SWIDTH/320))
 #define BORDERY (15*(SHEIGHT/200))

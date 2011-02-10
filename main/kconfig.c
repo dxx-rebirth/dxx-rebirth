@@ -1075,7 +1075,7 @@ void kc_change_mousebutton( kc_menu *menu, d_event *event, kc_item * item )
 {
 	int n,i,button;
 
-	Assert(event->type == EVENT_MOUSE_BUTTON_DOWN);
+	Assert(event->type == EVENT_MOUSE_BUTTON_DOWN || event->type == EVENT_MOUSE_BUTTON_UP);
 	button = event_mouse_get_button(event);
 
 	for (i=0; i<menu->nitems; i++)

@@ -1,5 +1,9 @@
 D2X-Rebirth Changelog
 
+20110210
+--------
+main/automap.c, main/gauges.c, main/gauges.h, main/kconfig.c, main/newmenu.c, main/newmenu.h: Fixed broken FlightSim indicator on Automap; Fixed Assert for using mouse buttons in kconfig (which can react to UP and DOWN states); Added scrolling support for menus flagged tiny_mode and all_text
+
 20110209
 --------
 main/ai.c, main/game.c, main/gamecntl.c, main/gameseq.c, main/menu.c, main/multi.c, main/multi.h, main/state.c, main/state.h: Reintroduced Savegames for Coop games using the original Descent2 implementation but correctly handling player slots in their pre-loading state preventing accidential player shifting which never really worked in the original game and we do not want with UDP anyways - was all tested but still might need a fix or two; Added some missing initializations for saving players and AI stuff; Completely ripped out remnants of saving between levels code

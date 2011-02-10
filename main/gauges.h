@@ -47,7 +47,7 @@ void init_gauges(void);
 void close_gauges(void);
 void cockpit_decode_alpha(grs_bitmap *bm);
 void show_reticle(int reticle_type);
-void show_mousefs_indicator(int x, int y, int size);
+void show_mousefs_indicator(int mx, int my, int mz, int x, int y, int size);
 extern void check_erase_message(void);
 
 extern void draw_hud();     // draw all the HUD stuff
