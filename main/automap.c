@@ -355,7 +355,7 @@ void draw_automap(automap *am)
 	name_frame(am);
 
 	if (PlayerCfg.MouseFlightSim && PlayerCfg.MouseFSIndicator)
-		show_mousefs_indicator(GWIDTH-(GHEIGHT/8), GHEIGHT-(GHEIGHT/8), GHEIGHT/5);
+		show_mousefs_indicator(am->controls.raw_mouse_axis[0], am->controls.raw_mouse_axis[1], am->controls.raw_mouse_axis[2], GWIDTH-(GHEIGHT/8), GHEIGHT-(GHEIGHT/8), GHEIGHT/5);
 
 	if ( am->controls.fire_primary_count > 0)	{
 		// Reset orientation

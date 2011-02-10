@@ -156,16 +156,16 @@ extern void newmenu_free_background();
 
 #define NEWMENU_MOUSE
 
-#define NORMAL_CHECK_BOX    "Å"
-#define CHECKED_CHECK_BOX   "Ç"
+#define NORMAL_CHECK_BOX    "\201"
+#define CHECKED_CHECK_BOX   "\202"
 
-#define NORMAL_RADIO_BOX    ""
-#define CHECKED_RADIO_BOX   "Ä"
+#define NORMAL_RADIO_BOX    "\177"
+#define CHECKED_RADIO_BOX   "\200"
 #define CURSOR_STRING       "_"
-#define SLIDER_LEFT         "É"  // 131
-#define SLIDER_RIGHT        "Ñ"  // 132
-#define SLIDER_MIDDLE       "Ö"  // 133
-#define SLIDER_MARKER       "Ü"  // 134
+#define SLIDER_LEFT         "\203"  // 131
+#define SLIDER_RIGHT        "\204"  // 132
+#define SLIDER_MIDDLE       "\205"  // 133
+#define SLIDER_MARKER       "\206"  // 134
 #define UP_ARROW_MARKER     "+"  // 135
 #define DOWN_ARROW_MARKER   "+"  // 136
 

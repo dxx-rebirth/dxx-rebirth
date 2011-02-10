@@ -805,10 +805,10 @@ int kconfig_handler(window *wind, d_event *event, kc_menu *menu)
 			
 		case EVENT_MOUSE_BUTTON_DOWN:
 		case EVENT_MOUSE_BUTTON_UP:
-			if (menu->changing && (menu->items[menu->citem].type == BT_MOUSE_BUTTON) && (event->type == EVENT_MOUSE_BUTTON_UP))
+			if (menu->changing && (menu->items[menu->citem].type == BT_MOUSE_BUTTON) && (event->type == EVENT_MOUSE_BUTTON_DOWN))
 			{
 				kc_change_mousebutton( menu, event, &menu->items[menu->citem] );
-				menu->mouse_state = (event->type == EVENT_MOUSE_BUTTON_DOWN);
+				menu->mouse_state = 1;
 				return 1;
 			}
 
@@ -1038,7 +1038,7 @@ void kc_change_mousebutton( kc_menu *menu, d_event *event, kc_item * item )
 {
 	int n,i,button;
 
-	Assert(event->type == EVENT_MOUSE_BUTTON_DOWN);
+	Assert(event->type == EVENT_MOUSE_BUTTON_DOWN || event->type == EVENT_MOUSE_BUTTON_UP);
 	button = event_mouse_get_button(event);
 
 	for (i=0; i<menu->nitems; i++)
