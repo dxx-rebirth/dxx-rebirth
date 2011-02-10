@@ -184,6 +184,9 @@ int gr_init(int mode)
 	if (!GameCfg.WindowMode && !GameArg.SysWindow)
 		sdl_video_flags|=SDL_FULLSCREEN;
 
+	if (GameArg.SysNoBorders)
+		sdl_video_flags|=SDL_NOFRAME;
+
 	if (GameArg.DbgSdlHWSurface)
 		sdl_video_flags|=SDL_HWSURFACE;
 

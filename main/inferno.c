@@ -114,6 +114,7 @@ void print_commandline_help()
 	printf( "  -autodemo          %s\n", "Start in demo mode");
 	printf( "  -notitles          %s\n", "Skip title screens");
 	printf( "  -window            %s\n", "Run the game in a window");
+	printf( "  -noborders        %s\n", "Do not show borders in window mode");
 
 	printf( "\n Controls:\n\n");
 	printf( "  -nomouse           %s\n", "Deactivate mouse");

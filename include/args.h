@@ -50,6 +50,7 @@ typedef struct Arg
 	int SysLowMem;
 	char *SysPilot;
 	int SysWindow;
+	int SysNoBorders;
 	int SysAutoDemo;
 	int SysNoTitles;
 	int CtlNoMouse;
