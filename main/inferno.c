@@ -132,6 +132,7 @@ void print_commandline_help()
 	printf( "  -pilot <s>         %s\n", "Select this pilot automatically");
 	printf( "  -autodemo          %s\n", "Start in demo mode");
 	printf( "  -window            %s\n", "Run the game in a window");
+	printf( "  -noborders        %s\n", "Do not show borders in window mode");
 	printf( "  -nomovies          %s\n", "Don't play movies");
 
 	printf( "\n Controls:\n\n");

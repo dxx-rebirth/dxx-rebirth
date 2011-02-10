@@ -60,10 +60,13 @@
 #endif
 #endif
 
+#ifdef OGLES
+int sdl_video_flags = 0;
+#else
+int sdl_video_flags = SDL_OPENGL;
+#endif
 int gr_installed = 0;
 int gl_initialized=0;
-int ogl_fullscreen=0;
-static int curx=-1,cury=-1,curfull=0;
 int linedotscale=1; // scalar of glLinewidth and glPointSize - only calculated once when resolution changes
 
 #ifdef OGLES
@@ -110,20 +113,18 @@ int ogl_init_window(int x, int y)
 	int iConfigs;
 #endif
 
-	if (gl_initialized){
-		if (x==curx && y==cury && curfull==ogl_fullscreen)
-			return 0;
+	if (gl_initialized)
 		ogl_smash_texture_list_internal();//if we are or were fullscreen, changing vid mode will invalidate current textures
-	}
 
 	SDL_WM_SetCaption(DESCENT_VERSION, "Descent II");
 	SDL_WM_SetIcon( SDL_LoadBMP( "d2x-rebirth.bmp" ), NULL );
-#ifdef OGLES
-	if (!SDL_SetVideoMode(x, y, GameArg.DbgBpp, (ogl_fullscreen ? SDL_FULLSCREEN : 0)))
+
+	if (!SDL_SetVideoMode(x, y, GameArg.DbgBpp, sdl_video_flags))
 	{
 		Error("Could not set %dx%dx%d opengl video mode: %s\n", x, y, GameArg.DbgBpp, SDL_GetError());
 	}
-	
+
+#ifdef OGLES
 	SDL_VERSION(&info.version);
 	
 	if (SDL_GetWMInfo(&info) > 0) {
@@ -167,15 +168,7 @@ int ogl_init_window(int x, int y)
 	} else {
 		con_printf(CON_URGENT, "EGL: Created current\n");
 	}
-#else
-	if (!SDL_SetVideoMode(x, y, GameArg.DbgBpp, SDL_OPENGL | (ogl_fullscreen ? SDL_FULLSCREEN : 0)))
-	{
-		Error("Could not set %dx%dx%d opengl video mode: %s\n", x, y, GameArg.DbgBpp, SDL_GetError());
-	}
 #endif
-	SDL_ShowCursor(0);
-
-	curx=x;cury=y;curfull=ogl_fullscreen;
 
 	linedotscale = ((x/640<y/480?x/640:y/480)<1?1:(x/640<y/480?x/640:y/480));
 
@@ -185,33 +178,29 @@ int ogl_init_window(int x, int y)
 
 int gr_check_fullscreen(void)
 {
-	return ogl_fullscreen;
-}
-
-void gr_do_fullscreen(int f)
-{
-	ogl_fullscreen=f;
-	if (gl_initialized)
-	{
-		if (!SDL_VideoModeOK(curx, cury, GameArg.DbgBpp, 
-#ifndef OGLES
-			SDL_OPENGL | 
-#endif
-			(ogl_fullscreen?SDL_FULLSCREEN:0)))
-		{
-			con_printf(CON_URGENT,"Cannot set %ix%i. Fallback to 640x480\n",curx,cury);
-			curx=640;
-			cury=480;
-			Game_screen_mode=SM(curx,cury);
-		}
-
-		ogl_init_window(curx,cury);
-	}
+	return (sdl_video_flags & SDL_FULLSCREEN)?1:0;
 }
 
 int gr_toggle_fullscreen(void)
 {
-	gr_do_fullscreen(!ogl_fullscreen);
+	if (sdl_video_flags & SDL_FULLSCREEN)
+		sdl_video_flags &= ~SDL_FULLSCREEN;
+	else
+		sdl_video_flags |= SDL_FULLSCREEN;
+
+	if (gl_initialized)
+	{
+		if (!SDL_VideoModeOK(SM_W(Game_screen_mode), SM_H(Game_screen_mode), GameArg.DbgBpp, sdl_video_flags))
+		{
+			con_printf(CON_URGENT,"Cannot set %ix%i. Fallback to 640x480\n",SM_W(Game_screen_mode), SM_H(Game_screen_mode));
+			Game_screen_mode=SM(640,480);
+		}
+		if (!SDL_SetVideoMode(SM_W(Game_screen_mode), SM_H(Game_screen_mode), GameArg.DbgBpp, sdl_video_flags))
+		{
+			Error("Could not set %dx%dx%d opengl video mode: %s\n", SM_W(Game_screen_mode), SM_H(Game_screen_mode), GameArg.DbgBpp, SDL_GetError());
+		}
+	}
+
 	gr_remap_color_fonts();
 	gr_remap_mono_fonts();
 
@@ -229,8 +218,8 @@ int gr_toggle_fullscreen(void)
 		glEnable(GL_BLEND);
 		glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
 	}
-	GameCfg.WindowMode = !ogl_fullscreen;
-	return ogl_fullscreen;
+	GameCfg.WindowMode = (sdl_video_flags & SDL_FULLSCREEN)?0:1;
+	return (sdl_video_flags & SDL_FULLSCREEN)?1:0;
 }
 
 extern void ogl_init_pixel_buffers(int w, int h);
@@ -361,11 +350,7 @@ int gr_check_mode(u_int32_t mode)
 	w=SM_W(mode);
 	h=SM_H(mode);
 
-	return SDL_VideoModeOK(w, h, GameArg.DbgBpp, 
-#ifndef OGLES
-			SDL_OPENGL |
-#endif
-			(ogl_fullscreen?SDL_FULLSCREEN:0));
+	return SDL_VideoModeOK(w, h, GameArg.DbgBpp, sdl_video_flags);
 }
 
 int gr_set_mode(u_int32_t mode)
@@ -495,7 +480,10 @@ int gr_init(int mode)
 #endif
 
 	if (!GameCfg.WindowMode && !GameArg.SysWindow)
-		gr_toggle_fullscreen();
+		sdl_video_flags|=SDL_FULLSCREEN;
+
+	if (GameArg.SysNoBorders)
+		sdl_video_flags|=SDL_NOFRAME;
 
 	gr_set_attributes();
 
@@ -530,7 +518,6 @@ void gr_close()
 	if (gl_initialized)
 	{
 		ogl_smash_texture_list_internal();
-		SDL_ShowCursor(1);
 	}
 
 	if (grd_curscreen)

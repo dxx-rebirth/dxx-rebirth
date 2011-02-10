@@ -3,6 +3,7 @@ D2X-Rebirth Changelog
 20110210
 --------
 main/automap.c, main/gauges.c, main/gauges.h, main/kconfig.c, main/newmenu.c, main/newmenu.h: Fixed broken FlightSim indicator on Automap; Fixed Assert for using mouse buttons in kconfig (which can react to UP and DOWN states); Added scrolling support for menus flagged tiny_mode and all_text
+arch/ogl/gr.c, arch/sdl/gr.c, d2x.ini, include/args.h, main/inferno.c, misc/args.c: Simplified ogl version of gr.c in terms of SDL video flags and fullscreen toggle; Added command-line/INI option to remove borders from windowed program
 
 20110209
 --------

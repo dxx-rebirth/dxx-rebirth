@@ -139,6 +139,7 @@ void ReadCmdArgs(void)
 	GameArg.SysLowMem 		= FindArg("-lowmem");
 	GameArg.SysPilot 		= get_str_arg("-pilot", NULL);
 	GameArg.SysWindow 		= FindArg("-window");
+	GameArg.SysNoBorders 		= FindArg("-noborders");
 	GameArg.SysNoMovies 		= FindArg("-nomovies");
 	GameArg.SysAutoDemo 		= FindArg("-autodemo");
 
