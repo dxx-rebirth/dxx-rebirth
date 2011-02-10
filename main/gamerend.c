@@ -692,7 +692,7 @@ void game_render_frame_mono(int flip)
 
 		gr_printf(0x8000, FSPACY(1), "Guided Missile View");
 
-		show_reticle(RET_TYPE_CROSS_V1);
+		show_reticle(RET_TYPE_CROSS_V1, 0);
 
 		HUD_render_message_frame();
 
