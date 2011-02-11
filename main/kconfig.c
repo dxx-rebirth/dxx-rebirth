@@ -1164,7 +1164,7 @@ void kconfig_read_controls(d_event *event, int automap_flag)
 				for (i = 0, j = 0; i < 28; i += 3, j++)
 					if (kc_d1x[i].value < 255 && kc_d1x[i].value == event_key_get_raw(event))
 					{
-						Controls.select_weapon_count = j;
+						Controls.select_weapon_count = j+1;
 						break;
 					}
 			break;
@@ -1191,7 +1191,7 @@ void kconfig_read_controls(d_event *event, int automap_flag)
 				for (i = 1, j = 0; i < 29; i += 3, j++)
 					if (kc_d1x[i].value < 255 && kc_d1x[i].value == event_joystick_get_button(event))
 					{
-						Controls.select_weapon_count = j;
+						Controls.select_weapon_count = j+1;
 						break;
 					}
 			break;
@@ -1218,7 +1218,7 @@ void kconfig_read_controls(d_event *event, int automap_flag)
 				for (i = 2, j = 0; i < 30; i += 3, j++)
 					if (kc_d1x[i].value < 255 && kc_d1x[i].value == event_mouse_get_button(event))
 					{
-						Controls.select_weapon_count = j;
+						Controls.select_weapon_count = j+1;
 						break;
 					}
 			break;
