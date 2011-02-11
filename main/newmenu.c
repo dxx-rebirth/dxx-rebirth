@@ -574,6 +574,17 @@ void newmenu_scroll(newmenu *menu, int amount)
 	if (first == last) // nothing to do for us
 		return;
 
+	if (menu->citem == last && amount == 1) // if citem == last item and we want to go down one step, go to first item
+	{
+		newmenu_scroll(menu, -menu->nitems);
+		return;
+	}
+	if (menu->citem == first && amount == -1) // if citem == first item and we want to go up one step, go to last item
+	{
+		newmenu_scroll(menu, menu->nitems);
+		return;
+	}
+
 	i = 0;
 	if (amount > 0) // down the list
 	{

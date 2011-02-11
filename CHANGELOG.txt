@@ -1,5 +1,9 @@
 D2X-Rebirth Changelog
 
+20110211
+--------
+main/gamecntl.c, main/kconfig.c, main/newmenu.c: Controls.select_weapon_count needs to be incremented differently to get non-0 when we want to select the laser type weapon; Readded jumping from first to last item in newmenu and vice versa
+
 20110210
 --------
 main/automap.c, main/gauges.c, main/gauges.h, main/kconfig.c, main/newmenu.c, main/newmenu.h: Fixed broken FlightSim indicator on Automap; Fixed Assert for using mouse buttons in kconfig (which can react to UP and DOWN states); Added scrolling support for menus flagged tiny_mode and all_text

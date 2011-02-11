@@ -275,8 +275,9 @@ void do_weapon_n_item_stuff()
 			CycleSecondary ();
 		Controls.cycle_secondary_count = 0;
 	}
-	if (Controls.select_weapon_count)
+	if (Controls.select_weapon_count > 0)
 	{
+		Controls.select_weapon_count--;
 		do_weapon_select(Controls.select_weapon_count>4?Controls.select_weapon_count-5:Controls.select_weapon_count,Controls.select_weapon_count>4?1:0);
 		Controls.select_weapon_count = 0;
 	}
