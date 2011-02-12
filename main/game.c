@@ -1343,13 +1343,11 @@ void flicker_lights();
 
 void game_leave_menus(void)
 {
-	window *wind;
-
 	if (!Game_wind)
 		return;
 
-	for (wind = window_get_next(Game_wind); wind != NULL; wind = window_get_next(wind))
-		window_close(wind);
+	while (window_get_front() != Game_wind) // go through all windows and actually close them if they want to
+		window_close(window_get_front());
 }
 
 void GameProcessFrame(void)

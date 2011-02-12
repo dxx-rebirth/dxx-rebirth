@@ -1,5 +1,9 @@
 D2X-Rebirth Changelog
 
+20110212
+--------
+arch/inlcude/window.h, arch/sdl/event.c, arch/sdl/window.c, main/game.c: New approach to handle a bunch of closing windows - removed window_do_close() again, reworked game_leave_menus by checking window_get_front() and closing this window until it's Game_wind, while event_process checking if window still exists after drawing and if not, take next window from previous which should be updated by then
+
 20110211
 --------
 main/gamecntl.c, main/kconfig.c, main/newmenu.c: Controls.select_weapon_count needs to be incremented differently to get non-0 when we want to select the laser type weapon; Readded jumping from first to last item in newmenu and vice versa

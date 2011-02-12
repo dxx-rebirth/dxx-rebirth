@@ -394,7 +394,6 @@ int RunMovie(char *filename, int hires_flag, int must_have,int dx,int dy)
 		if (must_have)
 			con_printf(CON_URGENT, "Can't open movie <%s>: %s\n", filename, PHYSFS_getLastError());
 		window_close(wind);
-		window_do_close(wind);
 		if (reshow)
 			show_menus();
 		d_free(m);
@@ -419,7 +418,6 @@ int RunMovie(char *filename, int hires_flag, int must_have,int dx,int dy)
 		Int3();
 		SDL_FreeRW(filehndl);
 		window_close(wind);
-		window_do_close(wind);
 		if (reshow)
 			show_menus();
 		d_free(m);
