@@ -86,6 +86,14 @@ int credits_handler(window *wind, d_event *event, credits *cr)
 			break;
 
 		case EVENT_IDLE:
+			if (cr->done>NUM_LINES)
+			{
+				window_close(wind);
+				return 0;
+			}
+			break;
+			
+		case EVENT_WINDOW_DRAW:
 			timer_delay(F1_0/28);
 			
 			if (cr->row == 0)
@@ -128,15 +136,7 @@ int credits_handler(window *wind, d_event *event, credits *cr)
 					songs_set_volume(curvol);
 				}
 			}
-
-			if (cr->done>NUM_LINES)
-			{
-				window_close(wind);
-				return 0;
-			}
-			break;
 			
-		case EVENT_WINDOW_DRAW:
 			y = cr->first_line_offset - cr->row;
 			show_fullscr(&cr->backdrop);
 			for (j=0; j<NUM_LINES; j++ )	{
