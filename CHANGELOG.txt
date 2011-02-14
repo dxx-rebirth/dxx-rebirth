@@ -3,6 +3,7 @@ D1X-Rebirth Changelog
 20110214
 --------
 d1x.ini, include/args.h, main/ai.c, main/ai.h, main/automap.c, main/cntrlcen.c, main/collide.c, main/config.c, main/config.h, main/fvi.c, main/game.c, main/game.h, main/gamecntl.c, main/gamerend.c, main/gameseq.c, main/gameseq.h, main/gauges.c, main/inferno.c, main/kconfig.c, main/laser.c, main/menu.c, main/multi.c, main/net_ipx.c, main/net_udp.c, main/physics.c, main/player.h, main/render.c, main/state.c, main/titles.c, main/titles.h, misc/args.c: Moved all these unsorted global cheat variables to a handy structure; Simplified reading of the cheats without trying to make it complicated so no one finds them (everyone can get the source); Removed one or two cheats which carry more garbage than they are worth; Added replacement for the bittersweet cheat; Made FPS Counter an option of Graphics menu
+main/credits.c, main/titles.c: For credits and briefings moved all code happened in EVENT_IDLE to EVENT_WINDOW_DRAW since a jitterish Joystick could slow down text rendering
 
 20110212
 --------

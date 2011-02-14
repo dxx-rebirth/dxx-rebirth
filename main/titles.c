@@ -1058,7 +1058,9 @@ int briefing_handler(window *wind, d_event *event, briefing *br)
 			break;
 		}
 
-		case EVENT_IDLE:
+		case EVENT_WINDOW_DRAW:
+			gr_set_current_canvas(NULL);
+
 			timer_delay2(50);
 
 			if (!(br->new_screen || br->new_page))
@@ -1069,10 +1071,6 @@ int briefing_handler(window *wind, d_event *event, briefing *br)
 						break;
 				}
 			check_text_pos(br);
-			break;
-
-		case EVENT_WINDOW_DRAW:
-			gr_set_current_canvas(NULL);
 
 			if (br->background.bm_data)
 				show_fullscr(&br->background);
