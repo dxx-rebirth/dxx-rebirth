@@ -77,9 +77,6 @@ static char rcsid[] = "$Id: collide.c,v 1.1.1.1 2006/03/17 19:41:32 zicodxx Exp 
 #include "script.h"
 #endif
 
-int Ugly_robot_cheat = 0;
-int Ugly_robot_texture = 0;
-
 #define STANDARD_EXPL_DELAY (f1_0/4)
 
 int check_collision_delayfunc_exec()
@@ -912,10 +909,6 @@ void collide_robot_and_weapon( object * robot, object * weapon, vms_vector *coll
 
 	if (Robot_info[robot->id].boss_flag)
 		Boss_hit_this_frame = 1;
-
-	if ( Ugly_robot_cheat == 0xBADa55 )	{
-		robot->rtype.pobj_info.tmap_override = Ugly_robot_texture % NumTextures;
-	}
 
 #if 1
 	/*

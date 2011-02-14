@@ -434,13 +434,10 @@ int automap_key_command(window *wind, d_event *event, automap *am)
 			return 1;
 			
 		case KEY_ALTED+KEY_F:           // Alt+F shows full map, if cheats enabled
-			if (Cheats_enabled) 	 
+			if (cheats.enabled) 	 
 			{
-				uint t;
-				t = Players[Player_num].flags;
-				Players[Player_num].flags |= PLAYER_FLAGS_MAP_ALL_CHEAT;
+				cheats.fullautomap = !cheats.fullautomap;
 				automap_build_edge_list(am);
-				Players[Player_num].flags=t;
 			}
 			return 1;
 #ifndef NDEBUG
@@ -1052,10 +1049,6 @@ void automap_build_edge_list(automap *am)
 {	
 	int	i,e1,e2,s;
 	Edge_info * e;
-	int automap_cheat = 0;
-
-	if ( Players[Player_num].flags & PLAYER_FLAGS_MAP_ALL_CHEAT )
-		automap_cheat = 1;		// Damn cheaters...
 
 	// clear edge list
 	for (i=0; i<am->max_edges; i++) {
@@ -1065,7 +1058,7 @@ void automap_build_edge_list(automap *am)
 	am->num_edges = 0;
 	am->highest_edge_index = -1;
 
-	if (automap_cheat || (Players[Player_num].flags & PLAYER_FLAGS_MAP_ALL) )	{
+	if (cheats.fullautomap || (Players[Player_num].flags & PLAYER_FLAGS_MAP_ALL) )	{
 		// Cheating, add all edges as visited
 		for (s=0; s<=Highest_segment_index; s++)
 #ifdef EDITOR

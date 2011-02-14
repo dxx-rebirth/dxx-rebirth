@@ -39,7 +39,6 @@ COPYRIGHT 1993-1998 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 //check point against each side of segment. return bitmask, where bit
 //set means behind that side
 
-int Physics_cheat_flag = 0;
 int floor_levelling=0;
 
 //make sure matrix is orthogonal
@@ -723,7 +722,7 @@ void do_physics_sim(object *obj)
 
 
 	//hack to keep player from going through closed doors
-	if (obj->type==OBJ_PLAYER && obj->segnum!=orig_segnum && (Physics_cheat_flag!=0xBADA55) ) {
+	if (obj->type==OBJ_PLAYER && obj->segnum!=orig_segnum && (!cheats.ghostphysics) ) {
 		int sidenum;
 
 		sidenum = find_connect_side(&Segments[obj->segnum],&Segments[orig_segnum]);

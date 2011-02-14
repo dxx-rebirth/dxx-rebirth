@@ -412,8 +412,6 @@ get_team(int pnum)
 		return 0;
 }
 
-extern void game_disable_cheats();
-	
 void
 multi_new_game(void)
 {

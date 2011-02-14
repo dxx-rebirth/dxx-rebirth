@@ -73,29 +73,16 @@ COPYRIGHT 1993-1998 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 void init_boss_segments(short segptr[], int *num_segs, int size_check);
 void ai_multi_send_robot_position(int objnum, int force);
 
-#define JOHN_CHEATS_SIZE_1  6
-#define	JOHN_CHEATS_SIZE_2	6
-#define	JOHN_CHEATS_SIZE_3	6
-
-ubyte	john_cheats_1[JOHN_CHEATS_SIZE_1] = { 	KEY_P ^ 0x00 ^ 0x34, 
-															KEY_O ^ 0x10 ^ 0x34, 
-															KEY_B ^ 0x20 ^ 0x34, 
-															KEY_O ^ 0x30 ^ 0x34, 
-                                                                                                                        KEY_Y ^ 0x40 ^ 0x34,
-															KEY_S ^ 0x50 ^ 0x34 };
-
 #define	PARALLAX	0		//	If !0, then special debugging info for Parallax eyes only enabled.
 
 #define MIN_D 0x100
 
 int	Flinch_scale = 4;
-int	john_cheats_index_1;		//	POBOYS		detonate reactor
 int	Attack_scale = 24;
 #define	ANIM_RATE		(F1_0/16)
 #define	DELTA_ANG_SCALE	16
 
 sbyte Mike_to_matt_xlate[] = {AS_REST, AS_REST, AS_ALERT, AS_ALERT, AS_FLINCH, AS_FIRE, AS_RECOIL, AS_REST};
-int	john_cheats_index_2;		//	PORGYS		high speed weapon firing
 
 // int	No_ai_flag=0;
 
@@ -118,8 +105,6 @@ int	Num_boss_gate_segs;
 short	Boss_gate_segs[MAX_BOSS_TELEPORT_SEGS];
 #endif
 
-int	john_cheats_index_3;		//	LUNACY		lunacy (insane behavior, rookie firing)
-
 //	---------- John: These variables must be saved as part of gamesave. ----------
 int				Ai_initialized = 0;
 int				Overall_agitation;
@@ -141,8 +126,6 @@ int				Boss_been_hit=0;
 
 
 //	---------- John: End of variables which must be saved as part of gamesave. ----------
-
-int	john_cheats_index_4;		//	PLETCHnnn	paint robots
 int				ai_evaded=0;
 
 #ifndef SHAREWARE
@@ -177,19 +160,6 @@ sbyte	Super_boss_gate_list[] = {0, 1, 8, 9, 10, 11, 12, 15, 16, 18, 19, 20, 22, 
 #endif
 
 int	Ai_info_enabled=0;
-int	Robot_firing_enabled = 1;
-
-extern	int	Ugly_robot_cheat, Ugly_robot_texture, Laser_rapid_fire;
-extern	sbyte	Enable_john_cheat_1, Enable_john_cheat_2, Enable_john_cheat_3, Enable_john_cheat_4;
-
-ubyte	john_cheats_3[2*JOHN_CHEATS_SIZE_3+1] = { KEY_Y ^ 0x67, 
-																KEY_E ^ 0x66, 
-																KEY_C ^ 0x65, 
-																KEY_A ^ 0x64, 
-																KEY_N ^ 0x63, 
-																KEY_U ^ 0x62, 
-																KEY_L ^ 0x61 };
-
 
 #define	MAX_AWARENESS_EVENTS	64
 typedef struct awareness_event {
@@ -308,29 +278,6 @@ sbyte Ai_transition_table[AI_MAX_EVENT][AI_MAX_STATE][AI_MAX_STATE] = {
 	}
 };
 
-ubyte	john_cheats_2[2*JOHN_CHEATS_SIZE_2] = { 	KEY_P ^ 0x00 ^ 0x43, 0x66, 
-																KEY_O ^ 0x10 ^ 0x43, 0x11, 
-																KEY_R ^ 0x20 ^ 0x43, 0x8, 
-																KEY_G ^ 0x30 ^ 0x43, 0x2, 
-																KEY_Y ^ 0x40 ^ 0x43, 0x0, 
-																KEY_S ^ 0x50 ^ 0x43 };
-
-void john_cheat_func_1(int key)
-{
-	if (!Cheats_enabled)
-		return;
-
-	if (key == (john_cheats_1[john_cheats_index_1] ^ (john_cheats_index_1 << 4) ^ 0x34)) {
-		john_cheats_index_1++;
-		if (john_cheats_index_1 == JOHN_CHEATS_SIZE_1)	{
-			do_controlcen_destroyed_stuff(NULL);
-			john_cheats_index_1 = 0;
-			digi_play_sample( SOUND_CHEATER, F1_0);
-		}
-	} else
-		john_cheats_index_1 = 0;
-}
-
 // ---------------------------------------------------------------------------------------------------------------------
 //	Given a behavior, set initial mode.
 int ai_behavior_to_mode(int behavior)
@@ -420,23 +367,6 @@ void init_ai_object(int objnum, int behavior, int hide_segment)
 	aip->REMOTE_OWNER = -1;
 }
 
-void john_cheat_func_2(int key)
-{
-	if (!Cheats_enabled)
-		return;
-
-	if (key == (john_cheats_2[2*john_cheats_index_2] ^ (john_cheats_index_2 << 4) ^ 0x43)) {
-		john_cheats_index_2++;
-		if (john_cheats_index_2 == JOHN_CHEATS_SIZE_2) {
-			Laser_rapid_fire = 0xBADA55;
-			do_megawow_powerup(200);
-			john_cheats_index_2 = 0;
-			digi_play_sample( SOUND_CHEATER, F1_0);
-		}
-	} else
-		john_cheats_index_2 = 0;
-}
-
 // ---------------------------------------------------------------------------------------------------------------------
 void init_ai_objects(void)
 {
@@ -465,69 +395,6 @@ void init_ai_objects(void)
 	#endif
 
 	Ai_initialized = 1;
-}
-
-int	Lunacy = 0;
-int	Diff_save = 1;
-
-fix	Firing_wait_copy[MAX_ROBOT_TYPES];
-sbyte	Rapidfire_count_copy[MAX_ROBOT_TYPES];
-
-void do_lunacy_on(void)
-{
-	int	i;
-
-	if ( !Lunacy )	{
-		Lunacy = 1;
-		Diff_save = Difficulty_level;
-		Difficulty_level = NDL-1;
-
-		for (i=0; i<MAX_ROBOT_TYPES; i++) {
-			Firing_wait_copy[i] = Robot_info[i].firing_wait[NDL-1];
-			Rapidfire_count_copy[i] = Robot_info[i].rapidfire_count[NDL-1];
-	
-			Robot_info[i].firing_wait[NDL-1] = Robot_info[i].firing_wait[1];
-			Robot_info[i].rapidfire_count[NDL-1] = Robot_info[i].rapidfire_count[1];
-		}
-	}
-}
-
-void do_lunacy_off(void)
-{
-	int	i;
-
-	if ( Lunacy )	{
-		Lunacy = 0;
-		for (i=0; i<MAX_ROBOT_TYPES; i++) {
-			Robot_info[i].firing_wait[NDL-1] = Firing_wait_copy[i];
-			Robot_info[i].rapidfire_count[NDL-1] = Rapidfire_count_copy[i];
-		}
-		Difficulty_level = Diff_save;
-	}
-}
-
-void john_cheat_func_3(int key)
-{
-	if (!Cheats_enabled)
-		return;
-
-	if (key == (john_cheats_3[JOHN_CHEATS_SIZE_3 - john_cheats_index_3] ^ (0x61 + john_cheats_index_3))) {
-		if (john_cheats_index_3 == 4)
-			john_cheats_index_3++;
-		john_cheats_index_3++;
-		if (john_cheats_index_3 == JOHN_CHEATS_SIZE_3+1) {
-			if (Lunacy) {
-				do_lunacy_off();
-                                HUD_init_message(HM_DEFAULT,  TXT_NO_LUNACY );
-			} else {
-				do_lunacy_on();
-                                HUD_init_message(HM_DEFAULT,  TXT_LUNACY );
-				digi_play_sample( SOUND_CHEATER, F1_0);
-			}
-			john_cheats_index_3 = 0;
-		}
-	} else
-		john_cheats_index_3 = 0;
 }
 
 //	----------------------------------------------------------------
@@ -621,80 +488,6 @@ void ai_turn_randomly(vms_vector *vec_to_player, object *obj, fix rate, int prev
 //		Increases distance to which robot will search to create path to player by Overall_agitation/8 segments.
 //		Decreases wait between fire times by Overall_agitation/64 seconds.
 
-void john_cheat_func_4(int key)
-{
-	if (!Cheats_enabled)
-		return;
-
-	switch (john_cheats_index_4) {
-		case 3:
-			if (key == KEY_T)
-				john_cheats_index_4++;
-			else
-				john_cheats_index_4 = 0;
-			break;
-
-		case 1:
-			if (key == KEY_L)
-				john_cheats_index_4++;
-			else
-				john_cheats_index_4 = 0;
-			break;
-	
-		case 2:
-			if (key == KEY_E)
-				john_cheats_index_4++;
-			else
-				john_cheats_index_4 = 0;
-			break;
-	
-		case 0:
-			if (key == KEY_P)
-				john_cheats_index_4++;
-			break;
-
-
-		case 4:
-			if (key == KEY_C)
-				john_cheats_index_4++;
-			else
-				john_cheats_index_4 = 0;
-			break;
-	
-		case 5:
-			if (key == KEY_H)
-				john_cheats_index_4++;
-			else
-				john_cheats_index_4 = 0;
-			break;
-	
-		case 6:
-			Ugly_robot_texture = 0;
-		case 7:
-		case 8:
-			if ((key >= KEY_1) && (key <= KEY_0)) {
-				john_cheats_index_4++;
-				Ugly_robot_texture *= 10;
-				if (key != KEY_0)
-					Ugly_robot_texture += key - 1;
-				if (john_cheats_index_4 == 9) {
-					if (Ugly_robot_texture == 999)	{
-						Ugly_robot_cheat = 0;
-                                                HUD_init_message(HM_DEFAULT, TXT_ROBOT_PAINTING_OFF );
-					} else {
-                                                HUD_init_message(HM_DEFAULT, TXT_ROBOT_PAINTING_ON, Ugly_robot_texture );
-						Ugly_robot_cheat = 0xBADA55;
-					}
-					john_cheats_index_4 = 0;
-				}
-			} else
-				john_cheats_index_4 = 0;
-		
-			break;
-		default:
-			john_cheats_index_4 = 0;
-	}
-}
 
 // --------------------------------------------------------------------------------------------------------------------
 //	Returns:
@@ -963,7 +756,7 @@ void do_ai_robot_hit_attack(object *robot, object *player, vms_vector *collision
 	robot_info *robptr = &Robot_info[robot->id];
 
 //#ifndef NDEBUG
-	if (!Robot_firing_enabled)
+	if (cheats.robotfiringsuspended)
 		return;
 //#endif
 
@@ -998,7 +791,7 @@ void ai_fire_laser_at_player(object *obj, vms_vector *fire_point)
 	vms_vector	fire_vec;
 	vms_vector	bpp_diff;
 
-	if (!Robot_firing_enabled)
+	if (cheats.robotfiringsuspended)
 		return;
 
 #ifndef NDEBUG

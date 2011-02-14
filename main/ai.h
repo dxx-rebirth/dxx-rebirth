@@ -70,7 +70,6 @@ extern void create_n_segment_path_to_door(object *objp, int path_length, int avo
 extern void make_random_vector(vms_vector *vec);
 extern void init_robots_for_level(void);
 extern int ai_behavior_to_mode(int behavior);
-extern int Robot_firing_enabled;
 
 //	max_length is maximum depth of path to create.
 //	If -1, use default:	MAX_DEPTH_TO_SEARCH_FOR_PLAYER

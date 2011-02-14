@@ -736,8 +736,6 @@ void InitPlayerObject()
 	ConsoleObject->movement_type	= MT_PHYSICS;
 }
 
-extern void game_disable_cheats();
-
 //starts a new game on the given level
 void StartNewGame(int start_level)
 {
@@ -768,23 +766,6 @@ void StartNewGame(int start_level)
 	game_disable_cheats();
 }
 
-//starts a resumed game loaded from disk
-void ResumeSavedGame(int start_level)
-{
-	Game_mode = GM_NORMAL;
-
-	N_players = 1;
-	#ifdef NETWORK
-	Network_new_game = 0;
-	#endif
-
-	InitPlayerObject();				//make sure player's object set up
-
-	StartNewLevel(start_level);
-
-	game_disable_cheats();
-}
-
 //	-----------------------------------------------------------------------------
 //	Does the bonus scoring.
 //	Call with dead_flag = 1 if player died, but deserves some portion of bonus (only skill points), anyway.
@@ -806,7 +787,7 @@ void DoEndLevelScoreGlitz(int network)
 
 	level_points = Players[Player_num].score-Players[Player_num].last_score;
 
-	if (!Cheats_enabled) {
+	if (!cheats.enabled) {
 		if (Difficulty_level > 1) {
 			skill_points = level_points*(Difficulty_level-1)/2;
 			skill_points -= skill_points % 100;
@@ -826,13 +807,13 @@ void DoEndLevelScoreGlitz(int network)
 	all_hostage_text[0] = 0;
 	endgame_text[0] = 0;
 
-	if (!Cheats_enabled && (Players[Player_num].hostages_on_board == Players[Player_num].hostages_level)) {
+	if (!cheats.enabled && (Players[Player_num].hostages_on_board == Players[Player_num].hostages_level)) {
 		all_hostage_points = Players[Player_num].hostages_on_board * 1000 * (Difficulty_level+1);
 		sprintf(all_hostage_text, "%s%i\n", TXT_FULL_RESCUE_BONUS, all_hostage_points);
 	} else
 		all_hostage_points = 0;
 
-	if (!Cheats_enabled && !(Game_mode & GM_MULTI) && (Players[Player_num].lives) && (Current_level_num == Last_level)) {		//player has finished the game!
+	if (!cheats.enabled && !(Game_mode & GM_MULTI) && (Players[Player_num].lives) && (Current_level_num == Last_level)) {		//player has finished the game!
 		endgame_points = Players[Player_num].lives * 10000;
 		sprintf(endgame_text, "%s%i\n", TXT_SHIP_BONUS, endgame_points);
 		is_last_level=1;
@@ -1258,7 +1239,7 @@ void StartNewLevelSub(int level_num, int page_in_textures)
 	init_all_matcens();
 	reset_palette_add();
 
-	if (!(Game_mode & GM_MULTI) && !Cheats_enabled)
+	if (!(Game_mode & GM_MULTI) && !cheats.enabled)
 		set_highest_level(Current_level_num);
 
 	reset_special_effects();
@@ -1446,8 +1427,6 @@ void StartLevel(int random)
 	reset_rear_view();
 	Auto_fire_fusion_cannon_time = 0;
 	Fusion_charge = 0;
-
-	Robot_firing_enabled = 1;
 }
 
 

@@ -71,7 +71,7 @@ COPYRIGHT 1993-1998 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 #define STATE_COMPATIBLE_VERSION 6
 // 0 - Put DGSS (Descent Game State Save) id at tof.
 // 1 - Added Difficulty level save
-// 2 - Added Cheats_enabled flag
+// 2 - Added cheats.enabled flag
 // 3 - Added between levels save.
 // 4 - Added mission support
 // 5 - Mike changed ai and object structure.
@@ -84,12 +84,6 @@ COPYRIGHT 1993-1998 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 #define DESC_LENGTH 20
 
 extern int Do_appearance_effect;
-
-extern int Laser_rapid_fire, Ugly_robot_cheat, Ugly_robot_texture;
-extern int Physics_cheat_flag;
-extern int Lunacy;
-extern void do_lunacy_on(void);
-extern void do_lunacy_off(void);
 
 int state_save_all_sub(char *filename, char *desc);
 int state_restore_all_sub(char *filename);
@@ -765,18 +759,16 @@ int state_save_old_game(int slotnum, char * sg_name, player_rw * sg_player,
 	temp_int = sg_difficulty_level;
 	PHYSFS_write(fp, &temp_int, sizeof(int), 1);
 
-// Save the Cheats_enabled
+// Save the cheats.enabled
 	temp_int = 0;
-	PHYSFS_write(fp, &temp_int, sizeof(int), 1);
-	temp_int = 0;		// turbo mode
-	PHYSFS_write(fp, &temp_int, sizeof(int), 1);
-
+	PHYSFS_write(fp, &cheats.enabled, sizeof(int), 1);
+	PHYSFS_write( fp, &cheats.turbo, sizeof(int), 1);
 	PHYSFS_write( fp, &state_game_id, sizeof(uint), 1 );
-	PHYSFS_write( fp, &Laser_rapid_fire, sizeof(int), 1 );
-	PHYSFS_write( fp, &Ugly_robot_cheat, sizeof(int), 1 );
-	PHYSFS_write( fp, &Ugly_robot_texture, sizeof(int), 1 );
-	PHYSFS_write( fp, &Physics_cheat_flag, sizeof(int), 1 );
-	PHYSFS_write( fp, &Lunacy, sizeof(int), 1 );
+	PHYSFS_write( fp, &cheats.rapidfire, sizeof(int), 1 );
+	PHYSFS_write( fp, &temp_int, sizeof(int), 1 ); // was Ugly_robot_cheat
+	PHYSFS_write( fp, &temp_int, sizeof(int), 1 ); // Ugly_robot_texture
+	PHYSFS_write( fp, &cheats.ghostphysics, sizeof(int), 1 );
+	PHYSFS_write( fp, &temp_int, sizeof(int), 1 ); // was Lunacy
 
 	PHYSFS_close(fp);
 
@@ -937,8 +929,8 @@ int state_save_all_sub(char *filename, char *desc)
 	PHYSFS_write(fp, &Difficulty_level, sizeof(int), 1);
 
 // Save cheats enabled
-	PHYSFS_write(fp, &Cheats_enabled, sizeof(int), 1);
-	PHYSFS_write(fp, &Game_turbo_mode, sizeof(int), 1);
+	PHYSFS_write(fp, &cheats.enabled, sizeof(int), 1);
+	PHYSFS_write(fp, &cheats.turbo, sizeof(int), 1);
 
 	//Finish all morph objects
 	for (i=0; i<=Highest_object_index; i++ )	{
@@ -1029,11 +1021,12 @@ int state_save_all_sub(char *filename, char *desc)
 	PHYSFS_write(fp, Automap_visited, sizeof(ubyte), MAX_SEGMENTS);
 
 	PHYSFS_write(fp, &state_game_id, sizeof(uint), 1);
-	PHYSFS_write(fp, &Laser_rapid_fire, sizeof(int), 1);
-	PHYSFS_write(fp, &Ugly_robot_cheat, sizeof(int), 1);
-	PHYSFS_write(fp, &Ugly_robot_texture, sizeof(int), 1);
-	PHYSFS_write(fp, &Physics_cheat_flag, sizeof(int), 1);
-	PHYSFS_write(fp, &Lunacy, sizeof(int), 1);
+	i = 0;
+	PHYSFS_write(fp, &cheats.rapidfire, sizeof(int), 1);
+	PHYSFS_write(fp, &i, sizeof(int), 1); // was Ugly_robot_cheat
+	PHYSFS_write(fp, &i, sizeof(int), 1); // was Ugly_robot_texture
+	PHYSFS_write(fp, &cheats.ghostphysics, sizeof(int), 1);
+	PHYSFS_write(fp, &i, sizeof(int), 1); // was Lunacy
 
 // Save Coop Info
 	if (Game_mode & GM_MULTI_COOP)
@@ -1237,8 +1230,8 @@ int state_restore_all_sub(char *filename)
 
 // Restore the cheats enabled flag
 
-	Cheats_enabled = PHYSFSX_readSXE32(fp, swap);
-	Game_turbo_mode = PHYSFSX_readSXE32(fp, swap);
+	cheats.enabled = PHYSFSX_readSXE32(fp, swap);
+	cheats.turbo = PHYSFSX_readSXE32(fp, swap);
 
 	Do_appearance_effect = 0;			// Don't do this for middle o' game stuff.
 
@@ -1374,15 +1367,13 @@ RetryObjectLoading:
 	state_game_id = 0;
 
 	if ( version >= 7 )	{
-		int tmp_Lunacy;
+		int stub;
 		state_game_id = PHYSFSX_readSXE32(fp, swap);
-		Laser_rapid_fire = PHYSFSX_readSXE32(fp, swap);
-		Ugly_robot_cheat = PHYSFSX_readSXE32(fp, swap);
-		Ugly_robot_texture = PHYSFSX_readSXE32(fp, swap);
-		Physics_cheat_flag = PHYSFSX_readSXE32(fp, swap);
-		tmp_Lunacy = PHYSFSX_readSXE32(fp, swap);
-		if ( tmp_Lunacy )
-			do_lunacy_on();
+		cheats.rapidfire = PHYSFSX_readSXE32(fp, swap);
+		stub = PHYSFSX_readSXE32(fp, swap); // was Ugly_robot_cheat
+		stub = PHYSFSX_readSXE32(fp, swap); // Ugly_robot_texture
+		cheats.ghostphysics = PHYSFSX_readSXE32(fp, swap);
+		stub = PHYSFSX_readSXE32(fp, swap); // was Lunacy
 	}
 
 // Read Coop Info

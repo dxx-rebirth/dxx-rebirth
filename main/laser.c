@@ -49,8 +49,6 @@ COPYRIGHT 1993-1998 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 
 #define NEWHOMER
 
-int Laser_rapid_fire = 0;
-
 int find_homing_object_complete(vms_vector *curpos, object *tracker, int track_obj_type1, int track_obj_type2);
 
 //---------------------------------------------------------------------------------
@@ -1172,7 +1170,7 @@ int do_laser_firing_player(void)
                         Last_laser_fired_time = GameTime64;
                         //end move - Victor Rachels
 
-			if (Laser_rapid_fire!=0xBADA55)
+			if (!cheats.rapidfire)
 				Next_laser_fire_time += Weapon_info[weapon_index].fire_wait;
 			else
 				Next_laser_fire_time += F1_0/25;
@@ -1474,7 +1472,7 @@ void do_missile_firing(int drop_bomb)
 		Players[Player_num].secondary_ammo[weapon]--;
 
 		weapon_index = Secondary_weapon_to_weapon_info[weapon];
-		if (Laser_rapid_fire!=0xBADA55)
+		if (!cheats.rapidfire)
 			Next_missile_fire_time = GameTime64 + Weapon_info[weapon_index].fire_wait;
 		else
 			Next_missile_fire_time = GameTime64 + F1_0/25;

@@ -850,33 +850,10 @@ void init_new_page(briefing *br)
 }
 
 //	-----------------------------------------------------------------------------
-ubyte baldguy_cheat = 0;
-static ubyte bald_guy_cheat_index = 0;
 char new_baldguy_pcx[] = "btexture.xxx";
 
-#define	BALD_GUY_CHEAT_SIZE	7
 #define NEW_END_GUY1	1
 #define NEW_END_GUY2	3
-
-ubyte	bald_guy_cheat_1[BALD_GUY_CHEAT_SIZE] = { KEY_B ^ 0xF0 ^ 0xab,
-	KEY_A ^ 0xE0 ^ 0xab,
-	KEY_L ^ 0xD0 ^ 0xab,
-	KEY_D ^ 0xC0 ^ 0xab,
-	KEY_G ^ 0xB0 ^ 0xab,
-	KEY_U ^ 0xA0 ^ 0xab,
-	KEY_Y ^ 0x90 ^ 0xab };
-
-void bald_guy_cheat(int key)
-{
-	if (key == (bald_guy_cheat_1[bald_guy_cheat_index] ^ (0xf0 - (bald_guy_cheat_index << 4)) ^ 0xab)) {
-		bald_guy_cheat_index++;
-		if (bald_guy_cheat_index == BALD_GUY_CHEAT_SIZE)	{
-			baldguy_cheat = 1;
-			bald_guy_cheat_index = 0;
-		}
-	} else
-		bald_guy_cheat_index = 0;
-}
 
 void free_briefing_screen(briefing *br);
 extern void swap_0_255(grs_bitmap *bmp);
@@ -912,7 +889,7 @@ int load_briefing_screen(briefing *br, char *fname)
 	if (stricmp(br->background_name, fname2))
 		strncpy (br->background_name,fname2, sizeof(br->background_name));
 
-	if ((!stricmp(fname2, "brief02.pcx") || !stricmp(fname2, "brief02h.pcx")) && baldguy_cheat)
+	if ((!stricmp(fname2, "brief02.pcx") || !stricmp(fname2, "brief02h.pcx")) && cheats.baldguy)
 		if ( bald_guy_load(new_baldguy_pcx, &br->background, BM_LINEAR, gr_palette) == 0)
 		{
 			d_free(fname2);
@@ -1051,6 +1028,9 @@ int briefing_handler(window *wind, d_event *event, briefing *br)
 
 			switch (key)
 			{
+				case KEY_ALTED + KEY_B: // B - ALTED... BALT... BALD... get it? 
+					cheats.baldguy = !cheats.baldguy;
+					break;
 				case KEY_ESC:
 					window_close(wind);
 					return 1;

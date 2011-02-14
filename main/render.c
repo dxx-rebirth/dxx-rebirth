@@ -20,7 +20,7 @@ COPYRIGHT 1993-1998 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 #include <stdlib.h>
 #include <stdio.h>
 #include <string.h>
-
+#include <math.h>
 #include "inferno.h"
 #include "segment.h"
 #include "error.h"
@@ -48,6 +48,7 @@ COPYRIGHT 1993-1998 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 #include "newmenu.h"
 #include "u_mem.h"
 #include "piggy.h"
+#include "timer.h"
 
 #ifdef OGL
 #include "ogl_init.h"
@@ -603,9 +604,19 @@ g3s_codes rotate_list(int nv,short *pointnumlist)
 
 		pnt = &Segment_points[pnum];
 
-		if (Rotated_last[pnum] != RL_framecount) {
-
-			g3_rotate_point(pnt,&Vertices[pnum]);
+		if (Rotated_last[pnum] != RL_framecount)
+		{
+			if (cheats.acid)
+			{
+				float f = (float) timer_query() / F1_0;
+				vms_vector tmpv = Vertices[pnum];
+				tmpv.x += fl2f(sinf(f * 2.0f + f2fl(tmpv.x)));
+				tmpv.y += fl2f(sinf(f * 3.0f + f2fl(tmpv.y)));
+				tmpv.z += fl2f(sinf(f * 5.0f + f2fl(tmpv.z)));
+				g3_rotate_point(pnt,&tmpv);
+			}
+			else
+				g3_rotate_point(pnt,&Vertices[pnum]);
 
 			Rotated_last[pnum] = RL_framecount;
 		}

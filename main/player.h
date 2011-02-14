@@ -45,7 +45,7 @@ COPYRIGHT 1993-1998 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 #define PLAYER_FLAGS_MAP_ALL			64			// Player can see unvisited areas on map
 #define PLAYER_FLAGS_RADAR_ENEMIES	128		// Player can see enemies on radar
 #define PLAYER_FLAGS_RADAR_POWERUPS	256		// Player can see powerups
-#define PLAYER_FLAGS_MAP_ALL_CHEAT	512		// Player can see unvisited areas on map normally
+// #define PLAYER_FLAGS_MAP_ALL_CHEAT	512		// Player can see unvisited areas on map normally -- OBSOLETE BY CHEAT STRUCT
 #define PLAYER_FLAGS_QUAD_LASERS		1024		// Player shoots 4 at once
 #define PLAYER_FLAGS_CLOAKED			2048		// Player is cloaked for awhile
 #define PLAYER_FLAGS_AFTERBURNER		4096		//	Player's afterburner is engaged

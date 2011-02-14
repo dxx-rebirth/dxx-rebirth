@@ -140,7 +140,6 @@ char	faded_in;
 int	Game_suspended=0; //if non-zero, nothing moves but player
 fix64	Auto_fire_fusion_cannon_time = 0;
 fix	Fusion_charge = 0;
-int	Game_turbo_mode = 0;
 int	Game_mode = GM_GAME_OVER;
 int	Global_laser_firing_count = 0;
 int	Global_missile_firing_count = 0;
@@ -157,6 +156,10 @@ void game_init_render_sub_buffers(int x, int y, int w, int h);
 extern void multi_check_for_killgoal_winner();
 
 extern int ReadControls(d_event *event);		// located in gamecntl.c
+
+// Cheats
+game_cheats cheats;
+
 //	==============================================================================================
 
 //this is called once per game
@@ -454,7 +457,7 @@ void calc_frame_time()
 		FrameTime = timer_value - last_timer_value;
 	}
 
-	if ( Game_turbo_mode )
+	if ( cheats.turbo )
 		FrameTime *= 2;
 
 	last_timer_value = timer_value;
@@ -911,33 +914,9 @@ void reset_rear_view(void)
 
 int Config_menu_flag;
 
-extern int Laser_rapid_fire, Ugly_robot_cheat;
-extern void do_lunacy_on(), do_lunacy_off();
-extern	int Physics_cheat_flag;
-
-extern int	cheat_enable_index;
-extern int	cheat_wowie_index;
-extern int	cheat_allkeys_index;
-extern int	cheat_invuln_index;
-extern int	cheat_cloak_index;
-extern int	cheat_shield_index;
-extern int	cheat_warp_index;
-extern int	cheat_astral_index;
-extern int	cheat_poboys_index;
-extern int	cheat_turbomode_index;
-extern int	cheat_wowie2_index;
-extern int	cheat_newlife_index;
-extern int	cheat_exitpath_index;
-extern int	cheat_robotpause_index;
-
 void game_disable_cheats()
 {
-	Game_turbo_mode = 0;
-	Cheats_enabled=0;
-	do_lunacy_off();
-	Laser_rapid_fire = 0;
-	Ugly_robot_cheat = 0;
-	Physics_cheat_flag = 0;
+	memset(&cheats, 0, sizeof(cheats));
 }
 
 //	game_setup()
@@ -952,14 +931,9 @@ window *game_setup(void)
 #ifdef EDITOR
 	keyd_editor_mode = 0;
 #endif
-	do_lunacy_on();			// Copy values for insane into copy buffer in ai.c
-	do_lunacy_off();		// Restore true insane mode.
 	PlayerCfg.CockpitMode[1] = PlayerCfg.CockpitMode[0];
 	last_drawn_cockpit = -1;	// Force cockpit to redraw next time a frame renders.
 	Endlevel_sequence = 0;
-	cheat_enable_index = 0;
-
-	cheat_wowie_index = cheat_allkeys_index = cheat_invuln_index = cheat_cloak_index = cheat_shield_index = cheat_warp_index = cheat_astral_index = cheat_poboys_index = cheat_turbomode_index = cheat_wowie2_index = 0;
 
 	game_wind = window_create(&grd_curscreen->sc_canvas, 0, 0, SWIDTH, SHEIGHT, game_handler, NULL);
 	if (!game_wind)

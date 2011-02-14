@@ -44,7 +44,6 @@ extern fix64 Last_laser_fired_time;
 extern fix64 Next_missile_fire_time;  // Time at which player can next fire his selected missile.
 extern fix64 Next_flare_fire_time;
 extern fix Laser_delay_time;        // Delay between laser fires.
-extern int Cheats_enabled;
 
 // bits for FixedStep
 #define EPS4	1
@@ -186,8 +185,6 @@ void show_boxed_message(char *msg, int RenderFlag);
 // turns off rear view & rear view cockpit
 void reset_rear_view(void);
 
-extern int Game_turbo_mode;
-
 #define VR_NONE			0	//viewing the game screen
 #define VR_AREA_DET		1	//viewing with the stereo area determined method
 #define VR_INTERLACED	        2	//viewing with the stereo interlaced method
@@ -205,6 +202,31 @@ extern grs_canvas VR_screen_sub_pages[2];	//  Two sub pages of VRAM if paging is
 void game_init_render_buffers (int render_max_w, int render_max_h, int render_method);
 void game_render_frame_mono(int flip);
 void game_leave_menus(void);
+
+// Cheats
+typedef struct game_cheats
+{
+	int enabled;
+	int wowie;
+	int wowie2;
+	int allkeys;
+	int invul;
+	int cloak;
+	int shields;
+	int extralife;
+	int killreactor;
+	int exitpath;
+	int levelwarp;
+	int fullautomap;
+	int ghostphysics;
+	int rapidfire;
+	int turbo;
+	int robotfiringsuspended;
+	int baldguy;
+	int acid;
+} __pack__ game_cheats;
+extern game_cheats cheats;
+void game_disable_cheats();
 
 #endif
 

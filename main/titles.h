@@ -25,6 +25,5 @@ extern void do_briefing_screens(char *filename, int level_num);
 extern void do_end_briefing_screens(char *filename);
 extern char * get_briefing_screen( int level_num );
 extern void show_order_form(void);
-extern void bald_guy_cheat(int key);
 
 #endif

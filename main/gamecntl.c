@@ -113,8 +113,6 @@ extern int	Global_missile_firing_count;
 
 extern int	*Toggle_var;
 
-extern int	Physics_cheat_flag;
-
 extern fix	Show_view_text_timer;
 
 //	Function prototypes --------------------------------------------------------
@@ -131,7 +129,7 @@ extern void newdemo_strip_frames(char *, int);
 extern void toggle_cockpit(void);
 extern void dump_used_textures_all();
 
-void FinalCheats(int key);
+int FinalCheats(int key);
 
 #ifndef RELEASE
 void do_cheat_menu(void);
@@ -819,7 +817,7 @@ int HandleTestKey(int key)
 
 
 		case KEY_DEBUGGED+KEY_R:
-			Robot_firing_enabled = !Robot_firing_enabled;
+			cheats.robotfiringsuspended = !cheats.robotfiringsuspended;
 			break;
 
 #ifdef EDITOR		//editor-specific functions
@@ -884,10 +882,6 @@ int HandleTestKey(int key)
 			do_megawow_powerup(200);
 				break;
 		}
-		case KEY_DEBUGGED+KEY_F:
-		KEY_MAC(case KEY_COMMAND+KEY_F:)
-			GameArg.SysFPSIndicator = !GameArg.SysFPSIndicator;
-			break;
 
 		case KEY_DEBUGGED+KEY_SPACEBAR:		//KEY_F7:				// Toggle physics flying
 			slew_stop();
@@ -951,323 +945,207 @@ int HandleTestKey(int key)
 #endif		//#ifndef RELEASE
 
 //	Cheat functions ------------------------------------------------------------
-sbyte	Enable_john_cheat_1, Enable_john_cheat_2, Enable_john_cheat_3, Enable_john_cheat_4;
-int	cheat_enable_index;
-#define CHEAT_ENABLE_LENGTH (sizeof(cheat_enable_keys) / sizeof(*cheat_enable_keys))
-ubyte	cheat_enable_keys[] = {KEY_G,KEY_A,KEY_B,KEY_B,KEY_A,KEY_G,KEY_A,KEY_B,KEY_B,KEY_A,KEY_H,KEY_E,KEY_Y};
-ubyte	cheat_wowie[] = {KEY_S,KEY_C,KEY_O,KEY_U,KEY_R,KEY_G,KEY_E};
-ubyte	cheat_allkeys[] = {KEY_M,KEY_I,KEY_T,KEY_Z,KEY_I};
-ubyte	cheat_invuln[] = {KEY_R,KEY_A,KEY_C,KEY_E,KEY_R,KEY_X};
-ubyte	cheat_cloak[] = {KEY_G,KEY_U,KEY_I,KEY_L,KEY_E};
-ubyte	cheat_shield[] = {KEY_T,KEY_W,KEY_I,KEY_L,KEY_I,KEY_G,KEY_H,KEY_T};
-ubyte	cheat_warp[] = {KEY_F,KEY_A,KEY_R,KEY_M,KEY_E,KEY_R,KEY_J,KEY_O,KEY_E};
-ubyte	cheat_astral[] = {KEY_A,KEY_S,KEY_T,KEY_R,KEY_A,KEY_L};
-ubyte	cheat_poboys[] = {KEY_P,KEY_O,KEY_B,KEY_O,KEY_Y,KEY_S};
+#define CHEAT_MAX_LEN 15
+#define NUM_CHEATS    16
 
-#define NUM_NEW_CHEATS 5
-ubyte new_cheats[]= {	KEY_B^0xaa, KEY_B^0xaa, KEY_B^0xaa, KEY_F^0xaa, KEY_A^0xaa,
-	KEY_U^0xaa, KEY_I^0xaa, KEY_R^0xaa, KEY_L^0xaa, KEY_H^0xaa,
-	KEY_G^0xaa, KEY_G^0xaa, KEY_U^0xaa, KEY_A^0xaa, KEY_I^0xaa,
-	KEY_G^0xaa, KEY_R^0xaa, KEY_I^0xaa, KEY_S^0xaa, KEY_M^0xaa,
-	KEY_I^0xaa, KEY_E^0xaa, KEY_N^0xaa, KEY_H^0xaa, KEY_S^0xaa,
-KEY_N^0xaa, KEY_D^0xaa, KEY_X^0xaa, KEY_X^0xaa, KEY_A^0xaa };
-
-#define CHEAT_WOWIE_LENGTH (sizeof(cheat_wowie) / sizeof(*cheat_wowie))
-#define CHEAT_ALLKEYS_LENGTH (sizeof(cheat_allkeys) / sizeof(*cheat_allkeys))
-#define CHEAT_INVULN_LENGTH (sizeof(cheat_invuln) / sizeof(*cheat_invuln))
-#define CHEAT_CLOAK_LENGTH (sizeof(cheat_cloak) / sizeof(*cheat_cloak))
-#define CHEAT_SHIELD_LENGTH (sizeof(cheat_shield) / sizeof(*cheat_shield))
-#define CHEAT_WARP_LENGTH (sizeof(cheat_warp) / sizeof(*cheat_warp))
-#define CHEAT_ASTRAL_LENGTH (sizeof(cheat_astral) / sizeof(*cheat_astral))
-#define CHEAT_POBOYS_LENGTH (sizeof(cheat_poboys) / sizeof(*cheat_poboys))
-
-#define CHEAT_TURBOMODE_OFS	0
-#define CHEAT_WOWIE2_OFS	1
-#define CHEAT_NEWLIFE_OFS	2
-#define CHEAT_EXITPATH_OFS	3
-#define CHEAT_ROBOTPAUSE_OFS	4
-#define CHEAT_TURBOMODE_LENGTH	6
-#define CHEAT_WOWIE2_LENGTH	6
-#define CHEAT_NEWLIFE_LENGTH	5
-#define CHEAT_EXITPATH_LENGTH	5
-#define CHEAT_ROBOTPAUSE_LENGTH	6
-
-int	cheat_wowie_index;
-int	cheat_allkeys_index;
-int	cheat_invuln_index;
-int	cheat_cloak_index;
-int	cheat_shield_index;
-int	cheat_warp_index;
-int	cheat_astral_index;
-int	cheat_poboys_index;
-int	cheat_turbomode_index;
-int	cheat_wowie2_index;
-int	cheat_newlife_index;
-int	cheat_exitpath_index;
-int	cheat_robotpause_index;
-
-// Frametime "cheat" code stuff
-
-#define IMPLEMENT_CHEAT(name, action) if (key == cheat_ ## name [cheat_ ## name ## _index]) {\
-if (++cheat_ ## name ## _index == (sizeof(cheat_ ## name)/sizeof(*cheat_ ## name))) {\
-action;\
-cheat_ ## name ## _index = 0;\
-}\
-} else cheat_ ## name ## _index = 0;\
-
-//DEFINE_CHEAT needs to be done this weird way since stupid c macros can't (portably) handle multiple args, nor can they realize that within {}'s should all be the same arg.  blah.
-#define DEFINE_CHEAT(name) int cheat_ ## name ## _index;\
-ubyte cheat_ ## name []
-
-int	Cheats_enabled=0;
-
-extern	int Laser_rapid_fire, Ugly_robot_cheat;
-extern	void do_lunacy_on(), do_lunacy_off();
-extern	int Physics_cheat_flag;
-
-extern void john_cheat_func_1(int);
-extern void john_cheat_func_2(int);
-extern void john_cheat_func_3(int);
-extern void john_cheat_func_4(int);
-
-void FinalCheats(int key)
+typedef struct cheat_code
 {
-	if (key == 0) return;
+	char *string;
+	int *stateptr;
+} __pack__ cheat_code;
 
-	if (!(Game_mode&GM_MULTI) && key == cheat_enable_keys[cheat_enable_index]) {
-		if (++cheat_enable_index == CHEAT_ENABLE_LENGTH) {
-			HUD_init_message(HM_DEFAULT, TXT_CHEATS_ENABLED);
-			digi_play_sample( SOUND_CHEATER, F1_0);
-			Cheats_enabled = 1;
-			Players[Player_num].score = 0;
-		}
-	}
-	else
-		cheat_enable_index = 0;
+cheat_code cheat_codes[NUM_CHEATS] = {
+	{ "gabbagabbahey", &cheats.enabled },
+	{ "scourge", &cheats.wowie },
+	{ "bigred", &cheats.wowie2 },
+	{ "mitzi", &cheats.allkeys },
+	{ "racerx", &cheats.invul },
+	{ "guile", &cheats.cloak },
+	{ "twilight", &cheats.shields },
+	{ "poboys", &cheats.killreactor },
+	{ "flash", &cheats.exitpath },
+	{ "farmerjoe", &cheats.levelwarp },
+	{ "bruin", &cheats.extralife },
+	{ "astral", &cheats.ghostphysics },
+	{ "porgys", &cheats.rapidfire },
+	{ "buggin", &cheats.turbo },
+	{ "ahimsa", &cheats.robotfiringsuspended },
+	{ "bittersweet", &cheats.acid },
+};
 
-	if (Cheats_enabled)
+int FinalCheats(int key)
+{
+	static char cheat_buffer[CHEAT_MAX_LEN] = "AAAAAAAAAAAAAAA";
+	int i = 0, gotcha = 0;
+
+	if (Game_mode & GM_MULTI)
+		return 0;
+
+	for (i = 1; i < CHEAT_MAX_LEN; i++)
+		cheat_buffer[i-1] = cheat_buffer[i];
+	cheat_buffer[CHEAT_MAX_LEN-1] = key_ascii();
+	for (i = 0; i < NUM_CHEATS; i++)
 	{
-		john_cheat_func_2(key);
-
-		if (!(Game_mode&GM_MULTI) && key == cheat_wowie[cheat_wowie_index]) {
-			if (++cheat_wowie_index == CHEAT_WOWIE_LENGTH) {
-				int i;
-
-				HUD_init_message(HM_DEFAULT, TXT_WOWIE_ZOWIE);
-				digi_play_sample( SOUND_CHEATER, F1_0);
-
-				Players[Player_num].primary_weapon_flags |= 0xff ^ (HAS_PLASMA_FLAG | HAS_FUSION_FLAG);
-				Players[Player_num].secondary_weapon_flags |= 0xff ^ (HAS_SMART_FLAG | HAS_MEGA_FLAG);
-
-				for (i=0; i<3; i++)
-					Players[Player_num].primary_ammo[i] = Primary_ammo_max[i];
-
-				for (i=0; i<3; i++)
-					Players[Player_num].secondary_ammo[i] = Secondary_ammo_max[i];
-
-				if (Newdemo_state == ND_STATE_RECORDING)
-					newdemo_record_laser_level(Players[Player_num].laser_level, MAX_LASER_LEVEL);
-
-				Players[Player_num].energy = MAX_ENERGY;
-				Players[Player_num].laser_level = MAX_LASER_LEVEL;
-				Players[Player_num].flags |= PLAYER_FLAGS_QUAD_LASERS;
-				update_laser_weapon_info();
-
-				cheat_wowie_index = 0;
-			}
+		int cheatlen = strlen(cheat_codes[i].string);
+		Assert(cheatlen <= CHEAT_MAX_LEN);
+		if (strnicmp(cheat_codes[i].string, cheat_buffer+CHEAT_MAX_LEN-cheatlen, cheatlen)==0)
+		{
+			if (!cheats.enabled && *cheat_codes[i].stateptr != cheats.enabled)
+				break;
+			if (!cheats.enabled)
+				HUD_init_message(HM_DEFAULT, TXT_CHEATS_ENABLED);
+			*cheat_codes[i].stateptr = !*cheat_codes[i].stateptr;
+			cheats.enabled = 1;
+			digi_play_sample( SOUND_CHEATER, F1_0);
+			Players[Player_num].score = 0;
+			gotcha = i;
+			break;
 		}
-		else
-			cheat_wowie_index = 0;
-
-		if (!(Game_mode&GM_MULTI) && key == (0xaa^new_cheats[cheat_wowie2_index*NUM_NEW_CHEATS+CHEAT_WOWIE2_OFS])) {
-			if (++cheat_wowie2_index == CHEAT_WOWIE2_LENGTH) {
-				int i;
-
-				HUD_init_message(HM_DEFAULT, "SUPER %s",TXT_WOWIE_ZOWIE);
-				digi_play_sample( SOUND_CHEATER, F1_0);
-
-				Players[Player_num].primary_weapon_flags = 0xff;
-				Players[Player_num].secondary_weapon_flags = 0xff;
-
-				for (i=0; i<MAX_PRIMARY_WEAPONS; i++)
-					Players[Player_num].primary_ammo[i] = Primary_ammo_max[i];
-
-				for (i=0; i<MAX_SECONDARY_WEAPONS; i++)
-					Players[Player_num].secondary_ammo[i] = Secondary_ammo_max[i];
-
-				if (Newdemo_state == ND_STATE_RECORDING)
-					newdemo_record_laser_level(Players[Player_num].laser_level, MAX_LASER_LEVEL);
-
-				Players[Player_num].energy = MAX_ENERGY;
-				Players[Player_num].laser_level = MAX_LASER_LEVEL;
-				Players[Player_num].flags |= PLAYER_FLAGS_QUAD_LASERS;
-				update_laser_weapon_info();
-
-				cheat_wowie2_index = 0;
-			}
-		}
-		else
-			cheat_wowie2_index = 0;
-
-		if (!(Game_mode&GM_MULTI) && key == cheat_allkeys[cheat_allkeys_index]) {
-			if (++cheat_allkeys_index == CHEAT_ALLKEYS_LENGTH) {
-				HUD_init_message(HM_DEFAULT, TXT_ALL_KEYS);
-				digi_play_sample( SOUND_CHEATER, F1_0);
-				Players[Player_num].flags |= PLAYER_FLAGS_BLUE_KEY | PLAYER_FLAGS_RED_KEY | PLAYER_FLAGS_GOLD_KEY;
-
-				cheat_allkeys_index = 0;
-			}
-		}
-		else
-			cheat_allkeys_index = 0;
-
-
-		if (!(Game_mode&GM_MULTI) && key == cheat_invuln[cheat_invuln_index]) {
-			if (++cheat_invuln_index == CHEAT_INVULN_LENGTH) {
-				Players[Player_num].flags ^= PLAYER_FLAGS_INVULNERABLE;
-				HUD_init_message(HM_DEFAULT, "%s %s!", TXT_INVULNERABILITY, (Players[Player_num].flags&PLAYER_FLAGS_INVULNERABLE)?TXT_ON:TXT_OFF);
-				digi_play_sample( SOUND_CHEATER, F1_0);
-				Players[Player_num].invulnerable_time = GameTime64+i2f(1000);
-
-				cheat_invuln_index = 0;
-			}
-		}
-		else
-			cheat_invuln_index = 0;
-
-		if (!(Game_mode&GM_MULTI) && key == cheat_cloak[cheat_cloak_index]) {
-			if (++cheat_cloak_index == CHEAT_CLOAK_LENGTH) {
-				Players[Player_num].flags ^= PLAYER_FLAGS_CLOAKED;
-				HUD_init_message(HM_DEFAULT, "%s %s!", TXT_CLOAK, (Players[Player_num].flags&PLAYER_FLAGS_CLOAKED)?TXT_ON:TXT_OFF);
-				digi_play_sample( SOUND_CHEATER, F1_0);
-				if (Players[Player_num].flags & PLAYER_FLAGS_CLOAKED) {
-					ai_do_cloak_stuff();
-					Players[Player_num].cloak_time = GameTime64;
-				}
-
-				cheat_cloak_index = 0;
-			}
-		}
-		else
-			cheat_cloak_index = 0;
-
-		if (!(Game_mode&GM_MULTI) && key == cheat_shield[cheat_shield_index]) {
-			if (++cheat_shield_index == CHEAT_SHIELD_LENGTH) {
-				HUD_init_message(HM_DEFAULT, TXT_FULL_SHIELDS);
-				digi_play_sample( SOUND_CHEATER, F1_0);
-				Players[Player_num].shields = MAX_SHIELDS;
-
-				cheat_shield_index = 0;
-			}
-		}
-		else
-			cheat_shield_index = 0;
-
-		if (!(Game_mode&GM_MULTI) && key == cheat_warp[cheat_warp_index]) {
-			if (++cheat_warp_index == CHEAT_WARP_LENGTH) {
-				newmenu_item m;
-				char text[10]="";
-				int new_level_num;
-				int item;
-				digi_play_sample( SOUND_CHEATER, F1_0);
-				m.type=NM_TYPE_INPUT; m.text_len = 10; m.text = text;
-				item = newmenu_do( NULL, TXT_WARP_TO_LEVEL, 1, &m, NULL, NULL );
-				if (item != -1) {
-					new_level_num = atoi(m.text);
-					if (new_level_num!=0 && new_level_num>=0 && new_level_num<=Last_level)
-					{
-						window_set_visible(Game_wind, 0);
-						StartNewLevel(new_level_num);
-						window_set_visible(Game_wind, 1);
-					}
-				}
-
-				cheat_warp_index = 0;
-			}
-		}
-		else
-			cheat_warp_index = 0;
-
-		if (!(Game_mode&GM_MULTI) && key == cheat_astral[cheat_astral_index]) {
-			if (++cheat_astral_index == CHEAT_ASTRAL_LENGTH) {
-				digi_play_sample( SOUND_CHEATER, F1_0);
-				if ( Physics_cheat_flag==0xBADA55 )	{
-					Physics_cheat_flag = 0;
-				} else {
-					Physics_cheat_flag = 0xBADA55;
-				}
-				HUD_init_message(HM_DEFAULT, "%s %s!", "Ghosty mode", Physics_cheat_flag==0xBADA55?TXT_ON:TXT_OFF);
-				cheat_astral_index = 0;
-			}
-		}
-		else
-			cheat_astral_index = 0;
-
-		if (!(Game_mode&GM_MULTI) && key == cheat_poboys[cheat_poboys_index]) {
-			if (++cheat_poboys_index == CHEAT_POBOYS_LENGTH) {
-				digi_play_sample( SOUND_CHEATER, F1_0);
-				kill_and_so_forth();
-				cheat_poboys_index = 0;
-			}
-		}
-		else
-			cheat_poboys_index = 0;
-
-		if (!(Game_mode&GM_MULTI) && key == (0xaa^new_cheats[cheat_turbomode_index*NUM_NEW_CHEATS+CHEAT_TURBOMODE_OFS])) {
-			if (++cheat_turbomode_index == CHEAT_TURBOMODE_LENGTH) {
-				Game_turbo_mode ^= 1;
-				HUD_init_message(HM_DEFAULT, "%s %s!", "Turbo mode", Game_turbo_mode?TXT_ON:TXT_OFF);
-				digi_play_sample( SOUND_CHEATER, F1_0);
-			}
-		}
-		else
-			cheat_turbomode_index = 0;
-
-		if (!(Game_mode&GM_MULTI) && key == (0xaa^new_cheats[cheat_newlife_index*NUM_NEW_CHEATS+CHEAT_NEWLIFE_OFS])) {
-			if (++cheat_newlife_index == CHEAT_NEWLIFE_LENGTH) {
-				if (Players[Player_num].lives<50) {
-					Players[Player_num].lives++;
-					HUD_init_message(HM_DEFAULT, "Extra life!");
-					digi_play_sample( SOUND_CHEATER, F1_0);
-				}
-
-				cheat_newlife_index = 0;
-			}
-		}
-		else
-			cheat_newlife_index = 0;
-
-		if (!(Game_mode&GM_MULTI) && key == (0xaa^new_cheats[cheat_exitpath_index*NUM_NEW_CHEATS+CHEAT_EXITPATH_OFS])) {
-			if (++cheat_exitpath_index == CHEAT_EXITPATH_LENGTH) {
-#ifdef SHOW_EXIT_PATH
-				if (create_special_path()) {
-					HUD_init_message(HM_DEFAULT, "Exit path illuminated!");
-					digi_play_sample( SOUND_CHEATER, F1_0);
-				}
-#endif
-				cheat_exitpath_index = 0;
-			}
-		}
-		else
-			cheat_exitpath_index = 0;
-
-		if (!(Game_mode&GM_MULTI) && key == (0xaa^new_cheats[cheat_robotpause_index*NUM_NEW_CHEATS+CHEAT_ROBOTPAUSE_OFS])) {
-			if (++cheat_robotpause_index == CHEAT_ROBOTPAUSE_LENGTH) {
-				Robot_firing_enabled = !Robot_firing_enabled;
-				HUD_init_message(HM_DEFAULT, "%s %s!", "Robot firing", Robot_firing_enabled?TXT_ON:TXT_OFF);
-				digi_play_sample( SOUND_CHEATER, F1_0);
-
-				cheat_robotpause_index = 0;
-			}
-
-		}
-		else
-			cheat_robotpause_index = 0;
-
-		john_cheat_func_3(key);
-		john_cheat_func_4(key);
-		bald_guy_cheat(key);
 	}
+	
+	if (!gotcha)
+		return 0;
+
+	if (cheat_codes[gotcha].stateptr == &cheats.wowie)
+	{
+		HUD_init_message(HM_DEFAULT, TXT_WOWIE_ZOWIE);
+
+		Players[Player_num].primary_weapon_flags |= 0xff ^ (HAS_PLASMA_FLAG | HAS_FUSION_FLAG);
+		Players[Player_num].secondary_weapon_flags |= 0xff ^ (HAS_SMART_FLAG | HAS_MEGA_FLAG);
+
+		for (i=0; i<3; i++)
+			Players[Player_num].primary_ammo[i] = Primary_ammo_max[i];
+		for (i=0; i<3; i++)
+			Players[Player_num].secondary_ammo[i] = Secondary_ammo_max[i];
+
+		if (Newdemo_state == ND_STATE_RECORDING)
+			newdemo_record_laser_level(Players[Player_num].laser_level, MAX_LASER_LEVEL);
+
+		Players[Player_num].energy = MAX_ENERGY;
+		Players[Player_num].laser_level = MAX_LASER_LEVEL;
+		Players[Player_num].flags |= PLAYER_FLAGS_QUAD_LASERS;
+		update_laser_weapon_info();
+	}
+
+	if (cheat_codes[gotcha].stateptr == &cheats.wowie2)
+	{
+		HUD_init_message(HM_DEFAULT, "SUPER %s",TXT_WOWIE_ZOWIE);
+
+		Players[Player_num].primary_weapon_flags = 0xff;
+		Players[Player_num].secondary_weapon_flags = 0xff;
+
+		for (i=0; i<MAX_PRIMARY_WEAPONS; i++)
+			Players[Player_num].primary_ammo[i] = Primary_ammo_max[i];
+		for (i=0; i<MAX_SECONDARY_WEAPONS; i++)
+			Players[Player_num].secondary_ammo[i] = Secondary_ammo_max[i];
+
+		if (Newdemo_state == ND_STATE_RECORDING)
+			newdemo_record_laser_level(Players[Player_num].laser_level, MAX_LASER_LEVEL);
+
+		Players[Player_num].energy = MAX_ENERGY;
+		Players[Player_num].laser_level = MAX_LASER_LEVEL;
+		Players[Player_num].flags |= PLAYER_FLAGS_QUAD_LASERS;
+		update_laser_weapon_info();
+	}
+
+	if (cheat_codes[gotcha].stateptr == &cheats.allkeys)
+	{
+		HUD_init_message(HM_DEFAULT, TXT_ALL_KEYS);
+		Players[Player_num].flags |= PLAYER_FLAGS_BLUE_KEY | PLAYER_FLAGS_RED_KEY | PLAYER_FLAGS_GOLD_KEY;
+	}
+
+	if (cheat_codes[gotcha].stateptr == &cheats.invul)
+	{
+		Players[Player_num].flags ^= PLAYER_FLAGS_INVULNERABLE;
+		HUD_init_message(HM_DEFAULT, "%s %s!", TXT_INVULNERABILITY, (Players[Player_num].flags&PLAYER_FLAGS_INVULNERABLE)?TXT_ON:TXT_OFF);
+		Players[Player_num].invulnerable_time = GameTime64+i2f(1000);
+	}
+
+	if (cheat_codes[gotcha].stateptr == &cheats.cloak)
+	{
+		Players[Player_num].flags ^= PLAYER_FLAGS_CLOAKED;
+		HUD_init_message(HM_DEFAULT, "%s %s!", TXT_CLOAK, (Players[Player_num].flags&PLAYER_FLAGS_CLOAKED)?TXT_ON:TXT_OFF);
+		if (Players[Player_num].flags & PLAYER_FLAGS_CLOAKED)
+		{
+			ai_do_cloak_stuff();
+			Players[Player_num].cloak_time = GameTime64;
+		}
+	}
+
+	if (cheat_codes[gotcha].stateptr == &cheats.shields)
+	{
+		HUD_init_message(HM_DEFAULT, TXT_FULL_SHIELDS);
+		Players[Player_num].shields = MAX_SHIELDS;
+	}
+
+	if (cheat_codes[gotcha].stateptr == &cheats.extralife)
+	{
+		if (Players[Player_num].lives<50)
+		{
+			Players[Player_num].lives++;
+			HUD_init_message(HM_DEFAULT, "Extra life!");
+		}
+	}
+
+	if (cheat_codes[gotcha].stateptr == &cheats.killreactor)
+	{
+		kill_and_so_forth();
+	}
+
+	if (cheat_codes[gotcha].stateptr == &cheats.exitpath)
+	{
+#ifdef SHOW_EXIT_PATH
+		if (create_special_path())
+			HUD_init_message(HM_DEFAULT, "Exit path illuminated!");
+#endif
+	}
+
+	if (cheat_codes[gotcha].stateptr == &cheats.levelwarp)
+	{
+		newmenu_item m;
+		char text[10]="";
+		int new_level_num;
+		int item;
+		*cheat_codes[gotcha].stateptr = 0;
+		m.type=NM_TYPE_INPUT; m.text_len = 10; m.text = text;
+		item = newmenu_do( NULL, TXT_WARP_TO_LEVEL, 1, &m, NULL, NULL );
+		if (item != -1) {
+			new_level_num = atoi(m.text);
+			if (new_level_num!=0 && new_level_num>=0 && new_level_num<=Last_level)
+			{
+				window_set_visible(Game_wind, 0);
+				StartNewLevel(new_level_num);
+				window_set_visible(Game_wind, 1);
+			}
+		}
+	}
+
+	if (cheat_codes[gotcha].stateptr == &cheats.ghostphysics)
+	{
+		HUD_init_message(HM_DEFAULT, "%s %s!", "Ghosty mode", cheats.ghostphysics?TXT_ON:TXT_OFF);
+	}
+
+	if (cheat_codes[gotcha].stateptr == &cheats.rapidfire)
+	{
+		do_megawow_powerup(200);
+	}
+
+	if (cheat_codes[gotcha].stateptr == &cheats.turbo)
+	{
+		HUD_init_message(HM_DEFAULT, "%s %s!", "Turbo mode", cheats.turbo?TXT_ON:TXT_OFF);
+	}
+
+	if (cheat_codes[gotcha].stateptr == &cheats.robotfiringsuspended)
+	{
+		HUD_init_message(HM_DEFAULT, "Robot firing %s!", cheats.robotfiringsuspended?TXT_OFF:TXT_ON);
+	}
+
+	if (cheat_codes[gotcha].stateptr == &cheats.acid)
+	{
+		HUD_init_message(HM_DEFAULT, cheats.acid?"Going up!":"Coming down!");
+	}
+
+	return 1;
 }
 
 // Internal Cheat Menu
@@ -1413,8 +1291,7 @@ int ReadControls(d_event *event)
 		}
 		else
 		{
-			FinalCheats(key);
-
+			if (FinalCheats(key)) return 1;
 			if (HandleSystemKey(key)) return 1;
 			if (HandleGameKey(key)) return 1;
 		}

@@ -90,7 +90,6 @@ int IPX_Socket=0;
 int     IPX_allow_socket_changes = 1;
 IPX_sequence_packet IPX_Seq;
 extern obj_position Player_init[MAX_PLAYERS];
-extern void game_disable_cheats();
 int net_ipx_wait_for_snyc();
 extern char MaxPowerupsAllowed[MAX_POWERUP_TYPES];
 extern char PowerupsInMine[MAX_POWERUP_TYPES];
