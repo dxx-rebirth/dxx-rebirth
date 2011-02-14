@@ -52,15 +52,12 @@ COPYRIGHT 1993-1999 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 
 #define NEWHOMER
 
-int Laser_rapid_fire = 0;
-
 object *Guided_missile[MAX_PLAYERS]={NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL};
 int Guided_missile_sig[MAX_PLAYERS]={-1,-1,-1,-1,-1,-1,-1,-1};
 
 int find_homing_object_complete(vms_vector *curpos, object *tracker, int track_obj_type1, int track_obj_type2);
 
 extern char Multi_is_guided;
-extern char BounceCheat;
 
 extern void newdemo_record_guided_end();
 extern void newdemo_record_guided_start();
@@ -276,7 +273,7 @@ int create_weapon_object(int weapon_type,int segnum,vms_vector *position)
 	if (Weapon_info[weapon_type].bounce==1)
 		obj->mtype.phys_info.flags |= PF_BOUNCE;
 
-	if (Weapon_info[weapon_type].bounce==2 || BounceCheat)
+	if (Weapon_info[weapon_type].bounce==2 || cheats.bouncyfire)
 		obj->mtype.phys_info.flags |= PF_BOUNCE+PF_BOUNCES_TWICE;
 
 
@@ -902,8 +899,6 @@ int object_is_trackable(int track_goal, object *tracker, fix *dot)
 	}
 }
 
-extern int Robots_kill_robots_cheat;
-
 //	--------------------------------------------------------------------------------------------
 int call_find_homing_object_complete(object *tracker, vms_vector *curpos)
 {
@@ -917,7 +912,7 @@ int call_find_homing_object_complete(object *tracker, vms_vector *curpos)
 		} else {
 			int	goal2_type = -1;
 
-			if (Robots_kill_robots_cheat)
+			if (cheats.robotskillrobots)
 				goal2_type = OBJ_ROBOT;
 			Assert(tracker->ctype.laser_info.parent_type == OBJ_ROBOT);
 			return find_homing_object_complete(curpos, tracker, OBJ_PLAYER, goal2_type);
@@ -1175,7 +1170,7 @@ int track_track_goal(int track_goal, object *tracker, fix *dot)
 		else {
 			int	goal_type, goal2_type = -1;
 
-			if (Robots_kill_robots_cheat)
+			if (cheats.robotskillrobots)
 				goal2_type = OBJ_ROBOT;
 
 			if (track_goal == -1)
@@ -1675,7 +1670,7 @@ if (Zbonkers) {
 		if	((plp->energy >= energy_used) && (primary_ammo >= ammo_used)) {
 			int	laser_level, flags;
 
-			if (Laser_rapid_fire!=0xBADA55)
+			if (!cheats.rapidfire)
 				Next_laser_fire_time += Weapon_info[weapon_index].fire_wait;
 			else
 				Next_laser_fire_time += F1_0/25;
@@ -2125,7 +2120,7 @@ void do_missile_firing(int drop_bomb)
 
 		weapon_id = Secondary_weapon_to_weapon_info[weapon];
 
-		if (Laser_rapid_fire!=0xBADA55)
+		if (!cheats.rapidfire)
 			Next_missile_fire_time = GameTime64 + Weapon_info[weapon_id].fire_wait;
 		else
 			Next_missile_fire_time = GameTime64 + F1_0/25;

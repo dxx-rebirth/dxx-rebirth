@@ -839,8 +839,6 @@ void InitPlayerObject()
 	ConsoleObject->movement_type	= MT_PHYSICS;
 }
 
-extern void game_disable_cheats();
-extern void turn_cheats_off();
 extern void init_seismic_disturbances(void);
 
 //starts a new game on the given level
@@ -898,7 +896,7 @@ void DoEndLevelScoreGlitz(int network)
 
 	level_points = Players[Player_num].score-Players[Player_num].last_score;
 
-	if (!Cheats_enabled) {
+	if (!cheats.enabled) {
 		if (Difficulty_level > 1) {
 			skill_points = level_points*(Difficulty_level)/4;
 			skill_points -= skill_points % 100;
@@ -921,13 +919,13 @@ void DoEndLevelScoreGlitz(int network)
 	all_hostage_text[0] = 0;
 	endgame_text[0] = 0;
 
-	if (!Cheats_enabled && (Players[Player_num].hostages_on_board == Players[Player_num].hostages_level)) {
+	if (!cheats.enabled && (Players[Player_num].hostages_on_board == Players[Player_num].hostages_level)) {
 		all_hostage_points = Players[Player_num].hostages_on_board * 1000 * (Difficulty_level+1);
 		sprintf(all_hostage_text, "%s%i\n", TXT_FULL_RESCUE_BONUS, all_hostage_points);
 	} else
 		all_hostage_points = 0;
 
-	if (!Cheats_enabled && !(Game_mode & GM_MULTI) && (Players[Player_num].lives) && (Current_level_num == Last_level)) {		//player has finished the game!
+	if (!cheats.enabled && !(Game_mode & GM_MULTI) && (Players[Player_num].lives) && (Current_level_num == Last_level)) {		//player has finished the game!
 		endgame_points = Players[Player_num].lives * 10000;
 		sprintf(endgame_text, "%s%i\n", TXT_SHIP_BONUS, endgame_points);
 		is_last_level=1;
@@ -997,8 +995,6 @@ void StartSecretLevel()
 	reset_rear_view();
 	Auto_fire_fusion_cannon_time = 0;
 	Fusion_charge = 0;
-
-	Robot_firing_enabled = 1;
 }
 
 extern void set_pos_from_return_segment(void);
@@ -1156,8 +1152,6 @@ void StartNewLevelSecret(int level_num, int page_in_textures)
 	if (First_secret_visit) {
 		copy_defaults_to_robot_all();
 	}
-
-	turn_cheats_off();
 
 	init_controlcen_for_level();
 
@@ -1643,9 +1637,7 @@ void StartNewLevelSub(int level_num, int page_in_textures, int secret_flag)
 	if (!(Game_mode & GM_MULTI))
 		filter_objects_from_level();
 
-	turn_cheats_off();
-
-	if (!(Game_mode & GM_MULTI) && !Cheats_enabled)
+	if (!(Game_mode & GM_MULTI) && !cheats.enabled)
 		set_highest_level(Current_level_num);
 	else
 		read_player_file();		//get window sizes
@@ -1964,6 +1956,4 @@ void StartLevel(int random_flag)
 	reset_rear_view();
 	Auto_fire_fusion_cannon_time = 0;
 	Fusion_charge = 0;
-
-	Robot_firing_enabled = 1;
 }

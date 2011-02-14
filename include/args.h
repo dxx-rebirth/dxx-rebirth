@@ -42,7 +42,6 @@ extern void args_exit();
 typedef struct Arg
 {
 	int SysShowCmdHelp;
-	int SysFPSIndicator;
 	int SysUseNiceFPS;
 	int SysMaxFPS;
 	char *SysHogDir;

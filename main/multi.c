@@ -490,8 +490,6 @@ get_team(int pnum)
 		return 0;
 }
 
-extern void game_disable_cheats();
-
 void
 multi_new_game(void)
 {
@@ -3948,12 +3946,6 @@ void multi_do_wall_status (char *buf)
 		digi_kill_sound_linked_to_segment(Walls[wallnum].segnum,Walls[wallnum].sidenum,SOUND_FORCEFIELD_HUM);
 		//digi_kill_sound_linked_to_segment(csegp-Segments,cside,SOUND_FORCEFIELD_HUM);
 	}
-}
-
-void multi_send_jason_cheat (int num)
-{
-	num=num;
-	return;
 }
 
 void multi_send_kill_goal_counts()

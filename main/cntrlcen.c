@@ -286,10 +286,10 @@ void do_controlcen_frame(object *obj)
 		return;
 
 #ifndef NDEBUG
-	if (!Robot_firing_enabled || (Game_suspended & SUSP_ROBOTS))
+	if (cheats.robotfiringsuspended || (Game_suspended & SUSP_ROBOTS))
 		return;
 #else
-	if (!Robot_firing_enabled)
+	if (cheats.robotfiringsuspended)
 		return;
 #endif
 

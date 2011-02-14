@@ -101,7 +101,6 @@ extern void multi_send_door_open_specific(int pnum,int segnum, int side,ubyte fl
 extern void multi_send_wall_status_specific (int pnum,int wallnum,ubyte type,ubyte flags,ubyte state);
 extern void multi_send_light_specific (int pnum,int segnum,ubyte val);
 extern void multi_send_trigger_specific (char pnum,char trig);
-extern void game_disable_cheats();
 
 // Variables
 UDP_mdata_info		UDP_MData;
@@ -843,7 +842,6 @@ void net_udp_init()
 	if( UDP_Socket[1] != -1 )
 		udp_close_socket(1);
 
-	game_disable_cheats();
 	Final_boss_is_dead=0;
 
 	for (t=0;t<MAX_POWERUP_TYPES;t++)

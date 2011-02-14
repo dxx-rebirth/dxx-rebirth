@@ -50,8 +50,6 @@ COPYRIGHT 1993-1999 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 //check point against each side of segment. return bitmask, where bit
 //set means behind that side
 
-int Physics_cheat_flag = 0;
-extern char BounceCheat;
 int floor_levelling=0;
 
 //make sure matrix is orthogonal
@@ -609,7 +607,7 @@ void do_physics_sim(object *obj)
 				if ( !(obj->flags&OF_SHOULD_BE_DEAD) )	{
 					int forcefield_bounce;		//bounce off a forcefield
 
-					Assert(BounceCheat || !(obj->mtype.phys_info.flags & PF_STICK && obj->mtype.phys_info.flags & PF_BOUNCE));	//can't be bounce and stick
+					Assert(cheats.bouncyfire || !(obj->mtype.phys_info.flags & PF_STICK && obj->mtype.phys_info.flags & PF_BOUNCE));	//can't be bounce and stick
 
 					forcefield_bounce = (TmapInfo[Segments[WallHitSeg].sides[WallHitSide].tmap_num].flags & TMI_FORCE_FIELD);
 
@@ -766,7 +764,7 @@ void do_physics_sim(object *obj)
 		do_physics_align_object( obj );
 
 	//hack to keep player from going through closed doors
-	if (obj->type==OBJ_PLAYER && obj->segnum!=orig_segnum && (Physics_cheat_flag!=0xBADA55) ) {
+	if (obj->type==OBJ_PLAYER && obj->segnum!=orig_segnum && (!cheats.ghostphysics) ) {
 		int sidenum;
 
 		sidenum = find_connect_side(&Segments[obj->segnum],&Segments[orig_segnum]);

@@ -93,7 +93,6 @@ extern void create_n_segment_path_to_door(object *objp, int path_length, int avo
 extern void make_random_vector(vms_vector *vec);
 extern void init_robots_for_level(void);
 extern int ai_behavior_to_mode(int behavior);
-extern int Robot_firing_enabled;
 extern void create_path_to_segment(object *objp, int goalseg, int max_length, int safety_flag);
 extern int ready_to_fire(robot_info *robptr, ai_local *ailp);
 extern int polish_path(object *objp, point_seg *psegs, int num_points);
@@ -143,7 +142,6 @@ extern fix AI_proc_time;
 
 extern fix Dist_to_last_fired_upon_player_pos;
 extern vms_vector Last_fired_upon_player_pos;
-extern int Laser_rapid_fire;
 
 #define MAX_AWARENESS_EVENTS 64
 typedef struct awareness_event {
@@ -260,8 +258,6 @@ extern sbyte Super_boss_gate_list[];
 #define MAX_GATE_INDEX  25
 
 extern int  Ai_info_enabled;
-extern int  Robot_firing_enabled;
-
 
 // These globals are set by a call to find_vector_intersection, which is a slow routine,
 // so we don't want to call it again (for this object) unless we have to.

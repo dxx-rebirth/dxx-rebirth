@@ -110,7 +110,6 @@ int ai_evaded=0;
 
 // -- sbyte Super_boss_gate_list[MAX_GATE_INDEX] = {0, 1, 8, 9, 10, 11, 12, 15, 16, 18, 19, 20, 22, 0, 8, 11, 19, 20, 8, 20, 8};
 
-int Robot_firing_enabled = 1;
 int Animation_enabled = 1;
 
 #ifndef NDEBUG
@@ -294,8 +293,6 @@ void make_nearby_robot_snipe(void)
 
 int Ai_last_missile_camera = -1;
 
-int Robots_kill_robots_cheat = 0;
-
 // --------------------------------------------------------------------------------------------------------------------
 void do_ai_frame(object *obj)
 {
@@ -390,7 +387,7 @@ void do_ai_frame(object *obj)
 	if ((aip->SUB_FLAGS & SUB_FLAGS_CAMERA_AWAKE) && (Ai_last_missile_camera != -1))
 		Believed_player_pos = Objects[Ai_last_missile_camera].pos;
 	else {
-		if (Robots_kill_robots_cheat) {
+		if (cheats.robotskillrobots) {
 			vis_vec_pos = obj->pos;
 			compute_vis_and_vec(obj, &vis_vec_pos, ailp, &vec_to_player, &player_visibility, robptr, &visibility_and_vec_computed);
 			if (player_visibility) {

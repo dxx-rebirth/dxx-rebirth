@@ -105,7 +105,6 @@ common_sources = [
 'main/console.c',
 'main/controls.c',
 'main/credits.c',
-'main/crypt.c',
 'main/digiobj.c',
 'main/dumpmine.c',
 'main/effects.c',

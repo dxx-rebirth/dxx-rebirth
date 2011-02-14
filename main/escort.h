@@ -7,7 +7,6 @@
 #ifndef _ESCORT_H
 #define _ESCORT_H
 #define GUIDEBOT_NAME_LEN 9
-extern int Buddy_dude_cheat;
 extern void change_guidebot_name(void);
 extern void do_escort_menu(void);
 extern void detect_escort_goal_accomplished(int index);

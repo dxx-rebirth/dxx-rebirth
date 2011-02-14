@@ -1172,7 +1172,7 @@ int VR_sense_range[3] = { 25, 50, 75 };
 
 void kconfig_read_controls(d_event *event, int automap_flag)
 {
-	int i = 0, j = 0, speed_factor = Game_turbo_mode?2:1;
+	int i = 0, j = 0, speed_factor = cheats.turbo?2:1;
 	static fix64 mouse_delta_time = 0;
 
 #ifndef NDEBUG

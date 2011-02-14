@@ -122,7 +122,6 @@ extern void arch_init(void);
 void print_commandline_help()
 {
 	printf( "\n System Options:\n\n");
-	printf( "  -fps               %s\n", "Enable FPS indicator by default");
 	printf( "  -nonicefps         %s\n", "Don't free CPU-cycles");
 	printf( "  -maxfps <n>        %s\n", "Set maximum framerate (1-200)");
 	printf( "  -hogdir <s>        %s\n", "set shared data directory to <dir>");

@@ -103,7 +103,6 @@ extern void multi_send_stolen_items();
 int net_ipx_wait_for_snyc();
 extern void multi_send_wall_status (int,ubyte,ubyte,ubyte);
 extern void multi_send_wall_status_specific (int,int,ubyte,ubyte,ubyte);
-extern void game_disable_cheats();
 
 // Variables
 int num_active_ipx_games = 0;
@@ -802,7 +801,6 @@ void receive_netplayers_packet(ubyte *data, netgame_info *pinfo)
 	}
 }
 
-
 void
 net_ipx_init(void)
 {
@@ -810,10 +808,8 @@ net_ipx_init(void)
 	int t;
 	int save_pnum = Player_num;
 
-	game_disable_cheats();
 	Final_boss_is_dead=0;
 	NamesInfoSecurity=-1;
-
 
 	for (t=0;t<MAX_POWERUP_TYPES;t++)
 	{

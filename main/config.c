@@ -63,6 +63,7 @@ static char *MovieTexFiltStr="MovieTexFilt";
 static char *MovieSubtitlesStr="MovieSubtitles";
 static char *VSyncStr="VSync";
 static char *MultisampleStr="Multisample";
+static char *FPSIndicatorStr="FPSIndicator";
 static char *GrabinputStr="GrabInput";
 
 int ReadConfigFile()
@@ -111,6 +112,7 @@ int ReadConfigFile()
 	GameCfg.MovieSubtitles = 0;
 	GameCfg.VSync = 0;
 	GameCfg.Multisample = 0;
+	GameCfg.FPSIndicator = 0;
 	GameCfg.Grabinput = 1;
 
 
@@ -220,6 +222,8 @@ int ReadConfigFile()
 				GameCfg.VSync = strtol(value, NULL, 10);
 			else if (!strcmp(token, MultisampleStr))
 				GameCfg.Multisample = strtol(value, NULL, 10);
+			else if (!strcmp(token, FPSIndicatorStr))
+				GameCfg.FPSIndicator = strtol(value, NULL, 10);
 			else if (!strcmp(token, GrabinputStr))
 				GameCfg.Grabinput = strtol(value, NULL, 10);
 		}
@@ -275,6 +279,7 @@ int WriteConfigFile()
 	PHYSFSX_printf(infile, "%s=%i\n", MovieSubtitlesStr, GameCfg.MovieSubtitles);
 	PHYSFSX_printf(infile, "%s=%i\n", VSyncStr, GameCfg.VSync);
 	PHYSFSX_printf(infile, "%s=%i\n", MultisampleStr, GameCfg.Multisample);
+	PHYSFSX_printf(infile, "%s=%i\n", FPSIndicatorStr, GameCfg.FPSIndicator);
 	PHYSFSX_printf(infile, "%s=%i\n", GrabinputStr, GameCfg.Grabinput);
 
 	PHYSFS_close(infile);

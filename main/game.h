@@ -45,7 +45,6 @@ extern fix64 Last_laser_fired_time;
 extern fix64 Next_missile_fire_time;  // Time at which player can next fire his selected missile.
 extern fix64 Next_flare_fire_time;
 extern fix Laser_delay_time;        // Delay between laser fires.
-extern int Cheats_enabled;
 
 // bits for FixedStep
 #define EPS4	1
@@ -202,8 +201,6 @@ void show_boxed_message(char *msg, int RenderFlag);
 // turns off rear view & rear view cockpit
 void reset_rear_view(void);
 
-extern int Game_turbo_mode;
-
 // returns ptr to escort robot, or NULL
 struct object *find_escort();
 
@@ -246,4 +243,34 @@ void flickering_light_write(flickering_light *fl, PHYSFS_file *fp);
 
 void game_render_frame_mono(int flip);
 void game_leave_menus(void);
+
+//Cheats
+typedef struct game_cheats
+{
+	int enabled;
+	int lamer;
+	int wowie;
+	int allkeys;
+	int accessory;
+	int invul;
+	int shields;
+	int killreactor;
+	int exitpath;
+	int levelwarp;
+	int fullautomap;
+	int ghostphysics;
+	int rapidfire;
+	int bouncyfire;
+	int turbo;
+	int robotfiringsuspended;
+	int killallrobots;
+	int robotskillrobots;
+	int monsterdamage;
+	int buddyclone;
+	int buddyangry;
+	int acid;
+} __pack__ game_cheats;
+extern game_cheats cheats;
+void game_disable_cheats();
+
 #endif /* _GAME_H */

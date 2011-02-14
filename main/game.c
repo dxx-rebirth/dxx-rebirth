@@ -143,7 +143,6 @@ char	faded_in;
 int	Game_suspended=0; //if non-zero, nothing moves but player
 fix64	Auto_fire_fusion_cannon_time = 0;
 fix	Fusion_charge = 0;
-int	Game_turbo_mode = 0;
 int	Game_mode = GM_GAME_OVER;
 int	Global_laser_firing_count = 0;
 int	Global_missile_firing_count = 0;
@@ -169,6 +168,9 @@ extern void do_final_boss_frame(void);
 
 extern ubyte DefiningMarkerMessage;
 extern char Marker_input[];
+
+// Cheats
+game_cheats cheats;
 
 //	==============================================================================================
 
@@ -481,7 +483,7 @@ void calc_frame_time()
 		FrameTime = timer_value - last_timer_value;
 	}
 
-	if ( Game_turbo_mode )
+	if ( cheats.turbo )
 		FrameTime *= 2;
 
 	last_timer_value = timer_value;
@@ -1059,47 +1061,12 @@ void reset_rear_view(void)
 
 int Config_menu_flag;
 
-int Cheats_enabled=0;
-
-extern int Laser_rapid_fire;
-extern void do_lunacy_on(), do_lunacy_off();
-
-extern int Physics_cheat_flag,Robots_kill_robots_cheat;
-extern char BounceCheat,HomingCheat,OldHomingState[20];
-extern char AcidCheatOn,old_IntMethod, Monster_mode;
-extern int Buddy_dude_cheat;
-
-//turns off active cheats
-void turn_cheats_off()
-{
-	int i;
-
-	if (HomingCheat)
-		for (i=0;i<20;i++)
-			Weapon_info[i].homing_flag=OldHomingState[i];
-
-	if (AcidCheatOn)
-	{
-		AcidCheatOn=0;
-		Interpolation_method=old_IntMethod;
-	}
-
-	Buddy_dude_cheat = 0;
-	BounceCheat=0;
-   HomingCheat=0;
-	do_lunacy_off();
-	Laser_rapid_fire = 0;
-	Physics_cheat_flag = 0;
-	Monster_mode = 0;
-	Robots_kill_robots_cheat=0;
-	Robot_firing_enabled = 1;
-}
+extern char AcidCheatOn,old_IntMethod;
 
 //turns off all cheats & resets cheater flag
 void game_disable_cheats()
 {
-	turn_cheats_off();
-	Cheats_enabled=0;
+	memset(&cheats, 0, sizeof(cheats));
 }
 
 //	game_setup()
@@ -1114,8 +1081,6 @@ window *game_setup(void)
 #ifdef EDITOR
 	keyd_editor_mode = 0;
 #endif
-	do_lunacy_on();			// Copy values for insane into copy buffer in ai.c
-	do_lunacy_off();		// Restore true insane mode.
 	PlayerCfg.CockpitMode[1] = PlayerCfg.CockpitMode[0];
 	last_drawn_cockpit = -1;	// Force cockpit to redraw next time a frame renders.
 	Endlevel_sequence = 0;

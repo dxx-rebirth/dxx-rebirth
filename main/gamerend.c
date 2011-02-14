@@ -405,7 +405,7 @@ void game_draw_hud_stuff()
 		}
 	}
 
-	if (GameArg.SysFPSIndicator && PlayerCfg.CockpitMode[1] != CM_REAR_VIEW)
+	if (GameCfg.FPSIndicator && PlayerCfg.CockpitMode[1] != CM_REAR_VIEW)
 		show_framerate();
 
 	if (Newdemo_state == ND_STATE_PLAYBACK)

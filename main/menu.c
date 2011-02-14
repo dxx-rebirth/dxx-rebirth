@@ -1252,7 +1252,7 @@ void reticle_config()
 	PlayerCfg.ReticleSize = m[opt_ret_size].value;
 }
 
-int opt_gr_texfilt, opt_gr_movietexfilt, opt_gr_brightness, opt_gr_reticlemenu, opt_gr_alphafx, opt_gr_vsync, opt_gr_multisample;
+int opt_gr_texfilt, opt_gr_movietexfilt, opt_gr_brightness, opt_gr_reticlemenu, opt_gr_alphafx, opt_gr_vsync, opt_gr_multisample, opt_gr_fpsindi;
 int graphics_config_menuset(newmenu *menu, d_event *event, void *userdata)
 {
 	newmenu_item *items = newmenu_get_items(menu);
@@ -1293,10 +1293,10 @@ int graphics_config_menuset(newmenu *menu, d_event *event, void *userdata)
 void graphics_config()
 {
 #ifdef OGL
-	newmenu_item m[12];
+	newmenu_item m[13];
 	int i = 0;
 #else
-	newmenu_item m[2];
+	newmenu_item m[3];
 #endif
 	int nitems = 0;
 
@@ -1322,7 +1322,10 @@ void graphics_config()
 	m[nitems].type = NM_TYPE_CHECK; m[nitems].text="VSync"; m[nitems].value = GameCfg.VSync; nitems++;
 	opt_gr_multisample = nitems;
 	m[nitems].type = NM_TYPE_CHECK; m[nitems].text="4x multisampling"; m[nitems].value = GameCfg.Multisample; nitems++;
-
+#endif
+	opt_gr_fpsindi = nitems;
+	m[nitems].type = NM_TYPE_CHECK; m[nitems].text="FPS Counter"; m[nitems].value = GameCfg.FPSIndicator; nitems++;
+#ifdef OGL
 	m[opt_gr_texfilt+GameCfg.TexFilt].value=1;
 #endif
 
@@ -1341,6 +1344,7 @@ void graphics_config()
 	GameCfg.Multisample = m[opt_gr_multisample].value;
 #endif
 	GameCfg.GammaLevel = m[opt_gr_brightness].value;
+	GameCfg.FPSIndicator = m[opt_gr_fpsindi].value;
 #ifdef OGL
 	gr_set_attributes();
 	gr_set_mode(Game_screen_mode);

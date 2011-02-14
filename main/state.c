@@ -73,7 +73,7 @@ COPYRIGHT 1993-1999 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 #define STATE_COMPATIBLE_VERSION 20
 // 0 - Put DGSS (Descent Game State Save) id at tof.
 // 1 - Added Difficulty level save
-// 2 - Added Cheats_enabled flag
+// 2 - Added cheats.enabled flag
 // 3 - Added between levels save.
 // 4 - Added mission support
 // 5 - Mike changed ai and object structure.
@@ -88,7 +88,7 @@ COPYRIGHT 1993-1999 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 // 16- Save Light_subtracted
 // 17- New marker save
 // 18- Took out saving of old cheat status
-// 19- Saved cheats_enabled flag
+// 19- Saved cheats.enabled flag
 // 20- First_secret_visit
 // 22- Omega_charge
 
@@ -101,11 +101,7 @@ extern void apply_all_changed_light(void);
 
 extern int Do_appearance_effect;
 
-extern int Laser_rapid_fire;
 extern int Physics_cheat_flag;
-extern int Lunacy;
-extern void do_lunacy_on(void);
-extern void do_lunacy_off(void);
 
 int state_save_all_sub(char *filename, char *desc);
 int state_restore_all_sub(char *filename, int secret_restore);
@@ -956,7 +952,7 @@ int state_save_all_sub(char *filename, char *desc)
 	PHYSFS_write(fp, &Difficulty_level, sizeof(int), 1);
 
 // Save cheats enabled
-	PHYSFS_write(fp, &Cheats_enabled, sizeof(int), 1);
+	PHYSFS_write(fp, &cheats.enabled, sizeof(int), 1);
 
 //Finish all morph objects
 	for (i=0; i<=Highest_object_index; i++ )	{
@@ -1050,9 +1046,10 @@ int state_save_all_sub(char *filename, char *desc)
 	PHYSFS_write(fp, Automap_visited, sizeof(ubyte), MAX_SEGMENTS);
 
 	PHYSFS_write(fp, &state_game_id, sizeof(uint), 1);
-	PHYSFS_write(fp, &Laser_rapid_fire, sizeof(int), 1);
-	PHYSFS_write(fp, &Lunacy, sizeof(int), 1);  //  Yes, writing this twice.  Removed the Ugly robot system, but didn't want to change savegame format.
-	PHYSFS_write(fp, &Lunacy, sizeof(int), 1);
+	i = 0;
+	PHYSFS_write(fp, &cheats.rapidfire, sizeof(int), 1);
+	PHYSFS_write(fp, &i, sizeof(int), 1); // was Lunacy
+	PHYSFS_write(fp, &i, sizeof(int), 1); // was Lunacy, too... and one was Ugly robot stuff a long time ago...
 
 	// Save automap marker info
 
@@ -1374,7 +1371,7 @@ int state_restore_all_sub(char *filename, int secret_restore)
 
 // Restore the cheats enabled flag
 
-	Cheats_enabled = PHYSFSX_readSXE32(fp, swap);
+	cheats.enabled = PHYSFSX_readSXE32(fp, swap);
 
 	Do_appearance_effect = 0;			// Don't do this for middle o' game stuff.
 
@@ -1500,12 +1497,11 @@ int state_restore_all_sub(char *filename, int secret_restore)
 	state_game_id = 0;
 
 	if ( version >= 7 )	{
+		int stub;
 		state_game_id = PHYSFSX_readSXE32(fp, swap);
-		Laser_rapid_fire = PHYSFSX_readSXE32(fp, swap);
-		Lunacy = PHYSFSX_readSXE32(fp, swap);		//	Yes, writing this twice.  Removed the Ugly robot system, but didn't want to change savegame format.
-		Lunacy = PHYSFSX_readSXE32(fp, swap);
-		if ( Lunacy )
-			do_lunacy_on();
+		cheats.rapidfire = PHYSFSX_readSXE32(fp, swap);
+		stub = PHYSFSX_readSXE32(fp, swap); // was Lunacy
+		stub = PHYSFSX_readSXE32(fp, swap); // was Lunacy, too... and one was Ugly robot stuff a long time ago...
 	}
 
 	if (version >= 17) {

@@ -1280,10 +1280,6 @@ void automap_build_edge_list(automap *am)
 {	
 	int	i,e1,e2,s;
 	Edge_info * e;
-	int automap_cheat = 0;
-
-	if ( Players[Player_num].flags & PLAYER_FLAGS_MAP_ALL_CHEAT )
-		automap_cheat = 1;		// Damn cheaters...
 
 	// clear edge list
 	for (i=0; i<am->max_edges; i++) {
@@ -1293,7 +1289,7 @@ void automap_build_edge_list(automap *am)
 	am->num_edges = 0;
 	am->highest_edge_index = -1;
 
-	if (automap_cheat || (Players[Player_num].flags & PLAYER_FLAGS_MAP_ALL) )	{
+	if (cheats.fullautomap || (Players[Player_num].flags & PLAYER_FLAGS_MAP_ALL) )	{
 		// Cheating, add all edges as visited
 		for (s=0; s<=Highest_segment_index; s++)
 #ifdef EDITOR

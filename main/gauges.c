@@ -782,7 +782,7 @@ void hud_show_score_added()
 
 		color = color - (color % 4);
 
-		if (Cheats_enabled)
+		if (cheats.enabled)
 			sprintf(score_str, "%s", TXT_CHEATER);
 		else
 			sprintf(score_str, "%5d", score_display);
@@ -858,7 +858,7 @@ void sb_show_score_added()
 		if (color < 10) color = 10;
 		if (color > 31) color = 31;
 
-		if (Cheats_enabled)
+		if (cheats.enabled)
 			sprintf(score_str, "%s", TXT_CHEATER);
 		else
 			sprintf(score_str, "%5d", score_display);
@@ -1509,7 +1509,7 @@ void add_points_to_score(int points)
 	score_display += points;
 	if (score_time > f1_0*4) score_time = f1_0*4;
 
-	if (points == 0 || Cheats_enabled)
+	if (points == 0 || cheats.enabled)
 		return;
 
 	if ((Game_mode & GM_MULTI) && !(Game_mode & GM_MULTI_COOP))
@@ -1543,7 +1543,7 @@ void add_bonus_points_to_score(int points)
 {
 	int prev_score;
 
-	if (points == 0 || Cheats_enabled)
+	if (points == 0 || cheats.enabled)
 		return;
 
 	prev_score=Players[Player_num].score;

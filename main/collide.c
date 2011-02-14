@@ -143,8 +143,6 @@ int apply_damage_to_clutter(object *clutter, fix damage)
 		return 0;
 }
 
-char	Monster_mode = 0;		//	A cheat.  Do massive damage when collide.
-
 //given the specified force, apply damage from that force to an object
 void apply_force_damage(object *obj,fix force,object *other_obj)
 {
@@ -156,7 +154,7 @@ void apply_force_damage(object *obj,fix force,object *other_obj)
 
 	damage = fixdiv(force,obj->mtype.phys_info.mass) / 8;
 
-	if ((other_obj->type == OBJ_PLAYER) && Monster_mode)
+	if ((other_obj->type == OBJ_PLAYER) && cheats.monsterdamage)
 		damage = 0x7fffffff;
 
 	switch (obj->type) {
@@ -1315,7 +1313,6 @@ void do_final_boss_hacks(void)
 	Final_boss_is_dead = 1;
 }
 
-extern int Buddy_dude_cheat;
 extern int multi_all_players_alive();
 void multi_send_finish_game ();
 
@@ -1338,7 +1335,6 @@ int apply_damage_to_robot(object *robot, fix damage, int killer_objnum)
 	//	Buddy invulnerable on level 24 so he can give you his important messages.  Bah.
 	//	Also invulnerable if his cheat for firing weapons is in effect.
 	if (Robot_info[robot->id].companion) {
-//		if ((PLAYING_BUILTIN_MISSION && Current_level_num == Last_level) || Buddy_dude_cheat)
 #ifdef NETWORK
 		if (PLAYING_BUILTIN_MISSION && Current_level_num == Last_level)
 			return 0;
@@ -1553,8 +1549,6 @@ int do_boss_weapon_collision(object *robot, object *weapon, vms_vector *collisio
 	return damage_flag;
 }
 
-extern int Robots_kill_robots_cheat;
-
 //	------------------------------------------------------------------------------------------------------
 void collide_robot_and_weapon( object * robot, object * weapon, vms_vector *collision_point )
 {
@@ -1575,7 +1569,7 @@ void collide_robot_and_weapon( object * robot, object * weapon, vms_vector *coll
 
 	//	Put in at request of Jasen (and Adam) because the Buddy-Bot gets in their way.
 	//	MK has so much fun whacking his butt around the mine he never cared...
-	if ((Robot_info[robot->id].companion) && ((weapon->ctype.laser_info.parent_type != OBJ_ROBOT) && !Robots_kill_robots_cheat))
+	if ((Robot_info[robot->id].companion) && ((weapon->ctype.laser_info.parent_type != OBJ_ROBOT) && !cheats.robotskillrobots))
 		return;
 
 	if (weapon->id == EARTHSHAKER_ID)
@@ -1651,7 +1645,7 @@ void collide_robot_and_weapon( object * robot, object * weapon, vms_vector *coll
 			explode_badass_weapon(weapon,collision_point);
 	}
 
-	if ( ((weapon->ctype.laser_info.parent_type==OBJ_PLAYER) || Robots_kill_robots_cheat) && !(robot->flags & OF_EXPLODING) )	{
+	if ( ((weapon->ctype.laser_info.parent_type==OBJ_PLAYER) || cheats.robotskillrobots) && !(robot->flags & OF_EXPLODING) )	{
 		object *expl_obj=NULL;
 
 		if (weapon->ctype.laser_info.parent_num == Players[Player_num].objnum) {

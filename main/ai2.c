@@ -354,55 +354,6 @@ void init_ai_objects(void)
 	}
 }
 
-int	Lunacy = 0;
-int	Diff_save = 1;
-
-fix     Firing_wait_copy[MAX_ROBOT_TYPES];
-fix     Firing_wait2_copy[MAX_ROBOT_TYPES];
-sbyte   Rapidfire_count_copy[MAX_ROBOT_TYPES];
-
-void do_lunacy_on(void)
-{
-	int	i;
-
-	if (Lunacy)	//already on
-		return;
-
-	Lunacy = 1;
-
-	Diff_save = Difficulty_level;
-	Difficulty_level = NDL-1;
-
-	for (i=0; i<MAX_ROBOT_TYPES; i++) {
-		Firing_wait_copy[i] = Robot_info[i].firing_wait[NDL-1];
-		Firing_wait2_copy[i] = Robot_info[i].firing_wait2[NDL-1];
-		Rapidfire_count_copy[i] = Robot_info[i].rapidfire_count[NDL-1];
-
-		Robot_info[i].firing_wait[NDL-1] = Robot_info[i].firing_wait[1];
-		Robot_info[i].firing_wait2[NDL-1] = Robot_info[i].firing_wait2[1];
-		Robot_info[i].rapidfire_count[NDL-1] = Robot_info[i].rapidfire_count[1];
-	}
-
-}
-
-void do_lunacy_off(void)
-{
-	int	i;
-
-	if (!Lunacy)	//already off
-		return;
-
-	Lunacy = 0;
-
-	for (i=0; i<MAX_ROBOT_TYPES; i++) {
-		Robot_info[i].firing_wait[NDL-1] = Firing_wait_copy[i];
-		Robot_info[i].firing_wait2[NDL-1] = Firing_wait2_copy[i];
-		Robot_info[i].rapidfire_count[NDL-1] = Rapidfire_count_copy[i];
-	}
-
-	Difficulty_level = Diff_save;
-}
-
 //	----------------------------------------------------------------
 //	Do *dest = *delta unless:
 //				*delta is pretty small
@@ -794,7 +745,7 @@ void do_ai_robot_hit_attack(object *robot, object *playerobj, vms_vector *collis
 	robot_info *robptr = &Robot_info[robot->id];
 
 //#ifndef NDEBUG
-	if (!Robot_firing_enabled)
+	if (cheats.robotfiringsuspended)
 		return;
 //#endif
 
@@ -942,7 +893,7 @@ void ai_fire_laser_at_player(object *obj, vms_vector *fire_point, int gun_num, v
 	if (obj->ctype.ai_info.SUB_FLAGS & SUB_FLAGS_CAMERA_AWAKE)
 		return;
 
-	if (!Robot_firing_enabled)
+	if (cheats.robotfiringsuspended)
 		return;
 
 	if (obj->control_type == CT_MORPH)
