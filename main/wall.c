@@ -1256,7 +1256,7 @@ void do_cloaking_wall_frame(int cloaking_wall_num)
 	}
 
 	// check if the actual cloak_value changed in this frame to prevent redundant recordings and wasted bytes
-	if ( Newdemo_state == ND_STATE_RECORDING && wfront->cloak_value != old_cloak )
+	if ( Newdemo_state == ND_STATE_RECORDING && (wfront->cloak_value != old_cloak || d->time == FrameTime) )
 		newdemo_record_cloaking_wall(d->front_wallnum, d->back_wallnum, wfront->type, wfront->state, wfront->cloak_value, Segments[wfront->segnum].sides[wfront->sidenum].uvls[0].l, Segments[wfront->segnum].sides[wfront->sidenum].uvls[1].l, Segments[wfront->segnum].sides[wfront->sidenum].uvls[2].l, Segments[wfront->segnum].sides[wfront->sidenum].uvls[3].l);
 
 }
@@ -1319,7 +1319,7 @@ void do_decloaking_wall_frame(int cloaking_wall_num)
 	}
 
 	// check if the actual cloak_value changed in this frame to prevent redundant recordings and wasted bytes
-	if ( Newdemo_state == ND_STATE_RECORDING && wfront->cloak_value != old_cloak )
+	if ( Newdemo_state == ND_STATE_RECORDING && (wfront->cloak_value != old_cloak || d->time == FrameTime) )
 		newdemo_record_cloaking_wall(d->front_wallnum, d->back_wallnum, wfront->type, wfront->state, wfront->cloak_value, Segments[wfront->segnum].sides[wfront->sidenum].uvls[0].l, Segments[wfront->segnum].sides[wfront->sidenum].uvls[1].l, Segments[wfront->segnum].sides[wfront->sidenum].uvls[2].l, Segments[wfront->segnum].sides[wfront->sidenum].uvls[3].l);
 
 }

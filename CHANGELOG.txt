@@ -1,5 +1,9 @@
 D2X-Rebirth Changelog
 
+20110217
+--------
+main/wall.c: When recording cloaking or unclocking wall to demo, make sure the very first frame is recorded, too so wall will correctly transform back when rewinding the demo
+
 20110215
 --------
 main/gamecntl.c: Fixed PRShot feature which was accidentially broken while implementation of OpenGL ES support
