@@ -1219,9 +1219,9 @@ void ogl_start_frame(void){
 	glMatrixMode(GL_PROJECTION);
 	glLoadIdentity();//clear matrix
 #ifdef OGLES
-	perspective(90.0,1.0,1.0,5000.0);   
+	perspective(90.0,1.0,0.1,5000.0);   
 #else
-	gluPerspective(90.0,1.0,1.0,5000.0);
+	gluPerspective(90.0,1.0,0.1,5000.0);
 #endif
 	glMatrixMode(GL_MODELVIEW);
 	glLoadIdentity();//clear matrix
