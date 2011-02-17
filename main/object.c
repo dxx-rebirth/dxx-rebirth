@@ -34,7 +34,6 @@ COPYRIGHT 1993-1998 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 #include "textures.h"
 #include "byteswap.h"
 #include "cfile.h"
-
 #include "object.h"
 #include "physics.h"
 #include "slew.h"		
@@ -51,10 +50,8 @@ COPYRIGHT 1993-1998 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 #include "cntrlcen.h"
 #include "powerup.h"
 #include "fuelcen.h"
-
 #include "sounds.h"
 #include "collide.h"
-
 #include "lighting.h"
 #include "newdemo.h"
 #include "player.h"
@@ -67,10 +64,11 @@ COPYRIGHT 1993-1998 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 #include "text.h"
 #include "piggy.h"
 #include "robot.h"
-
 #include "gameseq.h"
 #include "playsave.h"
-
+#ifdef OGL
+#include "ogl_init.h"
+#endif
 #ifdef EDITOR
 #include "editor/editor.h"
 #endif
@@ -394,19 +392,20 @@ void draw_polygon_object(object *obj)
 			else
 				draw_cloaked_object(obj,light,&engine_glow_value, GameTime64-F1_0*10, GameTime64+F1_0*10,alt_textures);
 		} else {
-#ifdef OGL
-			if (obj->type == OBJ_WEAPON && (Weapon_info[obj->id].model_num_inner > -1 ))
-				Gr_scanline_darkening_level = 1;
-#endif
-			draw_polygon_model(&obj->pos,&obj->orient,obj->rtype.pobj_info.anim_angles,obj->rtype.pobj_info.model_num,obj->rtype.pobj_info.subobj_flags,light,&engine_glow_value,alt_textures);
-#ifdef OGL
-			Gr_scanline_darkening_level = GR_FADE_LEVELS;
-#endif
 			if (obj->type == OBJ_WEAPON && (Weapon_info[obj->id].model_num_inner > -1 )) {
 				fix dist_to_eye = vm_vec_dist_quick(&Viewer->pos, &obj->pos);
+#ifdef OGL
+				ogl_toggle_laser_blending(1);
+#endif
 				if (dist_to_eye < Simple_model_threshhold_scale * F1_0*2)
 					draw_polygon_model(&obj->pos,&obj->orient,obj->rtype.pobj_info.anim_angles,Weapon_info[obj->id].model_num_inner,obj->rtype.pobj_info.subobj_flags,light,&engine_glow_value,alt_textures);
 			}
+
+			draw_polygon_model(&obj->pos,&obj->orient,obj->rtype.pobj_info.anim_angles,obj->rtype.pobj_info.model_num,obj->rtype.pobj_info.subobj_flags,light,&engine_glow_value,alt_textures);
+#ifdef OGL
+			if (obj->type == OBJ_WEAPON && (Weapon_info[obj->id].model_num_inner > -1 ))
+				ogl_toggle_laser_blending(0);
+#endif
 		}
 	}
 

@@ -58,6 +58,9 @@ COPYRIGHT 1993-1998 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 #include "compbit.h"
 #include "songs.h"
 #include "titles.h"
+#ifdef OGL
+#include "ogl_init.h"
+#endif
 
 typedef struct flythrough_data {
 	object		*obj;
@@ -836,7 +839,7 @@ fix satellite_size = i2f(400);
 
 void render_external_scene(fix eye_offset)
 {
-
+	int orig_Render_depth = Render_depth;
 	Viewer_eye = Viewer->pos;
 
 	if (eye_offset)
@@ -878,7 +881,15 @@ void render_external_scene(fix eye_offset)
 	draw_polygon_model(&station_pos,&vmd_identity_matrix,NULL,station_modelnum,0,f1_0,NULL,NULL);
 	#endif
 
+#ifdef OGL
+	ogl_toggle_depth_test(0);
+#endif
+	Render_depth = (200-(vm_vec_dist_quick(&mine_ground_exit_point, &Viewer_eye)/F1_0))/36;
 	render_terrain(&mine_ground_exit_point,exit_point_bmx,exit_point_bmy);
+	Render_depth = orig_Render_depth;
+#ifdef OGL
+	ogl_toggle_depth_test(1);
+#endif
 
 	draw_exit_model();
 	if (ext_expl_playing)
