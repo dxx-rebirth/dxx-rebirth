@@ -3,6 +3,7 @@ D2X-Rebirth Changelog
 20110218
 --------
 arch/ogl/ogl.c, include/ogl_init.h, main/endlevel.c, main/object.c: Draw laser effects with special blending instead of disabled DepthMask; Added special blending for transparency effects as well to let them kick more ass; Corrections while rendering outside part of endlevel sequence with disabled depth testing and dynamically changing Render_depth to make the mine exit visible again while not rendering the exit tunnel tru the planet terrain
+arch/ogl/ogl.c: Set zNear for gluPerspective to 0.1 to prevent ugly clipping while passing illusory walls; Set zFar to 5000.0 to prevent disappearing automap in large distance - all still sane enough for Intel chips so my eeePC is safe nyahahaha
 
 20110217
 --------
