@@ -1,5 +1,9 @@
 D2X-Rebirth Changelog
 
+20110218
+--------
+arch/ogl/ogl.c, include/ogl_init.h, main/endlevel.c, main/object.c: Draw laser effects with special blending instead of disabled DepthMask; Added special blending for transparency effects as well to let them kick more ass; Corrections while rendering outside part of endlevel sequence with disabled depth testing and dynamically changing Render_depth to make the mine exit visible again while not rendering the exit tunnel tru the planet terrain
+
 20110217
 --------
 main/wall.c: When recording cloaking or unclocking wall to demo, make sure the very first frame is recorded, too so wall will correctly transform back when rewinding the demo

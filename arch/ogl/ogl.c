@@ -811,6 +811,28 @@ int gr_disk(fix x,fix y,fix r)
 	return 0;
 }
 
+/* 
+ * set/revert blending for laser rendering (intersecting polygons)
+ */
+void ogl_toggle_laser_blending(int enable)
+{
+	static GLint prev_sfactor = -1, prev_dfactor = -1;
+
+	if ( !enable && (prev_sfactor == -1 || prev_dfactor == -1) )
+		return;
+	if ( enable )
+	{
+		glGetIntegerv( GL_BLEND_SRC, &prev_sfactor );
+		glGetIntegerv(GL_BLEND_DST, &prev_dfactor );
+		glBlendFunc(GL_ONE,GL_ONE);
+	}
+	else
+	{
+		glBlendFunc(prev_sfactor,prev_dfactor);
+		prev_sfactor = prev_dfactor = -1;
+	}
+}
+
 /*
  * Draw flat-shaded Polygon (Lasers, Drone-arms, Driller-ears)
  */
@@ -830,12 +852,10 @@ bool g3_draw_poly(int nv,g3s_point **pointlist)
 	color_g = PAL2Tg(c);
 	color_b = PAL2Tb(c);
 
-	if (Gr_scanline_darkening_level >= GR_FADE_LEVELS) {
+	if (Gr_scanline_darkening_level >= GR_FADE_LEVELS)
 		color_a = 1.0;
-	} else {
-		glDepthMask(GL_FALSE);
+	else
 		color_a = 1.0 - (float)Gr_scanline_darkening_level / ((float)GR_FADE_LEVELS - 1.0);
-	}
 
 	for (c=0; c<nv; c++){
 		index3 = c * 3;
@@ -854,7 +874,7 @@ bool g3_draw_poly(int nv,g3s_point **pointlist)
 	glDrawArrays(GL_TRIANGLE_FAN, 0, nv);
 	glDisableClientState(GL_VERTEX_ARRAY);
 	glDisableClientState(GL_COLOR_ARRAY);
-	glDepthMask(GL_TRUE);
+		
 	return 0;
 }
 
@@ -1005,6 +1025,10 @@ bool g3_draw_bitmap(vms_vector *pos,fix width,fix height,grs_bitmap *bm, object 
 	int i;
 	float color_a;
 	GLfloat vertex_array[12], color_array[16], texcoord_array[8];
+	GLint prev_sfactor, prev_dfactor;
+
+	glGetIntegerv( GL_BLEND_SRC, &prev_sfactor );
+	glGetIntegerv(GL_BLEND_DST, &prev_dfactor );
 
 	r_bitmapc++;
 	v1.z=0;
@@ -1027,7 +1051,10 @@ bool g3_draw_bitmap(vms_vector *pos,fix width,fix height,grs_bitmap *bm, object 
 		obj->id==POW_CLOAK || // cloak
 		obj->id==POW_INVULNERABILITY || // invulnerability
 		obj->id==POW_HOARD_ORB)) // Hoard Orb
-		color_a = 0.6; // ... with 0.6 alpha
+	{
+		color_a = 0.7; // ... with 0.7 alpha
+		glBlendFunc( GL_SRC_ALPHA, GL_ONE ); // and special blending to keep intensity as well as nice ... blending - yeah
+	}
 	else
 		color_a = 1.0;
 
@@ -1082,6 +1109,7 @@ bool g3_draw_bitmap(vms_vector *pos,fix width,fix height,grs_bitmap *bm, object 
 	glDisableClientState(GL_VERTEX_ARRAY);
 	glDisableClientState(GL_COLOR_ARRAY);
 	glDisableClientState(GL_TEXTURE_COORD_ARRAY);
+	glBlendFunc(prev_sfactor,prev_dfactor);
 
 	return 0;
 }
@@ -1159,6 +1187,14 @@ bool ogl_ubitblt(int w,int h,int dx,int dy, int sx, int sy, grs_bitmap * src, gr
 	return ogl_ubitblt_i(w,h,dx,dy,w,h,sx,sy,src,dest,0);
 }
 
+void ogl_toggle_depth_test(int enable)
+{
+	if (enable)
+		glEnable(GL_DEPTH_TEST);
+	else
+		glDisable(GL_DEPTH_TEST);
+}
+
 GLubyte *pixels = NULL;
 
 void ogl_start_frame(void){
@@ -1184,9 +1220,9 @@ void ogl_start_frame(void){
 	glMatrixMode(GL_PROJECTION);
 	glLoadIdentity();//clear matrix
 #ifdef OGLES
-	perspective(90.0,1.0,1.0,1000.0);   
+	perspective(90.0,1.0,1.0,5000.0);   
 #else
-	gluPerspective(90.0,1.0,1.0,1000.0);
+	gluPerspective(90.0,1.0,1.0,5000.0);
 #endif
 	glMatrixMode(GL_MODELVIEW);
 	glLoadIdentity();//clear matrix
