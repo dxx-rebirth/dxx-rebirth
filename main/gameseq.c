@@ -781,6 +781,10 @@ void LoadLevel(int level_num,int page_in_textures)
 	if (load_ret)
 		Error("Couldn't load level file <%s>, error = %d",level_name,load_ret);
 
+	// re-read default HAM file, in case this mission brings it's own version of it
+	free_polygon_models();
+	read_hamfile();
+
 	Current_level_num=level_num;
 
 	load_palette(Current_level_palette,1,1);		//don't change screen
