@@ -260,11 +260,20 @@ int string_array_add(char ***list, char **list_buf, int *num_str, int *max_str, 
 	
 	if (next_str + strlen(str) + 1 - *list_buf >= *max_buf)
 	{
-		char *new_buf = d_realloc(*list_buf, *max_buf*sizeof(char)*MEM_K);
+		int i;
+		char *new_buf;
+		
+		new_buf = d_realloc(*list_buf, *max_buf*sizeof(char)*MEM_K);
 		if (new_buf == NULL)
 			return 0;
+
+		// Update all the pointers in the pointer list
+		for (i = 0; i < *num_str; i++)
+			(*list)[i] += (new_buf - *list_buf);
+
 		*max_buf *= MEM_K;
 		*list_buf = new_buf;
+		next_str = *num_str ? (*list)[*num_str - 1] + strlen((*list)[*num_str - 1]) + 1 : *list_buf;
 	}
 	
 	strcpy(next_str, str);
@@ -291,13 +300,14 @@ void string_array_tidy(char ***list, char **list_buf, int *num_str, int *max_str
 		*max_str = *num_str;
 	}
 	
-	temp_buf = d_realloc(*list_buf, (j = *num_str ? (*list)[*num_str - 1] + strlen((*list)[*num_str - 1]) + 1 - *list_buf : 1));
+	j = *num_str ? (*list)[*num_str - 1] + strlen((*list)[*num_str - 1]) + 1 - *list_buf : 1;	// buffer size - a bit of variable recycling
+	temp_buf = d_realloc(*list_buf, j);
 	if (temp_buf)
 	{
 		for (i = 0; i < *num_str; i++)
 			(*list)[i] += (temp_buf - *list_buf);
 		*list_buf = temp_buf;
-		*max_buf = j;	// set to buffer size used - a bit of variable recycling here
+		*max_buf = j;	// set to buffer size used
 	}
 	
 	// Sort by name, starting at offset

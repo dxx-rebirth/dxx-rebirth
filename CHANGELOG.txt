@@ -1,5 +1,9 @@
 D1X-Rebirth Changelog
 
+20110221
+--------
+misc/strutil.c: Fix a critical bug in string_array_add - when d_reallocing the buffer containing the string data, update all the pointers in '*list' as well as next_str, preventing ugly crashes
+
 20110218
 --------
 arch/ogl/ogl.c, include/ogl_init.h, main/endlevel.c, main/object.c: Draw laser effects with special blending instead of disabled DepthMask; Added special blending for transparency effects as well to let them kick more ass; Corrections while rendering outside part of endlevel sequence with disabled depth testing and dynamically changing Render_depth to make the mine exit visible again while not rendering the exit tunnel tru the planet terrain
