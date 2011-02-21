@@ -1,5 +1,9 @@
 D2X-Rebirth Changelog
 
+20110221
+--------
+misc/strutil.c: Fix a critical bug in string_array_add - when d_reallocing the buffer containing the string data, update all the pointers in '*list' as well as next_str, preventing ugly crashes
+
 20110219
 --------
 main/gameseq.c: Added another call for read_hamfile right after a level loads in case a third party mission brings it's own version of the main game HAM file

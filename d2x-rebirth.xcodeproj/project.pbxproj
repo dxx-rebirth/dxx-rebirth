@@ -113,7 +113,6 @@
 		676AC21F0668A938007173EB /* console.c in Sources */ = {isa = PBXBuildFile; fileRef = 67B446E206687CF400DF26D8 /* console.c */; };
 		676AC2200668A938007173EB /* controls.c in Sources */ = {isa = PBXBuildFile; fileRef = 67B446E306687CF400DF26D8 /* controls.c */; };
 		676AC2210668A938007173EB /* credits.c in Sources */ = {isa = PBXBuildFile; fileRef = 67B446E506687CF400DF26D8 /* credits.c */; };
-		676AC2220668A938007173EB /* crypt.c in Sources */ = {isa = PBXBuildFile; fileRef = 67B446E706687CF400DF26D8 /* crypt.c */; };
 		676AC2230668A938007173EB /* effects.c in Sources */ = {isa = PBXBuildFile; fileRef = 67B446F706687CF400DF26D8 /* effects.c */; };
 		676AC2240668A938007173EB /* endlevel.c in Sources */ = {isa = PBXBuildFile; fileRef = 67B446F906687CF400DF26D8 /* endlevel.c */; };
 		676AC2250668A938007173EB /* escort.c in Sources */ = {isa = PBXBuildFile; fileRef = 67B446FB06687CF400DF26D8 /* escort.c */; };
@@ -271,7 +270,6 @@
 		676AC2D60668A939007173EB /* console.c in Sources */ = {isa = PBXBuildFile; fileRef = 67B446E206687CF400DF26D8 /* console.c */; };
 		676AC2D70668A939007173EB /* controls.c in Sources */ = {isa = PBXBuildFile; fileRef = 67B446E306687CF400DF26D8 /* controls.c */; };
 		676AC2D80668A939007173EB /* credits.c in Sources */ = {isa = PBXBuildFile; fileRef = 67B446E506687CF400DF26D8 /* credits.c */; };
-		676AC2D90668A939007173EB /* crypt.c in Sources */ = {isa = PBXBuildFile; fileRef = 67B446E706687CF400DF26D8 /* crypt.c */; };
 		676AC2DA0668A939007173EB /* effects.c in Sources */ = {isa = PBXBuildFile; fileRef = 67B446F706687CF400DF26D8 /* effects.c */; };
 		676AC2DB0668A939007173EB /* endlevel.c in Sources */ = {isa = PBXBuildFile; fileRef = 67B446F906687CF400DF26D8 /* endlevel.c */; };
 		676AC2DC0668A939007173EB /* escort.c in Sources */ = {isa = PBXBuildFile; fileRef = 67B446FB06687CF400DF26D8 /* escort.c */; };
@@ -558,7 +556,6 @@
 		67B446E206687CF400DF26D8 /* console.c */ = {isa = PBXFileReference; fileEncoding = 30; lastKnownFileType = sourcecode.c.c; path = console.c; sourceTree = "<group>"; };
 		67B446E306687CF400DF26D8 /* controls.c */ = {isa = PBXFileReference; fileEncoding = 30; lastKnownFileType = sourcecode.c.c; path = controls.c; sourceTree = "<group>"; };
 		67B446E506687CF400DF26D8 /* credits.c */ = {isa = PBXFileReference; fileEncoding = 30; lastKnownFileType = sourcecode.c.c; path = credits.c; sourceTree = "<group>"; };
-		67B446E706687CF400DF26D8 /* crypt.c */ = {isa = PBXFileReference; fileEncoding = 30; lastKnownFileType = sourcecode.c.c; path = crypt.c; sourceTree = "<group>"; };
 		67B446F706687CF400DF26D8 /* effects.c */ = {isa = PBXFileReference; fileEncoding = 30; lastKnownFileType = sourcecode.c.c; path = effects.c; sourceTree = "<group>"; };
 		67B446F906687CF400DF26D8 /* endlevel.c */ = {isa = PBXFileReference; fileEncoding = 30; lastKnownFileType = sourcecode.c.c; path = endlevel.c; sourceTree = "<group>"; };
 		67B446FB06687CF400DF26D8 /* escort.c */ = {isa = PBXFileReference; fileEncoding = 30; lastKnownFileType = sourcecode.c.c; path = escort.c; sourceTree = "<group>"; };
@@ -1147,7 +1144,6 @@
 				67B446E206687CF400DF26D8 /* console.c */,
 				67B446E306687CF400DF26D8 /* controls.c */,
 				67B446E506687CF400DF26D8 /* credits.c */,
-				67B446E706687CF400DF26D8 /* crypt.c */,
 				EBAFC28F088E67CD006329AD /* digiobj.c */,
 				EBC652020890D632004FCAA3 /* dumpmine.c */,
 				67B446F706687CF400DF26D8 /* effects.c */,
@@ -1810,7 +1806,6 @@
 				676AC21F0668A938007173EB /* console.c in Sources */,
 				676AC2200668A938007173EB /* controls.c in Sources */,
 				676AC2210668A938007173EB /* credits.c in Sources */,
-				676AC2220668A938007173EB /* crypt.c in Sources */,
 				EBAFC290088E67CD006329AD /* digiobj.c in Sources */,
 				676AC2230668A938007173EB /* effects.c in Sources */,
 				676AC2240668A938007173EB /* endlevel.c in Sources */,
@@ -2014,7 +2009,6 @@
 				676AC2D60668A939007173EB /* console.c in Sources */,
 				676AC2D70668A939007173EB /* controls.c in Sources */,
 				676AC2D80668A939007173EB /* credits.c in Sources */,
-				676AC2D90668A939007173EB /* crypt.c in Sources */,
 				676AC2DA0668A939007173EB /* effects.c in Sources */,
 				676AC2DB0668A939007173EB /* endlevel.c in Sources */,
 				676AC2DC0668A939007173EB /* escort.c in Sources */,
