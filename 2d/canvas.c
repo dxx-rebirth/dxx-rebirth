@@ -36,6 +36,8 @@ grs_canvas *gr_create_canvas(int w, int h)
 	gr_init_bitmap_alloc (&new->cv_bitmap, BM_LINEAR, 0, 0, w, h, w);
 
 	new->cv_color = 0;
+	new->cv_fade_level = GR_FADE_OFF;
+	new->cv_blend_func = GR_BLEND_NORMAL;
 	new->cv_drawmode = 0;
 	new->cv_font = NULL;
 	new->cv_font_fg_color = 0;
@@ -51,6 +53,8 @@ grs_canvas *gr_create_sub_canvas(grs_canvas *canv, int x, int y, int w, int h)
 	gr_init_sub_bitmap (&new->cv_bitmap, &canv->cv_bitmap, x, y, w, h);
 
 	new->cv_color = canv->cv_color;
+	new->cv_fade_level = canv->cv_fade_level;
+	new->cv_blend_func = canv->cv_blend_func;
 	new->cv_drawmode = canv->cv_drawmode;
 	new->cv_font = canv->cv_font;
 	new->cv_font_fg_color = canv->cv_font_fg_color;
@@ -62,6 +66,8 @@ void gr_init_canvas(grs_canvas *canv, unsigned char * pixdata, int pixtype, int 
 {
 	int wreal;
 	canv->cv_color = 0;
+	canv->cv_fade_level = GR_FADE_OFF;
+	canv->cv_blend_func = GR_BLEND_NORMAL;
 	canv->cv_drawmode = 0;
 	canv->cv_font = NULL;
 	canv->cv_font_fg_color = 0;
@@ -73,6 +79,8 @@ void gr_init_canvas(grs_canvas *canv, unsigned char * pixdata, int pixtype, int 
 void gr_init_sub_canvas(grs_canvas *new, grs_canvas *src, int x, int y, int w, int h)
 {
 	new->cv_color = src->cv_color;
+	new->cv_fade_level = src->cv_fade_level;
+	new->cv_blend_func = src->cv_blend_func;
 	new->cv_drawmode = src->cv_drawmode;
 	new->cv_font = src->cv_font;
 	new->cv_font_fg_color = src->cv_font_fg_color;
