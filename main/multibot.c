@@ -1002,10 +1002,10 @@ multi_do_boss_actions(char *buf)
 			}
 			break;
 		case 4: // Start effect
-			restart_effect(BOSS_ECLIP_NUM);
+			restart_effect(ECLIP_NUM_BOSS);
 			break;
 		case 5:	// Stop effect
-			stop_effect(BOSS_ECLIP_NUM);
+			stop_effect(ECLIP_NUM_BOSS);
 			break;
 		default:
 			Int3(); // Illegal type to boss actions

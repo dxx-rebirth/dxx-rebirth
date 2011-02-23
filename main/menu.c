@@ -1274,7 +1274,7 @@ void graphics_config()
 	m[nitems].type = NM_TYPE_MENU; m[nitems].text = "Reticle Options"; nitems++;
 #ifdef OGL
 	opt_gr_alphafx = nitems;
-	m[nitems].type = NM_TYPE_CHECK; m[nitems].text = "Transparency Effects"; m[nitems].value = PlayerCfg.OglAlphaEffects; nitems++;
+	m[nitems].type = NM_TYPE_CHECK; m[nitems].text = "Transparency Effects"; m[nitems].value = PlayerCfg.AlphaEffects; nitems++;
 	opt_gr_vsync = nitems;
 	m[nitems].type = NM_TYPE_CHECK; m[nitems].text="VSync"; m[nitems].value = GameCfg.VSync; nitems++;
 	opt_gr_multisample = nitems;
@@ -1295,7 +1295,7 @@ void graphics_config()
 	for (i = 0; i <= 3; i++)
 		if (m[i+opt_gr_texfilt].value)
 			GameCfg.TexFilt = i;
-	PlayerCfg.OglAlphaEffects = m[opt_gr_alphafx].value;
+	PlayerCfg.AlphaEffects = m[opt_gr_alphafx].value;
 	GameCfg.VSync = m[opt_gr_vsync].value;
 	GameCfg.Multisample = m[opt_gr_multisample].value;
 #endif

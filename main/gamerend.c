@@ -128,10 +128,10 @@ void show_netplayerinfo()
 	x=(SWIDTH/2)-FSPACX(120);
 	y=(SHEIGHT/2)-FSPACY(84);
 	
-	Gr_scanline_darkening_level = 2*7;
+	gr_settransblend(14, GR_BLEND_NORMAL);
 	gr_setcolor( BM_XRGB(0,0,0) );
 	gr_rect((SWIDTH/2)-FSPACX(120),(SHEIGHT/2)-FSPACY(84),(SWIDTH/2)+FSPACX(120),(SHEIGHT/2)+FSPACY(84));
-	Gr_scanline_darkening_level = GR_FADE_LEVELS;
+	gr_settransblend(GR_FADE_OFF, GR_BLEND_NORMAL);
 	
 	// general game information
 	y+=LINE_SPACING;

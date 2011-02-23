@@ -1607,9 +1607,9 @@ void draw_player_ship(int cloak_state,int x, int y)
 
 	gr_set_current_canvas(NULL);
 	hud_bitblt( HUD_SCALE_X(x), HUD_SCALE_Y(y), bm);
-	Gr_scanline_darkening_level = cloak_fade_value;
+	gr_settransblend(cloak_fade_value, GR_BLEND_NORMAL);
 	gr_rect(HUD_SCALE_X(x-3), HUD_SCALE_Y(y-3), HUD_SCALE_X(x+bm->bm_w+3), HUD_SCALE_Y(y+bm->bm_h+3));
-	Gr_scanline_darkening_level = GR_FADE_LEVELS;
+	gr_settransblend(GR_FADE_OFF, GR_BLEND_NORMAL);
 	gr_set_current_canvas( NULL );
 }
 
@@ -1835,10 +1835,10 @@ void draw_weapon_box(int weapon_type,int weapon_num)
 		int fade_value = f2i(weapon_box_fade_values[weapon_type]);
 		int boxofs = (PlayerCfg.CockpitMode[1]==CM_STATUS_BAR)?SB_PRIMARY_BOX:COCKPIT_PRIMARY_BOX;
 
-		Gr_scanline_darkening_level = fade_value;
+		gr_settransblend(fade_value, GR_BLEND_NORMAL);
 		gr_rect(HUD_SCALE_X(gauge_boxes[boxofs+weapon_type].left),HUD_SCALE_Y(gauge_boxes[boxofs+weapon_type].top),HUD_SCALE_X(gauge_boxes[boxofs+weapon_type].right),HUD_SCALE_Y(gauge_boxes[boxofs+weapon_type].bot));
 
-		Gr_scanline_darkening_level = GR_FADE_LEVELS;
+		gr_settransblend(GR_FADE_OFF, GR_BLEND_NORMAL);
 	}
 
 	gr_set_current_canvas(NULL);
@@ -2025,7 +2025,7 @@ void show_reticle(int reticle_type, int secondary_display)
 	Assert(cross_bm_num <= 1);
 
 	gr_setcolor(BM_XRGB(PlayerCfg.ReticleRGBA[0],PlayerCfg.ReticleRGBA[1],PlayerCfg.ReticleRGBA[2]));
-	Gr_scanline_darkening_level = PlayerCfg.ReticleRGBA[3];
+	gr_settransblend(PlayerCfg.ReticleRGBA[3], GR_BLEND_NORMAL);
 
 	switch (reticle_type)
 	{
@@ -2124,7 +2124,7 @@ void show_reticle(int reticle_type, int secondary_display)
 		default:
 			break;
 	}
-	Gr_scanline_darkening_level = GR_FADE_LEVELS;
+	gr_settransblend(GR_FADE_OFF, GR_BLEND_NORMAL);
 }
 
 void show_mousefs_indicator(int mx, int my, int mz, int x, int y, int size)
@@ -2132,13 +2132,13 @@ void show_mousefs_indicator(int mx, int my, int mz, int x, int y, int size)
 	int axscale = (MOUSEFS_DELTA_RANGE*2)/size, xaxpos = x+(mx/axscale), yaxpos = y+(my/axscale), zaxpos = y+(mz/axscale);
 
 	gr_setcolor(BM_XRGB(PlayerCfg.ReticleRGBA[0],PlayerCfg.ReticleRGBA[1],PlayerCfg.ReticleRGBA[2]));
-	Gr_scanline_darkening_level = PlayerCfg.ReticleRGBA[3];
+	gr_settransblend(PlayerCfg.ReticleRGBA[3], GR_BLEND_NORMAL);
 	gr_uline(i2f(xaxpos), i2f(y-(size/2)), i2f(xaxpos), i2f(y-(size/4)));
 	gr_uline(i2f(xaxpos), i2f(y+(size/2)), i2f(xaxpos), i2f(y+(size/4)));
 	gr_uline(i2f(x-(size/2)), i2f(yaxpos), i2f(x-(size/4)), i2f(yaxpos));
 	gr_uline(i2f(x+(size/2)), i2f(yaxpos), i2f(x+(size/4)), i2f(yaxpos));
 	gr_uline(i2f(x+(size/2)+HUD_SCALE_X_AR(2)), i2f(y), i2f(x+(size/2)+HUD_SCALE_X_AR(2)), i2f(zaxpos));
-	Gr_scanline_darkening_level = GR_FADE_LEVELS;
+	gr_settransblend(GR_FADE_OFF, GR_BLEND_NORMAL);
 }
 
 #ifdef NETWORK

@@ -491,6 +491,8 @@ int gr_init(int mode)
 		return retcode;
 
 	grd_curscreen->sc_canvas.cv_color = 0;
+	grd_curscreen->sc_canvas.cv_fade_level = GR_FADE_OFF;
+	grd_curscreen->sc_canvas.cv_blend_func = GR_BLEND_NORMAL;
 	grd_curscreen->sc_canvas.cv_drawmode = 0;
 	grd_curscreen->sc_canvas.cv_font = NULL;
 	grd_curscreen->sc_canvas.cv_font_fg_color = 0;
@@ -565,10 +567,10 @@ void ogl_urect(int left,int top,int right,int bot)
 	color_g = CPAL2Tg(c);
 	color_b = CPAL2Tb(c);
 
-	if (Gr_scanline_darkening_level >= GR_FADE_LEVELS)
+	if (grd_curcanv->cv_fade_level >= GR_FADE_OFF)
 		color_a = 1.0;
 	else
-		color_a = 1.0 - (float)Gr_scanline_darkening_level / ((float)GR_FADE_LEVELS - 1.0);
+		color_a = 1.0 - (float)grd_curcanv->cv_fade_level / ((float)GR_FADE_LEVELS - 1.0);
 
 	color_array[0] = color_array[4] = color_array[8] = color_array[12] = color_r;
 	color_array[1] = color_array[5] = color_array[9] = color_array[13] = color_g;
@@ -593,7 +595,7 @@ void ogl_urect(int left,int top,int right,int bot)
 void ogl_ulinec(int left,int top,int right,int bot,int c)
 {
 	GLfloat xo,yo,xf,yf;
-	GLfloat color_array[] = { CPAL2Tr(c), CPAL2Tg(c), CPAL2Tb(c), (Gr_scanline_darkening_level >= GR_FADE_LEVELS)?1.0:1.0 - (float)Gr_scanline_darkening_level / ((float)GR_FADE_LEVELS - 1.0), CPAL2Tr(c), CPAL2Tg(c), CPAL2Tb(c), (Gr_scanline_darkening_level >= GR_FADE_LEVELS)?1.0:1.0 - (float)Gr_scanline_darkening_level / ((float)GR_FADE_LEVELS - 1.0), CPAL2Tr(c), CPAL2Tg(c), CPAL2Tb(c), 1.0, CPAL2Tr(c), CPAL2Tg(c), CPAL2Tb(c), (Gr_scanline_darkening_level >= GR_FADE_LEVELS)?1.0:1.0 - (float)Gr_scanline_darkening_level / ((float)GR_FADE_LEVELS - 1.0) };
+	GLfloat color_array[] = { CPAL2Tr(c), CPAL2Tg(c), CPAL2Tb(c), (grd_curcanv->cv_fade_level >= GR_FADE_OFF)?1.0:1.0 - (float)grd_curcanv->cv_fade_level / ((float)GR_FADE_LEVELS - 1.0), CPAL2Tr(c), CPAL2Tg(c), CPAL2Tb(c), (grd_curcanv->cv_fade_level >= GR_FADE_OFF)?1.0:1.0 - (float)grd_curcanv->cv_fade_level / ((float)GR_FADE_LEVELS - 1.0), CPAL2Tr(c), CPAL2Tg(c), CPAL2Tb(c), 1.0, CPAL2Tr(c), CPAL2Tg(c), CPAL2Tb(c), (grd_curcanv->cv_fade_level >= GR_FADE_OFF)?1.0:1.0 - (float)grd_curcanv->cv_fade_level / ((float)GR_FADE_LEVELS - 1.0) };
 	GLfloat vertex_array[] = { 0.0, 0.0, 0.0, 0.0 };
 
 	glEnableClientState(GL_VERTEX_ARRAY);

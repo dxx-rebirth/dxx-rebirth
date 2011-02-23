@@ -774,7 +774,7 @@ int gr_ucircle(fix xc1, fix yc1, fix r1)
 	int c, nsides;
 	c=grd_curcanv->cv_color;
 	OGL_DISABLE(TEXTURE_2D);
-	glColor4f(CPAL2Tr(c),CPAL2Tg(c),CPAL2Tb(c),(Gr_scanline_darkening_level >= GR_FADE_LEVELS)?1.0:1.0 - (float)Gr_scanline_darkening_level / ((float)GR_FADE_LEVELS - 1.0));
+	glColor4f(CPAL2Tr(c),CPAL2Tg(c),CPAL2Tb(c),(grd_curcanv->cv_fade_level >= GR_FADE_OFF)?1.0:1.0 - (float)grd_curcanv->cv_fade_level / ((float)GR_FADE_LEVELS - 1.0));
 	glPushMatrix();
 	glTranslatef(
 	             (f2fl(xc1) + grd_curcanv->cv_bitmap.bm_x + 0.5) / (float)last_width,
@@ -797,7 +797,7 @@ int gr_disk(fix x,fix y,fix r)
 	int c, nsides;
 	c=grd_curcanv->cv_color;
 	OGL_DISABLE(TEXTURE_2D);
-	glColor4f(CPAL2Tr(c),CPAL2Tg(c),CPAL2Tb(c),(Gr_scanline_darkening_level >= GR_FADE_LEVELS)?1.0:1.0 - (float)Gr_scanline_darkening_level / ((float)GR_FADE_LEVELS - 1.0));
+	glColor4f(CPAL2Tr(c),CPAL2Tg(c),CPAL2Tb(c),(grd_curcanv->cv_fade_level >= GR_FADE_OFF)?1.0:1.0 - (float)grd_curcanv->cv_fade_level / ((float)GR_FADE_LEVELS - 1.0));
 	glPushMatrix();
 	glTranslatef(
 	             (f2fl(x) + grd_curcanv->cv_bitmap.bm_x + 0.5) / (float)last_width,
@@ -809,28 +809,6 @@ int gr_disk(fix x,fix y,fix r)
 	ogl_drawcircle(nsides, GL_TRIANGLE_FAN, disk_va);
 	glPopMatrix();
 	return 0;
-}
-
-/* 
- * set/revert blending for laser rendering (intersecting polygons)
- */
-void ogl_toggle_laser_blending(int enable)
-{
-	static GLint prev_sfactor = -1, prev_dfactor = -1;
-
-	if ( !enable && (prev_sfactor == -1 || prev_dfactor == -1) )
-		return;
-	if ( enable )
-	{
-		glGetIntegerv( GL_BLEND_SRC, &prev_sfactor );
-		glGetIntegerv(GL_BLEND_DST, &prev_dfactor );
-		glBlendFunc(GL_ONE,GL_ONE);
-	}
-	else
-	{
-		glBlendFunc(prev_sfactor,prev_dfactor);
-		prev_sfactor = prev_dfactor = -1;
-	}
 }
 
 /*
@@ -852,10 +830,10 @@ bool g3_draw_poly(int nv,g3s_point **pointlist)
 	color_g = PAL2Tg(c);
 	color_b = PAL2Tb(c);
 
-	if (Gr_scanline_darkening_level >= GR_FADE_LEVELS)
+	if (grd_curcanv->cv_fade_level >= GR_FADE_OFF)
 		color_a = 1.0;
 	else
-		color_a = 1.0 - (float)Gr_scanline_darkening_level / ((float)GR_FADE_LEVELS - 1.0);
+		color_a = 1.0 - (float)grd_curcanv->cv_fade_level / ((float)GR_FADE_LEVELS - 1.0);
 
 	for (c=0; c<nv; c++){
 		index3 = c * 3;
@@ -908,10 +886,11 @@ bool g3_draw_tmap(int nv,g3s_point **pointlist,g3s_uvl *uvl_list,grs_bitmap *bm)
 		ogl_bindbmtex(bm);
 		ogl_texwrap(bm->gltexture, GL_REPEAT);
 		r_tpolyc++;
+		color_alpha = (grd_curcanv->cv_fade_level >= GR_FADE_OFF)?1.0:(1.0 - (float)grd_curcanv->cv_fade_level / ((float)GR_FADE_LEVELS - 1.0));
 	} else if (tmap_drawer_ptr == draw_tmap_flat) {
 		OGL_DISABLE(TEXTURE_2D);
 		/* for cloaked state faces */
-		color_alpha = 1.0 - (Gr_scanline_darkening_level/(GLfloat)NUM_LIGHTING_LEVELS);
+		color_alpha = 1.0 - (grd_curcanv->cv_fade_level/(GLfloat)NUM_LIGHTING_LEVELS);
 	} else {
 		glmprintf((0,"g3_draw_tmap: unhandled tmap_drawer %p\n",tmap_drawer_ptr));
 		return 0;
@@ -998,7 +977,7 @@ bool g3_draw_tmap_2(int nv, g3s_point **pointlist, g3s_uvl *uvl_list, grs_bitmap
 		color_array[index4]      = bm->bm_flags & BM_FLAG_NO_LIGHTING ? 1.0 : f2glf(uvl_list[c].l);
 		color_array[index4+1]    = color_array[c*4];
 		color_array[index4+2]    = color_array[c*4];
-		color_array[index4+3]    = 1.0;
+		color_array[index4+3]    = (grd_curcanv->cv_fade_level >= GR_FADE_OFF)?1.0:(1.0 - (float)grd_curcanv->cv_fade_level / ((float)GR_FADE_LEVELS - 1.0));
 		
 		vertex_array[index3]     = f2glf(pointlist[c]->p3_vec.x);
 		vertex_array[index3+1]   = f2glf(pointlist[c]->p3_vec.y);
@@ -1019,17 +998,12 @@ bool g3_draw_tmap_2(int nv, g3s_point **pointlist, g3s_uvl *uvl_list, grs_bitmap
 /*
  * 2d Sprites (Fireaballs, powerups, explosions). NOT hostages
  */
-bool g3_draw_bitmap(vms_vector *pos,fix width,fix height,grs_bitmap *bm, object *obj)
+bool g3_draw_bitmap(vms_vector *pos,fix width,fix height,grs_bitmap *bm)
 {
 	vms_vector pv,v1;
 	int i;
-	float color_a;
 	GLfloat vertex_array[12], color_array[16], texcoord_array[8];
-	GLint prev_sfactor, prev_dfactor;
 
-	glGetIntegerv( GL_BLEND_SRC, &prev_sfactor );
-	glGetIntegerv(GL_BLEND_DST, &prev_dfactor );
-	
 	r_bitmapc++;
 	v1.z=0;
 	
@@ -1040,22 +1014,6 @@ bool g3_draw_bitmap(vms_vector *pos,fix width,fix height,grs_bitmap *bm, object 
 	OGL_ENABLE(TEXTURE_2D);
 	ogl_bindbmtex(bm);
 	ogl_texwrap(bm->gltexture,GL_CLAMP_TO_EDGE);
-
-	// Define alpha by looking for object TYPE or ID. We do this here so we have it seperated from the rest of the code.
-	if (PlayerCfg.OglAlphaEffects && // if -gl_transparency draw following bitmaps
-		(obj->type==OBJ_FIREBALL || // all types of explosions and energy-effects
-		(obj->type==OBJ_WEAPON && (obj->id != PROXIMITY_ID)) || // weapon fire except bombs
-		obj->id==POW_EXTRA_LIFE || // extra life
-		obj->id==POW_ENERGY || // energy powerup
-		obj->id==POW_SHIELD_BOOST || // shield boost
-		obj->id==POW_CLOAK || // cloak
-		obj->id==POW_INVULNERABILITY)) // invulnerability
-	{
-		color_a = 0.7; // ... with 0.7 alpha
-		glBlendFunc( GL_SRC_ALPHA, GL_ONE ); // and special blending to keep intensity as well as nice ... blending - yeah
-	}
-	else
-		color_a = 1.0;
 
 	width = fixmul(width,Matrix_scale.x);
 	height = fixmul(height,Matrix_scale.y);
@@ -1089,13 +1047,10 @@ bool g3_draw_bitmap(vms_vector *pos,fix width,fix height,grs_bitmap *bm, object 
 				break;
 		}
 
-		if (obj->id == 5 && obj->type == 1) // create small z-Offset for missile exploding effect - prevents ugly wall-clipping
-			pv.z -= F1_0;
-
 		color_array[i*4]    = 1.0;
 		color_array[i*4+1]  = 1.0;
 		color_array[i*4+2]  = 1.0;
-		color_array[i*4+3]  = color_a;
+		color_array[i*4+3]  = (grd_curcanv->cv_fade_level >= GR_FADE_OFF)?1.0:(1.0 - (float)grd_curcanv->cv_fade_level / ((float)GR_FADE_LEVELS - 1.0));
 		
 		vertex_array[i*3]   = f2glf(pv.x);
 		vertex_array[i*3+1] = f2glf(pv.y);
@@ -1108,7 +1063,6 @@ bool g3_draw_bitmap(vms_vector *pos,fix width,fix height,grs_bitmap *bm, object 
 	glDisableClientState(GL_VERTEX_ARRAY);
 	glDisableClientState(GL_COLOR_ARRAY);
 	glDisableClientState(GL_TEXTURE_COORD_ARRAY);
-	glBlendFunc(prev_sfactor,prev_dfactor);
 
 	return 0;
 }
@@ -1186,12 +1140,35 @@ bool ogl_ubitblt(int w,int h,int dx,int dy, int sx, int sy, grs_bitmap * src, gr
 	return ogl_ubitblt_i(w,h,dx,dy,w,h,sx,sy,src,dest,0);
 }
 
+/*
+ * set depth testing on or off
+ */
 void ogl_toggle_depth_test(int enable)
 {
 	if (enable)
 		glEnable(GL_DEPTH_TEST);
 	else
 		glDisable(GL_DEPTH_TEST);
+}
+
+/* 
+ * set blending function
+ */
+void ogl_set_blending()
+{
+	switch ( grd_curcanv->cv_blend_func )
+	{
+		case GR_BLEND_ADDITIVE_A:
+			glBlendFunc( GL_SRC_ALPHA, GL_ONE );
+			break;
+		case GR_BLEND_ADDITIVE_C:
+			glBlendFunc( GL_SRC_COLOR, GL_ONE );
+			break;
+		case GR_BLEND_NORMAL:
+		default:
+			glBlendFunc( GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA );
+			break;
+	}
 }
 
 GLubyte *pixels = NULL;

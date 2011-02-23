@@ -1938,7 +1938,7 @@ void do_super_boss_stuff(object *objp, fix dist_to_player, int player_visibility
 
 	if ((dist_to_player < BOSS_TO_PLAYER_GATE_DISTANCE) || player_visibility || (Game_mode & GM_MULTI)) {
 		if (GameTime64 - Last_gate_time > Gate_interval/2) {
-			restart_effect(BOSS_ECLIP_NUM);
+			restart_effect(ECLIP_NUM_BOSS);
 #ifndef SHAREWARE
 #ifdef NETWORK
 			if (eclip_state == 0) {
@@ -1949,7 +1949,7 @@ void do_super_boss_stuff(object *objp, fix dist_to_player, int player_visibility
 #endif
 		}
 		else {
-			stop_effect(BOSS_ECLIP_NUM);
+			stop_effect(ECLIP_NUM_BOSS);
 #ifndef SHAREWARE
 #ifdef NETWORK
 			if (eclip_state == 1) {

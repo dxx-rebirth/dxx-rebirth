@@ -18,10 +18,12 @@ COPYRIGHT 1993-1998 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 
 #include <stdlib.h>
 #include <stdio.h>
-
 #include "u_mem.h"
 #include "gr.h"
 #include "grdef.h"
+#ifdef OGL
+#include "ogl_init.h"
+#endif
 
 grs_canvas * grd_curcanv;    //active canvas
 grs_screen * grd_curscreen;  //active screen
@@ -109,3 +111,11 @@ void gr_setcolor(int color)
 	grd_curcanv->cv_color=color;
 }
 
+void gr_settransblend(int fade_level, ubyte blend_func)
+{
+	grd_curcanv->cv_fade_level=fade_level;
+	grd_curcanv->cv_blend_func=blend_func;
+#ifdef OGL
+	ogl_set_blending();
+#endif
+}

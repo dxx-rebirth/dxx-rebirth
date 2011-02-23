@@ -49,7 +49,8 @@ COPYRIGHT 1993-1998 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 #include "u_mem.h"
 #include "piggy.h"
 #include "timer.h"
-
+#include "effects.h"
+#include "playsave.h"
 #ifdef OGL
 #include "ogl_init.h"
 #endif
@@ -267,9 +268,8 @@ void render_face(int segnum, int sidenum, int nv, short *vp, int tmap1, int tmap
 	}
 
 
-#ifdef OGL
-
-#endif
+	if ( PlayerCfg.AlphaEffects && ( TmapInfo[tmap1].eclip_num == ECLIP_NUM_FUELCEN ) ) // set nice transparency/blending for some special effects (if we do more, we should maybe use switch here)
+		gr_settransblend(GR_FADE_OFF, GR_BLEND_ADDITIVE_C);
 
 #ifdef EDITOR
 	if ((Render_only_bottom) && (sidenum == WBOTTOM))
@@ -290,6 +290,8 @@ void render_face(int segnum, int sidenum, int nv, short *vp, int tmap1, int tmap
 			g3_draw_tmap(nv,pointlist,uvl_copy,bm);
 		}
 	}
+
+	gr_settransblend(GR_FADE_OFF, GR_BLEND_NORMAL); // revert any transparency/blending setting back to normal
 
 	#ifndef NDEBUG
 	if (Outline_mode) draw_outline(nv, pointlist);
@@ -1281,7 +1283,7 @@ void build_object_lists(int n_segs)
 					if (n_sort_items < SORT_LIST_SIZE-1) {		//add if room
 						sort_list[n_sort_items].objnum = t;
 						//NOTE: maybe use depth, not dist - quicker computation
-						sort_list[n_sort_items].dist = vm_vec_dist_quick(&Objects[t].pos,&Viewer_eye);
+						sort_list[n_sort_items].dist = vm_vec_dist(&Objects[t].pos,&Viewer_eye);
 						n_sort_items++;
 					}
 
@@ -1653,11 +1655,6 @@ void render_mine(int start_seg_num,fix eye_offset)
 	//	Initialize number of objects (actually, robots!) rendered this frame.
 	Num_rendered_objects = 0;
 
-#ifdef LASER_HACK
-	Hack_nlasers = 0;
-#endif
-
-
 	//set up for rendering
 
 	render_start_frame();
@@ -1784,19 +1781,7 @@ void render_mine(int start_seg_num,fix eye_offset)
 					int ObjNumber = render_obj_list[listnum][objnp];
 
 					if (ObjNumber >= 0) {
-
-						#ifdef LASER_HACK
-						if ( 	(Objects[ObjNumber].type==OBJ_WEAPON) && 								//if its a weapon
-								(Objects[ObjNumber].lifeleft==Laser_max_time ) && 	//  and its in it's first frame
-								(Hack_nlasers< MAX_HACKED_LASERS) && 									//  and we have space for it
-								(Objects[ObjNumber].laser_info.parent_num>-1) &&					//  and it has a parent
-								((Viewer-Objects)==Objects[ObjNumber].laser_info.parent_num)	//  and it's parent is the viewer
-						   )		{
-							Hack_laser_list[Hack_nlasers++] = ObjNumber;								//then make it draw after everything else.
-						} else	
-						#endif
-							do_render_object(ObjNumber);	// note link to above else
-
+						do_render_object(ObjNumber);	// note link to above else
 						objnp++;
 					}
 					else {
@@ -1968,13 +1953,6 @@ void render_mine(int start_seg_num,fix eye_offset)
 			}
 			visited[segnum]=255;
 		}
-	}
-#endif
-
-#ifdef LASER_HACK								
-	// Draw the hacked lasers last
-	for (i=0; i < Hack_nlasers; i++ )	{
-		do_render_object(Hack_laser_list[i]);
 	}
 #endif
 

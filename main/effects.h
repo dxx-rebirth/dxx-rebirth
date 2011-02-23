@@ -32,6 +32,9 @@ COPYRIGHT 1993-1998 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 #define EF_ONE_SHOT		2		//this is a special that gets played once
 #define EF_STOPPED		4		//this has been stopped
 
+#define ECLIP_NUM_FUELCEN     2
+#define ECLIP_NUM_BOSS        53
+
 typedef struct eclip {
 	vclip 		vc;				//imbedded vclip
 	fix			time_left;		//for sequencing

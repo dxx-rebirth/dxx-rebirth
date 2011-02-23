@@ -115,9 +115,9 @@ void con_draw(void)
 	gr_set_current_canvas(NULL);
 	gr_set_curfont(GAME_FONT);
 	gr_setcolor(BM_XRGB(0,0,0));
-	Gr_scanline_darkening_level = 1*7;
+	gr_settransblend(7, GR_BLEND_NORMAL);
 	gr_rect(0,0,SWIDTH,(LINE_SPACING*(con_size))+FSPACY(1));
-	Gr_scanline_darkening_level = GR_FADE_LEVELS;
+	gr_settransblend(GR_FADE_OFF, GR_BLEND_NORMAL);
 	y=FSPACY(1)+(LINE_SPACING*con_size);
 	i+=con_scroll_offset;
 	while (!done)
