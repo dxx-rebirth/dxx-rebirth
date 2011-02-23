@@ -49,7 +49,8 @@ COPYRIGHT 1993-1999 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 #include "u_mem.h"
 #include "piggy.h"
 #include "timer.h"
-
+#include "effects.h"
+#include "playsave.h"
 #ifdef OGL
 #include "ogl_init.h"
 #endif
@@ -220,12 +221,12 @@ void render_face(int segnum, int sidenum, int nv, short *vp, int tmap1, int tmap
 	if (wid_flags & WID_CLOAKED_FLAG) {
 		int wall_num = Segments[segnum].sides[sidenum].wall_num;
 		Assert(wall_num != -1);
-		Gr_scanline_darkening_level = Walls[wall_num].cloak_value;
+		gr_settransblend(Walls[wall_num].cloak_value, GR_BLEND_NORMAL);
 		gr_setcolor(BM_XRGB(0, 0, 0));  // set to black (matters for s3)
 
 		g3_draw_poly(nv, pointlist);    // draw as flat poly
 
-		Gr_scanline_darkening_level = GR_FADE_LEVELS;
+		gr_settransblend(GR_FADE_OFF, GR_BLEND_NORMAL);
 
 		return;
 	}
@@ -296,6 +297,9 @@ void render_face(int segnum, int sidenum, int nv, short *vp, int tmap1, int tmap
 		}
 	}
 
+	if ( PlayerCfg.AlphaEffects && ( TmapInfo[tmap1].eclip_num == ECLIP_NUM_FUELCEN || TmapInfo[tmap1].eclip_num == ECLIP_NUM_FORCE_FIELD ) ) // set nice transparency/blending for some special effects (if we do more, we should maybe use switch here)
+		gr_settransblend(GR_FADE_OFF, GR_BLEND_ADDITIVE_C);
+
 #ifdef EDITOR
 	if ((Render_only_bottom) && (sidenum == WBOTTOM))
 		g3_draw_tmap(nv,pointlist,uvl_copy,&GameBitmaps[Textures[Bottom_bitmap_num].index]);
@@ -308,6 +312,8 @@ void render_face(int segnum, int sidenum, int nv, short *vp, int tmap1, int tmap
 		}else
 #endif
 			g3_draw_tmap(nv,pointlist,uvl_copy,bm);
+
+	gr_settransblend(GR_FADE_OFF, GR_BLEND_NORMAL); // revert any transparency/blending setting back to normal
 
 #ifndef NDEBUG
 	if (Outline_mode) draw_outline(nv, pointlist);
@@ -1486,7 +1492,7 @@ void build_object_lists(int n_segs)
 					if (n_sort_items < SORT_LIST_SIZE-1) {		//add if room
 						sort_list[n_sort_items].objnum = t;
 						//NOTE: maybe use depth, not dist - quicker computation
-						sort_list[n_sort_items].dist = vm_vec_dist_quick(&Objects[t].pos,&Viewer_eye);
+						sort_list[n_sort_items].dist = vm_vec_dist(&Objects[t].pos,&Viewer_eye);
 						n_sort_items++;
 					}
 					else {			//no room for object
@@ -1520,7 +1526,7 @@ void build_object_lists(int n_segs)
 
 							//replace debris & fireballs
 							if (type == OBJ_DEBRIS || type == OBJ_FIREBALL) {
-								fix dist = vm_vec_dist_quick(&Objects[t].pos,&Viewer_eye);
+								fix dist = vm_vec_dist(&Objects[t].pos,&Viewer_eye);
 
 								//don't replace same kind of object unless new 
 								//one is closer
@@ -1923,10 +1929,6 @@ void render_mine(int start_seg_num,fix eye_offset, int window_num)
 	//	Initialize number of objects (actually, robots!) rendered this frame.
 	Window_rendered_data[window_num].num_objects = 0;
 
-#ifdef LASER_HACK
-	Hack_nlasers = 0;
-#endif
-
 	#ifndef NDEBUG
 	for (i=0;i<=Highest_object_index;i++)
 		object_rendered[i] = 0;
@@ -2057,19 +2059,7 @@ void render_mine(int start_seg_num,fix eye_offset, int window_num)
 					int ObjNumber = render_obj_list[listnum][objnp];
 
 					if (ObjNumber >= 0) {
-
-						#ifdef LASER_HACK
-						if ( 	(Objects[ObjNumber].type==OBJ_WEAPON) && 								//if its a weapon
-								(Objects[ObjNumber].lifeleft==Laser_max_time ) && 	//  and its in it's first frame
-								(Hack_nlasers< MAX_HACKED_LASERS) && 									//  and we have space for it
-								(Objects[ObjNumber].laser_info.parent_num>-1) &&					//  and it has a parent
-								((Viewer-Objects)==Objects[ObjNumber].laser_info.parent_num)	//  and it's parent is the viewer
-						   )		{
-							Hack_laser_list[Hack_nlasers++] = ObjNumber;								//then make it draw after everything else.
-						} else	
-						#endif
-							do_render_object(ObjNumber, window_num);	// note link to above else
-
+						do_render_object(ObjNumber, window_num);	// note link to above else
 						objnp++;
 					}
 					else {
@@ -2241,14 +2231,6 @@ void render_mine(int start_seg_num,fix eye_offset, int window_num)
 			}
 			visited[segnum]=255;
 		}
-	}
-#endif
-
-								
-#ifdef LASER_HACK								
-	// Draw the hacked lasers last
-	for (i=0; i < Hack_nlasers; i++ )	{
-		do_render_object(Hack_laser_list[i], window_num);
 	}
 #endif
 

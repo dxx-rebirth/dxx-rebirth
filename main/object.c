@@ -33,10 +33,9 @@ COPYRIGHT 1993-1999 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 #include "gameseg.h"
 #include "textures.h"
 #include "byteswap.h"
-
 #include "object.h"
 #include "physics.h"
-#include "slew.h"		
+#include "slew.h"
 #include "render.h"
 #include "wall.h"
 #include "vclip.h"
@@ -67,9 +66,6 @@ COPYRIGHT 1993-1999 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 #include "switch.h"
 #include "gameseq.h"
 #include "playsave.h"
-#ifdef OGL
-#include "ogl_init.h"
-#endif
 #ifdef EDITOR
 #include "editor/editor.h"
 #endif
@@ -223,7 +219,7 @@ void draw_object_blob(object *obj,bitmap_index bmi)
 {
 	int	orientation=0;
 	grs_bitmap * bm = &GameBitmaps[bmi.index];
-
+	vms_vector pos = obj->pos;
 
 	if (obj->type == OBJ_FIREBALL)
 		orientation = (obj-Objects) & 7;
@@ -232,20 +228,18 @@ void draw_object_blob(object *obj,bitmap_index bmi)
 
 	PIGGY_PAGE_IN( bmi );
 
-	if (bm->bm_w > bm->bm_h) {
-		g3_draw_bitmap(&obj->pos,obj->size,fixmuldiv(obj->size,bm->bm_h,bm->bm_w),bm
-#ifdef OGL
-		,obj
-#endif
-		);
+	// draw these with slight offset to viewer preventing too much ugly clipping
+	if ( obj->type == OBJ_FIREBALL && obj->id == VCLIP_VOLATILE_WALL_HIT )
+	{
+		vms_vector offs_vec;
+		vm_vec_normalized_dir_quick(&offs_vec,&Viewer->pos,&obj->pos);
+		vm_vec_scale_add2(&pos,&offs_vec,F1_0);
 	}
-	else {
-		g3_draw_bitmap(&obj->pos,fixmuldiv(obj->size,bm->bm_w,bm->bm_h),obj->size,bm
-#ifdef OGL
-		,obj
-#endif
-		);
-	}
+
+	if (bm->bm_w > bm->bm_h)
+		g3_draw_bitmap(&pos,obj->size,fixmuldiv(obj->size,bm->bm_h,bm->bm_w),bm);
+	else
+		g3_draw_bitmap(&pos,fixmuldiv(obj->size,bm->bm_w,bm->bm_h),obj->size,bm);
 }
 
 //draw an object that is a texture-mapped rod
@@ -388,7 +382,7 @@ void draw_cloaked_object(object *obj,fix light,fix *glow,fix64 cloak_start_time,
 		glow[0] = save_glow;
 	}
 	else {
-		Gr_scanline_darkening_level = cloak_value;
+		gr_settransblend(cloak_value, GR_BLEND_NORMAL);
 		gr_setcolor(BM_XRGB(0,0,0));	//set to black (matters for s3)
 		g3_set_special_render(draw_tmap_flat,NULL,NULL);		//use special flat drawer
 		draw_polygon_model(&obj->pos,
@@ -399,7 +393,7 @@ void draw_cloaked_object(object *obj,fix light,fix *glow,fix64 cloak_start_time,
 				   glow,
 				   NULL );
 		g3_set_special_render(NULL,NULL,NULL);
-		Gr_scanline_darkening_level = GR_FADE_LEVELS;
+		gr_settransblend(GR_FADE_OFF, GR_BLEND_NORMAL);
 	}
 
 }
@@ -508,9 +502,7 @@ void draw_polygon_object(object *obj)
 
 			if (obj->type == OBJ_WEAPON && (Weapon_info[obj->id].model_num_inner > -1 )) {
 				fix dist_to_eye = vm_vec_dist_quick(&Viewer->pos, &obj->pos);
-#ifdef OGL
-				ogl_toggle_laser_blending(1);
-#endif
+				gr_settransblend(GR_FADE_OFF, GR_BLEND_ADDITIVE_A);
 				if (dist_to_eye < Simple_model_threshhold_scale * F1_0*2)
 					draw_polygon_model(&obj->pos,
 							   &obj->orient,
@@ -529,10 +521,9 @@ void draw_polygon_object(object *obj)
 					   light,
 					   engine_glow_value,
 					   alt_textures);
-#ifdef OGL
+
 			if (obj->type == OBJ_WEAPON && (Weapon_info[obj->id].model_num_inner > -1 ))
-				ogl_toggle_laser_blending(0);
-#endif
+				gr_settransblend(GR_FADE_OFF, GR_BLEND_NORMAL);
 		}
 	}
 
@@ -701,11 +692,13 @@ void create_vclip_on_object(object *objp, fix size_scale, int vclip_num)
 //	Render an object.  Calls one of several routines based on type
 void render_object(object *obj)
 {
-	int	mld_save;
+	int mld_save;
 
-	if ( obj == Viewer ) return;		
+	if ( obj == Viewer )
+		return;
 
-	if ( obj->type==OBJ_NONE )	{
+	if ( obj->type==OBJ_NONE )
+	{
 		#ifndef NDEBUG
 		Int3();
 		#endif
@@ -715,43 +708,74 @@ void render_object(object *obj)
 	mld_save = Max_linear_depth;
 	Max_linear_depth = Max_linear_depth_objects;
 
-	switch (obj->render_type) {
-
-		case RT_NONE:	break;		//doesn't render, like the player
+	switch (obj->render_type)
+	{
+		case RT_NONE:
+			break; //doesn't render, like the player
 
 		case RT_POLYOBJ:
+			if ( PlayerCfg.AlphaEffects && obj->type == OBJ_MARKER ) // set nice transparency/blending for certrain objects
+				gr_settransblend( 10, GR_BLEND_ADDITIVE_A );
 
 			draw_polygon_object(obj);
 
-			//"warn" robot if being shot at
-			if (obj->type == OBJ_ROBOT)
+			if (obj->type == OBJ_ROBOT) //"warn" robot if being shot at
 				set_robot_location_info(obj);
-
-//JOHN SAID TO:			if ( (obj->type==OBJ_PLAYER) && ((keyd_pressed[KEY_W]) || (keyd_pressed[KEY_I])))
-//JOHN SAID TO:				object_render_id(obj);
-
-// -- mk, 02/05/95 -- 			if (obj->type == OBJ_PLAYER)
-// -- mk, 02/05/95 -- 				if (Players[obj->id].flags & PLAYER_FLAGS_INVULNERABLE)
-// -- mk, 02/05/95 -- 					do_player_invulnerability_effect(obj);
-
 			break;
 
-		case RT_MORPH:	draw_morph_object(obj); break;
+		case RT_MORPH:
+			draw_morph_object(obj);
+			break;
 
-		case RT_FIREBALL: draw_fireball(obj); break;
+		case RT_FIREBALL:
+			if ( PlayerCfg.AlphaEffects ) // set nice transparency/blending for certrain objects
+				gr_settransblend( GR_FADE_OFF, GR_BLEND_ADDITIVE_C );
 
-		case RT_WEAPON_VCLIP: draw_weapon_vclip(obj); break;
+			draw_fireball(obj);
+			break;
 
-		case RT_HOSTAGE: draw_hostage(obj); break;
+		case RT_WEAPON_VCLIP:
+			if ( PlayerCfg.AlphaEffects ) // set nice transparency/blending for certrain objects
+				gr_settransblend( 7, GR_BLEND_ADDITIVE_A );
 
-		case RT_POWERUP: draw_powerup(obj); break;
+			draw_weapon_vclip(obj);
+			break;
 
-		case RT_LASER: Laser_render(obj); break;
+		case RT_HOSTAGE:
+			draw_hostage(obj);
+			break;
 
-		default: Error("Unknown render_type <%d>",obj->render_type);
- 	}
+		case RT_POWERUP:
+			if ( PlayerCfg.AlphaEffects ) // set nice transparency/blending for certrain objects
+				switch ( obj->id )
+				{
+					case POW_EXTRA_LIFE:
+					case POW_ENERGY:
+					case POW_SHIELD_BOOST:
+					case POW_CLOAK:
+					case POW_INVULNERABILITY:
+					case POW_HOARD_ORB:
+						gr_settransblend( 7, GR_BLEND_ADDITIVE_A );
+						break;
+				}
 
-	if (( obj->render_type != RT_NONE ) && ( Newdemo_state == ND_STATE_RECORDING ))
+			draw_powerup(obj);
+			break;
+
+		case RT_LASER:
+			if ( PlayerCfg.AlphaEffects ) // set nice transparency/blending for certrain objects
+				gr_settransblend( 7, GR_BLEND_ADDITIVE_A );
+
+			Laser_render(obj);
+			break;
+
+		default:
+			Error("Unknown render_type <%d>",obj->render_type);
+	}
+
+	gr_settransblend( GR_FADE_OFF, GR_BLEND_NORMAL ); // revert any transparency/blending setting back to normal
+
+	if ( obj->render_type != RT_NONE && Newdemo_state == ND_STATE_RECORDING )
 		newdemo_record_render_object(obj);
 
 	Max_linear_depth = mld_save;

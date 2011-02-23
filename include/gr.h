@@ -24,11 +24,13 @@ COPYRIGHT 1993-1999 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 #include "pstypes.h"
 #include "fix.h"
 
-// #define SWAP_0_255		0			// swap black and white
-#define TRANSPARENCY_COLOR	255			// palette entry of transparency color -- 255 on the PC
-
-#define GR_FADE_LEVELS 34
-#define GR_ACTUAL_FADE_LEVELS 32
+// some defines for transparency and blending
+#define TRANSPARENCY_COLOR   255            // palette entry of transparency color -- 255 on the PC
+#define GR_FADE_LEVELS       34
+#define GR_FADE_OFF          GR_FADE_LEVELS // yes, max means OFF - don't screw that up
+#define GR_BLEND_NORMAL      0              // normal blending
+#define GR_BLEND_ADDITIVE_A  1              // additive alpha blending
+#define GR_BLEND_ADDITIVE_C  2              // additive color blending
 
 #define GWIDTH  grd_curcanv->cv_bitmap.bm_w
 #define GHEIGHT grd_curcanv->cv_bitmap.bm_h
@@ -39,8 +41,6 @@ COPYRIGHT 1993-1999 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 #define MAX_BMP_SIZE(width, height) (4 + ((width) + 2) * (height))
 
 #define SCRNS_DIR "screenshots/"
-
-extern int Gr_scanline_darkening_level;
 
 typedef struct _grs_point {
 	fix x,y;
@@ -125,6 +125,8 @@ typedef struct _grs_font {
 typedef struct _grs_canvas {
 	grs_bitmap  cv_bitmap;      // the bitmap for this canvas
 	short       cv_color;       // current color
+	int         cv_fade_level;  // transparency level
+	ubyte       cv_blend_func;  // blending function to use
 	short       cv_drawmode;    // fill,XOR,etc.
 	grs_font *  cv_font;        // the currently selected font
 	short       cv_font_fg_color;   // current font foreground color (-1==Invisible)
@@ -249,9 +251,10 @@ void gr_copy_palette(ubyte *gr_palette, ubyte *pal, int size);
 // For solid, XOR, or other fill modes.
 int gr_set_drawmode(int mode);
 
-// Sets the color in the current canvas.  should be a macro
-// Use: gr_setcolor(int color);
+// Sets the color in the current canvas.
 void gr_setcolor(int color);
+// Sets transparency and blending function
+void gr_settransblend(int fade_level, ubyte blend_func);
 
 // Draw a polygon into the current canvas in the current color and drawmode.
 // verts points to an ordered list of x,y pairs.  the polygon should be

@@ -23,8 +23,6 @@ COPYRIGHT 1993-1998 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 #include "grdef.h"
 #include "error.h"
 
-int Gr_scanline_darkening_level = GR_FADE_LEVELS;
-
 void gr_linear_darken(ubyte * dest, int darkening_level, int count, ubyte * fade_table) {
 	register int i;
 
@@ -41,7 +39,7 @@ void gr_linear_stosd( ubyte * dest, unsigned char color, unsigned int nbytes) {
 
 void gr_uscanline( int x1, int x2, int y )
 {
-	if (Gr_scanline_darkening_level >= GR_FADE_LEVELS ) {
+	if (grd_curcanv->cv_fade_level >= GR_FADE_OFF) {
 		switch(TYPE)
 		{
 		case BM_LINEAR:
@@ -58,7 +56,7 @@ void gr_uscanline( int x1, int x2, int y )
 #ifdef OGL
 		case BM_OGL:
 #endif
-			gr_linear_darken( DATA + ROWSIZE*y + x1, Gr_scanline_darkening_level, x2-x1+1, gr_fade_table);
+			gr_linear_darken( DATA + ROWSIZE*y + x1, grd_curcanv->cv_fade_level, x2-x1+1, gr_fade_table);
 			break;
 		}
 	}
@@ -76,7 +74,7 @@ void gr_scanline( int x1, int x2, int y )
 	if (x1 < MINX) x1 = MINX;
 	if (x2 > MAXX) x2 = MAXX;
 
-	if (Gr_scanline_darkening_level >= GR_FADE_LEVELS ) {
+	if (grd_curcanv->cv_fade_level >= GR_FADE_OFF) {
 		switch(TYPE)
 		{
 		case BM_LINEAR:
@@ -93,7 +91,7 @@ void gr_scanline( int x1, int x2, int y )
 #ifdef OGL
 		case BM_OGL:
 #endif
-			gr_linear_darken( DATA + ROWSIZE*y + x1, Gr_scanline_darkening_level, x2-x1+1, gr_fade_table);
+			gr_linear_darken( DATA + ROWSIZE*y + x1, grd_curcanv->cv_fade_level, x2-x1+1, gr_fade_table);
 			break;
 		}
 	}

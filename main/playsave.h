@@ -73,7 +73,7 @@ typedef struct player_config
 	ubyte NoRedundancy;
 	ubyte MultiMessages;
 	ubyte NoRankings;
-	int OglAlphaEffects;
+	int AlphaEffects;
 } __pack__ player_config;
 
 extern struct player_config PlayerCfg;

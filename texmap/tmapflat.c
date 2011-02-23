@@ -47,10 +47,10 @@ void tmap_scanline_flat(int y, fix xleft, fix xright)
 	fx_xleft = xleft/F1_0;		// (xleft >> 16) != xleft/F1_0 for negative numbers, f2i caused random crashes
 	fx_xright = xright/F1_0;
 
-	if ( Gr_scanline_darkening_level >= GR_FADE_LEVELS )
+	if ( grd_curcanv->cv_fade_level >= GR_FADE_OFF )
 		cur_tmap_scanline_flat();
 	else	{
-		tmap_flat_shade_value = Gr_scanline_darkening_level;
+		tmap_flat_shade_value = grd_curcanv->cv_fade_level;
 		cur_tmap_scanline_shaded();
 	}	
 }

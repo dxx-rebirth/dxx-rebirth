@@ -116,7 +116,7 @@ int new_player_config()
 	PlayerCfg.NoRedundancy = 0;
 	PlayerCfg.MultiMessages = 0;
 	PlayerCfg.NoRankings = 0;
-	PlayerCfg.OglAlphaEffects = 0;
+	PlayerCfg.AlphaEffects = 0;
 
 	// Default taunt macros
 	#ifdef NETWORK
@@ -289,7 +289,7 @@ int read_player_d2x(char *filename)
 				strupr(word);
 			}
 		}
-		else if (strstr(word,"OPENGL"))
+		else if (strstr(word,"GRAPHICS"))
 		{
 			d_free(word);
 			cfgets(line,50,f);
@@ -298,8 +298,8 @@ int read_player_d2x(char *filename)
 	
 			while(!strstr(word,"END") && !PHYSFS_eof(f))
 			{
-				if(!strcmp(word,"OGLALPHAEFFECTS"))
-					PlayerCfg.OglAlphaEffects = atoi(line);
+				if(!strcmp(word,"ALPHAEFFECTS"))
+					PlayerCfg.AlphaEffects = atoi(line);
 				d_free(word);
 				cfgets(line,50,f);
 				word=splitword(line,'=');
@@ -400,8 +400,8 @@ int write_player_d2x(char *filename)
 		PHYSFSX_printf(fout,"multimessages=%i\n",PlayerCfg.MultiMessages);
 		PHYSFSX_printf(fout,"norankings=%i\n",PlayerCfg.NoRankings);
 		PHYSFSX_printf(fout,"[end]\n");
-		PHYSFSX_printf(fout,"[opengl]\n");
-		PHYSFSX_printf(fout,"oglalphaeffects=%i\n",PlayerCfg.OglAlphaEffects);
+		PHYSFSX_printf(fout,"[graphics]\n");
+		PHYSFSX_printf(fout,"alphaeffects=%i\n",PlayerCfg.AlphaEffects);
 		PHYSFSX_printf(fout,"[end]\n");
 		PHYSFSX_printf(fout,"[plx version]\n");
 		PHYSFSX_printf(fout,"plx version=%s\n", VERSION);
