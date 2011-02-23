@@ -1,5 +1,9 @@
 D2X-Rebirth Changelog
 
+20110224
+--------
+2d/canvas.c: Fix for last revision: Correctly initialize cv_fade_level and cv_blend_func when creating initializing a canvas
+
 20110223
 --------
 2d/2dsline.c, 2d/canvas.c, arch/ogl/gr.c, arch/ogl/ogl.c, arch/sdl/gr.c, include/3d.h, include/gr.h, include/ogl_init.h, main/ai.c, main/ai.h, main/console.c, main/effects.h, main/gamerend.c, main/gauges.c, main/hud.c, main/menu.c, main/multibot.c, main/newmenu.c, main/object.c, main/playsave.c, main/playsave.h, main/render.c, texmap/tmapflat.c: Added cv_fade_level to canvas structure to replace Gr_scanline_darkening_level; Added cv_blend_func to canvas structure to set blending; Introduced gr_settransblend to set cv_fade_level and cv_blend_func; Added function to set normal blending, additive alpha blending and additive color blending; Moved Special transparency effects from g3_draw_bitmap to render_object to set individual transparency and/or blending for each object outside of OpenGL-specific code; Added special blending for fuelcenter and force field effects as well; Removed unused LASER_HACK code; Renamed OglAlphaEffects variable of PalyerCfg to AlphaEffects as I plan to implement this kind of effects for Software renderer, too
