@@ -5143,21 +5143,19 @@ int HoardEquipped()
 	return (checked);
 }
 
-void init_bitmap(grs_bitmap *bm,int w,int h,int flags,ubyte *data)
-{
-	bm->bm_x = bm->bm_y = 0;
-	bm->bm_w = bm->bm_rowsize = w;
-	bm->bm_h = h;
-	bm->bm_type = BM_LINEAR;
-	bm->bm_flags = flags;
-	bm->bm_data = data;
-	bm->bm_handle = 0;
-	bm->avg_color = 0;
-}
-
 grs_bitmap Orb_icons[2];
+int Hoard_goal_eclip, Hoard_bm_idx, Hoard_snd_idx;
 
-int Hoard_goal_eclip;
+void free_hoard_data()
+{
+	int i;
+
+	d_free(GameBitmaps[Hoard_bm_idx].bm_data);
+	for (i = Hoard_snd_idx; i < Hoard_snd_idx+4; i++)
+		d_free(GameSounds[i].data);
+	for (i = 0; i < 2; i++)
+		d_free(Orb_icons[i].bm_data);
+}
 
 void init_hoard_data()
 {
@@ -5185,7 +5183,7 @@ void init_hoard_data()
 
 	if (first_time) {
 		ubyte *bitmap_data;
-		int bitmap_num=Num_bitmap_files;
+		int bitmap_num=Hoard_bm_idx=Num_bitmap_files;
 
 		//Allocate memory for bitmaps
 		MALLOC( bitmap_data, ubyte, n_orb_frames*orb_w*orb_h + n_goal_frames*64*64 );
@@ -5201,7 +5199,8 @@ void init_hoard_data()
 		Vclip[orb_vclip].light_value = F1_0;
 		for (i=0;i<n_orb_frames;i++) {
 			Vclip[orb_vclip].frames[i].index = bitmap_num;
-			init_bitmap(&GameBitmaps[bitmap_num],orb_w,orb_h,BM_FLAG_TRANSPARENT,bitmap_data);
+			gr_init_bitmap(&GameBitmaps[bitmap_num],BM_LINEAR,0,0,orb_w,orb_h,orb_w,bitmap_data);
+			gr_set_transparent (&GameBitmaps[bitmap_num], 1);
 			bitmap_data += orb_w*orb_h;
 			bitmap_num++;
 			Assert(bitmap_num < MAX_BITMAP_FILES);
@@ -5227,12 +5226,11 @@ void init_hoard_data()
 		Assert(NumTextures < MAX_TEXTURES);
 		for (i=0;i<n_goal_frames;i++) {
 			Effects[Hoard_goal_eclip].vc.frames[i].index = bitmap_num;
-			init_bitmap(&GameBitmaps[bitmap_num],64,64,0,bitmap_data);
+			gr_init_bitmap(&GameBitmaps[bitmap_num],BM_LINEAR,0,0,64,64,64,bitmap_data);
 			bitmap_data += 64*64;
 			bitmap_num++;
 			Assert(bitmap_num < MAX_BITMAP_FILES);
 		}
-
 	}
 
 	//Load and remap bitmap data for orb
@@ -5259,7 +5257,8 @@ void init_hoard_data()
 		if (first_time) {
 			ubyte *bitmap_data;
 			MALLOC( bitmap_data, ubyte, icon_w*icon_h );
-			init_bitmap(&Orb_icons[i],icon_w,icon_h,BM_FLAG_TRANSPARENT,bitmap_data);
+			gr_init_bitmap(&Orb_icons[i],BM_LINEAR,0,0,icon_w,icon_h,icon_w,bitmap_data);
+			gr_set_transparent (&Orb_icons[i], 1);
 		}
 		cfread(palette,3,256,ifile);
 		cfread(Orb_icons[i].bm_data,1,icon_w*icon_h,ifile);
@@ -5269,7 +5268,7 @@ void init_hoard_data()
 	if (first_time) {
 
 		//Load sounds for orb game
-
+		Hoard_snd_idx = Num_sound_files;
 		for (i=0;i<4;i++) {
 			int len;
 
@@ -5295,6 +5294,8 @@ void init_hoard_data()
 	}
 
 	cfclose(ifile);
+	if (first_time)
+		atexit(free_hoard_data);
 
 	first_time = 0;
 }

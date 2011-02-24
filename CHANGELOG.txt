@@ -3,6 +3,7 @@ D2X-Rebirth Changelog
 20110224
 --------
 2d/canvas.c: Fix for last revision: Correctly initialize cv_fade_level and cv_blend_func when creating initializing a canvas
+main/multi.c, main/piggy.c: Using gr_init_bitmap for hoard data initialization; Correctly free hoard data before the program closes; When reloading the main HAM files, made sure it does not try to reload main game sounds from shareware/demo HAM
 
 20110223
 --------

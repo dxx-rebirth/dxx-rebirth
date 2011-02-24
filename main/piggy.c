@@ -821,6 +821,14 @@ int read_hamfile()
 		digi_sound temp_sound;
 		char temp_name_read[16];
 		int sbytes = 0;
+		static int justonce = 1;
+
+		if (!justonce)
+		{
+			cfclose(ham_fp);
+			return 1;
+		}
+		justonce = 0;
 
 		cfseek(ham_fp, sound_offset, SEEK_SET);
 		N_sounds = cfile_read_int(ham_fp);
