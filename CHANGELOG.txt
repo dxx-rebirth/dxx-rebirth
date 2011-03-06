@@ -1,5 +1,9 @@
 D2X-Rebirth Changelog
 
+20110306
+--------
+main/songs.c: Be safer not interrupting other ports of descent or the original MS-DOS game when it comes to reading song files: Try reading from MISSION_NAME.sngdxx to have a way reading a song file for a specific mission outside the mission's HOG, next try reading from descent.sngdxx which shall serve as an alternative song file specifically for DXX and then try descent.sng. This should give authors enough possibilities to add OSTs for all different versions of the game without the need to publish different versions of their missions
+
 20110224
 --------
 2d/canvas.c: Fix for last revision: Correctly initialize cv_fade_level and cv_blend_func when creating initializing a canvas
