@@ -73,13 +73,16 @@ void songs_init()
 		d_free(BIMSongs);
 
 	memset(sng_file, '\0', sizeof(sng_file));
-	if (Current_mission != NULL)
+	if (Current_mission != NULL) // try MISSION_NAME.sngdxx - might be rarely used but handy if you want a songfile for a specific mission outside of the mission hog file. use special extension to not crash with other ports of the game
 	{
-		snprintf(sng_file, strlen(Current_mission_filename)+5, "%s.sng", Current_mission_filename);
+		snprintf(sng_file, strlen(Current_mission_filename)+8, "%s.sngdxx", Current_mission_filename);
 		fp = cfopen(sng_file, "rb");
 	}
 
-	if (fp == NULL)
+	if (fp == NULL) // try descent.sngdxx - a songfile specifically for dxx which level authors CAN use (dxx does not care if descent.sng contains MP3/OGG/etc. as well) besides the normal descent.sng containing files other versions of the game cannot play. this way a mission can contain a DOS-Descent compatible OST (hmp files) as well as a OST using MP3, OGG, etc.
+		fp = cfopen( "descent.sngdxx", "rb" );
+
+	if (fp == NULL) // try to open regular descent.sng
 		fp = cfopen( "descent.sng", "rb" );
 
 	if ( fp == NULL ) // No descent.sng available. Define a default song-set
