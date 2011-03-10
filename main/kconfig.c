@@ -1341,8 +1341,8 @@ void kconfig_read_controls(d_event *event, int automap_flag)
 			Controls.vertical_thrust_time += (Controls.mouse_axis[kc_mouse[13].value]*PlayerCfg.MouseSens[3])/8;
 	}
 	// From keyboard/buttons...
-	if ( Controls.slide_up_state ) Controls.vertical_thrust_time += speed_factor*FrameTime/2;
-	if ( Controls.slide_down_state ) Controls.vertical_thrust_time -= speed_factor*FrameTime/2;
+	if ( Controls.slide_up_state ) Controls.vertical_thrust_time += speed_factor*FrameTime;
+	if ( Controls.slide_down_state ) Controls.vertical_thrust_time -= speed_factor*FrameTime;
 	// From joystick...
 	if ( !kc_joystick[20].value )		// If not inverted...
 		Controls.vertical_thrust_time += (Controls.joy_axis[kc_joystick[19].value]*PlayerCfg.JoystickSens[3])/8;
