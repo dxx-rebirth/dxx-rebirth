@@ -35,31 +35,6 @@ COPYRIGHT 1993-1998 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 
 #define face_type_num(nfaces,face_num,tri_edge) ((nfaces==1)?0:(tri_edge*2 + face_num))
 
-// keep the original ASM code here in case we need it again one day...
-// static inline int oflow_check(fix a,fix b) {
-//   register int __ret;
-//   int dummy;
-//   __asm__ (
-//     " cdq;"
-//     " xorl  %%edx,%%eax;"
-//     " subl  %%edx,%%eax;"
-//     " xchgl %%ebx,%%eax;"
-//     " cdq;"
-//     " xorl  %%edx,%%eax;"
-//     " subl  %%edx,%%eax;"
-//     " imull  %%ebx;"
-//     " sarl  $15,%%edx;"
-//     " orw   %%dx,%%dx;"
-//     " setnz %%al;"
-//     " movzbl %%al,%%eax"
-//      : "=a" (__ret), "=b" (dummy) : "a" (a), "1" (b) : "%edx");
-//     return __ret;
-// }
-
-static int oflow_check(fix a,fix b) {
-	return 0; /* hoping the floating point fix-math is used */
-}
-
 //find the point on the specified plane where the line intersects
 //returns true if point found, false if line parallel to plane
 //new_pnt is the found point on the plane
@@ -76,41 +51,21 @@ int find_plane_line_intersection(vms_vector *new_pnt,vms_vector *plane_pnt,vms_v
 	num =  vm_vec_dot(plane_norm,&w);
 	den = -vm_vec_dot(plane_norm,&d);
 
-//Why does this assert hit so often
-//	Assert(num > -rad);
+	num -= rad; //move point out by rad
 
-	num -= rad;			//move point out by rad
-
-	//check for various bad values
-
-	if ( (den==0) ||					//moving parallel to wall, so can't hit it
-		  ((den>0) &&
-			( (num>den) ||				//frac greater than one
-			  ((-num>>15)>=den))) ||  //will overflow (large negative)
-		  (den<0 && num<den)) //frac greater than one
+	if (den == 0) // moving parallel to wall, so can't hit it
 		return 0;
- 
-	//do check for potenial overflow
-	{
-		fix k;
-
-		if (labs(num)/(f1_0/2) >= labs(den)) {Int3(); return 0;}
-		k = fixdiv(num,den);
-
-		Assert(k<=f1_0);		//should be trapped above
-
-//		Assert(k>=0);
-		if (oflow_check(d.x,k) || oflow_check(d.y,k) || oflow_check(d.z,k)) return 0;
-		//Note: it is ok for k to be greater than 1, since this might mean
-		//that an object with a non-zero radius that moved from p0 to p1 
-		//actually hit the wall on the "other side" of p0.
-	}
+	//check for various bad values
+	if (den > 0 && (-num>>15) >= den) //will overflow (large negative)
+		num = (f1_0-f0_5)*den;
+	// FIXME: need to handle those or catch somewhere else?
+// 	if (den > 0 && num > den) //frac greater than one
+// 		return 0;
+// 	if (den < 0 && num < den) //frac greater than one
+// 		return 0;
 
 	vm_vec_scale2(&d,num,den);
-
 	vm_vec_add(new_pnt,p0,&d);
-
-	//we should have vm_vec_scale2_add2()
 
 	return 1;
 
@@ -356,17 +311,11 @@ int check_line_to_line(fix *t1,fix *t2,vms_vector *p1,vms_vector *v1,vms_vector 
 
 	det.uvec = *v2;
 	d = calc_det_value(&det);
-	if (oflow_check(d,cross_mag2))
-		return 0;
-	else
-		*t1 = fixdiv(d,cross_mag2);
+	*t1 = fixdiv(d,cross_mag2);
 
 	det.uvec = *v1;
 	d = calc_det_value(&det);
-	if (oflow_check(d,cross_mag2))
-		return 0;
-	else
-		*t2 = fixdiv(d,cross_mag2);
+	*t2 = fixdiv(d,cross_mag2);
 
 	return 1;		//found point
 }

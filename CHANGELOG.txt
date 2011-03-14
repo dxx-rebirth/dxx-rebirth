@@ -1,5 +1,9 @@
 D1X-Rebirth Changelog
 
+20110314
+--------
+main/fvi.c, main/physics.c: Again reworked new bump hack to only apply when fate == HIT_WALL (to not break level SKYBOX) and made bumping by distance  between object position and wall hit point; Removed/handled some safety checks in find_plane_line_intersection() to make sliding along joining edges smoother again while bad values *should* be handled in pyhsics.c and not make object warp-crashing tru the whole level or stuck in walls (fvi code should still be rewritten tho)
+
 20110310
 --------
 main/kconfig.c: Due to lazy copy&paste sliding up/down speed was divided by 2 - fixed
