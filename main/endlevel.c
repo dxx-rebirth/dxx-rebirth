@@ -204,6 +204,8 @@ void start_endlevel_sequence()
 {
 	int last_segnum,exit_side,tunnel_length;
 
+	reset_rear_view(); //turn off rear view if set - NOTE: make sure this happens before we pause demo recording!!
+
 	if (Newdemo_state == ND_STATE_RECORDING)		// stop demo recording
 		Newdemo_state = ND_STATE_PAUSED;
 
@@ -214,8 +216,6 @@ void start_endlevel_sequence()
 		return;				//don't start if dead!
 
 	Players[Player_num].homing_object_dist = -F1_0; // Turn off homing sound.
-
-	reset_rear_view();		//turn off rear view if set
 
 	if (!endlevel_data_loaded) {
 
