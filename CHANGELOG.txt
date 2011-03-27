@@ -3,6 +3,7 @@ D1X-Rebirth Changelog
 20110328
 --------
 main/endlevel.c, main/newdemo.c: Properly record the event of reset_rear_view() while switching levels to make it work right when rewinding as well; Properly record Countdown seconds for each newdemo frame instead of second change to get display showing up right while playback and still preserving backwards compability
+arch/ogl/gr.c: Fixes for OpenGL ES implementation
 
 20110327
 --------

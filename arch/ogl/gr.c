@@ -109,7 +109,16 @@ int ogl_init_window(int x, int y)
 	Window    x11Window = 0;
 	Display*  x11Display = 0;
 	EGLint    ver_maj, ver_min;
-	EGLint configAttribs[] = { EGL_SURFACE_TYPE, EGL_WINDOW_BIT, EGL_NONE };
+	EGLint configAttribs[] =
+	{
+		EGL_RED_SIZE, 5,
+		EGL_GREEN_SIZE, 6,
+		EGL_BLUE_SIZE, 5,
+		EGL_DEPTH_SIZE, 16,
+		EGL_SURFACE_TYPE, EGL_WINDOW_BIT,
+		EGL_RENDERABLE_TYPE, EGL_OPENGL_ES_BIT,
+		EGL_NONE
+	};
 	int iConfigs;
 #endif
 
@@ -125,6 +134,13 @@ int ogl_init_window(int x, int y)
 	}
 
 #ifdef OGLES
+	if( eglSurface || eglContext || eglDisplay )
+	{
+		eglMakeCurrent(eglDisplay, NULL, NULL, EGL_NO_CONTEXT);
+		eglDestroyContext(eglDisplay, eglContext);
+		eglDestroySurface(eglDisplay, eglSurface);
+	}
+
 	SDL_VERSION(&info.version);
 	
 	if (SDL_GetWMInfo(&info) > 0) {
