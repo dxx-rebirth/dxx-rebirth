@@ -1,5 +1,9 @@
 D2X-Rebirth Changelog
 
+20110328
+--------
+main/endlevel.c, main/newdemo.c: Properly record the event of reset_rear_view() while switching levels to make it work right when rewinding as well; Properly record Countdown seconds for each newdemo frame instead of second change to get display showing up right while playback and still preserving backwards compability; Suspend Game_wind when playing endlevel movie while demo playback
+
 20110327
 --------
 main/physics.c: Another rework for anti-stuck-bumping: Execute after calculation of velocity and add fvi check to make sure we deal with an actual wall collision

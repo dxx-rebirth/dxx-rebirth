@@ -294,12 +294,18 @@ void start_endlevel_sequence()
 	int	i;
 	int movie_played = MOVIE_NOT_PLAYED;
 
+	reset_rear_view(); //turn off rear view if set - NOTE: make sure this happens before we pause demo recording!!
+
 	if (Newdemo_state == ND_STATE_RECORDING)		// stop demo recording
 		Newdemo_state = ND_STATE_PAUSED;
 
 	if (Newdemo_state == ND_STATE_PLAYBACK) {		// don't do this if in playback mode
 		if (PLAYING_BUILTIN_MISSION) // only play movie for built-in mission
+		{
+			window_set_visible(Game_wind, 0);	// suspend the game, including drawing
 			start_endlevel_movie();
+			window_set_visible(Game_wind, 1);
+		}
 		strcpy(last_palette_loaded,"");		//force palette load next time
 		return;
 	}
@@ -316,8 +322,6 @@ void start_endlevel_sequence()
 			}
 
 	Players[Player_num].homing_object_dist = -F1_0; // Turn off homing sound.
-
-	reset_rear_view();		//turn off rear view if set
 
 #ifdef NETWORK
 	if (Game_mode & GM_MULTI) {

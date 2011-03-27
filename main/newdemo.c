@@ -197,7 +197,6 @@ static sbyte nd_record_v_no_space;
 static sbyte nd_record_v_objs[MAX_OBJECTS];
 static sbyte nd_record_v_viewobjs[MAX_OBJECTS];
 static sbyte nd_record_v_rendering[32];
-static int nd_record_v_countdown_seconds_left = 0;
 static int nd_record_v_player_energy = -1;
 static fix nd_record_v_player_afterburner = -1;
 static int nd_record_v_player_shields = -1;
@@ -910,7 +909,6 @@ void newdemo_record_start_demo()
 	nd_write_int(Players[Player_num].flags);        // be sure players flags are set
 	nd_write_byte((sbyte)Primary_weapon);
 	nd_write_byte((sbyte)Secondary_weapon);
-	nd_record_v_countdown_seconds_left = 0;
 	nd_record_v_start_frame = nd_record_v_frame_number = 0;
 	nd_record_v_juststarted=1;
 	newdemo_set_new_level(Current_level_num);
@@ -1142,12 +1140,11 @@ void newdemo_record_wall_toggle( int segnum, int side )
 
 void newdemo_record_control_center_destroyed()
 {
-	if (nd_record_v_countdown_seconds_left == Countdown_seconds_left)
+	if (!nd_record_v_recordframe)
 		return;
 	stop_time();
 	nd_write_byte( ND_EVENT_CONTROL_CENTER_DESTROYED );
 	nd_write_int( Countdown_seconds_left );
-	nd_record_v_countdown_seconds_left = Countdown_seconds_left;
 	start_time();
 }
 
@@ -1462,7 +1459,6 @@ void newdemo_set_new_level(int level_num)
 	segment *seg;
 
 	stop_time();
-	newdemo_record_restore_rearview(); // This is actually switched while loading the new level - not ingame, so do it here.
 	nd_write_byte(ND_EVENT_NEW_LEVEL);
 	nd_write_byte((sbyte)level_num);
 	nd_write_byte((sbyte)Current_level_num);
