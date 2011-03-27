@@ -645,17 +645,6 @@ void do_physics_sim(object *obj)
 					}
 				}
 
-				/*
-				* On joining edges fvi tends to get inaccurate as hell due to object size. And I have no means to fix that - shame on me (that whole code should be rewritten). Approach is to check if the object interects with the wall and if so, move it out towards segment center. (also see FIXME in find_plane_line_intersection)
-				*/
-				if (object_intersects_wall(obj) && (obj->type == OBJ_PLAYER || obj->type == OBJ_ROBOT))
-				{
-					vms_vector center,bump_vec;
-					compute_segment_center(&center,&Segments[obj->segnum]);
-					vm_vec_normalized_dir_quick(&bump_vec,&center,&obj->pos);
-					vm_vec_scale_add2(&obj->pos,&bump_vec,vm_vec_dist(&hit_info.hit_pnt, &obj->pos));
-				}
-
 				break;
 			}
 
@@ -752,6 +741,26 @@ void do_physics_sim(object *obj)
 		vms_vector moved_vec;
 		vm_vec_sub(&moved_vec,&obj->pos,&start_pos);
 		vm_vec_copy_scale(&obj->mtype.phys_info.velocity,&moved_vec,fixdiv(f1_0,FrameTime));
+	}
+
+	/*
+	* On joining edges fvi tends to get inaccurate as hell due to object size. And I have no means to fix that - shame on me (that whole code should be rewritten). Approach is to check if the object interects with the wall and if so, move it out towards segment center. (also see FIXME in find_plane_line_intersection)
+	* NOTE that we also regulary check if we intersect a wall to make sure we ACTUALLY collide with a wall while bumping out of it - and not having sorta faked wall which is not marked as one...
+	*/
+	if (object_intersects_wall(obj) && (obj->type == OBJ_PLAYER || obj->type == OBJ_ROBOT))
+	{
+		int success = (fate == HIT_WALL), bcount = obj->size/F0_1;
+		vms_vector center,bump_vec,safe_pos = obj->pos;
+		compute_segment_center(&center,&Segments[obj->segnum]);
+		while (object_intersects_wall(obj) && bcount-- > 0)
+		{
+			vm_vec_normalized_dir_quick(&bump_vec,&center,&obj->pos);
+			vm_vec_scale_add2(&obj->pos,&bump_vec,F0_1);
+			if (!success)
+				success = (find_vector_intersection(&fq,&hit_info) == HIT_WALL);
+		}
+		if (!success)
+			obj->pos = safe_pos;
 	}
 
 	//Assert(check_point_in_seg(&obj->pos,obj->segnum,0).centermask==0);
