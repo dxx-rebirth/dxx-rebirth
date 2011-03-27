@@ -3,6 +3,7 @@ D2X-Rebirth Changelog
 20110327
 --------
 main/physics.c: Another rework for anti-stuck-bumping: Execute after calculation of velocity and add fvi check to make sure we deal with an actual wall collision
+main/gamesave.c: Added hack to fix illegal segment (104) in D2 Level 12 which should be fixed in the level itself but impossible due to copyright of original game content...
 
 20110314
 --------

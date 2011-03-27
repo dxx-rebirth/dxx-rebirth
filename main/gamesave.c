@@ -1341,6 +1341,34 @@ int load_level(char * filename_passed)
 	 */
 	if ( !stricmp("Descent: First Strike",Current_mission_longname) && !stricmp("level19.rdl",filename) && cfilelength(LoadFile) == 136706)
 		Vertices[1905].z =-385*F1_0;
+	/* !!!HACK!!!
+	 * Descent 2 - Level 12: MAGNACORE STATION has a segment (104) with illegal dimensions.
+	 * HACK to fix this by moving the Vertex and fixing the associated Normals.
+	 * NOTE: This only fixes the normals of segment 104, not the other ones connected to this Vertex but this is unsignificant.
+	 */
+	if ( !stricmp("Descent 2: Counterstrike!",Current_mission_longname) && !stricmp("d2levc-4.rl2",filename)
+		&& ( Vertices[Segments[104].verts[0]].x == -53990800 && Vertices[Segments[104].verts[0]].y == -59927741 && Vertices[Segments[104].verts[0]].z == 23034584 )
+		&& ( Segments[104].sides[1].normals[0].x == 56775 && Segments[104].sides[1].normals[0].y == -27796 && Segments[104].sides[1].normals[0].z == -17288 && Segments[104].sides[1].normals[1].x == 50157 && Segments[104].sides[1].normals[1].y == -34561 && Segments[104].sides[1].normals[1].z == -24180 )
+		&& ( Segments[104].sides[2].normals[0].x == 60867 && Segments[104].sides[2].normals[0].y == -19485 && Segments[104].sides[2].normals[0].z == -14507 && Segments[104].sides[2].normals[1].x == 55485 && Segments[104].sides[2].normals[1].y == -29668 && Segments[104].sides[2].normals[1].z == -18332 )
+		)
+	{
+			Vertices[Segments[104].verts[0]].x = -53859726;
+			Vertices[Segments[104].verts[0]].y = -59927743;
+			Vertices[Segments[104].verts[0]].z = 23034586;
+			Segments[104].sides[1].normals[0].x = 56123;
+			Segments[104].sides[1].normals[0].y = -27725;
+			Segments[104].sides[1].normals[0].z = -19401;
+			Segments[104].sides[1].normals[1].x = 49910;
+			Segments[104].sides[1].normals[1].y = -33946;
+			Segments[104].sides[1].normals[1].z = -25525;
+			Segments[104].sides[2].normals[0].x = 60903;
+			Segments[104].sides[2].normals[0].y = -18371;
+			Segments[104].sides[2].normals[0].z = -15753;
+			Segments[104].sides[2].normals[1].x = 57004;
+			Segments[104].sides[2].normals[1].y = -26385;
+			Segments[104].sides[2].normals[1].z = -18688;
+			// I feel so dirty now ...
+	}
 
 	if (mine_err == -1) {   //error!!
 		cfclose(LoadFile);
