@@ -2227,10 +2227,7 @@ void obj_attach(object *parent,object *sub)
 {
 	Assert(sub->type == OBJ_FIREBALL);
 	Assert(sub->control_type == CT_EXPLOSION);
-if (parent->attached_obj==0 && Objects[parent->attached_obj].ctype.expl_info.prev_attach==0)
-{
-	printf("YEAH\n");
-}
+
 	Assert(sub->ctype.expl_info.next_attach==-1);
 	Assert(sub->ctype.expl_info.prev_attach==-1);
 
