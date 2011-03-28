@@ -1,5 +1,9 @@
 D1X-Rebirth Changelog
 
+20110329
+--------
+main/cntrlcen.c, main/cntrlcen.h, main/state.c: Dead_controlcen_object_num should be set when a new level starts in debug build, too; Setting Total_countdown_time when loading a savestate so SEF-DESTRUCT SEQUENCE ACTIVATED sample will not play soon as timer reaches 0
+
 20110328
 --------
 main/endlevel.c, main/newdemo.c: Properly record the event of reset_rear_view() while switching levels to make it work right when rewinding as well; Properly record Countdown seconds for each newdemo frame instead of second change to get display showing up right while playback and still preserving backwards compability

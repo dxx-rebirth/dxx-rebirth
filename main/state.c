@@ -1351,6 +1351,8 @@ RetryObjectLoading:
 	Control_center_next_fire_time = PHYSFSX_readSXE32(fp, swap);
 	Control_center_present = PHYSFSX_readSXE32(fp, swap);
 	Dead_controlcen_object_num = PHYSFSX_readSXE32(fp, swap);
+	if (Control_center_destroyed)
+		Total_countdown_time = Countdown_timer/F0_5; // we do not need to know this, but it should not be 0 either...
 
 	// Restore the AI state
 	ai_restore_state( fp, swap );

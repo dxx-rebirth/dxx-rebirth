@@ -376,6 +376,7 @@ void init_controlcen_for_level(void)
 
 #ifndef NDEBUG
 	if (cntrlcen_objnum == -1) {
+		Dead_controlcen_object_num = -1;
 		return;
 	}
 
