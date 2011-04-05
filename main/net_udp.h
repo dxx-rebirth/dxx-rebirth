@@ -31,7 +31,7 @@ void net_udp_send_netgame_update();
 #define UDP_BCAST_ADDR "255.255.255.255"
 #define UDP_PORT_DEFAULT 42424 // Our default port - easy to remember: D = 4, X = 24, X = 24
 #define UDP_REQ_ID "D2XR" // ID string for a request packet
-#define UDP_MAX_NETGAMES 600
+#define UDP_MAX_NETGAMES 3000
 #define UDP_NETGAMES_PPAGE 12 // Netgames on one page of Netlist
 #define UDP_NETGAMES_PAGES 50 // Pages available on Netlist (UDP_MAX_NETGAMES/UDP_NETGAMES_PPAGE)
 #define UDP_TIMEOUT (10*F1_0) // 10 seconds disconnect timeout
@@ -66,6 +66,10 @@ void net_udp_send_netgame_update();
 #define UPID_MDATA_P0				18 // Packet containing multi buffer from a player. Priority 0 - no ACK needed.
 #define UPID_MDATA_P1				19 // Packet containing multi buffer from a player. Priority 1 - ACK needed. Also contains pkt_num
 #define UPID_MDATA_ACK				20 // ACK packet for UPID_MDATA_P1.
+#ifdef USE_TRACKER
+#  define UPID_TRACKER_VERIFY			21 // The tracker has successfully gotten a hold of us
+#  define UPID_TRACKER_INCGAME			22 // The tracker is sending us some game info
+#endif
 
 // Structure keeping lite game infos (for netlist, etc.)
 typedef struct UDP_netgame_info_lite

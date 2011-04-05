@@ -182,6 +182,10 @@ void ReadCmdArgs(void)
 	GameArg.MplUdpHostAddr		= get_str_arg("-udp_hostaddr", "localhost");
 	GameArg.MplUdpHostPort		= get_int_arg("-udp_hostport", 0);
 	GameArg.MplUdpMyPort		= get_int_arg("-udp_myport", 0);
+#ifdef USE_TRACKER
+	GameArg.MplTrackerAddr		= get_str_arg("-tracker_hostaddr", "dxxtracker.reenigne.net");
+	GameArg.MplTrackerPort		= get_int_arg("-tracker_hostport", 42420);
+#endif
 
 #ifdef EDITOR
 	// Editor Options

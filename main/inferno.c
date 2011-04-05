@@ -122,79 +122,83 @@ extern void arch_init(void);
 void print_commandline_help()
 {
 	printf( "\n System Options:\n\n");
-	printf( "  -nonicefps         %s\n", "Don't free CPU-cycles");
-	printf( "  -maxfps <n>        %s\n", "Set maximum framerate (1-200)");
-	printf( "  -hogdir <s>        %s\n", "set shared data directory to <dir>");
-	printf( "  -nohogdir          %s\n", "don't try to use shared data directory");
-	printf( "  -use_players_dir   %s\n", "put player files and saved games in Players subdirectory");
-	printf( "  -lowmem            %s\n", "Lowers animation detail for better performance with low memory");
-	printf( "  -pilot <s>         %s\n", "Select this pilot automatically");
-	printf( "  -autodemo          %s\n", "Start in demo mode");
-	printf( "  -window            %s\n", "Run the game in a window");
-	printf( "  -noborders        %s\n", "Do not show borders in window mode");
-	printf( "  -nomovies          %s\n", "Don't play movies");
+	printf( "  -nonicefps             %s\n", "Don't free CPU-cycles");
+	printf( "  -maxfps <n>            %s\n", "Set maximum framerate (1-200)");
+	printf( "  -hogdir <s>            %s\n", "set shared data directory to <dir>");
+	printf( "  -nohogdir              %s\n", "don't try to use shared data directory");
+	printf( "  -use_players_dir       %s\n", "put player files and saved games in Players subdirectory");
+	printf( "  -lowmem                %s\n", "Lowers animation detail for better performance with low memory");
+	printf( "  -pilot <s>             %s\n", "Select this pilot automatically");
+	printf( "  -autodemo              %s\n", "Start in demo mode");
+	printf( "  -window                %s\n", "Run the game in a window");
+	printf( "  -noborders             %s\n", "Do not show borders in window mode");
+	printf( "  -nomovies              %s\n", "Don't play movies");
 
 	printf( "\n Controls:\n\n");
-	printf( "  -nomouse           %s\n", "Deactivate mouse");
-	printf( "  -nojoystick        %s\n", "Deactivate joystick");
-	printf( "  -nostickykeys      %s\n", "Make CapsLock and NumLock non-sticky so they can be used as normal keys");
+	printf( "  -nomouse               %s\n", "Deactivate mouse");
+	printf( "  -nojoystick            %s\n", "Deactivate joystick");
+	printf( "  -nostickykeys          %s\n", "Make CapsLock and NumLock non-sticky so they can be used as normal keys");
 
 	printf( "\n Sound:\n\n");
-	printf( "  -nosound           %s\n", "Disables sound output");
-	printf( "  -nomusic           %s\n", "Disables music output");
-	printf( "  -sound11k          %s\n", "Use 11KHz sounds");
+	printf( "  -nosound               %s\n", "Disables sound output");
+	printf( "  -nomusic               %s\n", "Disables music output");
+	printf( "  -sound11k              %s\n", "Use 11KHz sounds");
 #ifdef    USE_SDLMIXER
-	printf( "  -nosdlmixer        %s\n", "Disable Sound output via SDL_mixer");
+	printf( "  -nosdlmixer            %s\n", "Disable Sound output via SDL_mixer");
 #endif // USE SDLMIXER
 
 	printf( "\n Graphics:\n\n");
-	printf( "  -lowresfont        %s\n", "Force to use LowRes fonts");
-	printf( "  -lowresgraphics    %s\n", "Force to use LowRes graphics");
-	printf( "  -lowresmovies      %s\n", "Play low resolution movies if available (for slow machines)");
+	printf( "  -lowresfont            %s\n", "Force to use LowRes fonts");
+	printf( "  -lowresgraphics        %s\n", "Force to use LowRes graphics");
+	printf( "  -lowresmovies          %s\n", "Play low resolution movies if available (for slow machines)");
 #ifdef    OGL
-	printf( "  -gl_fixedfont      %s\n", "Do not scale fonts to current resolution");
+	printf( "  -gl_fixedfont          %s\n", "Do not scale fonts to current resolution");
 #endif // OGL
 
 #ifdef    NETWORK
 	printf( "\n Multiplayer:\n\n");
-	printf( "  -ipxnetwork <n>    %s\n", "Use IPX network number <n>");
-	printf( "  -udp_hostaddr <n>  %s\n", "When manually joining a game use default IP Address <n> to connect to");
-	printf( "  -udp_hostport <n>  %s\n", "When manually joining a game use default UDP Port <n> to connect to");
-	printf( "  -udp_myport <n>	  %s\n", "When hosting/joining a game use default UDP Port <n> to send packets from");
+	printf( "  -ipxnetwork <n>        %s\n", "Use IPX network number <n>");
+	printf( "  -udp_hostaddr <n>      %s\n", "When manually joining a game use default IP Address <n> to connect to");
+	printf( "  -udp_hostport <n>      %s\n", "When manually joining a game use default UDP Port <n> to connect to");
+	printf( "  -udp_myport <n>        %s\n", "When hosting/joining a game use default UDP Port <n> to send packets from");
+#ifdef USE_TRACKER
+	printf( "  -tracker_hostaddr <n>  %s\n", "Address of Tracker server to register/query games to/from (default: dxxtracker.reenigne.net)");
+	printf( "  -tracker_hostport <n>  %s\n", "Port of Tracker server to register/query games to/from (default: 42420)");
+#endif // USE_TRACKER
 #endif // NETWORK
 
 #ifdef    EDITOR
 	printf( "\n Editor:\n\n");
-	printf( "  -autoload <s>      %s\n", "Autoload a level in the editor");
-	printf( "  -macdata           %s\n", "Read and write mac data files in editor (swap colors)");
-	printf( "  -hoarddata         %s\n", "Make the hoard ham file from some files, then exit");
+	printf( "  -autoload <s>          %s\n", "Autoload a level in the editor");
+	printf( "  -macdata               %s\n", "Read and write mac data files in editor (swap colors)");
+	printf( "  -hoarddata             %s\n", "Make the hoard ham file from some files, then exit");
 #endif // EDITOR
 
 	printf( "\n Debug (use only if you know what you're doing):\n\n");
-	printf( "  -debug             %s\n", "Enable very verbose output");
-	printf( "  -verbose           %s\n", "Shows initialization steps for tech support");
-	printf( "  -norun             %s\n", "Bail out after initialization");
-	printf( "  -renderstats       %s\n", "Enable renderstats info by default");
-	printf( "  -text <s>          %s\n", "Specify alternate .tex file");
-	printf( "  -tmap <s>          %s\n", "Select texmapper to use (c,fp,quad,i386)");
-	printf( "  -showmeminfo       %s\n", "Show memory statistics");
-	printf( "  -nodoublebuffer    %s\n", "Disable Doublebuffering");
-	printf( "  -bigpig            %s\n", "Use uncompressed RLE bitmaps");
-	printf( "  -16bpp             %s\n", "Use 16Bpp instead of 32Bpp");
+	printf( "  -debug                 %s\n", "Enable very verbose output");
+	printf( "  -verbose               %s\n", "Shows initialization steps for tech support");
+	printf( "  -norun                 %s\n", "Bail out after initialization");
+	printf( "  -renderstats           %s\n", "Enable renderstats info by default");
+	printf( "  -text <s>              %s\n", "Specify alternate .tex file");
+	printf( "  -tmap <s>              %s\n", "Select texmapper to use (c,fp,quad,i386)");
+	printf( "  -showmeminfo           %s\n", "Show memory statistics");
+	printf( "  -nodoublebuffer        %s\n", "Disable Doublebuffering");
+	printf( "  -bigpig                %s\n", "Use uncompressed RLE bitmaps");
+	printf( "  -16bpp                 %s\n", "Use 16Bpp instead of 32Bpp");
 #ifdef    OGL
-	printf( "  -gl_oldtexmerge    %s\n", "Use old texmerge, uses more ram, but _might_ be a bit faster");
-	printf( "  -gl_intensity4_ok <n> %s\n", "Override DbgGlIntensity4Ok - Default: 1");
+	printf( "  -gl_oldtexmerge        %s\n", "Use old texmerge, uses more ram, but _might_ be a bit faster");
+	printf( "  -gl_intensity4_ok <n>  %s\n", "Override DbgGlIntensity4Ok - Default: 1");
 	printf( "  -gl_luminance4_alpha4_ok <n> %s\n", "Override DbgGlLuminance4Alpha4Ok - Default: 1");
-	printf( "  -gl_rgba2_ok <n>   %s\n", "Override DbgGlRGBA2Ok - Default: 1");
-	printf( "  -gl_readpixels_ok <n> %s\n", "Override DbgGlReadPixelsOk - Default: 1");
+	printf( "  -gl_rgba2_ok <n>       %s\n", "Override DbgGlRGBA2Ok - Default: 1");
+	printf( "  -gl_readpixels_ok <n>  %s\n", "Override DbgGlReadPixelsOk - Default: 1");
 	printf( "  -gl_gettexlevelparam_ok <n> %s\n", "Override DbgGlGetTexLevelParamOk - Default: 1");
 #else
-	printf( "  -hwsurface         %s\n", "Use SDL HW Surface");
-	printf( "  -asyncblit         %s\n", "Use queued blits over SDL. Can speed up rendering");
+	printf( "  -hwsurface             %s\n", "Use SDL HW Surface");
+	printf( "  -asyncblit             %s\n", "Use queued blits over SDL. Can speed up rendering");
 #endif // OGL
 
 	printf( "\n Help:\n\n");
-	printf( "  -help, -h, -?, ?   %s\n", "View this help screen");
+	printf( "  -help, -h, -?, ?       %s\n", "View this help screen");
 	printf( "\n\n");
 }
 
