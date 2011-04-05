@@ -67,6 +67,10 @@ typedef struct Arg
 	const char *MplUdpHostAddr;
 	int MplUdpHostPort;
 	int MplUdpMyPort;
+#ifdef USE_TRACKER
+	const char *MplTrackerAddr;
+	int MplTrackerPort;
+#endif
 	int DbgVerbose;
 	int DbgNoRun;
 	int DbgRenderStats;

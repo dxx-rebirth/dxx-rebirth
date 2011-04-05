@@ -1,5 +1,9 @@
 D1X-Rebirth Changelog
 
+20110405
+--------
+SConstruct, arch/win32/ipx.c, d1x.ini, include/args.h, main/inferno.c, main/menu.c, main/multi.h, main/net_ipx.h, main/net_udp.c, main/net_udp.h, misc/args.c: Client-side implementation for Tracker support by Matt "1360" Vandermeulen including improvements in udp_dns_filladdr and IPv4/IPv6 compability; Very little adjustments by me, too including IPv6 support for Windows (untested); Actual tracker code will follow later as seperate branch when it's done
+
 20110329
 --------
 main/cntrlcen.c, main/cntrlcen.h, main/state.c: Dead_controlcen_object_num should be set when a new level starts in debug build, too; Setting Total_countdown_time when loading a savestate so SEF-DESTRUCT SEQUENCE ACTIVATED sample will not play soon as timer reaches 0

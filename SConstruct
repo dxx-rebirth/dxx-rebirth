@@ -33,6 +33,7 @@ sdlmixer = int(ARGUMENTS.get('sdlmixer', 1))
 ipv6 = int(ARGUMENTS.get('ipv6', 0))
 use_udp = int(ARGUMENTS.get('use_udp', 1))
 use_ipx = int(ARGUMENTS.get('use_ipx', 1))
+use_tracker = int(ARGUMENTS.get('use_tracker', 1))
 verbosebuild = int(ARGUMENTS.get('verbosebuild', 0))
 
 # endianess-checker
@@ -305,7 +306,7 @@ if sys.platform == 'win32':
 		common_sources += ['arch/win32/ipx.c']
 	common_sources += ['arch/win32/messagebox.c']
 	ogllibs = ''
-	libs += ['glu32', 'wsock32', 'winmm', 'mingw32', 'SDLmain', 'SDL']
+	libs += ['glu32', 'wsock32', 'ws2_32', 'winmm', 'mingw32', 'SDLmain', 'SDL']
 	lflags = '-mwindows arch/win32/d1xr.res'
 elif sys.platform == 'darwin':
 	print "compiling on Mac OS X"
@@ -417,6 +418,10 @@ if (ipv6 == 1):
 if (use_udp == 1):
 	env.Append(CPPDEFINES = ['USE_UDP'])
 	common_sources += ['main/net_udp.c']
+	
+	# Tracker support?  (Relies on UDP)
+	if( use_tracker == 1 ):
+		env.Append( CPPDEFINES = [ 'USE_TRACKER' ] )
 
 # IPX support?
 if (use_ipx == 1):
@@ -461,6 +466,7 @@ Help(PROGRAM_NAME + ', SConstruct file help:' +
 	'ipv6=[0/1]'          enable IPv6 compability [default: 0]
 	'use_udp=[0/1]'       enable UDP support [default: 1]
 	'use_ipx=[0/1]'       enable IPX support (IPX available on Linux and Windows, only) [default: 1]
+	'use_tracker=[0/1]'   enable Tracker support (requires udp) [default :1]
 	'verbosebuild=[0/1]'  print out all compiler/linker messages during building [default: 0]
 		
 	Default values:

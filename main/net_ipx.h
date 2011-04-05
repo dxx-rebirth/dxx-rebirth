@@ -26,7 +26,7 @@ COPYRIGHT 1993-1998 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 #include "multi.h"
 #include "pstypes.h"
 #ifdef _WIN32
-#include <winsock.h>
+#include <winsock2.h>
 #else
 #include <netinet/in.h> /* for htons & co. */
 #endif

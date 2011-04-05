@@ -2,7 +2,7 @@
 /* Mostly taken from dosemu */
 #include <string.h>
 #include <stdlib.h>
-#include <winsock.h>
+#include <winsock2.h>
 #include <wsipx.h>
 #include "net_ipx.h"
 #include "console.h"
