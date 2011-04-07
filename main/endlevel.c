@@ -951,11 +951,12 @@ void draw_exit_model()
 {
 	vms_vector model_pos;
 	int f=15,u=0;	//21;
+	g3s_lrgb lrgb = { f1_0, f1_0, f1_0 };
 
 	vm_vec_scale_add(&model_pos,&mine_exit_point,&mine_exit_orient.fvec,i2f(f));
 	vm_vec_scale_add2(&model_pos,&mine_exit_orient.uvec,i2f(u));
 
-	draw_polygon_model(&model_pos,&mine_exit_orient,NULL,(mine_destroyed)?destroyed_exit_modelnum:exit_modelnum,0,f1_0,NULL,NULL);
+	draw_polygon_model(&model_pos,&mine_exit_orient,NULL,(mine_destroyed)?destroyed_exit_modelnum:exit_modelnum,0,lrgb,NULL,NULL);
 
 }
 
@@ -971,6 +972,7 @@ void render_external_scene(fix eye_offset)
 {
 	int orig_Render_depth = Render_depth;
 	Viewer_eye = Viewer->pos;
+	g3s_lrgb lrgb = { f1_0, f1_0, f1_0 };
 
 	if (eye_offset)
 		vm_vec_scale_add2(&Viewer_eye,&Viewer->orient.rvec,eye_offset);
@@ -1001,14 +1003,14 @@ void render_external_scene(fix eye_offset)
 			if (! (p.p3_flags & PF_OVERFLOW)) {
 				Interpolation_method = 0;
 				//gr_bitmapm(f2i(p.p3_sx)-32,f2i(p.p3_sy)-32,satellite_bitmap);
-				g3_draw_rod_tmap(satellite_bitmap,&p,SATELLITE_WIDTH,&top_pnt,SATELLITE_WIDTH,f1_0);
+				g3_draw_rod_tmap(satellite_bitmap,&p,SATELLITE_WIDTH,&top_pnt,SATELLITE_WIDTH,lrgb);
 				Interpolation_method = save_im;
 			}
 		}
 	}
 
 	#ifdef STATION_ENABLED
-	draw_polygon_model(&station_pos,&vmd_identity_matrix,NULL,station_modelnum,0,f1_0,NULL,NULL);
+	draw_polygon_model(&station_pos,&vmd_identity_matrix,NULL,station_modelnum,0,lrgb,NULL,NULL);
 	#endif
 
 #ifdef OGL

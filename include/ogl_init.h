@@ -101,7 +101,7 @@ void ogl_upixelc(int x, int y, int c);
 void ogl_ulinec(int left, int top, int right, int bot, int c);
 
 #include "3d.h"
-bool g3_draw_tmap_2(int nv,g3s_point **pointlist,g3s_uvl *uvl_list,grs_bitmap *bmbot,grs_bitmap *bm, int orient);
+bool g3_draw_tmap_2(int nv,g3s_point **pointlist,g3s_uvl *uvl_list,g3s_lrgb *light_rgb, grs_bitmap *bmbot,grs_bitmap *bm, int orient);
 
 void ogl_draw_vertex_reticle(int cross,int primary,int secondary,int color,int alpha,int size_offs);
 void ogl_toggle_depth_test(int enable);

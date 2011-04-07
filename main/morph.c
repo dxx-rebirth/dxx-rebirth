@@ -328,7 +328,7 @@ void morph_start(object *obj)
 
 }
 
-void draw_model(polymodel *pm,int submodel_num,vms_angvec *anim_angles,fix light,morph_data *md)
+void draw_model(polymodel *pm,int submodel_num,vms_angvec *anim_angles,g3s_lrgb light,morph_data *md)
 {
 	int i,mn;
 	int facing;
@@ -418,7 +418,7 @@ void draw_morph_object(object *obj)
 {
 //	int save_light;
 	polymodel *po;
-	fix light;
+	g3s_lrgb light;
 	morph_data *md;
 
 	md = find_morph_data(obj);

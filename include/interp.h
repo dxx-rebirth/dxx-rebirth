@@ -22,7 +22,7 @@ void g3_set_interp_points(g3s_point *pointlist);
 
 //calls the object interpreter to render an object.  The object renderer
 //is really a seperate pipeline. returns true if drew
-bool g3_draw_polygon_model(void *model_ptr,grs_bitmap **model_bitmaps,vms_angvec *anim_angles,fix light,fix *glow_values);
+bool g3_draw_polygon_model(void *model_ptr,grs_bitmap **model_bitmaps,vms_angvec *anim_angles,g3s_lrgb light,fix *glow_values);
 
 //init code for bitmap models
 void g3_init_polygon_model(void *model_ptr);
@@ -31,11 +31,14 @@ void g3_init_polygon_model(void *model_ptr);
 void g3_uninit_polygon_model(void *model_ptr);
 
 //alternate interpreter for morphing object
-bool g3_draw_morphing_model(void *model_ptr,grs_bitmap **model_bitmaps,vms_angvec *anim_angles,fix light,vms_vector *new_points);
+bool g3_draw_morphing_model(void *model_ptr,grs_bitmap **model_bitmaps,vms_angvec *anim_angles,g3s_lrgb light,vms_vector *new_points);
 
 //this remaps the 15bpp colors for the models into a new palette.  It should
 //be called whenever the palette changes
 void g3_remap_interp_colors(void);
+
+// check a polymodel for it's color and return it
+int g3_poly_get_color(void *model_ptr);
 
 #ifdef WORDS_BIGENDIAN
 // routine to convert little to big endian in polygon model data

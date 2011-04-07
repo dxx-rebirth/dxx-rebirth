@@ -74,6 +74,7 @@ typedef struct player_config
 	ubyte MultiMessages;
 	ubyte NoRankings;
 	int AlphaEffects;
+	int DynLightColor;
 } __pack__ player_config;
 
 extern struct player_config PlayerCfg;

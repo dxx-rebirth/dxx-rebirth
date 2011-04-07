@@ -27,7 +27,7 @@ COPYRIGHT 1993-1999 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 #define MIN_LIGHT_DIST  (F1_0*4)
 
 extern fix Beam_brightness;
-extern fix Dynamic_light[MAX_VERTICES];
+extern g3s_lrgb Dynamic_light[MAX_VERTICES];
 
 extern void set_dynamic_light(void);
 
@@ -39,12 +39,12 @@ extern void set_dynamic_light(void);
 fix compute_headlight_light(vms_vector *point,fix face_light);
 
 // compute the average dynamic light in a segment.  Takes the segment number
-fix compute_seg_dynamic_light(int segnum);
+g3s_lrgb compute_seg_dynamic_light(int segnum);
 
 // compute the lighting for an object.  Takes a pointer to the object,
 // and possibly a rotated 3d point.  If the point isn't specified, the
 // object's center point is rotated.
-fix compute_object_light(object *obj,vms_vector *rotated_pnt);
+g3s_lrgb compute_object_light(object *obj,vms_vector *rotated_pnt);
 
 // turn headlight boost on & off
 void toggle_headlight_active(void);

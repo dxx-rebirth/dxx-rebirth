@@ -246,7 +246,7 @@ void draw_object_blob(object *obj,bitmap_index bmi)
 void draw_object_tmap_rod(object *obj,bitmap_index bitmapi,int lighted)
 {
 	grs_bitmap * bitmap = &GameBitmaps[bitmapi.index];
-	fix light;
+	g3s_lrgb light;
 
 	vms_vector delta,top_v,bot_v;
 	g3s_point top_p,bot_p;
@@ -264,9 +264,13 @@ void draw_object_tmap_rod(object *obj,bitmap_index bitmapi,int lighted)
 	g3_rotate_point(&bot_p,&bot_v);
 
 	if (lighted)
+	{
 		light = compute_object_light(obj,&top_p.p3_vec);
+	}
 	else
-		light = f1_0;
+	{
+		light.r = light.g = light.b = f1_0;
+	}
 
 	g3_draw_rod_tmap(bitmap,&bot_p,obj->size,&top_p,obj->size,light);
 }
@@ -292,7 +296,7 @@ extern void draw_tmap_flat();
 #define	CLOAK_FADEOUT_DURATION_ROBOT	F1_0
 
 //do special cloaked render
-void draw_cloaked_object(object *obj,fix light,fix *glow,fix64 cloak_start_time,fix64 cloak_end_time)
+void draw_cloaked_object(object *obj,g3s_lrgb light,fix *glow,fix64 cloak_start_time,fix64 cloak_end_time)
 {
 	fix cloak_delta_time,total_cloaked_time;
 	fix light_scale=F1_0;
@@ -361,7 +365,8 @@ void draw_cloaked_object(object *obj,fix light,fix *glow,fix64 cloak_start_time,
 
 
 	if (fading) {
-		fix new_light,save_glow;
+		fix save_glow;
+		g3s_lrgb new_light;
 		bitmap_index * alt_textures = NULL;
 
 #ifdef NETWORK
@@ -369,7 +374,9 @@ void draw_cloaked_object(object *obj,fix light,fix *glow,fix64 cloak_start_time,
 			alt_textures = multi_player_textures[obj->rtype.pobj_info.alt_textures-1];
 #endif
 
-		new_light = fixmul(light,light_scale);
+		new_light.r = fixmul(light.r,light_scale);
+		new_light.g = fixmul(light.g,light_scale);
+		new_light.b = fixmul(light.b,light_scale);
 		save_glow = glow[0];
 		glow[0] = fixmul(glow[0],light_scale);
 		draw_polygon_model(&obj->pos,
@@ -401,7 +408,7 @@ void draw_cloaked_object(object *obj,fix light,fix *glow,fix64 cloak_start_time,
 //draw an object which renders as a polygon model
 void draw_polygon_object(object *obj)
 {
-	fix light;
+	g3s_lrgb light;
 	int	imsave;
 	fix engine_glow_value[2];		//element 0 is for engine glow, 1 for headlight
 
@@ -411,19 +418,33 @@ void draw_polygon_object(object *obj)
 #ifdef NETWORK
 	if (Game_mode & GM_MULTI)
 		if (Netgame.BrightPlayers)
-			light = F1_0*2;
+			light.r = light.g = light.b = F1_0*2;
 #endif
 
 	//make robots brighter according to robot glow field
 	if (obj->type == OBJ_ROBOT)
-		light += (Robot_info[obj->id].glow<<12);		//convert 4:4 to 16:16
+	{
+		light.r += (Robot_info[obj->id].glow<<12); //convert 4:4 to 16:16
+		light.g += (Robot_info[obj->id].glow<<12); //convert 4:4 to 16:16
+		light.b += (Robot_info[obj->id].glow<<12); //convert 4:4 to 16:16
+	}
 
 	if (obj->type == OBJ_WEAPON)
+	{
 		if (obj->id == FLARE_ID)
-			light += F1_0*2;
+		{
+			light.r += F1_0*2;
+			light.g += F1_0*2;
+			light.b += F1_0*2;
+		}
+	}
 
 	if (obj->type == OBJ_MARKER)
- 		light += F1_0*2;
+	{
+ 		light.r += F1_0*2;
+		light.g += F1_0*2;
+		light.b += F1_0*2;
+	}
 
 
 	imsave = Interpolation_method;
@@ -497,7 +518,11 @@ void draw_polygon_object(object *obj)
 			//	Snipers get bright when they fire.
 			if (Ai_local_info[obj-Objects].next_fire < F1_0/8) {
 				if (obj->ctype.ai_info.behavior == AIB_SNIPE)
-					light = 2*light + F1_0;
+				{
+					light.r = 2*light.r + F1_0;
+					light.g = 2*light.g + F1_0;
+					light.b = 2*light.b + F1_0;
+				}
 			}
 
 			if (obj->type == OBJ_WEAPON && (Weapon_info[obj->id].model_num_inner > -1 )) {
@@ -521,6 +546,22 @@ void draw_polygon_object(object *obj)
 					   light,
 					   engine_glow_value,
 					   alt_textures);
+
+#ifndef OGL // in software rendering must draw inner model last
+			if (obj->type == OBJ_WEAPON && (Weapon_info[obj->id].model_num_inner > -1 )) {
+				fix dist_to_eye = vm_vec_dist_quick(&Viewer->pos, &obj->pos);
+				gr_settransblend(GR_FADE_OFF, GR_BLEND_ADDITIVE_A);
+				if (dist_to_eye < Simple_model_threshhold_scale * F1_0*2)
+					draw_polygon_model(&obj->pos,
+							   &obj->orient,
+							   (vms_angvec *)&obj->rtype.pobj_info.anim_angles,
+							   Weapon_info[obj->id].model_num_inner,
+							   obj->rtype.pobj_info.subobj_flags,
+							   light,
+							   engine_glow_value,
+							   alt_textures);
+			}
+#endif
 
 			if (obj->type == OBJ_WEAPON && (Weapon_info[obj->id].model_num_inner > -1 ))
 				gr_settransblend(GR_FADE_OFF, GR_BLEND_NORMAL);
@@ -735,7 +776,7 @@ void render_object(object *obj)
 			break;
 
 		case RT_WEAPON_VCLIP:
-			if ( PlayerCfg.AlphaEffects ) // set nice transparency/blending for certrain objects
+			if ( PlayerCfg.AlphaEffects && obj->id != PROXIMITY_ID && obj->id != SUPERPROX_ID ) // set nice transparency/blending for certrain objects
 				gr_settransblend( 7, GR_BLEND_ADDITIVE_A );
 
 			draw_weapon_vclip(obj);
@@ -1326,6 +1367,12 @@ int obj_create(ubyte type,ubyte id,int segnum,vms_vector *pos,
 
 	if (obj->type == OBJ_DEBRIS)
 		Debris_object_count++;
+
+	// set light color values to -1 to lighting code will compute them is desired
+	if (obj->render_type == RT_POLYOBJ)
+		obj->rtype.pobj_info.lrgb.r = obj->rtype.pobj_info.lrgb.g = obj->rtype.pobj_info.lrgb.b = -1;
+	else
+		obj->rtype.vclip_info.lrgb.r = obj->rtype.vclip_info.lrgb.g = obj->rtype.vclip_info.lrgb.b = -1;
 
 	return objnum;
 }

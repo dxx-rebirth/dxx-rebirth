@@ -30,9 +30,10 @@ g3s_point rod_points[4];
 g3s_point *rod_point_list[] = {&rod_points[0],&rod_points[1],&rod_points[2],&rod_points[3]};
 
 g3s_uvl uvl_list[4] = { { 0x0200,0x0200,0 },
-								{ 0xfe00,0x0200,0 },
-								{ 0xfe00,0xfe00,0 },
-								{ 0x0200,0xfe00,0 }};
+			{ 0xfe00,0x0200,0 },
+			{ 0xfe00,0xfe00,0 },
+			{ 0x0200,0xfe00,0 } };
+g3s_lrgb lrgb_list[4] = { { 0, 0, 0 }, { 0, 0, 0 }, { 0, 0, 0 }, { 0, 0, 0 } };
 
 //compute the corners of a rod.  fills in vertbuf.
 int calc_rod_corners(g3s_point *bot_point,fix bot_width,g3s_point *top_point,fix top_width)
@@ -115,14 +116,17 @@ bool g3_draw_rod_flat(g3s_point *bot_point,fix bot_width,g3s_point *top_point,fi
 
 //draw a bitmap object that is always facing you
 //returns 1 if off screen, 0 if drew
-bool g3_draw_rod_tmap(grs_bitmap *bitmap,g3s_point *bot_point,fix bot_width,g3s_point *top_point,fix top_width,fix light)
+bool g3_draw_rod_tmap(grs_bitmap *bitmap,g3s_point *bot_point,fix bot_width,g3s_point *top_point,fix top_width,g3s_lrgb light)
 {
 	if (calc_rod_corners(bot_point,bot_width,top_point,top_width))
 		return 0;
 
-	uvl_list[0].l = uvl_list[1].l = uvl_list[2].l = uvl_list[3].l = light;
+	uvl_list[0].l = uvl_list[1].l = uvl_list[2].l = uvl_list[3].l = (light.r+light.g+light.b)/3;
+	lrgb_list[0].r = lrgb_list[1].r = lrgb_list[2].r = lrgb_list[3].r = light.r;
+	lrgb_list[0].g = lrgb_list[1].g = lrgb_list[2].g = lrgb_list[3].g = light.g;
+	lrgb_list[0].b = lrgb_list[1].b = lrgb_list[2].b = lrgb_list[3].b = light.b;
 
-	return g3_draw_tmap(4,rod_point_list,uvl_list,bitmap);
+	return g3_draw_tmap(4,rod_point_list,uvl_list,lrgb_list,bitmap);
 }
 
 #ifndef __powerc

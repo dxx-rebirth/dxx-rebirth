@@ -869,7 +869,7 @@ extern void (*tmap_drawer_ptr)(grs_bitmap *bm,int nv,g3s_point **vertlist);
 /*
  * Everything texturemapped (walls, robots, ship)
  */ 
-bool g3_draw_tmap(int nv,g3s_point **pointlist,g3s_uvl *uvl_list,grs_bitmap *bm)
+bool g3_draw_tmap(int nv,g3s_point **pointlist,g3s_uvl *uvl_list,g3s_lrgb *light_rgb,grs_bitmap *bm)
 {
 	int c, index2, index3, index4;
 	GLfloat vertex_array[nv*3];
@@ -906,12 +906,16 @@ bool g3_draw_tmap(int nv,g3s_point **pointlist,g3s_uvl *uvl_list,grs_bitmap *bm)
 		vertex_array[index3+2]   = -f2glf(pointlist[c]->p3_vec.z);
 		if (tmap_drawer_ptr == draw_tmap_flat) {
 			color_array[index4]      = 0;
+			color_array[index4+1]    = color_array[index4];
+			color_array[index4+2]    = color_array[index4];
+			color_array[index4+3]    = color_alpha;
+			
 		} else { 
-			color_array[index4]    = bm->bm_flags & BM_FLAG_NO_LIGHTING ? 1.0 : f2glf(uvl_list[c].l);
+			color_array[index4]      = bm->bm_flags & BM_FLAG_NO_LIGHTING ? 1.0 : f2glf(light_rgb[c].r);
+			color_array[index4+1]    = bm->bm_flags & BM_FLAG_NO_LIGHTING ? 1.0 : f2glf(light_rgb[c].g);
+			color_array[index4+2]    = bm->bm_flags & BM_FLAG_NO_LIGHTING ? 1.0 : f2glf(light_rgb[c].b);
+			color_array[index4+3]    = color_alpha;
 		}
-		color_array[index4+1]    = color_array[index4];
-		color_array[index4+2]    = color_array[index4];
-		color_array[index4+3]  = color_alpha;
 		texcoord_array[index2]   = f2glf(uvl_list[c].u);
 		texcoord_array[index2+1] = f2glf(uvl_list[c].v);
 	}
@@ -934,12 +938,12 @@ bool g3_draw_tmap(int nv,g3s_point **pointlist,g3s_uvl *uvl_list,grs_bitmap *bm)
 /*
  * Everything texturemapped with secondary texture (walls with secondary texture)
  */
-bool g3_draw_tmap_2(int nv, g3s_point **pointlist, g3s_uvl *uvl_list, grs_bitmap *bmbot, grs_bitmap *bm, int orient)
+bool g3_draw_tmap_2(int nv, g3s_point **pointlist, g3s_uvl *uvl_list, g3s_lrgb *light_rgb, grs_bitmap *bmbot, grs_bitmap *bm, int orient)
 {
 	int c, index2, index3, index4;;
 	GLfloat vertex_array[nv*3], color_array[nv*4], texcoord_array[nv*2];
 	
-	g3_draw_tmap(nv,pointlist,uvl_list,bmbot);//draw the bottom texture first.. could be optimized with multitexturing..
+	g3_draw_tmap(nv,pointlist,uvl_list,light_rgb,bmbot);//draw the bottom texture first.. could be optimized with multitexturing..
 	
 	glEnableClientState(GL_VERTEX_ARRAY);
 	glEnableClientState(GL_COLOR_ARRAY);
@@ -974,9 +978,9 @@ bool g3_draw_tmap_2(int nv, g3s_point **pointlist, g3s_uvl *uvl_list, grs_bitmap
 				break;
 		}
 		
-		color_array[index4]      = bm->bm_flags & BM_FLAG_NO_LIGHTING ? 1.0 : f2glf(uvl_list[c].l);
-		color_array[index4+1]    = color_array[c*4];
-		color_array[index4+2]    = color_array[c*4];
+		color_array[index4]      = bm->bm_flags & BM_FLAG_NO_LIGHTING ? 1.0 : f2glf(light_rgb[c].r);
+		color_array[index4+1]    = bm->bm_flags & BM_FLAG_NO_LIGHTING ? 1.0 : f2glf(light_rgb[c].g);
+		color_array[index4+2]    = bm->bm_flags & BM_FLAG_NO_LIGHTING ? 1.0 : f2glf(light_rgb[c].b);
 		color_array[index4+3]    = (grd_curcanv->cv_fade_level >= GR_FADE_OFF)?1.0:(1.0 - (float)grd_curcanv->cv_fade_level / ((float)GR_FADE_LEVELS - 1.0));
 		
 		vertex_array[index3]     = f2glf(pointlist[c]->p3_vec.x);

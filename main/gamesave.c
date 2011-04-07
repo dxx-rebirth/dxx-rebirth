@@ -519,6 +519,7 @@ void read_object(object *obj,CFILE *f,int version)
 			#endif
 
 			obj->rtype.pobj_info.alt_textures	= 0;
+			obj->rtype.pobj_info.lrgb.r = obj->rtype.pobj_info.lrgb.g = obj->rtype.pobj_info.lrgb.b = -1;
 
 			break;
 		}
@@ -531,6 +532,7 @@ void read_object(object *obj,CFILE *f,int version)
 			obj->rtype.vclip_info.vclip_num	= cfile_read_int(f);
 			obj->rtype.vclip_info.frametime	= cfile_read_fix(f);
 			obj->rtype.vclip_info.framenum	= cfile_read_byte(f);
+			obj->rtype.vclip_info.lrgb.r = obj->rtype.vclip_info.lrgb.g = obj->rtype.vclip_info.lrgb.b = -1;
 
 			break;
 
