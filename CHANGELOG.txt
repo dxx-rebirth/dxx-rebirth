@@ -1,5 +1,9 @@
 D1X-Rebirth Changelog
 
+20110408
+--------
+main/net_udp.c: Allow multi_send_fire when necessary and not crop to PPS so fix weapons with high firing rate
+
 20110407
 --------
 3d/draw.c, 3d/interp.c, 3d/rod.c, arch/ogl/ogl.c, include/3d.h, include/ogl_init.h, main/endlevel.c, main/gamesave.c, main/lighting.c, main/lighting.h, main/menu.c, main/morph.c, main/multi.c, main/object.c, main/object.h, main/playsave.c, main/playsave.h, main/polyobj.c, main/polyobj.h, main/render.c, main/state.c, main/terrain.c: Made lighting code work with actual RGB values and added feature to let certain objects emit colored dynamic light as well as let mine flash red when control center destroyed (OpenGL-only at the moment)
