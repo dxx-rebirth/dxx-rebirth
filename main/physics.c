@@ -609,6 +609,10 @@ void do_physics_sim(object *obj)
 
 						wall_part = vm_vec_dot(&hit_info.hit_wallnorm,&obj->mtype.phys_info.velocity);
 
+						// if wall_part, make sure the value is sane enough to get usable velocity computed
+						if (wall_part < 0 && wall_part > -f1_0) wall_part = -f1_0;
+						if (wall_part > 0 && wall_part < f1_0) wall_part = f1_0;
+
 						if (forcefield_bounce || (obj->mtype.phys_info.flags & PF_BOUNCE)) {		//bounce off wall
 							wall_part *= 2;	//Subtract out wall part twice to achieve bounce
 
