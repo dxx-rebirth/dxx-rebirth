@@ -54,6 +54,11 @@ typedef struct g3s_uvl {
 	fix u,v,l;
 } g3s_uvl;
 
+//Structure for storing light color. Also uses l of g3s-uvl to add/compute mono (white) light
+typedef struct g3s_lrgb {
+	fix r,g,b;
+} g3s_lrgb;
+
 //Stucture to store clipping codes in a word
 typedef struct g3s_codes {
 	ubyte or,and;	//or is low byte, and is high byte
@@ -192,7 +197,7 @@ bool g3_draw_poly(int nv,g3s_point **pointlist);
 
 //draw a texture-mapped face.
 //returns 1 if off screen, 0 if drew
-bool g3_draw_tmap(int nv,g3s_point **pointlist,g3s_uvl *uvl_list,grs_bitmap *bm);
+bool g3_draw_tmap(int nv,g3s_point **pointlist,g3s_uvl *uvl_list,g3s_lrgb *light_rgb,grs_bitmap *bm);
 
 //draw a sortof sphere - i.e., the 2d radius is proportional to the 3d
 //radius, but not to the distance from the eye
@@ -209,7 +214,7 @@ int g3_draw_sphere(g3s_point *pnt,fix rad);
 //g3_draw_poly().
 //returns -1 if not facing, 1 if off screen, 0 if drew
 bool g3_check_and_draw_poly(int nv,g3s_point **pointlist,vms_vector *norm,vms_vector *pnt);
-bool g3_check_and_draw_tmap(int nv,g3s_point **pointlist,g3s_uvl *uvl_list,grs_bitmap *bm,vms_vector *norm,vms_vector *pnt);
+bool g3_check_and_draw_tmap(int nv,g3s_point **pointlist,g3s_uvl *uvl_list,g3s_lrgb *light_rgb, grs_bitmap *bm,vms_vector *norm,vms_vector *pnt);
 
 //draws a line. takes two points.
 bool g3_draw_line(g3s_point *p0,g3s_point *p1);
@@ -220,7 +225,7 @@ bool g3_draw_rod_flat(g3s_point *bot_point,fix bot_width,g3s_point *top_point,fi
 
 //draw a bitmap object that is always facing you
 //returns 1 if off screen, 0 if drew
-bool g3_draw_rod_tmap(grs_bitmap *bitmap,g3s_point *bot_point,fix bot_width,g3s_point *top_point,fix top_width,fix light);
+bool g3_draw_rod_tmap(grs_bitmap *bitmap,g3s_point *bot_point,fix bot_width,g3s_point *top_point,fix top_width,g3s_lrgb light);
 
 //draws a bitmap with the specified 3d width & height 
 //returns 1 if off screen, 0 if drew
@@ -237,13 +242,16 @@ void g3_set_interp_points(g3s_point *pointlist);
 
 //calls the object interpreter to render an object.  The object renderer
 //is really a seperate pipeline. returns true if drew
-bool g3_draw_polygon_model(void *model_ptr,grs_bitmap **model_bitmaps,vms_angvec *anim_angles,fix light,fix *glow_values);
+bool g3_draw_polygon_model(void *model_ptr,grs_bitmap **model_bitmaps,vms_angvec *anim_angles,g3s_lrgb light,fix *glow_values);
 
 //init code for bitmap models
 void g3_init_polygon_model(void *model_ptr);
 
 //alternate interpreter for morphing object
-bool g3_draw_morphing_model(void *model_ptr,grs_bitmap **model_bitmaps,vms_angvec *anim_angles,fix light,vms_vector *new_points);
+bool g3_draw_morphing_model(void *model_ptr,grs_bitmap **model_bitmaps,vms_angvec *anim_angles,g3s_lrgb light,vms_vector *new_points);
+
+// check a polymodel for it's color and return it
+int g3_poly_get_color(void *model_ptr);
 
 // routine to convert little to big endian in polygon model data
 void swap_polygon_model_data(ubyte *data);

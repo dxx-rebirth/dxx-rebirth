@@ -504,7 +504,7 @@ bitmap_index texture_list_index[MAX_POLYOBJ_TEXTURES];
 
 //draw a polygon model
 
-void draw_polygon_model(vms_vector *pos,vms_matrix *orient,vms_angvec *anim_angles,int model_num,int flags,fix light,fix *glow_values,bitmap_index alt_textures[])
+void draw_polygon_model(vms_vector *pos,vms_matrix *orient,vms_angvec *anim_angles,int model_num,int flags,g3s_lrgb light,fix *glow_values,bitmap_index alt_textures[])
 {
 	polymodel *po;
 	int i;
@@ -714,6 +714,7 @@ void draw_model_picture(int mn,vms_angvec *orient_angles)
 {
 	vms_vector	temp_pos=ZERO_VECTOR;
 	vms_matrix	temp_orient = IDENTITY_MATRIX;
+	g3s_lrgb	lrgb = { f1_0, f1_0, f1_0 };
 
 	Assert(mn>=0 && mn<N_polygon_models);
 
@@ -727,7 +728,7 @@ void draw_model_picture(int mn,vms_angvec *orient_angles)
 		temp_pos.z = DEFAULT_VIEW_DIST;
 
 	vm_angles_2_matrix(&temp_orient, orient_angles);
-	draw_polygon_model(&temp_pos,&temp_orient,NULL,mn,0,f1_0,NULL,NULL);
+	draw_polygon_model(&temp_pos,&temp_orient,NULL,mn,0,lrgb,NULL,NULL);
 	g3_end_frame();
 }
 

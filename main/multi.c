@@ -3860,6 +3860,7 @@ void multi_object_rw_to_object(object_rw *obj_rw, object *obj)
 			obj->rtype.pobj_info.subobj_flags             = obj_rw->rtype.pobj_info.subobj_flags;
 			obj->rtype.pobj_info.tmap_override            = obj_rw->rtype.pobj_info.tmap_override;
 			obj->rtype.pobj_info.alt_textures             = obj_rw->rtype.pobj_info.alt_textures;
+			obj->rtype.pobj_info.lrgb.r = obj->rtype.pobj_info.lrgb.g = obj->rtype.pobj_info.lrgb.b = -1;
 			break;
 		}
 			
@@ -3870,6 +3871,7 @@ void multi_object_rw_to_object(object_rw *obj_rw, object *obj)
 			obj->rtype.vclip_info.vclip_num = obj_rw->rtype.vclip_info.vclip_num;
 			obj->rtype.vclip_info.frametime = obj_rw->rtype.vclip_info.frametime;
 			obj->rtype.vclip_info.framenum  = obj_rw->rtype.vclip_info.framenum;
+			obj->rtype.vclip_info.lrgb.r = obj->rtype.vclip_info.lrgb.g = obj->rtype.vclip_info.lrgb.b = -1;
 			break;
 			
 		case RT_LASER:

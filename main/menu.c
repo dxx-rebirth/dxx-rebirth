@@ -1211,7 +1211,7 @@ void reticle_config()
 	PlayerCfg.ReticleSize = m[opt_ret_size].value;
 }
 
-int opt_gr_texfilt, opt_gr_brightness, opt_gr_reticlemenu, opt_gr_alphafx, opt_gr_vsync, opt_gr_multisample, opt_gr_fpsindi;
+int opt_gr_texfilt, opt_gr_brightness, opt_gr_reticlemenu, opt_gr_alphafx, opt_gr_dynlightcolor, opt_gr_vsync, opt_gr_multisample, opt_gr_fpsindi;
 int graphics_config_menuset(newmenu *menu, d_event *event, void *userdata)
 {
 	newmenu_item *items = newmenu_get_items(menu);
@@ -1252,7 +1252,7 @@ int graphics_config_menuset(newmenu *menu, d_event *event, void *userdata)
 void graphics_config()
 {
 #ifdef OGL
-	newmenu_item m[12];
+	newmenu_item m[13];
 	int i = 0;
 #else
 	newmenu_item m[3];
@@ -1275,6 +1275,8 @@ void graphics_config()
 #ifdef OGL
 	opt_gr_alphafx = nitems;
 	m[nitems].type = NM_TYPE_CHECK; m[nitems].text = "Transparency Effects"; m[nitems].value = PlayerCfg.AlphaEffects; nitems++;
+	opt_gr_dynlightcolor = nitems;
+	m[nitems].type = NM_TYPE_CHECK; m[nitems].text = "Colored Dynamic Light"; m[nitems].value = PlayerCfg.DynLightColor; nitems++;
 	opt_gr_vsync = nitems;
 	m[nitems].type = NM_TYPE_CHECK; m[nitems].text="VSync"; m[nitems].value = GameCfg.VSync; nitems++;
 	opt_gr_multisample = nitems;
@@ -1296,6 +1298,7 @@ void graphics_config()
 		if (m[i+opt_gr_texfilt].value)
 			GameCfg.TexFilt = i;
 	PlayerCfg.AlphaEffects = m[opt_gr_alphafx].value;
+	PlayerCfg.DynLightColor = m[opt_gr_dynlightcolor].value;
 	GameCfg.VSync = m[opt_gr_vsync].value;
 	GameCfg.Multisample = m[opt_gr_multisample].value;
 #endif

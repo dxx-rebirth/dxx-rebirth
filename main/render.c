@@ -192,6 +192,7 @@ void render_face(int segnum, int sidenum, int nv, short *vp, int tmap1, int tmap
 #endif
 	fix		reflect;
 	g3s_uvl		uvl_copy[8];
+	g3s_lrgb	dyn_light[8];
 	int		i;
 	g3s_point	*pointlist[8];
 
@@ -200,7 +201,7 @@ void render_face(int segnum, int sidenum, int nv, short *vp, int tmap1, int tmap
 	for (i=0; i<nv; i++) {
 		uvl_copy[i].u = uvlp[i].u;
 		uvl_copy[i].v = uvlp[i].v;
-		uvl_copy[i].l = uvlp[i].l;
+		dyn_light[i].r = dyn_light[i].g = dyn_light[i].b = uvl_copy[i].l = uvlp[i].l;
 		pointlist[i] = &Segment_points[vp[i]];
 	}
 
@@ -244,26 +245,50 @@ void render_face(int segnum, int sidenum, int nv, short *vp, int tmap1, int tmap
 	{
 		int i;
 
-// 		face_light = fixmul(face_light,reflect);
-
-		for (i=0;i<nv;i++) {
-
+		for (i=0;i<nv;i++)
+		{
+			fix highval = 0;
 			//the uvl struct has static light already in it
 
 			//scale static light for destruction effect
 			if (Control_center_destroyed)	//make lights flash
 				uvl_copy[i].l = fixmul(flash_scale,uvl_copy[i].l);
-
 			//add in dynamic light (from explosions, etc.)
-			uvl_copy[i].l += Dynamic_light[vp[i]];
-
-			//add in light from player's headlight
-// 			uvl_copy[i].l += compute_headlight_light(&Segment_points[vp[i]].p3_vec,face_light);
-
+			uvl_copy[i].l += (Dynamic_light[vp[i]].r+Dynamic_light[vp[i]].g+Dynamic_light[vp[i]].b)/3;
 			//saturate at max value
 			if (uvl_copy[i].l > MAX_LIGHT)
 				uvl_copy[i].l = MAX_LIGHT;
 
+			// And now the same for the ACTUAL (rgb) light we want to use
+
+			//scale static light for destruction effect
+			if (Control_center_destroyed)	//make lights flash
+			{
+				if (PlayerCfg.DynLightColor) // let the mine glow red a little
+				{
+					dyn_light[i].r = fixmul(flash_scale>=f0_5*1.5?flash_scale:f0_5*1.5,uvl_copy[i].l);
+					dyn_light[i].g = dyn_light[i].b = fixmul(flash_scale,uvl_copy[i].l);
+				}
+				else
+					dyn_light[i].r = dyn_light[i].g = dyn_light[i].b = fixmul(flash_scale,uvl_copy[i].l);
+			}
+			// add light color
+			dyn_light[i].r += Dynamic_light[vp[i]].r;
+			dyn_light[i].g += Dynamic_light[vp[i]].g;
+			dyn_light[i].b += Dynamic_light[vp[i]].b;
+			// saturate at max value
+			if (dyn_light[i].r > highval)
+				highval = dyn_light[i].r;
+			if (dyn_light[i].g > highval)
+				highval = dyn_light[i].g;
+			if (dyn_light[i].b > highval)
+				highval = dyn_light[i].b;
+			if (highval > MAX_LIGHT)
+			{
+				dyn_light[i].r -= highval - MAX_LIGHT;
+				dyn_light[i].g -= highval - MAX_LIGHT;
+				dyn_light[i].b -= highval - MAX_LIGHT;
+			}
 		}
 	}
 
@@ -274,7 +299,7 @@ void render_face(int segnum, int sidenum, int nv, short *vp, int tmap1, int tmap
 #ifdef EDITOR
 	if ((Render_only_bottom) && (sidenum == WBOTTOM))
 	{
-		g3_draw_tmap(nv,pointlist,uvl_copy,&GameBitmaps[Textures[Bottom_bitmap_num].index]);
+		g3_draw_tmap(nv,pointlist,uvl_copy,dyn_light,&GameBitmaps[Textures[Bottom_bitmap_num].index]);
 	}
 	else
 #endif
@@ -282,12 +307,12 @@ void render_face(int segnum, int sidenum, int nv, short *vp, int tmap1, int tmap
 #ifdef OGL
 		if (bm2)
 		{
-			g3_draw_tmap_2(nv,pointlist,uvl_copy,bm,bm2,((tmap2&0xC000)>>14) & 3);
+			g3_draw_tmap_2(nv,pointlist,uvl_copy,dyn_light,bm,bm2,((tmap2&0xC000)>>14) & 3);
 		}
 		else
 #endif
 		{
-			g3_draw_tmap(nv,pointlist,uvl_copy,bm);
+			g3_draw_tmap(nv,pointlist,uvl_copy,dyn_light,bm);
 		}
 	}
 
@@ -310,6 +335,7 @@ void check_face(int segnum, int sidenum, int facenum, int nv, short *vp, int tma
 		int save_lighting;
 		grs_bitmap *bm;
 		g3s_uvl uvl_copy[8];
+		g3s_lrgb dyn_light[8] = { 0, 0, 0, 0, 0, 0, 0, 0 };
 		g3s_point *pointlist[4];
 
 		if (tmap2 > 0 )
@@ -320,7 +346,7 @@ void check_face(int segnum, int sidenum, int facenum, int nv, short *vp, int tma
 		for (i=0; i<nv; i++) {
 			uvl_copy[i].u = uvlp[i].u;
 			uvl_copy[i].v = uvlp[i].v;
-			uvl_copy[i].l = uvlp[i].l;
+			dyn_light[i].r = dyn_light[i].g = dyn_light[i].b = uvl_copy[i].l = uvlp[i].l;
 			pointlist[i] = &Segment_points[vp[i]];
 		}
 
@@ -330,7 +356,7 @@ void check_face(int segnum, int sidenum, int facenum, int nv, short *vp, int tma
 		save_lighting = Lighting_on;
 		Lighting_on = 2;
 		//g3_draw_poly(nv,vp);
-		g3_draw_tmap(nv,&pointlist[0], uvl_copy, bm);
+		g3_draw_tmap(nv,&pointlist[0], uvl_copy, dyn_light, bm);
 		Lighting_on = save_lighting;
 
 		if (gr_ugpixel(&grd_curcanv->cv_bitmap,_search_x,_search_y) == 1) {
