@@ -290,6 +290,7 @@ extern int Doing_lighting_hack_flag;
 //	Changing these constants will not affect the damage done.
 //	WARNING: If you change DESIRED_OMEGA_DIST and MAX_OMEGA_BLOBS, you don't merely change the look of the cannon,
 //	you change its range.  If you decrease DESIRED_OMEGA_DIST, you decrease how far the gun can fire.
+#define OMEGA_BASE_TIME (F1_0/30) // How many blobs per second!! No FPS-based blob creation anymore, no FPS-based damage anymore!
 #define	MIN_OMEGA_BLOBS		3				//	No matter how close the obstruction, at this many blobs created.
 #define	MIN_OMEGA_DIST			(F1_0*3)		//	At least this distance between blobs, unless doing so would violate MIN_OMEGA_BLOBS
 #define	DESIRED_OMEGA_DIST	(F1_0*5)		//	This is the desired distance between blobs.  For distances > MIN_OMEGA_BLOBS*DESIRED_OMEGA_DIST, but not very large, this will apply.
@@ -305,25 +306,39 @@ extern int Doing_lighting_hack_flag;
 
 //	Note, you don't need to change these constants.  You can control damage and energy consumption by changing the
 //	usual bitmaps.tbl parameters.
-#define	OMEGA_DAMAGE_SCALE			32				//	Controls how much damage is done.  This gets multiplied by FrameTime and then again by the damage specified in bitmaps.tbl in the $WEAPON line.
-#define	OMEGA_ENERGY_CONSUMPTION	16				//	Controls how much energy is consumed.  This gets multiplied by FrameTime and then again by the energy parameter from bitmaps.tbl.
+#define	OMEGA_DAMAGE_SCALE			32				//	Controls how much damage is done.  This gets multiplied by the damage specified in bitmaps.tbl in the $WEAPON line.
+#define	OMEGA_ENERGY_CONSUMPTION	16				//	Controls how much energy is consumed.  This gets multiplied by the energy parameter from bitmaps.tbl.
 //	-------------------------------------------------------------------------------------------------------------------------------
 
-void delete_old_omega_blobs(object *parent_objp)
+// Delete omega blobs further away than MAX_OMEGA_DIST
+// Since last omega blob has VERY high velocity it's impossible to ensure a constant travel distance on varying FPS. So delete if they exceed their maximum distance.
+void omega_cleanup(object *weapon)
 {
-	int	i;
-	int	parent_num;
-	int	count = 0;
+	int parent_sig = weapon->ctype.laser_info.parent_signature, parent_num = weapon->ctype.laser_info.parent_num;
 
-	parent_num = parent_objp->ctype.laser_info.parent_num;
+	if (weapon->type != OBJ_WEAPON || weapon->id != OMEGA_ID)
+		return;
 
-	for (i=0; i<=Highest_object_index; i++)
-		if (Objects[i].type == OBJ_WEAPON)
-			if (Objects[i].id == OMEGA_ID)
-				if (Objects[i].ctype.laser_info.parent_num == parent_num) {
-					obj_delete(i);
-					count++;
-				}
+	if (Objects[parent_num].signature == parent_sig)
+		if (vm_vec_dist(&weapon->pos, &Objects[parent_num].pos) > MAX_OMEGA_DIST)
+			obj_delete(weapon-Objects);
+}
+
+// Return true if ok to do Omega damage. For Multiplayer games. See comment for omega_cleanup()
+int ok_to_do_omega_damage(object *weapon)
+{
+	int parent_sig = weapon->ctype.laser_info.parent_signature, parent_num = weapon->ctype.laser_info.parent_num;
+
+	if (weapon->type != OBJ_WEAPON || weapon->id != OMEGA_ID)
+		return 1;
+	if (!(Game_mode & GM_MULTI))
+		return 1;
+
+	if (Objects[parent_num].signature == parent_sig)
+		if (vm_vec_dist(&Objects[parent_num].pos, &weapon->pos) > MAX_OMEGA_DIST)
+			return 0;
+
+	return 1;
 }
 
 // ---------------------------------------------------------------------------------
@@ -337,9 +352,6 @@ void create_omega_blobs(int firing_segnum, vms_vector *firing_pos, vms_vector *g
 	vms_vector	omega_delta_vector;
 	vms_vector	blob_pos, perturb_vec;
 	fix			perturb_array[MAX_OMEGA_BLOBS];
-
-	if (Game_mode & GM_MULTI)
-		delete_old_omega_blobs(parent_objp);
 
 	vm_vec_sub(&vec_to_goal, goal_pos, firing_pos);
 
@@ -418,7 +430,7 @@ void create_omega_blobs(int firing_segnum, vms_vector *firing_pos, vms_vector *g
 
 			objp = &Objects[blob_objnum];
 
-			objp->lifeleft = ONE_FRAME_TIME;
+			objp->lifeleft = OMEGA_BASE_TIME+(d_rand()/8); // add little randomness so the lighting effect becomes a little more interesting
 			objp->mtype.phys_info.velocity = vec_to_goal;
 
 			//	Only make the last one move fast, else multiple blobs might collide with target.
@@ -426,7 +438,7 @@ void create_omega_blobs(int firing_segnum, vms_vector *firing_pos, vms_vector *g
 
 			objp->size = Weapon_info[objp->id].blob_size;
 
-			objp->shields = fixmul(OMEGA_DAMAGE_SCALE*FrameTime, Weapon_info[objp->id].strength[Difficulty_level]);
+			objp->shields = fixmul(OMEGA_DAMAGE_SCALE*OMEGA_BASE_TIME, Weapon_info[objp->id].strength[Difficulty_level]);
 
 			objp->ctype.laser_info.parent_type			= parent_objp->type;
 			objp->ctype.laser_info.parent_signature	= parent_objp->signature;
@@ -454,7 +466,7 @@ fix	Omega_charge = MAX_OMEGA_CHARGE;
 
 #define	OMEGA_CHARGE_SCALE	4
 
-int	Last_omega_fire_frame=0;
+int	Last_omega_fire_time=0;
 
 // ---------------------------------------------------------------------------------
 //	Call this every frame to recharge the Omega Cannon.
@@ -471,8 +483,10 @@ void omega_charge_frame(void)
 	if (Player_is_dead)
 		return;
 
-	//	Don't charge while firing.
-	if ((Last_omega_fire_frame == FrameCount) || (Last_omega_fire_frame == FrameCount-1))
+	//	Don't charge while firing. Wait 1/3 second after firing before recharging
+	if (Last_omega_fire_time > GameTime64)
+		Last_omega_fire_time = GameTime64;
+	if (Last_omega_fire_time + F1_0/3 > GameTime64)
 		return;
 
 	if (Players[Player_num].energy) {
@@ -515,14 +529,12 @@ void do_omega_stuff(object *parent_objp, vms_vector *firing_pos, object *weapon_
 			return;
 		}
 
-		Omega_charge -= FrameTime;
+// 		Omega_charge -= OMEGA_BASE_TIME;
 		if (Omega_charge < 0)
 			Omega_charge = 0;
 
-		//	Ensure that the lightning cannon can be fired next frame.
-		Next_laser_fire_time = GameTime64+1;
-
-		Last_omega_fire_frame = FrameCount;
+		Next_laser_fire_time = GameTime64+OMEGA_BASE_TIME;
+		Last_omega_fire_time = GameTime64;
 	}
 
 	weapon_objp->ctype.laser_info.parent_type = OBJ_PLAYER;
@@ -534,13 +546,10 @@ void do_omega_stuff(object *parent_objp, vms_vector *firing_pos, object *weapon_
 	firing_segnum = find_point_seg(firing_pos, parent_objp->segnum);
 
 	//	Play sound.
-	if (FixedStep & EPS30)
-	{
-		if ( parent_objp == Viewer )
-			digi_play_sample( Weapon_info[weapon_objp->id].flash_sound, F1_0 );
-		else
-			digi_link_sound_to_pos( Weapon_info[weapon_objp->id].flash_sound, weapon_objp->segnum, 0, &weapon_objp->pos, 0, F1_0 );
-	}
+	if ( parent_objp == Viewer )
+		digi_play_sample( Weapon_info[weapon_objp->id].flash_sound, F1_0 );
+	else
+		digi_link_sound_to_pos( Weapon_info[weapon_objp->id].flash_sound, weapon_objp->segnum, 0, &weapon_objp->pos, 0, F1_0 );
 
 	// -- if ((Last_omega_muzzle_flash_time + F1_0/4 < GameTime) || (Last_omega_muzzle_flash_time > GameTime)) {
 	// -- 	do_muzzle_stuff(firing_segnum, firing_pos);
@@ -1449,22 +1458,14 @@ void Laser_do_weapon_sequence(object *obj)
 {
 	Assert(obj->control_type == CT_WEAPON);
 
-	//	Ok, this is a big hack by MK.
-	//	If you want an object to last for exactly one frame, then give it a lifeleft of ONE_FRAME_TIME
-	if (obj->lifeleft == ONE_FRAME_TIME) {
-		if (Game_mode & GM_MULTI)
-			obj->lifeleft = OMEGA_MULTI_LIFELEFT;
-		else
-			obj->lifeleft = 0;
-		obj->render_type = RT_NONE;
-	}
-
 	if (obj->lifeleft < 0 ) {		// We died of old age
 		obj->flags |= OF_SHOULD_BE_DEAD;
 		if ( Weapon_info[obj->id].damage_radius )
 			explode_badass_weapon(obj,&obj->pos);
 		return;
 	}
+
+	omega_cleanup(obj);
 
 	//delete weapons that are not moving
 	if (	!((FrameCount ^ obj->signature) & 3) &&

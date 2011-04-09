@@ -124,7 +124,6 @@ COPYRIGHT 1993-1999 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 #define PF_BOUNCES_TWICE    0x200   // This weapon bounces twice, then dies
 
 #define IMMORTAL_TIME   0x3fffffff  // Time assigned to immortal objects, about 32768 seconds, or about 9 hours.
-#define ONE_FRAME_TIME  0x3ffffffe  // Objects with this lifeleft will live for exactly one frame
 
 extern char Object_type_names[MAX_OBJECT_TYPES][9];
 

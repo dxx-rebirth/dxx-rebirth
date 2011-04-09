@@ -60,8 +60,6 @@ COPYRIGHT 1993-1999 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 
 #define PMINE_ID                    51  //the mine that the designers can place
 
-#define OMEGA_MULTI_LIFELEFT    (F1_0/6)
-
 // These are new defines for the value of 'flags' passed to do_laser_firing.
 // The purpose is to collect other flags like QUAD_LASER and Spreadfire_toggle
 // into a single 8-bit quantity so it can be easily used in network mode.
@@ -151,5 +149,6 @@ extern muzzle_info Muzzle_data[MUZZLE_QUEUE_MAX];
 #define MAX_OMEGA_CHARGE    (F1_0)  //  Maximum charge level for omega cannonw
 extern fix Omega_charge;
 // NOTE: OMEGA_CHARGE_SCALE moved to laser.c to avoid long rebuilds if changed
+extern int ok_to_do_omega_damage(struct object *weapon);
 
 #endif /* _LASER_H */

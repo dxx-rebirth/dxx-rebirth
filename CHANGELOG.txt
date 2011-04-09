@@ -1,5 +1,9 @@
 D2X-Rebirth Changelog
 
+20110411
+--------
+main/collide.c, main/laser.c, main/laser.h, main/object.c, main/object.h, main/vclip.c: Reworked Omega cannon: Instead of firing every frame, fire in 33.33ms intervals instead which will improve performance, decrease network traffic and make damage in Multiplayer not a totally random factor; To compensate inaccuracy due high velocity of leading omega blob, check for it's distance from parent and delete if distance > MAX
+
 20110408
 --------
 main/net_udp.c: Allow multi_send_fire when necessary and not crop to PPS so fix weapons with high firing rate

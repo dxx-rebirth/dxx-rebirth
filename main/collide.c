@@ -630,36 +630,6 @@ int check_effect_blowup(segment *seg,int side,vms_vector *pnt, object *blower, i
 	return 0;		//didn't blow up
 }
 
-//	Copied from laser.c!
-#define	MIN_OMEGA_BLOBS		3				//	No matter how close the obstruction, at this many blobs created.
-#define	MIN_OMEGA_DIST			(F1_0*3)		//	At least this distance between blobs, unless doing so would violate MIN_OMEGA_BLOBS
-#define	DESIRED_OMEGA_DIST	(F1_0*5)		//	This is the desired distance between blobs.  For distances > MIN_OMEGA_BLOBS*DESIRED_OMEGA_DIST, but not very large, this will apply.
-#define	MAX_OMEGA_BLOBS		16				//	No matter how far away the obstruction, this is the maximum number of blobs.
-#define	MAX_OMEGA_DIST			(MAX_OMEGA_BLOBS * DESIRED_OMEGA_DIST)		//	Maximum extent of lightning blobs.
-
-//	-------------------------------------------------
-//	Return true if ok to do Omega damage.
-int ok_to_do_omega_damage(object *weapon)
-{
-	int	parent_sig = weapon->ctype.laser_info.parent_signature;
-	int	parent_num = weapon->ctype.laser_info.parent_num;
-
-	if (!(Game_mode & GM_MULTI))
-		return 1;
-
-	if (Objects[parent_num].signature != parent_sig)
-		;
-	else {
-		fix	dist = vm_vec_dist_quick(&Objects[parent_num].pos, &weapon->pos);
-
-		if (dist > MAX_OMEGA_DIST) {
-			return 0;
-		}
-	}
-
-	return 1;
-}
-
 //these gets added to the weapon's values when the weapon hits a volitle wall
 #define VOLATILE_WALL_EXPL_STRENGTH i2f(10)
 #define VOLATILE_WALL_IMPACT_SIZE	i2f(3)
@@ -677,7 +647,7 @@ void collide_weapon_and_wall( object * weapon, fix hitspeed, short hitseg, short
 	int	robot_escort;
 
 	if (weapon->id == OMEGA_ID)
-		if (!ok_to_do_omega_damage(weapon))
+		if (!ok_to_do_omega_damage(weapon)) // see comment in laser.c
 			return;
 
 	//	If this is a guided missile and it strikes fairly directly, clear bounce flag.
@@ -1199,7 +1169,7 @@ void collide_weapon_and_controlcen( object * weapon, object *controlcen, vms_vec
 {
 
 	if (weapon->id == OMEGA_ID)
-		if (!ok_to_do_omega_damage(weapon))
+		if (!ok_to_do_omega_damage(weapon)) // see comment in laser.c
 			return;
 
 	if (weapon->ctype.laser_info.parent_type == OBJ_PLAYER) {
@@ -1556,7 +1526,7 @@ void collide_robot_and_weapon( object * robot, object * weapon, vms_vector *coll
 	int	boss_invul_flag=0;
 
 	if (weapon->id == OMEGA_ID)
-		if (!ok_to_do_omega_damage(weapon))
+		if (!ok_to_do_omega_damage(weapon)) // see comment in laser.c
 			return;
 
 	if (Robot_info[robot->id].boss_flag) {
@@ -2118,12 +2088,8 @@ void collide_player_and_weapon( object * playerobj, object * weapon, vms_vector 
 	fix		damage = weapon->shields;
 	object * killer=NULL;
 
-	//	In multiplayer games, only do damage to another player if in first frame.
-	//	This is necessary because in multiplayer, due to varying framerates, omega blobs actually
-	//	have a bit of a lifetime.  But they start out with a lifetime of ONE_FRAME_TIME, and this
-	//	gets bashed to 1/4 second in laser_do_weapon_sequence.  This bashing occurs for visual purposes only.
 	if (weapon->id == OMEGA_ID)
-		if (!ok_to_do_omega_damage(weapon))
+		if (!ok_to_do_omega_damage(weapon)) // see comment in laser.c
 			return;
 
 	//	Don't collide own smart mines unless direct hit.
@@ -2374,10 +2340,10 @@ void collide_weapon_and_weapon( object * weapon1, object * weapon2, vms_vector *
 		return;		//these can't blow each other up
 
 	if (weapon1->id == OMEGA_ID) {
-		if (!ok_to_do_omega_damage(weapon1))
+		if (!ok_to_do_omega_damage(weapon1)) // see comment in laser.c
 			return;
 	} else if (weapon2->id == OMEGA_ID) {
-		if (!ok_to_do_omega_damage(weapon2))
+		if (!ok_to_do_omega_damage(weapon2)) // see comment in laser.c
 			return;
 	}
 

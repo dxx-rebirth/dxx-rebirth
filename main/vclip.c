@@ -71,10 +71,6 @@ void draw_weapon_vclip(object *obj)
 	if (modtime == IMMORTAL_TIME)
 		modtime = play_time;
 
-	//	Should cause Omega blobs (which live for one frame) to not always be the same.
-	if (modtime == ONE_FRAME_TIME)
-		modtime = d_rand();
-
 	if (obj->id == PROXIMITY_ID) {		//make prox bombs spin out of sync
 		int objnum = obj-Objects;
 

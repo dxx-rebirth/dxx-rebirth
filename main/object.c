@@ -1863,12 +1863,8 @@ void object_move_one( object * obj )
 		}
 	}
 
-	if (obj->lifeleft != IMMORTAL_TIME) {	//if not immortal...
-		//	Ok, this is a big hack by MK.
-		//	If you want an object to last for exactly one frame, then give it a lifeleft of ONE_FRAME_TIME.
-		if (obj->lifeleft != ONE_FRAME_TIME)
-			obj->lifeleft -= FrameTime;		//...inevitable countdown towards death
-	}
+	if (obj->lifeleft != IMMORTAL_TIME) //if not immortal...
+		obj->lifeleft -= FrameTime; //...inevitable countdown towards death
 
 	Drop_afterburner_blob_flag = 0;
 
