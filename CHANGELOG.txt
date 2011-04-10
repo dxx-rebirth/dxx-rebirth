@@ -1,8 +1,9 @@
 D2X-Rebirth Changelog
 
-20110411
+20110410
 --------
 main/collide.c, main/laser.c, main/laser.h, main/object.c, main/object.h, main/vclip.c: Reworked Omega cannon: Instead of firing every frame, fire in 33.33ms intervals instead which will improve performance, decrease network traffic and make damage in Multiplayer not a totally random factor; To compensate inaccuracy due high velocity of leading omega blob, check for it's distance from parent and delete if distance > MAX
+main/gamerend.c, main/gauges.c, main/titles.c: Fixed text-related annoyances: Fixed positions of strings TXT_CLOAKED and TXT_CRUISE in CM_FULL_SCREEN; Fixed scaling of tab_stop in briefings (again)
 
 20110408
 --------

@@ -1356,7 +1356,7 @@ void hud_show_cloak_invuln(void)
 		int	y = grd_curcanv->cv_bitmap.bm_h;
 
 		if (Game_mode & GM_MULTI)
-			y -= LINE_SPACING*7;
+			y -= LINE_SPACING*8;
 		else
 			y -= LINE_SPACING*4;
 
@@ -1370,7 +1370,7 @@ void hud_show_cloak_invuln(void)
 		int	y = grd_curcanv->cv_bitmap.bm_h;
 
 		if (Game_mode & GM_MULTI)
-			y -= LINE_SPACING*10;
+			y -= LINE_SPACING*9;
 		else
 			y -= LINE_SPACING*5;
 
