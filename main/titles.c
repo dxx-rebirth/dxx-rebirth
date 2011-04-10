@@ -516,6 +516,10 @@ int briefing_process_char(briefing *br)
 
 			init_spinning_robot(br);
 			br->robot_num = get_message_num(&br->message);
+#if 0 // NOTE: code we wanted to merge from D2. However it breaks the briefing screen of the "Spider" bot: swallows it's name  line
+                        while (*br->message++ != 10)
+                                ;
+#endif
 			br->prev_ch = 10;                           // read to eoln
 		} else if (ch == 'N') {
 			if (br->robot_canv != NULL)
