@@ -4089,7 +4089,7 @@ void net_udp_do_frame(int force, int listen)
 			iAttempts = 0;
 			
 			// Warn
-			nm_messagebox( TXT_WARNING, 1, TXT_OK, "No response from tracker!\nPossible causes:\nTracker s down\nYour port is likely not open!\n\nTracker: %s\nGame port: %s", GameArg.MplTrackerAddr, UDP_MyPort );
+			nm_messagebox( TXT_WARNING, 1, TXT_OK, "No response from tracker!\nPossible causes:\nTracker is down\nYour port is likely not open!\n\nTracker: %s\nGame port: %s", GameArg.MplTrackerAddr, UDP_MyPort );
 		}
 	}
 #endif

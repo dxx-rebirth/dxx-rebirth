@@ -1,5 +1,10 @@
 D1X-Rebirth Changelog
 
+20110410
+--------
+main/net_udp.c: Allow multi_send_fire when necessary and not crop to PPS so fix weapons with high firing rate
+main/game.c, main/gamerend.c, main/gauges.c, main/net_udp.c, main/titles.c: Fixed text-related annoyances: "Show reticle names" now named "Show player names on HUD"; Fixed positions of strings TXT_CLOAKED and TXT_CRUISE in CM_FULL_SCREEN; Fixed typo in tracker timeout screen; Fixed scaling of tab_stop in briefings (again); Removed some little D2 code for briefings as it broke some briefing screens
+
 20110408
 --------
 main/net_udp.c: Allow multi_send_fire when necessary and not crop to PPS so fix weapons with high firing rate

@@ -321,7 +321,7 @@ void game_draw_hud_stuff()
 				if (Game_mode & GM_MULTI)
 					y -= LINE_SPACING * 10;
 				else
-					y -= LINE_SPACING * 5;
+					y -= LINE_SPACING * 6;
 			} else if (PlayerCfg.CockpitMode[1] == CM_STATUS_BAR) {
 				if (Game_mode & GM_MULTI)
 					y -= LINE_SPACING * 6;

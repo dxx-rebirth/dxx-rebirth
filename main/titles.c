@@ -506,7 +506,6 @@ int briefing_process_char(briefing *br)
 				;
 		} else if (ch == 'T') {
 			br->tab_stop = get_message_num(&br->message);
-			br->tab_stop*=FSPACX(1+HIRESMODE);
 			br->prev_ch = 10;							//	read to eoln
 		} else if (ch == 'R') {
 			if (br->robot_canv != NULL)
@@ -517,8 +516,6 @@ int briefing_process_char(briefing *br)
 
 			init_spinning_robot(br);
 			br->robot_num = get_message_num(&br->message);
-			while (*br->message++ != 10)
-				;
 			br->prev_ch = 10;                           // read to eoln
 		} else if (ch == 'N') {
 			if (br->robot_canv != NULL)
@@ -577,8 +574,8 @@ int briefing_process_char(briefing *br)
 		} else if (ch == '$' || ch == ';') // Print a $/;
 			put_char_delay(br, ch);
 	} else if (ch == '\t') {		//	Tab
-		if (br->text_x - br->screen->text_ulx < br->tab_stop)
-			br->text_x = br->screen->text_ulx + br->tab_stop;
+		if (br->text_x - br->screen->text_ulx < FSPACX(br->tab_stop))
+			br->text_x = br->screen->text_ulx + FSPACX(br->tab_stop);
 	} else if ((ch == ';') && (br->prev_ch == 10)) {
 		while (*br->message++ != 10)
 			;
