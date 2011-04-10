@@ -87,8 +87,11 @@ Needed files:
 
    Note that the above files must be lowercase if you use an operating system with case-sensitive file management.
 
-   For the Mac CD-ROM, the data files (except for the movies) will need to be installed from the CD using a Mac
-   system earler than OS X. Classic will work. StuffIt tech support said this is virtually the only way.
+   For the Mac CD-ROM, download The Unarchiver (http://wakaba.c3.cx/s/apps/unarchiver.html) and drag the
+   installer program onto it. Alternatively, for Mac OS 9 or earlier simply run the installer.
+   Unfortunately the movies do not work; if you want the movies consider purchasing Descent 2 for PC
+   (e.g. from Good Old Games) and extract that installer with The Unarchiver. Hey, then you'll have
+   another license for multiplayer. ;)
 
 
 Where to put these files:
