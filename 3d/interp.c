@@ -329,7 +329,6 @@ int g3_poly_get_color(void *model_ptr)
 				int nv = w(p+2);
 				Assert( nv < MAX_POINTS_PER_POLY );
 				if (g3_check_normal_facing(vp(p+4),vp(p+16)) > 0) {
-					int i;
 #ifdef FADE_FLATPOLY
 					short c;
 					unsigned char cc;
