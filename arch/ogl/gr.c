@@ -230,6 +230,7 @@ int gr_toggle_fullscreen(void)
 		glLoadIdentity();//clear matrix
 		glEnable(GL_BLEND);
 		glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
+		ogl_smash_texture_list_internal();//if we are or were fullscreen, changing vid mode will invalidate current textures
 	}
 	GameCfg.WindowMode = (sdl_video_flags & SDL_FULLSCREEN)?0:1;
 	return (sdl_video_flags & SDL_FULLSCREEN)?1:0;
@@ -738,14 +739,11 @@ void write_bmp(char *savename,int w,int h,unsigned char *buf)
 	PHYSFS_file* TGAFile;
 	TGA_header TGA;
 	GLbyte HeightH,HeightL,WidthH,WidthL;
-#ifdef OGLES
 	unsigned int pixel;
 	unsigned char *rgbaBuf;
-#endif
 
-	buf = (unsigned char*)d_calloc(w*h*3,sizeof(unsigned char));
+	buf = (unsigned char*)d_calloc(w*h*4,sizeof(unsigned char));
 
-#ifdef OGLES
 	rgbaBuf = (unsigned char*) d_calloc(w * h * 4, sizeof(unsigned char));
 	glReadPixels(0, 0, w, h, GL_RGBA, GL_UNSIGNED_BYTE, rgbaBuf);
 	for(pixel = 0; pixel < w * h; pixel++) {
@@ -754,9 +752,6 @@ void write_bmp(char *savename,int w,int h,unsigned char *buf)
 		*(buf + pixel * 3 + 2) = *(rgbaBuf + pixel * 4);
 	}
 	d_free(rgbaBuf);
-#else
-	glReadPixels(0,0,w,h,GL_BGR_EXT,GL_UNSIGNED_BYTE,buf);
-#endif
 
 	if (!(TGAFile = PHYSFSX_openWriteBuffered(savename)))
 	{
