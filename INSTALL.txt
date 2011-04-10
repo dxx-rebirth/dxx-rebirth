@@ -75,8 +75,8 @@ Needed files:
    There is a patch available at:
    http://www.dxx-rebirth.com/download/dxx/res/d1datapt.zip
 
-   For the Mac CD-ROM, the data files will need to be installed from the CD using a Mac system earler than
-   OS X. Classic will work. StuffIt tech support said this is virtually the only way.
+   For the Mac CD-ROM, download The Unarchiver (http://wakaba.c3.cx/s/apps/unarchiver.html) and drag the
+   installer program onto it. Alternatively, for Mac OS 9 or earlier simply run the installer.
 
    Note that the above files must be lowercase if you use an operating system with case-sensitive file management.
 
