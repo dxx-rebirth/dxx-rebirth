@@ -31,7 +31,7 @@ int net_udp_level_sync();
 #define UDP_REQ_ID "D1XR" // ID string for a request packet
 #define UDP_MAX_NETGAMES 3000
 #define UDP_NETGAMES_PPAGE 12 // Netgames on one page of Netlist
-#define UDP_NETGAMES_PAGES 50 // Pages available on Netlist (UDP_MAX_NETGAMES/UDP_NETGAMES_PPAGE)
+#define UDP_NETGAMES_PAGES 250 // Pages available on Netlist (UDP_MAX_NETGAMES/UDP_NETGAMES_PPAGE)
 #define UDP_TIMEOUT (10*F1_0) // 10 seconds disconnect timeout
 #define UDP_MDATA_STOR_QUEUE_SIZE	500 // Store up to 500 MDATA packets
 
@@ -73,8 +73,8 @@ int net_udp_level_sync();
 typedef struct UDP_netgame_info_lite
 {
 	struct _sockaddr                game_addr;
-	fix                             GameID;
 	short                           program_iver[3];
+	fix                             GameID;
 	char                            game_name[NETGAME_NAME_LEN+1];
 	char                            mission_title[MISSION_NAME_LEN+1];
 	char                            mission_name[9];
@@ -86,7 +86,6 @@ typedef struct UDP_netgame_info_lite
 	ubyte                           numconnected;
 	ubyte                           max_numplayers;
 	ubyte                           game_flags;
-	ubyte                           team_vector;
 } __pack__ UDP_netgame_info_lite;
 
 typedef struct UDP_sequence_packet

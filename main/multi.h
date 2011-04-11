@@ -428,7 +428,6 @@ typedef struct netgame_info
 	u_int32_t					AllowedItems;
 	short						Allow_marker_view; // (unused in D1 - no markers in game)
 	short						AlwaysLighting; // (unused in D1 - cannot destroy lights after all)
-	short						ShowAllNames; // (unused in D1 - solved with Show_reticle_name by Client)
 	short						BrightPlayers; // (unused in D1)
 	short						InvulAppear; // (unused in D1)
 	char						team_name[2][CALLSIGN_LEN+1];

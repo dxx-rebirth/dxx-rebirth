@@ -2123,7 +2123,6 @@ void net_udp_send_game_info(struct _sockaddr sender_addr, ubyte info_upid)
 		buf[len] = Netgame.numconnected;										len++;
 		buf[len] = Netgame.max_numplayers;										len++;
 		buf[len] = Netgame.game_flags;											len++;
-		buf[len] = Netgame.team_vector;											len++;
 		
 		sendto (UDP_Socket[0], buf, len, 0, (struct sockaddr *)&sender_addr, sizeof(struct _sockaddr));
 	}
@@ -2179,7 +2178,6 @@ void net_udp_send_game_info(struct _sockaddr sender_addr, ubyte info_upid)
 		PUT_INTEL_INT(buf + len, Netgame.AllowedItems);							len += 4;
 		PUT_INTEL_SHORT(buf + len, Netgame.Allow_marker_view);					len += 2;
 		PUT_INTEL_SHORT(buf + len, Netgame.AlwaysLighting);						len += 2;
-		PUT_INTEL_SHORT(buf + len, Netgame.ShowAllNames);						len += 2;
 		PUT_INTEL_SHORT(buf + len, Netgame.BrightPlayers);						len += 2;
 		PUT_INTEL_SHORT(buf + len, Netgame.InvulAppear);						len += 2;
 		memcpy(&buf[len], Netgame.team_name, 2*(CALLSIGN_LEN+1));				len += 2*(CALLSIGN_LEN+1);
@@ -2296,7 +2294,6 @@ void net_udp_process_game_info(ubyte *data, int data_len, struct _sockaddr game_
 		recv_game.numconnected = data[len];										len++;
 		recv_game.max_numplayers = data[len];									len++;
 		recv_game.game_flags = data[len];										len++;
-		recv_game.team_vector = data[len];										len++;
 	
 		num_active_udp_changed = 1;
 		
@@ -2360,7 +2357,6 @@ void net_udp_process_game_info(ubyte *data, int data_len, struct _sockaddr game_
 		Netgame.AllowedItems = GET_INTEL_INT(&(data[len]));						len += 4;		
 		Netgame.Allow_marker_view = GET_INTEL_SHORT(&(data[len]));				len += 2;
 		Netgame.AlwaysLighting = GET_INTEL_SHORT(&(data[len]));					len += 2;		
-		Netgame.ShowAllNames = GET_INTEL_SHORT(&(data[len]));					len += 2;		
 		Netgame.BrightPlayers = GET_INTEL_SHORT(&(data[len]));					len += 2;
 		Netgame.InvulAppear = GET_INTEL_SHORT(&(data[len]));					len += 2;
 		memcpy(Netgame.team_name, &(data[len]), 2*(CALLSIGN_LEN+1));			len += 2*(CALLSIGN_LEN+1);

@@ -2355,7 +2355,12 @@ void show_HUD_names()
 						else
 							snprintf( s, strlen(Players[pnum].callsign)+1, "%s", Players[pnum].callsign );
 						if (multi_sending_message[pnum])
-							strncat( s, ", typing", 8);
+						{
+							if (strlen(s))
+								strncat( s, ", typing", 8);
+							else
+								strncpy( s, "Typing", 6 );
+						}
 						
 						gr_get_string_size(s, &w, &h, &aw);
 						gr_set_fontcolor(BM_XRGB(player_rgb[color_num].r,player_rgb[color_num].g,player_rgb[color_num].b),-1 );
