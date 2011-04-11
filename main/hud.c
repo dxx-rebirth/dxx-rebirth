@@ -129,8 +129,8 @@ int HUD_init_message_va(int class_flag, char * format, va_list args)
 	// check if message is already in list and bail out if so
 	if (HUD_nmessages > 0)
 	{
-		// if "normal" message, only check if it's the same at the most recent one, if marked as "redundant" check whole list
-		for (i = ((class_flag & HM_REDUNDANT)?0:HUD_nmessages-1); i < HUD_nmessages; i++)
+		// if "normal" message, only check if it's the same at the most recent one, if marked as "may duplicate" check whole list
+		for (i = ((class_flag & HM_MAYDUPL)?0:HUD_nmessages-1); i < HUD_nmessages; i++)
 		{
 			if (!strnicmp(message, HUD_messages[i].message, sizeof(char)*HUD_MESSAGE_LENGTH))
 			{
