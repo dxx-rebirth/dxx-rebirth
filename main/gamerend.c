@@ -64,7 +64,7 @@ void game_draw_multi_message()
 {
 	char temp_string[MAX_MULTI_MESSAGE_LEN+25];
 	
-	if ( (Game_mode&GM_MULTI) && (multi_sending_message))	{
+	if ( (Game_mode&GM_MULTI) && (multi_sending_message[Player_num]))	{
 		gr_set_curfont(GAME_FONT);
 		gr_set_fontcolor(BM_XRGB(0,63,0),-1);
 		sprintf( temp_string, "%s: %s_", TXT_MESSAGE, Network_message );

@@ -117,8 +117,9 @@ extern int multi_protocol; // set and determinate used protocol
 #define MULTI_HEARTBEAT         	38
 #define MULTI_KILLGOALS			39
 #define MULTI_DO_BOUNTY                 40
+#define MULTI_TYPING_STATE		41
 
-#define MULTI_MAX_TYPE                  40
+#define MULTI_MAX_TYPE                  41
 
 #define MAX_MULTI_MESSAGE_LEN  90 //didn't change it, just moved it up
 
@@ -302,7 +303,7 @@ extern sbyte object_owner[MAX_OBJECTS]; // Who 'owns' each local object for netw
 
 extern int multi_quit_game;
 
-extern int multi_sending_message;
+extern int multi_sending_message[MAX_NUM_NET_PLAYERS];
 extern int multi_defining_message;
 extern int multi_message_input_sub(int key);
 extern void multi_send_message_start();

@@ -88,6 +88,8 @@ void multi_save_game(ubyte slot, uint id, char *desc);
 void multi_restore_game(ubyte slot, uint id);
 void multi_do_save_game(char *buf);
 void multi_do_restore_game(char *buf);
+void multi_do_msgsend_state(char *buf);
+void multi_send_msgsend_state(int state);
 
 //
 // Global variables
@@ -106,7 +108,7 @@ fix Show_kill_list_timer = 0;
 char PKilledFlags[MAX_NUM_NET_PLAYERS];
 int Bounty_target = 0; // Target for bounty mode netgame
 
-int multi_sending_message = 0;
+int multi_sending_message[MAX_NUM_NET_PLAYERS] = { 0,0,0,0,0,0,0,0 };
 int multi_defining_message = 0;
 int multi_message_index = 0;
 
@@ -208,6 +210,7 @@ int message_length[MULTI_MAX_TYPE+1] = {
 	5,  // MULTI_HEARTBEAT
 	9,  // MULTI_KILLGOALS
 	2,  // MULTI_DO_BOUNTY
+	3, // MULTI_TYPING_STATE
 };
 
 void multi_reset_player_object(object *objp);
@@ -433,6 +436,7 @@ multi_new_game(void)
 		Players[i].net_kills_total = 0;
 		Players[i].flags = 0;
 		Players[i].KillGoalCount=0;
+		multi_sending_message[i] = 0;
 	}
 
 	for (i = 0; i < MAX_ROBOTS_CONTROLLED; i++)
@@ -1041,7 +1045,7 @@ multi_message_feedback(void)
 	int found = 0;
 	int i;
 
-	if (!( ((colon = strrchr(Network_message, ':')) == NULL) || (colon-Network_message < 1) || (colon-Network_message > CALLSIGN_LEN) ))
+	if (!( ((colon = strstr(Network_message, ": ")) == NULL) || (colon-Network_message < 1) || (colon-Network_message > CALLSIGN_LEN) ))
 	{
 		sprintf(feedback_result, "%s ", TXT_MESSAGE_SENT_TO);
 		if ((Game_mode & GM_TEAM) && (atoi(Network_message) > 0) && (atoi(Network_message) < 3))
@@ -1132,7 +1136,8 @@ void
 multi_send_message_start()
 {
 	if (Game_mode&GM_MULTI)	{
-		multi_sending_message = 1;
+		multi_sending_message[Player_num] = 1;
+		multi_send_msgsend_state(1);
 		multi_message_index = 0;
 		Network_message[multi_message_index] = 0;
 		key_toggle_repeat(1);
@@ -1151,13 +1156,14 @@ void multi_send_message_end()
 	int i;
 
   multi_message_index = 0;
-  multi_sending_message = 0;
+  multi_sending_message[Player_num] = 0;
+  multi_send_msgsend_state(0);
   key_toggle_repeat(0);
 
-	if (!strnicmp (Network_message,"kick:",5) && (Game_mode & GM_NETWORK))
+	if (!strnicmp (Network_message,"/kick: ",7) && (Game_mode & GM_NETWORK))
 	{
-		int name_index=5;
-		if (strlen(Network_message) > 5)
+		int name_index=7;
+		if (strlen(Network_message) > 7)
 			while (Network_message[name_index] == ' ')
 				name_index++;
 
@@ -1165,14 +1171,14 @@ void multi_send_message_end()
 		{
 			HUD_init_message(HM_MULTI, "Only %s can kick others out!",Players[multi_who_is_master()].callsign);
 			multi_message_index = 0;
-			multi_sending_message = 0;
+			multi_sending_message[Player_num] = 0;
 			return;
 		}
 		if (strlen(Network_message)<=name_index)
 		{
 			HUD_init_message(HM_MULTI, "You must specify a name to kick");
 			multi_message_index = 0;
-			multi_sending_message = 0;
+			multi_sending_message[Player_num] = 0;
 			return;
 		}
 
@@ -1184,7 +1190,7 @@ void multi_send_message_end()
 				if (listpos == 0 || listpos >= N_players) {
 					HUD_init_message(HM_MULTI, "Invalid player number for kick.");
 					multi_message_index = 0;
-					multi_sending_message = 0;
+					multi_sending_message[Player_num] = 0;
 					return;
 				}
 				multi_get_kill_list(players);
@@ -1196,7 +1202,7 @@ void multi_send_message_end()
 
 
 		    multi_message_index = 0;
-		    multi_sending_message = 0;
+		    multi_sending_message[Player_num] = 0;
 			return;
 		}
 
@@ -1223,12 +1229,12 @@ void multi_send_message_end()
 
 				HUD_init_message(HM_MULTI, "Dumping %s...",Players[i].callsign);
 				multi_message_index = 0;
-				multi_sending_message = 0;
+				multi_sending_message[Player_num] = 0;
 				return;
 			}
 	}
 	
-	else if (!strnicmp (Network_message,"killreactor",11) && (Game_mode & GM_NETWORK) && !Control_center_destroyed)
+	else if (!strnicmp (Network_message,"/killreactor",12) && (Game_mode & GM_NETWORK) && !Control_center_destroyed)
 	{	
 		if (!multi_i_am_master())
 			HUD_init_message(HM_MULTI, "Only %s can kill the reactor this way!",Players[multi_who_is_master()].callsign);
@@ -1238,7 +1244,7 @@ void multi_send_message_end()
 			multi_send_destroy_controlcen(-1,Player_num);
 		}
 		multi_message_index = 0;
-		multi_sending_message = 0;
+		multi_sending_message[Player_num] = 0;
 		return;
 	}
 
@@ -1268,7 +1274,8 @@ int multi_message_input_sub(int key)
 	{
 		case KEY_F8:
 		case KEY_ESC:
-			multi_sending_message = 0;
+			multi_sending_message[Player_num] = 0;
+			multi_send_msgsend_state(0);
 			multi_defining_message = 0;
 			key_toggle_repeat(0);
 			game_flush_inputs();
@@ -1281,7 +1288,7 @@ int multi_message_input_sub(int key)
 			Network_message[multi_message_index] = 0;
 			return 1;
 		case KEY_ENTER:
-			if ( multi_sending_message )	
+			if ( multi_sending_message[Player_num] )	
 				multi_send_message_end();
 			else if ( multi_defining_message )
 				multi_define_macro_end();
@@ -1294,7 +1301,7 @@ int multi_message_input_sub(int key)
 				if (multi_message_index < MAX_MESSAGE_LEN-2 )	{
 					Network_message[multi_message_index++] = ascii;
 					Network_message[multi_message_index] = 0;
-				} else if ( multi_sending_message )	{		
+				} else if ( multi_sending_message[Player_num] )	{		
 					int i;
 					char * ptext, * pcolon;
 					ptext = NULL;
@@ -1309,7 +1316,8 @@ int multi_message_input_sub(int key)
 					}
 					multi_send_message_end();
 					if ( ptext )	{
-						multi_sending_message = 1;
+						multi_sending_message[Player_num] = 1;
+						multi_send_msgsend_state(1);
 						pcolon = strchr( Network_message, ':' );
 						if ( pcolon )
 							strcpy( pcolon+1, ptext );
@@ -1407,7 +1415,7 @@ multi_do_message(char *buf)
 
 	int loc = 2;
 
-	if (((colon = strrchr(buf+loc, ':')) == NULL) || (colon-(buf+loc) < 1) || (colon-(buf+loc) > CALLSIGN_LEN))
+	if (((colon = strstr(buf+loc, ": ")) == NULL) || (colon-(buf+loc) < 1) || (colon-(buf+loc) > CALLSIGN_LEN))
 	{
 		int color = 0;
 		mesbuf[0] = CC_COLOR;
@@ -1425,6 +1433,7 @@ multi_do_message(char *buf)
 
 		digi_play_sample(SOUND_HUD_MESSAGE, F1_0);
 		HUD_init_message(HM_MULTI, "%s %s", mesbuf, buf+2);
+		multi_sending_message[(int)buf[1]] = 0;
 	}
 	else if ( (!strncasecmp(Players[Player_num].callsign, buf+loc, colon-(buf+loc))) ||
 			  ((Game_mode & GM_TEAM) && ( (get_team(Player_num) == atoi(buf+loc)-1) || !strncasecmp(Netgame.team_name[get_team(Player_num)], buf+loc, colon-(buf+loc)))) )
@@ -1444,7 +1453,8 @@ multi_do_message(char *buf)
 		mesbuf[t+3] = 0;
 
 		digi_play_sample(SOUND_HUD_MESSAGE, F1_0);
-		HUD_init_message(HM_MULTI, "%s %s", mesbuf, colon+1);
+		HUD_init_message(HM_MULTI, "%s %s", mesbuf, colon+2);
+		multi_sending_message[(int)buf[1]] = 0;
 	}
 }
 
@@ -1773,6 +1783,7 @@ void multi_disconnect_player(int pnum)
 		/* Send this new data */
 		multi_send_bounty();
 	}
+	multi_sending_message[pnum] = 0;
 }
 
 void
@@ -2198,6 +2209,8 @@ multi_process_data(char *buf, int len)
 			if (!Endlevel_sequence) multi_do_kill_goal_counts (buf); break;
 		case MULTI_DO_BOUNTY:
 			if( !Endlevel_sequence ) multi_do_bounty( buf ); break;
+		case MULTI_TYPING_STATE:
+			multi_do_msgsend_state( buf ); break;
 		default:
 			Int3();
 	}
@@ -2912,7 +2925,10 @@ multi_prep_level(void)
 	multi_consistency_error(1);
 
 	for (i=0;i<MAX_NUM_NET_PLAYERS;i++)
+	{
 		PKilledFlags[i]=0;
+		multi_sending_message[i] = 0;
+	}
 
 	for (i = 0; i < NumNetPlayerPositions; i++)
 	{
@@ -3572,6 +3588,20 @@ void multi_restore_game(ubyte slot, uint id)
 	}
   
 	pnum = state_restore_all_sub( filename );
+}
+
+void multi_do_msgsend_state(char *buf)
+{
+	multi_sending_message[(int)buf[1]] = (int)buf[2];
+}
+
+void multi_send_msgsend_state(int state)
+{
+	multibuf[0] = (char)MULTI_TYPING_STATE;
+	multibuf[1] = Player_num;
+	multibuf[2] = (char)state;
+	
+	multi_send_data(multibuf, 3, 1);
 }
 
 // Following functions convert object to object_rw and back. Mainly this is used for IPX backwards compability. However also for UDP this makes sense as object differs from object_rw mainly between fix/fix64-based timers. Those base on GameTime64 which is never synced between players so we set the times to something sane the clients can safely handle. IF object some day contains something useful clients should know about this should be changed.
