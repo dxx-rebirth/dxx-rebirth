@@ -3,6 +3,7 @@ D2X-Rebirth Changelog
 20110411
 --------
 main/game.c, main/gamecntl.c, main/gamerend.c, main/gauges.c, main/multi.c, main/multi.h: Improved syntax for Multi messages/commands: Commands starting with '/' and those accepting arguments as well as Player/Team messages require space after ':' ; Added indicator on HUD to show if a player is typing a message to prevent accidential kills
+main/collide.c, main/hud.c, main/hudmsg.h, main/powerup.c, main/weapon.c: Introduced HUD message class HM_MAYDUPL for messages that may appear once per frame but the player might not able to supress via option
 
 20110410
 --------

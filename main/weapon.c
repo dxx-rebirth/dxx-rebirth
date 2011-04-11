@@ -519,7 +519,7 @@ int pick_up_secondary(int weapon_index,int count)
 		max *= 2;
 
 	if (Players[Player_num].secondary_ammo[weapon_index] >= max) {
-		HUD_init_message(HM_DEFAULT|HM_REDUNDANT, "%s %i %ss!", TXT_ALREADY_HAVE, Players[Player_num].secondary_ammo[weapon_index],SECONDARY_WEAPON_NAMES(weapon_index));
+		HUD_init_message(HM_DEFAULT|HM_REDUNDANT|HM_MAYDUPL, "%s %i %ss!", TXT_ALREADY_HAVE, Players[Player_num].secondary_ammo[weapon_index],SECONDARY_WEAPON_NAMES(weapon_index));
 		return 0;
 	}
 
@@ -640,7 +640,7 @@ int pick_up_primary(int weapon_index)
 	int supposed_weapon=Primary_weapon;
 
 	if (weapon_index!=LASER_INDEX && Players[Player_num].primary_weapon_flags & flag) {		//already have
-		HUD_init_message(HM_DEFAULT|HM_REDUNDANT, "%s %s!", TXT_ALREADY_HAVE_THE, PRIMARY_WEAPON_NAMES(weapon_index));
+		HUD_init_message(HM_DEFAULT|HM_REDUNDANT|HM_MAYDUPL, "%s %s!", TXT_ALREADY_HAVE_THE, PRIMARY_WEAPON_NAMES(weapon_index));
 		return 0;
 	}
 
