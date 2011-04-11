@@ -2632,39 +2632,41 @@ void show_HUD_names()
 				g3_project_point(&player_point);
 
 				if (! (player_point.p3_flags & PF_OVERFLOW)) {
-					fix x,y;
+					fix x,y,dx,dy;
 
 					x = player_point.p3_sx;
 					y = player_point.p3_sy;
+					dy = -fixmuldiv(fixmul(Objects[objnum].size,Matrix_scale.y),i2f(grd_curcanv->cv_bitmap.bm_h)/2,player_point.p3_z);
+					dx = fixmul(dy,grd_curscreen->sc_aspect);
 
 					if (show_name) {				// Draw callsign on HUD
-						char s[CALLSIGN_LEN+1];
+						char s[CALLSIGN_LEN+10];
 						int w, h, aw;
 						int x1, y1;
 						int color_num;
 
 						color_num = (Game_mode & GM_TEAM)?get_team(pnum):pnum;
 
+						memset(&s, '\0', CALLSIGN_LEN+10);
 						/* Set the text to show */
 						if( Game_mode & GM_BOUNTY && pnum == Bounty_target )
-							strcpy( s, "Target" );
+							strncpy( s, "Target", 6 );
 						else
-							sprintf(s, "%s", Players[pnum].callsign);
+							snprintf( s, strlen(Players[pnum].callsign), "%s", Players[pnum].callsign );
+						if (multi_sending_message[pnum])
+							strncat( s, ", typing", 8);
 						
 						gr_get_string_size(s, &w, &h, &aw);
 						gr_set_fontcolor(BM_XRGB(player_rgb[color_num].r,player_rgb[color_num].g,player_rgb[color_num].b),-1 );
 						x1 = f2i(x)-w/2;
-						y1 = f2i(y)-h/2;
+						y1 = f2i(y-dy)+FSPACY(1);
 						gr_string (x1, y1, s);
 					}
 
 					/* Draw box on HUD */
 					if (has_indi)
 					{
-						fix dx,dy,w,h;
-
-						dy = -fixmuldiv(fixmul(Objects[objnum].size,Matrix_scale.y),i2f(grd_curcanv->cv_bitmap.bm_h)/2,player_point.p3_z);
-						dx = fixmul(dy,grd_curscreen->sc_aspect);
+						fix w,h;
 
 						w = dx/4;
 						h = dy/4;

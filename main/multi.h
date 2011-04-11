@@ -139,8 +139,9 @@ extern int multi_protocol; // set and determinate used protocol
 #define MULTI_DROP_ORB          62
 #define MULTI_PLAY_BY_PLAY      63
 #define MULTI_DO_BOUNTY		64
+#define MULTI_TYPING_STATE	65
 
-#define MULTI_MAX_TYPE          64
+#define MULTI_MAX_TYPE          65
 
 #define MAX_NET_CREATE_OBJECTS  40
 
@@ -345,7 +346,7 @@ extern sbyte object_owner[MAX_OBJECTS];
 
 extern int multi_quit_game;
 
-extern int multi_sending_message;
+extern int multi_sending_message[MAX_NUM_NET_PLAYERS];
 extern int multi_defining_message;
 extern int multi_message_input_sub(int key);
 extern void multi_send_message_start();

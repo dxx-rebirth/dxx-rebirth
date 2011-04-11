@@ -1957,7 +1957,7 @@ int ReadControls(d_event *event)
 		}
 
 #ifdef NETWORK
-		if ( (Game_mode & GM_MULTI) && (multi_sending_message || multi_defining_message) )
+		if ( (Game_mode & GM_MULTI) && (multi_sending_message[Player_num] || multi_defining_message) )
 		{
 			return multi_message_input_sub(key);
 		}
