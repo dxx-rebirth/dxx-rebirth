@@ -492,7 +492,6 @@ typedef struct netgame_info
 	u_int32_t					AllowedItems;
 	short						Allow_marker_view;
 	short						AlwaysLighting;
-	short						ShowAllNames;
 	short						BrightPlayers;
 	short						InvulAppear;
 	char						team_name[2][CALLSIGN_LEN+1];

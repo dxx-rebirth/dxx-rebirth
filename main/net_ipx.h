@@ -199,7 +199,7 @@ typedef struct IPX_netgame_info {
 	short DoHoming:1;
 	short DoLaserUpgrade:1;
 	short DoQuadLasers:1;
-	short ShowAllNames:1;
+	short ShowAllNames:1;// we ignore this, don't patronize me. :P
 	short BrightPlayers:1;
 	short invul:1;
 	short bitfield_not_used2:1;
