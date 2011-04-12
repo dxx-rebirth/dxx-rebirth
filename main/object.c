@@ -1192,12 +1192,6 @@ int obj_create(ubyte type,ubyte id,int segnum,vms_vector *pos,
 	if (obj->type == OBJ_DEBRIS)
 		Debris_object_count++;
 
-	// set light color values to -1 to lighting code will compute them is desired
-	if (obj->render_type == RT_POLYOBJ)
-		obj->rtype.pobj_info.lrgb.r = obj->rtype.pobj_info.lrgb.g = obj->rtype.pobj_info.lrgb.b = -1;
-	else
-		obj->rtype.vclip_info.lrgb.r = obj->rtype.vclip_info.lrgb.g = obj->rtype.vclip_info.lrgb.b = -1;
-
 	return objnum;
 }
 

@@ -85,6 +85,7 @@ extern int  Num_object_subtypes;     // Number of possible IDs for the current t
 extern bitmap_index ObjBitmaps[MAX_OBJ_BITMAPS];
 extern ushort ObjBitmapPtrs[MAX_OBJ_BITMAPS];
 extern int First_multi_bitmap_num;
+void compute_average_rgb(grs_bitmap *bm, fix *rgb);
 
 
 #endif

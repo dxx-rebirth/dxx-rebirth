@@ -211,14 +211,7 @@ typedef struct vclip_info {
 	int			vclip_num;
 	fix			frametime;
 	sbyte			framenum;
-	g3s_lrgb lrgb; // light color this vclip will emit
 } __pack__ vclip_info;
-
-typedef struct vclip_info_rw {
-	int			vclip_num;
-	fix			frametime;
-	sbyte			framenum;
-} __pack__ vclip_info_rw;
 
 //structures for different kinds of rendering
 
@@ -228,16 +221,7 @@ typedef struct polyobj_info {
 	int			subobj_flags;					//specify which subobjs to draw
 	int			tmap_override;					//if this is not -1, map all face to this
 	int			alt_textures;					//if not -1, use these textures instead
-	g3s_lrgb	lrgb; // light color this polyobj will emit
 } __pack__ polyobj_info;
-
-typedef struct polyobj_info_rw {
-	int			model_num;						//which polygon model
-	vms_angvec	anim_angles[MAX_SUBMODELS];	//angles for each subobject
-	int			subobj_flags;					//specify which subobjs to draw
-	int			tmap_override;					//if this is not -1, map all face to this
-	int			alt_textures;					//if not -1, use these textures instead
-} __pack__ polyobj_info_rw;
 
 typedef struct object {
 	int			signature;		// Every object ever has a unique signature...
@@ -334,8 +318,8 @@ typedef struct object_rw {
 
 	//render info, determined by RENDER_TYPE
 	union {
-		polyobj_info_rw pobj_info;			//polygon model
-		vclip_info_rw	 vclip_info;		//vclip
+		polyobj_info pobj_info;			//polygon model
+		vclip_info	 vclip_info;		//vclip
 	} __pack__ rtype;
 #ifdef WORDS_NEED_ALIGNMENT
 	short pad2;

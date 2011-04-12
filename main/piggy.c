@@ -705,6 +705,9 @@ void piggy_bitmap_page_in( bitmap_index bitmap )
 				Error( "Error modifying selector base in piggy.c\n" );
 		}
 		#endif
+
+		compute_average_rgb(bmp, bmp->avg_color_rgb);
+
 		start_time();
 	}
 
@@ -712,7 +715,6 @@ void piggy_bitmap_page_in( bitmap_index bitmap )
 		if ( org_i != i )
 			GameBitmaps[org_i] = GameBitmaps[i];
 	}
-	
 }
 
 void piggy_bitmap_page_out_all()

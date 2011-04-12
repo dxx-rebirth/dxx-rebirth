@@ -3,6 +3,8 @@ D1X-Rebirth Changelog
 20110412
 --------
 main/gauges.c, main/multi.h, main/net_udp.c, main/net_udp.h: Little fix for typing-indicator in multiplayer - was showing comma even if no player name was displayed; Removed team_vector from UDP lite_info structure - it's not needed; Increased UDP_NETGAMES_PAGES to actually show 3000 possible games
+include/gr.h, main/bm.c, main/bm.h, main/gamesave.c, main/lighting.c, main/multi.c, main/object.c, main/object.h, main/piggy.c, main/render.c, main/state.c: Execute set_dynamic_light 60 times per second max since more would just be a waste of CPU time; When executing set_dynamic_light, process ALL lights; Instead of storing light color in objects, do it on-thy-fly but store bitmap-based color in grs_bitmap - vastly speeds up colored dynamic lights; Improved saturation for vertex lighting to make light color a bit more subtile
+
 
 20110411
 --------
