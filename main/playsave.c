@@ -336,8 +336,8 @@ int read_player_d1x(char *filename)
 					PlayerCfg.KeySettings[1][45] = 255;
 					PlayerCfg.KeySettings[1][46] = 255;
 					PlayerCfg.KeySettings[1][47] = 255;
+					PlayerCfg.KeySettings[2][27] = 255;
 					PlayerCfg.KeySettings[2][28] = 255;
-					PlayerCfg.KeySettings[2][29] = 255;
 				}
 		}
 		else if (strstr(word,"END") || PHYSFS_eof(f))
