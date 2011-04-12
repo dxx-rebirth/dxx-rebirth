@@ -328,8 +328,8 @@ int read_player_d2x(char *filename)
 				if (D2XMAJORi != v1 || D2XMINORi != v2 || D2XMICROi != v3) // newer (presumably)
 				{
 					// reset joystick/mouse cycling fields
-					PlayerCfg.KeySettings[2][27] = 255;
 					PlayerCfg.KeySettings[2][28] = 255;
+					PlayerCfg.KeySettings[2][29] = 255;
 				}
 		}
 		else if (strstr(word,"END") || PHYSFS_eof(f))
