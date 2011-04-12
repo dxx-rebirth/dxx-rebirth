@@ -529,7 +529,7 @@ void do_omega_stuff(object *parent_objp, vms_vector *firing_pos, object *weapon_
 			return;
 		}
 
-// 		Omega_charge -= OMEGA_BASE_TIME;
+		Omega_charge -= OMEGA_BASE_TIME;
 		if (Omega_charge < 0)
 			Omega_charge = 0;
 

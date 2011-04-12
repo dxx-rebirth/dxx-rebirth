@@ -3,8 +3,7 @@ D2X-Rebirth Changelog
 20110412
 --------
 main/game.c, main/gauges.c, main/multi.h, main/net_ipx.c, main/net_ipx.h, main/net_udp.c, main/net_udp.h: Little fix for typing-indicator in multiplayer - was showing comma even if no player name was displayed; Removed team_vector from UDP lite_info structure - it's not needed; Removed ShowAllNames from Netgame structure as I see no reason why names display should be host-controlled; Increased UDP_NETGAMES_PAGES to actually show 3000 possible games
-
-
+main/laser.c: Stupid me forgot to let Omega use it's charge again after debugging it - fixed...
 
 20110411
 --------
