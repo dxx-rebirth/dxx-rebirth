@@ -313,6 +313,33 @@ int read_player_d1x(char *filename)
 				strupr(word);
 			}
 		}
+		else if (strstr(word,"PLX VERSION")) // know the version this pilot was used last with - allow modifications
+		{
+			int v1=0,v2=0,v3=0;
+			d_free(word);
+			cfgets(line,50,f);
+			word=splitword(line,'=');
+			strupr(word);
+			while(!strstr(word,"END") && !PHYSFS_eof(f))
+			{
+				sscanf(line,"%i.%i.%i",&v1,&v2,&v3);
+				d_free(word);
+				cfgets(line,50,f);
+				word=splitword(line,'=');
+				strupr(word);
+			}
+			if (v1 == 0 && v2 == 56 && v3 == 0) // was 0.56.0
+				if (D1XMAJORi != v1 || D1XMINORi != v2 || D1XMICROi != v3) // newer (presumably)
+				{
+					// reset mouse cycling fields
+					PlayerCfg.KeySettings[1][44] = 255;
+					PlayerCfg.KeySettings[1][45] = 255;
+					PlayerCfg.KeySettings[1][46] = 255;
+					PlayerCfg.KeySettings[1][47] = 255;
+					PlayerCfg.KeySettings[2][28] = 255;
+					PlayerCfg.KeySettings[2][29] = 255;
+				}
+		}
 		else if (strstr(word,"END") || PHYSFS_eof(f))
 		{
 			Stop=1;
