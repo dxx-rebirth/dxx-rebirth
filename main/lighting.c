@@ -297,126 +297,9 @@ fix Obj_light_xlate[16] = { 0x1234, 0x3321, 0x2468, 0x1735,
 			    0x0123, 0x19af, 0x3f03, 0x232a,
 			    0x2123, 0x39af, 0x0f03, 0x132a,
 			    0x3123, 0x29af, 0x1f03, 0x032a };
-// Flag array of objects lit last frame. Guaranteed to process this frame if lit last frame.
-sbyte   Lighting_objects[MAX_OBJECTS];
 #define MAX_HEADLIGHTS	8
 object *Headlights[MAX_HEADLIGHTS];
 int Num_headlights;
-
-g3s_lrgb compute_lrgb_on(object *obj)
-{
-	int i, x, y, color, count = 0, t_idx_s = -1, t_idx_e = -1;
-	g3s_lrgb t_color = {0,0,0}, obj_color = {255,255,255};
-
-	switch (obj->render_type)
-	{
-		case RT_POLYOBJ:
-		{
-			polymodel *po = &Polygon_models[obj->rtype.pobj_info.model_num];
-			if (po->n_textures <= 0)
-			{
-				int color = g3_poly_get_color(po->model_data);
-				if (color)
-				{
-					obj_color.r = gr_current_pal[color*3];
-					obj_color.g = gr_current_pal[color*3+1];
-					obj_color.b = gr_current_pal[color*3+2];
-				}
-			}
-			else
-			{
-				t_idx_s = ObjBitmaps[ObjBitmapPtrs[po->first_texture]].index;
-				t_idx_e = t_idx_s + po->n_textures - 1;
-			}
-			break;
-		}
-		case RT_WEAPON_VCLIP:
-		{
-			t_idx_s = Vclip[Weapon_info[obj->id].weapon_vclip].frames[0].index;
-			t_idx_e = Vclip[Weapon_info[obj->id].weapon_vclip].frames[Vclip[Weapon_info[obj->id].weapon_vclip].num_frames-1].index;
-			break;
-		}
-		default:
-		{
-			t_idx_s = Vclip[obj->id].frames[0].index;
-			t_idx_e = Vclip[obj->id].frames[Vclip[obj->id].num_frames-1].index;
-			break;
-		}
-	}
-
-	if (t_idx_s != -1 && t_idx_e != -1)
-	{
-		for (i = t_idx_s; i <= t_idx_e; i++)
-		{
-			grs_bitmap *bm = &GameBitmaps[i];
-			ubyte buf[bm->bm_w*bm->bm_h];
-
-			if (!bm->bm_data)
-				return obj_color;
-
-			memset(&buf,0,bm->bm_w*bm->bm_h);
-
-			if (bm->bm_flags & BM_FLAG_RLE){
-				unsigned char * dbits;
-				unsigned char * sbits;
-				int data_offset;
-
-				data_offset = 1;
-				if (bm->bm_flags & BM_FLAG_RLE_BIG)
-					data_offset = 2;
-
-				sbits = &bm->bm_data[4 + (bm->bm_h * data_offset)];
-				dbits = buf;
-
-				for (i=0; i < bm->bm_h; i++ )    {
-					gr_rle_decode(sbits,dbits);
-					if ( bm->bm_flags & BM_FLAG_RLE_BIG )
-						sbits += (int)INTEL_SHORT(*((short *)&(bm->bm_data[4+(i*data_offset)])));
-					else
-						sbits += (int)bm->bm_data[4+i];
-					dbits += bm->bm_w;
-				}
-			}
-			else
-			{
-				memcpy(&buf, bm->bm_data, sizeof(unsigned char)*(bm->bm_w*bm->bm_h));
-			}
-
-			i = 0;
-			for (x = 0; x < bm->bm_h; x++)
-			{
-				for (y = 0; y < bm->bm_w; y++)
-				{
-					color = buf[i++];
-					t_color.r = gr_palette[color*3];
-					t_color.g = gr_palette[color*3+1];
-					t_color.b = gr_palette[color*3+2];
-					if (!(color == TRANSPARENCY_COLOR || (t_color.r == t_color.g && t_color.r == t_color.b)))
-					{
-						obj_color.r += t_color.r;
-						obj_color.g += t_color.g;
-						obj_color.b += t_color.b;
-						count++;
-					}
-				}
-			}
-		}
-
-		if (count)
-		{
-			obj_color.r /= count;
-			obj_color.g /= count;
-			obj_color.b /= count;
-		}
-	}
-
-	if (obj->render_type == RT_POLYOBJ)
-		obj->rtype.pobj_info.lrgb = obj_color;
-	else
-		obj->rtype.vclip_info.lrgb = obj_color;
-
-	return obj_color;
-}
 
 // ---------------------------------------------------------
 g3s_lrgb compute_light_emission(int objnum)
@@ -547,13 +430,60 @@ g3s_lrgb compute_light_emission(int objnum)
 
 	if (compute_color)
 	{
+		int i, t_idx_s = -1, t_idx_e = -1;
+
 		if (light_intensity < F1_0) // for every effect we want color, increase light_intensity so the effect becomes barely visible
 			light_intensity = F1_0;
 
-		obj_color = (obj->render_type == RT_POLYOBJ)?obj->rtype.pobj_info.lrgb:obj->rtype.vclip_info.lrgb;
+		obj_color.r = obj_color.g = obj_color.b = 255;
 
-		if (obj_color.r == -1 || obj_color.g == -1 || obj_color.b == -1) // object does not have any color value, yet. compute!
-			obj_color = compute_lrgb_on(obj);
+		switch (obj->render_type)
+		{
+			case RT_POLYOBJ:
+			{
+				polymodel *po = &Polygon_models[obj->rtype.pobj_info.model_num];
+				if (po->n_textures <= 0)
+				{
+					int color = g3_poly_get_color(po->model_data);
+					if (color)
+					{
+						obj_color.r = gr_current_pal[color*3];
+						obj_color.g = gr_current_pal[color*3+1];
+						obj_color.b = gr_current_pal[color*3+2];
+					}
+				}
+				else
+				{
+					t_idx_s = ObjBitmaps[ObjBitmapPtrs[po->first_texture]].index;
+					t_idx_e = t_idx_s + po->n_textures - 1;
+				}
+				break;
+			}
+			case RT_WEAPON_VCLIP:
+			{
+				t_idx_s = Vclip[Weapon_info[obj->id].weapon_vclip].frames[0].index;
+				t_idx_e = Vclip[Weapon_info[obj->id].weapon_vclip].frames[Vclip[Weapon_info[obj->id].weapon_vclip].num_frames-1].index;
+				break;
+			}
+			default:
+			{
+				t_idx_s = Vclip[obj->id].frames[0].index;
+				t_idx_e = Vclip[obj->id].frames[Vclip[obj->id].num_frames-1].index;
+				break;
+			}
+		}
+
+		if (t_idx_s != -1 && t_idx_e != -1)
+		{
+			obj_color.r = obj_color.g = obj_color.b = 0;
+			for (i = t_idx_s; i <= t_idx_e; i++)
+			{
+				grs_bitmap *bm = &GameBitmaps[i];
+				obj_color.r += bm->avg_color_rgb[0];
+				obj_color.g += bm->avg_color_rgb[1];
+				obj_color.b += bm->avg_color_rgb[2];
+			}
+		}
 
 		// scale color to light intensity
 		cscale = ((float)(light_intensity*3)/(obj_color.r+obj_color.g+obj_color.b));
@@ -574,7 +504,6 @@ void set_dynamic_light(void)
 	short	render_vertices[MAX_VERTICES];
 	sbyte   render_vertex_flags[MAX_VERTICES];
 	int	render_seg,segnum, v;
-	sbyte   new_lighting_objects[MAX_OBJECTS];
 
 	Num_headlights = 0;
 
@@ -599,16 +528,10 @@ void set_dynamic_light(void)
 					render_vertex_flags[vnum] = 1;
 					render_vertices[n_render_vertices++] = vnum;
 				}
-				//--old way-- for (s=0; s<n_render_vertices; s++)
-				//--old way-- 	if (render_vertices[s] == vnum)
-				//--old way-- 		break;
-				//--old way-- if (s == n_render_vertices)
-				//--old way-- 	render_vertices[n_render_vertices++] = vnum;
 			}
 		}
 	}
 
-	// -- for (vertnum=FrameCount&1; vertnum<n_render_vertices; vertnum+=2) {
 	for (vv=0; vv<n_render_vertices; vv++) {
 		int	vertnum;
 
@@ -621,56 +544,15 @@ void set_dynamic_light(void)
 	cast_muzzle_flash_light(n_render_vertices, render_vertices);
 
 	for (objnum=0; objnum<=Highest_object_index; objnum++)
-		new_lighting_objects[objnum] = 0;
+	{
+		object		*obj = &Objects[objnum];
+		vms_vector	*objpos = &obj->pos;
+		g3s_lrgb	obj_light_emission;
 
-	//	July 5, 1995: New faster dynamic lighting code.  About 5% faster on the PC (un-optimized).
-	//	Only objects which are in rendered segments cast dynamic light.  We might wad6 to extend this
-	//	one or two segments if we notice light changing as objects go offscreen.  I couldn't see any
-	//	serious visual degradation.  In fact, I could see no humorous degradation, either. --MK
-	for (render_seg=0; render_seg<N_render_segs; render_seg++) {
-		int	segnum = Render_list[render_seg];
+		obj_light_emission = compute_light_emission(objnum);
 
-		objnum = Segments[segnum].objects;
-
-		while (objnum != -1) {
-			object		*obj = &Objects[objnum];
-			vms_vector	*objpos = &obj->pos;
-			g3s_lrgb	obj_light_emission;
-
-			obj_light_emission = compute_light_emission(objnum);
-
-			if (((obj_light_emission.r+obj_light_emission.g+obj_light_emission.b)/3) > 0) {
-				apply_light(obj_light_emission, obj->segnum, objpos, n_render_vertices, render_vertices, obj-Objects);
-				new_lighting_objects[objnum] = 1;
-			}
-
-			objnum = obj->next;
-		}
-	}
-
-	//	Now, process all lights from last frame which haven't been processed this frame.
-	for (objnum=0; objnum<=Highest_object_index; objnum++) {
-		//	In multiplayer games, process even unprocessed objects every 4th frame, else don't know about player sneaking up.
-		if ((Lighting_objects[objnum]) || ((Game_mode & GM_MULTI) && (((objnum ^ FrameCount) & 3) == 0))) {
-			if (!new_lighting_objects[objnum]) {
-				//	Lighted last frame, but not this frame.  Get intensity...
-				object		*obj = &Objects[objnum];
-				vms_vector	*objpos = &obj->pos;
-				g3s_lrgb	obj_light_emission;
-
-				obj_light_emission = compute_light_emission(objnum);
-
-				if (((obj_light_emission.r+obj_light_emission.g+obj_light_emission.b)/3) > 0) {
-					apply_light(obj_light_emission, obj->segnum, objpos, n_render_vertices, render_vertices, objnum);
-					Lighting_objects[objnum] = 1;
-				} else
-					Lighting_objects[objnum] = 0;
-			}
-		} else {
-			//	Not lighted last frame, so we don't need to light it.  (Already lit if casting light this frame.)
-			//	But copy value from new_lighting_objects to update Lighting_objects array.
-			Lighting_objects[objnum] = new_lighting_objects[objnum];
-		}
+		if (((obj_light_emission.r+obj_light_emission.g+obj_light_emission.b)/3) > 0)
+			apply_light(obj_light_emission, obj->segnum, objpos, n_render_vertices, render_vertices, objnum);
 	}
 }
 

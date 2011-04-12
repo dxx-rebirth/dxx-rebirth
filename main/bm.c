@@ -584,3 +584,62 @@ int load_exit_models()
 
 	return 1;
 }
+
+void compute_average_rgb(grs_bitmap *bm, fix *rgb)
+{
+	ubyte buf[bm->bm_w*bm->bm_h];
+	int i, x, y, color, count;
+	fix t_rgb[3] = { 0, 0, 0 };
+
+	rgb[0] = rgb[1] = rgb[2] = 0;
+
+	if (!bm->bm_data)
+		return;
+
+	memset(&buf,0,bm->bm_w*bm->bm_h);
+
+	if (bm->bm_flags & BM_FLAG_RLE){
+		unsigned char * dbits;
+		unsigned char * sbits;
+		int data_offset;
+
+		data_offset = 1;
+		if (bm->bm_flags & BM_FLAG_RLE_BIG)
+			data_offset = 2;
+
+		sbits = &bm->bm_data[4 + (bm->bm_h * data_offset)];
+		dbits = buf;
+
+		for (i=0; i < bm->bm_h; i++ )    {
+			gr_rle_decode(sbits,dbits);
+			if ( bm->bm_flags & BM_FLAG_RLE_BIG )
+				sbits += (int)INTEL_SHORT(*((short *)&(bm->bm_data[4+(i*data_offset)])));
+			else
+				sbits += (int)bm->bm_data[4+i];
+			dbits += bm->bm_w;
+		}
+	}
+	else
+	{
+		memcpy(&buf, bm->bm_data, sizeof(unsigned char)*(bm->bm_w*bm->bm_h));
+	}
+
+	i = 0;
+	for (x = 0; x < bm->bm_h; x++)
+	{
+		for (y = 0; y < bm->bm_w; y++)
+		{
+			color = buf[i++];
+			t_rgb[0] = gr_palette[color*3];
+			t_rgb[1] = gr_palette[color*3+1];
+			t_rgb[2] = gr_palette[color*3+2];
+			if (!(color == TRANSPARENCY_COLOR || (t_rgb[0] == t_rgb[1] && t_rgb[0] == t_rgb[2])))
+			{
+				rgb[0] += t_rgb[0];
+				rgb[1] += t_rgb[1];
+				rgb[2] += t_rgb[2];
+				count++;
+			}
+		}
+	}
+}

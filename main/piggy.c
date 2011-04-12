@@ -1173,6 +1173,8 @@ void piggy_bitmap_page_in( bitmap_index bitmap )
 		//@@#endif
 		//@@}
 
+		compute_average_rgb(bmp, bmp->avg_color_rgb);
+
 		start_time();
 	}
 
