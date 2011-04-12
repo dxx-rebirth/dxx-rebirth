@@ -982,16 +982,16 @@ void net_udp_list_join_game()
 void net_udp_send_sequence_packet(UDP_sequence_packet seq, struct _sockaddr recv_addr)
 {
 	int len = 0;
-	ubyte buf[UPKT_SEQUENCE_SIZE];
+	ubyte buf[UPID_SEQUENCE_SIZE];
 
 	len = 0;
 	memset(buf, 0, sizeof(buf));
-	buf[0] = seq.type;											len++;
+	buf[0] = seq.type;						len++;
 	memcpy(&buf[len], seq.player.callsign, CALLSIGN_LEN+1);		len += CALLSIGN_LEN+1;
-	buf[len] = seq.player.version_major;						len++;
-	buf[len] = seq.player.version_minor;						len++;
-	buf[len] = seq.player.connected;							len++;
-	buf[len] = seq.player.rank;									len++;
+	buf[len] = seq.player.version_major;				len++;
+	buf[len] = seq.player.version_minor;				len++;
+	buf[len] = seq.player.connected;				len++;
+	buf[len] = seq.player.rank;					len++;
 	
 	sendto (UDP_Socket[0], buf, len, 0, (struct sockaddr *)&recv_addr, sizeof(struct _sockaddr));
 }
@@ -1000,12 +1000,12 @@ void net_udp_receive_sequence_packet(ubyte *data, UDP_sequence_packet *seq, stru
 {
 	int len = 0;
 	
-	seq->type = data[0];										len++;
+	seq->type = data[0];						len++;
 	memcpy(seq->player.callsign, &(data[len]), CALLSIGN_LEN+1);	len += CALLSIGN_LEN+1;
-	seq->player.version_major = data[len];						len++;
-	seq->player.version_minor = data[len];						len++;
-	seq->player.connected = data[len];							len++;
-	memcpy (&(seq->player.rank),&(data[len]),1);				len++;
+	seq->player.version_major = data[len];				len++;
+	seq->player.version_minor = data[len];				len++;
+	seq->player.connected = data[len];				len++;
+	memcpy (&(seq->player.rank),&(data[len]),1);			len++;
 	
 	if (multi_i_am_master())
 		memcpy(&seq->player.protocol.udp.addr, (struct _sockaddr *)&sender_addr, sizeof(struct _sockaddr));
@@ -1638,7 +1638,7 @@ void net_udp_stop_resync(UDP_sequence_packet *their)
 	}
 }
 
-ubyte object_buffer[UPKT_MAX_SIZE];
+ubyte object_buffer[UPID_MAX_SIZE];
 
 void net_udp_send_objects(void)
 {
@@ -1666,7 +1666,7 @@ void net_udp_send_objects(void)
 		return;
 	}
 
-	memset(object_buffer, 0, UPKT_MAX_SIZE);
+	memset(object_buffer, 0, UPID_MAX_SIZE);
 	object_buffer[0] = UPID_OBJECT_DATA;
 	loc = 5;
 
@@ -1693,7 +1693,7 @@ void net_udp_send_objects(void)
 		if ((Network_send_object_mode == 1) && ((object_owner[i] == -1) || (object_owner[i] == player_num)))
 			continue;
 
-		if ( loc + sizeof(object_rw) + 9 > UPKT_MAX_SIZE-1 )
+		if ( loc + sizeof(object_rw) + 9 > UPID_MAX_SIZE-1 )
 			break; // Not enough room for another object
 
 		obj_count_frame++;
@@ -1718,7 +1718,7 @@ void net_udp_send_objects(void)
 		Network_send_objnum = i;
 		PUT_INTEL_INT(object_buffer+1, obj_count_frame);
 
-		Assert(loc <= UPKT_MAX_SIZE);
+		Assert(loc <= UPID_MAX_SIZE);
 
 		sendto (UDP_Socket[0], object_buffer, loc, 0, (struct sockaddr *)&UDP_sync_player.player.protocol.udp.addr, sizeof(struct _sockaddr));
 	}
@@ -2030,7 +2030,7 @@ void net_udp_dump_player(struct _sockaddr dump_addr, int why)
 {
 	// Inform player that he was not chosen for the netgame
 
-	ubyte buf[2];
+	ubyte buf[UPID_DUMP_SIZE];
 	
 	buf[0] = UPID_DUMP;
 	buf[1] = why;
@@ -2097,7 +2097,7 @@ void net_udp_send_endlevel_packet(void)
 
 	if (multi_i_am_master())
 	{
-		ubyte buf[UPKT_MAX_SIZE];
+		ubyte buf[UPID_MAX_SIZE];
 
 		memset(buf, 0, sizeof(buf));
 
@@ -2124,7 +2124,7 @@ void net_udp_send_endlevel_packet(void)
 	}
 	else
 	{
-		ubyte buf[UPKT_MAX_SIZE];
+		ubyte buf[UPID_MAX_SIZE];
 
 		memset(buf, 0,  sizeof(buf));
 
@@ -2146,7 +2146,7 @@ void net_udp_send_endlevel_packet(void)
 
 void net_udp_send_version_deny(struct _sockaddr sender_addr)
 {
-	ubyte buf[7];
+	ubyte buf[UPID_VERSION_DENY_SIZE];
 	
 	buf[0] = UPID_VERSION_DENY;
 	PUT_INTEL_SHORT(buf + 1, D2XMAJORi);
@@ -2166,7 +2166,7 @@ void net_udp_process_version_deny(ubyte *data, struct _sockaddr sender_addr)
 
 void net_udp_request_game_info(struct _sockaddr game_addr, int lite)
 {
-	ubyte buf[UPKT_GAME_INFO_REQ_SIZE];
+	ubyte buf[UPID_GAME_INFO_REQ_SIZE];
 	
 	buf[0] = (lite?UPID_GAME_INFO_LITE_REQ:UPID_GAME_INFO_REQ);
 	memcpy(&(buf[1]), UDP_REQ_ID, 4);
@@ -2178,17 +2178,11 @@ void net_udp_request_game_info(struct _sockaddr game_addr, int lite)
 }
 
 // Check request for game info. Return 1 if sucessful; -1 if version mismatch; 0 if wrong game or some other error - do not process
-int net_udp_check_game_info_request(ubyte *data, int data_len)
+int net_udp_check_game_info_request(ubyte *data)
 {
 	short sender_iver[3] = { 0, 0, 0 };
 	char sender_id[4] = "";
 
-	if (!multi_i_am_master())
-		return 0;
-	
-	if (data_len != UPKT_GAME_INFO_REQ_SIZE)
-		return 0;
-	
 	memcpy(&sender_id, &(data[1]), 4);
 	sender_iver[0] = GET_INTEL_SHORT(&(data[5]));
 	sender_iver[1] = GET_INTEL_SHORT(&(data[7]));
@@ -2215,23 +2209,23 @@ void net_udp_send_game_info(struct _sockaddr sender_addr, ubyte info_upid)
 	
 	if (info_upid == UPID_GAME_INFO_LITE)
 	{
-		ubyte buf[UPKT_MAX_SIZE];
+		ubyte buf[UPID_GAME_INFO_LITE_SIZE];
 		int tmpvar = 0;
 
 		memset(buf, 0, sizeof(buf));
 		
-		buf[0] = info_upid;														len++;
-		PUT_INTEL_SHORT(buf + len, D2XMAJORi); 									len += 2;
-		PUT_INTEL_SHORT(buf + len, D2XMINORi); 									len += 2;
-		PUT_INTEL_SHORT(buf + len, D2XMICROi); 									len += 2;
-		PUT_INTEL_INT(buf + len, Netgame.protocol.udp.GameID);							len += 4;
-		memcpy(&(buf[len]), Netgame.game_name, NETGAME_NAME_LEN+1);				len += (NETGAME_NAME_LEN+1);
+		buf[0] = info_upid;								len++;				// 1
+		PUT_INTEL_SHORT(buf + len, D2XMAJORi); 						len += 2;			// 3
+		PUT_INTEL_SHORT(buf + len, D2XMINORi); 						len += 2;			// 5
+		PUT_INTEL_SHORT(buf + len, D2XMICROi); 						len += 2;			// 7
+		PUT_INTEL_INT(buf + len, Netgame.protocol.udp.GameID);				len += 4;			// 11
+		memcpy(&(buf[len]), Netgame.game_name, NETGAME_NAME_LEN+1);			len += (NETGAME_NAME_LEN+1);	
 		memcpy(&(buf[len]), Netgame.mission_title, MISSION_NAME_LEN+1);			len += (MISSION_NAME_LEN+1);
 		memcpy(&(buf[len]), Netgame.mission_name, 9);		            		len += 9;
-		PUT_INTEL_INT(buf + len, Netgame.levelnum);								len += 4;
-		buf[len] = Netgame.gamemode;											len++;
-		buf[len] = Netgame.RefusePlayers;										len++;
-		buf[len] = Netgame.difficulty;											len++;
+		PUT_INTEL_INT(buf + len, Netgame.levelnum);					len += 4;
+		buf[len] = Netgame.gamemode;							len++;
+		buf[len] = Netgame.RefusePlayers;						len++;
+		buf[len] = Netgame.difficulty;							len++;
 		tmpvar = Netgame.game_status;
 		if (Endlevel_sequence || Control_center_destroyed)
 			tmpvar = NETSTAT_ENDLEVEL;
@@ -2242,46 +2236,46 @@ void net_udp_send_game_info(struct _sockaddr sender_addr, ubyte info_upid)
 				tmpvar = NETSTAT_ENDLEVEL;
 			}
 		}
-		buf[len] = tmpvar;														len++;
-		buf[len] = Netgame.numconnected;										len++;
-		buf[len] = Netgame.max_numplayers;										len++;
-		buf[len] = Netgame.game_flags;											len++;
+		buf[len] = tmpvar;								len++;
+		buf[len] = Netgame.numconnected;						len++;
+		buf[len] = Netgame.max_numplayers;						len++;
+		buf[len] = Netgame.game_flags;							len++;
 		
 		sendto (UDP_Socket[0], buf, len, 0, (struct sockaddr *)&sender_addr, sizeof(struct _sockaddr));
 	}
 	else
 	{
-		ubyte buf[UPKT_MAX_SIZE];
+		ubyte buf[UPID_GAME_INFO_SIZE];
 		int i = 0, j = 0, tmpvar = 0;
 		
 		memset(buf, 0, sizeof(buf));
 		
-		buf[0] = info_upid;														len++;
-		PUT_INTEL_SHORT(buf + len, D2XMAJORi); 									len += 2;
-		PUT_INTEL_SHORT(buf + len, D2XMINORi); 									len += 2;
-		PUT_INTEL_SHORT(buf + len, D2XMICROi); 									len += 2;
-		buf[len] = Netgame.version_major;										len++;
-		buf[len] = Netgame.version_minor;										len++;
+		buf[0] = info_upid;								len++;
+		PUT_INTEL_SHORT(buf + len, D2XMAJORi); 						len += 2;
+		PUT_INTEL_SHORT(buf + len, D2XMINORi); 						len += 2;
+		PUT_INTEL_SHORT(buf + len, D2XMICROi); 						len += 2;
+		buf[len] = Netgame.version_major;						len++;
+		buf[len] = Netgame.version_minor;						len++;
 		for (i = 0; i < MAX_PLAYERS+4; i++)
 		{
 			memcpy(&buf[len], Netgame.players[i].callsign, CALLSIGN_LEN+1); 	len += CALLSIGN_LEN+1;
-			buf[len] = Netgame.players[i].version_major;						len++;
-			buf[len] = Netgame.players[i].version_minor;						len++;
-			buf[len] = Netgame.players[i].connected;							len++;
-			buf[len] = Netgame.players[i].rank;									len++;
+			buf[len] = Netgame.players[i].version_major;				len++;
+			buf[len] = Netgame.players[i].version_minor;				len++;
+			buf[len] = Netgame.players[i].connected;				len++;
+			buf[len] = Netgame.players[i].rank;					len++;
 			if (!memcmp((struct _sockaddr *)&sender_addr, (struct _sockaddr *)&Netgame.players[i].protocol.udp.addr, sizeof(struct _sockaddr)))
 				buf[len] = 1;
 			else
 				buf[len] = 0;
-																				len++;
+												len++;
 		}
-		memcpy(&(buf[len]), Netgame.game_name, NETGAME_NAME_LEN+1);				len += (NETGAME_NAME_LEN+1);
+		memcpy(&(buf[len]), Netgame.game_name, NETGAME_NAME_LEN+1);			len += (NETGAME_NAME_LEN+1);
 		memcpy(&(buf[len]), Netgame.mission_title, MISSION_NAME_LEN+1);			len += (MISSION_NAME_LEN+1);
-		memcpy(&(buf[len]), Netgame.mission_name, 9);		            		len += 9;
-		PUT_INTEL_INT(buf + len, Netgame.levelnum);								len += 4;
-		buf[len] = Netgame.gamemode;											len++;
-		buf[len] = Netgame.RefusePlayers;										len++;
-		buf[len] = Netgame.difficulty;											len++;
+		memcpy(&(buf[len]), Netgame.mission_name, 9);					len += 9;
+		PUT_INTEL_INT(buf + len, Netgame.levelnum);					len += 4;
+		buf[len] = Netgame.gamemode;							len++;
+		buf[len] = Netgame.RefusePlayers;						len++;
+		buf[len] = Netgame.difficulty;							len++;
 		tmpvar = Netgame.game_status;
 		if (Endlevel_sequence || Control_center_destroyed)
 			tmpvar = NETSTAT_ENDLEVEL;
@@ -2292,56 +2286,56 @@ void net_udp_send_game_info(struct _sockaddr sender_addr, ubyte info_upid)
 				tmpvar = NETSTAT_ENDLEVEL;
 			}
 		}
-		buf[len] = tmpvar;														len++;
-		buf[len] = Netgame.numplayers;											len++;
-		buf[len] = Netgame.max_numplayers;										len++;
-		buf[len] = Netgame.numconnected;										len++;
-		buf[len] = Netgame.game_flags;											len++;
-		buf[len] = Netgame.team_vector;											len++;
-		PUT_INTEL_INT(buf + len, Netgame.AllowedItems);							len += 4;
-		PUT_INTEL_SHORT(buf + len, Netgame.Allow_marker_view);					len += 2;
-		PUT_INTEL_SHORT(buf + len, Netgame.AlwaysLighting);						len += 2;
-		PUT_INTEL_SHORT(buf + len, Netgame.BrightPlayers);						len += 2;
-		PUT_INTEL_SHORT(buf + len, Netgame.InvulAppear);						len += 2;
-		memcpy(&buf[len], Netgame.team_name, 2*(CALLSIGN_LEN+1));				len += 2*(CALLSIGN_LEN+1);
+		buf[len] = tmpvar;								len++;
+		buf[len] = Netgame.numplayers;							len++;
+		buf[len] = Netgame.max_numplayers;						len++;
+		buf[len] = Netgame.numconnected;						len++;
+		buf[len] = Netgame.game_flags;							len++;
+		buf[len] = Netgame.team_vector;							len++;
+		PUT_INTEL_INT(buf + len, Netgame.AllowedItems);					len += 4;
+		PUT_INTEL_SHORT(buf + len, Netgame.Allow_marker_view);				len += 2;
+		PUT_INTEL_SHORT(buf + len, Netgame.AlwaysLighting);				len += 2;
+		PUT_INTEL_SHORT(buf + len, Netgame.BrightPlayers);				len += 2;
+		PUT_INTEL_SHORT(buf + len, Netgame.InvulAppear);				len += 2;
+		memcpy(&buf[len], Netgame.team_name, 2*(CALLSIGN_LEN+1));			len += 2*(CALLSIGN_LEN+1);
 		for (i = 0; i < MAX_PLAYERS; i++)
 		{
-			PUT_INTEL_INT(buf + len, Netgame.locations[i]);					    len += 4;
+			PUT_INTEL_INT(buf + len, Netgame.locations[i]);				len += 4;
 		}
 		for (i = 0; i < MAX_PLAYERS; i++)
 		{
 			for (j = 0; j < MAX_PLAYERS; j++)
 			{
-				PUT_INTEL_SHORT(buf + len, Netgame.kills[i][j]);				len += 2;
+				PUT_INTEL_SHORT(buf + len, Netgame.kills[i][j]);		len += 2;
 			}
 		}
-		PUT_INTEL_SHORT(buf + len, Netgame.segments_checksum);   				len += 2;
-		PUT_INTEL_SHORT(buf + len, Netgame.team_kills[0]);						len += 2;
-		PUT_INTEL_SHORT(buf + len, Netgame.team_kills[1]);						len += 2;
+		PUT_INTEL_SHORT(buf + len, Netgame.segments_checksum);   			len += 2;
+		PUT_INTEL_SHORT(buf + len, Netgame.team_kills[0]);				len += 2;
+		PUT_INTEL_SHORT(buf + len, Netgame.team_kills[1]);				len += 2;
 		for (i = 0; i < MAX_PLAYERS; i++)
 		{
-			PUT_INTEL_SHORT(buf + len, Netgame.killed[i]);						len += 2;
+			PUT_INTEL_SHORT(buf + len, Netgame.killed[i]);				len += 2;
 		}
 		for (i = 0; i < MAX_PLAYERS; i++)
 		{
-			PUT_INTEL_SHORT(buf + len, Netgame.player_kills[i]);				len += 2;
+			PUT_INTEL_SHORT(buf + len, Netgame.player_kills[i]);			len += 2;
 		}
-		PUT_INTEL_INT(buf + len, Netgame.KillGoal);								len += 4;
-		PUT_INTEL_INT(buf + len, Netgame.PlayTimeAllowed);						len += 4;
-		PUT_INTEL_INT(buf + len, Netgame.level_time);							len += 4;
-		PUT_INTEL_INT(buf + len, Netgame.control_invul_time);					len += 4;
-		PUT_INTEL_INT(buf + len, Netgame.monitor_vector);						len += 4;
+		PUT_INTEL_INT(buf + len, Netgame.KillGoal);					len += 4;
+		PUT_INTEL_INT(buf + len, Netgame.PlayTimeAllowed);				len += 4;
+		PUT_INTEL_INT(buf + len, Netgame.level_time);					len += 4;
+		PUT_INTEL_INT(buf + len, Netgame.control_invul_time);				len += 4;
+		PUT_INTEL_INT(buf + len, Netgame.monitor_vector);				len += 4;
 		for (i = 0; i < MAX_PLAYERS; i++)
 		{
-			PUT_INTEL_INT(buf + len, Netgame.player_score[i]);					len += 4;
+			PUT_INTEL_INT(buf + len, Netgame.player_score[i]);			len += 4;
 		}
 		for (i = 0; i < MAX_PLAYERS; i++)
 		{
-			buf[len] = Netgame.player_flags[i];									len++;
+			buf[len] = Netgame.player_flags[i];					len++;
 		}
-		PUT_INTEL_SHORT(buf + len, Netgame.PacketsPerSec);						len += 2;
-		buf[len] = Netgame.PacketLossPrevention;								len++;
-		buf[len] = Netgame.NoFriendlyFire;								len++;
+		PUT_INTEL_SHORT(buf + len, Netgame.PacketsPerSec);				len += 2;
+		buf[len] = Netgame.PacketLossPrevention;					len++;
+		buf[len] = Netgame.NoFriendlyFire;						len++;
 		
 		sendto (UDP_Socket[0], buf, len, 0, (struct sockaddr *)&sender_addr, sizeof(struct _sockaddr));
 	}
@@ -2393,14 +2387,11 @@ void net_udp_process_game_info(ubyte *data, int data_len, struct _sockaddr game_
 	{
 		UDP_netgame_info_lite recv_game;
 		
-		if (data_len > UPKT_MAX_SIZE)
-			return;
-			
 		memcpy(&recv_game, &game_addr, sizeof(struct _sockaddr));
-																				len++; // skip UPID byte
-		recv_game.program_iver[0] = GET_INTEL_SHORT(&(data[len]));				len += 2;
-		recv_game.program_iver[1] = GET_INTEL_SHORT(&(data[len]));				len += 2;
-		recv_game.program_iver[2] = GET_INTEL_SHORT(&(data[len]));				len += 2;
+												len++; // skip UPID byte
+		recv_game.program_iver[0] = GET_INTEL_SHORT(&(data[len]));			len += 2;
+		recv_game.program_iver[1] = GET_INTEL_SHORT(&(data[len]));			len += 2;
+		recv_game.program_iver[2] = GET_INTEL_SHORT(&(data[len]));			len += 2;
 		
 		if ((recv_game.program_iver[0] != D2XMAJORi) || (recv_game.program_iver[1] != D2XMINORi) || (recv_game.program_iver[2] != D2XMICROi))
 			return;
@@ -2408,15 +2399,15 @@ void net_udp_process_game_info(ubyte *data, int data_len, struct _sockaddr game_
 		recv_game.GameID = GET_INTEL_INT(&(data[len]));					len += 4;
 		memcpy(&recv_game.game_name, &(data[len]), NETGAME_NAME_LEN+1);			len += (NETGAME_NAME_LEN+1);
 		memcpy(&recv_game.mission_title, &(data[len]), MISSION_NAME_LEN+1);		len += (MISSION_NAME_LEN+1);
-		memcpy(&recv_game.mission_name, &(data[len]), 9);						len += 9;
-		recv_game.levelnum = GET_INTEL_INT(&(data[len]));						len += 4;
-		recv_game.gamemode = data[len];											len++;
-		recv_game.RefusePlayers = data[len];									len++;
-		recv_game.difficulty = data[len];										len++;
-		recv_game.game_status = data[len];										len++;
-		recv_game.numconnected = data[len];										len++;
-		recv_game.max_numplayers = data[len];									len++;
-		recv_game.game_flags = data[len];										len++;
+		memcpy(&recv_game.mission_name, &(data[len]), 9);				len += 9;
+		recv_game.levelnum = GET_INTEL_INT(&(data[len]));				len += 4;
+		recv_game.gamemode = data[len];							len++;
+		recv_game.RefusePlayers = data[len];						len++;
+		recv_game.difficulty = data[len];						len++;
+		recv_game.game_status = data[len];						len++;
+		recv_game.numconnected = data[len];						len++;
+		recv_game.max_numplayers = data[len];						len++;
+		recv_game.game_flags = data[len];						len++;
 	
 		num_active_udp_changed = 1;
 		
@@ -2462,83 +2453,80 @@ void net_udp_process_game_info(ubyte *data, int data_len, struct _sockaddr game_
 	}
 	else
 	{
-		if (data_len > UPKT_MAX_SIZE)
-			return;
-			
 		memcpy((struct _sockaddr *)&Netgame.players[0].protocol.udp.addr, (struct _sockaddr *)&game_addr, sizeof(struct _sockaddr));
 
-																				len++; // skip UPID byte
-		Netgame.protocol.udp.program_iver[0] = GET_INTEL_SHORT(&(data[len]));	len += 2;
-		Netgame.protocol.udp.program_iver[1] = GET_INTEL_SHORT(&(data[len]));	len += 2;
-		Netgame.protocol.udp.program_iver[2] = GET_INTEL_SHORT(&(data[len]));	len += 2;
-		Netgame.version_major = data[len];										len++;
-		Netgame.version_minor = data[len];										len++;
+												len++; // skip UPID byte
+		Netgame.protocol.udp.program_iver[0] = GET_INTEL_SHORT(&(data[len]));		len += 2;
+		Netgame.protocol.udp.program_iver[1] = GET_INTEL_SHORT(&(data[len]));		len += 2;
+		Netgame.protocol.udp.program_iver[2] = GET_INTEL_SHORT(&(data[len]));		len += 2;
+		Netgame.version_major = data[len];						len++;
+		Netgame.version_minor = data[len];						len++;
 		for (i = 0; i < MAX_PLAYERS+4; i++)
 		{
 			memcpy(&Netgame.players[i].callsign, &(data[len]), CALLSIGN_LEN+1);	len += CALLSIGN_LEN+1;
-			Netgame.players[i].version_major = data[len];						len++;
-			Netgame.players[i].version_minor = data[len];						len++;
-			Netgame.players[i].connected = data[len];							len++;
-			Netgame.players[i].rank = data[len];								len++;
-			Netgame.players[i].protocol.udp.isyou = data[len];					len++;
+			Netgame.players[i].version_major = data[len];				len++;
+			Netgame.players[i].version_minor = data[len];				len++;
+			Netgame.players[i].connected = data[len];				len++;
+			Netgame.players[i].rank = data[len];					len++;
+			Netgame.players[i].protocol.udp.isyou = data[len];			len++;
 		}
 		memcpy(&Netgame.game_name, &(data[len]), NETGAME_NAME_LEN+1);			len += (NETGAME_NAME_LEN+1);
 		memcpy(&Netgame.mission_title, &(data[len]), MISSION_NAME_LEN+1);		len += (MISSION_NAME_LEN+1);
-		memcpy(&Netgame.mission_name, &(data[len]), 9);							len += 9;		
-		Netgame.levelnum = GET_INTEL_INT(&(data[len]));							len += 4;
-		Netgame.gamemode = data[len];											len++;
-		Netgame.RefusePlayers = data[len];										len++;
-		Netgame.difficulty = data[len];											len++;
-		Netgame.game_status = data[len];										len++;
-		Netgame.numplayers = data[len];											len++;
-		Netgame.max_numplayers = data[len];										len++;
-		Netgame.numconnected = data[len];										len++;
-		Netgame.game_flags = data[len];											len++;
-		Netgame.team_vector = data[len];										len++;
-		Netgame.AllowedItems = GET_INTEL_INT(&(data[len]));						len += 4;
-		Netgame.Allow_marker_view = GET_INTEL_SHORT(&(data[len]));				len += 2;
-		Netgame.AlwaysLighting = GET_INTEL_SHORT(&(data[len]));					len += 2;		
-		Netgame.BrightPlayers = GET_INTEL_SHORT(&(data[len]));					len += 2;
-		Netgame.InvulAppear = GET_INTEL_SHORT(&(data[len]));					len += 2;
+		memcpy(&Netgame.mission_name, &(data[len]), 9);					len += 9;		
+		Netgame.levelnum = GET_INTEL_INT(&(data[len]));					len += 4;
+		Netgame.gamemode = data[len];							len++;
+		Netgame.RefusePlayers = data[len];						len++;
+		Netgame.difficulty = data[len];							len++;
+		Netgame.game_status = data[len];						len++;
+		Netgame.numplayers = data[len];							len++;
+		Netgame.max_numplayers = data[len];						len++;
+		Netgame.numconnected = data[len];						len++;
+		Netgame.game_flags = data[len];							len++;
+		Netgame.team_vector = data[len];						len++;
+		Netgame.AllowedItems = GET_INTEL_INT(&(data[len]));				len += 4;
+		Netgame.Allow_marker_view = GET_INTEL_SHORT(&(data[len]));			len += 2;
+		Netgame.AlwaysLighting = GET_INTEL_SHORT(&(data[len]));				len += 2;
+		Netgame.BrightPlayers = GET_INTEL_SHORT(&(data[len]));				len += 2;
+		Netgame.InvulAppear = GET_INTEL_SHORT(&(data[len]));				len += 2;
 		memcpy(Netgame.team_name, &(data[len]), 2*(CALLSIGN_LEN+1));			len += 2*(CALLSIGN_LEN+1);
 		for (i = 0; i < MAX_PLAYERS; i++)
 		{
-			Netgame.locations[i] = GET_INTEL_INT(&(data[len]));				    len += 4;
+			Netgame.locations[i] = GET_INTEL_INT(&(data[len]));			len += 4;
 		}
 		for (i = 0; i < MAX_PLAYERS; i++)
 		{
 			for (j = 0; j < MAX_PLAYERS; j++)
 			{
-				Netgame.kills[i][j] = GET_INTEL_SHORT(&(data[len]));		    len += 2;
+				Netgame.kills[i][j] = GET_INTEL_SHORT(&(data[len]));		len += 2;
 			}
 		}
-		Netgame.segments_checksum = GET_INTEL_SHORT(&(data[len]));				len += 2;
-		Netgame.team_kills[0] = GET_INTEL_SHORT(&(data[len]));					len += 2;	
-		Netgame.team_kills[1] = GET_INTEL_SHORT(&(data[len]));					len += 2;
+		Netgame.segments_checksum = GET_INTEL_SHORT(&(data[len]));			len += 2;
+		Netgame.team_kills[0] = GET_INTEL_SHORT(&(data[len]));				len += 2;	
+		Netgame.team_kills[1] = GET_INTEL_SHORT(&(data[len]));				len += 2;
 		for (i = 0; i < MAX_PLAYERS; i++)
 		{
-			Netgame.killed[i] = GET_INTEL_SHORT(&(data[len]));				    len += 2;
+			Netgame.killed[i] = GET_INTEL_SHORT(&(data[len]));			len += 2;
 		}
 		for (i = 0; i < MAX_PLAYERS; i++)
 		{
-			Netgame.player_kills[i] = GET_INTEL_SHORT(&(data[len]));		    len += 2;
+			Netgame.player_kills[i] = GET_INTEL_SHORT(&(data[len]));		len += 2;
 		}
-		Netgame.KillGoal = GET_INTEL_INT(&(data[len]));							len += 4;
-		Netgame.PlayTimeAllowed = GET_INTEL_INT(&(data[len]));					len += 4;
-		Netgame.level_time = GET_INTEL_INT(&(data[len]));						len += 4;
-		Netgame.control_invul_time = GET_INTEL_INT(&(data[len]));				len += 4;
-		Netgame.monitor_vector = GET_INTEL_INT(&(data[len]));					len += 4;
+		Netgame.KillGoal = GET_INTEL_INT(&(data[len]));					len += 4;
+		Netgame.PlayTimeAllowed = GET_INTEL_INT(&(data[len]));				len += 4;
+		Netgame.level_time = GET_INTEL_INT(&(data[len]));				len += 4;
+		Netgame.control_invul_time = GET_INTEL_INT(&(data[len]));			len += 4;
+		Netgame.monitor_vector = GET_INTEL_INT(&(data[len]));				len += 4;
 		for (i = 0; i < MAX_PLAYERS; i++)
 		{
-			Netgame.player_score[i] = GET_INTEL_INT(&(data[len]));		 	   len += 4;
+			Netgame.player_score[i] = GET_INTEL_INT(&(data[len]));		 	len += 4;
 		}
 		for (i = 0; i < MAX_PLAYERS; i++)
 		{
-			Netgame.player_flags[i] = data[len];								len++;
+			Netgame.player_flags[i] = data[len];					len++;
 		}
-		Netgame.PacketsPerSec = GET_INTEL_SHORT(&(data[len]));					len += 2;
-		Netgame.PacketLossPrevention = data[len];								len++;
-		Netgame.NoFriendlyFire = data[len];								len++;
+		Netgame.PacketsPerSec = GET_INTEL_SHORT(&(data[len]));				len += 2;
+		Netgame.PacketLossPrevention = data[len];					len++;
+		Netgame.NoFriendlyFire = data[len];						len++;
 		
 		Netgame.protocol.udp.valid = 1; // This game is valid! YAY!
 	}
@@ -2590,12 +2578,16 @@ void net_udp_process_packet(ubyte *data, struct _sockaddr sender_addr, int lengt
 	switch (data[0])
 	{
 		case UPID_VERSION_DENY:
+			if (multi_i_am_master() || length != UPID_VERSION_DENY_SIZE)
+				break;
 			net_udp_process_version_deny(data, sender_addr);
 			break;
 		case UPID_GAME_INFO_REQ:
 		{
 			int result = 0;
-			result = net_udp_check_game_info_request(data, length);
+			if (!multi_i_am_master() || length != UPID_GAME_INFO_REQ_SIZE)
+				break;
+			result = net_udp_check_game_info_request(data);
 			if (result == -1)
 				net_udp_send_version_deny(sender_addr);
 			else if (result == 1)
@@ -2603,7 +2595,7 @@ void net_udp_process_packet(ubyte *data, struct _sockaddr sender_addr, int lengt
 			break;
 		}
 		case UPID_GAME_INFO:
-			if (multi_i_am_master())
+			if (multi_i_am_master() || length != UPID_GAME_INFO_SIZE)
 				break;
 			net_udp_process_game_info(data, length, sender_addr, 0);
 			// FIXME: Check if this cannot be solved different.
@@ -2618,21 +2610,31 @@ void net_udp_process_packet(ubyte *data, struct _sockaddr sender_addr, int lengt
 			}
 			break;
 		case UPID_GAME_INFO_LITE_REQ:
-			if (net_udp_check_game_info_request(data, length) == 1)
+			if (!multi_i_am_master() || length != UPID_GAME_INFO_REQ_SIZE)
+				break;
+			if (net_udp_check_game_info_request(data) == 1)
 				net_udp_send_game_info(sender_addr, UPID_GAME_INFO_LITE);
 			break;
 		case UPID_GAME_INFO_LITE:
+			if (multi_i_am_master() || length != UPID_GAME_INFO_LITE_SIZE)
+				break;
 			net_udp_process_game_info(data, length, sender_addr, 1);
 			break;
 		case UPID_DUMP:
+			if (multi_i_am_master() || memcmp((struct _sockaddr *)&Netgame.players[0].protocol.udp.addr, (struct _sockaddr *)&sender_addr, sizeof(struct _sockaddr)) || length != UPID_DUMP_SIZE)
+				break;
 			if ((Network_status == NETSTAT_WAITING) || (Network_status == NETSTAT_PLAYING))
 				net_udp_process_dump(data, length, sender_addr);
 			break;
 		case UPID_ADDPLAYER:
+			if (multi_i_am_master() || memcmp((struct _sockaddr *)&Netgame.players[0].protocol.udp.addr, (struct _sockaddr *)&sender_addr, sizeof(struct _sockaddr)) || length != UPID_SEQUENCE_SIZE)
+				break;
 			net_udp_receive_sequence_packet(data, &their, sender_addr);
 			net_udp_new_player(&their);
 			break;
 		case UPID_REQUEST:
+			if (!multi_i_am_master() || length != UPID_SEQUENCE_SIZE)
+				break;
 			net_udp_receive_sequence_packet(data, &their, sender_addr);
 			if (Network_status == NETSTAT_STARTING) 
 			{
@@ -2654,6 +2656,8 @@ void net_udp_process_packet(ubyte *data, struct _sockaddr sender_addr, int lengt
 			}
 			break;
 		case UPID_QUIT_JOINING:
+			if (!multi_i_am_master() || length != UPID_SEQUENCE_SIZE)
+				break;
 			net_udp_receive_sequence_packet(data, &their, sender_addr);
 			if (Network_status == NETSTAT_STARTING)
 				net_udp_remove_player( &their );
@@ -2661,20 +2665,24 @@ void net_udp_process_packet(ubyte *data, struct _sockaddr sender_addr, int lengt
 				net_udp_stop_resync( &their );
 			break;
 		case UPID_SYNC:
-			if (Network_status == NETSTAT_WAITING)
-				net_udp_read_sync_packet(data, length, sender_addr);
+			if (multi_i_am_master() || length != UPID_GAME_INFO_SIZE || Network_status != NETSTAT_WAITING)
+				break;
+			net_udp_read_sync_packet(data, length, sender_addr);
 			break;
 		case UPID_OBJECT_DATA:
-			if (Network_status == NETSTAT_WAITING) 
-				net_udp_read_object_packet(data);
+			if (multi_i_am_master() || length < UPID_MAX_SIZE || Network_status != NETSTAT_WAITING)
+				break;
+			net_udp_read_object_packet(data);
 			break;
 		case UPID_PING:
-			if (!multi_i_am_master())
-				net_udp_process_ping(data, length, sender_addr);
+			if (multi_i_am_master() || length != UPID_PING_SIZE)
+				break;
+			net_udp_process_ping(data, length, sender_addr);
 			break;
 		case UPID_PONG:
-			if (multi_i_am_master())
-				net_udp_process_pong(data, length, sender_addr);
+			if (!multi_i_am_master() || length != UPID_PONG_SIZE)
+				break;
+			net_udp_process_pong(data, length, sender_addr);
 			break;
 		case UPID_ENDLEVEL_H:
 			if ((!multi_i_am_master()) && ((Network_status == NETSTAT_ENDLEVEL) || (Network_status == NETSTAT_PLAYING)))
@@ -4058,47 +4066,47 @@ void net_udp_leave_game()
 
 void net_udp_flush()
 {
-	ubyte packet[UPKT_MAX_SIZE];
+	ubyte packet[UPID_MAX_SIZE];
 	struct _sockaddr sender_addr; 
 
 	if (UDP_Socket[0] != -1)
-		while (udp_receive_packet( 0, packet, UPKT_MAX_SIZE, &sender_addr) > 0);
+		while (udp_receive_packet( 0, packet, UPID_MAX_SIZE, &sender_addr) > 0);
 
 	if (UDP_Socket[1] != -1)
-		while (udp_receive_packet( 1, packet, UPKT_MAX_SIZE, &sender_addr) > 0);
+		while (udp_receive_packet( 1, packet, UPID_MAX_SIZE, &sender_addr) > 0);
 }
 
 void net_udp_listen()
 {
 	int size;
-	ubyte packet[UPKT_MAX_SIZE];
+	ubyte packet[UPID_MAX_SIZE];
 	struct _sockaddr sender_addr;
 
 	if (UDP_Socket[0] != -1)
 	{
-		size = udp_receive_packet( 0, packet, UPKT_MAX_SIZE, &sender_addr );
+		size = udp_receive_packet( 0, packet, UPID_MAX_SIZE, &sender_addr );
 		while ( size > 0 )	{
 			net_udp_process_packet( packet, sender_addr, size );
-			size = udp_receive_packet( 0, packet, UPKT_MAX_SIZE, &sender_addr );
+			size = udp_receive_packet( 0, packet, UPID_MAX_SIZE, &sender_addr );
 		}
 	}
 
 	if (UDP_Socket[1] != -1)
 	{
-		size = udp_receive_packet( 1, packet, UPKT_MAX_SIZE, &sender_addr );
+		size = udp_receive_packet( 1, packet, UPID_MAX_SIZE, &sender_addr );
 		while ( size > 0 )	{
 			net_udp_process_packet( packet, sender_addr, size );
-			size = udp_receive_packet( 1, packet, UPKT_MAX_SIZE, &sender_addr );
+			size = udp_receive_packet( 1, packet, UPID_MAX_SIZE, &sender_addr );
 		}
 	}
 	
 #ifdef USE_TRACKER
 	if( UDP_Socket[2] != -1 )
 	{
-		size = udp_receive_packet( 2, packet, UPKT_MAX_SIZE, &sender_addr );
+		size = udp_receive_packet( 2, packet, UPID_MAX_SIZE, &sender_addr );
 		while ( size > 0 )	{
 			net_udp_process_packet( packet, sender_addr, size );
-			size = udp_receive_packet( 2, packet, UPKT_MAX_SIZE, &sender_addr );
+			size = udp_receive_packet( 2, packet, UPID_MAX_SIZE, &sender_addr );
 		}
 	}
 #endif
@@ -4114,7 +4122,7 @@ void net_udp_send_data( ubyte * ptr, int len, int priority )
 	if (priority)
 		PacketUrgent = 1;
 
-	if ((UDP_MData.mbuf_size+len) > UPKT_MBUF_SIZE )
+	if ((UDP_MData.mbuf_size+len) > UPID_MDATA_BUF_SIZE )
 	{
 		check = ptr[0];
 		net_udp_do_frame(1, 0);
@@ -4123,7 +4131,7 @@ void net_udp_send_data( ubyte * ptr, int len, int priority )
 		Assert(check == ptr[0]);
 	}
 
-	Assert(UDP_MData.mbuf_size+len <= UPKT_MBUF_SIZE);
+	Assert(UDP_MData.mbuf_size+len <= UPID_MDATA_BUF_SIZE);
 
 	memcpy( &UDP_MData.mbuf[UDP_MData.mbuf_size], ptr, len );
 	UDP_MData.mbuf_size += len;
@@ -4581,7 +4589,7 @@ void net_udp_send_mdata(int priority, fix64 time)
 	UDP_MData.type = 0;
 	UDP_MData.Player_num = 0;
 	UDP_MData.mbuf_size = 0;
-	memset(&UDP_MData.mbuf, 0, sizeof(ubyte)*UPKT_MBUF_SIZE);
+	memset(&UDP_MData.mbuf, 0, sizeof(ubyte)*UPID_MDATA_BUF_SIZE);
 }
 
 void net_udp_process_mdata (ubyte *data, int data_len, struct _sockaddr sender_addr, int priority)
@@ -4906,15 +4914,12 @@ void net_udp_ping_frame(fix64 time)
 {
 	static fix64 PingTime = 0;
 	
-	if (!multi_i_am_master())
-		return;
-	
 	if ((PingTime + F1_0) < time)
 	{
-		ubyte buf[UPKT_PING_SIZE];
+		ubyte buf[UPID_PING_SIZE];
 		int len = 0, i = 0;
 		
-		memset(&buf, 0, sizeof(ubyte)*UPKT_PING_SIZE);
+		memset(&buf, 0, sizeof(ubyte)*UPID_PING_SIZE);
 		buf[len] = UPID_PING;							len++;
 		memcpy(&buf[len], &time, 8);						len += 8;
 		for (i = 1; i < MAX_PLAYERS; i++)
@@ -4936,15 +4941,12 @@ void net_udp_ping_frame(fix64 time)
 void net_udp_process_ping(ubyte *data, int data_len, struct _sockaddr sender_addr)
 {
 	fix64 host_ping_time = 0;
-	ubyte buf[UPKT_PONG_SIZE];
+	ubyte buf[UPID_PONG_SIZE];
 	int i, len = 0;
-	
-	if (data_len != UPKT_PING_SIZE)
+
+	if (memcmp((struct _sockaddr *)&Netgame.players[0].protocol.udp.addr, (struct _sockaddr *)&sender_addr, sizeof(struct _sockaddr)))
 		return;
-	
-	if (memcmp((struct _sockaddr *)&sender_addr, (struct _sockaddr *)&Netgame.players[0].protocol.udp.addr, sizeof(struct _sockaddr)))
-		return;
-		
+
 										len++; // Skip UPID byte;
 	memcpy(&host_ping_time, &data[len], 8);					len += 8;
 	for (i = 1; i < MAX_PLAYERS; i++)
@@ -4965,13 +4967,10 @@ void net_udp_process_pong(ubyte *data, int data_len, struct _sockaddr sender_add
 	fix64 client_pong_time = 0;
 	int i = 0;
 	
-	if (data_len != UPKT_PONG_SIZE)
+	if (memcmp((struct _sockaddr *)&sender_addr, (struct _sockaddr *)&Netgame.players[data[1]].protocol.udp.addr, sizeof(struct _sockaddr)))
 		return;
 
 	if (data[1] >= MAX_PLAYERS || data[1] < 1)
-		return;
-	
-	if (memcmp((struct _sockaddr *)&sender_addr, (struct _sockaddr *)&Netgame.players[data[1]].protocol.udp.addr, sizeof(struct _sockaddr)))
 		return;
 	
 	if (i == MAX_PLAYERS)
