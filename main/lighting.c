@@ -426,6 +426,10 @@ g3s_lrgb compute_light_emission(int objnum)
 			}
 		}
 
+		// obviously this object did not give us any usable color. so let's do our own but with blackjack and hookers!
+		if (obj_color.r <= 0 && obj_color.g <= 0 && obj_color.b <= 0)
+			obj_color.r = obj_color.g = obj_color.b = 255;
+
 		// scale color to light intensity
 		cscale = ((float)(light_intensity*3)/(obj_color.r+obj_color.g+obj_color.b));
 		lemission.r = obj_color.r * cscale;
