@@ -574,7 +574,18 @@ void do_physics_sim(object *obj)
 				vms_vector moved_v;
 				//@@fix total_d,moved_d;
 				fix hit_speed=0,wall_part=0;
-	
+
+				/*
+				* On joining edges fvi tends to get inaccurate as hell due to object size. And I have no means to fix that - shame on me (that whole code should be rewritten). Approach is to check if the object interects with the wall and if so, move it out towards segment center. (also see FIXME in find_plane_line_intersection)
+				*/
+				if ( object_intersects_wall(obj) && (obj->type == OBJ_PLAYER || obj->type == OBJ_ROBOT) )
+				{
+					vms_vector center,bump_vec;
+					compute_segment_center(&center,&Segments[obj->segnum]);
+					vm_vec_normalized_dir_quick(&bump_vec,&center,&obj->pos);
+					vm_vec_scale_add2(&obj->pos,&bump_vec,F0_1);
+				}
+
 				// Find hit speed	
 
 				vm_vec_sub(&moved_v,&obj->pos,&save_pos);
@@ -721,9 +732,10 @@ void do_physics_sim(object *obj)
 	// As sim_time may not base on FrameTime, scale actual object position to get accurate movement
 	if (PhysTime/FrameTime > 0)
 	{
-		obj->pos.x = start_pos.x + ((obj->pos.x - start_pos.x) / ((float)PhysTime/FrameTime));
-		obj->pos.y = start_pos.y + ((obj->pos.y - start_pos.y) / ((float)PhysTime/FrameTime));
-		obj->pos.z = start_pos.z + ((obj->pos.z - start_pos.z) / ((float)PhysTime/FrameTime));
+		vms_vector md;
+		vm_vec_sub(&md, &obj->pos, &start_pos);
+		vm_vec_scale(&md, F1_0/((float)PhysTime/FrameTime));
+		vm_vec_add(&obj->pos,&start_pos, &md);
 		//check for and update correct object segment
 		if(!get_seg_masks(&obj->pos, obj->segnum, 0, __FILE__, __LINE__).centermask == 0)
 		{
@@ -745,26 +757,6 @@ void do_physics_sim(object *obj)
 		vms_vector moved_vec;
 		vm_vec_sub(&moved_vec,&obj->pos,&start_pos);
 		vm_vec_copy_scale(&obj->mtype.phys_info.velocity,&moved_vec,fixdiv(f1_0,FrameTime));
-	}
-
-	/*
-	* On joining edges fvi tends to get inaccurate as hell due to object size. And I have no means to fix that - shame on me (that whole code should be rewritten). Approach is to check if the object interects with the wall and if so, move it out towards segment center. (also see FIXME in find_plane_line_intersection)
-	* NOTE that we also regulary check if we intersect a wall to make sure we ACTUALLY collide with a wall while bumping out of it - and not having sorta faked wall which is not marked as one...
-	*/
-	if (object_intersects_wall(obj) && (obj->type == OBJ_PLAYER || obj->type == OBJ_ROBOT))
-	{
-		int success = (fate == HIT_WALL), bcount = obj->size/F0_1;
-		vms_vector center,bump_vec,safe_pos = obj->pos;
-		compute_segment_center(&center,&Segments[obj->segnum]);
-		while (object_intersects_wall(obj) && bcount-- > 0)
-		{
-			vm_vec_normalized_dir_quick(&bump_vec,&center,&obj->pos);
-			vm_vec_scale_add2(&obj->pos,&bump_vec,F0_1);
-			if (!success)
-				success = (find_vector_intersection(&fq,&hit_info) == HIT_WALL);
-		}
-		if (!success)
-			obj->pos = safe_pos;
 	}
 
 	//Assert(check_point_in_seg(&obj->pos,obj->segnum,0).centermask==0);
