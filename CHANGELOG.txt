@@ -4,6 +4,7 @@ D2X-Rebirth Changelog
 --------
 main/net_udp.c, main/net_udp.h: Improved security for UDP protocol: Add checks for correct packet size and - if possible - valid sender address (valid player) and making sure Clients only accept packets meant for Clients and Hosts only accept packets meant for Hosts
 main/fvi.c, main/physics.c: Bit more safeguarding in find_plane_line_intersection() and as a result less agressive but more beautiful back-bumping on illegal wall interesections; Scaling of movement from PhysTime to FrameTime now done with vector math functions
+main/credits.c: Fixing unfreed buffer when credits_show() was called but there was nothing to show me
 
 20110412
 --------

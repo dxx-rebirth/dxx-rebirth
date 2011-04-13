@@ -224,7 +224,10 @@ void credits_show(char *credits_filename)
 		char nfile[32];
 		
 		if (credits_filename)
+		{
+			d_free(cr);
 			return;		//ok to not find special filename
+		}
 
 		tempp = strchr(filename, '.');
 		*tempp = '\0';
@@ -242,6 +245,7 @@ void credits_show(char *credits_filename)
 	pcx_error = pcx_read_bitmap(STARS_BACKGROUND,&cr->backdrop, BM_LINEAR,backdrop_palette);
 	if (pcx_error != PCX_ERROR_NONE)		{
 		cfclose(cr->file);
+		d_free(cr);
 		return;
 	}
 
