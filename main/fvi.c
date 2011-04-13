@@ -58,11 +58,13 @@ int find_plane_line_intersection(vms_vector *new_pnt,vms_vector *plane_pnt,vms_v
 	//check for various bad values
 	if (den > 0 && (-num>>15) >= den) //will overflow (large negative)
 		num = (f1_0-f0_5)*den;
-	// FIXME: need to handle those or catch somewhere else?
-// 	if (den > 0 && num > den) //frac greater than one
-// 		return 0;
-// 	if (den < 0 && num < den) //frac greater than one
-// 		return 0;
+	// FIXME: Handle those better!
+	if (den > 0 && num > den) //frac greater than one
+		num = den; //return 0;
+	if (den < 0 && num < den) //frac greater than one
+		num = den; //return 0;
+	if (labs (num) / (f1_0 / 2) >= labs (den))
+		return 0;
 
 	vm_vec_scale2(&d,num,den);
 	vm_vec_add(new_pnt,p0,&d);
