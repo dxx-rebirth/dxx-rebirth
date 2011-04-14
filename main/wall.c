@@ -1341,14 +1341,14 @@ void wall_frame_process()
 			do_door_close(i);
 		else if (w->state == WALL_DOOR_WAITING) {
 			d->time += FrameTime;
-
+#if 0 // should not be needed anymore thanks to packet loss prevention and - NOTE - this "fix" does not take linked walls into account
 			//set flags to fix occatsional netgame problem where door is
 			//waiting to close but open flag isn't set
 			Assert(d->n_parts == 1);
 			w->flags |= WALL_DOOR_OPENED;
 			if (d->back_wallnum[0] > -1)
 				Walls[d->back_wallnum[0]].flags |= WALL_DOOR_OPENED;
-
+#endif
 			if (d->time > DOOR_WAIT_TIME && is_door_free(&Segments[w->segnum],w->sidenum)) {
 				w->state = WALL_DOOR_CLOSING;
 				d->time = 0;
