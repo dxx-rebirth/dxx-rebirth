@@ -476,12 +476,13 @@ int kmatrix_ipx_handler(window *wind, d_event *event, kmatrix_ipx_screen *km)
 				
 				if (num_ready>=N_players)
 				{
-					window_close(wind);
-					
 					Players[Player_num].connected=CONNECT_KMATRIX_WAITING;
 					
 					if (km->network)
 						multi_send_endlevel_packet();  // make sure
+
+					window_close(wind);
+					break;
 				}
 				if (num_escaped>=N_players)
 					Countdown_seconds_left=-1;
@@ -852,6 +853,7 @@ int kmatrix_handler(window *wind, d_event *event, kmatrix_screen *km)
 				}
 				
 				window_close(wind);
+				break;
 			}
 
 			kmatrix_redraw(km);
