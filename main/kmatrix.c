@@ -212,7 +212,10 @@ int kmatrix_ipx_handler(window *wind, d_event *event, kmatrix_ipx_screen *km)
 			timer_delay2(50);
 
 			if (timer_query() >= (km->entry_time+MAX_VIEW_TIME))
+			{
 				window_close(wind);
+				break;
+			}
 			
 			if (km->network && (Game_mode & GM_NETWORK))
 				multi_endlevel_poll1(NULL, event, NULL);
@@ -531,6 +534,7 @@ int kmatrix_handler(window *wind, d_event *event, kmatrix_screen *km)
 					multi_send_endlevel_packet();  // make sure
 				
 				window_close(wind);
+				break;
 			}
 
 			kmatrix_redraw(km);

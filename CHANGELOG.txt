@@ -1,5 +1,9 @@
 D1X-Rebirth Changelog
 
+20110414
+--------
+main/kmatrix.c: Fixing km struct being used after it's being freed by closing the window in EVENT_WINDOW_DRAW
+
 20110413
 --------
 main/net_udp.c, main/net_udp.h: Improved security for UDP protocol: Add checks for correct packet size and - if possible - valid sender address (valid player) and making sure Clients only accept packets meant for Clients and Hosts only accept packets meant for Hosts
