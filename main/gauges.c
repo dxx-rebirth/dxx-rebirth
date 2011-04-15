@@ -1054,7 +1054,7 @@ void hud_show_afterburner(void)
 	gr_set_curfont( GAME_FONT );
 	gr_set_fontcolor(BM_XRGB(0,31,0),-1 );
 
-	y = (Game_mode & GM_MULTI)?(-8*LINE_SPACING):(-3*LINE_SPACING);
+	y = (Game_mode & GM_MULTI)?(-7*LINE_SPACING):(-3*LINE_SPACING);
 
 	gr_printf(FSPACX(1), grd_curcanv->cv_bitmap.bm_h+y, "burn: %d%%" , fixmul(Afterburner_charge,100));
 
@@ -2589,78 +2589,66 @@ int see_object(int objnum)
 //show names of teammates & players carrying flags
 void show_HUD_names()
 {
-	int show_team_names,show_all_names,show_indi,player_team;
-	int pnum;
+	int is_friend = 0, show_friend_name = 0, show_enemy_name = 0, show_name = 0, show_typing = 0, show_indi = 0, pnum = 0, objnum = 0;
+	
+	for (pnum=0;pnum<N_players;pnum++)
+	{
+		if (pnum == Player_num || Players[pnum].connected != CONNECT_PLAYING)
+			continue;
+		// ridiculusly complex to check if we want to show something... but this is readable at least.
+		is_friend = (Game_mode & GM_MULTI_COOP || (Game_mode & GM_TEAM && get_team(pnum) == get_team(Player_num)));
+		show_friend_name = Show_reticle_name;
+		show_enemy_name = Show_reticle_name && !(Players[pnum].flags & PLAYER_FLAGS_CLOAKED);
+		show_name = ((is_friend && show_friend_name) || (!is_friend && show_enemy_name));
+		show_typing = is_friend || !(Players[pnum].flags & PLAYER_FLAGS_CLOAKED);
+		show_indi = (((Game_mode & ( GM_CAPTURE | GM_HOARD ) && Players[pnum].flags & PLAYER_FLAGS_FLAG) || (Game_mode & GM_BOUNTY &&  pnum == Bounty_target)) && (is_friend || !(Players[pnum].flags & PLAYER_FLAGS_CLOAKED)));
 
-	show_all_names = ((Newdemo_state == ND_STATE_PLAYBACK) || (Show_reticle_name));
-	show_team_names = (((Game_mode & GM_MULTI_COOP) || (Game_mode & GM_TEAM)) && Show_reticle_name);
-	show_indi = Game_mode & ( GM_CAPTURE | GM_HOARD | GM_BOUNTY );
-
-	if (! (show_all_names || show_team_names || show_indi))
-		return;
-
-	player_team = get_team(Player_num);
-
-	for (pnum=0;pnum<N_players;pnum++) {	//check all players
-		int objnum;
-		int show_name,has_indi;
-		int show_bounty = ( Game_mode & GM_BOUNTY && pnum == Bounty_target );
-
-		show_name = ((show_all_names && !(Players[pnum].flags & PLAYER_FLAGS_CLOAKED)) || (show_team_names && get_team(pnum)==player_team)) || show_bounty;
-		has_indi = (Players[pnum].connected && Players[pnum].flags & PLAYER_FLAGS_FLAG) || show_bounty;
-		
 		if (Newdemo_state == ND_STATE_PLAYBACK) {
-			//if this is a demo, the objnum in the player struct is wrong,
-			//so we search the object list for the objnum
-
+			//if this is a demo, the objnum in the player struct is wrong, so we search the object list for the objnum
 			for (objnum=0;objnum<=Highest_object_index;objnum++)
 				if (Objects[objnum].type==OBJ_PLAYER && Objects[objnum].id == pnum)
 					break;
-			if (objnum > Highest_object_index)		//not in list, thus not visible
-				show_name = has_indi = 0;				//..so don't show name
+			if (objnum > Highest_object_index)	//not in list, thus not visible
+				continue;			//..so don't show name
 		}
 		else
 			objnum = Players[pnum].objnum;
 
-		if ((show_name || has_indi) && see_object(objnum)) {
+		if ((show_name || show_typing || show_indi) && see_object(objnum))
+		{
 			g3s_point player_point;
-
 			g3_rotate_point(&player_point,&Objects[objnum].pos);
 
-			if (player_point.p3_codes == 0) {	//on screen
-
+			if (player_point.p3_codes == 0) //on screen
+			{
 				g3_project_point(&player_point);
 
-				if (! (player_point.p3_flags & PF_OVERFLOW)) {
+				if (!(player_point.p3_flags & PF_OVERFLOW))
+				{
 					fix x,y,dx,dy;
+					char s[CALLSIGN_LEN+10];
+					int w, h, aw, x1, y1, color_num;
 
 					x = player_point.p3_sx;
 					y = player_point.p3_sy;
 					dy = -fixmuldiv(fixmul(Objects[objnum].size,Matrix_scale.y),i2f(grd_curcanv->cv_bitmap.bm_h)/2,player_point.p3_z);
 					dx = fixmul(dy,grd_curscreen->sc_aspect);
-
-					if (show_name) {				// Draw callsign on HUD
-						char s[CALLSIGN_LEN+10];
-						int w, h, aw;
-						int x1, y1;
-						int color_num;
-
-						color_num = (Game_mode & GM_TEAM)?get_team(pnum):pnum;
-
-						memset(&s, '\0', CALLSIGN_LEN+10);
-						/* Set the text to show */
-						if( Game_mode & GM_BOUNTY && pnum == Bounty_target )
-							strncpy( s, "Target", 6 );
+					color_num = (Game_mode & GM_TEAM)?get_team(pnum):pnum;
+					memset(&s, '\0', CALLSIGN_LEN+10);
+					/* Set the text to show */
+					if( Game_mode & GM_BOUNTY && pnum == Bounty_target )
+						strncpy( s, "Target", 6 );
+					else if (show_name)
+						snprintf( s, strlen(Players[pnum].callsign)+1, "%s", Players[pnum].callsign );
+					if (show_typing && multi_sending_message[pnum])
+					{
+						if (strlen(s))
+							strncat( s, ", typing", 8);
 						else
-							snprintf( s, strlen(Players[pnum].callsign), "%s", Players[pnum].callsign );
-						if (multi_sending_message[pnum])
-						{
-							if (strlen(s))
-								strncat( s, ", typing", 8);
-							else
-								strncpy( s, "Typing", 6 );
-						}
-						
+							strncpy( s, "Typing", 6 );
+					}
+					if (strlen(s))
+					{
 						gr_get_string_size(s, &w, &h, &aw);
 						gr_set_fontcolor(BM_XRGB(player_rgb[color_num].r,player_rgb[color_num].g,player_rgb[color_num].b),-1 );
 						x1 = f2i(x)-w/2;
@@ -2669,7 +2657,7 @@ void show_HUD_names()
 					}
 
 					/* Draw box on HUD */
-					if (has_indi)
+					if (show_indi)
 					{
 						fix w,h;
 
@@ -2690,13 +2678,10 @@ void show_HUD_names()
 
 						gr_line(x+dx-w,y-dy,x+dx,y-dy);
 						gr_line(x+dx,y-dy,x+dx,y-dy+h);
-
 						gr_line(x-dx,y-dy,x-dx+w,y-dy);
 						gr_line(x-dx,y-dy,x-dx,y-dy+h);
-
 						gr_line(x+dx-w,y+dy,x+dx,y+dy);
 						gr_line(x+dx,y+dy,x+dx,y+dy-h);
-
 						gr_line(x-dx,y+dy,x-dx+w,y+dy);
 						gr_line(x-dx,y+dy,x-dx,y+dy-h);
 					}
