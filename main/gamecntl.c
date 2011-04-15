@@ -1253,8 +1253,9 @@ int ReadControls(d_event *event)
 	} else {
 		exploding_flag=0;
 	}
-	if (Player_is_dead)
-		return HandleDeathInput(event);
+	if (Player_is_dead && !( (Game_mode & GM_MULTI) && (multi_sending_message[Player_num] || multi_defining_message) ))
+		if (HandleDeathInput(event))
+			return 1;
 
 	if (Newdemo_state == ND_STATE_PLAYBACK)
 		update_vcr_state();
