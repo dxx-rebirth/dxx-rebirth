@@ -482,12 +482,14 @@ int hmp_play(hmp_file *hmp, int bLoop)
 
 void hmp_pause(hmp_file *hmp)
 {
-	midiStreamPause(hmp->hmidi);
+	if (hmp)
+		midiStreamPause(hmp->hmidi);
 }
 
 void hmp_resume(hmp_file *hmp)
 {
-	midiStreamRestart(hmp->hmidi);
+	if (hmp)
+		midiStreamRestart(hmp->hmidi);
 }
 
 void hmp_reset()
