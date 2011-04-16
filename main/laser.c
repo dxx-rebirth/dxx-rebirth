@@ -312,16 +312,21 @@ extern int Doing_lighting_hack_flag;
 
 // Delete omega blobs further away than MAX_OMEGA_DIST
 // Since last omega blob has VERY high velocity it's impossible to ensure a constant travel distance on varying FPS. So delete if they exceed their maximum distance.
-void omega_cleanup(object *weapon)
+int omega_cleanup(object *weapon)
 {
 	int parent_sig = weapon->ctype.laser_info.parent_signature, parent_num = weapon->ctype.laser_info.parent_num;
 
 	if (weapon->type != OBJ_WEAPON || weapon->id != OMEGA_ID)
-		return;
+		return 0;
 
 	if (Objects[parent_num].signature == parent_sig)
 		if (vm_vec_dist(&weapon->pos, &Objects[parent_num].pos) > MAX_OMEGA_DIST)
+		{
 			obj_delete(weapon-Objects);
+			return 1;
+		}
+
+	return 0;
 }
 
 // Return true if ok to do Omega damage. For Multiplayer games. See comment for omega_cleanup()
@@ -344,17 +349,13 @@ int ok_to_do_omega_damage(object *weapon)
 // ---------------------------------------------------------------------------------
 void create_omega_blobs(int firing_segnum, vms_vector *firing_pos, vms_vector *goal_pos, object *parent_objp)
 {
-	int			i, last_segnum, last_created_objnum = -1;
-	vms_vector	vec_to_goal;
-	fix			dist_to_goal;
-	int			num_omega_blobs;
-	fix			omega_blob_dist;
-	vms_vector	omega_delta_vector;
-	vms_vector	blob_pos, perturb_vec;
-	fix			perturb_array[MAX_OMEGA_BLOBS];
+	int		i = 0, last_segnum = 0, last_created_objnum = -1, num_omega_blobs = 0;
+	vms_vector	vec_to_goal = { 0, 0, 0 }, omega_delta_vector = { 0, 0, 0 }, blob_pos = { 0, 0, 0 }, perturb_vec = { 0, 0, 0 };
+	fix		dist_to_goal = 0, omega_blob_dist = 0, perturb_array[MAX_OMEGA_BLOBS];
+
+	memset(&perturb_array, 0, sizeof(fix)*MAX_OMEGA_BLOBS);
 
 	vm_vec_sub(&vec_to_goal, goal_pos, firing_pos);
-
 	dist_to_goal = vm_vec_normalize_quick(&vec_to_goal);
 
 	if (dist_to_goal < MIN_OMEGA_BLOBS * MIN_OMEGA_DIST) {
@@ -400,8 +401,8 @@ void create_omega_blobs(int firing_segnum, vms_vector *firing_pos, vms_vector *g
 	Doing_lighting_hack_flag = 1;	//	Ugly, but prevents blobs which are probably outside the mine from killing framerate.
 
 	for (i=0; i<num_omega_blobs; i++) {
-		vms_vector	temp_pos;
-		int			blob_objnum, segnum;
+		vms_vector	temp_pos = { 0, 0, 0 };
+		int		blob_objnum = -1, segnum = -1;
 
 		//	This will put the last blob right at the destination object, causing damage.
 		if (i == num_omega_blobs-1)
@@ -409,7 +410,7 @@ void create_omega_blobs(int firing_segnum, vms_vector *firing_pos, vms_vector *g
 
 		//	Every so often, re-perturb blobs
 		if ((i % 4) == 3) {
-			vms_vector	temp_vec;
+			vms_vector temp_vec = { 0, 0, 0 };
 
 			make_random_vector(&temp_vec);
 			vm_vec_scale_add2(&perturb_vec, &temp_vec, F1_0/4);
@@ -419,7 +420,7 @@ void create_omega_blobs(int firing_segnum, vms_vector *firing_pos, vms_vector *g
 
 		segnum = find_point_seg(&temp_pos, last_segnum);
 		if (segnum != -1) {
-			object		*objp;
+			object *objp;
 
 			last_segnum = segnum;
 			blob_objnum = obj_create(OBJ_WEAPON, OMEGA_ID, segnum, &temp_pos, NULL, 0, CT_WEAPON, MT_PHYSICS, RT_WEAPON_VCLIP );
@@ -1465,7 +1466,8 @@ void Laser_do_weapon_sequence(object *obj)
 		return;
 	}
 
-	omega_cleanup(obj);
+	if (omega_cleanup(obj))
+		return;
 
 	//delete weapons that are not moving
 	if (	!((FrameCount ^ obj->signature) & 3) &&
