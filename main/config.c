@@ -92,12 +92,12 @@ int ReadConfigFile()
 #if defined(__APPLE__) && defined(__MACH__)
 	GameCfg.OrigTrackOrder = 1;
 	GameCfg.CMLevelMusicPlayOrder = MUSIC_CM_PLAYORDER_LEVEL;
-	snprintf(GameCfg.CMLevelMusicPath,				PATH_MAX, "%s/%s", PHYSFS_getUserDir(), "Music/iTunes/iTunes Music/Insanity/Descent/");
-	snprintf(GameCfg.CMMiscMusic[SONG_TITLE],		PATH_MAX, "%s/%s", PHYSFS_getUserDir(), "Music/iTunes/iTunes Music/Insanity/Descent/02 Primitive Rage.mp3");
-	snprintf(GameCfg.CMMiscMusic[SONG_BRIEFING],	PATH_MAX, "%s/%s", PHYSFS_getUserDir(), "Music/iTunes/iTunes Music/Insanity/Descent/03 Outerlimits.mp3");
-	snprintf(GameCfg.CMMiscMusic[SONG_ENDLEVEL],	PATH_MAX, "%s/%s", PHYSFS_getUserDir(), "Music/iTunes/iTunes Music/Insanity/Descent/04 Close Call.mp3");
-	snprintf(GameCfg.CMMiscMusic[SONG_ENDGAME],		PATH_MAX, "%s/%s", PHYSFS_getUserDir(), "Music/iTunes/iTunes Music/Insanity/Descent/14 Insanity.mp3");
-	snprintf(GameCfg.CMMiscMusic[SONG_CREDITS],		PATH_MAX, "%s/%s", PHYSFS_getUserDir(), "Music/iTunes/iTunes Music/Insanity/Descent/05 The Darkness Of Space.mp3");
+	snprintf(GameCfg.CMLevelMusicPath,				PATH_MAX, "%s", "descent.m3u");
+	snprintf(GameCfg.CMMiscMusic[SONG_TITLE],		PATH_MAX, "%s%s", PHYSFS_getUserDir(), "Music/iTunes/iTunes Music/Insanity/Descent/02 Primitive Rage.mp3");
+	snprintf(GameCfg.CMMiscMusic[SONG_BRIEFING],	PATH_MAX, "%s%s", PHYSFS_getUserDir(), "Music/iTunes/iTunes Music/Insanity/Descent/03 Outerlimits.mp3");
+	snprintf(GameCfg.CMMiscMusic[SONG_ENDLEVEL],	PATH_MAX, "%s%s", PHYSFS_getUserDir(), "Music/iTunes/iTunes Music/Insanity/Descent/04 Close Call.mp3");
+	snprintf(GameCfg.CMMiscMusic[SONG_ENDGAME],		PATH_MAX, "%s%s", PHYSFS_getUserDir(), "Music/iTunes/iTunes Music/Insanity/Descent/14 Insanity.mp3");
+	snprintf(GameCfg.CMMiscMusic[SONG_CREDITS],		PATH_MAX, "%s%s", PHYSFS_getUserDir(), "Music/iTunes/iTunes Music/Insanity/Descent/05 The Darkness Of Space.mp3");
 #endif
 	GameCfg.GammaLevel = 0;
 	memset(GameCfg.LastPlayer,0,CALLSIGN_LEN+1);

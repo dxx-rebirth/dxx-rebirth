@@ -36,7 +36,7 @@ COPYRIGHT 1993-1998 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 #include "timer.h"
 
 int Songs_initialized = 0;
-static int Song_playing = 0; // 0 if no song playing, else the Descent song number
+static int Song_playing = -1; // -1 if no song playing, else the Descent song number
 static int Redbook_playing = 0; // Redbook track num differs from Song_playing. We need this for Redbook repeat hooks.
 
 bim_song_info *BIMSongs = NULL;
@@ -188,7 +188,7 @@ void songs_uninit()
 
 	if (BIMSongs != NULL)
 		d_free(BIMSongs);
-	Song_playing = 0;
+	Song_playing = -1;
 	Songs_initialized = 0;
 }
 
@@ -203,7 +203,7 @@ void songs_stop_all(void)
 	mix_stop_music();
 #endif
 
-	Song_playing = 0;
+	Song_playing = -1;
 }
 
 void songs_pause(void)
@@ -287,7 +287,7 @@ int songs_play_song( int songnum, int repeat )
 	{
 		case MUSIC_TYPE_BUILTIN:
 		{
-			Song_playing = 0;
+			Song_playing = -1;
 #ifdef _WIN32
 			if (GameArg.SndDisableSdlMixer)
 			{
@@ -312,7 +312,7 @@ int songs_play_song( int songnum, int repeat )
 		{
 			int num_tracks = RBAGetNumberOfTracks();
 
-			Song_playing = 0;
+			Song_playing = -1;
 			if ((songnum < SONG_ENDGAME) && (songnum + 2 <= num_tracks))
 			{
 				if (RBAPlayTracks(songnum + 2, songnum + 2, repeat ? redbook_repeat_func : NULL))
@@ -346,17 +346,21 @@ int songs_play_song( int songnum, int repeat )
 			if (Song_playing >= SONG_FIRST_LEVEL_SONG && songnum == SONG_ENDLEVEL && !strlen(GameCfg.CMMiscMusic[songnum]))
 				return Song_playing;
 
-			Song_playing = 0;
+			Song_playing = -1;
 			if (mix_play_file(GameCfg.CMMiscMusic[songnum], repeat, NULL))
 				Song_playing = songnum;
 			break;
 		}
 #endif
 		default:
-			Song_playing = 0;
+			Song_playing = -1;
 			break;
 	}
 
+	// If we couldn't play the song, most likely because it wasn't specified, play no music.
+	if (Song_playing == -1)
+		songs_stop_all();
+	
 	return Song_playing;
 }
 
@@ -377,7 +381,7 @@ int songs_play_level_song( int levelnum, int offset )
 	songs_init();
 	if (!Songs_initialized)
 		return 0;
-
+	
 	songnum = (levelnum>0)?(levelnum-1):(-levelnum);
 
 	switch (GameCfg.MusicType)
@@ -387,7 +391,7 @@ int songs_play_level_song( int levelnum, int offset )
 			if (offset)
 				return Song_playing;
 
-			Song_playing = 0;
+			Song_playing = -1;
 			if ((Num_bim_songs - SONG_FIRST_LEVEL_SONG) > 0)
 			{
 				songnum = SONG_FIRST_LEVEL_SONG + (songnum % (Num_bim_songs - SONG_FIRST_LEVEL_SONG));
@@ -435,7 +439,7 @@ int songs_play_level_song( int levelnum, int offset )
 					tracknum = REDBOOK_FIRST_LEVEL_TRACK + (tracknum - n_tracks) - 1;
 			}
 
-			Song_playing = 0;
+			Song_playing = -1;
 			if (RBAEnabled() && (tracknum <= n_tracks))
 			{
 				if (RBAPlayTracks(tracknum, !songs_haved1_cd()?n_tracks:tracknum, songs_haved1_cd() ? redbook_repeat_func : redbook_first_song_func))
@@ -477,7 +481,7 @@ int songs_play_level_song( int levelnum, int offset )
 					GameCfg.CMLevelMusicTrack[0] = GameCfg.CMLevelMusicTrack[0] - GameCfg.CMLevelMusicTrack[1];
 			}
 
-			Song_playing = 0;
+			Song_playing = -1;
 			if (jukebox_play())
 				Song_playing = songnum + SONG_FIRST_LEVEL_SONG;
 
@@ -485,14 +489,18 @@ int songs_play_level_song( int levelnum, int offset )
 		}
 #endif
 		default:
-			Song_playing = 0;
+			Song_playing = -1;
 			break;
 	}
 
+	// If we couldn't play the song, most likely because it wasn't specified, play no music.
+	if (Song_playing == -1)
+		songs_stop_all();
+	
 	return Song_playing;
 }
 
-// check which song is playing
+// check which song is playing, or -1 if not playing anything
 int songs_is_playing()
 {
 	return Song_playing;

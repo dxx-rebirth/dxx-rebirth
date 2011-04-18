@@ -28,7 +28,7 @@ void songs_pause(void);
 void songs_resume(void);
 void songs_pause_resume(void);
 
-// check which song is playing
+// check which song is playing, or -1 if not playing anything
 int songs_is_playing();
 
 // set volume for selected music playback system
