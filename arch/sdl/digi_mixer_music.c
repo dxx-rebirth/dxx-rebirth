@@ -63,6 +63,19 @@ int mix_play_file(char *filename, int loop, void (*hook_finished_track)())
 	if (!current_music)
 		current_music = Mix_LoadMUS(filename);
 
+	// allow the shell convention tilde character to mean the user's home folder
+	// chiefly used for default jukebox level song music referenced in 'descent.m3u' for Mac OS X
+	if (!current_music && *filename == '~')
+	{
+		snprintf(full_path, PATH_MAX, "%s%s", PHYSFS_getUserDir(),
+				 &filename[1 + (!strncmp(&filename[1], PHYSFS_getDirSeparator(), strlen(PHYSFS_getDirSeparator())) ? 
+				 strlen(PHYSFS_getDirSeparator()) : 0)]);
+		current_music = Mix_LoadMUS(full_path);
+		if (current_music)
+			filename = full_path;	// used later for possible error reporting
+	}
+		
+
 	// no luck. so it might be in Searchpath. So try to build absolute path
 	if (!current_music)
 	{
@@ -94,7 +107,7 @@ int mix_play_file(char *filename, int loop, void (*hook_finished_track)())
 	}
 	else
 	{
-		con_printf(CON_CRITICAL,"Music %s could not be loaded\n", filename);
+		con_printf(CON_CRITICAL,"Music %s could not be loaded: %s\n", filename, Mix_GetError());
 		mix_stop_music();
 	}
 

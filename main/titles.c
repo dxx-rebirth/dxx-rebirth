@@ -1250,7 +1250,7 @@ int new_briefing_screen(briefing *br, int first)
 	br->guy_bitmap_show = 0;
 	br->prev_ch = -1;
 
-	if (!songs_is_playing() && (br->hum_channel == -1))
+	if ((songs_is_playing() == -1) && (br->hum_channel == -1))
 		br->hum_channel  = digi_start_sound( digi_xlat_sound(SOUND_BRIEFING_HUM), F1_0/2, 0xFFFF/2, 1, -1, -1, -1 );
 
 	return 1;

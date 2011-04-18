@@ -36,7 +36,7 @@ COPYRIGHT 1993-1999 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 #include "timer.h"
 
 int Songs_initialized = 0;
-static int Song_playing = 0; // 0 if no song playing, else the Descent song number
+static int Song_playing = -1; // -1 if no song playing, else the Descent song number
 static int Redbook_playing = 0; // Redbook track num differs from Song_playing. We need this for Redbook repeat hooks.
 
 bim_song_info *BIMSongs = NULL;
@@ -180,7 +180,7 @@ void songs_uninit()
 
 	if (BIMSongs != NULL)
 		d_free(BIMSongs);
-	Song_playing = 0;
+	Song_playing = -1;
 	Songs_initialized = 0;
 }
 
@@ -195,7 +195,7 @@ void songs_stop_all(void)
 	mix_stop_music();
 #endif
 
-	Song_playing = 0;
+	Song_playing = -1;
 }
 
 void songs_pause(void)
@@ -300,7 +300,7 @@ int songs_play_song( int songnum, int repeat )
 	{
 		case MUSIC_TYPE_BUILTIN:
 		{
-			Song_playing = 0;
+			Song_playing = -1;
 #ifdef _WIN32
 			if (GameArg.SndDisableSdlMixer)
 			{
@@ -325,7 +325,7 @@ int songs_play_song( int songnum, int repeat )
 		{
 			int num_tracks = RBAGetNumberOfTracks();
 
-			//Song_playing = 0;		// keep playing current music if chosen song is unavailable (e.g. SONG_ENDLEVEL)
+			//Song_playing = -1;		// keep playing current music if chosen song is unavailable (e.g. SONG_ENDLEVEL)
 			if ((songnum == SONG_TITLE) && (REDBOOK_TITLE_TRACK <= num_tracks))
 			{
 				if (RBAPlayTracks(REDBOOK_TITLE_TRACK, REDBOOK_TITLE_TRACK, repeat ? play_credits_track : NULL))
@@ -351,7 +351,7 @@ int songs_play_song( int songnum, int repeat )
 			if (Song_playing >= SONG_FIRST_LEVEL_SONG && songnum == SONG_ENDLEVEL && !strlen(GameCfg.CMMiscMusic[songnum]))
 				return Song_playing;
 
-			Song_playing = 0;
+			Song_playing = -1;
 			if (mix_play_file(GameCfg.CMMiscMusic[songnum],
 							  // Play the credits track after the title track and loop the credits track if original CD track order was chosen
 							  (songnum == SONG_TITLE && GameCfg.OrigTrackOrder) ? 0 : repeat,
@@ -361,10 +361,14 @@ int songs_play_song( int songnum, int repeat )
 		}
 #endif
 		default:
-			Song_playing = 0;
+			Song_playing = -1;
 			break;
 	}
 
+	// If we couldn't play the song, most likely because it wasn't specified, play no music.
+	if (Song_playing == -1)
+		songs_stop_all();
+	
 	return Song_playing;
 }
 
@@ -385,7 +389,7 @@ int songs_play_level_song( int levelnum, int offset )
 	songs_init();
 	if (!Songs_initialized)
 		return 0;
-
+	
 	songnum = (levelnum>0)?(levelnum-1):(-levelnum);
 
 	switch (GameCfg.MusicType)
@@ -395,7 +399,7 @@ int songs_play_level_song( int levelnum, int offset )
 			if (offset)
 				return Song_playing;
 
-			Song_playing = 0;
+			Song_playing = -1;
 			if ((Num_bim_songs - SONG_FIRST_LEVEL_SONG) > 0)
 			{
 				songnum = SONG_FIRST_LEVEL_SONG + (songnum % (Num_bim_songs - SONG_FIRST_LEVEL_SONG));
@@ -443,7 +447,7 @@ int songs_play_level_song( int levelnum, int offset )
 					tracknum = REDBOOK_FIRST_LEVEL_TRACK + (tracknum - n_tracks) - 1;
 			}
 
-			Song_playing = 0;
+			Song_playing = -1;
 			if (RBAEnabled() && (tracknum <= n_tracks))
 			{
 				if (RBAPlayTracks(tracknum, n_tracks, redbook_first_song_func))
@@ -464,7 +468,7 @@ int songs_play_level_song( int levelnum, int offset )
 				if (GameCfg.CMLevelMusicPlayOrder == MUSIC_CM_PLAYORDER_CONT)
 				{
 					static int last_songnum = -1;
-					
+
 					if (Song_playing >= SONG_FIRST_LEVEL_SONG)
 						return Song_playing;
 
@@ -485,7 +489,7 @@ int songs_play_level_song( int levelnum, int offset )
 					GameCfg.CMLevelMusicTrack[0] = GameCfg.CMLevelMusicTrack[0] - GameCfg.CMLevelMusicTrack[1];
 			}
 
-			Song_playing = 0;
+			Song_playing = -1;
 			if (jukebox_play())
 				Song_playing = songnum + SONG_FIRST_LEVEL_SONG;
 
@@ -493,14 +497,18 @@ int songs_play_level_song( int levelnum, int offset )
 		}
 #endif
 		default:
-			Song_playing = 0;
+			Song_playing = -1;
 			break;
 	}
 
+	// If we couldn't play the song, most likely because it wasn't specified, play no music.
+	if (Song_playing == -1)
+		songs_stop_all();
+	
 	return Song_playing;
 }
 
-// check which song is playing
+// check which song is playing, or -1 if not playing anything
 int songs_is_playing()
 {
 	return Song_playing;

@@ -24,7 +24,7 @@ int songs_play_level_song( int levelnum, int offset );
 //stop any songs - midi, redbook or jukebox - that are currently playing
 void songs_stop_all(void);
 
-// check which song is playing
+// check which song is playing, or -1 if not playing anything
 int songs_is_playing();
 
 void songs_pause(void);

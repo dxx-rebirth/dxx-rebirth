@@ -1539,6 +1539,7 @@ int select_file_recursive(char *title, const char *orig_path, char **ext_list, i
 	browser *b;
 	const char *sep = PHYSFS_getDirSeparator();
 	char *p;
+	char new_path[PATH_MAX];
 	
 	MALLOC(b, browser, 1);
 	if (!b)
@@ -1553,6 +1554,13 @@ int select_file_recursive(char *title, const char *orig_path, char **ext_list, i
 	b->view_path[0] = '\0';
 	b->new_path = 1;
 	
+	// Check for a PhysicsFS path first, saves complication!
+	if (orig_path && strncmp(orig_path, sep, strlen(sep)) && PHYSFS_exists(orig_path))
+	{
+		PHYSFSX_getRealPath(orig_path, new_path);
+		orig_path = new_path;
+	}
+
 	// Set the viewing directory to orig_path, or some parent of it
 	if (orig_path)
 	{
