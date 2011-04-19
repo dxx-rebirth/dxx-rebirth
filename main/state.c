@@ -593,7 +593,7 @@ int state_get_savegame_filename(char * fname, char * dsc, char * caption, int bl
 	char filename[NUM_SAVES][PATH_MAX];
 	char desc[NUM_SAVES][DESC_LENGTH + 16];
 	grs_bitmap *sc_bmp[NUM_SAVES];
-	char id[5], dummy_callsign[CALLSIGN_LEN];
+	char id[5], dummy_callsign[CALLSIGN_LEN+1];
 	int valid;
 
 	nsaves=0;
@@ -613,7 +613,7 @@ int state_get_savegame_filename(char * fname, char * dsc, char * caption, int bl
 				if (Game_mode & GM_MULTI_COOP)
 				{
 					dummy_state_game_id = PHYSFSX_readSXE32(fp, 0);
-					PHYSFS_read(fp, &dummy_callsign, sizeof(char)*CALLSIGN_LEN, 1);
+					PHYSFS_read(fp, &dummy_callsign, sizeof(char)*CALLSIGN_LEN+1, 1);
 				}
 				if ((version >= STATE_COMPATIBLE_VERSION) || (SWAPINT(version) >= STATE_COMPATIBLE_VERSION)) {
 					// Read description
@@ -864,7 +864,7 @@ int state_save_all_sub(char *filename, char *desc)
 	if (Game_mode & GM_MULTI_COOP)
 	{
 		PHYSFS_write(fp, &state_game_id, sizeof(uint), 1);
-		PHYSFS_write(fp, &Players[Player_num].callsign, sizeof(char)*CALLSIGN_LEN, 1);
+		PHYSFS_write(fp, &Players[Player_num].callsign, sizeof(char)*CALLSIGN_LEN+1, 1);
 	}
 
 //Save description
@@ -1097,12 +1097,7 @@ int state_save_all_sub(char *filename, char *desc)
 		PHYSFS_write(fp, &Netgame.numplayers, sizeof(ubyte), 1);
 		PHYSFS_write(fp, &Netgame.max_numplayers, sizeof(ubyte), 1);
 		PHYSFS_write(fp, &Netgame.numconnected, sizeof(ubyte), 1);
-		for (i = 0; i < MAX_PLAYERS; i++)
-			PHYSFS_write(fp, &Netgame.killed[i], sizeof(short), 1);
-		for (i = 0; i < MAX_PLAYERS; i++)
-			PHYSFS_write(fp, &Netgame.player_score[i], sizeof(int), 1);
-		for (i = 0; i < MAX_PLAYERS; i++)
-			PHYSFS_write(fp, &Netgame.player_flags[i], sizeof(ubyte), 1);
+		PHYSFS_write(fp, &Netgame.level_time, sizeof(int), 1);
 	}
 
 	PHYSFS_close(fp);
@@ -1253,9 +1248,9 @@ int state_restore_all_sub(char *filename, int secret_restore)
 // Read Coop state_game_id. Oh the redundancy... we have this one later on but Coop games want to read this before loading a state so for easy access we have this here
 	if (Game_mode & GM_MULTI_COOP)
 	{
-		char saved_callsign[CALLSIGN_LEN];
+		char saved_callsign[CALLSIGN_LEN+1];
 		state_game_id = PHYSFSX_readSXE32(fp, swap);
-		PHYSFS_read(fp, &saved_callsign, sizeof(char)*CALLSIGN_LEN, 1);
+		PHYSFS_read(fp, &saved_callsign, sizeof(char)*CALLSIGN_LEN+1, 1);
 		if (strcmp(saved_callsign, Players[Player_num].callsign)) // check the callsign of the palyer who saved this state. It MUST match. If we transferred this savegame from pilot A to pilot B, others won't be able to restore us. So bail out here if this is the case.
 		{
 			PHYSFS_close(fp);
@@ -1646,13 +1641,13 @@ int state_restore_all_sub(char *filename, int secret_restore)
 		PHYSFS_read(fp, &Netgame.max_numplayers, sizeof(ubyte), 1);
 		MaxNumNetPlayers = Netgame.max_numplayers;
 		PHYSFS_read(fp, &Netgame.numconnected, sizeof(ubyte), 1);
-		for (i = 0; i < MAX_PLAYERS; i++)
-			Netgame.killed[coop_player_slot_remap[i]] = PHYSFSX_readSXE16(fp, swap);
 		Netgame.level_time = PHYSFSX_readSXE32(fp, swap);
 		for (i = 0; i < MAX_PLAYERS; i++)
-			Netgame.player_score[coop_player_slot_remap[i]] = PHYSFSX_readSXE32(fp, swap);
-		for (i = 0; i < MAX_PLAYERS; i++)
-			PHYSFS_read(fp, &Netgame.player_flags[coop_player_slot_remap[i]], sizeof(ubyte), 1);
+		{
+			Netgame.killed[i] = Players[i].net_killed_total;
+			Netgame.player_score[i] = Players[i].score;
+			Netgame.player_flags[i] = Players[i].flags;
+		}
 		for (i = 0; i < MAX_PLAYERS; i++) // Disconnect connected players not available in this Savegame
 			if (!coop_player_got[i] && Players[i].connected == CONNECT_PLAYING)
 				multi_disconnect_player(i);
@@ -1674,7 +1669,7 @@ int state_get_game_id(char *filename)
 	int version;
 	PHYSFS_file *fp;
 	int swap = 0;	// if file is not endian native, have to swap all shorts and ints
-	char id[5], saved_callsign[CALLSIGN_LEN];
+	char id[5], saved_callsign[CALLSIGN_LEN+1];
 
 	#ifndef NDEBUG
 	if (GameArg.SysUsePlayersDir && strncmp(filename, "Players/", 8))
@@ -1710,7 +1705,7 @@ int state_get_game_id(char *filename)
 
 // Read Coop state_game_id to validate the savegame we are about to load matches the others
 	state_game_id = PHYSFSX_readSXE32(fp, swap);
-	PHYSFS_read(fp, &saved_callsign, sizeof(char)*CALLSIGN_LEN, 1);
+	PHYSFS_read(fp, &saved_callsign, sizeof(char)*CALLSIGN_LEN+1, 1);
 	if (strcmp(saved_callsign, Players[Player_num].callsign)) // check the callsign of the palyer who saved this state. It MUST match. If we transferred this savegame from pilot A to pilot B, others won't be able to restore us. So bail out here if this is the case.
 		return 0;
 

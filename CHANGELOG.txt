@@ -1,12 +1,23 @@
 D2X-Rebirth Changelog
 
+20110420
+--------
+main/multi.c, main/state.c: Resolved termination issue when reading and comparing callsigns fro Coop savestates; Added scores sending after Coop savestate loading as unrestored players will send them when loading new level
+
 20110418
 --------
 arch/sdl/digi_mixer_music.c, arch/sdl/jukebox.c, main/config.c, main/menu.c, main/songs.c, main/songs.h, main/titles.c: Fix broken m3u playlist support (in jukebox_play() path resolving); point to default descent.m3u playlist for Mac OS X (will be included in bundle); better error reporting in mix_play_file(); only make relative Jukebox path in the menu absolute after browsing it - relative paths are more flexible; allow select_file_recursive() to figure out PhysicsFS relative paths passed to it; stop the music if Jukebox is chosen and unavailable (used to just keep playing the last song)
 
+20110416
+--------
+main/gamecntl.c, main/gauges.c: Due to controls rewrite was not possible anymore to send multiplayer messages while being dead - added specific exception to allow this; Rewrote show_HUD_names to only show names, indicators or typing string for enemy players when they are not cloaked; Small fix for position of Afterburner gauge in CM_FULL_SCREEN
+misc/hmp.c: Check for hmp before pausing/resuming it
+main/laser.c: Initialize variables in create_omega_blobs() and give omega_cleanup() a return value to see if we should continue rendering to fix potential crashes
+
 20110414
 --------
 main/kmatrix.c: Fixing km struct being used after it's being freed by closing the window in EVENT_WINDOW_DRAW
+main/wall.c: Took out hack to force close doors as not needed anymore and does not take into account linked walls
 
 20110413
 --------
