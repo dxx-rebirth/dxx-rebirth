@@ -3588,6 +3588,7 @@ void multi_restore_game(ubyte slot, uint id)
 	}
   
 	pnum = state_restore_all_sub( filename );
+	multi_send_score(); // send my restored scores. I sent 0 when I loaded the level anyways...
 }
 
 void multi_do_msgsend_state(char *buf)
