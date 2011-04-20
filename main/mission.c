@@ -593,6 +593,7 @@ void free_mission_list(mle *mission_list)
 }
 
 void init_extra_robot_movie(char *filename);
+int read_hamfile();
 
 //values for built-in mission
 
@@ -818,6 +819,10 @@ int load_mission(mle *mission)
 		free_mission();		//no valid mission loaded
 		return 0;
 	}
+
+	// re-read default HAM file, in case this mission brings it's own version of it
+	free_polygon_models();
+	read_hamfile();
 
 	if (Current_mission->enhanced) {
 		char t[50];

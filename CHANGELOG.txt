@@ -3,6 +3,7 @@ D2X-Rebirth Changelog
 20110420
 --------
 main/multi.c, main/state.c: Resolved termination issue when reading and comparing callsigns fro Coop savestates; Added scores sending after Coop savestate loading as unrestored players will send them when loading new level
+main/gameseq.c, main/misison.c: Moved reloading of main descent2.ham (in case mission brings it's own version) from LoadLevel() to load_mission() so it does not screw missions with ther custom ham-file (like vertigo)
 
 20110418
 --------
