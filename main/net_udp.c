@@ -3838,7 +3838,10 @@ void net_udp_leave_game()
 	if ((multi_i_am_master()))
 	{
 		while (Network_sending_extras>1 && Player_joining_extras!=-1)
+		{
+			timer_update();
 			net_udp_send_extras();
+		}
 
 		Netgame.numplayers = 0;
 		nsave=N_players;
