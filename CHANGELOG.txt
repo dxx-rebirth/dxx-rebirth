@@ -3,6 +3,7 @@ D1X-Rebirth Changelog
 20110421
 --------
 main/net_udp.c: When leaving game and still sending extras, don't forget to update the timer so we won't get stuck in an infinite loop
+arch/sdl/key.c: Added SDLK_WORLD_** symbols to keyboard array to enable layout specific keys and make the game more flexible
 
 20110420
 --------
