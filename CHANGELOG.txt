@@ -1,5 +1,9 @@
 D2X-Rebirth Changelog
 
+20110421
+--------
+main/net_ipx.c, main/net_udp.c: When leaving game and still sending extras, don't forget to update the timer so we won't get stuck in an infinite loop
+
 20110420
 --------
 main/multi.c, main/state.c: Resolved termination issue when reading and comparing callsigns fro Coop savestates; Added scores sending after Coop savestate loading as unrestored players will send them when loading new level
