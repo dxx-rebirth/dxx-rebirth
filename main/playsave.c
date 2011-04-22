@@ -97,7 +97,6 @@ int new_player_config()
 	PlayerCfg.MouseSens[0] = PlayerCfg.MouseSens[1] = PlayerCfg.MouseSens[2] = PlayerCfg.MouseSens[3] = PlayerCfg.MouseSens[4] = 8;
 	PlayerCfg.MouseFSDead = 0;
 	PlayerCfg.MouseFSIndicator = 1;
-	PlayerCfg.MouseFilter = 0;
 	PlayerCfg.CockpitMode[0] = PlayerCfg.CockpitMode[1] = CM_FULL_COCKPIT;
 	PlayerCfg.Cockpit3DView[0]=CV_NONE;
 	PlayerCfg.Cockpit3DView[1]=CV_NONE;
@@ -208,8 +207,6 @@ int read_player_d2x(char *filename)
 					PlayerCfg.MouseFSDead = atoi(line);
 				if(!strcmp(word,"FSINDI"))
 					PlayerCfg.MouseFSIndicator = atoi(line);
-				if(!strcmp(word,"FILTER"))
-					PlayerCfg.MouseFilter = atoi(line);
 				d_free(word);
 				cfgets(line,50,f);
 				word=splitword(line,'=');
@@ -398,7 +395,6 @@ int write_player_d2x(char *filename)
 		PHYSFSX_printf(fout,"sensitivity4=%d\n",PlayerCfg.MouseSens[4]);
 		PHYSFSX_printf(fout,"fsdead=%d\n",PlayerCfg.MouseFSDead);
 		PHYSFSX_printf(fout,"fsindi=%d\n",PlayerCfg.MouseFSIndicator);
-		PHYSFSX_printf(fout,"filter=%d\n",PlayerCfg.MouseFilter);
 		PHYSFSX_printf(fout,"[end]\n");
 		PHYSFSX_printf(fout,"[weapon keys v2]\n");
 		PHYSFSX_printf(fout,"1=0x%x,0x%x,0x%x\n",PlayerCfg.KeySettingsD2X[0],PlayerCfg.KeySettingsD2X[1],PlayerCfg.KeySettingsD2X[2]);
