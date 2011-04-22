@@ -5,6 +5,8 @@ D1X-Rebirth Changelog
 2d/rle.c, SConstruct, main/segment.h, main/texmerge.c: Expanded possibilities for level authors: RLE- and Texture-cache accepts textures bigger than 64x64, only limit being Texture width must be equal height; Increased maximum amount of Segments from 900 to 9000 - not dynamically allocating them, yet
 arch/sdl/mouse.c, main/kconfig.c, main/menu.c, main/playsave.c, main/playsave.h: When reading ingame controls only flush mouse delta timer-based since reading is event-based already, allowing high precision no matter the game speed; Removed Mouse smoothing/filtering as it's now unnecessary due to event-based motion handling
 2d/rle.c, main/texmerge.c: Fixes for RLE- and Texture-cache modifcations: Before freeing now must check if bitmap is already allocated
+main/menu.c, main/net_udp.c, main/playsave.c, main/playsave.h: Remember previously set up netgame variables in pilot-related file with extension ngp - due to feature consistency for UDP only
+
 
 20110421
 --------

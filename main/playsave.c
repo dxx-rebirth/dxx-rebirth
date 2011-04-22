@@ -21,6 +21,7 @@ COPYRIGHT 1993-1998 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 #include <string.h>
 #include <errno.h>
 #include <limits.h>
+#include <ctype.h>
 
 #include "error.h"
 #include "gameseq.h"
@@ -971,4 +972,113 @@ int write_player_file()
 	}
 
 	return errno_ret;
+}
+
+// read stored values from ngp file to netgame_info
+void read_netgame_profile(netgame_info *ng)
+{
+	char filename[PATH_MAX], line[50], *token, *value, *ptr;
+	PHYSFS_file *file;
+
+	memset(filename, '\0', PATH_MAX);
+	sprintf(filename, GameArg.SysUsePlayersDir? "Players/%.8s.ngp" : "%.8s.ngp", Players[Player_num].callsign);
+	if (!PHYSFS_exists(filename))
+		return;
+
+	file = PHYSFSX_openReadBuffered(filename);
+
+	if (!file)
+		return;
+
+	// NOTE that we do not set any defaults here or even initialize netgame_info. For flexibility, leave that to the function calling this.
+	while (!PHYSFS_eof(file))
+	{
+		memset(line, 0, 50);
+		PHYSFSX_gets(file, line);
+		ptr = &(line[0]);
+		while (isspace(*ptr))
+			ptr++;
+		if (*ptr != '\0') {
+			token = strtok(ptr, "=");
+			value = strtok(NULL, "=");
+			if (!value)
+				value = "";
+			if (!strcmp(token, "game_name"))
+			{
+				char * p;
+				strncpy( ng->game_name, value, NETGAME_NAME_LEN+1 );
+				p = strchr( ng->game_name, '\n');
+				if ( p ) *p = 0;
+			}
+			else if (!strcmp(token, "gamemode"))
+				ng->gamemode = strtol(value, NULL, 10);
+			else if (!strcmp(token, "RefusePlayers"))
+				ng->RefusePlayers = strtol(value, NULL, 10);
+			else if (!strcmp(token, "difficulty"))
+				ng->difficulty = strtol(value, NULL, 10);
+			else if (!strcmp(token, "game_flags"))
+				ng->game_flags = strtol(value, NULL, 10);
+			else if (!strcmp(token, "AllowedItems"))
+				ng->AllowedItems = strtol(value, NULL, 10);
+			else if (!strcmp(token, "BrightPlayers"))
+				ng->BrightPlayers = strtol(value, NULL, 10);
+			else if (!strcmp(token, "InvulAppear"))
+				ng->InvulAppear = strtol(value, NULL, 10);
+			else if (!strcmp(token, "KillGoal"))
+				ng->KillGoal = strtol(value, NULL, 10);
+			else if (!strcmp(token, "PlayTimeAllowed"))
+				ng->PlayTimeAllowed = strtol(value, NULL, 10);
+			else if (!strcmp(token, "control_invul_time"))
+				ng->control_invul_time = strtol(value, NULL, 10);
+			else if (!strcmp(token, "PacketsPerSec"))
+				ng->PacketsPerSec = strtol(value, NULL, 10);
+			else if (!strcmp(token, "PacketLossPrevention"))
+				ng->PacketLossPrevention = strtol(value, NULL, 10);
+			else if (!strcmp(token, "NoFriendlyFire"))
+				ng->NoFriendlyFire = strtol(value, NULL, 10);
+#ifdef USE_TRACKER
+			else if (!strcmp(token, "Tracker"))
+				ng->Tracker = strtol(value, NULL, 10);
+#endif
+		}
+	}
+
+	PHYSFS_close(file);
+}
+
+// write values from netgame_info to ngp file
+void write_netgame_profile(netgame_info *ng)
+{
+	char filename[PATH_MAX];
+	PHYSFS_file *file;
+
+	memset(filename, '\0', PATH_MAX);
+	sprintf(filename, GameArg.SysUsePlayersDir? "Players/%.8s.ngp" : "%.8s.ngp", Players[Player_num].callsign);
+	file = PHYSFSX_openWriteBuffered(filename);
+
+	if (!file)
+		return;
+
+	PHYSFSX_printf(file, "game_name=%s\n", ng->game_name);
+	PHYSFSX_printf(file, "gamemode=%i\n", ng->gamemode);
+	PHYSFSX_printf(file, "RefusePlayers=%i\n", ng->RefusePlayers);
+	PHYSFSX_printf(file, "difficulty=%i\n", ng->difficulty);
+	PHYSFSX_printf(file, "game_flags=%i\n", ng->game_flags);
+	PHYSFSX_printf(file, "AllowedItems=%i\n", ng->AllowedItems);
+	PHYSFSX_printf(file, "BrightPlayers=%i\n", ng->BrightPlayers);
+	PHYSFSX_printf(file, "InvulAppear=%i\n", ng->InvulAppear);
+	PHYSFSX_printf(file, "KillGoal=%i\n", ng->KillGoal);
+	PHYSFSX_printf(file, "PlayTimeAllowed=%i\n", ng->PlayTimeAllowed);
+	PHYSFSX_printf(file, "control_invul_time=%i\n", ng->control_invul_time);
+	PHYSFSX_printf(file, "PacketsPerSec=%i\n", ng->PacketsPerSec);
+	PHYSFSX_printf(file, "PacketLossPrevention=%i\n", ng->PacketLossPrevention);
+	PHYSFSX_printf(file, "NoFriendlyFire=%i\n", ng->NoFriendlyFire);
+#ifdef USE_TRACKER
+	PHYSFSX_printf(file, "Tracker=%i\n", ng->Tracker);
+#else
+	PHYSFSX_printf(file, "Tracker=0\n");
+#endif
+	PHYSFSX_printf(file, "ngp version=%s\n",VERSION);
+
+	PHYSFS_close(file);
 }

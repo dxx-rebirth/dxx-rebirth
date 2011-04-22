@@ -3134,6 +3134,8 @@ int net_udp_setup_game()
 	Netgame.Tracker = 1;
 #endif
 
+	read_netgame_profile(&Netgame);
+
 	strcpy(Netgame.mission_name, Current_mission_filename);
 	strcpy(Netgame.mission_title, Current_mission_longname);
 
@@ -3190,6 +3192,8 @@ int net_udp_setup_game()
 
 	if (i < 0)
 		net_udp_close();
+
+	write_netgame_profile(&Netgame);
 
 	return i >= 0;
 }

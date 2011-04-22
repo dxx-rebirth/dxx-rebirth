@@ -106,4 +106,8 @@ int get_highest_level(void);
 
 void plyr_read_stats();
 void plyr_save_stats();
+
+void read_netgame_profile(netgame_info *ng);
+void write_netgame_profile(netgame_info *ng);
+
 #endif
