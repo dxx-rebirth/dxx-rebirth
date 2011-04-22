@@ -232,7 +232,7 @@ int player_menu_keycommand( listbox *lb, d_event *event )
 				x = nm_messagebox( NULL, 2, TXT_YES, TXT_NO, "%s %s?", TXT_DELETE_PILOT, items[citem]+((items[citem][0]=='$')?1:0) );
 				if (x==0)	{
 					char * p;
-					char plxfile[PATH_MAX], efffile[PATH_MAX];
+					char plxfile[PATH_MAX], efffile[PATH_MAX], ngpfile[PATH_MAX];
 					int ret;
 					char name[PATH_MAX];
 
@@ -256,6 +256,10 @@ int player_menu_keycommand( listbox *lb, d_event *event )
 						sprintf(efffile, GameArg.SysUsePlayersDir? "Players/%.8s.eff" : "%.8s.eff", items[citem]);
 						if (cfexist(efffile))
 							PHYSFS_delete(efffile);
+						// delete NGP file
+						sprintf(ngpfile, GameArg.SysUsePlayersDir? "Players/%.8s.ngp" : "%.8s.ngp", items[citem]);
+						if (cfexist(ngpfile))
+							PHYSFS_delete(ngpfile);
 					}
 
 					if (ret)
