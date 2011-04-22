@@ -98,7 +98,8 @@ void texmerge_close()
 	int i;
 
 	for (i=0; i<num_cache_entries; i++ )	{
-		gr_free_bitmap( Cache[i].bitmap );
+		if (Cache[i].bitmap != NULL)
+			gr_free_bitmap( Cache[i].bitmap );
 		Cache[i].bitmap = NULL;
 	}
 }

@@ -341,7 +341,8 @@ void rle_cache_close(void)
 		int i;
 		rle_cache_initialized = 0;
 		for (i=0; i<MAX_CACHE_BITMAPS; i++ )	{
-			gr_free_bitmap(rle_cache[i].expanded_bitmap);
+			if (rle_cache[i].expanded_bitmap != NULL)
+				gr_free_bitmap(rle_cache[i].expanded_bitmap);
 		}
 	}
 }
