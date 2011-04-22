@@ -352,9 +352,8 @@ void rle_cache_init()
 	int i;
 	for (i=0; i<MAX_CACHE_BITMAPS; i++ )	{
 		rle_cache[i].rle_bitmap = NULL;
-		rle_cache[i].expanded_bitmap = gr_create_bitmap( 64, 64 );
+		rle_cache[i].expanded_bitmap = NULL;
 		rle_cache[i].last_used = 0;
-		Assert( rle_cache[i].expanded_bitmap != NULL );
 	}
 	rle_cache_initialized = 1;
 }
@@ -428,8 +427,10 @@ grs_bitmap * rle_expand_texture( grs_bitmap * bmp )
 		}
 	}
 
-	Assert(bmp->bm_w<=64 && bmp->bm_h<=64); //dest buffer is 64x64
 	rle_misses++;
+	if (rle_cache[least_recently_used].expanded_bitmap != NULL)
+		gr_free_bitmap(rle_cache[least_recently_used].expanded_bitmap);
+	rle_cache[least_recently_used].expanded_bitmap = gr_create_bitmap(bmp->bm_w,  bmp->bm_h);
 	rle_expand_texture_sub( bmp, rle_cache[least_recently_used].expanded_bitmap );
 	rle_cache[least_recently_used].rle_bitmap = bmp;
 	rle_cache[least_recently_used].last_used = rle_counter;

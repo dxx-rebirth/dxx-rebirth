@@ -1,5 +1,9 @@
 D2X-Rebirth Changelog
 
+20110422
+--------
+2d/rle.c, SConstruct, main/segment.h, main/texmerge.c: Expanded possibilities for level authors: RLE- and Texture-cache accepts textures bigger than 64x64, only limit being Texture width must be equal height; Increased maximum amount of Segments from 900 to 9000 - not dynamically allocating them, yet
+
 20110421
 --------
 main/net_ipx.c, main/net_udp.c: When leaving game and still sending extras, don't forget to update the timer so we won't get stuck in an infinite loop

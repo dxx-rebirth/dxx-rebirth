@@ -69,7 +69,6 @@ common_sources = [
 '2d/rect.c',
 '2d/rle.c',
 '2d/scalec.c',
-'2d/tmerge.c',
 '3d/clipper.c',
 '3d/draw.c',
 '3d/globvars.c',
