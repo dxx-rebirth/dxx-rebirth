@@ -124,13 +124,6 @@ void mouse_motion_handler(SDL_MouseMotionEvent *mme)
 	event.dy = mme->yrel;
 	event.dz = 0;		// handled in mouse_button_handler
 	
-	// filter delta?
-	if (PlayerCfg.MouseFilter)
-	{
-		event.dx = (event.dx + Mouse.old_delta_x) * 0.5;
-		event.dy = (event.dy + Mouse.old_delta_y) * 0.5;
-	}
-	
 	Mouse.old_delta_x = event.dx;
 	Mouse.old_delta_y = event.dy;
 	
@@ -173,13 +166,6 @@ void mouse_get_delta( int *dx, int *dy, int *dz )
 	*dx = Mouse.delta_x;
 	*dy = Mouse.delta_y;
 	*dz = Mouse.delta_z;
-
-	// filter delta?
-	if (PlayerCfg.MouseFilter)
-	{
-		Mouse.delta_x = (*dx + Mouse.old_delta_x) * 0.5;
-		Mouse.delta_y = (*dy + Mouse.old_delta_y) * 0.5;
-	}
 
 	Mouse.old_delta_x = *dx;
 	Mouse.old_delta_y = *dy;
