@@ -1,5 +1,9 @@
 D2X-Rebirth Changelog
 
+20110424
+--------
+d2x-rebirth.xcodeproj/project.pbxproj, main/newmenu.c: Check if a menu closed in a subfunction before setting it's return value, fixing crash when levels are mismatched in multiplayer; Small tidy up for Xcode project
+
 20110422
 --------
 2d/rle.c, SConstruct, main/segment.h, main/texmerge.c: Expanded possibilities for level authors: RLE- and Texture-cache accepts textures bigger than 64x64, only limit being Texture width must be equal height; Increased maximum amount of Segments from 900 to 9000 - not dynamically allocating them, yet

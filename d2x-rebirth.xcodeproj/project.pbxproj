@@ -676,7 +676,6 @@
 		EB0420EB0A341042002CC961 /* gamemine.h */ = {isa = PBXFileReference; fileEncoding = 30; lastKnownFileType = sourcecode.c.h; path = gamemine.h; sourceTree = "<group>"; };
 		EB0420EC0A341042002CC961 /* gamefont.h */ = {isa = PBXFileReference; fileEncoding = 30; lastKnownFileType = sourcecode.c.h; path = gamefont.h; sourceTree = "<group>"; };
 		EB0420ED0A341042002CC961 /* game.h */ = {isa = PBXFileReference; fileEncoding = 30; lastKnownFileType = sourcecode.c.h; path = game.h; sourceTree = "<group>"; };
-		EB0420EE0A341042002CC961 /* fvi_a.h */ = {isa = PBXFileReference; fileEncoding = 30; lastKnownFileType = sourcecode.c.h; path = fvi_a.h; sourceTree = "<group>"; };
 		EB0420EF0A341042002CC961 /* fvi.h */ = {isa = PBXFileReference; fileEncoding = 30; lastKnownFileType = sourcecode.c.h; path = fvi.h; sourceTree = "<group>"; };
 		EB0420F00A341042002CC961 /* fuelcen.h */ = {isa = PBXFileReference; fileEncoding = 30; lastKnownFileType = sourcecode.c.h; path = fuelcen.h; sourceTree = "<group>"; };
 		EB0420F10A341042002CC961 /* collide.h */ = {isa = PBXFileReference; fileEncoding = 30; lastKnownFileType = sourcecode.c.h; path = collide.h; sourceTree = "<group>"; };
@@ -702,12 +701,7 @@
 		EB092A7F12A25AFB004D9A79 /* messagebox.c */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.c; path = messagebox.c; sourceTree = "<group>"; };
 		EB092A8412A25EB1004D9A79 /* messagebox.c */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.c; path = messagebox.c; sourceTree = "<group>"; };
 		EB092A8512A25EC8004D9A79 /* messagebox.c */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.c; path = messagebox.c; sourceTree = "<group>"; };
-		EB092A8712A25EE4004D9A79 /* d3dhelp.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = d3dhelp.h; sourceTree = "<group>"; };
-		EB092A8812A25EE4004D9A79 /* debug.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = debug.h; sourceTree = "<group>"; };
-		EB092A8912A25EE4004D9A79 /* pch.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = pch.h; sourceTree = "<group>"; };
 		EB092A8A12A25EE4004D9A79 /* resource.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = resource.h; sourceTree = "<group>"; };
-		EB092A8B12A25EE4004D9A79 /* scene.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = scene.h; sourceTree = "<group>"; };
-		EB092A8C12A25EE4004D9A79 /* texture.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = texture.h; sourceTree = "<group>"; };
 		EB092A8D12A25EE4004D9A79 /* wsipx.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = wsipx.h; sourceTree = "<group>"; };
 		EB1405E8121044B5002B1CC6 /* physfsx.c */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.c; path = physfsx.c; sourceTree = "<group>"; };
 		EB28D9A20ECEAF1C00E68E9B /* init.c */ = {isa = PBXFileReference; fileEncoding = 30; lastKnownFileType = sourcecode.c.c; path = init.c; sourceTree = "<group>"; };
@@ -1221,7 +1215,6 @@
 				EB0420FD0A341042002CC961 /* fireball.h */,
 				EB0420F00A341042002CC961 /* fuelcen.h */,
 				EB0420EF0A341042002CC961 /* fvi.h */,
-				EB0420EE0A341042002CC961 /* fvi_a.h */,
 				EB0420ED0A341042002CC961 /* game.h */,
 				EB0420EC0A341042002CC961 /* gamefont.h */,
 				EB0420EB0A341042002CC961 /* gamemine.h */,
@@ -1376,12 +1369,7 @@
 		EB092A8612A25EE4004D9A79 /* include */ = {
 			isa = PBXGroup;
 			children = (
-				EB092A8712A25EE4004D9A79 /* d3dhelp.h */,
-				EB092A8812A25EE4004D9A79 /* debug.h */,
-				EB092A8912A25EE4004D9A79 /* pch.h */,
 				EB092A8A12A25EE4004D9A79 /* resource.h */,
-				EB092A8B12A25EE4004D9A79 /* scene.h */,
-				EB092A8C12A25EE4004D9A79 /* texture.h */,
 				EB092A8D12A25EE4004D9A79 /* wsipx.h */,
 			);
 			path = include;
