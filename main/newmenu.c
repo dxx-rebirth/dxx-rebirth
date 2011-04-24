@@ -1477,6 +1477,10 @@ int newmenu_handler(window *wind, d_event *event, newmenu *menu)
 	if (menu->subfunction)
 	{
 		int rval = (*menu->subfunction)(menu, event, menu->userdata);
+		
+		if (!window_exists(wind))
+			return 1;	// some subfunction closed the window: bail!
+
 		if (rval)
 		{
 			if (rval < -1)

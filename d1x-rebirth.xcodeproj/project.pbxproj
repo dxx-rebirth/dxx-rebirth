@@ -598,7 +598,6 @@
 		EB0420EB0A341042002CC961 /* gamemine.h */ = {isa = PBXFileReference; fileEncoding = 30; lastKnownFileType = sourcecode.c.h; path = gamemine.h; sourceTree = "<group>"; };
 		EB0420EC0A341042002CC961 /* gamefont.h */ = {isa = PBXFileReference; fileEncoding = 30; lastKnownFileType = sourcecode.c.h; path = gamefont.h; sourceTree = "<group>"; };
 		EB0420ED0A341042002CC961 /* game.h */ = {isa = PBXFileReference; fileEncoding = 30; lastKnownFileType = sourcecode.c.h; path = game.h; sourceTree = "<group>"; };
-		EB0420EE0A341042002CC961 /* fvi_a.h */ = {isa = PBXFileReference; fileEncoding = 30; lastKnownFileType = sourcecode.c.h; path = fvi_a.h; sourceTree = "<group>"; };
 		EB0420EF0A341042002CC961 /* fvi.h */ = {isa = PBXFileReference; fileEncoding = 30; lastKnownFileType = sourcecode.c.h; path = fvi.h; sourceTree = "<group>"; };
 		EB0420F00A341042002CC961 /* fuelcen.h */ = {isa = PBXFileReference; fileEncoding = 30; lastKnownFileType = sourcecode.c.h; path = fuelcen.h; sourceTree = "<group>"; };
 		EB0420F10A341042002CC961 /* collide.h */ = {isa = PBXFileReference; fileEncoding = 30; lastKnownFileType = sourcecode.c.h; path = collide.h; sourceTree = "<group>"; };
@@ -1137,7 +1136,6 @@
 				EB0420FD0A341042002CC961 /* fireball.h */,
 				EB0420F00A341042002CC961 /* fuelcen.h */,
 				EB0420EF0A341042002CC961 /* fvi.h */,
-				EB0420EE0A341042002CC961 /* fvi_a.h */,
 				EB0420ED0A341042002CC961 /* game.h */,
 				EB0420EC0A341042002CC961 /* gamefont.h */,
 				EB0420EB0A341042002CC961 /* gamemine.h */,
