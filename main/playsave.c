@@ -894,6 +894,8 @@ void read_netgame_profile(netgame_info *ng)
 				ng->Allow_marker_view = strtol(value, NULL, 10);
 			else if (!strcmp(token, "AlwaysLighting"))
 				ng->AlwaysLighting = strtol(value, NULL, 10);
+			else if (!strcmp(token, "ShowEnemyNames"))
+				ng->ShowEnemyNames = strtol(value, NULL, 10);
 			else if (!strcmp(token, "BrightPlayers"))
 				ng->BrightPlayers = strtol(value, NULL, 10);
 			else if (!strcmp(token, "InvulAppear"))
@@ -941,6 +943,7 @@ void write_netgame_profile(netgame_info *ng)
 	PHYSFSX_printf(file, "AllowedItems=%i\n", ng->AllowedItems);
 	PHYSFSX_printf(file, "Allow_marker_view=%i\n", ng->Allow_marker_view);
 	PHYSFSX_printf(file, "AlwaysLighting=%i\n", ng->AlwaysLighting);
+	PHYSFSX_printf(file, "ShowEnemyNames=%i\n", ng->ShowEnemyNames);
 	PHYSFSX_printf(file, "BrightPlayers=%i\n", ng->BrightPlayers);
 	PHYSFSX_printf(file, "InvulAppear=%i\n", ng->InvulAppear);
 	PHYSFSX_printf(file, "KillGoal=%i\n", ng->KillGoal);

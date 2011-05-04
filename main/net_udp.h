@@ -43,7 +43,7 @@ void net_udp_send_netgame_update();
 #define UPID_GAME_INFO_REQ			  2 // Requesting all info about a netgame.
 #define UPID_GAME_INFO_REQ_SIZE			 11
 #define UPID_GAME_INFO				  3 // Packet containing all info about a netgame.
-#define UPID_GAME_INFO_SIZE			533
+#define UPID_GAME_INFO_SIZE			535
 #define UPID_GAME_INFO_LITE_REQ			  4 // Requesting lite info about a netgame. Used for discovering games.
 #define UPID_GAME_INFO_LITE			  5 // Packet containing lite netgame info.
 #define UPID_GAME_INFO_LITE_SIZE		 73

@@ -600,7 +600,7 @@ void send_netgame_packet(ubyte *server, ubyte *node, ubyte *net_address, int lit
 		netpkt.DoHoming = (Netgame.AllowedItems & NETFLAG_DOHOMING);
 		netpkt.DoLaserUpgrade = (Netgame.AllowedItems & NETFLAG_DOLASER);
 		netpkt.DoQuadLasers = (Netgame.AllowedItems & NETFLAG_DOQUAD);
-		netpkt.ShowAllNames = 1; // Was ShowAllNames - always allow, don't patronize me. :P
+		netpkt.ShowAllNames = Netgame.ShowEnemyNames;
 		netpkt.BrightPlayers = Netgame.BrightPlayers;
 		netpkt.invul = Netgame.InvulAppear;
 		memcpy(&netpkt.team_name, &Netgame.team_name, 2*(CALLSIGN_LEN+1));
@@ -670,7 +670,6 @@ void receive_netgame_packet(ubyte *data, netgame_info *netgame, int lite_flag)
 	{
 		IPX_netgame_info netpkt;
 		int i, j;
-		short showallnamesdummy;
 
 		memcpy(&netpkt, data, sizeof(IPX_netgame_info));
 
@@ -721,7 +720,7 @@ void receive_netgame_packet(ubyte *data, netgame_info *netgame, int lite_flag)
 		if (netpkt.DoQuadLasers) netgame->AllowedItems |= NETFLAG_DOQUAD;
 		netgame->Allow_marker_view = netpkt.Allow_marker_view;
 		netgame->AlwaysLighting = netpkt.AlwaysLighting;
-		showallnamesdummy = netpkt.ShowAllNames;// we ignore that, don't patronize me. :P
+		netgame->ShowEnemyNames = netpkt.ShowAllNames;
 		netgame->BrightPlayers = netpkt.BrightPlayers;
 		netgame->InvulAppear = netpkt.invul;
 		memcpy(netgame->team_name, &netpkt.team_name, 2*(CALLSIGN_LEN+1));
@@ -2817,7 +2816,7 @@ int net_ipx_start_poll( newmenu *menu, d_event *event, void *userdata )
 
 static int opt_cinvul, opt_show_on_map;
 static int opt_setpower,opt_playtime,opt_killgoal,opt_marker_view,opt_light;
-static int opt_difficulty,opt_packets, opt_bright,opt_start_invul, opt_short_packets, opt_socket;
+static int opt_difficulty,opt_packets, opt_bright,opt_start_invul, opt_show_names, opt_short_packets, opt_socket;
 
 typedef struct param_opt
 {
@@ -4894,7 +4893,7 @@ void net_ipx_more_game_options ()
 {
 	int opt=0,i;
 	char PlayText[80],KillText[80],srinvul[50],packstring[5],socket_string[5];
-	newmenu_item m[20];
+	newmenu_item m[21];
 
 	sprintf (socket_string,"%d",IPX_Socket);
 	sprintf (packstring,"%d",Netgame.PacketsPerSec);
@@ -4924,6 +4923,9 @@ void net_ipx_more_game_options ()
 
 	opt_bright = opt;
 	m[opt].type = NM_TYPE_CHECK; m[opt].text = "Bright player ships"; m[opt].value=Netgame.BrightPlayers; opt++;
+
+	opt_show_names=opt;
+	m[opt].type = NM_TYPE_CHECK; m[opt].text = "Show enemy names on HUD"; m[opt].value=Netgame.ShowEnemyNames; opt++;
 
 	opt_show_on_map=opt;
 	m[opt].type = NM_TYPE_CHECK; m[opt].text = TXT_SHOW_ON_MAP; m[opt].value=(Netgame.game_flags & NETGAME_FLAG_SHOW_MAP); opt_show_on_map=opt; opt++;
@@ -4976,7 +4978,7 @@ menu:
 	Netgame.InvulAppear=m[opt_start_invul].value;
 	Netgame.BrightPlayers=m[opt_bright].value;
 	Netgame.protocol.ipx.ShortPackets=m[opt_short_packets].value;
-
+	Netgame.ShowEnemyNames=m[opt_show_names].value;
 	Netgame.Allow_marker_view=m[opt_marker_view].value;
 	Netgame.AlwaysLighting=m[opt_light].value;
 	Netgame.difficulty=Difficulty_level = m[opt_difficulty].value;
@@ -5488,7 +5490,8 @@ static int show_game_rules_handler(window *wind, d_event *event, netgame_info *n
 			gr_printf( FSPACX(155),FSPACY( 41), "Marker camera views:");
 			gr_printf( FSPACX(155),FSPACY( 47), "Indestructible lights:");
 			gr_printf( FSPACX(155),FSPACY( 53), "Bright player ships:");
-			gr_printf( FSPACX(155),FSPACY( 59), "Show players on automap:");
+			gr_printf( FSPACX(155),FSPACY( 59), "Show enemy names on hud:");
+			gr_printf( FSPACX(155),FSPACY( 65), "Show players on automap:");
 			gr_printf( FSPACX( 25),FSPACY( 80), "Allowed Objects");
 			gr_printf( FSPACX( 25),FSPACY( 90), "Laser Upgrade:");
 			gr_printf( FSPACX( 25),FSPACY( 96), "Super Laser:");
@@ -5527,7 +5530,8 @@ static int show_game_rules_handler(window *wind, d_event *event, netgame_info *n
 			gr_printf( FSPACX(275),FSPACY( 41), netgame->Allow_marker_view?"ON":"OFF");
 			gr_printf( FSPACX(275),FSPACY( 47), netgame->AlwaysLighting?"ON":"OFF");
 			gr_printf( FSPACX(275),FSPACY( 53), netgame->BrightPlayers?"ON":"OFF");
-			gr_printf( FSPACX(275),FSPACY( 59), netgame->game_flags & NETGAME_FLAG_SHOW_MAP?"ON":"OFF");
+			gr_printf( FSPACX(275),FSPACY( 59), netgame->ShowEnemyNames?"ON":"OFF");
+			gr_printf( FSPACX(275),FSPACY( 65), netgame->game_flags & NETGAME_FLAG_SHOW_MAP?"ON":"OFF");
 			gr_printf( FSPACX(130),FSPACY( 90), netgame->AllowedItems & NETFLAG_DOLASER?"YES":"NO");
 			gr_printf( FSPACX(130),FSPACY( 96), netgame->AllowedItems & NETFLAG_DOSUPERLASER?"YES":"NO");
 			gr_printf( FSPACX(130),FSPACY(102), netgame->AllowedItems & NETFLAG_DOQUAD?"YES":"NO");
