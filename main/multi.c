@@ -4895,6 +4895,8 @@ int multi_maybe_disable_friendly_fire(object *killer)
 		return 0;
 	if (!Netgame.NoFriendlyFire) // friendly fire is activated -> harm me!
 		return 0;
+	if (killer == NULL) // no actual killer -> harm me!
+		return 0;
 	if (killer->type != OBJ_PLAYER) // not a player -> harm me!
 		return 0;
 	if (Game_mode & GM_MULTI_COOP) // coop mode -> don't harm me!

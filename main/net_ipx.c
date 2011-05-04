@@ -3956,6 +3956,12 @@ int net_ipx_do_join_game(int choice)
 		}
 	}
 
+	if ( !HoardEquipped() && (Active_ipx_games[choice].gamemode == NETGAME_HOARD || Active_ipx_games[choice].gamemode == NETGAME_TEAM_HOARD) )
+	{
+		nm_messagebox(TXT_SORRY, 1, TXT_OK, "HOARD(.ham) not installed. You can't join.");
+		return 0;
+	}
+
 	if (!net_ipx_wait_for_all_info (0))
 	{
 		nm_messagebox (TXT_SORRY,1,TXT_OK,"There was a join error!");

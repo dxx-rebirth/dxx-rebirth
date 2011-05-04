@@ -4008,6 +4008,12 @@ int net_udp_do_join_game()
 		}
 	}
 
+	if ( !HoardEquipped() && (Netgame.gamemode == NETGAME_HOARD || Netgame.gamemode == NETGAME_TEAM_HOARD) )
+	{
+		nm_messagebox(TXT_SORRY, 1, TXT_OK, "HOARD(.ham) not installed. You can't join.");
+		return 0;
+	}
+
 	Network_status = NETSTAT_BROWSING; // We are looking at a game menu
 
 	if (!net_udp_can_join_netgame(&Netgame))
