@@ -1043,7 +1043,13 @@ int state_save_all_sub(char *filename, char *desc)
 	ai_save_state( fp );
 
 // Save the automap visited info
-	PHYSFS_write(fp, Automap_visited, sizeof(ubyte), MAX_SEGMENTS);
+	if ( Highest_segment_index+1 > MAX_SEGMENTS_ORIGINAL )
+	{
+		for ( i = 0; i <= Highest_segment_index; i++ )
+			PHYSFS_write(fp, Automap_visited, sizeof(ubyte), 1);
+	}
+	else
+		PHYSFS_write(fp, Automap_visited, sizeof(ubyte), MAX_SEGMENTS_ORIGINAL);
 
 	PHYSFS_write(fp, &state_game_id, sizeof(uint), 1);
 	i = 0;
@@ -1073,7 +1079,13 @@ int state_save_all_sub(char *filename, char *desc)
 	PHYSFS_write(fp, &PaletteRedAdd, sizeof(int), 1);
 	PHYSFS_write(fp, &PaletteGreenAdd, sizeof(int), 1);
 	PHYSFS_write(fp, &PaletteBlueAdd, sizeof(int), 1);
-	PHYSFS_write(fp, Light_subtracted, sizeof(Light_subtracted[0]), MAX_SEGMENTS);
+	if ( Highest_segment_index+1 > MAX_SEGMENTS_ORIGINAL )
+	{
+		for ( i = 0; i <= Highest_segment_index; i++ )
+			PHYSFS_write(fp, Light_subtracted, sizeof(Light_subtracted[0]), 1);
+	}
+	else
+		PHYSFS_write(fp, Light_subtracted, sizeof(Light_subtracted[0]), MAX_SEGMENTS_ORIGINAL);
 	PHYSFS_write(fp, &First_secret_visit, sizeof(First_secret_visit), 1);
 	PHYSFS_write(fp, &Omega_charge, sizeof(Omega_charge), 1);
 
@@ -1484,7 +1496,14 @@ int state_restore_all_sub(char *filename, int secret_restore)
 	ai_restore_state( fp, version, swap );
 
 	// Restore the automap visited info
-	PHYSFS_read(fp, Automap_visited, sizeof(ubyte), MAX_SEGMENTS);
+	if ( Highest_segment_index+1 > MAX_SEGMENTS_ORIGINAL )
+	{
+		memset(&Automap_visited, 0, MAX_SEGMENTS);
+		for ( i = 0; i <= Highest_segment_index; i++ )
+			PHYSFS_read(fp, Automap_visited, sizeof(ubyte), 1);
+	}
+	else
+		PHYSFS_read(fp, Automap_visited, sizeof(ubyte), MAX_SEGMENTS_ORIGINAL);
 
 	//	Restore hacked up weapon system stuff.
 	Auto_fire_fusion_cannon_time = 0;
@@ -1552,7 +1571,14 @@ int state_restore_all_sub(char *filename, int secret_restore)
 
 	//	Load Light_subtracted
 	if (version >= 16) {
-		PHYSFS_read(fp, Light_subtracted, sizeof(Light_subtracted[0]), MAX_SEGMENTS);
+		if ( Highest_segment_index+1 > MAX_SEGMENTS_ORIGINAL )
+		{
+			memset(&Light_subtracted, 0, sizeof(Light_subtracted[0])*MAX_SEGMENTS);
+			for ( i = 0; i <= Highest_segment_index; i++ )
+				PHYSFS_read(fp, Light_subtracted, sizeof(Light_subtracted[0]), 1);
+		}
+		else
+			PHYSFS_read(fp, Light_subtracted, sizeof(Light_subtracted[0]), MAX_SEGMENTS_ORIGINAL);
 		apply_all_changed_light();
 	} else {
 		int	i;

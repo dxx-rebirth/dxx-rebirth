@@ -46,8 +46,10 @@ COPYRIGHT 1993-1999 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 #define WBACK                       4
 #define WFRONT                      5
 
-#define MAX_SEGMENTS            9000
-#define MAX_SEGMENT_VERTICES    (4*MAX_SEGMENTS)
+#define MAX_SEGMENTS_ORIGINAL         900
+#define MAX_SEGMENT_VERTICES_ORIGINAL (4*MAX_SEGMENTS_ORIGINAL)
+#define MAX_SEGMENTS                  9000
+#define MAX_SEGMENT_VERTICES          (4*MAX_SEGMENTS)
 
 //normal everyday vertices
 
