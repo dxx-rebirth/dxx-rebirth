@@ -301,7 +301,7 @@ void do_physics_sim_rot(object *obj)
 // On joining edges fvi tends to get inaccurate as hell due to object size. And I have no means to fix that - shame on me (that whole code should be rewritten). Approach is to check if the object interects with the wall and if so, move it out towards segment center.
 void fix_illegal_wall_intersection(object *obj)
 {
-	int i = 0;
+	int i = 0, bocount = 1;
 	vms_vector center,bump_vec;
 
 	if ( !(obj->type == OBJ_PLAYER || obj->type == OBJ_ROBOT) )
@@ -317,9 +317,15 @@ void fix_illegal_wall_intersection(object *obj)
 			if ( Segments[Segments[obj->segnum].children[i]].degenerated )
 				return;
 
+	if (obj->size/2 >= F0_1) // at size bigger than bumping distance use multiple runs so we can move at least half  the size of the object we want to bump (rounding covered by >= in while below)
+		bocount = (obj->size/2/F0_1);
+
 	compute_segment_center(&center,&Segments[obj->segnum]);
-	vm_vec_normalized_dir_quick(&bump_vec,&center,&obj->pos);
-	vm_vec_scale_add2(&obj->pos,&bump_vec,F0_1);
+	while ( object_intersects_wall(obj) && bocount-- >= 0 )
+	{
+		vm_vec_normalized_dir_quick(&bump_vec,&center,&obj->pos);
+		vm_vec_scale_add2(&obj->pos,&bump_vec,F0_1);
+	}
 }
 
 //	-----------------------------------------------------------------------------------------------------------
