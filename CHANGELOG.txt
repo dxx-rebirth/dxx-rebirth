@@ -8,6 +8,7 @@ main/multi.c: Fix crash in multi_maybe_disable_friendly_fire() when killer == NU
 2d/font.c: mipmapping was always on for fonts due to changed filtering code in ogl.c
 main/physics.c: To compensate fewer FVI runs in lower FPS and wall penetration caused by strong forces allowed fix_illegal_wall_intersection() to move an object out of the wall half it's size improving the collisions once more
 main/segment.h, main/state.c: Due to increased size of MAX_SEGMENTS old savegames became incompatible. To compensate added MAX_SEGMENTS_ORIGINAL with the original segment amount and read certain savegame info with this info when dealing with standard-sized levels and use Highest_segment_index when dealing with larger levels which are incompatible with older versions of the game anyways. Makes savegame site more efficient and still maintain backwards compability
+main/render.c: When doing sorted rendering, also take cloaking walls into account to properly draw objects behind it while cloaking process
 
 20110422
 --------
