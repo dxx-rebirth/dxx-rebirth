@@ -1018,7 +1018,13 @@ int state_save_all_sub(char *filename, char *desc)
 	ai_save_state( fp );
 	
 // Save the automap visited info
-	PHYSFS_write(fp, Automap_visited, sizeof(ubyte), MAX_SEGMENTS);
+	if ( Highest_segment_index+1 > MAX_SEGMENTS_ORIGINAL )
+	{
+		for ( i = 0; i <= Highest_segment_index; i++ )
+			PHYSFS_write(fp, Automap_visited, sizeof(ubyte), 1);
+	}
+	else
+		PHYSFS_write(fp, Automap_visited, sizeof(ubyte), MAX_SEGMENTS_ORIGINAL);
 
 	PHYSFS_write(fp, &state_game_id, sizeof(uint), 1);
 	i = 0;
@@ -1352,7 +1358,14 @@ RetryObjectLoading:
 	ai_restore_state( fp, swap );
 
 	// Restore the automap visited info
-	PHYSFS_read(fp, Automap_visited, sizeof(ubyte), MAX_SEGMENTS);
+	if ( Highest_segment_index+1 > MAX_SEGMENTS_ORIGINAL )
+	{
+		memset(&Automap_visited, 0, MAX_SEGMENTS);
+		for ( i = 0; i <= Highest_segment_index; i++ )
+			PHYSFS_read(fp, Automap_visited, sizeof(ubyte), 1);
+	}
+	else
+		PHYSFS_read(fp, Automap_visited, sizeof(ubyte), MAX_SEGMENTS_ORIGINAL);
 
 	//	Restore hacked up weapon system stuff.
 	Auto_fire_fusion_cannon_time = 0;
