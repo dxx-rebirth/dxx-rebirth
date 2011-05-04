@@ -2415,7 +2415,8 @@ void draw_hud()
 			hud_show_energy();
 			hud_show_shield();
 			hud_show_weapons();
-			hud_show_keys();
+			if (!PCSharePig)
+				hud_show_keys();
 			hud_show_cloak_invuln();
 
 			if (Newdemo_state==ND_STATE_RECORDING)

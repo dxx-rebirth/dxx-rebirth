@@ -263,6 +263,7 @@ grs_bitmap bogus_bitmap;
 ubyte bogus_bitmap_initialized=0;
 digi_sound bogus_sound;
 int MacPig = 0;	// using the Macintosh pigfile?
+int PCSharePig = 0; // using PC Shareware pigfile?
 
 extern void properties_read_cmp(CFILE * fp);
 #ifdef EDITOR
@@ -271,7 +272,6 @@ extern void bm_write_all(PHYSFS_file * fp);
 
 int properties_init()
 {
-	int pcshare = 0;
 	int sbytes = 0;
 	char temp_name_read[16];
 	char temp_name[16];
@@ -354,7 +354,7 @@ int properties_init()
 		case D1_SHARE_BIG_PIGSIZE:
 		case D1_SHARE_10_PIGSIZE:
 		case D1_SHARE_PIGSIZE:
-			pcshare = 1;
+			PCSharePig = 1;
 			Pigdata_start = 0;
 			break;
 		case D1_10_BIG_PIGSIZE:
@@ -376,7 +376,7 @@ int properties_init()
 	
 	HiresGFXAvailable = MacPig;	// for now at least
 
-	if (pcshare)
+	if (PCSharePig)
 		retval = PIGGY_PC_SHAREWARE;	// run gamedata_read_tbl in shareware mode
 	else if (GameArg.EdiNoBm || (!cfexist("BITMAPS.TBL") && !cfexist("BITMAPS.BIN")))
 	{
@@ -461,7 +461,7 @@ int properties_init()
 //end this section addition - VR
 		temp_sound.data = (ubyte *)(sndh.offset + header_size + (sizeof(int)*2)+Pigdata_start);
 		SoundOffset[Num_sound_files] = sndh.offset + header_size + (sizeof(int)*2)+Pigdata_start;
-		if (pcshare)
+		if (PCSharePig)
 			SoundCompressed[Num_sound_files] = sndh.data_length;
 		memcpy( temp_name_read, sndh.name, 8 );
 		temp_name_read[8] = 0;
