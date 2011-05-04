@@ -108,6 +108,7 @@ typedef struct segment {
 	sbyte   matcen_num; // which center segment is associated with.
 	short   value;
 	fix     static_light; //average static light in segment
+	int     degenerated; // true if this segment has gotten turned inside out, or something.
 #ifndef EDITOR
 	short   pad;        //make structure longword aligned
 #endif
