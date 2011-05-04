@@ -401,7 +401,7 @@ typedef struct netgame_info
 #ifdef USE_UDP
 		struct
 		{
-			struct _sockaddr	addr; // IP address of this netgame's host
+			struct _sockaddr		addr; // IP address of this netgame's host
 			short				program_iver[3]; // IVER of program for version checking
 			sbyte				valid; // Status of Netgame info: -1 = Failed, Wrong version; 0 = No info, yet; 1 = Success
 			fix				GameID;
@@ -409,9 +409,9 @@ typedef struct netgame_info
 #endif
 	} protocol;	
 #endif
-	ubyte			   			version_major; // Game content data version major (unused in D1)
+	ubyte						version_major; // Game content data version major (unused in D1)
 	ubyte   					version_minor; // Game content data version minor (unused in D1)
-	struct netplayer_info 		players[MAX_PLAYERS+4];
+	struct netplayer_info 				players[MAX_PLAYERS+4];
 	char    					game_name[NETGAME_NAME_LEN+1];
 	char    					mission_title[MISSION_NAME_LEN+1];
 	char    					mission_name[9];
@@ -428,21 +428,22 @@ typedef struct netgame_info
 	u_int32_t					AllowedItems;
 	short						Allow_marker_view; // (unused in D1 - no markers in game)
 	short						AlwaysLighting; // (unused in D1 - cannot destroy lights after all)
+	short						ShowEnemyNames;
 	short						BrightPlayers;
 	short						InvulAppear;
 	char						team_name[2][CALLSIGN_LEN+1];
-	int							locations[MAX_PLAYERS];
+	int						locations[MAX_PLAYERS];
 	short						kills[MAX_PLAYERS][MAX_PLAYERS];
 	ushort						segments_checksum;
 	short						team_kills[2];
 	short						killed[MAX_PLAYERS];
 	short						player_kills[MAX_PLAYERS];
-	int							KillGoal;
-	fix							PlayTimeAllowed;
-	fix							level_time;
-	int							control_invul_time;
-	int							monitor_vector;
-	int							player_score[MAX_PLAYERS];
+	int						KillGoal;
+	fix						PlayTimeAllowed;
+	fix						level_time;
+	int						control_invul_time;
+	int						monitor_vector;
+	int						player_score[MAX_PLAYERS];
 	ubyte						player_flags[MAX_PLAYERS];
 	short						PacketsPerSec;
 	ubyte						PacketLossPrevention;

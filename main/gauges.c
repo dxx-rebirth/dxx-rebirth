@@ -2299,7 +2299,7 @@ void show_HUD_names()
 		// ridiculusly complex to check if we want to show something... but this is readable at least.
 		is_friend = (Game_mode & GM_MULTI_COOP || (Game_mode & GM_TEAM && get_team(pnum) == get_team(Player_num)));
 		show_friend_name = Show_reticle_name;
-		show_enemy_name = Show_reticle_name && !(Players[pnum].flags & PLAYER_FLAGS_CLOAKED);
+		show_enemy_name = Show_reticle_name && Netgame.ShowEnemyNames && !(Players[pnum].flags & PLAYER_FLAGS_CLOAKED);
 		show_name = ((is_friend && show_friend_name) || (!is_friend && show_enemy_name));
 		show_typing = is_friend || !(Players[pnum].flags & PLAYER_FLAGS_CLOAKED);
 		show_indi = ((/*(Game_mode & ( GM_CAPTURE | GM_HOARD ) && Players[pnum].flags & PLAYER_FLAGS_FLAG) || */(Game_mode & GM_BOUNTY &&  pnum == Bounty_target)) && (is_friend || !(Players[pnum].flags & PLAYER_FLAGS_CLOAKED)));

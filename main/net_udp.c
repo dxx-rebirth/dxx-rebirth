@@ -2171,6 +2171,7 @@ void net_udp_send_game_info(struct _sockaddr sender_addr, ubyte info_upid)
 		PUT_INTEL_INT(buf + len, Netgame.AllowedItems);					len += 4;
 		PUT_INTEL_SHORT(buf + len, Netgame.Allow_marker_view);				len += 2;
 		PUT_INTEL_SHORT(buf + len, Netgame.AlwaysLighting);				len += 2;
+		PUT_INTEL_SHORT(buf + len, Netgame.ShowEnemyNames);				len += 2;
 		PUT_INTEL_SHORT(buf + len, Netgame.BrightPlayers);				len += 2;
 		PUT_INTEL_SHORT(buf + len, Netgame.InvulAppear);				len += 2;
 		memcpy(&buf[len], Netgame.team_name, 2*(CALLSIGN_LEN+1));			len += 2*(CALLSIGN_LEN+1);
@@ -2344,6 +2345,7 @@ void net_udp_process_game_info(ubyte *data, int data_len, struct _sockaddr game_
 		Netgame.AllowedItems = GET_INTEL_INT(&(data[len]));				len += 4;
 		Netgame.Allow_marker_view = GET_INTEL_SHORT(&(data[len]));			len += 2;
 		Netgame.AlwaysLighting = GET_INTEL_SHORT(&(data[len]));				len += 2;
+		Netgame.ShowEnemyNames = GET_INTEL_SHORT(&(data[len]));				len += 2;
 		Netgame.BrightPlayers = GET_INTEL_SHORT(&(data[len]));				len += 2;
 		Netgame.InvulAppear = GET_INTEL_SHORT(&(data[len]));				len += 2;
 		memcpy(Netgame.team_name, &(data[len]), 2*(CALLSIGN_LEN+1));			len += 2*(CALLSIGN_LEN+1);
@@ -2772,7 +2774,7 @@ int net_udp_start_poll( newmenu *menu, d_event *event, void *userdata )
 }
 
 static int opt_cinvul, opt_show_on_map;
-static int opt_show_on_map, opt_difficulty, opt_setpower, opt_playtime, opt_killgoal, opt_port, opt_packets, opt_plp, opt_bright, opt_start_invul, opt_ffire;
+static int opt_show_on_map, opt_difficulty, opt_setpower, opt_playtime, opt_killgoal, opt_port, opt_packets, opt_show_names, opt_plp, opt_bright, opt_start_invul, opt_ffire;
 #ifdef USE_TRACKER
 static int opt_tracker;
 #endif
@@ -2802,9 +2804,9 @@ void net_udp_more_game_options ()
 	int opt=0,i=0;
 	char PlayText[80],KillText[80],srinvul[50],packstring[5];
 #ifdef USE_TRACKER
-	newmenu_item m[15];
+	newmenu_item m[16];
 #else
- 	newmenu_item m[14];
+ 	newmenu_item m[15];
 #endif
 
 	snprintf(packstring,sizeof(char)*4,"%d",Netgame.PacketsPerSec);
@@ -2832,6 +2834,9 @@ void net_udp_more_game_options ()
 
 	opt_bright = opt;
 	m[opt].type = NM_TYPE_CHECK; m[opt].text = "Bright player ships"; m[opt].value=Netgame.BrightPlayers; opt++;
+
+	opt_show_names=opt;
+	m[opt].type = NM_TYPE_CHECK; m[opt].text = "Show enemy names on HUD"; m[opt].value=Netgame.ShowEnemyNames; opt++;
 
 	opt_ffire=opt;
 	m[opt].type = NM_TYPE_CHECK; m[opt].text = "No friendly fire (Team, Coop)"; m[opt].value=Netgame.NoFriendlyFire; opt++;
@@ -2886,6 +2891,7 @@ menu:
 
 	Netgame.InvulAppear=m[opt_start_invul].value;	
 	Netgame.BrightPlayers=m[opt_bright].value;
+	Netgame.ShowEnemyNames=m[opt_show_names].value;
 	Netgame.difficulty=Difficulty_level = m[opt_difficulty].value;
 	if (m[opt_show_on_map].value)
 		Netgame.game_flags |= NETGAME_FLAG_SHOW_MAP;
@@ -4909,7 +4915,8 @@ static int show_game_rules_handler(window *wind, d_event *event, netgame_info *n
 			gr_printf( FSPACX(155),FSPACY( 55), "Show Players On Automap:");
 			gr_printf( FSPACX(155),FSPACY( 61), "Invul when reappearing:");
 			gr_printf( FSPACX(155),FSPACY( 67), "Bright player ships:");
-			gr_printf( FSPACX(155),FSPACY( 73), "No friendly Fire:");
+			gr_printf( FSPACX(155),FSPACY( 73), "Show enemy names on hud:");
+			gr_printf( FSPACX(155),FSPACY( 79), "No friendly Fire:");
 			
 			gr_printf( FSPACX( 25),FSPACY(100), "Allowed Objects");
 			gr_printf( FSPACX( 25),FSPACY(110), "Laser Upgrade:");
@@ -4930,10 +4937,11 @@ static int show_game_rules_handler(window *wind, d_event *event, netgame_info *n
 			gr_printf( FSPACX(115),FSPACY( 61), "%i Min", netgame->PlayTimeAllowed*5);
 			gr_printf( FSPACX(115),FSPACY( 67), "%i", netgame->KillGoal*5);
 			gr_printf( FSPACX(115),FSPACY( 73), "%i", netgame->PacketsPerSec);
-			gr_printf( FSPACX(275),FSPACY( 55), netgame->game_flags&NETGAME_FLAG_SHOW_MAP?"ON":"OFF");
-			gr_printf( FSPACX(275),FSPACY( 61), netgame->InvulAppear?"ON":"OFF");
-			gr_printf( FSPACX(275),FSPACY( 67), netgame->BrightPlayers?"ON":"OFF");
-			gr_printf( FSPACX(275),FSPACY( 73), netgame->NoFriendlyFire?"ON":"OFF");
+			gr_printf( FSPACX(275),FSPACY( 55), netgame->ShowEnemyNames?"ON":"OFF");
+			gr_printf( FSPACX(275),FSPACY( 61), netgame->game_flags&NETGAME_FLAG_SHOW_MAP?"ON":"OFF");
+			gr_printf( FSPACX(275),FSPACY( 67), netgame->InvulAppear?"ON":"OFF");
+			gr_printf( FSPACX(275),FSPACY( 73), netgame->BrightPlayers?"ON":"OFF");
+			gr_printf( FSPACX(275),FSPACY( 79), netgame->NoFriendlyFire?"ON":"OFF");
 			
 			
 			gr_printf( FSPACX(130),FSPACY(110), netgame->AllowedItems&NETFLAG_DOLASER?"YES":"NO");
