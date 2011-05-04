@@ -4,6 +4,7 @@ D1X-Rebirth Changelog
 --------
 main/gauges.c, main/multi.h, main/net_udp.c, main/net_udp.h, main/playsave.c: Host can now decide (again) if players are allowed to display enemy names on HUD
 main/gauges.c, main/piggy.c, main/piggy.h: When using PC Shareware pigfile do not show key icons in CM_FULL_SCREEN since pigfile does not have these icons
+d1x-rebirth.desktop, debian/changelog, debian/control, debian/copyright, debian/rules: Update for Debian packaging stuff
 
 20110504
 --------

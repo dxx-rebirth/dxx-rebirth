@@ -1,15 +1,15 @@
 #! /usr/bin/make -f
 #
 # debian/rules file for d1x-rebirth
-# MD2211 <md2211@users.sourceforge.net>
-# Mon, 22 Dec 2008 23:21:42 +0100
+# zico <zicodxx@yahoo.de>
+# Thu, 05 May 2011 01:22:39 +0100
 #
 
 package = d1x-rebirth
 
 SCONS = scons -Q
-SCONSFLAGS = sdlmixer=1 prefix=/usr
-BINARY = d1x-rebirth-gl
+SCONSFLAGS = prefix=/usr
+BINARY = d1x-rebirth
 
 PREFIX = /usr
 BIN_DIR = $(PREFIX)/games
@@ -59,7 +59,7 @@ binary-arch:    checkroot build
 	install -m 644 CHANGELOG.txt  $(TMP_DATA_DIR)
 	install -m 644 COPYING.txt    $(TMP_DATA_DIR)
 	install -m 644 README.txt     $(TMP_DATA_DIR)
-	unzip d1xrdata.zip -d $(TMP_DATA_DIR)
+	unzip d1xr-hires.zip -d $(TMP_DATA_DIR)
 	install -m 644 d1x-rebirth.desktop $(TMP_SHARE_DIR)/applications
 	install -m 644 d1x-rebirth.xpm $(TMP_SHARE_DIR)/pixmaps
 	dpkg-shlibdeps $(TMP_BIN_DIR)/$(BINARY)
