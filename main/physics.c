@@ -298,6 +298,30 @@ void do_physics_sim_rot(object *obj)
 	check_and_fix_matrix(&obj->orient);
 }
 
+// On joining edges fvi tends to get inaccurate as hell due to object size. And I have no means to fix that - shame on me (that whole code should be rewritten). Approach is to check if the object interects with the wall and if so, move it out towards segment center.
+void fix_illegal_wall_intersection(object *obj)
+{
+	int i = 0;
+	vms_vector center,bump_vec;
+
+	if ( !(obj->type == OBJ_PLAYER || obj->type == OBJ_ROBOT) )
+		return;
+	if ( !object_intersects_wall(obj) )
+		return;
+
+	// HACK: check if the segment the object is located in and all it's children are valid. Otherwise we will break some levels where some segments are only passable since they are degenerated...
+	if ( Segments[obj->segnum].degenerated )
+		return;
+	for (i = 0; i < MAX_SIDES_PER_SEGMENT; i++)
+		if ( Segments[obj->segnum].children[i] > -1 && Segments[obj->segnum].children[i] <= Highest_segment_index )
+			if ( Segments[Segments[obj->segnum].children[i]].degenerated )
+				return;
+
+	compute_segment_center(&center,&Segments[obj->segnum]);
+	vm_vec_normalized_dir_quick(&bump_vec,&center,&obj->pos);
+	vm_vec_scale_add2(&obj->pos,&bump_vec,F0_1);
+}
+
 //	-----------------------------------------------------------------------------------------------------------
 //Simulate a physics object for this frame
 void do_physics_sim(object *obj)
@@ -575,17 +599,6 @@ void do_physics_sim(object *obj)
 				//@@fix total_d,moved_d;
 				fix hit_speed=0,wall_part=0;
 
-				/*
-				* On joining edges fvi tends to get inaccurate as hell due to object size. And I have no means to fix that - shame on me (that whole code should be rewritten). Approach is to check if the object interects with the wall and if so, move it out towards segment center. (also see FIXME in find_plane_line_intersection)
-				*/
-				if ( object_intersects_wall(obj) && (obj->type == OBJ_PLAYER || obj->type == OBJ_ROBOT) )
-				{
-					vms_vector center,bump_vec;
-					compute_segment_center(&center,&Segments[obj->segnum]);
-					vm_vec_normalized_dir_quick(&bump_vec,&center,&obj->pos);
-					vm_vec_scale_add2(&obj->pos,&bump_vec,F0_1);
-				}
-
 				// Find hit speed	
 
 				vm_vec_sub(&moved_v,&obj->pos,&save_pos);
@@ -758,6 +771,8 @@ void do_physics_sim(object *obj)
 		vm_vec_sub(&moved_vec,&obj->pos,&start_pos);
 		vm_vec_copy_scale(&obj->mtype.phys_info.velocity,&moved_vec,fixdiv(f1_0,FrameTime));
 	}
+
+	fix_illegal_wall_intersection(obj);
 
 	//Assert(check_point_in_seg(&obj->pos,obj->segnum,0).centermask==0);
 

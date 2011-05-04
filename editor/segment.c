@@ -475,50 +475,6 @@ int med_set_vertex(int vnum,vms_vector *vp)
 	return vnum;
 }
 
-
-
-//	----
-//	A side is determined to be degenerate if the cross products of 3 consecutive points does not point outward.
-int check_for_degenerate_side(segment *sp, int sidenum)
-{
-	sbyte		*vp = Side_to_verts[sidenum];
-	vms_vector	vec1, vec2, cross, vec_to_center;
-	vms_vector	segc, sidec;
-	fix			dot;
-	int			degeneracy_flag = 0;
-
-	compute_segment_center(&segc, sp);
-	compute_center_point_on_side(&sidec, sp, sidenum);
-	vm_vec_sub(&vec_to_center, &segc, &sidec);
-
-	//vm_vec_sub(&vec1, &Vertices[sp->verts[vp[1]]], &Vertices[sp->verts[vp[0]]]);
-	//vm_vec_sub(&vec2, &Vertices[sp->verts[vp[2]]], &Vertices[sp->verts[vp[1]]]);
-	//vm_vec_normalize(&vec1);
-	//vm_vec_normalize(&vec2);
-        vm_vec_normalized_dir(&vec1, &Vertices[sp->verts[(int) vp[1]]], &Vertices[sp->verts[(int) vp[0]]]);
-        vm_vec_normalized_dir(&vec2, &Vertices[sp->verts[(int) vp[2]]], &Vertices[sp->verts[(int) vp[1]]]);
-	vm_vec_cross(&cross, &vec1, &vec2);
-
-	dot = vm_vec_dot(&vec_to_center, &cross);
-	if (dot <= 0)
-		degeneracy_flag |= 1;
-
-	//vm_vec_sub(&vec1, &Vertices[sp->verts[vp[2]]], &Vertices[sp->verts[vp[1]]]);
-	//vm_vec_sub(&vec2, &Vertices[sp->verts[vp[3]]], &Vertices[sp->verts[vp[2]]]);
-	//vm_vec_normalize(&vec1);
-	//vm_vec_normalize(&vec2);
-        vm_vec_normalized_dir(&vec1, &Vertices[sp->verts[(int) vp[2]]], &Vertices[sp->verts[(int) vp[1]]]);
-        vm_vec_normalized_dir(&vec2, &Vertices[sp->verts[(int) vp[3]]], &Vertices[sp->verts[(int) vp[2]]]);
-	vm_vec_cross(&cross, &vec1, &vec2);
-
-	dot = vm_vec_dot(&vec_to_center, &cross);
-	if (dot <= 0)
-		degeneracy_flag |= 1;
-
-	return degeneracy_flag;
-
-}
-
 // -------------------------------------------------------------------------------
 void create_removable_wall(segment *sp, int sidenum, int tmap_num)
 {
@@ -528,42 +484,6 @@ void create_removable_wall(segment *sp, int sidenum, int tmap_num)
 
 	assign_default_uvs_to_side(sp, sidenum);
 	assign_light_to_side(sp, sidenum);
-}
-
-//	----
-//	See if a segment has gotten turned inside out, or something.
-//	If so, set global Degenerate_segment_found and return 1, else return 0.
-int check_for_degenerate_segment(segment *sp)
-{
-	vms_vector	fvec, rvec, uvec, cross;
-	fix			dot;
-	int			i, degeneracy_flag = 0;				// degeneracy flag for current segment
-
-	extract_forward_vector_from_segment(sp, &fvec);
-	extract_right_vector_from_segment(sp, &rvec);
-	extract_up_vector_from_segment(sp, &uvec);
-
-	vm_vec_normalize(&fvec);
-	vm_vec_normalize(&rvec);
-	vm_vec_normalize(&uvec);
-
-	vm_vec_cross(&cross, &fvec, &rvec);
-	dot = vm_vec_dot(&cross, &uvec);
-
-	if (dot > 0)
-		degeneracy_flag = 0;
-	else {
-		degeneracy_flag = 1;
-	}
-
-	//	Now, see if degenerate because of any side.
-	for (i=0; i<MAX_SIDES_PER_SEGMENT; i++)
-		degeneracy_flag |= check_for_degenerate_side(sp, i);
-
-	Degenerate_segment_found |= degeneracy_flag;
-
-	return degeneracy_flag;
-
 }
 
 #if 0

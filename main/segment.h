@@ -106,6 +106,7 @@ typedef struct segment {
 #else
 	int     objects;    // pointer to objects in this segment
 #endif
+	int     degenerated; // true if this segment has gotten turned inside out, or something.
 
 	// -- Moved to segment2 to make this struct 512 bytes long --
 	//ubyte   special;    // what type of center this is

@@ -1211,7 +1211,6 @@ void extract_orient_from_segment(vms_matrix *m,segment *seg)
 	vm_vector_2_matrix(m,&fvec,&uvec,NULL);
 }
 
-#ifdef EDITOR
 // ------------------------------------------------------------------------------------------
 //	Extract the forward vector from segment *sp, return in *vp.
 //	The forward vector is defined to be the vector from the the center of the front face of the segment
@@ -1238,7 +1237,86 @@ void extract_up_vector_from_segment(segment *sp,vms_vector *vp)
 {
 	extract_vector_from_segment(sp,vp,WBOTTOM,WTOP);
 }
+
+//	----
+//	A side is determined to be degenerate if the cross products of 3 consecutive points does not point outward.
+int check_for_degenerate_side(segment *sp, int sidenum)
+{
+	sbyte		*vp = Side_to_verts[sidenum];
+	vms_vector	vec1, vec2, cross, vec_to_center;
+	vms_vector	segc, sidec;
+	fix			dot;
+	int			degeneracy_flag = 0;
+
+	compute_segment_center(&segc, sp);
+	compute_center_point_on_side(&sidec, sp, sidenum);
+	vm_vec_sub(&vec_to_center, &segc, &sidec);
+
+	//vm_vec_sub(&vec1, &Vertices[sp->verts[vp[1]]], &Vertices[sp->verts[vp[0]]]);
+	//vm_vec_sub(&vec2, &Vertices[sp->verts[vp[2]]], &Vertices[sp->verts[vp[1]]]);
+	//vm_vec_normalize(&vec1);
+	//vm_vec_normalize(&vec2);
+        vm_vec_normalized_dir(&vec1, &Vertices[sp->verts[(int) vp[1]]], &Vertices[sp->verts[(int) vp[0]]]);
+        vm_vec_normalized_dir(&vec2, &Vertices[sp->verts[(int) vp[2]]], &Vertices[sp->verts[(int) vp[1]]]);
+	vm_vec_cross(&cross, &vec1, &vec2);
+
+	dot = vm_vec_dot(&vec_to_center, &cross);
+	if (dot <= 0)
+		degeneracy_flag |= 1;
+
+	//vm_vec_sub(&vec1, &Vertices[sp->verts[vp[2]]], &Vertices[sp->verts[vp[1]]]);
+	//vm_vec_sub(&vec2, &Vertices[sp->verts[vp[3]]], &Vertices[sp->verts[vp[2]]]);
+	//vm_vec_normalize(&vec1);
+	//vm_vec_normalize(&vec2);
+        vm_vec_normalized_dir(&vec1, &Vertices[sp->verts[(int) vp[2]]], &Vertices[sp->verts[(int) vp[1]]]);
+        vm_vec_normalized_dir(&vec2, &Vertices[sp->verts[(int) vp[3]]], &Vertices[sp->verts[(int) vp[2]]]);
+	vm_vec_cross(&cross, &vec1, &vec2);
+
+	dot = vm_vec_dot(&vec_to_center, &cross);
+	if (dot <= 0)
+		degeneracy_flag |= 1;
+
+	return degeneracy_flag;
+
+}
+
+//	----
+//	See if a segment has gotten turned inside out, or something.
+//	If so, set global Degenerate_segment_found and return 1, else return 0.
+int check_for_degenerate_segment(segment *sp)
+{
+	vms_vector	fvec, rvec, uvec, cross;
+	fix			dot;
+	int			i, degeneracy_flag = 0;				// degeneracy flag for current segment
+
+	extract_forward_vector_from_segment(sp, &fvec);
+	extract_right_vector_from_segment(sp, &rvec);
+	extract_up_vector_from_segment(sp, &uvec);
+
+	vm_vec_normalize(&fvec);
+	vm_vec_normalize(&rvec);
+	vm_vec_normalize(&uvec);
+
+	vm_vec_cross(&cross, &fvec, &rvec);
+	dot = vm_vec_dot(&cross, &uvec);
+
+	if (dot > 0)
+		degeneracy_flag = 0;
+	else {
+		degeneracy_flag = 1;
+	}
+
+	//	Now, see if degenerate because of any side.
+	for (i=0; i<MAX_SIDES_PER_SEGMENT; i++)
+		degeneracy_flag |= check_for_degenerate_side(sp, i);
+
+#ifdef EDITOR
+	Degenerate_segment_found |= degeneracy_flag;
 #endif
+
+	return degeneracy_flag;
+
+}
 
 void add_side_as_quad(segment *sp, int sidenum, vms_vector *normal)
 {
@@ -1675,8 +1753,6 @@ void validate_segment_side(segment *sp, int sidenum)
 //		sp->sides[sidenum].render_flag = 0;
 }
 
-extern int check_for_degenerate_segment(segment *sp);
-
 // -------------------------------------------------------------------------------
 //	Make a just-modified segment valid.
 //		check all sides to see how many faces they each should have (0,1,2)
@@ -1685,9 +1761,7 @@ void validate_segment(segment *sp)
 {
 	int	side;
 
-	#ifdef EDITOR
-	check_for_degenerate_segment(sp);
-	#endif
+	sp->degenerated = check_for_degenerate_segment(sp);
 
 	for (side = 0; side < MAX_SIDES_PER_SEGMENT; side++)
 		validate_segment_side(sp, side);
