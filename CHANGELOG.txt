@@ -5,6 +5,7 @@ D1X-Rebirth Changelog
 editor/segment.c, main/fvi.c, main/gameseg.c, main/physics.c, main/segment.h: Since current approach to improve wall collisions prevented the player to enter segments which basically are too small for the player ship, added simple bumping function via object_intersects_wall(); Also when validating segments check for segment degeneration outside the editor build, too and set flag in segment structure for all different purposes but right now helps us to disable bumping when encountering degenerated segments and not break such levels
 main/endlevel.c: Make sure the big explosion at the end of the escape sequence also uses blending if transparency effects are activated
 main/multi.c: Fix crash in multi_maybe_disable_friendly_fire() when killer == NULL
+2d/font.c: mipmapping was always on for fonts due to changed filtering code in ogl.c
 
 20110424
 --------
