@@ -400,6 +400,11 @@ g3s_lrgb compute_light_emission(int objnum)
 				}
 				break;
 			}
+			case RT_LASER:
+			{
+				t_idx_s = t_idx_e = Weapon_info[obj->id].bitmap.index;
+				break;
+			}
 			case RT_WEAPON_VCLIP:
 			{
 				t_idx_s = Vclip[Weapon_info[obj->id].weapon_vclip].frames[0].index;
