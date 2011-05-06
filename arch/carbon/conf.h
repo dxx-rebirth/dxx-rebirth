@@ -46,6 +46,7 @@
 # define NETWORK
 # define USE_UDP
 //# define USE_IPX
+# define USE_TRACKER
 
 //#define IPv6
 
