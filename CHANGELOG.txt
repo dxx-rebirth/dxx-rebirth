@@ -1,5 +1,9 @@
 D1X-Rebirth Changelog
 
+20110507
+--------
+arch/carbon/conf.h: Enabled Tracker support for Mac OS
+
 20110505
 --------
 main/gauges.c, main/multi.h, main/net_udp.c, main/net_udp.h, main/playsave.c: Host can now decide (again) if players are allowed to display enemy names on HUD
