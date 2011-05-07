@@ -743,8 +743,12 @@ int automap_handler(window *wind, d_event *event, automap *am)
 			break;
 		case EVENT_KEY_COMMAND:
 		case EVENT_KEY_RELEASE:
-			automap_process_input(wind, event, am);
-			return automap_key_command(wind, event, am);
+		{
+			int kret = automap_key_command(wind, event, am);
+			if (!kret)
+				automap_process_input(wind, event, am);
+			return kret;
+		}
 			
 		case EVENT_WINDOW_DRAW:
 			draw_automap(am);
