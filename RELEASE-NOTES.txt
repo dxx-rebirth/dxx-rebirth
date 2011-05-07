@@ -1,0 +1,36 @@
+RELEASE NOTES
+=============
+
+What's new in 0.57
+------------------
+* OpenGL ES Support by Florian Feucht and Oliver Haag
+* Anisotropic texture filtering
+* Improved transparency effects
+* Colored Lighting effects
+* A wide collection of Reticles is selectable including settings for Reticle size, color and transparency
+* Expanded Sensitivity and Deadzone settings for Mouse and Joystick
+* New optional control type for Mouse - FlightSim. Provides Mouse movement with an absolute center similar to Joystick-like control
+* Improved weapon cycling/selection options (for Mouse mostly)
+* Many improvements for the ingame menus such as scrolling via Mouse wheel, closing menus via right Mouse button, key repeats, Numlock support and more
+* Support for keyboard layout-specific keys for game controls
+* Find and join online games via Tracker server created and hosted by Matt "1360" Vandermeulen
+* D1X-Rebirth now supports Descent 2 Multiplayer features such as fixed Play Time, Kill goal, Bright Palyers and Invulnerability when respawning
+* Option to disable Friendly Fire in Multiplayer Team games
+* Bounty game mode for Multiplayer by Matt "1360" Vandermeulen. Goal is it to kill the targeted player to score and become the new target
+* Possibility to save and restore Cooperative games
+* The game will automatically remember previously set Multiplayer rules
+* Random playback mode for the Jukebox
+* Slightly improved wall collision handling
+* Expanded possibilities for level authors: Support for custom descent2.ham inside missions. Suppost for Levels with up to 9000 segments (cubes). Support for Textures bigger than 64x64 pixels
+* To prevent type-kills the game HUD will show "TYPING" below a player when a chat message is composed
+* Free flight controls for the Automap
+* Many Bugfixes and further improvements. Check CHANGELOG.txt for a full list of changes
+
+
+Special notes for this release
+------------------------------
+* HMP files are now converted to MIDI on the fly. The game will not create MIDI files in the "music" subdirectory anymore. So if you have no need for this directory and it's contents, feel free to delete it.
+* Due to changes in handling of weapon cycling with the Mouse you might need to reconfigure these mappings
+* Compiling the source via SCons will now automatically check for Endianess
+* Available SConstruct options have changed! See 'scons -h' for more information.
+* On *NIX (Linux, BSD, etc.) the game binary will be called 'd1/2x-rebirth' and on Windows the executable is called 'd1/2x-rebirth.exe'. No -gl or -sdl suffixes anymore. If needed, correct your Desktop shortcuts, start scripts, etc.

@@ -19,20 +19,25 @@ http://www.dxx-rebirth.com
 1. Features:
 ============
 
-   D2X-Rebirth has every little feature you already may know from the DOS Version 1.2 of Descent 2 and much more.
+   DXX-Rebirth has every little feature you already may know from the DOS Version of Descent and much more.
 
    For example:
-   * High resoution Fonts and briefing screens
-   * High resolutions with full Cockpit support
-   * Support for ALL resolutions - including Widescreen formats
-   * Joystick and Mouse support
-   * Possibility to run AddOn levels
-   * LAN- and Online-gaming support
-   * Record and play demos
-   * OpenGL functions and Eyecandy like Trilinear filtering, Transparency effects etc.
-   * MP3/OGG/AIF/WAV Jukebox Support
-   * everything else you know from DESCENT ][
-   * ... and much more!
+   * Plays Descent and Descent 2 and all their AddOns and third-party levels.
+   * DXX-Rebirth runs on your favourite Operating System. We officially support Linux (and other *NIX), Mac OS (9/X) and Windows (2000, XP, Vista, 7). Still the code can be compiled on many other systems as well.
+   * OpenGL provides a fast and smooth rendering - even on low-end systems.
+   * Optionally you can enbale several effects like Transparency, Colored lighting, Texture Filtering, FSAA, etc.
+   * Thanks to SDL, a wide palette of Joysticks are supported. Also you can use more Joysticks, buttons and axes than you can ever operate in your state of evolution.
+   * If you prefer steering your Pyro with a mouse, you will not have the problem that the movement becomes slow in high game speed.
+   * Joystick, Keyboard and Mouse can be used simultaneously.
+   * The games can display all resolutions and aspects supported by your Monitor, including an option for VSync.
+   * Besides MIDI and CD-Audio (Redbook), you can play your own custom Music from your Harddrive or a separate AddOn.
+   * Both games can utilize special AddOn packs to replace or expand the original game content.
+   * Multiplayer via UDP protocol provides a fast and easy-to-use LAN and Online action. This includes reliable communication causing less glitches due to lost packages.
+   * Multiplayer via IPX protocol lets you play against players still using the MS-DOS version of the game.
+   * The ingame Demo-recording system has been improved. Demos are less glitchy and smaller while still still being backwards-compatible to earlier versions of the games.
+   * Higher game speed will not cause glitches such as unacceptable fast homing projectiles, incredible high damage caused by several collisions or Fusion cannon, etc.
+   * Player files, Savegames, Demos and Missions from DOS-Versions of the games can freely be used in DXX-Rebirth and vice versa.
+   * Even more ...
 
 
 2. Installation:

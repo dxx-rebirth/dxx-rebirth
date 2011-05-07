@@ -3,6 +3,7 @@ D2X-Rebirth Changelog
 20110507
 --------
 arch/carbon/conf.h: Enabled Tracker support for Mac OS
+RELEASE-NOTES.txt, README.txt, SConstruct, arch/carbon/conf.h: Changed version from 0.56 to 0.57; Added first draft for RELEASE-NOTES.txt; updated docs
 
 20110505
 --------

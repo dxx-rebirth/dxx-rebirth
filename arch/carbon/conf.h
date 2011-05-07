@@ -9,7 +9,7 @@
 #define D2XMAJOR "0"
 
 /* d2x minor version */
-#define D2XMINOR "56"
+#define D2XMINOR "57"
 
 /* d2x micro version */
 #define D2XMICRO "0"
