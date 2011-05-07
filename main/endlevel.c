@@ -360,7 +360,10 @@ void start_endlevel_sequence()
 
 void start_rendered_endlevel_sequence()
 {
-	int last_segnum,exit_side,tunnel_length;
+#ifndef NDEBUG
+	int last_segnum;
+#endif
+	int exit_side,tunnel_length;
 
 	{
 		int segnum,old_segnum,entry_side,i;
@@ -383,9 +386,9 @@ void start_rendered_endlevel_sequence()
 			PlayerFinishedLevel(0);		//don't do special sequence
 			return;
 		}
-
+#ifndef NDEBUG
 		last_segnum = old_segnum;
-
+#endif
 		//now pick transition segnum 1/3 of the way in
 
 		old_segnum = ConsoleObject->segnum;
@@ -409,8 +412,9 @@ void start_rendered_endlevel_sequence()
 		multi_do_protocol_frame(1, 1);
 	}
 	#endif
-
+#ifndef NDEBUG
 	Assert(last_segnum == exit_segnum);
+#endif
 	songs_play_song( SONG_ENDLEVEL, 0 );
 
 	Endlevel_sequence = EL_FLYTHROUGH;
@@ -613,7 +617,6 @@ void do_endlevel_frame()
 		if ((explosion_wait1-=FrameTime) < 0) {
 			vms_vector tpnt;
 			int segnum;
-			object *expl;
 			static int sound_count;
 
 			vm_vec_scale_add(&tpnt,&ConsoleObject->pos,&ConsoleObject->orient.fvec,-ConsoleObject->size*5);
@@ -623,7 +626,7 @@ void do_endlevel_frame()
 			segnum = find_point_seg(&tpnt,ConsoleObject->segnum);
 
 			if (segnum != -1) {
-				expl = object_create_explosion(segnum,&tpnt,i2f(20),VCLIP_BIG_PLAYER_EXPLOSION);
+				object_create_explosion(segnum,&tpnt,i2f(20),VCLIP_BIG_PLAYER_EXPLOSION);
 			       	if (d_rand()<10000 || ++sound_count==7) {		//pseudo-random
 					digi_link_sound_to_pos( SOUND_TUNNEL_EXPLOSION, segnum, 0, &tpnt, 0, F1_0 );
 					sound_count=0;
@@ -970,7 +973,9 @@ fix satellite_size = i2f(400);
 
 void render_external_scene(fix eye_offset)
 {
+#ifdef OGL
 	int orig_Render_depth = Render_depth;
+#endif
 	Viewer_eye = Viewer->pos;
 	g3s_lrgb lrgb = { f1_0, f1_0, f1_0 };
 
@@ -1015,11 +1020,11 @@ void render_external_scene(fix eye_offset)
 
 #ifdef OGL
 	ogl_toggle_depth_test(0);
-#endif
 	Render_depth = (200-(vm_vec_dist_quick(&mine_ground_exit_point, &Viewer_eye)/F1_0))/36;
+#endif
 	render_terrain(&mine_ground_exit_point,exit_point_bmx,exit_point_bmy);
-	Render_depth = orig_Render_depth;
 #ifdef OGL
+	Render_depth = orig_Render_depth;
 	ogl_toggle_depth_test(1);
 #endif
 
