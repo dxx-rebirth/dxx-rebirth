@@ -5,6 +5,7 @@ D1X-Rebirth Changelog
 arch/carbon/conf.h: Enabled Tracker support for Mac OS
 RELEASE-NOTES.txt, README.txt, SConstruct, arch/carbon/conf.h: Changed version from 0.56 to 0.57; Added first draft for RELEASE-NOTES.txt; updated docs
 main/endlevel.c: Taken out Render_depth reduction of Endlevel sequence in Software rendering build; Fixed two compiler warnings regarding set but unused variables
+main/automap.c: Don't call automap_process_input() if autmap_key_command() returns 1 preventing input mess; Fixed two compiler warnings regarding set but unused variables
 
 20110505
 --------

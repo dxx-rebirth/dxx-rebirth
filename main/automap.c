@@ -519,8 +519,12 @@ int automap_handler(window *wind, d_event *event, automap *am)
 			break;
 		case EVENT_KEY_COMMAND:
 		case EVENT_KEY_RELEASE:
-			automap_process_input(wind, event, am);
-			return automap_key_command(wind, event, am);
+		{
+			int kret = automap_key_command(wind, event, am);
+			if (!kret)
+				automap_process_input(wind, event, am);
+			return kret;
+		}
 			
 		case EVENT_WINDOW_DRAW:
 			draw_automap(am);
@@ -908,7 +912,6 @@ void add_segment_edges(automap *am, segment *seg)
 	int	sn;
 	int	segnum = seg-Segments;
 	int	hidden_flag;
-	int ttype,trigger_num;
 	
 	for (sn=0;sn<MAX_SIDES_PER_SEGMENT;sn++) {
 		short	vertex_list[4];
@@ -938,9 +941,6 @@ void add_segment_edges(automap *am, segment *seg)
 
 		if (seg->sides[sn].wall_num > -1)	{
 		
-			trigger_num = Walls[seg->sides[sn].wall_num].trigger;
-			ttype = Triggers[trigger_num].type;
-
 			switch( Walls[seg->sides[sn].wall_num].type )	{
 			case WALL_DOOR:
 				if (Walls[seg->sides[sn].wall_num].keys == KEY_BLUE) {
