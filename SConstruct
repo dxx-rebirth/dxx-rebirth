@@ -10,7 +10,7 @@ target = 'd1x-rebirth'
 
 # version number
 D1XMAJOR = 0
-D1XMINOR = 56
+D1XMINOR = 57
 D1XMICRO = 0
 VERSION_STRING = ' v' + str(D1XMAJOR) + '.' + str(D1XMINOR) + '.' + str(D1XMICRO)
 
