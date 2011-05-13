@@ -1,5 +1,9 @@
 D1X-Rebirth Changelog
 
+20110513
+--------
+main/multi.c: Send player position also when multi_send_player_explode() is called so powerups drop at the right spot in case the respawn packet arrives first
+
 20110507
 --------
 arch/carbon/conf.h: Enabled Tracker support for Mac OS
