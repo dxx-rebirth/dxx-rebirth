@@ -91,7 +91,6 @@ enum MENUS
     MENU_LOAD_GAME,
     MENU_SAVE_GAME,
     MENU_DEMO_PLAY,
-    MENU_LOAD_LEVEL,
     MENU_CONFIG,
     MENU_REJOIN_NETGAME,
     MENU_DIFFICULTY,
@@ -127,7 +126,6 @@ static window *menus[16] = { NULL };
 // Function Prototypes added after LINTING
 int do_option(int select);
 int do_new_game_menu(void);
-int do_load_level_menu(void);
 void do_multi_player_menu();
 extern void newmenu_free_background();
 extern void ReorderPrimary();
@@ -486,7 +484,6 @@ void create_main_menu(newmenu_item *m, int *menu_choice, int *callers_num_option
 		//m[num_options].type=NM_TYPE_TEXT;
 		//m[num_options++].text=" Debug options:";
 
-		ADD_ITEM("  Load level...",MENU_LOAD_LEVEL ,KEY_N);
 		#ifdef EDITOR
 		ADD_ITEM("  Editor", MENU_EDITOR, KEY_E);
 		#endif
@@ -576,14 +573,6 @@ int do_option ( int select)
 		case MENU_NEW_PLAYER:
 			RegisterPlayer();
 			break;
-
-#ifndef RELEASE
-		case MENU_LOAD_LEVEL:
-			select_mission(0, "Load Level\n\nSelect mission", do_load_level_menu);
-			break;
-
-#endif //ifndef RELEASE
-
 
 #ifdef USE_UDP
 		case MENU_START_UDP_NETGAME:
@@ -798,10 +787,11 @@ int do_new_game_menu()
 	int new_level_num,player_highest_level;
 
 	new_level_num = 1;
-
+#ifdef NDEBUG
 	player_highest_level = get_highest_level();
 
 	if (player_highest_level > Last_level)
+#endif
 		player_highest_level = Last_level;
 	if (player_highest_level > 1) {
 		newmenu_item m[4];
@@ -809,27 +799,32 @@ int do_new_game_menu()
 		char num_text[10];
 		int choice;
 		int n_items;
+		int valid = 0;
 
-try_again:
-		sprintf(info_text,"%s %d",TXT_START_ANY_LEVEL, player_highest_level);
+		while (!valid)
+		{
+			sprintf(info_text,"%s %d",TXT_START_ANY_LEVEL, player_highest_level);
 
-		m[0].type=NM_TYPE_TEXT; m[0].text = info_text;
-		m[1].type=NM_TYPE_INPUT; m[1].text_len = 10; m[1].text = num_text;
-		n_items = 2;
+			m[0].type=NM_TYPE_TEXT; m[0].text = info_text;
+			m[1].type=NM_TYPE_INPUT; m[1].text_len = 10; m[1].text = num_text;
+			n_items = 2;
 
-		strcpy(num_text,"1");
+			strcpy(num_text,"1");
 
-		choice = newmenu_do( NULL, TXT_SELECT_START_LEV, n_items, m, NULL, NULL );
+			choice = newmenu_do( NULL, TXT_SELECT_START_LEV, n_items, m, NULL, NULL );
 
-		if (choice==-1 || m[1].text[0]==0)
-			return 0;
+			if (choice==-1 || m[1].text[0]==0)
+				return 0;
 
-		new_level_num = atoi(m[1].text);
+			new_level_num = atoi(m[1].text);
 
-		if (!(new_level_num>0 && new_level_num<=player_highest_level)) {
-			m[0].text = TXT_ENTER_TO_CONT;
-			nm_messagebox( NULL, 1, TXT_OK, TXT_INVALID_LEVEL);
-			goto try_again;
+			if (!(new_level_num>0 && new_level_num<=player_highest_level)) {
+				m[0].text = TXT_ENTER_TO_CONT;
+				nm_messagebox( NULL, 1, TXT_OK, TXT_INVALID_LEVEL);
+				valid = 0;
+			}
+			else
+				valid = 1;
 		}
 	}
 
@@ -841,26 +836,6 @@ try_again:
 	StartNewGame(new_level_num);
 
 	return 1;	// exit mission listbox
-}
-
-int do_load_level_menu(void)
-{
-	newmenu_item m;
-	char text[10]="";
-	int new_level_num;
-
-	m.type=NM_TYPE_INPUT; m.text_len = 10; m.text = text;
-
-	newmenu_do( NULL, "Enter level to load", 1, &m, NULL, NULL );
-
-	new_level_num = atoi(m.text);
-
-	if (new_level_num!=0 && new_level_num>=Last_secret_level && new_level_num<=Last_level)  {
-		StartNewGame(new_level_num);
-		return 1;
-	}
-
-	return 0;
 }
 
 void do_sound_menu();
@@ -918,7 +893,7 @@ int gcd(int a, int b)
 void change_res()
 {
 	u_int32_t modes[50], new_mode = 0;
-	int i = 0, mc = 0, num_presets = 0, citem = -1, opt_cval = -1, opt_cres = -1, opt_casp = -1, opt_fullscr = -1;
+	int i = 0, mc = 0, num_presets = 0, citem = -1, opt_cval = -1, opt_fullscr = -1;
 
 	num_presets = gr_list_modes( modes );
 
@@ -944,10 +919,8 @@ void change_res()
 	m[mc].type = NM_TYPE_RADIO; m[mc].text = "use custom values"; m[mc].value = (citem == -1); m[mc].group = 0; mc++;
 	m[mc].type = NM_TYPE_TEXT; m[mc].text = "resolution:"; mc++;
 	snprintf(crestext, sizeof(crestext), "%ix%i", SM_W(Game_screen_mode), SM_H(Game_screen_mode));
-	opt_cres = mc;
 	m[mc].type = NM_TYPE_INPUT; m[mc].text = crestext; m[mc].text_len = 11; modes[mc] = 0; mc++;
 	m[mc].type = NM_TYPE_TEXT; m[mc].text = "aspect:"; mc++;
-	opt_casp = mc;
 	snprintf(casptext, sizeof(casptext), "%ix%i", GameCfg.AspectY, GameCfg.AspectX);
 	m[mc].type = NM_TYPE_INPUT; m[mc].text = casptext; m[mc].text_len = 11; modes[mc] = 0; mc++;
 	m[mc].type = NM_TYPE_TEXT; m[mc].text = ""; mc++; // little space for overview
