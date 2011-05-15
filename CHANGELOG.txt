@@ -3,6 +3,7 @@ D1X-Rebirth Changelog
 20110515
 --------
 main/multi.c: Solved possible issue when setting new Bounty_target via host messing up scores or new target itself - only set if player decided why to unset Bounty_target, keeping code flow and game logic in order; Fixed two compiler warnings regarding set but unused variables
+RELEASE-NOTES.txt: Added more info: M3U-support, GCC 4.6 warnings, more tracker infos
 
 20110513
 --------
