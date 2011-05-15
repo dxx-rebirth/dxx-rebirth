@@ -1,5 +1,9 @@
 D1X-Rebirth Changelog
 
+20110515
+--------
+main/multi.c: Solved possible issue when setting new Bounty_target via host messing up scores or new target itself - only set if player decided why to unset Bounty_target, keeping code flow and game logic in order; Fixed two compiler warnings regarding set but unused variables
+
 20110513
 --------
 main/multi.c: Send player position also when multi_send_player_explode() is called so powerups drop at the right spot in case the respawn packet arrives first

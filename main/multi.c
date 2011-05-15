@@ -106,7 +106,7 @@ int Show_reticle_name = 1;
 fix Show_kill_list_timer = 0;
 
 char PKilledFlags[MAX_NUM_NET_PLAYERS];
-int Bounty_target = 0; // Target for bounty mode netgame
+int Bounty_target = 0, new_Bounty_target = -1; // Target for bounty mode netgame. NOTE: new_Bounty_target is a helper variable solving issues in case multi_do_bounty and multi_do_kill/multi_disconnect_player are processed in wrong order in case Bounty_target suicide/left game
 
 int multi_sending_message[MAX_NUM_NET_PLAYERS] = { 0,0,0,0,0,0,0,0 };
 int multi_defining_message = 0;
@@ -670,21 +670,32 @@ void multi_compute_kill(int killer, int killed)
 			HUD_init_message(HM_MULTI, "%s %s", killed_name, TXT_SUICIDE);
 
 		/* Bounty mode needs some lovin' */
-		if( Game_mode & GM_BOUNTY && killed_pnum == Bounty_target && multi_i_am_master() )
+		if( Game_mode & GM_BOUNTY && killed_pnum == Bounty_target )
 		{
-			/* Select a random number */
-			int new_bounty_target = d_rand() % MAX_NUM_NET_PLAYERS;
-			
-			/* Make sure they're valid: Don't check against kill flags,
-			 * just in case everyone's dead! */
-			while( !Players[new_bounty_target].connected )
-				new_bounty_target = d_rand() % MAX_NUM_NET_PLAYERS;
-			
-			/* Select new target */
-			multi_new_bounty_target( new_bounty_target );
-			
-			/* Send this new data */
-			multi_send_bounty();
+			if ( multi_i_am_master() )
+			{
+				/* Select a random number */
+				int new = d_rand() % MAX_NUM_NET_PLAYERS;
+				
+				/* Make sure they're valid: Don't check against kill flags,
+				* just in case everyone's dead! */
+				while( !Players[new].connected )
+					new = d_rand() % MAX_NUM_NET_PLAYERS;
+				
+				/* Select new target */
+				multi_new_bounty_target( new );
+				
+				/* Send this new data */
+				multi_send_bounty();
+			}
+			else
+			{
+				/* check if we already got a new target from host. if yes set it, if not just unset the current one. */
+				if ( new_Bounty_target != -1 )
+					Bounty_target = new_Bounty_target;
+				else
+					Bounty_target = -1;
+			}
 		}
 	}
 
@@ -1767,21 +1778,32 @@ void multi_disconnect_player(int pnum)
 	}
 
 	// Bounty target left - select a new one
-	if( Game_mode & GM_BOUNTY && pnum == Bounty_target && multi_i_am_master() )
+	if( Game_mode & GM_BOUNTY && pnum == Bounty_target )
 	{
-		/* Select a random number */
-		int new_bounty_target = d_rand() % MAX_NUM_NET_PLAYERS;
-		
-		/* Make sure they're valid: Don't check against kill flags,
-			* just in case everyone's dead! */
-		while( !Players[new_bounty_target].connected )
-			new_bounty_target = d_rand() % MAX_NUM_NET_PLAYERS;
-		
-		/* Select new target */
-		multi_new_bounty_target( new_bounty_target );
-		
-		/* Send this new data */
-		multi_send_bounty();
+		if ( multi_i_am_master() )
+		{
+			/* Select a random number */
+			int new = d_rand() % MAX_NUM_NET_PLAYERS;
+			
+			/* Make sure they're valid: Don't check against kill flags,
+				* just in case everyone's dead! */
+			while( !Players[new].connected )
+				new = d_rand() % MAX_NUM_NET_PLAYERS;
+			
+			/* Select new target */
+			multi_new_bounty_target( new );
+			
+			/* Send this new data */
+			multi_send_bounty();
+		}
+		else
+		{
+			/* check if we already got a new target from host. if yes set it, if not just unset the current one. */
+			if ( new_Bounty_target != -1 )
+				Bounty_target = new_Bounty_target;
+			else
+				Bounty_target = -1;
+		}
 	}
 	multi_sending_message[pnum] = 0;
 }
@@ -2923,6 +2945,7 @@ multi_prep_level(void)
 	Assert(NumNetPlayerPositions > 0);
 
 	Bounty_target = 0;
+	new_Bounty_target = -1;
 
 	multi_consistency_error(1);
 
@@ -3364,6 +3387,8 @@ void multi_send_bounty( void )
 	/* Test game mode */
 	if( !( Game_mode & GM_BOUNTY ) )
 		return;
+	if ( !multi_i_am_master() )
+		return;
 	
 	/* Add opcode and target ID */
 	multibuf[0] = MULTI_DO_BOUNTY;
@@ -3375,8 +3400,13 @@ void multi_send_bounty( void )
 
 void multi_do_bounty( char *buf )
 {
-	/* New target! */
-	multi_new_bounty_target( buf[1] );
+	if ( multi_i_am_master() )
+		return;
+	/* check if there's still a valid target */
+	if (Bounty_target == -1)
+		multi_new_bounty_target( buf[1] ); /* nope - set new target! */
+	else
+		new_Bounty_target = buf[1]; /* still have valid target - store new one until we unset the current. */
 }
 
 void multi_new_bounty_target( int pnum )
@@ -3567,14 +3597,12 @@ void multi_save_game(ubyte slot, uint id, char *desc)
 void multi_restore_game(ubyte slot, uint id)
 {
 	char filename[PATH_MAX];
-	player saved_player;
-	int pnum,i;
+	int i;
 	int thisid;
 
 	if ((Endlevel_sequence) || (Control_center_destroyed))
 		return;
 
-	saved_player = Players[Player_num];
 	snprintf(filename, PATH_MAX, GameArg.SysUsePlayersDir? "Players/%s.mg%d" : "%s.mg%d", Players[Player_num].callsign, slot);
    
 	for (i = 0; i < N_players; i++)
@@ -3591,7 +3619,7 @@ void multi_restore_game(ubyte slot, uint id)
 		return;
 	}
   
-	pnum = state_restore_all_sub( filename );
+	state_restore_all_sub( filename );
 	multi_send_score(); // send my restored scores. I sent 0 when I loaded the level anyways...
 }
 
