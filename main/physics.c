@@ -126,12 +126,11 @@ void do_physics_align_object( object * obj )
 #endif
 
 	if (labs(vm_vec_dot(&desired_upvec,&obj->orient.fvec)) < f1_0/2) {
-		fixang save_delta_ang;
 		vms_angvec tangles;
 		
 		vm_vector_2_matrix(&temp_matrix,&obj->orient.fvec,&desired_upvec,NULL);
 
-		save_delta_ang = delta_ang = vm_vec_delta_ang(&obj->orient.uvec,&temp_matrix.uvec,&obj->orient.fvec);
+		delta_ang = vm_vec_delta_ang(&obj->orient.uvec,&temp_matrix.uvec,&obj->orient.fvec);
 
 		delta_ang += obj->mtype.phys_info.turnroll;
 
@@ -298,33 +297,18 @@ void do_physics_sim_rot(object *obj)
 	check_and_fix_matrix(&obj->orient);
 }
 
-// On joining edges fvi tends to get inaccurate as hell due to object size. And I have no means to fix that - shame on me (that whole code should be rewritten). Approach is to check if the object interects with the wall and if so, move it out towards segment center.
+// On joining edges fvi tends to get inaccurate as hell. Approach is to check if the object interects with the wall and if so, move away from it.
 void fix_illegal_wall_intersection(object *obj)
 {
-	int i = 0, bocount = 1;
-	vms_vector center,bump_vec;
+	int hseg = -1, hside = -1, hface = -1;
 
-	if ( !(obj->type == OBJ_PLAYER || obj->type == OBJ_ROBOT) )
-		return;
-	if ( !object_intersects_wall(obj) )
+	if (obj->type == OBJ_PLAYER || obj->type == OBJ_ROBOT)
 		return;
 
-	// HACK: check if the segment the object is located in and all it's children are valid. Otherwise we will break some levels where some segments are only passable since they are degenerated...
-	if ( Segments[obj->segnum].degenerated )
-		return;
-	for (i = 0; i < MAX_SIDES_PER_SEGMENT; i++)
-		if ( Segments[obj->segnum].children[i] > -1 && Segments[obj->segnum].children[i] <= Highest_segment_index )
-			if ( Segments[Segments[obj->segnum].children[i]].degenerated )
-				return;
-
-	if (obj->size/2 >= F0_1) // at size bigger than bumping distance use multiple runs so we can move at least half  the size of the object we want to bump (rounding covered by >= in while below)
-		bocount = (obj->size/2/F0_1);
-
-	compute_segment_center(&center,&Segments[obj->segnum]);
-	while ( object_intersects_wall(obj) && bocount-- >= 0 )
+	if ( object_intersects_wall_d(obj,&hseg,&hside,&hface) )
 	{
-		vm_vec_normalized_dir_quick(&bump_vec,&center,&obj->pos);
-		vm_vec_scale_add2(&obj->pos,&bump_vec,F0_1);
+		vm_vec_scale_add2(&obj->pos,&Segments[hseg].sides[hside].normals[0],FrameTime*10);
+		update_object_seg(obj);
 	}
 }
 
@@ -350,7 +334,6 @@ void do_physics_sim(object *obj)
 	vms_vector start_pos;
 	int obj_stopped=0;
 	fix moved_time;			//how long objected moved before hit something
-	vms_vector save_p0,save_p1;
 	physics_info *pi;
 	int orig_segnum = obj->segnum;
 	int bounced=0;
@@ -483,9 +466,6 @@ void do_physics_sim(object *obj)
 
 		if (obj->type == OBJ_PLAYER)
 			fq.flags |= FQ_GET_SEGLIST;
-
-		save_p0 = *fq.p0;
-		save_p1 = *fq.p1;
 
 		fate = find_vector_intersection(&fq,&hit_info);
 		//	Matt: Mike's hack.
