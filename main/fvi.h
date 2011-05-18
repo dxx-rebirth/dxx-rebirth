@@ -135,6 +135,7 @@ void find_hitpoint_uv(fix *u,fix *v,vms_vector *pnt,segment *seg,int sidenum,int
 
 //Returns true if the object is through any walls
 int object_intersects_wall(object *objp);
+int object_intersects_wall_d(object *objp,int *hseg,int *hside,int *hface); // same as above but more detailed
 
 #endif
  
