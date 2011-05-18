@@ -302,7 +302,7 @@ void fix_illegal_wall_intersection(object *obj)
 {
 	int hseg = -1, hside = -1, hface = -1;
 
-	if (obj->type == OBJ_PLAYER || obj->type == OBJ_ROBOT)
+	if (!(obj->type == OBJ_PLAYER || obj->type == OBJ_ROBOT))
 		return;
 
 	if ( object_intersects_wall_d(obj,&hseg,&hside,&hface) )
