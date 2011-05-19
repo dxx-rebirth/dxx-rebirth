@@ -1,5 +1,9 @@
 D2X-Rebirth Changelog
 
+20110520
+--------
+INSTALL.txt, RELEASE-NOTES.txt: Updated docs and fixed some typos
+
 20110519
 --------
 main/fvi.c, main/fvi.h, main/physics.c: Improvement for fix_illegal_wall_interesection(): Move away from wall in right angle - not towards center. This improves the bumping in many situations and prevents ship getting stuck in small segments. Simplified and optimized code as well and removed check for degenerated Segments as not needed with this approach; Fixed some compiler warnings regarding set but unused variables

@@ -93,6 +93,9 @@ Needed files:
    (e.g. from Good Old Games) and extract that installer with The Unarchiver. Hey, then you'll have
    another license for multiplayer. ;)
 
+   Of course you can also use the Interactive Demo game content with D2X-Rebirth which you can find here:
+   http://www.dxx-rebirth.com/game-content/
+
 
 Where to put these files:
 =========================
@@ -111,6 +114,7 @@ Where to put these files:
    Win32
    -----
    Same directory as where the binary is located
+   another directory specified by -hogdir via d1x.ini
    
 
 Optional files:
@@ -129,6 +133,8 @@ Optional files:
    ---------
    Those can be found on several websites. Add them to the game by copying them to subdirectory
    ‘missions/’. They can also go in subdirectories of 'missions/', unlike with the original version.
+   A good place to find additional mission might be the Descent mission Database:
+   http://www.dxx-rebirth.com/descent-mission-database/
 
    Custom Music (MP3, OGG, AIF, etc.):
    -----------------------------------
@@ -140,11 +146,8 @@ Optional files:
    Custom AddOn packs will expand the game in many differnt ways. These are usually provided as ZIP or 7Z and can easily
    be installed by putting them to where your game content resides (OS-dependent - see above).
    NO EXTRACTION OR ADDITIONAL CONFIGURATION NEEDED.
-   A list of currently available packs:
-   - German briefings:
-     http://www.dxx-rebirth.com/download/dxx/res/d2xr-briefings-ger.zip
-   - Soundtrack in OGG format (created by Brandon Blume using Roland SC-55 MIDI Module):
-     http://www.dxx-rebirth.com/download/dxx/res/d2xr-sc55-music.zip
+   You can find all official AddOns here:
+   http://www.dxx-rebirth.com/addons/
    
 
 Launching the program
@@ -152,10 +155,7 @@ Launching the program
 
    *NIX
    ----
-   After compiling and installing, the program can be launched with the command:
-   d2x-rebirth-gl
-   or - if it has been compiled with SCons parameter ‘sdl_only=1’:
-   d2x-rebirth-sdl
+   After compiling and installing, the program can be launched with the command: d2x-rebirth
 
    MacOS
    -----
@@ -163,7 +163,7 @@ Launching the program
 
    Win32
    -----
-   Doubleclick d2x-rebirth-gl.exe
+   Doubleclick d2x-rebirth.exe
 
    To see a full list of available command-line options append ‘-h’, ‘-?’ to the command or refer file
    d2x.ini
