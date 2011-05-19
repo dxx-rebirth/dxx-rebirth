@@ -106,7 +106,7 @@ int Show_reticle_name = 1;
 fix Show_kill_list_timer = 0;
 
 char PKilledFlags[MAX_NUM_NET_PLAYERS];
-int Bounty_target = 0, new_Bounty_target = -1; // Target for bounty mode netgame. NOTE: new_Bounty_target is a helper variable solving issues in case multi_do_bounty and multi_do_kill/multi_disconnect_player are processed in wrong order in case Bounty_target suicide/left game
+int Bounty_target = 0, new_Bounty_target = -1, new_Bounty_num = 0; // Target for bounty mode netgame. NOTE: new_Bounty_target is a helper variable solving issues in case multi_do_bounty and multi_do_kill/multi_disconnect_player are processed in wrong order in case Bounty_target suicide/left game
 
 int multi_sending_message[MAX_NUM_NET_PLAYERS] = { 0,0,0,0,0,0,0,0 };
 int multi_defining_message = 0;
@@ -209,7 +209,7 @@ int message_length[MULTI_MAX_TYPE+1] = {
 	MAX_POWERUP_TYPES+1, // MULTI_POWCAP_UPDATE
 	5,  // MULTI_HEARTBEAT
 	9,  // MULTI_KILLGOALS
-	2,  // MULTI_DO_BOUNTY
+	6,  // MULTI_DO_BOUNTY
 	3, // MULTI_TYPING_STATE
 };
 
@@ -692,7 +692,10 @@ void multi_compute_kill(int killer, int killed)
 			{
 				/* check if we already got a new target from host. if yes set it, if not just unset the current one. */
 				if ( new_Bounty_target != -1 )
+				{
 					Bounty_target = new_Bounty_target;
+					new_Bounty_target = -1;
+				}
 				else
 					Bounty_target = -1;
 			}
@@ -1800,7 +1803,10 @@ void multi_disconnect_player(int pnum)
 		{
 			/* check if we already got a new target from host. if yes set it, if not just unset the current one. */
 			if ( new_Bounty_target != -1 )
+			{
 				Bounty_target = new_Bounty_target;
+				new_Bounty_target = -1;
+			}
 			else
 				Bounty_target = -1;
 		}
@@ -2946,6 +2952,7 @@ multi_prep_level(void)
 
 	Bounty_target = 0;
 	new_Bounty_target = -1;
+	new_Bounty_num = 0;
 
 	multi_consistency_error(1);
 
@@ -3390,18 +3397,24 @@ void multi_send_bounty( void )
 	if ( !multi_i_am_master() )
 		return;
 	
-	/* Add opcode and target ID */
+	/* Add opcode, target ID and how often we re-assigned */
 	multibuf[0] = MULTI_DO_BOUNTY;
 	multibuf[1] = (char)Bounty_target;
+	new_Bounty_num++;
+	PUT_INTEL_INT( multibuf+2, new_Bounty_num );
 	
 	/* Send data */
-	multi_send_data( multibuf, 2, 1 );
+	multi_send_data( multibuf, 6, 1 );
 }
 
 void multi_do_bounty( char *buf )
 {
+	int this_new_Bounty_num = GET_INTEL_INT(buf + 2);
 	if ( multi_i_am_master() )
 		return;
+	if (this_new_Bounty_num < new_Bounty_num)
+		return;
+	new_Bounty_num = this_new_Bounty_num;
 	/* check if there's still a valid target */
 	if (Bounty_target == -1)
 		multi_new_bounty_target( buf[1] ); /* nope - set new target! */
