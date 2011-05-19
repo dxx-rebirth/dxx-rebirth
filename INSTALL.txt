@@ -69,16 +69,11 @@ Needed files:
    descent.hog
    descent.pig
 
-   For the PC CD-ROM, these files should be located on the Descent1 CD-Rom. The PC version data files need
-   to be patched to version 1.4a.
-
-   There is a patch available at:
-   http://www.dxx-rebirth.com/download/dxx/res/d1datapt.zip
-
    For the Mac CD-ROM, download The Unarchiver (http://wakaba.c3.cx/s/apps/unarchiver.html) and drag the
    installer program onto it. Alternatively, for Mac OS 9 or earlier simply run the installer.
 
-   Note that the above files must be lowercase if you use an operating system with case-sensitive file management.
+   Of course you can also use the Shareware game content with D1X-Rebirth which you can find here:
+   http://www.dxx-rebirth.com/game-content/
 
 
 Where to put these files:
@@ -98,6 +93,7 @@ Where to put these files:
    Win32
    -----
    Same directory as where the binary is located
+   another directory specified by -hogdir via d1x.ini
    
 
 Optional files:
@@ -109,6 +105,8 @@ Optional files:
    ---------
    Those can be found on several websites. Add them to the game by copying them to subdirectory
    ‘missions/’. They can also go in subdirectories of 'missions/', unlike with the original version.
+   A good place to find additional mission might be the Descent mission Database:
+   http://www.dxx-rebirth.com/descent-mission-database/
 
    Custom Music (MP3, OGG, AIF, etc.):
    -----------------------------------
@@ -120,19 +118,16 @@ Optional files:
    Custom AddOn packs will expand the game in many differnt ways. These are usually provided as ZIP or 7Z and can easily
    be installed by putting them to where your game content resides (OS-dependent - see above).
    NO EXTRACTION OR ADDITIONAL CONFIGURATION NEEDED.
-   A list of currently available packs:
-   - Hires background images and fonts:
-     http://www.dxx-rebirth.com/download/dxx/res/d1xr-hires.zip
-   - German briefings:
-     http://www.dxx-rebirth.com/download/dxx/res/d1xr-briefings-ger.zip
-   - Soundtrack in OGG format (created by Brandon Blume using Roland SC-55 MIDI Module):
-     http://www.dxx-rebirth.com/download/dxx/res/d1xr-sc55-music.zip
-   - Sound Effects for Mac Game Content (adds sounds which were not included in DESCENT.PIG)
-     http://www.dxx-rebirth.com/download/dxx/res/d1xr-mac-sounds.zip
+   You can find all official AddOns here:
+   http://www.dxx-rebirth.com/addons/
 
 
 Launching the program
 =====================
+
+   *NIX
+   ----
+   After compiling and installing, the program can be launched with the command: d1x-rebirth
 
    MacOS
    -----
@@ -140,14 +135,7 @@ Launching the program
 
    Win32
    -----
-   Doubleclick d1x-rebirth-gl.exe
-
-   *NIX
-   ----
-   After compiling and installing, the program can be launched with the command:
-   d1x-rebirth-gl
-   or - if it has been compiled with SCons parameter ‘sdl_only=1’:
-   d1x-rebirth-sdl
+   Doubleclick d1x-rebirth.exe
 
    To see a full list of available command-line options append ‘-h’, ‘-?’ to the command or refer file
    d1x.ini
