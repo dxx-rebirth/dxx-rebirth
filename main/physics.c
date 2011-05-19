@@ -298,16 +298,21 @@ void do_physics_sim_rot(object *obj)
 }
 
 // On joining edges fvi tends to get inaccurate as hell. Approach is to check if the object interects with the wall and if so, move away from it.
-void fix_illegal_wall_intersection(object *obj)
+void fix_illegal_wall_intersection(object *obj, vms_vector *origin)
 {
 	int hseg = -1, hside = -1, hface = -1;
+	fix dist;
 
 	if (!(obj->type == OBJ_PLAYER || obj->type == OBJ_ROBOT))
 		return;
 
+	dist = vm_vec_dist(&obj->pos, origin);
+	if (dist <= 0 || dist > obj->size/2)
+		dist = FrameTime*10;
+
 	if ( object_intersects_wall_d(obj,&hseg,&hside,&hface) )
 	{
-		vm_vec_scale_add2(&obj->pos,&Segments[hseg].sides[hside].normals[0],FrameTime*10);
+		vm_vec_scale_add2(&obj->pos,&Segments[hseg].sides[hside].normals[0],dist);
 		update_object_seg(obj);
 	}
 }
@@ -758,7 +763,7 @@ void do_physics_sim(object *obj)
 		vm_vec_copy_scale(&obj->mtype.phys_info.velocity,&moved_vec,fixdiv(f1_0,FrameTime));
 	}
 
-	fix_illegal_wall_intersection(obj);
+	fix_illegal_wall_intersection(obj, &start_pos);
 
 	//Assert(check_point_in_seg(&obj->pos,obj->segnum,0).centermask==0);
 
