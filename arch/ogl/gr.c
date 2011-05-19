@@ -832,6 +832,5 @@ void save_screen_shot(int automap_flag)
 	write_bmp(savename,grd_curscreen->sc_w,grd_curscreen->sc_h,buf);
 	d_free(buf);
 
-	key_flush();
 	start_time();
 }

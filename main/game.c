@@ -552,7 +552,6 @@ void save_screen_shot(int automap_flag)
 	gr_free_canvas(temp_canv);
 	gr_set_current_canvas(save_canv);
 
-	key_flush();
 	start_time();
 }
 
