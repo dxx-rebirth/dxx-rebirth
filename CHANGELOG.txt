@@ -5,6 +5,7 @@ D1X-Rebirth Changelog
 main/fvi.c, main/fvi.h, main/physics.c: Improvement for fix_illegal_wall_interesection(): Move away from wall in right angle - not towards center. This improves the bumping in many situations and prevents ship getting stuck in small segments. Simplified and optimized code as well and removed check for degenerated Segments as not needed with this approach; Fixed some compiler warnings regarding set but unused variables
 main/multi.c: Reset new_Bounty_target after using it  and let host add a number on how often Bounty is reassigned. Both additions should help keeping target correct no matter how if multiple packets of the same type are disordered, delayed or both
 main/physics.c: for fix_illegal_wall_intersection() try using the distance we moved to move out from the wall. Just in case it's a sane value, i.e. > 0 and <= obj->size/2
+arch/ogl/gr.c, main/game.c: Removed key_flush() call from save_screen_shot() - not needed anymore due to new input reading and only screws up ingame controls
 
 20110516
 --------
