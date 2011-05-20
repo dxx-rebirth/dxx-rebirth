@@ -1914,7 +1914,7 @@ void do_sound_menu()
 
 void do_misc_menu()
 {
-	newmenu_item m[11];
+	newmenu_item m[12];
 	int i = 0;
 
 	do {
@@ -1929,6 +1929,7 @@ void do_misc_menu()
 		ADD_CHECK(8, "Disable redundant pickup messages",PlayerCfg.NoRedundancy);
 		ADD_CHECK(9, "Only show Player msgs in Multipl.",PlayerCfg.MultiMessages);
 		ADD_CHECK(10, "Disable Multiplayer Rankings",PlayerCfg.NoRankings);
+		ADD_CHECK(11, "Free Flight controls in Automap",PlayerCfg.AutomapFreeFlight);
 
 		i = newmenu_do1( NULL, "Misc Options", sizeof(m)/sizeof(*m), m, NULL, NULL, i );
 
@@ -1943,6 +1944,7 @@ void do_misc_menu()
 		PlayerCfg.NoRedundancy 		= m[8].value;
 		PlayerCfg.MultiMessages 	= m[9].value;
 		PlayerCfg.NoRankings 		= m[10].value;
+		PlayerCfg.AutomapFreeFlight	= m[11].value;
 
 	} while( i>-1 );
 

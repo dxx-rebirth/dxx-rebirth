@@ -98,27 +98,30 @@ typedef struct automap
 	fix64			t1, t2;
 	int			leave_mode;
 	int			pause_game;
-	ushort		old_wiggle;		// keep 4 byte aligned
+	vms_angvec		tangles;
+	ushort			old_wiggle; // keep 4 byte aligned
 	int			max_segments_away;
 	int			segment_limit;
 	
 	// Edge list variables
 	int			num_edges;
-	int			max_edges;		//set each frame
+	int			max_edges; //set each frame
 	int			highest_edge_index;
-	Edge_info	*edges;
-	short		*drawingListBright;
+	Edge_info		*edges;
+	short			*drawingListBright;
 	
 	// Screen canvas variables
-	grs_canvas	automap_view;
+	grs_canvas		automap_view;
 	
-	grs_bitmap	automap_background;
+	grs_bitmap		automap_background;
 	
 	// Rendering variables
 	fix			zoom;
-	vms_vector	view_position;
+	vms_vector		view_target;
+	vms_vector		view_position;
 	fix			farthest_dist;
-	vms_matrix	viewMatrix;
+	vms_matrix		viewMatrix;
+	fix			viewDist;
 	
 	int			wall_normal_color;
 	int			wall_door_color;
@@ -459,6 +462,9 @@ void draw_automap(automap *am)
 	g3_start_frame();
 	render_start_frame();
 
+	if (!PlayerCfg.AutomapFreeFlight)
+		vm_vec_scale_add(&am->view_position,&am->view_target,&am->viewMatrix.fvec,-am->viewDist);
+
 	g3_set_view_matrix(&am->view_position,&am->viewMatrix,am->zoom);
 
 	draw_all_edges(am);
@@ -655,6 +661,8 @@ int automap_key_command(window *wind, d_event *event, automap *am)
 
 int automap_process_input(window *wind, d_event *event, automap *am)
 {
+	vms_matrix tempm;
+
 	Controls = am->controls;
 	kconfig_read_controls(event, 1);
 	am->controls = Controls;
@@ -676,42 +684,83 @@ int automap_process_input(window *wind, d_event *event, automap *am)
 		}
 	}
 	
-	if ( am->controls.fire_primary_count > 0)
+	if (PlayerCfg.AutomapFreeFlight)
 	{
-		// Reset orientation
-		am->viewMatrix = Objects[Players[Player_num].objnum].orient;
-		vm_vec_scale_add(&am->view_position, &Objects[Players[Player_num].objnum].pos, &am->viewMatrix.fvec, -ZOOM_DEFAULT );
-		am->controls.fire_primary_count = 0;
-	}
-	
-	if (am->controls.pitch_time || am->controls.heading_time || am->controls.bank_time)
-	{
-		vms_angvec tangles;
-		vms_matrix tempm;
-		vms_matrix new_m;
-
-		tangles.p = fixdiv( am->controls.pitch_time, ROT_SPEED_DIVISOR );
-		tangles.h = fixdiv( am->controls.heading_time, ROT_SPEED_DIVISOR );
-		tangles.b = fixdiv( am->controls.bank_time, ROT_SPEED_DIVISOR*2 );
-
-		vm_angles_2_matrix(&tempm, &tangles);
-		vm_matrix_x_matrix(&new_m,&am->viewMatrix,&tempm);
-		am->viewMatrix = new_m;
-	}
-	
-	if ( am->controls.forward_thrust_time || am->controls.vertical_thrust_time || am->controls.sideways_thrust_time )
-	{
-		vm_vec_scale_add2( &am->view_position, &am->viewMatrix.fvec, am->controls.forward_thrust_time*ZOOM_SPEED_FACTOR );
-		vm_vec_scale_add2( &am->view_position, &am->viewMatrix.uvec, am->controls.vertical_thrust_time*SLIDE_SPEED );
-		vm_vec_scale_add2( &am->view_position, &am->viewMatrix.rvec, am->controls.sideways_thrust_time*SLIDE_SPEED );
+		if ( am->controls.fire_primary_count > 0)
+		{
+			// Reset orientation
+			am->viewMatrix = Objects[Players[Player_num].objnum].orient;
+			vm_vec_scale_add(&am->view_position, &Objects[Players[Player_num].objnum].pos, &am->viewMatrix.fvec, -ZOOM_DEFAULT );
+			am->controls.fire_primary_count = 0;
+		}
 		
-		// Crude wrapping check
-		if (am->view_position.x >  F1_0*32000) am->view_position.x =  F1_0*32000;
-		if (am->view_position.x < -F1_0*32000) am->view_position.x = -F1_0*32000;
-		if (am->view_position.y >  F1_0*32000) am->view_position.y =  F1_0*32000;
-		if (am->view_position.y < -F1_0*32000) am->view_position.y = -F1_0*32000;
-		if (am->view_position.z >  F1_0*32000) am->view_position.z =  F1_0*32000;
-		if (am->view_position.z < -F1_0*32000) am->view_position.z = -F1_0*32000;
+		if (am->controls.pitch_time || am->controls.heading_time || am->controls.bank_time)
+		{
+			vms_angvec tangles;
+			vms_matrix new_m;
+
+			tangles.p = fixdiv( am->controls.pitch_time, ROT_SPEED_DIVISOR );
+			tangles.h = fixdiv( am->controls.heading_time, ROT_SPEED_DIVISOR );
+			tangles.b = fixdiv( am->controls.bank_time, ROT_SPEED_DIVISOR*2 );
+
+			vm_angles_2_matrix(&tempm, &tangles);
+			vm_matrix_x_matrix(&new_m,&am->viewMatrix,&tempm);
+			am->viewMatrix = new_m;
+		}
+		
+		if ( am->controls.forward_thrust_time || am->controls.vertical_thrust_time || am->controls.sideways_thrust_time )
+		{
+			vm_vec_scale_add2( &am->view_position, &am->viewMatrix.fvec, am->controls.forward_thrust_time*ZOOM_SPEED_FACTOR );
+			vm_vec_scale_add2( &am->view_position, &am->viewMatrix.uvec, am->controls.vertical_thrust_time*SLIDE_SPEED );
+			vm_vec_scale_add2( &am->view_position, &am->viewMatrix.rvec, am->controls.sideways_thrust_time*SLIDE_SPEED );
+			
+			// Crude wrapping check
+			if (am->view_position.x >  F1_0*32000) am->view_position.x =  F1_0*32000;
+			if (am->view_position.x < -F1_0*32000) am->view_position.x = -F1_0*32000;
+			if (am->view_position.y >  F1_0*32000) am->view_position.y =  F1_0*32000;
+			if (am->view_position.y < -F1_0*32000) am->view_position.y = -F1_0*32000;
+			if (am->view_position.z >  F1_0*32000) am->view_position.z =  F1_0*32000;
+			if (am->view_position.z < -F1_0*32000) am->view_position.z = -F1_0*32000;
+		}
+	}
+	else
+	{
+		if ( am->controls.fire_primary_count > 0)
+		{
+			// Reset orientation
+			am->viewDist = ZOOM_DEFAULT;
+			am->tangles.p = PITCH_DEFAULT;
+			am->tangles.h  = 0;
+			am->tangles.b  = 0;
+			am->view_target = Objects[Players[Player_num].objnum].pos;
+			am->controls.fire_primary_count = 0;
+		}
+
+		am->viewDist -= am->controls.forward_thrust_time*ZOOM_SPEED_FACTOR;
+		am->tangles.p += fixdiv( am->controls.pitch_time, ROT_SPEED_DIVISOR );
+		am->tangles.h  += fixdiv( am->controls.heading_time, ROT_SPEED_DIVISOR );
+		am->tangles.b  += fixdiv( am->controls.bank_time, ROT_SPEED_DIVISOR*2 );
+
+		if ( am->controls.vertical_thrust_time || am->controls.sideways_thrust_time )
+		{
+			vms_angvec      tangles1;
+			vms_vector      old_vt;
+
+			old_vt = am->view_target;
+			tangles1 = am->tangles;
+			vm_angles_2_matrix(&tempm,&tangles1);
+			vm_matrix_x_matrix(&am->viewMatrix,&Objects[Players[Player_num].objnum].orient,&tempm);
+			vm_vec_scale_add2( &am->view_target, &am->viewMatrix.uvec, am->controls.vertical_thrust_time*SLIDE_SPEED );
+			vm_vec_scale_add2( &am->view_target, &am->viewMatrix.rvec, am->controls.sideways_thrust_time*SLIDE_SPEED );
+			if ( vm_vec_dist_quick( &am->view_target, &Objects[Players[Player_num].objnum].pos) > i2f(1000) )
+				am->view_target = old_vt;
+		}
+
+		vm_angles_2_matrix(&tempm,&am->tangles);
+		vm_matrix_x_matrix(&am->viewMatrix,&Objects[Players[Player_num].objnum].orient,&tempm);
+
+		if ( am->viewDist < ZOOM_MIN_VALUE ) am->viewDist = ZOOM_MIN_VALUE;
+		if ( am->viewDist > ZOOM_MAX_VALUE ) am->viewDist = ZOOM_MAX_VALUE;
 	}
 	
 	return 0;
@@ -821,6 +870,7 @@ void do_automap( int key_code )
 	
 	am->zoom = 0x9000;
 	am->farthest_dist = (F1_0 * 20 * 50); // 50 segments away
+	am->viewDist = 0;
 
 	init_automap_colors(am);
 
@@ -843,9 +893,17 @@ void do_automap( int key_code )
 
 	automap_build_edge_list(am);
 
-	am->viewMatrix = Objects[Players[Player_num].objnum].orient;
+	if ( am->viewDist==0 )
+		am->viewDist = ZOOM_DEFAULT;
 
-	vm_vec_scale_add(&am->view_position, &Objects[Players[Player_num].objnum].pos, &am->viewMatrix.fvec, -ZOOM_DEFAULT );
+	am->viewMatrix = Objects[Players[Player_num].objnum].orient;
+	am->tangles.p = PITCH_DEFAULT;
+	am->tangles.h  = 0;
+	am->tangles.b  = 0;
+	am->view_target = Objects[Players[Player_num].objnum].pos;
+	
+	if (PlayerCfg.AutomapFreeFlight)
+		vm_vec_scale_add(&am->view_position, &Objects[Players[Player_num].objnum].pos, &am->viewMatrix.fvec, -ZOOM_DEFAULT );
 
 	am->t1 = am->entry_time = timer_query();
 	am->t2 = am->t1;

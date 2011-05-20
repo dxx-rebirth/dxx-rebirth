@@ -4,6 +4,7 @@ D2X-Rebirth Changelog
 --------
 INSTALL.txt, RELEASE-NOTES.txt: Updated docs and fixed some typos
 main/net_ipx.c, main/net_udp.c: Rearranged code to check for netgame-closed flag and refuse-players flag so they are updated correctly if another part of the code changes the menu item without activating it
+main/automap.c, main/menu.c, main/playsave.c, main/playsave.h: Made Automap Free Flight controls an optional feature which can be set in MISC OPTIONS
 
 20110519
 --------
