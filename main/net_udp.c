@@ -442,6 +442,7 @@ int udp_tracker_process_game( ubyte *data, int data_len )
 	
 	// Get the IPv6 flag from the tracker
 	bIPv6 = data[iPos++];
+	(void)bIPv6; // currently unused
 	
 	// Get the IP
 	sIP = (char *)&data[iPos];
@@ -1215,16 +1216,13 @@ net_udp_disconnect_player(int playernum)
 void
 net_udp_new_player(UDP_sequence_packet *their)
 {
-	int objnum;
 	int pnum;
 
 	pnum = their->player.connected;
 
 	Assert(pnum >= 0);
-	Assert(pnum < MaxNumNetPlayers);	
+	Assert(pnum < MaxNumNetPlayers);
 	
-	objnum = Players[pnum].objnum;
-
 	if (Newdemo_state == ND_STATE_RECORDING) {
 		int new_player;
 
@@ -3029,9 +3027,6 @@ int net_udp_game_param_handler( newmenu *menu, d_event *event, param_opt *opt )
 // 				}
 			}
 			
-			if (citem == opt->refuse)
-				Netgame.RefusePlayers=menus[opt->refuse].value;
-
 			if (citem == opt->maxnet)
 			{
 				sprintf( menus[opt->maxnet].text, "Maximum players: %d", menus[opt->maxnet].value+2 );
@@ -3063,13 +3058,11 @@ int net_udp_game_param_handler( newmenu *menu, d_event *event, param_opt *opt )
 				else Int3(); // Invalid mode -- see Rob
 			}
 
-			if (citem == opt->closed)
-			{
-				if (menus[opt->closed].value)
-					Netgame.game_flags |= NETGAME_FLAG_CLOSED;
-				else
-					Netgame.game_flags &= ~NETGAME_FLAG_CLOSED;
-			}
+			if (menus[opt->closed].value)
+				Netgame.game_flags |= NETGAME_FLAG_CLOSED;
+			else
+				Netgame.game_flags &= ~NETGAME_FLAG_CLOSED;
+			Netgame.RefusePlayers=menus[opt->refuse].value;
 			break;
 			
 		case EVENT_NEWMENU_SELECTED:
@@ -3942,6 +3935,7 @@ void net_udp_send_data( ubyte * ptr, int len, int priority )
 		if (UDP_MData.mbuf_size != 0)
 			Int3();
 		Assert(check == ptr[0]);
+		(void)check;
 	}
 
 	Assert(UDP_MData.mbuf_size+len <= UPID_MDATA_BUF_SIZE);

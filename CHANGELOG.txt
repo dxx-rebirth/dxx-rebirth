@@ -3,6 +3,7 @@ D1X-Rebirth Changelog
 20110520
 --------
 INSTALL.txt, RELEASE-NOTES.txt: Updated docs and fixed some typos
+main/net_ipx.c, main/net_udp.c: Rearranged code to check for netgame-closed flag and refuse-players flag so they are updated correctly if another part of the code changes the menu item without activating it
 
 20110519
 --------
