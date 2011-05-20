@@ -3440,7 +3440,9 @@ menu:
 		if ((opt-2-opt_team_b < 2) || (opt_team_b == 1)) 
 		{
 			nm_messagebox(NULL, 1, TXT_OK, TXT_TEAM_MUST_ONE);
+			#ifdef RELEASE
 			goto menu;
+			#endif
 		}
 		
 		Netgame.team_vector = team_vector;
