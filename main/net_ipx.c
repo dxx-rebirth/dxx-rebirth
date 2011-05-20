@@ -1056,7 +1056,6 @@ net_ipx_disconnect_player(int playernum)
 void
 net_ipx_new_player(IPX_sequence_packet *their)
 {
-	int objnum;
 	int pnum;
 	uint server;
 
@@ -1064,8 +1063,6 @@ net_ipx_new_player(IPX_sequence_packet *their)
 
 	Assert(pnum >= 0);
 	Assert(pnum < MaxNumNetPlayers);
-
-	objnum = Players[pnum].objnum;
 
 	if (Newdemo_state == ND_STATE_RECORDING) {
 		int new_player;
@@ -2886,9 +2883,6 @@ int net_ipx_game_param_handler( newmenu *menu, d_event *event, param_opt *opt )
 				Netgame.levelnum = atoi(slevel);
 			}
 
-			if (citem == opt->refuse)
-				Netgame.RefusePlayers=menus[opt->refuse].value;
-
 			if (citem == opt->maxnet)
 			{
 				sprintf( menus[opt->maxnet].text, "Maximum players: %d", menus[opt->maxnet].value+2 );
@@ -2924,13 +2918,11 @@ int net_ipx_game_param_handler( newmenu *menu, d_event *event, param_opt *opt )
 				else Int3(); // Invalid mode -- see Rob
 			}
 
-			if (citem == opt->closed)
-			{
-				if (menus[opt->closed].value)
-					Netgame.game_flags |= NETGAME_FLAG_CLOSED;
-				else
-					Netgame.game_flags &= ~NETGAME_FLAG_CLOSED;
-			}
+			if (menus[opt->closed].value)
+				Netgame.game_flags |= NETGAME_FLAG_CLOSED;
+			else
+				Netgame.game_flags &= ~NETGAME_FLAG_CLOSED;
+			Netgame.RefusePlayers=menus[opt->refuse].value;
 			break;
 
 		case EVENT_NEWMENU_SELECTED:
@@ -4339,6 +4331,7 @@ void net_ipx_send_data( ubyte * ptr, int len, int urgent )
 			Int3();
 		}
 		Assert(check == ptr[0]);
+		(void)check;
 	}
 
 	Assert(MySyncPack.data_size+len <= NET_XDATA_SIZE);
@@ -4491,7 +4484,7 @@ void net_ipx_do_frame(int force, int listen)
 			}
 			else  // If long packets
 			{
-				int send_data_size, i;
+				int i;
 
 				MySyncPack.numpackets					= Players[0].n_packets_sent++;
 				MySyncPack.type                                 = PID_PDATA;
@@ -4504,9 +4497,6 @@ void net_ipx_do_frame(int force, int listen)
 				MySyncPack.phys_velocity                = Objects[objnum].mtype.phys_info.velocity;
 				MySyncPack.phys_rotvel                  = Objects[objnum].mtype.phys_info.rotvel;
 
-				send_data_size = MySyncPack.data_size;                  // do this so correct size data is sent
-
-// 				ipxdrvSendGamePacket((ubyte*)&MySyncPack, sizeof(IPX_frame_info) - MaxXDataSize + send_data_size);
 				for(i=0; i<N_players; i++)
 				{
 					if(Players[i].connected && (i != Player_num))
