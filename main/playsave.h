@@ -78,6 +78,7 @@ typedef struct player_config
 	ubyte NoRedundancy;
 	ubyte MultiMessages;
 	ubyte BombGauge;
+	ubyte AutomapFreeFlight;
 	int AlphaEffects;
 	int DynLightColor;
 } __pack__ player_config;

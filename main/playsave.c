@@ -93,6 +93,7 @@ int new_player_config()
 	PlayerCfg.NoRedundancy = 0;
 	PlayerCfg.MultiMessages = 0;
 	PlayerCfg.BombGauge = 1;
+	PlayerCfg.AutomapFreeFlight = 0;
 	PlayerCfg.AlphaEffects = 0;
 	PlayerCfg.DynLightColor = 0;
 
@@ -286,6 +287,8 @@ int read_player_d1x(char *filename)
 					PlayerCfg.MultiMessages = atoi(line);
 				if(!strcmp(word,"BOMBGAUGE"))
 					PlayerCfg.BombGauge = atoi(line);
+				if(!strcmp(word,"AUTOMAPFREEFLIGHT"))
+					PlayerCfg.AutomapFreeFlight = atoi(line);
 				d_free(word);
 				cfgets(line,50,f);
 				word=splitword(line,'=');
@@ -370,12 +373,15 @@ char effcode4[]="'/.;]<{=,+?|}->[3";
 
 unsigned char * decode_stat(unsigned char *p,int *v,char *effcode)
 {
-	unsigned char c;int neg,i,I;
-	if (p[0]==0)return NULL;
+	unsigned char c;
+	int neg,i;
+
+	if (p[0]==0)
+		return NULL;
 	else if (p[0]>='a'){
-		neg=1;I=p[0]-'a';
+		neg=1;/*I=p[0]-'a';*/
 	}else{
-		neg=0;I=p[0]-'A';
+		neg=0;/*I=p[0]-'A';*/
 	}
 	i=0;*v=0;
 	p++;
@@ -387,12 +393,13 @@ unsigned char * decode_stat(unsigned char *p,int *v,char *effcode)
 	}
 	if (neg)
 	     *v *= -1;
-	if (!p[i*2])return NULL;
+	if (!p[i*2])
+		return NULL;
 	return p+(i*2);
 }
 
 void plyr_read_stats_v(int *k, int *d){
-	char filename[14];
+	char filename[PATH_MAX];
 	int k1=-1,k2=0,d1=-1,d2=0;
 	PHYSFS_file *f;
 	
@@ -600,6 +607,7 @@ int write_player_d1x(char *filename)
 		PHYSFSX_printf(fout,"noredundancy=%i\n",PlayerCfg.NoRedundancy);
 		PHYSFSX_printf(fout,"multimessages=%i\n",PlayerCfg.MultiMessages);
 		PHYSFSX_printf(fout,"bombgauge=%i\n",PlayerCfg.BombGauge);
+		PHYSFSX_printf(fout,"automapfreeflight=%i\n",PlayerCfg.AutomapFreeFlight);
 		PHYSFSX_printf(fout,"[end]\n");
 		PHYSFSX_printf(fout,"[graphics]\n");
 		PHYSFSX_printf(fout,"alphaeffects=%i\n",PlayerCfg.AlphaEffects);
