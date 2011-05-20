@@ -3717,7 +3717,7 @@ abort:
 	}
 #endif
 
-#ifdef RELEASE
+#if 0 //def RELEASE
 	if ( (Netgame.gamemode == NETGAME_TEAM_ANARCHY || Netgame.gamemode == NETGAME_CAPTURE_FLAG || Netgame.gamemode == NETGAME_TEAM_HOARD) && (N_players < 2) )
 	{
 		nm_messagebox(TXT_ERROR, 1, TXT_OK, "You must select at least two\nplayers to start a team game" );
