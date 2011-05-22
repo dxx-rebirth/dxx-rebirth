@@ -3270,12 +3270,11 @@ int net_udp_setup_game()
 		if (i!=Player_num)
 			Players[i].callsign[0]=0;
 
-	MaxNumNetPlayers = MAX_NUM_NET_PLAYERS;
+	Netgame.max_numplayers = MaxNumNetPlayers = MAX_NUM_NET_PLAYERS;
 	Netgame.KillGoal=0;
 	Netgame.PlayTimeAllowed=0;
 	Netgame.Allow_marker_view=1;
 	Netgame.difficulty=PlayerCfg.DefaultDifficulty;
-	Netgame.max_numplayers=MaxNumNetPlayers;
 	sprintf( Netgame.game_name, "%s%s", Players[Player_num].callsign, TXT_S_GAME );
 	if (GameArg.MplUdpMyPort != 0)
 		snprintf (UDP_MyPort, sizeof(UDP_MyPort), "%d", GameArg.MplUdpMyPort);
@@ -3292,6 +3291,9 @@ int net_udp_setup_game()
 #endif
 
 	read_netgame_profile(&Netgame);
+
+	if (Netgame.gamemode == NETGAME_COOPERATIVE) // did we resotred Coop as default? then fix max players right now!
+		Netgame.max_numplayers = MaxNumNetPlayers = 4;
 
 	strcpy(Netgame.mission_name, Current_mission_filename);
 	strcpy(Netgame.mission_title, Current_mission_longname);
