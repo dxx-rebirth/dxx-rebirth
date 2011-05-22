@@ -1247,6 +1247,7 @@ int check_for_degenerate_side(segment *sp, int sidenum)
 
 }
 
+extern int Degenerate_segment_found;
 //	----
 //	See if a segment has gotten turned inside out, or something.
 //	If so, set global Degenerate_segment_found and return 1, else return 0.

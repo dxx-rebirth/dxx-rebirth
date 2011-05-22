@@ -544,7 +544,6 @@ int do_option ( int select)
 			create_new_mine();
 			SetPlayerFromCurseg();
 
-			keyd_editor_mode = 1;
 			hide_menus();
 			editor();
 			if ( Function_mode == FMODE_GAME ) {

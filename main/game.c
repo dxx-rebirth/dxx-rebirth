@@ -927,9 +927,6 @@ window *game_setup(void)
 {
 	window *game_wind;
 
-#ifdef EDITOR
-	keyd_editor_mode = 0;
-#endif
 	PlayerCfg.CockpitMode[1] = PlayerCfg.CockpitMode[0];
 	last_drawn_cockpit = -1;	// Force cockpit to redraw next time a frame renders.
 	Endlevel_sequence = 0;
