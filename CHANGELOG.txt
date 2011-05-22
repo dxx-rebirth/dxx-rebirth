@@ -3,6 +3,7 @@ D1X-Rebirth Changelog
 20110522
 --------
 editor/med.c, main/game.c, main/gameseg.c, main/gameseq.c, main/menu.c: Like in BigEndian builds do netmisc_calc_checksum() only with expected items of segment/side struct to prevent different checksums in case these structs change; Fixed several issues when building with editor; Fixed compiler warning regarding set but unused variable
+main/net_udp.c: When restoring Coop setting from netgame profile don't forget to fix max players variable
 
 20110520
 --------
