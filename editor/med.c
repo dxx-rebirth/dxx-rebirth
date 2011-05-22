@@ -1061,8 +1061,8 @@ void editor(void)
 
 		// Only update if there is no key waiting and we're not in
 		// fast play mode.
-		if (!key_peekkey()) //-- && (MacroStatus != UI_STATUS_FASTPLAY))
-			medlisp_update_screen();
+// 		if (!key_peekkey()) //-- && (MacroStatus != UI_STATUS_FASTPLAY))
+// 			medlisp_update_screen();
 
 		//do editor stuff
 		gr_set_curfont(editor_font);
@@ -1355,9 +1355,9 @@ void editor(void)
 	set_default_handler(standard_handler);
 	
 //	_MARK_("end of editor");//Nuked to compile -KRB
-
+#ifndef __LINUX__
 	set_warn_func(msgbox_warning);
-
+#endif
 	//kill our camera object
 
 	Viewer = ConsoleObject;					//reset viewer

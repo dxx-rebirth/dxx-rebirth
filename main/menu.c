@@ -585,7 +585,6 @@ int do_option ( int select)
 			SetPlayerFromCurseg();
 			load_palette(NULL,1,0);
 
-			keyd_editor_mode = 1;
 			hide_menus();
 			editor();
 			if ( Function_mode == FMODE_GAME ) {

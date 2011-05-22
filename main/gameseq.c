@@ -98,13 +98,14 @@ COPYRIGHT 1993-1999 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 #include "controls.h"
 #include "credits.h"
 #include "gamemine.h"
-
 #ifdef EDITOR
 #include "editor/editor.h"
 #endif
-
 #include "strutil.h"
 #include "rle.h"
+#include "byteswap.h"
+#include "segment.h"
+#include "gameseg.h"
 
 
 void StartNewLevelSecret(int level_num, int page_in_textures);
@@ -620,17 +621,8 @@ void create_player_appearance_effect(object *player_obj)
 // New Game sequencing functions
 //
 
-
-#ifdef WORDS_BIGENDIAN
-
-#include "byteswap.h"
-#include "segment.h"
-#include "gameseg.h"
-
-// routine to calculate the checksum of the segments.  We add these specialized routines
-// since the current way is byte order dependent.
-
-void mac_do_checksum_calc(ubyte *b, int len, unsigned int *s1, unsigned int *s2)
+// routine to calculate the checksum of the segments.
+void do_checksum_calc(ubyte *b, int len, unsigned int *s1, unsigned int *s2)
 {
 
 	while(len--) {
@@ -640,7 +632,7 @@ void mac_do_checksum_calc(ubyte *b, int len, unsigned int *s1, unsigned int *s2)
 	}
 }
 
-ushort mac_calc_segment_checksum()
+ushort netmisc_calc_checksum()
 {
 	int i, j, k;
 	unsigned int sum1,sum2;
@@ -650,79 +642,45 @@ ushort mac_calc_segment_checksum()
 	sum1 = sum2 = 0;
 	for (i = 0; i < Highest_segment_index + 1; i++) {
 		for (j = 0; j < MAX_SIDES_PER_SEGMENT; j++) {
-			mac_do_checksum_calc((unsigned char *)&(Segments[i].sides[j].type), 1, &sum1, &sum2);
-			mac_do_checksum_calc(&(Segments[i].sides[j].pad), 1, &sum1, &sum2);
+			do_checksum_calc((unsigned char *)&(Segments[i].sides[j].type), 1, &sum1, &sum2);
+			do_checksum_calc(&(Segments[i].sides[j].pad), 1, &sum1, &sum2);
 			s = INTEL_SHORT(Segments[i].sides[j].wall_num);
-			mac_do_checksum_calc((ubyte *)&s, 2, &sum1, &sum2);
+			do_checksum_calc((ubyte *)&s, 2, &sum1, &sum2);
 			s = INTEL_SHORT(Segments[i].sides[j].tmap_num);
-			mac_do_checksum_calc((ubyte *)&s, 2, &sum1, &sum2);
+			do_checksum_calc((ubyte *)&s, 2, &sum1, &sum2);
 			s = INTEL_SHORT(Segments[i].sides[j].tmap_num2);
-			mac_do_checksum_calc((ubyte *)&s, 2, &sum1, &sum2);
+			do_checksum_calc((ubyte *)&s, 2, &sum1, &sum2);
 			for (k = 0; k < 4; k++) {
 				t = INTEL_INT(((int)Segments[i].sides[j].uvls[k].u));
-				mac_do_checksum_calc((ubyte *)&t, 4, &sum1, &sum2);
+				do_checksum_calc((ubyte *)&t, 4, &sum1, &sum2);
 				t = INTEL_INT(((int)Segments[i].sides[j].uvls[k].v));
-				mac_do_checksum_calc((ubyte *)&t, 4, &sum1, &sum2);
+				do_checksum_calc((ubyte *)&t, 4, &sum1, &sum2);
 				t = INTEL_INT(((int)Segments[i].sides[j].uvls[k].l));
-				mac_do_checksum_calc((ubyte *)&t, 4, &sum1, &sum2);
+				do_checksum_calc((ubyte *)&t, 4, &sum1, &sum2);
 			}
 			for (k = 0; k < 2; k++) {
 				t = INTEL_INT(((int)Segments[i].sides[j].normals[k].x));
-				mac_do_checksum_calc((ubyte *)&t, 4, &sum1, &sum2);
+				do_checksum_calc((ubyte *)&t, 4, &sum1, &sum2);
 				t = INTEL_INT(((int)Segments[i].sides[j].normals[k].y));
-				mac_do_checksum_calc((ubyte *)&t, 4, &sum1, &sum2);
+				do_checksum_calc((ubyte *)&t, 4, &sum1, &sum2);
 				t = INTEL_INT(((int)Segments[i].sides[j].normals[k].z));
-				mac_do_checksum_calc((ubyte *)&t, 4, &sum1, &sum2);
+				do_checksum_calc((ubyte *)&t, 4, &sum1, &sum2);
 			}
 		}
 		for (j = 0; j < MAX_SIDES_PER_SEGMENT; j++) {
 			s = INTEL_SHORT(Segments[i].children[j]);
-			mac_do_checksum_calc((ubyte *)&s, 2, &sum1, &sum2);
+			do_checksum_calc((ubyte *)&s, 2, &sum1, &sum2);
 		}
 		for (j = 0; j < MAX_VERTICES_PER_SEGMENT; j++) {
 			s = INTEL_SHORT(Segments[i].verts[j]);
-			mac_do_checksum_calc((ubyte *)&s, 2, &sum1, &sum2);
+			do_checksum_calc((ubyte *)&s, 2, &sum1, &sum2);
 		}
 		t = INTEL_INT(Segments[i].objects);
-		mac_do_checksum_calc((ubyte *)&t, 4, &sum1, &sum2);
+		do_checksum_calc((ubyte *)&t, 4, &sum1, &sum2);
 	}
 	sum2 %= 255;
 	return ((sum1<<8)+ sum2);
 }
-
-// this routine totally and completely relies on the fact that the network
-//  checksum must be calculated on the segments!!!!!
-
-ushort netmisc_calc_checksum(void * vptr, int len)
-{
-	vptr = vptr;
-	len = len;
-	return mac_calc_segment_checksum();
-}
-#else /* !WORDS_BIGENDIAN */
-
-
-// Calculates the checksum of a block of memory.
-ushort netmisc_calc_checksum(void * vptr, int len)
-{
-	ubyte *ptr = (ubyte *)vptr;
-	unsigned int sum1,sum2;
-
-	sum1 = sum2 = 0;
-
-	while(len--) {
-		sum1 += *ptr++;
-		if (sum1 >= 255) sum1 -= 255;
-		sum2 += sum1;
-	}
-	sum2 %= 255;
-
-	return ((sum1<<8)+ sum2);
-}
-
-#endif /* WORDS_BIGENDIAN */
-
-
 
 void free_polygon_models();
 void load_robot_replacements(char *level_name);
@@ -803,7 +761,7 @@ void LoadLevel(int level_num,int page_in_textures)
 		piggy_load_level_data();
 
 #ifdef NETWORK
-	my_segments_checksum = netmisc_calc_checksum(Segments, sizeof(segment)*(Highest_segment_index+1));
+	my_segments_checksum = netmisc_calc_checksum();
 
 	reset_network_objects();
 #endif
@@ -1817,7 +1775,7 @@ void InitPlayerPosition(int random_flag)
 		NewPlayer = Player_num;
 	else if (random_flag == 1)
 	{
-		int i, closest = -1, trys=0;
+		int i, trys=0;
 		fix closest_dist = 0x7ffffff, dist;
 
 		timer_update();
@@ -1826,7 +1784,6 @@ void InitPlayerPosition(int random_flag)
 			trys++;
 			NewPlayer = d_rand() % NumNetPlayerPositions;
 
-			closest = -1;
 			closest_dist = 0x7fffffff;
 
 			for (i=0; i<N_players; i++ )	{
@@ -1834,7 +1791,6 @@ void InitPlayerPosition(int random_flag)
 					dist = find_connected_distance(&Objects[Players[i].objnum].pos, Objects[Players[i].objnum].segnum, &Player_init[NewPlayer].pos, Player_init[NewPlayer].segnum, 15, WID_FLY_FLAG ); // Used to be 5, search up to 15 segments
 					if ( (dist < closest_dist) && (dist >= 0) )	{
 						closest_dist = dist;
-						closest = i;
 					}
 				}
 			}
