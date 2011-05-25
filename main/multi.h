@@ -118,8 +118,11 @@ extern int multi_protocol; // set and determinate used protocol
 #define MULTI_KILLGOALS			39
 #define MULTI_DO_BOUNTY                 40
 #define MULTI_TYPING_STATE		41
+#define MULTI_GMODE_UPDATE		42
+#define MULTI_KILL_HOST			43
+#define MULTI_KILL_CLIENT		44
 
-#define MULTI_MAX_TYPE                  41
+#define MULTI_MAX_TYPE                  44
 
 #define MAX_MULTI_MESSAGE_LEN  90 //didn't change it, just moved it up
 

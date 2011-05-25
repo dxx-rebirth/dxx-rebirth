@@ -4305,6 +4305,48 @@ void net_udp_noloss_process_queue(fix64 time)
 }
 /* CODE FOR PACKET LOSS PREVENTION - END */
 
+void net_udp_send_mdata_direct(ubyte *data, int data_len, int pnum, int priority)
+{
+	ubyte buf[sizeof(UDP_mdata_info)];
+	ubyte pack[MAX_PLAYERS];
+	int len = 0;
+	
+	if (!(Game_mode&GM_NETWORK))
+		return;
+
+	if (!(data_len > 0))
+		return;
+
+	if (!multi_i_am_master() && pnum != 0)
+		Error("Client sent direct data to non-Host in net_udp_send_mdata_direct()!\n");
+
+	if (!Netgame.PacketLossPrevention)
+		priority = 0;
+
+	memset(&buf, 0, sizeof(UDP_mdata_info));
+	memset(&pack, 1, sizeof(ubyte)*MAX_PLAYERS);
+
+	pack[pnum] = 0;
+
+	if (priority)
+		buf[len] = UPID_MDATA_P1;
+	else
+		buf[len] = UPID_MDATA_P0;
+																				len++;
+	buf[len] = Player_num;														len++;
+	if (priority)
+	{
+		UDP_MData.pkt_num++;
+		PUT_INTEL_INT(buf + len, UDP_MData.pkt_num);							len += 4;
+	}
+	memcpy(&buf[len], data, sizeof(char)*data_len);								len += data_len;
+
+	sendto (UDP_Socket[0], buf, len, 0, (struct sockaddr *)&Netgame.players[pnum].protocol.udp.addr, sizeof(struct _sockaddr));
+
+	if (priority)
+		net_udp_noloss_add_queue_pkt(UDP_MData.pkt_num, timer_query(), data, data_len, Player_num, pack);
+}
+
 void net_udp_send_mdata(int priority, fix64 time)
 {
 	ubyte buf[sizeof(UDP_mdata_info)];
