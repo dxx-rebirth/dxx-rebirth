@@ -2598,16 +2598,6 @@ void net_udp_process_packet(ubyte *data, struct _sockaddr sender_addr, int lengt
 			if (multi_i_am_master() || length != UPID_GAME_INFO_SIZE)
 				break;
 			net_udp_process_game_info(data, length, sender_addr, 0);
-			// FIXME: Check if this cannot be solved different.
-			if (Game_mode & GM_TEAM)
-			{
-				int i;
-	
-				for (i=0;i<N_players;i++)
-					if (Players[i].connected)
-						multi_reset_object_texture (&Objects[Players[i].objnum]);
-				reset_cockpit();
-			}
 			break;
 		case UPID_GAME_INFO_LITE_REQ:
 			if (!multi_i_am_master() || length != UPID_GAME_INFO_REQ_SIZE)
@@ -4520,8 +4510,8 @@ void net_udp_send_mdata_direct(ubyte *data, int data_len, int pnum, int priority
 	if (!(data_len > 0))
 		return;
 
-	if (!multi_i_am_master())
-		Error("Client sent direct data in net_udp_send_mdata_direct()!\n");
+	if (!multi_i_am_master() && pnum != 0)
+		Error("Client sent direct data to non-Host in net_udp_send_mdata_direct()!\n");
 
 	if (!Netgame.PacketLossPrevention)
 		priority = 0;

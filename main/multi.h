@@ -140,8 +140,11 @@ extern int multi_protocol; // set and determinate used protocol
 #define MULTI_PLAY_BY_PLAY      63
 #define MULTI_DO_BOUNTY		64
 #define MULTI_TYPING_STATE	65
+#define MULTI_GMODE_UPDATE	66
+#define MULTI_KILL_HOST		67
+#define MULTI_KILL_CLIENT	68
 
-#define MULTI_MAX_TYPE          65
+#define MULTI_MAX_TYPE          68
 
 #define MAX_NET_CREATE_OBJECTS  40
 

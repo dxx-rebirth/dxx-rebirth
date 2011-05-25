@@ -100,6 +100,8 @@ void multi_do_save_game(char *buf);
 void multi_do_restore_game(char *buf);
 void multi_do_msgsend_state(char *buf);
 void multi_send_msgsend_state(int state);
+void multi_send_gmode_update();
+void multi_do_gmode_update(char *buf);
 
 //
 // Local macros and prototypes
@@ -131,7 +133,7 @@ fix Show_kill_list_timer = 0;
 
 char Multi_is_guided=0;
 char PKilledFlags[MAX_NUM_NET_PLAYERS];
-int Bounty_target = 0, new_Bounty_target = -1, new_Bounty_num = 0; // Target for bounty mode netgame. NOTE: new_Bounty_target is a helper variable solving issues in case multi_do_bounty and multi_do_kill/multi_disconnect_player are processed in wrong order in case Bounty_target suicide/left game.
+int Bounty_target = 0;
 
 
 int multi_sending_message[MAX_NUM_NET_PLAYERS] = { 0,0,0,0,0,0,0,0 };
@@ -250,8 +252,11 @@ int message_length[MULTI_MAX_TYPE+1] = {
 	2,  // MULTI_GOT_ORB
 	12, // MULTI_DROP_ORB
 	4,  // MULTI_PLAY_BY_PLAY
-	6,  // MULTI_DO_BOUNTY
+	2,  // MULTI_DO_BOUNTY
 	3, // MULTI_TYPING_STATE
+	3, // MULTI_GMODE_UPDATE
+	7, // MULTI_KILL_HOST
+	5, // MULTI_KILL_CLIENT
 };
 
 char PowerupsInMine[MAX_POWERUP_TYPES],MaxPowerupsAllowed[MAX_POWERUP_TYPES];
@@ -764,35 +769,18 @@ void multi_compute_kill(int killer, int killed)
 			HUD_init_message(HM_MULTI, "%s %s", killed_name, TXT_SUICIDE);
 		
 		/* Bounty mode needs some lovin' */
-		if( Game_mode & GM_BOUNTY && killed_pnum == Bounty_target )
+		if( Game_mode & GM_BOUNTY && killed_pnum == Bounty_target && multi_i_am_master() )
 		{
-			if ( multi_i_am_master() )
-			{
-				/* Select a random number */
-				int new = d_rand() % MAX_NUM_NET_PLAYERS;
-				
-				/* Make sure they're valid: Don't check against kill flags,
-				* just in case everyone's dead! */
-				while( !Players[new].connected )
-					new = d_rand() % MAX_NUM_NET_PLAYERS;
-				
-				/* Select new target */
-				multi_new_bounty_target( new );
-				
-				/* Send this new data */
-				multi_send_bounty();
-			}
-			else
-			{
-				/* check if we already got a new target from host. if yes set it, if not just unset the current one. */
-				if ( new_Bounty_target != -1 )
-				{
-					Bounty_target = new_Bounty_target;
-					new_Bounty_target = -1;
-				}
-				else
-					Bounty_target = -1;
-			}
+			/* Select a random number */
+			int new = d_rand() % MAX_NUM_NET_PLAYERS;
+			
+			/* Make sure they're valid: Don't check against kill flags,
+			* just in case everyone's dead! */
+			while( !Players[new].connected )
+				new = d_rand() % MAX_NUM_NET_PLAYERS;
+			
+			/* Select new target  - it will be sent later when we're done with this function */
+			multi_new_bounty_target( new );
 		}
 	}
 
@@ -915,6 +903,7 @@ void multi_do_protocol_frame(int force, int listen)
 void multi_do_frame(void)
 {
 	static int lasttime=0;
+	static fix64 last_update_time = 0;
 	int i;
 
 	if (!(Game_mode & GM_MULTI) || Newdemo_state == ND_STATE_PLAYBACK)
@@ -935,6 +924,13 @@ void multi_do_frame(void)
 				}
 				break;
 			}
+	}
+
+	// Send update about our game mode-specific variables every 2 secs (to keep in sync since delayed kills can invalidate these infos on Clients)
+	if (multi_i_am_master() && timer_query() >= last_update_time + (F1_0*2))
+	{
+		multi_send_gmode_update();
+		last_update_time = timer_query();
 	}
 
 	multi_send_message(); // Send any waiting messages
@@ -975,9 +971,33 @@ multi_send_data(char *buf, int len, int priority)
 				break;
 #endif
 			default:
-				Error("Protocol handling missing in multi_send_data_real\n");
+				Error("Protocol handling missing in multi_send_data\n");
 				break;
 		}
+	}
+}
+
+void multi_send_data_direct(unsigned char *buf, int len, int pnum, int priority)
+{
+	Assert(len == message_length[(int)buf[0]]);
+	Assert(buf[0] <= MULTI_MAX_TYPE);
+	Assert(pnum >= 0 && pnum < MAX_NUM_NET_PLAYERS);
+
+	switch (multi_protocol)
+	{
+#ifdef USE_IPX
+		case MULTI_PROTO_IPX:
+			net_ipx_send_naked_packet(multibuf, len, pnum);
+			break;
+#endif
+#ifdef USE_UDP
+		case MULTI_PROTO_UDP:
+			net_udp_send_mdata_direct((ubyte *)multibuf, len, pnum, priority);
+			break;
+#endif
+		default:
+			Error("Protocol handling missing in multi_send_data_direct\n");
+			break;
 	}
 }
 
@@ -1343,24 +1363,19 @@ void multi_send_message_end()
 					for (t=0;t<N_players;t++)
 						if (Players[t].connected)
 							multi_reset_object_texture (&Objects[Players[t].objnum]);
+					reset_cockpit();
 
-					switch (multi_protocol)
-					{
 #ifdef USE_IPX
-						case MULTI_PROTO_IPX:
-							net_ipx_send_netgame_update();
-							break;
-#endif
-#ifdef USE_UDP
-						case MULTI_PROTO_UDP:
-							net_udp_send_netgame_update();
-							break;
-#endif
-						default:
-							Error("Protocol handling missing in multi_send_message_end\n");
-							break;
+					if (multi_protocol == MULTI_PROTO_IPX)
+					{
+						net_ipx_send_netgame_update(); // in IPX, team_vector is hidden in lite info...
 					}
-					
+					else
+#endif
+					{
+						multi_send_gmode_update();
+					}
+
 					sprintf (Network_message,"%s has changed teams!",Players[i].callsign);
 					if (i==Player_num)
 					{
@@ -1858,27 +1873,72 @@ multi_do_player_explode(char *buf)
 	Players[pnum].cloak_time = 0;
 }
 
+/*
+ * Process can compute a kill. If I am a Client this might be my own one (see multi_send_kill()) but with more specific data so I can compute my kill correctly.
+ */
 void
 multi_do_kill(char *buf)
 {
 	int killer, killed;
 	int count = 1;
-	int pnum;
+	int pnum = (int)(buf[count]);
+	int type = (int)(buf[0]);
 
-	pnum = (int)(buf[count]);
+	if (multi_protocol == MULTI_PROTO_IPX && type != MULTI_KILL)
+		return;
+	else
+	{
+		if (multi_i_am_master() && type != MULTI_KILL_CLIENT)
+			return;
+		if (!multi_i_am_master() && type != MULTI_KILL_HOST)
+			return;
+	}
+
 	if ((pnum < 0) || (pnum >= N_players))
 	{
 		Int3(); // Invalid player number killed
 		return;
 	}
-	killed = Players[pnum].objnum;
-	count += 1;
 
-	killer = GET_INTEL_SHORT(buf + count);
-	if (killer > 0)
-		killer = objnum_remote_to_local(killer, (sbyte)buf[count+2]);
+	if (multi_protocol == MULTI_PROTO_IPX)
+	{
+		killed = Players[pnum].objnum;
+		count += 1;
+		killer = GET_INTEL_SHORT(buf + count);
+		if (killer > 0)
+			killer = objnum_remote_to_local(killer, (sbyte)buf[count+2]);
 
-	multi_compute_kill(killer, killed);
+		multi_compute_kill(killer, killed);
+	}
+	else
+	{
+		// I am host, I know what's going on so take this packet, add game_mode related info which might be necessary for kill computation and send it to everyone so they can compute their kills correctly
+		if (multi_i_am_master())
+		{
+			memcpy(multibuf, buf, 5);
+			multibuf[0] = MULTI_KILL_HOST;
+			multibuf[5] = Netgame.team_vector;
+			multibuf[6] = Bounty_target;
+			
+			multi_send_data(multibuf, 7, 1);
+		}
+
+		killed = Players[pnum].objnum;
+		count += 1;
+		killer = GET_INTEL_SHORT(buf + count);
+		if (killer > 0)
+			killer = objnum_remote_to_local(killer, (sbyte)buf[count+2]);
+		if (!multi_i_am_master())
+		{
+			Netgame.team_vector = buf[5];
+			Bounty_target = buf[6];
+		}
+
+		multi_compute_kill(killer, killed);
+
+		if (Game_mode & GM_BOUNTY && multi_i_am_master()) // update in case if needed... we could attach this to this packet but... meh...
+			multi_send_bounty();
+	}
 }
 
 
@@ -2040,36 +2100,23 @@ void multi_disconnect_player(int pnum)
 	}
 
 	// Bounty target left - select a new one
-	if( Game_mode & GM_BOUNTY && pnum == Bounty_target )
+	if( Game_mode & GM_BOUNTY && pnum == Bounty_target && multi_i_am_master() )
 	{
-		if ( multi_i_am_master() )
-		{
-			/* Select a random number */
-			int new = d_rand() % MAX_NUM_NET_PLAYERS;
-			
-			/* Make sure they're valid: Don't check against kill flags,
-				* just in case everyone's dead! */
-			while( !Players[new].connected )
-				new = d_rand() % MAX_NUM_NET_PLAYERS;
-			
-			/* Select new target */
-			multi_new_bounty_target( new );
-			
-			/* Send this new data */
-			multi_send_bounty();
-		}
-		else
-		{
-			/* check if we already got a new target from host. if yes set it, if not just unset the current one. */
-			if ( new_Bounty_target != -1 )
-			{
-				Bounty_target = new_Bounty_target;
-				new_Bounty_target = -1;
-			}
-			else
-				Bounty_target = -1;
-		}
+		/* Select a random number */
+		int new = d_rand() % MAX_NUM_NET_PLAYERS;
+		
+		/* Make sure they're valid: Don't check against kill flags,
+			* just in case everyone's dead! */
+		while( !Players[new].connected )
+			new = d_rand() % MAX_NUM_NET_PLAYERS;
+		
+		/* Select new target */
+		multi_new_bounty_target( new );
+		
+		/* Send this new data */
+		multi_send_bounty();
 	}
+
 	multi_sending_message[pnum] = 0;
 }
 
@@ -2943,6 +2990,9 @@ multi_send_position(int objnum)
 	multi_send_data(multibuf, count, 0);
 }
 
+/* 
+ * I was killed. If I am host, send this info to everyone and compute kill. If I am just a Client I'll only send the kill but not compute it for me. I (Client) will wait for Host to send me my kill back together with updated game_mode related variables which are important for me to compute consistent kill. If we are in IPX, screw consistency...
+ */
 void
 multi_send_kill(int objnum)
 {
@@ -2951,29 +3001,76 @@ multi_send_kill(int objnum)
 	int killer_objnum;
 	int count = 0;
 
-	Assert(Objects[objnum].id == Player_num);
-	killer_objnum = Players[Player_num].killer_objnum;
+	if (multi_protocol == MULTI_PROTO_IPX)
+	{
+		Assert(Objects[objnum].id == Player_num);
+		killer_objnum = Players[Player_num].killer_objnum;
 
-	multi_compute_kill(killer_objnum, objnum);
+		multibuf[count] = (char)MULTI_KILL;	count += 1;
+		multibuf[count] = Player_num;		count += 1;
 
-	multibuf[0] = (char)MULTI_KILL;     count += 1;
-	multibuf[1] = Player_num;           count += 1;
-	if (killer_objnum > -1) {
-		short s;		// do it with variable since INTEL_SHORT won't work on return val from function.
+		if (killer_objnum > -1)
+		{
+			short s = (short)objnum_local_to_remote(killer_objnum, (sbyte *)&multibuf[count+2]); // do it with variable since INTEL_SHORT won't work on return val from function.
+			PUT_INTEL_SHORT(multibuf+count, s);
+		}
+		else
+		{
+			PUT_INTEL_SHORT(multibuf+count, -1);
+			multibuf[count+2] = (char)-1;
+		}
+		count += 3;
 
-		s = (short)objnum_local_to_remote(killer_objnum, (sbyte *)&multibuf[count+2]);
-		PUT_INTEL_SHORT(multibuf+count, s);
+		multi_compute_kill(killer_objnum, objnum);
+		multi_send_data(multibuf, count, 1);
+
+		if (Game_mode & GM_MULTI_ROBOTS)
+			multi_strip_robots(Player_num);
 	}
 	else
 	{
-		PUT_INTEL_SHORT(multibuf+count, -1);
-		multibuf[count+2] = (char)-1;
-	}
-	count += 3;
-	multi_send_data(multibuf, count, 1);
+		Assert(Objects[objnum].id == Player_num);
+		killer_objnum = Players[Player_num].killer_objnum;
 
-	if (Game_mode & GM_MULTI_ROBOTS)
-		multi_strip_robots(Player_num);
+		if (multi_i_am_master())
+			multibuf[count] = (char)MULTI_KILL_HOST;
+		else
+			multibuf[count] = (char)MULTI_KILL_CLIENT;
+								count += 1;
+		multibuf[count] = Player_num;			count += 1;
+
+		if (killer_objnum > -1)
+		{
+			short s = (short)objnum_local_to_remote(killer_objnum, (sbyte *)&multibuf[count+2]); // do it with variable since INTEL_SHORT won't work on return val from function.
+			PUT_INTEL_SHORT(multibuf+count, s);
+		}
+		else
+		{
+			PUT_INTEL_SHORT(multibuf+count, -1);
+			multibuf[count+2] = (char)-1;
+		}
+		count += 3;
+		// I am host - I know what's going on so attach game_mode related info which might be vital for correct kill computation
+		if (multi_i_am_master())
+		{
+			multibuf[count] = Netgame.team_vector;	count += 1;
+			multibuf[count] = Bounty_target;	count += 1;
+		}
+
+		if (multi_i_am_master())
+		{
+			multi_compute_kill(killer_objnum, objnum);
+			multi_send_data(multibuf, count, 1);
+		}
+		else
+			multi_send_data_direct((ubyte*)multibuf, count, multi_who_is_master(), 1); // I am just a client so I'll only send my kill but not compute it, yet. I'll get response from host so I can compute it correctly
+
+		if (Game_mode & GM_MULTI_ROBOTS)
+			multi_strip_robots(Player_num);
+
+		if (Game_mode & GM_BOUNTY && multi_i_am_master()) // update in case if needed... we could attach this to this packet but... meh...
+			multi_send_bounty();
+	}
 }
 
 void
@@ -3080,8 +3177,6 @@ multi_send_door_open(int segnum, int side,ubyte flag)
 	multi_send_data(multibuf, 5, 1);
 }
 
-extern void net_ipx_send_naked_packet (char *,short,int);
-
 void multi_send_door_open_specific(int pnum,int segnum, int side,ubyte flag)
 {
 	// For sending doors only to a specific person (usually when they're joining)
@@ -3094,22 +3189,7 @@ void multi_send_door_open_specific(int pnum,int segnum, int side,ubyte flag)
 	multibuf[3] = (sbyte)side;
 	multibuf[4] = flag;
 
-	switch (multi_protocol)
-	{
-#ifdef USE_IPX
-		case MULTI_PROTO_IPX:
-			net_ipx_send_naked_packet(multibuf, 5, pnum);
-			break;
-#endif
-#ifdef USE_UDP
-		case MULTI_PROTO_UDP:
-			net_udp_send_mdata_direct((ubyte *)multibuf, 5, pnum, 1);
-			break;
-#endif
-		default:
-			Error("Protocol handling missing in multi_send_door_open_specific\n");
-			break;
-	}
+	multi_send_data_direct((ubyte *)multibuf, 5, pnum, 1);
 }
 
 //
@@ -3337,8 +3417,6 @@ void multi_prep_level(void)
 	PhallicMan=-1;
 	Drop_afterburner_blob_flag=0;
 	Bounty_target = 0;
-	new_Bounty_target = -1;
-	new_Bounty_num = 0;
 
 	multi_consistency_error(1);
 
@@ -3960,23 +4038,7 @@ void multi_send_wall_status_specific (int pnum,int wallnum,ubyte type,ubyte flag
 	multibuf[count]=flags;                count++;
 	multibuf[count]=state;                count++;
 
-	switch (multi_protocol)
-	{
-#ifdef USE_IPX
-		case MULTI_PROTO_IPX:
-			net_ipx_send_naked_packet(multibuf, count,pnum); // twice, just to be sure
-			net_ipx_send_naked_packet(multibuf, count,pnum);
-			break;
-#endif
-#ifdef USE_UDP
-		case MULTI_PROTO_UDP:
-			net_udp_send_mdata_direct((ubyte *)multibuf, count, pnum, 1);
-			break;
-#endif
-		default:
-			Error("Protocol handling missing in multi_send_wall_status_specific\n");
-			break;
-	}
+	multi_send_data_direct((ubyte *)multibuf, count, pnum, 1);
 }
 
 void multi_do_wall_status (char *buf)
@@ -4146,22 +4208,7 @@ void multi_send_light_specific (int pnum,int segnum,ubyte val)
 		PUT_INTEL_SHORT(multibuf+count, Segments[segnum].sides[i].tmap_num2); count+=2;
 	}
 
-	switch (multi_protocol)
-	{
-#ifdef USE_IPX
-		case MULTI_PROTO_IPX:
-			net_ipx_send_naked_packet(multibuf, count, pnum);
-			break;
-#endif
-#ifdef USE_UDP
-		case MULTI_PROTO_UDP:
-			net_udp_send_mdata_direct((ubyte *)multibuf, count, pnum, 1);
-			break;
-#endif
-		default:
-			Error("Protocol handling missing in multi_send_light_specific\n");
-			break;
-	}
+	multi_send_data_direct((ubyte *)multibuf, count, pnum, 1);
 }
 
 void multi_do_light (char *buf)
@@ -4763,22 +4810,7 @@ void multi_send_trigger_specific (char pnum,char trig)
 	multibuf[0] = MULTI_START_TRIGGER;
 	multibuf[1] = trig;
 
-	switch (multi_protocol)
-	{
-#ifdef USE_IPX
-		case MULTI_PROTO_IPX:
-			net_ipx_send_naked_packet(multibuf, 2, pnum);
-			break;
-#endif
-#ifdef USE_UDP
-		case MULTI_PROTO_UDP:
-			net_udp_send_mdata_direct((ubyte *)multibuf, 2, pnum, 1);
-			break;
-#endif
-		default:
-			Error("Protocol handling missing in multi_send_trigger_specific\n");
-			break;
-	}
+	multi_send_data_direct((ubyte *)multibuf, 2, pnum, 1);
 }
 void multi_do_start_trigger (char *buf)
 {
@@ -4957,26 +4989,17 @@ void multi_send_bounty( void )
 	/* Add opcode, target ID and how often we re-assigned */
 	multibuf[0] = MULTI_DO_BOUNTY;
 	multibuf[1] = (char)Bounty_target;
-	new_Bounty_num++;
-	PUT_INTEL_INT( multibuf+2, new_Bounty_num );
 	
 	/* Send data */
-	multi_send_data( multibuf, 6, 1 );
+	multi_send_data( multibuf, 2, 1 );
 }
 
 void multi_do_bounty( char *buf )
 {
-	int this_new_Bounty_num = GET_INTEL_INT(buf + 2);
 	if ( multi_i_am_master() )
 		return;
-	if (this_new_Bounty_num < new_Bounty_num)
-		return;
-	new_Bounty_num = this_new_Bounty_num;
-	/* check if there's still a valid target */
-	if (Bounty_target == -1)
-		multi_new_bounty_target( buf[1] ); /* nope - set new target! */
-	else
-		new_Bounty_target = buf[1]; /* still have valid target - store new one until we unset the current. */
+	
+	multi_new_bounty_target( buf[1] );
 }
 
 void multi_new_bounty_target( int pnum )
@@ -5205,6 +5228,46 @@ void multi_send_msgsend_state(int state)
 	multibuf[2] = (char)state;
 	
 	multi_send_data(multibuf, 3, 1);
+}
+
+// Specific variables related to our game mode we want the clients to know about
+void multi_send_gmode_update()
+{
+	if (multi_protocol == MULTI_PROTO_IPX)
+		return;
+	if (!multi_i_am_master())
+		return;
+	if (!(Game_mode & GM_TEAM || Game_mode & GM_BOUNTY)) // expand if necessary
+		return;
+	multibuf[0] = (char)MULTI_GMODE_UPDATE;
+	multibuf[1] = Netgame.team_vector;
+	multibuf[2] = Bounty_target;
+	
+	multi_send_data(multibuf, 3, 0);
+}
+
+void multi_do_gmode_update(char *buf)
+{
+	if (multi_protocol == MULTI_PROTO_IPX)
+		return;
+	if (multi_i_am_master())
+		return;
+	if (Game_mode & GM_TEAM)
+	{
+		if (buf[1] != Netgame.team_vector)
+		{
+			int t;
+			Netgame.team_vector = buf[1];
+			for (t=0;t<N_players;t++)
+				if (Players[t].connected)
+					multi_reset_object_texture (&Objects[Players[t].objnum]);
+			reset_cockpit();
+		}
+	}
+	if (Game_mode & GM_BOUNTY)
+	{
+		Bounty_target = buf[2]; // accept silently - message about change we SHOULD have gotten due to kill computation
+	}
 }
 
 ///
@@ -5582,6 +5645,12 @@ multi_process_data(char *buf, int len)
 		if( !Endlevel_sequence ) multi_do_bounty( buf ); break;
 	case MULTI_TYPING_STATE:
 		multi_do_msgsend_state( buf ); break;
+	case MULTI_GMODE_UPDATE:
+		multi_do_gmode_update( buf ); break;
+	case MULTI_KILL_HOST:
+		multi_do_kill(buf); break;
+	case MULTI_KILL_CLIENT:
+		multi_do_kill(buf); break;
 	default:
 		Int3();
 	}

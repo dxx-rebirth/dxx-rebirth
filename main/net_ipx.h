@@ -262,6 +262,7 @@ void net_ipx_disconnect_player(int playernum);
 
 extern void net_ipx_dump_player(ubyte * server, ubyte *node, int why);
 extern void net_ipx_send_netgame_update();
+extern void net_ipx_send_naked_packet (char *,short,int);
 
 // By putting an up-to-20-char-message into Network_message and
 // setting Network_message_reciever to the player num you want to
