@@ -159,7 +159,11 @@ void event_process(void)
 		if (window_is_visible(wind))
 			window_send_event(wind, &event);
 		if (!window_exists(wind))
-			wind = window_get_next(prev); // the current window seemed to be closed. so take the next one from the previous which should be able to point to the one after the currently closed
+		{
+			if (!prev) // well there isn't a previous window ...
+				break; // ... just bail out - we've done everything for this frame we can.
+			wind = window_get_next(prev); // the current window seemed to be closed. so take the next one from the previous which should be able to point to the one after the current closed
+		}
 		else
 			wind = window_get_next(wind);
 	}

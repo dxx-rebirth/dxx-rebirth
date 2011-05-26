@@ -1,5 +1,9 @@
 D2X-Rebirth Changelog
 
+20110526
+--------
+arch/sdl/event.c: In event_process() if a window closes while being drawn and there isn't a previous window we can get the next from just finish processing for this frame
+
 20110525
 --------
 main/multi.c, main/multi.h, main/net_ipx.h, main/net_udp.c: Added multi_send_data_direct to send multibuf to a specific player (i.e. Host<->Client, not Client<->Client); Overhauled kill sending/receiving and computation to rely in host information about game_mode-related variables (team_vector, Bounty_target) which are vital for consistent kill computation; Added function to send/update game_mode-related variables and solve /move command with this as well instead of workaround via updating lite_info
