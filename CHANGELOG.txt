@@ -3,6 +3,7 @@ D2X-Rebirth Changelog
 20110526
 --------
 arch/sdl/event.c: In event_process() if a window closes while being drawn and there isn't a previous window we can get the next from just finish processing for this frame
+main/gamerend.c: in game_render_frame_mono() call show_netplayerinfo() last so window views do not overlap
 
 20110525
 --------

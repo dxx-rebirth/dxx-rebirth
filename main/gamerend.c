@@ -730,12 +730,12 @@ void game_render_frame_mono(int flip)
 
 	gr_set_current_canvas(NULL);
 
+	show_extra_views();		//missile view, buddy bot, etc.
+
 #ifdef NETWORK
         if (netplayerinfo_on)
 		show_netplayerinfo();
 #endif
-
-	show_extra_views();		//missile view, buddy bot, etc.
 }
 
 void toggle_cockpit()
