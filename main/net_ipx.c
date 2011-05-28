@@ -2188,8 +2188,8 @@ static int opt_show_on_map, opt_difficulty, opt_socket;
 
 typedef struct param_opt
 {
-	int start_game, name, level, mode, moreopts;
-	int closed, refuse, maxnet, coop, team_anarchy;
+	int start_game, name, level, mode, mode_end, moreopts;
+	int closed, refuse, maxnet, anarchy, team_anarchy, robot_anarchy, coop;
 } param_opt;
 
 int net_ipx_start_game(void);
@@ -2267,24 +2267,25 @@ int net_ipx_game_param_handler( newmenu *menu, d_event *event, param_opt *opt )
 				Netgame.max_numplayers=MaxNumNetPlayers;
 			}
 
-			if ((citem >= opt->mode) && (citem <= opt->mode + 3))
+			if ((citem >= opt->mode) && (citem <= opt->mode_end))
 			{
-				if ( menus[opt->mode].value )
+				if ( menus[opt->anarchy].value )
 					Netgame.gamemode = NETGAME_ANARCHY;
 
-				else if (menus[opt->mode+1].value) {
+				else if (menus[opt->team_anarchy].value) {
 					Netgame.gamemode = NETGAME_TEAM_ANARCHY;
 				}
-		// 		else if (ANARCHY_ONLY_MISSION) {
-		// 			nm_messagebox(NULL, 1, TXT_OK, TXT_ANARCHY_ONLY_MISSION);
-		// 			menus[opt->mode+2].value = 0;
-		// 			menus[opt->mode+3].value = 0;
-		// 			menus[opt->mode].value = 1;
-		// 			goto menu;
-		// 		}
-				else if ( menus[opt->mode+2].value )
+// 		 		else if (ANARCHY_ONLY_MISSION) {
+// 					int i = 0;
+// 		 			nm_messagebox(NULL, 1, TXT_OK, TXT_ANARCHY_ONLY_MISSION);
+// 					for (i = opt->mode; i <= opt->mode_end; i++)
+// 						menus[i].value = 0;
+// 					menus[opt->anarchy].value = 1;
+// 		 			return 0;
+// 		 		}
+				else if ( menus[opt->robot_anarchy].value )
 					Netgame.gamemode = NETGAME_ROBOT_ANARCHY;
-				else if ( menus[opt->mode+3].value )
+				else if ( menus[opt->coop].value )
 					Netgame.gamemode = NETGAME_COOPERATIVE;
 				else Int3(); // Invalid mode -- see Rob
 			}
@@ -2307,7 +2308,7 @@ int net_ipx_game_param_handler( newmenu *menu, d_event *event, param_opt *opt )
 
 			if (citem==opt->moreopts)
 			{
-				if ( menus[opt->mode+3].value )
+				if ( menus[opt->coop].value )
 					Game_mode=GM_MULTI_COOP;
 				net_ipx_more_game_options();
 				Game_mode=0;
@@ -2391,10 +2392,10 @@ int net_ipx_setup_game()
 	m[optnum].type = NM_TYPE_TEXT; m[optnum].text = TXT_OPTIONS; optnum++;
 
 	opt.mode = optnum;
-	m[optnum].type = NM_TYPE_RADIO; m[optnum].text = TXT_ANARCHY; m[optnum].value=(Netgame.gamemode == NETGAME_ANARCHY); m[optnum].group=0; optnum++;
+	m[optnum].type = NM_TYPE_RADIO; m[optnum].text = TXT_ANARCHY; m[optnum].value=(Netgame.gamemode == NETGAME_ANARCHY); m[optnum].group=0; opt.anarchy=optnum; optnum++;
 	m[optnum].type = NM_TYPE_RADIO; m[optnum].text = TXT_TEAM_ANARCHY; m[optnum].value=(Netgame.gamemode == NETGAME_TEAM_ANARCHY); m[optnum].group=0; opt.team_anarchy=optnum; optnum++;
-	m[optnum].type = NM_TYPE_RADIO; m[optnum].text = TXT_ANARCHY_W_ROBOTS; m[optnum].value=(Netgame.gamemode == NETGAME_ROBOT_ANARCHY); m[optnum].group=0; optnum++;
-	m[optnum].type = NM_TYPE_RADIO; m[optnum].text = TXT_COOPERATIVE; m[optnum].value=(Netgame.gamemode == NETGAME_COOPERATIVE); m[optnum].group=0; opt.coop=optnum; optnum++;
+	m[optnum].type = NM_TYPE_RADIO; m[optnum].text = TXT_ANARCHY_W_ROBOTS; m[optnum].value=(Netgame.gamemode == NETGAME_ROBOT_ANARCHY); m[optnum].group=0; opt.robot_anarchy=optnum; optnum++;
+	m[optnum].type = NM_TYPE_RADIO; m[optnum].text = TXT_COOPERATIVE; m[optnum].value=(Netgame.gamemode == NETGAME_COOPERATIVE); m[optnum].group=0; opt.mode_end=opt.coop=optnum; optnum++;
 
 	m[optnum].type = NM_TYPE_TEXT; m[optnum].text = ""; optnum++;
 

@@ -1,5 +1,9 @@
 D1X-Rebirth Changelog
 
+20110528
+--------
+main/net_ipx.c, main/net_udp.c: Made netgame setup menu more flexible towards (constant or temporary) changes in available game modes
+
 20110526
 --------
 arch/sdl/event.c: In event_process() if a window closes while being drawn and there isn't a previous window we can get the next from just finish processing for this frame

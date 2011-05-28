@@ -2949,8 +2949,8 @@ int net_udp_more_options_handler( newmenu *menu, d_event *event, void *userdata 
 
 typedef struct param_opt
 {
-	int start_game, name, level, mode, moreopts;
-	int closed, refuse, maxnet, coop, team_anarchy;
+	int start_game, name, level, mode, mode_end, moreopts;
+	int closed, refuse, maxnet, anarchy, team_anarchy, robot_anarchy, coop, bounty;
 } param_opt;
 
 int net_udp_start_game(void);
@@ -3034,26 +3034,27 @@ int net_udp_game_param_handler( newmenu *menu, d_event *event, param_opt *opt )
 				Netgame.max_numplayers=MaxNumNetPlayers;
 			}
 
-			if ((citem >= opt->mode) && (citem <= opt->mode + 4))
+			if ((citem >= opt->mode) && (citem <= opt->mode_end))
 			{
-				if ( menus[opt->mode].value )
+				if ( menus[opt->anarchy].value )
 					Netgame.gamemode = NETGAME_ANARCHY;
 				
-				else if (menus[opt->mode+1].value) {
+				else if (menus[opt->team_anarchy].value) {
 					Netgame.gamemode = NETGAME_TEAM_ANARCHY;
 				}
-		// 		else if (ANARCHY_ONLY_MISSION) {
-		// 			nm_messagebox(NULL, 1, TXT_OK, TXT_ANARCHY_ONLY_MISSION);
-		// 			menus[opt->mode+2].value = 0;
-		// 			menus[opt->mode+3].value = 0;
-		// 			menus[opt->mode].value = 1;
-		// 			goto menu;
-		// 		}
-				else if ( menus[opt->mode+2].value ) 
+// 		 		else if (ANARCHY_ONLY_MISSION) {
+// 					int i = 0;
+// 		 			nm_messagebox(NULL, 1, TXT_OK, TXT_ANARCHY_ONLY_MISSION);
+// 					for (i = opt->mode; i <= opt->mode_end; i++)
+// 						menus[i].value = 0;
+// 					menus[opt->anarchy].value = 1;
+// 		 			return 0;
+// 		 		}
+				else if ( menus[opt->robot_anarchy].value ) 
 					Netgame.gamemode = NETGAME_ROBOT_ANARCHY;
-				else if ( menus[opt->mode+3].value ) 
+				else if ( menus[opt->coop].value ) 
 					Netgame.gamemode = NETGAME_COOPERATIVE;
-				else if ( menus[opt->mode+4].value )
+				else if ( menus[opt->bounty].value )
 					Netgame.gamemode = NETGAME_BOUNTY;
 				else Int3(); // Invalid mode -- see Rob
 			}
@@ -3076,7 +3077,7 @@ int net_udp_game_param_handler( newmenu *menu, d_event *event, param_opt *opt )
 
 			if (citem==opt->moreopts)
 			{
-				if ( menus[opt->mode+3].value )
+				if ( menus[opt->coop].value )
 					Game_mode=GM_MULTI_COOP;
 				net_udp_more_game_options();
 				Game_mode=0;
@@ -3134,7 +3135,7 @@ int net_udp_setup_game()
 
 	read_netgame_profile(&Netgame);
 
-	if (Netgame.gamemode == NETGAME_COOPERATIVE) // did we resotred Coop as default? then fix max players right now!
+	if (Netgame.gamemode == NETGAME_COOPERATIVE) // did we restore Coop as default? then fix max players right now!
 		Netgame.max_numplayers = MaxNumNetPlayers = 4;
 
 	strcpy(Netgame.mission_name, Current_mission_filename);
@@ -3165,11 +3166,11 @@ int net_udp_setup_game()
 	m[optnum].type = NM_TYPE_TEXT; m[optnum].text = TXT_OPTIONS; optnum++;
 
 	opt.mode = optnum;
-	m[optnum].type = NM_TYPE_RADIO; m[optnum].text = TXT_ANARCHY; m[optnum].value=(Netgame.gamemode == NETGAME_ANARCHY); m[optnum].group=0; optnum++;
+	m[optnum].type = NM_TYPE_RADIO; m[optnum].text = TXT_ANARCHY; m[optnum].value=(Netgame.gamemode == NETGAME_ANARCHY); m[optnum].group=0; opt.anarchy=optnum; optnum++;
 	m[optnum].type = NM_TYPE_RADIO; m[optnum].text = TXT_TEAM_ANARCHY; m[optnum].value=(Netgame.gamemode == NETGAME_TEAM_ANARCHY); m[optnum].group=0; opt.team_anarchy=optnum; optnum++;
-	m[optnum].type = NM_TYPE_RADIO; m[optnum].text = TXT_ANARCHY_W_ROBOTS; m[optnum].value=(Netgame.gamemode == NETGAME_ROBOT_ANARCHY); m[optnum].group=0; optnum++;
+	m[optnum].type = NM_TYPE_RADIO; m[optnum].text = TXT_ANARCHY_W_ROBOTS; m[optnum].value=(Netgame.gamemode == NETGAME_ROBOT_ANARCHY); m[optnum].group=0; opt.robot_anarchy=optnum; optnum++;
 	m[optnum].type = NM_TYPE_RADIO; m[optnum].text = TXT_COOPERATIVE; m[optnum].value=(Netgame.gamemode == NETGAME_COOPERATIVE); m[optnum].group=0; opt.coop=optnum; optnum++;
-	m[optnum].type = NM_TYPE_RADIO; m[optnum].text = "Bounty"; m[optnum].value = ( Netgame.gamemode & NETGAME_BOUNTY ); m[optnum].group = 0; optnum++;
+	m[optnum].type = NM_TYPE_RADIO; m[optnum].text = "Bounty"; m[optnum].value = ( Netgame.gamemode & NETGAME_BOUNTY ); m[optnum].group = 0; opt.mode_end=opt.bounty=optnum; optnum++;
 
 	m[optnum].type = NM_TYPE_TEXT; m[optnum].text = ""; optnum++;
 
