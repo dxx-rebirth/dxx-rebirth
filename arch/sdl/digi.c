@@ -43,7 +43,6 @@ int  (*fptr_start_sound)(short, fix, int, int, int, int, int) = NULL;
 void (*fptr_stop_sound)(int) = NULL;
 void (*fptr_end_sound)(int) = NULL;
 
-int  (*fptr_find_channel)(int) = NULL;
 int  (*fptr_is_sound_playing)(int) = NULL;
 int  (*fptr_is_channel_playing)(int) = NULL;
 void (*fptr_stop_all_channels)() = NULL;
@@ -62,7 +61,6 @@ void digi_select_system(int n) {
 	fptr_start_sound = digi_mixer_start_sound;
 	fptr_stop_sound = digi_mixer_stop_sound;
 	fptr_end_sound = digi_mixer_end_sound;
-	fptr_find_channel = digi_mixer_find_channel;
 	fptr_is_sound_playing = digi_mixer_is_sound_playing;
 	fptr_is_channel_playing = digi_mixer_is_channel_playing;
 	fptr_stop_all_channels = digi_mixer_stop_all_channels;
@@ -80,7 +78,6 @@ void digi_select_system(int n) {
         fptr_start_sound = digi_audio_start_sound;
         fptr_stop_sound = digi_audio_stop_sound;
         fptr_end_sound = digi_audio_end_sound;
-        fptr_find_channel = digi_audio_find_channel;
         fptr_is_sound_playing = digi_audio_is_sound_playing;
         fptr_is_channel_playing = digi_audio_is_channel_playing;
         fptr_stop_all_channels = digi_audio_stop_all_channels;
@@ -121,7 +118,6 @@ int  digi_start_sound(short soundnum, fix volume, int pan, int looping, int loop
 void digi_stop_sound(int channel) { fptr_stop_sound(channel); }
 void digi_end_sound(int channel) { fptr_end_sound(channel); }
 
-int  digi_find_channel(int soundno) { return fptr_find_channel(soundno); }
 int  digi_is_sound_playing(int soundno) { return fptr_is_sound_playing(soundno); }
 int  digi_is_channel_playing(int channel) { return fptr_is_channel_playing(channel); }
 void digi_stop_all_channels() { fptr_stop_all_channels(); }

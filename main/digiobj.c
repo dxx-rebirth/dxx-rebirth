@@ -149,18 +149,12 @@ void digi_get_sound_loc( vms_matrix * listener, vms_vector * listener_pos, int l
 
 void digi_play_sample_once( int soundno, fix max_volume )
 {
-	int channel;
-
 	if ( Newdemo_state == ND_STATE_RECORDING )
 		newdemo_record_sound( soundno );
 
 	soundno = digi_xlat_sound(soundno);
 
 	if (soundno < 0 ) return;
-
-	channel=digi_find_channel(soundno);
-	if ( channel > -1 )
-		digi_stop_sound( channel );
 
    // start the sample playing
 	digi_start_sound( soundno, max_volume, 0xffff/2, 0, -1, -1, -1 );
