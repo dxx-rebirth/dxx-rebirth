@@ -1,5 +1,9 @@
 D1X-Rebirth Changelog
 
+20110530
+--------
+arch/include/digi_audio.h, arch/include/digi_mixer.h, arch/sdl/digi.c, arch/sdl/digi_mixer.c, main/digi.h, main/digiobj.c: Added own channel management to SDL_mixer sound interface since the builtin channel management of this lib cannot handle our needs; Little code cleanup
+
 20110528
 --------
 main/net_ipx.c, main/net_udp.c: Made netgame setup menu more flexible towards (constant or temporary) changes in available game modes

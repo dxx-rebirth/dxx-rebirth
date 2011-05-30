@@ -69,10 +69,6 @@ extern int digi_xlat_sound(int soundno);
 
 extern void digi_stop_sound( int channel );
 
-// Returns the channel a sound number is playing on, or
-// -1 if none.
-extern int digi_find_channel(int soundno);
-
 // Volume 0-F1_0
 extern int digi_start_sound(short soundnum, fix volume, int pan, int looping, int loop_start, int loop_end, int soundobj);
 
