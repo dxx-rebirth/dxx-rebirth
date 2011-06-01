@@ -287,11 +287,12 @@ vms_matrix surface_orient;
 
 int endlevel_data_loaded=0;
 extern char last_palette_loaded[];
+int endlevel_movie_played = MOVIE_NOT_PLAYED;
 
 void start_endlevel_sequence()
 {
 	int	i;
-	int movie_played = MOVIE_NOT_PLAYED;
+	
 
 	reset_rear_view(); //turn off rear view if set - NOTE: make sure this happens before we pause demo recording!!
 
@@ -333,11 +334,11 @@ void start_endlevel_sequence()
 	
 	if (PLAYING_BUILTIN_MISSION) // only play movie for built-in mission
 		if (!(Game_mode & GM_MULTI))
-			movie_played = start_endlevel_movie();
+			endlevel_movie_played = start_endlevel_movie();
 	
 	window_set_visible(Game_wind, 1);
 
-	if (!(Game_mode & GM_MULTI) && (movie_played == MOVIE_NOT_PLAYED) && endlevel_data_loaded)
+	if (!(Game_mode & GM_MULTI) && (endlevel_movie_played == MOVIE_NOT_PLAYED) && endlevel_data_loaded)
 	{   //don't have movie.  Do rendered sequence, if available
 		int exit_models_loaded = 0;
 
@@ -683,7 +684,7 @@ void do_endlevel_frame()
 
 			if (ConsoleObject->segnum == transition_segnum) {
 
-				if (PLAYING_BUILTIN_MISSION && start_endlevel_movie() != MOVIE_NOT_PLAYED)
+				if (PLAYING_BUILTIN_MISSION && endlevel_movie_played != MOVIE_NOT_PLAYED)
 					stop_endlevel_sequence();
 				else {
 					int objnum;
