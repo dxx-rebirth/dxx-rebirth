@@ -39,12 +39,10 @@ COPYRIGHT 1993-1998 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 #include "textures.h"
 #include "object.h"
 #include "lighting.h"
-#include "cfile.h"
 #include "piggy.h"
 #endif
 #include "byteswap.h"
 #include "render.h"
-
 #ifdef OGL
 #include "ogl_init.h"
 #endif
@@ -89,7 +87,7 @@ int pof_read_int(ubyte *bufp)
 	Pof_addr += 4;
 	return INTEL_INT(i);
 
-//	if (cfread(&i,sizeof(i),1,f) != 1)
+//	if (PHYSFS_read(f,&i,sizeof(i),1) != 1)
 //		Error("Unexpected end-of-file while reading object");
 //
 //	return i;
@@ -110,7 +108,7 @@ size_t pof_cfread(void *dst, size_t elsize, size_t nelem, ubyte *bufp)
 	return nelem;
 }
 
-// #define new_read_int(i,f) cfread(&(i),sizeof(i),1,(f))
+// #define new_read_int(i,f) PHYSFS_read((f),&(i),sizeof(i),1)
 #define new_pof_read_int(i,f) pof_cfread(&(i),sizeof(i),1,(f))
 
 short pof_read_short(ubyte *bufp)
@@ -120,7 +118,7 @@ short pof_read_short(ubyte *bufp)
 	s = *((short *) &bufp[Pof_addr]);
 	Pof_addr += 2;
 	return INTEL_SHORT(s);
-//	if (cfread(&s,sizeof(s),1,f) != 1)
+//	if (PHYSFS_read(f,&s,sizeof(s),1) != 1)
 //		Error("Unexpected end-of-file while reading object");
 //
 //	return s;
@@ -135,14 +133,14 @@ void pof_read_string(char *buf,int max, ubyte *bufp)
 			break;
 	}
 
-//	while (max-- && (*buf=cfgetc(f)) != 0) buf++;
+//	while (max-- && (*buf=PHYSFSX_fgetc(f)) != 0) buf++;
 
 }
 
 void pof_read_vecs(vms_vector *vecs,int n,ubyte *bufp)
 {
 	int i;
-//	cfread(vecs,sizeof(vms_vector),n,f);
+//	PHYSFS_read(f,vecs,sizeof(vms_vector),n);
 
 	for (i = 0; i < n; i++)
 	{
@@ -155,7 +153,7 @@ void pof_read_vecs(vms_vector *vecs,int n,ubyte *bufp)
 void pof_read_angvecs(vms_angvec *vecs,int n,ubyte *bufp)
 {
 	int i;
-	//	cfread(vecs,sizeof(vms_vector),n,f);
+	//	PHYSFS_read(f,vecs,sizeof(vms_vector),n);
 	
 	for (i = 0; i < n; i++)
 	{
@@ -272,19 +270,19 @@ void align_polygon_model_data(polymodel *pm)
 //reads a binary file containing a 3d model
 polymodel *read_model_file(polymodel *pm,char *filename,robot_info *r)
 {
-	CFILE *ifile;
+	PHYSFS_file *ifile;
 	short version;
 	int id,len, next_chunk;
 	ubyte	model_buf[MODEL_BUF_SIZE];
 
-	if ((ifile=cfopen(filename,"rb"))==NULL) 
+	if ((ifile=PHYSFSX_openReadBuffered(filename))==NULL) 
 		Error("Can't open file <%s>",filename);
 
-	Assert(cfilelength(ifile) <= MODEL_BUF_SIZE);
+	Assert(PHYSFS_fileLength(ifile) <= MODEL_BUF_SIZE);
 
 	Pof_addr = 0;
-	Pof_file_end = cfread(model_buf, 1, cfilelength(ifile), ifile);
-	cfclose(ifile);
+	Pof_file_end = PHYSFS_read(ifile, model_buf, 1, PHYSFS_fileLength(ifile));
+	PHYSFS_close(ifile);
 
 	id = pof_read_int(model_buf);
 
@@ -432,20 +430,20 @@ polymodel *read_model_file(polymodel *pm,char *filename,robot_info *r)
 //fills in arrays gun_points & gun_dirs, returns the number of guns read
 int read_model_guns(char *filename,vms_vector *gun_points, vms_vector *gun_dirs, int *gun_submodels)
 {
-	CFILE *ifile;
+	PHYSFS_file *ifile;
 	short version;
 	int id,len;
 	int n_guns=0;
 	ubyte	model_buf[MODEL_BUF_SIZE];
 
-	if ((ifile=cfopen(filename,"rb"))==NULL) 
+	if ((ifile=PHYSFSX_openReadBuffered(filename))==NULL) 
 		Error("Can't open file <%s>",filename);
 
-	Assert(cfilelength(ifile) <= MODEL_BUF_SIZE);
+	Assert(PHYSFS_fileLength(ifile) <= MODEL_BUF_SIZE);
 
 	Pof_addr = 0;
-	Pof_file_end = cfread(model_buf, 1, cfilelength(ifile), ifile);
-	cfclose(ifile);
+	Pof_file_end = PHYSFS_read(ifile, model_buf, 1, PHYSFS_fileLength(ifile));
+	PHYSFS_close(ifile);
 
 	id = pof_read_int(model_buf);
 
@@ -733,37 +731,37 @@ void draw_model_picture(int mn,vms_angvec *orient_angles)
 }
 
 /*
- * reads n polymodel structs from a CFILE
+ * reads n polymodel structs from a PHYSFS_file
  */
-extern int polymodel_read_n(polymodel *pm, int n, CFILE *fp)
+extern int polymodel_read_n(polymodel *pm, int n, PHYSFS_file *fp)
 {
 	int i, j;
 
 	for (i = 0; i < n; i++) {
-		pm[i].n_models = cfile_read_int(fp);
-		pm[i].model_data_size = cfile_read_int(fp);
-		pm[i].model_data = (ubyte *) (size_t)cfile_read_int(fp);
+		pm[i].n_models = PHYSFSX_readInt(fp);
+		pm[i].model_data_size = PHYSFSX_readInt(fp);
+		pm[i].model_data = (ubyte *) (size_t)PHYSFSX_readInt(fp);
 		for (j = 0; j < MAX_SUBMODELS; j++)
-			pm[i].submodel_ptrs[j] = cfile_read_int(fp);
+			pm[i].submodel_ptrs[j] = PHYSFSX_readInt(fp);
 		for (j = 0; j < MAX_SUBMODELS; j++)
-			cfile_read_vector(&(pm[i].submodel_offsets[j]), fp);
+			PHYSFSX_readVector(&(pm[i].submodel_offsets[j]), fp);
 		for (j = 0; j < MAX_SUBMODELS; j++)
-			cfile_read_vector(&(pm[i].submodel_norms[j]), fp);
+			PHYSFSX_readVector(&(pm[i].submodel_norms[j]), fp);
 		for (j = 0; j < MAX_SUBMODELS; j++)
-			cfile_read_vector(&(pm[i].submodel_pnts[j]), fp);
+			PHYSFSX_readVector(&(pm[i].submodel_pnts[j]), fp);
 		for (j = 0; j < MAX_SUBMODELS; j++)
-			pm[i].submodel_rads[j] = cfile_read_fix(fp);
-		cfread(pm[i].submodel_parents, MAX_SUBMODELS, 1, fp);
+			pm[i].submodel_rads[j] = PHYSFSX_readFix(fp);
+		PHYSFS_read(fp, pm[i].submodel_parents, MAX_SUBMODELS, 1);
 		for (j = 0; j < MAX_SUBMODELS; j++)
-			cfile_read_vector(&(pm[i].submodel_mins[j]), fp);
+			PHYSFSX_readVector(&(pm[i].submodel_mins[j]), fp);
 		for (j = 0; j < MAX_SUBMODELS; j++)
-			cfile_read_vector(&(pm[i].submodel_maxs[j]), fp);
-		cfile_read_vector(&(pm[i].mins), fp);
-		cfile_read_vector(&(pm[i].maxs), fp);
-		pm[i].rad = cfile_read_fix(fp);
-		pm[i].n_textures = cfile_read_byte(fp);
-		pm[i].first_texture = cfile_read_short(fp);
-		pm[i].simpler_model = cfile_read_byte(fp);
+			PHYSFSX_readVector(&(pm[i].submodel_maxs[j]), fp);
+		PHYSFSX_readVector(&(pm[i].mins), fp);
+		PHYSFSX_readVector(&(pm[i].maxs), fp);
+		pm[i].rad = PHYSFSX_readFix(fp);
+		pm[i].n_textures = PHYSFSX_readByte(fp);
+		pm[i].first_texture = PHYSFSX_readShort(fp);
+		pm[i].simpler_model = PHYSFSX_readByte(fp);
 	}
 	return i;
 }
@@ -772,11 +770,11 @@ extern int polymodel_read_n(polymodel *pm, int n, CFILE *fp)
 /*
  * routine which allocates, reads, and inits a polymodel's model_data
  */
-void polygon_model_data_read(polymodel *pm, CFILE *fp)
+void polygon_model_data_read(polymodel *pm, PHYSFS_file *fp)
 {
 	pm->model_data = d_malloc(pm->model_data_size);
 	Assert(pm->model_data != NULL);
-	cfread(pm->model_data, sizeof(ubyte), pm->model_data_size, fp );
+	PHYSFS_read(fp, pm->model_data, sizeof(ubyte), pm->model_data_size);
 #ifdef WORDS_NEED_ALIGNMENT
 	align_polygon_model_data(pm);
 #endif

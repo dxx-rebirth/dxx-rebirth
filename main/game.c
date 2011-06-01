@@ -498,7 +498,7 @@ void save_screen_shot(int automap_flag)
 
 	stop_time();
 
-	if (!cfexist(SCRNS_DIR))
+	if (!PHYSFSX_exists(SCRNS_DIR,0))
 		PHYSFS_mkdir(SCRNS_DIR); //try making directory
 
 	save_canv = grd_curcanv;
@@ -511,7 +511,7 @@ void save_screen_shot(int automap_flag)
 	do
 	{
 		sprintf(savename, "%sscrn%04d.pcx",SCRNS_DIR, savenum++);
-	} while (PHYSFS_exists(savename));
+	} while (PHYSFSX_exists(savename,0));
 	sprintf( message, "%s 'scrn%04d.pcx'", TXT_DUMPING_SCREEN, savenum-1 );
 
 	gr_set_current_canvas(NULL);

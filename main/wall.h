@@ -234,44 +234,44 @@ extern void remove_obsolete_stuck_objects(void);
 extern void wall_set_tmap_num(segment *seg,int side,segment *csegp,int cside,int anim_num,int frame_num);
 
 /*
- * reads n wclip structs from a CFILE
+ * reads n wclip structs from a PHYSFS_file
  */
-extern int wclip_read_n(wclip *wc, int n, CFILE *fp);
+extern int wclip_read_n(wclip *wc, int n, PHYSFS_file *fp);
 
 /*
- * reads a v16_wall structure from a CFILE
+ * reads a v16_wall structure from a PHYSFS_file
  */
-extern void v16_wall_read(v16_wall *w, CFILE *fp);
+extern void v16_wall_read(v16_wall *w, PHYSFS_file *fp);
 
 /*
- * reads a v19_wall structure from a CFILE
+ * reads a v19_wall structure from a PHYSFS_file
  */
-extern void v19_wall_read(v19_wall *w, CFILE *fp);
+extern void v19_wall_read(v19_wall *w, PHYSFS_file *fp);
 
 /*
- * reads a wall structure from a CFILE
+ * reads a wall structure from a PHYSFS_file
  */
-extern void wall_read(wall *w, CFILE *fp);
+extern void wall_read(wall *w, PHYSFS_file *fp);
 
 /*
- * reads a v19_door structure from a CFILE
+ * reads a v19_door structure from a PHYSFS_file
  */
-extern void v19_door_read(v19_door *d, CFILE *fp);
+extern void v19_door_read(v19_door *d, PHYSFS_file *fp);
 
 /*
- * reads an active_door structure from a CFILE
+ * reads an active_door structure from a PHYSFS_file
  */
-extern void active_door_read(active_door *ad, CFILE *fp);
+extern void active_door_read(active_door *ad, PHYSFS_file *fp);
 
 /*
- * reads n active_door structs from a CFILE and swaps if specified
+ * reads n active_door structs from a PHYSFS_file and swaps if specified
  */
-extern void active_door_read_n_swap(active_door *ad, int n, int swap, CFILE *fp);
+extern void active_door_read_n_swap(active_door *ad, int n, int swap, PHYSFS_file *fp);
 
 /*
- * reads n wall structs from a CFILE and swaps if specified
+ * reads n wall structs from a PHYSFS_file and swaps if specified
  */
-void wall_read_n_swap(wall *w, int n, int swap, CFILE *fp);
+void wall_read_n_swap(wall *w, int n, int swap, PHYSFS_file *fp);
 
 extern void wall_write(wall *w, short version, PHYSFS_file *fp);
 

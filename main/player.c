@@ -7,7 +7,6 @@
  */
 
 #include "player.h"
-#include "cfile.h"
 #include "byteswap.h"
 
 #ifdef RCS

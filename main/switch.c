@@ -239,22 +239,22 @@ void triggers_frame_process()
 }
 
 /*
- * reads a v29_trigger structure from a CFILE
+ * reads a v29_trigger structure from a PHYSFS_file
  */
-extern void trigger_read(trigger *t, CFILE *fp)
+extern void trigger_read(trigger *t, PHYSFS_file *fp)
 {
 	int i;
 	
-	t->type = cfile_read_byte(fp);
-	t->flags = cfile_read_short(fp);
-	t->value = cfile_read_fix(fp);
-	t->time = cfile_read_fix(fp);
-	t->link_num = cfile_read_byte(fp);
-	t->num_links = cfile_read_short(fp);
+	t->type = PHYSFSX_readByte(fp);
+	t->flags = PHYSFSX_readShort(fp);
+	t->value = PHYSFSX_readFix(fp);
+	t->time = PHYSFSX_readFix(fp);
+	t->link_num = PHYSFSX_readByte(fp);
+	t->num_links = PHYSFSX_readShort(fp);
 	for (i=0; i<MAX_WALLS_PER_LINK; i++ )
-		t->seg[i] = cfile_read_short(fp);
+		t->seg[i] = PHYSFSX_readShort(fp);
 	for (i=0; i<MAX_WALLS_PER_LINK; i++ )
-		t->side[i] = cfile_read_short(fp);
+		t->side[i] = PHYSFSX_readShort(fp);
 }
 
 void trigger_swap(trigger *t, int swap)
@@ -275,9 +275,9 @@ void trigger_swap(trigger *t, int swap)
 }
 
 /*
- * reads n trigger structs from a CFILE and swaps if specified
+ * reads n trigger structs from a PHYSFS_file and swaps if specified
  */
-void trigger_read_n_swap(trigger *t, int n, int swap, CFILE *fp)
+void trigger_read_n_swap(trigger *t, int n, int swap, PHYSFS_file *fp)
 {
 	int i;
 	

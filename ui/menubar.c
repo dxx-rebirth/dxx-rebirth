@@ -14,6 +14,7 @@ COPYRIGHT 1993-1998 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 #include <stdlib.h>
 #include <string.h>
 #include <ctype.h>
+#include "physfsx.h"
 #include "u_mem.h"
 #include "fix.h"
 #include "pstypes.h"
@@ -21,7 +22,6 @@ COPYRIGHT 1993-1998 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 #include "event.h"
 #include "ui.h"
 #include "key.h"
-#include "cfile.h"
 #include "func.h"
 #include "error.h"
 
@@ -633,7 +633,7 @@ void menubar_init( char * file )
 {
 	int i,j, np;
 	int aw, w, h;
-	CFILE * infile;
+	PHYSFS_file * infile;
 	char buffer[200];
 	char buf1[200];
 	char buf2[200];
@@ -658,11 +658,11 @@ void menubar_init( char * file )
 		}
 	}
 		
-	infile = cfopen( file, "rt" );
+	infile = PHYSFSX_openReadBuffered( file );
 
 	if (!infile) return;
 		
-	while ( cfgets( buffer, 200, infile) != NULL )
+	while ( PHYSFSX_fgets( buffer, 200, infile) != NULL )
 	{
 		if ( buffer[0] == ';' ) continue;
 		
@@ -773,7 +773,7 @@ void menubar_init( char * file )
 
 	Menu[0].w = 700;
 			
-	cfclose( infile );
+	PHYSFS_close( infile );
 
 	
 	for (i=0; i<num_menus; i++ )

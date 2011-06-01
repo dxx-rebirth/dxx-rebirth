@@ -45,7 +45,6 @@ COPYRIGHT 1993-1998 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 #include "paging.h"
 #include "game.h"
 #include "text.h"
-#include "cfile.h"
 #include "newmenu.h"
 #include "custom.h"
 
@@ -114,28 +113,28 @@ typedef struct DiskSoundHeader {
 } __pack__ DiskSoundHeader;
 
 /*
- * reads a DiskBitmapHeader structure from a CFILE
+ * reads a DiskBitmapHeader structure from a PHYSFS_file
  */
-void DiskBitmapHeader_read(DiskBitmapHeader *dbh, CFILE *fp)
+void DiskBitmapHeader_read(DiskBitmapHeader *dbh, PHYSFS_file *fp)
 {
-	cfread(dbh->name, 8, 1, fp);
-	dbh->dflags = cfile_read_byte(fp);
-	dbh->width = cfile_read_byte(fp);
-	dbh->height = cfile_read_byte(fp);
-	dbh->flags = cfile_read_byte(fp);
-	dbh->avg_color = cfile_read_byte(fp);
-	dbh->offset = cfile_read_int(fp);
+	PHYSFS_read(fp, dbh->name, 8, 1);
+	dbh->dflags = PHYSFSX_readByte(fp);
+	dbh->width = PHYSFSX_readByte(fp);
+	dbh->height = PHYSFSX_readByte(fp);
+	dbh->flags = PHYSFSX_readByte(fp);
+	dbh->avg_color = PHYSFSX_readByte(fp);
+	dbh->offset = PHYSFSX_readInt(fp);
 }
 
 /*
- * reads a DiskSoundHeader structure from a CFILE
+ * reads a DiskSoundHeader structure from a PHYSFS_file
  */
-void DiskSoundHeader_read(DiskSoundHeader *dsh, CFILE *fp)
+void DiskSoundHeader_read(DiskSoundHeader *dsh, PHYSFS_file *fp)
 {
-	cfread(dsh->name, 8, 1, fp);
-	dsh->length = cfile_read_int(fp);
-	dsh->data_length = cfile_read_int(fp);
-	dsh->offset = cfile_read_int(fp);
+	PHYSFS_read(fp, dsh->name, 8, 1);
+	dsh->length = PHYSFSX_readInt(fp);
+	dsh->data_length = PHYSFSX_readInt(fp);
+	dsh->offset = PHYSFSX_readInt(fp);
 }
 
 static int SoundCompressed[ MAX_SOUND_FILES ];
@@ -248,12 +247,12 @@ int piggy_find_sound( char * name )
 	return i;
 }
 
-CFILE * Piggy_fp = NULL;
+PHYSFS_file * Piggy_fp = NULL;
 
 void piggy_close_file()
 {
 	if ( Piggy_fp )	{
-		cfclose( Piggy_fp );
+		PHYSFS_close( Piggy_fp );
 		Piggy_fp	= NULL;
 	}
 }
@@ -265,7 +264,7 @@ digi_sound bogus_sound;
 int MacPig = 0;	// using the Macintosh pigfile?
 int PCSharePig = 0; // using PC Shareware pigfile?
 
-extern void properties_read_cmp(CFILE * fp);
+extern void properties_read_cmp(PHYSFS_file * fp);
 #ifdef EDITOR
 extern void bm_write_all(PHYSFS_file * fp);
 #endif
@@ -344,12 +343,12 @@ int properties_init()
 	Piggy_fp = PHYSFSX_openReadBuffered(DEFAULT_PIGFILE_REGISTERED);
 	if (Piggy_fp==NULL)
 	{
-		if (!cfexist("BITMAPS.TBL") && !cfexist("BITMAPS.BIN"))
+		if (!PHYSFSX_exists("BITMAPS.TBL",1) && !PHYSFSX_exists("BITMAPS.BIN",1))
 			Error("Cannot find " DEFAULT_PIGFILE_REGISTERED " or BITMAPS.TBL");
 		return 1;	// need to run gamedata_read_tbl
 	}
 
-	pigsize = cfilelength(Piggy_fp);
+	pigsize = PHYSFS_fileLength(Piggy_fp);
 	switch (pigsize) {
 		case D1_SHARE_BIG_PIGSIZE:
 		case D1_SHARE_10_PIGSIZE:
@@ -370,7 +369,7 @@ int properties_init()
 			MacPig = 1;
 		case D1_PIGSIZE:
 		case D1_OEM_PIGSIZE:
-			Pigdata_start = cfile_read_int(Piggy_fp );
+			Pigdata_start = PHYSFSX_readInt(Piggy_fp );
 			break;
 	}
 	
@@ -378,12 +377,12 @@ int properties_init()
 
 	if (PCSharePig)
 		retval = PIGGY_PC_SHAREWARE;	// run gamedata_read_tbl in shareware mode
-	else if (GameArg.EdiNoBm || (!cfexist("BITMAPS.TBL") && !cfexist("BITMAPS.BIN")))
+	else if (GameArg.EdiNoBm || (!PHYSFSX_exists("BITMAPS.TBL",1) && !PHYSFSX_exists("BITMAPS.BIN",1)))
 	{
 		properties_read_cmp( Piggy_fp );	// Note connection to above if!!!
 		for (i = 0; i < MAX_BITMAP_FILES; i++)
 		{
-			GameBitmapXlat[i] = cfile_read_short(Piggy_fp);
+			GameBitmapXlat[i] = PHYSFSX_readShort(Piggy_fp);
 			if (PHYSFS_eof(Piggy_fp))
 				break;
 		}
@@ -392,13 +391,13 @@ int properties_init()
 	else
 		retval = 1;	// run gamedata_read_tbl
 
-	cfseek( Piggy_fp, Pigdata_start, SEEK_SET );
-	size = cfilelength(Piggy_fp) - Pigdata_start;
+	PHYSFSX_fseek( Piggy_fp, Pigdata_start, SEEK_SET );
+	size = PHYSFS_fileLength(Piggy_fp) - Pigdata_start;
 	length = size;
 
-	N_bitmaps = cfile_read_int(Piggy_fp);
+	N_bitmaps = PHYSFSX_readInt(Piggy_fp);
 	size -= sizeof(int);
-	N_sounds = cfile_read_int(Piggy_fp);
+	N_sounds = PHYSFSX_readInt(Piggy_fp);
 	size -= sizeof(int);
 
 	header_size = (N_bitmaps*sizeof(DiskBitmapHeader)) + (N_sounds*sizeof(DiskSoundHeader));
@@ -520,7 +519,7 @@ void piggy_read_sounds(int pc_shareware)
 		extern int ds_load(int skip, char * filename );
 		PHYSFS_file *array = PHYSFSX_openReadBuffered(soundfile);	// hack for Mac Demo
 
-		if (!array && (cfile_size(DEFAULT_PIGFILE_REGISTERED) == D1_MAC_SHARE_PIGSIZE))
+		if (!array && (PHYSFSX_fsize(DEFAULT_PIGFILE_REGISTERED) == D1_MAC_SHARE_PIGSIZE))
 		{
 			con_printf(CON_URGENT,"Warning: Missing Sounds/sounds.array for Mac data files");
 			return;
@@ -557,7 +556,7 @@ void piggy_read_sounds(int pc_shareware)
 		{
 			if ( piggy_is_needed(i) )
 			{
-				cfseek( Piggy_fp, SoundOffset[i], SEEK_SET );
+				PHYSFSX_fseek( Piggy_fp, SoundOffset[i], SEEK_SET );
 
 				// Read in the sound data!!!
 				snd->data = ptr;
@@ -575,14 +574,14 @@ void piggy_read_sounds(int pc_shareware)
 						if (lastbuf) d_free(lastbuf);
 						lastbuf = d_malloc(SoundCompressed[i]);
 					}
-					cfread( lastbuf, SoundCompressed[i], 1, Piggy_fp );
+					PHYSFS_read( Piggy_fp, lastbuf, SoundCompressed[i], 1 );
 					sound_decompress( lastbuf, SoundCompressed[i], snd->data );
 				}
 				else
 #ifdef ALLEGRO
-					cfread( snd->data, snd->len, 1, Piggy_fp );
+					PHYSFS_read( Piggy_fp, snd->data, snd->len, 1 );
 #else
-					cfread( snd->data, snd->length, 1, Piggy_fp );
+					PHYSFS_read( Piggy_fp, snd->data, snd->length, 1 );
 #endif
 			}
 		}
@@ -644,7 +643,7 @@ void piggy_bitmap_page_in( bitmap_index bitmap )
 
 	ReDoIt:
 		descent_critical_error = 0;
-		cfseek( Piggy_fp, GameBitmapOffset[i], SEEK_SET );
+		PHYSFSX_fseek( Piggy_fp, GameBitmapOffset[i], SEEK_SET );
 		if ( descent_critical_error )	{
 			piggy_critical_error();
 			goto ReDoIt;
@@ -655,7 +654,7 @@ void piggy_bitmap_page_in( bitmap_index bitmap )
 		if ( bmp->bm_flags & BM_FLAG_RLE )	{
 			int zsize = 0;
 			descent_critical_error = 0;
-			zsize = cfile_read_int(Piggy_fp);
+			zsize = PHYSFSX_readInt(Piggy_fp);
 			if ( descent_critical_error )	{
 				piggy_critical_error();
 				goto ReDoIt;
@@ -670,7 +669,7 @@ void piggy_bitmap_page_in( bitmap_index bitmap )
 			memcpy( &Piggy_bitmap_cache_data[Piggy_bitmap_cache_next], &zsize, sizeof(int) );
 			Piggy_bitmap_cache_next += sizeof(int);
 			descent_critical_error = 0;
-			temp = cfread( &Piggy_bitmap_cache_data[Piggy_bitmap_cache_next], 1, zsize-4, Piggy_fp );
+			temp = PHYSFS_read( Piggy_fp, &Piggy_bitmap_cache_data[Piggy_bitmap_cache_next], 1, zsize-4 );
 			if ( descent_critical_error )	{
 				piggy_critical_error();
 				goto ReDoIt;
@@ -689,7 +688,7 @@ void piggy_bitmap_page_in( bitmap_index bitmap )
 				goto ReDoIt;
 			}
 			descent_critical_error = 0;
-			temp = cfread( &Piggy_bitmap_cache_data[Piggy_bitmap_cache_next], 1, bmp->bm_h*bmp->bm_w, Piggy_fp );
+			temp = PHYSFS_read( Piggy_fp, &Piggy_bitmap_cache_data[Piggy_bitmap_cache_next], 1, bmp->bm_h*bmp->bm_w );
 			if ( descent_critical_error )	{
 				piggy_critical_error();
 				goto ReDoIt;
@@ -826,19 +825,19 @@ void piggy_dump_all()
 	i = 0;
 	PHYSFS_write( fp, &i, sizeof(int), 1 );	
 	bm_write_all(fp);
-	xlat_offset = cftell(fp);
+	xlat_offset = PHYSFS_tell(fp);
 	PHYSFS_write( fp, GameBitmapXlat, sizeof(ushort)*MAX_BITMAP_FILES, 1 );
-	i = cftell(fp);
-	cfseek( fp, 0, SEEK_SET );
+	i = PHYSFS_tell(fp);
+	PHYSFSX_fseek( fp, 0, SEEK_SET );
 	PHYSFS_write( fp, &i, sizeof(int), 1 );
-	cfseek( fp, i, SEEK_SET );
+	PHYSFSX_fseek( fp, i, SEEK_SET );
 		
 	Num_bitmap_files--;
 	PHYSFS_write( fp, &Num_bitmap_files, sizeof(int), 1 );
 	Num_bitmap_files++;
 	PHYSFS_write( fp, &Num_sound_files, sizeof(int), 1 );
 
-	header_offset = cftell(fp);
+	header_offset = PHYSFS_tell(fp);
 	header_offset += ((Num_bitmap_files-1)*sizeof(DiskBitmapHeader)) + (Num_sound_files*sizeof(DiskSoundHeader));
 	data_offset = header_offset;
 
@@ -878,9 +877,9 @@ void piggy_dump_all()
 #ifndef RELEASE
 		PHYSFSX_printf( fp1, "BMP: %s, size %d bytes", AllBitmaps[i].name, bmp->bm_rowsize * bmp->bm_h );
 #endif
-		org_offset = cftell(fp);
+		org_offset = PHYSFS_tell(fp);
 		bmh.offset = data_offset - header_offset;
-		cfseek( fp, data_offset, SEEK_SET );
+		PHYSFSX_fseek( fp, data_offset, SEEK_SET );
 
 		if ( bmp->bm_flags & BM_FLAG_RLE )	{
 			size = (int *)bmp->bm_data;
@@ -898,7 +897,7 @@ void piggy_dump_all()
 			PHYSFSX_printf( fp1, ".\n" );
 #endif
 		}
-		cfseek( fp, org_offset, SEEK_SET );
+		PHYSFSX_fseek( fp, org_offset, SEEK_SET );
 		if ( GameBitmaps[i].bm_w > 255 )	{
 			Assert( GameBitmaps[i].bm_w < 512 );
 			bmh.width = GameBitmaps[i].bm_w - 256;
@@ -937,13 +936,13 @@ void piggy_dump_all()
 #endif
 		sndh.offset = data_offset - header_offset;
 
-		org_offset = cftell(fp);
-		cfseek( fp, data_offset, SEEK_SET );
+		org_offset = PHYSFS_tell(fp);
+		PHYSFSX_fseek( fp, data_offset, SEEK_SET );
 
 		sndh.data_length = sndh.length;
 		PHYSFS_write( fp, snd->data, sizeof(ubyte), sndh.length );
 		data_offset += sndh.length;
-		cfseek( fp, org_offset, SEEK_SET );
+		PHYSFSX_fseek( fp, org_offset, SEEK_SET );
 		PHYSFS_write( fp, &sndh, sizeof(DiskSoundHeader), 1 );			// Mark as a bitmap
 
 #ifndef RELEASE
@@ -953,7 +952,7 @@ void piggy_dump_all()
 #endif
          }
 
-	cfseek( fp, xlat_offset, SEEK_SET );
+	PHYSFSX_fseek( fp, xlat_offset, SEEK_SET );
 	PHYSFS_write( fp, GameBitmapXlat, sizeof(ushort)*MAX_BITMAP_FILES, 1 );
 
 	PHYSFS_close(fp);
@@ -1058,21 +1057,21 @@ int piggy_is_substitutable_bitmap( char * name, char * subst_name )
 }
 
 /*
- * reads a bitmap_index structure from a CFILE
+ * reads a bitmap_index structure from a PHYSFS_file
  */
-void bitmap_index_read(bitmap_index *bi, CFILE *fp)
+void bitmap_index_read(bitmap_index *bi, PHYSFS_file *fp)
 {
-	bi->index = cfile_read_short(fp);
+	bi->index = PHYSFSX_readShort(fp);
 }
 
 /*
- * reads n bitmap_index structs from a CFILE
+ * reads n bitmap_index structs from a PHYSFS_file
  */
-int bitmap_index_read_n(bitmap_index *bi, int n, CFILE *fp)
+int bitmap_index_read_n(bitmap_index *bi, int n, PHYSFS_file *fp)
 {
 	int i;
 	
 	for (i = 0; i < n; i++)
-		bi[i].index = cfile_read_short(fp);
+		bi[i].index = PHYSFSX_readShort(fp);
 	return i;
 }

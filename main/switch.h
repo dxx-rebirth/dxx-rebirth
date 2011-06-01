@@ -85,14 +85,14 @@ extern int check_trigger_sub(int trigger_num, int player_num);
 extern void triggers_frame_process();
 
 /*
- * reads a trigger structure from a CFILE
+ * reads a trigger structure from a PHYSFS_file
  */
-extern void trigger_read(trigger *t, CFILE *fp);
+extern void trigger_read(trigger *t, PHYSFS_file *fp);
 
 /*
- * reads n trigger structs from a CFILE and swaps if specified
+ * reads n trigger structs from a PHYSFS_file and swaps if specified
  */
-extern void trigger_read_n_swap(trigger *t, int n, int swap, CFILE *fp);
+extern void trigger_read_n_swap(trigger *t, int n, int swap, PHYSFS_file *fp);
 
 extern void trigger_write(trigger *t, short version, PHYSFS_file *fp);
 

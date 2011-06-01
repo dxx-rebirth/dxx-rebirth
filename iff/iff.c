@@ -28,9 +28,6 @@ COPYRIGHT 1993-1998 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 
 #include "u_mem.h"
 #include "iff.h"
-
-//#include "nocfile.h"
-#include "cfile.h"
 #include "error.h"
 #include "physfsx.h"
 
@@ -107,14 +104,14 @@ int parse_bmhd(PHYSFS_file *ifile,long len,iff_bitmap_header *bmheader)
 	PHYSFS_readSBE16(ifile, &bmheader->x);
 	PHYSFS_readSBE16(ifile, &bmheader->y);
 	
-	bmheader->nplanes = cfile_read_byte(ifile);
-	bmheader->masking = cfile_read_byte(ifile);
-	bmheader->compression = cfile_read_byte(ifile);
-	cfile_read_byte(ifile);        /* skip pad */
+	bmheader->nplanes = PHYSFSX_readByte(ifile);
+	bmheader->masking = PHYSFSX_readByte(ifile);
+	bmheader->compression = PHYSFSX_readByte(ifile);
+	PHYSFSX_readByte(ifile);        /* skip pad */
 	
 	PHYSFS_readSBE16(ifile, &bmheader->transparentcolor);
-	bmheader->xaspect = cfile_read_byte(ifile);
-	bmheader->yaspect = cfile_read_byte(ifile);
+	bmheader->xaspect = PHYSFSX_readByte(ifile);
+	bmheader->yaspect = PHYSFSX_readByte(ifile);
 	
 	PHYSFS_readSBE16(ifile, &bmheader->pagewidth);
 	PHYSFS_readSBE16(ifile, &bmheader->pageheight);
@@ -172,13 +169,13 @@ int parse_body(PHYSFS_file *ifile,long len,iff_bitmap_header *bmheader)
 		int y;
 
 		for (y=bmheader->h;y;y--) {
-			cfread(p, width, depth, ifile);
+			PHYSFS_read(ifile, p, width, depth);
 			p += bmheader->w;
 
 			if (bmheader->masking == mskHasMask)
-				cfseek(ifile, width, SEEK_CUR);				//skip mask!
+				PHYSFSX_fseek(ifile, width, SEEK_CUR);				//skip mask!
 
-			if (bmheader->w & 1) cfgetc(ifile);
+			if (bmheader->w & 1) PHYSFSX_fgetc(ifile);
 		}
 
 		//cnt = len - bmheader->h * ((bmheader->w+1)&~1);
@@ -198,23 +195,23 @@ int parse_body(PHYSFS_file *ifile,long len,iff_bitmap_header *bmheader)
 
 			Assert(wid_cnt > end_cnt);
 
-			n=cfgetc(ifile);
+			n=PHYSFSX_fgetc(ifile);
 
 			if (n >= 0) {                       // copy next n+1 bytes from source, they are not compressed
 				nn = (int) n+1;
 				wid_cnt -= nn;
 				if (wid_cnt==-1) {--nn; Assert(width&1);}
 				if (plane==depth)	//masking row
-					cfseek(ifile, nn, SEEK_CUR);
+					PHYSFSX_fseek(ifile, nn, SEEK_CUR);
 				else
 				{
-					cfread(p, nn, 1, ifile);
+					PHYSFS_read(ifile, p, nn, 1);
 					p += nn;
 				}
-				if (wid_cnt==-1) cfseek(ifile, 1, SEEK_CUR);
+				if (wid_cnt==-1) PHYSFSX_fseek(ifile, 1, SEEK_CUR);
 			}
 			else if (n>=-127) {             // next -n + 1 bytes are following byte
-				c=cfgetc(ifile);
+				c=PHYSFSX_fgetc(ifile);
 				nn = (int) -n+1;
 				wid_cnt -= nn;
 				if (wid_cnt==-1) {--nn; Assert(width&1);}
@@ -232,11 +229,11 @@ int parse_body(PHYSFS_file *ifile,long len,iff_bitmap_header *bmheader)
 		}
 
 	if (bmheader->masking==mskHasMask && p==data_end && PHYSFS_tell(ifile)==end_pos-2)		//I don't know why...
-		cfseek(ifile, 1, SEEK_CUR);		//...but if I do this it works
+		PHYSFSX_fseek(ifile, 1, SEEK_CUR);		//...but if I do this it works
 
 	if (p==data_end && PHYSFS_tell(ifile)==end_pos-1)		//must be a pad byte
-		//ignore = cfgetc(ifile);		//get pad byte
-		cfseek(ifile, 1, SEEK_CUR);
+		//ignore = PHYSFSX_fgetc(ifile);		//get pad byte
+		PHYSFSX_fseek(ifile, 1, SEEK_CUR);
 	else
 		if (PHYSFS_tell(ifile)!=end_pos || p!=data_end) {
 //			debug("IFF Error: p=%x, data_end=%x, cnt=%d\n",p,data_end,cnt);
@@ -253,24 +250,24 @@ int parse_delta(PHYSFS_file *ifile,long len,iff_bitmap_header *bmheader)
 	int y;
 	long chunk_end = PHYSFS_tell(ifile) + len;
 
-	cfseek(ifile, 4, SEEK_CUR);		//longword, seems to be equal to 4.  Don't know what it is
+	PHYSFSX_fseek(ifile, 4, SEEK_CUR);		//longword, seems to be equal to 4.  Don't know what it is
 
 	for (y=0;y<bmheader->h;y++) {
 		ubyte n_items;
 		int cnt = bmheader->w;
 		ubyte code;
 
-		n_items = cfile_read_byte(ifile);
+		n_items = PHYSFSX_readByte(ifile);
 
 		while (n_items--) {
 
-			code = cfile_read_byte(ifile);
+			code = PHYSFSX_readByte(ifile);
 
 			if (code==0) {				//repeat
 				ubyte rep,val;
 
-				rep = cfile_read_byte(ifile);
-				val = cfile_read_byte(ifile);
+				rep = PHYSFSX_readByte(ifile);
+				val = PHYSFSX_readByte(ifile);
 
 				cnt -= rep;
 				if (cnt==-1)
@@ -290,10 +287,10 @@ int parse_delta(PHYSFS_file *ifile,long len,iff_bitmap_header *bmheader)
 					code--;
 
 				while (code--)
-					*p++ = cfile_read_byte(ifile);
+					*p++ = PHYSFSX_readByte(ifile);
 
 				if (cnt==-1)
-					cfile_read_byte(ifile);
+					PHYSFSX_readByte(ifile);
 			}
 
 		}
@@ -307,7 +304,7 @@ int parse_delta(PHYSFS_file *ifile,long len,iff_bitmap_header *bmheader)
 	}
 
 	if (PHYSFS_tell(ifile) == chunk_end-1)		//pad
-		cfseek(ifile, 1, SEEK_CUR);
+		PHYSFSX_fseek(ifile, 1, SEEK_CUR);
 
 	if (PHYSFS_tell(ifile) != chunk_end)
 		return IFF_CORRUPT;
@@ -321,7 +318,7 @@ void skip_chunk(PHYSFS_file *ifile,long len)
 	int ilen;
 	ilen = (len+1) & ~1;
 
-	cfseek(ifile,ilen,SEEK_CUR);
+	PHYSFSX_fseek(ifile,ilen,SEEK_CUR);
 }
 
 //read an ILBM or PBM file
@@ -389,14 +386,14 @@ int iff_parse_ilbm_pbm(PHYSFS_file *ifile,long form_type,iff_bitmap_header *bmhe
 						unsigned char r,g,b;
 
 						for (cnum=0;cnum<ncolors;cnum++) {
-							r=cfgetc(ifile);
-							g=cfgetc(ifile);
-							b=cfgetc(ifile);
+							r=PHYSFSX_fgetc(ifile);
+							g=PHYSFSX_fgetc(ifile);
+							b=PHYSFSX_fgetc(ifile);
 							r >>= 2; bmheader->palette[cnum].r = r;
 							g >>= 2; bmheader->palette[cnum].g = g;
 							b >>= 2; bmheader->palette[cnum].b = b;
 						}
-						if (len & 1) cfgetc(ifile);
+						if (len & 1) PHYSFSX_fgetc(ifile);
 
 						break;
 					}
@@ -580,7 +577,7 @@ int iff_read_bitmap(char *ifilename,grs_bitmap *bm,int bitmap_type,ubyte *palett
 	int ret;			//return code
 	PHYSFS_file *ifile;
 
-	ifile = cfopen(ifilename, "rb");
+	ifile = PHYSFSX_openReadBuffered(ifilename);
 	if (ifile == NULL)
 		return IFF_NO_FILE;
 
@@ -601,7 +598,7 @@ int iff_read_into_bitmap(char *ifilename,grs_bitmap *bm,sbyte *palette)
 	int ret;			//return code
 	PHYSFS_file *ifile;
 
-	ifile = cfopen(ifilename, "rb");
+	ifile = PHYSFSX_openReadBuffered(ifilename);
 	if (ifile == NULL)
 		return IFF_NO_FILE;
 
@@ -761,9 +758,9 @@ int write_body(PHYSFS_file *ofile,iff_bitmap_header *bitmap_header,int compressi
 	}
 
 	if (compression_on) {		//write actual data length
-		Assert(cfseek(ofile,save_pos,SEEK_SET)==0);
+		Assert(PHYSFSX_fseek(ofile,save_pos,SEEK_SET)==0);
 		PHYSFS_writeSBE32(ofile, total_len);
-		Assert(cfseek(ofile,total_len,SEEK_CUR)==0);
+		Assert(PHYSFSX_fseek(ofile,total_len,SEEK_CUR)==0);
 		if (total_len&1) PHYSFSX_writeU8(ofile, 0);		//pad to even
 	}
 
@@ -817,9 +814,9 @@ int write_tiny(PHYSFS_file *ofile,iff_bitmap_header *bitmap_header,int compressi
 	}
 
 	if (compression_on) {
-		Assert(cfseek(ofile,save_pos,SEEK_SET)==0);
+		Assert(PHYSFSX_fseek(ofile,save_pos,SEEK_SET)==0);
 		PHYSFS_writeSBE32(ofile, 4+total_len);
-		Assert(cfseek(ofile,4+total_len,SEEK_CUR)==0);
+		Assert(PHYSFSX_fseek(ofile,4+total_len,SEEK_CUR)==0);
 		if (total_len&1) PHYSFSX_writeU8(ofile, 0);		//pad to even
 	}
 
@@ -855,9 +852,9 @@ int write_pbm(PHYSFS_file *ofile,iff_bitmap_header *bitmap_header,int compressio
 
 	pbm_size = 4 + BMHD_SIZE + body_size + tiny_size + sizeof(pal_entry)*(1<<bitmap_header->nplanes)+8;
 
-	Assert(cfseek(ofile,save_pos,SEEK_SET)==0);
+	Assert(PHYSFSX_fseek(ofile,save_pos,SEEK_SET)==0);
 	PHYSFS_writeSBE32(ofile, pbm_size+8);
-	Assert(cfseek(ofile,pbm_size+8,SEEK_CUR)==0);
+	Assert(PHYSFSX_fseek(ofile,pbm_size+8,SEEK_CUR)==0);
 
 	return ret;
 
@@ -926,7 +923,7 @@ int iff_read_animbrush(char *ifilename,grs_bitmap **bm_list,int max_bitmaps,int 
 
 	*n_bitmaps=0;
 
-	ifile = cfopen(ifilename, "rb");
+	ifile = PHYSFSX_openReadBuffered(ifilename);
 	if (ifile == NULL)
 		return IFF_NO_FILE;
 

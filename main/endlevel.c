@@ -54,7 +54,6 @@ COPYRIGHT 1993-1998 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 #include "fireball.h"
 #include "text.h"
 #include "digi.h"
-#include "cfile.h"
 #include "compbit.h"
 #include "songs.h"
 #include "titles.h"
@@ -1310,7 +1309,7 @@ void load_endlevel_data(int level_num)
 {
 	char filename[13];
 	char line[LINE_LEN],*p;
-	CFILE *ifile;
+	PHYSFS_file *ifile;
 	int var,segnum,sidenum;
         int exit_side=0;
 	int have_binary = 0;
@@ -1332,7 +1331,7 @@ try_again:
 	if (!convert_ext(filename,"end"))
 		return;
 
-	ifile = cfopen(filename,"rb");
+	ifile = PHYSFSX_openReadBuffered(filename);
 
 	if (!ifile) {
 
@@ -1341,7 +1340,7 @@ try_again:
                 !strcmp(filename, Ending_text_filename))
                     return;	// Don't want to interpret the briefing as an end level sequence!
 
-		ifile = cfopen(filename,"rb");
+		ifile = PHYSFSX_openReadBuffered(filename);
 
 		if (!ifile)
                  {
@@ -1362,7 +1361,7 @@ try_again:
 
 	var = 0;
 
-	while (cfgets(line,LINE_LEN,ifile)) {
+	while (PHYSFSX_fgets(line,LINE_LEN,ifile)) {
 
 		if (have_binary)
 			decode_text_line (line);
@@ -1389,7 +1388,7 @@ try_again:
 					con_printf(CON_DEBUG, "Can't load exit terrain from file %s: IFF error: %s\n",
                                                 p, iff_errormsg(iff_error));
 					endlevel_data_loaded = 0; // won't be able to play endlevel sequence
-					cfclose(ifile);
+					PHYSFS_close(ifile);
 					return;
 				}
 
@@ -1426,7 +1425,7 @@ try_again:
 					con_printf(CON_DEBUG, "Can't load exit satellite from file %s: IFF error: %s\n",
                                                 p, iff_errormsg(iff_error));
 					endlevel_data_loaded = 0; // won't be able to play endlevel sequence
-					cfclose(ifile);
+					PHYSFS_close(ifile);
 					return;
 				}
 
@@ -1514,7 +1513,7 @@ vm_vec_copy_scale(&satellite_upvec,&tm.uvec,SATELLITE_HEIGHT);
 
 	}
 
-	cfclose(ifile);
+	PHYSFS_close(ifile);
 
 	endlevel_data_loaded = 1;
 

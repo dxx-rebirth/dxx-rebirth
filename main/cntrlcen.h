@@ -68,14 +68,14 @@ extern fix Countdown_timer;
 extern int Control_center_destroyed, Countdown_seconds_left, Total_countdown_time;
 
 /*
- * reads n control_center_triggers structs from a CFILE
+ * reads n control_center_triggers structs from a PHYSFS_file
  */
-extern int control_center_triggers_read_n(control_center_triggers *cct, int n, CFILE *fp);
+extern int control_center_triggers_read_n(control_center_triggers *cct, int n, PHYSFS_file *fp);
 
 /*
- * reads n control_center_triggers structs from a CFILE and swaps if specified
+ * reads n control_center_triggers structs from a PHYSFS_file and swaps if specified
  */
-void control_center_triggers_read_n_swap(control_center_triggers *cct, int n, int swap, CFILE *fp);
+void control_center_triggers_read_n_swap(control_center_triggers *cct, int n, int swap, PHYSFS_file *fp);
 
 extern int control_center_triggers_write(control_center_triggers *cct, PHYSFS_file *fp);
 

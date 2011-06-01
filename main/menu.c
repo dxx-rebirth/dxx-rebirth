@@ -196,7 +196,7 @@ try_again:
 
 	sprintf( filename, GameArg.SysUsePlayersDir? "Players/%s.plr" : "%s.plr", text );
 
-	if (PHYSFS_exists(filename))
+	if (PHYSFSX_exists(filename,0))
 	{
 		nm_messagebox(NULL, 1, TXT_OK, "%s '%s' %s", TXT_PLAYER, text, TXT_ALREADY_EXISTS );
 		goto try_again;
@@ -247,15 +247,15 @@ int player_menu_keycommand( listbox *lb, d_event *event )
 						delete_player_saved_games( items[citem] );
 						// delete PLX file
 						sprintf(plxfile, GameArg.SysUsePlayersDir? "Players/%.8s.plx" : "%.8s.plx", items[citem]);
-						if (cfexist(plxfile))
+						if (PHYSFSX_exists(plxfile,0))
 							PHYSFS_delete(plxfile);
 						// delete EFF file
 						sprintf(efffile, GameArg.SysUsePlayersDir? "Players/%.8s.eff" : "%.8s.eff", items[citem]);
-						if (cfexist(efffile))
+						if (PHYSFSX_exists(efffile,0))
 							PHYSFS_delete(efffile);
 						// delete NGP file
 						sprintf(ngpfile, GameArg.SysUsePlayersDir? "Players/%.8s.ngp" : "%.8s.ngp", items[citem]);
-						if (cfexist(ngpfile))
+						if (PHYSFSX_exists(ngpfile,0))
 							PHYSFS_delete(ngpfile);
 					}
 
@@ -473,7 +473,7 @@ void create_main_menu(newmenu_item *m, int *menu_choice, int *callers_num_option
 	ADD_ITEM(TXT_CHANGE_PILOTS,MENU_NEW_PLAYER,unused);
 	ADD_ITEM(TXT_VIEW_DEMO,MENU_DEMO_PLAY,0);
 	ADD_ITEM(TXT_VIEW_SCORES,MENU_VIEW_SCORES,KEY_V);
-	if (!cfexist("warning.pcx")) /* SHAREWARE */
+	if (!PHYSFSX_exists("warning.pcx",1)) /* SHAREWARE */
 		ADD_ITEM(TXT_ORDERING_INFO,MENU_ORDER_INFO,-1);
 	ADD_ITEM(TXT_CREDITS,MENU_SHOW_CREDITS,-1);
 	#endif
@@ -1483,7 +1483,7 @@ int select_file_recursive(char *title, const char *orig_path, char **ext_list, i
 	b->new_path = 1;
 	
 	// Check for a PhysicsFS path first, saves complication!
-	if (orig_path && strncmp(orig_path, sep, strlen(sep)) && PHYSFS_exists(orig_path))
+	if (orig_path && strncmp(orig_path, sep, strlen(sep)) && PHYSFSX_exists(orig_path,0))
 	{
 		PHYSFSX_getRealPath(orig_path, new_path);
 		orig_path = new_path;

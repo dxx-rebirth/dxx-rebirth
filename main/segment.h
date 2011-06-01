@@ -21,12 +21,10 @@ COPYRIGHT 1993-1998 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 #ifndef _SEGMENT_H
 #define _SEGMENT_H
 
+#include "physfsx.h"
 #include "pstypes.h"
 #include "fix.h"
 #include "vecmat.h"
-//#include "3d.h"
-//#include "inferno.h"
-#include "cfile.h"
 
 // Version 1 - Initial version
 // Version 2 - Mike changed some shorts to bytes in segments, so incompatible!

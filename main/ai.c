@@ -3218,12 +3218,12 @@ void ai_local_read_n_swap(ai_local *ail, int n, int swap, PHYSFS_file *fp)
 		int j;
 		fix tmptime32 = 0;
 
-		ail->player_awareness_type = cfile_read_byte(fp);
-		ail->retry_count = cfile_read_byte(fp);
-		ail->consecutive_retries = cfile_read_byte(fp);
-		ail->mode = cfile_read_byte(fp);
-		ail->previous_visibility = cfile_read_byte(fp);
-		ail->rapidfire_count = cfile_read_byte(fp);
+		ail->player_awareness_type = PHYSFSX_readByte(fp);
+		ail->retry_count = PHYSFSX_readByte(fp);
+		ail->consecutive_retries = PHYSFSX_readByte(fp);
+		ail->mode = PHYSFSX_readByte(fp);
+		ail->previous_visibility = PHYSFSX_readByte(fp);
+		ail->rapidfire_count = PHYSFSX_readByte(fp);
 		ail->goal_segment = PHYSFSX_readSXE16(fp, swap);
 		ail->last_see_time = PHYSFSX_readSXE32(fp, swap);
 		ail->last_attack_time = PHYSFSX_readSXE32(fp, swap);
@@ -3243,9 +3243,9 @@ void ai_local_read_n_swap(ai_local *ail, int n, int swap, PHYSFS_file *fp)
 		for (j = 0; j < MAX_SUBMODELS; j++)
 			PHYSFSX_readAngleVecX(fp, &ail->delta_angles[j], swap);
 		for (j = 0; j < MAX_SUBMODELS; j++)
-			ail->goal_state[j] = cfile_read_byte(fp);
+			ail->goal_state[j] = PHYSFSX_readByte(fp);
 		for (j = 0; j < MAX_SUBMODELS; j++)
-			ail->achieved_state[j] = cfile_read_byte(fp);
+			ail->achieved_state[j] = PHYSFSX_readByte(fp);
 	}
 }
 

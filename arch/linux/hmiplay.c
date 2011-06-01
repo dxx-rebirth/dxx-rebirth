@@ -19,8 +19,8 @@
 #include <sys/types.h>
 #include <sys/ipc.h>
 #include <sys/msg.h>
+#include "physfsx.h"
 #include "music.h"
-#include "cfile.h"
 #include "args.h"
 
 #include <SDL/SDL_thread.h>
@@ -584,7 +584,7 @@ void kill_ipc()
 int do_ipc(int qid, struct msgbuf *buf, int flags)
 {
 	int ipc_read;
-	CFILE *fptr = NULL;
+	PHYSFS_file *fptr = NULL;
 	float last_volume = volume;
 	int l=0;
 
@@ -625,14 +625,14 @@ int do_ipc(int qid, struct msgbuf *buf, int flags)
 			{
 				strcpy(digi_last_midi_song, buf->mtext + 1);
 				if (volume > 0)
-					fptr = cfopen((buf->mtext + 1), "rb");
+					fptr = PHYSFSX_openReadBuffered((buf->mtext + 1));
 			}
 			if(fptr != NULL)
 			{
-				l = cfilelength(fptr);
+				l = PHYSFS_fileLength(fptr);
 				data=d_realloc(data,(size_t) l);
-				cfread(data, l, 1, fptr);
-				cfclose(fptr);
+				PHYSFS_read(fptr, data, l, 1);
+				PHYSFS_close(fptr);
 				con_printf(CON_DEBUG, "good. fpr=%p l=%i data=%p\n", fptr, l, data);//##########3
 				stop = 0;
 			}

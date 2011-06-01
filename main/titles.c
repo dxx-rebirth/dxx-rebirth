@@ -39,7 +39,6 @@ static char rcsid[] = "$Id: titles.c,v 1.2 2006/03/18 23:08:13 michaelstather Ex
 #include "u_mem.h"
 #include "joy.h"
 #include "gamefont.h"
-#include "cfile.h"
 #include "error.h"
 #include "polyobj.h"
 #include "textures.h"
@@ -185,14 +184,14 @@ void show_titles(void)
 		return;
 
 	strcpy(publisher, "macplay.pcx");	// Mac Shareware
-	if (!PHYSFS_exists(publisher))
+	if (!PHYSFSX_exists(publisher,1))
 		strcpy(publisher, "mplaycd.pcx");	// Mac Registered
-	if (!PHYSFS_exists(publisher))
+	if (!PHYSFSX_exists(publisher,1))
 		strcpy(publisher, "iplogo1.pcx");	// PC. Only down here because it's lowres ;-)
 
 	show_title_screen( publisher, 1, 1 );
-	show_title_screen( (((SWIDTH>=640&&SHEIGHT>=480) && cfexist("logoh.pcx"))?"logoh.pcx":"logo.pcx"), 1, 1 );
-	show_title_screen( (((SWIDTH>=640&&SHEIGHT>=480) && cfexist("descenth.pcx"))?"descenth.pcx":"descent.pcx"), 1, 1 );
+	show_title_screen( (((SWIDTH>=640&&SHEIGHT>=480) && PHYSFSX_exists("logoh.pcx",1))?"logoh.pcx":"logo.pcx"), 1, 1 );
+	show_title_screen( (((SWIDTH>=640&&SHEIGHT>=480) && PHYSFSX_exists("descenth.pcx",1))?"descenth.pcx":"descent.pcx"), 1, 1 );
 }
 
 void show_order_form()
@@ -200,9 +199,9 @@ void show_order_form()
 	char    exit_screen[PATH_MAX];
 
 	strcpy(exit_screen, "warning.pcx");	// D1 Registered
-	if (! cfexist(exit_screen))
+	if (! PHYSFSX_exists(exit_screen,1))
 		strcpy(exit_screen, "apple.pcx");	// D1 Mac OEM Demo
-	if (! cfexist(exit_screen))
+	if (! PHYSFSX_exists(exit_screen,1))
 		strcpy(exit_screen, "order01.pcx"); // D1 Demo
 	show_title_screen(exit_screen, 1, 1);
 }
@@ -343,20 +342,20 @@ void briefing_init(briefing *br, short level_num)
 //	Load Descent briefing text.
 int load_screen_text(char *filename, char **buf)
 {
-	CFILE *tfile;
+	PHYSFS_file *tfile;
 	int	len;
 	int	have_binary = 0;
 
 	if (!stricmp(strrchr(filename, '.'), ".txb"))
 		have_binary = 1;
 	
-	if ((tfile = cfopen(filename, "rb")) == NULL)
+	if ((tfile = PHYSFSX_openReadBuffered(filename)) == NULL)
 		return (0);
 
-	len = cfilelength(tfile);
+	len = PHYSFS_fileLength(tfile);
 	MALLOC(*buf, char, len+1);
-	cfread(*buf, 1, len, tfile);
-	cfclose(tfile);
+	PHYSFS_read(tfile, *buf, 1, len);
+	PHYSFS_close(tfile);
 
 	if (have_binary)
 		decode_text(*buf, len);
@@ -881,7 +880,7 @@ int load_briefing_screen(briefing *br, char *fname)
 		if ((ptr = strrchr(fname2,'.')))
 			*ptr = '\0';
 		strncat(fname2, "h.pcx", sizeof(char)*PATH_MAX);
-		if (!cfexist(fname2))
+		if (!PHYSFSX_exists(fname2,1))
 			snprintf(fname2, sizeof(char)*PATH_MAX, "%s", fname);
 	}
 	d_free(forigin);

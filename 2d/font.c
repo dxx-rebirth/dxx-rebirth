@@ -29,7 +29,6 @@ COPYRIGHT 1993-1998 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 #include "gr.h"
 #include "grdef.h"
 #include "error.h"
-#include "cfile.h"
 #include "byteswap.h"
 #include "bitmap.h"
 #include "gamefont.h"
@@ -909,28 +908,28 @@ grs_font * gr_init_font( char * fontname )
 	int i;
 	unsigned char * ptr;
 	int nchars;
-	CFILE *fontfile;
+	PHYSFS_file *fontfile;
 	char file_id[4];
 	int32_t datasize;		//size up to (but not including) palette
 
-	fontfile = cfopen(fontname, "rb");
+	fontfile = PHYSFSX_openReadBuffered(fontname);
 
 	if (!fontfile)
 		Error( "Can't open font file %s", fontname );
 
-	cfread(file_id, 4, 1, fontfile);
+	PHYSFS_read(fontfile, file_id, 4, 1);
 	if ( !strncmp( file_id, "NFSP", 4 ) ) {
 		con_printf(CON_NORMAL, "File %s is not a font file\n", fontname);
 		return NULL;
 	}
 	
-	datasize = cfile_read_int(fontfile);
+	datasize = PHYSFSX_readInt(fontfile);
 
 	font = (old_grs_font *) d_malloc(datasize);
 	newfont = (grs_font *) d_malloc(sizeof(grs_font));
 	newfont->oldfont=font;
 
-	cfread(font,1,datasize,fontfile);
+	PHYSFS_read(fontfile,font,1,datasize);
 	
 	newfont->ft_flags=INTEL_SHORT(font->ft_flags);
 	newfont->ft_w=INTEL_SHORT(font->ft_w);
@@ -982,7 +981,7 @@ grs_font * gr_init_font( char * fontname )
 		ubyte colormap[256];
 		int freq[256];
 		
-		cfread(palette,3,256,fontfile);		//read the palette
+		PHYSFS_read(fontfile,palette,3,256);		//read the palette
 		
 		build_colormap_good( (ubyte *)&palette, colormap, freq );
 		
@@ -991,7 +990,7 @@ grs_font * gr_init_font( char * fontname )
 		decode_data(newfont->ft_data, ptr-newfont->ft_data, colormap, freq );
 	}
 	
-	cfclose(fontfile);
+	PHYSFS_close(fontfile);
 	
 	//set curcanv vars
 	

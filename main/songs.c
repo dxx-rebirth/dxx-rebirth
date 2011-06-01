@@ -25,7 +25,6 @@ COPYRIGHT 1993-1998 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 #include "error.h"
 #include "pstypes.h"
 #include "songs.h"
-#include "cfile.h"
 #include "digi.h"
 #include "rbaudio.h"
 #ifdef USE_SDLMIXER
@@ -64,7 +63,7 @@ void songs_init()
 {
 	int i = 0;
 	char inputline[80+1];
-	CFILE * fp = NULL;
+	PHYSFS_file * fp = NULL;
 	char sng_file[PATH_MAX];
 
 	Songs_initialized = 0;
@@ -76,14 +75,14 @@ void songs_init()
 	if (Current_mission != NULL) // try MISSION_NAME.sngdxx - might be rarely used but handy if you want a songfile for a specific mission outside of the mission hog file. use special extension to not crash with other ports of the game
 	{
 		snprintf(sng_file, strlen(Current_mission_filename)+8, "%s.sngdxx", Current_mission_filename);
-		fp = cfopen(sng_file, "rb");
+		fp = PHYSFSX_openReadBuffered(sng_file);
 	}
 
 	if (fp == NULL) // try descent.sngdxx - a songfile specifically for dxx which level authors CAN use (dxx does not care if descent.sng contains MP3/OGG/etc. as well) besides the normal descent.sng containing files other versions of the game cannot play. this way a mission can contain a DOS-Descent compatible OST (hmp files) as well as a OST using MP3, OGG, etc.
-		fp = cfopen( "descent.sngdxx", "rb" );
+		fp = PHYSFSX_openReadBuffered( "descent.sngdxx" );
 
 	if (fp == NULL) // try to open regular descent.sng
-		fp = cfopen( "descent.sng", "rb" );
+		fp = PHYSFSX_openReadBuffered( "descent.sng" );
 
 	if ( fp == NULL ) // No descent.sng available. Define a default song-set
 	{
@@ -101,9 +100,9 @@ void songs_init()
 
 		for (i = SONG_FIRST_LEVEL_SONG; i < predef; i++) {
 			snprintf(BIMSongs[i].filename, sizeof(BIMSongs[i].filename), "game%02d.hmp", i - SONG_FIRST_LEVEL_SONG + 1);
-			if (!cfexist(BIMSongs[i].filename))
+			if (!PHYSFSX_exists(BIMSongs[i].filename,1))
 				snprintf(BIMSongs[i].filename, sizeof(BIMSongs[i].filename), "game%d.hmp", i - SONG_FIRST_LEVEL_SONG);
-			if (!cfexist(BIMSongs[i].filename))
+			if (!PHYSFSX_exists(BIMSongs[i].filename,1))
 			{
 				memset(BIMSongs[i].filename, '\0', sizeof(BIMSongs[i].filename)); // music not available
 				break;
@@ -114,7 +113,7 @@ void songs_init()
 	{
 		while (!PHYSFS_eof(fp))
 		{
-			cfgets(inputline, 80, fp );
+			PHYSFSX_fgets(inputline, 80, fp );
 			if ( strlen( inputline ) )
 			{
 				BIMSongs = d_realloc(BIMSongs, sizeof(bim_song_info)*(i+1));
@@ -133,7 +132,7 @@ void songs_init()
 		}
 
 		// HACK: If Descent.hog is patched from 1.0 to 1.5, descent.sng is turncated. So let's patch it up here
-		if (i==12 && cfile_size("descent.sng")==422)
+		if (i==12 && PHYSFSX_fsize("descent.sng")==422)
 		{
 			BIMSongs = d_realloc(BIMSongs, sizeof(bim_song_info)*(i+15));
 			for (i = 12; i <= 26; i++)
@@ -144,7 +143,7 @@ void songs_init()
 	Num_bim_songs = i;
 	Songs_initialized = 1;
 	if (fp != NULL)
-		cfclose(fp);
+		PHYSFS_close(fp);
 
 	if (GameArg.SndNoMusic)
 		GameCfg.MusicType = MUSIC_TYPE_NONE;

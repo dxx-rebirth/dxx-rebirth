@@ -30,8 +30,8 @@ extern int RegisterPlayer();
 extern int DoMenu();
 extern void do_options_menu();
 extern int select_demo(void);
-#define Menu_pcx_name (((SWIDTH>=640&&SHEIGHT>=480) && cfexist("menuh.pcx"))?"menuh.pcx":"menu.pcx")
-#define STARS_BACKGROUND (((SWIDTH>=640&&SHEIGHT>=480) && cfexist("starsb.pcx"))?"starsb.pcx":"stars.pcx")
+#define Menu_pcx_name (((SWIDTH>=640&&SHEIGHT>=480) && PHYSFSX_exists("menuh.pcx",1))?"menuh.pcx":"menu.pcx")
+#define STARS_BACKGROUND (((SWIDTH>=640&&SHEIGHT>=480) && PHYSFSX_exists("starsb.pcx",1))?"starsb.pcx":"stars.pcx")
 
 extern char *menu_difficulty_text[];
 

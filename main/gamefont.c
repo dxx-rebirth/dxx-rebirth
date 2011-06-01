@@ -25,7 +25,6 @@ COPYRIGHT 1993-1998 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 #include <string.h>
 #include "strutil.h"
 #include "args.h"
-#include "cfile.h"
 #include "gamefont.h"
 #include "mission.h"
 #include "config.h"
@@ -85,7 +84,7 @@ void gamefont_unloadfont(int gf){
 }
 
 void gamefont_loadfont(int gf,int fi){
-	if (cfexist(font_conf[gf].font[fi].f.name)){
+	if (PHYSFSX_exists(font_conf[gf].font[fi].f.name,1)){
 		gamefont_unloadfont(gf);
 		Gamefonts[gf]=gr_init_font(font_conf[gf].font[fi].f.name);
 	}else {
@@ -140,7 +139,7 @@ void gamefont_choose_game_font(int scrx,int scry){
 void addfontconf(int gf, int x, int y, char * fn){
 	int i;
 
-	if (!cfexist(fn))
+	if (!PHYSFSX_exists(fn,1))
 		return;
 
 	for (i=0;i<font_conf[gf].num;i++){

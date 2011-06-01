@@ -35,7 +35,6 @@ COPYRIGHT 1993-1998 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 #include "switch.h"
 #include "game.h"
 #include "newmenu.h"
-#include "cfile.h"
 #include "fuelcen.h"
 #include "hash.h"
 #include "key.h"

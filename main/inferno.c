@@ -29,6 +29,7 @@ char copyright[] = "DESCENT   COPYRIGHT (C) 1994,1995 PARALLAX SOFTWARE CORPORAT
 #include <stdlib.h>
 #include <string.h>
 #include <limits.h>
+#include <SDL/SDL.h>
 
 #ifdef __unix__
 #include <unistd.h>
@@ -64,7 +65,6 @@ char copyright[] = "DESCENT   COPYRIGHT (C) 1994,1995 PARALLAX SOFTWARE CORPORAT
 #include "config.h"
 #include "multi.h"
 #include "songs.h"
-#include "cfile.h"
 #include "gameseq.h"
 #include "playsave.h"
 #include "collide.h"
@@ -76,15 +76,11 @@ char copyright[] = "DESCENT   COPYRIGHT (C) 1994,1995 PARALLAX SOFTWARE CORPORAT
 #ifndef __LINUX__
 #include "messagebox.h"
 #endif
-
 #ifdef EDITOR
 #include "editor/editor.h"
 #include "editor/kdefs.h"
 #include "ui.h"
 #endif
-
-#include <SDL/SDL.h>
-
 #include "vers_id.h"
 
 char desc_id_exit_num = 0;
@@ -313,7 +309,7 @@ int main(int argc, char *argv[])
 	if (!PHYSFSX_checkSupportedArchiveTypes())
 		return(0);
 
-	if (! cfile_init("descent.hog", 1))
+	if (! PHYSFSX_contfile_init("descent.hog", 1))
 		Error("Could not find a valid hog file (descent.hog)\nPossible locations are:\n"
 #if defined(__unix__) && !defined(__APPLE__)
 			  "\t$HOME/.d1x-rebirth\n"
@@ -327,7 +323,7 @@ int main(int argc, char *argv[])
 #endif
 			  "Or use the -hogdir option to specify an alternate location.");
 	
-	switch (cfile_size("descent.hog"))
+	switch (PHYSFSX_fsize("descent.hog"))
 	{
 		case D1_MAC_SHARE_MISSION_HOGSIZE:
 		case D1_MAC_MISSION_HOGSIZE:
@@ -408,7 +404,7 @@ int main(int argc, char *argv[])
 		}
 		if(!strstr(filename,".plr")) // if player hasn't specified .plr extension in argument, add it
 			strcat(filename,".plr");
-		if(cfexist(filename))
+		if(PHYSFSX_exists(filename,0))
 		{
 			strcpy(strstr(filename,".plr"),"\0");
 			strcpy(Players[Player_num].callsign, GameArg.SysUsePlayersDir? &filename[8] : filename);

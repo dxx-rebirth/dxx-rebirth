@@ -18,8 +18,8 @@
 #include "args.h"
 #include "hmp.h"
 #include "digi_mixer_music.h"
-#include "cfile.h"
 #include "u_mem.h"
+#include "console.h"
 
 #ifdef _WIN32
 extern int digi_win32_play_midi_song( char * filename, int loop );

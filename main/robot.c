@@ -217,80 +217,80 @@ void robot_set_angles(robot_info *r,polymodel *pm,vms_angvec angs[N_ANIM_STATES]
 }
 
 /*
- * reads n robot_info structs from a CFILE
+ * reads n robot_info structs from a PHYSFS_file
  */
-int robot_info_read_n(robot_info *ri, int n, CFILE *fp)
+int robot_info_read_n(robot_info *ri, int n, PHYSFS_file *fp)
 {
 	int i, j, k;
 	
 	for (i = 0; i < n; i++) {
-		ri[i].model_num = cfile_read_int(fp);
-		ri[i].n_guns = cfile_read_int(fp);
+		ri[i].model_num = PHYSFSX_readInt(fp);
+		ri[i].n_guns = PHYSFSX_readInt(fp);
 		for (j = 0; j < MAX_GUNS; j++)
-			cfile_read_vector(&ri[i].gun_points[j], fp);
+			PHYSFSX_readVector(&ri[i].gun_points[j], fp);
 		for (j = 0; j < MAX_GUNS; j++)
-			ri[i].gun_submodels[j] = cfile_read_byte(fp);
-		ri[i].exp1_vclip_num = cfile_read_short(fp);
-		ri[i].exp1_sound_num = cfile_read_short(fp);
-		ri[i].exp2_vclip_num = cfile_read_short(fp);
-		ri[i].exp2_sound_num = cfile_read_short(fp);
-		ri[i].weapon_type = cfile_read_short(fp);
-		ri[i].contains_id = cfile_read_byte(fp);
-		ri[i].contains_count = cfile_read_byte(fp);
-		ri[i].contains_prob = cfile_read_byte(fp);
-		ri[i].contains_type = cfile_read_byte(fp);
-		ri[i].score_value = cfile_read_int(fp);
-		ri[i].lighting = cfile_read_fix(fp);
-		ri[i].strength = cfile_read_fix(fp);
-		ri[i].mass = cfile_read_fix(fp);
-		ri[i].drag = cfile_read_fix(fp);
+			ri[i].gun_submodels[j] = PHYSFSX_readByte(fp);
+		ri[i].exp1_vclip_num = PHYSFSX_readShort(fp);
+		ri[i].exp1_sound_num = PHYSFSX_readShort(fp);
+		ri[i].exp2_vclip_num = PHYSFSX_readShort(fp);
+		ri[i].exp2_sound_num = PHYSFSX_readShort(fp);
+		ri[i].weapon_type = PHYSFSX_readShort(fp);
+		ri[i].contains_id = PHYSFSX_readByte(fp);
+		ri[i].contains_count = PHYSFSX_readByte(fp);
+		ri[i].contains_prob = PHYSFSX_readByte(fp);
+		ri[i].contains_type = PHYSFSX_readByte(fp);
+		ri[i].score_value = PHYSFSX_readInt(fp);
+		ri[i].lighting = PHYSFSX_readFix(fp);
+		ri[i].strength = PHYSFSX_readFix(fp);
+		ri[i].mass = PHYSFSX_readFix(fp);
+		ri[i].drag = PHYSFSX_readFix(fp);
 		for (j = 0; j < NDL; j++)
-			ri[i].field_of_view[j] = cfile_read_fix(fp);
+			ri[i].field_of_view[j] = PHYSFSX_readFix(fp);
 		for (j = 0; j < NDL; j++)
-			ri[i].firing_wait[j] = cfile_read_fix(fp);
+			ri[i].firing_wait[j] = PHYSFSX_readFix(fp);
 		for (j = 0; j < NDL; j++)
-			ri[i].turn_time[j] = cfile_read_fix(fp);
+			ri[i].turn_time[j] = PHYSFSX_readFix(fp);
 		for (j = 0; j < NDL; j++)
-			ri[i].fire_power[j] = cfile_read_fix(fp);
+			ri[i].fire_power[j] = PHYSFSX_readFix(fp);
 		for (j = 0; j < NDL; j++)
-			ri[i].shield[j] = cfile_read_fix(fp);
+			ri[i].shield[j] = PHYSFSX_readFix(fp);
 		for (j = 0; j < NDL; j++)
-			ri[i].max_speed[j] = cfile_read_fix(fp);
+			ri[i].max_speed[j] = PHYSFSX_readFix(fp);
 		for (j = 0; j < NDL; j++)
-			ri[i].circle_distance[j] = cfile_read_fix(fp);
+			ri[i].circle_distance[j] = PHYSFSX_readFix(fp);
 		for (j = 0; j < NDL; j++)
-			cfread(&(ri[i].rapidfire_count[j]), sizeof(ubyte), 1, fp);
+			PHYSFS_read(fp, &(ri[i].rapidfire_count[j]), sizeof(ubyte), 1);
 		for (j = 0; j < NDL; j++)
-			cfread(&(ri[i].evade_speed[j]), sizeof(ubyte), 1, fp);
-		ri[i].cloak_type = cfile_read_byte(fp);
-		ri[i].attack_type = cfile_read_byte(fp);
-		ri[i].boss_flag = cfile_read_byte(fp);
-		ri[i].see_sound = cfile_read_byte(fp);
-		ri[i].attack_sound = cfile_read_byte(fp);
-		ri[i].claw_sound = cfile_read_byte(fp);
+			PHYSFS_read(fp, &(ri[i].evade_speed[j]), sizeof(ubyte), 1);
+		ri[i].cloak_type = PHYSFSX_readByte(fp);
+		ri[i].attack_type = PHYSFSX_readByte(fp);
+		ri[i].boss_flag = PHYSFSX_readByte(fp);
+		ri[i].see_sound = PHYSFSX_readByte(fp);
+		ri[i].attack_sound = PHYSFSX_readByte(fp);
+		ri[i].claw_sound = PHYSFSX_readByte(fp);
 		
 		for (j = 0; j < MAX_GUNS + 1; j++) {
 			for (k = 0; k < N_ANIM_STATES; k++) {
-				ri[i].anim_states[j][k].n_joints = cfile_read_short(fp);
-				ri[i].anim_states[j][k].offset = cfile_read_short(fp);
+				ri[i].anim_states[j][k].n_joints = PHYSFSX_readShort(fp);
+				ri[i].anim_states[j][k].offset = PHYSFSX_readShort(fp);
 			}
 		}
 		
-		ri[i].always_0xabcd = cfile_read_int(fp);
+		ri[i].always_0xabcd = PHYSFSX_readInt(fp);
 	}
 	return i;
 }
 
 /*
- * reads n jointpos structs from a CFILE
+ * reads n jointpos structs from a PHYSFS_file
  */
-int jointpos_read_n(jointpos *jp, int n, CFILE *fp)
+int jointpos_read_n(jointpos *jp, int n, PHYSFS_file *fp)
 {
 	int i;
 	
 	for (i = 0; i < n; i++) {
-		jp[i].jointnum = cfile_read_short(fp);
-		cfile_read_angvec(&jp[i].angles, fp);
+		jp[i].jointnum = PHYSFSX_readShort(fp);
+		PHYSFSX_readAngleVec(&jp[i].angles, fp);
 	}
 	return i;
 }

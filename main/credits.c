@@ -37,7 +37,6 @@ COPYRIGHT 1993-1998 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 #include "u_mem.h"
 #include "screens.h"
 #include "digi.h"
-#include "cfile.h"
 #include "rbaudio.h"
 #include "text.h"
 #include "songs.h"
@@ -50,7 +49,7 @@ COPYRIGHT 1993-1998 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 
 typedef struct credits
 {
-	CFILE * file;
+	PHYSFS_file * file;
 	int have_bin_file;
 	char buffer[NUM_LINES][80];
 	int buffer_line;
@@ -97,7 +96,7 @@ int credits_handler(window *wind, d_event *event, credits *cr)
 			{
 				do {
 					cr->buffer_line = (cr->buffer_line+1) % NUM_LINES;
-					if (cfgets( cr->buffer[cr->buffer_line], 80, cr->file ))	{
+					if (PHYSFSX_fgets( cr->buffer[cr->buffer_line], 80, cr->file ))	{
 						char *p;
 						if (cr->have_bin_file) // is this a binary tbl file
 							decode_text_line (cr->buffer[cr->buffer_line]);
@@ -160,7 +159,7 @@ int credits_handler(window *wind, d_event *event, credits *cr)
 
 		case EVENT_WINDOW_CLOSE:
 			gr_free_bitmap_data (&cr->backdrop);
-			cfclose(cr->file);
+			PHYSFS_close(cr->file);
 			songs_set_volume(GameCfg.MusicVolume);
 			songs_play_song( SONG_TITLE, 1 );
 			d_free(cr);
@@ -205,7 +204,7 @@ void credits_show(char *credits_filename)
 		strcpy(filename,credits_filename);
 		cr->have_bin_file = 1;
 	}
-	cr->file = cfopen( filename, "rb" );
+	cr->file = PHYSFSX_openReadBuffered( filename );
 	if (cr->file == NULL) {
 		char nfile[32];
 		
@@ -218,7 +217,7 @@ void credits_show(char *credits_filename)
 		tempp = strchr(filename, '.');
 		*tempp = '\0';
 		sprintf(nfile, "%s.txb", filename);
-		cr->file = cfopen(nfile, "rb");
+		cr->file = PHYSFSX_openReadBuffered(nfile);
 		if (cr->file == NULL)
 			Error("Missing CREDITS.TEX and CREDITS.TXB file\n");
 		cr->have_bin_file = 1;
@@ -229,7 +228,7 @@ void credits_show(char *credits_filename)
 
 	pcx_error = pcx_read_bitmap(STARS_BACKGROUND,&cr->backdrop, BM_LINEAR,backdrop_palette);
 	if (pcx_error != PCX_ERROR_NONE)		{
-		cfclose(cr->file);
+		PHYSFS_close(cr->file);
 		d_free(cr);
 		return;
 	}

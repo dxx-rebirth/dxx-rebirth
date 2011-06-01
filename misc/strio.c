@@ -2,11 +2,9 @@
 #include <stdio.h>
 #include <stdlib.h>
 
-#include "cfile.h"
+#include "physfsx.h"
 #include "strio.h"
-//added on 9/16/98 by adb to add memory tracking for this module
 #include "u_mem.h"
-//end additions - adb
 
 char *fgets_unlimited(PHYSFS_file *f)
 {
@@ -16,7 +14,7 @@ char *fgets_unlimited(PHYSFS_file *f)
     MALLOC(word, char, mem);
     p = word;
 
-    while (word && cfgets(p, mem, f) == word + mem) {
+    while (word && PHYSFSX_fgets(p, mem, f) == word + mem) {
         int i;
         
         // Make a bigger buffer, because it read to the end of the buffer.

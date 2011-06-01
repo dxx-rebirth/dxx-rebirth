@@ -120,7 +120,7 @@ void PHYSFSX_init(int argc, char *argv[])
 			PHYSFS_addToSearchPath(PHYSFS_getWriteDir(), 0);
 	}
 	
-	//tell cfile where hogdir is
+	//tell PHYSFS where hogdir is
 	if (GameArg.SysHogDir)
 		PHYSFS_addToSearchPath(GameArg.SysHogDir,1);
 #if defined(__unix__)
@@ -159,6 +159,52 @@ void PHYSFSX_init(int argc, char *argv[])
 		PHYSFS_addToSearchPath(base_dir, 1);
 	}
 #endif
+}
+
+//Specify the name of the hogfile.  Returns 1 if hogfile found & had files
+int PHYSFSX_contfile_init(char *hogname, int add_to_end)
+{
+	char hogname2[PATH_MAX], pathname[PATH_MAX];
+
+	snprintf(hogname2, strlen(hogname)+1, "%s", hogname);
+	PHYSFSEXT_locateCorrectCase(hogname2);
+
+	if (!PHYSFSX_getRealPath(hogname2, pathname))
+		return 0;
+
+	return PHYSFS_addToSearchPath(pathname, add_to_end);
+}
+
+int PHYSFSX_contfile_close(char *hogname)
+{
+	char hogname2[PATH_MAX], pathname[PATH_MAX];
+
+	snprintf(hogname2, strlen(hogname)+1, "%s", hogname);
+	PHYSFSEXT_locateCorrectCase(hogname2);
+
+	if (!PHYSFSX_getRealPath(hogname2, pathname))
+		return 0;
+
+	return PHYSFS_removeFromSearchPath(pathname);
+}
+
+int PHYSFSX_fsize(char *hogname)
+{
+	PHYSFS_file *fp;
+	char hogname2[PATH_MAX];
+	int size;
+
+	snprintf(hogname2, strlen(hogname)+1, "%s", hogname);
+	PHYSFSEXT_locateCorrectCase(hogname2);
+
+	fp = PHYSFS_openRead(hogname2);
+	if (fp == NULL)
+		return -1;
+
+	size = PHYSFS_fileLength(fp);
+	PHYSFS_close(fp);
+
+	return size;
 }
 
 void PHYSFSX_listSearchPathContent()
@@ -344,6 +390,19 @@ PHYSFS_sint64 PHYSFSX_getFreeDiskSpace()
 #endif
 }
 #endif
+
+int PHYSFSX_exists(const char *filename, int ignorecase)
+{
+	char filename2[PATH_MAX];
+
+	if (!ignorecase)
+		return PHYSFS_exists(filename);
+
+	snprintf(filename2, strlen(filename)+1, "%s", filename);
+	PHYSFSEXT_locateCorrectCase(filename2);
+
+	return PHYSFS_exists(filename2);
+}
 
 //Open a file for reading, set up a buffer
 PHYSFS_file *PHYSFSX_openReadBuffered(char *filename)

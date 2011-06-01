@@ -11,7 +11,6 @@
 
 #include "hmp.h"
 #include "u_mem.h"
-#include "cfile.h"
 
 #ifdef WORDS_BIGENDIAN
 #define MIDIINT(x) (x)
@@ -45,45 +44,45 @@ void hmp_close(hmp_file *hmp)
 hmp_file *hmp_open(const char *filename) {
 	int i, data, num_tracks;
 	char buf[256];
-	CFILE *fp;
+	PHYSFS_file *fp;
 	hmp_file *hmp;
 	unsigned char *p;
 
-	if (!(fp = cfopen((char *)filename, "rb")))
+	if (!(fp = PHYSFSX_openReadBuffered((char *)filename)))
 		return NULL;
 
 	hmp = d_malloc(sizeof(hmp_file));
 	if (!hmp) {
-		cfclose(fp);
+		PHYSFS_close(fp);
 		return NULL;
 	}
 
 	memset(hmp, 0, sizeof(*hmp));
 
-	if ((cfread(buf, 1, 8, fp) != 8) || (memcmp(buf, "HMIMIDIP", 8)))
+	if ((PHYSFS_read(fp, buf, 1, 8) != 8) || (memcmp(buf, "HMIMIDIP", 8)))
 	{
-		cfclose(fp);
+		PHYSFS_close(fp);
 		hmp_close(hmp);
 		return NULL;
 	}
 
-	if (cfseek(fp, 0x30, SEEK_SET))
+	if (PHYSFSX_fseek(fp, 0x30, SEEK_SET))
 	{
-		cfclose(fp);
+		PHYSFS_close(fp);
 		hmp_close(hmp);
 		return NULL;
 	}
 
-	if (cfread(&num_tracks, 4, 1, fp) != 1)
+	if (PHYSFS_read(fp, &num_tracks, 4, 1) != 1)
 	{
-		cfclose(fp);
+		PHYSFS_close(fp);
 		hmp_close(hmp);
 		return NULL;
 	}
 
 	if ((num_tracks < 1) || (num_tracks > HMP_TRACKS))
 	{
-		cfclose(fp);
+		PHYSFS_close(fp);
 		hmp_close(hmp);
 		return NULL;
 	}
@@ -91,17 +90,17 @@ hmp_file *hmp_open(const char *filename) {
 	hmp->num_trks = num_tracks;
 	hmp->tempo = 120;
 
-	if (cfseek(fp, 0x308, SEEK_SET))
+	if (PHYSFSX_fseek(fp, 0x308, SEEK_SET))
 	{
-		cfclose(fp);
+		PHYSFS_close(fp);
 		hmp_close(hmp);
 		return NULL;
 	}
 
 	for (i = 0; i < num_tracks; i++) {
-		if ((cfseek(fp, 4, SEEK_CUR)) || (cfread(&data, 4, 1, fp) != 1))
+		if ((PHYSFSX_fseek(fp, 4, SEEK_CUR)) || (PHYSFS_read(fp, &data, 4, 1) != 1))
 		{
-			cfclose(fp);
+			PHYSFS_close(fp);
 			hmp_close(hmp);
 			return NULL;
 		}
@@ -111,22 +110,22 @@ hmp_file *hmp_open(const char *filename) {
 
 		if (!(p = hmp->trks[i].data = d_malloc(data)))
 		{
-			cfclose(fp);
+			PHYSFS_close(fp);
 			hmp_close(hmp);
 			return NULL;
 		}
 
 		/* finally, read track data */
-		if ((cfseek(fp, 4, SEEK_CUR)) || (cfread(p, data, 1, fp) != 1))
+		if ((PHYSFSX_fseek(fp, 4, SEEK_CUR)) || (PHYSFS_read(fp, p, data, 1) != 1))
 		{
-			cfclose(fp);
+			PHYSFS_close(fp);
 			hmp_close(hmp);
 			return NULL;
 		}
 		hmp->trks[i].loop_set = 0;
 	}
 	hmp->filesize = PHYSFS_fileLength(fp);
-	cfclose(fp);
+	PHYSFS_close(fp);
 	return hmp;
 }
 

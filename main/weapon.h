@@ -175,8 +175,8 @@ extern void maybe_select_primary(int weapon_index);
 extern void maybe_select_secondary(int weapon_index);
 
 /*
- * reads n weapon_info structs from a CFILE
+ * reads n weapon_info structs from a PHYSFS_file
  */
-extern int weapon_info_read_n(weapon_info *wi, int n, CFILE *fp);
+extern int weapon_info_read_n(weapon_info *wi, int n, PHYSFS_file *fp);
 
 #endif

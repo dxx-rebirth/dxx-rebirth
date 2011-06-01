@@ -14,11 +14,11 @@ COPYRIGHT 1993-1998 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 #include <stdlib.h>
 #include <math.h>
 #include <string.h>
+#include "physfsx.h"
 #include "fix.h"
 #include "pstypes.h"
 #include "gr.h"
 #include "key.h"
-#include "cfile.h"
 #include "ui.h"
 #include "u_mem.h"
 #include "func.h"
@@ -299,12 +299,12 @@ void ui_pad_read( int n, char * filename )
 	char buffer[100];
 	char text[100];
 	char line_buffer[200];
-	CFILE * infile;
+	PHYSFS_file * infile;
 	int linenumber = 0;
 	int i;
 	int keycode, functionnumber;
 
-	infile = cfopen( filename, "rt" );
+	infile = PHYSFSX_openReadBuffered( filename );
 	if (!infile) {
 		Warning( "Couldn't find %s\n", filename );
 		return;
@@ -326,7 +326,7 @@ void ui_pad_read( int n, char * filename )
 
 	while ( linenumber < 22)
 	{
-		cfgets( buffer, 100, infile );
+		PHYSFSX_fgets( buffer, 100, infile );
 
 		switch( linenumber+1 )
 		{
@@ -501,7 +501,7 @@ void ui_pad_read( int n, char * filename )
 
 	// Get the keycodes...
 
-	while (cfgets(line_buffer, 200, infile))
+	while (PHYSFSX_fgets(line_buffer, 200, infile))
 	{
 		sscanf(line_buffer, " %s %s ", text, buffer);
 		keycode = DecodeKeyText(text);
@@ -521,6 +521,6 @@ void ui_pad_read( int n, char * filename )
 		}
 	}
 	
-	cfclose(infile);
+	PHYSFS_close(infile);
 
 }

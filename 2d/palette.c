@@ -20,11 +20,11 @@ COPYRIGHT 1993-1998 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 #include <stdlib.h>
 #include <stdio.h>
 
+#include "physfsx.h"
 #include "pstypes.h"
 #include "u_mem.h"
 #include "gr.h"
 #include "grdef.h"
-#include "cfile.h"
 #include "error.h"
 #include "fix.h"
 
@@ -59,18 +59,18 @@ int gr_palette_get_gamma()
 
 void gr_use_palette_table( char * filename )
 {
-	CFILE *fp;
+	PHYSFS_file *fp;
 	int i,fsize;
 
-	fp = cfopen( filename, "rb" );
+	fp = PHYSFSX_openReadBuffered( filename );
 	if ( fp==NULL)
 		Error("Can't open palette file <%s>",filename);
 
-	fsize	= cfilelength( fp );
+	fsize	= PHYSFS_fileLength( fp );
 	Assert( fsize == 9472 );
-	cfread( gr_palette, 256*3, 1, fp );
-	cfread( gr_fade_table, 256*34, 1, fp );
-	cfclose(fp);
+	PHYSFS_read( fp, gr_palette, 256*3, 1 );
+	PHYSFS_read( fp, gr_fade_table, 256*34, 1 );
+	PHYSFS_close(fp);
 
 	// This is the TRANSPARENCY COLOR
 	for (i=0; i<GR_FADE_LEVELS; i++ )	{

@@ -673,17 +673,17 @@ void init_all_matcens(void)
 }
 
 /*
- * reads a matcen_info structure from a CFILE
+ * reads a matcen_info structure from a PHYSFS_file
  */
-void matcen_info_read(matcen_info *mi, CFILE *fp, int version)
+void matcen_info_read(matcen_info *mi, PHYSFS_file *fp, int version)
 {
-	mi->robot_flags = cfile_read_int(fp);
+	mi->robot_flags = PHYSFSX_readInt(fp);
 	if (version > 25)
-		/*mi->robot_flags2 =*/ cfile_read_int(fp);
-	mi->hit_points = cfile_read_fix(fp);
-	mi->interval = cfile_read_fix(fp);
-	mi->segnum = cfile_read_short(fp);
-	mi->fuelcen_num = cfile_read_short(fp);
+		/*mi->robot_flags2 =*/ PHYSFSX_readInt(fp);
+	mi->hit_points = PHYSFSX_readFix(fp);
+	mi->interval = PHYSFSX_readFix(fp);
+	mi->segnum = PHYSFSX_readShort(fp);
+	mi->fuelcen_num = PHYSFSX_readShort(fp);
 }
 
 void matcen_info_swap(matcen_info *mi, int swap)
@@ -701,9 +701,9 @@ void matcen_info_swap(matcen_info *mi, int swap)
 }
 
 /*
- * reads n matcen_info structs from a CFILE and swaps if specified
+ * reads n matcen_info structs from a PHYSFS_file and swaps if specified
  */
-void matcen_info_read_n_swap(matcen_info *mi, int n, int swap, CFILE *fp)
+void matcen_info_read_n_swap(matcen_info *mi, int n, int swap, PHYSFS_file *fp)
 {
 	int i;
 	
@@ -742,9 +742,9 @@ void fuelcen_swap(FuelCenter *fc, int swap)
 }
 
 /*
- * reads n FuelCenter structs from a CFILE and swaps if specified
+ * reads n FuelCenter structs from a PHYSFS_file and swaps if specified
  */
-void fuelcen_read_n_swap(FuelCenter *fc, int n, int swap, CFILE *fp)
+void fuelcen_read_n_swap(FuelCenter *fc, int n, int swap, PHYSFS_file *fp)
 {
 	int i;
 	

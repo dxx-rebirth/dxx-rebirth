@@ -124,14 +124,14 @@ int read_player_d1x(char *filename)
 
 	while( !Stop && !PHYSFS_eof(f) )
 	{
-		cfgets(line,50,f);
+		PHYSFSX_fgets(line,50,f);
 		word=splitword(line,':');
 		strupr(word);
 
 		if (strstr(word,"WEAPON REORDER"))
 		{
 			d_free(word);
-			cfgets(line,50,f);
+			PHYSFSX_fgets(line,50,f);
 			word=splitword(line,'=');
 			strupr(word);
 			while(!strstr(word,"END") && !PHYSFS_eof(f))
@@ -148,7 +148,7 @@ int read_player_d1x(char *filename)
 					PlayerCfg.SecondaryOrder[0]=wo0; PlayerCfg.SecondaryOrder[1]=wo1; PlayerCfg.SecondaryOrder[2]=wo2; PlayerCfg.SecondaryOrder[3]=wo3; PlayerCfg.SecondaryOrder[4]=wo4; PlayerCfg.SecondaryOrder[5]=wo5;
 				}
 				d_free(word);
-				cfgets(line,50,f);
+				PHYSFSX_fgets(line,50,f);
 				word=splitword(line,'=');
 				strupr(word);
 			}
@@ -156,7 +156,7 @@ int read_player_d1x(char *filename)
 		else if (strstr(word,"JOYSTICK"))
 		{
 			d_free(word);
-			cfgets(line,50,f);
+			PHYSFSX_fgets(line,50,f);
 			word=splitword(line,'=');
 			strupr(word);
 	
@@ -183,7 +183,7 @@ int read_player_d1x(char *filename)
 				if(!strcmp(word,"DEADZONE4"))
 					PlayerCfg.JoystickDead[4] = atoi(line);
 				d_free(word);
-				cfgets(line,50,f);
+				PHYSFSX_fgets(line,50,f);
 				word=splitword(line,'=');
 				strupr(word);
 			}
@@ -191,7 +191,7 @@ int read_player_d1x(char *filename)
 		else if (strstr(word,"MOUSE"))
 		{
 			d_free(word);
-			cfgets(line,50,f);
+			PHYSFSX_fgets(line,50,f);
 			word=splitword(line,'=');
 			strupr(word);
 	
@@ -214,7 +214,7 @@ int read_player_d1x(char *filename)
 				if(!strcmp(word,"FSINDI"))
 					PlayerCfg.MouseFSIndicator = atoi(line);
 				d_free(word);
-				cfgets(line,50,f);
+				PHYSFSX_fgets(line,50,f);
 				word=splitword(line,'=');
 				strupr(word);
 			}
@@ -222,7 +222,7 @@ int read_player_d1x(char *filename)
 		else if (strstr(word,"WEAPON KEYS V2"))
 		{
 			d_free(word);
-			cfgets(line,50,f);
+			PHYSFSX_fgets(line,50,f);
 			word=splitword(line,'=');
 			strupr(word);
 			while(!strstr(word,"END") && !PHYSFS_eof(f))
@@ -238,7 +238,7 @@ int read_player_d1x(char *filename)
 				PlayerCfg.KeySettingsD1X[i+1] = kc2;
 				PlayerCfg.KeySettingsD1X[i+2] = kc3;
 				d_free(word);
-				cfgets(line,50,f);
+				PHYSFSX_fgets(line,50,f);
 				word=splitword(line,'=');
 				strupr(word);
 			}
@@ -246,7 +246,7 @@ int read_player_d1x(char *filename)
 		else if (strstr(word,"COCKPIT"))
 		{
 			d_free(word);
-			cfgets(line,50,f);
+			PHYSFSX_fgets(line,50,f);
 			word=splitword(line,'=');
 			strupr(word);
 	
@@ -263,7 +263,7 @@ int read_player_d1x(char *filename)
 				else if(!strcmp(word,"RETSIZE"))
 					PlayerCfg.ReticleSize = atoi(line);
 				d_free(word);
-				cfgets(line,50,f);
+				PHYSFSX_fgets(line,50,f);
 				word=splitword(line,'=');
 				strupr(word);
 			}
@@ -271,7 +271,7 @@ int read_player_d1x(char *filename)
 		else if (strstr(word,"TOGGLES"))
 		{
 			d_free(word);
-			cfgets(line,50,f);
+			PHYSFSX_fgets(line,50,f);
 			word=splitword(line,'=');
 			strupr(word);
 	
@@ -290,7 +290,7 @@ int read_player_d1x(char *filename)
 				if(!strcmp(word,"AUTOMAPFREEFLIGHT"))
 					PlayerCfg.AutomapFreeFlight = atoi(line);
 				d_free(word);
-				cfgets(line,50,f);
+				PHYSFSX_fgets(line,50,f);
 				word=splitword(line,'=');
 				strupr(word);
 			}
@@ -298,7 +298,7 @@ int read_player_d1x(char *filename)
 		else if (strstr(word,"GRAPHICS"))
 		{
 			d_free(word);
-			cfgets(line,50,f);
+			PHYSFSX_fgets(line,50,f);
 			word=splitword(line,'=');
 			strupr(word);
 	
@@ -309,7 +309,7 @@ int read_player_d1x(char *filename)
 				if(!strcmp(word,"DYNLIGHTCOLOR"))
 					PlayerCfg.DynLightColor = atoi(line);
 				d_free(word);
-				cfgets(line,50,f);
+				PHYSFSX_fgets(line,50,f);
 				word=splitword(line,'=');
 				strupr(word);
 			}
@@ -318,14 +318,14 @@ int read_player_d1x(char *filename)
 		{
 			int v1=0,v2=0,v3=0;
 			d_free(word);
-			cfgets(line,50,f);
+			PHYSFSX_fgets(line,50,f);
 			word=splitword(line,'=');
 			strupr(word);
 			while(!strstr(word,"END") && !PHYSFS_eof(f))
 			{
 				sscanf(line,"%i.%i.%i",&v1,&v2,&v3);
 				d_free(word);
-				cfgets(line,50,f);
+				PHYSFSX_fgets(line,50,f);
 				word=splitword(line,'=');
 				strupr(word);
 			}
@@ -351,7 +351,7 @@ int read_player_d1x(char *filename)
 			{
 				while(!strstr(line,"END") && !PHYSFS_eof(f))
 				{
-					cfgets(line,50,f);
+					PHYSFSX_fgets(line,50,f);
 					strupr(line);
 				}
 			}
@@ -413,7 +413,7 @@ void plyr_read_stats_v(int *k, int *d){
 		char line[256],*word;
 		if(!PHYSFS_eof(f))
 		{
-			 cfgets(line,50,f);
+			 PHYSFSX_fgets(line,50,f);
 			 word=splitword(line,':');
 			 if(!strcmp(word,"kills"))
 				*k=atoi(line);
@@ -421,7 +421,7 @@ void plyr_read_stats_v(int *k, int *d){
 		}
 		if(!PHYSFS_eof(f))
                 {
-			 cfgets(line,50,f);
+			 PHYSFSX_fgets(line,50,f);
 			 word=splitword(line,':');
 			 if(!strcmp(word,"deaths"))
 				*d=atoi(line);
@@ -429,7 +429,7 @@ void plyr_read_stats_v(int *k, int *d){
 		 }
 		if(!PHYSFS_eof(f))
 		{
-			 cfgets(line,50,f);
+			 PHYSFSX_fgets(line,50,f);
 			 word=splitword(line,':');
 			 if(!strcmp(word,"key") && strlen(line)>10){
 				 unsigned char *p;
@@ -641,7 +641,7 @@ int read_player_file()
 	Assert(Player_num>=0 && Player_num<MAX_PLAYERS);
 
 	sprintf(filename, GameArg.SysUsePlayersDir? "Players/%.8s.plr" : "%.8s.plr", Players[Player_num].callsign);
-	if (!PHYSFS_exists(filename))
+	if (!PHYSFSX_exists(filename,0))
 		return ENOENT;
 
 	file = PHYSFSX_openReadBuffered(filename);
@@ -665,11 +665,11 @@ int read_player_file()
 	player_file_size = PHYSFS_fileLength(file);
 
 	PHYSFS_readSLE32(file, &id);
-	saved_game_version = cfile_read_short(file);
-	player_struct_version = cfile_read_short(file);
-	PlayerCfg.NHighestLevels = cfile_read_int(file);
-	PlayerCfg.DefaultDifficulty = cfile_read_int(file);
-	PlayerCfg.AutoLeveling = cfile_read_int(file);
+	saved_game_version = PHYSFSX_readShort(file);
+	player_struct_version = PHYSFSX_readShort(file);
+	PlayerCfg.NHighestLevels = PHYSFSX_readInt(file);
+	PlayerCfg.DefaultDifficulty = PHYSFSX_readInt(file);
+	PlayerCfg.AutoLeveling = PHYSFSX_readInt(file);
 
 	if (id!=SAVE_FILE_ID) {
 		nm_messagebox(TXT_ERROR, 1, TXT_OK, "Invalid player file");
@@ -990,7 +990,7 @@ void read_netgame_profile(netgame_info *ng)
 
 	memset(filename, '\0', PATH_MAX);
 	sprintf(filename, GameArg.SysUsePlayersDir? "Players/%.8s.ngp" : "%.8s.ngp", Players[Player_num].callsign);
-	if (!PHYSFS_exists(filename))
+	if (!PHYSFSX_exists(filename,0))
 		return;
 
 	file = PHYSFSX_openReadBuffered(filename);

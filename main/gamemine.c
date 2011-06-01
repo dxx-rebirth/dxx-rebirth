@@ -36,7 +36,6 @@ COPYRIGHT 1993-1998 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 #ifdef EDITOR
 #include "editor/editor.h"
 #endif
-#include "cfile.h"		
 #include "fuelcen.h"
 #include "hash.h"
 #include "key.h"
@@ -50,7 +49,7 @@ struct mh mine_header;
 struct me mine_editor;
 
 int CreateDefaultNewSegment();
-int load_mine_data_compiled_new(CFILE *LoadFile);
+int load_mine_data_compiled_new(PHYSFS_file *LoadFile);
 
 #ifdef EDITOR
 
@@ -61,13 +60,13 @@ static short tmap_times_used[MAX_TEXTURES];
 // -----------------------------------------------------------------------------
 //loads from an already-open file
 // returns 0=everything ok, 1=old version, -1=error
-int load_mine_data(CFILE *LoadFile)
+int load_mine_data(PHYSFS_file *LoadFile)
 {
 	int   i, j;
 	short tmap_xlate;
 	int 	translate;
 	char 	*temptr;
-	int	mine_start = cftell(LoadFile);
+	int	mine_start = PHYSFS_tell(LoadFile);
 
 	fuelcen_reset();
 
@@ -117,10 +116,10 @@ int load_mine_data(CFILE *LoadFile)
 	
 	memset( &mine_top_fileinfo, 0, sizeof(mine_top_fileinfo) );
 
-	if (cfseek( LoadFile, mine_start, SEEK_SET ))
+	if (PHYSFSX_fseek( LoadFile, mine_start, SEEK_SET ))
 		Error( "Error moving to top of file in gamemine.c" );
 
-	if (cfread( &mine_top_fileinfo, sizeof(mine_top_fileinfo), 1, LoadFile )!=1)
+	if (PHYSFS_read( LoadFile, &mine_top_fileinfo, sizeof(mine_top_fileinfo), 1 )!=1)
 		Error( "Error reading mine_top_fileinfo in gamemine.c" );
 
 	if (mine_top_fileinfo.fileinfo_signature != 0x2884)
@@ -131,10 +130,10 @@ int load_mine_data(CFILE *LoadFile)
 		return -1;
 
 	// Now, Read in the fileinfo
-	if (cfseek( LoadFile, mine_start, SEEK_SET ))
+	if (PHYSFSX_fseek( LoadFile, mine_start, SEEK_SET ))
 		Error( "Error seeking to top of file in gamemine.c" );
 
-	if (cfread( &mine_fileinfo, mine_top_fileinfo.fileinfo_sizeof, 1, LoadFile )!=1)
+	if (PHYSFS_read( LoadFile, &mine_fileinfo, mine_top_fileinfo.fileinfo_sizeof, 1 )!=1)
 		Error( "Error reading mine_fileinfo in gamemine.c" );
 
 	//===================== READ HEADER INFO ========================
@@ -145,10 +144,10 @@ int load_mine_data(CFILE *LoadFile)
 
 	if (mine_fileinfo.header_offset > -1 )
 	{
-		if (cfseek( LoadFile, mine_fileinfo.header_offset, SEEK_SET ))
+		if (PHYSFSX_fseek( LoadFile, mine_fileinfo.header_offset, SEEK_SET ))
 			Error( "Error seeking to header_offset in gamemine.c" );
 	
-		if (cfread( &mine_header, mine_fileinfo.header_size, 1, LoadFile )!=1)
+		if (PHYSFS_read( LoadFile, &mine_header, mine_fileinfo.header_size, 1 )!=1)
 			Error( "Error reading mine_header in gamemine.c" );
 	}
 
@@ -164,10 +163,10 @@ int load_mine_data(CFILE *LoadFile)
 
 	if (mine_fileinfo.editor_offset > -1 )
 	{
-		if (cfseek( LoadFile, mine_fileinfo.editor_offset, SEEK_SET ))
+		if (PHYSFSX_fseek( LoadFile, mine_fileinfo.editor_offset, SEEK_SET ))
 			Error( "Error seeking to editor_offset in gamemine.c" );
 	
-		if (cfread( &mine_editor, mine_fileinfo.editor_size, 1, LoadFile )!=1)
+		if (PHYSFS_read( LoadFile, &mine_editor, mine_fileinfo.editor_size, 1 )!=1)
 			Error( "Error reading mine_editor in gamemine.c" );
 	}
 
@@ -175,12 +174,12 @@ int load_mine_data(CFILE *LoadFile)
 
 	if ( (mine_fileinfo.texture_offset > -1) && (mine_fileinfo.texture_howmany > 0))
 	{
-		if (cfseek( LoadFile, mine_fileinfo.texture_offset, SEEK_SET ))
+		if (PHYSFSX_fseek( LoadFile, mine_fileinfo.texture_offset, SEEK_SET ))
 			Error( "Error seeking to texture_offset in gamemine.c" );
 
 		for (i=0; i< mine_fileinfo.texture_howmany; i++ )
 		{
-			if (cfread( &old_tmap_list[i], mine_fileinfo.texture_sizeof, 1, LoadFile )!=1)
+			if (PHYSFS_read( LoadFile, &old_tmap_list[i], mine_fileinfo.texture_sizeof, 1 )!=1)
 				Error( "Error reading old_tmap_list[i] in gamemine.c" );
 		}
 	}
@@ -240,7 +239,7 @@ int load_mine_data(CFILE *LoadFile)
 
 	if ( (mine_fileinfo.vertex_offset > -1) && (mine_fileinfo.vertex_howmany > 0))
 	{
-		if (cfseek( LoadFile, mine_fileinfo.vertex_offset, SEEK_SET ))
+		if (PHYSFSX_fseek( LoadFile, mine_fileinfo.vertex_offset, SEEK_SET ))
 			Error( "Error seeking to vertex_offset in gamemine.c" );
 
 		for (i=0; i< mine_fileinfo.vertex_howmany; i++ )
@@ -250,7 +249,7 @@ int load_mine_data(CFILE *LoadFile)
 			Vertices[i].y = 1;
 			Vertices[i].z = 1;
 
-			if (cfread( &Vertices[i], mine_fileinfo.vertex_sizeof, 1, LoadFile )!=1)
+			if (PHYSFS_read( LoadFile, &Vertices[i], mine_fileinfo.vertex_sizeof, 1 )!=1)
 				Error( "Error reading Vertices[i] in gamemine.c" );
 		}
 	}
@@ -266,7 +265,7 @@ int load_mine_data(CFILE *LoadFile)
 
 	if ( (mine_fileinfo.segment_offset > -1) && (mine_fileinfo.segment_howmany > 0))	{
 
-		if (cfseek( LoadFile, mine_fileinfo.segment_offset,SEEK_SET ))
+		if (PHYSFSX_fseek( LoadFile, mine_fileinfo.segment_offset,SEEK_SET ))
 
 			Error( "Error seeking to segment_offset in gamemine.c" );
 
@@ -282,7 +281,7 @@ int load_mine_data(CFILE *LoadFile)
 
 				Assert(mine_fileinfo.segment_sizeof == sizeof(v16_seg));
 
-				if (cfread( &v16_seg, mine_fileinfo.segment_sizeof, 1, LoadFile )!=1)
+				if (PHYSFS_read( LoadFile, &v16_seg, mine_fileinfo.segment_sizeof, 1 )!=1)
 					Error( "Error reading segments in gamemine.c" );
 
 			}				
@@ -347,15 +346,15 @@ int load_mine_data(CFILE *LoadFile)
 
 	if (mine_editor.newsegment_offset > -1)
 	{
-		if (cfseek( LoadFile, mine_editor.newsegment_offset,SEEK_SET ))
+		if (PHYSFSX_fseek( LoadFile, mine_editor.newsegment_offset,SEEK_SET ))
 			Error( "Error seeking to newsegment_offset in gamemine.c" );
-		if (cfread( &New_segment, mine_editor.newsegment_size,1,LoadFile )!=1)
+		if (PHYSFS_read( LoadFile, &New_segment, mine_editor.newsegment_size,1 )!=1)
 			Error( "Error reading new_segment in gamemine.c" );
 	}
 
 	if ( (mine_fileinfo.newseg_verts_offset > -1) && (mine_fileinfo.newseg_verts_howmany > 0))
 	{
-		if (cfseek( LoadFile, mine_fileinfo.newseg_verts_offset, SEEK_SET ))
+		if (PHYSFSX_fseek( LoadFile, mine_fileinfo.newseg_verts_offset, SEEK_SET ))
 			Error( "Error seeking to newseg_verts_offset in gamemine.c" );
 		for (i=0; i< mine_fileinfo.newseg_verts_howmany; i++ )
 		{
@@ -364,7 +363,7 @@ int load_mine_data(CFILE *LoadFile)
 			Vertices[NEW_SEGMENT_VERTICES+i].y = 1;
 			Vertices[NEW_SEGMENT_VERTICES+i].z = 1;
 			
-			if (cfread( &Vertices[NEW_SEGMENT_VERTICES+i], mine_fileinfo.newseg_verts_sizeof,1,LoadFile )!=1)
+			if (PHYSFS_read( LoadFile, &Vertices[NEW_SEGMENT_VERTICES+i], mine_fileinfo.newseg_verts_sizeof,1 )!=1)
 				Error( "Error reading Vertices[NEW_SEGMENT_VERTICES+i] in gamemine.c" );
 
 			New_segment.verts[i] = NEW_SEGMENT_VERTICES+i;
@@ -437,35 +436,35 @@ int load_mine_data(CFILE *LoadFile)
 
 int	New_file_format_load = 1;
 
-void read_children(int segnum,ubyte bit_mask,CFILE *LoadFile)
+void read_children(int segnum,ubyte bit_mask,PHYSFS_file *LoadFile)
 {
 	int bit;
 	
 	for (bit=0; bit<MAX_SIDES_PER_SEGMENT; bit++) {
 		if (bit_mask & (1 << bit)) {
-			Segments[segnum].children[bit] = cfile_read_short(LoadFile);
+			Segments[segnum].children[bit] = PHYSFSX_readShort(LoadFile);
 		} else
 			Segments[segnum].children[bit] = -1;
 	}
 }
 
-void read_verts(int segnum,CFILE *LoadFile)
+void read_verts(int segnum,PHYSFS_file *LoadFile)
 {
 	int i;
 	// Read short Segments[segnum].verts[MAX_VERTICES_PER_SEGMENT]
 	for (i = 0; i < MAX_VERTICES_PER_SEGMENT; i++)
-		Segments[segnum].verts[i] = cfile_read_short(LoadFile);
+		Segments[segnum].verts[i] = PHYSFSX_readShort(LoadFile);
 }
 
-void read_special(int segnum,ubyte bit_mask,CFILE *LoadFile)
+void read_special(int segnum,ubyte bit_mask,PHYSFS_file *LoadFile)
 {
 	if (bit_mask & (1 << MAX_SIDES_PER_SEGMENT)) {
 		// Read ubyte	Segments[segnum].special
-		Segments[segnum].special = cfile_read_byte(LoadFile);
+		Segments[segnum].special = PHYSFSX_readByte(LoadFile);
 		// Read byte	Segments[segnum].matcen_num
-		Segments[segnum].matcen_num = cfile_read_byte(LoadFile);
+		Segments[segnum].matcen_num = PHYSFSX_readByte(LoadFile);
 		// Read short	Segments[segnum].value
-		Segments[segnum].value = cfile_read_short(LoadFile);
+		Segments[segnum].value = PHYSFSX_readShort(LoadFile);
 	} else {
 		Segments[segnum].special = 0;
 		Segments[segnum].matcen_num = -1;
@@ -474,20 +473,20 @@ void read_special(int segnum,ubyte bit_mask,CFILE *LoadFile)
 }
 
 /*
- * reads a segment2 structure from a CFILE
+ * reads a segment2 structure from a PHYSFS_file
  */
-void segment2_read(segment *s2, CFILE *fp)
+void segment2_read(segment *s2, PHYSFS_file *fp)
 {
-	s2->special = cfile_read_byte(fp);
+	s2->special = PHYSFSX_readByte(fp);
 	if (s2->special >= MAX_CENTER_TYPES)
 		s2->special = SEGMENT_IS_NOTHING; // remove goals etc.
-	s2->matcen_num = cfile_read_byte(fp);
-	s2->value = cfile_read_byte(fp);
-	/*s2->s2_flags =*/ cfile_read_byte(fp);	// descent 2 ambient sound handling
-	s2->static_light = cfile_read_fix(fp);
+	s2->matcen_num = PHYSFSX_readByte(fp);
+	s2->value = PHYSFSX_readByte(fp);
+	/*s2->s2_flags =*/ PHYSFSX_readByte(fp);	// descent 2 ambient sound handling
+	s2->static_light = PHYSFSX_readFix(fp);
 }
 
-int load_mine_data_compiled(CFILE *LoadFile)
+int load_mine_data_compiled(PHYSFS_file *LoadFile)
 {
 	int     i, segnum, sidenum;
 	ubyte   compiled_version;
@@ -513,23 +512,23 @@ int load_mine_data_compiled(CFILE *LoadFile)
 	fuelcen_reset();
 
 	//=============================== Reading part ==============================
-	compiled_version = cfile_read_byte(LoadFile);
+	compiled_version = PHYSFSX_readByte(LoadFile);
 	//Assert( compiled_version==COMPILED_MINE_VERSION );
 
 	if (New_file_format_load)
-		Num_vertices = cfile_read_short(LoadFile);
+		Num_vertices = PHYSFSX_readShort(LoadFile);
 	else
-		Num_vertices = cfile_read_int(LoadFile);
+		Num_vertices = PHYSFSX_readInt(LoadFile);
 	Assert( Num_vertices <= MAX_VERTICES );
 	
 	if (New_file_format_load)
-		Num_segments = cfile_read_short(LoadFile);
+		Num_segments = PHYSFSX_readShort(LoadFile);
 	else
-		Num_segments = cfile_read_int(LoadFile);
+		Num_segments = PHYSFSX_readInt(LoadFile);
 	Assert( Num_segments <= MAX_SEGMENTS );
 	
 	for (i = 0; i < Num_vertices; i++)
-		cfile_read_vector( &(Vertices[i]), LoadFile);
+		PHYSFSX_readVector( &(Vertices[i]), LoadFile);
 	
 	for (segnum=0; segnum<Num_segments; segnum++ )	{
 
@@ -539,7 +538,7 @@ int load_mine_data_compiled(CFILE *LoadFile)
 		#endif
 
 		if (New_file_format_load)
-			bit_mask = cfile_read_byte(LoadFile);
+			bit_mask = PHYSFSX_readByte(LoadFile);
 		else
 			bit_mask = 0x7f; // read all six children and special stuff...
 		
@@ -559,9 +558,9 @@ int load_mine_data_compiled(CFILE *LoadFile)
 
 		if (Gamesave_current_version <= 5) { // descent 1 thru d2 SHAREWARE level
 											 // Read fix	Segments[segnum].static_light (shift down 5 bits, write as short)
-			temp_ushort = cfile_read_short(LoadFile);
+			temp_ushort = PHYSFSX_readShort(LoadFile);
 			Segments[segnum].static_light	= ((fix)temp_ushort) << 4;
-			//cfread( &Segments[segnum].static_light, sizeof(fix), 1, LoadFile );
+			//PHYSFS_read( LoadFile, &Segments[segnum].static_light, sizeof(fix), 1 );
 		}
 		
 		// Read the walls as a 6 byte array
@@ -570,14 +569,14 @@ int load_mine_data_compiled(CFILE *LoadFile)
 		}
 		
 		if (New_file_format_load)
-			bit_mask = cfile_read_byte(LoadFile);
+			bit_mask = PHYSFSX_readByte(LoadFile);
 		else
 			bit_mask = 0x3f; // read all six sides
 		for (sidenum=0; sidenum<MAX_SIDES_PER_SEGMENT; sidenum++) {
 			ubyte byte_wallnum;
 			
 			if (bit_mask & (1 << sidenum)) {
-				byte_wallnum = cfile_read_byte(LoadFile);
+				byte_wallnum = PHYSFSX_readByte(LoadFile);
 				if ( byte_wallnum == 255 )
 					Segments[segnum].sides[sidenum].wall_num = -1;
 				else
@@ -590,7 +589,7 @@ int load_mine_data_compiled(CFILE *LoadFile)
 			
 			if ( (Segments[segnum].children[sidenum]==-1) || (Segments[segnum].sides[sidenum].wall_num!=-1) )	{
 				// Read short Segments[segnum].sides[sidenum].tmap_num;
-				temp_ushort = cfile_read_short(LoadFile);
+				temp_ushort = PHYSFSX_readShort(LoadFile);
 
 				Segments[segnum].sides[sidenum].tmap_num = convert_tmap(temp_ushort & 0x7fff);
 
@@ -598,7 +597,7 @@ int load_mine_data_compiled(CFILE *LoadFile)
 					Segments[segnum].sides[sidenum].tmap_num2 = 0;
 				else {
 					// Read short Segments[segnum].sides[sidenum].tmap_num2;
-					Segments[segnum].sides[sidenum].tmap_num2 = cfile_read_short(LoadFile);
+					Segments[segnum].sides[sidenum].tmap_num2 = PHYSFSX_readShort(LoadFile);
 					Segments[segnum].sides[sidenum].tmap_num2 =
 						(convert_tmap(Segments[segnum].sides[sidenum].tmap_num2 & 0x3fff)) |
 						(Segments[segnum].sides[sidenum].tmap_num2 & 0xc000);
@@ -606,13 +605,13 @@ int load_mine_data_compiled(CFILE *LoadFile)
 				
 				// Read uvl Segments[segnum].sides[sidenum].uvls[4] (u,v>>5, write as short, l>>1 write as short)
 				for (i=0; i<4; i++ )	{
-					temp_short = cfile_read_short(LoadFile);
+					temp_short = PHYSFSX_readShort(LoadFile);
 					Segments[segnum].sides[sidenum].uvls[i].u = ((fix)temp_short) << 5;
-					temp_short = cfile_read_short(LoadFile);
+					temp_short = PHYSFSX_readShort(LoadFile);
 					Segments[segnum].sides[sidenum].uvls[i].v = ((fix)temp_short) << 5;
-					temp_ushort = cfile_read_short(LoadFile);
+					temp_ushort = PHYSFSX_readShort(LoadFile);
 					Segments[segnum].sides[sidenum].uvls[i].l = ((fix)temp_ushort) << 1;
-					//cfread( &Segments[segnum].sides[sidenum].uvls[i].l, sizeof(fix), 1, LoadFile );
+					//PHYSFS_read( LoadFile, &Segments[segnum].sides[sidenum].uvls[i].l, sizeof(fix), 1 );
 				}
 			} else {
 				Segments[segnum].sides[sidenum].tmap_num = 0;

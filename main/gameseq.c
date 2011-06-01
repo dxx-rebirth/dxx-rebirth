@@ -83,7 +83,6 @@ COPYRIGHT 1993-1998 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 #include "cntrlcen.h"
 #include "powerup.h"
 #include "text.h"
-#include "cfile.h"
 #include "piggy.h"
 #include "texmerge.h"
 #include "paging.h"

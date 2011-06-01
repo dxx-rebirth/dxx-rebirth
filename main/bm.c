@@ -37,7 +37,6 @@ COPYRIGHT 1993-1998 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 #include "game.h"
 #include "multi.h"
 #include "iff.h"
-#include "cfile.h"
 #include "hostage.h"
 #include "powerup.h"
 #include "sounds.h"
@@ -93,36 +92,36 @@ bitmap_index		ObjBitmaps[MAX_OBJ_BITMAPS];
 ushort				ObjBitmapPtrs[MAX_OBJ_BITMAPS];		// These point back into ObjBitmaps, since some are used twice.
 
 /*
- * reads n tmap_info structs from a CFILE
+ * reads n tmap_info structs from a PHYSFS_file
  */
-int tmap_info_read_n(tmap_info *ti, int n, CFILE *fp)
+int tmap_info_read_n(tmap_info *ti, int n, PHYSFS_file *fp)
 {
 	int i;
 	
 	for (i = 0; i < n; i++) {
-		cfread(TmapInfo[i].filename, 13, 1, fp);
-		ti[i].flags = cfile_read_byte(fp);
-		ti[i].lighting = cfile_read_fix(fp);
-		ti[i].damage = cfile_read_fix(fp);
-		ti[i].eclip_num = cfile_read_int(fp);
+		PHYSFS_read(fp, TmapInfo[i].filename, 13, 1);
+		ti[i].flags = PHYSFSX_readByte(fp);
+		ti[i].lighting = PHYSFSX_readFix(fp);
+		ti[i].damage = PHYSFSX_readFix(fp);
+		ti[i].eclip_num = PHYSFSX_readInt(fp);
 	}
 	return i;
 }
 
-int player_ship_read(player_ship *ps, CFILE *fp)
+int player_ship_read(player_ship *ps, PHYSFS_file *fp)
 {
 	int i;
-	ps->model_num = cfile_read_int(fp);
-	ps->expl_vclip_num = cfile_read_int(fp);
-	ps->mass = cfile_read_fix(fp);
-	ps->drag = cfile_read_fix(fp);
-	ps->max_thrust = cfile_read_fix(fp);
-	ps->reverse_thrust = cfile_read_fix(fp);
-	ps->brakes = cfile_read_fix(fp);
-	ps->wiggle = cfile_read_fix(fp);
-	ps->max_rotthrust = cfile_read_fix(fp);
+	ps->model_num = PHYSFSX_readInt(fp);
+	ps->expl_vclip_num = PHYSFSX_readInt(fp);
+	ps->mass = PHYSFSX_readFix(fp);
+	ps->drag = PHYSFSX_readFix(fp);
+	ps->max_thrust = PHYSFSX_readFix(fp);
+	ps->reverse_thrust = PHYSFSX_readFix(fp);
+	ps->brakes = PHYSFSX_readFix(fp);
+	ps->wiggle = PHYSFSX_readFix(fp);
+	ps->max_rotthrust = PHYSFSX_readFix(fp);
 	for (i = 0; i < N_PLAYER_GUNS; i++)
-		cfile_read_vector(&ps->gun_points[i], fp);
+		PHYSFSX_readVector(&ps->gun_points[i], fp);
 	return i;
 }
 
@@ -152,41 +151,41 @@ int gamedata_init()
 }
 
 // Read compiled properties data from descent.pig
-void properties_read_cmp(CFILE * fp)
+void properties_read_cmp(PHYSFS_file * fp)
 {
 	int i;
 	
 	//  bitmap_index is a short
 	
-	NumTextures = cfile_read_int(fp);
+	NumTextures = PHYSFSX_readInt(fp);
 	bitmap_index_read_n(Textures, MAX_TEXTURES, fp );
 	tmap_info_read_n(TmapInfo, MAX_TEXTURES, fp);
 	
-	cfread( Sounds, sizeof(ubyte), MAX_SOUNDS, fp );
-	cfread( AltSounds, sizeof(ubyte), MAX_SOUNDS, fp );
+	PHYSFS_read( fp, Sounds, sizeof(ubyte), MAX_SOUNDS );
+	PHYSFS_read( fp, AltSounds, sizeof(ubyte), MAX_SOUNDS );
 	
-	Num_vclips = cfile_read_int(fp);
+	Num_vclips = PHYSFSX_readInt(fp);
 	vclip_read_n(Vclip, VCLIP_MAXNUM, fp);
 	
-	Num_effects = cfile_read_int(fp);
+	Num_effects = PHYSFSX_readInt(fp);
 	eclip_read_n(Effects, MAX_EFFECTS, fp);
 	
-	Num_wall_anims = cfile_read_int(fp);
+	Num_wall_anims = PHYSFSX_readInt(fp);
 	wclip_read_n(WallAnims, MAX_WALL_ANIMS, fp);
 	
-	N_robot_types = cfile_read_int(fp);
+	N_robot_types = PHYSFSX_readInt(fp);
 	robot_info_read_n(Robot_info, MAX_ROBOT_TYPES, fp);
 	
-	N_robot_joints = cfile_read_int(fp);
+	N_robot_joints = PHYSFSX_readInt(fp);
 	jointpos_read_n(Robot_joints, MAX_ROBOT_JOINTS, fp);
 	
-	N_weapon_types = cfile_read_int(fp);
+	N_weapon_types = PHYSFSX_readInt(fp);
 	weapon_info_read_n(Weapon_info, MAX_WEAPON_TYPES, fp);
 	
-	N_powerup_types = cfile_read_int(fp);
+	N_powerup_types = PHYSFSX_readInt(fp);
 	powerup_type_info_read_n(Powerup_info, MAX_POWERUP_TYPES, fp);
 	
-	N_polygon_models = cfile_read_int(fp);	
+	N_polygon_models = PHYSFSX_readInt(fp);	
 	polymodel_read_n(Polygon_models, N_polygon_models, fp);
 
 	for (i=0; i<N_polygon_models; i++ )
@@ -195,38 +194,38 @@ void properties_read_cmp(CFILE * fp)
 	bitmap_index_read_n(Gauges, MAX_GAUGE_BMS, fp);
 	
 	for (i = 0; i < MAX_POLYGON_MODELS; i++)
-		Dying_modelnums[i] = cfile_read_int(fp);
+		Dying_modelnums[i] = PHYSFSX_readInt(fp);
 	for (i = 0; i < MAX_POLYGON_MODELS; i++)
-		Dead_modelnums[i] = cfile_read_int(fp);
+		Dead_modelnums[i] = PHYSFSX_readInt(fp);
 	
 	bitmap_index_read_n(ObjBitmaps, MAX_OBJ_BITMAPS, fp);
 	for (i = 0; i < MAX_OBJ_BITMAPS; i++)
-		ObjBitmapPtrs[i] = cfile_read_short(fp);
+		ObjBitmapPtrs[i] = PHYSFSX_readShort(fp);
 	
 	player_ship_read(&only_player_ship, fp);
 	
-	Num_cockpits = cfile_read_int(fp);
+	Num_cockpits = PHYSFSX_readInt(fp);
 	bitmap_index_read_n(cockpit_bitmap, N_COCKPIT_BITMAPS, fp);
 	
-	cfread( Sounds, sizeof(ubyte), MAX_SOUNDS, fp );
-	cfread( AltSounds, sizeof(ubyte), MAX_SOUNDS, fp );
+	PHYSFS_read( fp, Sounds, sizeof(ubyte), MAX_SOUNDS );
+	PHYSFS_read( fp, AltSounds, sizeof(ubyte), MAX_SOUNDS );
 	
-	Num_total_object_types = cfile_read_int(fp);
-	cfread( ObjType, sizeof(ubyte), MAX_OBJTYPE, fp );
-	cfread( ObjId, sizeof(ubyte), MAX_OBJTYPE, fp );
+	Num_total_object_types = PHYSFSX_readInt(fp);
+	PHYSFS_read( fp, ObjType, sizeof(ubyte), MAX_OBJTYPE );
+	PHYSFS_read( fp, ObjId, sizeof(ubyte), MAX_OBJTYPE );
 	for (i = 0; i < MAX_OBJTYPE; i++)
-		ObjStrength[i] = cfile_read_fix(fp);
+		ObjStrength[i] = PHYSFSX_readFix(fp);
 	
-	First_multi_bitmap_num = cfile_read_int(fp);
-	N_controlcen_guns = cfile_read_int(fp);
+	First_multi_bitmap_num = PHYSFSX_readInt(fp);
+	N_controlcen_guns = PHYSFSX_readInt(fp);
 	
 	for (i = 0; i < MAX_CONTROLCEN_GUNS; i++)
-		cfile_read_vector(&controlcen_gun_points[i], fp);
+		PHYSFSX_readVector(&controlcen_gun_points[i], fp);
 	for (i = 0; i < MAX_CONTROLCEN_GUNS; i++)
-		cfile_read_vector(&controlcen_gun_dirs[i], fp);
+		PHYSFSX_readVector(&controlcen_gun_dirs[i], fp);
 	
-	exit_modelnum = cfile_read_int(fp);	
-	destroyed_exit_modelnum = cfile_read_int(fp);
+	exit_modelnum = PHYSFSX_readInt(fp);	
+	destroyed_exit_modelnum = PHYSFSX_readInt(fp);
 	
         #ifdef EDITOR
         //Hardcoded flags

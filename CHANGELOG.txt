@@ -1,5 +1,9 @@
 D1X-Rebirth Changelog
 
+20110601
+--------
+2d/font.c, 2d/palette.c, 2d/pcx.c, arch/linux/hmiplay.c, arch/ogl/gr.c, arch/sdl/digi_mixer_music.c, arch/sdl/jukebox.c, editor/group.c, editor/kmine.c, editor/med.c, editor/mine.c, iff/iff.c, include/physfsx.h, main/ai.c, main/bm.c, main/bmread.c, main/cntrlcen.c, main/cntrlcen.h, main/credits.c, main/custom.c, main/digiobj.c, main/dumpmine.c, main/effects.c, main/effects.h, main/endlevel.c, main/fuelcen.c, main/fuelcen.h, main/game.c, main/game.h, main/gamefont.c, main/gamemine.c, main/gamemine.h, main/gamesave.c, main/gameseq.c, main/inferno.c, main/menu.c, main/menu.h, main/mission.c, main/newdemo.c, main/newmenu.c, main/object.c, main/piggy.c, main/piggy.h, main/player.c, main/playsave.c, main/polyobj.c, main/polyobj.h, main/powerup.c, main/powerup.h, main/robot.c, main/robot.h, main/segment.h, main/songs.c, main/state.c, main/switch.c, main/switch.h, main/text.c, main/titles.c, main/vclip.c, main/vclip.h, main/wall.c, main/wall.h, main/weapon.c, main/weapon.h, misc/hmp.c, misc/ignorecase.c, misc/physfsx.c, misc/strio.c, ui/keypad.c, ui/menubar.c: Got rid of cfile code: Renamed cfile-functions to use PHYSFSX-naming convention, Replaced cfile-macros with proper PHYSFS(X) calls; Introduced PHYSFSX_exists() which can check case-sensitive or case-insensitive to give more flexibility with game content
+
 20110530
 --------
 arch/include/digi_audio.h, arch/include/digi_mixer.h, arch/sdl/digi.c, arch/sdl/digi_mixer.c, main/digi.h, main/digiobj.c: Added own channel management to SDL_mixer sound interface since the builtin channel management of this lib cannot handle our needs; Little code cleanup

@@ -415,19 +415,19 @@ void init_controlcen_for_level(void)
 }
 
 /*
- * reads a control_center_triggers structure from a CFILE
+ * reads a control_center_triggers structure from a PHYSFS_file
  */
-extern int control_center_triggers_read_n(control_center_triggers *cct, int n, CFILE *fp)
+extern int control_center_triggers_read_n(control_center_triggers *cct, int n, PHYSFS_file *fp)
 {
 	int i, j;
 	
 	for (i = 0; i < n; i++)
 	{
-		cct->num_links = cfile_read_short(fp);
+		cct->num_links = PHYSFSX_readShort(fp);
 		for (j = 0; j < MAX_WALLS_PER_LINK; j++)
-			cct->seg[j] = cfile_read_short(fp);
+			cct->seg[j] = PHYSFSX_readShort(fp);
 		for (j = 0; j < MAX_WALLS_PER_LINK; j++)
-			cct->side[j] = cfile_read_short(fp);
+			cct->side[j] = PHYSFSX_readShort(fp);
 	}
 	return i;
 }
@@ -447,9 +447,9 @@ void control_center_triggers_swap(control_center_triggers *cct, int swap)
 }
 
 /*
- * reads n control_center_triggers structs from a CFILE and swaps if specified
+ * reads n control_center_triggers structs from a PHYSFS_file and swaps if specified
  */
-void control_center_triggers_read_n_swap(control_center_triggers *cct, int n, int swap, CFILE *fp)
+void control_center_triggers_read_n_swap(control_center_triggers *cct, int n, int swap, PHYSFS_file *fp)
 {
 	int i;
 	

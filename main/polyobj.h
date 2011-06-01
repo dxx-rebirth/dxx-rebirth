@@ -120,13 +120,13 @@ int get_chunks(ubyte *data, ubyte *new_data, chunk *list, int *no);
 #endif //def WORDS_NEED_ALIGNMENT
 
 /*
- * reads n polymodel structs from a CFILE
+ * reads n polymodel structs from a PHYSFS_file
  */
-extern int polymodel_read_n(polymodel *pm, int n, CFILE *fp);
+extern int polymodel_read_n(polymodel *pm, int n, PHYSFS_file *fp);
 
 /*
  * routine which allocates, reads, and inits a polymodel's model_data
  */
-extern void polygon_model_data_read(polymodel *pm, CFILE *fp);
+extern void polygon_model_data_read(polymodel *pm, PHYSFS_file *fp);
 
 #endif
