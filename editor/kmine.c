@@ -32,7 +32,6 @@ COPYRIGHT 1993-1998 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 #include "game.h"
 #include "gameseq.h"
 #include "object.h"
-#include "cfile.h"
 
 #define MINESAVE_CRIPPLED	0
 
@@ -184,10 +183,10 @@ int med_load_situation(char * filename)
 //	-----------------------------------------------------------------------------
 int med_save_situation(char * filename)
 {
-	CFILE * SaveFile;
+	PHYSFS_file * SaveFile;
 	char	mine_name[MAX_NAME_LENGTH];
 
-	SaveFile = cfopen( filename, "wt" );
+	SaveFile = PHYSFSX_openWriteBuffered( filename );
 	if (!SaveFile)	{
 		char  ErrorMessage[200];
 
@@ -211,7 +210,7 @@ int med_save_situation(char * filename)
         PHYSFSX_printf(SaveFile, "%8x %8x %8x\n",(unsigned int) ConsoleObject->orient.fvec.x,(unsigned int) ConsoleObject->orient.fvec.y,(unsigned int) ConsoleObject->orient.fvec.z);
 	PHYSFSX_printf(SaveFile, "%i\n", ConsoleObject->segnum);
 
-	cfclose( SaveFile);
+	PHYSFS_close( SaveFile);
 
 	return 1;
 }

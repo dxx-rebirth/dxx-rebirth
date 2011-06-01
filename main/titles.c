@@ -28,7 +28,6 @@ static char rcsid[] = "$Id: titles.c,v 1.2 2006/03/18 23:08:13 michaelstather Ex
 #ifdef OGL
 #include "ogl_init.h"
 #endif
-
 #include "pstypes.h"
 #include "timer.h"
 #include "key.h"
@@ -39,7 +38,6 @@ static char rcsid[] = "$Id: titles.c,v 1.2 2006/03/18 23:08:13 michaelstather Ex
 #include "u_mem.h"
 #include "joy.h"
 #include "gamefont.h"
-#include "cfile.h"
 #include "error.h"
 #include "polyobj.h"
 #include "textures.h"
@@ -201,7 +199,7 @@ void show_titles(void)
 		if (!played) {
 			strcpy(filename,HIRESMODE?"pre_i1b.pcx":"pre_i1.pcx");
 
-			while (PHYSFS_exists(filename))
+			while (PHYSFSX_exists(filename,0))
 			{
 				show_title_screen( filename, 1, 0 );
 				filename[5]++;
@@ -228,19 +226,19 @@ void show_titles(void)
 			con_printf( CON_DEBUG, "\nShowing logo screens..." );
 
 			strcpy(filename, HIRESMODE?"iplogo1b.pcx":"iplogo1.pcx"); // OEM
-			if (! cfexist(filename))
+			if (! PHYSFSX_exists(filename,1))
 				strcpy(filename, "iplogo1.pcx"); // SHAREWARE
-			if (! cfexist(filename))
+			if (! PHYSFSX_exists(filename,1))
 				strcpy(filename, "mplogo.pcx"); // MAC SHAREWARE
-			if (cfexist(filename))
+			if (PHYSFSX_exists(filename,1))
 				show_title_screen(filename, 1, 1);
 
 			strcpy(filename, HIRESMODE?"logob.pcx":"logo.pcx"); // OEM
-			if (! cfexist(filename))
+			if (! PHYSFSX_exists(filename,1))
 				strcpy(filename, "logo.pcx"); // SHAREWARE
-			if (! cfexist(filename))
+			if (! PHYSFSX_exists(filename,1))
 				strcpy(filename, "plogo.pcx"); // MAC SHAREWARE
-			if (cfexist(filename))
+			if (PHYSFSX_exists(filename,1))
 				show_title_screen(filename, 1, 1);
 		}
 	}
@@ -263,7 +261,7 @@ void show_titles(void)
 		{
 			strcpy(filename,HIRESMODE?"oem1b.pcx":"oem1.pcx");
 
-			while (PHYSFS_exists(filename))
+			while (PHYSFSX_exists(filename,0))
 			{
 				show_title_screen( filename, 1, 0 );
 				filename[3]++;
@@ -278,7 +276,7 @@ void show_titles(void)
 	}
 	con_printf( CON_DEBUG, "\nShowing logo screen..." );
 	strcpy(filename, HIRESMODE?"descentb.pcx":"descent.pcx");
-	if (cfexist(filename))
+	if (PHYSFSX_exists(filename,1))
 		show_title_screen(filename, 1, 1);
 }
 
@@ -290,13 +288,13 @@ void show_order_form()
 	key_flush();
 
 	strcpy(exit_screen, HIRESMODE?"ordrd2ob.pcx":"ordrd2o.pcx"); // OEM
-	if (! cfexist(exit_screen))
+	if (! PHYSFSX_exists(exit_screen,1))
 		strcpy(exit_screen, HIRESMODE?"orderd2b.pcx":"orderd2.pcx"); // SHAREWARE, prefer mac if hires
-	if (! cfexist(exit_screen))
+	if (! PHYSFSX_exists(exit_screen,1))
 		strcpy(exit_screen, HIRESMODE?"orderd2.pcx":"orderd2b.pcx"); // SHAREWARE, have to rescale
-	if (! cfexist(exit_screen))
+	if (! PHYSFSX_exists(exit_screen,1))
 		strcpy(exit_screen, HIRESMODE?"warningb.pcx":"warning.pcx"); // D1
-	if (! cfexist(exit_screen))
+	if (! PHYSFSX_exists(exit_screen,1))
 		return; // D2 registered
 
 	show_title_screen(exit_screen,1,0);
@@ -451,24 +449,24 @@ void briefing_init(briefing *br, short level_num)
 //	Load Descent briefing text.
 int load_screen_text(char *filename, char **buf)
 {
-	CFILE *tfile;
+	PHYSFS_file *tfile;
 	int	len, i,x;
 	int	have_binary = 0;
 
 	if (!stricmp(strrchr(filename, '.'), ".txb"))
 		have_binary = 1;
 	
-	if ((tfile = cfopen(filename, "rb")) == NULL)
+	if ((tfile = PHYSFSX_openReadBuffered(filename)) == NULL)
 		return (0);
 
-	len = cfilelength(tfile);
+	len = PHYSFS_fileLength(tfile);
 	MALLOC(*buf, char, len+1);
 	for (x=0, i=0; i < len; i++, x++) {
-		cfread (*buf+x,1,1,tfile);
+		PHYSFS_read(tfile,*buf+x,1,1);
 		if (*(*buf+x)==13)
 			x--;
 	}
-	cfclose(tfile);
+	PHYSFS_close(tfile);
 
 	if (have_binary)
 		decode_text(*buf, len);
@@ -739,7 +737,7 @@ int briefing_process_char(briefing *br)
 				fname2[i++]='x';
 				fname2[i++]=0;
 
-				if ((HIRESMODE && cfexist(fname2)) || !cfexist(fname))
+				if ((HIRESMODE && PHYSFSX_exists(fname2,1)) || !PHYSFSX_exists(fname,1))
 					strcpy(fname,fname2);
 				load_briefing_screen (br, fname);
 			}

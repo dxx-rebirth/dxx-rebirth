@@ -93,18 +93,18 @@ extern bitmap_index texture_list_index[MAX_POLYOBJ_TEXTURES];
 extern g3s_point robot_points[];
 
 /*
- * reads a polymodel structure from a CFILE
+ * reads a polymodel structure from a PHYSFS_file
  */
-extern void polymodel_read(polymodel *pm, CFILE *fp);
+extern void polymodel_read(polymodel *pm, PHYSFS_file *fp);
 
 /*
- * reads n polymodel structs from a CFILE
+ * reads n polymodel structs from a PHYSFS_file
  */
-extern int polymodel_read_n(polymodel *pm, int n, CFILE *fp);
+extern int polymodel_read_n(polymodel *pm, int n, PHYSFS_file *fp);
 
 /*
  * routine which allocates, reads, and inits a polymodel's model_data
  */
-void polygon_model_data_read(polymodel *pm, CFILE *fp);
+void polygon_model_data_read(polymodel *pm, PHYSFS_file *fp);
 
 #endif /* _POLYOBJ_H */

@@ -89,8 +89,6 @@ COPYRIGHT 1993-1999 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 extern int init_hoard_data();
 extern void init_seismic_disturbances(void);
 
-//#include "nocfile.h"
-
 #define ND_EVENT_EOF				0	// EOF
 #define ND_EVENT_START_DEMO			1	// Followed by 16 character, NULL terminated filename of .SAV file to use
 #define ND_EVENT_START_FRAME			2	// Followed by integer frame number, then a fix FrameTime
@@ -2907,7 +2905,7 @@ void newdemo_goto_end(int to_rewrite)
 	ubyte energy=0, shield=0;
 	int i=0, loc=0, bint=0;
 
-	cfseek(infile, -2, SEEK_END);
+	PHYSFSX_fseek(infile, -2, SEEK_END);
 	nd_read_byte(&level);
 
 	if (!to_rewrite)
@@ -2926,12 +2924,12 @@ void newdemo_goto_end(int to_rewrite)
 		Current_level_num = level;
 	}
 
-	cfseek(infile, -4, SEEK_END);
+	PHYSFSX_fseek(infile, -4, SEEK_END);
 	nd_read_short(&byte_count);
-	cfseek(infile, -2 - byte_count, SEEK_CUR);
+	PHYSFSX_fseek(infile, -2 - byte_count, SEEK_CUR);
 
 	nd_read_short(&frame_length);
-	loc = cftell(infile);
+	loc = PHYSFS_tell(infile);
 	if (Newdemo_game_mode & GM_MULTI)
 	{
 		nd_read_byte(&cloaked);
@@ -2991,11 +2989,11 @@ void newdemo_goto_end(int to_rewrite)
 	if (to_rewrite)
 		return;
 
-	cfseek(infile, loc, SEEK_SET);
-	cfseek(infile, -frame_length, SEEK_CUR);
+	PHYSFSX_fseek(infile, loc, SEEK_SET);
+	PHYSFSX_fseek(infile, -frame_length, SEEK_CUR);
 	nd_read_int(&nd_playback_v_framecount);            // get the frame count
 	nd_playback_v_framecount--;
-	cfseek(infile, 4, SEEK_CUR);
+	PHYSFSX_fseek(infile, 4, SEEK_CUR);
 	Newdemo_vcr_state = ND_STATE_PLAYBACK;
 	newdemo_read_frame_information(0); // then the frame information
 	Newdemo_vcr_state = ND_STATE_PAUSED;

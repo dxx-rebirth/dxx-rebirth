@@ -1431,9 +1431,9 @@ void expl_wall_swap(expl_wall *ew, int swap)
 }
 
 /*
- * reads n expl_wall structs from a CFILE and swaps if specified
+ * reads n expl_wall structs from a PHYSFS_file and swaps if specified
  */
-void expl_wall_read_n_swap(expl_wall *ew, int n, int swap, CFILE *fp)
+void expl_wall_read_n_swap(expl_wall *ew, int n, int swap, PHYSFS_file *fp)
 {
 	int i;
 	

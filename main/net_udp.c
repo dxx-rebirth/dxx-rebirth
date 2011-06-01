@@ -51,7 +51,6 @@
 #include "automap.h"
 #include "byteswap.h"
 #include "playsave.h"
-#include "cfile.h"
 #include "gamefont.h"
 #include "rbaudio.h"
 #include "config.h"

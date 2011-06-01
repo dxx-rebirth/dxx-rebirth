@@ -328,7 +328,7 @@ static int (*KeyFunction[2048])();
 
 void medkey_init()
 {
-	CFILE * keyfile;
+	PHYSFS_file * keyfile;
 	char keypress[100];
 	char line_buffer[200];
 	int key;
@@ -341,10 +341,10 @@ void medkey_init()
 	for (i=0; i<2048; i++ )
 		KeyFunction[i] = NULL;
 
-	keyfile = cfopen( "GLOBAL.KEY", "rt" );
+	keyfile = PHYSFSX_openReadBuffered( "GLOBAL.KEY" );
 	if (keyfile)
 	{
-		while (cfgets(line_buffer, 200, keyfile))
+		while (PHYSFSX_fgets(line_buffer, 200, keyfile))
 		{
 			sscanf(line_buffer, " %s %s ", keypress, LispCommand);
 			//ReadLispMacro( keyfile, LispCommand );
@@ -357,7 +357,7 @@ void medkey_init()
 				Error( "Bad key %s in GLOBAL.KEY!", keypress );
 			}
 		}
-		cfclose(keyfile);
+		PHYSFS_close(keyfile);
 	}
 	d_free( LispCommand );
 }

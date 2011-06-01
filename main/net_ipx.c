@@ -65,7 +65,6 @@ COPYRIGHT 1993-1999 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 #include "byteswap.h"
 #include "kconfig.h"
 #include "playsave.h"
-#include "cfile.h"
 #include "gamefont.h"
 #include "rbaudio.h"
 

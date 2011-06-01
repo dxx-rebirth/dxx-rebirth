@@ -120,8 +120,8 @@ extern void do_megawow_powerup(int quantity);
 extern void powerup_basic(int redadd, int greenadd, int blueadd, int score, char *format, ...);
 
 /*
- * reads n powerup_type_info structs from a CFILE
+ * reads n powerup_type_info structs from a PHYSFS_file
  */
-extern int powerup_type_info_read_n(powerup_type_info *pti, int n, CFILE *fp);
+extern int powerup_type_info_read_n(powerup_type_info *pti, int n, PHYSFS_file *fp);
 
 #endif /* _POWERUP_H */

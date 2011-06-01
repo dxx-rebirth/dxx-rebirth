@@ -86,7 +86,6 @@ COPYRIGHT 1993-1999 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 #include "cntrlcen.h"
 #include "powerup.h"
 #include "text.h"
-#include "cfile.h"
 #include "piggy.h"
 #include "texmerge.h"
 #include "paging.h"
@@ -963,7 +962,7 @@ int p_secret_level_destroyed(void)
 	if (First_secret_visit) {
 		return 0;		//	Never been there, can't have been destroyed.
 	} else {
-		if (PHYSFS_exists(SECRETC_FILENAME))
+		if (PHYSFSX_exists(SECRETC_FILENAME,0))
 		{
 			return 0;
 		} else {
@@ -1047,7 +1046,7 @@ void StartNewLevelSecret(int level_num, int page_in_textures)
 		if (First_secret_visit) {
 			do_screen_message(TXT_SECRET_EXIT);
 		} else {
-			if (PHYSFS_exists(SECRETC_FILENAME))
+			if (PHYSFSX_exists(SECRETC_FILENAME,0))
 			{
 				do_screen_message(TXT_SECRET_EXIT);
 			} else {
@@ -1089,7 +1088,7 @@ void StartNewLevelSecret(int level_num, int page_in_textures)
 		reset_special_effects();
 		StartSecretLevel();
 	} else {
-		if (PHYSFS_exists(SECRETC_FILENAME))
+		if (PHYSFSX_exists(SECRETC_FILENAME,0))
 		{
 			int	pw_save, sw_save;
 
@@ -1135,7 +1134,7 @@ void ExitSecretLevel(void)
 		state_save_all(2, SECRETC_FILENAME, 0);
 	}
 
-	if (PHYSFS_exists(SECRETB_FILENAME))
+	if (PHYSFSX_exists(SECRETB_FILENAME,0))
 	{
 		int	pw_save, sw_save;
 
@@ -1448,7 +1447,7 @@ void DoPlayerDead()
 		do_screen_message(TXT_DIED_IN_MINE); // Give them some indication of what happened
 
 		if (Current_level_num < 0) {
-			if (PHYSFS_exists(SECRETB_FILENAME))
+			if (PHYSFSX_exists(SECRETB_FILENAME,0))
 			{
 				do_screen_message(TXT_SECRET_RETURN);
 				state_restore_all(1, 2, SECRETB_FILENAME);			//	2 means you died
@@ -1472,7 +1471,7 @@ void DoPlayerDead()
 		}
 
 	} else if (Current_level_num < 0) {
-		if (PHYSFS_exists(SECRETB_FILENAME))
+		if (PHYSFSX_exists(SECRETB_FILENAME,0))
 		{
 			do_screen_message(TXT_SECRET_RETURN);
 			if (!Control_center_destroyed)

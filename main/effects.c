@@ -168,27 +168,27 @@ void restart_effect(int effect_num)
 }
 
 /*
- * reads n eclip structs from a CFILE
+ * reads n eclip structs from a PHYSFS_file
  */
-int eclip_read_n(eclip *ec, int n, CFILE *fp)
+int eclip_read_n(eclip *ec, int n, PHYSFS_file *fp)
 {
 	int i;
 
 	for (i = 0; i < n; i++) {
 		vclip_read_n(&ec[i].vc, 1, fp);
-		ec[i].time_left = cfile_read_fix(fp);
-		ec[i].frame_count = cfile_read_int(fp);
-		ec[i].changing_wall_texture = cfile_read_short(fp);
-		ec[i].changing_object_texture = cfile_read_short(fp);
-		ec[i].flags = cfile_read_int(fp);
-		ec[i].crit_clip = cfile_read_int(fp);
-		ec[i].dest_bm_num = cfile_read_int(fp);
-		ec[i].dest_vclip = cfile_read_int(fp);
-		ec[i].dest_eclip = cfile_read_int(fp);
-		ec[i].dest_size = cfile_read_fix(fp);
-		ec[i].sound_num = cfile_read_int(fp);
-		ec[i].segnum = cfile_read_int(fp);
-		ec[i].sidenum = cfile_read_int(fp);
+		ec[i].time_left = PHYSFSX_readFix(fp);
+		ec[i].frame_count = PHYSFSX_readInt(fp);
+		ec[i].changing_wall_texture = PHYSFSX_readShort(fp);
+		ec[i].changing_object_texture = PHYSFSX_readShort(fp);
+		ec[i].flags = PHYSFSX_readInt(fp);
+		ec[i].crit_clip = PHYSFSX_readInt(fp);
+		ec[i].dest_bm_num = PHYSFSX_readInt(fp);
+		ec[i].dest_vclip = PHYSFSX_readInt(fp);
+		ec[i].dest_eclip = PHYSFSX_readInt(fp);
+		ec[i].dest_size = PHYSFSX_readFix(fp);
+		ec[i].sound_num = PHYSFSX_readInt(fp);
+		ec[i].segnum = PHYSFSX_readInt(fp);
+		ec[i].sidenum = PHYSFSX_readInt(fp);
 	}
 	return i;
 }

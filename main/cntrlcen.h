@@ -82,19 +82,19 @@ extern int Base_control_center_explosion_time;      // how long to blow up on in
 extern int Reactor_strength;
 
 /*
- * reads n reactor structs from a CFILE
+ * reads n reactor structs from a PHYSFS_file
  */
-extern int reactor_read_n(reactor *r, int n, CFILE *fp);
+extern int reactor_read_n(reactor *r, int n, PHYSFS_file *fp);
 
 /*
- * reads n control_center_triggers structs from a CFILE
+ * reads n control_center_triggers structs from a PHYSFS_file
  */
-extern int control_center_triggers_read_n(control_center_triggers *cct, int n, CFILE *fp);
+extern int control_center_triggers_read_n(control_center_triggers *cct, int n, PHYSFS_file *fp);
 
 /*
- * reads n control_center_triggers structs from a CFILE and swaps if specified
+ * reads n control_center_triggers structs from a PHYSFS_file and swaps if specified
  */
-extern void control_center_triggers_read_n_swap(control_center_triggers *cct, int n, int swap, CFILE *fp);
+extern void control_center_triggers_read_n_swap(control_center_triggers *cct, int n, int swap, PHYSFS_file *fp);
 
 extern int control_center_triggers_write(control_center_triggers *cct, PHYSFS_file *fp);
 

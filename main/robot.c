@@ -214,118 +214,118 @@ void robot_set_angles(robot_info *r,polymodel *pm,vms_angvec angs[N_ANIM_STATES]
 }
 
 /*
- * reads n jointlist structs from a CFILE
+ * reads n jointlist structs from a PHYSFS_file
  */
-static int jointlist_read_n(jointlist *jl, int n, CFILE *fp)
+static int jointlist_read_n(jointlist *jl, int n, PHYSFS_file *fp)
 {
 	int i;
 
 	for (i = 0; i < n; i++) {
-		jl[i].n_joints = cfile_read_short(fp);
-		jl[i].offset = cfile_read_short(fp);
+		jl[i].n_joints = PHYSFSX_readShort(fp);
+		jl[i].offset = PHYSFSX_readShort(fp);
 	}
 	return i;
 }
 
 /*
- * reads n robot_info structs from a CFILE
+ * reads n robot_info structs from a PHYSFS_file
  */
-int robot_info_read_n(robot_info *ri, int n, CFILE *fp)
+int robot_info_read_n(robot_info *ri, int n, PHYSFS_file *fp)
 {
 	int i, j;
 
 	for (i = 0; i < n; i++) {
-		ri[i].model_num = cfile_read_int(fp);
+		ri[i].model_num = PHYSFSX_readInt(fp);
 		for (j = 0; j < MAX_GUNS; j++)
-			cfile_read_vector(&(ri[i].gun_points[j]), fp);
-		cfread(ri[i].gun_submodels, MAX_GUNS, 1, fp);
+			PHYSFSX_readVector(&(ri[i].gun_points[j]), fp);
+		PHYSFS_read(fp, ri[i].gun_submodels, MAX_GUNS, 1);
 
-		ri[i].exp1_vclip_num = cfile_read_short(fp);
-		ri[i].exp1_sound_num = cfile_read_short(fp);
+		ri[i].exp1_vclip_num = PHYSFSX_readShort(fp);
+		ri[i].exp1_sound_num = PHYSFSX_readShort(fp);
 
-		ri[i].exp2_vclip_num = cfile_read_short(fp);
-		ri[i].exp2_sound_num = cfile_read_short(fp);
+		ri[i].exp2_vclip_num = PHYSFSX_readShort(fp);
+		ri[i].exp2_sound_num = PHYSFSX_readShort(fp);
 
-		ri[i].weapon_type = cfile_read_byte(fp);
-		ri[i].weapon_type2 = cfile_read_byte(fp);
-		ri[i].n_guns = cfile_read_byte(fp);
-		ri[i].contains_id = cfile_read_byte(fp);
+		ri[i].weapon_type = PHYSFSX_readByte(fp);
+		ri[i].weapon_type2 = PHYSFSX_readByte(fp);
+		ri[i].n_guns = PHYSFSX_readByte(fp);
+		ri[i].contains_id = PHYSFSX_readByte(fp);
 
-		ri[i].contains_count = cfile_read_byte(fp);
-		ri[i].contains_prob = cfile_read_byte(fp);
-		ri[i].contains_type = cfile_read_byte(fp);
-		ri[i].kamikaze = cfile_read_byte(fp);
+		ri[i].contains_count = PHYSFSX_readByte(fp);
+		ri[i].contains_prob = PHYSFSX_readByte(fp);
+		ri[i].contains_type = PHYSFSX_readByte(fp);
+		ri[i].kamikaze = PHYSFSX_readByte(fp);
 
-		ri[i].score_value = cfile_read_short(fp);
-		ri[i].badass = cfile_read_byte(fp);
-		ri[i].energy_drain = cfile_read_byte(fp);
+		ri[i].score_value = PHYSFSX_readShort(fp);
+		ri[i].badass = PHYSFSX_readByte(fp);
+		ri[i].energy_drain = PHYSFSX_readByte(fp);
 
-		ri[i].lighting = cfile_read_fix(fp);
-		ri[i].strength = cfile_read_fix(fp);
+		ri[i].lighting = PHYSFSX_readFix(fp);
+		ri[i].strength = PHYSFSX_readFix(fp);
 
-		ri[i].mass = cfile_read_fix(fp);
-		ri[i].drag = cfile_read_fix(fp);
+		ri[i].mass = PHYSFSX_readFix(fp);
+		ri[i].drag = PHYSFSX_readFix(fp);
 
 		for (j = 0; j < NDL; j++)
-			ri[i].field_of_view[j] = cfile_read_fix(fp);
+			ri[i].field_of_view[j] = PHYSFSX_readFix(fp);
 		for (j = 0; j < NDL; j++)
-			ri[i].firing_wait[j] = cfile_read_fix(fp);
+			ri[i].firing_wait[j] = PHYSFSX_readFix(fp);
 		for (j = 0; j < NDL; j++)
-			ri[i].firing_wait2[j] = cfile_read_fix(fp);
+			ri[i].firing_wait2[j] = PHYSFSX_readFix(fp);
 		for (j = 0; j < NDL; j++)
-			ri[i].turn_time[j] = cfile_read_fix(fp);
+			ri[i].turn_time[j] = PHYSFSX_readFix(fp);
 		for (j = 0; j < NDL; j++)
-			ri[i].max_speed[j] = cfile_read_fix(fp);
+			ri[i].max_speed[j] = PHYSFSX_readFix(fp);
 		for (j = 0; j < NDL; j++)
-			ri[i].circle_distance[i] = cfile_read_fix(fp);
-		cfread(ri[i].rapidfire_count, NDL, 1, fp);
+			ri[i].circle_distance[i] = PHYSFSX_readFix(fp);
+		PHYSFS_read(fp, ri[i].rapidfire_count, NDL, 1);
 
-		cfread(ri[i].evade_speed, NDL, 1, fp);
+		PHYSFS_read(fp, ri[i].evade_speed, NDL, 1);
 
-		ri[i].cloak_type = cfile_read_byte(fp);
-		ri[i].attack_type = cfile_read_byte(fp);
+		ri[i].cloak_type = PHYSFSX_readByte(fp);
+		ri[i].attack_type = PHYSFSX_readByte(fp);
 
-		ri[i].see_sound = cfile_read_byte(fp);
-		ri[i].attack_sound = cfile_read_byte(fp);
-		ri[i].claw_sound = cfile_read_byte(fp);
-		ri[i].taunt_sound = cfile_read_byte(fp);
+		ri[i].see_sound = PHYSFSX_readByte(fp);
+		ri[i].attack_sound = PHYSFSX_readByte(fp);
+		ri[i].claw_sound = PHYSFSX_readByte(fp);
+		ri[i].taunt_sound = PHYSFSX_readByte(fp);
 
-		ri[i].boss_flag = cfile_read_byte(fp);
-		ri[i].companion = cfile_read_byte(fp);
-		ri[i].smart_blobs = cfile_read_byte(fp);
-		ri[i].energy_blobs = cfile_read_byte(fp);
+		ri[i].boss_flag = PHYSFSX_readByte(fp);
+		ri[i].companion = PHYSFSX_readByte(fp);
+		ri[i].smart_blobs = PHYSFSX_readByte(fp);
+		ri[i].energy_blobs = PHYSFSX_readByte(fp);
 
-		ri[i].thief = cfile_read_byte(fp);
-		ri[i].pursuit = cfile_read_byte(fp);
-		ri[i].lightcast = cfile_read_byte(fp);
-		ri[i].death_roll = cfile_read_byte(fp);
+		ri[i].thief = PHYSFSX_readByte(fp);
+		ri[i].pursuit = PHYSFSX_readByte(fp);
+		ri[i].lightcast = PHYSFSX_readByte(fp);
+		ri[i].death_roll = PHYSFSX_readByte(fp);
 
-		ri[i].flags = cfile_read_byte(fp);
-		cfread(ri[i].pad, 3, 1, fp);
+		ri[i].flags = PHYSFSX_readByte(fp);
+		PHYSFS_read(fp, ri[i].pad, 3, 1);
 
-		ri[i].deathroll_sound = cfile_read_byte(fp);
-		ri[i].glow = cfile_read_byte(fp);
-		ri[i].behavior = cfile_read_byte(fp);
-		ri[i].aim = cfile_read_byte(fp);
+		ri[i].deathroll_sound = PHYSFSX_readByte(fp);
+		ri[i].glow = PHYSFSX_readByte(fp);
+		ri[i].behavior = PHYSFSX_readByte(fp);
+		ri[i].aim = PHYSFSX_readByte(fp);
 
 		for (j = 0; j < MAX_GUNS + 1; j++)
 			jointlist_read_n(ri[i].anim_states[j], N_ANIM_STATES, fp);
 
-		ri[i].always_0xabcd = cfile_read_int(fp);
+		ri[i].always_0xabcd = PHYSFSX_readInt(fp);
 	}
 	return i;
 }
 
 /*
- * reads n jointpos structs from a CFILE
+ * reads n jointpos structs from a PHYSFS_file
  */
-int jointpos_read_n(jointpos *jp, int n, CFILE *fp)
+int jointpos_read_n(jointpos *jp, int n, PHYSFS_file *fp)
 {
 	int i;
 
 	for (i = 0; i < n; i++) {
-		jp[i].jointnum = cfile_read_short(fp);
-		cfile_read_angvec(&jp[i].angles, fp);
+		jp[i].jointnum = PHYSFSX_readShort(fp);
+		PHYSFSX_readAngleVec(&jp[i].angles, fp);
 	}
 	return i;
 }

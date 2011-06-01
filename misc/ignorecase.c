@@ -5,11 +5,7 @@
 #include <string.h>
 #include <ctype.h>
 
-#if 1	//!(defined(__APPLE__) && defined(__MACH__))
-#include <physfs.h>
-#else
-#include <physfs/physfs.h>
-#endif
+#include "physfsx.h"
 #include "ignorecase.h"
 
 /**
@@ -55,7 +51,7 @@ static int locateOneElement(char *buf)
     char **rc;
     char **i;
 
-    if (PHYSFS_exists(buf))
+    if (PHYSFSX_exists(buf,0))
         return(1);  /* quick rejection: exists in current case. */
 
     ptr = strrchr(buf, '/');  /* find entry at end of path. */

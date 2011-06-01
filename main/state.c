@@ -35,7 +35,6 @@ COPYRIGHT 1993-1999 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 #include "switch.h"
 #include "game.h"
 #include "newmenu.h"
-#include "cfile.h"
 #include "fuelcen.h"
 #include "hash.h"
 #include "key.h"
@@ -804,13 +803,13 @@ int state_save_all(int secret_save, char *filename_override, int blind_save)
 
 			sprintf(temp_fname, GameArg.SysUsePlayersDir? "Players/%csecret.sgc" : "%csecret.sgc", fc);
 
-			if (PHYSFS_exists(temp_fname))
+			if (PHYSFSX_exists(temp_fname,0))
 			{
 				if (!PHYSFS_delete(temp_fname))
 					Error("Cannot delete file <%s>: %s", temp_fname, PHYSFS_getLastError());
 			}
 
-			if (PHYSFS_exists(SECRETC_FILENAME))
+			if (PHYSFSX_exists(SECRETC_FILENAME,0))
 			{
 				rval = copy_file(SECRETC_FILENAME, temp_fname);
 				Assert(rval == 0);	//	Oops, error copying secret.sgc to temp_fname!
@@ -1181,7 +1180,7 @@ int state_restore_all(int in_game, int secret_restore, char *filename_override)
 			
 			sprintf(temp_fname, GameArg.SysUsePlayersDir? "Players/%csecret.sgc" : "%csecret.sgc", fc);
 
-			if (PHYSFS_exists(temp_fname))
+			if (PHYSFSX_exists(temp_fname,0))
 			{
 				rval = copy_file(temp_fname, SECRETC_FILENAME);
 				Assert(rval == 0);	//	Oops, error copying temp_fname to secret.sgc!

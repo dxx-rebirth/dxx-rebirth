@@ -25,11 +25,10 @@ static char rcsid[] = "$Id: text.c,v 1.1.1.1 2006/03/17 19:56:37 zicodxx Exp $";
 #include <stdlib.h>
 #include <string.h>
 
+#include "physfsx.h"
 #include "pstypes.h"
-#include "cfile.h"
 #include "u_mem.h"
 #include "error.h"
-
 #include "inferno.h"
 #include "text.h"
 #include "args.h"
@@ -92,8 +91,8 @@ void decode_text(char *buf, int len)
 //load all the text strings for Descent
 void load_text()
 {
-	CFILE  *tfile;
-	CFILE *ifile;
+	PHYSFS_file  *tfile;
+	PHYSFS_file *ifile;
 	int len,i, have_binary = 0;
 	char *tptr;
 	char *filename="descent.tex";
@@ -101,29 +100,29 @@ void load_text()
 	if (GameArg.DbgAltTex)
 		filename = GameArg.DbgAltTex;
 
-	if ((tfile = cfopen(filename,"rb")) == NULL) {
+	if ((tfile = PHYSFSX_openReadBuffered(filename)) == NULL) {
 		filename="descent.txb";
-		if ((ifile = cfopen(filename, "rb")) == NULL) {
+		if ((ifile = PHYSFSX_openReadBuffered(filename)) == NULL) {
 			Error("Cannot open file DESCENT.TEX or DESCENT.TXB");
 			return;
 		}
 		have_binary = 1;
 
-		len = cfilelength(ifile);
+		len = PHYSFS_fileLength(ifile);
 
 //edited 05/17/99 Matt Mueller - malloc an extra byte, and null terminate.
 		MALLOC(text,char,len+1);
 
-		cfread(text,1,len,ifile);
+		PHYSFS_read(ifile,text,1,len);
 		text[len]=0;
 //end edit -MM
-		cfclose(ifile);
+		PHYSFS_close(ifile);
 
 	} else {
 		int c;
 		char * p;
 
-		len = cfilelength(tfile);
+		len = PHYSFS_fileLength(tfile);
 
 //edited 05/17/99 Matt Mueller - malloc an extra byte, and null terminate.
 		MALLOC(text,char,len+1);
@@ -131,14 +130,14 @@ void load_text()
 		//fread(text,1,len,tfile);
 		p = text;
 		do {
-			c = cfgetc( tfile );
+			c = PHYSFSX_fgetc( tfile );
 			if ( c != 13 )
 				*p++ = c;
 		} while ( c!=EOF );
 		*p=0;
 //end edit -MM
 
-		cfclose(tfile);
+		PHYSFS_close(tfile);
 	}
 
 	for (i=0,tptr=text;i<N_TEXT_STRINGS;i++) {

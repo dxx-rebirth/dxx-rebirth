@@ -44,7 +44,6 @@ COPYRIGHT 1993-1999 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 #include "byteswap.h"
 #include "gr.h"
 #include "gamefont.h"
-#include "cfile.h"
 #include "menu.h"
 #include "libmve.h"
 #include "text.h"
@@ -543,7 +542,7 @@ char *next_field (char *p)
 
 int init_subtitles(char *filename)
 {
-	CFILE *ifile;
+	PHYSFS_file *ifile;
 	int size,read_count;
 	char *p;
 	int have_binary = 0;
@@ -553,24 +552,24 @@ int init_subtitles(char *filename)
 	if (!GameCfg.MovieSubtitles)
 		return 0;
 
-	ifile = cfopen(filename,"rb");		//try text version
+	ifile = PHYSFSX_openReadBuffered(filename);		//try text version
 
 	if (!ifile) {								//no text version, try binary version
 		char filename2[FILENAME_LEN];
 		change_filename_extension(filename2, filename, ".txb");
-		ifile = cfopen(filename2,"rb");
+		ifile = PHYSFSX_openReadBuffered(filename2);
 		if (!ifile)
 			return 0;
 		have_binary = 1;
 	}
 
-	size = cfilelength(ifile);
+	size = PHYSFS_fileLength(ifile);
 
 	MALLOC (subtitle_raw_data, char, size+1);
 
-	read_count = cfread(subtitle_raw_data, 1, size, ifile);
+	read_count = PHYSFS_read(ifile, subtitle_raw_data, 1, size);
 
-	cfclose(ifile);
+	PHYSFS_close(ifile);
 
 	subtitle_raw_data[size] = 0;
 
@@ -682,7 +681,7 @@ void init_movie(char *movielib, int required)
 
 	sprintf(filename, "%s-%s.mvl", movielib, GameArg.GfxMovieHires?"h":"l");
 
-	if (!cfile_init(filename, 0))
+	if (!PHYSFSX_contfile_init(filename, 0))
 	{
 		if (required)
 			con_printf(CON_URGENT, "Can't open movielib <%s>: %s\n", filename, PHYSFS_getLastError());
@@ -710,12 +709,12 @@ void close_extra_robot_movie(void)
 	if (strcmp(movielib_files[EXTRA_ROBOT_LIB],"")) {
 		sprintf(filename, "%s-%s.mvl", movielib_files[EXTRA_ROBOT_LIB], GameArg.GfxMovieHires?"h":"l");
 
-		if (!cfile_close(filename))
+		if (!PHYSFSX_contfile_close(filename))
 		{
 			con_printf(CON_URGENT, "Can't close movielib <%s>: %s\n", filename, PHYSFS_getLastError());
 			sprintf(filename, "%s-%s.mvl", movielib_files[EXTRA_ROBOT_LIB], GameArg.GfxMovieHires?"l":"h");
 
-			if (!cfile_close(filename))
+			if (!PHYSFSX_contfile_close(filename))
 				con_printf(CON_URGENT, "Can't close movielib <%s>: %s\n", filename, PHYSFS_getLastError());
 		}
 	}

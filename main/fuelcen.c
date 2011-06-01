@@ -804,28 +804,28 @@ void fuelcen_check_for_hoard_goal(segment *segp)
 #endif
 
 /*
- * reads an old_matcen_info structure from a CFILE
+ * reads an old_matcen_info structure from a PHYSFS_file
  */
-void old_matcen_info_read(old_matcen_info *mi, CFILE *fp)
+void old_matcen_info_read(old_matcen_info *mi, PHYSFS_file *fp)
 {
-	mi->robot_flags = cfile_read_int(fp);
-	mi->hit_points = cfile_read_fix(fp);
-	mi->interval = cfile_read_fix(fp);
-	mi->segnum = cfile_read_short(fp);
-	mi->fuelcen_num = cfile_read_short(fp);
+	mi->robot_flags = PHYSFSX_readInt(fp);
+	mi->hit_points = PHYSFSX_readFix(fp);
+	mi->interval = PHYSFSX_readFix(fp);
+	mi->segnum = PHYSFSX_readShort(fp);
+	mi->fuelcen_num = PHYSFSX_readShort(fp);
 }
 
 /*
- * reads a matcen_info structure from a CFILE
+ * reads a matcen_info structure from a PHYSFS_file
  */
-void matcen_info_read(matcen_info *mi, CFILE *fp)
+void matcen_info_read(matcen_info *mi, PHYSFS_file *fp)
 {
-	mi->robot_flags[0] = cfile_read_int(fp);
-	mi->robot_flags[1] = cfile_read_int(fp);
-	mi->hit_points = cfile_read_fix(fp);
-	mi->interval = cfile_read_fix(fp);
-	mi->segnum = cfile_read_short(fp);
-	mi->fuelcen_num = cfile_read_short(fp);
+	mi->robot_flags[0] = PHYSFSX_readInt(fp);
+	mi->robot_flags[1] = PHYSFSX_readInt(fp);
+	mi->hit_points = PHYSFSX_readFix(fp);
+	mi->interval = PHYSFSX_readFix(fp);
+	mi->segnum = PHYSFSX_readShort(fp);
+	mi->fuelcen_num = PHYSFSX_readShort(fp);
 }
 
 void matcen_info_swap(matcen_info *mi, int swap)
@@ -842,9 +842,9 @@ void matcen_info_swap(matcen_info *mi, int swap)
 }
 
 /*
- * reads n matcen_info structs from a CFILE and swaps if specified
+ * reads n matcen_info structs from a PHYSFS_file and swaps if specified
  */
-void matcen_info_read_n_swap(matcen_info *mi, int n, int swap, CFILE *fp)
+void matcen_info_read_n_swap(matcen_info *mi, int n, int swap, PHYSFS_file *fp)
 {
 	int i;
 	
@@ -883,9 +883,9 @@ void fuelcen_swap(FuelCenter *fc, int swap)
 }
 
 /*
- * reads n Station structs from a CFILE and swaps if specified
+ * reads n Station structs from a PHYSFS_file and swaps if specified
  */
-void fuelcen_read_n_swap(FuelCenter *fc, int n, int swap, CFILE *fp)
+void fuelcen_read_n_swap(FuelCenter *fc, int n, int swap, PHYSFS_file *fp)
 {
 	int i;
 	

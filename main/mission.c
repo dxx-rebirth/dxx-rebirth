@@ -25,8 +25,6 @@ COPYRIGHT 1993-1999 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 #include <limits.h>
 
 #include "pstypes.h"
-#include "cfile.h"
-
 #include "strutil.h"
 #include "inferno.h"
 #include "mission.h"
@@ -67,7 +65,7 @@ int load_mission_d1(void)
 {
 	int i;
 
-	switch (cfile_size("descent.hog"))
+	switch (PHYSFSX_fsize("descent.hog"))
 	{
 		case D1_SHAREWARE_MISSION_HOGSIZE:
 		case D1_SHAREWARE_10_MISSION_HOGSIZE:
@@ -259,11 +257,11 @@ char *get_value(char *buf)
 }
 
 //reads a line, returns ptr to value of passed parm.  returns NULL if none
-char *get_parm_value(char *parm,CFILE *f)
+char *get_parm_value(char *parm,PHYSFS_file *f)
 {
 	static char buf[80];
 
-	if (!cfgets(buf,80,f))
+	if (!PHYSFSX_fgets(buf,80,f))
 		return NULL;
 
 	if (istok(buf,parm))
@@ -282,7 +280,7 @@ int ml_sort_func(mle *e0,mle *e1)
 int read_mission_file(mle *mission, char *filename, int location)
 {
 	char filename2[100];
-	CFILE *mfile;
+	PHYSFS_file *mfile;
 
 	switch (location) {
 		case ML_MISSIONDIR:
@@ -298,7 +296,7 @@ int read_mission_file(mle *mission, char *filename, int location)
 	}
 	strcat(filename2,filename);
 
-	mfile = cfopen(filename2,"rb");
+	mfile = PHYSFSX_openReadBuffered(filename2);
 
 	if (mfile) {
 		char *p;
@@ -324,12 +322,12 @@ int read_mission_file(mle *mission, char *filename, int location)
 		p = get_parm_value("name",mfile);
 
 		if (!p) {		//try enhanced mission
-			cfseek(mfile,0,SEEK_SET);
+			PHYSFSX_fseek(mfile,0,SEEK_SET);
 			p = get_parm_value("xname",mfile);
 		}
 
 		if (!p) {       //try super-enhanced mission!
-			cfseek(mfile,0,SEEK_SET);
+			PHYSFSX_fseek(mfile,0,SEEK_SET);
 			p = get_parm_value("zname",mfile);
 		}
 
@@ -345,7 +343,7 @@ int read_mission_file(mle *mission, char *filename, int location)
 			strncpy(mission->mission_name, p, MISSION_NAME_LEN + 1);
 		}
 		else {
-			cfclose(mfile);
+			PHYSFS_close(mfile);
 			d_free(mission->path);
 			return 0;
 		}
@@ -356,7 +354,7 @@ int read_mission_file(mle *mission, char *filename, int location)
 		if (p)
 			mission->anarchy_only_flag = istok(p,"anarchy");
 
-		cfclose(mfile);
+		PHYSFS_close(mfile);
 
 		return 1;
 	}
@@ -368,7 +366,7 @@ void add_d1_builtin_mission_to_list(mle *mission)
 {
     int size;
     
-	size = cfile_size("descent.hog");
+	size = PHYSFSX_fsize("descent.hog");
 	if (size == -1)
 		return;
 
@@ -410,10 +408,10 @@ void add_d1_builtin_mission_to_list(mle *mission)
 
 void add_builtin_mission_to_list(mle *mission, char *name)
 {
-    int size = cfile_size("descent2.hog");
+    int size = PHYSFSX_fsize("descent2.hog");
     
 	if (size == -1)
-		size = cfile_size("d2demo.hog");
+		size = PHYSFSX_fsize("d2demo.hog");
 
 	switch (size) {
 	case SHAREWARE_MISSION_HOGSIZE:
@@ -518,7 +516,7 @@ void free_mission(void)
 			char hogpath[PATH_MAX];
 
 			sprintf(hogpath, MISSION_DIR "%s.hog", Current_mission->path);
-			cfile_close(hogpath);
+			PHYSFSX_contfile_close(hogpath);
 		}
 		d_free(Current_mission->path);
         d_free(Current_mission);
@@ -602,7 +600,7 @@ int read_hamfile();
 //Returns true if mission loaded ok, else false.
 int load_mission(mle *mission)
 {
-	CFILE *mfile;
+	PHYSFS_file *mfile;
 	char buf[PATH_MAX], *v;
 
 	if (Current_mission)
@@ -623,7 +621,7 @@ int load_mission(mle *mission)
 
 	// for Descent 1 missions, load descent.hog
 	if (EMULATING_D1) {
-		if (!cfile_init("descent.hog", 1))
+		if (!PHYSFSX_contfile_init("descent.hog", 1))
 			Warning("descent.hog not available, this mission may be missing some files required for briefings and exit sequence\n");
 		if (!stricmp(Current_mission_filename, D1_MISSION_FILENAME))
 			return load_mission_d1();
@@ -673,7 +671,7 @@ int load_mission(mle *mission)
 
 	PHYSFSEXT_locateCorrectCase(buf);
 
-	mfile = cfopen(buf,"rb");
+	mfile = PHYSFSX_openReadBuffered(buf);
 	if (mfile == NULL) {
 		free_mission();
 		return 0;		//error!
@@ -684,18 +682,18 @@ int load_mission(mle *mission)
 	{
 		strcpy(buf+strlen(buf)-4,".hog");		//change extension
 		PHYSFSEXT_locateCorrectCase(buf);
-		if (cfexist(buf))
-			cfile_init(buf, 0);
+		if (PHYSFSX_exists(buf,1))
+			PHYSFSX_contfile_init(buf, 0);
 
 		snprintf(Briefing_text_filename, sizeof(Briefing_text_filename), "%s.tex",Current_mission_filename);
-		if (!cfexist(Briefing_text_filename))
+		if (!PHYSFSX_exists(Briefing_text_filename,1))
 			snprintf(Briefing_text_filename, sizeof(Briefing_text_filename), "%s.txb",Current_mission_filename);
 		snprintf(Ending_text_filename, sizeof(Ending_text_filename), "%s.tex",Current_mission_filename);
-		if (!cfexist(Ending_text_filename))
+		if (!PHYSFSX_exists(Ending_text_filename,1))
 			snprintf(Ending_text_filename, sizeof(Ending_text_filename), "%s.txb",Current_mission_filename);
 	}
 
-	while (cfgets(buf,80,mfile)) {
+	while (PHYSFSX_fgets(buf,80,mfile)) {
 		if (istok(buf,"name") && !Current_mission->enhanced) {
 			Current_mission->enhanced = 0;
 			continue;						//already have name, go to next line
@@ -721,14 +719,14 @@ int load_mission(mle *mission)
 					if ((ptr = strrchr(tmp, '.'))) // if there's a filename extension, kill it. No one knows it's the right one.
 						*ptr = '\0';
 					strncat(tmp, ".tex", sizeof(char)*FILENAME_LEN); // apply tex-extenstion
-					if (cfexist(tmp)) // check if this file exists ...
+					if (PHYSFSX_exists(tmp,1)) // check if this file exists ...
 						snprintf(Briefing_text_filename, FILENAME_LEN, "%s", tmp); // ... and apply ...
 					else // ... otherwise ...
 					{
 						if ((ptr = strrchr(tmp, '.')))
 							*ptr = '\0';
 						strncat(tmp, ".txb", sizeof(char)*FILENAME_LEN); // apply txb extension
-						if (cfexist(tmp)) // check if this file exists ...
+						if (PHYSFSX_exists(tmp,1)) // check if this file exists ...
 							snprintf(Briefing_text_filename, FILENAME_LEN, "%s", tmp); // ... and apply ...
 					}
 					d_free(tmp);
@@ -746,14 +744,14 @@ int load_mission(mle *mission)
 					if ((ptr = strrchr(tmp, '.'))) // if there's a filename extension, kill it. No one knows it's the right one.
 						*ptr = '\0';
 					strncat(tmp, ".tex", sizeof(char)*FILENAME_LEN); // apply tex-extenstion
-					if (cfexist(tmp)) // check if this file exists ...
+					if (PHYSFSX_exists(tmp,1)) // check if this file exists ...
 						snprintf(Briefing_text_filename, FILENAME_LEN, "%s", tmp); // ... and apply ...
 					else // ... otherwise ...
 					{
 						if ((ptr = strrchr(tmp, '.')))
 							*ptr = '\0';
 						strncat(tmp, ".txb", sizeof(char)*FILENAME_LEN); // apply txb extension
-						if (cfexist(tmp)) // check if this file exists ...
+						if (PHYSFSX_exists(tmp,1)) // check if this file exists ...
 							snprintf(Ending_text_filename, FILENAME_LEN, "%s", tmp); // ... and apply ...
 					}
 					d_free(tmp);
@@ -768,7 +766,7 @@ int load_mission(mle *mission)
 				n_levels = atoi(v);
 
 				for (i=0;i<n_levels;i++) {
-					cfgets(buf,80,mfile);
+					PHYSFSX_fgets(buf,80,mfile);
 					add_term(buf);
 					if (strlen(buf) <= 12) {
 						strcpy(Level_names[i],buf);
@@ -791,7 +789,7 @@ int load_mission(mle *mission)
 				for (i=0;i<N_secret_levels;i++) {
 					char *t;
 
-					cfgets(buf,80,mfile);
+					PHYSFSX_fgets(buf,80,mfile);
 					if ((t=strchr(buf,','))!=NULL) *t++=0;
 					else
 						break;
@@ -813,7 +811,7 @@ int load_mission(mle *mission)
 
 	}
 
-	cfclose(mfile);
+	PHYSFS_close(mfile);
 
 	if (Last_level <= 0) {
 		free_mission();		//no valid mission loaded

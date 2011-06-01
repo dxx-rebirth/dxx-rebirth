@@ -15,7 +15,6 @@ COPYRIGHT 1993-1999 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 #include <stdlib.h>
 #include <stdio.h>
 #include <fcntl.h>
-
 #include <string.h>
 #include <ctype.h>
 
@@ -31,7 +30,6 @@ COPYRIGHT 1993-1999 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 #include "game.h"
 #include "error.h"
 #include "wall.h"
-#include "cfile.h"
 #include "piggy.h"
 #include "text.h"
 #include "kconfig.h"

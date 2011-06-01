@@ -1232,42 +1232,42 @@ void do_seismic_stuff(void)
 }
 
 /*
- * reads n weapon_info structs from a CFILE
+ * reads n weapon_info structs from a PHYSFS_file
  */
-extern int weapon_info_read_n(weapon_info *wi, int n, CFILE *fp, int file_version)
+extern int weapon_info_read_n(weapon_info *wi, int n, PHYSFS_file *fp, int file_version)
 {
 	int i, j;
 
 	for (i = 0; i < n; i++) {
-		wi[i].render_type = cfile_read_byte(fp);
-		wi[i].persistent = cfile_read_byte(fp);
-		wi[i].model_num = cfile_read_short(fp);
-		wi[i].model_num_inner = cfile_read_short(fp);
+		wi[i].render_type = PHYSFSX_readByte(fp);
+		wi[i].persistent = PHYSFSX_readByte(fp);
+		wi[i].model_num = PHYSFSX_readShort(fp);
+		wi[i].model_num_inner = PHYSFSX_readShort(fp);
 
-		wi[i].flash_vclip = cfile_read_byte(fp);
-		wi[i].robot_hit_vclip = cfile_read_byte(fp);
-		wi[i].flash_sound = cfile_read_short(fp);
+		wi[i].flash_vclip = PHYSFSX_readByte(fp);
+		wi[i].robot_hit_vclip = PHYSFSX_readByte(fp);
+		wi[i].flash_sound = PHYSFSX_readShort(fp);
 
-		wi[i].wall_hit_vclip = cfile_read_byte(fp);
-		wi[i].fire_count = cfile_read_byte(fp);
-		wi[i].robot_hit_sound = cfile_read_short(fp);
+		wi[i].wall_hit_vclip = PHYSFSX_readByte(fp);
+		wi[i].fire_count = PHYSFSX_readByte(fp);
+		wi[i].robot_hit_sound = PHYSFSX_readShort(fp);
 
-		wi[i].ammo_usage = cfile_read_byte(fp);
-		wi[i].weapon_vclip = cfile_read_byte(fp);
-		wi[i].wall_hit_sound = cfile_read_short(fp);
+		wi[i].ammo_usage = PHYSFSX_readByte(fp);
+		wi[i].weapon_vclip = PHYSFSX_readByte(fp);
+		wi[i].wall_hit_sound = PHYSFSX_readShort(fp);
 
-		wi[i].destroyable = cfile_read_byte(fp);
-		wi[i].matter = cfile_read_byte(fp);
-		wi[i].bounce = cfile_read_byte(fp);
-		wi[i].homing_flag = cfile_read_byte(fp);
+		wi[i].destroyable = PHYSFSX_readByte(fp);
+		wi[i].matter = PHYSFSX_readByte(fp);
+		wi[i].bounce = PHYSFSX_readByte(fp);
+		wi[i].homing_flag = PHYSFSX_readByte(fp);
 
-		wi[i].speedvar = cfile_read_byte(fp);
-		wi[i].flags = cfile_read_byte(fp);
-		wi[i].flash = cfile_read_byte(fp);
-		wi[i].afterburner_size = cfile_read_byte(fp);
+		wi[i].speedvar = PHYSFSX_readByte(fp);
+		wi[i].flags = PHYSFSX_readByte(fp);
+		wi[i].flash = PHYSFSX_readByte(fp);
+		wi[i].afterburner_size = PHYSFSX_readByte(fp);
 
 		if (file_version >= 3)
-			wi[i].children = cfile_read_byte(fp);
+			wi[i].children = PHYSFSX_readByte(fp);
 		else
 			/* Set the type of children correctly when using old
 			 * datafiles.  In earlier descent versions this was simply
@@ -1294,30 +1294,30 @@ extern int weapon_info_read_n(weapon_info *wi, int n, CFILE *fp, int file_versio
 				break;
 			}
 
-		wi[i].energy_usage = cfile_read_fix(fp);
-		wi[i].fire_wait = cfile_read_fix(fp);
+		wi[i].energy_usage = PHYSFSX_readFix(fp);
+		wi[i].fire_wait = PHYSFSX_readFix(fp);
 
 		if (file_version >= 3)
-			wi[i].multi_damage_scale = cfile_read_fix(fp);
+			wi[i].multi_damage_scale = PHYSFSX_readFix(fp);
 		else /* FIXME: hack this to set the real values */
 			wi[i].multi_damage_scale = F1_0;
 
 		bitmap_index_read(&wi[i].bitmap, fp);
 
-		wi[i].blob_size = cfile_read_fix(fp);
-		wi[i].flash_size = cfile_read_fix(fp);
-		wi[i].impact_size = cfile_read_fix(fp);
+		wi[i].blob_size = PHYSFSX_readFix(fp);
+		wi[i].flash_size = PHYSFSX_readFix(fp);
+		wi[i].impact_size = PHYSFSX_readFix(fp);
 		for (j = 0; j < NDL; j++)
-			wi[i].strength[j] = cfile_read_fix(fp);
+			wi[i].strength[j] = PHYSFSX_readFix(fp);
 		for (j = 0; j < NDL; j++)
-			wi[i].speed[j] = cfile_read_fix(fp);
-		wi[i].mass = cfile_read_fix(fp);
-		wi[i].drag = cfile_read_fix(fp);
-		wi[i].thrust = cfile_read_fix(fp);
-		wi[i].po_len_to_width_ratio = cfile_read_fix(fp);
-		wi[i].light = cfile_read_fix(fp);
-		wi[i].lifetime = cfile_read_fix(fp);
-		wi[i].damage_radius = cfile_read_fix(fp);
+			wi[i].speed[j] = PHYSFSX_readFix(fp);
+		wi[i].mass = PHYSFSX_readFix(fp);
+		wi[i].drag = PHYSFSX_readFix(fp);
+		wi[i].thrust = PHYSFSX_readFix(fp);
+		wi[i].po_len_to_width_ratio = PHYSFSX_readFix(fp);
+		wi[i].light = PHYSFSX_readFix(fp);
+		wi[i].lifetime = PHYSFSX_readFix(fp);
+		wi[i].damage_radius = PHYSFSX_readFix(fp);
 		bitmap_index_read(&wi[i].picture, fp);
 		if (file_version >= 3)
 			bitmap_index_read(&wi[i].hires_picture, fp);

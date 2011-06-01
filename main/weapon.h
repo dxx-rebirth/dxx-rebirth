@@ -25,7 +25,6 @@ COPYRIGHT 1993-1999 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 #include "gr.h"
 #include "game.h"
 #include "piggy.h"
-#include "cfile.h"
 
 // weapon info flags
 #define WIF_PLACABLE        1   // can be placed by level designer
@@ -230,8 +229,8 @@ extern void smega_rock_stuff(void);
 extern void init_smega_detonates(void);
 
 /*
- * reads n weapon_info structs from a CFILE
+ * reads n weapon_info structs from a PHYSFS_file
  */
-extern int weapon_info_read_n(weapon_info *wi, int n, CFILE *fp, int file_version);
+extern int weapon_info_read_n(weapon_info *wi, int n, PHYSFS_file *fp, int file_version);
 
 #endif

@@ -37,7 +37,6 @@ COPYRIGHT 1993-1999 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 #include "wall.h"
 #include "gamemine.h"
 #include "robot.h"
-#include "cfile.h"
 #include "bm.h"
 #include "menu.h"
 #include "switch.h"
@@ -121,7 +120,7 @@ struct {
 #endif // EDITOR
 
 //  LINT: adding function prototypes
-void read_object(object *obj, CFILE *f, int version);
+void read_object(object *obj, PHYSFS_file *f, int version);
 #ifdef EDITOR
 void write_object(object *obj, short version, PHYSFS_file *f);
 void do_load_save_levels(int save);
@@ -334,63 +333,63 @@ void verify_object( object * obj )	{
 
 }
 
-//static gs_skip(int len,CFILE *file)
+//static gs_skip(int len,PHYSFS_file *file)
 //{
 //
-//	cfseek(file,len,SEEK_CUR);
+//	PHYSFSX_fseek(file,len,SEEK_CUR);
 //}
 
 
 extern int multi_powerup_is_4pack(int);
 //reads one object of the given version from the given file
-void read_object(object *obj,CFILE *f,int version)
+void read_object(object *obj,PHYSFS_file *f,int version)
 {
 
-	obj->type           = cfile_read_byte(f);
-	obj->id             = cfile_read_byte(f);
+	obj->type           = PHYSFSX_readByte(f);
+	obj->id             = PHYSFSX_readByte(f);
 
-	obj->control_type   = cfile_read_byte(f);
-	obj->movement_type  = cfile_read_byte(f);
-	obj->render_type    = cfile_read_byte(f);
-	obj->flags          = cfile_read_byte(f);
+	obj->control_type   = PHYSFSX_readByte(f);
+	obj->movement_type  = PHYSFSX_readByte(f);
+	obj->render_type    = PHYSFSX_readByte(f);
+	obj->flags          = PHYSFSX_readByte(f);
 
-	obj->segnum         = cfile_read_short(f);
+	obj->segnum         = PHYSFSX_readShort(f);
 	obj->attached_obj   = -1;
 
-	cfile_read_vector(&obj->pos,f);
-	cfile_read_matrix(&obj->orient,f);
+	PHYSFSX_readVector(&obj->pos,f);
+	PHYSFSX_readMatrix(&obj->orient,f);
 
-	obj->size           = cfile_read_fix(f);
-	obj->shields        = cfile_read_fix(f);
+	obj->size           = PHYSFSX_readFix(f);
+	obj->shields        = PHYSFSX_readFix(f);
 
-	cfile_read_vector(&obj->last_pos,f);
+	PHYSFSX_readVector(&obj->last_pos,f);
 
-	obj->contains_type  = cfile_read_byte(f);
-	obj->contains_id    = cfile_read_byte(f);
-	obj->contains_count = cfile_read_byte(f);
+	obj->contains_type  = PHYSFSX_readByte(f);
+	obj->contains_id    = PHYSFSX_readByte(f);
+	obj->contains_count = PHYSFSX_readByte(f);
 
 	switch (obj->movement_type) {
 
 		case MT_PHYSICS:
 
-			cfile_read_vector(&obj->mtype.phys_info.velocity,f);
-			cfile_read_vector(&obj->mtype.phys_info.thrust,f);
+			PHYSFSX_readVector(&obj->mtype.phys_info.velocity,f);
+			PHYSFSX_readVector(&obj->mtype.phys_info.thrust,f);
 
-			obj->mtype.phys_info.mass		= cfile_read_fix(f);
-			obj->mtype.phys_info.drag		= cfile_read_fix(f);
-			obj->mtype.phys_info.brakes	= cfile_read_fix(f);
+			obj->mtype.phys_info.mass		= PHYSFSX_readFix(f);
+			obj->mtype.phys_info.drag		= PHYSFSX_readFix(f);
+			obj->mtype.phys_info.brakes	= PHYSFSX_readFix(f);
 
-			cfile_read_vector(&obj->mtype.phys_info.rotvel,f);
-			cfile_read_vector(&obj->mtype.phys_info.rotthrust,f);
+			PHYSFSX_readVector(&obj->mtype.phys_info.rotvel,f);
+			PHYSFSX_readVector(&obj->mtype.phys_info.rotthrust,f);
 
-			obj->mtype.phys_info.turnroll	= cfile_read_fixang(f);
-			obj->mtype.phys_info.flags		= cfile_read_short(f);
+			obj->mtype.phys_info.turnroll	= PHYSFSX_readFixAng(f);
+			obj->mtype.phys_info.flags		= PHYSFSX_readShort(f);
 
 			break;
 
 		case MT_SPINNING:
 
-			cfile_read_vector(&obj->mtype.spin_rate,f);
+			PHYSFSX_readVector(&obj->mtype.spin_rate,f);
 			break;
 
 		case MT_NONE:
@@ -405,19 +404,19 @@ void read_object(object *obj,CFILE *f,int version)
 		case CT_AI: {
 			int i;
 
-			obj->ctype.ai_info.behavior				= cfile_read_byte(f);
+			obj->ctype.ai_info.behavior				= PHYSFSX_readByte(f);
 
 			for (i=0;i<MAX_AI_FLAGS;i++)
-				obj->ctype.ai_info.flags[i]			= cfile_read_byte(f);
+				obj->ctype.ai_info.flags[i]			= PHYSFSX_readByte(f);
 
-			obj->ctype.ai_info.hide_segment			= cfile_read_short(f);
-			obj->ctype.ai_info.hide_index			= cfile_read_short(f);
-			obj->ctype.ai_info.path_length			= cfile_read_short(f);
-			obj->ctype.ai_info.cur_path_index		= cfile_read_short(f);
+			obj->ctype.ai_info.hide_segment			= PHYSFSX_readShort(f);
+			obj->ctype.ai_info.hide_index			= PHYSFSX_readShort(f);
+			obj->ctype.ai_info.path_length			= PHYSFSX_readShort(f);
+			obj->ctype.ai_info.cur_path_index		= PHYSFSX_readShort(f);
 
 			if (version <= 25) {
-				cfile_read_short(f);	//				obj->ctype.ai_info.follow_path_start_seg	= 
-				cfile_read_short(f);	//				obj->ctype.ai_info.follow_path_end_seg		= 
+				PHYSFSX_readShort(f);	//				obj->ctype.ai_info.follow_path_start_seg	= 
+				PHYSFSX_readShort(f);	//				obj->ctype.ai_info.follow_path_end_seg		= 
 			}
 
 			break;
@@ -425,9 +424,9 @@ void read_object(object *obj,CFILE *f,int version)
 
 		case CT_EXPLOSION:
 
-			obj->ctype.expl_info.spawn_time		= cfile_read_fix(f);
-			obj->ctype.expl_info.delete_time		= cfile_read_fix(f);
-			obj->ctype.expl_info.delete_objnum	= cfile_read_short(f);
+			obj->ctype.expl_info.spawn_time		= PHYSFSX_readFix(f);
+			obj->ctype.expl_info.delete_time		= PHYSFSX_readFix(f);
+			obj->ctype.expl_info.delete_objnum	= PHYSFSX_readShort(f);
 			obj->ctype.expl_info.next_attach = obj->ctype.expl_info.prev_attach = obj->ctype.expl_info.attach_parent = -1;
 
 			break;
@@ -436,21 +435,21 @@ void read_object(object *obj,CFILE *f,int version)
 
 			//do I really need to read these?  Are they even saved to disk?
 
-			obj->ctype.laser_info.parent_type		= cfile_read_short(f);
-			obj->ctype.laser_info.parent_num		= cfile_read_short(f);
-			obj->ctype.laser_info.parent_signature	= cfile_read_int(f);
+			obj->ctype.laser_info.parent_type		= PHYSFSX_readShort(f);
+			obj->ctype.laser_info.parent_num		= PHYSFSX_readShort(f);
+			obj->ctype.laser_info.parent_signature	= PHYSFSX_readInt(f);
 
 			break;
 
 		case CT_LIGHT:
 
-			obj->ctype.light_info.intensity = cfile_read_fix(f);
+			obj->ctype.light_info.intensity = PHYSFSX_readFix(f);
 			break;
 
 		case CT_POWERUP:
 
 			if (version >= 25)
-				obj->ctype.powerup_info.count = cfile_read_int(f);
+				obj->ctype.powerup_info.count = PHYSFSX_readInt(f);
 			else
 				obj->ctype.powerup_info.count = 1;
 
@@ -494,14 +493,14 @@ void read_object(object *obj,CFILE *f,int version)
 		case RT_POLYOBJ: {
 			int i,tmo;
 
-			obj->rtype.pobj_info.model_num		= cfile_read_int(f);
+			obj->rtype.pobj_info.model_num		= PHYSFSX_readInt(f);
 
 			for (i=0;i<MAX_SUBMODELS;i++)
-				cfile_read_angvec(&obj->rtype.pobj_info.anim_angles[i],f);
+				PHYSFSX_readAngleVec(&obj->rtype.pobj_info.anim_angles[i],f);
 
-			obj->rtype.pobj_info.subobj_flags	= cfile_read_int(f);
+			obj->rtype.pobj_info.subobj_flags	= PHYSFSX_readInt(f);
 
-			tmo = cfile_read_int(f);
+			tmo = PHYSFSX_readInt(f);
 
 			#ifndef EDITOR
 			obj->rtype.pobj_info.tmap_override	= tmo;
@@ -528,9 +527,9 @@ void read_object(object *obj,CFILE *f,int version)
 		case RT_POWERUP:
 		case RT_FIREBALL:
 
-			obj->rtype.vclip_info.vclip_num	= cfile_read_int(f);
-			obj->rtype.vclip_info.frametime	= cfile_read_fix(f);
-			obj->rtype.vclip_info.framenum	= cfile_read_byte(f);
+			obj->rtype.vclip_info.vclip_num	= PHYSFSX_readInt(f);
+			obj->rtype.vclip_info.frametime	= PHYSFSX_readFix(f);
+			obj->rtype.vclip_info.framenum	= PHYSFSX_readByte(f);
 
 			break;
 
@@ -725,7 +724,7 @@ extern int remove_trigger_num(int trigger_num);
 // If level != -1, it loads the filename with extension changed to .min
 // Otherwise it loads the appropriate level mine.
 // returns 0=everything ok, 1=old version, -1=error
-int load_game_data(CFILE *LoadFile)
+int load_game_data(PHYSFS_file *LoadFile)
 {
 	int i,j;
 
@@ -738,44 +737,44 @@ int load_game_data(CFILE *LoadFile)
 	//===================== READ FILE INFO ========================
 
 #if 0
-	cfread(&game_top_fileinfo, sizeof(game_top_fileinfo), 1, LoadFile);
+	PHYSFS_read(LoadFile, &game_top_fileinfo, sizeof(game_top_fileinfo), 1);
 #endif
 
 	// Check signature
-	if (cfile_read_short(LoadFile) != 0x6705)
+	if (PHYSFSX_readShort(LoadFile) != 0x6705)
 		return -1;
 
 	// Read and check version number
-	game_top_fileinfo_version = cfile_read_short(LoadFile);
+	game_top_fileinfo_version = PHYSFSX_readShort(LoadFile);
 	if (game_top_fileinfo_version < GAME_COMPATIBLE_VERSION )
 		return -1;
 
 	// We skip some parts of the former game_top_fileinfo
-	cfseek(LoadFile, 31, SEEK_CUR);
+	PHYSFSX_fseek(LoadFile, 31, SEEK_CUR);
 
-	object_offset = cfile_read_int(LoadFile);
-	gs_num_objects = cfile_read_int(LoadFile);
-	cfseek(LoadFile, 8, SEEK_CUR);
+	object_offset = PHYSFSX_readInt(LoadFile);
+	gs_num_objects = PHYSFSX_readInt(LoadFile);
+	PHYSFSX_fseek(LoadFile, 8, SEEK_CUR);
 
-	Num_walls = cfile_read_int(LoadFile);
-	cfseek(LoadFile, 20, SEEK_CUR);
+	Num_walls = PHYSFSX_readInt(LoadFile);
+	PHYSFSX_fseek(LoadFile, 20, SEEK_CUR);
 
-	Num_triggers = cfile_read_int(LoadFile);
-	cfseek(LoadFile, 24, SEEK_CUR);
+	Num_triggers = PHYSFSX_readInt(LoadFile);
+	PHYSFSX_fseek(LoadFile, 24, SEEK_CUR);
 
-	trig_size = cfile_read_int(LoadFile);
+	trig_size = PHYSFSX_readInt(LoadFile);
 	Assert(trig_size == sizeof(ControlCenterTriggers));
-	cfseek(LoadFile, 4, SEEK_CUR);
+	PHYSFSX_fseek(LoadFile, 4, SEEK_CUR);
 
-	Num_robot_centers = cfile_read_int(LoadFile);
-	cfseek(LoadFile, 4, SEEK_CUR);
+	Num_robot_centers = PHYSFSX_readInt(LoadFile);
+	PHYSFSX_fseek(LoadFile, 4, SEEK_CUR);
 
 	if (game_top_fileinfo_version >= 29) {
-		cfseek(LoadFile, 4, SEEK_CUR);
-		Num_static_lights = cfile_read_int(LoadFile);
-		cfseek(LoadFile, 8, SEEK_CUR);
-		num_delta_lights = cfile_read_int(LoadFile);
-		cfseek(LoadFile, 4, SEEK_CUR);
+		PHYSFSX_fseek(LoadFile, 4, SEEK_CUR);
+		Num_static_lights = PHYSFSX_readInt(LoadFile);
+		PHYSFSX_fseek(LoadFile, 8, SEEK_CUR);
+		num_delta_lights = PHYSFSX_readInt(LoadFile);
+		PHYSFSX_fseek(LoadFile, 4, SEEK_CUR);
 	} else {
 		Num_static_lights = 0;
 		num_delta_lights = 0;
@@ -783,21 +782,21 @@ int load_game_data(CFILE *LoadFile)
 
 	if (game_top_fileinfo_version >= 31) //load mine filename
 		// read newline-terminated string, not sure what version this changed.
-		cfgets(Current_level_name,sizeof(Current_level_name),LoadFile);
+		PHYSFSX_fgets(Current_level_name,sizeof(Current_level_name),LoadFile);
 	else if (game_top_fileinfo_version >= 14) { //load mine filename
 		// read null-terminated string
 		char *p=Current_level_name;
-		//must do read one char at a time, since no cfgets()
-		do *p = cfgetc(LoadFile); while (*p++!=0);
+		//must do read one char at a time, since no PHYSFSX_fgets()
+		do *p = PHYSFSX_fgetc(LoadFile); while (*p++!=0);
 	}
 	else
 		Current_level_name[0]=0;
 
 	if (game_top_fileinfo_version >= 19) {	//load pof names
-		N_save_pof_names = cfile_read_short(LoadFile);
+		N_save_pof_names = PHYSFSX_readShort(LoadFile);
 		if (N_save_pof_names != 0x614d && N_save_pof_names != 0x5547) { // "Ma"de w/DMB beta/"GU"ILE
 			Assert(N_save_pof_names < MAX_POLYGON_MODELS);
-			cfread(Save_pof_names,N_save_pof_names,FILENAME_LEN,LoadFile);
+			PHYSFS_read(LoadFile,Save_pof_names,N_save_pof_names,FILENAME_LEN);
 		}
 	}
 
@@ -810,7 +809,7 @@ int load_game_data(CFILE *LoadFile)
 	Gamesave_num_players = 0;
 
 	if (object_offset > -1) {
-		if (cfseek( LoadFile, object_offset, SEEK_SET ))
+		if (PHYSFSX_fseek( LoadFile, object_offset, SEEK_SET ))
 			Error( "Error seeking to object_offset in gamesave.c" );
 
 		for (i = 0; i < gs_num_objects; i++) {
@@ -859,7 +858,7 @@ int load_game_data(CFILE *LoadFile)
 
 	if (game_fileinfo.doors_offset > -1)
 	{
-		if (!cfseek( LoadFile, game_fileinfo.doors_offset,SEEK_SET ))	{
+		if (!PHYSFSX_fseek( LoadFile, game_fileinfo.doors_offset,SEEK_SET ))	{
 
 			for (i=0;i<game_fileinfo.doors_howmany;i++) {
 
@@ -1190,7 +1189,7 @@ int load_level(char * filename_passed)
 #ifdef EDITOR
 	int use_compiled_level=1;
 #endif
-	CFILE * LoadFile;
+	PHYSFS_file * LoadFile;
 	char filename[PATH_MAX];
 	int sig, minedata_offset, gamedata_offset;
 	int mine_err, game_err;
@@ -1229,7 +1228,7 @@ int load_level(char * filename_passed)
 	change_filename_extension(filename,filename_passed,".lvl");
 	use_compiled_level = 0;
 
-	if (!cfexist(filename))
+	if (!PHYSFSX_exists(filename,1))
 	{
 		char *p = strrchr(filename_passed, '.');
 
@@ -1241,10 +1240,10 @@ int load_level(char * filename_passed)
 	}		
 #endif
 
-	if (!cfexist(filename))
+	if (!PHYSFSX_exists(filename,1))
 		sprintf(filename,"%s%s",MISSION_DIR,filename_passed);
 
-	LoadFile = cfopen( filename, "rb" );
+	LoadFile = PHYSFSX_openReadBuffered( filename );
 
 	if (!LoadFile)	{
 		#ifdef EDITOR
@@ -1256,41 +1255,41 @@ int load_level(char * filename_passed)
 
 	strcpy( Gamesave_current_filename, filename );
 
-	sig                      = cfile_read_int(LoadFile);
-	Gamesave_current_version = cfile_read_int(LoadFile);
-	minedata_offset          = cfile_read_int(LoadFile);
-	gamedata_offset          = cfile_read_int(LoadFile);
+	sig                      = PHYSFSX_readInt(LoadFile);
+	Gamesave_current_version = PHYSFSX_readInt(LoadFile);
+	minedata_offset          = PHYSFSX_readInt(LoadFile);
+	gamedata_offset          = PHYSFSX_readInt(LoadFile);
 
 	Assert(sig == MAKE_SIG('P','L','V','L'));
 
 	if (Gamesave_current_version >= 8) {    //read dummy data
-		cfile_read_int(LoadFile);
-		cfile_read_short(LoadFile);
-		cfile_read_byte(LoadFile);
+		PHYSFSX_readInt(LoadFile);
+		PHYSFSX_readShort(LoadFile);
+		PHYSFSX_readByte(LoadFile);
 	}
 
 	if (Gamesave_current_version < 5)
-		cfile_read_int(LoadFile);       //was hostagetext_offset
+		PHYSFSX_readInt(LoadFile);       //was hostagetext_offset
 
 	if (Gamesave_current_version > 1)
-		cfgets(Current_level_palette,sizeof(Current_level_palette),LoadFile);
+		PHYSFSX_fgets(Current_level_palette,sizeof(Current_level_palette),LoadFile);
 	if (Gamesave_current_version <= 1 || Current_level_palette[0]==0) // descent 1 level
 		strcpy(Current_level_palette, DEFAULT_LEVEL_PALETTE);
 
 	if (Gamesave_current_version >= 3)
-		Base_control_center_explosion_time = cfile_read_int(LoadFile);
+		Base_control_center_explosion_time = PHYSFSX_readInt(LoadFile);
 	else
 		Base_control_center_explosion_time = DEFAULT_CONTROL_CENTER_EXPLOSION_TIME;
 
 	if (Gamesave_current_version >= 4)
-		Reactor_strength = cfile_read_int(LoadFile);
+		Reactor_strength = PHYSFSX_readInt(LoadFile);
 	else
 		Reactor_strength = -1;  //use old defaults
 
 	if (Gamesave_current_version >= 7) {
 		int i;
 
-		Num_flickering_lights = cfile_read_int(LoadFile);
+		Num_flickering_lights = PHYSFSX_readInt(LoadFile);
 		Assert((Num_flickering_lights >= 0) && (Num_flickering_lights < MAX_FLICKERING_LIGHTS));
 		for (i = 0; i < Num_flickering_lights; i++)
 			flickering_light_read(&Flickering_lights[i], LoadFile);
@@ -1310,19 +1309,19 @@ int load_level(char * filename_passed)
 		Secret_return_orient.uvec.y = 0;
 		Secret_return_orient.uvec.z = F1_0;
 	} else {
-		Secret_return_segment = cfile_read_int(LoadFile);
-		Secret_return_orient.rvec.x = cfile_read_int(LoadFile);
-		Secret_return_orient.rvec.y = cfile_read_int(LoadFile);
-		Secret_return_orient.rvec.z = cfile_read_int(LoadFile);
-		Secret_return_orient.fvec.x = cfile_read_int(LoadFile);
-		Secret_return_orient.fvec.y = cfile_read_int(LoadFile);
-		Secret_return_orient.fvec.z = cfile_read_int(LoadFile);
-		Secret_return_orient.uvec.x = cfile_read_int(LoadFile);
-		Secret_return_orient.uvec.y = cfile_read_int(LoadFile);
-		Secret_return_orient.uvec.z = cfile_read_int(LoadFile);
+		Secret_return_segment = PHYSFSX_readInt(LoadFile);
+		Secret_return_orient.rvec.x = PHYSFSX_readInt(LoadFile);
+		Secret_return_orient.rvec.y = PHYSFSX_readInt(LoadFile);
+		Secret_return_orient.rvec.z = PHYSFSX_readInt(LoadFile);
+		Secret_return_orient.fvec.x = PHYSFSX_readInt(LoadFile);
+		Secret_return_orient.fvec.y = PHYSFSX_readInt(LoadFile);
+		Secret_return_orient.fvec.z = PHYSFSX_readInt(LoadFile);
+		Secret_return_orient.uvec.x = PHYSFSX_readInt(LoadFile);
+		Secret_return_orient.uvec.y = PHYSFSX_readInt(LoadFile);
+		Secret_return_orient.uvec.z = PHYSFSX_readInt(LoadFile);
 	}
 
-	cfseek(LoadFile,minedata_offset,SEEK_SET);
+	PHYSFSX_fseek(LoadFile,minedata_offset,SEEK_SET);
 	#ifdef EDITOR
 	if (!use_compiled_level) {
 		mine_err = load_mine_data(LoadFile);
@@ -1339,7 +1338,7 @@ int load_level(char * filename_passed)
 	 * Descent 1 - Level 19: OBERON MINE has some ugly overlapping rooms (segment 484).
 	 * HACK to make this issue less visible by moving one vertex a little.
 	 */
-	if ( !stricmp("Descent: First Strike",Current_mission_longname) && !stricmp("level19.rdl",filename) && cfilelength(LoadFile) == 136706)
+	if ( !stricmp("Descent: First Strike",Current_mission_longname) && !stricmp("level19.rdl",filename) && PHYSFS_fileLength(LoadFile) == 136706)
 		Vertices[1905].z =-385*F1_0;
 	/* !!!HACK!!!
 	 * Descent 2 - Level 12: MAGNACORE STATION has a segment (104) with illegal dimensions.
@@ -1371,21 +1370,21 @@ int load_level(char * filename_passed)
 	}
 
 	if (mine_err == -1) {   //error!!
-		cfclose(LoadFile);
+		PHYSFS_close(LoadFile);
 		return 2;
 	}
 
-	cfseek(LoadFile,gamedata_offset,SEEK_SET);
+	PHYSFSX_fseek(LoadFile,gamedata_offset,SEEK_SET);
 	game_err = load_game_data(LoadFile);
 
 	if (game_err == -1) {   //error!!
-		cfclose(LoadFile);
+		PHYSFS_close(LoadFile);
 		return 3;
 	}
 
 	//======================== CLOSE FILE =============================
 
-	cfclose( LoadFile );
+	PHYSFS_close( LoadFile );
 
 	set_ambient_sound_flags();
 

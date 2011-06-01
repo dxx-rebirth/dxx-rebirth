@@ -62,7 +62,6 @@ COPYRIGHT 1993-1999 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 #include "byteswap.h"
 #include "sounds.h"
 #include "args.h"
-#include "cfile.h"
 #include "effects.h"
 #include "iff.h"
 #include "state.h"
@@ -5280,7 +5279,7 @@ int HoardEquipped()
 
 	if (checked==-1)
 	{
-		if (cfexist("hoard.ham"))
+		if (PHYSFSX_exists("hoard.ham",1))
 			checked=1;
 		else
 			checked=0;
@@ -5310,7 +5309,7 @@ void init_hoard_data()
 	int orb_w,orb_h;
 	int icon_w,icon_h;
 	ubyte palette[256*3];
-	CFILE *ifile;
+	PHYSFS_file *ifile;
 	int i,save_pos;
 	extern int Num_bitmap_files,Num_effects,Num_sound_files;
 
@@ -5318,13 +5317,13 @@ void init_hoard_data()
 	if (ifile == NULL)
 		Error("can't open <hoard.ham>");
 
-	n_orb_frames = cfile_read_short(ifile);
-	orb_w = cfile_read_short(ifile);
-	orb_h = cfile_read_short(ifile);
-	save_pos = cftell(ifile);
-	cfseek(ifile,sizeof(palette)+n_orb_frames*orb_w*orb_h,SEEK_CUR);
-	n_goal_frames = cfile_read_short(ifile);
-	cfseek(ifile,save_pos,SEEK_SET);
+	n_orb_frames = PHYSFSX_readShort(ifile);
+	orb_w = PHYSFSX_readShort(ifile);
+	orb_h = PHYSFSX_readShort(ifile);
+	save_pos = PHYSFS_tell(ifile);
+	PHYSFSX_fseek(ifile,sizeof(palette)+n_orb_frames*orb_w*orb_h,SEEK_CUR);
+	n_goal_frames = PHYSFSX_readShort(ifile);
+	PHYSFSX_fseek(ifile,save_pos,SEEK_SET);
 
 	if (first_time) {
 		ubyte *bitmap_data;
@@ -5379,34 +5378,34 @@ void init_hoard_data()
 	}
 
 	//Load and remap bitmap data for orb
-	cfread(palette,3,256,ifile);
+	PHYSFS_read(ifile,palette,3,256);
 	for (i=0;i<n_orb_frames;i++) {
 		grs_bitmap *bm = &GameBitmaps[Vclip[orb_vclip].frames[i].index];
-		cfread(bm->bm_data,1,orb_w*orb_h,ifile);
+		PHYSFS_read(ifile,bm->bm_data,1,orb_w*orb_h);
 		gr_remap_bitmap_good( bm, palette, 255, -1 );
 	}
 
 	//Load and remap bitmap data for goal texture
-	cfile_read_short(ifile);        //skip frame count
-	cfread(palette,3,256,ifile);
+	PHYSFSX_readShort(ifile);        //skip frame count
+	PHYSFS_read(ifile,palette,3,256);
 	for (i=0;i<n_goal_frames;i++) {
 		grs_bitmap *bm = &GameBitmaps[Effects[Hoard_goal_eclip].vc.frames[i].index];
-		cfread(bm->bm_data,1,64*64,ifile);
+		PHYSFS_read(ifile,bm->bm_data,1,64*64);
 		gr_remap_bitmap_good( bm, palette, 255, -1 );
 	}
 
 	//Load and remap bitmap data for HUD icons
 	for (i=0;i<2;i++) {
-		icon_w = cfile_read_short(ifile);
-		icon_h = cfile_read_short(ifile);
+		icon_w = PHYSFSX_readShort(ifile);
+		icon_h = PHYSFSX_readShort(ifile);
 		if (first_time) {
 			ubyte *bitmap_data;
 			MALLOC( bitmap_data, ubyte, icon_w*icon_h );
 			gr_init_bitmap(&Orb_icons[i],BM_LINEAR,0,0,icon_w,icon_h,icon_w,bitmap_data);
 			gr_set_transparent (&Orb_icons[i], 1);
 		}
-		cfread(palette,3,256,ifile);
-		cfread(Orb_icons[i].bm_data,1,icon_w*icon_h,ifile);
+		PHYSFS_read(ifile,palette,3,256);
+		PHYSFS_read(ifile,Orb_icons[i].bm_data,1,icon_w*icon_h);
 		gr_remap_bitmap_good( &Orb_icons[i], palette, 255, -1 );
 	}
 
@@ -5417,20 +5416,20 @@ void init_hoard_data()
 		for (i=0;i<4;i++) {
 			int len;
 
-			len = cfile_read_int(ifile);        //get 11k len
+			len = PHYSFSX_readInt(ifile);        //get 11k len
 
 			if (GameArg.SndDigiSampleRate == SAMPLE_RATE_22K) {
-				cfseek(ifile,len,SEEK_CUR);     //skip over 11k sample
-				len = cfile_read_int(ifile);    //get 22k len
+				PHYSFSX_fseek(ifile,len,SEEK_CUR);     //skip over 11k sample
+				len = PHYSFSX_readInt(ifile);    //get 22k len
 			}
 
 			GameSounds[Num_sound_files+i].length = len;
 			GameSounds[Num_sound_files+i].data = d_malloc(len);
-			cfread(GameSounds[Num_sound_files+i].data,1,len,ifile);
+			PHYSFS_read(ifile,GameSounds[Num_sound_files+i].data,1,len);
 
 			if (GameArg.SndDigiSampleRate == SAMPLE_RATE_11K) {
-				len = cfile_read_int(ifile);    //get 22k len
-				cfseek(ifile,len,SEEK_CUR);     //skip over 22k sample
+				len = PHYSFSX_readInt(ifile);    //get 22k len
+				PHYSFSX_fseek(ifile,len,SEEK_CUR);     //skip over 22k sample
 			}
 
 			Sounds[SOUND_YOU_GOT_ORB+i] = Num_sound_files+i;
@@ -5438,7 +5437,7 @@ void init_hoard_data()
 		}
 	}
 
-	cfclose(ifile);
+	PHYSFS_close(ifile);
 	if (first_time)
 		atexit(free_hoard_data);
 

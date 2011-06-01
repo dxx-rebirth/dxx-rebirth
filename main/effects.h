@@ -74,8 +74,8 @@ void stop_effect(int effect_num);
 void restart_effect(int effect_num);
 
 /*
- * reads n eclip structs from a CFILE
+ * reads n eclip structs from a PHYSFS_file
  */
-extern int eclip_read_n(eclip *ec, int n, CFILE *fp);
+extern int eclip_read_n(eclip *ec, int n, PHYSFS_file *fp);
 
 #endif /* _EFFECTS_H */

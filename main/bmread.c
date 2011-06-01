@@ -42,10 +42,7 @@ COPYRIGHT 1993-1999 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 #ifdef NETWORK
 #include "multi.h"
 #endif
-
 #include "iff.h"
-#include "cfile.h"
-
 #include "hostage.h"
 #include "powerup.h"
 #include "laser.h"
@@ -62,7 +59,6 @@ COPYRIGHT 1993-1999 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 #include "text.h"
 #include "interp.h"
 #include "strutil.h"
-
 #include "editor/texpage.h"
 
 #define BM_NONE			-1
@@ -286,7 +282,7 @@ void ab_load(int skip, char * filename, bitmap_index bmp[], int *nframes )
 
 int ds_load(int skip, char * filename )	{
 	int i;
-	CFILE * cfp;
+	PHYSFS_file * cfp;
 	digi_sound new;
 	char fname[20];
 	char rawname[100];
@@ -308,10 +304,10 @@ int ds_load(int skip, char * filename )	{
 	cfp = PHYSFSX_openReadBuffered(rawname);
 
 	if (cfp!=NULL) {
-		new.length	= cfilelength( cfp );
+		new.length	= PHYSFS_fileLength( cfp );
 		MALLOC( new.data, ubyte, new.length );
-		cfread( new.data, 1, new.length, cfp );
-		cfclose(cfp);
+		PHYSFS_read( cfp, new.data, 1, new.length );
+		PHYSFS_close(cfp);
 		new.bits = 8;
 		new.freq = 11025;
 	} else {
@@ -385,7 +381,7 @@ int get_texture(char *name)
 // If no editor, properties_read_cmp() is called.
 int gamedata_read_tbl(int pc_shareware)
 {
-	CFILE	* InfoFile;
+	PHYSFS_file	* InfoFile;
 	char	inputline[LINEBUF_SIZE];
 	int	i, have_bin_tbl;
 
@@ -447,9 +443,9 @@ int gamedata_read_tbl(int pc_shareware)
 
 	linenum = 0;
 	
-	cfseek( InfoFile, 0L, SEEK_SET);
+	PHYSFSX_fseek( InfoFile, 0L, SEEK_SET);
 
-	while (cfgets(inputline, LINEBUF_SIZE, InfoFile)) {
+	while (PHYSFSX_fgets(inputline, LINEBUF_SIZE, InfoFile)) {
 		int l;
 		char *temp_ptr;
 		int skip;
@@ -472,7 +468,7 @@ int gamedata_read_tbl(int pc_shareware)
 					inputline[l-2] = ' ';				//add one
 					l++;
 				}
-				cfgets(inputline+l-2,LINEBUF_SIZE-(l-2), InfoFile);
+				PHYSFSX_fgets(inputline+l-2,LINEBUF_SIZE-(l-2), InfoFile);
 				linenum++;
 			}
 		}
@@ -603,7 +599,7 @@ int gamedata_read_tbl(int pc_shareware)
 
 	Textures[NumTextures++].index = 0;		//entry for bogus tmap
 
-	cfclose( InfoFile );
+	PHYSFS_close( InfoFile );
 
 	Assert(N_robot_types == Num_robot_ais);		//should be one ai info per robot
 

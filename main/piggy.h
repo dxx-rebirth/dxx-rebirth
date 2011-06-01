@@ -20,10 +20,10 @@ COPYRIGHT 1993-1999 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 #ifndef _PIGGY_H
 #define _PIGGY_H
 
+#include "physfsx.h"
 #include "digi.h"
 #include "sounds.h"
 #include "inferno.h"
-#include "cfile.h"
 
 #define D1_PIGFILE              "descent.pig"
 
@@ -113,14 +113,14 @@ void load_bitmap_replacements(char *level_name);
 void load_d1_bitmap_replacements();
 
 /*
- * reads a bitmap_index structure from a CFILE
+ * reads a bitmap_index structure from a PHYSFS_file
  */
-void bitmap_index_read(bitmap_index *bi, CFILE *fp);
+void bitmap_index_read(bitmap_index *bi, PHYSFS_file *fp);
 
 /*
- * reads n bitmap_index structs from a CFILE
+ * reads n bitmap_index structs from a PHYSFS_file
  */
-int bitmap_index_read_n(bitmap_index *bi, int n, CFILE *fp);
+int bitmap_index_read_n(bitmap_index *bi, int n, PHYSFS_file *fp);
 
 /*
  * Find and load the named bitmap from descent.pig

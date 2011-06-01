@@ -524,7 +524,7 @@ void save_screen_shot(int automap_flag)
 
 	stop_time();
 
-	if (!cfexist(SCRNS_DIR))
+	if (!PHYSFSX_exists(SCRNS_DIR,0))
 		PHYSFS_mkdir(SCRNS_DIR); //try making directory
 
 	save_canv = grd_curcanv;
@@ -537,7 +537,7 @@ void save_screen_shot(int automap_flag)
 	do
 	{
 		sprintf(savename, "%sscrn%04d.pcx",SCRNS_DIR, savenum++);
-	} while (PHYSFS_exists(savename));
+	} while (PHYSFSX_exists(savename,0));
 	sprintf( message, "%s 'scrn%04d.pcx'", TXT_DUMPING_SCREEN, savenum-1 );
 
 	gr_set_current_canvas(NULL);
@@ -1899,15 +1899,15 @@ void show_free_objects(void)
 #endif
 
 /*
- * reads a flickering_light structure from a CFILE
+ * reads a flickering_light structure from a PHYSFS_file
  */
-void flickering_light_read(flickering_light *fl, CFILE *fp)
+void flickering_light_read(flickering_light *fl, PHYSFS_file *fp)
 {
-	fl->segnum = cfile_read_short(fp);
-	fl->sidenum = cfile_read_short(fp);
-	fl->mask = cfile_read_int(fp);
-	fl->timer = cfile_read_fix(fp);
-	fl->delay = cfile_read_fix(fp);
+	fl->segnum = PHYSFSX_readShort(fp);
+	fl->sidenum = PHYSFSX_readShort(fp);
+	fl->mask = PHYSFSX_readInt(fp);
+	fl->timer = PHYSFSX_readFix(fp);
+	fl->delay = PHYSFSX_readFix(fp);
 }
 
 void flickering_light_write(flickering_light *fl, PHYSFS_file *fp)

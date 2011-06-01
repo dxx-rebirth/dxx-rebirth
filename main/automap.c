@@ -558,7 +558,7 @@ void draw_automap(automap *am)
 
 extern int set_segment_depths(int start_seg, ubyte *segbuf);
 
-#define MAP_BACKGROUND_FILENAME ((HIRESMODE && cfexist("mapb.pcx"))?"MAPB.PCX":"MAP.PCX")
+#define MAP_BACKGROUND_FILENAME ((HIRESMODE && PHYSFSX_exists("mapb.pcx",1))?"MAPB.PCX":"MAP.PCX")
 
 int automap_key_command(window *wind, d_event *event, automap *am)
 {

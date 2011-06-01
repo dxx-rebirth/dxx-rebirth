@@ -146,13 +146,13 @@ int read_player_d2x(char *filename)
 
 	while(!Stop && !PHYSFS_eof(f))
 	{
-		cfgets(line,50,f);
+		PHYSFSX_fgets(line,50,f);
 		word=splitword(line,':');
 		strupr(word);
 		if (strstr(word,"JOYSTICK"))
 		{
 			d_free(word);
-			cfgets(line,50,f);
+			PHYSFSX_fgets(line,50,f);
 			word=splitword(line,'=');
 			strupr(word);
 	
@@ -179,7 +179,7 @@ int read_player_d2x(char *filename)
 				if(!strcmp(word,"DEADZONE4"))
 					PlayerCfg.JoystickDead[4] = atoi(line);
 				d_free(word);
-				cfgets(line,50,f);
+				PHYSFSX_fgets(line,50,f);
 				word=splitword(line,'=');
 				strupr(word);
 			}
@@ -187,7 +187,7 @@ int read_player_d2x(char *filename)
 		else if (strstr(word,"MOUSE"))
 		{
 			d_free(word);
-			cfgets(line,50,f);
+			PHYSFSX_fgets(line,50,f);
 			word=splitword(line,'=');
 			strupr(word);
 	
@@ -210,7 +210,7 @@ int read_player_d2x(char *filename)
 				if(!strcmp(word,"FSINDI"))
 					PlayerCfg.MouseFSIndicator = atoi(line);
 				d_free(word);
-				cfgets(line,50,f);
+				PHYSFSX_fgets(line,50,f);
 				word=splitword(line,'=');
 				strupr(word);
 			}
@@ -218,7 +218,7 @@ int read_player_d2x(char *filename)
 		else if (strstr(word,"WEAPON KEYS V2"))
 		{
 			d_free(word);
-			cfgets(line,50,f);
+			PHYSFSX_fgets(line,50,f);
 			word=splitword(line,'=');
 			strupr(word);
 			while(!strstr(word,"END") && !PHYSFS_eof(f))
@@ -234,7 +234,7 @@ int read_player_d2x(char *filename)
 				PlayerCfg.KeySettingsD2X[i+1] = kc2;
 				PlayerCfg.KeySettingsD2X[i+2] = kc3;
 				d_free(word);
-				cfgets(line,50,f);
+				PHYSFSX_fgets(line,50,f);
 				word=splitword(line,'=');
 				strupr(word);
 			}
@@ -242,7 +242,7 @@ int read_player_d2x(char *filename)
 		else if (strstr(word,"COCKPIT"))
 		{
 			d_free(word);
-			cfgets(line,50,f);
+			PHYSFSX_fgets(line,50,f);
 			word=splitword(line,'=');
 			strupr(word);
 	
@@ -257,7 +257,7 @@ int read_player_d2x(char *filename)
 				else if(!strcmp(word,"RETSIZE"))
 					PlayerCfg.ReticleSize = atoi(line);
 				d_free(word);
-				cfgets(line,50,f);
+				PHYSFSX_fgets(line,50,f);
 				word=splitword(line,'=');
 				strupr(word);
 			}
@@ -265,7 +265,7 @@ int read_player_d2x(char *filename)
 		else if (strstr(word,"TOGGLES"))
 		{
 			d_free(word);
-			cfgets(line,50,f);
+			PHYSFSX_fgets(line,50,f);
 			word=splitword(line,'=');
 			strupr(word);
 	
@@ -286,7 +286,7 @@ int read_player_d2x(char *filename)
 				if(!strcmp(word,"AUTOMAPFREEFLIGHT"))
 					PlayerCfg.AutomapFreeFlight = atoi(line);
 				d_free(word);
-				cfgets(line,50,f);
+				PHYSFSX_fgets(line,50,f);
 				word=splitword(line,'=');
 				strupr(word);
 			}
@@ -294,7 +294,7 @@ int read_player_d2x(char *filename)
 		else if (strstr(word,"GRAPHICS"))
 		{
 			d_free(word);
-			cfgets(line,50,f);
+			PHYSFSX_fgets(line,50,f);
 			word=splitword(line,'=');
 			strupr(word);
 	
@@ -305,7 +305,7 @@ int read_player_d2x(char *filename)
 				if(!strcmp(word,"DYNLIGHTCOLOR"))
 					PlayerCfg.DynLightColor = atoi(line);
 				d_free(word);
-				cfgets(line,50,f);
+				PHYSFSX_fgets(line,50,f);
 				word=splitword(line,'=');
 				strupr(word);
 			}
@@ -314,14 +314,14 @@ int read_player_d2x(char *filename)
 		{
 			int v1=0,v2=0,v3=0;
 			d_free(word);
-			cfgets(line,50,f);
+			PHYSFSX_fgets(line,50,f);
 			word=splitword(line,'=');
 			strupr(word);
 			while(!strstr(word,"END") && !PHYSFS_eof(f))
 			{
 				sscanf(line,"%i.%i.%i",&v1,&v2,&v3);
 				d_free(word);
-				cfgets(line,50,f);
+				PHYSFSX_fgets(line,50,f);
 				word=splitword(line,'=');
 				strupr(word);
 			}
@@ -343,7 +343,7 @@ int read_player_d2x(char *filename)
 			{
 				while(!strstr(line,"END") && !PHYSFS_eof(f))
 				{
-					cfgets(line,50,f);
+					PHYSFSX_fgets(line,50,f);
 					strupr(line);
 				}
 			}
@@ -464,7 +464,7 @@ int read_player_file()
 	Assert(Player_num>=0 && Player_num<MAX_PLAYERS);
 
 	sprintf(filename, GameArg.SysUsePlayersDir? "Players/%.8s.plr" : "%.8s.plr", Players[Player_num].callsign);
-	if (!PHYSFS_exists(filename))
+	if (!PHYSFSX_exists(filename,0))
 		return ENOENT;
 
 	file = PHYSFSX_openReadBuffered(filename);
@@ -482,7 +482,7 @@ int read_player_file()
 		return -1;
 	}
 
-	player_file_version = cfile_read_short(file);
+	player_file_version = PHYSFSX_readShort(file);
 
 	if (player_file_version > 255) // bigendian file?
 		swap = 1;
@@ -497,20 +497,20 @@ int read_player_file()
 	}
 
 	PHYSFS_seek(file,PHYSFS_tell(file)+2*sizeof(short)); //skip Game_window_w,Game_window_h
-	PlayerCfg.DefaultDifficulty = cfile_read_byte(file);
-	PlayerCfg.AutoLeveling       = cfile_read_byte(file);
+	PlayerCfg.DefaultDifficulty = PHYSFSX_readByte(file);
+	PlayerCfg.AutoLeveling       = PHYSFSX_readByte(file);
 	PHYSFS_seek(file,PHYSFS_tell(file)+sizeof(sbyte)); // skip ReticleOn
-	PlayerCfg.CockpitMode[0] = PlayerCfg.CockpitMode[1] = cfile_read_byte(file);
+	PlayerCfg.CockpitMode[0] = PlayerCfg.CockpitMode[1] = PHYSFSX_readByte(file);
 	PHYSFS_seek(file,PHYSFS_tell(file)+sizeof(sbyte)); //skip Default_display_mode
-	PlayerCfg.MissileViewEnabled      = cfile_read_byte(file);
-	PlayerCfg.HeadlightActiveDefault  = cfile_read_byte(file);
-	PlayerCfg.GuidedInBigWindow      = cfile_read_byte(file);
+	PlayerCfg.MissileViewEnabled      = PHYSFSX_readByte(file);
+	PlayerCfg.HeadlightActiveDefault  = PHYSFSX_readByte(file);
+	PlayerCfg.GuidedInBigWindow      = PHYSFSX_readByte(file);
 	if (player_file_version >= 19)
 		PHYSFS_seek(file,PHYSFS_tell(file)+sizeof(sbyte)); //skip Automap_always_hires
 
 	//read new highest level info
 
-	PlayerCfg.NHighestLevels = cfile_read_short(file);
+	PlayerCfg.NHighestLevels = PHYSFSX_readShort(file);
 	if (swap)
 		PlayerCfg.NHighestLevels = SWAPSHORT(PlayerCfg.NHighestLevels);
 	Assert(PlayerCfg.NHighestLevels <= MAX_MISSIONS);
@@ -531,7 +531,7 @@ int read_player_file()
 #else
 		char dummy[4][MAX_MESSAGE_LEN];
 
-		cfread(dummy, MAX_MESSAGE_LEN, 4, file);
+		PHYSFS_read(file, dummy, MAX_MESSAGE_LEN, 4);
 #endif
 	}
 
@@ -560,8 +560,8 @@ int read_player_file()
 	
 		for (i=0;i<11;i++)
 		{
-			PlayerCfg.PrimaryOrder[i] = cfile_read_byte(file);
-			PlayerCfg.SecondaryOrder[i] = cfile_read_byte(file);
+			PlayerCfg.PrimaryOrder[i] = PHYSFSX_readByte(file);
+			PlayerCfg.SecondaryOrder[i] = PHYSFSX_readByte(file);
 		}
 
 		if (player_file_version>=16)
@@ -856,7 +856,7 @@ void read_netgame_profile(netgame_info *ng)
 
 	memset(filename, '\0', PATH_MAX);
 	sprintf(filename, GameArg.SysUsePlayersDir? "Players/%.8s.ngp" : "%.8s.ngp", Players[Player_num].callsign);
-	if (!PHYSFS_exists(filename))
+	if (!PHYSFSX_exists(filename,0))
 		return;
 
 	file = PHYSFSX_openReadBuffered(filename);

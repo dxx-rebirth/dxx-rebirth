@@ -7,7 +7,6 @@
  */
 
 #include "player.h"
-#include "cfile.h"
 #include "byteswap.h"
 
 #ifdef RCS
@@ -53,21 +52,21 @@ void player_rw_swap(player_rw *p, int swap)
 }
 
 /*
- * reads a player_ship structure from a CFILE
+ * reads a player_ship structure from a PHYSFS_file
  */
-void player_ship_read(player_ship *ps, CFILE *fp)
+void player_ship_read(player_ship *ps, PHYSFS_file *fp)
 {
 	int i;
 
-	ps->model_num = cfile_read_int(fp);
-	ps->expl_vclip_num = cfile_read_int(fp);
-	ps->mass = cfile_read_fix(fp);
-	ps->drag = cfile_read_fix(fp);
-	ps->max_thrust = cfile_read_fix(fp);
-	ps->reverse_thrust = cfile_read_fix(fp);
-	ps->brakes = cfile_read_fix(fp);
-	ps->wiggle = cfile_read_fix(fp);
-	ps->max_rotthrust = cfile_read_fix(fp);
+	ps->model_num = PHYSFSX_readInt(fp);
+	ps->expl_vclip_num = PHYSFSX_readInt(fp);
+	ps->mass = PHYSFSX_readFix(fp);
+	ps->drag = PHYSFSX_readFix(fp);
+	ps->max_thrust = PHYSFSX_readFix(fp);
+	ps->reverse_thrust = PHYSFSX_readFix(fp);
+	ps->brakes = PHYSFSX_readFix(fp);
+	ps->wiggle = PHYSFSX_readFix(fp);
+	ps->max_rotthrust = PHYSFSX_readFix(fp);
 	for (i = 0; i < N_PLAYER_GUNS; i++)
-		cfile_read_vector(&(ps->gun_points[i]), fp);
+		PHYSFSX_readVector(&(ps->gun_points[i]), fp);
 }

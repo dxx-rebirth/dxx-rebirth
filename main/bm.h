@@ -90,7 +90,7 @@ void compute_average_rgb(grs_bitmap *bm, fix *rgb);
 // Initializes all bitmaps from BITMAPS.TBL file.
 int gamedata_read_tbl(int pc_shareware);
 
-extern void bm_read_all(CFILE * fp);
+extern void bm_read_all(PHYSFS_file * fp);
 
 int load_exit_models();
 

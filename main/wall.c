@@ -1595,93 +1595,93 @@ void blast_nearby_glass(object *objp, fix damage)
 #define MAX_CLIP_FRAMES_D1 20
 
 /*
- * reads a wclip structure from a CFILE
+ * reads a wclip structure from a PHYSFS_file
  */
-int wclip_read_n_d1(wclip *wc, int n, CFILE *fp)
+int wclip_read_n_d1(wclip *wc, int n, PHYSFS_file *fp)
 {
 	int i, j;
 
 	for (i = 0; i < n; i++) {
-		wc[i].play_time = cfile_read_fix(fp);
-		wc[i].num_frames = cfile_read_short(fp);
+		wc[i].play_time = PHYSFSX_readFix(fp);
+		wc[i].num_frames = PHYSFSX_readShort(fp);
 		for (j = 0; j < MAX_CLIP_FRAMES_D1; j++)
-			wc[i].frames[j] = cfile_read_short(fp);
-		wc[i].open_sound = cfile_read_short(fp);
-		wc[i].close_sound = cfile_read_short(fp);
-		wc[i].flags = cfile_read_short(fp);
-		cfread(wc[i].filename, 13, 1, fp);
-		wc[i].pad = cfile_read_byte(fp);
+			wc[i].frames[j] = PHYSFSX_readShort(fp);
+		wc[i].open_sound = PHYSFSX_readShort(fp);
+		wc[i].close_sound = PHYSFSX_readShort(fp);
+		wc[i].flags = PHYSFSX_readShort(fp);
+		PHYSFS_read(fp, wc[i].filename, 13, 1);
+		wc[i].pad = PHYSFSX_readByte(fp);
 	}
 	return i;
 }
 
 /*
- * reads a wclip structure from a CFILE
+ * reads a wclip structure from a PHYSFS_file
  */
-int wclip_read_n(wclip *wc, int n, CFILE *fp)
+int wclip_read_n(wclip *wc, int n, PHYSFS_file *fp)
 {
 	int i, j;
 
 	for (i = 0; i < n; i++) {
-		wc[i].play_time = cfile_read_fix(fp);
-		wc[i].num_frames = cfile_read_short(fp);
+		wc[i].play_time = PHYSFSX_readFix(fp);
+		wc[i].num_frames = PHYSFSX_readShort(fp);
 		for (j = 0; j < MAX_CLIP_FRAMES; j++)
-			wc[i].frames[j] = cfile_read_short(fp);
-		wc[i].open_sound = cfile_read_short(fp);
-		wc[i].close_sound = cfile_read_short(fp);
-		wc[i].flags = cfile_read_short(fp);
-		cfread(wc[i].filename, 13, 1, fp);
-		wc[i].pad = cfile_read_byte(fp);
+			wc[i].frames[j] = PHYSFSX_readShort(fp);
+		wc[i].open_sound = PHYSFSX_readShort(fp);
+		wc[i].close_sound = PHYSFSX_readShort(fp);
+		wc[i].flags = PHYSFSX_readShort(fp);
+		PHYSFS_read(fp, wc[i].filename, 13, 1);
+		wc[i].pad = PHYSFSX_readByte(fp);
 	}
 	return i;
 }
 
 /*
- * reads a v16_wall structure from a CFILE
+ * reads a v16_wall structure from a PHYSFS_file
  */
-extern void v16_wall_read(v16_wall *w, CFILE *fp)
+extern void v16_wall_read(v16_wall *w, PHYSFS_file *fp)
 {
-	w->type = cfile_read_byte(fp);
-	w->flags = cfile_read_byte(fp);
-	w->hps = cfile_read_fix(fp);
-	w->trigger = cfile_read_byte(fp);
-	w->clip_num = cfile_read_byte(fp);
-	w->keys = cfile_read_byte(fp);
+	w->type = PHYSFSX_readByte(fp);
+	w->flags = PHYSFSX_readByte(fp);
+	w->hps = PHYSFSX_readFix(fp);
+	w->trigger = PHYSFSX_readByte(fp);
+	w->clip_num = PHYSFSX_readByte(fp);
+	w->keys = PHYSFSX_readByte(fp);
 }
 
 /*
- * reads a v19_wall structure from a CFILE
+ * reads a v19_wall structure from a PHYSFS_file
  */
-extern void v19_wall_read(v19_wall *w, CFILE *fp)
+extern void v19_wall_read(v19_wall *w, PHYSFS_file *fp)
 {
-	w->segnum = cfile_read_int(fp);
-	w->sidenum = cfile_read_int(fp);
-	w->type = cfile_read_byte(fp);
-	w->flags = cfile_read_byte(fp);
-	w->hps = cfile_read_fix(fp);
-	w->trigger = cfile_read_byte(fp);
-	w->clip_num = cfile_read_byte(fp);
-	w->keys = cfile_read_byte(fp);
-	w->linked_wall = cfile_read_int(fp);
+	w->segnum = PHYSFSX_readInt(fp);
+	w->sidenum = PHYSFSX_readInt(fp);
+	w->type = PHYSFSX_readByte(fp);
+	w->flags = PHYSFSX_readByte(fp);
+	w->hps = PHYSFSX_readFix(fp);
+	w->trigger = PHYSFSX_readByte(fp);
+	w->clip_num = PHYSFSX_readByte(fp);
+	w->keys = PHYSFSX_readByte(fp);
+	w->linked_wall = PHYSFSX_readInt(fp);
 }
 
 /*
- * reads a wall structure from a CFILE
+ * reads a wall structure from a PHYSFS_file
  */
-extern void wall_read(wall *w, CFILE *fp)
+extern void wall_read(wall *w, PHYSFS_file *fp)
 {
-	w->segnum = cfile_read_int(fp);
-	w->sidenum = cfile_read_int(fp);
-	w->hps = cfile_read_fix(fp);
-	w->linked_wall = cfile_read_int(fp);
-	w->type = cfile_read_byte(fp);
-	w->flags = cfile_read_byte(fp);
-	w->state = cfile_read_byte(fp);
-	w->trigger = cfile_read_byte(fp);
-	w->clip_num = cfile_read_byte(fp);
-	w->keys = cfile_read_byte(fp);
-	w->controlling_trigger = cfile_read_byte(fp);
-	w->cloak_value = cfile_read_byte(fp);
+	w->segnum = PHYSFSX_readInt(fp);
+	w->sidenum = PHYSFSX_readInt(fp);
+	w->hps = PHYSFSX_readFix(fp);
+	w->linked_wall = PHYSFSX_readInt(fp);
+	w->type = PHYSFSX_readByte(fp);
+	w->flags = PHYSFSX_readByte(fp);
+	w->state = PHYSFSX_readByte(fp);
+	w->trigger = PHYSFSX_readByte(fp);
+	w->clip_num = PHYSFSX_readByte(fp);
+	w->keys = PHYSFSX_readByte(fp);
+	w->controlling_trigger = PHYSFSX_readByte(fp);
+	w->cloak_value = PHYSFSX_readByte(fp);
 }
 
 void wall_swap(wall *w, int swap)
@@ -1696,9 +1696,9 @@ void wall_swap(wall *w, int swap)
 }
 
 /*
- * reads n wall structs from a CFILE and swaps if specified
+ * reads n wall structs from a PHYSFS_file and swaps if specified
  */
-void wall_read_n_swap(wall *w, int n, int swap, CFILE *fp)
+void wall_read_n_swap(wall *w, int n, int swap, PHYSFS_file *fp)
 {
 	int i;
 	
@@ -1710,31 +1710,31 @@ void wall_read_n_swap(wall *w, int n, int swap, CFILE *fp)
 }
 
 /*
- * reads a v19_door structure from a CFILE
+ * reads a v19_door structure from a PHYSFS_file
  */
-extern void v19_door_read(v19_door *d, CFILE *fp)
+extern void v19_door_read(v19_door *d, PHYSFS_file *fp)
 {
-	d->n_parts = cfile_read_int(fp);
-	d->seg[0] = cfile_read_short(fp);
-	d->seg[1] = cfile_read_short(fp);
-	d->side[0] = cfile_read_short(fp);
-	d->side[1] = cfile_read_short(fp);
-	d->type[0] = cfile_read_short(fp);
-	d->type[1] = cfile_read_short(fp);
-	d->open = cfile_read_fix(fp);
+	d->n_parts = PHYSFSX_readInt(fp);
+	d->seg[0] = PHYSFSX_readShort(fp);
+	d->seg[1] = PHYSFSX_readShort(fp);
+	d->side[0] = PHYSFSX_readShort(fp);
+	d->side[1] = PHYSFSX_readShort(fp);
+	d->type[0] = PHYSFSX_readShort(fp);
+	d->type[1] = PHYSFSX_readShort(fp);
+	d->open = PHYSFSX_readFix(fp);
 }
 
 /*
- * reads an active_door structure from a CFILE
+ * reads an active_door structure from a PHYSFS_file
  */
-extern void active_door_read(active_door *ad, CFILE *fp)
+extern void active_door_read(active_door *ad, PHYSFS_file *fp)
 {
-	ad->n_parts = cfile_read_int(fp);
-	ad->front_wallnum[0] = cfile_read_short(fp);
-	ad->front_wallnum[1] = cfile_read_short(fp);
-	ad->back_wallnum[0] = cfile_read_short(fp);
-	ad->back_wallnum[1] = cfile_read_short(fp);
-	ad->time = cfile_read_fix(fp);
+	ad->n_parts = PHYSFSX_readInt(fp);
+	ad->front_wallnum[0] = PHYSFSX_readShort(fp);
+	ad->front_wallnum[1] = PHYSFSX_readShort(fp);
+	ad->back_wallnum[0] = PHYSFSX_readShort(fp);
+	ad->back_wallnum[1] = PHYSFSX_readShort(fp);
+	ad->time = PHYSFSX_readFix(fp);
 }
 
 void active_door_swap(active_door *ad, int swap)
@@ -1751,9 +1751,9 @@ void active_door_swap(active_door *ad, int swap)
 }
 
 /*
- * reads n active_door structs from a CFILE and swaps if specified
+ * reads n active_door structs from a PHYSFS_file and swaps if specified
  */
-void active_door_read_n_swap(active_door *ad, int n, int swap, CFILE *fp)
+void active_door_read_n_swap(active_door *ad, int n, int swap, PHYSFS_file *fp)
 {
 	int i;
 	
@@ -1764,7 +1764,7 @@ void active_door_read_n_swap(active_door *ad, int n, int swap, CFILE *fp)
 			active_door_swap(&ad[i], swap);
 }
 
-void wall_write(wall *w, short version, CFILE *fp)
+void wall_write(wall *w, short version, PHYSFS_file *fp)
 {
 	if (version >= 17)
 	{
@@ -1817,9 +1817,9 @@ void cloaking_wall_swap(cloaking_wall *cw, int swap)
 }
 
 /*
- * reads n cloaking_wall structs from a CFILE and swaps if specified
+ * reads n cloaking_wall structs from a PHYSFS_file and swaps if specified
  */
-void cloaking_wall_read_n_swap(cloaking_wall *cw, int n, int swap, CFILE *fp)
+void cloaking_wall_read_n_swap(cloaking_wall *cw, int n, int swap, PHYSFS_file *fp)
 {
 	int i;
 	

@@ -21,12 +21,10 @@ COPYRIGHT 1993-1999 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 #ifndef _SEGMENT_H
 #define _SEGMENT_H
 
+#include "physfsx.h"
 #include "pstypes.h"
 #include "fix.h"
 #include "vecmat.h"
-//#include "3d.h"
-//#include "inferno.h"
-#include "cfile.h"
 
 // Version 1 - Initial version
 // Version 2 - Mike changed some shorts to bytes in segments, so incompatible!
@@ -247,19 +245,19 @@ extern void add_segment_to_group(int segment_num, int group_num);
 extern void med_check_all_vertices();
 
 /*
- * reads a segment2 structure from a CFILE
+ * reads a segment2 structure from a PHYSFS_file
  */
-void segment2_read(segment2 *s2, CFILE *fp);
+void segment2_read(segment2 *s2, PHYSFS_file *fp);
 
 /*
- * reads a delta_light structure from a CFILE
+ * reads a delta_light structure from a PHYSFS_file
  */
-void delta_light_read(delta_light *dl, CFILE *fp);
+void delta_light_read(delta_light *dl, PHYSFS_file *fp);
 
 /*
- * reads a dl_index structure from a CFILE
+ * reads a dl_index structure from a PHYSFS_file
  */
-void dl_index_read(dl_index *di, CFILE *fp);
+void dl_index_read(dl_index *di, PHYSFS_file *fp);
 
 void segment2_write(segment2 *s2, PHYSFS_file *fp);
 void delta_light_write(delta_light *dl, PHYSFS_file *fp);

@@ -29,7 +29,6 @@ COPYRIGHT 1993-1999 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 #include "gr.h"
 #include "grdef.h"
 #include "error.h"
-#include "cfile.h"
 #include "byteswap.h"
 #include "bitmap.h"
 #include "makesig.h"
@@ -954,21 +953,21 @@ void gr_remap_mono_fonts()
 }
 
 /*
- * reads a grs_font structure from a CFILE
+ * reads a grs_font structure from a PHYSFS_file
  */
-void grs_font_read(grs_font *gf, CFILE *fp)
+void grs_font_read(grs_font *gf, PHYSFS_file *fp)
 {
-	gf->ft_w = cfile_read_short(fp);
-	gf->ft_h = cfile_read_short(fp);
-	gf->ft_flags = cfile_read_short(fp);
-	gf->ft_baseline = cfile_read_short(fp);
-	gf->ft_minchar = cfile_read_byte(fp);
-	gf->ft_maxchar = cfile_read_byte(fp);
-	gf->ft_bytewidth = cfile_read_short(fp);
-	gf->ft_data = (ubyte *)(size_t)cfile_read_int(fp);
-	gf->ft_chars = (ubyte **)(size_t)cfile_read_int(fp);
-	gf->ft_widths = (short *)(size_t)cfile_read_int(fp);
-	gf->ft_kerndata = (ubyte *)(size_t)cfile_read_int(fp);
+	gf->ft_w = PHYSFSX_readShort(fp);
+	gf->ft_h = PHYSFSX_readShort(fp);
+	gf->ft_flags = PHYSFSX_readShort(fp);
+	gf->ft_baseline = PHYSFSX_readShort(fp);
+	gf->ft_minchar = PHYSFSX_readByte(fp);
+	gf->ft_maxchar = PHYSFSX_readByte(fp);
+	gf->ft_bytewidth = PHYSFSX_readShort(fp);
+	gf->ft_data = (ubyte *)(size_t)PHYSFSX_readInt(fp);
+	gf->ft_chars = (ubyte **)(size_t)PHYSFSX_readInt(fp);
+	gf->ft_widths = (short *)(size_t)PHYSFSX_readInt(fp);
+	gf->ft_kerndata = (ubyte *)(size_t)PHYSFSX_readInt(fp);
 }
 
 grs_font * gr_init_font( char * fontname )
@@ -979,7 +978,7 @@ grs_font * gr_init_font( char * fontname )
 	int i,fontnum;
 	unsigned char * ptr;
 	int nchars;
-	CFILE *fontfile;
+	PHYSFS_file *fontfile;
 	char file_id[4];
 	int datasize;	//size up to (but not including) palette
 
@@ -999,27 +998,27 @@ grs_font * gr_init_font( char * fontname )
 
 	strncpy(open_font[fontnum].filename,fontname,FILENAME_LEN);
 
-	fontfile = cfopen(fontname, "rb");
+	fontfile = PHYSFSX_openReadBuffered(fontname);
 
 	if (!fontfile) {
 		con_printf(CON_VERBOSE, "Can't open font file %s\n", fontname);
 		return NULL;
 	}
 
-	cfread(file_id, 4, 1, fontfile);
+	PHYSFS_read(fontfile, file_id, 4, 1);
 	if ( !strncmp( file_id, "NFSP", 4 ) ) {
 		con_printf(CON_NORMAL, "File %s is not a font file\n", fontname );
 		return NULL;
 	}
 
-	datasize = cfile_read_int(fontfile);
+	datasize = PHYSFSX_readInt(fontfile);
 	datasize -= GRS_FONT_SIZE; // subtract the size of the header.
 
 	MALLOC(font, grs_font, 1);
 	grs_font_read(font, fontfile);
 
 	MALLOC(font_data, char, datasize);
-	cfread(font_data, 1, datasize, fontfile);
+	PHYSFS_read(fontfile, font_data, 1, datasize);
 
 	open_font[fontnum].ptr = font;
 	open_font[fontnum].dataptr = font_data;
@@ -1065,7 +1064,7 @@ grs_font * gr_init_font( char * fontname )
 		ubyte colormap[256];
 		int freq[256];
 
-		cfread(palette,3,256,fontfile);		//read the palette
+		PHYSFS_read(fontfile,palette,3,256);		//read the palette
 
 		build_colormap_good( (ubyte *)&palette, colormap, freq );
 
@@ -1075,7 +1074,7 @@ grs_font * gr_init_font( char * fontname )
 
 	}
 
-	cfclose(fontfile);
+	PHYSFS_close(fontfile);
 
 	//set curcanv vars
 
@@ -1095,7 +1094,7 @@ void gr_remap_font( grs_font *font, char * fontname, char *font_data )
 {
 	int i;
 	int nchars;
-	CFILE *fontfile;
+	PHYSFS_file *fontfile;
 	char file_id[4];
 	int datasize;        //size up to (but not including) palette
 	unsigned char *ptr;
@@ -1103,22 +1102,22 @@ void gr_remap_font( grs_font *font, char * fontname, char *font_data )
 	if (! (font->ft_flags & FT_COLOR))
 		return;
 
-	fontfile = cfopen(fontname, "rb");
+	fontfile = PHYSFSX_openReadBuffered(fontname);
 
 	if (!fontfile)
 		Error( "Can't open font file %s", fontname );
 
-	cfread(file_id, 4, 1, fontfile);
+	PHYSFS_read(fontfile, file_id, 4, 1);
 	if ( !strncmp( file_id, "NFSP", 4 ) )
 		Error( "File %s is not a font file", fontname );
 
-	datasize = cfile_read_int(fontfile);
+	datasize = PHYSFSX_readInt(fontfile);
 	datasize -= GRS_FONT_SIZE; // subtract the size of the header.
 
 	d_free(font->ft_chars);
 	grs_font_read(font, fontfile); // have to reread in case mission hogfile overrides font.
 
-	cfread(font_data, 1, datasize, fontfile);  //read raw data
+	PHYSFS_read(fontfile, font_data, 1, datasize);  //read raw data
 
 	// make these offsets relative to font_data
 	font->ft_data = (ubyte *)((size_t)font->ft_data - GRS_FONT_SIZE);
@@ -1161,7 +1160,7 @@ void gr_remap_font( grs_font *font, char * fontname, char *font_data )
 		ubyte colormap[256];
 		int freq[256];
 
-		cfread(palette,3,256,fontfile);		//read the palette
+		PHYSFS_read(fontfile,palette,3,256);		//read the palette
 
 		build_colormap_good( (ubyte *)&palette, colormap, freq );
 
@@ -1171,7 +1170,7 @@ void gr_remap_font( grs_font *font, char * fontname, char *font_data )
 
 	}
 
-	cfclose(fontfile);
+	PHYSFS_close(fontfile);
 
 #ifdef OGL
 	if (font->ft_bitmaps)

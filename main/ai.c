@@ -1691,9 +1691,9 @@ void ai_local_read_n_swap(ai_local *ail, int n, int swap, PHYSFS_file *fp)
 		for (j = 0; j < MAX_SUBMODELS; j++)
 			PHYSFSX_readAngleVecX(fp, &ail->delta_angles[j], swap);
 		for (j = 0; j < MAX_SUBMODELS; j++)
-			ail->goal_state[j] = cfile_read_byte(fp);
+			ail->goal_state[j] = PHYSFSX_readByte(fp);
 		for (j = 0; j < MAX_SUBMODELS; j++)
-			ail->achieved_state[j] = cfile_read_byte(fp);
+			ail->achieved_state[j] = PHYSFSX_readByte(fp);
 	}
 }
 

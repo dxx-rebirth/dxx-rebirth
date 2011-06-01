@@ -38,7 +38,6 @@ COPYRIGHT 1993-1999 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 #include "multi.h"
 #endif
 #include "iff.h"
-#include "cfile.h"
 #include "powerup.h"
 #include "sounds.h"
 #include "piggy.h"
@@ -89,37 +88,37 @@ bitmap_index    ObjBitmaps[MAX_OBJ_BITMAPS];
 ushort          ObjBitmapPtrs[MAX_OBJ_BITMAPS];     // These point back into ObjBitmaps, since some are used twice.
 
 /*
- * reads n tmap_info structs from a CFILE
+ * reads n tmap_info structs from a PHYSFS_file
  */
-int tmap_info_read_n(tmap_info *ti, int n, CFILE *fp)
+int tmap_info_read_n(tmap_info *ti, int n, PHYSFS_file *fp)
 {
 	int i;
 
 	for (i = 0; i < n; i++) {
-		ti[i].flags = cfile_read_byte(fp);
-		ti[i].pad[0] = cfile_read_byte(fp);
-		ti[i].pad[1] = cfile_read_byte(fp);
-		ti[i].pad[2] = cfile_read_byte(fp);
-		ti[i].lighting = cfile_read_fix(fp);
-		ti[i].damage = cfile_read_fix(fp);
-		ti[i].eclip_num = cfile_read_short(fp);
-		ti[i].destroyed = cfile_read_short(fp);
-		ti[i].slide_u = cfile_read_short(fp);
-		ti[i].slide_v = cfile_read_short(fp);
+		ti[i].flags = PHYSFSX_readByte(fp);
+		ti[i].pad[0] = PHYSFSX_readByte(fp);
+		ti[i].pad[1] = PHYSFSX_readByte(fp);
+		ti[i].pad[2] = PHYSFSX_readByte(fp);
+		ti[i].lighting = PHYSFSX_readFix(fp);
+		ti[i].damage = PHYSFSX_readFix(fp);
+		ti[i].eclip_num = PHYSFSX_readShort(fp);
+		ti[i].destroyed = PHYSFSX_readShort(fp);
+		ti[i].slide_u = PHYSFSX_readShort(fp);
+		ti[i].slide_v = PHYSFSX_readShort(fp);
 	}
 	return i;
 }
 
-int tmap_info_read_n_d1(tmap_info *ti, int n, CFILE *fp)
+int tmap_info_read_n_d1(tmap_info *ti, int n, PHYSFS_file *fp)
 {
 	int i;
 
 	for (i = 0; i < n; i++) {
-		cfseek(fp, 13, SEEK_CUR);// skip filename
-		ti[i].flags = cfile_read_byte(fp);
-		ti[i].lighting = cfile_read_fix(fp);
-		ti[i].damage = cfile_read_fix(fp);
-		ti[i].eclip_num = cfile_read_int(fp);
+		PHYSFSX_fseek(fp, 13, SEEK_CUR);// skip filename
+		ti[i].flags = PHYSFSX_readByte(fp);
+		ti[i].lighting = PHYSFSX_readFix(fp);
+		ti[i].damage = PHYSFSX_readFix(fp);
+		ti[i].eclip_num = PHYSFSX_readInt(fp);
 	}
 	return i;
 }
@@ -156,83 +155,83 @@ int gamedata_init()
 	return 0;
 }
 
-void bm_read_all(CFILE * fp)
+void bm_read_all(PHYSFS_file * fp)
 {
 	int i,t;
 
-	NumTextures = cfile_read_int(fp);
+	NumTextures = PHYSFSX_readInt(fp);
 	bitmap_index_read_n(Textures, NumTextures, fp );
 	tmap_info_read_n(TmapInfo, NumTextures, fp);
 
-	t = cfile_read_int(fp);
-	cfread( Sounds, sizeof(ubyte), t, fp );
-	cfread( AltSounds, sizeof(ubyte), t, fp );
+	t = PHYSFSX_readInt(fp);
+	PHYSFS_read( fp, Sounds, sizeof(ubyte), t );
+	PHYSFS_read( fp, AltSounds, sizeof(ubyte), t );
 
-	Num_vclips = cfile_read_int(fp);
+	Num_vclips = PHYSFSX_readInt(fp);
 	vclip_read_n(Vclip, Num_vclips, fp);
 
-	Num_effects = cfile_read_int(fp);
+	Num_effects = PHYSFSX_readInt(fp);
 	eclip_read_n(Effects, Num_effects, fp);
 
-	Num_wall_anims = cfile_read_int(fp);
+	Num_wall_anims = PHYSFSX_readInt(fp);
 	wclip_read_n(WallAnims, Num_wall_anims, fp);
 
-	N_robot_types = cfile_read_int(fp);
+	N_robot_types = PHYSFSX_readInt(fp);
 	robot_info_read_n(Robot_info, N_robot_types, fp);
 
-	N_robot_joints = cfile_read_int(fp);
+	N_robot_joints = PHYSFSX_readInt(fp);
 	jointpos_read_n(Robot_joints, N_robot_joints, fp);
 
-	N_weapon_types = cfile_read_int(fp);
+	N_weapon_types = PHYSFSX_readInt(fp);
 	weapon_info_read_n(Weapon_info, N_weapon_types, fp, Piggy_hamfile_version);
 
-	N_powerup_types = cfile_read_int(fp);
+	N_powerup_types = PHYSFSX_readInt(fp);
 	powerup_type_info_read_n(Powerup_info, N_powerup_types, fp);
 
-	N_polygon_models = cfile_read_int(fp);
+	N_polygon_models = PHYSFSX_readInt(fp);
 	polymodel_read_n(Polygon_models, N_polygon_models, fp);
 
 	for (i=0; i<N_polygon_models; i++ )
 		polygon_model_data_read(&Polygon_models[i], fp);
 
 	for (i = 0; i < N_polygon_models; i++)
-		Dying_modelnums[i] = cfile_read_int(fp);
+		Dying_modelnums[i] = PHYSFSX_readInt(fp);
 	for (i = 0; i < N_polygon_models; i++)
-		Dead_modelnums[i] = cfile_read_int(fp);
+		Dead_modelnums[i] = PHYSFSX_readInt(fp);
 
-	t = cfile_read_int(fp);
+	t = PHYSFSX_readInt(fp);
 	bitmap_index_read_n(Gauges, t, fp);
 	bitmap_index_read_n(Gauges_hires, t, fp);
 
-	N_ObjBitmaps = cfile_read_int(fp);
+	N_ObjBitmaps = PHYSFSX_readInt(fp);
 	bitmap_index_read_n(ObjBitmaps, N_ObjBitmaps, fp);
 	for (i = 0; i < N_ObjBitmaps; i++)
-		ObjBitmapPtrs[i] = cfile_read_short(fp);
+		ObjBitmapPtrs[i] = PHYSFSX_readShort(fp);
 
 	player_ship_read(&only_player_ship, fp);
 
-	Num_cockpits = cfile_read_int(fp);
+	Num_cockpits = PHYSFSX_readInt(fp);
 	bitmap_index_read_n(cockpit_bitmap, Num_cockpits, fp);
 
-//@@	cfread( &Num_total_object_types, sizeof(int), 1, fp );
-//@@	cfread( ObjType, sizeof(byte), Num_total_object_types, fp );
-//@@	cfread( ObjId, sizeof(byte), Num_total_object_types, fp );
-//@@	cfread( ObjStrength, sizeof(fix), Num_total_object_types, fp );
+//@@	PHYSFS_read( fp, &Num_total_object_types, sizeof(int), 1 );
+//@@	PHYSFS_read( fp, ObjType, sizeof(byte), Num_total_object_types );
+//@@	PHYSFS_read( fp, ObjId, sizeof(byte), Num_total_object_types );
+//@@	PHYSFS_read( fp, ObjStrength, sizeof(fix), Num_total_object_types );
 
-	First_multi_bitmap_num = cfile_read_int(fp);
+	First_multi_bitmap_num = PHYSFSX_readInt(fp);
 
-	Num_reactors = cfile_read_int(fp);
+	Num_reactors = PHYSFSX_readInt(fp);
 	reactor_read_n(Reactors, Num_reactors, fp);
 
-	Marker_model_num = cfile_read_int(fp);
+	Marker_model_num = PHYSFSX_readInt(fp);
 
-	//@@cfread( &N_controlcen_guns, sizeof(int), 1, fp );
-	//@@cfread( controlcen_gun_points, sizeof(vms_vector), N_controlcen_guns, fp );
-	//@@cfread( controlcen_gun_dirs, sizeof(vms_vector), N_controlcen_guns, fp );
+	//@@PHYSFS_read( fp, &N_controlcen_guns, sizeof(int), 1 );
+	//@@PHYSFS_read( fp, controlcen_gun_points, sizeof(vms_vector), N_controlcen_guns );
+	//@@PHYSFS_read( fp, controlcen_gun_dirs, sizeof(vms_vector), N_controlcen_guns );
 
 	if (Piggy_hamfile_version < 3) {
-		exit_modelnum = cfile_read_int(fp);
-		destroyed_exit_modelnum = cfile_read_int(fp);
+		exit_modelnum = PHYSFSX_readInt(fp);
+		destroyed_exit_modelnum = PHYSFSX_readInt(fp);
 	}
 	else
 		exit_modelnum = destroyed_exit_modelnum = N_polygon_models;
@@ -276,19 +275,19 @@ void bm_free_extra_models()
 //type==1 means 1.1, type==2 means 1.2 (with weapons)
 void bm_read_extra_robots(char *fname,int type)
 {
-	CFILE *fp;
+	PHYSFS_file *fp;
 	int t,i;
 	int version;
 
-	fp = cfopen(fname,"rb");
+	fp = PHYSFSX_openReadBuffered(fname);
 
 	if (type == 2) {
 		int sig;
 
-		sig = cfile_read_int(fp);
+		sig = PHYSFSX_readInt(fp);
 		if (sig != MAKE_SIG('X','H','A','M'))
 			return;
-		version = cfile_read_int(fp);
+		version = PHYSFSX_readInt(fp);
 	}
 	else
 		version = 0;
@@ -298,7 +297,7 @@ void bm_read_extra_robots(char *fname,int type)
 
 	//read extra weapons
 
-	t = cfile_read_int(fp);
+	t = PHYSFSX_readInt(fp);
 	N_weapon_types = N_D2_WEAPON_TYPES+t;
 	if (N_weapon_types >= MAX_WEAPON_TYPES)
 		Error("Too many weapons (%d) in <%s>.  Max is %d.",t,fname,MAX_WEAPON_TYPES-N_D2_WEAPON_TYPES);
@@ -306,19 +305,19 @@ void bm_read_extra_robots(char *fname,int type)
 
 	//now read robot info
 
-	t = cfile_read_int(fp);
+	t = PHYSFSX_readInt(fp);
 	N_robot_types = N_D2_ROBOT_TYPES+t;
 	if (N_robot_types >= MAX_ROBOT_TYPES)
 		Error("Too many robots (%d) in <%s>.  Max is %d.",t,fname,MAX_ROBOT_TYPES-N_D2_ROBOT_TYPES);
 	robot_info_read_n(&Robot_info[N_D2_ROBOT_TYPES], t, fp);
 
-	t = cfile_read_int(fp);
+	t = PHYSFSX_readInt(fp);
 	N_robot_joints = N_D2_ROBOT_JOINTS+t;
 	if (N_robot_joints >= MAX_ROBOT_JOINTS)
 		Error("Too many robot joints (%d) in <%s>.  Max is %d.",t,fname,MAX_ROBOT_JOINTS-N_D2_ROBOT_JOINTS);
 	jointpos_read_n(&Robot_joints[N_D2_ROBOT_JOINTS], t, fp);
 
-	t = cfile_read_int(fp);
+	t = PHYSFSX_readInt(fp);
 	N_polygon_models = N_D2_POLYGON_MODELS+t;
 	if (N_polygon_models >= MAX_POLYGON_MODELS)
 		Error("Too many polygon models (%d) in <%s>.  Max is %d.",t,fname,MAX_POLYGON_MODELS-N_D2_POLYGON_MODELS);
@@ -328,67 +327,67 @@ void bm_read_extra_robots(char *fname,int type)
 		polygon_model_data_read(&Polygon_models[i], fp);
 
 	for (i = N_D2_POLYGON_MODELS; i < N_polygon_models; i++)
-		Dying_modelnums[i] = cfile_read_int(fp);
+		Dying_modelnums[i] = PHYSFSX_readInt(fp);
 	for (i = N_D2_POLYGON_MODELS; i < N_polygon_models; i++)
-		Dead_modelnums[i] = cfile_read_int(fp);
+		Dead_modelnums[i] = PHYSFSX_readInt(fp);
 
-	t = cfile_read_int(fp);
+	t = PHYSFSX_readInt(fp);
 	if (N_D2_OBJBITMAPS+t >= MAX_OBJ_BITMAPS)
 		Error("Too many object bitmaps (%d) in <%s>.  Max is %d.",t,fname,MAX_OBJ_BITMAPS-N_D2_OBJBITMAPS);
 	bitmap_index_read_n(&ObjBitmaps[N_D2_OBJBITMAPS], t, fp);
 
-	t = cfile_read_int(fp);
+	t = PHYSFSX_readInt(fp);
 	if (N_D2_OBJBITMAPPTRS+t >= MAX_OBJ_BITMAPS)
 		Error("Too many object bitmap pointers (%d) in <%s>.  Max is %d.",t,fname,MAX_OBJ_BITMAPS-N_D2_OBJBITMAPPTRS);
 	for (i = N_D2_OBJBITMAPPTRS; i < (N_D2_OBJBITMAPPTRS + t); i++)
-		ObjBitmapPtrs[i] = cfile_read_short(fp);
+		ObjBitmapPtrs[i] = PHYSFSX_readShort(fp);
 
-	cfclose(fp);
+	PHYSFS_close(fp);
 }
 
 int Robot_replacements_loaded = 0;
 
 void load_robot_replacements(char *level_name)
 {
-	CFILE *fp;
+	PHYSFS_file *fp;
 	int t,i,j;
 	char ifile_name[FILENAME_LEN];
 
 	change_filename_extension(ifile_name, level_name, ".HXM" );
 
-	fp = cfopen(ifile_name,"rb");
+	fp = PHYSFSX_openReadBuffered(ifile_name);
 
 	if (!fp)		//no robot replacement file
 		return;
 
-	t = cfile_read_int(fp);			//read id "HXM!"
+	t = PHYSFSX_readInt(fp);			//read id "HXM!"
 	if (t!= 0x21584d48)
 		Error("ID of HXM! file incorrect");
 
-	t = cfile_read_int(fp);			//read version
+	t = PHYSFSX_readInt(fp);			//read version
 	if (t<1)
 		Error("HXM! version too old (%d)",t);
 
-	t = cfile_read_int(fp);			//read number of robots
+	t = PHYSFSX_readInt(fp);			//read number of robots
 	for (j=0;j<t;j++) {
-		i = cfile_read_int(fp);		//read robot number
+		i = PHYSFSX_readInt(fp);		//read robot number
 		if (i<0 || i>=N_robot_types)
 			Error("Robots number (%d) out of range in (%s).  Range = [0..%d].",i,level_name,N_robot_types-1);
 		robot_info_read_n(&Robot_info[i], 1, fp);
 	}
 
-	t = cfile_read_int(fp);			//read number of joints
+	t = PHYSFSX_readInt(fp);			//read number of joints
 	for (j=0;j<t;j++) {
-		i = cfile_read_int(fp);		//read joint number
+		i = PHYSFSX_readInt(fp);		//read joint number
 		if (i<0 || i>=N_robot_joints)
 			Error("Robots joint (%d) out of range in (%s).  Range = [0..%d].",i,level_name,N_robot_joints-1);
 		jointpos_read_n(&Robot_joints[i], 1, fp);
 	}
 
-	t = cfile_read_int(fp);			//read number of polygon models
+	t = PHYSFSX_readInt(fp);			//read number of polygon models
 	for (j=0;j<t;j++)
 	{
-		i = cfile_read_int(fp);		//read model number
+		i = PHYSFSX_readInt(fp);		//read model number
 		if (i<0 || i>=N_polygon_models)
 			Error("Polygon model (%d) out of range in (%s).  Range = [0..%d].",i,level_name,N_polygon_models-1);
 
@@ -396,27 +395,27 @@ void load_robot_replacements(char *level_name)
 		polymodel_read(&Polygon_models[i], fp);
 		polygon_model_data_read(&Polygon_models[i], fp);
 
-		Dying_modelnums[i] = cfile_read_int(fp);
-		Dead_modelnums[i] = cfile_read_int(fp);
+		Dying_modelnums[i] = PHYSFSX_readInt(fp);
+		Dead_modelnums[i] = PHYSFSX_readInt(fp);
 	}
 
-	t = cfile_read_int(fp);			//read number of objbitmaps
+	t = PHYSFSX_readInt(fp);			//read number of objbitmaps
 	for (j=0;j<t;j++) {
-		i = cfile_read_int(fp);		//read objbitmap number
+		i = PHYSFSX_readInt(fp);		//read objbitmap number
 		if (i<0 || i>=MAX_OBJ_BITMAPS)
 			Error("Object bitmap number (%d) out of range in (%s).  Range = [0..%d].",i,level_name,MAX_OBJ_BITMAPS-1);
 		bitmap_index_read(&ObjBitmaps[i], fp);
 	}
 
-	t = cfile_read_int(fp);			//read number of objbitmapptrs
+	t = PHYSFSX_readInt(fp);			//read number of objbitmapptrs
 	for (j=0;j<t;j++) {
-		i = cfile_read_int(fp);		//read objbitmapptr number
+		i = PHYSFSX_readInt(fp);		//read objbitmapptr number
 		if (i<0 || i>=MAX_OBJ_BITMAPS)
 			Error("Object bitmap pointer (%d) out of range in (%s).  Range = [0..%d].",i,level_name,MAX_OBJ_BITMAPS-1);
-		ObjBitmapPtrs[i] = cfile_read_short(fp);
+		ObjBitmapPtrs[i] = PHYSFSX_readShort(fp);
 	}
 
-	cfclose(fp);
+	PHYSFS_close(fp);
 	Robot_replacements_loaded = 1;
 }
 
@@ -495,7 +494,7 @@ void ogl_cache_polymodel_textures(int model_num);
 
 int load_exit_models()
 {
-	CFILE *exit_hamfile;
+	PHYSFS_file *exit_hamfile;
 	int start_num;
 
 	bm_free_extra_models();
@@ -527,9 +526,9 @@ int load_exit_models()
 
 		polygon_model_data_read(&Polygon_models[destroyed_exit_modelnum], exit_hamfile);
 
-		cfclose(exit_hamfile);
+		PHYSFS_close(exit_hamfile);
 
-	} else if (cfexist("exit01.pof") && cfexist("exit01d.pof")) {
+	} else if (PHYSFSX_exists("exit01.pof",1) && PHYSFSX_exists("exit01d.pof",1)) {
 
 		exit_modelnum = load_polygon_model("exit01.pof", 3, start_num, NULL);
 		destroyed_exit_modelnum = load_polygon_model("exit01d.pof", 3, start_num + 3, NULL);
@@ -539,13 +538,13 @@ int load_exit_models()
 		ogl_cache_polymodel_textures(destroyed_exit_modelnum);
 #endif
 	}
-	else if (cfexist(D1_PIGFILE))
+	else if (PHYSFSX_exists(D1_PIGFILE,1))
 	{
 		int offset, offset2;
 		int hamsize;
 
-		exit_hamfile = cfopen(D1_PIGFILE, "rb");
-		hamsize = cfilelength(exit_hamfile);
+		exit_hamfile = PHYSFSX_openReadBuffered(D1_PIGFILE);
+		hamsize = PHYSFS_fileLength(exit_hamfile);
 		switch (hamsize) { //total hack for loading models
 		case D1_PIGSIZE:
 			offset = 91848;     /* and 92582  */
@@ -564,7 +563,7 @@ int load_exit_models()
 			con_printf(CON_NORMAL, "Can't load exit models!\n");
 			return 0;
 		}
-		cfseek(exit_hamfile, offset, SEEK_SET);
+		PHYSFSX_fseek(exit_hamfile, offset, SEEK_SET);
 		exit_modelnum = N_polygon_models++;
 		destroyed_exit_modelnum = N_polygon_models++;
 		polymodel_read(&Polygon_models[exit_modelnum], exit_hamfile);
@@ -572,11 +571,11 @@ int load_exit_models()
 		Polygon_models[exit_modelnum].first_texture = start_num;
 		Polygon_models[destroyed_exit_modelnum].first_texture = start_num+3;
 
-		cfseek(exit_hamfile, offset2, SEEK_SET);
+		PHYSFSX_fseek(exit_hamfile, offset2, SEEK_SET);
 		polygon_model_data_read(&Polygon_models[exit_modelnum], exit_hamfile);
 		polygon_model_data_read(&Polygon_models[destroyed_exit_modelnum], exit_hamfile);
 
-		cfclose(exit_hamfile);
+		PHYSFS_close(exit_hamfile);
 	} else {
 		con_printf(CON_NORMAL, "Can't load exit models!\n");
 		return 0;

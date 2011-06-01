@@ -20,9 +20,9 @@ COPYRIGHT 1993-1999 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 #ifndef _GAME_H
 #define _GAME_H
 
+#include "physfsx.h"
 #include "pstypes.h"
 #include "window.h"
-#include "cfile.h"
 #include "vecmat.h"
 
 #ifdef NDEBUG
@@ -234,9 +234,9 @@ int add_flicker(int segnum, int sidenum, fix delay, unsigned long mask);
 int gr_toggle_fullscreen(void);
 
 /*
- * reads a flickering_light structure from a CFILE
+ * reads a flickering_light structure from a PHYSFS_file
  */
-void flickering_light_read(flickering_light *fl, CFILE *fp);
+void flickering_light_read(flickering_light *fl, PHYSFS_file *fp);
 
 void flickering_light_write(flickering_light *fl, PHYSFS_file *fp);
 

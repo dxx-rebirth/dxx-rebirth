@@ -70,7 +70,7 @@ int read_m3u(void)
 	if (!abspath)
 		return 0;
 	
-	if (PHYSFS_exists(GameCfg.CMLevelMusicPath)) // it's a child of Sharepath, build full path
+	if (PHYSFSX_exists(GameCfg.CMLevelMusicPath,0)) // it's a child of Sharepath, build full path
 		PHYSFSX_getRealPath(GameCfg.CMLevelMusicPath, abspath);
 	else
 	{

@@ -198,9 +198,9 @@ extern player Players[MAX_PLAYERS+4];   // Misc player info
 extern player_ship *Player_ship;
 
 /*
- * reads a player_ship structure from a CFILE
+ * reads a player_ship structure from a PHYSFS_file
  */
-void player_ship_read(player_ship *ps, CFILE *fp);
+void player_ship_read(player_ship *ps, PHYSFS_file *fp);
 
 void player_rw_swap(player_rw *p, int swap);
 

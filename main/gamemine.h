@@ -119,8 +119,8 @@ int game_load_mine(char * filename);
 
 // loads from an already-open file
 // returns 0=everything ok, 1=old version, -1=error
-int load_mine_data(CFILE *LoadFile);
-int load_mine_data_compiled(CFILE *LoadFile);
+int load_mine_data(PHYSFS_file *LoadFile);
+int load_mine_data_compiled(PHYSFS_file *LoadFile);
 
 extern short tmap_xlate_table[];
 extern fix Level_shake_frequency, Level_shake_duration;

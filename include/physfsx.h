@@ -116,6 +116,80 @@ static inline int PHYSFSX_putc(PHYSFS_file *file, int c)
 		return (int)c;
 }
 
+static inline int PHYSFSX_fgetc(PHYSFS_file *const fp)
+{
+	unsigned char c;
+
+	if (PHYSFS_read(fp, &c, 1, 1) != 1)
+		return EOF;
+
+	return c;
+}
+
+static inline int PHYSFSX_fseek(PHYSFS_file *fp, long int offset, int where)
+{
+	int c, goal_position;
+
+	switch(where)
+	{
+	case SEEK_SET:
+		goal_position = offset;
+		break;
+	case SEEK_CUR:
+		goal_position = PHYSFS_tell(fp) + offset;
+		break;
+	case SEEK_END:
+		goal_position = PHYSFS_fileLength(fp) + offset;
+		break;
+	default:
+		return 1;
+	}
+	c = PHYSFS_seek(fp, goal_position);
+	return !c;
+}
+
+static inline char * PHYSFSX_fgets(char *buf, size_t n, PHYSFS_file *const fp)
+{
+	size_t i;
+	int c;
+
+	for (i = 0; i < n - 1; i++)
+	{
+		do
+		{
+			c = PHYSFSX_fgetc(fp);
+			if (c == EOF)
+			{
+				*buf = 0;
+
+				return NULL;
+			}
+			if (c == 0 || c == 10)  // Unix line ending
+				break;
+			if (c == 13)            // Mac or DOS line ending
+			{
+				int c1;
+
+				c1 = PHYSFSX_fgetc(fp);
+				if (c1 != EOF)  // The file could end with a Mac line ending
+					PHYSFSX_fseek(fp, -1, SEEK_CUR);
+				if (c1 == 10) // DOS line ending
+					continue;
+				else            // Mac line ending
+					break;
+			}
+		} while (c == 13);
+		if (c == 13)    // because cr-lf is a bad thing on the mac
+			c = '\n';   // and anyway -- 0xod is CR on mac, not 0x0a
+		if (c == '\n')
+			break;
+		*buf++ = c;
+	}
+	*buf = 0;
+
+	return buf;
+}
+
 static inline int PHYSFSX_printf(PHYSFS_file *file, char *format, ...)
 {
 	char buffer[1024];
@@ -160,6 +234,95 @@ static inline int PHYSFSX_writeMatrix(PHYSFS_file *file, vms_matrix *m)
 	return 1;
 }
 
+static inline int PHYSFSX_readInt(PHYSFS_file *file)
+{
+	int i;
+
+	if (!PHYSFS_readSLE32(file, &i))
+	{
+		Error("Error reading int in PHYSFSX_readInt()");
+		exit(1);
+	}
+
+	return i;
+}
+
+static inline short PHYSFSX_readShort(PHYSFS_file *file)
+{
+	int16_t s;
+
+	if (!PHYSFS_readSLE16(file, &s))
+	{
+		Error("Error reading short in PHYSFSX_readShort()");
+		exit(1);
+	}
+
+	return s;
+}
+
+static inline sbyte PHYSFSX_readByte(PHYSFS_file *file)
+{
+	sbyte b;
+
+	if (PHYSFS_read(file, &b, sizeof(b), 1) != 1)
+	{
+		Error("Error reading byte in PHYSFSX_readByte()");
+		exit(1);
+	}
+
+	return b;
+}
+
+static inline fix PHYSFSX_readFix(PHYSFS_file *file)
+{
+	int f;  // a fix is defined as a long for Mac OS 9, and MPW can't convert from (long *) to (int *)
+
+	if (!PHYSFS_readSLE32(file, &f))
+	{
+		Error("Error reading fix in PHYSFSX_readFix()");
+		exit(1);
+	}
+
+	return f;
+}
+
+static inline fixang PHYSFSX_readFixAng(PHYSFS_file *file)
+{
+	fixang f;
+
+	if (!PHYSFS_readSLE16(file, &f))
+	{
+		Error("Error reading fixang in PHYSFSX_readFixAng()");
+		exit(1);
+	}
+
+	return f;
+}
+
+static inline void PHYSFSX_readVector(vms_vector *v, PHYSFS_file *file)
+{
+	v->x = PHYSFSX_readFix(file);
+	v->y = PHYSFSX_readFix(file);
+	v->z = PHYSFSX_readFix(file);
+}
+
+static inline void PHYSFSX_readAngleVec(vms_angvec *v, PHYSFS_file *file)
+{
+	v->p = PHYSFSX_readFixAng(file);
+	v->b = PHYSFSX_readFixAng(file);
+	v->h = PHYSFSX_readFixAng(file);
+}
+
+static inline void PHYSFSX_readMatrix(vms_matrix *m,PHYSFS_file *file)
+{
+	PHYSFSX_readVector(&m->rvec,file);
+	PHYSFSX_readVector(&m->uvec,file);
+	PHYSFSX_readVector(&m->fvec,file);
+}
+
+extern int PHYSFSX_contfile_init(char *hogname, int add_to_end);
+extern int PHYSFSX_contfile_close(char *hogname);
+extern int PHYSFSX_fsize(char *hogname);
 extern void PHYSFSX_listSearchPathContent();
 extern int PHYSFSX_checkSupportedArchiveTypes();
 extern int PHYSFSX_getRealPath(const char *stdPath, char *realPath);
@@ -168,6 +331,7 @@ extern int PHYSFSX_rename(char *oldpath, char *newpath);
 extern char **PHYSFSX_findFiles(char *path, char **exts);
 extern char **PHYSFSX_findabsoluteFiles(char *path, char *realpath, char **exts);
 extern PHYSFS_sint64 PHYSFSX_getFreeDiskSpace();
+extern int PHYSFSX_exists(const char *filename, int ignorecase);
 extern PHYSFS_file *PHYSFSX_openReadBuffered(char *filename);
 extern PHYSFS_file *PHYSFSX_openWriteBuffered(char *filename);
 extern void PHYSFSX_addArchiveContent();

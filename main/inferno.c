@@ -29,6 +29,7 @@ char copyright[] = "DESCENT II  COPYRIGHT (C) 1994-1996 PARALLAX SOFTWARE CORPOR
 #include <stdlib.h>
 #include <string.h>
 #include <limits.h>
+#include <SDL/SDL.h>
 
 #ifdef __unix__
 #include <unistd.h>
@@ -74,7 +75,6 @@ char copyright[] = "DESCENT II  COPYRIGHT (C) 1994-1996 PARALLAX SOFTWARE CORPOR
 #include "config.h"
 #include "multi.h"
 #include "songs.h"
-#include "cfile.h"
 #include "gameseq.h"
 #include "gamepal.h"
 #include "mission.h"
@@ -89,15 +89,11 @@ char copyright[] = "DESCENT II  COPYRIGHT (C) 1994-1996 PARALLAX SOFTWARE CORPOR
 #ifndef __LINUX__
 #include "messagebox.h"
 #endif
-
 #ifdef EDITOR
 #include "editor/editor.h"
 #include "editor/kdefs.h"
 #include "ui.h"
 #endif
-
-#include <SDL/SDL.h>
-
 #include "vers_id.h"
 
 //Current version number
@@ -340,8 +336,8 @@ int main(int argc, char *argv[])
 	if (!PHYSFSX_checkSupportedArchiveTypes())
 		return(0);
 
-	if (! cfile_init("descent2.hog", 1)) {
-		if (! cfile_init("d2demo.hog", 1))
+	if (! PHYSFSX_contfile_init("descent2.hog", 1)) {
+		if (! PHYSFSX_contfile_init("d2demo.hog", 1))
 		{
 			Error("Could not find a valid hog file (descent2.hog or d2demo.hog)\nPossible locations are:\n"
 #if defined(__unix__) && !defined(__APPLE__)
@@ -365,7 +361,7 @@ int main(int argc, char *argv[])
 	#if 1	//def VERSION_NAME
 	con_printf(CON_NORMAL, "  %s", DESCENT_VERSION);	// D2X version
 	#endif
-	if (cfexist(MISSION_DIR "d2x.hog")) {
+	if (PHYSFSX_exists(MISSION_DIR "d2x.hog",1)) {
 		con_printf(CON_NORMAL, "  Vertigo Enhanced");
 	}
 
@@ -456,7 +452,7 @@ int main(int argc, char *argv[])
 			}
 			if(!strstr(filename,".plr")) // if player hasn't specified .plr extension in argument, add it
 				strcat(filename,".plr");
-			if(cfexist(filename))
+			if(PHYSFSX_exists(filename,0))
 			{
 				strcpy(strstr(filename,".plr"),"\0");
 				strcpy(Players[Player_num].callsign, GameArg.SysUsePlayersDir? &filename[8] : filename);

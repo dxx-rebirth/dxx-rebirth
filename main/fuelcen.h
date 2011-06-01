@@ -151,25 +151,25 @@ extern fix EnergyToCreateOneRobot;
 void fuelcen_check_for_hoard_goal(segment *segp);
 
 /*
- * reads an old_matcen_info structure from a CFILE
+ * reads an old_matcen_info structure from a PHYSFS_file
  */
-void old_matcen_info_read(old_matcen_info *mi, CFILE *fp);
+void old_matcen_info_read(old_matcen_info *mi, PHYSFS_file *fp);
 
 /*
- * reads a matcen_info structure from a CFILE
+ * reads a matcen_info structure from a PHYSFS_file
  */
-void matcen_info_read(matcen_info *ps, CFILE *fp);
+void matcen_info_read(matcen_info *ps, PHYSFS_file *fp);
 
 /*
- * reads n matcen_info structs from a CFILE and swaps if specified
+ * reads n matcen_info structs from a PHYSFS_file and swaps if specified
  */
-void matcen_info_read_n_swap(matcen_info *mi, int n, int swap, CFILE *fp);
+void matcen_info_read_n_swap(matcen_info *mi, int n, int swap, PHYSFS_file *fp);
 
 void matcen_info_write(matcen_info *mi, short version, PHYSFS_file *fp);
 
 /*
- * reads n Station structs from a CFILE and swaps if specified
+ * reads n Station structs from a PHYSFS_file and swaps if specified
  */
-void fuelcen_read_n_swap(FuelCenter *fc, int n, int swap, CFILE *fp);
+void fuelcen_read_n_swap(FuelCenter *fc, int n, int swap, PHYSFS_file *fp);
 
 #endif

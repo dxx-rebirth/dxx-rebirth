@@ -25,9 +25,7 @@ COPYRIGHT 1993-1998 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 #include "grdef.h"
 #include "u_mem.h"
 #include "pcx.h"
-#include "cfile.h"
 #include "physfsx.h"
-
 #ifdef OGL
 #include "palette.h"
 #endif
@@ -57,45 +55,45 @@ typedef struct {
 #define PCXHEADER_SIZE 128
 
 /*
- * reads n PCXHeader structs from a CFILE
+ * reads n PCXHeader structs from a PHYSFS_file
  */
-int PCXHeader_read_n(PCXHeader *ph, int n, CFILE *fp)
+int PCXHeader_read_n(PCXHeader *ph, int n, PHYSFS_file *fp)
 {
 	int i;
 
 	for (i = 0; i < n; i++) {
-		ph->Manufacturer = cfile_read_byte(fp);
-		ph->Version = cfile_read_byte(fp);
-		ph->Encoding = cfile_read_byte(fp);
-		ph->BitsPerPixel = cfile_read_byte(fp);
-		ph->Xmin = cfile_read_short(fp);
-		ph->Ymin = cfile_read_short(fp);
-		ph->Xmax = cfile_read_short(fp);
-		ph->Ymax = cfile_read_short(fp);
-		ph->Hdpi = cfile_read_short(fp);
-		ph->Vdpi = cfile_read_short(fp);
-		cfread(&ph->ColorMap, 16*3, 1, fp);
-		ph->Reserved = cfile_read_byte(fp);
-		ph->Nplanes = cfile_read_byte(fp);
-		ph->BytesPerLine = cfile_read_short(fp);
-		cfread(&ph->filler, 60, 1, fp);
+		ph->Manufacturer = PHYSFSX_readByte(fp);
+		ph->Version = PHYSFSX_readByte(fp);
+		ph->Encoding = PHYSFSX_readByte(fp);
+		ph->BitsPerPixel = PHYSFSX_readByte(fp);
+		ph->Xmin = PHYSFSX_readShort(fp);
+		ph->Ymin = PHYSFSX_readShort(fp);
+		ph->Xmax = PHYSFSX_readShort(fp);
+		ph->Ymax = PHYSFSX_readShort(fp);
+		ph->Hdpi = PHYSFSX_readShort(fp);
+		ph->Vdpi = PHYSFSX_readShort(fp);
+		PHYSFS_read(fp, &ph->ColorMap, 16*3, 1);
+		ph->Reserved = PHYSFSX_readByte(fp);
+		ph->Nplanes = PHYSFSX_readByte(fp);
+		ph->BytesPerLine = PHYSFSX_readShort(fp);
+		PHYSFS_read(fp, &ph->filler, 60, 1);
 	}
 	return i;
 }
 
 int pcx_get_dimensions( char *filename, int *width, int *height)
 {
-	CFILE *PCXfile;
+	PHYSFS_file *PCXfile;
 	PCXHeader header;
 
-	PCXfile = cfopen(filename, "rb");
+	PCXfile = PHYSFSX_openReadBuffered(filename);
 	if (!PCXfile) return PCX_ERROR_OPENING;
 
 	if (PCXHeader_read_n(&header, 1, PCXfile) != 1) {
-		cfclose(PCXfile);
+		PHYSFS_close(PCXfile);
 		return PCX_ERROR_NO_HEADER;
 	}
-	cfclose(PCXfile);
+	PHYSFS_close(PCXfile);
 
 	*width = header.Xmax - header.Xmin+1;
 	*height = header.Ymax - header.Ymin+1;
@@ -106,23 +104,23 @@ int pcx_get_dimensions( char *filename, int *width, int *height)
 int pcx_read_bitmap( char * filename, grs_bitmap * bmp,int bitmap_type ,ubyte * palette )
 {
 	PCXHeader header;
-	CFILE * PCXfile;
+	PHYSFS_file * PCXfile;
 	int i, row, col, count, xsize, ysize;
 	ubyte data, *pixdata;
 
-	PCXfile = cfopen( filename , "rb" );
+	PCXfile = PHYSFSX_openReadBuffered( filename );
 	if ( !PCXfile )
 		return PCX_ERROR_OPENING;
 
 	// read 128 char PCX header
 	if (PCXHeader_read_n( &header, 1, PCXfile )!=1) {
-		cfclose( PCXfile );
+		PHYSFS_close( PCXfile );
 		return PCX_ERROR_NO_HEADER;
 	}
 
 	// Is it a 256 color PCX file?
 	if ((header.Manufacturer != 10)||(header.Encoding != 1)||(header.Nplanes != 1)||(header.BitsPerPixel != 8)||(header.Version != 5))	{
-		cfclose( PCXfile );
+		PHYSFS_close( PCXfile );
 		return PCX_ERROR_WRONG_VERSION;
 	}
 
@@ -140,14 +138,14 @@ int pcx_read_bitmap( char * filename, grs_bitmap * bmp,int bitmap_type ,ubyte * 
 		for (row=0; row< ysize ; row++)      {
 			pixdata = &bmp->bm_data[bmp->bm_rowsize*row];
 			for (col=0; col< xsize ; )      {
-				if (cfread( &data, 1, 1, PCXfile )!=1 )	{
-					cfclose( PCXfile );
+				if (PHYSFS_read( PCXfile, &data, 1, 1 )!=1 )	{
+					PHYSFS_close( PCXfile );
 					return PCX_ERROR_READING;
 				}
 				if ((data & 0xC0) == 0xC0)     {
 					count =  data & 0x3F;
-					if (cfread( &data, 1, 1, PCXfile )!=1 )	{
-						cfclose( PCXfile );
+					if (PHYSFS_read( PCXfile, &data, 1, 1 )!=1 )	{
+						PHYSFS_close( PCXfile );
 						return PCX_ERROR_READING;
 					}
 					memset( pixdata, data, count );
@@ -162,14 +160,14 @@ int pcx_read_bitmap( char * filename, grs_bitmap * bmp,int bitmap_type ,ubyte * 
 	} else {
 		for (row=0; row< ysize ; row++)      {
 			for (col=0; col< xsize ; )      {
-				if (cfread( &data, 1, 1, PCXfile )!=1 )	{
-					cfclose( PCXfile );
+				if (PHYSFS_read( PCXfile, &data, 1, 1 )!=1 )	{
+					PHYSFS_close( PCXfile );
 					return PCX_ERROR_READING;
 				}
 				if ((data & 0xC0) == 0xC0)     {
 					count =  data & 0x3F;
-					if (cfread( &data, 1, 1, PCXfile )!=1 )	{
-						cfclose( PCXfile );
+					if (PHYSFS_read( PCXfile, &data, 1, 1 )!=1 )	{
+						PHYSFS_close( PCXfile );
 						return PCX_ERROR_READING;
 					}
 					for (i=0;i<count;i++)
@@ -186,21 +184,21 @@ int pcx_read_bitmap( char * filename, grs_bitmap * bmp,int bitmap_type ,ubyte * 
 	// Read the extended palette at the end of PCX file
 	if ( palette != NULL )	{
 		// Read in a character which should be 12 to be extended palette file
-		if (cfread( &data, 1, 1, PCXfile )==1)	{
+		if (PHYSFS_read( PCXfile, &data, 1, 1 )==1)	{
 			if ( data == 12 )	{
-				if (cfread(palette,768, 1, PCXfile)!=1)	{
-					cfclose( PCXfile );
+				if (PHYSFS_read(PCXfile, palette,768, 1)!=1)	{
+					PHYSFS_close( PCXfile );
 					return PCX_ERROR_READING;
 				}
 				for (i=0; i<768; i++ )
 					palette[i] >>= 2;
 			}
 		} else {
-			cfclose( PCXfile );
+			PHYSFS_close( PCXfile );
 			return PCX_ERROR_NO_PALETTE;
 		}
 	}
-	cfclose(PCXfile);
+	PHYSFS_close(PCXfile);
 	return PCX_ERROR_NONE;
 }
 

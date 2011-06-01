@@ -21,11 +21,11 @@ COPYRIGHT 1993-1998 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 #include <stdio.h>
 #include <string.h>
 
+#include "physfsx.h"
 #include "pstypes.h"
 #include "u_mem.h"
 #include "gr.h"
 #include "grdef.h"
-#include "cfile.h"
 #include "error.h"
 #include "fix.h"
 #include "palette.h"
@@ -79,20 +79,20 @@ void gr_copy_palette(ubyte *gr_palette, ubyte *pal, int size)
 
 void gr_use_palette_table( char * filename )
 {
-	CFILE *fp;
+	PHYSFS_file *fp;
 	int i,fsize;
 #ifdef SWAP_0_255
 	ubyte c;
 #endif
 
-	fp = cfopen( filename, "rb" );
+	fp = PHYSFSX_openReadBuffered( filename );
 
 	// the following is a hack to enable the loading of d2 levels
 	// even if only the d2 mac shareware datafiles are present.
 	// However, if the pig file is present but the palette file isn't,
 	// the textures in the level will look wierd...
 	if ( fp==NULL)
-		fp = cfopen( DEFAULT_LEVEL_PALETTE, "rb" );
+		fp = PHYSFSX_openReadBuffered( DEFAULT_LEVEL_PALETTE );
 	if ( fp==NULL)
 		Error("Can open neither palette file <%s> "
 		      "nor default palette file <"
@@ -100,11 +100,11 @@ void gr_use_palette_table( char * filename )
 		      ">.\n",
 		      filename);
 
-	fsize	= cfilelength( fp );
+	fsize	= PHYSFS_fileLength( fp );
 	Assert( fsize == 9472 );
-	cfread( gr_palette, 256*3, 1, fp );
-	cfread( gr_fade_table, 256*34, 1, fp );
-	cfclose(fp);
+	PHYSFS_read( fp, gr_palette, 256*3, 1 );
+	PHYSFS_read( fp, gr_fade_table, 256*34, 1 );
+	PHYSFS_close(fp);
 
 	// This is the TRANSPARENCY COLOR
 	for (i=0; i<GR_FADE_LEVELS; i++ )	{

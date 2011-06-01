@@ -22,7 +22,6 @@ COPYRIGHT 1993-1999 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 
 #include "vecmat.h"
 #include "game.h"
-#include "cfile.h"
 
 #define MAX_GUNS 8      //should be multiple of 4 for ubyte array
 
@@ -177,13 +176,13 @@ void calc_gun_point(vms_vector *gun_point,struct object *obj,int gun_num);
 extern int robot_get_anim_state(jointpos **jp_list_ptr,int robot_type,int gun_num,int state);
 
 /*
- * reads n robot_info structs from a CFILE
+ * reads n robot_info structs from a PHYSFS_file
  */
-extern int robot_info_read_n(robot_info *ri, int n, CFILE *fp);
+extern int robot_info_read_n(robot_info *ri, int n, PHYSFS_file *fp);
 
 /*
- * reads n jointpos structs from a CFILE
+ * reads n jointpos structs from a PHYSFS_file
  */
-extern int jointpos_read_n(jointpos *jp, int n, CFILE *fp);
+extern int jointpos_read_n(jointpos *jp, int n, PHYSFS_file *fp);
 
 #endif

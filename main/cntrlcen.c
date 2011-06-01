@@ -499,37 +499,37 @@ void special_reactor_stuff(void)
 }
 
 /*
- * reads n reactor structs from a CFILE
+ * reads n reactor structs from a PHYSFS_file
  */
-extern int reactor_read_n(reactor *r, int n, CFILE *fp)
+extern int reactor_read_n(reactor *r, int n, PHYSFS_file *fp)
 {
 	int i, j;
 
 	for (i = 0; i < n; i++) {
-		r[i].model_num = cfile_read_int(fp);
-		r[i].n_guns = cfile_read_int(fp);
+		r[i].model_num = PHYSFSX_readInt(fp);
+		r[i].n_guns = PHYSFSX_readInt(fp);
 		for (j = 0; j < MAX_CONTROLCEN_GUNS; j++)
-			cfile_read_vector(&(r[i].gun_points[j]), fp);
+			PHYSFSX_readVector(&(r[i].gun_points[j]), fp);
 		for (j = 0; j < MAX_CONTROLCEN_GUNS; j++)
-			cfile_read_vector(&(r[i].gun_dirs[j]), fp);
+			PHYSFSX_readVector(&(r[i].gun_dirs[j]), fp);
 	}
 	return i;
 }
 
 /*
- * reads a control_center_triggers structure from a CFILE
+ * reads a control_center_triggers structure from a PHYSFS_file
  */
-extern int control_center_triggers_read_n(control_center_triggers *cct, int n, CFILE *fp)
+extern int control_center_triggers_read_n(control_center_triggers *cct, int n, PHYSFS_file *fp)
 {
 	int i, j;
 
 	for (i = 0; i < n; i++)
 	{
-		cct->num_links = cfile_read_short(fp);
+		cct->num_links = PHYSFSX_readShort(fp);
 		for (j = 0; j < MAX_CONTROLCEN_LINKS; j++)
-			cct->seg[j] = cfile_read_short(fp);
+			cct->seg[j] = PHYSFSX_readShort(fp);
 		for (j = 0; j < MAX_CONTROLCEN_LINKS; j++)
-			cct->side[j] = cfile_read_short(fp);
+			cct->side[j] = PHYSFSX_readShort(fp);
 	}
 	return i;
 }
@@ -549,9 +549,9 @@ void control_center_triggers_swap(control_center_triggers *cct, int swap)
 }
 
 /*
- * reads n control_center_triggers structs from a CFILE and swaps if specified
+ * reads n control_center_triggers structs from a PHYSFS_file and swaps if specified
  */
-void control_center_triggers_read_n_swap(control_center_triggers *cct, int n, int swap, CFILE *fp)
+void control_center_triggers_read_n_swap(control_center_triggers *cct, int n, int swap, PHYSFS_file *fp)
 {
 	int i;
 	

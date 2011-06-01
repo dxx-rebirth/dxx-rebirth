@@ -24,7 +24,6 @@ COPYRIGHT 1993-1999 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 #include "gr.h"
 #include "object.h"
 #include "piggy.h"
-#include "cfile.h"
 
 #define VCLIP_SMALL_EXPLOSION       2
 #define VCLIP_PLAYER_HIT            1
@@ -60,8 +59,8 @@ void draw_vclip_object(object *obj, fix timeleft, int lighted, int vclip_num);
 extern void draw_weapon_vclip(object *obj);
 
 /*
- * reads n vclip structs from a CFILE
+ * reads n vclip structs from a PHYSFS_file
  */
-extern int vclip_read_n(vclip *vc, int n, CFILE *fp);
+extern int vclip_read_n(vclip *vc, int n, PHYSFS_file *fp);
 
 #endif /* _VCLIP_H */

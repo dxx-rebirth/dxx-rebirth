@@ -1169,7 +1169,7 @@ int med_save_group( char *filename, short *vertex_ids, short *segment_ids, int n
 	group_fileinfo.texture_offset    =   texture_offset;
 	
 	// Write the fileinfo
-	cfseek(  SaveFile, 0, SEEK_SET );  // Move to TOF
+	PHYSFSX_fseek(  SaveFile, 0, SEEK_SET );  // Move to TOF
 	PHYSFS_write( SaveFile, &group_fileinfo, sizeof(group_fileinfo), 1);
 
 	//==================== CLOSE THE FILE =============================
@@ -1194,9 +1194,9 @@ int med_load_group( char *filename, short *vertex_ids, short *segment_ids, int *
 	int i, j; 
 	segment tseg;
    vms_vector tvert;
-	CFILE * LoadFile;
+	PHYSFS_file * LoadFile;
 
-	LoadFile = cfopen( filename, CF_READ_MODE );
+	LoadFile = PHYSFSX_openReadBuffered( filename );
 	if (!LoadFile)
 	{
 		sprintf( ErrorMessage, "ERROR: Unable to open %s\n", filename );
@@ -1224,10 +1224,10 @@ int med_load_group( char *filename, short *vertex_ids, short *segment_ids, int *
 
 	// Read in group_top_fileinfo to get size of saved fileinfo.
 
-	if (cfseek( LoadFile, 0, SEEK_SET ))
+	if (PHYSFSX_fseek( LoadFile, 0, SEEK_SET ))
 		Error( "Error seeking to 0 in group.c" );
 
-	if (cfread( &group_top_fileinfo, sizeof(group_top_fileinfo),1,LoadFile )!=1)
+	if (PHYSFS_read( LoadFile, &group_top_fileinfo, sizeof(group_top_fileinfo),1 )!=1)
 		Error( "Error reading top_fileinfo in group.c" );
 
 	// Check version number
@@ -1240,7 +1240,7 @@ int med_load_group( char *filename, short *vertex_ids, short *segment_ids, int *
 
 		if (MessageBox( -2, -2, 2, ErrorMessage, "Forget it", "Try anyway" )==1)
 		{
-			cfclose( LoadFile );
+			PHYSFS_close( LoadFile );
 			return 1;
 		}
 
@@ -1249,10 +1249,10 @@ int med_load_group( char *filename, short *vertex_ids, short *segment_ids, int *
 
 	// Now, Read in the fileinfo
 
-	if (cfseek( LoadFile, 0, SEEK_SET ))
+	if (PHYSFSX_fseek( LoadFile, 0, SEEK_SET ))
 		Error( "Error seeking to 0b in group.c" );
 
-	if (cfread( &group_fileinfo, group_top_fileinfo.fileinfo_sizeof,1,LoadFile )!=1)
+	if (PHYSFS_read( LoadFile, &group_fileinfo, group_top_fileinfo.fileinfo_sizeof,1 )!=1)
 		Error( "Error reading group_fileinfo in group.c" );
 
 	//===================== READ HEADER INFO ========================
@@ -1263,10 +1263,10 @@ int med_load_group( char *filename, short *vertex_ids, short *segment_ids, int *
 
 	if (group_fileinfo.header_offset > -1 )
 	{
-		if (cfseek( LoadFile,group_fileinfo.header_offset, SEEK_SET ))
+		if (PHYSFSX_fseek( LoadFile,group_fileinfo.header_offset, SEEK_SET ))
 			Error( "Error seeking to header_offset in group.c" );
 
-		if (cfread( &group_header, group_fileinfo.header_size,1,LoadFile )!=1)
+		if (PHYSFS_read( LoadFile, &group_header, group_fileinfo.header_size,1 )!=1)
 			Error( "Error reading group_header in group.c" );
 	}
 
@@ -1281,10 +1281,10 @@ int med_load_group( char *filename, short *vertex_ids, short *segment_ids, int *
 
 	if (group_fileinfo.editor_offset > -1 )
 	{
-		if (cfseek( LoadFile,group_fileinfo.editor_offset, SEEK_SET ))
+		if (PHYSFSX_fseek( LoadFile,group_fileinfo.editor_offset, SEEK_SET ))
 			Error( "Error seeking to editor_offset in group.c" );
 
-		if (cfread( &group_editor, group_fileinfo.editor_size,1,LoadFile )!=1)
+		if (PHYSFS_read( LoadFile, &group_editor, group_fileinfo.editor_size,1 )!=1)
 			Error( "Error reading group_editor in group.c" );
 
 	}
@@ -1293,12 +1293,12 @@ int med_load_group( char *filename, short *vertex_ids, short *segment_ids, int *
 
 	if ( (group_fileinfo.vertex_offset > -1) && (group_fileinfo.vertex_howmany > 0))
 	{
-		if (cfseek( LoadFile,group_fileinfo.vertex_offset, SEEK_SET ))
+		if (PHYSFSX_fseek( LoadFile,group_fileinfo.vertex_offset, SEEK_SET ))
 			Error( "Error seeking to vertex_offset in group.c" );
 
 			for (i=0;i<group_header.num_vertices;i++) {
 
-				if (cfread( &tvert, sizeof(tvert),1,LoadFile )!=1)
+				if (PHYSFS_read( LoadFile, &tvert, sizeof(tvert),1 )!=1)
 					Error( "Error reading tvert in group.c" );
 				vertex_ids[i] = med_create_duplicate_vertex( &tvert ); 
 			}
@@ -1309,11 +1309,11 @@ int med_load_group( char *filename, short *vertex_ids, short *segment_ids, int *
 
 	if ( (group_fileinfo.segment_offset > -1) && (group_fileinfo.segment_howmany > 0))
 	{
-		if (cfseek( LoadFile,group_fileinfo.segment_offset, SEEK_SET ))
+		if (PHYSFSX_fseek( LoadFile,group_fileinfo.segment_offset, SEEK_SET ))
 			Error( "Error seeking to segment_offset in group.c" );
 
 		for (i=0;i<group_header.num_segments;i++) {
-			if (cfread( &tseg, sizeof(segment),1,LoadFile )!=1)
+			if (PHYSFS_read( LoadFile, &tseg, sizeof(segment),1 )!=1)
 				Error( "Error reading tseg in group.c" );
 				
 			segment_ids[i] = get_free_segment_number();
@@ -1355,12 +1355,12 @@ int med_load_group( char *filename, short *vertex_ids, short *segment_ids, int *
 
 	if ( (group_fileinfo.texture_offset > -1) && (group_fileinfo.texture_howmany > 0))
 	{
-		if (cfseek( LoadFile, group_fileinfo.texture_offset, SEEK_SET ))
+		if (PHYSFSX_fseek( LoadFile, group_fileinfo.texture_offset, SEEK_SET ))
 			Error( "Error seeking to texture_offset in gamemine.c" );
 
 		for (i=0; i< group_fileinfo.texture_howmany; i++ )
 		{
-			if (cfread( &old_tmap_list[i], group_fileinfo.texture_sizeof, 1, LoadFile )!=1)
+			if (PHYSFS_read( LoadFile, &old_tmap_list[i], group_fileinfo.texture_sizeof, 1 )!=1)
 				Error( "Error reading old_tmap_list[i] in gamemine.c" );
 		}
 	}
@@ -1401,7 +1401,7 @@ int med_load_group( char *filename, short *vertex_ids, short *segment_ids, int *
 
 
 	//======================== CLOSE FILE ==============================
-	cfclose( LoadFile );
+	PHYSFS_close( LoadFile );
 
 	//========================= UPDATE VARIABLES ======================
 

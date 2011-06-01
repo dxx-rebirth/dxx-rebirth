@@ -671,17 +671,17 @@ int do_powerup(object *obj)
 }
 
 /*
- * reads n powerup_type_info structs from a CFILE
+ * reads n powerup_type_info structs from a PHYSFS_file
  */
-extern int powerup_type_info_read_n(powerup_type_info *pti, int n, CFILE *fp)
+extern int powerup_type_info_read_n(powerup_type_info *pti, int n, PHYSFS_file *fp)
 {
 	int i;
 
 	for (i = 0; i < n; i++) {
-		pti[i].vclip_num = cfile_read_int(fp);
-		pti[i].hit_sound = cfile_read_int(fp);
-		pti[i].size = cfile_read_fix(fp);
-		pti[i].light = cfile_read_fix(fp);
+		pti[i].vclip_num = PHYSFSX_readInt(fp);
+		pti[i].hit_sound = PHYSFSX_readInt(fp);
+		pti[i].size = PHYSFSX_readFix(fp);
+		pti[i].light = PHYSFSX_readFix(fp);
 	}
 	return i;
 }
