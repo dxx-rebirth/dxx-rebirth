@@ -471,6 +471,7 @@ void calc_frame_time()
 	fix64 timer_value;
 	fix last_frametime = FrameTime;
 
+	timer_update();
 	timer_value = timer_query();
 	FrameTime = timer_value - last_timer_value;
 
