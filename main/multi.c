@@ -2245,7 +2245,8 @@ void multi_reset_object_texture (object *objp)
 	if (id == 0)
 		objp->rtype.pobj_info.alt_textures=0;
 	else {
-		Assert(N_PLAYER_SHIP_TEXTURES == Polygon_models[objp->rtype.pobj_info.model_num].n_textures);
+		if (N_PLAYER_SHIP_TEXTURES < Polygon_models[objp->rtype.pobj_info.model_num].n_textures)
+			Error("Too many player ship textures!\n");
 
 		for (i=0;i<N_PLAYER_SHIP_TEXTURES;i++)
 			multi_player_textures[id-1][i] = ObjBitmaps[ObjBitmapPtrs[Polygon_models[objp->rtype.pobj_info.model_num].first_texture+i]];

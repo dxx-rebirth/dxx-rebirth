@@ -4,6 +4,7 @@ D1X-Rebirth Changelog
 --------
 main/lighting.c: Since set_dynamic_light() is not necessarily processed each frame, added own counter for delayed precession of vertex-clight calculation; Added possibility to page in a bitmap in case an object which has never been rendered before is supposed to cast light visible by the player 
 main/sounds.h, main/weapon.c: Fix weapon selection sounds fpr pc shareware and do not allow selecting weapons not available in this content (i.e. if obtained by cheat)
+main/multi.c: for flexibility in terms of modding, allow player ship textures in Multiplayer be <= N_PLAYER_SHIP_TEXTURES and not hit Assert but pull out Eroor if there are more
 
 20110601
 --------
