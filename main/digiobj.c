@@ -88,6 +88,10 @@ int digi_xlat_sound(int soundno)
 			return -1;
 	}
 
+	// HACK: Sound table in PC Shareware is incomplete. Instead of defining exceptions all over our code just bail out here and play no sound instead
+	if (is_SHAREWARE && Sounds[soundno] == 255)
+		return -1;
+
 	Assert(Sounds[soundno] != 255);	//if hit this, probably using undefined sound
 
 	return Sounds[soundno];

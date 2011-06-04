@@ -792,7 +792,7 @@ int read_hamfile()
 		{
 			GameArg.GfxHiresGFXAvailable = 0;
 			//GameArg.GfxHiresFNTAvailable = 0;		// fonts are in the hog
-			GameArg.SysLowMem = 1;
+			//GameArg.SysLowMem = 1;
 		}
 	}
 
