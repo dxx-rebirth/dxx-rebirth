@@ -46,6 +46,7 @@ COPYRIGHT 1993-1999 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 
 int	Do_dynamic_light=1;
 //int	Use_fvi_lighting = 0;
+static int light_frame_count = 0;
 g3s_lrgb Dynamic_light[MAX_VERTICES];
 
 #define	LIGHTING_CACHE_SIZE	4096	//	Must be power of 2!
@@ -70,7 +71,7 @@ int lighting_cache_visible(int vertnum, int segnum, int objnum, vms_vector *obj_
 	cache_vis = cache_val & 1;
 
 Cache_lookups++;
-	if ((cache_frame == 0) || (cache_frame + Lighting_frame_delta <= FrameCount)) {
+	if ((cache_frame == 0) || (cache_frame + Lighting_frame_delta <= light_frame_count)) {
 		int			apply_light=0;
 		fvi_query	fq;
 		fvi_info		hit_data;
@@ -112,7 +113,7 @@ Cache_lookups++;
 				// -- Int3();	//	Curious, did fvi detect intersection with wall containing vertex?
 			}
 		}
-		Lighting_cache[((segnum << LIGHTING_CACHE_SHIFT) ^ vertnum) & (LIGHTING_CACHE_SIZE-1)] = apply_light + (FrameCount << 1);
+		Lighting_cache[((segnum << LIGHTING_CACHE_SHIFT) ^ vertnum) & (LIGHTING_CACHE_SIZE-1)] = apply_light + (light_frame_count << 1);
 		return apply_light;
 	} else {
 Cache_hits++;
@@ -143,7 +144,7 @@ void apply_light(g3s_lrgb obj_light_emission, int obj_seg, vms_vector *obj_pos, 
 				fix			dist;
 
 				vertnum = vp[vv];
-				if ((vertnum ^ FrameCount) & 1) {
+				if ((vertnum ^ light_frame_count) & 1) {
 					vertpos = &Vertices[vertnum];
 					dist = vm_vec_dist_quick(obj_pos, vertpos);
 					dist = fixmul(dist/4, dist/4);
@@ -161,7 +162,7 @@ void apply_light(g3s_lrgb obj_light_emission, int obj_seg, vms_vector *obj_pos, 
 			int	headlight_shift = 0;
 			fix	max_headlight_dist = F1_0*200;
 
-			// -- for (vv=FrameCount&1; vv<n_render_vertices; vv+=2) {
+			// -- for (vv=light_frame_count&1; vv<n_render_vertices; vv+=2) {
 			for (vv=0; vv<n_render_vertices; vv++) {
 				int			vertnum;
 				vms_vector	*vertpos;
@@ -169,7 +170,7 @@ void apply_light(g3s_lrgb obj_light_emission, int obj_seg, vms_vector *obj_pos, 
 				int			apply_light;
 
 				vertnum = render_vertices[vv];
-				if ((vertnum ^ FrameCount) & 1) {
+				if ((vertnum ^ light_frame_count) & 1) {
 					vertpos = &Vertices[vertnum];
 					dist = vm_vec_dist_quick(obj_pos, vertpos);
 					apply_light = 0;
@@ -431,6 +432,9 @@ g3s_lrgb compute_light_emission(int objnum)
 			for (i = t_idx_s; i <= t_idx_e; i++)
 			{
 				grs_bitmap *bm = &GameBitmaps[i];
+				bitmap_index bi;
+				bi.index = i;
+				PIGGY_PAGE_IN(bi);
 				obj_color.r += bm->avg_color_rgb[0];
 				obj_color.g += bm->avg_color_rgb[1];
 				obj_color.b += bm->avg_color_rgb[2];
@@ -466,6 +470,10 @@ void set_dynamic_light(void)
 	if (!Do_dynamic_light)
 		return;
 
+	light_frame_count++;
+	if (light_frame_count > F1_0)
+		light_frame_count = 0;
+
 	memset(render_vertex_flags, 0, Highest_vertex_index+1);
 
 	//	Create list of vertices that need to be looked at for setting of ambient light.
@@ -493,7 +501,7 @@ void set_dynamic_light(void)
 
 		vertnum = render_vertices[vv];
 		Assert(vertnum >= 0 && vertnum <= Highest_vertex_index);
-		if ((vertnum ^ FrameCount) & 1)
+		if ((vertnum ^ light_frame_count) & 1)
 			Dynamic_light[vertnum].r = Dynamic_light[vertnum].g = Dynamic_light[vertnum].b = 0;
 	}
 
