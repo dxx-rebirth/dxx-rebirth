@@ -206,6 +206,8 @@ int start_endlevel_movie()
 	//Assert(N_MOVIES >= Last_level);
 	//Assert(N_MOVIES_SECRET >= -Last_secret_level);
 
+	if (is_SHAREWARE)
+		return 0;
 	if (!is_D2_OEM)
 		if (Current_level_num == Last_level)
 			return 1;   //don't play movie
@@ -213,20 +215,12 @@ int start_endlevel_movie()
 	if (Current_level_num > 0)
 		movie_name[2] = movie_table[Current_level_num-1];
 	else {
-		#ifndef SHAREWARE
-			return 0;       //no escapes for secret level
-		#else
-			Error("Invalid level number <%d>",Current_level_num);
-		#endif
+		return 0;       //no escapes for secret level
 	}
 
 	memcpy(save_pal,gr_palette,768);
 
-	#ifndef SHAREWARE
-		r=PlayMovie(movie_name,(Game_mode & GM_MULTI)?0:MOVIE_REQUIRED);
-	#else
-		return	0;	// movie not played for shareware
-	#endif
+	r=PlayMovie(movie_name,(Game_mode & GM_MULTI)?0:MOVIE_REQUIRED);
 
 	if (Newdemo_state == ND_STATE_PLAYBACK) {
 		set_screen_mode(SCREEN_GAME);

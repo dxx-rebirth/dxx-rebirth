@@ -5,6 +5,7 @@ D2X-Rebirth Changelog
 main/lighting.c: Since set_dynamic_light() is not necessarily processed each frame, added own counter for delayed precession of vertex-clight calculation; Added possibility to page in a bitmap in case an object which has never been rendered before is supposed to cast light visible by the player 
 main/digiobj.c, main/piggy.c: Don't force AltSounds on PC-Shareware content but still must bail out on missing sounds using a small hack. Still gives a better sound palette than AltSounds
 main/titles.c: Play SONG_BRIEFING and SONG_ENDGAME on all non-builtin missions if available
+main/endlevel.c: Correctly handle PC Shareware for start_endlevel_movie() again without the defines but via is_SHAREWARE
 
 20110601
 --------
