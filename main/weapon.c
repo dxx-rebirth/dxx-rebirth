@@ -229,14 +229,14 @@ void do_weapon_select(int weapon_num, int secondary_flag)
 	char	*weapon_name;
 
 
-#ifdef SHAREWARE	// do special hud msg. for picking registered weapon in shareware version.
-	if (weapon_num >= NUM_SHAREWARE_WEAPONS) {
-		weapon_name = secondary_flag?SECONDARY_WEAPON_NAMES(weapon_num):PRIMARY_WEAPON_NAMES(weapon_num);
-		HUD_init_message(HM_DEFAULT, "%s %s!", weapon_name,TXT_NOT_IN_SHAREWARE);
-		digi_play_sample( SOUND_BAD_SELECTION, F1_0 );
-		return;
-	}
-#endif
+	// do special hud msg. for picking registered weapon in shareware version.
+	if (PCSharePig)
+		if (weapon_num >= NUM_SHAREWARE_WEAPONS) {
+			weapon_name = secondary_flag?SECONDARY_WEAPON_NAMES(weapon_num):PRIMARY_WEAPON_NAMES(weapon_num);
+			HUD_init_message(HM_DEFAULT, "%s %s!", weapon_name,TXT_NOT_IN_SHAREWARE);
+			digi_play_sample( SOUND_BAD_SELECTION, F1_0 );
+			return;
+		}
 
 	if (!secondary_flag) {
 
