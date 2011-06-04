@@ -6,6 +6,7 @@ main/lighting.c: Since set_dynamic_light() is not necessarily processed each fra
 main/digiobj.c, main/piggy.c: Don't force AltSounds on PC-Shareware content but still must bail out on missing sounds using a small hack. Still gives a better sound palette than AltSounds
 main/titles.c: Play SONG_BRIEFING and SONG_ENDGAME on all non-builtin missions if available
 main/endlevel.c: Correctly handle PC Shareware for start_endlevel_movie() again without the defines but via is_SHAREWARE
+main/digiobj.c: Just generally ignore missing sounds in digi_xlat_sound just like D1X-Rebirth - not limit to Shareware
 
 20110601
 --------
