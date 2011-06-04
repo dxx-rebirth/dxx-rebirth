@@ -7,6 +7,7 @@ main/digiobj.c, main/piggy.c: Don't force AltSounds on PC-Shareware content but 
 main/titles.c: Play SONG_BRIEFING and SONG_ENDGAME on all non-builtin missions if available
 main/endlevel.c: Correctly handle PC Shareware for start_endlevel_movie() again without the defines but via is_SHAREWARE
 main/digiobj.c: Just generally ignore missing sounds in digi_xlat_sound just like D1X-Rebirth - not limit to Shareware
+main/multi.c: for flexibility in terms of modding, allow player ship textures in Multiplayer be <= N_PLAYER_SHIP_TEXTURES and not hit Assert but pull out Eroor if there are more
 
 20110601
 --------
