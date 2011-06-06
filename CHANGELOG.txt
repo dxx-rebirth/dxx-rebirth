@@ -2,7 +2,7 @@ D2X-Rebirth Changelog
 
 20110606
 --------
-main/playsave.c: For all filename strings use PATH_MAX as size, make sure they are inited correctly and only fill them with snprintf instead of sprintf
+main/menu.c, main/playsave.c: For all filename strings use PATH_MAX as size, make sure they are inited correctly and only fill them with snprintf instead of sprintf
 
 20110604
 --------

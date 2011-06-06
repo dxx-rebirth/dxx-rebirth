@@ -172,7 +172,7 @@ char playername_allowed_chars[] = "azAZ09__--";
 int MakeNewPlayerFile(int allow_abort)
 {
 	int x;
-	char filename[14];
+	char filename[PATH_MAX];
 	newmenu_item m;
 	char text[CALLSIGN_LEN+9]="";
 
@@ -195,7 +195,8 @@ try_again:
 
 	strlwr(text);
 
-	sprintf( filename, GameArg.SysUsePlayersDir? "Players/%s.plr" : "%s.plr", text );
+	memset(filename, '\0', PATH_MAX);
+	snprintf( filename, PATH_MAX, GameArg.SysUsePlayersDir? "Players/%s.plr" : "%s.plr", text );
 
 	if (PHYSFSX_exists(filename,0))
 	{
