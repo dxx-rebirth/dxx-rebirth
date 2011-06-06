@@ -1,5 +1,9 @@
 D1X-Rebirth Changelog
 
+20110606
+--------
+main/playsave.c: For all filename strings use PATH_MAX as size, make sure they are inited correctly and only fill them with snprintf instead of sprintf
+
 20110604
 --------
 main/lighting.c: Since set_dynamic_light() is not necessarily processed each frame, added own counter for delayed precession of vertex-clight calculation; Added possibility to page in a bitmap in case an object which has never been rendered before is supposed to cast light visible by the player 

@@ -113,7 +113,7 @@ int read_player_d1x(char *filename)
 {
 	PHYSFS_file *f;
 	int rc = 0;
-	char line[60],*word;
+	char line[50],*word;
 	int Stop=0;
 
 	plyr_read_stats();
@@ -404,8 +404,9 @@ void plyr_read_stats_v(int *k, int *d){
 	PHYSFS_file *f;
 	
 	*k=0;*d=0;//in case the file doesn't exist.
-		
-	sprintf(filename,GameArg.SysUsePlayersDir?"Players/%s.eff":"%s.eff",Players[Player_num].callsign);
+
+	memset(filename, '\0', PATH_MAX);
+	snprintf(filename,PATH_MAX,GameArg.SysUsePlayersDir?"Players/%s.eff":"%s.eff",Players[Player_num].callsign);
 	f = PHYSFSX_openReadBuffered(filename);
 
 	if(f)
@@ -633,14 +634,15 @@ int write_player_d1x(char *filename)
 //read in the player's saved games.  returns errno (0 == no error)
 int read_player_file()
 {
-	char filename[32];
+	char filename[PATH_MAX];
 	PHYSFS_file *file;
 	int player_file_size, shareware_file = -1, id = 0;
 	short saved_game_version, player_struct_version;
 
 	Assert(Player_num>=0 && Player_num<MAX_PLAYERS);
 
-	sprintf(filename, GameArg.SysUsePlayersDir? "Players/%.8s.plr" : "%.8s.plr", Players[Player_num].callsign);
+	memset(filename, '\0', PATH_MAX);
+	snprintf(filename, PATH_MAX, GameArg.SysUsePlayersDir? "Players/%.8s.plr" : "%.8s.plr", Players[Player_num].callsign);
 	if (!PHYSFSX_exists(filename,0))
 		return ENOENT;
 
@@ -888,7 +890,7 @@ int get_highest_level(void)
 //write out player's saved games.  returns errno (0 == no error)
 int write_player_file()
 {
-	char filename[32];
+	char filename[PATH_MAX];
 	PHYSFS_file *file;
 	int errno_ret, i;
 
@@ -897,10 +899,11 @@ int write_player_file()
 
 	errno_ret = WriteConfigFile();
 
-        sprintf(filename, GameArg.SysUsePlayersDir? "Players/%.8s.plx" : "%.8s.plx", Players[Player_num].callsign);
+	memset(filename, '\0', PATH_MAX);
+        snprintf(filename, PATH_MAX, GameArg.SysUsePlayersDir? "Players/%.8s.plx" : "%.8s.plx", Players[Player_num].callsign);
 	write_player_d1x(filename);
 
-	sprintf(filename, GameArg.SysUsePlayersDir? "Players/%.8s.plr" : "%.8s.plr", Players[Player_num].callsign);
+	snprintf(filename, PATH_MAX, GameArg.SysUsePlayersDir? "Players/%.8s.plr" : "%.8s.plr", Players[Player_num].callsign);
 	file = PHYSFSX_openWriteBuffered(filename);
 
 	if (!file)
@@ -989,7 +992,7 @@ void read_netgame_profile(netgame_info *ng)
 	PHYSFS_file *file;
 
 	memset(filename, '\0', PATH_MAX);
-	sprintf(filename, GameArg.SysUsePlayersDir? "Players/%.8s.ngp" : "%.8s.ngp", Players[Player_num].callsign);
+	snprintf(filename, PATH_MAX, GameArg.SysUsePlayersDir? "Players/%.8s.ngp" : "%.8s.ngp", Players[Player_num].callsign);
 	if (!PHYSFSX_exists(filename,0))
 		return;
 
@@ -1063,7 +1066,7 @@ void write_netgame_profile(netgame_info *ng)
 	PHYSFS_file *file;
 
 	memset(filename, '\0', PATH_MAX);
-	sprintf(filename, GameArg.SysUsePlayersDir? "Players/%.8s.ngp" : "%.8s.ngp", Players[Player_num].callsign);
+	snprintf(filename, PATH_MAX, GameArg.SysUsePlayersDir? "Players/%.8s.ngp" : "%.8s.ngp", Players[Player_num].callsign);
 	file = PHYSFSX_openWriteBuffered(filename);
 
 	if (!file)
