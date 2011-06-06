@@ -417,9 +417,7 @@ int check_trigger_sub(int trigger_num, int pnum,int shot)
 			break;
 
 		case TT_SECRET_EXIT: {
-#ifndef SHAREWARE
 			int	truth;
-#endif
 
 			if (pnum!=Player_num)
 				break;
@@ -427,13 +425,18 @@ int check_trigger_sub(int trigger_num, int pnum,int shot)
 			if ((Players[Player_num].shields < 0) || Player_is_dead)
 				break;
 
+			if (is_SHAREWARE || is_MAC_SHARE) {
+				HUD_init_message(HM_DEFAULT, "Secret Level Teleporter disabled in Descent 2 Demo");
+				digi_play_sample( SOUND_BAD_SELECTION, F1_0 );
+				break;
+			}
+
 			if (Game_mode & GM_MULTI) {
 				HUD_init_message(HM_DEFAULT, "Secret Level Teleporter disabled in multiplayer!");
 				digi_play_sample( SOUND_BAD_SELECTION, F1_0 );
 				break;
 			}
 
-			#ifndef SHAREWARE
 			truth = p_secret_level_destroyed();
 
 			if (Newdemo_state == ND_STATE_RECORDING)			// record whether we're really going to the secret level
@@ -444,13 +447,6 @@ int check_trigger_sub(int trigger_num, int pnum,int shot)
 				digi_play_sample( SOUND_BAD_SELECTION, F1_0 );
 				break;
 			}
-			#endif
-
-			#ifdef SHAREWARE
-				HUD_init_message(HM_DEFAULT, "Secret Level Teleporter disabled in Descent 2 Demo");
-				digi_play_sample( SOUND_BAD_SELECTION, F1_0 );
-				break;
-			#endif
 
 			if (Newdemo_state == ND_STATE_RECORDING)		// stop demo recording
 				Newdemo_state = ND_STATE_PAUSED;
