@@ -1668,7 +1668,7 @@ done_list:
 void render_mine(int start_seg_num,fix eye_offset)
 {
 	int		nn;
-	fix64 dynlight_time = 0;
+	static fix64 dynlight_time = 0;
 
 //moved 9/2/98 by Victor Rachels to remove warning/unused var
 	#ifndef NDEBUG

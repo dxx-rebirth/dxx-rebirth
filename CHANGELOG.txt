@@ -1,5 +1,9 @@
 D1X-Rebirth Changelog
 
+20110607
+--------
+main/render.c: Definition of dynlight_time should have been static to archive timed light calculations
+
 20110606
 --------
 main/menu.c, main/playsave.c: For all filename strings use PATH_MAX as size, make sure they are inited correctly and only fill them with snprintf instead of sprintf
