@@ -1956,7 +1956,7 @@ void render_mine(int start_seg_num,fix eye_offset, int window_num)
 	int		i;
 #endif
 	int		nn;
-	fix64 dynlight_time = 0;
+	static fix64 dynlight_time = 0;
 
 	//	Initialize number of objects (actually, robots!) rendered this frame.
 	Window_rendered_data[window_num].num_objects = 0;

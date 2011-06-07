@@ -3,6 +3,7 @@ D2X-Rebirth Changelog
 20110607
 --------
 main/switch.c: Correctly disable secret levels for Shareware
+main/render.c: Definition of dynlight_time should have been static to archive timed light calculations
 
 20110606
 --------
