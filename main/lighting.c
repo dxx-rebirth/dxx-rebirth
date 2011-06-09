@@ -144,7 +144,7 @@ void apply_light(g3s_lrgb obj_light_emission, int obj_seg, vms_vector *obj_pos, 
 				fix			dist;
 
 				vertnum = vp[vv];
-				if ((vertnum ^ light_frame_count) & 1) {
+				if (/*(vertnum ^ light_frame_count) & */1) {
 					vertpos = &Vertices[vertnum];
 					dist = vm_vec_dist_quick(obj_pos, vertpos);
 					dist = fixmul(dist/4, dist/4);
@@ -170,7 +170,7 @@ void apply_light(g3s_lrgb obj_light_emission, int obj_seg, vms_vector *obj_pos, 
 				int			apply_light;
 
 				vertnum = render_vertices[vv];
-				if ((vertnum ^ light_frame_count) & 1) {
+				if (/*(vertnum ^ light_frame_count) & */1) {
 					vertpos = &Vertices[vertnum];
 					dist = vm_vec_dist_quick(obj_pos, vertpos);
 					apply_light = 0;
@@ -501,7 +501,7 @@ void set_dynamic_light(void)
 
 		vertnum = render_vertices[vv];
 		Assert(vertnum >= 0 && vertnum <= Highest_vertex_index);
-		if ((vertnum ^ light_frame_count) & 1)
+		if (/*(vertnum ^ light_frame_count) & */1)
 			Dynamic_light[vertnum].r = Dynamic_light[vertnum].g = Dynamic_light[vertnum].b = 0;
 	}
 

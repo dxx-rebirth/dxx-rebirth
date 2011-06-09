@@ -247,7 +247,6 @@ void render_face(int segnum, int sidenum, int nv, short *vp, int tmap1, int tmap
 
 		for (i=0;i<nv;i++)
 		{
-			float highval = 1.0;
 			//the uvl struct has static light already in it
 
 			//scale static light for destruction effect
@@ -272,23 +271,18 @@ void render_face(int segnum, int sidenum, int nv, short *vp, int tmap1, int tmap
 				else
 					dyn_light[i].r = dyn_light[i].g = dyn_light[i].b = fixmul(flash_scale,uvl_copy[i].l);
 			}
+
 			// add light color
 			dyn_light[i].r += Dynamic_light[vp[i]].r;
 			dyn_light[i].g += Dynamic_light[vp[i]].g;
 			dyn_light[i].b += Dynamic_light[vp[i]].b;
 			// saturate at max value
-			if (dyn_light[i].r/MAX_LIGHT > highval)
-				highval = dyn_light[i].r/MAX_LIGHT;
-			if (dyn_light[i].g/MAX_LIGHT > highval)
-				highval = dyn_light[i].g/MAX_LIGHT;
-			if (dyn_light[i].b/MAX_LIGHT > highval)
-				highval = dyn_light[i].b/MAX_LIGHT;
-			if (highval > 1.0)
-			{
-				dyn_light[i].r /= highval;
-				dyn_light[i].g /= highval;
-				dyn_light[i].b /= highval;
-			}
+			if (dyn_light[i].r > MAX_LIGHT)
+				dyn_light[i].r = MAX_LIGHT;
+			if (dyn_light[i].g > MAX_LIGHT)
+				dyn_light[i].g = MAX_LIGHT;
+			if (dyn_light[i].b > MAX_LIGHT)
+				dyn_light[i].b = MAX_LIGHT;
 		}
 	}
 
