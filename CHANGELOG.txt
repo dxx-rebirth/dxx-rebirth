@@ -1,5 +1,9 @@
 D2X-Rebirth Changelog
 
+20110609
+--------
+main/render.c: Saturate colored dynamic light just like normal one - makes the hwole thing a bit less colorful but makes for better balanced color mixing (theoretically) and does not reduce static light
+
 20110607
 --------
 main/switch.c: Correctly disable secret levels for Shareware
