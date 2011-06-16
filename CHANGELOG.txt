@@ -1,5 +1,9 @@
 D1X-Rebirth Changelog
 
+20110617
+--------
+main/physics.c: By using fixed distance bumping for fix_illegal_wall_intersection making the whole process much more reliable on sharp edges
+
 20110613
 --------
 main/sounds.h: Condition for sound sample number for SOUND_CHEATER was reversed between Shareware and Full Release content
