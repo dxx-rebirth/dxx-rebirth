@@ -301,18 +301,13 @@ void do_physics_sim_rot(object *obj)
 void fix_illegal_wall_intersection(object *obj, vms_vector *origin)
 {
 	int hseg = -1, hside = -1, hface = -1;
-	fix dist;
 
 	if (!(obj->type == OBJ_PLAYER || obj->type == OBJ_ROBOT))
 		return;
 
-	dist = vm_vec_dist(&obj->pos, origin);
-	if (dist <= 0 || dist > obj->size/2)
-		dist = FrameTime*10;
-
 	if ( object_intersects_wall_d(obj,&hseg,&hside,&hface) )
 	{
-		vm_vec_scale_add2(&obj->pos,&Segments[hseg].sides[hside].normals[0],dist);
+		vm_vec_scale_add2(&obj->pos,&Segments[hseg].sides[hside].normals[0],FrameTime*10);
 		update_object_seg(obj);
 	}
 }
