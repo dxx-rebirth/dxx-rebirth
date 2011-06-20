@@ -1,5 +1,9 @@
 D1X-Rebirth Changelog
 
+20110620
+--------
+main/lighting.c: in compute_light_emission() handle RT_NONE for delayed explosion fireballs
+
 20110617
 --------
 main/physics.c: By using fixed distance bumping for fix_illegal_wall_intersection making the whole process much more reliable on sharp edges

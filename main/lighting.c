@@ -381,6 +381,8 @@ g3s_lrgb compute_light_emission(int objnum)
 
 		switch (obj->render_type)
 		{
+			case RT_NONE:
+				break; // no object - no light
 			case RT_POLYOBJ:
 			{
 				polymodel *po = &Polygon_models[obj->rtype.pobj_info.model_num];
