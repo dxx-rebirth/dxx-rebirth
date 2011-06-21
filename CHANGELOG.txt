@@ -1,5 +1,9 @@
 D2X-Rebirth Changelog
 
+20110621
+--------
+misc/args.c: When GameArg.CtlNoStickyKeys was introduced I forgot to add an actual check if -nostickykeys was supplied - fixed now
+
 20110620
 --------
 main/lighting.c: in compute_light_emission() handle RT_NONE for delayed explosion fireballs
