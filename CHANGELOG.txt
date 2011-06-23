@@ -1,5 +1,9 @@
 D2X-Rebirth Changelog
 
+20110623
+--------
+main/hud.c: PlayerCfg.MultiMessages was supposed to only show messages of class HM_MULTI but turned out to only block HM_REDUNDANT, too. Fixed this copy/paste error of mine
+
 20110621
 --------
 misc/args.c: When GameArg.CtlNoStickyKeys was introduced I forgot to add an actual check if -nostickykeys was supplied - fixed now
