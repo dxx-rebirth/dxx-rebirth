@@ -190,7 +190,7 @@ int HUD_init_message(int class_flag, char * format, ... )
 	if (PlayerCfg.NoRedundancy && class_flag & HM_REDUNDANT)
 		return 0;
 
-	if (PlayerCfg.MultiMessages && Game_mode & GM_MULTI && class_flag & HM_REDUNDANT)
+	if (PlayerCfg.MultiMessages && Game_mode & GM_MULTI && !(class_flag & HM_MULTI))
 		return 0;
 
 	va_start(args, format);

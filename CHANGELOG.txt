@@ -1,5 +1,9 @@
 D1X-Rebirth Changelog
 
+20110623
+--------
+main/hud.c: PlayerCfg.MultiMessages was supposed to only show messages of class HM_MULTI but turned out to only block HM_REDUNDANT, too. Fixed this copy/paste error of mine
+
 20110620
 --------
 main/lighting.c: in compute_light_emission() handle RT_NONE for delayed explosion fireballs
