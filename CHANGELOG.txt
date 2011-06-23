@@ -3,6 +3,7 @@ D2X-Rebirth Changelog
 20110623
 --------
 main/hud.c: PlayerCfg.MultiMessages was supposed to only show messages of class HM_MULTI but turned out to only block HM_REDUNDANT, too. Fixed this copy/paste error of mine
+main/laser.c: For Hotshot and above made homing missiles turn to player a bit less agressive which is hardly noticable but slightly increases the chance to shake off a projective even if dodged without perfect timing. This makes possible to survive in case a player/bot shoots several homing projectiles in spread fashion
 
 20110621
 --------
