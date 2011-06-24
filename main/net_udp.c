@@ -2659,7 +2659,7 @@ void net_udp_process_packet(ubyte *data, struct _sockaddr sender_addr, int lengt
 			net_udp_read_sync_packet(data, length, sender_addr);
 			break;
 		case UPID_OBJECT_DATA:
-			if (multi_i_am_master() || length < UPID_MAX_SIZE || Network_status != NETSTAT_WAITING)
+			if (multi_i_am_master() || length > UPID_MAX_SIZE || Network_status != NETSTAT_WAITING)
 				break;
 			net_udp_read_object_packet(data);
 			break;
