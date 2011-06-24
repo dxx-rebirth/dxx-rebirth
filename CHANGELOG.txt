@@ -1,5 +1,9 @@
 D1X-Rebirth Changelog
 
+20110624
+--------
+main/net_udp.c: Fixed object sync for latecoming clients which was broken due to a very, very, VERY stupid mistake...
+
 20110623
 --------
 main/hud.c: PlayerCfg.MultiMessages was supposed to only show messages of class HM_MULTI but turned out to only block HM_REDUNDANT, too. Fixed this copy/paste error of mine
