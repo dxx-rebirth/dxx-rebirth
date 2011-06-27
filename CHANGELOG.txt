@@ -1,5 +1,9 @@
 D1X-Rebirth Changelog
 
+20110627
+--------
+main/switch.c: when entering secret level reset Control_center_destroyed when we start the level and not in between as it will break sending endlevel packets
+
 20110624
 --------
 main/net_udp.c: Fixed object sync for latecoming clients which was broken due to a very, very, VERY stupid mistake...
