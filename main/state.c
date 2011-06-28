@@ -587,7 +587,7 @@ int state_quick_item = -1;
 int state_get_savegame_filename(char * fname, char * dsc, char * caption, int blind_save)
 {
 	PHYSFS_file * fp;
-	int i, choice, version, dummy_state_game_id, nsaves;
+	int i, choice, version, nsaves;
 	newmenu_item m[NUM_SAVES+1];
 	char filename[NUM_SAVES][PATH_MAX];
 	char desc[NUM_SAVES][DESC_LENGTH + 16];
@@ -599,7 +599,7 @@ int state_get_savegame_filename(char * fname, char * dsc, char * caption, int bl
 	m[0].type = NM_TYPE_TEXT; m[0].text = "\n\n\n\n";
 	for (i=0;i<NUM_SAVES; i++ )	{
 		sc_bmp[i] = NULL;
-		sprintf( filename[i], GameArg.SysUsePlayersDir? "Players/%s.%sg%x" : "%s.%sg%x", Players[Player_num].callsign, (Game_mode & GM_MULTI_COOP)?"m":"s", i );
+		snprintf( filename[i], PATH_MAX, GameArg.SysUsePlayersDir? "Players/%s.%sg%x" : "%s.%sg%x", Players[Player_num].callsign, (Game_mode & GM_MULTI_COOP)?"m":"s", i );
 		valid = 0;
 		fp = PHYSFSX_openReadBuffered(filename[i]);
 		if ( fp ) {
@@ -611,7 +611,7 @@ int state_get_savegame_filename(char * fname, char * dsc, char * caption, int bl
 				// In case it's Coop, read state_game_id & callsign as well
 				if (Game_mode & GM_MULTI_COOP)
 				{
-					dummy_state_game_id = PHYSFSX_readSXE32(fp, 0);
+					PHYSFS_seek(fp, PHYSFS_tell(fp) + sizeof(PHYSFS_sint32)); // skip state_game_id
 					PHYSFS_read(fp, &dummy_callsign, sizeof(char)*CALLSIGN_LEN+1, 1);
 				}
 				if ((version >= STATE_COMPATIBLE_VERSION) || (SWAPINT(version) >= STATE_COMPATIBLE_VERSION)) {
@@ -813,6 +813,7 @@ int state_save_all(int secret_save, char *filename_override, int blind_save)
 			{
 				rval = copy_file(SECRETC_FILENAME, temp_fname);
 				Assert(rval == 0);	//	Oops, error copying secret.sgc to temp_fname!
+				(void)rval;
 			}
 		}
 	}
@@ -835,6 +836,7 @@ int state_save_all_sub(char *filename, char *desc)
 	PHYSFS_file *fp;
 	grs_canvas * cnv;
 	ubyte *pal;
+	char mission_filename[9];
 #ifdef OGL
 	GLint gl_draw_buffer;
 #endif
@@ -921,7 +923,9 @@ int state_save_all_sub(char *filename, char *desc)
 	PHYSFS_write(fp, &i, sizeof(int), 1);
 
 // Save the mission info...
-	PHYSFS_write(fp, Current_mission_filename, 9 * sizeof(char), 1);
+	memset(&mission_filename, '\0', 9);
+	snprintf(mission_filename, 9, "%s", Current_mission_filename); // Current_mission_filename is not necessarily 9 bytes long so for saving we use a proper string - preventing corruptions
+	PHYSFS_write(fp, &mission_filename, 9 * sizeof(char), 1);
 
 //Save level info
 	PHYSFS_write(fp, &Current_level_num, sizeof(int), 1);
@@ -1170,7 +1174,7 @@ int state_restore_all(int in_game, int secret_restore, char *filename_override)
 	//	If it doesn't exist, then delete secret.sgc
 	if (!secret_restore) {
 		int	rval;
-		char	temp_fname[32], fc;
+		char	temp_fname[PATH_MAX], fc;
 
 		if (filenum != -1) {
 			if (filenum >= 10)
@@ -1178,12 +1182,13 @@ int state_restore_all(int in_game, int secret_restore, char *filename_override)
 			else
 				fc = '0' + filenum;
 			
-			sprintf(temp_fname, GameArg.SysUsePlayersDir? "Players/%csecret.sgc" : "%csecret.sgc", fc);
+			snprintf(temp_fname, PATH_MAX, GameArg.SysUsePlayersDir? "Players/%csecret.sgc" : "%csecret.sgc", fc);
 
 			if (PHYSFSX_exists(temp_fname,0))
 			{
 				rval = copy_file(temp_fname, SECRETC_FILENAME);
 				Assert(rval == 0);	//	Oops, error copying temp_fname to secret.sgc!
+				(void)rval;
 			} else
 				PHYSFS_delete(SECRETC_FILENAME);
 		}
@@ -1212,12 +1217,11 @@ extern void copy_defaults_to_robot(object *objp);
 
 int state_restore_all_sub(char *filename, int secret_restore)
 {
-	int ObjectStartLocation;
 	int version,i, j, segnum, coop_player_got[MAX_PLAYERS];
 	object * obj;
 	PHYSFS_file *fp;
 	int swap = 0;	// if file is not endian native, have to swap all shorts and ints
-	int current_level, next_level;
+	int current_level;
 	char mission[16];
 	char desc[DESC_LENGTH+1];
 	char id[5];
@@ -1293,7 +1297,7 @@ int state_restore_all_sub(char *filename, int secret_restore)
 
 //Read level info
 	current_level = PHYSFSX_readSXE32(fp, swap);
-	next_level = PHYSFSX_readSXE32(fp, swap);
+	PHYSFS_seek(fp, PHYSFS_tell(fp) + sizeof(PHYSFS_sint32)); // skip Next_level_num
 
 //Restore GameTime
 	tmptime32 = PHYSFSX_readSXE32(fp, swap);
@@ -1381,7 +1385,6 @@ int state_restore_all_sub(char *filename, int secret_restore)
 
 	Do_appearance_effect = 0;			// Don't do this for middle o' game stuff.
 
-	ObjectStartLocation = PHYSFS_tell(fp);
 	//Clear out all the objects from the lvl file
 	for (segnum=0; segnum <= Highest_segment_index; segnum++)
 		Segments[segnum].objects = -1;
@@ -1513,11 +1516,10 @@ int state_restore_all_sub(char *filename, int secret_restore)
 	state_game_id = 0;
 
 	if ( version >= 7 )	{
-		int stub;
 		state_game_id = PHYSFSX_readSXE32(fp, swap);
 		cheats.rapidfire = PHYSFSX_readSXE32(fp, swap);
-		stub = PHYSFSX_readSXE32(fp, swap); // was Lunacy
-		stub = PHYSFSX_readSXE32(fp, swap); // was Lunacy, too... and one was Ugly robot stuff a long time ago...
+		PHYSFS_seek(fp, PHYSFS_tell(fp) + sizeof(PHYSFS_sint32)); // PHYSFSX_readSXE32(fp, swap); // was Lunacy
+		PHYSFS_seek(fp, PHYSFS_tell(fp) + sizeof(PHYSFS_sint32)); // PHYSFSX_readSXE32(fp, swap); // was Lunacy, too... and one was Ugly robot stuff a long time ago...
 	}
 
 	if (version >= 17) {
@@ -1527,12 +1529,12 @@ int state_restore_all_sub(char *filename, int secret_restore)
 		PHYSFS_read(fp, MarkerMessage, sizeof(MarkerMessage), 1);
 	}
 	else {
-		int num,dummy;
+		int num;
 
 		// skip dummy info
 
 		num = PHYSFSX_readSXE32(fp, swap);           // was NumOfMarkers
-		dummy = PHYSFSX_readSXE32(fp, swap);         // was CurMarker
+		PHYSFS_seek(fp, PHYSFS_tell(fp) + sizeof(PHYSFS_sint32)); // PHYSFSX_readSXE32(fp, swap); // was CurMarker
 
 		PHYSFS_seek(fp, PHYSFS_tell(fp) + num * (sizeof(vms_vector) + 40));
 
@@ -1613,7 +1615,7 @@ int state_restore_all_sub(char *filename, int secret_restore)
 	if (Game_mode & GM_MULTI_COOP)
 	{
 		player restore_players[MAX_PLAYERS];
-		int coop_player_slot_remap[MAX_PLAYERS], coop_got_nplayers = 0;
+		int coop_got_nplayers = 0;
 
 		for (i = 0; i < MAX_PLAYERS; i++) 
 		{
@@ -1621,7 +1623,6 @@ int state_restore_all_sub(char *filename, int secret_restore)
 			object *obj;
 
 			// prepare arrays for mapping our players below
-			coop_player_slot_remap[i] = -1;
 			coop_player_got[i] = 0;
 
 			// read the stored players
@@ -1646,7 +1647,6 @@ int state_restore_all_sub(char *filename, int secret_restore)
 				{
 					object *obj;
 					memcpy(&Players[i], &restore_players[j], sizeof(player));
-					coop_player_slot_remap[i] = j;
 					coop_player_got[i] = 1;
 					coop_got_nplayers++;
 					obj = &Objects[Players[i].objnum];

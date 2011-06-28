@@ -1,5 +1,9 @@
 D2X-Rebirth Changelog
 
+20110628
+--------
+main/state.c: Fixed possible memory corruption when saving Current_mission_filename which is not necessarily a 9 byte long allocated string; Bit safer string handling with snprintf; Fixed set but unused variables like a boss
+
 20110624
 --------
 main/net_udp.c: Fixed object sync for latecoming clients which was broken due to a very, very, VERY stupid mistake...
