@@ -555,7 +555,7 @@ int state_quick_item = -1;
 int state_get_savegame_filename(char * fname, char * dsc, char * caption, int blind_save)
 {
 	PHYSFS_file * fp;
-	int i, choice, version, dummy_state_game_id, nsaves;
+	int i, choice, version, nsaves;
 	newmenu_item m[NUM_SAVES+1];
 	char filename[NUM_SAVES][PATH_MAX];
 	char desc[NUM_SAVES][DESC_LENGTH + 16];
@@ -567,7 +567,7 @@ int state_get_savegame_filename(char * fname, char * dsc, char * caption, int bl
 	m[0].type = NM_TYPE_TEXT; m[0].text = "\n\n\n\n";
 	for (i=0;i<NUM_SAVES; i++ )	{
 		sc_bmp[i] = NULL;
-		sprintf( filename[i], GameArg.SysUsePlayersDir? "Players/%s.%sg%x" : "%s.%sg%x", Players[Player_num].callsign, (Game_mode & GM_MULTI_COOP)?"m":"s", i );
+		snprintf( filename[i], PATH_MAX, GameArg.SysUsePlayersDir? "Players/%s.%sg%x" : "%s.%sg%x", Players[Player_num].callsign, (Game_mode & GM_MULTI_COOP)?"m":"s", i );
 		valid = 0;
 		fp = PHYSFSX_openReadBuffered(filename[i]);
 		if ( fp ) {
@@ -579,7 +579,7 @@ int state_get_savegame_filename(char * fname, char * dsc, char * caption, int bl
 				// In case it's Coop, read state_game_id & callsign as well
 				if (Game_mode & GM_MULTI_COOP)
 				{
-					dummy_state_game_id = PHYSFSX_readSXE32(fp, 0);
+					PHYSFS_seek(fp, PHYSFS_tell(fp) + sizeof(PHYSFS_sint32)); // skip state_game_id
 					PHYSFS_read(fp, &dummy_callsign, sizeof(char)*CALLSIGN_LEN+1, 1);
 				}
 				if ((version >= STATE_COMPATIBLE_VERSION) || (SWAPINT(version) >= STATE_COMPATIBLE_VERSION)) {
@@ -655,16 +655,16 @@ int state_save_old_game(int slotnum, char * sg_name, player_rw * sg_player,
 	int temp_int;
 	ubyte temp_byte;
 	char desc[DESC_LENGTH+1];
-	char filename[128];
+	char filename[PATH_MAX];
+	char mission_filename[9];
 	grs_canvas * cnv;
 	PHYSFS_file * fp;
-	ubyte *pal;
 #ifdef OGL
 	int j;
 	GLint gl_draw_buffer;
 #endif
 
-	sprintf( filename, (GameArg.SysUsePlayersDir?"Players/%s.sg%d":"%s.sg%d"), sg_player->callsign, slotnum );
+	snprintf( filename, PATH_MAX, (GameArg.SysUsePlayersDir?"Players/%s.sg%d":"%s.sg%d"), sg_player->callsign, slotnum );
 	fp = PHYSFSX_openWriteBuffered(filename);
 	if ( !fp ) return 0;
 
@@ -710,8 +710,6 @@ int state_save_old_game(int slotnum, char * sg_name, player_rw * sg_player,
 		}
 		d_free(buf);
 #endif
-		pal = gr_palette;
-
 		PHYSFS_write(fp, cnv->cv_bitmap.bm_data, THUMBNAIL_W * THUMBNAIL_H, 1);
 
 		gr_set_current_canvas(cnv_save);
@@ -729,11 +727,9 @@ int state_save_old_game(int slotnum, char * sg_name, player_rw * sg_player,
 	PHYSFS_write(fp, &temp_int, sizeof(int), 1);
 
 // Save the mission info...
-#ifndef SHAREWARE
-	PHYSFS_write(fp, Current_mission_filename, 9 * sizeof(char), 1);
-#else
-	PHYSFS_write(fp, "\0\0\0\0\0\0\0\0", 9 * sizeof(char), 1);
-#endif
+	memset(&mission_filename, '\0', 9);
+	snprintf(mission_filename, 9, "%s", Current_mission_filename); // Current_mission_filename is not necessarily 9 bytes long so for saving we use a proper string - preventing corruptions
+	PHYSFS_write(fp, &mission_filename, 9 * sizeof(char), 1);
 
 //Save level info
 	temp_int = sg_player->level;
@@ -811,7 +807,7 @@ int state_save_all_sub(char *filename, char *desc)
 	int i,j;
 	PHYSFS_file *fp;
 	grs_canvas * cnv;
-	ubyte *pal;
+	char mission_filename[9];
 #ifdef OGL
 	GLint gl_draw_buffer;
 #endif
@@ -879,8 +875,6 @@ int state_save_all_sub(char *filename, char *desc)
 		d_free(buf);
 #endif
 
-		pal = gr_palette;
-
 		PHYSFS_write(fp, cnv->cv_bitmap.bm_data, THUMBNAIL_W * THUMBNAIL_H, 1);
 
 		gr_set_current_canvas(cnv_save);
@@ -898,7 +892,9 @@ int state_save_all_sub(char *filename, char *desc)
 	PHYSFS_write(fp, &i, sizeof(int), 1);
 
 // Save the mission info...
-	PHYSFS_write(fp, Current_mission_filename, 9 * sizeof(char), 1);
+	memset(&mission_filename, '\0', 9);
+	snprintf(mission_filename, 9, "%s", Current_mission_filename); // Current_mission_filename is not necessarily 9 bytes long so for saving we use a proper string - preventing corruptions
+	PHYSFS_write(fp, &mission_filename, 9 * sizeof(char), 1);
 
 //Save level info
 	PHYSFS_write(fp, &Current_level_num, sizeof(int), 1);
@@ -1109,7 +1105,7 @@ int state_restore_all_sub(char *filename)
 	object * obj;
 	PHYSFS_file *fp;
 	int swap = 0;	// if file is not endian native, have to swap all shorts and ints
-	int current_level, next_level;
+	int current_level;
 	char mission[16];
 	char desc[DESC_LENGTH+1];
 	char id[5];
@@ -1152,7 +1148,7 @@ int state_restore_all_sub(char *filename)
 		char saved_callsign[CALLSIGN_LEN+1];
 		state_game_id = PHYSFSX_readSXE32(fp, swap);
 		PHYSFS_read(fp, &saved_callsign, sizeof(char)*CALLSIGN_LEN+1, 1);
-		if (strcmp(saved_callsign, Players[Player_num].callsign)) // check the callsign of the palyer who saved this state. It MUST match. If we transferred this savegame from pilot A to pilot B, others won't be able to restore us. So bail out here if this is the case.
+		if (strcmp(saved_callsign, Players[Player_num].callsign)) // check the callsign of the player who saved this state. It MUST match. If we transferred this savegame from pilot A to pilot B, others won't be able to restore us. So bail out here if this is the case.
 		{
 			PHYSFS_close(fp);
 			return 0;
@@ -1180,7 +1176,7 @@ int state_restore_all_sub(char *filename)
 
 //Read level info
 	current_level = PHYSFSX_readSXE32(fp, swap);
-	next_level = PHYSFSX_readSXE32(fp, swap);
+	PHYSFS_seek(fp, PHYSFS_tell(fp) + sizeof(PHYSFS_sint32)); // skip Next_level_num
 
 //Restore GameTime
 	tmptime32 = PHYSFSX_readSXE32(fp, swap);
@@ -1375,20 +1371,19 @@ RetryObjectLoading:
 	state_game_id = 0;
 
 	if ( version >= 7 )	{
-		int stub;
 		state_game_id = PHYSFSX_readSXE32(fp, swap);
 		cheats.rapidfire = PHYSFSX_readSXE32(fp, swap);
-		stub = PHYSFSX_readSXE32(fp, swap); // was Ugly_robot_cheat
-		stub = PHYSFSX_readSXE32(fp, swap); // Ugly_robot_texture
+		PHYSFS_seek(fp, PHYSFS_tell(fp) + sizeof(PHYSFS_sint32)); // PHYSFSX_readSXE32(fp, swap); // was Ugly_robot_cheat
+		PHYSFS_seek(fp, PHYSFS_tell(fp) + sizeof(PHYSFS_sint32)); // PHYSFSX_readSXE32(fp, swap); // Ugly_robot_texture
 		cheats.ghostphysics = PHYSFSX_readSXE32(fp, swap);
-		stub = PHYSFSX_readSXE32(fp, swap); // was Lunacy
+		PHYSFS_seek(fp, PHYSFS_tell(fp) + sizeof(PHYSFS_sint32)); // PHYSFSX_readSXE32(fp, swap); // was Lunacy
 	}
 
 // Read Coop Info
 	if (Game_mode & GM_MULTI_COOP)
 	{
 		player restore_players[MAX_PLAYERS];
-		int coop_player_slot_remap[MAX_PLAYERS], coop_got_nplayers = 0;
+		int coop_got_nplayers = 0;
 
 		for (i = 0; i < MAX_PLAYERS; i++) 
 		{
@@ -1396,7 +1391,6 @@ RetryObjectLoading:
 			object *obj;
 
 			// prepare arrays for mapping our players below
-			coop_player_slot_remap[i] = -1;
 			coop_player_got[i] = 0;
 
 			// read the stored players
@@ -1421,7 +1415,6 @@ RetryObjectLoading:
 				{
 					object *obj;
 					memcpy(&Players[i], &restore_players[j], sizeof(player));
-					coop_player_slot_remap[i] = j;
 					coop_player_got[i] = 1;
 					coop_got_nplayers++;
 					obj = &Objects[Players[i].objnum];
@@ -1506,7 +1499,7 @@ int state_get_game_id(char *filename)
 // Read Coop state_game_id to validate the savegame we are about to load matches the others
 	state_game_id = PHYSFSX_readSXE32(fp, swap);
 	PHYSFS_read(fp, &saved_callsign, sizeof(char)*CALLSIGN_LEN+1, 1);
-	if (strcmp(saved_callsign, Players[Player_num].callsign)) // check the callsign of the palyer who saved this state. It MUST match. If we transferred this savegame from pilot A to pilot B, others won't be able to restore us. So bail out here if this is the case.
+	if (strcmp(saved_callsign, Players[Player_num].callsign)) // check the callsign of the player who saved this state. It MUST match. If we transferred this savegame from pilot A to pilot B, others won't be able to restore us. So bail out here if this is the case.
 		return 0;
 
 	return state_game_id;
