@@ -1364,17 +1364,16 @@ void newdemo_record_oneframeevent_update(int wallupdate)
 	{
 		for (i = 0; i < Num_walls; i++)
 		{
-			int side, cside;
-			segment *seg, *csegp;
+			int side;
+			segment *seg;
 
 			seg = &Segments[Walls[i].segnum];
 			side = Walls[i].sidenum;
-			csegp = &Segments[seg->children[side]];
-			cside = find_connect_side(seg, csegp);
+			// actually this is kinda stupid: when playing ther same tmap will be put on front and back side of the wall ... for doors this is stupid so just record the front side which will do for doors just fine ...
 			if (seg->sides[side].tmap_num != 0)
-				newdemo_record_wall_set_tmap_num1(Walls[i].segnum,side,seg->children[side],cside,seg->sides[side].tmap_num);
+				newdemo_record_wall_set_tmap_num1(Walls[i].segnum,side,Walls[i].segnum,side,seg->sides[side].tmap_num);
 			if (seg->sides[side].tmap_num2 != 0)
-				newdemo_record_wall_set_tmap_num2(Walls[i].segnum,side,seg->children[side],cside,seg->sides[side].tmap_num2);
+				newdemo_record_wall_set_tmap_num2(Walls[i].segnum,side,Walls[i].segnum,side,seg->sides[side].tmap_num2);
 		}
 	}
 }
