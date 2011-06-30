@@ -29,6 +29,11 @@ void net_udp_send_mdata_direct(ubyte *data, int data_len, int pnum, int priority
 #endif
 #define UDP_BCAST_ADDR "255.255.255.255"
 #define UDP_PORT_DEFAULT 42424 // Our default port - easy to remember: D = 4, X = 24, X = 24
+#define UDP_MANUAL_ADDR_DEFAULT "localhost"
+#ifdef USE_TRACKER
+#define TRACKER_ADDR_DEFAULT "dxxtracker.reenigne.net"
+#define TRACKER_PORT_DEFAULT 42420
+#endif
 #define UDP_REQ_ID "D1XR" // ID string for a request packet
 #define UDP_MAX_NETGAMES 3000
 #define UDP_NETGAMES_PPAGE 12 // Netgames on one page of Netlist

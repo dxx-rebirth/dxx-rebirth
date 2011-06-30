@@ -82,6 +82,9 @@ char copyright[] = "DESCENT   COPYRIGHT (C) 1994,1995 PARALLAX SOFTWARE CORPORAT
 #include "ui.h"
 #endif
 #include "vers_id.h"
+#ifdef USE_UDP
+#include "net_udp.h"
+#endif
 
 char desc_id_exit_num = 0;
 int Function_mode=FMODE_MENU;		//game or editor?
@@ -99,78 +102,82 @@ extern void arch_init(void);
 void print_commandline_help()
 {
 	printf( "\n System Options:\n\n");
-	printf( "  -nonicefps             %s\n", "Don't free CPU-cycles");
-	printf( "  -maxfps <n>            %s\n", "Set maximum framerate (1-200)");
-	printf( "  -hogdir <s>            %s\n", "set shared data directory to <dir>");
-	printf( "  -nohogdir              %s\n", "don't try to use shared data directory");
-	printf( "  -use_players_dir       %s\n", "put player files and saved games in Players subdirectory");
-	printf( "  -lowmem                %s\n", "Lowers animation detail for better performance with low memory");
-	printf( "  -pilot <s>             %s\n", "Select this pilot automatically");
-	printf( "  -autodemo              %s\n", "Start in demo mode");
-	printf( "  -notitles              %s\n", "Skip title screens");
-	printf( "  -window                %s\n", "Run the game in a window");
-	printf( "  -noborders             %s\n", "Do not show borders in window mode");
+	printf( "  -nonicefps                    Don't free CPU-cycles\n");
+	printf( "  -maxfps <n>                   Set maximum framerate to <n>\n\t\t\t\t(default: %i, availble: 1-%i)\n", MAXIMUM_FPS, MAXIMUM_FPS);
+	printf( "  -hogdir <s>                   set shared data directory to <s>\n");
+	printf( "  -nohogdir                     don't try to use shared data directory\n");
+	printf( "  -use_players_dir              put player files and saved games in Players subdirectory\n");
+	printf( "  -lowmem                       Lowers animation detail for better performance with\n\t\t\t\tlow memory\n");
+	printf( "  -pilot <s>                    Select pilot <s> automatically\n");
+	printf( "  -autodemo                     Start in demo mode\n");
+	printf( "  -notitles                     Skip title screens\n");
+	printf( "  -window                       Run the game in a window\n");
+	printf( "  -noborders                    Do not show borders in window mode\n");
 
 	printf( "\n Controls:\n\n");
-	printf( "  -nomouse               %s\n", "Deactivate mouse");
-	printf( "  -nojoystick            %s\n", "Deactivate joystick");
-	printf( "  -nostickykeys          %s\n", "Make CapsLock and NumLock non-sticky so they can be used as normal keys");
+	printf( "  -nomouse                      Deactivate mouse\n");
+	printf( "  -nojoystick                   Deactivate joystick\n");
+	printf( "  -nostickykeys                 Make CapsLock and NumLock non-sticky\n");
 
 	printf( "\n Sound:\n\n");
-	printf( "  -nosound               %s\n", "Disables sound output");
-	printf( "  -nomusic               %s\n", "Disables music output");
+	printf( "  -nosound                      Disables sound output\n");
+	printf( "  -nomusic                      Disables music output\n");
 #ifdef    USE_SDLMIXER
-	printf( "  -nosdlmixer            %s\n", "Disable Sound output via SDL_mixer");
+	printf( "  -nosdlmixer                   Disable Sound output via SDL_mixer\n");
 #endif // USE SDLMIXER
 
 	printf( "\n Graphics:\n\n");
-	printf( "  -lowresfont            %s\n", "Force to use LowRes fonts");
+	printf( "  -lowresfont                   Force to use LowRes fonts\n");
 #ifdef    OGL
-	printf( "  -gl_fixedfont          %s\n", "Do not scale fonts to current resolution");
+	printf( "  -gl_fixedfont                 Do not scale fonts to current resolution\n");
 #endif // OGL
 
-#ifdef    NETWORK
+#if defined(USE_IPX) || defined(USE_UDP)
 	printf( "\n Multiplayer:\n\n");
-	printf( "  -ipxnetwork <n>        %s\n", "Use IPX network number <n>");
-	printf( "  -udp_hostaddr <n>      %s\n", "When manually joining a game use default IP Address <n> to connect to");
-	printf( "  -udp_hostport <n>      %s\n", "When manually joining a game use default UDP Port <n> to connect to");
-	printf( "  -udp_myport <n>        %s\n", "When hosting/joining a game use default UDP Port <n> to send packets from");
+#ifdef USE_IPX
+	printf( "  -ipxnetwork <n>               Use IPX network number <n>\n");
+#endif
+#ifdef USE_UDP
+	printf( "  -udp_hostaddr <s>             Use IP address/Hostname <s> for manual game joining\n\t\t\t\t(default: %s)\n", UDP_MANUAL_ADDR_DEFAULT);
+	printf( "  -udp_hostport <n>             Use UDP port <n> for manual game joining (default: %i)\n", UDP_PORT_DEFAULT);
+	printf( "  -udp_myport <n>               Set my own UDP port to <n> (default: %i)\n", UDP_PORT_DEFAULT);
 #ifdef USE_TRACKER
-	printf( "  -tracker_hostaddr <n>  %s\n", "Address of Tracker server to register/query games to/from (default: dxxtracker.reenigne.net)");
-	printf( "  -tracker_hostport <n>  %s\n", "Port of Tracker server to register/query games to/from (default: 42420)");
+	printf( "  -tracker_hostaddr <n>         Address of Tracker server to register/query games to/from\n\t\t\t\t(default: %s)\n", TRACKER_ADDR_DEFAULT);
+	printf( "  -tracker_hostport <n>         Port of Tracker server to register/query games to/from\n\t\t\t\t(default: %i)\n", TRACKER_PORT_DEFAULT);
 #endif // USE_TRACKER
-#endif // NETWORK
+#endif // USE_UDP
+#endif // defined(USE_IPX) || defined(USE_UDP)
 
 #ifdef    EDITOR
 	printf( "\n Editor:\n\n");
-	printf( "  -nobm                  %s\n", "Don't load BITMAPS.TBL and BITMAPS.BIN - use internal data");
+	printf( "  -nobm                         Don't load BITMAPS.TBL and BITMAPS.BIN - use internal data\n");
 #endif // EDITOR
 
 	printf( "\n Debug (use only if you know what you're doing):\n\n");
-	printf( "  -debug                 %s\n", "Enable very verbose output");
-	printf( "  -verbose               %s\n", "Shows initialization steps for tech support");
-	printf( "  -norun                 %s\n", "Bail out after initialization");
-	printf( "  -renderstats           %s\n", "Enable renderstats info by default");
-	printf( "  -text <s>              %s\n", "Specify alternate .tex file");
-	printf( "  -tmap <s>              %s\n", "Select texmapper to use (c,fp,quad,i386)");
-	printf( "  -showmeminfo           %s\n", "Show memory statistics");
-	printf( "  -nodoublebuffer        %s\n", "Disable Doublebuffering");
-	printf( "  -bigpig                %s\n", "Use uncompressed RLE bitmaps");
-	printf( "  -16bpp                 %s\n", "Use 16Bpp instead of 32Bpp");
+	printf( "  -debug                        Enable very verbose output\n");
+	printf( "  -verbose                      Shows initialization steps for tech support\n");
+	printf( "  -norun                        Bail out after initialization\n");
+	printf( "  -renderstats                  Enable renderstats info by default\n");
+	printf( "  -text <s>                     Specify alternate .tex file\n");
+	printf( "  -tmap <s>                     Select texmapper <s> to use\n\t\t\t\t(default: c, available: c, fp, quad, i386)\n");
+	printf( "  -showmeminfo                  Show memory statistics\n");
+	printf( "  -nodoublebuffer               Disable Doublebuffering\n");
+	printf( "  -bigpig                       Use uncompressed RLE bitmaps\n");
+	printf( "  -16bpp                        Use 16Bpp instead of 32Bpp\n");
 #ifdef    OGL
-	printf( "  -gl_oldtexmerge        %s\n", "Use old texmerge, uses more ram, but _might_ be a bit faster");
-	printf( "  -gl_intensity4_ok <n>  %s\n", "Override DbgGlIntensity4Ok - Default: 1");
-	printf( "  -gl_luminance4_alpha4_ok <n> %s\n", "Override DbgGlLuminance4Alpha4Ok - Default: 1");
-	printf( "  -gl_rgba2_ok <n>       %s\n", "Override DbgGlRGBA2Ok - Default: 1");
-	printf( "  -gl_readpixels_ok <n>  %s\n", "Override DbgGlReadPixelsOk - Default: 1");
-	printf( "  -gl_gettexlevelparam_ok <n> %s\n", "Override DbgGlGetTexLevelParamOk - Default: 1");
+	printf( "  -gl_oldtexmerge               Use old texmerge, uses more ram, but might be faster\n");
+	printf( "  -gl_intensity4_ok <n>         Override DbgGlIntensity4Ok (default: 1)\n");
+	printf( "  -gl_luminance4_alpha4_ok <n>  Override DbgGlLuminance4Alpha4Ok (default: 1)\n");
+	printf( "  -gl_rgba2_ok <n>              Override DbgGlRGBA2Ok (default: 1)\n");
+	printf( "  -gl_readpixels_ok <n>         Override DbgGlReadPixelsOk (default: 1)\n");
+	printf( "  -gl_gettexlevelparam_ok <n>   Override DbgGlGetTexLevelParamOk (default: 1)\n");
 #else
-	printf( "  -hwsurface             %s\n", "Use SDL HW Surface");
-	printf( "  -asyncblit             %s\n", "Use queued blits over SDL. Can speed up rendering");
+	printf( "  -hwsurface                    Use SDL HW Surface\n");
+	printf( "  -asyncblit                    Use queued blits over SDL. Can speed up rendering\n");
 #endif // OGL
 
 	printf( "\n Help:\n\n");
-	printf( "  -help, -h, -?, ?       %s\n", "View this help screen");
+	printf( "  -help, -h, -?, ?             View this help screen\n");
 	printf( "\n\n");
 }
 
