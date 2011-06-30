@@ -1,5 +1,9 @@
 D2X-Rebirth Changelog
 
+20110701
+--------
+d2x.ini, main/inferno.c, main/net_udp.h, misc/args.c: Made formatting for help text more consistent and prettier; Somewhat changed the code for help text so we can use variables in the help text. For example: If we change MAXIMUM_FPS, it will automatically be displayed in the help text without manual editing needed
+
 20110630
 --------
 editor/group.c, editor/ksegsize.c, editor/meddraw.c, editor/segment.c, editor/seguvs.c, include/editor/editor.h, main/automap.c, main/fireball.c, main/gamecntl.c, main/gameseg.c, main/gameseg.h, main/lighting.c, main/render.c, main/render.h, main/segment.h: changed variables and pointer carrying vertex indexes from short to int to handle levels with over 900 segments properly

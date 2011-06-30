@@ -29,6 +29,9 @@ COPYRIGHT 1993-1998 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 #include "game.h"
 #include "gauges.h"
 #include "console.h"
+#ifdef USE_UDP
+#include "net_udp.h"
+#endif
 
 #define MAX_ARGS 1000
 #define INI_FILENAME "d2x.ini"
@@ -179,13 +182,17 @@ void ReadCmdArgs(void)
 
 	// Multiplayer Options
 
+#ifdef USE_IPX
 	GameArg.MplIpxNetwork 		= get_str_arg("-ipxnetwork", NULL);
-	GameArg.MplUdpHostAddr		= get_str_arg("-udp_hostaddr", "localhost");
+#endif
+#ifdef USE_UDP
+	GameArg.MplUdpHostAddr		= get_str_arg("-udp_hostaddr", UDP_MANUAL_ADDR_DEFAULT);
 	GameArg.MplUdpHostPort		= get_int_arg("-udp_hostport", 0);
 	GameArg.MplUdpMyPort		= get_int_arg("-udp_myport", 0);
 #ifdef USE_TRACKER
-	GameArg.MplTrackerAddr		= get_str_arg("-tracker_hostaddr", "dxxtracker.reenigne.net");
-	GameArg.MplTrackerPort		= get_int_arg("-tracker_hostport", 42420);
+	GameArg.MplTrackerAddr		= get_str_arg("-tracker_hostaddr", TRACKER_ADDR_DEFAULT);
+	GameArg.MplTrackerPort		= get_int_arg("-tracker_hostport", TRACKER_PORT_DEFAULT);
+#endif
 #endif
 
 #ifdef EDITOR
