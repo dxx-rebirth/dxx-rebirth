@@ -1,5 +1,9 @@
 D1X-Rebirth Changelog
 
+20110630
+--------
+editor/group.c, editor/ksegsize.c, editor/meddraw.c, editor/segment.c, editor/seguvs.c, include/editor/editor.h, main/automap.c, main/fireball.c, main/gamecntl.c, main/gameseg.c, main/gameseg.h, main/lighting.c, main/render.c, main/render.h, main/segment.h: changed variables and pointer carrying vertex indexes from short to int to handle levels with over 900 segments properly
+
 20110629
 --------
 main/newdemo.c: Due to design issue in demo system initial recording of doors could place same texture on front and back sides of doors - fixed as good as possible (wish I could expand the demo format)

@@ -117,7 +117,7 @@ fix get_average_light_at_vertex(int vnum, short *segs)
 
 	for (segnum=0; segnum<=Highest_segment_index; segnum++) {
 		segment *segp = &Segments[segnum];
-		short *vp = segp->verts;
+		int *vp = segp->verts;
 
 		for (relvnum=0; relvnum<MAX_VERTICES_PER_SEGMENT; relvnum++)
 			if (*vp++ == vnum)
@@ -1046,7 +1046,7 @@ found1: ;
 void propagate_tmaps_to_segment_sides(segment *base_seg, int base_side, segment *con_seg, int con_side, int uv_only_flag)
 {
 	sbyte		*base_vp,*con_vp;
-	short		abs_id1,abs_id2;
+	int		abs_id1,abs_id2;
 	int		v;
 
 	base_vp = Side_to_verts[base_side];

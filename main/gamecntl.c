@@ -828,7 +828,6 @@ int HandleTestKey(int key)
 #endif
 			Function_mode = FMODE_EDITOR;
 
-			keyd_editor_mode = 1;
 			editor();
 			if ( Function_mode == FMODE_GAME ) {
 				Game_mode = GM_EDITOR;

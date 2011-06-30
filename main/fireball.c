@@ -1121,7 +1121,7 @@ void do_exploding_wall_frame()
 			//now create all the next explosions
 
 			for (e=old_count;e<new_count;e++) {
-				short			vertnum_list[4];
+				int			vertnum_list[4];
 				vms_vector	*v0,*v1,*v2;
 				vms_vector	vv0,vv1,pos;
 				fix			size;

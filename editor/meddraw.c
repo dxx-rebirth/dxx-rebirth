@@ -95,7 +95,7 @@ void draw_line(int pnum0,int pnum1)
 // ----------------------------------------------------------------------------
 void draw_segment(segment *seg)
 {
-	short	*svp;
+	int	*svp;
 	int	nv;
 	g3s_codes cc;
 
@@ -125,7 +125,7 @@ void draw_segment(segment *seg)
 //for looking for segment under a mouse click
 void check_segment(segment *seg)
 {
-	short	*svp;
+	int	*svp;
 	int	nv;
 	g3s_codes cc;
 
@@ -166,7 +166,7 @@ void check_segment(segment *seg)
 // ----------------------------------------------------------------------------
 void draw_seg_side(segment *seg,int side)
 {
-	short	*svp;
+	int	*svp;
 	int	nv;
 	g3s_codes cc;
 
@@ -186,7 +186,7 @@ void draw_seg_side(segment *seg,int side)
 
 void draw_side_edge(segment *seg,int side,int edge)
 {
-	short	*svp;
+	int	*svp;
 	int	nv;
 	g3s_codes cc;
 
@@ -217,7 +217,7 @@ int edge_colors[] = { 54, 59, 64 };
 
 typedef struct seg_edge {
 	union {
-		struct {short v0,v1;} __pack__ n;
+		struct {int v0,v1;} __pack__ n;
 		long vv;
 	}v;
 	ushort	type;
@@ -228,7 +228,7 @@ typedef struct seg_edge {
 
 seg_edge edge_list[MAX_EDGES];
 
-short	used_list[MAX_EDGES];	//which entries in edge_list have been used
+int	used_list[MAX_EDGES];	//which entries in edge_list have been used
 int n_used;
 
 int edge_list_size;		//set each frame
@@ -236,7 +236,7 @@ int edge_list_size;		//set each frame
 #define HASH(a,b)  ((a*5+b) % edge_list_size)
 
 //define edge numberings
-short edges[] = {
+int edges[] = {
 		0*8+1,	// edge  0
 		0*8+3,	// edge  1
 		0*8+4,	// edge  2
@@ -277,8 +277,8 @@ short edges[] = {
 int find_edge_num(int v0,int v1)
 {
 	int		i;
-	short		vv;
-	short		*edgep = edges;
+	int		vv;
+	int		*edgep = edges;
 
 	if (v0 > v1) swap(v0,v1);
 
@@ -301,7 +301,7 @@ int find_edge_num(int v0,int v1)
 int find_edge(int v0,int v1,seg_edge **edge_ptr)
 {
 	long vv;
-	short hash,oldhash;
+	int hash,oldhash;
 	int ret;
 
 	vv = (v1<<16) + v0;
@@ -363,7 +363,7 @@ void add_edge(int v0,int v1,ubyte type)
 //adds a segment's edges to the edge list
 void add_edges(segment *seg)
 {
-	short	*svp;
+	int	*svp;
 	int	nv;
 	g3s_codes cc;
 
@@ -428,7 +428,7 @@ void add_edges(segment *seg)
 // ----------------------------------------------------------------------------
 void draw_trigger_side(segment *seg,int side)
 {
-	short	*svp;
+	int	*svp;
 	int	nv;
 	g3s_codes cc;
 
@@ -445,7 +445,7 @@ void draw_trigger_side(segment *seg,int side)
 // ----------------------------------------------------------------------------
 void draw_wall_side(segment *seg,int side)
 {
-	short	*svp;
+	int	*svp;
 	int	nv;
 	g3s_codes cc;
 
@@ -721,7 +721,7 @@ void free_vert(int vert_num)
 void draw_coordinate_axes(void)
 {
 	int			i;
-	short			Axes_verts[16];
+	int			Axes_verts[16];
 	vms_vector	tvec,xvec,yvec,zvec;
 
 	for (i=0; i<16; i++)

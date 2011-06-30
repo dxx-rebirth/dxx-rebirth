@@ -99,7 +99,7 @@ typedef struct segment {
 #endif
 	side    sides[MAX_SIDES_PER_SEGMENT];       // 6 sides
 	short   children[MAX_SIDES_PER_SEGMENT];    // indices of 6 children segments, front, left, top, right, bottom, back
-	short   verts[MAX_VERTICES_PER_SEGMENT];    // vertex ids of 4 front and 4 back vertices
+	int     verts[MAX_VERTICES_PER_SEGMENT];    // vertex ids of 4 front and 4 back vertices
 #ifdef EDITOR
 	short   group;      // group number to which the segment belongs.
 #endif
@@ -143,7 +143,7 @@ typedef struct {
 	int     num_segments;
 	int     num_vertices;
 	short   segments[MAX_SEGMENTS];
-	short   vertices[MAX_VERTICES];
+	int     vertices[MAX_VERTICES];
 } group;
 
 // Globals from mglobal.c
@@ -168,11 +168,11 @@ extern char Side_opposite[];                                // Side_opposite[my_
 
 // Return a pointer to the list of vertex indices for the current
 // segment in vp and the number of vertices in *nv.
-extern void med_get_vertex_list(segment *s,int *nv,short **vp);
+extern void med_get_vertex_list(segment *s,int *nv,int **vp);
 
 // Return a pointer to the list of vertex indices for face facenum in
 // vp and the number of vertices in *nv.
-extern void med_get_face_vertex_list(segment *s,int side, int facenum,int *nv,short **vp);
+extern void med_get_face_vertex_list(segment *s,int side, int facenum,int *nv,int **vp);
 
 // Set *nf = number of faces in segment s.
 extern void med_get_num_faces(segment *s,int *nf);

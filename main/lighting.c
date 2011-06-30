@@ -125,7 +125,7 @@ Cache_hits++;
 #define	HEADLIGHT_SCALE		(F1_0*10)
 
 // ----------------------------------------------------------------------------------------------
-void apply_light(g3s_lrgb obj_light_emission, int obj_seg, vms_vector *obj_pos, int n_render_vertices, short *render_vertices, int objnum)
+void apply_light(g3s_lrgb obj_light_emission, int obj_seg, vms_vector *obj_pos, int n_render_vertices, int *render_vertices, int objnum)
 {
 	int	vv;
 
@@ -136,7 +136,7 @@ void apply_light(g3s_lrgb obj_light_emission, int obj_seg, vms_vector *obj_pos, 
 		// for pretty dim sources, only process vertices in object's own segment.
 		//	12/04/95, MK, markers only cast light in own segment.
 		if (abs(obji_64) <= F1_0*8) {
-			short *vp = Segments[obj_seg].verts;
+			int *vp = Segments[obj_seg].verts;
 
 			for (vv=0; vv<MAX_VERTICES_PER_SEGMENT; vv++) {
 				int			vertnum;
@@ -241,7 +241,7 @@ void apply_light(g3s_lrgb obj_light_emission, int obj_seg, vms_vector *obj_pos, 
 #define FLASH_SCALE             (3*F1_0/FLASH_LEN_FIXED_SECONDS)
 
 // ----------------------------------------------------------------------------------------------
-void cast_muzzle_flash_light(int n_render_vertices, short *render_vertices)
+void cast_muzzle_flash_light(int n_render_vertices, int *render_vertices)
 {
 	fix64 current_time;
 	int i;
@@ -463,7 +463,7 @@ void set_dynamic_light(void)
 	int	vv;
 	int	objnum;
 	int	n_render_vertices;
-	short	render_vertices[MAX_VERTICES];
+	int	render_vertices[MAX_VERTICES];
 	sbyte   render_vertex_flags[MAX_VERTICES];
 	int	render_seg,segnum, v;
 
@@ -483,7 +483,7 @@ void set_dynamic_light(void)
 	for (render_seg=0; render_seg<N_render_segs; render_seg++) {
 		segnum = Render_list[render_seg];
 		if (segnum != -1) {
-			short	*vp = Segments[segnum].verts;
+			int	*vp = Segments[segnum].verts;
 			for (v=0; v<MAX_VERTICES_PER_SEGMENT; v++) {
 				int	vnum = vp[v];
 				if (vnum<0 || vnum>Highest_vertex_index) {
@@ -569,7 +569,7 @@ g3s_lrgb compute_seg_dynamic_light(int segnum)
 {
 	g3s_lrgb sum, seg_lrgb;
 	segment *seg;
-	short *verts;
+	int *verts;
 
 	seg = &Segments[segnum];
 
