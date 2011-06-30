@@ -44,7 +44,7 @@ extern void compute_segment_center(vms_vector *vp,segment *sp);
 extern int find_connect_side(segment *base_seg, segment *con_seg);
 
 // Fill in array with four absolute point numbers for a given side
-void get_side_verts(short *vertlist,int segnum,int sidenum);
+void get_side_verts(int *vertlist,int segnum,int sidenum);
 
 //      Create all vertex lists (1 or 2) for faces on a side.
 //      Sets:

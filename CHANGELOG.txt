@@ -1,5 +1,9 @@
 D2X-Rebirth Changelog
 
+20110630
+--------
+editor/group.c, editor/ksegsize.c, editor/meddraw.c, editor/segment.c, editor/seguvs.c, include/editor/editor.h, main/automap.c, main/fireball.c, main/gamecntl.c, main/gameseg.c, main/gameseg.h, main/lighting.c, main/render.c, main/render.h, main/segment.h: changed variables and pointer carrying vertex indexes from short to int to handle levels with over 900 segments properly
+
 20110628
 --------
 main/state.c: Fixed possible memory corruption when saving Current_mission_filename which is not necessarily a 9 byte long allocated string; Bit safer string handling with snprintf; Fixed set but unused variables like a boss

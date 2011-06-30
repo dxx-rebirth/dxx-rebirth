@@ -249,7 +249,7 @@ int ToggleBottom(void)
 // ----------------------------------------------------------------------------
 //	Return a pointer to the list of vertex indices for the current segment in vp and
 //	the number of vertices in *nv.
-void med_get_vertex_list(segment *s,int *nv,short **vp)
+void med_get_vertex_list(segment *s,int *nv,int **vp)
 {
 	*vp = s->verts;
 	*nv = MAX_VERTICES_PER_SEGMENT;
@@ -1018,7 +1018,7 @@ int med_attach_segment(segment *destseg, segment *newseg, int destside, int news
 // -------------------------------------------------------------------------------
 //	Delete a vertex, sort of.
 //	Decrement the vertex count.  If the count goes to 0, then the vertex is free (has been deleted).
-void delete_vertex(short v)
+void delete_vertex(int v)
 {
 	Assert(v < MAX_VERTICES);			// abort if vertex is not in array Vertices
 	Assert(Vertex_active[v] >= 1);	// abort if trying to delete a non-existent vertex
@@ -1754,7 +1754,7 @@ void med_copy_segment(segment *dsp,segment *ssp)
 
 // -----------------------------------------------------------------------------
 //	Create coordinate axes in orientation of specified segment, stores vertices at *vp.
-void create_coordinate_axes_from_segment(segment *sp,short *vertnums)
+void create_coordinate_axes_from_segment(segment *sp,int *vertnums)
 {
 	vms_matrix	rotmat;
 	vms_vector t;

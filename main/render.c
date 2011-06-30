@@ -195,7 +195,7 @@ void flash_frame()
 //	they are used for our hideously hacked in headlight system.
 //	vp is a pointer to vertex ids.
 //	tmap1, tmap2 are texture map ids.  tmap2 is the pasty one.
-void render_face(int segnum, int sidenum, int nv, short *vp, int tmap1, int tmap2, uvl *uvlp, int wid_flags)
+void render_face(int segnum, int sidenum, int nv, int *vp, int tmap1, int tmap2, uvl *uvlp, int wid_flags)
 {
 	// -- Using new headlight system...fix			face_light;
 	grs_bitmap  *bm;
@@ -347,7 +347,7 @@ void render_face(int segnum, int sidenum, int nv, short *vp, int tmap1, int tmap
 // ----------------------------------------------------------------------------
 //	Only called if editor active.
 //	Used to determine which face was clicked on.
-void check_face(int segnum, int sidenum, int facenum, int nv, short *vp, int tmap1, int tmap2, uvl *uvlp)
+void check_face(int segnum, int sidenum, int facenum, int nv, int *vp, int tmap1, int tmap2, uvl *uvlp)
 {
 	int	i;
 
@@ -400,7 +400,7 @@ extern fix	Obj_light_xlate[16];
 //	Check for normal facing.  If so, render faces on side dictated by sidep->type.
 void render_side(segment *segp, int sidenum)
 {
-	short		vertnum_list[4];
+	int		vertnum_list[4];
 	side		*sidep = &segp->sides[sidenum];
 	vms_vector	tvec;
 	fix		v_dot_n0, v_dot_n1;
@@ -721,7 +721,7 @@ void render_start_frame()
 }
 
 //Given a lit of point numbers, rotate any that haven't been rotated this frame
-g3s_codes rotate_list(int nv,short *pointnumlist)
+g3s_codes rotate_list(int nv,int *pointnumlist)
 {
 	int i,pnum;
 	g3s_point *pnt;
@@ -761,7 +761,7 @@ g3s_codes rotate_list(int nv,short *pointnumlist)
 }
 
 //Given a lit of point numbers, project any that haven't been projected
-void project_list(int nv,short *pointnumlist)
+void project_list(int nv,int *pointnumlist)
 {
 	int i,pnum;
 
@@ -1028,14 +1028,14 @@ int Edge_to_sides[8][8][2] = {
 
 
 //given an edge, tell what side is on that edge
-int find_seg_side(segment *seg,short *verts,int notside)
+int find_seg_side(segment *seg,int *verts,int notside)
 {
 	int i;
 	int vv0=-1,vv1=-1;
 	int side0,side1;
 	int *eptr;
 	int	v0,v1;
-	short	*vp;
+	int	*vp;
 
 //@@	check_check();
 
@@ -1085,7 +1085,7 @@ int find_seg_side(segment *seg,short *verts,int notside)
 int find_joining_side_norms(vms_vector *norm0_0,vms_vector *norm0_1,vms_vector *norm1_0,vms_vector *norm1_1,vms_vector **pnt0,vms_vector **pnt1,segment *seg,int s0,int s1)
 {
 	segment *seg0,*seg1;
-	short edge_verts[2];
+	int edge_verts[2];
 	int notside0,notside1;
 	int edgeside0,edgeside1;
 

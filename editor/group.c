@@ -443,7 +443,7 @@ void duplicate_group(sbyte *vertex_ids, short *segment_ids, int num_segments)
 {
 	int	v,s,ss,new_vertex_id,new_segment_id,sidenum;
 	short	new_segment_ids[MAX_SEGMENTS];
-	short	new_vertex_ids[MAX_VERTICES];		// If new_vertex_ids[v] != -1, then vertex v has been remapped to new_vertex_ids[v]
+	int	new_vertex_ids[MAX_VERTICES];		// If new_vertex_ids[v] != -1, then vertex v has been remapped to new_vertex_ids[v]
 	short	new_object_ids[MAX_OBJECTS];
 
 	//	duplicate vertices
@@ -1046,7 +1046,7 @@ static char	 current_tmap_list[MAX_TEXTURES][13];
 //    and new_segment in that order, marking their file offset.
 // 2. Go through all the fields and fill in the offset, size, and sizeof
 //    values in the headers.
-int med_save_group( char *filename, short *vertex_ids, short *segment_ids, int num_vertices, int num_segments)
+int med_save_group( char *filename, int *vertex_ids, short *segment_ids, int num_vertices, int num_segments)
 {
 	PHYSFS_file * SaveFile;
 	int header_offset, editor_offset, vertex_offset, segment_offset, texture_offset;
@@ -1184,7 +1184,7 @@ static char old_tmap_list[MAX_TEXTURES][13];
 // -----------------------------------------------------------------------------
 // Load group will:
 //int med_load_group(char * filename)
-int med_load_group( char *filename, short *vertex_ids, short *segment_ids, int *num_vertices, int *num_segments)
+int med_load_group( char *filename, int *vertex_ids, short *segment_ids, int *num_vertices, int *num_segments)
 {
 	int segnum, vertnum;
 	char ErrorMessage[200];
