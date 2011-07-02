@@ -118,6 +118,8 @@ void init_ai_object(int objnum, int behavior, int hide_segment)
 	ai_local		*ailp = &Ai_local_info[objnum];
 	robot_info	*robptr = &Robot_info[objp->id];
 
+	memset(ailp, 0, sizeof(ai_local));
+
 	if (behavior == 0) {
 		behavior = AIB_NORMAL;
 		aip->behavior = behavior;
