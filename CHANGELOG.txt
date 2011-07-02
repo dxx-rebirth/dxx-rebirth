@@ -1,5 +1,9 @@
 D1X-Rebirth Changelog
 
+20110702
+--------
+main/ai.c: When initializing ai object correctly initialize Ai_local_info to prevent glitches like random submodel angles
+
 20110701
 --------
 d1x.ini, main/inferno.c, main/net_udp.h, misc/args.c: Made formatting for help text more consistent and prettier; Somewhat changed the code for help text so we can use variables in the help text. For example: If we change MAXIMUM_FPS, it will automatically be displayed in the help text without manual editing needed

@@ -310,6 +310,8 @@ void init_ai_object(int objnum, int behavior, int hide_segment)
 	ai_static	*aip = &objp->ctype.ai_info;
 	ai_local		*ailp = &Ai_local_info[objnum];
 
+	memset(ailp, 0, sizeof(ai_local));
+
 #ifdef DEST_SAT
 		if (!(Game_mode & GM_MULTI) && Robot_info[objp->id].boss_flag) {
 			if (Current_level_num != Last_level) {
