@@ -442,15 +442,14 @@ int main_menu_handler(newmenu *menu, d_event *event, int *menu_choice )
 			break;
 
 		case EVENT_IDLE:
-			if ( keyd_time_when_last_pressed+i2f(25) < timer_query() || GameArg.SysAutoDemo  )
+			if ( keyd_time_when_last_pressed+i2f(2) < timer_query() || GameArg.SysAutoDemo  )
 			{
 				int n_demos;
 				n_demos = newdemo_count_demos();
+				keyd_time_when_last_pressed = timer_query();			// Reset timer so that disk won't thrash if no demos.
 
-			try_again:;
 				if (((d_rand() % (n_demos+1)) == 0) && !GameArg.SysAutoDemo)
 				{
-#ifndef SHAREWARE
 #ifdef OGL
 					Screen_mode = -1;
 #endif
@@ -459,16 +458,12 @@ int main_menu_handler(newmenu *menu, d_event *event, int *menu_choice )
 					close_subtitles();
 					songs_play_song(SONG_TITLE,1);
 					set_screen_mode(SCREEN_MENU);
-#endif // end of ifndef shareware
 				}
 				else
 				{
-					keyd_time_when_last_pressed = timer_query();			// Reset timer so that disk won't thrash if no demos.
 					newdemo_start_playback(NULL);		// Randomly pick a file, assume native endian (crashes if not)
 					if (Newdemo_state == ND_STATE_PLAYBACK)
 						return 0;
-				else
-						goto try_again;	//keep trying until we get a demo that works
 				}
 			}
 			break;

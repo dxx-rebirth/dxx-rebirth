@@ -3,6 +3,7 @@ D2X-Rebirth Changelog
 20110702
 --------
 main/ai.c: When initializing ai object correctly initialize Ai_local_info to prevent glitches like random submodel angles
+main/menu.c: Reset idle timer in main menu correctly even after playing the intro movie; Also got rid of a goto as it's generally bad and not needed since random demo selection picks a correct demo anyways
 
 20110701
 --------
