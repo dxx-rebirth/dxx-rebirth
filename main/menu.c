@@ -442,7 +442,7 @@ int main_menu_handler(newmenu *menu, d_event *event, int *menu_choice )
 			break;
 
 		case EVENT_IDLE:
-			if ( keyd_time_when_last_pressed+i2f(2) < timer_query() || GameArg.SysAutoDemo  )
+			if ( keyd_time_when_last_pressed+i2f(25) < timer_query() || GameArg.SysAutoDemo  )
 			{
 				int n_demos;
 				n_demos = newdemo_count_demos();
