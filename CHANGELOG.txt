@@ -1,5 +1,9 @@
 D2X-Rebirth Changelog
 
+20110704
+--------
+main/game.c, main/gamerend.c: Only call show_netplayerinfo() if GM_MULTI is set and reset netplayerinfo_on in game_setup()
+
 20110702
 --------
 main/ai.c: When initializing ai object correctly initialize Ai_local_info to prevent glitches like random submodel angles

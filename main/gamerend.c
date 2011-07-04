@@ -733,7 +733,7 @@ void game_render_frame_mono(int flip)
 	show_extra_views();		//missile view, buddy bot, etc.
 
 #ifdef NETWORK
-        if (netplayerinfo_on)
+        if (netplayerinfo_on && Game_mode & GM_MULTI)
 		show_netplayerinfo();
 #endif
 }
