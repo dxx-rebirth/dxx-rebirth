@@ -925,6 +925,8 @@ void game_disable_cheats()
 
 int game_handler(window *wind, d_event *event, void *data);
 
+extern int netplayerinfo_on;
+
 window *game_setup(void)
 {
 	window *game_wind;
@@ -940,6 +942,7 @@ window *game_setup(void)
 	reset_palette_add();
 	init_cockpit();
 	init_gauges();
+	netplayerinfo_on = 0;
 
 #ifdef EDITOR
 	if (Segments[ConsoleObject->segnum].segnum == -1)      //segment no longer exists

@@ -380,7 +380,7 @@ void game_render_frame_mono(int flip)
 	game_draw_hud_stuff();
 	
 #ifdef NETWORK
-	if (netplayerinfo_on)
+	if (netplayerinfo_on && Game_mode & GM_MULTI)
 		show_netplayerinfo();
 #endif
 }
