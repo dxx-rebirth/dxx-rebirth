@@ -3,6 +3,7 @@ D2X-Rebirth Changelog
 20110704
 --------
 main/game.c, main/gamerend.c: Only call show_netplayerinfo() if GM_MULTI is set and reset netplayerinfo_on in game_setup()
+misc/physfsx.c: Fixed typo
 
 20110702
 --------
