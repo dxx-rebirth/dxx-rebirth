@@ -3,6 +3,7 @@ D1X-Rebirth Changelog
 20110708
 --------
 main/net_udp.c: Slight improvement for Packet Loss Prevention: Be able to send to 35 packets per call of net_udp_noloss_process_queue() and also let counter only increase if a packet was actually sent, making sure the queue is not stuck on the first 5 packets in the list
+arch/sdl/digi.c: Make sure hmp_reset() is only executed if a song was playing
 
 20110704
 --------
