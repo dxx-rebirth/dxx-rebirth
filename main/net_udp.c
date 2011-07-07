@@ -4444,7 +4444,7 @@ void net_udp_noloss_process_queue(fix64 time)
 	for (queuec = 0; queuec < UDP_MDATA_STOR_QUEUE_SIZE; queuec++)
 	{
 		fix resend_delay = (F1_0/2);
-		int resend = 0;
+		int needack = 0;
 		
 		if (!UDP_mdata_queue[queuec].used)
 			continue;
@@ -4482,23 +4482,21 @@ void net_udp_noloss_process_queue(fix64 time)
 					memcpy(&buf[len], UDP_mdata_queue[queuec].data, sizeof(char)*UDP_mdata_queue[queuec].data_size);
 																								len += UDP_mdata_queue[queuec].data_size;
 					sendto (UDP_Socket[0], buf, len, 0, (struct sockaddr *)&Netgame.players[plc].protocol.udp.addr, sizeof(struct _sockaddr));
+					count++;
 				}
-				resend++;
+				needack++;
 			}
 		}
 
 		// Check if we can remove that packet due to to it had no resend's or Timeout
-		if (!resend || (UDP_mdata_queue[queuec].pkt_initial_timestamp + UDP_TIMEOUT <= time))
+		if (needack==0 || (UDP_mdata_queue[queuec].pkt_initial_timestamp + UDP_TIMEOUT <= time))
 		{
-			con_printf(CON_VERBOSE, "P#%i: Removing stored pkt_num %i - All ACK: %i\n",Player_num, UDP_mdata_queue[queuec].pkt_num, !resend);
+			con_printf(CON_VERBOSE, "P#%i: Removing stored pkt_num %i - missing ACKs: %i\n",Player_num, UDP_mdata_queue[queuec].pkt_num, needack);
 			memset(&UDP_mdata_queue[queuec],0,sizeof(UDP_mdata_store));
 		}
 
-		if (resend)
-			count++;
-		
-		// Only send 5 packets from the queue by each time the queue process is called
-		if (count >= 5)
+		// Send up to 35 packets (5 for all possible clients) from the queue by each time the queue process is called
+		if (count >= 35)
 			break;
 	}
 }
