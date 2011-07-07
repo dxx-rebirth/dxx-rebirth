@@ -185,12 +185,11 @@ void digi_win32_resume_midi_song()
 
 void digi_win32_stop_current_song()
 {
-	if (digi_win32_midi_song_playing)
-	{
-		hmp_close(cur_hmp);
-		cur_hmp = NULL;
-		digi_win32_midi_song_playing = 0;
-	}
+	if (!digi_win32_midi_song_playing)
+		return;
+	hmp_close(cur_hmp);
+	cur_hmp = NULL;
+	digi_win32_midi_song_playing = 0;
 	hmp_reset();
 }
 #endif
