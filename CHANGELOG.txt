@@ -1,5 +1,9 @@
 D1X-Rebirth Changelog
 
+20110708
+--------
+main/net_udp.c: Slight improvement for Packet Loss Prevention: Be able to send to 35 packets per call of net_udp_noloss_process_queue() and also let counter only increase if a packet was actually sent, making sure the queue is not stuck on the first 5 packets in the list
+
 20110704
 --------
 main/game.c, main/gamerend.c: Only call show_netplayerinfo() if GM_MULTI is set and reset netplayerinfo_on in game_setup()
