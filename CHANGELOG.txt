@@ -1,5 +1,9 @@
 D2X-Rebirth Changelog
 
+20110709
+--------
+main/gamerend.c, main/gauges.h: In Multiplayer games show player names in big guided window as well
+
 20110708
 --------
 main/net_udp.c: Slight improvement for Packet Loss Prevention: Be able to send to 35 packets per call of net_udp_noloss_process_queue() and also let counter only increase if a packet was actually sent, making sure the queue is not stuck on the first 5 packets in the list

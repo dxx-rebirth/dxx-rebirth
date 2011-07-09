@@ -63,6 +63,7 @@ void get_hostage_window_coords(int *x, int *y, int *w, int *h);
 void gauge_frame(void);
 extern void update_laser_weapon_info(void);
 extern void play_homing_warning(void);
+extern void show_HUD_names();
 
 typedef struct {
 	ubyte r,g,b;

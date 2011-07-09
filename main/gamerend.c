@@ -685,6 +685,8 @@ void game_render_frame_mono(int flip)
 		render_frame(0, 0);
 
 		wake_up_rendered_objects(Viewer, 0);
+		show_HUD_names();
+
 		Viewer = viewer_save;
 
 		gr_set_curfont( GAME_FONT );
