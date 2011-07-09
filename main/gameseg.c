@@ -311,8 +311,8 @@ segmasks get_seg_masks(vms_vector *checkp, int segnum, fix rad, char *calling_fi
 	int			vertex_list[6];
 	segment		*seg;
 
-	if (segnum==-1)
-		Error("segnum == -1 in get_seg_masks()");
+	if (segnum < 0 || segnum > Highest_segment_index)
+		Error("segnum == %i (%i) in get_seg_masks()\ncheckp: %i,%i,%i, rad: %i\nfrom file: %s, line: %iPlease report this bug.\n",segnum,Highest_segment_index,checkp->x,checkp->y,checkp->z,rad,calling_file,calling_linenum);
 
 	Assert((segnum <= Highest_segment_index) && (segnum >= 0));
 
@@ -618,13 +618,9 @@ int check_segment_connections(void)
 		seg = &Segments[segnum];
 
 		for (sidenum=0;sidenum<6;sidenum++) {
-			side *s;
 			segment *cseg;
-			side *cs;
 			int num_faces,csegnum,csidenum,con_num_faces;
 			int vertex_list[6],con_vertex_list[6];
-
-			s = &seg->sides[sidenum];
 
 			create_abs_vertex_lists(&num_faces, vertex_list, segnum, sidenum, __FILE__, __LINE__);
 
@@ -638,8 +634,6 @@ int check_segment_connections(void)
 					errors = 1;
 					continue;
 				}
-
-				cs = &cseg->sides[csidenum];
 
 				create_abs_vertex_lists(&con_num_faces, con_vertex_list, csegnum, csidenum, __FILE__, __LINE__);
 

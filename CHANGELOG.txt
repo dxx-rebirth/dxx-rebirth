@@ -1,5 +1,9 @@
 D2X-Rebirth Changelog
 
+20110710
+--------
+main/gameseg.c: Added complex error output if illegal segnum passed to get_seg_masks(); Fixed warning about set but unused variables
+
 20110709
 --------
 main/gamerend.c, main/gauges.h: In Multiplayer games show player names in big guided window as well
