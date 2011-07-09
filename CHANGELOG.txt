@@ -4,6 +4,7 @@ D1X-Rebirth Changelog
 --------
 main/net_udp.c: Slight improvement for Packet Loss Prevention: Be able to send to 35 packets per call of net_udp_noloss_process_queue() and also let counter only increase if a packet was actually sent, making sure the queue is not stuck on the first 5 packets in the list
 arch/sdl/digi.c: Make sure hmp_reset() is only executed if a song was playing
+main/lighting.c: Added new dynamic light calculation which works with find_connected_distance() preventing vertecies to be lit up without connection to light source but still maintaining illumination. Still deactivated as it needs more optimization - planned for 0.58. Removed old alternative dynamic lighting which was suppoed to work via fvi but way slower than the new one
 
 20110704
 --------
