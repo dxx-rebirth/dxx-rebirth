@@ -392,7 +392,7 @@ multi_send_robot_frame(int sent)
 			if (robot_fired[sending])
 			{
 				robot_fired[sending] = 0;
-				multi_send_data((char *)robot_fire_buf[sending], 18, 1);
+				multi_send_data((char *)robot_fire_buf[sending], 18, 0);
 			}
 
 			if (!(Game_mode & GM_NETWORK))
@@ -430,7 +430,7 @@ multi_send_robot_position_sub(int objnum)
 	memcpy(&(multibuf[loc]), (ubyte *)&(sp.xo), 14);
 	loc += 14;
 #endif
-	multi_send_data(multibuf, loc, 1);
+	multi_send_data(multibuf, loc, 0);
 }
 
 void
@@ -513,7 +513,7 @@ multi_send_robot_fire(int objnum, int gun_num, vms_vector *fire)
 			PacketUrgent = 1;
 	}
 	else
-		multi_send_data(multibuf, loc, 1); // Not our robot, send ASAP
+		multi_send_data(multibuf, loc, 0); // Not our robot, send ASAP
 }
 
 void

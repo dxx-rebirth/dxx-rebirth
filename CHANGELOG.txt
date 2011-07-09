@@ -3,6 +3,7 @@ D2X-Rebirth Changelog
 20110709
 --------
 main/gamerend.c, main/gauges.h: In Multiplayer games show player names in big guided window as well
+main/multibot.c: Just like for players do not protect robot firing or positional data (via PLP) to prevent jumpy movement with delayed packets
 
 20110708
 --------
