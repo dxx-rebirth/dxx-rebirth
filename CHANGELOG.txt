@@ -1,5 +1,9 @@
 D2X-Rebirth Changelog
 
+20110712
+--------
+main/wall.c: Readded automatic wall-flag setting for opened doors as PLP cannot protect us from negative side-effects due to how gullible multi_do_door_open() works
+
 20110710
 --------
 main/gameseg.c: Added complex error output if illegal segnum passed to get_seg_masks(); Fixed warning about set but unused variables
