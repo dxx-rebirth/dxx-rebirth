@@ -731,12 +731,7 @@ void game_render_frame_mono(int flip)
 		game_draw_hud_stuff();
 
 	gr_set_current_canvas(NULL);
-		int i;
-	for (i=0; i<=Highest_object_index; i++)
-		if (Objects[i].type == OBJ_ROBOT)
-			if (Robot_info[Objects[i].id].thief) {
-				gr_printf(100,LINE_SPACING, "%i",Objects[i].shields/F1_0);
-			}
+
 	show_extra_views();		//missile view, buddy bot, etc.
 
 #ifdef NETWORK
