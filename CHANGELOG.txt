@@ -1,5 +1,9 @@
 D1X-Rebirth Changelog
 
+20110712
+--------
+main/wall.c: Add fallback routine from D2 source in wall_frame_process() to automatically set open-flag if wall state is set to opened
+
 20110710
 --------
 main/gameseg.c: Added complex error output if illegal segnum passed to get_seg_masks(); Fixed warning about set but unused variables

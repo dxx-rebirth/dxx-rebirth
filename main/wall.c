@@ -938,6 +938,13 @@ void wall_frame_process()
 			do_door_close(i);
 		else if (w->state == WALL_DOOR_WAITING) {
 			d->time += FrameTime;
+
+			// set flags to fix occasional netgame problem where door is waiting to close but open flag isn't set
+			// NOTE: Taken from D2 source. Should not be necessary as multi_do_door_open() is more simple than in D2 but add anyways as it's a *good* fallback...
+			w->flags |= WALL_DOOR_OPENED;
+			if (d->back_wallnum[0] > -1)
+				Walls[d->back_wallnum[0]].flags |= WALL_DOOR_OPENED;
+
 			if (d->time > DOOR_WAIT_TIME) {
 				w->state = WALL_DOOR_CLOSING;
 				d->time = 0;
