@@ -3,6 +3,7 @@ D2X-Rebirth Changelog
 20110712
 --------
 main/wall.c: Readded automatic wall-flag setting for opened doors as PLP cannot protect us from negative side-effects due to how gullible multi_do_door_open() works
+main/multibot.c: Fixed uninitialized bytes in multi_do_create_robot_powerups() and two set but unused variables
 
 20110710
 --------

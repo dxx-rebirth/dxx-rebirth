@@ -765,11 +765,11 @@ multi_do_robot_fire(char *buf)
 	int loc = 1;
 	int botnum;
 	short remote_botnum;
-	int pnum, gun_num;
+	int gun_num;
 	vms_vector fire, gun_point;
 	robot_info *robptr;
 
-	pnum = buf[loc];												loc += 1;
+	loc += 1; // pnum
 	remote_botnum = GET_INTEL_SHORT(buf + loc);
 	botnum = objnum_remote_to_local(remote_botnum, (sbyte)buf[loc+2]); loc += 3;
 	gun_num = (sbyte)buf[loc];                                      loc += 1;
@@ -882,11 +882,10 @@ multi_do_robot_explode(char *buf)
 	short remote_botnum;
 	int loc = 1;
 	short killer, remote_killer;
-	int pnum;
 	int rval;
 	char thief;
 
-	pnum = buf[loc]; 					loc += 1;
+	loc += 1; // pnum
 	remote_killer = GET_INTEL_SHORT(buf + loc);
 	killer = objnum_remote_to_local(remote_killer, (sbyte)buf[loc+2]); loc += 3;
 	remote_botnum = GET_INTEL_SHORT(buf + loc);
@@ -1072,10 +1071,13 @@ multi_do_create_robot_powerups(char *buf)
 	object del_obj;
 	int pnum, egg_objnum, i;
 
-	pnum = buf[loc];										loc += 1;
-	del_obj.contains_count = buf[loc];						loc += 1;	
-	del_obj.contains_type = buf[loc];						loc += 1;
-	del_obj.contains_id = buf[loc]; 						loc += 1;
+	memset( &del_obj, 0, sizeof(object) );
+	del_obj.type = OBJ_ROBOT;
+
+	pnum = buf[loc];					loc += 1;
+	del_obj.contains_count = buf[loc];			loc += 1;
+	del_obj.contains_type = buf[loc];			loc += 1;
+	del_obj.contains_id = buf[loc]; 			loc += 1;
 	del_obj.segnum = GET_INTEL_SHORT(buf + loc);            loc += 2;
 	memcpy(&del_obj.pos, buf+loc, sizeof(vms_vector));      loc += 12;
 	
