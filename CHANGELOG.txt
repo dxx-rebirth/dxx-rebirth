@@ -3,6 +3,7 @@ D1X-Rebirth Changelog
 20110712
 --------
 main/wall.c: Add fallback routine from D2 source in wall_frame_process() to automatically set open-flag if wall state is set to opened
+main/multibot.c: Fixed uninitialized bytes in multi_do_create_robot_powerups() and two set but unused variables
 
 20110710
 --------
