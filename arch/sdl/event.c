@@ -72,8 +72,8 @@ void event_poll()
 			case SDL_JOYBALLMOTION:
 				break;
 			case SDL_QUIT: {
-				d_event event = { EVENT_QUIT };
-				call_default_handler(&event);
+				d_event qevent = { EVENT_QUIT };
+				call_default_handler(&qevent);
 				idle = 0;
 			} break;
 		}
@@ -82,10 +82,10 @@ void event_poll()
 	// Send the idle event if there were no other events
 	if (idle)
 	{
-		d_event event;
+		d_event ievent;
 		
-		event.type = EVENT_IDLE;
-		event_send(&event);
+		ievent.type = EVENT_IDLE;
+		event_send(&ievent);
 	}
 	
 	mouse_cursor_autohide();
