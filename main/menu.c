@@ -370,12 +370,22 @@ int RegisterPlayer()
 	{
 		char *p;
 
+		if (strlen(*f) > FILENAME_LEN-1 || strlen(*f) < 5) // sorry guys, can only have up to eight chars for the player name
+		{
+			NumItems--;
+			continue;
+		}
 		m[i++] = *f;
 		p = strchr(*f, '.');
 		if (p)
 			*p = '\0';		// chop the .plr
-		if ((p - *f) > 8)
-			*f[8] = 0;		// sorry guys, can only have up to eight chars for the player name
+	}
+
+	if (NumItems <= 1) // so it seems all plr files we found were too long. funny. let's make a real player
+	{
+		MakeNewPlayerFile(0);	// make a new player without showing listbox
+		PHYSFS_freeList(list);
+		return 0;
 	}
 
 	// Sort by name, except the <Create New Player> string

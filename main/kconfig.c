@@ -594,8 +594,7 @@ void kconfig_start_changing(kc_menu *menu)
 		kc_change_invert(menu, &menu->items[menu->citem]);
 		return;
 	}
-	
-	gr_set_fontcolor( BM_XRGB(28,28,28), -1 );
+
 	menu->q_fade_i = 0;	// start question mark flasher
 	menu->changing = 1;
 }

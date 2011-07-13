@@ -360,22 +360,22 @@ unsigned char key_ascii()
 		return 255;
 }
 
-void key_handler(SDL_KeyboardEvent *event)
+void key_handler(SDL_KeyboardEvent *kevent)
 {
 	int keycode, event_keysym=-1, key_state;
 
 	// Read SDLK symbol and state
-        event_keysym = event->keysym.sym;
-        key_state = (event->state == SDL_PRESSED)?1:0;
+        event_keysym = kevent->keysym.sym;
+        key_state = (kevent->state == SDL_PRESSED)?1:0;
 
 	// fill the unicode frame-related unicode buffer 
-	if (key_state && event->keysym.unicode > 31 && event->keysym.unicode < 255)
+	if (key_state && kevent->keysym.unicode > 31 && kevent->keysym.unicode < 255)
 	{
 		int i = 0;
 		for (i = 0; i < KEY_BUFFER_SIZE; i++)
 			if (unicode_frame_buffer[i] == '\0')
 			{
-				unicode_frame_buffer[i] = event->keysym.unicode;
+				unicode_frame_buffer[i] = kevent->keysym.unicode;
 				break;
 			}
 	}
