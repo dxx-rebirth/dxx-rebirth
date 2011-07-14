@@ -3,6 +3,7 @@ D2X-Rebirth Changelog
 20110714
 --------
 main/collide.c: When colliding with robot not controlled by us in Multi-Robot game do not apply force or damage - wait until the robot is under our control - preventing juggeling robots back and forth between players and creating massive damage
+main/multi.c: Due to descent2.ham reloading, hoard.ham must realod properly as well; cover multi_send_sound_function by plp preventing sound loops get lost/screwed in action
 
 20110713
 --------

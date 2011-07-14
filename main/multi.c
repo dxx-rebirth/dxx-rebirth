@@ -4339,7 +4339,7 @@ void multi_send_sound_function (char whichfunc, char sound)
 #else
 	multibuf[3] = sound; count++;       // this would probably work on the PC as well.  Jason?
 #endif
-	multi_send_data (multibuf,4,0);
+	multi_send_data (multibuf,4,1);
 }
 
 #define AFTERBURNER_LOOP_START  20098
@@ -5311,8 +5311,13 @@ void init_hoard_data()
 	int icon_w,icon_h;
 	ubyte palette[256*3];
 	PHYSFS_file *ifile;
+	ubyte *bitmap_data1;
 	int i,save_pos;
 	extern int Num_bitmap_files,Num_effects,Num_sound_files;
+	int bitmap_num=Hoard_bm_idx=Num_bitmap_files;
+
+	if (!first_time)
+		free_hoard_data();
 
 	ifile = PHYSFSX_openReadBuffered("hoard.ham");
 	if (ifile == NULL)
@@ -5326,56 +5331,51 @@ void init_hoard_data()
 	n_goal_frames = PHYSFSX_readShort(ifile);
 	PHYSFSX_fseek(ifile,save_pos,SEEK_SET);
 
-	if (first_time) {
-		ubyte *bitmap_data;
-		int bitmap_num=Hoard_bm_idx=Num_bitmap_files;
+	//Allocate memory for bitmaps
+	MALLOC( bitmap_data1, ubyte, n_orb_frames*orb_w*orb_h + n_goal_frames*64*64 );
 
-		//Allocate memory for bitmaps
-		MALLOC( bitmap_data, ubyte, n_orb_frames*orb_w*orb_h + n_goal_frames*64*64 );
+	//Create orb vclip
+	orb_vclip = Num_vclips++;
+	Assert(Num_vclips <= VCLIP_MAXNUM);
+	Vclip[orb_vclip].play_time = F1_0/2;
+	Vclip[orb_vclip].num_frames = n_orb_frames;
+	Vclip[orb_vclip].frame_time = Vclip[orb_vclip].play_time / Vclip[orb_vclip].num_frames;
+	Vclip[orb_vclip].flags = 0;
+	Vclip[orb_vclip].sound_num = -1;
+	Vclip[orb_vclip].light_value = F1_0;
+	for (i=0;i<n_orb_frames;i++) {
+		Vclip[orb_vclip].frames[i].index = bitmap_num;
+		gr_init_bitmap(&GameBitmaps[bitmap_num],BM_LINEAR,0,0,orb_w,orb_h,orb_w,bitmap_data1);
+		gr_set_transparent (&GameBitmaps[bitmap_num], 1);
+		bitmap_data1 += orb_w*orb_h;
+		bitmap_num++;
+		Assert(bitmap_num < MAX_BITMAP_FILES);
+	}
 
-		//Create orb vclip
-		orb_vclip = Num_vclips++;
-		Assert(Num_vclips <= VCLIP_MAXNUM);
-		Vclip[orb_vclip].play_time = F1_0/2;
-		Vclip[orb_vclip].num_frames = n_orb_frames;
-		Vclip[orb_vclip].frame_time = Vclip[orb_vclip].play_time / Vclip[orb_vclip].num_frames;
-		Vclip[orb_vclip].flags = 0;
-		Vclip[orb_vclip].sound_num = -1;
-		Vclip[orb_vclip].light_value = F1_0;
-		for (i=0;i<n_orb_frames;i++) {
-			Vclip[orb_vclip].frames[i].index = bitmap_num;
-			gr_init_bitmap(&GameBitmaps[bitmap_num],BM_LINEAR,0,0,orb_w,orb_h,orb_w,bitmap_data);
-			gr_set_transparent (&GameBitmaps[bitmap_num], 1);
-			bitmap_data += orb_w*orb_h;
-			bitmap_num++;
-			Assert(bitmap_num < MAX_BITMAP_FILES);
-		}
+	//Create obj powerup
+	Powerup_info[POW_HOARD_ORB].vclip_num = orb_vclip;
+	Powerup_info[POW_HOARD_ORB].hit_sound = -1; //Powerup_info[POW_SHIELD_BOOST].hit_sound;
+	Powerup_info[POW_HOARD_ORB].size = Powerup_info[POW_SHIELD_BOOST].size;
+	Powerup_info[POW_HOARD_ORB].light = Powerup_info[POW_SHIELD_BOOST].light;
 
-		//Create obj powerup
-		Powerup_info[POW_HOARD_ORB].vclip_num = orb_vclip;
-		Powerup_info[POW_HOARD_ORB].hit_sound = -1; //Powerup_info[POW_SHIELD_BOOST].hit_sound;
-		Powerup_info[POW_HOARD_ORB].size = Powerup_info[POW_SHIELD_BOOST].size;
-		Powerup_info[POW_HOARD_ORB].light = Powerup_info[POW_SHIELD_BOOST].light;
+	//Create orb goal wall effect
+	Hoard_goal_eclip = Num_effects++;
+	Assert(Num_effects < MAX_EFFECTS);
+	Effects[Hoard_goal_eclip] = Effects[94];        //copy from blue goal
+	Effects[Hoard_goal_eclip].changing_wall_texture = NumTextures;
+	Effects[Hoard_goal_eclip].vc.num_frames=n_goal_frames;
 
-		//Create orb goal wall effect
-		Hoard_goal_eclip = Num_effects++;
-		Assert(Num_effects < MAX_EFFECTS);
-		Effects[Hoard_goal_eclip] = Effects[94];        //copy from blue goal
-		Effects[Hoard_goal_eclip].changing_wall_texture = NumTextures;
-		Effects[Hoard_goal_eclip].vc.num_frames=n_goal_frames;
-
-		TmapInfo[NumTextures] = TmapInfo[find_goal_texture(TMI_GOAL_BLUE)];
-		TmapInfo[NumTextures].eclip_num = Hoard_goal_eclip;
-		TmapInfo[NumTextures].flags = TMI_GOAL_HOARD;
-		NumTextures++;
-		Assert(NumTextures < MAX_TEXTURES);
-		for (i=0;i<n_goal_frames;i++) {
-			Effects[Hoard_goal_eclip].vc.frames[i].index = bitmap_num;
-			gr_init_bitmap(&GameBitmaps[bitmap_num],BM_LINEAR,0,0,64,64,64,bitmap_data);
-			bitmap_data += 64*64;
-			bitmap_num++;
-			Assert(bitmap_num < MAX_BITMAP_FILES);
-		}
+	TmapInfo[NumTextures] = TmapInfo[find_goal_texture(TMI_GOAL_BLUE)];
+	TmapInfo[NumTextures].eclip_num = Hoard_goal_eclip;
+	TmapInfo[NumTextures].flags = TMI_GOAL_HOARD;
+	NumTextures++;
+	Assert(NumTextures < MAX_TEXTURES);
+	for (i=0;i<n_goal_frames;i++) {
+		Effects[Hoard_goal_eclip].vc.frames[i].index = bitmap_num;
+		gr_init_bitmap(&GameBitmaps[bitmap_num],BM_LINEAR,0,0,64,64,64,bitmap_data1);
+		bitmap_data1 += 64*64;
+		bitmap_num++;
+		Assert(bitmap_num < MAX_BITMAP_FILES);
 	}
 
 	//Load and remap bitmap data for orb
@@ -5397,45 +5397,40 @@ void init_hoard_data()
 
 	//Load and remap bitmap data for HUD icons
 	for (i=0;i<2;i++) {
+		ubyte *bitmap_data2;
 		icon_w = PHYSFSX_readShort(ifile);
 		icon_h = PHYSFSX_readShort(ifile);
-		if (first_time) {
-			ubyte *bitmap_data;
-			MALLOC( bitmap_data, ubyte, icon_w*icon_h );
-			gr_init_bitmap(&Orb_icons[i],BM_LINEAR,0,0,icon_w,icon_h,icon_w,bitmap_data);
-			gr_set_transparent (&Orb_icons[i], 1);
-		}
+		MALLOC( bitmap_data2, ubyte, icon_w*icon_h );
+		gr_init_bitmap(&Orb_icons[i],BM_LINEAR,0,0,icon_w,icon_h,icon_w,bitmap_data2);
+		gr_set_transparent (&Orb_icons[i], 1);
 		PHYSFS_read(ifile,palette,3,256);
 		PHYSFS_read(ifile,Orb_icons[i].bm_data,1,icon_w*icon_h);
 		gr_remap_bitmap_good( &Orb_icons[i], palette, 255, -1 );
 	}
 
-	if (first_time) {
+	//Load sounds for orb game
+	Hoard_snd_idx = Num_sound_files;
+	for (i=0;i<4;i++) {
+		int len;
 
-		//Load sounds for orb game
-		Hoard_snd_idx = Num_sound_files;
-		for (i=0;i<4;i++) {
-			int len;
+		len = PHYSFSX_readInt(ifile);        //get 11k len
 
-			len = PHYSFSX_readInt(ifile);        //get 11k len
-
-			if (GameArg.SndDigiSampleRate == SAMPLE_RATE_22K) {
-				PHYSFSX_fseek(ifile,len,SEEK_CUR);     //skip over 11k sample
-				len = PHYSFSX_readInt(ifile);    //get 22k len
-			}
-
-			GameSounds[Num_sound_files+i].length = len;
-			GameSounds[Num_sound_files+i].data = d_malloc(len);
-			PHYSFS_read(ifile,GameSounds[Num_sound_files+i].data,1,len);
-
-			if (GameArg.SndDigiSampleRate == SAMPLE_RATE_11K) {
-				len = PHYSFSX_readInt(ifile);    //get 22k len
-				PHYSFSX_fseek(ifile,len,SEEK_CUR);     //skip over 22k sample
-			}
-
-			Sounds[SOUND_YOU_GOT_ORB+i] = Num_sound_files+i;
-			AltSounds[SOUND_YOU_GOT_ORB+i] = Sounds[SOUND_YOU_GOT_ORB+i];
+		if (GameArg.SndDigiSampleRate == SAMPLE_RATE_22K) {
+			PHYSFSX_fseek(ifile,len,SEEK_CUR);     //skip over 11k sample
+			len = PHYSFSX_readInt(ifile);    //get 22k len
 		}
+
+		GameSounds[Num_sound_files+i].length = len;
+		GameSounds[Num_sound_files+i].data = d_malloc(len);
+		PHYSFS_read(ifile,GameSounds[Num_sound_files+i].data,1,len);
+
+		if (GameArg.SndDigiSampleRate == SAMPLE_RATE_11K) {
+			len = PHYSFSX_readInt(ifile);    //get 22k len
+			PHYSFSX_fseek(ifile,len,SEEK_CUR);     //skip over 22k sample
+		}
+
+		Sounds[SOUND_YOU_GOT_ORB+i] = Num_sound_files+i;
+		AltSounds[SOUND_YOU_GOT_ORB+i] = Sounds[SOUND_YOU_GOT_ORB+i];
 	}
 
 	PHYSFS_close(ifile);
