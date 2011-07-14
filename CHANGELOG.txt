@@ -1,5 +1,9 @@
 D2X-Rebirth Changelog
 
+20110715
+--------
+main/net_ipx.c, main/net_udp.c: When updating netgame hoard game flag used for compability reasons must be removed as it can be set - otherwise screwing up game mode display in netlist menu
+
 20110714
 --------
 main/collide.c: When colliding with robot not controlled by us in Multi-Robot game do not apply force or damage - wait until the robot is under our control - preventing juggeling robots back and forth between players and creating massive damage

@@ -2062,6 +2062,11 @@ void net_udp_update_netgame(void)
 			if (Game_mode & GM_TEAM)
 				Netgame.game_flags |=NETGAME_FLAG_TEAM_HOARD;
 		}
+		else
+		{
+			Netgame.game_flags &= ~NETGAME_FLAG_HOARD;
+			Netgame.game_flags &= ~NETGAME_FLAG_TEAM_HOARD;
+		}
 	}
 	
 	if (Network_status == NETSTAT_STARTING)
