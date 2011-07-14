@@ -1,5 +1,9 @@
 D1X-Rebirth Changelog
 
+20110714
+--------
+main/collide.c: When colliding with robot not controlled by us in Multi-Robot game do not apply force or damage - wait until the robot is under our control - preventing juggeling robots back and forth between players and creating massive damage
+
 20110713
 --------
 arch/sdl/event.c, arch/sdl/key.c, main/kconfig.c, main/menu.c: Stability fixes: avoid somfusions with same named variables in one function; Properly sort out players from player list that use too long filenames; Removed call for gr_set_fontcolor in kconfig where no canvas is set, causing crashes when trying to reassign a button, key or axis
