@@ -986,7 +986,10 @@ void collide_robot_and_player( object * robot, object * playerobj, vms_vector *c
 	}
 #ifdef NETWORK
 	else
+	{
 		multi_robot_request_change(robot, playerobj->id);
+		return; // only controlling player should make damage otherwise we might juggle robot back and forth, killing it instantly
+	}
 #endif
 
 	if (check_collision_delayfunc_exec())
