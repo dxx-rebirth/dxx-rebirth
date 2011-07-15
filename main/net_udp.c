@@ -4951,7 +4951,7 @@ static int show_game_rules_handler(window *wind, d_event *event, netgame_info *n
 			gr_printf( FSPACX( 25),FSPACY( 55), "Reactor Life:");
 			gr_printf( FSPACX( 25),FSPACY( 61), "Max Time:");
 			gr_printf( FSPACX( 25),FSPACY( 67), "Kill Goal:");
-			gr_printf( FSPACX( 25),FSPACY( 73), "Pakets per second:");
+			gr_printf( FSPACX( 25),FSPACY( 73), "Packets per sec.:");
 			gr_printf( FSPACX(155),FSPACY( 55), "Show Players On Automap:");
 			gr_printf( FSPACX(155),FSPACY( 61), "Invul when reappearing:");
 			gr_printf( FSPACX(155),FSPACY( 67), "Bright player ships:");
