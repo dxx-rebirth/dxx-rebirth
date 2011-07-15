@@ -11,6 +11,7 @@
 
 #include "hmp.h"
 #include "u_mem.h"
+#include "console.h"
 
 #ifdef WORDS_BIGENDIAN
 #define MIDIINT(x) (x)
@@ -202,7 +203,7 @@ static int get_event(hmp_file *hmp, event *ev) {
 	mindelta = INT_MAX;
 	fndtrk = NULL;
 	for (trk = hmp->trks, i = hmp->num_trks; (i--) > 0; trk++) {
-		if (!trk->left || hmp->loop_start && hmp->looping && !trk->loop_set)
+		if (!trk->left || (hmp->loop_start && hmp->looping && !trk->loop_set))
 			continue;
 		if (!(got = get_var_num_hmi(trk->cur, trk->left, &delta)))
 			return HMP_INVALID_FILE;
@@ -304,6 +305,8 @@ static int fill_buffer(hmp_file *hmp) {
 	unsigned int i;
 	event ev;
 
+	memset(&ev, 0, sizeof(event));
+
 	while (p + 4 <= pend) {
 		if (hmp->pending_size) {
 			i = (p - pend) * 4;
@@ -346,7 +349,7 @@ static int setup_buffers(hmp_file *hmp) {
 		if (!(buf = d_malloc(HMP_BUFSIZE + sizeof(MIDIHDR))))
 			return HMP_OUT_OF_MEM;
 		memset(buf, 0, sizeof(MIDIHDR));
-		buf->lpData = (unsigned char *)buf + sizeof(MIDIHDR);
+		buf->lpData = (char *)buf + sizeof(MIDIHDR);
 		buf->dwBufferLength = HMP_BUFSIZE;
 		buf->dwUser = (DWORD)hmp;
 		buf->lpNext = lastbuf;
@@ -495,11 +498,36 @@ void hmp_reset()
 {
 	HMIDIOUT hmidi;
 	MIDIHDR mhdr;
+	MMRESULT rval;
 	int channel;
-	unsigned char GS_Reset[] = { 0xF0, 0x41, 0x10, 0x42, 0x12, 0x40, 0x00, 0x7F, 0x00, 0x41, 0xF7 };
+	char GS_Reset[] = { 0xF0, 0x41, 0x10, 0x42, 0x12, 0x40, 0x00, 0x7F, 0x00, 0x41, 0xF7 };
 
 
-	midiOutOpen(&hmidi, MIDI_MAPPER, 0, 0, 0);
+	if ((rval = midiOutOpen(&hmidi, MIDI_MAPPER, 0, 0, 0)) != MMSYSERR_NOERROR)
+	{
+		switch (rval)
+		{
+			case MIDIERR_NODEVICE:
+				con_printf(CON_DEBUG, "midiOutOpen Error: no MIDI port was found.\n");
+				break;
+			case MMSYSERR_ALLOCATED:
+				con_printf(CON_DEBUG, "midiOutOpen Error: specified resource is already allocated.\n");
+				break;
+			case MMSYSERR_BADDEVICEID:
+				con_printf(CON_DEBUG, "midiOutOpen Error: specified device identifier is out of range.\n");
+				break;
+			case MMSYSERR_INVALPARAM:
+				con_printf(CON_DEBUG, "midiOutOpen Error: specified pointer or structure is invalid.\n");
+				break;
+			case MMSYSERR_NOMEM:
+				con_printf(CON_DEBUG, "midiOutOpen Error: unable to allocate or lock memory.\n");
+				break;
+			default:
+				con_printf(CON_DEBUG, "midiOutOpen Error code %i\n",rval);
+				break;
+		}
+		return;
+	}
 
 	for (channel = 0; channel < 16; channel++)
 	{
