@@ -184,6 +184,8 @@ ubyte Automap_visited[MAX_SEGMENTS];
 void adjust_segment_limit(automap *am, int SegmentLimit);
 void draw_all_edges(automap *am);
 void automap_build_edge_list(automap *am);
+// extern
+void check_and_fix_matrix(vms_matrix *m);
 
 #define	MAX_DROP_MULTI	2
 #define	MAX_DROP_SINGLE	9
@@ -482,6 +484,7 @@ int automap_process_input(window *wind, d_event *event, automap *am)
 			vm_angles_2_matrix(&tempm, &tangles);
 			vm_matrix_x_matrix(&new_m,&am->viewMatrix,&tempm);
 			am->viewMatrix = new_m;
+			check_and_fix_matrix(&am->viewMatrix);
 		}
 		
 		if ( am->controls.forward_thrust_time || am->controls.vertical_thrust_time || am->controls.sideways_thrust_time )
