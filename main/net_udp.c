@@ -5215,7 +5215,7 @@ static int show_game_rules_handler(window *wind, d_event *event, netgame_info *n
 			gr_printf( FSPACX( 25),FSPACY( 35), "Reactor Life:");
 			gr_printf( FSPACX( 25),FSPACY( 41), "Max Time:");
 			gr_printf( FSPACX( 25),FSPACY( 47), "Kill Goal:");
-			gr_printf( FSPACX( 25),FSPACY( 53), "Pakets per second:");
+			gr_printf( FSPACX( 25),FSPACY( 53), "Packets per sec.:");
 			gr_printf( FSPACX(155),FSPACY( 35), "Invul when reappearing:");
 			gr_printf( FSPACX(155),FSPACY( 41), "Marker camera views:");
 			gr_printf( FSPACX(155),FSPACY( 47), "Indestructible lights:");

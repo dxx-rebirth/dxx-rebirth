@@ -36,9 +36,9 @@ void net_udp_send_netgame_update();
 #define TRACKER_PORT_DEFAULT 42420
 #endif
 #define UDP_REQ_ID "D2XR" // ID string for a request packet
-#define UDP_MAX_NETGAMES 3000
+#define UDP_MAX_NETGAMES 900
 #define UDP_NETGAMES_PPAGE 12 // Netgames on one page of Netlist
-#define UDP_NETGAMES_PAGES 250 // Pages available on Netlist (UDP_MAX_NETGAMES/UDP_NETGAMES_PPAGE)
+#define UDP_NETGAMES_PAGES 75 // Pages available on Netlist (UDP_MAX_NETGAMES/UDP_NETGAMES_PPAGE)
 #define UDP_TIMEOUT (10*F1_0) // 10 seconds disconnect timeout
 #define UDP_MDATA_STOR_QUEUE_SIZE	500 // Store up to 500 MDATA packets
 
