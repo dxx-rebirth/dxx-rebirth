@@ -5,6 +5,7 @@ D2X-Rebirth Changelog
 main/net_ipx.c, main/net_udp.c: When updating netgame hoard game flag used for compability reasons must be removed as it can be set - otherwise screwing up game mode display in netlist menu
 arch/sdl/digi.c, main/digi.h, main/songs.c, misc/hmp.c: Bail out of hmp_reset() if midiOutOpen fails and return error with -debug set; execute hmp_reset() before first song plays; renamed digi_win32_stop_current_song() to digi_win32_stop_midi_song() to keep naming convention; Fixed some compiler warnings
 main/net_udp.c, main/net_udp.h: Fixed typo in Packets per sec. in GAME_RULES screen; Reduced max amount of games shown on netlist to 900 to reduce RAM usage... as if we'd ever reach this
+main/automap.c: properly check and fix viewMatrix in free flight auotmap
 
 20110714
 --------
