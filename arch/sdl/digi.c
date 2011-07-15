@@ -144,6 +144,7 @@ void digi_debug()
 // Windows native-MIDI stuff.
 int digi_win32_midi_song_playing=0;
 static hmp_file *cur_hmp=NULL;
+static int firstplay = 1;
 
 void digi_win32_set_midi_volume( int mvolume )
 {
@@ -152,7 +153,12 @@ void digi_win32_set_midi_volume( int mvolume )
 
 int digi_win32_play_midi_song( char * filename, int loop )
 {
-	digi_win32_stop_current_song();
+	if (firstplay)
+	{
+		hmp_reset();
+		firstplay = 0;
+	}
+	digi_win32_stop_midi_song();
 
 	if (filename == NULL)
 		return 0;
@@ -184,7 +190,7 @@ void digi_win32_resume_midi_song()
 	hmp_resume(cur_hmp);
 }
 
-void digi_win32_stop_current_song()
+void digi_win32_stop_midi_song()
 {
 	if (!digi_win32_midi_song_playing)
 		return;

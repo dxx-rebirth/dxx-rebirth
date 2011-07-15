@@ -1,5 +1,9 @@
 D1X-Rebirth Changelog
 
+20110715
+--------
+arch/sdl/digi.c, main/digi.h, main/songs.c, misc/hmp.c: Bail out of hmp_reset() if midiOutOpen fails and return error with -debug set; execute hmp_reset() before first song plays; renamed digi_win32_stop_current_song() to digi_win32_stop_midi_song() to keep naming convention; Fixed some compiler warnings
+
 20110714
 --------
 main/collide.c: When colliding with robot not controlled by us in Multi-Robot game do not apply force or damage - wait until the robot is under our control - preventing juggeling robots back and forth between players and creating massive damage
