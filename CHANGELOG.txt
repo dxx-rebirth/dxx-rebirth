@@ -1,5 +1,9 @@
 D1X-Rebirth Changelog
 
+20110716
+--------
+main/songs.c: Correctly proceed to new Redbook track if songnum != Song_playing (hopefully - to confirm); Using songs_stop_all() in songs_uninit() to clear redundancy; added some notes to functions to shine a bit light on the mess of some functions
+
 20110715
 --------
 arch/sdl/digi.c, main/digi.h, main/songs.c, misc/hmp.c: Bail out of hmp_reset() if midiOutOpen fails and return error with -debug set; execute hmp_reset() before first song plays; renamed digi_win32_stop_current_song() to digi_win32_stop_midi_song() to keep naming convention; Fixed some compiler warnings

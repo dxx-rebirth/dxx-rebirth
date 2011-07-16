@@ -44,6 +44,7 @@ int Num_bim_songs;
 #define EXTMUSIC_VOLUME_SCALE	(255)
 
 //takes volume in range 0..8
+//NOTE that we do not check what is playing right now (except Redbook) This is because here we don't (want) know WHAT we're playing - let the subfunctions do it (i.e. digi_win32_set_music_volume() knows if a MIDI plays or not)
 void songs_set_volume(int volume)
 {
 #ifdef _WIN32
@@ -59,6 +60,8 @@ void songs_set_volume(int volume)
 #endif
 }
 
+// Set up everything for our music
+// NOTE: you might think this is done once per runtime but it's not! It's done for EACH song so that each mission can have it's own descent.sng structure. We COULD optimize that by only doing this once per mission.
 void songs_init()
 {
 	int i = 0;
@@ -175,19 +178,12 @@ void songs_init()
 
 void songs_uninit()
 {
-#ifdef _WIN32
-	digi_win32_stop_midi_song();	// Stop midi song, if playing
-#endif
-	RBAStop();
-//	RBAExit();
+	songs_stop_all();
 #ifdef USE_SDLMIXER
-	mix_stop_music();
 	jukebox_unload();
 #endif
-
 	if (BIMSongs != NULL)
 		d_free(BIMSongs);
-	Song_playing = -1;
 	Songs_initialized = 0;
 }
 
@@ -286,6 +282,10 @@ int songs_play_song( int songnum, int repeat )
 	{
 		case MUSIC_TYPE_BUILTIN:
 		{
+			// EXCEPTION: If SONG_ENDLEVEL is not available, continue playing level song.
+			if (Song_playing >= SONG_FIRST_LEVEL_SONG && songnum == SONG_ENDLEVEL && !PHYSFSX_exists(BIMSongs[songnum].filename, 1))
+				return Song_playing;
+
 			Song_playing = -1;
 #ifdef _WIN32
 			if (GameArg.SndDisableSdlMixer)
@@ -424,7 +424,8 @@ int songs_play_level_song( int levelnum, int offset )
 
 			if (!offset)
 			{
-				if (Song_playing >= SONG_FIRST_LEVEL_SONG)
+				// we have just been told to play the same as we do already -> ignore
+				if (Song_playing >= SONG_FIRST_LEVEL_SONG && songnum + SONG_FIRST_LEVEL_SONG == Song_playing)
 					return Song_playing;
 
 				tracknum = REDBOOK_FIRST_LEVEL_TRACK + ((n_tracks<=REDBOOK_FIRST_LEVEL_TRACK) ? 0 : (songnum % (n_tracks-REDBOOK_FIRST_LEVEL_TRACK)));
