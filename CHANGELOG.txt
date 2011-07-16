@@ -2,7 +2,8 @@ D2X-Rebirth Changelog
 
 20110716
 --------
-main/songs.c: Correctly proceed to new Redbook track if songnum != Song_playing (hopefully - to confirm); Using songs_stop_all() in songs_uninit() to clear redundancy; added some notes to functions to shine a bit light on the mess of some functions
+main/songs.c: Correctly proceed to new Redbook track if songnum != Song_playing (hopefully - to confirm); Using songs_stop_all() in songs_uninit() to clear redundancy; added some notes to functions to shine a bit light on the mess of some functions; Also if there's no escape song, continue level music
+arch/sdl/rbaudio.c, main/inferno.c: Fixing Redbook hooks: Initialize last_check_time in RBACheckFinishedHook(); Execute RBACheckFinishedHook() during EVENT_WINDOW_DRAW in standard_handler() as EVENT_IDLE rarely happens if you have a shivering Joystick connected for example
 
 20110715
 --------

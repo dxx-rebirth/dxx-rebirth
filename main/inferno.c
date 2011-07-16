@@ -285,6 +285,7 @@ int standard_handler(d_event *event)
 			}
 			break;
 
+		case EVENT_WINDOW_DRAW:
 		case EVENT_IDLE:
 			//see if redbook song needs to be restarted
 			RBACheckFinishedHook();
