@@ -1,5 +1,9 @@
 D2X-Rebirth Changelog
 
+20110716
+--------
+main/songs.c: Correctly proceed to new Redbook track if songnum != Song_playing (hopefully - to confirm); Using songs_stop_all() in songs_uninit() to clear redundancy; added some notes to functions to shine a bit light on the mess of some functions
+
 20110715
 --------
 main/net_ipx.c, main/net_udp.c: When updating netgame hoard game flag used for compability reasons must be removed as it can be set - otherwise screwing up game mode display in netlist menu
