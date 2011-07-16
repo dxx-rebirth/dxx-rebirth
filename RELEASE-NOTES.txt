@@ -1,6 +1,11 @@
 RELEASE NOTES
 =============
 
+What's new in 0.57.1
+--------------------
+* Several Bugfixes
+
+
 What's new in 0.57
 ------------------
 * OpenGL ES Support by Florian Feucht and Oliver Haag
@@ -39,3 +44,8 @@ Special notes for this release
   'warning: variable ‘VARIABLE_NAME’ set but not used [-Wunused-but-set-variable]'
   Note that these warnings are totally harmless and we will fix them as soon as possible.
 * The Tracker server is brand new and might still have a bug or two. If you encounter a bug, let us know so we can properly fix it. Most can be fixed without a modification on the game itself.
+
+
+Known issues
+------------
+* On Windows the mouse is not correctly released if using ALT+TAB to minimize the game. This is not a bug in the program but rather the SDL library. It can be worked around by pausing the game and using ALT+ENTER to get the game to windowed mode. The mosue should not be stuck then anymore
