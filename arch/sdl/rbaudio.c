@@ -200,7 +200,7 @@ int RBAGetNumberOfTracks()
 // a real hook would be ideal, but is currently unsupported by SDL Audio CD
 void RBACheckFinishedHook()
 {
-	static fix64 last_check_time;
+	static fix64 last_check_time = 0;
 	
 	if (!s_cd) return;
 
