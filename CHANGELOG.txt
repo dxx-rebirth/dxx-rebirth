@@ -4,6 +4,7 @@ D1X-Rebirth Changelog
 --------
 main/net_udp.c: Properly call multi_leave_game() when host leaves multi game to let clients exit smoothly
 English.lproj/InfoPlist.strings, d1x-Info.plist, d1xgl-Info.plist, main/inferno.c: Keep copyright information up to date
+README.txt, debian/control, debian/copyright, debian/rules: Changed my eMail address
 
 20110716
 --------

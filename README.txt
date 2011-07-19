@@ -13,7 +13,7 @@ http://www.dxx-rebirth.com
    It is the goal of DXX-Rebirth to keep these games alive and the result is a very stable version of
    the Descent I port - called D1X-Rebirth.
    I hope you enjoy the game as you did when you played it the first time.
-   If you have something to say about my release, feel free to contact me at zicodxx [at] yahoo [dot] de
+   If you have something to say about my release, feel free to contact me at zico [at] dxx-rebirth [dot] com
 
 
 1. Features:
@@ -70,4 +70,4 @@ http://www.dxx-rebirth.com
 ===========
 
    http://www.dxx-rebirth.com/
-   zicodxx [at] yahoo [dot] de
+   zico [at] dxx-rebirth [dot] com
