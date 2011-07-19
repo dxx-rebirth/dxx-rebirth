@@ -1204,6 +1204,8 @@ net_udp_disconnect_player(int playernum)
 
 	if (playernum == 0) // Host has left - Quit game!
 	{
+		if (Network_status==NETSTAT_PLAYING)
+			multi_leave_game();
 		window_set_visible(Game_wind, 0);
 		nm_messagebox(NULL, 1, TXT_OK, "Game was closed by host!");
 		window_set_visible(Game_wind, 1);
