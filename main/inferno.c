@@ -344,7 +344,7 @@ int main(int argc, char *argv[])
 	//print out the banner title
 	con_printf(CON_NORMAL,DESCENT_VERSION "\n"
 			   "This is a MODIFIED version of DESCENT which is NOT supported by Parallax or\n"
-			   "Interplay. Use at your own risk! Copyright (c) 2005 Christian Beckhaeuser\n");
+			   "Interplay. Use at your own risk! Copyright (c) 2005-2011 Christian Beckhaeuser\n");
 	con_printf(CON_NORMAL,"Based on: DESCENT   %s\n", VERSION_NAME);
 	con_printf(CON_NORMAL,"%s\n%s\n\n",TXT_COPYRIGHT,TXT_TRADEMARK);
 
