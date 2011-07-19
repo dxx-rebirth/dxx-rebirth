@@ -377,7 +377,7 @@ int main(int argc, char *argv[])
 	con_printf(CON_NORMAL, "%s\n%s\n",TXT_COPYRIGHT,TXT_TRADEMARK);
 	con_printf(CON_NORMAL, "This is a MODIFIED version of Descent 2. Copyright (c) 1999 Peter Hawkins\n");
 	con_printf(CON_NORMAL, "                                         Copyright (c) 2002 Bradley Bell\n");
-	con_printf(CON_NORMAL, "                                         Copyright (c) 2005 Christian Beckhaeuser\n\n");
+	con_printf(CON_NORMAL, "                                         Copyright (c) 2005-2011 Christian Beckhaeuser\n\n");
 
 	if (GameArg.DbgVerbose)
 		con_printf(CON_VERBOSE,"%s%s", TXT_VERBOSE_1, "\n");
