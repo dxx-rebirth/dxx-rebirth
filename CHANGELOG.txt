@@ -1,5 +1,9 @@
 D2X-Rebirth Changelog
 
+20110720
+--------
+main/menu: Added Polygon model viewer and GameBitmaps viewer in non-Release build for debugging, messing around, DXX-Redrawn, etc.
+
 20110719
 --------
 main/net_udp.c: Properly call multi_leave_game() when host leaves multi game to let clients exit smoothly
