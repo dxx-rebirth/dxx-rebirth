@@ -114,6 +114,9 @@ enum MENUS
     MENU_START_KALI_NETGAME, // xKali support (not Windows Kali! Windows Kali is over IPX!)
     MENU_JOIN_KALI_NETGAME,
     #endif
+    #ifndef RELEASE
+    MENU_SANDBOX
+    #endif
 };
 
 //ADD_ITEM("Start netgame...", MENU_START_NETGAME, -1 );
@@ -127,6 +130,9 @@ static window *menus[16] = { NULL };
 int do_option(int select);
 int do_new_game_menu(void);
 void do_multi_player_menu();
+#ifndef RELEASE
+void do_sandbox_menu();
+#endif
 extern void newmenu_free_background();
 extern void ReorderPrimary();
 extern void ReorderSecondary();
@@ -499,6 +505,7 @@ void create_main_menu(newmenu_item *m, int *menu_choice, int *callers_num_option
 		ADD_ITEM("  Editor", MENU_EDITOR, KEY_E);
 		#endif
 	}
+	ADD_ITEM("  SANDBOX", MENU_SANDBOX, -1);
 	#endif
 
 	*callers_num_options = num_options;
@@ -632,6 +639,11 @@ int do_option ( int select)
 			songs_stop_all();
 			credits_show(NULL);
 			break;
+#ifndef RELEASE
+		case MENU_SANDBOX:
+			do_sandbox_menu();
+			break;
+#endif
 		default:
 			Error("Unknown option %d in do_option",select);
 			break;
@@ -1994,3 +2006,213 @@ void do_options_menu()
 	// Allows clean closing and re-opening when resolution changes
 	newmenu_do3( NULL, TXT_OPTIONS, 10, m, options_menuset, NULL, 0, NULL );
 }
+
+#ifndef RELEASE
+int polygon_models_viewer_handler(window *wind, d_event *event)
+{
+	static int view_idx = 0;
+	int key = 0;
+	static vms_angvec ang;
+
+	switch (event->type)
+	{
+		case EVENT_WINDOW_ACTIVATED:
+			key_toggle_repeat(1);
+			view_idx = 0;
+			ang.p = ang.b = 0;
+			ang.h = F1_0/2;
+			break;
+		case EVENT_KEY_COMMAND:
+			key = event_key_get(event);
+			switch (key)
+			{
+				case KEY_ESC:
+					window_close(wind);
+					break;
+				case KEY_SPACEBAR:
+					view_idx ++;
+					if (view_idx >= N_polygon_models) view_idx = 0;
+					break;
+				case KEY_BACKSP:
+					view_idx --;
+					if (view_idx < 0 ) view_idx = N_polygon_models - 1;
+					break;
+				case KEY_A:
+					ang.h -= 100;
+					break;
+				case KEY_D:
+					ang.h += 100;
+					break;
+				case KEY_W:
+					ang.p -= 100;
+					break;
+				case KEY_S:
+					ang.p += 100;
+					break;
+				case KEY_Q:
+					ang.b -= 100;
+					break;
+				case KEY_E:
+					ang.b += 100;
+					break;
+				case KEY_R:
+					ang.p = ang.b = 0;
+					ang.h = F1_0/2;
+					break;
+				default:
+					break;
+			}
+			return 1;
+		case EVENT_WINDOW_DRAW:
+			timer_delay(F1_0/60);
+			draw_model_picture(view_idx, &ang);
+			gr_set_curfont(GAME_FONT);
+			gr_set_fontcolor(BM_XRGB(255,255,255), -1);
+			gr_printf(FSPACX(1), FSPACY(1), "ESC: leave\nSPACE/BACKSP: next/prev model (%i/%i)\nA/D: rotate y\nW/S: rotate x\nQ/E: rotate z\nR: reset orientation",view_idx,N_polygon_models-1);
+			break;
+		case EVENT_WINDOW_CLOSE:
+			key_toggle_repeat(0);
+			break;
+		default:
+			break;
+	}
+	
+	return 0;
+}
+
+void polygon_models_viewer()
+{
+	window *wind = window_create(&grd_curscreen->sc_canvas, 0, 0, SWIDTH, SHEIGHT, (int (*)(window *, d_event *, void *))polygon_models_viewer_handler, NULL);
+	if (!wind)
+	{
+		d_event event = { EVENT_WINDOW_CLOSE };
+		polygon_models_viewer_handler(NULL, &event);
+		return;
+	}
+
+	while (window_exists(wind))
+		event_process();
+}
+
+int gamebitmaps_viewer_handler(window *wind, d_event *event)
+{
+	static int view_idx = 0;
+	int key = 0;
+#ifdef OGL
+	float scale = 1.0;
+#endif
+	bitmap_index bi;
+	grs_bitmap *bm;
+	extern int Num_bitmap_files;
+
+	switch (event->type)
+	{
+		case EVENT_WINDOW_ACTIVATED:
+			key_toggle_repeat(1);
+			view_idx = 0;
+			break;
+		case EVENT_KEY_COMMAND:
+			key = event_key_get(event);
+			switch (key)
+			{
+				case KEY_ESC:
+					window_close(wind);
+					break;
+				case KEY_SPACEBAR:
+					view_idx ++;
+					if (view_idx >= Num_bitmap_files) view_idx = 0;
+					break;
+				case KEY_BACKSP:
+					view_idx --;
+					if (view_idx < 0 ) view_idx = Num_bitmap_files - 1;
+					break;
+				default:
+					break;
+			}
+			return 1;
+		case EVENT_WINDOW_DRAW:
+			bi.index = view_idx;
+			bm = &GameBitmaps[view_idx];
+			timer_delay(F1_0/60);
+			PIGGY_PAGE_IN(bi);
+			gr_clear_canvas( BM_XRGB(0,0,0) );
+#ifdef OGL
+			scale = (bm->bm_w > bm->bm_h)?(SHEIGHT/bm->bm_w)*0.8:(SHEIGHT/bm->bm_h)*0.8;
+			ogl_ubitmapm_cs((SWIDTH/2)-(bm->bm_w*scale/2),(SHEIGHT/2)-(bm->bm_h*scale/2),bm->bm_w*scale,bm->bm_h*scale,bm,-1,F1_0);
+#else
+			gr_bitmap((SWIDTH/2)-(bm->bm_w/2), (SHEIGHT/2)-(bm->bm_h/2), bm);
+#endif
+			gr_set_curfont(GAME_FONT);
+			gr_set_fontcolor(BM_XRGB(255,255,255), -1);
+			gr_printf(FSPACX(1), FSPACY(1), "ESC: leave\nSPACE/BACKSP: next/prev bitmap (%i/%i)",view_idx,Num_bitmap_files-1);
+			break;
+		case EVENT_WINDOW_CLOSE:
+			key_toggle_repeat(0);
+			break;
+		default:
+			break;
+	}
+	
+	return 0;
+}
+
+void gamebitmaps_viewer()
+{
+	window *wind = window_create(&grd_curscreen->sc_canvas, 0, 0, SWIDTH, SHEIGHT, (int (*)(window *, d_event *, void *))gamebitmaps_viewer_handler, NULL);
+	if (!wind)
+	{
+		d_event event = { EVENT_WINDOW_CLOSE };
+		gamebitmaps_viewer_handler(NULL, &event);
+		return;
+	}
+
+	while (window_exists(wind))
+		event_process();
+}
+
+int sandbox_menuset(newmenu *menu, d_event *event, void *userdata)
+{
+	switch (event->type)
+	{
+		case EVENT_NEWMENU_CHANGED:
+			break;
+
+		case EVENT_NEWMENU_SELECTED:
+			switch(newmenu_get_citem(menu))
+			{
+				case  0: polygon_models_viewer(); break;
+				case  1: gamebitmaps_viewer(); break;
+			}
+			return 1; // stay in menu until escape
+			break;
+
+		case EVENT_WINDOW_CLOSE:
+		{
+			newmenu_item *items = newmenu_get_items(menu);
+			d_free(items);
+			break;
+		}
+
+		default:
+			break;
+	}
+
+	userdata = userdata; //kill warning
+
+	return 0;
+}
+
+void do_sandbox_menu()
+{
+	newmenu_item *m;
+
+	MALLOC(m, newmenu_item, 2);
+	if (!m)
+		return;
+
+	m[ 0].type = NM_TYPE_MENU;   m[ 0].text="Polygon_models viewer";
+	m[ 1].type = NM_TYPE_MENU;   m[ 1].text="GameBitmaps viewer";
+
+	newmenu_do3( NULL, "Coder's sandbox", 2, m, sandbox_menuset, NULL, 0, NULL );
+}
+#endif
