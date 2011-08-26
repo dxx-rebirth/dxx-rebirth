@@ -1,5 +1,9 @@
 D2X-Rebirth Changelog
 
+20110826
+--------
+main/ai.c: Due to conversion from fix64 to fix Boss_dying_start_time was not 0 when saving even if boss was not dead - fixed; Fixed warning about set but unused variable
+
 20110720
 --------
 main/menu: Added Polygon model viewer and GameBitmaps viewer in non-Release build for debugging, messing around, DXX-Redrawn, etc.

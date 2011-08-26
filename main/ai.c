@@ -625,7 +625,6 @@ _exit_cheat:
 	default:
 		{
 			int	pv;
-			fix	dtp = dist_to_player/4;
 
 			if (aip->GOAL_STATE == AIS_FLIN)
 				aip->GOAL_STATE = AIS_FIRE;
@@ -639,7 +638,6 @@ _exit_cheat:
 			// If player cloaked, visibility is screwed up and superboss will gate in robots when not supposed to.
 			if (Players[Player_num].flags & PLAYER_FLAGS_CLOAKED) {
 				pv = 0;
-				dtp = vm_vec_dist_quick(&ConsoleObject->pos, &obj->pos)/4;
 			}
 
 			do_boss_stuff(obj, pv);
@@ -1617,10 +1615,19 @@ int ai_save_state(PHYSFS_file *fp)
 		tmptime32 = Last_gate_time - GameTime64;
 	PHYSFS_write(fp, &tmptime32, sizeof(fix), 1);
 	PHYSFS_write(fp, &Gate_interval, sizeof(fix), 1);
-	if (Boss_dying_start_time - GameTime64 < F1_0*(-18000))
-		tmptime32 = F1_0*(-18000);
+	if (Boss_dying_start_time == 0) // if Boss not dead, yet we expect this to be 0, so do not convert!
+	{
+		tmptime32 = 0;
+	}
 	else
-		tmptime32 = Boss_dying_start_time - GameTime64;
+	{
+		if (Boss_dying_start_time - GameTime64 < F1_0*(-18000))
+			tmptime32 = F1_0*(-18000);
+		else
+			tmptime32 = Boss_dying_start_time - GameTime64;
+		if (tmptime32 == 0) // now if our converted value went 0 we should do something against it
+			tmptime32 = -1;
+	}
 	PHYSFS_write(fp, &tmptime32, sizeof(fix), 1);
 	PHYSFS_write(fp, &Boss_dying, sizeof(int), 1);
 	PHYSFS_write(fp, &Boss_dying_sound_playing, sizeof(int), 1);
