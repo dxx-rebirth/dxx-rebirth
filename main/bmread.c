@@ -204,6 +204,7 @@ bitmap_index bm_load_sub(int skip, char * filename )
 	new->bm_selector=0;
 #endif
 	if (iff_error != IFF_NO_ERROR)		{
+	  printf("%s %i\n",filename,PHYSFSX_exists(filename,0));
 		Error("File %s - IFF error: %s",filename,iff_errormsg(iff_error));
 	}
 

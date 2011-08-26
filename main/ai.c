@@ -1356,11 +1356,10 @@ void move_object_to_legal_spot(object *objp)
 	for (i=0; i<MAX_SIDES_PER_SEGMENT; i++) {
 		if (WALL_IS_DOORWAY(segp, i) & WID_FLY_FLAG) {
 			vms_vector	segment_center, goal_dir;
-			fix			dist_to_center;
 
 			compute_segment_center(&segment_center, &Segments[segp->children[i]]);
 			vm_vec_sub(&goal_dir, &segment_center, &objp->pos);
-			dist_to_center = vm_vec_normalize_quick(&goal_dir);
+			vm_vec_normalize_quick(&goal_dir);
 			vm_vec_scale(&goal_dir, objp->size);
 			vm_vec_add2(&objp->pos, &goal_dir);
 			if (!object_intersects_wall(objp)) {
@@ -3198,10 +3197,19 @@ int ai_save_state(PHYSFS_file *fp)
 		tmptime32 = Last_gate_time - GameTime64;
 	PHYSFS_write(fp, &tmptime32, sizeof(fix), 1);
 	PHYSFS_write(fp, &Gate_interval, sizeof(fix), 1);
-	if (Boss_dying_start_time - GameTime64 < F1_0*(-18000))
-		tmptime32 = F1_0*(-18000);
+	if (Boss_dying_start_time == 0) // if Boss not dead, yet we expect this to be 0, so do not convert!
+	{
+		tmptime32 = 0;
+	}
 	else
-		tmptime32 = Boss_dying_start_time - GameTime64;
+	{
+		if (Boss_dying_start_time - GameTime64 < F1_0*(-18000))
+			tmptime32 = F1_0*(-18000);
+		else
+			tmptime32 = Boss_dying_start_time - GameTime64;
+		if (tmptime32 == 0) // now if our converted value went 0 we should do something against it
+			tmptime32 = -1;
+	}
 	PHYSFS_write(fp, &tmptime32, sizeof(fix), 1);
 	PHYSFS_write(fp, &Boss_dying, sizeof(int), 1);
 	PHYSFS_write(fp, &Boss_dying_sound_playing, sizeof(int), 1);
