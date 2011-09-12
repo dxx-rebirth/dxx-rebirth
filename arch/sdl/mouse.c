@@ -15,6 +15,7 @@
 
 static struct mouseinfo {
 	ubyte  button_state[MOUSE_MAX_BUTTONS];
+	fix64  time_lastpressed[MOUSE_MAX_BUTTONS];
 	int    delta_x, delta_y, delta_z, old_delta_x, old_delta_y;
 	int    x,y,z;
 	int    cursor_enabled;
@@ -106,6 +107,21 @@ void mouse_button_handler(SDL_MouseButtonEvent *mbe)
 	con_printf(CON_DEBUG, "Sending event %s, button %d, coords %d,%d,%d\n",
 			   (mbe->state == SDL_PRESSED) ? "EVENT_MOUSE_BUTTON_DOWN" : "EVENT_MOUSE_BUTTON_UP", event.button, Mouse.x, Mouse.y, Mouse.z);
 	event_send((d_event *)&event);
+	
+	//Double-click support
+	if (Mouse.button_state[button])
+	{
+		if (timer_query() <= Mouse.time_lastpressed[button] + F1_0/5)
+		{
+			event.type = EVENT_MOUSE_DOUBLE_CLICKED;
+			//event.button = button; // already set the button
+			con_printf(CON_DEBUG, "Sending event EVENT_MOUSE_DOUBLE_CLICKED, button %d, coords %d,%d\n",
+					   event.button, Mouse.x, Mouse.y);
+			event_send((d_event *)&event);
+		}
+
+		Mouse.time_lastpressed[button] = Mouse.cursor_time;
+	}
 }
 
 void mouse_motion_handler(SDL_MouseMotionEvent *mme)
