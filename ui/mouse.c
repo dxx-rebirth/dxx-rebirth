@@ -241,11 +241,7 @@ int ui_mouse_button_process(d_event *event)
 	{
 		if ((timer_query() <= Mouse.time_lastpressed + F1_0/5))  //&& (Mouse.moved==0)
 		{
-			d_event_mousebutton event = { EVENT_MOUSE_DOUBLE_CLICKED, MBTN_LEFT };
 			Mouse.b1_status |= BUTTON_DOUBLE_CLICKED;
-			con_printf(CON_DEBUG, "Sending event EVENT_MOUSE_DOUBLE_CLICKED, button %d, coords %d,%d\n",
-					   event.button, Mouse.x, Mouse.y);
-			event_send((d_event *)&event);
 		}
 
 		Mouse.moved = 0;
