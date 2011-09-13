@@ -63,8 +63,7 @@ COPYRIGHT 1993-1998 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 
 // PROTOCOL VARIABLES AND DEFINES
 extern int multi_protocol; // set and determinate used protocol
-#define MULTI_PROTO_IPX 1 // IPX-type protocol (IPX, KALI)
-#define MULTI_PROTO_UDP 2 // UDP protocol
+#define MULTI_PROTO_UDP 1 // UDP protocol
 
 // What version of the multiplayer protocol is this?
 // Protocol versions:
@@ -348,23 +347,14 @@ extern struct netgame_info Netgame;
 
 /*
  * The Network Players structure
- * Contains both IPX- and UDP-specific data with designated prefixes and general player-related data.
+ * Contains protocol-specific data with designated prefixes and general player-related data.
  * Note that not all of these infos will be sent to other users - some are used and/or set locally, only.
- * Even if some variables are not UDP-specific, they might be used in IPX as well to maintain backwards compability.
  */
 typedef struct netplayer_info
 {
-#if defined(USE_UDP) || defined(USE_IPX)
+#if defined(USE_UDP)
 	union
 	{
-#ifdef USE_IPX
-		struct
-		{
-			ubyte				server[4];
-			ubyte				node[6];
-			ushort				socket;
-		} ipx;
-#endif
 #ifdef USE_UDP
 		struct
 		{
@@ -385,22 +375,14 @@ typedef struct netplayer_info
 
 /*
  * The Network Game structure
- * Contains both IPX- and UDP-specific data with designated prefixes and general game-related data.
+ * Contains protocol-specific data with designated prefixes and general game-related data.
  * Note that not all of these infos will be sent to clients - some are used and/or set locally, only.
- * Even if some variables are not UDP-specific, they might be used in IPX as well to maintain backwards compability.
  */
 typedef struct netgame_info
 {
-#if defined(USE_UDP) || defined(USE_IPX)
+#if defined(USE_UDP)
 	union
 	{
-#ifdef USE_IPX
-		struct
-		{
-			ubyte				Game_pkt_type;
-			ubyte   			protocol_version;
-		} ipx;
-#endif
 #ifdef USE_UDP
 		struct
 		{

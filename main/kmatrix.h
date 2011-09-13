@@ -21,7 +21,6 @@ COPYRIGHT 1993-1998 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 #ifndef _KMATRIX_H
 #define _KMATRIX_H
 
-void kmatrix_ipx_view(int network);
 void kmatrix_view(int network);
 
 #endif

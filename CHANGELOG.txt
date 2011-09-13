@@ -1,5 +1,9 @@
 D1X-Rebirth Changelog
 
+20110914
+--------
+INSTALL.txt, README.txt, SConstruct, arch/carbon/conf.h, d1x.ini, include/args.h, main/inferno.c, main/kmatrix.c, main/kmatrix.h, main/menu.c, main/multi.c, main/multi.h, misc/args.c: Removed support for IPX protocol and MS-DOS-Multiplayer-compability due to age and lack of real need and to really improve on the Multiplayer without adding too much complexity for backwards-compability
+
 20110913
 --------
 README.txt: Mention Mac command keys

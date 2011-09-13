@@ -63,7 +63,6 @@ typedef struct Arg
 	int OglFixedFont;
 #endif
 	int EdiNoBm;
-	const char *MplIpxNetwork;
 	const char *MplUdpHostAddr;
 	int MplUdpHostPort;
 	int MplUdpMyPort;
