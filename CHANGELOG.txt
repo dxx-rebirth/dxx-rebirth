@@ -3,6 +3,7 @@ D1X-Rebirth Changelog
 20110913
 --------
 README.txt: Mention Mac command keys
+arch/carbon/conf.h, d1x-rebirth.xcodeproj/project.pbxproj: Define USE_TRACKER for Mac OS X, remove reference to deleted cfile.h
 
 20110912
 --------
