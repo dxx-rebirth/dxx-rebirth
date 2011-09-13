@@ -33,7 +33,6 @@ http://www.dxx-rebirth.com
    * Besides MIDI and CD-Audio (Redbook), you can play your own custom Music from your Harddrive or a separate AddOn.
    * Both games can utilize special AddOn packs to replace or expand the original game content.
    * Multiplayer via UDP protocol provides a fast and easy-to-use LAN and Online action. This includes reliable communication causing less glitches due to lost packages.
-   * Multiplayer via IPX protocol lets you play against players still using the MS-DOS version of the game.
    * The ingame Demo-recording system has been improved. Demos are less glitchy and smaller while still still being backwards-compatible to earlier versions of the games.
    * Higher game speed will not cause glitches such as unacceptable fast homing projectiles, incredible high damage caused by several collisions or Fusion cannon, etc.
    * Player files, Savegames, Demos and Missions from DOS-Versions of the games can freely be used in DXX-Rebirth and vice versa.
@@ -50,9 +49,7 @@ http://www.dxx-rebirth.com
 3. Multiplayer:
 ===============
 
-   D2X-Rebirth supports Multiplayer over (obsoleted) IPX and UDP/IP.
-   Please note that UDP/IP generally supports more features of D2X-Rebirth and uses Packet Loss Prevention while
-   IPX is mainly meant to play together with non-D2X-Rebirth games.
+   D2X-Rebirth supports Multiplayer over UDP/IP.
    Using UDP/IP works over LAN and Internet. By default, each game communicates over UDP-Port 42424. This can be
    changed via the menus while creating a game and manually join a game, command-line argument or D2X.INI. To
    successfully host a game online, make sure UDP-Port 42424 (or otherwise if specified correctly) is opened on

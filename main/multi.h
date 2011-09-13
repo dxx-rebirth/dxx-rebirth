@@ -58,8 +58,7 @@ COPYRIGHT 1993-1999 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 
 // PROTOCOL VARIABLES AND DEFINES
 extern int multi_protocol; // set and determinate used protocol
-#define MULTI_PROTO_IPX 1 // IPX-type protocol (IPX, KALI)
-#define MULTI_PROTO_UDP 2 // UDP protocol
+#define MULTI_PROTO_UDP 1 // UDP protocol
 
 // What version of the multiplayer protocol is this?
 // Protocol versions:
@@ -407,24 +406,14 @@ void save_hoard_data(void);
 
 /*
  * The Network Players structure
- * Contains both IPX- and UDP-specific data with designated prefixes and general player-related data.
+ * Contains protocol-specific data with designated prefixes and general player-related data.
  * Note that not all of these infos will be sent to other users - some are used and/or set locally, only.
- * Even if some variables are not UDP-specific, they might be used in IPX as well to maintain backwards compability.
  */
 typedef struct netplayer_info
 {
-#if defined(USE_UDP) || defined(USE_IPX)
+#if defined(USE_UDP)
 	union
 	{
-#ifdef USE_IPX
-		struct
-		{
-			ubyte				server[4];
-			ubyte				node[6];
-			ushort				socket;
-			ubyte				computer_type; // {DOS,WIN_32,WIN_95,MAC}
-		} ipx;
-#endif
 #ifdef USE_UDP
 		struct
 		{
@@ -445,26 +434,14 @@ typedef struct netplayer_info
 
 /*
  * The Network Game structure
- * Contains both IPX- and UDP-specific data with designated prefixes and general game-related data.
+ * Contains protocol-specific data with designated prefixes and general game-related data.
  * Note that not all of these infos will be sent to clients - some are used and/or set locally, only.
- * Even if some variables are not UDP-specific, they might be used in IPX as well to maintain backwards compability.
  */
 typedef struct netgame_info
 {
-#if defined(USE_UDP) || defined(USE_IPX)
+#if defined(USE_UDP)
 	union
 	{
-#ifdef USE_IPX
-		struct
-		{
-			ubyte				Game_pkt_type;
-			int     			Game_Security;
-			ubyte				Player_pkt_type;
-			int				Player_Security;
-			ubyte   			protocol_version;
-			ubyte   			ShortPackets;
-		} ipx;
-#endif
 #ifdef USE_UDP
 		struct
 		{

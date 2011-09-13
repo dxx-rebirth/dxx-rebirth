@@ -154,12 +154,8 @@ void print_commandline_help()
 	printf( "  -gl_fixedfont                 Do not scale fonts to current resolution\n");
 #endif // OGL
 
-#if defined(USE_IPX) || defined(USE_UDP)
+#if  defined(USE_UDP)
 	printf( "\n Multiplayer:\n\n");
-#ifdef USE_IPX
-	printf( "  -ipxnetwork <n>               Use IPX network number <n>\n");
-#endif
-#ifdef USE_UDP
 	printf( "  -udp_hostaddr <s>             Use IP address/Hostname <s> for manual game joining\n\t\t\t\t(default: %s)\n", UDP_MANUAL_ADDR_DEFAULT);
 	printf( "  -udp_hostport <n>             Use UDP port <n> for manual game joining (default: %i)\n", UDP_PORT_DEFAULT);
 	printf( "  -udp_myport <n>               Set my own UDP port to <n> (default: %i)\n", UDP_PORT_DEFAULT);
@@ -167,8 +163,7 @@ void print_commandline_help()
 	printf( "  -tracker_hostaddr <n>         Address of Tracker server to register/query games to/from\n\t\t\t\t(default: %s)\n", TRACKER_ADDR_DEFAULT);
 	printf( "  -tracker_hostport <n>         Port of Tracker server to register/query games to/from\n\t\t\t\t(default: %i)\n", TRACKER_PORT_DEFAULT);
 #endif // USE_TRACKER
-#endif // USE_UDP
-#endif // defined(USE_IPX) || defined(USE_UDP)
+#endif // defined(USE_UDP)
 
 #ifdef    EDITOR
 	printf( "\n Editor:\n\n");

@@ -32,7 +32,6 @@ editor = int(ARGUMENTS.get('editor', 0))
 sdlmixer = int(ARGUMENTS.get('sdlmixer', 1))
 ipv6 = int(ARGUMENTS.get('ipv6', 0))
 use_udp = int(ARGUMENTS.get('use_udp', 1))
-use_ipx = int(ARGUMENTS.get('use_ipx', 1))
 use_tracker = int(ARGUMENTS.get('use_tracker', 1))
 verbosebuild = int(ARGUMENTS.get('verbosebuild', 0))
 
@@ -309,8 +308,6 @@ if sys.platform == 'win32':
 	env.Append(CPPDEFINES = ['_WIN32', 'HAVE_STRUCT_TIMEVAL'])
 	env.Append(CPPPATH = ['arch/win32/include'])
 	ogldefines = ['OGL']
-	if (use_ipx == 1):
-		common_sources += ['arch/win32/ipx.c']
 	common_sources += ['arch/win32/messagebox.c']
 	ogllibs = ''
 	libs += ['glu32', 'wsock32', 'ws2_32', 'winmm', 'mingw32', 'SDLmain', 'SDL']
@@ -351,8 +348,6 @@ else:
 	env.Append(CPPDEFINES = ['__LINUX__', 'HAVE_STRUCT_TIMESPEC', 'HAVE_STRUCT_TIMEVAL'])
 	env.Append(CPPPATH = ['arch/linux/include'])
 	ogldefines = ['OGL']
-	if (use_ipx == 1):
-		common_sources += ['arch/linux/ipx.c', 'arch/linux/ipx_kali.c', 'arch/linux/ukali.c']
 	libs += env['LIBS']
 	if (opengles == 1):
 		ogllibs = ['GLES_CM', 'EGL']
@@ -431,11 +426,6 @@ if (use_udp == 1):
 	if( use_tracker == 1 ):
 		env.Append( CPPDEFINES = [ 'USE_TRACKER' ] )
 
-# IPX support?
-if (use_ipx == 1):
-	env.Append(CPPDEFINES = ['USE_IPX'])
-	common_sources += ['main/net_ipx.c']
-
 print '\n'
 
 env.Append(CPPDEFINES = [('SHAREPATH', '\\"' + str(sharepath) + '\\"')])
@@ -473,7 +463,6 @@ Help(PROGRAM_NAME + ', SConstruct file help:' +
 	'editor=[0/1]'        include editor into build (!EXPERIMENTAL!) [default: 0]
 	'ipv6=[0/1]'          enable IPv6 compability [default: 0]
 	'use_udp=[0/1]'       enable UDP support [default: 1]
-	'use_ipx=[0/1]'       enable IPX support (IPX available on Linux and Windows, only) [default: 1]
 	'use_tracker=[0/1]'   enable Tracker support (requires udp) [default :1]
 	'verbosebuild=[0/1]'  print out all compiler/linker messages during building [default: 0]
 	

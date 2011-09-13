@@ -65,9 +65,6 @@ COPYRIGHT 1993-1999 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 #include "effects.h"
 #include "iff.h"
 #include "state.h"
-#ifdef USE_IPX
-#include "net_ipx.h"
-#endif
 #ifdef USE_UDP
 #include "net_udp.h"
 #endif
@@ -415,11 +412,6 @@ int multi_objnum_is_past(int objnum)
 {
 	switch (multi_protocol)
 	{
-#ifdef USE_IPX
-		case MULTI_PROTO_IPX:
-			return net_ipx_objnum_is_past(objnum);
-			break;
-#endif
 		case MULTI_PROTO_UDP:
 #ifdef USE_UDP
 			return net_udp_objnum_is_past(objnum);
@@ -456,11 +448,7 @@ multi_endlevel_score(void)
 #endif
 
 	// Do the actual screen we wish to show
-
-	if (multi_protocol == MULTI_PROTO_IPX)
-		kmatrix_ipx_view(Game_mode & GM_NETWORK);
-	else
-		kmatrix_view(Game_mode & GM_NETWORK);
+	kmatrix_view(Game_mode & GM_NETWORK);
 
 	// Restore connect state
 
@@ -883,11 +871,6 @@ void multi_do_protocol_frame(int force, int listen)
 {
 	switch (multi_protocol)
 	{
-#ifdef USE_IPX
-		case MULTI_PROTO_IPX:
-			net_ipx_do_frame(force, listen);
-			break;
-#endif
 #ifdef USE_UDP
 		case MULTI_PROTO_UDP:
 			net_udp_do_frame(force, listen);
@@ -959,11 +942,6 @@ multi_send_data(char *buf, int len, int priority)
 	{
 		switch (multi_protocol)
 		{
-#ifdef USE_IPX
-			case MULTI_PROTO_IPX:
-				net_ipx_send_data((unsigned char *)buf, len, priority);
-				break;
-#endif
 #ifdef USE_UDP
 			case MULTI_PROTO_UDP:
 				net_udp_send_data((unsigned char *)buf, len, priority);
@@ -984,11 +962,6 @@ void multi_send_data_direct(unsigned char *buf, int len, int pnum, int priority)
 
 	switch (multi_protocol)
 	{
-#ifdef USE_IPX
-		case MULTI_PROTO_IPX:
-			net_ipx_send_naked_packet(multibuf, len, pnum);
-			break;
-#endif
 #ifdef USE_UDP
 		case MULTI_PROTO_UDP:
 			net_udp_send_mdata_direct((ubyte *)multibuf, len, pnum, priority);
@@ -1026,11 +999,6 @@ multi_leave_game(void)
 	{
 		switch (multi_protocol)
 		{
-#ifdef USE_IPX
-			case MULTI_PROTO_IPX:
-				net_ipx_leave_game();
-				break;
-#endif
 #ifdef USE_UDP
 			case MULTI_PROTO_UDP:
 				net_udp_leave_game();
@@ -1063,11 +1031,6 @@ multi_endlevel(int *secret)
 
 	switch (multi_protocol)
 	{
-#ifdef USE_IPX
-		case MULTI_PROTO_IPX:
-			result = net_ipx_endlevel(secret);
-			break;
-#endif
 #ifdef USE_UDP
 		case MULTI_PROTO_UDP:
 			result = net_udp_endlevel(secret);
@@ -1085,11 +1048,6 @@ int multi_endlevel_poll1( newmenu *menu, d_event *event, void *userdata )
 {
 	switch (multi_protocol)
 	{
-#ifdef USE_IPX
-		case MULTI_PROTO_IPX:
-			return net_ipx_kmatrix_poll1( menu, event, userdata );
-			break;
-#endif
 #ifdef USE_UDP
 		case MULTI_PROTO_UDP:
 			return net_udp_kmatrix_poll1( menu, event, userdata );
@@ -1107,11 +1065,6 @@ int multi_endlevel_poll2( newmenu *menu, d_event *event, void *userdata )
 {
 	switch (multi_protocol)
 	{
-		case MULTI_PROTO_IPX:
-#ifdef USE_IPX
-			net_ipx_kmatrix_poll2( menu, event, userdata );
-			break;
-#endif
 #ifdef USE_UDP
 		case MULTI_PROTO_UDP:
 			return net_udp_kmatrix_poll2( menu, event, userdata );
@@ -1129,11 +1082,6 @@ void multi_send_endlevel_packet()
 {
 	switch (multi_protocol)
 	{
-#ifdef USE_IPX
-		case MULTI_PROTO_IPX:
-			net_ipx_send_endlevel_packet();
-			break;
-#endif
 #ifdef USE_UDP
 		case MULTI_PROTO_UDP:
 			net_udp_send_endlevel_packet();
@@ -1299,14 +1247,6 @@ void multi_send_message_end()
 
 	Network_message_reciever = 100;
 
-#ifdef USE_IPX
-	if (!strnicmp (Network_message,"/Names",6) && multi_protocol == MULTI_PROTO_IPX)
-	{
-		NameReturning=1-NameReturning;
-		HUD_init_message(HM_MULTI, "Name returning is now %s.",NameReturning?"active":"disabled");
-	}
-	else
-#endif
 	if (!strnicmp (Network_message,"/Handicap: ",11))
 	{
 		mytempbuf=&Network_message[11];
@@ -1364,16 +1304,7 @@ void multi_send_message_end()
 							multi_reset_object_texture (&Objects[Players[t].objnum]);
 					reset_cockpit();
 
-#ifdef USE_IPX
-					if (multi_protocol == MULTI_PROTO_IPX)
-					{
-						net_ipx_send_netgame_update(); // in IPX, team_vector is hidden in lite info...
-					}
-					else
-#endif
-					{
-						multi_send_gmode_update();
-					}
+					multi_send_gmode_update();
 
 					sprintf (Network_message,"%s has changed teams!",Players[i].callsign);
 					if (i==Player_num)
@@ -1444,11 +1375,6 @@ void multi_send_message_end()
 			kick_player:;
 				switch (multi_protocol)
 				{
-#ifdef USE_IPX
-					case MULTI_PROTO_IPX:
-						net_ipx_dump_player(Netgame.players[i].protocol.ipx.server,Netgame.players[i].protocol.ipx.node, DUMP_KICKED);
-						break;
-#endif
 #ifdef USE_UDP
 					case MULTI_PROTO_UDP:
 						net_udp_dump_player(Netgame.players[i].protocol.udp.addr, DUMP_KICKED);
@@ -1738,10 +1664,6 @@ multi_do_position(char *buf)
 	shortpos sp;
 #endif
 
-	// this is unused in IPX - position is forced within net_ipx_do_frame()
-	if (multi_protocol == MULTI_PROTO_IPX)
-		return;
-
 	pnum = buf[1];
 
 #ifndef WORDS_BIGENDIAN
@@ -1883,15 +1805,10 @@ multi_do_kill(char *buf)
 	int pnum = (int)(buf[count]);
 	int type = (int)(buf[0]);
 
-	if (multi_protocol == MULTI_PROTO_IPX && type != MULTI_KILL)
+	if (multi_i_am_master() && type != MULTI_KILL_CLIENT)
 		return;
-	else
-	{
-		if (multi_i_am_master() && type != MULTI_KILL_CLIENT)
-			return;
-		if (!multi_i_am_master() && type != MULTI_KILL_HOST)
-			return;
-	}
+	if (!multi_i_am_master() && type != MULTI_KILL_HOST)
+		return;
 
 	if ((pnum < 0) || (pnum >= N_players))
 	{
@@ -1899,45 +1816,32 @@ multi_do_kill(char *buf)
 		return;
 	}
 
-	if (multi_protocol == MULTI_PROTO_IPX)
+	// I am host, I know what's going on so take this packet, add game_mode related info which might be necessary for kill computation and send it to everyone so they can compute their kills correctly
+	if (multi_i_am_master())
 	{
-		killed = Players[pnum].objnum;
-		count += 1;
-		killer = GET_INTEL_SHORT(buf + count);
-		if (killer > 0)
-			killer = objnum_remote_to_local(killer, (sbyte)buf[count+2]);
-
-		multi_compute_kill(killer, killed);
+		memcpy(multibuf, buf, 5);
+		multibuf[0] = MULTI_KILL_HOST;
+		multibuf[5] = Netgame.team_vector;
+		multibuf[6] = Bounty_target;
+		
+		multi_send_data(multibuf, 7, 1);
 	}
-	else
+
+	killed = Players[pnum].objnum;
+	count += 1;
+	killer = GET_INTEL_SHORT(buf + count);
+	if (killer > 0)
+		killer = objnum_remote_to_local(killer, (sbyte)buf[count+2]);
+	if (!multi_i_am_master())
 	{
-		// I am host, I know what's going on so take this packet, add game_mode related info which might be necessary for kill computation and send it to everyone so they can compute their kills correctly
-		if (multi_i_am_master())
-		{
-			memcpy(multibuf, buf, 5);
-			multibuf[0] = MULTI_KILL_HOST;
-			multibuf[5] = Netgame.team_vector;
-			multibuf[6] = Bounty_target;
-			
-			multi_send_data(multibuf, 7, 1);
-		}
-
-		killed = Players[pnum].objnum;
-		count += 1;
-		killer = GET_INTEL_SHORT(buf + count);
-		if (killer > 0)
-			killer = objnum_remote_to_local(killer, (sbyte)buf[count+2]);
-		if (!multi_i_am_master())
-		{
-			Netgame.team_vector = buf[5];
-			Bounty_target = buf[6];
-		}
-
-		multi_compute_kill(killer, killed);
-
-		if (Game_mode & GM_BOUNTY && multi_i_am_master()) // update in case if needed... we could attach this to this packet but... meh...
-			multi_send_bounty();
+		Netgame.team_vector = buf[5];
+		Bounty_target = buf[6];
 	}
+
+	multi_compute_kill(killer, killed);
+
+	if (Game_mode & GM_BOUNTY && multi_i_am_master()) // update in case if needed... we could attach this to this packet but... meh...
+		multi_send_bounty();
 }
 
 
@@ -2076,11 +1980,6 @@ void multi_disconnect_player(int pnum)
 
 	switch (multi_protocol)
 	{
-#ifdef USE_IPX
-		case MULTI_PROTO_IPX:
-			net_ipx_disconnect_player(pnum);
-			break;
-#endif
 #ifdef USE_UDP
 		case MULTI_PROTO_UDP:
 			net_udp_disconnect_player(pnum);
@@ -2599,11 +2498,6 @@ multi_send_endlevel_start(int secret)
 		Players[Player_num].connected = CONNECT_ESCAPE_TUNNEL;
 		switch (multi_protocol)
 		{
-#ifdef USE_IPX
-			case MULTI_PROTO_IPX:
-				net_ipx_send_endlevel_packet();
-				break;
-#endif
 #ifdef USE_UDP
 			case MULTI_PROTO_UDP:
 				net_udp_send_endlevel_packet();
@@ -2698,7 +2592,7 @@ extern int Proximity_dropped, Smartmines_dropped;
 
 /*
  * Powerup capping: Keep track of how many powerups are in level and kill these which would exceed initial limit.
- * NOTE: code encapsuled by OLDPOWCAP define is original and buggy Descent2 code. Keep this for now in case we need it for better Multiplayer consistency to old versions of the game over IPX (which we just ignore for now)
+ * NOTE: code encapsuled by OLDPOWCAP define is original and buggy Descent2 code. 
  */
 
 // Count the initial amount of Powerups in the level
@@ -2969,10 +2863,6 @@ multi_send_position(int objnum)
 #endif
 	int count=0;
 
-	// this is unused in IPX - position is forced within net_ipx_do_frame()
-	if (multi_protocol == MULTI_PROTO_IPX)
-		return;
-
 	multibuf[count++] = (char)MULTI_POSITION;
 	multibuf[count++] = (char)Player_num;
 #ifndef WORDS_BIGENDIAN
@@ -2991,7 +2881,7 @@ multi_send_position(int objnum)
 }
 
 /* 
- * I was killed. If I am host, send this info to everyone and compute kill. If I am just a Client I'll only send the kill but not compute it for me. I (Client) will wait for Host to send me my kill back together with updated game_mode related variables which are important for me to compute consistent kill. If we are in IPX, screw consistency...
+ * I was killed. If I am host, send this info to everyone and compute kill. If I am just a Client I'll only send the kill but not compute it for me. I (Client) will wait for Host to send me my kill back together with updated game_mode related variables which are important for me to compute consistent kill.
  */
 void
 multi_send_kill(int objnum)
@@ -3001,76 +2891,47 @@ multi_send_kill(int objnum)
 	int killer_objnum;
 	int count = 0;
 
-	if (multi_protocol == MULTI_PROTO_IPX)
+	Assert(Objects[objnum].id == Player_num);
+	killer_objnum = Players[Player_num].killer_objnum;
+
+	if (multi_i_am_master())
+		multibuf[count] = (char)MULTI_KILL_HOST;
+	else
+		multibuf[count] = (char)MULTI_KILL_CLIENT;
+							count += 1;
+	multibuf[count] = Player_num;			count += 1;
+
+	if (killer_objnum > -1)
 	{
-		Assert(Objects[objnum].id == Player_num);
-		killer_objnum = Players[Player_num].killer_objnum;
-
-		multibuf[count] = (char)MULTI_KILL;	count += 1;
-		multibuf[count] = Player_num;		count += 1;
-
-		if (killer_objnum > -1)
-		{
-			short s = (short)objnum_local_to_remote(killer_objnum, (sbyte *)&multibuf[count+2]); // do it with variable since INTEL_SHORT won't work on return val from function.
-			PUT_INTEL_SHORT(multibuf+count, s);
-		}
-		else
-		{
-			PUT_INTEL_SHORT(multibuf+count, -1);
-			multibuf[count+2] = (char)-1;
-		}
-		count += 3;
-
-		multi_compute_kill(killer_objnum, objnum);
-		multi_send_data(multibuf, count, 1);
-
-		if (Game_mode & GM_MULTI_ROBOTS)
-			multi_strip_robots(Player_num);
+		short s = (short)objnum_local_to_remote(killer_objnum, (sbyte *)&multibuf[count+2]); // do it with variable since INTEL_SHORT won't work on return val from function.
+		PUT_INTEL_SHORT(multibuf+count, s);
 	}
 	else
 	{
-		Assert(Objects[objnum].id == Player_num);
-		killer_objnum = Players[Player_num].killer_objnum;
-
-		if (multi_i_am_master())
-			multibuf[count] = (char)MULTI_KILL_HOST;
-		else
-			multibuf[count] = (char)MULTI_KILL_CLIENT;
-								count += 1;
-		multibuf[count] = Player_num;			count += 1;
-
-		if (killer_objnum > -1)
-		{
-			short s = (short)objnum_local_to_remote(killer_objnum, (sbyte *)&multibuf[count+2]); // do it with variable since INTEL_SHORT won't work on return val from function.
-			PUT_INTEL_SHORT(multibuf+count, s);
-		}
-		else
-		{
-			PUT_INTEL_SHORT(multibuf+count, -1);
-			multibuf[count+2] = (char)-1;
-		}
-		count += 3;
-		// I am host - I know what's going on so attach game_mode related info which might be vital for correct kill computation
-		if (multi_i_am_master())
-		{
-			multibuf[count] = Netgame.team_vector;	count += 1;
-			multibuf[count] = Bounty_target;	count += 1;
-		}
-
-		if (multi_i_am_master())
-		{
-			multi_compute_kill(killer_objnum, objnum);
-			multi_send_data(multibuf, count, 1);
-		}
-		else
-			multi_send_data_direct((ubyte*)multibuf, count, multi_who_is_master(), 1); // I am just a client so I'll only send my kill but not compute it, yet. I'll get response from host so I can compute it correctly
-
-		if (Game_mode & GM_MULTI_ROBOTS)
-			multi_strip_robots(Player_num);
-
-		if (Game_mode & GM_BOUNTY && multi_i_am_master()) // update in case if needed... we could attach this to this packet but... meh...
-			multi_send_bounty();
+		PUT_INTEL_SHORT(multibuf+count, -1);
+		multibuf[count+2] = (char)-1;
 	}
+	count += 3;
+	// I am host - I know what's going on so attach game_mode related info which might be vital for correct kill computation
+	if (multi_i_am_master())
+	{
+		multibuf[count] = Netgame.team_vector;	count += 1;
+		multibuf[count] = Bounty_target;	count += 1;
+	}
+
+	if (multi_i_am_master())
+	{
+		multi_compute_kill(killer_objnum, objnum);
+		multi_send_data(multibuf, count, 1);
+	}
+	else
+		multi_send_data_direct((ubyte*)multibuf, count, multi_who_is_master(), 1); // I am just a client so I'll only send my kill but not compute it, yet. I'll get response from host so I can compute it correctly
+
+	if (Game_mode & GM_MULTI_ROBOTS)
+		multi_strip_robots(Player_num);
+
+	if (Game_mode & GM_BOUNTY && multi_i_am_master()) // update in case if needed... we could attach this to this packet but... meh...
+		multi_send_bounty();
 }
 
 void
@@ -3630,11 +3491,6 @@ int multi_level_sync(void)
 {
 	switch (multi_protocol)
 	{
-#ifdef USE_IPX
-		case MULTI_PROTO_IPX:
-			return net_ipx_level_sync();
-			break;
-#endif
 #ifdef USE_UDP
 		case MULTI_PROTO_UDP:
 			return net_udp_level_sync();
@@ -3770,45 +3626,13 @@ int multi_delete_extra_objects()
 // Returns 1 if player is Master/Host of this game
 int multi_i_am_master(void)
 {
-	// IPX has variable Hosts, but we might not want to continue this for newer protocols
-	if (multi_protocol == MULTI_PROTO_IPX)
-	{
-		int i;
-
-		if (!(Game_mode & GM_NETWORK))
-			return (Player_num == 0);
-
-		for (i = 0; i < Player_num; i++)
-			if (Players[i].connected)
-				return 0;
-		return 1;
-	}
-	else
-	{
-		return (Player_num == 0);
-	}
+	return (Player_num == 0);
 }
 
 // Returns the Player_num of Master/Host of this game
 int multi_who_is_master(void)
 {
-	// IPX has variable Hosts, but we might not want to continue this for newer protocols
-	if (multi_protocol == MULTI_PROTO_IPX)
-	{
-		int i;
-
-		if (!(Game_mode & GM_NETWORK))
-			return (Player_num == 0);
-
-		for (i = 0; i < N_players; i++)
-			if (Players[i].connected)
-				return i;
-		return Player_num;
-	}
-	else
-	{
-		return 0;
-	}
+	return 0;
 }
 
 void change_playernum_to( int new_Player_num )
@@ -4145,38 +3969,21 @@ extern fix64 Seismic_disturbance_start_time;
 extern fix64 Seismic_disturbance_end_time;
 
 // Sync our seismic time with other players
-// IPX expects BULLSHIT here: Seismic_disturbance_start/end_time is based on GameTime64 which is never synced between players. If everyone starts at the same time this might be fine, but will not work for latecomers! So for all other protocols just send the duration (this packet is sent when Seismic_disturbance_start_time == GameTime64) and let them calculate on their own!
 void multi_send_seismic (fix64 t1,fix64 t2)
 {
 	int count=1;
 
 	multibuf[0]=MULTI_SEISMIC;
-	if (MULTI_PROTO_IPX)
-	{
-		PUT_INTEL_INT(multibuf+count, t1); count+=(sizeof(fix));
-		PUT_INTEL_INT(multibuf+count, t2); count+=(sizeof(fix));
-	}
-	else
-	{
-		PUT_INTEL_INT(multibuf+count, 0); count+=(sizeof(fix));
-		PUT_INTEL_INT(multibuf+count, ((fix)t2-t1)); count+=(sizeof(fix));
-	}
+	PUT_INTEL_INT(multibuf+count, t1); count+=(sizeof(fix));
+	PUT_INTEL_INT(multibuf+count, t2); count+=(sizeof(fix));
 	multi_send_data(multibuf, count, 1);
 }
 
 void multi_do_seismic (char *buf)
 {
-	if (MULTI_PROTO_IPX)
-	{
-		Seismic_disturbance_start_time = GET_INTEL_INT(buf + 1);
-		Seismic_disturbance_end_time = GET_INTEL_INT(buf + 5);
-	}
-	else
-	{
-		fix duration = GET_INTEL_INT(buf + 5);
-		Seismic_disturbance_start_time = GameTime64;
-		Seismic_disturbance_end_time = GameTime64 + duration;
-	}
+	fix duration = GET_INTEL_INT(buf + 5);
+	Seismic_disturbance_start_time = GameTime64;
+	Seismic_disturbance_end_time = GameTime64 + duration;
 	digi_play_sample (SOUND_SEISMIC_DISTURBANCE_START, F1_0);
 }
 
@@ -5075,9 +4882,6 @@ void multi_initiate_save_game()
 	char filename[PATH_MAX];
 	char desc[24];
 
-	if (multi_protocol == MULTI_PROTO_IPX)
-		return;
-
 	if ((Endlevel_sequence) || (Control_center_destroyed))
 		return;
 
@@ -5133,9 +4937,6 @@ void multi_initiate_restore_game()
 {
 	int i, j, slot;
 	char filename[PATH_MAX];
-
-	if (multi_protocol == MULTI_PROTO_IPX)
-		return;
 
 	if ((Endlevel_sequence) || (Control_center_destroyed))
 		return;
@@ -5233,8 +5034,6 @@ void multi_send_msgsend_state(int state)
 // Specific variables related to our game mode we want the clients to know about
 void multi_send_gmode_update()
 {
-	if (multi_protocol == MULTI_PROTO_IPX)
-		return;
 	if (!multi_i_am_master())
 		return;
 	if (!(Game_mode & GM_TEAM || Game_mode & GM_BOUNTY)) // expand if necessary
@@ -5248,8 +5047,6 @@ void multi_send_gmode_update()
 
 void multi_do_gmode_update(char *buf)
 {
-	if (multi_protocol == MULTI_PROTO_IPX)
-		return;
 	if (multi_i_am_master())
 		return;
 	if (Game_mode & GM_TEAM)
@@ -5651,7 +5448,7 @@ multi_process_data(char *buf, int len)
 	}
 }
 
-// Following functions convert object to object_rw and back. Mainly this is used for IPX backwards compability. However also for UDP this makes sense as object differs from object_rw mainly between fix/fix64-based timers. Those base on GameTime64 which is never synced between players so we set the times to something sane the clients can safely handle. IF object some day contains something useful clients should know about this should be changed.
+// Following functions convert object to object_rw and back.
 // turn object to object_rw for sending
 void multi_object_to_object_rw(object *obj, object_rw *obj_rw)
 {

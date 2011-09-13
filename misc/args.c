@@ -182,9 +182,6 @@ void ReadCmdArgs(void)
 
 	// Multiplayer Options
 
-#ifdef USE_IPX
-	GameArg.MplIpxNetwork 		= get_str_arg("-ipxnetwork", NULL);
-#endif
 #ifdef USE_UDP
 	GameArg.MplUdpHostAddr		= get_str_arg("-udp_hostaddr", UDP_MANUAL_ADDR_DEFAULT);
 	GameArg.MplUdpHostPort		= get_int_arg("-udp_hostport", 0);

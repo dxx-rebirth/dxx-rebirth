@@ -66,9 +66,6 @@ COPYRIGHT 1993-1999 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 #include "powerup.h"
 #include "strutil.h"
 #include "multi.h"
-#ifdef USE_IPX
-#include "net_ipx.h"
-#endif
 #ifdef USE_UDP
 #include "net_udp.h"
 #endif
@@ -97,7 +94,7 @@ enum MENUS
     MENU_DIFFICULTY,
     MENU_HELP,
     MENU_NEW_PLAYER,
-    #if defined(USE_UDP) || defined (USE_IPX)
+    #if defined(USE_UDP)
         MENU_MULTIPLAYER,
     #endif
 
@@ -108,12 +105,6 @@ enum MENUS
     MENU_START_UDP_NETGAME,
     MENU_JOIN_MANUAL_UDP_NETGAME,
     MENU_JOIN_LIST_UDP_NETGAME,
-    #endif
-    #ifdef USE_IPX
-    MENU_START_IPX_NETGAME,
-    MENU_JOIN_IPX_NETGAME,
-    MENU_START_KALI_NETGAME, // xKali support (not Windows Kali! Windows Kali is over IPX!)
-    MENU_JOIN_KALI_NETGAME,
     #endif
     #ifndef RELEASE
     MENU_SANDBOX
@@ -516,7 +507,7 @@ void create_main_menu(newmenu_item *m, int *menu_choice, int *callers_num_option
 	ADD_ITEM(TXT_NEW_GAME,MENU_NEW_GAME,KEY_N);
 
 	ADD_ITEM(TXT_LOAD_GAME,MENU_LOAD_GAME,KEY_L);
-#if defined(USE_UDP) || defined(USE_IPX)
+#if defined(USE_UDP)
 	ADD_ITEM(TXT_MULTIPLAYER_,MENU_MULTIPLAYER,-1);
 #endif
 
@@ -640,29 +631,7 @@ int do_option ( int select)
 			net_udp_list_join_game();
 			break;
 #endif
-#ifdef USE_IPX
-		case MENU_START_IPX_NETGAME:
-			multi_protocol = MULTI_PROTO_IPX;
-			ipxdrv_set(NETPROTO_IPX);
-			select_mission(1, TXT_MULTI_MISSION, net_ipx_setup_game);
-			break;
-		case MENU_JOIN_IPX_NETGAME:
-			multi_protocol = MULTI_PROTO_IPX;
-			ipxdrv_set(NETPROTO_IPX);
-			net_ipx_join_game();
-			break;
-		case MENU_START_KALI_NETGAME:
-			multi_protocol = MULTI_PROTO_IPX;
-			ipxdrv_set(NETPROTO_KALINIX);
-			select_mission(1, TXT_MULTI_MISSION, net_ipx_setup_game);
-			break;
-		case MENU_JOIN_KALI_NETGAME:
-			multi_protocol = MULTI_PROTO_IPX;
-			ipxdrv_set(NETPROTO_KALINIX);
-			net_ipx_join_game();
-			break;
-#endif
-#if defined(USE_UDP) || defined(USE_IPX)
+#if defined(USE_UDP)
 		case MENU_MULTIPLAYER:
 			do_multi_player_menu();
 			break;
@@ -1966,7 +1935,7 @@ void do_misc_menu()
 
 }
 
-#if defined(USE_UDP) || defined(USE_IPX)
+#if defined(USE_UDP)
 static int multi_player_menu_handler(newmenu *menu, d_event *event, int *menu_choice)
 {
 	newmenu_item *items = newmenu_get_items(menu);
@@ -1995,11 +1964,11 @@ void do_multi_player_menu()
 	newmenu_item *m;
 	int num_options = 0;
 
-	MALLOC(menu_choice, int, 12);
+	MALLOC(menu_choice, int, 3);
 	if (!menu_choice)
 		return;
 
-	MALLOC(m, newmenu_item, 12);
+	MALLOC(m, newmenu_item, 3);
 	if (!m)
 	{
 		d_free(menu_choice);
@@ -2007,7 +1976,6 @@ void do_multi_player_menu()
 	}
 
 #ifdef USE_UDP
-	m[num_options].type=NM_TYPE_TEXT; m[num_options].text="UDP:"; num_options++;
 	m[num_options].type=NM_TYPE_MENU; m[num_options].text="HOST GAME"; menu_choice[num_options]=MENU_START_UDP_NETGAME; num_options++;
 #ifdef USE_TRACKER
 	m[num_options].type=NM_TYPE_MENU; m[num_options].text="FIND LAN/ONLINE GAMES"; menu_choice[num_options]=MENU_JOIN_LIST_UDP_NETGAME; num_options++;
@@ -2015,19 +1983,6 @@ void do_multi_player_menu()
 	m[num_options].type=NM_TYPE_MENU; m[num_options].text="FIND LAN GAMES"; menu_choice[num_options]=MENU_JOIN_LIST_UDP_NETGAME; num_options++;
 #endif
 	m[num_options].type=NM_TYPE_MENU; m[num_options].text="JOIN GAME MANUALLY"; menu_choice[num_options]=MENU_JOIN_MANUAL_UDP_NETGAME; num_options++;
-#endif
-
-#ifdef USE_IPX
-	m[num_options].type=NM_TYPE_TEXT; m[num_options].text=""; num_options++;
-	m[num_options].type=NM_TYPE_TEXT; m[num_options].text="IPX:"; num_options++;
-	m[num_options].type=NM_TYPE_MENU; m[num_options].text="HOST GAME"; menu_choice[num_options]=MENU_START_IPX_NETGAME; num_options++;
-	m[num_options].type=NM_TYPE_MENU; m[num_options].text="JOIN GAME"; menu_choice[num_options]=MENU_JOIN_IPX_NETGAME; num_options++;
-#ifdef __LINUX__
-	m[num_options].type=NM_TYPE_TEXT; m[num_options].text=""; num_options++;
-	m[num_options].type=NM_TYPE_TEXT; m[num_options].text="XKALI:"; num_options++;
-	m[num_options].type=NM_TYPE_MENU; m[num_options].text="HOST GAME"; menu_choice[num_options]=MENU_START_KALI_NETGAME; num_options++;
-	m[num_options].type=NM_TYPE_MENU; m[num_options].text="JOIN GAME"; menu_choice[num_options]=MENU_JOIN_KALI_NETGAME; num_options++;
-#endif
 #endif
 
 	newmenu_do3( NULL, TXT_MULTIPLAYER, num_options, m, (int (*)(newmenu *, d_event *, void *))multi_player_menu_handler, menu_choice, 0, NULL );
