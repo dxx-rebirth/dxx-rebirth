@@ -41,7 +41,6 @@
 		676AC1C70668A938007173EB /* byteswap.h in Headers */ = {isa = PBXBuildFile; fileRef = 6791CE4F0668852C00056A5A /* byteswap.h */; };
 		676AC1C80668A938007173EB /* rle.h in Headers */ = {isa = PBXBuildFile; fileRef = 6791CE500668852C00056A5A /* rle.h */; };
 		676AC1CA0668A938007173EB /* u_dpmi.h in Headers */ = {isa = PBXBuildFile; fileRef = 6791CF090668878F00056A5A /* u_dpmi.h */; };
-		676AC1CB0668A938007173EB /* cfile.h in Headers */ = {isa = PBXBuildFile; fileRef = 6791CF20066887CE00056A5A /* cfile.h */; };
 		676AC1CC0668A938007173EB /* makesig.h in Headers */ = {isa = PBXBuildFile; fileRef = 6791CF2D066887E500056A5A /* makesig.h */; };
 		676AC1CE0668A938007173EB /* fix.h in Headers */ = {isa = PBXBuildFile; fileRef = 6791CF420668881F00056A5A /* fix.h */; };
 		676AC1CF0668A938007173EB /* palette.h in Headers */ = {isa = PBXBuildFile; fileRef = 6791CF4E0668883900056A5A /* palette.h */; };
@@ -191,7 +190,6 @@
 		676AC2770668A939007173EB /* 3d.h in Headers */ = {isa = PBXBuildFile; fileRef = 6791CF8D066888DD00056A5A /* 3d.h */; };
 		676AC2780668A939007173EB /* args.h in Headers */ = {isa = PBXBuildFile; fileRef = 6791D00B066889CD00056A5A /* args.h */; };
 		676AC2790668A939007173EB /* byteswap.h in Headers */ = {isa = PBXBuildFile; fileRef = 6791CE4F0668852C00056A5A /* byteswap.h */; };
-		676AC27A0668A939007173EB /* cfile.h in Headers */ = {isa = PBXBuildFile; fileRef = 6791CF20066887CE00056A5A /* cfile.h */; };
 		676AC27C0668A939007173EB /* console.h in Headers */ = {isa = PBXBuildFile; fileRef = 6791D00C066889CD00056A5A /* console.h */; };
 		676AC27E0668A939007173EB /* error.h in Headers */ = {isa = PBXBuildFile; fileRef = 67B44913066880C400DF26D8 /* error.h */; };
 		676AC2800668A939007173EB /* fix.h in Headers */ = {isa = PBXBuildFile; fileRef = 6791CF420668881F00056A5A /* fix.h */; };
@@ -480,7 +478,6 @@
 		6791CE4F0668852C00056A5A /* byteswap.h */ = {isa = PBXFileReference; fileEncoding = 30; lastKnownFileType = sourcecode.c.h; path = byteswap.h; sourceTree = "<group>"; };
 		6791CE500668852C00056A5A /* rle.h */ = {isa = PBXFileReference; fileEncoding = 30; lastKnownFileType = sourcecode.c.h; path = rle.h; sourceTree = "<group>"; };
 		6791CF090668878F00056A5A /* u_dpmi.h */ = {isa = PBXFileReference; fileEncoding = 30; lastKnownFileType = sourcecode.c.h; path = u_dpmi.h; sourceTree = "<group>"; };
-		6791CF20066887CE00056A5A /* cfile.h */ = {isa = PBXFileReference; fileEncoding = 30; lastKnownFileType = sourcecode.c.h; path = cfile.h; sourceTree = "<group>"; };
 		6791CF2D066887E500056A5A /* makesig.h */ = {isa = PBXFileReference; fileEncoding = 30; lastKnownFileType = sourcecode.c.h; path = makesig.h; sourceTree = "<group>"; };
 		6791CF420668881F00056A5A /* fix.h */ = {isa = PBXFileReference; fileEncoding = 30; lastKnownFileType = sourcecode.c.h; path = fix.h; sourceTree = "<group>"; };
 		6791CF4E0668883900056A5A /* palette.h */ = {isa = PBXFileReference; fileEncoding = 30; lastKnownFileType = sourcecode.c.h; path = palette.h; sourceTree = "<group>"; };
@@ -1327,7 +1324,6 @@
 				6791CF8D066888DD00056A5A /* 3d.h */,
 				6791D00B066889CD00056A5A /* args.h */,
 				6791CE4F0668852C00056A5A /* byteswap.h */,
-				6791CF20066887CE00056A5A /* cfile.h */,
 				EBB9E5830D8E89C3003466E6 /* checker.h */,
 				6791D00C066889CD00056A5A /* console.h */,
 				EB92BE680CDD69830045A32C /* dl_list.h */,
@@ -1530,7 +1526,6 @@
 				676AC1C70668A938007173EB /* byteswap.h in Headers */,
 				676AC1C80668A938007173EB /* rle.h in Headers */,
 				676AC1CA0668A938007173EB /* u_dpmi.h in Headers */,
-				676AC1CB0668A938007173EB /* cfile.h in Headers */,
 				676AC1CC0668A938007173EB /* makesig.h in Headers */,
 				676AC1CE0668A938007173EB /* fix.h in Headers */,
 				676AC1CF0668A938007173EB /* palette.h in Headers */,
@@ -1577,7 +1572,6 @@
 				676AC2770668A939007173EB /* 3d.h in Headers */,
 				676AC2780668A939007173EB /* args.h in Headers */,
 				676AC2790668A939007173EB /* byteswap.h in Headers */,
-				676AC27A0668A939007173EB /* cfile.h in Headers */,
 				676AC27C0668A939007173EB /* console.h in Headers */,
 				676AC27E0668A939007173EB /* error.h in Headers */,
 				676AC2800668A939007173EB /* fix.h in Headers */,

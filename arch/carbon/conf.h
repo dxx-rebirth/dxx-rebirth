@@ -45,6 +45,7 @@
 /* Define if you want a network build */
 # define NETWORK
 # define USE_UDP
+# define USE_TRACKER
 //# define USE_IPX
 # define USE_TRACKER
 
