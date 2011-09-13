@@ -1,5 +1,9 @@
 D1X-Rebirth Changelog
 
+20110913
+--------
+README.txt: Mention Mac command keys
+
 20110912
 --------
 arch/sdl/mouse.c, ui/mouse.c: Move EVENT_MOUSE_DOUBLE_CLICKED support from ui/mouse.c to arch/sdl/mouse.c for tidiness and to possibly use it outside the editor
