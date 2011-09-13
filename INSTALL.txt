@@ -75,6 +75,20 @@ Needed files:
    Of course you can also use the Shareware game content with D1X-Rebirth which you can find here:
    http://www.dxx-rebirth.com/game-content/
 
+   For the PC CD-ROM, these files should be located on the Descent1 CD-Rom. The PC version data files need
+   to be patched to version 1.4a.
+
+   There is a patch suitable for Mac OS X available at:
+   http://www.dxx-rebirth.com/download/dxx/misc/descent-game-content-10to14a-patch.zip
+
+   To play the Multiplayer levelset 'Total Chaos', make sure the files
+
+   chaos.hog
+   chaos.msn
+
+   are in the subdirectory 'Missions'. These files should also be located on the Descent1 CD. For the
+   Mac CD data, simply move these files, after installing, from 'Data' to 'Missions'.
+
 
 Where to put these files:
 =========================
