@@ -71,8 +71,8 @@ void net_udp_process_ping(ubyte *data, int data_len, struct _sockaddr sender_add
 void net_udp_process_pong(ubyte *data, int data_len, struct _sockaddr sender_addr);
 void net_udp_process_game_info(ubyte *data, int data_len, struct _sockaddr game_addr, int lite_info);
 void net_udp_read_endlevel_packet( ubyte *data, int data_len, struct _sockaddr sender_addr );
-void net_udp_send_mdata(int priority, fix64 time);
-void net_udp_process_mdata (ubyte *data, int data_len, struct _sockaddr sender_addr, int priority);
+void net_udp_send_mdata(int needack, fix64 time);
+void net_udp_process_mdata (ubyte *data, int data_len, struct _sockaddr sender_addr, int needack);
 void net_udp_send_pdata();
 void net_udp_process_pdata ( ubyte *data, int data_len, struct _sockaddr sender_addr );
 void net_udp_read_pdata_short_packet(UDP_frame_info *pd);
@@ -2550,10 +2550,10 @@ void net_udp_process_packet(ubyte *data, struct _sockaddr sender_addr, int lengt
 			if (multi_i_am_master())
 				net_udp_process_pdata( data, length, sender_addr );
 			break;
-		case UPID_MDATA_P0:
+		case UPID_MDATA_PNORM:
 			net_udp_process_mdata( data, length, sender_addr, 0 );
 			break;
-		case UPID_MDATA_P1:
+		case UPID_MDATA_PNEEDACK:
 			net_udp_process_mdata( data, length, sender_addr, 1 );
 			break;
 		case UPID_MDATA_ACK:
@@ -3933,13 +3933,10 @@ void net_udp_send_data( ubyte * ptr, int len, int priority )
 	if (Endlevel_sequence)
 		return;
 
-	if (priority)
-		PacketUrgent = 1;
-
 	if ((UDP_MData.mbuf_size+len) > UPID_MDATA_BUF_SIZE )
 	{
 		check = ptr[0];
-		net_udp_do_frame(1, 0);
+		net_udp_send_mdata(0, timer_query());
 		if (UDP_MData.mbuf_size != 0)
 			Int3();
 		Assert(check == ptr[0]);
@@ -3950,6 +3947,9 @@ void net_udp_send_data( ubyte * ptr, int len, int priority )
 
 	memcpy( &UDP_MData.mbuf[UDP_MData.mbuf_size], ptr, len );
 	UDP_MData.mbuf_size += len;
+
+	if (priority)
+		net_udp_send_mdata((priority==2)?1:0, timer_query());
 }
 
 void net_udp_timeout_check(fix64 time)
@@ -4013,7 +4013,6 @@ void net_udp_timeout_player(int playernum)
 
 void net_udp_do_frame(int force, int listen)
 {
-	int send_mdata = (Network_laser_fired || force || PacketUrgent);
 	fix64 time = 0;
 	static fix64 last_send_time = 0, last_endlevel_time = 0, last_bcast_time = 0;
 
@@ -4022,36 +4021,26 @@ void net_udp_do_frame(int force, int listen)
 
 	time = timer_query();
 
-	net_udp_ping_frame(time);
-
 	if (WaitForRefuseAnswer && time>(RefuseTimeLimit+(F1_0*12)))
 		WaitForRefuseAnswer=0;
 
 	// Send player position packet (and endlevel if needed)
-	if (time >= (last_send_time+(F1_0/Netgame.PacketsPerSec)))
+	if (force || time >= (last_send_time+(F1_0/Netgame.PacketsPerSec)))
 	{
+		net_udp_noloss_process_queue(time);
 		multi_send_robot_frame(0);
-		
 		last_send_time = time;
-		
 		net_udp_send_pdata();
-
-		send_mdata = 1;
+		net_udp_send_mdata(0, time);
 	}
-
-	if (send_mdata)
-	{
-		multi_send_fire(); // Do firing if needed..
-		net_udp_send_mdata(PacketUrgent, time);
-	}
-
-	net_udp_noloss_process_queue(time);
 
 	if ((time>=last_endlevel_time+F1_0) && Control_center_destroyed)
 	{
 		last_endlevel_time = time;
 		net_udp_send_endlevel_packet();
 	}
+
+	net_udp_ping_frame(time);
 
 	// broadcast lite_info every 10 seconds
 	if (multi_i_am_master() && time>=last_bcast_time+(F1_0*10))
@@ -4111,8 +4100,6 @@ void net_udp_do_frame(int force, int listen)
 		}
 	}
 #endif
-
-	PacketUrgent = 0;
 }
 
 /* CODE FOR PACKET LOSS PREVENTION - START */
@@ -4280,7 +4267,7 @@ void net_udp_noloss_process_queue(fix64 time)
 					memset(&buf, 0, sizeof(UDP_mdata_info));
 					
 					// Prepare the packet and send it
-					buf[len] = UPID_MDATA_P1;													len++;
+					buf[len] = UPID_MDATA_PNEEDACK;													len++;
 					buf[len] = UDP_mdata_queue[queuec].Player_num;								len++;
 					PUT_INTEL_INT(buf + len, UDP_mdata_queue[queuec].pkt_num);					len += 4;
 					memcpy(&buf[len], UDP_mdata_queue[queuec].data, sizeof(char)*UDP_mdata_queue[queuec].data_size);
@@ -4306,7 +4293,7 @@ void net_udp_noloss_process_queue(fix64 time)
 }
 /* CODE FOR PACKET LOSS PREVENTION - END */
 
-void net_udp_send_mdata_direct(ubyte *data, int data_len, int pnum, int priority)
+void net_udp_send_mdata_direct(ubyte *data, int data_len, int pnum, int needack)
 {
 	ubyte buf[sizeof(UDP_mdata_info)];
 	ubyte pack[MAX_PLAYERS];
@@ -4322,20 +4309,20 @@ void net_udp_send_mdata_direct(ubyte *data, int data_len, int pnum, int priority
 		Error("Client sent direct data to non-Host in net_udp_send_mdata_direct()!\n");
 
 	if (!Netgame.PacketLossPrevention)
-		priority = 0;
+		needack = 0;
 
 	memset(&buf, 0, sizeof(UDP_mdata_info));
 	memset(&pack, 1, sizeof(ubyte)*MAX_PLAYERS);
 
 	pack[pnum] = 0;
 
-	if (priority)
-		buf[len] = UPID_MDATA_P1;
+	if (needack)
+		buf[len] = UPID_MDATA_PNEEDACK;
 	else
-		buf[len] = UPID_MDATA_P0;
+		buf[len] = UPID_MDATA_PNORM;
 																				len++;
 	buf[len] = Player_num;														len++;
-	if (priority)
+	if (needack)
 	{
 		UDP_MData.pkt_num++;
 		PUT_INTEL_INT(buf + len, UDP_MData.pkt_num);							len += 4;
@@ -4344,11 +4331,11 @@ void net_udp_send_mdata_direct(ubyte *data, int data_len, int pnum, int priority
 
 	sendto (UDP_Socket[0], buf, len, 0, (struct sockaddr *)&Netgame.players[pnum].protocol.udp.addr, sizeof(struct _sockaddr));
 
-	if (priority)
+	if (needack)
 		net_udp_noloss_add_queue_pkt(UDP_MData.pkt_num, timer_query(), data, data_len, Player_num, pack);
 }
 
-void net_udp_send_mdata(int priority, fix64 time)
+void net_udp_send_mdata(int needack, fix64 time)
 {
 	ubyte buf[sizeof(UDP_mdata_info)];
 	ubyte pack[MAX_PLAYERS];
@@ -4361,18 +4348,18 @@ void net_udp_send_mdata(int priority, fix64 time)
 		return;
 
 	if (!Netgame.PacketLossPrevention)
-		priority = 0;
+		needack = 0;
 
 	memset(&buf, 0, sizeof(UDP_mdata_info));
 	memset(&pack, 1, sizeof(ubyte)*MAX_PLAYERS);
 
-	if (priority)
-		buf[len] = UPID_MDATA_P1;
+	if (needack)
+		buf[len] = UPID_MDATA_PNEEDACK;
 	else
-		buf[len] = UPID_MDATA_P0;
+		buf[len] = UPID_MDATA_PNORM;
 																				len++;
 	buf[len] = Player_num;														len++;
-	if (priority)
+	if (needack)
 	{
 		UDP_MData.pkt_num++;
 		PUT_INTEL_INT(buf + len, UDP_MData.pkt_num);							len += 4;
@@ -4396,7 +4383,7 @@ void net_udp_send_mdata(int priority, fix64 time)
 		pack[0] = 0;
 	}
 	
-	if (priority)
+	if (needack)
 		net_udp_noloss_add_queue_pkt(UDP_MData.pkt_num, time, UDP_MData.mbuf, UDP_MData.mbuf_size, Player_num, pack);
 
 	// Clear UDP_MData except pkt_num. That one must not be deleted so we can clearly keep track of important packets.
@@ -4406,9 +4393,9 @@ void net_udp_send_mdata(int priority, fix64 time)
 	memset(&UDP_MData.mbuf, 0, sizeof(ubyte)*UPID_MDATA_BUF_SIZE);
 }
 
-void net_udp_process_mdata (ubyte *data, int data_len, struct _sockaddr sender_addr, int priority)
+void net_udp_process_mdata (ubyte *data, int data_len, struct _sockaddr sender_addr, int needack)
 {
-	int pnum = data[1], dataoffset = (priority?6:2);
+	int pnum = data[1], dataoffset = (needack?6:2);
 
 	// Check if packet might be bogus
 	if ((pnum < 0) || (data_len > sizeof(UDP_mdata_info)))
@@ -4430,8 +4417,8 @@ void net_udp_process_mdata (ubyte *data, int data_len, struct _sockaddr sender_a
 		}
 	}
 
-	// Add priority packet and check for possible redundancy
-	if (priority)
+	// Add needack packet and check for possible redundancy
+	if (needack)
 	{
 		if (!net_udp_noloss_validate_mdata(GET_INTEL_SHORT(&data[2]), pnum, sender_addr))
 			return;
@@ -4454,7 +4441,7 @@ void net_udp_process_mdata (ubyte *data, int data_len, struct _sockaddr sender_a
 			}
 		}
 
-		if (priority && N_players > 2)
+		if (needack && N_players > 2)
 		{
 			net_udp_noloss_add_queue_pkt(GET_INTEL_SHORT(&data[2]), timer_query(), data+dataoffset, data_len-dataoffset, pnum, pack);
 		}

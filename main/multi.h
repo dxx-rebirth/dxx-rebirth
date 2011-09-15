@@ -193,7 +193,7 @@ void multi_show_player_list(void);
 void multi_do_protocol_frame(int force, int listen);
 void multi_do_frame(void);
 
-void multi_send_fire();
+void multi_send_fire(int laser_gun, int laser_level, int laser_flags, int laser_fired, short laser_track);
 void multi_send_destroy_controlcen(int objnum, int player);
 void multi_send_endlevel_start(int);
 void multi_send_player_explode(char type);
@@ -250,12 +250,7 @@ void multi_object_rw_to_object(object_rw *obj_rw, object *obj);
 
 // Exported variables
 
-extern int PacketUrgent;
 extern int Network_status;
-extern int Network_laser_gun;
-extern int Network_laser_fired;
-extern int Network_laser_level;
-extern int Network_laser_flags;
 
 // IMPORTANT: These variables needed for player rejoining done by protocol-specific code
 extern int Network_send_objects;
@@ -271,7 +266,6 @@ extern int Network_player_added;
 extern int message_length[MULTI_MAX_TYPE+1];
 
 extern unsigned char multibuf[MAX_MULTI_MESSAGE_LEN+4];
-extern short Network_laser_track;
 
 extern int who_killed_controlcen;
 

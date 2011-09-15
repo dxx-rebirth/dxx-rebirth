@@ -49,6 +49,8 @@ COPYRIGHT 1993-1998 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 
 #define NEWHOMER
 
+int Network_laser_track = -1;
+
 int find_homing_object_complete(vms_vector *curpos, object *tracker, int track_obj_type1, int track_obj_type2);
 
 //---------------------------------------------------------------------------------
@@ -180,6 +182,19 @@ void do_muzzle_stuff(int segnum, vms_vector *pos)
 		Muzzle_queue_index = 0;
 }
 
+/*
+ * In effort to reduce weapon fire traffic in Multiplayer games artificially decrease the fire rate down to 100ms between shots.
+ * This will work for all weapons, even if game is modded.
+ */
+float weapon_rate_scale(int wp_id)
+{
+	if ( !(Game_mode & GM_MULTI) )
+		return 1.0;
+	if ( Weapon_info[wp_id].fire_wait >= f0_1 || Weapon_info[wp_id].fire_wait <= 0 )
+		return 1.0;
+	return (f0_1/Weapon_info[wp_id].fire_wait);
+}
+
 //---------------------------------------------------------------------------------
 // Initializes a laser after Fire is pressed
 
@@ -288,7 +303,7 @@ int Laser_create_new( vms_vector * direction, vms_vector * position, int segnum,
 	if (weapon_type == FLARE_ID)
 		obj->mtype.phys_info.flags |= PF_STICK;		//this obj sticks to walls
 
-	obj->shields = Weapon_info[obj->id].strength[Difficulty_level];
+	obj->shields = Weapon_info[obj->id].strength[Difficulty_level]*weapon_rate_scale(obj->id);
 
 	// Fill in laser-specific data
 
@@ -856,7 +871,7 @@ void Flare_create(object *obj)
 {
 	fix	energy_usage;
 
-	energy_usage = Weapon_info[FLARE_ID].energy_usage;
+	energy_usage = Weapon_info[FLARE_ID].energy_usage*weapon_rate_scale(FLARE_ID);
 
 	if (Difficulty_level < 2)
 		energy_usage = fixmul(energy_usage, i2f(Difficulty_level+2)/4);
@@ -873,12 +888,7 @@ void Flare_create(object *obj)
 
 		#ifdef NETWORK
 		if (Game_mode & GM_MULTI)
-		{
-			Network_laser_fired = 1;
-			Network_laser_gun = FLARE_ID+MISSILE_ADJUST;
-			Network_laser_flags = 0;
-			Network_laser_level = 0;
-		}
+			multi_send_fire(FLARE_ID+MISSILE_ADJUST, 0, 0, 1, -1);
 		#endif
 	}
 
@@ -1148,12 +1158,12 @@ int do_laser_firing_player(void)
 		return 0;
 
 	weapon_index = Primary_weapon_to_weapon_info[Primary_weapon];
-	energy_used = Weapon_info[weapon_index].energy_usage;
+	energy_used = Weapon_info[weapon_index].energy_usage*weapon_rate_scale(weapon_index);
 
 	if (Difficulty_level < 2)
 		energy_used = fixmul(energy_used, i2f(Difficulty_level+2)/4);
 
-	ammo_used = Weapon_info[weapon_index].ammo_usage;
+	ammo_used = Weapon_info[weapon_index].ammo_usage*weapon_rate_scale(weapon_index);
 
 //        addval = 2*FrameTime;
 //        if (addval > F1_0)
@@ -1171,7 +1181,7 @@ int do_laser_firing_player(void)
                         //end move - Victor Rachels
 
 			if (!cheats.rapidfire)
-				Next_laser_fire_time += Weapon_info[weapon_index].fire_wait;
+				Next_laser_fire_time += Weapon_info[weapon_index].fire_wait*weapon_rate_scale(weapon_index);
 			else
 				Next_laser_fire_time += F1_0/25;
 
@@ -1307,12 +1317,7 @@ int do_laser_firing(int objnum, int weapon_num, int level, int flags, int nfires
 	//  one shooting
 	#ifdef NETWORK
 	if ((Game_mode & GM_MULTI) && (objnum == Players[Player_num].objnum))
-	{
-		Network_laser_fired = nfires;
-		Network_laser_gun = weapon_num;
-		Network_laser_flags = flags;
-		Network_laser_level = level;
-	}
+		multi_send_fire(weapon_num, level, flags, nfires, -1);
 	#endif
 
 	return nfires;
@@ -1424,22 +1429,18 @@ void create_smart_children(object *objp)
 		if (numobjs == 0) {
 			for (i=0; i<NUM_SMART_CHILDREN; i++) {
 				if (parent_type == OBJ_PLAYER) {
-					int	hobjnum;
-					hobjnum = create_homing_missile(objp, -1, PLAYER_SMART_HOMING_ID, make_sound);
+					create_homing_missile(objp, -1, PLAYER_SMART_HOMING_ID, make_sound);
 				} else {
-					int	hobjnum;
-					hobjnum = create_homing_missile(objp, -1, ROBOT_SMART_HOMING_ID, make_sound);
+					create_homing_missile(objp, -1, ROBOT_SMART_HOMING_ID, make_sound);
 				}
 				make_sound = 0;
 			}
 		} else {
 			for (i=0; i<NUM_SMART_CHILDREN; i++) {
 				if (parent_type == OBJ_PLAYER) {
-					int	hobjnum;
-                                        hobjnum = create_homing_missile(objp, objlist[(d_rand() * numobjs) >> 15].objnum, PLAYER_SMART_HOMING_ID, make_sound);
+					create_homing_missile(objp, objlist[(d_rand() * numobjs) >> 15].objnum, PLAYER_SMART_HOMING_ID, make_sound);
 				} else {
-					int	hobjnum;
-                                        hobjnum = create_homing_missile(objp, objlist[(d_rand() * numobjs) >> 15].objnum, ROBOT_SMART_HOMING_ID, make_sound);
+					create_homing_missile(objp, objlist[(d_rand() * numobjs) >> 15].objnum, ROBOT_SMART_HOMING_ID, make_sound);
 				}
 				make_sound = 0;
 			}
@@ -1462,6 +1463,8 @@ int Missile_gun=0, Proximity_dropped = 0;
 void do_missile_firing(int drop_bomb)
 {
 	int weapon = (drop_bomb) ? PROXIMITY_INDEX : Secondary_weapon;
+	
+	Network_laser_track = -1;
 
 	Assert(weapon < MAX_SECONDARY_WEAPONS);
 
@@ -1473,7 +1476,7 @@ void do_missile_firing(int drop_bomb)
 
 		weapon_index = Secondary_weapon_to_weapon_info[weapon];
 		if (!cheats.rapidfire)
-			Next_missile_fire_time = GameTime64 + Weapon_info[weapon_index].fire_wait;
+			Next_missile_fire_time = GameTime64 + Weapon_info[weapon_index].fire_wait*weapon_rate_scale(weapon_index);
 		else
 			Next_missile_fire_time = GameTime64 + F1_0/25;
 
@@ -1534,12 +1537,7 @@ void do_missile_firing(int drop_bomb)
 
 		#ifdef NETWORK
 		if (Game_mode & GM_MULTI)
-		{
-			Network_laser_gun = weapon+MISSILE_ADJUST;
-			Network_laser_level = 0;
-			Network_laser_flags = (Missile_gun-1);
-			Network_laser_fired = 1;
-		}
+			multi_send_fire(weapon+MISSILE_ADJUST, 0, (Missile_gun-1), 1, Network_laser_track);
 		#endif
 
 		// don't autoselect if dropping prox and prox not current weapon

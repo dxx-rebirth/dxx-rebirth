@@ -48,7 +48,7 @@ COPYRIGHT 1993-1998 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 #include "byteswap.h"
 
 void multi_delete_controlled_robot(int objnum);
-void multi_send_robot_position_sub(int objnum);
+void multi_send_robot_position_sub(int objnum, int now);
 void multi_send_release_robot(int objnum);
 int multi_add_controlled_robot(int objnum, int agitation);
 
@@ -321,7 +321,7 @@ multi_send_claim_robot(int objnum)
 	s = objnum_local_to_remote(objnum, (sbyte *)&multibuf[4]);
 	PUT_INTEL_SHORT(multibuf+2, s);
 
-	multi_send_data(multibuf, 5, 1);
+	multi_send_data(multibuf, 5, 2);
 }
 
 void
@@ -348,7 +348,7 @@ multi_send_release_robot(int objnum)
 	s = objnum_local_to_remote(objnum, (sbyte *)&multibuf[4]);
 	PUT_INTEL_SHORT(multibuf+2, s);
 
-	multi_send_data(multibuf, 5, 1);
+	multi_send_data(multibuf, 5, 2);
 }
 
 #define MIN_ROBOT_COM_GAP F1_0/12
@@ -368,14 +368,14 @@ multi_send_robot_frame(int sent)
 		{
 			if (robot_send_pending[sending])
 			{
-				robot_send_pending[sending] = 0;	
-				multi_send_robot_position_sub(robot_controlled[sending]);
+				multi_send_robot_position_sub(robot_controlled[sending], (robot_send_pending[sending]>1)?1:0);
+				robot_send_pending[sending] = 0;
 			}
 
 			if (robot_fired[sending])
 			{
 				robot_fired[sending] = 0;
-				multi_send_data((unsigned char*)robot_fire_buf[sending], 18, 0);
+				multi_send_data((unsigned char*)robot_fire_buf[sending], 18, 1);
 			}
 
 			if (!(Game_mode & GM_NETWORK))
@@ -390,7 +390,7 @@ multi_send_robot_frame(int sent)
 }
 
 void
-multi_send_robot_position_sub(int objnum)
+multi_send_robot_position_sub(int objnum, int now)
 {
 	int loc = 0;
 	short s;
@@ -413,7 +413,7 @@ multi_send_robot_position_sub(int objnum)
 	memcpy(&(multibuf[loc]), (ubyte *)&(sp.xo), 14);
 	loc += 14;
 #endif
-	multi_send_data(multibuf, loc, 0);
+	multi_send_data(multibuf, loc, now?1:0);
 }
 
 void
@@ -444,9 +444,6 @@ multi_send_robot_position(int objnum, int force)
 	robot_last_send_time[Objects[objnum].ctype.ai_info.REMOTE_SLOT_NUM] = GameTime64;
 
 	robot_send_pending[Objects[objnum].ctype.ai_info.REMOTE_SLOT_NUM] = 1+force;
-
-	if (force & (Game_mode & GM_NETWORK))
-		PacketUrgent = 1;
 
 	return;
 }
@@ -486,8 +483,6 @@ multi_send_robot_fire(int objnum, int gun_num, vms_vector *fire)
 			Int3(); // ROB!
 		memcpy(robot_fire_buf[slot], multibuf, loc);
 		robot_fired[slot] = 1;
-//		if (Game_mode & GM_NETWORK)
-//			PacketUrgent = 1;
 	}
 	else
 		multi_send_data(multibuf, loc, 0); // Not our robot, send ASAP
@@ -509,7 +504,7 @@ multi_send_robot_explode(int objnum, int killer)
 	s = (short)objnum_local_to_remote(objnum, (sbyte *)&multibuf[loc+2]);
 	PUT_INTEL_SHORT(multibuf+loc, s);                       loc += 3;
 
-	multi_send_data(multibuf, loc, 1);
+	multi_send_data(multibuf, loc, 2);
 
 	multi_delete_controlled_robot(objnum);
 }
@@ -529,7 +524,7 @@ multi_send_create_robot(int station, int objnum, int type)
 
 	map_objnum_local_to_local((short)objnum);
 
-	multi_send_data(multibuf, loc, 1);
+	multi_send_data(multibuf, loc, 2);
 }
 
 void
@@ -559,7 +554,7 @@ multi_send_boss_actions(int bossobjnum, int action, int secondary, int objnum)
 //		Objects[bossobjnum].ctype.ai_info.REMOTE_OWNER = -1;
 		Objects[bossobjnum].ctype.ai_info.REMOTE_SLOT_NUM = 5; // Hands-off period!
 	}
-	multi_send_data(multibuf, loc, 1);
+	multi_send_data(multibuf, loc, 2);
 }
 			
 #define MAX_ROBOT_POWERUPS 4
@@ -605,7 +600,7 @@ multi_send_create_robot_powerups(object *del_obj)
 
 	Net_create_loc = 0;
 
-	multi_send_data(multibuf, 27, 1);
+	multi_send_data(multibuf, 27, 2);
 }
 
 void

@@ -122,11 +122,6 @@ sbyte  object_owner[MAX_OBJECTS];   // Who created each object in my universe, -
 int 	Net_create_objnums[MAX_NET_CREATE_OBJECTS]; // For tracking object creation that will be sent to remote
 int 	Net_create_loc = 0;  // pointer into previous array
 int     Network_status = 0;
-int	Network_laser_fired = 0; // How many times we shot
-int	Network_laser_gun; // Which gun number we shot
-int   Network_laser_flags; // Special flags for the shot
-int   Network_laser_level; // What level
-short	Network_laser_track; // Who is it tracking?
 char	Network_message[MAX_MESSAGE_LEN];
 int	Network_message_reciever=-1;
 int	sorted_kills[MAX_NUM_NET_PLAYERS];
@@ -134,7 +129,6 @@ short kill_matrix[MAX_NUM_NET_PLAYERS][MAX_NUM_NET_PLAYERS];
 int 	multi_goto_secret = 0;
 short	team_kills[2];
 int 	multi_quit_game = 0;
-int 	PacketUrgent = 0;
 char *GMNames[8]={"Anarchy","Team Anarchy","Robo Anarchy","Cooperative","Unknown","","","Bounty"};
 char *GMNamesShrt[8]={"ANRCHY","TEAM","ROBO","COOP","UNKNOWN","","","BOUNTY"};
 
@@ -1640,7 +1634,7 @@ multi_do_kill(char *buf)
 		multibuf[5] = Netgame.team_vector;
 		multibuf[6] = Bounty_target;
 		
-		multi_send_data(multibuf, 7, 1);
+		multi_send_data(multibuf, 7, 2);
 	}
 
 	killed = Players[pnum].objnum;
@@ -2306,21 +2300,17 @@ multi_process_bigdata(char *buf, int len)
 //          players of something we did.
 //
 
-void multi_send_fire()
+void multi_send_fire(int laser_gun, int laser_level, int laser_flags, int laser_fired, short laser_track)
 {
-   if (!Network_laser_fired)
-    return;
+	multibuf[0] = (char)MULTI_FIRE;
+	multibuf[1] = (char)Player_num;
+	multibuf[2] = (char)laser_gun;
+	multibuf[3] = (char)laser_level;
+	multibuf[4] = (char)laser_flags;
+	multibuf[5] = (char)laser_fired;
+	PUT_INTEL_SHORT(multibuf+6, laser_track);
 
-  multibuf[1] = (char)Player_num;
-  multibuf[2] = (char)Network_laser_gun;
-  multibuf[3] = (char)Network_laser_level;
-  multibuf[4] = (char)Network_laser_flags;
-  multibuf[5] = (char)Network_laser_fired;
-  PUT_INTEL_SHORT(multibuf+6, Network_laser_track);
-      multibuf[0] = (char)MULTI_FIRE;
-      multi_send_data(multibuf, 8, 0);
-
-  Network_laser_fired = 0;
+	multi_send_data(multibuf, 8, 1);
 }
 
 
@@ -2337,7 +2327,7 @@ multi_send_destroy_controlcen(int objnum, int player)
 	multibuf[0] = (char)MULTI_CONTROLCEN;
 	PUT_INTEL_SHORT(multibuf+1, objnum);
 	multibuf[3] = player;
-   multi_send_data(multibuf, 4, 1);
+   multi_send_data(multibuf, 4, 2);
 }
 
 void 
@@ -2352,7 +2342,7 @@ multi_send_endlevel_start(int secret)
 	else if (!multi_goto_secret)
 		multi_goto_secret = 2;
 
-	multi_send_data(multibuf, 3, 1);
+	multi_send_data(multibuf, 3, 2);
 	if (Game_mode & GM_NETWORK)
 	{
 		Players[Player_num].connected = CONNECT_ESCAPE_TUNNEL;
@@ -2428,7 +2418,7 @@ multi_send_player_explode(char type)
 		Int3(); // See Rob
 	}
 
-	multi_send_data(multibuf, message_length[MULTI_PLAYER_EXPLODE], 1);
+	multi_send_data(multibuf, message_length[MULTI_PLAYER_EXPLODE], 2);
 	if (Players[Player_num].flags & PLAYER_FLAGS_CLOAKED)
 		multi_send_decloak();
 
@@ -2601,7 +2591,7 @@ multi_send_reappear()
 	multibuf[0] = (char)MULTI_REAPPEAR;
 	PUT_INTEL_SHORT(multibuf+1, Players[Player_num].objnum);
 
-	multi_send_data(multibuf, 3, 1);
+	multi_send_data(multibuf, 3, 2);
 	PKilledFlags[Player_num]=0;
 }
 
@@ -2626,7 +2616,7 @@ multi_send_position(int objnum)
 	count += 14;
 #endif
 	// send twice while first has priority so the next one will be attached to the next bigdata packet
-	multi_send_data(multibuf, count, 1);
+	multi_send_data(multibuf, count, 2);
 	multi_send_data(multibuf, count, 0);
 }
 
@@ -2672,10 +2662,10 @@ multi_send_kill(int objnum)
 	if (multi_i_am_master())
 	{
 		multi_compute_kill(killer_objnum, objnum);
-		multi_send_data(multibuf, count, 1);
+		multi_send_data(multibuf, count, 2);
 	}
 	else
-		multi_send_data_direct((ubyte*)multibuf, count, multi_who_is_master(), 1); // I am just a client so I'll only send my kill but not compute it, yet. I'll get response from host so I can compute it correctly
+		multi_send_data_direct((ubyte*)multibuf, count, multi_who_is_master(), 2); // I am just a client so I'll only send my kill but not compute it, yet. I'll get response from host so I can compute it correctly
 
 	if (Game_mode & GM_MULTI_ROBOTS)
 		multi_strip_robots(Player_num);
@@ -2716,7 +2706,7 @@ multi_send_remobj(int objnum)
 
 	multibuf[3] = obj_owner;	
 
-	multi_send_data(multibuf, 4, 1);
+	multi_send_data(multibuf, 4, 2);
 
 	if (Network_send_objects && multi_objnum_is_past(objnum))
 	{
@@ -2733,7 +2723,7 @@ multi_send_quit(int why)
 
 	multibuf[0] = (char)why;
 	multibuf[1] = Player_num;
-	multi_send_data(multibuf, 2, 1);
+	multi_send_data(multibuf, 2, 2);
 }
 
 void
@@ -2744,7 +2734,7 @@ multi_send_cloak(void)
 	multibuf[0] = MULTI_CLOAK;
 	multibuf[1] = (char)Player_num;
 
-	multi_send_data(multibuf, 2, 1);
+	multi_send_data(multibuf, 2, 2);
 
 	if (Game_mode & GM_MULTI_ROBOTS)
 		multi_strip_robots(Player_num);
@@ -2758,7 +2748,7 @@ multi_send_decloak(void)
 	multibuf[0] = MULTI_DECLOAK;
 	multibuf[1] = (char)Player_num;
 
-	multi_send_data(multibuf, 2, 1);
+	multi_send_data(multibuf, 2, 2);
 }
 
 void
@@ -2767,7 +2757,7 @@ multi_send_door_open(int segnum, int side)
 	multibuf[0] = MULTI_DOOR_OPEN;
 	PUT_INTEL_SHORT(multibuf+1, segnum );
 	multibuf[3] = (sbyte)side;
-	multi_send_data(multibuf, 4, 1);
+	multi_send_data(multibuf, 4, 2);
 }
 
 //
@@ -2852,7 +2842,7 @@ multi_send_create_powerup(int powerup_type, int segnum, int objnum, vms_vector *
 #endif
 	//							-----------
 	//							Total =  19
-	multi_send_data(multibuf, count, 1);
+	multi_send_data(multibuf, count, 2);
 
 	if (Network_send_objects && multi_objnum_is_past(objnum))
 	{
@@ -2925,7 +2915,7 @@ multi_send_trigger(int triggernum)
 	multibuf[count] = Player_num;					count += 1;
 	multibuf[count] = (ubyte)triggernum;		count += 1;
 
-	multi_send_data(multibuf, count, 1);
+	multi_send_data(multibuf, count, 2);
 }
 
 void
@@ -3237,7 +3227,7 @@ void multi_send_powcap_update ()
 	for (i=0;i<MAX_POWERUP_TYPES;i++)
 		multibuf[i+1]=MaxPowerupsAllowed[i];
 
-	multi_send_data(multibuf, MAX_POWERUP_TYPES+1, 1);
+	multi_send_data(multibuf, MAX_POWERUP_TYPES+1, 2);
 }
 
 void multi_do_powcap_update (char *buf)
@@ -3273,7 +3263,7 @@ void multi_send_kill_goal_counts()
 		count++;
 	}
 
-	multi_send_data(multibuf, count, 1);
+	multi_send_data(multibuf, count, 2);
 }
 
 void multi_do_kill_goal_counts(char *buf)
@@ -3392,7 +3382,7 @@ void multi_send_bounty( void )
 	multibuf[1] = (char)Bounty_target;
 	
 	/* Send data */
-	multi_send_data( multibuf, 2, 1 );
+	multi_send_data( multibuf, 2, 2 );
 }
 
 void multi_do_bounty( char *buf )
@@ -3455,7 +3445,7 @@ void multi_send_save_game(ubyte slot, uint id, char * desc)
 	PUT_INTEL_INT( multibuf+count, id );		count += 4; // Save id
 	memcpy( &multibuf[count], desc, 20 );		count += 20;
 
-	multi_send_data(multibuf, count, 1);
+	multi_send_data(multibuf, count, 2);
 }
 
 void multi_send_restore_game(ubyte slot, uint id)
@@ -3466,7 +3456,7 @@ void multi_send_restore_game(ubyte slot, uint id)
 	multibuf[count] = slot;				count += 1; // Save slot=0
 	PUT_INTEL_INT( multibuf+count, id );		count += 4; // Save id
 
-	multi_send_data(multibuf, count, 1);
+	multi_send_data(multibuf, count, 2);
 }
 
 void multi_initiate_save_game()
@@ -3622,7 +3612,7 @@ void multi_send_msgsend_state(int state)
 	multibuf[1] = Player_num;
 	multibuf[2] = (char)state;
 	
-	multi_send_data(multibuf, 3, 1);
+	multi_send_data(multibuf, 3, 2);
 }
 
 // Specific variables related to our game mode we want the clients to know about
