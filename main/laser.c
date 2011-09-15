@@ -54,6 +54,7 @@ COPYRIGHT 1993-1999 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 
 object *Guided_missile[MAX_PLAYERS]={NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL};
 int Guided_missile_sig[MAX_PLAYERS]={-1,-1,-1,-1,-1,-1,-1,-1};
+int Network_laser_track = -1;
 
 int find_homing_object_complete(vms_vector *curpos, object *tracker, int track_obj_type1, int track_obj_type2);
 
@@ -290,7 +291,7 @@ extern int Doing_lighting_hack_flag;
 //	Changing these constants will not affect the damage done.
 //	WARNING: If you change DESIRED_OMEGA_DIST and MAX_OMEGA_BLOBS, you don't merely change the look of the cannon,
 //	you change its range.  If you decrease DESIRED_OMEGA_DIST, you decrease how far the gun can fire.
-#define OMEGA_BASE_TIME (F1_0/30) // How many blobs per second!! No FPS-based blob creation anymore, no FPS-based damage anymore!
+#define OMEGA_BASE_TIME ((Game_mode&GM_MULTI)?(F1_0/10):(F1_0/30)) // How many blobs per second!! No FPS-based blob creation anymore, no FPS-based damage anymore!
 #define	MIN_OMEGA_BLOBS		3				//	No matter how close the obstruction, at this many blobs created.
 #define	MIN_OMEGA_DIST			(F1_0*3)		//	At least this distance between blobs, unless doing so would violate MIN_OMEGA_BLOBS
 #define	DESIRED_OMEGA_DIST	(F1_0*5)		//	This is the desired distance between blobs.  For distances > MIN_OMEGA_BLOBS*DESIRED_OMEGA_DIST, but not very large, this will apply.
@@ -595,6 +596,19 @@ void do_omega_stuff(object *parent_objp, vms_vector *firing_pos, object *weapon_
 
 }
 
+/*
+ * In effort to reduce weapon fire traffic in Multiplayer games artificially decrease the fire rate down to 100ms between shots.
+ * This will work for all weapons, even if game is modded. Exception being Omega which is hardcoded.
+ */
+float weapon_rate_scale(int wp_id)
+{
+	if ( !(Game_mode & GM_MULTI) )
+		return 1.0;
+	if ( Weapon_info[wp_id].fire_wait >= f0_1 || Weapon_info[wp_id].fire_wait <= 0 || wp_id == OMEGA_ID )
+		return 1.0;
+	return (f0_1/Weapon_info[wp_id].fire_wait);
+}
+
 // ---------------------------------------------------------------------------------
 // Initializes a laser after Fire is pressed
 //	Returns object number.
@@ -673,7 +687,7 @@ int Laser_create_new( vms_vector * direction, vms_vector * position, int segnum,
 	if (weapon_type == FLARE_ID)
 		obj->mtype.phys_info.flags |= PF_STICK;		//this obj sticks to walls
 
-	obj->shields = Weapon_info[obj->id].strength[Difficulty_level];
+	obj->shields = Weapon_info[obj->id].strength[Difficulty_level]*weapon_rate_scale(obj->id);
 
 	// Fill in laser-specific data
 
@@ -1344,7 +1358,7 @@ void Flare_create(object *obj)
 {
 	fix	energy_usage;
 
-	energy_usage = Weapon_info[FLARE_ID].energy_usage;
+	energy_usage = Weapon_info[FLARE_ID].energy_usage*weapon_rate_scale(FLARE_ID);
 
 	if (Difficulty_level < 2)
 		energy_usage = fixmul(energy_usage, i2f(Difficulty_level+2)/4);
@@ -1361,12 +1375,8 @@ void Flare_create(object *obj)
 		Laser_player_fire( obj, FLARE_ID, 6, 1, 0);
 
 		#ifdef NETWORK
-		if (Game_mode & GM_MULTI) {
-			Network_laser_fired = 1;
-			Network_laser_gun = FLARE_ADJUST;
-			Network_laser_flags = 0;
-			Network_laser_level = 0;
-		}
+		if (Game_mode & GM_MULTI)
+			multi_send_fire(FLARE_ADJUST, 0, 0, 1, -1);
 		#endif
 // -- 	}
 
@@ -1615,8 +1625,6 @@ fix64	Last_laser_fired_time = 0;
 
 extern int Player_fired_laser_this_frame;
 
-int	Zbonkers = 0;
-
 //	--------------------------------------------------------------------------------------------------
 // Assumption: This is only called by the actual console player, not for network players
 
@@ -1636,7 +1644,7 @@ int do_laser_firing_player(void)
 		return 0;
 
 	weapon_index = Primary_weapon_to_weapon_info[Primary_weapon];
-	energy_used = Weapon_info[weapon_index].energy_usage;
+	energy_used = Weapon_info[weapon_index].energy_usage*weapon_rate_scale(weapon_index);
 	if (Primary_weapon == OMEGA_INDEX)
 		energy_used = 0;	//	Omega consumes energy when recharging, not when firing.
 
@@ -1648,7 +1656,7 @@ int do_laser_firing_player(void)
 		if (Game_mode & GM_MULTI)
 			energy_used *= 2;
 
-	ammo_used = Weapon_info[weapon_index].ammo_usage;
+	ammo_used = Weapon_info[weapon_index].ammo_usage*weapon_rate_scale(weapon_index);
 
 	addval = 2*FrameTime;
 	if (addval > F1_0)
@@ -1664,17 +1672,12 @@ int do_laser_firing_player(void)
 	if	(!((plp->energy >= energy_used) && (primary_ammo >= ammo_used)))
 		auto_select_weapon(0);		//	Make sure the player can fire from this weapon.
 
-if (Zbonkers) {
-	Zbonkers = 0;
-	GameTime64 = 0;
-}
-
 	while (Next_laser_fire_time <= GameTime64) {
 		if	((plp->energy >= energy_used) && (primary_ammo >= ammo_used)) {
 			int	laser_level, flags;
 
 			if (!cheats.rapidfire)
-				Next_laser_fire_time += Weapon_info[weapon_index].fire_wait;
+				Next_laser_fire_time += Weapon_info[weapon_index].fire_wait*weapon_rate_scale(weapon_index);
 			else
 				Next_laser_fire_time += F1_0/25;
 
@@ -1887,12 +1890,7 @@ int do_laser_firing(int objnum, int weapon_num, int level, int flags, int nfires
 	//  one shooting
 #ifdef NETWORK
 	if ((Game_mode & GM_MULTI) && (objnum == Players[Player_num].objnum))
-	{
-		Network_laser_fired = nfires;
-		Network_laser_gun = weapon_num;
-		Network_laser_flags = flags;
-		Network_laser_level = level;
-	}
+		multi_send_fire(weapon_num, level, flags, nfires, -1);
 #endif
 
 	return nfires;
@@ -1960,7 +1958,7 @@ void create_smart_children(object *objp, int num_smart_children)
 	}
 
 	if (objp->id == EARTHSHAKER_ID)
-		blast_nearby_glass(objp, Weapon_info[EARTHSHAKER_ID].strength[Difficulty_level]);
+		blast_nearby_glass(objp, Weapon_info[EARTHSHAKER_ID].strength[Difficulty_level]*weapon_rate_scale(EARTHSHAKER_ID));
 
 // -- DEBUG --
 	if ((objp->type == OBJ_WEAPON) && ((objp->id == SMART_ID) || (objp->id == SUPERPROX_ID) || (objp->id == ROBOT_SUPERPROX_ID) || (objp->id == EARTHSHAKER_ID)))
@@ -2107,11 +2105,13 @@ void do_missile_firing(int drop_bomb)
 	int bomb = which_bomb();
 	int weapon = (drop_bomb) ? bomb : Secondary_weapon;
 
+	Network_laser_track = -1;
+
 	Assert(weapon < MAX_SECONDARY_WEAPONS);
 
 	if (Guided_missile[Player_num] && Guided_missile[Player_num]->signature==Guided_missile_sig[Player_num]) {
 		release_guided_missile(Player_num);
-		Next_missile_fire_time = GameTime64 + Weapon_info[Secondary_weapon_to_weapon_info[weapon]].fire_wait;
+		Next_missile_fire_time = GameTime64 + Weapon_info[Secondary_weapon_to_weapon_info[weapon]].fire_wait*weapon_rate_scale(Secondary_weapon_to_weapon_info[weapon]);
 		return;
 	}
 
@@ -2124,7 +2124,7 @@ void do_missile_firing(int drop_bomb)
 		weapon_id = Secondary_weapon_to_weapon_info[weapon];
 
 		if (!cheats.rapidfire)
-			Next_missile_fire_time = GameTime64 + Weapon_info[weapon_id].fire_wait;
+			Next_missile_fire_time = GameTime64 + Weapon_info[weapon_id].fire_wait*weapon_rate_scale(weapon_id);
 		else
 			Next_missile_fire_time = GameTime64 + F1_0/25;
 
@@ -2174,12 +2174,7 @@ void do_missile_firing(int drop_bomb)
 
 #ifdef NETWORK
 		if (Game_mode & GM_MULTI)
-		{
-			Network_laser_fired = 1;		//how many
-			Network_laser_gun = weapon + MISSILE_ADJUST;
-			Network_laser_flags = gun_flag;
-			Network_laser_level = 0;
-		}
+			multi_send_fire(weapon+MISSILE_ADJUST, 0, gun_flag, 1, Network_laser_track);
 #endif
 
 		// don't autoselect if dropping prox and prox not current weapon

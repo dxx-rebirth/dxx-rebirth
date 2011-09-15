@@ -145,11 +145,6 @@ sbyte object_owner[MAX_OBJECTS];   // Who created each object in my universe, -1
 int   Net_create_objnums[MAX_NET_CREATE_OBJECTS]; // For tracking object creation that will be sent to remote
 int   Net_create_loc = 0;       // pointer into previous array
 int   Network_status = 0;
-int   Network_laser_fired = 0;  // How many times we shot
-int   Network_laser_gun;        // Which gun number we shot
-int   Network_laser_flags;      // Special flags for the shot
-int   Network_laser_level;      // What level
-short Network_laser_track;      // Who is it tracking?
 char  Network_message[MAX_MESSAGE_LEN];
 int   Network_message_reciever=-1;
 int   sorted_kills[MAX_NUM_NET_PLAYERS];
@@ -157,7 +152,6 @@ short kill_matrix[MAX_NUM_NET_PLAYERS][MAX_NUM_NET_PLAYERS];
 int   multi_goto_secret = 0;
 short team_kills[2];
 int   multi_quit_game = 0;
-int 	PacketUrgent = 0;
 char *GMNames[9]={"Anarchy","Team Anarchy","Robo Anarchy","Cooperative","Capture the Flag","Hoard","Team Hoard","Bounty","Unknown"};
 char *GMNamesShrt[9]={"ANRCHY","TEAM","ROBO","COOP","FLAG","HOARD","TMHOARD","BOUNTY","UNKNOWN"};
 
@@ -1824,7 +1818,7 @@ multi_do_kill(char *buf)
 		multibuf[5] = Netgame.team_vector;
 		multibuf[6] = Bounty_target;
 		
-		multi_send_data(multibuf, 7, 1);
+		multi_send_data(multibuf, 7, 2);
 	}
 
 	killed = Players[pnum].objnum;
@@ -2426,24 +2420,17 @@ multi_process_bigdata(char *buf, int len)
 //          players of something we did.
 //
 
-void
-multi_send_fire(void)
+void multi_send_fire(int laser_gun, int laser_level, int laser_flags, int laser_fired, short laser_track)
 {
-	if (!Network_laser_fired)
-		return;
-
 	multibuf[0] = (char)MULTI_FIRE;
 	multibuf[1] = (char)Player_num;
-	multibuf[2] = (char)Network_laser_gun;
-	multibuf[3] = (char)Network_laser_level;
-	multibuf[4] = (char)Network_laser_flags;
-	multibuf[5] = (char)Network_laser_fired;
+	multibuf[2] = (char)laser_gun;
+	multibuf[3] = (char)laser_level;
+	multibuf[4] = (char)laser_flags;
+	multibuf[5] = (char)laser_fired;
+	PUT_INTEL_SHORT(multibuf+6, laser_track);
 
-	PUT_INTEL_SHORT(multibuf+6, Network_laser_track);
-
-	multi_send_data(multibuf, 8, 0);
-
-	Network_laser_fired = 0;
+	multi_send_data(multibuf, 8, 1);
 }
 
 void
@@ -2459,7 +2446,7 @@ multi_send_destroy_controlcen(int objnum, int player)
 	multibuf[0] = (char)MULTI_CONTROLCEN;
 	PUT_INTEL_SHORT(multibuf+1, objnum);
 	multibuf[3] = player;
-	multi_send_data(multibuf, 4, 1);
+	multi_send_data(multibuf, 4, 2);
 }
 
 void multi_send_drop_marker (int player,vms_vector position,char messagenum,char text[])
@@ -2477,7 +2464,7 @@ void multi_send_drop_marker (int player,vms_vector position,char messagenum,char
 		for (i=0;i<40;i++)
 			multibuf[15+i]=text[i];
 	}
-	multi_send_data(multibuf, 55, 1);
+	multi_send_data(multibuf, 55, 2);
 }
 
 void
@@ -2492,7 +2479,7 @@ multi_send_endlevel_start(int secret)
 	else if (!multi_goto_secret)
 		multi_goto_secret = 2;
 
-	multi_send_data(multibuf, 3, 1);
+	multi_send_data(multibuf, 3, 2);
 	if (Game_mode & GM_NETWORK)
 	{
 		Players[Player_num].connected = CONNECT_ESCAPE_TUNNEL;
@@ -2580,7 +2567,7 @@ multi_send_player_explode(char type)
 		Int3(); // See Rob
 	}
 
-	multi_send_data(multibuf, message_length[MULTI_PLAYER_EXPLODE], 1);
+	multi_send_data(multibuf, message_length[MULTI_PLAYER_EXPLODE], 2);
 	if (Players[Player_num].flags & PLAYER_FLAGS_CLOAKED)
 		multi_send_decloak();
 	if (Game_mode & GM_MULTI_ROBOTS)
@@ -2851,7 +2838,7 @@ multi_send_reappear()
 	multibuf[0] = (char)MULTI_REAPPEAR;
 	PUT_INTEL_SHORT(multibuf+1, Players[Player_num].objnum);
 
-	multi_send_data(multibuf, 3, 1);
+	multi_send_data(multibuf, 3, 2);
 	PKilledFlags[Player_num]=0;
 }
 
@@ -2876,7 +2863,7 @@ multi_send_position(int objnum)
 	count += 14;
 #endif
 	// send twice while first has priority so the next one will be attached to the next bigdata packet
-	multi_send_data(multibuf, count, 1);
+	multi_send_data(multibuf, count, 2);
 	multi_send_data(multibuf, count, 0);
 }
 
@@ -2922,10 +2909,10 @@ multi_send_kill(int objnum)
 	if (multi_i_am_master())
 	{
 		multi_compute_kill(killer_objnum, objnum);
-		multi_send_data(multibuf, count, 1);
+		multi_send_data(multibuf, count, 2);
 	}
 	else
-		multi_send_data_direct((ubyte*)multibuf, count, multi_who_is_master(), 1); // I am just a client so I'll only send my kill but not compute it, yet. I'll get response from host so I can compute it correctly
+		multi_send_data_direct((ubyte*)multibuf, count, multi_who_is_master(), 2); // I am just a client so I'll only send my kill but not compute it, yet. I'll get response from host so I can compute it correctly
 
 	if (Game_mode & GM_MULTI_ROBOTS)
 		multi_strip_robots(Player_num);
@@ -2979,7 +2966,7 @@ multi_send_remobj(int objnum)
 
 	multibuf[3] = obj_owner;
 
-	multi_send_data(multibuf, 4, 1);
+	multi_send_data(multibuf, 4, 2);
 
 	if (Network_send_objects && multi_objnum_is_past(objnum))
 	{
@@ -2996,7 +2983,7 @@ multi_send_quit(int why)
 
 	multibuf[0] = (char)why;
 	multibuf[1] = Player_num;
-	multi_send_data(multibuf, 2, 1);
+	multi_send_data(multibuf, 2, 2);
 
 }
 
@@ -3008,7 +2995,7 @@ multi_send_cloak(void)
 	multibuf[0] = MULTI_CLOAK;
 	multibuf[1] = (char)Player_num;
 
-	multi_send_data(multibuf, 2, 1);
+	multi_send_data(multibuf, 2, 2);
 
 	if (Game_mode & GM_MULTI_ROBOTS)
 		multi_strip_robots(Player_num);
@@ -3022,7 +3009,7 @@ multi_send_decloak(void)
 	multibuf[0] = MULTI_DECLOAK;
 	multibuf[1] = (char)Player_num;
 
-	multi_send_data(multibuf, 2, 1);
+	multi_send_data(multibuf, 2, 2);
 }
 
 void
@@ -3035,7 +3022,7 @@ multi_send_door_open(int segnum, int side,ubyte flag)
 	multibuf[3] = (sbyte)side;
 	multibuf[4] = flag;
 
-	multi_send_data(multibuf, 5, 1);
+	multi_send_data(multibuf, 5, 2);
 }
 
 void multi_send_door_open_specific(int pnum,int segnum, int side,ubyte flag)
@@ -3050,7 +3037,7 @@ void multi_send_door_open_specific(int pnum,int segnum, int side,ubyte flag)
 	multibuf[3] = (sbyte)side;
 	multibuf[4] = flag;
 
-	multi_send_data_direct((ubyte *)multibuf, 5, pnum, 1);
+	multi_send_data_direct((ubyte *)multibuf, 5, pnum, 2);
 }
 
 //
@@ -3139,7 +3126,7 @@ multi_send_create_powerup(int powerup_type, int segnum, int objnum, vms_vector *
 #endif
 	//                                                                                                            -----------
 	//                                                                                                            Total =  19
-	multi_send_data(multibuf, count, 1);
+	multi_send_data(multibuf, count, 2);
 
 	if (Network_send_objects && multi_objnum_is_past(objnum))
 	{
@@ -3211,7 +3198,7 @@ multi_send_trigger(int triggernum)
 	multibuf[count] = Player_num;                                   count += 1;
 	multibuf[count] = (ubyte)triggernum;            count += 1;
 
-	multi_send_data(multibuf, count, 1);
+	multi_send_data(multibuf, count, 2);
 }
 
 void
@@ -3701,7 +3688,7 @@ void multi_send_drop_weapon (int objnum,int seed)
 #endif
 	}
 
-	multi_send_data(multibuf, 12, 1);
+	multi_send_data(multibuf, 12, 2);
 }
 
 void multi_do_drop_weapon (char *buf)
@@ -3822,7 +3809,7 @@ void multi_send_stolen_items ()
 		multibuf[i+1]=Stolen_items[i];
 		count++;      // So I like to break my stuff into smaller chunks, so what?
 	}
-	multi_send_data(multibuf, count, 1);
+	multi_send_data(multibuf, count, 2);
 }
 
 void multi_do_stolen_items (char *buf)
@@ -3844,7 +3831,7 @@ void multi_send_wall_status (int wallnum,ubyte type,ubyte flags,ubyte state)
 	multibuf[count]=flags;                count++;
 	multibuf[count]=state;                count++;
 
-	multi_send_data(multibuf, count, 1);
+	multi_send_data(multibuf, count, 2);
 }
 
 void multi_send_wall_status_specific (int pnum,int wallnum,ubyte type,ubyte flags,ubyte state)
@@ -3862,7 +3849,7 @@ void multi_send_wall_status_specific (int pnum,int wallnum,ubyte type,ubyte flag
 	multibuf[count]=flags;                count++;
 	multibuf[count]=state;                count++;
 
-	multi_send_data_direct((ubyte *)multibuf, count, pnum, 1);
+	multi_send_data_direct((ubyte *)multibuf, count, pnum, 2);
 }
 
 void multi_do_wall_status (char *buf)
@@ -3899,7 +3886,7 @@ void multi_send_kill_goal_counts()
 		count++;
 	}
 
-	multi_send_data(multibuf, count, 1);
+	multi_send_data(multibuf, count, 2);
 }
 
 void multi_do_kill_goal_counts(char *buf)
@@ -3976,7 +3963,7 @@ void multi_send_seismic (fix64 t1,fix64 t2)
 	multibuf[0]=MULTI_SEISMIC;
 	PUT_INTEL_INT(multibuf+count, t1); count+=(sizeof(fix));
 	PUT_INTEL_INT(multibuf+count, t2); count+=(sizeof(fix));
-	multi_send_data(multibuf, count, 1);
+	multi_send_data(multibuf, count, 2);
 }
 
 void multi_do_seismic (char *buf)
@@ -3997,7 +3984,7 @@ void multi_send_light (int segnum,ubyte val)
 	{
 		PUT_INTEL_SHORT(multibuf+count, Segments[segnum].sides[i].tmap_num2); count+=2;
 	}
-	multi_send_data(multibuf, count, 1);
+	multi_send_data(multibuf, count, 2);
 }
 void multi_send_light_specific (int pnum,int segnum,ubyte val)
 {
@@ -4015,7 +4002,7 @@ void multi_send_light_specific (int pnum,int segnum,ubyte val)
 		PUT_INTEL_SHORT(multibuf+count, Segments[segnum].sides[i].tmap_num2); count+=2;
 	}
 
-	multi_send_data_direct((ubyte *)multibuf, count, pnum, 1);
+	multi_send_data_direct((ubyte *)multibuf, count, pnum, 2);
 }
 
 void multi_do_light (char *buf)
@@ -4050,7 +4037,7 @@ void multi_send_flags (char pnum)
 	multibuf[1]=pnum;
 	PUT_INTEL_INT(multibuf+2, Players[(int)pnum].flags);
  
-	multi_send_data(multibuf, 6, 1);
+	multi_send_data(multibuf, 6, 2);
 }
 
 void multi_send_drop_blobs (char pnum)
@@ -4076,7 +4063,7 @@ void multi_send_powcap_update ()
 	for (i=0;i<MAX_POWERUP_TYPES;i++)
 		multibuf[i+1]=MaxPowerupsAllowed[i];
 
-	multi_send_data(multibuf, MAX_POWERUP_TYPES+1, 1);
+	multi_send_data(multibuf, MAX_POWERUP_TYPES+1, 2);
 }
 void multi_do_powcap_update (char *buf)
 {
@@ -4111,7 +4098,7 @@ void multi_send_active_door (int i)
 	PUT_INTEL_SHORT(multibuf + count, ActiveDoors[i].back_wallnum[1]);     count += 2;
 	PUT_INTEL_INT(multibuf + count, ActiveDoors[i].time);                    count += 4;
 #endif
-	multi_send_data (multibuf,count,1);
+	multi_send_data (multibuf,count,2);
 }
 #endif // 0 (never used)
 
@@ -4146,7 +4133,7 @@ void multi_send_sound_function (char whichfunc, char sound)
 #else
 	multibuf[3] = sound; count++;       // this would probably work on the PC as well.  Jason?
 #endif
-	multi_send_data (multibuf,4,1);
+	multi_send_data (multibuf,4,2);
 }
 
 #define AFTERBURNER_LOOP_START  20098
@@ -4179,7 +4166,7 @@ void multi_send_capture_bonus (char pnum)
 	multibuf[0]=MULTI_CAPTURE_BONUS;
 	multibuf[1]=pnum;
 
-	multi_send_data (multibuf,2,1);
+	multi_send_data (multibuf,2,2);
 	multi_do_capture_bonus (multibuf);
 }
 void multi_send_orb_bonus (char pnum)
@@ -4190,7 +4177,7 @@ void multi_send_orb_bonus (char pnum)
 	multibuf[1]=pnum;
 	multibuf[2]=Players[Player_num].secondary_ammo[PROXIMITY_INDEX];
 
-	multi_send_data (multibuf,3,1);
+	multi_send_data (multibuf,3,2);
 	multi_do_orb_bonus (multibuf);
 }
 void multi_do_capture_bonus(char *buf)
@@ -4326,7 +4313,7 @@ void multi_send_got_flag (char pnum)
 
 	digi_start_sound_queued (SOUND_HUD_YOU_GOT_FLAG,F1_0*2);
 
-	multi_send_data (multibuf,2,1);
+	multi_send_data (multibuf,2,2);
 	multi_send_flags (Player_num);
 }
 
@@ -4340,7 +4327,7 @@ void multi_send_got_orb (char pnum)
 
 	digi_play_sample (SOUND_YOU_GOT_ORB,F1_0*2);
 
-	multi_send_data (multibuf,2,1);
+	multi_send_data (multibuf,2,2);
 	multi_send_flags (Player_num);
 }
 
@@ -4474,7 +4461,7 @@ void multi_send_drop_flag (int objnum,int seed)
 		if (Game_mode & GM_NETWORK)
 			PowerupsInMine[objp->id]++;
 
-	multi_send_data(multibuf, 12, 1);
+	multi_send_data(multibuf, 12, 2);
 }
 
 void multi_do_drop_flag (char *buf)
@@ -4596,7 +4583,7 @@ void multi_send_finish_game ()
 	multibuf[0]=MULTI_FINISH_GAME;
 	multibuf[1]=Player_num;
 
-	multi_send_data (multibuf,2,1);
+	multi_send_data (multibuf,2,2);
 }
 
 
@@ -4617,7 +4604,7 @@ void multi_send_trigger_specific (char pnum,char trig)
 	multibuf[0] = MULTI_START_TRIGGER;
 	multibuf[1] = trig;
 
-	multi_send_data_direct((ubyte *)multibuf, 2, pnum, 1);
+	multi_send_data_direct((ubyte *)multibuf, 2, pnum, 2);
 }
 void multi_do_start_trigger (char *buf)
 {
@@ -4686,7 +4673,7 @@ void multi_send_ranking ()
 	multibuf[1]=(char)Player_num;
 	multibuf[2]=(char)GetMyNetRanking();
 
-	multi_send_data (multibuf,3,1);
+	multi_send_data (multibuf,3,2);
 }
 
 void multi_do_ranking (char *buf)
@@ -4732,7 +4719,7 @@ void multi_send_play_by_play (int num,int spnum,int dpnum)
 	multibuf[1]=(char)num;
 	multibuf[2]=(char)spnum;
 	multibuf[3]=(char)dpnum;
-	multi_send_data (multibuf,4,1);
+	multi_send_data (multibuf,4,2);
 	multi_do_play_by_play (multibuf);
 }
 
@@ -4798,7 +4785,7 @@ void multi_send_bounty( void )
 	multibuf[1] = (char)Bounty_target;
 	
 	/* Send data */
-	multi_send_data( multibuf, 2, 1 );
+	multi_send_data( multibuf, 2, 2 );
 }
 
 void multi_do_bounty( char *buf )
@@ -4861,7 +4848,7 @@ void multi_send_save_game(ubyte slot, uint id, char * desc)
 	PUT_INTEL_INT( multibuf+count, id );		count += 4; // Save id
 	memcpy( &multibuf[count], desc, 20 );		count += 20;
 
-	multi_send_data(multibuf, count, 1);
+	multi_send_data(multibuf, count, 2);
 }
 
 void multi_send_restore_game(ubyte slot, uint id)
@@ -4872,7 +4859,7 @@ void multi_send_restore_game(ubyte slot, uint id)
 	multibuf[count] = slot;				count += 1; // Save slot=0
 	PUT_INTEL_INT( multibuf+count, id );		count += 4; // Save id
 
-	multi_send_data(multibuf, count, 1);
+	multi_send_data(multibuf, count, 2);
 }
 
 void multi_initiate_save_game()
@@ -5028,7 +5015,7 @@ void multi_send_msgsend_state(int state)
 	multibuf[1] = Player_num;
 	multibuf[2] = (char)state;
 	
-	multi_send_data(multibuf, 3, 1);
+	multi_send_data(multibuf, 3, 2);
 }
 
 // Specific variables related to our game mode we want the clients to know about
