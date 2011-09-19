@@ -1,5 +1,9 @@
 D1X-Rebirth Changelog
 
+20110919
+--------
+main/multi.h, main/net_udp.c: Reworked Packet Loss Prevention: If an important packet could not be recovered until it timed out, dump player who failed sending/receiving it; Noloss queue can proces spackets until a certain traffic has been reached; In main UDP frame schedule different types of packets depending on PPS to decrease traffic produced in one frame, hopefully preventing too much loss in high-traffic situations; Small code cleanups; Added new dump signal for loss of important packet; When dumping player also disconnect that one in case the dumped player does not accept the signal
+
 20110915
 --------
 main/laser.c, main/laser.h, main/multi.c, main/multi.h, main/multibot.c, main/net_udp.c, main/net_udp.h: Added new priority level for MDATA packets to also send them ASAP without the need for an ACK; Streamlined sending multibot and fire packets and on the way artificially and automatically scaling fire rates, energy/ammo usage and damage of weapons in Multiplayer to decrease traffic easy way without changing the Gameplay

@@ -159,6 +159,7 @@ extern int multi_protocol; // set and determinate used protocol
 #define DUMP_CONNECTED  5 // never used
 #define DUMP_LEVEL      6
 #define DUMP_KICKED     7
+#define DUMP_PKTTIMEOUT 8
 
 // Bitmask for netgame_info->AllowedItems to set allowed items in Netgame
 #define NETFLAG_DOLASER   1     //  0x0000001

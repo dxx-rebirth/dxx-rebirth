@@ -1206,9 +1206,11 @@ net_udp_disconnect_player(int playernum)
 	{
 		if (Network_status==NETSTAT_PLAYING)
 			multi_leave_game();
-		window_set_visible(Game_wind, 0);
-		nm_messagebox(NULL, 1, TXT_OK, "Game was closed by host!");
-		window_set_visible(Game_wind, 1);
+		if (Game_wind)
+			window_set_visible(Game_wind, 0);
+		nm_messagebox(NULL, 1, TXT_OK, "Host left the game!");
+		if (Game_wind)
+			window_set_visible(Game_wind, 1);
 		multi_quit_game = 1;
 		game_leave_menus();
 		multi_reset_stuff();
@@ -1388,6 +1390,10 @@ void net_udp_welcome_player(UDP_sequence_packet *their)
 		digi_play_sample(SOUND_HUD_MESSAGE, F1_0);
 
 		HUD_init_message(HM_MULTI, "'%s' %s", Players[player_num].callsign, TXT_REJOIN);
+
+		multi_send_score();
+
+		net_udp_noloss_clear_mdata_got(player_num);
 	}
 
 	Players[player_num].KillGoalCount=0;
@@ -1928,11 +1934,17 @@ void net_udp_dump_player(struct _sockaddr dump_addr, int why)
 	// Inform player that he was not chosen for the netgame
 
 	ubyte buf[UPID_DUMP_SIZE];
+	int i;
 	
 	buf[0] = UPID_DUMP;
 	buf[1] = why;
 	
 	sendto (UDP_Socket[0], buf, sizeof(buf), 0, (struct sockaddr *)&dump_addr, sizeof(struct _sockaddr));
+
+	if (multi_i_am_master())
+		for (i = 1; i < N_players; i++)
+			if (!memcmp((struct _sockaddr *)&dump_addr, (struct _sockaddr *)&Netgame.players[i].protocol.udp.addr, sizeof(struct _sockaddr)))
+				net_udp_disconnect_player(i);
 }
 
 void net_udp_update_netgame(void)
@@ -2398,22 +2410,31 @@ void net_udp_process_dump(ubyte *data, int len, struct _sockaddr sender_addr)
 	if (memcmp((struct _sockaddr *)&sender_addr,(struct _sockaddr *)&Netgame.players[0].protocol.udp.addr,sizeof(struct _sockaddr)))
 		return;
 
-	if (data[1]==DUMP_KICKED)
+	switch (data[1])
 	{
-		if (Network_status==NETSTAT_PLAYING)
-			multi_leave_game();
-		window_set_visible(Game_wind, 0);
-		nm_messagebox(NULL, 1, TXT_OK, "%s has kicked you out!",Players[0].callsign);
-		window_set_visible(Game_wind, 1);
-		multi_quit_game = 1;
-		game_leave_menus();
-		multi_reset_stuff();
+		case DUMP_PKTTIMEOUT:
+		case DUMP_KICKED:
+			if (Network_status==NETSTAT_PLAYING)
+				multi_leave_game();
+			if (Game_wind)
+				window_set_visible(Game_wind, 0);
+			if (data[1] == DUMP_PKTTIMEOUT)
+				nm_messagebox(NULL, 1, TXT_OK, "You were removed from the game.\nYou failed receiving important\npackets. Sorry.");
+			if (data[1] == DUMP_KICKED)
+				nm_messagebox(NULL, 1, TXT_OK, "%s has kicked you out!",Players[0].callsign);
+			if (Game_wind)
+				window_set_visible(Game_wind, 1);
+			multi_quit_game = 1;
+			game_leave_menus();
+			multi_reset_stuff();
+			break;
+		default:
+			if (data[1] < DUMP_CLOSED || data[1] > DUMP_LEVEL) // invalid dump... heh
+				break;
+			nm_messagebox(NULL, 1, TXT_OK, NET_DUMP_STRINGS(data[1]));
+			Network_status = NETSTAT_MENU;
+			break;
 	}
-	else
-	{
-		nm_messagebox(NULL, 1, TXT_OK, NET_DUMP_STRINGS(data[1]));
-		Network_status = NETSTAT_MENU;
- 	}
 }
 	
 void net_udp_process_request(UDP_sequence_packet *their)
@@ -2774,7 +2795,7 @@ int net_udp_start_poll( newmenu *menu, d_event *event, void *userdata )
 }
 
 static int opt_cinvul, opt_show_on_map;
-static int opt_show_on_map, opt_difficulty, opt_setpower, opt_playtime, opt_killgoal, opt_port, opt_packets, opt_show_names, opt_plp, opt_bright, opt_start_invul, opt_ffire;
+static int opt_show_on_map, opt_difficulty, opt_setpower, opt_playtime, opt_killgoal, opt_port, opt_packets, opt_show_names, opt_bright, opt_start_invul, opt_ffire;
 #ifdef USE_TRACKER
 static int opt_tracker;
 #endif
@@ -2804,9 +2825,9 @@ void net_udp_more_game_options ()
 	int opt=0,i=0;
 	char PlayText[80],KillText[80],srinvul[50],packstring[5];
 #ifdef USE_TRACKER
-	newmenu_item m[16];
+	newmenu_item m[15];
 #else
- 	newmenu_item m[15];
+ 	newmenu_item m[14];
 #endif
 
 	snprintf(packstring,sizeof(char)*4,"%d",Netgame.PacketsPerSec);
@@ -2851,8 +2872,6 @@ void net_udp_more_game_options ()
 	m[opt].type = NM_TYPE_TEXT; m[opt].text = "Network port"; opt++;
 	opt_port = opt;
 	m[opt].type = NM_TYPE_INPUT; m[opt].text = UDP_MyPort; m[opt].text_len=5; opt++;
-	opt_plp = opt;
-	m[opt].type = NM_TYPE_CHECK; m[opt].text = "Packet Loss Prevention"; m[opt].value = Netgame.PacketLossPrevention; opt++;
 #ifdef USE_TRACKER
 	opt_tracker = opt;
 	m[opt].type = NM_TYPE_CHECK; m[opt].text = "Track this game"; m[opt].value = Netgame.Tracker; opt++;
@@ -2898,7 +2917,6 @@ menu:
 	else
 		Netgame.game_flags &= ~NETGAME_FLAG_SHOW_MAP;
 	Netgame.NoFriendlyFire = m[opt_ffire].value;
-	Netgame.PacketLossPrevention = m[opt_plp].value;
 #ifdef USE_TRACKER
 	Netgame.Tracker = m[opt_tracker].value;
 #endif
@@ -4014,9 +4032,10 @@ void net_udp_timeout_player(int playernum)
 void net_udp_do_frame(int force, int listen)
 {
 	fix64 time = 0;
-	static fix64 last_send_time = 0, last_endlevel_time = 0, last_bcast_time = 0;
+	static fix64 last_send_time = 0, last_endlevel_time = 0, last_bcast_time = 0, last_resync_time = 0;
+	fix pktstageiv = F1_0/Netgame.PacketsPerSec/4;
 
-	if (!(Game_mode&GM_NETWORK))
+	if (!(Game_mode&GM_NETWORK) || UDP_Socket[0] == -1)
 		return;
 
 	time = timer_query();
@@ -4024,82 +4043,101 @@ void net_udp_do_frame(int force, int listen)
 	if (WaitForRefuseAnswer && time>(RefuseTimeLimit+(F1_0*12)))
 		WaitForRefuseAnswer=0;
 
-	// Send player position packet (and endlevel if needed)
-	if (force || time >= (last_send_time+(F1_0/Netgame.PacketsPerSec)))
+	// Step 1: Send positional data
+	if (time >= (last_send_time+pktstageiv))
 	{
-		net_udp_noloss_process_queue(time);
-		multi_send_robot_frame(0);
-		last_send_time = time;
 		net_udp_send_pdata();
+	}
+	
+	// Step 2: Send multi buffer
+	if (force || time >= (last_send_time+(pktstageiv*2)))
+	{
+		multi_send_robot_frame(0);
 		net_udp_send_mdata(0, time);
 	}
 
-	if ((time>=last_endlevel_time+F1_0) && Control_center_destroyed)
+	// Step 3: Resend lost multi buffer packets if needed
+	if (time >= (last_send_time+(pktstageiv*3)))
 	{
-		last_endlevel_time = time;
-		net_udp_send_endlevel_packet();
+		net_udp_noloss_process_queue(time);
 	}
 
-	net_udp_ping_frame(time);
-
-	// broadcast lite_info every 10 seconds
-	if (multi_i_am_master() && time>=last_bcast_time+(F1_0*10))
+	// Step 4: Endlevel packets, player sync, Pings, etc.
+	if (time >= (last_send_time+(pktstageiv*4)))
 	{
-		last_bcast_time = time;
-		net_udp_send_game_info(GBcast, UPID_GAME_INFO_LITE);
+		if (listen && Network_send_objects)
+			net_udp_send_objects();
+		if (listen && Network_sending_extras && VerifyPlayerJoined==-1)
+			net_udp_send_extras();
+		if (VerifyPlayerJoined!=-1 && time >= last_resync_time+F1_0)
+		{
+			last_resync_time = time;
+			net_udp_resend_sync_due_to_packet_loss(); // This will resend to UDP_sync_player
+		}
+
+		if ((time>=last_endlevel_time+F1_0) && Control_center_destroyed)
+		{
+			last_endlevel_time = time;
+			net_udp_send_endlevel_packet();
+		}
+
+		// broadcast lite_info every 10 seconds
+		if (multi_i_am_master() && time>=last_bcast_time+(F1_0*10))
+		{
+			last_bcast_time = time;
+			net_udp_send_game_info(GBcast, UPID_GAME_INFO_LITE);
 #ifdef IPv6
-		net_udp_send_game_info(GMcast_v6, UPID_GAME_INFO_LITE);
+			net_udp_send_game_info(GMcast_v6, UPID_GAME_INFO_LITE);
 #endif
+		}
+
+#ifdef USE_TRACKER
+		// If we use the tracker, tell the tracker about us every 10 seconds
+		if( Netgame.Tracker )
+		{
+			// Static variable... the last time we sent to the tracker
+			static fix64 iLastQuery = 0;
+			static int iAttempts = 0;
+			fix64 iNow = timer_query();
+			
+			// Set the last query to now if we must
+			if( iLastQuery == 0 )
+				iLastQuery = iNow;
+			
+			// Test it
+			if( iTrackerVerified == 0 && iNow >= iLastQuery + ( F1_0 * 3 ) )
+			{
+				// Update it
+				iLastQuery = iNow;
+				iAttempts++;
+			}
+			
+			// Have we had all our attempts?
+			if( iTrackerVerified == 0 && iAttempts > 3 )
+			{
+				// Turn off tracker
+				Netgame.Tracker = 0;
+				
+				// Reset the static variables for next time
+				iLastQuery = 0;
+				iAttempts = 0;
+				
+				// Warn
+				nm_messagebox( TXT_WARNING, 1, TXT_OK, "No response from tracker!\nPossible causes:\nTracker is down\nYour port is likely not open!\n\nTracker: %s\nGame port: %s", GameArg.MplTrackerAddr, UDP_MyPort );
+			}
+		}
+#endif
+
+		net_udp_ping_frame(time);
+
+		last_send_time = time;
 	}
 
 	if (listen)
 	{
 		net_udp_timeout_check(time);
 		net_udp_listen();
-		if (VerifyPlayerJoined!=-1 && !(FrameCount & 63))
-			net_udp_resend_sync_due_to_packet_loss(); // This will resend to UDP_sync_player
-		if (Network_send_objects)
-			net_udp_send_objects();
-		if (Network_sending_extras && VerifyPlayerJoined==-1)
-			net_udp_send_extras();
 	}
-
-#ifdef USE_TRACKER
-	// If we use the tracker, tell the tracker about us every 10 seconds
-	if( Netgame.Tracker )
-	{
-		// Static variable... the last time we sent to the tracker
-		static fix64 iLastQuery = 0;
-		static int iAttempts = 0;
-		fix64 iNow = timer_query();
-		
-		// Set the last query to now if we must
-		if( iLastQuery == 0 )
-			iLastQuery = iNow;
-		
-		// Test it
-		if( iTrackerVerified == 0 && iNow >= iLastQuery + ( F1_0 * 3 ) )
-		{
-			// Update it
-			iLastQuery = iNow;
-			iAttempts++;
-		}
-		
-		// Have we had all our attempts?
-		if( iTrackerVerified == 0 && iAttempts > 3 )
-		{
-			// Turn off tracker
-			Netgame.Tracker = 0;
-			
-			// Reset the static variables for next time
-			iLastQuery = 0;
-			iAttempts = 0;
-			
-			// Warn
-			nm_messagebox( TXT_WARNING, 1, TXT_OK, "No response from tracker!\nPossible causes:\nTracker is down\nYour port is likely not open!\n\nTracker: %s\nGame port: %s", GameArg.MplTrackerAddr, UDP_MyPort );
-		}
-	}
-#endif
 }
 
 /* CODE FOR PACKET LOSS PREVENTION - START */
@@ -4109,33 +4147,63 @@ void net_udp_do_frame(int force, int listen)
  */
 void net_udp_noloss_add_queue_pkt(uint32_t pkt_num, fix64 time, ubyte *data, ushort data_size, ubyte pnum, ubyte player_ack[MAX_PLAYERS])
 {
-	int i;
-	
+	int i, found = 0;
+
+	if (!(Game_mode&GM_NETWORK) || UDP_Socket[0] == -1)
+		return;
+
 	if (!Netgame.PacketLossPrevention)
 		return;
 
-	for (i = 0; i < UDP_MDATA_STOR_QUEUE_SIZE; i++)
+	for (i = 0; i < UDP_MDATA_STOR_QUEUE_SIZE; i++) // look for unused or oldest slot
 	{
-		int j;
-		
 		if (UDP_mdata_queue[i].used)
-			continue;
-
-		con_printf(CON_VERBOSE, "P#%i: Adding MData pkt_num %i from %i to MData store list\n", Player_num, pkt_num, pnum);
-
-		UDP_mdata_queue[i].used = 1;
-		UDP_mdata_queue[i].pkt_initial_timestamp = time;
-		for (j = 0; j < MAX_PLAYERS; j++)
-			UDP_mdata_queue[i].pkt_timestamp[j] = time;
-		UDP_mdata_queue[i].pkt_num = pkt_num;
-		UDP_mdata_queue[i].Player_num = pnum;
-		memcpy( &UDP_mdata_queue[i].player_ack, player_ack, sizeof(ubyte)*MAX_PLAYERS);
-		memcpy( &UDP_mdata_queue[i].data, data, sizeof(char)*data_size );
-		UDP_mdata_queue[i].data_size = data_size;
-		
-		return;
+		{
+			if (UDP_mdata_queue[i].pkt_initial_timestamp > UDP_mdata_queue[found].pkt_initial_timestamp)
+				found = i;
+		}
+		else
+		{
+			found = i;
+			break;
+		}
 	}
-	con_printf(CON_VERBOSE, "P#%i: MData store list is full!\n", Player_num);
+
+	if (UDP_mdata_queue[found].used) // seems the slot we found is used (list is full) so screw  those who still need ack's.
+	{
+		con_printf(CON_VERBOSE, "P#%i: MData store list is full!\n", Player_num);
+		if (multi_i_am_master())
+		{
+			for ( i=1; i<N_players; i++ )
+				if (UDP_mdata_queue[found].player_ack[i] == 0)
+					net_udp_dump_player(Netgame.players[i].protocol.udp.addr, DUMP_PKTTIMEOUT);
+		}
+		else
+		{
+			Netgame.PacketLossPrevention = 0; // Disable PLP - otherwise we get stuck in an infinite loop here. NOTE: We could as well clean the whole queue to continue protect our disconnect signal bit it's not that important - we just wanna leave.
+			if (Network_status==NETSTAT_PLAYING)
+				multi_leave_game();
+			if (Game_wind)
+				window_set_visible(Game_wind, 0);
+			nm_messagebox(NULL, 1, TXT_OK, "You left the game. You failed\nsending important packets.\nSorry.");
+			if (Game_wind)
+				window_set_visible(Game_wind, 1);
+			multi_quit_game = 1;
+			game_leave_menus();
+			multi_reset_stuff();
+		}
+	}
+
+	con_printf(CON_VERBOSE, "P#%i: Adding MData pkt_num %i from %i to MData store list\n", Player_num, pkt_num, pnum);
+	UDP_mdata_queue[found].used = 1;
+	UDP_mdata_queue[found].pkt_initial_timestamp = time;
+	for (i = 0; i < MAX_PLAYERS; i++)
+		UDP_mdata_queue[found].pkt_timestamp[i] = time;
+	UDP_mdata_queue[found].pkt_num = pkt_num;
+	UDP_mdata_queue[found].Player_num = pnum;
+	memcpy( &UDP_mdata_queue[found].player_ack, player_ack, sizeof(ubyte)*MAX_PLAYERS); 
+	memcpy( &UDP_mdata_queue[found].data, data, sizeof(char)*data_size );
+	UDP_mdata_queue[found].data_size = data_size;
 }
 
 /*
@@ -4154,7 +4222,7 @@ int net_udp_noloss_validate_mdata(uint32_t pkt_num, ubyte sender_pnum, struct _s
 			return 0;
 	}
 	else
-		{
+	{
 		if (memcmp((struct _sockaddr *)&sender_addr, (struct _sockaddr *)&Netgame.players[0].protocol.udp.addr, sizeof(struct _sockaddr)))
 			return 0;
 	}
@@ -4227,14 +4295,16 @@ void net_udp_noloss_clear_mdata_got(ubyte player_num)
  */
 void net_udp_noloss_process_queue(fix64 time)
 {
-	int queuec = 0, plc = 0, count = 0;
+	int queuec = 0, plc = 0, total_len = 0;
+
+	if (!(Game_mode&GM_NETWORK) || UDP_Socket[0] == -1)
+		return;
 
 	if (!Netgame.PacketLossPrevention)
 		return;
 
 	for (queuec = 0; queuec < UDP_MDATA_STOR_QUEUE_SIZE; queuec++)
 	{
-		fix resend_delay = (F1_0/2);
 		int needack = 0;
 		
 		if (!UDP_mdata_queue[queuec].used)
@@ -4249,14 +4319,8 @@ void net_udp_noloss_process_queue(fix64 time)
 
 			if (!UDP_mdata_queue[queuec].player_ack[plc])
 			{
-				// Set resend interval
-				if (Netgame.players[plc].ping < 100)
-					resend_delay = (F1_0/3);
-				else
-					resend_delay = (F1_0/2);
-
 				// Resend if enough time has passed.
-				if (UDP_mdata_queue[queuec].pkt_timestamp[plc] + resend_delay <= time)
+				if (UDP_mdata_queue[queuec].pkt_timestamp[plc] + (F1_0/3) <= time)
 				{
 					ubyte buf[sizeof(UDP_mdata_info)];
 					int len = 0;
@@ -4273,7 +4337,7 @@ void net_udp_noloss_process_queue(fix64 time)
 					memcpy(&buf[len], UDP_mdata_queue[queuec].data, sizeof(char)*UDP_mdata_queue[queuec].data_size);
 																								len += UDP_mdata_queue[queuec].data_size;
 					sendto (UDP_Socket[0], buf, len, 0, (struct sockaddr *)&Netgame.players[plc].protocol.udp.addr, sizeof(struct _sockaddr));
-					count++;
+					total_len += len;
 				}
 				needack++;
 			}
@@ -4282,12 +4346,35 @@ void net_udp_noloss_process_queue(fix64 time)
 		// Check if we can remove that packet due to to it had no resend's or Timeout
 		if (needack==0 || (UDP_mdata_queue[queuec].pkt_initial_timestamp + UDP_TIMEOUT <= time))
 		{
+			if (needack) // packet timed out but still not all have ack'd. SCREW THEM NOW!
+			{
+				if (multi_i_am_master())
+				{
+					for ( plc=1; plc<N_players; plc++ )
+						if (UDP_mdata_queue[queuec].player_ack[plc] == 0)
+							net_udp_dump_player(Netgame.players[plc].protocol.udp.addr, DUMP_PKTTIMEOUT);
+				}
+				else
+				{
+					Netgame.PacketLossPrevention = 0; // Disable PLP - otherwise we get stuck in an infinite loop here. NOTE: We could as well clean the whole queue to continue protect our disconnect signal bit it's not that important - we just wanna leave.
+					if (Network_status==NETSTAT_PLAYING)
+						multi_leave_game();
+					if (Game_wind)
+						window_set_visible(Game_wind, 0);
+					nm_messagebox(NULL, 1, TXT_OK, "You left the game. You failed\nsending important packets.\nSorry.");
+					if (Game_wind)
+						window_set_visible(Game_wind, 1);
+					multi_quit_game = 1;
+					game_leave_menus();
+					multi_reset_stuff();
+				}
+			}
 			con_printf(CON_VERBOSE, "P#%i: Removing stored pkt_num %i - missing ACKs: %i\n",Player_num, UDP_mdata_queue[queuec].pkt_num, needack);
 			memset(&UDP_mdata_queue[queuec],0,sizeof(UDP_mdata_store));
 		}
 
-		// Send up to 35 packets (5 for all possible clients) from the queue by each time the queue process is called
-		if (count >= 35)
+		// Send up to half our max packet size
+		if (total_len >= (UPID_MAX_SIZE/2))
 			break;
 	}
 }
@@ -4299,7 +4386,7 @@ void net_udp_send_mdata_direct(ubyte *data, int data_len, int pnum, int needack)
 	ubyte pack[MAX_PLAYERS];
 	int len = 0;
 	
-	if (!(Game_mode&GM_NETWORK))
+	if (!(Game_mode&GM_NETWORK) || UDP_Socket[0] == -1)
 		return;
 
 	if (!(data_len > 0))
@@ -4341,7 +4428,7 @@ void net_udp_send_mdata(int needack, fix64 time)
 	ubyte pack[MAX_PLAYERS];
 	int len = 0, i = 0;
 	
-	if (!(Game_mode&GM_NETWORK))
+	if (!(Game_mode&GM_NETWORK) || UDP_Socket[0] == -1)
 		return;
 
 	if (!(UDP_MData.mbuf_size > 0))
@@ -4467,6 +4554,9 @@ void net_udp_process_mdata (ubyte *data, int data_len, struct _sockaddr sender_a
 void net_udp_send_pdata()
 {
 	int i = 0, j = 0;
+
+	if (!(Game_mode&GM_NETWORK) || UDP_Socket[0] == -1)
+		return;
 
 	if (multi_i_am_master())
 	{
