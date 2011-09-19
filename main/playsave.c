@@ -914,8 +914,6 @@ void read_netgame_profile(netgame_info *ng)
 				ng->control_invul_time = strtol(value, NULL, 10);
 			else if (!strcmp(token, "PacketsPerSec"))
 				ng->PacketsPerSec = strtol(value, NULL, 10);
-			else if (!strcmp(token, "PacketLossPrevention"))
-				ng->PacketLossPrevention = strtol(value, NULL, 10);
 			else if (!strcmp(token, "NoFriendlyFire"))
 				ng->NoFriendlyFire = strtol(value, NULL, 10);
 #ifdef USE_TRACKER
@@ -956,7 +954,6 @@ void write_netgame_profile(netgame_info *ng)
 	PHYSFSX_printf(file, "PlayTimeAllowed=%i\n", ng->PlayTimeAllowed);
 	PHYSFSX_printf(file, "control_invul_time=%i\n", ng->control_invul_time);
 	PHYSFSX_printf(file, "PacketsPerSec=%i\n", ng->PacketsPerSec);
-	PHYSFSX_printf(file, "PacketLossPrevention=%i\n", ng->PacketLossPrevention);
 	PHYSFSX_printf(file, "NoFriendlyFire=%i\n", ng->NoFriendlyFire);
 #ifdef USE_TRACKER
 	PHYSFSX_printf(file, "Tracker=%i\n", ng->Tracker);
