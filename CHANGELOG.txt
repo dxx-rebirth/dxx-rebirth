@@ -3,6 +3,7 @@ D1X-Rebirth Changelog
 20110921
 --------
 main/net_udp.c: Streamlined joining, rejoining, disconnecting players and timeouts, getting rid of unwanted rejoin messages and let host remove a player for good without rejoining it via pdata packet to really get rid of lossy or unwanted players; Care for rollover of pkt_num of stored mdata packets
+main/net_udp.c: Added wrapper functions dxx_sendto and dxx_recvfrom to collect simple statistics about amount and size of packets sent/received per second; Actually fixed packet scheduling in main UDP frame - was sending more than intended - stupid me
 
 20110919
 --------
