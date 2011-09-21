@@ -4185,11 +4185,6 @@ void net_udp_timeout_check(fix64 time)
 					net_udp_timeout_player(i);
 				}
 			}
-			if (Players[i].connected == CONNECT_DISCONNECTED && Objects[Players[i].objnum].type != OBJ_GHOST)
-			{
-				HUD_init_message(HM_MULTI,  "'%s' has left.", Players[i].callsign );
-				multi_make_player_ghost(i);
-			}
 		}
 		last_timeout_time = time;
 	}
@@ -4606,6 +4601,9 @@ void net_udp_send_mdata_direct(ubyte *data, int data_len, int pnum, int needack)
 	if (needack)
 	{
 		UDP_MData.pkt_num++;
+		Assert(UDP_MDATA_STOR_QUEUE_SIZE*100 < INT_MAX);
+		if (UDP_MData.pkt_num > UDP_MDATA_STOR_QUEUE_SIZE*100) // roll over at some point
+			UDP_MData.pkt_num = 0;
 		PUT_INTEL_INT(buf + len, UDP_MData.pkt_num);							len += 4;
 	}
 	memcpy(&buf[len], data, sizeof(char)*data_len);								len += data_len;
@@ -4829,7 +4827,7 @@ void net_udp_process_pdata ( ubyte *data, int data_len, struct _sockaddr sender_
 {
 	int len = 0, i = 0;
 
-	if (!(Game_mode & GM_NETWORK))
+	if ( !( Game_mode & GM_NETWORK && ( Network_status == NETSTAT_PLAYING || Network_status == NETSTAT_ENDLEVEL ||  Network_status==NETSTAT_WAITING ) ) )
 		return;
 
 	len++;
@@ -4846,20 +4844,19 @@ void net_udp_process_pdata ( ubyte *data, int data_len, struct _sockaddr sender_
 		if (memcmp((struct _sockaddr *)&sender_addr, (struct _sockaddr *)&Netgame.players[data[len]].protocol.udp.addr, sizeof(struct _sockaddr)))
 			return;
 
-		pd.Player_num = data[len];												len++;
-		pd.connected = data[len];												len++;
-		pd.obj_render_type = data[len];											len++;
-		memcpy(&pd.pos.bytemat, &(data[len]), 9);								len += 9;
-		pd.pos.xo = GET_INTEL_SHORT(&data[len]);								len += 2;
-		pd.pos.yo = GET_INTEL_SHORT(&data[len]);								len += 2;
-		pd.pos.zo = GET_INTEL_SHORT(&data[len]);								len += 2;
+		pd.Player_num = data[len];									len++;
+		pd.connected = data[len];									len++;
+		pd.obj_render_type = data[len];									len++;
+		memcpy(&pd.pos.bytemat, &(data[len]), 9);							len += 9;
+		pd.pos.xo = GET_INTEL_SHORT(&data[len]);							len += 2;
+		pd.pos.yo = GET_INTEL_SHORT(&data[len]);							len += 2;
+		pd.pos.zo = GET_INTEL_SHORT(&data[len]);							len += 2;
 		pd.pos.segment = GET_INTEL_SHORT(&data[len]);							len += 2;
-		pd.pos.velx = GET_INTEL_SHORT(&data[len]);								len += 2;
-		pd.pos.vely = GET_INTEL_SHORT(&data[len]);								len += 2;
-		pd.pos.velz = GET_INTEL_SHORT(&data[len]);								len += 2;
+		pd.pos.velx = GET_INTEL_SHORT(&data[len]);							len += 2;
+		pd.pos.vely = GET_INTEL_SHORT(&data[len]);							len += 2;
+		pd.pos.velz = GET_INTEL_SHORT(&data[len]);							len += 2;
 
-		if ((Game_mode&GM_NETWORK) && ((Network_status == NETSTAT_PLAYING)||(Network_status == NETSTAT_ENDLEVEL) || Network_status==NETSTAT_WAITING))
-			net_udp_read_pdata_short_packet (&pd);
+		net_udp_read_pdata_short_packet (&pd);
 	}
 	else
 	{
@@ -4875,31 +4872,23 @@ void net_udp_process_pdata ( ubyte *data, int data_len, struct _sockaddr sender_
 
 			memset(&pd, 0, sizeof(UDP_frame_info));
 
-			pd.Player_num = i;													len++;
-			pd.connected = data[len];											len++;
+			pd.Player_num = i;									len++;
+			pd.connected = data[len];								len++;
 			
-			if ((i == Player_num) || (pd.connected != CONNECT_PLAYING))
+			if ((i != Player_num) && (pd.connected == CONNECT_PLAYING))
 			{
-				if (pd.connected == CONNECT_DISCONNECTED)
-				{
-					Netgame.players[i].LastPacketTime = timer_query() - UDP_TIMEOUT;
-					net_udp_timeout_check(timer_query());
-				}
-				continue;
+				pd.obj_render_type = data[len];							len++;
+				memcpy(&pd.pos.bytemat, &(data[len]), 9);					len += 9;
+				pd.pos.xo = GET_INTEL_SHORT(&data[len]);					len += 2;
+				pd.pos.yo = GET_INTEL_SHORT(&data[len]);					len += 2;
+				pd.pos.zo = GET_INTEL_SHORT(&data[len]);					len += 2;
+				pd.pos.segment = GET_INTEL_SHORT(&data[len]);					len += 2;
+				pd.pos.velx = GET_INTEL_SHORT(&data[len]);					len += 2;
+				pd.pos.vely = GET_INTEL_SHORT(&data[len]);					len += 2;
+				pd.pos.velz = GET_INTEL_SHORT(&data[len]);					len += 2;
 			}
 
-			pd.obj_render_type = data[len];										len++;
-			memcpy(&pd.pos.bytemat, &(data[len]), 9);							len += 9;
-			pd.pos.xo = GET_INTEL_SHORT(&data[len]);							len += 2;
-			pd.pos.yo = GET_INTEL_SHORT(&data[len]);							len += 2;
-			pd.pos.zo = GET_INTEL_SHORT(&data[len]);							len += 2;
-			pd.pos.segment = GET_INTEL_SHORT(&data[len]);						len += 2;
-			pd.pos.velx = GET_INTEL_SHORT(&data[len]);							len += 2;
-			pd.pos.vely = GET_INTEL_SHORT(&data[len]);							len += 2;
-			pd.pos.velz = GET_INTEL_SHORT(&data[len]);							len += 2;
-
-			if ((Game_mode&GM_NETWORK) && ((Network_status == NETSTAT_PLAYING)||(Network_status == NETSTAT_ENDLEVEL) || Network_status==NETSTAT_WAITING))
-				net_udp_read_pdata_short_packet (&pd);
+			net_udp_read_pdata_short_packet (&pd);
 		}
 	}
 }
@@ -4913,11 +4902,48 @@ void net_udp_read_pdata_short_packet(UDP_frame_info *pd)
 	TheirPlayernum = pd->Player_num;
 	TheirObjnum = Players[pd->Player_num].objnum;
 
-	if (VerifyPlayerJoined!=-1 && TheirPlayernum==VerifyPlayerJoined)
+	if (multi_i_am_master())
 	{
-		// Hurray! Someone really really got in the game (I think).
-		VerifyPlayerJoined=-1;
+		// latecoming player seems to successfully have synced
+		if ( VerifyPlayerJoined != -1 && TheirPlayernum == VerifyPlayerJoined )
+			VerifyPlayerJoined=-1;
+		// we say that guy is disconnected so we do not want him/her in game
+		if ( Players[TheirPlayernum].connected == CONNECT_DISCONNECTED )
+			return;
 	}
+	else
+	{
+		// only by reading pdata a client can know if a player re/disconnected. So do that here.
+		// NOTE: we might do this somewhere else - maybe with a sync packet like when adding a fresh player.
+		if ( Players[TheirPlayernum].connected != CONNECT_DISCONNECTED && pd->connected == CONNECT_DISCONNECTED )
+		{
+			Netgame.players[TheirPlayernum].LastPacketTime = timer_query() - UDP_TIMEOUT;
+			net_udp_timeout_player(TheirPlayernum);
+			return;
+		}
+		if ( Players[TheirPlayernum].connected == CONNECT_DISCONNECTED && pd->connected == CONNECT_PLAYING )
+		{
+			Players[TheirPlayernum].connected = CONNECT_PLAYING;
+
+			if (Newdemo_state == ND_STATE_RECORDING)
+				newdemo_record_multi_reconnect(TheirPlayernum);
+
+			digi_play_sample( SOUND_HUD_MESSAGE, F1_0);
+			ClipRank (&Netgame.players[TheirPlayernum].rank);
+			
+			if (PlayerCfg.NoRankings)
+				HUD_init_message(HM_MULTI,  "'%s' %s", Players[TheirPlayernum].callsign, TXT_REJOIN );
+			else
+				HUD_init_message(HM_MULTI,  "%s'%s' %s", RankStrings[Netgame.players[TheirPlayernum].rank],Players[TheirPlayernum].callsign, TXT_REJOIN );
+
+			multi_send_score();
+
+			net_udp_noloss_clear_mdata_got(TheirPlayernum);
+		}
+	}
+
+	if (Players[TheirPlayernum].connected != CONNECT_PLAYING || TheirPlayernum == Player_num)
+		return;
 
 	if (!multi_quit_game && (TheirPlayernum >= N_players))
 	{
@@ -4940,26 +4966,6 @@ void net_udp_read_pdata_short_packet(UDP_frame_info *pd)
 
 	if (TheirObj->movement_type == MT_PHYSICS)
 		set_thrust_from_velocity(TheirObj);
-
-	//------------ Welcome them back if reconnecting --------------
-	if (!Players[TheirPlayernum].connected) {
-		Players[TheirPlayernum].connected = CONNECT_PLAYING;
-
-		if (Newdemo_state == ND_STATE_RECORDING)
-			newdemo_record_multi_reconnect(TheirPlayernum);
-
-		digi_play_sample( SOUND_HUD_MESSAGE, F1_0);
-		ClipRank (&Netgame.players[TheirPlayernum].rank);
-		
-		if (PlayerCfg.NoRankings)
-			HUD_init_message(HM_MULTI,  "'%s' %s", Players[TheirPlayernum].callsign, TXT_REJOIN );
-		else
-			HUD_init_message(HM_MULTI,  "%s'%s' %s", RankStrings[Netgame.players[TheirPlayernum].rank],Players[TheirPlayernum].callsign, TXT_REJOIN );
-
-		multi_send_score();
-
-		net_udp_noloss_clear_mdata_got(TheirPlayernum);
-	}
 }
 
 void net_udp_send_smash_lights (int pnum) 
