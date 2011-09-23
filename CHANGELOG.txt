@@ -1,5 +1,9 @@
 D2X-Rebirth Changelog
 
+20110923
+--------
+main/state.c: When restoring Coop players and make turn them into ghosts perform a check if this player is actually a valid player so we do not just blindly use any object number from a possibly uninitialized player structure
+
 20110921
 --------
 main/net_udp.c: Streamlined joining, rejoining, disconnecting players and timeouts, getting rid of unwanted rejoin messages and let host remove a player for good without rejoining it via pdata packet to really get rid of lossy or unwanted players; Care for rollover of pkt_num of stored mdata packets
