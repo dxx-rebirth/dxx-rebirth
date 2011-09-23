@@ -1032,7 +1032,7 @@ int state_save_all_sub(char *filename, char *desc)
 // Save Coop Info
 	if (Game_mode & GM_MULTI_COOP)
 	{
-		for (i = 0; i < MAX_PLAYERS; i++)
+		for (i = 0; i < MAX_PLAYERS; i++) // I know, I know we only allow 4 players in coop. I screwed that up. But if we ever allow 8 players in coop, who's gonna laugh then?
 		{
 			player_rw *pl_rw;
 			MALLOC(pl_rw, player_rw, 1);
@@ -1402,9 +1402,11 @@ RetryObjectLoading:
 
 			// make all (previous) player objects to ghosts
 			obj = &Objects[restore_players[i].objnum];
-			obj->type = OBJ_GHOST;
-			multi_reset_player_object(obj);
-			
+			if (restore_players[i].connected == CONNECT_PLAYING && obj->type == OBJ_PLAYER)
+			{
+				obj->type = OBJ_GHOST;
+				multi_reset_player_object(obj);
+			}
 		}
 		for (i = 0; i < MAX_PLAYERS; i++) // copy restored players to the current slots
 		{
