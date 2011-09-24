@@ -1,5 +1,9 @@
 D1X-Rebirth Changelog
 
+20110924
+--------
+main/fvi.c, main/gameseg.c, main/object.c: Consistency check for segment number in find_vector_intersection() and obj_create(); Added more debug output for invalid segment numberin get_seg_masks()
+
 20110923
 --------
 main/state.c: When restoring Coop players and make turn them into ghosts perform a check if this player is actually a valid player so we do not just blindly use any object number from a possibly uninitialized player structure

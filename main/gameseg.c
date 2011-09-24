@@ -31,6 +31,7 @@ COPYRIGHT 1993-1998 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 #include "wall.h"
 #include "fuelcen.h"
 #include "byteswap.h"
+#include "mission.h"
 
 #ifdef RCS
 static char rcsid[] = "$Id: gameseg.c,v 1.1.1.1 2006/03/17 19:45:01 zicodxx Exp $";
@@ -304,9 +305,10 @@ segmasks get_seg_masks(vms_vector *checkp,int segnum,fix rad,char *calling_file,
 	int			num_faces;
 	int			vertex_list[6];
 	segment		*seg;
+	extern int Current_level_num;
 
 	if (segnum < 0 || segnum > Highest_segment_index)
-		Error("segnum == %i (%i) in get_seg_masks()\ncheckp: %i,%i,%i, rad: %i\nfrom file: %s, line: %i\nPlease report this bug.\n",segnum,Highest_segment_index,checkp->x,checkp->y,checkp->z,rad,calling_file,calling_linenum);
+		Error("segnum == %i (%i) in get_seg_masks() \ncheckp: %i,%i,%i, rad: %i \nfrom file: %s, line: %i \nMission: %s (%i) \nPlease report this bug.\n",segnum,Highest_segment_index,checkp->x,checkp->y,checkp->z,rad,calling_file,calling_linenum, Current_mission_filename, Current_level_num);
 
 	Assert((segnum <= Highest_segment_index) && (segnum >= 0));
 

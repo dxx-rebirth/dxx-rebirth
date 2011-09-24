@@ -1101,7 +1101,10 @@ int obj_create(ubyte type,ubyte id,int segnum,vms_vector *pos,
 	int objnum;
 	object *obj;
 
-	Assert((segnum <= Highest_segment_index) && (segnum >= 0));
+	// Some consistency checking. FIXME: Add more debug output here to probably trace all possible occurances back.
+	if (segnum < 0 || segnum > Highest_segment_index)
+		return -1;
+
 	Assert(ctype <= CT_CNTRLCEN);
 
 	if (type==OBJ_DEBRIS && Debris_object_count>=Max_debris_objects && !PERSISTENT_DEBRIS)
