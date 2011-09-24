@@ -213,13 +213,14 @@ void init_cockpit()
 			break;
 
 		case CM_REAR_VIEW:
-		{	int x = 0, y = 0, w = SWIDTH, h = (SHEIGHT*2)/3;
+		{
+			int x1 = 0, y1 = 0, x2 = SWIDTH, y2 = (SHEIGHT*2)/3;
 			grs_bitmap *bm;
 
 			PIGGY_PAGE_IN(cockpit_bitmap[PlayerCfg.CockpitMode[1]]);
 			bm = &GameBitmaps[cockpit_bitmap[PlayerCfg.CockpitMode[1]].index];
-			gr_bitblt_find_transparent_area(bm, &x, &y, &w, &h);
-			game_init_render_sub_buffers(x*((float)SWIDTH/bm->bm_w), y*((float)SHEIGHT/bm->bm_h), w*((float)SWIDTH/bm->bm_w), h*((float)SHEIGHT/bm->bm_h));
+			gr_bitblt_find_transparent_area(bm, &x1, &y1, &x2, &y2);
+			game_init_render_sub_buffers(x1*((float)SWIDTH/bm->bm_w), y1*((float)SHEIGHT/bm->bm_h), (x2-x1+1)*((float)SWIDTH/bm->bm_w), (y2-y1+2)*((float)SHEIGHT/bm->bm_h));
 			break;
 		}
 		case CM_FULL_SCREEN:
