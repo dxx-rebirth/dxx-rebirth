@@ -1,5 +1,9 @@
 D2X-Rebirth Changelog
 
+20110925
+--------
+main/game.c: Fixed misuse of gr_bitblt_find_transparent_area() caused rear view to be shifted on some cockpits
+
 20110924
 --------
 main/fvi.c, main/gameseg.c, main/object.c: Consistency check for segment number in find_vector_intersection() and obj_create(); Added more debug output for invalid segment numberin get_seg_masks()
