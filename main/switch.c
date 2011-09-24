@@ -86,7 +86,7 @@ void do_link(sbyte trigger_num)
 
 	if (trigger_num != -1) {
 		for (i=0;i<Triggers[trigger_num].num_links;i++) {
-			wall_toggle(&Segments[Triggers[trigger_num].seg[i]], Triggers[trigger_num].side[i]);
+			wall_toggle(Triggers[trigger_num].seg[i], Triggers[trigger_num].side[i]);
   		}
   	}
 }

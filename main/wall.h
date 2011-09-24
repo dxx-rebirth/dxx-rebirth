@@ -233,7 +233,7 @@ extern void wall_close_door(segment *seg, int side);
 extern int wall_hit_process(segment *seg, int side, fix damage, int playernum, object *obj );
 
 // Opens/destroys specified door.
-extern void wall_toggle(segment *seg, int side);
+extern void wall_toggle(int segnum, int side);
 
 // Tidy up Walls array for load/save purposes.
 extern void reset_walls();
