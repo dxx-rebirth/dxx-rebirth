@@ -33,6 +33,7 @@ COPYRIGHT 1993-1999 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 #include "bm.h"
 #include "fvi.h"
 #include "byteswap.h"
+#include "mission.h"
 
 // How far a point can be from a plane, and still be "in" the plane
 #define PLANE_DIST_TOLERANCE	250
@@ -310,9 +311,10 @@ segmasks get_seg_masks(vms_vector *checkp, int segnum, fix rad, char *calling_fi
 	int			num_faces;
 	int			vertex_list[6];
 	segment		*seg;
+	extern int Current_level_num;
 
 	if (segnum < 0 || segnum > Highest_segment_index)
-		Error("segnum == %i (%i) in get_seg_masks()\ncheckp: %i,%i,%i, rad: %i\nfrom file: %s, line: %iPlease report this bug.\n",segnum,Highest_segment_index,checkp->x,checkp->y,checkp->z,rad,calling_file,calling_linenum);
+		Error("segnum == %i (%i) in get_seg_masks() \ncheckp: %i,%i,%i, rad: %i \nfrom file: %s, line: %i \nMission: %s (%i) \nPlease report this bug.\n",segnum,Highest_segment_index,checkp->x,checkp->y,checkp->z,rad,calling_file,calling_linenum, Current_mission_filename, Current_level_num);
 
 	Assert((segnum <= Highest_segment_index) && (segnum >= 0));
 

@@ -212,19 +212,11 @@ int obj_return_num_of_typeid (int type,int id)
   return (count);
  }
 
-int global_orientation = 0;
-
 //draw an object that has one bitmap & doesn't rotate
 void draw_object_blob(object *obj,bitmap_index bmi)
 {
-	int	orientation=0;
 	grs_bitmap * bm = &GameBitmaps[bmi.index];
 	vms_vector pos = obj->pos;
-
-	if (obj->type == OBJ_FIREBALL)
-		orientation = (obj-Objects) & 7;
-
-	orientation = global_orientation;
 
 	PIGGY_PAGE_IN( bmi );
 
@@ -1127,12 +1119,6 @@ int obj_allocate(void)
 {
 	int objnum;
 
-	if ( num_objects >= MAX_OBJECTS-2 ) {
-		int	num_freed;
-
-		num_freed = free_object_slots(MAX_OBJECTS-10);
-	}
-
 	if ( num_objects >= MAX_OBJECTS ) {
 		return -1;
 	}
@@ -1271,8 +1257,10 @@ int obj_create(ubyte type,ubyte id,int segnum,vms_vector *pos,
 	int objnum;
 	object *obj;
 
-	Assert(segnum <= Highest_segment_index);
-	Assert (segnum >= 0);
+	// Some consistency checking. FIXME: Add more debug output here to probably trace all possible occurances back.
+	if (segnum < 0 || segnum > Highest_segment_index)
+		return -1;
+
 	Assert(ctype <= CT_CNTRLCEN);
 
 	if (type==OBJ_DEBRIS && Debris_object_count>=Max_debris_objects && !PERSISTENT_DEBRIS)

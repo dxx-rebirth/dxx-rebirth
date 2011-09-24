@@ -641,6 +641,18 @@ int find_vector_intersection(fvi_query *fq,fvi_info *hit_data)
 	//check to make sure start point is in seg its supposed to be in
 	//Assert(check_point_in_seg(p0,startseg,0).centermask==0);	//start point not in seg
 
+	// invalid segnum, so say there is no hit.
+	if(fq->startseg < 0 || fq->startseg > Highest_segment_index)
+	{
+
+		hit_data->hit_type = HIT_BAD_P0;
+		hit_data->hit_pnt = *fq->p0;
+		hit_data->hit_seg = hit_data->hit_side = hit_data->hit_object = 0;
+		hit_data->hit_side_seg = -1;
+
+		return hit_data->hit_type;
+	}
+
 	// Viewer is not in segment as claimed, so say there is no hit.
 	if(!(get_seg_masks(fq->p0, fq->startseg, 0, __FILE__, __LINE__).centermask == 0))
 	{
