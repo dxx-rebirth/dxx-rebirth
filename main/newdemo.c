@@ -1935,7 +1935,7 @@ int newdemo_read_frame_information(int rewrite)
 				break;
 			}
 			if (Newdemo_vcr_state != ND_STATE_PAUSED)
-				wall_toggle(&Segments[segnum], side);
+				wall_toggle(segnum, side);
 			break;
 
 		case ND_EVENT_CONTROL_CENTER_DESTROYED:

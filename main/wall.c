@@ -877,28 +877,32 @@ int wall_hit_process(segment *seg, int side, fix damage, int playernum, object *
 
 //-----------------------------------------------------------------
 // Opens doors/destroys wall/shuts off triggers.
-void wall_toggle(segment *seg, int side)
+void wall_toggle(int segnum, int side)
 {
 	int wall_num; 
 
-	Assert( seg-Segments <= Highest_segment_index);
-	Assert( side < MAX_SIDES_PER_SEGMENT );
+	if (segnum < 0 || segnum > Highest_segment_index || side < 0 || side >= MAX_SIDES_PER_SEGMENT)
+	{
+#ifndef NDEBUG
+		Warning("Can't toggle side %d (%i) of\nsegment %d (%i)!\n", side, MAX_SIDES_PER_SEGMENT, segnum, Highest_segment_index);
+#endif
+		return;
+	}
 
-	wall_num = seg->sides[side].wall_num;
+	wall_num = Segments[segnum].sides[side].wall_num;
 
 	if (wall_num == -1) {
 		return;
 	}
 
 	if ( Newdemo_state == ND_STATE_RECORDING )
-		newdemo_record_wall_toggle(seg-Segments, side );
+		newdemo_record_wall_toggle(segnum, side );
 
 	if (Walls[wall_num].type == WALL_BLASTABLE)
-		wall_destroy(seg, side);
+		wall_destroy(&Segments[segnum], side);
 
 	if ((Walls[wall_num].type == WALL_DOOR) && (Walls[wall_num].state == WALL_DOOR_CLOSED))
-		wall_open_door(seg, side);
-
+		wall_open_door(&Segments[segnum], side);
 }
 
 

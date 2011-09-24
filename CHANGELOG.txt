@@ -3,6 +3,7 @@ D1X-Rebirth Changelog
 20110924
 --------
 main/fvi.c, main/gameseg.c, main/object.c: Consistency check for segment number in find_vector_intersection() and obj_create(); Added more debug output for invalid segment numberin get_seg_masks()
+main/cntrlcen.c, main/newdemo.c, main/switch.c, main/wall.c, main/wall.h: Reworked wall_toggle() to work with index for segnum instead of a pointer, hopefully making the consistency check less error prone
 
 20110923
 --------
