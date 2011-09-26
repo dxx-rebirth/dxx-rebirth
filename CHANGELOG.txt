@@ -4,6 +4,7 @@ D1X-Rebirth Changelog
 --------
 main/fireball.c, main/lighting.c: Code consistency checks by _Tyr_; Fixed set but unused variables
 d1x-rebirth.desktop, SConstruct, misc/physfsx.c: Patches by Hans de Goede: Made the .desktop file follow the official specifications; Added explicit link to libmath for newer versions of binutils; Fixed crash using PhysFS 1.x in PHYSFSX_addArchiveContent()
+main/kconfig.c, main/menu.c, main/playsave.c, main/playsave.h: Gave throttle it's own sensitivity and deadzone settings; Added patch by Hans de Goede to let Slide-On and Bank-On settings use invert settings from Slide- and Bank-axes
 
 20110925
 --------
