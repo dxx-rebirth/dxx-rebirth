@@ -1074,17 +1074,13 @@ extern int which_bomb();
 
 void show_bomb_count(int x,int y,int bg_color,int always_show,int right_align)
 {
-	int bomb,count,countx,w=0,h=0,aw=0;
+	int bomb,count,w=0,h=0,aw=0;
 	char txt[5],*t;
 
 	bomb = which_bomb();
 	count = Players[Player_num].secondary_ammo[bomb];
 
-//	#ifndef RELEASE
 	count = min(count,99);	//only have room for 2 digits - cheating give 200
-//	#endif
-
-	countx = (bomb==PROXIMITY_INDEX)?count:-count;
 
 	if (always_show && count == 0)		//no bombs, draw nothing on HUD
 		return;
@@ -1715,7 +1711,7 @@ void draw_energy_bar(int energy)
 void draw_afterburner_bar(int afterburner)
 {
 	int not_afterburner;
-	int i, j, y, yMax;
+	int i, j, y;
 	ubyte afterburner_bar_table[AFTERBURNER_GAUGE_H_L*2] = { 3,11, 3,11, 3,11, 3,11, 3,11, 3,11, 2,11, 2,10, 2,10, 2,10, 2,10, 2,10, 2,10, 1,10, 1,10, 1,10, 1,9, 1,9, 1,9, 1,9, 0,9, 0,9, 0,8, 0,8, 0,8, 0,8, 1,8, 2,8, 3,8, 4,8, 5,8, 6,7 };
 	ubyte afterburner_bar_table_hires[AFTERBURNER_GAUGE_H_H*2] = { 5,20, 5,20, 5,19, 5,19, 5,19, 5,19, 4,19, 4,19, 4,19, 4,19, 4,19, 4,18, 4,18, 4,18, 4,18, 3,18, 3,18, 3,18, 3,18, 3,18, 3,18, 3,17, 3,17, 2,17, 2,17, 2,17, 2,17, 2,17, 2,17, 2,17, 2,17, 2,16, 2,16, 1,16, 1,16, 1,16, 1,16, 1,16, 1,16, 1,16, 1,16, 1,15, 1,15, 1,15, 0,15, 0,15, 0,15, 0,15, 0,15, 0,15, 0,14, 0,14, 0,14, 1,14, 2,14, 3,14, 4,14, 5,14, 6,13, 7,13, 8,13, 9,13, 10,13, 11,13, 12,13 };
 	ubyte *pabt = (HIRESMODE ? afterburner_bar_table_hires : afterburner_bar_table);
@@ -1725,7 +1721,6 @@ void draw_afterburner_bar(int afterburner)
 	hud_bitblt( HUD_SCALE_X(AFTERBURNER_GAUGE_X), HUD_SCALE_Y(AFTERBURNER_GAUGE_Y), &GameBitmaps[ GET_GAUGE_INDEX(GAUGE_AFTERBURNER) ]);
 	gr_setcolor( BM_XRGB(0,0,0) );
 	not_afterburner = fixmul(f1_0 - afterburner,AFTERBURNER_GAUGE_H);
-	yMax = HUD_SCALE_Y (not_afterburner);
 
 	for (y = 0; y < not_afterburner; y++) {
 		for (i = HUD_SCALE_Y (y), j = HUD_SCALE_Y (y + 1); i < j; i++) {

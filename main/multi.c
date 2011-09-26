@@ -5267,6 +5267,7 @@ void save_hoard_data(void)
 		PHYSFS_write(ofile, palette, 3, 256);
 		PHYSFS_write(ofile, icon.bm_data, icon.bm_w*icon.bm_h, 1);
 	}
+	(void)iff_error;
 		
 	for (i=0;i<sizeof(sounds)/sizeof(*sounds);i++) {
 		PHYSFS_file *ifile;

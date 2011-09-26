@@ -1023,13 +1023,7 @@ void do_screen_message(char *fmt, ...)
 //	robots, powerups, walls, doors, etc.
 void StartNewLevelSecret(int level_num, int page_in_textures)
 {
-	newmenu_item	m[1];
-        //int i;
-
         ThisLevelTime=0;
-
-	m[0].type = NM_TYPE_TEXT;
-	m[0].text = " ";
 
 	last_drawn_cockpit = -1;
 
@@ -1057,16 +1051,13 @@ void StartNewLevelSecret(int level_num, int page_in_textures)
 
 	LoadLevel(level_num,page_in_textures);
 
-	Assert(Current_level_num == level_num);	//make sure level set right
+	Assert(Current_level_num == level_num); // make sure level set right
 
-	gameseq_init_network_players(); // Initialize the Players array for
-											  // this level
+	gameseq_init_network_players(); // Initialize the Players array for this level
 
 	HUD_clear_messages();
 
 	automap_clear_visited();
-
-	// --	init_player_stats_level();
 
 	Viewer = &Objects[Players[Player_num].objnum];
 
@@ -1112,7 +1103,7 @@ void StartNewLevelSecret(int level_num, int page_in_textures)
 
 	init_controlcen_for_level();
 
-	//	Say player can use FLASH cheat to mark path to exit.
+	// Say player can use FLASH cheat to mark path to exit.
 	Last_level_path_created = -1;
 
 	First_secret_visit = 0;
@@ -1185,8 +1176,7 @@ void do_cloak_invul_secret_stuff(fix64 old_gametime)
 //	Do a savegame.
 void EnterSecretLevel(void)
 {
-	fix64	old_gametime;
-	int	i;
+	int i;
 
 	Assert(! (Game_mode & GM_MULTI) );
 
@@ -1216,7 +1206,6 @@ void EnterSecretLevel(void)
 	if (! (i<-Last_secret_level))		//didn't find level, so must be last
 		Next_level_num = Last_secret_level;
 
-	old_gametime = GameTime64;
 	// NMN 04/09/07  Do a REAL start level routine if we are playing a D1 level so we have
 	//               briefings
 	if (EMULATING_D1)
@@ -1692,7 +1681,6 @@ void ShowLevelIntro(int level_num)
 		memcpy(save_pal,gr_palette,sizeof(gr_palette));
 
 		if (PLAYING_BUILTIN_MISSION) {
-			int movie=0;
 
 			if (is_SHAREWARE || is_MAC_SHARE)
 			{
@@ -1712,7 +1700,6 @@ void ShowLevelIntro(int level_num)
 					{
 						Screen_mode = -1;
 						PlayMovie(intro_movie[i].movie_name,MOVIE_REQUIRED);
-						movie=1;
 						break;
 					}
 				}
@@ -1724,7 +1711,6 @@ void ShowLevelIntro(int level_num)
 		{
 			do_briefing_screens(Briefing_text_filename, level_num);
 		}
-
 
 		memcpy(gr_palette,save_pal,sizeof(gr_palette));
 	}

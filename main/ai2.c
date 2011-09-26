@@ -1497,11 +1497,10 @@ void move_object_to_legal_spot(object *objp)
 	for (i=0; i<MAX_SIDES_PER_SEGMENT; i++) {
 		if (WALL_IS_DOORWAY(segp, i) & WID_FLY_FLAG) {
 			vms_vector	segment_center, goal_dir;
-			fix			dist_to_center;	// Value not used so far.
 
 			compute_segment_center(&segment_center, &Segments[segp->children[i]]);
 			vm_vec_sub(&goal_dir, &segment_center, &objp->pos);
-			dist_to_center = vm_vec_normalize_quick(&goal_dir);
+			vm_vec_normalize_quick(&goal_dir);
 			vm_vec_scale(&goal_dir, objp->size);
 			vm_vec_add2(&objp->pos, &goal_dir);
 			if (!object_intersects_wall(objp)) {

@@ -362,8 +362,8 @@ static int create_audiobuf_handler(unsigned char major, unsigned char minor, uns
 #endif
 	{
 		con_printf(CON_CRITICAL, "creating audio buffers:\n");
-		con_printf(CON_CRITICAL, "sample rate = %d, stereo = %d, bitsize = %d, compressed = %d\n",
-				sample_rate, stereo, bitsize ? 16 : 8, compressed);
+		con_printf(CON_CRITICAL, "sample rate = %d, desired buffer = %d, stereo = %d, bitsize = %d, compressed = %d\n",
+				sample_rate, desired_buffer, stereo, bitsize ? 16 : 8, compressed);
 	}
 
 	mve_audio_spec = (SDL_AudioSpec *)mve_alloc(sizeof(SDL_AudioSpec));
@@ -526,8 +526,11 @@ static int g_truecolor;
 
 static int create_videobuf_handler(unsigned char major, unsigned char minor, unsigned char *data, int len, void *context)
 {
-	short w, h;
-	short count, truecolor;
+	short w, h,
+#ifdef DEBUG
+		count, 
+#endif
+		truecolor;
 
 	if (videobuf_created)
 		return 1;
@@ -537,11 +540,13 @@ static int create_videobuf_handler(unsigned char major, unsigned char minor, uns
 	w = get_short(data);
 	h = get_short(data+2);
 
+#ifdef DEBUG
 	if (minor > 0) {
 		count = get_short(data+4);
 	} else {
 		count = 1;
 	}
+#endif
 
 	if (minor > 1) {
 		truecolor = get_short(data+6);
@@ -623,18 +628,16 @@ static int video_codemap_handler(unsigned char major, unsigned char minor, unsig
 
 static int video_data_handler(unsigned char major, unsigned char minor, unsigned char *data, int len, void *context)
 {
-	short nFrameHot, nFrameCold;
-	short nXoffset, nYoffset;
-	short nXsize, nYsize;
 	unsigned short nFlags;
 	unsigned char *temp;
 
-	nFrameHot  = get_short(data);
-	nFrameCold = get_short(data+2);
-	nXoffset   = get_short(data+4);
-	nYoffset   = get_short(data+6);
-	nXsize     = get_short(data+8);
-	nYsize     = get_short(data+10);
+// don't need those but kept for further reference
+// 	nFrameHot  = get_short(data);
+// 	nFrameCold = get_short(data+2);
+// 	nXoffset   = get_short(data+4);
+// 	nYoffset   = get_short(data+6);
+// 	nXsize     = get_short(data+8);
+// 	nYsize     = get_short(data+10);
 	nFlags     = get_ushort(data+12);
 
 	if (nFlags & 1)

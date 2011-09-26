@@ -127,6 +127,7 @@ fix get_average_light_at_vertex(int vnum, short *segs)
 
 			*segs++ = segnum;
 			Assert(segs - original_segs < MAX_LIGHT_SEGS);
+			(void)original_segs;
 
 			for (sidenum=0; sidenum < MAX_SIDES_PER_SEGMENT; sidenum++) {
 				if (!IS_CHILD(segp->children[sidenum])) {
@@ -1045,12 +1046,11 @@ found1: ;
 //	segment to get the wall in the connected segment which shares the edge, and get tmap_num from there.
 void propagate_tmaps_to_segment_sides(segment *base_seg, int base_side, segment *con_seg, int con_side, int uv_only_flag)
 {
-	sbyte		*base_vp,*con_vp;
+	sbyte		*base_vp;
 	int		abs_id1,abs_id2;
 	int		v;
 
 	base_vp = Side_to_verts[base_side];
-	con_vp = Side_to_verts[con_side];
 
 	// Do for each edge on connecting face.
 	for (v=0; v<4; v++) {

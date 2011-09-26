@@ -1030,22 +1030,13 @@ void dump_used_textures_level(PHYSFS_file *my_file, int level_num)
 {
 	int	i;
 	int	temp_tmap_buf[MAX_BITMAP_FILES];
-	int	perm_tmap_buf[MAX_BITMAP_FILES];
 	sbyte level_tmap_buf[MAX_BITMAP_FILES];
 	int	temp_wall_buf[MAX_BITMAP_FILES];
-	int	perm_wall_buf[MAX_BITMAP_FILES];
 
-	for (i=0; i<MAX_BITMAP_FILES; i++) {
-		perm_tmap_buf[i] = 0;
+	for (i=0; i<MAX_BITMAP_FILES; i++)
 		level_tmap_buf[i] = -1;
-	}
-
-	for (i=0; i<MAX_BITMAP_FILES; i++) {
-		perm_wall_buf[i] = 0;
-	}
 
 	determine_used_textures_level(0, 1, level_num, temp_tmap_buf, temp_wall_buf, level_tmap_buf, MAX_BITMAP_FILES);
-// -- 	determine_used_textures_robots(temp_tmap_buf);
 	PHYSFSX_printf(my_file, "\nTextures used in [%s]\n", Gamesave_current_filename);
 	say_used_tmaps(my_file, temp_tmap_buf);
 }
@@ -1060,7 +1051,6 @@ void dump_used_textures_all(void)
 	int	perm_tmap_buf[MAX_BITMAP_FILES];
 	sbyte level_tmap_buf[MAX_BITMAP_FILES];
 	int	temp_wall_buf[MAX_BITMAP_FILES];
-	int	perm_wall_buf[MAX_BITMAP_FILES];
 
 say_totals_all();
 
@@ -1080,43 +1070,6 @@ say_totals_all();
 		perm_tmap_buf[i] = 0;
 		level_tmap_buf[i] = -1;
 	}
-
-	for (i=0; i<MAX_BITMAP_FILES; i++) {
-		perm_wall_buf[i] = 0;
-	}
-
-// --05/17/95--	for (i=0; i<NUM_SHAREWARE_LEVELS; i++) {
-// --05/17/95--		determine_used_textures_level(1, 1, i, temp_tmap_buf, temp_wall_buf, level_tmap_buf, MAX_BITMAP_FILES);
-// --05/17/95--		PHYSFSX_printf(my_file, "\nTextures used in [%s]\n", Shareware_level_names[i]);
-// --05/17/95--		say_used_tmaps(my_file, temp_tmap_buf);
-// --05/17/95--		merge_buffers(perm_tmap_buf, temp_tmap_buf, MAX_BITMAP_FILES);
-// --05/17/95--		merge_buffers(perm_wall_buf, temp_wall_buf, MAX_BITMAP_FILES);
-// --05/17/95--	}
-// --05/17/95--
-// --05/17/95--	PHYSFSX_printf(my_file, "\n\nUsed textures in all shareware mines:\n");
-// --05/17/95--	say_used_tmaps(my_file, perm_tmap_buf);
-// --05/17/95--
-// --05/17/95--	PHYSFSX_printf(my_file, "\nUnused textures in all shareware mines:\n");
-// --05/17/95--	say_unused_tmaps(my_file, perm_tmap_buf);
-// --05/17/95--
-// --05/17/95--	PHYSFSX_printf(my_file, "\nTextures used exactly once in all shareware mines:\n");
-// --05/17/95--	say_used_once_tmaps(my_file, perm_tmap_buf, level_tmap_buf);
-// --05/17/95--
-// --05/17/95--	PHYSFSX_printf(my_file, "\nWall anims (eg, doors) unused in all shareware mines:\n");
-// --05/17/95--	say_unused_walls(my_file, perm_wall_buf);
-
-// --05/17/95--	for (i=0; i<NUM_REGISTERED_LEVELS; i++) {
-// --05/17/95--		determine_used_textures_level(1, 0, i, temp_tmap_buf, temp_wall_buf, level_tmap_buf, MAX_BITMAP_FILES);
-// --05/17/95--		PHYSFSX_printf(my_file, "\nTextures used in [%s]\n", Registered_level_names[i]);
-// --05/17/95--		say_used_tmaps(my_file, temp_tmap_buf);
-// --05/17/95--		merge_buffers(perm_tmap_buf, temp_tmap_buf, MAX_BITMAP_FILES);
-// --05/17/95--	}
-// --05/17/95--
-// --05/17/95--	PHYSFSX_printf(my_file, "\n\nUsed textures in all (including registered) mines:\n");
-// --05/17/95--	say_used_tmaps(my_file, perm_tmap_buf);
-// --05/17/95--
-// --05/17/95--	PHYSFSX_printf(my_file, "\nUnused textures in all (including registered) mines:\n");
-// --05/17/95--	say_unused_tmaps(my_file, perm_tmap_buf);
 
 	for (i=First_dump_level; i<=Last_dump_level; i++) {
 		determine_used_textures_level(1, 0, i, temp_tmap_buf, temp_wall_buf, level_tmap_buf, MAX_BITMAP_FILES);

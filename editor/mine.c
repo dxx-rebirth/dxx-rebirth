@@ -351,7 +351,7 @@ int med_save_mine(char * filename)
 // saves to an already-open file
 int save_mine_data(PHYSFS_file * SaveFile)
 {
-	int  header_offset, editor_offset, vertex_offset, segment_offset, doors_offset, texture_offset, walls_offset, triggers_offset; //, links_offset;
+	int  header_offset, editor_offset, vertex_offset, segment_offset, texture_offset, walls_offset, triggers_offset; //, links_offset;
 	int  newseg_verts_offset;
 	int  newsegment_offset;
 	int  i;
@@ -373,7 +373,7 @@ int save_mine_data(PHYSFS_file * SaveFile)
 	newseg_verts_offset = newsegment_offset + sizeof(segment);
 	walls_offset = newseg_verts_offset + (sizeof(vms_vector)*8);
 	triggers_offset =	walls_offset + (sizeof(wall)*Num_walls);
-	doors_offset = triggers_offset + (sizeof(trigger)*Num_triggers);
+// 	doors_offset = triggers_offset + (sizeof(trigger)*Num_triggers);
 
 	//===================== SAVE FILE INFO ========================
 
@@ -630,6 +630,7 @@ int save_mine_data_compiled(PHYSFS_file *SaveFile)
 				bit_mask |= (1 << sidenum);
 				wallnum = seg->sides[sidenum].wall_num;
 				Assert( wallnum < 255 );		// Get John or Mike.. can only store up to 255 walls!!! 
+				(void)wallnum;
 			}
 		}
 		if (New_file_format_save)

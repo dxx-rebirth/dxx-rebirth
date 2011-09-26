@@ -771,6 +771,7 @@ int write_body(PHYSFS_file *ofile,iff_bitmap_header *bitmap_header,int compressi
 
 	if (compression_on) {		//write actual data length
 		Assert(PHYSFSX_fseek(ofile,save_pos,SEEK_SET)==0);
+		(void)save_pos;
 		PHYSFS_writeSBE32(ofile, total_len);
 		Assert(PHYSFSX_fseek(ofile,total_len,SEEK_CUR)==0);
 		if (total_len&1) PHYSFSX_writeU8(ofile, 0);		//pad to even
@@ -827,6 +828,7 @@ int write_tiny(PHYSFS_file *ofile,iff_bitmap_header *bitmap_header,int compressi
 
 	if (compression_on) {
 		Assert(PHYSFSX_fseek(ofile,save_pos,SEEK_SET)==0);
+		(void)save_pos;
 		PHYSFS_writeSBE32(ofile, 4+total_len);
 		Assert(PHYSFSX_fseek(ofile,4+total_len,SEEK_CUR)==0);
 		if (total_len&1) PHYSFSX_writeU8(ofile, 0);		//pad to even
@@ -865,6 +867,7 @@ int write_pbm(PHYSFS_file *ofile,iff_bitmap_header *bitmap_header,int compressio
 	pbm_size = 4 + BMHD_SIZE + body_size + tiny_size + sizeof(pal_entry)*(1<<bitmap_header->nplanes)+8;
 
 	Assert(PHYSFSX_fseek(ofile,save_pos,SEEK_SET)==0);
+	(void)save_pos;
 	PHYSFS_writeSBE32(ofile, pbm_size+8);
 	Assert(PHYSFSX_fseek(ofile,pbm_size+8,SEEK_CUR)==0);
 
@@ -929,7 +932,6 @@ int iff_read_animbrush(char *ifilename,grs_bitmap **bm_list,int max_bitmaps,int 
 {
 	int ret = IFF_NO_ERROR;			//return code
 	PHYSFS_file *ifile;
-	iff_bitmap_header bmheader;
 	int sig,form_len;
 	long form_type;
 
@@ -938,8 +940,6 @@ int iff_read_animbrush(char *ifilename,grs_bitmap **bm_list,int max_bitmaps,int 
 	ifile = PHYSFSX_openReadBuffered(ifilename);
 	if (ifile == NULL)
 		return IFF_NO_FILE;
-
-	bmheader.raw_data = NULL;
 
 	sig=get_sig(ifile);
 	PHYSFS_readSBE32(ifile, &form_len);

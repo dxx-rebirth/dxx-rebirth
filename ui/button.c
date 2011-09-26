@@ -129,7 +129,6 @@ UI_GADGET_BUTTON * ui_add_gadget_button( UI_DIALOG * dlg, short x, short y, shor
 
 void ui_button_do( UI_GADGET_BUTTON * button, int keypress )
 {
-	int result;
 	int OnMe, ButtonLastSelected;
 
 	OnMe = ui_mouse_on_gadget( (UI_GADGET *)button );
@@ -162,7 +161,7 @@ void ui_button_do( UI_GADGET_BUTTON * button, int keypress )
 
 	if ((keypress == button->hotkey1) && button->user_function1 )
 	{
-		result = button->user_function1();
+		button->user_function1();
 		last_keypress = 0;
 	}
 
@@ -190,11 +189,6 @@ void ui_button_do( UI_GADGET_BUTTON * button, int keypress )
 
 	if (button->pressed && button->user_function )
 	{
-		result = button->user_function();
+		button->user_function();
 	}
 }
-
-
-
-
-

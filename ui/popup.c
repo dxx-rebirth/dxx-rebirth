@@ -34,7 +34,6 @@ int PopupMenu( int NumButtons, char * text[] )
 	UI_DIALOG * dlg;
 	UI_GADGET_BUTTON * ButtonG[10];
 
-	short SavedMouseX, SavedMouseY;
 	char * Button[10];
 
 	int button_width, button_height, width, height;
@@ -59,8 +58,6 @@ int PopupMenu( int NumButtons, char * text[] )
 		ui_mouse_flip_buttons();
 		return -1;
 	}
-
-	SavedMouseX = Mouse.x; SavedMouseY = Mouse.y;
 
 	button_width = button_height = 0;
 

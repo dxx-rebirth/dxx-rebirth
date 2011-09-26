@@ -764,6 +764,7 @@ int load_game_data(PHYSFS_file *LoadFile)
 
 	trig_size = PHYSFSX_readInt(LoadFile);
 	Assert(trig_size == sizeof(ControlCenterTriggers));
+	(void)trig_size;
 	PHYSFSX_fseek(LoadFile, 4, SEEK_CUR);
 
 	Num_robot_centers = PHYSFSX_readInt(LoadFile);
@@ -1093,9 +1094,6 @@ int load_game_data(PHYSFS_file *LoadFile)
 				side_num = Triggers[t].side[l];
 				wall_num = Segments[seg_num].sides[side_num].wall_num;
 
-				// -- if (Walls[wall_num].controlling_trigger != -1)
-				// -- 	Int3();
-
 				//check to see that if a trigger requires a wall that it has one,
 				//and if it requires a matcen that it has one
 
@@ -1261,6 +1259,7 @@ int load_level(char * filename_passed)
 	gamedata_offset          = PHYSFSX_readInt(LoadFile);
 
 	Assert(sig == MAKE_SIG('P','L','V','L'));
+	(void)sig;
 
 	if (Gamesave_current_version >= 8) {    //read dummy data
 		PHYSFSX_readInt(LoadFile);

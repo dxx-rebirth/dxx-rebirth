@@ -821,17 +821,6 @@ void move_object_to_goal(object *objp, vms_vector *goal_point, int goal_seg)
 
 	Assert(objp->segnum != -1);
 
-#ifndef NDEBUG
-	if (objp->segnum != goal_seg)
-		if (find_connect_side(&Segments[objp->segnum], &Segments[goal_seg]) == -1) {
-			fix	dist;
-			dist = find_connected_distance(&objp->pos, objp->segnum, goal_point, goal_seg, 30, WID_FLY_FLAG);
-			if (Connected_segment_distance > 2) {	//	This global is set in find_connected_distance
-				// -- Int3();
-			}
-		}
-#endif
-
 	Assert(aip->path_length >= 2);
 
 	if (aip->cur_path_index <= 0) {
@@ -910,8 +899,6 @@ void ai_follow_path(object *objp, int player_visibility, int previous_visibility
 	fix			dist_to_goal;
 	robot_info	*robptr = &Robot_info[objp->id];
 	int			forced_break, original_dir, original_index;
-	fix			dist_to_player;
-	int			goal_seg;
 	ai_local		*ailp = &Ai_local_info[objp-Objects];
 	fix			threshold_distance;
 
@@ -965,46 +952,8 @@ void ai_follow_path(object *objp, int player_visibility, int previous_visibility
 	//--Int3_if(((aip->cur_path_index >= 0) && (aip->cur_path_index < aip->path_length)));
 
 	goal_point = Point_segs[aip->hide_index + aip->cur_path_index].point;
-	goal_seg = Point_segs[aip->hide_index + aip->cur_path_index].segnum;
 	dist_to_goal = vm_vec_dist_quick(&goal_point, &objp->pos);
 
-	if (Player_is_dead)
-		dist_to_player = vm_vec_dist_quick(&objp->pos, &Viewer->pos);
-	else
-		dist_to_player = vm_vec_dist_quick(&objp->pos, &ConsoleObject->pos);
-
-#if 0
-	//	Efficiency hack: If far away from player, move in big quantized jumps.
-	if (!(player_visibility || previous_visibility) && (dist_to_player > F1_0*200) && !(Game_mode & GM_MULTI)) {
-		if (dist_to_goal < F1_0*2) {
-			move_object_to_goal(objp, &goal_point, goal_seg);
-			return;
-		} else {
-			robot_info	*robptr = &Robot_info[objp->id];
-			fix	cur_speed = robptr->max_speed[Difficulty_level]/2;
-			fix	distance_travellable = fixmul(FrameTime, cur_speed);
-
-			// int	connect_side = find_connect_side(objp->segnum, goal_seg);
-			//	Only move to goal if allowed to fly through the side.
-			//	Buddy-bot can create paths he can't fly, waiting for player.
-			// -- bah, this isn't good enough, buddy will fail to get through any door! if (WALL_IS_DOORWAY(&Segments]objp->segnum], connect_side) & WID_FLY_FLAG) {
-			if (!Robot_info[objp->id].companion && !Robot_info[objp->id].thief) {
-				if (distance_travellable >= dist_to_goal) {
-					move_object_to_goal(objp, &goal_point, goal_seg);
-				} else {
-					fix	prob = fixdiv(distance_travellable, dist_to_goal);
-	
-					int	rand_num = d_rand();
-					if ( (rand_num >> 1) < prob) {
-						move_object_to_goal(objp, &goal_point, goal_seg);
-					}
-				}
-				return;
-			}
-		}
-
-	}
-#endif
 	//	If running from player, only run until can't be seen.
 	if (ailp->mode == AIM_RUN_FROM_OBJECT) {
 		if ((player_visibility == 0) && (ailp->player_awareness_type == 0)) {
@@ -1403,34 +1352,26 @@ void ai_reset_all_paths(void)
 //	Try to resume path.
 void attempt_to_resume_path(object *objp)
 {
-	//int				objnum = objp-Objects;
-	ai_static		*aip = &objp->ctype.ai_info;
-//	int				goal_segnum, object_segnum,
-	int				abs_index, new_path_index;
+	ai_static *aip = &objp->ctype.ai_info;
+	int new_path_index;
 
 	if ((aip->behavior == AIB_STATION) && (Robot_info[objp->id].companion != 1))
 		if (d_rand() > 8192) {
-			ai_local			*ailp = &Ai_local_info[objp-Objects];
+			ai_local *ailp = &Ai_local_info[objp-Objects];
 
 			aip->hide_segment = objp->segnum;
-//Int3();
 			ailp->mode = AIM_STILL;
 		}
-
-//	object_segnum = objp->segnum;
-	abs_index = aip->hide_index+aip->cur_path_index;
-//	goal_segnum = Point_segs[abs_index].segnum;
 
 	new_path_index = aip->cur_path_index - aip->PATH_DIR;
 
 	if ((new_path_index >= 0) && (new_path_index < aip->path_length)) {
 		aip->cur_path_index = new_path_index;
 	} else {
-		//	At end of line and have nowhere to go.
+		// At end of line and have nowhere to go.
 		move_towards_segment_center(objp);
 		create_path_to_station(objp, 15);
 	}
-
 }
 
 //	----------------------------------------------------------------------------------------------------------
@@ -1565,6 +1506,7 @@ void player_follow_path(object *objp)
 	goal_point = Point_segs[Player_hide_index + Player_cur_path_index].point;
 	goal_seg = Point_segs[Player_hide_index + Player_cur_path_index].segnum;
 	Assert((goal_seg >= 0) && (goal_seg <= Highest_segment_index));
+	(void)goal_seg;
 	dist_to_goal = vm_vec_dist_quick(&goal_point, &objp->pos);
 
 	if (Player_cur_path_index < 0)

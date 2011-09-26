@@ -1391,11 +1391,8 @@ void bm_read_reactor(void)
 	int first_bitmap_num, first_bitmap_num_dead=0, n_normal_bitmaps;
 	char *equal_ptr;
 	short model_num;
-	short explosion_vclip_num = -1;
-	short explosion_sound_num = SOUND_ROBOT_DESTROYED;
 	fix	lighting = F1_0/2;		// Default
 	int type=-1;
-	fix strength=0;
 
 	Assert(Num_reactors < MAX_REACTORS);
 
@@ -1422,20 +1419,14 @@ void bm_read_reactor(void)
 
 			// if we have john=cool, arg is 'john' and equal_ptr is 'cool'
 
-			if (!stricmp( arg, "exp_vclip" ))	{
-				explosion_vclip_num = atoi(equal_ptr);
-			} else if (!stricmp( arg, "dead_pof" ))	{
+			if (!stricmp( arg, "dead_pof" ))	{
 				model_name_dead = equal_ptr;
 				first_bitmap_num_dead=N_ObjBitmapPtrs;
-			} else if (!stricmp( arg, "exp_sound" ))	{
-				explosion_sound_num = atoi(equal_ptr);
 			} else if (!stricmp( arg, "lighting" ))	{
 				lighting = fl2f(atof(equal_ptr));
 				if ( (lighting < 0) || (lighting > F1_0 )) {
 					Error( "In bitmaps.tbl, lighting value of %.2f is out of range 0..1.\n", f2fl(lighting));
 				}
-			} else if (!stricmp( arg, "strength" )) {
-				strength = fl2f(atof(equal_ptr));
 			} else {
 				Int3();
 			}		

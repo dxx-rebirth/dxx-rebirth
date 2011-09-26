@@ -263,14 +263,13 @@ int show_pause_message(window *wind, d_event *event, void *userdata)
 		{
 			char *msg = TXT_PAUSE;
 			int w,h,aw;
-			int x,y;
+			int y;
 
 			gr_set_current_canvas(NULL);
 			gr_set_curfont( GAME_FONT );
 
 			gr_get_string_size(msg,&w,&h,&aw);
 
-			x = (grd_curscreen->sc_w-w)/2;
 			y = (grd_curscreen->sc_h-h)/2;
 
 			gr_set_fontcolor( 255, -1 );

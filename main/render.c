@@ -99,8 +99,6 @@ int	Render_only_bottom=0;
 int	Bottom_bitmap_num = 9;
 #endif
 
-fix	Face_reflectivity = (F1_0/2);
-
 //Global vars for window clip test
 int Window_clip_left,Window_clip_top,Window_clip_right,Window_clip_bot;
 
@@ -197,13 +195,11 @@ void flash_frame()
 //	tmap1, tmap2 are texture map ids.  tmap2 is the pasty one.
 void render_face(int segnum, int sidenum, int nv, int *vp, int tmap1, int tmap2, uvl *uvlp, int wid_flags)
 {
-	// -- Using new headlight system...fix			face_light;
 	grs_bitmap  *bm;
 #ifdef OGL
 	grs_bitmap  *bm2 = NULL;
 #endif
 
-	fix			reflect;
 	g3s_uvl			uvl_copy[8];
 	g3s_lrgb		dyn_light[8];
 	int			i;
@@ -231,8 +227,6 @@ void render_face(int segnum, int sidenum, int nv, int *vp, int tmap1, int tmap2,
 
 		return;
 	}
-
-	// -- Using new headlight system...face_light = -vm_vec_dot(&Viewer->orient.fvec,norm);
 
 	if (tmap1 >= NumTextures) {
 #ifndef RELEASE
@@ -266,58 +260,47 @@ void render_face(int segnum, int sidenum, int nv, int *vp, int tmap1, int tmap2,
 
 	Assert( !(bm->bm_flags & BM_FLAG_PAGED_OUT) );
 
-	//reflect = fl2f((1.0-TmapInfo[p->tmap_num].reflect)/2.0 + 0.5);
-	//reflect = fl2f((1.0-TmapInfo[p->tmap_num].reflect));
-
-	reflect = Face_reflectivity;		// f1_0;	//until we figure this stuff out...
-
 	//set light values for each vertex & build pointlist
+	for (i=0;i<nv;i++)
 	{
-		int i;
+		//the uvl struct has static light already in it
 
-		// -- Using new headlight system...face_light = fixmul(face_light,reflect);
+		//scale static light for destruction effect
+		if (Control_center_destroyed || Seismic_tremor_magnitude)	//make lights flash
+			uvl_copy[i].l = fixmul(flash_scale,uvl_copy[i].l);
+		//add in dynamic light (from explosions, etc.)
+		uvl_copy[i].l += (Dynamic_light[vp[i]].r+Dynamic_light[vp[i]].g+Dynamic_light[vp[i]].b)/3;
+		//saturate at max value
+		if (uvl_copy[i].l > MAX_LIGHT)
+			uvl_copy[i].l = MAX_LIGHT;
 
-		for (i=0;i<nv;i++)
+		// And now the same for the ACTUAL (rgb) light we want to use
+
+		//scale static light for destruction effect
+		if (Seismic_tremor_magnitude)	//make lights flash
+			dyn_light[i].r = dyn_light[i].g = dyn_light[i].b = fixmul(flash_scale,uvl_copy[i].l);
+		else if (Control_center_destroyed)	//make lights flash
 		{
-			//the uvl struct has static light already in it
-
-			//scale static light for destruction effect
-			if (Control_center_destroyed || Seismic_tremor_magnitude)	//make lights flash
-				uvl_copy[i].l = fixmul(flash_scale,uvl_copy[i].l);
-			//add in dynamic light (from explosions, etc.)
-			uvl_copy[i].l += (Dynamic_light[vp[i]].r+Dynamic_light[vp[i]].g+Dynamic_light[vp[i]].b)/3;
-			//saturate at max value
-			if (uvl_copy[i].l > MAX_LIGHT)
-				uvl_copy[i].l = MAX_LIGHT;
-
-			// And now the same for the ACTUAL (rgb) light we want to use
-
-			//scale static light for destruction effect
-			if (Seismic_tremor_magnitude)	//make lights flash
-				dyn_light[i].r = dyn_light[i].g = dyn_light[i].b = fixmul(flash_scale,uvl_copy[i].l);
-			else if (Control_center_destroyed)	//make lights flash
+			if (PlayerCfg.DynLightColor) // let the mine glow red a little
 			{
-				if (PlayerCfg.DynLightColor) // let the mine glow red a little
-				{
-					dyn_light[i].r = fixmul(flash_scale>=f0_5*1.5?flash_scale:f0_5*1.5,uvl_copy[i].l);
-					dyn_light[i].g = dyn_light[i].b = fixmul(flash_scale,uvl_copy[i].l);
-				}
-				else
-					dyn_light[i].r = dyn_light[i].g = dyn_light[i].b = fixmul(flash_scale,uvl_copy[i].l);
+				dyn_light[i].r = fixmul(flash_scale>=f0_5*1.5?flash_scale:f0_5*1.5,uvl_copy[i].l);
+				dyn_light[i].g = dyn_light[i].b = fixmul(flash_scale,uvl_copy[i].l);
 			}
-
-			// add light color
-			dyn_light[i].r += Dynamic_light[vp[i]].r;
-			dyn_light[i].g += Dynamic_light[vp[i]].g;
-			dyn_light[i].b += Dynamic_light[vp[i]].b;
-			// saturate at max value
-			if (dyn_light[i].r > MAX_LIGHT)
-				dyn_light[i].r = MAX_LIGHT;
-			if (dyn_light[i].g > MAX_LIGHT)
-				dyn_light[i].g = MAX_LIGHT;
-			if (dyn_light[i].b > MAX_LIGHT)
-				dyn_light[i].b = MAX_LIGHT;
+			else
+				dyn_light[i].r = dyn_light[i].g = dyn_light[i].b = fixmul(flash_scale,uvl_copy[i].l);
 		}
+
+		// add light color
+		dyn_light[i].r += Dynamic_light[vp[i]].r;
+		dyn_light[i].g += Dynamic_light[vp[i]].g;
+		dyn_light[i].b += Dynamic_light[vp[i]].b;
+		// saturate at max value
+		if (dyn_light[i].r > MAX_LIGHT)
+			dyn_light[i].r = MAX_LIGHT;
+		if (dyn_light[i].g > MAX_LIGHT)
+			dyn_light[i].g = MAX_LIGHT;
+		if (dyn_light[i].b > MAX_LIGHT)
+			dyn_light[i].b = MAX_LIGHT;
 	}
 
 	if ( PlayerCfg.AlphaEffects && ( TmapInfo[tmap1].eclip_num == ECLIP_NUM_FUELCEN || TmapInfo[tmap1].eclip_num == ECLIP_NUM_FORCE_FIELD ) ) // set nice transparency/blending for some special effects (if we do more, we should maybe use switch here)
@@ -355,7 +338,7 @@ void check_face(int segnum, int sidenum, int facenum, int nv, int *vp, int tmap1
 		int save_lighting;
 		grs_bitmap *bm;
 		g3s_uvl uvl_copy[8];
-		g3s_lrgb dyn_light[8] = { 0, 0, 0, 0, 0, 0, 0, 0 };
+		g3s_lrgb dyn_light[8];
 		g3s_point *pointlist[4];
 
 		if (tmap2 > 0 )
@@ -864,10 +847,7 @@ void outline_seg_side(segment *seg,int _side,int edge,int vert)
 	cc=rotate_list(8,seg->verts);
 
 	if (! cc.and) {		//all off screen?
-		side *s;
 		g3s_point *pnt;
-
-		s=&seg->sides[_side];
 
 		//render curedge of curside of curseg in green
 
@@ -1446,7 +1426,7 @@ void build_object_lists(int n_segs)
 			object *obj;
 
 			for (objnum=Segments[segnum].objects;objnum!=-1;objnum = obj->next) {
-				int new_segnum,did_migrate,list_pos;
+				int new_segnum,list_pos;
 
 				obj = &Objects[objnum];
 
@@ -1462,8 +1442,6 @@ void build_object_lists(int n_segs)
 				do {
 					segmasks m;
 
-					did_migrate = 0;
-	
 					m = get_seg_masks(&obj->pos, new_segnum, obj->size, __FILE__, __LINE__);
 	
 					if (m.sidemask) {
@@ -1481,13 +1459,12 @@ void build_object_lists(int n_segs)
 										if (Render_list[checknp] == child) {
 											new_segnum = child;
 											list_pos = checknp;
-											did_migrate = 1;
 										}
 								}
 							}
 					}
 	
-				} while (0);	//while (did_migrate);
+				} while (0);
 
 				add_obj_to_seglist(objnum,list_pos);
 	

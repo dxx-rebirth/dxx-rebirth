@@ -1,5 +1,9 @@
 D2X-Rebirth Changelog
 
+20110927
+--------
+2d/palette.c, RELEASE-NOTES.txt, editor/eobject.c, editor/group.c, editor/meddraw.c, editor/medrobot.c, editor/mine.c, editor/segment.c, editor/seguvs.c, iff/iff.c, libmve/decoder16.c, libmve/mveplay.c, main/ai2.c, main/aipath.c, main/bmread.c, main/cntrlcen.c, main/dumpmine.c, main/fvi.c, main/gamemine.c, main/gamesave.c, main/gameseq.c, main/gauges.c, main/movie.c, main/multi.c, main/newdemo.c, main/newmenu.c, main/piggy.c, main/polyobj.c, main/render.c, main/titles.c, texmap/ntmap.c, texmap/scanline.c, ui/button.c, ui/inputbox.c, ui/keypad.c, ui/keytrap.c, ui/popup.c, ui/scroll.c: Fixed set but unused variables
+
 20110926
 --------
 main/collide.c, main/escort.c, main/laser.c, main/fireball.c, main/lighting.c: Code consistency checks by _Tyr_; Fixed set but unused variables

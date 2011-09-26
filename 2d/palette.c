@@ -102,6 +102,7 @@ void gr_use_palette_table( char * filename )
 
 	fsize	= PHYSFS_fileLength( fp );
 	Assert( fsize == 9472 );
+	(void)fsize;
 	PHYSFS_read( fp, gr_palette, 256*3, 1 );
 	PHYSFS_read( fp, gr_fade_table, 256*34, 1 );
 	PHYSFS_close(fp);

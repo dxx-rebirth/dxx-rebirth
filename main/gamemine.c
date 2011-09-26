@@ -439,13 +439,12 @@ static short tmap_times_used[MAX_TEXTURES];
 // returns 0=everything ok, 1=old version, -1=error
 int load_mine_data(PHYSFS_file *LoadFile)
 {
-	int   i, j,oldsizeadjust;
+	int   i, j;
 	short tmap_xlate;
 	int 	translate;
 	char 	*temptr;
 	int	mine_start = PHYSFS_tell(LoadFile);
 
-	oldsizeadjust=(sizeof(int)*2)+sizeof (vms_matrix);
 	fuelcen_reset();
 
 	for (i=0; i<MAX_TEXTURES; i++ )
@@ -946,6 +945,7 @@ int load_mine_data_compiled(PHYSFS_file *LoadFile)
 
 	//=============================== Reading part ==============================
 	compiled_version = PHYSFSX_readByte(LoadFile);
+	(void)compiled_version;
 
 	if (New_file_format_load)
 		Num_vertices = PHYSFSX_readShort(LoadFile);

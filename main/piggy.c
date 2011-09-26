@@ -402,7 +402,10 @@ void piggy_init_pigfile(char *filename)
 	char temp_name[16];
 	char temp_name_read[16];
 	DiskBitmapHeader bmh;
-	int header_size, N_bitmaps, data_size, data_start;
+	int header_size, N_bitmaps, data_start;
+#ifdef EDITOR
+	int data_size;
+#endif
 
 	piggy_close_file();             //close old pig if still open
 
@@ -439,9 +442,9 @@ void piggy_init_pigfile(char *filename)
 	header_size = N_bitmaps * sizeof(DiskBitmapHeader);
 
 	data_start = header_size + PHYSFS_tell(Piggy_fp);
-
+#ifdef EDITOR
 	data_size = PHYSFS_fileLength(Piggy_fp) - data_start;
-
+#endif
 	Num_bitmap_files = 1;
 
 	for (i=0; i<N_bitmaps; i++ )
@@ -500,8 +503,10 @@ void piggy_new_pigfile(char *pigname)
 	char temp_name[16];
 	char temp_name_read[16];
 	DiskBitmapHeader bmh;
-	int header_size, N_bitmaps, data_size, data_start;
+	int header_size, N_bitmaps, data_start;
+#ifdef EDITOR
 	int must_rewrite_pig = 0;
+#endif
 
 	strlwr(pigname);
 
@@ -550,8 +555,6 @@ void piggy_new_pigfile(char *pigname)
 
 		data_start = header_size + PHYSFS_tell(Piggy_fp);
 
-		data_size = PHYSFS_fileLength(Piggy_fp) - data_start;
-
 		for (i=1; i<=N_bitmaps; i++ )
 		{
 			grs_bitmap *bm = &GameBitmaps[i];
@@ -565,12 +568,14 @@ void piggy_new_pigfile(char *pigname)
 				sprintf( temp_name, "%s#%d", temp_name_read, bmh.dflags & DBM_NUM_FRAMES );
 			else
 				strcpy( temp_name, temp_name_read );
-	
+
+#ifdef EDITOR
 			//Make sure name matches
 			if (strcmp(temp_name,AllBitmaps[i].name)) {
 				//Int3();       //this pig is out of date.  Delete it
 				must_rewrite_pig=1;
 			}
+#endif
 	
 			strcpy(AllBitmaps[i].name,temp_name);
 
@@ -868,7 +873,7 @@ int read_sndfile()
 	int N_sounds;
 	int sound_start;
 	int header_size;
-	int i,size, length;
+	int i;
 	DiskSoundHeader sndh;
 	digi_sound temp_sound;
 	char temp_name_read[16];
@@ -890,15 +895,12 @@ int read_sndfile()
 	N_sounds = PHYSFSX_readInt(snd_fp);
 
 	sound_start = PHYSFS_tell(snd_fp);
-	size = PHYSFS_fileLength(snd_fp) - sound_start;
-	length = size;
 	header_size = N_sounds*sizeof(DiskSoundHeader);
 
 	//Read sounds
 
 	for (i=0; i<N_sounds; i++ ) {
 		DiskSoundHeader_read(&sndh, snd_fp);
-		//size -= sizeof(DiskSoundHeader);
 		temp_sound.length = sndh.length;
 		temp_sound.data = (ubyte *)(size_t)(sndh.offset + header_size + sound_start);
 		SoundOffset[Num_sound_files] = sndh.offset + header_size + sound_start;
@@ -1044,7 +1046,7 @@ void piggy_critical_error()
 void piggy_bitmap_page_in( bitmap_index bitmap )
 {
 	grs_bitmap * bmp;
-	int i,org_i,temp;
+	int i,org_i;
 
 	org_i = 0;
 
@@ -1097,7 +1099,7 @@ void piggy_bitmap_page_in( bitmap_index bitmap )
 				goto ReDoIt;
 			}
 			descent_critical_error = 0;
-			temp = PHYSFS_read( Piggy_fp, &Piggy_bitmap_cache_data[Piggy_bitmap_cache_next+4], 1, zsize-4 );
+			PHYSFS_read( Piggy_fp, &Piggy_bitmap_cache_data[Piggy_bitmap_cache_next+4], 1, zsize-4 );
 			if ( descent_critical_error )   {
 				piggy_critical_error();
 				goto ReDoIt;
@@ -1139,7 +1141,7 @@ void piggy_bitmap_page_in( bitmap_index bitmap )
 				goto ReDoIt;
 			}
 			descent_critical_error = 0;
-			temp = PHYSFS_read( Piggy_fp, &Piggy_bitmap_cache_data[Piggy_bitmap_cache_next], 1, bmp->bm_h*bmp->bm_w );
+			PHYSFS_read( Piggy_fp, &Piggy_bitmap_cache_data[Piggy_bitmap_cache_next], 1, bmp->bm_h*bmp->bm_w );
 			if ( descent_critical_error )   {
 				piggy_critical_error();
 				goto ReDoIt;

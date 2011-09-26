@@ -27,13 +27,10 @@ static char rcsid[] = "$Id: scroll.c,v 1.1.1.1 2006/03/17 19:52:16 zicodxx Exp $
 
 void ui_draw_scrollbar( UI_GADGET_SCROLLBAR * scrollbar )
 {
-	int x, y;
-
 	if (scrollbar->status==0)
 		return;
 
 	scrollbar->status = 0;
-	x = y = 0;
 	ui_mouse_hide();
 	gr_set_current_canvas( scrollbar->canvas );
 

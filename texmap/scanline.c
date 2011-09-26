@@ -975,7 +975,7 @@ void c_tmap_scanline_quad()
 	fix u,v,l,dudx, dvdx, dldx;
 
 	// Quadratic setup stuff:
-	fix a0, a1, a2, b0, b1, b2, dudx1, dvdx1;
+	fix a1, a2, b1, b2, dudx1, dvdx1;
 	fix u0 = fx_u;
 	fix u2 = fx_u + fx_du_dx*(fx_xright-fx_xleft+1);	// This just needs to be uright from outer loop
 	fix v0 = fx_v;
@@ -989,8 +989,6 @@ void c_tmap_scanline_quad()
 	v0 = fixdiv( v0, w0 );	// Divide Z out.  This should be in outer loop
 	u2 = fixdiv( u2, w2 );	// Divide Z out.  This should be in outer loop
 	v2 = fixdiv( v2, w2 );	// Divide Z out.  This should be in outer loop
-	a0 = u0;									
-	b0 = v0;
 	a1 = (-3*u0+4*u1-u2)/dx;			
 	b1 = (-3*v0+4*v1-v2)/dx;
 	a2 = (2*(u0-2*u1+u2))/(dx*dx);	

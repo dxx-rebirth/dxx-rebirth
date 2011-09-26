@@ -366,7 +366,7 @@ polymodel *read_model_file(polymodel *pm,char *filename,robot_info *r)
 						id = pof_read_short(model_buf);
 						Assert(id < r->n_guns);
 						Assert(gun_used[id] == 0);
-						gun_used[id] = 1;
+						(void)gun_used[id];
 						r->gun_submodels[id] = pof_read_short(model_buf);
 						Assert(r->gun_submodels[id] != 0xff);
 						pof_read_vecs(&r->gun_points[id],1,model_buf);

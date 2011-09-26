@@ -235,10 +235,10 @@ void do_countdown_frame()
 //	if objp == NULL that means the boss was the control center and don't set Dead_controlcen_object_num
 void do_controlcen_destroyed_stuff(object *objp)
 {
-	int	i;
+	int i;
 
-   if ((Game_mode & GM_MULTI_ROBOTS) && Control_center_destroyed)
-    return; // Don't allow resetting if control center and boss on same level
+	if ((Game_mode & GM_MULTI_ROBOTS) && Control_center_destroyed)
+		return; // Don't allow resetting if control center and boss on same level
 
 	// Must toggle walls whether it is a boss or control center.
 	for (i=0;i<ControlCenterTriggers.num_links;i++)
@@ -247,13 +247,9 @@ void do_controlcen_destroyed_stuff(object *objp)
 	// And start the countdown stuff.
 	Control_center_destroyed = 1;
 
-	//	If a secret level, delete secret.sgc to indicate that we can't return to our secret level.
-	if (Current_level_num < 0) {
-		int	rval;
-
-		rval = !PHYSFS_delete(SECRETC_FILENAME);
-
-	}
+	// If a secret level, delete secret.sgc to indicate that we can't return to our secret level.
+	if (Current_level_num < 0)
+		PHYSFS_delete(SECRETC_FILENAME);
 
 	if (Base_control_center_explosion_time != DEFAULT_CONTROL_CENTER_EXPLOSION_TIME)
 		Total_countdown_time = Base_control_center_explosion_time + Base_control_center_explosion_time * (NDL-Difficulty_level-1)/2;
@@ -262,12 +258,8 @@ void do_controlcen_destroyed_stuff(object *objp)
 
 	Countdown_timer = i2f(Total_countdown_time);
 
-	if (!Control_center_present || objp==NULL) {
-		//Assert(objp == NULL);
+	if (!Control_center_present || objp==NULL)
 		return;
-	}
-
-	//Assert(objp != NULL);
 
 	Dead_controlcen_object_num = objp-Objects;
 }

@@ -845,7 +845,6 @@ void move_object_to_position(int objnum, vms_vector *newpos)
 			fvi_query fq;
 			fvi_info	hit_info;
 			vms_vector	last_outside_pos;
-			vms_vector	last_inside_pos;
 
 			temp_viewer_obj = *Viewer;
 			viewer_segnum = find_object_seg(&temp_viewer_obj);
@@ -876,8 +875,6 @@ void move_object_to_position(int objnum, vms_vector *newpos)
 				while (viewer_segnum != -1) {
 
 					vms_vector	temp_vec;
-
-					last_inside_pos = temp_viewer_obj.pos;
 
 					vm_vec_avg(&temp_vec, &temp_viewer_obj.pos, &last_outside_pos);
 					temp_viewer_obj.pos = temp_vec;
