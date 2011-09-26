@@ -120,7 +120,7 @@ void apply_light(g3s_lrgb obj_light_emission, int obj_seg, vms_vector *obj_pos, 
 						if (dist < MIN_LIGHT_DIST)
 							dist = MIN_LIGHT_DIST;
 
-						if (headlight_shift)
+						if (headlight_shift && objnum != -1)
 						{
 							fix dot;
 							vms_vector vec_to_point;
