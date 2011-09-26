@@ -62,10 +62,15 @@ void apply_light(g3s_lrgb obj_light_emission, int obj_seg, vms_vector *obj_pos, 
 	if (((obj_light_emission.r+obj_light_emission.g+obj_light_emission.b)/3) > 0)
 	{
 		fix obji_64 = ((obj_light_emission.r+obj_light_emission.g+obj_light_emission.b)/3)*64;
+		sbyte is_marker = 0;
+		
+		if (objnum != -1)
+			if (Objects[objnum].type == OBJ_MARKER)
+				is_marker = 1;
 
 		// for pretty dim sources, only process vertices in object's own segment.
 		//	12/04/95, MK, markers only cast light in own segment.
-		if ((abs(obji_64) <= F1_0*8) || (Objects[objnum].type == OBJ_MARKER)) {
+		if ((abs(obji_64) <= F1_0*8) || is_marker) {
 			int *vp = Segments[obj_seg].verts;
 
 			for (vv=0; vv<MAX_VERTICES_PER_SEGMENT; vv++) {
@@ -92,30 +97,31 @@ void apply_light(g3s_lrgb obj_light_emission, int obj_seg, vms_vector *obj_pos, 
 			int	headlight_shift = 0;
 			fix	max_headlight_dist = F1_0*200;
 
-			if (Objects[objnum].type == OBJ_PLAYER)
-				if (Players[Objects[objnum].id].flags & PLAYER_FLAGS_HEADLIGHT_ON) {
-					headlight_shift = 3;
-					if (Objects[objnum].id != Player_num) {
-						vms_vector	tvec;
-						fvi_query	fq;
-						fvi_info		hit_data;
-						int			fate;
+			if (objnum != -1)
+				if (Objects[objnum].type == OBJ_PLAYER)
+					if (Players[Objects[objnum].id].flags & PLAYER_FLAGS_HEADLIGHT_ON) {
+						headlight_shift = 3;
+						if (Objects[objnum].id != Player_num) {
+							vms_vector	tvec;
+							fvi_query	fq;
+							fvi_info		hit_data;
+							int			fate;
 
-						vm_vec_scale_add(&tvec, &Objects[objnum].pos, &Objects[objnum].orient.fvec, F1_0*200);
+							vm_vec_scale_add(&tvec, &Objects[objnum].pos, &Objects[objnum].orient.fvec, F1_0*200);
 
-						fq.startseg				= Objects[objnum].segnum;
-						fq.p0						= &Objects[objnum].pos;
-						fq.p1						= &tvec;
-						fq.rad					= 0;
-						fq.thisobjnum			= objnum;
-						fq.ignore_obj_list	= NULL;
-						fq.flags					= FQ_TRANSWALL;
+							fq.startseg				= Objects[objnum].segnum;
+							fq.p0						= &Objects[objnum].pos;
+							fq.p1						= &tvec;
+							fq.rad					= 0;
+							fq.thisobjnum			= objnum;
+							fq.ignore_obj_list	= NULL;
+							fq.flags					= FQ_TRANSWALL;
 
-						fate = find_vector_intersection(&fq, &hit_data);
-						if (fate != HIT_NONE)
-							max_headlight_dist = vm_vec_mag_quick(vm_vec_sub(&tvec, &hit_data.hit_pnt, &Objects[objnum].pos)) + F1_0*4;
+							fate = find_vector_intersection(&fq, &hit_data);
+							if (fate != HIT_NONE)
+								max_headlight_dist = vm_vec_mag_quick(vm_vec_sub(&tvec, &hit_data.hit_pnt, &Objects[objnum].pos)) + F1_0*4;
+						}
 					}
-				}
 			// -- for (vv=light_frame_count&1; vv<n_render_vertices; vv+=2) {
 			for (vv=0; vv<n_render_vertices; vv++) {
 				int			vertnum, vsegnum;
@@ -145,7 +151,7 @@ void apply_light(g3s_lrgb obj_light_emission, int obj_seg, vms_vector *obj_pos, 
 						if (dist < MIN_LIGHT_DIST)
 							dist = MIN_LIGHT_DIST;
 
-						if (headlight_shift)
+						if (headlight_shift && objnum != -1)
 						{
 							fix dot;
 							vms_vector vec_to_point;
