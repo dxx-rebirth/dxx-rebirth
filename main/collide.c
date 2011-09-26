@@ -1460,23 +1460,26 @@ int do_boss_weapon_collision(object *robot, object *weapon, vms_vector *collisio
 			digi_link_sound_to_pos( SOUND_WEAPON_HIT_DOOR, segnum, 0, collision_point, 0, F1_0);
 			damage_flag = 0;
 
-			if (Last_time_buddy_gave_hint == 0)
-				Last_time_buddy_gave_hint = d_rand()*32 + F1_0*16;
+			if (Buddy_objnum != -1)
+			{
+				if (Last_time_buddy_gave_hint == 0)
+					Last_time_buddy_gave_hint = d_rand()*32 + F1_0*16;
 
-			if (Buddy_gave_hint_count) {
-				if (Last_time_buddy_gave_hint + F1_0*20 < GameTime64) {
-					int	sval;
+				if (Buddy_gave_hint_count) {
+					if (Last_time_buddy_gave_hint + F1_0*20 < GameTime64) {
+						int	sval;
 
-					Buddy_gave_hint_count--;
-					Last_time_buddy_gave_hint = GameTime64;
-					sval = (d_rand()*4) >> 15;
-					switch (sval) {
-						case 0:	buddy_message("Hit him in the back!");	break;
-						case 1:	buddy_message("He's invulnerable there!");	break;
-						case 2:	buddy_message("Get behind him and fire!");	break;
-						case 3:
-						default:
-									buddy_message("Hit the glowing spot!");	break;
+						Buddy_gave_hint_count--;
+						Last_time_buddy_gave_hint = GameTime64;
+						sval = (d_rand()*4) >> 15;
+						switch (sval) {
+							case 0:	buddy_message("Hit him in the back!");	break;
+							case 1:	buddy_message("He's invulnerable there!");	break;
+							case 2:	buddy_message("Get behind him and fire!");	break;
+							case 3:
+							default:
+										buddy_message("Hit the glowing spot!");	break;
+						}
 					}
 				}
 			}
@@ -1497,8 +1500,8 @@ int do_boss_weapon_collision(object *robot, object *weapon, vms_vector *collisio
 						Objects[new_obj].size = fixdiv(Polygon_models[Objects[new_obj].rtype.pobj_info.model_num].rad,Weapon_info[Objects[new_obj].id].po_len_to_width_ratio);
 					}
 
-					Objects[new_obj].mtype.phys_info.mass = Weapon_info[weapon->type].mass;
-					Objects[new_obj].mtype.phys_info.drag = Weapon_info[weapon->type].drag;
+					Objects[new_obj].mtype.phys_info.mass = Weapon_info[weapon->id].mass;
+					Objects[new_obj].mtype.phys_info.drag = Weapon_info[weapon->id].drag;
 					vm_vec_zero(&Objects[new_obj].mtype.phys_info.thrust);
 
 					vm_vec_sub(&vec_to_point, collision_point, &robot->pos);

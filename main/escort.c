@@ -242,6 +242,9 @@ int ok_for_buddy_to_talk(void)
 	int		i;
 	segment	*segp;
 
+	if (Buddy_objnum == -1)
+		return 0;
+
 	if (Objects[Buddy_objnum].type != OBJ_ROBOT) {
 		Buddy_allowed_to_talk = 0;
 		return 0;

@@ -1957,13 +1957,13 @@ void create_smart_children(object *objp, int num_smart_children)
 		parent_num = 0;
 	}
 
-	if (objp->id == EARTHSHAKER_ID)
-		blast_nearby_glass(objp, Weapon_info[EARTHSHAKER_ID].strength[Difficulty_level]*weapon_rate_scale(EARTHSHAKER_ID));
-
-// -- DEBUG --
+#ifndef NDEBUG
 	if ((objp->type == OBJ_WEAPON) && ((objp->id == SMART_ID) || (objp->id == SUPERPROX_ID) || (objp->id == ROBOT_SUPERPROX_ID) || (objp->id == EARTHSHAKER_ID)))
 		Assert(Weapon_info[objp->id].children != -1);
-// -- DEBUG --
+#endif
+
+	if (objp->type == OBJ_WEAPON && objp->id == EARTHSHAKER_ID)
+		blast_nearby_glass(objp, Weapon_info[EARTHSHAKER_ID].strength[Difficulty_level]*weapon_rate_scale(EARTHSHAKER_ID));
 
 	if (((objp->type == OBJ_WEAPON) && (Weapon_info[objp->id].children != -1)) || (objp->type == OBJ_ROBOT)) {
 		int	i, objnum;

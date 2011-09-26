@@ -96,10 +96,17 @@ object *object_create_explosion_sub(object *objp, short segnum, vms_vector * pos
 		// -- now legal for badass explosions on a wall. Assert(objp != NULL);
 
 		for (i=0; i<=Highest_object_index; i++ )	{
+			sbyte parent_check = 0;
+
 			//	Weapons used to be affected by badass explosions, but this introduces serious problems.
 			//	When a smart bomb blows up, if one of its children goes right towards a nearby wall, it will
 			//	blow up, blowing up all the children.  So I remove it.  MK, 09/11/94
-			if ( (obj0p!=objp) && !(obj0p->flags&OF_SHOULD_BE_DEAD) && ((obj0p->type==OBJ_WEAPON && (obj0p->id==PROXIMITY_ID || obj0p->id==SUPERPROX_ID || obj0p->id==PMINE_ID)) || (obj0p->type == OBJ_CNTRLCEN) || (obj0p->type==OBJ_PLAYER) || ((obj0p->type==OBJ_ROBOT) && ((Objects[parent].type != OBJ_ROBOT) || (Objects[parent].id != obj0p->id))))) {
+
+			if (parent != -1)
+				if ((Objects[parent].type != OBJ_ROBOT) || (Objects[parent].id != obj0p->id))
+					parent_check = 1;
+
+			if ( (obj0p!=objp) && !(obj0p->flags&OF_SHOULD_BE_DEAD) && ((obj0p->type==OBJ_WEAPON && (obj0p->id==PROXIMITY_ID || obj0p->id==SUPERPROX_ID || obj0p->id==PMINE_ID)) || (obj0p->type == OBJ_CNTRLCEN) || (obj0p->type==OBJ_PLAYER) || ((obj0p->type==OBJ_ROBOT) && parent_check))) {
 				dist = vm_vec_dist_quick( &obj0p->pos, &obj->pos );
 				// Make damage be from 'maxdamage' to 0.0, where 0.0 is 'maxdistance' away;
 				if ( dist < maxdistance ) {
@@ -325,7 +332,6 @@ object *object_create_debris(object *parent, int subobj_num)
 {
 	int objnum;
 	object *obj;
-	polymodel *po;
 
 	Assert((parent->type == OBJ_ROBOT) || (parent->type == OBJ_PLAYER)  );
 
@@ -350,8 +356,6 @@ object *object_create_debris(object *parent, int subobj_num)
 	obj->rtype.pobj_info.tmap_override = parent->rtype.pobj_info.tmap_override;
 
 	//Set physics data for this object
-
-	po = &Polygon_models[obj->rtype.pobj_info.model_num];
 
 	obj->mtype.phys_info.velocity.x = D_RAND_MAX/2 - d_rand();
 	obj->mtype.phys_info.velocity.y = D_RAND_MAX/2 - d_rand();
