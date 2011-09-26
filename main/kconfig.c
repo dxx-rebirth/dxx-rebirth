@@ -1006,13 +1006,10 @@ void kc_drawitem( kc_item *item, int is_current )
 
 void kc_drawquestion( kc_menu *menu, kc_item *item )
 {
-	int c, x, w, h, aw;
+	int x, w, h, aw;
 
 	gr_get_string_size("?", &w, &h, &aw  );
 
-	c = BM_XRGB(21,0,24);
-
-	//@@gr_setcolor( gr_fade_table[fades[menu->q_fade_i]*256+c] );
 	gr_setcolor(BM_XRGB(21*fades[menu->q_fade_i]/31,0,24*fades[menu->q_fade_i]/31));
 	menu->q_fade_i++;
 	if (menu->q_fade_i>63) menu->q_fade_i=0;
@@ -1286,7 +1283,7 @@ void kconfig_read_controls(d_event *event, int automap_flag)
 			if (axis == kc_joystick[21].value) // Bank Deadzone
 				joy_null_value = PlayerCfg.JoystickDead[4]*8;
 			if (axis == kc_joystick[23].value) // Throttle - default deadzone
-				joy_null_value = 20;
+				joy_null_value = PlayerCfg.JoystickDead[5]*3;
 
 			if (Controls.raw_joy_axis[axis] > joy_null_value) 
 				Controls.raw_joy_axis[axis] = ((Controls.raw_joy_axis[axis]-joy_null_value)*128)/(128-joy_null_value);
@@ -1378,12 +1375,12 @@ void kconfig_read_controls(d_event *event, int automap_flag)
 		if ( Controls.pitch_forward_state ) Controls.vertical_thrust_time += speed_factor*FrameTime;
 		if ( Controls.pitch_backward_state ) Controls.vertical_thrust_time -= speed_factor*FrameTime;
 		// From joystick...
-		if ( !kc_joystick[14].value )		// If not inverted...
+		if ( !kc_joystick[20].value /*!kc_joystick[14].value*/ )		// If not inverted... NOTE: Use Slide U/D invert setting
 			Controls.vertical_thrust_time += (Controls.joy_axis[kc_joystick[13].value]*PlayerCfg.JoystickSens[3])/8;
 		else
 			Controls.vertical_thrust_time -= (Controls.joy_axis[kc_joystick[13].value]*PlayerCfg.JoystickSens[3])/8;
 		// From mouse...
-		if ( !kc_mouse[14].value )		// If not inverted...
+		if ( !kc_mouse[20].value /*!kc_mouse[14].value*/ )		// If not inverted... NOTE: Use Slide U/D invert setting
 			Controls.vertical_thrust_time -= (Controls.mouse_axis[kc_mouse[13].value]*PlayerCfg.MouseSens[3])/8;
 		else
 			Controls.vertical_thrust_time += (Controls.mouse_axis[kc_mouse[13].value]*PlayerCfg.MouseSens[3])/8;
@@ -1439,12 +1436,12 @@ void kconfig_read_controls(d_event *event, int automap_flag)
 		if ( Controls.heading_right_state ) Controls.sideways_thrust_time += speed_factor*FrameTime;
 		if ( Controls.heading_left_state ) Controls.sideways_thrust_time -= speed_factor*FrameTime;
 		// From joystick...
-		if ( !kc_joystick[16].value )		// If not inverted...
+		if ( !kc_joystick[18].value /*!kc_joystick[16].value*/ )		// If not inverted... NOTE: Use Slide L/R invert setting
 			Controls.sideways_thrust_time += (Controls.joy_axis[kc_joystick[15].value]*PlayerCfg.JoystickSens[2])/8;
 		else
 			Controls.sideways_thrust_time -= (Controls.joy_axis[kc_joystick[15].value]*PlayerCfg.JoystickSens[2])/8;
 		// From mouse...
-		if ( !kc_mouse[16].value )		// If not inverted...
+		if ( !kc_mouse[18].value /*!kc_mouse[16].value*/ )		// If not inverted... NOTE: Use Slide L/R invert setting
 			Controls.sideways_thrust_time += (Controls.mouse_axis[kc_mouse[15].value]*PlayerCfg.MouseSens[2])/8;
 		else
 			Controls.sideways_thrust_time -= (Controls.mouse_axis[kc_mouse[15].value]*PlayerCfg.MouseSens[2])/8;
@@ -1470,12 +1467,12 @@ void kconfig_read_controls(d_event *event, int automap_flag)
 		if ( Controls.heading_left_state ) Controls.bank_time += speed_factor*FrameTime;
 		if ( Controls.heading_right_state ) Controls.bank_time -= speed_factor*FrameTime;
 		// From joystick...
-		if ( !kc_joystick[16].value )		// If not inverted...
+		if ( !kc_joystick[22].value /*!kc_joystick[16].value*/ )		// If not inverted... NOTE: Use Bank L/R invert setting
 			Controls.bank_time -= (Controls.joy_axis[kc_joystick[15].value]*PlayerCfg.JoystickSens[4])/8;
 		else
 			Controls.bank_time += (Controls.joy_axis[kc_joystick[15].value]*PlayerCfg.JoystickSens[4])/8;
 		// From mouse...
-		if ( !kc_mouse[16].value )		// If not inverted...
+		if ( !kc_mouse[22].value /*!kc_mouse[16].value*/ )		// If not inverted... NOTE: Use Bank L/R invert setting
 			Controls.bank_time += (Controls.mouse_axis[kc_mouse[15].value]*PlayerCfg.MouseSens[4])/8;
 		else
 			Controls.bank_time -= (Controls.mouse_axis[kc_mouse[15].value]*PlayerCfg.MouseSens[4])/8;
@@ -1485,14 +1482,14 @@ void kconfig_read_controls(d_event *event, int automap_flag)
 	if ( Controls.bank_right_state ) Controls.bank_time -= speed_factor*FrameTime;
 	// From joystick...
 	if ( !kc_joystick[22].value )		// If not inverted...
-		Controls.bank_time -= Controls.joy_axis[kc_joystick[21].value];
+		Controls.bank_time -= (Controls.joy_axis[kc_joystick[21].value]*PlayerCfg.JoystickSens[4])/8;
 	else
-		Controls.bank_time += Controls.joy_axis[kc_joystick[21].value];
+		Controls.bank_time += (Controls.joy_axis[kc_joystick[21].value]*PlayerCfg.JoystickSens[4])/8;
 	// From mouse...
 	if ( !kc_mouse[22].value )		// If not inverted...
-		Controls.bank_time += Controls.mouse_axis[kc_mouse[21].value];
+		Controls.bank_time += (Controls.mouse_axis[kc_mouse[21].value]*PlayerCfg.MouseSens[4])/8;
 	else
-		Controls.bank_time -= Controls.mouse_axis[kc_mouse[21].value];
+		Controls.bank_time -= (Controls.mouse_axis[kc_mouse[21].value]*PlayerCfg.MouseSens[4])/8;
 
 	//----------- Read forward_thrust_time -------------
 	// From keyboard/buttons...
@@ -1500,14 +1497,14 @@ void kconfig_read_controls(d_event *event, int automap_flag)
 	if ( Controls.reverse_state ) Controls.forward_thrust_time -= speed_factor*FrameTime;
 	// From joystick...
 	if ( !kc_joystick[24].value )		// If not inverted...
-		Controls.forward_thrust_time -= Controls.joy_axis[kc_joystick[23].value];
+		Controls.forward_thrust_time -= (Controls.joy_axis[kc_joystick[23].value]*PlayerCfg.JoystickSens[5])/8;
 	else
-		Controls.forward_thrust_time += Controls.joy_axis[kc_joystick[23].value];
+		Controls.forward_thrust_time += (Controls.joy_axis[kc_joystick[23].value]*PlayerCfg.JoystickSens[5])/8;
 	// From mouse...
 	if ( !kc_mouse[24].value )		// If not inverted...
-		Controls.forward_thrust_time -= Controls.mouse_axis[kc_mouse[23].value];
+		Controls.forward_thrust_time -= (Controls.mouse_axis[kc_mouse[23].value]*PlayerCfg.MouseSens[5])/8;
 	else
-		Controls.forward_thrust_time += Controls.mouse_axis[kc_mouse[23].value];
+		Controls.forward_thrust_time += (Controls.mouse_axis[kc_mouse[23].value]*PlayerCfg.MouseSens[5])/8;
 
 	//----------- Read cruise-control-type of throttle.
 	if ( Controls.cruise_plus_state ) Cruise_speed += speed_factor*FrameTime*80;
