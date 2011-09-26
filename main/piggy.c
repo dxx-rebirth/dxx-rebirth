@@ -279,8 +279,7 @@ int properties_init()
 	DiskBitmapHeader bmh;
 	DiskSoundHeader sndh;
 	int header_size, N_bitmaps, N_sounds;
-	int i,size, length;
-	int read_sounds = 1;
+	int i,size;
 	int Pigdata_start;
 	int pigsize;
 	int retval;
@@ -288,10 +287,6 @@ int properties_init()
 	hashtable_init( &AllBitmapsNames, MAX_BITMAP_FILES );
 	hashtable_init( &AllDigiSndNames, MAX_SOUND_FILES );
 
-	if (GameArg.SndNoSound)
-	{
-		read_sounds = 0;
-	}
 	
 	for (i=0; i<MAX_SOUND_FILES; i++ )	{
 #ifdef ALLEGRO
@@ -393,7 +388,6 @@ int properties_init()
 
 	PHYSFSX_fseek( Piggy_fp, Pigdata_start, SEEK_SET );
 	size = PHYSFS_fileLength(Piggy_fp) - Pigdata_start;
-	length = size;
 
 	N_bitmaps = PHYSFSX_readInt(Piggy_fp);
 	size -= sizeof(int);
@@ -616,7 +610,7 @@ void piggy_critical_error()
 void piggy_bitmap_page_in( bitmap_index bitmap )
 {
 	grs_bitmap * bmp;
-	int i,org_i,temp;
+	int i,org_i;
 
         org_i = 0;
 			
@@ -669,7 +663,7 @@ void piggy_bitmap_page_in( bitmap_index bitmap )
 			memcpy( &Piggy_bitmap_cache_data[Piggy_bitmap_cache_next], &zsize, sizeof(int) );
 			Piggy_bitmap_cache_next += sizeof(int);
 			descent_critical_error = 0;
-			temp = PHYSFS_read( Piggy_fp, &Piggy_bitmap_cache_data[Piggy_bitmap_cache_next], 1, zsize-4 );
+			PHYSFS_read( Piggy_fp, &Piggy_bitmap_cache_data[Piggy_bitmap_cache_next], 1, zsize-4 );
 			if ( descent_critical_error )	{
 				piggy_critical_error();
 				goto ReDoIt;
@@ -688,7 +682,7 @@ void piggy_bitmap_page_in( bitmap_index bitmap )
 				goto ReDoIt;
 			}
 			descent_critical_error = 0;
-			temp = PHYSFS_read( Piggy_fp, &Piggy_bitmap_cache_data[Piggy_bitmap_cache_next], 1, bmp->bm_h*bmp->bm_w );
+			PHYSFS_read( Piggy_fp, &Piggy_bitmap_cache_data[Piggy_bitmap_cache_next], 1, bmp->bm_h*bmp->bm_w );
 			if ( descent_critical_error )	{
 				piggy_critical_error();
 				goto ReDoIt;

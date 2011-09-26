@@ -101,8 +101,6 @@ int	Render_only_bottom=0;
 int	Bottom_bitmap_num = 9;
 #endif
 
-fix	Face_reflectivity = (F1_0/2);
-
 #ifdef EDITOR
 int _search_mode = 0;			//true if looking for curseg,side,face
 short _search_x,_search_y;	//pixel we're looking at
@@ -185,12 +183,10 @@ extern int Current_level_num;
 //	tmap1, tmap2 are texture map ids.  tmap2 is the pasty one.
 void render_face(int segnum, int sidenum, int nv, int *vp, int tmap1, int tmap2, uvl *uvlp, vms_vector *norm)
 {
-// 	fix		face_light;
 	grs_bitmap	*bm;
 #ifdef OGL
 	grs_bitmap	*bm2=NULL;
 #endif
-	fix		reflect;
 	g3s_uvl		uvl_copy[8];
 	g3s_lrgb	dyn_light[8];
 	int		i;
@@ -204,8 +200,6 @@ void render_face(int segnum, int sidenum, int nv, int *vp, int tmap1, int tmap2,
 		dyn_light[i].r = dyn_light[i].g = dyn_light[i].b = uvl_copy[i].l = uvlp[i].l;
 		pointlist[i] = &Segment_points[vp[i]];
 	}
-
-// 	face_light = -vm_vec_dot(&Viewer->orient.fvec,norm);
 
 	if (tmap1 >= NumTextures) {
 		Int3();
@@ -236,54 +230,45 @@ void render_face(int segnum, int sidenum, int nv, int *vp, int tmap1, int tmap2,
 
 	Assert( !(bm->bm_flags & BM_FLAG_PAGED_OUT) );
 
-	//reflect = fl2f((1.0-TmapInfo[p->tmap_num].reflect)/2.0 + 0.5);
-	//reflect = fl2f((1.0-TmapInfo[p->tmap_num].reflect));
-
-	reflect = Face_reflectivity;		// f1_0;	//until we figure this stuff out...
-
 	//set light values for each vertex & build pointlist
+	for (i=0;i<nv;i++)
 	{
-		int i;
+		//the uvl struct has static light already in it
 
-		for (i=0;i<nv;i++)
+		//scale static light for destruction effect
+		if (Control_center_destroyed)	//make lights flash
+			uvl_copy[i].l = fixmul(flash_scale,uvl_copy[i].l);
+		//add in dynamic light (from explosions, etc.)
+		uvl_copy[i].l += (Dynamic_light[vp[i]].r+Dynamic_light[vp[i]].g+Dynamic_light[vp[i]].b)/3;
+		//saturate at max value
+		if (uvl_copy[i].l > MAX_LIGHT)
+			uvl_copy[i].l = MAX_LIGHT;
+
+		// And now the same for the ACTUAL (rgb) light we want to use
+
+		//scale static light for destruction effect
+		if (Control_center_destroyed)	//make lights flash
 		{
-			//the uvl struct has static light already in it
-
-			//scale static light for destruction effect
-			if (Control_center_destroyed)	//make lights flash
-				uvl_copy[i].l = fixmul(flash_scale,uvl_copy[i].l);
-			//add in dynamic light (from explosions, etc.)
-			uvl_copy[i].l += (Dynamic_light[vp[i]].r+Dynamic_light[vp[i]].g+Dynamic_light[vp[i]].b)/3;
-			//saturate at max value
-			if (uvl_copy[i].l > MAX_LIGHT)
-				uvl_copy[i].l = MAX_LIGHT;
-
-			// And now the same for the ACTUAL (rgb) light we want to use
-
-			//scale static light for destruction effect
-			if (Control_center_destroyed)	//make lights flash
+			if (PlayerCfg.DynLightColor) // let the mine glow red a little
 			{
-				if (PlayerCfg.DynLightColor) // let the mine glow red a little
-				{
-					dyn_light[i].r = fixmul(flash_scale>=f0_5*1.5?flash_scale:f0_5*1.5,uvl_copy[i].l);
-					dyn_light[i].g = dyn_light[i].b = fixmul(flash_scale,uvl_copy[i].l);
-				}
-				else
-					dyn_light[i].r = dyn_light[i].g = dyn_light[i].b = fixmul(flash_scale,uvl_copy[i].l);
+				dyn_light[i].r = fixmul(flash_scale>=f0_5*1.5?flash_scale:f0_5*1.5,uvl_copy[i].l);
+				dyn_light[i].g = dyn_light[i].b = fixmul(flash_scale,uvl_copy[i].l);
 			}
-
-			// add light color
-			dyn_light[i].r += Dynamic_light[vp[i]].r;
-			dyn_light[i].g += Dynamic_light[vp[i]].g;
-			dyn_light[i].b += Dynamic_light[vp[i]].b;
-			// saturate at max value
-			if (dyn_light[i].r > MAX_LIGHT)
-				dyn_light[i].r = MAX_LIGHT;
-			if (dyn_light[i].g > MAX_LIGHT)
-				dyn_light[i].g = MAX_LIGHT;
-			if (dyn_light[i].b > MAX_LIGHT)
-				dyn_light[i].b = MAX_LIGHT;
+			else
+				dyn_light[i].r = dyn_light[i].g = dyn_light[i].b = fixmul(flash_scale,uvl_copy[i].l);
 		}
+
+		// add light color
+		dyn_light[i].r += Dynamic_light[vp[i]].r;
+		dyn_light[i].g += Dynamic_light[vp[i]].g;
+		dyn_light[i].b += Dynamic_light[vp[i]].b;
+		// saturate at max value
+		if (dyn_light[i].r > MAX_LIGHT)
+			dyn_light[i].r = MAX_LIGHT;
+		if (dyn_light[i].g > MAX_LIGHT)
+			dyn_light[i].g = MAX_LIGHT;
+		if (dyn_light[i].b > MAX_LIGHT)
+			dyn_light[i].b = MAX_LIGHT;
 	}
 
 
@@ -329,7 +314,7 @@ void check_face(int segnum, int sidenum, int facenum, int nv, int *vp, int tmap1
 		int save_lighting;
 		grs_bitmap *bm;
 		g3s_uvl uvl_copy[8];
-		g3s_lrgb dyn_light[8] = { 0, 0, 0, 0, 0, 0, 0, 0 };
+		g3s_lrgb dyn_light[8];
 		g3s_point *pointlist[4];
 
 		if (tmap2 > 0 )
@@ -754,10 +739,7 @@ void outline_seg_side(segment *seg,int _side,int edge,int vert)
 	cc=rotate_list(8,seg->verts);
 
 	if (! cc.and) {		//all off screen?
-		side *s;
 		g3s_point *pnt;
-
-		s=&seg->sides[_side];
 
 		//render curedge of curside of curseg in green
 

@@ -513,7 +513,7 @@ int load_mine_data_compiled(PHYSFS_file *LoadFile)
 
 	//=============================== Reading part ==============================
 	compiled_version = PHYSFSX_readByte(LoadFile);
-	//Assert( compiled_version==COMPILED_MINE_VERSION );
+	(void)compiled_version;
 
 	if (New_file_format_load)
 		Num_vertices = PHYSFSX_readShort(LoadFile);

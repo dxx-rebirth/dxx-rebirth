@@ -444,14 +444,10 @@ void duplicate_group(sbyte *vertex_ids, short *segment_ids, int num_segments)
 	int	v,s,ss,new_vertex_id,new_segment_id,sidenum;
 	short	new_segment_ids[MAX_SEGMENTS];
 	int	new_vertex_ids[MAX_VERTICES];		// If new_vertex_ids[v] != -1, then vertex v has been remapped to new_vertex_ids[v]
-	short	new_object_ids[MAX_OBJECTS];
 
 	//	duplicate vertices
 	for (v=0; v<MXV; v++)
 		new_vertex_ids[v] = -1;
-
-	for (v=0; v<MAX_OBJECTS; v++)
-		new_object_ids[v] = -1;
 
 	//	duplicate vertices
 	for (v=0; v<=Highest_vertex_index; v++) {
@@ -473,6 +469,7 @@ void duplicate_group(sbyte *vertex_ids, short *segment_ids, int num_segments)
 			if (Objects[objnum].type != OBJ_PLAYER) {
 				int new_obj_id;
 				new_obj_id = obj_create_copy(objnum, &Objects[objnum].pos, new_segment_id);
+				(void)new_obj_id; // FIXME!
 			}
 			objnum = Objects[objnum].next;
 		}

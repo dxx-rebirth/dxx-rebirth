@@ -40,9 +40,6 @@ Special notes for this release
 * Compiling the source via SCons will now automatically check for Endianess
 * Available SConstruct options have changed! See 'scons -h' for more information.
 * On *NIX (Linux, BSD, etc.) the game binary will be called 'd1/2x-rebirth' and on Windows the executable is called 'd1/2x-rebirth.exe'. No -gl or -sdl suffixes anymore. If needed, correct your Desktop shortcuts, start scripts, etc.
-* If you use GCC 4.6 you might encounter many warnings looking like this:
-  'warning: variable ‘VARIABLE_NAME’ set but not used [-Wunused-but-set-variable]'
-  Note that these warnings are totally harmless and we will fix them as soon as possible.
 * The Tracker server is brand new and might still have a bug or two. If you encounter a bug, let us know so we can properly fix it. Most can be fixed without a modification on the game itself.
 
 

@@ -697,6 +697,7 @@ int find_vector_intersection(fvi_query *fq,fvi_info *hit_data)
 		//problems, try using zero radius and see if we hit a wall
 
 		new_hit_type = fvi_sub(&new_hit_pnt,&new_hit_seg2,fq->p0,fq->startseg,fq->p1,0,fq->thisobjnum,fq->ignore_obj_list,fq->flags,hit_data->seglist,&hit_data->n_segs,-2);
+		(void)new_hit_type; // FIXME! This should become hit_type, right?
 
 		if (new_hit_seg2 != -1) {
 			hit_seg = new_hit_seg2;

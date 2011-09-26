@@ -646,14 +646,7 @@ void ntexture_map_lighted(grs_bitmap *srcb, g3ds_tmap *t)
 // -------------------------------------------------------------------------------------
 void ntmap_scanline_lighted_linear(grs_bitmap *srcb, int y, fix xleft, fix xright, fix uleft, fix uright, fix vleft, fix vright, fix lleft, fix lright)
 {
-	fix	u,v,l;
-	fix	dx,recip_dx;
-
-	fix	du_dx,dv_dx,dl_dx;
-
-	u = uleft;
-	v = vleft;
-	l = lleft;
+	fix	dx,recip_dx,du_dx,dv_dx,dl_dx;
 
 	dx = f2i(xright) - f2i(xleft);
 	if ((dx < 0) || (xright < 0) || (xleft > xright))		// the (xleft > xright) term is not redundant with (dx < 0) because dx is computed using integers

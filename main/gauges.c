@@ -981,7 +981,7 @@ void hud_show_energy(void)
 
 void show_bomb_count(int x,int y,int bg_color,int always_show,int right_align)
 {
-	int bomb,count,countx,w=0,h=0,aw=0;
+	int bomb,count,w=0,h=0,aw=0;
 	char txt[5],*t;
 
 	if (!PlayerCfg.BombGauge)
@@ -990,11 +990,7 @@ void show_bomb_count(int x,int y,int bg_color,int always_show,int right_align)
 	bomb = PROXIMITY_INDEX;
 	count = Players[Player_num].secondary_ammo[bomb];
 
-//	#ifndef RELEASE
 	count = min(count,99);	//only have room for 2 digits - cheating give 200
-//	#endif
-
-	countx = (bomb==PROXIMITY_INDEX)?count:-count;
 
 	if (always_show && count == 0)		//no bombs, draw nothing on HUD
 		return;

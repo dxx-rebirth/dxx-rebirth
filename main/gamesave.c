@@ -762,6 +762,7 @@ int load_game_data(PHYSFS_file *LoadFile)
 
 	trig_size = PHYSFSX_readInt(LoadFile);
 	Assert(trig_size == sizeof(ControlCenterTriggers));
+	(void)trig_size;
 	PHYSFSX_fseek(LoadFile, 4, SEEK_CUR);
 
 	Num_robot_centers = PHYSFSX_readInt(LoadFile);
@@ -1013,14 +1014,9 @@ int load_game_data(PHYSFS_file *LoadFile)
 		for (t=0; t<Num_triggers; t++) {
 			int	l;
 			for (l=0; l<Triggers[t].num_links; l++) {
-				int	seg_num, side_num, wall_num;
+				int	seg_num;
 
 				seg_num = Triggers[t].seg[l];
-				side_num = Triggers[t].side[l];
-				wall_num = Segments[seg_num].sides[side_num].wall_num;
-
-				// -- if (Walls[wall_num].controlling_trigger != -1)
-				// -- 	Int3();
 
 				//check to see that if a trigger requires a wall that it has one,
 				//and if it requires a matcen that it has one
@@ -1148,6 +1144,7 @@ int load_level(char * filename_passed)
 	gamedata_offset          = PHYSFSX_readInt(LoadFile);
 
 	Assert(sig == MAKE_SIG('P','L','V','L'));
+	(void)sig;
 
 	if (Gamesave_current_version < 5)
 		hostagetext_offset = PHYSFSX_readInt(LoadFile);
@@ -1185,6 +1182,7 @@ int load_level(char * filename_passed)
 	PHYSFSX_fseek(LoadFile,hostagetext_offset,SEEK_SET);
 	load_hostage_data(LoadFile,(version>=1));
 	#endif
+	(void)hostagetext_offset;
 
 	//======================== CLOSE FILE =============================
 

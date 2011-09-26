@@ -865,22 +865,13 @@ void dump_used_textures_level(PHYSFS_file *my_file, int level_num)
 {
 	int	i;
 	int	temp_tmap_buf[MAX_TEXTURES];
-	int	perm_tmap_buf[MAX_TEXTURES];
 	sbyte	level_tmap_buf[MAX_TEXTURES];
 	int	temp_wall_buf[MAX_WALL_ANIMS];
-	int	perm_wall_buf[MAX_WALL_ANIMS];
 
-	for (i=0; i<MAX_TEXTURES; i++) {
-		perm_tmap_buf[i] = 0;
+	for (i=0; i<MAX_TEXTURES; i++)
 		level_tmap_buf[i] = -1;
-	}
-
-	for (i=0; i<MAX_WALL_ANIMS; i++) {
-		perm_wall_buf[i] = 0;
-	}
 
 	determine_used_textures_level(0, 1, level_num, temp_tmap_buf, temp_wall_buf, level_tmap_buf, MAX_TEXTURES);
-// -- 	determine_used_textures_robots(temp_tmap_buf);
 	PHYSFSX_printf(my_file, "\nTextures used in [%s]\n", Gamesave_current_filename);
 	say_used_tmaps(my_file, temp_tmap_buf);
 }

@@ -546,6 +546,7 @@ int briefing_process_char(briefing *br)
 			char		bitmap_name[32];
 			ubyte		temp_palette[768];
 			int		iff_error;
+			(void)iff_error;
 
 			if (br->robot_canv != NULL)
 			{
@@ -670,12 +671,14 @@ void show_animated_bitmap(briefing *br)
 {
 	grs_canvas  *curcanv_save, *bitmap_canv=0;
 	grs_bitmap	*bitmap_ptr;
+#ifdef OGL
 	float scale = 1.0;
 
 	if (((float)SWIDTH/320) < ((float)SHEIGHT/200))
 		scale = ((float)SWIDTH/320);
 	else
 		scale = ((float)SHEIGHT/200);
+#endif
 
 	// Only plot every nth frame.
 	if (br->door_div_count) {
@@ -779,17 +782,20 @@ void show_animated_bitmap(briefing *br)
 void show_briefing_bitmap(grs_bitmap *bmp)
 {
 	grs_canvas	*curcanv_save, *bitmap_canv;
+#ifdef OGL
 	float scale = 1.0;
+#endif
 
 	bitmap_canv = gr_create_sub_canvas(grd_curcanv, rescale_x(220), rescale_y(55), (bmp->bm_w*(SWIDTH/(HIRESMODE ? 640 : 320))),(bmp->bm_h*(SHEIGHT/(HIRESMODE ? 480 : 200))));
 	curcanv_save = grd_curcanv;
 	gr_set_current_canvas(bitmap_canv);
 
+#ifdef OGL
 	if (((float)SWIDTH/(HIRESMODE ? 640 : 320)) < ((float)SHEIGHT/(HIRESMODE ? 480 : 200)))
 		scale = ((float)SWIDTH/(HIRESMODE ? 640 : 320));
 	else
 		scale = ((float)SHEIGHT/(HIRESMODE ? 480 : 200));
-#ifdef OGL
+
 	ogl_ubitmapm_cs(0,0,bmp->bm_w*scale,bmp->bm_h*scale,bmp,255,F1_0);
 #else
 	gr_bitmapm(0, 0, bmp);

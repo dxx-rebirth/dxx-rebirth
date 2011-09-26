@@ -123,6 +123,7 @@ void nm_draw_background1(char * filename)
 			gr_init_bitmap_data (&nm_background1);
 			pcx_error = pcx_read_bitmap( filename, &nm_background1, BM_LINEAR, gr_palette );
 			Assert(pcx_error == PCX_ERROR_NONE);
+			(void)pcx_error;
 		}
 		gr_palette_load( gr_palette );
 		show_fullscr(&nm_background1);
@@ -147,6 +148,7 @@ void nm_draw_background(int x1, int y1, int x2, int y2 )
 		gr_init_bitmap_data (&nm_background);
 		pcx_error = pcx_read_bitmap(MENU_BACKGROUND_BITMAP,&nm_background,BM_LINEAR,background_palette);
 		Assert(pcx_error == PCX_ERROR_NONE);
+		(void)pcx_error;
 		gr_remap_bitmap_good( &nm_background, background_palette, -1, -1 );
 		BGScaleX=((float)SWIDTH/nm_background.bm_w);
 		BGScaleY=((float)SHEIGHT/nm_background.bm_h);
@@ -1386,7 +1388,7 @@ void newmenu_create_structure( newmenu *menu )
 int newmenu_draw(window *wind, newmenu *menu)
 {
 	grs_canvas *menu_canvas = window_get_canvas(wind), *save_canvas = grd_curcanv;
-	int tw, th = 0, ty, sx, sy;
+	int th = 0, ty, sx, sy;
 	int i;
 	int string_width, string_height, average_width;
 
@@ -1412,7 +1414,6 @@ int newmenu_draw(window *wind, newmenu *menu)
 		gr_set_curfont(HUGE_FONT);
 		gr_set_fontcolor( BM_XRGB(31,31,31), -1 );
 		gr_get_string_size(menu->title,&string_width,&string_height,&average_width );
-		tw = string_width;
 		th = string_height;
 		gr_printf( 0x8000, ty, menu->title );
 	}
@@ -1421,7 +1422,6 @@ int newmenu_draw(window *wind, newmenu *menu)
 		gr_set_curfont(MEDIUM3_FONT);
 		gr_set_fontcolor( BM_XRGB(21,21,21), -1 );
 		gr_get_string_size(menu->subtitle,&string_width,&string_height,&average_width );
-		tw = string_width;
 		gr_printf( 0x8000, ty+th, menu->subtitle );
 	}
 
@@ -1545,7 +1545,6 @@ newmenu *newmenu_do4( char * title, char * subtitle, int nitems, newmenu_item * 
 {
 	window *wind = NULL;
 	newmenu *menu;
-	grs_canvas *menu_canvas;
 
 	MALLOC(menu, newmenu, 1);
 
@@ -1596,7 +1595,6 @@ newmenu *newmenu_do4( char * title, char * subtitle, int nitems, newmenu_item * 
 		return NULL;
 	}
 	menu->wind = wind;
-	menu_canvas = window_get_canvas(wind);
 
 	return menu;
 }

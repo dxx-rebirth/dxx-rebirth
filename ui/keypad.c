@@ -273,14 +273,13 @@ void ui_pad_goto_next()
 
 void ui_pad_goto_prev()
 {
-	int i, si;
+	int i;
 
 	if (active_pad == -1 ) 
 		active_pad = MAX_NUM_PADS;
 	
 	i = active_pad - 1;
 	if (i<0) i= MAX_NUM_PADS - 1;
-	si = i;
 	
 	while( KeyPad[i]==NULL )
 	{

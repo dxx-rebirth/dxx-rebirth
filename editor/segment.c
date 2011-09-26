@@ -647,7 +647,7 @@ void	set_matrix_based_on_side(vms_matrix *rotmat,int destside)
 		case WBACK:
 			break;
 	}
-
+	(void)tmpvec;
 }
 
 //	-------------------------------------------------------------------------------------
@@ -1947,9 +1947,6 @@ void med_check_all_vertices()
 {
 	int		s,v;
 	segment	*sp;
-	int		count;
-
-	count = 0;
 
 	for (s=0; s<Num_segments; s++) {
 		sp = &Segments[s];

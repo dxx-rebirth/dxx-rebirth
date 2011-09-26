@@ -3468,12 +3468,10 @@ void newdemo_strip_frames(char *outname, int bytes_to_strip)
 {
 	PHYSFS_file *outfile;
 	char *buf;
-	int total_size, bytes_done, read_elems, bytes_back;
+	int read_elems, bytes_back;
 	int trailer_start, loc1, loc2, stop_loc, bytes_to_read;
 	short last_frame_length;
 
-	bytes_done = 0;
-	total_size = PHYSFS_fileLength(infile);
 	outfile = PHYSFSX_openWriteBuffered(outname);
 	if (outfile == NULL) {
 		nm_messagebox( NULL, 1, TXT_OK, "Can't open output file" );
