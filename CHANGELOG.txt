@@ -1,5 +1,9 @@
 D1X-Rebirth Changelog
 
+20110926
+--------
+main/fireball.c: Code consistency checks by _Tyr_; Fixed set but unused variables
+
 20110925
 --------
 main/game.c: Fixed misuse of gr_bitblt_find_transparent_area() caused rear view to be shifted on some cockpits
