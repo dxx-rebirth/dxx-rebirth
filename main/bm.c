@@ -276,8 +276,7 @@ void bm_free_extra_models()
 void bm_read_extra_robots(char *fname,int type)
 {
 	PHYSFS_file *fp;
-	int t,i;
-	int version;
+	int t,i,version;
 
 	fp = PHYSFSX_openReadBuffered(fname);
 
@@ -291,6 +290,7 @@ void bm_read_extra_robots(char *fname,int type)
 	}
 	else
 		version = 0;
+	(void)version; // NOTE: we do not need it, but keep it for possible further use
 
 	bm_free_extra_models();
 	bm_free_extra_objbitmaps();
@@ -586,7 +586,7 @@ int load_exit_models()
 
 void compute_average_rgb(grs_bitmap *bm, fix *rgb)
 {
-	ubyte buf[bm->bm_w*bm->bm_h];
+	ubyte *buf;
 	int i, x, y, color, count;
 	fix t_rgb[3] = { 0, 0, 0 };
 
@@ -595,7 +595,8 @@ void compute_average_rgb(grs_bitmap *bm, fix *rgb)
 	if (!bm->bm_data)
 		return;
 
-	memset(&buf,0,bm->bm_w*bm->bm_h);
+	MALLOC(buf, ubyte, bm->bm_w*bm->bm_h);
+	memset(buf,0,bm->bm_w*bm->bm_h);
 
 	if (bm->bm_flags & BM_FLAG_RLE){
 		unsigned char * dbits;
@@ -620,7 +621,7 @@ void compute_average_rgb(grs_bitmap *bm, fix *rgb)
 	}
 	else
 	{
-		memcpy(&buf, bm->bm_data, sizeof(unsigned char)*(bm->bm_w*bm->bm_h));
+		memcpy(buf, bm->bm_data, sizeof(unsigned char)*(bm->bm_w*bm->bm_h));
 	}
 
 	i = 0;
@@ -641,4 +642,5 @@ void compute_average_rgb(grs_bitmap *bm, fix *rgb)
 			}
 		}
 	}
+	d_free(buf);
 }

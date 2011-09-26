@@ -818,10 +818,12 @@ bool g3_draw_poly(int nv,g3s_point **pointlist)
 {
 	int c, index3, index4;
 	float color_r, color_g, color_b, color_a;
-	r_polyc++;
-	GLfloat vertex_array[nv*3];
-	GLfloat color_array[nv*4];
+	GLfloat *vertex_array, *color_array;
 
+	MALLOC(vertex_array, GLfloat, nv*3);
+	MALLOC(color_array, GLfloat, nv*4);
+
+	r_polyc++;
 	glEnableClientState(GL_VERTEX_ARRAY);
 	glEnableClientState(GL_COLOR_ARRAY);
 	c = grd_curcanv->cv_color;
@@ -852,7 +854,10 @@ bool g3_draw_poly(int nv,g3s_point **pointlist)
 	glDrawArrays(GL_TRIANGLE_FAN, 0, nv);
 	glDisableClientState(GL_VERTEX_ARRAY);
 	glDisableClientState(GL_COLOR_ARRAY);
-		
+
+	d_free(vertex_array);
+	d_free(color_array);
+
 	return 0;
 }
 
@@ -872,11 +877,8 @@ extern void (*tmap_drawer_ptr)(grs_bitmap *bm,int nv,g3s_point **vertlist);
 bool g3_draw_tmap(int nv,g3s_point **pointlist,g3s_uvl *uvl_list,g3s_lrgb *light_rgb,grs_bitmap *bm)
 {
 	int c, index2, index3, index4;
-	GLfloat vertex_array[nv*3];
-	GLfloat color_array[nv*4];
-	GLfloat texcoord_array[nv*2];
-	GLfloat color_alpha = 1.0;
-	
+	GLfloat *vertex_array, *color_array, *texcoord_array, color_alpha = 1.0;
+
 	glEnableClientState(GL_VERTEX_ARRAY);
 	glEnableClientState(GL_COLOR_ARRAY);
 	
@@ -895,7 +897,11 @@ bool g3_draw_tmap(int nv,g3s_point **pointlist,g3s_uvl *uvl_list,g3s_lrgb *light
 		glmprintf((0,"g3_draw_tmap: unhandled tmap_drawer %p\n",tmap_drawer_ptr));
 		return 0;
 	}
-	
+
+	MALLOC(vertex_array, GLfloat, nv*3);
+	MALLOC(color_array, GLfloat, nv*4);
+	MALLOC(texcoord_array, GLfloat, nv*2);
+
 	for (c=0; c<nv; c++) {
 		index2 = c * 2;
 		index3 = c * 3;
@@ -931,7 +937,11 @@ bool g3_draw_tmap(int nv,g3s_point **pointlist,g3s_uvl *uvl_list,g3s_lrgb *light
 	glDisableClientState(GL_VERTEX_ARRAY);
 	glDisableClientState(GL_COLOR_ARRAY);
 	glDisableClientState(GL_TEXTURE_COORD_ARRAY);
-	
+
+	d_free(vertex_array);
+	d_free(color_array);
+	d_free(texcoord_array);
+
 	return 0;
 }
 
@@ -940,9 +950,13 @@ bool g3_draw_tmap(int nv,g3s_point **pointlist,g3s_uvl *uvl_list,g3s_lrgb *light
  */
 bool g3_draw_tmap_2(int nv, g3s_point **pointlist, g3s_uvl *uvl_list, g3s_lrgb *light_rgb, grs_bitmap *bmbot, grs_bitmap *bm, int orient)
 {
-	int c, index2, index3, index4;;
-	GLfloat vertex_array[nv*3], color_array[nv*4], texcoord_array[nv*2];
-	
+	int c, index2, index3, index4;
+	GLfloat *vertex_array, *color_array, *texcoord_array;
+
+	MALLOC(vertex_array, GLfloat, nv*3);
+	MALLOC(color_array, GLfloat, nv*4);
+	MALLOC(texcoord_array, GLfloat, nv*2);
+
 	g3_draw_tmap(nv,pointlist,uvl_list,light_rgb,bmbot);//draw the bottom texture first.. could be optimized with multitexturing..
 	
 	glEnableClientState(GL_VERTEX_ARRAY);
@@ -995,7 +1009,11 @@ bool g3_draw_tmap_2(int nv, g3s_point **pointlist, g3s_uvl *uvl_list, g3s_lrgb *
 	glDisableClientState(GL_VERTEX_ARRAY);
 	glDisableClientState(GL_COLOR_ARRAY);
 	glDisableClientState(GL_TEXTURE_COORD_ARRAY);
-	
+
+	d_free(vertex_array);
+	d_free(color_array);
+	d_free(texcoord_array);
+
 	return 0;
 }
 
@@ -1728,7 +1746,7 @@ void ogl_freebmtexture(grs_bitmap *bm){
  */
 bool ogl_ubitmapm_cs(int x, int y,int dw, int dh, grs_bitmap *bm,int c, int scale) // to scale bitmaps
 {
-	GLfloat xo,yo,xf,yf,u1,u2,v1,v2,color_r,color_g,color_b,h,a;
+	GLfloat xo,yo,xf,yf,u1,u2,v1,v2,color_r,color_g,color_b,h;
 	GLfloat color_array[] = { 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0 };
 	GLfloat texcoord_array[] = { 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0 };
 	GLfloat vertex_array[] = { 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0 };
@@ -1753,7 +1771,6 @@ bool ogl_ubitmapm_cs(int x, int y,int dw, int dh, grs_bitmap *bm,int c, int scal
 	else if (dh == 0)
 		dh = bm->bm_h;
 
-	a = (double) grd_curscreen->sc_w / (double) grd_curscreen->sc_h;
 	h = (double) scale / (double) F1_0;
 
 	xo = x / ((double) last_width * h);

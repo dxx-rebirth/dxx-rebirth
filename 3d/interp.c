@@ -1,4 +1,3 @@
-/* $Id: interp.c,v 1.1.1.1 2006/03/17 19:52:13 zicodxx Exp $ */
 /*
 THE COMPUTER CODE CONTAINED HEREIN IS THE SOLE PROPERTY OF PARALLAX
 SOFTWARE CORPORATION ("PARALLAX").  PARALLAX, IN DISTRIBUTING THE CODE TO
@@ -17,10 +16,6 @@ COPYRIGHT 1993-1998 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
  * Polygon object interpreter
  *
  */
-
-#ifdef RCS
-static char rcsid[] = "$Id: interp.c,v 1.1.1.1 2006/03/17 19:52:13 zicodxx Exp $";
-#endif
 
 #include <stdlib.h>
 #include "error.h"
@@ -453,8 +448,9 @@ bool g3_draw_polygon_model(void *model_ptr,grs_bitmap **model_bitmaps,vms_angvec
 				Assert( nv < MAX_POINTS_PER_POLY );
 				if (g3_check_normal_facing(vp(p+4),vp(p+16)) > 0) {
 					int i;
-					g3s_lrgb light, lrgb_list[nv];
+					g3s_lrgb light, *lrgb_list;
 
+					MALLOC(lrgb_list, g3s_lrgb, nv);
 					//calculate light from surface normal
 					if (glow_num < 0) //no glow
 					{
@@ -487,6 +483,7 @@ bool g3_draw_polygon_model(void *model_ptr,grs_bitmap **model_bitmaps,vms_angvec
 						point_list[i] = Interp_point_list + wp(p+30)[i];
 
 					g3_draw_tmap(nv,point_list,uvl_list,lrgb_list,model_bitmaps[w(p+28)]);
+					d_free(lrgb_list);
 				}
 
 				p += 30 + ((nv&~1)+1)*2 + nv*12;
@@ -623,9 +620,11 @@ bool g3_draw_morphing_model(void *model_ptr,grs_bitmap **model_bitmaps,vms_angve
 			case OP_TMAPPOLY: {
 				int nv = w(p+2);
 				g3s_uvl *uvl_list;
-				g3s_lrgb light, lrgb_list[nv];
+				g3s_lrgb light, *lrgb_list;
 				g3s_uvl morph_uvls[3];
 				int i,ntris;
+
+				MALLOC(lrgb_list, g3s_lrgb, nv);
 
 				//calculate light from surface normal
 				if (glow_num < 0) //no glow
@@ -680,6 +679,7 @@ bool g3_draw_morphing_model(void *model_ptr,grs_bitmap **model_bitmaps,vms_angve
 				}
 
 				p += 30 + ((nv&~1)+1)*2 + nv*12;
+				d_free(lrgb_list);
 
 				break;
 			}
