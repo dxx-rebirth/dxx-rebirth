@@ -3,6 +3,7 @@ D2X-Rebirth Changelog
 20110926
 --------
 main/collide.c, main/escort.c, main/laser.c, main/fireball.c, main/lighting.c: Code consistency checks by _Tyr_; Fixed set but unused variables
+d2x-rebirth.desktop, SConstruct, misc/physfsx.c: Patches by Hans de Goede: Made the .desktop file follow the official specifications; Added explicit link to libmath for newer versions of binutils; Fixed crash using PhysFS 1.x in PHYSFSX_addArchiveContent()
 
 20110925
 --------

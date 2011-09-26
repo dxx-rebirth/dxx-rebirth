@@ -501,10 +501,10 @@ void PHYSFSX_addArchiveContent()
 		d_free(file[0]);
 		d_free(file[1]);
 	}
-#endif
 
 	PHYSFS_freeList(list);
 	list = NULL;
+#endif
 
 	if (content_updated)
 	{
