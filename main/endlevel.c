@@ -844,8 +844,9 @@ void render_external_scene(fix eye_offset)
 #ifdef OGL
 	int orig_Render_depth = Render_depth;
 #endif
-	Viewer_eye = Viewer->pos;
 	g3s_lrgb lrgb = { f1_0, f1_0, f1_0 };
+
+	Viewer_eye = Viewer->pos;
 
 	if (eye_offset)
 		vm_vec_scale_add2(&Viewer_eye,&Viewer->orient.rvec,eye_offset);

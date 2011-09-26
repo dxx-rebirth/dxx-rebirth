@@ -244,7 +244,7 @@ void properties_read_cmp(PHYSFS_file * fp)
 
 void compute_average_rgb(grs_bitmap *bm, fix *rgb)
 {
-	ubyte buf[bm->bm_w*bm->bm_h];
+	ubyte *buf;
 	int i, x, y, color, count;
 	fix t_rgb[3] = { 0, 0, 0 };
 
@@ -253,7 +253,8 @@ void compute_average_rgb(grs_bitmap *bm, fix *rgb)
 	if (!bm->bm_data)
 		return;
 
-	memset(&buf,0,bm->bm_w*bm->bm_h);
+	MALLOC(buf, ubyte, bm->bm_w*bm->bm_h);
+	memset(buf,0,bm->bm_w*bm->bm_h);
 
 	if (bm->bm_flags & BM_FLAG_RLE){
 		unsigned char * dbits;
@@ -278,7 +279,7 @@ void compute_average_rgb(grs_bitmap *bm, fix *rgb)
 	}
 	else
 	{
-		memcpy(&buf, bm->bm_data, sizeof(unsigned char)*(bm->bm_w*bm->bm_h));
+		memcpy(buf, bm->bm_data, sizeof(unsigned char)*(bm->bm_w*bm->bm_h));
 	}
 
 	i = 0;
@@ -299,4 +300,5 @@ void compute_average_rgb(grs_bitmap *bm, fix *rgb)
 			}
 		}
 	}
+	d_free(buf);
 }

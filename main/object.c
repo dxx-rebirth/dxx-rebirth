@@ -174,8 +174,9 @@ object *obj_find_first_of_type (int type)
 void draw_object_blob(object *obj,bitmap_index bmi)
 {
 	grs_bitmap * bm = &GameBitmaps[bmi.index];
-	PIGGY_PAGE_IN( bmi );
 	vms_vector pos = obj->pos;
+
+	PIGGY_PAGE_IN( bmi );
 
 	// draw these with slight offset to viewer preventing too much ugly clipping
 	if ( obj->type == OBJ_FIREBALL && obj->id == VCLIP_VOLATILE_WALL_HIT )
