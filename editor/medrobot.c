@@ -532,7 +532,6 @@ void do_robot_window()
 	// Call the ui code..
 	//------------------------------------------------------------
 	ui_button_any_drawn = 0;
-	ui_dialog_do_gadgets(MainWindow);
 
 	//------------------------------------------------------------
 	// If we change objects, we need to reset the ui code for all
@@ -763,7 +762,6 @@ void do_object_window()
 	// Call the ui code..
 	//------------------------------------------------------------
 	ui_button_any_drawn = 0;
-	ui_dialog_do_gadgets(MattWindow);
 
 
 	if ( QuitButton->pressed || (last_keypress==KEY_ESC))	{

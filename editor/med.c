@@ -1049,7 +1049,7 @@ void editor(void)
 
 	gamestate_restore_check();
 	
-	set_default_handler(ui_event_handler);
+	//set_default_handler(ui_event_handler);	// now we call this function first, not last, in event_process; through the dialog system
 
 	while (Function_mode == FMODE_EDITOR) {
 
@@ -1068,7 +1068,6 @@ void editor(void)
 		gr_set_curfont(editor_font);
 		event_process();
 		last_keypress &= ~KEY_DEBUGGED;		//	mask off delete key bit which has no function in editor.
-		ui_dialog_do_gadgets(EditorWindow);
 		do_robot_window();
 		do_object_window();
 		do_wall_window();

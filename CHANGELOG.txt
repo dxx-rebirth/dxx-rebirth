@@ -5,6 +5,7 @@ D2X-Rebirth Changelog
 main/render.c: Initialise dyn_light using memset, fixing a warning
 arch/include/event.h, arch/include/window.h, arch/sdl/event.c, arch/sdl/window.c, include/ui.h, ui/dialog.c, ui/file.c, ui/keypress.c, ui/menu.c, ui/message.c, ui/popup.c: Add support for 'modeless' windows - windows that will allow events to be passed on to the underlying window. Intended for the editor
 main/net_udp.c: Fix comparison is always false warning
+editor/centers.c, editor/ehostage.c, editor/eswitch.c, editor/info.c, editor/med.c, editor/medrobot.c, editor/medwall.c, ui/dialog.c, ui/file.c, ui/keypress.c, ui/menu.c, ui/message.c, ui/popup.c: Move calls to ui_dialog_do_gadgets to the dialog event handler, making sure ui_event_handler gets called beforehand
 
 20110927
 --------
