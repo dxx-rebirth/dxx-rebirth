@@ -317,6 +317,8 @@ void check_face(int segnum, int sidenum, int facenum, int nv, int *vp, int tmap1
 		g3s_lrgb dyn_light[8];
 		g3s_point *pointlist[4];
 
+		memset(dyn_light, 0, sizeof(dyn_light));
+
 		if (tmap2 > 0 )
 			bm = texmerge_get_cached_bitmap( tmap1, tmap2 );
 		else
