@@ -110,7 +110,7 @@ int GetKeyCode(char * text)
 
 	text = text;
 
-	dlg = ui_create_dialog( 200, 200, 400, 200, DF_DIALOG, NULL, NULL );
+	dlg = ui_create_dialog( 200, 200, 400, 200, DF_DIALOG | DF_MODAL, NULL, NULL );
 
 	DoneButton = ui_add_gadget_button( dlg, 170, 165, 60, 25, "Ok", NULL );
 

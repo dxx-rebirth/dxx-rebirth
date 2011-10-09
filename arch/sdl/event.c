@@ -124,13 +124,18 @@ int call_default_handler(d_event *event)
 void event_send(d_event *event)
 {
 	window *wind;
+	int handled = 0;
 
-	if ((wind = window_get_front()))
-	{
-		if (!window_send_event(wind, event))
-			call_default_handler(event);
-	}
-	else
+	for (wind = window_get_front(); wind != NULL && !handled; wind = window_get_prev(wind))
+		if (window_is_visible(wind))
+		{
+			handled = window_send_event(wind, event);
+
+			if (window_is_modal(wind))
+				break;
+		}
+	
+	if (!handled)
 		call_default_handler(event);
 }
 

@@ -14,7 +14,7 @@ typedef enum event_type
 
 	EVENT_MOUSE_BUTTON_DOWN,
 	EVENT_MOUSE_BUTTON_UP,
-	EVENT_MOUSE_DOUBLE_CLICKED,		// editor only for now
+	EVENT_MOUSE_DOUBLE_CLICKED,
 	EVENT_MOUSE_MOVED,
 
 	EVENT_KEY_COMMAND,
@@ -47,7 +47,7 @@ void event_flush();
 void set_default_handler(int (*handler)(d_event *event));
 int call_default_handler(d_event *event);
 
-// Send an event to the front window as first priority, then the default handler
+// Send an event to the front window as first priority, then to the windows behind if it's not modal (editor), then the default handler
 void event_send(d_event *event);
 
 // Sends input, idle and draw events to event handlers

@@ -18,6 +18,7 @@ struct window
 	grs_canvas w_canv;					// the window's canvas to draw to
 	int (*w_callback)(window *wind, d_event *event, void *data);	// the event handler
 	int w_visible;						// whether it's visible
+	int w_modal;						// modal = accept all user input exclusively
 	void *data;							// whatever the user wants (eg menu data for 'newmenu' menus)
 	struct window *prev;				// the previous window in the doubly linked list
 	struct window *next;				// the next window in the doubly linked list
@@ -41,6 +42,7 @@ window *window_create(grs_canvas *src, int x, int y, int w, int h, int (*event_c
 	gr_init_sub_canvas(&wind->w_canv, src, x, y, w, h);
 	wind->w_callback = event_callback;
 	wind->w_visible = 1;	// default to visible
+	wind->w_modal =	1;		// default to modal
 	wind->data = data;
 
 	if (FirstWindow == NULL)
@@ -193,4 +195,14 @@ grs_canvas *window_get_canvas(window *wind)
 int window_send_event(window *wind, d_event *event)
 {
 	return wind->w_callback(wind, event, wind->data);
+}
+
+void window_set_modal(window *wind, int modal)
+{
+	wind->w_modal = modal;
+}
+
+int window_is_modal(window *wind)
+{
+	return wind->w_modal;
 }

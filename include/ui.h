@@ -186,12 +186,18 @@ typedef struct  {
 	int             moved;
 } UI_GADGET_LISTBOX;
 
+enum dialog_flags
+{
+	DF_BORDER  = 1,
+	DF_FILLED = 2,
+	DF_SAVE_BG = 4,
+	DF_DIALOG = (4+2+1),
+	DF_MODAL = 8		// modal = accept all user input exclusively
+};
+
 typedef struct _ui_window {
 	struct window	*wind;
 	int				(*callback)(struct _ui_window *, struct d_event *, void *);
-	short           x, y;
-	short           width, height;
-	short           text_x, text_y;
 	grs_canvas *    canvas;
 	grs_canvas *    oldcanvas;
 	grs_bitmap *    background;
@@ -200,6 +206,10 @@ typedef struct _ui_window {
 	struct _ui_window * next;
 	struct _ui_window * prev;
 	void			*userdata;
+	short           x, y;
+	short           width, height;
+	short           text_x, text_y;
+	enum dialog_flags flags;
 } UI_DIALOG;
 
 typedef struct  {
@@ -270,12 +280,7 @@ extern int ui_mouse_motion_process(struct d_event *event);
 extern void ui_mouse_hide();
 extern void ui_mouse_show();
 
-#define DF_BORDER 1
-#define DF_FILLED 2
-#define DF_SAVE_BG 4
-#define DF_DIALOG (4+2+1)
-
-extern UI_DIALOG * ui_create_dialog( short x, short y, short w, short h, int flags, int (*callback)(UI_DIALOG *, struct d_event *, void *), void *userdata );
+extern UI_DIALOG * ui_create_dialog( short x, short y, short w, short h, enum dialog_flags flags, int (*callback)(UI_DIALOG *, struct d_event *, void *), void *userdata );
 extern void ui_close_dialog( UI_DIALOG * dlg );
 
 extern UI_GADGET * ui_gadget_add( UI_DIALOG * dlg, short kind, short x1, short y1, short x2, short y2 );

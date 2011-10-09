@@ -159,7 +159,7 @@ int ui_get_filename( char * filename, char * Filespec, char * message  )
 		Spaces[i] = ' ';
 	Spaces[34] = 0;
 
-	dlg = ui_create_dialog( 200, 100, 400, 370, DF_DIALOG, NULL, NULL );
+	dlg = ui_create_dialog( 200, 100, 400, 370, DF_DIALOG | DF_MODAL, NULL, NULL );
 
 	ui_dprintf_at( dlg, 10, 5, message );
 

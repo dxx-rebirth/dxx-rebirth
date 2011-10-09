@@ -3,6 +3,7 @@ D1X-Rebirth Changelog
 20111009
 --------
 main/render.c: Initialise dyn_light using memset, fixing a warning
+arch/include/event.h, arch/include/window.h, arch/sdl/event.c, arch/sdl/window.c, include/ui.h, ui/dialog.c, ui/file.c, ui/keypress.c, ui/menu.c, ui/message.c, ui/popup.c: Add support for 'modeless' windows - windows that will allow events to be passed on to the underlying window. Intended for the editor
 
 20110927
 --------

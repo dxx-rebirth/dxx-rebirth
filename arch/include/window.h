@@ -29,6 +29,8 @@ extern void window_set_visible(window *wind, int visible);
 extern int window_is_visible(window *wind);
 extern grs_canvas *window_get_canvas(window *wind);
 extern int window_send_event(window *wind, d_event *event);
+extern void window_set_modal(window *wind, int modal);
+extern int window_is_modal(window *wind);
 
 #define WINDOW_SEND_EVENT(w, e)	\
 do {	\
