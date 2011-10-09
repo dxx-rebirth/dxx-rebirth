@@ -257,7 +257,7 @@ int ui_dialog_handler(window *wind, d_event *event, UI_DIALOG *dlg)
 	return 0;
 }
 
-UI_DIALOG * ui_create_dialog( short x, short y, short w, short h, int flags, int (*callback)(UI_DIALOG *, d_event *, void *), void *userdata )
+UI_DIALOG * ui_create_dialog( short x, short y, short w, short h, enum dialog_flags flags, int (*callback)(UI_DIALOG *, d_event *, void *), void *userdata )
 {
 	UI_DIALOG	*dlg;
 	int sw, sh, req_w, req_h;
@@ -277,6 +277,8 @@ UI_DIALOG * ui_create_dialog( short x, short y, short w, short h, int flags, int
 
 	req_w = w;
 	req_h = h;
+	
+	dlg->flags = flags;
 
 	if (flags & DF_BORDER)
 	{
@@ -331,6 +333,9 @@ UI_DIALOG * ui_create_dialog( short x, short y, short w, short h, int flags, int
 		ui_close_dialog(dlg);
 		return NULL;
 	}
+
+	if (!(flags & DF_MODAL))
+		window_set_modal(dlg->wind, 0);	// make this window modeless, allowing events to propogate through the window stack
 
 	if (flags & DF_FILLED)
 		ui_draw_box_out( 0, 0, req_w-1, req_h-1 );

@@ -116,7 +116,7 @@ int MessageBoxN( short xc, short yc, int NumButtons, char * text, char * Button[
 		y = h - height;
 	}
 
-	dlg = ui_create_dialog( x, y, width, height, DF_DIALOG, NULL, NULL );
+	dlg = ui_create_dialog( x, y, width, height, DF_DIALOG | DF_MODAL, NULL, NULL );
 
 	//ui_draw_line_in( MESSAGEBOX_BORDER, MESSAGEBOX_BORDER, width-MESSAGEBOX_BORDER, height-MESSAGEBOX_BORDER );
 
