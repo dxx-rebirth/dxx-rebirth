@@ -153,7 +153,6 @@ int MessageBoxN( short xc, short yc, int NumButtons, char * text, char * Button[
 	while(choice==0)
 	{
 		event_process();
-		ui_dialog_do_gadgets(dlg);
 
 		for (i=0; i<NumButtons; i++ )
 		{

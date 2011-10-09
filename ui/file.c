@@ -195,7 +195,6 @@ int ui_get_filename( char * filename, char * Filespec, char * message  )
 	while( 1 )
 	{
 		event_process();
-		ui_dialog_do_gadgets(dlg);
 
 		if ( Button2->pressed )
 		{

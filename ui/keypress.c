@@ -123,7 +123,6 @@ int GetKeyCode(char * text)
 	while(1)
 	{
 		event_process();
-		ui_dialog_do_gadgets(dlg);
 
 		if (last_keypress > 0)
 		{

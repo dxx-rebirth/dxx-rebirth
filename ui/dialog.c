@@ -198,17 +198,7 @@ void remove_window( UI_DIALOG * dlg )
 	D_NEXT = D_PREV = NULL;
 }
 
-int ui_dialog_mouse(window *wind, d_event *event, UI_DIALOG *dlg)
-{
-	return 0;
-}
-
-int ui_dialog_key(window *wind, d_event *event, UI_DIALOG *dlg)
-{
-	return 0;
-}
-
-int ui_dialog_draw(window *wind, UI_DIALOG *dlg)
+int ui_dialog_draw(UI_DIALOG *dlg)
 {
 	return 0;
 }
@@ -219,6 +209,10 @@ int ui_dialog_handler(window *wind, d_event *event, UI_DIALOG *dlg)
 {
 	if (event->type == EVENT_WINDOW_CLOSED)
 		return 0;
+	
+	// HACK: Make sure all the state-based input variables are set, until we fully migrate to event-based input
+	if (wind == window_get_front())
+		ui_event_handler(event);
 
 	if (dlg->callback)
 		if ((*dlg->callback)(dlg, event, dlg->userdata))
@@ -234,17 +228,21 @@ int ui_dialog_handler(window *wind, d_event *event, UI_DIALOG *dlg)
 			
 		case EVENT_MOUSE_BUTTON_DOWN:
 		case EVENT_MOUSE_BUTTON_UP:
-			return ui_dialog_mouse(wind, event, dlg);
+			/*return*/ ui_dialog_do_gadgets(dlg);
+			break;
 			
 		case EVENT_KEY_COMMAND:
-			return ui_dialog_key(wind, event, dlg);
+			/*return*/ ui_dialog_do_gadgets(dlg);
+			break;
 
 		case EVENT_IDLE:
 			timer_delay2(50);
-			return ui_dialog_mouse(wind, event, dlg);
+			/*return*/ ui_dialog_do_gadgets(dlg);
+			break;
 			
 		case EVENT_WINDOW_DRAW:
-			return ui_dialog_draw(wind, dlg);
+			return ui_dialog_draw(dlg);
+			break;
 
 		case EVENT_WINDOW_CLOSE:
 			//ui_close_dialog(dlg);		// need to hide this function and make it not call window_close first
@@ -665,13 +663,10 @@ void ui_mega_process()
 }
 #endif // 0
 
-// Base level event handler
-// Mainly for setting global variables for state-based event polling,
+// For setting global variables for state-based event polling,
 // which will eventually be replaced with direct event handling
-// so we could then stick with standard_handler in inferno.c
 int ui_event_handler(d_event *event)
 {
-	timer_update();
 	last_keypress = 0;
 	
 	switch (event->type)
@@ -690,30 +685,6 @@ int ui_event_handler(d_event *event)
 		case EVENT_KEY_COMMAND:
 			last_keypress = event_key_get(event);
 			last_event = timer_query();
-			
-			switch (last_keypress)
-			{
-#ifdef macintosh
-				case KEY_COMMAND + KEY_SHIFTED + KEY_3:
-#endif
-				case KEY_PRINT_SCREEN:
-				{
-					gr_set_current_canvas(NULL);
-					save_screen_shot(0);
-					return 1;
-				}
-					
-				case KEY_ALTED+KEY_ENTER:
-				case KEY_ALTED+KEY_PADENTER:
-					gr_toggle_fullscreen();
-					return 1;
-					
-#ifndef NDEBUG
-				case KEY_BACKSP:
-					Int3();
-					return 1;
-#endif
-			}
 			break;
 			
 		case EVENT_IDLE:

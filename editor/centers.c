@@ -122,7 +122,6 @@ void do_centers_window()
 	// Call the ui code..
 	//------------------------------------------------------------
 	ui_button_any_drawn = 0;
-	ui_dialog_do_gadgets(MainWindow);
 
 	//------------------------------------------------------------
 	// If we change centers, we need to reset the ui code for all
