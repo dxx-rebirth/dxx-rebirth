@@ -2599,7 +2599,7 @@ void net_udp_process_dump(ubyte *data, int len, struct _sockaddr sender_addr)
 			multi_reset_stuff();
 			break;
 		default:
-			if (data[1] < DUMP_CLOSED || data[1] > DUMP_LEVEL) // invalid dump... heh
+			if (data[1] > DUMP_LEVEL) // invalid dump... heh
 				break;
 			nm_messagebox(NULL, 1, TXT_OK, NET_DUMP_STRINGS(data[1]));
 			Network_status = NETSTAT_MENU;
