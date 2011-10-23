@@ -1,5 +1,9 @@
 D1X-Rebirth Changelog
 
+20111023
+--------
+include/ui.h, ui/dialog.c, ui/gadget.c: Pass the event to ui_dialog_do_gadgets and use it in that immediate function
+
 20111009
 --------
 main/render.c: Initialise dyn_light using memset, fixing a warning

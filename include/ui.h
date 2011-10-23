@@ -286,7 +286,7 @@ extern void ui_close_dialog( UI_DIALOG * dlg );
 extern UI_GADGET * ui_gadget_add( UI_DIALOG * dlg, short kind, short x1, short y1, short x2, short y2 );
 extern UI_GADGET_BUTTON * ui_add_gadget_button( UI_DIALOG * dlg, short x, short y, short w, short h, char * text, int (*function_to_call)(void) );
 extern void ui_gadget_delete_all( UI_DIALOG * dlg );
-extern void ui_dialog_do_gadgets( UI_DIALOG * dlg );
+extern int ui_dialog_do_gadgets( UI_DIALOG * dlg, struct d_event *event );
 extern void ui_draw_button( UI_GADGET_BUTTON * button );
 
 extern int ui_mouse_on_gadget( UI_GADGET * gadget );

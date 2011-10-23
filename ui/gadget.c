@@ -24,6 +24,7 @@ static char rcsid[] = "$Id: gadget.c,v 1.1.1.1 2006/03/17 19:52:21 zicodxx Exp $
 #include "pstypes.h"
 #include "gr.h"
 #include "ui.h"
+#include "event.h"
 #include "error.h"
 
 #include "key.h"
@@ -124,6 +125,7 @@ void ui_gadget_delete_all( UI_DIALOG * dlg )
 }
 
 
+#if 0
 int is_under_another_window( UI_DIALOG * dlg, UI_GADGET * gadget )
 {
 	UI_DIALOG * temp;
@@ -157,30 +159,40 @@ int is_under_another_window( UI_DIALOG * dlg, UI_GADGET * gadget )
 	}
 	return 0;
 }
+#endif
 
 
 int ui_mouse_on_gadget( UI_GADGET * gadget )
 {
-	if ((Mouse.x >= gadget->x1) && (Mouse.x <= gadget->x2-1) &&	(Mouse.y >= gadget->y1) &&	(Mouse.y <= gadget->y2-1) )	{
+	int x, y, z;
+	
+	mouse_get_pos(&x, &y, &z);
+	if ((x >= gadget->x1) && (x <= gadget->x2-1) &&	(y >= gadget->y1) &&	(y <= gadget->y2-1) )
+	{
+#if 0
 		if (is_under_another_window(CurWindow, gadget))
 			return 0;
+#endif
 		return 1;
 	} else
 		return 0;
 }
 
-void ui_dialog_do_gadgets( UI_DIALOG * dlg )
+int ui_dialog_do_gadgets(UI_DIALOG * dlg, d_event *event)
 {
-	int keypress;
+	int keypress = 0;
 	UI_GADGET * tmp, * tmp1;
+	int z;
+	int rval = 0;
 
 	CurWindow = dlg;
 
-	keypress = last_keypress;
+	if (event->type == EVENT_KEY_COMMAND)
+		keypress = event_key_get(event);
 
 	tmp = dlg->gadget;
 
-	if (tmp == NULL ) return;
+	if (tmp == NULL) return;
 
 	if (selected_gadget==NULL)
 		selected_gadget = tmp;
@@ -250,12 +262,14 @@ void ui_dialog_do_gadgets( UI_DIALOG * dlg )
 			dlg->keyboard_focus_gadget->status = 1;
 		if (tmp1 != NULL )
 			tmp1->status = 1;
+		rval = 1;
 	}
 
 	tmp = dlg->gadget;
 	do
 	{
-		if (!is_under_another_window( CurWindow, tmp ))	{
+		//if (!is_under_another_window( CurWindow, tmp ))	// not necessary as events are handled by the front window then propagate down
+		{
 			UI_DIALOG *curwindow_save=CurWindow;
 
 			switch( tmp->kind )
@@ -294,6 +308,8 @@ void ui_dialog_do_gadgets( UI_DIALOG * dlg )
 
 		tmp = tmp->next;
 	} while( tmp != dlg->gadget );
+	
+	return rval;
 }
 
 
