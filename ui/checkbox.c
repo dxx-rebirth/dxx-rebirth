@@ -22,6 +22,7 @@ static char rcsid[] = "$Id: checkbox.c,v 1.1.1.1 2006/03/17 19:52:20 zicodxx Exp
 #include "u_mem.h"
 #include "fix.h"
 #include "pstypes.h"
+#include "event.h"
 #include "gr.h"
 #include "ui.h"
 #include "key.h"
@@ -86,12 +87,11 @@ UI_GADGET_CHECKBOX * ui_add_gadget_checkbox( UI_DIALOG * dlg, short x, short y, 
 }
 
 
-void ui_checkbox_do( UI_GADGET_CHECKBOX * checkbox, int keypress )
+int ui_checkbox_do( UI_GADGET_CHECKBOX * checkbox, d_event *event )
 {
 	int OnMe, ButtonLastSelected;
-
-	keypress = keypress;
-
+	int rval = 0;
+	
 	OnMe = ui_mouse_on_gadget( (UI_GADGET *)checkbox );
 
 	checkbox->oldposition = checkbox->position;
@@ -124,6 +124,7 @@ void ui_checkbox_do( UI_GADGET_CHECKBOX * checkbox, int keypress )
 
 	ui_draw_checkbox( checkbox );
 
+	return rval;
 }
 
 void ui_checkbox_check(UI_GADGET_CHECKBOX * checkbox, int check)

@@ -25,6 +25,7 @@ static char rcsid[] = "$Id: gadget.c,v 1.1.1.1 2006/03/17 19:52:21 zicodxx Exp $
 #include "gr.h"
 #include "ui.h"
 #include "event.h"
+#include "mouse.h"
 #include "error.h"
 
 #include "key.h"
@@ -125,7 +126,7 @@ void ui_gadget_delete_all( UI_DIALOG * dlg )
 }
 
 
-#if 0
+#if 1
 int is_under_another_window( UI_DIALOG * dlg, UI_GADGET * gadget )
 {
 	UI_DIALOG * temp;
@@ -169,7 +170,7 @@ int ui_mouse_on_gadget( UI_GADGET * gadget )
 	mouse_get_pos(&x, &y, &z);
 	if ((x >= gadget->x1) && (x <= gadget->x2-1) &&	(y >= gadget->y1) &&	(y <= gadget->y2-1) )
 	{
-#if 0
+#if 1
 		if (is_under_another_window(CurWindow, gadget))
 			return 0;
 #endif
@@ -182,7 +183,6 @@ int ui_dialog_do_gadgets(UI_DIALOG * dlg, d_event *event)
 {
 	int keypress = 0;
 	UI_GADGET * tmp, * tmp1;
-	int z;
 	int rval = 0;
 
 	CurWindow = dlg;
@@ -192,7 +192,7 @@ int ui_dialog_do_gadgets(UI_DIALOG * dlg, d_event *event)
 
 	tmp = dlg->gadget;
 
-	if (tmp == NULL) return;
+	if (tmp == NULL) return 0;
 
 	if (selected_gadget==NULL)
 		selected_gadget = tmp;
@@ -268,38 +268,38 @@ int ui_dialog_do_gadgets(UI_DIALOG * dlg, d_event *event)
 	tmp = dlg->gadget;
 	do
 	{
-		//if (!is_under_another_window( CurWindow, tmp ))	// not necessary as events are handled by the front window then propagate down
+		if (!is_under_another_window( CurWindow, tmp ))	// won't be a necessary check when the rval is set properly
 		{
 			UI_DIALOG *curwindow_save=CurWindow;
 
 			switch( tmp->kind )
 			{
 			case 1:
-				ui_button_do( (UI_GADGET_BUTTON *)tmp, keypress );
+				rval = ui_button_do( (UI_GADGET_BUTTON *)tmp, event );
 				break;
 			case 2:
-				ui_listbox_do( (UI_GADGET_LISTBOX *)tmp, keypress );
+				rval = ui_listbox_do( (UI_GADGET_LISTBOX *)tmp, event );
 				break;
 			case 3:
-				ui_scrollbar_do( (UI_GADGET_SCROLLBAR *)tmp, keypress );
+				rval = ui_scrollbar_do( (UI_GADGET_SCROLLBAR *)tmp, event );
 				break;
 			case 4:
-				ui_radio_do( (UI_GADGET_RADIO *)tmp, keypress );
+				rval = ui_radio_do( (UI_GADGET_RADIO *)tmp, event );
 				break;
 			case 5:
-				ui_checkbox_do( (UI_GADGET_CHECKBOX *)tmp, keypress );
+				rval = ui_checkbox_do( (UI_GADGET_CHECKBOX *)tmp, event );
 				break;
 			case 6:
-				ui_inputbox_do( (UI_GADGET_INPUTBOX *)tmp, keypress );
+				rval = ui_inputbox_do( (UI_GADGET_INPUTBOX *)tmp, event );
 				break;
 			case 7:
-				ui_userbox_do( (UI_GADGET_USERBOX *)tmp, keypress );
+				rval = ui_userbox_do( (UI_GADGET_USERBOX *)tmp, event );
 				break;
 			case 8:
-				ui_keytrap_do( (UI_GADGET_KEYTRAP *)tmp, keypress );
+				rval = ui_keytrap_do( (UI_GADGET_KEYTRAP *)tmp, event );
 				break;
 			case 9:
-				ui_icon_do( (UI_GADGET_ICON *)tmp, keypress );
+				rval = ui_icon_do( (UI_GADGET_ICON *)tmp, event );
 				break;
 			}
 
@@ -307,7 +307,7 @@ int ui_dialog_do_gadgets(UI_DIALOG * dlg, d_event *event)
 		}
 
 		tmp = tmp->next;
-	} while( tmp != dlg->gadget );
+	} while( !rval && tmp != dlg->gadget );
 	
 	return rval;
 }

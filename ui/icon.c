@@ -46,6 +46,7 @@ static char rcsid[] = "$Id: icon.c,v 1.1.1.1 2006/03/17 19:39:11 zicodxx Exp $";
 #include "u_mem.h"
 #include "fix.h"
 #include "pstypes.h"
+#include "event.h"
 #include "gr.h"
 #include "ui.h"
 #include "key.h"
@@ -139,10 +140,15 @@ UI_GADGET_ICON * ui_add_gadget_icon( UI_DIALOG * dlg, char * text, short x, shor
 
 }
 
-void ui_icon_do( UI_GADGET_ICON * icon, int keypress )
+int ui_icon_do( UI_GADGET_ICON * icon, d_event *event )
 {
 	int OnMe;
-
+	int keypress = 0;
+	int rval = 0;
+	
+	if (event->type == EVENT_KEY_COMMAND)
+		keypress = event_key_get(event);
+	
 	OnMe = ui_mouse_on_gadget( (UI_GADGET *)icon );
 
 	icon->oldposition = icon->position;
@@ -168,4 +174,5 @@ void ui_icon_do( UI_GADGET_ICON * icon, int keypress )
 
 	ui_draw_icon( icon );
 
+	return rval;
 }
