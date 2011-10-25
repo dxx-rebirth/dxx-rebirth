@@ -20,6 +20,7 @@ static char rcsid[] = "$Id: listbox.c,v 1.1.1.1 2006/03/17 19:52:20 zicodxx Exp 
 
 #include "fix.h"
 #include "pstypes.h"
+#include "event.h"
 #include "gr.h"
 #include "ui.h"
 #include "key.h"
@@ -148,10 +149,15 @@ UI_GADGET_LISTBOX * ui_add_gadget_listbox(UI_DIALOG *dlg, short x, short y, shor
 
 }
 
-void ui_listbox_do( UI_GADGET_LISTBOX * listbox, int keypress )
+int ui_listbox_do( UI_GADGET_LISTBOX * listbox, d_event *event )
 {
 	int OnMe, mitem, oldfakepos, kf;
-
+	int keypress = 0;
+	int rval = 0;
+	
+	if (event->type == EVENT_KEY_COMMAND)
+		keypress = event_key_get(event);
+	
 	listbox->selected_item = -1;
 
 	listbox->moved = 0;
@@ -168,7 +174,7 @@ void ui_listbox_do( UI_GADGET_LISTBOX * listbox, int keypress )
 			CurWindow->keyboard_focus_gadget = ui_gadget_get_next((UI_GADGET *)listbox);
 		}
 
-		return;
+		return rval;
 	}
 
 	listbox->old_current_item = listbox->current_item;
@@ -353,6 +359,7 @@ void ui_listbox_do( UI_GADGET_LISTBOX * listbox, int keypress )
 
 	ui_draw_listbox( listbox );
 
+	return rval;
 }
 
 void ui_listbox_change(UI_DIALOG *dlg, UI_GADGET_LISTBOX *listbox, short numitems, char **list)

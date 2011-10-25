@@ -21,6 +21,7 @@ static char rcsid[] = "$Id: userbox.c,v 1.1.1.1 2006/03/17 19:52:22 zicodxx Exp 
 
 #include "fix.h"
 #include "pstypes.h"
+#include "event.h"
 #include "gr.h"
 #include "ui.h"
 #include "key.h"
@@ -74,10 +75,15 @@ UI_GADGET_USERBOX * ui_add_gadget_userbox( UI_DIALOG * dlg, short x, short y, sh
 
 }
 
-void ui_userbox_do( UI_GADGET_USERBOX * userbox, int keypress )
+int ui_userbox_do( UI_GADGET_USERBOX * userbox, d_event *event )
 {
 	int OnMe, olddrag;
-
+	int keypress = 0;
+	int rval = 0;
+	
+	if (event->type == EVENT_KEY_COMMAND)
+		keypress = event_key_get(event);
+		
 	OnMe = ui_mouse_on_gadget( (UI_GADGET *)userbox );
 
 	olddrag  = userbox->b1_dragging;
@@ -132,6 +138,7 @@ void ui_userbox_do( UI_GADGET_USERBOX * userbox, int keypress )
 
 	ui_draw_userbox( userbox );
 
+	return rval;
 }
 
 

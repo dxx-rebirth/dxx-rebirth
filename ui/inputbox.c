@@ -22,6 +22,7 @@ static char rcsid[] = "$Id: inputbox.c,v 1.1.1.1 2006/03/17 19:52:23 zicodxx Exp
 #include "u_mem.h"
 #include "fix.h"
 #include "pstypes.h"
+#include "event.h"
 #include "gr.h"
 #include "ui.h"
 #include "key.h"
@@ -110,11 +111,16 @@ UI_GADGET_INPUTBOX * ui_add_gadget_inputbox( UI_DIALOG * dlg, short x, short y, 
 }
 
 
-void ui_inputbox_do( UI_GADGET_INPUTBOX * inputbox, int keypress )
+int ui_inputbox_do( UI_GADGET_INPUTBOX * inputbox, d_event *event )
 {
 	unsigned char ascii;
-	inputbox->oldposition = inputbox->position;
+	int keypress = 0;
+	int rval = 0;
+	
+	if (event->type == EVENT_KEY_COMMAND)
+		keypress = event_key_get(event);
 
+	inputbox->oldposition = inputbox->position;
 	inputbox->pressed=0;
 
 	if (CurWindow->keyboard_focus_gadget==(UI_GADGET *)inputbox)
@@ -158,6 +164,7 @@ void ui_inputbox_do( UI_GADGET_INPUTBOX * inputbox, int keypress )
 	
 	ui_draw_inputbox( inputbox );
 
+	return rval;
 }
 
 void ui_inputbox_set_text(UI_GADGET_INPUTBOX *inputbox, char *text)
