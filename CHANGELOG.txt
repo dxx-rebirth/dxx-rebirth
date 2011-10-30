@@ -1,5 +1,9 @@
 D2X-Rebirth Changelog
 
+20111030
+--------
+arch/include/mouse.h, arch/sdl/mouse.c, ui/dialog.c: Return 1 (event handled) in ui_dialog_handler for mouse button events if the mouse was in the dialog
+
 20111025
 --------
 include/ui.h, ui/button.c, ui/checkbox.c, ui/dialog.c, ui/gadget.c, ui/icon.c, ui/inputbox.c, ui/keytrap.c, ui/listbox.c, ui/radio.c, ui/scroll.c, ui/userbox.c: Pass the event to the individual gadgets' 'do' functions, fix compile warnings introduced in last commit
