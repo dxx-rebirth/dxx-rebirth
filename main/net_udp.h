@@ -40,15 +40,15 @@ void net_udp_send_netgame_update();
 #define UDP_NETGAMES_PPAGE 12 // Netgames on one page of Netlist
 #define UDP_NETGAMES_PAGES 75 // Pages available on Netlist (UDP_MAX_NETGAMES/UDP_NETGAMES_PPAGE)
 #define UDP_TIMEOUT (10*F1_0) // 10 seconds disconnect timeout
-#define UDP_MDATA_STOR_QUEUE_SIZE	500 // Store up to 500 MDATA packets
+#define UDP_MDATA_STOR_QUEUE_SIZE 500 // Store up to 500 MDATA packets
 
 // UDP-Packet identificators (ubyte) and their (max. sizes).
 #define UPID_VERSION_DENY			  1 // Netgame join or info has been denied due to version difference.
-#define UPID_VERSION_DENY_SIZE			  7
+#define UPID_VERSION_DENY_SIZE			  9
 #define UPID_GAME_INFO_REQ			  2 // Requesting all info about a netgame.
-#define UPID_GAME_INFO_REQ_SIZE			 11
+#define UPID_GAME_INFO_REQ_SIZE			 13
 #define UPID_GAME_INFO				  3 // Packet containing all info about a netgame.
-#define UPID_GAME_INFO_SIZE			535
+#define UPID_GAME_INFO_SIZE			509
 #define UPID_GAME_INFO_LITE_REQ			  4 // Requesting lite info about a netgame. Used for discovering games.
 #define UPID_GAME_INFO_LITE			  5 // Packet containing lite netgame info.
 #define UPID_GAME_INFO_LITE_SIZE		 73
@@ -57,7 +57,7 @@ void net_udp_send_netgame_update();
 #define UPID_ADDPLAYER				  7 // Packet from Host containing info about a new player.
 #define UPID_REQUEST				  8 // New player says: "I want to be inside of you!" (haha, sorry I could not resist) / Packet containing request to join the game actually.
 #define UPID_QUIT_JOINING			  9 // Packet from a player who suddenly quits joining.
-#define UPID_SEQUENCE_SIZE			 14
+#define UPID_SEQUENCE_SIZE			 12
 #define UPID_SYNC				 10 // Packet from host containing full netgame info to sync players up.
 #define UPID_OBJECT_DATA			 11 // Packet from host containing object buffer.
 #define UPID_PING				 12 // Packet from host containing his GameTime and the Ping list. Client returns this time to host as UPID_PONG and adapts the ping list.

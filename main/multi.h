@@ -61,12 +61,14 @@ extern int multi_protocol; // set and determinate used protocol
 #define MULTI_PROTO_UDP 1 // UDP protocol
 
 // What version of the multiplayer protocol is this?
+// NOTE!!! Increment each time something drastic changes in Multiplayer without the version number changes
 // Protocol versions:
 //   1 Descent Shareware
 //   2 Descent Registered/Commercial
 //   3 Descent II Shareware
 //   4 Descent II Commercial
-#define MULTI_PROTO_VERSION 4
+// > 4 DXX-Rebirth
+#define MULTI_PROTO_VERSION 5
 // PROTOCOL VARIABLES AND DEFINES - END
 
 
@@ -419,8 +421,6 @@ typedef struct netplayer_info
 	} protocol;	
 #endif
 	char						callsign[CALLSIGN_LEN+1];
-	ubyte						version_major;
-	ubyte						version_minor;
 	sbyte						connected;
 	ubyte						rank;
 	fix							ping;
@@ -441,15 +441,13 @@ typedef struct netgame_info
 		struct
 		{
 			struct _sockaddr		addr; // IP address of this netgame's host
-			short				program_iver[3]; // IVER of program for version checking
+			short				program_iver[4]; // IVER of program for version checking
 			sbyte				valid; // Status of Netgame info: -1 = Failed, Wrong version; 0 = No info, yet; 1 = Success
 			fix				GameID;
 		} udp;
 #endif
 	} protocol;	
 #endif
-	ubyte						version_major; // Game content data version major
-	ubyte   					version_minor; // Game content data version minor
 	struct netplayer_info 				players[MAX_PLAYERS+4];
 	char    					game_name[NETGAME_NAME_LEN+1];
 	char    					mission_title[MISSION_NAME_LEN+1];

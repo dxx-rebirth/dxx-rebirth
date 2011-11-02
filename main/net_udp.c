@@ -92,7 +92,6 @@ void net_udp_noloss_got_ack(ubyte *data, int data_len);
 void net_udp_noloss_init_mdata_queue(void);
 void net_udp_noloss_clear_mdata_got(ubyte player_num);
 void net_udp_noloss_process_queue(fix64 time);
-void net_udp_check_for_old_version (char pnum);
 void net_udp_send_extras ();
 extern void multi_reset_object_texture(object *objp);
 extern void multi_send_stolen_items ();
@@ -123,7 +122,6 @@ struct _sockaddr TrackerSocket;
 int iTrackerVerified = 0;
 #endif
 extern obj_position Player_init[MAX_PLAYERS];
-extern ubyte Version_major,Version_minor;
 extern char MaxPowerupsAllowed[MAX_POWERUP_TYPES];
 extern char PowerupsInMine[MAX_POWERUP_TYPES];
 extern int Final_boss_is_dead;
@@ -538,7 +536,7 @@ int net_udp_game_connect(direct_join *dj)
 	
 	if (Netgame.protocol.udp.valid == -1)
 	{
-		nm_messagebox(TXT_ERROR,1,TXT_OK,"Version mismatch! Cannot join Game.\nHost game version: %i.%i.%i\nYour game version: %s",Netgame.protocol.udp.program_iver[0],Netgame.protocol.udp.program_iver[1],Netgame.protocol.udp.program_iver[2],VERSION);
+		nm_messagebox(TXT_ERROR,1,TXT_OK,"Version mismatch! Cannot join Game.\nHost game version: %i.%i.%i\nHost game protocol: %i\nYour game version: %s\nYour game protocol: %i",Netgame.protocol.udp.program_iver[0],Netgame.protocol.udp.program_iver[1],Netgame.protocol.udp.program_iver[2],Netgame.protocol.udp.program_iver[3],VERSION, MULTI_PROTO_VERSION);
 		dj->connecting = 0;
 		return 0;
 	}
@@ -1022,8 +1020,6 @@ void net_udp_send_sequence_packet(UDP_sequence_packet seq, struct _sockaddr recv
 	memset(buf, 0, sizeof(buf));
 	buf[0] = seq.type;						len++;
 	memcpy(&buf[len], seq.player.callsign, CALLSIGN_LEN+1);		len += CALLSIGN_LEN+1;
-	buf[len] = seq.player.version_major;				len++;
-	buf[len] = seq.player.version_minor;				len++;
 	buf[len] = seq.player.connected;				len++;
 	buf[len] = seq.player.rank;					len++;
 	
@@ -1036,8 +1032,6 @@ void net_udp_receive_sequence_packet(ubyte *data, UDP_sequence_packet *seq, stru
 	
 	seq->type = data[0];						len++;
 	memcpy(seq->player.callsign, &(data[len]), CALLSIGN_LEN+1);	len += CALLSIGN_LEN+1;
-	seq->player.version_major = data[len];				len++;
-	seq->player.version_minor = data[len];				len++;
 	seq->player.connected = data[len];				len++;
 	memcpy (&(seq->player.rank),&(data[len]),1);			len++;
 	
@@ -1082,8 +1076,6 @@ void net_udp_init()
 	UDP_Seq.type = UPID_REQUEST;
 	memcpy(UDP_Seq.player.callsign, Players[Player_num].callsign, CALLSIGN_LEN+1);
 
-	UDP_Seq.player.version_major=Version_major;
-	UDP_Seq.player.version_minor=Version_minor;
 	UDP_Seq.player.rank=GetMyNetRanking();	
 
 	for (Player_num = 0; Player_num < MAX_NUM_NET_PLAYERS; Player_num++)
@@ -1206,16 +1198,6 @@ net_udp_can_join_netgame(netgame_info *game)
 		return 0;
 	}
 
-	if (game->version_major==0 && Version_major>0)
-	{
-		return (0);
-	}
-
-	if (game->version_major>0 && Version_major==0)
-	{
-		return (0);
-	}
-
 	// Game is in progress, figure out if this guy can re-join it
 
 	num_players = game->numplayers;
@@ -1319,9 +1301,6 @@ net_udp_new_player(UDP_sequence_packet *their)
 
 	ClipRank (&their->player.rank);
 	Netgame.players[pnum].rank=their->player.rank;
-	Netgame.players[pnum].version_major=their->player.version_major;
-	Netgame.players[pnum].version_minor=their->player.version_minor;
-	net_udp_check_for_old_version(pnum);
 
 	Players[pnum].connected = CONNECT_PLAYING;
 	Players[pnum].net_kills_total = 0;
@@ -1361,16 +1340,6 @@ void net_udp_welcome_player(UDP_sequence_packet *their)
 	int i;
 
 	WaitForRefuseAnswer=0;
-
-	if (HoardEquipped())
-	{
-		// If hoard game, and this guy isn't D2 Christmas (v1.2), dump him
-		if ((Game_mode & GM_HOARD) && ((their->player.version_minor & 0x0F)<2))
-		{
-			net_udp_dump_player(their->player.protocol.udp.addr, DUMP_DORK);
-			return;
-		}
-	}
 
 	// Don't accept new players if we're ending this level.  Its safe to
 	// ignore since they'll request again later
@@ -2005,11 +1974,8 @@ void net_udp_add_player(UDP_sequence_packet *p)
 	ClipRank (&p->player.rank);
 	memcpy( Netgame.players[N_players].callsign, p->player.callsign, CALLSIGN_LEN+1 );
 	memcpy( (struct _sockaddr *)&Netgame.players[N_players].protocol.udp.addr, (struct _sockaddr *)&p->player.protocol.udp.addr, sizeof(struct _sockaddr) );
-	Netgame.players[N_players].version_major=p->player.version_major;
-	Netgame.players[N_players].version_minor=p->player.version_minor;
 	Netgame.players[N_players].rank=p->player.rank;
 	Netgame.players[N_players].connected = CONNECT_PLAYING;
-	net_udp_check_for_old_version (N_players);
 	Players[N_players].KillGoalCount=0;
 	Players[N_players].connected = CONNECT_PLAYING;
 	Netgame.players[N_players].LastPacketTime = timer_query();
@@ -2042,11 +2008,8 @@ void net_udp_remove_player(UDP_sequence_packet *p)
 	{
 		memcpy( Netgame.players[i].callsign, Netgame.players[i+1].callsign, CALLSIGN_LEN+1 );
 		memcpy( (struct _sockaddr *)&Netgame.players[i].protocol.udp.addr, (struct _sockaddr *)&Netgame.players[i+1].protocol.udp.addr, sizeof(struct _sockaddr) );
-		Netgame.players[i].version_major=Netgame.players[i+1].version_major;
-		Netgame.players[i].version_minor=Netgame.players[i+1].version_minor;
 		Netgame.players[i].rank=Netgame.players[i+1].rank;
 		ClipRank (&Netgame.players[i].rank);
-		net_udp_check_for_old_version(i);	
 	}
 		
 	N_players--;
@@ -2078,9 +2041,6 @@ void net_udp_update_netgame(void)
 	// Update the netgame struct with current game variables
 
 	int i, j;
-
-	Netgame.version_major=Version_major;
-	Netgame.version_minor=Version_minor;
 
 	Netgame.numconnected=0;
 	for (i=0;i<N_players;i++)
@@ -2192,6 +2152,7 @@ void net_udp_send_version_deny(struct _sockaddr sender_addr)
 	PUT_INTEL_SHORT(buf + 1, D2XMAJORi);
 	PUT_INTEL_SHORT(buf + 3, D2XMINORi);
 	PUT_INTEL_SHORT(buf + 5, D2XMICROi);
+	PUT_INTEL_SHORT(buf + 7, MULTI_PROTO_VERSION);
 	
 	dxx_sendto (UDP_Socket[0], buf, sizeof(buf), 0, (struct sockaddr *)&sender_addr, sizeof(struct _sockaddr));
 }
@@ -2201,6 +2162,7 @@ void net_udp_process_version_deny(ubyte *data, struct _sockaddr sender_addr)
 	Netgame.protocol.udp.program_iver[0] = GET_INTEL_SHORT(&data[1]);
 	Netgame.protocol.udp.program_iver[1] = GET_INTEL_SHORT(&data[3]);
 	Netgame.protocol.udp.program_iver[2] = GET_INTEL_SHORT(&data[5]);
+	Netgame.protocol.udp.program_iver[3] = GET_INTEL_SHORT(&data[7]);
 	Netgame.protocol.udp.valid = -1;
 }
 
@@ -2213,6 +2175,7 @@ void net_udp_request_game_info(struct _sockaddr game_addr, int lite)
 	PUT_INTEL_SHORT(buf + 5, D2XMAJORi);
 	PUT_INTEL_SHORT(buf + 7, D2XMINORi);
 	PUT_INTEL_SHORT(buf + 9, D2XMICROi);
+	PUT_INTEL_SHORT(buf + 11, MULTI_PROTO_VERSION);
 	
 	dxx_sendto (UDP_Socket[0], buf, sizeof(buf), 0, (struct sockaddr *)&game_addr, sizeof(struct _sockaddr));
 }
@@ -2220,18 +2183,19 @@ void net_udp_request_game_info(struct _sockaddr game_addr, int lite)
 // Check request for game info. Return 1 if sucessful; -1 if version mismatch; 0 if wrong game or some other error - do not process
 int net_udp_check_game_info_request(ubyte *data)
 {
-	short sender_iver[3] = { 0, 0, 0 };
+	short sender_iver[4] = { 0, 0, 0, 0 };
 	char sender_id[4] = "";
 
 	memcpy(&sender_id, &(data[1]), 4);
 	sender_iver[0] = GET_INTEL_SHORT(&(data[5]));
 	sender_iver[1] = GET_INTEL_SHORT(&(data[7]));
 	sender_iver[2] = GET_INTEL_SHORT(&(data[9]));
+	sender_iver[3] = GET_INTEL_SHORT(&(data[11]));
 	
 	if (memcmp(&sender_id, UDP_REQ_ID, 4))
 		return 0;
 	
-	if ((sender_iver[0] != D2XMAJORi) || (sender_iver[1] != D2XMINORi) || (sender_iver[2] != D2XMICROi))
+	if ((sender_iver[0] != D2XMAJORi) || (sender_iver[1] != D2XMINORi) || (sender_iver[2] != D2XMICROi) || (sender_iver[3] != MULTI_PROTO_VERSION))
 		return -1;
 		
 	return 1;
@@ -2294,13 +2258,9 @@ void net_udp_send_game_info(struct _sockaddr sender_addr, ubyte info_upid)
 		PUT_INTEL_SHORT(buf + len, D2XMAJORi); 						len += 2;
 		PUT_INTEL_SHORT(buf + len, D2XMINORi); 						len += 2;
 		PUT_INTEL_SHORT(buf + len, D2XMICROi); 						len += 2;
-		buf[len] = Netgame.version_major;						len++;
-		buf[len] = Netgame.version_minor;						len++;
 		for (i = 0; i < MAX_PLAYERS+4; i++)
 		{
 			memcpy(&buf[len], Netgame.players[i].callsign, CALLSIGN_LEN+1); 	len += CALLSIGN_LEN+1;
-			buf[len] = Netgame.players[i].version_major;				len++;
-			buf[len] = Netgame.players[i].version_minor;				len++;
 			buf[len] = Netgame.players[i].connected;				len++;
 			buf[len] = Netgame.players[i].rank;					len++;
 			if (!memcmp((struct _sockaddr *)&sender_addr, (struct _sockaddr *)&Netgame.players[i].protocol.udp.addr, sizeof(struct _sockaddr)))
@@ -2500,13 +2460,9 @@ void net_udp_process_game_info(ubyte *data, int data_len, struct _sockaddr game_
 		Netgame.protocol.udp.program_iver[0] = GET_INTEL_SHORT(&(data[len]));		len += 2;
 		Netgame.protocol.udp.program_iver[1] = GET_INTEL_SHORT(&(data[len]));		len += 2;
 		Netgame.protocol.udp.program_iver[2] = GET_INTEL_SHORT(&(data[len]));		len += 2;
-		Netgame.version_major = data[len];						len++;
-		Netgame.version_minor = data[len];						len++;
 		for (i = 0; i < MAX_PLAYERS+4; i++)
 		{
 			memcpy(&Netgame.players[i].callsign, &(data[len]), CALLSIGN_LEN+1);	len += CALLSIGN_LEN+1;
-			Netgame.players[i].version_major = data[len];				len++;
-			Netgame.players[i].version_minor = data[len];				len++;
 			Netgame.players[i].connected = data[len];				len++;
 			Netgame.players[i].rank = data[len];					len++;
 			Netgame.players[i].protocol.udp.isyou = data[len];			len++;
@@ -3783,11 +3739,8 @@ abort:
 			if (i > N_players)
 			{
 				memcpy(Netgame.players[N_players].callsign, Netgame.players[i].callsign, CALLSIGN_LEN+1);
-				Netgame.players[N_players].version_major=Netgame.players[i].version_major;
-				Netgame.players[N_players].version_minor=Netgame.players[i].version_minor;
 				Netgame.players[N_players].rank=Netgame.players[i].rank;
 				ClipRank (&Netgame.players[N_players].rank);
-				net_udp_check_for_old_version(i);
 			}
 			Players[N_players].connected = CONNECT_PLAYING;
 			N_players++;
@@ -3800,8 +3753,6 @@ abort:
 
 	for (i = N_players; i < MAX_NUM_NET_PLAYERS; i++) {
 		memset(Netgame.players[i].callsign, 0, CALLSIGN_LEN+1);
-		Netgame.players[i].version_major=0;
-		Netgame.players[i].version_minor=0;
 		Netgame.players[i].rank=0;
 	}
 
@@ -3839,8 +3790,6 @@ int net_udp_start_game(void)
 	d_srand( (fix)timer_query() );
 	Netgame.protocol.udp.GameID=d_rand();
 
-	if (is_D2_OEM)
-		UDP_Seq.player.version_minor|=0x10;
 	N_players = 0;
 	Netgame.game_status = NETSTAT_STARTING;
 	Netgame.numplayers = 0;
@@ -4037,7 +3986,6 @@ int net_udp_do_join_game()
 
 	if (is_D2_OEM)
 	{
-		UDP_Seq.player.version_minor|=0x10;
 		if (Netgame.levelnum>8)
 		{
 			nm_messagebox(NULL, 1, TXT_OK, "This OEM version only supports\nthe first 8 levels!");
@@ -5286,12 +5234,6 @@ void net_udp_send_extras ()
 	if (!Network_sending_extras)
 		Player_joining_extras=-1;
 }
-
-void net_udp_check_for_old_version (char pnum)
- {  
-  if (Netgame.players[(int)pnum].version_major==1 && (Netgame.players[(int)pnum].version_minor & 0x0F)==0)
-	Netgame.players[(int)pnum].rank=0;
- }
 
 static int show_game_rules_handler(window *wind, d_event *event, netgame_info *netgame)
 {

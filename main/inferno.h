@@ -71,9 +71,6 @@ extern int Quitting;
 extern int Function_mode;		// in game or editor?
 extern int Screen_mode;			// editor screen or game screen?
 
-// The version number of the game
-extern ubyte Version_major, Version_minor;
-
 // Default event handler for everything except the editor
 int standard_handler(struct d_event *event);
 

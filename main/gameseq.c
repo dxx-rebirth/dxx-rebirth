@@ -227,28 +227,6 @@ gameseq_init_network_players()
 
 	}
 	NumNetPlayerPositions = k;
-
-#ifdef NETWORK
- 	if (is_D2_OEM && (Game_mode & GM_MULTI) && PLAYING_BUILTIN_MISSION && Current_level_num==8)
-	 {
-	  for (i=0;i<N_players;i++)
-		 if (Players[i].connected && !(Netgame.players[i].version_minor & 0xF0))
-			{
-	       nm_messagebox ("Warning!",1,TXT_OK,"This special version of Descent II\nwill disconnect after this level.\nPlease purchase the full version\nto experience all the levels!");
-			 return;
-			}
-	 }
-
- 	if (is_MAC_SHARE && (Game_mode & GM_MULTI) && PLAYING_BUILTIN_MISSION && Current_level_num == 4)
-	{
-		for (i = 0; i < N_players; i++)
-			if (Players[i].connected && !(Netgame.players[i].version_minor & 0xF0))
-			{
-				nm_messagebox ("Warning!", 1 ,TXT_OK, "This shareware version of Descent II\nwill disconnect after this level.\nPlease purchase the full version\nto experience all the levels!");
-				return;
-			}
-	}
-#endif // NETWORK
 }
 
 void gameseq_remove_unused_players()

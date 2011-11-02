@@ -101,9 +101,6 @@ char copyright[] = "DESCENT II  COPYRIGHT (C) 1994-1996 PARALLAX SOFTWARE CORPOR
 
 //Current version number
 
-ubyte Version_major = 1;		//FULL VERSION
-ubyte Version_minor = 2;
-
 char desc_id_exit_num = 0;
 int Function_mode=FMODE_MENU;		//game or editor?
 int Screen_mode=-1;					//game screen or editor screen?
@@ -360,19 +357,14 @@ int main(int argc, char *argv[])
 	load_text();
 
 	//print out the banner title
-	con_printf(CON_NORMAL, "DESCENT 2 %s v%d.%d",VERSION_TYPE,Version_major,Version_minor);
-	#if 1	//def VERSION_NAME
-	con_printf(CON_NORMAL, "  %s", DESCENT_VERSION);	// D2X version
-	#endif
+	con_printf(CON_NORMAL, "%s", DESCENT_VERSION); // D2X version
 	if (PHYSFSX_exists(MISSION_DIR "d2x.hog",1)) {
 		con_printf(CON_NORMAL, "  Vertigo Enhanced");
 	}
-
 	con_printf(CON_NORMAL, "  %s %s\n", __DATE__,__TIME__);
+	con_printf(CON_NORMAL, "This is a MODIFIED version of Descent 2, based on %s.\n", BASED_VERSION);
 	con_printf(CON_NORMAL, "%s\n%s\n",TXT_COPYRIGHT,TXT_TRADEMARK);
-	con_printf(CON_NORMAL, "This is a MODIFIED version of Descent 2. Copyright (c) 1999 Peter Hawkins\n");
-	con_printf(CON_NORMAL, "                                         Copyright (c) 2002 Bradley Bell\n");
-	con_printf(CON_NORMAL, "                                         Copyright (c) 2005-2011 Christian Beckhaeuser\n\n");
+	con_printf(CON_NORMAL, "Copyright (C) 1999 Peter Hawkins, 2002 Bradley Bell, 2005-2011 Christian Beckhaeuser\n\n");
 
 	if (GameArg.DbgVerbose)
 		con_printf(CON_VERBOSE,"%s%s", TXT_VERBOSE_1, "\n");
