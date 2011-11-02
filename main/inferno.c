@@ -337,11 +337,11 @@ int main(int argc, char *argv[])
 	load_text();
 
 	//print out the banner title
-	con_printf(CON_NORMAL,DESCENT_VERSION "\n"
-			   "This is a MODIFIED version of DESCENT which is NOT supported by Parallax or\n"
-			   "Interplay. Use at your own risk! Copyright (c) 2005-2011 Christian Beckhaeuser\n");
-	con_printf(CON_NORMAL,"Based on: DESCENT   %s\n", VERSION_NAME);
-	con_printf(CON_NORMAL,"%s\n%s\n\n",TXT_COPYRIGHT,TXT_TRADEMARK);
+	con_printf(CON_NORMAL, "%s", DESCENT_VERSION); // D1X version
+	con_printf(CON_NORMAL, "  %s %s\n", __DATE__,__TIME__);
+	con_printf(CON_NORMAL, "This is a MODIFIED version of Descent, based on %s.\n", BASED_VERSION);
+	con_printf(CON_NORMAL, "%s\n%s\n",TXT_COPYRIGHT,TXT_TRADEMARK);
+	con_printf(CON_NORMAL, "Copyright (C) 2005-2011 Christian Beckhaeuser\n\n");
 
 	if (GameArg.DbgVerbose)
 		con_printf(CON_VERBOSE,"%s%s", TXT_VERBOSE_1, "\n");

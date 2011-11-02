@@ -11,7 +11,7 @@ target = 'd1x-rebirth'
 # version number
 D1XMAJOR = 0
 D1XMINOR = 57
-D1XMICRO = 1
+D1XMICRO = 2
 VERSION_STRING = ' v' + str(D1XMAJOR) + '.' + str(D1XMINOR) + '.' + str(D1XMICRO)
 
 # installation path

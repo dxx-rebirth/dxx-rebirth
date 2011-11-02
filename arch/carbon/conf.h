@@ -12,7 +12,7 @@
 #define D1XMINOR "57"
 
 /* d2x micro version */
-#define D1XMICRO "1"
+#define D1XMICRO "2"
 
 /* Define if you want to build the editor */
 /* #undef EDITOR */
