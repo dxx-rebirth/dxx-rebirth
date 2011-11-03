@@ -2175,13 +2175,14 @@ void net_udp_request_game_info(struct _sockaddr game_addr, int lite)
 	PUT_INTEL_SHORT(buf + 5, D2XMAJORi);
 	PUT_INTEL_SHORT(buf + 7, D2XMINORi);
 	PUT_INTEL_SHORT(buf + 9, D2XMICROi);
-	PUT_INTEL_SHORT(buf + 11, MULTI_PROTO_VERSION);
+	if (!lite)
+		PUT_INTEL_SHORT(buf + 11, MULTI_PROTO_VERSION);
 	
 	dxx_sendto (UDP_Socket[0], buf, sizeof(buf), 0, (struct sockaddr *)&game_addr, sizeof(struct _sockaddr));
 }
 
 // Check request for game info. Return 1 if sucessful; -1 if version mismatch; 0 if wrong game or some other error - do not process
-int net_udp_check_game_info_request(ubyte *data)
+int net_udp_check_game_info_request(ubyte *data, int lite)
 {
 	short sender_iver[4] = { 0, 0, 0, 0 };
 	char sender_id[4] = "";
@@ -2190,12 +2191,13 @@ int net_udp_check_game_info_request(ubyte *data)
 	sender_iver[0] = GET_INTEL_SHORT(&(data[5]));
 	sender_iver[1] = GET_INTEL_SHORT(&(data[7]));
 	sender_iver[2] = GET_INTEL_SHORT(&(data[9]));
-	sender_iver[3] = GET_INTEL_SHORT(&(data[11]));
+	if (!lite)
+		sender_iver[3] = GET_INTEL_SHORT(&(data[11]));
 	
 	if (memcmp(&sender_id, UDP_REQ_ID, 4))
 		return 0;
 	
-	if ((sender_iver[0] != D2XMAJORi) || (sender_iver[1] != D2XMINORi) || (sender_iver[2] != D2XMICROi) || (sender_iver[3] != MULTI_PROTO_VERSION))
+	if ((sender_iver[0] != D2XMAJORi) || (sender_iver[1] != D2XMINORi) || (sender_iver[2] != D2XMICROi) || (!lite && sender_iver[3] != MULTI_PROTO_VERSION))
 		return -1;
 		
 	return 1;
@@ -2594,7 +2596,7 @@ void net_udp_process_packet(ubyte *data, struct _sockaddr sender_addr, int lengt
 			int result = 0;
 			if (!multi_i_am_master() || length != UPID_GAME_INFO_REQ_SIZE)
 				break;
-			result = net_udp_check_game_info_request(data);
+			result = net_udp_check_game_info_request(data, 0);
 			if (result == -1)
 				net_udp_send_version_deny(sender_addr);
 			else if (result == 1)
@@ -2607,9 +2609,9 @@ void net_udp_process_packet(ubyte *data, struct _sockaddr sender_addr, int lengt
 			net_udp_process_game_info(data, length, sender_addr, 0);
 			break;
 		case UPID_GAME_INFO_LITE_REQ:
-			if (!multi_i_am_master() || length != UPID_GAME_INFO_REQ_SIZE)
+			if (!multi_i_am_master() || length != UPID_GAME_INFO_LITE_REQ_SIZE)
 				break;
-			if (net_udp_check_game_info_request(data) == 1)
+			if (net_udp_check_game_info_request(data, 1) == 1)
 				net_udp_send_game_info(sender_addr, UPID_GAME_INFO_LITE);
 			break;
 		case UPID_GAME_INFO_LITE:

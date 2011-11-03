@@ -1,5 +1,9 @@
 D2X-Rebirth Changelog
 
+20111103
+--------
+main/net_udp.c, main/net_udp.h: Do not attempt to check for MULTI_PROTO_VERSION when requesting lite_info
+
 20111102
 --------
 SConstruct, arch/carbon/conf.h, main/gameseq.c, main/inferno.c, main/inferno.h, main/menu.c, main/multi.h, main/net_udp.c, main/net_udp.h, main/vers_id.h: Introduced extra short based on MULTI_PROTO_VERSION for version-independent Multiplayer-compability-check; Changed version to 0.57.2 to make new version checking not cause problems with stable release 0.57.1; Removed old version_major/minor variables from netgame and player structures since DXX handles this independently; Cleaned up old version stuff and copyright messages
