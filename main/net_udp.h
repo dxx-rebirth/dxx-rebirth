@@ -46,6 +46,7 @@ void net_udp_send_mdata_direct(ubyte *data, int data_len, int pnum, int priority
 #define UPID_VERSION_DENY_SIZE			  9
 #define UPID_GAME_INFO_REQ			  2 // Requesting all info about a netgame.
 #define UPID_GAME_INFO_REQ_SIZE			 13
+#define UPID_GAME_INFO_LITE_REQ_SIZE		 11
 #define UPID_GAME_INFO				  3 // Packet containing all info about a netgame.
 #define UPID_GAME_INFO_SIZE			505
 #define UPID_GAME_INFO_LITE_REQ			  4 // Requesting lite info about a netgame. Used for discovering games.
