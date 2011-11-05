@@ -25,6 +25,7 @@ static char rcsid[] = "$Id: checkbox.c,v 1.1.1.1 2006/03/17 19:52:20 zicodxx Exp
 #include "event.h"
 #include "gr.h"
 #include "ui.h"
+#include "mouse.h"
 #include "key.h"
 
 #define Middle(x) ((2*(x)+1)/4)
