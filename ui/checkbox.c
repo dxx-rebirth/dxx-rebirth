@@ -89,38 +89,61 @@ UI_GADGET_CHECKBOX * ui_add_gadget_checkbox( UI_DIALOG * dlg, short x, short y, 
 
 int ui_checkbox_do( UI_GADGET_CHECKBOX * checkbox, d_event *event )
 {
-	int OnMe, ButtonLastSelected;
 	int rval = 0;
 	
-	OnMe = ui_mouse_on_gadget( (UI_GADGET *)checkbox );
-
 	checkbox->oldposition = checkbox->position;
+	checkbox->pressed = 0;
 
-	if ((selected_gadget != NULL) && (selected_gadget->kind !=5))
-		ButtonLastSelected = 0;
-	else
-		ButtonLastSelected = 1;
-
-	if ( B1_PRESSED && OnMe && ButtonLastSelected )
+	if (event->type == EVENT_MOUSE_BUTTON_DOWN || event->type == EVENT_MOUSE_BUTTON_UP)
 	{
-		checkbox->position = 1;
-	} else  {
-		checkbox->position = 0;
+		int OnMe;
+		
+		OnMe = ui_mouse_on_gadget( (UI_GADGET *)checkbox );
+		
+		if (B1_JUST_PRESSED && OnMe)
+		{
+			checkbox->position = 1;
+			rval = 1;
+		}
+		else if (B1_JUST_RELEASED)
+		{
+			if ((checkbox->position==1) && OnMe)
+				checkbox->pressed = 1;
+
+			checkbox->position = 0;
+		}
 	}
 
 
-	if ((CurWindow->keyboard_focus_gadget==(UI_GADGET *)checkbox) && (keyd_pressed[KEY_SPACEBAR] || keyd_pressed[KEY_ENTER] ) )
-		checkbox->position = 2;
-
-	if ((checkbox->position==0) && (checkbox->oldposition==1) && OnMe )
-		checkbox->pressed = 1;
-	else if ((checkbox->position==0) && (checkbox->oldposition==2) && (CurWindow->keyboard_focus_gadget==(UI_GADGET *)checkbox) )
-		checkbox->pressed = 1;
-	else
-		checkbox->pressed = 0;
-
+	if (event->type == EVENT_KEY_COMMAND)
+	{
+		int key;
+		
+		key = event_key_get(event);
+		
+		if ((CurWindow->keyboard_focus_gadget==(UI_GADGET *)checkbox) && ((key==KEY_SPACEBAR) || (key==KEY_ENTER)) )
+		{
+			checkbox->position = 2;
+			rval = 1;
+		}
+	}
+	else if (event->type == EVENT_KEY_RELEASE)
+	{
+		int key;
+		
+		key = event_key_get(event);
+		
+		checkbox->position = 0;
+		
+		if ((CurWindow->keyboard_focus_gadget==(UI_GADGET *)checkbox) && ((key==KEY_SPACEBAR) || (key==KEY_ENTER)) )
+			checkbox->pressed = 1;
+	}
+		
 	if (checkbox->pressed == 1)
+	{
 		checkbox->flag ^= 1;
+		rval = 1;
+	}
 
 	ui_draw_checkbox( checkbox );
 
