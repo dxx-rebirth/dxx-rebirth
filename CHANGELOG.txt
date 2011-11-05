@@ -6,6 +6,7 @@ include/ui.h, ui/button.c, ui/dialog.c, ui/gadget.c, ui/scroll.c, ui/userbox.c: 
 editor/med.c: Fix crash on exit for non-Linux, when it tries to show an editor warning (unfreed blocks) but doesn't have the images to render it
 ui/checkbox.c: Make ui_checkbox_do fully event-responsive
 ui/checkbox.c, ui/icon.c: Fix implicit function declaration in last commit, make ui_icon_do fully event-responsive
+ui/inputbox.c: Say when the event was handled for ui_inputbox_do (was already event-responsive)
 
 20111103
 --------
