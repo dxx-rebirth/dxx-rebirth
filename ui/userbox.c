@@ -24,6 +24,7 @@ static char rcsid[] = "$Id: userbox.c,v 1.1.1.1 2006/03/17 19:52:22 zicodxx Exp 
 #include "event.h"
 #include "gr.h"
 #include "ui.h"
+#include "mouse.h"
 #include "key.h"
 
 void ui_draw_userbox( UI_GADGET_USERBOX * userbox )

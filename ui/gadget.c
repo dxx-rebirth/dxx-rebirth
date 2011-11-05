@@ -263,6 +263,9 @@ int ui_dialog_do_gadgets(UI_DIALOG * dlg, d_event *event)
 		if (tmp1 != NULL )
 			tmp1->status = 1;
 		rval = 1;
+		
+		if (keypress)
+			return rval;
 	}
 
 	tmp = dlg->gadget;

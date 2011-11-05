@@ -243,7 +243,7 @@ typedef struct  {
 
 #define B1_PRESSED          (Mouse.b1_status & BUTTON_PRESSED)
 #define B1_RELEASED         (Mouse.b1_status & BUTTON_RELEASED)
-#define B1_JUST_PRESSED     (Mouse.b1_status & BUTTON_JUST_PRESSED)
+#define B1_JUST_PRESSED     (event->type == EVENT_MOUSE_BUTTON_DOWN && event_mouse_get_button(event) == 0)
 #define B1_JUST_RELEASED    (Mouse.b1_status & BUTTON_JUST_RELEASED)
 #define B1_DOUBLE_CLICKED   (Mouse.b1_status & BUTTON_DOUBLE_CLICKED)
 
