@@ -136,11 +136,13 @@ int ui_inputbox_do( UI_GADGET_INPUTBOX * inputbox, d_event *event )
 			inputbox->text[inputbox->position] = 0;
 			inputbox->status = 1;
 			if (inputbox->first_time) inputbox->first_time = 0;
+			rval = 1;
 			break;
 		case (KEY_ENTER):
 			inputbox->pressed=1;
 			inputbox->status = 1;
 			if (inputbox->first_time) inputbox->first_time = 0;
+			rval = 1;
 			break;
 		default:
 			ascii = key_ascii();
@@ -152,6 +154,7 @@ int ui_inputbox_do( UI_GADGET_INPUTBOX * inputbox, d_event *event )
 				}
 				inputbox->text[inputbox->position++] = ascii;
 				inputbox->text[inputbox->position] = 0;
+				rval = 1;
 			}
 			inputbox->status = 1;
 			break;
@@ -160,8 +163,6 @@ int ui_inputbox_do( UI_GADGET_INPUTBOX * inputbox, d_event *event )
 		inputbox->first_time = 1;
 	}
 
-	last_keypress=0;
-	
 	ui_draw_inputbox( inputbox );
 
 	return rval;
