@@ -26,6 +26,7 @@ COPYRIGHT 1993-1999 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 #include "event.h"
 #include "gr.h"
 #include "ui.h"
+#include "mouse.h"
 #include "key.h"
 
 #define Middle(x) ((2*(x)+1)/4)
@@ -130,65 +131,63 @@ UI_GADGET_BUTTON * ui_add_gadget_button( UI_DIALOG * dlg, short x, short y, shor
 
 int ui_button_do( UI_GADGET_BUTTON * button, d_event *event )
 {
-	int OnMe, ButtonLastSelected;
-	int keypress = 0;
 	int rval = 0;
 	
-	if (event->type == EVENT_KEY_COMMAND)
-		keypress = event_key_get(event);
-
-	OnMe = ui_mouse_on_gadget( (UI_GADGET *)button );
-
 	button->oldposition = button->position;
+	button->pressed = 0;
 
-	if (selected_gadget != NULL)
+	if (event->type == EVENT_MOUSE_BUTTON_DOWN || event->type == EVENT_MOUSE_BUTTON_UP)
 	{
-		if (selected_gadget->kind==1)
-			ButtonLastSelected = 1;
-		else
-			ButtonLastSelected = 0;
-	} else
-		ButtonLastSelected = 1;
+		int OnMe;
 
+		OnMe = ui_mouse_on_gadget( (UI_GADGET *)button );
 
-	if ( B1_PRESSED && OnMe && ButtonLastSelected )
-	{
+		if (B1_JUST_PRESSED && OnMe)
+		{
+			button->position = 1;
+			rval = 1;
+		}
+		else if (B1_JUST_RELEASED)
+		{
+			if ((button->position == 1) && OnMe)
+				button->pressed = 1;
 
-		button->position = 1;
-	} else  {
-		button->position = 0;
-	}
-
-	if (keypress == button->hotkey )
-	{
-		button->position = 2;
-		last_keypress = 0;
-	}
-
-	if ((keypress == button->hotkey1) && button->user_function1 )
-	{
-		button->user_function1();
-		last_keypress = 0;
+			button->position = 0;
+		}
 	}
 
 	
-	//if ((CurWindow->keyboard_focus_gadget==(UI_GADGET *)button) && (keyd_pressed[KEY_SPACEBAR] || keyd_pressed[KEY_ENTER] ) )
-	//	button->position = 2;
+	if (event->type == EVENT_KEY_COMMAND)
+	{
+		int keypress;
+		
+		keypress = event_key_get(event);
 
-	if ((CurWindow->keyboard_focus_gadget==(UI_GADGET *)button) && ((keypress==KEY_SPACEBAR) || (keypress==KEY_ENTER)) )
-		button->position = 2;
-
-	if (CurWindow->keyboard_focus_gadget==(UI_GADGET *)button)	
-		if ((button->oldposition==2) && (keyd_pressed[KEY_SPACEBAR] || keyd_pressed[KEY_ENTER] )  )
+		if	((keypress == button->hotkey) ||
+			((keypress == button->hotkey1) && button->user_function1) || 
+			((CurWindow->keyboard_focus_gadget==(UI_GADGET *)button) && ((keypress==KEY_SPACEBAR) || (keypress==KEY_ENTER)) ))
+		{
 			button->position = 2;
+			rval = 1;
+		}
+	}
+	else if (event->type == EVENT_KEY_RELEASE)
+	{
+		int keypress;
+		
+		keypress = event_key_get(event);
+		
+		button->position = 0;
 
-	button->pressed = 0;
+		if	((keypress == button->hotkey) ||
+			((CurWindow->keyboard_focus_gadget==(UI_GADGET *)button) && ((keypress==KEY_SPACEBAR) || (keypress==KEY_ENTER)) ))
+			button->pressed = 1;
 
-	if (button->position==0) {
-		if ( (button->oldposition==1) && OnMe )
-			button->pressed = 1;
-		if ( (button->oldposition==2) && (CurWindow->keyboard_focus_gadget==(UI_GADGET *)button) )
-			button->pressed = 1;
+		if ((keypress == button->hotkey1) && button->user_function1)
+		{
+			button->user_function1();
+			rval = 1;
+		}
 	}
 
 	ui_draw_button( button );
@@ -196,6 +195,7 @@ int ui_button_do( UI_GADGET_BUTTON * button, d_event *event )
 	if (button->pressed && button->user_function )
 	{
 		button->user_function();
+		rval = 1;
 	}
 	
 	return rval;
