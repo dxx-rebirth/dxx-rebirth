@@ -1356,6 +1356,8 @@ void editor(void)
 //	_MARK_("end of editor");//Nuked to compile -KRB
 #ifndef __LINUX__
 	set_warn_func(msgbox_warning);
+#else
+	clear_warn_func(NULL);
 #endif
 	//kill our camera object
 
