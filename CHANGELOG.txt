@@ -1,8 +1,9 @@
 D1X-Rebirth Changelog
 
-20111103
+20111105
 --------
 include/ui.h, ui/button.c, ui/dialog.c, ui/gadget.c, ui/scroll.c, ui/userbox.c: Make B1_JUST_PRESSED event-based, leave ui_dialog_do_gadgets early if a key makes another gadget current, make ui_button_do fully event-responsive (but won't *send* events yet)
+editor/med.c: Fix crash on exit for non-Linux, when it tries to show an editor warning (unfreed blocks) but doesn't have the images to render it
 
 20111103
 --------

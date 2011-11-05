@@ -999,10 +999,10 @@ void editor(void)
 	gr_set_curfont(editor_font);
 
 	//Editor renders into full (320x200) game screen 
-#ifndef __LINUX__
+
 	set_warn_func(med_show_warning);
-#endif
-//	_MARK_("start of editor");//Nuked to compile -KRB
+
+	//	_MARK_("start of editor");//Nuked to compile -KRB
 
 	ui_mouse_hide();
 
@@ -1355,8 +1355,12 @@ void editor(void)
 	
 //	_MARK_("end of editor");//Nuked to compile -KRB
 
-// 	set_warn_func(msgbox_warning);
-
+#ifndef __LINUX__
+	set_warn_func(msgbox_warning);
+#else
+	clear_warn_func(NULL);
+#endif
+	
 	//kill our camera object
 
 	Viewer = ConsoleObject;					//reset viewer
