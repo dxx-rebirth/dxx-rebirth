@@ -5,6 +5,7 @@ D2X-Rebirth Changelog
 include/ui.h, ui/button.c, ui/dialog.c, ui/gadget.c, ui/scroll.c, ui/userbox.c: Make B1_JUST_PRESSED event-based, leave ui_dialog_do_gadgets early if a key makes another gadget current, make ui_button_do fully event-responsive (but won't *send* events yet)
 editor/med.c: Put back use of med_show_warning for Linux, but then clear it properly when leaving the editor
 ui/checkbox.c: Make ui_checkbox_do fully event-responsive
+ui/checkbox.c, ui/icon.c: Fix implicit function declaration in last commit, make ui_icon_do fully event-responsive
 
 20111103
 --------

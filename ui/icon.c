@@ -25,6 +25,7 @@ static char rcsid[] = "$Id: icon.c,v 1.1.1.1 2006/03/17 19:52:19 zicodxx Exp $";
 #include "event.h"
 #include "gr.h"
 #include "ui.h"
+#include "mouse.h"
 #include "key.h"
 
 #define Middle(x) ((2*(x)+1)/4)
@@ -93,7 +94,7 @@ UI_GADGET_ICON * ui_add_gadget_icon( UI_DIALOG * dlg, char * text, short x, shor
 
 	icon->width = w;
 	icon->height = h;
-	MALLOC( icon->text, char, strlen( text )+2);
+	MALLOC( icon->text, char, strlen( text )+2);//Hack by KRB
 	strcpy( icon->text, text );
 	icon->trap_key = k;
 	icon->user_function = f;
@@ -118,34 +119,61 @@ UI_GADGET_ICON * ui_add_gadget_icon( UI_DIALOG * dlg, char * text, short x, shor
 
 int ui_icon_do( UI_GADGET_ICON * icon, d_event *event )
 {
-	int OnMe;
-	int keypress = 0;
 	int rval = 0;
 	
-	if (event->type == EVENT_KEY_COMMAND)
-		keypress = event_key_get(event);
-	
-	OnMe = ui_mouse_on_gadget( (UI_GADGET *)icon );
-
 	icon->oldposition = icon->position;
-
-	if ( B1_PRESSED && OnMe )
-	{
-		icon->position = 1;
-	} else  {
-		icon->position = 0;
-	}
-
 	icon->pressed = 0;
 
-	if ((icon->position==0) && (icon->oldposition==1) && OnMe )
-		icon->pressed = 1;
+	if (event->type == EVENT_MOUSE_BUTTON_DOWN || event->type == EVENT_MOUSE_BUTTON_UP)
+	{
+		int OnMe;
+		
+		OnMe = ui_mouse_on_gadget( (UI_GADGET *)icon );
 
-	if (icon->pressed == 1 || keypress==icon->trap_key )
+		if (B1_JUST_PRESSED && OnMe)
+		{
+			icon->position = 1;
+			rval = 1;
+		}
+		else if (B1_JUST_RELEASED)
+		{
+			if ((icon->position == 1) && OnMe)
+				icon->pressed = 1;
+				
+			icon->position = 0;
+		}
+	}
+
+
+	if (event->type == EVENT_KEY_COMMAND)
+	{
+		int key;
+		
+		key = event_key_get(event);
+		
+		if (key == icon->trap_key)
+		{
+			icon->position = 1;
+			rval = 1;
+		}
+	}
+	else if (event->type == EVENT_KEY_RELEASE)
+	{
+		int key;
+		
+		key = event_key_get(event);
+		
+		icon->position = 0;
+		
+		if (key == icon->trap_key)
+			icon->pressed = 1;
+	}
+		
+	if (icon->pressed == 1)
 	{
 		icon->status = 1;
 		icon->flag = (sbyte)icon->user_function();
-		if (keypress==icon->trap_key) last_keypress = 0;
+		rval = 1;
 	}
 
 	ui_draw_icon( icon );
