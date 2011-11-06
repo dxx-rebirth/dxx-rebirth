@@ -228,6 +228,7 @@ int ui_dialog_handler(window *wind, d_event *event, UI_DIALOG *dlg)
 			
 		case EVENT_MOUSE_BUTTON_DOWN:
 		case EVENT_MOUSE_BUTTON_UP:
+		case EVENT_MOUSE_MOVED:
 			/*return*/ ui_dialog_do_gadgets(dlg, event);
 			return mouse_in_window(dlg->wind);
 			break;
