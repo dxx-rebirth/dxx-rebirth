@@ -23,6 +23,7 @@ static char rcsid[] = "$Id: listbox.c,v 1.1.1.1 2006/03/17 19:52:20 zicodxx Exp 
 #include "event.h"
 #include "gr.h"
 #include "ui.h"
+#include "mouse.h"
 #include "key.h"
 #include "timer.h"
 
@@ -151,7 +152,7 @@ UI_GADGET_LISTBOX * ui_add_gadget_listbox(UI_DIALOG *dlg, short x, short y, shor
 
 int ui_listbox_do( UI_GADGET_LISTBOX * listbox, d_event *event )
 {
-	int OnMe, mitem, oldfakepos, kf;
+	int mitem, oldfakepos, kf;
 	int keypress = 0;
 	int rval = 0;
 	
@@ -180,8 +181,6 @@ int ui_listbox_do( UI_GADGET_LISTBOX * listbox, d_event *event )
 	listbox->old_current_item = listbox->current_item;
 	listbox->old_first_item = listbox->first_item;
 
-	OnMe = ui_mouse_on_gadget( (UI_GADGET *)listbox );
-
 
 	if (listbox->scrollbar->moved )
 	{
@@ -197,16 +196,20 @@ int ui_listbox_do( UI_GADGET_LISTBOX * listbox, d_event *event )
 
 	}
 
-	if (!B1_PRESSED )
+	if (B1_JUST_RELEASED)
 		listbox->dragging = 0;
 
-	if (B1_PRESSED && OnMe )
+	if (B1_JUST_PRESSED && ui_mouse_on_gadget( (UI_GADGET *)listbox ))
+	{
 		listbox->dragging = 1;
+		rval = 1;
+	}
 
 	if ( CurWindow->keyboard_focus_gadget==(UI_GADGET *)listbox )
 	{
 		if (keypress==KEY_ENTER)   {
 			listbox->selected_item = listbox->current_item;
+			rval = 1;
 		}
 
 		kf = 0;
@@ -242,6 +245,7 @@ int ui_listbox_do( UI_GADGET_LISTBOX * listbox, d_event *event )
 		if (kf==1)
 		{
 			listbox->moved = 1;
+			rval = 1;
 
 			if (listbox->current_item<0)
 				listbox->current_item=0;
@@ -284,12 +288,15 @@ int ui_listbox_do( UI_GADGET_LISTBOX * listbox, d_event *event )
 
 	if (selected_gadget==(UI_GADGET *)listbox)
 	{
-		if (B1_PRESSED && listbox->dragging)
+		if (listbox->dragging)
 		{
-			if (Mouse.y < listbox->y1)
+			int x, y, z;
+			
+			mouse_get_pos(&x, &y, &z);
+			if (y < listbox->y1)
 				mitem = -1;
 			else
-				mitem = (Mouse.y - listbox->y1)/listbox->textheight;
+				mitem = (y - listbox->y1)/listbox->textheight;
 
 			if ((mitem < 0) && (timer_query() > listbox->last_scrolled + 1))
 			{
@@ -353,6 +360,7 @@ int ui_listbox_do( UI_GADGET_LISTBOX * listbox, d_event *event )
 		if (B1_DOUBLE_CLICKED )
 		{
 			listbox->selected_item = listbox->current_item;
+			rval = 1;
 		}
 
 	}
