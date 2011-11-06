@@ -24,6 +24,7 @@ COPYRIGHT 1993-1998 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 #include "event.h"
 #include "gr.h"
 #include "ui.h"
+#include "mouse.h"
 #include "key.h"
 #include "u_mem.h"
 
@@ -90,42 +91,56 @@ int ui_radio_do( UI_GADGET_RADIO * radio, d_event *event )
 {
 	UI_GADGET * tmp;
 	UI_GADGET_RADIO * tmpr;
-	int OnMe, ButtonLastSelected;
 	int rval = 0;
 	
-	OnMe = ui_mouse_on_gadget( (UI_GADGET *)radio );
-
 	radio->oldposition = radio->position;
+	radio->pressed = 0;
 
-	if (selected_gadget != NULL)
+	if (event->type == EVENT_MOUSE_BUTTON_DOWN || event->type == EVENT_MOUSE_BUTTON_UP)
 	{
-		if (selected_gadget->kind==4)
-			ButtonLastSelected = 1;
-		else
-			ButtonLastSelected = 0;
-	} else
-		ButtonLastSelected = 1;
+		int OnMe;
+		
+		OnMe = ui_mouse_on_gadget( (UI_GADGET *)radio );
 
-
-	if ( B1_PRESSED && OnMe && ButtonLastSelected )
-	{
-
-		radio->position = 1;
-	} else  {
-		radio->position = 0;
+		if ( B1_JUST_PRESSED && OnMe)
+		{
+			radio->position = 1;
+			rval = 1;
+		} 
+		else if (B1_JUST_RELEASED)
+		{
+			if ((radio->position==1) && OnMe)
+				radio->pressed = 1;
+			
+			radio->position = 0;
+		}
 	}
 
-
-	if ((CurWindow->keyboard_focus_gadget==(UI_GADGET *)radio) && (keyd_pressed[KEY_SPACEBAR] || keyd_pressed[KEY_ENTER] ) )
-		radio->position = 2;
-
-	if ((radio->position==0) && (radio->oldposition==1) && OnMe )
-		radio->pressed = 1;
-	else if ((radio->position==0) && (radio->oldposition==2) && (CurWindow->keyboard_focus_gadget==(UI_GADGET *)radio) )
-		radio->pressed = 1;
-	else
-		radio->pressed = 0;
-
+	
+	if (event->type == EVENT_KEY_COMMAND)
+	{
+		int key;
+		
+		key = event_key_get(event);
+		
+		if ((CurWindow->keyboard_focus_gadget==(UI_GADGET *)radio) && ((key==KEY_SPACEBAR) || (key==KEY_ENTER)) )
+		{
+			radio->position = 2;
+			rval = 1;
+		}
+	}
+	else if (event->type == EVENT_KEY_RELEASE)
+	{
+		int key;
+		
+		key = event_key_get(event);
+		
+		radio->position = 0;
+		
+		if ((CurWindow->keyboard_focus_gadget==(UI_GADGET *)radio) && ((key==KEY_SPACEBAR) || (key==KEY_ENTER)) )
+			radio->pressed = 1;
+	}
+		
 	if ((radio->pressed == 1) && (radio->flag==0))
 	{
 		tmp = (UI_GADGET *)radio->next;
@@ -146,6 +161,8 @@ int ui_radio_do( UI_GADGET_RADIO * radio, d_event *event )
 		}
 		radio->flag = 1;
 	}
+	else if (radio->pressed)
+		rval = 1;
 
 	ui_draw_radio( radio );
 
