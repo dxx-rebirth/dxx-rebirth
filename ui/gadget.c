@@ -310,7 +310,7 @@ int ui_dialog_do_gadgets(UI_DIALOG * dlg, d_event *event)
 		}
 
 		tmp = tmp->next;
-	} while( !rval && tmp != dlg->gadget );
+	} while(/* !rval && */tmp != dlg->gadget );		// FIXME: Have to loop through all the controls, because of controls within controls
 	
 	return rval;
 }

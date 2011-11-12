@@ -100,6 +100,7 @@ int ui_scrollbar_do( UI_GADGET_SCROLLBAR * scrollbar, d_event *event )
 {
 	int OnMe, OnSlider, keyfocus;
 	int oldpos, op;
+	int x, y, z;
 	int rval = 0;
 		
 	keyfocus = 0;
@@ -122,7 +123,42 @@ int ui_scrollbar_do( UI_GADGET_SCROLLBAR * scrollbar, d_event *event )
 	scrollbar->moved = 0;
 
 
-	if ( (scrollbar->up_button->position!=0) || (keyfocus && keyd_pressed[KEY_UP]) )
+	if (keyfocus && event->type == EVENT_KEY_COMMAND)
+	{
+		int key;
+		
+		key = event_key_get(event);
+
+		if (key & KEY_UP)
+		{
+			scrollbar->up_button->position = 2;
+			rval = 1;
+		}
+		else if (key & KEY_DOWN)
+		{
+			scrollbar->down_button->position = 2;
+			rval = 1;
+		}
+	}
+	else if (keyfocus && event->type == EVENT_KEY_RELEASE)
+	{
+		int key;
+		
+		key = event_key_get(event);
+		
+		if (key & KEY_UP)
+		{
+			scrollbar->up_button->position = 0;
+			rval = 1;
+		}
+		else if (key & KEY_DOWN)
+		{
+			scrollbar->down_button->position = 0;
+			rval = 1;
+		}
+	}
+	
+	if (scrollbar->up_button->position!=0)
 	{
 		if (timer_query() > scrollbar->last_scrolled + 1)
 		{
@@ -136,7 +172,7 @@ int ui_scrollbar_do( UI_GADGET_SCROLLBAR * scrollbar, d_event *event )
 		}
 	}
 
-	if ( (scrollbar->down_button->position!=0) || (keyfocus && keyd_pressed[KEY_DOWN]) )
+	if (scrollbar->down_button->position!=0)
 	{
 		if (timer_query() > scrollbar->last_scrolled + 1)
 		{
@@ -154,31 +190,39 @@ int ui_scrollbar_do( UI_GADGET_SCROLLBAR * scrollbar, d_event *event )
 
 	//gr_ubox(0, scrollbar->fake_position, scrollbar->width-1, scrollbar->fake_position+scrollbar->fake_size-1 );
 
-	if (!B1_PRESSED )
+	if (B1_JUST_RELEASED)
 		scrollbar->dragging = 0;
 
 	//if (B1_PRESSED && OnMe )
 	//    listbox->dragging = 1;
 
 
+	mouse_get_pos(&x, &y, &z);
+
 	OnSlider = 0;
-	if ((Mouse.y >= scrollbar->fake_position+scrollbar->y1) && \
-		(Mouse.y < scrollbar->fake_position+scrollbar->y1+scrollbar->fake_size) && OnMe )
+	if ((y >= scrollbar->fake_position+scrollbar->y1) && \
+		(y < scrollbar->fake_position+scrollbar->y1+scrollbar->fake_size) && OnMe )
 		OnSlider = 1;
 
 	if (B1_JUST_PRESSED && OnSlider )
 	{
 		scrollbar->dragging = 1;
-		scrollbar->drag_x = Mouse.x;
-		scrollbar->drag_y = Mouse.y;
+		scrollbar->drag_x = x;
+		scrollbar->drag_y = y;
 		scrollbar->drag_starting = scrollbar->fake_position;
+		rval = 1;
+	}
+	else if (B1_JUST_PRESSED && OnMe)
+	{
+		scrollbar->dragging = 2;	// outside the slider
+		rval = 1;
 	}
 
-	if  (B1_PRESSED && OnMe && !OnSlider && (timer_query() > scrollbar->last_scrolled + 4))
+	if  ((scrollbar->dragging == 2) && OnMe && !OnSlider && (timer_query() > scrollbar->last_scrolled + 4))
 	{
 		scrollbar->last_scrolled = timer_query();
 
-		if ( Mouse.y < scrollbar->fake_position+scrollbar->y1 )
+		if ( y < scrollbar->fake_position+scrollbar->y1 )
 		{
 			// Page Up
 			scrollbar->position -= scrollbar->window_size;
@@ -196,22 +240,22 @@ int ui_scrollbar_do( UI_GADGET_SCROLLBAR * scrollbar, d_event *event )
 		scrollbar->fake_position /= (scrollbar->stop-scrollbar->start);
 	}
 
-	if ((selected_gadget==(UI_GADGET *)scrollbar) && B1_PRESSED && scrollbar->dragging )
+	if ((selected_gadget==(UI_GADGET *)scrollbar) && (scrollbar->dragging == 1))
 	{
-		//Mouse.x = scrollbar->drag_x;
-		scrollbar->fake_position = scrollbar->drag_starting + (Mouse.y - scrollbar->drag_y );
+		//x = scrollbar->drag_x;
+		scrollbar->fake_position = scrollbar->drag_starting + (y - scrollbar->drag_y );
 		if (scrollbar->fake_position<0)
 		{
 			scrollbar->fake_position = 0;
-			//Mouse.y = scrollbar->fake_position + scrollbar->drag_y - scrollbar->drag_starting;
+			//y = scrollbar->fake_position + scrollbar->drag_y - scrollbar->drag_starting;
 		}
 		if (scrollbar->fake_position > (scrollbar->height-scrollbar->fake_size))
 		{
 			scrollbar->fake_position = (scrollbar->height-scrollbar->fake_size);
-			//Mouse.y = scrollbar->fake_position + scrollbar->drag_y - scrollbar->drag_starting;
+			//y = scrollbar->fake_position + scrollbar->drag_y - scrollbar->drag_starting;
 		}
 
-		//mouse_set_pos( Mouse.x, Mouse.y );
+		//mouse_set_pos( x, y );
 
 		scrollbar->position = scrollbar->fake_position;
 		scrollbar->position *= (scrollbar->stop-scrollbar->start);
