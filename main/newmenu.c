@@ -1132,11 +1132,13 @@ int newmenu_key_command(window *wind, d_event *event, newmenu *menu)
 		{
 			switch( k ) {
 				case KEY_LEFT:
+				case KEY_PAD4:
 					item->value -= 1;
 					changed = 1;
 					rval = 1;
 					break;
 				case KEY_RIGHT:
+				case KEY_PAD6:
 					item->value++;
 					changed = 1;
 					rval = 1;
