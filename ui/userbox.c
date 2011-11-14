@@ -79,19 +79,21 @@ UI_GADGET_USERBOX * ui_add_gadget_userbox( UI_DIALOG * dlg, short x, short y, sh
 int ui_userbox_do( UI_GADGET_USERBOX * userbox, d_event *event )
 {
 	int OnMe, olddrag;
+	int x, y, z;
 	int keypress = 0;
 	int rval = 0;
 	
 	if (event->type == EVENT_KEY_COMMAND)
 		keypress = event_key_get(event);
 		
+	mouse_get_pos(&x, &y, &z);
 	OnMe = ui_mouse_on_gadget( (UI_GADGET *)userbox );
 
 	olddrag  = userbox->b1_dragging;
 
 	userbox->mouse_onme = OnMe;
-	userbox->mouse_x = Mouse.x - userbox->x1;
-	userbox->mouse_y = Mouse.y - userbox->y1;
+	userbox->mouse_x = x - userbox->x1;
+	userbox->mouse_y = y - userbox->y1;
 
 	userbox->b1_clicked = 0;
 
@@ -100,30 +102,36 @@ int ui_userbox_do( UI_GADGET_USERBOX * userbox, d_event *event )
 		if ( B1_JUST_PRESSED )
 		{
 			userbox->b1_dragging = 1;
-			userbox->b1_drag_x1 = Mouse.x - userbox->x1;
-			userbox->b1_drag_y1 = Mouse.y - userbox->y1;
+			userbox->b1_drag_x1 = x - userbox->x1;
+			userbox->b1_drag_y1 = y - userbox->y1;
 			userbox->b1_clicked = 1;
+			rval = 1;
 		}
-
-		if ( B1_PRESSED )
+		else if (B1_JUST_RELEASED)
 		{
-			userbox->b1_held_down = 1;
-			userbox->b1_drag_x2 = Mouse.x - userbox->x1;
-			userbox->b1_drag_y2 = Mouse.y - userbox->y1;
-		}
-		else    {
 			userbox->b1_held_down = 0;
 			userbox->b1_dragging = 0;
+			rval = 1;
+		}
+
+		if ( userbox->b1_dragging )
+		{
+			userbox->b1_held_down = 1;
+			userbox->b1_drag_x2 = x - userbox->x1;
+			userbox->b1_drag_y2 = y - userbox->y1;
 		}
 
 		if ( B1_DOUBLE_CLICKED )
+		{
 			userbox->b1_double_clicked = 1;
+			rval = 1;
+		}
 		else
 			userbox->b1_double_clicked = 0;
 
 	}
 
-	if (!B1_PRESSED)
+	if (B1_JUST_RELEASED)
 		userbox->b1_dragging = 0;
 
 	userbox->b1_done_dragging = 0;
@@ -135,7 +143,10 @@ int ui_userbox_do( UI_GADGET_USERBOX * userbox, d_event *event )
 	}
 
 	if (CurWindow->keyboard_focus_gadget==(UI_GADGET *)userbox)
+	{
 		userbox->keypress = keypress;
+		rval = 1;
+	}
 
 	ui_draw_userbox( userbox );
 
