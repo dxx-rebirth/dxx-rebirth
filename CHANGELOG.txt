@@ -3,6 +3,7 @@ D1X-Rebirth Changelog
 20111114
 --------
 ui/userbox.c: Make ui_userbox_do fully event-responsive
+main/newmenu.c: Sliders can now be operated with Numpad arrows if numlock if off
 
 20111112
 --------
