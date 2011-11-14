@@ -1,5 +1,9 @@
 D1X-Rebirth Changelog
 
+20111114
+--------
+ui/userbox.c: Make ui_userbox_do fully event-responsive
+
 20111112
 --------
 ui/gadget.c, ui/scroll.c: Make ui_scroll_do fully event-responsive, make sure scrolling actually works by calling all controls' ui_*_do functions (like before)
