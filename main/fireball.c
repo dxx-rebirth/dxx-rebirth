@@ -151,7 +151,7 @@ object *object_create_explosion_sub(object *objp, short segnum, vms_vector * pos
 								phys_apply_force(obj0p,&vforce);
 								phys_apply_rot(obj0p,&vforce2);
 								if ( obj0p->shields >= 0 )
-									apply_damage_to_player(obj0p, killer, damage );
+									apply_damage_to_player(obj0p, killer, damage, 0 );
 							}
 								break;
 

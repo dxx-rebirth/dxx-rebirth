@@ -1,5 +1,9 @@
 D1X-Rebirth Changelog
 
+20111124
+--------
+main/collide.c, main/collide.h, main/fireball.c, main/game.c: Smoothed disabling of friendly fire to re-enable splash damage possible when friendly fire is disabled
+
 20111114
 --------
 ui/userbox.c: Make ui_userbox_do fully event-responsive

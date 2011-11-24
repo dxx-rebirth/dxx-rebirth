@@ -168,7 +168,7 @@ void apply_force_damage(object *obj,fix force,object *other_obj)
 			if ( (other_obj->type == OBJ_ROBOT) && (Robot_info[other_obj->id].attack_type) )
 				damage = fixmul(damage, FrameTime*2);
 
-			apply_damage_to_player(obj,other_obj,damage);
+			apply_damage_to_player(obj,other_obj,damage,0);
 			break;
 
 		case OBJ_CLUTTER:
@@ -308,7 +308,7 @@ void collide_player_and_wall( object * player, fix hitspeed, short hitseg, short
 
 		if (!(Players[Player_num].flags & PLAYER_FLAGS_INVULNERABLE))
 			if ( Players[Player_num].shields > f1_0*10 )
-			  	apply_damage_to_player( player, player, damage );
+			  	apply_damage_to_player( player, player, damage, 0 );
 	}
 
 	return;
@@ -333,7 +333,7 @@ void scrape_object_on_wall(object *obj, short hitseg, short hitside, vms_vector 
 					fix damage = fixmul(d,FrameTime);
 
 					if (!(Players[Player_num].flags & PLAYER_FLAGS_INVULNERABLE))
-						apply_damage_to_player( obj, obj, damage );
+						apply_damage_to_player( obj, obj, damage, 0 );
 
 					PALETTE_FLASH_ADD(f2i(damage*4), 0, 0);	//flash red
 					if ((GameTime64 > Last_volatile_scrape_sound_time + F1_0/4) || (GameTime64 < Last_volatile_scrape_sound_time)) {
@@ -1188,7 +1188,7 @@ void drop_player_eggs(object *playerobj)
 	}
 }
 
-void apply_damage_to_player(object *player, object *killer, fix damage)
+void apply_damage_to_player(object *player, object *killer, fix damage, ubyte possibly_friendly)
 {
 	if (Player_is_dead)
 		return;
@@ -1196,7 +1196,7 @@ void apply_damage_to_player(object *player, object *killer, fix damage)
 	if (Players[Player_num].flags & PLAYER_FLAGS_INVULNERABLE)
 		return;
 
-	if (multi_maybe_disable_friendly_fire(killer))
+	if (multi_maybe_disable_friendly_fire(killer) && possibly_friendly)
 		return;
 
 	if (Endlevel_sequence)
@@ -1295,7 +1295,7 @@ void collide_player_and_weapon( object * player, object * weapon, vms_vector *co
 //			damage /= 4;
 
 		if (!(weapon->flags & OF_HARMLESS))
-			apply_damage_to_player( player, killer, damage);
+			apply_damage_to_player( player, killer, damage, 1);
 	}
 
 	//	Robots become aware of you if you get hit.
@@ -1313,7 +1313,7 @@ void collide_player_and_nasty_robot( object * player, object * robot, vms_vector
 
 	bump_two_objects(player, robot, 0);	//no damage from bump
 
-	apply_damage_to_player( player, robot, F1_0*(Difficulty_level+1));
+	apply_damage_to_player( player, robot, F1_0*(Difficulty_level+1), 0);
 
 	return;
 }
@@ -1347,7 +1347,7 @@ void collide_player_and_materialization_center(object *objp)
 
 	bump_one_object(objp, &exit_dir, 64*F1_0);
 
-	apply_damage_to_player( objp, NULL, 4*F1_0);
+	apply_damage_to_player( objp, NULL, 4*F1_0, 0);
 
 	return;
 

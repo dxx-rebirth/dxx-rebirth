@@ -1296,7 +1296,7 @@ void FireLaser()
 					if(Game_mode & GM_MULTI)
 						multi_send_play_sound(11, F1_0);
 #endif
-					apply_damage_to_player(ConsoleObject, ConsoleObject, d_rand() * 4);
+					apply_damage_to_player(ConsoleObject, ConsoleObject, d_rand() * 4, 0);
 				} else {
 					create_awareness_event(ConsoleObject, PA_WEAPON_ROBOT_COLLISION);
 					digi_play_sample( SOUND_FUSION_WARMUP, F1_0 );
