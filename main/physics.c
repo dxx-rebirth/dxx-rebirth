@@ -593,8 +593,8 @@ void do_physics_sim(object *obj)
 
 				if (wall_part != 0 && moved_time>0 && (hit_speed=-fixdiv(wall_part,moved_time))>0)
 					collide_object_with_wall( obj, hit_speed, WallHitSeg, WallHitSide, &hit_info.hit_pnt );
-				else
-					scrape_object_on_wall(obj, WallHitSeg, WallHitSide, &hit_info.hit_pnt );
+
+				scrape_object_on_wall(obj, WallHitSeg, WallHitSide, &hit_info.hit_pnt );
 
 				Assert( WallHitSeg > -1 );
 				Assert( WallHitSide > -1 );
