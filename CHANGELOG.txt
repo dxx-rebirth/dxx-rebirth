@@ -3,6 +3,7 @@ D1X-Rebirth Changelog
 20111124
 --------
 main/collide.c, main/collide.h, main/fireball.c, main/game.c: Smoothed disabling of friendly fire to re-enable splash damage possible when friendly fire is disabled
+main/physics.c: calling scrape_object_on_wall in each case of HIT_WALL more reliable to properly do hazard surface damage and prevent weapon objects from possibly sliding against walls
 
 20111114
 --------
