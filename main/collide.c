@@ -189,7 +189,7 @@ void apply_force_damage(object *obj,fix force,object *other_obj)
 			if (Difficulty_level == 0)
 				damage /= 2;
 
-			apply_damage_to_player(obj,other_obj,damage);
+			apply_damage_to_player(obj,other_obj,damage, 0);
 			break;
 
 		case OBJ_CLUTTER:
@@ -365,7 +365,7 @@ void collide_player_and_wall( object * playerobj, fix hitspeed, short hitseg, sh
 
 		if (!(Players[Player_num].flags & PLAYER_FLAGS_INVULNERABLE))
 			if ( Players[Player_num].shields > f1_0*10 || ForceFieldHit)
-			  	apply_damage_to_player( playerobj, playerobj, damage );
+			  	apply_damage_to_player( playerobj, playerobj, damage, 0 );
 
 		// -- No point in doing this unless we compute a reasonable hitpt.  Currently it is just the player's position. --MK, 01/18/96
 		// -- if (!(TmapInfo[Segments[hitseg].sides[hitwall].tmap_num].flags & TMI_FORCE_FIELD)) {
@@ -413,7 +413,7 @@ int check_volatile_wall(object *obj,int segnum,int sidenum,vms_vector *hitpt)
 					damage /= 2;
 
 				if (!(Players[Player_num].flags & PLAYER_FLAGS_INVULNERABLE))
-					apply_damage_to_player( obj, obj, damage );
+					apply_damage_to_player( obj, obj, damage, 0 );
 
 				PALETTE_FLASH_ADD(f2i(damage*4), 0, 0);	//flash red
 			}
@@ -2047,7 +2047,7 @@ void drop_player_eggs(object *playerobj)
 
 extern fix64 Buddy_sorry_time;
 
-void apply_damage_to_player(object *playerobj, object *killer, fix damage)
+void apply_damage_to_player(object *playerobj, object *killer, fix damage, ubyte possibly_friendly)
 {
 	if (Player_is_dead)
 		return;
@@ -2055,7 +2055,7 @@ void apply_damage_to_player(object *playerobj, object *killer, fix damage)
 	if (Players[Player_num].flags & PLAYER_FLAGS_INVULNERABLE)
 		return;
 
-	if (multi_maybe_disable_friendly_fire(killer))
+	if (multi_maybe_disable_friendly_fire(killer) && possibly_friendly)
 		return;
 
 	if (Endlevel_sequence)
@@ -2176,7 +2176,7 @@ void collide_player_and_weapon( object * playerobj, object * weapon, vms_vector 
 //			damage /= 4;
 
 		if (!(weapon->flags & OF_HARMLESS))
-			apply_damage_to_player( playerobj, killer, damage);
+			apply_damage_to_player( playerobj, killer, damage, 1);
 	}
 
 	//	Robots become aware of you if you get hit.
@@ -2195,7 +2195,7 @@ void collide_player_and_nasty_robot( object * playerobj, object * robot, vms_vec
 
 	bump_two_objects(playerobj, robot, 0);	//no damage from bump
 
-	apply_damage_to_player( playerobj, robot, F1_0*(Difficulty_level+1));
+	apply_damage_to_player( playerobj, robot, F1_0*(Difficulty_level+1), 0);
 
 	return;
 }
@@ -2229,7 +2229,7 @@ void collide_player_and_materialization_center(object *objp)
 
 	bump_one_object(objp, &exit_dir, 64*F1_0);
 
-	apply_damage_to_player( objp, objp, 4*F1_0);	//	Changed, MK, 2/19/96, make killer the player, so if you die in matcen, will say you killed yourself
+	apply_damage_to_player( objp, objp, 4*F1_0, 0);	//	Changed, MK, 2/19/96, make killer the player, so if you die in matcen, will say you killed yourself
 
 	return;
 

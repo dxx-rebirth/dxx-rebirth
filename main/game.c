@@ -1756,7 +1756,7 @@ void FireLaser()
 			if (Fusion_next_sound_time < GameTime64) {
 				if (Fusion_charge > F1_0*2) {
 					digi_play_sample( 11, F1_0 );
-					apply_damage_to_player(ConsoleObject, ConsoleObject, d_rand() * 4);
+					apply_damage_to_player(ConsoleObject, ConsoleObject, d_rand() * 4, 0);
 				} else {
 					create_awareness_event(ConsoleObject, PA_WEAPON_ROBOT_COLLISION);
 					digi_play_sample( SOUND_FUSION_WARMUP, F1_0 );

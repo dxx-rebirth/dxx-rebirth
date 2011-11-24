@@ -233,7 +233,7 @@ object *object_create_explosion_sub(object *objp, short segnum, vms_vector * pos
 								if (Difficulty_level == 0)
 									damage /= 4;
 								if ( obj0p->shields >= 0 )
-									apply_damage_to_player(obj0p, killer, damage );
+									apply_damage_to_player(obj0p, killer, damage, 0 );
 							}
 								break;
 
