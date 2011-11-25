@@ -359,6 +359,8 @@ bool g3_draw_morphing_model(void *model_ptr,grs_bitmap **model_bitmaps,vms_angve
 				g3s_uvl morph_uvls[3];
 				int i,ntris;
 
+				MALLOC(lrgb_list, g3s_lrgb, nv);
+
 				//calculate light from surface normal
 				if (glow_num < 0) //no glow
 				{

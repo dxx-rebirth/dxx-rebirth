@@ -1,5 +1,9 @@
 D1X-Rebirth Changelog
 
+20111125
+--------
+3d/interp.c: Fixed forgotten MALLOC in g3_draw_morphing_model crashing game when rendering morphing robot (created from matcen for example)
+
 20111124
 --------
 main/collide.c, main/collide.h, main/fireball.c, main/game.c: Smoothed disabling of friendly fire to re-enable splash damage possible when friendly fire is disabled
