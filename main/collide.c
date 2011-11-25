@@ -513,6 +513,7 @@ void collide_weapon_and_wall( object * weapon, fix hitspeed, short hitseg, short
 			wi->strength[Difficulty_level]/2+VOLATILE_WALL_DAMAGE_FORCE,
 			weapon->ctype.laser_info.parent_num );
 
+		weapon->flags |= OF_SHOULD_BE_DEAD;		//make flares die in lava
 	}
 	else {
 
