@@ -1,5 +1,9 @@
 D2X-Rebirth Changelog
 
+20111127
+--------
+arch/sdl/event.c: break out of loop in event_send() in case window_send_event() closed the window to prevent invalid read on memory
+
 20111124
 --------
 main/collide.c, main/collide.h, main/fireball.c, main/game.c: Smoothed disabling of friendly fire to re-enable splash damage possible when friendly fire is disabled
