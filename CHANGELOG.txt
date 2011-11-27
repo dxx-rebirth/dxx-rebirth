@@ -1,5 +1,9 @@
 D1X-Rebirth Changelog
 
+20111127
+--------
+arch/sdl/event.c: break out of loop in event_send() in case window_send_event() closed the window to prevent invalid read on memory
+
 20111125
 --------
 3d/interp.c: Fixed forgotten MALLOC in g3_draw_morphing_model crashing game when rendering morphing robot (created from matcen for example)
