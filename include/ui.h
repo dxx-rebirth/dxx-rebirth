@@ -198,13 +198,10 @@ enum dialog_flags
 typedef struct _ui_window {
 	struct window	*wind;
 	int				(*callback)(struct _ui_window *, struct d_event *, void *);
-	grs_canvas *    canvas;
 	grs_canvas *    oldcanvas;
 	grs_bitmap *    background;
 	UI_GADGET *     gadget;
 	UI_GADGET *     keyboard_focus_gadget;
-	struct _ui_window * next;
-	struct _ui_window * prev;
 	void			*userdata;
 	short           x, y;
 	short           width, height;
@@ -281,6 +278,8 @@ extern void ui_mouse_hide();
 extern void ui_mouse_show();
 
 extern UI_DIALOG * ui_create_dialog( short x, short y, short w, short h, enum dialog_flags flags, int (*callback)(UI_DIALOG *, struct d_event *, void *), void *userdata );
+extern struct window *ui_dialog_get_window(UI_DIALOG *dlg);
+extern void ui_dialog_set_current_canvas(UI_DIALOG *dlg);
 extern void ui_close_dialog( UI_DIALOG * dlg );
 
 extern UI_GADGET * ui_gadget_add( UI_DIALOG * dlg, short kind, short x1, short y1, short x2, short y2 );

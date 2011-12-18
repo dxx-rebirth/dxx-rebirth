@@ -95,7 +95,7 @@ void ui_pad_activate( UI_DIALOG * dlg, int x, int y )
 
 	bw = 56; bh = 30;
 
-	gr_set_current_canvas( dlg->canvas );
+	ui_dialog_set_current_canvas( dlg );
 	ui_draw_box_in( x, y, x+(bw*4)+10 + 200, y+(bh*5)+45 );
 
 	x += 5;
