@@ -1,5 +1,9 @@
 D1X-Rebirth Changelog
 
+20111218
+--------
+include/ui.h, ui/dialog.c, ui/gadget.c, ui/keypad.c: Remove redundant canvas, next and prev members in the UI_DIALOG struct
+
 20111127
 --------
 arch/sdl/event.c: break out of loop in event_send() in case window_send_event() closed the window to prevent invalid read on memory

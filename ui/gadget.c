@@ -26,6 +26,7 @@ static char rcsid[] = "$Id: gadget.c,v 1.1.1.1 2006/03/17 19:52:21 zicodxx Exp $
 #include "ui.h"
 #include "event.h"
 #include "mouse.h"
+#include "window.h"
 #include "error.h"
 
 #include "key.h"
@@ -63,7 +64,7 @@ UI_GADGET * ui_gadget_add( UI_DIALOG * dlg, short kind, short x1, short y1, shor
 	if ( x1==0 && x2==0 && y1==0 && y2== 0 )
 		gadget->canvas = NULL;
 	else
-		gadget->canvas = gr_create_sub_canvas( dlg->canvas, x1, y1, x2-x1+1, y2-y1+1 );
+		gadget->canvas = gr_create_sub_canvas( window_get_canvas(ui_dialog_get_window( dlg )), x1, y1, x2-x1+1, y2-y1+1 );
 	gadget->x1 = gadget->canvas->cv_bitmap.bm_x;
 	gadget->y1 = gadget->canvas->cv_bitmap.bm_y;
 	gadget->x2 = gadget->canvas->cv_bitmap.bm_x+x2-x1+1;
@@ -126,7 +127,7 @@ void ui_gadget_delete_all( UI_DIALOG * dlg )
 }
 
 
-#if 1
+#if 0
 int is_under_another_window( UI_DIALOG * dlg, UI_GADGET * gadget )
 {
 	UI_DIALOG * temp;
@@ -170,7 +171,7 @@ int ui_mouse_on_gadget( UI_GADGET * gadget )
 	mouse_get_pos(&x, &y, &z);
 	if ((x >= gadget->x1) && (x <= gadget->x2-1) &&	(y >= gadget->y1) &&	(y <= gadget->y2-1) )
 	{
-#if 1
+#if 0	// check is no longer required - if it is under another window, that dialog's handler would have returned 1
 		if (is_under_another_window(CurWindow, gadget))
 			return 0;
 #endif
@@ -271,7 +272,9 @@ int ui_dialog_do_gadgets(UI_DIALOG * dlg, d_event *event)
 	tmp = dlg->gadget;
 	do
 	{
-		if (!is_under_another_window( CurWindow, tmp ))	// won't be a necessary check when the rval is set properly
+		// If it is under another dialog, that dialog's handler would have returned 1 for mouse events.
+		// Key events are handled in a priority depending on the window ordering.
+		//if (!is_under_another_window( CurWindow, tmp ))
 		{
 			UI_DIALOG *curwindow_save=CurWindow;
 
