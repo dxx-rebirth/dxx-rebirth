@@ -238,10 +238,8 @@ typedef struct  {
 #define BUTTON_JUST_RELEASED    8
 #define BUTTON_DOUBLE_CLICKED   16
 
-#define B1_PRESSED          (Mouse.b1_status & BUTTON_PRESSED)
-#define B1_RELEASED         (Mouse.b1_status & BUTTON_RELEASED)
 #define B1_JUST_PRESSED     (event->type == EVENT_MOUSE_BUTTON_DOWN && event_mouse_get_button(event) == 0)
-#define B1_JUST_RELEASED    (Mouse.b1_status & BUTTON_JUST_RELEASED)
+#define B1_JUST_RELEASED    (event->type == EVENT_MOUSE_BUTTON_UP && event_mouse_get_button(event) == 0)
 #define B1_DOUBLE_CLICKED   (event->type == EVENT_MOUSE_DOUBLE_CLICKED && event_mouse_get_button(event) == 0)
 
 extern grs_font * ui_small_font;
@@ -382,7 +380,6 @@ int DecodeKeyText( char * text );
 void GetKeyDescription( char * text, int keypress );
 
 extern void menubar_init(char * filename );
-extern void menubar_do( int keypress );
 extern void menubar_close();
 extern void menubar_hide();
 extern void menubar_show();
