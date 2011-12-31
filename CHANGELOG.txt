@@ -1,5 +1,9 @@
 D2X-Rebirth Changelog
 
+20111231
+--------
+editor/med.c, include/ui.h, ui/menu.c, ui/menubar.c, ui/popup.c: Make editor menubar and associated menus into windows; either remove or make event-based all the B1_* macros
+
 20111218
 --------
 include/ui.h, ui/dialog.c, ui/gadget.c, ui/keypad.c: Remove redundant canvas, next and prev members in the UI_DIALOG struct

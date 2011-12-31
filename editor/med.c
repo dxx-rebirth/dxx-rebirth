@@ -1127,7 +1127,6 @@ void editor(void)
 //		if ((last_keypress&0xff)==KEY_RALT) last_keypress=0;
 
 		gr_set_curfont(editor_font);
-		menubar_do( last_keypress );
 
 		//=================== DO FUNCTIONS ====================
 

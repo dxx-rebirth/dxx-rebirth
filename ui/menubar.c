@@ -20,7 +20,9 @@ COPYRIGHT 1993-1999 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 #include "pstypes.h"
 #include "gr.h"
 #include "event.h"
+#include "window.h"
 #include "ui.h"
+#include "mouse.h"
 #include "key.h"
 #include "func.h"
 #include "error.h"
@@ -38,6 +40,7 @@ typedef struct {
 } ITEM;
 
 typedef struct {
+	window			*wind;
 	short 			x, y, w, h;
 	short				ShowBar;
 	short				CurrentItem;
@@ -52,9 +55,11 @@ MENU Menu[MAXMENUS];
 
 static int num_menus = 0;
 static int state;
-static int menubar_hid;
 
 #define CMENU (Menu[0].CurrentItem+1)
+
+int menubar_handler(window *wind, d_event *event, MENU *menu);
+int menu_handler(window *wind, d_event *event, MENU *menu);
 
 //------------------------- Show a menu item -------------------
 
@@ -108,6 +113,19 @@ void menu_show( MENU * menu )
 {
 	int i;
 
+	if (!menu->wind)
+	{
+		menu->wind = window_create(&grd_curscreen->sc_canvas, menu->x, menu->y, menu->w, menu->h, 
+								   (int (*)(window *, d_event *, void *)) ((menu == &Menu[0]) ? menubar_handler : menu_handler), menu);
+		if (!menu->wind)
+			return;
+		
+		if (menu == &Menu[0])
+			window_set_modal(Menu[0].wind, 0);	// allow windows behind the menubar to accept events (e.g. the keypad dialogs)
+	}
+
+	window_set_visible(menu->wind, 1);
+	
 	ui_mouse_hide();
 
 	gr_set_current_canvas(NULL);
@@ -131,7 +149,7 @@ void menu_show( MENU * menu )
 	
 	for (i=0; i< menu->NumItems; i++ )
 		item_show( menu, i );
-
+	
 	ui_mouse_show();
 	
 	// Mark as displayed.
@@ -145,8 +163,12 @@ void menu_hide( MENU * menu )
 
 	// Can't hide if it's not already drawn
 	if (!menu->Displayed) return;
+	
+	window_set_visible(menu->wind, 0);	// don't draw or receive events
 
 	menu->Active = 0;
+	if (Menu[0].wind && menu == &Menu[0])
+		window_set_modal(Menu[0].wind, 0);
 		
 	// Restore the background
 	ui_mouse_hide();
@@ -210,10 +232,14 @@ int menu_match_keypress( MENU * menu, int keypress )
 
 int menu_is_mouse_on( ITEM * item )
 {
-	if ((Mouse.x >= item->x) &&
-		(Mouse.x < item->x + item->w ) &&
-		(Mouse.y >= item->y) &&
-		(Mouse.y <= item->y + item->h ) )
+	int x, y, z;
+	
+	mouse_get_pos(&x, &y, &z);
+
+	if ((x >= item->x) &&
+		(x < item->x + item->w ) &&
+		(y >= item->y) &&
+		(y <= item->y + item->h ) )
 		return 1;
 	else
 		return 0;
@@ -246,6 +272,8 @@ void menu_hide_all()
 	
 	Menu[0].ShowBar = 0;
 	Menu[0].Active = 0;
+	if (Menu[0].wind)
+		window_set_modal(Menu[0].wind, 0);
 	menu_show( &Menu[0] );
 
 }
@@ -253,14 +281,18 @@ void menu_hide_all()
 
 static int state2_alt_down;
 
-void do_state_0( int keypress )
+int do_state_0(d_event *event)
 {
 	int i, j;
+	int keypress = 0;
+	
+	if (event->type == EVENT_KEY_COMMAND)
+		keypress = event_key_get(event);
 	
 	Menu[0].Active = 0;
+	if (Menu[0].wind)
+		window_set_modal(Menu[0].wind, 0);
 	Menu[0].ShowBar = 0;
-	if (Menu[0].Displayed==0)
-		menu_show( &Menu[0] );
 
 	if ( keypress & KEY_ALTED )	{
 		i = menu_match_keypress( &Menu[0], keypress );
@@ -268,6 +300,9 @@ void do_state_0( int keypress )
 		{
 			Menu[0].CurrentItem = i;
 			Menu[0].Active = 0;
+			if (Menu[0].wind)
+				window_set_modal(Menu[0].wind, 0);
+
 			state = 3;	
 			Menu[ CMENU ].ShowBar = 1;
 			Menu[ CMENU ].Active = 1;
@@ -275,6 +310,7 @@ void do_state_0( int keypress )
 	
 			menu_show( &Menu[ CMENU ] );
 			menu_show( &Menu[0] );
+			return 1;
 		}
 	}
 	
@@ -285,23 +321,30 @@ void do_state_0( int keypress )
 			{
 				if (Menu[i].Item[j].user_function)
 					Menu[i].Item[j].user_function();
-				last_keypress = 0;
-				return;
+				return 1;
 			}
 		}
 		
-	if (keyd_pressed[KEY_LALT] || keyd_pressed[KEY_RALT] || ((keypress & 0xFF) == KEY_LALT) )
+	if (keypress & KEY_ALTED)
 	//if ( (keypress & 0xFF) == KEY_LALT )
 	{
+		// Make sure the menubar receives events exclusively
 		state = 1;
 		Menu[0].Active = 1;
+		
+		// Put the menubar in front - hope this doesn't mess anything up by leaving it there
+		// If it does, will need to remember the previous front window and restore it.
+		// (Personally, I just use either the mouse or 'hotkeys' for menus)
+		window_select(Menu[0].wind);	
+
+		window_set_modal(Menu[0].wind, 1);
 		menu_show( &Menu[0] );
-		return;
+		return 1;
 	}
 
 	i = menu_check_mouse_item( &Menu[0] );
 
-	if ( B1_PRESSED && (i > -1))
+	if ( B1_JUST_PRESSED && (i > -1))
 	{
 		Menu[0].CurrentItem = i;
 		state = 3;	
@@ -309,25 +352,36 @@ void do_state_0( int keypress )
 		Menu[0].ShowBar = 1;
 		Menu[ CMENU ].Active = 1;
 		Menu[0].Active = 0;
+		window_set_modal(Menu[0].wind, 0);
 		menu_show( &Menu[ CMENU ] );
 		menu_show( &Menu[0] );
-		return;
+		return 1;
 	}
+	
+	return 0;
 }
 
-void do_state_1( int keypress )
+int do_state_1(d_event *event)
 {
 	int i;
-
-	if (!keyd_pressed[KEY_LALT] && !keyd_pressed[KEY_RALT] )
+	int keypress = 0;
+	int rval = 0;
+	
+	if (event->type == EVENT_KEY_COMMAND)
+		keypress = event_key_get(event);
+	
+	if ((event->type == EVENT_KEY_RELEASE) && !(event_key_get(event) & KEY_ALTED))
 	{
-		//state = 2;
-		//state2_alt_down = 0;
-		//Menu[0].ShowBar = 1;
-		//Menu[0].Active = 1;
-		//menu_show( &Menu[0] );
+		state = 2;
+		state2_alt_down = 0;
+		Menu[0].ShowBar = 1;
+		Menu[0].Active = 1;
+		menu_show( &Menu[0] );
+#if 0
 		state = 0;
 		menu_hide_all();
+#endif
+		rval = 1;
   	}
 
 	i = menu_match_keypress( &Menu[0], keypress );
@@ -336,6 +390,7 @@ void do_state_1( int keypress )
 	{
 		Menu[0].CurrentItem = i;
 		Menu[0].Active = 0;
+		window_set_modal(Menu[0].wind, 0);
 		state = 3;	
 		Menu[ CMENU ].ShowBar = 1;
 		Menu[ CMENU ].Active = 1;
@@ -343,6 +398,7 @@ void do_state_1( int keypress )
 
 		menu_show( &Menu[ CMENU ] );
 		menu_show( &Menu[0] );
+		rval = 1;
 	}
 
 	i = menu_check_mouse_item( &Menu[0] );
@@ -351,9 +407,10 @@ void do_state_1( int keypress )
 	{
 		state = 0;
 		menu_hide_all();
+		rval = 1;
 	}
 
-	if ( B1_PRESSED && (i > -1))
+	if ( B1_JUST_PRESSED && (i > -1))
 	{
 		Menu[0].CurrentItem = i;
 		state = 3;	
@@ -361,22 +418,35 @@ void do_state_1( int keypress )
 		Menu[ CMENU ].Active = 1;
 		Menu[0].ShowBar = 1;
 		Menu[0].Active = 0;
+		window_set_modal(Menu[0].wind, 0);
 		menu_show( &Menu[ CMENU ] );
 		menu_show( &Menu[0] );
+		rval = 1;
 	}
+	
+	return rval;
 }
 
-void do_state_2(int keypress)
+int do_state_2(d_event *event)
 {
 	int i;
-
-	if (keyd_pressed[KEY_LALT] || keyd_pressed[KEY_RALT] )
+	int keypress = 0;
+	int rval = 0;
+	
+	if (event->type == EVENT_KEY_COMMAND)
+		keypress = event_key_get(event);
+		
+	if (keypress & KEY_ALTED)
+	{
  		state2_alt_down = 1;
+		rval = 1;
+	}
 
-	if (!keyd_pressed[KEY_LALT] && !keyd_pressed[KEY_RALT] && state2_alt_down )
+	if ((event->type == EVENT_KEY_RELEASE) && !(event_key_get(event) & KEY_ALTED) && state2_alt_down)
 	{
 		state = 0;
 		menu_hide_all();
+		rval = 1;
 	}			
 
 	switch( keypress )
@@ -384,18 +454,21 @@ void do_state_2(int keypress)
 	case KEY_ESC:
 		state = 0;
 		menu_hide_all();
+		rval = 1;
 		break;
 	case KEY_LEFT:
 	case KEY_PAD4:
 		i = Menu[0].CurrentItem-1;
 		if (i < 0 ) i = Menu[0].NumItems-1;
 		menu_move_bar_to( &Menu[0], i );
+		rval = 1;
 		break;
 	case KEY_RIGHT:
 	case KEY_PAD6:
 		i = Menu[0].CurrentItem+1;
 		if (i >= Menu[0].NumItems ) i = 0;
 		menu_move_bar_to( &Menu[0], i );
+		rval = 1;
 		break;
 	case KEY_ENTER:
 	case KEY_PADENTER:
@@ -405,8 +478,10 @@ void do_state_2(int keypress)
 		Menu[ CMENU ].ShowBar = 1;
 		Menu[ CMENU ].Active = 1;
 		Menu[0].Active = 0;
+		window_set_modal(Menu[0].wind, 0);
 		menu_show( &Menu[ 0 ] );
 		menu_show( &Menu[ CMENU ] );
+		rval = 1;
 		break;
 	
 	default:
@@ -416,12 +491,14 @@ void do_state_2(int keypress)
 		{
 			Menu[0].CurrentItem = i;
 			Menu[0].Active = 0;
+			window_set_modal(Menu[0].wind, 0);
 			state = 3;	
 			Menu[ CMENU ].ShowBar = 1;
 			Menu[ CMENU ].Active = 1;
 			Menu[0].ShowBar = 1;
 			menu_show( &Menu[ CMENU ] );
 			menu_show( &Menu[0] );
+			rval = 1;
 			break;
 		}
 
@@ -431,37 +508,49 @@ void do_state_2(int keypress)
 		{
 			state = 0;
 			menu_hide_all();
+			rval = 1;
 			break;
 		}
 
-		if ( B1_PRESSED && (i > -1))
+		if (i > -1)
 		{
 			Menu[0].CurrentItem = i;
 			Menu[0].Active = 0;
+			window_set_modal(Menu[0].wind, 0);
 			state = 3;	
 			Menu[ CMENU ].ShowBar = 1;
 			Menu[ CMENU ].Active = 1;
 			Menu[0].ShowBar = 1;
 			menu_show( &Menu[ CMENU ] );
 			menu_show( &Menu[0] );
+			rval = 1;
 			break;
 		}
-
-
 	}
+	
+	return rval;
 }
 
 
 
-void do_state_3( int keypress )
+int menu_handler(window *wind, d_event *event, MENU *menu)
 {
 	int i;
+	int keypress = 0;
+	int rval = 0;
+	
+	if (state != 3)
+		return 0;
+	
+	if (event->type == EVENT_KEY_COMMAND)
+		keypress = event_key_get(event);
 	
 	switch( keypress )
 	{
 	case KEY_ESC:
 		state = 0;
 		menu_hide_all();
+		rval = 1;
 		break;
 	case KEY_DOWN:
 	case KEY_PAD2:
@@ -472,6 +561,7 @@ void do_state_3( int keypress )
 				i = 0;
 		} while( Menu[CMENU].Item[i].Text[0] == '-');
 		menu_move_bar_to( &Menu[ CMENU ], i );
+		rval = 1;
 		break;
 	case KEY_UP:
 	case KEY_PAD8:
@@ -483,6 +573,7 @@ void do_state_3( int keypress )
 				i = Menu[ CMENU ].NumItems-1;
 		} while( Menu[CMENU].Item[i].Text[0] == '-');
 		menu_move_bar_to( &Menu[ CMENU ], i );
+		rval = 1;
 		break;
 	case KEY_RIGHT:
 	case KEY_PAD6:
@@ -493,6 +584,7 @@ void do_state_3( int keypress )
 		Menu[CMENU].ShowBar = 1;
 		Menu[CMENU].Active = 1;
 		menu_show( &Menu[CMENU] );
+		rval = 1;
 		break;
 	case KEY_LEFT:
 	case KEY_PAD4:
@@ -503,6 +595,7 @@ void do_state_3( int keypress )
 		Menu[ CMENU ].ShowBar = 1;
 		Menu[CMENU].Active = 1;
 		menu_show( &Menu[ CMENU ] );
+		rval = 1;
 		break;
 	case KEY_ENTER:
 	case KEY_PADENTER:
@@ -512,6 +605,7 @@ void do_state_3( int keypress )
 		if (Menu[CMENU].Item[ Menu[CMENU].CurrentItem ].user_function)
 			Menu[CMENU].Item[ Menu[CMENU].CurrentItem ].user_function();
 		
+		rval = 1;
 		break;
 		
 	default:
@@ -525,15 +619,14 @@ void do_state_3( int keypress )
 							
 			if (Menu[CMENU].Item[ Menu[CMENU].CurrentItem ].user_function)
 				Menu[CMENU].Item[ Menu[CMENU].CurrentItem ].user_function();
+			rval = 1;
 			break;
 		}
 		i = menu_check_mouse_item( &Menu[CMENU] );
 			
 		if (i > -1 )
 		{
-			if ( B1_PRESSED )
-				menu_move_bar_to( &Menu[ CMENU ], i );
-			else if ( B1_JUST_RELEASED )
+			if ( B1_JUST_RELEASED )
 			{
 				menu_move_bar_to( &Menu[ CMENU ], i );
 				state = 0;
@@ -541,12 +634,18 @@ void do_state_3( int keypress )
 								
 				if (Menu[CMENU].Item[ Menu[CMENU].CurrentItem ].user_function)
 					Menu[CMENU].Item[ Menu[CMENU].CurrentItem ].user_function();
+				rval = 1;
 				break;
+			}
+			else
+			{
+				menu_move_bar_to( &Menu[ CMENU ], i );
+				rval = 1;
 			}
 		} else {
 			i = menu_check_mouse_item( &Menu[0] );
 
-			if ( B1_PRESSED && (i > -1))
+			if (i > -1)
 			{
 				if ( Menu[0].CurrentItem != i)	{
 					menu_hide( &Menu[ CMENU ] );
@@ -556,46 +655,54 @@ void do_state_3( int keypress )
 					menu_show( &Menu[ CMENU ] );
 					break;
 				}
+
+				rval = 1;
 			}
 
 			if ( B1_JUST_RELEASED )
 			{
 				state = 0;
 				menu_hide_all();
+				rval = 1;
 				break;
 			}
-
 		}
-
 	}
+	
+	return rval;
 }
-	
-void menubar_do( int keypress )
+
+int menubar_handler(window *wind, d_event *event, MENU *menu)
 {
-	if (menubar_hid) return;
-		
-	keypress = keypress;
-	do_state_0(last_keypress);
-	
-	while (state > 0 )
+	int rval = 0;
+
+	// HACK: Make sure all the state-based input variables are set, until we fully migrate to event-based input
+	if (wind == window_get_front())
+		ui_event_handler(event);
+
+	switch (state)
 	{
-		event_process();
-		switch(state)
-		{
+		case 0:
+			rval = do_state_0(event);
+			break;
+			
 		case 1:
-			do_state_1(last_keypress);
+			rval = do_state_1(event);
 			break;
+			
 		case 2:
-			do_state_2(last_keypress);
+			rval = do_state_2(event);
 			break;
+			
 		case 3:
-			do_state_3(last_keypress);			
 			break;
+
 		default:
 			state = 0;
-		}
-		last_keypress  = 0;
+			menu_hide_all();
 	}
+	
+	return rval;
 }
 
 void CommaParse( int n, char * dest, char * source )
@@ -641,22 +748,12 @@ void menubar_init( char * file )
 		
 	num_menus = state = 0;
 
+	// This method should be faster than explicitly setting all the variables (I think)
+	memset(Menu, 0, sizeof(Menu));
+
 	for (i=0; i < MAXMENUS; i++ )
-	{
-		Menu[i].x = Menu[i].y = Menu[i].w = Menu[i].h = 0;
-		Menu[i].ShowBar = 0;
-		Menu[i].CurrentItem = 0;
-		Menu[i].NumItems = 0;
-		Menu[i].Displayed = 0;
-		Menu[i].Background = 0;
 		for (j=0; j< MAXITEMS; j++ )
-		{
-			Menu[i].Item[j].x = Menu[i].Item[j].y = Menu[i].Item[j].w = Menu[i].Item[j].h = 0;
-			Menu[i].Item[j].Text = NULL;
 			Menu[i].Item[j].Hotkey = -1;
-			Menu[i].Item[j].user_function = NULL;
-		}
-	}
 		
 	infile = PHYSFSX_openReadBuffered( file );
 
@@ -772,19 +869,16 @@ void menubar_init( char * file )
 	}
 
 	Menu[0].w = 700;
-			
+
 	PHYSFS_close( infile );
 
 	
 	for (i=0; i<num_menus; i++ )
 		Menu[i].Background = gr_create_bitmap(Menu[i].w, Menu[i].h );
-
-	menubar_hid = 1;
 }
 
 void menubar_hide()
 {
-	menubar_hid = 1;
 	state = 0;
 	menu_hide_all();
 	menu_hide( &Menu[0] );
@@ -792,7 +886,6 @@ void menubar_hide()
 
 void menubar_show()
 {
-	menubar_hid = 0;
 	menu_show( &Menu[0] );
 }
 
@@ -804,6 +897,10 @@ void menubar_close()
 	//menu_hide( &Menu[0] );
 	
 	for (i=0; i<num_menus; i++ )
+	{
+		if (Menu[i].wind)
+			window_close(Menu[i].wind);
 		gr_free_bitmap( Menu[i].Background );
+	}
 
 }

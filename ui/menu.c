@@ -109,10 +109,12 @@ int MenuX( int x, int y, int NumButtons, char * text[] )
 			}
 		}
 
+#if 0	// FIXME: Put this code in the handler when it uses one
 		if ( (choice==0) && B1_JUST_RELEASED )  {
 			choice = -1;
 			break;
 		}
+#endif
 	}
 
 	ui_close_dialog(dlg);

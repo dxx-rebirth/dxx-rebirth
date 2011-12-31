@@ -47,11 +47,13 @@ int PopupMenu( int NumButtons, char * text[] )
 
 	//ui_mouse_process();
 
+#if 0
 	if ( B1_RELEASED )
 	{
 		ui_mouse_flip_buttons();
 		return -1;
 	}
+#endif
 
 	if ((NumButtons < 1) || (NumButtons>10))
 	{
@@ -131,10 +133,12 @@ int PopupMenu( int NumButtons, char * text[] )
 			}
 		}
 
+#if 0	// FIXME: Put this code in the handler when it uses one
 		if ( (choice==0) && B1_JUST_RELEASED )  {
 			choice = -1;
 			break;
 		}
+#endif
 	}
 
 	ui_close_dialog(dlg);
