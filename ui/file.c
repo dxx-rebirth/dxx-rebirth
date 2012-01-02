@@ -22,6 +22,7 @@ COPYRIGHT 1993-1999 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 #include "key.h"
 #include "strutil.h"
 #include "ui.h"
+#include "window.h"
 #include "u_mem.h"
 
 int file_sort_func(char **e0, char **e1)
@@ -106,219 +107,254 @@ char **file_getfilelist(int *NumFiles, char *filespec, char *dir)
 	return list;
 }
 
-int ui_get_filename( char * filename, char * Filespec, char * message  )
+typedef struct browser
 {
-	char		ViewDir[PATH_MAX];
-	char		InputText[PATH_MAX];
-	char		*p;
-	PHYSFS_file	*TempFile;
-	int			NumFiles, NumDirs,i;
+	char		view_dir[PATH_MAX];
+	char		*filename;
+	char		*filespec;
+	char		*message;
 	char		**filename_list;
 	char		**directory_list;
-	char		Spaces[35];
-	UI_DIALOG			*dlg;
-	UI_GADGET_BUTTON	*Button1, *Button2, *HelpButton;
-	UI_GADGET_LISTBOX	*ListBox1;
-	UI_GADGET_LISTBOX	*ListBox2;
-	UI_GADGET_INPUTBOX	*UserFile;
-	int 				new_listboxes;
+	UI_GADGET_BUTTON	*button1, *button2, *help_button;
+	UI_GADGET_LISTBOX	*listbox1;
+	UI_GADGET_LISTBOX	*listbox2;
+	UI_GADGET_INPUTBOX	*user_file;
+	int			num_files, num_dirs;
+	int			new_listboxes;
+	char		spaces[35];
+} browser;
 
+static int browser_handler(UI_DIALOG *dlg, d_event *event, browser *b)
+{
+	int rval = 0;
+
+	if ( b->button2->pressed )
+	{
+		PHYSFS_freeList(b->filename_list);	b->filename_list = NULL;
+		PHYSFS_freeList(b->directory_list);	b->directory_list = NULL;
+		ui_close_dialog(dlg);
+		return 1;
+	}
+	
+	if ( b->help_button->pressed )
+	{
+		MessageBox( -1, -1, 1, "Sorry, no help is available!", "Ok" );
+		rval = 1;
+	}
+	
+	if (b->listbox1->moved || b->new_listboxes)
+	{
+		if (b->listbox1->current_item >= 0 )
+			ui_inputbox_set_text(b->user_file, b->filename_list[b->listbox1->current_item]);
+		rval = 1;
+	}
+	
+	if (b->listbox2->moved || b->new_listboxes)
+	{
+		if (b->listbox2->current_item >= 0 )
+			ui_inputbox_set_text(b->user_file, b->directory_list[b->listbox2->current_item]);
+		rval = 1;
+	}
+	b->new_listboxes = 0;
+	
+	if (b->button1->pressed || b->user_file->pressed || (b->listbox1->selected_item > -1 ) || (b->listbox2->selected_item > -1 ))
+	{
+		char *p;
+		
+		ui_mouse_hide();
+		
+		if (b->listbox2->selected_item > -1 )
+			strcpy(b->user_file->text, b->directory_list[b->listbox2->selected_item]);
+		
+		strncpy(b->filename, b->view_dir, PATH_MAX);
+		
+		p = b->user_file->text;
+		while (!strncmp(p, "..", 2))	// shorten the path manually
+		{
+			char *sep = strrchr(b->filename, '/');
+			if (sep)
+				*sep = 0;
+			else
+				*b->filename = 0;	// look directly in search paths
+			
+			p += 2;
+			if (*p == '/')
+				p++;
+		}
+		
+		if (*b->filename && *p)
+			strncat(b->filename, "/", PATH_MAX - strlen(b->filename));
+		strncat(b->filename, p, PATH_MAX - strlen(b->filename));
+		
+		if (!PHYSFS_isDirectory(b->filename))
+		{
+			PHYSFS_file	*TempFile;
+			
+			TempFile = PHYSFS_openRead(b->filename);
+			if (TempFile)
+			{
+				// Looks like a valid filename that already exists!
+				PHYSFS_close(TempFile);
+				ui_close_dialog(dlg);
+				return 1;
+			}
+			
+			// File doesn't exist, but can we create it?
+			TempFile = PHYSFS_openWrite(b->filename);
+			if (TempFile)
+			{
+				// Looks like a valid filename!
+				PHYSFS_close(TempFile);
+				PHYSFS_delete(b->filename);
+				ui_close_dialog(dlg);
+				return 1;
+			}
+		}
+		else
+		{
+			if (b->filename[strlen(b->filename) - 1] == '/')	// user typed a separator on the end
+				b->filename[strlen(b->filename) - 1] = 0;
+			
+			strcpy(b->view_dir, b->filename);
+			
+			
+			PHYSFS_freeList(b->filename_list);
+			b->filename_list = file_getfilelist(&b->num_files, b->filespec, b->view_dir);
+			if (!b->filename_list)
+			{
+				PHYSFS_freeList(b->directory_list);	b->directory_list = NULL;
+				ui_close_dialog(dlg);
+				return 1;
+			}
+			
+			ui_inputbox_set_text(b->user_file, b->filespec);
+			
+			PHYSFS_freeList(b->directory_list);
+			b->directory_list = file_getdirlist(&b->num_dirs, b->view_dir);
+			if (!b->directory_list)
+			{
+				PHYSFS_freeList(b->filename_list); b->filename_list = NULL;
+				ui_close_dialog(dlg);
+				return 1;
+			}
+			
+			ui_listbox_change(dlg, b->listbox1, b->num_files, b->filename_list);
+			ui_listbox_change(dlg, b->listbox2, b->num_dirs, b->directory_list);
+			b->new_listboxes = 1;
+			
+			ui_dprintf_at( dlg, 20, 60, "%s", b->spaces );
+			ui_dprintf_at( dlg, 20, 60, "%s", b->view_dir );
+			
+			//i = TICKER;
+			//while ( TICKER < i+2 );
+			
+		}
+		
+		ui_mouse_show();
+		rval = 1;
+	}
+	
+	return rval;
+}
+
+int ui_get_filename( char * filename, char * filespec, char * message  )
+{
+	char		InputText[PATH_MAX];
+	char		*p;
+	int			i;
+	browser		*b;
+	UI_DIALOG	*dlg;
+	window		*wind;
+	int			rval = 0;
+
+	MALLOC(b, browser, 1);
+	if (!b)
+		return 0;
+	
 	if ((p = strrchr(filename, '/')))
 	{
 		*p++ = 0;
-		strcpy(ViewDir, filename);
+		strcpy(b->view_dir, filename);
 		strcpy(InputText, p);
 	}
 	else
 	{
-		strcpy(ViewDir, "");
+		strcpy(b->view_dir, "");
 		strcpy(InputText, filename);
 	}
 
-	filename_list = file_getfilelist(&NumFiles, Filespec, ViewDir);
-	directory_list = file_getdirlist(&NumDirs, ViewDir);
-
-	// Running out of memory may become likely in the future
-	if (!filename_list && !directory_list)
-		return 0;
-
-	if (!filename_list)
+	b->filename_list = file_getfilelist(&b->num_files, filespec, b->view_dir);
+	if (!b->filename_list)
 	{
-		PHYSFS_freeList(directory_list);
+		d_free(b);
 		return 0;
 	}
-
-	if (!directory_list)
+	
+	b->directory_list = file_getdirlist(&b->num_dirs, b->view_dir);
+	if (!b->directory_list)
 	{
-		PHYSFS_freeList(filename_list);
+		PHYSFS_freeList(b->filename_list);
+		d_free(b);
 		return 0;
 	}
 
 	//MessageBox( -2,-2, 1,"DEBUG:0", "Ok" );
 	for (i=0; i<35; i++)
-		Spaces[i] = ' ';
-	Spaces[34] = 0;
+		b->spaces[i] = ' ';
+	b->spaces[34] = 0;
 
-	dlg = ui_create_dialog( 200, 100, 400, 370, DF_DIALOG | DF_MODAL, NULL, NULL );
+	dlg = ui_create_dialog( 200, 100, 400, 370, DF_DIALOG | DF_MODAL, (int (*)(UI_DIALOG *, d_event *, void *))browser_handler, b );
 
 	ui_dprintf_at( dlg, 10, 5, message );
 
 	ui_dprintf_at( dlg, 20, 32,"N&ame" );
-	UserFile  = ui_add_gadget_inputbox( dlg, 60, 30, PATH_MAX, 40, InputText );
+	b->user_file  = ui_add_gadget_inputbox( dlg, 60, 30, PATH_MAX, 40, InputText );
 
 	ui_dprintf_at( dlg, 20, 86,"&Files" );
 	ui_dprintf_at( dlg, 210, 86,"&Dirs" );
 
-	ListBox1 = ui_add_gadget_listbox(dlg,  20, 110, 125, 200, NumFiles, filename_list);
-	ListBox2 = ui_add_gadget_listbox(dlg, 210, 110, 100, 200, NumDirs, directory_list);
+	b->listbox1 = ui_add_gadget_listbox(dlg,  20, 110, 125, 200, b->num_files, b->filename_list);
+	b->listbox2 = ui_add_gadget_listbox(dlg, 210, 110, 100, 200, b->num_dirs, b->directory_list);
 
-	Button1 = ui_add_gadget_button( dlg,     20, 330, 60, 25, "Ok", NULL );
-	Button2 = ui_add_gadget_button( dlg,    100, 330, 60, 25, "Cancel", NULL );
-	HelpButton = ui_add_gadget_button( dlg, 180, 330, 60, 25, "Help", NULL );
+	b->button1 = ui_add_gadget_button( dlg,     20, 330, 60, 25, "Ok", NULL );
+	b->button2 = ui_add_gadget_button( dlg,    100, 330, 60, 25, "Cancel", NULL );
+	b->help_button = ui_add_gadget_button( dlg, 180, 330, 60, 25, "Help", NULL );
 
-	dlg->keyboard_focus_gadget = (UI_GADGET *)UserFile;
+	dlg->keyboard_focus_gadget = (UI_GADGET *)b->user_file;
 
-	Button1->hotkey = KEY_CTRLED + KEY_ENTER;
-	Button2->hotkey = KEY_ESC;
-	HelpButton->hotkey = KEY_F1;
-	ListBox1->hotkey = KEY_ALTED + KEY_F;
-	ListBox2->hotkey = KEY_ALTED + KEY_D;
-	UserFile->hotkey = KEY_ALTED + KEY_A;
+	b->button1->hotkey = KEY_CTRLED + KEY_ENTER;
+	b->button2->hotkey = KEY_ESC;
+	b->help_button->hotkey = KEY_F1;
+	b->listbox1->hotkey = KEY_ALTED + KEY_F;
+	b->listbox2->hotkey = KEY_ALTED + KEY_D;
+	b->user_file->hotkey = KEY_ALTED + KEY_A;
 
 	ui_gadget_calc_keys(dlg);
 
-	ui_dprintf_at( dlg, 20, 60, "%s", Spaces );
-	ui_dprintf_at( dlg, 20, 60, "%s", ViewDir );
+	ui_dprintf_at( dlg, 20, 60, "%s", b->spaces );
+	ui_dprintf_at( dlg, 20, 60, "%s", b->view_dir );
 
-	new_listboxes = 0;
-
-	while( 1 )
-	{
+	b->filename = filename;
+	b->filespec = filespec;
+	b->message = message;
+	b->new_listboxes = 0;
+	
+	wind = ui_dialog_get_window(dlg);
+	
+	while (window_exists(wind))
 		event_process();
-
-		if ( Button2->pressed )
-		{
-			PHYSFS_freeList(filename_list);
-			PHYSFS_freeList(directory_list);
-			ui_close_dialog(dlg);
-			return 0;
-		}
-
-		if ( HelpButton->pressed )
-			MessageBox( -1, -1, 1, "Sorry, no help is available!", "Ok" );
-
-		if (ListBox1->moved || new_listboxes)
-		{
-			if (ListBox1->current_item >= 0 )
-				ui_inputbox_set_text(UserFile, filename_list[ListBox1->current_item]);
-		}
-
-		if (ListBox2->moved || new_listboxes)
-		{
-			if (ListBox2->current_item >= 0 )
-				ui_inputbox_set_text(UserFile, directory_list[ListBox2->current_item]);
-		}
-		new_listboxes = 0;
-
-		if (Button1->pressed || UserFile->pressed || (ListBox1->selected_item > -1 ) || (ListBox2->selected_item > -1 ))
-		{
-			ui_mouse_hide();
-
-			if (ListBox2->selected_item > -1 )
-				strcpy(UserFile->text, directory_list[ListBox2->selected_item]);
-
-			strncpy(filename, ViewDir, PATH_MAX);
-
-			p = UserFile->text;
-			while (!strncmp(p, "..", 2))	// shorten the path manually
-			{
-				char *sep = strrchr(filename, '/');
-				if (sep)
-					*sep = 0;
-				else
-					*filename = 0;	// look directly in search paths
-
-				p += 2;
-				if (*p == '/')
-					p++;
-			}
-
-			if (*filename && *p)
-				strncat(filename, "/", PATH_MAX - strlen(filename));
-			strncat(filename, p, PATH_MAX - strlen(filename));
-
-			if (!PHYSFS_isDirectory(filename))
-			{
-				TempFile = PHYSFS_openRead(filename);
-				if (TempFile)
-				{
-					// Looks like a valid filename that already exists!
-					PHYSFS_close(TempFile);
-					break;
-				}
-	
-				// File doesn't exist, but can we create it?
-				TempFile = PHYSFS_openWrite(filename);
-				if (TempFile)
-				{
-					// Looks like a valid filename!
-					PHYSFS_close(TempFile);
-					PHYSFS_delete(filename);
-					break;
-				}
-			}
-			else
-			{
-				if (filename[strlen(filename) - 1] == '/')	// user typed a separator on the end
-					filename[strlen(filename) - 1] = 0;
-	
-				strcpy(ViewDir, filename);
-	
-
-				PHYSFS_freeList(filename_list);
-				filename_list = file_getfilelist(&NumFiles, Filespec, ViewDir);
-				if (!filename_list)
-				{
-					PHYSFS_freeList(directory_list);
-					return 0;
-				}
-
-				ui_inputbox_set_text(UserFile, Filespec);
-
-				PHYSFS_freeList(directory_list);
-				directory_list = file_getdirlist(&NumDirs, ViewDir);
-				if (!directory_list)
-				{
-					PHYSFS_freeList(filename_list);
-					return 0;
-				}
-
-				ui_listbox_change(dlg, ListBox1, NumFiles, filename_list);
-				ui_listbox_change(dlg, ListBox2, NumDirs, directory_list);
-				new_listboxes = 0;
-
-				ui_dprintf_at( dlg, 20, 60, "%s", Spaces );
-				ui_dprintf_at( dlg, 20, 60, "%s", ViewDir );
-
-				//i = TICKER;
-				//while ( TICKER < i+2 );
-
-			}
-
-			ui_mouse_show();
-
-		}
-	}
 
 	//key_flush();
 
-	ui_close_dialog(dlg);
-	if (filename_list)
-		PHYSFS_freeList(filename_list);
-	if (directory_list)
-		PHYSFS_freeList(directory_list);
+	if (b->filename_list)
+		PHYSFS_freeList(b->filename_list);
+	if (b->directory_list)
+		PHYSFS_freeList(b->directory_list);
+	
+	rval = b->filename_list != NULL;
+	d_free(b);
 
-	return 1;
+	return rval;
 }
 
 
