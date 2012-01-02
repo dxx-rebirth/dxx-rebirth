@@ -1,5 +1,9 @@
 D1X-Rebirth Changelog
 
+20120102
+--------
+ui/dialog.c, ui/file.c: Give ui_get_filename a callback for its dialog. Happy new year!
+
 20111231
 --------
 editor/med.c, include/ui.h, ui/menu.c, ui/menubar.c, ui/popup.c: Make editor menubar and associated menus into windows; either remove or make event-based all the B1_* macros

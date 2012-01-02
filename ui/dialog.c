@@ -145,6 +145,8 @@ int ui_dialog_draw(UI_DIALOG *dlg)
 // The dialog handler borrows heavily from the newmenu_handler
 int ui_dialog_handler(window *wind, d_event *event, UI_DIALOG *dlg)
 {
+	int rval = 0;
+
 	if (event->type == EVENT_WINDOW_CLOSED)
 		return 0;
 	
@@ -152,33 +154,38 @@ int ui_dialog_handler(window *wind, d_event *event, UI_DIALOG *dlg)
 	if (wind == window_get_front())
 		ui_event_handler(event);
 
+#if 0		// must only call this once, after the gadget actions are determined
+			// until all the gadgets send events instead
 	if (dlg->callback)
 		if ((*dlg->callback)(dlg, event, dlg->userdata))
 			return 1;		// event handled
+#endif
 
 	switch (event->type)
 	{
 		case EVENT_WINDOW_ACTIVATED:
+			return 0;
 			break;
 			
 		case EVENT_WINDOW_DEACTIVATED:
+			return 0;
 			break;
 			
 		case EVENT_MOUSE_BUTTON_DOWN:
 		case EVENT_MOUSE_BUTTON_UP:
 		case EVENT_MOUSE_MOVED:
 			/*return*/ ui_dialog_do_gadgets(dlg, event);
-			return mouse_in_window(dlg->wind);
+			rval = mouse_in_window(dlg->wind);
 			break;
 			
 		case EVENT_KEY_COMMAND:
 		case EVENT_KEY_RELEASE:
-			return ui_dialog_do_gadgets(dlg, event);
+			rval = ui_dialog_do_gadgets(dlg, event);
 			break;
 
 		case EVENT_IDLE:
 			timer_delay2(50);
-			return ui_dialog_do_gadgets(dlg, event);
+			rval = ui_dialog_do_gadgets(dlg, event);
 			break;
 			
 		case EVENT_WINDOW_DRAW:
@@ -187,13 +194,19 @@ int ui_dialog_handler(window *wind, d_event *event, UI_DIALOG *dlg)
 
 		case EVENT_WINDOW_CLOSE:
 			//ui_close_dialog(dlg);		// need to hide this function and make it not call window_close first
+			return 0;
 			break;
 			
 		default:
+			return 0;
 			break;
 	}
 	
-	return 0;
+	if (dlg->callback)
+		if ((*dlg->callback)(dlg, event, dlg->userdata))
+			return 1;		// event handled
+
+	return rval;
 }
 
 UI_DIALOG * ui_create_dialog( short x, short y, short w, short h, enum dialog_flags flags, int (*callback)(UI_DIALOG *, d_event *, void *), void *userdata )
