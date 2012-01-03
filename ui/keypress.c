@@ -26,6 +26,7 @@ static char rcsid[] = "$Id: keypress.c,v 1.1.1.1 2006/03/17 19:52:24 zicodxx Exp
 #include "event.h"
 #include "ui.h"
 #include "key.h"
+#include "window.h"
 
 char * KeyDesc[256] = {         \
 "","{Esc}","{1}","{2}","{3}","{4}","{5}","{6}","{7}","{8}","{9}","{0}","{-}",           \
@@ -100,17 +101,41 @@ int DecodeKeyText( char * text )
 }
 
 
+static int key_dialog_handler(UI_DIALOG *dlg, d_event *event, UI_GADGET_BUTTON **DoneButton)
+{
+	int keypress = 0;
+	int rval = 0;
+	
+	if (event->type == EVENT_KEY_COMMAND)
+		keypress = event_key_get(event);
 
+	if (keypress > 0)
+	{
+		char temp_text[100];
+		
+		GetKeyDescription( temp_text, keypress );
+		ui_dprintf_at( dlg, 10, 100, "%s     ", temp_text  );
+		rval = 1;
+	}
+	
+	if ((*DoneButton)->pressed)
+	{
+		ui_close_dialog(dlg);
+		rval = 1;
+	}
+	
+	return rval;
+}
 
 int GetKeyCode(char * text)
 {
 	UI_DIALOG * dlg;
 	UI_GADGET_BUTTON * DoneButton;
-	char temp_text[100];
+	window *wind;
 
 	text = text;
 
-	dlg = ui_create_dialog( 200, 200, 400, 200, DF_DIALOG | DF_MODAL, NULL, NULL );
+	dlg = ui_create_dialog( 200, 200, 400, 200, DF_DIALOG | DF_MODAL, (int (*)(UI_DIALOG *, d_event *, void *))key_dialog_handler, &DoneButton );
 
 	DoneButton = ui_add_gadget_button( dlg, 170, 165, 60, 25, "Ok", NULL );
 
@@ -119,22 +144,10 @@ int GetKeyCode(char * text)
 	//key_flush();
 
 	dlg->keyboard_focus_gadget = (UI_GADGET *)DoneButton;
+	wind = ui_dialog_get_window(dlg);
 
-	while(1)
-	{
+	while (window_exists(wind))
 		event_process();
-
-		if (last_keypress > 0)
-		{
-			GetKeyDescription( temp_text, last_keypress );
-			ui_dprintf_at( dlg, 10, 100, "%s     ", temp_text  );
-		}
-
-		if (DoneButton->pressed)
-			break;
-	}
-
-	ui_close_dialog(dlg);
 
 	return 0;
 }
