@@ -24,7 +24,9 @@ static char rcsid[] = "$Id: message.c,v 1.1.1.1 2006/03/17 19:52:21 zicodxx Exp 
 #include "gr.h"
 #include "event.h"
 #include "ui.h"
+#include "mouse.h"
 #include "key.h"
+#include "u_mem.h"
 
 // ts = total span
 // w = width of each item
@@ -35,11 +37,36 @@ static char rcsid[] = "$Id: message.c,v 1.1.1.1 2006/03/17 19:52:21 zicodxx Exp 
 #define BUTTON_HORZ_SPACING 20
 #define TEXT_EXTRA_HEIGHT 5
 
+typedef struct messagebox
+{
+	char				**button;
+	UI_GADGET_BUTTON	*button_g[10];
+	char				*text;
+	int					*choice;
+	int					num_buttons;
+} messagebox;
+
+static int messagebox_handler(UI_DIALOG *dlg, d_event *event, messagebox *m)
+{
+	int i;
+	
+	for (i=0; i<m->num_buttons; i++ )
+	{
+		if (m->button_g[i]->pressed)
+		{
+			*(m->choice) = i+1;
+			return 1;
+		}
+	}
+	
+	return 0;
+}
+
 int MessageBoxN( short xc, short yc, int NumButtons, char * text, char * Button[] )
 {
 	grs_font * temp_font;
 	UI_DIALOG * dlg;
-	UI_GADGET_BUTTON * ButtonG[10];
+	messagebox *m;
 
 	int i, width, height, avg, x, y;
 	int button_width, button_height, text_height, text_width;
@@ -48,6 +75,12 @@ int MessageBoxN( short xc, short yc, int NumButtons, char * text, char * Button[
 	int choice;
 
 	if ((NumButtons < 1) || (NumButtons>10)) return -1;
+
+	MALLOC(m, messagebox, 1);
+	m->button = Button;
+	m->text = text;
+	m->choice = &choice;
+	m->num_buttons = NumButtons;
 
 	button_width = button_height = 0;
 
@@ -85,11 +118,17 @@ int MessageBoxN( short xc, short yc, int NumButtons, char * text, char * Button[
 	height += 4*TEXT_EXTRA_HEIGHT;
 	height += 2;  // For line in middle
 
-	if ( xc == -1 )
-		xc = Mouse.x;
+	{
+		int mx, my, mz;
+		
+		mouse_get_pos(&mx, &my, &mz);
 
-	if ( yc == -1 )
-		yc = Mouse.y - button_height/2;
+		if ( xc == -1 )
+			xc = mx;
+
+		if ( yc == -1 )
+			yc = my - button_height/2;
+	}
 
 	if ( xc == -2 )
 		xc = w/2;
@@ -116,7 +155,7 @@ int MessageBoxN( short xc, short yc, int NumButtons, char * text, char * Button[
 		y = h - height;
 	}
 
-	dlg = ui_create_dialog( x, y, width, height, DF_DIALOG | DF_MODAL, NULL, NULL );
+	dlg = ui_create_dialog( x, y, width, height, DF_DIALOG | DF_MODAL, (int (*)(UI_DIALOG *, d_event *, void *))messagebox_handler, m );
 
 	//ui_draw_line_in( MESSAGEBOX_BORDER, MESSAGEBOX_BORDER, width-MESSAGEBOX_BORDER, height-MESSAGEBOX_BORDER );
 
@@ -139,36 +178,25 @@ int MessageBoxN( short xc, short yc, int NumButtons, char * text, char * Button[
 
 		x = EVEN_DIVIDE(width,button_width,NumButtons,i);
 
-		ButtonG[i] = ui_add_gadget_button( dlg, x, y, button_width, button_height, Button[i], NULL );
+		m->button_g[i] = ui_add_gadget_button( dlg, x, y, button_width, button_height, Button[i], NULL );
 	}
 
 	ui_gadget_calc_keys(dlg);
 
 	//key_flush();
 
-	dlg->keyboard_focus_gadget = (UI_GADGET *)ButtonG[0];
+	dlg->keyboard_focus_gadget = (UI_GADGET *)m->button_g[0];
 
 	choice = 0;
 
 	while(choice==0)
-	{
 		event_process();
-
-		for (i=0; i<NumButtons; i++ )
-		{
-			if (ButtonG[i]->pressed)   {
-				choice = i+1;
-				break;
-			}
-		}
-	}
 
 	ui_close_dialog(dlg);
 	
 	grd_curscreen->sc_canvas.cv_font = temp_font;
 
 	return choice;
-
 }
 
 
