@@ -3,6 +3,7 @@ D1X-Rebirth Changelog
 20120103
 --------
 ui/keypress.c: Give the dialog in (presently unused) GetKeyCode a callback
+ui/menu.c: Give the dialog in (also presently unused) MenuX a callback
 
 20120102
 --------
