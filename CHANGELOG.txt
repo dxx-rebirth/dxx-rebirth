@@ -1,5 +1,9 @@
 D1X-Rebirth Changelog
 
+20120103
+--------
+ui/keypress.c: Give the dialog in (presently unused) GetKeyCode a callback
+
 20120102
 --------
 ui/dialog.c, ui/file.c: Give ui_get_filename a callback for its dialog. Happy new year!
