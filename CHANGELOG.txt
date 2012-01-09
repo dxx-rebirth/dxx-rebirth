@@ -1,5 +1,9 @@
 D1X-Rebirth Changelog
 
+20120109
+--------
+ui/popup.c: Give the last use of a dialog in ui, in PopupMenu, a callback
+
 20120103
 --------
 ui/keypress.c: Give the dialog in (presently unused) GetKeyCode a callback
