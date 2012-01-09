@@ -21,18 +21,54 @@ static char rcsid[] = "$Id: popup.c,v 1.1.1.1 2006/03/17 19:52:22 zicodxx Exp $"
 #include "gr.h"
 #include "event.h"
 #include "ui.h"
+#include "u_mem.h"
 #include "mouse.h"
 
 
 #define MENU_BORDER 2
 #define MENU_VERT_SPACING 2
 
-extern void ui_mouse_flip_buttons();
+typedef struct popup
+{
+	UI_GADGET_BUTTON *button_g[10];
+	int *choice;
+	int num_buttons;
+} popup;
 
+static int popup_handler(UI_DIALOG *dlg, d_event *event, popup *p)
+{
+	short i;
+	
+	for (i=0; i<p->num_buttons; i++ )
+	{
+		if (p->button_g[i]->pressed)
+		{
+			*(p->choice) = i+1;
+			return 1;
+		}
+	}
+	
+	if ( (*(p->choice)==0) && B1_JUST_RELEASED )
+	{
+		*(p->choice) = -1;
+		return 1;
+	}
+	
+	return 0;
+}
+
+// Use: Left button (button 0) goes down, then up, then this is called
+// as opposed to straight after the button goes down, holding down
+// until an option is chosen.
+// This is like the 'modern' behaviour of popup menus and also happens
+// to be easier to implement because of the button code.
+// Recommended for use in conjunction with a button gadget,
+// i.e. when that button is pressed, call PopupMenu,
+// update the button's text then the value in question.
 int PopupMenu( int NumButtons, char * text[] )
 {
 	UI_DIALOG * dlg;
-	UI_GADGET_BUTTON * ButtonG[10];
+	popup	*p;
 
 	char * Button[10];
 
@@ -43,21 +79,14 @@ int PopupMenu( int NumButtons, char * text[] )
 
 	int choice;
 
-	ui_mouse_flip_buttons();
-
-	//ui_mouse_process();
-
-#if 0
-	if ( B1_RELEASED )
-	{
-		ui_mouse_flip_buttons();
-		return -1;
-	}
-#endif
+	MALLOC(p, popup, 1);
+	
+	p->num_buttons = NumButtons;
+	p->choice = &choice;
 
 	if ((NumButtons < 1) || (NumButtons>10))
 	{
-		ui_mouse_flip_buttons();
+		d_free(p);
 		return -1;
 	}
 
@@ -80,33 +109,38 @@ int PopupMenu( int NumButtons, char * text[] )
 	height = (button_height*NumButtons) + (MENU_VERT_SPACING*(NumButtons-1)) ;
 	height += (MENU_BORDER+3) * 2;
 
-	x = Mouse.x - width/2;
-	y = Mouse.y - (MENU_BORDER+3) - button_height/2;
+	{
+		int mx, my, mz;
+		
+		mouse_get_pos(&mx, &my, &mz);
+		x = mx - width/2;
+		y = my - (MENU_BORDER+3) - button_height/2;
+	}
 
 	w = grd_curscreen->sc_w;
 	h = grd_curscreen->sc_h;
 
 	if (x < 0 ) {
 		x = 0;
-		Mouse.x = x + width / 2;
+		//Mouse.x = x + width / 2;
 	}
 
 	if ( (x+width-1) >= w ) {
 		x = w - width;
-		Mouse.x = x + width / 2;
+		//Mouse.x = x + width / 2;
 	}
 
 	if (y < 0 ) {
 		y = 0;
-		Mouse.y = y + (MENU_BORDER+3) + button_height/2;
+		//Mouse.y = y + (MENU_BORDER+3) + button_height/2;
 	}
 
 	if ( (y+height-1) >= h ) {
 		y = h - height;
-		Mouse.y = y + (MENU_BORDER+3) + button_height/2;
+		//Mouse.y = y + (MENU_BORDER+3) + button_height/2;
 	}
 
-	dlg = ui_create_dialog( x, y, width, height, DF_DIALOG | DF_MODAL, NULL, NULL );
+	dlg = ui_create_dialog( x, y, width, height, DF_DIALOG | DF_MODAL, (int (*)(UI_DIALOG *, d_event *, void *))popup_handler, p );
 
 	//mouse_set_pos(Mouse.x, Mouse.y);
 
@@ -115,37 +149,18 @@ int PopupMenu( int NumButtons, char * text[] )
 
 	for (i=0; i<NumButtons; i++ )
 	{
-		ButtonG[i] = ui_add_gadget_button( dlg, x, y, button_width, button_height, Button[i], NULL );
+		p->button_g[i] = ui_add_gadget_button( dlg, x, y, button_width, button_height, Button[i], NULL );
 		y += button_height+MENU_VERT_SPACING;
 	}
 
 	choice = 0;
 
 	while(choice==0)
-	{
 		event_process();
 
-		for (i=0; i<NumButtons; i++ )
-		{
-			if (ButtonG[i]->pressed)   {
-				choice = i+1;
-				break;
-			}
-		}
-
-#if 0	// FIXME: Put this code in the handler when it uses one
-		if ( (choice==0) && B1_JUST_RELEASED )  {
-			choice = -1;
-			break;
-		}
-#endif
-	}
-
 	ui_close_dialog(dlg);
-
-	ui_mouse_flip_buttons();
+	d_free(p);
 
 	return choice;
-
 }
 
