@@ -77,6 +77,7 @@ typedef struct Arg
 	int EdiSaveHoardData;
 	int EdiMacData; // also used for some read routines in non-editor build
 	int DbgVerbose;
+	int DbgSafelog;
 	int DbgNoRun;
 	int DbgRenderStats;
 	char *DbgAltTex;

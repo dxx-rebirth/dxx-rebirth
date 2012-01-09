@@ -4375,7 +4375,7 @@ void net_udp_noloss_add_queue_pkt(uint32_t pkt_num, fix64 time, ubyte *data, ush
 		}
 	}
 	
-	con_printf(CON_VERBOSE, "P#%i: Adding MData pkt_num %i from %i to MData store list\n", Player_num, pkt_num, pnum);
+	con_printf(CON_VERBOSE, "P#%i: Adding MData pkt_num %i, type %i from P#%i to MData store list\n", Player_num, pkt_num, data[0], pnum);
 	UDP_mdata_queue[found].used = 1;
 	UDP_mdata_queue[found].pkt_initial_timestamp = time;
 	for (i = 0; i < MAX_PLAYERS; i++)
