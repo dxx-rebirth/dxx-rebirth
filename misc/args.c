@@ -197,6 +197,7 @@ void ReadCmdArgs(void)
 	else if (FindArg("-verbose"))	GameArg.DbgVerbose = CON_VERBOSE;
 	else				GameArg.DbgVerbose = CON_NORMAL;
 
+	GameArg.DbgSafelog 		= FindArg("-safelog");
 	GameArg.DbgNoRun 		= FindArg("-norun");
 	GameArg.DbgRenderStats 		= FindArg("-renderstats");
 	GameArg.DbgAltTex 		= get_str_arg("-text", NULL);

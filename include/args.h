@@ -71,6 +71,7 @@ typedef struct Arg
 	int MplTrackerPort;
 #endif
 	int DbgVerbose;
+	int DbgSafelog;
 	int DbgNoRun;
 	int DbgRenderStats;
 	char *DbgAltTex;

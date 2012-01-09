@@ -149,8 +149,9 @@ void print_commandline_help()
 #endif // EDITOR
 
 	printf( "\n Debug (use only if you know what you're doing):\n\n");
-	printf( "  -debug                        Enable very verbose output\n");
-	printf( "  -verbose                      Shows initialization steps for tech support\n");
+	printf( "  -debug                        Enable debugging output.\n");
+	printf( "  -verbose                      Enable verbose output.\n");
+	printf( "  -safelog                      Write gamelog.txt unbuffered.\n\t\t\t\tUse to keep helpful output to trace program crashes.\n");
 	printf( "  -norun                        Bail out after initialization\n");
 	printf( "  -renderstats                  Enable renderstats info by default\n");
 	printf( "  -text <s>                     Specify alternate .tex file\n");
