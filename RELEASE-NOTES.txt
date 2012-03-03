@@ -1,6 +1,11 @@
 RELEASE NOTES
 =============
 
+What's new in 0.57.2
+--------------------
+* More Bugfixes
+
+
 What's new in 0.57.1
 --------------------
 * Several Bugfixes
