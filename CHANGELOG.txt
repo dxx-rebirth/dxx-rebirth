@@ -3,6 +3,7 @@ D2X-Rebirth Changelog
 20120303
 --------
 d2x-Info.plist, d2xgl-Info.plist, English.lproj/InfoPlist.strings, RELEASE-NOTES.txt: Increment version to 0.57.2 for Mac and RELEASE-NOTES
+d2x-rebirth.xcodeproj/project.pbxproj, editor/data/, editor/data/curve.pad, editor/data/dummy.pad, editor/data/group.pad, editor/data/lighting.pad, editor/data/med.mnu, editor/data/newobj.pad, editor/data/object.pad, editor/data/objmov.pad, editor/data/pc6x8.fnt, editor/data/pc8x16.fnt, editor/data/segmove.pad, editor/data/segsize.pad, editor/data/test.pad, editor/data/texture.pad, editor/med.c, include/physfsx.h, misc/physfsx.c, ui/ui.c: Actually add editor data files and make sure DXX can find them
 
 20120109
 --------

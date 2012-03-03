@@ -46,6 +46,7 @@ COPYRIGHT 1993-1998 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 #include "medlisp.h"
 #endif
 #include "u_mem.h"
+#include "physfsx.h"
 #include "render.h"
 #include "game.h"
 #include "slew.h"
@@ -364,6 +365,11 @@ void medkey_init()
 
 void init_editor()
 {
+	// first, make sure we can find the files we need
+	PHYSFSX_addRelToSearchPath("editor/data", 1);	// look in source directory first (for work in progress)
+	PHYSFSX_addRelToSearchPath("editor", 1);		// then in editor directory
+	PHYSFSX_addRelToSearchPath("editor.zip", 1);	// then in a zip file
+
 	ui_init();
 
 	init_med_functions();	// Must be called before medlisp_init
@@ -880,14 +886,17 @@ void close_editor() {
 
 	close_autosave();
 
-	menubar_close();
-	
+	ui_close();
+
 	gr_close_font(editor_font);
+
+	PHYSFSX_removeRelFromSearchPath("editor/data");
+	PHYSFSX_removeRelFromSearchPath("editor");
+	PHYSFSX_removeRelFromSearchPath("editor.zip");
 
 	gr_free_canvas(canv_offscreen); canv_offscreen = NULL;
 
 	return;
-
 }
 
 //variables for find segments process
@@ -1366,9 +1375,6 @@ void editor(void)
 	padnum = ui_pad_get_current();
 
 	close_editor();
-	ui_close();
-
-
 }
 
 void test_fade(void)

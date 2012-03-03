@@ -346,6 +346,20 @@
 		EB380D360E16886300EBD9AD /* InfoPlist.strings in Resources */ = {isa = PBXBuildFile; fileRef = 089C165CFE840E0CC02AAC07 /* InfoPlist.strings */; };
 		EB3EB4F312A54805005F992D /* Carbon.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = EB3EB4ED12A547C7005F992D /* Carbon.framework */; };
 		EB3EB4F412A5480D005F992D /* Carbon.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = EB3EB4ED12A547C7005F992D /* Carbon.framework */; };
+		EB6142BE1501FE89004E2AE8 /* curve.pad in CopyFiles */ = {isa = PBXBuildFile; fileRef = EB6142A51501FD71004E2AE8 /* curve.pad */; };
+		EB6142BF1501FE89004E2AE8 /* dummy.pad in CopyFiles */ = {isa = PBXBuildFile; fileRef = EB6142A61501FD71004E2AE8 /* dummy.pad */; };
+		EB6142C01501FE89004E2AE8 /* group.pad in CopyFiles */ = {isa = PBXBuildFile; fileRef = EB6142A71501FD71004E2AE8 /* group.pad */; };
+		EB6142C11501FE89004E2AE8 /* lighting.pad in CopyFiles */ = {isa = PBXBuildFile; fileRef = EB6142A81501FD71004E2AE8 /* lighting.pad */; };
+		EB6142C21501FE89004E2AE8 /* med.mnu in CopyFiles */ = {isa = PBXBuildFile; fileRef = EB6142A91501FD71004E2AE8 /* med.mnu */; };
+		EB6142C31501FE89004E2AE8 /* newobj.pad in CopyFiles */ = {isa = PBXBuildFile; fileRef = EB6142AA1501FD71004E2AE8 /* newobj.pad */; };
+		EB6142C41501FE89004E2AE8 /* object.pad in CopyFiles */ = {isa = PBXBuildFile; fileRef = EB6142AB1501FD71004E2AE8 /* object.pad */; };
+		EB6142C51501FE89004E2AE8 /* objmov.pad in CopyFiles */ = {isa = PBXBuildFile; fileRef = EB6142AC1501FD71004E2AE8 /* objmov.pad */; };
+		EB6142C61501FE89004E2AE8 /* pc6x8.fnt in CopyFiles */ = {isa = PBXBuildFile; fileRef = EB6142AD1501FD71004E2AE8 /* pc6x8.fnt */; };
+		EB6142C71501FE89004E2AE8 /* pc8x16.fnt in CopyFiles */ = {isa = PBXBuildFile; fileRef = EB6142AE1501FD71004E2AE8 /* pc8x16.fnt */; };
+		EB6142C81501FE89004E2AE8 /* segmove.pad in CopyFiles */ = {isa = PBXBuildFile; fileRef = EB6142AF1501FD71004E2AE8 /* segmove.pad */; };
+		EB6142C91501FE89004E2AE8 /* segsize.pad in CopyFiles */ = {isa = PBXBuildFile; fileRef = EB6142B01501FD71004E2AE8 /* segsize.pad */; };
+		EB6142CA1501FE89004E2AE8 /* test.pad in CopyFiles */ = {isa = PBXBuildFile; fileRef = EB6142B11501FD71004E2AE8 /* test.pad */; };
+		EB6142CB1501FE89004E2AE8 /* texture.pad in CopyFiles */ = {isa = PBXBuildFile; fileRef = EB6142B21501FD71004E2AE8 /* texture.pad */; };
 		EB91A438126175ED009E0095 /* libphysfs.dylib in Frameworks */ = {isa = PBXBuildFile; fileRef = EB91A437126175ED009E0095 /* libphysfs.dylib */; };
 		EB91A439126175ED009E0095 /* libphysfs.dylib in Frameworks */ = {isa = PBXBuildFile; fileRef = EB91A437126175ED009E0095 /* libphysfs.dylib */; };
 		EB91A43D12617668009E0095 /* libphysfs.dylib in Frameworks */ = {isa = PBXBuildFile; fileRef = EB91A43C12617668009E0095 /* libphysfs.dylib */; };
@@ -451,6 +465,32 @@
 		EBECB69412C0475900D660B3 /* dumpmine.c in Sources */ = {isa = PBXBuildFile; fileRef = EBC652020890D632004FCAA3 /* dumpmine.c */; };
 		EBECB69712C0481A00D660B3 /* d2x-rebirth.icns in Resources */ = {isa = PBXBuildFile; fileRef = EBAEB74B0BF4A86F00FC6E13 /* d2x-rebirth.icns */; };
 /* End PBXBuildFile section */
+
+/* Begin PBXCopyFilesBuildPhase section */
+		EB6142BC1501FDEB004E2AE8 /* CopyFiles */ = {
+			isa = PBXCopyFilesBuildPhase;
+			buildActionMask = 2147483647;
+			dstPath = editor;
+			dstSubfolderSpec = 7;
+			files = (
+				EB6142BE1501FE89004E2AE8 /* curve.pad in CopyFiles */,
+				EB6142BF1501FE89004E2AE8 /* dummy.pad in CopyFiles */,
+				EB6142C01501FE89004E2AE8 /* group.pad in CopyFiles */,
+				EB6142C11501FE89004E2AE8 /* lighting.pad in CopyFiles */,
+				EB6142C21501FE89004E2AE8 /* med.mnu in CopyFiles */,
+				EB6142C31501FE89004E2AE8 /* newobj.pad in CopyFiles */,
+				EB6142C41501FE89004E2AE8 /* object.pad in CopyFiles */,
+				EB6142C51501FE89004E2AE8 /* objmov.pad in CopyFiles */,
+				EB6142C61501FE89004E2AE8 /* pc6x8.fnt in CopyFiles */,
+				EB6142C71501FE89004E2AE8 /* pc8x16.fnt in CopyFiles */,
+				EB6142C81501FE89004E2AE8 /* segmove.pad in CopyFiles */,
+				EB6142C91501FE89004E2AE8 /* segsize.pad in CopyFiles */,
+				EB6142CA1501FE89004E2AE8 /* test.pad in CopyFiles */,
+				EB6142CB1501FE89004E2AE8 /* texture.pad in CopyFiles */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+/* End PBXCopyFilesBuildPhase section */
 
 /* Begin PBXFileReference section */
 		089C165DFE840E0CC02AAC07 /* English */ = {isa = PBXFileReference; fileEncoding = 10; lastKnownFileType = text.plist.strings; name = English; path = English.lproj/InfoPlist.strings; sourceTree = "<group>"; };
@@ -704,6 +744,20 @@
 		EB28D9A20ECEAF1C00E68E9B /* init.c */ = {isa = PBXFileReference; fileEncoding = 30; lastKnownFileType = sourcecode.c.c; path = init.c; sourceTree = "<group>"; };
 		EB3EB4DF12A5471B005F992D /* messagebox.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = messagebox.h; sourceTree = "<group>"; };
 		EB3EB4ED12A547C7005F992D /* Carbon.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = Carbon.framework; path = /System/Library/Frameworks/Carbon.framework; sourceTree = "<absolute>"; };
+		EB6142A51501FD71004E2AE8 /* curve.pad */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text; path = curve.pad; sourceTree = "<group>"; };
+		EB6142A61501FD71004E2AE8 /* dummy.pad */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text; path = dummy.pad; sourceTree = "<group>"; };
+		EB6142A71501FD71004E2AE8 /* group.pad */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text; path = group.pad; sourceTree = "<group>"; };
+		EB6142A81501FD71004E2AE8 /* lighting.pad */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text; path = lighting.pad; sourceTree = "<group>"; };
+		EB6142A91501FD71004E2AE8 /* med.mnu */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text; path = med.mnu; sourceTree = "<group>"; };
+		EB6142AA1501FD71004E2AE8 /* newobj.pad */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text; path = newobj.pad; sourceTree = "<group>"; };
+		EB6142AB1501FD71004E2AE8 /* object.pad */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text; path = object.pad; sourceTree = "<group>"; };
+		EB6142AC1501FD71004E2AE8 /* objmov.pad */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text; path = objmov.pad; sourceTree = "<group>"; };
+		EB6142AD1501FD71004E2AE8 /* pc6x8.fnt */ = {isa = PBXFileReference; lastKnownFileType = file; path = pc6x8.fnt; sourceTree = "<group>"; };
+		EB6142AE1501FD71004E2AE8 /* pc8x16.fnt */ = {isa = PBXFileReference; lastKnownFileType = file; path = pc8x16.fnt; sourceTree = "<group>"; };
+		EB6142AF1501FD71004E2AE8 /* segmove.pad */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text; path = segmove.pad; sourceTree = "<group>"; };
+		EB6142B01501FD71004E2AE8 /* segsize.pad */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text; path = segsize.pad; sourceTree = "<group>"; };
+		EB6142B11501FD71004E2AE8 /* test.pad */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text; path = test.pad; sourceTree = "<group>"; };
+		EB6142B21501FD71004E2AE8 /* texture.pad */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text; path = texture.pad; sourceTree = "<group>"; };
 		EB91A437126175ED009E0095 /* libphysfs.dylib */ = {isa = PBXFileReference; lastKnownFileType = "compiled.mach-o.dylib"; name = libphysfs.dylib; path = ../physfs/build/Release/libphysfs.dylib; sourceTree = SOURCE_ROOT; };
 		EB91A43C12617668009E0095 /* libphysfs.dylib */ = {isa = PBXFileReference; lastKnownFileType = "compiled.mach-o.dylib"; name = libphysfs.dylib; path = ../physfs/build/Debug/libphysfs.dylib; sourceTree = SOURCE_ROOT; };
 		EB92BE110CDD68200045A32C /* digi_audio.h */ = {isa = PBXFileReference; fileEncoding = 30; lastKnownFileType = sourcecode.c.h; path = digi_audio.h; sourceTree = "<group>"; };
@@ -1371,6 +1425,27 @@
 			path = include;
 			sourceTree = "<group>";
 		};
+		EB6142A41501FD71004E2AE8 /* data */ = {
+			isa = PBXGroup;
+			children = (
+				EB6142A51501FD71004E2AE8 /* curve.pad */,
+				EB6142A61501FD71004E2AE8 /* dummy.pad */,
+				EB6142A71501FD71004E2AE8 /* group.pad */,
+				EB6142A81501FD71004E2AE8 /* lighting.pad */,
+				EB6142A91501FD71004E2AE8 /* med.mnu */,
+				EB6142AA1501FD71004E2AE8 /* newobj.pad */,
+				EB6142AB1501FD71004E2AE8 /* object.pad */,
+				EB6142AC1501FD71004E2AE8 /* objmov.pad */,
+				EB6142AD1501FD71004E2AE8 /* pc6x8.fnt */,
+				EB6142AE1501FD71004E2AE8 /* pc8x16.fnt */,
+				EB6142AF1501FD71004E2AE8 /* segmove.pad */,
+				EB6142B01501FD71004E2AE8 /* segsize.pad */,
+				EB6142B11501FD71004E2AE8 /* test.pad */,
+				EB6142B21501FD71004E2AE8 /* texture.pad */,
+			);
+			path = data;
+			sourceTree = "<group>";
+		};
 		EBAFC268088E508D006329AD /* carbon */ = {
 			isa = PBXGroup;
 			children = (
@@ -1407,6 +1482,7 @@
 			isa = PBXGroup;
 			children = (
 				EBBE057A12C872C30056CF2D /* autosave.c */,
+				EB6142A41501FD71004E2AE8 /* data */,
 				EBBE057B12C872C30056CF2D /* centers.c */,
 				EBBE057D12C872C30056CF2D /* curves.c */,
 				EBBE057F12C872C30056CF2D /* eglobal.c */,
@@ -1639,6 +1715,7 @@
 				676AC1E80668A938007173EB /* Resources */,
 				676AC1EA0668A938007173EB /* Sources */,
 				676AC26B0668A938007173EB /* Frameworks */,
+				EB6142BC1501FDEB004E2AE8 /* CopyFiles */,
 			);
 			buildRules = (
 			);
