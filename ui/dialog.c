@@ -47,10 +47,6 @@ COPYRIGHT 1993-1999 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 #define _enable()
 #endif
 
-UI_DIALOG * CurWindow = NULL;
-UI_DIALOG * FirstWindow = NULL;
-UI_DIALOG * LastWindow = NULL;
-
 int last_keypress = 0;
 
 #define BORDER_WIDTH 8
@@ -327,9 +323,6 @@ void ui_close_dialog( UI_DIALOG * dlg )
 
 	selected_gadget = NULL;
 
-	if (CurWindow==dlg)
-		CurWindow = NULL;
-	
 	if (dlg->wind)
 		window_close(dlg->wind);
 

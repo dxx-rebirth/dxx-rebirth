@@ -44,7 +44,7 @@ void strndel(char *s, int p, int n)
 		*(s+p+n) = '\0';    // Delete and zero fill
 }
 
-void ui_draw_inputbox( UI_GADGET_INPUTBOX * inputbox )
+void ui_draw_inputbox( UI_DIALOG *dlg, UI_GADGET_INPUTBOX * inputbox )
 {
 	int w, h, aw;
 
@@ -53,7 +53,7 @@ void ui_draw_inputbox( UI_GADGET_INPUTBOX * inputbox )
 		ui_mouse_hide();
 		gr_set_current_canvas( inputbox->canvas );
 
-		if (CurWindow->keyboard_focus_gadget == (UI_GADGET *)inputbox)
+		if (dlg->keyboard_focus_gadget == (UI_GADGET *)inputbox)
 		{
 			if (inputbox->first_time)
 				gr_set_fontcolor( CBLACK, CRED );
@@ -71,7 +71,7 @@ void ui_draw_inputbox( UI_GADGET_INPUTBOX * inputbox )
 		gr_setcolor( CBLACK );
 		gr_rect( 2+w, 0, inputbox->width-1, inputbox->height-1 );
 
-		if (CurWindow->keyboard_focus_gadget == (UI_GADGET *)inputbox  && !inputbox->first_time )
+		if (dlg->keyboard_focus_gadget == (UI_GADGET *)inputbox  && !inputbox->first_time )
 		{
 			gr_setcolor(CRED);
 			Vline( 2,inputbox->height-3, 2+w+1 );
@@ -111,7 +111,7 @@ UI_GADGET_INPUTBOX * ui_add_gadget_inputbox( UI_DIALOG * dlg, short x, short y, 
 }
 
 
-int ui_inputbox_do( UI_GADGET_INPUTBOX * inputbox, d_event *event )
+int ui_inputbox_do( UI_DIALOG *dlg, UI_GADGET_INPUTBOX * inputbox, d_event *event )
 {
 	unsigned char ascii;
 	int keypress = 0;
@@ -123,7 +123,7 @@ int ui_inputbox_do( UI_GADGET_INPUTBOX * inputbox, d_event *event )
 	inputbox->oldposition = inputbox->position;
 	inputbox->pressed=0;
 
-	if (CurWindow->keyboard_focus_gadget==(UI_GADGET *)inputbox)
+	if (dlg->keyboard_focus_gadget==(UI_GADGET *)inputbox)
 	{
 		switch( keypress )
 		{
@@ -162,8 +162,14 @@ int ui_inputbox_do( UI_GADGET_INPUTBOX * inputbox, d_event *event )
 	} else {
 		inputbox->first_time = 1;
 	}
-
-	ui_draw_inputbox( inputbox );
+	
+	if (inputbox->pressed)
+	{
+		ui_gadget_send_event(dlg, EVENT_UI_GADGET_PRESSED, (UI_GADGET *)inputbox);
+		rval = 1;
+	}
+		
+	ui_draw_inputbox( dlg, inputbox );
 
 	return rval;
 }

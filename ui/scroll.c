@@ -27,7 +27,7 @@ static char rcsid[] = "$Id: scroll.c,v 1.1.1.1 2006/03/17 19:52:16 zicodxx Exp $
 #include "key.h"
 #include "timer.h"
 
-void ui_draw_scrollbar( UI_GADGET_SCROLLBAR * scrollbar )
+void ui_draw_scrollbar( UI_DIALOG *dlg, UI_GADGET_SCROLLBAR * scrollbar )
 {
 	if (scrollbar->status==0)
 		return;
@@ -36,7 +36,7 @@ void ui_draw_scrollbar( UI_GADGET_SCROLLBAR * scrollbar )
 	ui_mouse_hide();
 	gr_set_current_canvas( scrollbar->canvas );
 
-	if (CurWindow->keyboard_focus_gadget == (UI_GADGET *)scrollbar)
+	if (dlg->keyboard_focus_gadget == (UI_GADGET *)scrollbar)
 		gr_setcolor( CRED );
 	else
 		gr_setcolor( CGREY );
@@ -96,7 +96,7 @@ UI_GADGET_SCROLLBAR * ui_add_gadget_scrollbar( UI_DIALOG * dlg, short x, short y
 
 }
 
-int ui_scrollbar_do( UI_GADGET_SCROLLBAR * scrollbar, d_event *event )
+int ui_scrollbar_do( UI_DIALOG *dlg, UI_GADGET_SCROLLBAR * scrollbar, d_event *event )
 {
 	int OnMe, OnSlider, keyfocus;
 	int oldpos, op;
@@ -105,14 +105,14 @@ int ui_scrollbar_do( UI_GADGET_SCROLLBAR * scrollbar, d_event *event )
 		
 	keyfocus = 0;
 
-	if (CurWindow->keyboard_focus_gadget==(UI_GADGET *)scrollbar)
+	if (dlg->keyboard_focus_gadget==(UI_GADGET *)scrollbar)
 		keyfocus = 1;
 
 	if (scrollbar->start==scrollbar->stop)
 	{
 		scrollbar->position = 0;
 		scrollbar->fake_position = 0;
-		ui_draw_scrollbar( scrollbar );
+		ui_draw_scrollbar( dlg, scrollbar );
 		return 0;
 	}
 
@@ -276,10 +276,15 @@ int ui_scrollbar_do( UI_GADGET_SCROLLBAR * scrollbar, d_event *event )
 
 	if (op != scrollbar->position )
 		scrollbar->moved = 1;
+	if (scrollbar->moved)
+	{
+		ui_gadget_send_event(dlg, EVENT_UI_GADGET_PRESSED, (UI_GADGET *)scrollbar);
+		rval = 1;
+	}
 
 	if (oldpos != scrollbar->fake_position)
 		scrollbar->status = 1;
-	ui_draw_scrollbar( scrollbar );
+	ui_draw_scrollbar( dlg, scrollbar );
 
 	return rval;
 }

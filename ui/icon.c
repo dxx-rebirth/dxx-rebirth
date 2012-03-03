@@ -117,7 +117,7 @@ UI_GADGET_ICON * ui_add_gadget_icon( UI_DIALOG * dlg, char * text, short x, shor
 
 }
 
-int ui_icon_do( UI_GADGET_ICON * icon, d_event *event )
+int ui_icon_do( UI_DIALOG *dlg, UI_GADGET_ICON * icon, d_event *event )
 {
 	int rval = 0;
 	
@@ -173,6 +173,7 @@ int ui_icon_do( UI_GADGET_ICON * icon, d_event *event )
 	{
 		icon->status = 1;
 		icon->flag = (sbyte)icon->user_function();
+		ui_gadget_send_event(dlg, EVENT_UI_GADGET_PRESSED, (UI_GADGET *)icon);
 		rval = 1;
 	}
 
