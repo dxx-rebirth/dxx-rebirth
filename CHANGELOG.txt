@@ -1,5 +1,9 @@
 D2X-Rebirth Changelog
 
+20120303
+--------
+d2x-Info.plist, d2xgl-Info.plist, English.lproj/InfoPlist.strings, RELEASE-NOTES.txt: Increment version to 0.57.2 for Mac and RELEASE-NOTES
+
 20120109
 --------
 ui/popup.c: Give the last use of a dialog in ui, in PopupMenu, a callback
