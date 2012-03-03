@@ -27,7 +27,7 @@ static char rcsid[] = "$Id: listbox.c,v 1.1.1.1 2006/03/17 19:52:20 zicodxx Exp 
 #include "key.h"
 #include "timer.h"
 
-void ui_draw_listbox( UI_GADGET_LISTBOX * listbox )
+void ui_draw_listbox( UI_DIALOG *dlg, UI_GADGET_LISTBOX * listbox )
 {
 	int i, x, y, stop;
 	int w, h,  aw;
@@ -57,14 +57,14 @@ void ui_draw_listbox( UI_GADGET_LISTBOX * listbox )
 	{
 		if (i !=listbox->current_item)
 		{
-			if ((listbox->current_item == -1) && (CurWindow->keyboard_focus_gadget == (UI_GADGET *)listbox) && (i == listbox->first_item)  )
+			if ((listbox->current_item == -1) && (dlg->keyboard_focus_gadget == (UI_GADGET *)listbox) && (i == listbox->first_item)  )
 				gr_set_fontcolor( CRED, CBLACK );
 			else
 				gr_set_fontcolor( CWHITE, CBLACK );
 		}
 		else
 		{
-			if (CurWindow->keyboard_focus_gadget == (UI_GADGET *)listbox)
+			if (dlg->keyboard_focus_gadget == (UI_GADGET *)listbox)
 				gr_set_fontcolor( CRED, CGREY );
 			else
 				gr_set_fontcolor( CBLACK, CGREY );
@@ -150,7 +150,7 @@ UI_GADGET_LISTBOX * ui_add_gadget_listbox(UI_DIALOG *dlg, short x, short y, shor
 
 }
 
-int ui_listbox_do( UI_GADGET_LISTBOX * listbox, d_event *event )
+int ui_listbox_do( UI_DIALOG *dlg, UI_GADGET_LISTBOX * listbox, d_event *event )
 {
 	int mitem, oldfakepos, kf;
 	int keypress = 0;
@@ -168,11 +168,11 @@ int ui_listbox_do( UI_GADGET_LISTBOX * listbox, d_event *event )
 		listbox->first_item = 0;
 		listbox->old_current_item = listbox->current_item;
 		listbox->old_first_item = listbox->first_item;
-		ui_draw_listbox( listbox );
+		ui_draw_listbox( dlg, listbox );
 
-		if (CurWindow->keyboard_focus_gadget == (UI_GADGET *)listbox)
+		if (dlg->keyboard_focus_gadget == (UI_GADGET *)listbox)
 		{
-			CurWindow->keyboard_focus_gadget = ui_gadget_get_next((UI_GADGET *)listbox);
+			dlg->keyboard_focus_gadget = ui_gadget_get_next((UI_GADGET *)listbox);
 		}
 
 		return rval;
@@ -182,7 +182,8 @@ int ui_listbox_do( UI_GADGET_LISTBOX * listbox, d_event *event )
 	listbox->old_first_item = listbox->first_item;
 
 
-	if (listbox->scrollbar->moved )
+	if ((event->type == EVENT_UI_GADGET_PRESSED) &&
+		(ui_event_get_gadget(event) == (UI_GADGET *)listbox->scrollbar))
 	{
 		listbox->moved = 1;
 
@@ -205,7 +206,7 @@ int ui_listbox_do( UI_GADGET_LISTBOX * listbox, d_event *event )
 		rval = 1;
 	}
 
-	if ( CurWindow->keyboard_focus_gadget==(UI_GADGET *)listbox )
+	if ( dlg->keyboard_focus_gadget==(UI_GADGET *)listbox )
 	{
 		if (keypress==KEY_ENTER)   {
 			listbox->selected_item = listbox->current_item;
@@ -364,8 +365,14 @@ int ui_listbox_do( UI_GADGET_LISTBOX * listbox, d_event *event )
 		}
 
 	}
+	
+	if (listbox->moved || (listbox->selected_item > 0))
+	{
+		ui_gadget_send_event(dlg, (listbox->selected_item > 0) ? EVENT_UI_LISTBOX_SELECTED : EVENT_UI_LISTBOX_MOVED, (UI_GADGET *)listbox);
+		rval = 1;
+	}
 
-	ui_draw_listbox( listbox );
+	ui_draw_listbox( dlg, listbox );
 
 	return rval;
 }

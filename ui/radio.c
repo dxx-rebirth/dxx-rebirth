@@ -30,7 +30,7 @@ COPYRIGHT 1993-1998 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 
 #define Middle(x) ((2*(x)+1)/4)
 
-void ui_draw_radio( UI_GADGET_RADIO * radio )
+void ui_draw_radio( UI_DIALOG *dlg, UI_GADGET_RADIO * radio )
 {
 
 	if ((radio->status==1) || (radio->position != radio->oldposition))
@@ -40,7 +40,7 @@ void ui_draw_radio( UI_GADGET_RADIO * radio )
 		ui_mouse_hide();
 		gr_set_current_canvas( radio->canvas );
 
-		if (CurWindow->keyboard_focus_gadget == (UI_GADGET *) radio)
+		if (dlg->keyboard_focus_gadget == (UI_GADGET *) radio)
 			gr_set_fontcolor(CRED, -1);
 		else
 			gr_set_fontcolor(CBLACK, -1);
@@ -87,7 +87,7 @@ UI_GADGET_RADIO * ui_add_gadget_radio( UI_DIALOG * dlg, short x, short y, short 
 }
 
 
-int ui_radio_do( UI_GADGET_RADIO * radio, d_event *event )
+int ui_radio_do( UI_DIALOG *dlg, UI_GADGET_RADIO * radio, d_event *event )
 {
 	UI_GADGET * tmp;
 	UI_GADGET_RADIO * tmpr;
@@ -123,7 +123,7 @@ int ui_radio_do( UI_GADGET_RADIO * radio, d_event *event )
 		
 		key = event_key_get(event);
 		
-		if ((CurWindow->keyboard_focus_gadget==(UI_GADGET *)radio) && ((key==KEY_SPACEBAR) || (key==KEY_ENTER)) )
+		if ((dlg->keyboard_focus_gadget==(UI_GADGET *)radio) && ((key==KEY_SPACEBAR) || (key==KEY_ENTER)) )
 		{
 			radio->position = 2;
 			rval = 1;
@@ -137,7 +137,7 @@ int ui_radio_do( UI_GADGET_RADIO * radio, d_event *event )
 		
 		radio->position = 0;
 		
-		if ((CurWindow->keyboard_focus_gadget==(UI_GADGET *)radio) && ((key==KEY_SPACEBAR) || (key==KEY_ENTER)) )
+		if ((dlg->keyboard_focus_gadget==(UI_GADGET *)radio) && ((key==KEY_SPACEBAR) || (key==KEY_ENTER)) )
 			radio->pressed = 1;
 	}
 		
@@ -161,10 +161,14 @@ int ui_radio_do( UI_GADGET_RADIO * radio, d_event *event )
 		}
 		radio->flag = 1;
 	}
-	else if (radio->pressed)
-		rval = 1;
 
-	ui_draw_radio( radio );
+	if (radio->pressed)
+	{
+		ui_gadget_send_event(dlg, EVENT_UI_GADGET_PRESSED, (UI_GADGET *)radio);
+		rval = 1;
+	}
+
+	ui_draw_radio( dlg, radio );
 
 	return rval;
 }

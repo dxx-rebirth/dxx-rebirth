@@ -28,7 +28,12 @@ typedef enum event_type
 
 	EVENT_NEWMENU_DRAW,					// draw after the newmenu stuff is drawn (e.g. savegame previews)
 	EVENT_NEWMENU_CHANGED,				// an item had its value/text changed
-	EVENT_NEWMENU_SELECTED				// user chose something - pressed enter/clicked on it
+	EVENT_NEWMENU_SELECTED,				// user chose something - pressed enter/clicked on it
+	
+	EVENT_UI_GADGET_PRESSED,				// user 'pressed' a gadget
+	EVENT_UI_LISTBOX_MOVED,
+	EVENT_UI_LISTBOX_SELECTED,
+	EVENT_UI_USERBOX_DRAGGED
 } event_type;
 
 // A vanilla event. Cast to the correct type of event according to 'type'.

@@ -27,7 +27,7 @@ static char rcsid[] = "$Id: userbox.c,v 1.1.1.1 2006/03/17 19:52:22 zicodxx Exp 
 #include "mouse.h"
 #include "key.h"
 
-void ui_draw_userbox( UI_GADGET_USERBOX * userbox )
+void ui_draw_userbox( UI_DIALOG *dlg, UI_GADGET_USERBOX * userbox )
 {
 
 	if ( userbox->status==1 )
@@ -37,7 +37,7 @@ void ui_draw_userbox( UI_GADGET_USERBOX * userbox )
 		ui_mouse_hide();
 		gr_set_current_canvas( userbox->canvas );
 
-		if (CurWindow->keyboard_focus_gadget == (UI_GADGET *)userbox)
+		if (dlg->keyboard_focus_gadget == (UI_GADGET *)userbox)
 			gr_setcolor( CRED );
 		else
 			gr_setcolor( CBRIGHT );
@@ -76,7 +76,7 @@ UI_GADGET_USERBOX * ui_add_gadget_userbox( UI_DIALOG * dlg, short x, short y, sh
 
 }
 
-int ui_userbox_do( UI_GADGET_USERBOX * userbox, d_event *event )
+int ui_userbox_do( UI_DIALOG *dlg, UI_GADGET_USERBOX * userbox, d_event *event )
 {
 	int OnMe, olddrag;
 	int x, y, z;
@@ -101,22 +101,23 @@ int ui_userbox_do( UI_GADGET_USERBOX * userbox, d_event *event )
 	{
 		if ( B1_JUST_PRESSED )
 		{
-			userbox->b1_dragging = 1;
+			userbox->b1_held_down = 1;
 			userbox->b1_drag_x1 = x - userbox->x1;
 			userbox->b1_drag_y1 = y - userbox->y1;
-			userbox->b1_clicked = 1;
 			rval = 1;
 		}
 		else if (B1_JUST_RELEASED)
 		{
-			userbox->b1_held_down = 0;
 			userbox->b1_dragging = 0;
+			if (userbox->b1_held_down)
+				userbox->b1_clicked = 1;
+			userbox->b1_held_down = 0;
 			rval = 1;
 		}
 
-		if ( userbox->b1_dragging )
+		if ( (event->type == EVENT_MOUSE_MOVED) && userbox->b1_held_down )
 		{
-			userbox->b1_held_down = 1;
+			userbox->b1_dragging = 1;
 			userbox->b1_drag_x2 = x - userbox->x1;
 			userbox->b1_drag_y2 = y - userbox->y1;
 		}
@@ -142,13 +143,19 @@ int ui_userbox_do( UI_GADGET_USERBOX * userbox, d_event *event )
 			userbox->b1_done_dragging = 1;
 	}
 
-	if (CurWindow->keyboard_focus_gadget==(UI_GADGET *)userbox)
+	if (dlg->keyboard_focus_gadget==(UI_GADGET *)userbox)
 	{
 		userbox->keypress = keypress;
 		rval = 1;
 	}
+	
+	if (userbox->b1_clicked || userbox->b1_dragging)
+	{
+		ui_gadget_send_event(dlg, userbox->b1_clicked ? EVENT_UI_GADGET_PRESSED : EVENT_UI_USERBOX_DRAGGED, (UI_GADGET *)userbox);
+		rval = 1;
+	}
 
-	ui_draw_userbox( userbox );
+	ui_draw_userbox( dlg, userbox );
 
 	return rval;
 }

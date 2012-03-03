@@ -1200,16 +1200,16 @@ void editor(void)
 			break;
 		}
 
-//		if (CurWindow->keyboard_focus_gadget == (UI_GADGET *)GameViewBox) current_view=NULL;
-//		if (CurWindow->keyboard_focus_gadget == (UI_GADGET *)GroupViewBox) current_view=NULL;
+//		if (EditorWindow->keyboard_focus_gadget == (UI_GADGET *)GameViewBox) current_view=NULL;
+//		if (EditorWindow->keyboard_focus_gadget == (UI_GADGET *)GroupViewBox) current_view=NULL;
 
 		new_cv = current_view ;
 
 #if ORTHO_VIEWS
-		if (CurWindow->keyboard_focus_gadget == (UI_GADGET *)LargeViewBox) new_cv=&LargeView;
-		if (CurWindow->keyboard_focus_gadget == (UI_GADGET *)TopViewBox)	new_cv=&TopView;
-		if (CurWindow->keyboard_focus_gadget == (UI_GADGET *)FrontViewBox) new_cv=&FrontView;
-		if (CurWindow->keyboard_focus_gadget == (UI_GADGET *)RightViewBox) new_cv=&RightView;
+		if (EditorWindow->keyboard_focus_gadget == (UI_GADGET *)LargeViewBox) new_cv=&LargeView;
+		if (EditorWindow->keyboard_focus_gadget == (UI_GADGET *)TopViewBox)	new_cv=&TopView;
+		if (EditorWindow->keyboard_focus_gadget == (UI_GADGET *)FrontViewBox) new_cv=&FrontView;
+		if (EditorWindow->keyboard_focus_gadget == (UI_GADGET *)RightViewBox) new_cv=&RightView;
 #endif
 		if (new_cv != current_view ) {
 			current_view->ev_changed = 1;

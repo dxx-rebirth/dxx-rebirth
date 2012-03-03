@@ -30,7 +30,7 @@ static char rcsid[] = "$Id: checkbox.c,v 1.1.1.1 2006/03/17 19:52:20 zicodxx Exp
 
 #define Middle(x) ((2*(x)+1)/4)
 
-void ui_draw_checkbox( UI_GADGET_CHECKBOX * checkbox )
+void ui_draw_checkbox( UI_DIALOG *dlg, UI_GADGET_CHECKBOX * checkbox )
 {
 
 	if ((checkbox->status==1) || (checkbox->position != checkbox->oldposition))
@@ -40,7 +40,7 @@ void ui_draw_checkbox( UI_GADGET_CHECKBOX * checkbox )
 		ui_mouse_hide();
 		gr_set_current_canvas( checkbox->canvas );
 
-		if (CurWindow->keyboard_focus_gadget == (UI_GADGET *)checkbox)
+		if (dlg->keyboard_focus_gadget == (UI_GADGET *)checkbox)
 			gr_set_fontcolor( CRED, -1 );
 		else
 			gr_set_fontcolor( CBLACK, -1 );
@@ -88,7 +88,7 @@ UI_GADGET_CHECKBOX * ui_add_gadget_checkbox( UI_DIALOG * dlg, short x, short y, 
 }
 
 
-int ui_checkbox_do( UI_GADGET_CHECKBOX * checkbox, d_event *event )
+int ui_checkbox_do( UI_DIALOG *dlg, UI_GADGET_CHECKBOX * checkbox, d_event *event )
 {
 	int rval = 0;
 	
@@ -122,7 +122,7 @@ int ui_checkbox_do( UI_GADGET_CHECKBOX * checkbox, d_event *event )
 		
 		key = event_key_get(event);
 		
-		if ((CurWindow->keyboard_focus_gadget==(UI_GADGET *)checkbox) && ((key==KEY_SPACEBAR) || (key==KEY_ENTER)) )
+		if ((dlg->keyboard_focus_gadget==(UI_GADGET *)checkbox) && ((key==KEY_SPACEBAR) || (key==KEY_ENTER)) )
 		{
 			checkbox->position = 2;
 			rval = 1;
@@ -136,17 +136,18 @@ int ui_checkbox_do( UI_GADGET_CHECKBOX * checkbox, d_event *event )
 		
 		checkbox->position = 0;
 		
-		if ((CurWindow->keyboard_focus_gadget==(UI_GADGET *)checkbox) && ((key==KEY_SPACEBAR) || (key==KEY_ENTER)) )
+		if ((dlg->keyboard_focus_gadget==(UI_GADGET *)checkbox) && ((key==KEY_SPACEBAR) || (key==KEY_ENTER)) )
 			checkbox->pressed = 1;
 	}
 		
 	if (checkbox->pressed == 1)
 	{
 		checkbox->flag ^= 1;
+		ui_gadget_send_event(dlg, EVENT_UI_GADGET_PRESSED, (UI_GADGET *)checkbox);
 		rval = 1;
 	}
 
-	ui_draw_checkbox( checkbox );
+	ui_draw_checkbox( dlg, checkbox );
 
 	return rval;
 }
