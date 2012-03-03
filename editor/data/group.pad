@@ -1,0 +1,38 @@
+Group Editing Functions
+ÚÄÄÄÄÄÄÄÄÂÄÄÄÄÄÄÄÄÂÄÄÄÄÄÄÄÄÂÄÄÄÄÄÄÄÄ¿
+³ Num    ³ Load   ³ Save   ³ Prev   ³
+³ Lock   ³ Group  ³ Group  ³ Group  ³
+³        ³        ³        ³        ³
+ÃÄÄÄÄÄÄÄÄÅÄÄÄÄÄÄÄÄÅÄÄÄÄÄÄÄÄÅÄÄÄÄÄÄÄÄ´
+³ Move   ³ 8      ³ Group  ³        ³
+³ Group  ³       ³Segment ³        ³
+³        ³        ³        ³        ³
+ÃÄÄÄÄÄÄÄÄÅÄÄÄÄÄÄÄÄÅÄÄÄÄÄÄÄÄ´ Next   ³
+³ Copy   ³ 5      ³Ungroup ³ Group  ³
+³ Group  ³        ³Segment ³        ³
+³        ³        ³        ³        ³
+ÃÄÄÄÄÄÄÄÄÅÄÄÄÄÄÄÄÄÅÄÄÄÄÄÄÄÄÅÄÄÄÄÄÄÄÄ´
+³ Rotate ³ 2      ³Degroup ³        ³
+³ Group  ³       ³(Group) ³        ³
+³        ³        ³        ³ Create ³
+ÃÄÄÄÄÄÄÄÄÁÄÄÄÄÄÄÄÄÅÄÄÄÄÄÄÄÄ´ Group  ³
+³ Mark Group      ³ Delete ³        ³
+³ Segment         ³ Group  ³        ³
+³                 ³        ³        ³
+ÀÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÁÄÄÄÄÄÄÄÄÁÄÄÄÄÄÄÄÄÙ
+{Ctrl}{Pad/}		med-group-load
+{Ctrl}{Pad*}		med-group-save
+{Ctrl}{Pad-}		med-prev-group
+{Ctrl}{Pad+}		med-next-group
+{Ctrl}{Pad7}		med-move-group
+{Ctrl}{Pad4}		med-copy-group
+{Ctrl}{Pad1}		med-rotate-group
+{Ctrl}{Pad9}		med-group-segment
+{Ctrl}{Pad6}		med-ungroup-segment
+{Ctrl}{Pad3}		med-degroup-group
+{Ctrl}{Pad0}		med-mark-groupseg
+{Ctrl}{Pad.}		med-delete-group
+{Ctrl}{PadEnter}	med-create-group
+
+
+

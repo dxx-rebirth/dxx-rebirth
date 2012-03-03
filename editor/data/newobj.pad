@@ -1,0 +1,43 @@
+Object Placement Functions
+ÚÄÄÄÄÄÄÄÄÂÄÄÄÄÄÄÄÄÂÄÄÄÄÄÄÄÄÂÄÄÄÄÄÄÄÄ¿
+³ Num    ³ /      ³ Next   ³ Make   ³
+³ Lock   ³        ³ Obj in ³ Smaller³
+³        ³        ³ Segment³        ³
+ÃÄÄÄÄÄÄÄÄÅÄÄÄÄÄÄÄÄÅÄÄÄÄÄÄÄÄÅÄÄÄÄÄÄÄÄ´
+³ 7      ³ Move   ³ Move   ³        ³
+³ Home   ³ Forward³ Up     ³        ³
+³        ³        ³        ³        ³
+ÃÄÄÄÄÄÄÄÄÅÄÄÄÄÄÄÄÄÅÄÄÄÄÄÄÄÄ´ Make   ³
+³ Move   ³ Set    ³ Move   ³ Larger ³
+³ Left   ³ Default³ Right  ³        ³
+³        ³        ³        ³        ³
+ÃÄÄÄÄÄÄÄÄÅÄÄÄÄÄÄÄÄÅÄÄÄÄÄÄÄÄÅÄÄÄÄÄÄÄÄ´
+³ 1      ³ Move   ³ Move   ³        ³
+³ End    ³ Back   ³ Down   ³        ³
+³        ³        ³        ³ Select ³
+ÃÄÄÄÄÄÄÄÄÁÄÄÄÄÄÄÄÄÅÄÄÄÄÄÄÄÄ´ Next   ³
+³ Place           ³ Delete ³ Object ³
+³ Object          ³ Object ³ Type   ³
+³                 ³        ³        ³
+ÀÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÁÄÄÄÄÄÄÄÄÁÄÄÄÄÄÄÄÄÙ
+{Ctrl}{Pad*}		med-obj-select-next-in-segment
+{Ctrl}{Pad-}		med-obj-make-smaller
+{Ctrl}{Pad+}		med-obj-make-larger
+{Ctrl}{Pad8}		med-obj-move-forward
+{Ctrl}{Pad9}		med-obj-move-up
+{Ctrl}{Pad4}		med-obj-move-left
+{Ctrl}{Pad5}		med-obj-set-default
+{Ctrl}{Pad6}		med-obj-move-right
+{Ctrl}{Pad2}		med-obj-move-back
+{Ctrl}{Pad3}		med-obj-move-down
+{Ctrl}{PadEnter}	med-obj-select-next-type
+{Ctrl}{Pad0}		med-obj-place-object
+{Ctrl}{Pad.}		med-obj-delete-object
+{Shift}{Pad1}		med-obj-decrease-bank
+{Shift}{Pad3}		med-obj-increase-bank
+{Shift}{Pad2}		med-obj-decrease-pitch
+{Shift}{Pad8}		med-obj-increase-pitch
+{Shift}{Pad4}		med-obj-decrease-heading
+{Shift}{Pad6}		med-obj-increase-heading
+{Shift}{Pad5}		med-obj-reset
+
