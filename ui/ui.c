@@ -72,6 +72,8 @@ void ui_close()
 	{
 		Initialized = 0;
 
+		menubar_close();
+		
 		ui_pad_close();
 
 		ui_mouse_close();

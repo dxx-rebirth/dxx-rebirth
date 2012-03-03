@@ -288,6 +288,21 @@
 		EB35ABE40FB199B800C36930 /* window.c in Sources */ = {isa = PBXBuildFile; fileRef = EB35ABE00FB199B800C36930 /* window.c */; };
 		EB380D7D0E168B1900EBD9AD /* InfoPlist.strings in Resources */ = {isa = PBXBuildFile; fileRef = EB380D7B0E168B1900EBD9AD /* InfoPlist.strings */; };
 		EB380D7E0E168B1900EBD9AD /* InfoPlist.strings in Resources */ = {isa = PBXBuildFile; fileRef = EB380D7B0E168B1900EBD9AD /* InfoPlist.strings */; };
+		EB6142611501EDC9004E2AE8 /* curve.pad in CopyFiles */ = {isa = PBXBuildFile; fileRef = EB6142451501EDC9004E2AE8 /* curve.pad */; };
+		EB6142621501EDC9004E2AE8 /* dummy.pad in CopyFiles */ = {isa = PBXBuildFile; fileRef = EB6142461501EDC9004E2AE8 /* dummy.pad */; };
+		EB6142631501EDC9004E2AE8 /* group.pad in CopyFiles */ = {isa = PBXBuildFile; fileRef = EB6142471501EDC9004E2AE8 /* group.pad */; };
+		EB6142641501EDC9004E2AE8 /* lighting.pad in CopyFiles */ = {isa = PBXBuildFile; fileRef = EB6142481501EDC9004E2AE8 /* lighting.pad */; };
+		EB6142651501EDC9004E2AE8 /* med.mnu in CopyFiles */ = {isa = PBXBuildFile; fileRef = EB6142491501EDC9004E2AE8 /* med.mnu */; };
+		EB6142661501EDC9004E2AE8 /* newobj.pad in CopyFiles */ = {isa = PBXBuildFile; fileRef = EB61424A1501EDC9004E2AE8 /* newobj.pad */; };
+		EB6142671501EDC9004E2AE8 /* object.pad in CopyFiles */ = {isa = PBXBuildFile; fileRef = EB61424B1501EDC9004E2AE8 /* object.pad */; };
+		EB6142681501EDC9004E2AE8 /* objmov.pad in CopyFiles */ = {isa = PBXBuildFile; fileRef = EB61424C1501EDC9004E2AE8 /* objmov.pad */; };
+		EB6142691501EDC9004E2AE8 /* pc6x8.fnt in CopyFiles */ = {isa = PBXBuildFile; fileRef = EB61424D1501EDC9004E2AE8 /* pc6x8.fnt */; };
+		EB61426A1501EDC9004E2AE8 /* pc8x16.fnt in CopyFiles */ = {isa = PBXBuildFile; fileRef = EB61424E1501EDC9004E2AE8 /* pc8x16.fnt */; };
+		EB61426B1501EDC9004E2AE8 /* segmove.pad in CopyFiles */ = {isa = PBXBuildFile; fileRef = EB61424F1501EDC9004E2AE8 /* segmove.pad */; };
+		EB61426C1501EDC9004E2AE8 /* segsize.pad in CopyFiles */ = {isa = PBXBuildFile; fileRef = EB6142501501EDC9004E2AE8 /* segsize.pad */; };
+		EB61426D1501EDC9004E2AE8 /* test.pad in CopyFiles */ = {isa = PBXBuildFile; fileRef = EB6142511501EDC9004E2AE8 /* test.pad */; };
+		EB61426E1501EDC9004E2AE8 /* texture.pad in CopyFiles */ = {isa = PBXBuildFile; fileRef = EB6142521501EDC9004E2AE8 /* texture.pad */; };
+		EB61427E1501F2FB004E2AE8 /* d1xgl-Info.plist in Resources */ = {isa = PBXBuildFile; fileRef = 67F6FEEA066B13D900443922 /* d1xgl-Info.plist */; };
 		EB775A7A105611720036C348 /* extractD1Data.cpp in Sources */ = {isa = PBXBuildFile; fileRef = EB775A79105611720036C348 /* extractD1Data.cpp */; };
 		EB8BE84F1071FBE00069486E /* player.c in Sources */ = {isa = PBXBuildFile; fileRef = EB8BE84E1071FBE00069486E /* player.c */; };
 		EB8BE8501071FBE00069486E /* player.c in Sources */ = {isa = PBXBuildFile; fileRef = EB8BE84E1071FBE00069486E /* player.c */; };
@@ -410,6 +425,32 @@
 		EBEEB29F0D2B378B00FF39B4 /* compare.c in Sources */ = {isa = PBXBuildFile; fileRef = EBEEB29B0D2B378B00FF39B4 /* compare.c */; };
 		EBEEB2A30D2B378B00FF39B4 /* compare.c in Sources */ = {isa = PBXBuildFile; fileRef = EBEEB29B0D2B378B00FF39B4 /* compare.c */; };
 /* End PBXBuildFile section */
+
+/* Begin PBXCopyFilesBuildPhase section */
+		EB6142761501EFAB004E2AE8 /* CopyFiles */ = {
+			isa = PBXCopyFilesBuildPhase;
+			buildActionMask = 2147483647;
+			dstPath = editor;
+			dstSubfolderSpec = 7;
+			files = (
+				EB61426A1501EDC9004E2AE8 /* pc8x16.fnt in CopyFiles */,
+				EB6142691501EDC9004E2AE8 /* pc6x8.fnt in CopyFiles */,
+				EB6142651501EDC9004E2AE8 /* med.mnu in CopyFiles */,
+				EB6142631501EDC9004E2AE8 /* group.pad in CopyFiles */,
+				EB6142621501EDC9004E2AE8 /* dummy.pad in CopyFiles */,
+				EB61426D1501EDC9004E2AE8 /* test.pad in CopyFiles */,
+				EB61426B1501EDC9004E2AE8 /* segmove.pad in CopyFiles */,
+				EB61426E1501EDC9004E2AE8 /* texture.pad in CopyFiles */,
+				EB61426C1501EDC9004E2AE8 /* segsize.pad in CopyFiles */,
+				EB6142661501EDC9004E2AE8 /* newobj.pad in CopyFiles */,
+				EB6142611501EDC9004E2AE8 /* curve.pad in CopyFiles */,
+				EB6142671501EDC9004E2AE8 /* object.pad in CopyFiles */,
+				EB6142681501EDC9004E2AE8 /* objmov.pad in CopyFiles */,
+				EB6142641501EDC9004E2AE8 /* lighting.pad in CopyFiles */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+/* End PBXCopyFilesBuildPhase section */
 
 /* Begin PBXFileReference section */
 		1058C7A1FEA54F0111CA2CBB /* Cocoa.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = Cocoa.framework; path = /System/Library/Frameworks/Cocoa.framework; sourceTree = "<absolute>"; };
@@ -638,6 +679,20 @@
 		EB35ABE00FB199B800C36930 /* window.c */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.c; path = window.c; sourceTree = "<group>"; };
 		EB380D7C0E168B1900EBD9AD /* English */ = {isa = PBXFileReference; fileEncoding = 10; lastKnownFileType = text.plist.strings; name = English; path = English.lproj/InfoPlist.strings; sourceTree = "<group>"; };
 		EB3CA4F90E97740E00FB1E93 /* tracker.h */ = {isa = PBXFileReference; fileEncoding = 30; lastKnownFileType = sourcecode.c.h; path = tracker.h; sourceTree = "<group>"; };
+		EB6142451501EDC9004E2AE8 /* curve.pad */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text; path = curve.pad; sourceTree = "<group>"; };
+		EB6142461501EDC9004E2AE8 /* dummy.pad */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text; path = dummy.pad; sourceTree = "<group>"; };
+		EB6142471501EDC9004E2AE8 /* group.pad */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text; path = group.pad; sourceTree = "<group>"; };
+		EB6142481501EDC9004E2AE8 /* lighting.pad */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text; path = lighting.pad; sourceTree = "<group>"; };
+		EB6142491501EDC9004E2AE8 /* med.mnu */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text; path = med.mnu; sourceTree = "<group>"; };
+		EB61424A1501EDC9004E2AE8 /* newobj.pad */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text; path = newobj.pad; sourceTree = "<group>"; };
+		EB61424B1501EDC9004E2AE8 /* object.pad */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text; path = object.pad; sourceTree = "<group>"; };
+		EB61424C1501EDC9004E2AE8 /* objmov.pad */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text; path = objmov.pad; sourceTree = "<group>"; };
+		EB61424D1501EDC9004E2AE8 /* pc6x8.fnt */ = {isa = PBXFileReference; lastKnownFileType = file; path = pc6x8.fnt; sourceTree = "<group>"; };
+		EB61424E1501EDC9004E2AE8 /* pc8x16.fnt */ = {isa = PBXFileReference; lastKnownFileType = file; path = pc8x16.fnt; sourceTree = "<group>"; };
+		EB61424F1501EDC9004E2AE8 /* segmove.pad */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text; path = segmove.pad; sourceTree = "<group>"; };
+		EB6142501501EDC9004E2AE8 /* segsize.pad */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text; path = segsize.pad; sourceTree = "<group>"; };
+		EB6142511501EDC9004E2AE8 /* test.pad */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text; path = test.pad; sourceTree = "<group>"; };
+		EB6142521501EDC9004E2AE8 /* texture.pad */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text; path = texture.pad; sourceTree = "<group>"; };
 		EB775A6F105611320036C348 /* d1Extract */ = {isa = PBXFileReference; explicitFileType = "compiled.mach-o.executable"; includeInIndex = 0; path = d1Extract; sourceTree = BUILT_PRODUCTS_DIR; };
 		EB775A79105611720036C348 /* extractD1Data.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = extractD1Data.cpp; sourceTree = "<group>"; };
 		EB8BE84E1071FBE00069486E /* player.c */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.c; path = player.c; sourceTree = "<group>"; };
@@ -1306,6 +1361,27 @@
 			path = tracker;
 			sourceTree = "<group>";
 		};
+		EB6142441501EDC9004E2AE8 /* data */ = {
+			isa = PBXGroup;
+			children = (
+				EB6142451501EDC9004E2AE8 /* curve.pad */,
+				EB6142461501EDC9004E2AE8 /* dummy.pad */,
+				EB6142471501EDC9004E2AE8 /* group.pad */,
+				EB6142481501EDC9004E2AE8 /* lighting.pad */,
+				EB6142491501EDC9004E2AE8 /* med.mnu */,
+				EB61424A1501EDC9004E2AE8 /* newobj.pad */,
+				EB61424B1501EDC9004E2AE8 /* object.pad */,
+				EB61424C1501EDC9004E2AE8 /* objmov.pad */,
+				EB61424D1501EDC9004E2AE8 /* pc6x8.fnt */,
+				EB61424E1501EDC9004E2AE8 /* pc8x16.fnt */,
+				EB61424F1501EDC9004E2AE8 /* segmove.pad */,
+				EB6142501501EDC9004E2AE8 /* segsize.pad */,
+				EB6142511501EDC9004E2AE8 /* test.pad */,
+				EB6142521501EDC9004E2AE8 /* texture.pad */,
+			);
+			path = data;
+			sourceTree = "<group>";
+		};
 		EB775A77105611720036C348 /* utilities */ = {
 			isa = PBXGroup;
 			children = (
@@ -1330,6 +1406,7 @@
 			isa = PBXGroup;
 			children = (
 				EBC650800890C882004FCAA3 /* autosave.c */,
+				EB6142441501EDC9004E2AE8 /* data */,
 				EBC650970890C882004FCAA3 /* centers.c */,
 				EBC650990890C882004FCAA3 /* curves.c */,
 				EBC6509B0890C882004FCAA3 /* eglobal.c */,
@@ -1569,6 +1646,7 @@
 				676AC1E80668A938007173EB /* Resources */,
 				676AC1EA0668A938007173EB /* Sources */,
 				676AC26B0668A938007173EB /* Frameworks */,
+				EB6142761501EFAB004E2AE8 /* CopyFiles */,
 			);
 			buildRules = (
 			);
@@ -1648,6 +1726,7 @@
 			isa = PBXResourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				EB61427E1501F2FB004E2AE8 /* d1xgl-Info.plist in Resources */,
 				EBAEB74C0BF4A86F00FC6E13 /* d1x-rebirth.icns in Resources */,
 				EB380D7D0E168B1900EBD9AD /* InfoPlist.strings in Resources */,
 			);

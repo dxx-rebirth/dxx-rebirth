@@ -320,8 +320,11 @@ static inline void PHYSFSX_readMatrix(vms_matrix *m,PHYSFS_file *file)
 	PHYSFSX_readVector(&m->fvec,file);
 }
 
-extern int PHYSFSX_contfile_init(char *hogname, int add_to_end);
-extern int PHYSFSX_contfile_close(char *hogname);
+#define PHYSFSX_contfile_init PHYSFSX_addRelToSearchPath
+#define PHYSFSX_contfile_close PHYSFSX_removeRelFromSearchPath
+
+extern int PHYSFSX_addRelToSearchPath(char *relname, int add_to_end);
+extern int PHYSFSX_removeRelFromSearchPath(char *relname);
 extern int PHYSFSX_fsize(char *hogname);
 extern void PHYSFSX_listSearchPathContent();
 extern int PHYSFSX_checkSupportedArchiveTypes();

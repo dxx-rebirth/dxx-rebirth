@@ -128,8 +128,7 @@ void PHYSFSX_init(int argc, char *argv[])
 		PHYSFS_addToSearchPath(SHAREPATH, 1);
 #endif
 	
-	PHYSFSX_getRealPath("data", fullPath);	// 'Data' subdirectory
-	PHYSFS_addToSearchPath(fullPath, 1);
+	PHYSFSX_addRelToSearchPath("data", 1);	// 'Data' subdirectory
 	
 	// For Macintosh, add the 'Resources' directory in the .app bundle to the searchpaths
 #if defined(__APPLE__) && defined(__MACH__)
@@ -161,28 +160,29 @@ void PHYSFSX_init(int argc, char *argv[])
 #endif
 }
 
-//Specify the name of the hogfile.  Returns 1 if hogfile found & had files
-int PHYSFSX_contfile_init(char *hogname, int add_to_end)
+// Add a searchpath, but that searchpath is relative to an existing searchpath
+// It will add the first one it finds and return 1, if it doesn't find any it returns 0
+int PHYSFSX_addRelToSearchPath(char *relname, int add_to_end)
 {
-	char hogname2[PATH_MAX], pathname[PATH_MAX];
+	char relname2[PATH_MAX], pathname[PATH_MAX];
 
-	snprintf(hogname2, strlen(hogname)+1, "%s", hogname);
-	PHYSFSEXT_locateCorrectCase(hogname2);
+	snprintf(relname2, strlen(relname)+1, "%s", relname);
+	PHYSFSEXT_locateCorrectCase(relname2);
 
-	if (!PHYSFSX_getRealPath(hogname2, pathname))
+	if (!PHYSFSX_getRealPath(relname2, pathname))
 		return 0;
 
 	return PHYSFS_addToSearchPath(pathname, add_to_end);
 }
 
-int PHYSFSX_contfile_close(char *hogname)
+int PHYSFSX_removeRelFromSearchPath(char *relname)
 {
-	char hogname2[PATH_MAX], pathname[PATH_MAX];
+	char relname2[PATH_MAX], pathname[PATH_MAX];
 
-	snprintf(hogname2, strlen(hogname)+1, "%s", hogname);
-	PHYSFSEXT_locateCorrectCase(hogname2);
+	snprintf(relname2, strlen(relname)+1, "%s", relname);
+	PHYSFSEXT_locateCorrectCase(relname2);
 
-	if (!PHYSFSX_getRealPath(hogname2, pathname))
+	if (!PHYSFSX_getRealPath(relname2, pathname))
 		return 0;
 
 	return PHYSFS_removeFromSearchPath(pathname);

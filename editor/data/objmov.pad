@@ -1,0 +1,41 @@
+Object Rotation Functions
+ÚÄÄÄÄÄÄÄÄÂÄÄÄÄÄÄÄÄÂÄÄÄÄÄÄÄÄÂÄÄÄÄÄÄÄÄ¿
+³ Num    ³ /      ³ Next   ³ -      ³
+³ Lock   ³        ³ Obj in ³        ³
+³        ³        ³ Segment³        ³
+ÃÄÄÄÄÄÄÄÄÅÄÄÄÄÄÄÄÄÅÄÄÄÄÄÄÄÄÅÄÄÄÄÄÄÄÄ´
+³ Flip   ³Increase³ 9      ³        ³
+³ Object ³ Pitch  ³ PgUp   ³        ³
+³        ³        ³        ³        ³
+ÃÄÄÄÄÄÄÄÄÅÄÄÄÄÄÄÄÄÅÄÄÄÄÄÄÄÄ´ +      ³
+³Decrease³ Reset  ³Increase³        ³
+³Heading ³ Object ³Heading ³        ³
+³        ³        ³        ³        ³
+ÃÄÄÄÄÄÄÄÄÅÄÄÄÄÄÄÄÄÅÄÄÄÄÄÄÄÄÅÄÄÄÄÄÄÄÄ´
+³Decrease³Decrease³Increase³        ³
+³  Bank  ³ Pitch  ³ Bank   ³        ³
+³        ³        ³        ³ Select ³
+ÃÄÄÄÄÄÄÄÄÁÄÄÄÄÄÄÄÄÅÄÄÄÄÄÄÄÄ´ Next   ³
+³ Place           ³ Delete ³ Object ³
+³ Object          ³ Object ³ Type   ³
+³                 ³        ³        ³
+ÀÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÁÄÄÄÄÄÄÄÄÁÄÄÄÄÄÄÄÄÙ
+{Ctrl}{Pad*}		med-obj-select-next-in-segment
+{Ctrl}{Pad1}		med-obj-decrease-bank
+{Ctrl}{Pad3}		med-obj-increase-bank
+{Ctrl}{Pad2}		med-obj-decrease-pitch
+{Ctrl}{Pad8}		med-obj-increase-pitch
+{Ctrl}{Pad4}		med-obj-decrease-heading
+{Ctrl}{Pad6}		med-obj-increase-heading
+{Ctrl}{Pad7}		med-obj-flip
+{Ctrl}{Pad5}		med-obj-reset
+{Ctrl}{PadEnter}	med-obj-select-next-type
+{Ctrl}{Pad0}		med-obj-place-object
+{Ctrl}{Pad.}		med-obj-delete-object
+{Ctrl}{Shift}{Pad1}	med-obj-decrease-bank-big
+{Ctrl}{Shift}{Pad3}	med-obj-increase-bank-big
+{Ctrl}{Shift}{Pad2}	med-obj-decrease-pitch-big
+{Ctrl}{Shift}{Pad8}	med-obj-increase-pitch-big
+{Ctrl}{Shift}{Pad4}	med-obj-decrease-heading-big
+{Ctrl}{Shift}{Pad6}	med-obj-increase-heading-big
+

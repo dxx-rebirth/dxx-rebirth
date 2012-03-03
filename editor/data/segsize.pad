@@ -1,0 +1,46 @@
+Segment Scaling Mode
+ÚÄÄÄÄÄÄÄÄÂÄÄÄÄÄÄÄÄÂÄÄÄÄÄÄÄÄÂÄÄÄÄÄÄÄÄ¿
+³ Num    ³Increase³Increase³Increase³
+³ Lock   ³Length  ³Width   ³Height  ³
+³        ³Default ³Default ³Default ³
+ÃÄÄÄÄÄÄÄÄÅÄÄÄÄÄÄÄÄÅÄÄÄÄÄÄÄÄÅÄÄÄÄÄÄÄÄ´
+³ 7      ³Increase³Increase³        ³
+³ Home   ³Length  ³Height  ³        ³
+³        ³        ³        ³        ³
+ÃÄÄÄÄÄÄÄÄÅÄÄÄÄÄÄÄÄÅÄÄÄÄÄÄÄÄ´ Perturb³
+³Decrease³ 5      ³Increase³ Curside³
+³Width   ³        ³Width   ³        ³
+³        ³        ³        ³        ³
+ÃÄÄÄÄÄÄÄÄÅÄÄÄÄÄÄÄÄÅÄÄÄÄÄÄÄÄÅÄÄÄÄÄÄÄÄ´
+³ 1      ³Decrease³Decrease³        ³
+³ End    ³Length  ³Height  ³        ³
+³        ³        ³        ³        ³
+ÃÄÄÄÄÄÄÄÄÁÄÄÄÄÄÄÄÄÅÄÄÄÄÄÄÄÄ´  Next  ³
+³ 0               ³ .      ³  Edge  ³
+³ Select Next     ³ Next   ³        ³
+³ Mode            ³ Vertex ³        ³
+ÀÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÁÄÄÄÄÄÄÄÄÁÄÄÄÄÄÄÄÄÙ
+{Ctrl}{Pad6} 		med-segsize-increase-width
+{Ctrl}{Pad8} 		med-segsize-increase-length
+{Ctrl}{Pad9} 		med-segsize-increase-height
+{Ctrl}{Pad4} 		med-segsize-decrease-width
+{Ctrl}{Pad2} 		med-segsize-decrease-length
+{Ctrl}{Pad3} 		med-segsize-decrease-height
+{Ctrl}{Shift}{Pad6} 	med-segsize-increase-width-big
+{Ctrl}{Shift}{Pad8} 	med-segsize-increase-length-big
+{Ctrl}{Shift}{Pad9} 	med-segsize-increase-height-big
+{Ctrl}{Shift}{Pad4} 	med-segsize-decrease-width-big
+{Ctrl}{Shift}{Pad2} 	med-segsize-decrease-length-big
+{Ctrl}{Shift}{Pad3} 	med-segsize-decrease-height-big
+{Ctrl}{Pad0}	 	med-segsize-toggle-mode
+{Ctrl}{Pad.}	 	med-light-select-next-vertex
+{Ctrl}{PadEnter}	med-light-select-next-edge
+{Ctrl}{Pad+}		med-segsize-perturb-curside
+{Ctrl}{Shift}{Pad+}	med-segsize-perturb-curside-big
+{Ctrl}{Pad/} 		med-segsize-increase-length-default
+{Ctrl}{Pad*} 		med-segsize-increase-width-default
+{Ctrl}{Pad-} 		med-segsize-increase-height-default
+{Ctrl}{Shift}{Pad/} 	med-segsize-decrease-length-default
+{Ctrl}{Shift}{Pad*} 	med-segsize-decrease-width-default
+{Ctrl}{Shift}{Pad-} 	med-segsize-decrease-height-default
+

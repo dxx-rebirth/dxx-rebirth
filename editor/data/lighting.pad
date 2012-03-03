@@ -1,0 +1,37 @@
+Lighting Functions
+ÚÄÄÄÄÄÄÄÄÂÄÄÄÄÄÄÄÄÂÄÄÄÄÄÄÄÄÂÄÄÄÄÄÄÄÄ¿
+³ Num    ³Smooth  ³ Smooth ³ Quick  ³
+³ Lock   ³Lighting³Lighting³Lighting³
+³        ³on side ³ on All ³ on All ³
+ÃÄÄÄÄÄÄÄÄÅÄÄÄÄÄÄÄÄÅÄÄÄÄÄÄÄÄÅÄÄÄÄÄÄÄÄ´
+³Decrease³Set     ³Increase³        ³
+³Light/  ³Maximum ³Light/  ³Assign  ³
+³Vertex  ³Lighting³Vertex  ³Default ³
+ÃÄÄÄÄÄÄÄÄÅÄÄÄÄÄÄÄÄÅÄÄÄÄÄÄÄÄ´Lighting³
+³Decrease³Set     ³Increase³to All  ³
+³Light/  ³Default ³Light/  ³        ³
+³Side    ³Lighting³Side    ³        ³
+ÃÄÄÄÄÄÄÄÄÅÄÄÄÄÄÄÄÄÅÄÄÄÄÄÄÄÄÅÄÄÄÄÄÄÄÄ´
+³Decrease³ 2      ³Increase³        ³
+³Light/  ³       ³Light/  ³        ³
+³Segment ³        ³Segment ³ Select ³
+ÃÄÄÄÄÄÄÄÄÁÄÄÄÄÄÄÄÄÅÄÄÄÄÄÄÄÄ´ Next   ³
+³ Copy Current    ³ Copy to³ Vertex ³
+³ Intensity to    ³ Whole  ³        ³
+³ Whole Side      ³ Segment³        ³
+ÀÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÁÄÄÄÄÄÄÄÄÁÄÄÄÄÄÄÄÄÙ
+{Ctrl}{PadEnter}		med-light-select-next-vertex
+{Ctrl}{Pad7}			med-light-decrease-light-vertex
+{Ctrl}{Pad9}			med-light-increase-light-vertex
+{Ctrl}{Pad4}			med-light-decrease-light-side
+{Ctrl}{Pad5}			med-light-set-default
+{Ctrl}{Pad6}			med-light-increase-light-side
+{Ctrl}{Pad1}			med-light-decrease-light-segment
+{Ctrl}{Pad3}			med-light-increase-light-segment
+{Ctrl}{Pad0}			med-light-copy-intensity-side
+{Ctrl}{Pad8}			med-light-set-maximum
+{Ctrl}{Pad.}			med-light-copy-intensity-segment
+{Ctrl}{Pad+}			med-light-assign-default-all
+{Ctrl}{Pad-}			med-seguvs-smooth-lighting-all-quick
+{Ctrl}{Pad*}			med-seguvs-smooth-lighting-all
+{Ctrl}{Pad/}			med-seguvs-smooth-lighting
