@@ -1,5 +1,9 @@
 D1X-Rebirth Changelog
 
+20120305
+--------
+include/ui.h, ui/file.c, ui/gadget.c, ui/keypress.c, ui/listbox.c, ui/menu.c, ui/message.c, ui/popup.c: Use the gadget-sent events in the dialogs in ui
+
 20120303
 --------
 d1x-Info.plist, d1xgl-Info.plist, English.lproj/InfoPlist.strings, RELEASE-NOTES.txt: Increment version to 0.57.2 for Mac and RELEASE-NOTES

@@ -128,7 +128,7 @@ static int browser_handler(UI_DIALOG *dlg, d_event *event, browser *b)
 {
 	int rval = 0;
 
-	if ( b->button2->pressed )
+	if (GADGET_PRESSED(b->button2))
 	{
 		PHYSFS_freeList(b->filename_list);	b->filename_list = NULL;
 		PHYSFS_freeList(b->directory_list);	b->directory_list = NULL;
@@ -136,35 +136,32 @@ static int browser_handler(UI_DIALOG *dlg, d_event *event, browser *b)
 		return 1;
 	}
 	
-	if ( b->help_button->pressed )
+	if (GADGET_PRESSED(b->help_button))
 	{
 		MessageBox( -1, -1, 1, "Sorry, no help is available!", "Ok" );
 		rval = 1;
 	}
 	
-	if (b->listbox1->moved || b->new_listboxes)
+	if ((event->type == EVENT_UI_LISTBOX_MOVED) || b->new_listboxes)
 	{
 		if (b->listbox1->current_item >= 0 )
 			ui_inputbox_set_text(b->user_file, b->filename_list[b->listbox1->current_item]);
-		rval = 1;
-	}
-	
-	if (b->listbox2->moved || b->new_listboxes)
-	{
+
 		if (b->listbox2->current_item >= 0 )
 			ui_inputbox_set_text(b->user_file, b->directory_list[b->listbox2->current_item]);
+
 		rval = 1;
 	}
 	b->new_listboxes = 0;
 	
-	if (b->button1->pressed || b->user_file->pressed || (b->listbox1->selected_item > -1 ) || (b->listbox2->selected_item > -1 ))
+	if (GADGET_PRESSED(b->button1) || GADGET_PRESSED(b->user_file) || (event->type == EVENT_UI_LISTBOX_SELECTED))
 	{
 		char *p;
 		
 		ui_mouse_hide();
 		
-		if (b->listbox2->selected_item > -1 )
-			strcpy(b->user_file->text, b->directory_list[b->listbox2->selected_item]);
+		if (ui_event_get_gadget(event) == (UI_GADGET *)listbox2)
+			strcpy(b->user_file->text, b->directory_list[b->listbox2->current_item]);
 		
 		strncpy(b->filename, b->view_dir, PATH_MAX);
 		

@@ -182,8 +182,7 @@ int ui_listbox_do( UI_DIALOG *dlg, UI_GADGET_LISTBOX * listbox, d_event *event )
 	listbox->old_first_item = listbox->first_item;
 
 
-	if ((event->type == EVENT_UI_GADGET_PRESSED) &&
-		(ui_event_get_gadget(event) == (UI_GADGET *)listbox->scrollbar))
+	if (GADGET_PRESSED(listbox->scrollbar))
 	{
 		listbox->moved = 1;
 

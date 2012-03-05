@@ -118,7 +118,7 @@ static int key_dialog_handler(UI_DIALOG *dlg, d_event *event, UI_GADGET_BUTTON *
 		rval = 1;
 	}
 	
-	if ((*DoneButton)->pressed)
+	if (GADGET_PRESSED(*DoneButton))
 	{
 		ui_close_dialog(dlg);
 		rval = 1;

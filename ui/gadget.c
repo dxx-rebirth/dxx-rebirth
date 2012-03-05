@@ -237,7 +237,7 @@ int ui_gadget_send_event(UI_DIALOG *dlg, event_type type, UI_GADGET *gadget)
 
 UI_GADGET *ui_event_get_gadget(d_event *event)
 {
-	Assert(event->type == EVENT_UI_GADGET_PRESSED);	// more to come?
+	Assert(event->type >= EVENT_UI_GADGET_PRESSED);	// Any UI event
 	return ((event_gadget *) event)->gadget;
 }
 

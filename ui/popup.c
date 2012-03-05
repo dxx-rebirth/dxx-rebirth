@@ -41,7 +41,7 @@ static int popup_handler(UI_DIALOG *dlg, d_event *event, popup *p)
 	
 	for (i=0; i<p->num_buttons; i++ )
 	{
-		if (p->button_g[i]->pressed)
+		if (GADGET_PRESSED(p->button_g[i]))
 		{
 			*(p->choice) = i+1;
 			return 1;
