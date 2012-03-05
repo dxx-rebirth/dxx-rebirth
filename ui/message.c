@@ -52,7 +52,7 @@ static int messagebox_handler(UI_DIALOG *dlg, d_event *event, messagebox *m)
 	
 	for (i=0; i<m->num_buttons; i++ )
 	{
-		if (m->button_g[i]->pressed)
+		if (GADGET_PRESSED(m->button_g[i]))
 		{
 			*(m->choice) = i+1;
 			return 1;
