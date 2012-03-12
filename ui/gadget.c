@@ -245,6 +245,7 @@ int ui_dialog_do_gadgets(UI_DIALOG * dlg, d_event *event)
 {
 	int keypress = 0;
 	UI_GADGET * tmp, * tmp1;
+	window *wind;
 	int rval = 0;
 
 	if (event->type == EVENT_KEY_COMMAND)
@@ -329,12 +330,16 @@ int ui_dialog_do_gadgets(UI_DIALOG * dlg, d_event *event)
 	}
 
 	tmp = dlg->gadget;
+	wind = ui_dialog_get_window(dlg);
 	do
 	{
 		// If it is under another dialog, that dialog's handler would have returned 1 for mouse events.
 		// Key events are handled in a priority depending on the window ordering.
 		//if (!is_under_another_window( dlg, tmp ))
 			rval = ui_gadget_do(dlg, tmp, event);
+		
+		if (!window_exists(wind))
+			break;
 
 		tmp = tmp->next;
 	} while(/*!rval &&*/ tmp != dlg->gadget);	// have to look for pesky scrollbars in case an arrow button or arrow key are held down

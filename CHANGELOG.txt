@@ -1,5 +1,9 @@
 D1X-Rebirth Changelog
 
+20120312
+--------
+editor/centers.c, editor/med.c, ui/dialog.c, ui/file.c, ui/gadget.c, ui/radio.c: Make do_centers_window into a proper callback, iron out some problems that have become apparent
+
 20120305
 --------
 include/ui.h, ui/file.c, ui/gadget.c, ui/keypress.c, ui/listbox.c, ui/menu.c, ui/message.c, ui/popup.c: Use the gadget-sent events in the dialogs in ui

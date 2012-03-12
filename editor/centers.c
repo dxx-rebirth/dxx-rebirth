@@ -51,11 +51,15 @@ COPYRIGHT 1993-1998 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 // Variables for this module...
 //-------------------------------------------------------------------------
 static UI_DIALOG 				*MainWindow = NULL;
-static UI_GADGET_BUTTON 	*QuitButton;
-static UI_GADGET_RADIO		*CenterFlag[MAX_CENTER_TYPES];
-static UI_GADGET_CHECKBOX	*RobotMatFlag[MAX_ROBOT_TYPES];
 
-static int old_seg_num;
+typedef struct centers_dialog
+{
+	UI_GADGET_BUTTON 	*quitButton;
+	UI_GADGET_RADIO		*centerFlag[MAX_CENTER_TYPES];
+	UI_GADGET_CHECKBOX	*robotMatFlag[MAX_ROBOT_TYPES];
+	int old_seg_num;
+} centers_dialog;
+
 
 char	center_names[MAX_CENTER_TYPES][CENTER_STRING_LENGTH] = {
 	"Nothing",
@@ -65,11 +69,14 @@ char	center_names[MAX_CENTER_TYPES][CENTER_STRING_LENGTH] = {
 	"RobotMaker"
 };
 
+int centers_dialog_handler(UI_DIALOG *dlg, d_event *event, centers_dialog *c);
+
 //-------------------------------------------------------------------------
 // Called from the editor... does one instance of the centers dialog box
 //-------------------------------------------------------------------------
 int do_centers_dialog()
 {
+	centers_dialog *c;
 	int i;
 
 	// Only open 1 instance of this window...
@@ -81,23 +88,27 @@ int do_centers_dialog()
 	close_wall_window();
 	robot_close_window();
 
+	MALLOC(c, centers_dialog, 1);
+	if (!c)
+		return 0;
+
 	// Open a window with a quit button
-	MainWindow = ui_create_dialog( TMAPBOX_X+20, TMAPBOX_Y+20, 765-TMAPBOX_X, 545-TMAPBOX_Y, DF_DIALOG, NULL, NULL );
-	QuitButton = ui_add_gadget_button( MainWindow, 20, 252, 48, 40, "Done", NULL );
+	MainWindow = ui_create_dialog( TMAPBOX_X+20, TMAPBOX_Y+20, 765-TMAPBOX_X, 545-TMAPBOX_Y, DF_DIALOG, (int (*)(UI_DIALOG *, d_event *, void *))centers_dialog_handler, c );
+	c->quitButton = ui_add_gadget_button( MainWindow, 20, 252, 48, 40, "Done", NULL );
 
 	// These are the checkboxes for each door flag.
 	i = 80;
-	CenterFlag[0] = ui_add_gadget_radio( MainWindow, 18, i, 16, 16, 0, "NONE" ); 			i += 24;
-	CenterFlag[1] = ui_add_gadget_radio( MainWindow, 18, i, 16, 16, 0, "FuelCen" );		i += 24;
-	CenterFlag[2] = ui_add_gadget_radio( MainWindow, 18, i, 16, 16, 0, "RepairCen" );	i += 24;
-	CenterFlag[3] = ui_add_gadget_radio( MainWindow, 18, i, 16, 16, 0, "ControlCen" );	i += 24;
-	CenterFlag[4] = ui_add_gadget_radio( MainWindow, 18, i, 16, 16, 0, "RobotCen" );		i += 24;
+	c->centerFlag[0] = ui_add_gadget_radio( MainWindow, 18, i, 16, 16, 0, "NONE" ); 			i += 24;
+	c->centerFlag[1] = ui_add_gadget_radio( MainWindow, 18, i, 16, 16, 0, "FuelCen" );		i += 24;
+	c->centerFlag[2] = ui_add_gadget_radio( MainWindow, 18, i, 16, 16, 0, "RepairCen" );	i += 24;
+	c->centerFlag[3] = ui_add_gadget_radio( MainWindow, 18, i, 16, 16, 0, "ControlCen" );	i += 24;
+	c->centerFlag[4] = ui_add_gadget_radio( MainWindow, 18, i, 16, 16, 0, "RobotCen" );		i += 24;
 
 	// These are the checkboxes for each robot flag.
 	for (i=0; i<N_robot_types; i++)
-		RobotMatFlag[i] = ui_add_gadget_checkbox( MainWindow, 128 + (i%2)*92, 20+(i/2)*24, 16, 16, 0, Robot_names[i]);
+		c->robotMatFlag[i] = ui_add_gadget_checkbox( MainWindow, 128 + (i%2)*92, 20+(i/2)*24, 16, 16, 0, Robot_names[i]);
 																									  
-	old_seg_num = -2;		// Set to some dummy value so everything works ok on the first frame.
+	c->old_seg_num = -2;		// Set to some dummy value so everything works ok on the first frame.
 
 	return 1;
 }
@@ -110,14 +121,19 @@ void close_centers_window()
 	}
 }
 
-void do_centers_window()
+int centers_dialog_handler(UI_DIALOG *dlg, d_event *event, centers_dialog *c)
 {
 	int i;
 //	int robot_flags;
+	int keypress = 0;
 	int redraw_window;
+	int rval = 0;
 
-	if ( MainWindow == NULL ) return;
+	Assert(MainWindow != NULL);
 
+	if (event->type == EVENT_KEY_COMMAND)
+		keypress = event_key_get(event);
+	
 	//------------------------------------------------------------
 	// Call the ui code..
 	//------------------------------------------------------------
@@ -127,17 +143,17 @@ void do_centers_window()
 	// If we change centers, we need to reset the ui code for all
 	// of the checkboxes that control the center flags.  
 	//------------------------------------------------------------
-	if (old_seg_num != Cursegp-Segments)
+	if (c->old_seg_num != Cursegp-Segments)
 	{
 		for (i = 0; i < MAX_CENTER_TYPES; i++)
-			ui_radio_set_value(CenterFlag[i], 0);
+			ui_radio_set_value(c->centerFlag[i], 0);
 
 		Assert(Cursegp->special < MAX_CENTER_TYPES);
-		ui_radio_set_value(CenterFlag[Cursegp->special], 1);
+		ui_radio_set_value(c->centerFlag[Cursegp->special], 1);
 
 		//	Read materialization center robot bit flags
 		for (i = 0; i < N_robot_types; i++)
-			ui_checkbox_check(RobotMatFlag[i], RobotCenters[Cursegp->matcen_num].robot_flags & (1 << i));
+			ui_checkbox_check(c->robotMatFlag[i], RobotCenters[Cursegp->matcen_num].robot_flags & (1 << i));
 	}
 
 	//------------------------------------------------------------
@@ -146,9 +162,10 @@ void do_centers_window()
 	//------------------------------------------------------------
 
 	redraw_window=0;
-	for (	i=0; i < MAX_CENTER_TYPES; i++ )	{
-		if ( CenterFlag[i]->flag == 1 )
-                 {
+	for (	i=0; i < MAX_CENTER_TYPES; i++ )
+	{
+		if ( GADGET_PRESSED(c->centerFlag[i]) )
+		{
 			if ( i == 0)
 				fuelcen_delete(Cursegp);
 			else if (Cursegp->special != i)
@@ -157,26 +174,31 @@ void do_centers_window()
 				redraw_window = 1;
 				fuelcen_activate( Cursegp, i );
 			}
-                 }
+			rval = 1;
+		}
 	}
 
 	for (i = 0; i < N_robot_types; i++)
 	{
-		if ( RobotMatFlag[i]->flag == 1 )
-			RobotCenters[Cursegp->matcen_num].robot_flags |= (1 << i);
-		else
-			RobotCenters[Cursegp->matcen_num].robot_flags &= ~(1 << i);
+		if ( GADGET_PRESSED(c->robotMatFlag[i]) )
+		{
+			if (c->robotMatFlag[i]->flag)
+				RobotCenters[Cursegp->matcen_num].robot_flags |= (1 << i);
+			else
+				RobotCenters[Cursegp->matcen_num].robot_flags &= ~(1 << i);
+			rval = 1;
+		}
 	}
 	
 	//------------------------------------------------------------
 	// If anything changes in the ui system, redraw all the text that
 	// identifies this wall.
 	//------------------------------------------------------------
-	if (redraw_window || (old_seg_num != Cursegp-Segments ) ) {
+	if (redraw_window || (c->old_seg_num != Cursegp-Segments ) ) {
 //		int	i;
 //		char	temp_text[CENTER_STRING_LENGTH];
 	
-		ui_dprintf_at( MainWindow, 12, 6, "Seg: %3d", Cursegp-Segments );
+		ui_dprintf_at( dlg, 12, 6, "Seg: %3d", Cursegp-Segments );
 
 //		for (i=0; i<CENTER_STRING_LENGTH; i++)
 //			temp_text[i] = ' ';
@@ -184,16 +206,25 @@ void do_centers_window()
 
 //		Assert(Cursegp->special < MAX_CENTER_TYPES);
 //		strncpy(temp_text, Center_names[Cursegp->special], strlen(Center_names[Cursegp->special]));
-//		ui_dprintf_at( MainWindow, 12, 23, " Type: %s", temp_text );
+//		ui_dprintf_at( dlg, 12, 23, " Type: %s", temp_text );
 		Update_flags |= UF_WORLD_CHANGED;
 	}
 
-	if ( QuitButton->pressed || (last_keypress==KEY_ESC) )	{
+	if (event->type == EVENT_WINDOW_CLOSE)
+	{
+		d_free(c);
+		return 0;	// we're not cancelling the close
+	}
+
+	if ( GADGET_PRESSED(c->quitButton) || (keypress==KEY_ESC) )
+	{
 		close_centers_window();
-		return;
+		return 1;
 	}		
 
-	old_seg_num = Cursegp-Segments;
+	c->old_seg_num = Cursegp-Segments;
+	
+	return rval;
 }
 
 
