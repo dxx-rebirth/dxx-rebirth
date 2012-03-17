@@ -1,5 +1,9 @@
 D1X-Rebirth Changelog
 
+20120317
+--------
+editor/ehostage.c, editor/med.c: Make do_hostage_window into a proper callback (seems to be unused for now)
+
 20120312
 --------
 editor/centers.c, editor/med.c, ui/dialog.c, ui/file.c, ui/gadget.c, ui/radio.c: Make do_centers_window into a proper callback, iron out some problems that have become apparent

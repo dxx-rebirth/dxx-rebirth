@@ -53,55 +53,58 @@ COPYRIGHT 1993-1998 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 // Variables for this module...
 //-------------------------------------------------------------------------
 static UI_DIALOG 				*MainWindow = NULL;
-static UI_GADGET_USERBOX	*HostageViewBox;
-static UI_GADGET_INPUTBOX	*HostageText;
-static UI_GADGET_BUTTON 	*QuitButton;
-static int						CurrentHostageIndex=-1;
-static int						LastHostageIndex=-1;
+static int						CurrentHostageIndex = -1;
+static int						LastHostageIndex = -1;
 
-static fix 			Vclip_animation_time=0;			// How long the rescue sequence has been playing
-static fix 			Vclip_playback_speed=0;				// Calculated internally.  Frames/second of vclip.
-static vclip 		*Vclip_ptr = NULL;				// Used for the vclip on monitor
+typedef struct hostage_dialog
+{
+	UI_GADGET_USERBOX	*hostageViewBox;
+	UI_GADGET_INPUTBOX	*hostageText;
+	UI_GADGET_BUTTON 	*quitButton;
 
-void vclip_play( vclip * vc, fix frame_time )	
+	vclip			*vclip_ptr;				// Used for the vclip on monitor
+	fix64			time;
+	fix 			vclip_animation_time;			// How long the rescue sequence has been playing
+	fix 			vclip_playback_speed;				// Calculated internally.  Frames/second of vclip.
+} hostage_dialog;
+
+void vclip_play( hostage_dialog *h, vclip * vc, fix frame_time )	
 {
 	int bitmapnum;
 
 	if ( vc == NULL )
 		return;
 
-	if ( vc != Vclip_ptr )	{
+	if ( vc != h->vclip_ptr )	{
 		// Start new vclip
-		Vclip_ptr = vc;
-		Vclip_animation_time = 1;
+		h->vclip_ptr = vc;
+		h->vclip_animation_time = 1;
 
 		// Calculate the frame/second of the playback
-		Vclip_playback_speed = fixdiv(i2f(Vclip_ptr->num_frames),Vclip_ptr->play_time);
+		h->vclip_playback_speed = fixdiv(i2f(h->vclip_ptr->num_frames),h->vclip_ptr->play_time);
 	}
 
-	if ( Vclip_animation_time <= 0 )
+	if ( h->vclip_animation_time <= 0 )
 		return;
 
 	// Find next bitmap in the vclip
-	bitmapnum = f2i(Vclip_animation_time);
+	bitmapnum = f2i(h->vclip_animation_time);
 
 	// Check if vclip is done playing.
-	if (bitmapnum >= Vclip_ptr->num_frames)		{
-		Vclip_animation_time	= 1;											// Restart this vclip
+	if (bitmapnum >= h->vclip_ptr->num_frames)		{
+		h->vclip_animation_time	= 1;											// Restart this vclip
 		bitmapnum = 0;
 	}
 
-	PIGGY_PAGE_IN( Vclip_ptr->frames[bitmapnum] );
-	gr_bitmap(0,0,&GameBitmaps[Vclip_ptr->frames[bitmapnum].index] );
+	PIGGY_PAGE_IN( h->vclip_ptr->frames[bitmapnum] );
+	gr_bitmap(0,0,&GameBitmaps[h->vclip_ptr->frames[bitmapnum].index] );
 	
-	Vclip_animation_time += fixmul(frame_time, Vclip_playback_speed );
+	h->vclip_animation_time += fixmul(frame_time, h->vclip_playback_speed );
 }
 
 
 
 static char HostageMessage[]  = "  ";
-
-static fix64 Time;
 
 int SelectPrevHostage()	{
 	int start=0;
@@ -327,31 +330,42 @@ int PlayHostageSound()	{
 //@@}
 
 
+int hostage_dialog_handler(UI_DIALOG *dlg, d_event *event, hostage_dialog *h);
+
 //-------------------------------------------------------------------------
 // Called from the editor... does one instance of the hostage dialog box
 //-------------------------------------------------------------------------
 int do_hostage_dialog()
 {
 	int i;
+	hostage_dialog *h;
 
 	// Only open 1 instance of this window...
 	if ( MainWindow != NULL ) return 0;
 	
 	// Close other windows
 	close_all_windows();
+	
+	MALLOC(h, hostage_dialog, 1);
+	if (!h)
+		return 0;
+
+	h->vclip_animation_time = 0;
+	h->vclip_playback_speed = 0;
+	h->vclip_ptr = NULL;
 
 	CurrentHostageIndex = 0;
 	SelectClosestHostage();
 
 	// Open a window with a quit button
-	MainWindow = ui_create_dialog( TMAPBOX_X+10, TMAPBOX_Y+20, 765-TMAPBOX_X, 545-TMAPBOX_Y, DF_DIALOG, NULL, NULL );
-	QuitButton = ui_add_gadget_button( MainWindow, 20, 222, 48, 40, "Done", NULL );
+	MainWindow = ui_create_dialog( TMAPBOX_X+10, TMAPBOX_Y+20, 765-TMAPBOX_X, 545-TMAPBOX_Y, DF_DIALOG, (int (*)(UI_DIALOG *, d_event *, void *))hostage_dialog_handler, h );
+	h->quitButton = ui_add_gadget_button( MainWindow, 20, 222, 48, 40, "Done", NULL );
 
 	ui_dprintf_at( MainWindow, 10, 32,"&Message:" );
-	HostageText = ui_add_gadget_inputbox( MainWindow, 10, 50, HOSTAGE_MESSAGE_LEN, HOSTAGE_MESSAGE_LEN, HostageMessage );
+	h->hostageText = ui_add_gadget_inputbox( MainWindow, 10, 50, HOSTAGE_MESSAGE_LEN, HOSTAGE_MESSAGE_LEN, HostageMessage );
 
 	// The little box the hostage vclip will play in.
-	HostageViewBox = ui_add_gadget_userbox( MainWindow,10, 90+10, 64, 64 );
+	h->hostageViewBox = ui_add_gadget_userbox( MainWindow,10, 90+10, 64, 64 );
 
 	// A bunch of buttons...
 	i = 90;
@@ -369,7 +383,7 @@ int do_hostage_dialog()
 	ui_add_gadget_button( MainWindow,155,i,140, 26, "Delete", ObjectDelete );	i += 29;		
 	ui_add_gadget_button( MainWindow,155,i,140, 26, "Create New", PlaceHostage );	i += 29;		
 	
-	Time = timer_query();
+	h->time = timer_query();
 
 	LastHostageIndex = -2;		// Set to some dummy value so everything works ok on the first frame.
 	
@@ -388,12 +402,17 @@ void hostage_close_window()
 	}
 }
 
-void do_hostage_window()
+int hostage_dialog_handler(UI_DIALOG *dlg, d_event *event, hostage_dialog *h)
 {
 	fix DeltaTime;
 	fix64 Temp;
+	int keypress = 0;
+	int rval = 0;
+	
+	if (event->type == EVENT_KEY_COMMAND)
+		keypress = event_key_get(event);
 
-	if ( MainWindow == NULL ) return;
+	Assert(MainWindow != NULL);
 
 	SelectClosestHostage();
 
@@ -410,14 +429,14 @@ void do_hostage_window()
 	if (LastHostageIndex != CurrentHostageIndex )	{
 
 		if ( CurrentHostageIndex > -1 )	
-			strcpy( HostageText->text, Hostages[CurrentHostageIndex].text );
+			strcpy( h->hostageText->text, Hostages[CurrentHostageIndex].text );
 		else
-			strcpy(HostageText->text, " " );
+			strcpy(h->hostageText->text, " " );
 
-		HostageText->position = strlen(HostageText->text);
-		HostageText->oldposition = HostageText->position;
-		HostageText->status=1;
-		HostageText->first_time = 1;
+		h->hostageText->position = strlen(h->hostageText->text);
+		h->hostageText->oldposition = h->hostageText->position;
+		h->hostageText->status=1;
+		h->hostageText->first_time = 1;
 
 	}
 
@@ -426,14 +445,14 @@ void do_hostage_window()
 	// update the cooresponding AI state.
 	//------------------------------------------------------------
 	if ( CurrentHostageIndex > -1 )	
-		strcpy( Hostages[CurrentHostageIndex].text, HostageText->text );
+		strcpy( Hostages[CurrentHostageIndex].text, h->hostageText->text );
 
 	//------------------------------------------------------------
 	// A simple frame time counter for spinning the objects...
 	//------------------------------------------------------------
 	Temp = timer_query();
-	DeltaTime = Temp - Time;
-	Time = Temp;
+	DeltaTime = Temp - h->time;
+	h->time = Temp;
 
 	//------------------------------------------------------------
 	// Redraw the object in the little 64x64 box
@@ -445,16 +464,16 @@ void do_hostage_window()
 
 		Assert(vclip_num != -1);
 
-		gr_set_current_canvas( HostageViewBox->canvas );
+		gr_set_current_canvas( h->hostageViewBox->canvas );
 
 		if ( vclip_num > -1 )	{
-			vclip_play( &Hostage_face_clip[vclip_num], DeltaTime );	
+			vclip_play( h, &Hostage_face_clip[vclip_num], DeltaTime );	
 		} else {
 			gr_clear_canvas( CGREY );
 		}
 	} else {
 		// no hostage, so just blank out
-		gr_set_current_canvas( HostageViewBox->canvas );
+		gr_set_current_canvas( h->hostageViewBox->canvas );
 		gr_clear_canvas( CGREY );
 	}
 
@@ -474,13 +493,22 @@ void do_hostage_window()
 		}
 		Update_flags |= UF_WORLD_CHANGED;
 	}
+	
+	if (event->type == EVENT_WINDOW_CLOSE)
+	{
+		d_free(h);
+		return 0;
+	}
 
-	if ( QuitButton->pressed || (last_keypress==KEY_ESC))	{
+	if ( GADGET_PRESSED(h->quitButton) || (keypress==KEY_ESC))
+	{
 		hostage_close_window();
-		return;
+		return 1;
 	}		
 
 	LastHostageIndex = CurrentHostageIndex;
+	
+	return rval;
 }
 
 
