@@ -160,7 +160,7 @@ static int browser_handler(UI_DIALOG *dlg, d_event *event, browser *b)
 		
 		ui_mouse_hide();
 		
-		if (ui_event_get_gadget(event) == (UI_GADGET *)listbox2)
+		if (ui_event_get_gadget(event) == (UI_GADGET *)b->listbox2)
 			strcpy(b->user_file->text, b->directory_list[b->listbox2->current_item]);
 		
 		strncpy(b->filename, b->view_dir, PATH_MAX);

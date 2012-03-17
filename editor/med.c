@@ -1080,9 +1080,6 @@ void editor(void)
 		do_robot_window();
 		do_object_window();
 		do_wall_window();
-		do_trigger_window();
-		do_hostage_window();
-		do_centers_window();
 		check_wall_validity();
 		Assert(Num_walls>=0);
 

@@ -151,7 +151,7 @@ int ui_dialog_handler(window *wind, d_event *event, UI_DIALOG *dlg)
 		ui_event_handler(event);
 
 #if 0		// must only call this once, after the gadget actions are determined
-			// until all the gadgets send events instead
+			// until all the dialogs use the gadget events instead
 	if (dlg->callback)
 		if ((*dlg->callback)(dlg, event, dlg->userdata))
 			return 1;		// event handled
@@ -171,6 +171,9 @@ int ui_dialog_handler(window *wind, d_event *event, UI_DIALOG *dlg)
 		case EVENT_MOUSE_BUTTON_UP:
 		case EVENT_MOUSE_MOVED:
 			/*return*/ ui_dialog_do_gadgets(dlg, event);
+			if (!window_exists(wind))
+				return 1;
+
 			rval = mouse_in_window(dlg->wind);
 			break;
 			
@@ -190,15 +193,13 @@ int ui_dialog_handler(window *wind, d_event *event, UI_DIALOG *dlg)
 
 		case EVENT_WINDOW_CLOSE:
 			//ui_close_dialog(dlg);		// need to hide this function and make it not call window_close first
-			return 0;
 			break;
 			
 		default:
-			return 0;
 			break;
 	}
 	
-	if (dlg->callback)
+	if (window_exists(wind) && dlg->callback)
 		if ((*dlg->callback)(dlg, event, dlg->userdata))
 			return 1;		// event handled
 

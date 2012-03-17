@@ -160,10 +160,6 @@ int ui_radio_do( UI_DIALOG *dlg, UI_GADGET_RADIO * radio, d_event *event )
 			tmp = tmp->next;
 		}
 		radio->flag = 1;
-	}
-
-	if (radio->pressed)
-	{
 		ui_gadget_send_event(dlg, EVENT_UI_GADGET_PRESSED, (UI_GADGET *)radio);
 		rval = 1;
 	}
