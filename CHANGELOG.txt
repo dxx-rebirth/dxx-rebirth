@@ -5,6 +5,7 @@ D1X-Rebirth Changelog
 editor/ehostage.c, editor/med.c: Make do_hostage_window into a proper callback (seems to be unused for now)
 editor/eswitch.c, editor/med.c: Make do_trigger_window into a proper callback
 editor/med.c, editor/medrobot.c: Make do_robot_window and do_object_window into proper callbacks, doing both in the same commit because of global recycling
+editor/med.c, editor/medwall.c: Make do_wall_window into a proper callback. Only one dialog left - the main one.
 
 20120312
 --------

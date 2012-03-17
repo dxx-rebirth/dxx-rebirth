@@ -47,14 +47,18 @@ int wall_remove_door_flag(sbyte flag);
 // Variables for this module...
 //-------------------------------------------------------------------------
 static UI_DIALOG 				*MainWindow = NULL;
-static UI_GADGET_USERBOX	*WallViewBox;
-static UI_GADGET_BUTTON 	*QuitButton;
-static UI_GADGET_CHECKBOX	*DoorFlag[4];
-static UI_GADGET_RADIO		*KeyFlag[4];
 
-static int old_wall_num;
-static fix64 Time;
-static int framenum=0;
+typedef struct wall_dialog
+{
+	UI_GADGET_USERBOX	*wallViewBox;
+	UI_GADGET_BUTTON 	*quitButton;
+	UI_GADGET_CHECKBOX	*doorFlag[4];
+	UI_GADGET_RADIO		*keyFlag[4];
+	int old_wall_num;
+	fix64 time;
+	int framenum;
+} wall_dialog;
+
 static int Current_door_type=1;
 
 typedef struct count_wall {
@@ -336,36 +340,45 @@ int NextWall() {
 
 }
 
+int wall_dialog_handler(UI_DIALOG *dlg, d_event *event, wall_dialog *wd);
+
 //-------------------------------------------------------------------------
 // Called from the editor... does one instance of the wall dialog box
 //-------------------------------------------------------------------------
 int do_wall_dialog()
 {
 	int i;
+	wall_dialog *wd;
 
 	// Only open 1 instance of this window...
 	if ( MainWindow != NULL ) return 0;
+
+	MALLOC(wd, wall_dialog, 1);
+	if (!wd)
+		return 0;
+
+	wd->framenum = 0;
 
 	// Close other windows.	
 	close_all_windows();
 
 	// Open a window with a quit button
-	MainWindow = ui_create_dialog( TMAPBOX_X+20, TMAPBOX_Y+20, 765-TMAPBOX_X, 545-TMAPBOX_Y, DF_DIALOG, NULL, NULL );
-	QuitButton = ui_add_gadget_button( MainWindow, 20, 252, 48, 40, "Done", NULL );
+	MainWindow = ui_create_dialog( TMAPBOX_X+20, TMAPBOX_Y+20, 765-TMAPBOX_X, 545-TMAPBOX_Y, DF_DIALOG, (int (*)(UI_DIALOG *, d_event *, void *))wall_dialog_handler, wd );
+	wd->quitButton = ui_add_gadget_button( MainWindow, 20, 252, 48, 40, "Done", NULL );
 
 	// These are the checkboxes for each door flag.
 	i = 80;
-	DoorFlag[0] = ui_add_gadget_checkbox( MainWindow, 22, i, 16, 16, 0, "Locked" ); i += 24;
-	DoorFlag[1] = ui_add_gadget_checkbox( MainWindow, 22, i, 16, 16, 0, "Auto" ); i += 24;
-	DoorFlag[2] = ui_add_gadget_checkbox( MainWindow, 22, i, 16, 16, 0, "Illusion OFF" ); i += 24;
+	wd->doorFlag[0] = ui_add_gadget_checkbox( MainWindow, 22, i, 16, 16, 0, "Locked" ); i += 24;
+	wd->doorFlag[1] = ui_add_gadget_checkbox( MainWindow, 22, i, 16, 16, 0, "Auto" ); i += 24;
+	wd->doorFlag[2] = ui_add_gadget_checkbox( MainWindow, 22, i, 16, 16, 0, "Illusion OFF" ); i += 24;
 
-	KeyFlag[0] = ui_add_gadget_radio( MainWindow, 22, i, 16, 16, 0, "NONE" ); i += 24;
-	KeyFlag[1] = ui_add_gadget_radio( MainWindow, 22, i, 16, 16, 0, "Blue" ); i += 24;
-	KeyFlag[2] = ui_add_gadget_radio( MainWindow, 22, i, 16, 16, 0, "Red" );  i += 24;
-	KeyFlag[3] = ui_add_gadget_radio( MainWindow, 22, i, 16, 16, 0, "Yellow" ); i += 24;
+	wd->keyFlag[0] = ui_add_gadget_radio( MainWindow, 22, i, 16, 16, 0, "NONE" ); i += 24;
+	wd->keyFlag[1] = ui_add_gadget_radio( MainWindow, 22, i, 16, 16, 0, "Blue" ); i += 24;
+	wd->keyFlag[2] = ui_add_gadget_radio( MainWindow, 22, i, 16, 16, 0, "Red" );  i += 24;
+	wd->keyFlag[3] = ui_add_gadget_radio( MainWindow, 22, i, 16, 16, 0, "Yellow" ); i += 24;
 
 	// The little box the wall will appear in.
-	WallViewBox = ui_add_gadget_userbox( MainWindow, 155, 5, 64, 64 );
+	wd->wallViewBox = ui_add_gadget_userbox( MainWindow, 155, 5, 64, 64 );
 
 	// A bunch of buttons...
 	i = 80;
@@ -382,7 +395,7 @@ int do_wall_dialog()
 	ui_add_gadget_button( MainWindow,155,i,140, 22, "Bind to Trigger", bind_wall_to_trigger ); i += 25;
 	ui_add_gadget_button( MainWindow,155,i,140, 22, "Bind to Control", bind_wall_to_control_center ); i+=25;
 	
-	old_wall_num = -2;		// Set to some dummy value so everything works ok on the first frame.
+	wd->old_wall_num = -2;		// Set to some dummy value so everything works ok on the first frame.
 
 	return 1;
 }
@@ -395,14 +408,19 @@ void close_wall_window()
 	}
 }
 
-void do_wall_window()
+int wall_dialog_handler(UI_DIALOG *dlg, d_event *event, wall_dialog *wd)
 {
 	int i;
 	sbyte type;
 	fix DeltaTime;
 	fix64 Temp;
-
-	if ( MainWindow == NULL ) return;
+	int keypress = 0;
+	int rval = 0;
+	
+	if (event->type == EVENT_KEY_COMMAND)
+		keypress = event_key_get(event);
+	
+	Assert(MainWindow != NULL);
 
 	//------------------------------------------------------------
 	// Call the ui code..
@@ -413,20 +431,20 @@ void do_wall_window()
 	// If we change walls, we need to reset the ui code for all
 	// of the checkboxes that control the wall flags.  
 	//------------------------------------------------------------
-	if (old_wall_num != Cursegp->sides[Curside].wall_num)
+	if (wd->old_wall_num != Cursegp->sides[Curside].wall_num)
 	{
 		if ( Cursegp->sides[Curside].wall_num != -1)
 		{
 			wall *w = &Walls[Cursegp->sides[Curside].wall_num];
 
-			ui_checkbox_check(DoorFlag[0], w->flags & WALL_DOOR_LOCKED);
-			ui_checkbox_check(DoorFlag[1], w->flags & WALL_DOOR_AUTO);
-			ui_checkbox_check(DoorFlag[2], w->flags & WALL_ILLUSION_OFF);
+			ui_checkbox_check(wd->doorFlag[0], w->flags & WALL_DOOR_LOCKED);
+			ui_checkbox_check(wd->doorFlag[1], w->flags & WALL_DOOR_AUTO);
+			ui_checkbox_check(wd->doorFlag[2], w->flags & WALL_ILLUSION_OFF);
 
-			ui_radio_set_value(KeyFlag[0], w->keys & KEY_NONE);
-			ui_radio_set_value(KeyFlag[1], w->keys & KEY_BLUE);
-			ui_radio_set_value(KeyFlag[2], w->keys & KEY_RED);
-			ui_radio_set_value(KeyFlag[3], w->keys & KEY_GOLD);
+			ui_radio_set_value(wd->keyFlag[0], w->keys & KEY_NONE);
+			ui_radio_set_value(wd->keyFlag[1], w->keys & KEY_BLUE);
+			ui_radio_set_value(wd->keyFlag[2], w->keys & KEY_RED);
+			ui_radio_set_value(wd->keyFlag[3], w->keys & KEY_GOLD);
 		}
 	}
 	
@@ -436,64 +454,78 @@ void do_wall_window()
 	//------------------------------------------------------------
 
 	if (Walls[Cursegp->sides[Curside].wall_num].type == WALL_DOOR) {
-		if ( DoorFlag[0]->flag == 1 )	
-			Walls[Cursegp->sides[Curside].wall_num].flags |= WALL_DOOR_LOCKED;
-		else
-			Walls[Cursegp->sides[Curside].wall_num].flags &= ~WALL_DOOR_LOCKED;
-		if ( DoorFlag[1]->flag == 1 )	
-			Walls[Cursegp->sides[Curside].wall_num].flags |= WALL_DOOR_AUTO;
-		else
-			Walls[Cursegp->sides[Curside].wall_num].flags &= ~WALL_DOOR_AUTO;
+		if (GADGET_PRESSED(wd->doorFlag[0]))
+		{
+			if ( wd->doorFlag[0]->flag == 1 )	
+				Walls[Cursegp->sides[Curside].wall_num].flags |= WALL_DOOR_LOCKED;
+			else
+				Walls[Cursegp->sides[Curside].wall_num].flags &= ~WALL_DOOR_LOCKED;
+			rval = 1;
+		}
+		else if (GADGET_PRESSED(wd->doorFlag[1]))
+		{
+			if ( wd->doorFlag[1]->flag == 1 )	
+				Walls[Cursegp->sides[Curside].wall_num].flags |= WALL_DOOR_AUTO;
+			else
+				Walls[Cursegp->sides[Curside].wall_num].flags &= ~WALL_DOOR_AUTO;
+			rval = 1;
+		}
 
 		//------------------------------------------------------------
 		// If any of the radio buttons that control the mode are set, then
 		// update the corresponding key.
 		//------------------------------------------------------------
 		for (	i=0; i < 4; i++ )	{
-			if ( KeyFlag[i]->flag == 1 ) {
+			if (GADGET_PRESSED(wd->keyFlag[i]))
+			{
 				Walls[Cursegp->sides[Curside].wall_num].keys = 1<<i;		// Set the ai_state to the cooresponding radio button
+				rval = 1;
 			}
 		}
 	} else {
 		for (i = 0; i < 2; i++)
-			ui_checkbox_check(DoorFlag[i], 0);
+			ui_checkbox_check(wd->doorFlag[i], 0);
 		for (	i=0; i < 4; i++ )
-			ui_radio_set_value(KeyFlag[i], 0);
+			ui_radio_set_value(wd->keyFlag[i], 0);
 	}
 
 	if (Walls[Cursegp->sides[Curside].wall_num].type == WALL_ILLUSION) {
-		if ( DoorFlag[2]->flag == 1 )	
-			Walls[Cursegp->sides[Curside].wall_num].flags |= WALL_ILLUSION_OFF;
-		else
-			Walls[Cursegp->sides[Curside].wall_num].flags &= ~WALL_ILLUSION_OFF;
+		if (GADGET_PRESSED(wd->doorFlag[2]))
+		{
+			if ( wd->doorFlag[2]->flag == 1 )	
+				Walls[Cursegp->sides[Curside].wall_num].flags |= WALL_ILLUSION_OFF;
+			else
+				Walls[Cursegp->sides[Curside].wall_num].flags &= ~WALL_ILLUSION_OFF;
+			rval = 1;
+		}
 	} else 
 		for (	i=2; i < 3; i++ )	
-			if (DoorFlag[i]->flag == 1) { 
-				DoorFlag[i]->flag = 0;		// Tells ui that this button isn't checked
-				DoorFlag[i]->status = 1;	// Tells ui to redraw button
+			if (wd->doorFlag[i]->flag == 1) { 
+				wd->doorFlag[i]->flag = 0;		// Tells ui that this button isn't checked
+				wd->doorFlag[i]->status = 1;	// Tells ui to redraw button
 			}
 
 	//------------------------------------------------------------
 	// A simple frame time counter for animating the walls...
 	//------------------------------------------------------------
 	Temp = timer_query();
-	DeltaTime = Temp - Time;
+	DeltaTime = Temp - wd->time;
 
 	//------------------------------------------------------------
 	// Draw the wall in the little 64x64 box
 	//------------------------------------------------------------
-  	gr_set_current_canvas( WallViewBox->canvas );
+  	gr_set_current_canvas( wd->wallViewBox->canvas );
 	if (Cursegp->sides[Curside].wall_num != -1) {
 		type = Walls[Cursegp->sides[Curside].wall_num].type;
 		if ((type == WALL_DOOR) || (type == WALL_BLASTABLE)) {
 			if (DeltaTime > ((F1_0*200)/1000)) {
-				framenum++;
-				Time = Temp;
+				wd->framenum++;
+				wd->time = Temp;
 			}
-			if (framenum >= WallAnims[Walls[Cursegp->sides[Curside].wall_num].clip_num].num_frames)
-				framenum=0;
-			PIGGY_PAGE_IN(Textures[WallAnims[Walls[Cursegp->sides[Curside].wall_num].clip_num].frames[framenum]]);
-			gr_ubitmap(0,0, &GameBitmaps[Textures[WallAnims[Walls[Cursegp->sides[Curside].wall_num].clip_num].frames[framenum]].index]);
+			if (wd->framenum >= WallAnims[Walls[Cursegp->sides[Curside].wall_num].clip_num].num_frames)
+				wd->framenum=0;
+			PIGGY_PAGE_IN(Textures[WallAnims[Walls[Cursegp->sides[Curside].wall_num].clip_num].frames[wd->framenum]]);
+			gr_ubitmap(0,0, &GameBitmaps[Textures[WallAnims[Walls[Cursegp->sides[Curside].wall_num].clip_num].frames[wd->framenum]].index]);
 		} else {
 			if (type == WALL_OPEN)
 				gr_clear_canvas( CBLACK );
@@ -513,7 +545,7 @@ void do_wall_window()
 	// If anything changes in the ui system, redraw all the text that
 	// identifies this wall.
 	//------------------------------------------------------------
-	if (ui_button_any_drawn || (old_wall_num != Cursegp->sides[Curside].wall_num) )	{
+	if (ui_button_any_drawn || (wd->old_wall_num != Cursegp->sides[Curside].wall_num) )	{
 		if ( Cursegp->sides[Curside].wall_num > -1 )	{
 			ui_dprintf_at( MainWindow, 12, 6, "Wall: %d    ", Cursegp->sides[Curside].wall_num);
 			switch (Walls[Cursegp->sides[Curside].wall_num].type) {
@@ -553,12 +585,22 @@ void do_wall_window()
 		}
 		Update_flags |= UF_WORLD_CHANGED;
 	}
-	if ( QuitButton->pressed || (last_keypress==KEY_ESC) )	{
+	
+	if (event->type == EVENT_WINDOW_CLOSE)
+	{
+		d_free(wd);
+		return 0;
+	}
+
+	if ( GADGET_PRESSED(wd->quitButton) || (keypress==KEY_ESC) )
+	{
 		close_wall_window();
-		return;
+		return 1;
 	}		
 
-	old_wall_num = Cursegp->sides[Curside].wall_num;
+	wd->old_wall_num = Cursegp->sides[Curside].wall_num;
+	
+	return rval;
 }
 
 
