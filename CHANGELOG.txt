@@ -3,6 +3,7 @@ D1X-Rebirth Changelog
 20120317
 --------
 editor/ehostage.c, editor/med.c: Make do_hostage_window into a proper callback (seems to be unused for now)
+editor/eswitch, editor/med.c: Make do_trigger_window into a proper callback
 
 20120312
 --------
