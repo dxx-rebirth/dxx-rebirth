@@ -264,14 +264,6 @@ int MessageBox( short x, short y, int NumButtons, char * text, ... );
 void ui_string_centered( short x, short y, char * s );
 int PopupMenu( int NumItems, char * text[] );
 
-extern void ui_mouse_init();
-extern grs_bitmap * ui_mouse_set_pointer( grs_bitmap * new );
-
-extern int ui_mouse_button_process(struct d_event *event);
-extern int ui_mouse_motion_process(struct d_event *event);
-extern void ui_mouse_hide();
-extern void ui_mouse_show();
-
 extern UI_DIALOG * ui_create_dialog( short x, short y, short w, short h, enum dialog_flags flags, int (*callback)(UI_DIALOG *, struct d_event *, void *), void *userdata );
 extern struct window *ui_dialog_get_window(UI_DIALOG *dlg);
 extern void ui_dialog_set_current_canvas(UI_DIALOG *dlg);
@@ -296,7 +288,6 @@ extern void ui_draw_listbox( UI_DIALOG *dlg, UI_GADGET_LISTBOX * listbox );
 extern UI_GADGET_LISTBOX *ui_add_gadget_listbox(UI_DIALOG *dlg, short x, short y, short w, short h, short numitems, char **list);
 
 extern void ui_mega_process();
-extern int ui_event_handler(struct d_event *event);
 
 extern void ui_get_button_size( char * text, int * width, int * height );
 
@@ -349,8 +340,6 @@ void ui_free( void * buffer );
 UI_GADGET_KEYTRAP * ui_add_gadget_keytrap( UI_DIALOG * dlg, int key_to_trap, int (*function_to_call)(void)  );
 int ui_keytrap_do( UI_GADGET_KEYTRAP * keytrap, struct d_event *event );
 
-void ui_mouse_close();
-
 #define UI_RECORD_MOUSE     1
 #define UI_RECORD_KEYS      2
 #define UI_STATUS_NORMAL    0
@@ -398,9 +387,6 @@ int ui_pad_get_current();
 void ui_barbox_open( char * text, int length );
 void ui_barbox_update( int position );
 void ui_barbox_close();
-
-void ui_reset_idle_seconds(void);
-int ui_get_idle_seconds(void);
 
 extern int ui_button_any_drawn;
 

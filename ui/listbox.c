@@ -50,7 +50,7 @@ void ui_draw_listbox( UI_DIALOG *dlg, UI_GADGET_LISTBOX * listbox )
 	listbox->status = 0;
 
 	x = y = 0;
-	ui_mouse_hide();
+	mouse_toggle_cursor(0);
 	gr_set_current_canvas( listbox->canvas );
 
 	for (i= listbox->first_item; i< stop; i++ )
@@ -91,7 +91,7 @@ void ui_draw_listbox( UI_DIALOG *dlg, UI_GADGET_LISTBOX * listbox )
 	}
 
 	//gr_ubox( -1, -1, listbox->width, listbox->height);
-	ui_mouse_show();
+	mouse_toggle_cursor(1);
 
 }
 

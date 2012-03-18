@@ -437,9 +437,7 @@ void init_editor()
 	
 	//	_MARK_("start of editor");//Nuked to compile -KRB
 	
-	ui_mouse_hide();
-	
-	ui_reset_idle_seconds();
+	mouse_toggle_cursor(0);
 	
 	//@@	//create a camera for viewing in the editor. copy position from ConsoleObject
 	//@@	camera_objnum = obj_create(OBJ_CAMERA,0,ConsoleObject->segnum,&ConsoleObject->pos,&ConsoleObject->orient,0);
@@ -468,7 +466,7 @@ void init_editor()
 	//gr_deaccent_canvas();
 	//gr_grey_canvas();
 	
-	ui_mouse_show();
+	mouse_toggle_cursor(1);
 	
 	gr_set_curfont(editor_font);
 	ui_pad_goto(padnum);
@@ -1121,10 +1119,10 @@ int editor_handler(UI_DIALOG *dlg, d_event *event, void *data)
 		}
 	}
 
-	if ( ui_get_idle_seconds() > COMPRESS_INTERVAL ) 
+	if ( event_get_idle_seconds() > COMPRESS_INTERVAL ) 
 	{
 		med_compress_mine();
-		ui_reset_idle_seconds();
+		event_reset_idle_seconds();
 	}
 
 //	Commented out because it occupies about 25% of time in twirling the mine.
@@ -1295,11 +1293,11 @@ int editor_handler(UI_DIALOG *dlg, d_event *event, void *data)
 		x = GameViewBox->b1_drag_x2;
 		y = GameViewBox->b1_drag_y2;
 
-		ui_mouse_hide();
+		mouse_toggle_cursor(0);
 		gr_set_current_canvas( GameViewBox->canvas );
 		gr_setcolor( 15 );
 		gr_rect( x-1, y-1, x+1, y+1 );
-		ui_mouse_show();
+		mouse_toggle_cursor(1);
 
 	}
 	
@@ -1347,7 +1345,7 @@ int editor_handler(UI_DIALOG *dlg, d_event *event, void *data)
 					texpage_grab_current(tmap);
 					editor_status( "Texture grabbed." );
 				} else if (keyd_pressed[ KEY_LAPOSTRO] ) {
-					ui_mouse_hide();
+					mouse_toggle_cursor(0);
 					move_object_to_mouse_click();
 				} else {
 					Cursegp = &Segments[seg];
@@ -1370,7 +1368,7 @@ int editor_handler(UI_DIALOG *dlg, d_event *event, void *data)
 		int dx, dy, dz;
 
 		event_mouse_get_delta(event, &dx, &dy, &dz);
-		ui_mouse_hide();
+		mouse_toggle_cursor(0);
 		if ((dx != 0) && (dy != 0))
 		{
 			vms_matrix	MouseRotMat,tempm;
@@ -1383,7 +1381,7 @@ int editor_handler(UI_DIALOG *dlg, d_event *event, void *data)
 			rval = 1;
 		}
 	} else  {
-		ui_mouse_show();
+		mouse_toggle_cursor(1);
 	}
 
 	if (event->type == EVENT_MOUSE_MOVED && keyd_pressed[ KEY_Z ])
@@ -1391,14 +1389,14 @@ int editor_handler(UI_DIALOG *dlg, d_event *event, void *data)
 		int dx, dy, dz;
 
 		event_mouse_get_delta(event, &dx, &dy, &dz);
-		ui_mouse_hide();
+		mouse_toggle_cursor(0);
 		if (dy != 0)
 		{
 			current_view->ev_dist += dy*10000;
 			current_view->ev_changed = 1;
 		}
 	} else {
-		ui_mouse_show();
+		mouse_toggle_cursor(1);
 	}
 	
 	return rval;

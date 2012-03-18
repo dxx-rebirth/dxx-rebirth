@@ -37,7 +37,7 @@ void ui_draw_checkbox( UI_DIALOG *dlg, UI_GADGET_CHECKBOX * checkbox )
 	{
 		checkbox->status = 0;
 
-		ui_mouse_hide();
+		mouse_toggle_cursor(0);
 		gr_set_current_canvas( checkbox->canvas );
 
 		if (dlg->keyboard_focus_gadget == (UI_GADGET *)checkbox)
@@ -62,7 +62,7 @@ void ui_draw_checkbox( UI_DIALOG *dlg, UI_GADGET_CHECKBOX * checkbox )
 
 		gr_ustring( checkbox->width+4, 2, checkbox->text );
 
-		ui_mouse_show();
+		mouse_toggle_cursor(1);
 	}
 }
 

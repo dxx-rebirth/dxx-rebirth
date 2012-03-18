@@ -10,6 +10,7 @@
 #include <stdlib.h>
 #include "event.h"
 #include "key.h"
+#include "mouse.h"
 #include "window.h"
 #include "timer.h"
 #include "config.h"
@@ -23,7 +24,6 @@ extern void joy_button_handler(SDL_JoyButtonEvent *jbe);
 extern void joy_hat_handler(SDL_JoyHatEvent *jhe);
 extern int joy_axis_handler(SDL_JoyAxisEvent *jae);
 extern void mouse_cursor_autohide();
-extern void mouse_toggle_cursor(int activate);
 
 static int initialised=0;
 
@@ -87,6 +87,8 @@ void event_poll()
 		ievent.type = EVENT_IDLE;
 		event_send(&ievent);
 	}
+	else
+		event_reset_idle_seconds();
 	
 	mouse_cursor_autohide();
 }
@@ -185,5 +187,17 @@ void event_toggle_focus(int activate_focus)
 	else
 		SDL_WM_GrabInput(SDL_GRAB_OFF);
 	mouse_toggle_cursor(!activate_focus);
+}
+
+static fix64 last_event = 0;
+
+void event_reset_idle_seconds()
+{
+	last_event = timer_query();
+}
+
+fix event_get_idle_seconds()
+{
+	return (timer_query() - last_event)/F1_0;
 }
 

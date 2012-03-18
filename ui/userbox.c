@@ -34,7 +34,7 @@ void ui_draw_userbox( UI_DIALOG *dlg, UI_GADGET_USERBOX * userbox )
 	{
 		userbox->status = 0;
 
-		ui_mouse_hide();
+		mouse_toggle_cursor(0);
 		gr_set_current_canvas( userbox->canvas );
 
 		if (dlg->keyboard_focus_gadget == (UI_GADGET *)userbox)
@@ -44,7 +44,7 @@ void ui_draw_userbox( UI_DIALOG *dlg, UI_GADGET_USERBOX * userbox )
 
 		gr_rect( -1, -1, userbox->width, userbox->height );
 
-		ui_mouse_show();
+		mouse_toggle_cursor(1);
 	}
 }
 

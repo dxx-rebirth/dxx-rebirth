@@ -76,7 +76,7 @@ void ui_draw_icon( UI_GADGET_ICON * icon )
 	{
 		icon->status = 0;
 
-		ui_mouse_hide();
+		mouse_toggle_cursor(0);
 	
 		gr_set_current_canvas( icon->canvas );
 		gr_get_string_size(icon->text, &width, &height, &avg );
@@ -105,7 +105,7 @@ void ui_draw_icon( UI_GADGET_ICON * icon )
 		gr_set_fontcolor( CBLACK, -1 );		
 		gr_ustring( x, y, icon->text );
 
-		ui_mouse_show();
+		mouse_toggle_cursor(1);
 	}
 }
 

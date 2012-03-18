@@ -392,7 +392,6 @@
 		EBECB67012C041C100D660B3 /* menu.c in Sources */ = {isa = PBXBuildFile; fileRef = EBC6519E0890CEAE004FCAA3 /* menu.c */; };
 		EBECB67112C041C700D660B3 /* menubar.c in Sources */ = {isa = PBXBuildFile; fileRef = EBC6519F0890CEAE004FCAA3 /* menubar.c */; };
 		EBECB67212C041CD00D660B3 /* message.c in Sources */ = {isa = PBXBuildFile; fileRef = EBC651A00890CEAE004FCAA3 /* message.c */; };
-		EBECB67312C041D100D660B3 /* mouse.c in Sources */ = {isa = PBXBuildFile; fileRef = EBC651A10890CEAE004FCAA3 /* mouse.c */; };
 		EBECB67412C041D200D660B3 /* popup.c in Sources */ = {isa = PBXBuildFile; fileRef = EBC651A30890CEAE004FCAA3 /* popup.c */; };
 		EBECB67512C041D500D660B3 /* radio.c in Sources */ = {isa = PBXBuildFile; fileRef = EBC651A40890CEAE004FCAA3 /* radio.c */; };
 		EBECB67612C041DC00D660B3 /* scroll.c in Sources */ = {isa = PBXBuildFile; fileRef = EBC651A50890CEAE004FCAA3 /* scroll.c */; };
@@ -765,7 +764,6 @@
 		EBC6519E0890CEAE004FCAA3 /* menu.c */ = {isa = PBXFileReference; fileEncoding = 30; lastKnownFileType = sourcecode.c.c; path = menu.c; sourceTree = "<group>"; };
 		EBC6519F0890CEAE004FCAA3 /* menubar.c */ = {isa = PBXFileReference; fileEncoding = 30; lastKnownFileType = sourcecode.c.c; path = menubar.c; sourceTree = "<group>"; };
 		EBC651A00890CEAE004FCAA3 /* message.c */ = {isa = PBXFileReference; fileEncoding = 30; lastKnownFileType = sourcecode.c.c; path = message.c; sourceTree = "<group>"; };
-		EBC651A10890CEAE004FCAA3 /* mouse.c */ = {isa = PBXFileReference; fileEncoding = 30; lastKnownFileType = sourcecode.c.c; path = mouse.c; sourceTree = "<group>"; };
 		EBC651A30890CEAE004FCAA3 /* popup.c */ = {isa = PBXFileReference; fileEncoding = 30; lastKnownFileType = sourcecode.c.c; path = popup.c; sourceTree = "<group>"; };
 		EBC651A40890CEAE004FCAA3 /* radio.c */ = {isa = PBXFileReference; fileEncoding = 30; lastKnownFileType = sourcecode.c.c; path = radio.c; sourceTree = "<group>"; };
 		EBC651A50890CEAE004FCAA3 /* scroll.c */ = {isa = PBXFileReference; fileEncoding = 30; lastKnownFileType = sourcecode.c.c; path = scroll.c; sourceTree = "<group>"; };
@@ -832,8 +830,6 @@
 		EBF658940F93684000CB5C73 /* ipx.c */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.c; path = ipx.c; sourceTree = "<group>"; };
 		EBF658950F93684000CB5C73 /* ipx_kali.c */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.c; path = ipx_kali.c; sourceTree = "<group>"; };
 		EBF658960F93686000CB5C73 /* ipx.c */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.c; path = ipx.c; sourceTree = "<group>"; };
-		EBF658990F936A8400CB5C73 /* net_ipx.c */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.c; path = net_ipx.c; sourceTree = "<group>"; };
-		EBF6589A0F936A8400CB5C73 /* net_ipx.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = net_ipx.h; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -1141,7 +1137,6 @@
 				676032DC066B399A008A67A3 /* multi.c */,
 				676032DD066B399A008A67A3 /* multibot.c */,
 				EBEEB2660D2B364300FF39B4 /* mute.c */,
-				EBF658990F936A8400CB5C73 /* net_ipx.c */,
 				17DFA6AF10C1A29500674D11 /* net_udp.c */,
 				67B4473D06687CF400DF26D8 /* newdemo.c */,
 				67B4473F06687CF400DF26D8 /* newmenu.c */,
@@ -1209,7 +1204,6 @@
 				EB0420B90A341041002CC961 /* multi.h */,
 				EB0420E70A341042002CC961 /* multibot.h */,
 				EBEEB2670D2B364300FF39B4 /* mute.h */,
-				EBF6589A0F936A8400CB5C73 /* net_ipx.h */,
 				17DFA6B210C1A2A300674D11 /* net_udp.h */,
 				EB01AFA90A65323200EA4C7C /* newdemo.h */,
 				EB0420DE0A341042002CC961 /* newmenu.h */,
@@ -1463,7 +1457,6 @@
 				EBC6519E0890CEAE004FCAA3 /* menu.c */,
 				EBC6519F0890CEAE004FCAA3 /* menubar.c */,
 				EBC651A00890CEAE004FCAA3 /* message.c */,
-				EBC651A10890CEAE004FCAA3 /* mouse.c */,
 				EBC651A30890CEAE004FCAA3 /* popup.c */,
 				EBC651A40890CEAE004FCAA3 /* radio.c */,
 				EBC651A50890CEAE004FCAA3 /* scroll.c */,
@@ -1915,7 +1908,6 @@
 				EBECB67012C041C100D660B3 /* menu.c in Sources */,
 				EBECB67112C041C700D660B3 /* menubar.c in Sources */,
 				EBECB67212C041CD00D660B3 /* message.c in Sources */,
-				EBECB67312C041D100D660B3 /* mouse.c in Sources */,
 				EBECB67412C041D200D660B3 /* popup.c in Sources */,
 				EBECB67512C041D500D660B3 /* radio.c in Sources */,
 				EBECB67612C041DC00D660B3 /* scroll.c in Sources */,

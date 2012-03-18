@@ -58,7 +58,7 @@ void ui_draw_button(UI_DIALOG *dlg, UI_GADGET_BUTTON * button)
 	if ((button->status==1) || (button->position != button->oldposition))
 	{
 		ui_button_any_drawn = 1;
-		ui_mouse_hide();
+		mouse_toggle_cursor(0);
 		gr_set_current_canvas( button->canvas );
 		color = button->canvas->cv_color;
 
@@ -96,7 +96,7 @@ void ui_draw_button(UI_DIALOG *dlg, UI_GADGET_BUTTON * button)
 			}			
 		}
 		button->canvas->cv_color = color;
-		ui_mouse_show();
+		mouse_toggle_cursor(1);
 	}
 }
 

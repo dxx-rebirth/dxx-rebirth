@@ -54,8 +54,6 @@ void ui_init()
 
 	//key_init();
 
-	ui_mouse_init();
-
 	gr_set_fontcolor( CBLACK, CWHITE );
 
 	ui_pad_init();
@@ -73,11 +71,6 @@ void ui_close()
 		menubar_close();
 		
 		ui_pad_close();
-
-		ui_mouse_close();
-
-//		mouse_close();
-// 	key_close();
 
 		gr_close_font( ui_small_font );
 
