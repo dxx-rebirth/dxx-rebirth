@@ -22,6 +22,8 @@ COPYRIGHT 1993-1999 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 
 #include "ui.h"
 
+struct d_event;
+
 extern int TextureLights;
 extern int TextureEffects;
 extern int TextureMetals;
@@ -30,6 +32,6 @@ int texpage_grab_current(int n);
 int texpage_goto_first();
 void texpage_init( UI_DIALOG * dlg );
 void texpage_close();
-void texpage_do();
+int texpage_do(struct d_event *event);
 
 #endif

@@ -361,7 +361,13 @@ int info_display_all(window *wind, d_event *event, void *userdata)
 //	------------------------------------------------------------------------------------
 window *info_window_create(void)
 {
-	return window_create(Canv_editor, PAD_X + 250, PAD_Y + 8, 180, 160, info_display_all, NULL);
+	window *wind;
+	
+	wind = window_create(Canv_editor, PAD_X + 250, PAD_Y + 8, 180, 160, info_display_all, NULL);
+	if (wind)
+		window_set_modal(wind, 0);
+	
+	return wind;
 }
 
 
