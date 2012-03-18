@@ -203,7 +203,9 @@ void texpage_init( UI_DIALOG * dlg )
 
 	texpage_redraw();
 
-// Don't reset the current tmap every time we go back to the editor.
+	gr_set_curfont(editor_font);
+
+	// Don't reset the current tmap every time we go back to the editor.
 //	CurrentTexture = TexturePage*TMAPS_PER_PAGE;
 	texpage_show_current();
 
