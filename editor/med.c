@@ -31,6 +31,7 @@ COPYRIGHT 1993-1998 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 #include "inferno.h"
 #include "segment.h"
 #include "gr.h"
+#include "palette.h"
 #include "event.h"
 #include "window.h"
 #include "messagebox.h"
@@ -92,6 +93,7 @@ grs_canvas _canv_editor_game;		//the game on the editor screen
 //these are pointers to our canvases
 grs_canvas *Canv_editor;			//the editor screen
 grs_canvas *Canv_editor_game=&_canv_editor_game; //the game on the editor screen
+grs_canvas	VR_editor_canvas;						//  The canvas that the editor writes to.
 
 grs_canvas *canv_offscreen;		//for off-screen rendering
 window *Pad_info;		// Keypad text
@@ -363,8 +365,16 @@ void medkey_init()
 	d_free( LispCommand );
 }
 
+static int padnum=0;
+//@@short camera_objnum;			//a camera for viewing. Who knows, might become handy
+
+void init_editor_screen();
+void gamestate_restore_check();
+
 void init_editor()
 {
+	void med_show_warning(char *s);
+
 	// first, make sure we can find the files we need
 	PHYSFSX_addRelToSearchPath("editor/data", 1);	// look in source directory first (for work in progress)
 	PHYSFSX_addRelToSearchPath("editor", 1);		// then in editor directory
@@ -399,6 +409,72 @@ void init_editor()
 //	atexit(close_editor);
 
 	Clear_window = 1;	//	do full window clear.
+	
+	InitCurve();
+	
+	restore_effect_bitmap_icons();
+	
+	if (!set_screen_mode(SCREEN_EDITOR))	{
+		set_screen_mode(SCREEN_GAME);
+		Function_mode=FMODE_GAME;			//force back into game
+		return;
+	}
+	
+	gr_palette_load( gr_palette );
+	
+	//Editor renders into full (320x200) game screen 
+	
+	game_init_render_buffers(320, 200, VR_NONE);
+	gr_init_sub_canvas( &VR_editor_canvas, &grd_curscreen->sc_canvas, 0, 0, SWIDTH, SHEIGHT );
+	Canv_editor = &VR_editor_canvas;
+	gr_set_current_canvas( Canv_editor );
+	init_editor_screen(); // load the main editor dialog
+	gr_set_current_canvas( NULL );
+	gr_set_curfont(editor_font);
+	
+	set_warn_func(med_show_warning);
+	
+	//	_MARK_("start of editor");//Nuked to compile -KRB
+	
+	ui_mouse_hide();
+	
+	ui_reset_idle_seconds();
+	
+	//@@	//create a camera for viewing in the editor. copy position from ConsoleObject
+	//@@	camera_objnum = obj_create(OBJ_CAMERA,0,ConsoleObject->segnum,&ConsoleObject->pos,&ConsoleObject->orient,0);
+	//@@	Viewer = &Objects[camera_objnum];
+	//@@	slew_init(Viewer);		//camera is slewing
+	
+	Viewer = ConsoleObject;
+	slew_init(ConsoleObject);
+	
+	Update_flags = UF_ALL;
+	
+	medlisp_update_screen();
+	
+	//set the wire-frame window to be the current view
+	current_view = &LargeView;
+	
+	if (faded_in==0)
+	{
+		faded_in = 1;
+		//gr_pal_fade_in( grd_curscreen->pal );
+	}
+	
+	gr_set_current_canvas( GameViewBox->canvas );
+	gr_set_curfont(editor_font);
+	//gr_setcolor( CBLACK );
+	//gr_deaccent_canvas();
+	//gr_grey_canvas();
+	
+	ui_mouse_show();
+	
+	gr_set_curfont(editor_font);
+	ui_pad_goto(padnum);
+	
+	gamestate_restore_check();
+	
+	ModeFlag = 0;
 }
 
 int ShowAbout()
@@ -719,7 +795,6 @@ int med_keypad_goto_8()	{	ui_pad_goto(8);	return 0;	}
 int editor_screen_open = 0;
 
 //setup the editors windows, canvases, gadgets, etc.
-//called whenever the editor screen is selected
 void init_editor_screen()
 {	
 //	grs_bitmap * bmp;
@@ -884,6 +959,21 @@ int SafetyCheck()
 //called at the end of the program
 void close_editor() {
 
+	//	_MARK_("end of editor");//Nuked to compile -KRB
+	
+#ifndef __LINUX__
+	set_warn_func(msgbox_warning);
+#else
+	clear_warn_func(NULL);
+#endif
+	
+	//kill our camera object
+	
+	Viewer = ConsoleObject;					//reset viewer
+	//@@obj_delete(camera_objnum);
+	
+	padnum = ui_pad_get_current();
+	
 	close_autosave();
 
 	ui_close();
@@ -937,7 +1027,8 @@ void add_found_segments_to_selected_list(void) {
 	}
 }
 
-void gamestate_restore_check() {
+void gamestate_restore_check()
+{
 	char Message[DIAGNOSTIC_MESSAGE_MAX];
 	obj_position Save_position;
 
@@ -979,396 +1070,312 @@ int RestoreGameState() {
 }
 
 extern void check_wall_validity(void);
+void editor_handler(void);
 
 // ---------------------------------------------------------------------------------------------------
 //this function is the editor. called when editor mode selected.  runs until
 //game mode or exit selected
 void editor(void)
 {
-	int w,h;
-	grs_bitmap * savedbitmap;
-	editor_view *new_cv;
-        static int padnum=0;
-	vms_matrix	MouseRotMat,tempm;
-	//@@short camera_objnum;			//a camera for viewing
-
 	init_editor();
-
-	InitCurve();
-
-	restore_effect_bitmap_icons();
-
-	if (!set_screen_mode(SCREEN_EDITOR))	{
-		set_screen_mode(SCREEN_GAME);
-		Function_mode=FMODE_GAME;			//force back into game
-		return;
-	}
-
-	gr_set_current_canvas( NULL );
-	gr_set_curfont(editor_font);
-
-	//Editor renders into full (320x200) game screen 
-
-	set_warn_func(med_show_warning);
-
-//	_MARK_("start of editor");//Nuked to compile -KRB
-
-	ui_mouse_hide();
-
-	ui_reset_idle_seconds();
-
-//@@	//create a camera for viewing in the editor. copy position from ConsoleObject
-//@@	camera_objnum = obj_create(OBJ_CAMERA,0,ConsoleObject->segnum,&ConsoleObject->pos,&ConsoleObject->orient,0);
-//@@	Viewer = &Objects[camera_objnum];
-//@@	slew_init(Viewer);		//camera is slewing
-
-	Viewer = ConsoleObject;
-	slew_init(ConsoleObject);
-
-	Update_flags = UF_ALL;
-
-	medlisp_update_screen();
-
-	//set the wire-frame window to be the current view
-	current_view = &LargeView;
-
-	if (faded_in==0)
+	
+	while (Function_mode == FMODE_EDITOR)
 	{
-		faded_in = 1;
-		//gr_pal_fade_in( grd_curscreen->pal );
+		event_process();
+		editor_handler();
 	}
-
-	w = GameViewBox->canvas->cv_bitmap.bm_w;
-	h = GameViewBox->canvas->cv_bitmap.bm_h;
 	
-	savedbitmap = gr_create_bitmap(w, h );
+	close_editor();
+}
 
-	gr_bm_ubitblt( w, h, 0, 0, 0, 0, &GameViewBox->canvas->cv_bitmap, savedbitmap );
+// Handler for the main editor dialog
+void editor_handler(void)
+{
+	editor_view *new_cv;
 
-	gr_set_current_canvas( GameViewBox->canvas );
-	gr_set_curfont(editor_font);
-	//gr_setcolor( CBLACK );
-	//gr_deaccent_canvas();
-	//gr_grey_canvas();
-	
-	ui_mouse_show();
+	// Update the windows
 
-	gr_set_curfont(editor_font);
-	ui_pad_goto(padnum);
-
-	gamestate_restore_check();
-	
-	//set_default_handler(ui_event_handler);	// now we call this function first, not last, in event_process; through the dialog system
-
-	while (Function_mode == FMODE_EDITOR) {
-
-		gr_set_curfont(editor_font);
-
-		ModeFlag = 0;
-
-		// Update the windows
-
-		// Only update if there is no key waiting and we're not in
-		// fast play mode.
+	// Only update if there is no key waiting and we're not in
+	// fast play mode.
 // 		if (!key_peekkey()) //-- && (MacroStatus != UI_STATUS_FASTPLAY))
 // 			medlisp_update_screen();
 
-		//do editor stuff
-		gr_set_curfont(editor_font);
-		event_process();
-		last_keypress &= ~KEY_DEBUGGED;		//	mask off delete key bit which has no function in editor.
-		check_wall_validity();
-		Assert(Num_walls>=0);
+	//do editor stuff
+	last_keypress &= ~KEY_DEBUGGED;		//	mask off delete key bit which has no function in editor.
+	check_wall_validity();
+	Assert(Num_walls>=0);
 
-		if (Gameview_lockstep) {
-			static segment *old_cursegp=NULL;
-			static int old_curside=-1;
+	if (Gameview_lockstep) {
+		static segment *old_cursegp=NULL;
+		static int old_curside=-1;
 
-			if (old_cursegp!=Cursegp || old_curside!=Curside) {
-				SetPlayerFromCursegMinusOne();
-				old_cursegp = Cursegp;
-				old_curside = Curside;
-			}
+		if (old_cursegp!=Cursegp || old_curside!=Curside) {
+			SetPlayerFromCursegMinusOne();
+			old_cursegp = Cursegp;
+			old_curside = Curside;
+		}
+	}
+
+	if ( ui_get_idle_seconds() > COMPRESS_INTERVAL ) 
+		{
+		med_compress_mine();
+		ui_reset_idle_seconds();
 		}
 
-		if ( ui_get_idle_seconds() > COMPRESS_INTERVAL ) 
-			{
-			med_compress_mine();
-			ui_reset_idle_seconds();
-			}
-  
 //	Commented out because it occupies about 25% of time in twirling the mine.
 // Removes some Asserts....
 //		med_check_all_vertices();
-		clear_editor_status();		// if enough time elapsed, clear editor status message
-		TimedAutosave(mine_filename);
-		set_editor_time_of_day();
-		gr_set_current_canvas( GameViewBox->canvas );
-		
-		// Remove keys used for slew
-		switch(last_keypress)
-		{
-		case KEY_PAD9:
-		case KEY_PAD7:
-		case KEY_PADPLUS:
-		case KEY_PADMINUS:
-		case KEY_PAD8:
-		case KEY_PAD2:
-		case KEY_LBRACKET:
-		case KEY_RBRACKET:
-		case KEY_PAD1:
-		case KEY_PAD3:
-		case KEY_PAD6:
-		case KEY_PAD4:
-			last_keypress = 0;
-		}
-		if ((last_keypress&0xff)==KEY_LSHIFT) last_keypress=0;
-		if ((last_keypress&0xff)==KEY_RSHIFT) last_keypress=0;
-		if ((last_keypress&0xff)==KEY_LCTRL) last_keypress=0;
-		if ((last_keypress&0xff)==KEY_RCTRL) last_keypress=0;
+	clear_editor_status();		// if enough time elapsed, clear editor status message
+	TimedAutosave(mine_filename);
+	set_editor_time_of_day();
+	gr_set_current_canvas( GameViewBox->canvas );
+	
+	// Remove keys used for slew
+	switch(last_keypress)
+	{
+	case KEY_PAD9:
+	case KEY_PAD7:
+	case KEY_PADPLUS:
+	case KEY_PADMINUS:
+	case KEY_PAD8:
+	case KEY_PAD2:
+	case KEY_LBRACKET:
+	case KEY_RBRACKET:
+	case KEY_PAD1:
+	case KEY_PAD3:
+	case KEY_PAD6:
+	case KEY_PAD4:
+		last_keypress = 0;
+	}
+	if ((last_keypress&0xff)==KEY_LSHIFT) last_keypress=0;
+	if ((last_keypress&0xff)==KEY_RSHIFT) last_keypress=0;
+	if ((last_keypress&0xff)==KEY_LCTRL) last_keypress=0;
+	if ((last_keypress&0xff)==KEY_RCTRL) last_keypress=0;
 //		if ((last_keypress&0xff)==KEY_LALT) last_keypress=0;
 //		if ((last_keypress&0xff)==KEY_RALT) last_keypress=0;
 
-		gr_set_curfont(editor_font);
+	gr_set_curfont(editor_font);
 
-		//=================== DO FUNCTIONS ====================
+	//=================== DO FUNCTIONS ====================
 
-		if ( KeyFunction[ last_keypress ] != NULL )	{
-			KeyFunction[last_keypress]();
-			last_keypress = 0;
-		}
-		switch (last_keypress)
+	if ( KeyFunction[ last_keypress ] != NULL )	{
+		KeyFunction[last_keypress]();
+		last_keypress = 0;
+	}
+	switch (last_keypress)
+	{
+	case 0:
+	case KEY_Z:
+	case KEY_G:
+	case KEY_LALT:
+	case KEY_RALT:
+	case KEY_LCTRL:
+	case KEY_RCTRL:
+	case KEY_LSHIFT:
+	case KEY_RSHIFT:
+	case KEY_LAPOSTRO:
+		break;
+	case KEY_SHIFTED + KEY_L:
+		ToggleLighting();
+		break;
+	case KEY_F1:
+		render_3d_in_big_window = !render_3d_in_big_window;
+		Update_flags |= UF_ALL;
+		break;			
+	default:
 		{
-		case 0:
-		case KEY_Z:
-		case KEY_G:
-		case KEY_LALT:
-		case KEY_RALT:
-		case KEY_LCTRL:
-		case KEY_RCTRL:
-		case KEY_LSHIFT:
-		case KEY_RSHIFT:
-		case KEY_LAPOSTRO:
-			break;
-		case KEY_SHIFTED + KEY_L:
-			ToggleLighting();
-			break;
-		case KEY_F1:
-			render_3d_in_big_window = !render_3d_in_big_window;
-			Update_flags |= UF_ALL;
-			break;			
-		default:
-			{
-			char kdesc[100];
-			GetKeyDescription( kdesc, last_keypress );
-			editor_status("Error: %s isn't bound to anything.", kdesc  );
-			}
+		char kdesc[100];
+		GetKeyDescription( kdesc, last_keypress );
+		editor_status("Error: %s isn't bound to anything.", kdesc  );
 		}
+	}
 
-		//================================================================
+	//================================================================
 
-		if (ModeFlag==1)
-		{
-			close_editor_screen();
-			Function_mode=FMODE_EXIT;
-				gr_free_bitmap( savedbitmap );
-			break;
-		}
+	if (ModeFlag==1)
+	{
+		close_editor_screen();
+		Function_mode=FMODE_EXIT;
+		return;
+	}
 
-		if (ModeFlag==2) //-- && MacroStatus==UI_STATUS_NORMAL )
-		{
-			close_editor_screen();
-			Function_mode = FMODE_MENU;
-			set_screen_mode(SCREEN_MENU);		//put up menu screen
-			gr_free_bitmap(savedbitmap);
-			break;
-		}
+	if (ModeFlag==2) //-- && MacroStatus==UI_STATUS_NORMAL )
+	{
+		close_editor_screen();
+		Function_mode = FMODE_MENU;
+		set_screen_mode(SCREEN_MENU);		//put up menu screen
+		return;
+	}
 
-		if (ModeFlag==3) //-- && MacroStatus==UI_STATUS_NORMAL )
-		{
+	if (ModeFlag==3) //-- && MacroStatus==UI_STATUS_NORMAL )
+	{
 //			med_compress_mine();						//will be called anyways before game.
-			close_editor_screen();
-			Function_mode=FMODE_GAME;			//force back into game
-			set_screen_mode(SCREEN_GAME);		//put up game screen
-			gr_free_bitmap( savedbitmap );
-			break;
-		}
+		close_editor_screen();
+		Function_mode=FMODE_GAME;			//force back into game
+		set_screen_mode(SCREEN_GAME);		//put up game screen
+		return;
+	}
 
 //		if (EditorWindow->keyboard_focus_gadget == (UI_GADGET *)GameViewBox) current_view=NULL;
 //		if (EditorWindow->keyboard_focus_gadget == (UI_GADGET *)GroupViewBox) current_view=NULL;
 
-		new_cv = current_view ;
+	new_cv = current_view ;
 
 #if ORTHO_VIEWS
-		if (EditorWindow->keyboard_focus_gadget == (UI_GADGET *)LargeViewBox) new_cv=&LargeView;
-		if (EditorWindow->keyboard_focus_gadget == (UI_GADGET *)TopViewBox)	new_cv=&TopView;
-		if (EditorWindow->keyboard_focus_gadget == (UI_GADGET *)FrontViewBox) new_cv=&FrontView;
-		if (EditorWindow->keyboard_focus_gadget == (UI_GADGET *)RightViewBox) new_cv=&RightView;
+	if (EditorWindow->keyboard_focus_gadget == (UI_GADGET *)LargeViewBox) new_cv=&LargeView;
+	if (EditorWindow->keyboard_focus_gadget == (UI_GADGET *)TopViewBox)	new_cv=&TopView;
+	if (EditorWindow->keyboard_focus_gadget == (UI_GADGET *)FrontViewBox) new_cv=&FrontView;
+	if (EditorWindow->keyboard_focus_gadget == (UI_GADGET *)RightViewBox) new_cv=&RightView;
 #endif
-		if (new_cv != current_view ) {
-			current_view->ev_changed = 1;
-			new_cv->ev_changed = 1;
-			current_view = new_cv;
-		}
+	if (new_cv != current_view ) {
+		current_view->ev_changed = 1;
+		new_cv->ev_changed = 1;
+		current_view = new_cv;
+	}
 
-		calc_frame_time();
-		if (slew_frame(0)) {		//do movement and check keys
-			Update_flags |= UF_GAME_VIEW_CHANGED;
-			if (Gameview_lockstep) {
-				Cursegp = &Segments[ConsoleObject->segnum];
-				med_create_new_segment_from_cursegp();
-				Update_flags |= UF_ED_STATE_CHANGED;
-			}
-		}
-
-		// DO TEXTURE STUFF
-		texpage_do();
-		objpage_do();
-
-
-		// Process selection of Cursegp using mouse.
-		if (LargeViewBox->mouse_onme && LargeViewBox->b1_clicked && !render_3d_in_big_window) 
-		{
-			int	xcrd,ycrd;
-			xcrd = LargeViewBox->b1_drag_x1;
-			ycrd = LargeViewBox->b1_drag_y1;
-
-			find_segments(xcrd,ycrd,LargeViewBox->canvas,&LargeView,Cursegp,Big_depth);	// Sets globals N_found_segs, Found_segs
-
-			// If shift is down, then add segment to found list
-			if (keyd_pressed[ KEY_LSHIFT ] || keyd_pressed[ KEY_RSHIFT ])
-				subtract_found_segments_from_selected_list();
-			else
-				add_found_segments_to_selected_list();
-
-  			Found_seg_index = 0;	
-		
-			if (N_found_segs > 0) {
-				sort_seg_list(N_found_segs,Found_segs,&ConsoleObject->pos);
-				Cursegp = &Segments[Found_segs[0]];
-				med_create_new_segment_from_cursegp();
-				if (Lock_view_to_cursegp)
-					set_view_target_from_segment(Cursegp);
-			}
-
-			Update_flags |= UF_ED_STATE_CHANGED | UF_VIEWPOINT_MOVED;
-		}
-
-		if (GameViewBox->mouse_onme && GameViewBox->b1_dragging) {
-			int	x, y;
-			x = GameViewBox->b1_drag_x2;
-			y = GameViewBox->b1_drag_y2;
-
-			ui_mouse_hide();
-			gr_set_current_canvas( GameViewBox->canvas );
-			gr_setcolor( 15 );
-			gr_rect( x-1, y-1, x+1, y+1 );
-			ui_mouse_show();
-
-		}
-		
-		// Set current segment and side by clicking on a polygon in game window.
-		//	If ctrl pressed, also assign current texture map to that side.
-		//if (GameViewBox->mouse_onme && (GameViewBox->b1_done_dragging || GameViewBox->b1_clicked)) {
-		if ((GameViewBox->mouse_onme && GameViewBox->b1_clicked && !render_3d_in_big_window) ||
-			(LargeViewBox->mouse_onme && LargeViewBox->b1_clicked && render_3d_in_big_window)) {
-
-			int	xcrd,ycrd;
-			int seg,side,face,poly,tmap;
-
-			if (render_3d_in_big_window) {
-				xcrd = LargeViewBox->b1_drag_x1;
-				ycrd = LargeViewBox->b1_drag_y1;
-			}
-			else {
-				xcrd = GameViewBox->b1_drag_x1;
-				ycrd = GameViewBox->b1_drag_y1;
-			}
-	
-			//Int3();
-
-			if (find_seg_side_face(xcrd,ycrd,&seg,&side,&face,&poly)) {
-
-
-				if (seg<0) {							//found an object
-
-					Cur_object_index = -seg-1;
-					editor_status("Object %d selected.",Cur_object_index);
-
-					Update_flags |= UF_ED_STATE_CHANGED;
-				}
-				else {
-
-					//	See if either shift key is down and, if so, assign texture map
-					if (keyd_pressed[KEY_LSHIFT] || keyd_pressed[KEY_RSHIFT]) {
-						Cursegp = &Segments[seg];
-						Curside = side;
-						AssignTexture();
-						med_create_new_segment_from_cursegp();
-						editor_status("Texture assigned");
-					} else if (keyd_pressed[KEY_G])	{
-						tmap = Segments[seg].sides[side].tmap_num;
-						texpage_grab_current(tmap);
-						editor_status( "Texture grabbed." );
-					} else if (keyd_pressed[ KEY_LAPOSTRO] ) {
-						ui_mouse_hide();
-						move_object_to_mouse_click();
-					} else {
-						Cursegp = &Segments[seg];
-						Curside = side;
-						med_create_new_segment_from_cursegp();
-						editor_status("Curseg and curside selected");
-					}
-				}
-
-				Update_flags |= UF_ED_STATE_CHANGED;
-			}
-			else 
-				editor_status("Click on non-texture ingored");
-
-		}
-
-		// Allow specification of LargeView using mouse
-		if (keyd_pressed[ KEY_LCTRL ] || keyd_pressed[ KEY_RCTRL ]) {
-			ui_mouse_hide();
-			if ( (Mouse.dx!=0) && (Mouse.dy!=0) ) {
-				GetMouseRotation( Mouse.dx, Mouse.dy, &MouseRotMat );
-				vm_matrix_x_matrix(&tempm,&LargeView.ev_matrix,&MouseRotMat);
-				LargeView.ev_matrix = tempm;
-				LargeView.ev_changed = 1;
-				Large_view_index = -1;			// say not one of the orthogonal views
-			}
-		} else  {
-			ui_mouse_show();
-		}
-
-		if ( keyd_pressed[ KEY_Z ] ) {
-			ui_mouse_hide();
-			if ( Mouse.dy!=0 ) {
-				current_view->ev_dist += Mouse.dy*10000;
-				current_view->ev_changed = 1;
-			}
-		} else {
-			ui_mouse_show();
+	calc_frame_time();
+	if (slew_frame(0)) {		//do movement and check keys
+		Update_flags |= UF_GAME_VIEW_CHANGED;
+		if (Gameview_lockstep) {
+			Cursegp = &Segments[ConsoleObject->segnum];
+			med_create_new_segment_from_cursegp();
+			Update_flags |= UF_ED_STATE_CHANGED;
 		}
 	}
 
-	set_default_handler(standard_handler);
+	// DO TEXTURE STUFF
+	texpage_do();
+	objpage_do();
+
+
+	// Process selection of Cursegp using mouse.
+	if (LargeViewBox->mouse_onme && LargeViewBox->b1_clicked && !render_3d_in_big_window) 
+	{
+		int	xcrd,ycrd;
+		xcrd = LargeViewBox->b1_drag_x1;
+		ycrd = LargeViewBox->b1_drag_y1;
+
+		find_segments(xcrd,ycrd,LargeViewBox->canvas,&LargeView,Cursegp,Big_depth);	// Sets globals N_found_segs, Found_segs
+
+		// If shift is down, then add segment to found list
+		if (keyd_pressed[ KEY_LSHIFT ] || keyd_pressed[ KEY_RSHIFT ])
+			subtract_found_segments_from_selected_list();
+		else
+			add_found_segments_to_selected_list();
+
+		Found_seg_index = 0;	
 	
-//	_MARK_("end of editor");//Nuked to compile -KRB
-#ifndef __LINUX__
-	set_warn_func(msgbox_warning);
-#else
-	clear_warn_func(NULL);
-#endif
-	//kill our camera object
+		if (N_found_segs > 0) {
+			sort_seg_list(N_found_segs,Found_segs,&ConsoleObject->pos);
+			Cursegp = &Segments[Found_segs[0]];
+			med_create_new_segment_from_cursegp();
+			if (Lock_view_to_cursegp)
+				set_view_target_from_segment(Cursegp);
+		}
 
-	Viewer = ConsoleObject;					//reset viewer
-	//@@obj_delete(camera_objnum);
+		Update_flags |= UF_ED_STATE_CHANGED | UF_VIEWPOINT_MOVED;
+	}
 
-	padnum = ui_pad_get_current();
+	if (GameViewBox->mouse_onme && GameViewBox->b1_dragging) {
+		int	x, y;
+		x = GameViewBox->b1_drag_x2;
+		y = GameViewBox->b1_drag_y2;
 
-	close_editor();
+		ui_mouse_hide();
+		gr_set_current_canvas( GameViewBox->canvas );
+		gr_setcolor( 15 );
+		gr_rect( x-1, y-1, x+1, y+1 );
+		ui_mouse_show();
+
+	}
+	
+	// Set current segment and side by clicking on a polygon in game window.
+	//	If ctrl pressed, also assign current texture map to that side.
+	//if (GameViewBox->mouse_onme && (GameViewBox->b1_done_dragging || GameViewBox->b1_clicked)) {
+	if ((GameViewBox->mouse_onme && GameViewBox->b1_clicked && !render_3d_in_big_window) ||
+		(LargeViewBox->mouse_onme && LargeViewBox->b1_clicked && render_3d_in_big_window)) {
+
+		int	xcrd,ycrd;
+		int seg,side,face,poly,tmap;
+
+		if (render_3d_in_big_window) {
+			xcrd = LargeViewBox->b1_drag_x1;
+			ycrd = LargeViewBox->b1_drag_y1;
+		}
+		else {
+			xcrd = GameViewBox->b1_drag_x1;
+			ycrd = GameViewBox->b1_drag_y1;
+		}
+
+		//Int3();
+
+		if (find_seg_side_face(xcrd,ycrd,&seg,&side,&face,&poly)) {
+
+
+			if (seg<0) {							//found an object
+
+				Cur_object_index = -seg-1;
+				editor_status("Object %d selected.",Cur_object_index);
+
+				Update_flags |= UF_ED_STATE_CHANGED;
+			}
+			else {
+
+				//	See if either shift key is down and, if so, assign texture map
+				if (keyd_pressed[KEY_LSHIFT] || keyd_pressed[KEY_RSHIFT]) {
+					Cursegp = &Segments[seg];
+					Curside = side;
+					AssignTexture();
+					med_create_new_segment_from_cursegp();
+					editor_status("Texture assigned");
+				} else if (keyd_pressed[KEY_G])	{
+					tmap = Segments[seg].sides[side].tmap_num;
+					texpage_grab_current(tmap);
+					editor_status( "Texture grabbed." );
+				} else if (keyd_pressed[ KEY_LAPOSTRO] ) {
+					ui_mouse_hide();
+					move_object_to_mouse_click();
+				} else {
+					Cursegp = &Segments[seg];
+					Curside = side;
+					med_create_new_segment_from_cursegp();
+					editor_status("Curseg and curside selected");
+				}
+			}
+
+			Update_flags |= UF_ED_STATE_CHANGED;
+		}
+		else 
+			editor_status("Click on non-texture ingored");
+
+	}
+
+	// Allow specification of LargeView using mouse
+	if (keyd_pressed[ KEY_LCTRL ] || keyd_pressed[ KEY_RCTRL ]) {
+		ui_mouse_hide();
+		if ( (Mouse.dx!=0) && (Mouse.dy!=0) )
+		{
+			vms_matrix	MouseRotMat,tempm;
+			
+			GetMouseRotation( Mouse.dx, Mouse.dy, &MouseRotMat );
+			vm_matrix_x_matrix(&tempm,&LargeView.ev_matrix,&MouseRotMat);
+			LargeView.ev_matrix = tempm;
+			LargeView.ev_changed = 1;
+			Large_view_index = -1;			// say not one of the orthogonal views
+		}
+	} else  {
+		ui_mouse_show();
+	}
+
+	if ( keyd_pressed[ KEY_Z ] ) {
+		ui_mouse_hide();
+		if ( Mouse.dy!=0 ) {
+			current_view->ev_dist += Mouse.dy*10000;
+			current_view->ev_changed = 1;
+		}
+	} else {
+		ui_mouse_show();
+	}
 }
 
 void test_fade(void)

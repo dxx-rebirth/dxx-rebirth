@@ -126,7 +126,6 @@ grs_canvas	Screen_3d_window;							// The rectangle for rendering the mine to
 grs_canvas	*VR_offscreen_buffer	= NULL;		// The offscreen data buffer
 grs_canvas	VR_render_buffer[2];					//  Two offscreen buffers for left/right eyes.
 grs_canvas	VR_render_sub_buffer[2];			//  Two sub buffers for left/right eyes.
-grs_canvas	VR_editor_canvas;						//  The canvas that the editor writes to.
 
 int	force_cockpit_redraw=0;
 int	PaletteRedAdd, PaletteGreenAdd, PaletteBlueAdd;
@@ -365,13 +364,6 @@ int set_screen_mode(int sm)
 					return 0;
 				}
 			}
-			gr_palette_load( gr_palette );
-
-			game_init_render_buffers(320, 200, VR_NONE);
-			gr_init_sub_canvas( &VR_editor_canvas, &grd_curscreen->sc_canvas, 0, 0, SWIDTH, SHEIGHT );
-			Canv_editor = &VR_editor_canvas;
-			gr_set_current_canvas( Canv_editor );
-			init_editor_screen(); //setup other editor stuff
 			break;
 #endif
 		case SCREEN_MOVIE:

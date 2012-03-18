@@ -161,6 +161,7 @@ extern int Large_view_index;
 extern UI_GADGET_USERBOX * LargeViewBox;
 extern int Found_seg_index;				// Index in Found_segs corresponding to Cursegp
 extern int gamestate_not_restored;
+extern grs_font *editor_font;
 
 
 extern	segment  *Cursegp;				// Pointer to current segment in the mine, the one to which things happen.
@@ -210,7 +211,6 @@ extern	int		SegSizeMode;			// Mode = 0/1 = not/is legal to move bound vertices,
 void init_editor(void);
 void editor(void);
 void close_editor(void);
-void init_editor_screen(void);
 
 //	Returns true if vertex vi is contained in exactly one segment, else returns false.
 extern int is_free_vertex(int vi);
