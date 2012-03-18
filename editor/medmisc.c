@@ -103,16 +103,16 @@ int ToggleLockstep()
 {
 	Gameview_lockstep = !Gameview_lockstep;
     if (Gameview_lockstep == 0) {
-        if (last_keypress != KEY_L)
+        //if (keypress != KEY_L)
             diagnostic_message("[L] - Lock mode OFF");
-        else
-            diagnostic_message("Lock mode OFF");
+        //else
+        //    diagnostic_message("Lock mode OFF");
     }
     if (Gameview_lockstep) {
-        if (last_keypress != KEY_L)
+        //if (keypress != KEY_L)
             diagnostic_message("[L] Lock mode ON");
-        else
-            diagnostic_message("Lock mode ON");
+        //else
+        //    diagnostic_message("Lock mode ON");
 
       Cursegp = &Segments[ConsoleObject->segnum];
 		med_create_new_segment_from_cursegp();
@@ -172,16 +172,16 @@ int ToggleLockViewToCursegp(void)
 	Lock_view_to_cursegp = !Lock_view_to_cursegp;
 	Update_flags = UF_ED_STATE_CHANGED;
 	if (Lock_view_to_cursegp) {
-        if (last_keypress != KEY_V+KEY_CTRLED)
+        //if (keypress != KEY_V+KEY_CTRLED)
             diagnostic_message("[ctrl-V] View locked to Cursegp.");
-        else
-            diagnostic_message("View locked to Cursegp.");
+        //else
+        //    diagnostic_message("View locked to Cursegp.");
         set_view_target_from_segment(Cursegp);
     } else {
-        if (last_keypress != KEY_V+KEY_CTRLED)
+        //if (keypress != KEY_V+KEY_CTRLED)
             diagnostic_message("[ctrl-V] View not locked to Cursegp.");
-        else
-            diagnostic_message("View not locked to Cursegp.");
+        //else
+        //    diagnostic_message("View not locked to Cursegp.");
     }
     return Lock_view_to_cursegp;
 }
@@ -191,16 +191,16 @@ int ToggleDrawAllSegments()
 	Draw_all_segments = !Draw_all_segments;
 	Update_flags = UF_ED_STATE_CHANGED;
     if (Draw_all_segments == 1) {
-        if (last_keypress != KEY_A+KEY_CTRLED)
+        //if (keypress != KEY_A+KEY_CTRLED)
             diagnostic_message("[ctrl-A] Draw all segments ON.");
-        else
-            diagnostic_message("Draw all segments ON.");
+        //else
+        //    diagnostic_message("Draw all segments ON.");
     }
     if (Draw_all_segments == 0) {
-        if (last_keypress != KEY_A+KEY_CTRLED)
+        //if (keypress != KEY_A+KEY_CTRLED)
             diagnostic_message("[ctrl-A] Draw all segments OFF.");
-        else
-            diagnostic_message("Draw all segments OFF.");
+        //else
+        //    diagnostic_message("Draw all segments OFF.");
     }
     return Draw_all_segments;
 }
@@ -230,16 +230,16 @@ int ToggleCoordAxes()
 	Show_axes_flag = !Show_axes_flag;
 	LargeView.ev_changed = 1;
     if (Show_axes_flag == 1) {
-        if (last_keypress != KEY_D+KEY_CTRLED)
+        //if (keypress != KEY_D+KEY_CTRLED)
             diagnostic_message("[ctrl-D] Coordinate axes ON.");
-        else
-            diagnostic_message("Coordinate axes ON.");
+        //else
+        //    diagnostic_message("Coordinate axes ON.");
     }
     if (Show_axes_flag == 0) {
-        if (last_keypress != KEY_D+KEY_CTRLED)
+        //if (keypress != KEY_D+KEY_CTRLED)
             diagnostic_message("[ctrl-D] Coordinate axes OFF.");
-        else
-            diagnostic_message("Coordinate axes OFF.");
+        //else
+        //    diagnostic_message("Coordinate axes OFF.");
     }
     return Show_axes_flag;
 }

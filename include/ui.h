@@ -249,7 +249,6 @@ extern UI_MOUSE Mouse;
 
 extern unsigned char CBLACK,CGREY,CWHITE,CBRIGHT,CRED;
 extern UI_GADGET * selected_gadget;
-extern int last_keypress;
 
 extern void Hline(short x1, short x2, short y );
 extern void Vline(short y1, short y2, short x );

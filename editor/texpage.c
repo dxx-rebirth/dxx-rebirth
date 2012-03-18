@@ -228,12 +228,12 @@ typedef struct replacement {
 replacement Replacement_list[MAX_REPLACEMENTS];
 int	Num_replacements=0;
 
-void texpage_do()
+int texpage_do(d_event *event)
 {
 	int i;
 
 	for (i=0; i<TMAPS_PER_PAGE; i++ ) {
-		if (TmapBox[i]->b1_clicked && (i + TexturePage*TMAPS_PER_PAGE < NumTextures))
+		if (GADGET_PRESSED(TmapBox[i]) && (i + TexturePage*TMAPS_PER_PAGE < NumTextures))
 		{
 			CurrentTexture = i + TexturePage*TMAPS_PER_PAGE;
 			texpage_show_current();
@@ -246,8 +246,12 @@ void texpage_do()
 				Replacement_list[Num_replacements].new = CurrentTexture;
 				Num_replacements++;
 			}
+			
+			return 1;
 		}
 	}
+	
+	return 0;
 }
 
 void init_replacements(void)

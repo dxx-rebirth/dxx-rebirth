@@ -40,6 +40,7 @@ COPYRIGHT 1993-1998 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 #include "gamesave.h"
 #include "gameseg.h"
 #include "key.h"
+#include "mouse.h"
 #include "error.h"
 #include "kfuncs.h"
 #include "macro.h"
@@ -651,10 +652,10 @@ int ToggleLighting(void)
 
 	Update_flags |= UF_GAME_VIEW_CHANGED;
 
-	if (last_keypress == KEY_L + KEY_SHIFTED)
+	//if (keypress == KEY_L + KEY_SHIFTED)
 		chindex = 0;
-	else
-		chindex = 10;
+	//else
+	//	chindex = 10;
 
 	switch (Lighting_on) {
 		case 0:
@@ -733,17 +734,17 @@ int ToggleOutlineMode()
 
         if (mode)
          {
-		if (last_keypress != KEY_O)
+		//if (keypress != KEY_O)
 			diagnostic_message("[O] Outline Mode ON.");
-		else
-			diagnostic_message("Outline Mode ON.");
+		//else
+		//	diagnostic_message("Outline Mode ON.");
          }
 	else
          {
-		if (last_keypress != KEY_O)
+		//if (keypress != KEY_O)
 			diagnostic_message("[O] Outline Mode OFF.");
-		else
-			diagnostic_message("Outline Mode OFF.");
+		//else
+		//	diagnostic_message("Outline Mode OFF.");
          }
 
 	Update_flags |= UF_GAME_VIEW_CHANGED;
@@ -794,6 +795,8 @@ int med_keypad_goto_8()	{	ui_pad_goto(8);	return 0;	}
 
 int editor_screen_open = 0;
 
+int editor_handler(UI_DIALOG *dlg, d_event *event, void *data);
+
 //setup the editors windows, canvases, gadgets, etc.
 void init_editor_screen()
 {	
@@ -825,7 +828,7 @@ void init_editor_screen()
 	gr_set_curfont(editor_font);
 	gr_set_fontcolor( CBLACK, CWHITE );
 
-	EditorWindow = ui_create_dialog( 0 , 0, ED_SCREEN_W, ED_SCREEN_H, DF_FILLED, NULL, NULL );
+	EditorWindow = ui_create_dialog( 0 , 0, ED_SCREEN_W, ED_SCREEN_H, DF_FILLED, editor_handler, NULL );
 
 	LargeViewBox	= ui_add_gadget_userbox( EditorWindow,LVIEW_X,LVIEW_Y,LVIEW_W,LVIEW_H);
 #if ORTHO_VIEWS
@@ -1070,7 +1073,6 @@ int RestoreGameState() {
 }
 
 extern void check_wall_validity(void);
-void editor_handler(void);
 
 // ---------------------------------------------------------------------------------------------------
 //this function is the editor. called when editor mode selected.  runs until
@@ -1080,19 +1082,23 @@ void editor(void)
 	init_editor();
 	
 	while (Function_mode == FMODE_EDITOR)
-	{
 		event_process();
-		editor_handler();
-	}
 	
 	close_editor();
 }
 
 // Handler for the main editor dialog
-void editor_handler(void)
+int editor_handler(UI_DIALOG *dlg, d_event *event, void *data)
 {
 	editor_view *new_cv;
+	int keypress = 0;
+	int rval = 0;
 
+	if (event->type == EVENT_KEY_COMMAND)
+		keypress = event_key_get(event);
+	else if (event->type == EVENT_WINDOW_CLOSE)
+		return 0;
+	
 	// Update the windows
 
 	// Only update if there is no key waiting and we're not in
@@ -1101,7 +1107,6 @@ void editor_handler(void)
 // 			medlisp_update_screen();
 
 	//do editor stuff
-	last_keypress &= ~KEY_DEBUGGED;		//	mask off delete key bit which has no function in editor.
 	check_wall_validity();
 	Assert(Num_walls>=0);
 
@@ -1117,10 +1122,10 @@ void editor_handler(void)
 	}
 
 	if ( ui_get_idle_seconds() > COMPRESS_INTERVAL ) 
-		{
+	{
 		med_compress_mine();
 		ui_reset_idle_seconds();
-		}
+	}
 
 //	Commented out because it occupies about 25% of time in twirling the mine.
 // Removes some Asserts....
@@ -1131,62 +1136,67 @@ void editor_handler(void)
 	gr_set_current_canvas( GameViewBox->canvas );
 	
 	// Remove keys used for slew
-	switch(last_keypress)
+	switch(keypress)
 	{
-	case KEY_PAD9:
-	case KEY_PAD7:
-	case KEY_PADPLUS:
-	case KEY_PADMINUS:
-	case KEY_PAD8:
-	case KEY_PAD2:
-	case KEY_LBRACKET:
-	case KEY_RBRACKET:
-	case KEY_PAD1:
-	case KEY_PAD3:
-	case KEY_PAD6:
-	case KEY_PAD4:
-		last_keypress = 0;
+		case KEY_PAD9:
+		case KEY_PAD7:
+		case KEY_PADPLUS:
+		case KEY_PADMINUS:
+		case KEY_PAD8:
+		case KEY_PAD2:
+		case KEY_LBRACKET:
+		case KEY_RBRACKET:
+		case KEY_PAD1:
+		case KEY_PAD3:
+		case KEY_PAD6:
+		case KEY_PAD4:
+			keypress = 0;
 	}
-	if ((last_keypress&0xff)==KEY_LSHIFT) last_keypress=0;
-	if ((last_keypress&0xff)==KEY_RSHIFT) last_keypress=0;
-	if ((last_keypress&0xff)==KEY_LCTRL) last_keypress=0;
-	if ((last_keypress&0xff)==KEY_RCTRL) last_keypress=0;
-//		if ((last_keypress&0xff)==KEY_LALT) last_keypress=0;
-//		if ((last_keypress&0xff)==KEY_RALT) last_keypress=0;
+	if ((keypress&0xff)==KEY_LSHIFT) keypress=0;
+	if ((keypress&0xff)==KEY_RSHIFT) keypress=0;
+	if ((keypress&0xff)==KEY_LCTRL) keypress=0;
+	if ((keypress&0xff)==KEY_RCTRL) keypress=0;
+//		if ((keypress&0xff)==KEY_LALT) keypress=0;
+//		if ((keypress&0xff)==KEY_RALT) keypress=0;
 
 	gr_set_curfont(editor_font);
 
 	//=================== DO FUNCTIONS ====================
 
-	if ( KeyFunction[ last_keypress ] != NULL )	{
-		KeyFunction[last_keypress]();
-		last_keypress = 0;
-	}
-	switch (last_keypress)
+	if ( KeyFunction[ keypress ] != NULL )
 	{
-	case 0:
-	case KEY_Z:
-	case KEY_G:
-	case KEY_LALT:
-	case KEY_RALT:
-	case KEY_LCTRL:
-	case KEY_RCTRL:
-	case KEY_LSHIFT:
-	case KEY_RSHIFT:
-	case KEY_LAPOSTRO:
-		break;
-	case KEY_SHIFTED + KEY_L:
-		ToggleLighting();
-		break;
-	case KEY_F1:
-		render_3d_in_big_window = !render_3d_in_big_window;
-		Update_flags |= UF_ALL;
-		break;			
-	default:
+		KeyFunction[keypress]();
+		keypress = 0;
+		rval = 1;
+	}
+
+	switch (keypress)
+	{
+		case 0:
+		case KEY_Z:
+		case KEY_G:
+		case KEY_LALT:
+		case KEY_RALT:
+		case KEY_LCTRL:
+		case KEY_RCTRL:
+		case KEY_LSHIFT:
+		case KEY_RSHIFT:
+		case KEY_LAPOSTRO:
+			break;
+		case KEY_SHIFTED + KEY_L:
+			ToggleLighting();
+			rval = 1;
+			break;
+		case KEY_F1:
+			render_3d_in_big_window = !render_3d_in_big_window;
+			Update_flags |= UF_ALL;
+			rval = 1;
+			break;			
+		default:
 		{
-		char kdesc[100];
-		GetKeyDescription( kdesc, last_keypress );
-		editor_status("Error: %s isn't bound to anything.", kdesc  );
+			char kdesc[100];
+			GetKeyDescription( kdesc, keypress );
+			editor_status("Error: %s isn't bound to anything.", kdesc  );
 		}
 	}
 
@@ -1196,7 +1206,7 @@ void editor_handler(void)
 	{
 		close_editor_screen();
 		Function_mode=FMODE_EXIT;
-		return;
+		return 0;
 	}
 
 	if (ModeFlag==2) //-- && MacroStatus==UI_STATUS_NORMAL )
@@ -1204,7 +1214,7 @@ void editor_handler(void)
 		close_editor_screen();
 		Function_mode = FMODE_MENU;
 		set_screen_mode(SCREEN_MENU);		//put up menu screen
-		return;
+		return 0;
 	}
 
 	if (ModeFlag==3) //-- && MacroStatus==UI_STATUS_NORMAL )
@@ -1213,13 +1223,13 @@ void editor_handler(void)
 		close_editor_screen();
 		Function_mode=FMODE_GAME;			//force back into game
 		set_screen_mode(SCREEN_GAME);		//put up game screen
-		return;
+		return 0;
 	}
 
 //		if (EditorWindow->keyboard_focus_gadget == (UI_GADGET *)GameViewBox) current_view=NULL;
 //		if (EditorWindow->keyboard_focus_gadget == (UI_GADGET *)GroupViewBox) current_view=NULL;
 
-	new_cv = current_view ;
+	new_cv = current_view;
 
 #if ORTHO_VIEWS
 	if (EditorWindow->keyboard_focus_gadget == (UI_GADGET *)LargeViewBox) new_cv=&LargeView;
@@ -1244,12 +1254,15 @@ void editor_handler(void)
 	}
 
 	// DO TEXTURE STUFF
-	texpage_do();
-	objpage_do();
+	if (texpage_do(event))
+		rval = 1;
+	
+	if (objpage_do(event))
+		rval = 1;
 
 
 	// Process selection of Cursegp using mouse.
-	if (LargeViewBox->mouse_onme && LargeViewBox->b1_clicked && !render_3d_in_big_window) 
+	if (GADGET_PRESSED(LargeViewBox) && !render_3d_in_big_window) 
 	{
 		int	xcrd,ycrd;
 		xcrd = LargeViewBox->b1_drag_x1;
@@ -1276,7 +1289,8 @@ void editor_handler(void)
 		Update_flags |= UF_ED_STATE_CHANGED | UF_VIEWPOINT_MOVED;
 	}
 
-	if (GameViewBox->mouse_onme && GameViewBox->b1_dragging) {
+	if ((event->type == EVENT_UI_USERBOX_DRAGGED) && (ui_event_get_gadget(event) == (UI_GADGET *)GameViewBox))
+	{
 		int	x, y;
 		x = GameViewBox->b1_drag_x2;
 		y = GameViewBox->b1_drag_y2;
@@ -1292,9 +1306,9 @@ void editor_handler(void)
 	// Set current segment and side by clicking on a polygon in game window.
 	//	If ctrl pressed, also assign current texture map to that side.
 	//if (GameViewBox->mouse_onme && (GameViewBox->b1_done_dragging || GameViewBox->b1_clicked)) {
-	if ((GameViewBox->mouse_onme && GameViewBox->b1_clicked && !render_3d_in_big_window) ||
-		(LargeViewBox->mouse_onme && LargeViewBox->b1_clicked && render_3d_in_big_window)) {
-
+	if ((GADGET_PRESSED(GameViewBox) && !render_3d_in_big_window) ||
+		(GADGET_PRESSED(LargeViewBox) && render_3d_in_big_window))
+	{
 		int	xcrd,ycrd;
 		int seg,side,face,poly,tmap;
 
@@ -1351,31 +1365,43 @@ void editor_handler(void)
 	}
 
 	// Allow specification of LargeView using mouse
-	if (keyd_pressed[ KEY_LCTRL ] || keyd_pressed[ KEY_RCTRL ]) {
+	if (event->type == EVENT_MOUSE_MOVED && (keyd_pressed[ KEY_LCTRL ] || keyd_pressed[ KEY_RCTRL ]))
+	{
+		int dx, dy, dz;
+
+		event_mouse_get_delta(event, &dx, &dy, &dz);
 		ui_mouse_hide();
-		if ( (Mouse.dx!=0) && (Mouse.dy!=0) )
+		if ((dx != 0) && (dy != 0))
 		{
 			vms_matrix	MouseRotMat,tempm;
 			
-			GetMouseRotation( Mouse.dx, Mouse.dy, &MouseRotMat );
+			GetMouseRotation( dx, dy, &MouseRotMat );
 			vm_matrix_x_matrix(&tempm,&LargeView.ev_matrix,&MouseRotMat);
 			LargeView.ev_matrix = tempm;
 			LargeView.ev_changed = 1;
 			Large_view_index = -1;			// say not one of the orthogonal views
+			rval = 1;
 		}
 	} else  {
 		ui_mouse_show();
 	}
 
-	if ( keyd_pressed[ KEY_Z ] ) {
+	if (event->type == EVENT_MOUSE_MOVED && keyd_pressed[ KEY_Z ])
+	{
+		int dx, dy, dz;
+
+		event_mouse_get_delta(event, &dx, &dy, &dz);
 		ui_mouse_hide();
-		if ( Mouse.dy!=0 ) {
-			current_view->ev_dist += Mouse.dy*10000;
+		if (dy != 0)
+		{
+			current_view->ev_dist += dy*10000;
 			current_view->ev_changed = 1;
 		}
 	} else {
 		ui_mouse_show();
 	}
+	
+	return rval;
 }
 
 void test_fade(void)

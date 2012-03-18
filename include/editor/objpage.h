@@ -23,12 +23,14 @@ COPYRIGHT 1993-1998 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 
 #include "ui.h"
 
+struct d_event;
+
 int objpage_grab_current(int n);
 int objpage_goto_first();
 
 void objpage_init( UI_DIALOG *dlg );
 void objpage_close();
-void objpage_do();
+int objpage_do(struct d_event *event);
 
 extern void draw_object_picture(int id, vms_angvec *orient_angles, int type);
 

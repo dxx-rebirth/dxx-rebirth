@@ -89,12 +89,13 @@ int ui_userbox_do( UI_DIALOG *dlg, UI_GADGET_USERBOX * userbox, d_event *event )
 	mouse_get_pos(&x, &y, &z);
 	OnMe = ui_mouse_on_gadget( (UI_GADGET *)userbox );
 
-	olddrag  = userbox->b1_dragging;
+	olddrag  = userbox->b1_held_down;
 
 	userbox->mouse_onme = OnMe;
 	userbox->mouse_x = x - userbox->x1;
 	userbox->mouse_y = y - userbox->y1;
 
+	userbox->b1_dragging = 0;
 	userbox->b1_clicked = 0;
 
 	if (OnMe)
@@ -108,7 +109,6 @@ int ui_userbox_do( UI_DIALOG *dlg, UI_GADGET_USERBOX * userbox, d_event *event )
 		}
 		else if (B1_JUST_RELEASED)
 		{
-			userbox->b1_dragging = 0;
 			if (userbox->b1_held_down)
 				userbox->b1_clicked = 1;
 			userbox->b1_held_down = 0;
@@ -133,11 +133,11 @@ int ui_userbox_do( UI_DIALOG *dlg, UI_GADGET_USERBOX * userbox, d_event *event )
 	}
 
 	if (B1_JUST_RELEASED)
-		userbox->b1_dragging = 0;
+		userbox->b1_held_down = 0;
 
 	userbox->b1_done_dragging = 0;
 
-	if (olddrag==1 && userbox->b1_dragging==0 )
+	if (olddrag==1 && userbox->b1_held_down==0 )
 	{
 		if ((userbox->b1_drag_x1 !=  userbox->b1_drag_x2) || (userbox->b1_drag_y1 !=  userbox->b1_drag_y2) )
 			userbox->b1_done_dragging = 1;

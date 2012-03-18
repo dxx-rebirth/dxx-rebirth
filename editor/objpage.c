@@ -407,19 +407,22 @@ void objpage_close()
 
 // DO TEXTURE STUFF
 
-void objpage_do()
+int objpage_do(d_event *event)
 {
 	int i;
 
 	for (i=0; i<OBJS_PER_PAGE; i++ )
 	{
-		if (ObjBox[i]->b1_clicked && (i+ObjectPage*OBJS_PER_PAGE < Num_object_subtypes))
+		if (GADGET_PRESSED(ObjBox[i]) && (i+ObjectPage*OBJS_PER_PAGE < Num_object_subtypes))
 		{
 			Cur_object_id = i+ObjectPage*OBJS_PER_PAGE;
 			gr_set_current_canvas(ObjCurrent->canvas);
 			//gr_ubitmap(0,0, robot_bms[robot_bm_nums[ Cur_robot_type ] ] );
 			gr_label_box(Cur_object_id);
 			//objpage_display_name( Texture[Cur_robot_type]->filename );
+			return 1;
 		}
 	}
+	
+	return 0;
 }
