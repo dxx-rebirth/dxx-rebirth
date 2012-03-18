@@ -27,6 +27,7 @@ COPYRIGHT 1993-1998 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 #include "u_mem.h"
 #include "error.h"
 #include "key.h"
+#include "mouse.h"
 #include "func.h"
 #include "inferno.h"
 #include "editor/editor.h"
@@ -299,10 +300,10 @@ if (!render_3d_in_big_window)
 		Assert(render_canv->cv_bitmap.bm_w == show_canv->cv_bitmap.bm_w &&
 				 render_canv->cv_bitmap.bm_h == show_canv->cv_bitmap.bm_h);
 
-		ui_mouse_hide();
+		mouse_toggle_cursor(0);
 		gr_bm_ubitblt(show_canv->cv_bitmap.bm_w,show_canv->cv_bitmap.bm_h,
 						  0,0,0,0,&render_canv->cv_bitmap,&show_canv->cv_bitmap);
-		ui_mouse_show();
+		mouse_toggle_cursor(1);
 	}
 
 	Update_flags=UF_NONE;       //clear flags

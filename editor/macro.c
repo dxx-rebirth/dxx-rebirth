@@ -85,7 +85,7 @@ int MacroPlayFast()
 {
 	if (MacroStatus== UI_STATUS_NORMAL && MacroNumEvents > 0 && RecordBuffer )
 	{
-		ui_mouse_hide();
+		mouse_toggle_cursor(0);
 		ui_play_events_fast(MacroNumEvents, RecordBuffer);
 		MacroStatus = UI_STATUS_FASTPLAY;
 	}

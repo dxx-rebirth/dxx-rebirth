@@ -76,4 +76,8 @@ void event_process();
 
 void event_toggle_focus(int activate_focus);
 
+// See how long we were idle for
+void event_reset_idle_seconds();
+int32_t event_get_idle_seconds();
+
 #endif

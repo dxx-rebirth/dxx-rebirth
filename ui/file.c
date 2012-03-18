@@ -20,6 +20,7 @@ COPYRIGHT 1993-1999 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 #include "pstypes.h"
 #include "gr.h"
 #include "key.h"
+#include "mouse.h"
 #include "strutil.h"
 #include "ui.h"
 #include "window.h"
@@ -158,7 +159,7 @@ static int browser_handler(UI_DIALOG *dlg, d_event *event, browser *b)
 	{
 		char *p;
 		
-		ui_mouse_hide();
+		mouse_toggle_cursor(0);
 		
 		if (ui_event_get_gadget(event) == (UI_GADGET *)b->listbox2)
 			strcpy(b->user_file->text, b->directory_list[b->listbox2->current_item]);
@@ -247,7 +248,7 @@ static int browser_handler(UI_DIALOG *dlg, d_event *event, browser *b)
 			
 		}
 		
-		ui_mouse_show();
+		mouse_toggle_cursor(1);
 		rval = 1;
 	}
 	

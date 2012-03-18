@@ -317,10 +317,6 @@ int info_display_all(window *wind, d_event *event, void *userdata)
 	int        padnum,show_all = 0;
 	grs_canvas *save_canvas = grd_curcanv;
 
-	// HACK: Make sure all the state-based input variables are set, until we fully migrate to event-based input
-	if (wind == window_get_front())
-		ui_event_handler(event);
-	
 	switch (event->type)
 	{
 		case EVENT_WINDOW_DRAW:

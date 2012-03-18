@@ -126,7 +126,7 @@ void menu_show( MENU * menu )
 
 	window_set_visible(menu->wind, 1);
 	
-	ui_mouse_hide();
+	mouse_toggle_cursor(0);
 
 	gr_set_current_canvas(NULL);
 	// Don't save background it if it's already drawn
@@ -150,7 +150,7 @@ void menu_show( MENU * menu )
 	for (i=0; i< menu->NumItems; i++ )
 		item_show( menu, i );
 	
-	ui_mouse_show();
+	mouse_toggle_cursor(1);
 	
 	// Mark as displayed.
 	menu->Displayed = 1;
@@ -171,11 +171,11 @@ void menu_hide( MENU * menu )
 		window_set_modal(Menu[0].wind, 0);
 		
 	// Restore the background
-	ui_mouse_hide();
+	mouse_toggle_cursor(0);
 
 	gr_bm_ubitblt(menu->w, menu->h, menu->x, menu->y, 0, 0, menu->Background, &(grd_curscreen->sc_canvas.cv_bitmap));
 
-	ui_mouse_show();
+	mouse_toggle_cursor(1);
 	
 	// Mark as hidden.
 	menu->Displayed = 0;
@@ -193,12 +193,12 @@ void menu_move_bar_to( MENU * menu, int number )
 	
 	if (menu->Displayed && (number != old_item))
 	{
-		ui_mouse_hide();
+		mouse_toggle_cursor(0);
 
 		item_show( menu, old_item );
 		item_show( menu, number );
 
-		ui_mouse_show();
+		mouse_toggle_cursor(1);
 	}
 }
 
@@ -675,10 +675,6 @@ int menu_handler(window *wind, d_event *event, MENU *menu)
 int menubar_handler(window *wind, d_event *event, MENU *menu)
 {
 	int rval = 0;
-
-	// HACK: Make sure all the state-based input variables are set, until we fully migrate to event-based input
-	if (wind == window_get_front())
-		ui_event_handler(event);
 
 	switch (state)
 	{

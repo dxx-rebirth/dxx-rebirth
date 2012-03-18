@@ -26,6 +26,7 @@ static char rcsid[] = "$Id: inputbox.c,v 1.1.1.1 2006/03/17 19:52:23 zicodxx Exp
 #include "gr.h"
 #include "ui.h"
 #include "key.h"
+#include "mouse.h"
 
 // insert character c into string s at position p.
 void strcins(char *s, int p, char c)
@@ -50,7 +51,7 @@ void ui_draw_inputbox( UI_DIALOG *dlg, UI_GADGET_INPUTBOX * inputbox )
 
 	if ((inputbox->status==1) || (inputbox->position != inputbox->oldposition))
 	{
-		ui_mouse_hide();
+		mouse_toggle_cursor(0);
 		gr_set_current_canvas( inputbox->canvas );
 
 		if (dlg->keyboard_focus_gadget == (UI_GADGET *)inputbox)
@@ -78,7 +79,7 @@ void ui_draw_inputbox( UI_DIALOG *dlg, UI_GADGET_INPUTBOX * inputbox )
 			Vline( 2,inputbox->height-3, 2+w+2 );
 		}
 
-		ui_mouse_show();
+		mouse_toggle_cursor(1);
 	}
 }
 

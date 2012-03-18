@@ -47,8 +47,6 @@ COPYRIGHT 1993-1999 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 #define _enable()
 #endif
 
-int last_keypress = 0;
-
 #define BORDER_WIDTH 8
 
 static unsigned int FrameCount = 0;
@@ -143,30 +141,20 @@ int ui_dialog_handler(window *wind, d_event *event, UI_DIALOG *dlg)
 {
 	int rval = 0;
 
-	if (event->type == EVENT_WINDOW_CLOSED)
+	if (event->type == EVENT_WINDOW_CLOSED ||
+		event->type == EVENT_WINDOW_ACTIVATED ||
+		event->type == EVENT_WINDOW_DEACTIVATED)
 		return 0;
 	
-	// HACK: Make sure all the state-based input variables are set, until we fully migrate to event-based input
-	if (wind == window_get_front())
-		ui_event_handler(event);
-
-#if 0		// must only call this once, after the gadget actions are determined
-			// until all the dialogs use the gadget events instead
 	if (dlg->callback)
 		if ((*dlg->callback)(dlg, event, dlg->userdata))
 			return 1;		// event handled
-#endif
+
+	if (!window_exists(wind))
+		return 1;
 
 	switch (event->type)
 	{
-		case EVENT_WINDOW_ACTIVATED:
-			return 0;
-			break;
-			
-		case EVENT_WINDOW_DEACTIVATED:
-			return 0;
-			break;
-			
 		case EVENT_MOUSE_BUTTON_DOWN:
 		case EVENT_MOUSE_BUTTON_UP:
 		case EVENT_MOUSE_MOVED:
@@ -199,10 +187,6 @@ int ui_dialog_handler(window *wind, d_event *event, UI_DIALOG *dlg)
 			break;
 	}
 	
-	if (window_exists(wind) && dlg->callback)
-		if ((*dlg->callback)(dlg, event, dlg->userdata))
-			return 1;		// event handled
-
 	return rval;
 }
 
@@ -245,7 +229,7 @@ UI_DIALOG * ui_create_dialog( short x, short y, short w, short h, enum dialog_fl
 	D_GADGET = NULL;
 	dlg->keyboard_focus_gadget = NULL;
 
-	ui_mouse_hide();
+	mouse_toggle_cursor(0);
 
 	if (flags & DF_SAVE_BG)
 	{
@@ -305,7 +289,7 @@ void ui_dialog_set_current_canvas(UI_DIALOG *dlg)
 void ui_close_dialog( UI_DIALOG * dlg )
 {
 
-	ui_mouse_hide();
+	mouse_toggle_cursor(0);
 
 	ui_gadget_delete_all( dlg );
 
@@ -329,7 +313,7 @@ void ui_close_dialog( UI_DIALOG * dlg )
 
 	d_free( dlg );
 
-	ui_mouse_show();
+	mouse_toggle_cursor(1);
 }
 
 void restore_state()
@@ -343,18 +327,6 @@ void restore_state()
 	_enable();
 }
 
-
-fix64 last_event = 0;
-
-void ui_reset_idle_seconds()
-{
-	last_event = timer_query();
-}
-
-int ui_get_idle_seconds()
-{
-	return (timer_query() - last_event)/F1_0;
-}
 
 #if 0
 void ui_mega_process()
@@ -609,46 +581,6 @@ void ui_mega_process()
 }
 #endif // 0
 
-// For setting global variables for state-based event polling,
-// which will eventually be replaced with direct event handling
-int ui_event_handler(d_event *event)
-{
-	last_keypress = 0;
-	
-	switch (event->type)
-	{
-		case EVENT_MOUSE_BUTTON_DOWN:
-		case EVENT_MOUSE_BUTTON_UP:
-			ui_mouse_button_process(event);
-			last_event = timer_query();
-			break;
-
-		case EVENT_MOUSE_MOVED:
-			ui_mouse_motion_process(event);
-			last_event = timer_query();
-			break;
-			
-		case EVENT_KEY_COMMAND:
-			last_keypress = event_key_get(event);
-			last_event = timer_query();
-			break;
-			
-		case EVENT_IDLE:
-			// Make sure button pressing works correctly
-			// Won't be needed when all of the editor uses mouse button events rather than polling
-			return ui_mouse_button_process(event);
-			
-		case EVENT_QUIT:
-			//Quitting = 1;
-			return 1;
-			
-		default:
-			break;
-	}
-	
-	return 0;
-}
-
 void ui_dprintf( UI_DIALOG * dlg, char * format, ... )
 {
 	char buffer[1000];
@@ -659,9 +591,9 @@ void ui_dprintf( UI_DIALOG * dlg, char * format, ... )
 
 	ui_dialog_set_current_canvas( dlg );
 
-	ui_mouse_hide();
+	mouse_toggle_cursor(0);
 	D_TEXT_X = gr_string( D_TEXT_X, D_TEXT_Y, buffer );
-	ui_mouse_show();
+	mouse_toggle_cursor(1);
 }
 
 void ui_dprintf_at( UI_DIALOG * dlg, short x, short y, char * format, ... )
@@ -674,8 +606,8 @@ void ui_dprintf_at( UI_DIALOG * dlg, short x, short y, char * format, ... )
 
 	ui_dialog_set_current_canvas( dlg );
 
-	ui_mouse_hide();
+	mouse_toggle_cursor(0);
 	gr_string( x, y, buffer );
-	ui_mouse_show();
+	mouse_toggle_cursor(1);
 
 }

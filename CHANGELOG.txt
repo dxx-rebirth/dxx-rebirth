@@ -4,6 +4,7 @@ D2X-Rebirth Changelog
 --------
 editor/med.c, editor/texpage.c, include/editor/editor.h, main/game.c: Do a bit of a tidy up for the editor, dump code from editor() within the loop into new editor_handler()
 editor/info.c, editor/med.c, editor/medmisc.c, editor/objpage.c, editor/texpage.c, include/editor/objpage.h, include/editor/texpage.h, include/ui.h, ui/userbox.c: Make editor_handler into a proper callback, iron some problems out. Seems to draw a different bunch of stuff now (still erroneous)
+SConstruct, arch/include/event.h, arch/include/mouse.h, arch/sdl/event.c, d1x-rebirth.xcodeproj/project.pbxproj, editor/info.c, editor/macro.c, editor/med.c, editor/meddraw.c, editor/medmisc.c, include/ui.h, ui/button.c, ui/checkbox.c, ui/dialog.c, ui/file.c, ui/icon.c, ui/inputbox.c, ui/listbox.c, ui/menubar.c, ui/mouse.c, ui/radio.c, ui/scroll.c, ui/ui.c, ui/userbox.c: Remove redundant ui_event_process and duplicate mouse.c in ui/. All editor input is now event-based.
 
 20120317
 --------

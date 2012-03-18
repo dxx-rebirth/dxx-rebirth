@@ -45,5 +45,6 @@ extern int mouse_in_window(struct window *wind);
 extern void mouse_get_delta( int *dx, int *dy, int *dz );
 extern void event_mouse_get_delta(struct d_event *event, int *dx, int *dy, int *dz);
 extern int mouse_get_btns();
+extern void mouse_toggle_cursor(int activate);
 
 #endif

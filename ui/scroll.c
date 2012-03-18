@@ -33,7 +33,7 @@ void ui_draw_scrollbar( UI_DIALOG *dlg, UI_GADGET_SCROLLBAR * scrollbar )
 		return;
 
 	scrollbar->status = 0;
-	ui_mouse_hide();
+	mouse_toggle_cursor(0);
 	gr_set_current_canvas( scrollbar->canvas );
 
 	if (dlg->keyboard_focus_gadget == (UI_GADGET *)scrollbar)
@@ -46,7 +46,7 @@ void ui_draw_scrollbar( UI_DIALOG *dlg, UI_GADGET_SCROLLBAR * scrollbar )
 
 	ui_draw_box_out(0, scrollbar->fake_position, scrollbar->width-1, scrollbar->fake_position+scrollbar->fake_size-1 );
 
-	ui_mouse_show();
+	mouse_toggle_cursor(1);
 
 }
 

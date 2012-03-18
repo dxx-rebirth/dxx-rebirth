@@ -232,7 +232,6 @@ editor_sources = [
 'ui/menu.c',
 'ui/menubar.c',
 'ui/message.c',
-'ui/mouse.c',
 'ui/popup.c',
 'ui/radio.c',
 'ui/scroll.c',
