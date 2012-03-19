@@ -51,6 +51,7 @@ COPYRIGHT 1993-1998 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 #include "physfsx.h"
 #include "render.h"
 #include "game.h"
+#include "menu.h"
 #include "slew.h"
 #include "kdefs.h"
 #include "func.h"
@@ -968,6 +969,8 @@ void close_editor() {
 	clear_warn_func(NULL);
 #endif
 	
+	close_editor_screen();
+	
 	//kill our camera object
 	
 	Viewer = ConsoleObject;					//reset viewer
@@ -986,6 +989,30 @@ void close_editor() {
 	PHYSFSX_removeRelFromSearchPath("editor.zip");
 
 	gr_free_canvas(canv_offscreen); canv_offscreen = NULL;
+	
+	switch (ModeFlag)
+	{
+		case 1:
+			if (Game_wind)
+				window_close(Game_wind);
+			break;
+
+		case 2:
+			if (Game_wind)
+				window_close(Game_wind);
+			Function_mode = FMODE_MENU;
+			set_screen_mode(SCREEN_MENU);		//put up menu screen
+			show_menus();
+			break;
+
+		case 3:
+			Function_mode=FMODE_GAME;			//force back into game
+			set_screen_mode(SCREEN_GAME);		//put up game screen
+			Game_mode = GM_EDITOR;
+			editor_reset_stuff_on_level();
+			N_players = 1;
+			break;
+	}
 
 	return;
 }
@@ -1071,19 +1098,6 @@ int RestoreGameState() {
 }
 
 extern void check_wall_validity(void);
-
-// ---------------------------------------------------------------------------------------------------
-//this function is the editor. called when editor mode selected.  runs until
-//game mode or exit selected
-void editor(void)
-{
-	init_editor();
-	
-	while (Function_mode == FMODE_EDITOR)
-		event_process();
-	
-	close_editor();
-}
 
 // Handler for the main editor dialog
 int editor_handler(UI_DIALOG *dlg, d_event *event, void *data)
@@ -1200,27 +1214,9 @@ int editor_handler(UI_DIALOG *dlg, d_event *event, void *data)
 
 	//================================================================
 
-	if (ModeFlag==1)
+	if (ModeFlag)
 	{
-		close_editor_screen();
-		Function_mode=FMODE_EXIT;
-		return 0;
-	}
-
-	if (ModeFlag==2) //-- && MacroStatus==UI_STATUS_NORMAL )
-	{
-		close_editor_screen();
-		Function_mode = FMODE_MENU;
-		set_screen_mode(SCREEN_MENU);		//put up menu screen
-		return 0;
-	}
-
-	if (ModeFlag==3) //-- && MacroStatus==UI_STATUS_NORMAL )
-	{
-//			med_compress_mine();						//will be called anyways before game.
-		close_editor_screen();
-		Function_mode=FMODE_GAME;			//force back into game
-		set_screen_mode(SCREEN_GAME);		//put up game screen
+		close_editor();
 		return 0;
 	}
 

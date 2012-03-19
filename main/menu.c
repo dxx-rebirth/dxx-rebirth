@@ -553,14 +553,7 @@ int do_option ( int select)
 			SetPlayerFromCurseg();
 
 			hide_menus();
-			editor();
-			if ( Function_mode == FMODE_GAME ) {
-				Game_mode = GM_EDITOR;
-				editor_reset_stuff_on_level();
-				N_players = 1;
-			}
-			else
-				show_menus();
+			init_editor();
 			break;
 		#endif
 		case MENU_VIEW_SCORES:

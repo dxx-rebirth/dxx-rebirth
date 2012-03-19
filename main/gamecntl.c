@@ -828,12 +828,7 @@ int HandleTestKey(int key)
 #endif
 			Function_mode = FMODE_EDITOR;
 
-			editor();
-			if ( Function_mode == FMODE_GAME ) {
-				Game_mode = GM_EDITOR;
-				editor_reset_stuff_on_level();
-				N_players = 1;
-			}
+			init_editor();
 			break;
 		case KEY_C + KEY_SHIFTED + KEY_DEBUGGED:
 			if (!Player_is_dead && !( Game_mode & GM_MULTI ))

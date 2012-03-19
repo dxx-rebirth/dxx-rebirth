@@ -206,7 +206,6 @@ extern	struct tm Editor_time_of_day;
 extern	int		SegSizeMode;			// Mode = 0/1 = not/is legal to move bound vertices, 
 
 void init_editor(void);
-void editor(void);
 void close_editor(void);
 
 //	Returns true if vertex vi is contained in exactly one segment, else returns false.

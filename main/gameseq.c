@@ -405,6 +405,8 @@ void reset_network_objects()
 
 #ifdef EDITOR
 
+extern int game_handler(window *wind, d_event *event, void *data);
+
 //reset stuff so game is semi-normal when playing from editor
 void editor_reset_stuff_on_level()
 {
@@ -426,6 +428,8 @@ void editor_reset_stuff_on_level()
 	init_morphs();
 	init_all_matcens();
 	init_player_stats_new_ship();
+	if (!Game_wind)
+		Game_wind = window_create(&grd_curscreen->sc_canvas, 0, 0, SWIDTH, SHEIGHT, game_handler, NULL);
 }
 #endif
 
