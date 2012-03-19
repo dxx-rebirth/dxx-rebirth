@@ -575,8 +575,6 @@ int do_option ( int select)
 			break;
 		#ifdef EDITOR
 		case MENU_EDITOR:
-			Function_mode = FMODE_EDITOR;
-
 			create_new_mine();
 			SetPlayerFromCurseg();
 			load_palette(NULL,1,0);

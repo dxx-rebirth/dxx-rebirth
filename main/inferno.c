@@ -102,7 +102,6 @@ char copyright[] = "DESCENT II  COPYRIGHT (C) 1994-1996 PARALLAX SOFTWARE CORPOR
 //Current version number
 
 char desc_id_exit_num = 0;
-int Function_mode=FMODE_MENU;		//game or editor?
 int Screen_mode=-1;					//game screen or editor screen?
 int descent_critical_error = 0;
 unsigned int descent_critical_deverror = 0;

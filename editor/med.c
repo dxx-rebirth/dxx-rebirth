@@ -107,7 +107,7 @@ vms_vector Ed_view_target={0,0,0};
 
 int gamestate_not_restored = 0;
 
-UI_DIALOG * EditorWindow;
+UI_DIALOG * EditorWindow = NULL;
 
 int	Large_view_index = -1;
 
@@ -417,8 +417,8 @@ void init_editor()
 	restore_effect_bitmap_icons();
 	
 	if (!set_screen_mode(SCREEN_EDITOR))	{
-		set_screen_mode(SCREEN_GAME);
-		Function_mode=FMODE_GAME;			//force back into game
+		set_screen_mode(SCREEN_MENU);
+		show_menus();			//force back into menu
 		return;
 	}
 	
@@ -921,6 +921,7 @@ void close_editor_screen()
 	window_close(Pad_info);
 
 	ui_close_dialog(EditorWindow);
+	EditorWindow = NULL;
 
 	close_all_windows();
 
@@ -1000,13 +1001,11 @@ void close_editor() {
 		case 2:
 			if (Game_wind)
 				window_close(Game_wind);
-			Function_mode = FMODE_MENU;
 			set_screen_mode(SCREEN_MENU);		//put up menu screen
 			show_menus();
 			break;
 
 		case 3:
-			Function_mode=FMODE_GAME;			//force back into game
 			set_screen_mode(SCREEN_GAME);		//put up game screen
 			Game_mode = GM_EDITOR;
 			editor_reset_stuff_on_level();

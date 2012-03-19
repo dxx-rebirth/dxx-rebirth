@@ -1389,7 +1389,7 @@ int load_level(char * filename_passed)
 
 	#ifdef EDITOR
 	//If a Descent 1 level and the Descent 1 pig isn't present, pretend it's a Descent 2 level.
-	if ((Function_mode == FMODE_EDITOR) && (Gamesave_current_version <= 3) && !d1_pig_present)
+	if (EditorWindow && (Gamesave_current_version <= 3) && !d1_pig_present)
 	{
 		if (!no_old_level_file_error)
 			Warning("A Descent 1 level was loaded,\n"
@@ -1402,7 +1402,7 @@ int load_level(char * filename_passed)
 	#endif
 
 	#ifdef EDITOR
-	if (Function_mode == FMODE_EDITOR)
+	if (EditorWindow)
 		editor_status("Loaded NEW mine %s, \"%s\"",filename,Current_level_name);
 	#endif
 
@@ -1722,7 +1722,7 @@ int save_level_sub(char * filename, int compiled_version)
 
 //	if ( !compiled_version )
 	{
-		if (Function_mode == FMODE_EDITOR)
+		if (EditorWindow)
 			editor_status("Saved mine %s, \"%s\"",filename,Current_level_name);
 	}
 

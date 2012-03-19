@@ -44,23 +44,15 @@ struct d_event;
 #define KEY_MAC(x)
 #endif
 
-
 /**
  **	Constants
  **/
 
-// How close two points must be in all dimensions to be considered the
-// same point.
+//	How close two points must be in all dimensions to be considered the same point.
 #define	FIX_EPSILON	10
 
 // the maximum length of a filename
 #define FILENAME_LEN 13
-
-//for Function_mode variable
-#define FMODE_EXIT		0		// leaving the program
-#define FMODE_MENU		1		// Using the menu
-#define FMODE_GAME		2		// running the game
-#define FMODE_EDITOR	3		// running the editor
 
 /**
  **	Global variables
@@ -68,7 +60,6 @@ struct d_event;
 
 extern jmp_buf LeaveEvents;
 extern int Quitting;
-extern int Function_mode;		// in game or editor?
 extern int Screen_mode;			// editor screen or game screen?
 
 // Default event handler for everything except the editor

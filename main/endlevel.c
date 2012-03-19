@@ -66,6 +66,10 @@ COPYRIGHT 1993-1999 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 #include "ogl_init.h"
 #endif
 
+#ifdef EDITOR
+#include "editor/editor.h"
+#endif
+
 typedef struct flythrough_data {
 	object		*obj;
 	vms_angvec	angles;			//orientation in angles
@@ -1120,7 +1124,7 @@ void endlevel_render_mine(fix eye_offset)
 		vm_vec_scale_add2(&Viewer_eye,&Viewer->orient.rvec,eye_offset);
 
 	#ifdef EDITOR
-	if (Function_mode==FMODE_EDITOR)
+	if (EditorWindow)
 		Viewer_eye = Viewer->pos;
 	#endif
 
