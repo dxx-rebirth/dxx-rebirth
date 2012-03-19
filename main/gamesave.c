@@ -1220,7 +1220,7 @@ int load_level(char * filename_passed)
 	#endif
 
 	#ifdef EDITOR
-	if (Function_mode == FMODE_EDITOR)
+	if (EditorWindow)
 		editor_status("Loaded NEW mine %s, \"%s\"",filename,Current_level_name);
 	#endif
 
@@ -1457,7 +1457,7 @@ int save_level_sub(char * filename, int compiled_version)
 
 //	if ( !compiled_version )
 	{
-		if (Function_mode == FMODE_EDITOR)
+		if (EditorWindow)
 			editor_status("Saved mine %s, \"%s\"",filename,Current_level_name);
 	}
 

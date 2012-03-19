@@ -1,3 +1,4 @@
+/* $Id: inferno.h,v 1.1.1.1 2006/03/17 19:57:28 zicodxx Exp $ */
 /*
 THE COMPUTER CODE CONTAINED HEREIN IS THE SOLE PROPERTY OF PARALLAX
 SOFTWARE CORPORATION ("PARALLAX").  PARALLAX, IN DISTRIBUTING THE CODE TO
@@ -7,13 +8,13 @@ IN USING, DISPLAYING,  AND CREATING DERIVATIVE WORKS THEREOF, SO LONG AS
 SUCH USE, DISPLAY OR CREATION IS FOR NON-COMMERCIAL, ROYALTY OR REVENUE
 FREE PURPOSES.  IN NO EVENT SHALL THE END-USER USE THE COMPUTER CODE
 CONTAINED HEREIN FOR REVENUE-BEARING PURPOSES.  THE END-USER UNDERSTANDS
-AND AGREES TO THE TERMS HEREIN AND ACCEPTS THE SAME BY USE OF THIS FILE.  
+AND AGREES TO THE TERMS HEREIN AND ACCEPTS THE SAME BY USE OF THIS FILE.
 COPYRIGHT 1993-1998 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 */
 
 /*
  *
- * Header file for Inferno.  Should be included in all source files. 
+ * Header file for Inferno.  Should be included in all source files.
  *
  */
 
@@ -41,23 +42,13 @@ struct d_event;
 // the maximum length of a filename
 #define FILENAME_LEN 13
 
-//for Function_mode variable
-#define FMODE_EXIT		0		//leaving the program
-#define FMODE_MENU		1		//Using the menu
-#define FMODE_GAME		2		//running the game
-#define FMODE_EDITOR		3		//running the editor
-
-// the maximum length of a filename
-#define FILENAME_LEN 13
-
 /**
  **	Global variables
  **/
 
 extern jmp_buf LeaveEvents;
 extern int Quitting;
-extern int Function_mode;			//in game or editor?
-extern int Screen_mode;				//editor screen or game screen?
+extern int Screen_mode;			// editor screen or game screen?
 extern int MacHog;
 
 // Default event handler for everything except the editor

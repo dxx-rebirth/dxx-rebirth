@@ -107,7 +107,7 @@ void draw_powerup(object *obj)
 	draw_object_blob(obj, Vclip[obj->rtype.vclip_info.vclip_num].frames[obj->rtype.vclip_info.framenum] );
 
 	#ifdef EDITOR
-	if ((Function_mode == FMODE_EDITOR) && (Cur_object_index == obj-Objects))
+	if (EditorWindow && (Cur_object_index == obj-Objects))
 		if (blob_vertices[0] != 0x80000)
 			draw_blob_outline();
 	#endif

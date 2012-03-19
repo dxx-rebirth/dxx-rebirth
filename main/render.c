@@ -538,7 +538,7 @@ void do_render_object(int objnum)
 	//check for editor object
 
 	#ifdef EDITOR
-	if (Function_mode==FMODE_EDITOR && objnum==Cur_object_index) {
+	if (EditorWindow && objnum==Cur_object_index) {
 		save_3d_outline = g3d_interp_outline;
 		g3d_interp_outline=1;
 	}
@@ -563,7 +563,7 @@ void do_render_object(int objnum)
 
 
 	#ifdef EDITOR
-	if (Function_mode==FMODE_EDITOR && objnum==Cur_object_index)
+	if (EditorWindow && objnum==Cur_object_index)
 		g3d_interp_outline = save_3d_outline;
 	#endif
 }
@@ -1357,7 +1357,7 @@ void render_frame(fix eye_offset)
 	}
 
 	#ifdef EDITOR
-	if (Function_mode==FMODE_EDITOR)
+	if (EditorWindow)
 		Viewer_eye = Viewer->pos;
 	#endif
 

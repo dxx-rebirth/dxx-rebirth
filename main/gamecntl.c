@@ -248,7 +248,6 @@ int pause_handler(window *wind, d_event *event, char *msg)
 				case 0:
 					break;
 				case KEY_ESC:
-					//Function_mode = FMODE_MENU;	// Don't like this, just press escape twice (kreatordxx)
 					window_close(wind);
 					return 1;
 				case KEY_F1:
@@ -826,8 +825,6 @@ int HandleTestKey(int key)
 #ifdef NETWORK
 			multi_leave_game();
 #endif
-			Function_mode = FMODE_EDITOR;
-
 			init_editor();
 			break;
 		case KEY_C + KEY_SHIFTED + KEY_DEBUGGED:

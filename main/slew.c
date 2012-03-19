@@ -121,6 +121,10 @@ COPYRIGHT 1993-1998 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 #include "physics.h"
 #include "kconfig.h"
 
+#ifdef EDITOR
+#include "editor/editor.h"
+#endif
+
 #ifdef RCS
 #pragma off (unreferenced)
 static char rcsid[] = "$Id: slew.c,v 1.1.1.1 2006/03/17 19:43:42 zicodxx Exp $";
@@ -180,7 +184,7 @@ int do_slew_movement(object *obj, int check_keys )
 	if (!slew_obj || slew_obj->control_type!=CT_SLEW) return 0;
 
 	if (check_keys) {
-		if (Function_mode == FMODE_EDITOR) {
+		if (EditorWindow) {
 			obj->mtype.phys_info.velocity.x += VEL_SPEED * keyd_pressed[KEY_PAD9] * FrameTime;
 			obj->mtype.phys_info.velocity.x -= VEL_SPEED * keyd_pressed[KEY_PAD7] * FrameTime;
 			obj->mtype.phys_info.velocity.y += VEL_SPEED * keyd_pressed[KEY_PADMINUS] * FrameTime;
