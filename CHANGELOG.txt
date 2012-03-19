@@ -1,5 +1,9 @@
 D2X-Rebirth Changelog
 
+20120319
+--------
+editor/med.c, include/editor/editor.h, include/ui.h, main/gamecntl.c, main/gameseq.c, main/inferno.c, main/menu.c: The editor now falls back to the main event loop in inferno.c, File->Exit now works as intended and get closer to making the editor and game work together
+
 20120318
 --------
 editor/med.c, editor/texpage.c, include/editor/editor.h, main/game.c: Do a bit of a tidy up for the editor, dump code from editor() within the loop into new editor_handler()

@@ -474,6 +474,15 @@ int main(int argc, char *argv[])
 	while (window_get_front())
 		// Send events to windows and the default handler
 		event_process();
+	
+	// Tidy up - avoids a crash on exit
+	{
+		window *wind;
+
+		show_menus();
+		while ((wind = window_get_front()))
+			window_close(wind);
+	}
 
 	WriteConfigFile();
 	show_order_form();

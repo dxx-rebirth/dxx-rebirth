@@ -452,6 +452,8 @@ extern void init_stuck_objects(void);
 
 extern int Slide_segs_computed;
 
+extern int game_handler(window *wind, d_event *event, void *data);
+
 //reset stuff so game is semi-normal when playing from editor
 void editor_reset_stuff_on_level()
 {
@@ -479,6 +481,8 @@ void editor_reset_stuff_on_level()
 	init_thief_for_level();
 
 	Slide_segs_computed = 0;
+	if (!Game_wind)
+		Game_wind = window_create(&grd_curscreen->sc_canvas, 0, 0, SWIDTH, SHEIGHT, game_handler, NULL);
 }
 #endif
 

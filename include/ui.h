@@ -210,42 +210,11 @@ typedef struct _ui_window {
 	enum dialog_flags flags;
 } UI_DIALOG;
 
-typedef struct  {
-	short           new_dx, new_dy;
-	short           new_buttons;
-	short           x, y;
-	short           dx, dy;
-	short           hidden;
-	short           backwards;
-	short           b1_status;
-	short           b1_last_status;
-	short           b2_status;
-	short           b2_last_status;
-	short           b3_status;
-	short           b3_last_status;
-	short           bg_x, bg_y;
-	short           bg_saved;
-#ifdef __MSDOS__
-	grs_bitmap *    background;
-	grs_bitmap *    pointer;
-#endif
-	fix64           time_lastpressed;
-	short           moved;
-} UI_MOUSE;
-
-#define BUTTON_PRESSED          1
-#define BUTTON_RELEASED         2
-#define BUTTON_JUST_PRESSED     4
-#define BUTTON_JUST_RELEASED    8
-#define BUTTON_DOUBLE_CLICKED   16
-
 #define B1_JUST_PRESSED     (event->type == EVENT_MOUSE_BUTTON_DOWN && event_mouse_get_button(event) == 0)
 #define B1_JUST_RELEASED    (event->type == EVENT_MOUSE_BUTTON_UP && event_mouse_get_button(event) == 0)
 #define B1_DOUBLE_CLICKED   (event->type == EVENT_MOUSE_DOUBLE_CLICKED && event_mouse_get_button(event) == 0)
 
 extern grs_font * ui_small_font;
-
-extern UI_MOUSE Mouse;
 
 extern unsigned char CBLACK,CGREY,CWHITE,CBRIGHT,CRED;
 extern UI_GADGET * selected_gadget;
