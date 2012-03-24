@@ -3,6 +3,7 @@ D1X-Rebirth Changelog
 20120324
 --------
 arch/ogl/gr.c, arch/sdl/gr.c, ui/menubar.c: Draw the editor menubar properly - by drawing in response to EVENT_WINDOW_DRAW and initialising the screen canvas properly. The latter fixes a lot of other editor drawing issues as well
+2d/bitmap.c, arch/include/window.h, arch/sdl/gr.c, arch/sdl/window.c, include/gr.h: Update the canvas data pointers for all windows after changing the screen mode, so the main menu draws properly after leaving the editor
 
 20120319
 --------

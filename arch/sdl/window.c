@@ -192,6 +192,19 @@ grs_canvas *window_get_canvas(window *wind)
 	return &wind->w_canv;
 }
 
+extern void window_update_canvases(void)
+{
+	window *wind;
+	
+	for (wind = FirstWindow; wind != NULL; wind = wind->next)
+		gr_init_sub_bitmap (&wind->w_canv.cv_bitmap,
+							wind->w_canv.cv_bitmap.bm_parent,
+							wind->w_canv.cv_bitmap.bm_x,
+							wind->w_canv.cv_bitmap.bm_y,
+							wind->w_canv.cv_bitmap.bm_w,
+							wind->w_canv.cv_bitmap.bm_h);
+}
+
 int window_send_event(window *wind, d_event *event)
 {
 	return wind->w_callback(wind, event, wind->data);
