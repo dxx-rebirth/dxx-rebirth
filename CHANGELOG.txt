@@ -5,6 +5,7 @@ D1X-Rebirth Changelog
 arch/ogl/gr.c, arch/sdl/gr.c, ui/menubar.c: Draw the editor menubar properly - by drawing in response to EVENT_WINDOW_DRAW and initialising the screen canvas properly. The latter fixes a lot of other editor drawing issues as well
 2d/bitmap.c, arch/include/window.h, arch/sdl/gr.c, arch/sdl/window.c, include/gr.h: Update the canvas data pointers for all windows after changing the screen mode, so the main menu draws properly after leaving the editor
 arch/include/event.h, editor/centers.c, editor/curves.c, editor/ehostage.c, editor/eswitch.c, editor/med.c, editor/meddraw.c, editor/medrobot.c, editor/medwall.c, ui/dialog.c, ui/userbox.c: Draw in response to EVENT_UI_DIALOG_DRAW, uncomment medlisp_update_screen call and use gr_box instead of gr_rect in some places. You can now see what you're doing!
+ui/gadget.c: Fix bug where pad buttons would disappear when clicking on them, after opening then closing a dialog
 
 20120319
 --------

@@ -85,8 +85,6 @@ void ui_gadget_delete_all( UI_DIALOG * dlg )
 {
 	UI_GADGET * tmp;
 
-	ui_pad_deactivate();
-
 	while( dlg->gadget != NULL )
 	{
 		tmp = dlg->gadget;
