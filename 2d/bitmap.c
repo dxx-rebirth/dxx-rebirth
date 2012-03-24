@@ -81,8 +81,9 @@ void gr_init_bitmap_alloc( grs_bitmap *bm, int mode, int x, int y, int w, int h,
 void gr_init_bitmap_data (grs_bitmap *bm) // TODO: virtulize
 {
 	bm->bm_data = NULL;
+	bm->bm_parent=NULL;
 #ifdef OGL
-	bm->bm_parent=NULL;bm->gltexture=NULL;
+	bm->gltexture=NULL;
 #endif
 }
 
@@ -134,8 +135,8 @@ void gr_init_sub_bitmap (grs_bitmap *bm, grs_bitmap *bmParent, int x, int y, int
 
 #ifdef OGL
 	bm->gltexture=bmParent->gltexture;
-	bm->bm_parent=bmParent;
 #endif
+	bm->bm_parent=bmParent;
 	bm->bm_data = bmParent->bm_data+(unsigned int)((y*bmParent->bm_rowsize)+x);
 }
 
