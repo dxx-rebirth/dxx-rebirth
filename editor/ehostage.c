@@ -448,40 +448,42 @@ int hostage_dialog_handler(UI_DIALOG *dlg, d_event *event, hostage_dialog *h)
 		strcpy( Hostages[CurrentHostageIndex].text, h->hostageText->text );
 
 	//------------------------------------------------------------
-	// A simple frame time counter for spinning the objects...
-	//------------------------------------------------------------
-	Temp = timer_query();
-	DeltaTime = Temp - h->time;
-	h->time = Temp;
-
-	//------------------------------------------------------------
 	// Redraw the object in the little 64x64 box
 	//------------------------------------------------------------
-	if (CurrentHostageIndex > -1 )	{
-		int vclip_num;
+	if (event->type == EVENT_UI_DIALOG_DRAW)
+	{
+		// A simple frame time counter for spinning the objects...
+		Temp = timer_query();
+		DeltaTime = Temp - h->time;
+		h->time = Temp;
 		
-		vclip_num = Hostages[CurrentHostageIndex].vclip_num;
+		if (CurrentHostageIndex > -1 )	{
+			int vclip_num;
+			
+			vclip_num = Hostages[CurrentHostageIndex].vclip_num;
 
-		Assert(vclip_num != -1);
+			Assert(vclip_num != -1);
 
-		gr_set_current_canvas( h->hostageViewBox->canvas );
+			gr_set_current_canvas( h->hostageViewBox->canvas );
 
-		if ( vclip_num > -1 )	{
-			vclip_play( h, &Hostage_face_clip[vclip_num], DeltaTime );	
+			if ( vclip_num > -1 )	{
+				vclip_play( h, &Hostage_face_clip[vclip_num], DeltaTime );	
+			} else {
+				gr_clear_canvas( CGREY );
+			}
 		} else {
+			// no hostage, so just blank out
+			gr_set_current_canvas( h->hostageViewBox->canvas );
 			gr_clear_canvas( CGREY );
 		}
-	} else {
-		// no hostage, so just blank out
-		gr_set_current_canvas( h->hostageViewBox->canvas );
-		gr_clear_canvas( CGREY );
 	}
 
 	//------------------------------------------------------------
 	// If anything changes in the ui system, redraw all the text that
 	// identifies this robot.
 	//------------------------------------------------------------
-	if (ui_button_any_drawn || (LastHostageIndex != CurrentHostageIndex) )	{
+	if (event->type == EVENT_UI_DIALOG_DRAW)
+	{
 		if ( CurrentHostageIndex > -1 )	{
 			ui_dprintf_at( MainWindow, 10, 15, "Hostage: %d   Object: %d", CurrentHostageIndex, Hostages[CurrentHostageIndex].objnum );
 			//@@ui_dprintf_at( MainWindow, 10, 73, "Type: %d   Sound: %d   ", Hostages[CurrentHostageIndex].type, Hostages[CurrentHostageIndex].sound_num );
@@ -491,8 +493,10 @@ int hostage_dialog_handler(UI_DIALOG *dlg, d_event *event, hostage_dialog *h)
 			//@@ui_dprintf_at( MainWindow, 10, 73, "Type:    Sound:       " );
 			ui_dprintf_at( MainWindow, 10, 73, "Face:         " );
 		}
-		Update_flags |= UF_WORLD_CHANGED;
 	}
+	
+	if (ui_button_any_drawn || (LastHostageIndex != CurrentHostageIndex))
+		Update_flags |= UF_WORLD_CHANGED;
 	
 	if (event->type == EVENT_WINDOW_CLOSE)
 	{

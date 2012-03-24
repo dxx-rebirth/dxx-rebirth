@@ -176,8 +176,12 @@ int ui_dialog_handler(window *wind, d_event *event, UI_DIALOG *dlg)
 			break;
 			
 		case EVENT_WINDOW_DRAW:
-			return ui_dialog_draw(dlg);
+		{
+			d_event event2 = { EVENT_UI_DIALOG_DRAW };
+			rval = ui_dialog_draw(dlg);
+			window_send_event(wind, &event2);
 			break;
+		}
 
 		case EVENT_WINDOW_CLOSE:
 			//ui_close_dialog(dlg);		// need to hide this function and make it not call window_close first
@@ -606,8 +610,5 @@ void ui_dprintf_at( UI_DIALOG * dlg, short x, short y, char * format, ... )
 
 	ui_dialog_set_current_canvas( dlg );
 
-	mouse_toggle_cursor(0);
 	gr_string( x, y, buffer );
-	mouse_toggle_cursor(1);
-
 }

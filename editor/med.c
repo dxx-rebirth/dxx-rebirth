@@ -164,7 +164,7 @@ void print_diagnostic( char message[DIAGNOSTIC_MESSAGE_MAX] ) {
 	gr_rect( 4+w, 583, 799, 599 );
 }
 
-static char status_line[DIAGNOSTIC_MESSAGE_MAX];
+static char status_line[DIAGNOSTIC_MESSAGE_MAX] = "";
 
 struct tm	Editor_status_last_time;
 
@@ -175,8 +175,6 @@ void editor_status( const char *format, ... )
 	va_start(ap, format);
 	vsprintf(status_line, format, ap);
 	va_end(ap);
-
-	print_status_bar(status_line);
 
 	Editor_status_last_time = Editor_time_of_day;
 
@@ -199,13 +197,11 @@ void clear_editor_status(void)
 
 	if (cur_time > erase_time) {
 		int	i;
-		char	message[DIAGNOSTIC_MESSAGE_MAX];
 
 		for (i=0; i<DIAGNOSTIC_MESSAGE_MAX-1; i++)
-			message[i] = ' ';
+			status_line[i] = ' ';
 
-		message[i] = 0;
-		print_status_bar(message);
+		status_line[i] = 0;
 		Editor_status_last_time.tm_hour = 99;
 	}
 }
@@ -1112,38 +1108,44 @@ int editor_handler(UI_DIALOG *dlg, d_event *event, void *data)
 	
 	// Update the windows
 
-	// Only update if there is no key waiting and we're not in
-	// fast play mode.
-// 		if (!key_peekkey()) //-- && (MacroStatus != UI_STATUS_FASTPLAY))
-// 			medlisp_update_screen();
-
-	//do editor stuff
-	check_wall_validity();
-	Assert(Num_walls>=0);
-
-	if (Gameview_lockstep) {
-		static segment *old_cursegp=NULL;
-		static int old_curside=-1;
-
-		if (old_cursegp!=Cursegp || old_curside!=Curside) {
-			SetPlayerFromCursegMinusOne();
-			old_cursegp = Cursegp;
-			old_curside = Curside;
-		}
-	}
-
-	if ( event_get_idle_seconds() > COMPRESS_INTERVAL ) 
+	if (event->type == EVENT_UI_DIALOG_DRAW)
 	{
-		med_compress_mine();
-		event_reset_idle_seconds();
+		medlisp_update_screen();
+		print_status_bar(status_line);
+		return 1;
+	}
+	
+	//do editor stuff
+	if (event->type == EVENT_IDLE)
+	{
+		check_wall_validity();
+		Assert(Num_walls>=0);
+
+		if (Gameview_lockstep) {
+			static segment *old_cursegp=NULL;
+			static int old_curside=-1;
+
+			if (old_cursegp!=Cursegp || old_curside!=Curside) {
+				SetPlayerFromCursegMinusOne();
+				old_cursegp = Cursegp;
+				old_curside = Curside;
+			}
+		}
+
+		if ( event_get_idle_seconds() > COMPRESS_INTERVAL ) 
+		{
+			med_compress_mine();
+			event_reset_idle_seconds();
+		}
+
+	//	Commented out because it occupies about 25% of time in twirling the mine.
+	// Removes some Asserts....
+	//		med_check_all_vertices();
+		clear_editor_status();		// if enough time elapsed, clear editor status message
+		TimedAutosave(mine_filename);
+		set_editor_time_of_day();
 	}
 
-//	Commented out because it occupies about 25% of time in twirling the mine.
-// Removes some Asserts....
-//		med_check_all_vertices();
-	clear_editor_status();		// if enough time elapsed, clear editor status message
-	TimedAutosave(mine_filename);
-	set_editor_time_of_day();
 	gr_set_current_canvas( GameViewBox->canvas );
 	
 	// Remove keys used for slew
@@ -1236,7 +1238,9 @@ int editor_handler(UI_DIALOG *dlg, d_event *event, void *data)
 		current_view = new_cv;
 	}
 
-	calc_frame_time();
+	if (event->type == EVENT_UI_DIALOG_DRAW)
+		calc_frame_time();
+
 	if (slew_frame(0)) {		//do movement and check keys
 		Update_flags |= UF_GAME_VIEW_CHANGED;
 		if (Gameview_lockstep) {

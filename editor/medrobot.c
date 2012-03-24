@@ -615,45 +615,49 @@ int robot_dialog_handler(UI_DIALOG *dlg, d_event *event, robot_dialog *r)
 	}
 
 	//------------------------------------------------------------
-	// A simple frame time counter for spinning the objects...
-	//------------------------------------------------------------
-	Temp = timer_query();
-	DeltaTime = Temp - r->time;
-	r->time = Temp;
-
-	//------------------------------------------------------------
 	// Redraw the object in the little 64x64 box
 	//------------------------------------------------------------
-	if (Cur_object_index > -1 )	{
-		object *obj = &Objects[Cur_object_index];
+	if (event->type == EVENT_UI_DIALOG_DRAW)
+	{
+		// A simple frame time counter for spinning the objects...
+		Temp = timer_query();
+		DeltaTime = Temp - r->time;
+		r->time = Temp;
 
-		gr_set_current_canvas( r->robotViewBox->canvas );
-		draw_object_picture(obj->id, &r->angles, obj->type );
-		r->angles.h += fixmul(0x1000, DeltaTime );
-	} else {
-		// no object, so just blank out
-		gr_set_current_canvas( r->robotViewBox->canvas );
-		gr_clear_canvas( CGREY );
+		if (Cur_object_index > -1 )	{
+			object *obj = &Objects[Cur_object_index];
 
-//		LocalObjectSelectNextInMine();
+			gr_set_current_canvas( r->robotViewBox->canvas );
+			draw_object_picture(obj->id, &r->angles, obj->type );
+			r->angles.h += fixmul(0x1000, DeltaTime );
+		} else {
+			// no object, so just blank out
+			gr_set_current_canvas( r->robotViewBox->canvas );
+			gr_clear_canvas( CGREY );
+
+	//		LocalObjectSelectNextInMine();
+		}
 	}
 
 	//------------------------------------------------------------
 	// Redraw the contained object in the other little box
 	//------------------------------------------------------------
-	if ((Cur_object_index > -1 ) && (Cur_goody_count > 0))	{
-		gr_set_current_canvas( r->containsViewBox->canvas );
-		if ( Cur_goody_id > -1 )
-			draw_object_picture(Cur_goody_id, &r->goody_angles, Cur_goody_type);
-		else
+	if (event->type == EVENT_UI_DIALOG_DRAW)
+	{
+		if ((Cur_object_index > -1 ) && (Cur_goody_count > 0))	{
+			gr_set_current_canvas( r->containsViewBox->canvas );
+			if ( Cur_goody_id > -1 )
+				draw_object_picture(Cur_goody_id, &r->goody_angles, Cur_goody_type);
+			else
+				gr_clear_canvas( CGREY );
+			r->goody_angles.h += fixmul(0x1000, DeltaTime );
+		} else {
+			// no object, so just blank out
+			gr_set_current_canvas( r->containsViewBox->canvas );
 			gr_clear_canvas( CGREY );
-		r->goody_angles.h += fixmul(0x1000, DeltaTime );
-	} else {
-		// no object, so just blank out
-		gr_set_current_canvas( r->containsViewBox->canvas );
-		gr_clear_canvas( CGREY );
 
-//		LocalObjectSelectNextInMine();
+	//		LocalObjectSelectNextInMine();
+		}
 	}
 
 	//------------------------------------------------------------
@@ -661,7 +665,8 @@ int robot_dialog_handler(UI_DIALOG *dlg, d_event *event, robot_dialog *r)
 	// identifies this robot.
 	//------------------------------------------------------------
 
-	if (ui_button_any_drawn || (r->old_object != Cur_object_index) )	{
+	if (event->type == EVENT_UI_DIALOG_DRAW)
+	{
 		int	i;
 		char	type_text[STRING_LENGTH+1],id_text[STRING_LENGTH+1];
 
@@ -723,9 +728,11 @@ int robot_dialog_handler(UI_DIALOG *dlg, d_event *event, robot_dialog *r)
 			ui_dprintf_at( MainWindow, 12, 22, " Type: ?  "  );
 			ui_dprintf_at( MainWindow, 12, 38, " Name: ________" );
 		}
-		Update_flags |= UF_WORLD_CHANGED;
 	}
 	
+	if (ui_button_any_drawn || (r->old_object != Cur_object_index) )
+		Update_flags |= UF_WORLD_CHANGED;
+		
 	if (event->type == EVENT_WINDOW_CLOSE)
 	{
 		d_free(r);

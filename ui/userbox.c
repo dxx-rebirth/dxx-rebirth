@@ -42,7 +42,7 @@ void ui_draw_userbox( UI_DIALOG *dlg, UI_GADGET_USERBOX * userbox )
 		else
 			gr_setcolor( CBRIGHT );
 
-		gr_rect( -1, -1, userbox->width, userbox->height );
+		gr_box( -1, -1, userbox->width, userbox->height );
 
 		mouse_toggle_cursor(1);
 	}

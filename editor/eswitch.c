@@ -446,35 +446,41 @@ int trigger_dialog_handler(UI_DIALOG *dlg, d_event *event, trigger_dialog *t)
 	//------------------------------------------------------------
 	// Draw the wall in the little 64x64 box
 	//------------------------------------------------------------
-  	gr_set_current_canvas( t->wallViewBox->canvas );
+	if (event->type == EVENT_UI_DIALOG_DRAW)
+	{
+		gr_set_current_canvas( t->wallViewBox->canvas );
 
-	if ((Markedsegp->sides[Markedside].wall_num == -1) || (Walls[Markedsegp->sides[Markedside].wall_num].trigger) == -1)
-		gr_clear_canvas( CBLACK );
-	else {
-		if (Markedsegp->sides[Markedside].tmap_num2 > 0)  {
-			gr_ubitmap(0,0, texmerge_get_cached_bitmap( Markedsegp->sides[Markedside].tmap_num, Markedsegp->sides[Markedside].tmap_num2));
-		} else {
-			if (Markedsegp->sides[Markedside].tmap_num > 0)	{
-				PIGGY_PAGE_IN(Textures[Markedsegp->sides[Markedside].tmap_num]);
-				gr_ubitmap(0,0, &GameBitmaps[Textures[Markedsegp->sides[Markedside].tmap_num].index]);
-			} else
-				gr_clear_canvas( CGREY );
+		if ((Markedsegp->sides[Markedside].wall_num == -1) || (Walls[Markedsegp->sides[Markedside].wall_num].trigger) == -1)
+			gr_clear_canvas( CBLACK );
+		else {
+			if (Markedsegp->sides[Markedside].tmap_num2 > 0)  {
+				gr_ubitmap(0,0, texmerge_get_cached_bitmap( Markedsegp->sides[Markedside].tmap_num, Markedsegp->sides[Markedside].tmap_num2));
+			} else {
+				if (Markedsegp->sides[Markedside].tmap_num > 0)	{
+					PIGGY_PAGE_IN(Textures[Markedsegp->sides[Markedside].tmap_num]);
+					gr_ubitmap(0,0, &GameBitmaps[Textures[Markedsegp->sides[Markedside].tmap_num].index]);
+				} else
+					gr_clear_canvas( CGREY );
+			}
 		}
- 	}
+	}
 
 	//------------------------------------------------------------
 	// If anything changes in the ui system, redraw all the text that
 	// identifies this robot.
 	//------------------------------------------------------------
-	if (ui_button_any_drawn || (t->old_trigger_num != trigger_num) ) {
+	if (event->type == EVENT_UI_DIALOG_DRAW)
+	{
 		if ( Markedsegp->sides[Markedside].wall_num > -1 )	{
 			ui_dprintf_at( MainWindow, 12, 6, "Trigger: %d    ", trigger_num);
 		}	else {
 			ui_dprintf_at( MainWindow, 12, 6, "Trigger: none ");
 		}
-		Update_flags |= UF_WORLD_CHANGED;
 	}
 	
+	if (ui_button_any_drawn || (t->old_trigger_num != trigger_num) )
+		Update_flags |= UF_WORLD_CHANGED;
+		
 	if (event->type == EVENT_WINDOW_CLOSE)
 	{
 		d_free(t);
