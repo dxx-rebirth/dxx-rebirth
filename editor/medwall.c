@@ -508,46 +508,48 @@ int wall_dialog_handler(UI_DIALOG *dlg, d_event *event, wall_dialog *wd)
 			}
 
 	//------------------------------------------------------------
-	// A simple frame time counter for animating the walls...
-	//------------------------------------------------------------
-	Temp = timer_query();
-	DeltaTime = Temp - wd->time;
-
-	//------------------------------------------------------------
 	// Draw the wall in the little 64x64 box
 	//------------------------------------------------------------
-  	gr_set_current_canvas( wd->wallViewBox->canvas );
-	if (Cursegp->sides[Curside].wall_num != -1) {
-		type = Walls[Cursegp->sides[Curside].wall_num].type;
-		if ((type == WALL_DOOR) || (type == WALL_BLASTABLE)) {
-			if (DeltaTime > ((F1_0*200)/1000)) {
-				wd->framenum++;
-				wd->time = Temp;
-			}
-			if (wd->framenum >= WallAnims[Walls[Cursegp->sides[Curside].wall_num].clip_num].num_frames)
-				wd->framenum=0;
-			PIGGY_PAGE_IN(Textures[WallAnims[Walls[Cursegp->sides[Curside].wall_num].clip_num].frames[wd->framenum]]);
-			gr_ubitmap(0,0, &GameBitmaps[Textures[WallAnims[Walls[Cursegp->sides[Curside].wall_num].clip_num].frames[wd->framenum]].index]);
-		} else {
-			if (type == WALL_OPEN)
-				gr_clear_canvas( CBLACK );
-			else {
-				if (Cursegp->sides[Curside].tmap_num2 > 0)
-					gr_ubitmap(0,0, texmerge_get_cached_bitmap( Cursegp->sides[Curside].tmap_num, Cursegp->sides[Curside].tmap_num2));
-				else	{
-					PIGGY_PAGE_IN(Textures[Cursegp->sides[Curside].tmap_num]);
-					gr_ubitmap(0,0, &GameBitmaps[Textures[Cursegp->sides[Curside].tmap_num].index]);
+	if (event->type == EVENT_UI_DIALOG_DRAW)
+	{
+		// A simple frame time counter for animating the walls...
+		Temp = timer_query();
+		DeltaTime = Temp - wd->time;
+
+		gr_set_current_canvas( wd->wallViewBox->canvas );
+		if (Cursegp->sides[Curside].wall_num != -1) {
+			type = Walls[Cursegp->sides[Curside].wall_num].type;
+			if ((type == WALL_DOOR) || (type == WALL_BLASTABLE)) {
+				if (DeltaTime > ((F1_0*200)/1000)) {
+					wd->framenum++;
+					wd->time = Temp;
+				}
+				if (wd->framenum >= WallAnims[Walls[Cursegp->sides[Curside].wall_num].clip_num].num_frames)
+					wd->framenum=0;
+				PIGGY_PAGE_IN(Textures[WallAnims[Walls[Cursegp->sides[Curside].wall_num].clip_num].frames[wd->framenum]]);
+				gr_ubitmap(0,0, &GameBitmaps[Textures[WallAnims[Walls[Cursegp->sides[Curside].wall_num].clip_num].frames[wd->framenum]].index]);
+			} else {
+				if (type == WALL_OPEN)
+					gr_clear_canvas( CBLACK );
+				else {
+					if (Cursegp->sides[Curside].tmap_num2 > 0)
+						gr_ubitmap(0,0, texmerge_get_cached_bitmap( Cursegp->sides[Curside].tmap_num, Cursegp->sides[Curside].tmap_num2));
+					else	{
+						PIGGY_PAGE_IN(Textures[Cursegp->sides[Curside].tmap_num]);
+						gr_ubitmap(0,0, &GameBitmaps[Textures[Cursegp->sides[Curside].tmap_num].index]);
+					}
 				}
 			}
-		}
-	} else
-		gr_clear_canvas( CGREY );
+		} else
+			gr_clear_canvas( CGREY );
+	}
 
 	//------------------------------------------------------------
 	// If anything changes in the ui system, redraw all the text that
 	// identifies this wall.
 	//------------------------------------------------------------
-	if (ui_button_any_drawn || (wd->old_wall_num != Cursegp->sides[Curside].wall_num) )	{
+	if (event->type == EVENT_UI_DIALOG_DRAW)
+	{
 		if ( Cursegp->sides[Curside].wall_num > -1 )	{
 			ui_dprintf_at( MainWindow, 12, 6, "Wall: %d    ", Cursegp->sides[Curside].wall_num);
 			switch (Walls[Cursegp->sides[Curside].wall_num].type) {
@@ -585,9 +587,11 @@ int wall_dialog_handler(UI_DIALOG *dlg, d_event *event, wall_dialog *wd)
 			ui_dprintf_at( MainWindow, 12, 40, " Clip: none   ");
 			ui_dprintf_at( MainWindow, 12, 57, " Trigger: none  ");
 		}
-		Update_flags |= UF_WORLD_CHANGED;
 	}
 	
+	if (ui_button_any_drawn || (wd->old_wall_num != Cursegp->sides[Curside].wall_num) )
+		Update_flags |= UF_WORLD_CHANGED;
+
 	if (event->type == EVENT_WINDOW_CLOSE)
 	{
 		d_free(wd);

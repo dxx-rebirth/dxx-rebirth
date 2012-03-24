@@ -800,8 +800,6 @@ void draw_world(grs_canvas *screen_canvas,editor_view *v,segment *mine_ptr,int d
 	gr_set_current_canvas(screen_canvas);
 #endif
 
-	mouse_toggle_cursor(0);
-
 	//g3_set_points(Segment_points,Vertices);
 
 	viewer_position = v->ev_matrix.fvec;
@@ -906,9 +904,6 @@ void draw_world(grs_canvas *screen_canvas,editor_view *v,segment *mine_ptr,int d
 //	}
 
 #endif
-
-	mouse_toggle_cursor(1);
-
 }
 
 //find the segments that render at a given screen x,y

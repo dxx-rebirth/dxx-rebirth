@@ -46,6 +46,7 @@ typedef enum event_type
 	EVENT_NEWMENU_CHANGED,				// an item had its value/text changed
 	EVENT_NEWMENU_SELECTED,				// user chose something - pressed enter/clicked on it
 	
+	EVENT_UI_DIALOG_DRAW,				// draw after the dialog stuff is drawn (e.g. spinning robots)
 	EVENT_UI_GADGET_PRESSED,				// user 'pressed' a gadget
 	EVENT_UI_LISTBOX_MOVED,
 	EVENT_UI_LISTBOX_SELECTED,

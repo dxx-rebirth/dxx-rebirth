@@ -126,7 +126,6 @@ int centers_dialog_handler(UI_DIALOG *dlg, d_event *event, centers_dialog *c)
 	int i;
 //	int robot_flags;
 	int keypress = 0;
-	int redraw_window;
 	int rval = 0;
 
 	Assert(MainWindow != NULL);
@@ -161,7 +160,6 @@ int centers_dialog_handler(UI_DIALOG *dlg, d_event *event, centers_dialog *c)
 	// update the corresponding center.
 	//------------------------------------------------------------
 
-	redraw_window=0;
 	for (	i=0; i < MAX_CENTER_TYPES; i++ )
 	{
 		if ( GADGET_PRESSED(c->centerFlag[i]) )
@@ -171,7 +169,7 @@ int centers_dialog_handler(UI_DIALOG *dlg, d_event *event, centers_dialog *c)
 			else if (Curseg2p->special != i)
 			{
 				fuelcen_delete(Cursegp);
-				redraw_window = 1;
+				Update_flags |= UF_WORLD_CHANGED;
 				fuelcen_activate( Cursegp, i );
 			}
 			rval = 1;
@@ -194,7 +192,8 @@ int centers_dialog_handler(UI_DIALOG *dlg, d_event *event, centers_dialog *c)
 	// If anything changes in the ui system, redraw all the text that
 	// identifies this wall.
 	//------------------------------------------------------------
-	if (redraw_window || (c->old_seg_num != Cursegp-Segments ) ) {
+	if (event->type == EVENT_UI_DIALOG_DRAW)
+	{
 //		int	i;
 //		char	temp_text[CENTER_STRING_LENGTH];
 	
@@ -207,9 +206,11 @@ int centers_dialog_handler(UI_DIALOG *dlg, d_event *event, centers_dialog *c)
 //		Assert(Curseg2p->special < MAX_CENTER_TYPES);
 //		strncpy(temp_text, Center_names[Curseg2p->special], strlen(Center_names[Curseg2p->special]));
 //		ui_dprintf_at( dlg, 12, 23, " Type: %s", temp_text );
-		Update_flags |= UF_WORLD_CHANGED;
 	}
 
+	if (c->old_seg_num != Cursegp-Segments)
+		Update_flags |= UF_WORLD_CHANGED;
+		
 	if (event->type == EVENT_WINDOW_CLOSE)
 	{
 		d_free(c);
