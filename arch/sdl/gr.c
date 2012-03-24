@@ -132,13 +132,7 @@ int gr_set_mode(u_int32_t mode)
 	grd_curscreen->sc_w = w;
 	grd_curscreen->sc_h = h;
 	grd_curscreen->sc_aspect = fixdiv(grd_curscreen->sc_w*GameCfg.AspectX,grd_curscreen->sc_h*GameCfg.AspectY);
-	grd_curscreen->sc_canvas.cv_bitmap.bm_x = 0;
-	grd_curscreen->sc_canvas.cv_bitmap.bm_y = 0;
-	grd_curscreen->sc_canvas.cv_bitmap.bm_w = w;
-	grd_curscreen->sc_canvas.cv_bitmap.bm_h = h;
-	grd_curscreen->sc_canvas.cv_bitmap.bm_rowsize = canvas->pitch;
-	grd_curscreen->sc_canvas.cv_bitmap.bm_type = BM_LINEAR;
-	grd_curscreen->sc_canvas.cv_bitmap.bm_data = (unsigned char *)canvas->pixels;
+	gr_init_canvas(&grd_curscreen->sc_canvas, canvas->pixels, BM_LINEAR, w, h);
 	gr_set_current_canvas(NULL);
 
 	SDL_ShowCursor(0);
