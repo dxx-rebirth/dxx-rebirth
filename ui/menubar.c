@@ -107,12 +107,31 @@ void item_show( MENU * menu, int n )
 	}
 }
 
+void menu_draw(MENU *menu)
+{
+	int i;
+	
+	gr_set_current_canvas(NULL);
+
+	// Draw the menu background
+	gr_setcolor( CGREY );
+	gr_urect( menu->x, menu->y, menu->x + menu->w - 1, menu->y + menu->h - 1 );
+	if ( menu != &Menu[0] )
+	{
+		gr_setcolor( CBLACK );
+		gr_ubox( menu->x, menu->y, menu->x + menu->w - 1, menu->y + menu->h - 1 );
+	}
+	
+	// Draw the items
+	
+	for (i=0; i< menu->NumItems; i++ )
+		item_show( menu, i );
+}
+
 //---------------------------- Show a menu ---------------------
 
 void menu_show( MENU * menu )
 {
-	int i;
-
 	if (!menu->wind)
 	{
 		menu->wind = window_create(&grd_curscreen->sc_canvas, menu->x, menu->y, menu->w, menu->h, 
@@ -126,31 +145,13 @@ void menu_show( MENU * menu )
 
 	window_set_visible(menu->wind, 1);
 	
-	mouse_toggle_cursor(0);
-
 	gr_set_current_canvas(NULL);
 	// Don't save background it if it's already drawn
 	if (!menu->Displayed && menu->w>0 && menu->h>0) 
 	{
 		// Save the background
 		gr_bm_ubitblt(menu->w, menu->h, 0, 0, menu->x, menu->y, &(grd_curscreen->sc_canvas.cv_bitmap), menu->Background);
-
-		// Draw the menu background
-		gr_setcolor( CGREY );
-		gr_urect( menu->x, menu->y, menu->x + menu->w - 1, menu->y + menu->h - 1 );
-		if ( menu != &Menu[0] )
-		{
-			gr_setcolor( CBLACK );
-			gr_ubox( menu->x, menu->y, menu->x + menu->w - 1, menu->y + menu->h - 1 );
-		}
 	}
-		
-	// Draw the items
-	
-	for (i=0; i< menu->NumItems; i++ )
-		item_show( menu, i );
-	
-	mouse_toggle_cursor(1);
 	
 	// Mark as displayed.
 	menu->Displayed = 1;
@@ -547,81 +548,87 @@ int menu_handler(window *wind, d_event *event, MENU *menu)
 	
 	switch( keypress )
 	{
-	case KEY_ESC:
-		state = 0;
-		menu_hide_all();
-		rval = 1;
-		break;
-	case KEY_DOWN:
-	case KEY_PAD2:
-		i = Menu[ CMENU ].CurrentItem;
-		do {
-			i++;		
-			if ( i >= Menu[ CMENU ].NumItems )
-				i = 0;
-		} while( Menu[CMENU].Item[i].Text[0] == '-');
-		menu_move_bar_to( &Menu[ CMENU ], i );
-		rval = 1;
-		break;
-	case KEY_UP:
-	case KEY_PAD8:
-		i = Menu[ CMENU ].CurrentItem;
-		do 
-		{
-			i--;
-			if ( i < 0 )
-				i = Menu[ CMENU ].NumItems-1;
-		} while( Menu[CMENU].Item[i].Text[0] == '-');
-		menu_move_bar_to( &Menu[ CMENU ], i );
-		rval = 1;
-		break;
-	case KEY_RIGHT:
-	case KEY_PAD6:
-		menu_hide( &Menu[ CMENU ] );
-		i = Menu[0].CurrentItem+1;
-		if (i >= Menu[0].NumItems ) i = 0;
-		menu_move_bar_to( &Menu[0], i );
-		Menu[CMENU].ShowBar = 1;
-		Menu[CMENU].Active = 1;
-		menu_show( &Menu[CMENU] );
-		rval = 1;
-		break;
-	case KEY_LEFT:
-	case KEY_PAD4:
-		menu_hide( &Menu[ CMENU ] );
-		i = Menu[0].CurrentItem-1;
-		if (i < 0 ) i = Menu[0].NumItems-1;
-		menu_move_bar_to( &Menu[0], i );
-		Menu[ CMENU ].ShowBar = 1;
-		Menu[CMENU].Active = 1;
-		menu_show( &Menu[ CMENU ] );
-		rval = 1;
-		break;
-	case KEY_ENTER:
-	case KEY_PADENTER:
-		state = 0;
-		menu_hide_all();
-
-		if (Menu[CMENU].Item[ Menu[CMENU].CurrentItem ].user_function)
-			Menu[CMENU].Item[ Menu[CMENU].CurrentItem ].user_function();
-		
-		rval = 1;
-		break;
-		
-	default:
-		i = menu_match_keypress( &Menu[ CMENU ], keypress );
-
-		if (i > -1 )
-		{
-			menu_move_bar_to( &Menu[ CMENU ], i );
+		case 0:
+			break;
+		case KEY_ESC:
 			state = 0;
 			menu_hide_all();
-							
-			if (Menu[CMENU].Item[ Menu[CMENU].CurrentItem ].user_function)
-				Menu[CMENU].Item[ Menu[CMENU].CurrentItem ].user_function();
 			rval = 1;
 			break;
-		}
+		case KEY_DOWN:
+		case KEY_PAD2:
+			i = Menu[ CMENU ].CurrentItem;
+			do {
+				i++;		
+				if ( i >= Menu[ CMENU ].NumItems )
+					i = 0;
+			} while( Menu[CMENU].Item[i].Text[0] == '-');
+			menu_move_bar_to( &Menu[ CMENU ], i );
+			rval = 1;
+			break;
+		case KEY_UP:
+		case KEY_PAD8:
+			i = Menu[ CMENU ].CurrentItem;
+			do 
+			{
+				i--;
+				if ( i < 0 )
+					i = Menu[ CMENU ].NumItems-1;
+			} while( Menu[CMENU].Item[i].Text[0] == '-');
+			menu_move_bar_to( &Menu[ CMENU ], i );
+			rval = 1;
+			break;
+		case KEY_RIGHT:
+		case KEY_PAD6:
+			menu_hide( &Menu[ CMENU ] );
+			i = Menu[0].CurrentItem+1;
+			if (i >= Menu[0].NumItems ) i = 0;
+			menu_move_bar_to( &Menu[0], i );
+			Menu[CMENU].ShowBar = 1;
+			Menu[CMENU].Active = 1;
+			menu_show( &Menu[CMENU] );
+			rval = 1;
+			break;
+		case KEY_LEFT:
+		case KEY_PAD4:
+			menu_hide( &Menu[ CMENU ] );
+			i = Menu[0].CurrentItem-1;
+			if (i < 0 ) i = Menu[0].NumItems-1;
+			menu_move_bar_to( &Menu[0], i );
+			Menu[ CMENU ].ShowBar = 1;
+			Menu[CMENU].Active = 1;
+			menu_show( &Menu[ CMENU ] );
+			rval = 1;
+			break;
+		case KEY_ENTER:
+		case KEY_PADENTER:
+			state = 0;
+			menu_hide_all();
+
+			if (Menu[CMENU].Item[ Menu[CMENU].CurrentItem ].user_function)
+				Menu[CMENU].Item[ Menu[CMENU].CurrentItem ].user_function();
+			
+			rval = 1;
+			break;
+			
+		default:
+			i = menu_match_keypress( &Menu[ CMENU ], keypress );
+
+			if (i > -1 )
+			{
+				menu_move_bar_to( &Menu[ CMENU ], i );
+				state = 0;
+				menu_hide_all();
+								
+				if (Menu[CMENU].Item[ Menu[CMENU].CurrentItem ].user_function)
+					Menu[CMENU].Item[ Menu[CMENU].CurrentItem ].user_function();
+				rval = 1;
+				break;
+			}
+	}
+	
+	if (event->type == EVENT_MOUSE_MOVED || B1_JUST_RELEASED)
+	{
 		i = menu_check_mouse_item( &Menu[CMENU] );
 			
 		if (i > -1 )
@@ -635,7 +642,6 @@ int menu_handler(window *wind, d_event *event, MENU *menu)
 				if (Menu[CMENU].Item[ Menu[CMENU].CurrentItem ].user_function)
 					Menu[CMENU].Item[ Menu[CMENU].CurrentItem ].user_function();
 				rval = 1;
-				break;
 			}
 			else
 			{
@@ -653,7 +659,6 @@ int menu_handler(window *wind, d_event *event, MENU *menu)
 					Menu[ CMENU ].ShowBar = 1;
 					Menu[CMENU].Active = 1;
 					menu_show( &Menu[ CMENU ] );
-					break;
 				}
 
 				rval = 1;
@@ -664,9 +669,14 @@ int menu_handler(window *wind, d_event *event, MENU *menu)
 				state = 0;
 				menu_hide_all();
 				rval = 1;
-				break;
 			}
 		}
+	}
+	
+	if (event->type == EVENT_WINDOW_DRAW)
+	{
+		menu_draw(&Menu[CMENU]);
+		rval = 1;
 	}
 	
 	return rval;
@@ -675,6 +685,12 @@ int menu_handler(window *wind, d_event *event, MENU *menu)
 int menubar_handler(window *wind, d_event *event, MENU *menu)
 {
 	int rval = 0;
+
+	if (event->type == EVENT_WINDOW_DRAW)
+	{
+		menu_draw(&Menu[0]);
+		return 1;
+	}
 
 	switch (state)
 	{

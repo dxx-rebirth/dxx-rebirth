@@ -395,13 +395,7 @@ int gr_set_mode(u_int32_t mode)
 	grd_curscreen->sc_w = w;
 	grd_curscreen->sc_h = h;
 	grd_curscreen->sc_aspect = fixdiv(grd_curscreen->sc_w*GameCfg.AspectX,grd_curscreen->sc_h*GameCfg.AspectY);
-	grd_curscreen->sc_canvas.cv_bitmap.bm_x = 0;
-	grd_curscreen->sc_canvas.cv_bitmap.bm_y = 0;
-	grd_curscreen->sc_canvas.cv_bitmap.bm_w = w;
-	grd_curscreen->sc_canvas.cv_bitmap.bm_h = h;
-	grd_curscreen->sc_canvas.cv_bitmap.bm_rowsize = w;
-	grd_curscreen->sc_canvas.cv_bitmap.bm_type = BM_OGL;
-	grd_curscreen->sc_canvas.cv_bitmap.bm_data = d_realloc(gr_bm_data,w*h);
+	gr_init_canvas(&grd_curscreen->sc_canvas, d_realloc(gr_bm_data,w*h), BM_OGL, w, h);
 	gr_set_current_canvas(NULL);
 
 	ogl_init_window(w,h);//platform specific code
