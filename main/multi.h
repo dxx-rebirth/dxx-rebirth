@@ -357,8 +357,6 @@ extern void multi_add_lifetime_kills(void);
 extern int PhallicLimit,PhallicMan;
 extern int Bounty_target;
 
-#define N_PLAYER_SHIP_TEXTURES 6
-
 extern bitmap_index multi_player_textures[MAX_NUM_NET_PLAYERS][N_PLAYER_SHIP_TEXTURES];
 
 extern char *RankStrings[];
