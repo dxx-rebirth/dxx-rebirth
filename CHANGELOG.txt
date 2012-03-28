@@ -8,6 +8,7 @@ main/state.c: properly disable cheats when loading a saved game so only cheats t
 main/collide.c, main/physics.c: Fixed double wall-object-damage introduced 20111124 by applying more strict rules to wall-colliding and wall-scraping where latter now is player-exclusive
 main/net_udp.c: in netgame info screen some setting-descriptions were interchanged and displayed wrong toggles
 main/net_udp.c: Since the kicked message is shown after player is technically removed from the game we do not know hosts name anymore. Message changed accordingly
+main/multi.c, main/multi.h, main/newdemo.c, main/player.h: Allow a total of 32 different player ship textures and stored N_PLAYER_SHIP_TEXTURES in player.h
 
 20120324
 --------

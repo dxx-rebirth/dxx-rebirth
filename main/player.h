@@ -166,6 +166,7 @@ typedef struct player_rw {
 } __pack__ player_rw;
 
 #define N_PLAYER_GUNS 8
+#define N_PLAYER_SHIP_TEXTURES 32
 
 typedef struct player_ship {
 	int 		model_num;

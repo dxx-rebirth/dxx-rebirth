@@ -1634,9 +1634,6 @@ void newdemo_pop_ctrlcen_triggers()
 	}
 }
 
-#define N_PLAYER_SHIP_TEXTURES 6
-
-
 int newdemo_read_frame_information(int rewrite)
 {
 	int done, segnum, side, objnum, soundno, angle, volume, i;
@@ -1742,7 +1739,7 @@ int newdemo_read_frame_information(int rewrite)
 						break;
 					player--;
 
-					for (i=0;i<N_PLAYER_SHIP_TEXTURES;i++)
+					for (i=0;i<Polygon_models[obj->rtype.pobj_info.model_num].n_textures;i++)
 						multi_player_textures[player][i] = ObjBitmaps[ObjBitmapPtrs[Polygon_models[obj->rtype.pobj_info.model_num].first_texture+i]];
 
 					multi_player_textures[player][4] = ObjBitmaps[ObjBitmapPtrs[First_multi_bitmap_num+(player)*2]];

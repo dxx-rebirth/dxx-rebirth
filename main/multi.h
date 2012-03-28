@@ -312,8 +312,6 @@ extern void multi_message_feedback();
 extern int control_invul_time;
 extern int Bounty_target;
 
-#define N_PLAYER_SHIP_TEXTURES 6
-
 extern bitmap_index multi_player_textures[MAX_NUM_NET_PLAYERS][N_PLAYER_SHIP_TEXTURES];
 
 #define NETGAME_FLAG_CLOSED 	1
