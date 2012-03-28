@@ -128,7 +128,8 @@ void songs_init()
 						!stricmp(strrchr(BIMSongs[i].filename, '.'), ".mp3") ||
 						!stricmp(strrchr(BIMSongs[i].filename, '.'), ".ogg") ||
 						!stricmp(strrchr(BIMSongs[i].filename, '.'), ".aif") ||
-						!stricmp(strrchr(BIMSongs[i].filename, '.'), ".mid")
+						!stricmp(strrchr(BIMSongs[i].filename, '.'), ".mid") ||
+						!stricmp(strrchr(BIMSongs[i].filename, '.'), ".flac")
 						)
 						i++;
 			}

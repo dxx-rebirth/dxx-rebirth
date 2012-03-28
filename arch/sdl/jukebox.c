@@ -57,7 +57,7 @@ void jukebox_unload()
 	JukeboxSongs.num_songs = JukeboxSongs.max_songs = JukeboxSongs.max_buf = 0;
 }
 
-char *jukebox_exts[] = { ".mp3", ".ogg", ".wav", ".aif", ".mid", NULL };
+char *jukebox_exts[] = { ".mp3", ".ogg", ".wav", ".aif", ".mid", ".flac", NULL };
 
 int read_m3u(void)
 {
