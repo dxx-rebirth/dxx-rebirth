@@ -2445,7 +2445,7 @@ void net_udp_process_dump(ubyte *data, int len, struct _sockaddr sender_addr)
 			if (data[1] == DUMP_PKTTIMEOUT)
 				nm_messagebox(NULL, 1, TXT_OK, "You were removed from the game.\nYou failed receiving important\npackets. Sorry.");
 			if (data[1] == DUMP_KICKED)
-				nm_messagebox(NULL, 1, TXT_OK, "%s has kicked you out!",Players[0].callsign);
+				nm_messagebox(NULL, 1, TXT_OK, "You were kicked by Host!");
 			if (Game_wind)
 				window_set_visible(Game_wind, 1);
 			multi_quit_game = 1;
