@@ -69,7 +69,7 @@ static char *GrabinputStr="GrabInput";
 int ReadConfigFile()
 {
 	PHYSFS_file *infile;
-	char line[PATH_MAX+50], *token, *value, *ptr;
+	char *line, *token, *value, *ptr;
 
 	// set defaults
 	GameCfg.DigiVolume = 8;
@@ -124,7 +124,9 @@ int ReadConfigFile()
 
 	while (!PHYSFS_eof(infile))
 	{
-		memset(line, 0, PATH_MAX+50);
+		int max_len = PHYSFS_fileLength(infile); // to be fully safe, assume the whole cfg consists of one big line
+		MALLOC(line, char, max_len);
+		memset(line, 0, max_len);
 		PHYSFSX_gets(infile, line);
 		ptr = &(line[0]);
 		while (isspace(*ptr))
@@ -227,6 +229,7 @@ int ReadConfigFile()
 			else if (!strcmp(token, GrabinputStr))
 				GameCfg.Grabinput = strtol(value, NULL, 10);
 		}
+		d_free(line);
 	}
 
 	PHYSFS_close(infile);
