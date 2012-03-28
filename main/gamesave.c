@@ -1092,6 +1092,9 @@ int load_level(char * filename_passed)
 	char filename[PATH_MAX];
 	int sig, minedata_offset, gamedata_offset, hostagetext_offset;
 	int mine_err, game_err;
+#ifdef NETWORK
+	int i;
+#endif
 
 #ifdef NETWORK
    if (Game_mode & GM_NETWORK)
