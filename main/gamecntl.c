@@ -1142,6 +1142,8 @@ int HandleGameKey(int key)
 				game_flush_inputs();
 				return 1;
 			}
+			else
+				return 0;
 
 		case KEY_ALTED+KEY_F7:
 		KEY_MAC(case KEY_COMMAND+KEY_ALTED+KEY_7:)

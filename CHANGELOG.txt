@@ -7,6 +7,7 @@ main/slew.c: Fix compile-time error when building without editor
 arch/sdl/jukebox.c, main/songs.c: Allow .flac to be a filename extension for sng file and jukebox
 main/state.c: properly disable cheats when loading a saved game so only cheats that were stored are re-enabled
 main/collide.c, main/physics.c: Fixed double wall-object-damage introduced 20111124 by applying more strict rules to wall-colliding and wall-scraping where latter now is player-exclusive
+main/gamecntl.c: Fixed unhandled case in key reading when escort hotkeys are disabled
 
 20120324
 --------
