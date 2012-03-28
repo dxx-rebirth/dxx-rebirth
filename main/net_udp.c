@@ -5063,18 +5063,15 @@ static int show_game_rules_handler(window *wind, d_event *event, netgame_info *n
 			gr_string( 0x8000, FSPACY(35), "NETGAME INFO" );
 			
 			grd_curcanv->cv_font = GAME_FONT;
-			
-			
 			gr_printf( FSPACX( 25),FSPACY( 55), "Reactor Life:");
 			gr_printf( FSPACX( 25),FSPACY( 61), "Max Time:");
 			gr_printf( FSPACX( 25),FSPACY( 67), "Kill Goal:");
 			gr_printf( FSPACX( 25),FSPACY( 73), "Packets per sec.:");
-			gr_printf( FSPACX(155),FSPACY( 55), "Show Players On Automap:");
-			gr_printf( FSPACX(155),FSPACY( 61), "Invul when reappearing:");
-			gr_printf( FSPACX(155),FSPACY( 67), "Bright player ships:");
-			gr_printf( FSPACX(155),FSPACY( 73), "Show enemy names on hud:");
+			gr_printf( FSPACX(155),FSPACY( 55), "Invul when reappearing:");
+			gr_printf( FSPACX(155),FSPACY( 61), "Bright player ships:");
+			gr_printf( FSPACX(155),FSPACY( 67), "Show enemy names on hud:");
+			gr_printf( FSPACX(155),FSPACY( 73), "Show players on automap:");
 			gr_printf( FSPACX(155),FSPACY( 79), "No friendly Fire:");
-			
 			gr_printf( FSPACX( 25),FSPACY(100), "Allowed Objects");
 			gr_printf( FSPACX( 25),FSPACY(110), "Laser Upgrade:");
 			gr_printf( FSPACX( 25),FSPACY(116), "Quad Laser:");
@@ -5094,12 +5091,11 @@ static int show_game_rules_handler(window *wind, d_event *event, netgame_info *n
 			gr_printf( FSPACX(115),FSPACY( 61), "%i Min", netgame->PlayTimeAllowed*5);
 			gr_printf( FSPACX(115),FSPACY( 67), "%i", netgame->KillGoal*5);
 			gr_printf( FSPACX(115),FSPACY( 73), "%i", netgame->PacketsPerSec);
-			gr_printf( FSPACX(275),FSPACY( 55), netgame->ShowEnemyNames?"ON":"OFF");
-			gr_printf( FSPACX(275),FSPACY( 61), netgame->game_flags&NETGAME_FLAG_SHOW_MAP?"ON":"OFF");
-			gr_printf( FSPACX(275),FSPACY( 67), netgame->InvulAppear?"ON":"OFF");
-			gr_printf( FSPACX(275),FSPACY( 73), netgame->BrightPlayers?"ON":"OFF");
+			gr_printf( FSPACX(275),FSPACY( 55), netgame->InvulAppear?"ON":"OFF");
+			gr_printf( FSPACX(275),FSPACY( 61), netgame->BrightPlayers?"ON":"OFF");
+			gr_printf( FSPACX(275),FSPACY( 67), netgame->ShowEnemyNames?"ON":"OFF");
+			gr_printf( FSPACX(275),FSPACY( 73), netgame->game_flags&NETGAME_FLAG_SHOW_MAP?"ON":"OFF");
 			gr_printf( FSPACX(275),FSPACY( 79), netgame->NoFriendlyFire?"ON":"OFF");
-			
 			
 			gr_printf( FSPACX(130),FSPACY(110), netgame->AllowedItems&NETFLAG_DOLASER?"YES":"NO");
 			gr_printf( FSPACX(130),FSPACY(116), netgame->AllowedItems&NETFLAG_DOQUAD?"YES":"NO");
