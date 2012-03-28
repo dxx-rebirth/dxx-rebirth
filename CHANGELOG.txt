@@ -5,6 +5,7 @@ D2X-Rebirth Changelog
 main/movie.c: Call all necessary MVE functions when initializing robot movies to prevent crashes if a robot movie is the first one the program plays
 main/slew.c: Fix compile-time error when building without editor
 arch/sdl/jukebox.c, main/songs.c: Allow .flac to be a filename extension for sng file and jukebox
+main/state.c: properly disable cheats when loading a saved game so only cheats that were stored are re-enabled
 
 20120324
 --------
