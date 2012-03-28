@@ -591,10 +591,10 @@ void do_physics_sim(object *obj)
 
 				wall_part = vm_vec_dot(&moved_v,&hit_info.hit_wallnorm);
 
-				if (wall_part != 0 && moved_time>0 && (hit_speed=-fixdiv(wall_part,moved_time))>0)
+				if ((wall_part != 0 && moved_time>0 && (hit_speed=-fixdiv(wall_part,moved_time))>0) || obj->type == OBJ_WEAPON || obj->type == OBJ_DEBRIS)
 					collide_object_with_wall( obj, hit_speed, WallHitSeg, WallHitSide, &hit_info.hit_pnt );
-
-				scrape_object_on_wall(obj, WallHitSeg, WallHitSide, &hit_info.hit_pnt );
+				if (obj->type == OBJ_PLAYER)
+					scrape_player_on_wall(obj, WallHitSeg, WallHitSide, &hit_info.hit_pnt );
 
 				Assert( WallHitSeg > -1 );
 				Assert( WallHitSide > -1 );

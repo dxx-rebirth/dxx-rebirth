@@ -1481,6 +1481,10 @@ int HandleTestKey(int key)
 		case KEY_DEBUGGED+KEY_O: toggle_outline_mode(); break;
 		case KEY_DEBUGGED+KEY_T:
 			*Toggle_var = !*Toggle_var;
+			if (*Toggle_var)
+				GameArg.SysMaxFPS = 300;
+			else
+				GameArg.SysMaxFPS = 30;
 			break;
 		case KEY_DEBUGGED + KEY_L:
 			if (++Lighting_on >= 2) Lighting_on = 0; break;
