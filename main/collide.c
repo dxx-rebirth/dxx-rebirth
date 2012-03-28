@@ -320,66 +320,43 @@ void collide_weapon_and_wall( object * weapon, fix hitspeed, short hitseg, short
 void collide_debris_and_wall( object * debris, fix hitspeed, short hitseg, short hitwall, vms_vector * hitpt);
 
 //this gets called when an object is scraping along the wall
-void scrape_object_on_wall(object *obj, short hitseg, short hitside, vms_vector * hitpt )
+void scrape_player_on_wall(object *obj, short hitseg, short hitside, vms_vector * hitpt )
 {
-	switch (obj->type) {
+	fix d;
 
-		case OBJ_PLAYER:
+	if (obj->type != OBJ_PLAYER || obj->id != Player_num)
+		return;
 
-			if (obj->id==Player_num) {
-				fix d;
-				if ((d=TmapInfo[Segments[hitseg].sides[hitside].tmap_num].damage) > 0) {
-					vms_vector	hit_dir, rand_vec;
-					fix damage = fixmul(d,FrameTime);
+	if ((d=TmapInfo[Segments[hitseg].sides[hitside].tmap_num].damage) > 0) {
+		vms_vector	hit_dir, rand_vec;
+		fix damage = fixmul(d,FrameTime);
 
-					if (!(Players[Player_num].flags & PLAYER_FLAGS_INVULNERABLE))
-						apply_damage_to_player( obj, obj, damage, 0 );
+		if (!(Players[Player_num].flags & PLAYER_FLAGS_INVULNERABLE))
+			apply_damage_to_player( obj, obj, damage, 0 );
 
-					PALETTE_FLASH_ADD(f2i(damage*4), 0, 0);	//flash red
-					if ((GameTime64 > Last_volatile_scrape_sound_time + F1_0/4) || (GameTime64 < Last_volatile_scrape_sound_time)) {
-						Last_volatile_scrape_sound_time = GameTime64;
-						digi_link_sound_to_pos( SOUND_VOLATILE_WALL_HISS,hitseg, 0, hitpt, 0, F1_0 );
-						#ifdef NETWORK
-						if (Game_mode & GM_MULTI)
-							multi_send_play_sound(SOUND_VOLATILE_WALL_HISS, F1_0);
-						#endif
-					}
-					#ifdef COMPACT_SEGS
-					get_side_normal(&Segments[hitseg], hitside, 0, &hit_dir );
-					#else
-					hit_dir = Segments[hitseg].sides[hitside].normals[0];
-					#endif
-					make_random_vector(&rand_vec);
-					vm_vec_scale_add2(&hit_dir, &rand_vec, F1_0/8);
-					vm_vec_normalize_quick(&hit_dir);
-					bump_one_object(obj, &hit_dir, F1_0*8);
+		PALETTE_FLASH_ADD(f2i(damage*4), 0, 0);	//flash red
+		if ((GameTime64 > Last_volatile_scrape_sound_time + F1_0/4) || (GameTime64 < Last_volatile_scrape_sound_time)) {
+			Last_volatile_scrape_sound_time = GameTime64;
+			digi_link_sound_to_pos( SOUND_VOLATILE_WALL_HISS,hitseg, 0, hitpt, 0, F1_0 );
+			#ifdef NETWORK
+			if (Game_mode & GM_MULTI)
+				multi_send_play_sound(SOUND_VOLATILE_WALL_HISS, F1_0);
+			#endif
+		}
+		#ifdef COMPACT_SEGS
+		get_side_normal(&Segments[hitseg], hitside, 0, &hit_dir );
+		#else
+		hit_dir = Segments[hitseg].sides[hitside].normals[0];
+		#endif
+		make_random_vector(&rand_vec);
+		vm_vec_scale_add2(&hit_dir, &rand_vec, F1_0/8);
+		vm_vec_normalize_quick(&hit_dir);
+		bump_one_object(obj, &hit_dir, F1_0*8);
 
-					obj->mtype.phys_info.rotvel.x = (d_rand() - 16384)/2;
-					obj->mtype.phys_info.rotvel.z = (d_rand() - 16384)/2;
+		obj->mtype.phys_info.rotvel.x = (d_rand() - 16384)/2;
+		obj->mtype.phys_info.rotvel.z = (d_rand() - 16384)/2;
 
-				} else {
-					//what scrape sound
-					//PLAY_SOUND( SOUND_PLAYER_SCRAPE_WALL );
-				}
-
-			}
-
-			break;
-
-		//these two kinds of objects below shouldn't really slide, so
-		//if this scrape routine gets called (which it might if the
-		//object (such as a fusion blob) was created already poking
-		//through the wall) call the collide routine.
-
-		case OBJ_WEAPON:
-			collide_weapon_and_wall(obj,0,hitseg,hitside,hitpt);
-			break;
-
-		case OBJ_DEBRIS:
-			collide_debris_and_wall(obj,0,hitseg,hitside,hitpt);
-			break;
 	}
-
 }
 
 //if an effect is hit, and it can blow up, then blow it up

@@ -38,7 +38,7 @@ extern void collide_player_and_weapon( object * player, object * weapon, vms_vec
 extern void collide_player_and_materialization_center(object *objp);
 extern void collide_robot_and_materialization_center(object *objp);
 
-extern void scrape_object_on_wall(object *obj, short hitseg, short hitwall, vms_vector * hitpt );
+extern void scrape_player_on_wall(object *obj, short hitseg, short hitwall, vms_vector * hitpt );
 extern int maybe_detonate_weapon(object *obj0p, object *obj, vms_vector *pos);
 
 extern void collide_player_and_nasty_robot( object * player, object * robot, vms_vector *collision_point );
