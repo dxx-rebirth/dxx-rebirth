@@ -3834,6 +3834,8 @@ net_udp_level_sync(void)
 	else
 		result = net_udp_wait_for_sync();
 
+	multi_powcap_count_powerups_in_mine();
+
 	if (result)
 	{
 		Players[Player_num].connected = CONNECT_DISCONNECTED;

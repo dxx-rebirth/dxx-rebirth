@@ -1093,6 +1093,17 @@ int load_level(char * filename_passed)
 	int sig, minedata_offset, gamedata_offset, hostagetext_offset;
 	int mine_err, game_err;
 
+#ifdef NETWORK
+   if (Game_mode & GM_NETWORK)
+	 {
+	  for (i=0;i<MAX_POWERUP_TYPES;i++)
+		{
+			MaxPowerupsAllowed[i]=0;
+			PowerupsInMine[i]=0;
+		}
+	 }
+#endif
+
 	#ifdef COMPACT_SEGS
 	ncache_flush();
 	#endif
