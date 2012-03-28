@@ -1224,7 +1224,7 @@ int state_restore_all_sub(char *filename)
 	Difficulty_level = PHYSFSX_readSXE32(fp, swap);
 
 // Restore the cheats enabled flag
-
+	game_disable_cheats(); // disable cheats first
 	cheats.enabled = PHYSFSX_readSXE32(fp, swap);
 	cheats.turbo = PHYSFSX_readSXE32(fp, swap);
 
