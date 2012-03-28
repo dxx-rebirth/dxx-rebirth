@@ -249,6 +249,11 @@ void select_weapon(int weapon_num, int secondary_flag, int print_message, int wa
 
 	if (!secondary_flag) {
 		if (Primary_weapon != weapon_num) {
+#ifndef FUSION_KEEPS_CHARGE
+			//added 8/6/98 by Victor Rachels to fix fusion charge bug
+                        Fusion_charge=0;
+			//end edit - Victor Rachels
+#endif
 			if (wait_for_rearm) digi_play_sample_once( SOUND_GOOD_SELECTION_PRIMARY, F1_0 );
 #ifdef NETWORK
 			if (Game_mode & GM_MULTI)	{

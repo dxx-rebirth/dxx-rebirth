@@ -11,6 +11,7 @@ main/gamecntl.c: Fixed unhandled case in key reading when escort hotkeys are dis
 main/net_udp.c: Since the kicked message is shown after player is technically removed from the game we do not know hosts name anymore. Message changed accordingly
 main/multi.c, main/multi.h, main/newdemo.c, main/player.h: Allow a total of 32 different player ship textures and stored N_PLAYER_SHIP_TEXTURES in player.h
 main/config.c: Dynamically allocate line to read from descent.cfg and ensure a safe length
+main/weapon.c: Release Fusion charge when changing to another weapon similar to D1X-Rebirth
 
 20120324
 --------
