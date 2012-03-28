@@ -3,6 +3,7 @@ D1X-Rebirth Changelog
 20120328
 --------
 main/slew.c: Fix compile-time error when building without editor
+arch/sdl/jukebox.c, main/songs.c: Allow .flac to be a filename extension for sng file and jukebox
 
 20120324
 --------
