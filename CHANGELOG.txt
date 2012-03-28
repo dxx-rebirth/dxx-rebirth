@@ -1,5 +1,9 @@
 D1X-Rebirth Changelog
 
+20120328
+--------
+main/slew.c: Fix compile-time error when building without editor
+
 20120324
 --------
 arch/ogl/gr.c, arch/sdl/gr.c, ui/menubar.c: Draw the editor menubar properly - by drawing in response to EVENT_WINDOW_DRAW and initialising the screen canvas properly. The latter fixes a lot of other editor drawing issues as well

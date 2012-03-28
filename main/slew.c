@@ -184,7 +184,9 @@ int do_slew_movement(object *obj, int check_keys )
 	if (!slew_obj || slew_obj->control_type!=CT_SLEW) return 0;
 
 	if (check_keys) {
-		if (EditorWindow) {
+#ifdef EDITOR
+		if (EditorWindow)
+		{
 			obj->mtype.phys_info.velocity.x += VEL_SPEED * keyd_pressed[KEY_PAD9] * FrameTime;
 			obj->mtype.phys_info.velocity.x -= VEL_SPEED * keyd_pressed[KEY_PAD7] * FrameTime;
 			obj->mtype.phys_info.velocity.y += VEL_SPEED * keyd_pressed[KEY_PADMINUS] * FrameTime;
@@ -200,7 +202,9 @@ int do_slew_movement(object *obj, int check_keys )
 			rotang.h  += keyd_pressed[KEY_PAD6] * FrameTime / ROT_SPEED;
 			rotang.h  -= keyd_pressed[KEY_PAD4] * FrameTime / ROT_SPEED;
 		}
-		else {
+		else
+#endif
+		{
 			obj->mtype.phys_info.velocity.x += VEL_SPEED * Controls.sideways_thrust_time;
 			obj->mtype.phys_info.velocity.y += VEL_SPEED * Controls.vertical_thrust_time;
 			obj->mtype.phys_info.velocity.z += VEL_SPEED * Controls.forward_thrust_time;
