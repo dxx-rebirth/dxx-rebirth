@@ -3,6 +3,7 @@ D2X-Rebirth Changelog
 20120328
 --------
 main/movie.c: Call all necessary MVE functions when initializing robot movies to prevent crashes if a robot movie is the first one the program plays
+main/slew.c: Fix compile-time error when building without editor
 
 20120324
 --------
