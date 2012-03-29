@@ -1,5 +1,9 @@
 D1X-Rebirth Changelog
 
+20120329
+--------
+main/multi.c, main/multi.h, main/net_udp.c, main/net_udp.h: Immediately relay pdata packets from clients to others which should reduce artificial delay; allow sending of pdata packet when firing if enough time has passed since last update; only answer full game info requests 2 times per second and lite info 8 times per second
+
 20120328
 --------
 main/slew.c: Fix compile-time error when building without editor
