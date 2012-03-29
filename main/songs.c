@@ -375,6 +375,7 @@ int songs_play_song( int songnum, int repeat )
 void redbook_first_song_func()
 {
 	stop_time();
+	Song_playing = -1; // Playing Redbook tracks will not modify Song_playing. To repeat we must reset this so songs_play_level_song does not think we want to re-play the same song again.
 	songs_play_level_song(1, 0);
 	start_time();
 }
