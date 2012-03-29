@@ -67,11 +67,10 @@ void net_udp_send_netgame_update();
 #define UPID_PONG_SIZE				 10
 #define UPID_ENDLEVEL_H				 14 // Packet from Host to all Clients containing connect-states and kills information about everyone in the game.
 #define UPID_ENDLEVEL_C				 15 // Packet from Client to Host containing connect-state and kills information from this Client.
-#define UPID_PDATA_H				 16 // Packet from Host to all Clients containing all players movement data.
-#define UPID_PDATA_C				 17 // Packet from Client to Host containing his movement data.
-#define UPID_MDATA_PNORM			 18 // Packet containing multi buffer from a player. Priority 0,1 - no ACK needed.
-#define UPID_MDATA_PNEEDACK			 19 // Packet containing multi buffer from a player. Priority 2 - ACK needed. Also contains pkt_num
-#define UPID_MDATA_ACK				 20 // ACK packet for UPID_MDATA_P1.
+#define UPID_PDATA				 16 // Packet from player containing his movement data.
+#define UPID_MDATA_PNORM			 17 // Packet containing multi buffer from a player. Priority 0,1 - no ACK needed.
+#define UPID_MDATA_PNEEDACK			 18 // Packet containing multi buffer from a player. Priority 2 - ACK needed. Also contains pkt_num
+#define UPID_MDATA_ACK				 19 // ACK packet for UPID_MDATA_P1.
 #define UPID_MAX_SIZE			       1024 // Max size for a packet
 #define UPID_MDATA_BUF_SIZE			454
 #ifdef USE_TRACKER

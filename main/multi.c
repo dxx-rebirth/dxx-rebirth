@@ -2430,6 +2430,7 @@ void multi_send_fire(int laser_gun, int laser_level, int laser_flags, int laser_
 	multibuf[5] = (char)laser_fired;
 	PUT_INTEL_SHORT(multibuf+6, laser_track);
 
+	multi_do_protocol_frame(1, 0); // provoke positional update if possible
 	multi_send_data(multibuf, 8, 1);
 }
 
