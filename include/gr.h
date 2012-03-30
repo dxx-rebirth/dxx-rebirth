@@ -48,21 +48,6 @@ typedef struct _grs_point {
 	fix x,y;
 } grs_point;
 
-//old font structure, could not add new items to it without screwing up gr_init_font
-typedef struct _grs_font {
-	int16_t		ft_w,ft_h;	// Width and height in pixels
-	int16_t		ft_flags;	// Proportional?
-	int16_t		ft_baseline;	//
-	ubyte		ft_minchar,	// The first and last chars defined by
-			ft_maxchar;	// This font
-	int16_t		ft_bytewidth;	// Width in unsigned chars
-	u_int32_t 	ft_data;	// Ptr to raw data.
-	u_int32_t	ft_chars;	// Ptrs to data for each char (required for prop font)
-	u_int32_t	ft_widths;	// Array of widths (required for prop font)
-	u_int32_t	ft_kerndata;	// Array of kerning triplet data
-}
-old_grs_font;
-
 //these are control characters that have special meaning in the font code
 
 #define CC_COLOR        1   //next char is new foreground color
@@ -118,11 +103,10 @@ typedef struct _grs_bitmap {
 #endif /* def OGL */
 } grs_bitmap;
 
-//new font structure, which does not suffer from the inability to add new items
-typedef struct _new_grs_font {
+//font structure
+typedef struct _grs_font {
 	short       ft_w;           // Width in pixels
 	short       ft_h;           // Height in pixels
-	float       ft_aw;          // "Average" width (on proportional fonts, ft_w is usually much larger than normal)
 	short       ft_flags;       // Proportional?
 	short       ft_baseline;    //
 	ubyte       ft_minchar;     // First char defined by this font
@@ -132,13 +116,14 @@ typedef struct _new_grs_font {
 	ubyte    ** ft_chars;       // Ptrs to data for each char (required for prop font)
 	short     * ft_widths;      // Array of widths (required for prop font)
 	ubyte     * ft_kerndata;    // Array of kerning triplet data
-	old_grs_font *oldfont;
 #ifdef OGL
 	// These fields do not participate in disk i/o!
 	grs_bitmap *ft_bitmaps;
 	grs_bitmap ft_parent_bitmap;
 #endif /* def OGL */
-} grs_font;
+} __pack__ grs_font;
+
+#define GRS_FONT_SIZE 28    // how much space it takes up on disk
 
 typedef struct _grs_canvas {
 	grs_bitmap  cv_bitmap;      // the bitmap for this canvas
@@ -171,9 +156,6 @@ int gr_list_modes( u_int32_t gsmodes[] );
 int gr_check_mode(u_int32_t mode);
 int gr_set_mode(u_int32_t mode);
 void gr_set_attributes(void);
-
-void gr_enable_default_palette_loading();
-void gr_disable_default_palette_loading();
 
 extern void gr_pal_setblock( int start, int number, unsigned char * pal );
 extern void gr_pal_getblock( int start, int number, unsigned char * pal );

@@ -7,7 +7,7 @@ IN USING, DISPLAYING,  AND CREATING DERIVATIVE WORKS THEREOF, SO LONG AS
 SUCH USE, DISPLAY OR CREATION IS FOR NON-COMMERCIAL, ROYALTY OR REVENUE
 FREE PURPOSES.  IN NO EVENT SHALL THE END-USER USE THE COMPUTER CODE
 CONTAINED HEREIN FOR REVENUE-BEARING PURPOSES.  THE END-USER UNDERSTANDS
-AND AGREES TO THE TERMS HEREIN AND ACCEPTS THE SAME BY USE OF THIS FILE.  
+AND AGREES TO THE TERMS HEREIN AND ACCEPTS THE SAME BY USE OF THIS FILE.
 COPYRIGHT 1993-1998 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 */
 
@@ -31,6 +31,7 @@ COPYRIGHT 1993-1998 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 #include "error.h"
 #include "byteswap.h"
 #include "bitmap.h"
+#include "makesig.h"
 #include "gamefont.h"
 #include "console.h"
 #include "config.h"
@@ -295,10 +296,10 @@ int gr_internal_string0m(int x, int y, char *s )
 	unsigned char * fp;
 	char * text_ptr, * next_row, * text_ptr1;
 	int r, BitMask, i, bits, width, spacing, letter, underline;
-	int skip_lines=0;
+	int skip_lines = 0;
 
 	unsigned int VideoOffset, VideoOffset1;
-	
+
 	int orig_color=grd_curcanv->cv_font_fg_color;//to allow easy reseting to default string color with colored strings -MPM
 
         bits = 0;
@@ -398,7 +399,7 @@ int gr_internal_string0m(int x, int y, char *s )
 				VideoOffset += spacing-width;
 			}
 
-			VideoOffset1 += ROWSIZE; 
+			VideoOffset1 += ROWSIZE;
 			y++;
 		}
 		y += skip_lines;
@@ -755,26 +756,26 @@ int gr_string(int x, int y, char *s )
 		gr_get_string_size(s, &w, &h, &aw );
 		// for x, since this will be centered, only look at
 		// width.
-		if ( w > grd_curcanv->cv_bitmap.bm_w ) clipped |= 1;	
-		if ( (y+h) > grd_curcanv->cv_bitmap.bm_h ) clipped |= 1;	
+		if ( w > grd_curcanv->cv_bitmap.bm_w ) clipped |= 1;
+		if ( (y+h) > grd_curcanv->cv_bitmap.bm_h ) clipped |= 1;
 
-		if ( (y+h) < 0 ) clipped |= 2;	
-		if ( y > grd_curcanv->cv_bitmap.bm_h ) clipped |= 2;	
+		if ( (y+h) < 0 ) clipped |= 2;
+		if ( y > grd_curcanv->cv_bitmap.bm_h ) clipped |= 2;
 
 	} else {
 		if ( (x<0) || (y<0) ) clipped |= 1;
 		gr_get_string_size(s, &w, &h, &aw );
-		if ( (x+w) > grd_curcanv->cv_bitmap.bm_w ) clipped |= 1;	
-		if ( (y+h) > grd_curcanv->cv_bitmap.bm_h ) clipped |= 1;	
-		if ( (x+w) < 0 ) clipped |= 2;	
-		if ( (y+h) < 0 ) clipped |= 2;	
-		if ( x > grd_curcanv->cv_bitmap.bm_w ) clipped |= 2;	
-		if ( y > grd_curcanv->cv_bitmap.bm_h ) clipped |= 2;	
+		if ( (x+w) > grd_curcanv->cv_bitmap.bm_w ) clipped |= 1;
+		if ( (y+h) > grd_curcanv->cv_bitmap.bm_h ) clipped |= 1;
+		if ( (x+w) < 0 ) clipped |= 2;
+		if ( (y+h) < 0 ) clipped |= 2;
+		if ( x > grd_curcanv->cv_bitmap.bm_w ) clipped |= 2;
+		if ( y > grd_curcanv->cv_bitmap.bm_h ) clipped |= 2;
 	}
 
 	if ( !clipped )
 		return gr_ustring(x, y, s );
-	
+
 	if ( clipped & 2 )	{
 		// Completely clipped...
 		return 0;
@@ -785,13 +786,13 @@ int gr_string(int x, int y, char *s )
 	if (TYPE==BM_OGL)
 		return ogl_internal_string(x,y,s);
 #endif
-	
-	if (grd_curcanv->cv_font->ft_flags & FT_COLOR) 
+
+	if (grd_curcanv->cv_font->ft_flags & FT_COLOR)
 		return gr_internal_color_string( x, y, s);
 
 	if ( grd_curcanv->cv_font_bg_color == -1)
 		return gr_internal_string_clipped_m( x, y, s );
-	
+
 	return gr_internal_string_clipped( x, y, s );
 }
 
@@ -886,130 +887,131 @@ void gr_close_font( grs_font * font )
 {
 	if (font)
 	{
-		if ( font->ft_chars ) 
+		if ( font->ft_chars )
 			d_free( font->ft_chars );
-		d_free( font->oldfont );
 #ifdef OGL
 		if (font->ft_bitmaps)
 			d_free( font->ft_bitmaps );
 		gr_free_bitmap_data(&font->ft_parent_bitmap);
-//		ogl_freebmtexture(&font->ft_parent_bitmap);
 #endif
 		d_free( font );
 	}
 }
 
-void build_colormap_good( ubyte * palette, ubyte * colormap, int * freq );
+/*
+ * reads a grs_font structure from a PHYSFS_file
+ */
+void grs_font_read(grs_font *gf, PHYSFS_file *fp)
+{
+	gf->ft_w = PHYSFSX_readShort(fp);
+	gf->ft_h = PHYSFSX_readShort(fp);
+	gf->ft_flags = PHYSFSX_readShort(fp);
+	gf->ft_baseline = PHYSFSX_readShort(fp);
+	gf->ft_minchar = PHYSFSX_readByte(fp);
+	gf->ft_maxchar = PHYSFSX_readByte(fp);
+	gf->ft_bytewidth = PHYSFSX_readShort(fp);
+	gf->ft_data = (ubyte *)(size_t)PHYSFSX_readInt(fp);
+	gf->ft_chars = (ubyte **)(size_t)PHYSFSX_readInt(fp);
+	gf->ft_widths = (short *)(size_t)PHYSFSX_readInt(fp);
+	gf->ft_kerndata = (ubyte *)(size_t)PHYSFSX_readInt(fp);
+}
 
 grs_font * gr_init_font( char * fontname )
 {
-	old_grs_font *font;
-	grs_font *newfont;
+	grs_font *font;
+	char *font_data;
 	int i;
 	unsigned char * ptr;
 	int nchars;
 	PHYSFS_file *fontfile;
 	char file_id[4];
-	int32_t datasize;		//size up to (but not including) palette
+	int datasize;	//size up to (but not including) palette
 
 	fontfile = PHYSFSX_openReadBuffered(fontname);
 
-	if (!fontfile)
-		Error( "Can't open font file %s", fontname );
+	if (!fontfile) {
+		con_printf(CON_VERBOSE, "Can't open font file %s\n", fontname);
+		return NULL;
+	}
 
 	PHYSFS_read(fontfile, file_id, 4, 1);
 	if ( !strncmp( file_id, "NFSP", 4 ) ) {
 		con_printf(CON_NORMAL, "File %s is not a font file\n", fontname);
 		return NULL;
 	}
-	
+
 	datasize = PHYSFSX_readInt(fontfile);
+	datasize -= GRS_FONT_SIZE; // subtract the size of the header.
 
-	font = (old_grs_font *) d_malloc(datasize);
-	newfont = (grs_font *) d_malloc(sizeof(grs_font));
-	newfont->oldfont=font;
+	MALLOC(font, grs_font, 1);
+	grs_font_read(font, fontfile);
 
-	PHYSFS_read(fontfile,font,1,datasize);
-	
-	newfont->ft_flags=INTEL_SHORT(font->ft_flags);
-	newfont->ft_w=INTEL_SHORT(font->ft_w);
-	newfont->ft_h=INTEL_SHORT(font->ft_h);
-	newfont->ft_baseline=INTEL_SHORT(font->ft_baseline);
-	newfont->ft_maxchar=font->ft_maxchar;
-	newfont->ft_minchar=font->ft_minchar;
-	newfont->ft_bytewidth=INTEL_SHORT(font->ft_bytewidth);
-	
-	nchars = newfont->ft_maxchar-newfont->ft_minchar+1;
+	MALLOC(font_data, char, datasize);
+	PHYSFS_read(fontfile, font_data, 1, datasize);
 
-	if (newfont->ft_flags & FT_PROPORTIONAL) {
+	// make these offsets relative to font_data
+	font->ft_data = (ubyte *)((size_t)font->ft_data - GRS_FONT_SIZE);
+	font->ft_widths = (short *)((size_t)font->ft_widths - GRS_FONT_SIZE);
+	font->ft_kerndata = (ubyte *)((size_t)font->ft_kerndata - GRS_FONT_SIZE);
 
-		newfont->ft_widths = (short *) (INTEL_INT(font->ft_widths) + ((ubyte *) font));
-		
-		for (i = 0; i < nchars; i++)
-			newfont->ft_widths[i] = INTEL_SHORT(newfont->ft_widths[i]);
-		
-		newfont->ft_data = (INTEL_INT(font->ft_data)) + ((ubyte *) font);
-		
-		newfont->ft_chars = (unsigned char **)d_malloc( nchars * sizeof(unsigned char *));
-		
-		ptr = newfont->ft_data;
-		
+	nchars = font->ft_maxchar - font->ft_minchar + 1;
+
+	if (font->ft_flags & FT_PROPORTIONAL) {
+
+		font->ft_widths = (short *) &font_data[(size_t)font->ft_widths];
+		font->ft_data = (unsigned char *) &font_data[(size_t)font->ft_data];
+		font->ft_chars = (unsigned char **)d_malloc( nchars * sizeof(unsigned char *));
+
+		ptr = font->ft_data;
+
 		for (i=0; i< nchars; i++ ) {
-			newfont->ft_chars[i] = ptr;
-			if (newfont->ft_flags & FT_COLOR)
-				ptr += newfont->ft_widths[i] * newfont->ft_h;
+			font->ft_widths[i] = INTEL_SHORT(font->ft_widths[i]);
+			font->ft_chars[i] = ptr;
+			if (font->ft_flags & FT_COLOR)
+				ptr += font->ft_widths[i] * font->ft_h;
 			else
-				ptr += BITS_TO_BYTES(newfont->ft_widths[i]) * newfont->ft_h;
+				ptr += BITS_TO_BYTES(font->ft_widths[i]) * font->ft_h;
 		}
-		
+
 	} else  {
-		
-		newfont->ft_data = ((unsigned char *) font) + sizeof(*font);
-		
-		newfont->ft_chars	= NULL;
-		newfont->ft_widths = NULL;
-		
-		ptr = newfont->ft_data + (nchars * newfont->ft_w * newfont->ft_h);
+
+		font->ft_data   = (unsigned char *) font_data;
+		font->ft_chars  = NULL;
+		font->ft_widths = NULL;
+
+		ptr = font->ft_data + (nchars * font->ft_w * font->ft_h);
 	}
-	
-	if (newfont->ft_flags & FT_KERNED) 
-		newfont->ft_kerndata = INTEL_INT(font->ft_kerndata) + ((ubyte *) font);
-	
-	
-	if (newfont->ft_flags & FT_COLOR) {		//remap palette
+
+	if (font->ft_flags & FT_KERNED)
+		font->ft_kerndata = (unsigned char *) &font_data[(size_t)font->ft_kerndata];
+
+	if (font->ft_flags & FT_COLOR) {		//remap palette
 		ubyte palette[256*3];
 		ubyte colormap[256];
 		int freq[256];
-		
+
 		PHYSFS_read(fontfile,palette,3,256);		//read the palette
-		
+
 		build_colormap_good( (ubyte *)&palette, colormap, freq );
-		
-		colormap[255] = 255;
-		
-		decode_data(newfont->ft_data, ptr-newfont->ft_data, colormap, freq );
+
+		colormap[TRANSPARENCY_COLOR] = TRANSPARENCY_COLOR;              // changed from colormap[255] = 255 to this for macintosh
+
+		decode_data(font->ft_data, ptr - font->ft_data, colormap, freq );
 	}
-	
+
 	PHYSFS_close(fontfile);
-	
+
 	//set curcanv vars
-	
-	grd_curcanv->cv_font        = newfont;
+
+	grd_curcanv->cv_font        = font;
 	grd_curcanv->cv_font_fg_color    = 0;
 	grd_curcanv->cv_font_bg_color    = 0;
-	
-	{
-		int x,y,aw;
-		char tests[]="abcdefghij1234.A";
-		gr_get_string_size(tests,&x,&y,&aw);
-		newfont->ft_aw=x/(float)strlen(tests);
-	}
-	
+
 #ifdef OGL
-	ogl_init_font(newfont);
+	ogl_init_font(font);
 #endif
-	
-	return newfont;
+
+	return font;
 	
 }
 
@@ -1030,7 +1032,7 @@ int gr_internal_string_clipped(int x, int y, char *s )
 	char * text_ptr, * next_row, * text_ptr1;
 	int r, BitMask, i, bits, width, spacing, letter, underline;
 	int x1 = x, last_x;
-	
+
         bits = 0;
 
 	next_row = s;
@@ -1094,7 +1096,7 @@ int gr_internal_string_clipped(int x, int y, char *s )
 				if (underline)	{
 					for (i=0; i< width; i++ )	{
 						gr_setcolor(grd_curcanv->cv_font_fg_color);
-						gr_pixel( x++, y );						
+						gr_pixel( x++, y );
 					}
 				} else {
 					fp += BITS_TO_BYTES(width)*r;
@@ -1106,11 +1108,11 @@ int gr_internal_string_clipped(int x, int y, char *s )
 							bits = *fp++;
 							BitMask = 0x80;
 						}
-						if (bits & BitMask)	
+						if (bits & BitMask)
 							gr_setcolor(grd_curcanv->cv_font_fg_color);
 						else
 							gr_setcolor(grd_curcanv->cv_font_bg_color);
-						gr_pixel( x++, y );						
+						gr_pixel( x++, y );
 						BitMask >>= 1;
 					}
 				}
@@ -1131,7 +1133,7 @@ int gr_internal_string_clipped_m(int x, int y, char *s )
 	char * text_ptr, * next_row, * text_ptr1;
 	int r, BitMask, i, bits, width, spacing, letter, underline;
 	int x1 = x, last_x;
-	
+
         bits = 0;
 
 	next_row = s;
@@ -1196,7 +1198,7 @@ int gr_internal_string_clipped_m(int x, int y, char *s )
 				if (underline)	{
 					for (i=0; i< width; i++ )	{
 						gr_setcolor(grd_curcanv->cv_font_fg_color);
-						gr_pixel( x++, y );						
+						gr_pixel( x++, y );
 					}
 				} else {
 					fp += BITS_TO_BYTES(width)*r;
@@ -1213,7 +1215,7 @@ int gr_internal_string_clipped_m(int x, int y, char *s )
 							gr_pixel( x++, y );
 						} else {
 							x++;
-						}						
+						}
 						BitMask >>= 1;
 					}
 				}
