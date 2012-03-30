@@ -3,6 +3,7 @@ D1X-Rebirth Changelog
 20120330
 --------
 2d/font.c, include/gr.h: Make 2d/font.c more similar between d1x-rebirth and d2x-rebirth
+arch/include/event.h: Changed declaration of event_get_idle_second() from int32_t to fix since Windows does not know it without pstypes.h. Included maths.h for this but should now work flawlessly on all platforms
 
 20120329
 --------
