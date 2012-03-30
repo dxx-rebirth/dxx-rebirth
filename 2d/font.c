@@ -385,7 +385,7 @@ int gr_internal_string0m(int x, int y, char *s )
 
 				if (underline)
 					for (i=0; i< width; i++ )
-						DATA[VideoOffset++] = (unsigned int) grd_curcanv->cv_font_fg_color;
+						DATA[VideoOffset++] = (unsigned char) grd_curcanv->cv_font_fg_color;
 				else
 				{
 					fp += BITS_TO_BYTES(width)*r;
@@ -400,7 +400,7 @@ int gr_internal_string0m(int x, int y, char *s )
 						}
 
 						if (bits & BitMask)
-							DATA[VideoOffset++] = (unsigned int) grd_curcanv->cv_font_fg_color;
+							DATA[VideoOffset++] = (unsigned char) grd_curcanv->cv_font_fg_color;
 						else
 							VideoOffset++;
 						BitMask >>= 1;
@@ -732,7 +732,7 @@ int ogl_internal_string(int x, int y, char *s )
 				}
 				continue;
 			}
-			
+
 			if (grd_curcanv->cv_font->ft_flags&FT_COLOR)
 				ogl_ubitmapm_cs(xx,yy,FONTSCALE_X(grd_curcanv->cv_font->ft_widths[letter]),FONTSCALE_Y(grd_curcanv->cv_font->ft_h),&grd_curcanv->cv_font->ft_bitmaps[letter],-1,F1_0);
 			else{
@@ -920,8 +920,6 @@ void gr_close_font( grs_font * font )
 		gr_free_bitmap_data(&font->ft_parent_bitmap);
 #endif
 		d_free( font );
-
-
 	}
 }
 
@@ -1007,7 +1005,7 @@ grs_font * gr_init_font( char * fontname )
 
 	PHYSFS_read(fontfile, file_id, 4, 1);
 	if ( !strncmp( file_id, "NFSP", 4 ) ) {
-		con_printf(CON_NORMAL, "File %s is not a font file\n", fontname );
+		con_printf(CON_NORMAL, "File %s is not a font file\n", fontname);
 		return NULL;
 	}
 
@@ -1071,7 +1069,6 @@ grs_font * gr_init_font( char * fontname )
 		colormap[TRANSPARENCY_COLOR] = TRANSPARENCY_COLOR;              // changed from colormap[255] = 255 to this for macintosh
 
 		decode_data(font->ft_data, ptr - font->ft_data, colormap, freq );
-
 	}
 
 	PHYSFS_close(fontfile);
