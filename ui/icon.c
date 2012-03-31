@@ -71,7 +71,7 @@ void ui_draw_icon( UI_GADGET_ICON * icon )
 	int height, width, avg;
 	int x, y;
 	
-#ifdef OGL
+#if 0  //ndef OGL
 	if ((icon->status==1) || (icon->position != icon->oldposition))
 #endif
 	{

@@ -55,7 +55,7 @@ void ui_draw_button(UI_DIALOG *dlg, UI_GADGET_BUTTON * button)
 {
 	int color;
 
-#ifndef OGL
+#if 0  //ndef OGL
 	if ((button->status==1) || (button->position != button->oldposition))
 #endif
 	{

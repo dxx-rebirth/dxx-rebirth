@@ -41,7 +41,7 @@ void ui_draw_listbox( UI_DIALOG *dlg, UI_GADGET_LISTBOX * listbox )
 	//if (listbox->first_item>(listbox->num_items-listbox->num_items_displayed))
 	//    listbox->first_item=(listbox->num_items-listbox->num_items_displayed);
 
-#ifndef OGL
+#if 0  //ndef OGL
 	if ((listbox->status!=1) && !listbox->moved )
 		return;
 #endif
