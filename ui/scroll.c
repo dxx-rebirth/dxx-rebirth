@@ -29,11 +29,12 @@ static char rcsid[] = "$Id: scroll.c,v 1.1.1.1 2006/03/17 19:52:16 zicodxx Exp $
 
 void ui_draw_scrollbar( UI_DIALOG *dlg, UI_GADGET_SCROLLBAR * scrollbar )
 {
+#ifndef OGL
 	if (scrollbar->status==0)
 		return;
+#endif
 
 	scrollbar->status = 0;
-	mouse_toggle_cursor(0);
 	gr_set_current_canvas( scrollbar->canvas );
 
 	if (dlg->keyboard_focus_gadget == (UI_GADGET *)scrollbar)
@@ -45,9 +46,6 @@ void ui_draw_scrollbar( UI_DIALOG *dlg, UI_GADGET_SCROLLBAR * scrollbar )
 	gr_rect( 0, scrollbar->fake_position+scrollbar->fake_size, scrollbar->width-1, scrollbar->height-1);
 
 	ui_draw_box_out(0, scrollbar->fake_position, scrollbar->width-1, scrollbar->fake_position+scrollbar->fake_size-1 );
-
-	mouse_toggle_cursor(1);
-
 }
 
 UI_GADGET_SCROLLBAR * ui_add_gadget_scrollbar( UI_DIALOG * dlg, short x, short y, short w, short h, int start, int stop, int position, int window_size  )
@@ -103,6 +101,12 @@ int ui_scrollbar_do( UI_DIALOG *dlg, UI_GADGET_SCROLLBAR * scrollbar, d_event *e
 	int x, y, z;
 	int rval = 0;
 		
+	if (event->type == EVENT_WINDOW_DRAW)
+	{
+		ui_draw_scrollbar( dlg, scrollbar );
+		return 0;
+	}
+
 	keyfocus = 0;
 
 	if (dlg->keyboard_focus_gadget==(UI_GADGET *)scrollbar)
@@ -284,7 +288,6 @@ int ui_scrollbar_do( UI_DIALOG *dlg, UI_GADGET_SCROLLBAR * scrollbar, d_event *e
 
 	if (oldpos != scrollbar->fake_position)
 		scrollbar->status = 1;
-	ui_draw_scrollbar( dlg, scrollbar );
 
 	return rval;
 }

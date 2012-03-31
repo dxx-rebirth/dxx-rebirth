@@ -41,8 +41,10 @@ void ui_draw_listbox( UI_DIALOG *dlg, UI_GADGET_LISTBOX * listbox )
 	//if (listbox->first_item>(listbox->num_items-listbox->num_items_displayed))
 	//    listbox->first_item=(listbox->num_items-listbox->num_items_displayed);
 
+#ifndef OGL
 	if ((listbox->status!=1) && !listbox->moved )
 		return;
+#endif
 
 	stop = listbox->first_item+listbox->num_items_displayed;
 	if (stop>listbox->num_items) stop = listbox->num_items;
@@ -50,7 +52,6 @@ void ui_draw_listbox( UI_DIALOG *dlg, UI_GADGET_LISTBOX * listbox )
 	listbox->status = 0;
 
 	x = y = 0;
-	mouse_toggle_cursor(0);
 	gr_set_current_canvas( listbox->canvas );
 
 	for (i= listbox->first_item; i< stop; i++ )
@@ -91,8 +92,6 @@ void ui_draw_listbox( UI_DIALOG *dlg, UI_GADGET_LISTBOX * listbox )
 	}
 
 	//gr_ubox( -1, -1, listbox->width, listbox->height);
-	mouse_toggle_cursor(1);
-
 }
 
 
@@ -155,6 +154,12 @@ int ui_listbox_do( UI_DIALOG *dlg, UI_GADGET_LISTBOX * listbox, d_event *event )
 	int mitem, oldfakepos, kf;
 	int keypress = 0;
 	int rval = 0;
+	
+	if (event->type == EVENT_WINDOW_DRAW)
+	{
+		ui_draw_listbox( dlg, listbox );
+		return 0;
+	}
 	
 	if (event->type == EVENT_KEY_COMMAND)
 		keypress = event_key_get(event);
@@ -370,8 +375,6 @@ int ui_listbox_do( UI_DIALOG *dlg, UI_GADGET_LISTBOX * listbox, d_event *event )
 		ui_gadget_send_event(dlg, (listbox->selected_item > 0) ? EVENT_UI_LISTBOX_SELECTED : EVENT_UI_LISTBOX_MOVED, (UI_GADGET *)listbox);
 		rval = 1;
 	}
-
-	ui_draw_listbox( dlg, listbox );
 
 	return rval;
 }

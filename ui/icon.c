@@ -47,13 +47,12 @@ void ui_draw_icon( UI_GADGET_ICON * icon )
 	int height, width, avg;
 	int x, y;
 	
-	
+#ifdef OGL
 	if ((icon->status==1) || (icon->position != icon->oldposition))
+#endif
 	{
 		icon->status = 0;
 
-		mouse_toggle_cursor(0);
-	
 		gr_set_current_canvas( icon->canvas );
 		gr_get_string_size(icon->text, &width, &height, &avg );
 	
@@ -80,8 +79,6 @@ void ui_draw_icon( UI_GADGET_ICON * icon )
 	
 		gr_set_fontcolor( CBLACK, -1 );		
 		gr_ustring( x, y, icon->text );
-
-		mouse_toggle_cursor(1);
 	}
 }
 
@@ -177,7 +174,8 @@ int ui_icon_do( UI_DIALOG *dlg, UI_GADGET_ICON * icon, d_event *event )
 		rval = 1;
 	}
 
-	ui_draw_icon( icon );
+	if (event->type == EVENT_WINDOW_DRAW)
+		ui_draw_icon( icon );
 
 	return rval;
 }

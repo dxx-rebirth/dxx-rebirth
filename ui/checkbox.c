@@ -32,12 +32,12 @@ static char rcsid[] = "$Id: checkbox.c,v 1.1.1.1 2006/03/17 19:52:20 zicodxx Exp
 
 void ui_draw_checkbox( UI_DIALOG *dlg, UI_GADGET_CHECKBOX * checkbox )
 {
-
+#ifndef OGL
 	if ((checkbox->status==1) || (checkbox->position != checkbox->oldposition))
+#endif
 	{
 		checkbox->status = 0;
 
-		mouse_toggle_cursor(0);
 		gr_set_current_canvas( checkbox->canvas );
 
 		if (dlg->keyboard_focus_gadget == (UI_GADGET *)checkbox)
@@ -62,7 +62,6 @@ void ui_draw_checkbox( UI_DIALOG *dlg, UI_GADGET_CHECKBOX * checkbox )
 
 		gr_ustring( checkbox->width+4, 2, checkbox->text );
 
-		mouse_toggle_cursor(1);
 	}
 }
 
@@ -147,7 +146,8 @@ int ui_checkbox_do( UI_DIALOG *dlg, UI_GADGET_CHECKBOX * checkbox, d_event *even
 		rval = 1;
 	}
 
-	ui_draw_checkbox( dlg, checkbox );
+	if (event->type == EVENT_WINDOW_DRAW)
+		ui_draw_checkbox( dlg, checkbox );
 
 	return rval;
 }

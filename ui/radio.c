@@ -32,12 +32,12 @@ COPYRIGHT 1993-1999 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 
 void ui_draw_radio( UI_DIALOG *dlg, UI_GADGET_RADIO * radio )
 {
-
+#ifdef OGL
 	if ((radio->status==1) || (radio->position != radio->oldposition))
+#endif
 	{
 		radio->status = 0;
 
-		mouse_toggle_cursor(0);
 		gr_set_current_canvas( radio->canvas );
 
 		if (dlg->keyboard_focus_gadget == (UI_GADGET *) radio)
@@ -61,8 +61,6 @@ void ui_draw_radio( UI_DIALOG *dlg, UI_GADGET_RADIO * radio )
 		}
 
 		gr_ustring( radio->width+4, 2, radio->text );
-
-		mouse_toggle_cursor(1);
 	}
 }
 
@@ -164,7 +162,8 @@ int ui_radio_do( UI_DIALOG *dlg, UI_GADGET_RADIO * radio, d_event *event )
 		rval = 1;
 	}
 
-	ui_draw_radio( dlg, radio );
+	if (event->type == EVENT_WINDOW_DRAW)
+		ui_draw_radio( dlg, radio );
 
 	return rval;
 }

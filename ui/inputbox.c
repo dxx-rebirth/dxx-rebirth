@@ -49,9 +49,10 @@ void ui_draw_inputbox( UI_DIALOG *dlg, UI_GADGET_INPUTBOX * inputbox )
 {
 	int w, h, aw;
 
+#ifdef OGL
 	if ((inputbox->status==1) || (inputbox->position != inputbox->oldposition))
+#endif
 	{
-		mouse_toggle_cursor(0);
 		gr_set_current_canvas( inputbox->canvas );
 
 		if (dlg->keyboard_focus_gadget == (UI_GADGET *)inputbox)
@@ -78,8 +79,6 @@ void ui_draw_inputbox( UI_DIALOG *dlg, UI_GADGET_INPUTBOX * inputbox )
 			Vline( 2,inputbox->height-3, 2+w+1 );
 			Vline( 2,inputbox->height-3, 2+w+2 );
 		}
-
-		mouse_toggle_cursor(1);
 	}
 }
 
@@ -170,7 +169,8 @@ int ui_inputbox_do( UI_DIALOG *dlg, UI_GADGET_INPUTBOX * inputbox, d_event *even
 		rval = 1;
 	}
 		
-	ui_draw_inputbox( dlg, inputbox );
+	if (event->type == EVENT_WINDOW_DRAW)
+		ui_draw_inputbox( dlg, inputbox );
 
 	return rval;
 }
