@@ -97,7 +97,6 @@ grs_canvas *Canv_editor;			//the editor screen
 grs_canvas *Canv_editor_game=&_canv_editor_game; //the game on the editor screen
 grs_canvas	VR_editor_canvas;						//  The canvas that the editor writes to.
 
-grs_canvas *canv_offscreen;		//for off-screen rendering
 window *Pad_info;		// Keypad text
 
 grs_font *editor_font=NULL;
@@ -398,8 +397,6 @@ void init_editor()
 	
 	menubar_init( "MED.MNU" );
 
-	canv_offscreen = gr_create_canvas(LVIEW_W,LVIEW_H);
-	
 	Draw_all_segments = 1;						// Say draw all segments, not just connected ones
 
 	init_autosave();
@@ -885,7 +882,6 @@ void init_editor_screen()
 
 	EditorWindow->keyboard_focus_gadget = (UI_GADGET *)LargeViewBox;
 
-	canv_offscreen->cv_font = grd_curscreen->sc_canvas.cv_font;
 //	BigCanvas[0]->cv_font = grd_curscreen->sc_canvas.cv_font; 
 //	BigCanvas[1]->cv_font = grd_curscreen->sc_canvas.cv_font; 
 //	BigCanvasFirstTime = 1;
@@ -985,8 +981,6 @@ void close_editor() {
 	PHYSFSX_removeRelFromSearchPath("editor");
 	PHYSFSX_removeRelFromSearchPath("editor.zip");
 
-	gr_free_canvas(canv_offscreen); canv_offscreen = NULL;
-	
 	switch (ModeFlag)
 	{
 		case 1:

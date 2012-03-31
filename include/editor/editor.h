@@ -156,7 +156,6 @@ typedef struct editor_view {
 
 extern editor_view *Views[];
 extern int N_views;
-extern grs_canvas *canv_offscreen;		//for off-screen rendering
 extern int Large_view_index;
 extern UI_GADGET_USERBOX * LargeViewBox;
 extern int Found_seg_index;				// Index in Found_segs corresponding to Cursegp
@@ -622,7 +621,6 @@ extern grs_canvas _canv_editor_game;		//the game on the editor screen
 extern grs_canvas *Canv_editor;			//the editor screen
 extern grs_canvas *Canv_editor_game; //the game on the editor screen
 
-extern grs_canvas *canv_offscreen;		//for off-screen rendering
 extern struct window *Pad_info;		// Keypad text
 
 //where the editor is looking
