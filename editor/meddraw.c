@@ -62,8 +62,6 @@ COPYRIGHT 1993-1998 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 #define	ROBOT_COLOR			BM_XRGB( 31   ,  0   ,  0  )
 #define	PLAYER_COLOR		BM_XRGB(  0   ,  0   , 31  )
 
-#define DOUBLE_BUFFER 1
-
 int     Search_mode=0;                      //if true, searching for segments at given x,y
 int Search_x,Search_y;
 int	Automap_test=0;		//	Set to 1 to show wireframe in automap mode.
@@ -789,16 +787,7 @@ void draw_world(grs_canvas *screen_canvas,editor_view *v,segment *mine_ptr,int d
 {
 	vms_vector viewer_position;
 
-#if DOUBLE_BUFFER
-	grs_canvas temp_canvas;
-
-		gr_init_sub_canvas(&temp_canvas,canv_offscreen,0,0,
-			screen_canvas->cv_bitmap.bm_w,screen_canvas->cv_bitmap.bm_h);
-
-		gr_set_current_canvas(&temp_canvas);
-#else
 	gr_set_current_canvas(screen_canvas);
-#endif
 
 	//g3_set_points(Segment_points,Vertices);
 
@@ -889,21 +878,6 @@ void draw_world(grs_canvas *screen_canvas,editor_view *v,segment *mine_ptr,int d
 
 	g3_end_frame();
 
-#if DOUBLE_BUFFER
-//	if ( screen_canvas == LargeViewBox->canvas ) {
-//		if (BigCanvasFirstTime)	{
-//			BigCanvasFirstTime = 0;
-//			gr_set_current_canvas( screen_canvas );
-//			gr_ubitmap( 0, 0, &BigCanvas[CurrentBigCanvas]->cv_bitmap );
-//		} else {
-//			gr_vesa_update( &BigCanvas[CurrentBigCanvas]->cv_bitmap, &screen_canvas->cv_bitmap, &BigCanvas[CurrentBigCanvas ^ 1]->cv_bitmap );
-//		}
-//	} else {
-		gr_set_current_canvas( screen_canvas );
-		gr_ubitmap( 0, 0, &temp_canvas.cv_bitmap );
-//	}
-
-#endif
 }
 
 //find the segments that render at a given screen x,y
@@ -913,16 +887,7 @@ void find_segments(short x,short y,grs_canvas *screen_canvas,editor_view *v,segm
 {
 	vms_vector viewer_position;
 
-#if DOUBLE_BUFFER
-	grs_canvas temp_canvas;
-
-	gr_init_sub_canvas(&temp_canvas,canv_offscreen,0,0,
-			screen_canvas->cv_bitmap.bm_w,screen_canvas->cv_bitmap.bm_h);
-
-	gr_set_current_canvas(&temp_canvas);
-#else
 	gr_set_current_canvas(screen_canvas);
-#endif
 
 	mouse_toggle_cursor(0);
 

@@ -277,20 +277,14 @@ if (!render_3d_in_big_window)
 		}
 
 	if (Update_flags & (UF_WORLD_CHANGED|UF_GAME_VIEW_CHANGED|UF_ED_STATE_CHANGED)) {
-		grs_canvas temp_canvas;
 		grs_canvas *render_canv,*show_canv;
 		
 		if (render_3d_in_big_window) {
-			
-			gr_init_sub_canvas(&temp_canvas,canv_offscreen,0,0,
-				LargeView.ev_canv->cv_bitmap.bm_w,LargeView.ev_canv->cv_bitmap.bm_h);
-
-			render_canv = &temp_canvas;
+			render_canv = LargeView.ev_canv;
 			show_canv = LargeView.ev_canv;
-
 		}
 		else {
-			render_canv	= VR_offscreen_buffer;
+			render_canv	= Canv_editor_game;
 			show_canv	= Canv_editor_game;
 		}
 
@@ -299,11 +293,6 @@ if (!render_3d_in_big_window)
 
 		Assert(render_canv->cv_bitmap.bm_w == show_canv->cv_bitmap.bm_w &&
 				 render_canv->cv_bitmap.bm_h == show_canv->cv_bitmap.bm_h);
-
-		mouse_toggle_cursor(0);
-		gr_bm_ubitblt(show_canv->cv_bitmap.bm_w,show_canv->cv_bitmap.bm_h,
-						  0,0,0,0,&render_canv->cv_bitmap,&show_canv->cv_bitmap);
-		mouse_toggle_cursor(1);
 	}
 
 	Update_flags=UF_NONE;       //clear flags
