@@ -438,6 +438,91 @@
 		EBC652110890D6B7004FCAA3 /* ui.h in Headers */ = {isa = PBXBuildFile; fileRef = EBC6520F0890D6B7004FCAA3 /* ui.h */; };
 		EBC652130890D6DF004FCAA3 /* func.h in Headers */ = {isa = PBXBuildFile; fileRef = EBC652120890D6DF004FCAA3 /* func.h */; };
 		EBC652140890D6DF004FCAA3 /* func.h in Headers */ = {isa = PBXBuildFile; fileRef = EBC652120890D6DF004FCAA3 /* func.h */; };
+		EBD441821526B3D4002FF2BA /* curve.pad in CopyFiles */ = {isa = PBXBuildFile; fileRef = EB6142A51501FD71004E2AE8 /* curve.pad */; };
+		EBD441831526B3D4002FF2BA /* dummy.pad in CopyFiles */ = {isa = PBXBuildFile; fileRef = EB6142A61501FD71004E2AE8 /* dummy.pad */; };
+		EBD441841526B3D4002FF2BA /* group.pad in CopyFiles */ = {isa = PBXBuildFile; fileRef = EB6142A71501FD71004E2AE8 /* group.pad */; };
+		EBD441851526B3D4002FF2BA /* lighting.pad in CopyFiles */ = {isa = PBXBuildFile; fileRef = EB6142A81501FD71004E2AE8 /* lighting.pad */; };
+		EBD441861526B3D4002FF2BA /* med.mnu in CopyFiles */ = {isa = PBXBuildFile; fileRef = EB6142A91501FD71004E2AE8 /* med.mnu */; };
+		EBD441871526B3D4002FF2BA /* newobj.pad in CopyFiles */ = {isa = PBXBuildFile; fileRef = EB6142AA1501FD71004E2AE8 /* newobj.pad */; };
+		EBD441881526B3D4002FF2BA /* object.pad in CopyFiles */ = {isa = PBXBuildFile; fileRef = EB6142AB1501FD71004E2AE8 /* object.pad */; };
+		EBD441891526B3D4002FF2BA /* objmov.pad in CopyFiles */ = {isa = PBXBuildFile; fileRef = EB6142AC1501FD71004E2AE8 /* objmov.pad */; };
+		EBD4418A1526B3D4002FF2BA /* pc6x8.fnt in CopyFiles */ = {isa = PBXBuildFile; fileRef = EB6142AD1501FD71004E2AE8 /* pc6x8.fnt */; };
+		EBD4418B1526B3D4002FF2BA /* pc8x16.fnt in CopyFiles */ = {isa = PBXBuildFile; fileRef = EB6142AE1501FD71004E2AE8 /* pc8x16.fnt */; };
+		EBD4418C1526B3D4002FF2BA /* segmove.pad in CopyFiles */ = {isa = PBXBuildFile; fileRef = EB6142AF1501FD71004E2AE8 /* segmove.pad */; };
+		EBD4418D1526B3D4002FF2BA /* segsize.pad in CopyFiles */ = {isa = PBXBuildFile; fileRef = EB6142B01501FD71004E2AE8 /* segsize.pad */; };
+		EBD4418E1526B3D4002FF2BA /* test.pad in CopyFiles */ = {isa = PBXBuildFile; fileRef = EB6142B11501FD71004E2AE8 /* test.pad */; };
+		EBD4418F1526B3D4002FF2BA /* texture.pad in CopyFiles */ = {isa = PBXBuildFile; fileRef = EB6142B21501FD71004E2AE8 /* texture.pad */; };
+		EBD441901526B3EE002FF2BA /* autosave.c in Sources */ = {isa = PBXBuildFile; fileRef = EBBE057A12C872C30056CF2D /* autosave.c */; };
+		EBD441911526B3EE002FF2BA /* centers.c in Sources */ = {isa = PBXBuildFile; fileRef = EBBE057B12C872C30056CF2D /* centers.c */; };
+		EBD441921526B3EE002FF2BA /* curve.pad in Resources */ = {isa = PBXBuildFile; fileRef = EB6142A51501FD71004E2AE8 /* curve.pad */; };
+		EBD441931526B3EE002FF2BA /* curves.c in Sources */ = {isa = PBXBuildFile; fileRef = EBBE057D12C872C30056CF2D /* curves.c */; };
+		EBD441941526B3EE002FF2BA /* dummy.pad in Resources */ = {isa = PBXBuildFile; fileRef = EB6142A61501FD71004E2AE8 /* dummy.pad */; };
+		EBD441951526B3EE002FF2BA /* eglobal.c in Sources */ = {isa = PBXBuildFile; fileRef = EBBE057F12C872C30056CF2D /* eglobal.c */; };
+		EBD441961526B3EE002FF2BA /* ehostage.c in Sources */ = {isa = PBXBuildFile; fileRef = EBBE058012C872C30056CF2D /* ehostage.c */; };
+		EBD441971526B3EE002FF2BA /* elight.c in Sources */ = {isa = PBXBuildFile; fileRef = EBBE058212C872C30056CF2D /* elight.c */; };
+		EBD441981526B3EE002FF2BA /* eobject.c in Sources */ = {isa = PBXBuildFile; fileRef = EBBE058312C872C30056CF2D /* eobject.c */; };
+		EBD441991526B3EE002FF2BA /* eswitch.c in Sources */ = {isa = PBXBuildFile; fileRef = EBBE058512C872C30056CF2D /* eswitch.c */; };
+		EBD4419A1526B3EE002FF2BA /* fixseg.c in Sources */ = {isa = PBXBuildFile; fileRef = EBBE058712C872C30056CF2D /* fixseg.c */; };
+		EBD4419B1526B3EE002FF2BA /* func.c in Sources */ = {isa = PBXBuildFile; fileRef = EBBE058812C872C30056CF2D /* func.c */; };
+		EBD4419C1526B3EE002FF2BA /* group.c in Sources */ = {isa = PBXBuildFile; fileRef = EBBE058912C872C30056CF2D /* group.c */; };
+		EBD4419D1526B3EE002FF2BA /* group.pad in Resources */ = {isa = PBXBuildFile; fileRef = EB6142A71501FD71004E2AE8 /* group.pad */; };
+		EBD4419E1526B3EE002FF2BA /* info.c in Sources */ = {isa = PBXBuildFile; fileRef = EBBE058A12C872C30056CF2D /* info.c */; };
+		EBD4419F1526B3EE002FF2BA /* kbuild.c in Sources */ = {isa = PBXBuildFile; fileRef = EBBE058C12C872C30056CF2D /* kbuild.c */; };
+		EBD441A01526B3EE002FF2BA /* kcurve.c in Sources */ = {isa = PBXBuildFile; fileRef = EBBE058D12C872C30056CF2D /* kcurve.c */; };
+		EBD441A11526B3EE002FF2BA /* kfuncs.c in Sources */ = {isa = PBXBuildFile; fileRef = EBBE058F12C872C30056CF2D /* kfuncs.c */; };
+		EBD441A21526B3EE002FF2BA /* kgame.c in Sources */ = {isa = PBXBuildFile; fileRef = EBBE059112C872C30056CF2D /* kgame.c */; };
+		EBD441A41526B3EE002FF2BA /* khelp.c in Sources */ = {isa = PBXBuildFile; fileRef = EBBE059312C872C30056CF2D /* khelp.c */; };
+		EBD441A51526B3EE002FF2BA /* kmine.c in Sources */ = {isa = PBXBuildFile; fileRef = EBBE059412C872C30056CF2D /* kmine.c */; };
+		EBD441A61526B3EE002FF2BA /* ksegmove.c in Sources */ = {isa = PBXBuildFile; fileRef = EBBE059512C872C30056CF2D /* ksegmove.c */; };
+		EBD441A71526B3EE002FF2BA /* ksegsel.c in Sources */ = {isa = PBXBuildFile; fileRef = EBBE059612C872C30056CF2D /* ksegsel.c */; };
+		EBD441A81526B3EE002FF2BA /* ksegsize.c in Sources */ = {isa = PBXBuildFile; fileRef = EBBE059712C872C30056CF2D /* ksegsize.c */; };
+		EBD441A91526B3EE002FF2BA /* ktmap.c in Sources */ = {isa = PBXBuildFile; fileRef = EBBE059812C872C30056CF2D /* ktmap.c */; };
+		EBD441AA1526B3EE002FF2BA /* kview.c in Sources */ = {isa = PBXBuildFile; fileRef = EBBE059912C872C30056CF2D /* kview.c */; };
+		EBD441AB1526B3EE002FF2BA /* lighting.pad in Resources */ = {isa = PBXBuildFile; fileRef = EB6142A81501FD71004E2AE8 /* lighting.pad */; };
+		EBD441AD1526B3EE002FF2BA /* med.c in Sources */ = {isa = PBXBuildFile; fileRef = EBBE059C12C872C30056CF2D /* med.c */; };
+		EBD441AE1526B3EE002FF2BA /* med.mnu in Resources */ = {isa = PBXBuildFile; fileRef = EB6142A91501FD71004E2AE8 /* med.mnu */; };
+		EBD441AF1526B3EE002FF2BA /* meddraw.c in Sources */ = {isa = PBXBuildFile; fileRef = EBBE059D12C872C30056CF2D /* meddraw.c */; };
+		EBD441B01526B3EE002FF2BA /* medmisc.c in Sources */ = {isa = PBXBuildFile; fileRef = EBBE05A012C872C30056CF2D /* medmisc.c */; };
+		EBD441B11526B3EE002FF2BA /* medrobot.c in Sources */ = {isa = PBXBuildFile; fileRef = EBBE05A212C872C30056CF2D /* medrobot.c */; };
+		EBD441B21526B3EE002FF2BA /* medsel.c in Sources */ = {isa = PBXBuildFile; fileRef = EBBE05A412C872C30056CF2D /* medsel.c */; };
+		EBD441B31526B3EE002FF2BA /* medwall.c in Sources */ = {isa = PBXBuildFile; fileRef = EBBE05A612C872C30056CF2D /* medwall.c */; };
+		EBD441B41526B3EE002FF2BA /* mine.c in Sources */ = {isa = PBXBuildFile; fileRef = EBBE05A812C872C30056CF2D /* mine.c */; };
+		EBD441B51526B3EE002FF2BA /* newobj.pad in Resources */ = {isa = PBXBuildFile; fileRef = EB6142AA1501FD71004E2AE8 /* newobj.pad */; };
+		EBD441B61526B3EE002FF2BA /* object.pad in Resources */ = {isa = PBXBuildFile; fileRef = EB6142AB1501FD71004E2AE8 /* object.pad */; };
+		EBD441B71526B3EE002FF2BA /* objmov.pad in Resources */ = {isa = PBXBuildFile; fileRef = EB6142AC1501FD71004E2AE8 /* objmov.pad */; };
+		EBD441B81526B3EE002FF2BA /* objpage.c in Sources */ = {isa = PBXBuildFile; fileRef = EBBE05A912C872C30056CF2D /* objpage.c */; };
+		EBD441B91526B3EE002FF2BA /* pc6x8.fnt in Resources */ = {isa = PBXBuildFile; fileRef = EB6142AD1501FD71004E2AE8 /* pc6x8.fnt */; };
+		EBD441BA1526B3EE002FF2BA /* pc8x16.fnt in Resources */ = {isa = PBXBuildFile; fileRef = EB6142AE1501FD71004E2AE8 /* pc8x16.fnt */; };
+		EBD441BB1526B3EE002FF2BA /* segment.c in Sources */ = {isa = PBXBuildFile; fileRef = EBBE05AB12C872C30056CF2D /* segment.c */; };
+		EBD441BC1526B3EE002FF2BA /* segmove.pad in Resources */ = {isa = PBXBuildFile; fileRef = EB6142AF1501FD71004E2AE8 /* segmove.pad */; };
+		EBD441BD1526B3EE002FF2BA /* segsize.pad in Resources */ = {isa = PBXBuildFile; fileRef = EB6142B01501FD71004E2AE8 /* segsize.pad */; };
+		EBD441BE1526B3EE002FF2BA /* seguvs.c in Sources */ = {isa = PBXBuildFile; fileRef = EBBE05AC12C872C30056CF2D /* seguvs.c */; };
+		EBD441BF1526B3EE002FF2BA /* test.pad in Resources */ = {isa = PBXBuildFile; fileRef = EB6142B11501FD71004E2AE8 /* test.pad */; };
+		EBD441C01526B3EE002FF2BA /* texpage.c in Sources */ = {isa = PBXBuildFile; fileRef = EBBE05AE12C872C30056CF2D /* texpage.c */; };
+		EBD441C11526B3EE002FF2BA /* texture.c in Sources */ = {isa = PBXBuildFile; fileRef = EBBE05B012C872C30056CF2D /* texture.c */; };
+		EBD441C21526B3EE002FF2BA /* texture.pad in Resources */ = {isa = PBXBuildFile; fileRef = EB6142B21501FD71004E2AE8 /* texture.pad */; };
+		EBD441C71526B453002FF2BA /* button.c in Sources */ = {isa = PBXBuildFile; fileRef = EBC651900890CEAE004FCAA3 /* button.c */; };
+		EBD441C81526B453002FF2BA /* checkbox.c in Sources */ = {isa = PBXBuildFile; fileRef = EBC651910890CEAE004FCAA3 /* checkbox.c */; };
+		EBD441C91526B453002FF2BA /* dialog.c in Sources */ = {isa = PBXBuildFile; fileRef = EBC651A90890CEAE004FCAA3 /* dialog.c */; };
+		EBD441CA1526B453002FF2BA /* file.c in Sources */ = {isa = PBXBuildFile; fileRef = EBC651920890CEAE004FCAA3 /* file.c */; };
+		EBD441CB1526B453002FF2BA /* gadget.c in Sources */ = {isa = PBXBuildFile; fileRef = EBC651940890CEAE004FCAA3 /* gadget.c */; };
+		EBD441CC1526B453002FF2BA /* icon.c in Sources */ = {isa = PBXBuildFile; fileRef = EBC651960890CEAE004FCAA3 /* icon.c */; };
+		EBD441CD1526B453002FF2BA /* inputbox.c in Sources */ = {isa = PBXBuildFile; fileRef = EBC651970890CEAE004FCAA3 /* inputbox.c */; };
+		EBD441CE1526B453002FF2BA /* keypad.c in Sources */ = {isa = PBXBuildFile; fileRef = EBC651980890CEAE004FCAA3 /* keypad.c */; };
+		EBD441CF1526B453002FF2BA /* keypress.c in Sources */ = {isa = PBXBuildFile; fileRef = EBC651990890CEAE004FCAA3 /* keypress.c */; };
+		EBD441D01526B453002FF2BA /* keytrap.c in Sources */ = {isa = PBXBuildFile; fileRef = EBC6519A0890CEAE004FCAA3 /* keytrap.c */; };
+		EBD441D11526B453002FF2BA /* listbox.c in Sources */ = {isa = PBXBuildFile; fileRef = EBC6519B0890CEAE004FCAA3 /* listbox.c */; };
+		EBD441D21526B453002FF2BA /* menu.c in Sources */ = {isa = PBXBuildFile; fileRef = EBC6519E0890CEAE004FCAA3 /* menu.c */; };
+		EBD441D31526B453002FF2BA /* menubar.c in Sources */ = {isa = PBXBuildFile; fileRef = EBC6519F0890CEAE004FCAA3 /* menubar.c */; };
+		EBD441D41526B453002FF2BA /* message.c in Sources */ = {isa = PBXBuildFile; fileRef = EBC651A00890CEAE004FCAA3 /* message.c */; };
+		EBD441D61526B453002FF2BA /* popup.c in Sources */ = {isa = PBXBuildFile; fileRef = EBC651A30890CEAE004FCAA3 /* popup.c */; };
+		EBD441D71526B453002FF2BA /* radio.c in Sources */ = {isa = PBXBuildFile; fileRef = EBC651A40890CEAE004FCAA3 /* radio.c */; };
+		EBD441D81526B453002FF2BA /* scroll.c in Sources */ = {isa = PBXBuildFile; fileRef = EBC651A50890CEAE004FCAA3 /* scroll.c */; };
+		EBD441D91526B453002FF2BA /* ui.c in Sources */ = {isa = PBXBuildFile; fileRef = EBC651A60890CEAE004FCAA3 /* ui.c */; };
+		EBD441DA1526B453002FF2BA /* uidraw.c in Sources */ = {isa = PBXBuildFile; fileRef = EBC651A70890CEAE004FCAA3 /* uidraw.c */; };
+		EBD441DB1526B453002FF2BA /* userbox.c in Sources */ = {isa = PBXBuildFile; fileRef = EBC651A80890CEAE004FCAA3 /* userbox.c */; };
+		EBD441DC1526B4DA002FF2BA /* bmread.c in Sources */ = {isa = PBXBuildFile; fileRef = EBC652010890D632004FCAA3 /* bmread.c */; };
+		EBD441DD1526B4DA002FF2BA /* dumpmine.c in Sources */ = {isa = PBXBuildFile; fileRef = EBC652020890D632004FCAA3 /* dumpmine.c */; };
 		EBE8D6EB0FC583B4009D181F /* window.c in Sources */ = {isa = PBXBuildFile; fileRef = EBE8D6EA0FC583B4009D181F /* window.c */; };
 		EBE8D6EC0FC583B4009D181F /* window.c in Sources */ = {isa = PBXBuildFile; fileRef = EBE8D6EA0FC583B4009D181F /* window.c */; };
 		EBECB5D312C03E6300D660B3 /* bmread.c in Sources */ = {isa = PBXBuildFile; fileRef = EBC652010890D632004FCAA3 /* bmread.c */; };
@@ -486,6 +571,29 @@
 				EB6142C91501FE89004E2AE8 /* segsize.pad in CopyFiles */,
 				EB6142CA1501FE89004E2AE8 /* test.pad in CopyFiles */,
 				EB6142CB1501FE89004E2AE8 /* texture.pad in CopyFiles */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+		EBD441C31526B419002FF2BA /* CopyFiles */ = {
+			isa = PBXCopyFilesBuildPhase;
+			buildActionMask = 2147483647;
+			dstPath = editor;
+			dstSubfolderSpec = 7;
+			files = (
+				EBD441821526B3D4002FF2BA /* curve.pad in CopyFiles */,
+				EBD441831526B3D4002FF2BA /* dummy.pad in CopyFiles */,
+				EBD441841526B3D4002FF2BA /* group.pad in CopyFiles */,
+				EBD441851526B3D4002FF2BA /* lighting.pad in CopyFiles */,
+				EBD441861526B3D4002FF2BA /* med.mnu in CopyFiles */,
+				EBD441871526B3D4002FF2BA /* newobj.pad in CopyFiles */,
+				EBD441881526B3D4002FF2BA /* object.pad in CopyFiles */,
+				EBD441891526B3D4002FF2BA /* objmov.pad in CopyFiles */,
+				EBD4418A1526B3D4002FF2BA /* pc6x8.fnt in CopyFiles */,
+				EBD4418B1526B3D4002FF2BA /* pc8x16.fnt in CopyFiles */,
+				EBD4418C1526B3D4002FF2BA /* segmove.pad in CopyFiles */,
+				EBD4418D1526B3D4002FF2BA /* segsize.pad in CopyFiles */,
+				EBD4418E1526B3D4002FF2BA /* test.pad in CopyFiles */,
+				EBD4418F1526B3D4002FF2BA /* texture.pad in CopyFiles */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -1728,6 +1836,7 @@
 				676AC29A0668A939007173EB /* Resources */,
 				676AC29B0668A939007173EB /* Sources */,
 				676AC31C0668A939007173EB /* Frameworks */,
+				EBD441C31526B419002FF2BA /* CopyFiles */,
 			);
 			buildRules = (
 			);
@@ -1781,6 +1890,20 @@
 			files = (
 				EBAEB74C0BF4A86F00FC6E13 /* d2x-rebirth.icns in Resources */,
 				EB380D360E16886300EBD9AD /* InfoPlist.strings in Resources */,
+				EBD441921526B3EE002FF2BA /* curve.pad in Resources */,
+				EBD441941526B3EE002FF2BA /* dummy.pad in Resources */,
+				EBD4419D1526B3EE002FF2BA /* group.pad in Resources */,
+				EBD441AB1526B3EE002FF2BA /* lighting.pad in Resources */,
+				EBD441AE1526B3EE002FF2BA /* med.mnu in Resources */,
+				EBD441B51526B3EE002FF2BA /* newobj.pad in Resources */,
+				EBD441B61526B3EE002FF2BA /* object.pad in Resources */,
+				EBD441B71526B3EE002FF2BA /* objmov.pad in Resources */,
+				EBD441B91526B3EE002FF2BA /* pc6x8.fnt in Resources */,
+				EBD441BA1526B3EE002FF2BA /* pc8x16.fnt in Resources */,
+				EBD441BC1526B3EE002FF2BA /* segmove.pad in Resources */,
+				EBD441BD1526B3EE002FF2BA /* segsize.pad in Resources */,
+				EBD441BF1526B3EE002FF2BA /* test.pad in Resources */,
+				EBD441C21526B3EE002FF2BA /* texture.pad in Resources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -2141,6 +2264,63 @@
 				179E6ECF11F37C0500175C54 /* hmp.c in Sources */,
 				EB1405E9121044B5002B1CC6 /* physfsx.c in Sources */,
 				EB092A8012A25AFB004D9A79 /* messagebox.c in Sources */,
+				EBD441901526B3EE002FF2BA /* autosave.c in Sources */,
+				EBD441911526B3EE002FF2BA /* centers.c in Sources */,
+				EBD441931526B3EE002FF2BA /* curves.c in Sources */,
+				EBD441951526B3EE002FF2BA /* eglobal.c in Sources */,
+				EBD441961526B3EE002FF2BA /* ehostage.c in Sources */,
+				EBD441971526B3EE002FF2BA /* elight.c in Sources */,
+				EBD441981526B3EE002FF2BA /* eobject.c in Sources */,
+				EBD441991526B3EE002FF2BA /* eswitch.c in Sources */,
+				EBD4419A1526B3EE002FF2BA /* fixseg.c in Sources */,
+				EBD4419B1526B3EE002FF2BA /* func.c in Sources */,
+				EBD4419C1526B3EE002FF2BA /* group.c in Sources */,
+				EBD4419E1526B3EE002FF2BA /* info.c in Sources */,
+				EBD4419F1526B3EE002FF2BA /* kbuild.c in Sources */,
+				EBD441A01526B3EE002FF2BA /* kcurve.c in Sources */,
+				EBD441A11526B3EE002FF2BA /* kfuncs.c in Sources */,
+				EBD441A21526B3EE002FF2BA /* kgame.c in Sources */,
+				EBD441A41526B3EE002FF2BA /* khelp.c in Sources */,
+				EBD441A51526B3EE002FF2BA /* kmine.c in Sources */,
+				EBD441A61526B3EE002FF2BA /* ksegmove.c in Sources */,
+				EBD441A71526B3EE002FF2BA /* ksegsel.c in Sources */,
+				EBD441A81526B3EE002FF2BA /* ksegsize.c in Sources */,
+				EBD441A91526B3EE002FF2BA /* ktmap.c in Sources */,
+				EBD441AA1526B3EE002FF2BA /* kview.c in Sources */,
+				EBD441AD1526B3EE002FF2BA /* med.c in Sources */,
+				EBD441AF1526B3EE002FF2BA /* meddraw.c in Sources */,
+				EBD441B01526B3EE002FF2BA /* medmisc.c in Sources */,
+				EBD441B11526B3EE002FF2BA /* medrobot.c in Sources */,
+				EBD441B21526B3EE002FF2BA /* medsel.c in Sources */,
+				EBD441B31526B3EE002FF2BA /* medwall.c in Sources */,
+				EBD441B41526B3EE002FF2BA /* mine.c in Sources */,
+				EBD441B81526B3EE002FF2BA /* objpage.c in Sources */,
+				EBD441BB1526B3EE002FF2BA /* segment.c in Sources */,
+				EBD441BE1526B3EE002FF2BA /* seguvs.c in Sources */,
+				EBD441C01526B3EE002FF2BA /* texpage.c in Sources */,
+				EBD441C11526B3EE002FF2BA /* texture.c in Sources */,
+				EBD441C71526B453002FF2BA /* button.c in Sources */,
+				EBD441C81526B453002FF2BA /* checkbox.c in Sources */,
+				EBD441C91526B453002FF2BA /* dialog.c in Sources */,
+				EBD441CA1526B453002FF2BA /* file.c in Sources */,
+				EBD441CB1526B453002FF2BA /* gadget.c in Sources */,
+				EBD441CC1526B453002FF2BA /* icon.c in Sources */,
+				EBD441CD1526B453002FF2BA /* inputbox.c in Sources */,
+				EBD441CE1526B453002FF2BA /* keypad.c in Sources */,
+				EBD441CF1526B453002FF2BA /* keypress.c in Sources */,
+				EBD441D01526B453002FF2BA /* keytrap.c in Sources */,
+				EBD441D11526B453002FF2BA /* listbox.c in Sources */,
+				EBD441D21526B453002FF2BA /* menu.c in Sources */,
+				EBD441D31526B453002FF2BA /* menubar.c in Sources */,
+				EBD441D41526B453002FF2BA /* message.c in Sources */,
+				EBD441D61526B453002FF2BA /* popup.c in Sources */,
+				EBD441D71526B453002FF2BA /* radio.c in Sources */,
+				EBD441D81526B453002FF2BA /* scroll.c in Sources */,
+				EBD441D91526B453002FF2BA /* ui.c in Sources */,
+				EBD441DA1526B453002FF2BA /* uidraw.c in Sources */,
+				EBD441DB1526B453002FF2BA /* userbox.c in Sources */,
+				EBD441DC1526B4DA002FF2BA /* bmread.c in Sources */,
+				EBD441DD1526B4DA002FF2BA /* dumpmine.c in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -2270,6 +2450,7 @@
 				GCC_PREPROCESSOR_DEFINITIONS = (
 					USE_SDLMIXER,
 					OGL,
+					EDITOR,
 				);
 				HEADER_SEARCH_PATHS = (
 					include,
@@ -2301,6 +2482,7 @@
 				GCC_PREPROCESSOR_DEFINITIONS = (
 					USE_SDLMIXER,
 					OGL,
+					EDITOR,
 					NDEBUG,
 					RELEASE,
 				);
