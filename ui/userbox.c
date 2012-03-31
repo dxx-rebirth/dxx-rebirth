@@ -29,7 +29,7 @@ static char rcsid[] = "$Id: userbox.c,v 1.1.1.1 2006/03/17 19:52:22 zicodxx Exp 
 
 void ui_draw_userbox( UI_DIALOG *dlg, UI_GADGET_USERBOX * userbox )
 {
-#ifndef OGL
+#if 0  //ndef OGL
 	if ( userbox->status==1 )
 #endif
 	{

@@ -7,6 +7,7 @@ editor/med.c, editor/meddraw.c, editor/medmisc.c, include/editor/editor.h, main/
 main/render.c: Complete previous change (whoops)
 editor/med.c, editor/meddraw.c, editor/medmisc.c, ui/button.c, ui/checkbox.c, ui/dialog.c, ui/file.c, ui/icon.c, ui/inputbox.c, ui/listbox.c, ui/menubar.c, ui/radio.c, ui/scroll.c, ui/userbox.c: Make the main stuff (gadgets, two viewers) draw for the editor in ogl, still more tweaking required
 ui/dialog.c: Use correct coordinates for dialog border (still doesn't draw fully)
+editor/medmisc.c, ui/button.c, ui/checkbox.c, ui/icon.c, ui/inputbox.c, ui/listbox.c, ui/radio.c, ui/scroll.c, ui/userbox.c: Make the editor draw the same for the non-ogl build as the ogl build, since I just made it draw the grey background over everything in the last commit. If you want to see what it's *supposed* to look like, go to yesterday's commit :P
 
 20120330
 --------

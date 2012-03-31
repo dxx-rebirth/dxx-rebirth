@@ -269,7 +269,7 @@ int medlisp_update_screen()
 {
 	int vn;
 
-#ifdef OGL
+#if 1	//def OGL
 	Update_flags = UF_ALL;
 #endif
 

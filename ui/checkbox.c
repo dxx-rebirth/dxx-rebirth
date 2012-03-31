@@ -32,7 +32,7 @@ static char rcsid[] = "$Id: checkbox.c,v 1.1.1.1 2006/03/17 19:52:20 zicodxx Exp
 
 void ui_draw_checkbox( UI_DIALOG *dlg, UI_GADGET_CHECKBOX * checkbox )
 {
-#ifndef OGL
+#if 0  //ndef OGL
 	if ((checkbox->status==1) || (checkbox->position != checkbox->oldposition))
 #endif
 	{

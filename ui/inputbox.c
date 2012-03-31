@@ -49,7 +49,7 @@ void ui_draw_inputbox( UI_DIALOG *dlg, UI_GADGET_INPUTBOX * inputbox )
 {
 	int w, h, aw;
 
-#ifdef OGL
+#if 0  //ndef OGL
 	if ((inputbox->status==1) || (inputbox->position != inputbox->oldposition))
 #endif
 	{

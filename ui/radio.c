@@ -32,7 +32,7 @@ COPYRIGHT 1993-1999 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 
 void ui_draw_radio( UI_DIALOG *dlg, UI_GADGET_RADIO * radio )
 {
-#ifdef OGL
+#if 0  //ndef OGL
 	if ((radio->status==1) || (radio->position != radio->oldposition))
 #endif
 	{

@@ -29,7 +29,7 @@ static char rcsid[] = "$Id: scroll.c,v 1.1.1.1 2006/03/17 19:52:16 zicodxx Exp $
 
 void ui_draw_scrollbar( UI_DIALOG *dlg, UI_GADGET_SCROLLBAR * scrollbar )
 {
-#ifndef OGL
+#if 0  //ndef OGL
 	if (scrollbar->status==0)
 		return;
 #endif
