@@ -172,12 +172,8 @@ void menu_hide( MENU * menu )
 		window_set_modal(Menu[0].wind, 0);
 		
 	// Restore the background
-	mouse_toggle_cursor(0);
-
 	gr_bm_ubitblt(menu->w, menu->h, menu->x, menu->y, 0, 0, menu->Background, &(grd_curscreen->sc_canvas.cv_bitmap));
 
-	mouse_toggle_cursor(1);
-	
 	// Mark as hidden.
 	menu->Displayed = 0;
 }
@@ -194,12 +190,8 @@ void menu_move_bar_to( MENU * menu, int number )
 	
 	if (menu->Displayed && (number != old_item))
 	{
-		mouse_toggle_cursor(0);
-
 		item_show( menu, old_item );
 		item_show( menu, number );
-
-		mouse_toggle_cursor(1);
 	}
 }
 

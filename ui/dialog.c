@@ -130,9 +130,35 @@ int ui_recorder_status()
 	return Record;
 }
 
-int ui_dialog_draw(UI_DIALOG *dlg)
+void ui_dialog_draw(UI_DIALOG *dlg)
 {
-	return 0;
+	int x, y, w, h;
+	int req_w, req_h;
+
+	x = D_X;
+	y = D_Y;
+	w = D_WIDTH;
+	h = D_HEIGHT;
+	D_OLDCANVAS = grd_curcanv;
+
+	req_w = w;
+	req_h = h;
+	
+	if (dlg->flags & DF_BORDER)
+	{
+		gr_set_current_canvas( NULL );
+		ui_draw_frame( x, y, x+w-1, y+h-1 );
+	}
+	
+	ui_dialog_set_current_canvas(dlg);
+	
+	if (dlg->flags & DF_FILLED)
+		ui_draw_box_out( 0, 0, req_w-1, req_h-1 );
+	
+	gr_set_fontcolor( CBLACK, CWHITE );
+	
+	D_TEXT_X = 0;
+	D_TEXT_Y = 0;
 }
 
 
@@ -178,7 +204,8 @@ int ui_dialog_handler(window *wind, d_event *event, UI_DIALOG *dlg)
 		case EVENT_WINDOW_DRAW:
 		{
 			d_event event2 = { EVENT_UI_DIALOG_DRAW };
-			rval = ui_dialog_draw(dlg);
+			ui_dialog_draw(dlg);
+			rval = ui_dialog_do_gadgets(dlg, event);
 			window_send_event(wind, &event2);
 			break;
 		}
@@ -233,8 +260,6 @@ UI_DIALOG * ui_create_dialog( short x, short y, short w, short h, enum dialog_fl
 	D_GADGET = NULL;
 	dlg->keyboard_focus_gadget = NULL;
 
-	mouse_toggle_cursor(0);
-
 	if (flags & DF_SAVE_BG)
 	{
 		D_BACKGROUND = gr_create_bitmap( w, h );
@@ -243,19 +268,12 @@ UI_DIALOG * ui_create_dialog( short x, short y, short w, short h, enum dialog_fl
 	else
 		D_BACKGROUND = NULL;
 
-	if (flags & DF_BORDER)
-	{
-		gr_set_current_canvas( NULL );
-		ui_draw_frame( x, y, x+w-1, y+h-1 );
-	}
-
 	dlg->callback = callback;
 	dlg->userdata = userdata;
 	dlg->wind = window_create(&grd_curscreen->sc_canvas,
 						 x + ((flags & DF_BORDER) ? BORDER_WIDTH : 0),
 						 y + ((flags & DF_BORDER) ? BORDER_WIDTH : 0),
 						 req_w, req_h, (int (*)(window *, d_event *, void *)) ui_dialog_handler, dlg);
-	ui_dialog_set_current_canvas(dlg);
 	
 	if (!dlg->wind)
 	{
@@ -266,15 +284,7 @@ UI_DIALOG * ui_create_dialog( short x, short y, short w, short h, enum dialog_fl
 	if (!(flags & DF_MODAL))
 		window_set_modal(dlg->wind, 0);	// make this window modeless, allowing events to propogate through the window stack
 
-	if (flags & DF_FILLED)
-		ui_draw_box_out( 0, 0, req_w-1, req_h-1 );
-
-	gr_set_fontcolor( CBLACK, CWHITE );
-
 	selected_gadget = NULL;
-
-	D_TEXT_X = 0;
-	D_TEXT_Y = 0;
 
 	return dlg;
 
@@ -292,8 +302,6 @@ void ui_dialog_set_current_canvas(UI_DIALOG *dlg)
 
 void ui_close_dialog( UI_DIALOG * dlg )
 {
-
-	mouse_toggle_cursor(0);
 
 	ui_gadget_delete_all( dlg );
 
@@ -316,8 +324,6 @@ void ui_close_dialog( UI_DIALOG * dlg )
 		window_close(dlg->wind);
 
 	d_free( dlg );
-
-	mouse_toggle_cursor(1);
 }
 
 void restore_state()
@@ -595,9 +601,7 @@ void ui_dprintf( UI_DIALOG * dlg, char * format, ... )
 
 	ui_dialog_set_current_canvas( dlg );
 
-	mouse_toggle_cursor(0);
 	D_TEXT_X = gr_string( D_TEXT_X, D_TEXT_Y, buffer );
-	mouse_toggle_cursor(1);
 }
 
 void ui_dprintf_at( UI_DIALOG * dlg, short x, short y, char * format, ... )

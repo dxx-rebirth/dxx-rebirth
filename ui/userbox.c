@@ -29,12 +29,12 @@ static char rcsid[] = "$Id: userbox.c,v 1.1.1.1 2006/03/17 19:52:22 zicodxx Exp 
 
 void ui_draw_userbox( UI_DIALOG *dlg, UI_GADGET_USERBOX * userbox )
 {
-
+#ifndef OGL
 	if ( userbox->status==1 )
+#endif
 	{
 		userbox->status = 0;
 
-		mouse_toggle_cursor(0);
 		gr_set_current_canvas( userbox->canvas );
 
 		if (dlg->keyboard_focus_gadget == (UI_GADGET *)userbox)
@@ -43,8 +43,6 @@ void ui_draw_userbox( UI_DIALOG *dlg, UI_GADGET_USERBOX * userbox )
 			gr_setcolor( CBRIGHT );
 
 		gr_box( -1, -1, userbox->width, userbox->height );
-
-		mouse_toggle_cursor(1);
 	}
 }
 
@@ -82,6 +80,9 @@ int ui_userbox_do( UI_DIALOG *dlg, UI_GADGET_USERBOX * userbox, d_event *event )
 	int x, y, z;
 	int keypress = 0;
 	int rval = 0;
+	
+	if (event->type == EVENT_WINDOW_DRAW)
+		ui_draw_userbox( dlg, userbox );
 	
 	if (event->type == EVENT_KEY_COMMAND)
 		keypress = event_key_get(event);
@@ -154,8 +155,6 @@ int ui_userbox_do( UI_DIALOG *dlg, UI_GADGET_USERBOX * userbox, d_event *event )
 		ui_gadget_send_event(dlg, userbox->b1_clicked ? EVENT_UI_GADGET_PRESSED : EVENT_UI_USERBOX_DRAGGED, (UI_GADGET *)userbox);
 		rval = 1;
 	}
-
-	ui_draw_userbox( dlg, userbox );
 
 	return rval;
 }

@@ -4,6 +4,7 @@ D1X-Rebirth Changelog
 --------
 d1x-rebirth.xcodeproj/project.pbxproj, 2d/font.c: Make sure the ogl font code recognises the editor font is fixed width, fixing a crash; take the plunge and make D1X Rebirth compile with editor for Mac OpenGL build (won't work yet)
 editor/med.c, editor/meddraw.c, editor/medmisc.c, include/editor/editor.h, main/render.c: Make all drawing in the editor single buffered, since the whole screen is double buffered. Fixes crash - but only shows a black screen and the menu for ogl
+editor/med.c, editor/meddraw.c, editor/medmisc.c, ui/button.c, ui/checkbox.c, ui/dialog.c, ui/file.c, ui/icon.c, ui/inputbox.c, ui/listbox.c, ui/menubar.c, ui/radio.c, ui/scroll.c, ui/userbox.c: Make the main stuff (gadgets, two viewers) draw for the editor in ogl, still more tweaking required
 
 20120330
 --------

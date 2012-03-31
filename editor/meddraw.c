@@ -889,8 +889,6 @@ void find_segments(short x,short y,grs_canvas *screen_canvas,editor_view *v,segm
 
 	gr_set_current_canvas(screen_canvas);
 
-	mouse_toggle_cursor(0);
-
 	//g3_set_points(Segment_points,Vertices);
 
 	viewer_position = v->ev_matrix.fvec;

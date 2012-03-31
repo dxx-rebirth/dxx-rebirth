@@ -269,6 +269,10 @@ int medlisp_update_screen()
 {
 	int vn;
 
+#ifdef OGL
+	Update_flags = UF_ALL;
+#endif
+
 if (!render_3d_in_big_window)
 	for (vn=0;vn<N_views;vn++)
 		if (Views[vn]->ev_changed || (Update_flags & (UF_WORLD_CHANGED|UF_VIEWPOINT_MOVED|UF_ED_STATE_CHANGED))) {

@@ -431,8 +431,6 @@ void init_editor()
 	
 	//	_MARK_("start of editor");//Nuked to compile -KRB
 	
-	mouse_toggle_cursor(0);
-	
 	//@@	//create a camera for viewing in the editor. copy position from ConsoleObject
 	//@@	camera_objnum = obj_create(OBJ_CAMERA,0,ConsoleObject->segnum,&ConsoleObject->pos,&ConsoleObject->orient,0);
 	//@@	Viewer = &Objects[camera_objnum];
@@ -459,8 +457,6 @@ void init_editor()
 	//gr_setcolor( CBLACK );
 	//gr_deaccent_canvas();
 	//gr_grey_canvas();
-	
-	mouse_toggle_cursor(1);
 	
 	gr_set_curfont(editor_font);
 	ui_pad_goto(padnum);
@@ -1286,12 +1282,9 @@ int editor_handler(UI_DIALOG *dlg, d_event *event, void *data)
 		x = GameViewBox->b1_drag_x2;
 		y = GameViewBox->b1_drag_y2;
 
-		mouse_toggle_cursor(0);
 		gr_set_current_canvas( GameViewBox->canvas );
 		gr_setcolor( 15 );
 		gr_rect( x-1, y-1, x+1, y+1 );
-		mouse_toggle_cursor(1);
-
 	}
 	
 	// Set current segment and side by clicking on a polygon in game window.
@@ -1338,7 +1331,6 @@ int editor_handler(UI_DIALOG *dlg, d_event *event, void *data)
 					texpage_grab_current(tmap);
 					editor_status( "Texture grabbed." );
 				} else if (keyd_pressed[ KEY_LAPOSTRO] ) {
-					mouse_toggle_cursor(0);
 					move_object_to_mouse_click();
 				} else {
 					Cursegp = &Segments[seg];
@@ -1361,7 +1353,6 @@ int editor_handler(UI_DIALOG *dlg, d_event *event, void *data)
 		int dx, dy, dz;
 
 		event_mouse_get_delta(event, &dx, &dy, &dz);
-		mouse_toggle_cursor(0);
 		if ((dx != 0) && (dy != 0))
 		{
 			vms_matrix	MouseRotMat,tempm;
@@ -1373,8 +1364,6 @@ int editor_handler(UI_DIALOG *dlg, d_event *event, void *data)
 			Large_view_index = -1;			// say not one of the orthogonal views
 			rval = 1;
 		}
-	} else  {
-		mouse_toggle_cursor(1);
 	}
 
 	if (event->type == EVENT_MOUSE_MOVED && keyd_pressed[ KEY_Z ])
@@ -1382,14 +1371,11 @@ int editor_handler(UI_DIALOG *dlg, d_event *event, void *data)
 		int dx, dy, dz;
 
 		event_mouse_get_delta(event, &dx, &dy, &dz);
-		mouse_toggle_cursor(0);
 		if (dy != 0)
 		{
 			current_view->ev_dist += dy*10000;
 			current_view->ev_changed = 1;
 		}
-	} else {
-		mouse_toggle_cursor(1);
 	}
 	
 	return rval;
