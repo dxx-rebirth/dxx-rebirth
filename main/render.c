@@ -2273,17 +2273,12 @@ int find_seg_side_face(short x,short y,int *seg,int *side,int *face,int *poly)
 	found_seg = -1;
 
 	if (render_3d_in_big_window) {
-		grs_canvas temp_canvas;
-
-		gr_init_sub_canvas(&temp_canvas,canv_offscreen,0,0,
-			LargeView.ev_canv->cv_bitmap.bm_w,LargeView.ev_canv->cv_bitmap.bm_h);
-
-		gr_set_current_canvas(&temp_canvas);
+		gr_set_current_canvas(LargeView.ev_canv);
 
 		render_frame(0, 0);
 	}
 	else {
-		gr_set_current_canvas(&VR_render_sub_buffer[0]);	//render off-screen
+		gr_set_current_canvas(Canv_editor_game);
 		render_frame(0, 0);
 	}
 
