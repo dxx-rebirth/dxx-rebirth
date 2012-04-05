@@ -3,8 +3,6 @@
 #ifndef _MATHS_H
 #define _MATHS_H
 
-#define NO_FIX_INLINE 1
-
 #include <stdlib.h>
 #include "pstypes.h"
 
@@ -61,9 +59,9 @@ quadint;
 #define F0_5 	f0_5
 #define F0_1 	f0_1
 
-//#if defined(NO_FIX_INLINE) || (!defined(__GNUC__) && !defined(__WATCOMC__))
-//multiply two fixes, return a fix
+//multiply two fixes, return a fix(64)
 fix fixmul (fix a, fix b);
+fix64 fixmul64 (fix a, fix b);
 
 //divide two fixes, return a fix
 fix fixdiv (fix a, fix b);

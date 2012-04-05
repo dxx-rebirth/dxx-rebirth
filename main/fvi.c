@@ -136,7 +136,7 @@ uint check_point_to_face(vms_vector *checkp, side *s,int facenum,int nv,int *ver
 
 	for (edge=edgemask=0;edge<nv;edge++) {
 		vec2d edgevec,checkvec;
-		fix d;
+		fix64 d;
 
 		v0 = (vms_vector_array *)&Vertices[vertex_list[facenum*3+edge]];
 		v1 = (vms_vector_array *)&Vertices[vertex_list[facenum*3+((edge+1)%nv)]];
@@ -147,7 +147,7 @@ uint check_point_to_face(vms_vector *checkp, side *s,int facenum,int nv,int *ver
 		checkvec.i = check_i - v0->xyz[i];
 		checkvec.j = check_j - v0->xyz[j];
 
-		d = fixmul(checkvec.i,edgevec.j) - fixmul(checkvec.j,edgevec.i);
+		d = fixmul64(checkvec.i,edgevec.j) - fixmul64(checkvec.j,edgevec.i);
 
 		if (d < 0)              		//we are outside of triangle
 			edgemask |= (1<<edge);

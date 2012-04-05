@@ -23,14 +23,6 @@ COPYRIGHT 1993-1998 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 #include "error.h"
 #include "maths.h"
 
-#ifdef NO_FIX_INLINE
-#ifdef _MSC_VER
-#pragma message ("warning: FIX NOT INLINED")
-#else
-// #warning "FIX NOT INLINED"        fixc is now stable
-#endif
-#endif
-
 extern ubyte guess_table[];
 extern short sincos_table[];
 extern ushort asin_table[];
@@ -88,47 +80,25 @@ fix fixquadadjust(quadint *q)
 
 #define EPSILON (F1_0/100)
 
-#ifdef _MSC_VER
-#define QLONG __int64
-#else
-#define QLONG long long
-#endif
+fix fixmul(fix a, fix b)
+{
+	return (fix)((((fix64) a) * b) / 65536);
+}
 
-#ifdef NO_FIX_INLINE
-fix fixmul(fix a, fix b) {
-/*        return (fix)(((double)a*(double)b)/65536.0);*/
-/*        register fix ret;
-	asm("imul %%edx; shrd $16,%%edx,%%eax" : "=a" (ret) : "a" (a), "d" (b) : "%edx");
-        return ret;                                 */
-//         return (fix)((((QLONG)a)*b) >> 16);
-	return (fix)((((QLONG) a) * b) / 65536);
+fix64 fixmul64(fix a, fix b)
+{
+	return (fix64)((((fix64) a) * b) / 65536);
 }
 
 fix fixdiv(fix a, fix b)
 {
-/*	  return (fix)(((double)a * 65536.0) / (double)b);*/
-//         return (fix)((((QLONG)a) << 16)/b);
-/*        register fix ret;
-	asm("mov %%eax,%%edx; sar $16,%%edx; shl $16,%%eax; idiv %%ebx" : "=a" (ret) : "a" (a), "b" (b) : "%edx");
-    return ret; */
-	return b ? (fix)((((QLONG)a) *65536)/b) : 1;
+	return b ? (fix)((((fix64)a) *65536)/b) : 1;
 }
 
 fix fixmuldiv(fix a, fix b, fix c)
 {
-/*        register fix ret;
-	asm("imul %%edx; idiv %%ebx" : "=a" (ret) : "a" (a), "d" (b), "b" (c) : "%edx");
-    return ret;*/
-
-/*        double d;
-
-	d = (double)a * (double) b;
-	return (fix)(d / (double) c);
-*/
-//         return (fix)((((QLONG)a)*b)/c);
-	return c ? (fix)((((QLONG)a)*b)/c) : 1;
+	return c ? (fix)((((fix64)a)*b)/c) : 1;
 }
-#endif
 
 //given cos & sin of an angle, return that angle.
 //parms need not be normalized, that is, the ratio of the parms cos/sin must
