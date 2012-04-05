@@ -1,5 +1,9 @@
 D1X-Rebirth Changelog
 
+20120405
+--------
+include/maths.h, main/fvi.c, maths/fixc.c: Introduced fixmul64 returning fix64 type to use with check_point_to_face() and prevent fix overflow with very large faces; on the way cleaned up NO_FIX_INLINE remnants and replaced QLONG with fix64
+
 20120331
 --------
 d1x-rebirth.xcodeproj/project.pbxproj, 2d/font.c: Make sure the ogl font code recognises the editor font is fixed width, fixing a crash; take the plunge and make D1X Rebirth compile with editor for Mac OpenGL build (won't work yet)
