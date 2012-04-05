@@ -1,5 +1,9 @@
 D2X-Rebirth Changelog
 
+20120405
+--------
+main/multi.c: variable declarations come first
+
 20120331
 --------
 d2x-rebirth.xcodeproj/project.pbxproj, 2d/font.c: Make sure the ogl font code recognises the editor font is fixed width, fixing a crash; take the plunge and make D2X Rebirth compile with editor for Mac OpenGL build (won't work yet)
