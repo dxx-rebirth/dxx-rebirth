@@ -3,6 +3,7 @@ D1X-Rebirth Changelog
 20120407
 --------
 main/fireball.c: made choose_drop_segment more similar to D2X-Rebirth and let fallback correctly check for reactor segment
+2d/font.c: made code more similar to D2X-Rebirth by introducing open_font which allows to keep track of font_data and free it properly
 
 20120405
 --------

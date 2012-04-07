@@ -42,6 +42,17 @@ COPYRIGHT 1993-1998 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 #define FONTSCALE_X(x) ((float)(x)*(FNTScaleX))
 #define FONTSCALE_Y(x) ((float)(x)*(FNTScaleY))
 
+#define MAX_OPEN_FONTS	50
+
+typedef struct openfont {
+	char filename[FILENAME_LEN];
+	grs_font *ptr;
+	char *dataptr;
+} openfont;
+
+//list of open fonts
+openfont open_font[MAX_OPEN_FONTS];
+
 #define BITS_TO_BYTES(x)    (((x)+7)>>3)
 
 int gr_internal_string_clipped(int x, int y, char *s );
@@ -894,6 +905,19 @@ void gr_close_font( grs_font * font )
 {
 	if (font)
 	{
+		int fontnum;
+		char * font_data;
+
+		//find font in list
+		for (fontnum=0;fontnum<MAX_OPEN_FONTS && open_font[fontnum].ptr!=font;fontnum++);
+		Assert(fontnum<MAX_OPEN_FONTS);	//did we find slot?
+
+		font_data = open_font[fontnum].dataptr;
+		d_free( font_data );
+
+		open_font[fontnum].ptr = NULL;
+		open_font[fontnum].dataptr = NULL;
+
 		if ( font->ft_chars )
 			d_free( font->ft_chars );
 #ifdef OGL
@@ -925,14 +949,31 @@ void grs_font_read(grs_font *gf, PHYSFS_file *fp)
 
 grs_font * gr_init_font( char * fontname )
 {
+	static int first_time=1;
 	grs_font *font;
 	char *font_data;
-	int i;
+	int i,fontnum;
 	unsigned char * ptr;
 	int nchars;
 	PHYSFS_file *fontfile;
 	char file_id[4];
 	int datasize;	//size up to (but not including) palette
+
+	if (first_time) {
+		int i;
+		for (i=0;i<MAX_OPEN_FONTS;i++)
+		{
+			open_font[i].ptr = NULL;
+			open_font[i].dataptr = NULL;
+		}
+		first_time=0;
+	}
+
+	//find free font slot
+	for (fontnum=0;fontnum<MAX_OPEN_FONTS && open_font[fontnum].ptr!=NULL;fontnum++);
+	Assert(fontnum<MAX_OPEN_FONTS);	//did we find one?
+
+	strncpy(open_font[fontnum].filename,fontname,FILENAME_LEN);
 
 	fontfile = PHYSFSX_openReadBuffered(fontname);
 
@@ -955,6 +996,9 @@ grs_font * gr_init_font( char * fontname )
 
 	MALLOC(font_data, char, datasize);
 	PHYSFS_read(fontfile, font_data, 1, datasize);
+
+	open_font[fontnum].ptr = font;
+	open_font[fontnum].dataptr = font_data;
 
 	// make these offsets relative to font_data
 	font->ft_data = (ubyte *)((size_t)font->ft_data - GRS_FONT_SIZE);
