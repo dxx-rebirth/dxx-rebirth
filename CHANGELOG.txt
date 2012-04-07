@@ -4,6 +4,7 @@ D2X-Rebirth Changelog
 --------
 main/fireball.c: in choose_drop_segment let fallback correctly check for reactor segment
 2d/font.c, main/piggy.c, misc/strutil.c: removed redundant definitions of FILENAME_LEN
+main/multi.c, main/multi.h: fixed glitch when reappear and explode packets are misordered, rendering player invisible
 
 20120405
 --------

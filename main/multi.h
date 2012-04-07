@@ -68,7 +68,7 @@ extern int multi_protocol; // set and determinate used protocol
 //   3 Descent II Shareware
 //   4 Descent II Commercial
 // > 4 DXX-Rebirth
-#define MULTI_PROTO_VERSION 6
+#define MULTI_PROTO_VERSION 7
 // PROTOCOL VARIABLES AND DEFINES - END
 
 
