@@ -1,5 +1,9 @@
 D2X-Rebirth Changelog
 
+20120407
+--------
+main/fireball.c: in choose_drop_segment let fallback correctly check for reactor segment
+
 20120405
 --------
 main/multi.c: variable declarations come first
