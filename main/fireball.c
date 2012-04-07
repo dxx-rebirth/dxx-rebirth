@@ -403,37 +403,73 @@ int pick_connected_segment(object *objp, int max_depth)
 //	For all active net players, try to create a N segment path from the player.  If possible, return that
 //	segment.  If not possible, try another player.  After a few tries, use a random segment.
 //	Don't drop if control center in segment.
-int choose_drop_segment(void)
+int choose_drop_segment()
 {
 	int	pnum = 0;
 	int	segnum = -1;
-	int	initial_drop_depth = BASE_NET_DROP_DEPTH + ((d_rand() * 10) >> 15);
-	int	cur_drop_depth = initial_drop_depth;
+	int	cur_drop_depth;
 	int	count;
+	int	player_seg;
+	vms_vector tempv,*player_pos;
 
 	d_srand((fix)timer_query());
+
+	cur_drop_depth = BASE_NET_DROP_DEPTH + ((d_rand() * BASE_NET_DROP_DEPTH*2) >> 15);
+
+	player_pos = &Objects[Players[Player_num].objnum].pos;
+	player_seg = Objects[Players[Player_num].objnum].segnum;
 
 	while ((segnum == -1) && (cur_drop_depth > BASE_NET_DROP_DEPTH/2)) {
 		pnum = (d_rand() * N_players) >> 15;
 		count = 0;
-		while ((Players[pnum].connected == CONNECT_DISCONNECTED) && (count < N_players)) {
+		while ((count < N_players) && ((Players[pnum].connected == CONNECT_DISCONNECTED) || (pnum==Player_num))) {
 			pnum = (pnum+1)%N_players;
 			count++;
 		}
 
 		if (count == N_players) {
-			return (d_rand() * Highest_segment_index) >> 15;
+			//if can't valid non-player person, use the player
+			pnum = Player_num;
 		}
 
 		segnum = pick_connected_segment(&Objects[Players[pnum].objnum], cur_drop_depth);
+		if (segnum == -1)
+		{
+			cur_drop_depth--;
+			continue;
+		}
 		if (Segments[segnum].special == SEGMENT_IS_CONTROLCEN)
-			segnum = -1;
+			{segnum = -1;}
+		else {	//don't drop in any children of control centers
+			int i;
+			for (i=0;i<6;i++) {
+				int ch = Segments[segnum].children[i];
+				if (IS_CHILD(ch) && Segments[ch].special == SEGMENT_IS_CONTROLCEN) {
+					segnum = -1;
+					break;
+				}
+			}
+		}
+
+		//bail if not far enough from original position
+		if (segnum != -1) {
+			compute_segment_center(&tempv, &Segments[segnum]);
+			if (find_connected_distance(player_pos,player_seg,&tempv,segnum,-1,WID_FLY_FLAG) < i2f(20)*cur_drop_depth) {
+				segnum = -1;
+			}
+		}
+
 		cur_drop_depth--;
 	}
 
 	if (segnum == -1) {
+		cur_drop_depth = BASE_NET_DROP_DEPTH;
 		while (cur_drop_depth > 0 && segnum == -1) // before dropping in random segment, try to find ANY segment which is connected to the player responsible for the drop so object will not spawn in inaccessible areas
+		{
 			segnum = pick_connected_segment(&Objects[Players[Player_num].objnum], --cur_drop_depth);
+			if (Segments[segnum].special == SEGMENT_IS_CONTROLCEN)
+				segnum = -1;
+		}
 		return ((segnum == -1)?((d_rand() * Highest_segment_index) >> 15):segnum); // basically it should be impossible segnum == -1 now... but oh well...
 	} else
 		return segnum;

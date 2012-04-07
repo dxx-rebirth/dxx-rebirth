@@ -1,5 +1,9 @@
 D1X-Rebirth Changelog
 
+20120407
+--------
+main/fireball.c: made choose_drop_segment more similar to D2X-Rebirth and let fallback correctly check for reactor segment
+
 20120405
 --------
 include/maths.h, main/fvi.c, maths/fixc.c: Introduced fixmul64 returning fix64 type to use with check_point_to_face() and prevent fix overflow with very large faces; on the way cleaned up NO_FIX_INLINE remnants and replaced QLONG with fix64
