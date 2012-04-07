@@ -35,6 +35,7 @@ COPYRIGHT 1993-1998 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 #include "gamefont.h"
 #include "console.h"
 #include "config.h"
+#include "inferno.h"
 #ifdef OGL
 #include "ogl_init.h"
 #endif
