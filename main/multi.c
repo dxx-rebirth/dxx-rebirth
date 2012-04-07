@@ -118,6 +118,7 @@ unsigned char multibuf2[MAX_MULTI_MESSAGE_LEN+4];
 short remote_to_local[MAX_NUM_NET_PLAYERS][MAX_OBJECTS];  // Remote object number for each local object
 short local_to_remote[MAX_OBJECTS]; 
 sbyte  object_owner[MAX_OBJECTS];   // Who created each object in my universe, -1 = loaded at start
+int early_resp[MAX_NUM_NET_PLAYERS]; // HACK in case we ger REAPPEAR packet before EXPLODE
 
 int 	Net_create_objnums[MAX_NET_CREATE_OBJECTS]; // For tracking object creation that will be sent to remote
 int 	Net_create_loc = 0;  // pointer into previous array
@@ -164,7 +165,7 @@ extern fix ThisLevelTime;
 
 int message_length[MULTI_MAX_TYPE+1] = {
         25, // POSITION
-        3,  // REAPPEAR
+        4,  // REAPPEAR
         8,  // FIRE
         5,  // KILL
         4,  // REMOVE_OBJECT
@@ -1500,15 +1501,23 @@ void
 multi_do_reappear(char *buf)
 {
 	short objnum;
+	ubyte pnum = buf[1];
 
-	objnum = GET_INTEL_SHORT(buf + 1);
+	objnum = GET_INTEL_SHORT(buf + 2);
 
 	Assert(objnum >= 0);
+
+	if (Objects[Players[pnum].objnum].type != OBJ_GHOST)
+	{
+		early_resp[pnum] = objnum;
+		return;
+	}
 
 	multi_make_ghost_player(Objects[objnum].id);
 
 	create_player_appearance_effect(&Objects[objnum]);
 	PKilledFlags[Objects[objnum].id]=0;
+	early_resp[pnum] = -1;
 }
 
 void
@@ -1602,6 +1611,13 @@ multi_do_player_explode(char *buf)
 
 	Players[pnum].flags &= ~(PLAYER_FLAGS_CLOAKED | PLAYER_FLAGS_INVULNERABLE);
 	Players[pnum].cloak_time = 0;
+
+	if (early_resp[pnum] >= 0)
+	{
+		multi_make_ghost_player(Objects[early_resp[pnum]].id);
+		create_player_appearance_effect(&Objects[early_resp[pnum]]);
+		early_resp[pnum] = -1;
+	}
 }
 
 /*
@@ -2590,9 +2606,10 @@ multi_send_reappear()
 	multi_send_position(Players[Player_num].objnum);
 	
 	multibuf[0] = (char)MULTI_REAPPEAR;
-	PUT_INTEL_SHORT(multibuf+1, Players[Player_num].objnum);
+	multibuf[1] = (char)Player_num;
+	PUT_INTEL_SHORT(multibuf+2, Players[Player_num].objnum);
 
-	multi_send_data(multibuf, 3, 2);
+	multi_send_data(multibuf, 4, 2);
 	PKilledFlags[Player_num]=0;
 }
 
@@ -2982,6 +2999,7 @@ multi_prep_level(void)
 
 	for (i=0;i<MAX_NUM_NET_PLAYERS;i++)
 	{
+		early_resp[i] = -1;
 		PKilledFlags[i]=0;
 		multi_sending_message[i] = 0;
 	}
