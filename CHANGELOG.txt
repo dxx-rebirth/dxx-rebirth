@@ -6,6 +6,7 @@ main/fireball.c: made choose_drop_segment more similar to D2X-Rebirth and let fa
 2d/font.c: made code more similar to D2X-Rebirth by introducing open_font which allows to keep track of font_data and free it properly
 2d/font.c, misc/strutil.c: removed redundant definitions of FILENAME_LEN
 main/multi.c, main/multi.h: fixed glitch when reappear and explode packets are misordered, rendering player invisible
+main/gauges.c: record shields if player is invulnerable to get proper shield display in demo playback if player respawns with invulnerability on
 
 20120405
 --------

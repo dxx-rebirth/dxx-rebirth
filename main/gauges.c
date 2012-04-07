@@ -2481,17 +2481,16 @@ void render_gauges()
 			show_bomb_count(HUD_SCALE_X(BOMB_COUNT_X), HUD_SCALE_Y(BOMB_COUNT_Y), gr_find_closest_color(0, 0, 0), 0, 0);
 		draw_player_ship(cloak, SHIP_GAUGE_X, SHIP_GAUGE_Y);
 
-		if (Players[Player_num].flags & PLAYER_FLAGS_INVULNERABLE) {
+		if (Players[Player_num].flags & PLAYER_FLAGS_INVULNERABLE)
 			draw_invulnerable_ship();
-		} else {		// Draw the shield gauge
-			if (Newdemo_state == ND_STATE_RECORDING)
-				newdemo_record_player_shields(shields);
+		else
 			draw_shield_bar(shields);
-		}
 		draw_numerical_display(shields, energy);
-
-		if (Newdemo_state==ND_STATE_RECORDING)
+		if (Newdemo_state == ND_STATE_RECORDING)
+		{
+			newdemo_record_player_shields(shields);
 			newdemo_record_player_flags(Players[Player_num].flags);
+		}
 		draw_keys();
 
 		show_homing_warning();
@@ -2508,19 +2507,16 @@ void render_gauges()
 		draw_player_ship(cloak, SB_SHIP_GAUGE_X, SB_SHIP_GAUGE_Y);
 
 		if (Players[Player_num].flags & PLAYER_FLAGS_INVULNERABLE)
-		{
 			draw_invulnerable_ship();
-		}
 		else
-		{	// Draw the shield gauge
-			if (Newdemo_state == ND_STATE_RECORDING)
-				newdemo_record_player_shields(shields);
 			sb_draw_shield_bar(shields);
-		}
 		sb_draw_shield_num(shields);
 
 		if (Newdemo_state==ND_STATE_RECORDING)
+		{
+			newdemo_record_player_shields(shields);
 			newdemo_record_player_flags(Players[Player_num].flags);
+		}
 		sb_draw_keys();
 
 		sb_show_lives();
