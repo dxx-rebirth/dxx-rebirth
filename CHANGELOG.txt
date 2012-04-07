@@ -3,6 +3,7 @@ D2X-Rebirth Changelog
 20120407
 --------
 main/fireball.c: in choose_drop_segment let fallback correctly check for reactor segment
+2d/font.c, main/piggy.c, misc/strutil.c: removed redundant definitions of FILENAME_LEN
 
 20120405
 --------

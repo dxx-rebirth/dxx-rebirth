@@ -26,8 +26,7 @@ COPYRIGHT 1993-1999 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 #include "u_mem.h"
 #include "error.h"
 #include "strutil.h"
-
-#define FILENAME_LEN 13
+#include "inferno.h"
 
 #ifdef macintosh
 void snprintf(char *out_string, int size, char * format, ... )
