@@ -1,5 +1,9 @@
 D2X-Rebirth Changelog
 
+20120409
+--------
+main/state.c: in software rendering scale savestate thumbnail to correct size
+
 20120408
 --------
 main/mission.c, main/mission.h, main/titles.c: added specification for Descent: Destination Saturn briefing screen to properly show briefings; added different briefing structure for Descent 1 Shareware which has a slightly different order of the usual briefings
