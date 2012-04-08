@@ -1,5 +1,9 @@
 D1X-Rebirth Changelog
 
+20120408
+--------
+main/mission.c, main/mission.h, main/titles.c: added specification for Descent: Destination Saturn briefing screen to properly show briefings; added different briefing structure for Descent 1 Shareware which has a slightly different order of the usual briefings
+
 20120407
 --------
 main/fireball.c: made choose_drop_segment more similar to D2X-Rebirth and let fallback correctly check for reactor segment

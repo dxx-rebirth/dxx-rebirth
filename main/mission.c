@@ -110,7 +110,7 @@ int load_mission_d1(void)
 	
 			Secret_level_table[0] = 10;
 
-			strcpy(Briefing_text_filename,BIMD1_BRIEFING_FILE);
+			strcpy(Briefing_text_filename,BIMD1_BRIEFING_FILE_OEM);
 			strcpy(Ending_text_filename,BIMD1_ENDING_FILE_OEM);
 	
 			break;
