@@ -3,6 +3,7 @@ D2X-Rebirth Changelog
 20120408
 --------
 main/mission.c, main/mission.h, main/titles.c: added specification for Descent: Destination Saturn briefing screen to properly show briefings; added different briefing structure for Descent 1 Shareware which has a slightly different order of the usual briefings
+main/collide.c: plasma fire can ignite bombs which are dropped while firing. to compensate added a timed check where at least one projectile must be older than 200ms to trigger a possible collision. this fixes this issue if the player is moving away from the bomb
 
 20120407
 --------
