@@ -3,6 +3,7 @@ D2X-Rebirth Changelog
 20120409
 --------
 main/state.c: in software rendering scale savestate thumbnail to correct size
+editor/autosave.c, editor/info.c, editor/med.c, editor/objpage.c, editor/texpage.c, include/ui.h, ui/keypad.c, ui/uidraw.c: Get the clock, 'keypad' info, texture choosing page and object choosing page to draw (latter two just show black squares for ogl)
 
 20120408
 --------

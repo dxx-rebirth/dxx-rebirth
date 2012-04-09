@@ -166,7 +166,8 @@ void TimedAutosave(char *name)
 
 	if (hour > 12) hour-=12;
 
-	if (second!=save_second) {
+	//if (second!=save_second)
+	{
 		save_second = second;
 		clock_message(second, "%d/%d %d:%02d", month, day, hour, minute);
 	}

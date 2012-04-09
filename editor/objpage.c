@@ -373,30 +373,6 @@ void objpage_init( UI_DIALOG *dlg )
 
 	objpage_reset_orient();
 
-	for (i=0;  i<OBJS_PER_PAGE; i++ )
-	{
-		gr_set_current_canvas(ObjBox[i]->canvas);
-		if (i+ObjectPage*OBJS_PER_PAGE < Num_object_subtypes)
-		{
-				//gr_ubitmap(0,0, robot_bms[robot_bm_nums[ i+ObjectPage*OBJS_PER_PAGE ] ] );
-				gr_label_box(i+ObjectPage*OBJS_PER_PAGE );
-		} else {
-			gr_clear_canvas( CGREY );
-		}
-	}
-
-// Don't reset robot_type when we return to editor.
-//	Cur_robot_type = ObjectPage*OBJS_PER_PAGE;
-	gr_set_current_canvas(ObjCurrent->canvas);
-	//gr_ubitmap(0,0, robot_bms[robot_bm_nums[ Cur_robot_type ] ] );
-	gr_label_box(Cur_object_id);
-
-	//ObjnameCanvas = gr_create_sub_canvas(&grd_curscreen->sc_canvas, OBJCURBOX_X , OBJCURBOX_Y + OBJBOX_H + 10, 100, 20);
-	//gr_set_current_canvas( ObjnameCanvas );
-	//gr_set_curfont( ui_small_font ); 
-   //gr_set_fontcolor( CBLACK, CWHITE );
-	//objpage_display_name( Texture[Cur_robot_type]->filename );
-
 }
 
 void objpage_close()
@@ -410,6 +386,35 @@ void objpage_close()
 int objpage_do(d_event *event)
 {
 	int i;
+	
+	if (event->type == EVENT_UI_DIALOG_DRAW)
+	{
+		for (i=0;  i<OBJS_PER_PAGE; i++ )
+		{
+			gr_set_current_canvas(ObjBox[i]->canvas);
+			if (i+ObjectPage*OBJS_PER_PAGE < Num_object_subtypes)
+			{
+				//gr_ubitmap(0,0, robot_bms[robot_bm_nums[ i+ObjectPage*OBJS_PER_PAGE ] ] );
+				gr_label_box(i+ObjectPage*OBJS_PER_PAGE );
+			} else {
+				gr_clear_canvas( CGREY );
+			}
+		}
+		
+		// Don't reset robot_type when we return to editor.
+		//	Cur_robot_type = ObjectPage*OBJS_PER_PAGE;
+		gr_set_current_canvas(ObjCurrent->canvas);
+		//gr_ubitmap(0,0, robot_bms[robot_bm_nums[ Cur_robot_type ] ] );
+		gr_label_box(Cur_object_id);
+		
+		//ObjnameCanvas = gr_create_sub_canvas(&grd_curscreen->sc_canvas, OBJCURBOX_X , OBJCURBOX_Y + OBJBOX_H + 10, 100, 20);
+		//gr_set_current_canvas( ObjnameCanvas );
+		//gr_set_curfont( ui_small_font ); 
+		//gr_set_fontcolor( CBLACK, CWHITE );
+		//objpage_display_name( Texture[Cur_robot_type]->filename );
+		
+		return 1;
+	}
 
 	for (i=0; i<OBJS_PER_PAGE; i++ )
 	{

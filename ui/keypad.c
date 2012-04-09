@@ -95,9 +95,6 @@ void ui_pad_activate( UI_DIALOG * dlg, int x, int y )
 
 	bw = 56; bh = 30;
 
-	ui_dialog_set_current_canvas( dlg );
-	ui_draw_box_in( x, y, x+(bw*4)+10 + 200, y+(bh*5)+45 );
-
 	x += 5;
 	y += 20;
 
@@ -207,6 +204,22 @@ void ui_pad_deactivate()
 	}
 }
 
+void ui_pad_draw(UI_DIALOG *dlg, int x, int y)
+{
+	int bh, bw;
+	
+	bw = 56; bh = 30;
+	
+	ui_dialog_set_current_canvas( dlg );
+	ui_draw_box_in( x, y, x+(bw*4)+10 + 200, y+(bh*5)+45 );
+
+	gr_set_current_canvas( NULL );
+	gr_setcolor( CWHITE );
+	gr_urect( desc_x, desc_y, desc_x+ 56*4-1, desc_y+15 );
+	gr_set_fontcolor( CBLACK, CWHITE );
+	gr_ustring( desc_x, desc_y, KeyPad[active_pad]->description );
+}
+
 static void ui_pad_set_active( int n )
 {
 	int np;
@@ -215,12 +228,6 @@ static void ui_pad_set_active( int n )
 
 	
 
-	gr_set_current_canvas( NULL );
-	gr_setcolor( CWHITE );
-	gr_urect( desc_x, desc_y, desc_x+ 56*4-1, desc_y+15 );
-	gr_set_fontcolor( CBLACK, CWHITE );
-	gr_ustring( desc_x, desc_y, KeyPad[n]->description );
-		
 	for (i=0; i<17; i++ )
 	{
 		Pad[i]->text = KeyPad[n]->buttontext[i];

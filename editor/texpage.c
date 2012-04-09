@@ -197,18 +197,6 @@ void texpage_init( UI_DIALOG * dlg )
 	TmapCurrent = ui_add_gadget_userbox( dlg, TMAPCURBOX_X, TMAPCURBOX_Y, 64, 64 );
 
 	TmapnameCanvas = gr_create_sub_canvas(&grd_curscreen->sc_canvas, TMAPCURBOX_X , TMAPCURBOX_Y + TMAPBOX_H + 10, 100, 20);
-	gr_set_current_canvas( TmapnameCanvas );
-	gr_set_curfont( ui_small_font ); 
-   gr_set_fontcolor( CBLACK, CWHITE );
-
-	texpage_redraw();
-
-	gr_set_curfont(editor_font);
-
-	// Don't reset the current tmap every time we go back to the editor.
-//	CurrentTexture = TexturePage*TMAPS_PER_PAGE;
-	texpage_show_current();
-
 }
 
 void texpage_close()
@@ -231,6 +219,23 @@ int	Num_replacements=0;
 int texpage_do(d_event *event)
 {
 	int i;
+
+	if (event->type == EVENT_UI_DIALOG_DRAW)
+	{
+		gr_set_current_canvas( TmapnameCanvas );
+		gr_set_curfont( ui_small_font ); 
+		gr_set_fontcolor( CBLACK, CWHITE );
+		
+		texpage_redraw();
+		
+		gr_set_curfont(editor_font);
+		
+		// Don't reset the current tmap every time we go back to the editor.
+		//	CurrentTexture = TexturePage*TMAPS_PER_PAGE;
+		texpage_show_current();
+		
+		return 1;
+	}
 
 	for (i=0; i<TMAPS_PER_PAGE; i++ ) {
 		if (GADGET_PRESSED(TmapBox[i]) && (i + TexturePage*TMAPS_PER_PAGE < NumTextures))
