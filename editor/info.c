@@ -347,6 +347,10 @@ int info_display_all(window *wind, d_event *event, void *userdata)
 			grd_curcanv = save_canvas;
 			return 1;
 			
+		case EVENT_WINDOW_CLOSE:
+			Pad_info = NULL;
+			break;
+			
 		default:
 			break;
 	}

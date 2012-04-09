@@ -32,12 +32,10 @@ COPYRIGHT 1993-1998 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 #include "timer.h"
 #include "error.h"
 
-#define D_BACKGROUND    (dlg->background )
 #define D_X             (dlg->x)
 #define D_Y             (dlg->y)
 #define D_WIDTH         (dlg->width)
 #define D_HEIGHT        (dlg->height)
-#define D_OLDCANVAS     (dlg->oldcanvas)
 #define D_GADGET        (dlg->gadget)
 #define D_TEXT_X        (dlg->text_x)
 #define D_TEXT_Y        (dlg->text_y)
@@ -139,7 +137,6 @@ void ui_dialog_draw(UI_DIALOG *dlg)
 	y = D_Y;
 	w = D_WIDTH;
 	h = D_HEIGHT;
-	D_OLDCANVAS = grd_curcanv;
 
 	req_w = w;
 	req_h = h;
@@ -214,7 +211,9 @@ int ui_dialog_handler(window *wind, d_event *event, UI_DIALOG *dlg)
 		}
 
 		case EVENT_WINDOW_CLOSE:
-			//ui_close_dialog(dlg);		// need to hide this function and make it not call window_close first
+			ui_gadget_delete_all(dlg);
+			selected_gadget = NULL;
+			d_free( dlg );
 			break;
 			
 		default:
@@ -259,17 +258,9 @@ UI_DIALOG * ui_create_dialog( short x, short y, short w, short h, enum dialog_fl
 	D_Y = y;
 	D_WIDTH = w;
 	D_HEIGHT = h;
-	D_OLDCANVAS = grd_curcanv;
 	D_GADGET = NULL;
 	dlg->keyboard_focus_gadget = NULL;
-
-	if (flags & DF_SAVE_BG)
-	{
-		D_BACKGROUND = gr_create_bitmap( w, h );
-		gr_bm_ubitblt(w, h, 0, 0, x, y, &(grd_curscreen->sc_canvas.cv_bitmap), D_BACKGROUND );
-	}
-	else
-		D_BACKGROUND = NULL;
+	selected_gadget = NULL;
 
 	dlg->callback = callback;
 	dlg->userdata = userdata;
@@ -280,14 +271,12 @@ UI_DIALOG * ui_create_dialog( short x, short y, short w, short h, enum dialog_fl
 	
 	if (!dlg->wind)
 	{
-		ui_close_dialog(dlg);
+		d_free(dlg);
 		return NULL;
 	}
 
 	if (!(flags & DF_MODAL))
 		window_set_modal(dlg->wind, 0);	// make this window modeless, allowing events to propogate through the window stack
-
-	selected_gadget = NULL;
 
 	return dlg;
 
@@ -305,28 +294,7 @@ void ui_dialog_set_current_canvas(UI_DIALOG *dlg)
 
 void ui_close_dialog( UI_DIALOG * dlg )
 {
-
-	ui_gadget_delete_all( dlg );
-
-	if (D_BACKGROUND)
-	{
-		gr_bm_ubitblt(D_WIDTH, D_HEIGHT, D_X, D_Y, 0, 0, D_BACKGROUND, &(grd_curscreen->sc_canvas.cv_bitmap));
-		gr_free_bitmap( D_BACKGROUND );
-	} else
-	{
-		gr_set_current_canvas( NULL );
-		gr_setcolor( CBLACK );
-		gr_rect( D_X, D_Y, D_X+D_WIDTH-1, D_Y+D_HEIGHT-1 );
-	}
-
-	gr_set_current_canvas( D_OLDCANVAS );
-
-	selected_gadget = NULL;
-
-	if (dlg->wind)
-		window_close(dlg->wind);
-
-	d_free( dlg );
+	window_close(dlg->wind);
 }
 
 void restore_state()

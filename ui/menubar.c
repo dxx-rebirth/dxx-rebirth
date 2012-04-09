@@ -47,7 +47,6 @@ typedef struct {
 	short				NumItems;
 	short				Displayed;
 	short				Active;
-	grs_bitmap *	Background;
 	ITEM				Item[MAXITEMS];
 } MENU;
 
@@ -145,14 +144,6 @@ void menu_show( MENU * menu )
 
 	window_set_visible(menu->wind, 1);
 	
-	gr_set_current_canvas(NULL);
-	// Don't save background it if it's already drawn
-	if (!menu->Displayed && menu->w>0 && menu->h>0) 
-	{
-		// Save the background
-		gr_bm_ubitblt(menu->w, menu->h, 0, 0, menu->x, menu->y, &(grd_curscreen->sc_canvas.cv_bitmap), menu->Background);
-	}
-	
 	// Mark as displayed.
 	menu->Displayed = 1;
 }
@@ -165,16 +156,13 @@ void menu_hide( MENU * menu )
 	// Can't hide if it's not already drawn
 	if (!menu->Displayed) return;
 	
-	if (menu != &Menu[0])
+	if ((menu != &Menu[0]) && menu->wind)
 		window_set_visible(menu->wind, 0);	// don't draw or receive events
 
 	menu->Active = 0;
 	if (Menu[0].wind && menu == &Menu[0])
 		window_set_modal(Menu[0].wind, 0);
 		
-	// Restore the background
-	gr_bm_ubitblt(menu->w, menu->h, menu->x, menu->y, 0, 0, menu->Background, &(grd_curscreen->sc_canvas.cv_bitmap));
-
 	// Mark as hidden.
 	menu->Displayed = 0;
 }
@@ -538,6 +526,13 @@ int menu_handler(window *wind, d_event *event, MENU *menu)
 	
 	if (event->type == EVENT_KEY_COMMAND)
 		keypress = event_key_get(event);
+	else if (event->type == EVENT_WINDOW_CLOSE)	// quitting
+	{
+		state = 0;
+		menu_hide_all();
+		menu->wind = NULL;
+		return 0;
+	}
 	
 	switch( keypress )
 	{
@@ -683,6 +678,25 @@ int menubar_handler(window *wind, d_event *event, MENU *menu)
 	{
 		menu_draw(&Menu[0]);
 		return 1;
+	}
+	else if (event->type == EVENT_WINDOW_CLOSE)
+	{
+		int i;
+		
+		
+		//menu_hide_all();
+		//menu_hide( &Menu[0] );
+		
+		for (i=1; i<num_menus; i++ )
+		{
+			if (Menu[i].wind)
+			{
+				window_close(Menu[i].wind);
+				Menu[i].wind = NULL;
+			}
+		}
+		
+		Menu[0].wind = NULL;
 	}
 
 	switch (state)
@@ -876,10 +890,6 @@ void menubar_init( char * file )
 	Menu[0].w = 700;
 
 	PHYSFS_close( infile );
-
-	
-	for (i=0; i<num_menus; i++ )
-		Menu[i].Background = gr_create_bitmap(Menu[i].w, Menu[i].h );
 }
 
 void menubar_hide()
@@ -896,16 +906,9 @@ void menubar_show()
 
 void menubar_close()
 {
-	int i;
+	if (!Menu[0].wind)
+		return;
 
-	//menu_hide_all();
-	//menu_hide( &Menu[0] );
-	
-	for (i=0; i<num_menus; i++ )
-	{
-		if (Menu[i].wind)
-			window_close(Menu[i].wind);
-		gr_free_bitmap( Menu[i].Background );
-	}
-
+	window_close(Menu[0].wind);
+	Menu[0].wind = NULL;
 }

@@ -36,9 +36,10 @@ void gr_urect(int left,int top,int right,int bot)
 		ogl_urect(left,top,right,bot);
 		return;
 	}
-#endif
+#else
 	for ( i=top; i<=bot; i++ )
 		gr_uscanline( left, right, i );
+#endif
 }
 
 void gr_rect(int left,int top,int right,int bot)

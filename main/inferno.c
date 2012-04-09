@@ -204,7 +204,8 @@ int standard_handler(d_event *event)
 		}
 		
 		// Close front window, let the code flow continue until all windows closed or quit cancelled
-		window_close(wind);
+		if (!window_close(wind))
+			Quitting = 0;
 		
 		return 1;
 	}
@@ -263,7 +264,10 @@ int standard_handler(d_event *event)
 			return 1;
 
 		case EVENT_QUIT:
-			Quitting = 1;
+#ifdef EDITOR
+			if (SafetyCheck())
+#endif
+				Quitting = 1;
 			return 1;
 
 		default:
