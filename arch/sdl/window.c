@@ -154,6 +154,7 @@ void window_select(window *wind)
 	if (wind->prev)
 		wind->prev->next = wind->next;
 	wind->prev = FrontWindow;
+	FrontWindow->next = wind;
 	wind->next = NULL;
 	FrontWindow = wind;
 	

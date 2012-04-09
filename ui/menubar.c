@@ -165,7 +165,8 @@ void menu_hide( MENU * menu )
 	// Can't hide if it's not already drawn
 	if (!menu->Displayed) return;
 	
-	window_set_visible(menu->wind, 0);	// don't draw or receive events
+	if (menu != &Menu[0])
+		window_set_visible(menu->wind, 0);	// don't draw or receive events
 
 	menu->Active = 0;
 	if (Menu[0].wind && menu == &Menu[0])
