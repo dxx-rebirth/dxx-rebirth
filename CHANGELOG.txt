@@ -8,6 +8,7 @@ arch/sdl/window.c, ui/menubar.c: Fix a nasty bug where pressing 'Alt' to explore
 2d/bitblt.c, 2d/box.c, 2d/font.c, arch/ogl/gr.c, editor/med.c, ui/dialog.c, ui/uidraw.c, ui/userbox.c: Fix all remaining known editor drawing issues. In ogl: get the texture previews to draw, get userbox borders to draw in the right location, properly underline characters in the menus, draw all the borders properly (i.e. no gap), no scaling fonts. Software render: draw userbox borders again. Both: clear the whole status bar, clear to the right edge of the screen.
 main/newmenu.c: No setting the screen mode when calling a newmenu function, so if it shows the 'Save Mine' messagebox in the editor, it won't change the screen resolution and trash everything. (If this causes problems, we can make it use the MessageBox if it's still in the editor, nm_messagebox otherwise)
 2d/rect.c, editor/info.c, editor/med.c, include/ui.h, main/inferno.c, ui/dialog.c, ui/menubar.c: Editor exits cleanly when clicking the close box, no more redundant gr_uscanline call in gl_urect for ogl (an initial attempt to fix the previous bug)
+2d/rect.c: Fix unused variable warning in last commit
 
 20120408
 --------
