@@ -177,13 +177,18 @@ int get_centered_x(char *s)
 //function must already have orig_color var set (or they could be passed as args...)
 //perhaps some sort of recursive orig_color type thing would be better, but that would be way too much trouble for little gain
 int gr_message_color_level=1;
-#define CHECK_EMBEDDED_COLORS() if ((*text_ptr >= 0x01) && (*text_ptr <= 0x03)) { \
+#define CHECK_EMBEDDED_COLORS() if ((*text_ptr >= 0x01) && (*text_ptr <= 0x02)) { \
 		text_ptr++; \
 		if (*text_ptr){ \
 			if (gr_message_color_level >= *(text_ptr-1)) \
 				grd_curcanv->cv_font_fg_color = (unsigned char)*text_ptr; \
 			text_ptr++; \
 		} \
+	} \
+	else if (*text_ptr == 0x03) \
+	{ \
+		underline = 1; \
+		text_ptr++; \
 	} \
 	else if ((*text_ptr >= 0x04) && (*text_ptr <= 0x06)){ \
 		if (gr_message_color_level >= *text_ptr - 3) \
@@ -692,6 +697,7 @@ int ogl_internal_string(int x, int y, char *s )
 	int width, spacing,letter;
 	int xx,yy;
 	int orig_color=grd_curcanv->cv_font_fg_color;//to allow easy reseting to default string color with colored strings -MPM
+	int underline;
 
 	next_row = s;
 
@@ -726,12 +732,23 @@ int ogl_internal_string(int x, int y, char *s )
 
 			get_char_width(text_ptr[0],text_ptr[1],&width,&spacing);
 
+			underline = 0;
 			if (!INFONT(letter) || (unsigned char)*text_ptr <= 0x06) //not in font, draw as space
 			{
 				CHECK_EMBEDDED_COLORS() else{
 					xx += spacing;
 					text_ptr++;
 				}
+				
+				if (underline)
+				{
+					ubyte save_c = (unsigned char) COLOR;
+					
+					gr_setcolor(grd_curcanv->cv_font_fg_color);
+					gr_rect(xx, yy + grd_curcanv->cv_font->ft_baseline + 2, xx + grd_curcanv->cv_font->ft_w, yy + grd_curcanv->cv_font->ft_baseline + 3);
+					gr_setcolor(save_c);
+				}
+
 				continue;
 			}
 			

@@ -51,6 +51,7 @@ COPYRIGHT 1993-1998 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 #include "physfsx.h"
 #include "render.h"
 #include "game.h"
+#include "gamefont.h"
 #include "menu.h"
 #include "slew.h"
 #include "kdefs.h"
@@ -441,8 +442,6 @@ void init_editor()
 	
 	Update_flags = UF_ALL;
 	
-	medlisp_update_screen();
-	
 	//set the wire-frame window to be the current view
 	current_view = &LargeView;
 	
@@ -459,6 +458,7 @@ void init_editor()
 	//gr_grey_canvas();
 	
 	gr_set_curfont(editor_font);
+	FNTScaleX = FNTScaleY = 1;		// No font scaling!
 	ui_pad_goto(padnum);
 	
 	gamestate_restore_check();
@@ -882,18 +882,6 @@ void init_editor_screen()
 //	BigCanvas[1]->cv_font = grd_curscreen->sc_canvas.cv_font; 
 //	BigCanvasFirstTime = 1;
 
-	// Draw status box
-	gr_set_current_canvas( NULL );
-	gr_setcolor( CGREY );
-	gr_rect(STATUS_X,STATUS_Y,STATUS_X+STATUS_W-1,STATUS_Y+STATUS_H-1);			//0, 582, 799, 599 );
-
-	// Draw icon box
-	// gr_set_current_canvas( NULL );
-	//  gr_setcolor( CBRIGHT );
-	//  gr_rect( 528, 2, 798, 22);
-	//  gr_setcolor( CGREY);
-	//  gr_rect( 530, 2, 799, 20);
-
 	Update_flags = UF_ALL;
 	initializing = 0;
 	editor_screen_open = 1;
@@ -1102,6 +1090,11 @@ int editor_handler(UI_DIALOG *dlg, d_event *event, void *data)
 	{
 		gr_set_curfont(editor_font);
 
+		// Draw status box
+		gr_set_current_canvas( NULL );
+		gr_setcolor( CGREY );
+		gr_rect(STATUS_X,STATUS_Y,STATUS_X+STATUS_W-1,STATUS_Y+STATUS_H-1);			//0, 582, 799, 599 );
+		
 		medlisp_update_screen();
 		calc_frame_time();
 		texpage_do(event);

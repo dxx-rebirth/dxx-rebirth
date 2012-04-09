@@ -141,11 +141,14 @@ void ui_dialog_draw(UI_DIALOG *dlg)
 	h = D_HEIGHT;
 	D_OLDCANVAS = grd_curcanv;
 
-	req_w = w - 2*BORDER_WIDTH;
-	req_h = h - 2*BORDER_WIDTH;
+	req_w = w;
+	req_h = h;
 	
 	if (dlg->flags & DF_BORDER)
 	{
+		req_w -= 2*BORDER_WIDTH;
+		req_h -= 2*BORDER_WIDTH;
+		
 		gr_set_current_canvas( NULL );
 		ui_draw_frame( x, y, x+w-1, y+h-1 );
 	}

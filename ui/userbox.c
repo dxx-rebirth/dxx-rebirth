@@ -42,7 +42,7 @@ void ui_draw_userbox( UI_DIALOG *dlg, UI_GADGET_USERBOX * userbox )
 		else
 			gr_setcolor( CBRIGHT );
 
-		gr_box( -1, -1, userbox->width, userbox->height );
+		gr_ubox( -1, -1, userbox->width, userbox->height );
 	}
 }
 

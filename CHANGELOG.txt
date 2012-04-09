@@ -5,6 +5,7 @@ D1X-Rebirth Changelog
 main/state.c: in software rendering scale savestate thumbnail to correct size
 editor/autosave.c, editor/info.c, editor/med.c, editor/objpage.c, editor/texpage.c, include/ui.h, ui/keypad.c, ui/uidraw.c: Get the clock, 'keypad' info, texture choosing page and object choosing page to draw (latter two just show black squares for ogl)
 arch/sdl/window.c, ui/menubar.c: Fix a nasty bug where pressing 'Alt' to explore the editor menubar would split the window stack in two, rendering the editor unresponsive
+2d/bitblt.c, 2d/box.c, 2d/font.c, arch/ogl/gr.c, editor/med.c, ui/dialog.c, ui/uidraw.c, ui/userbox.c: Fix all remaining known editor drawing issues. In ogl: get the texture previews to draw, get userbox borders to draw in the right location, properly underline characters in the menus, draw all the borders properly (i.e. no gap), no scaling fonts. Software render: draw userbox borders again. Both: clear the whole status bar, clear to the right edge of the screen.
 
 20120408
 --------

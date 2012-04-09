@@ -70,6 +70,7 @@ void gr_box0(int left,int top,int right,int bot)
 
 void gr_ubox12(int left,int top,int right,int bot)
 {
+#if 0	// the following shifts the box up 1 unit in OpenGL
 	int i;
 
 	for (i=top; i<=bot; i++ )
@@ -83,6 +84,11 @@ void gr_ubox12(int left,int top,int right,int bot)
 		gr_upixel( i, top );
 		gr_upixel( i, bot );
 	}
+#endif
+	gr_uline(i2f(left), i2f(top), i2f(right), i2f(top));
+	gr_uline(i2f(right), i2f(top), i2f(right), i2f(bot));
+	gr_uline(i2f(left), i2f(top), i2f(left), i2f(bot));
+	gr_uline(i2f(left), i2f(bot), i2f(right), i2f(bot));
 }
 
 void gr_box12(int left,int top,int right,int bot)
@@ -114,6 +120,6 @@ void gr_box(int left,int top,int right,int bot)
 	if (TYPE==BM_LINEAR)
 		gr_box0( left, top, right, bot );
 	else
-		gr_ubox12( left, top, right, bot );
+		gr_box12( left, top, right, bot );
 }
 

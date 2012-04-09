@@ -202,7 +202,7 @@ void gr_ubitmap( int x, int y, grs_bitmap *bm )
 			return;
 #ifdef OGL
 		case BM_OGL:
-			ogl_ubitmapm_cs(x,y,-1,-1,bm,255,F1_0);
+			ogl_ubitmapm_cs(x,y,-1,-1,bm,-1,F1_0);
 			return;
 #endif
 		default:
@@ -232,7 +232,7 @@ void gr_ubitmapm( int x, int y, grs_bitmap *bm )
 			return;
 #ifdef OGL
 		case BM_OGL:
-			ogl_ubitmapm_cs(x,y,-1,-1,bm,255,F1_0);
+			ogl_ubitmapm_cs(x,y,-1,-1,bm,-1,F1_0);
 			return;
 #endif
 		default:
@@ -395,9 +395,11 @@ void gr_bitmap( int x, int y, grs_bitmap *bm )
 	if ( dy2 >= grd_curcanv->cv_bitmap.bm_h )	{ dy2 = grd_curcanv->cv_bitmap.bm_h-1; }
 
 	// Draw bitmap bm[x,y] into (dx1,dy1)-(dx2,dy2)
-
+#ifdef OGL
+	ogl_ubitmapm_cs(x, y, 0, 0, bm, -1, F1_0);
+#else
 	gr_bm_ubitblt(dx2-dx1+1,dy2-dy1+1, dx1, dy1, sx, sy, bm, &grd_curcanv->cv_bitmap );
-
+#endif
 }
 
 void gr_bitmapm( int x, int y, grs_bitmap *bm )
