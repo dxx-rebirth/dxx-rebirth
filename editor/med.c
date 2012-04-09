@@ -894,10 +894,11 @@ void close_editor_screen()
 
 	editor_screen_open = 0;
 	ui_pad_deactivate();
-	window_close(Pad_info);
+	if (Pad_info)
+		window_close(Pad_info);
 
-	ui_close_dialog(EditorWindow);
-	EditorWindow = NULL;
+	//ui_close_dialog(EditorWindow);	// moved into handler, so we can handle the quit request
+	//EditorWindow = NULL;
 
 	close_all_windows();
 
@@ -1082,7 +1083,10 @@ int editor_handler(UI_DIALOG *dlg, d_event *event, void *data)
 	if (event->type == EVENT_KEY_COMMAND)
 		keypress = event_key_get(event);
 	else if (event->type == EVENT_WINDOW_CLOSE)
+	{
+		close_editor();
 		return 0;
+	}
 	
 	// Update the windows
 
@@ -1205,7 +1209,8 @@ int editor_handler(UI_DIALOG *dlg, d_event *event, void *data)
 
 	if (ModeFlag)
 	{
-		close_editor();
+		ui_close_dialog(EditorWindow);
+		EditorWindow = NULL;
 		return 0;
 	}
 

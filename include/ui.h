@@ -199,8 +199,6 @@ enum dialog_flags
 typedef struct _ui_window {
 	struct window	*wind;
 	int				(*callback)(struct _ui_window *, struct d_event *, void *);
-	grs_canvas *    oldcanvas;
-	grs_bitmap *    background;
 	UI_GADGET *     gadget;
 	UI_GADGET *     keyboard_focus_gadget;
 	void			*userdata;
