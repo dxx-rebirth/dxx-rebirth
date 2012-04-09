@@ -1100,12 +1100,21 @@ int editor_handler(UI_DIALOG *dlg, d_event *event, void *data)
 
 	if (event->type == EVENT_UI_DIALOG_DRAW)
 	{
+		gr_set_curfont(editor_font);
+
 		medlisp_update_screen();
+		calc_frame_time();
+		texpage_do(event);
+		objpage_do(event);
+		ui_pad_draw(EditorWindow, PAD_X, PAD_Y);
+
 		print_status_bar(status_line);
+		TimedAutosave(mine_filename);	// shows the time, hence here
+		set_editor_time_of_day();
 		return 1;
 	}
 	
-	//do editor stuff
+	//do non-essential stuff in idle event
 	if (event->type == EVENT_IDLE)
 	{
 		check_wall_validity();
@@ -1132,8 +1141,6 @@ int editor_handler(UI_DIALOG *dlg, d_event *event, void *data)
 	// Removes some Asserts....
 	//		med_check_all_vertices();
 		clear_editor_status();		// if enough time elapsed, clear editor status message
-		TimedAutosave(mine_filename);
-		set_editor_time_of_day();
 	}
 
 	gr_set_current_canvas( GameViewBox->canvas );
@@ -1161,8 +1168,6 @@ int editor_handler(UI_DIALOG *dlg, d_event *event, void *data)
 	if ((keypress&0xff)==KEY_RCTRL) keypress=0;
 //		if ((keypress&0xff)==KEY_LALT) keypress=0;
 //		if ((keypress&0xff)==KEY_RALT) keypress=0;
-
-	gr_set_curfont(editor_font);
 
 	//=================== DO FUNCTIONS ====================
 
@@ -1227,9 +1232,6 @@ int editor_handler(UI_DIALOG *dlg, d_event *event, void *data)
 		new_cv->ev_changed = 1;
 		current_view = new_cv;
 	}
-
-	if (event->type == EVENT_UI_DIALOG_DRAW)
-		calc_frame_time();
 
 	if (slew_frame(0)) {		//do movement and check keys
 		Update_flags |= UF_GAME_VIEW_CHANGED;

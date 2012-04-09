@@ -352,6 +352,7 @@ void ui_pad_goto_next();
 void ui_pad_goto_prev();
 void ui_pad_read( int n, char * filename );
 int ui_pad_get_current();
+void ui_pad_draw(UI_DIALOG *dlg, int x, int y);
 
 void ui_barbox_open( char * text, int length );
 void ui_barbox_update( int position );

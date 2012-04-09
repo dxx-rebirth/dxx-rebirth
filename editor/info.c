@@ -314,7 +314,7 @@ void clear_pad_display(void)
 int info_display_all(window *wind, d_event *event, void *userdata)
 {
 	static int old_padnum = -1;
-	int        padnum,show_all = 0;
+	int        padnum,show_all = 1;		// always redraw
 	grs_canvas *save_canvas = grd_curcanv;
 
 	switch (event->type)
@@ -330,7 +330,7 @@ int info_display_all(window *wind, d_event *event, void *userdata)
 			if (padnum != old_padnum) {
 				clear_pad_display();
 				old_padnum = padnum;
-				show_all = 1;
+				//show_all = 1;
 			}
 
 			switch (padnum) {
