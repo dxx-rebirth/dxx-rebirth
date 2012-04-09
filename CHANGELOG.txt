@@ -4,6 +4,7 @@ D2X-Rebirth Changelog
 --------
 main/state.c: in software rendering scale savestate thumbnail to correct size
 editor/autosave.c, editor/info.c, editor/med.c, editor/objpage.c, editor/texpage.c, include/ui.h, ui/keypad.c, ui/uidraw.c: Get the clock, 'keypad' info, texture choosing page and object choosing page to draw (latter two just show black squares for ogl)
+arch/sdl/window.c, ui/menubar.c: Fix a nasty bug where pressing 'Alt' to explore the editor menubar would split the window stack in two, rendering the editor unresponsive
 
 20120408
 --------
