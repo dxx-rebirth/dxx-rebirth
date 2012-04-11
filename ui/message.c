@@ -44,12 +44,40 @@ typedef struct messagebox
 	char				*text;
 	int					*choice;
 	int					num_buttons;
+	int					width;
+	int					text_y;
+	int					line_y;
 } messagebox;
 
 static int messagebox_handler(UI_DIALOG *dlg, d_event *event, messagebox *m)
 {
 	int i;
 	
+	if (event->type == EVENT_UI_DIALOG_DRAW)
+	{
+		grs_font * temp_font;
+
+		gr_set_current_canvas( &grd_curscreen->sc_canvas );
+		temp_font = grd_curscreen->sc_canvas.cv_font;
+		
+		if ( grd_curscreen->sc_w < 640 ) 	{
+			grd_curscreen->sc_canvas.cv_font = ui_small_font;
+		}
+		
+		ui_dialog_set_current_canvas(dlg);
+		ui_string_centered( m->width/2, m->text_y, m->text );
+		
+		gr_setcolor( CGREY );
+		Hline(1, m->width-2, m->line_y+1 );
+		
+		gr_setcolor( CBRIGHT );
+		Hline(2, m->width-2, m->line_y+2 );
+
+		grd_curscreen->sc_canvas.cv_font = temp_font;
+		
+		return 1;
+	}
+
 	for (i=0; i<m->num_buttons; i++ )
 	{
 		if (GADGET_PRESSED(m->button_g[i]))
@@ -64,7 +92,6 @@ static int messagebox_handler(UI_DIALOG *dlg, d_event *event, messagebox *m)
 
 int MessageBoxN( short xc, short yc, int NumButtons, char * text, char * Button[] )
 {
-	grs_font * temp_font;
 	UI_DIALOG * dlg;
 	messagebox *m;
 
@@ -87,11 +114,6 @@ int MessageBoxN( short xc, short yc, int NumButtons, char * text, char * Button[
 	gr_set_current_canvas( &grd_curscreen->sc_canvas );
 	w = grd_curscreen->sc_w;
 	h = grd_curscreen->sc_h;
-	temp_font = grd_curscreen->sc_canvas.cv_font;
-
-	if ( w < 640 ) 	{
-		grd_curscreen->sc_canvas.cv_font = ui_small_font;
-	}
 
 	for (i=0; i<NumButtons; i++ )
 	{
@@ -161,15 +183,12 @@ int MessageBoxN( short xc, short yc, int NumButtons, char * text, char * Button[
 
 	y = TEXT_EXTRA_HEIGHT + text_height/2 - 1;
 
-	ui_string_centered( width/2, y, text );
+	m->width = width;
+	m->text_y = y;
 
 	y = 2*TEXT_EXTRA_HEIGHT + text_height;
-
-	gr_setcolor( CGREY );
-	Hline(1, width-2, y+1 );
-
-	gr_setcolor( CBRIGHT );
-	Hline(2, width-2, y+2 );
+	
+	m->line_y = y;
 
 	y = height - TEXT_EXTRA_HEIGHT - button_height;
 
@@ -193,8 +212,6 @@ int MessageBoxN( short xc, short yc, int NumButtons, char * text, char * Button[
 		event_process();
 
 	ui_close_dialog(dlg);
-	
-	grd_curscreen->sc_canvas.cv_font = temp_font;
 
 	return choice;
 }

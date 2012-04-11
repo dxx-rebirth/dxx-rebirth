@@ -782,13 +782,10 @@ int do_object_dialog()
 	sprintf(Ymessage,"%.2f",f2fl(obj->mtype.spin_rate.y));
 	sprintf(Zmessage,"%.2f",f2fl(obj->mtype.spin_rate.z));
 
-	ui_dprintf_at( MattWindow, 10, 132,"&X:" );
 	o->xtext = ui_add_gadget_inputbox( MattWindow, 30, 132, MATT_LEN, MATT_LEN, Xmessage );
 
-	ui_dprintf_at( MattWindow, 10, 162,"&Y:" );
 	o->ytext = ui_add_gadget_inputbox( MattWindow, 30, 162, MATT_LEN, MATT_LEN, Ymessage );
 
-	ui_dprintf_at( MattWindow, 10, 192,"&Z:" );
 	o->ztext = ui_add_gadget_inputbox( MattWindow, 30, 192, MATT_LEN, MATT_LEN, Zmessage );
 
 	ui_gadget_calc_keys(MattWindow);
@@ -820,6 +817,12 @@ int object_dialog_handler(UI_DIALOG *dlg, d_event *event, object_dialog *o)
 	{
 		d_free(o);
 		return 0;
+	}
+	else if (event->type == EVENT_UI_DIALOG_DRAW)
+	{
+		ui_dprintf_at( MattWindow, 10, 132,"&X:" );
+		ui_dprintf_at( MattWindow, 10, 162,"&Y:" );
+		ui_dprintf_at( MattWindow, 10, 192,"&Z:" );
 	}
 	
 	if ( GADGET_PRESSED(o->quitButton) || (keypress==KEY_ESC))
