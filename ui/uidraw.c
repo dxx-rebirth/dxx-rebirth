@@ -23,12 +23,12 @@ static char rcsid[] = "$Id: uidraw.c,v 1.1.1.1 2006/03/17 19:52:16 zicodxx Exp $
 
 void Hline(short x1, short x2, short y )
 {
-	gr_line( i2f(x1), i2f(y), i2f(x2), i2f(y) );
+	gr_uline( i2f(x1), i2f(y), i2f(x2), i2f(y) );
 }
 
 void Vline(short y1, short y2, short x )
 {
-	gr_line(i2f(x), i2f(y1), i2f(x), i2f(y2));
+	gr_uline(i2f(x), i2f(y1), i2f(x), i2f(y2));
 }
 
 void ui_string_centered( short x, short y, char * s )

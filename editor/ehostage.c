@@ -361,7 +361,6 @@ int do_hostage_dialog()
 	MainWindow = ui_create_dialog( TMAPBOX_X+10, TMAPBOX_Y+20, 765-TMAPBOX_X, 545-TMAPBOX_Y, DF_DIALOG, (int (*)(UI_DIALOG *, d_event *, void *))hostage_dialog_handler, h );
 	h->quitButton = ui_add_gadget_button( MainWindow, 20, 222, 48, 40, "Done", NULL );
 
-	ui_dprintf_at( MainWindow, 10, 32,"&Message:" );
 	h->hostageText = ui_add_gadget_inputbox( MainWindow, 10, 50, HOSTAGE_MESSAGE_LEN, HOSTAGE_MESSAGE_LEN, HostageMessage );
 
 	// The little box the hostage vclip will play in.
@@ -452,6 +451,8 @@ int hostage_dialog_handler(UI_DIALOG *dlg, d_event *event, hostage_dialog *h)
 	//------------------------------------------------------------
 	if (event->type == EVENT_UI_DIALOG_DRAW)
 	{
+		ui_dprintf_at( MainWindow, 10, 32,"&Message:" );
+
 		// A simple frame time counter for spinning the objects...
 		Temp = timer_query();
 		DeltaTime = Temp - h->time;

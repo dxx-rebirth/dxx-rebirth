@@ -27,6 +27,8 @@ static char rcsid[] = "$Id: listbox.c,v 1.1.1.1 2006/03/17 19:52:20 zicodxx Exp 
 #include "key.h"
 #include "timer.h"
 
+void gr_draw_sunken_border( short x1, short y1, short x2, short y2 );
+
 void ui_draw_listbox( UI_DIALOG *dlg, UI_GADGET_LISTBOX * listbox )
 {
 	int i, x, y, stop;
@@ -46,41 +48,48 @@ void ui_draw_listbox( UI_DIALOG *dlg, UI_GADGET_LISTBOX * listbox )
 		return;
 #endif
 
+	gr_set_current_canvas( listbox->canvas );
+	
+	w = listbox->width;
+	h = listbox->height;
+
+	gr_setcolor(CBLACK);
+	gr_rect( 0, 0, w-1, h-1);
+	
+	gr_draw_sunken_border( -2, -2, w+listbox->scrollbar->width+4, h+1);
+	
 	stop = listbox->first_item+listbox->num_items_displayed;
 	if (stop>listbox->num_items) stop = listbox->num_items;
 
 	listbox->status = 0;
 
 	x = y = 0;
-	gr_set_current_canvas( listbox->canvas );
 
 	for (i= listbox->first_item; i< stop; i++ )
 	{
-		if (i !=listbox->current_item)
-		{
-			if ((listbox->current_item == -1) && (dlg->keyboard_focus_gadget == (UI_GADGET *)listbox) && (i == listbox->first_item)  )
-				gr_set_fontcolor( CRED, CBLACK );
-			else
-				gr_set_fontcolor( CWHITE, CBLACK );
-		}
-		else
-		{
-			if (dlg->keyboard_focus_gadget == (UI_GADGET *)listbox)
-				gr_set_fontcolor( CRED, CGREY );
-			else
-				gr_set_fontcolor( CBLACK, CGREY );
-		}
-		gr_string(x + 2, y, listbox->list[i]);
-		gr_get_string_size(listbox->list[i], &w, &h, &aw);
-
 		if (i==listbox->current_item)
 			gr_setcolor( CGREY );
 		else
 			gr_setcolor( CBLACK );
+		
+		gr_rect(x, y, listbox->width - 1, y + h - 1);
 
-		if (x + w + 2 < listbox->width - 1)
-			gr_rect(x + w + 2, y, listbox->width - 1, y + h - 1);
-		gr_rect( x, y, x+1, y+h-1 );
+		if (i !=listbox->current_item)
+		{
+			if ((listbox->current_item == -1) && (dlg->keyboard_focus_gadget == (UI_GADGET *)listbox) && (i == listbox->first_item)  )
+				gr_set_fontcolor( CRED, -1 );
+			else
+				gr_set_fontcolor( CWHITE, -1 );
+		}
+		else
+		{
+			if (dlg->keyboard_focus_gadget == (UI_GADGET *)listbox)
+				gr_set_fontcolor( CRED, -1 );
+			else
+				gr_set_fontcolor( CBLACK, -1 );
+		}
+		gr_string(x + 2, y, listbox->list[i]);
+		gr_get_string_size(listbox->list[i], &w, &h, &aw);
 
 		y += h;
 	}
@@ -138,13 +147,6 @@ UI_GADGET_LISTBOX * ui_add_gadget_listbox(UI_DIALOG *dlg, short x, short y, shor
 	listbox->scrollbar = ui_add_gadget_scrollbar( dlg, x+w+3, y, 0, h, 0, numitems-i, 0, i );
 	listbox->scrollbar->parent = (UI_GADGET *)listbox;
 
-	gr_set_current_canvas( listbox->canvas );
-
-	gr_setcolor(CBLACK);
-	gr_rect( 0, 0, w-1, h-1);
-
-	gr_draw_sunken_border( -2, -2, w+listbox->scrollbar->width+4, h+1);
-
 	return listbox;
 
 }
@@ -173,7 +175,7 @@ int ui_listbox_do( UI_DIALOG *dlg, UI_GADGET_LISTBOX * listbox, d_event *event )
 		listbox->first_item = 0;
 		listbox->old_current_item = listbox->current_item;
 		listbox->old_first_item = listbox->first_item;
-		ui_draw_listbox( dlg, listbox );
+		//ui_draw_listbox( dlg, listbox );
 
 		if (dlg->keyboard_focus_gadget == (UI_GADGET *)listbox)
 		{

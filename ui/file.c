@@ -129,6 +129,20 @@ static int browser_handler(UI_DIALOG *dlg, d_event *event, browser *b)
 {
 	int rval = 0;
 
+	if (event->type == EVENT_UI_DIALOG_DRAW)
+	{
+		ui_dprintf_at( dlg, 10, 5, b->message );
+
+		ui_dprintf_at( dlg, 20, 32,"N&ame" );
+		ui_dprintf_at( dlg, 20, 86,"&Files" );
+		ui_dprintf_at( dlg, 210, 86,"&Dirs" );
+		
+		ui_dprintf_at( dlg, 20, 60, "%s", b->spaces );
+		ui_dprintf_at( dlg, 20, 60, "%s", b->view_dir );
+		
+		return 1;
+	}
+
 	if (GADGET_PRESSED(b->button2))
 	{
 		PHYSFS_freeList(b->filename_list);	b->filename_list = NULL;
@@ -238,9 +252,6 @@ static int browser_handler(UI_DIALOG *dlg, d_event *event, browser *b)
 			ui_listbox_change(dlg, b->listbox2, b->num_dirs, b->directory_list);
 			b->new_listboxes = 1;
 			
-			ui_dprintf_at( dlg, 20, 60, "%s", b->spaces );
-			ui_dprintf_at( dlg, 20, 60, "%s", b->view_dir );
-			
 			//i = TICKER;
 			//while ( TICKER < i+2 );
 			
@@ -300,13 +311,7 @@ int ui_get_filename( char * filename, char * filespec, char * message  )
 
 	dlg = ui_create_dialog( 200, 100, 400, 370, DF_DIALOG | DF_MODAL, (int (*)(UI_DIALOG *, d_event *, void *))browser_handler, b );
 
-	ui_dprintf_at( dlg, 10, 5, message );
-
-	ui_dprintf_at( dlg, 20, 32,"N&ame" );
 	b->user_file  = ui_add_gadget_inputbox( dlg, 60, 30, PATH_MAX, 40, InputText );
-
-	ui_dprintf_at( dlg, 20, 86,"&Files" );
-	ui_dprintf_at( dlg, 210, 86,"&Dirs" );
 
 	b->listbox1 = ui_add_gadget_listbox(dlg,  20, 110, 125, 200, b->num_files, b->filename_list);
 	b->listbox2 = ui_add_gadget_listbox(dlg, 210, 110, 100, 200, b->num_dirs, b->directory_list);
@@ -325,9 +330,6 @@ int ui_get_filename( char * filename, char * filespec, char * message  )
 	b->user_file->hotkey = KEY_ALTED + KEY_A;
 
 	ui_gadget_calc_keys(dlg);
-
-	ui_dprintf_at( dlg, 20, 60, "%s", b->spaces );
-	ui_dprintf_at( dlg, 20, 60, "%s", b->view_dir );
 
 	b->filename = filename;
 	b->filespec = filespec;

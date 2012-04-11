@@ -101,24 +101,33 @@ int DecodeKeyText( char * text )
 }
 
 
-static int key_dialog_handler(UI_DIALOG *dlg, d_event *event, UI_GADGET_BUTTON **DoneButton)
+typedef struct key_dialog
+{
+	UI_GADGET_BUTTON *DoneButton;
+	char text[100];
+} key_dialog;
+
+static int key_dialog_handler(UI_DIALOG *dlg, d_event *event, key_dialog *k)
 {
 	int keypress = 0;
 	int rval = 0;
 	
 	if (event->type == EVENT_KEY_COMMAND)
 		keypress = event_key_get(event);
+	else if (event->type == EVENT_UI_DIALOG_DRAW)
+	{
+		ui_dprintf_at( dlg, 10, 100, "%s     ", k->text  );
+		return 1;
+	}
 
 	if (keypress > 0)
 	{
-		char temp_text[100];
 		
-		GetKeyDescription( temp_text, keypress );
-		ui_dprintf_at( dlg, 10, 100, "%s     ", temp_text  );
+		GetKeyDescription( k->text, keypress );
 		rval = 1;
 	}
 	
-	if (GADGET_PRESSED(*DoneButton))
+	if (GADGET_PRESSED(k->DoneButton))
 	{
 		ui_close_dialog(dlg);
 		rval = 1;
@@ -130,20 +139,21 @@ static int key_dialog_handler(UI_DIALOG *dlg, d_event *event, UI_GADGET_BUTTON *
 int GetKeyCode(char * text)
 {
 	UI_DIALOG * dlg;
-	UI_GADGET_BUTTON * DoneButton;
 	window *wind;
+	key_dialog k;
 
 	text = text;
 
-	dlg = ui_create_dialog( 200, 200, 400, 200, DF_DIALOG | DF_MODAL, (int (*)(UI_DIALOG *, d_event *, void *))key_dialog_handler, &DoneButton );
+	dlg = ui_create_dialog( 200, 200, 400, 200, DF_DIALOG | DF_MODAL, (int (*)(UI_DIALOG *, d_event *, void *))key_dialog_handler, &k );
 
-	DoneButton = ui_add_gadget_button( dlg, 170, 165, 60, 25, "Ok", NULL );
+	k.DoneButton = ui_add_gadget_button( dlg, 170, 165, 60, 25, "Ok", NULL );
+	strcpy(k.text, "");
 
 	ui_gadget_calc_keys(dlg);
 
 	//key_flush();
 
-	dlg->keyboard_focus_gadget = (UI_GADGET *)DoneButton;
+	dlg->keyboard_focus_gadget = (UI_GADGET *)k.DoneButton;
 	wind = ui_dialog_get_window(dlg);
 
 	while (window_exists(wind))

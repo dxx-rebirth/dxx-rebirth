@@ -55,23 +55,30 @@ void ui_draw_inputbox( UI_DIALOG *dlg, UI_GADGET_INPUTBOX * inputbox )
 	{
 		gr_set_current_canvas( inputbox->canvas );
 
+		gr_setcolor( CBLACK );
+		gr_rect( 0, 0, inputbox->width-1, inputbox->height-1 );
+		gr_get_string_size(inputbox->text, &w, &h, &aw  );
+		
 		if (dlg->keyboard_focus_gadget == (UI_GADGET *)inputbox)
 		{
 			if (inputbox->first_time)
-				gr_set_fontcolor( CBLACK, CRED );
+			{
+				gr_set_fontcolor( CBLACK, -1 );
+				gr_setcolor( CRED );
+				gr_rect(2, 2, 2 + w, 2 + h);
+			}
 			else
-				gr_set_fontcolor( CRED, CBLACK );
+				gr_set_fontcolor( CRED, -1 );
 		}
 		else
-			gr_set_fontcolor( CWHITE, CBLACK );
+			gr_set_fontcolor( CWHITE, -1 );
 
 		inputbox->status = 0;
 
 		gr_string( 2, 2, inputbox->text );
-		gr_get_string_size(inputbox->text, &w, &h, &aw  );
 
-		gr_setcolor( CBLACK );
-		gr_rect( 2+w, 0, inputbox->width-1, inputbox->height-1 );
+		//gr_setcolor( CBLACK );
+		//gr_rect( 2+w, 0, inputbox->width-1, inputbox->height-1 );
 
 		if (dlg->keyboard_focus_gadget == (UI_GADGET *)inputbox  && !inputbox->first_time )
 		{
@@ -101,10 +108,6 @@ UI_GADGET_INPUTBOX * ui_add_gadget_inputbox( UI_DIALOG * dlg, short x, short y, 
 	inputbox->slength = slength;
 	inputbox->pressed = 0;
 	inputbox->first_time = 1;
-
-	gr_set_current_canvas( inputbox->canvas );
-	gr_setcolor( CBLACK );
-	gr_rect( 0, 0, inputbox->width-1, inputbox->height-1 );
 
 	return inputbox;
 
