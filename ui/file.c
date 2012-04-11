@@ -121,7 +121,6 @@ typedef struct browser
 	UI_GADGET_LISTBOX	*listbox2;
 	UI_GADGET_INPUTBOX	*user_file;
 	int			num_files, num_dirs;
-	int			new_listboxes;
 	char		spaces[35];
 } browser;
 
@@ -157,17 +156,16 @@ static int browser_handler(UI_DIALOG *dlg, d_event *event, browser *b)
 		rval = 1;
 	}
 	
-	if ((event->type == EVENT_UI_LISTBOX_MOVED) || b->new_listboxes)
+	if (event->type == EVENT_UI_LISTBOX_MOVED)
 	{
-		if (b->listbox1->current_item >= 0 )
+		if ((ui_event_get_gadget(event) == (UI_GADGET *)b->listbox1) && (b->listbox1->current_item >= 0) && b->filename_list[b->listbox1->current_item])
 			ui_inputbox_set_text(b->user_file, b->filename_list[b->listbox1->current_item]);
 
-		if (b->listbox2->current_item >= 0 )
+		if ((ui_event_get_gadget(event) == (UI_GADGET *)b->listbox2) && (b->listbox2->current_item >= 0) && b->directory_list[b->listbox2->current_item])
 			ui_inputbox_set_text(b->user_file, b->directory_list[b->listbox2->current_item]);
 
 		rval = 1;
 	}
-	b->new_listboxes = 0;
 	
 	if (GADGET_PRESSED(b->button1) || GADGET_PRESSED(b->user_file) || (event->type == EVENT_UI_LISTBOX_SELECTED))
 	{
@@ -250,7 +248,6 @@ static int browser_handler(UI_DIALOG *dlg, d_event *event, browser *b)
 			
 			ui_listbox_change(dlg, b->listbox1, b->num_files, b->filename_list);
 			ui_listbox_change(dlg, b->listbox2, b->num_dirs, b->directory_list);
-			b->new_listboxes = 1;
 			
 			//i = TICKER;
 			//while ( TICKER < i+2 );
@@ -334,7 +331,6 @@ int ui_get_filename( char * filename, char * filespec, char * message  )
 	b->filename = filename;
 	b->filespec = filespec;
 	b->message = message;
-	b->new_listboxes = 0;
 	
 	wind = ui_dialog_get_window(dlg);
 	
