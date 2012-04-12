@@ -12,6 +12,7 @@
 #include "hmp.h"
 #include "u_mem.h"
 #include "console.h"
+#include "timer.h"
 
 #ifdef WORDS_BIGENDIAN
 #define MIDIINT(x) (x)
@@ -141,7 +142,7 @@ void hmp_stop(hmp_file *hmp)
 		//PumpMessages();
 		midiStreamStop(hmp->hmidi);
 		while (hmp->bufs_in_mm)
-			Sleep(0);
+			timer_delay(1);
 	}
 	while ((mhdr = hmp->evbuf)) {
 		midiOutUnprepareHeader((HMIDIOUT)hmp->hmidi, mhdr, sizeof(MIDIHDR));
@@ -548,16 +549,67 @@ void hmp_reset()
 	mhdr.lpData = GS_Reset;
 	mhdr.dwBufferLength = sizeof(GS_Reset);
 	mhdr.dwFlags = 0;
-	midiOutPrepareHeader(hmidi, &mhdr, sizeof(MIDIHDR));
-	midiOutLongMsg(hmidi, &mhdr, sizeof(MIDIHDR));
-	while (!(mhdr.dwFlags & MHDR_DONE));
-	midiOutUnprepareHeader(hmidi, &mhdr, sizeof(MIDIHDR));
+	if ((rval = midiOutPrepareHeader(hmidi, &mhdr, sizeof(MIDIHDR))) == MMSYSERR_NOERROR)
+	{
+		if ((rval = midiOutLongMsg(hmidi, &mhdr, sizeof(MIDIHDR))) == MMSYSERR_NOERROR)
+		{
+			fix64 wait_done = timer_query();
+			while (!(mhdr.dwFlags & MHDR_DONE))
+			{
+				timer_update();
+				if (timer_query() >= wait_done + F1_0)
+				{
+					con_printf(CON_DEBUG, "hmp_reset: Timeout waiting for MHDR_DONE\n");
+					break;
+				}
+			}
+		}
+		else
+		{
+			switch (rval)
+			{
+				case MIDIERR_NOTREADY:
+					con_printf(CON_DEBUG, "midiOutLongMsg Error: the hardware is busy with other data.\n");
+					break;
+				case MIDIERR_UNPREPARED:
+					con_printf(CON_DEBUG, "midiOutLongMsg Error: the buffer pointed to by lpMidiOutHdr has not been prepared.\n");
+					break;
+				case MMSYSERR_INVALHANDLE:
+					con_printf(CON_DEBUG, "midiOutLongMsg Error: the specified device handle is invalid.\n");
+					break;
+				case MMSYSERR_INVALPARAM:
+					con_printf(CON_DEBUG, "midiOutLongMsg Error: the specified pointer or structure is invalid.\n");
+					break;
+				default:
+					con_printf(CON_DEBUG, "midiOutLongMsg Error code %i\n",rval);
+					break;
+			}
+		}
+		midiOutUnprepareHeader(hmidi, &mhdr, sizeof(MIDIHDR));
 
-	Sleep( 50 );
+		timer_delay(F1_0/20);
 
-	for (channel = 0; channel < 16; channel++)
-		midiOutShortMsg(hmidi, (DWORD)(channel | MIDI_CONTROL_CHANGE << 4 | MIDI_VOLUME << 8 | (100 * midi_volume / MIDI_VOLUME_SCALE) << 16));
-
+		for (channel = 0; channel < 16; channel++)
+			midiOutShortMsg(hmidi, (DWORD)(channel | MIDI_CONTROL_CHANGE << 4 | MIDI_VOLUME << 8 | (100 * midi_volume / MIDI_VOLUME_SCALE) << 16));
+	}
+	else
+	{
+		switch (rval)
+		{
+			case MMSYSERR_INVALHANDLE:
+				con_printf(CON_DEBUG, "midiOutPrepareHeader Error: The specified device handle is invalid.\n");
+				break;
+			case MMSYSERR_INVALPARAM:
+				con_printf(CON_DEBUG, "midiOutPrepareHeader Error: The specified address is invalid or the given stream buffer is greater than 64K.\n");
+				break;
+			case MMSYSERR_NOMEM:
+				con_printf(CON_DEBUG, "midiOutPrepareHeader Error: The system is unable to allocate or lock memory.\n");
+				break;
+			default:
+				con_printf(CON_DEBUG, "midiOutPrepareHeader Error code %i\n",rval);
+				break;
+		}
+	}
 	midiOutClose(hmidi);
 }
 #endif

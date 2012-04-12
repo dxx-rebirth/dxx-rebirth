@@ -595,7 +595,6 @@ int do_option ( int select)
 			do_options_menu();
 			break;
 		case MENU_SHOW_CREDITS:
-			songs_stop_all();
 			credits_show(NULL);
 			break;
 #ifndef RELEASE
