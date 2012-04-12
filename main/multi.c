@@ -128,7 +128,7 @@ int Show_reticle_name = 1;
 fix Show_kill_list_timer = 0;
 
 char Multi_is_guided=0;
-char PKilledFlags[MAX_NUM_NET_PLAYERS];
+sbyte PKilledFlags[MAX_NUM_NET_PLAYERS];
 int Bounty_target = 0;
 
 
@@ -653,8 +653,6 @@ void multi_compute_kill(int killer, int killed)
 	}
 
 	killed_pnum = Objects[killed].id;
-
-	PKilledFlags[killed_pnum]=1;
 
 	Assert ((killed_pnum >= 0) && (killed_pnum < N_players));
 
@@ -1682,17 +1680,18 @@ multi_do_reappear(char *buf)
 	objnum = GET_INTEL_SHORT(buf + 2);
 
 	Assert(objnum >= 0);
+	if (pnum != Objects[objnum].id)
+		return;
 
-	if (Objects[Players[pnum].objnum].type != OBJ_GHOST)
+	if (PKilledFlags[pnum]<=0) // player was not reported dead, so do not accept this packet
 	{
-		early_resp[pnum] = objnum;
+		PKilledFlags[pnum]--;
 		return;
 	}
 
 	multi_make_ghost_player(Objects[objnum].id);
 	create_player_appearance_effect(&Objects[objnum]);
-	PKilledFlags[Objects[objnum].id]=0;
-	early_resp[pnum] = -1;
+	PKilledFlags[pnum]=0;
 }
 
 void
@@ -1795,11 +1794,12 @@ multi_do_player_explode(char *buf)
 	Players[pnum].flags &= ~(PLAYER_FLAGS_CLOAKED | PLAYER_FLAGS_INVULNERABLE | PLAYER_FLAGS_FLAG);
 	Players[pnum].cloak_time = 0;
 
-	if (early_resp[pnum] >= 0)
+	PKilledFlags[pnum]++;
+	if (PKilledFlags[pnum] < 1) // seems we got reappear already so make him player again!
 	{
-		multi_make_ghost_player(Objects[early_resp[pnum]].id);
-		create_player_appearance_effect(&Objects[early_resp[pnum]]);
-		early_resp[pnum] = -1;
+		multi_make_ghost_player(Objects[Players[pnum].objnum].id);
+		create_player_appearance_effect(&Objects[Players[pnum].objnum]);
+		PKilledFlags[pnum] = 0;
 	}
 }
 
@@ -1981,11 +1981,46 @@ void multi_disconnect_player(int pnum)
 	int i, n = 0;
 
 	if (!(Game_mode & GM_NETWORK))
-		return
+		return;
 
-	digi_play_sample( SOUND_HUD_MESSAGE, F1_0 );
+	if (Players[pnum].connected == CONNECT_PLAYING)
+	{
+		digi_play_sample( SOUND_HUD_MESSAGE, F1_0 );
+		HUD_init_message(HM_MULTI,  "%s %s", Players[pnum].callsign, TXT_HAS_LEFT_THE_GAME);
 
-	HUD_init_message(HM_MULTI,  "%s %s", Players[pnum].callsign, TXT_HAS_LEFT_THE_GAME);
+		multi_sending_message[pnum] = 0;
+
+		if (Network_status == NETSTAT_PLAYING)
+		{
+			multi_make_player_ghost(pnum);
+			multi_strip_robots(pnum);
+		}
+
+		if (Newdemo_state == ND_STATE_RECORDING)
+			newdemo_record_multi_disconnect(pnum);
+
+		// Bounty target left - select a new one
+		if( Game_mode & GM_BOUNTY && pnum == Bounty_target && multi_i_am_master() )
+		{
+			/* Select a random number */
+			int new = d_rand() % MAX_NUM_NET_PLAYERS;
+			
+			/* Make sure they're valid: Don't check against kill flags,
+				* just in case everyone's dead! */
+			while( !Players[new].connected )
+				new = d_rand() % MAX_NUM_NET_PLAYERS;
+			
+			/* Select new target */
+			multi_new_bounty_target( new );
+			
+			/* Send this new data */
+			multi_send_bounty();
+		}
+	}
+
+	Players[pnum].connected = CONNECT_DISCONNECTED;
+	Netgame.players[pnum].connected = CONNECT_DISCONNECTED;
+	PKilledFlags[pnum] = 1;
 
 	switch (multi_protocol)
 	{
@@ -1999,32 +2034,27 @@ void multi_disconnect_player(int pnum)
 			break;
 	}
 
+	if (pnum == multi_who_is_master()) // Host has left - Quit game!
+	{
+		if (Network_status==NETSTAT_PLAYING)
+			multi_leave_game();
+		if (Game_wind)
+			window_set_visible(Game_wind, 0);
+		nm_messagebox(NULL, 1, TXT_OK, "Host left the game!");
+		if (Game_wind)
+			window_set_visible(Game_wind, 1);
+		multi_quit_game = 1;
+		game_leave_menus();
+		multi_reset_stuff();
+		return;
+	}
+
 	for (i = 0; i < N_players; i++)
 		if (Players[i].connected) n++;
 	if (n == 1)
 	{
 		HUD_init_message(HM_MULTI, "You are the only person remaining in this netgame");
 	}
-
-	// Bounty target left - select a new one
-	if( Game_mode & GM_BOUNTY && pnum == Bounty_target && multi_i_am_master() )
-	{
-		/* Select a random number */
-		int new = d_rand() % MAX_NUM_NET_PLAYERS;
-		
-		/* Make sure they're valid: Don't check against kill flags,
-			* just in case everyone's dead! */
-		while( !Players[new].connected )
-			new = d_rand() % MAX_NUM_NET_PLAYERS;
-		
-		/* Select new target */
-		multi_new_bounty_target( new );
-		
-		/* Send this new data */
-		multi_send_bounty();
-	}
-
-	multi_sending_message[pnum] = 0;
 }
 
 void
