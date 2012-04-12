@@ -141,7 +141,6 @@ char multibuf[MAX_MULTI_MESSAGE_LEN+4];            // This is where multiplayer 
 short remote_to_local[MAX_NUM_NET_PLAYERS][MAX_OBJECTS];  // Remote object number for each local object
 short local_to_remote[MAX_OBJECTS];
 sbyte object_owner[MAX_OBJECTS];   // Who created each object in my universe, -1 = loaded at start
-int early_resp[MAX_NUM_NET_PLAYERS]; // HACK in case we ger REAPPEAR packet before EXPLODE
 
 int   Net_create_objnums[MAX_NET_CREATE_OBJECTS]; // For tracking object creation that will be sent to remote
 int   Net_create_loc = 0;       // pointer into previous array
@@ -3317,8 +3316,7 @@ void multi_prep_level(void)
 
 	for (i=0;i<MAX_NUM_NET_PLAYERS;i++)
 	{
-		early_resp[i] = -1;
-		PKilledFlags[i]=0;
+		PKilledFlags[i]=1;
 		multi_sending_message[i] = 0;
 	}
 
