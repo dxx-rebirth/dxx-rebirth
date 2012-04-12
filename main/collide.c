@@ -691,11 +691,11 @@ void apply_damage_to_controlcen(object *controlcen, fix damage, short who)
 
 	#ifdef NETWORK
 	#ifndef SHAREWARE
-	if ((Game_mode & GM_MULTI) && !(Game_mode & GM_MULTI_COOP) && (Players[Player_num].time_level < Netgame.control_invul_time))
+	if ((Game_mode & GM_MULTI) && !(Game_mode & GM_MULTI_COOP) && ((i2f(Players[Player_num].hours_level*3600)+Players[Player_num].time_level) < Netgame.control_invul_time))
 	{
 		if (Objects[who].id == Player_num) {
-			int secs = f2i(Netgame.control_invul_time-Players[Player_num].time_level) % 60;
-			int mins = f2i(Netgame.control_invul_time-Players[Player_num].time_level) / 60;
+			int secs = f2i(Netgame.control_invul_time-(i2f(Players[Player_num].hours_level*3600)+Players[Player_num].time_level)) % 60;
+			int mins = f2i(Netgame.control_invul_time-(i2f(Players[Player_num].hours_level*3600)+Players[Player_num].time_level)) / 60;
 			HUD_init_message(HM_DEFAULT, "%s %d:%02d.", TXT_CNTRLCEN_INVUL, mins, secs);
 		}
 		return;

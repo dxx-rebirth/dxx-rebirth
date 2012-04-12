@@ -1,5 +1,9 @@
 D1X-Rebirth Changelog
 
+20120412
+--------
+main/collide.c, main/gameseq.c, main/multi.c, main/multi.h, main/net_udp.c: Fixed some Multiplayer bugs: Reactor invulnerable time did not checked for hours spent in level so reactor would become invulnerable again after 60 minutes; Fixed the fix (heh) for misordered explode/reappear packets; Reset Player_eggs_dropped when initializing new ship so eggs are properly dropped when player disconnects two times without respawning; Cleaned player disconnecting a little bit and made code more straightforward
+
 20120411
 --------
 editor/ehostage.c, editor/medrobot.c, ui/file.c, ui/inputbox.c, ui/keypress.c, ui/listbox.c, ui/message.c, ui/uidraw.c: Draw the object rotation velocity, file browser and MessageBox dialogs properly

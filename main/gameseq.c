@@ -390,6 +390,7 @@ void init_player_stats_new_ship()
 	Players[Player_num].invulnerable_time = 0;
 
 	Player_is_dead = 0;		//player no longer dead
+	Player_eggs_dropped = 0;
 
 	Players[Player_num].homing_object_dist = -F1_0; // Added by RH
 }

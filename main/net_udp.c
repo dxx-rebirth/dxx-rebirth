@@ -77,7 +77,6 @@ void net_udp_send_pdata();
 void net_udp_process_pdata ( ubyte *data, int data_len, struct _sockaddr sender_addr );
 void net_udp_read_pdata_short_packet(UDP_frame_info *pd);
 void net_udp_timeout_check(fix64 time);
-void net_udp_timeout_player(int playernum);
 int net_udp_get_new_player_num (UDP_sequence_packet *their);
 void net_udp_noloss_add_queue_pkt(uint32_t pkt_num, fix64 time, ubyte *data, ushort data_size, ubyte pnum, ubyte player_ack[MAX_PLAYERS]);
 int net_udp_noloss_validate_mdata(uint32_t pkt_num, ubyte sender_pnum, struct _sockaddr sender_addr);
@@ -1203,8 +1202,8 @@ net_udp_can_join_netgame(netgame_info *game)
 	return 0;
 }
 
-void
-net_udp_disconnect_player(int playernum)
+// do UDP stuff to disconnect a player. Should ONLY be called from multi_disconnect_player()
+void net_udp_disconnect_player(int playernum)
 {
 	// A player has disconnected from the net game, take whatever steps are
 	// necessary 
@@ -1215,36 +1214,10 @@ net_udp_disconnect_player(int playernum)
 		return;
 	}
 
-	Players[playernum].connected = CONNECT_DISCONNECTED;
-	Netgame.players[playernum].connected = CONNECT_DISCONNECTED;
-
 	if (VerifyPlayerJoined==playernum)
 		VerifyPlayerJoined=-1;
 
-	if (Network_status == NETSTAT_PLAYING)
-	{
-		multi_make_player_ghost(playernum);
-		multi_strip_robots(playernum);
-	}
-
-	if (Newdemo_state == ND_STATE_RECORDING)
-		newdemo_record_multi_disconnect(playernum);
-
 	net_udp_noloss_clear_mdata_got(playernum);
-
-	if (playernum == 0) // Host has left - Quit game!
-	{
-		if (Network_status==NETSTAT_PLAYING)
-			multi_leave_game();
-		if (Game_wind)
-			window_set_visible(Game_wind, 0);
-		nm_messagebox(NULL, 1, TXT_OK, "Host left the game!");
-		if (Game_wind)
-			window_set_visible(Game_wind, 1);
-		multi_quit_game = 1;
-		game_leave_menus();
-		multi_reset_stuff();
-	}
 }
 
 void
@@ -1970,7 +1943,7 @@ void net_udp_dump_player(struct _sockaddr dump_addr, int why)
 	if (multi_i_am_master())
 		for (i = 1; i < N_players; i++)
 			if (!memcmp((struct _sockaddr *)&dump_addr, (struct _sockaddr *)&Netgame.players[i].protocol.udp.addr, sizeof(struct _sockaddr)))
-				net_udp_disconnect_player(i);
+				multi_disconnect_player(i);
 }
 
 void net_udp_update_netgame(void)
@@ -4019,39 +3992,11 @@ void net_udp_timeout_check(fix64 time)
 				}
 				else if ((time - Netgame.players[i].LastPacketTime) > UDP_TIMEOUT)
 				{
-					net_udp_timeout_player(i);
+					multi_disconnect_player(i);
 				}
 			}
 		}
 		last_timeout_time = time;
-	}
-}
-
-void net_udp_timeout_player(int playernum)
-{
-	// Remove a player from the game if we haven't heard from them in 
-	// a long time.
-	int i, n = 0;
-
-	Assert(playernum < N_players);
-	Assert(playernum > -1);
-
-	net_udp_disconnect_player(playernum);
-
-	if (Network_status == NETSTAT_PLAYING)
-	{
-		create_player_appearance_effect(&Objects[Players[playernum].objnum]);
-		digi_play_sample(SOUND_HUD_MESSAGE, F1_0);
-		HUD_init_message(HM_MULTI, "%s %s", Players[playernum].callsign, TXT_DISCONNECTING);
-	}
-
-	for (i = 0; i < N_players; i++)
-		if (Players[i].connected) 
-			n++;
-
-	if (n == 1 && Network_status == NETSTAT_PLAYING)
-	{
-		HUD_init_message(HM_MULTI, "You are the only person remaining in this netgame");
 	}
 }
 
@@ -4682,7 +4627,7 @@ void net_udp_read_pdata_short_packet(UDP_frame_info *pd)
 		if ( Players[TheirPlayernum].connected != CONNECT_DISCONNECTED && pd->connected == CONNECT_DISCONNECTED )
 		{
 			Netgame.players[TheirPlayernum].LastPacketTime = timer_query() - UDP_TIMEOUT;
-			net_udp_timeout_player(TheirPlayernum);
+			multi_disconnect_player(TheirPlayernum);
 			return;
 		}
 		if ( Players[TheirPlayernum].connected == CONNECT_DISCONNECTED && pd->connected == CONNECT_PLAYING )
