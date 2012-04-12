@@ -3,6 +3,7 @@ D2X-Rebirth Changelog
 20120412
 --------
 main/collide.c, main/gameseq.c, main/multi.c, main/multi.h, main/net_udp.c: Fixed some Multiplayer bugs: Reactor invulnerable time did not checked for hours spent in level so reactor would become invulnerable again after 60 minutes; Fixed the fix (heh) for misordered explode/reappear packets; Reset Player_eggs_dropped when initializing new ship so eggs are properly dropped when player disconnects two times without respawning; Cleaned player disconnecting a little bit and made code more straightforward
+main/menu.c, misc/hmp.c: Removed redundant call of songs_stop_all() when starting credits; Added failsafe for loop in case MHDR_DONE flag is not properly set by MIDI device; Added more verbosity for hmp_reset()
 
 20120411
 --------
