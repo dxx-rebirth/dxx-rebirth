@@ -52,6 +52,7 @@ COPYRIGHT 1993-1998 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 #include "render.h"
 #include "game.h"
 #include "gamefont.h"
+#include "gamepal.h"
 #include "menu.h"
 #include "slew.h"
 #include "kdefs.h"
@@ -419,7 +420,7 @@ void init_editor()
 		return;
 	}
 	
-	gr_palette_load( gr_palette );
+	load_palette(Current_level_palette,1,0);
 	
 	//Editor renders into full (320x200) game screen 
 	

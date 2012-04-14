@@ -1455,6 +1455,8 @@ int create_new_mine(void)
 	Current_level_name[0] = 0;
 	Gamesave_current_version = GAME_VERSION;
 	
+	strcpy(Current_level_palette, DEFAULT_LEVEL_PALETTE);
+	
 	Cur_object_index = -1;
 	reset_objects(1);		//just one object, the player
 	
