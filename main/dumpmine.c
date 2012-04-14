@@ -597,11 +597,12 @@ void write_game_text_file(char *filename)
 	//	---------- Show keyed walls ----------
 	write_key_text(my_file);
 
-{ int r;
-	r = PHYSFS_close(my_file);
-	if (r)
-		Int3();
-}
+	{
+		int r;
+		r = PHYSFS_close(my_file);
+		if (!r)
+			Int3();
+	}
 }
 
 // -- //	---------------
