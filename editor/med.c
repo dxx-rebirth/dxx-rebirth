@@ -419,6 +419,8 @@ void init_editor()
 		return;
 	}
 	
+	gr_use_palette_table( "palette.256" );
+	
 	gr_palette_load( gr_palette );
 	
 	//Editor renders into full (320x200) game screen 
