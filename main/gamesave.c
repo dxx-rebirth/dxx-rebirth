@@ -1265,6 +1265,72 @@ int get_level_name()
 
 #ifdef EDITOR
 
+// --------------------------------------------------------------------------------------
+//	Create a new mine, set global variables.
+int create_new_mine(void)
+{
+	int	s;
+	vms_vector	sizevec;
+	vms_matrix	m1 = IDENTITY_MATRIX;
+	
+	// initialize_mine_arrays();
+	
+	//	gamestate_not_restored = 1;
+	
+	// Clear refueling center code
+	fuelcen_reset();
+	hostage_init_all();
+	
+	init_all_vertices();
+	
+	Current_level_num = 0;		//0 means not a real level
+	Current_level_name[0] = 0;
+	Gamesave_current_version = LEVEL_FILE_VERSION;
+	
+	Cur_object_index = -1;
+	reset_objects(1);		//just one object, the player
+	
+	num_groups = 0;
+	current_group = -1;
+	
+	
+	Num_vertices = 0;		// Number of vertices in global array.
+	Highest_vertex_index = 0;
+	Num_segments = 0;		// Number of segments in global array, will get increased in med_create_segment
+	Highest_segment_index = 0;
+	Cursegp = Segments;	// Say current segment is the only segment.
+	Curside = WBACK;		// The active side is the back side
+	Markedsegp = 0;		// Say there is no marked segment.
+	Markedside = WBACK;	//	Shouldn't matter since Markedsegp == 0, but just in case...
+	for (s=0;s<MAX_GROUPS+1;s++) {
+		GroupList[s].num_segments = 0;		
+		GroupList[s].num_vertices = 0;		
+		Groupsegp[s] = NULL;
+		Groupside[s] = 0;
+	}
+	
+	Num_robot_centers = 0;
+	Num_open_doors = 0;
+	wall_init();
+	trigger_init();
+	
+	// Create New_segment, which is the segment we will be adding at each instance.
+	med_create_new_segment(vm_vec_make(&sizevec,DEFAULT_X_SIZE,DEFAULT_Y_SIZE,DEFAULT_Z_SIZE));		// New_segment = Segments[0];
+	//	med_create_segment(Segments,0,0,0,DEFAULT_X_SIZE,DEFAULT_Y_SIZE,DEFAULT_Z_SIZE,vm_mat_make(&m1,F1_0,0,0,0,F1_0,0,0,0,F1_0));
+	med_create_segment(Segments,0,0,0,DEFAULT_X_SIZE,DEFAULT_Y_SIZE,DEFAULT_Z_SIZE,&m1);
+	
+	N_found_segs = 0;
+	N_selected_segs = 0;
+	N_warning_segs = 0;
+	
+	//--repair-- create_local_segment_data();
+	
+	ControlCenterTriggers.num_links = 0;
+	
+    //editor_status("New mine created.");
+	return	0;			// say no error
+}
+
 int	Errors_in_mine;
 
 // -----------------------------------------------------------------------------

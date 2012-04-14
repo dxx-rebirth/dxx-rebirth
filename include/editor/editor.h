@@ -207,6 +207,9 @@ extern	int		SegSizeMode;			// Mode = 0/1 = not/is legal to move bound vertices,
 void init_editor(void);
 void close_editor(void);
 
+//	Initialize all vertices to inactive status.
+extern void init_all_vertices(void);
+
 //	Returns true if vertex vi is contained in exactly one segment, else returns false.
 extern int is_free_vertex(int vi);
 
@@ -320,6 +323,11 @@ extern	void old_med_attach_segment(segment *sp,int main_side,int branch_side,fix
 // Copy a segment from *ssp to *dsp.  Do not simply copy the struct.  Use *dsp's vertices, copying in
 //	just the values, not the indices.
 extern	void med_copy_segment(segment *dsp,segment *ssp);
+
+//	Create a segment given center, dimensions, rotation matrix.
+//	Note that the created segment will always have planar sides and rectangular cross sections.
+//	It will be created with walls on all sides, ie not connected to anything.
+void med_create_segment(segment *sp,fix cx, fix cy, fix cz, fix length, fix width, fix height, vms_matrix *mp);
 
 //	Create a default segment.
 //	Useful for when user creates a garbage segment.
