@@ -51,6 +51,8 @@ void ui_init()
 	CWHITE = gr_find_closest_color( 50, 50, 50 );
 	CBRIGHT = gr_find_closest_color( 58, 58, 58 );
 	CRED = gr_find_closest_color( 63, 0, 0 );
+	
+	mouse_flush();
 
 	//key_init();
 

@@ -7,6 +7,7 @@ editor/segment.c, include/editor/editor.h, main/gamesave.c: Set Gamesave_current
 main/dumpmine.c: Only do an Int3 in write_game_text_file when PHYSFS_close returns 0, which is an error, not when it returns 1
 editor/med.c, main/game.c, main/gamecntl.c: Delete-E while playing a level now works properly - it closes Game_wind and sets Cursegp if necessary when going to the editor
 main/ai2.c: Fix crash when playing a level straight from the editor (check if Current_mission has actually been loaded, like the other ex-crash)
+editor/med.c, main/dumpmine.c, main/gamecntl.c, ui/ui.c: Fix bugs switching between game and editor and back: make sure ModeFlag is set to 0 before it has any chance to show an alert message, fixing a crash; allow OBJ_NONE in Assert; make Game_wind invisible when loading editor in case we show an alert; call mouse_flush() in ui_init() to fix mouse issues
 
 20120412
 --------

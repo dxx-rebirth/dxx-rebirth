@@ -1449,6 +1449,7 @@ int HandleTestKey(int key)
 #ifdef EDITOR		//editor-specific functions
 
 		case KEY_E + KEY_DEBUGGED:
+			window_set_visible(Game_wind, 0);	// don't let the game do anything while we set the editor up
 			init_editor();
 			window_close(Game_wind);
 			break;
