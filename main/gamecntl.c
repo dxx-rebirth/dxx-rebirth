@@ -1449,10 +1449,8 @@ int HandleTestKey(int key)
 #ifdef EDITOR		//editor-specific functions
 
 		case KEY_E + KEY_DEBUGGED:
-#ifdef NETWORK
-			multi_leave_game();
-#endif
 			init_editor();
+			window_close(Game_wind);
 			break;
 	case KEY_Q + KEY_SHIFTED + KEY_DEBUGGED:
 		{

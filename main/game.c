@@ -1212,7 +1212,10 @@ int game_handler(window *wind, d_event *event, void *data)
 
 			game_disable_cheats();
 			Game_mode = GM_GAME_OVER;
-			show_menus();
+#ifdef EDITOR
+			if (!EditorWindow)		// have to do it this way because of the necessary longjmp. Yuck.
+#endif
+				show_menus();
 			Game_wind = NULL;
 			event_toggle_focus(0);
 			key_toggle_repeat(1);

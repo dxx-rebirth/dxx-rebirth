@@ -399,6 +399,9 @@ void init_editor()
 	menubar_init( "MED.MNU" );
 
 	Draw_all_segments = 1;						// Say draw all segments, not just connected ones
+	
+	if (!Cursegp)
+		Cursegp = &Segments[0];
 
 	init_autosave();
   

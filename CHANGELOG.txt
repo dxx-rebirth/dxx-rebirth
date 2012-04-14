@@ -5,6 +5,7 @@ D2X-Rebirth Changelog
 main/gamesave.c: Fix crash when loading a level in the editor
 editor/segment.c, include/editor/editor.h, main/gamesave.c: Set Gamesave_current_version to correct version when making a new mine, move create_new_mine to gamesave.c
 main/dumpmine.c: Only do an Int3 in write_game_text_file when PHYSFS_close returns 0, which is an error, not when it returns 1
+editor/med.c, main/game.c, main/gamecntl.c: Delete-E while playing a level now works properly - it closes Game_wind and sets Cursegp if necessary when going to the editor
 
 20120412
 --------
