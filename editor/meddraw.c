@@ -922,6 +922,11 @@ void find_segments(short x,short y,grs_canvas *screen_canvas,editor_view *v,segm
 
 void meddraw_init_views( grs_canvas * canvas)
 {
+	// sticking these here so the correct D2 colors are used
+	edge_colors[0] = BM_XRGB(45/2,45/2,45/2);
+	edge_colors[1] = BM_XRGB(45/3,45/3,45/3);		//BM_RGB(0,0,45),	//
+	edge_colors[2] = BM_XRGB(45/4,45/4,45/4);	//BM_RGB(0,45,0)};	//
+
 	Views[0]->ev_canv = canvas;
 #if ORTHO_VIEWS
 	Views[1]->ev_canv = TopViewBox->canvas;
