@@ -347,10 +347,12 @@ void init_ai_objects(void)
 
 	init_buddy_for_level();
 
-	if (Current_level_num == Last_level) {
+	if (Current_mission && (Current_level_num == Last_level))
+	{
 		Boss_teleport_interval = F1_0*10;
 		Boss_cloak_interval = F1_0*15;					//	Time between cloaks
-	} else {
+	} else
+	{
 		Boss_teleport_interval = F1_0*7;
 		Boss_cloak_interval = F1_0*10;					//	Time between cloaks
 	}
