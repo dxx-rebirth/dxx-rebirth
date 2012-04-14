@@ -50,7 +50,7 @@ char	*object_types(int objnum)
 {
 	int	type = Objects[objnum].type;
 
-	Assert((type >= 0) && (type < MAX_OBJECT_TYPES));
+	Assert((type == OBJ_NONE) || ((type >= 0) && (type < MAX_OBJECT_TYPES)));
 	return	Object_type_names[type];
 }
 

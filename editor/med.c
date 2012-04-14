@@ -464,9 +464,9 @@ void init_editor()
 	FNTScaleX = FNTScaleY = 1;		// No font scaling!
 	ui_pad_goto(padnum);
 	
-	gamestate_restore_check();
-	
 	ModeFlag = 0;
+	
+	gamestate_restore_check();
 }
 
 int ShowAbout()
