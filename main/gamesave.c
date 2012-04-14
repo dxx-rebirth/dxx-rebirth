@@ -1176,7 +1176,7 @@ int load_level(char * filename_passed)
 	 * Descent 1 - Level 19: OBERON MINE has some ugly overlapping rooms (segment 484).
 	 * HACK to make this issue less visible by moving one vertex a little.
 	 */
-	if ( !stricmp("Descent: First Strike",Current_mission_longname) && !stricmp("level19.rdl",filename) && PHYSFS_fileLength(LoadFile) == 136706)
+	if (Current_mission && !stricmp("Descent: First Strike",Current_mission_longname) && !stricmp("level19.rdl",filename) && PHYSFS_fileLength(LoadFile) == 136706)
 		Vertices[1905].z =-385*F1_0;
 
 	if (mine_err == -1) {   //error!!
