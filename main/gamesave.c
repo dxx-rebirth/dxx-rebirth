@@ -1202,7 +1202,7 @@ int load_level(char * filename_passed)
 
 	PHYSFS_close( LoadFile );
 
-	#ifdef EDITOR
+	#if 0	//def EDITOR
 	#ifndef RELEASE
 	write_game_text_file(filename);
 	if (Errors_in_mine) {

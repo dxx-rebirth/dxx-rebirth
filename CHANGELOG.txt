@@ -3,6 +3,8 @@ D1X-Rebirth Changelog
 20120414
 --------
 main/gamesave.c: Fix crash when loading a level in the editor
+editor/segment.c, include/editor/editor.h, main/gamesave.c: Set Gamesave_current_version to correct version when making a new mine, move create_new_mine to gamesave.c
+main/gamesave.c: Don't bother generating a game text file (.txm) every time a level is loaded, even if the EDITOR is compiled. Just when a level is saved
 
 20120412
 --------
