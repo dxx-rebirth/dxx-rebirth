@@ -559,7 +559,7 @@ void draw_mine(segment *mine_ptr,int depth)
 	for (i=0; i<=Highest_segment_index; i++)
 		Been_visited[i] = 0;
 
-	edge_list_size = min(Num_vertices*4,MAX_EDGES);		//make maybe smaller than max
+	edge_list_size = min(Num_segments*12,MAX_EDGES);		//make maybe smaller than max
 
 	// clear edge list
 	for (i=0; i<edge_list_size; i++) {
@@ -588,7 +588,7 @@ void draw_mine_all(segment *sp, int automap_flag)
 	for (i=0; i<=Highest_segment_index; i++)
 		Been_visited[i] = 0;
 
-	edge_list_size = min(Num_vertices*4,MAX_EDGES);		//make maybe smaller than max
+	edge_list_size = min(Num_segments*12,MAX_EDGES);		//make maybe smaller than max
 
 	// clear edge list
 	for (i=0; i<edge_list_size; i++) {
