@@ -93,20 +93,22 @@ int do_centers_dialog()
 		return 0;
 
 	// Open a window with a quit button
-	MainWindow = ui_create_dialog( TMAPBOX_X+20, TMAPBOX_Y+20, 765-TMAPBOX_X, 545-TMAPBOX_Y, DF_DIALOG, (int (*)(UI_DIALOG *, d_event *, void *))centers_dialog_handler, c );
+	MainWindow = ui_create_dialog( 20, TMAPBOX_Y+20, 740, 545-TMAPBOX_Y, DF_DIALOG, (int (*)(UI_DIALOG *, d_event *, void *))centers_dialog_handler, c );
 	c->quitButton = ui_add_gadget_button( MainWindow, 20, 252, 48, 40, "Done", NULL );
 
 	// These are the checkboxes for each door flag.
-	i = 80;
+	i = 40;
 	c->centerFlag[0] = ui_add_gadget_radio( MainWindow, 18, i, 16, 16, 0, "NONE" ); 			i += 24;
 	c->centerFlag[1] = ui_add_gadget_radio( MainWindow, 18, i, 16, 16, 0, "FuelCen" );		i += 24;
 	c->centerFlag[2] = ui_add_gadget_radio( MainWindow, 18, i, 16, 16, 0, "RepairCen" );	i += 24;
 	c->centerFlag[3] = ui_add_gadget_radio( MainWindow, 18, i, 16, 16, 0, "ControlCen" );	i += 24;
 	c->centerFlag[4] = ui_add_gadget_radio( MainWindow, 18, i, 16, 16, 0, "RobotCen" );		i += 24;
+	c->centerFlag[5] = ui_add_gadget_radio( MainWindow, 18, i, 16, 16, 0, "Blue Goal" );		i += 24;
+	c->centerFlag[6] = ui_add_gadget_radio( MainWindow, 18, i, 16, 16, 0, "Red Goal" );		i += 24;
 
 	// These are the checkboxes for each robot flag.
 	for (i=0; i<N_robot_types; i++)
-		c->robotMatFlag[i] = ui_add_gadget_checkbox( MainWindow, 128 + (i%2)*92, 20+(i/2)*24, 16, 16, 0, Robot_names[i]);
+		c->robotMatFlag[i] = ui_add_gadget_checkbox( MainWindow, 128 + (i%6)*92, 20+(i/6)*24, 16, 16, 0, Robot_names[i]);
 																									  
 	c->old_seg_num = -2;		// Set to some dummy value so everything works ok on the first frame.
 
