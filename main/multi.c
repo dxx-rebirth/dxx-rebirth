@@ -145,11 +145,6 @@ int     VerifyPlayerJoined=-1;      // Player (num) to enter game before any ing
 int     Player_joining_extras=-1;  // This is so we know who to send 'latecomer' packets to.
 int     Network_player_added = 0;   // Is this a new player or a returning player?
 
-//added 02/26/99 Matt Mueller - reactor kill stats
-short reactor_kills[MAX_NUM_NET_PLAYERS];
-int reactor_kills_total;
-//end addition -MM
-
 ushort          my_segments_checksum = 0;
 
 netgame_info Netgame;
@@ -403,15 +398,15 @@ get_team(int pnum)
 void
 multi_new_game(void)
 {
-	int i;
+	int i, save_pnum = Player_num;
 	
 	// Reset variables for a new net game
 
-//edited 02/26/99 Matt Mueller - reactor kill stuff, and fix this other memset that hardcoded short=2bytes
+	for (Player_num = 0; Player_num < MAX_NUM_NET_PLAYERS; Player_num++)
+		init_player_stats_game();
+	Player_num = save_pnum;
+
 	memset(kill_matrix, 0, sizeof(kill_matrix)); // Clear kill matrix
-	memset(reactor_kills, 0, sizeof(reactor_kills)); // Clear kill matrix
-	reactor_kills_total=0;
-//end edit -MM
 
 	for (i = 0; i < MAX_NUM_NET_PLAYERS; i++)
 	{
@@ -426,21 +421,29 @@ multi_new_game(void)
 
 	for (i = 0; i < MAX_ROBOTS_CONTROLLED; i++)
 	{
-		robot_controlled[i] = -1;	
+		robot_controlled[i] = -1;
 		robot_agitation[i] = 0;
 		robot_fired[i] = 0;
 	}
 
+	for (i=0;i<MAX_POWERUP_TYPES;i++)
+	{
+		MaxPowerupsAllowed[i]=0;
+		PowerupsInMine[i]=0;
+	}
+
 	team_kills[0] = team_kills[1] = 0;
 	Endlevel_sequence = 0;
+	Control_center_destroyed = 0;
 	Player_is_dead = 0;
 	multi_quit_game = 0;
 	Show_kill_list = 1;
 	game_disable_cheats();
 	Player_exploded = 0;
 	Dead_player_camera = 0;
+	Network_new_game = 1;
 }
-	
+
 void
 multi_make_player_ghost(int playernum)
 {
@@ -591,9 +594,6 @@ void multi_compute_kill(int killer, int killed)
 		if (Newdemo_state == ND_STATE_RECORDING)
 			newdemo_record_multi_kill(killed_pnum, -1);
 	    
-//edited 02/26/99 Matt Mueller - add kill stats to messages
-		reactor_kills[killed_pnum]++;
-		reactor_kills_total++;
 		if (killed_pnum == Player_num)
 		{
 			HUD_init_message(HM_MULTI, "%s %s.", TXT_YOU_WERE, TXT_KILLED_BY_NONPLAY);
@@ -813,8 +813,10 @@ void multi_do_frame(void)
 void
 multi_send_data(unsigned char *buf, int len, int priority)
 {
-	Assert(len == message_length[(int)buf[0]]);
-	Assert(buf[0] <= MULTI_MAX_TYPE);
+	if (len != message_length[(int)buf[0]])
+		Error("multi_send_data: Packet type %i length: %i, expected: %i\n", buf[0], len, message_length[(int)buf[0]]);
+	if (buf[0] < 0 || buf[0] > MULTI_MAX_TYPE)
+		Error("multi_send_data: Illegal packet type %i\n", buf[0]);
 
 	if (Game_mode & GM_NETWORK)
 	{
@@ -834,9 +836,12 @@ multi_send_data(unsigned char *buf, int len, int priority)
 
 void multi_send_data_direct(unsigned char *buf, int len, int pnum, int priority)
 {
-	Assert(len == message_length[(int)buf[0]]);
-	Assert(buf[0] <= MULTI_MAX_TYPE);
-	Assert(pnum >= 0 && pnum < MAX_NUM_NET_PLAYERS);
+	if (len != message_length[(int)buf[0]])
+		Error("multi_send_data_direct: Packet type %i length: %i, expected: %i\n", buf[0], len, message_length[(int)buf[0]]);
+	if (buf[0] < 0 || buf[0] > MULTI_MAX_TYPE)
+		Error("multi_send_data_direct: Illegal packet type %i\n", buf[0]);
+	if (pnum < 0 && pnum > MAX_NUM_NET_PLAYERS)
+		Error("multi_send_data_direct: Illegal player num: %i\n", pnum);
 
 	switch (multi_protocol)
 	{
@@ -2347,6 +2352,8 @@ multi_process_bigdata(char *buf, int len)
 
 void multi_send_fire(int laser_gun, int laser_level, int laser_flags, int laser_fired, short laser_track)
 {
+	multi_do_protocol_frame(1, 0); // provoke positional update if possible
+
 	multibuf[0] = (char)MULTI_FIRE;
 	multibuf[1] = (char)Player_num;
 	multibuf[2] = (char)laser_gun;
@@ -2355,7 +2362,6 @@ void multi_send_fire(int laser_gun, int laser_level, int laser_flags, int laser_
 	multibuf[5] = (char)laser_fired;
 	PUT_INTEL_SHORT(multibuf+6, laser_track);
 
-	multi_do_protocol_frame(1, 0); // provoke positional update if possible
 	multi_send_data(multibuf, 8, 1);
 }
 

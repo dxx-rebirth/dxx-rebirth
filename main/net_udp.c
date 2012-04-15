@@ -108,8 +108,6 @@ struct _sockaddr TrackerSocket;
 int iTrackerVerified = 0;
 #endif
 extern obj_position Player_init[MAX_PLAYERS];
-extern char MaxPowerupsAllowed[MAX_POWERUP_TYPES];
-extern char PowerupsInMine[MAX_POWERUP_TYPES];
 
 /* General UDP functions - START */
 ssize_t dxx_sendto(int sockfd, const void *msg, int len, unsigned int flags, const struct sockaddr *to, socklen_t tolen)
@@ -1023,10 +1021,7 @@ void net_udp_receive_sequence_packet(ubyte *data, UDP_sequence_packet *seq, stru
 
 void net_udp_init()
 {
-	// So you want to play a netgame, eh?  Let's a get a few things
-	// straight
-
-	int save_pnum = Player_num, t;
+	// So you want to play a netgame, eh?  Let's a get a few things straight
 
 #ifdef _WIN32
 {
@@ -1044,12 +1039,6 @@ void net_udp_init()
 	if( UDP_Socket[1] != -1 )
 		udp_close_socket(1);
 
-	for (t=0;t<MAX_POWERUP_TYPES;t++)
-	{
-		MaxPowerupsAllowed[t]=0;
-		PowerupsInMine[t]=0;
-	}
-
 	memset(&Netgame, 0, sizeof(netgame_info));
 	memset(&UDP_Seq, 0, sizeof(UDP_sequence_packet));
 	memset(&UDP_MData, 0, sizeof(UDP_mdata_info));
@@ -1057,16 +1046,8 @@ void net_udp_init()
 	UDP_Seq.type = UPID_REQUEST;
 	memcpy(UDP_Seq.player.callsign, Players[Player_num].callsign, CALLSIGN_LEN+1);
 
-	for (Player_num = 0; Player_num < MAX_NUM_NET_PLAYERS; Player_num++)
-		init_player_stats_game();
-
-	Player_num = save_pnum;		
 	multi_new_game();
-	Network_new_game = 1;
-	Control_center_destroyed = 0;
 	net_udp_flush();
-
-	Netgame.PacketsPerSec = 10;
 	
 #ifdef USE_TRACKER
 	// Initialize the tracker info
@@ -2428,6 +2409,7 @@ void net_udp_process_dump(ubyte *data, int len, struct _sockaddr sender_addr)
 		default:
 			if (data[1] > DUMP_LEVEL) // invalid dump... heh
 				break;
+			Network_status = NETSTAT_MENU;
 			nm_messagebox(NULL, 1, TXT_OK, NET_DUMP_STRINGS(data[1]));
 			Network_status = NETSTAT_MENU;
 			break;
@@ -3141,6 +3123,7 @@ int net_udp_setup_game()
 	Netgame.RefusePlayers=0;
 	sprintf( Netgame.game_name, "%s%s", Players[Player_num].callsign, TXT_S_GAME );
 	Netgame.difficulty=PlayerCfg.DefaultDifficulty;
+	Netgame.PacketsPerSec = 10;
 	if (GameArg.MplUdpMyPort != 0)
 		snprintf (UDP_MyPort, sizeof(UDP_MyPort), "%d", GameArg.MplUdpMyPort);
 	else
