@@ -198,6 +198,9 @@ void show_order_form()
 {
 	char    exit_screen[PATH_MAX];
 
+	if (GameArg.SysNoTitles)
+		return;
+
 	strcpy(exit_screen, "warning.pcx");	// D1 Registered
 	if (! PHYSFSX_exists(exit_screen,1))
 		strcpy(exit_screen, "apple.pcx");	// D1 Mac OEM Demo
