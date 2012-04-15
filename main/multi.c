@@ -3330,8 +3330,7 @@ void multi_prep_level(void)
 	{
 		PKilledFlags[i]=1;
 		multi_sending_message[i] = 0;
-		if (i != Player_num)
-			init_player_stats_new_ship(i);
+		init_player_stats_new_ship(i);
 	}
 
 	for (i = 0; i < NumNetPlayerPositions; i++)

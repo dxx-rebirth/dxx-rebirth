@@ -394,6 +394,10 @@ void init_player_stats_new_ship(ubyte pnum)
 		for (i=1; i<MAX_SECONDARY_WEAPONS; i++)
 			Secondary_last_was_super[i] = 0;
 		dead_player_end(); //player no longer dead
+		Player_is_dead = 0;
+		Player_exploded = 0;
+		Player_eggs_dropped = 0;
+		Dead_player_camera = 0;
 		Global_laser_firing_count=0;
 		Afterburner_charge = 0;
 		Controls.afterburner_state = 0;
