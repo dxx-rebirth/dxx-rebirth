@@ -3,6 +3,8 @@ D2X-Rebirth Changelog
 20120415
 --------
 main/multi.c, main/multi.h, main/net_udp.c: When possibly sending player positions prior to firing, do that before messing multibuf; Added more strict sanity checks for outgoing and incoming multi packets; Moved some general game stuff from net_udp_init() to multi_new_game()
+editor/meddraw.c: Set edge_list_size to Num_segments*12 to avoid crashes in the editor with certain third party levels
+
 
 20120414
 --------
