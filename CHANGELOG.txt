@@ -5,6 +5,7 @@ D1X-Rebirth Changelog
 main/multi.c, main/multi.h, main/net_udp.c: When possibly sending player positions prior to firing, do that before messing multibuf; Added more strict sanity checks for outgoing and incoming multi packets; Moved some general game stuff from net_udp_init() to multi_new_game()
 editor/meddraw.c: Set edge_list_size to Num_segments*12 to avoid crashes in the editor with certain third party levels
 2d/gpixel.c, arch/ogl/gr.c, editor/meddraw.c, include/ogl_init.h, main/multi.c, main/render.c: Clicking on mine elements in the editor now works in ogl
+main/bmread.c, main/game.c, main/gameseq.c, main/gameseq.h, main/gauges.c, main/kmatrix.c, main/multi.c, main/multi.h, main/net_udp.c, main/state.c: Further Multiplayer cleanup: moved gobal variable resets from multi_new_game() to proper function calls; added pnum variable to init_player_stats_game() and init_player_stats_new_ship() so these can be set for each player when starting match; added multi_new_level() calls when setting up game as well when trying to join game; cleaned multi_reset_stuff() from variable resetting that happen in general game code; when being dumped from game, made sure no packets are sent during messagebox dispaly; replaced MAX_NUM_NET_PLAYERS by MAX_PLAYERS as it's the same definition
 
 20120414
 --------

@@ -1192,12 +1192,12 @@ int state_restore_all_sub(char *filename)
 		N_players = 1;
 		strcpy( org_callsign, Players[0].callsign );
 		InitPlayerObject();				//make sure player's object set up
-		init_player_stats_game();		//clear all stats
+		init_player_stats_game(0);		//clear all stats
 	}
 	else // in coop we want to stay the player we are already.
 	{
 		strcpy( org_callsign, Players[Player_num].callsign );
-		init_player_stats_game();
+		init_player_stats_game(Player_num);
 	}
 
 	if (Game_wind)

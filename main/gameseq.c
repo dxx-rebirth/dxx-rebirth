@@ -104,7 +104,7 @@ COPYRIGHT 1993-1998 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 #include "segment.h"
 #include "gameseg.h"
 
-void init_player_stats_new_ship();
+void init_player_stats_new_ship(ubyte pnum);
 void copy_defaults_to_robot_all(void);
 int AdvanceLevel(int secret_flag);
 void StartLevel(int random);
@@ -242,42 +242,31 @@ void gameseq_remove_unused_players()
 }
 
 // Setup player for new game
-void init_player_stats_game()
+void init_player_stats_game(ubyte pnum)
 {
-	Players[Player_num].score = 0;
-	Players[Player_num].last_score = 0;
-	Players[Player_num].lives = INITIAL_LIVES;
-	Players[Player_num].level = 1;
+	Players[pnum].score = 0;
+	Players[pnum].last_score = 0;
+	Players[pnum].lives = INITIAL_LIVES;
+	Players[pnum].level = 1;
+	Players[pnum].time_level = 0;
+	Players[pnum].time_total = 0;
+	Players[pnum].hours_level = 0;
+	Players[pnum].hours_total = 0;
+	Players[pnum].killer_objnum = -1;
+	Players[pnum].net_killed_total = 0;
+	Players[pnum].net_kills_total = 0;
+	Players[pnum].num_kills_level = 0;
+	Players[pnum].num_kills_total = 0;
+	Players[pnum].num_robots_level = 0;
+	Players[pnum].num_robots_total = 0;
+	Players[pnum].KillGoalCount = 0;
+	Players[pnum].hostages_rescued_total = 0;
+	Players[pnum].hostages_level = 0;
+	Players[pnum].hostages_total = 0;
+	Players[pnum].laser_level = 0;
+	Players[pnum].flags = 0;
 
-	Players[Player_num].time_level = 0;
-	Players[Player_num].time_total = 0;
-	Players[Player_num].hours_level = 0;
-	Players[Player_num].hours_total = 0;
-
-//added/killed on 11/9/98 by Victor Rachels because of init_player_stats_new_ship()
-//-killed-        Players[Player_num].energy = MAX_ENERGY;
-//-killed-        Players[Player_num].shields = MAX_SHIELDS;
-//end this kill - VR
-
-	Players[Player_num].killer_objnum = -1;
-
-	Players[Player_num].net_killed_total = 0;
-	Players[Player_num].net_kills_total = 0;
-
-	Players[Player_num].num_kills_level = 0;
-	Players[Player_num].num_kills_total = 0;
-	Players[Player_num].num_robots_level = 0;
-	Players[Player_num].num_robots_total = 0;
-	Players[Player_num].KillGoalCount = 0;
-
-	Players[Player_num].hostages_rescued_total = 0;
-	Players[Player_num].hostages_level = 0;
-	Players[Player_num].hostages_total = 0;
-
-	Players[Player_num].laser_level = 0;
-	Players[Player_num].flags = 0;
-
-	init_player_stats_new_ship();
+	init_player_stats_new_ship(pnum);
 
 }
 
@@ -349,57 +338,48 @@ void init_player_stats_level()
 }
 
 // Setup player for a brand-new ship
-void init_player_stats_new_ship()
+void init_player_stats_new_ship(ubyte pnum)
 {
-	int	i;
+	int i;
 
-	if (Newdemo_state == ND_STATE_RECORDING) {
-		newdemo_record_laser_level(Players[Player_num].laser_level, 0);
-		newdemo_record_player_weapon(0, 0);
-		newdemo_record_player_weapon(1, 0);
+	if (pnum == Player_num)
+	{
+		if (Newdemo_state == ND_STATE_RECORDING)
+		{
+			newdemo_record_laser_level(Players[Player_num].laser_level, 0);
+			newdemo_record_player_weapon(0, 0);
+			newdemo_record_player_weapon(1, 0);
+		}
+		Global_laser_firing_count=0;
+		Primary_weapon = 0;
+		Secondary_weapon = 0;
+		dead_player_end(); //player no longer dead
 	}
 
-	Players[Player_num].energy = MAX_ENERGY;
-
-        Players[Player_num].shields = MAX_SHIELDS;
-
-//added on 3/15/99 by Victor Rachels to maybe fix respawn-shoot
-        Global_laser_firing_count=0;
-//end this section addition - VR
-
-	Players[Player_num].laser_level = 0;
-	Players[Player_num].killer_objnum = -1;
-	Players[Player_num].hostages_on_board = 0;
-
+	Players[pnum].energy = MAX_ENERGY;
+        Players[pnum].shields = MAX_SHIELDS;
+	Players[pnum].laser_level = 0;
+	Players[pnum].killer_objnum = -1;
+	Players[pnum].hostages_on_board = 0;
 	for (i=0; i<MAX_PRIMARY_WEAPONS; i++)
-		Players[Player_num].primary_ammo[i] = 0;
-
+		Players[pnum].primary_ammo[i] = 0;
 	for (i=1; i<MAX_SECONDARY_WEAPONS; i++)
-		Players[Player_num].secondary_ammo[i] = 0;
-	Players[Player_num].secondary_ammo[0] = 2 + NDL - Difficulty_level;
-
-	Players[Player_num].primary_weapon_flags = HAS_LASER_FLAG;
-	Players[Player_num].secondary_weapon_flags = HAS_CONCUSSION_FLAG;
-
-	Primary_weapon = 0;
-	Secondary_weapon = 0;
-
-	Players[Player_num].flags &= ~(PLAYER_FLAGS_QUAD_LASERS | PLAYER_FLAGS_AFTERBURNER | PLAYER_FLAGS_CLOAKED | PLAYER_FLAGS_INVULNERABLE);
-
-	Players[Player_num].cloak_time = 0;
-	Players[Player_num].invulnerable_time = 0;
-
-	Player_is_dead = 0;		//player no longer dead
-	Player_eggs_dropped = 0;
-
-	Players[Player_num].homing_object_dist = -F1_0; // Added by RH
+		Players[pnum].secondary_ammo[i] = 0;
+	Players[pnum].secondary_ammo[0] = 2 + NDL - Difficulty_level;
+	Players[pnum].primary_weapon_flags = HAS_LASER_FLAG;
+	Players[pnum].secondary_weapon_flags = HAS_CONCUSSION_FLAG;
+	Players[pnum].flags &= ~(PLAYER_FLAGS_QUAD_LASERS | PLAYER_FLAGS_AFTERBURNER | PLAYER_FLAGS_CLOAKED | PLAYER_FLAGS_INVULNERABLE);
+	Players[pnum].cloak_time = 0;
+	Players[pnum].invulnerable_time = 0;
+	Players[pnum].homing_object_dist = -F1_0;
+	digi_kill_sound_linked_to_object(Players[pnum].objnum);
 }
 
 #ifdef NETWORK
 void reset_network_objects()
 {
 	memset(local_to_remote, -1, MAX_OBJECTS*sizeof(short));
-	memset(remote_to_local, -1, MAX_NUM_NET_PLAYERS*MAX_OBJECTS*sizeof(short));
+	memset(remote_to_local, -1, MAX_PLAYERS*MAX_OBJECTS*sizeof(short));
 	memset(object_owner, -1, MAX_OBJECTS);
 }
 #endif
@@ -428,7 +408,7 @@ void editor_reset_stuff_on_level()
 	init_ai_objects();
 	init_morphs();
 	init_all_matcens();
-	init_player_stats_new_ship();
+	init_player_stats_new_ship(Player_num);
 	if (!Game_wind)
 		Game_wind = window_create(&grd_curscreen->sc_canvas, 0, 0, SWIDTH, SHEIGHT, game_handler, NULL);
 }
@@ -715,12 +695,9 @@ void StartNewGame(int start_level)
 
 	InitPlayerObject();				//make sure player's object set up
 
-	init_player_stats_game();		//clear all stats
+	init_player_stats_game(Player_num);		//clear all stats
 
 	N_players = 1;
-	#ifdef NETWORK
-	Network_new_game = 0;
-	#endif
 
 #ifdef SCRIPT
 	script_reset();
@@ -1039,7 +1016,7 @@ void DoPlayerDead()
 		object * player = &Objects[Players[Player_num].objnum];
 		//nm_messagebox( "You're Dead!", 1, "Continue", "Not a real game, though." );
 		load_level("gamesave.lvl");
-		init_player_stats_new_ship();
+		init_player_stats_new_ship(Player_num);
 		player->flags &= ~OF_SHOULD_BE_DEAD;
 		StartLevel(0);
 		return;
@@ -1088,7 +1065,7 @@ void DoPlayerDead()
 				rval = AdvanceLevel(0);			//if finished, go on to next level
 				DoEndLevelScoreGlitz(0);
 			}
-			init_player_stats_new_ship();
+			init_player_stats_new_ship(Player_num);
 			last_drawn_cockpit = -1;
 		} else {
 			#ifdef NETWORK
@@ -1099,7 +1076,7 @@ void DoPlayerDead()
 				DoEndLevelScoreGlitz(0);		// Note above link!
 
 			rval = AdvanceLevel(0);			//if finished, go on to next level
-			init_player_stats_new_ship();
+			init_player_stats_new_ship(Player_num);
 			last_drawn_cockpit = -1;
 		}
 
@@ -1112,7 +1089,7 @@ void DoPlayerDead()
 				window_close(Game_wind);		// Exit out of game loop
 		}
 	} else {
-		init_player_stats_new_ship();
+		init_player_stats_new_ship(Player_num);
 		StartLevel(1);
 	}
 
@@ -1162,13 +1139,6 @@ void StartNewLevelSub(int level_num, int page_in_textures)
 
 	automap_clear_visited();
 
-	#ifdef NETWORK
-	if (Network_new_game == 1)
-	{
-		Network_new_game = 0;
-		init_player_stats_new_ship();
-	}
-	#endif
 	init_player_stats_level();
 
 	gr_use_palette_table( "palette.256" );
@@ -1301,7 +1271,7 @@ void InitPlayerPosition(int random)
 					}
 				}
 			}
-		} while ( (closest_dist<i2f(15*20)) && (trys<MAX_NUM_NET_PLAYERS*2) );
+		} while ( (closest_dist<i2f(15*20)) && (trys<MAX_PLAYERS*2) );
 	}
 	else
 	{

@@ -609,6 +609,7 @@ static int manual_join_game_handler(newmenu *menu, d_event *event, direct_join *
 			}
 			else
 			{
+				multi_new_game();
 				N_players = 0;
 				change_playernum_to(1);
 				dj->start_time = timer_query();
@@ -793,6 +794,7 @@ int net_udp_list_join_poll( newmenu *menu, d_event *event, direct_join *dj )
 		{
 			if (((citem+(NLPage*UDP_NETGAMES_PPAGE)) >= 4) && (((citem+(NLPage*UDP_NETGAMES_PPAGE))-4) <= num_active_udp_games-1))
 			{
+				multi_new_game();
 				N_players = 0;
 				change_playernum_to(1);
 				dj->start_time = timer_query();
@@ -1945,10 +1947,10 @@ void net_udp_update_netgame(void)
 	Netgame.game_status = Network_status;
 	Netgame.max_numplayers = MaxNumNetPlayers;
 
-	for (i = 0; i < MAX_NUM_NET_PLAYERS; i++) 
+	for (i = 0; i < MAX_PLAYERS; i++) 
 	{
 		Netgame.players[i].connected = Players[i].connected;
-		for(j = 0; j < MAX_NUM_NET_PLAYERS; j++)
+		for(j = 0; j < MAX_PLAYERS; j++)
 			Netgame.kills[i][j] = kill_matrix[i][j];
 		Netgame.killed[i] = Players[i].net_killed_total;
 		Netgame.player_kills[i] = Players[i].net_kills_total;
@@ -2236,11 +2238,11 @@ int net_udp_send_request(void)
 	if (Netgame.numplayers < 1)
 	 return 1;
 
-	for (i = 0; i < MAX_NUM_NET_PLAYERS; i++)
+	for (i = 0; i < MAX_PLAYERS; i++)
 		if (Netgame.players[i].connected)
 			break;
 
-	Assert(i < MAX_NUM_NET_PLAYERS);
+	Assert(i < MAX_PLAYERS);
 
 	UDP_Seq.type = UPID_REQUEST;
 	UDP_Seq.player.connected = Current_level_num;
@@ -2409,9 +2411,10 @@ void net_udp_process_dump(ubyte *data, int len, struct _sockaddr sender_addr)
 		default:
 			if (data[1] > DUMP_LEVEL) // invalid dump... heh
 				break;
-			Network_status = NETSTAT_MENU;
+			Network_status = NETSTAT_MENU; // stop us from sending before message
 			nm_messagebox(NULL, 1, TXT_OK, NET_DUMP_STRINGS(data[1]));
 			Network_status = NETSTAT_MENU;
+			multi_reset_stuff();
 			break;
 	}
 }
@@ -3111,13 +3114,15 @@ int net_udp_setup_game()
 
 	net_udp_init();
 
+	multi_new_game();
+
 	change_playernum_to(0);
 
 	for (i=0;i<MAX_PLAYERS;i++)
 		if (i!=Player_num)
 			Players[i].callsign[0]=0;
 
-	Netgame.max_numplayers = MaxNumNetPlayers = MAX_NUM_NET_PLAYERS;
+	Netgame.max_numplayers = MaxNumNetPlayers = MAX_PLAYERS;
 	Netgame.KillGoal=0;
 	Netgame.PlayTimeAllowed=0;
 	Netgame.RefusePlayers=0;
@@ -3261,7 +3266,7 @@ void net_udp_read_sync_packet( ubyte * data, int data_len, struct _sockaddr send
 	
 	Player_num = -1;
 
-	for (i=0; i<MAX_NUM_NET_PLAYERS; i++ )
+	for (i=0; i<MAX_PLAYERS; i++ )
 	{
 		Players[i].net_kills_total = 0;
 		Players[i].net_killed_total = 0;
@@ -3282,7 +3287,7 @@ void net_udp_read_sync_packet( ubyte * data, int data_len, struct _sockaddr send
 		Players[i].net_killed_total = Netgame.killed[i];
 		if ((Network_rejoined) || (i != Player_num))
 			Players[i].score = Netgame.player_score[i];
-		for (j = 0; j < MAX_NUM_NET_PLAYERS; j++)
+		for (j = 0; j < MAX_PLAYERS; j++)
 		{
 			kill_matrix[i][j] = Netgame.kills[i][j];
 		}
@@ -3595,7 +3600,7 @@ abort:
 		}
 	}
 
-	for (i = N_players; i < MAX_NUM_NET_PLAYERS; i++) {
+	for (i = N_players; i < MAX_PLAYERS; i++) {
 		memset(Netgame.players[i].callsign, 0, CALLSIGN_LEN+1);
 	}
 

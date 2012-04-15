@@ -105,28 +105,28 @@ int Show_kill_list = 1;
 int Show_reticle_name = 1;
 fix Show_kill_list_timer = 0;
 
-sbyte PKilledFlags[MAX_NUM_NET_PLAYERS];
+sbyte PKilledFlags[MAX_PLAYERS];
 int Bounty_target = 0;
 
-int multi_sending_message[MAX_NUM_NET_PLAYERS] = { 0,0,0,0,0,0,0,0 };
+int multi_sending_message[MAX_PLAYERS] = { 0,0,0,0,0,0,0,0 };
 int multi_defining_message = 0;
 int multi_message_index = 0;
 
 unsigned char multibuf[MAX_MULTI_MESSAGE_LEN+4];		// This is where multiplayer message are built
 unsigned char multibuf2[MAX_MULTI_MESSAGE_LEN+4];
 
-short remote_to_local[MAX_NUM_NET_PLAYERS][MAX_OBJECTS];  // Remote object number for each local object
+short remote_to_local[MAX_PLAYERS][MAX_OBJECTS];  // Remote object number for each local object
 short local_to_remote[MAX_OBJECTS]; 
 sbyte  object_owner[MAX_OBJECTS];   // Who created each object in my universe, -1 = loaded at start
-int early_resp[MAX_NUM_NET_PLAYERS]; // HACK in case we ger REAPPEAR packet before EXPLODE
+int early_resp[MAX_PLAYERS]; // HACK in case we ger REAPPEAR packet before EXPLODE
 
 int 	Net_create_objnums[MAX_NET_CREATE_OBJECTS]; // For tracking object creation that will be sent to remote
 int 	Net_create_loc = 0;  // pointer into previous array
 int     Network_status = 0;
 char	Network_message[MAX_MESSAGE_LEN];
 int	Network_message_reciever=-1;
-int	sorted_kills[MAX_NUM_NET_PLAYERS];
-short kill_matrix[MAX_NUM_NET_PLAYERS][MAX_NUM_NET_PLAYERS];
+int	sorted_kills[MAX_PLAYERS];
+short kill_matrix[MAX_PLAYERS][MAX_PLAYERS];
 int 	multi_goto_secret = 0;
 short	team_kills[2];
 int 	multi_quit_game = 0;
@@ -139,7 +139,6 @@ int	Network_send_objects = 0;  // Are we in the process of sending objects to a 
 int	Network_send_object_mode = 0; // What type of objects are we sending, static or dynamic?
 int 	Network_send_objnum = -1;   // What object are we sending next?
 int     Network_rejoined = 0;       // Did WE rejoin this game?
-int     Network_new_game = 0;            // Is this the first level of a new game?
 int     Network_sending_extras=0;
 int     VerifyPlayerJoined=-1;      // Player (num) to enter game before any ingame/extra stuff is being sent
 int     Player_joining_extras=-1;  // This is so we know who to send 'latecomer' packets to.
@@ -149,7 +148,7 @@ ushort          my_segments_checksum = 0;
 
 netgame_info Netgame;
 
-bitmap_index multi_player_textures[MAX_NUM_NET_PLAYERS][N_PLAYER_SHIP_TEXTURES];
+bitmap_index multi_player_textures[MAX_PLAYERS][N_PLAYER_SHIP_TEXTURES];
 
 // Globals for protocol-bound Refuse-functions
 char RefuseThisPlayer=0,WaitForRefuseAnswer=0,RefuseTeam,RefusePlayerName[12];
@@ -157,6 +156,7 @@ fix64 RefuseTimeLimit=0;
 
 char PowerupsInMine[MAX_POWERUP_TYPES],MaxPowerupsAllowed[MAX_POWERUP_TYPES];
 extern fix ThisLevelTime;
+extern void init_player_stats_new_ship(ubyte pnum);
 
 int message_length[MULTI_MAX_TYPE+1] = {
         25, // POSITION
@@ -398,17 +398,16 @@ get_team(int pnum)
 void
 multi_new_game(void)
 {
-	int i, save_pnum = Player_num;
+	int i;
 	
 	// Reset variables for a new net game
 
-	for (Player_num = 0; Player_num < MAX_NUM_NET_PLAYERS; Player_num++)
-		init_player_stats_game();
-	Player_num = save_pnum;
+	for (i = 0; i < MAX_PLAYERS; i++)
+		init_player_stats_game(i);
 
 	memset(kill_matrix, 0, sizeof(kill_matrix)); // Clear kill matrix
 
-	for (i = 0; i < MAX_NUM_NET_PLAYERS; i++)
+	for (i = 0; i < MAX_PLAYERS; i++)
 	{
 		sorted_kills[i] = i;
 		Players[i].connected = CONNECT_DISCONNECTED;
@@ -433,15 +432,9 @@ multi_new_game(void)
 	}
 
 	team_kills[0] = team_kills[1] = 0;
-	Endlevel_sequence = 0;
-	Control_center_destroyed = 0;
-	Player_is_dead = 0;
 	multi_quit_game = 0;
 	Show_kill_list = 1;
 	game_disable_cheats();
-	Player_exploded = 0;
-	Dead_player_camera = 0;
-	Network_new_game = 1;
 }
 
 void
@@ -450,9 +443,9 @@ multi_make_player_ghost(int playernum)
 	object *obj;
 
 //	Assert(playernum != Player_num);
-//	Assert(playernum < MAX_NUM_NET_PLAYERS);
+//	Assert(playernum < MAX_PLAYERS);
 
-	if ((playernum == Player_num) || (playernum >= MAX_NUM_NET_PLAYERS) || (playernum < 0))
+	if ((playernum == Player_num) || (playernum >= MAX_PLAYERS) || (playernum < 0))
 	{
 		Int3(); // Non-terminal, see Rob
 		return;
@@ -475,9 +468,9 @@ multi_make_ghost_player(int playernum)
 	object *obj;
 
 //	Assert(playernum != Player_num);
-// Assert(playernum < MAX_NUM_NET_PLAYERS);
+// Assert(playernum < MAX_PLAYERS);
 
-	if ((playernum == Player_num) || (playernum >= MAX_NUM_NET_PLAYERS))
+	if ((playernum == Player_num) || (playernum >= MAX_PLAYERS))
 	{
 		Int3(); // Non-terminal, see rob
 		return;
@@ -488,6 +481,8 @@ multi_make_ghost_player(int playernum)
 	obj->type = OBJ_PLAYER;
 	obj->movement_type = MT_PHYSICS;
 	multi_reset_player_object(obj);
+	if (playernum != Player_num)
+		init_player_stats_new_ship(playernum);
 }
 
 int multi_get_kill_list(int *plist)
@@ -514,11 +509,11 @@ multi_sort_kill_list(void)
 {
 	// Sort the kills list each time a new kill is added
 
-	int kills[MAX_NUM_NET_PLAYERS];
+	int kills[MAX_PLAYERS];
 	int i;
 	int changed = 1;
 	
-	for (i = 0; i < MAX_NUM_NET_PLAYERS; i++)
+	for (i = 0; i < MAX_PLAYERS; i++)
 	{
 		if (Game_mode & GM_MULTI_COOP)
 			kills[i] = Players[i].score;
@@ -656,12 +651,12 @@ void multi_compute_kill(int killer, int killed)
 		if( Game_mode & GM_BOUNTY && killed_pnum == Bounty_target && multi_i_am_master() )
 		{
 			/* Select a random number */
-			int new = d_rand() % MAX_NUM_NET_PLAYERS;
+			int new = d_rand() % MAX_PLAYERS;
 			
 			/* Make sure they're valid: Don't check against kill flags,
 			* just in case everyone's dead! */
 			while( !Players[new].connected )
-				new = d_rand() % MAX_NUM_NET_PLAYERS;
+				new = d_rand() % MAX_PLAYERS;
 			
 			/* Select new target - it will be sent later when we're done with this function */
 			multi_new_bounty_target( new );
@@ -1208,7 +1203,7 @@ void multi_send_message_end()
 		}
 
 		if (Network_message[name_index] == '#' && isdigit(Network_message[name_index+1])) {
-			int players[MAX_NUM_NET_PLAYERS];
+			int players[MAX_PLAYERS];
 			int listpos = Network_message[name_index+1] - '0';
 
 			if (Show_kill_list==1 || Show_kill_list==2) {
@@ -1817,12 +1812,12 @@ void multi_disconnect_player(int pnum)
 		if( Game_mode & GM_BOUNTY && pnum == Bounty_target && multi_i_am_master() )
 		{
 			/* Select a random number */
-			int new = d_rand() % MAX_NUM_NET_PLAYERS;
+			int new = d_rand() % MAX_PLAYERS;
 			
 			/* Make sure they're valid: Don't check against kill flags,
 				* just in case everyone's dead! */
 			while( !Players[new].connected )
-				new = d_rand() % MAX_NUM_NET_PLAYERS;
+				new = d_rand() % MAX_PLAYERS;
 			
 			/* Select new target */
 			multi_new_bounty_target( new );
@@ -2132,11 +2127,7 @@ multi_reset_stuff(void)
 	// connection loss.  Fixes several weird bugs!
 
 	dead_player_end();
-
 	Players[Player_num].homing_object_dist = -F1_0; // Turn off homing sound.
-
-	Dead_player_camera = 0;
-	Endlevel_sequence = 0;
 	reset_rear_view();
 }
 
@@ -3032,10 +3023,12 @@ multi_prep_level(void)
 
 	multi_consistency_error(1);
 
-	for (i=0;i<MAX_NUM_NET_PLAYERS;i++)
+	for (i=0;i<MAX_PLAYERS;i++)
 	{
 		PKilledFlags[i]=1;
 		multi_sending_message[i] = 0;
+		if (i != Player_num)
+			init_player_stats_new_ship(i);
 	}
 
 	for (i = 0; i < NumNetPlayerPositions; i++)

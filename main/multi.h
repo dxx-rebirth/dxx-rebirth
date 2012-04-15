@@ -28,7 +28,6 @@ COPYRIGHT 1993-1998 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 #include "newmenu.h"
 // Need these for non network builds too -Chris
 #define MAX_MESSAGE_LEN 35
-#define MAX_NUM_NET_PLAYERS 8 // How many simultaneous network players do we support?
 
 #ifdef USE_UDP
 #ifdef _WIN32
@@ -73,7 +72,7 @@ extern int multi_protocol; // set and determinate used protocol
 //   3 Descent II Shareware
 //   4 Descent II Commercial
 // > 4 DXX-Rebirth
-#define MULTI_PROTO_VERSION 9
+#define MULTI_PROTO_VERSION 10
 // PROTOCOL VARIABLES AND DEFINES - END
 
 
@@ -260,7 +259,6 @@ extern int Network_send_objects;
 extern int Network_send_object_mode;
 extern int Network_send_objnum;
 extern int Network_rejoined;
-extern int Network_new_game;
 extern int Network_sending_extras;
 extern int VerifyPlayerJoined;
 extern int Player_joining_extras;
@@ -275,7 +273,7 @@ extern int who_killed_controlcen;
 extern int Net_create_objnums[MAX_NET_CREATE_OBJECTS];
 extern int Net_create_loc;
 
-extern short kill_matrix[MAX_NUM_NET_PLAYERS][MAX_NUM_NET_PLAYERS];
+extern short kill_matrix[MAX_PLAYERS][MAX_PLAYERS];
 extern short team_kills[2];
 
 extern int multi_goto_secret;
@@ -296,13 +294,13 @@ extern int Network_message_reciever;
 
 // Used to map network to local object numbers
 
-extern short remote_to_local[MAX_NUM_NET_PLAYERS][MAX_OBJECTS];  // Network object num for each 
+extern short remote_to_local[MAX_PLAYERS][MAX_OBJECTS];  // Network object num for each 
 extern short local_to_remote[MAX_OBJECTS];   // Local object num for each network objnum
 extern sbyte object_owner[MAX_OBJECTS]; // Who 'owns' each local object for network purposes
 
 extern int multi_quit_game;
 
-extern int multi_sending_message[MAX_NUM_NET_PLAYERS];
+extern int multi_sending_message[MAX_PLAYERS];
 extern int multi_defining_message;
 extern int multi_message_input_sub(int key);
 extern void multi_send_message_start();
@@ -312,7 +310,7 @@ extern void multi_message_feedback();
 extern int control_invul_time;
 extern int Bounty_target;
 
-extern bitmap_index multi_player_textures[MAX_NUM_NET_PLAYERS][N_PLAYER_SHIP_TEXTURES];
+extern bitmap_index multi_player_textures[MAX_PLAYERS][N_PLAYER_SHIP_TEXTURES];
 
 #define NETGAME_FLAG_CLOSED 	1
 #define NETGAME_FLAG_SHOW_ID	2

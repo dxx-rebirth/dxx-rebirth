@@ -67,7 +67,7 @@ void StartNewLevel(int level_num);
 void StartNewLevelSub(int level_num, int page_in_textures);
 
 void InitPlayerObject();            //make sure player's object set up
-void init_player_stats_game();      //clear all stats
+void init_player_stats_game(ubyte pnum);      //clear all stats
 
 // called when the player has finished a level
 // if secret flag is true, advance to secret level, else next normal level

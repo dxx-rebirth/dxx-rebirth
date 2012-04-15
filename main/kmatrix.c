@@ -180,7 +180,7 @@ typedef struct kmatrix_screen
 void kmatrix_redraw(kmatrix_screen *km)
 {
 	int i, color;
-	int sorted[MAX_NUM_NET_PLAYERS];
+	int sorted[MAX_PLAYERS];
 
 	gr_set_current_canvas(NULL);
 	show_fullscr(&km->background);
@@ -222,7 +222,7 @@ void kmatrix_redraw(kmatrix_screen *km)
 void kmatrix_redraw_coop()
 {
 	int i, color;
-	int sorted[MAX_NUM_NET_PLAYERS];
+	int sorted[MAX_PLAYERS];
 
 	multi_sort_kill_list();
 	grd_curcanv->cv_font = MEDIUM3_FONT;
@@ -365,7 +365,7 @@ void kmatrix_view(int network)
 	set_screen_mode( SCREEN_MENU );
 	game_flush_inputs();
 
-	for (i=0;i<MAX_NUM_NET_PLAYERS;i++)
+	for (i=0;i<MAX_PLAYERS;i++)
 		digi_kill_sound_linked_to_object (Players[i].objnum);
 
 	wind = window_create(&grd_curscreen->sc_canvas, 0, 0, SWIDTH, SHEIGHT, (int (*)(window *, d_event *, void *))kmatrix_handler, km);

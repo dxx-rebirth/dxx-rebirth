@@ -1344,7 +1344,7 @@ void bm_read_player_ship(int skip)
 		first_bitmap_num[n_models] = N_ObjBitmapPtrs;
 
 #ifdef NETWORK
-	Assert(last_multi_bitmap_num-First_multi_bitmap_num == (MAX_NUM_NET_PLAYERS-1)*2);
+	Assert(last_multi_bitmap_num-First_multi_bitmap_num == (MAX_PLAYERS-1)*2);
 #endif
 
 	for (i=0;i<n_models;i++) {
