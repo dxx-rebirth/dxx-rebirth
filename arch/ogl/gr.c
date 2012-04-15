@@ -564,6 +564,21 @@ void ogl_upixelc(int x, int y, int c)
 	glDisableClientState(GL_COLOR_ARRAY);
 }
 
+unsigned char ogl_ugpixel( grs_bitmap * bitmap, int x, int y )
+{
+	GLint gl_draw_buffer;
+	ubyte buf[4];
+
+#ifndef OGLES
+	glGetIntegerv(GL_DRAW_BUFFER, &gl_draw_buffer);
+	glReadBuffer(gl_draw_buffer);
+#endif
+
+	glReadPixels(bitmap->bm_x + x, SHEIGHT - bitmap->bm_y - y, 1, 1, GL_RGBA, GL_UNSIGNED_BYTE, buf);
+	
+	return gr_find_closest_color(buf[0]/4, buf[1]/4, buf[2]/4);
+}
+
 void ogl_urect(int left,int top,int right,int bot)
 {
 	GLfloat xo, yo, xf, yf, color_r, color_g, color_b, color_a;

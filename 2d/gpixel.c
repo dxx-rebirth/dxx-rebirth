@@ -14,14 +14,28 @@ COPYRIGHT 1993-1998 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 #include "u_mem.h"
 #include "gr.h"
 #include "grdef.h"
+#ifdef OGL
+#include "ogl_init.h"
+#endif
 
 unsigned char gr_ugpixel( grs_bitmap * bitmap, int x, int y )
 {
-	return bitmap->bm_data[ bitmap->bm_rowsize*y + x ];
+	switch (bitmap->bm_type)
+	{
+		case BM_LINEAR:
+			return bitmap->bm_data[ bitmap->bm_rowsize*y + x ];
+		
+#ifdef OGL
+		case BM_OGL:
+			return ogl_ugpixel(bitmap, x, y);
+#endif
+	}
+	
+	return 0;
 }
 
 unsigned char gr_gpixel( grs_bitmap * bitmap, int x, int y )
 {
 	if ((x<0) || (y<0) || (x>=bitmap->bm_w) || (y>=bitmap->bm_h)) return 0;
-	return bitmap->bm_data[ bitmap->bm_rowsize*y + x ];
+	return gr_ugpixel(bitmap, x, y);
 }

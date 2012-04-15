@@ -135,7 +135,13 @@ void check_segment(segment *seg)
 		int fn;
 
 		gr_setcolor(0);
+#ifdef OGL
+		g3_end_frame();
+#endif
 		gr_pixel(Search_x,Search_y);	//set our search pixel to color zero
+#ifdef OGL
+		g3_start_frame();
+#endif
 		gr_setcolor(1);					//and render in color one
 
 		for (fn=0;fn<6;fn++) {
@@ -902,7 +908,13 @@ void find_segments(short x,short y,grs_canvas *screen_canvas,editor_view *v,segm
 	render_start_frame();
 
 	gr_setcolor(0);
-	gr_pixel(x,y);
+#ifdef OGL
+	g3_end_frame();
+#endif
+	gr_pixel(x,y);	//set our search pixel to color zero
+#ifdef OGL
+	g3_start_frame();
+#endif
 	gr_setcolor(1);
 
 	Search_mode = -1;
