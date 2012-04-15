@@ -4,6 +4,7 @@ D1X-Rebirth Changelog
 --------
 main/multi.c, main/multi.h, main/net_udp.c: When possibly sending player positions prior to firing, do that before messing multibuf; Added more strict sanity checks for outgoing and incoming multi packets; Moved some general game stuff from net_udp_init() to multi_new_game()
 editor/meddraw.c: Set edge_list_size to Num_segments*12 to avoid crashes in the editor with certain third party levels
+2d/gpixel.c, arch/ogl/gr.c, editor/meddraw.c, include/ogl_init.h, main/multi.c, main/render.c: Clicking on mine elements in the editor now works in ogl
 
 20120414
 --------

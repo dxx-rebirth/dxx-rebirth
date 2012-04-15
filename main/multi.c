@@ -815,7 +815,7 @@ multi_send_data(unsigned char *buf, int len, int priority)
 {
 	if (len != message_length[(int)buf[0]])
 		Error("multi_send_data: Packet type %i length: %i, expected: %i\n", buf[0], len, message_length[(int)buf[0]]);
-	if (buf[0] < 0 || buf[0] > MULTI_MAX_TYPE)
+	if (buf[0] > MULTI_MAX_TYPE)
 		Error("multi_send_data: Illegal packet type %i\n", buf[0]);
 
 	if (Game_mode & GM_NETWORK)
@@ -838,9 +838,9 @@ void multi_send_data_direct(unsigned char *buf, int len, int pnum, int priority)
 {
 	if (len != message_length[(int)buf[0]])
 		Error("multi_send_data_direct: Packet type %i length: %i, expected: %i\n", buf[0], len, message_length[(int)buf[0]]);
-	if (buf[0] < 0 || buf[0] > MULTI_MAX_TYPE)
+	if (buf[0] > MULTI_MAX_TYPE)
 		Error("multi_send_data_direct: Illegal packet type %i\n", buf[0]);
-	if (pnum < 0 && pnum > MAX_NUM_NET_PLAYERS)
+	if (pnum < 0 || pnum > MAX_NUM_NET_PLAYERS)
 		Error("multi_send_data_direct: Illegal player num: %i\n", pnum);
 
 	switch (multi_protocol)

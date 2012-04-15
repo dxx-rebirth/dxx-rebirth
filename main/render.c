@@ -332,12 +332,21 @@ void check_face(int segnum, int sidenum, int facenum, int nv, int *vp, int tmap1
 		}
 
 		gr_setcolor(0);
+#ifdef OGL
+		ogl_end_frame();
+#endif
 		gr_pixel(_search_x,_search_y);	//set our search pixel to color zero
+#ifdef OGL
+		ogl_start_frame();
+#endif
 		gr_setcolor(1);					//and render in color one
 		save_lighting = Lighting_on;
 		Lighting_on = 2;
-		//g3_draw_poly(nv,vp);
+#ifdef OGL
+		g3_draw_poly(nv,&pointlist[0]);
+#else
 		g3_draw_tmap(nv,&pointlist[0], uvl_copy, dyn_light, bm);
+#endif
 		Lighting_on = save_lighting;
 
 		if (gr_ugpixel(&grd_curcanv->cv_bitmap,_search_x,_search_y) == 1) {
@@ -476,13 +485,25 @@ void render_object_search(object *obj)
 	//in case the object itself is rendering color 0
 
 	gr_setcolor(0);
+#ifdef OGL
+	ogl_end_frame();
+#endif
 	gr_pixel(_search_x,_search_y);	//set our search pixel to color zero
+#ifdef OGL
+	ogl_start_frame();
+#endif
 	render_object(obj);
 	if (gr_ugpixel(&grd_curcanv->cv_bitmap,_search_x,_search_y) != 0)
 		changed=1;
 
 	gr_setcolor(1);
+#ifdef OGL
+	ogl_end_frame();
+#endif
 	gr_pixel(_search_x,_search_y);	//set our search pixel to color zero
+#ifdef OGL
+	ogl_start_frame();
+#endif
 	render_object(obj);
 	if (gr_ugpixel(&grd_curcanv->cv_bitmap,_search_x,_search_y) != 1)
 		changed=1;
