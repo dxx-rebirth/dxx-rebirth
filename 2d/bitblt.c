@@ -385,12 +385,26 @@ void gr_bitmap( int x, int y, grs_bitmap *bm )
 {
 	int dx1=x, dx2=x+bm->bm_w-1;
 	int dy1=y, dy2=y+bm->bm_h-1;
+#ifndef OGL
 	int sx=0, sy=0;
+#endif
 
 	if ((dx1 >= grd_curcanv->cv_bitmap.bm_w ) || (dx2 < 0)) return;
 	if ((dy1 >= grd_curcanv->cv_bitmap.bm_h) || (dy2 < 0)) return;
-	if ( dx1 < 0 ) { sx = -dx1; dx1 = 0; }
-	if ( dy1 < 0 ) { sy = -dy1; dy1 = 0; }
+	if ( dx1 < 0 )
+	{
+#ifndef OGL
+		sx = -dx1;
+#endif
+		dx1 = 0;
+	}
+	if ( dy1 < 0 )
+	{
+#ifndef OGL
+		sy = -dy1;
+#endif
+		dy1 = 0;
+	}
 	if ( dx2 >= grd_curcanv->cv_bitmap.bm_w )	{ dx2 = grd_curcanv->cv_bitmap.bm_w-1; }
 	if ( dy2 >= grd_curcanv->cv_bitmap.bm_h )	{ dy2 = grd_curcanv->cv_bitmap.bm_h-1; }
 
