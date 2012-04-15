@@ -483,9 +483,14 @@ get_team(int pnum)
 void
 multi_new_game(void)
 {
-	int i;
+	int i, save_pnum = Player_num;
+	extern int Final_boss_is_dead;
 
 	// Reset variables for a new net game
+
+	for (Player_num = 0; Player_num < MAX_NUM_NET_PLAYERS; Player_num++)
+		init_player_stats_game();
+	Player_num = save_pnum;
 
 	memset(kill_matrix, 0, MAX_NUM_NET_PLAYERS*MAX_NUM_NET_PLAYERS*2); // Clear kill matrix
 
@@ -507,14 +512,23 @@ multi_new_game(void)
 		robot_fired[i] = 0;
 	}
 
+	for (i=0;i<MAX_POWERUP_TYPES;i++)
+	{
+		MaxPowerupsAllowed[i]=0;
+		PowerupsInMine[i]=0;
+	}
+
 	team_kills[0] = team_kills[1] = 0;
+	Final_boss_is_dead=0;
 	Endlevel_sequence = 0;
+	Control_center_destroyed = 0;
 	Player_is_dead = 0;
 	multi_quit_game = 0;
 	Show_kill_list = 1;
 	game_disable_cheats();
 	Player_exploded = 0;
 	Dead_player_camera = 0;
+	Network_new_game = 1;
 }
 
 void
@@ -927,8 +941,10 @@ void multi_do_frame(void)
 void
 multi_send_data(char *buf, int len, int priority)
 {
-	Assert(len == message_length[(int)buf[0]]);
-	Assert(buf[0] <= MULTI_MAX_TYPE);
+	if (len != message_length[(int)buf[0]])
+		Error("multi_send_data: Packet type %i length: %i, expected: %i\n", buf[0], len, message_length[(int)buf[0]]);
+	if (buf[0] < 0 || buf[0] > MULTI_MAX_TYPE)
+		Error("multi_send_data: Illegal packet type %i\n", buf[0]);
 
 	if (Game_mode & GM_NETWORK)
 	{
@@ -948,9 +964,12 @@ multi_send_data(char *buf, int len, int priority)
 
 void multi_send_data_direct(unsigned char *buf, int len, int pnum, int priority)
 {
-	Assert(len == message_length[(int)buf[0]]);
-	Assert(buf[0] <= MULTI_MAX_TYPE);
-	Assert(pnum >= 0 && pnum < MAX_NUM_NET_PLAYERS);
+	if (len != message_length[(int)buf[0]])
+		Error("multi_send_data_direct: Packet type %i length: %i, expected: %i\n", buf[0], len, message_length[(int)buf[0]]);
+	if (buf[0] < 0 || buf[0] > MULTI_MAX_TYPE)
+		Error("multi_send_data_direct: Illegal packet type %i\n", buf[0]);
+	if (pnum < 0 && pnum > MAX_NUM_NET_PLAYERS)
+		Error("multi_send_data_direct: Illegal player num: %i\n", pnum);
 
 	switch (multi_protocol)
 	{
@@ -2442,7 +2461,9 @@ multi_process_bigdata(char *buf, int len)
 	while( bytes_processed < len )  {
 		type = buf[bytes_processed];
 
-		if ( (type<0) || (type>MULTI_MAX_TYPE)) {
+		if ( (type<0) || (type>MULTI_MAX_TYPE))
+		{
+			con_printf( CON_DEBUG,"multi_process_bigdata: Invalid packet type %d!\n", type );
 			return;
 		}
 		sub_len = message_length[type];
@@ -2450,6 +2471,7 @@ multi_process_bigdata(char *buf, int len)
 		Assert(sub_len > 0);
 
 		if ( (bytes_processed+sub_len) > len )  {
+			con_printf(CON_DEBUG, "multi_process_bigdata: packet type %d too short (%d>%d)!\n", type, (bytes_processed+sub_len), len );
 			Int3();
 			return;
 		}
@@ -2466,6 +2488,8 @@ multi_process_bigdata(char *buf, int len)
 
 void multi_send_fire(int laser_gun, int laser_level, int laser_flags, int laser_fired, short laser_track)
 {
+	multi_do_protocol_frame(1, 0); // provoke positional update if possible
+
 	multibuf[0] = (char)MULTI_FIRE;
 	multibuf[1] = (char)Player_num;
 	multibuf[2] = (char)laser_gun;
@@ -2474,7 +2498,6 @@ void multi_send_fire(int laser_gun, int laser_level, int laser_flags, int laser_
 	multibuf[5] = (char)laser_fired;
 	PUT_INTEL_SHORT(multibuf+6, laser_track);
 
-	multi_do_protocol_frame(1, 0); // provoke positional update if possible
 	multi_send_data(multibuf, 8, 1);
 }
 
@@ -5354,131 +5377,131 @@ multi_process_data(char *buf, int len)
 
 	switch(type)
 	{
-	case MULTI_POSITION:
-		if (!Endlevel_sequence) multi_do_position(buf); break;
-	case MULTI_REAPPEAR:
-		if (!Endlevel_sequence) multi_do_reappear(buf); break;
-	case MULTI_FIRE:
-		if (!Endlevel_sequence) multi_do_fire(buf); break;
-	case MULTI_KILL:
-		multi_do_kill(buf); break;
-	case MULTI_REMOVE_OBJECT:
-		if (!Endlevel_sequence) multi_do_remobj(buf); break;
-	case MULTI_PLAYER_DROP:
-	case MULTI_PLAYER_EXPLODE:
-		if (!Endlevel_sequence) multi_do_player_explode(buf); break;
-	case MULTI_MESSAGE:
-		if (!Endlevel_sequence) multi_do_message(buf); break;
-	case MULTI_QUIT:
-		if (!Endlevel_sequence) multi_do_quit(buf); break;
-	case MULTI_BEGIN_SYNC:
-		break;
-	case MULTI_CONTROLCEN:
-		if (!Endlevel_sequence) multi_do_controlcen_destroy(buf); break;
-	case MULTI_POWCAP_UPDATE:
-		if (!Endlevel_sequence) multi_do_powcap_update(buf); break;
-	case MULTI_SOUND_FUNCTION:
-		multi_do_sound_function(buf); break;
-	case MULTI_MARKER:
-		if (!Endlevel_sequence) multi_do_drop_marker (buf); break;
-	case MULTI_DROP_WEAPON:
-		if (!Endlevel_sequence) multi_do_drop_weapon(buf); break;
-	case MULTI_DROP_FLAG:
-		if (!Endlevel_sequence) multi_do_drop_flag(buf); break;
-	case MULTI_GUIDED:
-		if (!Endlevel_sequence) multi_do_guided (buf); break;
-	case MULTI_STOLEN_ITEMS:
-		if (!Endlevel_sequence) multi_do_stolen_items(buf); break;
-	case MULTI_WALL_STATUS:
-		if (!Endlevel_sequence) multi_do_wall_status(buf); break;
-	case MULTI_HEARTBEAT:
-		if (!Endlevel_sequence) multi_do_heartbeat (buf); break;
-	case MULTI_SEISMIC:
-		if (!Endlevel_sequence) multi_do_seismic (buf); break;
-	case MULTI_LIGHT:
-		if (!Endlevel_sequence) multi_do_light (buf); break;
-	case MULTI_KILLGOALS:
-		if (!Endlevel_sequence) multi_do_kill_goal_counts (buf); break;
-	case MULTI_ENDLEVEL_START:
-		if (!Endlevel_sequence) multi_do_escape(buf); break;
-	case MULTI_END_SYNC:
-		break;
-	case MULTI_CLOAK:
-		if (!Endlevel_sequence) multi_do_cloak(buf); break;
-	case MULTI_DECLOAK:
-		if (!Endlevel_sequence) multi_do_decloak(buf); break;
-	case MULTI_DOOR_OPEN:
-		if (!Endlevel_sequence) multi_do_door_open(buf); break;
-	case MULTI_CREATE_EXPLOSION:
-		if (!Endlevel_sequence) multi_do_create_explosion(buf); break;
-	case MULTI_CONTROLCEN_FIRE:
-		if (!Endlevel_sequence) multi_do_controlcen_fire(buf); break;
-	case MULTI_CREATE_POWERUP:
-		if (!Endlevel_sequence) multi_do_create_powerup(buf); break;
-	case MULTI_PLAY_SOUND:
-		if (!Endlevel_sequence) multi_do_play_sound(buf); break;
-	case MULTI_CAPTURE_BONUS:
-		if (!Endlevel_sequence) multi_do_capture_bonus(buf); break;
-	case MULTI_ORB_BONUS:
-		if (!Endlevel_sequence) multi_do_orb_bonus(buf); break;
-	case MULTI_GOT_FLAG:
-		if (!Endlevel_sequence) multi_do_got_flag(buf); break;
-	case MULTI_GOT_ORB:
-		if (!Endlevel_sequence) multi_do_got_orb(buf); break;
-	case MULTI_PLAY_BY_PLAY:
-		if (!Endlevel_sequence) multi_do_play_by_play(buf); break;
-	case MULTI_RANK:
-		if (!Endlevel_sequence) multi_do_ranking (buf); break;
-	case MULTI_FINISH_GAME:
-		multi_do_finish_game(buf); break;  // do this one regardless of endsequence
-	case MULTI_ROBOT_CONTROLS:
-		break;
-	case MULTI_ROBOT_CLAIM:
-		if (!Endlevel_sequence) multi_do_claim_robot(buf); break;
-	case MULTI_ROBOT_POSITION:
-		if (!Endlevel_sequence) multi_do_robot_position(buf); break;
-	case MULTI_ROBOT_EXPLODE:
-		if (!Endlevel_sequence) multi_do_robot_explode(buf); break;
-	case MULTI_ROBOT_RELEASE:
-		if (!Endlevel_sequence) multi_do_release_robot(buf); break;
-	case MULTI_ROBOT_FIRE:
-		if (!Endlevel_sequence) multi_do_robot_fire(buf); break;
-	case MULTI_SCORE:
-		if (!Endlevel_sequence) multi_do_score(buf); break;
-	case MULTI_CREATE_ROBOT:
-		if (!Endlevel_sequence) multi_do_create_robot(buf); break;
-	case MULTI_TRIGGER:
-		if (!Endlevel_sequence) multi_do_trigger(buf); break;
-	case MULTI_START_TRIGGER:
-		if (!Endlevel_sequence) multi_do_start_trigger(buf); break;
-	case MULTI_FLAGS:
-		if (!Endlevel_sequence) multi_do_flags(buf); break;
-	case MULTI_DROP_BLOB:
-		if (!Endlevel_sequence) multi_do_drop_blob(buf); break;
-	case MULTI_ACTIVE_DOOR:
-		if (!Endlevel_sequence) multi_do_active_door(buf); break;
-	case MULTI_BOSS_ACTIONS:
-		if (!Endlevel_sequence) multi_do_boss_actions(buf); break;
-	case MULTI_CREATE_ROBOT_POWERUPS:
-		if (!Endlevel_sequence) multi_do_create_robot_powerups(buf); break;
-	case MULTI_HOSTAGE_DOOR:
-		if (!Endlevel_sequence) multi_do_hostage_door_status(buf); break;
-	case MULTI_SAVE_GAME:
-		if (!Endlevel_sequence) multi_do_save_game(buf); break;
-	case MULTI_RESTORE_GAME:
-		if (!Endlevel_sequence) multi_do_restore_game(buf); break;
-	case MULTI_DO_BOUNTY:
-		if( !Endlevel_sequence ) multi_do_bounty( buf ); break;
-	case MULTI_TYPING_STATE:
-		multi_do_msgsend_state( buf ); break;
-	case MULTI_GMODE_UPDATE:
-		multi_do_gmode_update( buf ); break;
-	case MULTI_KILL_HOST:
-		multi_do_kill(buf); break;
-	case MULTI_KILL_CLIENT:
-		multi_do_kill(buf); break;
-	default:
-		Int3();
+		case MULTI_POSITION:
+			if (!Endlevel_sequence) multi_do_position(buf); break;
+		case MULTI_REAPPEAR:
+			if (!Endlevel_sequence) multi_do_reappear(buf); break;
+		case MULTI_FIRE:
+			if (!Endlevel_sequence) multi_do_fire(buf); break;
+		case MULTI_KILL:
+			multi_do_kill(buf); break;
+		case MULTI_REMOVE_OBJECT:
+			if (!Endlevel_sequence) multi_do_remobj(buf); break;
+		case MULTI_PLAYER_DROP:
+		case MULTI_PLAYER_EXPLODE:
+			if (!Endlevel_sequence) multi_do_player_explode(buf); break;
+		case MULTI_MESSAGE:
+			if (!Endlevel_sequence) multi_do_message(buf); break;
+		case MULTI_QUIT:
+			if (!Endlevel_sequence) multi_do_quit(buf); break;
+		case MULTI_BEGIN_SYNC:
+			break;
+		case MULTI_CONTROLCEN:
+			if (!Endlevel_sequence) multi_do_controlcen_destroy(buf); break;
+		case MULTI_POWCAP_UPDATE:
+			if (!Endlevel_sequence) multi_do_powcap_update(buf); break;
+		case MULTI_SOUND_FUNCTION:
+			multi_do_sound_function(buf); break;
+		case MULTI_MARKER:
+			if (!Endlevel_sequence) multi_do_drop_marker (buf); break;
+		case MULTI_DROP_WEAPON:
+			if (!Endlevel_sequence) multi_do_drop_weapon(buf); break;
+		case MULTI_DROP_FLAG:
+			if (!Endlevel_sequence) multi_do_drop_flag(buf); break;
+		case MULTI_GUIDED:
+			if (!Endlevel_sequence) multi_do_guided (buf); break;
+		case MULTI_STOLEN_ITEMS:
+			if (!Endlevel_sequence) multi_do_stolen_items(buf); break;
+		case MULTI_WALL_STATUS:
+			if (!Endlevel_sequence) multi_do_wall_status(buf); break;
+		case MULTI_HEARTBEAT:
+			if (!Endlevel_sequence) multi_do_heartbeat (buf); break;
+		case MULTI_SEISMIC:
+			if (!Endlevel_sequence) multi_do_seismic (buf); break;
+		case MULTI_LIGHT:
+			if (!Endlevel_sequence) multi_do_light (buf); break;
+		case MULTI_KILLGOALS:
+			if (!Endlevel_sequence) multi_do_kill_goal_counts (buf); break;
+		case MULTI_ENDLEVEL_START:
+			if (!Endlevel_sequence) multi_do_escape(buf); break;
+		case MULTI_END_SYNC:
+			break;
+		case MULTI_CLOAK:
+			if (!Endlevel_sequence) multi_do_cloak(buf); break;
+		case MULTI_DECLOAK:
+			if (!Endlevel_sequence) multi_do_decloak(buf); break;
+		case MULTI_DOOR_OPEN:
+			if (!Endlevel_sequence) multi_do_door_open(buf); break;
+		case MULTI_CREATE_EXPLOSION:
+			if (!Endlevel_sequence) multi_do_create_explosion(buf); break;
+		case MULTI_CONTROLCEN_FIRE:
+			if (!Endlevel_sequence) multi_do_controlcen_fire(buf); break;
+		case MULTI_CREATE_POWERUP:
+			if (!Endlevel_sequence) multi_do_create_powerup(buf); break;
+		case MULTI_PLAY_SOUND:
+			if (!Endlevel_sequence) multi_do_play_sound(buf); break;
+		case MULTI_CAPTURE_BONUS:
+			if (!Endlevel_sequence) multi_do_capture_bonus(buf); break;
+		case MULTI_ORB_BONUS:
+			if (!Endlevel_sequence) multi_do_orb_bonus(buf); break;
+		case MULTI_GOT_FLAG:
+			if (!Endlevel_sequence) multi_do_got_flag(buf); break;
+		case MULTI_GOT_ORB:
+			if (!Endlevel_sequence) multi_do_got_orb(buf); break;
+		case MULTI_PLAY_BY_PLAY:
+			if (!Endlevel_sequence) multi_do_play_by_play(buf); break;
+		case MULTI_RANK:
+			if (!Endlevel_sequence) multi_do_ranking (buf); break;
+		case MULTI_FINISH_GAME:
+			multi_do_finish_game(buf); break;  // do this one regardless of endsequence
+		case MULTI_ROBOT_CONTROLS:
+			break;
+		case MULTI_ROBOT_CLAIM:
+			if (!Endlevel_sequence) multi_do_claim_robot(buf); break;
+		case MULTI_ROBOT_POSITION:
+			if (!Endlevel_sequence) multi_do_robot_position(buf); break;
+		case MULTI_ROBOT_EXPLODE:
+			if (!Endlevel_sequence) multi_do_robot_explode(buf); break;
+		case MULTI_ROBOT_RELEASE:
+			if (!Endlevel_sequence) multi_do_release_robot(buf); break;
+		case MULTI_ROBOT_FIRE:
+			if (!Endlevel_sequence) multi_do_robot_fire(buf); break;
+		case MULTI_SCORE:
+			if (!Endlevel_sequence) multi_do_score(buf); break;
+		case MULTI_CREATE_ROBOT:
+			if (!Endlevel_sequence) multi_do_create_robot(buf); break;
+		case MULTI_TRIGGER:
+			if (!Endlevel_sequence) multi_do_trigger(buf); break;
+		case MULTI_START_TRIGGER:
+			if (!Endlevel_sequence) multi_do_start_trigger(buf); break;
+		case MULTI_FLAGS:
+			if (!Endlevel_sequence) multi_do_flags(buf); break;
+		case MULTI_DROP_BLOB:
+			if (!Endlevel_sequence) multi_do_drop_blob(buf); break;
+		case MULTI_ACTIVE_DOOR:
+			if (!Endlevel_sequence) multi_do_active_door(buf); break;
+		case MULTI_BOSS_ACTIONS:
+			if (!Endlevel_sequence) multi_do_boss_actions(buf); break;
+		case MULTI_CREATE_ROBOT_POWERUPS:
+			if (!Endlevel_sequence) multi_do_create_robot_powerups(buf); break;
+		case MULTI_HOSTAGE_DOOR:
+			if (!Endlevel_sequence) multi_do_hostage_door_status(buf); break;
+		case MULTI_SAVE_GAME:
+			if (!Endlevel_sequence) multi_do_save_game(buf); break;
+		case MULTI_RESTORE_GAME:
+			if (!Endlevel_sequence) multi_do_restore_game(buf); break;
+		case MULTI_DO_BOUNTY:
+			if( !Endlevel_sequence ) multi_do_bounty( buf ); break;
+		case MULTI_TYPING_STATE:
+			multi_do_msgsend_state( buf ); break;
+		case MULTI_GMODE_UPDATE:
+			multi_do_gmode_update( buf ); break;
+		case MULTI_KILL_HOST:
+			multi_do_kill(buf); break;
+		case MULTI_KILL_CLIENT:
+			multi_do_kill(buf); break;
+		default:
+			Int3();
 	}
 }
 
