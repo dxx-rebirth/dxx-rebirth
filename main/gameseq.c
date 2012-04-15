@@ -354,6 +354,10 @@ void init_player_stats_new_ship(ubyte pnum)
 		Primary_weapon = 0;
 		Secondary_weapon = 0;
 		dead_player_end(); //player no longer dead
+		Player_is_dead = 0;
+		Player_exploded = 0;
+		Player_eggs_dropped = 0;
+		Dead_player_camera = 0;
 	}
 
 	Players[pnum].energy = MAX_ENERGY;
