@@ -1208,7 +1208,7 @@ int state_restore_all(int in_game, int secret_restore, char *filename_override)
 	return state_restore_all_sub(filename, secret_restore);
 }
 
-extern void init_player_stats_new_ship(void);
+extern void init_player_stats_new_ship(ubyte pnum);
 
 void ShowLevelIntro(int level_num);
 
@@ -1314,14 +1314,14 @@ int state_restore_all_sub(char *filename, int secret_restore)
 		strcpy( org_callsign, Players[0].callsign );
 		if (!secret_restore) {
 			InitPlayerObject();				//make sure player's object set up
-			init_player_stats_game();		//clear all stats
+			init_player_stats_game(0);		//clear all stats
 		}
 	}
 	else // in coop we want to stay the player we are already.
 	{
 		strcpy( org_callsign, Players[Player_num].callsign );
 		if (!secret_restore)
-			init_player_stats_game();
+			init_player_stats_game(Player_num);
 	}
 
 	if (Game_wind)
@@ -1433,7 +1433,7 @@ int state_restore_all_sub(char *filename, int secret_restore)
 	if (secret_restore && (Current_level_num >= 0)) {
 		set_pos_from_return_segment();
 		if (secret_restore == 2)
-			init_player_stats_new_ship();
+			init_player_stats_new_ship(Player_num);
 	}
 
 	//Restore wall info

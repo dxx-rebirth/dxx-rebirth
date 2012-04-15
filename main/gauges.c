@@ -2436,7 +2436,7 @@ void show_mousefs_indicator(int mx, int my, int mz, int x, int y, int size)
 #ifdef NETWORK
 void hud_show_kill_list()
 {
-	int n_players,player_list[MAX_NUM_NET_PLAYERS];
+	int n_players,player_list[MAX_PLAYERS];
 	int n_left,i,x0,x1,y,save_y;
 
 	if (Show_kill_list_timer > 0)

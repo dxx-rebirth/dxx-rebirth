@@ -68,12 +68,11 @@ extern int multi_protocol; // set and determinate used protocol
 //   3 Descent II Shareware
 //   4 Descent II Commercial
 // > 4 DXX-Rebirth
-#define MULTI_PROTO_VERSION 9
+#define MULTI_PROTO_VERSION 10
 // PROTOCOL VARIABLES AND DEFINES - END
 
 
 #define MAX_MESSAGE_LEN 35
-#define MAX_NUM_NET_PLAYERS     8 // How many simultaneous network players do we support?
 
 #define MULTI_POSITION          0
 #define MULTI_REAPPEAR          1
@@ -306,7 +305,6 @@ extern int Network_send_objects;
 extern int Network_send_object_mode;
 extern int Network_send_objnum;
 extern int Network_rejoined;
-extern int Network_new_game;
 extern int Network_sending_extras;
 extern int VerifyPlayerJoined;
 extern int Player_joining_extras;
@@ -320,7 +318,7 @@ extern int who_killed_controlcen;
 extern int Net_create_objnums[MAX_NET_CREATE_OBJECTS];
 extern int Net_create_loc;
 
-extern short kill_matrix[MAX_NUM_NET_PLAYERS][MAX_NUM_NET_PLAYERS];
+extern short kill_matrix[MAX_PLAYERS][MAX_PLAYERS];
 extern short team_kills[2];
 
 extern int multi_goto_secret;
@@ -345,7 +343,7 @@ extern sbyte object_owner[MAX_OBJECTS];
 
 extern int multi_quit_game;
 
-extern int multi_sending_message[MAX_NUM_NET_PLAYERS];
+extern int multi_sending_message[MAX_PLAYERS];
 extern int multi_defining_message;
 extern int multi_message_input_sub(int key);
 extern void multi_send_message_start();
@@ -357,7 +355,7 @@ extern void multi_add_lifetime_kills(void);
 extern int PhallicLimit,PhallicMan;
 extern int Bounty_target;
 
-extern bitmap_index multi_player_textures[MAX_NUM_NET_PLAYERS][N_PLAYER_SHIP_TEXTURES];
+extern bitmap_index multi_player_textures[MAX_PLAYERS][N_PLAYER_SHIP_TEXTURES];
 
 extern char *RankStrings[];
 

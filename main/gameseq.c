@@ -141,7 +141,7 @@ extern void HUD_clear_messages(); // From hud.c
 #endif
 
 //	Extra prototypes declared for the sake of LINT
-void init_player_stats_new_ship(void);
+void init_player_stats_new_ship(ubyte pnum);
 void copy_defaults_to_robot_all(void);
 
 int	Do_appearance_effect=0;
@@ -259,41 +259,34 @@ void gameseq_remove_unused_players()
 fix StartingShields=INITIAL_SHIELDS;
 
 // Setup player for new game
-void init_player_stats_game()
+void init_player_stats_game(ubyte pnum)
 {
-	Players[Player_num].score = 0;
-	Players[Player_num].last_score = 0;
-	Players[Player_num].lives = INITIAL_LIVES;
-	Players[Player_num].level = 1;
+	Players[pnum].score = 0;
+	Players[pnum].last_score = 0;
+	Players[pnum].lives = INITIAL_LIVES;
+	Players[pnum].level = 1;
+	Players[pnum].time_level = 0;
+	Players[pnum].time_total = 0;
+	Players[pnum].hours_level = 0;
+	Players[pnum].hours_total = 0;
+	Players[pnum].killer_objnum = -1;
+	Players[pnum].net_killed_total = 0;
+	Players[pnum].net_kills_total = 0;
+	Players[pnum].num_kills_level = 0;
+	Players[pnum].num_kills_total = 0;
+	Players[pnum].num_robots_level = 0;
+	Players[pnum].num_robots_total = 0;
+	Players[pnum].KillGoalCount = 0;
+	Players[pnum].hostages_rescued_total = 0;
+	Players[pnum].hostages_level = 0;
+	Players[pnum].hostages_total = 0;
+	Players[pnum].laser_level = 0;
+	Players[pnum].flags = 0;
 
-	Players[Player_num].time_level = 0;
-	Players[Player_num].time_total = 0;
-	Players[Player_num].hours_level = 0;
-	Players[Player_num].hours_total = 0;
+	init_player_stats_new_ship(pnum);
 
-	Players[Player_num].energy = INITIAL_ENERGY;
-	Players[Player_num].shields = StartingShields;
-	Players[Player_num].killer_objnum = -1;
-
-	Players[Player_num].net_killed_total = 0;
-	Players[Player_num].net_kills_total = 0;
-
-	Players[Player_num].num_kills_level = 0;
-	Players[Player_num].num_kills_total = 0;
-	Players[Player_num].num_robots_level = 0;
-	Players[Player_num].num_robots_total = 0;
-	Players[Player_num].KillGoalCount = 0;
-
-	Players[Player_num].hostages_rescued_total = 0;
-	Players[Player_num].hostages_level = 0;
-	Players[Player_num].hostages_total = 0;
-
-	Players[Player_num].laser_level = 0;
-	Players[Player_num].flags = 0;
-
-	init_player_stats_new_ship();
-
-	First_secret_visit = 1;
+	if (pnum == Player_num)
+		First_secret_visit = 1;
 }
 
 void init_ammo_and_energy(void)
@@ -382,69 +375,51 @@ void init_player_stats_level(int secret_flag)
 extern	void init_ai_for_ship(void);
 
 // Setup player for a brand-new ship
-void init_player_stats_new_ship()
+void init_player_stats_new_ship(ubyte pnum)
 {
-	int	i;
+	int i;
 
-	if (Newdemo_state == ND_STATE_RECORDING) {
-		newdemo_record_laser_level(Players[Player_num].laser_level, 0);
-		newdemo_record_player_weapon(0, 0);
-		newdemo_record_player_weapon(1, 0);
+	if (pnum == Player_num)
+	{
+		if (Newdemo_state == ND_STATE_RECORDING)
+		{
+			newdemo_record_laser_level(Players[Player_num].laser_level, 0);
+			newdemo_record_player_weapon(0, 0);
+			newdemo_record_player_weapon(1, 0);
+		}
+		Primary_weapon = 0;
+		Secondary_weapon = 0;
+		for (i=0; i<MAX_PRIMARY_WEAPONS; i++)
+			Primary_last_was_super[i] = 0;
+		for (i=1; i<MAX_SECONDARY_WEAPONS; i++)
+			Secondary_last_was_super[i] = 0;
+		dead_player_end(); //player no longer dead
+		Global_laser_firing_count=0;
+		Afterburner_charge = 0;
+		Controls.afterburner_state = 0;
+		Last_afterburner_state = 0;
+		Missile_viewer=NULL; //reset missile camera if out there
+		Missile_viewer_sig=-1;
+		init_ai_for_ship();
 	}
 
-	Players[Player_num].energy = INITIAL_ENERGY;
-	Players[Player_num].shields = StartingShields;
-	Players[Player_num].laser_level = 0;
-	Players[Player_num].killer_objnum = -1;
-	Players[Player_num].hostages_on_board = 0;
-
-	Afterburner_charge = 0;
-
-	for (i=0; i<MAX_PRIMARY_WEAPONS; i++) {
-		Players[Player_num].primary_ammo[i] = 0;
-		Primary_last_was_super[i] = 0;
-	}
-
-	for (i=1; i<MAX_SECONDARY_WEAPONS; i++) {
-		Players[Player_num].secondary_ammo[i] = 0;
-		Secondary_last_was_super[i] = 0;
-	}
-	Players[Player_num].secondary_ammo[0] = 2 + NDL - Difficulty_level;
-
-	Players[Player_num].primary_weapon_flags = HAS_LASER_FLAG;
-	Players[Player_num].secondary_weapon_flags = HAS_CONCUSSION_FLAG;
-
-	Primary_weapon = 0;
-	Secondary_weapon = 0;
-
-	Players[Player_num].flags &= ~(	PLAYER_FLAGS_QUAD_LASERS |
-												PLAYER_FLAGS_AFTERBURNER |
-												PLAYER_FLAGS_CLOAKED |
-												PLAYER_FLAGS_INVULNERABLE |
-												PLAYER_FLAGS_MAP_ALL |
-												PLAYER_FLAGS_CONVERTER |
-												PLAYER_FLAGS_AMMO_RACK |
-												PLAYER_FLAGS_HEADLIGHT |
-												PLAYER_FLAGS_HEADLIGHT_ON |
-												PLAYER_FLAGS_FLAG);
-
-	Players[Player_num].cloak_time = 0;
-	Players[Player_num].invulnerable_time = 0;
-
-	Player_is_dead = 0;		//player no longer dead
-	Player_eggs_dropped = 0;
-
-	Players[Player_num].homing_object_dist = -F1_0; // Added by RH
-
-	Controls.afterburner_state = 0;
-	Last_afterburner_state = 0;
-
-	digi_kill_sound_linked_to_object(Players[Player_num].objnum);
-
-	Missile_viewer=NULL;		///reset missile camera if out there
-	Missile_viewer_sig=-1;
-
-	init_ai_for_ship();
+	Players[pnum].energy = INITIAL_ENERGY;
+	Players[pnum].shields = StartingShields;
+	Players[pnum].laser_level = 0;
+	Players[pnum].killer_objnum = -1;
+	Players[pnum].hostages_on_board = 0;
+	for (i=0; i<MAX_PRIMARY_WEAPONS; i++)
+		Players[pnum].primary_ammo[i] = 0;
+	for (i=1; i<MAX_SECONDARY_WEAPONS; i++)
+		Players[pnum].secondary_ammo[i] = 0;
+	Players[pnum].secondary_ammo[0] = 2 + NDL - Difficulty_level;
+	Players[pnum].primary_weapon_flags = HAS_LASER_FLAG;
+	Players[pnum].secondary_weapon_flags = HAS_CONCUSSION_FLAG;
+	Players[pnum].flags &= ~( PLAYER_FLAGS_QUAD_LASERS | PLAYER_FLAGS_AFTERBURNER | PLAYER_FLAGS_CLOAKED | PLAYER_FLAGS_INVULNERABLE | PLAYER_FLAGS_MAP_ALL | PLAYER_FLAGS_CONVERTER | PLAYER_FLAGS_AMMO_RACK | PLAYER_FLAGS_HEADLIGHT | PLAYER_FLAGS_HEADLIGHT_ON | PLAYER_FLAGS_FLAG);
+	Players[pnum].cloak_time = 0;
+	Players[pnum].invulnerable_time = 0;
+	Players[pnum].homing_object_dist = -F1_0; // Added by RH
+	digi_kill_sound_linked_to_object(Players[pnum].objnum);
 }
 
 extern void init_stuck_objects(void);
@@ -475,7 +450,7 @@ void editor_reset_stuff_on_level()
 	init_ai_objects();
 	init_morphs();
 	init_all_matcens();
-	init_player_stats_new_ship();
+	init_player_stats_new_ship(Player_num);
 	init_controlcen_for_level();
 	automap_clear_visited();
 	init_stuck_objects();
@@ -792,12 +767,9 @@ void StartNewGame(int start_level)
 
 	InitPlayerObject();				//make sure player's object set up
 
-	init_player_stats_game();		//clear all stats
+	init_player_stats_game(Player_num);		//clear all stats
 
 	N_players = 1;
-#ifdef NETWORK
-	Network_new_game = 0;
-#endif
 
 	if (start_level < 0)
 		StartNewLevelSecret(start_level, 0);
@@ -1385,7 +1357,7 @@ void DoPlayerDead()
 		object * playerobj = &Objects[Players[Player_num].objnum];
 		//nm_messagebox( "You're Dead!", 1, "Continue", "Not a real game, though." );
 		load_level("gamesave.lvl");
-		init_player_stats_new_ship();
+		init_player_stats_new_ship(Player_num);
 		playerobj->flags &= ~OF_SHOULD_BE_DEAD;
 		StartLevel(0);
 		return;
@@ -1431,14 +1403,14 @@ void DoPlayerDead()
 				else {
 					do_screen_message(TXT_SECRET_ADVANCE);
 					StartNewLevel(Entered_from_level+1, 0);
-					init_player_stats_new_ship();	//	New, MK, 05/29/96!, fix bug with dying in secret level, advance to next level, keep powerups!
+					init_player_stats_new_ship(Player_num);	//	New, MK, 05/29/96!, fix bug with dying in secret level, advance to next level, keep powerups!
 				}
 			}
 		} else {
 
 			AdvanceLevel(0);			//if finished, go on to next level
 
-			init_player_stats_new_ship();
+			init_player_stats_new_ship(Player_num);
 			last_drawn_cockpit = -1;
 		}
 
@@ -1458,11 +1430,11 @@ void DoPlayerDead()
 			else {
 				do_screen_message(TXT_SECRET_ADVANCE);
 				StartNewLevel(Entered_from_level+1, 0);
-				init_player_stats_new_ship();	//	New, MK, 05/29/96!, fix bug with dying in secret level, advance to next level, keep powerups!
+				init_player_stats_new_ship(Player_num);	//	New, MK, 05/29/96!, fix bug with dying in secret level, advance to next level, keep powerups!
 			}
 		}
 	} else {
-		init_player_stats_new_ship();
+		init_player_stats_new_ship(Player_num);
 		StartLevel(1);
 	}
 
@@ -1520,13 +1492,6 @@ void StartNewLevelSub(int level_num, int page_in_textures, int secret_flag)
 
 	automap_clear_visited();
 
-#ifdef NETWORK
-	if (Network_new_game == 1)
-	{
-		Network_new_game = 0;
-		init_player_stats_new_ship();
-	}
-#endif
 	init_player_stats_level(secret_flag);
 
 	load_palette(Current_level_palette,0,1);
@@ -1763,7 +1728,7 @@ void InitPlayerPosition(int random_flag)
 				}
 			}
 
-		} while ( (closest_dist<i2f(15*20)) && (trys<MAX_NUM_NET_PLAYERS*2) );
+		} while ( (closest_dist<i2f(15*20)) && (trys<MAX_PLAYERS*2) );
 	}
 	else {
 		// If deathmatch and not random, positions were already determined by sync packet

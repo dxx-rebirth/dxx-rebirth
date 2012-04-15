@@ -1113,7 +1113,7 @@ window *game_setup(void)
 
 #ifdef EDITOR
 	if (Current_level_num == 0) {	//not a real level
-		init_player_stats_game();
+		init_player_stats_game(Player_num);
 		init_ai_objects();
 	}
 #endif
