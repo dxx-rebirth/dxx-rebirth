@@ -588,9 +588,6 @@ void hmp_reset()
 		midiOutUnprepareHeader(hmidi, &mhdr, sizeof(MIDIHDR));
 
 		timer_delay(F1_0/20);
-
-		for (channel = 0; channel < 16; channel++)
-			midiOutShortMsg(hmidi, (DWORD)(channel | MIDI_CONTROL_CHANGE << 4 | MIDI_VOLUME << 8 | (100 * midi_volume / MIDI_VOLUME_SCALE) << 16));
 	}
 	else
 	{
@@ -610,6 +607,9 @@ void hmp_reset()
 				break;
 		}
 	}
+
+	for (channel = 0; channel < 16; channel++)
+		midiOutShortMsg(hmidi, (DWORD)(channel | MIDI_CONTROL_CHANGE << 4 | MIDI_VOLUME << 8 | (100 * midi_volume / MIDI_VOLUME_SCALE) << 16));
 	midiOutClose(hmidi);
 }
 #endif
