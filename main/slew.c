@@ -18,15 +18,6 @@ COPYRIGHT 1993-1999 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
  *
  */
 
-
-#ifdef EDITOR
-#include "editor/editor.h"
-#endif
-
-#ifdef RCS
-static char rcsid[] = "$Id: slew.c,v 1.1.1.1 2006/03/17 19:56:35 zicodxx Exp $";
-#endif
-
 #include <stdlib.h>
 
 #include "inferno.h"
@@ -38,15 +29,25 @@ static char rcsid[] = "$Id: slew.c,v 1.1.1.1 2006/03/17 19:56:35 zicodxx Exp $";
 #include "error.h"
 #include "physics.h"
 #include "kconfig.h"
-#include "args.h"
+
+#ifdef EDITOR
+#include "editor/editor.h"
+#endif
+
+#ifdef RCS
+#pragma off (unreferenced)
+static char rcsid[] = "$Id: slew.c,v 1.1.1.1 2006/03/17 19:43:42 zicodxx Exp $";
+#pragma on (unreferenced)
+#endif
 
 //variables for slew system
 
 object *slew_obj=NULL;	//what object is slewing, or NULL if none
 
 #define JOY_NULL 15
-#define ROT_SPEED 8		//rate of rotation while key held down
-#define VEL_SPEED (2*55)	//rate of acceleration while key held down
+#define ROT_SPEED 2		//rate of rotation while key held down
+#define SLIDE_SPEED 			(700)
+#define ZOOM_SPEED_FACTOR		(1000)	//(1500)
 
 short old_joy_x,old_joy_y;	//position last time around
 
@@ -59,7 +60,7 @@ int slew_stop(void);
 void slew_init(object *obj)
 {
 	slew_obj = obj;
-	
+
 	slew_obj->control_type = CT_SLEW;
 	slew_obj->movement_type = MT_NONE;
 
@@ -96,15 +97,15 @@ int do_slew_movement(object *obj, int check_keys )
 	if (!slew_obj || slew_obj->control_type!=CT_SLEW) return 0;
 
 	if (check_keys) {
-#ifdef EDITOR
-		if (EditorWindow)
+#if 0	//def EDITOR	// might be useful for people with playing keys set to modifiers or such, 
+		if (EditorWindow)	// or just use a separate player file for the editor
 		{
-			obj->mtype.phys_info.velocity.x += VEL_SPEED * keyd_pressed[KEY_PAD9] * FrameTime;
-			obj->mtype.phys_info.velocity.x -= VEL_SPEED * keyd_pressed[KEY_PAD7] * FrameTime;
-			obj->mtype.phys_info.velocity.y += VEL_SPEED * keyd_pressed[KEY_PADMINUS] * FrameTime;
-			obj->mtype.phys_info.velocity.y -= VEL_SPEED * keyd_pressed[KEY_PADPLUS] * FrameTime;
-			obj->mtype.phys_info.velocity.z += VEL_SPEED * keyd_pressed[KEY_PAD8] * FrameTime;
-			obj->mtype.phys_info.velocity.z -= VEL_SPEED * keyd_pressed[KEY_PAD2] * FrameTime;
+			obj->mtype.phys_info.velocity.x += SLIDE_SPEED * keyd_pressed[KEY_PAD9] * FrameTime;
+			obj->mtype.phys_info.velocity.x -= SLIDE_SPEED * keyd_pressed[KEY_PAD7] * FrameTime;
+			obj->mtype.phys_info.velocity.y += SLIDE_SPEED * keyd_pressed[KEY_PADMINUS] * FrameTime;
+			obj->mtype.phys_info.velocity.y -= SLIDE_SPEED * keyd_pressed[KEY_PADPLUS] * FrameTime;
+			obj->mtype.phys_info.velocity.z += ZOOM_SPEED_FACTOR * keyd_pressed[KEY_PAD8] * FrameTime;
+			obj->mtype.phys_info.velocity.z -= ZOOM_SPEED_FACTOR * keyd_pressed[KEY_PAD2] * FrameTime;
 
 			rotang.p = rotang.b  = rotang.h  = 0;
 			rotang.p += keyd_pressed[KEY_LBRACKET] * FrameTime / ROT_SPEED;
@@ -117,9 +118,9 @@ int do_slew_movement(object *obj, int check_keys )
 		else
 #endif
 		{
-			obj->mtype.phys_info.velocity.x += VEL_SPEED * Controls.sideways_thrust_time;
-			obj->mtype.phys_info.velocity.y += VEL_SPEED * Controls.vertical_thrust_time;
-			obj->mtype.phys_info.velocity.z += VEL_SPEED * Controls.forward_thrust_time;
+			obj->mtype.phys_info.velocity.x = SLIDE_SPEED * Controls.sideways_thrust_time;
+			obj->mtype.phys_info.velocity.y = SLIDE_SPEED * Controls.vertical_thrust_time;
+			obj->mtype.phys_info.velocity.z = ZOOM_SPEED_FACTOR * Controls.forward_thrust_time;
 
 			rotang.p = Controls.pitch_time/ROT_SPEED ;
 			rotang.b  = Controls.bank_time/ROT_SPEED;

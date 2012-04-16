@@ -40,6 +40,7 @@ COPYRIGHT 1993-1998 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 #include "gamesave.h"
 #include "gameseg.h"
 #include "key.h"
+#include "kconfig.h"
 #include "mouse.h"
 #include "error.h"
 #include "kfuncs.h"
@@ -395,6 +396,8 @@ void init_editor()
 
 	medkey_init();
 
+	game_flush_inputs();
+	
 	editor_font = gr_init_font( "pc8x16.fnt" );
 	
 	menubar_init( "MED.MNU" );
@@ -727,14 +730,14 @@ int ToggleOutlineMode()
         if (mode)
          {
 		//if (keypress != KEY_O)
-			diagnostic_message("[O] Outline Mode ON.");
+			diagnostic_message("[Ctrl-O] Outline Mode ON.");
 		//else
 		//	diagnostic_message("Outline Mode ON.");
          }
 	else
          {
 		//if (keypress != KEY_O)
-			diagnostic_message("[O] Outline Mode OFF.");
+			diagnostic_message("[Ctrl-O] Outline Mode OFF.");
 		//else
 		//	diagnostic_message("Outline Mode OFF.");
          }
@@ -843,8 +846,8 @@ void init_editor_screen()
 	AxesIcon	= ui_add_gadget_icon( EditorWindow, "Coord\naxes",545,25+530,		40, 22,	KEY_D+KEY_CTRLED, ToggleCoordAxes );
 //-NOLIGHTICON-	LightIcon	= ui_add_gadget_icon( EditorWindow, "Light\ning",	590,25+530, 	40, 22,	KEY_L+KEY_SHIFTED,ToggleLighting );
 	ChaseIcon	= ui_add_gadget_icon( EditorWindow, "Chase\nmode",635,25+530,		40, 22,	-1,				ToggleChaseMode );
-	OutlineIcon = ui_add_gadget_icon( EditorWindow, "Out\nline", 	680,25+530,  	40, 22,	KEY_O,			ToggleOutlineMode );
-	LockIcon	= ui_add_gadget_icon( EditorWindow, "Lock\nstep", 725,25+530, 	40, 22,	KEY_L,			ToggleLockstep );
+	OutlineIcon = ui_add_gadget_icon( EditorWindow, "Out\nline", 	680,25+530,  	40, 22,	KEY_O+KEY_CTRLED,			ToggleOutlineMode );
+	LockIcon	= ui_add_gadget_icon( EditorWindow, "Lock\nstep", 725,25+530, 	40, 22,	KEY_L+KEY_CTRLED,			ToggleLockstep );
 
 	meddraw_init_views(LargeViewBox->canvas);
 
@@ -1115,6 +1118,42 @@ int editor_handler(UI_DIALOG *dlg, d_event *event, void *data)
 		return 1;
 	}
 	
+	if ((selected_gadget == (UI_GADGET *)GameViewBox && !render_3d_in_big_window) ||
+		(selected_gadget == (UI_GADGET *)LargeViewBox && render_3d_in_big_window))
+		switch (event->type)
+		{
+			case EVENT_MOUSE_BUTTON_UP:
+			case EVENT_MOUSE_BUTTON_DOWN:
+				break;
+			case EVENT_MOUSE_MOVED:
+				if (!keyd_pressed[ KEY_LCTRL ] && !keyd_pressed[ KEY_RCTRL ])
+					break;
+			case EVENT_JOYSTICK_BUTTON_UP:
+			case EVENT_JOYSTICK_BUTTON_DOWN:
+			case EVENT_JOYSTICK_MOVED:
+			case EVENT_KEY_COMMAND:
+			case EVENT_KEY_RELEASE:
+			case EVENT_IDLE:
+				kconfig_read_controls(event, 1);
+
+				if (slew_frame(0))
+				{		//do movement and check keys
+					Update_flags |= UF_GAME_VIEW_CHANGED;
+					if (Gameview_lockstep)
+					{
+						Cursegp = &Segments[ConsoleObject->segnum];
+						med_create_new_segment_from_cursegp();
+						Update_flags |= UF_ED_STATE_CHANGED;
+					}
+
+					rval = 1;
+				}
+				break;
+				
+			default:
+				break;
+		}
+
 	//do non-essential stuff in idle event
 	if (event->type == EVENT_IDLE)
 	{
@@ -1202,11 +1241,12 @@ int editor_handler(UI_DIALOG *dlg, d_event *event, void *data)
 			rval = 1;
 			break;			
 		default:
-		{
-			char kdesc[100];
-			GetKeyDescription( kdesc, keypress );
-			editor_status("Error: %s isn't bound to anything.", kdesc  );
-		}
+			if (!rval)
+			{
+				char kdesc[100];
+				GetKeyDescription( kdesc, keypress );
+				editor_status("Error: %s isn't bound to anything.", kdesc  );
+			}
 	}
 
 	//================================================================
@@ -1233,15 +1273,6 @@ int editor_handler(UI_DIALOG *dlg, d_event *event, void *data)
 		current_view->ev_changed = 1;
 		new_cv->ev_changed = 1;
 		current_view = new_cv;
-	}
-
-	if (slew_frame(0)) {		//do movement and check keys
-		Update_flags |= UF_GAME_VIEW_CHANGED;
-		if (Gameview_lockstep) {
-			Cursegp = &Segments[ConsoleObject->segnum];
-			med_create_new_segment_from_cursegp();
-			Update_flags |= UF_ED_STATE_CHANGED;
-		}
 	}
 
 	// DO TEXTURE STUFF
@@ -1370,14 +1401,14 @@ int editor_handler(UI_DIALOG *dlg, d_event *event, void *data)
 		}
 	}
 
-	if (event->type == EVENT_MOUSE_MOVED && keyd_pressed[ KEY_Z ])
+	if (event->type == EVENT_MOUSE_MOVED)
 	{
 		int dx, dy, dz;
 
 		event_mouse_get_delta(event, &dx, &dy, &dz);
-		if (dy != 0)
+		if (dz != 0)
 		{
-			current_view->ev_dist += dy*10000;
+			current_view->ev_dist += dz*10000;
 			current_view->ev_changed = 1;
 		}
 	}
