@@ -484,6 +484,7 @@ int trigger_dialog_handler(UI_DIALOG *dlg, d_event *event, trigger_dialog *t)
 	if (event->type == EVENT_WINDOW_CLOSE)
 	{
 		d_free(t);
+		MainWindow = NULL;
 		return 0;
 	}
 

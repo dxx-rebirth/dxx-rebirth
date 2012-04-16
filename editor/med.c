@@ -1093,6 +1093,7 @@ int editor_handler(UI_DIALOG *dlg, d_event *event, void *data)
 	else if (event->type == EVENT_WINDOW_CLOSE)
 	{
 		close_editor();
+		EditorWindow = NULL;
 		return 0;
 	}
 	
@@ -1255,7 +1256,6 @@ int editor_handler(UI_DIALOG *dlg, d_event *event, void *data)
 	if (ModeFlag)
 	{
 		ui_close_dialog(EditorWindow);
-		EditorWindow = NULL;
 		return 0;
 	}
 

@@ -1101,11 +1101,13 @@ extern	int Do_appearance_effect;
 
 void game_leave_menus(void)
 {
+	window *wind;
+
 	if (!Game_wind)
 		return;
 
-	while (window_get_front() != Game_wind) // go through all windows and actually close them if they want to
-		window_close(window_get_front());
+	while ((wind = window_get_front()) && (wind != Game_wind)) // go through all windows and actually close them if they want to
+		window_close(wind);
 }
 
 void GameProcessFrame(void)
