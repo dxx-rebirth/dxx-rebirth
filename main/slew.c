@@ -1,3 +1,4 @@
+/* $Id: slew.c,v 1.1.1.1 2006/03/17 19:56:35 zicodxx Exp $ */
 /*
 THE COMPUTER CODE CONTAINED HEREIN IS THE SOLE PROPERTY OF PARALLAX
 SOFTWARE CORPORATION ("PARALLAX").  PARALLAX, IN DISTRIBUTING THE CODE TO
@@ -7,106 +8,14 @@ IN USING, DISPLAYING,  AND CREATING DERIVATIVE WORKS THEREOF, SO LONG AS
 SUCH USE, DISPLAY OR CREATION IS FOR NON-COMMERCIAL, ROYALTY OR REVENUE
 FREE PURPOSES.  IN NO EVENT SHALL THE END-USER USE THE COMPUTER CODE
 CONTAINED HEREIN FOR REVENUE-BEARING PURPOSES.  THE END-USER UNDERSTANDS
-AND AGREES TO THE TERMS HEREIN AND ACCEPTS THE SAME BY USE OF THIS FILE.  
+AND AGREES TO THE TERMS HEREIN AND ACCEPTS THE SAME BY USE OF THIS FILE.
 COPYRIGHT 1993-1998 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 */
+
 /*
- * $Source: /cvsroot/dxx-rebirth/d1x-rebirth/main/slew.c,v $
- * $Revision: 1.1.1.1 $
- * $Author: zicodxx $
- * $Date: 2006/03/17 19:43:42 $
- * 
+ *
  * Basic slew system for moving around the mine
- * 
- * $Log: slew.c,v $
- * Revision 1.1.1.1  2006/03/17 19:43:42  zicodxx
- * initial import
  *
- * Revision 1.1.1.1  1999/06/14 22:11:33  donut
- * Import of d1x 1.37 source.
- *
- * Revision 2.0  1995/02/27  11:29:32  john
- * New version 2.0, which has no anonymous unions, builds with
- * Watcom 10.0, and doesn't require parsing BITMAPS.TBL.
- * 
- * Revision 1.34  1995/02/22  14:23:28  allender
- * remove anonymous unions from object structure
- * 
- * Revision 1.33  1995/02/22  13:24:26  john
- * Removed the vecmat anonymous unions.
- * 
- * Revision 1.32  1994/09/10  15:46:42  john
- * First version of new keyboard configuration.
- * 
- * Revision 1.31  1994/08/31  18:29:58  matt
- * Made slew work with new key system
- * 
- * Revision 1.30  1994/08/31  14:10:48  john
- * Made slew go faster.
- * 
- * Revision 1.29  1994/08/29  19:16:38  matt
- * Made slew object not have physics movement type, so slew objects don't
- * get bumped.
- * 
- * Revision 1.28  1994/08/24  18:59:59  john
- * Changed key_down_time to return fixed seconds instead of
- * milliseconds.
- * 
- * Revision 1.27  1994/07/01  11:33:05  john
- * Fixed bug with looking for stick even if one not present.
- * 
- * Revision 1.26  1994/05/20  11:56:33  matt
- * Cleaned up find_vector_intersection() interface
- * Killed check_point_in_seg(), check_player_seg(), check_object_seg()
- * 
- * Revision 1.25  1994/05/19  12:08:41  matt
- * Use new vecmat macros and globals
- * 
- * Revision 1.24  1994/05/14  17:16:18  matt
- * Got rid of externs in source (non-header) files
- * 
- * Revision 1.23  1994/05/03  12:26:38  matt
- * Removed use of physics_info var rotvel, which wasn't used for rotational
- * velocity at all.
- * 
- * Revision 1.22  1994/02/17  11:32:34  matt
- * Changes in object system
- * 
- * Revision 1.21  1994/01/18  14:03:53  john
- * made joy_get_pos use the new ints instead of
- * shorts.
- * 
- * Revision 1.20  1994/01/10  17:11:35  mike
- * Add prototype for check_object_seg
- * 
- * Revision 1.19  1994/01/05  10:53:38  john
- * New object code by John.  
- * 
- * Revision 1.18  1993/12/22  15:32:50  john
- * took out previos code that attempted to make
- * modifiers cancel keydowntime.
- * 
- * Revision 1.17  1993/12/22  11:41:56  john
- * Made so that keydowntime recognizes editor special case!
- * 
- * Revision 1.16  1993/12/14  18:13:52  matt
- * Made slew work in editor even when game isn't in slew mode
- * 
- * Revision 1.15  1993/12/07  23:53:39  matt
- * Made slew work in editor even when game isn't in slew mode
- * 
- * Revision 1.14  1993/12/05  22:47:49  matt
- * Reworked include files in an attempt to cut down on build times
- * 
- * Revision 1.13  1993/12/01  11:44:14  matt
- * Chagned Frfract to FrameTime
- * 
- * Revision 1.12  1993/11/08  16:21:42  john
- * made stop_slew or whatever return an int
- * 
- * Revision 1.11  1993/11/01  13:59:49  john
- * more slew experiments.
- * 
  */
 
 #include <stdlib.h>
@@ -131,18 +40,22 @@ static char rcsid[] = "$Id: slew.c,v 1.1.1.1 2006/03/17 19:43:42 zicodxx Exp $";
 #pragma on (unreferenced)
 #endif
 
-int slew_stop();
-
 //variables for slew system
 
 object *slew_obj=NULL;	//what object is slewing, or NULL if none
 
 #define JOY_NULL 15
-#define ROT_SPEED 8		//rate of rotation while key held down
-#define VEL_SPEED (2*55)        //rate of acceleration while key held down
+#define ROT_SPEED 2		//rate of rotation while key held down
+#define SLIDE_SPEED 			(700)
+#define ZOOM_SPEED_FACTOR		(1000)	//(1500)
 
 short old_joy_x,old_joy_y;	//position last time around
 
+//	Function Prototypes
+int slew_stop(void);
+
+
+// -------------------------------------------------------------------
 //say start slewing with this object
 void slew_init(object *obj)
 {
@@ -169,7 +82,7 @@ void slew_reset_orient()
 
 	slew_obj->orient.rvec.x = slew_obj->orient.uvec.y = slew_obj->orient.fvec.z = f1_0;
 
-	slew_obj->orient.rvec.y = slew_obj->orient.rvec.z = slew_obj->orient.uvec.x = 
+	slew_obj->orient.rvec.y = slew_obj->orient.rvec.z = slew_obj->orient.uvec.x =
    slew_obj->orient.uvec.z = slew_obj->orient.fvec.x = slew_obj->orient.fvec.y = 0;
 
 }
@@ -184,15 +97,15 @@ int do_slew_movement(object *obj, int check_keys )
 	if (!slew_obj || slew_obj->control_type!=CT_SLEW) return 0;
 
 	if (check_keys) {
-#ifdef EDITOR
-		if (EditorWindow)
+#if 0	//def EDITOR	// might be useful for people with playing keys set to modifiers or such, 
+		if (EditorWindow)	// or just use a separate player file for the editor
 		{
-			obj->mtype.phys_info.velocity.x += VEL_SPEED * keyd_pressed[KEY_PAD9] * FrameTime;
-			obj->mtype.phys_info.velocity.x -= VEL_SPEED * keyd_pressed[KEY_PAD7] * FrameTime;
-			obj->mtype.phys_info.velocity.y += VEL_SPEED * keyd_pressed[KEY_PADMINUS] * FrameTime;
-			obj->mtype.phys_info.velocity.y -= VEL_SPEED * keyd_pressed[KEY_PADPLUS] * FrameTime;
-			obj->mtype.phys_info.velocity.z += VEL_SPEED * keyd_pressed[KEY_PAD8] * FrameTime;
-			obj->mtype.phys_info.velocity.z -= VEL_SPEED * keyd_pressed[KEY_PAD2] * FrameTime;
+			obj->mtype.phys_info.velocity.x += SLIDE_SPEED * keyd_pressed[KEY_PAD9] * FrameTime;
+			obj->mtype.phys_info.velocity.x -= SLIDE_SPEED * keyd_pressed[KEY_PAD7] * FrameTime;
+			obj->mtype.phys_info.velocity.y += SLIDE_SPEED * keyd_pressed[KEY_PADMINUS] * FrameTime;
+			obj->mtype.phys_info.velocity.y -= SLIDE_SPEED * keyd_pressed[KEY_PADPLUS] * FrameTime;
+			obj->mtype.phys_info.velocity.z += ZOOM_SPEED_FACTOR * keyd_pressed[KEY_PAD8] * FrameTime;
+			obj->mtype.phys_info.velocity.z -= ZOOM_SPEED_FACTOR * keyd_pressed[KEY_PAD2] * FrameTime;
 
 			rotang.p = rotang.b  = rotang.h  = 0;
 			rotang.p += keyd_pressed[KEY_LBRACKET] * FrameTime / ROT_SPEED;
@@ -205,9 +118,9 @@ int do_slew_movement(object *obj, int check_keys )
 		else
 #endif
 		{
-			obj->mtype.phys_info.velocity.x += VEL_SPEED * Controls.sideways_thrust_time;
-			obj->mtype.phys_info.velocity.y += VEL_SPEED * Controls.vertical_thrust_time;
-			obj->mtype.phys_info.velocity.z += VEL_SPEED * Controls.forward_thrust_time;
+			obj->mtype.phys_info.velocity.x = SLIDE_SPEED * Controls.sideways_thrust_time;
+			obj->mtype.phys_info.velocity.y = SLIDE_SPEED * Controls.vertical_thrust_time;
+			obj->mtype.phys_info.velocity.z = ZOOM_SPEED_FACTOR * Controls.forward_thrust_time;
 
 			rotang.p = Controls.pitch_time/ROT_SPEED ;
 			rotang.b  = Controls.bank_time/ROT_SPEED;
@@ -235,7 +148,7 @@ int do_slew_movement(object *obj, int check_keys )
 
 	moved |= (movement.x || movement.y || movement.z);
 
-	if (moved) 
+	if (moved)
 		update_object_seg(obj);	//update segment id
 
 	return moved;
@@ -247,3 +160,4 @@ int slew_frame(int check_keys)
 	return do_slew_movement( slew_obj, !check_keys );
 
 }
+

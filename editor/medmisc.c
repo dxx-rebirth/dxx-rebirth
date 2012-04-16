@@ -105,13 +105,13 @@ int ToggleLockstep()
 	Gameview_lockstep = !Gameview_lockstep;
     if (Gameview_lockstep == 0) {
         //if (keypress != KEY_L)
-            diagnostic_message("[L] - Lock mode OFF");
+            diagnostic_message("[Ctrl-L] - Lock mode OFF");
         //else
         //    diagnostic_message("Lock mode OFF");
     }
     if (Gameview_lockstep) {
         //if (keypress != KEY_L)
-            diagnostic_message("[L] Lock mode ON");
+            diagnostic_message("[Ctrl-L] Lock mode ON");
         //else
         //    diagnostic_message("Lock mode ON");
 
