@@ -547,8 +547,11 @@ int do_option ( int select)
 			break;
 		#ifdef EDITOR
 		case MENU_EDITOR:
-			create_new_mine();
-			SetPlayerFromCurseg();
+			if (!Current_mission)
+			{
+				create_new_mine();
+				SetPlayerFromCurseg();
+			}
 
 			hide_menus();
 			init_editor();
@@ -1765,8 +1768,11 @@ void do_sound_menu()
 #endif
 
 	m[nitems].type = NM_TYPE_TEXT; m[nitems++].text = "";
-
+#ifdef USE_SDLMIXER
+	m[nitems].type = NM_TYPE_TEXT; m[nitems++].text = "cd music / jukebox options:";
+#else
 	m[nitems].type = NM_TYPE_TEXT; m[nitems++].text = "cd music options:";
+#endif
 
 	opt_sm_redbook_playorder = nitems;
 	m[nitems].type = NM_TYPE_CHECK; m[nitems].text = "force mac cd track order"; m[nitems++].value = GameCfg.OrigTrackOrder;

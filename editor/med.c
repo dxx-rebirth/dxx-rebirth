@@ -843,7 +843,7 @@ void init_editor_screen()
 //	ui_gadget_calc_keys(EditorWindow);	//make tab work for all windows
 
 	ViewIcon	= ui_add_gadget_icon( EditorWindow, "Lock\nview",	455,25+530, 	40, 22,	KEY_V+KEY_CTRLED, ToggleLockViewToCursegp );
-	AllIcon	= ui_add_gadget_icon( EditorWindow, "Draw\nall",	500,25+530,  	40, 22,	KEY_A+KEY_CTRLED, ToggleDrawAllSegments );
+	AllIcon	= ui_add_gadget_icon( EditorWindow, "Draw\nall",	500,25+530,  	40, 22,	-1, ToggleDrawAllSegments );
 	AxesIcon	= ui_add_gadget_icon( EditorWindow, "Coord\naxes",545,25+530,		40, 22,	KEY_D+KEY_CTRLED, ToggleCoordAxes );
 //-NOLIGHTICON-	LightIcon	= ui_add_gadget_icon( EditorWindow, "Light\ning",	590,25+530, 	40, 22,	KEY_L+KEY_SHIFTED,ToggleLighting );
 	ChaseIcon	= ui_add_gadget_icon( EditorWindow, "Chase\nmode",635,25+530,		40, 22,	-1,				ToggleChaseMode );

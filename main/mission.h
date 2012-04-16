@@ -96,5 +96,9 @@ int select_mission (int anarchy_mode, char *message, int (*when_selected)(void))
 
 void free_mission(void);
 
+#ifdef EDITOR
+void create_new_mission(void);
+#endif
+
 #endif
 
