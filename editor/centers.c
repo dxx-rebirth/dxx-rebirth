@@ -216,6 +216,7 @@ int centers_dialog_handler(UI_DIALOG *dlg, d_event *event, centers_dialog *c)
 	if (event->type == EVENT_WINDOW_CLOSE)
 	{
 		d_free(c);
+		MainWindow = NULL;
 		return 0;	// we're not cancelling the close
 	}
 

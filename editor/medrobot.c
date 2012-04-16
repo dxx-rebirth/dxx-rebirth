@@ -704,6 +704,7 @@ int robot_dialog_handler(UI_DIALOG *dlg, d_event *event, robot_dialog *r)
 	if (event->type == EVENT_WINDOW_CLOSE)
 	{
 		d_free(r);
+		MainWindow = NULL;
 		return 0;
 	}
 
@@ -816,6 +817,7 @@ int object_dialog_handler(UI_DIALOG *dlg, d_event *event, object_dialog *o)
 	if (event->type == EVENT_WINDOW_CLOSE)
 	{
 		d_free(o);
+		MattWindow = NULL;
 		return 0;
 	}
 	else if (event->type == EVENT_UI_DIALOG_DRAW)

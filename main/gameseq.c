@@ -1360,6 +1360,8 @@ void DoPlayerDead()
 	if (Game_mode == GM_EDITOR) {			//test mine, not real level
 		object * playerobj = &Objects[Players[Player_num].objnum];
 		//nm_messagebox( "You're Dead!", 1, "Continue", "Not a real game, though." );
+		if (Game_wind)
+			window_set_visible(Game_wind, 1);
 		load_level("gamesave.lvl");
 		init_player_stats_new_ship(Player_num);
 		playerobj->flags &= ~OF_SHOULD_BE_DEAD;

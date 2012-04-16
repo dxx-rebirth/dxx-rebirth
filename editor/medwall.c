@@ -595,6 +595,7 @@ int wall_dialog_handler(UI_DIALOG *dlg, d_event *event, wall_dialog *wd)
 	if (event->type == EVENT_WINDOW_CLOSE)
 	{
 		d_free(wd);
+		MainWindow = NULL;
 		return 0;
 	}
 
