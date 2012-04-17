@@ -518,10 +518,13 @@ void nd_read_object(object *obj)
 	else {
 		sbyte b;
 
+		// MWA old way -- won't work with big endian machines       nd_read_byte((ubyte *)&(obj->lifeleft));
 		nd_read_byte(&b);
 		obj->lifeleft = (fix)b;
-		// MWA old way -- won't work with big endian machines       nd_read_byte((ubyte *)&(obj->lifeleft));
-		obj->lifeleft = (fix)((int)obj->lifeleft << 12);
+		if (obj->lifeleft == -1)
+			obj->lifeleft = IMMORTAL_TIME;
+		else
+			obj->lifeleft = (fix)((int)obj->lifeleft << 12);
 	}
 
 	if ((obj->type == OBJ_ROBOT) && !shareware) {
