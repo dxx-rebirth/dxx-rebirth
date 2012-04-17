@@ -1057,7 +1057,7 @@ int check_walls()
 
 	if (wall_count != Num_walls) {
 		sprintf( Message, "Num_walls is bogus\nDo you wish to correct it?\n");
-		if (MessageBox( -2, -2, 2, Message, "Yes", "No" )==1) {
+		if (ui_messagebox( -2, -2, 2, Message, "Yes", "No" )==1) {
 			Num_walls = wall_count;
 			editor_status("Num_walls set to %d\n", Num_walls);
 		}
@@ -1068,7 +1068,7 @@ int check_walls()
 		if ((Walls[CountedWalls[w].wallnum].segnum != CountedWalls[w].segnum) ||
 			(Walls[CountedWalls[w].wallnum].sidenum != CountedWalls[w].sidenum)) {
 			sprintf( Message, "Unmatched wall detected\nDo you wish to correct it?\n");
-			if (MessageBox( -2, -2, 2, Message, "Yes", "No" )==1) {
+			if (ui_messagebox( -2, -2, 2, Message, "Yes", "No" )==1) {
 				Walls[CountedWalls[w].wallnum].segnum = CountedWalls[w].segnum;
 				Walls[CountedWalls[w].wallnum].sidenum = CountedWalls[w].sidenum;
 			}
@@ -1082,7 +1082,7 @@ int check_walls()
 
 	if (trigger_count != Num_triggers) {
 		sprintf( Message, "Num_triggers is bogus\nDo you wish to correct it?\n");
-		if (MessageBox( -2, -2, 2, Message, "Yes", "No" )==1) {
+		if (ui_messagebox( -2, -2, 2, Message, "Yes", "No" )==1) {
 			Num_triggers = trigger_count;
 			editor_status("Num_triggers set to %d\n", Num_triggers);
 		}
@@ -1099,7 +1099,7 @@ int delete_all_walls()
 	int seg, side;
 
 	sprintf( Message, "Are you sure that walls are hosed so\n badly that you want them ALL GONE!?\n");
-	if (MessageBox( -2, -2, 2, Message, "YES!", "No" )==1) {
+	if (ui_messagebox( -2, -2, 2, Message, "YES!", "No" )==1) {
 		for (seg=0;seg<=Highest_segment_index;seg++)
 			for (side=0;side<MAX_SIDES_PER_SEGMENT;side++)
 				Segments[seg].sides[side].wall_num = -1;
@@ -1118,7 +1118,7 @@ int delete_all_triggers()
 	int w;
 
 	sprintf( Message, "Are you sure that triggers are hosed so\n badly that you want them ALL GONE!?\n");
-	if (MessageBox( -2, -2, 2, Message, "YES!", "No" )==1) {
+	if (ui_messagebox( -2, -2, 2, Message, "YES!", "No" )==1) {
 
 		for (w=0; w<Num_walls; w++)
 			Walls[w].trigger=-1;

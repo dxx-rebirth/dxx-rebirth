@@ -217,7 +217,7 @@ int MessageBoxN( short xc, short yc, int NumButtons, char * text, char * Button[
 }
 
 
-int MessageBox( short xc, short yc, int NumButtons, char * text, ... )
+int ui_messagebox( short xc, short yc, int NumButtons, char * text, ... )
 {
 	va_list marker;
 	char * Button[10];

@@ -92,7 +92,7 @@ int SaveGameData()
 
 	if (gamestate_not_restored) {
 		sprintf( Message, "Game State has not been restored...\nContinue?\n");
-		if (MessageBox( -2, -2, 2, Message, "NO", "Yes" )==1) 
+		if (ui_messagebox( -2, -2, 2, Message, "NO", "Yes" )==1) 
 			return 0;
 		}
 		
