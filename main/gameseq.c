@@ -935,9 +935,9 @@ int AdvanceLevel(int secret_flag)
 	Control_center_destroyed = 0;
 
 	#ifdef EDITOR
-	if (PLAYING_BUILTIN_MISSION)
+	if (Current_level_num == 0)
 	{
-		return 0;		//not a real level
+		return 1;		//not a real level
 	}
 	#endif
 
