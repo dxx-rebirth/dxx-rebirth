@@ -1,5 +1,9 @@
 D2X-Rebirth Changelog
 
+20120417
+--------
+main/game.c: Make sure Cursegp is initialised if using it to set an object when loading a game (EDITOR build). Thought I already committed this
+
 20120416
 --------
 main/gameseq.c, main/multi.c, main/multi.h: fixed two bugs caused by recent Multiplayer cleanup: Set more player-death-related veriables outside of dead_player_end() when creating new ship as not covered in subfunction is Palyer_is_dead is not true; also init my own inventory properly in multi_prep_level to get our inventory straight after receiving netgame information

@@ -1098,6 +1098,12 @@ window *game_setup(void)
 	netplayerinfo_on = 0;
 
 #ifdef EDITOR
+	if (!Cursegp)
+	{
+		Cursegp = &Segments[0];
+		Curside = 0;
+	}
+	
 	if (Segments[ConsoleObject->segnum].segnum == -1)      //segment no longer exists
 		obj_relink( ConsoleObject-Objects, SEG_PTR_2_NUM(Cursegp) );
 
