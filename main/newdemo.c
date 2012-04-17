@@ -2766,6 +2766,7 @@ int newdemo_read_frame_information(int rewrite)
 				}
 				if ((loaded_level < Last_secret_level) || (loaded_level > Last_level)) {
 					nm_messagebox( NULL, 1, TXT_OK, "%s\n%s\n%s", TXT_CANT_PLAYBACK, TXT_LEVEL_CANT_LOAD, TXT_DEMO_OLD_CORRUPT );
+					free_mission();
 					return -1;
 				}
 
@@ -2875,6 +2876,7 @@ int newdemo_read_frame_information(int rewrite)
 
 	if (nd_playback_v_bad_read) {
 		nm_messagebox( NULL, 1, TXT_OK, "%s %s", TXT_DEMO_ERR_READING, TXT_DEMO_OLD_CORRUPT );
+		free_mission();
 	}
 
 	return done;
@@ -2910,6 +2912,7 @@ void newdemo_goto_end(int to_rewrite)
 	{
 		if ((level < Last_secret_level) || (level > Last_level)) {
 			nm_messagebox( NULL, 1, TXT_OK, "%s\n%s\n%s", TXT_CANT_PLAYBACK, TXT_LEVEL_CANT_LOAD, TXT_DEMO_OLD_CORRUPT );
+			free_mission();
 			newdemo_stop_playback();
 			return;
 		}
@@ -3611,6 +3614,7 @@ void newdemo_stop_playback()
 	Rear_view=0;
 	nd_playback_v_dead = nd_playback_v_rear = nd_playback_v_guided = 0;
 	Newdemo_game_mode = Game_mode = GM_GAME_OVER;
+	
 	if (Game_wind)
 		window_close(Game_wind);               // Exit game loop
 }
