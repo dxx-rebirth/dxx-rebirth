@@ -404,7 +404,6 @@ void draw_copyright()
 	gr_set_curfont(GAME_FONT);
 	gr_set_fontcolor(BM_XRGB(6,6,6),-1);
 	gr_printf(0x8000,SHEIGHT-LINE_SPACING,TXT_COPYRIGHT);
-
 	gr_set_fontcolor( BM_XRGB(25,0,0), -1);
 	gr_printf(0x8000,SHEIGHT-(LINE_SPACING*2),DESCENT_VERSION);
 }
@@ -575,9 +574,11 @@ int do_option ( int select)
 			break;
 		#ifdef EDITOR
 		case MENU_EDITOR:
-			create_new_mine();
-			SetPlayerFromCurseg();
-			load_palette(NULL,1,0);
+			if (!Current_mission)
+			{
+				create_new_mine();
+				SetPlayerFromCurseg();
+			}
 
 			hide_menus();
 			init_editor();

@@ -19,7 +19,7 @@ COPYRIGHT 1993-1998 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
  */
 
 #ifdef RCS
-static char rcsid[] = "$Id: eglobal.c,v 1.1.1.1 2006/03/17 19:58:21 zicodxx Exp $";
+static char rcsid[] = "$Id: eglobal.c,v 1.1.1.1 2006/03/17 19:45:24 zicodxx Exp $";
 #endif
 
 #include <stdlib.h>
@@ -29,12 +29,12 @@ static char rcsid[] = "$Id: eglobal.c,v 1.1.1.1 2006/03/17 19:58:21 zicodxx Exp 
 
 // Global pointer to current vertices, right now always Vertices.  Set in create_new_mine.
 // segment New_segment;  // segment which can be added to the mine. // replaced by a macro
-segment *Cursegp;        // Pointer to current segment in mine.
+segment *Cursegp = NULL;        // Pointer to current segment in mine.
 int Curside;             // Side index in 0..MAX_SIDES_PER_SEGMENT of active side.
 int Curedge;             // Current edge on current side, in 0..3
 int Curvert;             // Current vertex on current side, in 0..3
 int AttachSide = WFRONT; // Side on segment to attach.
-segment *Markedsegp;     // Marked segment, used in conjunction with *Cursegp to form joints.
+segment *Markedsegp = NULL;     // Marked segment, used in conjunction with *Cursegp to form joints.
 int Markedside;          // Marked side on Markedsegp.
 
 int Draw_all_segments;   // Set to 1 means draw_world draws all segments in Segments, else draw only connected segments

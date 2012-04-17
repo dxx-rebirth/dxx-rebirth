@@ -10,6 +10,7 @@ main/newdemo.c: Set object lifeleft to IMMORTAL_TIME if the byte read in demo pl
 main/newdemo.c: Call free_mission() if a demo is corrupt, so the editor doesn't load a corrupt level
 editor/group.c, editor/kgame.c, editor/khelp.c, editor/kmine.c, editor/macro.c, editor/med.c, editor/medwall.c, editor/mine.c, include/ui.h, ui/file.c, ui/keypad.c, ui/menubar.c, ui/message.c: Rename MessageBox to ui_messagebox to avoid a conflict with Windows' MessageBox
 main/newdemo.c, main/object.c, main/object.h: Call new obj_relink_all after playing a demo, so the editor is (hopefully) never faced with poorly linked objects and hence crashes
+editor/eglobal.c, editor/med.c, main/gamesave.c, main/menu.c, main/mission.c, main/mission.h: Make a new mission when making a new mine to avoid a crash when testing it straight from the editor and winning, only create a new mine if a mission isn't loaded, init Cursegp to NULL, remove key command for ToggleDrawAllSegments since add segment now has ctrl-A
 
 20120416
 --------

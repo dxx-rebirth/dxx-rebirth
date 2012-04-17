@@ -1497,6 +1497,8 @@ int create_new_mine(void)
 	
 	ControlCenterTriggers.num_links = 0;
 	
+	create_new_mission();
+	
     //editor_status("New mine created.");
 	return	0;			// say no error
 }
