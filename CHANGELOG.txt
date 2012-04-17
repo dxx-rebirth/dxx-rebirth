@@ -6,6 +6,7 @@ main/gameseq.c: Allow level progressing if playing the builtin mission with EDIT
 editor/med.c: Reset the player object for the editor, since demo playback mucks it up
 main/render.c: Skip rendering of OBJ_NONE objects to avoid a failed Assert (can happen when playing a demo then going to the editor)
 main/newdemo.c: Set object lifeleft to IMMORTAL_TIME if the byte read in demo playback is -1. This allows the objects to stay when playing a demo, going to the editor then playing the game from the editor
+main/newdemo.c: Call free_mission() if a demo is corrupt, so the editor doesn't load a corrupt level
 
 20120416
 --------
