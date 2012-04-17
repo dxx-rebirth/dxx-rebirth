@@ -261,7 +261,7 @@ typedef struct object {
 	union {
 		physics_info phys_info; // a physics object
 		vms_vector   spin_rate; // for spinning objects
-	} __pack__ mtype ;
+	} __pack__ mtype;
 
 	// control info, determined by CONTROL_TYPE
 	union {
@@ -329,7 +329,7 @@ typedef struct object_rw {
 	union {
 		polyobj_info    pobj_info;      // polygon model
 		vclip_info      vclip_info;     // vclip
-	} __pack__ rtype ;
+	} __pack__ rtype;
 
 #ifdef WORDS_NEED_ALIGNMENT
 	short   pad2;
@@ -398,6 +398,9 @@ int obj_get_new_seg(object *obj);
 // when an object has moved into a new segment, this function unlinks it
 // from its old segment, and links it into the new segment
 void obj_relink(int objnum,int newsegnum);
+
+// for getting out of messed up linking situations (i.e. caused by demo playback)
+void obj_relink_all(void);
 
 // move an object from one segment to another. unlinks & relinks
 void obj_set_new_seg(int objnum,int newsegnum);

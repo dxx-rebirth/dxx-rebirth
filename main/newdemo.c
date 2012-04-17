@@ -3615,6 +3615,9 @@ void newdemo_stop_playback()
 	nd_playback_v_dead = nd_playback_v_rear = nd_playback_v_guided = 0;
 	Newdemo_game_mode = Game_mode = GM_GAME_OVER;
 	
+	// Required for the editor
+	obj_relink_all();
+	
 	if (Game_wind)
 		window_close(Game_wind);               // Exit game loop
 }
