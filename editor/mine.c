@@ -73,7 +73,7 @@ int med_save_mine(char * filename)
                         , filename, fname);
 #endif
 		sprintf( ErrorMessage, "ERROR: Unable to open %s\n", filename );
-		MessageBox( -2, -2, 1, ErrorMessage, "Ok" );
+		ui_messagebox( -2, -2, 1, ErrorMessage, "Ok" );
 		return 1;
 	}
 
@@ -297,13 +297,13 @@ int save_mine_data_compiled(PHYSFS_file *SaveFile)
 	if (Highest_segment_index >= MAX_SEGMENTS) {
 		char	message[128];
 		sprintf(message, "Error: Too many segments (%i > %i) for game (not editor)", Highest_segment_index+1, MAX_SEGMENTS);
-		MessageBox( -2, -2, 1, message, "Ok" );
+		ui_messagebox( -2, -2, 1, message, "Ok" );
 	}
 
 	if (Highest_vertex_index >= MAX_VERTICES) {
 		char	message[128];
 		sprintf(message, "Error: Too many vertices (%i > %i) for game (not editor)", Highest_vertex_index+1, MAX_VERTICES);
-		MessageBox( -2, -2, 1, message, "Ok" );
+		ui_messagebox( -2, -2, 1, message, "Ok" );
 	}
 
 	//=============================== Writing part ==============================

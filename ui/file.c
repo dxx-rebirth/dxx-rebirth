@@ -152,7 +152,7 @@ static int browser_handler(UI_DIALOG *dlg, d_event *event, browser *b)
 	
 	if (GADGET_PRESSED(b->help_button))
 	{
-		MessageBox( -1, -1, 1, "Sorry, no help is available!", "Ok" );
+		ui_messagebox( -1, -1, 1, "Sorry, no help is available!", "Ok" );
 		rval = 1;
 	}
 	
@@ -301,7 +301,7 @@ int ui_get_filename( char * filename, char * filespec, char * message  )
 		return 0;
 	}
 
-	//MessageBox( -2,-2, 1,"DEBUG:0", "Ok" );
+	//ui_messagebox( -2,-2, 1,"DEBUG:0", "Ok" );
 	for (i=0; i<35; i++)
 		b->spaces[i] = ' ';
 	b->spaces[34] = 0;

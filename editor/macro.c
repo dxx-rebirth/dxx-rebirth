@@ -97,7 +97,7 @@ int MacroSave()
 
 	if (MacroNumEvents < 1 )
 	{
-		MessageBox( -2, -2, 1, "No macro has been defined to save!", "Oops" );
+		ui_messagebox( -2, -2, 1, "No macro has been defined to save!", "Oops" );
 		return 1;
 	}
 

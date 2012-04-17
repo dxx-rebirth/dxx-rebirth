@@ -477,7 +477,7 @@ void init_editor()
 
 int ShowAbout()
 {
-	MessageBox( -2, -2, 1, 	"INFERNO Mine Editor\n\n"		\
+	ui_messagebox( -2, -2, 1, 	"INFERNO Mine Editor\n\n"		\
 									"Copyright (c) 1993  Parallax Software Corp.",
 									"OK");
 	return 0;
@@ -925,7 +925,7 @@ void med_show_warning(char *s)
 
 	//gr_pal_fade_in(grd_curscreen->pal);	//in case palette is blacked
 
-	MessageBox(-2,-2,1,s,"OK");
+	ui_messagebox(-2,-2,1,s,"OK");
 
 	gr_set_current_canvas(save_canv);
 
@@ -1046,7 +1046,7 @@ void gamestate_restore_check()
 	if (gamestate_not_restored) {
 		sprintf( Message, "Do you wish to restore game state?\n");
 	
-		if (MessageBox( -2, -2, 2, Message, "Yes", "No" )==1) {
+		if (ui_messagebox( -2, -2, 2, Message, "Yes", "No" )==1) {
 
 			// Save current position
 			Save_position.pos = ConsoleObject->pos;

@@ -832,7 +832,7 @@ void menubar_init( char * file )
 			if (Menu[menu].Item[item].user_function==NULL)
 			{
 				Error( "Unknown function, %s, in %s\n", buf1, file );
-				//MessageBox( -2, -2, 1, buffer, "Ok" );
+				//ui_messagebox( -2, -2, 1, buffer, "Ok" );
 			}
 		}
 				

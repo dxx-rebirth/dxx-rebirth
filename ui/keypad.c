@@ -518,7 +518,7 @@ void ui_pad_read( int n, char * filename )
 		} else if (keycode==-1)
 		{
 			Error( "Unknown keystroke, %s, in %s\n", text, filename );
-			//MessageBox( -2, -2, 1, buffer, "Ok" );
+			//ui_messagebox( -2, -2, 1, buffer, "Ok" );
 
 		} else {
 			KeyPad[n]->keycode[KeyPad[n]->numkeys] = keycode;

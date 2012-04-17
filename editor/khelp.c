@@ -129,21 +129,21 @@ int DoHelp()
     int more_key = 2;
     while (help_key > 1)
 	{
-        help_key = MessageBox( -2, -2, 5, MainHelpText, "Ok", "Segment", "Keypad", "View", "More");
+        help_key = ui_messagebox( -2, -2, 5, MainHelpText, "Ok", "Segment", "Keypad", "View", "More");
 		if (help_key == 2)
-			MessageBox( -2, -2, 1, SegmentHelpText, "Ok" );
+			ui_messagebox( -2, -2, 1, SegmentHelpText, "Ok" );
 		if (help_key == 3)
-			MessageBox( -2, -2, 1, KeyPadHelpText, "Ok" );
+			ui_messagebox( -2, -2, 1, KeyPadHelpText, "Ok" );
 		if (help_key == 4)
-			MessageBox( -2, -2, 1, ViewHelpText, "Ok" );
+			ui_messagebox( -2, -2, 1, ViewHelpText, "Ok" );
         if (help_key == 5) {
-            more_key = MessageBox( -2, -2, 4, MainHelpText, "Back", "Curve", "Macro", "Game");
+            more_key = ui_messagebox( -2, -2, 4, MainHelpText, "Back", "Curve", "Macro", "Game");
                 if (more_key == 2)
-                    MessageBox( -2, -2, 1, CurveHelpText, "Ok" );
+                    ui_messagebox( -2, -2, 1, CurveHelpText, "Ok" );
                 if (help_key == 3)
-                    MessageBox( -2, -2, 1, MacrosHelpText, "Ok" );
+                    ui_messagebox( -2, -2, 1, MacrosHelpText, "Ok" );
                 if (help_key == 4)
-                    MessageBox( -2, -2, 1, GameHelpText, "Ok" );
+                    ui_messagebox( -2, -2, 1, GameHelpText, "Ok" );
         }
 	}
 	return 1;
