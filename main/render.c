@@ -1243,6 +1243,9 @@ void build_object_lists(int n_segs)
 				int new_segnum,did_migrate,list_pos;
 
 				obj = &Objects[objnum];
+				
+				if (obj->type == OBJ_NONE)
+					continue;
 
 				Assert( obj->segnum == segnum );
 
