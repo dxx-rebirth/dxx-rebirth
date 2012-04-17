@@ -326,7 +326,7 @@ extern unsigned int ui_event_counter;
 
 int ui_get_file( char * filename, char * Filespec  );
 
-int MessageBoxN( short xc, short yc, int NumButtons, char * text, char * Button[] );
+int ui_messagebox_n( short xc, short yc, int NumButtons, char * text, char * Button[] );
 
 void ui_draw_icon( UI_GADGET_ICON * icon );
 int ui_icon_do( UI_DIALOG *dlg, UI_GADGET_ICON * icon, struct d_event *event );
