@@ -446,6 +446,7 @@ void init_editor()
 	
 	Viewer = ConsoleObject;
 	slew_init(ConsoleObject);
+	init_player_object();
 	
 	Update_flags = UF_ALL;
 	
