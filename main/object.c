@@ -1584,6 +1584,28 @@ void obj_relink(int objnum,int newsegnum)
 	obj_link(objnum,newsegnum);
 }
 
+// for getting out of messed up linking situations (i.e. caused by demo playback)
+void obj_relink_all(void)
+{
+	int segnum;
+	int objnum;
+	object *obj;
+	
+	for (segnum=0; segnum <= Highest_segment_index; segnum++)
+		Segments[segnum].objects = -1;
+	
+	for (objnum=0,obj=&Objects[0];objnum<=Highest_object_index;objnum++,obj++)
+		if (obj->type != OBJ_NONE)
+		{
+			segnum = obj->segnum;
+			obj->next = obj->prev = obj->segnum = -1;
+			
+			if (segnum > Highest_segment_index)
+				segnum = 0;
+			obj_link(objnum, segnum);
+		}
+}
+
 //process a continuously-spinning object
 void spin_object(object *obj)
 {

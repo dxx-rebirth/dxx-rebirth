@@ -8,6 +8,7 @@ main/render.c: Skip rendering of OBJ_NONE objects to avoid a failed Assert (can 
 main/newdemo.c: Set object lifeleft to IMMORTAL_TIME if the byte read in demo playback is -1. This allows the objects to stay when playing a demo, going to the editor then playing the game from the editor
 main/newdemo.c: Call free_mission() if a demo is corrupt, so the editor doesn't load a corrupt level
 editor/group.c, editor/kgame.c, editor/khelp.c, editor/kmine.c, editor/macro.c, editor/med.c, editor/medwall.c, editor/mine.c, include/ui.h, ui/file.c, ui/keypad.c, ui/menubar.c, ui/message.c: Rename MessageBox to ui_messagebox to avoid a conflict with Windows' MessageBox
+main/newdemo.c, main/object.c, main/object.h: Call new obj_relink_all after playing a demo, so the editor is (hopefully) never faced with poorly linked objects and hence crashes
 
 20120416
 --------
