@@ -105,7 +105,6 @@ void editor_reset_stuff_on_level();
 extern void DoEndLevelScoreGlitz(int network);
 
 // stuff for multiplayer
-extern int MaxNumNetPlayers;
 extern int NumNetPlayerPositions;
 
 void bash_to_shield(int, char *);

@@ -126,7 +126,6 @@ player	Players[MAX_PLAYERS+4];	// Misc player info
 obj_position	Player_init[MAX_PLAYERS];
 
 // Global variables telling what sort of game we have
-int MaxNumNetPlayers = -1;
 int NumNetPlayerPositions = -1;
 
 extern fix ThisLevelTime;

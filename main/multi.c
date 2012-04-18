@@ -453,12 +453,12 @@ multi_endlevel_score(void)
 
 	if (Game_mode & GM_MULTI_COOP)
 	{
-		for (i = 0; i < MaxNumNetPlayers; i++)
+		for (i = 0; i < Netgame.max_numplayers; i++)
 			// Reset keys
 			Players[i].flags &= ~(PLAYER_FLAGS_BLUE_KEY | PLAYER_FLAGS_RED_KEY | PLAYER_FLAGS_GOLD_KEY);
 	}
 
-	for (i = 0; i < MaxNumNetPlayers; i++)
+	for (i = 0; i < Netgame.max_numplayers; i++)
 		Players[i].flags &= ~(PLAYER_FLAGS_FLAG);  // Clear capture flag
 
 	for (i=0;i<MAX_PLAYERS;i++)

@@ -1237,7 +1237,7 @@ net_udp_new_player(UDP_sequence_packet *their)
 	pnum = their->player.connected;
 
 	Assert(pnum >= 0);
-	Assert(pnum < MaxNumNetPlayers);
+	Assert(pnum < Netgame.max_numplayers);
 	
 	if (Newdemo_state == ND_STATE_RECORDING) {
 		int new_player;
@@ -1335,7 +1335,7 @@ void net_udp_welcome_player(UDP_sequence_packet *their)
 	{
 		// Player is new to this game
 
-		if ( !(Netgame.game_flags & NETGAME_FLAG_CLOSED) && (N_players < MaxNumNetPlayers))
+		if ( !(Netgame.game_flags & NETGAME_FLAG_CLOSED) && (N_players < Netgame.max_numplayers))
 		{
 			// Add player in an open slot, game not full yet
 
@@ -1357,7 +1357,7 @@ void net_udp_welcome_player(UDP_sequence_packet *their)
 			fix64 oldest_time = timer_query();
 			int activeplayers = 0;
 
-			Assert(N_players == MaxNumNetPlayers);
+			Assert(N_players == Netgame.max_numplayers);
 
 			for (i = 0; i < Netgame.numplayers; i++)
 				if (Netgame.players[i].connected)
@@ -1607,7 +1607,7 @@ void net_udp_send_objects(void)
 
 	Assert(Network_send_objects != 0);
 	Assert(player_num >= 0);
-	Assert(player_num < MaxNumNetPlayers);
+	Assert(player_num < Netgame.max_numplayers);
 
 	if (Endlevel_sequence || Control_center_destroyed)
 	{
@@ -1723,7 +1723,7 @@ int net_udp_verify_objects(int remote, int local)
 			nplayers++;
 	}
 
-	if (MaxNumNetPlayers<=nplayers)
+	if (Netgame.max_numplayers<=nplayers)
 		return(0);
 
 	return(1);
@@ -2026,7 +2026,6 @@ void net_udp_update_netgame(void)
 
 	Netgame.numplayers = N_players;
 	Netgame.game_status = Network_status;
-	Netgame.max_numplayers = MaxNumNetPlayers;
 
 	for (i = 0; i < MAX_PLAYERS; i++) 
 	{
@@ -2825,8 +2824,8 @@ int net_udp_start_poll( newmenu *menu, d_event *event, void *userdata )
 		}
 	}
 
-	if ( nm > MaxNumNetPlayers )    {
-		nm_messagebox( TXT_ERROR, 1, TXT_OK, "%s %d %s", TXT_SORRY_ONLY, MaxNumNetPlayers, TXT_NETPLAYERS_IN );
+	if ( nm > Netgame.max_numplayers )    {
+		nm_messagebox( TXT_ERROR, 1, TXT_OK, "%s %d %s", TXT_SORRY_ONLY, Netgame.max_numplayers, TXT_NETPLAYERS_IN );
 		// Turn off the last player highlighted
 		for (i = N_players; i > 0; i--)
 			if (menus[i].value == 1) 
@@ -2850,7 +2849,7 @@ int net_udp_start_poll( newmenu *menu, d_event *event, void *userdata )
 		else
 	      sprintf( menus[N_players-1].text, "%d. %s%-20s", N_players, RankStrings[Netgame.players[N_players-1].rank],Netgame.players[N_players-1].callsign );
 
-		if (N_players <= MaxNumNetPlayers)
+		if (N_players <= Netgame.max_numplayers)
 		{
 			menus[N_players-1].value = 1;
 		}
@@ -2868,7 +2867,7 @@ int net_udp_start_poll( newmenu *menu, d_event *event, void *userdata )
 		 sprintf( menus[i].text, "%d. %-20s", i+1, Netgame.players[i].callsign );
 	 else
 		 sprintf( menus[i].text, "%d. %s%-20s", i+1, RankStrings[Netgame.players[i].rank],Netgame.players[i].callsign );
-			if (i < MaxNumNetPlayers)
+			if (i < Netgame.max_numplayers)
 				menus[i].value = 1;
 			else
 				menus[i].value = 0;
@@ -3080,7 +3079,6 @@ int net_udp_game_param_handler( newmenu *menu, d_event *event, param_opt *opt )
 {
 	newmenu_item *menus = newmenu_get_items(menu);
 	int citem = newmenu_get_citem(menu);
-	static int oldmaxnet=0;
 
 	switch (event->type)
 	{
@@ -3094,8 +3092,6 @@ int net_udp_game_param_handler( newmenu *menu, d_event *event, param_opt *opt )
 			
 			if (menus[opt->coop].value)
 			{
-				oldmaxnet=1;
-				
 				if (menus[opt->maxnet].value>2) 
 				{
 					menus[opt->maxnet].value=2;
@@ -3106,7 +3102,7 @@ int net_udp_game_param_handler( newmenu *menu, d_event *event, param_opt *opt )
 					menus[opt->maxnet].max_value=2;
 				}
 				sprintf( menus[opt->maxnet].text, "Maximum players: %d", menus[opt->maxnet].value+2 );
-				Netgame.max_numplayers = MaxNumNetPlayers = menus[opt->maxnet].value+2;
+				Netgame.max_numplayers = menus[opt->maxnet].value+2;
 				
 				if (!(Netgame.game_flags & NETGAME_FLAG_SHOW_MAP))
 					Netgame.game_flags |= NETGAME_FLAG_SHOW_MAP;
@@ -3120,13 +3116,12 @@ int net_udp_game_param_handler( newmenu *menu, d_event *event, param_opt *opt )
 			}
 			else // if !Coop game
 			{
-				if (oldmaxnet)
+				if (menus[opt->maxnet].max_value<6)
 				{
-					oldmaxnet=0;
 					menus[opt->maxnet].value=6;
 					menus[opt->maxnet].max_value=6;
 					sprintf( menus[opt->maxnet].text, "Maximum players: %d", menus[opt->maxnet].value+2 );
-					Netgame.max_numplayers = MaxNumNetPlayers = menus[opt->maxnet].value+2;
+					Netgame.max_numplayers = menus[opt->maxnet].value+2;
 				}
 			}
 			
@@ -3139,8 +3134,7 @@ int net_udp_game_param_handler( newmenu *menu, d_event *event, param_opt *opt )
 			if (citem == opt->maxnet)
 			{
 				sprintf( menus[opt->maxnet].text, "Maximum players: %d", menus[opt->maxnet].value+2 );
-				MaxNumNetPlayers = menus[opt->maxnet].value+2;
-				Netgame.max_numplayers=MaxNumNetPlayers;
+				Netgame.max_numplayers = menus[opt->maxnet].value+2;
 			}
 
 			if ((citem >= opt->mode) && (citem <= opt->mode_end))
@@ -3230,7 +3224,7 @@ int net_udp_setup_game()
 		if (i!=Player_num)
 			Players[i].callsign[0]=0;
 
-	Netgame.max_numplayers = MaxNumNetPlayers = MAX_PLAYERS;
+	Netgame.max_numplayers = MAX_PLAYERS;
 	Netgame.KillGoal=0;
 	Netgame.PlayTimeAllowed=0;
 	Netgame.Allow_marker_view=1;
@@ -3254,7 +3248,7 @@ int net_udp_setup_game()
 	read_netgame_profile(&Netgame);
 
 	if (Netgame.gamemode == NETGAME_COOPERATIVE) // did we restore Coop as default? then fix max players right now!
-		Netgame.max_numplayers = MaxNumNetPlayers = 4;
+		Netgame.max_numplayers = 4;
 	if (!HoardEquipped() && (Netgame.gamemode == NETGAME_HOARD || Netgame.gamemode == NETGAME_TEAM_HOARD)) // did we restore a hoard mode but don't have hoard installed right now? then fall back to anarchy!
 		Netgame.gamemode = NETGAME_ANARCHY;
 
@@ -3309,9 +3303,9 @@ int net_udp_setup_game()
 	m[optnum].type = NM_TYPE_RADIO; m[optnum].text = "Restricted Game              "; m[optnum].group=1; m[optnum].value=Netgame.RefusePlayers; optnum++;
 
 	opt.maxnet = optnum;
-	sprintf( srmaxnet, "Maximum players: %d", MaxNumNetPlayers);
+	sprintf( srmaxnet, "Maximum players: %d", Netgame.max_numplayers);
 	m[optnum].type = NM_TYPE_SLIDER; m[optnum].value=Netgame.max_numplayers-2; m[optnum].text= srmaxnet; m[optnum].min_value=0; 
-	m[optnum].max_value=MaxNumNetPlayers-2; optnum++;
+	m[optnum].max_value=Netgame.max_numplayers-2; optnum++;
 	
 	opt.moreopts=optnum;
 	m[optnum].type = NM_TYPE_MENU;  m[optnum].text = "Advanced Options"; optnum++;
@@ -3465,9 +3459,9 @@ int net_udp_send_sync(void)
 	int i, j, np;
 
 	// Check if there are enough starting positions
-	if (NumNetPlayerPositions < MaxNumNetPlayers)
+	if (NumNetPlayerPositions < Netgame.max_numplayers)
 	{
-		nm_messagebox(TXT_ERROR, 1, TXT_OK, "Not enough start positions\n(set %d got %d)\nNetgame aborted", MaxNumNetPlayers, NumNetPlayerPositions);
+		nm_messagebox(TXT_ERROR, 1, TXT_OK, "Not enough start positions\n(set %d got %d)\nNetgame aborted", Netgame.max_numplayers, NumNetPlayerPositions);
 		// Tell everyone we're bailing
 		Netgame.numplayers = 0;
 		for (i=1; i<N_players; i++)
@@ -3626,7 +3620,7 @@ net_udp_select_players(void)
 	else
 		sprintf( text[0], "%d. %s%-20s", 1, RankStrings[Netgame.players[Player_num].rank],Players[Player_num].callsign );
 
-	sprintf( title, "%s %d %s", TXT_TEAM_SELECT, MaxNumNetPlayers, TXT_TEAM_PRESS_ENTER );
+	sprintf( title, "%s %d %s", TXT_TEAM_SELECT, Netgame.max_numplayers, TXT_TEAM_PRESS_ENTER );
 
 GetPlayersAgain:
 #ifdef USE_TRACKER
@@ -3673,7 +3667,7 @@ abort:
 	}
 	
 	if ( N_players > Netgame.max_numplayers) {
-		nm_messagebox( TXT_ERROR, 1, TXT_OK, "%s %d %s", TXT_SORRY_ONLY, MaxNumNetPlayers, TXT_NETPLAYERS_IN );
+		nm_messagebox( TXT_ERROR, 1, TXT_OK, "%s %d %s", TXT_SORRY_ONLY, Netgame.max_numplayers, TXT_NETPLAYERS_IN );
 		N_players = save_nplayers;
 		goto GetPlayersAgain;
 	}
@@ -3987,7 +3981,6 @@ int net_udp_do_join_game()
 
 	// Choice is valid, prepare to join in
 	Difficulty_level = Netgame.difficulty;
-	MaxNumNetPlayers = Netgame.max_numplayers;
 	change_playernum_to(1);
 
 	net_udp_set_game_mode(Netgame.gamemode);
@@ -5033,7 +5026,7 @@ int net_udp_get_new_player_num (UDP_sequence_packet *their)
 	
 	 their=their;
 	
-		if ( N_players < MaxNumNetPlayers)
+		if ( N_players < Netgame.max_numplayers)
 			return (N_players);
 		
 		else
@@ -5044,7 +5037,7 @@ int net_udp_get_new_player_num (UDP_sequence_packet *their)
 			int oldest_player = -1;
 			fix64 oldest_time = timer_query();
 
-			Assert(N_players == MaxNumNetPlayers);
+			Assert(N_players == Netgame.max_numplayers);
 
 			for (i = 0; i < N_players; i++)
 			{
