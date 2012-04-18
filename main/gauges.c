@@ -2275,7 +2275,7 @@ int see_object(int objnum)
 	fq.p1 					= &Objects[objnum].pos;
 	fq.rad 					= 0;
 	fq.thisobjnum			= Viewer - Objects;
-	fq.flags 				= FQ_TRANSWALL | FQ_CHECK_OBJS;
+	fq.flags 				= FQ_TRANSWALL | FQ_CHECK_OBJS | FQ_GET_SEGLIST;
 	fq.startseg				= Viewer->segnum;
 	fq.ignore_obj_list	= NULL;
 

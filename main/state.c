@@ -1434,7 +1434,6 @@ RetryObjectLoading:
 		PHYSFS_read(fp, &Netgame.game_status, sizeof(ubyte), 1);
 		PHYSFS_read(fp, &Netgame.numplayers, sizeof(ubyte), 1);
 		PHYSFS_read(fp, &Netgame.max_numplayers, sizeof(ubyte), 1);
-		MaxNumNetPlayers = Netgame.max_numplayers;
 		PHYSFS_read(fp, &Netgame.numconnected, sizeof(ubyte), 1);
 		Netgame.level_time = PHYSFSX_readSXE32(fp, swap);
 		for (i = 0; i < MAX_PLAYERS; i++)
