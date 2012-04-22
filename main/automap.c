@@ -647,11 +647,11 @@ int automap_key_command(window *wind, d_event *event, automap *am)
 			return 1;
 			
 #ifndef RELEASE
-		case KEY_COMMA:
+		case KEY_F11:	//KEY_COMMA:
 			if (MarkerScale>.5)
 				MarkerScale-=.5;
 			return 1;
-		case KEY_PERIOD:
+		case KEY_F12:	//KEY_PERIOD:
 			if (MarkerScale<30.0)
 				MarkerScale+=.5;
 			return 1;

@@ -1,5 +1,9 @@
 D2X-Rebirth Changelog
 
+20120422
+--------
+main/automap.c: Change MarkerScale changing keys from KEY_COMMA and KEY_PERIOD to KEY_F11 and KEY_F12 respectively, so I can use the former as controls in the automap
+
 20120418
 --------
 main/gameseq.c, main/gameseq.h, main/gauges.c, main/multi.c, main/net_udp.c, main/state.c: Removed usage of 'oldmaxnet' variable when switching between coop and other game modes which would not be correctly set when coop mode is loaded from a netgame profile; Removed 'MaxNumNetPlayers' variable as already replaced by Netgame.max_numplayers
