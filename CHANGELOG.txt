@@ -1,5 +1,9 @@
 D1X-Rebirth Changelog
 
+20120423
+--------
+main/multi.c, main/multi.h, main/net_udp.c: fixed improper player disconnecting which might have been caused by endlevel packet
+
 20120418
 --------
 main/gameseq.c, main/gameseq.h, main/gauges.c, main/multi.c, main/net_udp.c, main/state.c: Removed usage of 'oldmaxnet' variable when switching between coop and other game modes which would not be correctly set when coop mode is loaded from a netgame profile; Removed 'MaxNumNetPlayers' variable as already replaced by Netgame.max_numplayers

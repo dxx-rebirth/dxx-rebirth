@@ -2595,8 +2595,10 @@ void net_udp_read_endlevel_packet( ubyte *data, int data_len, struct _sockaddr s
 
 		len += 2;
 
-		Players[pnum].connected = data[len];								len++;
-		tmpvar = data[len];													len++;
+		if ((int)data[len] == CONNECT_DISCONNECTED)
+			multi_disconnect_player(pnum);
+		Players[pnum].connected = data[len];					len++;
+		tmpvar = data[len];							len++;
 		if ((Network_status != NETSTAT_PLAYING) && (Players[pnum].connected == CONNECT_PLAYING) && (tmpvar < Countdown_seconds_left))
 			Countdown_seconds_left = tmpvar;
 		Players[pnum].net_kills_total = GET_INTEL_SHORT(&(data[len]));		len += 2;
@@ -2604,10 +2606,10 @@ void net_udp_read_endlevel_packet( ubyte *data, int data_len, struct _sockaddr s
 
 		for (i = 0; i < MAX_PLAYERS; i++)
 		{
-			kill_matrix[pnum][i] = GET_INTEL_SHORT(&(data[len]));			len += 2;
+			kill_matrix[pnum][i] = GET_INTEL_SHORT(&(data[len]));		len += 2;
 		}
-
-		Netgame.players[pnum].LastPacketTime = timer_query();
+		if (Players[i].connected)
+			Netgame.players[pnum].LastPacketTime = timer_query();
 	}
 	else
 	{
@@ -2616,7 +2618,7 @@ void net_udp_read_endlevel_packet( ubyte *data, int data_len, struct _sockaddr s
 
 		len++;
 
-		tmpvar = data[len];													len++;
+		tmpvar = data[len];							len++;
 		if ((Network_status != NETSTAT_PLAYING) && (tmpvar < Countdown_seconds_left))
 			Countdown_seconds_left = tmpvar;
 
@@ -2627,9 +2629,11 @@ void net_udp_read_endlevel_packet( ubyte *data, int data_len, struct _sockaddr s
 				len += 5;
 				continue;
 			}
-				
-			Players[i].connected = data[len];								len++;
-			Players[i].net_kills_total = GET_INTEL_SHORT(&(data[len]));		len += 2;
+
+			if ((int)data[len] == CONNECT_DISCONNECTED)
+				multi_disconnect_player(i);
+			Players[i].connected = data[len];				len++;
+			Players[i].net_kills_total = GET_INTEL_SHORT(&(data[len]));	len += 2;
 			Players[i].net_killed_total = GET_INTEL_SHORT(&(data[len]));	len += 2;
 
 			if (Players[i].connected)
@@ -2644,7 +2648,7 @@ void net_udp_read_endlevel_packet( ubyte *data, int data_len, struct _sockaddr s
 				{
 					kill_matrix[i][j] = GET_INTEL_SHORT(&(data[len]));
 				}
-																			len += 2;
+											len += 2;
 			}
 		}
 	}
@@ -3875,7 +3879,6 @@ void net_udp_leave_game()
 	}
 
 	Players[Player_num].connected = CONNECT_DISCONNECTED;
-	net_udp_send_endlevel_packet();
 	change_playernum_to(0);
 	net_udp_flush();
 	net_udp_close();
@@ -4602,14 +4605,8 @@ void net_udp_read_pdata_short_packet(UDP_frame_info *pd)
 	}
 	else
 	{
-		// only by reading pdata a client can know if a player re/disconnected. So do that here.
+		// only by reading pdata a client can know if a player reconnected. So do that here.
 		// NOTE: we might do this somewhere else - maybe with a sync packet like when adding a fresh player.
-		if ( Players[TheirPlayernum].connected != CONNECT_DISCONNECTED && pd->connected == CONNECT_DISCONNECTED )
-		{
-			Netgame.players[TheirPlayernum].LastPacketTime = timer_query() - UDP_TIMEOUT;
-			multi_disconnect_player(TheirPlayernum);
-			return;
-		}
 		if ( Players[TheirPlayernum].connected == CONNECT_DISCONNECTED && pd->connected == CONNECT_PLAYING )
 		{
 			Players[TheirPlayernum].connected = CONNECT_PLAYING;
