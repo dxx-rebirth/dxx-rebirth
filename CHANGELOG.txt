@@ -1,5 +1,9 @@
 D2X-Rebirth Changelog
 
+20120423
+--------
+main/multi.c, main/multi.h, main/net_udp.c: fixed improper player disconnecting which might have been caused by endlevel packet
+
 20120422
 --------
 main/automap.c: Change MarkerScale changing keys from KEY_COMMA and KEY_PERIOD to KEY_F11 and KEY_F12 respectively, so I can use the former as controls in the automap

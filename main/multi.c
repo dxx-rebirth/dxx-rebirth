@@ -1993,6 +1993,8 @@ void multi_disconnect_player(int pnum)
 
 	if (!(Game_mode & GM_NETWORK))
 		return;
+	if (Players[pnum].connected == CONNECT_DISCONNECTED)
+		return;
 
 	if (Players[pnum].connected == CONNECT_PLAYING)
 	{
