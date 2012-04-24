@@ -2702,7 +2702,10 @@ void draw_hud()
 		hud_show_timer_count();
 
 	//	Show other stuff if not in rearview or letterbox.
-	if (!Rear_view && PlayerCfg.CockpitMode[1]!=CM_REAR_VIEW) { // && PlayerCfg.CockpitMode[1]!=CM_LETTERBOX) {
+	if (!Rear_view && PlayerCfg.CockpitMode[1]!=CM_REAR_VIEW)
+	{
+		show_HUD_names();
+
 		if (PlayerCfg.CockpitMode[1]==CM_STATUS_BAR || PlayerCfg.CockpitMode[1]==CM_FULL_SCREEN)
 			hud_show_homing_warning();
 
@@ -2718,38 +2721,27 @@ void draw_hud()
 				newdemo_record_player_flags(Players[Player_num].flags);
 		}
 
-		#ifdef NETWORK
-		#ifndef RELEASE
+#ifndef RELEASE
 		if (!(Game_mode&GM_MULTI && Show_kill_list))
 			show_time();
-		#endif
-		#endif
-		if (PlayerCfg.CockpitMode[1] != CM_LETTERBOX)
-			show_reticle(PlayerCfg.ReticleType, 1);
-		if (PlayerCfg.CockpitMode[1] != CM_LETTERBOX && Newdemo_state != ND_STATE_PLAYBACK && PlayerCfg.MouseFlightSim && PlayerCfg.MouseFSIndicator)
-			show_mousefs_indicator(Controls.raw_mouse_axis[0], Controls.raw_mouse_axis[1], Controls.raw_mouse_axis[2], GWIDTH/2, GHEIGHT/2, GHEIGHT/4);
-
-#ifdef NETWORK
-		show_HUD_names();
+#endif
 
 		if (PlayerCfg.CockpitMode[1] != CM_LETTERBOX && PlayerCfg.CockpitMode[1] != CM_REAR_VIEW)
-			hud_show_flag();
-
-		if( PlayerCfg.CockpitMode[1] != CM_LETTERBOX && PlayerCfg.CockpitMode[1] != CM_REAR_VIEW )
 		{
+			hud_show_flag();
 			hud_show_orbs();
 		}
 		
-#endif
 		HUD_render_message_frame();
 
 		if (PlayerCfg.CockpitMode[1]!=CM_STATUS_BAR)
 			hud_show_lives();
-
-		#ifdef NETWORK
 		if (Game_mode&GM_MULTI && Show_kill_list)
 			hud_show_kill_list();
-		#endif
+		if (PlayerCfg.CockpitMode[1] != CM_LETTERBOX)
+			show_reticle(PlayerCfg.ReticleType, 1);
+		if (PlayerCfg.CockpitMode[1] != CM_LETTERBOX && Newdemo_state != ND_STATE_PLAYBACK && PlayerCfg.MouseFlightSim && PlayerCfg.MouseFSIndicator)
+			show_mousefs_indicator(Controls.raw_mouse_axis[0], Controls.raw_mouse_axis[1], Controls.raw_mouse_axis[2], GWIDTH/2, GHEIGHT/2, GHEIGHT/4);
 	}
 
 	if (Rear_view && PlayerCfg.CockpitMode[1]!=CM_REAR_VIEW) {
