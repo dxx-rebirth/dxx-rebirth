@@ -1,5 +1,9 @@
 D1X-Rebirth Changelog
 
+20120424
+--------
+main/gauges.c: little reorganization for draw_hud(): draw multiplayer names first, reticle last to prevent anything being drawn over by floating names and reticle not messed by anything else
+
 20120423
 --------
 main/multi.c, main/multi.h, main/net_udp.c: fixed improper player disconnecting which might have been caused by endlevel packet
