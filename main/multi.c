@@ -114,6 +114,7 @@ void drop_player_eggs(object *player); // from collide.c
 //
 
 int multi_protocol=0; // set and determinate used protocol
+int imulti_new_game=0; // to prep stuff for level only when starting new game
 
 extern vms_vector MarkerPoint[];
 extern char MarkerMessage[16][40];
@@ -517,6 +518,7 @@ multi_new_game(void)
 	}
 
 	team_kills[0] = team_kills[1] = 0;
+	imulti_new_game=1;
 	multi_quit_game = 0;
 	Show_kill_list = 1;
 	game_disable_cheats();
@@ -3332,7 +3334,8 @@ void multi_prep_level(void)
 	{
 		PKilledFlags[i]=1;
 		multi_sending_message[i] = 0;
-		init_player_stats_new_ship(i);
+		if (imulti_new_game)
+			init_player_stats_new_ship(i);
 	}
 
 	for (i = 0; i < NumNetPlayerPositions; i++)
@@ -3533,6 +3536,7 @@ void multi_prep_level(void)
 
 	reset_player_object();
 
+	imulti_new_game=0;
 }
 
 int multi_level_sync(void)
