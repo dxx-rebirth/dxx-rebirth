@@ -72,7 +72,7 @@ extern int multi_protocol; // set and determinate used protocol
 //   3 Descent II Shareware
 //   4 Descent II Commercial
 // > 4 DXX-Rebirth
-#define MULTI_PROTO_VERSION 12
+#define MULTI_PROTO_VERSION 13
 // PROTOCOL VARIABLES AND DEFINES - END
 
 
@@ -307,7 +307,6 @@ extern void multi_send_message_start();
 extern int multi_powerup_is_4pack(int);
 extern void multi_message_feedback();
 
-extern int control_invul_time;
 extern int Bounty_target;
 
 extern bitmap_index multi_player_textures[MAX_PLAYERS][N_PLAYER_SHIP_TEXTURES];

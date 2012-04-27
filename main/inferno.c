@@ -358,10 +358,6 @@ int main(int argc, char *argv[])
 
 	select_tmap(GameArg.DbgTexMap);
 
-#ifdef NETWORK
-	control_invul_time = 0;
-#endif
-
 	con_printf(CON_VERBOSE, "Going into graphics mode...\n");
 	gr_set_mode(Game_screen_mode);
 

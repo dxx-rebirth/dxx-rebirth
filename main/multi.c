@@ -96,8 +96,8 @@ void multi_do_gmode_update(char *buf);
 //
 
 int multi_protocol=0; // set and determinate used protocol
+int imulti_new_game=0; // to prep stuff for level only when starting new game
 
-int control_invul_time = 0;
 int who_killed_controlcen = -1;  // -1 = noone
 
 //do we draw the kill list on the HUD?
@@ -432,6 +432,7 @@ multi_new_game(void)
 	}
 
 	team_kills[0] = team_kills[1] = 0;
+	imulti_new_game=1;
 	multi_quit_game = 0;
 	Show_kill_list = 1;
 	game_disable_cheats();
@@ -3029,7 +3030,8 @@ multi_prep_level(void)
 	{
 		PKilledFlags[i]=1;
 		multi_sending_message[i] = 0;
-		init_player_stats_new_ship(i);
+		if (imulti_new_game)
+			init_player_stats_new_ship(i);
 	}
 
 	for (i = 0; i < NumNetPlayerPositions; i++)
@@ -3167,6 +3169,8 @@ multi_prep_level(void)
 	ConsoleObject->control_type = CT_FLYING;
 
 	reset_player_object();
+
+	imulti_new_game=0;
 }
 
 int multi_level_sync(void)
