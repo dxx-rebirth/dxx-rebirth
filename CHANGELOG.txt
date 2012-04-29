@@ -1,5 +1,9 @@
 D1X-Rebirth Changelog
 
+20120430
+--------
+main/net_udp.c: fixed copy/paste mistake
+
 20120427
 --------
 main/inferno.c, main/multi.c, main/multi.h: Similar to Network_new_game introduced imulti_new_game to exclusivly use in multi.c to execute stuff in new level only when starting a new game - for example resetting player ship inventory which is not supposed to happen on each level; Removed long obsolete control_invul_time varible
