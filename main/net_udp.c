@@ -2710,7 +2710,7 @@ void net_udp_read_endlevel_packet( ubyte *data, int data_len, struct _sockaddr s
 		{
 			kill_matrix[pnum][i] = GET_INTEL_SHORT(&(data[len]));		len += 2;
 		}
-		if (Players[i].connected)
+		if (Players[pnum].connected)
 			Netgame.players[pnum].LastPacketTime = timer_query();
 	}
 	else
