@@ -914,65 +914,13 @@ void homing_missile_turn_towards_velocity(object *objp, vms_vector *norm_vel)
 	vm_vector_2_matrix(&objp->orient, &new_fvec, NULL, NULL);
 }
 
-// *a hack, because weapons must have physics; at least missiles must
-// *that this subroutine would be easy in use, here is used turn radius, and not something else
-// *give here normalized vectors; returns normalized vector too
-void Laser_TurnSpeedLimit(vms_vector* vec_forward, vms_vector* vec_to_target, fix speed, fix turn_radius)
-{
-	fixang allowed_angle;
-	fixang angle_delta;
-	fix temp;
-	fix circle_length;
-	vms_matrix view_mat;
-	vms_matrix rot_mat;
-
-	// get allowed angle
-	circle_length = (fix)(turn_radius * 2 * 3.14159);
-	// get gone distance
-	temp = fixmul(speed, FrameTime);
-	// look, which angle such distance will be on the circle
-	temp = fixdiv(temp, circle_length);
-	// however it will be, but not too much, for this one frame
-
-	allowed_angle = temp <= 0x1000 ? temp : 0x1000; // 0x1000: not more that 90 / 4 degrees
-
-	angle_delta = vm_vec_delta_ang_norm (vec_forward, vec_to_target, NULL);
-
-	if (angle_delta && angle_delta > allowed_angle)
-	{
-		vms_angvec tangles;
-		vms_matrix new_orient;
-
-		// imagine view matrix (which will not have anything common with real view matrix of weapon)
-		// matrix must be such, that we would rotate (home) at right side
-		view_mat.fvec = *vec_forward;
-		vm_vec_crossprod (&view_mat.uvec, vec_forward, vec_to_target);
-		vm_vec_normalize (&view_mat.uvec);
-		vm_vec_crossprod (&view_mat.rvec, &view_mat.uvec, vec_forward);
-		vm_vec_normalize (&view_mat.rvec);
-
-		tangles.p = 0;
-		// turn to the right, as we were arranged above
-		tangles.h = allowed_angle;
-		tangles.b  = 0;
-
-		// copied from 'do_physics_sim_rot ()'
-		vm_angles_2_matrix (&rot_mat, &tangles);
-		vm_matrix_x_matrix (&new_orient, &view_mat, &rot_mat);
-		*vec_forward = new_orient.fvec;
-	}
-	else
-		// time was enough to finish homing turn till the end
-		*vec_forward = *vec_to_target;
-}
-
 #ifdef NEWHOMER
 /* 
  * In the original game homers turned sharper in higher FPS-values. We do not want that so we need to scale vector_to_object to FrameTime.
  * For each difficulty setting we have a base value the homers will align to. This we express in a FPS value representing the homers turn radius of the original game (i.e. "The homer will turn like on XXFPS"). 
  * NOTE: Old homers only get valid track_goal every 8 frames. This does not apply anymore so these values are divided by 4 to compensate this.
  */
-fix homing_turn_base[NDL] = { 5, 6, 8, 9, 10 };
+fix homing_turn_base[NDL] = { 4, 5, 6, 7, 8 };
 #endif
 
 //-------------------------------------------------------------------------------------------
@@ -1371,33 +1319,33 @@ int create_homing_missile(object *objp, int goal_obj, int objtype, int make_soun
 //	Create the children of a smart bomb, which is a bunch of homing missiles.
 void create_smart_children(object *objp)
 {
-	int		make_sound;
-	int		numobjs=0;
-	int		parent_type;
-	objdist	objlist[MAX_OBJDISTS];
-
-	if (Game_mode & GM_MULTI)
-                d_srand(8321L);
+	int parent_type;
+	int numobjs=0, objnum = 0, sel_objnum, last_sel_objnum = -1;
+	int objlist[MAX_OBJDISTS];
+	int blob_id;
 
 	parent_type = objp->ctype.laser_info.parent_type;
 
 	if (objp->id == SMART_ID) {
-		int	i, objnum;
+		int i;
+
+		if (Game_mode & GM_MULTI)
+			d_srand(8321L);
 
 		for (objnum=0; objnum<=Highest_object_index; objnum++) {
-			object	*curobjp = &Objects[objnum];
+			object *curobjp = &Objects[objnum];
 
 			if ((((curobjp->type == OBJ_ROBOT) && (!curobjp->ctype.ai_info.CLOAKED)) || (curobjp->type == OBJ_PLAYER)) && (objnum != objp->ctype.laser_info.parent_num)) {
-				fix	dist;
+				fix dist;
 
 				if (curobjp->type == OBJ_PLAYER)
 				{
 					if ((parent_type == OBJ_PLAYER) && (Game_mode & GM_MULTI_COOP))
 						continue;
-					#ifdef NETWORK
 					if ((Game_mode & GM_TEAM) && (get_team(curobjp->id) == get_team(Objects[objp->ctype.laser_info.parent_num].id)))
 						continue;
-					#endif
+					if (Players[curobjp->id].flags & PLAYER_FLAGS_CLOAKED)
+						continue;
 				}
 
 				//	Robot blobs can't track robots.
@@ -1407,13 +1355,12 @@ void create_smart_children(object *objp)
 
 				dist = vm_vec_dist_quick(&objp->pos, &curobjp->pos);
 				if (dist < MAX_SMART_DISTANCE) {
-					int	oovis;
+					int oovis;
 
 					oovis = object_to_object_visibility(objp, curobjp, FQ_TRANSWALL);
 
 					if (oovis) { //object_to_object_visibility(objp, curobjp, FQ_TRANSWALL)) {
-						objlist[numobjs].objnum = objnum;
-						objlist[numobjs].dist = dist;
+						objlist[numobjs] = objnum;
 						numobjs++;
 						if (numobjs >= MAX_OBJDISTS) {
 							numobjs = MAX_OBJDISTS;
@@ -1424,26 +1371,22 @@ void create_smart_children(object *objp)
 			}
 		}
 
-
-		make_sound = 1;
-		if (numobjs == 0) {
-			for (i=0; i<NUM_SMART_CHILDREN; i++) {
-				if (parent_type == OBJ_PLAYER) {
-					create_homing_missile(objp, -1, PLAYER_SMART_HOMING_ID, make_sound);
-				} else {
-					create_homing_missile(objp, -1, ROBOT_SMART_HOMING_ID, make_sound);
-				}
-				make_sound = 0;
-			}
+		//	Get type of weapon for child from parent.
+		if (parent_type == OBJ_PLAYER) {
+			blob_id = PLAYER_SMART_HOMING_ID;
+			Assert(blob_id != -1);		//	Hmm, missing data in bitmaps.tbl.  Need "children=NN" parameter.
 		} else {
-			for (i=0; i<NUM_SMART_CHILDREN; i++) {
-				if (parent_type == OBJ_PLAYER) {
-					create_homing_missile(objp, objlist[(d_rand() * numobjs) >> 15].objnum, PLAYER_SMART_HOMING_ID, make_sound);
-				} else {
-					create_homing_missile(objp, objlist[(d_rand() * numobjs) >> 15].objnum, ROBOT_SMART_HOMING_ID, make_sound);
-				}
-				make_sound = 0;
-			}
+			Assert(objp->type == OBJ_ROBOT);
+			blob_id = ROBOT_SMART_HOMING_ID;
+		}
+
+		for (i=0; i<NUM_SMART_CHILDREN; i++) {
+			sel_objnum = (numobjs==0)?-1:objlist[(d_rand() * numobjs) >> 15];
+			if (numobjs > 1)
+				while (sel_objnum == last_sel_objnum)
+					sel_objnum = objlist[(d_rand() * numobjs) >> 15];
+			create_homing_missile(objp, sel_objnum, blob_id, (i==0)?1:0);
+			last_sel_objnum = sel_objnum;
 		}
 	}
 }
