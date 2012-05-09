@@ -1217,7 +1217,7 @@ extern void copy_defaults_to_robot(object *objp);
 
 int state_restore_all_sub(char *filename, int secret_restore)
 {
-	int version,i, j, segnum, coop_player_got[MAX_PLAYERS];
+	int version,i, j, segnum, coop_player_got[MAX_PLAYERS], coop_org_objnum;
 	object * obj;
 	PHYSFS_file *fp;
 	int swap = 0;	// if file is not endian native, have to swap all shorts and ints
@@ -1320,6 +1320,7 @@ int state_restore_all_sub(char *filename, int secret_restore)
 	else // in coop we want to stay the player we are already.
 	{
 		strcpy( org_callsign, Players[Player_num].callsign );
+		coop_org_objnum = Players[Player_num].objnum;
 		if (!secret_restore)
 			init_player_stats_game(Player_num);
 	}
@@ -1368,6 +1369,8 @@ int state_restore_all_sub(char *filename, int secret_restore)
 		}
 	}
 	strcpy( Players[Player_num].callsign, org_callsign );
+	if (Game_mode & GM_MULTI_COOP)
+		Players[Player_num].objnum = coop_org_objnum;
 
 // Restore the weapon states
 	PHYSFS_read(fp, &Primary_weapon, sizeof(sbyte), 1);
@@ -1615,6 +1618,7 @@ int state_restore_all_sub(char *filename, int secret_restore)
 	if (Game_mode & GM_MULTI_COOP)
 	{
 		player restore_players[MAX_PLAYERS];
+		object restore_objects[MAX_PLAYERS];
 		int coop_got_nplayers = 0;
 
 		for (i = 0; i < MAX_PLAYERS; i++) 
@@ -1631,11 +1635,12 @@ int state_restore_all_sub(char *filename, int secret_restore)
 			player_rw_swap(pl_rw, swap);
 			state_player_rw_to_player(pl_rw, &restore_players[i]);
 			d_free(pl_rw);
-
-			// make all (previous) player objects to ghosts
+			
+			// make all (previous) player objects to ghosts but store them first for later remapping
 			obj = &Objects[restore_players[i].objnum];
 			if (restore_players[i].connected == CONNECT_PLAYING && obj->type == OBJ_PLAYER)
 			{
+				memcpy(&restore_objects[i], obj, sizeof(object));
 				obj->type = OBJ_GHOST;
 				multi_reset_player_object(obj);
 			}
@@ -1648,14 +1653,29 @@ int state_restore_all_sub(char *filename, int secret_restore)
 				if (Players[i].connected == CONNECT_PLAYING && restore_players[j].connected == CONNECT_PLAYING && !strcmp(Players[i].callsign, restore_players[j].callsign))
 				{
 					object *obj;
+					int sav_objnum = Players[i].objnum;
+					
 					memcpy(&Players[i], &restore_players[j], sizeof(player));
+					Players[i].objnum = sav_objnum;
+					
 					coop_player_got[i] = 1;
 					coop_got_nplayers++;
+
 					obj = &Objects[Players[i].objnum];
+					// since a player always uses the same object, we just have to copy the saved object properties to the existing one. i hate you...
+					obj->pos = restore_objects[j].pos;
+					obj->orient = restore_objects[j].orient;
+					obj->control_type = restore_objects[j].control_type;
+					obj->movement_type = restore_objects[j].movement_type;
+					obj->render_type = restore_objects[j].render_type;
+					obj->flags = restore_objects[j].flags;
+					obj->mtype.phys_info = restore_objects[j].mtype.phys_info;
+					obj->rtype.pobj_info = restore_objects[j].rtype.pobj_info;
 					obj->id = i; // assign player object id to player number
 					// make this restored player object an actual player again
 					obj->type = OBJ_PLAYER;
 					multi_reset_player_object(obj);
+					update_object_seg(obj);
 				}
 			}
 		}

@@ -1,5 +1,9 @@
 D2X-Rebirth Changelog
 
+20120510
+--------
+main/multi.h, main/state.c: Reuse pre-defined player objects when loading coop savestate to revent messup when player amount or orders change in a certain way
+
 20120509
 --------
 main/laser.c, main/multi.h: Added more versatility in picking targets for the creation of smart blobs - especially for Multiplayer; cleaned that code a bit; made dodging of homing projectiles a little easier
