@@ -60,15 +60,8 @@ COPYRIGHT 1993-1999 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 extern int multi_protocol; // set and determinate used protocol
 #define MULTI_PROTO_UDP 1 // UDP protocol
 
-// What version of the multiplayer protocol is this?
-// NOTE!!! Increment each time something drastic changes in Multiplayer without the version number changes
-// Protocol versions:
-//   1 Descent Shareware
-//   2 Descent Registered/Commercial
-//   3 Descent II Shareware
-//   4 Descent II Commercial
-// > 4 DXX-Rebirth
-#define MULTI_PROTO_VERSION 15
+// What version of the multiplayer protocol is this? Increment each time something drastic changes in Multiplayer without the version number changes. Can be reset to 0 each time the version of the game changes
+#define MULTI_PROTO_VERSION 0
 // PROTOCOL VARIABLES AND DEFINES - END
 
 
