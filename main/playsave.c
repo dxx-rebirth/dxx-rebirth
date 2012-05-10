@@ -117,6 +117,7 @@ int new_player_config()
 	PlayerCfg.MultiMessages = 0;
 	PlayerCfg.NoRankings = 0;
 	PlayerCfg.AutomapFreeFlight = 0;
+	PlayerCfg.NoFireAutoselect = 0;
 	PlayerCfg.AlphaEffects = 0;
 	PlayerCfg.DynLightColor = 0;
 
@@ -291,6 +292,8 @@ int read_player_d2x(char *filename)
 					PlayerCfg.NoRankings = atoi(line);
 				if(!strcmp(word,"AUTOMAPFREEFLIGHT"))
 					PlayerCfg.AutomapFreeFlight = atoi(line);
+				if(!strcmp(word,"NOFIREAUTOSELECT"))
+					PlayerCfg.NoFireAutoselect = atoi(line);
 				d_free(word);
 				PHYSFSX_fgets(line,50,f);
 				word=splitword(line,'=');
@@ -435,6 +438,7 @@ int write_player_d2x(char *filename)
 		PHYSFSX_printf(fout,"multimessages=%i\n",PlayerCfg.MultiMessages);
 		PHYSFSX_printf(fout,"norankings=%i\n",PlayerCfg.NoRankings);
 		PHYSFSX_printf(fout,"automapfreeflight=%i\n",PlayerCfg.AutomapFreeFlight);
+		PHYSFSX_printf(fout,"nofireautoselect=%i\n",PlayerCfg.NoFireAutoselect);
 		PHYSFSX_printf(fout,"[end]\n");
 		PHYSFSX_printf(fout,"[graphics]\n");
 		PHYSFSX_printf(fout,"alphaeffects=%i\n",PlayerCfg.AlphaEffects);

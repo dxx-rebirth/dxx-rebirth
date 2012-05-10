@@ -1886,7 +1886,7 @@ void do_sound_menu()
 
 void do_misc_menu()
 {
-	newmenu_item m[12];
+	newmenu_item m[13];
 	int i = 0;
 
 	do {
@@ -1898,25 +1898,27 @@ void do_misc_menu()
 		ADD_CHECK(5, "Persistent Debris",PlayerCfg.PersistentDebris);
 		ADD_CHECK(6, "Screenshots w/o HUD",PlayerCfg.PRShot);
 		ADD_CHECK(7, "Movie Subtitles",GameCfg.MovieSubtitles);
-		ADD_CHECK(8, "Disable redundant pickup messages",PlayerCfg.NoRedundancy);
-		ADD_CHECK(9, "Only show Player msgs in Multipl.",PlayerCfg.MultiMessages);
-		ADD_CHECK(10, "Disable Multiplayer Rankings",PlayerCfg.NoRankings);
+		ADD_CHECK(8, "No redundant pickup messages",PlayerCfg.NoRedundancy);
+		ADD_CHECK(9, "Show Player chat only (Multi)",PlayerCfg.MultiMessages);
+		ADD_CHECK(10, "No Rankings (Multi)",PlayerCfg.NoRankings);
 		ADD_CHECK(11, "Free Flight controls in Automap",PlayerCfg.AutomapFreeFlight);
+		ADD_CHECK(12, "No Weapon Autoselect when firing",PlayerCfg.NoFireAutoselect);
 
 		i = newmenu_do1( NULL, "Misc Options", sizeof(m)/sizeof(*m), m, NULL, NULL, i );
 
-		PlayerCfg.AutoLeveling		= m[0].value;
-		PlayerCfg.MissileViewEnabled   	= m[1].value;
-		PlayerCfg.HeadlightActiveDefault= m[2].value;
-		PlayerCfg.GuidedInBigWindow	= m[3].value;
-		PlayerCfg.EscortHotKeys		= m[4].value;
-		PlayerCfg.PersistentDebris	= m[5].value;
-		PlayerCfg.PRShot 		= m[6].value;
-		GameCfg.MovieSubtitles 		= m[7].value;
-		PlayerCfg.NoRedundancy 		= m[8].value;
-		PlayerCfg.MultiMessages 	= m[9].value;
-		PlayerCfg.NoRankings 		= m[10].value;
-		PlayerCfg.AutomapFreeFlight	= m[11].value;
+		PlayerCfg.AutoLeveling			= m[0].value;
+		PlayerCfg.MissileViewEnabled   		= m[1].value;
+		PlayerCfg.HeadlightActiveDefault	= m[2].value;
+		PlayerCfg.GuidedInBigWindow		= m[3].value;
+		PlayerCfg.EscortHotKeys			= m[4].value;
+		PlayerCfg.PersistentDebris		= m[5].value;
+		PlayerCfg.PRShot 			= m[6].value;
+		GameCfg.MovieSubtitles 			= m[7].value;
+		PlayerCfg.NoRedundancy 			= m[8].value;
+		PlayerCfg.MultiMessages 		= m[9].value;
+		PlayerCfg.NoRankings 			= m[10].value;
+		PlayerCfg.AutomapFreeFlight		= m[11].value;
+		PlayerCfg.NoFireAutoselect		= m[12].value;
 
 	} while( i>-1 );
 

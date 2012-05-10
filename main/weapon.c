@@ -70,10 +70,6 @@ sbyte   Primary_weapon, Secondary_weapon;
 ubyte DefaultPrimaryOrder[]={9,8,7,6,5,4,3,2,1,0,255};
 ubyte DefaultSecondaryOrder[]={9,8,4,3,1,5,0,255,7,6,2};
 
-// Cycling weapon key pressed?
-
-ubyte Cycling=0;
-
 //allow player to reorder menus?
 extern ubyte MenuReordering;
 
@@ -225,16 +221,60 @@ void InitWeaponOrdering ()
 
 void CyclePrimary ()
 {
-	Cycling=1;
-	auto_select_weapon (0);
-	Cycling=0;
+	int cur_order_slot = POrderList(Primary_weapon), desired_weapon = Primary_weapon, loop=0;
+	
+	// some remapping for SUPER LASER which is not an actual weapon type at all
+	if (Primary_weapon == LASER_INDEX && Players[Player_num].laser_level > MAX_LASER_LEVEL)
+		cur_order_slot = POrderList(SUPER_LASER_INDEX);
+
+	while (loop<(MAX_PRIMARY_WEAPONS+1))
+	{
+		loop++;
+		cur_order_slot++; // next slot
+		if (cur_order_slot >= MAX_PRIMARY_WEAPONS+1) // loop if necessary
+			cur_order_slot = 0;
+		if (cur_order_slot == POrderList(255)) // ignore "do not autoselect"
+			continue;
+		desired_weapon = PlayerCfg.PrimaryOrder[cur_order_slot]; // now that is the weapon next to our current one
+		// some remapping for SUPER LASER which is not an actual weapon type at all
+		if (desired_weapon == LASER_INDEX && Players[Player_num].laser_level > MAX_LASER_LEVEL)
+			continue;
+		if (desired_weapon == SUPER_LASER_INDEX)
+		{
+			if (Players[Player_num].laser_level <= MAX_LASER_LEVEL)
+				continue;
+			else
+				desired_weapon = LASER_INDEX;
+		}
+		// select the weapon if we have it
+		if (player_has_weapon(desired_weapon, 0) == HAS_ALL)
+		{
+			select_weapon(desired_weapon, 0, 1, 1);
+			return;
+		}
+	}
 }
 
 void CycleSecondary ()
 {
-	Cycling=1;
-	auto_select_weapon (1);
-	Cycling=0;
+	int cur_order_slot = SOrderList(Secondary_weapon), desired_weapon = Secondary_weapon, loop=0;
+	
+	while (loop<(MAX_SECONDARY_WEAPONS+1))
+	{
+		loop++;
+		cur_order_slot++; // next slot
+		if (cur_order_slot >= MAX_SECONDARY_WEAPONS+1) // loop if necessary
+			cur_order_slot = 0;
+		if (cur_order_slot == SOrderList(255)) // ignore "do not autoselect"
+			continue;
+		desired_weapon = PlayerCfg.SecondaryOrder[cur_order_slot]; // now that is the weapon next to our current one
+		// select the weapon if we have it
+		if (player_has_weapon(desired_weapon, 1) == HAS_ALL)
+		{
+			select_weapon(desired_weapon, 1, 1, 1);
+			return;
+		}
+	}
 }
 
 
@@ -265,15 +305,6 @@ void select_weapon(int weapon_num, int secondary_flag, int print_message, int wa
 			else
 				Next_laser_fire_time = 0;
 			Global_laser_firing_count = 0;
-		} else 	{
-			// Select super version if available.
-			if (wait_for_rearm)
-			{
-			 if (!Cycling)
-				; // -- MK, only plays when can't fire weapon anyway, fixes bug -- digi_play_sample_once( SOUND_ALREADY_SELECTED, F1_0 );
-			 else
-				digi_play_sample_once( SOUND_BAD_SELECTION, F1_0 );
-			}
 		}
 		Primary_weapon = weapon_num;
 		weapon_name = PRIMARY_WEAPON_NAMES(weapon_num);
@@ -298,10 +329,7 @@ void select_weapon(int weapon_num, int secondary_flag, int print_message, int wa
 		} else	{
 			if (wait_for_rearm)
 			{
-			 if (!Cycling)
 				digi_play_sample_once( SOUND_ALREADY_SELECTED, F1_0 );
-			 else
-				digi_play_sample_once( SOUND_BAD_SELECTION, F1_0 );
 			}
 
 		}
@@ -399,7 +427,7 @@ void auto_select_weapon(int weapon_type)
 
 	if (weapon_type==0) {
 		r = player_has_weapon(Primary_weapon, 0);
-		if (r != HAS_ALL || Cycling) {
+		if (r != HAS_ALL) {
 			int	cur_weapon;
 			int	try_again = 1;
 
@@ -413,14 +441,8 @@ void auto_select_weapon(int weapon_type)
 				{
 					if (looped)
 					{
-						if (!Cycling)
-						{
-							HUD_init_message(HM_DEFAULT, TXT_NO_PRIMARY);
-							select_weapon(0, 0, 0, 1);
-						}
-						else
-							select_weapon (Primary_weapon,0,0,1);
-
+						HUD_init_message(HM_DEFAULT, TXT_NO_PRIMARY);
+						select_weapon(0, 0, 0, 1);
 						try_again = 0;
 						continue;
 					}
@@ -438,15 +460,8 @@ void auto_select_weapon(int weapon_type)
 				//	continue;
 
 				if (PlayerCfg.PrimaryOrder[cur_weapon] == Primary_weapon) {
-					if (!Cycling)
-					{
-						HUD_init_message(HM_DEFAULT, TXT_NO_PRIMARY);
-						//	if (POrderList(0)<POrderList(255))
-						select_weapon(0, 0, 0, 1);
-					}
-					else
-						select_weapon (Primary_weapon,0,0,1);
-
+					HUD_init_message(HM_DEFAULT, TXT_NO_PRIMARY);
+					select_weapon(0, 0, 0, 1);
 					try_again = 0;			// Tried all weapons!
 
 				} else if (PlayerCfg.PrimaryOrder[cur_weapon]!=255 && player_has_weapon(PlayerCfg.PrimaryOrder[cur_weapon], 0) == HAS_ALL) {
@@ -460,7 +475,7 @@ void auto_select_weapon(int weapon_type)
 
 		Assert(weapon_type==1);
 		r = player_has_weapon(Secondary_weapon, 1);
-		if (r != HAS_ALL || Cycling) {
+		if (r != HAS_ALL) {
 			int	cur_weapon;
 			int	try_again = 1;
 
@@ -475,10 +490,7 @@ void auto_select_weapon(int weapon_type)
 				{
 					if (looped)
 					{
-						if (!Cycling)
-							HUD_init_message(HM_DEFAULT, "No secondary weapons selected!");
-						else
-							select_weapon (Secondary_weapon,1,0,1);
+						HUD_init_message(HM_DEFAULT, "No secondary weapons selected!");
 						try_again = 0;
 						continue;
 					}
@@ -490,11 +502,7 @@ void auto_select_weapon(int weapon_type)
 					cur_weapon = 0;
 
 				if (PlayerCfg.SecondaryOrder[cur_weapon] == Secondary_weapon) {
-					if (!Cycling)
-						HUD_init_message(HM_DEFAULT, "No secondary weapons available!");
-					else
-						select_weapon (Secondary_weapon,1,0,1);
-
+					HUD_init_message(HM_DEFAULT, "No secondary weapons available!");
 					try_again = 0;				// Tried all weapons!
 				} else if (player_has_weapon(PlayerCfg.SecondaryOrder[cur_weapon], 1) == HAS_ALL) {
 					select_weapon(PlayerCfg.SecondaryOrder[cur_weapon], 1, 1, 1 );
@@ -540,7 +548,7 @@ int pick_up_secondary(int weapon_index,int count)
 	if (Players[Player_num].secondary_ammo[weapon_index] == count)	// only autoselect if player didn't have any
 	{
 		cutpoint=SOrderList (255);
-		if (SOrderList (weapon_index)<cutpoint && ((SOrderList (weapon_index) < SOrderList(Secondary_weapon)) || (Players[Player_num].secondary_ammo[Secondary_weapon] == 0))   )
+		if (((Controls.fire_secondary_state && PlayerCfg.NoFireAutoselect)?0:1) && SOrderList (weapon_index)<cutpoint && ((SOrderList (weapon_index) < SOrderList(Secondary_weapon)) || (Players[Player_num].secondary_ammo[Secondary_weapon] == 0))   )
 			select_weapon(weapon_index,1, 0, 1);
 		else {
 			//if we don't auto-select this weapon, but it's a proxbomb or smart mine,
@@ -641,8 +649,7 @@ int pick_up_primary(int weapon_index)
 {
 	//ushort old_flags = Players[Player_num].primary_weapon_flags;
 	ushort flag = 1<<weapon_index;
-	int cutpoint;
-	int supposed_weapon=Primary_weapon;
+	int cutpoint, supposed_weapon=Primary_weapon;
 
 	if (weapon_index!=LASER_INDEX && Players[Player_num].primary_weapon_flags & flag) {		//already have
 		HUD_init_message(HM_DEFAULT|HM_REDUNDANT|HM_MAYDUPL, "%s %s!", TXT_ALREADY_HAVE_THE, PRIMARY_WEAPON_NAMES(weapon_index));
@@ -656,8 +663,7 @@ int pick_up_primary(int weapon_index)
 	if (Primary_weapon==LASER_INDEX && Players[Player_num].laser_level>=4)
 		supposed_weapon=SUPER_LASER_INDEX;  // allotment for stupid way of doing super laser
 
-
-	if (POrderList(weapon_index)<cutpoint && POrderList(weapon_index)<POrderList(supposed_weapon))
+	if (((Controls.fire_primary_state && PlayerCfg.NoFireAutoselect)?0:1) && POrderList(weapon_index)<cutpoint && POrderList(weapon_index)<POrderList(supposed_weapon))
 		select_weapon(weapon_index,0,0,1);
 
 	PALETTE_FLASH_ADD(7,14,21);
@@ -720,7 +726,7 @@ int pick_up_ammo(int class_flag,int weapon_index,int ammo_count)
 		supposed_weapon=SUPER_LASER_INDEX;  // allotment for stupid way of doing super laser
 
 
-	if (Players[Player_num].primary_weapon_flags&(1<<weapon_index) && weapon_index>Primary_weapon && old_ammo==0 &&
+	if (((Controls.fire_primary_state && PlayerCfg.NoFireAutoselect)?0:1) && Players[Player_num].primary_weapon_flags&(1<<weapon_index) && weapon_index>Primary_weapon && old_ammo==0 &&
 		POrderList(weapon_index)<cutpoint && POrderList(weapon_index)<POrderList(supposed_weapon))
 		select_weapon(weapon_index,0,0,1);
 
