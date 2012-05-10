@@ -1856,27 +1856,29 @@ void do_sound_menu()
 
 void do_misc_menu()
 {
-	newmenu_item m[7];
+	newmenu_item m[8];
 	int i = 0;
 
 	do {
 		ADD_CHECK(0, "Ship auto-leveling", PlayerCfg.AutoLeveling);
 		ADD_CHECK(1, "Persistent Debris",PlayerCfg.PersistentDebris);
 		ADD_CHECK(2, "Screenshots w/o HUD",PlayerCfg.PRShot);
-		ADD_CHECK(3, "Disable redundant pickup messages",PlayerCfg.NoRedundancy);
-		ADD_CHECK(4, "Only show Player msgs in Multipl.",PlayerCfg.MultiMessages);
+		ADD_CHECK(3, "No redundant pickup messages",PlayerCfg.NoRedundancy);
+		ADD_CHECK(4, "Show Player chat only (Multi)",PlayerCfg.MultiMessages);
 		ADD_CHECK(5, "Show D2-style Prox. Bomb Gauge",PlayerCfg.BombGauge);
 		ADD_CHECK(6, "Free Flight controls in Automap",PlayerCfg.AutomapFreeFlight);
+		ADD_CHECK(7, "No Weapon Autoselect when firing",PlayerCfg.NoFireAutoselect);
 
 		i = newmenu_do1( NULL, "Misc Options", sizeof(m)/sizeof(*m), m, NULL, NULL, i );
 
-		PlayerCfg.AutoLeveling		= m[0].value;
-		PlayerCfg.PersistentDebris	= m[1].value;
-		PlayerCfg.PRShot 		= m[2].value;
-		PlayerCfg.NoRedundancy 		= m[3].value;
-		PlayerCfg.MultiMessages 	= m[4].value;
-		PlayerCfg.BombGauge 		= m[5].value;
-		PlayerCfg.AutomapFreeFlight	= m[6].value;
+		PlayerCfg.AutoLeveling			= m[0].value;
+		PlayerCfg.PersistentDebris		= m[1].value;
+		PlayerCfg.PRShot 			= m[2].value;
+		PlayerCfg.NoRedundancy 			= m[3].value;
+		PlayerCfg.MultiMessages 		= m[4].value;
+		PlayerCfg.BombGauge 			= m[5].value;
+		PlayerCfg.AutomapFreeFlight		= m[6].value;
+		PlayerCfg.NoFireAutoselect		= m[7].value;
 
 	} while( i>-1 );
 
