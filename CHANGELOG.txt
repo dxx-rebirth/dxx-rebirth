@@ -5,6 +5,7 @@ D1X-Rebirth Changelog
 main/multi.h, main/state.c: Reuse pre-defined player objects when loading coop savestate to revent messup when player amount or orders change in a certain way
 main/menu.c, main/playsave.c, main/playsave.h, main/weapon.c: Wrote seperate function for weapon autocycling that also cycles through non-autoselect weapons; Added option to not autoselect weapon when firing; On the way, smoothed the menu text in misc menu a bit
 net_udp.h: Reduced timeout from 10 to 5 seconds
+RELEASE-NOTES.txt, SConstruct, arch/carbon/conf.h, main/multi.h: Incremented version to 0.57.3; Added Release notes
 
 20120509
 --------
