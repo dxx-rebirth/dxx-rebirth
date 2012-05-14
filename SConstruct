@@ -280,7 +280,7 @@ if (verbosebuild == 0):
 	env["RANLIBCOMSTR"] = "Indexing $TARGET ..."
 
 # flags and stuff for all platforms
-env.Append(CPPFLAGS = ['-Wall', '-funsigned-char'])
+env.Append(CPPFLAGS = ['-Wall', '-funsigned-char', '-std=c99', '-pedantic'])
 env.Append(CPPDEFINES = [('PROGRAM_NAME', '\\"' + str(PROGRAM_NAME) + '\\"'), ('D2XMAJOR', '\\"' + str(D2XMAJOR) + '\\"'), ('D2XMINOR', '\\"' + str(D2XMINOR) + '\\"'), ('D2XMICRO', '\\"' + str(D2XMICRO) + '\\"')])
 env.Append(CPPDEFINES = ['NETWORK', '_REENTRANT'])
 env.Append(CPPPATH = ['include', 'main', 'arch/include'])

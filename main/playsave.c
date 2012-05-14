@@ -230,7 +230,7 @@ int read_player_d2x(char *filename)
 			strupr(word);
 			while(!strstr(word,"END") && !PHYSFS_eof(f))
 			{
-				int kc1=0,kc2=0,kc3=0;
+				unsigned int kc1=0,kc2=0,kc3=0;
 				int i=atoi(word);
 				
 				if(i==0) i=10;

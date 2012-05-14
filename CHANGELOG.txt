@@ -1,5 +1,9 @@
 D2X-Rebirth Changelog
 
+20120514
+--------
+2d/disc.c, SConstruct, editor/medmisc.c, include/gr.h, include/internal.h, main/gauges.c, main/menu.c, main/net_udp.c, main/playsave.c, main/state.c, misc/hmp.c, misc/physfsx.c: Fixed some non-critical compiler warnings; Now compiling with -std=c99 -pedantic and fixed warnings (except for editor build) caused by this
+
 20120510
 --------
 main/multi.h, main/state.c: Reuse pre-defined player objects when loading coop savestate to revent messup when player amount or orders change in a certain way

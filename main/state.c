@@ -1217,7 +1217,7 @@ extern void copy_defaults_to_robot(object *objp);
 
 int state_restore_all_sub(char *filename, int secret_restore)
 {
-	int version,i, j, segnum, coop_player_got[MAX_PLAYERS], coop_org_objnum;
+	int version,i, j, segnum, coop_player_got[MAX_PLAYERS], coop_org_objnum = Players[Player_num].objnum;
 	object * obj;
 	PHYSFS_file *fp;
 	int swap = 0;	// if file is not endian native, have to swap all shorts and ints
@@ -1320,7 +1320,6 @@ int state_restore_all_sub(char *filename, int secret_restore)
 	else // in coop we want to stay the player we are already.
 	{
 		strcpy( org_callsign, Players[Player_num].callsign );
-		coop_org_objnum = Players[Player_num].objnum;
 		if (!secret_restore)
 			init_player_stats_game(Player_num);
 	}

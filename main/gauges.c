@@ -2135,7 +2135,7 @@ void draw_weapon_boxes()
 }
 
 
-void sb_draw_energy_bar(energy)
+void sb_draw_energy_bar(int energy)
 {
 	int erase_height, w, h, aw, i;
 	int ew, eh, eaw;
