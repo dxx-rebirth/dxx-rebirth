@@ -5,6 +5,7 @@ D2X-Rebirth Changelog
 2d/disc.c, SConstruct, editor/medmisc.c, include/gr.h, include/internal.h, main/gauges.c, main/menu.c, main/net_udp.c, main/playsave.c, main/state.c, misc/hmp.c, misc/physfsx.c: Fixed some non-critical compiler warnings; Now compiling with -std=c99 -pedantic and fixed warnings (except for editor build) caused by this
 2d/bitblt.c, 2d/pixel.c, arch/sdl/digi_mixer.c, main/gauges.c, main/menu.c: Made inline functions static
 include/gr.h, main/ai.c, main/ai2.c, main/aipath.c, main/automap.c, main/cntrlcen.c, main/escort.c, main/fuelcen.c, main/game.c, main/game.h, main/gamecntl.c, main/gamerend.c, main/gamesave.c, main/laser.c, main/mglobal.c, main/object.c, main/object.h, main/render.c, main/texmerge.c, main/wall.c, main/weapon.c: Renamed FixedStepCalc() to cald_d_tick() and FixedStep became d_tick_step; Also ther eonly is a 50ms-timer used to d_tick_step as it was the only one used so far; Replaced FrameCount with d_tick_count which only increments by 50ms-timer used in calc_d_tick() - that now scales timed actions for certain functions properly and makes AI work FPS-independent without any hacks in that regard
+main/multi.c: During kmatrix bring up Game_wind againso the host can still follow the game - becomes necessary later with host-authority functions
 
 20120510
 --------
