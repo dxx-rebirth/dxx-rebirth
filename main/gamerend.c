@@ -837,8 +837,6 @@ void game_render_frame()
 
 	if (VR_render_mode == VR_NONE )
 		game_render_frame_mono(GameArg.DbgUseDoubleBuffer);
-
-	FrameCount++;
 }
 
 //show a message in a nice little box

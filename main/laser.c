@@ -978,7 +978,7 @@ int find_homing_object(vms_vector *curpos, object *tracker)
 
 			//	Find the window which has the forward view.
 			for (i=0; i<MAX_RENDERED_WINDOWS; i++)
-				if (Window_rendered_data[i].frame >= FrameCount-1)
+				if (Window_rendered_data[i].time >= timer_query()-1)
 					if (Window_rendered_data[i].viewer == ConsoleObject)
 						if (!Window_rendered_data[i].rear_view) {
 							window_num = i;
@@ -1157,9 +1157,9 @@ int track_track_goal(int track_goal, object *tracker, fix *dot)
 	} else if (tracker-Objects)
 #else
 	//	Every 8 frames for each object, scan all objects.
-	if (object_is_trackable(track_goal, tracker, dot) && ((((tracker-Objects) ^ FrameCount) % 8) != 0)) {
+	if (object_is_trackable(track_goal, tracker, dot) && ((((tracker-Objects) ^ d_tick_count) % 8) != 0)) {
 		return track_goal;
-	} else if ((((tracker-Objects) ^ FrameCount) % 4) == 0)
+	} else if ((((tracker-Objects) ^ d_tick_count) % 4) == 0)
 #endif
 	{
 		int	rval = -2;
@@ -1428,7 +1428,7 @@ void Laser_do_weapon_sequence(object *obj)
 		return;
 
 	//delete weapons that are not moving
-	if (	!((FrameCount ^ obj->signature) & 3) &&
+	if (	!((d_tick_count ^ obj->signature) & 3) &&
 			(obj->id != FLARE_ID) &&
 			(Weapon_info[obj->id].speed[Difficulty_level] > 0) &&
 			(vm_vec_mag_quick(&obj->mtype.phys_info.velocity) < F2_0)) {

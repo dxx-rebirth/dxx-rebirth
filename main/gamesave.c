@@ -1737,7 +1737,7 @@ int save_level_sub(char * filename, int compiled_version)
 	{
 		//write the version 8 data (to make file unreadable by 1.0 & 1.1)
 		PHYSFS_writeSLE32(SaveFile, GameTime64);
-		PHYSFS_writeSLE16(SaveFile, FrameCount);
+		PHYSFS_writeSLE16(SaveFile, d_tick_count);
 		PHYSFSX_writeU8(SaveFile, FrameTime);
 	}
 

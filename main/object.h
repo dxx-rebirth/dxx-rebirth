@@ -343,7 +343,7 @@ typedef struct obj_position {
 } obj_position;
 
 typedef struct {
-	int     frame;
+	fix64   time;
 	object  *viewer;
 	int     rear_view;
 	int     user;

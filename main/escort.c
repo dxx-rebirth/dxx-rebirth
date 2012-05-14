@@ -1344,7 +1344,7 @@ void do_thief_frame(object *objp, fix dist_to_player, int player_visibility, vms
 				} else {
 					ai_static	*aip = &objp->ctype.ai_info;
 					//	If path length == 0, then he will keep trying to create path, but he is probably stuck in his closet.
-					if ((aip->path_length > 1) || ((FrameCount & 0x0f) == 0)) {
+					if ((aip->path_length > 1) || ((d_tick_count & 0x0f) == 0)) {
 						ai_follow_path(objp, player_visibility, player_visibility, vec_to_player);
 						ailp->mode = AIM_THIEF_ATTACK;
 					}

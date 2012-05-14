@@ -1083,30 +1083,13 @@ void move_around_player(object *objp, vms_vector *vec_to_player, int fast_flag)
 	physics_info	*pptr = &objp->mtype.phys_info;
 	fix				speed;
 	robot_info		*robptr = &Robot_info[objp->id];
-	int				objnum = objp-Objects;
 	int				dir;
-	int				dir_change;
-	fix				ft;
 	vms_vector		evade_vector;
-	int				count=0;
 
 	if (fast_flag == 0)
 		return;
 
-	dir_change = 48;
-	ft = FrameTime;
-	if (ft < F1_0/32) {
-		dir_change *= 8;
-		count += 3;
-	} else
-		while (ft < F1_0/4) {
-			dir_change *= 2;
-			ft *= 2;
-			count++;
-		}
-
-	dir = (/*FrameCount*/(GameTime64/2000==0?1:GameTime64/2000) + (count+1) * (objnum*8 + objnum*4 + objnum)) & dir_change;
-	dir >>= (4+count);
+	dir = ((objp-Objects) ^ ((d_tick_count + 3*(objp-Objects)) >> 5)) & 3;
 
 	Assert((dir >= 0) && (dir <= 3));
 
@@ -1185,7 +1168,7 @@ void move_away_from_player(object *objp, vms_vector *vec_to_player, int attack_t
 
 	if (attack_type) {
 		//	Get value in 0..3 to choose evasion direction.
-		objref = ((objp-Objects) ^ ((FrameCount + 3*(objp-Objects)) >> 5)) & 3;
+		objref = ((objp-Objects) ^ ((d_tick_count + 3*(objp-Objects)) >> 5)) & 3;
 
 		switch (objref) {
 			case 0:	vm_vec_scale_add2(&pptr->velocity, &objp->orient.uvec, FrameTime << 5);	break;

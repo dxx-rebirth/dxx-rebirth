@@ -77,7 +77,7 @@ int Max_debris_objects = 15; // How many debris objects to create
 int	Clear_window_color=-1;
 int	Clear_window=2;	// 1 = Clear whole background window, 2 = clear view portals into rest of world, 0 = no clear
 
-int RL_framecount=-1;
+int framecount=-1;
 short Rotated_last[MAX_VERTICES];
 
 // When any render function needs to know what's looking at it, it should 
@@ -719,12 +719,12 @@ int check_window_check=0;
 //This must be called at the start of the frame if rotate_list() will be used
 void render_start_frame()
 {
-	RL_framecount++;
+	framecount++;
 
-	if (RL_framecount==0) {		//wrap!
+	if (framecount==0) {		//wrap!
 
 		memset(Rotated_last,0,sizeof(Rotated_last));		//clear all to zero
-		RL_framecount=1;											//and set this frame to 1
+		framecount=1;											//and set this frame to 1
 	}
 }
 
@@ -743,7 +743,7 @@ g3s_codes rotate_list(int nv,int *pointnumlist)
 
 		pnt = &Segment_points[pnum];
 
-		if (Rotated_last[pnum] != RL_framecount)
+		if (Rotated_last[pnum] != framecount)
 		{
 			if (cheats.acid)
 			{
@@ -757,7 +757,7 @@ g3s_codes rotate_list(int nv,int *pointnumlist)
 			else
 				g3_rotate_point(pnt,&Vertices[pnum]);
 
-			Rotated_last[pnum] = RL_framecount;
+			Rotated_last[pnum] = framecount;
 		}
 
 		cc.and &= pnt->p3_codes;
@@ -1617,7 +1617,6 @@ void render_frame(fix eye_offset, int window_num)
 
 	if (Endlevel_sequence) {
 		render_endlevel_frame(eye_offset);
-		FrameCount++;
 		return;
 	}
 
@@ -1700,7 +1699,7 @@ int first_terminal_seg;
 void update_rendered_data(int window_num, object *viewer, int rear_view_flag, int user)
 {
 	Assert(window_num < MAX_RENDERED_WINDOWS);
-	Window_rendered_data[window_num].frame = FrameCount;
+	Window_rendered_data[window_num].time = timer_query();
 	Window_rendered_data[window_num].viewer = viewer;
 	Window_rendered_data[window_num].rear_view = rear_view_flag;
 	Window_rendered_data[window_num].user = user;

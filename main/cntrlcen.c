@@ -174,7 +174,7 @@ void do_countdown_frame()
 	if (Difficulty_level == 0)
 		div_scale = 4;
 
-	if (FixedStep & EPS20)
+	if (d_tick_step)
 	{
 		ConsoleObject->mtype.phys_info.rotvel.x += (fixmul(d_rand() - 16384, 3*F1_0/16 + (F1_0*(16-fc))/32))/div_scale;
 		ConsoleObject->mtype.phys_info.rotvel.z += (fixmul(d_rand() - 16384, 3*F1_0/16 + (F1_0*(16-fc))/32))/div_scale;
@@ -286,7 +286,7 @@ void do_controlcen_frame(object *obj)
 #endif
 
 	if (!(Control_center_been_hit || Control_center_player_been_seen)) {
-		if (!(FrameCount % 8)) {		//	Do every so often...
+		if (!(d_tick_count % 8)) {		//	Do every so often...
 			vms_vector	vec_to_player;
 			fix			dist_to_player;
 			int			i;

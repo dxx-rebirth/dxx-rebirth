@@ -25,6 +25,7 @@ COPYRIGHT 1993-1999 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 #include "textures.h"
 #include "rle.h"
 #include "piggy.h"
+#include "timer.h"
 
 #ifdef OGL
 #include "ogl_init.h"
@@ -40,7 +41,7 @@ typedef struct	{
 	grs_bitmap * bottom_bmp;
 	grs_bitmap * top_bmp;
 	int 		orient;
-	int		last_frame_used;
+	fix64		last_time_used;
 } TEXTURE_CACHE;
 
 static TEXTURE_CACHE Cache[MAX_NUM_CACHE_BITMAPS];
@@ -69,7 +70,7 @@ int texmerge_init(int num_cached_textures)
 	
 	for (i=0; i<num_cache_entries; i++ )	{
 		Cache[i].bitmap = NULL;
-		Cache[i].last_frame_used = -1;
+		Cache[i].last_time_used = -1;
 		Cache[i].top_bmp = NULL;
 		Cache[i].bottom_bmp = NULL;
 		Cache[i].orient = -1;
@@ -83,7 +84,7 @@ void texmerge_flush()
 	int i;
 
 	for (i=0; i<num_cache_entries; i++ )	{
-		Cache[i].last_frame_used = -1;
+		Cache[i].last_time_used = -1;
 		Cache[i].top_bmp = NULL;
 		Cache[i].bottom_bmp = NULL;
 		Cache[i].orient = -1;
@@ -109,7 +110,7 @@ grs_bitmap * texmerge_get_cached_bitmap( int tmap_bottom, int tmap_top )
 {
 	grs_bitmap *bitmap_top, *bitmap_bottom;
 	int i, orient;
-	int lowest_frame_count;
+	int lowest_time_used;
 	int least_recently_used;
 
 	bitmap_top = &GameBitmaps[Textures[tmap_top&0x3FFF].index];
@@ -118,16 +119,16 @@ grs_bitmap * texmerge_get_cached_bitmap( int tmap_bottom, int tmap_top )
 	orient = ((tmap_top&0xC000)>>14) & 3;
 
 	least_recently_used = 0;
-	lowest_frame_count = Cache[0].last_frame_used;
+	lowest_time_used = Cache[0].last_time_used;
 	
 	for (i=0; i<num_cache_entries; i++ )	{
-		if ( (Cache[i].last_frame_used > -1) && (Cache[i].top_bmp==bitmap_top) && (Cache[i].bottom_bmp==bitmap_bottom) && (Cache[i].orient==orient ))	{
+		if ( (Cache[i].last_time_used > -1) && (Cache[i].top_bmp==bitmap_top) && (Cache[i].bottom_bmp==bitmap_bottom) && (Cache[i].orient==orient ))	{
 			cache_hits++;
-			Cache[i].last_frame_used = FrameCount;
+			Cache[i].last_time_used = timer_query();
 			return Cache[i].bitmap;
 		}	
-		if ( Cache[i].last_frame_used < lowest_frame_count )	{
-			lowest_frame_count = Cache[i].last_frame_used;
+		if ( Cache[i].last_time_used < lowest_time_used )	{
+			lowest_time_used = Cache[i].last_time_used;
 			least_recently_used = i;
 		}
 	}
@@ -171,7 +172,7 @@ grs_bitmap * texmerge_get_cached_bitmap( int tmap_bottom, int tmap_top )
 
 	Cache[least_recently_used].top_bmp = bitmap_top;
 	Cache[least_recently_used].bottom_bmp = bitmap_bottom;
-	Cache[least_recently_used].last_frame_used = FrameCount;
+	Cache[least_recently_used].last_time_used = timer_query();
 	Cache[least_recently_used].orient = orient;
 
 	return Cache[least_recently_used].bitmap;

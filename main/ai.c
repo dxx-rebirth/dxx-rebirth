@@ -359,7 +359,7 @@ void do_ai_frame(object *obj)
 	Assert(obj->segnum != -1);
 	Assert(obj->id < N_robot_types);
 
-	obj_ref = objnum ^ FrameCount;
+	obj_ref = objnum ^ d_tick_count;
 
 	if (ailp->next_fire > -F1_0*8)
 		ailp->next_fire -= FrameTime;
@@ -1027,7 +1027,7 @@ _exit_cheat:
 					}
 				}
 
-				vm_vec_scale(&goal_vector, 2*(ConsoleObject->size + obj->size + (((objnum*4 + FrameCount) & 63) << 12)));
+				vm_vec_scale(&goal_vector, 2*(ConsoleObject->size + obj->size + (((objnum*4 + d_tick_count) & 63) << 12)));
 				vm_vec_add(&goal_point, &ConsoleObject->pos, &goal_vector);
 				make_random_vector(&rand_vec);
 				vm_vec_scale_add2(&goal_point, &rand_vec, F1_0*8);
@@ -1471,7 +1471,7 @@ void do_ai_frame_all(void)
 
 	if (Ai_last_missile_camera > -1) {
 		// Clear if supposed misisle camera is not a weapon, or just every so often, just in case.
-		if (((FrameCount & 0x0f) == 0) || (Objects[Ai_last_missile_camera].type != OBJ_WEAPON)) {
+		if (((d_tick_count & 0x0f) == 0) || (Objects[Ai_last_missile_camera].type != OBJ_WEAPON)) {
 			int i;
 
 			Ai_last_missile_camera = -1;
