@@ -37,11 +37,7 @@ extern int last_width,last_height;
 #define OGL_VIEWPORT(x,y,w,h){if (w!=last_width || h!=last_height){glViewport(x,grd_curscreen->sc_canvas.cv_bitmap.bm_h-y-h,w,h);last_width=w;last_height=h;}}
 
 //platform specific funcs
-//MSVC seems to have problems with inline funcs not being found during linking
-#ifndef _MSC_VER
-inline
-#endif
-void ogl_swap_buffers_internal(void);
+extern void ogl_swap_buffers_internal(void);
 
 extern unsigned char *ogl_pal;
 

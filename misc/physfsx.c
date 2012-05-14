@@ -23,7 +23,9 @@
 // The user directory is searched first.
 void PHYSFSX_init(int argc, char *argv[])
 {
+#if defined(__unix__) || defined(__APPLE__) || defined(__MACH__)
 	char fullPath[PATH_MAX + 5];
+#endif
 #if defined(__unix__)
 	char *path = NULL;
 #endif

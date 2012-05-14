@@ -287,7 +287,6 @@ int gr_uaaline(fix x0,fix y0,fix x1,fix y1);
 // Draw the bitmap into the current canvas at the specified location.
 void gr_bitmap(int x,int y,grs_bitmap *bm);
 void gr_ubitmap(int x,int y,grs_bitmap *bm);
-inline void scale_line(unsigned char *in, unsigned char *out, int ilen, int olen);
 void gr_bitmap_scale_to(grs_bitmap *src, grs_bitmap *dst);
 void show_fullscr(grs_bitmap *bm);
 

@@ -394,7 +394,7 @@ int udp_tracker_unregister()
 	pBuf[0] = TRACKER_PKT_UNREGISTER;
 	
 	// Put the GameID
-	PUT_INTEL_INT( &pBuf[1], Netgame.protocol.udp.GameID );
+	PUT_INTEL_INT( pBuf+1, Netgame.protocol.udp.GameID );
 	
 	// Send it off
 	return dxx_sendto( UDP_Socket[2], pBuf, iLen, 0, (struct sockaddr *)&TrackerSocket, sizeof( TrackerSocket ) );
@@ -420,15 +420,15 @@ int udp_tracker_register()
 	pBuf[2] = 0x01;
 	
 	// Write the port we're running on
-	PUT_INTEL_SHORT( &pBuf[3], atoi( UDP_MyPort ) );
+	PUT_INTEL_SHORT( pBuf+3, atoi( UDP_MyPort ) );
 	
 	// Put the GameID
-	PUT_INTEL_INT( &pBuf[5], Netgame.protocol.udp.GameID );
+	PUT_INTEL_INT( pBuf+5, Netgame.protocol.udp.GameID );
 	
 	// Now, put the game version
-	PUT_INTEL_SHORT( &pBuf[9], D1XMAJORi );
-	PUT_INTEL_SHORT( &pBuf[11], D1XMINORi );
-	PUT_INTEL_SHORT( &pBuf[13], D1XMICROi );
+	PUT_INTEL_SHORT( pBuf+9, D1XMAJORi );
+	PUT_INTEL_SHORT( pBuf+11, D1XMINORi );
+	PUT_INTEL_SHORT( pBuf+13, D1XMICROi );
 	
 	// Send it off
 	return dxx_sendto( UDP_Socket[2], pBuf, iLen, 0, (struct sockaddr *)&TrackerSocket, sizeof( TrackerSocket ) );
@@ -4520,13 +4520,13 @@ void net_udp_send_pdata()
 	memset(&pos, 0, sizeof(shortpos));
 	create_shortpos(&pos, Objects+Players[Player_num].objnum, 0);
 	memcpy(buf + len, &pos.bytemat, 9);								len += 9;
-	PUT_INTEL_SHORT(&buf[len], pos.xo);								len += 2;
-	PUT_INTEL_SHORT(&buf[len], pos.yo);								len += 2;
-	PUT_INTEL_SHORT(&buf[len], pos.zo);								len += 2;
-	PUT_INTEL_SHORT(&buf[len], pos.segment);							len += 2;
-	PUT_INTEL_SHORT(&buf[len], pos.velx);								len += 2;
-	PUT_INTEL_SHORT(&buf[len], pos.vely);								len += 2;
-	PUT_INTEL_SHORT(&buf[len], pos.velz);								len += 2;
+	PUT_INTEL_SHORT(buf+len, pos.xo);								len += 2;
+	PUT_INTEL_SHORT(buf+len, pos.yo);								len += 2;
+	PUT_INTEL_SHORT(buf+len, pos.zo);								len += 2;
+	PUT_INTEL_SHORT(buf+len, pos.segment);								len += 2;
+	PUT_INTEL_SHORT(buf+len, pos.velx);								len += 2;
+	PUT_INTEL_SHORT(buf+len, pos.vely);								len += 2;
+	PUT_INTEL_SHORT(buf+len, pos.velz);								len += 2;
 
 	if (multi_i_am_master())
 	{
