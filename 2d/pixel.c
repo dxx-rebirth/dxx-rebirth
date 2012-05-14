@@ -46,7 +46,7 @@ void gr_pixel( int x, int y )
 	gr_upixel (x, y);
 }
 
-inline void gr_bm_upixel( grs_bitmap * bm, int x, int y, unsigned char color )
+static inline void gr_bm_upixel( grs_bitmap * bm, int x, int y, unsigned char color )
 {
 	switch (bm->bm_type)
 	{

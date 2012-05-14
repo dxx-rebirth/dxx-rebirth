@@ -2,7 +2,8 @@ D1X-Rebirth Changelog
 
 20120514
 --------
-2d/disc.c, SConstruct, editor/medmisc.c, include/gr.h, include/internal.h, main/gauges.c, main/menu.c, main/net_udp.c, main/playsave.c, main/state.c, misc/hmp.c, misc/physfsx.c: Fixed some non-critical compiler warnings; Now compiling with -std=c99 -pedantic and fixed warnings (except for editor build) caused by this
+2d/disc.c, SConstruct, editor/medmisc.c, include/gr.h, include/internal.h, main/menu.c, main/net_udp.c, main/playsave.c, main/state.c, misc/hmp.c, misc/physfsx.c: Fixed some non-critical compiler warnings; Now compiling with -std=c99 -pedantic and fixed warnings (except for editor build) caused by this
+2d/bitblt.c, 2d/pixel.c, arch/sdl/digi_mixer.c, main/gauges.c, main/menu.c: Made inline functions static
 
 20120510
 --------
