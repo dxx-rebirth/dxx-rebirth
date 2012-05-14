@@ -2016,7 +2016,7 @@ int polygon_models_viewer_handler(window *wind, d_event *event)
 			key_toggle_repeat(1);
 			view_idx = 0;
 			ang.p = ang.b = 0;
-			ang.h = F1_0/2;
+			ang.h = F0_5-1;
 			break;
 		case EVENT_KEY_COMMAND:
 			key = event_key_get(event);
@@ -2053,7 +2053,7 @@ int polygon_models_viewer_handler(window *wind, d_event *event)
 					break;
 				case KEY_R:
 					ang.p = ang.b = 0;
-					ang.h = F1_0/2;
+					ang.h = F0_5-1;
 					break;
 				default:
 					break;
