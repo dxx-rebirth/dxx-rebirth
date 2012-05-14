@@ -700,9 +700,9 @@ int track_track_goal(int track_goal, object *tracker, fix *dot)
 	} else if (tracker-Objects)
 #else
 	//	Every 8 frames for each object, scan all objects.
-	if (object_is_trackable(track_goal, tracker, dot) && ((((tracker-Objects) ^ FrameCount) % 8) != 0)) {
+	if (object_is_trackable(track_goal, tracker, dot) && ((((tracker-Objects) ^ d_tick_count) % 8) != 0)) {
 		return track_goal;
-	} else if ((((tracker-Objects) ^ FrameCount) % 4) == 0)
+	} else if ((((tracker-Objects) ^ d_tick_count) % 4) == 0)
 #endif
 	{
 		int	rval = -2;
@@ -937,7 +937,7 @@ void Laser_do_weapon_sequence(object *obj)
 	}
 
 	//delete weapons that are not moving
-	if (	!((FrameCount ^ obj->signature) & 3) &&
+	if (	!((d_tick_count ^ obj->signature) & 3) &&
 			(obj->id != FLARE_ID) &&
 			(Weapon_info[obj->id].speed[Difficulty_level] > 0) &&
 			(vm_vec_mag_quick(&obj->mtype.phys_info.velocity) < F2_0)) {

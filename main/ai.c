@@ -183,7 +183,6 @@ vms_vector		Believed_player_pos;
 #define	AIS_MAX	8
 #define	AIE_MAX	4
 
-//--unused-- int	Processed_this_frame, LastFrameCount;
 #ifndef NDEBUG
 //	Index into this array with ailp->mode
 char	mode_text[8][9] = {
@@ -953,30 +952,13 @@ void move_around_player(object *objp, vms_vector *vec_to_player, int fast_flag)
 	physics_info	*pptr = &objp->mtype.phys_info;
 	fix				speed;
 	robot_info		*robptr = &Robot_info[objp->id];
-	int				objnum = objp-Objects;
 	int				dir;
-	int				dir_change;
-	fix				ft;
 	vms_vector		evade_vector;
-	int				count=0;
 
 	if (fast_flag == 0)
 		return;
 
-	dir_change = 48;
-	ft = FrameTime;
-	if (ft < F1_0/32) {
-		dir_change *= 8;
-		count += 3;
-	} else
-		while (ft < F1_0/4) {
-			dir_change *= 2;
-			ft *= 2;
-			count++;
-		}
-
-	dir = (/*FrameCount*/(GameTime64/2000==0?1:GameTime64/2000) + (count+1) * (objnum*8 + objnum*4 + objnum)) & dir_change;
-	dir >>= (4+count);
+	dir = ((objp-Objects) ^ ((d_tick_count + 3*(objp-Objects)) >> 5)) & 3;
 
 	Assert((dir >= 0) && (dir <= 3));
 
@@ -1051,7 +1033,7 @@ void move_away_from_player(object *objp, vms_vector *vec_to_player, int attack_t
 
 	if (attack_type) {
 		//	Get value in 0..3 to choose evasion direction.
-		objref = ((objp-Objects) ^ ((FrameCount + 3*(objp-Objects)) >> 5)) & 3;
+		objref = ((objp-Objects) ^ ((d_tick_count + 3*(objp-Objects)) >> 5)) & 3;
 
 		switch (objref) {
 			case 0:	vm_vec_scale_add2(&pptr->velocity, &objp->orient.uvec, FrameTime << 5);	break;
@@ -2159,7 +2141,7 @@ void do_ai_frame(object *obj)
 
 	robptr = &Robot_info[obj->id];
 	Assert(robptr->always_0xabcd == 0xabcd);
-	obj_ref = objnum ^ FrameCount;
+	obj_ref = objnum ^ d_tick_count;
 	// -- if (ailp->wait_time > -F1_0*8)
 	// -- 	ailp->wait_time -= FrameTime;
 	if (ailp->next_fire > -F1_0*8)
@@ -3020,7 +3002,7 @@ void dump_ai_objects_all()
 	if (Ai_dump_file == NULL)
 		Ai_dump_file = fopen("ai.out","a+t");
 
-	fprintf(Ai_dump_file, "\nnum: seg distance __mode__ behav.    [velx vely velz] (Frame = %i)\n", FrameCount);
+	fprintf(Ai_dump_file, "\nnum: seg distance __mode__ behav.    [velx vely velz] (Tick = %i)\n", d_tick_count);
 	fprintf(Ai_dump_file, "Date & Time = %s\n", ctime(&time_of_day));
 
 	if (Ai_error_message[0])

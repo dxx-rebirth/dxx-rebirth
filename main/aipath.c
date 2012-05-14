@@ -875,7 +875,7 @@ void ai_path_set_orient_and_vel(object *objp, vms_vector *goal_point)
 
 }
 
-int	Last_frame_garbage_collected = 0;
+int	Last_tick_garbage_collected = 0;
 
 //	----------------------------------------------------------------------------------------------------------
 //	Garbage colledion -- Free all unused records in Point_segs and compress all paths.
@@ -891,7 +891,7 @@ void ai_path_garbage_collect(void)
 	force_dump_ai_objects_all("***** Start ai_path_garbage_collect *****");
 #endif
 
-	Last_frame_garbage_collected = FrameCount;
+	Last_tick_garbage_collected = d_tick_count;
 
 #ifndef NDEBUG
 	validate_all_paths();
@@ -955,7 +955,7 @@ void ai_path_garbage_collect(void)
 void maybe_ai_path_garbage_collect(void)
 {
 	if (Point_segs_free_ptr - Point_segs > MAX_POINT_SEGS - MAX_PATH_LENGTH) {
-		if (Last_frame_garbage_collected+1 >= FrameCount) {
+		if (Last_tick_garbage_collected+1 >= d_tick_count) {
 			//	This is kind of bad.  Garbage collected last frame or this frame.
 			//	Just destroy all paths.  Too bad for the robots.  They are memory wasteful.
 			ai_reset_all_paths();
@@ -964,11 +964,11 @@ void maybe_ai_path_garbage_collect(void)
 			ai_path_garbage_collect();
 		}
 	} else if (Point_segs_free_ptr - Point_segs > 3*MAX_POINT_SEGS/4) {
-		if (Last_frame_garbage_collected + 16 < FrameCount) {
+		if (Last_tick_garbage_collected + 16 < d_tick_count) {
 			ai_path_garbage_collect();
 		}
 	} else if (Point_segs_free_ptr - Point_segs > MAX_POINT_SEGS/2) {
-		if (Last_frame_garbage_collected + 256 < FrameCount) {
+		if (Last_tick_garbage_collected + 256 < d_tick_count) {
 			ai_path_garbage_collect();
 		}
 	}

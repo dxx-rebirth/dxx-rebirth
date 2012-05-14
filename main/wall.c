@@ -996,7 +996,7 @@ void remove_obsolete_stuck_objects(void)
 {
 	int	objnum;
 
-	objnum = FrameCount % MAX_STUCK_OBJECTS;
+	objnum = d_tick_count % MAX_STUCK_OBJECTS;
 
 	if (Stuck_objects[objnum].wallnum != -1)
 		if ((Stuck_objects[objnum].wallnum == 0) || (Objects[Stuck_objects[objnum].objnum].signature != Stuck_objects[objnum].signature)) {
