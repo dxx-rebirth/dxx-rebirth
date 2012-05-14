@@ -341,12 +341,20 @@ int multi_objnum_is_past(int objnum)
 //          on the curretn Game_mode value.
 //
 
-void
-multi_endlevel_score(void)
+// Show a score list to end of net players
+void multi_endlevel_score(void)
 {
-	int i, old_connect=0;
-	
-	// Show a score list to end of net players
+	int i, old_connect=0, game_wind_visible = 0;
+
+	// If there still is a Game_wind and it's suspended (usually both shoudl be the case), bring it up again so host can still take actions of the game
+	if (Game_wind)
+	{
+		if (!window_is_visible(Game_wind))
+		{
+			game_wind_visible = 1;
+			window_set_visible(Game_wind, 1);
+		}
+	}
 
 	// Save connect state and change to new connect state
 #ifdef NETWORK
@@ -384,6 +392,10 @@ multi_endlevel_score(void)
 		MaxPowerupsAllowed[i]=0;
 		PowerupsInMine[i]=0;
 	}
+
+	// hide Game_wind again if we brought it up
+	if (Game_wind && game_wind_visible)
+		window_set_visible(Game_wind, 0);
 }
 
 int
