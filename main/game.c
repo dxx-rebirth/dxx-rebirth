@@ -1488,7 +1488,7 @@ void GameProcessFrame(void)
 	}
 
 	// Check if we have to close in-game menus for multiplayer
-	if (Endlevel_sequence || (Player_is_dead != player_was_dead) || (Players[Player_num].shields < player_shields))
+	if (Endlevel_sequence || (Player_is_dead != player_was_dead) || ((Players[Player_num].shields < player_shields) && Players[Player_num].shields < 5))
 		game_leave_menus();
 
 	if ((Control_center_destroyed && !was_fuelcen_destroyed) || ((Control_center_destroyed) && (Countdown_seconds_left < 10)))
