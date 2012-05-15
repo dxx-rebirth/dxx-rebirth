@@ -1,5 +1,9 @@
 D1X-Rebirth Changelog
 
+20120515
+--------
+main/net_udp.c: Do not send endlevel packets to disconnected (but still saved) clients
+
 20120514
 --------
 2d/disc.c, SConstruct, editor/medmisc.c, include/gr.h, include/internal.h, main/menu.c, main/net_udp.c, main/playsave.c, main/state.c, misc/hmp.c, misc/physfsx.c: Fixed some non-critical compiler warnings; Now compiling with -std=c99 -pedantic and fixed warnings (except for editor build) caused by this
