@@ -237,8 +237,8 @@ int udp_open_socket(int socknum, int port)
 	memset( &sAddr, '\0', sizeof( sAddr ) );
 
 	if ((UDP_Socket[socknum] = socket (_af, SOCK_DGRAM, 0)) < 0) {
-		con_printf(CON_URGENT,"udp_open_socket: socket creation failed\n");
-		nm_messagebox(TXT_ERROR,1,TXT_OK,"Could not create socket");
+		con_printf(CON_URGENT,"udp_open_socket: socket creation failed (port %i)\n", port);
+		nm_messagebox(TXT_ERROR,1,TXT_OK,"Port: %i\nCould not create socket.", port);
 		return -1;
 	}
 
@@ -257,8 +257,8 @@ int udp_open_socket(int socknum, int port)
 	
 	if (bind (UDP_Socket[socknum], (struct sockaddr *) &sAddr, sizeof (struct sockaddr)) < 0) 
 	{      
-		con_printf(CON_URGENT,"udp_open_socket: bind name to socket failed\n");
-		nm_messagebox(TXT_ERROR,1,TXT_OK,"Could not bind name to socket");
+		con_printf(CON_URGENT,"udp_open_socket: bind name to socket failed (port %i)\n", port);
+		nm_messagebox(TXT_ERROR,1,TXT_OK,"Port: %i\nCould not bind name to socket.", port);
 		udp_close_socket(socknum);
 		return -1;
 	}
@@ -298,21 +298,23 @@ int udp_open_socket(int socknum, int port)
 		{
 			// ai_family is not identic
 			freeaddrinfo (res);
+			con_printf(CON_URGENT,"udp_open_socket: ai_family not identic (port %i)\n", port);
+			nm_messagebox(TXT_ERROR,1,TXT_OK,"Port: %i\nai_family_not identic.", port);
 			return -1;
 		}
 	
 		if ((UDP_Socket[socknum] = socket (sres->ai_family, SOCK_DGRAM, 0)) < 0)
 		{
-			con_printf(CON_URGENT,"udp_open_socket: socket creation failed\n");
-			nm_messagebox(TXT_ERROR,1,TXT_OK,"Could not create socket");
+			con_printf(CON_URGENT,"udp_open_socket: socket creation failed (port %i)\n", port);
+			nm_messagebox(TXT_ERROR,1,TXT_OK,"Port: %i\nCould not create socket.", port);
 			freeaddrinfo (res);
 			return -1;
 		}
 	
 		if ((err = bind (UDP_Socket[socknum], sres->ai_addr, sres->ai_addrlen)) < 0)
 		{
-			con_printf(CON_URGENT,"udp_open_socket: bind name to socket failed\n");
-			nm_messagebox(TXT_ERROR,1,TXT_OK,"Could not bind name to socket");
+			con_printf(CON_URGENT,"udp_open_socket: bind name to socket failed (port %i)\n", port);
+			nm_messagebox(TXT_ERROR,1,TXT_OK,"Port: %i\nCould not bind name to socket.", port);
 			udp_close_socket(socknum);
 			freeaddrinfo (res);
 			return -1;
@@ -322,8 +324,8 @@ int udp_open_socket(int socknum, int port)
 	}
 	else {
 		UDP_Socket[socknum] = -1;
-		con_printf(CON_URGENT,"udp_open_socket (getaddrinfo):%s\n", gai_strerror (err));
-		nm_messagebox(TXT_ERROR,1,TXT_OK,"Could not get address information:\n%s",gai_strerror (err));
+		con_printf(CON_URGENT,"udp_open_socket (getaddrinfo):%s failed. port %i\n", gai_strerror (err), port);
+		nm_messagebox(TXT_ERROR,1,TXT_OK,"Port: %i\nCould not get address information:\n%s", port, gai_strerror (err));
 	}
 	setsockopt( UDP_Socket[socknum], SOL_SOCKET, SO_BROADCAST, &bcast, sizeof(bcast) );
 #endif
@@ -383,11 +385,16 @@ int udp_receive_packet(int socknum, ubyte *text, int len, struct _sockaddr *send
 /* Tracker initialization */
 int udp_tracker_init()
 {
+	int tracker_port = d_rand() % 0xffff;
+
+	while (tracker_port <= 1024)
+		tracker_port = d_rand() % 0xffff;
+
 	// Zero it out
 	memset( &TrackerSocket, 0, sizeof( TrackerSocket ) );
 	
 	// Open the socket
-	udp_open_socket( 2, d_rand() % 0xffff );
+	udp_open_socket( 2, tracker_port );
 	
 	// Fill the address
 	if( udp_dns_filladdr( (char *)GameArg.MplTrackerAddr, GameArg.MplTrackerPort, &TrackerSocket ) < 0 )
@@ -603,7 +610,7 @@ static int manual_join_game_handler(newmenu *menu, d_event *event, direct_join *
 		{
 			int sockres = -1;
 			
-			if ((atoi(UDP_MyPort)) < 0 ||(atoi(UDP_MyPort)) > 65535)
+			if ((atoi(UDP_MyPort)) <= 1024 ||(atoi(UDP_MyPort)) > 65535)
 			{
 				snprintf (UDP_MyPort, sizeof(UDP_MyPort), "%d", UDP_PORT_DEFAULT);
 				nm_messagebox(TXT_ERROR, 1, TXT_OK, "Illegal port");
