@@ -2,7 +2,7 @@ D1X-Rebirth Changelog
 
 20120515
 --------
-main/net_udp.c: Do not send endlevel packets to disconnected (but still saved) clients
+main/net_udp.c: Do not send endlevel packets to disconnected (but still saved) clients; Do not allow ports below 1024; More verbosity for udp_open_socket()
 
 20120514
 --------
