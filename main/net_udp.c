@@ -2073,7 +2073,8 @@ void net_udp_send_endlevel_packet(void)
 		}
 
 		for (i = 1; i < MAX_PLAYERS; i++)
-			dxx_sendto (UDP_Socket[0], buf, len, 0, (struct sockaddr *)&Netgame.players[i].protocol.udp.addr, sizeof(struct _sockaddr));
+			if (Players[i].connected != CONNECT_DISCONNECTED)
+				dxx_sendto (UDP_Socket[0], buf, len, 0, (struct sockaddr *)&Netgame.players[i].protocol.udp.addr, sizeof(struct _sockaddr));
 	}
 	else
 	{

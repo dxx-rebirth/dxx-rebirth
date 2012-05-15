@@ -1838,7 +1838,6 @@ void object_move_one( object * obj )
 {
 
 	#ifndef DEMO_ONLY
-printf("MOVE %i\n",timer_query());
 	int	previous_segment = obj->segnum;
 
 	obj->last_pos = obj->pos;			// Save the current position
