@@ -510,7 +510,7 @@ int HandleDeathInput(d_event *event)
 	{
 		int key = event_key_get(event);
 
-		if (Player_exploded && !key_isfunc(key) && key)
+		if (Player_exploded && !key_isfunc(key) && key != KEY_PAUSE && key)
 			Death_sequence_aborted  = 1;		//Any key but func or modifier aborts
 		if (key == KEY_ESC)
 			if (ConsoleObject->flags & OF_EXPLODING)
