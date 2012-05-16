@@ -2228,6 +2228,8 @@ void net_udp_send_netgame_update()
 	
 	for (i=1; i<N_players; i++ )
 	{
+		if (Players[i].connected == CONNECT_DISCONNECTED)
+			continue;
 		net_udp_send_game_info(Netgame.players[i].protocol.udp.addr, UPID_GAME_INFO);
 	}
 	net_udp_send_game_info(GBcast, UPID_GAME_INFO_LITE);
@@ -3351,6 +3353,8 @@ int net_udp_send_sync(void)
 		Netgame.numplayers = 0;
 		for (i=1; i<N_players; i++)
 		{
+			if (Players[i].connected == CONNECT_DISCONNECTED)
+				continue;
 			net_udp_dump_player(Netgame.players[i].protocol.udp.addr, DUMP_ABORTED);
 			net_udp_send_game_info(Netgame.players[i].protocol.udp.addr, UPID_GAME_INFO);
 		}
@@ -3542,6 +3546,8 @@ abort:
 		// Tell everyone we're bailing
 		Netgame.numplayers = 0;
 		for (i=1; i<save_nplayers; i++) {
+			if (Players[i].connected == CONNECT_DISCONNECTED)
+				continue;
 			net_udp_dump_player(Netgame.players[i].protocol.udp.addr, DUMP_ABORTED);
 			net_udp_send_game_info(Netgame.players[i].protocol.udp.addr, UPID_GAME_INFO);
 		}
@@ -3873,6 +3879,8 @@ void net_udp_leave_game()
 		N_players=0;
 		for (i=1; i<nsave; i++ )
 		{
+			if (Players[i].connected == CONNECT_DISCONNECTED)
+				continue;
 			net_udp_send_game_info(Netgame.players[i].protocol.udp.addr, UPID_GAME_INFO);
 		}
 		net_udp_send_game_info(GBcast, UPID_GAME_INFO_LITE);

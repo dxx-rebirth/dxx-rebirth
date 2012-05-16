@@ -3,6 +3,7 @@ D1X-Rebirth Changelog
 20120516
 --------
 main/game.c: In Multiplayer when taking damage, the game will only leave menus when shield drop below 5
+main/net_udp.c: when updating game info also check for player connected status in case we send to everyone
 
 20120515
 --------
