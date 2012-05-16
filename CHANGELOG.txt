@@ -4,6 +4,7 @@ D1X-Rebirth Changelog
 --------
 main/game.c: In Multiplayer when taking damage, the game will only leave menus when shield drop below 5
 main/net_udp.c: when updating game info also check for player connected status in case we send to everyone
+main/gamecntl.c, main/object.c: allow PAUSE key during death sequence to pause or view multiplayer game stats; Also reset hostages_on_board when ship blows up so pause menu during death sequence will show 0 hostages soon as the ship explodes; fixed crash for slew_init by removing old numlock hack
 
 20120515
 --------
