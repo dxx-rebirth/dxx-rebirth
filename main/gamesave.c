@@ -195,7 +195,7 @@ int is_real_level(char *filename)
 	if (len < 6)
 		return 0;
 
-	return !strnicmp(&filename[len-11], "level", 5);
+	return !d_strnicmp(&filename[len-11], "level", 5);
 
 }
 #endif
@@ -262,7 +262,7 @@ void verify_object( object * obj )	{
 			char *name = Save_pof_names[obj->rtype.pobj_info.model_num];
 
 			for (i=0;i<N_polygon_models;i++)
-				if (!stricmp(Pof_names[i],name)) {		//found it!	
+				if (!d_stricmp(Pof_names[i],name)) {		//found it!	
 					obj->rtype.pobj_info.model_num = i;
 					break;
 				}
@@ -1129,7 +1129,7 @@ int load_level(char * filename_passed)
 	{
 		char *p = strrchr(filename_passed, '.');
 
-		if (stricmp(p, ".lvl"))
+		if (d_stricmp(p, ".lvl"))
 			strcpy(filename, filename_passed);	// set to what was passed
 		else
 			change_filename_extension(filename, filename, ".rdl");
@@ -1176,7 +1176,7 @@ int load_level(char * filename_passed)
 	 * Descent 1 - Level 19: OBERON MINE has some ugly overlapping rooms (segment 484).
 	 * HACK to make this issue less visible by moving one vertex a little.
 	 */
-	if (Current_mission && !stricmp("Descent: First Strike",Current_mission_longname) && !stricmp("level19.rdl",filename) && PHYSFS_fileLength(LoadFile) == 136706)
+	if (Current_mission && !d_stricmp("Descent: First Strike",Current_mission_longname) && !d_stricmp("level19.rdl",filename) && PHYSFS_fileLength(LoadFile) == 136706)
 		Vertices[1905].z =-385*F1_0;
 
 	if (mine_err == -1) {   //error!!

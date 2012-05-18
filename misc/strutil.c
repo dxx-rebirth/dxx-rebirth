@@ -56,10 +56,11 @@ char *strdup(const char *str)
 	return newstr;
 }
 # endif // NDEBUG
+#endif // macintosh
 
 // string compare without regard to case
 
-int stricmp( const char *s1, const char *s2 )
+int d_stricmp( const char *s1, const char *s2 )
 {
 	int u1;
 	int u2;
@@ -77,7 +78,7 @@ int stricmp( const char *s1, const char *s2 )
 	return 0;
 }
 
-int strnicmp( const char *s1, const char *s2, int n )
+int d_strnicmp( const char *s1, const char *s2, int n )
 {
 	int u1;
 	int u2;
@@ -95,11 +96,8 @@ int strnicmp( const char *s1, const char *s2, int n )
 
 	return 0;
 }
-#endif
 
-#ifndef _WIN32
-#ifndef __DJGPP__
-void strlwr( char *s1 )
+void d_strlwr( char *s1 )
 {
 	while( *s1 )	{
 		*s1 = tolower(*s1);
@@ -107,7 +105,7 @@ void strlwr( char *s1 )
 	}
 }
 
-void strupr( char *s1 )
+void d_strupr( char *s1 )
 {
 	while( *s1 )	{
 		*s1 = toupper(*s1);
@@ -115,9 +113,7 @@ void strupr( char *s1 )
 	}
 }
 
-#endif
-
-void strrev( char *s1 )
+void d_strrev( char *s1 )
 {
 	char *h, *t;
 	h = s1;
@@ -129,7 +125,6 @@ void strrev( char *s1 )
 		*t-- = c;
 	}
 }
-#endif
 
 // remove extension from filename
 void removeext(const char *filename, char *out)
@@ -283,7 +278,7 @@ int string_array_add(char ***list, char **list_buf, int *num_str, int *max_str, 
 
 int string_array_sort_func(char **e0, char **e1)
 {
-	return stricmp(*e0, *e1);
+	return d_stricmp(*e0, *e1);
 }
 
 void string_array_tidy(char ***list, char **list_buf, int *num_str, int *max_str, int *max_buf, int offset, int (*comp)( const char *, const char * ))

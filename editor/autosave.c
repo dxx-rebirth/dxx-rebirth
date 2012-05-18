@@ -68,7 +68,7 @@ void close_autosave(void) {
 	MALLOC(delname, char, PATH_MAX);
 
         strcpy ( delname, mine_filename );
-        strupr( delname );
+        d_strupr( delname );
 	if ( !strcmp(delname, "*.MIN") ) strcpy(delname, "TEMP.MIN");
 
         ext = strstr(delname, ".MIN");
@@ -91,7 +91,7 @@ void autosave_mine(char *name) {
 
 	
 	    strcpy ( savename, name );
-	    strupr( savename );
+	    d_strupr( savename );
 	    if ( !strcmp(savename, "*.MIN") ) strcpy(savename, "TEMP.MIN");
 	
 	    ext = strstr(savename, ".MIN");

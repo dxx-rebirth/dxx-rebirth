@@ -354,7 +354,7 @@ int load_screen_text(char *filename, char **buf)
 	int	len;
 	int	have_binary = 0;
 
-	if (!stricmp(strrchr(filename, '.'), ".txb"))
+	if (!d_stricmp(strrchr(filename, '.'), ".txb"))
 		have_binary = 1;
 	
 	if ((tfile = PHYSFSX_openReadBuffered(filename)) == NULL)
@@ -884,7 +884,7 @@ int load_briefing_screen(briefing *br, char *fname)
 	snprintf(fname2, sizeof(char)*PATH_MAX, "%s", fname);
 	MALLOC(forigin, char, PATH_MAX);
 	snprintf(forigin, sizeof(char)*PATH_MAX, "%s", PHYSFS_getRealDir(fname));
-	strlwr(forigin);
+	d_strlwr(forigin);
 
 	// check if we have a hires version of this image (not included in PC-version by default)
 	// Also if this hires image comes via external AddOn pack, only apply if requested image would be loaded from descent.hog - not a seperate mission which might want to show something else.
@@ -900,10 +900,10 @@ int load_briefing_screen(briefing *br, char *fname)
 	d_free(forigin);
 
 	gr_init_bitmap_data(&br->background);
-	if (stricmp(br->background_name, fname2))
+	if (d_stricmp(br->background_name, fname2))
 		strncpy (br->background_name,fname2, sizeof(br->background_name));
 
-	if ((!stricmp(fname2, "brief02.pcx") || !stricmp(fname2, "brief02h.pcx")) && cheats.baldguy)
+	if ((!d_stricmp(fname2, "brief02.pcx") || !d_stricmp(fname2, "brief02h.pcx")) && cheats.baldguy)
 		if ( bald_guy_load(new_baldguy_pcx, &br->background, BM_LINEAR, gr_palette) == 0)
 		{
 			d_free(fname2);
@@ -918,8 +918,8 @@ int load_briefing_screen(briefing *br, char *fname)
 
 	// Hack: Make sure black parts of robot are shown black
 	if (MacPig && gr_palette[0] == 63 &&
-		(!stricmp(fname2, "brief03.pcx") || !stricmp(fname2, "end01.pcx") ||
-		!stricmp(fname2, "brief03h.pcx") || !stricmp(fname2, "end01h.pcx")
+		(!d_stricmp(fname2, "brief03.pcx") || !d_stricmp(fname2, "end01.pcx") ||
+		!d_stricmp(fname2, "brief03h.pcx") || !d_stricmp(fname2, "end01h.pcx")
 		))
 	{
 		swap_0_255(&br->background);
@@ -1173,13 +1173,13 @@ void do_end_briefing_screens(char *filename)
 	if (!strlen(filename))
 		return; // no filename, no ending
 
-	if (stricmp(filename, BIMD1_ENDING_FILE_OEM) == 0)
+	if (d_stricmp(filename, BIMD1_ENDING_FILE_OEM) == 0)
 	{
 		songs_play_song( SONG_ENDGAME, 1 );
 		level_num_screen = ENDING_LEVEL_NUM_OEMSHARE;
 		showorder = 1;
 	}
-	else if (stricmp(filename, BIMD1_ENDING_FILE_SHARE) == 0)
+	else if (d_stricmp(filename, BIMD1_ENDING_FILE_SHARE) == 0)
 	{
 		songs_play_song( SONG_BRIEFING, 1 );
 		level_num_screen = ENDING_LEVEL_NUM_OEMSHARE;

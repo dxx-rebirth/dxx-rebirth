@@ -426,12 +426,12 @@ int properties_init()
 		if (MacPig)
 		{
 			// HACK HACK HACK!!!!!
-			if (!strnicmp(bmh.name, "cockpit", 7) || !strnicmp(bmh.name, "status", 6) || !strnicmp(bmh.name, "rearview", 8)) {
+			if (!d_strnicmp(bmh.name, "cockpit", 7) || !d_strnicmp(bmh.name, "status", 6) || !d_strnicmp(bmh.name, "rearview", 8)) {
 				temp_bitmap.bm_w = temp_bitmap.bm_rowsize = 640;
 				if (GameBitmapFlags[i+1] & BM_FLAG_RLE)
 					GameBitmapFlags[i+1] |= BM_FLAG_RLE_BIG;
 			}
-			if (!strnicmp(bmh.name, "cockpit", 7) || !strnicmp(bmh.name, "rearview", 8))
+			if (!d_strnicmp(bmh.name, "cockpit", 7) || !d_strnicmp(bmh.name, "rearview", 8))
 				temp_bitmap.bm_h = 480;
 		}
 		
@@ -1017,7 +1017,7 @@ int piggy_is_gauge_bitmap( char * base_name )
 {
 	int i;
 	for (i=0; i<NUM_GAUGE_BITMAPS; i++ )	{
-		if ( !stricmp( base_name, gauge_bitmap_names[i] ))	
+		if ( !d_stricmp( base_name, gauge_bitmap_names[i] ))	
 			return 1;
 	}
 

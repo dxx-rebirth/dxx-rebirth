@@ -127,14 +127,14 @@ int read_player_d1x(char *filename)
 	{
 		PHYSFSX_fgets(line,50,f);
 		word=splitword(line,':');
-		strupr(word);
+		d_strupr(word);
 
 		if (strstr(word,"WEAPON REORDER"))
 		{
 			d_free(word);
 			PHYSFSX_fgets(line,50,f);
 			word=splitword(line,'=');
-			strupr(word);
+			d_strupr(word);
 			while(!strstr(word,"END") && !PHYSFS_eof(f))
 			{
 				unsigned int wo0=0,wo1=0,wo2=0,wo3=0,wo4=0,wo5=0;
@@ -151,7 +151,7 @@ int read_player_d1x(char *filename)
 				d_free(word);
 				PHYSFSX_fgets(line,50,f);
 				word=splitword(line,'=');
-				strupr(word);
+				d_strupr(word);
 			}
 		}
 		else if (strstr(word,"JOYSTICK"))
@@ -159,7 +159,7 @@ int read_player_d1x(char *filename)
 			d_free(word);
 			PHYSFSX_fgets(line,50,f);
 			word=splitword(line,'=');
-			strupr(word);
+			d_strupr(word);
 	
 			while(!strstr(word,"END") && !PHYSFS_eof(f))
 			{
@@ -190,7 +190,7 @@ int read_player_d1x(char *filename)
 				d_free(word);
 				PHYSFSX_fgets(line,50,f);
 				word=splitword(line,'=');
-				strupr(word);
+				d_strupr(word);
 			}
 		}
 		else if (strstr(word,"MOUSE"))
@@ -198,7 +198,7 @@ int read_player_d1x(char *filename)
 			d_free(word);
 			PHYSFSX_fgets(line,50,f);
 			word=splitword(line,'=');
-			strupr(word);
+			d_strupr(word);
 	
 			while(!strstr(word,"END") && !PHYSFS_eof(f))
 			{
@@ -223,7 +223,7 @@ int read_player_d1x(char *filename)
 				d_free(word);
 				PHYSFSX_fgets(line,50,f);
 				word=splitword(line,'=');
-				strupr(word);
+				d_strupr(word);
 			}
 		}
 		else if (strstr(word,"WEAPON KEYS V2"))
@@ -231,7 +231,7 @@ int read_player_d1x(char *filename)
 			d_free(word);
 			PHYSFSX_fgets(line,50,f);
 			word=splitword(line,'=');
-			strupr(word);
+			d_strupr(word);
 			while(!strstr(word,"END") && !PHYSFS_eof(f))
 			{
 				unsigned int kc1=0,kc2=0,kc3=0;
@@ -247,7 +247,7 @@ int read_player_d1x(char *filename)
 				d_free(word);
 				PHYSFSX_fgets(line,50,f);
 				word=splitword(line,'=');
-				strupr(word);
+				d_strupr(word);
 			}
 		}
 		else if (strstr(word,"COCKPIT"))
@@ -255,7 +255,7 @@ int read_player_d1x(char *filename)
 			d_free(word);
 			PHYSFSX_fgets(line,50,f);
 			word=splitword(line,'=');
-			strupr(word);
+			d_strupr(word);
 	
 			while(!strstr(word,"END") && !PHYSFS_eof(f))
 			{
@@ -272,7 +272,7 @@ int read_player_d1x(char *filename)
 				d_free(word);
 				PHYSFSX_fgets(line,50,f);
 				word=splitword(line,'=');
-				strupr(word);
+				d_strupr(word);
 			}
 		}
 		else if (strstr(word,"TOGGLES"))
@@ -280,7 +280,7 @@ int read_player_d1x(char *filename)
 			d_free(word);
 			PHYSFSX_fgets(line,50,f);
 			word=splitword(line,'=');
-			strupr(word);
+			d_strupr(word);
 	
 			while(!strstr(word,"END") && !PHYSFS_eof(f))
 			{
@@ -301,7 +301,7 @@ int read_player_d1x(char *filename)
 				d_free(word);
 				PHYSFSX_fgets(line,50,f);
 				word=splitword(line,'=');
-				strupr(word);
+				d_strupr(word);
 			}
 		}
 		else if (strstr(word,"GRAPHICS"))
@@ -309,7 +309,7 @@ int read_player_d1x(char *filename)
 			d_free(word);
 			PHYSFSX_fgets(line,50,f);
 			word=splitword(line,'=');
-			strupr(word);
+			d_strupr(word);
 	
 			while(!strstr(word,"END") && !PHYSFS_eof(f))
 			{
@@ -320,7 +320,7 @@ int read_player_d1x(char *filename)
 				d_free(word);
 				PHYSFSX_fgets(line,50,f);
 				word=splitword(line,'=');
-				strupr(word);
+				d_strupr(word);
 			}
 		}
 		else if (strstr(word,"PLX VERSION")) // know the version this pilot was used last with - allow modifications
@@ -329,14 +329,14 @@ int read_player_d1x(char *filename)
 			d_free(word);
 			PHYSFSX_fgets(line,50,f);
 			word=splitword(line,'=');
-			strupr(word);
+			d_strupr(word);
 			while(!strstr(word,"END") && !PHYSFS_eof(f))
 			{
 				sscanf(line,"%i.%i.%i",&v1,&v2,&v3);
 				d_free(word);
 				PHYSFSX_fgets(line,50,f);
 				word=splitword(line,'=');
-				strupr(word);
+				d_strupr(word);
 			}
 			if (v1 == 0 && v2 == 56 && v3 == 0) // was 0.56.0
 				if (D1XMAJORi != v1 || D1XMINORi != v2 || D1XMICROi != v3) // newer (presumably)
@@ -361,7 +361,7 @@ int read_player_d1x(char *filename)
 				while(!strstr(line,"END") && !PHYSFS_eof(f))
 				{
 					PHYSFSX_fgets(line,50,f);
-					strupr(line);
+					d_strupr(line);
 				}
 			}
 		}
@@ -844,7 +844,7 @@ int find_hli_entry()
 	int i;
 
 	for (i=0;i<PlayerCfg.NHighestLevels;i++)
-		if (!stricmp(PlayerCfg.HighestLevels[i].Shortname, Current_mission_filename))
+		if (!d_stricmp(PlayerCfg.HighestLevels[i].Shortname, Current_mission_filename))
 			break;
 
 	if (i==PlayerCfg.NHighestLevels) { //not found. create entry
@@ -888,7 +888,7 @@ int get_highest_level(void)
 #ifndef SATURN
 	if (strlen(Current_mission_filename)==0 )	{
 		for (i=0;i<PlayerCfg.NHighestLevels;i++)
-			if (!stricmp(PlayerCfg.HighestLevels[i].Shortname, "DESTSAT")) // Destination Saturn.
+			if (!d_stricmp(PlayerCfg.HighestLevels[i].Shortname, "DESTSAT")) // Destination Saturn.
 				highest_saturn_level = PlayerCfg.HighestLevels[i].LevelNum;
 	}
 #endif

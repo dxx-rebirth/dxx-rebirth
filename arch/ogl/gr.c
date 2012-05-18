@@ -289,13 +289,13 @@ void ogl_get_verinfo(void)
 #endif
 
 	//add driver specific hacks here.  whee.
-	if ((stricmp(gl_renderer,"Mesa NVIDIA RIVA 1.0\n")==0 || stricmp(gl_renderer,"Mesa NVIDIA RIVA 1.2\n")==0) && stricmp(gl_version,"1.2 Mesa 3.0")==0)
+	if ((d_stricmp(gl_renderer,"Mesa NVIDIA RIVA 1.0\n")==0 || d_stricmp(gl_renderer,"Mesa NVIDIA RIVA 1.2\n")==0) && d_stricmp(gl_version,"1.2 Mesa 3.0")==0)
 	{
 		GameArg.DbgGlIntensity4Ok=0;//ignores alpha, always black background instead of transparent.
 		GameArg.DbgGlReadPixelsOk=0;//either just returns all black, or kills the X server entirely
 		GameArg.DbgGlGetTexLevelParamOk=0;//returns random data..
 	}
-	if (stricmp(gl_vendor,"Matrox Graphics Inc.")==0)
+	if (d_stricmp(gl_vendor,"Matrox Graphics Inc.")==0)
 	{
 		//displays garbage. reported by
 		//  redomen@crcwnet.com (render="Matrox G400" version="1.1.3 5.52.015")
@@ -303,14 +303,14 @@ void ogl_get_verinfo(void)
 		GameArg.DbgGlIntensity4Ok=0;
 	}
 #ifdef macintosh
-	if (stricmp(gl_renderer,"3dfx Voodoo 3")==0) // strangely, includes Voodoo 2
+	if (d_stricmp(gl_renderer,"3dfx Voodoo 3")==0) // strangely, includes Voodoo 2
 		GameArg.DbgGlGetTexLevelParamOk=0; // Always returns 0
 #endif
 
 #ifndef NDEBUG
 	con_printf(CON_VERBOSE,"gl_intensity4:%i gl_luminance4_alpha4:%i gl_rgba2:%i gl_readpixels:%i gl_gettexlevelparam:%i\n",GameArg.DbgGlIntensity4Ok,GameArg.DbgGlLuminance4Alpha4Ok,GameArg.DbgGlRGBA2Ok,GameArg.DbgGlReadPixelsOk,GameArg.DbgGlGetTexLevelParamOk);
 #endif
-	if (!stricmp(gl_extensions,"GL_EXT_texture_filter_anisotropic")==0)
+	if (!d_stricmp(gl_extensions,"GL_EXT_texture_filter_anisotropic")==0)
 	{
 		glGetFloatv(GL_MAX_TEXTURE_MAX_ANISOTROPY_EXT, &ogl_maxanisotropy);
 		con_printf(CON_VERBOSE,"ogl_maxanisotropy:%f\n",ogl_maxanisotropy);
@@ -404,7 +404,7 @@ int gr_set_mode(u_int32_t mode)
 	return 0;
 }
 
-#define GLstrcmptestr(a,b) if (stricmp(a,#b)==0 || stricmp(a,"GL_" #b)==0)return GL_ ## b;
+#define GLstrcmptestr(a,b) if (d_stricmp(a,#b)==0 || d_stricmp(a,"GL_" #b)==0)return GL_ ## b;
 int ogl_atotexfilti(char *a,int min)
 {
 	GLstrcmptestr(a,NEAREST);

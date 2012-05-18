@@ -146,7 +146,7 @@ int load_mission_d1(void)
 //compare a string for a token. returns true if match
 int istok(char *buf,char *tok)
 {
-	return strnicmp(buf,tok,strlen(tok)) == 0;
+	return d_strnicmp(buf,tok,strlen(tok)) == 0;
 
 }
 
@@ -192,7 +192,7 @@ char *get_parm_value(char *parm,PHYSFS_file *f)
 
 int ml_sort_func(mle *e0,mle *e1)
 {
-	return stricmp(e0->mission_name,e1->mission_name);
+	return d_stricmp(e0->mission_name,e1->mission_name);
 
 }
 
@@ -331,7 +331,7 @@ void add_missions_to_list(mle *mission_list, char *path, char *rel_path, int ana
 			add_missions_to_list(mission_list, path, rel_path, anarchy_mode);
 			*(strrchr(path, '/')) = 0;
 		}
-		else if ((ext = strrchr(*i, '.')) && (!strnicmp(ext, ".msn", 4) || !strnicmp(ext, ".mn2", 4)))
+		else if ((ext = strrchr(*i, '.')) && (!d_strnicmp(ext, ".msn", 4) || !d_strnicmp(ext, ".mn2", 4)))
 			if (read_mission_file(&mission_list[num_missions], rel_path, ML_MISSIONDIR))
 			{
 				if (anarchy_mode || !mission_list[num_missions].anarchy_only_flag)
@@ -363,7 +363,7 @@ void promote (mle *mission_list, char * mission_name, int * top_place)
 	if ((t = strchr(name,'.')) != NULL)
 		*t = 0; //kill extension
 	for (i = *top_place; i < num_missions; i++)
-		if (!stricmp(mission_list[i].filename, name)) {
+		if (!d_stricmp(mission_list[i].filename, name)) {
 			//swap mission positions
 			mle temp;
 
@@ -485,7 +485,7 @@ int load_mission(mle *mission)
 	// for Descent 1 missions, load descent.hog
 	if (!PHYSFSX_contfile_init("descent.hog", 1))
 		Error("descent.hog not available!\n");
-	if (!stricmp(Current_mission_filename, D1_MISSION_FILENAME))
+	if (!d_stricmp(Current_mission_filename, D1_MISSION_FILENAME))
 		return load_mission_d1();
 
 	//read mission from file
@@ -649,7 +649,7 @@ int load_mission_by_name(char *mission_name)
 	bool found = 0;
 
 	for (i = 0; i < num_missions; i++)
-		if (!stricmp(mission_name, mission_list[i].filename))
+		if (!d_stricmp(mission_name, mission_list[i].filename))
 			found = load_mission(mission_list + i);
 
 	free_mission_list(mission_list);
@@ -737,7 +737,7 @@ int select_mission(int anarchy_mode, char *message, int (*when_selected)(void))
         default_mission = 0;
         for (i = 0; i < num_missions; i++) {
             m[i] = mission_list[i].mission_name;
-            if ( !stricmp( m[i], GameCfg.LastMission ) )
+            if ( !d_stricmp( m[i], GameCfg.LastMission ) )
                 default_mission = i;
         }
 

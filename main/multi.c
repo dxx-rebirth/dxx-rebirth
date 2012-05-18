@@ -1042,7 +1042,7 @@ multi_message_feedback(void)
 		{
 			for (i = 0; i < N_players; i++)
 			{
-				if (!strncasecmp(Netgame.team_name[i], Network_message, colon-Network_message))
+				if (!d_strnicmp(Netgame.team_name[i], Network_message, colon-Network_message))
 				{
 					if (found)
 						strcat(feedback_result, ", ");
@@ -1055,7 +1055,7 @@ multi_message_feedback(void)
 		}
 		for (i = 0; i < N_players; i++)
 		{
-			if ((!strncasecmp(Players[i].callsign, Network_message, colon-Network_message)) && (i != Player_num) && (Players[i].connected))
+			if ((!d_strnicmp(Players[i].callsign, Network_message, colon-Network_message)) && (i != Player_num) && (Players[i].connected))
 			{
 				if (found)
 					strcat(feedback_result, ", ");
@@ -1129,13 +1129,6 @@ multi_send_message_start()
 	}
 }
 
-// compare s1 with s2 ignoring case and only considering the
-// first strlen(s2) characters of s1
-int strcasecmpbegin(const char *s1, const char *s2)
-{
-	return strncasecmp(s1, s2, strlen(s2));
-}
-
 void multi_send_message_end()
 {
 	int i, t;
@@ -1145,7 +1138,7 @@ void multi_send_message_end()
   multi_send_msgsend_state(0);
   key_toggle_repeat(0);
 
-	if (!strnicmp (Network_message,"/move: ",7))
+	if (!d_strnicmp (Network_message,"/move: ",7))
 	{
 		if ((Game_mode & GM_NETWORK) && (Game_mode & GM_TEAM))
 		{
@@ -1167,7 +1160,7 @@ void multi_send_message_end()
 			}
 
 			for (i = 0; i < N_players; i++)
-				if ((!strnicmp(Players[i].callsign, &Network_message[name_index], strlen(Network_message)-name_index)) && (Players[i].connected))
+				if ((!d_strnicmp(Players[i].callsign, &Network_message[name_index], strlen(Network_message)-name_index)) && (Players[i].connected))
 				{
 					if (Netgame.team_vector & (1<<i))
 						Netgame.team_vector&=(~(1<<i));
@@ -1193,7 +1186,7 @@ void multi_send_message_end()
 				}
 		}
 	}
-	else if (!strnicmp (Network_message,"/kick: ",7) && (Game_mode & GM_NETWORK))
+	else if (!d_strnicmp (Network_message,"/kick: ",7) && (Game_mode & GM_NETWORK))
 	{
 		int name_index=7;
 		if (strlen(Network_message) > 7)
@@ -1241,7 +1234,7 @@ void multi_send_message_end()
 
 
 		for (i = 0; i < N_players; i++)
-		if ((!strnicmp(Players[i].callsign, &Network_message[name_index], strlen(Network_message)-name_index)) && (i != Player_num) && (Players[i].connected)) {
+		if ((!d_strnicmp(Players[i].callsign, &Network_message[name_index], strlen(Network_message)-name_index)) && (i != Player_num) && (Players[i].connected)) {
 			kick_player:;
 				switch (multi_protocol)
 				{
@@ -1262,7 +1255,7 @@ void multi_send_message_end()
 			}
 	}
 	
-	else if (!strnicmp (Network_message,"/killreactor",12) && (Game_mode & GM_NETWORK) && !Control_center_destroyed)
+	else if (!d_strnicmp (Network_message,"/killreactor",12) && (Game_mode & GM_NETWORK) && !Control_center_destroyed)
 	{	
 		if (!multi_i_am_master())
 			HUD_init_message(HM_MULTI, "Only %s can kill the reactor this way!",Players[multi_who_is_master()].callsign);
@@ -1463,8 +1456,8 @@ multi_do_message(char *buf)
 		HUD_init_message(HM_MULTI, "%s %s", mesbuf, buf+2);
 		multi_sending_message[(int)buf[1]] = 0;
 	}
-	else if ( (!strncasecmp(Players[Player_num].callsign, buf+loc, colon-(buf+loc))) ||
-			  ((Game_mode & GM_TEAM) && ( (get_team(Player_num) == atoi(buf+loc)-1) || !strncasecmp(Netgame.team_name[get_team(Player_num)], buf+loc, colon-(buf+loc)))) )
+	else if ( (!d_strnicmp(Players[Player_num].callsign, buf+loc, colon-(buf+loc))) ||
+			  ((Game_mode & GM_TEAM) && ( (get_team(Player_num) == atoi(buf+loc)-1) || !d_strnicmp(Netgame.team_name[get_team(Player_num)], buf+loc, colon-(buf+loc)))) )
 	{
 		int color = 0;
 		mesbuf[0] = CC_COLOR;
@@ -3546,7 +3539,7 @@ void multi_initiate_save_game()
 	{
 		for (j = 0; j < N_players; j++)
 		{
-			if (i != j && !stricmp(Players[i].callsign, Players[j].callsign))
+			if (i != j && !d_stricmp(Players[i].callsign, Players[j].callsign))
 			{
 				HUD_init_message(HM_MULTI, "Can't save! Multiple players with same callsign!");
 				return;
@@ -3602,7 +3595,7 @@ void multi_initiate_restore_game()
 	{
 		for (j = 0; j < N_players; j++)
 		{
-			if (i != j && !stricmp(Players[i].callsign, Players[j].callsign))
+			if (i != j && !d_stricmp(Players[i].callsign, Players[j].callsign))
 			{
 				HUD_init_message(HM_MULTI, "Can't load! Multiple players with same callsign!");
 				return;

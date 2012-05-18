@@ -47,7 +47,7 @@ int FindArg(char * s)
 	int i;
 
 	for (i=0; i<Num_args; i++ )
-		if (! stricmp( Args[i], s))
+		if (! d_stricmp( Args[i], s))
 			return i;
 
 	return 0;
@@ -61,7 +61,7 @@ int FindResArg(char *prefix, int *sw, int *sh)
 	int prefixlen = strlen(prefix);
 
 	for (i = 0; i < Num_args; ++i)
-		if (Args[i][0] == '-' && !strnicmp(Args[i] + 1, prefix, prefixlen))
+		if (Args[i][0] == '-' && !d_strnicmp(Args[i] + 1, prefix, prefixlen))
 		{
 			w = strtol(Args[i] + 1 + prefixlen, &endptr, 10);
 			if (w > 0 && endptr && endptr[0] == 'x')
@@ -239,7 +239,7 @@ void InitArgs( int argc,char **argv )
 
 	for (i=0; i< Num_args; i++ ) {
 		if ( Args[i][0] == '-' )
-			strlwr( Args[i]  );  // Convert all args to lowercase
+			d_strlwr( Args[i]  );  // Convert all args to lowercase
 	}
 
 	AppendIniArgs();

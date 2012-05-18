@@ -1056,7 +1056,7 @@ void select_tmap(char *type)
 		return;
 	}
 #if !defined(NO_ASM) && !defined(OGL)
-	if (stricmp(type, "i386")==0)
+	if (d_stricmp(type, "i386")==0)
 	{
 		cur_tmap_scanline_per=asm_tmap_scanline_per;
 		cur_tmap_scanline_per_nolight=asm_tmap_scanline_per;
@@ -1067,7 +1067,7 @@ void select_tmap(char *type)
 	}
 	else
 #elif defined(macintosh) && !defined(OGL)
-	if (stricmp(type,"ppc")==0){
+	if (d_stricmp(type,"ppc")==0){
 		cur_tmap_scanline_per=asm_tmap_scanline_per;
 		cur_tmap_scanline_per_nolight=asm_tmap_scanline_per;
 		cur_tmap_scanline_lin=c_tmap_scanline_lin;
@@ -1077,7 +1077,7 @@ void select_tmap(char *type)
 	}
 	else
 #endif
-	if (stricmp(type,"fp")==0){
+	if (d_stricmp(type,"fp")==0){
 		cur_tmap_scanline_per=c_fp_tmap_scanline_per;
 		cur_tmap_scanline_per_nolight=c_fp_tmap_scanline_per_nolight;
 		cur_tmap_scanline_lin=c_tmap_scanline_lin;
@@ -1085,7 +1085,7 @@ void select_tmap(char *type)
 		cur_tmap_scanline_flat=c_tmap_scanline_flat;
 		cur_tmap_scanline_shaded=c_tmap_scanline_shaded;
 	}
-	else if (stricmp(type,"quad")==0){
+	else if (d_stricmp(type,"quad")==0){
 		cur_tmap_scanline_per=c_tmap_scanline_quad;
 		cur_tmap_scanline_per_nolight=c_tmap_scanline_per_nolight;
 		cur_tmap_scanline_lin=c_tmap_scanline_lin;

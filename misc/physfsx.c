@@ -237,7 +237,7 @@ int PHYSFSX_checkSupportedArchiveTypes()
 	for (i = PHYSFS_supportedArchiveTypes(); *i != NULL; i++)
 	{
 		con_printf(CON_DEBUG, "PHYSFS: Supported archive: [%s], which is [%s].\n", (*i)->extension, (*i)->description);
-		if (!stricmp((*i)->extension, "HOG"))
+		if (!d_stricmp((*i)->extension, "HOG"))
 			hog_sup = 1;
 	}
 
@@ -334,7 +334,7 @@ char **PHYSFSX_findFiles(char *path, char **exts)
 	{
 		ext = strrchr(*i, '.');
 		if (ext)
-			for (k = exts; *k != NULL && stricmp(ext, *k); k++) {}	// see if the file is of a type we want
+			for (k = exts; *k != NULL && d_stricmp(ext, *k); k++) {}	// see if the file is of a type we want
 		
 		if (ext && *k)
 			*j++ = *i;
@@ -362,7 +362,7 @@ char **PHYSFSX_findabsoluteFiles(char *path, char *realpath, char **exts)
 	{
 		ext = strrchr(*i, '.');
 		if (ext)
-			for (k = exts; *k != NULL && stricmp(ext, *k); k++) {}	// see if the file is of a type we want
+			for (k = exts; *k != NULL && d_stricmp(ext, *k); k++) {}	// see if the file is of a type we want
 		
 		if (ext && *k && (!strcmp(PHYSFS_getRealDir(*i),realpath)))
 			*j++ = *i;
