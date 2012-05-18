@@ -1,5 +1,9 @@
 D2X-Rebirth Changelog
 
+20120518
+--------
+main/state.c: fixed incorrect canvase for opengl-scaled savestate thumbnail; rebuild free objects after restoring and remapping the coop players
+
 20120516
 --------
 main/game.c: In Multiplayer when taking damage, the game will only leave menus when shield drop below 5
