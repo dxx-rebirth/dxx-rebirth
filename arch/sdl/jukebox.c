@@ -159,7 +159,7 @@ void jukebox_load()
 	jukebox_unload();
 
 	// Check if it's an M3U file
-	if (!stricmp(&GameCfg.CMLevelMusicPath[strlen(GameCfg.CMLevelMusicPath) - 4], ".m3u"))
+	if (!d_stricmp(&GameCfg.CMLevelMusicPath[strlen(GameCfg.CMLevelMusicPath) - 4], ".m3u"))
 		read_m3u();
 	else	// a directory
 	{
@@ -251,7 +251,7 @@ int jukebox_play()
 
 	MALLOC(full_filename, char, strlen(GameCfg.CMLevelMusicPath)+strlen(music_filename)+1);
 	memset(full_filename, '\0', strlen(GameCfg.CMLevelMusicPath)+strlen(music_filename)+1);
-	if (!stricmp(&GameCfg.CMLevelMusicPath[strlen(GameCfg.CMLevelMusicPath) - 4], ".m3u"))	// if it's from an M3U playlist
+	if (!d_stricmp(&GameCfg.CMLevelMusicPath[strlen(GameCfg.CMLevelMusicPath) - 4], ".m3u"))	// if it's from an M3U playlist
 		strcpy(full_filename, music_filename);
 	else											// if it's from a specified path
 		snprintf(full_filename, strlen(GameCfg.CMLevelMusicPath)+strlen(music_filename)+1, "%s%s", GameCfg.CMLevelMusicPath, music_filename);

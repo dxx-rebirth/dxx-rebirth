@@ -458,7 +458,7 @@ int load_screen_text(char *filename, char **buf)
 	int	len, i,x;
 	int	have_binary = 0;
 
-	if (!stricmp(strrchr(filename, '.'), ".txb"))
+	if (!d_stricmp(strrchr(filename, '.'), ".txb"))
 		have_binary = 1;
 	
 	if ((tfile = PHYSFSX_openReadBuffered(filename)) == NULL)
@@ -1141,7 +1141,7 @@ int load_briefing_screen(briefing *br, char *fname)
 	free_briefing_screen(br);
 
 	gr_init_bitmap_data(&br->background);
-	if (stricmp(br->background_name, fname))
+	if (d_stricmp(br->background_name, fname))
 		strncpy (br->background_name,fname, sizeof(br->background_name));
 
 	if ((pcx_error = pcx_read_bitmap(fname, &br->background, BM_LINEAR, gr_palette))!=PCX_ERROR_NONE)
@@ -1149,7 +1149,7 @@ int load_briefing_screen(briefing *br, char *fname)
 
 	show_fullscr(&br->background);
 
-	if (EMULATING_D1 && !stricmp(fname, "brief03.pcx")) // HACK, FIXME: D1 missions should use their own palette (PALETTE.256), but texture replacements not complete
+	if (EMULATING_D1 && !d_stricmp(fname, "brief03.pcx")) // HACK, FIXME: D1 missions should use their own palette (PALETTE.256), but texture replacements not complete
 		gr_use_palette_table("groupa.256");
 
 	gr_palette_load(gr_palette);
@@ -1446,12 +1446,12 @@ void do_end_briefing_screens(char *filename)
 
 	if (EMULATING_D1)
 	{
-		if (stricmp(filename, BIMD1_ENDING_FILE_OEM) == 0)
+		if (d_stricmp(filename, BIMD1_ENDING_FILE_OEM) == 0)
 		{
 			songs_play_song( SONG_ENDGAME, 1 );
 			level_num_screen = ENDING_LEVEL_NUM_OEMSHARE;
 		}
-		else if (stricmp(filename, BIMD1_ENDING_FILE_SHARE) == 0)
+		else if (d_stricmp(filename, BIMD1_ENDING_FILE_SHARE) == 0)
 		{
 			songs_play_song( SONG_BRIEFING, 1 );
 			level_num_screen = ENDING_LEVEL_NUM_OEMSHARE;
@@ -1464,13 +1464,13 @@ void do_end_briefing_screens(char *filename)
 	}
 	else if (PLAYING_BUILTIN_MISSION)
 	{
-		if (stricmp(filename, BIMD2_ENDING_FILE_OEM) == 0)
+		if (d_stricmp(filename, BIMD2_ENDING_FILE_OEM) == 0)
 		{
 			songs_play_song( SONG_TITLE, 1 );
 			level_num_screen = 1;
 			showorder = 1;
 		}
-		else if (stricmp(filename, BIMD2_ENDING_FILE_SHARE) == 0)
+		else if (d_stricmp(filename, BIMD2_ENDING_FILE_SHARE) == 0)
 		{
 			songs_play_song( SONG_ENDGAME, 1 );
 			level_num_screen = 1;

@@ -190,7 +190,7 @@ try_again:
 	if (text[0]==0)	//null string
 		goto try_again;
 
-	strlwr(text);
+	d_strlwr(text);
 
 	memset(filename, '\0', PATH_MAX);
 	snprintf( filename, PATH_MAX, GameArg.SysUsePlayersDir? "Players/%s.plr" : "%s.plr", text );
@@ -205,7 +205,7 @@ try_again:
 		goto try_again;			// They hit Esc during New player config
 
 	strncpy(Players[Player_num].callsign, text, CALLSIGN_LEN);
-	strlwr(Players[Player_num].callsign);
+	d_strlwr(Players[Player_num].callsign);
 
 	write_player_file();
 
@@ -294,7 +294,7 @@ int player_menu_handler( listbox *lb, d_event *event, char **list )
 			else
 			{
 				strncpy(Players[Player_num].callsign,items[citem] + ((items[citem][0]=='$')?1:0), CALLSIGN_LEN);
-				strlwr(Players[Player_num].callsign);
+				d_strlwr(Players[Player_num].callsign);
 			}
 			break;
 
@@ -389,7 +389,7 @@ int RegisterPlayer()
 	qsort(&m[1], NumItems - 1, sizeof(char *), (int (*)( const void *, const void * ))string_array_sort_func);
 
 	for ( i=0; i<NumItems; i++ )
-		if (!stricmp(Players[Player_num].callsign, m[i]) )
+		if (!d_stricmp(Players[Player_num].callsign, m[i]) )
 			citem = i;
 
 	newmenu_listbox1(TXT_SELECT_PILOT, NumItems, m, allow_abort_flag, citem, (int (*)(listbox *, d_event *, void *))player_menu_handler, list);
@@ -1323,11 +1323,11 @@ void list_dir_el(browser *b, const char *origdir, const char *fname)
 	
 	ext = strrchr(fname, '.');
 	if (ext)
-		for (i = b->ext_list; *i != NULL && stricmp(ext, *i); i++) {}	// see if the file is of a type we want
+		for (i = b->ext_list; *i != NULL && d_stricmp(ext, *i); i++) {}	// see if the file is of a type we want
 	
 	if ((!strcmp((PHYSFS_getRealDir(fname)==NULL?"":PHYSFS_getRealDir(fname)), b->view_path)) && (PHYSFS_isDirectory(fname) || (ext && *i))
 #if defined(__MACH__) && defined(__APPLE__)
-		&& stricmp(fname, "Volumes")	// this messes things up, use '..' instead
+		&& d_stricmp(fname, "Volumes")	// this messes things up, use '..' instead
 #endif
 		)
 		string_array_add(&b->list, &b->list_buf, &b->num_files, &b->max_files, &b->max_buf, fname);
@@ -1351,10 +1351,8 @@ int list_directory(browser *b)
 	string_array_tidy(&b->list, &b->list_buf, &b->num_files, &b->max_files, &b->max_buf, 1 + (b->select_dir ? 1 : 0),
 #ifdef __LINUX__
 					  strcmp
-#elif defined(_WIN32) || defined(macintosh)
-					  stricmp
 #else
-					  strcasecmp
+					  d_stricmp
 #endif
 					  );
 					  
@@ -1421,7 +1419,7 @@ int select_file_handler(listbox *menu, d_event *event, browser *b)
 				if (p == strstr(newpath, sep))	// Look at root directory next, if not already
 				{
 #if defined(__MACH__) && defined(__APPLE__)
-					if (!stricmp(p, "/Volumes"))
+					if (!d_stricmp(p, "/Volumes"))
 						return 1;
 #endif
 					if (p[strlen(sep)] != '\0')

@@ -48,7 +48,7 @@ int mix_play_file(char *filename, int loop, void (*hook_finished_track)())
 		return 0;
 
 	// It's a .hmp!
-	if (!stricmp(fptr, ".hmp"))
+	if (!d_stricmp(fptr, ".hmp"))
 	{
 #ifdef _WIN32 // on _WIN32, play natively
 		return digi_win32_play_midi_song( filename, loop ); 

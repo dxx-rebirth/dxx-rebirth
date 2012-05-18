@@ -61,7 +61,7 @@ int load_palette(char *name,int used_for_level,int no_change_screen)
 	if (name==NULL)
 		name = last_palette_loaded_pig;
 
-	if (used_for_level && stricmp(last_palette_loaded_pig,name) != 0) {
+	if (used_for_level && d_stricmp(last_palette_loaded_pig,name) != 0) {
 
 		_splitpath(name,NULL,NULL,pigname,NULL);
 		strcat(pigname,".pig");
@@ -73,7 +73,7 @@ int load_palette(char *name,int used_for_level,int no_change_screen)
 		#endif
 	}
 
-	if (stricmp(last_palette_loaded,name) != 0) {
+	if (d_stricmp(last_palette_loaded,name) != 0) {
 
 		memcpy(old_pal,gr_palette,sizeof(old_pal));
 
@@ -95,7 +95,7 @@ int load_palette(char *name,int used_for_level,int no_change_screen)
 	}
 
 
-	if (used_for_level && stricmp(last_palette_loaded_pig,name) != 0) {
+	if (used_for_level && d_stricmp(last_palette_loaded_pig,name) != 0) {
 
 		strncpy(last_palette_loaded_pig,name,sizeof(last_palette_loaded_pig));
 

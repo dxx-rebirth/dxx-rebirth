@@ -1208,7 +1208,7 @@ net_udp_can_join_netgame(netgame_info *game)
 	// Search to see if we were already in this closed netgame in progress
 
 	for (i = 0; i < num_players; i++) {
-		if ( (!strcasecmp(Players[Player_num].callsign, game->players[i].callsign)) && game->players[i].protocol.udp.isyou )
+		if ( (!d_stricmp(Players[Player_num].callsign, game->players[i].callsign)) && game->players[i].protocol.udp.isyou )
 			break;
 	}
 
@@ -1331,7 +1331,7 @@ void net_udp_welcome_player(UDP_sequence_packet *their)
 
 	for (i = 0; i < N_players; i++)
 	{
-		if ((!strcasecmp(Players[i].callsign, their->player.callsign )) && !memcmp((struct _sockaddr *)&their->player.protocol.udp.addr, (struct _sockaddr *)&Netgame.players[i].protocol.udp.addr, sizeof(struct _sockaddr)))
+		if ((!d_stricmp(Players[i].callsign, their->player.callsign )) && !memcmp((struct _sockaddr *)&their->player.protocol.udp.addr, (struct _sockaddr *)&Netgame.players[i].protocol.udp.addr, sizeof(struct _sockaddr)))
 		{
 			player_num = i;
 			break;
@@ -1587,7 +1587,7 @@ int net_udp_create_monitor_vector(void)
 void net_udp_stop_resync(UDP_sequence_packet *their)
 {
 	if ( (!memcmp((struct _sockaddr *)&UDP_sync_player.player.protocol.udp.addr, (struct _sockaddr *)&their->player.protocol.udp.addr, sizeof(struct _sockaddr))) &&
-		(!stricmp(UDP_sync_player.player.callsign, their->player.callsign)) )
+		(!d_stricmp(UDP_sync_player.player.callsign, their->player.callsign)) )
 	{
 		Network_send_objects = 0;
 		Network_sending_extras=0;
@@ -2378,7 +2378,7 @@ void net_udp_process_game_info(ubyte *data, int data_len, struct _sockaddr game_
 		num_active_udp_changed = 1;
 		
 		for (i = 0; i < num_active_udp_games; i++)
-			if (!strcasecmp(Active_udp_games[i].game_name, recv_game.game_name) && Active_udp_games[i].GameID == recv_game.GameID)
+			if (!d_stricmp(Active_udp_games[i].game_name, recv_game.game_name) && Active_udp_games[i].GameID == recv_game.GameID)
 				break;
 
 		if (i == UDP_MAX_NETGAMES)
@@ -2536,7 +2536,7 @@ void net_udp_process_request(UDP_sequence_packet *their)
 	int i;
 
 	for (i = 0; i < N_players; i++)
-		if (!memcmp((struct _sockaddr *)&their->player.protocol.udp.addr, (struct _sockaddr *)&Netgame.players[i].protocol.udp.addr, sizeof(struct _sockaddr)) && (!strcasecmp(their->player.callsign, Netgame.players[i].callsign)))
+		if (!memcmp((struct _sockaddr *)&their->player.protocol.udp.addr, (struct _sockaddr *)&Netgame.players[i].protocol.udp.addr, sizeof(struct _sockaddr)) && (!d_stricmp(their->player.callsign, Netgame.players[i].callsign)))
 		{
 			Players[i].connected = CONNECT_PLAYING;
 			Netgame.players[i].LastPacketTime = timer_query();
@@ -3408,7 +3408,7 @@ void net_udp_read_sync_packet( ubyte * data, int data_len, struct _sockaddr send
 	}
 
 	for (i=0; i<N_players; i++ )    {
-		if ( Netgame.players[i].protocol.udp.isyou == 1 && (!strcasecmp( Netgame.players[i].callsign, temp_callsign)) )
+		if ( Netgame.players[i].protocol.udp.isyou == 1 && (!d_stricmp( Netgame.players[i].callsign, temp_callsign)) )
 		{
 			if (Player_num!=-1) {
 				Int3(); // Hey, we've found ourselves twice

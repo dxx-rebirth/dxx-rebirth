@@ -28,7 +28,7 @@ COPYRIGHT 1993-1999 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 
 int file_sort_func(char **e0, char **e1)
 {
-	return stricmp(*e0, *e1);
+	return d_stricmp(*e0, *e1);
 }
 
 
@@ -94,7 +94,7 @@ char **file_getfilelist(int *NumFiles, char *filespec, char *dir)
 	for (i = list; *i; i++)
 	{
 		ext = strrchr(*i, '.');
-		if (ext && (!stricmp(ext, filespec)))
+		if (ext && (!d_stricmp(ext, filespec)))
 			*j++ = *i;
 		else
 			free(*i);

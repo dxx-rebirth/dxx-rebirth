@@ -277,7 +277,7 @@ bitmap_index piggy_find_bitmap( char * name )
 		*t=0;
 
 	for (i=0;i<Num_aliases;i++)
-		if (stricmp(name,alias_list[i].alias_name)==0) {
+		if (d_stricmp(name,alias_list[i].alias_name)==0) {
 			if (t) {                //extra stuff for ABMs
 				static char temp[FILENAME_LEN];
 				_splitpath(alias_list[i].file_name, NULL, NULL, temp, NULL );
@@ -505,9 +505,9 @@ void piggy_new_pigfile(char *pigname)
 	int must_rewrite_pig = 0;
 #endif
 
-	strlwr(pigname);
+	d_strlwr(pigname);
 
-	if (strnicmp(Current_pigfile, pigname, sizeof(Current_pigfile)) == 0 // correct pig already loaded
+	if (d_strnicmp(Current_pigfile, pigname, sizeof(Current_pigfile)) == 0 // correct pig already loaded
 	    && !Bitmap_replacement_data) // no need to reload: no bitmaps were altered
 		return;
 
@@ -1494,7 +1494,7 @@ int piggy_is_gauge_bitmap( char * base_name )
 {
 	int i;
 	for (i=0; i<NUM_GAUGE_BITMAPS; i++ )    {
-		if ( !stricmp( base_name, gauge_bitmap_names[i] ))      
+		if ( !d_stricmp( base_name, gauge_bitmap_names[i] ))      
 			return 1;
 	}
 
@@ -1755,7 +1755,7 @@ int get_d1_bm_index(char *filename, PHYSFS_file *d1_pig) {
 	PHYSFSX_fseek (d1_pig, 8, SEEK_SET);
 	for (i = 1; i <= N_bitmaps; i++) {
 		DiskBitmapHeader_d1_read(&bmh, d1_pig);
-		if (!strnicmp(bmh.name, filename, 8))
+		if (!d_strnicmp(bmh.name, filename, 8))
 			return i;
 	}
 	return -1;
@@ -1813,8 +1813,8 @@ void read_d1_tmap_nums_from_hog(PHYSFS_file *d1_pig)
 				reading_textures = 0; // default
 			if (!strcmp(arg, "$TEXTURES")) // BM_TEXTURES
 				reading_textures = 1;
-			else if (! stricmp(arg, "$ECLIP") // BM_ECLIP
-				   || ! stricmp(arg, "$WCLIP")) // BM_WCLIP
+			else if (! d_stricmp(arg, "$ECLIP") // BM_ECLIP
+				   || ! d_stricmp(arg, "$WCLIP")) // BM_WCLIP
 					texture_count++;
 			else // not a special token, must be a bitmap!
 				if (reading_textures) {
@@ -2028,11 +2028,11 @@ bitmap_index read_extra_bitmap_d1_pig(char *name)
 		for (i = 1; i <= N_bitmaps; i++)
 		{
 			DiskBitmapHeader_d1_read(&bmh, d1_Piggy_fp);
-			if (!strnicmp(bmh.name, name, 8))
+			if (!d_strnicmp(bmh.name, name, 8))
 				break;
 		}
 
-		if (strnicmp(bmh.name, name, 8))
+		if (d_strnicmp(bmh.name, name, 8))
 		{
 			con_printf(CON_DEBUG, "could not find bitmap %s\n", name);
 			return bitmap_num;

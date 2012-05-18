@@ -1642,7 +1642,7 @@ int FinalCheats(int key)
 	{
 		int cheatlen = strlen(cheat_codes[i].string);
 		Assert(cheatlen <= CHEAT_MAX_LEN);
-		if (strnicmp(cheat_codes[i].string, cheat_buffer+CHEAT_MAX_LEN-cheatlen, cheatlen)==0)
+		if (d_strnicmp(cheat_codes[i].string, cheat_buffer+CHEAT_MAX_LEN-cheatlen, cheatlen)==0)
 		{
 			*cheat_codes[i].stateptr = !*cheat_codes[i].stateptr;
 			cheats.enabled = 1;

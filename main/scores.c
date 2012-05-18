@@ -168,7 +168,7 @@ void int_to_string( int number, char *dest )
 		*p++ = buffer[i];
 	}
 	*p++ = '\0';
-	strrev(dest);
+	d_strrev(dest);
 }
 
 void scores_fill_struct(stats_info * stats)

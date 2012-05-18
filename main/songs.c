@@ -124,12 +124,12 @@ void songs_init()
 				sscanf( inputline, "%15s", BIMSongs[i].filename );
 
 				if (strrchr(BIMSongs[i].filename, '.'))
-					if (!stricmp(strrchr(BIMSongs[i].filename, '.'), ".hmp") ||
-						!stricmp(strrchr(BIMSongs[i].filename, '.'), ".mp3") ||
-						!stricmp(strrchr(BIMSongs[i].filename, '.'), ".ogg") ||
-						!stricmp(strrchr(BIMSongs[i].filename, '.'), ".aif") ||
-						!stricmp(strrchr(BIMSongs[i].filename, '.'), ".mid") ||
-						!stricmp(strrchr(BIMSongs[i].filename, '.'), ".flac")
+					if (!d_stricmp(strrchr(BIMSongs[i].filename, '.'), ".hmp") ||
+						!d_stricmp(strrchr(BIMSongs[i].filename, '.'), ".mp3") ||
+						!d_stricmp(strrchr(BIMSongs[i].filename, '.'), ".ogg") ||
+						!d_stricmp(strrchr(BIMSongs[i].filename, '.'), ".aif") ||
+						!d_stricmp(strrchr(BIMSongs[i].filename, '.'), ".mid") ||
+						!d_stricmp(strrchr(BIMSongs[i].filename, '.'), ".flac")
 						)
 						i++;
 			}
