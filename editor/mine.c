@@ -327,7 +327,7 @@ int med_save_mine(char * filename)
 	{
 #if 0 //ndef __linux__
 		char fname[20];
-		_splitpath( filename, NULL, NULL, fname, NULL );
+		d_splitpath( filename, NULL, NULL, fname, NULL );
 
 		sprintf( ErrorMessage, \
 			"ERROR: Cannot write to '%s'.\nYou probably need to check out a locked\nversion of the file. You should save\nthis under a different filename, and then\ncheck out a locked copy by typing\n\'co -l %s.lvl'\nat the DOS prompt.\n" 

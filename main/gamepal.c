@@ -63,7 +63,7 @@ int load_palette(char *name,int used_for_level,int no_change_screen)
 
 	if (used_for_level && d_stricmp(last_palette_loaded_pig,name) != 0) {
 
-		_splitpath(name,NULL,NULL,pigname,NULL);
+		d_splitpath(name,NULL,NULL,pigname,NULL);
 		strcat(pigname,".pig");
 		//if not editor, load pig first so small install message can come
 		//up in old palette.  If editor version, we must load the pig after

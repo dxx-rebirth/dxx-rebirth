@@ -280,7 +280,7 @@ bitmap_index piggy_find_bitmap( char * name )
 		if (d_stricmp(name,alias_list[i].alias_name)==0) {
 			if (t) {                //extra stuff for ABMs
 				static char temp[FILENAME_LEN];
-				_splitpath(alias_list[i].file_name, NULL, NULL, temp, NULL );
+				d_splitpath(alias_list[i].file_name, NULL, NULL, temp, NULL );
 				name = temp;
 				strcat(name,"#");
 				strcat(name,t+1);

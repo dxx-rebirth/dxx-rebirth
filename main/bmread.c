@@ -193,7 +193,7 @@ bitmap_index bm_load_sub(int skip, char * filename )
 		return bitmap_num;
 	}
 
-	_splitpath(  filename, NULL, NULL, fname, NULL );
+	d_splitpath(  filename, NULL, NULL, fname, NULL );
 
 	bitmap_num=piggy_find_bitmap( fname );
 	if (bitmap_num.index)	{
@@ -240,7 +240,7 @@ void ab_load(int skip, char * filename, bitmap_index bmp[], int *nframes )
 	}
 
 
-	_splitpath( filename, NULL, NULL, fname, NULL );
+	d_splitpath( filename, NULL, NULL, fname, NULL );
 	
 	for (i=0; i<MAX_BITMAPS_PER_BRUSH; i++ )	{
 		sprintf( tempname, "%s#%d", fname, i );

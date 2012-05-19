@@ -103,7 +103,7 @@ void parse_args(int argc,char **argv,void (*handler_func)(char *arg),int flags)
 				char filename[_MAX_DRIVE+_MAX_DIR+13],*nptr;
 				int done;
 
-				_splitpath(*argv,drive,dir,NULL,NULL);		//get path
+				d_splitpath(*argv,drive,dir,NULL,NULL);		//get path
 				strcpy(filename,drive);
 				strcat(filename,dir);
 				nptr = filename + strlen(filename);			//point at name part
