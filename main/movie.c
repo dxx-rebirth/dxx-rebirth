@@ -680,9 +680,9 @@ void draw_subtitles(int frame_num)
 
 void init_movie(char *movielib, int required)
 {
-	char filename[FILENAME_LEN];
+	char filename[FILENAME_LEN+2];
 
-	sprintf(filename, "%s-%s.mvl", movielib, GameArg.GfxMovieHires?"h":"l");
+	snprintf(filename, FILENAME_LEN+2, "%s-%s.mvl", movielib, GameArg.GfxMovieHires?"h":"l");
 
 	if (!PHYSFSX_contfile_init(filename, 0))
 	{
@@ -707,15 +707,15 @@ void init_movies()
 
 void close_extra_robot_movie(void)
 {
-	char filename[FILENAME_LEN];
+	char filename[FILENAME_LEN+2];
 
 	if (strcmp(movielib_files[EXTRA_ROBOT_LIB],"")) {
-		sprintf(filename, "%s-%s.mvl", movielib_files[EXTRA_ROBOT_LIB], GameArg.GfxMovieHires?"h":"l");
+		snprintf(filename,FILENAME_LEN+2, "%s-%s.mvl", movielib_files[EXTRA_ROBOT_LIB], GameArg.GfxMovieHires?"h":"l");
 
 		if (!PHYSFSX_contfile_close(filename))
 		{
 			con_printf(CON_URGENT, "Can't close movielib <%s>: %s\n", filename, PHYSFS_getLastError());
-			sprintf(filename, "%s-%s.mvl", movielib_files[EXTRA_ROBOT_LIB], GameArg.GfxMovieHires?"l":"h");
+			snprintf(filename, FILENAME_LEN+2, "%s-%s.mvl", movielib_files[EXTRA_ROBOT_LIB], GameArg.GfxMovieHires?"l":"h");
 
 			if (!PHYSFSX_contfile_close(filename))
 				con_printf(CON_URGENT, "Can't close movielib <%s>: %s\n", filename, PHYSFS_getLastError());
