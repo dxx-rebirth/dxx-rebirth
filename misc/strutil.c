@@ -126,6 +126,16 @@ void d_strrev( char *s1 )
 	}
 }
 
+char *d_strdup(char *str)
+{
+	char *newstr;
+
+	newstr = d_malloc(strlen(str) + 1);
+	strcpy(newstr, str);
+
+	return newstr;
+}
+
 // remove extension from filename
 void removeext(const char *filename, char *out)
 {
@@ -163,8 +173,7 @@ void change_filename_extension( char *dest, const char *src, char *ext )
 	strcpy(p+1,ext);
 }
 
-#if !(defined(_WIN32))
-void _splitpath(char *name, char *drive, char *path, char *base, char *ext)
+void d_splitpath(char *name, char *drive, char *path, char *base, char *ext)
 {
 	char *s, *p;
 
@@ -214,7 +223,6 @@ void _splitpath(char *name, char *drive, char *path, char *base, char *ext)
 	if (ext)
 		strcpy(ext, p);		
 }
-#endif
 
 // create a growing 2D array with a single growing buffer for the text
 // this system is likely to cause less memory fragmentation than having one malloc'd buffer per string

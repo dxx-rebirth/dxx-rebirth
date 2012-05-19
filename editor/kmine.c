@@ -197,7 +197,7 @@ int med_save_situation(char * filename)
 
 	//	Write mine name.
 //	strcpy(mine_name, filename);
-	_splitpath(filename, NULL, NULL, mine_name, NULL);
+	d_splitpath(filename, NULL, NULL, mine_name, NULL);
 	set_extension(mine_name, "min");
 	PHYSFSX_printf(SaveFile, "%s\n", mine_name);
 

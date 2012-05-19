@@ -9,6 +9,7 @@ extern int d_strnicmp( const char *s1, const char *s2, int n );
 extern void d_strlwr( char *s1 );
 extern void d_strupr( char *s1 );
 extern void d_strrev( char *s1 );
+extern char *d_strdup(char *str);
 
 // remove extension from filename, doesn't work with paths.
 void removeext(const char *filename, char *out);
@@ -16,9 +17,7 @@ void removeext(const char *filename, char *out);
 //give a filename a new extension, doesn't work with paths with no extension already there
 extern void change_filename_extension( char *dest, const char *src, char *new_ext );
 
-#if !(defined(_WIN32))
-void _splitpath(char *name, char *drive, char *path, char *base, char *ext);
-#endif
+extern void _splitpath(char *name, char *drive, char *path, char *base, char *ext);
 
 // create a growing 2D array with a single growing buffer for the text
 // this system is likely to cause less memory fragmentation than having one malloc'd buffer per string
