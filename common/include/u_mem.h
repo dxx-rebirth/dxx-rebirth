@@ -24,7 +24,7 @@ extern "C" {
 
 void mem_init(void);
 
-#if !defined(NDEBUG)
+#ifdef DEBUG_MEMORY_ALLOCATIONS
 void mem_display_blocks();
 extern void * mem_malloc( unsigned int size, const char * var, const char * file, unsigned line);
 void * mem_calloc( size_t nmemb, size_t size, const char * var, const char * filename, unsigned line);

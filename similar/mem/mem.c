@@ -30,7 +30,8 @@ COPYRIGHT 1993-1999 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 #define MEMSTATS 0
 #define FULL_MEM_CHECKING 1
 
-#if defined(FULL_MEM_CHECKING) && !defined(NDEBUG)
+#ifdef DEBUG_MEMORY_ALLOCATIONS
+#if defined(FULL_MEM_CHECKING)
 
 #define CHECKSIZE 16
 #define CHECKBYTE 0xFC
@@ -418,4 +419,5 @@ void mem_print_all()
 {
 }
 
+#endif
 #endif

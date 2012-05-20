@@ -226,6 +226,8 @@ class DXXCommon(LazyObjectConstructor):
 				if builddir_suffix is not None:
 					default_builddir += builddir_prefix
 			return default_builddir
+		def default_memdebug(self):
+			return self.debug
 		# automatic setup for raspberrypi
 		def default_opengles(self):
 			if self.raspberrypi:
@@ -270,6 +272,7 @@ class DXXCommon(LazyObjectConstructor):
 				'variable': BoolVariable,
 				'arguments': (
 					('debug', False, 'build DEBUG binary which includes asserts, debugging output, cheats and more output'),
+					('memdebug', self.default_memdebug, 'build with malloc tracking'),
 					('profiler', False, 'profiler build'),
 					('opengl', True, 'build with OpenGL support'),
 					('opengles', self.default_opengles, 'build with OpenGL ES support'),
@@ -551,6 +554,9 @@ class DXXCommon(LazyObjectConstructor):
 		else:
 			env.Append(CPPDEFINES = ['NDEBUG', 'RELEASE'])
 			env.Append(CPPFLAGS = ['-O2'])
+		if self.user_settings.memdebug:
+			message(self, "including: MEMDEBUG")
+			env.Append(CPPDEFINES = ['DEBUG_MEMORY_ALLOCATIONS'])
 
 		# profiler?
 		if (self.user_settings.profiler == 1):
