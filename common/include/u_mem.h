@@ -22,9 +22,9 @@ extern "C" {
 
 #define MEM_K 1.5	// Dynamic array growth factor
 
+#ifdef DEBUG_MEMORY_ALLOCATIONS
 void mem_init(void);
 
-#ifdef DEBUG_MEMORY_ALLOCATIONS
 void mem_display_blocks();
 extern void * mem_malloc( unsigned int size, const char * var, const char * file, unsigned line);
 void * mem_calloc( size_t nmemb, size_t size, const char * var, const char * filename, unsigned line);
@@ -45,6 +45,9 @@ void mem_validate_heap();
 #define mem_realloc(ptr,size,var,file,line)	realloc((ptr),(size))
 #define mem_free	free
 
+static inline void mem_init(void)
+{
+}
 #endif
 
 #define MALLOC( var, type, count )	(var=(type *)mem_malloc((count)*sizeof(type),#var, __FILE__,__LINE__ ))
