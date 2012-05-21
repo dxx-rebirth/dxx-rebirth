@@ -74,6 +74,12 @@ typedef struct vms_matrix
   }
 __pack__ vms_matrix;
 
+// Quaternion structure
+typedef struct vms_quaternion
+{
+    fix w, x, y, z;
+} __pack__ vms_quaternion;
+
 
 //Macros/functions to fill in fields of structures
 
@@ -443,6 +449,8 @@ fix vm_dist_to_plane (vms_vector * checkp, vms_vector * norm, vms_vector * plane
 
 //fills in fields of an angle vector
 #define vm_angvec_make(v,_p,_b,_h) (((v)->p=(_p), (v)->b=(_b), (v)->h=(_h)), (v))
-#endif	/* 
- */
 
+// convert from quaternion to vector matrix and back
+void vms_quaternion_from_matrix(vms_quaternion * q, const vms_matrix * m);
+void vms_matrix_from_quaternion(vms_matrix * m, const vms_quaternion * q);
+#endif

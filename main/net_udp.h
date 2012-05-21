@@ -48,7 +48,7 @@ void net_udp_send_mdata_direct(ubyte *data, int data_len, int pnum, int priority
 #define UPID_GAME_INFO_REQ_SIZE			 13
 #define UPID_GAME_INFO_LITE_REQ_SIZE		 11
 #define UPID_GAME_INFO				  3 // Packet containing all info about a netgame.
-#define UPID_GAME_INFO_SIZE			505
+#define UPID_GAME_INFO_SIZE			506
 #define UPID_GAME_INFO_LITE_REQ			  4 // Requesting lite info about a netgame. Used for discovering games.
 #define UPID_GAME_INFO_LITE			  5 // Packet containing lite netgame info.
 #define UPID_GAME_INFO_LITE_SIZE		 69
@@ -67,6 +67,8 @@ void net_udp_send_mdata_direct(ubyte *data, int data_len, int pnum, int priority
 #define UPID_ENDLEVEL_H				 14 // Packet from Host to all Clients containing connect-states and kills information about everyone in the game.
 #define UPID_ENDLEVEL_C				 15 // Packet from Client to Host containing connect-state and kills information from this Client.
 #define UPID_PDATA				 16 // Packet from player containing his movement data.
+#define UPID_PDATA_S_SIZE			 27
+#define UPID_PDATA_Q_SIZE                        58
 #define UPID_MDATA_PNORM			 17 // Packet containing multi buffer from a player. Priority 0,1 - no ACK needed.
 #define UPID_MDATA_PNEEDACK			 18 // Packet containing multi buffer from a player. Priority 2 - ACK needed. Also contains pkt_num
 #define UPID_MDATA_ACK				 19 // ACK packet for UPID_MDATA_P1.
@@ -109,7 +111,10 @@ typedef struct UDP_frame_info
 	ubyte				Player_num;
 	ubyte				connected;
 	ubyte				obj_render_type;
-	shortpos			pos;
+	union {
+		quaternionpos		qpp;
+		shortpos		spp;
+	} __pack__ ptype;
 } __pack__ UDP_frame_info;
 
 // packet structure for multi-buffer

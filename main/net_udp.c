@@ -75,7 +75,7 @@ void net_udp_send_mdata(int needack, fix64 time);
 void net_udp_process_mdata (ubyte *data, int data_len, struct _sockaddr sender_addr, int needack);
 void net_udp_send_pdata();
 void net_udp_process_pdata ( ubyte *data, int data_len, struct _sockaddr sender_addr );
-void net_udp_read_pdata_short_packet(UDP_frame_info *pd);
+void net_udp_read_pdata_packet(UDP_frame_info *pd);
 void net_udp_timeout_check(fix64 time);
 int net_udp_get_new_player_num (UDP_sequence_packet *their);
 void net_udp_noloss_add_queue_pkt(uint32_t pkt_num, fix64 time, ubyte *data, ushort data_size, ubyte pnum, ubyte player_ack[MAX_PLAYERS]);
@@ -2214,6 +2214,7 @@ void net_udp_send_game_info(struct _sockaddr sender_addr, ubyte info_upid)
 			buf[len] = Netgame.player_flags[i];					len++;
 		}
 		PUT_INTEL_SHORT(buf + len, Netgame.PacketsPerSec);				len += 2;
+		buf[len] = Netgame.ShortPackets;						len++;
 		buf[len] = Netgame.PacketLossPrevention;					len++;
 		buf[len] = Netgame.NoFriendlyFire;						len++;
 
@@ -2386,6 +2387,7 @@ void net_udp_process_game_info(ubyte *data, int data_len, struct _sockaddr game_
 			Netgame.player_flags[i] = data[len];					len++;
 		}
 		Netgame.PacketsPerSec = GET_INTEL_SHORT(&(data[len]));				len += 2;
+		Netgame.ShortPackets = data[len];						len++;
 		Netgame.PacketLossPrevention = data[len];					len++;
 		Netgame.NoFriendlyFire = data[len];						len++;
 
@@ -2795,7 +2797,7 @@ int net_udp_start_poll( newmenu *menu, d_event *event, void *userdata )
 }
 
 static int opt_cinvul, opt_show_on_map;
-static int opt_show_on_map, opt_difficulty, opt_setpower, opt_playtime, opt_killgoal, opt_port, opt_packets, opt_show_names, opt_bright, opt_start_invul, opt_ffire;
+static int opt_show_on_map, opt_difficulty, opt_setpower, opt_playtime, opt_killgoal, opt_port, opt_packets, opt_shortpack, opt_show_names, opt_bright, opt_start_invul, opt_ffire;
 #ifdef USE_TRACKER
 static int opt_tracker;
 #endif
@@ -2825,9 +2827,9 @@ void net_udp_more_game_options ()
 	int opt=0,i=0;
 	char PlayText[80],KillText[80],srinvul[50],packstring[5];
 #ifdef USE_TRACKER
-	newmenu_item m[15];
+	newmenu_item m[16];
 #else
- 	newmenu_item m[14];
+ 	newmenu_item m[15];
 #endif
 
 	snprintf(packstring,sizeof(char)*4,"%d",Netgame.PacketsPerSec);
@@ -2868,6 +2870,8 @@ void net_udp_more_game_options ()
 	m[opt].type = NM_TYPE_TEXT; m[opt].text = "Packets per second (2 - 20)"; opt++;
 	opt_packets=opt;
 	m[opt].type = NM_TYPE_INPUT; m[opt].text=packstring; m[opt].text_len=2; opt++;
+	opt_shortpack=opt;
+	m[opt].type = NM_TYPE_CHECK; m[opt].text = "Short Packets (saves traffic)"; m[opt].value = Netgame.ShortPackets; opt++;
 
 	m[opt].type = NM_TYPE_TEXT; m[opt].text = "Network port"; opt++;
 	opt_port = opt;
@@ -2901,6 +2905,7 @@ menu:
 		nm_messagebox(TXT_ERROR, 1, TXT_OK, "Packet value out of range\nSetting value to 2");
 		Netgame.PacketsPerSec=2;
 	}
+	Netgame.ShortPackets=m[opt_shortpack].value;
 
 	if ((atoi(UDP_MyPort)) < 0 ||(atoi(UDP_MyPort)) > 65535)
 	{
@@ -3137,6 +3142,7 @@ int net_udp_setup_game()
 	sprintf( Netgame.game_name, "%s%s", Players[Player_num].callsign, TXT_S_GAME );
 	Netgame.difficulty=PlayerCfg.DefaultDifficulty;
 	Netgame.PacketsPerSec = 10;
+	Netgame.ShortPackets=1;
 	if (GameArg.MplUdpMyPort != 0)
 		snprintf (UDP_MyPort, sizeof(UDP_MyPort), "%d", GameArg.MplUdpMyPort);
 	else
@@ -4519,7 +4525,6 @@ void net_udp_process_mdata (ubyte *data, int data_len, struct _sockaddr sender_a
 void net_udp_send_pdata()
 {
 	ubyte buf[sizeof(UDP_frame_info)];
-	shortpos pos;
 	int len = 0, i = 0;
 
 	if (!(Game_mode&GM_NETWORK) || UDP_Socket[0] == -1)
@@ -4532,17 +4537,41 @@ void net_udp_send_pdata()
 	buf[len] = UPID_PDATA;										len++;
 	buf[len] = Player_num;										len++;
 	buf[len] = Players[Player_num].connected;							len++;
-	buf[len] = Objects[Players[Player_num].objnum].render_type;					len++;
-	memset(&pos, 0, sizeof(shortpos));
-	create_shortpos(&pos, Objects+Players[Player_num].objnum, 0);
-	memcpy(buf + len, &pos.bytemat, 9);								len += 9;
-	PUT_INTEL_SHORT(buf+len, pos.xo);								len += 2;
-	PUT_INTEL_SHORT(buf+len, pos.yo);								len += 2;
-	PUT_INTEL_SHORT(buf+len, pos.zo);								len += 2;
-	PUT_INTEL_SHORT(buf+len, pos.segment);								len += 2;
-	PUT_INTEL_SHORT(buf+len, pos.velx);								len += 2;
-	PUT_INTEL_SHORT(buf+len, pos.vely);								len += 2;
-	PUT_INTEL_SHORT(buf+len, pos.velz);								len += 2;
+	buf[len] = Objects[Players[Player_num].objnum].render_type;					len++; // 4
+	if (Netgame.ShortPackets)
+	{
+		shortpos spp;
+		memset(&spp, 0, sizeof(shortpos));
+		create_shortpos(&spp, Objects+Players[Player_num].objnum, 0);
+		memcpy(buf + len, &spp.bytemat, 9);							len += 9;
+		PUT_INTEL_SHORT(buf+len, spp.xo);							len += 2;
+		PUT_INTEL_SHORT(buf+len, spp.yo);							len += 2;
+		PUT_INTEL_SHORT(buf+len, spp.zo);							len += 2;
+		PUT_INTEL_SHORT(buf+len, spp.segment);							len += 2;
+		PUT_INTEL_SHORT(buf+len, spp.velx);							len += 2;
+		PUT_INTEL_SHORT(buf+len, spp.vely);							len += 2;
+		PUT_INTEL_SHORT(buf+len, spp.velz);							len += 2; // 23 + 4 = 27
+	}
+	else
+	{
+		quaternionpos qpp;
+		memset(&qpp, 0, sizeof(shortpos));
+		create_quaternionpos(&qpp, Objects+Players[Player_num].objnum, 0);
+		PUT_INTEL_INT(buf+len, qpp.orient.w);							len += 4;
+		PUT_INTEL_INT(buf+len, qpp.orient.x);							len += 4;
+		PUT_INTEL_INT(buf+len, qpp.orient.y);							len += 4;
+		PUT_INTEL_INT(buf+len, qpp.orient.z);							len += 4;
+		PUT_INTEL_INT(buf+len, qpp.pos.x);							len += 4;
+		PUT_INTEL_INT(buf+len, qpp.pos.y);							len += 4;
+		PUT_INTEL_INT(buf+len, qpp.pos.z);							len += 4;
+		PUT_INTEL_INT(buf+len, qpp.vel.x);							len += 4;
+		PUT_INTEL_INT(buf+len, qpp.vel.y);							len += 4;
+		PUT_INTEL_INT(buf+len, qpp.vel.z);							len += 4;
+		PUT_INTEL_INT(buf+len, qpp.rotvel.x);							len += 4;
+		PUT_INTEL_INT(buf+len, qpp.rotvel.y);							len += 4;
+		PUT_INTEL_INT(buf+len, qpp.rotvel.z);							len += 4;
+		PUT_INTEL_SHORT(buf+len, qpp.segnum);							len += 2; // 54 + 4 = 58
+	}
 
 	if (multi_i_am_master())
 	{
@@ -4570,6 +4599,8 @@ void net_udp_process_pdata ( ubyte *data, int data_len, struct _sockaddr sender_
 	
 	if (data_len > sizeof(UDP_frame_info))
 		return;
+	if ((Netgame.ShortPackets && data_len != UPID_PDATA_S_SIZE) || (!Netgame.ShortPackets && data_len != UPID_PDATA_Q_SIZE))
+		return;
 
 	if (memcmp((struct _sockaddr *)&sender_addr, (struct _sockaddr *)&Netgame.players[((multi_i_am_master())?(data[len]):(0))].protocol.udp.addr, sizeof(struct _sockaddr)))
 		return;
@@ -4577,14 +4608,34 @@ void net_udp_process_pdata ( ubyte *data, int data_len, struct _sockaddr sender_
 	pd.Player_num = data[len];									len++;
 	pd.connected = data[len];									len++;
 	pd.obj_render_type = data[len];									len++;
-	memcpy(&pd.pos.bytemat, &(data[len]), 9);							len += 9;
-	pd.pos.xo = GET_INTEL_SHORT(&data[len]);							len += 2;
-	pd.pos.yo = GET_INTEL_SHORT(&data[len]);							len += 2;
-	pd.pos.zo = GET_INTEL_SHORT(&data[len]);							len += 2;
-	pd.pos.segment = GET_INTEL_SHORT(&data[len]);							len += 2;
-	pd.pos.velx = GET_INTEL_SHORT(&data[len]);							len += 2;
-	pd.pos.vely = GET_INTEL_SHORT(&data[len]);							len += 2;
-	pd.pos.velz = GET_INTEL_SHORT(&data[len]);							len += 2;
+	if (Netgame.ShortPackets)
+	{
+		memcpy(&pd.ptype.spp.bytemat, &(data[len]), 9);						len += 9;
+		pd.ptype.spp.xo = GET_INTEL_SHORT(&data[len]);						len += 2;
+		pd.ptype.spp.yo = GET_INTEL_SHORT(&data[len]);						len += 2;
+		pd.ptype.spp.zo = GET_INTEL_SHORT(&data[len]);						len += 2;
+		pd.ptype.spp.segment = GET_INTEL_SHORT(&data[len]);					len += 2;
+		pd.ptype.spp.velx = GET_INTEL_SHORT(&data[len]);					len += 2;
+		pd.ptype.spp.vely = GET_INTEL_SHORT(&data[len]);					len += 2;
+		pd.ptype.spp.velz = GET_INTEL_SHORT(&data[len]);					len += 2;
+	}
+	else
+	{
+		pd.ptype.qpp.orient.w = GET_INTEL_INT(&data[len]);					len += 4;
+		pd.ptype.qpp.orient.x = GET_INTEL_INT(&data[len]);					len += 4;
+		pd.ptype.qpp.orient.y = GET_INTEL_INT(&data[len]);					len += 4;
+		pd.ptype.qpp.orient.z = GET_INTEL_INT(&data[len]);					len += 4;
+		pd.ptype.qpp.pos.x = GET_INTEL_INT(&data[len]);						len += 4;
+		pd.ptype.qpp.pos.y = GET_INTEL_INT(&data[len]);						len += 4;
+		pd.ptype.qpp.pos.z = GET_INTEL_INT(&data[len]);						len += 4;
+		pd.ptype.qpp.vel.x = GET_INTEL_INT(&data[len]);						len += 4;
+		pd.ptype.qpp.vel.y = GET_INTEL_INT(&data[len]);						len += 4;
+		pd.ptype.qpp.vel.z = GET_INTEL_INT(&data[len]);						len += 4;
+		pd.ptype.qpp.rotvel.x = GET_INTEL_INT(&data[len]);					len += 4;
+		pd.ptype.qpp.rotvel.y = GET_INTEL_INT(&data[len]);					len += 4;
+		pd.ptype.qpp.rotvel.z = GET_INTEL_INT(&data[len]);					len += 4;
+		pd.ptype.qpp.segnum = GET_INTEL_SHORT(&data[len]);					len += 2;
+	}
 	
 	if (multi_i_am_master()) // I am host - must relay this packet to others!
 	{
@@ -4598,10 +4649,10 @@ void net_udp_process_pdata ( ubyte *data, int data_len, struct _sockaddr sender_
 		}
 	}
 
-	net_udp_read_pdata_short_packet (&pd);
+	net_udp_read_pdata_packet (&pd);
 }
 
-void net_udp_read_pdata_short_packet(UDP_frame_info *pd)
+void net_udp_read_pdata_packet(UDP_frame_info *pd)
 {
 	int TheirPlayernum;
 	int TheirObjnum;
@@ -4660,7 +4711,10 @@ void net_udp_read_pdata_short_packet(UDP_frame_info *pd)
 
 	//------------ Read the player's ship's object info ----------------------
 
-	extract_shortpos(TheirObj, &pd->pos, 0);
+	if (Netgame.ShortPackets)
+		extract_shortpos(TheirObj, &pd->ptype.spp, 0);
+	else
+		extract_quaternionpos(TheirObj, &pd->ptype.qpp, 0);
 
 	if (TheirObj->movement_type == MT_PHYSICS)
 		set_thrust_from_velocity(TheirObj);

@@ -2158,7 +2158,7 @@ multi_reset_player_object(object *objp)
 	objp->mtype.phys_info.mass = Player_ship->mass;
 	objp->mtype.phys_info.drag = Player_ship->drag;
 	if (objp->type == OBJ_PLAYER)
-		objp->mtype.phys_info.flags |= PF_TURNROLL | PF_LEVELLING | PF_WIGGLE;
+		objp->mtype.phys_info.flags |= PF_TURNROLL | PF_WIGGLE;
 	else
 		objp->mtype.phys_info.flags &= ~(PF_TURNROLL | PF_LEVELLING | PF_WIGGLE);
 

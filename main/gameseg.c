@@ -1008,11 +1008,6 @@ sbyte convert_to_byte(fix f)
 //	Extract the matrix into byte values.
 //	Create a position relative to vertex 0 with 1/256 normal "fix" precision.
 //	Stuff segment in a short.
-//added/edited 03/05/99 Matt Mueller - newer shorterpos type
-//	Create a shortpos struct from an object.
-//	Extract the matrix into byte values.
-//	Create a position relative to vertex 0 with 1/256 normal "fix" precision.
-//	Stuff segment in a short.
 void create_shortpos(shortpos *spp, object *objp, int swap_bytes)
 {
 	// int	segnum;
@@ -1095,49 +1090,69 @@ void extract_shortpos(object *objp, shortpos *spp, int swap_bytes)
 	obj_relink(objp-Objects, segnum);
 }
 
-void extract_shorterpos(object *objp, shorterpos *spp)
+// create and extract quaternion structure from object data which greatly saves bytes by using quaternion instead or orientation matrix
+void create_quaternionpos(quaternionpos * qpp, object * objp, int swap_bytes)
 {
-	int	segnum;
-	sbyte	*sp;
+	vms_quaternion_from_matrix(&qpp->orient, &objp->orient);
 
-	sp = spp->bytemat;
+	qpp->pos = objp->pos;
+	qpp->vel = objp->mtype.phys_info.velocity;
+	qpp->rotvel = objp->mtype.phys_info.rotvel;
 
-	objp->orient.rvec.x = *sp++ << MATRIX_PRECISION;
-	objp->orient.uvec.x = *sp++ << MATRIX_PRECISION;
-	objp->orient.fvec.x = *sp++ << MATRIX_PRECISION;
-	objp->orient.rvec.y = *sp++ << MATRIX_PRECISION;
-	objp->orient.uvec.y = *sp++ << MATRIX_PRECISION;
-	objp->orient.fvec.y = *sp++ << MATRIX_PRECISION;
-	objp->orient.rvec.z = *sp++ << MATRIX_PRECISION;
-	objp->orient.uvec.z = *sp++ << MATRIX_PRECISION;
-	objp->orient.fvec.z = *sp++ << MATRIX_PRECISION;
+	qpp->segnum = objp->segnum;
 
-	segnum = spp->segment;
+	if (swap_bytes)
+	{
+		qpp->orient.w = INTEL_INT(qpp->orient.w);
+		qpp->orient.x = INTEL_INT(qpp->orient.x);
+		qpp->orient.y = INTEL_INT(qpp->orient.y);
+		qpp->orient.z = INTEL_INT(qpp->orient.z);
+		qpp->pos.x = INTEL_INT(qpp->pos.x);
+		qpp->pos.y = INTEL_INT(qpp->pos.y);
+		qpp->pos.z = INTEL_INT(qpp->pos.z);
+		qpp->vel.x = INTEL_INT(qpp->vel.x);
+		qpp->vel.y = INTEL_INT(qpp->vel.y);
+		qpp->vel.z = INTEL_INT(qpp->vel.z);
+		qpp->rotvel.x = INTEL_INT(qpp->rotvel.x);
+		qpp->rotvel.y = INTEL_INT(qpp->rotvel.y);
+		qpp->rotvel.z = INTEL_INT(qpp->rotvel.z);
+		qpp->segnum = INTEL_INT(qpp->segnum);
+	}
+}
 
+void extract_quaternionpos(object *objp, quaternionpos *qpp, int swap_bytes)
+{
+	int segnum;
+
+	if (swap_bytes)
+	{
+		qpp->orient.w = INTEL_INT(qpp->orient.w);
+		qpp->orient.x = INTEL_INT(qpp->orient.x);
+		qpp->orient.y = INTEL_INT(qpp->orient.y);
+		qpp->orient.z = INTEL_INT(qpp->orient.z);
+		qpp->pos.x = INTEL_INT(qpp->pos.x);
+		qpp->pos.y = INTEL_INT(qpp->pos.y);
+		qpp->pos.z = INTEL_INT(qpp->pos.z);
+		qpp->vel.x = INTEL_INT(qpp->vel.x);
+		qpp->vel.y = INTEL_INT(qpp->vel.y);
+		qpp->vel.z = INTEL_INT(qpp->vel.z);
+		qpp->rotvel.x = INTEL_INT(qpp->rotvel.x);
+		qpp->rotvel.y = INTEL_INT(qpp->rotvel.y);
+		qpp->rotvel.z = INTEL_INT(qpp->rotvel.z);
+		qpp->segnum = INTEL_INT(qpp->segnum);
+	}
+
+	vms_matrix_from_quaternion(&objp->orient, &qpp->orient);
+
+	objp->pos = qpp->pos;
+	objp->mtype.phys_info.velocity = qpp->vel;
+	objp->mtype.phys_info.rotvel = qpp->rotvel;
+        
+	segnum = qpp->segnum;
 	Assert((segnum >= 0) && (segnum <= Highest_segment_index));
-
-	objp->pos.x = (spp->xo << RELPOS_PRECISION) + Vertices[Segments[segnum].verts[0]].x;
-	objp->pos.y = (spp->yo << RELPOS_PRECISION) + Vertices[Segments[segnum].verts[0]].y;
-	objp->pos.z = (spp->zo << RELPOS_PRECISION) + Vertices[Segments[segnum].verts[0]].z;
-
-//moved 03/05/99 Matt Mueller - up to new extract_shortpos
-//	objp->mtype.phys_info.velocity.x = (spp->velx << VEL_PRECISION);
-//	objp->mtype.phys_info.velocity.y = (spp->vely << VEL_PRECISION);
-//	objp->mtype.phys_info.velocity.z = (spp->velz << VEL_PRECISION);
-//end move -MM
 	obj_relink(objp-Objects, segnum);
 }
 
-//end edit -MM
-
-//--unused-- void test_shortpos(void)
-//--unused-- {
-//--unused-- 	shortpos	spp;
-//--unused-- 
-//--unused-- 	create_shortpos(&spp, &Objects[0]);
-//--unused-- 	extract_shortpos(&Objects[0], &spp);
-//--unused-- 
-//--unused-- }
 
 //	-----------------------------------------------------------------------------
 //	Segment validation functions.

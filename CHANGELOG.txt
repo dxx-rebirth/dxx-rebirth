@@ -3,6 +3,7 @@ D1X-Rebirth Changelog
 20120521
 --------
 main/state.c: now properly initialize all other parts of the new/old player object when restoring a coop savestate
+include/vecmat.h, main/gameseg.c, main/multi.c, main/multi.h, main/net_udp.c, main/net_udp.h, main/object.h, main/playsave.c, maths/vecmat.c: Introduced quaternion functions to replace vector matrix where size matters - created by Florian Feucht; Added option for pdata packets based on quaternion in Multiplayer game; Removed PF_LEVELLING from new player objects to prevent jittering in player banking
 
 20120519
 --------
