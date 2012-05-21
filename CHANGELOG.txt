@@ -1,5 +1,9 @@
 D2X-Rebirth Changelog
 
+20120521
+--------
+main/state.c: now properly initialize all other parts of the new/old player object when restoring a coop savestate
+
 20120519
 --------
 arch/ogl/gr.c, arch/sdl/digi_mixer_music.c, arch/sdl/jukebox.c, editor/autosave.c, editor/func.c, include/strutil.h, main/bmread.c, main/gamecntl.c, main/gamepal.c, main/gamesave.c, main/hud.c, main/menu.c, main/mission.c, main/multi.c, main/net_udp.c, main/newmenu.c, main/piggy.c, main/playsave.c, main/scores.c, main/songs.c, main/titles.c, misc/args.c, misc/hash.c, misc/physfsx.c, misc/strutil.c, texmap/scanline.c, ui/file.c: using our own functions for stricmp, strnicmp, strlwr, strupr, strrev with a d_ prefix for all platforms for consistency
