@@ -1169,6 +1169,70 @@ void extract_shortpos(object *objp, shortpos *spp, int swap_bytes)
 
 }
 
+// create and extract quaternion structure from object data which greatly saves bytes by using quaternion instead or orientation matrix
+void create_quaternionpos(quaternionpos * qpp, object * objp, int swap_bytes)
+{
+	vms_quaternion_from_matrix(&qpp->orient, &objp->orient);
+
+	qpp->pos = objp->pos;
+	qpp->vel = objp->mtype.phys_info.velocity;
+	qpp->rotvel = objp->mtype.phys_info.rotvel;
+
+	qpp->segnum = objp->segnum;
+
+	if (swap_bytes)
+	{
+		qpp->orient.w = INTEL_INT(qpp->orient.w);
+		qpp->orient.x = INTEL_INT(qpp->orient.x);
+		qpp->orient.y = INTEL_INT(qpp->orient.y);
+		qpp->orient.z = INTEL_INT(qpp->orient.z);
+		qpp->pos.x = INTEL_INT(qpp->pos.x);
+		qpp->pos.y = INTEL_INT(qpp->pos.y);
+		qpp->pos.z = INTEL_INT(qpp->pos.z);
+		qpp->vel.x = INTEL_INT(qpp->vel.x);
+		qpp->vel.y = INTEL_INT(qpp->vel.y);
+		qpp->vel.z = INTEL_INT(qpp->vel.z);
+		qpp->rotvel.x = INTEL_INT(qpp->rotvel.x);
+		qpp->rotvel.y = INTEL_INT(qpp->rotvel.y);
+		qpp->rotvel.z = INTEL_INT(qpp->rotvel.z);
+		qpp->segnum = INTEL_INT(qpp->segnum);
+	}
+}
+
+void extract_quaternionpos(object *objp, quaternionpos *qpp, int swap_bytes)
+{
+	int segnum;
+
+	if (swap_bytes)
+	{
+		qpp->orient.w = INTEL_INT(qpp->orient.w);
+		qpp->orient.x = INTEL_INT(qpp->orient.x);
+		qpp->orient.y = INTEL_INT(qpp->orient.y);
+		qpp->orient.z = INTEL_INT(qpp->orient.z);
+		qpp->pos.x = INTEL_INT(qpp->pos.x);
+		qpp->pos.y = INTEL_INT(qpp->pos.y);
+		qpp->pos.z = INTEL_INT(qpp->pos.z);
+		qpp->vel.x = INTEL_INT(qpp->vel.x);
+		qpp->vel.y = INTEL_INT(qpp->vel.y);
+		qpp->vel.z = INTEL_INT(qpp->vel.z);
+		qpp->rotvel.x = INTEL_INT(qpp->rotvel.x);
+		qpp->rotvel.y = INTEL_INT(qpp->rotvel.y);
+		qpp->rotvel.z = INTEL_INT(qpp->rotvel.z);
+		qpp->segnum = INTEL_INT(qpp->segnum);
+	}
+
+	vms_matrix_from_quaternion(&objp->orient, &qpp->orient);
+
+	objp->pos = qpp->pos;
+	objp->mtype.phys_info.velocity = qpp->vel;
+	objp->mtype.phys_info.rotvel = qpp->rotvel;
+        
+	segnum = qpp->segnum;
+	Assert((segnum >= 0) && (segnum <= Highest_segment_index));
+	obj_relink(objp-Objects, segnum);
+}
+
+
 //	-----------------------------------------------------------------------------
 //	Segment validation functions.
 //	Moved from editor to game so we can compute surface normals at load time.
