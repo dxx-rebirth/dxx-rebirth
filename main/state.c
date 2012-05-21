@@ -1434,15 +1434,18 @@ RetryObjectLoading:
 
 					obj = &Objects[Players[i].objnum];
 					// since a player always uses the same object, we just have to copy the saved object properties to the existing one. i hate you...
-					obj->pos = restore_objects[j].pos;
-					obj->orient = restore_objects[j].orient;
+					obj->id = i; // assign player object id to player number
 					obj->control_type = restore_objects[j].control_type;
 					obj->movement_type = restore_objects[j].movement_type;
 					obj->render_type = restore_objects[j].render_type;
 					obj->flags = restore_objects[j].flags;
+					obj->pos = restore_objects[j].pos;
+					obj->orient = restore_objects[j].orient;
+					obj->size = restore_objects[j].size;
+					obj->shields = restore_objects[j].shields;
+					obj->lifeleft = restore_objects[j].lifeleft;
 					obj->mtype.phys_info = restore_objects[j].mtype.phys_info;
 					obj->rtype.pobj_info = restore_objects[j].rtype.pobj_info;
-					obj->id = i; // assign player object id to player number
 					// make this restored player object an actual player again
 					obj->type = OBJ_PLAYER;
 					multi_reset_player_object(obj);
