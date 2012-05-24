@@ -111,6 +111,7 @@ void StartNewLevelSecret(int level_num, int page_in_textures);
 void InitPlayerPosition(int random_flag);
 void DoEndGame(void);
 void AdvanceLevel(int secret_flag);
+void StartLevel(int random);
 void filter_objects_from_level();
 
 //Current_level_num starts at 1 for the first level
@@ -1816,36 +1817,25 @@ void StartLevel(int random_flag)
 	ConsoleObject->control_type	= CT_FLYING;
 	ConsoleObject->movement_type	= MT_PHYSICS;
 
-	disable_matcens();
-
-	clear_transient_objects(0);		//0 means leave proximity bombs
-
 	// create_player_appearance_effect(ConsoleObject);
 	Do_appearance_effect = 1;
 
-#ifdef NETWORK
 	if (Game_mode & GM_MULTI)
 	{
 		if (Game_mode & GM_MULTI_COOP)
 			multi_send_score();
 	 	multi_send_reappear();
-	}
-
-	if (Game_mode & GM_NETWORK)
 		multi_do_protocol_frame(1, 1);
-#endif
+	}
+	else // in Singleplayer, after we died ...
+	{
+		disable_matcens(); // ... disable matcens and ...
+		clear_transient_objects(0); // ... clear all transient objects.
+		clear_stuck_objects(); // and stuck ones.
+	}
 
 	ai_reset_all_paths();
 	ai_init_boss_for_ship();
-	clear_stuck_objects();
-
-	#ifdef EDITOR
-	//	Note, this is only done if editor builtin.  Calling this from here
-	//	will cause it to be called after the player dies, resetting the
-	//	hits for the buddy and thief.  This is ok, since it will work ok
-	//	in a shipped version.
-	init_ai_objects();
-	#endif
 
 	reset_rear_view();
 	Auto_fire_fusion_cannon_time = 0;

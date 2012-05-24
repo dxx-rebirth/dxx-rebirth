@@ -1,5 +1,9 @@
 D2X-Rebirth Changelog
 
+20120524
+--------
+main/gameseq.c, main/gameseq.h: in StartLevel() only call disable_matcens() and clear_transient_objects() in Singleplayer to keep consistency with remote clients
+
 20120521
 --------
 main/state.c: now properly initialize all other parts of the new/old player object when restoring a coop savestate

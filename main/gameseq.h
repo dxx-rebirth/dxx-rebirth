@@ -53,7 +53,6 @@ void StartNewGame(int start_level);
 
 // starts the next level
 void StartNewLevel(int level_num, int secret_flag);
-void StartLevel(int random_flag);
 
 // Actually does the work to start new level
 void StartNewLevelSub(int level_num, int page_in_textures, int secret_flag);
