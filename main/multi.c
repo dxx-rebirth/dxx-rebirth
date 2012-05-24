@@ -74,7 +74,6 @@ COPYRIGHT 1993-1998 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 void reset_player_object(void); // In object.c but not in object.h
 void multi_reset_object_texture(object *objp);
 void drop_player_eggs(object *playerobj); // from collide.c
-void StartLevel(void); // From gameseq.c
 void multi_do_heartbeat(char *buf);
 void multi_send_heartbeat();
 void multi_do_kill_goal_counts(char *buf);

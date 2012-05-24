@@ -1341,26 +1341,21 @@ void StartLevel(int random)
 	ConsoleObject->control_type	= CT_FLYING;
 	ConsoleObject->movement_type	= MT_PHYSICS;
 
-	disable_matcens();
-
-	clear_transient_objects(0);		//0 means leave proximity bombs
-
 	// create_player_appearance_effect(ConsoleObject);
 	Do_appearance_effect = 1;
 
-#ifdef NETWORK
 	if (Game_mode & GM_MULTI)
 	{
-#ifndef SHAREWARE
 		if (Game_mode & GM_MULTI_COOP)
 			multi_send_score();
-#endif
 	 	multi_send_reappear();
-	}
-
-	if (Game_mode & GM_NETWORK)
 		multi_do_protocol_frame(1, 1);
-#endif
+	}
+	else // in Singleplayer, after we died ...
+	{
+		disable_matcens(); // ... disable matcens and ...
+		clear_transient_objects(0); // ... clear all transient objects.
+	}
 
 	ai_reset_all_paths();
 	ai_init_boss_for_ship();
@@ -1368,6 +1363,11 @@ void StartLevel(int random)
 	reset_rear_view();
 	Auto_fire_fusion_cannon_time = 0;
 	Fusion_charge = 0;
+
+	if (!(Game_mode & GM_MULTI)) // stuff for Singleplayer only
+	{
+
+	}
 }
 
 
