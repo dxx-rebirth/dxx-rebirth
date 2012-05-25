@@ -376,6 +376,11 @@ int check_trigger_sub(int trigger_num, int pnum,int shot)
 {
 	trigger *trig = &Triggers[trigger_num];
 
+	if (pnum < 0 || pnum > MAX_PLAYERS)
+		return 1;
+	if ((Game_mode & GM_MULTI) && (Players[pnum].connected != CONNECT_PLAYING)) // as a host we may want to handle triggers for our clients. to do that properly we must check wether we (host) or client is actually playing.
+		return 1;
+
 	if (trig->flags & TF_DISABLED)
 		return 1;		//1 means don't send trigger hit to other players
 
@@ -549,6 +554,9 @@ void check_trigger(segment *seg, short side, short objnum,int shot)
 	int wall_num, trigger_num;	//, ctrigger_num;
 	//segment *csegp;
  	//short cside;
+
+	if ((Game_mode & GM_MULTI) && (Players[Player_num].connected != CONNECT_PLAYING)) // as a host we may want to handle triggers for our clients. so this function may be called when we are not playing.
+		return;
 
 	if ((objnum == Players[Player_num].objnum) || ((Objects[objnum].type == OBJ_ROBOT) && (Robot_info[Objects[objnum].id].companion))) {
 

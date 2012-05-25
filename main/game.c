@@ -1321,7 +1321,6 @@ void game_leave_menus(void)
 void GameProcessFrame(void)
 {
 	fix player_shields = Players[Player_num].shields;
-	int was_fuelcen_destroyed = Control_center_destroyed;
 	int player_was_dead = Player_is_dead;
 
 	update_player_stats();
@@ -1487,20 +1486,21 @@ void GameProcessFrame(void)
 #endif
 	}
 
-	// Check if we have to close in-game menus for multiplayer
-	if (Endlevel_sequence || (Player_is_dead != player_was_dead) || ((Players[Player_num].shields < player_shields) && Players[Player_num].shields < 5))
-		game_leave_menus();
-
-	if ((Control_center_destroyed && !was_fuelcen_destroyed) || ((Control_center_destroyed) && (Countdown_seconds_left < 10)))
-		game_leave_menus();
+	omega_charge_frame();
+	slide_textures();
+	flicker_lights();
 
 	//if the player is taking damage, give up guided missile control
 	if (Players[Player_num].shields != player_shields)
 		release_guided_missile(Player_num);
 
-	omega_charge_frame();
-	slide_textures();
-	flicker_lights();
+	// Check if we have to close in-game menus for multiplayer
+	if ((Game_mode & GM_MULTI) && (Players[Player_num].connected == CONNECT_PLAYING))
+	{
+		if ( Endlevel_sequence || ((Control_center_destroyed) && (Countdown_seconds_left <= 1)) || // close menus when end of level...
+			(Automap_active && ((Player_is_dead != player_was_dead) || (Players[Player_num].shields<=0 && player_shields>0))) ) // close autmap when dying ...
+			game_leave_menus();
+	}
 }
 
 //!!extern int Goal_blue_segnum,Goal_red_segnum;
