@@ -115,8 +115,8 @@ int	Alan_pavlish_reactor_times[NDL] = {50, 45, 40, 35, 30};
 //	Called every frame.  If control center been destroyed, then actually do something.
 void do_controlcen_dead_frame(void)
 {
-// 	if (!Control_center_present)
-// 		return;
+	if ((Game_mode & GM_MULTI) && (Players[Player_num].connected != CONNECT_PLAYING)) // if out of level already there's no need for this
+		return;
 
 	if ((Dead_controlcen_object_num != -1) && (Countdown_seconds_left > 0))
 		if (d_rand() < FrameTime*4)

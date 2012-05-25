@@ -1,5 +1,9 @@
 D1X-Rebirth Changelog
 
+20120525
+--------
+main/cntrlcen.c, main/game.c, main/switch.c: Cancel out do_controlcen_dead_frame() when not playing and only check triggers for playing players for further host-authority stuff; Made GameProcessFrame not cause endless loop by closing kmatrix over and over again due to game_leave_menus(); Also only close menus when level ends and when we die only the automap will close - otherwise menus can stay (user request)
+
 20120524
 --------
 main/gameseq.c, main/multi.c: in StartLevel() only call disable_matcens() and clear_transient_objects() in Singleplayer to keep consistency with remote clients
