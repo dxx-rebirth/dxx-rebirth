@@ -1163,9 +1163,6 @@ fix Last_angles_b = 0;
 fix Last_angles_h = 0;
 ubyte Last_angles_read = 0;
 
-extern int VR_sensitivity;
-int VR_sense_range[3] = { 25, 50, 75 };
-
 void kconfig_read_controls(d_event *event, int automap_flag)
 {
 	int i = 0, j = 0, speed_factor = cheats.turbo?2:1;

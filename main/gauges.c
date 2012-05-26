@@ -1380,7 +1380,6 @@ void hud_show_cloak_invuln(void)
 
 void hud_show_shield(void)
 {
-//	gr_set_current_canvas(&VR_render_sub_buffer[0]);	//render off-screen
 	if (PlayerCfg.HudMode<2) {
 		gr_set_curfont( GAME_FONT );
 		gr_set_fontcolor(BM_XRGB(0,31,0),-1 );

@@ -93,12 +93,11 @@ COPYRIGHT 1993-1998 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 int initializing;
 
 //these are instances of canvases, pointed to by variables below
-grs_canvas _canv_editor_game;		//the game on the editor screen
+grs_canvas _canv_editor_game, _canv_editor; //the game on the editor screen, the canvas that the editor writes to
 
 //these are pointers to our canvases
 grs_canvas *Canv_editor;			//the editor screen
 grs_canvas *Canv_editor_game=&_canv_editor_game; //the game on the editor screen
-grs_canvas	VR_editor_canvas;						//  The canvas that the editor writes to.
 
 window *Pad_info;		// Keypad text
 
@@ -427,9 +426,9 @@ void init_editor()
 	
 	//Editor renders into full (320x200) game screen 
 	
-	game_init_render_buffers(320, 200, VR_NONE);
-	gr_init_sub_canvas( &VR_editor_canvas, &grd_curscreen->sc_canvas, 0, 0, SWIDTH, SHEIGHT );
-	Canv_editor = &VR_editor_canvas;
+	game_init_render_buffers(320, 200);
+	gr_init_sub_canvas( &_canv_editor, &grd_curscreen->sc_canvas, 0, 0, SWIDTH, SHEIGHT );
+	Canv_editor = &_canv_editor;
 	gr_set_current_canvas( Canv_editor );
 	init_editor_screen(); // load the main editor dialog
 	gr_set_current_canvas( NULL );

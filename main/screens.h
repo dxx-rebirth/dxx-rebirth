@@ -39,38 +39,10 @@ extern grs_canvas *Canv_editor_game;	// the game window on the editor screen
 extern int set_screen_mode(int sm);	// True = editor screen
 
 //About the screen
-extern fix			VR_eye_width;
-extern int 			VR_eye_switch;
-
-//NEWVR (Add a bunch off lines)
-#define VR_SEPARATION		F1_0*7/10
-#define VR_PIXEL_SHIFT		-6
-#define VR_WHITE_INDEX		255
-#define VR_BLACK_INDEX		0
-extern int			VR_eye_offset;
-extern int			VR_eye_offset_changed;
-extern void			VR_reset_params();
-extern int			VR_use_reg_code;
-
-
-extern int			VR_render_mode;
-extern int			VR_low_res;
-extern int			VR_show_hud;
-extern int			VR_sensitivity;
 
 extern grs_canvas		Screen_3d_window;		// The rectangle for rendering the mine to
-extern grs_canvas		*VR_offscreen_buffer;		// The offscreen data buffer
-extern grs_canvas		VR_render_buffer[2];		// Two offscreen buffers for left/right eyes.
-extern grs_canvas		VR_render_sub_buffer[2];	// Two sub buffers for left/right eyes.
-extern grs_canvas		VR_screen_sub_pages[2];		// Two sub pages of VRAM if paging is available
 
-//values for VR_render_mode
-
-#define VR_NONE			0	// viewing the game screen
-#define VR_AREA_DET		1	// viewing with the stereo area determined method
-#define VR_INTERLACED		2	// viewing with the stereo interlaced method
-
-void game_init_render_buffers(int render_max_w, int render_max_h, int render_method);
+void game_init_render_buffers(int render_max_w, int render_max_h);
 void set_display_mode(int mode);
 extern int Default_display_mode;
 
