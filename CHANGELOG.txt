@@ -5,6 +5,7 @@ D2X-Rebirth Changelog
 main/collide.c: Fit player/player collisions to not take damage from bump while remote player has possibly not aligned to the collision, yet; Added FORCE_DAMAGE_THRESHOLD for minimum force damage to receive from object bumps to not simply take damage from touching objects
 main/net_udp.c: Fixed one more copy/paste issue causeing positional updates relayed to possibly disconnected players
 include/vecmat.h, main/gameseg.c, main/multi.h, main/net_udp.c, main/net_udp.h, main/object.h, maths/vecmat.c: Optimization for quaternion structure: Stuffed orientation in shorts and removed figure out segnum by position - saving 10 bytes for each positional update in Multiplayer; Also removed render_type from pdata to save yet another byte
+main/titles.c: fixed possible buffer overflow in load_screen_text()
 
 20120525
 --------
