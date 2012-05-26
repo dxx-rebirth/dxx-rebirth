@@ -4643,7 +4643,7 @@ void net_udp_process_pdata ( ubyte *data, int data_len, struct _sockaddr sender_
 		{
 			for (i = 1; i < MAX_PLAYERS; i++)
 			{
-				if (i != pd.Player_num && Players[pd.Player_num].connected != CONNECT_DISCONNECTED) // not to sender or disconnected players - right.
+				if (i != pd.Player_num && Players[i].connected != CONNECT_DISCONNECTED) // not to sender or disconnected players - right.
 					dxx_sendto (UDP_Socket[0], data, data_len, 0, (struct sockaddr *)&Netgame.players[i].protocol.udp.addr, sizeof(struct _sockaddr));
 			}
 		}
