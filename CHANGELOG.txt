@@ -1,5 +1,9 @@
 D2X-Rebirth Changelog
 
+20120526
+--------
+main/collide.c: Fit player/player collisions to not take damage from bump while remote player has possibly not aligned to the collision, yet; Added FORCE_DAMAGE_THRESHOLD for minimum force damage to receive from object bumps to not simply take damage from touching objects
+
 20120525
 --------
 main/cntrlcen.c, main/game.c, main/switch.c: Cancel out do_controlcen_dead_frame() when not playing and only check triggers for playing players for further host-authority stuff; Made GameProcessFrame not cause endless loop by closing kmatrix over and over again due to game_leave_menus(); Also only close menus when level ends and when we die only the automap will close - otherwise menus can stay (user request)

@@ -68,15 +68,17 @@ COPYRIGHT 1993-1999 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 #include "switch.h"
 #include "palette.h"
 #include "gameseq.h"
-
 #ifdef EDITOR
 #include "editor/editor.h"
 #endif
-
 #include "collide.h"
 #include "escort.h"
 
-#define STANDARD_EXPL_DELAY (f1_0/4)
+#define WALL_DAMAGE_SCALE (128) // Was 32 before 8:55 am on Thursday, September 15, changed by MK, walls were hurting me more than robots!
+#define WALL_DAMAGE_THRESHOLD (F1_0/3)
+#define WALL_LOUDNESS_SCALE (20)
+#define FORCE_DAMAGE_THRESHOLD (F1_0/3)
+#define STANDARD_EXPL_DELAY (F1_0/4)
 
 int check_collision_delayfunc_exec()
 {
@@ -157,6 +159,9 @@ void apply_force_damage(object *obj,fix force,object *other_obj)
 	if ((other_obj->type == OBJ_PLAYER) && cheats.monsterdamage)
 		damage = 0x7fffffff;
 
+	if (damage < FORCE_DAMAGE_THRESHOLD)
+		return;
+
 	switch (obj->type) {
 
 		case OBJ_ROBOT:
@@ -197,14 +202,14 @@ void apply_force_damage(object *obj,fix force,object *other_obj)
 			apply_damage_to_clutter(obj,damage);
 			break;
 
-		case OBJ_CNTRLCEN:
+		case OBJ_CNTRLCEN: // Never hits! Reactor does not have MT_PHYSICS - it's stationary! So no force damage here.
 
 			apply_damage_to_controlcen(obj,damage, other_obj-Objects);
 			break;
 
 		case OBJ_WEAPON:
 
-			break;		//weapons don't take damage
+			break; //weapons don't take damage
 
 		default:
 
@@ -291,12 +296,6 @@ void bump_one_object(object *obj0, vms_vector *hit_dir, fix damage)
 
 }
 
-#define DAMAGE_SCALE 		128	//	Was 32 before 8:55 am on Thursday, September 15, changed by MK, walls were hurting me more than robots!
-#define DAMAGE_THRESHOLD 	(F1_0/3)
-#define WALL_LOUDNESS_SCALE (20)
-
-fix force_force = i2f(50);
-
 void collide_player_and_wall( object * playerobj, fix hitspeed, short hitseg, short hitwall, vms_vector * hitpt)
 {
 	fix damage;
@@ -339,7 +338,7 @@ void collide_player_and_wall( object * playerobj, fix hitspeed, short hitseg, sh
 	//	** Damage from hitting wall **
 	//	If the player has less than 10% shields, don't take damage from bump
 	// Note: Does quad damage if hit a force field - JL
-	damage = (hitspeed / DAMAGE_SCALE) * (ForceFieldHit*8 + 1);
+	damage = (hitspeed / WALL_DAMAGE_SCALE) * (ForceFieldHit*8 + 1);
 
 	tmap_num2 = Segments[hitseg].sides[hitwall].tmap_num2;
 
@@ -347,9 +346,9 @@ void collide_player_and_wall( object * playerobj, fix hitspeed, short hitseg, sh
 	if ((TmapInfo[tmap_num].flags & (TMI_WATER|TMI_VOLATILE)) || (tmap_num2 && (TmapInfo[tmap_num2&0x3fff].flags & (TMI_WATER|TMI_VOLATILE))))
 		damage = 0;
 
-	if (damage >= DAMAGE_THRESHOLD) {
+	if (damage >= WALL_DAMAGE_THRESHOLD) {
 		int	volume;
-		volume = (hitspeed-(DAMAGE_SCALE*DAMAGE_THRESHOLD)) / WALL_LOUDNESS_SCALE ;
+		volume = (hitspeed-(WALL_DAMAGE_SCALE*WALL_DAMAGE_THRESHOLD)) / WALL_LOUDNESS_SCALE ;
 
 		create_awareness_event(playerobj, PA_WEAPON_WALL_COLLISION);
 
@@ -1734,11 +1733,31 @@ void collide_hostage_and_player( object * hostage, object * player, vms_vector *
 //##	return;
 //##}
 
-void collide_player_and_player( object * player1, object * player2, vms_vector *collision_point ) {
+void collide_player_and_player( object * player1, object * player2, vms_vector *collision_point )
+{
+	static fix64 last_player_bump[MAX_PLAYERS] = { 0, 0, 0, 0, 0, 0, 0, 0 };
+	int damage_flag = 1, otherpl = -1;
+
 	if (check_collision_delayfunc_exec())
 		digi_link_sound_to_pos( SOUND_ROBOT_HIT_PLAYER, player1->segnum, 0, collision_point, 0, F1_0 );
 
-	bump_two_objects(player1, player2, 1);
+	// Multi is special - as always. Clients do the bump damage locally but the remote players do their collision result (change velocity) on their own. So after our initial collision, ignore further collision damage till remote players (hopefully) react.
+	if (Game_mode & GM_MULTI)
+	{
+		damage_flag = 0;
+		if (!(player1->id == Player_num || player2->id == Player_num))
+			return;
+		if (player1->id < 0 || player1->id > MAX_PLAYERS || player2->id < 0 || player2->id > MAX_PLAYERS)
+			return;
+		otherpl = (player1->id==Player_num)?player2->id:player1->id;
+		if (last_player_bump[otherpl] + (F1_0/Netgame.PacketsPerSec) < GameTime64 || last_player_bump[otherpl] > GameTime64)
+		{
+			last_player_bump[otherpl] = GameTime64;
+			damage_flag = 1;
+		}
+	}
+
+	bump_two_objects(player1, player2, damage_flag);
 	return;
 }
 
