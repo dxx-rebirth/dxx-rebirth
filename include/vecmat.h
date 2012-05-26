@@ -67,7 +67,7 @@ __pack__ vms_matrix;
 // Quaternion structure
 typedef struct vms_quaternion
 {
-    fix w, x, y, z;
+    signed short w, x, y, z;
 } __pack__ vms_quaternion;
 
 
