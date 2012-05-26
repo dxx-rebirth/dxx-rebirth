@@ -351,10 +351,12 @@ void briefing_init(briefing *br, short level_num)
 int load_screen_text(char *filename, char **buf)
 {
 	PHYSFS_file *tfile;
-	int	len;
-	int	have_binary = 0;
+	int len, have_binary = 0;
+	char *ext;
 
-	if (!d_stricmp(strrchr(filename, '.'), ".txb"))
+	if ((ext = strrchr(filename, '.')) == NULL)
+		return (0);
+	if (!d_stricmp(ext, ".txb"))
 		have_binary = 1;
 	
 	if ((tfile = PHYSFSX_openReadBuffered(filename)) == NULL)
