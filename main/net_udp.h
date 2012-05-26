@@ -67,8 +67,8 @@ void net_udp_send_mdata_direct(ubyte *data, int data_len, int pnum, int priority
 #define UPID_ENDLEVEL_H				 14 // Packet from Host to all Clients containing connect-states and kills information about everyone in the game.
 #define UPID_ENDLEVEL_C				 15 // Packet from Client to Host containing connect-state and kills information from this Client.
 #define UPID_PDATA				 16 // Packet from player containing his movement data.
-#define UPID_PDATA_S_SIZE			 27
-#define UPID_PDATA_Q_SIZE                        58
+#define UPID_PDATA_S_SIZE			 26
+#define UPID_PDATA_Q_SIZE                        47
 #define UPID_MDATA_PNORM			 17 // Packet containing multi buffer from a player. Priority 0,1 - no ACK needed.
 #define UPID_MDATA_PNEEDACK			 18 // Packet containing multi buffer from a player. Priority 2 - ACK needed. Also contains pkt_num
 #define UPID_MDATA_ACK				 19 // ACK packet for UPID_MDATA_P1.
@@ -110,7 +110,6 @@ typedef struct UDP_frame_info
 	ubyte				type;
 	ubyte				Player_num;
 	ubyte				connected;
-	ubyte				obj_render_type;
 	union {
 		quaternionpos		qpp;
 		shortpos		spp;

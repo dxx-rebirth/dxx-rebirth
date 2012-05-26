@@ -145,7 +145,6 @@ typedef struct quaternionpos {
 	vms_vector pos;
 	vms_vector vel;
 	vms_vector rotvel;
-	short segnum;
 } __pack__ quaternionpos;
 
 

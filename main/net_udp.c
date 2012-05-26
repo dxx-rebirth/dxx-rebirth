@@ -4536,8 +4536,7 @@ void net_udp_send_pdata()
 	
 	buf[len] = UPID_PDATA;										len++;
 	buf[len] = Player_num;										len++;
-	buf[len] = Players[Player_num].connected;							len++;
-	buf[len] = Objects[Players[Player_num].objnum].render_type;					len++; // 4
+	buf[len] = Players[Player_num].connected;							len++; // 3
 	if (Netgame.ShortPackets)
 	{
 		shortpos spp;
@@ -4550,17 +4549,17 @@ void net_udp_send_pdata()
 		PUT_INTEL_SHORT(buf+len, spp.segment);							len += 2;
 		PUT_INTEL_SHORT(buf+len, spp.velx);							len += 2;
 		PUT_INTEL_SHORT(buf+len, spp.vely);							len += 2;
-		PUT_INTEL_SHORT(buf+len, spp.velz);							len += 2; // 23 + 4 = 27
+		PUT_INTEL_SHORT(buf+len, spp.velz);							len += 2; // 23 + 3 = 26
 	}
 	else
 	{
 		quaternionpos qpp;
-		memset(&qpp, 0, sizeof(shortpos));
+		memset(&qpp, 0, sizeof(quaternionpos));
 		create_quaternionpos(&qpp, Objects+Players[Player_num].objnum, 0);
-		PUT_INTEL_INT(buf+len, qpp.orient.w);							len += 4;
-		PUT_INTEL_INT(buf+len, qpp.orient.x);							len += 4;
-		PUT_INTEL_INT(buf+len, qpp.orient.y);							len += 4;
-		PUT_INTEL_INT(buf+len, qpp.orient.z);							len += 4;
+		PUT_INTEL_SHORT(buf+len, qpp.orient.w);							len += 2;
+		PUT_INTEL_SHORT(buf+len, qpp.orient.x);							len += 2;
+		PUT_INTEL_SHORT(buf+len, qpp.orient.y);							len += 2;
+		PUT_INTEL_SHORT(buf+len, qpp.orient.z);							len += 2;
 		PUT_INTEL_INT(buf+len, qpp.pos.x);							len += 4;
 		PUT_INTEL_INT(buf+len, qpp.pos.y);							len += 4;
 		PUT_INTEL_INT(buf+len, qpp.pos.z);							len += 4;
@@ -4569,8 +4568,7 @@ void net_udp_send_pdata()
 		PUT_INTEL_INT(buf+len, qpp.vel.z);							len += 4;
 		PUT_INTEL_INT(buf+len, qpp.rotvel.x);							len += 4;
 		PUT_INTEL_INT(buf+len, qpp.rotvel.y);							len += 4;
-		PUT_INTEL_INT(buf+len, qpp.rotvel.z);							len += 4;
-		PUT_INTEL_SHORT(buf+len, qpp.segnum);							len += 2; // 54 + 4 = 58
+		PUT_INTEL_INT(buf+len, qpp.rotvel.z);							len += 4; // 44 + 3 = 47
 	}
 
 	if (multi_i_am_master())
@@ -4607,7 +4605,6 @@ void net_udp_process_pdata ( ubyte *data, int data_len, struct _sockaddr sender_
 
 	pd.Player_num = data[len];									len++;
 	pd.connected = data[len];									len++;
-	pd.obj_render_type = data[len];									len++;
 	if (Netgame.ShortPackets)
 	{
 		memcpy(&pd.ptype.spp.bytemat, &(data[len]), 9);						len += 9;
@@ -4621,10 +4618,10 @@ void net_udp_process_pdata ( ubyte *data, int data_len, struct _sockaddr sender_
 	}
 	else
 	{
-		pd.ptype.qpp.orient.w = GET_INTEL_INT(&data[len]);					len += 4;
-		pd.ptype.qpp.orient.x = GET_INTEL_INT(&data[len]);					len += 4;
-		pd.ptype.qpp.orient.y = GET_INTEL_INT(&data[len]);					len += 4;
-		pd.ptype.qpp.orient.z = GET_INTEL_INT(&data[len]);					len += 4;
+		pd.ptype.qpp.orient.w = GET_INTEL_SHORT(&data[len]);					len += 2;
+		pd.ptype.qpp.orient.x = GET_INTEL_SHORT(&data[len]);					len += 2;
+		pd.ptype.qpp.orient.y = GET_INTEL_SHORT(&data[len]);					len += 2;
+		pd.ptype.qpp.orient.z = GET_INTEL_SHORT(&data[len]);					len += 2;
 		pd.ptype.qpp.pos.x = GET_INTEL_INT(&data[len]);						len += 4;
 		pd.ptype.qpp.pos.y = GET_INTEL_INT(&data[len]);						len += 4;
 		pd.ptype.qpp.pos.z = GET_INTEL_INT(&data[len]);						len += 4;
@@ -4634,7 +4631,6 @@ void net_udp_process_pdata ( ubyte *data, int data_len, struct _sockaddr sender_
 		pd.ptype.qpp.rotvel.x = GET_INTEL_INT(&data[len]);					len += 4;
 		pd.ptype.qpp.rotvel.y = GET_INTEL_INT(&data[len]);					len += 4;
 		pd.ptype.qpp.rotvel.z = GET_INTEL_INT(&data[len]);					len += 4;
-		pd.ptype.qpp.segnum = GET_INTEL_SHORT(&data[len]);					len += 2;
 	}
 	
 	if (multi_i_am_master()) // I am host - must relay this packet to others!
@@ -4715,7 +4711,6 @@ void net_udp_read_pdata_packet(UDP_frame_info *pd)
 		extract_shortpos(TheirObj, &pd->ptype.spp, 0);
 	else
 		extract_quaternionpos(TheirObj, &pd->ptype.qpp, 0);
-
 	if (TheirObj->movement_type == MT_PHYSICS)
 		set_thrust_from_velocity(TheirObj);
 }

@@ -1099,14 +1099,12 @@ void create_quaternionpos(quaternionpos * qpp, object * objp, int swap_bytes)
 	qpp->vel = objp->mtype.phys_info.velocity;
 	qpp->rotvel = objp->mtype.phys_info.rotvel;
 
-	qpp->segnum = objp->segnum;
-
 	if (swap_bytes)
 	{
-		qpp->orient.w = INTEL_INT(qpp->orient.w);
-		qpp->orient.x = INTEL_INT(qpp->orient.x);
-		qpp->orient.y = INTEL_INT(qpp->orient.y);
-		qpp->orient.z = INTEL_INT(qpp->orient.z);
+		qpp->orient.w = INTEL_SHORT(qpp->orient.w);
+		qpp->orient.x = INTEL_SHORT(qpp->orient.x);
+		qpp->orient.y = INTEL_SHORT(qpp->orient.y);
+		qpp->orient.z = INTEL_SHORT(qpp->orient.z);
 		qpp->pos.x = INTEL_INT(qpp->pos.x);
 		qpp->pos.y = INTEL_INT(qpp->pos.y);
 		qpp->pos.z = INTEL_INT(qpp->pos.z);
@@ -1116,20 +1114,17 @@ void create_quaternionpos(quaternionpos * qpp, object * objp, int swap_bytes)
 		qpp->rotvel.x = INTEL_INT(qpp->rotvel.x);
 		qpp->rotvel.y = INTEL_INT(qpp->rotvel.y);
 		qpp->rotvel.z = INTEL_INT(qpp->rotvel.z);
-		qpp->segnum = INTEL_INT(qpp->segnum);
 	}
 }
 
 void extract_quaternionpos(object *objp, quaternionpos *qpp, int swap_bytes)
 {
-	int segnum;
-
 	if (swap_bytes)
 	{
-		qpp->orient.w = INTEL_INT(qpp->orient.w);
-		qpp->orient.x = INTEL_INT(qpp->orient.x);
-		qpp->orient.y = INTEL_INT(qpp->orient.y);
-		qpp->orient.z = INTEL_INT(qpp->orient.z);
+		qpp->orient.w = INTEL_SHORT(qpp->orient.w);
+		qpp->orient.x = INTEL_SHORT(qpp->orient.x);
+		qpp->orient.y = INTEL_SHORT(qpp->orient.y);
+		qpp->orient.z = INTEL_SHORT(qpp->orient.z);
 		qpp->pos.x = INTEL_INT(qpp->pos.x);
 		qpp->pos.y = INTEL_INT(qpp->pos.y);
 		qpp->pos.z = INTEL_INT(qpp->pos.z);
@@ -1139,7 +1134,6 @@ void extract_quaternionpos(object *objp, quaternionpos *qpp, int swap_bytes)
 		qpp->rotvel.x = INTEL_INT(qpp->rotvel.x);
 		qpp->rotvel.y = INTEL_INT(qpp->rotvel.y);
 		qpp->rotvel.z = INTEL_INT(qpp->rotvel.z);
-		qpp->segnum = INTEL_INT(qpp->segnum);
 	}
 
 	vms_matrix_from_quaternion(&objp->orient, &qpp->orient);
@@ -1148,9 +1142,7 @@ void extract_quaternionpos(object *objp, quaternionpos *qpp, int swap_bytes)
 	objp->mtype.phys_info.velocity = qpp->vel;
 	objp->mtype.phys_info.rotvel = qpp->rotvel;
         
-	segnum = qpp->segnum;
-	Assert((segnum >= 0) && (segnum <= Highest_segment_index));
-	obj_relink(objp-Objects, segnum);
+	update_object_seg(objp);
 }
 
 

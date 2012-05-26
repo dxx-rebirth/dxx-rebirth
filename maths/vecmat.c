@@ -904,62 +904,62 @@ vms_vector *vm_vec_make(vms_vector *v,fix x,fix y,fix z)
 	return v;
 }
 
-// convert vms_quaternion to vms_matrix
+// convert vms_matrix to vms_quaternion
 void vms_quaternion_from_matrix(vms_quaternion * q, const vms_matrix * m) 
 {
 	fix tr = m->rvec.x + m->uvec.y + m->fvec.z;
 	if (tr > 0) {
 		fix s = fixmul(fix_sqrt(tr + fl2f(1.0)), fl2f(2.0));
-		q->w = fixmul(fl2f(0.25), s);
-		q->x = fixdiv(m->fvec.y - m->uvec.z, s);
-		q->y = fixdiv(m->rvec.z - m->fvec.x, s);
-		q->z = fixdiv(m->uvec.x - m->rvec.y, s);
+		q->w = fixmul(fl2f(0.25), s) * .5;
+		q->x = fixdiv(m->fvec.y - m->uvec.z, s) * .5;
+		q->y = fixdiv(m->rvec.z - m->fvec.x, s) * .5;
+		q->z = fixdiv(m->uvec.x - m->rvec.y, s) * .5;
 	} else if ((m->rvec.x > m->uvec.y)&(m->rvec.x > m->fvec.z)) {
 		fix s = fixmul(fix_sqrt(fl2f(1.0) + m->rvec.x - m->uvec.y - m->fvec.z), fl2f(2.0));
-		q->w = fixdiv(m->fvec.y - m->uvec.z, s);
-		q->x = fixmul(fl2f(0.25), s);
-		q->y = fixdiv(m->rvec.y + m->uvec.x, s); 
-		q->z = fixdiv(m->rvec.z + m->fvec.x, s);
+		q->w = fixdiv(m->fvec.y - m->uvec.z, s) * .5;
+		q->x = fixmul(fl2f(0.25), s) * .5;
+		q->y = fixdiv(m->rvec.y + m->uvec.x, s) * .5; 
+		q->z = fixdiv(m->rvec.z + m->fvec.x, s) * .5;
 	} else if (m->uvec.y > m->fvec.z) { 
 		fix s = fixmul(fix_sqrt(fl2f(1.0) + m->uvec.y - m->rvec.x - m->fvec.z), fl2f(2.0));
-		q->w = fixdiv(m->rvec.z - m->fvec.x, s);
-		q->x = fixdiv(m->rvec.y + m->uvec.x ,s); 
-		q->y = fixmul(fl2f(0.25), s);
-		q->z = fixdiv(m->uvec.z + m->fvec.y , s);
+		q->w = fixdiv(m->rvec.z - m->fvec.x, s) * .5;
+		q->x = fixdiv(m->rvec.y + m->uvec.x ,s) * .5; 
+		q->y = fixmul(fl2f(0.25), s) * .5;
+		q->z = fixdiv(m->uvec.z + m->fvec.y , s) * .5;
 	} else { 
 		fix s = fixmul(fix_sqrt(fl2f(1.0) + m->fvec.z - m->rvec.x - m->uvec.y), fl2f(2.0));
-		q->w = fixdiv(m->uvec.x - m->rvec.y , s);
-		q->x = fixdiv(m->rvec.z + m->fvec.x , s);
-		q->y = fixdiv(m->uvec.z +  m->fvec.y, s);
-		q->z = fixmul(fl2f(0.25), s);
+		q->w = fixdiv(m->uvec.x - m->rvec.y , s) * .5;
+		q->x = fixdiv(m->rvec.z + m->fvec.x , s) * .5;
+		q->y = fixdiv(m->uvec.z +  m->fvec.y, s) * .5;
+		q->z = fixmul(fl2f(0.25), s) * .5;
 	}
 }
 
-// convert vms_matrix to vms_quaternion
+// convert vms_quaternion to vms_matrix
 void vms_matrix_from_quaternion(vms_matrix * m, const vms_quaternion * q) 
 {
-	fix sqw = fixmul(q->w, q->w);
-	fix sqx = fixmul(q->x, q->x);
-	fix sqy = fixmul(q->y, q->y);
-	fix sqz = fixmul(q->z, q->z);
+	fix sqw = fixmul(q->w * 2, q->w * 2);
+	fix sqx = fixmul(q->x * 2, q->x * 2);
+	fix sqy = fixmul(q->y * 2, q->y * 2);
+	fix sqz = fixmul(q->z * 2, q->z * 2);
 	
 	fix invs = fixdiv(fl2f(1.0), (sqw + sqx + sqy + sqz));
 	m->rvec.x = fixmul(sqx - sqy - sqz + sqw, invs);
 	m->uvec.y = fixmul(-sqx + sqy - sqz + sqw, invs);
 	m->fvec.z = fixmul(-sqx - sqy + sqz + sqw, invs);
 	
-	fix tmp1 = fixmul(q->x, q->y);
-	fix tmp2 = fixmul(q->z, q->w);
+	fix tmp1 = fixmul(q->x * 2, q->y * 2);
+	fix tmp2 = fixmul(q->z * 2, q->w * 2);
 	m->uvec.x = fixmul(fixmul(fl2f(2.0), (tmp1 + tmp2)), invs);
 	m->rvec.y = fixmul(fixmul(fl2f(2.0), (tmp1 - tmp2)), invs);
 	
-	tmp1 = fixmul(q->x, q->z);
-	tmp2 = fixmul(q->y, q->w);
+	tmp1 = fixmul(q->x * 2, q->z * 2);
+	tmp2 = fixmul(q->y * 2, q->w * 2);
 	m->fvec.x = fixmul(fixmul(fl2f(2.0), (tmp1 - tmp2)), invs);
 	m->rvec.z = fixmul(fixmul(fl2f(2.0), (tmp1 + tmp2)), invs);
 	
-	tmp1 = fixmul(q->y, q->z);
-	tmp2 = fixmul(q->x, q->w);
+	tmp1 = fixmul(q->y * 2, q->z * 2);
+	tmp2 = fixmul(q->x * 2, q->w * 2);
 	m->fvec.y = fixmul(fixmul(fl2f(2.0), (tmp1 + tmp2)), invs);
 	m->uvec.z = fixmul(fixmul(fl2f(2.0), (tmp1 - tmp2)), invs);
 }
