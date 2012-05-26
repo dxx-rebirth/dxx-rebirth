@@ -421,9 +421,6 @@ void update_cockpits()
 	PIGGY_PAGE_IN(cockpit_bitmap[PlayerCfg.CockpitMode[1]]);
 	bm = &GameBitmaps[cockpit_bitmap[PlayerCfg.CockpitMode[1]].index];
 	
-	//Redraw the on-screen cockpit bitmaps
-	if (VR_render_mode != VR_NONE )	return;
-	
 	switch( PlayerCfg.CockpitMode[1] )	{
 		case CM_FULL_COCKPIT:
 			gr_set_current_canvas(NULL);

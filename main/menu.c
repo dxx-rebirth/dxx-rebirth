@@ -969,7 +969,7 @@ void change_res()
 			WINDOW_SEND_EVENT(Game_wind, EVENT_WINDOW_DEACTIVATED);
 		}
 	}
-	game_init_render_buffers(SM_W(Game_screen_mode), SM_H(Game_screen_mode), VR_NONE);
+	game_init_render_buffers(SM_W(Game_screen_mode), SM_H(Game_screen_mode));
 	}
 }
 

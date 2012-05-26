@@ -1,5 +1,9 @@
 D1X-Rebirth Changelog
 
+20120527
+--------
+editor/med.c, main/game.c, main/game.h, main/gamerend.c, main/menu.c: Removed remnants of the old and obsolete VR implementation
+
 20120526
 --------
 main/collide.c: Fit player/player collisions to not take damage from bump while remote player has possibly not aligned to the collision, yet; Added FORCE_DAMAGE_THRESHOLD for minimum force damage to receive from object bumps to not simply take damage from touching objects
