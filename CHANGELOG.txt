@@ -3,6 +3,7 @@ D2X-Rebirth Changelog
 20120526
 --------
 main/collide.c: Fit player/player collisions to not take damage from bump while remote player has possibly not aligned to the collision, yet; Added FORCE_DAMAGE_THRESHOLD for minimum force damage to receive from object bumps to not simply take damage from touching objects
+main/net_udp.c: Fixed one more copy/paste issue causeing positional updates relayed to possibly disconnected players
 
 20120525
 --------
