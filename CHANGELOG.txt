@@ -3,7 +3,7 @@ D1X-Rebirth Changelog
 20120527
 --------
 editor/med.c, main/game.c, main/game.h, main/gamerend.c, main/menu.c: Removed remnants of the old and obsolete VR implementation
-main/laser.c: removed weapon_rate_scale() which should be obsolete due to other optimizations in network code
+main/laser.c: removed weapon_rate_scale() which should be obsolete due to other optimizations in network code; Removed Laser_offset hack
 
 20120526
 --------

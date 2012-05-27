@@ -169,9 +169,6 @@ int laser_are_related( int o1, int o2 )
 	return 0;
 }
 
-//--unused-- int Muzzle_scale=2;
-int Laser_offset=0;
-
 void do_muzzle_stuff(int segnum, vms_vector *pos)
 {
 	Muzzle_data[Muzzle_queue_index].create_time = timer_query();
@@ -350,7 +347,7 @@ int Laser_create_new( vms_vector * direction, vms_vector * position, int segnum,
 		vms_vector	end_pos;
 		int			end_segnum;
 
-	 	vm_vec_scale_add( &end_pos, &obj->pos, direction, Laser_offset+(laser_length/2) );
+	 	vm_vec_scale_add( &end_pos, &obj->pos, direction, (laser_length/2) );
 		end_segnum = find_point_seg(&end_pos, obj->segnum);
 		if (end_segnum != obj->segnum) {
 			if (end_segnum != -1) {
@@ -1168,11 +1165,6 @@ int do_laser_firing(int objnum, int weapon_num, int level, int flags, int nfires
 
 	switch (weapon_num) {
 		case LASER_INDEX: {
-			// The Laser_offset is used to "jitter" the laser fire so that lasers don't always appear
-			// right in front of your face.   I put it here instead of laser_create_new because I want
-			// both of the dual laser beams to be fired from the same distance.
-			Laser_offset = ((F1_0*2)*(d_rand()%8))/8;
-
 			Laser_player_fire( objp, level, 0, 1, 0);
 			Laser_player_fire( objp, level, 1, 0, 0);
 
