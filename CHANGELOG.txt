@@ -3,7 +3,7 @@ D2X-Rebirth Changelog
 20120527
 --------
 editor/med.c, main/game.c, main/gamecntl.c, main/gamerend.c, main/gauges.c, main/kconfig.c, main/menu.c, main/screens.h: Removed remnants of the old and obsolete VR implementation
-main/laser.c: removed weapon_rate_scale() which should be obsolete due to other optimizations in network code
+main/laser.c: removed weapon_rate_scale() which should be obsolete due to other optimizations in network code; Removed Laser_offset hack
 
 20120526
 --------
