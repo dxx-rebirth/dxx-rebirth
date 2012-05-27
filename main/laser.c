@@ -182,19 +182,6 @@ void do_muzzle_stuff(int segnum, vms_vector *pos)
 		Muzzle_queue_index = 0;
 }
 
-/*
- * In effort to reduce weapon fire traffic in Multiplayer games artificially decrease the fire rate down to 100ms between shots.
- * This will work for all weapons, even if game is modded.
- */
-float weapon_rate_scale(int wp_id)
-{
-	if ( !(Game_mode & GM_MULTI) )
-		return 1.0;
-	if ( Weapon_info[wp_id].fire_wait >= f0_1 || Weapon_info[wp_id].fire_wait <= 0 )
-		return 1.0;
-	return (f0_1/Weapon_info[wp_id].fire_wait);
-}
-
 //---------------------------------------------------------------------------------
 // Initializes a laser after Fire is pressed
 
@@ -303,7 +290,7 @@ int Laser_create_new( vms_vector * direction, vms_vector * position, int segnum,
 	if (weapon_type == FLARE_ID)
 		obj->mtype.phys_info.flags |= PF_STICK;		//this obj sticks to walls
 
-	obj->shields = Weapon_info[obj->id].strength[Difficulty_level]*weapon_rate_scale(obj->id);
+	obj->shields = Weapon_info[obj->id].strength[Difficulty_level];
 
 	// Fill in laser-specific data
 
@@ -871,7 +858,7 @@ void Flare_create(object *obj)
 {
 	fix	energy_usage;
 
-	energy_usage = Weapon_info[FLARE_ID].energy_usage*weapon_rate_scale(FLARE_ID);
+	energy_usage = Weapon_info[FLARE_ID].energy_usage;
 
 	if (Difficulty_level < 2)
 		energy_usage = fixmul(energy_usage, i2f(Difficulty_level+2)/4);
@@ -1106,12 +1093,12 @@ int do_laser_firing_player(void)
 		return 0;
 
 	weapon_index = Primary_weapon_to_weapon_info[Primary_weapon];
-	energy_used = Weapon_info[weapon_index].energy_usage*weapon_rate_scale(weapon_index);
+	energy_used = Weapon_info[weapon_index].energy_usage;
 
 	if (Difficulty_level < 2)
 		energy_used = fixmul(energy_used, i2f(Difficulty_level+2)/4);
 
-	ammo_used = Weapon_info[weapon_index].ammo_usage*weapon_rate_scale(weapon_index);
+	ammo_used = Weapon_info[weapon_index].ammo_usage;
 
 //        addval = 2*FrameTime;
 //        if (addval > F1_0)
@@ -1129,7 +1116,7 @@ int do_laser_firing_player(void)
                         //end move - Victor Rachels
 
 			if (!cheats.rapidfire)
-				Next_laser_fire_time += Weapon_info[weapon_index].fire_wait*weapon_rate_scale(weapon_index);
+				Next_laser_fire_time += Weapon_info[weapon_index].fire_wait;
 			else
 				Next_laser_fire_time += F1_0/25;
 
@@ -1419,7 +1406,7 @@ void do_missile_firing(int drop_bomb)
 
 		weapon_index = Secondary_weapon_to_weapon_info[weapon];
 		if (!cheats.rapidfire)
-			Next_missile_fire_time = GameTime64 + Weapon_info[weapon_index].fire_wait*weapon_rate_scale(weapon_index);
+			Next_missile_fire_time = GameTime64 + Weapon_info[weapon_index].fire_wait;
 		else
 			Next_missile_fire_time = GameTime64 + F1_0/25;
 
