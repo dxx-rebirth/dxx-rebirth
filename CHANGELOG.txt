@@ -1,5 +1,9 @@
 D2X-Rebirth Changelog
 
+20120601
+--------
+main/kconfig.c, main/kconfig.h, main/menu.c, main/playsave.c, main/playsave.h: Introduced sensitivity sliders for keyboard which cause movement increase the longer the designated key is pressed
+
 20120527
 --------
 editor/med.c, main/game.c, main/gamecntl.c, main/gamerend.c, main/gauges.c, main/kconfig.c, main/menu.c, main/screens.h: Removed remnants of the old and obsolete VR implementation

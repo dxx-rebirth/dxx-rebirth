@@ -140,30 +140,30 @@ ubyte DefaultKeySettingsD2X[MAX_D2X_CONTROLS] = { 0x2,0xff,0xff,0x3,0xff,0xff,0x
 
 //	  id,  x,  y, w1, w2,  u,  d,   l, r,     text,   type, value
 kc_item kc_keyboard[NUM_KEY_CONTROLS] = {
-	{  0, 15, 49, 71, 26, 55,  2, 56,  1,"Pitch forward", BT_KEY, 255, &Controls.pitch_forward_state, STATE_BIT1, NULL },
-	{  1, 15, 49,100, 26, 50,  3,  0, 24,"Pitch forward", BT_KEY, 255, &Controls.pitch_forward_state, STATE_BIT2, NULL },
-	{  2, 15, 57, 71, 26,  0,  4, 25,  3,"Pitch backward", BT_KEY, 255, &Controls.pitch_backward_state, STATE_BIT1, NULL },
-	{  3, 15, 57,100, 26,  1,  5,  2, 26,"Pitch backward", BT_KEY, 255, &Controls.pitch_backward_state, STATE_BIT2, NULL },
-	{  4, 15, 65, 71, 26,  2,  6, 27,  5,"Turn left", BT_KEY, 255, &Controls.heading_left_state, STATE_BIT1, NULL },
-	{  5, 15, 65,100, 26,  3,  7,  4, 28,"Turn left", BT_KEY, 255, &Controls.heading_left_state, STATE_BIT2, NULL },
-	{  6, 15, 73, 71, 26,  4,  8, 29,  7,"Turn right", BT_KEY, 255, &Controls.heading_right_state, STATE_BIT1, NULL },
-	{  7, 15, 73,100, 26,  5,  9,  6, 34,"Turn right", BT_KEY, 255, &Controls.heading_right_state, STATE_BIT2, NULL },
+	{  0, 15, 49, 71, 26, 55,  2, 56,  1,"Pitch forward", BT_KEY, 255, &Controls.key_pitch_forward_state, STATE_BIT1, NULL },
+	{  1, 15, 49,100, 26, 50,  3,  0, 24,"Pitch forward", BT_KEY, 255, &Controls.key_pitch_forward_state, STATE_BIT2, NULL },
+	{  2, 15, 57, 71, 26,  0,  4, 25,  3,"Pitch backward", BT_KEY, 255, &Controls.key_pitch_backward_state, STATE_BIT1, NULL },
+	{  3, 15, 57,100, 26,  1,  5,  2, 26,"Pitch backward", BT_KEY, 255, &Controls.key_pitch_backward_state, STATE_BIT2, NULL },
+	{  4, 15, 65, 71, 26,  2,  6, 27,  5,"Turn left", BT_KEY, 255, &Controls.key_heading_left_state, STATE_BIT1, NULL },
+	{  5, 15, 65,100, 26,  3,  7,  4, 28,"Turn left", BT_KEY, 255, &Controls.key_heading_left_state, STATE_BIT2, NULL },
+	{  6, 15, 73, 71, 26,  4,  8, 29,  7,"Turn right", BT_KEY, 255, &Controls.key_heading_right_state, STATE_BIT1, NULL },
+	{  7, 15, 73,100, 26,  5,  9,  6, 34,"Turn right", BT_KEY, 255, &Controls.key_heading_right_state, STATE_BIT2, NULL },
 	{  8, 15, 85, 71, 26,  6, 10, 35,  9,"Slide on", BT_KEY, 255, &Controls.slide_on_state, STATE_BIT1, NULL },
 	{  9, 15, 85,100, 26,  7, 11,  8, 36,"Slide on", BT_KEY, 255, &Controls.slide_on_state, STATE_BIT2, NULL },
-	{ 10, 15, 93, 71, 26,  8, 12, 37, 11,"Slide left", BT_KEY, 255, &Controls.slide_left_state, STATE_BIT1, NULL },
-	{ 11, 15, 93,100, 26,  9, 13, 10, 44,"Slide left", BT_KEY, 255, &Controls.slide_left_state, STATE_BIT2, NULL },
-	{ 12, 15,101, 71, 26, 10, 14, 45, 13,"Slide right", BT_KEY, 255, &Controls.slide_right_state, STATE_BIT1, NULL },
-	{ 13, 15,101,100, 26, 11, 15, 12, 30,"Slide right", BT_KEY, 255, &Controls.slide_right_state, STATE_BIT2, NULL },
-	{ 14, 15,109, 71, 26, 12, 16, 31, 15,"Slide up", BT_KEY, 255, &Controls.slide_up_state, STATE_BIT1, NULL },
-	{ 15, 15,109,100, 26, 13, 17, 14, 32,"Slide up", BT_KEY, 255, &Controls.slide_up_state, STATE_BIT2, NULL },
-	{ 16, 15,117, 71, 26, 14, 18, 33, 17,"Slide down", BT_KEY, 255, &Controls.slide_down_state, STATE_BIT1, NULL },
-	{ 17, 15,117,100, 26, 15, 19, 16, 46,"Slide down", BT_KEY, 255, &Controls.slide_down_state, STATE_BIT2, NULL },
+	{ 10, 15, 93, 71, 26,  8, 12, 37, 11,"Slide left", BT_KEY, 255, &Controls.key_slide_left_state, STATE_BIT1, NULL },
+	{ 11, 15, 93,100, 26,  9, 13, 10, 44,"Slide left", BT_KEY, 255, &Controls.key_slide_left_state, STATE_BIT2, NULL },
+	{ 12, 15,101, 71, 26, 10, 14, 45, 13,"Slide right", BT_KEY, 255, &Controls.key_slide_right_state, STATE_BIT1, NULL },
+	{ 13, 15,101,100, 26, 11, 15, 12, 30,"Slide right", BT_KEY, 255, &Controls.key_slide_right_state, STATE_BIT2, NULL },
+	{ 14, 15,109, 71, 26, 12, 16, 31, 15,"Slide up", BT_KEY, 255, &Controls.key_slide_up_state, STATE_BIT1, NULL },
+	{ 15, 15,109,100, 26, 13, 17, 14, 32,"Slide up", BT_KEY, 255, &Controls.key_slide_up_state, STATE_BIT2, NULL },
+	{ 16, 15,117, 71, 26, 14, 18, 33, 17,"Slide down", BT_KEY, 255, &Controls.key_slide_down_state, STATE_BIT1, NULL },
+	{ 17, 15,117,100, 26, 15, 19, 16, 46,"Slide down", BT_KEY, 255, &Controls.key_slide_down_state, STATE_BIT2, NULL },
 	{ 18, 15,129, 71, 26, 16, 20, 47, 19,"Bank on", BT_KEY, 255, &Controls.bank_on_state, STATE_BIT1, NULL },
 	{ 19, 15,129,100, 26, 17, 21, 18, 38,"Bank on", BT_KEY, 255, &Controls.bank_on_state, STATE_BIT2, NULL },
-	{ 20, 15,137, 71, 26, 18, 22, 39, 21,"Bank left", BT_KEY, 255, &Controls.bank_left_state, STATE_BIT1, NULL },
-	{ 21, 15,137,100, 26, 19, 23, 20, 40,"Bank left", BT_KEY, 255, &Controls.bank_left_state, STATE_BIT2, NULL },
-	{ 22, 15,145, 71, 26, 20, 48, 41, 23,"Bank right", BT_KEY, 255, &Controls.bank_right_state, STATE_BIT1, NULL },
-	{ 23, 15,145,100, 26, 21, 49, 22, 42,"Bank right", BT_KEY, 255, &Controls.bank_right_state, STATE_BIT2, NULL },
+	{ 20, 15,137, 71, 26, 18, 22, 39, 21,"Bank left", BT_KEY, 255, &Controls.key_bank_left_state, STATE_BIT1, NULL },
+	{ 21, 15,137,100, 26, 19, 23, 20, 40,"Bank left", BT_KEY, 255, &Controls.key_bank_left_state, STATE_BIT2, NULL },
+	{ 22, 15,145, 71, 26, 20, 48, 41, 23,"Bank right", BT_KEY, 255, &Controls.key_bank_right_state, STATE_BIT1, NULL },
+	{ 23, 15,145,100, 26, 21, 49, 22, 42,"Bank right", BT_KEY, 255, &Controls.key_bank_right_state, STATE_BIT2, NULL },
 	{ 24,158, 49, 83, 26, 51, 26,  1, 25,"Fire primary", BT_KEY, 255, &Controls.fire_primary_state, STATE_BIT1, &Controls.fire_primary_count },
 	{ 25,158, 49,112, 26, 56, 27, 24,  2,"Fire primary", BT_KEY, 255, &Controls.fire_primary_state, STATE_BIT2, &Controls.fire_primary_count },
 	{ 26,158, 57, 83, 26, 24, 28,  3, 27,"Fire secondary", BT_KEY, 255, &Controls.fire_secondary_state, STATE_BIT1, &Controls.fire_secondary_count },
@@ -205,13 +205,13 @@ kc_item kc_joystick[NUM_JOYSTICK_CONTROLS] = {
 	{  3, 22, 86, 80, 26,  2, 25, 40, 34,"reverse", BT_JOY_BUTTON, 255, &Controls.reverse_state, STATE_BIT3, NULL },
 	{  4, 22, 62, 80, 26,  1, 26, 37, 35,"Fire flare", BT_JOY_BUTTON, 255, NULL, 0, &Controls.fire_flare_count },
 	{  5,174, 46, 74, 26, 23,  6, 31, 36,"Slide on", BT_JOY_BUTTON, 255, &Controls.slide_on_state, STATE_BIT3, NULL },
-	{  6,174, 54, 74, 26,  5,  7, 32, 37,"Slide left", BT_JOY_BUTTON, 255, &Controls.slide_left_state, STATE_BIT3, NULL },
-	{  7,174, 62, 74, 26,  6,  8, 35, 38,"Slide right", BT_JOY_BUTTON, 255, &Controls.slide_right_state, STATE_BIT3, NULL },
-	{  8,174, 70, 74, 26,  7,  9, 45, 39,"Slide up", BT_JOY_BUTTON, 255, &Controls.slide_up_state, STATE_BIT3, NULL },
-	{  9,174, 78, 74, 26,  8, 10, 33, 40,"Slide down", BT_JOY_BUTTON, 255, &Controls.slide_down_state, STATE_BIT3, NULL },
+	{  6,174, 54, 74, 26,  5,  7, 32, 37,"Slide left", BT_JOY_BUTTON, 255, &Controls.btn_slide_left_state, STATE_BIT3, NULL },
+	{  7,174, 62, 74, 26,  6,  8, 35, 38,"Slide right", BT_JOY_BUTTON, 255, &Controls.btn_slide_right_state, STATE_BIT3, NULL },
+	{  8,174, 70, 74, 26,  7,  9, 45, 39,"Slide up", BT_JOY_BUTTON, 255, &Controls.btn_slide_up_state, STATE_BIT3, NULL },
+	{  9,174, 78, 74, 26,  8, 10, 33, 40,"Slide down", BT_JOY_BUTTON, 255, &Controls.btn_slide_down_state, STATE_BIT3, NULL },
 	{ 10,174, 86, 74, 26,  9, 11, 34, 41,"Bank on", BT_JOY_BUTTON, 255, &Controls.bank_on_state, STATE_BIT3, NULL },
-	{ 11,174, 94, 74, 26, 10, 12, 44, 42,"Bank left", BT_JOY_BUTTON, 255, &Controls.bank_left_state, STATE_BIT3, NULL },
-	{ 12,174,102, 74, 26, 11, 28, 46, 43,"Bank right", BT_JOY_BUTTON, 255, &Controls.bank_right_state, STATE_BIT3, NULL },
+	{ 11,174, 94, 74, 26, 10, 12, 44, 42,"Bank left", BT_JOY_BUTTON, 255, &Controls.btn_bank_left_state, STATE_BIT3, NULL },
+	{ 12,174,102, 74, 26, 11, 28, 46, 43,"Bank right", BT_JOY_BUTTON, 255, &Controls.btn_bank_right_state, STATE_BIT3, NULL },
 	{ 13, 22,154, 51, 26, 55, 15, 55, 14,"Pitch U/D", BT_JOY_AXIS, 255, NULL, 0, NULL },
 	{ 14, 22,154, 99,  8, 50, 16, 13, 17,"Pitch U/D", BT_INVERT, 255, NULL, 0, NULL },
 	{ 15, 22,162, 51, 26, 13,  0, 18, 16,"Turn L/R", BT_JOY_AXIS, 255, NULL, 0, NULL },
@@ -236,13 +236,13 @@ kc_item kc_joystick[NUM_JOYSTICK_CONTROLS] = {
 	{ 34, 22, 86,110, 26, 33, 44,  3, 10,"reverse", BT_JOY_BUTTON, 255, &Controls.reverse_state, STATE_BIT4, NULL },
 	{ 35, 22, 62,110, 26, 32, 45,  4,  7,"Fire flare", BT_JOY_BUTTON, 255, NULL, 0, &Controls.fire_flare_count },
 	{ 36,174, 46,104, 26, 24, 37,  5,  1,"Slide on", BT_JOY_BUTTON, 255, &Controls.slide_on_state, STATE_BIT4, NULL },
-	{ 37,174, 54,104, 26, 36, 38,  6,  4,"Slide left", BT_JOY_BUTTON, 255, &Controls.slide_left_state, STATE_BIT4, NULL },
-	{ 38,174, 62,104, 26, 37, 39,  7, 26,"Slide right", BT_JOY_BUTTON, 255, &Controls.slide_right_state, STATE_BIT4, NULL },
-	{ 39,174, 70,104, 26, 38, 40,  8,  2,"Slide up", BT_JOY_BUTTON, 255, &Controls.slide_up_state, STATE_BIT4, NULL },
-	{ 40,174, 78,104, 26, 39, 41,  9,  3,"Slide down", BT_JOY_BUTTON, 255, &Controls.slide_down_state, STATE_BIT4, NULL },
+	{ 37,174, 54,104, 26, 36, 38,  6,  4,"Slide left", BT_JOY_BUTTON, 255, &Controls.btn_slide_left_state, STATE_BIT4, NULL },
+	{ 38,174, 62,104, 26, 37, 39,  7, 26,"Slide right", BT_JOY_BUTTON, 255, &Controls.btn_slide_right_state, STATE_BIT4, NULL },
+	{ 39,174, 70,104, 26, 38, 40,  8,  2,"Slide up", BT_JOY_BUTTON, 255, &Controls.btn_slide_up_state, STATE_BIT4, NULL },
+	{ 40,174, 78,104, 26, 39, 41,  9,  3,"Slide down", BT_JOY_BUTTON, 255, &Controls.btn_slide_down_state, STATE_BIT4, NULL },
 	{ 41,174, 86,104, 26, 40, 42, 10, 25,"Bank on", BT_JOY_BUTTON, 255, &Controls.bank_on_state, STATE_BIT4, NULL },
-	{ 42,174, 94,104, 26, 41, 43, 11, 27,"Bank left", BT_JOY_BUTTON, 255, &Controls.bank_left_state, STATE_BIT4, NULL },
-	{ 43,174,102,104, 26, 42, 47, 12, 30,"Bank right", BT_JOY_BUTTON, 255, &Controls.bank_right_state, STATE_BIT4, NULL },
+	{ 42,174, 94,104, 26, 41, 43, 11, 27,"Bank left", BT_JOY_BUTTON, 255, &Controls.btn_bank_left_state, STATE_BIT4, NULL },
+	{ 43,174,102,104, 26, 42, 47, 12, 30,"Bank right", BT_JOY_BUTTON, 255, &Controls.btn_bank_right_state, STATE_BIT4, NULL },
 	{ 44, 22, 94,110, 26, 34, 46, 25, 11,"REAR VIEW", BT_JOY_BUTTON, 255, &Controls.rear_view_state, STATE_BIT4, &Controls.rear_view_count },
 	{ 45, 22, 70,110, 26, 35, 33, 26,  8,"Drop Bomb", BT_JOY_BUTTON, 255, NULL, 0, &Controls.drop_bomb_count },
 	{ 46, 22,102,110, 26, 44, 49, 27, 12,"Afterburner", BT_JOY_BUTTON, 255, &Controls.afterburner_state, STATE_BIT4, NULL },
@@ -263,13 +263,13 @@ kc_item kc_mouse[NUM_MOUSE_CONTROLS] = {
 	{  3, 25, 86, 85, 26,  2, 25,  9, 10,"reverse", BT_MOUSE_BUTTON, 255, &Controls.reverse_state, STATE_BIT5, NULL },
 	{  4, 25, 62, 85, 26,  1, 26,  6,  7,"Fire flare", BT_MOUSE_BUTTON, 255, NULL, 0, &Controls.fire_flare_count },
 	{  5,180, 46, 59, 26, 23,  6,  0,  1,"Slide on", BT_MOUSE_BUTTON, 255, &Controls.slide_on_state, STATE_BIT5, NULL },
-	{  6,180, 54, 59, 26,  5,  7,  1,  4,"Slide left", BT_MOUSE_BUTTON, 255, &Controls.slide_left_state, STATE_BIT5, NULL },
-	{  7,180, 62, 59, 26,  6,  8,  4, 26,"Slide right", BT_MOUSE_BUTTON, 255, &Controls.slide_right_state, STATE_BIT5, NULL },
-	{  8,180, 70, 59, 26,  7,  9, 26,  2,"Slide up", BT_MOUSE_BUTTON, 255, &Controls.slide_up_state, STATE_BIT5, NULL },
-	{  9,180, 78, 59, 26,  8, 10,  2,  3,"Slide down", BT_MOUSE_BUTTON, 255, &Controls.slide_down_state, STATE_BIT5, NULL },
+	{  6,180, 54, 59, 26,  5,  7,  1,  4,"Slide left", BT_MOUSE_BUTTON, 255, &Controls.btn_slide_left_state, STATE_BIT5, NULL },
+	{  7,180, 62, 59, 26,  6,  8,  4, 26,"Slide right", BT_MOUSE_BUTTON, 255, &Controls.btn_slide_right_state, STATE_BIT5, NULL },
+	{  8,180, 70, 59, 26,  7,  9, 26,  2,"Slide up", BT_MOUSE_BUTTON, 255, &Controls.btn_slide_up_state, STATE_BIT5, NULL },
+	{  9,180, 78, 59, 26,  8, 10,  2,  3,"Slide down", BT_MOUSE_BUTTON, 255, &Controls.btn_slide_down_state, STATE_BIT5, NULL },
 	{ 10,180, 86, 59, 26,  9, 11,  3, 25,"Bank on", BT_MOUSE_BUTTON, 255, &Controls.bank_on_state, STATE_BIT5, NULL },
-	{ 11,180, 94, 59, 26, 10, 12, 25, 27,"Bank left", BT_MOUSE_BUTTON, 255, &Controls.bank_left_state, STATE_BIT5, NULL },
-	{ 12,180,102, 59, 26, 11, 22, 27, 28,"Bank right", BT_MOUSE_BUTTON, 255, &Controls.bank_right_state, STATE_BIT5, NULL },
+	{ 11,180, 94, 59, 26, 10, 12, 25, 27,"Bank left", BT_MOUSE_BUTTON, 255, &Controls.btn_bank_left_state, STATE_BIT5, NULL },
+	{ 12,180,102, 59, 26, 11, 22, 27, 28,"Bank right", BT_MOUSE_BUTTON, 255, &Controls.btn_bank_right_state, STATE_BIT5, NULL },
 	{ 13, 25,154, 58, 26, 24, 15, 29, 14,"Pitch U/D", BT_MOUSE_AXIS, 255, NULL, 0, NULL },
 	{ 14, 25,154,106,  8, 29, 16, 13, 21,"Pitch U/D", BT_INVERT, 255, NULL, 0, NULL },
 	{ 15, 25,162, 58, 26, 13, 17, 22, 16,"Turn L/R", BT_MOUSE_AXIS, 255, NULL, 0, NULL },
@@ -1338,19 +1338,23 @@ void kconfig_read_controls(d_event *event, int automap_flag)
 	//------------ Read pitch_time -----------
 	if ( !Controls.slide_on_state )
 	{
-		int kp = 0;
-		// From keyboard/buttons...
-		if ( Controls.pitch_forward_state ) kp += speed_factor*FrameTime/2;
-		if ( Controls.pitch_backward_state ) kp -= speed_factor*FrameTime/2;
-		if (kp == 0)
-			Controls.pitch_time = 0;
-		else if (kp > 0) {
-			if (Controls.pitch_time < 0)
-				Controls.pitch_time = 0;
-		} else // kp < 0
-			if (Controls.pitch_time > 0)
-				Controls.pitch_time = 0;
-		Controls.pitch_time += kp;
+		// From keyboard...
+		if ( Controls.key_pitch_forward_state ) 
+		{
+			if ( Controls.key_pitch_forward_down_time < F1_0 )
+				Controls.key_pitch_forward_down_time += FrameTime*((float)PlayerCfg.KeyboardSens[1]/4);
+			Controls.pitch_time += speed_factor*FrameTime/2*(Controls.key_pitch_forward_down_time/F1_0);
+		}
+		else
+			Controls.key_pitch_forward_down_time = 0;
+		if ( Controls.key_pitch_backward_state )
+		{
+			if ( Controls.key_pitch_backward_down_time < F1_0 )
+				Controls.key_pitch_backward_down_time += FrameTime*((float)PlayerCfg.KeyboardSens[1]/4);
+			Controls.pitch_time -= speed_factor*FrameTime/2*(Controls.key_pitch_backward_down_time/F1_0);
+		}
+		else
+			Controls.key_pitch_backward_down_time = 0;
 		// From joystick...
 		if ( !kc_joystick[14].value ) // If not inverted...
 			Controls.pitch_time -= (Controls.joy_axis[kc_joystick[13].value]*PlayerCfg.JoystickSens[1])/8;
@@ -1368,9 +1372,23 @@ void kconfig_read_controls(d_event *event, int automap_flag)
 	//----------- Read vertical_thrust_time -----------------
 	if ( Controls.slide_on_state )
 	{
-		// From keyboard/buttons...
-		if ( Controls.pitch_forward_state ) Controls.vertical_thrust_time += speed_factor*FrameTime;
-		if ( Controls.pitch_backward_state ) Controls.vertical_thrust_time -= speed_factor*FrameTime;
+		// From keyboard...
+		if ( Controls.key_pitch_forward_state ) 
+		{
+			if (Controls.key_pitch_forward_down_time < F1_0)
+				Controls.key_pitch_forward_down_time += FrameTime*((float)PlayerCfg.KeyboardSens[3]/4);
+			Controls.vertical_thrust_time += speed_factor*FrameTime*(Controls.key_pitch_forward_down_time/F1_0);
+		}
+		else
+			Controls.key_pitch_forward_down_time = 0;
+		if ( Controls.key_pitch_backward_state )
+		{
+			if ( Controls.key_pitch_backward_down_time < F1_0 )
+				Controls.key_pitch_backward_down_time += FrameTime*((float)PlayerCfg.KeyboardSens[3]/4);
+			Controls.vertical_thrust_time -= speed_factor*FrameTime*(Controls.key_pitch_backward_down_time/F1_0);
+		}
+		else
+			Controls.key_pitch_backward_down_time = 0;
 		// From joystick...
 		if ( !kc_joystick[20].value /*!kc_joystick[14].value*/ )		// If not inverted... NOTE: Use Slide U/D invert setting
 			Controls.vertical_thrust_time += (Controls.joy_axis[kc_joystick[13].value]*PlayerCfg.JoystickSens[3])/8;
@@ -1382,9 +1400,26 @@ void kconfig_read_controls(d_event *event, int automap_flag)
 		else
 			Controls.vertical_thrust_time += (Controls.mouse_axis[kc_mouse[13].value]*PlayerCfg.MouseSens[3])/8;
 	}
-	// From keyboard/buttons...
-	if ( Controls.slide_up_state ) Controls.vertical_thrust_time += speed_factor*FrameTime;
-	if ( Controls.slide_down_state ) Controls.vertical_thrust_time -= speed_factor*FrameTime;
+	// From keyboard...
+	if ( Controls.key_slide_up_state ) 
+	{
+		if (Controls.key_slide_up_down_time < F1_0)
+			Controls.key_slide_up_down_time += FrameTime*((float)PlayerCfg.KeyboardSens[3]/4);
+		Controls.vertical_thrust_time += speed_factor*FrameTime*(Controls.key_slide_up_down_time/F1_0);
+	}
+	else
+		Controls.key_slide_up_down_time = 0;
+	if ( Controls.key_slide_down_state )
+	{
+		if ( Controls.key_slide_down_down_time < F1_0 )
+			Controls.key_slide_down_down_time += FrameTime*((float)PlayerCfg.KeyboardSens[3]/4);
+		Controls.vertical_thrust_time -= speed_factor*FrameTime*(Controls.key_slide_down_down_time/F1_0);
+	}
+	else
+		Controls.key_slide_down_down_time = 0;
+	// From buttons...
+	if ( Controls.btn_slide_up_state ) Controls.vertical_thrust_time += speed_factor*FrameTime;
+	if ( Controls.btn_slide_down_state ) Controls.vertical_thrust_time -= speed_factor*FrameTime;
 	// From joystick...
 	if ( !kc_joystick[20].value )		// If not inverted...
 		Controls.vertical_thrust_time += (Controls.joy_axis[kc_joystick[19].value]*PlayerCfg.JoystickSens[3])/8;
@@ -1399,20 +1434,23 @@ void kconfig_read_controls(d_event *event, int automap_flag)
 	//---------- Read heading_time -----------
 	if (!Controls.slide_on_state && !Controls.bank_on_state)
 	{
-		int kh = 0;
-
-		// From keyboard/buttons...
-		if ( Controls.heading_right_state ) kh += speed_factor*FrameTime;
-		if ( Controls.heading_left_state ) kh -= speed_factor*FrameTime;
-		if (kh == 0)
-			Controls.heading_time = 0;
-		else if (kh > 0) {
-			if (Controls.heading_time < 0)
-				Controls.heading_time = 0;
-		} else // kh < 0
-			if (Controls.heading_time > 0)
-				Controls.heading_time = 0;
-		Controls.heading_time += kh;
+		// From keyboard...
+		if ( Controls.key_heading_right_state ) 
+		{
+			if (Controls.key_heading_right_down_time < F1_0)
+				Controls.key_heading_right_down_time += FrameTime*((float)PlayerCfg.KeyboardSens[0]/4);
+			Controls.heading_time += speed_factor*FrameTime*(Controls.key_heading_right_down_time/F1_0);
+		}
+		else
+			Controls.key_heading_right_down_time = 0;
+		if ( Controls.key_heading_left_state )
+		{
+			if ( Controls.key_heading_left_down_time < F1_0 )
+				Controls.key_heading_left_down_time += FrameTime*((float)PlayerCfg.KeyboardSens[0]/4);
+			Controls.heading_time -= speed_factor*FrameTime*(Controls.key_heading_left_down_time/F1_0);
+		}
+		else
+			Controls.key_heading_left_down_time = 0;
 		// From joystick...
 		if ( !kc_joystick[16].value )		// If not inverted...
 			Controls.heading_time += (Controls.joy_axis[kc_joystick[15].value]*PlayerCfg.JoystickSens[0])/8;
@@ -1429,9 +1467,23 @@ void kconfig_read_controls(d_event *event, int automap_flag)
 	//----------- Read sideways_thrust_time -----------------
 	if ( Controls.slide_on_state )
 	{
-		// From keyboard/buttons...
-		if ( Controls.heading_right_state ) Controls.sideways_thrust_time += speed_factor*FrameTime;
-		if ( Controls.heading_left_state ) Controls.sideways_thrust_time -= speed_factor*FrameTime;
+		// From keyboard...
+		if ( Controls.key_heading_right_state ) 
+		{
+			if (Controls.key_heading_right_down_time < F1_0)
+				Controls.key_heading_right_down_time += FrameTime*((float)PlayerCfg.KeyboardSens[2]/4);
+			Controls.sideways_thrust_time += speed_factor*FrameTime*(Controls.key_heading_right_down_time/F1_0);
+		}
+		else
+			Controls.key_heading_right_down_time = 0;
+		if ( Controls.key_heading_left_state )
+		{
+			if ( Controls.key_heading_left_down_time < F1_0 )
+				Controls.key_heading_left_down_time += FrameTime*((float)PlayerCfg.KeyboardSens[2]/4);
+			Controls.sideways_thrust_time -= speed_factor*FrameTime*(Controls.key_heading_left_down_time/F1_0);
+		}
+		else
+			Controls.key_heading_left_down_time = 0;
 		// From joystick...
 		if ( !kc_joystick[18].value /*!kc_joystick[16].value*/ )		// If not inverted... NOTE: Use Slide L/R invert setting
 			Controls.sideways_thrust_time += (Controls.joy_axis[kc_joystick[15].value]*PlayerCfg.JoystickSens[2])/8;
@@ -1443,9 +1495,26 @@ void kconfig_read_controls(d_event *event, int automap_flag)
 		else
 			Controls.sideways_thrust_time -= (Controls.mouse_axis[kc_mouse[15].value]*PlayerCfg.MouseSens[2])/8;
 	}
-	// From keyboard/buttons...
-	if ( Controls.slide_left_state ) Controls.sideways_thrust_time -= speed_factor*FrameTime;
-	if ( Controls.slide_right_state ) Controls.sideways_thrust_time += speed_factor*FrameTime;
+	// From keyboard...
+	if ( Controls.key_slide_right_state ) 
+	{
+		if (Controls.key_slide_right_down_time < F1_0)
+			Controls.key_slide_right_down_time += FrameTime*((float)PlayerCfg.KeyboardSens[2]/4);
+		Controls.sideways_thrust_time += speed_factor*FrameTime*(Controls.key_slide_right_down_time/F1_0);
+	}
+	else
+		Controls.key_slide_right_down_time = 0;
+	if ( Controls.key_slide_left_state )
+	{
+		if ( Controls.key_slide_left_down_time < F1_0 )
+			Controls.key_slide_left_down_time += FrameTime*((float)PlayerCfg.KeyboardSens[2]/4);
+		Controls.sideways_thrust_time -= speed_factor*FrameTime*(Controls.key_slide_left_down_time/F1_0);
+	}
+	else
+		Controls.key_slide_left_down_time = 0;
+	// From buttons...
+	if ( Controls.btn_slide_left_state ) Controls.sideways_thrust_time -= speed_factor*FrameTime;
+	if ( Controls.btn_slide_right_state ) Controls.sideways_thrust_time += speed_factor*FrameTime;
 	// From joystick...
 	if ( !kc_joystick[18].value )		// If not inverted...
 		Controls.sideways_thrust_time += (Controls.joy_axis[kc_joystick[17].value]*PlayerCfg.JoystickSens[2])/8;
@@ -1460,9 +1529,23 @@ void kconfig_read_controls(d_event *event, int automap_flag)
 	//----------- Read bank_time -----------------
 	if ( Controls.bank_on_state )
 	{
-		// From keyboard/buttons...
-		if ( Controls.heading_left_state ) Controls.bank_time += speed_factor*FrameTime;
-		if ( Controls.heading_right_state ) Controls.bank_time -= speed_factor*FrameTime;
+		// From keyboard...
+		if ( Controls.key_heading_left_state )
+		{
+			if ( Controls.key_heading_left_down_time < F1_0 )
+				Controls.key_heading_left_down_time += FrameTime*((float)PlayerCfg.KeyboardSens[4]/4);
+			Controls.bank_time += speed_factor*FrameTime*(Controls.key_heading_left_down_time/F1_0);
+		}
+		else
+			Controls.key_bank_left_down_time = 0;
+		if ( Controls.key_heading_right_state ) 
+		{
+			if (Controls.key_heading_right_down_time < F1_0)
+				Controls.key_heading_right_down_time += FrameTime*((float)PlayerCfg.KeyboardSens[4]/4);
+			Controls.bank_time -= speed_factor*FrameTime*(Controls.key_heading_right_down_time/F1_0);
+		}
+		else
+			Controls.key_heading_right_down_time = 0;
 		// From joystick...
 		if ( !kc_joystick[22].value /*!kc_joystick[16].value*/ )		// If not inverted... NOTE: Use Bank L/R invert setting
 			Controls.bank_time -= (Controls.joy_axis[kc_joystick[15].value]*PlayerCfg.JoystickSens[4])/8;
@@ -1474,9 +1557,26 @@ void kconfig_read_controls(d_event *event, int automap_flag)
 		else
 			Controls.bank_time -= (Controls.mouse_axis[kc_mouse[15].value]*PlayerCfg.MouseSens[4])/8;
 	}
-	// From keyboard/buttons...
-	if ( Controls.bank_left_state ) Controls.bank_time += speed_factor*FrameTime;
-	if ( Controls.bank_right_state ) Controls.bank_time -= speed_factor*FrameTime;
+	// From keyboard...
+	if ( Controls.key_bank_left_state )
+	{
+		if ( Controls.key_bank_left_down_time < F1_0 )
+			Controls.key_bank_left_down_time += FrameTime*((float)PlayerCfg.KeyboardSens[4]/4);
+		Controls.bank_time += speed_factor*FrameTime*(Controls.key_bank_left_down_time/F1_0);
+	}
+	else
+		Controls.key_bank_left_down_time = 0;
+	if ( Controls.key_bank_right_state ) 
+	{
+		if (Controls.key_bank_right_down_time < F1_0)
+			Controls.key_bank_right_down_time += FrameTime*((float)PlayerCfg.KeyboardSens[4]/4);
+		Controls.bank_time -= speed_factor*FrameTime*(Controls.key_bank_right_down_time/F1_0);
+	}
+	else
+		Controls.key_bank_right_down_time = 0;
+	// From buttons...
+	if ( Controls.btn_bank_left_state ) Controls.bank_time += speed_factor*FrameTime;
+	if ( Controls.btn_bank_right_state ) Controls.bank_time -= speed_factor*FrameTime;
 	// From joystick...
 	if ( !kc_joystick[22].value )		// If not inverted...
 		Controls.bank_time -= (Controls.joy_axis[kc_joystick[21].value]*PlayerCfg.JoystickSens[4])/8;

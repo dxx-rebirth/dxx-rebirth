@@ -46,6 +46,7 @@ typedef struct player_config
 	int AutoLeveling;
 	short NHighestLevels;
 	hli HighestLevels[MAX_MISSIONS];
+	int KeyboardSens[5];
 	int JoystickSens[6];
 	int JoystickDead[6];
 	ubyte MouseFlightSim;

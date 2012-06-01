@@ -92,6 +92,7 @@ int new_player_config()
 	PlayerCfg.NHighestLevels = 1;
 	PlayerCfg.HighestLevels[0].Shortname[0] = 0; //no name for mission 0
 	PlayerCfg.HighestLevels[0].LevelNum = 1; //was highest level in old struct
+	PlayerCfg.KeyboardSens[0] = PlayerCfg.KeyboardSens[1] = PlayerCfg.KeyboardSens[2] = PlayerCfg.KeyboardSens[3] = PlayerCfg.KeyboardSens[4] = 16;
 	PlayerCfg.JoystickSens[0] = PlayerCfg.JoystickSens[1] = PlayerCfg.JoystickSens[2] = PlayerCfg.JoystickSens[3] = PlayerCfg.JoystickSens[4] = PlayerCfg.JoystickSens[5] = 8;
 	PlayerCfg.JoystickDead[0] = PlayerCfg.JoystickDead[1] = PlayerCfg.JoystickDead[2] = PlayerCfg.JoystickDead[3] = PlayerCfg.JoystickDead[4] = PlayerCfg.JoystickDead[5] = 0;
 	PlayerCfg.MouseFlightSim = 0;
@@ -150,7 +151,32 @@ int read_player_d2x(char *filename)
 		PHYSFSX_fgets(line,50,f);
 		word=splitword(line,':');
 		d_strupr(word);
-		if (strstr(word,"JOYSTICK"))
+		if (strstr(word,"KEYBOARD"))
+		{
+			d_free(word);
+			PHYSFSX_fgets(line,50,f);
+			word=splitword(line,'=');
+			d_strupr(word);
+	
+			while(!strstr(word,"END") && !PHYSFS_eof(f))
+			{
+				if(!strcmp(word,"SENSITIVITY0"))
+					PlayerCfg.KeyboardSens[0] = atoi(line);
+				if(!strcmp(word,"SENSITIVITY1"))
+					PlayerCfg.KeyboardSens[1] = atoi(line);
+				if(!strcmp(word,"SENSITIVITY2"))
+					PlayerCfg.KeyboardSens[2] = atoi(line);
+				if(!strcmp(word,"SENSITIVITY3"))
+					PlayerCfg.KeyboardSens[3] = atoi(line);
+				if(!strcmp(word,"SENSITIVITY4"))
+					PlayerCfg.KeyboardSens[4] = atoi(line);
+				d_free(word);
+				PHYSFSX_fgets(line,50,f);
+				word=splitword(line,'=');
+				d_strupr(word);
+			}
+		}
+		else if (strstr(word,"JOYSTICK"))
 		{
 			d_free(word);
 			PHYSFSX_fgets(line,50,f);
@@ -387,6 +413,13 @@ int write_player_d2x(char *filename)
 	if(fout)
 	{
 		PHYSFSX_printf(fout,"[D2X OPTIONS]\n");
+		PHYSFSX_printf(fout,"[keyboard]\n");
+		PHYSFSX_printf(fout,"sensitivity0=%d\n",PlayerCfg.KeyboardSens[0]);
+		PHYSFSX_printf(fout,"sensitivity1=%d\n",PlayerCfg.KeyboardSens[1]);
+		PHYSFSX_printf(fout,"sensitivity2=%d\n",PlayerCfg.KeyboardSens[2]);
+		PHYSFSX_printf(fout,"sensitivity3=%d\n",PlayerCfg.KeyboardSens[3]);
+		PHYSFSX_printf(fout,"sensitivity4=%d\n",PlayerCfg.KeyboardSens[4]);
+		PHYSFSX_printf(fout,"[end]\n");
 		PHYSFSX_printf(fout,"[joystick]\n");
 		PHYSFSX_printf(fout,"sensitivity0=%d\n",PlayerCfg.JoystickSens[0]);
 		PHYSFSX_printf(fout,"sensitivity1=%d\n",PlayerCfg.JoystickSens[1]);
