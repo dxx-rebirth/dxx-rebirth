@@ -30,35 +30,20 @@ COPYRIGHT 1993-1998 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 
 typedef struct _control_info {
 	fix joy_axis[JOY_MAX_AXES], raw_joy_axis[JOY_MAX_AXES], mouse_axis[3], raw_mouse_axis[3];
-	fix pitch_time;
-	fix vertical_thrust_time;
-	fix heading_time;
-	fix sideways_thrust_time;
-	fix bank_time;
-	fix forward_thrust_time;
-	ubyte pitch_forward_state, pitch_backward_state;
-	ubyte heading_left_state, heading_right_state;
-	ubyte slide_on_state, slide_left_state, slide_right_state, slide_up_state, slide_down_state;
-	ubyte bank_on_state, bank_left_state, bank_right_state;
-	ubyte accelerate_state, reverse_state;
-	ubyte cruise_plus_state, cruise_minus_state, cruise_off_count;
-	ubyte rear_view_state;
-	ubyte rear_view_count;
-	ubyte fire_primary_state;
-	ubyte fire_primary_count;
-	ubyte fire_secondary_state;
-	ubyte fire_secondary_count;
-	ubyte fire_flare_count;
-	ubyte drop_bomb_count;
-	ubyte automap_state;
-	ubyte automap_count;
-	ubyte cycle_primary_count;
-	ubyte cycle_secondary_count;
-	ubyte select_weapon_count;
+	float key_pitch_forward_down_time, key_pitch_backward_down_time, key_heading_left_down_time, key_heading_right_down_time, key_slide_left_down_time, key_slide_right_down_time, key_slide_up_down_time, key_slide_down_down_time, key_bank_left_down_time, key_bank_right_down_time; // to scale movement depending on how long the key is pressed
+	fix pitch_time, vertical_thrust_time, heading_time, sideways_thrust_time, bank_time, forward_thrust_time;
+	ubyte key_pitch_forward_state, key_pitch_backward_state, key_heading_left_state, key_heading_right_state, key_slide_left_state, key_slide_right_state, key_slide_up_state, key_slide_down_state, key_bank_left_state, key_bank_right_state; // to scale movement for keys only we need them to be seperate from joystick/mouse buttons
+	ubyte btn_slide_left_state, btn_slide_right_state, btn_slide_up_state, btn_slide_down_state, btn_bank_left_state, btn_bank_right_state;
+	ubyte slide_on_state, bank_on_state;
+	ubyte accelerate_state, reverse_state, cruise_plus_state, cruise_minus_state, cruise_off_count;
+	ubyte rear_view_state, rear_view_count;
+	ubyte fire_primary_state, fire_primary_count, fire_secondary_state, fire_secondary_count, fire_flare_count, drop_bomb_count;
+	ubyte automap_state, automap_count;
+	ubyte cycle_primary_count, cycle_secondary_count, select_weapon_count;
 } control_info;
 
 #define CONTROL_USING_JOYSTICK	1
-#define CONTROL_USING_MOUSE		2
+#define CONTROL_USING_MOUSE	2
 #define MOUSEFS_DELTA_RANGE 512
 #define NUM_D1X_CONTROLS    30
 #define MAX_D1X_CONTROLS    30
