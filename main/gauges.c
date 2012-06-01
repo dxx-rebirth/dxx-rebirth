@@ -2633,7 +2633,7 @@ void show_HUD_names()
 					if( Game_mode & GM_BOUNTY && pnum == Bounty_target )
 						strncpy( s, "Target", 6 );
 					else if (show_name)
-						snprintf( s, strlen(Players[pnum].callsign)+1, "%s", Players[pnum].callsign );
+						snprintf( s, sizeof(s), "%s", Players[pnum].callsign );
 					if (show_typing && multi_sending_message[pnum])
 					{
 						if (strlen(s))

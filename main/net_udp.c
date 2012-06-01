@@ -676,7 +676,7 @@ void net_udp_manual_join_game()
 	net_udp_init();
 
 	memset(&dj->addrbuf,'\0', sizeof(char)*128);
-	snprintf(dj->addrbuf, sizeof(char)*(strlen(GameArg.MplUdpHostAddr)+1), "%s", GameArg.MplUdpHostAddr);
+	snprintf(dj->addrbuf, sizeof(dj->addrbuf), "%s", GameArg.MplUdpHostAddr);
 
 	if (GameArg.MplUdpHostPort != 0)
 		snprintf(dj->portbuf, sizeof(dj->portbuf), "%d", GameArg.MplUdpHostPort);
