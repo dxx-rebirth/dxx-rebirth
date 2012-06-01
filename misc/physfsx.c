@@ -168,7 +168,7 @@ int PHYSFSX_addRelToSearchPath(char *relname, int add_to_end)
 {
 	char relname2[PATH_MAX], pathname[PATH_MAX];
 
-	snprintf(relname2, strlen(relname)+1, "%s", relname);
+	snprintf(relname2, sizeof(relname2), "%s", relname);
 	PHYSFSEXT_locateCorrectCase(relname2);
 
 	if (!PHYSFSX_getRealPath(relname2, pathname))
@@ -181,7 +181,7 @@ int PHYSFSX_removeRelFromSearchPath(char *relname)
 {
 	char relname2[PATH_MAX], pathname[PATH_MAX];
 
-	snprintf(relname2, strlen(relname)+1, "%s", relname);
+	snprintf(relname2, sizeof(relname2), "%s", relname);
 	PHYSFSEXT_locateCorrectCase(relname2);
 
 	if (!PHYSFSX_getRealPath(relname2, pathname))
@@ -196,7 +196,7 @@ int PHYSFSX_fsize(char *hogname)
 	char hogname2[PATH_MAX];
 	int size;
 
-	snprintf(hogname2, strlen(hogname)+1, "%s", hogname);
+	snprintf(hogname2, sizeof(hogname2), "%s", hogname);
 	PHYSFSEXT_locateCorrectCase(hogname2);
 
 	fp = PHYSFS_openRead(hogname2);
@@ -400,7 +400,7 @@ int PHYSFSX_exists(const char *filename, int ignorecase)
 	if (!ignorecase)
 		return PHYSFS_exists(filename);
 
-	snprintf(filename2, strlen(filename)+1, "%s", filename);
+	snprintf(filename2, sizeof(filename2), "%s", filename);
 	PHYSFSEXT_locateCorrectCase(filename2);
 
 	return PHYSFS_exists(filename2);
@@ -419,7 +419,7 @@ PHYSFS_file *PHYSFSX_openReadBuffered(char *filename)
 		filename++;
 	}
 	
-	snprintf(filename2, strlen(filename)+1, "%s", filename);
+	snprintf(filename2, sizeof(filename2), "%s", filename);
 	PHYSFSEXT_locateCorrectCase(filename2);
 	
 	fp = PHYSFS_openRead(filename2);
