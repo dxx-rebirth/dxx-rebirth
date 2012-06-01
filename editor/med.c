@@ -377,6 +377,7 @@ void init_editor()
 	PHYSFSX_addRelToSearchPath("editor/data", 1);	// look in source directory first (for work in progress)
 	PHYSFSX_addRelToSearchPath("editor", 1);		// then in editor directory
 	PHYSFSX_addRelToSearchPath("editor.zip", 1);	// then in a zip file
+	PHYSFSX_addRelToSearchPath("editor.dxa", 1);	// or addon pack
 
 	ui_init();
 
@@ -973,6 +974,7 @@ void close_editor() {
 	PHYSFSX_removeRelFromSearchPath("editor/data");
 	PHYSFSX_removeRelFromSearchPath("editor");
 	PHYSFSX_removeRelFromSearchPath("editor.zip");
+	PHYSFSX_removeRelFromSearchPath("editor.dxa");
 
 	switch (ModeFlag)
 	{

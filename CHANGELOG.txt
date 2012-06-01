@@ -4,6 +4,7 @@ D1X-Rebirth Changelog
 --------
 main/kconfig.c, main/kconfig.h, main/menu.c, main/playsave.c, main/playsave.h: Introduced sensitivity sliders for keyboard which cause movement increase the longer the designated key is pressed
 main/gauges.c, main/menu.c, main/net_udp.c, main/songs.c, misc/physfsx.c: use size of output buffer for snprintf; on the way changed rebirth-specific song file to dxx-r.sng to respect hog 8+3 file convention
+editor/med.c, misc/physfsx.c: changed extension for archive (addon) content from zip to dxa - still a zip-file but renamed to not accidentially add user generated backups and possibly mess things up
 
 
 20120527
