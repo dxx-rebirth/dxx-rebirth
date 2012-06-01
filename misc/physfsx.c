@@ -461,7 +461,7 @@ PHYSFS_file *PHYSFSX_openWriteBuffered(char *filename)
 void PHYSFSX_addArchiveContent()
 {
 	char **list = NULL;
-	char *archive_exts[] = { ".zip", ".7z", NULL }, *file[2];
+	char *archive_exts[] = { ".dxa", NULL }, *file[2];
 	int i = 0, content_updated = 0;
 
 	con_printf(CON_DEBUG, "PHYSFS: Adding archives to the game.\n");
@@ -519,7 +519,7 @@ void PHYSFSX_addArchiveContent()
 void PHYSFSX_removeArchiveContent()
 {
 	char **list = NULL;
-	char *archive_exts[] = { ".zip", ".7z", NULL }, *file[2];
+	char *archive_exts[] = { ".dxa", NULL }, *file[2];
 	int i = 0;
 
 	// find files in Searchpath ...
