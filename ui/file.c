@@ -94,7 +94,7 @@ char **file_getfilelist(int *NumFiles, char *filespec, char *dir)
 	for (i = list; *i; i++)
 	{
 		ext = strrchr(*i, '.');
-		if (ext && (!stricmp(ext, filespec)))
+		if (ext && (!d_stricmp(ext, filespec)))
 			*j++ = *i;
 		else
 			free(*i);
