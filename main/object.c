@@ -1663,8 +1663,6 @@ void dead_player_frame(void)
 		time_dead = 0;
 }
 
-extern char Multi_killed_yourself;
-
 //	------------------------------------------------------------------------------------------------------------------
 void start_player_death_sequence(object *player)
 {
@@ -1687,17 +1685,16 @@ void start_player_death_sequence(object *player)
 	#ifdef NETWORK
 	if (Game_mode & GM_MULTI)
 	{
-		multi_send_kill(Players[Player_num].objnum);
-
-//		If Hoard, increase number of orbs by 1
-//    Only if you haven't killed yourself
-//		This prevents cheating
-
+		int killer_pnum = Player_num;
+		if (Players[Player_num].killer_objnum > 0 && Players[Player_num].killer_objnum < Highest_object_index)
+			killer_pnum = Objects[Players[Player_num].killer_objnum].id;
+		
+		// If Hoard, increase number of orbs by 1. Only if you haven't killed yourself. This prevents cheating
 		if (Game_mode & GM_HOARD)
-		 if (Players[Player_num].secondary_ammo[PROXIMITY_INDEX]<12)
-			if (!Multi_killed_yourself)
-				Players[Player_num].secondary_ammo[PROXIMITY_INDEX]++;
-	
+			if (Players[Player_num].secondary_ammo[PROXIMITY_INDEX]<12)
+				if (!(Players[Player_num].killer_objnum == Players[Player_num].objnum || ((Game_mode & GM_TEAM) && get_team(Player_num) == get_team(killer_pnum))))
+					Players[Player_num].secondary_ammo[PROXIMITY_INDEX]++;
+		multi_send_kill(Players[Player_num].objnum);
 	}
 	#endif
 	

@@ -1,5 +1,9 @@
 D2X-Rebirth Changelog
 
+20120608
+--------
+main/multi.c, main/object.c: cleanly decide it to drop a hoard orb depending on wether we were killed by ourselves, en enemy or team-mate without any ugly and unreliable hacks
+
 20120601
 --------
 main/kconfig.c, main/kconfig.h, main/menu.c, main/playsave.c, main/playsave.h: Introduced sensitivity sliders for keyboard which cause movement increase the longer the designated key is pressed

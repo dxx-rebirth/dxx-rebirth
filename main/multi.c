@@ -638,7 +638,6 @@ multi_sort_kill_list(void)
 }
 
 extern object *obj_find_first_of_type (int);
-char Multi_killed_yourself=0;
 
 void multi_compute_kill(int killer, int killed)
 {
@@ -650,8 +649,6 @@ void multi_compute_kill(int killer, int killed)
 	int TheGoal;
 	char killed_name[(CALLSIGN_LEN*2)+4];
 	char killer_name[(CALLSIGN_LEN*2)+4];
-
-	Multi_killed_yourself=0;
 
 	// Both object numbers are localized already!
 
@@ -761,7 +758,6 @@ void multi_compute_kill(int killer, int killed)
 		if (killer_pnum == Player_num)
 		{
 			HUD_init_message(HM_MULTI, "%s %s %s!", TXT_YOU, TXT_KILLED, TXT_YOURSELF );
-			Multi_killed_yourself=1;
 			multi_add_lifetime_killed();
 		}
 		else
@@ -821,14 +817,6 @@ void multi_compute_kill(int killer, int killed)
 			
 			if (Newdemo_state == ND_STATE_RECORDING && !( Game_mode & GM_BOUNTY ) )
 				newdemo_record_multi_kill(killer_pnum, 1);
-		}
-		else
-		{
-			if (Game_mode & GM_TEAM)
-			{
-				if (killed_pnum==Player_num && get_team(killed_pnum) == get_team(killer_pnum))
-					Multi_killed_yourself=1;
-			}
 		}
 
 		kill_matrix[killer_pnum][killed_pnum] += 1;
