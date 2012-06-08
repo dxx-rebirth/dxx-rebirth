@@ -3,6 +3,7 @@ D2X-Rebirth Changelog
 20120608
 --------
 main/multi.c, main/object.c: cleanly decide it to drop a hoard orb depending on wether we were killed by ourselves, en enemy or team-mate without any ugly and unreliable hacks
+main/kconfig.c: Switching keyboard sensitivity function from variable increase to variable offset, making the ship more responsive in higher settings
 
 20120601
 --------
