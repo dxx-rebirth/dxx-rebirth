@@ -942,14 +942,15 @@ void vms_matrix_from_quaternion(vms_matrix * m, const vms_quaternion * q)
 	fix sqx = fixmul(q->x * 2, q->x * 2);
 	fix sqy = fixmul(q->y * 2, q->y * 2);
 	fix sqz = fixmul(q->z * 2, q->z * 2);
-	
 	fix invs = fixdiv(fl2f(1.0), (sqw + sqx + sqy + sqz));
+	fix tmp1, tmp2;
+
 	m->rvec.x = fixmul(sqx - sqy - sqz + sqw, invs);
 	m->uvec.y = fixmul(-sqx + sqy - sqz + sqw, invs);
 	m->fvec.z = fixmul(-sqx - sqy + sqz + sqw, invs);
 	
-	fix tmp1 = fixmul(q->x * 2, q->y * 2);
-	fix tmp2 = fixmul(q->z * 2, q->w * 2);
+	tmp1 = fixmul(q->x * 2, q->y * 2);
+	tmp2 = fixmul(q->z * 2, q->w * 2);
 	m->uvec.x = fixmul(fixmul(fl2f(2.0), (tmp1 + tmp2)), invs);
 	m->rvec.y = fixmul(fixmul(fl2f(2.0), (tmp1 - tmp2)), invs);
 	

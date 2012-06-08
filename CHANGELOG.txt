@@ -3,6 +3,7 @@ D1X-Rebirth Changelog
 20120608
 --------
 main/kconfig.c: Switching keyboard sensitivity function from variable increase to variable offset, making the ship more responsive in higher settings
+math/vecmat.c: in vms_matrix_from_quaternion put the definition of tmp1 and tmp2 variables at the beginning of the functions because i was a baaaad boy
 
 20120601
 --------
