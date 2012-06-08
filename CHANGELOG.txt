@@ -5,6 +5,7 @@ D2X-Rebirth Changelog
 main/multi.c, main/object.c: cleanly decide it to drop a hoard orb depending on wether we were killed by ourselves, en enemy or team-mate without any ugly and unreliable hacks
 main/kconfig.c: Switching keyboard sensitivity function from variable increase to variable offset, making the ship more responsive in higher settings
 math/vecmat.c: in vms_matrix_from_quaternion put the definition of tmp1 and tmp2 variables at the beginning of the functions because i was a baaaad boy
+main/multi.c: do not write player file each time lifetime stats change to prevent hickups on killing
 
 20120601
 --------

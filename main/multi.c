@@ -4701,7 +4701,6 @@ void multi_add_lifetime_kills ()
 			Netgame.players[Player_num].rank=GetMyNetRanking();
 		}
 	}
-	write_player_file();
 }
 
 void multi_add_lifetime_killed ()
@@ -4727,8 +4726,6 @@ void multi_add_lifetime_killed ()
 			HUD_init_message(HM_MULTI, "You have been demoted to %s!",RankStrings[GetMyNetRanking()]);
 
 	}
-	write_player_file();
-
 }
 
 void multi_send_ranking ()
