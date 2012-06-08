@@ -1,5 +1,9 @@
 D1X-Rebirth Changelog
 
+20120608
+--------
+main/kconfig.c: Switching keyboard sensitivity function from variable increase to variable offset, making the ship more responsive in higher settings
+
 20120601
 --------
 main/kconfig.c, main/kconfig.h, main/menu.c, main/playsave.c, main/playsave.h: Introduced sensitivity sliders for keyboard which cause movement increase the longer the designated key is pressed
