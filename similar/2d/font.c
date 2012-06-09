@@ -997,7 +997,6 @@ static void grs_font_read(grs_font *gf, PHYSFS_file *fp)
 
 grs_font * gr_init_font( const char * fontname )
 {
-	static int first_time=1;
 	grs_font *font;
 	char *font_data;
 	int i,fontnum;
@@ -1006,16 +1005,6 @@ grs_font * gr_init_font( const char * fontname )
 	PHYSFS_file *fontfile;
 	char file_id[4];
 	int datasize;	//size up to (but not including) palette
-
-	if (first_time) {
-		int i;
-		for (i=0;i<MAX_OPEN_FONTS;i++)
-		{
-			open_font[i].ptr = NULL;
-			open_font[i].dataptr = NULL;
-		}
-		first_time=0;
-	}
 
 	//find free font slot
 	for (fontnum=0;fontnum<MAX_OPEN_FONTS && open_font[fontnum].ptr!=NULL;fontnum++);
