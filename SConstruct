@@ -45,6 +45,7 @@ class DXXProgram:
 			self.opengles = int(ARGUMENTS.get('opengles', 0))
 			self.asm = int(ARGUMENTS.get('asm', 0))
 			self.editor = int(ARGUMENTS.get('editor', 0))
+			self.extra_version = ARGUMENTS.get('extra_version', None)
 			self.sdlmixer = int(ARGUMENTS.get('sdlmixer', 1))
 			self.ipv6 = int(ARGUMENTS.get('ipv6', 0))
 			self.use_udp = int(ARGUMENTS.get('use_udp', 1))
@@ -478,8 +479,13 @@ class D1XProgram(DXXProgram):
 	def register_program(self):
 		env = self.env
 		exe_target = os.path.join(self.srcdir, self.target)
+		versid_cppdefines=env['CPPDEFINES'][:]
+		if self.user_settings.extra_version:
+			versid_cppdefines.append(('DESCENT_VERSION_EXTRA', '\\"%s\\"' % self.user_settings.extra_version))
+		env.Object(source = ['main/vers_id.c'], CPPDEFINES=versid_cppdefines)
+		versid_sources = ['main/vers_id%s' % env['OBJSUFFIX']]
 		# finally building program...
-		env.Program(target=str(exe_target), source = self.common_sources, LIBS = self.platform_settings.libs, LINKFLAGS = str(self.platform_settings.lflags))
+		env.Program(target=str(exe_target), source = self.common_sources + versid_sources, LIBS = self.platform_settings.libs, LINKFLAGS = str(self.platform_settings.lflags))
 		if (sys.platform != 'darwin'):
 			env.Install(self.user_settings.BIN_DIR, str(exe_target))
 			env.Alias('install', self.user_settings.BIN_DIR)
