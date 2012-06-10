@@ -50,13 +50,9 @@ int mix_play_file(char *filename, int loop, void (*hook_finished_track)())
 	// It's a .hmp!
 	if (!d_stricmp(fptr, ".hmp"))
 	{
-#ifdef _WIN32 // on _WIN32, play natively
-		return digi_win32_play_midi_song( filename, loop ); 
-#else // otherwise convert and load to current_music
 		hmp2mid(filename, &current_music_hndlbuf, &bufsize);
 		rw = SDL_RWFromConstMem(current_music_hndlbuf,bufsize*sizeof(char));
 		current_music = Mix_LoadMUS_RW(rw);
-#endif
 	}
 
 	// try loading music via given filename
