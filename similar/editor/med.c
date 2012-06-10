@@ -305,32 +305,6 @@ int GotoMainMenu()
 }
 
 
-#if 0
-void ReadLispMacro( FILE * file, char * buffer )
-{
-//	char c;
-//	int size=0;
-//	int pcount = 0;
-//	char text[100];
-//	int i=0;
-	
-	fscanf( file, " { %s } ", buffer );
-
-/*
-	while (1)
-	{
-		c = text[i++];
-		if (pcount > 0 )
-			buffer[size++] = c;
-		if ( c == '(' ) pcount++;
-		if ( c == ')' ) break;
-	}
-	buffer[size++] = 0;
-*/
-
-	return;
-}
-#endif
 
 static int (*KeyFunction[2048])();
 
