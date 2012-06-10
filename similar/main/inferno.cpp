@@ -179,6 +179,7 @@ static void print_commandline_help()
 	printf( "  -verbose                      Enable verbose output.\n");
 	printf( "  -safelog                      Write gamelog.txt unbuffered.\n\t\t\t\tUse to keep helpful output to trace program crashes.\n");
 	printf( "  -norun                        Bail out after initialization\n");
+	printf( "  -no-grab                      Never grab keymoard/mouse\n");
 	printf( "  -renderstats                  Enable renderstats info by default\n");
 	printf( "  -text <s>                     Specify alternate .tex file\n");
 	printf( "  -tmap <s>                     Select texmapper <s> to use\n\t\t\t\t(default: c, available: c, fp, quad, i386)\n");

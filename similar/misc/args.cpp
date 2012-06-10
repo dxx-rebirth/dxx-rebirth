@@ -248,6 +248,8 @@ static void ReadCmdArgs(void)
 		else if (!d_stricmp(p, "-verbose"))
 			GameArg.DbgVerbose 	= CON_VERBOSE;
 
+		else if (!d_stricmp(p, "-no-grab"))
+			GameArg.DbgForbidConsoleGrab = 1;
 		else if (!d_stricmp(p, "-safelog"))
 			GameArg.DbgSafelog 		= 1;
 		else if (!d_stricmp(p, "-norun"))

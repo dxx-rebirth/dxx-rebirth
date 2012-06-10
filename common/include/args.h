@@ -94,6 +94,7 @@ typedef struct Arg
 	int DbgVerbose;
 	int DbgSafelog;
 	int DbgNoRun;
+	int DbgForbidConsoleGrab;
 	int DbgRenderStats;
 	const char *DbgAltTex;
 	const char *DbgTexMap;

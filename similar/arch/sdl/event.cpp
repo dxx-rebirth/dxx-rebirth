@@ -15,6 +15,7 @@
 #include "config.h"
 
 #include "joy.h"
+#include "args.h"
 
 static int initialised=0;
 
@@ -173,7 +174,7 @@ void event_process(void)
 
 void event_toggle_focus(int activate_focus)
 {
-	if (activate_focus && GameCfg.Grabinput)
+	if (activate_focus && GameCfg.Grabinput && !GameArg.DbgForbidConsoleGrab)
 		SDL_WM_GrabInput(SDL_GRAB_ON);
 	else
 		SDL_WM_GrabInput(SDL_GRAB_OFF);
