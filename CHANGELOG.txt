@@ -3,6 +3,7 @@ D2X-Rebirth Changelog
 20120610
 --------
 main/automap.c, main/automap.h, main/multi.c, main/multi.h, main/net_udp.c, main/state.c: removed MarkerOwner; some code cleaning in that regard
+arch/sdl/digi_mixer_music.c, arch/sdl/jukebox.c, main/songs.c, main/songs.h: added songs_play_file() to play any song depending on filename-extension as a more streamlined approach to handle all different kinds of formats; also used for jukebox to make it independent from SDL_mixer; cleaned up supported filename extenstions
 
 20120608
 --------

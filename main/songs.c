@@ -119,12 +119,14 @@ void songs_init()
 				sscanf( inputline, "%15s", BIMSongs[i].filename );
 
 				if (strrchr(BIMSongs[i].filename, '.'))
-					if (!d_stricmp(strrchr(BIMSongs[i].filename, '.'), ".hmp") ||
-						!d_stricmp(strrchr(BIMSongs[i].filename, '.'), ".mp3") ||
-						!d_stricmp(strrchr(BIMSongs[i].filename, '.'), ".ogg") ||
-						!d_stricmp(strrchr(BIMSongs[i].filename, '.'), ".aif") ||
-						!d_stricmp(strrchr(BIMSongs[i].filename, '.'), ".mid") ||
-						!d_stricmp(strrchr(BIMSongs[i].filename, '.'), ".flac")
+					if (!d_stricmp(strrchr(BIMSongs[i].filename, '.'), SONG_EXT_HMP)
+#ifdef USE_SDLMIXER
+						||
+						!d_stricmp(strrchr(BIMSongs[i].filename, '.'), SONG_EXT_MID) ||
+						!d_stricmp(strrchr(BIMSongs[i].filename, '.'), SONG_EXT_OGG) ||
+						!d_stricmp(strrchr(BIMSongs[i].filename, '.'), SONG_EXT_FLAC) ||
+						!d_stricmp(strrchr(BIMSongs[i].filename, '.'), SONG_EXT_MP3)
+#endif
 						)
 						i++;
 			}
@@ -281,6 +283,38 @@ void play_credits_track()
 	start_time();
 }
 
+// play a filename as music, depending on filename extension.
+int songs_play_file(char *filename, int repeat, void (*hook_finished_track)())
+{
+	char *fptr = strrchr(filename, '.');
+
+	songs_stop_all();
+	
+	if (fptr == NULL)
+		return 0;
+
+	if (!d_stricmp(fptr, SONG_EXT_HMP))
+	{
+#if defined(_WIN32)
+		return digi_win32_play_midi_song( filename, repeat );
+#elif defined(USE_SDLMIXER)
+		return mix_play_file( filename, repeat, hook_finished_track );
+#else
+		return 0;
+#endif
+	}
+#if defined(USE_SDLMIXER)
+	else if ( !d_stricmp(fptr, SONG_EXT_MID) ||
+			!d_stricmp(fptr, SONG_EXT_OGG) ||
+			!d_stricmp(fptr, SONG_EXT_FLAC) ||
+			!d_stricmp(fptr, SONG_EXT_MP3) )
+	{
+		return mix_play_file( filename, repeat, hook_finished_track );
+	}
+#endif
+	return 0;
+}
+
 int songs_play_song( int songnum, int repeat )
 {
 	songs_init();
@@ -296,24 +330,8 @@ int songs_play_song( int songnum, int repeat )
 				return Song_playing;
 
 			Song_playing = -1;
-#ifdef _WIN32
-			if (GameArg.SndDisableSdlMixer)
-			{
-				if (digi_win32_play_midi_song( BIMSongs[songnum].filename, repeat )) // NOTE: If SDL_mixer active, this will still be called in mix_play_file in case file is hmp
-				{
-					Song_playing = songnum;
-				}
-			}
-			else
-#endif
-#ifdef USE_SDLMIXER
-			{
-				if (mix_play_file(BIMSongs[songnum].filename, repeat, NULL))
-				{
-					Song_playing = songnum;
-				}
-			}
-#endif
+			if (songs_play_file(BIMSongs[songnum].filename, repeat, NULL))
+				Song_playing = songnum;
 			break;
 		}
 		case MUSIC_TYPE_REDBOOK:
@@ -347,7 +365,7 @@ int songs_play_song( int songnum, int repeat )
 				return Song_playing;
 
 			Song_playing = -1;
-			if (mix_play_file(GameCfg.CMMiscMusic[songnum],
+			if (songs_play_file(GameCfg.CMMiscMusic[songnum],
 							  // Play the credits track after the title track and loop the credits track if original CD track order was chosen
 							  (songnum == SONG_TITLE && GameCfg.OrigTrackOrder) ? 0 : repeat,
 							  (songnum == SONG_TITLE && GameCfg.OrigTrackOrder) ? play_credits_track : NULL))
@@ -360,10 +378,6 @@ int songs_play_song( int songnum, int repeat )
 			break;
 	}
 
-	// If we couldn't play the song, most likely because it wasn't specified, play no music.
-	if (Song_playing == -1)
-		songs_stop_all();
-	
 	return Song_playing;
 }
 
@@ -399,26 +413,8 @@ int songs_play_level_song( int levelnum, int offset )
 			if ((Num_bim_songs - SONG_FIRST_LEVEL_SONG) > 0)
 			{
 				songnum = SONG_FIRST_LEVEL_SONG + (songnum % (Num_bim_songs - SONG_FIRST_LEVEL_SONG));
-#ifdef _WIN32
-				if (GameArg.SndDisableSdlMixer)
-				{
-					if (digi_win32_play_midi_song( BIMSongs[songnum].filename, 1 )) // NOTE: If SDL_mixer active, this will still be called in mix_play_file in case file is hmp
-					{
-						Song_playing = songnum;
-					}
-				}
-#ifdef USE_SDLMIXER
-				else
-#endif
-#endif
-#ifdef USE_SDLMIXER
-				{
-					if (mix_play_file(BIMSongs[songnum].filename, 1, NULL))
-					{
-						Song_playing = songnum;
-					}
-				}
-#endif
+				if (songs_play_file(BIMSongs[songnum].filename, 1, NULL))
+					Song_playing = songnum;
 			}
 			break;
 		}
@@ -498,10 +494,6 @@ int songs_play_level_song( int levelnum, int offset )
 			break;
 	}
 
-	// If we couldn't play the song, most likely because it wasn't specified, play no music.
-	if (Song_playing == -1)
-		songs_stop_all();
-	
 	return Song_playing;
 }
 

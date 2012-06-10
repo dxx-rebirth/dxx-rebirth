@@ -18,6 +18,15 @@ typedef struct bim_song_info {
 #define SONG_CREDITS            4
 #define SONG_FIRST_LEVEL_SONG   5
 
+#define SONG_EXT_HMP            ".hmp"
+#ifdef USE_SDLMIXER
+#define SONG_EXT_MID            ".mid"
+#define SONG_EXT_OGG            ".ogg"
+#define SONG_EXT_FLAC           ".flac"
+#define SONG_EXT_MP3            ".mp3"
+#endif
+
+int songs_play_file(char *filename, int repeat, void (*hook_finished_track)());
 int songs_play_song( int songnum, int repeat );
 int songs_play_level_song( int levelnum, int offset );
 
