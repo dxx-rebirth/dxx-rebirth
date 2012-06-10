@@ -196,7 +196,6 @@ void check_and_fix_matrix(vms_matrix *m);
 vms_vector MarkerPoint[NUM_MARKERS]; //these are only used in multi.c, and I'd get rid of them there, but when I tried to do that once, I caused some horrible bug. -MT
 int HighlightMarker=-1;
 char MarkerMessage[NUM_MARKERS][MARKER_MESSAGE_LEN];
-char MarkerOwner[NUM_MARKERS][CALLSIGN_LEN+1];
 float MarkerScale=2.0;
 int	MarkerObject[NUM_MARKERS];
 
@@ -1457,8 +1456,6 @@ int MarkerInputMessage(int key)
 			break;
 		case KEY_ENTER:
 			strcpy (MarkerMessage[(Player_num*2)+MarkerBeingDefined],Marker_input);
-			if (Game_mode & GM_MULTI)
-			strcpy (MarkerOwner[(Player_num*2)+MarkerBeingDefined],Players[Player_num].callsign);
 			DropMarker(MarkerBeingDefined);
 			LastMarkerDropped = MarkerBeingDefined;
 			key_toggle_repeat(0);

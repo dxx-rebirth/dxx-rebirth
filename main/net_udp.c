@@ -121,7 +121,6 @@ struct _sockaddr TrackerSocket;
 int iTrackerVerified = 0;
 #endif
 extern obj_position Player_init[MAX_PLAYERS];
-extern vms_vector MarkerPoint[];
 
 /* General UDP functions - START */
 ssize_t dxx_sendto(int sockfd, const void *msg, int len, unsigned int flags, const struct sockaddr *to, socklen_t tolen)
@@ -1484,22 +1483,6 @@ void net_udp_send_door_updates(int pnum)
 			multi_send_wall_status_specific(pnum,i,Walls[i].type,Walls[i].flags,Walls[i].state);
 	}
 }
-
-void net_udp_send_markers()
- {
-  // send marker positions/text to new player
-
-  
-  int i;
-
-  for (i = 0; i < N_players; i++)
-   {
-    if (MarkerObject[(i*2)]!=-1)
-     multi_send_drop_marker (i,MarkerPoint[(i*2)],0,MarkerMessage[i*2]);
-    if (MarkerObject[(i*2)+1]!=-1)
-     multi_send_drop_marker (i,MarkerPoint[(i*2)+1],1,MarkerMessage[(i*2)+1]);
-   }
- }
 
 void net_udp_process_monitor_vector(int vector)
 {
@@ -5128,7 +5111,7 @@ void net_udp_send_extras ()
 	if (Network_sending_extras==8)
 		net_udp_send_door_updates(Player_joining_extras);
 	if (Network_sending_extras==7)
-		net_udp_send_markers();
+		multi_send_markers();
 	if (Network_sending_extras==6 && (Game_mode & GM_MULTI_ROBOTS))
 		multi_send_stolen_items();
 	if (Network_sending_extras==5 && (Netgame.PlayTimeAllowed || Netgame.KillGoal))

@@ -1067,7 +1067,7 @@ int state_save_all_sub(char *filename, char *desc)
 	// Save automap marker info
 
 	PHYSFS_write(fp, MarkerObject, sizeof(MarkerObject) ,1);
-	PHYSFS_write(fp, MarkerOwner, sizeof(MarkerOwner), 1);
+	PHYSFS_write(fp, &i, sizeof(char), (NUM_MARKERS)*(CALLSIGN_LEN+1)); // PHYSFS_write(fp, MarkerOwner, sizeof(MarkerOwner), 1); MarkerOwner is obsolete
 	PHYSFS_write(fp, MarkerMessage, sizeof(MarkerMessage), 1);
 
 	PHYSFS_write(fp, &Afterburner_charge, sizeof(fix), 1);
@@ -1531,7 +1531,7 @@ int state_restore_all_sub(char *filename, int secret_restore)
 	if (version >= 17) {
 		for (i = 0; i < NUM_MARKERS; i++)
 			MarkerObject[i] = PHYSFSX_readSXE32(fp, swap);
-		PHYSFS_read(fp, MarkerOwner, sizeof(MarkerOwner), 1);
+		PHYSFS_seek(fp, PHYSFS_tell(fp) + (NUM_MARKERS)*(CALLSIGN_LEN+1)); // PHYSFS_read(fp, MarkerOwner, sizeof(MarkerOwner), 1); // skip obsolete MarkerOwner
 		PHYSFS_read(fp, MarkerMessage, sizeof(MarkerMessage), 1);
 	}
 	else {

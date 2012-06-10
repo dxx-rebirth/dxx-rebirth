@@ -1,5 +1,9 @@
 D2X-Rebirth Changelog
 
+20120610
+--------
+main/automap.c, main/automap.h, main/multi.c, main/multi.h, main/net_udp.c, main/state.c: removed MarkerOwner; some code cleaning in that regard
+
 20120608
 --------
 main/multi.c, main/object.c: cleanly decide it to drop a hoard orb depending on wether we were killed by ourselves, en enemy or team-mate without any ugly and unreliable hacks

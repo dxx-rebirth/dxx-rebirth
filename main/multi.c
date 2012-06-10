@@ -65,6 +65,7 @@ COPYRIGHT 1993-1999 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 #include "effects.h"
 #include "iff.h"
 #include "state.h"
+#include "automap.h"
 #ifdef USE_UDP
 #include "net_udp.h"
 #endif
@@ -115,11 +116,6 @@ void drop_player_eggs(object *player); // from collide.c
 
 int multi_protocol=0; // set and determinate used protocol
 int imulti_new_game=0; // to prep stuff for level only when starting new game
-
-extern vms_vector MarkerPoint[];
-extern char MarkerMessage[16][40];
-extern char MarkerOwner[16][40];
-extern int MarkerObject[];
 
 int who_killed_controlcen = -1;  // -1 = noone
 
@@ -2336,7 +2332,6 @@ void multi_do_drop_marker (char *buf)
 		obj_delete(MarkerObject[(pnum*2)+mesnum]);
 
 	MarkerObject[(pnum*2)+mesnum] = drop_marker_object(&position,Objects[Players[Player_num].objnum].segnum,&Objects[Players[Player_num].objnum].orient,(pnum*2)+mesnum);
-	strcpy (MarkerOwner[(pnum*2)+mesnum],Players[pnum].callsign);
 }
 
 
@@ -2525,6 +2520,20 @@ void multi_send_drop_marker (int player,vms_vector position,char messagenum,char
 			multibuf[15+i]=text[i];
 	}
 	multi_send_data(multibuf, 55, 2);
+}
+
+void multi_send_markers()
+{
+	// send marker positions/text to new player
+	int i;
+
+	for (i = 0; i < N_players; i++)
+	{
+		if (MarkerObject[(i*2)]!=-1)
+			multi_send_drop_marker (i,MarkerPoint[(i*2)],0,MarkerMessage[i*2]);
+		if (MarkerObject[(i*2)+1]!=-1)
+			multi_send_drop_marker (i,MarkerPoint[(i*2)+1],1,MarkerMessage[(i*2)+1]);
+	}
 }
 
 void
