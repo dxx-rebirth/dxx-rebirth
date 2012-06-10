@@ -37,33 +37,33 @@ COPYRIGHT 1993-1998 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 
 struct Cfg GameCfg;
 
-static const char *DigiVolumeStr = "DigiVolume";
-static const char *MusicVolumeStr = "MusicVolume";
-static const char *ReverseStereoStr = "ReverseStereo";
-static const char *OrigTrackOrderStr = "OrigTrackOrder";
-static const char *MusicTypeStr = "MusicType";
-static const char *CMLevelMusicPlayOrderStr="CMLevelMusicPlayOrder";
-static const char *CMLevelMusicTrack0Str = "CMLevelMusicTrack0";
-static const char *CMLevelMusicTrack1Str = "CMLevelMusicTrack1";
-static const char *CMLevelMusicPathStr="CMLevelMusicPath";
-static const char *CMMiscMusic0Str="CMMiscMusic0";
-static const char *CMMiscMusic1Str="CMMiscMusic1";
-static const char *CMMiscMusic2Str="CMMiscMusic2";
-static const char *CMMiscMusic3Str="CMMiscMusic3";
-static const char *CMMiscMusic4Str="CMMiscMusic4";
-static const char *GammaLevelStr = "GammaLevel";
-static const char *LastPlayerStr = "LastPlayer";
-static const char *LastMissionStr = "LastMission";
-static const char *ResolutionXStr="ResolutionX";
-static const char *ResolutionYStr="ResolutionY";
-static const char *AspectXStr="AspectX";
-static const char *AspectYStr="AspectY";
-static const char *WindowModeStr="WindowMode";
-static const char *TexFiltStr="TexFilt";
-static const char *VSyncStr="VSync";
-static const char *MultisampleStr="Multisample";
-static const char *FPSIndicatorStr="FPSIndicator";
-static const char *GrabinputStr="GrabInput";
+static const char DigiVolumeStr[] = "DigiVolume";
+static const char MusicVolumeStr[] = "MusicVolume";
+static const char ReverseStereoStr[] = "ReverseStereo";
+static const char OrigTrackOrderStr[] = "OrigTrackOrder";
+static const char MusicTypeStr[] = "MusicType";
+static const char CMLevelMusicPlayOrderStr[] = "CMLevelMusicPlayOrder";
+static const char CMLevelMusicTrack0Str[] = "CMLevelMusicTrack0";
+static const char CMLevelMusicTrack1Str[] = "CMLevelMusicTrack1";
+static const char CMLevelMusicPathStr[] = "CMLevelMusicPath";
+static const char CMMiscMusic0Str[] = "CMMiscMusic0";
+static const char CMMiscMusic1Str[] = "CMMiscMusic1";
+static const char CMMiscMusic2Str[] ="CMMiscMusic2";
+static const char CMMiscMusic3Str[] = "CMMiscMusic3";
+static const char CMMiscMusic4Str[] = "CMMiscMusic4";
+static const char GammaLevelStr[] = "GammaLevel";
+static const char LastPlayerStr[] = "LastPlayer";
+static const char LastMissionStr[] = "LastMission";
+static const char ResolutionXStr[] ="ResolutionX";
+static const char ResolutionYStr[] ="ResolutionY";
+static const char AspectXStr[] ="AspectX";
+static const char AspectYStr[] ="AspectY";
+static const char WindowModeStr[] ="WindowMode";
+static const char TexFiltStr[] ="TexFilt";
+static const char VSyncStr[] ="VSync";
+static const char MultisampleStr[] ="Multisample";
+static const char FPSIndicatorStr[] ="FPSIndicator";
+static const char GrabinputStr[] ="GrabInput";
 
 int ReadConfigFile()
 {
