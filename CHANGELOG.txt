@@ -3,6 +3,7 @@ D2X-Rebirth Changelog
 20120618
 --------
 main/gamerend.c, main/multi.c: removed temp_string buffer for ingame message inputs preventing the string from being messed up if containing special characters
+main/game.c, main/multi.h: cleanup for netgame help menu and incremented multi proto vwersion due to recent code changes (d1x mostly however)
 
 20120610
 --------
