@@ -265,8 +265,6 @@ extern int  ai_evaded;
 extern sbyte Super_boss_gate_list[];
 #define MAX_GATE_INDEX  25
 
-extern int  Ai_info_enabled;
-
 // These globals are set by a call to find_vector_intersection, which is a slow routine,
 // so we don't want to call it again (for this object) unless we have to.
 extern vms_vector   Hit_pos;

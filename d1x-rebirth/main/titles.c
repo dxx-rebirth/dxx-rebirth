@@ -864,9 +864,6 @@ static void init_new_page(briefing *br)
 
 //	-----------------------------------------------------------------------------
 
-#define NEW_END_GUY1	1
-#define NEW_END_GUY2	3
-
 static void free_briefing_screen(briefing *br);
 extern void swap_0_255(grs_bitmap *bmp);
 

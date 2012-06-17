@@ -47,17 +47,10 @@ COPYRIGHT 1993-1998 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 // Temporary texture map, interface from Matt's 3d system to Mike's texture mapper.
 g3ds_tmap Tmap1;
 
-grs_bitmap Texmap_ptrs[NUM_TMAPS];
-grs_bitmap Texmap4_ptrs[NUM_TMAPS];
-
-fix Range_max=0; // debug, kill me
-
 int	Interpolation_method=0;	// 0 = choose best method
 int     Lighting_on=1;                  // initialize to no lighting
-int	Tmap_flat_flag = 0;		//	1 = render texture maps as flat shaded polygons.
 int	Current_seg_depth;		// HACK INTERFACE: how far away the current segment (& thus texture) is
 int	Max_perspective_depth;
-int	Max_flat_depth;
 
 // These variables are the interface to assembler.  They get set for each texture map, which is a real waste of time.
 //	They should be set only when they change, which is generally when the window bounds change.  And, even still, it's
@@ -82,7 +75,6 @@ int fx_xleft, fx_xright, fx_y;
 unsigned char * pixptr;
 int per2_flag = 0;
 int Transparency_on = 0;
-int dither_intensity_lighting = 0;
 
 ubyte * tmap_flat_cthru_table;
 ubyte tmap_flat_color;
@@ -353,7 +345,6 @@ fix compute_dz_dy(g3ds_tmap *t, int top_vertex,int bottom_vertex, fix recip_dy)
 	return fixmul(t->verts[bottom_vertex].z - t->verts[top_vertex].z, recip_dy);
 
 }
-int Skip_short_flag=0;
 
 // -------------------------------------------------------------------------------------
 //	Texture map current scanline in perspective.
@@ -444,10 +435,6 @@ void ntmap_scanline_lighted(grs_bitmap *srcb, int y, fix xleft, fix xright, fix 
 	}
 
 }
-
-int Do_vertical_scan=0;
-
-int	Break_on_flat=0;
 
 // -------------------------------------------------------------------------------------
 //	Render a texture map with lighting using perspective interpolation in inner and outer loops.

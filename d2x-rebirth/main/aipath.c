@@ -138,12 +138,6 @@ void insert_center_points(point_seg *psegs, int *num_points)
 	*num_points = j;
 }
 
-#ifdef EDITOR
-int	Safety_flag_override = 0;
-int	Random_flag_override = 0;
-int	Ai_path_debug=0;
-#endif
-
 //	-----------------------------------------------------------------------------------------------------------
 //	Move points halfway to outside of segment.
 void move_towards_outside(point_seg *psegs, int *num_points, object *objp, int rand_flag)
@@ -301,8 +295,6 @@ if ((objp->type == OBJ_ROBOT) && (objp->ctype.ai_info.behavior == AIB_RUN_FROM))
 		max_depth = MAX_PATH_LENGTH;
 
 	l_num_points = 0;
-//random_flag = Random_flag_override; //!! debug!!
-//safety_flag = Safety_flag_override; //!! debug!!
 
 //	for (i=0; i<=Highest_segment_index; i++) {
 //		visited[i] = 0;

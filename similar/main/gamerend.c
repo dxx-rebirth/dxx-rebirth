@@ -389,9 +389,6 @@ void game_draw_hud_stuff()
 		player_dead_message();
 }
 
-extern int gr_bitblt_dest_step_shift;
-extern int gr_bitblt_double;
-
 #if defined(DXX_BUILD_DESCENT_II)
 void expand_row(ubyte * dest, ubyte * src, int num_src_pixels )
 {

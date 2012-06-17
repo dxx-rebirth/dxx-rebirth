@@ -162,8 +162,6 @@ static const sbyte	Super_boss_gate_list[] = {0, 1, 8, 9, 10, 11, 12, 15, 16, 18,
 #define	MAX_GATE_INDEX	( sizeof(Super_boss_gate_list) / sizeof(Super_boss_gate_list[0]) )
 #endif
 
-int	Ai_info_enabled=0;
-
 #define	MAX_AWARENESS_EVENTS	64
 typedef struct awareness_event {
 	short 		segnum;				// segment the event occurred in
@@ -1237,9 +1235,6 @@ void do_ai_robot_hit(object *objp, int type)
 }
 #ifndef NDEBUG
 int	Do_ai_flag=1;
-int	Cvv_test=0;
-int	Cvv_last_time[MAX_OBJECTS];
-int	Gun_point_hack=0;
 #endif
 
 #define	CHASE_TIME_LENGTH		(F1_0*8)

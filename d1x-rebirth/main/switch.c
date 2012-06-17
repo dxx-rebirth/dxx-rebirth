@@ -48,9 +48,6 @@ COPYRIGHT 1993-1998 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 trigger Triggers[MAX_TRIGGERS];
 int Num_triggers;
 
-//link Links[MAX_WALL_LINKS];
-//int Num_links;
-
 #ifdef EDITOR
 fix trigger_time_count=F1_0;
 
@@ -71,9 +68,6 @@ void trigger_init()
 		Triggers[i].link_num = -1;
 		Triggers[i].time = -1;
 		}
-
-//	for (i=0;i<MAX_WALL_LINKS;i++)
-//		Links[i].num_walls = 0;
 }
 #endif
 

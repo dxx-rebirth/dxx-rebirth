@@ -185,7 +185,6 @@ extern int weapon_info_read_n(weapon_info *wi, int n, PHYSFS_file *fp, int file_
 // Weapon flags, if player->weapon_flags & WEAPON_FLAG is set, then the player has this weapon
 #define HAS_LASER_FLAG      HAS_FLAG(LASER_INDEX)
 #define HAS_VULCAN_FLAG     HAS_FLAG(VULCAN_INDEX)
-#define HAS_SPREADFIRE_FLAG HAS_FLAG(SPREADFIRE_INDEX)
 #define HAS_PLASMA_FLAG     HAS_FLAG(PLASMA_INDEX)
 #define HAS_FUSION_FLAG     HAS_FLAG(FUSION_INDEX)
 

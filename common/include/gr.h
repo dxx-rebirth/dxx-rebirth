@@ -167,9 +167,6 @@ int gr_check_mode(u_int32_t mode);
 int gr_set_mode(u_int32_t mode);
 void gr_set_attributes(void);
 
-extern void gr_pal_setblock( int start, int number, unsigned char * pal );
-extern void gr_pal_getblock( int start, int number, unsigned char * pal );
-
 //shut down the 2d.  Restore the screen mode.
 void gr_close(void);
 

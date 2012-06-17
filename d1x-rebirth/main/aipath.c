@@ -101,12 +101,6 @@ void insert_center_points(point_seg *psegs, short *num_points)
 	}
 }
 
-#ifdef EDITOR
-int	Safety_flag_override = 0;
-int	Random_flag_override = 0;
-int	Ai_path_debug=0;
-#endif
-
 //	-----------------------------------------------------------------------------------------------------------
 //	Create a path from objp->pos to the center of end_seg.
 //	Return a list of (segment_num, point_locations) at psegs

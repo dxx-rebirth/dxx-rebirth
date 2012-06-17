@@ -109,7 +109,6 @@ BYTES_PER_PIXEL	=	2
 %define _tmap_flat_cthru_table          tmap_flat_cthru_table
 %define _tmap_flat_color                tmap_flat_color
 %define _tmap_flat_shade_value          tmap_flat_shade_value
-%define _dither_intensity_lighting      dither_intensity_lighting
 %define _Lighting_on                    Lighting_on
 
 %define _Transparency_on        Transparency_on
@@ -152,7 +151,6 @@ num_iters	equ 	max_window_width
 	extern _tmap_flat_cthru_table;:dword
 	extern _tmap_flat_color;:byte
 	extern _tmap_flat_shade_value;:byte
-	extern _dither_intensity_lighting;:dword
 	extern _Lighting_on;:dword
 
 ; DPH: Selectors are about as portable as a rock.

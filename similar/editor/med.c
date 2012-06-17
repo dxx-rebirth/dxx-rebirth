@@ -643,7 +643,6 @@ int DosShell()
 	gr_set_mode(grd_curscreen->sc_mode);
 	gr_bm_ubitblt(w, h, 0, 0, 0, 0, save_bitmap, &(grd_curscreen->sc_canvas.cv_bitmap));
 	gr_free_bitmap( save_bitmap );
-	//gr_pal_setblock( 0, 256, grd_curscreen->pal );
 	//gr_use_palette_table();
 
 	return ok;

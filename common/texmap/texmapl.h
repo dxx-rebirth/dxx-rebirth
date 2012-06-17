@@ -74,7 +74,6 @@ extern	int  	window_width;
 extern	int  	window_height;
 extern	int	scan_doubling_flag;
 extern	int	linear_if_far_flag;
-extern	int	dither_intensity_lighting;
 extern	int	Interlacing_on;
 
 extern ubyte * tmap_flat_cthru_table;

@@ -26,11 +26,6 @@ COPYRIGHT 1993-1998 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 #define MAX_TRIGGERS        100
 #define MAX_WALLS_PER_LINK  10
 
-#define	TRIGGER_DEFAULT			2*F1_0
-
-#define	MAX_WALL_SWITCHES			50
-#define	MAX_WALL_LINKS				100
-
 // Trigger flags	  
 #define TRIGGER_CONTROL_DOORS      1    // Control Trigger
 #define TRIGGER_SHIELD_DAMAGE      2    // Shield Damage Trigger
@@ -43,16 +38,6 @@ COPYRIGHT 1993-1998 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 #define TRIGGER_SECRET_EXIT      256    // Exit to secret level
 #define TRIGGER_ILLUSION_ON      512    // Switch Illusion ON trigger
 
-// Trigger delay times before they can be retriggered (Recharge time)
-#define	TRIGGER_DELAY_DOOR		F1_0*1	// 1 second for doors
-#define	TRIGGER_DELAY_ZAPS		F1_0/10	// 1/10 second for quickie stuff
-
-// New unimplemented trigger ideas 
-#define	TRIGGER_CONTROL_ROBOTS	  64	// If Trigger is a Door control trigger (Linked)
-#define	CONTROL_ROBOTS					8	// If Trigger modifies robot behavior
-#define	CONTROL_LIGHTS_ON			  16	// If Trigger turns on lights in a certain area
-#define	CONTROL_LIGHTS_OFF		  32	// If Trigger turns off lights in a certain area
-
 typedef struct trigger {
 	sbyte		type;
 	short		flags;
@@ -64,17 +49,9 @@ typedef struct trigger {
 	short   side[MAX_WALLS_PER_LINK];
 } __pack__ trigger;
 
-//typedef struct link {
-//	short 	num_walls;
-//	short 	seg[MAX_WALLS_PER_LINK];
-//	short		side[MAX_WALLS_PER_LINK];
-//	} link;
-
 extern trigger Triggers[MAX_TRIGGERS];
-//extern link Links[MAX_WALL_LINKS];
 
 extern int Num_triggers;
-//extern int Num_links;
 
 extern void trigger_init();
 

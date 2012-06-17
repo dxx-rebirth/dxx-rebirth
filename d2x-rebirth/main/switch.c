@@ -51,9 +51,6 @@ COPYRIGHT 1993-1999 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 trigger Triggers[MAX_TRIGGERS];
 int Num_triggers;
 
-//link Links[MAX_WALL_LINKS];
-//int Num_links;
-
 #ifdef EDITOR
 fix trigger_time_count=F1_0;
 

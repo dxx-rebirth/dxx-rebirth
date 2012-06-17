@@ -112,11 +112,6 @@ int ai_evaded=0;
 
 int Animation_enabled = 1;
 
-#ifndef NDEBUG
-int Ai_info_enabled=0;
-#endif
-
-
 // These globals are set by a call to find_vector_intersection, which is a slow routine,
 // so we don't want to call it again (for this object) unless we have to.
 vms_vector  Hit_pos;
