@@ -1,5 +1,9 @@
 D2X-Rebirth Changelog
 
+20120618
+--------
+main/gamerend.c, main/multi.c: removed temp_string buffer for ingame message inputs preventing the string from being messed up if containing special characters
+
 20120610
 --------
 main/automap.c, main/automap.h, main/multi.c, main/multi.h, main/net_udp.c, main/state.c: removed MarkerOwner; some code cleaning in that regard

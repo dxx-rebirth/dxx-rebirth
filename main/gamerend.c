@@ -63,17 +63,13 @@ int netplayerinfo_on=0;
 extern ubyte DefiningMarkerMessage;
 extern char Marker_input[];
 
-#define MAX_MARKER_MESSAGE_LEN 120
 void game_draw_marker_message()
 {
-	char temp_string[MAX_MARKER_MESSAGE_LEN+25];
-
 	if ( DefiningMarkerMessage)
 	{
 		gr_set_curfont(GAME_FONT);
 		gr_set_fontcolor(BM_XRGB(0,63,0),-1);
-		sprintf( temp_string, "Marker: %s_", Marker_input );
-		gr_printf(0x8000, (LINE_SPACING*5)+FSPACY(1), temp_string );
+		gr_printf(0x8000, (LINE_SPACING*5)+FSPACY(1), "Marker: %s_", Marker_input );
 	}
 
 }
@@ -81,20 +77,16 @@ void game_draw_marker_message()
 #ifdef NETWORK
 void game_draw_multi_message()
 {
-	char temp_string[MAX_MULTI_MESSAGE_LEN+25];
-
 	if ( (Game_mode&GM_MULTI) && (multi_sending_message[Player_num]))	{
 		gr_set_curfont(GAME_FONT);
 		gr_set_fontcolor(BM_XRGB(0,63,0),-1);
-		sprintf( temp_string, "%s: %s_", TXT_MESSAGE, Network_message );
-		gr_printf(0x8000, (LINE_SPACING*5)+FSPACY(1), temp_string );
+		gr_printf(0x8000, (LINE_SPACING*5)+FSPACY(1), "%s: %s_", TXT_MESSAGE, Network_message );
 	}
 
 	if ( (Game_mode&GM_MULTI) && (multi_defining_message))	{
 		gr_set_curfont(GAME_FONT);
 		gr_set_fontcolor(BM_XRGB(0,63,0),-1);
-		sprintf( temp_string, "%s #%d: %s_", TXT_MACRO, multi_defining_message, Network_message );
-		gr_printf(0x8000, (LINE_SPACING*5)+FSPACY(1), temp_string );
+		gr_printf(0x8000, (LINE_SPACING*5)+FSPACY(1), "%s #%d: %s_", TXT_MACRO, multi_defining_message, Network_message );
 	}
 }
 #endif
