@@ -1128,8 +1128,11 @@ multi_send_message_start()
 	}
 }
 
+extern fix StartingShields;
+
 void multi_send_message_end()
 {
+	char *mytempbuf;
 	int i, t;
 
   multi_message_index = 0;
@@ -1137,7 +1140,24 @@ void multi_send_message_end()
   multi_send_msgsend_state(0);
   key_toggle_repeat(0);
 
-	if (!d_strnicmp (Network_message,"/move: ",7))
+	if (!d_strnicmp (Network_message,"/Handicap: ",11))
+	{
+		mytempbuf=&Network_message[11];
+		StartingShields=atol (mytempbuf);
+		if (StartingShields<10)
+			StartingShields=10;
+		if (StartingShields>100)
+		{
+			sprintf (Network_message,"%s has tried to cheat!",Players[Player_num].callsign);
+			StartingShields=100;
+		}
+		else
+			sprintf (Network_message,"%s handicap is now %d",Players[Player_num].callsign,StartingShields);
+
+		HUD_init_message(HM_MULTI, "Telling others of your handicap of %d!",StartingShields);
+		StartingShields=i2f(StartingShields);
+	}
+	else if (!d_strnicmp (Network_message,"/move: ",7))
 	{
 		if ((Game_mode & GM_NETWORK) && (Game_mode & GM_TEAM))
 		{

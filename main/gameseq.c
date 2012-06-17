@@ -240,6 +240,8 @@ void gameseq_remove_unused_players()
 	}
 }
 
+fix StartingShields=INITIAL_SHIELDS;
+
 // Setup player for new game
 void init_player_stats_game(ubyte pnum)
 {
@@ -271,10 +273,10 @@ void init_player_stats_game(ubyte pnum)
 
 void init_ammo_and_energy(void)
 {
-	if (Players[Player_num].energy < MAX_ENERGY)
-		Players[Player_num].energy = MAX_ENERGY;
-	if (Players[Player_num].shields < MAX_SHIELDS)
-		Players[Player_num].shields = MAX_SHIELDS;
+	if (Players[Player_num].energy < INITIAL_ENERGY)
+		Players[Player_num].energy = INITIAL_ENERGY;
+	if (Players[Player_num].shields < StartingShields)
+		Players[Player_num].shields = StartingShields;
 
 //	for (i=0; i<MAX_PRIMARY_WEAPONS; i++)
 //		if (Players[Player_num].primary_ammo[i] < Default_primary_ammo_level[i])
@@ -359,8 +361,8 @@ void init_player_stats_new_ship(ubyte pnum)
 		Dead_player_camera = 0;
 	}
 
-	Players[pnum].energy = MAX_ENERGY;
-        Players[pnum].shields = MAX_SHIELDS;
+	Players[pnum].energy = INITIAL_ENERGY;
+	Players[pnum].shields = StartingShields;
 	Players[pnum].laser_level = 0;
 	Players[pnum].killer_objnum = -1;
 	Players[pnum].hostages_on_board = 0;
@@ -436,37 +438,17 @@ void DoGameOver()
 //update various information about the player
 void update_player_stats()
 {
-// I took out this 'if' because it was causing the reactor invul time to be
-// off for players that sit in the death screen. -JS jul 6,95
-//	if (!Player_exploded) {
-		Players[Player_num].time_level += FrameTime;	//the never-ending march of time...
-		if ( Players[Player_num].time_level > i2f(3600) )	{
-			Players[Player_num].time_level -= i2f(3600);
-			Players[Player_num].hours_level++;
-		}
+	Players[Player_num].time_level += FrameTime;	//the never-ending march of time...
+	if ( Players[Player_num].time_level > i2f(3600) )	{
+		Players[Player_num].time_level -= i2f(3600);
+		Players[Player_num].hours_level++;
+	}
 
-		Players[Player_num].time_total += FrameTime;	//the never-ending march of time...
-		if ( Players[Player_num].time_total > i2f(3600) )	{
-			Players[Player_num].time_total -= i2f(3600);
-			Players[Player_num].hours_total++;
-		}
-//	}
-
-//	Players[Player_num].energy += FrameTime*Energy_regen_ratio;	//slowly regenerate energy
-
-//MK1015:	//slowly reduces player's energy & shields if over max
-//MK1015:
-//MK1015:	if (Players[Player_num].energy > MAX_ENERGY) {
-//MK1015:		Players[Player_num].energy -= FrameTime/8;
-//MK1015:		if (Players[Player_num].energy < MAX_ENERGY)
-//MK1015:			Players[Player_num].energy = MAX_ENERGY;
-//MK1015:	}
-//MK1015:
-//MK1015:	if (Players[Player_num].shields > MAX_SHIELDS) {
-//MK1015:		Players[Player_num].shields -= FrameTime/8;
-//MK1015:		if (Players[Player_num].shields < MAX_SHIELDS)
-//MK1015:			Players[Player_num].shields = MAX_SHIELDS;
-//MK1015:	}
+	Players[Player_num].time_total += FrameTime;	//the never-ending march of time...
+	if ( Players[Player_num].time_total > i2f(3600) )	{
+		Players[Player_num].time_total -= i2f(3600);
+		Players[Player_num].hours_total++;
+	}
 }
 
 //go through this level and start any eclip sounds

@@ -3,6 +3,7 @@ D1X-Rebirth Changelog
 20120618
 --------
 main/gamerend.c, main/multi.c: removed temp_string buffer for ingame message inputs preventing the string from being messed up if containing special characters
+main/game.c, main/gameseq.c, main/multi.c, main/multi.h, main/player.h, main/powerup.c: Introduced INITIAL_ENERGY and INITIAL_SHIELDS defines from d2x and on that way added handicap feature for multiplayer as well; incremented multi proto version
 
 20120610
 --------

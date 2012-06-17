@@ -724,7 +724,7 @@ void show_netgame_help()
 	int nitems = 0;
 	newmenu_item *m;
 
-	MALLOC(m, newmenu_item, 15);
+	MALLOC(m, newmenu_item, 16);
 	if (!m)
 		return;
 
@@ -748,6 +748,7 @@ void show_netgame_help()
 	m[nitems].type = NM_TYPE_TEXT; m[nitems++].text = "";
 	m[nitems].type = NM_TYPE_TEXT; m[nitems++].text = "MULTIPLAYER MESSAGE COMMANDS:";
 	m[nitems].type = NM_TYPE_TEXT; m[nitems++].text = "(*): TEXT\t  SEND TEXT TO PLAYER/TEAM (*)";
+	m[nitems].type = NM_TYPE_TEXT; m[nitems++].text = "/Handicap: (*)\t  SET YOUR STARTING SHIELDS TO (*) [10-100]";
 	m[nitems].type = NM_TYPE_TEXT; m[nitems++].text = "/move: (*)\t  MOVE PLAYER (*) TO OTHER TEAM (Host-only)";
 	m[nitems].type = NM_TYPE_TEXT; m[nitems++].text = "/kick: (*)\t  KICK PLAYER (*) FROM GAME (Host-only)";
 	m[nitems].type = NM_TYPE_TEXT; m[nitems++].text = "/KillReactor\t  BLOW UP THE MINE (Host-only)";

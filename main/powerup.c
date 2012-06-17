@@ -44,9 +44,6 @@ COPYRIGHT 1993-1998 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 #include "editor/editor.h"
 #endif
 
-#define	ENERGY_MAX	i2f(200)
-#define	SHIELD_MAX	i2f(200)
-
 int N_powerup_types = 0;
 powerup_type_info Powerup_info[MAX_POWERUP_TYPES];
 
@@ -175,10 +172,10 @@ int pick_up_energy(void)
 {
 	int	used=0;
 
-	if (Players[Player_num].energy < ENERGY_MAX) {
+	if (Players[Player_num].energy < MAX_ENERGY) {
 		Players[Player_num].energy += 3*F1_0 + 3*F1_0*(NDL - Difficulty_level);
-		if (Players[Player_num].energy > ENERGY_MAX)
-			Players[Player_num].energy = ENERGY_MAX;
+		if (Players[Player_num].energy > MAX_ENERGY)
+			Players[Player_num].energy = MAX_ENERGY;
 		powerup_basic(15,15,7, ENERGY_SCORE, "%s %s %d",TXT_ENERGY,TXT_BOOSTED_TO,f2ir(Players[Player_num].energy));
 		used=1;
 	} else
@@ -247,10 +244,10 @@ int do_powerup(object *obj)
 			used = pick_up_energy();
 			break;
 		case POW_SHIELD_BOOST:
-			if (Players[Player_num].shields < SHIELD_MAX) {
+			if (Players[Player_num].shields < MAX_SHIELDS) {
 				Players[Player_num].shields += 3*F1_0 + 3*F1_0*(NDL - Difficulty_level);
-				if (Players[Player_num].shields > SHIELD_MAX)
-					Players[Player_num].shields = SHIELD_MAX;
+				if (Players[Player_num].shields > MAX_SHIELDS)
+					Players[Player_num].shields = MAX_SHIELDS;
 				powerup_basic(0, 0, 15, SHIELD_SCORE, "%s %s %d",TXT_SHIELD,TXT_BOOSTED_TO,f2ir(Players[Player_num].shields));
 				used=1;
 			} else

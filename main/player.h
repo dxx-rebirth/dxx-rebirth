@@ -31,9 +31,13 @@ COPYRIGHT 1993-1998 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 #define MAX_MULTI_PLAYERS MAX_PLAYERS+3
 
 // Initial player stat values
-#define MAX_ENERGY 						i2f(100)	//100% energy to start
-#define MAX_SHIELDS 						i2f(100)	//100% shields to start
-#define INITIAL_LIVES					3			//start off with 3 lives
+#define INITIAL_ENERGY  i2f(100)    // 100% energy to start
+#define INITIAL_SHIELDS i2f(100)    // 100% shields to start
+
+#define MAX_ENERGY      i2f(200)    // go up to 200
+#define MAX_SHIELDS     i2f(200)
+
+#define INITIAL_LIVES               3   // start off with 3 lives
 
 // Values for special flags
 #define PLAYER_FLAGS_INVULNERABLE		1			// Player is invincible
