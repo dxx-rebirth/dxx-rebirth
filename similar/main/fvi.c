@@ -285,7 +285,7 @@ static int check_line_to_face(vms_vector *newp,const vms_vector *p0,const vms_ve
 }
 
 //returns the value of a determinant
-fix calc_det_value(vms_matrix *det)
+static fix calc_det_value(const vms_matrix *det)
 {
 	return 	fixmul(det->rvec.x,fixmul(det->uvec.y,det->fvec.z)) -
 			 	fixmul(det->rvec.x,fixmul(det->uvec.z,det->fvec.y)) -
@@ -770,7 +770,7 @@ if (hit_seg!=-1 && fq->flags&FQ_GET_SEGLIST)
 //--unused-- 	return vm_vec_dist(v0,v1);
 //--unused-- }
 
-int obj_in_list(int objnum,const int *obj_list)
+static int obj_in_list(int objnum,const int *obj_list)
 {
 	int t;
 
