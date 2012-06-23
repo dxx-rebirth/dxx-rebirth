@@ -1093,15 +1093,15 @@ quit_looking:
 
 //finds the uv coords of the given point on the given seg & side
 //fills in u & v
-void find_hitpoint_uv(fix *u,fix *v,fix *l,vms_vector *pnt,segment *seg,int sidenum,int facenum)
+void find_hitpoint_uv(fix *u,fix *v,fix *l,const vms_vector *pnt,const segment *seg,int sidenum,int facenum)
 {
     (void)l;
-	vms_vector_array *pnt_array;
+	const vms_vector_array *pnt_array;
 	vms_vector_array normal_array;
 	int segnum = seg-Segments;
 	int num_faces;
 	int biggest,ii,jj;
-	side *side = &seg->sides[sidenum];
+	const side *side = &seg->sides[sidenum];
 	int vertex_list[6],vertnum_list[6];
  	vec2d p1,vec0,vec1,checkp;	//@@,checkv;
 	uvl uvls[3];
@@ -1135,21 +1135,21 @@ void find_hitpoint_uv(fix *u,fix *v,fix *l,vms_vector *pnt,segment *seg,int side
 	//2. compute u,v of intersection point
 
 	//vec from 1 -> 0
-	pnt_array = (vms_vector_array *)&Vertices[vertex_list[facenum*3+1]];
+	pnt_array = (const vms_vector_array *)&Vertices[vertex_list[facenum*3+1]];
 	p1.i = pnt_array->xyz[ii];
 	p1.j = pnt_array->xyz[jj];
 
-	pnt_array = (vms_vector_array *)&Vertices[vertex_list[facenum*3+0]];
+	pnt_array = (const vms_vector_array *)&Vertices[vertex_list[facenum*3+0]];
 	vec0.i = pnt_array->xyz[ii] - p1.i;
 	vec0.j = pnt_array->xyz[jj] - p1.j;
 
 	//vec from 1 -> 2
-	pnt_array = (vms_vector_array *)&Vertices[vertex_list[facenum*3+2]];
+	pnt_array = (const vms_vector_array *)&Vertices[vertex_list[facenum*3+2]];
 	vec1.i = pnt_array->xyz[ii] - p1.i;
 	vec1.j = pnt_array->xyz[jj] - p1.j;
 
 	//vec from 1 -> checkpoint
-	pnt_array = (vms_vector_array *)pnt;
+	pnt_array = (const vms_vector_array *)pnt;
 	checkp.i = pnt_array->xyz[ii];
 	checkp.j = pnt_array->xyz[jj];
 
