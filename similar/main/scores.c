@@ -309,11 +309,11 @@ void scores_draw_item( int i, stats_info * stats )
 		gr_string( FSPACX(66), FSPACY(y), TXT_EMPTY );
 		return;
 	}
-	gr_printf( FSPACX(66), FSPACY(y), "%s", stats->name );
+	gr_string( FSPACX(66), FSPACY(y),  stats->name );
 	int_to_string(stats->score, buffer);
 	scores_rprintf( 149, y, "%s", buffer );
 
-	gr_printf( FSPACX(166), FSPACY(y), "%s", MENU_DIFFICULTY_TEXT(stats->diff_level) );
+	gr_string( FSPACX(166), FSPACY(y),  MENU_DIFFICULTY_TEXT(stats->diff_level) );
 
 	if ( (stats->starting_level > 0 ) && (stats->ending_level > 0 ))
 		scores_rprintf( 232, y, "%d-%d", stats->starting_level, stats->ending_level );

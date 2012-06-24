@@ -65,7 +65,7 @@ void kmatrix_draw_item( int  i, int *sorted )
 	char temp[10];
 
 	y = FSPACY(50+i*9);
-	gr_printf( FSPACX(CENTERING_OFFSET(N_players)), y, "%s", Players[sorted[i]].callsign );
+	gr_string( FSPACX(CENTERING_OFFSET(N_players)), y, Players[sorted[i]].callsign );
 
 	for (j=0; j<N_players; j++)
 	{
@@ -114,7 +114,7 @@ void kmatrix_draw_coop_item( int  i, int *sorted )
 	int  x, y;
 
 	y = FSPACY(50+i*9);
-	gr_printf( FSPACX(CENTERING_OFFSET(N_players)), y, "%s", Players[sorted[i]].callsign );
+	gr_string( FSPACX(CENTERING_OFFSET(N_players)), y,  Players[sorted[i]].callsign );
 	x = CENTERSCREEN;
 	gr_set_fontcolor( BM_XRGB(60,40,10),-1 );
 	gr_printf( x, y, "%d", Players[sorted[i]].score );

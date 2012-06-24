@@ -145,7 +145,7 @@ static void con_draw(void)
 		}
 		gr_get_string_size(con_buffer[CON_LINES_MAX-1-i].line,&w,&h,&aw);
 		y-=h+FSPACY(1);
-		gr_printf(FSPACX(1),y,"%s",con_buffer[CON_LINES_MAX-1-i].line);
+		gr_string(FSPACX(1),y,con_buffer[CON_LINES_MAX-1-i].line);
 		i++;
 
 		if (y<=0 || CON_LINES_MAX-1-i <= 0 || i < 0)

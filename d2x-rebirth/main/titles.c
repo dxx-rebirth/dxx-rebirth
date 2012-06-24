@@ -883,7 +883,7 @@ void redraw_messagestream(msgstream *stream, int count)
 		msgbuf[1] = 0;
 		if (stream[i-1].color != stream[i].color)
 			gr_set_fontcolor(stream[i].color,-1);
-		gr_printf(stream[i].x+1,stream[i].y,"%s",msgbuf);
+		gr_string(stream[i].x+1,stream[i].y,msgbuf);
 	}
 }
 

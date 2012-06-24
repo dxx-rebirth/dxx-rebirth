@@ -149,7 +149,7 @@ void show_netplayerinfo()
 
 	// general game information
 	y+=LINE_SPACING;
-	gr_printf(0x8000,y,"%s",Netgame.game_name);
+	gr_string(0x8000,y,Netgame.game_name);
 	y+=LINE_SPACING;
 	gr_printf(0x8000,y,"%s - lvl: %i",Netgame.mission_title,Netgame.levelnum);
 
