@@ -400,24 +400,14 @@ void buddy_message(const char * format, ... )
 
 	if (Last_buddy_message_time + F1_0 < GameTime64) {
 		if (ok_for_buddy_to_talk()) {
-			char	gb_str[16], new_format[128];
+			char	new_format[128];
 			va_list	args;
-			int t;
 
 			va_start(args, format );
-			vsprintf(new_format, format, args);
+			vsnprintf(new_format, sizeof(new_format), format, args);
 			va_end(args);
 
-			gb_str[0] = CC_COLOR;
-			gb_str[1] = BM_XRGB(28, 0, 0);
-			strcpy(&gb_str[2], PlayerCfg.GuidebotName);
-			t = strlen(gb_str);
-			gb_str[t] = ':';
-			gb_str[t+1] = CC_COLOR;
-			gb_str[t+2] = BM_XRGB(0, 31, 0);
-			gb_str[t+3] = 0;
-
-			HUD_init_message(HM_DEFAULT, "%s %s", gb_str, new_format);
+			HUD_init_message(HM_DEFAULT, "%c%c%s:%c%c %s", CC_COLOR, BM_XRGB(28, 0, 0), PlayerCfg.GuidebotName, CC_COLOR, BM_XRGB(0, 31, 0), new_format);
 
 			Last_buddy_message_time = GameTime64;
 		}
@@ -430,22 +420,14 @@ static void thief_message(const char * format, ... ) __attribute_format_printf(1
 static void thief_message(const char * format, ... )
 {
 
-	char	gb_str[16], new_format[128];
+	char	new_format[128];
 	va_list	args;
 
 	va_start(args, format );
-	vsprintf(new_format, format, args);
+	vsnprintf(new_format, sizeof(new_format), format, args);
 	va_end(args);
 
-	gb_str[0] = 1;
-	gb_str[1] = BM_XRGB(28, 0, 0);
-	strcpy(&gb_str[2], "THIEF:");
-	gb_str[8] = 1;
-	gb_str[9] = BM_XRGB(0, 31, 0);
-	gb_str[10] = 0;
-
-	HUD_init_message(HM_DEFAULT, "%s %s", gb_str, new_format);
-
+	HUD_init_message(HM_DEFAULT, "%c%cTHIEF:%c%c %s", 1, BM_XRGB(28, 0, 0), 1, BM_XRGB(0, 31, 0), new_format);
 }
 
 //	-----------------------------------------------------------------------------
