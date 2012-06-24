@@ -371,7 +371,7 @@ typedef struct gauge_box {
 	int right,bot;		//maximal box
 } gauge_box;
 
-gauge_box gauge_boxes[] = {
+const gauge_box gauge_boxes[] = {
 
 // primary left/right low res
 		{PRIMARY_W_BOX_LEFT_L,PRIMARY_W_BOX_TOP_L,PRIMARY_W_BOX_RIGHT_L,PRIMARY_W_BOX_BOT_L},
@@ -391,7 +391,7 @@ gauge_box gauge_boxes[] = {
 	};
 
 //store delta x values from left of box
-span weapon_window_left[] = {
+const span weapon_window_left[] = {
 	{71,114},
 	{69,116},
 	{68,117},
@@ -439,7 +439,7 @@ span weapon_window_left[] = {
 
 
 //store delta x values from left of box
-span weapon_window_right[] = {
+const span weapon_window_right[] = {
 	{208,255},
 	{206,257},
 	{205,258},
@@ -486,7 +486,7 @@ span weapon_window_right[] = {
 };
 
 //store delta x values from left of box
-span weapon_window_left_hires[] = {
+const span weapon_window_left_hires[] = {
 	{141,231},
 	{139,234},
 	{137,235},
@@ -598,7 +598,7 @@ span weapon_window_left_hires[] = {
 
 
 //store delta x values from left of box
-span weapon_window_right_hires[] = {
+const span weapon_window_right_hires[] = {
 	{416,509},
 	{413,511},
 	{412,513},
@@ -1939,7 +1939,7 @@ void draw_keys()
 }
 
 
-void draw_weapon_info_sub(int info_index,gauge_box *box,int pic_x,int pic_y,char *name,int text_x,int text_y)
+void draw_weapon_info_sub(int info_index,const gauge_box *box,int pic_x,int pic_y,const char *name,int text_x,int text_y)
 {
 	grs_bitmap *bm;
 
@@ -3052,7 +3052,7 @@ void do_cockpit_window_view(int win,object *viewer,int rear_view_flag,int user,c
 	static int overlap_dirty[2]={0,0};
 	int boxnum;
 	static int window_x,window_y;
-	gauge_box *box;
+	const gauge_box *box;
 	int rear_view_save = Rear_view;
 	int w,h,dx;
 
