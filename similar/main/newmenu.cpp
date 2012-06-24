@@ -1449,17 +1449,17 @@ static int newmenu_draw(window *wind, newmenu *menu)
 		sx=BORDERX-FSPACX(12);
 
 		if (menu->scroll_offset!=0)
-			gr_printf( sx, sy, UP_ARROW_MARKER );
+			gr_string( sx, sy, UP_ARROW_MARKER );
 		else
-			gr_printf( sx, sy, "  " );
+			gr_string( sx, sy, "  " );
 
 		sy=menu->items[menu->scroll_offset+menu->max_displayable-1].y-(((int)LINE_SPACING)*menu->scroll_offset);
 		sx=BORDERX-FSPACX(12);
 
 		if (menu->scroll_offset+menu->max_displayable<menu->nitems)
-			gr_printf( sx, sy, DOWN_ARROW_MARKER );
+			gr_string( sx, sy, DOWN_ARROW_MARKER );
 		else
-			gr_printf( sx, sy, "  " );
+			gr_string( sx, sy, "  " );
 
 	}
 

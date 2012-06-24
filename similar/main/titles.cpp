@@ -981,7 +981,7 @@ static void flash_cursor(briefing *br, int cursor_flag)
 	else
 		gr_set_fontcolor(Erase_color, -1);
 
-	gr_printf(br->text_x, br->text_y, "_" );
+	gr_string(br->text_x, br->text_y, "_" );
 }
 
 #define EXIT_DOOR_MAX   14
@@ -1554,7 +1554,7 @@ static int briefing_handler(window *wind, d_event *event, briefing *br)
 			if (br->new_page || br->new_screen)
 				flash_cursor(br, br->flashing_cursor);
 			else if (br->flashing_cursor)
-				gr_printf(br->text_x, br->text_y, "_");
+				gr_string(br->text_x, br->text_y, "_");
 			break;
 
 		case EVENT_WINDOW_CLOSE:

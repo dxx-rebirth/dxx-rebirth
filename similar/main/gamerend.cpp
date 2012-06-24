@@ -164,16 +164,16 @@ static void show_netplayerinfo()
 
 	// player information (name, kills, ping, game efficiency)
 	y+=LINE_SPACING*2;
-	gr_printf(x,y,"player");
+	gr_string(x,y,"player");
 	if (Game_mode & GM_MULTI_COOP)
-		gr_printf(x+FSPACX(8)*7,y,"score");
+		gr_string(x+FSPACX(8)*7,y,"score");
 	else
 	{
-		gr_printf(x+FSPACX(8)*7,y,"kills");
-		gr_printf(x+FSPACX(8)*12,y,"deaths");
+		gr_string(x+FSPACX(8)*7,y,"kills");
+		gr_string(x+FSPACX(8)*12,y,"deaths");
 	}
-	gr_printf(x+FSPACX(8)*18,y,"ping");
-	gr_printf(x+FSPACX(8)*23,y,"efficiency");
+	gr_string(x+FSPACX(8)*18,y,"ping");
+	gr_string(x+FSPACX(8)*23,y,"efficiency");
 
 	// process players table
 	for (i=0; i<MAX_PLAYERS; i++)
@@ -208,8 +208,8 @@ static void show_netplayerinfo()
 	if (Game_mode & GM_TEAM)
 	{
 		gr_set_fontcolor(255,-1);
-		gr_printf(x,y,"team");
-		gr_printf(x+FSPACX(8)*8,y,"score");
+		gr_string(x,y,"team");
+		gr_string(x+FSPACX(8)*8,y,"score");
 		y+=LINE_SPACING;
 		gr_set_fontcolor(BM_XRGB(player_rgb[0].r,player_rgb[0].g,player_rgb[0].b),-1 );
 		gr_printf(x,y,"%s:",Netgame.team_name[0]);
@@ -234,7 +234,7 @@ static void show_netplayerinfo()
 	if (game_mode_hoard())
 	{
 		if (PhallicMan==-1)
-			gr_printf(0x8000,y,"There is no record yet for this level."); 
+			gr_string(0x8000,y,"There is no record yet for this level.");
 		else
 			gr_printf(0x8000,y,"%s has the record at %d points.",Players[PhallicMan].callsign,PhallicLimit);
 	}
@@ -247,7 +247,7 @@ static void show_netplayerinfo()
 		if (eff<60)
 			gr_printf(0x8000,y,"is %s your ranking.",eff_strings[eff/10]);
 		else
-			gr_printf(0x8000,y,"is serving you well.");
+			gr_string(0x8000,y,"is serving you well.");
 		y+=LINE_SPACING;
 		gr_printf(0x8000,y,"your rank is: %s",RankStrings[GetMyNetRanking()]);
 	}
@@ -571,7 +571,7 @@ void game_render_frame_mono(int flip)
 		gr_set_curfont( GAME_FONT );
 		gr_set_fontcolor( BM_XRGB(27,0,0), -1 );
 
-		gr_printf(0x8000, FSPACY(1), "Guided Missile View");
+		gr_string(0x8000, FSPACY(1), "Guided Missile View");
 
 		show_reticle(RET_TYPE_CROSS_V1, 0);
 

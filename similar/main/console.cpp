@@ -155,7 +155,7 @@ static void con_draw(void)
 	gr_rect(0,0,SWIDTH,LINE_SPACING);
 	gr_set_fontcolor(BM_XRGB(255,255,255),-1);
 	gr_printf(FSPACX(1),FSPACY(1),"%s LOG", DESCENT_VERSION);
-	gr_printf(SWIDTH-FSPACX(110),FSPACY(1),"PAGE-UP/DOWN TO SCROLL");
+	gr_string(SWIDTH-FSPACX(110),FSPACY(1),"PAGE-UP/DOWN TO SCROLL");
 }
 
 static int con_handler(window *wind, d_event *event)

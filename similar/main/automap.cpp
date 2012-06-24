@@ -499,7 +499,7 @@ static void draw_automap(automap *am)
 	}
 #elif defined(DXX_BUILD_DESCENT_II)
 	gr_string((SWIDTH/10.666), (SHEIGHT/1.126), TXT_TURN_SHIP);
-	gr_printf((SWIDTH/10.666), (SHEIGHT/1.083), "F9/F10 Changes viewing distance");
+	gr_string((SWIDTH/10.666), (SHEIGHT/1.083), "F9/F10 Changes viewing distance");
 	gr_string((SWIDTH/10.666), (SHEIGHT/1.043), TXT_AUTOMAP_MARKER);
 #endif
 
