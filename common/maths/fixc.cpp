@@ -258,16 +258,21 @@ fix fix_sqrt(fix a)
 void fix_sincos(fix a,fix *s,fix *c)
 {
 	int i,f;
-	fix ss,cc;
 
 	i = (a>>8)&0xff;
 	f = a&0xff;
 
-	ss = sincos_table[i];
-	if (s) *s = (ss + (((sincos_table[i+1] - ss) * f)>>8))<<2;
+	if (s)
+	{
+		fix ss = sincos_table[i];
+		*s = (ss + (((sincos_table[i+1] - ss) * f)>>8))<<2;
+	}
 
-	cc = sincos_table[i+64];
-	if (c) *c = (cc + (((sincos_table[i+64+1] - cc) * f)>>8))<<2;
+	if (c)
+	{
+		fix cc = sincos_table[i+64];
+		*c = (cc + (((sincos_table[i+64+1] - cc) * f)>>8))<<2;
+	}
 }
 
 //compute sine and cosine of an angle, filling in the variables
