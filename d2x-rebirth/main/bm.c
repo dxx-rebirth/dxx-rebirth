@@ -111,20 +111,6 @@ int tmap_info_read_n(tmap_info *ti, int n, PHYSFS_file *fp)
 	return i;
 }
 
-int tmap_info_read_n_d1(tmap_info *ti, int n, PHYSFS_file *fp)
-{
-	int i;
-
-	for (i = 0; i < n; i++) {
-		PHYSFSX_fseek(fp, 13, SEEK_CUR);// skip filename
-		ti[i].flags = PHYSFSX_readByte(fp);
-		ti[i].lighting = PHYSFSX_readFix(fp);
-		ti[i].damage = PHYSFSX_readFix(fp);
-		ti[i].eclip_num = PHYSFSX_readInt(fp);
-	}
-	return i;
-}
-
 void gamedata_close()
 {
 	free_polygon_models();
