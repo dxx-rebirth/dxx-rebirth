@@ -200,7 +200,7 @@ static inline int PHYSFSX_printf(PHYSFS_file *file, const char *format, ...)
 	va_list args;
 
 	va_start(args, format);
-	vsprintf(buffer, format, args);
+	vsnprintf(buffer, sizeof(buffer), format, args);
 
 	return PHYSFSX_puts(file, buffer);
 }

@@ -962,7 +962,7 @@ static void do_screen_message(const char *fmt, ...)
 	gr_palette_load(gr_palette);
 
 	va_start(arglist, fmt);
-	vsprintf(msg, fmt, arglist);
+	vsnprintf(msg, sizeof(msg), fmt, arglist);
 	va_end(arglist);
 	
 	nm_messagebox1(NULL, (int (*)(newmenu *, d_event *, void *))draw_stars_bg, &background, 1, TXT_OK, msg);
