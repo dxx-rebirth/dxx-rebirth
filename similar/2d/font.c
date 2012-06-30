@@ -590,6 +590,8 @@ void ogl_init_font(grs_font * font)
 	ubyte *data;
 	int gap=1; // x/y offset between the chars so we can filter
 
+	th = tw = 0xffff;
+
 	ogl_font_choose_size(font,gap,&tw,&th);
 	MALLOC(data, ubyte, tw*th);
 	memset(data, TRANSPARENCY_COLOR, tw * th); // map the whole data with transparency so we won't have borders if using gap
