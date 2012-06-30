@@ -1456,44 +1456,6 @@ void compute_vis_and_vec(object *objp, vms_vector *pos, ai_local *ailp, vms_vect
 }
 
 // --------------------------------------------------------------------------------------------------------------------
-//	Move the object objp to a spot in which it doesn't intersect a wall.
-//	It might mean moving it outside its current segment.
-void move_object_to_legal_spot(object *objp)
-{
-	vms_vector	original_pos = objp->pos;
-	int		i;
-	segment	*segp = &Segments[objp->segnum];
-
-	for (i=0; i<MAX_SIDES_PER_SEGMENT; i++) {
-		if (WALL_IS_DOORWAY(segp, i) & WID_FLY_FLAG) {
-			vms_vector	segment_center, goal_dir;
-
-			compute_segment_center(&segment_center, &Segments[segp->children[i]]);
-			vm_vec_sub(&goal_dir, &segment_center, &objp->pos);
-			vm_vec_normalize_quick(&goal_dir);
-			vm_vec_scale(&goal_dir, objp->size);
-			vm_vec_add2(&objp->pos, &goal_dir);
-			if (!object_intersects_wall(objp)) {
-				int	new_segnum = find_point_seg(&objp->pos, objp->segnum);
-
-				if (new_segnum != -1) {
-					obj_relink(objp-Objects, new_segnum);
-					return;
-				}
-			} else
-				objp->pos = original_pos;
-		}
-	}
-
-	if (Robot_info[objp->id].boss_flag) {
-		Int3();		//	Note: Boss is poking outside mine.  Will try to resolve.
-		teleport_boss(objp);
-	} else {
-		apply_damage_to_robot(objp, objp->shields*2, objp-Objects);
-	}
-}
-
-// --------------------------------------------------------------------------------------------------------------------
 //	Move object one object radii from current position towards segment center.
 //	If segment center is nearer than 2 radii, move it to center.
 void move_towards_segment_center(object *objp)
