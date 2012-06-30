@@ -938,25 +938,6 @@ void remove_all_objects_but( int segnum, int objnum )
 	}
 }
 
-int check_duplicate_objects()
-{
-	int i, count=0;
-	
-	for (i=0;i<=Highest_object_index;i++) {
-		if ( Objects[i].type != OBJ_NONE )	{
-			count = search_all_segments_for_object( i );
-			if ( count > 1 )	{
-				#ifndef NDEBUG
-				Int3();
-				#endif
-				remove_all_objects_but( Objects[i].segnum,  i );
-				return count;
-			}
-		}
-	}
-	return count;
-}
-
 void list_seg_objects( int segnum )
 {
 	int objnum, count = 0;
