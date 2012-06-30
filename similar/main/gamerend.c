@@ -400,51 +400,6 @@ void expand_row(ubyte * dest, ubyte * src, int num_src_pixels )
 	}
 }
 
-// doubles the size in x or y of a bitmap in place.
-void game_expand_bitmap( grs_bitmap * bmp, uint flags )
-{
-	int i;
-	ubyte * dptr, * sptr;
-
-	switch(flags & 3)	{
-	case 2:	// expand x
-		Assert( bmp->bm_rowsize == bmp->bm_w*2 );
-		dptr = &bmp->bm_data[(bmp->bm_h-1)*bmp->bm_rowsize];
-		for (i=bmp->bm_h-1; i>=0; i-- )	{
-			expand_row( dptr, dptr, bmp->bm_w );	
-			dptr -= bmp->bm_rowsize;
-		}
-		bmp->bm_w *= 2;
-		break;
-	case 1:	// expand y
-		dptr = &bmp->bm_data[(2*(bmp->bm_h-1)+1)*bmp->bm_rowsize];
-		sptr = &bmp->bm_data[(bmp->bm_h-1)*bmp->bm_rowsize];
-		for (i=bmp->bm_h-1; i>=0; i-- )	{
-			memcpy( dptr, sptr, bmp->bm_w );	
-			dptr -= bmp->bm_rowsize;
-			memcpy( dptr, sptr, bmp->bm_w );	
-			dptr -= bmp->bm_rowsize;
-			sptr -= bmp->bm_rowsize;
-		}
-		bmp->bm_h *= 2;
-		break;
-	case 3:	// expand x & y
-		Assert( bmp->bm_rowsize == bmp->bm_w*2 );
-		dptr = &bmp->bm_data[(2*(bmp->bm_h-1)+1)*bmp->bm_rowsize];
-		sptr = &bmp->bm_data[(bmp->bm_h-1)*bmp->bm_rowsize];
-		for (i=bmp->bm_h-1; i>=0; i-- )	{
-			expand_row( dptr, sptr, bmp->bm_w );	
-			dptr -= bmp->bm_rowsize;
-			expand_row( dptr, sptr, bmp->bm_w );	
-			dptr -= bmp->bm_rowsize;
-			sptr -= bmp->bm_rowsize;
-		}
-		bmp->bm_w *= 2;
-		bmp->bm_h *= 2;
-		break;
-	}
-}
-
 extern int SW_drawn[2], SW_x[2], SW_y[2], SW_w[2], SW_h[2];
 ubyte RenderingType=0;
 ubyte DemoDoingRight=0,DemoDoingLeft=0;
