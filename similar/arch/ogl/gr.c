@@ -660,19 +660,6 @@ int gr_set_mode(u_int32_t mode)
 }
 
 #define GLstrcmptestr(a,b) if (d_stricmp(a,#b)==0 || d_stricmp(a,"GL_" #b)==0)return GL_ ## b;
-int ogl_atotexfilti(char *a,int min)
-{
-	GLstrcmptestr(a,NEAREST);
-	GLstrcmptestr(a,LINEAR);
-	if (min)
-	{//mipmaps are valid only for the min filter
-		GLstrcmptestr(a,NEAREST_MIPMAP_NEAREST);
-		GLstrcmptestr(a,NEAREST_MIPMAP_LINEAR);
-		GLstrcmptestr(a,LINEAR_MIPMAP_NEAREST);
-		GLstrcmptestr(a,LINEAR_MIPMAP_LINEAR);
-	}
-	Error("unknown/invalid texture filter %s\n",a);
-}
 
 #ifdef _WIN32
 static const char OglLibPath[]="opengl32.dll";
