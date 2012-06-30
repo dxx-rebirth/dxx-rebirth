@@ -221,11 +221,6 @@ void digi_mixer_stop_all_channels()
 
 extern void digi_end_soundobj(int channel);
 
- //added on 980905 by adb to make sound channel setting work
-void digi_mixer_set_max_channels(int n) { }
-int digi_mixer_get_max_channels() { return digi_max_channels; }
-// end edit by adb
-
 #ifndef NDEBUG
 void digi_mixer_debug() {}
 #endif
