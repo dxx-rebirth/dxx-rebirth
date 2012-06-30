@@ -297,27 +297,6 @@ int digi_audio_start_sound(short soundnum, fix volume, int pan, int looping, int
 	return i;
 }
 
-// Returns the channel a sound number is playing on, or
-// -1 if none.
-int digi_audio_find_channel(int soundno)
-{
-	if (!digi_initialised)
-		return -1;
-
-	if (soundno < 0 )
-		return -1;
-
-	if (GameSounds[soundno].data == NULL)
-	{
-		Int3();
-		return -1;
-	}
-
-	//FIXME: not implemented
-	return -1;
-}
-
-
 //added on 980905 by adb from original source to make sfx volume work
 void digi_audio_set_digi_volume( int dvolume )
 {
