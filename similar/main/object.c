@@ -885,20 +885,6 @@ void special_reset_objects(void)
 }
 
 #ifndef NDEBUG
-int is_object_in_seg( int segnum, int objn )
-{
-	int objnum, count = 0;
-
-	for (objnum=Segments[segnum].objects;objnum!=-1;objnum=Objects[objnum].next)	{
-		if ( count > MAX_OBJECTS ) 	{
-			Int3();
-			return count;
-		}
-		if ( objnum==objn ) count++;
-	}
-	 return count;
-}
-
 void johns_obj_unlink(int segnum, int objnum)
 {
 	object  *obj = &Objects[objnum];
