@@ -884,23 +884,6 @@ void special_reset_objects(void)
 				Highest_object_index = i;
 }
 
-#ifndef NDEBUG
-void johns_obj_unlink(int segnum, int objnum)
-{
-	object  *obj = &Objects[objnum];
-	segment *seg = &Segments[segnum];
-
-	Assert(objnum != -1);
-
-	if (obj->prev == -1)
-		seg->objects = obj->next;
-	else
-		Objects[obj->prev].next = obj->next;
-
-	if (obj->next != -1) Objects[obj->next].prev = obj->prev;
-}
-#endif
-
 //link the object into the list for its segment
 void obj_link(int objnum,int segnum)
 {
