@@ -937,21 +937,6 @@ void remove_all_objects_but( int segnum, int objnum )
 		}
 	}
 }
-
-void list_seg_objects( int segnum )
-{
-	int objnum, count = 0;
-
-	for (objnum=Segments[segnum].objects;objnum!=-1;objnum=Objects[objnum].next)	{
-		count++;
-		if ( count > MAX_OBJECTS ) 	{
-			Int3();
-			return;
-		}
-	}
-	return;
-
-}
 #endif
 
 //link the object into the list for its segment
