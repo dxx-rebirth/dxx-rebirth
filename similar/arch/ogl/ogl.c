@@ -1442,46 +1442,6 @@ void ogl_filltexbuf(unsigned char *data, GLubyte *texp, int truewidth, int width
 	}
 }
 
-int tex_format_verify(ogl_texture *tex){
-	while (!tex_format_supported(tex->internalformat,tex->format)){
-		glmprintf((0,"tex format %x not supported",tex->internalformat));
-		switch (tex->internalformat){
-#ifdef OGLES
-			case GL_RGB:
-				tex->format=GL_RGB;
-				break;
-			case GL_RGBA:
-				tex->format=GL_RGBA;
-#else
-			case GL_INTENSITY4:
-				if (GameArg.DbgGlLuminance4Alpha4Ok){
-					tex->internalformat=GL_LUMINANCE4_ALPHA4;
-					tex->format=GL_LUMINANCE_ALPHA;
-					break;
-				}//note how it will fall through here if the statement is false
-			case GL_LUMINANCE4_ALPHA4:
-				if (GameArg.DbgGlRGBA2Ok){
-					tex->internalformat=GL_RGBA2;
-					tex->format=GL_RGBA;
-					break;
-				}//note how it will fall through here if the statement is false
-			case GL_RGBA2:
-#if defined(__APPLE__) && defined(__MACH__)
-			case GL_RGB8:	// Quartz doesn't support RGB only
-#endif
-				tex->internalformat = ogl_rgba_internalformat;
-				tex->format=GL_RGBA;
-				break;
-#endif // OGLES
-			default:
-				glmprintf((0,"...no tex format to fall back on\n"));
-				return 1;
-		}
-		glmprintf((0,"...falling back to %x\n",tex->internalformat));
-	}
-	return 0;
-}
-
 void tex_set_size1(ogl_texture *tex,int dbits,int bits,int w, int h){
 	int u;
 	if (tex->tw!=w || tex->th!=h){
