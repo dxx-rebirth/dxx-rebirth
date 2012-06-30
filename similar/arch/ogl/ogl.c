@@ -1251,30 +1251,6 @@ void gr_flip(void)
 	glClear(GL_COLOR_BUFFER_BIT);
 }
 
-int tex_format_supported(int iformat,int format)
-{
-#ifndef OGLES
-	switch (iformat){
-		case GL_INTENSITY4:
-			if (!GameArg.DbgGlIntensity4Ok) return 0; break;
-		case GL_LUMINANCE4_ALPHA4:
-			if (!GameArg.DbgGlLuminance4Alpha4Ok) return 0; break;
-		case GL_RGBA2:
-			if (!GameArg.DbgGlRGBA2Ok) return 0; break;
-	}
-	if (GameArg.DbgGlGetTexLevelParamOk){
-		GLint internalFormat;
-		glTexImage2D(GL_PROXY_TEXTURE_2D, 0, iformat, 64, 64, 0,
-				format, GL_UNSIGNED_BYTE, texbuf);//NULL?
-		glGetTexLevelParameteriv(GL_PROXY_TEXTURE_2D, 0,
-				GL_TEXTURE_INTERNAL_FORMAT,
-				&internalFormat);
-		return (internalFormat==iformat);
-	}else
-#endif
-		return 1;
-}
-
 //little hack to find the nearest bigger power of 2 for a given number
 int pow2ize(int x){
 	int i;
