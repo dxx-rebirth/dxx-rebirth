@@ -57,7 +57,7 @@ void (con_printf)(int priority, const char *fmt, ...)
 		char *p1, *p2;
 
 		va_start (arglist, fmt);
-		vsprintf (buffer,  fmt, arglist);
+		vsnprintf (buffer, sizeof(buffer), fmt, arglist);
 		va_end (arglist);
 
 		/* Produce a sanitised version and send it to the console */

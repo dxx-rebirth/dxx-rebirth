@@ -168,7 +168,7 @@ void (editor_status_fmt)( const char *format, ... )
 	va_list ap;
 
 	va_start(ap, format);
-	vsprintf(status_line, format, ap);
+	vsnprintf(status_line, sizeof(status_line), format, ap);
 	va_end(ap);
 
 	Editor_status_last_time = Editor_time_of_day;
