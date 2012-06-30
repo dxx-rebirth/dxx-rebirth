@@ -362,22 +362,6 @@ void init_ai_objects(void)
 	}
 }
 
-//	----------------------------------------------------------------
-//	Do *dest = *delta unless:
-//				*delta is pretty small
-//		and	they are of different signs.
-void set_rotvel_and_saturate(fix *dest, fix delta)
-{
-	if ((delta ^ *dest) < 0) {
-		if (abs(delta) < F1_0/8) {
-			*dest = delta/4;
-		} else
-			*dest = delta;
-	} else {
-		*dest = delta;
-	}
-}
-
 //--debug-- #ifndef NDEBUG
 //--debug-- int	Total_turns=0;
 //--debug-- int	Prevented_turns=0;
