@@ -338,61 +338,6 @@ extern char CDROM_dir[];
 int request_cd(void);
 
 
-//PC Version of copy_pigfile_from_cd is below
-
-//copies a pigfile from the CD to the current dir
-//retuns file handle of new pig
-PHYSFS_file *copy_pigfile_from_cd(char *filename)
-{
-#if 0
-	char name[80];
-	FILEFINDSTRUCT find;
-	int ret;
-
-	show_boxed_message("Copying bitmap data from CD...");
-	gr_palette_load(gr_palette);    //I don't think this line is really needed
-
-	//First, delete all PIG files currently in the directory
-
-	if( !FileFindFirst( "*.pig", &find ) ) {
-		do      {
-			cfile_delete(find.name);
-		} while( !FileFindNext( &find ) );
-		FileFindClose();
-	}
-
-	//Now, copy over new pig
-
-	songs_stop_redbook();           //so we can read off the cd
-
-	//new code to unarj file
-	strcpy(name,CDROM_dir);
-	strcat(name,"descent2.sow");
-
-	do {
-//		ret = unarj_specific_file(name,filename,filename);
-// DPH:FIXME
-
-		ret = !EXIT_SUCCESS;
-
-		if (ret != EXIT_SUCCESS) {
-
-			//delete file, so we don't leave partial file
-			cfile_delete(filename);
-
-			#ifndef MACINTOSH
-			if (request_cd() == -1)
-			#endif
-				//NOTE LINK TO ABOVE IF
-				Error("Cannot load file <%s> from CD",filename);
-		}
-
-	} while (ret != EXIT_SUCCESS);
-#endif
-
-	return PHYSFSX_openReadBuffered(filename);
-}
-
 //initialize a pigfile, reading headers
 //returns the size of all the bitmap data
 void piggy_init_pigfile(char *filename)
