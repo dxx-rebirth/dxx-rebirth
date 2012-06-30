@@ -329,20 +329,6 @@ int digi_audio_is_sound_playing(int soundno)
 }
 
 
- //added on 980905 by adb to make sound channel setting work
-void digi_audio_set_max_channels(int n) {
-	digi_max_channels	= n;
-
-	if ( digi_max_channels < 1 )
-		digi_max_channels = 1;
-	if (digi_max_channels > MAX_SOUND_SLOTS)
-		digi_max_channels = MAX_SOUND_SLOTS;
-
-	if ( !digi_initialised ) return;
-
-	digi_stop_all_channels();
-}
-
 int digi_audio_get_max_channels() {
 	return digi_max_channels;
 }
