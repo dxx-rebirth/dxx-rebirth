@@ -173,18 +173,6 @@ object *obj_find_first_of_type (int type)
 	return ((object *)NULL);
 }
 
-#if defined(DXX_BUILD_DESCENT_II)
-int obj_return_num_of_typeid (int type,int id)
-{
-	int i,count=0;
-
-	for (i=0;i<=Highest_object_index;i++)
-		if (Objects[i].type==type && Objects[i].id==id)
-			count++;
-	return (count);
-}
-#endif
-
 //draw an object that has one bitmap & doesn't rotate
 void draw_object_blob(object *obj,bitmap_index bmi)
 {
