@@ -176,17 +176,6 @@ int door_is_wall_switched(int wall_num)
 	return -1;
 }
 
-void flag_wall_switched_doors(void)
-{
-	int	i;
-
-	for (i=0; i<Num_walls; i++) {
-		if (door_is_wall_switched(i))
-			Walls[i].flags |= WALL_WALL_SWITCH;
-	}
-
-}
-
 // Locks all doors linked to the switch.
 void do_lock_doors(sbyte trigger_num)
 {
