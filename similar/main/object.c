@@ -899,17 +899,6 @@ int is_object_in_seg( int segnum, int objn )
 	 return count;
 }
 
-int search_all_segments_for_object( int objnum )
-{
-	int i;
-	int count = 0;
-
-	for (i=0; i<=Highest_segment_index; i++) {
-		count += is_object_in_seg( i, objnum );
-	}
-	return count;
-}
-
 void johns_obj_unlink(int segnum, int objnum)
 {
 	object  *obj = &Objects[objnum];
