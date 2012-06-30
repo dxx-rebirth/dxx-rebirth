@@ -390,15 +390,6 @@ void game_draw_hud_stuff()
 }
 
 #if defined(DXX_BUILD_DESCENT_II)
-void expand_row(ubyte * dest, ubyte * src, int num_src_pixels )
-{
-	int i;
-	
-	for (i = 0; i < num_src_pixels; i++) {
-		*dest++ = *src;
-		*dest++ = *src++;
-	}
-}
 
 extern int SW_drawn[2], SW_x[2], SW_y[2], SW_w[2], SW_h[2];
 ubyte RenderingType=0;
