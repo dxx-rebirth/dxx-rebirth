@@ -1861,12 +1861,6 @@ void dump_mine_info(void)
 
 #ifdef EDITOR
 
-//read in every level in mission and save out compiled version 
-void save_all_compiled_levels(void)
-{
-	do_load_save_levels(1);
-}
-
 //read in every level in mission
 void load_all_levels(void)
 {
