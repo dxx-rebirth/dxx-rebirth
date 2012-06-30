@@ -892,21 +892,6 @@ void say_used_tmaps(PHYSFS_file *my_file, int *tb)
 // --05/17/95--}
 
 // ----------------------------------------------------------------------------
-void say_used_once_tmaps(PHYSFS_file *my_file, int *tb, sbyte *tb_lnum)
-{
-	int	i;
-	const char	*level_name;
-
-	for (i=0; i<MAX_BITMAP_FILES; i++)
-		if (tb[i] == 1) {
-			int	level_num = tb_lnum[i];
-			level_name = Adam_level_names[level_num];
-
-			PHYSFSX_printf(my_file, "Texture %3i %8s used only once on level %s\n", i, AllBitmaps[i].name, level_name);
-		}
-}
-
-// ----------------------------------------------------------------------------
 void say_unused_tmaps(PHYSFS_file *my_file, int *tb)
 {
 	int	i;
