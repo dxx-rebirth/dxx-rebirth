@@ -803,55 +803,6 @@ extern int Connected_segment_distance;
 
 #define Int3_if(cond) if (!cond) Int3();
 
-//	----------------------------------------------------------------------------------------------------
-void move_object_to_goal(object *objp, vms_vector *goal_point, int goal_seg)
-{
-	ai_static	*aip = &objp->ctype.ai_info;
-	int			segnum;
-
-	if (aip->path_length < 2)
-		return;
-
-	Assert(objp->segnum != -1);
-
-	Assert(aip->path_length >= 2);
-
-	if (aip->cur_path_index <= 0) {
-		if (aip->behavior == AIB_STATION) {
-			create_path_to_station(objp, 15);
-			return;
-		}
-		aip->cur_path_index = 1;
-		aip->PATH_DIR = 1;
-	} else if (aip->cur_path_index >= aip->path_length - 1) {
-		if (aip->behavior == AIB_STATION) {
-			create_path_to_station(objp, 15);
-			if (aip->path_length == 0) {
-				ai_local		*ailp = &Ai_local_info[objp-Objects];
-				ailp->mode = AIM_STILL;
-			}
-			return;
-		}
-		Assert(aip->path_length != 0);
-		aip->cur_path_index = aip->path_length-2;
-		aip->PATH_DIR = -1;
-	} else
-		aip->cur_path_index += aip->PATH_DIR;
-
-	//--Int3_if(((aip->cur_path_index >= 0) && (aip->cur_path_index < aip->path_length)));
-
-	objp->pos = *goal_point;
-	segnum = find_object_seg(objp);
-
-	if (segnum == -1) {
-		Int3();	//	Oops, object is not in any segment.
-					// Contact Mike: This is impossible.
-		//	Hack, move object to center of segment it used to be in.
-		compute_segment_center(&objp->pos, &Segments[objp->segnum]);
-	} else
-		obj_relink(objp-Objects, segnum);
-}
-
 // -- too much work -- //	----------------------------------------------------------------------------------------------------------
 // -- too much work -- //	Return true if the object the companion wants to kill is reachable.
 // -- too much work -- int attack_kill_object(object *objp)
