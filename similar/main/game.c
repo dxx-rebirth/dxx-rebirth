@@ -1821,28 +1821,6 @@ int create_special_path(void)
 #endif
 
 
-#ifndef RELEASE
-int	Max_obj_count_mike = 0;
-
-//	Shows current number of used objects.
-void show_free_objects(void)
-{
-	if (!(d_tick_count & 8)) {
-		int	i;
-		int	count=0;
-
-		for (i=0; i<=Highest_object_index; i++)
-			if (Objects[i].type != OBJ_NONE)
-				count++;
-
-		if (count > Max_obj_count_mike) {
-			Max_obj_count_mike = count;
-		}
-	}
-}
-
-#endif
-
 #if defined(DXX_BUILD_DESCENT_II)
 /*
  * reads a flickering_light structure from a PHYSFS_file
