@@ -913,19 +913,6 @@ void johns_obj_unlink(int segnum, int objnum)
 
 	if (obj->next != -1) Objects[obj->next].prev = obj->prev;
 }
-
-void remove_all_objects_but( int segnum, int objnum )
-{
-	int i;
-
-	for (i=0; i<=Highest_segment_index; i++) {
-		if (segnum != i )	{
-			if (is_object_in_seg( i, objnum ))	{
-				johns_obj_unlink( i, objnum );
-			}
-		}
-	}
-}
 #endif
 
 //link the object into the list for its segment
