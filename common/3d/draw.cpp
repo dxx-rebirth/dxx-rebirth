@@ -238,7 +238,7 @@ bool g3_draw_poly(int nv,g3s_point **pointlist)
 	return 0;	//say it drew
 }
 
-bool must_clip_tmap_face(int nv,g3s_codes cc,grs_bitmap *bm);
+static bool must_clip_tmap_face(int nv,g3s_codes cc,grs_bitmap *bm);
 
 //draw a texture-mapped face.
 //returns 1 if off screen, 0 if drew
@@ -292,9 +292,8 @@ bool g3_draw_tmap(int nv,g3s_point **pointlist,g3s_uvl *uvl_list,g3s_lrgb *light
 
 	return 0;	//say it drew
 }
-#endif
 
-bool must_clip_tmap_face(int nv,g3s_codes cc,grs_bitmap *bm)
+static bool must_clip_tmap_face(int nv,g3s_codes cc,grs_bitmap *bm)
 {
 	g3s_point **bufptr;
 	int i;
@@ -331,7 +330,6 @@ free_points:
 
 }
 
-#ifndef OGL
 //draw a sortof sphere - i.e., the 2d radius is proportional to the 3d
 //radius, but not to the distance from the eye
 int g3_draw_sphere(g3s_point *pnt,fix rad)
