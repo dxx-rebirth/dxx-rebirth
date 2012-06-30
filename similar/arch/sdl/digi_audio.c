@@ -328,12 +328,6 @@ int digi_audio_is_sound_playing(int soundno)
 	return 0;
 }
 
-
-int digi_audio_get_max_channels() {
-	return digi_max_channels;
-}
-// end edit by adb
-
 int digi_audio_is_channel_playing(int channel)
 {
 	if (!digi_initialised)
