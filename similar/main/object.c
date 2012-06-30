@@ -672,36 +672,6 @@ void create_small_fireball_on_object(object *objp, fix size_scale, int sound_fla
 	}
 }
 
-//	------------------------------------------------------------------------------------------------------------------
-void create_vclip_on_object(object *objp, fix size_scale, int vclip_num)
-{
-	fix			size;
-	vms_vector	pos, rand_vec;
-	int			segnum;
-
-	pos = objp->pos;
-	make_random_vector(&rand_vec);
-
-	vm_vec_scale(&rand_vec, objp->size/2);
-
-	vm_vec_add2(&pos, &rand_vec);
-
-	size = fixmul(size_scale, F1_0 + d_rand()*4);
-
-	segnum = find_point_seg(&pos, objp->segnum);
-	if (segnum != -1) {
-		object *expl_obj;
-		expl_obj = object_create_explosion(segnum, &pos, size, vclip_num);
-		if (!expl_obj)
-			return;
-
-		expl_obj->movement_type = MT_PHYSICS;
-		expl_obj->mtype.phys_info.velocity.x = objp->mtype.phys_info.velocity.x/2;
-		expl_obj->mtype.phys_info.velocity.y = objp->mtype.phys_info.velocity.y/2;
-		expl_obj->mtype.phys_info.velocity.z = objp->mtype.phys_info.velocity.z/2;
-	}
-}
-
 // -- mk, 02/05/95 -- #define	VCLIP_INVULNERABILITY_EFFECT	VCLIP_SMALL_EXPLOSION
 // -- mk, 02/05/95 --
 // -- mk, 02/05/95 -- // -----------------------------------------------------------------------------
