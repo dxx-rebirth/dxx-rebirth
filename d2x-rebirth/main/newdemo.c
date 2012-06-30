@@ -1020,14 +1020,6 @@ void newdemo_record_sound( int soundno )
 //--unused-- }
 //--unused--
 
-void newdemo_record_cockpit_change (int mode)
-{
-	stop_time();
-	nd_write_byte (ND_EVENT_CHANGE_COCKPIT);
-	nd_write_int(mode);
-	start_time();
-}
-
 
 void newdemo_record_sound_3d( int soundno, int angle, int volume )
 {
