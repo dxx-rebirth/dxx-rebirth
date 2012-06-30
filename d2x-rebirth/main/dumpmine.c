@@ -913,16 +913,6 @@ void say_unused_tmaps(PHYSFS_file *my_file, int *tb)
 }
 
 // ----------------------------------------------------------------------------
-void say_unused_walls(PHYSFS_file *my_file, int *tb)
-{
-	int	i;
-
-	for (i=0; i<Num_wall_anims; i++)
-		if (!tb[i])
-			PHYSFSX_printf(my_file, "Wall %3i is unused.\n", i);
-}
-
-// ----------------------------------------------------------------------------
 static void say_totals(PHYSFS_file *my_file, const char *level_name)
 {
 	int	i;		//, objnum;
