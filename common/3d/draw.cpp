@@ -147,8 +147,9 @@ bool g3_check_and_draw_tmap(int nv,g3s_point **pointlist,g3s_uvl *uvl_list,g3s_l
 		return 255;
 }
 
+#ifndef OGL
 //deal with face that must be clipped
-bool must_clip_flat_face(int nv,g3s_codes cc)
+static bool must_clip_flat_face(int nv,g3s_codes cc)
 {
 	int i;
         bool ret=0;
@@ -191,7 +192,6 @@ free_points:
 	return ret;
 }
 
-#ifndef OGL
 //draw a flat-shaded face.
 //returns 1 if off screen, 0 if drew
 bool g3_draw_poly(int nv,g3s_point **pointlist)
