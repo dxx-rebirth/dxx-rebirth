@@ -1879,16 +1879,6 @@ void net_udp_resend_sync_due_to_packet_loss()
 	net_udp_send_game_info(UDP_sync_player.player.protocol.udp.addr, UPID_SYNC);
 }
 
-char * net_udp_get_player_name( int objnum )
-{
-	if ( objnum < 0 ) return NULL; 
-	if ( Objects[objnum].type != OBJ_PLAYER ) return NULL;
-	if ( Objects[objnum].id >= MAX_PLAYERS ) return NULL;
-	if ( Objects[objnum].id >= N_players ) return NULL;
-	
-	return Players[Objects[objnum].id].callsign;
-}
-
 void net_udp_add_player(UDP_sequence_packet *p)
 {
 	int i;
