@@ -1440,14 +1440,6 @@ void force_dump_ai_objects_all(const char *msg)
 }
 
 // ----------------------------------------------------------------------------------
-void turn_off_ai_dump(void)
-{
-	if (Ai_dump_file != NULL)
-		fclose(Ai_dump_file);
-
-	Ai_dump_file = NULL;
-}
-
 #endif
 
 extern void do_boss_dying_frame(object *objp);
