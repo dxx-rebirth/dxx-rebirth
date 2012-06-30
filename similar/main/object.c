@@ -925,29 +925,6 @@ void johns_obj_unlink(int segnum, int objnum)
 	if (obj->next != -1) Objects[obj->next].prev = obj->prev;
 }
 
-void remove_incorrect_objects()
-{
-	int segnum, objnum, count;
-
-	for (segnum=0; segnum <= Highest_segment_index; segnum++) {
-		count = 0;
-		for (objnum=Segments[segnum].objects;objnum!=-1;objnum=Objects[objnum].next)	{
-			count++;
-			#ifndef NDEBUG
-			if ( count > MAX_OBJECTS )	{
-				Int3();
-			}
-			#endif
-			if (Objects[objnum].segnum != segnum )	{
-				#ifndef NDEBUG
-				Int3();
-				#endif
-				johns_obj_unlink(segnum,objnum);
-			}
-		}
-	}
-}
-
 void remove_all_objects_but( int segnum, int objnum )
 {
 	int i;
