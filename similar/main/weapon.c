@@ -354,7 +354,7 @@ void CycleSecondary ()
 //if message flag set, print message saying selected
 void select_weapon(int weapon_num, int secondary_flag, int print_message, int wait_for_rearm)
 {
-	char	*weapon_name;
+	const char	*weapon_name;
 
 	if (Newdemo_state==ND_STATE_RECORDING )
 		newdemo_record_player_weapon(secondary_flag, weapon_num);
