@@ -96,7 +96,7 @@ bool g3_draw_line(g3s_point *p0,g3s_point *p1)
 
 //returns true if a plane is facing the viewer. takes the unrotated surface 
 //normal of the plane, and a point on it.  The normal need not be normalized
-bool g3_check_normal_facing(vms_vector *v,vms_vector *norm)
+bool g3_check_normal_facing(const vms_vector *v,const vms_vector *norm)
 {
 	vms_vector tempv;
 

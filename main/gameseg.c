@@ -304,7 +304,7 @@ void create_abs_vertex_lists(int *num_faces, int *vertices, int segnum, int side
 
 //returns 3 different bitmasks with info telling if this sphere is in
 //this segment.  See segmasks structure for info on fields  
-segmasks get_seg_masks(vms_vector *checkp, int segnum, fix rad, char *calling_file, int calling_linenum)
+segmasks get_seg_masks(const vms_vector *checkp, int segnum, fix rad, char *calling_file, int calling_linenum)
 {
 	int			sn,facebit,sidebit;
 	segmasks		masks;
@@ -451,7 +451,7 @@ segmasks get_seg_masks(vms_vector *checkp, int segnum, fix rad, char *calling_fi
 //this was converted from get_seg_masks()...it fills in an array of 6
 //elements for the distace behind each side, or zero if not behind
 //only gets centermask, and assumes zero rad
-ubyte get_side_dists(vms_vector *checkp,int segnum,fix *side_dists)
+static ubyte get_side_dists(const vms_vector *checkp,int segnum,fix *side_dists)
 {
 	int			sn,facebit,sidebit;
 	ubyte			mask;
@@ -706,7 +706,7 @@ int	Doing_lighting_hack_flag=0;
 
 // figure out what seg the given point is in, tracing through segments
 // returns segment number, or -1 if can't find segment
-int trace_segs(vms_vector *p0, int oldsegnum, int recursion_count)
+static int trace_segs(const vms_vector *p0, int oldsegnum, int recursion_count)
 {
 	int centermask;
 	segment *seg;
@@ -762,7 +762,7 @@ int	Exhaustive_count=0, Exhaustive_failed_count=0;
 // 2. Recursively trace through attached segments
 // 3. Check all the segmentns
 //Returns segnum if found, or -1
-int find_point_seg(vms_vector *p,int segnum)
+int find_point_seg(const vms_vector *p,int segnum)
 {
 	int newseg;
 

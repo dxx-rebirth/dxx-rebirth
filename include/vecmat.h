@@ -125,9 +125,9 @@ vms_angvec * vm_angvec_make (vms_angvec * v, fixang p, fixang b, fixang h);
 
 //Global constants
 
-extern vms_vector vmd_zero_vector;
+extern const vms_vector vmd_zero_vector;
 
-extern vms_matrix vmd_identity_matrix;
+extern const vms_matrix vmd_identity_matrix;
 
 
 //Here's a handy constant
@@ -280,7 +280,7 @@ vms_vector * vm_vec_scale2 (vms_vector * dest, fix n, fix d);
 
 
 //returns magnitude of a vector
-fix vm_vec_mag (vms_vector * v);
+fix vm_vec_mag (const vms_vector * v);
 
 
 //computes the distance between two points. (does sub and mag)
@@ -289,23 +289,23 @@ fix vm_vec_dist (const vms_vector * v0, const vms_vector * v1);
 
 //computes an approximation of the magnitude of the vector
 //uses dist = largest + next_largest*3/8 + smallest*3/16
-fix vm_vec_mag_quick (vms_vector * v);
+fix vm_vec_mag_quick (const vms_vector * v);
 
 
 //computes an approximation of the distance between two points.
 //uses dist = largest + next_largest*3/8 + smallest*3/16
-fix vm_vec_dist_quick (vms_vector * v0, vms_vector * v1);
+fix vm_vec_dist_quick (const vms_vector * v0, const vms_vector * v1);
 
 
 
 //normalize a vector. returns mag of source vec
-fix vm_vec_copy_normalize (vms_vector * dest, vms_vector * src);
+fix vm_vec_copy_normalize (vms_vector * dest, const vms_vector * src);
 
 fix vm_vec_normalize (vms_vector * v);
 
 
 //normalize a vector. returns mag of source vec. uses approx mag
-fix vm_vec_copy_normalize_quick (vms_vector * dest, vms_vector * src);
+fix vm_vec_copy_normalize_quick (vms_vector * dest, const vms_vector * src);
 
 fix vm_vec_normalize_quick (vms_vector * v);
 
@@ -313,9 +313,9 @@ fix vm_vec_normalize_quick (vms_vector * v);
 //return the normalized direction vector between two points
 //dest = normalized(end - start).  Returns mag of direction vector
 //NOTE: the order of the parameters matches the vector subtraction
-fix vm_vec_normalized_dir (vms_vector * dest, vms_vector * end, vms_vector * start);
+fix vm_vec_normalized_dir (vms_vector * dest, const vms_vector * end, const vms_vector * start);
 
-fix vm_vec_normalized_dir_quick (vms_vector * dest, vms_vector * end, vms_vector * start);
+fix vm_vec_normalized_dir_quick (vms_vector * dest, const vms_vector * end, const vms_vector * start);
 
 
 ////returns dot product of two vectors
@@ -348,20 +348,20 @@ fix vm_vec_dotprod (const vms_vector * v0, const vms_vector * v1);
 
 //computes cross product of two vectors. returns ptr to dest
 //dest CANNOT equal either source
-vms_vector * vm_vec_crossprod (vms_vector * dest, vms_vector * src0, vms_vector * src1);
+vms_vector * vm_vec_crossprod (vms_vector * dest, const vms_vector * src0, const vms_vector * src1);
 
 #define vm_vec_cross(dest,src0,src1) vm_vec_crossprod((dest),(src0),(src1))
 
 //computes surface normal from three points. result is normalized
 //returns ptr to dest
 //dest CANNOT equal either source
-vms_vector * vm_vec_normal (vms_vector * dest, vms_vector * p0, vms_vector * p1, vms_vector * p2);
+vms_vector * vm_vec_normal (vms_vector * dest, const vms_vector * p0, const vms_vector * p1, const vms_vector * p2);
 
 
 //computes non-normalized surface normal from three points.
 //returns ptr to dest
 //dest CANNOT equal either source
-vms_vector * vm_vec_perp (vms_vector * dest, vms_vector * p0, vms_vector * p1, vms_vector * p2);
+vms_vector * vm_vec_perp (vms_vector * dest, const vms_vector * p0, const vms_vector * p1, const vms_vector * p2);
 
 
 //computes the delta angle between two vectors.
@@ -369,19 +369,19 @@ vms_vector * vm_vec_perp (vms_vector * dest, vms_vector * p0, vms_vector * p1, v
 //the forward vector (third parameter) can be NULL, in which case the absolute
 //value of the angle in returned.  Otherwise the angle around that vector is
 //returned.
-fixang vm_vec_delta_ang (vms_vector * v0, vms_vector * v1, vms_vector * fvec);
+fixang vm_vec_delta_ang (const vms_vector * v0, const vms_vector * v1, const vms_vector * fvec);
 
 
 //computes the delta angle between two normalized vectors.
-fixang vm_vec_delta_ang_norm (vms_vector * v0, vms_vector * v1, vms_vector * fvec);
+fixang vm_vec_delta_ang_norm (const vms_vector * v0, const vms_vector * v1, const vms_vector * fvec);
 
 
 //computes a matrix from a set of three angles.  returns ptr to matrix
-vms_matrix * vm_angles_2_matrix (vms_matrix * m, vms_angvec * a);
+vms_matrix * vm_angles_2_matrix (vms_matrix * m, const vms_angvec * a);
 
 
 //computes a matrix from a forward vector and an angle
-vms_matrix * vm_vec_ang_2_matrix (vms_matrix * m, vms_vector * v, fixang a);
+vms_matrix * vm_vec_ang_2_matrix (vms_matrix * m, const vms_vector * v, fixang a);
 
 
 //computes a matrix from one or more vectors. The forward vector is required,
@@ -403,21 +403,21 @@ vms_matrix * vm_transpose_matrix (vms_matrix * m);
 
 //copy and transpose a matrix. returns ptr to matrix
 //dest CANNOT equal source. use vm_transpose_matrix() if this is the case
-vms_matrix * vm_copy_transpose_matrix (vms_matrix * dest, vms_matrix * src);
+vms_matrix * vm_copy_transpose_matrix (vms_matrix * dest, const vms_matrix * src);
 
 #define vm_copy_transpose(dest,src) vm_copy_transpose_matrix((dest),(src))
 
 //mulitply 2 matrices, fill in dest.  returns ptr to dest
 //dest CANNOT equal either source
-vms_matrix * vm_matrix_x_matrix (vms_matrix * dest, vms_matrix * src0, vms_matrix * src1);
+vms_matrix * vm_matrix_x_matrix (vms_matrix * dest, const vms_matrix * src0, const vms_matrix * src1);
 
 
 //extract angles from a matrix
-vms_angvec * vm_extract_angles_matrix (vms_angvec * a, vms_matrix * m);
+vms_angvec * vm_extract_angles_matrix (vms_angvec * a, const vms_matrix * m);
 
 
 //extract heading and pitch from a vector, assuming bank==0
-vms_angvec * vm_extract_angles_vector (vms_angvec * a, vms_vector * v);
+vms_angvec * vm_extract_angles_vector (vms_angvec * a, const vms_vector * v);
 
 
 //compute the distance from a point to a plane.  takes the normalized normal

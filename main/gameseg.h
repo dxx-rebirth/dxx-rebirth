@@ -73,7 +73,7 @@ extern int get_num_faces(side *sidep);
 
 //returns 3 different bitmasks with info telling if this sphere is in
 //this segment.  See segmasks structure for info on fields
-segmasks get_seg_masks(vms_vector *checkp, int segnum, fix rad, char *calling_file, int calling_linenum);
+segmasks get_seg_masks(const vms_vector *checkp, int segnum, fix rad, char *calling_file, int calling_linenum);
 
 //this macro returns true if the segnum for an object is correct
 #define check_obj_seg(obj) (get_seg_masks(&(obj)->pos, (obj)->segnum, 0, __FILE__, __LINE__).centermask == 0)
@@ -83,7 +83,7 @@ segmasks get_seg_masks(vms_vector *checkp, int segnum, fix rad, char *calling_fi
 // 2. Recursively trace through attached segments
 // 3. Check all the segmentns
 //Returns segnum if found, or -1
-int find_point_seg(vms_vector *p,int segnum);
+int find_point_seg(const vms_vector *p,int segnum);
 
 //--repair-- // Create data specific to segments which does not need to get written to disk.
 //--repair-- extern void create_local_segment_data(void);

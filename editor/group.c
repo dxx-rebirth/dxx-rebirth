@@ -301,7 +301,7 @@ int		num_groups=0;
 //	Return value:
 //		0	group rotated
 //		1	unable to rotate group
-void med_create_group_rotation_matrix(vms_matrix *result_mat, int delta_flag, segment *first_seg, int first_side, segment *base_seg, int base_side, vms_matrix *orient_matrix, int orientation)
+static void med_create_group_rotation_matrix(vms_matrix *result_mat, int delta_flag, segment *first_seg, int first_side, segment *base_seg, int base_side, const vms_matrix *orient_matrix, int orientation)
 {
 	vms_matrix	rotmat2,rotmat,rotmat3,rotmat4;
 	vms_angvec	pbh = {0,0,0};
@@ -532,7 +532,7 @@ int in_group(int segnum, int group_num)
 //	The group is copied so group_seg:group_side is incident upon base_seg:base_side.
 //	group_seg and its vertices are bashed to coincide with base_seg.
 //	If any vertex of base_seg is contained in a segment that is reachable from group_seg, then errror.
-int med_copy_group(int delta_flag, segment *base_seg, int base_side, segment *group_seg, int group_side, vms_matrix *orient_matrix)
+static int med_copy_group(int delta_flag, segment *base_seg, int base_side, segment *group_seg, int group_side, const vms_matrix *orient_matrix)
 {
 	int			v,s;
 	vms_vector	srcv,destv;
@@ -675,7 +675,7 @@ int med_copy_group(int delta_flag, segment *base_seg, int base_side, segment *gr
 //	The group is moved so group_seg:group_side is incident upon base_seg:base_side.
 //	group_seg and its vertices are bashed to coincide with base_seg.
 //	If any vertex of base_seg is contained in a segment that is reachable from group_seg, then errror.
-int med_move_group(int delta_flag, segment *base_seg, int base_side, segment *group_seg, int group_side, vms_matrix *orient_matrix, int orientation)
+static int med_move_group(int delta_flag, segment *base_seg, int base_side, segment *group_seg, int group_side, const vms_matrix *orient_matrix, int orientation)
 {
 	int			v,vv,s,ss,c,d;
 	vms_vector	srcv,destv;

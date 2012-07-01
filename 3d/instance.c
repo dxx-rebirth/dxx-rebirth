@@ -33,7 +33,7 @@ int instance_depth = 0;
 
 //instance at specified point with specified orientation
 //if matrix==NULL, don't modify matrix.  This will be like doing an offset   
-void g3_start_instance_matrix(vms_vector *pos,vms_matrix *orient)
+void g3_start_instance_matrix(const vms_vector *pos,const vms_matrix *orient)
 {
 	vms_vector tempv;
 	vms_matrix tempm,tempm2;
@@ -67,7 +67,7 @@ void g3_start_instance_matrix(vms_vector *pos,vms_matrix *orient)
 
 //instance at specified point with specified orientation
 //if angles==NULL, don't modify matrix.  This will be like doing an offset
-void g3_start_instance_angles(vms_vector *pos,vms_angvec *angles)
+void g3_start_instance_angles(const vms_vector *pos,const vms_angvec *angles)
 {
 	vms_matrix tm;
 
