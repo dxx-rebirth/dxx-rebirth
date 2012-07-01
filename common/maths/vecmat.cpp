@@ -18,6 +18,7 @@ COPYRIGHT 1993-1998 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
  */
 
 #include <stdlib.h>
+#include <stdint.h>
 #include <math.h>           // for sqrt
 
 #include "maths.h"
@@ -172,10 +173,13 @@ fix vm_vec_dotprod(const vms_vector *v0,const vms_vector *v1)
 
 	return fixquadadjust(&q);
 #else
-	long long p =
-		  (long long) v0->x * v1->x
-		+ (long long) v0->y * v1->y
-		+ (long long) v0->z * v1->z;
+	int64_t x0 = v0->x;
+	int64_t x1 = v1->x;
+	int64_t y0 = v0->y;
+	int64_t y1 = v1->y;
+	int64_t z0 = v0->z;
+	int64_t z1 = v1->z;
+	int64_t p = (x0 * x1) + (y0 * y1) + (z0 * z1);
 	/* Convert back to fix and return. */
 	return p >> 16;
 #endif
