@@ -24,611 +24,622 @@ COPYRIGHT 1993-1998 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 //Array of pointers to text
 extern char *Text_string[];
 
+static inline char *dxx_gettext(unsigned idx, const char *text)
+{
+#ifdef USE_BUILTIN_ENGLISH_TEXT_STRINGS
+	(void)idx;
+	return (char *)text;
+#else
+	(void)text;
+	return Text_string[idx];
+#endif
+}
+
 //Symbolic constants for all the strings
 
-#define TXT_NEW_GAME            Text_string[ 0]
-#define TXT_VIEW_SCORES         Text_string[ 1]
-#define TXT_QUIT                Text_string[ 2]
-#define TXT_CANNOT_SET_SCREEN   Text_string[ 3]
-#define TXT_NO_JOYSTICK         Text_string[ 4]
-#define TXT_REQUIRES_VGA        Text_string[ 5]
-#define TXT_HELP                Text_string[ 6]
-#define TXT_THANKS              Text_string[ 7]
-#define TXT_SOUND_DISABLED      Text_string[ 8]
-#define TXT_CANT_INIT_GFX       Text_string[ 9]
-#define TXT_EXTRA_LIFE          Text_string[10]
-#define TXT_COPYRIGHT           Text_string[11]
-#define TXT_BLUE                Text_string[12]
-#define TXT_RED                 Text_string[13]
-#define TXT_YELLOW              Text_string[14]
-#define TXT_ACCESS_DENIED       Text_string[15]
-#define TXT_ACCESS_GRANTED      Text_string[16]
-#define TXT_BOOSTED_TO          Text_string[17]
-#define TXT_ENERGY              Text_string[18]
-#define TXT_SHIELD              Text_string[19]
-#define TXT_LASER               Text_string[20]
-#define TXT_MAXED_OUT           Text_string[21]
-#define TXT_QUAD_LASERS         Text_string[22]
-#define TXT_ALREADY_HAVE        Text_string[23]
-#define TXT_VULCAN_AMMO         Text_string[24]
-#define TXT_VULCAN_ROUNDS       Text_string[25]
-#define TXT_ALREADY_ARE         Text_string[26]
-#define TXT_CLOAKED             Text_string[27]
-#define TXT_CLOAKING_DEVICE     Text_string[28]
-#define TXT_INVULNERABLE        Text_string[29]
-#define TXT_INVULNERABILITY     Text_string[30]
-#define TXT_CREATE_NEW          Text_string[31]
-#define TXT_YES                 Text_string[32]
-#define TXT_NO                  Text_string[33]
-#define TXT_OK                  Text_string[34]
-#define TXT_NO_DEMO_FILES       Text_string[35]
-#define TXT_USE_F5              Text_string[36]
-#define TXT_TO_CREATE_ONE       Text_string[37]
-#define TXT_NO_FILES_MATCHING   Text_string[38]
-#define TXT_WERE_FOUND          Text_string[39]
-#define TXT_DELETE_PILOT        Text_string[40]
-#define TXT_DELETE_DEMO         Text_string[41]
-#define TXT_COULDNT             Text_string[42]
-#define TXT_EXIT_SEQUENCE       Text_string[43]
-#define TXT_WARNING             Text_string[44]
-#define TXT_UNABLE_TO_OPEN      Text_string[45]
-#define TXT_COOL_SAYING         Text_string[46]
-#define TXT_HIGH_SCORE          Text_string[47]
-#define TXT_YOU_PLACED          Text_string[48]
-#define TXT_YOU_PLACED_1ST      Text_string[49]
-#define TXT_HIGH_SCORES         Text_string[50]
-#define TXT_NAME                Text_string[51]
-#define TXT_SCORE               Text_string[52]
-#define TXT_SKILL               Text_string[53]
-#define TXT_LEVELS              Text_string[54]
-#define TXT_TIME                Text_string[55]
-#define TXT_REGISTER_DESCENT    Text_string[56]
-#define TXT_1ST                 Text_string[57]
-#define TXT_2ND                 Text_string[58]
-#define TXT_3RD                 Text_string[59]
-#define TXT_4TH                 Text_string[60]
-#define TXT_5TH                 Text_string[61]
-#define TXT_6TH                 Text_string[62]
-#define TXT_7TH                 Text_string[63]
-#define TXT_8TH                 Text_string[64]
-#define TXT_9TH                 Text_string[65]
-#define TXT_10TH                Text_string[66]
-#define TXT_EMPTY               Text_string[67]
-#define TXT_KILLED              Text_string[68]
-#define TXT_SUICIDE             Text_string[69]
-#define TXT_YOU                 Text_string[70]
-#define TXT_YOURSELF            Text_string[71]
-#define TXT_NO_MACRO            Text_string[72]
-#define TXT_SENDING             Text_string[73]
-#define TXT_SEND_MESSAGE        Text_string[74]
-#define TXT_SAYS                Text_string[75]
-#define TXT_TELLS_YOU           Text_string[76]
-#define TXT_HAS_DEST_CONTROL    Text_string[77]
-#define TXT_CONTROL_DESTROYED   Text_string[78]
-#define TXT_HAS_ESCAPED         Text_string[79]
-#define TXT_HAS_FOUND_SECRET    Text_string[80]
-#define TXT_HAS_LEFT_THE_GAME   Text_string[81]
-#define TXT_YOU_ARE_ONLY        Text_string[82]
-#define TXT_OPPONENT_LEFT       Text_string[83]
-#define TXT_YOU_DEST_CONTROL    Text_string[84]
-#define TXT_DEFINE_MACRO        Text_string[85]
-#define TXT_MESSAGE_SENT_TO     Text_string[86]
-#define TXT_NOBODY              Text_string[87]
-#define TXT_PAUSE               Text_string[88]
-#define TXT_CANT_PAUSE          Text_string[89]
-#define TXT_HELP_ESC            Text_string[90]
-#define TXT_HELP_F2             Text_string[91]
-#define TXT_HELP_F3             Text_string[92]
-#define TXT_HELP_F4             Text_string[93]
-#define TXT_HELP_F5             Text_string[94]
-#define TXT_HELP_PAUSE          Text_string[95]
-#define TXT_HELP_MINUSPLUS      Text_string[96]
-#define TXT_HELP_PRTSCN         Text_string[97]
-#define TXT_HELP_1TO5           Text_string[98]
-#define TXT_HELP_6TO10          Text_string[99]
-#define TXT_HELP_TO_VIEW        Text_string[100]
-#define TXT_KEYS                Text_string[101]
-#define TXT_ABORT_AUTODEMO      Text_string[102]
-#define TXT_ABORT_GAME          Text_string[103]
-#define TXT_W_LASER             Text_string[104]
-#define TXT_W_VULCAN            Text_string[105]
-#define TXT_W_SPREADFIRE        Text_string[106]
-#define TXT_W_PLASMA            Text_string[107]
-#define TXT_W_FUSION            Text_string[108]
-#define TXT_W_C_MISSILE			Text_string[109]
-#define TXT_W_H_MISSILE			Text_string[110]
-#define TXT_W_P_BOMB			Text_string[111]
-#define TXT_W_S_MISSILE			Text_string[112]
-#define TXT_W_M_MISSILE			Text_string[113]
-#define TXT_W_LASER_S			Text_string[114]
-#define TXT_W_VULCAN_S			Text_string[115]
-#define TXT_W_SPREADFIRE_S		Text_string[116]
-#define TXT_W_PLASMA_S			Text_string[117]
-#define TXT_W_FUSION_S			Text_string[118]
-#define TXT_W_C_MISSILE_S		Text_string[119]
-#define TXT_W_H_MISSILE_S		Text_string[120]
-#define TXT_W_P_BOMB_S			Text_string[121]
-#define TXT_W_S_MISSILE_S		Text_string[122]
-#define TXT_W_M_MISSILE_S		Text_string[123]
-#define TXT_SELECTED			Text_string[124]
-#define TXT_DONT_HAVE			Text_string[125]
-#define TXT_DONT_HAVE_AMMO		Text_string[126]
-#define TXT_HAVE_NO			Text_string[127]
-#define TXT_S				Text_string[128]
-#define TXT_SX				Text_string[129]
-#define TXT_NO_PRIMARY			Text_string[130]
-#define TXT_ALREADY_HAVE_THE		Text_string[131]
-#define TXT_CANT_OPEN_DOOR		Text_string[132]
-#define TXT_MOVE_JOYSTICK		Text_string[133]
-#define TXT_TO_UL			Text_string[134]
-#define TXT_ANY_BUTTON			Text_string[135]
-#define TXT_JOYSTICK			Text_string[136]
-#define TXT_UPPER_LEFT			Text_string[137]
-#define TXT_TO_LR			Text_string[138]
-#define TXT_LOWER_RIGHT			Text_string[139]
-#define TXT_TO_C			Text_string[140]
-#define TXT_CENTER			Text_string[141]
-#define TXT_CONTROL_KEYBOARD		Text_string[142]
-#define TXT_CONTROL_JOYSTICK		Text_string[143]
-#define TXT_CONTROL_FSTICKPRO		Text_string[144]
-#define TXT_CONTROL_THRUSTFCS   	Text_string[145]
-#define TXT_CONTROL_GGAMEPAD 		Text_string[146]
-#define TXT_CONTROL_MOUSE	 	Text_string[147]
-#define TXT_CONTROL_CYBERMAN		Text_string[148]
-#define TXT_CUST_ABOVE			Text_string[149]
-#define TXT_CUST_KEYBOARD		Text_string[150]
-#define TXT_CONTROLS			Text_string[151]
-#define TXT_KEYBOARD			Text_string[152]
-#define TXT_REGISTRATION		Text_string[172]
-#define TXT_ERROR_SELECTOR		Text_string[173]
-#define TXT_ERROR_GRAPHICS		Text_string[174]
-#define TXT_CALIBRATE			Text_string[175]
-#define TXT_SKIP			Text_string[176]
-#define TXT_JOYSTICK_NOT_CEN		Text_string[177]
-#define TXT_CHOOSE_INPUT		Text_string[178]
-#define TXT_ERROR			Text_string[179]
-#define TXT_ERROR_PLR_VERSION 		Text_string[180]
-#define TXT_DEMO_PLAYBACK		Text_string[181]
-#define TXT_DEMO_RECORDING		Text_string[182]
-#define TXT_CRUISE			Text_string[183]
-#define TXT_DUMPING_SCREEN		Text_string[184]
-#define TXT_CHEATS_ENABLED		Text_string[185]
-#define TXT_NET_GAME_CLOSED		Text_string[186]
-#define TXT_NET_GAME_FULL		Text_string[187]
-#define TXT_NET_GAME_BETWEEN		Text_string[188]
-#define TXT_NET_GAME_NSELECT		Text_string[189]
-#define TXT_NET_GAME_NSTART		Text_string[190]
-#define TXT_NET_GAME_CONNECT		Text_string[191]
-#define TXT_NET_GAME_WRONGLEV 		Text_string[192]
-#define TXT_KILLS			Text_string[193]
-#define TXT_WAITING			Text_string[194]
-#define TXT_SURE_LEAVE_GAME		Text_string[195]
-#define TXT_JOINING			Text_string[196]
-#define TXT_REJOIN			Text_string[197]
-#define TXT_SORRY_ONLY			Text_string[198]
-#define TXT_NETPLAYERS_IN		Text_string[199]
-#define TXT_S_GAME			Text_string[200]
-#define TXT_DESCRIPTION			Text_string[201]
-#define TXT_LEVEL_			Text_string[202]
-#define TXT_MODE			Text_string[203]
-#define TXT_ANARCHY			Text_string[204]
-#define TXT_TEAM_ANARCHY		Text_string[205]
-#define TXT_ANARCHY_W_ROBOTS		Text_string[206]
-#define TXT_COOPERATIVE			Text_string[207]
-#define TXT_OPTIONS			Text_string[208]
-#define TXT_CLOSED_GAME			Text_string[209]
-#define TXT_NETGAME_SETUP		Text_string[210]
-#define TXT_LEVEL_OUT_RANGE		Text_string[211]
-#define TXT_SORRY			Text_string[212]
-#define TXT_REGISTERED_ONLY		Text_string[213]
-#define TXT_WAIT			Text_string[214]
-#define TXT_FOUND			Text_string[215]
-#define TXT_ACTIVE_GAMES		Text_string[216]
-#define TXT_STARTING_NETGAME		Text_string[217]
-#define TXT_NETLEVEL_NMATCH		Text_string[218]
-#define TXT_TEAM			Text_string[219]
-#define TXT_TEAM_SELECTION		Text_string[220]
-#define TXT_TEAM_MUST_ONE		Text_string[221]
-#define TXT_TEAM_SELECT			Text_string[222]
-#define TXT_TEAM_PRESS_ENTER		Text_string[223]
-#define TXT_TEAM_ATLEAST_TWO		Text_string[224]
-#define TXT_IPX_NOT_FOUND		Text_string[225]
-#define TXT_NET_FORMING			Text_string[226]
-#define TXT_NET_PLAYERS			Text_string[227]
-#define TXT_NET_JOIN			Text_string[228]
-#define TXT_NET_CLOSED			Text_string[229]
-#define TXT_NET_BETWEEN			Text_string[230]
-#define TXT_NET_LEAVE			Text_string[231]
-#define TXT_NET_WAITING			Text_string[232]
-#define TXT_NET_TO_ENTER		Text_string[233]
-#define TXT_NET_SEARCHING		Text_string[234]
-#define TXT_INVALID_CHOICE		Text_string[235]
-#define TXT_NET_GAME_BETWEEN2		Text_string[236]
-#define TXT_VERSION_MISMATCH		Text_string[237]
-#define TXT_GAME_FULL			Text_string[238]
-#define TXT_IN_PROGRESS			Text_string[239]
-#define TXT_DISCONNECTING		Text_string[240]
-#define TXT_SERIAL_OPEN_ERROR 		Text_string[241]
-#define TXT_CARRIER_LOST		Text_string[242]
-#define TXT_ERROR_SERIAL_CFG		Text_string[243]
-#define TXT_ERR_SER_SETTINGS		Text_string[244]
-#define TXT_CONNECT_LOST		Text_string[245]
-#define TXT_READY_DESCENT		Text_string[246]
-#define TXT_CLOSED_LINK			Text_string[247]
-#define TXT_DIAL_MODEM			Text_string[248]
-#define TXT_ANSWER_MODEM		Text_string[249]
-#define TXT_NULL_MODEM			Text_string[250]
-#define TXT_COM_SETTINGS		Text_string[251]
-#define TXT_START_GAME			Text_string[252]
-#define TXT_SEND_MESSAGEP		Text_string[253]
-#define TXT_HANGUP_MODEM		Text_string[254]
-#define TXT_CLOSE_LINK			Text_string[255]
-#define TXT_SERIAL			Text_string[256]
-#define TXT_LINK_ACTIVE			Text_string[257]
-#define TXT_MODEM			Text_string[258]
-#define TXT_NOT_CONNECTED		Text_string[259]
-#define TXT_SERIAL_GAME			Text_string[260]
-#define TXT_EXIT_WILL_CLOSE		Text_string[261]
-#define TXT_BAUD_RATE			Text_string[262]
-#define TXT_MODEM_INIT_STRING		Text_string[263]
-#define TXT_ACCEPT_SAVE			Text_string[264]
-#define TXT_SERIAL_SETTINGS		Text_string[265]
-#define TXT_WARNING_16550		Text_string[266]
-#define TXT_DIFFICULTY			Text_string[267]
-#define TXT_SERIAL_GAME_SETUP		Text_string[268]
-#define TXT_ONLY_ANARCHY		Text_string[269]
-#define TXT_SAVE			Text_string[270]
-#define TXT_ACCEPT			Text_string[271]
-#define TXT_SEL_NUMBER_EDIT		Text_string[272]
-#define TXT_EDIT_PHONE_ENTRY		Text_string[273]
-#define TXT_MANUAL_ENTRY		Text_string[274]
-#define TXT_EDIT_PHONEBOOK		Text_string[275]
-#define TXT_SEL_NUMBER_DIAL		Text_string[276]
-#define TXT_ENTER_NUMBER_DIAL		Text_string[277]
-#define TXT_NO_DIAL_TONE		Text_string[278]
-#define TXT_BUSY			Text_string[279]
-#define TXT_NO_ANSWER			Text_string[280]
-#define TXT_NO_CARRIER			Text_string[281]
-#define TXT_VOICE			Text_string[282]
-#define TXT_ERR_MODEM_RETURN		Text_string[283]
-#define TXT_CONNECT			Text_string[284]
-#define TXT_BAUD_GREATER_9600 		Text_string[285]
-#define TXT_RING			Text_string[286]
-#define TXT_NO_SERIAL_OPT		Text_string[287]
-#define TXT_RESET_MODEM			Text_string[288]
-#define TXT_NO_MODEM			Text_string[289]
-#define TXT_NO_PHONENUM			Text_string[290]
-#define TXT_DIALING			Text_string[291]
-#define TXT_ESC_ABORT			Text_string[292]
-#define TXT_WAITING_FOR_ANS		Text_string[293]
-#define TXT_WAITING_FOR_CALL		Text_string[294]
-#define TXT_WAITING_FOR_CARR		Text_string[295]
-#define TXT_FAILED_TO_NEGOT		Text_string[296]
-#define TXT_NEGOTIATION_FAIL		Text_string[297]
-#define TXT_FATAL_ERROR_LEVEL		Text_string[298]
-#define TXT_OTHER_LEVEL			Text_string[299]
-#define TXT_YOUR_LEVEL			Text_string[300]
-#define TXT_LVL_NO_MATCH		Text_string[301]
-#define TXT_CHECK_VERSION		Text_string[302]
-#define TXT_DESCENT_NO_MATCH		Text_string[303]
-#define TXT_OPPONENT_NO_READY		Text_string[304]
-#define TXT_WAIT_OPPONENT		Text_string[305]
-#define TXT_LOCK			Text_string[306]
-#define TXT_DEATHS			Text_string[307]
-#define TXT_LIVES			Text_string[308]
-#define TXT_LVL				Text_string[309]
-#define TXT_QUAD 			Text_string[310]
-#define TXT_REAR_VIEW			Text_string[311]
-#define TXT_DIFFICULTY_1		Text_string[312]
-#define TXT_DIFFICULTY_2		Text_string[313]
-#define TXT_DIFFICULTY_3		Text_string[314]
-#define TXT_DIFFICULTY_4		Text_string[315]
-#define TXT_DIFFICULTY_5		Text_string[316]
-#define TXT_DETAIL_1			Text_string[317]
-#define TXT_DETAIL_2			Text_string[318]
-#define TXT_DETAIL_3			Text_string[319]
-#define TXT_DETAIL_4			Text_string[320]
-#define TXT_DETAIL_5			Text_string[321]
-#define TXT_DETAIL_CUSTOM_		Text_string[322]
-#define TXT_LOAD_GAME  			Text_string[323]
-#define TXT_MULTIPLAYER_		Text_string[324]
-#define TXT_OPTIONS_			Text_string[325]
-#define TXT_CHANGE_PILOTS		Text_string[326]
-#define TXT_VIEW_DEMO			Text_string[327]
-#define TXT_CREDITS			Text_string[328]
-#define TXT_ORDERING_INFO		Text_string[329]
-#define TXT_SELECT_DEMO			Text_string[330]
-#define TXT_DIFFICULTY_LEVEL		Text_string[331]
-#define TXT_SET_TO			Text_string[332]
-#define TXT_DETAIL_LEVEL		Text_string[333]
-#define TXT_OBJ_COMPLEXITY		Text_string[334]
-#define TXT_OBJ_DETAIL			Text_string[335]
-#define TXT_WALL_DETAIL			Text_string[336]
-#define TXT_WALL_RENDER_DEPTH		Text_string[337]
-#define TXT_DEBRIS_AMOUNT		Text_string[338]
-#define TXT_SOUND_CHANNELS		Text_string[339]
-#define TXT_LO_HI			Text_string[340]
-#define TXT_DETAIL_CUSTOM		Text_string[341]
-#define TXT_START_ANY_LEVEL		Text_string[342]
-#define TXT_SELECT_START_LEV		Text_string[343]
-#define TXT_ENTER_TO_CONT		Text_string[344]
-#define TXT_INVALID_LEVEL		Text_string[345]
-#define TXT_ERR_LOADING_GAME		Text_string[346]
-#define TXT_SAVE_GAME_SLOTS		Text_string[347]
-#define TXT_SAVE_ERROR			Text_string[348]
-#define TXT_FX_VOLUME			Text_string[349]
-#define TXT_MUSIC_VOLUME		Text_string[350]
-#define TXT_REVERSE_STEREO		Text_string[351]
-#define TXT_BRIGHTNESS			Text_string[352]
-#define TXT_CONTROLS_			Text_string[353]
-#define TXT_DETAIL_LEVELS		Text_string[354]
-#define TXT_CAL_JOYSTICK		Text_string[355]
-#define TXT_JOYS_SENSITIVITY		Text_string[356]
-#define TXT_START_NET_GAME		Text_string[357]
-#define TXT_JOIN_NET_GAME		Text_string[358]
-#define TXT_MODEM_GAME			Text_string[359]
-#define TXT_MULTIPLAYER			Text_string[360]
-#define TXT_CONTINUE			Text_string[361]
-#define TXT_CANT_PLAYBACK		Text_string[362]
-#define TXT_DEMO_CORRUPT		Text_string[363]
-#define TXT_DEMO_OLD			Text_string[364]
-#define TXT_RECORDED			Text_string[365]
-#define TXT_WITH_REGISTERED		Text_string[366]
-#define TXT_WITH_SHAREWARE		Text_string[367]
-#define TXT_OF_DESCENT			Text_string[368]
-#define TXT_LEVEL_CANT_LOAD		Text_string[369]
-#define TXT_DEMO_OLD_CORRUPT		Text_string[370]
-#define TXT_DEMO_ERR_READING		Text_string[371]
-#define TXT_SAVE_DEMO_AS		Text_string[372]
-#define TXT_DEMO_USE_LETTERS		Text_string[373]
-#define TXT_AUTOMAP			Text_string[374]
-#define TXT_TURN_SHIP			Text_string[375]
-#define TXT_SLIDE_UPDOWN 		Text_string[376]
-#define TXT_LEVEL			Text_string[377]
-#define TXT_PITCH_FORWARD		Text_string[378]
-#define TXT_PITCH_BACKWARD		Text_string[379]
-#define TXT_TURN_LEFT			Text_string[380]
-#define TXT_TURN_RIGHT			Text_string[381]
-#define TXT_SLIDE_ON			Text_string[382]
-#define TXT_SLIDE_LEFT			Text_string[383]
-#define TXT_SLIDE_RIGHT			Text_string[384]
-#define TXT_SLIDE_UP			Text_string[385]
-#define TXT_SLIDE_DOWN			Text_string[386]
-#define TXT_BANK_ON			Text_string[387]
-#define TXT_BANK_LEFT			Text_string[388]
-#define TXT_BANK_RIGHT			Text_string[389]
-#define TXT_FIRE_PRIMARY		Text_string[390]
-#define TXT_FIRE_SECONDARY		Text_string[391]
-#define TXT_FIRE_FLARE			Text_string[392]
-#define TXT_ACCELERATE			Text_string[393]
-#define TXT_REVERSE			Text_string[394]
-#define TXT_DROP_BOMB			Text_string[395]
-#define TXT_CRUISE_FASTER		Text_string[396]
-#define TXT_CRUISE_SLOWER		Text_string[397]
-#define TXT_CRUISE_OFF			Text_string[398]
-#define TXT_PITCH_UD			Text_string[399]
-#define TXT_TURN_LR			Text_string[400]
-#define TXT_SLIDE_LR			Text_string[401]
-#define TXT_SLIDE_UD			Text_string[402]
-#define TXT_BANK_LR			Text_string[403]
-#define TXT_THROTTLE			Text_string[404]
-#define TXT_TEAM_ATLEAST_THREE          Text_string[405]
-#define TXT_NET_DISCONNECTED            Text_string[406]
-#define TXT_NET_PLAYING                 Text_string[407]
-#define TXT_NET_ESCAPED			Text_string[408]
-#define TXT_NET_DIED			Text_string[409]
-#define TXT_NET_FOUND_SECRET		Text_string[410]
-#define TXT_NET_ESCAPE_TUNNEL		Text_string[411]
-#define TXT_NET_RESERVED		Text_string[412]
-#define TXT_WOWIE_ZOWIE			Text_string[413]
-#define TXT_ALL_KEYS			Text_string[414]
-#define TXT_CLOAK			Text_string[415]
-#define TXT_FULL_SHIELDS		Text_string[416]
-#define TXT_ON				Text_string[417]
-#define TXT_OFF				Text_string[418]
-#define TXT_NOT_IN_SHAREWARE		Text_string[419]
-#define TXT_GAME_OVER			Text_string[420]
-#define TXT_SELECT_PILOT		Text_string[421]
-#define TXT_ENTER_PILOT_NAME		Text_string[422]
-#define TXT_PLAYER			Text_string[423]
-#define TXT_ALREADY_EXISTS		Text_string[424]
-#define TXT_LOADING			Text_string[425]
-#define TXT_FULL_RESCUE_BONUS		Text_string[426]
-#define TXT_SHIELD_BONUS		Text_string[427]
-#define TXT_ENERGY_BONUS		Text_string[428]
-#define TXT_HOSTAGE_BONUS		Text_string[429]
-#define TXT_SKILL_BONUS			Text_string[430]
-#define TXT_TOTAL_BONUS			Text_string[431]
-#define TXT_TOTAL_SCORE			Text_string[432]
-#define TXT_SECRET_LEVEL		Text_string[433]
-#define TXT_COMPLETE			Text_string[434]
-#define TXT_DESTROYED			Text_string[435]
-#define TXT_SAVE_GAME			Text_string[436]
-#define TXT_PRESS_CTRL_R		Text_string[437]
-#define TXT_RESET_HIGH_SCORES		Text_string[438]
-#define TXT_YOU_WERE			Text_string[439]
-#define TXT_WAS				Text_string[440]
-#define TXT_KILLED_BY_NONPLAY		Text_string[441]
-#define TXT_IMPORTANT_NOTE              Text_string[442]
-#define TXT_FCS				Text_string[443]
-#define TXT_PRESS_ANY_KEY		Text_string[444]
-#define TXT_HOSTAGE_RESCUED		Text_string[445]
-#define TXT_INIT_VICTOR			Text_string[446]
-#define TXT_N				Text_string[447]
-#define TXT_Y				Text_string[448]
-#define TXT_ANY_LEVEL			Text_string[449]
-#define TXT_SHAREWARE_DONE		Text_string[450]
-#define TXT_PRESS_NEW_KEY		Text_string[451]
-#define TXT_PRESS_NEW_JBUTTON		Text_string[452]
-#define TXT_PRESS_NEW_MBUTTON		Text_string[453]
-#define TXT_MOVE_NEW_JOY_AXIS		Text_string[454]
-#define TXT_MOVE_NEW_MSE_AXIS		Text_string[455]
-#define TXT_USING_VFX1			Text_string[456]
-#define TXT_VFX1_ERROR1			Text_string[457]
-#define TXT_VFX1_ERROR2			Text_string[458]
-#define TXT_KCONFIG_STRING_1		Text_string[459]
-#define TXT_BUTTONS			Text_string[460]
-#define TXT_AXES			Text_string[461]
-#define TXT_AXIS			Text_string[462]
-#define TXT_INVERT			Text_string[463]
-#define TXT_BTN_1			Text_string[464]
-#define TXT_BTN_2			Text_string[465]
-#define TXT_BTN_3			Text_string[466]
-#define TXT_BTN_4			Text_string[467]
-#define TXT_TRIG			Text_string[468]
-#define TXT_HAT_L			Text_string[469]
-#define TXT_HAT_R			Text_string[470]
-#define TXT_HAT_U			Text_string[471]
-#define TXT_HAT_D			Text_string[472]
-#define TXT_LEFT			Text_string[473]
-#define TXT_RIGHT			Text_string[474]
-#define TXT_MID				Text_string[475]
-#define TXT_UP				Text_string[476]
-#define TXT_DOWN			Text_string[477]
-#define TXT_X1				Text_string[478]
-#define TXT_Y1				Text_string[479]
-#define TXT_X2				Text_string[480]
-#define TXT_Y2				Text_string[481]
-#define TXT_L_R				Text_string[482]
-#define TXT_F_B				Text_string[483]
-#define TXT_FORWARD			Text_string[484]
-#define TXT_MOVE_THROTTLE_F		Text_string[485]
-#define TXT_MOVE_THROTTLE_R		Text_string[486]
-#define TXT_MOVE_THROTTLE_C		Text_string[487]
-#define TXT_REACTOR_EXPLODED		Text_string[488]
-#define TXT_TIME_REMAINING		Text_string[489]
-#define TXT_SECONDS			Text_string[490]
-#define TXT_DEMO_WRITE_ERROR		Text_string[491]
-#define TXT_DEMO_SIZE			Text_string[492]
-#define TXT_DEMO_SAVE_BAD		Text_string[493]
-#define TXT_BYTE_STR			Text_string[494]
-#define TXT_DIED_IN_MINE		Text_string[495]
-#define TXT_SHIP_BONUS			Text_string[496]
-#define TXT_PHONE_NUM			Text_string[497]
-#define TXT_KILL_MATRIX_TITLE		Text_string[498]
-#define TXT_WAIT_FOR_OK			Text_string[499]
-#define TXT_SURE_ABORT_SYNC		Text_string[500]
-#define TXT_ERROR_WRITING_PLR		Text_string[501]
-#define TXT_SHIP_DESTROYED_0		Text_string[502]
-#define TXT_SHIP_DESTROYED_1		Text_string[503]
-#define TXT_SHIP_DESTROYED_2		Text_string[504]
-#define TXT_NET_FULL			Text_string[505]
-#define TXT_DEMO_NO_SPACE		Text_string[506]
-#define TXT_HAT2_L			Text_string[507]
-#define TXT_HAT2_R			Text_string[508]
-#define TXT_HAT2_U			Text_string[509]
-#define TXT_HAT2_D			Text_string[510]
-#define TXT_WARP_TO_LEVEL		Text_string[511]
-#define TXT_TRADEMARK			Text_string[512]
-#define TXT_NET_SYNC_FAILED		Text_string[513]
+#define TXT_NEW_GAME            dxx_gettext(0, "New game")
+#define TXT_VIEW_SCORES         dxx_gettext(1, "High scores")
+#define TXT_QUIT                dxx_gettext(2, "Quit")
+#define TXT_CANNOT_SET_SCREEN   dxx_gettext(3, "Cannot set screen mode for game")
+#define TXT_NO_JOYSTICK         dxx_gettext(4, "No joystick detected")
+#define TXT_REQUIRES_VGA        dxx_gettext(5, "This game requires a VGA adapter.")
+#define TXT_HELP                dxx_gettext(6, "Type 'DESCENT -help' for a list of command-line options.")
+#define TXT_THANKS              dxx_gettext(7, "Thank-you for playing DESCENT!")
+#define TXT_SOUND_DISABLED      dxx_gettext(8, "Sound disabled.")
+#define TXT_CANT_INIT_GFX       dxx_gettext(9, "Can't initialize graphics, error=%d")
+#define TXT_EXTRA_LIFE          dxx_gettext(10, "EXTRA LIFE!")
+#define TXT_COPYRIGHT           dxx_gettext(11, "Copyright (C) 1994, 1995 Parallax Software Corporation")
+#define TXT_BLUE                dxx_gettext(12, "BLUE")
+#define TXT_RED                 dxx_gettext(13, "RED")
+#define TXT_YELLOW              dxx_gettext(14, "YELLOW")
+#define TXT_ACCESS_DENIED       dxx_gettext(15, "Access denied")
+#define TXT_ACCESS_GRANTED      dxx_gettext(16, "Access granted")
+#define TXT_BOOSTED_TO          dxx_gettext(17, "boosted to")
+#define TXT_ENERGY              dxx_gettext(18, "Energy")
+#define TXT_SHIELD              dxx_gettext(19, "Shield")
+#define TXT_LASER               dxx_gettext(20, "Laser")
+#define TXT_MAXED_OUT           dxx_gettext(21, "Your %s is maxed out!")
+#define TXT_QUAD_LASERS         dxx_gettext(22, "Quad Lasers")
+#define TXT_ALREADY_HAVE        dxx_gettext(23, "You already have")
+#define TXT_VULCAN_AMMO         dxx_gettext(24, "Vulcan Ammo")
+#define TXT_VULCAN_ROUNDS       dxx_gettext(25, "Vulcan Rounds")
+#define TXT_ALREADY_ARE         dxx_gettext(26, "You already are")
+#define TXT_CLOAKED             dxx_gettext(27, "Cloaked")
+#define TXT_CLOAKING_DEVICE     dxx_gettext(28, "Cloaking Device")
+#define TXT_INVULNERABLE        dxx_gettext(29, "Invulnerable")
+#define TXT_INVULNERABILITY     dxx_gettext(30, "Invulnerability")
+#define TXT_CREATE_NEW          dxx_gettext(31, "<Create New>")
+#define TXT_YES                 dxx_gettext(32, "Yes")
+#define TXT_NO                  dxx_gettext(33, "No")
+#define TXT_OK                  dxx_gettext(34, "Ok")
+#define TXT_NO_DEMO_FILES       dxx_gettext(35, "No Demo Files found.")
+#define TXT_USE_F5              dxx_gettext(36, "Use F5")
+#define TXT_TO_CREATE_ONE       dxx_gettext(37, "during game to create one.")
+#define TXT_NO_FILES_MATCHING   dxx_gettext(38, "No files matching")
+#define TXT_WERE_FOUND          dxx_gettext(39, "were found!")
+#define TXT_DELETE_PILOT        dxx_gettext(40, "Delete Pilot:")
+#define TXT_DELETE_DEMO         dxx_gettext(41, "Delete Demo:")
+#define TXT_COULDNT             dxx_gettext(42, "Couldn't")
+#define TXT_EXIT_SEQUENCE       dxx_gettext(43, "Exiting the mine!")
+#define TXT_WARNING             dxx_gettext(44, "Warning!")
+#define TXT_UNABLE_TO_OPEN      dxx_gettext(45, "Unable to open")
+#define TXT_COOL_SAYING         dxx_gettext(46, "Enter your cool saying.\nPress ESC when done.")
+#define TXT_HIGH_SCORE          dxx_gettext(47, "HIGH SCORE!")
+#define TXT_YOU_PLACED          dxx_gettext(48, "You placed")
+#define TXT_YOU_PLACED_1ST      dxx_gettext(49, "You placed 1st!")
+#define TXT_HIGH_SCORES         dxx_gettext(50, "HIGH SCORES")
+#define TXT_NAME                dxx_gettext(51, "Name")
+#define TXT_SCORE               dxx_gettext(52, "Score")
+#define TXT_SKILL               dxx_gettext(53, "Skill")
+#define TXT_LEVELS              dxx_gettext(54, "Levels")
+#define TXT_TIME                dxx_gettext(55, "Time")
+#define TXT_REGISTER_DESCENT    dxx_gettext(56, "CD-Enhanced Descent Coming Summer '95!")
+#define TXT_1ST                 dxx_gettext(57, "1st")
+#define TXT_2ND                 dxx_gettext(58, "2nd")
+#define TXT_3RD                 dxx_gettext(59, "3rd")
+#define TXT_4TH                 dxx_gettext(60, "4th")
+#define TXT_5TH                 dxx_gettext(61, "5th")
+#define TXT_6TH                 dxx_gettext(62, "6th")
+#define TXT_7TH                 dxx_gettext(63, "7th")
+#define TXT_8TH                 dxx_gettext(64, "8th")
+#define TXT_9TH                 dxx_gettext(65, "9th")
+#define TXT_10TH                dxx_gettext(66, "10th")
+#define TXT_EMPTY               dxx_gettext(67, "-empty-")
+#define TXT_KILLED              dxx_gettext(68, "killed")
+#define TXT_SUICIDE             dxx_gettext(69, "committed suicide!")
+#define TXT_YOU                 dxx_gettext(70, "You")
+#define TXT_YOURSELF            dxx_gettext(71, "yourself")
+#define TXT_NO_MACRO            dxx_gettext(72, "That macro is not defined.")
+#define TXT_SENDING             dxx_gettext(73, "Sending")
+#define TXT_SEND_MESSAGE        dxx_gettext(74, "Send Message:")
+#define TXT_SAYS                dxx_gettext(75, "says")
+#define TXT_TELLS_YOU           dxx_gettext(76, "tells you")
+#define TXT_HAS_DEST_CONTROL    dxx_gettext(77, "has destroyed the main reactor!")
+#define TXT_CONTROL_DESTROYED   dxx_gettext(78, "The main reactor has been destroyed!")
+#define TXT_HAS_ESCAPED         dxx_gettext(79, "has escaped the mine!")
+#define TXT_HAS_FOUND_SECRET    dxx_gettext(80, "has found the secret level!")
+#define TXT_HAS_LEFT_THE_GAME   dxx_gettext(81, "has left the game!")
+#define TXT_YOU_ARE_ONLY        dxx_gettext(82, "You are the only person\nremaining in this netgame.")
+#define TXT_OPPONENT_LEFT       dxx_gettext(83, "Your opponent has left.\nReturning to menu.")
+#define TXT_YOU_DEST_CONTROL    dxx_gettext(84, "You destroyed the main reactor!")
+#define TXT_DEFINE_MACRO        dxx_gettext(85, "Define Macro #")
+#define TXT_MESSAGE_SENT_TO     dxx_gettext(86, "Message sent to")
+#define TXT_NOBODY              dxx_gettext(87, "Nobody.")
+#define TXT_PAUSE               dxx_gettext(88, "Pause")
+#define TXT_CANT_PAUSE          dxx_gettext(89, "You can't pause in a multiplayer game!")
+#define TXT_HELP_ESC            dxx_gettext(90, "ESC\t  Abort Game")
+#define TXT_HELP_F2             dxx_gettext(91, "F2\t  Options menu")
+#define TXT_HELP_F3             dxx_gettext(92, "F3\t  Toggle cockpit")
+#define TXT_HELP_F4             dxx_gettext(93, "F4\t  Calibrate joystick")
+#define TXT_HELP_F5             dxx_gettext(94, "F5\t  Toggle recording")
+#define TXT_HELP_PAUSE          dxx_gettext(95, "Pause\t  Pause")
+#define TXT_HELP_MINUSPLUS      dxx_gettext(96, "-/+\t  Change screen size")
+#define TXT_HELP_PRTSCN         dxx_gettext(97, "PrintScrn\t  Save screen shot")
+#define TXT_HELP_1TO5           dxx_gettext(98, "1-5\t  Select primary weapon")
+#define TXT_HELP_6TO10          dxx_gettext(99, "6-0\t  Select secondary weapon")
+#define TXT_HELP_TO_VIEW        dxx_gettext(100, " To view control keys, select\nconfiguration in options menu")
+#define TXT_KEYS                dxx_gettext(101, "KEYS")
+#define TXT_ABORT_AUTODEMO      dxx_gettext(102, "Abort Autodemo?")
+#define TXT_ABORT_GAME          dxx_gettext(103, "Abort Game?")
+#define TXT_W_LASER             dxx_gettext(104, "Laser Cannon")
+#define TXT_W_VULCAN            dxx_gettext(105, "Vulcan Cannon")
+#define TXT_W_SPREADFIRE        dxx_gettext(106, "Spreadfire Cannon")
+#define TXT_W_PLASMA            dxx_gettext(107, "Plasma Cannon")
+#define TXT_W_FUSION            dxx_gettext(108, "Fusion Cannon")
+#define TXT_W_C_MISSILE			dxx_gettext(109, "Concussion Missile")
+#define TXT_W_H_MISSILE			dxx_gettext(110, "Homing Missile")
+#define TXT_W_P_BOMB			dxx_gettext(111, "Proximity Bomb")
+#define TXT_W_S_MISSILE			dxx_gettext(112, "Smart Missile")
+#define TXT_W_M_MISSILE			dxx_gettext(113, "Mega Missile")
+#define TXT_W_LASER_S			dxx_gettext(114, "Laser")
+#define TXT_W_VULCAN_S			dxx_gettext(115, "Vulcan")
+#define TXT_W_SPREADFIRE_S		dxx_gettext(116, "SPREAD")
+#define TXT_W_PLASMA_S			dxx_gettext(117, "Plasma")
+#define TXT_W_FUSION_S			dxx_gettext(118, "Fusion")
+#define TXT_W_C_MISSILE_S		dxx_gettext(119, "Concsn\nMissile")
+#define TXT_W_H_MISSILE_S		dxx_gettext(120, "Homing\nMissile")
+#define TXT_W_P_BOMB_S			dxx_gettext(121, "Proxim.\nBomb")
+#define TXT_W_S_MISSILE_S		dxx_gettext(122, "Smart\nMissile")
+#define TXT_W_M_MISSILE_S		dxx_gettext(123, "Mega\nMissile")
+#define TXT_SELECTED			dxx_gettext(124, "selected!")
+#define TXT_DONT_HAVE			dxx_gettext(125, "You don't have the")
+#define TXT_DONT_HAVE_AMMO		dxx_gettext(126, "You don't have ammo for the")
+#define TXT_HAVE_NO			dxx_gettext(127, "You have no")
+#define TXT_S				dxx_gettext(128, "s")
+#define TXT_SX				dxx_gettext(129, "s!")
+#define TXT_NO_PRIMARY			dxx_gettext(130, "No primary weapons available")
+#define TXT_ALREADY_HAVE_THE		dxx_gettext(131, "You already have the")
+#define TXT_CANT_OPEN_DOOR		dxx_gettext(132, "You cannot open this door.")
+#define TXT_MOVE_JOYSTICK		dxx_gettext(133, "Move joystick")
+#define TXT_TO_UL			dxx_gettext(134, "to\nthe upper-left corner")
+#define TXT_ANY_BUTTON			dxx_gettext(135, "and press any button.")
+#define TXT_JOYSTICK			dxx_gettext(136, "joystick")
+#define TXT_UPPER_LEFT			dxx_gettext(137, "upper-left")
+#define TXT_TO_LR			dxx_gettext(138, "to\nthe lower-right corner")
+#define TXT_LOWER_RIGHT			dxx_gettext(139, "lower-right")
+#define TXT_TO_C			dxx_gettext(140, "to\nthe center")
+#define TXT_CENTER			dxx_gettext(141, "center")
+#define TXT_CONTROL_KEYBOARD		dxx_gettext(142, "Keyboard only")
+#define TXT_CONTROL_JOYSTICK		dxx_gettext(143, "Joystick")
+#define TXT_CONTROL_FSTICKPRO		dxx_gettext(144, "CH Flightstick Pro")
+#define TXT_CONTROL_THRUSTFCS   	dxx_gettext(145, "Thrustmaster FCS &\nWingman Extreme")
+#define TXT_CONTROL_GGAMEPAD 		dxx_gettext(146, "Gravis Gamepad")
+#define TXT_CONTROL_MOUSE	 	dxx_gettext(147, "Mouse")
+#define TXT_CONTROL_CYBERMAN		dxx_gettext(148, "Cyberman")
+#define TXT_CUST_ABOVE			dxx_gettext(149, "Customize Above")
+#define TXT_CUST_KEYBOARD		dxx_gettext(150, "Customize Keyboard")
+#define TXT_CONTROLS			dxx_gettext(151, "Controls")
+#define TXT_KEYBOARD			dxx_gettext(152, "Keyboard")
+#define TXT_REGISTRATION		dxx_gettext(172, "This copy of Descent is for use by:")
+#define TXT_ERROR_SELECTOR		dxx_gettext(173, "Error initializing selector for segment A000.")
+#define TXT_ERROR_GRAPHICS		dxx_gettext(174, "Error trying to initialize unsupported graphics mode.")
+#define TXT_CALIBRATE			dxx_gettext(175, "Calibrate")
+#define TXT_SKIP			dxx_gettext(176, "Skip")
+#define TXT_JOYSTICK_NOT_CEN		dxx_gettext(177, "It looks like your joystick\nisn't centered.  Do you want\nto calibrate it?")
+#define TXT_CHOOSE_INPUT		dxx_gettext(178, "Choose input device")
+#define TXT_ERROR			dxx_gettext(179, "Error")
+#define TXT_ERROR_PLR_VERSION 		dxx_gettext(180, "Cannot open player file\nVersion mismatch.")
+#define TXT_DEMO_PLAYBACK		dxx_gettext(181, "Demo Playback")
+#define TXT_DEMO_RECORDING		dxx_gettext(182, "Demo Recording")
+#define TXT_CRUISE			dxx_gettext(183, "Cruise:")
+#define TXT_DUMPING_SCREEN		dxx_gettext(184, "Dumping screen to")
+#define TXT_CHEATS_ENABLED		dxx_gettext(185, "Cheats Enabled!!")
+#define TXT_NET_GAME_CLOSED		dxx_gettext(186, "That game is closed to new players.")
+#define TXT_NET_GAME_FULL		dxx_gettext(187, "The game is already full.")
+#define TXT_NET_GAME_BETWEEN		dxx_gettext(188, "The game is between levels.\nTry again later.")
+#define TXT_NET_GAME_NSELECT		dxx_gettext(189, "You were not selected for the game.")
+#define TXT_NET_GAME_NSTART		dxx_gettext(190, "The netgame was not started.")
+#define TXT_NET_GAME_CONNECT		dxx_gettext(191, "You are already connected.\nTry again in a minute.")
+#define TXT_NET_GAME_WRONGLEV 		dxx_gettext(192, "Wrong level selected.\nPlease re-join.")
+#define TXT_KILLS			dxx_gettext(193, "kills")
+#define TXT_WAITING			dxx_gettext(194, "Waiting for other players..\n")
+#define TXT_SURE_LEAVE_GAME		dxx_gettext(195, "Are you sure you want\nto leave the game?")
+#define TXT_JOINING			dxx_gettext(196, "is joining the game.")
+#define TXT_REJOIN			dxx_gettext(197, "is rejoining the game")
+#define TXT_SORRY_ONLY			dxx_gettext(198, "Sorry, but a you can only select\nup to")
+#define TXT_NETPLAYERS_IN		dxx_gettext(199, "netplayers for this mine.")
+#define TXT_S_GAME			dxx_gettext(200, "'s game")
+#define TXT_DESCRIPTION			dxx_gettext(201, "Description:")
+#define TXT_LEVEL_			dxx_gettext(202, "Level:")
+#define TXT_MODE			dxx_gettext(203, "Mode:")
+#define TXT_ANARCHY			dxx_gettext(204, "Anarchy")
+#define TXT_TEAM_ANARCHY		dxx_gettext(205, "Team Anarchy")
+#define TXT_ANARCHY_W_ROBOTS		dxx_gettext(206, "Robo-Anarchy")
+#define TXT_COOPERATIVE			dxx_gettext(207, "Cooperative")
+#define TXT_OPTIONS			dxx_gettext(208, "Options:")
+#define TXT_CLOSED_GAME			dxx_gettext(209, "Closed Game")
+#define TXT_NETGAME_SETUP		dxx_gettext(210, "Game Setup")
+#define TXT_LEVEL_OUT_RANGE		dxx_gettext(211, "That start level is out of range")
+#define TXT_SORRY			dxx_gettext(212, "Sorry")
+#define TXT_REGISTERED_ONLY		dxx_gettext(213, "That game mode is\nonly available in\nthe registered/commercial\nversion")
+#define TXT_WAIT			dxx_gettext(214, "Wait...")
+#define TXT_FOUND			dxx_gettext(215, "Found")
+#define TXT_ACTIVE_GAMES		dxx_gettext(216, "active games.")
+#define TXT_STARTING_NETGAME		dxx_gettext(217, "Starting netgame on level")
+#define TXT_NETLEVEL_NMATCH		dxx_gettext(218, "Your level file does not\nmatch the other player's.\nCannot join game.")
+#define TXT_TEAM			dxx_gettext(219, "Team")
+#define TXT_TEAM_SELECTION		dxx_gettext(220, "Team selection\nSelect names to switch teams")
+#define TXT_TEAM_MUST_ONE		dxx_gettext(221, "You must place at least\none player on each team.")
+#define TXT_TEAM_SELECT			dxx_gettext(222, "Select up to")
+#define TXT_TEAM_PRESS_ENTER		dxx_gettext(223, "players\nPress ENTER to begin.")
+#define TXT_TEAM_ATLEAST_TWO		dxx_gettext(224, "You must select at least two\nplayers to start a network game")
+#define TXT_IPX_NOT_FOUND		dxx_gettext(225, "An active IPX driver was\nnot found.  Check your\nnetwork software")
+#define TXT_NET_FORMING			dxx_gettext(226, "   FORMING, level:")
+#define TXT_NET_PLAYERS			dxx_gettext(227, "players:")
+#define TXT_NET_JOIN			dxx_gettext(228, "   OPEN,    level:")
+#define TXT_NET_CLOSED			dxx_gettext(229, "   CLOSED")
+#define TXT_NET_BETWEEN			dxx_gettext(230, "   BETWEEN LEVELS")
+#define TXT_NET_LEAVE			dxx_gettext(231, "\nESC to leave netgame")
+#define TXT_NET_WAITING			dxx_gettext(232, "Waiting for signal from")
+#define TXT_NET_TO_ENTER		dxx_gettext(233, "to enter the mine")
+#define TXT_NET_SEARCHING		dxx_gettext(234, "Searching for Netgames...")
+#define TXT_INVALID_CHOICE		dxx_gettext(235, "That choice is invalid.\n")
+#define TXT_NET_GAME_BETWEEN2		dxx_gettext(236, "That game is between levels.\nWait for status to change\nand try joining again.")
+#define TXT_VERSION_MISMATCH		dxx_gettext(237, "Your version of Descent\ndoes not match the version\nin use for that game.")
+#define TXT_GAME_FULL			dxx_gettext(238, "That game is currently full.")
+#define TXT_IN_PROGRESS			dxx_gettext(239, "You cannot join that\ngame in progress.")
+#define TXT_DISCONNECTING		dxx_gettext(240, "has disconnected!")
+#define TXT_SERIAL_OPEN_ERROR 		dxx_gettext(241, "Error opening serial driver.\nCheck your serial parameters\nAnd free conventional memory.")
+#define TXT_CARRIER_LOST		dxx_gettext(242, "Error!\nCarrier Lost.\n  Leaving Multiplayer game.")
+#define TXT_ERROR_SERIAL_CFG		dxx_gettext(243, "Error writing to the file\nserial.cfg.  Can't save settings.")
+#define TXT_ERR_SER_SETTINGS		dxx_gettext(244, "Error reading serial settings.\nUsing defaults.")
+#define TXT_CONNECT_LOST		dxx_gettext(245, "No message received from\n%s for 10 seconds.\nConnection may be lost.")
+#define TXT_READY_DESCENT		dxx_gettext(246, "Your opponent has selected\nstart game.  Are you\nready for descent?")
+#define TXT_CLOSED_LINK			dxx_gettext(247, "Your opponent has disconnected.")
+#define TXT_DIAL_MODEM			dxx_gettext(248, "Dial modem...")
+#define TXT_ANSWER_MODEM		dxx_gettext(249, "Answer modem")
+#define TXT_NULL_MODEM			dxx_gettext(250, "Establish null-modem link")
+#define TXT_COM_SETTINGS		dxx_gettext(251, "COM settings...")
+#define TXT_START_GAME			dxx_gettext(252, "Start game...")
+#define TXT_SEND_MESSAGEP		dxx_gettext(253, "Send message...")
+#define TXT_HANGUP_MODEM		dxx_gettext(254, "Hang up modem")
+#define TXT_CLOSE_LINK			dxx_gettext(255, "Close link")
+#define TXT_SERIAL			dxx_gettext(256, "Serial")
+#define TXT_LINK_ACTIVE			dxx_gettext(257, "link active to")
+#define TXT_MODEM			dxx_gettext(258, "Modem")
+#define TXT_NOT_CONNECTED		dxx_gettext(259, "Not currently connected")
+#define TXT_SERIAL_GAME			dxx_gettext(260, "Serial Game")
+#define TXT_EXIT_WILL_CLOSE		dxx_gettext(261, "Exiting this menu\nwill close the link\nContinue?")
+#define TXT_BAUD_RATE			dxx_gettext(262, "Baud Rate:")
+#define TXT_MODEM_INIT_STRING		dxx_gettext(263, "Modem Init String:")
+#define TXT_ACCEPT_SAVE			dxx_gettext(264, "Accept and Save")
+#define TXT_SERIAL_SETTINGS		dxx_gettext(265, "Serial Settings")
+#define TXT_WARNING_16550		dxx_gettext(266, "Warning!\nYou must have a\n16550 UART\nto use 38400")
+#define TXT_DIFFICULTY			dxx_gettext(267, "Difficulty:")
+#define TXT_SERIAL_GAME_SETUP		dxx_gettext(268, "Serial Game Setup")
+#define TXT_ONLY_ANARCHY		dxx_gettext(269, "Only Anarchy mode is\navailable in the\nshareware version.")
+#define TXT_SAVE			dxx_gettext(270, "Save!")
+#define TXT_ACCEPT			dxx_gettext(271, "Accept")
+#define TXT_SEL_NUMBER_EDIT		dxx_gettext(272, "Select a number to edit")
+#define TXT_EDIT_PHONE_ENTRY		dxx_gettext(273, "Edit phonebook entry")
+#define TXT_MANUAL_ENTRY		dxx_gettext(274, "Manual Entry")
+#define TXT_EDIT_PHONEBOOK		dxx_gettext(275, "Edit Phonebook")
+#define TXT_SEL_NUMBER_DIAL		dxx_gettext(276, "Select a number to dial")
+#define TXT_ENTER_NUMBER_DIAL		dxx_gettext(277, "Enter number to dial")
+#define TXT_NO_DIAL_TONE		dxx_gettext(278, "NO DIAL TONE")
+#define TXT_BUSY			dxx_gettext(279, "BUSY")
+#define TXT_NO_ANSWER			dxx_gettext(280, "NO ANSWER")
+#define TXT_NO_CARRIER			dxx_gettext(281, "NO CARRIER")
+#define TXT_VOICE			dxx_gettext(282, "VOICE")
+#define TXT_ERR_MODEM_RETURN		dxx_gettext(283, "Error!\nModem returned:")
+#define TXT_CONNECT			dxx_gettext(284, "CONNECT")
+#define TXT_BAUD_GREATER_9600 		dxx_gettext(285, "Error!\nYou must establish a\n9600 baud connection\nor higher to play.")
+#define TXT_RING			dxx_gettext(286, "RING")
+#define TXT_NO_SERIAL_OPT		dxx_gettext(287, "Descent was started with\nthe serial option disabled.")
+#define TXT_RESET_MODEM			dxx_gettext(288, "Resetting Modem")
+#define TXT_NO_MODEM			dxx_gettext(289, "No modem detected.\nCheck your com settings.")
+#define TXT_NO_PHONENUM			dxx_gettext(290, "That phone number\nis not defined.\n")
+#define TXT_DIALING			dxx_gettext(291, "Dialing:")
+#define TXT_ESC_ABORT			dxx_gettext(292, "ESC to abort")
+#define TXT_WAITING_FOR_ANS		dxx_gettext(293, "Waiting for answer...")
+#define TXT_WAITING_FOR_CALL		dxx_gettext(294, "Waiting for call...")
+#define TXT_WAITING_FOR_CARR		dxx_gettext(295, "Waiting for carrier...")
+#define TXT_FAILED_TO_NEGOT		dxx_gettext(296, "Failed to negotiate!")
+#define TXT_NEGOTIATION_FAIL		dxx_gettext(297, "Negotiation with remote player\nfailed.  Cannot continue.")
+#define TXT_FATAL_ERROR_LEVEL		dxx_gettext(298, "Fatal error.\nMy level =")
+#define TXT_OTHER_LEVEL			dxx_gettext(299, "Other level =")
+#define TXT_YOUR_LEVEL			dxx_gettext(300, "Your level ")
+#define TXT_LVL_NO_MATCH		dxx_gettext(301, "file does\nnot match")
+#define TXT_CHECK_VERSION		dxx_gettext(302, "'s.\nCheck your versions.")
+#define TXT_DESCENT_NO_MATCH		dxx_gettext(303, "Your version of Descent\ndoes not match that of\nyour opponent.")
+#define TXT_OPPONENT_NO_READY		dxx_gettext(304, "Your opponent is not\nready to start the game.")
+#define TXT_WAIT_OPPONENT		dxx_gettext(305, "Waiting for remote player...")
+#define TXT_LOCK			dxx_gettext(306, "LOCK")
+#define TXT_DEATHS			dxx_gettext(307, "DEATHS")
+#define TXT_LIVES			dxx_gettext(308, "LIVES")
+#define TXT_LVL				dxx_gettext(309, "LVL")
+#define TXT_QUAD 			dxx_gettext(310, "QUAD")
+#define TXT_REAR_VIEW			dxx_gettext(311, "REAR VIEW")
+#define TXT_DIFFICULTY_1		dxx_gettext(312, "Trainee")
+#define TXT_DIFFICULTY_2		dxx_gettext(313, "Rookie")
+#define TXT_DIFFICULTY_3		dxx_gettext(314, "Hotshot")
+#define TXT_DIFFICULTY_4		dxx_gettext(315, "Ace")
+#define TXT_DIFFICULTY_5		dxx_gettext(316, "Insane")
+#define TXT_DETAIL_1			dxx_gettext(317, "Lowest")
+#define TXT_DETAIL_2			dxx_gettext(318, "Low")
+#define TXT_DETAIL_3			dxx_gettext(319, "Medium")
+#define TXT_DETAIL_4			dxx_gettext(320, "High")
+#define TXT_DETAIL_5			dxx_gettext(321, "Highest")
+#define TXT_DETAIL_CUSTOM_		dxx_gettext(322, "Custom...")
+#define TXT_LOAD_GAME  			dxx_gettext(323, "Load Game...")
+#define TXT_MULTIPLAYER_		dxx_gettext(324, "Multiplayer...")
+#define TXT_OPTIONS_			dxx_gettext(325, "Options...")
+#define TXT_CHANGE_PILOTS		dxx_gettext(326, "Change Pilots...")
+#define TXT_VIEW_DEMO			dxx_gettext(327, "View Demo...")
+#define TXT_CREDITS			dxx_gettext(328, "Credits")
+#define TXT_ORDERING_INFO		dxx_gettext(329, "Ordering Info")
+#define TXT_SELECT_DEMO			dxx_gettext(330, "Select Demo\n<Ctrl-D> deletes\n<Ctrl-C> converts format\nIntel <-> PowerPC")
+#define TXT_DIFFICULTY_LEVEL		dxx_gettext(331, "Difficulty Level")
+#define TXT_SET_TO			dxx_gettext(332, "set to")
+#define TXT_DETAIL_LEVEL		dxx_gettext(333, "Detail Level")
+#define TXT_OBJ_COMPLEXITY		dxx_gettext(334, "Object Complexity")
+#define TXT_OBJ_DETAIL			dxx_gettext(335, "Object Detail")
+#define TXT_WALL_DETAIL			dxx_gettext(336, "Wall Detail")
+#define TXT_WALL_RENDER_DEPTH		dxx_gettext(337, "Wall Render Depth")
+#define TXT_DEBRIS_AMOUNT		dxx_gettext(338, "Amount of Debris")
+#define TXT_SOUND_CHANNELS		dxx_gettext(339, "Sound Channels")
+#define TXT_LO_HI			dxx_gettext(340, "                       LO  HI")
+#define TXT_DETAIL_CUSTOM		dxx_gettext(341, "Detail Level Customization")
+#define TXT_START_ANY_LEVEL		dxx_gettext(342, "You may start on\nany level up to")
+#define TXT_SELECT_START_LEV		dxx_gettext(343, "New Game\n\nSelect starting level")
+#define TXT_ENTER_TO_CONT		dxx_gettext(344, "Press ENTER to Continue")
+#define TXT_INVALID_LEVEL		dxx_gettext(345, "Invalid level number")
+#define TXT_ERR_LOADING_GAME		dxx_gettext(346, "Error Loading Game")
+#define TXT_SAVE_GAME_SLOTS		dxx_gettext(347, "Save Game\n\nSelect slot & enter save name\nPress ESC if you don't want to save")
+#define TXT_SAVE_ERROR			dxx_gettext(348, "Save Error!")
+#define TXT_FX_VOLUME			dxx_gettext(349, "FX Volume")
+#define TXT_MUSIC_VOLUME		dxx_gettext(350, "Music Volume")
+#define TXT_REVERSE_STEREO		dxx_gettext(351, "Reverse Stereo")
+#define TXT_BRIGHTNESS			dxx_gettext(352, "Brightness")
+#define TXT_CONTROLS_			dxx_gettext(353, "Controls...")
+#define TXT_DETAIL_LEVELS		dxx_gettext(354, "Detail levels...")
+#define TXT_CAL_JOYSTICK		dxx_gettext(355, "Calibrate Joystick")
+#define TXT_JOYS_SENSITIVITY		dxx_gettext(356, "Joystick/Mouse\nSensitivity")
+#define TXT_START_NET_GAME		dxx_gettext(357, "Start a network game...")
+#define TXT_JOIN_NET_GAME		dxx_gettext(358, "Join a network game...\n")
+#define TXT_MODEM_GAME			dxx_gettext(359, "Modem/serial game...")
+#define TXT_MULTIPLAYER			dxx_gettext(360, "Multiplayer")
+#define TXT_CONTINUE			dxx_gettext(361, "Continue")
+#define TXT_CANT_PLAYBACK		dxx_gettext(362, "Can't playback demo")
+#define TXT_DEMO_CORRUPT		dxx_gettext(363, "because\ndemo file contains corrupt\ndata.")
+#define TXT_DEMO_OLD			dxx_gettext(364, "because\ndemo version is too old.")
+#define TXT_RECORDED			dxx_gettext(365, "recorded")
+#define TXT_WITH_REGISTERED		dxx_gettext(366, "with the registered version")
+#define TXT_WITH_SHAREWARE		dxx_gettext(367, "with the shareware version")
+#define TXT_OF_DESCENT			dxx_gettext(368, "of Descent.")
+#define TXT_LEVEL_CANT_LOAD		dxx_gettext(369, "because\nlevel cannot be loaded.")
+#define TXT_DEMO_OLD_CORRUPT		dxx_gettext(370, "Demo is probably too old\nor contains corrupt data.")
+#define TXT_DEMO_ERR_READING		dxx_gettext(371, "Error reading demo data.")
+#define TXT_SAVE_DEMO_AS		dxx_gettext(372, "Save Demo as:")
+#define TXT_DEMO_USE_LETTERS		dxx_gettext(373, "Please use only letters,\nnumbers and the underscore\ncharacter in filename.")
+#define TXT_AUTOMAP			dxx_gettext(374, "Automap")
+#define TXT_TURN_SHIP			dxx_gettext(375, "Flight controls move")
+#define TXT_SLIDE_UPDOWN 		dxx_gettext(376, "Accelerate/Reverse zooms in/out")
+#define TXT_LEVEL			dxx_gettext(377, "Level")
+#define TXT_PITCH_FORWARD		dxx_gettext(378, "Pitch forward")
+#define TXT_PITCH_BACKWARD		dxx_gettext(379, "Pitch backward")
+#define TXT_TURN_LEFT			dxx_gettext(380, "Turn left")
+#define TXT_TURN_RIGHT			dxx_gettext(381, "Turn right")
+#define TXT_SLIDE_ON			dxx_gettext(382, "Slide on")
+#define TXT_SLIDE_LEFT			dxx_gettext(383, "Slide left")
+#define TXT_SLIDE_RIGHT			dxx_gettext(384, "Slide right")
+#define TXT_SLIDE_UP			dxx_gettext(385, "Slide up")
+#define TXT_SLIDE_DOWN			dxx_gettext(386, "Slide down")
+#define TXT_BANK_ON			dxx_gettext(387, "Bank on")
+#define TXT_BANK_LEFT			dxx_gettext(388, "Bank left")
+#define TXT_BANK_RIGHT			dxx_gettext(389, "Bank right")
+#define TXT_FIRE_PRIMARY		dxx_gettext(390, "Fire primary")
+#define TXT_FIRE_SECONDARY		dxx_gettext(391, "Fire secondary")
+#define TXT_FIRE_FLARE			dxx_gettext(392, "Fire flare")
+#define TXT_ACCELERATE			dxx_gettext(393, "Accelerate")
+#define TXT_REVERSE			dxx_gettext(394, "reverse")
+#define TXT_DROP_BOMB			dxx_gettext(395, "Drop Bomb")
+#define TXT_CRUISE_FASTER		dxx_gettext(396, "Cruise Faster")
+#define TXT_CRUISE_SLOWER		dxx_gettext(397, "Cruise Slower")
+#define TXT_CRUISE_OFF			dxx_gettext(398, "Cruise Off")
+#define TXT_PITCH_UD			dxx_gettext(399, "Pitch U/D")
+#define TXT_TURN_LR			dxx_gettext(400, "Turn L/R")
+#define TXT_SLIDE_LR			dxx_gettext(401, "Slide L/R")
+#define TXT_SLIDE_UD			dxx_gettext(402, "Slide U/D")
+#define TXT_BANK_LR			dxx_gettext(403, "Bank L/R")
+#define TXT_THROTTLE			dxx_gettext(404, "throttle")
+#define TXT_TEAM_ATLEAST_THREE          dxx_gettext(405, "You must select at least three\nplayers to start a team game")
+#define TXT_NET_DISCONNECTED            dxx_gettext(406, "Disconnected")
+#define TXT_NET_PLAYING                 dxx_gettext(407, "Playing")
+#define TXT_NET_ESCAPED			dxx_gettext(408, "Escaped")
+#define TXT_NET_DIED			dxx_gettext(409, "Died in mine")
+#define TXT_NET_FOUND_SECRET		dxx_gettext(410, "Found secret level")
+#define TXT_NET_ESCAPE_TUNNEL		dxx_gettext(411, "In Escape tunnel")
+#define TXT_NET_RESERVED		dxx_gettext(412, "Viewing Level Scores")
+#define TXT_WOWIE_ZOWIE			dxx_gettext(413, "Wowie Zowie Weapons!!")
+#define TXT_ALL_KEYS			dxx_gettext(414, "All Keys!")
+#define TXT_CLOAK			dxx_gettext(415, "Cloak")
+#define TXT_FULL_SHIELDS		dxx_gettext(416, "Shields Recharged!")
+#define TXT_ON				dxx_gettext(417, "On")
+#define TXT_OFF				dxx_gettext(418, "Off")
+#define TXT_NOT_IN_SHAREWARE		dxx_gettext(419, "Not available in shareware")
+#define TXT_GAME_OVER			dxx_gettext(420, "Game Over")
+#define TXT_SELECT_PILOT		dxx_gettext(421, "Select pilot\n<Ctrl-D> deletes")
+#define TXT_ENTER_PILOT_NAME		dxx_gettext(422, "Enter your pilot name:")
+#define TXT_PLAYER			dxx_gettext(423, "Player")
+#define TXT_ALREADY_EXISTS		dxx_gettext(424, "already exists!")
+#define TXT_LOADING			dxx_gettext(425, "Prepare for Descent...")
+#define TXT_FULL_RESCUE_BONUS		dxx_gettext(426, "Full Rescue bonus:    \t")
+#define TXT_SHIELD_BONUS		dxx_gettext(427, "Shield bonus:\t")
+#define TXT_ENERGY_BONUS		dxx_gettext(428, "Energy bonus:\t")
+#define TXT_HOSTAGE_BONUS		dxx_gettext(429, "Hostage bonus:    \t")
+#define TXT_SKILL_BONUS			dxx_gettext(430, "Skill Bonus:\t")
+#define TXT_TOTAL_BONUS			dxx_gettext(431, "Total Bonus:\t")
+#define TXT_TOTAL_SCORE			dxx_gettext(432, "Total Score:\t")
+#define TXT_SECRET_LEVEL		dxx_gettext(433, "Secret Level")
+#define TXT_COMPLETE			dxx_gettext(434, "Complete")
+#define TXT_DESTROYED			dxx_gettext(435, "Destroyed!")
+#define TXT_SAVE_GAME			dxx_gettext(436, "Save Game?")
+#define TXT_PRESS_CTRL_R		dxx_gettext(437, "Press <Ctrl-R> to reset")
+#define TXT_RESET_HIGH_SCORES		dxx_gettext(438, "Reset the high scores?")
+#define TXT_YOU_WERE			dxx_gettext(439, "You were")
+#define TXT_WAS				dxx_gettext(440, "was")
+#define TXT_KILLED_BY_NONPLAY		dxx_gettext(441, "killed by the reactor")
+#define TXT_IMPORTANT_NOTE              dxx_gettext(442, "IMPORTANT NOTE")
+#define TXT_FCS				dxx_gettext(443, "Use this option for the FCS\nand Wingman Extreme only\nwhen used alone.  If you\nalso use a WCS or FLCS you\nmust configure  for joystick.\nSee manual/readme for details.\n")
+#define TXT_PRESS_ANY_KEY		dxx_gettext(444, "Press any key or button to continue...")
+#define TXT_HOSTAGE_RESCUED		dxx_gettext(445, "Hostage rescued!")
+#define TXT_INIT_VICTOR			dxx_gettext(446, "Initializing VictorMaxx tracking on COM port")
+#define TXT_N				dxx_gettext(447, "N")
+#define TXT_Y				dxx_gettext(448, "Y")
+#define TXT_ANY_LEVEL			dxx_gettext(449, "Start at any level.")
+#define TXT_SHAREWARE_DONE		dxx_gettext(450, "Shareware Levels Completed")
+#define TXT_PRESS_NEW_KEY		dxx_gettext(451, "Press new key")
+#define TXT_PRESS_NEW_JBUTTON		dxx_gettext(452, "Press new joystick button")
+#define TXT_PRESS_NEW_MBUTTON		dxx_gettext(453, "Press new mouse button")
+#define TXT_MOVE_NEW_JOY_AXIS		dxx_gettext(454, "Move new joystick axis")
+#define TXT_MOVE_NEW_MSE_AXIS		dxx_gettext(455, "Move new mouse axis")
+#define TXT_USING_VFX1			dxx_gettext(456, "Using VFX1 Head Tracking...Press Shift+Z during game to set zero.")
+#define TXT_VFX1_ERROR1			dxx_gettext(457, "Error: Can't use VFX1 head tracking because no head tracking device\nwas found.")
+#define TXT_VFX1_ERROR2			dxx_gettext(458, "Error: Can't use VFX1 head tracking because VFX1.COM does not\nappear to be loaded!")
+#define TXT_KCONFIG_STRING_1		dxx_gettext(459, "Enter changes, ^D deletes, ^R resets defaults, Esc exits")
+#define TXT_BUTTONS			dxx_gettext(460, " Buttons ")
+#define TXT_AXES			dxx_gettext(461, " Axes ")
+#define TXT_AXIS			dxx_gettext(462, "Axis")
+#define TXT_INVERT			dxx_gettext(463, "Invert?")
+#define TXT_BTN_1			dxx_gettext(464, "BTN 1")
+#define TXT_BTN_2			dxx_gettext(465, "BTN 2")
+#define TXT_BTN_3			dxx_gettext(466, "BTN 3")
+#define TXT_BTN_4			dxx_gettext(467, "BTN 4")
+#define TXT_TRIG			dxx_gettext(468, "TRIG")
+#define TXT_HAT_L			dxx_gettext(469, "HAT \x81")
+#define TXT_HAT_R			dxx_gettext(470, "HAT \x80")
+#define TXT_HAT_U			dxx_gettext(471, "HAT \x7f")
+#define TXT_HAT_D			dxx_gettext(472, "HAT \x82")
+#define TXT_LEFT			dxx_gettext(473, "LEFT")
+#define TXT_RIGHT			dxx_gettext(474, "RIGHT")
+#define TXT_MID				dxx_gettext(475, "MID")
+#define TXT_UP				dxx_gettext(476, "UP")
+#define TXT_DOWN			dxx_gettext(477, "DOWN")
+#define TXT_X1				dxx_gettext(478, "X1")
+#define TXT_Y1				dxx_gettext(479, "Y1")
+#define TXT_X2				dxx_gettext(480, "X2")
+#define TXT_Y2				dxx_gettext(481, "Y2")
+#define TXT_L_R				dxx_gettext(482, "L/R")
+#define TXT_F_B				dxx_gettext(483, "F/B")
+#define TXT_FORWARD			dxx_gettext(484, "forward")
+#define TXT_MOVE_THROTTLE_F		dxx_gettext(485, "Move throttle all\nthe way forward\nand press any button")
+#define TXT_MOVE_THROTTLE_R		dxx_gettext(486, "Move throttle all\nthe way back\nand press any button")
+#define TXT_MOVE_THROTTLE_C		dxx_gettext(487, "Move throttle to\nits center and\npress any button")
+#define TXT_REACTOR_EXPLODED		dxx_gettext(488, "\nReactor has exploded.")
+#define TXT_TIME_REMAINING		dxx_gettext(489, "\nTime Remaining")
+#define TXT_SECONDS			dxx_gettext(490, "seconds.")
+#define TXT_DEMO_WRITE_ERROR		dxx_gettext(491, "Error writing demo file.  Current")
+#define TXT_DEMO_SIZE			dxx_gettext(492, "demo size is")
+#define TXT_DEMO_SAVE_BAD		dxx_gettext(493, "You are nearly out of space on\nthe current device.  Enter demo\nname now or press ESC to delete\ndemo.")
+#define TXT_BYTE_STR			dxx_gettext(494, "bytes.")
+#define TXT_DIED_IN_MINE		dxx_gettext(495, "You died in the mine.\n\nYour ship and its contents\nwere incinerated.")
+#define TXT_SHIP_BONUS			dxx_gettext(496, "Ship bonus:  \t")
+#define TXT_PHONE_NUM			dxx_gettext(497, "Phone Number")
+#define TXT_KILL_MATRIX_TITLE		dxx_gettext(498, "ANARCHY SUMMARY")
+#define TXT_WAIT_FOR_OK			dxx_gettext(499, "Waiting for OK to\nstart game\n")
+#define TXT_SURE_ABORT_SYNC		dxx_gettext(500, "Aborting will quit the game\nare you sure?")
+#define TXT_ERROR_WRITING_PLR		dxx_gettext(501, "Error writing player file.\nUnable to save current player.\n")
+#define TXT_SHIP_DESTROYED_0		dxx_gettext(502, "Ship destroyed!")
+#define TXT_SHIP_DESTROYED_1		dxx_gettext(503, "Ship destroyed, 1 hostage lost!")
+#define TXT_SHIP_DESTROYED_2		dxx_gettext(504, "Ship destroyed, %i hostages lost!")
+#define TXT_NET_FULL			dxx_gettext(505, "This socket is ready full.\nPlease restart Descent\nwith the -socket option.\n\nfor example: Descent -socket 1")
+#define TXT_DEMO_NO_SPACE		dxx_gettext(506, "Not enough space on current\ndevice to start demo recording.")
+#define TXT_HAT2_L			dxx_gettext(507, "HAT2\x81")
+#define TXT_HAT2_R			dxx_gettext(508, "HAT2\x7f")
+#define TXT_HAT2_U			dxx_gettext(509, "HAT2\x82")
+#define TXT_HAT2_D			dxx_gettext(510, "HAT2\x80")
+#define TXT_WARP_TO_LEVEL		dxx_gettext(511, "Warp to which level?")
+#define TXT_TRADEMARK			dxx_gettext(512, "DESCENT is a trademark of Interplay Productions, Inc.")
+#define TXT_NET_SYNC_FAILED		dxx_gettext(513, "Failed to join the netgame.\nYou are missing packets.  Check\nyour network card and\ntry again.")
 
-#define TXT_DONE			Text_string[514]
-#define TXT_I_AM_A			Text_string[515]
-#define TXT_CHEATER			Text_string[516]
-#define TXT_LOADING_DATA		Text_string[517]
-#define TXT_HELP_ALT_F2			Text_string[518]
-#define TXT_HELP_ALT_F3			Text_string[519]
-#define TXT_ONLY_REGISTERED		Text_string[520]
-#define TXT_CONCUSSION			Text_string[521]
-#define TXT_HOMING			Text_string[522]
-#define TXT_PROXBOMB			Text_string[523]
-#define TXT_SMART			Text_string[524]
-#define TXT_MEGA			Text_string[525]
-#define TXT_NOMISSION4DEMO		Text_string[526]
-#define TXT_SHOW_IDS			Text_string[527]
-#define TXT_DUPLICATE_NAME		Text_string[528]
-#define TXT_ANARCHY_ONLY_MISSION	Text_string[529]
-#define TXT_START_NOWAIT		Text_string[530]
-#define TXT_QUITTING_NOW		Text_string[531]
-#define TXT_MISSION_NOT_FOUND		Text_string[532]
-#define TXT_MULTI_MISSION		Text_string[533]
-#define TXT_MISSION_ERROR		Text_string[534]
-#define TXT_COM_CUSTOM_SETTINGS		Text_string[535]
-#define TXT_COM_BASE			Text_string[536]
-#define TXT_COM_IRQ			Text_string[537]
-#define TXT_RESET_DEFAULTS		Text_string[538]
-#define TXT_VALID_IRQS			Text_string[539]
-#define TXT_NO_UART			Text_string[540]
-#define TXT_DEF_MACRO_1			Text_string[541]
-#define TXT_DEF_MACRO_2			Text_string[542]
-#define TXT_DEF_MACRO_3			Text_string[543]
-#define TXT_DEF_MACRO_4			Text_string[544]
-#define TXT_MISSION			Text_string[545]
-#define TXT_VIEWING_DISTANCE		Text_string[546]
-#define TXT_SECRET_EXIT			Text_string[547]
-#define TXT_SHOW_ON_MAP			Text_string[548]
-#define TXT_KILLED_BY_ROBOT		Text_string[549]
-#define TXT_BAUD			Text_string[550]
-#define TXT_CONSISTENCY_ERROR		Text_string[551]
-#define TXT_PRESS_ANY_KEY2		Text_string[552]
-#define TXT_DEMO_SAVE_NOSPACE		Text_string[553]
-#define TXT_CNTRLCEN_INVUL		Text_string[554]
-#define TXT_NO_DESTSAT_LVL		Text_string[555]
-#define TXT_REACTOR_LIFE		Text_string[556]
-#define TXT_MINUTES_ABBREV		Text_string[557]
-#define TXT_CURRENT_IPX_SOCKET 		Text_string[558]
-#define TXT_DOS_VERSION_1		Text_string[559]
-#define TXT_DOS_VERSION_2		Text_string[560]
-#define TXT_NOT_ENOUGH_HANDLES 		Text_string[561]
-#define TXT_HANDLES_1			Text_string[562]
-#define TXT_HANDLES_2			Text_string[563]
-#define TXT_HANDLES_3			Text_string[564]
-#define TXT_AVAILABLE_MEMORY		Text_string[565]
-#define TXT_MEMORY_CONFIG 		Text_string[566]
-#define TXT_RECONFIGURE_VMM		Text_string[567]
-#define TXT_MORE_MEMORY			Text_string[568]
-#define TXT_MORE_MEMORY_2		Text_string[569]
-#define TXT_PHYSICAL_MEMORY		Text_string[570]
-#define TXT_PHYSICAL_MEMORY_2		Text_string[571]
-#define TXT_INITIALIZING_DPMI		Text_string[572]
-#define TXT_INITIALIZING_CRIT		Text_string[573]
-#define TXT_IGLASSES			Text_string[574]
-#define TXT_VIOTRACK			Text_string[575]
-#define TXT_KASAN			Text_string[576]
-#define TXT_KASAN_2			Text_string[577]
-#define TXT_3DMAX			Text_string[578]
-#define TXT_PRESS_ANY_KEY3		Text_string[579]
-#define TXT_SOCKET			Text_string[580]
-#define TXT_NOFILECHECK			Text_string[581]
-#define TXT_VERBOSE_1			Text_string[582]
-#define TXT_VERBOSE_2			Text_string[583]
-#define TXT_VERBOSE_3			Text_string[584]
-#define TXT_VERBOSE_4			Text_string[585]
-#define TXT_VERBOSE_5			Text_string[586]
-#define TXT_VERBOSE_6			Text_string[587]
-#define TXT_VERBOSE_7			Text_string[588]
-#define TXT_VERBOSE_8			Text_string[589]
-#define TXT_VERBOSE_9			Text_string[590]
-#define TXT_VERBOSE_10			Text_string[591]
-#define TXT_VERBOSE_11			Text_string[592]
-#define TXT_INITIALIZING_NETWORK 	Text_string[593]
-#define TXT_IPX_CHANNEL			Text_string[594]
-#define TXT_NO_NETWORK			Text_string[595]
-#define TXT_SOCKET_ERROR		Text_string[596]
-#define TXT_MEMORY_IPX			Text_string[597]
-#define TXT_ERROR_IPX			Text_string[598]
-#define TXT_NETWORK_DISABLED		Text_string[599]
-#define TXT_INITIALIZING_GRAPHICS 	Text_string[600]
-#define TXT_SOUND_ERROR_OPEN		Text_string[601]
-#define TXT_SOUND_ERROR_LOCK		Text_string[602]
-#define TXT_SOUND_ERROR_HMI		Text_string[603]
-#define TXT_SOUND_ERROR_LOCK_DRUMS 	Text_string[604]
-#define TXT_SOUND_ERROR_MIDI		Text_string[605]
-#define TXT_SOUND_ERROR_MIDI_CALLBACK 	Text_string[606]
-#define TXT_EXTERNAL_CONTROL		Text_string[607]
-#define TXT_IGLASSES_ERROR_1		Text_string[608]
-#define TXT_IGLASSES_INIT		Text_string[609]
-#define TXT_IGLASSES_ON			Text_string[610]
-#define TXT_PRESS_ESC_TO_ABORT 		Text_string[611]
-#define TXT_SERIAL_FAILURE		Text_string[612]
-#define TXT_MESSAGE			Text_string[613]
-#define TXT_MACRO			Text_string[614]
-#define TXT_ERROR_SERIAL_LOCK		Text_string[615]
-#define TXT_ERROR_SERIAL_LOCK_2		Text_string[616]
-#define TXT_NO_LUNACY			Text_string[617]
-#define TXT_LUNACY			Text_string[618]
-#define TXT_ROBOT_PAINTING_OFF 		Text_string[619]
-#define TXT_ROBOT_PAINTING_ON 		Text_string[620]
+#define TXT_DONE			dxx_gettext(514, "done")
+#define TXT_I_AM_A			dxx_gettext(515, "I am a")
+#define TXT_CHEATER			dxx_gettext(516, "CHEATER!")
+#define TXT_LOADING_DATA		dxx_gettext(517, "Loading Data")
+#define TXT_HELP_ALT_F2			dxx_gettext(518, "ALT-F2\t  Save Game")
+#define TXT_HELP_ALT_F3			dxx_gettext(519, "ALT-F3\t  Load Game")
+#define TXT_ONLY_REGISTERED		dxx_gettext(520, "Only in Registered version!")
+#define TXT_CONCUSSION			dxx_gettext(521, "Concussion")
+#define TXT_HOMING			dxx_gettext(522, "Homing")
+#define TXT_PROXBOMB			dxx_gettext(523, "ProxBomb")
+#define TXT_SMART			dxx_gettext(524, "Smart")
+#define TXT_MEGA			dxx_gettext(525, "Mega")
+#define TXT_NOMISSION4DEMO		dxx_gettext(526, "Mission '%s' not found.\nYou must have this mission\nfile in order to playback\nthis demo.")
+#define TXT_SHOW_IDS			dxx_gettext(527, "All player callsigns on screen")
+#define TXT_DUPLICATE_NAME		dxx_gettext(528, "There is already a game\nin progress with that name")
+#define TXT_ANARCHY_ONLY_MISSION	dxx_gettext(529, "This mission is designated\nAnarchy-only")
+#define TXT_START_NOWAIT		dxx_gettext(530, "Force level start")
+#define TXT_QUITTING_NOW		dxx_gettext(531, "Quitting now means ending the\nentire netgame\n\nAre you sure?")
+#define TXT_MISSION_NOT_FOUND		dxx_gettext(532, "The mission for that netgame\nis not installed on your\nsystem.  Cannot join.")
+#define TXT_MULTI_MISSION		dxx_gettext(533, "Start Multiplayer Game\n\nSelect mission")
+#define TXT_MISSION_ERROR		dxx_gettext(534, "Error loading mission file")
+#define TXT_COM_CUSTOM_SETTINGS		dxx_gettext(535, "Custom (return to set)")
+#define TXT_COM_BASE			dxx_gettext(536, "Base address (in Hex)")
+#define TXT_COM_IRQ			dxx_gettext(537, "IRQ Number")
+#define TXT_RESET_DEFAULTS		dxx_gettext(538, "Reset to Default")
+#define TXT_VALID_IRQS			dxx_gettext(539, "Valid IRQ values are 2-7")
+#define TXT_NO_UART			dxx_gettext(540, "No UART was detected\nat those settings")
+#define TXT_DEF_MACRO_1			dxx_gettext(541, "You will pay dearly for that!")
+#define TXT_DEF_MACRO_2			dxx_gettext(542, "Revenge is mine!!")
+#define TXT_DEF_MACRO_3			dxx_gettext(543, "Man I'm good!")
+#define TXT_DEF_MACRO_4			dxx_gettext(544, "Its almost too easy!")
+#define TXT_MISSION			dxx_gettext(545, "   Mission:")
+#define TXT_VIEWING_DISTANCE		dxx_gettext(546, "+/- Changes viewing distance")
+#define TXT_SECRET_EXIT			dxx_gettext(547, "Alternate exit found!\n\nProceeding to Secret Level!")
+#define TXT_SHOW_ON_MAP			dxx_gettext(548, "Show all players on automap")
+#define TXT_KILLED_BY_ROBOT		dxx_gettext(549, "Killed by a robot")
+#define TXT_BAUD			dxx_gettext(550, "Baud")
+#define TXT_CONSISTENCY_ERROR		dxx_gettext(551, "A consistency error has been\ndetected in your network connection.\nCheck you hardware and re-join")
+#define TXT_PRESS_ANY_KEY2		dxx_gettext(552, "Press any key to continue (Print Screen to save screenshot)")
+#define TXT_DEMO_SAVE_NOSPACE		dxx_gettext(553, "An error occured while writing\ndemo.  Demo is likely corrupted.\nEnter demo name now or\npress ESC to delete demo.")
+#define TXT_CNTRLCEN_INVUL		dxx_gettext(554, "The main reactor is invulnerable for")
+#define TXT_NO_DESTSAT_LVL		dxx_gettext(555, "The level being loaded is not\navailable in Destination Saturn.\nUnable to continue demo playback.\n\nPress any key to continue.")
+#define TXT_REACTOR_LIFE		dxx_gettext(556, "Reactor life")
+#define TXT_MINUTES_ABBREV		dxx_gettext(557, "min")
+#define TXT_CURRENT_IPX_SOCKET 		dxx_gettext(558, "Current IPX Socket is default")
+#define TXT_DOS_VERSION_1		dxx_gettext(559, "This program requires MS-DOS 5.0 or higher.\nYou are using MS-DOS")
+#define TXT_DOS_VERSION_2		dxx_gettext(560, "You can use the -nodoscheck command line\nswitch to override this check, but it\nmay have unpredictable results, namely\nwith DOS file error handling.\n")
+#define TXT_NOT_ENOUGH_HANDLES 		dxx_gettext(561, "Not enough file handles!")
+#define TXT_HANDLES_1			dxx_gettext(562, "of the necessary file handles\nthat Descent requires to execute properly.  You will\nneed to increase the FILES=n line in your config.sys.")
+#define TXT_HANDLES_2			dxx_gettext(563, "If you are running with a clean boot, then you will need\nto create a CONFIG.SYS file in your root directory, with\nthe line FILES=15 in it.  If you need help with this,\ncontact Interplay technical support.")
+#define TXT_HANDLES_3			dxx_gettext(564, "You may also run with the -nofilecheck command line option\nthat will disable this check, but you might get errors\nwhen loading saved games or playing demos.")
+#define TXT_AVAILABLE_MEMORY		dxx_gettext(565, "Available memory")
+#define TXT_MEMORY_CONFIG 		dxx_gettext(566, "more bytes of DOS memory needed!")
+#define TXT_RECONFIGURE_VMM		dxx_gettext(567, "more bytes of virtual memory needed.  Reconfigure VMM.")
+#define TXT_MORE_MEMORY			dxx_gettext(568, "more bytes of extended/expanded memory needed!")
+#define TXT_MORE_MEMORY_2		dxx_gettext(569, "Or else you you need to use virtual memory (See README.TXT)")
+#define TXT_PHYSICAL_MEMORY		dxx_gettext(570, "more bytes of physical memory needed!")
+#define TXT_PHYSICAL_MEMORY_2		dxx_gettext(571, "Check to see that your virtual memory settings allow\nyou to use all of your physical memory (See README.TXT)")
+#define TXT_INITIALIZING_DPMI		dxx_gettext(572, "Initializing DPMI services")
+#define TXT_INITIALIZING_CRIT		dxx_gettext(573, "Initializing critical error handler")
+#define TXT_IGLASSES			dxx_gettext(574, "Enables Virtual I/O Iglasses! stereo display")
+#define TXT_VIOTRACK			dxx_gettext(575, "Enables Iglasses! head tracking via COM port")
+#define TXT_KASAN			dxx_gettext(576, "Enables Kasan's 3dMax stereo display in low res.")
+#define TXT_KASAN_2			dxx_gettext(577, "3DBios must be installed for 3dMax operation.")
+#define TXT_3DMAX			dxx_gettext(578, "Enables Kasan's 3dMax stereo display in high res")
+#define TXT_PRESS_ANY_KEY3		dxx_gettext(579, "Press any key for more options...")
+#define TXT_SOCKET			dxx_gettext(580, "Enables dynamic socket changing")
+#define TXT_NOFILECHECK			dxx_gettext(581, "Disables the file handles check")
+#define TXT_VERBOSE_1			dxx_gettext(582, "Getting settings from DESCENT.CFG...")
+#define TXT_VERBOSE_2			dxx_gettext(583, "Initializing timer system...")
+#define TXT_VERBOSE_3			dxx_gettext(584, "Initializing keyboard handler...")
+#define TXT_VERBOSE_4			dxx_gettext(585, "Initializing mouse handler...")
+#define TXT_VERBOSE_5			dxx_gettext(586, "Mouse support disabled...")
+#define TXT_VERBOSE_6			dxx_gettext(587, "Initializing joystick handler...")
+#define TXT_VERBOSE_7			dxx_gettext(588, "Slow joystick reading enabled...")
+#define TXT_VERBOSE_8			dxx_gettext(589, "Polled joystick reading enabled...")
+#define TXT_VERBOSE_9			dxx_gettext(590, "BIOS joystick reading enabled...")
+#define TXT_VERBOSE_10			dxx_gettext(591, "Joystick support disabled...")
+#define TXT_VERBOSE_11			dxx_gettext(592, "Initializing divide by zero handler...")
+#define TXT_INITIALIZING_NETWORK 	dxx_gettext(593, "Initializing network...")
+#define TXT_IPX_CHANNEL			dxx_gettext(594, "Using IPX network support on channel")
+#define TXT_NO_NETWORK			dxx_gettext(595, "No IPX compatible network found.")
+#define TXT_SOCKET_ERROR		dxx_gettext(596, "Error opening socket")
+#define TXT_MEMORY_IPX			dxx_gettext(597, "Not enough low memory for IPX buffers.")
+#define TXT_ERROR_IPX			dxx_gettext(598, "Error initializing IPX.  Error code:")
+#define TXT_NETWORK_DISABLED		dxx_gettext(599, "Network support disabled...")
+#define TXT_INITIALIZING_GRAPHICS 	dxx_gettext(600, "Initializing graphics system...")
+#define TXT_SOUND_ERROR_OPEN		dxx_gettext(601, "SOUND: Error opening")
+#define TXT_SOUND_ERROR_LOCK		dxx_gettext(602, "SOUND: Error locking down instruments")
+#define TXT_SOUND_ERROR_HMI		dxx_gettext(603, "SOUND: (HMI)")
+#define TXT_SOUND_ERROR_LOCK_DRUMS 	dxx_gettext(604, "SOUND: Error locking down drums")
+#define TXT_SOUND_ERROR_MIDI		dxx_gettext(605, "SOUND: Error locking midi track map!")
+#define TXT_SOUND_ERROR_MIDI_CALLBACK 	dxx_gettext(606, "SOUND: Error locking midi callback function!")
+#define TXT_EXTERNAL_CONTROL		dxx_gettext(607, "Using external control:")
+#define TXT_IGLASSES_ERROR_1		dxx_gettext(608, "Invalid serial port parameter for -itrak!")
+#define TXT_IGLASSES_INIT		dxx_gettext(609, "Initializing i-glasses! head tracking on serial port %d")
+#define TXT_IGLASSES_ON			dxx_gettext(610, "Make sure the glasses are turned on!")
+#define TXT_PRESS_ESC_TO_ABORT 		dxx_gettext(611, "Press ESC to abort")
+#define TXT_SERIAL_FAILURE		dxx_gettext(612, "Failed to open serial port.  Status =")
+#define TXT_MESSAGE			dxx_gettext(613, "Message")
+#define TXT_MACRO			dxx_gettext(614, "Macro")
+#define TXT_ERROR_SERIAL_LOCK		dxx_gettext(615, "Error locking serial interrupt routine!")
+#define TXT_ERROR_SERIAL_LOCK_2		dxx_gettext(616, "Error locking serial port data!")
+#define TXT_NO_LUNACY			dxx_gettext(617, "Robots are normal")
+#define TXT_LUNACY			dxx_gettext(618, "Robots move fast, fire seldom")
+#define TXT_ROBOT_PAINTING_OFF 		dxx_gettext(619, "Robot painting OFF")
+#define TXT_ROBOT_PAINTING_ON 		dxx_gettext(620, "Robot painting with texture %d")
 
 
 #define N_TEXT_STRINGS_MIN				514
