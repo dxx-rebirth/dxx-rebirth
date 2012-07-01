@@ -186,6 +186,25 @@ void scores_fill_struct(stats_info * stats)
 	stats->starting_level = Players[Player_num].starting_level;
 }
 
+static inline const char *get_placement_slot_string(const unsigned position)
+{
+	switch(position)
+	{
+		default:
+			Int3();
+		case 0: return TXT_1ST;
+		case 1: return TXT_2ND;
+		case 2: return TXT_3RD;
+		case 3: return TXT_4TH;
+		case 4: return TXT_5TH;
+		case 5: return TXT_6TH;
+		case 6: return TXT_7TH;
+		case 7: return TXT_8TH;
+		case 8: return TXT_9TH;
+		case 9: return TXT_10TH;
+	}
+}
+
 void scores_maybe_add_player(int abort_flag)
 {
 	char text1[COOL_MESSAGE_LEN+10];
@@ -221,7 +240,7 @@ void scores_maybe_add_player(int abort_flag)
 			if (strlen(scores.cool_saying)<1)
 				sprintf( scores.cool_saying, "No Comment" );
 		} else {
-			nm_messagebox( TXT_HIGH_SCORE, 1, TXT_OK, "%s %s!", TXT_YOU_PLACED, *(&TXT_1ST + position) );
+			nm_messagebox( TXT_HIGH_SCORE, 1, TXT_OK, "%s %s!", TXT_YOU_PLACED, get_placement_slot_string(position));
 		}
 	
 		// move everyone down...
