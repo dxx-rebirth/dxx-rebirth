@@ -20,7 +20,7 @@ COPYRIGHT 1993-1999 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 #include <string.h>
 #include <stdlib.h>
 
-#include "fix.h"
+#include "maths.h"
 #include "vecmat.h"
 #include "gr.h"
 #include "3d.h"

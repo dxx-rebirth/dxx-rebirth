@@ -15,7 +15,7 @@ COPYRIGHT 1993-1999 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 #include <math.h>
 #include <string.h>
 #include "physfsx.h"
-#include "fix.h"
+#include "maths.h"
 #include "pstypes.h"
 #include "gr.h"
 #include "key.h"

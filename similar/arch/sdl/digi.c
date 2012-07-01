@@ -5,7 +5,7 @@
 
 #include "pstypes.h"
 #include "dxxerror.h"
-#include "fix.h"
+#include "maths.h"
 #include "vecmat.h"
 #include "gr.h"
 #include "piggy.h"

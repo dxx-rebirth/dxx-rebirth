@@ -90,7 +90,7 @@ COPYRIGHT 1993-1999 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 #include "ai.h"
 #include "robot.h"
 #include "playsave.h"
-#include "fix.h"
+#include "maths.h"
 #include "hudmsg.h"
 #if defined(DXX_BUILD_DESCENT_II)
 #include "gamepal.h"

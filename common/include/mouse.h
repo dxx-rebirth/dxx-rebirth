@@ -8,7 +8,7 @@
 #define MOUSE_H
 
 #include "pstypes.h"
-#include "fix.h"
+#include "maths.h"
 
 #ifdef __cplusplus
 extern "C" {

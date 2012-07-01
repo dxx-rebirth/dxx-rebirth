@@ -22,7 +22,7 @@ COPYRIGHT 1993-1999 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 
 #include <SDL_keysym.h>
 #include "pstypes.h"
-#include "fix.h"
+#include "maths.h"
 #include "event.h"
 
 #define KEY_BUFFER_SIZE 16

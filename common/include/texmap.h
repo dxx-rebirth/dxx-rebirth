@@ -23,7 +23,7 @@ COPYRIGHT 1993-1998 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 #ifndef _TEXMAP_H
 #define _TEXMAP_H
 
-#include "fix.h"
+#include "maths.h"
 #include "3d.h"
 #include "gr.h"
 

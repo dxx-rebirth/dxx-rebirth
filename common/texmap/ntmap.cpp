@@ -26,7 +26,7 @@ COPYRIGHT 1993-1998 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 #define PERSPECTIVE 1
 
 #include "pstypes.h"
-#include "fix.h"
+#include "maths.h"
 #include "vecmat.h"
 #include "gr.h"
 #include "3d.h"

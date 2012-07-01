@@ -22,7 +22,7 @@ COPYRIGHT 1993-1999 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 #define _GAMESEG_H
 
 #include "pstypes.h"
-#include "fix.h"
+#include "maths.h"
 #include "vecmat.h"
 #include "segment.h"
 

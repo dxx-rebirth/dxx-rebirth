@@ -18,7 +18,7 @@ COPYRIGHT 1993-1999 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 #include <string.h>
 #include <ctype.h>
 
-#include "fix.h"
+#include "maths.h"
 #include "object.h"
 #include "timer.h"
 #include "joy.h"

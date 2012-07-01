@@ -30,7 +30,7 @@
 #include "config.h"
 #include "args.h"
 
-#include "fix.h"
+#include "maths.h"
 #include "gr.h" // needed for piggy.h
 #include "piggy.h"
 

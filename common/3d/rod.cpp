@@ -19,7 +19,7 @@ COPYRIGHT 1993-1998 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 
 #include "3d.h"
 #include "globvars.h"
-#include "fix.h"
+#include "maths.h"
 
 grs_point blob_vertices[4];
 g3s_point rod_points[4];

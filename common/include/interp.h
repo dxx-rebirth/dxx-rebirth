@@ -8,7 +8,7 @@
 #ifndef _INTERP_H
 #define _INTERP_H
 
-#include "fix.h"
+#include "maths.h"
 #include "gr.h"
 #include "3d.h"
 

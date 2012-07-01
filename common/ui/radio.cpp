@@ -19,7 +19,7 @@ COPYRIGHT 1993-1999 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 
 #include <stdlib.h>
 #include <string.h>
-#include "fix.h"
+#include "maths.h"
 #include "pstypes.h"
 #include "event.h"
 #include "gr.h"

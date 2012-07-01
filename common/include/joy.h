@@ -8,7 +8,7 @@
 #define _JOY_H
 
 #include "pstypes.h"
-#include "fix.h"
+#include "maths.h"
 #include <SDL.h>
 
 #ifdef __cplusplus

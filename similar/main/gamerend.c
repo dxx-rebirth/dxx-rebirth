@@ -33,7 +33,7 @@ COPYRIGHT 1993-1999 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 #include "menu.h"
 #include "newmenu.h"
 #include "screens.h"
-#include "fix.h"
+#include "maths.h"
 #include "robot.h"
 #include "game.h"
 #include "gauges.h"

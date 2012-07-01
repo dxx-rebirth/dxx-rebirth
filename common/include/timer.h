@@ -22,7 +22,7 @@ COPYRIGHT 1993-1998 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 #define _TIMER_H
 
 #include "pstypes.h"
-#include "fix.h"
+#include "maths.h"
 
 #ifdef __cplusplus
 extern "C" {

@@ -21,7 +21,7 @@ COPYRIGHT 1993-1999 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 #define _GR_H
 
 #include "pstypes.h"
-#include "fix.h"
+#include "maths.h"
 #include "dxxsconf.h"
 
 #ifdef DXX_BUILD_DESCENT_I

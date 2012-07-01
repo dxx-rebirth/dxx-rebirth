@@ -27,7 +27,7 @@ COPYRIGHT 1993-1998 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 #include "editor/editor.h"
 #include "editor/esegment.h"
 #include "gameseg.h"
-#include "fix.h"
+#include "maths.h"
 #include "dxxerror.h"
 #include "wall.h"
 #include "editor/kdefs.h"

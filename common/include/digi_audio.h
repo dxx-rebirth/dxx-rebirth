@@ -1,7 +1,7 @@
 #ifndef __DIGI_AUDIO__
 #define __DIGI_AUDIO__
 
-#include "fix.h"
+#include "maths.h"
 
 int digi_audio_init();
 void digi_audio_reset();

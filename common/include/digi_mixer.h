@@ -1,7 +1,7 @@
 #ifndef __DIGI_MIXER__
 #define __DIGI_MIXER__
 
-#include "fix.h"
+#include "maths.h"
 
 int digi_mixer_init();
 void digi_mixer_close();

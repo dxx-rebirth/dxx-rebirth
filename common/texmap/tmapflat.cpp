@@ -17,7 +17,7 @@ COPYRIGHT 1993-1998 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
  *
  */
 
-#include "fix.h"
+#include "maths.h"
 #include "vecmat.h"
 #include "gr.h"
 #include "grdef.h"

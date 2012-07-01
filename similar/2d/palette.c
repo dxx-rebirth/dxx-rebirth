@@ -27,7 +27,7 @@ COPYRIGHT 1993-1998 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 #include "gr.h"
 #include "grdef.h"
 #include "dxxerror.h"
-#include "fix.h"
+#include "maths.h"
 #include "palette.h"
 
 extern int gr_installed;

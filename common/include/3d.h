@@ -21,7 +21,7 @@ COPYRIGHT 1993-1998 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 #ifndef _3D_H
 #define _3D_H
 
-#include "fix.h"
+#include "maths.h"
 #include "vecmat.h" //the vector/matrix library
 #include "gr.h"
 

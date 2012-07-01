@@ -16,7 +16,7 @@ COPYRIGHT 1993-1999 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 #include <ctype.h>
 #include "physfsx.h"
 #include "u_mem.h"
-#include "fix.h"
+#include "maths.h"
 #include "pstypes.h"
 #include "gr.h"
 #include "event.h"
