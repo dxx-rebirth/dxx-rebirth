@@ -634,18 +634,71 @@ extern char *Text_string[];
 #define N_TEXT_STRINGS_MIN				514
 #define N_TEXT_STRINGS                  621
 
-// Weapon names.
-#define PRIMARY_WEAPON_NAMES(weapon_num) (*(&TXT_W_LASER + (weapon_num)))
-#define SECONDARY_WEAPON_NAMES(weapon_num) (*(&TXT_W_C_MISSILE + (weapon_num)))
-#define PRIMARY_WEAPON_NAMES_SHORT(weapon_num) (*(&TXT_W_LASER_S + (weapon_num)))
-#define SECONDARY_WEAPON_NAMES_SHORT(weapon_num) (*(&TXT_W_C_MISSILE_S + (weapon_num)))
+#define dxx_text_ensure_simple_expr(E,T)	((void)(E), (Int3()), (T))
 
-// Network connect states
-#define CONNECT_STATES(state_num) (*(&TXT_NET_DISCONNECTED + (state_num)))
-// Network dump strings
-#define NET_DUMP_STRINGS(dump_num) (*(&TXT_NET_GAME_CLOSED + (dump_num)))
-#define MENU_DIFFICULTY_TEXT(difficulty) (*(&TXT_DIFFICULTY_1 + (difficulty)))
-#define MENU_DETAIL_TEXT(detail) (*(&TXT_DETAIL_1 + (detail)))
+#define PRIMARY_WEAPON_NAMES(u)	(	\
+	((u) == LASER_INDEX) ? TXT_W_LASER :	\
+	((u) == VULCAN_INDEX) ? TXT_W_VULCAN :	\
+	((u) == SPREADFIRE_INDEX) ? TXT_W_SPREADFIRE :	\
+	((u) == PLASMA_INDEX) ? TXT_W_PLASMA :	\
+	((u) == FUSION_INDEX) ? TXT_W_FUSION :	\
+	(dxx_text_ensure_simple_expr(&(u), TXT_W_LASER))	\
+	)
+
+#define SECONDARY_WEAPON_NAMES(u)	(	\
+	((u) == CONCUSSION_INDEX) ? TXT_W_C_MISSILE :	\
+	((u) == HOMING_INDEX) ? TXT_W_H_MISSILE :	\
+	((u) == PROXIMITY_INDEX) ? TXT_W_P_BOMB :	\
+	((u) == SMART_INDEX) ? TXT_W_S_MISSILE :	\
+	((u) == MEGA_INDEX) ? TXT_W_M_MISSILE :	\
+	(dxx_text_ensure_simple_expr(&(u), TXT_W_C_MISSILE))	\
+	)
+
+#define PRIMARY_WEAPON_NAMES_SHORT(u)	(	\
+	((u) == LASER_INDEX) ? TXT_W_LASER_S :	\
+	((u) == VULCAN_INDEX) ? TXT_W_VULCAN_S :	\
+	((u) == SPREADFIRE_INDEX) ? TXT_W_SPREADFIRE_S :	\
+	((u) == PLASMA_INDEX) ? TXT_W_PLASMA_S :	\
+	((u) == FUSION_INDEX) ? TXT_W_FUSION_S :	\
+	(dxx_text_ensure_simple_expr(&(u), TXT_W_LASER_S))	\
+	)
+
+#define SECONDARY_WEAPON_NAMES_SHORT(u)	(	\
+	((u) == CONCUSSION_INDEX) ? TXT_W_C_MISSILE_S :	\
+	((u) == HOMING_INDEX) ? TXT_W_H_MISSILE_S :	\
+	((u) == PROXIMITY_INDEX) ? TXT_W_P_BOMB_S :	\
+	((u) == SMART_INDEX) ? TXT_W_S_MISSILE_S :	\
+	((u) == MEGA_INDEX) ? TXT_W_M_MISSILE_S :	\
+	(dxx_text_ensure_simple_expr(&(u), TXT_W_C_MISSILE_S))	\
+	)
+
+#define NET_DUMP_STRINGS(u)	(	\
+	((u) == DUMP_CLOSED) ? TXT_NET_GAME_CLOSED :	\
+	((u) == DUMP_FULL) ? TXT_NET_GAME_FULL	:	\
+	((u) == DUMP_ENDLEVEL) ? TXT_NET_GAME_BETWEEN	:	\
+	((u) == DUMP_DORK) ? TXT_NET_GAME_NSELECT	:	\
+	((u) == DUMP_ABORTED) ? TXT_NET_GAME_NSTART	:	\
+	((u) == DUMP_CONNECTED) ? TXT_NET_GAME_CONNECT	:	\
+	((u) == DUMP_LEVEL) ? TXT_NET_GAME_WRONGLEV	:	\
+	(dxx_text_ensure_simple_expr(&(u), TXT_NET_GAME_CLOSED))	\
+	)
+#define MENU_DIFFICULTY_TEXT(u)	(	\
+	((u) == 0) ? TXT_DIFFICULTY_1	:	\
+	((u) == 1) ? TXT_DIFFICULTY_2	:	\
+	((u) == 2) ? TXT_DIFFICULTY_3	:	\
+	((u) == 3) ? TXT_DIFFICULTY_4	:	\
+	((u) == 4) ? TXT_DIFFICULTY_5	:	\
+		 /* &u is ill-formed when u is a literal number */	\
+	(dxx_text_ensure_simple_expr(NULL, TXT_DIFFICULTY_1))	\
+	)
+#define MENU_DETAIL_TEXT(u)	(	\
+	((u) == 0) ? TXT_DETAIL_1	:	\
+	((u) == 1) ? TXT_DETAIL_2	:	\
+	((u) == 2) ? TXT_DETAIL_3	:	\
+	((u) == 3) ? TXT_DETAIL_4	:	\
+	((u) == 4) ? TXT_DETAIL_5	:	\
+	(dxx_text_ensure_simple_expr(&(u), TXT_DETAIL_1))	\
+	)
 
 void decode_text_line(char *text_line); // decryption for bitmaps.tbl
 void decode_text(char *text, int len);  // decryption for briefings, etc.
