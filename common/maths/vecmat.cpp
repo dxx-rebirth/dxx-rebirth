@@ -198,10 +198,13 @@ fix vm_vec_dot3(fix x,fix y,fix z,const vms_vector *v)
 
 	return fixquadadjust(&q);
 #else
-	long long p =
-		  (long long) x * v->x
-		+ (long long) y * v->y
-		+ (long long) z * v->z;
+	int64_t x0 = x;
+	int64_t x1 = v->x;
+	int64_t y0 = y;
+	int64_t y1 = v->y;
+	int64_t z0 = z;
+	int64_t z1 = v->z;
+	int64_t p = (x0 * x1) + (y0 * y1) + (z0 * z1);
 	/* Convert back to fix and return. */
 	return p >> 16;
 #endif
