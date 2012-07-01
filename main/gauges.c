@@ -980,6 +980,20 @@ void hud_show_energy(void)
 		newdemo_record_player_energy(f2ir(Players[Player_num].energy));
 }
 
+static inline const char *SECONDARY_WEAPON_NAMES_VERY_SHORT(const unsigned u)
+{
+	switch(u)
+	{
+		default:
+			Int3();
+		case CONCUSSION_INDEX:	return TXT_CONCUSSION;
+		case HOMING_INDEX:		return TXT_HOMING;
+		case PROXIMITY_INDEX:	return TXT_PROXBOMB;
+		case SMART_INDEX:		return TXT_SMART;
+		case MEGA_INDEX:		return TXT_MEGA;
+	}
+}
+
 void show_bomb_count(int x,int y,int bg_color,int always_show,int right_align)
 {
 	int bomb,count,w=0,h=0,aw=0;
@@ -1143,18 +1157,8 @@ void hud_show_weapons(void)
 
 		gr_get_string_size(disp_primary_weapon_name, &w, &h, &aw );
 		gr_string(grd_curcanv->cv_bitmap.bm_w-w-FSPACX(1), y-(LINE_SPACING*2), disp_primary_weapon_name);//originally y-8
-		const char *disp_secondary_weapon_name;
 
-		switch (Secondary_weapon) {
-			case 0:		disp_secondary_weapon_name = TXT_CONCUSSION;	break;
-			case 1:		disp_secondary_weapon_name = TXT_HOMING;		break;
-			case 2:		disp_secondary_weapon_name = TXT_PROXBOMB   ;	break;
-			case 3:		disp_secondary_weapon_name = TXT_SMART;		break;
-			case 4:		disp_secondary_weapon_name = TXT_MEGA;		break;
-			default:	Int3();	disp_secondary_weapon_name = "";		break;
-		}
-
-		sprintf(weapon_str, "%s %d",disp_secondary_weapon_name,Players[Player_num].secondary_ammo[Secondary_weapon]);
+		snprintf(weapon_str, sizeof(weapon_str), "%s %d",SECONDARY_WEAPON_NAMES_VERY_SHORT(Secondary_weapon),Players[Player_num].secondary_ammo[Secondary_weapon]);
 		gr_get_string_size(weapon_str, &w, &h, &aw );
 		gr_string(grd_curcanv->cv_bitmap.bm_w-w-FSPACX(1), y-LINE_SPACING, weapon_str);
 
