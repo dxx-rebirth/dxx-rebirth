@@ -595,14 +595,12 @@ int do_powerup(object *obj)
 					used = pick_up_energy();
 			}
 			else {
-				char msg[100];
 				Players[Player_num].flags |= PLAYER_FLAGS_HEADLIGHT;
 #ifdef NETWORK
 				multi_send_play_sound(Powerup_info[obj->id].hit_sound, F1_0);
 #endif
 				digi_play_sample( Powerup_info[obj->id].hit_sound, F1_0 );
-				sprintf(msg,"HEADLIGHT BOOST! (Headlight is %s)",PlayerCfg.HeadlightActiveDefault?"ON":"OFF");
-				powerup_basic(15, 0, 15, 0, msg );
+				powerup_basic(15, 0, 15, 0, "HEADLIGHT BOOST! (Headlight is %s)",PlayerCfg.HeadlightActiveDefault?"ON":"OFF");
 				if (PlayerCfg.HeadlightActiveDefault)
 					Players[Player_num].flags |= PLAYER_FLAGS_HEADLIGHT_ON;
 				used=1;
