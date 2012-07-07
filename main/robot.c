@@ -134,7 +134,7 @@ void calc_gun_point(vms_vector *gun_point,object *obj,int gun_num)
 
 //fills in ptr to list of joints, and returns the number of joints in list
 //takes the robot type (object id), gun number, and desired state
-int robot_get_anim_state(jointpos **jp_list_ptr,int robot_type,int gun_num,int state)
+int robot_get_anim_state(const jointpos **jp_list_ptr,int robot_type,int gun_num,int state)
 {
 
 	Assert(gun_num <= Robot_info[robot_type].n_guns);

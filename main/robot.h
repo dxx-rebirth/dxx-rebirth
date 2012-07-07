@@ -123,7 +123,7 @@ void calc_gun_point(vms_vector *gun_point,struct object *obj,int gun_num);
 //  On exit:
 //      Returns number of joints in list.
 //      jp_list_ptr is stuffed with a pointer to a static array of joint positions.  This pointer is valid forever.
-extern int robot_get_anim_state(jointpos **jp_list_ptr,int robot_type,int gun_num,int state);
+extern int robot_get_anim_state(const jointpos **jp_list_ptr,int robot_type,int gun_num,int state);
 
 /*
  * reads n robot_info structs from a PHYSFS_file
