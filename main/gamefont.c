@@ -21,7 +21,7 @@ COPYRIGHT 1993-1998 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 #include <stdio.h>
 
 #include "gr.h"
-#include "error.h"
+#include "dxxerror.h"
 #include <string.h>
 #include "strutil.h"
 #include "args.h"

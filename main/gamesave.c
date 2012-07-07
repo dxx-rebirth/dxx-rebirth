@@ -31,7 +31,7 @@ COPYRIGHT 1993-1998 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 #include "editor/editor.h"
 #include "editor/eswitch.h"
 #endif
-#include "error.h"
+#include "dxxerror.h"
 #include "object.h"
 #include "game.h"
 #include "screens.h"

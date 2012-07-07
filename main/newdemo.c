@@ -47,7 +47,7 @@ COPYRIGHT 1993-1998 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 #include "polyobj.h"
 #include "fireball.h"
 #include "laser.h"
-#include "error.h"
+#include "dxxerror.h"
 #include "ai.h"
 #include "hostage.h"
 #include "morph.h"

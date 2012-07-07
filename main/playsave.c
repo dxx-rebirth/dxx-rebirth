@@ -23,7 +23,7 @@ COPYRIGHT 1993-1998 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 #include <limits.h>
 #include <ctype.h>
 
-#include "error.h"
+#include "dxxerror.h"
 #include "gameseq.h"
 #include "player.h"
 #include "playsave.h"

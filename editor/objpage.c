@@ -25,7 +25,7 @@ COPYRIGHT 1993-1998 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 #include "gr.h"				// For canves, font stuff
 #include "ui.h"				// For UI_GADGET stuff
 #include "object.h"			// For robot_bms
-#include "error.h"
+#include "dxxerror.h"
 #include "objpage.h"
 #include "bm.h"
 #include "player.h"

@@ -13,7 +13,7 @@ COPYRIGHT 1993-1998 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 #include "3d.h"
 #include "globvars.h"
 #include "clipper.h"
-#include "error.h"
+#include "dxxerror.h"
 
 int free_point_num=0;
 

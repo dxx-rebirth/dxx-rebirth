@@ -26,7 +26,7 @@ COPYRIGHT 1993-1998 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 #include "inferno.h"
 #include "gr.h"
 #include "u_mem.h"
-#include "error.h"
+#include "dxxerror.h"
 #include "sounds.h"
 #include "bm.h"
 #include "hash.h"

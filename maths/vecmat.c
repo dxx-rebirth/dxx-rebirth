@@ -22,7 +22,7 @@ COPYRIGHT 1993-1998 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 
 #include "maths.h"
 #include "vecmat.h"
-#include "error.h"
+#include "dxxerror.h"
 
 //#define USE_ISQRT 1
 

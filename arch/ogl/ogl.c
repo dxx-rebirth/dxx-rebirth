@@ -27,7 +27,7 @@
 #include "3d.h"
 #include "piggy.h"
 #include "../../3d/globvars.h"
-#include "error.h"
+#include "dxxerror.h"
 #include "texmap.h"
 #include "palette.h"
 #include "rle.h"

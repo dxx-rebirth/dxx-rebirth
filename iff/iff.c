@@ -28,7 +28,7 @@ COPYRIGHT 1993-1998 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 
 #include "u_mem.h"
 #include "iff.h"
-#include "error.h"
+#include "dxxerror.h"
 #include "physfsx.h"
 
 //Internal constants and structures for this library

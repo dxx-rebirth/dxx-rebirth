@@ -23,7 +23,7 @@ COPYRIGHT 1993-1998 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 #include "event.h"
 #include "mouse.h"
 #include "window.h"
-#include "error.h"
+#include "dxxerror.h"
 
 #include "key.h"
 

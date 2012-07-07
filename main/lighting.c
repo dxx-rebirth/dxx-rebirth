@@ -25,7 +25,7 @@ COPYRIGHT 1993-1999 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 #include "gr.h"
 #include "inferno.h"
 #include "segment.h"
-#include "error.h"
+#include "dxxerror.h"
 #include "render.h"
 #include "game.h"
 #include "vclip.h"

@@ -30,7 +30,7 @@ COPYRIGHT 1993-1998 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 #include "polyobj.h"
 #include "vecmat.h"
 #include "3d.h"
-#include "error.h"
+#include "dxxerror.h"
 #include "u_mem.h"
 #include "args.h"
 #ifndef DRIVE

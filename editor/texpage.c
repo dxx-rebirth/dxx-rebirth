@@ -29,7 +29,7 @@ COPYRIGHT 1993-1998 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 #include "gr.h"				// For canves, font stuff
 #include "ui.h"				// For UI_GADGET stuff
 #include "textures.h"		// For NumTextures
-#include "error.h"
+#include "dxxerror.h"
 #include "key.h"
 #include "gamesave.h"
 #include "mission.h"

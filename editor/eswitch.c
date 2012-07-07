@@ -26,7 +26,7 @@ COPYRIGHT 1993-1998 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 #include "editor.h"
 #include "eswitch.h"
 #include "segment.h"
-#include "error.h"
+#include "dxxerror.h"
 #include "gameseg.h"
 #include "wall.h"
 #include "medwall.h"

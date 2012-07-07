@@ -23,7 +23,7 @@ COPYRIGHT 1993-1998 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 #include "editor/kdefs.h"
 #include "segment.h"
 #include "editor/editor.h"
-#include "error.h"
+#include "dxxerror.h"
 #include "slew.h"
 #include "gamesave.h"
 #include "editor/eobject.h"

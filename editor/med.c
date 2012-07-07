@@ -42,7 +42,7 @@ COPYRIGHT 1993-1998 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 #include "key.h"
 #include "kconfig.h"
 #include "mouse.h"
-#include "error.h"
+#include "dxxerror.h"
 #include "kfuncs.h"
 #include "macro.h"
 #ifdef INCLUDE_XLISP

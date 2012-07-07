@@ -28,7 +28,7 @@ COPYRIGHT 1993-1998 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 #include "object.h"
 #include "gamemine.h"
 #include "gamesave.h"
-#include "error.h"
+#include "dxxerror.h"
 #include "gameseg.h"
 #include "switch.h"
 #include "game.h"

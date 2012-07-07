@@ -28,7 +28,7 @@ COPYRIGHT 1993-1998 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 #include "wall.h"
 #include "object.h"
 #include "gamemine.h"
-#include "error.h"
+#include "dxxerror.h"
 #include "gameseg.h"
 #include "game.h"
 #include "piggy.h"

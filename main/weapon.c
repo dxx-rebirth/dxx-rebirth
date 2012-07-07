@@ -21,7 +21,7 @@ COPYRIGHT 1993-1998 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 #include "weapon.h"
 #include "player.h"
 #include "gauges.h"
-#include "error.h"
+#include "dxxerror.h"
 #include "sounds.h"
 #include "text.h"
 #include "powerup.h"

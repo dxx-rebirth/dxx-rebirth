@@ -30,7 +30,7 @@ COPYRIGHT 1993-1998 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 #include "editor/editor.h"
 #endif
 #include "segment.h"
-#include "error.h"
+#include "dxxerror.h"
 #include "gameseg.h"
 #include "game.h"
 #include "bm.h"

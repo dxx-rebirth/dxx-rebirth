@@ -27,7 +27,7 @@ COPYRIGHT 1993-1998 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 #include "gr.h"
 #include "bm.h"
 #include "u_mem.h"
-#include "error.h"
+#include "dxxerror.h"
 #include "object.h"
 #include "vclip.h"
 #include "effects.h"

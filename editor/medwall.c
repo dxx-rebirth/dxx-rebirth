@@ -25,7 +25,7 @@ COPYRIGHT 1993-1998 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 #include "inferno.h"
 #include "editor/editor.h"
 #include "segment.h"
-#include "error.h"
+#include "dxxerror.h"
 #include "gameseg.h"
 #include "textures.h"
 #include "screens.h"

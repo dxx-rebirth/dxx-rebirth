@@ -32,7 +32,7 @@
 #include "grdef.h"
 #include "palette.h"
 #include "u_mem.h"
-#include "error.h"
+#include "dxxerror.h"
 #include "inferno.h"
 #include "screens.h"
 #include "strutil.h"

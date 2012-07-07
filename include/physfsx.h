@@ -22,7 +22,7 @@
 #include "pstypes.h"
 #include "strutil.h"
 #include "u_mem.h"
-#include "error.h"
+#include "dxxerror.h"
 #include "vecmat.h"
 #include "args.h"
 #include "ignorecase.h"

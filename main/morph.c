@@ -22,7 +22,7 @@ COPYRIGHT 1993-1998 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 #include <string.h>
 
 #include "texmap.h"
-#include "error.h"
+#include "dxxerror.h"
 #include "inferno.h"
 #include "morph.h"
 #include "polyobj.h"
