@@ -13,7 +13,7 @@
 #include "grdef.h"
 #include "palette.h"
 #include "u_mem.h"
-#include "error.h"
+#include "dxxerror.h"
 #include "vers_id.h"
 #include "gamefont.h"
 #include "args.h"

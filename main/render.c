@@ -23,7 +23,7 @@ COPYRIGHT 1993-1999 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 #include <math.h>
 #include "inferno.h"
 #include "segment.h"
-#include "error.h"
+#include "dxxerror.h"
 #include "bm.h"
 #include "texmap.h"
 #include "render.h"

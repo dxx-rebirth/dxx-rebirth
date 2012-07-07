@@ -28,7 +28,7 @@ COPYRIGHT 1993-1999 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 #include "grdef.h"
 #include "u_mem.h"
 #include "iff.h"
-#include "error.h"
+#include "dxxerror.h"
 #include "sounds.h"
 #include "songs.h"
 #include "bm.h"

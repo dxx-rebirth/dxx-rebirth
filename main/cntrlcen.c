@@ -24,7 +24,7 @@ COPYRIGHT 1993-1999 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 #include <unistd.h>
 #endif
 #include "pstypes.h"
-#include "error.h"
+#include "dxxerror.h"
 #include "inferno.h"
 #include "cntrlcen.h"
 #include "game.h"

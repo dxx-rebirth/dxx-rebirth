@@ -28,7 +28,7 @@ COPYRIGHT 1993-1999 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 
 #include "u_mem.h"
 #include "iff.h"
-#include "error.h"
+#include "dxxerror.h"
 #include "makesig.h"
 #include "physfsx.h"
 

@@ -36,7 +36,7 @@ COPYRIGHT 1993-1999 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 #include "key.h"
 #include "object.h"
 #include "physics.h"
-#include "error.h"
+#include "dxxerror.h"
 #include "joy.h"
 #include "iff.h"
 #include "pcx.h"

@@ -27,7 +27,7 @@ COPYRIGHT 1993-1999 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 #include "game.h"
 #include "multi.h"
 #include "laser.h"
-#include "error.h"
+#include "dxxerror.h"
 #include "timer.h"
 #include "text.h"
 #include "ai.h"

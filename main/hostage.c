@@ -20,7 +20,7 @@ COPYRIGHT 1993-1999 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
-#include "error.h"
+#include "dxxerror.h"
 #include "inferno.h"
 #include "object.h"
 #include "game.h"

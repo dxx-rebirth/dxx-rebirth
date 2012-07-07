@@ -25,7 +25,7 @@ COPYRIGHT 1993-1999 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 #include "vecmat.h"
 #include "gr.h"
 #include "texmap.h"
-#include "error.h"
+#include "dxxerror.h"
 #include "inferno.h"
 #include "morph.h"
 #include "polyobj.h"

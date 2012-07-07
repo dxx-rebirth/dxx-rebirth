@@ -24,7 +24,7 @@ COPYRIGHT 1993-1999 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 #include "physfsx.h"
 #include "pstypes.h"
 #include "u_mem.h"
-#include "error.h"
+#include "dxxerror.h"
 #include "inferno.h"
 #include "text.h"
 #include "args.h"

@@ -19,7 +19,7 @@ COPYRIGHT 1993-1999 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 
 
 #include <stdio.h>
-#include "error.h"
+#include "dxxerror.h"
 #include "inferno.h"
 #include "robot.h"
 #include "object.h"

@@ -18,7 +18,7 @@ COPYRIGHT 1993-1999 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 
 #include "u_mem.h"
 #include "strutil.h"
-#include "error.h"
+#include "dxxerror.h"
 #include "hash.h"
 	
 int hashtable_init( hashtable *ht, int size )	{

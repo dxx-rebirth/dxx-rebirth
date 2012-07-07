@@ -23,7 +23,7 @@
 #include "key.h"
 #include "gauges.h"
 #include "object.h"
-#include "error.h"
+#include "dxxerror.h"
 #include "laser.h"
 #include "gamesave.h"
 #include "gamemine.h"

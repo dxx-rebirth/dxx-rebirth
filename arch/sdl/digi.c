@@ -4,7 +4,7 @@
  */
 
 #include "pstypes.h"
-#include "error.h"
+#include "dxxerror.h"
 #include "fix.h"
 #include "vecmat.h"
 #include "gr.h"

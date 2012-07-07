@@ -31,7 +31,7 @@ COPYRIGHT 1993-1998 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 #include "gr.h"
 #include "ui.h"
 #include "editor.h"
-#include "error.h"
+#include "dxxerror.h"
 #include "textures.h"
 #include "object.h"
 #include "ai.h"

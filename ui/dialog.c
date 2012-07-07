@@ -30,7 +30,7 @@ COPYRIGHT 1993-1999 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 #include "key.h"
 #include "mouse.h"
 #include "timer.h"
-#include "error.h"
+#include "dxxerror.h"
 
 #define D_X             (dlg->x)
 #define D_Y             (dlg->y)

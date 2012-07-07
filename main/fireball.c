@@ -21,7 +21,7 @@ COPYRIGHT 1993-1999 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 #include <stdio.h>
 #include <string.h>
 
-#include "error.h"
+#include "dxxerror.h"
 #include "fix.h"
 #include "vecmat.h"
 #include "gr.h"

@@ -7,7 +7,7 @@
 #include "mouse.h"
 #include "joy.h"
 #include "gr.h"
-#include "error.h"
+#include "dxxerror.h"
 #include "text.h"
 #include "args.h"
 #include "config.h"

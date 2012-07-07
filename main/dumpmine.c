@@ -34,7 +34,7 @@ COPYRIGHT 1993-1999 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 #ifdef EDITOR
 #include "editor/editor.h"
 #endif
-#include "error.h"
+#include "dxxerror.h"
 #include "object.h"
 #include "wall.h"
 #include "gamemine.h"

@@ -32,7 +32,7 @@ COPYRIGHT 1993-1998 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 #include "3d.h"
 #include "mouse.h"
 #include "bm.h"
-#include "error.h"
+#include "dxxerror.h"
 #include "medlisp.h"
 #include "kdefs.h"
 #include "u_mem.h"

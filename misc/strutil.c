@@ -24,7 +24,7 @@ COPYRIGHT 1993-1999 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 #include <stdarg.h>
 
 #include "u_mem.h"
-#include "error.h"
+#include "dxxerror.h"
 #include "strutil.h"
 #include "inferno.h"
 

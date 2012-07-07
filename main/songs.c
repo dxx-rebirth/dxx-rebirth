@@ -22,7 +22,7 @@ COPYRIGHT 1993-1999 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 #include <stdlib.h>
 #include <string.h>
 
-#include "error.h"
+#include "dxxerror.h"
 #include "pstypes.h"
 #include "songs.h"
 #include "digi.h"

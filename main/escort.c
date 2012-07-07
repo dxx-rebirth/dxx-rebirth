@@ -32,7 +32,7 @@ COPYRIGHT 1993-1999 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 #include "timer.h"
 
 #include "object.h"
-#include "error.h"
+#include "dxxerror.h"
 #include "ai.h"
 #include "robot.h"
 #include "fvi.h"

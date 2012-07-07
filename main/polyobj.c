@@ -26,7 +26,7 @@ COPYRIGHT 1993-1999 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 #include "polyobj.h"
 #include "vecmat.h"
 #include "interp.h"
-#include "error.h"
+#include "dxxerror.h"
 #include "u_mem.h"
 #include "args.h"
 #include "byteswap.h"

@@ -27,7 +27,7 @@ COPYRIGHT 1993-1998 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 #include "seguvs.h"
 #include "editor.h"
 #include "fix.h"
-#include "error.h"
+#include "dxxerror.h"
 #include "kdefs.h"
 
 void compute_uv_side_center(uvl *uvcenter, segment *segp, int sidenum);

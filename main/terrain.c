@@ -23,7 +23,7 @@ COPYRIGHT 1993-1999 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 #include <string.h>
 
 #include "3d.h"
-#include "error.h"
+#include "dxxerror.h"
 #include "gr.h"
 #include "texmap.h"
 #include "iff.h"

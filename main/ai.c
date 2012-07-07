@@ -29,7 +29,7 @@ COPYRIGHT 1993-1999 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 
 #include "object.h"
 #include "render.h"
-#include "error.h"
+#include "dxxerror.h"
 #include "ai.h"
 #include "laser.h"
 #include "fvi.h"

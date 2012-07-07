@@ -7,7 +7,7 @@
 #include <string.h>   // for memset
 
 #include "joy.h"
-#include "error.h"
+#include "dxxerror.h"
 #include "timer.h"
 #include "console.h"
 #include "event.h"

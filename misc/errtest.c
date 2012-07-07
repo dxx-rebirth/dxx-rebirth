@@ -3,7 +3,7 @@
 
 #include <stdio.h>
 
-#include "error.h"
+#include "dxxerror.h"
 
 main(int argc,char **argv)
 {

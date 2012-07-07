@@ -30,7 +30,7 @@ COPYRIGHT 1993-1999 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 #include "wall.h"
 #include "object.h"
 #include "gamemine.h"
-#include "error.h"
+#include "dxxerror.h"
 #include "gameseg.h"
 #include "switch.h"
 #include "game.h"

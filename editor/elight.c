@@ -25,7 +25,7 @@ COPYRIGHT 1993-1998 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 #include "wall.h"
 #include "textures.h"
 #include "fix.h"
-#include "error.h"
+#include "dxxerror.h"
 #include "kdefs.h"
 #include "gameseg.h"
 #include "texmap.h"

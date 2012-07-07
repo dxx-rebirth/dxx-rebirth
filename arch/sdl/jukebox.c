@@ -13,7 +13,7 @@
 #include "hudmsg.h"
 #include "songs.h"
 #include "jukebox.h"
-#include "error.h"
+#include "dxxerror.h"
 #include "console.h"
 #include "config.h"
 

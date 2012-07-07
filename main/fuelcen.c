@@ -25,7 +25,7 @@ COPYRIGHT 1993-1999 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 #include "fuelcen.h"
 #include "gameseg.h"
 #include "game.h"		// For FrameTime
-#include "error.h"
+#include "dxxerror.h"
 #include "gauges.h"
 #include "vclip.h"
 #include "fireball.h"

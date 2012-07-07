@@ -22,7 +22,7 @@ COPYRIGHT 1993-1999 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 #include "gr.h"
 #include "grdef.h"
 #include "rle.h"
-#include "error.h"
+#include "dxxerror.h"
 #include "byteswap.h"
 #ifdef OGL
 #include "ogl_init.h"

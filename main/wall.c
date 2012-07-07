@@ -28,7 +28,7 @@ COPYRIGHT 1993-1999 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 #include "switch.h"
 #include "inferno.h"
 #include "segment.h"
-#include "error.h"
+#include "dxxerror.h"
 #include "gameseg.h"
 #include "game.h"
 #include "bm.h"

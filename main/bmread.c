@@ -30,7 +30,7 @@ COPYRIGHT 1993-1999 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 #include "bm.h"
 #include "gamepal.h"
 #include "u_mem.h"
-#include "error.h"
+#include "dxxerror.h"
 #include "object.h"
 #include "vclip.h"
 #include "effects.h"

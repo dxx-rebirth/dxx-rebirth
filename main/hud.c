@@ -19,7 +19,7 @@
 #include "screens.h"
 #include "gauges.h"
 #include "physics.h"
-#include "error.h"
+#include "dxxerror.h"
 #include "menu.h"           // For the font.
 #include "collide.h"
 #include "newdemo.h"

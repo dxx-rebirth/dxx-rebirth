@@ -23,7 +23,7 @@ COPYRIGHT 1993-1999 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 #include <stdarg.h>
 #include <ctype.h>
 
-#include "error.h"
+#include "dxxerror.h"
 #include "pstypes.h"
 #include "gr.h"
 #include "window.h"

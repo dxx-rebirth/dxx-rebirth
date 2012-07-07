@@ -9,7 +9,7 @@
 #include <string.h>
 #include <alsa/asoundlib.h>
 #include <pthread.h>
-#include "error.h"
+#include "dxxerror.h"
 #include "fix.h"
 #include "vecmat.h"
 #include "gr.h" // needed for piggy.h

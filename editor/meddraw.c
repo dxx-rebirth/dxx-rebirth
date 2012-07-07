@@ -32,7 +32,7 @@ COPYRIGHT 1993-1998 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 #include "switch.h"
 #include "key.h"
 #include "mouse.h"
-#include "error.h"
+#include "dxxerror.h"
 #include "medlisp.h"
 #include "u_mem.h"
 #include "render.h"
