@@ -525,7 +525,7 @@ int player_is_visible_from_object(object *objp, vms_vector *pos, fix field_of_vi
 int do_silly_animation(object *objp)
 {
 	int				objnum = objp-Objects;
-	jointpos 		*jp_list;
+	const jointpos 		*jp_list;
 	int				robot_type, gun_num, robot_state, num_joint_positions;
 	polyobj_info	*pobj_info = &objp->rtype.pobj_info;
 	ai_static		*aip = &objp->ctype.ai_info;
@@ -560,7 +560,7 @@ int do_silly_animation(object *objp)
 		for (joint=0; joint<num_joint_positions; joint++) {
 			fix			delta_angle, delta_2;
 			int			jointnum = jp_list[joint].jointnum;
-			vms_angvec	*jp = &jp_list[joint].angles;
+			const vms_angvec	*jp = &jp_list[joint].angles;
 			vms_angvec	*pobjp = &pobj_info->anim_angles[jointnum];
 
 			if (jointnum >= Polygon_models[objp->rtype.pobj_info.model_num].n_models) {
