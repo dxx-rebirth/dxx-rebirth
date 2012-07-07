@@ -217,86 +217,61 @@ static inline int PHYSFSX_writeMatrix(PHYSFS_file *file, vms_matrix *m)
 	return 1;
 }
 
-static inline int PHYSFSX_readInt(PHYSFS_file *file)
-{
-	int i;
-
-	if (!PHYSFS_readSLE32(file, &i))
-	{
-		Error("Error reading int in PHYSFSX_readInt()");
+#define define_read_helper(T,N,F)	\
+	static inline T N(const char *func, const unsigned line, PHYSFS_file *file)	\
+	{	\
+		T i;	\
+		if (!(F)(file, &i))	\
+		{	\
+			(Error)(func, line, "reading " #T " in " #N "() at %lu", (unsigned long)((PHYSFS_tell)(file)));	\
+		}	\
+		return i;	\
 	}
 
-	return i;
-}
-
-static inline short PHYSFSX_readShort(PHYSFS_file *file)
+static inline sbyte PHYSFSX_readS8(PHYSFS_file *file, sbyte *b)
 {
-	int16_t s;
-
-	if (!PHYSFS_readSLE16(file, &s))
-	{
-		Error("Error reading short in PHYSFSX_readShort()");
-	}
-
-	return s;
+	return (PHYSFS_read(file, b, sizeof(*b), 1) == 1);
 }
 
-static inline sbyte PHYSFSX_readByte(PHYSFS_file *file)
+define_read_helper(sbyte, PHYSFSX_readByte, PHYSFSX_readS8);
+#define PHYSFSX_readByte(F)	((PHYSFSX_readByte)(__func__, __LINE__, (F)))
+
+define_read_helper(int, PHYSFSX_readInt, PHYSFS_readSLE32);
+#define PHYSFSX_readInt(F)	((PHYSFSX_readInt)(__func__, __LINE__, (F)))
+
+define_read_helper(int16_t, PHYSFSX_readShort, PHYSFS_readSLE16);
+#define PHYSFSX_readShort(F)	((PHYSFSX_readShort)(__func__, __LINE__, (F)))
+
+define_read_helper(fix, PHYSFSX_readFix, PHYSFS_readSLE32);
+#define PHYSFSX_readFix(F)	((PHYSFSX_readFix)(__func__, __LINE__, (F)))
+
+define_read_helper(fixang, PHYSFSX_readFixAng, PHYSFS_readSLE16);
+#define PHYSFSX_readFixAng(F)	((PHYSFSX_readFixAng)(__func__, __LINE__, (F)))
+
+static inline void PHYSFSX_readVector(const char *func, const unsigned line, vms_vector *v, PHYSFS_file *file)
 {
-	sbyte b;
-
-	if (PHYSFS_read(file, &b, sizeof(b), 1) != 1)
-	{
-		Error("Error reading byte in PHYSFSX_readByte()");
-	}
-
-	return b;
+	v->x = (PHYSFSX_readFix)(func, line, file);
+	v->y = (PHYSFSX_readFix)(func, line, file);
+	v->z = (PHYSFSX_readFix)(func, line, file);
 }
+#define PHYSFSX_readVector(V,F)	((PHYSFSX_readVector(__func__, __LINE__, (V), (F))))
 
-static inline fix PHYSFSX_readFix(PHYSFS_file *file)
+static inline void PHYSFSX_readAngleVec(const char *func, const unsigned line, vms_angvec *v, PHYSFS_file *file)
 {
-	int f;  // a fix is defined as a long for Mac OS 9, and MPW can't convert from (long *) to (int *)
-
-	if (!PHYSFS_readSLE32(file, &f))
-	{
-		Error("Error reading fix in PHYSFSX_readFix()");
-	}
-
-	return f;
+	v->p = (PHYSFSX_readFixAng)(func, line, file);
+	v->b = (PHYSFSX_readFixAng)(func, line, file);
+	v->h = (PHYSFSX_readFixAng)(func, line, file);
 }
+#define PHYSFSX_readAngleVec(V,F)	((PHYSFSX_readAngleVec(__func__, __LINE__, (V), (F))))
 
-static inline fixang PHYSFSX_readFixAng(PHYSFS_file *file)
+static inline void PHYSFSX_readMatrix(const char *func, const unsigned line, vms_matrix *m,PHYSFS_file *file)
 {
-	fixang f;
-
-	if (!PHYSFS_readSLE16(file, &f))
-	{
-		Error("Error reading fixang in PHYSFSX_readFixAng()");
-	}
-
-	return f;
+	(PHYSFSX_readVector)(func, line, &m->rvec,file);
+	(PHYSFSX_readVector)(func, line, &m->uvec,file);
+	(PHYSFSX_readVector)(func, line, &m->fvec,file);
 }
 
-static inline void PHYSFSX_readVector(vms_vector *v, PHYSFS_file *file)
-{
-	v->x = PHYSFSX_readFix(file);
-	v->y = PHYSFSX_readFix(file);
-	v->z = PHYSFSX_readFix(file);
-}
-
-static inline void PHYSFSX_readAngleVec(vms_angvec *v, PHYSFS_file *file)
-{
-	v->p = PHYSFSX_readFixAng(file);
-	v->b = PHYSFSX_readFixAng(file);
-	v->h = PHYSFSX_readFixAng(file);
-}
-
-static inline void PHYSFSX_readMatrix(vms_matrix *m,PHYSFS_file *file)
-{
-	PHYSFSX_readVector(&m->rvec,file);
-	PHYSFSX_readVector(&m->uvec,file);
-	PHYSFSX_readVector(&m->fvec,file);
-}
+#define PHYSFSX_readMatrix(M,F)	((PHYSFSX_readMatrix)(__func__, __LINE__, (M), (F)))
 
 #define PHYSFSX_contfile_init PHYSFSX_addRelToSearchPath
 #define PHYSFSX_contfile_close PHYSFSX_removeRelFromSearchPath
