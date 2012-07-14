@@ -57,7 +57,7 @@ typedef struct {
 	ubyte r,g,b;
 } rgb;
 
-extern rgb player_rgb[];
+extern const rgb player_rgb[];
 
 #define GAUGE_HUD_NUMMODES 4
 
