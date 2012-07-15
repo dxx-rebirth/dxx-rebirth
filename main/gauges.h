@@ -61,7 +61,7 @@ typedef struct {
 	ubyte r,g,b;
 } rgb;
 
-extern rgb player_rgb[];
+extern const rgb player_rgb[];
 
 #define WBU_WEAPON      0       // the weapons display
 #define WBU_MISSILE     1       // the missile view

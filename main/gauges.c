@@ -2249,7 +2249,7 @@ extern int Missile_gun;
 extern int allowed_to_fire_laser(void);
 extern int allowed_to_fire_missile(void);
 
-rgb player_rgb[] = {
+const rgb player_rgb[] = {
 							{15,15,23},
 							{27,0,0},
 							{0,23,0},
@@ -2265,9 +2265,9 @@ typedef struct {
 } xy;
 
 //offsets for reticle parts: high-big  high-sml  low-big  low-sml
-xy cross_offsets[4] = 		{ {-8,-5},	{-4,-2},	{-4,-2}, {-2,-1} };
-xy primary_offsets[4] = 	{ {-30,14}, {-16,6},	{-15,6}, {-8, 2} };
-xy secondary_offsets[4] =	{ {-24,2},	{-12,0}, {-12,1}, {-6,-2} };
+static const xy cross_offsets[4] = 		{ {-8,-5},	{-4,-2},	{-4,-2}, {-2,-1} };
+static const xy primary_offsets[4] = 	{ {-30,14}, {-16,6},	{-15,6}, {-8, 2} };
+static const xy secondary_offsets[4] =	{ {-24,2},	{-12,0}, {-12,1}, {-6,-2} };
 
 //draw the reticle
 void show_reticle(int reticle_type, int secondary_display)
