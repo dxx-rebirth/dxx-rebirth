@@ -170,12 +170,15 @@ extern void reset_time(void);       // called when starting level
 // If automap_flag == 1, then call automap routine to write message.
 extern void save_screen_shot(int automap_flag);
 
+enum cockpit_mode_t
+{
 //valid modes for cockpit
-#define CM_FULL_COCKPIT     0   // normal screen with cockput
-#define CM_REAR_VIEW        1   // looking back with bitmap
-#define CM_STATUS_BAR       2   // small status bar, w/ reticle
-#define CM_FULL_SCREEN      3   // full screen, no cockpit (w/ reticle)
-#define CM_LETTERBOX        4   // half-height window (for cutscenes)
+	CM_FULL_COCKPIT,   // normal screen with cockpit
+	CM_REAR_VIEW,   // looking back with bitmap
+	CM_STATUS_BAR,   // small status bar, w/ reticle
+	CM_FULL_SCREEN,   // full screen, no cockpit (w/ reticle)
+	CM_LETTERBOX   // half-height window (for cutscenes)
+};
 
 extern int Game_window_w,       // width and height of player's game window
            Game_window_h;
@@ -186,7 +189,7 @@ extern int Rear_view;           // if true, looking back.
 void fly_init(struct object *obj);
 
 // selects a given cockpit (or lack of one).
-void select_cockpit(int mode);
+void select_cockpit(cockpit_mode_t mode);
 
 // force cockpit redraw next time. call this if you've trashed the screen
 void reset_cockpit(void);       // called if you've trashed the screen

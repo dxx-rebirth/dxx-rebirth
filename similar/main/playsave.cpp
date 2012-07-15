@@ -359,7 +359,7 @@ static int read_player_dxx(const char *filename)
 					continue;
 #if defined(DXX_BUILD_DESCENT_I)
 				if(!strcmp(line,COCKPIT_MODE_NAME_TEXT))
-					PlayerCfg.CockpitMode[0] = PlayerCfg.CockpitMode[1] = atoi(value);
+					PlayerCfg.CockpitMode[0] = PlayerCfg.CockpitMode[1] = (cockpit_mode_t) atoi(value);
 				else
 #endif
 				if(!strcmp(line,COCKPIT_HUD_NAME_TEXT))
@@ -888,7 +888,7 @@ int read_player_file()
 	PlayerCfg.DefaultDifficulty = PHYSFSX_readByte(file);
 	PlayerCfg.AutoLeveling       = PHYSFSX_readByte(file);
 	PHYSFS_seek(file,PHYSFS_tell(file)+sizeof(sbyte)); // skip ReticleOn
-	PlayerCfg.CockpitMode[0] = PlayerCfg.CockpitMode[1] = PHYSFSX_readByte(file);
+	PlayerCfg.CockpitMode[0] = PlayerCfg.CockpitMode[1] = (cockpit_mode_t)PHYSFSX_readByte(file);
 	PHYSFS_seek(file,PHYSFS_tell(file)+sizeof(sbyte)); //skip Default_display_mode
 	PlayerCfg.MissileViewEnabled      = PHYSFSX_readByte(file);
 	PlayerCfg.HeadlightActiveDefault  = PHYSFSX_readByte(file);
