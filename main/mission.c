@@ -587,7 +587,7 @@ int load_mission(mle *mission)
 	if (!PHYSFSX_exists(Ending_text_filename,1))
 		snprintf(Ending_text_filename, sizeof(Ending_text_filename), "%s.txb",Current_mission_filename);
 
-	while (PHYSFSX_fgets(buf,80,mfile)) {
+	while (PHYSFSX_fgets(buf,sizeof(buf),mfile)) {
 		if (istok(buf,"type"))
 			continue;						//already have name, go to next line
 		else if (istok(buf,"briefing")) {
@@ -658,7 +658,7 @@ int load_mission(mle *mission)
 				}
 
 				for (i=0;i<n_levels;i++) {
-					PHYSFSX_fgets(buf,80,mfile);
+					PHYSFSX_fgets(buf,sizeof(buf),mfile);
 					add_term(buf);
 					if (strlen(buf) <= 12) {
 						strcpy(Level_names[i],buf);
@@ -696,7 +696,7 @@ int load_mission(mle *mission)
 				for (i=0;i<N_secret_levels;i++) {
 					char *t;
 
-					PHYSFSX_fgets(buf,80,mfile);
+					PHYSFSX_fgets(buf,sizeof(buf),mfile);
 					if ((t=strchr(buf,','))!=NULL) *t++=0;
 					else
 						break;

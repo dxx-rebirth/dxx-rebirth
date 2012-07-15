@@ -112,7 +112,7 @@ void songs_init()
 	{
 		while (!PHYSFS_eof(fp))
 		{
-			PHYSFSX_fgets(inputline, 80, fp );
+			PHYSFSX_fgets(inputline, sizeof(inputline), fp );
 			if ( strlen( inputline ) )
 			{
 				BIMSongs = d_realloc(BIMSongs, sizeof(bim_song_info)*(i+1));
