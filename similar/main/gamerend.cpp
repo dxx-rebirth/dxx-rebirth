@@ -413,6 +413,7 @@ static const char *get_missile_name(const unsigned laser_type)
 	}
 }
 
+static void show_one_extra_view(const int w);
 static void show_extra_views()
 {
 	int did_missile_view=0;
@@ -498,6 +499,14 @@ static void show_extra_views()
 		if (w==1 && did_missile_view)
 			continue;		//if showing missile view in right window, can't show anything else
 
+		show_one_extra_view(w);
+	}
+	RenderingType=0;
+	Newdemo_state = save_newdemo_state;
+}
+
+static void show_one_extra_view(const int w)
+{
 		//show special views if selected
 		switch (PlayerCfg.Cockpit3DView[w]) {
 			case CV_NONE:
@@ -554,9 +563,6 @@ static void show_extra_views()
 			default:
 				Int3();		//invalid window type
 		}
-	}
-	RenderingType=0;
-	Newdemo_state = save_newdemo_state;
 }
 
 int BigWindowSwitch=0;
