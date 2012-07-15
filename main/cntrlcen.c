@@ -110,7 +110,7 @@ int Control_center_destroyed = 0;
 fix Countdown_timer=0;
 int Countdown_seconds_left=0, Total_countdown_time=0;		//in whole seconds
 
-int	Alan_pavlish_reactor_times[NDL] = {50, 45, 40, 35, 30};
+static const int	Alan_pavlish_reactor_times[NDL] = {50, 45, 40, 35, 30};
 
 //	-----------------------------------------------------------------------------
 //	Called every frame.  If control center been destroyed, then actually do something.
