@@ -1019,7 +1019,7 @@ int read_player_file()
 
 	//read guidebot name
 	if (player_file_version >= 18)
-		PHYSFSX_readString(file, PlayerCfg.GuidebotName);
+		PHYSFSX_fgets(PlayerCfg.GuidebotName, file);
 	else
 		strcpy(PlayerCfg.GuidebotName,"GUIDE-BOT");
 
@@ -1029,7 +1029,7 @@ int read_player_file()
 		char buf[128];
 
 		if (player_file_version >= 24) 
-			PHYSFSX_readString(file, buf);			// Just read it in fpr DPS.
+			PHYSFSX_fgets(buf, file);			// Just read it in fpr DPS.
 	}
 #endif
 
@@ -1321,7 +1321,7 @@ void read_netgame_profile(netgame_info *ng)
 	while (!PHYSFS_eof(file))
 	{
 		memset(line, 0, 50);
-		PHYSFSX_gets(file, line);
+		PHYSFSX_fgets(line, file);
 		ptr = &(line[0]);
 		while (isspace(*ptr))
 			ptr++;
