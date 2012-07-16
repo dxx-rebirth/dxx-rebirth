@@ -27,7 +27,7 @@ void event_poll()
 	
 	// If the front window changes, exit this loop, otherwise unintended behavior can occur
 	// like pressing 'Return' really fast at 'Difficulty Level' causing multiple games to be started
-	while ((wind == window_get_front()) && SDL_PollEvent(&event))
+	while ((wind == window_get_front()) && (memset(&event, 0, sizeof(event)), SDL_PollEvent(&event)))
 	{
 		switch(event.type) {
 			case SDL_KEYDOWN:
