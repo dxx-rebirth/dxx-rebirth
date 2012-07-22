@@ -410,12 +410,12 @@ void draw_item( newmenu_item *item, int is_current, int tiny, int tabs_flag, int
 	}
 }
 
-char *Newmenu_allowed_chars=NULL;
+const char *Newmenu_allowed_chars=NULL;
 
 //returns true if char is allowed
 int char_allowed(char c)
 {
-	char *p = Newmenu_allowed_chars;
+	const char *p = Newmenu_allowed_chars;
 
 	if (!p)
 		return 1;

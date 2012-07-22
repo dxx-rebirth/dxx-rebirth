@@ -69,15 +69,15 @@ ubyte ExtYVibrateClear=0;
 #define TABLE_CREATION 1
 
 // Array used to 'blink' the cursor while waiting for a keypress.
-sbyte fades[64] = { 1,1,1,2,2,3,4,4,5,6,8,9,10,12,13,15,16,17,19,20,22,23,24,26,27,28,28,29,30,30,31,31,31,31,31,30,30,29,28,28,27,26,24,23,22,20,19,17,16,15,13,12,10,9,8,6,5,4,4,3,2,2,1,1 };
+static const sbyte fades[64] = { 1,1,1,2,2,3,4,4,5,6,8,9,10,12,13,15,16,17,19,20,22,23,24,26,27,28,28,29,30,30,31,31,31,31,31,30,30,29,28,28,27,26,24,23,22,20,19,17,16,15,13,12,10,9,8,6,5,4,4,3,2,2,1,1 };
 
-char *invert_text[2] = { "N", "Y" };
+static const char invert_text[2][2] = { "N", "Y" };
 char *joybutton_text[JOY_MAX_BUTTONS];
 char *joyaxis_text[JOY_MAX_AXES];
-char *mouseaxis_text[3] = { "L/R", "F/B", "WHEEL" };
-char *mousebutton_text[16] = { "LEFT", "RIGHT", "MID", "M4", "M5", "M6", "M7", "M8", "M9", "M10","M11","M12","M13","M14","M15","M16" };
+static const char mouseaxis_text[][8] = { "L/R", "F/B", "WHEEL" };
+static const char mousebutton_text[][8] = { "LEFT", "RIGHT", "MID", "M4", "M5", "M6", "M7", "M8", "M9", "M10","M11","M12","M13","M14","M15","M16" };
 
-ubyte system_keys[19] = { KEY_ESC, KEY_F1, KEY_F2, KEY_F3, KEY_F4, KEY_F5, KEY_F6, KEY_F7, KEY_F8, KEY_F9, KEY_F10, KEY_F11, KEY_F12, KEY_MINUS, KEY_EQUAL, KEY_PRINT_SCREEN, KEY_CAPSLOCK, KEY_SCROLLOCK, KEY_NUMLOCK }; // KEY_*LOCK should always be last since we wanna skip these if -nostickykeys
+static const ubyte system_keys[19] = { KEY_ESC, KEY_F1, KEY_F2, KEY_F3, KEY_F4, KEY_F5, KEY_F6, KEY_F7, KEY_F8, KEY_F9, KEY_F10, KEY_F11, KEY_F12, KEY_MINUS, KEY_EQUAL, KEY_PRINT_SCREEN, KEY_CAPSLOCK, KEY_SCROLLOCK, KEY_NUMLOCK }; // KEY_*LOCK should always be last since we wanna skip these if -nostickykeys
 
 extern void CyclePrimary(),CycleSecondary(),InitMarkerInput();
 extern ubyte DefiningMarkerMessage;
@@ -98,30 +98,31 @@ fix Cruise_speed=0;
 #define STATE_BIT4		8
 #define STATE_BIT5		16
 
-char *btype_text[] = { "BT_KEY", "BT_MOUSE_BUTTON", "BT_MOUSE_AXIS", "BT_JOY_BUTTON", "BT_JOY_AXIS", "BT_INVERT" };
-
 #define INFO_Y (188)
 
 typedef struct kc_item {
-	short id;				// The id of this item
-	short x, y;              // x, y pos of label
-	short w1;                // x pos of input field
-	short w2;                // length of input field
+	const short id;				// The id of this item
+	const short x, y;              // x, y pos of label
+	const short w1;                // x pos of input field
+	const short w2;                // length of input field
+#ifndef TABLE_CREATION
+	const
+#endif
 	short u,d,l,r;           // neighboring field ids for cursor navigation
         //short text_num1;
-        char *text;
-	ubyte type;
+        const char *const text;
+	const ubyte type;
 	ubyte value;		// what key,button,etc
-	ubyte *ci_state_ptr;
-	int state_bit;
-	ubyte *ci_count_ptr;
+	ubyte *const ci_state_ptr;
+	const int state_bit;
+	ubyte *const ci_count_ptr;
 } kc_item;
 
 typedef struct kc_menu
 {
 	window	*wind;
 	kc_item	*items;
-	char	*title;
+	const char	*title;
 	int	nitems;
 	int	citem;
 	int	old_jaxis[JOY_MAX_AXES];
@@ -131,12 +132,12 @@ typedef struct kc_menu
 	ubyte	mouse_state;
 } kc_menu;
 
-ubyte DefaultKeySettings[3][MAX_CONTROLS] = {
+const ubyte DefaultKeySettings[3][MAX_CONTROLS] = {
 {0xc8,0x48,0xd0,0x50,0xcb,0x4b,0xcd,0x4d,0x38,0xff,0xff,0x4f,0xff,0x51,0xff,0x4a,0xff,0x4e,0xff,0xff,0x10,0x47,0x12,0x49,0x1d,0x9d,0x39,0xff,0x21,0xff,0x1e,0xff,0x2c,0xff,0x30,0xff,0x13,0xff,0xff,0xff,0xff,0xff,0xff,0xff,0xf,0xff,0x1f,0xff,0x33,0xff,0x34,0xff,0x23,0xff,0x14,0xff,0xff,0xff,0x0,0x0},
 {0x0,0x1,0xff,0xff,0xff,0xff,0xff,0xff,0xff,0xff,0xff,0xff,0xff,0x1,0x0,0x0,0x0,0xff,0x0,0xff,0x0,0xff,0x0,0xff,0x0,0xff,0xff,0xff,0xff,0xff,0xff,0xff,0xff,0xff,0xff,0xff,0xff,0xff,0xff,0xff,0xff,0xff,0xff,0xff,0xff,0xff,0xff,0xff,0xff,0xff,0xff,0xff,0xff,0xff,0xff,0xff,0x0,0x0,0x0,0x0},
 {0x0,0x1,0xff,0xff,0xff,0xff,0xff,0xff,0xff,0xff,0xff,0xff,0xff,0x1,0x0,0x0,0x0,0xff,0x0,0xff,0x0,0xff,0x0,0xff,0x0,0xff,0xff,0xff,0xff,0xff,0xff,0xff,0xff,0xff,0xff,0xff,0xff,0xff,0xff,0xff,0xff,0xff,0xff,0xff,0xff,0xff,0xff,0xff,0xff,0xff,0xff,0xff,0xff,0xff,0xff,0x0,0x0,0x0,0x0,0x0},
 };
-ubyte DefaultKeySettingsD2X[MAX_D2X_CONTROLS] = { 0x2,0xff,0xff,0x3,0xff,0xff,0x4,0xff,0xff,0x5,0xff,0xff,0x6,0xff,0xff,0x7,0xff,0xff,0x8,0xff,0xff,0x9,0xff,0xff,0xa,0xff,0xff,0xb,0xff,0xff };
+const ubyte DefaultKeySettingsD2X[MAX_D2X_CONTROLS] = { 0x2,0xff,0xff,0x3,0xff,0xff,0x4,0xff,0xff,0x5,0xff,0xff,0x6,0xff,0xff,0x7,0xff,0xff,0x8,0xff,0xff,0x9,0xff,0xff,0xa,0xff,0xff,0xb,0xff,0xff };
 
 //	  id,  x,  y, w1, w2,  u,  d,   l, r,     text,   type, value
 kc_item kc_keyboard[NUM_KEY_CONTROLS] = {
@@ -728,6 +729,7 @@ int kconfig_key_command(window *wind, d_event *event, kc_menu *menu)
 			return 1;
 #ifdef TABLE_CREATION
 		case KEY_F12:	{
+			static const char *const btype_text[] = { "BT_KEY", "BT_MOUSE_BUTTON", "BT_MOUSE_AXIS", "BT_JOY_BUTTON", "BT_JOY_AXIS", "BT_INVERT" };
 				PHYSFS_file * fp;
 				for (i=0; i<NUM_KEY_CONTROLS; i++ )	{
 					kc_keyboard[i].u = find_next_item_up( kc_keyboard,NUM_KEY_CONTROLS, i);
@@ -755,7 +757,7 @@ int kconfig_key_command(window *wind, d_event *event, kc_menu *menu)
 				}
 				fp = PHYSFSX_openWriteBuffered( "kconfig.cod" );
 				
-				PHYSFSX_printf( fp, "ubyte DefaultKeySettings[3][MAX_CONTROLS] = {\n" );
+				PHYSFSX_printf( fp, "const ubyte DefaultKeySettings[3][MAX_CONTROLS] = {\n" );
 				for (i=0; i<3; i++ )	{
 					int j;
 					PHYSFSX_printf( fp, "{0x%2x", PlayerCfg.KeySettings[i][0] );

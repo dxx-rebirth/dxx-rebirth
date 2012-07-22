@@ -152,7 +152,7 @@ bool g3_check_normal_facing(vms_vector *v,vms_vector *norm);
 g3s_codes g3_check_codes(int nv,g3s_point **pointlist);
 
 //rotates a point. returns codes.  does not check if already rotated
-ubyte g3_rotate_point(g3s_point *dest,vms_vector *src);
+ubyte g3_rotate_point(g3s_point *dest,const vms_vector *src);
 
 //projects a point
 void g3_project_point(g3s_point *point);

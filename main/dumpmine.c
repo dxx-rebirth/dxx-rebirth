@@ -58,7 +58,7 @@ COPYRIGHT 1993-1999 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 extern ubyte bogus_data[64*64];
 
 void dump_used_textures_level(PHYSFS_file *my_file, int level_num);
-void say_totals(PHYSFS_file *my_file, char *level_name);
+static void say_totals(PHYSFS_file *my_file, const char *level_name);
 
 // ----------------------------------------------------------------------------
 char	*object_types(int objnum)
@@ -698,7 +698,7 @@ void write_game_text_file(char *filename)
 #define	NUM_ADAM_LEVELS	30
 
 //	Adam: Stick the names here.
-char *Adam_level_names[NUM_ADAM_LEVELS] = {
+static const char *const Adam_level_names[NUM_ADAM_LEVELS] = {
 	"D2LEVA-1.LVL",
 	"D2LEVA-2.LVL",
 	"D2LEVA-3.LVL",
@@ -893,7 +893,7 @@ void say_used_tmaps(PHYSFS_file *my_file, int *tb)
 void say_used_once_tmaps(PHYSFS_file *my_file, int *tb, sbyte *tb_lnum)
 {
 	int	i;
-	char	*level_name;
+	const char	*level_name;
 
 	for (i=0; i<MAX_BITMAP_FILES; i++)
 		if (tb[i] == 1) {
@@ -936,7 +936,7 @@ void say_unused_walls(PHYSFS_file *my_file, int *tb)
 }
 
 // ----------------------------------------------------------------------------
-void say_totals(PHYSFS_file *my_file, char *level_name)
+static void say_totals(PHYSFS_file *my_file, const char *level_name)
 {
 	int	i;		//, objnum;
 	int	total_robots = 0;

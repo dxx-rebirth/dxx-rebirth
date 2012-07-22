@@ -67,7 +67,7 @@ void say_escort_goal(int goal_num);
 void show_escort_menu(char *msg);
 
 
-char *Escort_goal_text[MAX_ESCORT_GOALS] = {
+static const char *const Escort_goal_text[MAX_ESCORT_GOALS] = {
 	"BLUE KEY",
 	"YELLOW KEY",
 	"RED KEY",

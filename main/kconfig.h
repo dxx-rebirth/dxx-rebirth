@@ -58,8 +58,8 @@ extern control_info Controls;
 extern void kconfig_read_controls(d_event *event, int automap_flag);
 extern void kconfig(int n, char *title);
 
-extern ubyte DefaultKeySettingsD2X[MAX_D2X_CONTROLS];
-extern ubyte DefaultKeySettings[3][MAX_CONTROLS];
+extern const ubyte DefaultKeySettingsD2X[MAX_D2X_CONTROLS];
+extern const ubyte DefaultKeySettings[3][MAX_CONTROLS];
 
 extern void kc_set_controls();
 

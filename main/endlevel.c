@@ -113,9 +113,9 @@ void start_endlevel_flythrough(int n,object *obj,fix speed);
 void start_rendered_endlevel_sequence();
 
 #ifdef D2_OEM
-char movie_table[] =	{	'a','a','a','a','d','d','d','d' };
+static const char movie_table[] =	{	'a','a','a','a','d','d','d','d' };
 #else
-char movie_table[] =	{	'a','b','c',
+static const char movie_table[] =	{	'a','b','c',
 						#ifndef SHAREWARE
 							'a',
 							'd','f','d','f',
@@ -131,9 +131,9 @@ char movie_table[] =	{	'a','b','c',
 
 #ifndef SHAREWARE
 #ifdef D2_OEM
-char movie_table_secret[] = {'a','d'};
+static const char movie_table_secret[] = {'a','d'};
 #else
-char movie_table_secret[] = {'a','d','g','j','m','p'};
+static const char movie_table_secret[] = {'a','d','g','j','m','p'};
 #endif
 #define N_MOVIES_SECRET (sizeof(movie_table_secret) / sizeof(*movie_table_secret))
 #else

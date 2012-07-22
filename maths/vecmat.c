@@ -33,7 +33,7 @@ vms_matrix vmd_identity_matrix = { { f1_0, 0, 0 },
 
 //adds two vectors, fills in dest, returns ptr to dest
 //ok for dest to equal either source, but should use vm_vec_add2() if so
-vms_vector *vm_vec_add(vms_vector *dest,vms_vector *src0,vms_vector *src1)
+vms_vector *vm_vec_add(vms_vector *dest,const vms_vector *src0,const vms_vector *src1)
 {
 	dest->x = src0->x + src1->x;
 	dest->y = src0->y + src1->y;
@@ -45,7 +45,7 @@ vms_vector *vm_vec_add(vms_vector *dest,vms_vector *src0,vms_vector *src1)
 
 //subs two vectors, fills in dest, returns ptr to dest
 //ok for dest to equal either source, but should use vm_vec_sub2() if so
-vms_vector *vm_vec_sub(vms_vector *dest,vms_vector *src0,vms_vector *src1)
+vms_vector *vm_vec_sub(vms_vector *dest,const vms_vector *src0,const vms_vector *src1)
 {
 	dest->x = src0->x - src1->x;
 	dest->y = src0->y - src1->y;
@@ -56,7 +56,7 @@ vms_vector *vm_vec_sub(vms_vector *dest,vms_vector *src0,vms_vector *src1)
 
 //adds one vector to another. returns ptr to dest
 //dest can equal source
-vms_vector *vm_vec_add2(vms_vector *dest,vms_vector *src)
+vms_vector *vm_vec_add2(vms_vector *dest,const vms_vector *src)
 {
 	dest->x += src->x;
 	dest->y += src->y;
@@ -67,7 +67,7 @@ vms_vector *vm_vec_add2(vms_vector *dest,vms_vector *src)
 
 //subs one vector from another, returns ptr to dest
 //dest can equal source
-vms_vector *vm_vec_sub2(vms_vector *dest,vms_vector *src)
+vms_vector *vm_vec_sub2(vms_vector *dest,const vms_vector *src)
 {
 	dest->x -= src->x;
 	dest->y -= src->y;
@@ -78,7 +78,7 @@ vms_vector *vm_vec_sub2(vms_vector *dest,vms_vector *src)
 
 //averages two vectors. returns ptr to dest
 //dest can equal either source
-vms_vector *vm_vec_avg(vms_vector *dest,vms_vector *src0,vms_vector *src1)
+vms_vector *vm_vec_avg(vms_vector *dest,const vms_vector *src0,const vms_vector *src1)
 {
 	dest->x = (src0->x + src1->x)/2;
 	dest->y = (src0->y + src1->y)/2;
@@ -90,7 +90,7 @@ vms_vector *vm_vec_avg(vms_vector *dest,vms_vector *src0,vms_vector *src1)
 
 //averages four vectors. returns ptr to dest
 //dest can equal any source
-vms_vector *vm_vec_avg4(vms_vector *dest,vms_vector *src0,vms_vector *src1,vms_vector *src2,vms_vector *src3)
+vms_vector *vm_vec_avg4(vms_vector *dest,const vms_vector *src0,const vms_vector *src1,const vms_vector *src2,const vms_vector *src3)
 {
 	dest->x = (src0->x + src1->x + src2->x + src3->x)/4;
 	dest->y = (src0->y + src1->y + src2->y + src3->y)/4;
@@ -111,7 +111,7 @@ vms_vector *vm_vec_scale(vms_vector *dest,fix s)
 }
 
 //scales and copies a vector.  returns ptr to dest
-vms_vector *vm_vec_copy_scale(vms_vector *dest,vms_vector *src,fix s)
+vms_vector *vm_vec_copy_scale(vms_vector *dest,const vms_vector *src,fix s)
 {
 	dest->x = fixmul(src->x,s);
 	dest->y = fixmul(src->y,s);
@@ -122,7 +122,7 @@ vms_vector *vm_vec_copy_scale(vms_vector *dest,vms_vector *src,fix s)
 
 //scales a vector, adds it to another, and stores in a 3rd vector
 //dest = src1 + k * src2
-vms_vector *vm_vec_scale_add(vms_vector *dest,vms_vector *src1,vms_vector *src2,fix k)
+vms_vector *vm_vec_scale_add(vms_vector *dest,const vms_vector *src1,const vms_vector *src2,fix k)
 {
 	dest->x = src1->x + fixmul(src2->x,k);
 	dest->y = src1->y + fixmul(src2->y,k);
@@ -133,7 +133,7 @@ vms_vector *vm_vec_scale_add(vms_vector *dest,vms_vector *src1,vms_vector *src2,
 
 //scales a vector and adds it to another
 //dest += k * src
-vms_vector *vm_vec_scale_add2(vms_vector *dest,vms_vector *src,fix k)
+vms_vector *vm_vec_scale_add2(vms_vector *dest,const vms_vector *src,fix k)
 {
 	dest->x += fixmul(src->x,k);
 	dest->y += fixmul(src->y,k);
@@ -161,7 +161,7 @@ vms_vector *vm_vec_scale2(vms_vector *dest,fix n,fix d)
 	return dest;
 }
 
-fix vm_vec_dotprod(vms_vector *v0,vms_vector *v1)
+fix vm_vec_dotprod(const vms_vector *v0,const vms_vector *v1)
 {
 #if 0
 	quadint q;
@@ -747,7 +747,7 @@ bad_vector2:
 
 //rotates a vector through a matrix. returns ptr to dest vector
 //dest CANNOT equal source
-vms_vector *vm_vec_rotate(vms_vector *dest,vms_vector *src,vms_matrix *m)
+vms_vector *vm_vec_rotate(vms_vector *dest,const vms_vector *src,const vms_matrix *m)
 {
 	Assert(dest != src);
 

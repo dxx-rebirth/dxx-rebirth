@@ -71,9 +71,11 @@ void teleport_boss(object *objp);
 int boss_fits_in_seg(object *boss_objp, int segnum);
 
 
-int     Flinch_scale = 4;
-int     Attack_scale = 24;
-sbyte   Mike_to_matt_xlate[] = {AS_REST, AS_REST, AS_ALERT, AS_ALERT, AS_FLINCH, AS_FIRE, AS_RECOIL, AS_REST};
+enum {
+	Flinch_scale = 4,
+	Attack_scale = 24,
+};
+static const sbyte   Mike_to_matt_xlate[] = {AS_REST, AS_REST, AS_ALERT, AS_ALERT, AS_FLINCH, AS_FIRE, AS_RECOIL, AS_REST};
 
 //	Amount of time since the current robot was last processed for things such as movement.
 //	It is not valid to use FrameTime because robots do not get moved every frame.

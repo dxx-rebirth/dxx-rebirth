@@ -3501,7 +3501,7 @@ try_again:
 int newdemo_count_demos()
 {
 	char **find, **i;
-	char *types[] = { DEMO_EXT, NULL };
+	static const char *const types[] = { DEMO_EXT, NULL };
 	int NumFiles=0;
 
 	find = PHYSFSX_findFiles(DEMO_DIR, types);
@@ -3530,7 +3530,7 @@ void newdemo_start_playback(char * filename)
 	{
 		// Randomly pick a filename
 		int NumFiles = 0, RandFileNum;
-		char *types[] = { DEMO_EXT, NULL };
+		static const char *const types[] = { DEMO_EXT, NULL };
 
 		rnd_demo = 1;
 		NumFiles = newdemo_count_demos();

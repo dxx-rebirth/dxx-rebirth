@@ -98,13 +98,13 @@ sbyte           Boss_dying, Boss_dying_sound_playing, unused123, unused234;
 
 // -- ubyte Boss_cloaks[NUM_D2_BOSSES]              = {1,1,1,1,1,1};      // Set byte if this boss can cloak
 
-ubyte Boss_teleports[NUM_D2_BOSSES]           = {1,1,1,1,1,1, 1,1}; // Set byte if this boss can teleport
-ubyte Boss_spew_more[NUM_D2_BOSSES]           = {0,1,0,0,0,0, 0,0}; // If set, 50% of time, spew two bots.
-ubyte Boss_spews_bots_energy[NUM_D2_BOSSES]   = {1,1,0,1,0,1, 1,1}; // Set byte if boss spews bots when hit by energy weapon.
-ubyte Boss_spews_bots_matter[NUM_D2_BOSSES]   = {0,0,1,1,1,1, 0,1}; // Set byte if boss spews bots when hit by matter weapon.
-ubyte Boss_invulnerable_energy[NUM_D2_BOSSES] = {0,0,1,1,0,0, 0,0}; // Set byte if boss is invulnerable to energy weapons.
-ubyte Boss_invulnerable_matter[NUM_D2_BOSSES] = {0,0,0,0,1,1, 1,0}; // Set byte if boss is invulnerable to matter weapons.
-ubyte Boss_invulnerable_spot[NUM_D2_BOSSES]   = {0,0,0,0,0,1, 0,1}; // Set byte if boss is invulnerable in all but a certain spot.  (Dot product fvec|vec_to_collision < BOSS_INVULNERABLE_DOT)
+const ubyte Boss_teleports[NUM_D2_BOSSES]           = {1,1,1,1,1,1, 1,1}; // Set byte if this boss can teleport
+const ubyte Boss_spew_more[NUM_D2_BOSSES]           = {0,1,0,0,0,0, 0,0}; // If set, 50% of time, spew two bots.
+const ubyte Boss_spews_bots_energy[NUM_D2_BOSSES]   = {1,1,0,1,0,1, 1,1}; // Set byte if boss spews bots when hit by energy weapon.
+const ubyte Boss_spews_bots_matter[NUM_D2_BOSSES]   = {0,0,1,1,1,1, 0,1}; // Set byte if boss spews bots when hit by matter weapon.
+const ubyte Boss_invulnerable_energy[NUM_D2_BOSSES] = {0,0,1,1,0,0, 0,0}; // Set byte if boss is invulnerable to energy weapons.
+const ubyte Boss_invulnerable_matter[NUM_D2_BOSSES] = {0,0,0,0,1,1, 1,0}; // Set byte if boss is invulnerable to matter weapons.
+const ubyte Boss_invulnerable_spot[NUM_D2_BOSSES]   = {0,0,0,0,0,1, 0,1}; // Set byte if boss is invulnerable in all but a certain spot.  (Dot product fvec|vec_to_collision < BOSS_INVULNERABLE_DOT)
 
 int ai_evaded=0;
 
@@ -131,7 +131,7 @@ int             Believed_player_seg;
 
 #ifndef NDEBUG
 // Index into this array with ailp->mode
-char *mode_text[18] = {
+static const char mode_text[18][16] = {
 	"STILL",
 	"WANDER",
 	"FOL_PATH",
@@ -153,7 +153,7 @@ char *mode_text[18] = {
 };
 
 //	Index into this array with aip->behavior
-char behavior_text[6][9] = {
+static const char behavior_text[6][9] = {
 	"STILL   ",
 	"NORMAL  ",
 	"HIDE    ",
@@ -163,7 +163,7 @@ char behavior_text[6][9] = {
 };
 
 // Index into this array with aip->GOAL_STATE or aip->CURRENT_STATE
-char state_text[8][5] = {
+static const char state_text[8][5] = {
 	"NONE",
 	"REST",
 	"SRCH",
@@ -184,7 +184,7 @@ char state_text[8][5] = {
 // Third dimension is goal state.
 // Result is new goal state.
 // ERR_ means something impossible has happened.
-sbyte Ai_transition_table[AI_MAX_EVENT][AI_MAX_STATE][AI_MAX_STATE] = {
+static const sbyte Ai_transition_table[AI_MAX_EVENT][AI_MAX_STATE][AI_MAX_STATE] = {
 	{
 		// Event = AIE_FIRE, a nearby object fired
 		// none     rest      srch      lock      flin      fire      reco        // CURRENT is rows, GOAL is columns

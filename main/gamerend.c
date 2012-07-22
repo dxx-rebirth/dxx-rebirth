@@ -499,7 +499,7 @@ extern object DemoRightExtra,DemoLeftExtra;
 
 char DemoWBUType[]={0,WBU_GUIDED,WBU_MISSILE,WBU_REAR,WBU_ESCORT,WBU_MARKER,0};
 char DemoRearCheck[]={0,0,0,1,0,0,0};
-char *DemoExtraMessage[]={"PLAYER","GUIDED","MISSILE","REAR","GUIDE-BOT","MARKER","SHIP"};
+static const char *const DemoExtraMessage[]={"PLAYER","GUIDED","MISSILE","REAR","GUIDE-BOT","MARKER","SHIP"};
 
 void show_extra_views()
 {

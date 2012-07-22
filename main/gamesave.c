@@ -1168,7 +1168,7 @@ extern void	set_ambient_sound_flags(void);
 //7 -> 8  made version 8 to be not compatible with D2 1.0 & 1.1
 
 #ifndef RELEASE
-char *Level_being_loaded=NULL;
+const char *Level_being_loaded=NULL;
 #endif
 
 #ifdef COMPACT_SEGS
@@ -1182,7 +1182,7 @@ int no_old_level_file_error=0;
 
 //loads a level (.LVL) file from disk
 //returns 0 if success, else error code
-int load_level(char * filename_passed)
+int load_level(const char * filename_passed)
 {
 #ifdef EDITOR
 	int use_compiled_level=1;

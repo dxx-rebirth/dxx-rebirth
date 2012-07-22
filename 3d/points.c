@@ -50,7 +50,7 @@ ubyte g3_code_point(g3s_point *p)
 }
 
 //rotates a point. returns codes.  does not check if already rotated
-ubyte g3_rotate_point(g3s_point *dest,vms_vector *src)
+ubyte g3_rotate_point(g3s_point *dest,const vms_vector *src)
 {
 	vms_vector tempv;
 

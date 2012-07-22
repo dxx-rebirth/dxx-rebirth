@@ -174,7 +174,7 @@ char RefuseThisPlayer=0,WaitForRefuseAnswer=0,RefuseTeam,RefusePlayerName[12];
 fix64 RefuseTimeLimit=0;
 extern void init_player_stats_new_ship(ubyte pnum);
 
-int message_length[MULTI_MAX_TYPE+1] = {
+static const int message_length[MULTI_MAX_TYPE+1] = {
 	25, // POSITION
 	4,  // REAPPEAR
 	8,  // FIRE

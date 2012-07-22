@@ -326,7 +326,7 @@ int pcx_encode_byte(ubyte byt, ubyte cnt, PHYSFS_file *fid)
 }
 
 //text for error messges
-char pcx_error_messages[] = {
+static const char pcx_error_messages[] = {
 	"No error.\0"
 	"Error opening file.\0"
 	"Couldn't read PCX header.\0"
@@ -338,9 +338,9 @@ char pcx_error_messages[] = {
 
 
 //function to return pointer to error message
-char *pcx_errormsg(int error_number)
+const char *pcx_errormsg(int error_number)
 {
-	char *p = pcx_error_messages;
+	const char *p = pcx_error_messages;
 
 	while (error_number--) {
 

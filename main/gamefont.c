@@ -28,7 +28,7 @@ COPYRIGHT 1993-1998 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 #include "gamefont.h"
 #include "config.h"
 
-char * Gamefont_filenames_l[] = {
+static const char Gamefont_filenames_l[][16] = {
 	"font1-1.fnt", // Font 0
 	"font2-1.fnt", // Font 1
 	"font2-2.fnt", // Font 2
@@ -36,7 +36,7 @@ char * Gamefont_filenames_l[] = {
 	"font3-1.fnt"  // Font 4
 };
 
-char * Gamefont_filenames_h[] = {
+static const char Gamefont_filenames_h[][16] = {
 	"font1-1h.fnt", // Font 0
 	"font2-1h.fnt", // Font 1
 	"font2-2h.fnt", // Font 2
@@ -67,14 +67,15 @@ typedef struct _gamefont_conf{
 
 gamefont_conf font_conf[MAX_FONTS];
 
-char *gamefont_curfontname(int gf){
+const char *gamefont_curfontname(int gf){
 	if (font_conf[gf].cur<0)
 		return Gamefont_filenames_l[gf];
 	else
 		return font_conf[gf].font[font_conf[gf].cur].f.name;
 }
 
-void gamefont_unloadfont(int gf){
+static void gamefont_unloadfont(int gf)
+{
 	if (Gamefonts[gf]){
 		font_conf[gf].cur=-1;
 		gr_close_font(Gamefonts[gf]);
@@ -82,7 +83,8 @@ void gamefont_unloadfont(int gf){
 	}
 }
 
-void gamefont_loadfont(int gf,int fi){
+static void gamefont_loadfont(int gf,int fi)
+{
 	if (PHYSFSX_exists(font_conf[gf].font[fi].f.name,1)){
 		gamefont_unloadfont(gf);
 		Gamefonts[gf]=gr_init_font(font_conf[gf].font[fi].f.name);
@@ -135,7 +137,8 @@ void gamefont_choose_game_font(int scrx,int scry){
 	}
 }
 	
-void addfontconf(int gf, int x, int y, char * fn){
+static void addfontconf(int gf, int x, int y, const char *const fn)
+{
 	int i;
 
 	if (!PHYSFSX_exists(fn,1))

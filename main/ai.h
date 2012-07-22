@@ -47,14 +47,14 @@ COPYRIGHT 1993-1999 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 
 #define NUM_D2_BOSSES 8
 
-extern ubyte Boss_teleports[NUM_D2_BOSSES];     // Set byte if this boss can teleport
-extern ubyte Boss_spew_more[NUM_D2_BOSSES];     // Set byte if this boss can teleport
+extern const ubyte Boss_teleports[NUM_D2_BOSSES];     // Set byte if this boss can teleport
+extern const ubyte Boss_spew_more[NUM_D2_BOSSES];     // Set byte if this boss can teleport
 //extern ubyte Boss_cloaks[NUM_D2_BOSSES];        // Set byte if this boss can cloak
-extern ubyte Boss_spews_bots_energy[NUM_D2_BOSSES];     // Set byte if boss spews bots when hit by energy weapon.
-extern ubyte Boss_spews_bots_matter[NUM_D2_BOSSES];     // Set byte if boss spews bots when hit by matter weapon.
-extern ubyte Boss_invulnerable_energy[NUM_D2_BOSSES];   // Set byte if boss is invulnerable to energy weapons.
-extern ubyte Boss_invulnerable_matter[NUM_D2_BOSSES];   // Set byte if boss is invulnerable to matter weapons.
-extern ubyte Boss_invulnerable_spot[NUM_D2_BOSSES];     // Set byte if boss is invulnerable in all but a certain spot.  (Dot product fvec|vec_to_collision < BOSS_INVULNERABLE_DOT)
+extern const ubyte Boss_spews_bots_energy[NUM_D2_BOSSES];     // Set byte if boss spews bots when hit by energy weapon.
+extern const ubyte Boss_spews_bots_matter[NUM_D2_BOSSES];     // Set byte if boss spews bots when hit by matter weapon.
+extern const ubyte Boss_invulnerable_energy[NUM_D2_BOSSES];   // Set byte if boss is invulnerable to energy weapons.
+extern const ubyte Boss_invulnerable_matter[NUM_D2_BOSSES];   // Set byte if boss is invulnerable to matter weapons.
+extern const ubyte Boss_invulnerable_spot[NUM_D2_BOSSES];     // Set byte if boss is invulnerable in all but a certain spot.  (Dot product fvec|vec_to_collision < BOSS_INVULNERABLE_DOT)
 
 extern fix64 Boss_cloak_start_time, Boss_cloak_end_time;
 extern int Num_boss_teleport_segs;
@@ -213,13 +213,8 @@ extern void  create_buddy_bot(void);
 
 extern int   Max_escort_length;
 
-extern char  *Escort_goal_text[MAX_ESCORT_GOALS];
 
 extern void  ai_multi_send_robot_position(int objnum, int force);
-
-extern int   Flinch_scale;
-extern int   Attack_scale;
-extern sbyte Mike_to_matt_xlate[];
 
 // Amount of time since the current robot was last processed for things such as movement.
 // It is not valid to use FrameTime because robots do not get moved every frame.
@@ -271,13 +266,10 @@ extern vms_vector       Believed_player_pos;
 
 #ifndef NDEBUG
 // Index into this array with ailp->mode
-extern char *mode_text[18];
 
 // Index into this array with aip->behavior
-extern char behavior_text[6][9];
 
 // Index into this array with aip->GOAL_STATE or aip->CURRENT_STATE
-extern char state_text[8][5];
 
 extern int Do_ai_flag, Break_on_object;
 
