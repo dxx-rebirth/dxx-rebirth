@@ -1,5 +1,9 @@
 D1X-Rebirth Changelog
 
+20120723
+--------
+2d/font.c,, 2d/pcx.c, 3d/points.c, arch/include/jukebox.h, arch/sdl/jukebox.c, iff/iff.c, include/3d.h, include/error.h, include/gr.h, include/iff.h, include/pcx.h, include/physfsx.h, include/vecmat.h, main/ai.c, main/config.c, main/dumpmine.c, main/fvi.c, main/fvi.h, main/gamefont.c, main/gamesave.c, main/gamesave.h, main/gameseg.c, main/gameseg.h, main/kconfig.c, main/kconfig.h, main/menu.c, main/multi.c, main/multi.h, main/newdemo.c, main/newmenu.c, main/newmenu.h, maths/vecmat.c, misc/error.c, misc/physfsx.c: Redefined lotsa variables, functions and parameters as const and/or static - patch by Kp
+
 20120618
 --------
 main/gamerend.c, main/multi.c: removed temp_string buffer for ingame message inputs preventing the string from being messed up if containing special characters

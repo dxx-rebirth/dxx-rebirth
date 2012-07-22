@@ -40,7 +40,7 @@ COPYRIGHT 1993-1998 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 //new_pnt is the found point on the plane
 //plane_pnt & plane_norm describe the plane
 //p0 & p1 are the ends of the line
-int find_plane_line_intersection(vms_vector *new_pnt,vms_vector *plane_pnt,vms_vector *plane_norm,vms_vector *p0,vms_vector *p1,fix rad)
+static int find_plane_line_intersection(vms_vector *new_pnt,vms_vector *plane_pnt,vms_vector *plane_norm,const vms_vector *p0,const vms_vector *p1,fix rad)
 {
 	vms_vector d,w;
 	fix num,den;
@@ -91,7 +91,7 @@ int ij_table[3][2] =        {
 #define IT_POINT        3       //touches vertex
 
 //see if a point in inside a face by projecting into 2d
-uint check_point_to_face(vms_vector *checkp,segment *sp, side *s,int facenum,int nv,int *vertex_list)
+static uint check_point_to_face(const vms_vector *checkp,segment *sp, side *s,int facenum,int nv,int *vertex_list)
 {
 	vms_vector_array *checkp_array;
 	vms_vector_array norm;
@@ -240,7 +240,7 @@ int check_sphere_to_face(vms_vector *pnt,segment *sp, side *s,int facenum,int nv
 //point on plane, whether or not line intersects side
 //facenum determines which of four possible faces we have
 //note: the seg parm is temporary, until the face itself has a point field
-int check_line_to_face(vms_vector *newp,vms_vector *p0,vms_vector *p1,segment *seg,int side,int facenum,int nv,fix rad)
+static int check_line_to_face(vms_vector *newp,const vms_vector *p0,const vms_vector *p1,segment *seg,int side,int facenum,int nv,fix rad)
 {
 	vms_vector checkp;
 	int pli;
@@ -298,7 +298,7 @@ fix calc_det_value(vms_matrix *det)
 
 //computes the parameters of closest approach of two lines 
 //fill in two parameters, t0 & t1.  returns 0 if lines are parallel, else 1
-int check_line_to_line(fix *t1,fix *t2,vms_vector *p1,vms_vector *v1,vms_vector *p2,vms_vector *v2)
+static int check_line_to_line(fix *t1,fix *t2,vms_vector *p1,vms_vector *v1,const vms_vector *p2,vms_vector *v2)
 {
 	vms_matrix det;
 	fix d,cross_mag2;		//mag squared cross product
@@ -324,7 +324,7 @@ int check_line_to_line(fix *t1,fix *t2,vms_vector *p1,vms_vector *v1,vms_vector 
 //this version is for when the start and end positions both poke through
 //the plane of a side.  In this case, we must do checks against the edge
 //of faces
-int special_check_line_to_face(vms_vector *newp,vms_vector *p0,vms_vector *p1,segment *seg,int side,int facenum,int nv,fix rad)
+static int special_check_line_to_face(vms_vector *newp,const vms_vector *p0,const vms_vector *p1,segment *seg,int side,int facenum,int nv,fix rad)
 {
 	vms_vector move_vec;
 	fix edge_t=0,move_t=0,edge_t2=0,move_t2=0,closest_dist=0;
@@ -417,7 +417,7 @@ int special_check_line_to_face(vms_vector *newp,vms_vector *p0,vms_vector *p1,se
 //vector defined by p0,p1 
 //returns dist if intersects, and fills in intp
 //else returns 0
-int check_vector_to_sphere_1(vms_vector *intp,vms_vector *p0,vms_vector *p1,vms_vector *sphere_pos,fix sphere_rad)
+static int check_vector_to_sphere_1(vms_vector *intp,const vms_vector *p0,const vms_vector *p1,vms_vector *sphere_pos,fix sphere_rad)
 {
 	vms_vector d,dn,w,closest_point;
 	fix mag_d,dist,w_dist,int_dist;
@@ -581,7 +581,7 @@ int check_vector_to_sphere_1(vms_vector *intp,vms_vector *p0,vms_vector *p1,vms_
 
 //determine if a vector intersects with an object
 //if no intersects, returns 0, else fills in intp and returns dist
-fix check_vector_to_object(vms_vector *intp,vms_vector *p0,vms_vector *p1,fix rad,object *obj,object *otherobj)
+static fix check_vector_to_object(vms_vector *intp,const vms_vector *p0,const vms_vector *p1,fix rad,object *obj,object *otherobj)
 {
 	fix size = obj->size;
 
@@ -613,7 +613,7 @@ int fvi_hit_side_seg;// what seg the hitside is in
 vms_vector wall_norm;	//ptr to surface normal of hit wall
 int fvi_hit_seg2;		// what segment the hit point is in
 
-int fvi_sub(vms_vector *intp,int *ints,vms_vector *p0,int startseg,vms_vector *p1,fix rad,short thisobjnum,int *ignore_obj_list,int flags,int *seglist,int *n_segs,int entry_seg);
+static int fvi_sub(vms_vector *intp,int *ints,const vms_vector *p0,int startseg,const vms_vector *p1,fix rad,short thisobjnum,int *ignore_obj_list,int flags,int *seglist,int *n_segs,int entry_seg);
 
 //What the hell is fvi_hit_seg for???
 
@@ -781,7 +781,7 @@ int obj_in_list(int objnum,int *obj_list)
 
 int check_trans_wall(vms_vector *pnt,segment *seg,int sidenum,int facenum);
 
-int fvi_sub(vms_vector *intp,int *ints,vms_vector *p0,int startseg,vms_vector *p1,fix rad,short thisobjnum,int *ignore_obj_list,int flags,int *seglist,int *n_segs,int entry_seg)
+static int fvi_sub(vms_vector *intp,int *ints,const vms_vector *p0,int startseg,const vms_vector *p1,fix rad,short thisobjnum,int *ignore_obj_list,int flags,int *seglist,int *n_segs,int entry_seg)
 {
 	segment *seg;				//the segment we're looking at
 	int startmask,endmask;	//mask of faces

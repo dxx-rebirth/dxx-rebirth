@@ -155,7 +155,7 @@ void get_side_verts(int *vertlist,int segnum,int sidenum);
 extern void create_all_vertex_lists(int *num_faces, int *vertices, int segnum, int sidenum);
 
 //like create_all_vertex_lists(), but generate absolute point numbers
-extern void create_abs_vertex_lists(int *num_faces, int *vertices, int segnum, int sidenum, char *calling_file, int calling_linenum);
+extern void create_abs_vertex_lists(int *num_faces, int *vertices, int segnum, int sidenum, const char *calling_file, int calling_linenum);
 
 // -----------------------------------------------------------------------------------
 // Like create all vertex lists, but returns the vertnums (relative to
@@ -170,7 +170,7 @@ extern int get_num_faces(side *sidep);
 
 //returns 3 different bitmasks with info telling if this sphere is in
 //this segment.  See segmasks structure for info on fields   
-segmasks get_seg_masks(vms_vector *checkp,int segnum,fix rad, char *calling_file, int calling_linenum);
+segmasks get_seg_masks(const vms_vector *checkp, int segnum, fix rad, const char *calling_file, int calling_linenum);
 
 //this macro returns true if the segnum for an object is correct
 #define check_obj_seg(obj) (get_seg_masks(&(obj)->pos,(obj)->segnum,0,__FILE__,__LINE__).centermask == 0)

@@ -37,7 +37,7 @@ void Warning(char *fmt,...);				//print out warning message to user
 void set_warn_func(void (*f)(char *s));//specifies the function to call with warning messages
 void clear_warn_func(void (*f)(char *s));//say this function no longer valid
 void _Assert(int expr,char *expr_text,char *filename,int linenum);	//assert func
-void Error(char *fmt,...) __noreturn __format;				//exit with error code=1, print message
+void Error(const char *fmt,...) __noreturn __format;				//exit with error code=1, print message
 void Assert(int expr);
 void Int3();
 #ifndef NDEBUG		//macros for debugging

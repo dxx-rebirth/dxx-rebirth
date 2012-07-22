@@ -257,8 +257,6 @@ extern int VerifyPlayerJoined;
 extern int Player_joining_extras;
 extern int Network_player_added;
 
-extern int message_length[MULTI_MAX_TYPE+1];
-
 extern unsigned char multibuf[MAX_MULTI_MESSAGE_LEN+4];
 
 extern int who_killed_controlcen;

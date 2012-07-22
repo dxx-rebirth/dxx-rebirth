@@ -40,7 +40,7 @@
 
 #ifdef EDITOR
 void dump_used_textures_level(PHYSFS_file *my_file, int level_num);
-void say_totals(PHYSFS_file *my_file, char *level_name);
+static void say_totals(PHYSFS_file *my_file, const char *level_name);
 
 extern ubyte bogus_data[64*64];
 extern grs_bitmap bogus_bitmap;
@@ -718,7 +718,7 @@ void say_used_tmaps(PHYSFS_file *my_file, int *tb)
 void say_used_once_tmaps(PHYSFS_file *my_file, int *tb, sbyte *tb_lnum)
 {
 	int	i;
-	char	*level_name;
+	const char	*level_name;
 
 	for (i=0; i<Num_tmaps; i++)
 		if (tb[i] == 1) {

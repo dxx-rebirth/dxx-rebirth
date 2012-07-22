@@ -77,12 +77,14 @@ void ai_multi_send_robot_position(int objnum, int force);
 
 #define MIN_D 0x100
 
-int	Flinch_scale = 4;
-int	Attack_scale = 24;
+enum {
+	Flinch_scale = 4,
+	Attack_scale = 24,
+};
 #define	ANIM_RATE		(F1_0/16)
 #define	DELTA_ANG_SCALE	16
 
-sbyte Mike_to_matt_xlate[] = {AS_REST, AS_REST, AS_ALERT, AS_ALERT, AS_FLINCH, AS_FIRE, AS_RECOIL, AS_REST};
+static const sbyte Mike_to_matt_xlate[] = {AS_REST, AS_REST, AS_ALERT, AS_ALERT, AS_FLINCH, AS_FIRE, AS_RECOIL, AS_REST};
 
 // int	No_ai_flag=0;
 
@@ -229,7 +231,7 @@ int	Ai_animation_test=0;
 //	 Third dimension is goal state.
 //	Result is new goal state.
 //	ERR_ means something impossible has happened.
-sbyte Ai_transition_table[AI_MAX_EVENT][AI_MAX_STATE][AI_MAX_STATE] = {
+static const sbyte Ai_transition_table[AI_MAX_EVENT][AI_MAX_STATE][AI_MAX_STATE] = {
 	{
 	//	Event = AIE_FIRE, a nearby object fired
 	//	none			rest			srch			lock			flin			fire			reco				// CURRENT is rows, GOAL is columns

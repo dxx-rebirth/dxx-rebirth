@@ -319,7 +319,7 @@ int RegisterPlayer()
 	char **m;
 	char **f;
 	char **list;
-	char *types[] = { ".plr", NULL };
+	static const char *const types[] = { ".plr", NULL };
 	int i = 0, NumItems;
 	int citem = 0;
 	int allow_abort_flag = 1;
@@ -717,7 +717,7 @@ int demo_menu_handler( listbox *lb, d_event *event, void *userdata )
 int select_demo(void)
 {
 	char **list;
-	char *types[] = { DEMO_EXT, NULL };
+	static const char *const types[] = { DEMO_EXT, NULL };
 	int NumItems;
 
 	list = PHYSFSX_findFiles(DEMO_DIR, types);
@@ -1287,7 +1287,7 @@ typedef struct browser
 	void	*userdata;		// Whatever you want passed to when_selected
 	char	**list;			// All menu items
 	char	*list_buf;		// Buffer for menu item text: hopefully reduces memory fragmentation this way
-	char	**ext_list;		// List of file extensions we're looking for (if looking for a music file many types are possible)
+	const char	*const *ext_list;		// List of file extensions we're looking for (if looking for a music file many types are possible)
 	int		select_dir;		// Allow selecting the current directory (e.g. for Jukebox level song directory)
 	int		num_files;		// Number of list items found (including parent directory and current directory if selectable)
 	int		max_files;		// How many entries we can have before having to grow the array
@@ -1299,7 +1299,7 @@ typedef struct browser
 void list_dir_el(browser *b, const char *origdir, const char *fname)
 {
 	char *ext;
-	char **i = NULL;
+	const char *const *i = NULL;
 	
 	ext = strrchr(fname, '.');
 	if (ext)
@@ -1339,7 +1339,7 @@ int list_directory(browser *b)
 	return 1;
 }
 
-int select_file_recursive(char *title, const char *orig_path, char **ext_list, int select_dir, int (*when_selected)(void *userdata, const char *filename), void *userdata);
+static int select_file_recursive(char *title, const char *orig_path, const char *const *ext_list, int select_dir, int (*when_selected)(void *userdata, const char *filename), void *userdata);
 
 int select_file_handler(listbox *menu, d_event *event, browser *b)
 {
@@ -1457,7 +1457,7 @@ int select_file_handler(listbox *menu, d_event *event, browser *b)
 	return 0;
 }
 
-int select_file_recursive(char *title, const char *orig_path, char **ext_list, int select_dir, int (*when_selected)(void *userdata, const char *filename), void *userdata)
+static int select_file_recursive(char *title, const char *orig_path, const char *const *ext_list, int select_dir, int (*when_selected)(void *userdata, const char *filename), void *userdata)
 {
 	browser *b;
 	const char *sep = PHYSFS_getDirSeparator();
@@ -1553,7 +1553,7 @@ int select_file_recursive(char *title, const char *orig_path, char **ext_list, i
 
 #else
 
-int select_file_recursive(char *title, const char *orig_path, char **ext_list, int select_dir, int (*when_selected)(void *userdata, const char *filename), void *userdata)
+static int select_file_recursive(char *title, const char *orig_path, const char *const *ext_list, int select_dir, int (*when_selected)(void *userdata, const char *filename), void *userdata)
 {
 	return 0;
 }
@@ -1653,7 +1653,7 @@ int sound_menuset(newmenu *menu, d_event *event, void *userdata)
 #ifdef USE_SDLMIXER
 			if (citem == opt_sm_mtype3_lmpath)
 			{
-				static char *ext_list[] = { ".m3u", NULL };		// select a directory or M3U playlist
+				static const char *const ext_list[] = { ".m3u", NULL };		// select a directory or M3U playlist
 				select_file_recursive(
 #ifndef _WIN32
 					"Select directory or\nM3U playlist to\n play level music from",

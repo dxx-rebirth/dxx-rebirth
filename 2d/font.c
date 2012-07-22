@@ -56,8 +56,8 @@ openfont open_font[MAX_OPEN_FONTS];
 
 #define BITS_TO_BYTES(x)    (((x)+7)>>3)
 
-int gr_internal_string_clipped(int x, int y, char *s );
-int gr_internal_string_clipped_m(int x, int y, char *s );
+int gr_internal_string_clipped(int x, int y, const char *s );
+int gr_internal_string_clipped_m(int x, int y, const char *s );
 
 ubyte *find_kern_entry(grs_font *font,ubyte first,ubyte second)
 {
@@ -155,7 +155,7 @@ void get_char_width_f(ubyte c,ubyte c2,float *width,float *spacing)
 	}
 }
 
-int get_centered_x(char *s)
+int get_centered_x(const char *s)
 {
 	float w,w2,s2;
 
@@ -196,10 +196,10 @@ int gr_message_color_level=1;
 		text_ptr++; \
 	}
 
-int gr_internal_string0(int x, int y, char *s )
+int gr_internal_string0(int x, int y, const char *s )
 {
 	unsigned char * fp;
-	char * text_ptr, * next_row, * text_ptr1;
+	const char * text_ptr, * next_row, * text_ptr1;
 	int r, BitMask, i, bits, width, spacing, letter, underline;
 	int	skip_lines = 0;
 
@@ -308,10 +308,10 @@ int gr_internal_string0(int x, int y, char *s )
 	return 0;
 }
 
-int gr_internal_string0m(int x, int y, char *s )
+int gr_internal_string0m(int x, int y, const char *s )
 {
 	unsigned char * fp;
-	char * text_ptr, * next_row, * text_ptr1;
+	const char * text_ptr, * next_row, * text_ptr1;
 	int r, BitMask, i, bits, width, spacing, letter, underline;
 	int skip_lines = 0;
 
@@ -691,9 +691,9 @@ void ogl_init_font(grs_font * font)
 	ogl_loadbmtexture_f(&font->ft_parent_bitmap, GameCfg.TexFilt);
 }
 
-int ogl_internal_string(int x, int y, char *s )
+int ogl_internal_string(int x, int y, const char *s )
 {
-	char * text_ptr, * next_row, * text_ptr1;
+	const char * text_ptr, * next_row, * text_ptr1;
 	int width, spacing,letter;
 	int xx,yy;
 	int orig_color=grd_curcanv->cv_font_fg_color;//to allow easy reseting to default string color with colored strings -MPM
@@ -775,12 +775,12 @@ int ogl_internal_string(int x, int y, char *s )
 	return 0;
 }
 
-int gr_internal_color_string(int x, int y, char *s ){
+int gr_internal_color_string(int x, int y, const char *s ){
 	return ogl_internal_string(x,y,s);
 }
 #endif //OGL
 
-int gr_string(int x, int y, char *s )
+int gr_string(int x, int y, const char *s )
 {
 	int w, h, aw;
 	int clipped=0;
@@ -832,7 +832,7 @@ int gr_string(int x, int y, char *s )
 	return gr_internal_string_clipped( x, y, s );
 }
 
-int gr_ustring(int x, int y, char *s )
+int gr_ustring(int x, int y, const char *s )
 {
 #ifdef OGL
 	if (TYPE==BM_OGL)
@@ -857,7 +857,7 @@ int gr_ustring(int x, int y, char *s )
 }
 
 
-void gr_get_string_size(char *s, int *string_width, int *string_height, int *average_width )
+void gr_get_string_size(const char *s, int *string_width, int *string_height, int *average_width )
 {
 	int i = 0;
 	float width=0.0,spacing=0.0,longest_width=0.0,string_width_f=0.0,string_height_f=0.0;
@@ -899,7 +899,7 @@ void gr_get_string_size(char *s, int *string_width, int *string_height, int *ave
 }
 
 
-int gr_uprintf( int x, int y, char * format, ... )
+int gr_uprintf( int x, int y, const char * format, ... )
 {
 	char buffer[1000];
 	va_list args;
@@ -909,7 +909,7 @@ int gr_uprintf( int x, int y, char * format, ... )
 	return gr_ustring( x, y, buffer );
 }
 
-int gr_printf( int x, int y, char * format, ... )
+int gr_printf( int x, int y, const char * format, ... )
 {
 	char buffer[1000];
 	va_list args;
@@ -965,7 +965,7 @@ void grs_font_read(grs_font *gf, PHYSFS_file *fp)
 	gf->ft_kerndata = (ubyte *)(size_t)PHYSFSX_readInt(fp);
 }
 
-grs_font * gr_init_font( char * fontname )
+grs_font * gr_init_font( const char * fontname )
 {
 	static int first_time=1;
 	grs_font *font;
@@ -1095,10 +1095,10 @@ void gr_set_fontcolor( int fg_color, int bg_color )
 	grd_curcanv->cv_font_bg_color    = bg_color;
 }
 
-int gr_internal_string_clipped(int x, int y, char *s )
+int gr_internal_string_clipped(int x, int y, const char *s )
 {
 	unsigned char * fp;
-	char * text_ptr, * next_row, * text_ptr1;
+	const char * text_ptr, * next_row, * text_ptr1;
 	int r, BitMask, i, bits, width, spacing, letter, underline;
 	int x1 = x, last_x;
 
@@ -1196,10 +1196,10 @@ int gr_internal_string_clipped(int x, int y, char *s )
 	return 0;
 }
 
-int gr_internal_string_clipped_m(int x, int y, char *s )
+int gr_internal_string_clipped_m(int x, int y, const char *s )
 {
 	unsigned char * fp;
-	char * text_ptr, * next_row, * text_ptr1;
+	const char * text_ptr, * next_row, * text_ptr1;
 	int r, BitMask, i, bits, width, spacing, letter, underline;
 	int x1 = x, last_x;
 

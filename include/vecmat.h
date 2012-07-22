@@ -191,22 +191,22 @@ extern vms_matrix vmd_identity_matrix;
 
 //adds two vectors, fills in dest, returns ptr to dest
 //ok for dest to equal either source, but should use vm_vec_add2() if so
-vms_vector * vm_vec_add (vms_vector * dest, vms_vector * src0, vms_vector * src1);
+vms_vector * vm_vec_add (vms_vector * dest, const vms_vector * src0, const vms_vector * src1);
 
 
 //subs two vectors, fills in dest, returns ptr to dest
 //ok for dest to equal either source, but should use vm_vec_sub2() if so
-vms_vector * vm_vec_sub (vms_vector * dest, vms_vector * src0, vms_vector * src1);
+vms_vector * vm_vec_sub (vms_vector * dest, const vms_vector * src0, const vms_vector * src1);
 
 
 //adds one vector to another. returns ptr to dest
 //dest can equal source
-vms_vector * vm_vec_add2 (vms_vector * dest, vms_vector * src);
+vms_vector * vm_vec_add2 (vms_vector * dest, const vms_vector * src);
 
 
 //subs one vector from another, returns ptr to dest
 //dest can equal source
-vms_vector * vm_vec_sub2 (vms_vector * dest, vms_vector * src);
+vms_vector * vm_vec_sub2 (vms_vector * dest, const vms_vector * src);
 
 
 #else	/* 
@@ -261,12 +261,12 @@ while (0);
 
 //averages two vectors. returns ptr to dest
 //dest can equal either source
-vms_vector * vm_vec_avg (vms_vector * dest, vms_vector * src0, vms_vector * src1);
+vms_vector * vm_vec_avg (vms_vector * dest, const vms_vector * src0, const vms_vector * src1);
 
 
 //averages four vectors. returns ptr to dest
 //dest can equal any source
-vms_vector * vm_vec_avg4 (vms_vector * dest, vms_vector * src0, vms_vector * src1, vms_vector * src2, vms_vector * src3);
+vms_vector * vm_vec_avg4 (vms_vector * dest, const vms_vector * src0, const vms_vector * src1, const vms_vector * src2, const vms_vector * src3);
 
 
 //scales a vector in place.  returns ptr to vector
@@ -274,17 +274,17 @@ vms_vector * vm_vec_scale (vms_vector * dest, fix s);
 
 
 //scales and copies a vector.  returns ptr to dest
-vms_vector * vm_vec_copy_scale (vms_vector * dest, vms_vector * src, fix s);
+vms_vector * vm_vec_copy_scale (vms_vector * dest, const vms_vector * src, fix s);
 
 
 //scales a vector, adds it to another, and stores in a 3rd vector
 //dest = src1 + k * src2
-vms_vector * vm_vec_scale_add (vms_vector * dest, vms_vector * src1, vms_vector * src2, fix k);
+vms_vector * vm_vec_scale_add (vms_vector * dest, const vms_vector * src1, const vms_vector * src2, fix k);
 
 
 //scales a vector and adds it to another
 //dest += k * src
-vms_vector * vm_vec_scale_add2 (vms_vector * dest, vms_vector * src, fix k);
+vms_vector * vm_vec_scale_add2 (vms_vector * dest, const vms_vector * src, fix k);
 
 
 //scales a vector in place, taking n/d for scale.  returns ptr to vector
@@ -297,7 +297,7 @@ fix vm_vec_mag (vms_vector * v);
 
 
 //computes the distance between two points. (does sub and mag)
-fix vm_vec_dist (vms_vector * v0, vms_vector * v1);
+fix vm_vec_dist (const vms_vector * v0, const vms_vector * v1);
 
 
 //computes an approximation of the magnitude of the vector
@@ -332,7 +332,7 @@ fix vm_vec_normalized_dir_quick (vms_vector * dest, vms_vector * end, vms_vector
 
 
 ////returns dot product of two vectors
-fix vm_vec_dotprod (vms_vector * v0, vms_vector * v1);
+fix vm_vec_dotprod (const vms_vector * v0, const vms_vector * v1);
 
 #define vm_vec_dot(v0,v1) vm_vec_dotprod((v0),(v1))
 
@@ -413,7 +413,7 @@ vms_matrix * vm_vector_2_matrix_norm (vms_matrix * m, vms_vector * fvec, vms_vec
 
 //rotates a vector through a matrix. returns ptr to dest vector
 //dest CANNOT equal either source
-vms_vector * vm_vec_rotate (vms_vector * dest, vms_vector * src, vms_matrix * m);
+vms_vector * vm_vec_rotate (vms_vector * dest, const vms_vector * src, const vms_matrix * m);
 
 
 //transpose a matrix in place. returns ptr to matrix
@@ -444,7 +444,7 @@ vms_angvec * vm_extract_angles_vector (vms_angvec * a, vms_vector * v);
 //of the plane (ebx), a point on the plane (edi), and the point to check (esi).
 //returns distance in eax
 //distance is signed, so negative dist is on the back of the plane
-fix vm_dist_to_plane (vms_vector * checkp, vms_vector * norm, vms_vector * planep);
+fix vm_dist_to_plane (const vms_vector * checkp, const vms_vector * norm, const vms_vector * planep);
 
 
 //fills in fields of an angle vector

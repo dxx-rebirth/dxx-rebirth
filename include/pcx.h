@@ -71,7 +71,7 @@ extern int pcx_read_bitmap( char * filename, grs_bitmap * bmp, int bitmap_type, 
 
 extern int pcx_write_bitmap( char * filename, grs_bitmap * bmp, ubyte * palette );
 
-extern char *pcx_errormsg(int error_number);
+extern const char *pcx_errormsg(int error_number);
 
 #endif
  

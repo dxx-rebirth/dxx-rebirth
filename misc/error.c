@@ -89,7 +89,7 @@ void print_exit_message(void)
 }
 
 //terminates with error code 1, printing message
-void Error(char *fmt,...)
+void Error(const char *fmt,...)
 {
 	va_list arglist;
 

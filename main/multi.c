@@ -157,7 +157,7 @@ char PowerupsInMine[MAX_POWERUP_TYPES],MaxPowerupsAllowed[MAX_POWERUP_TYPES];
 extern fix ThisLevelTime;
 extern void init_player_stats_new_ship(ubyte pnum);
 
-int message_length[MULTI_MAX_TYPE+1] = {
+static const int message_length[MULTI_MAX_TYPE+1] = {
         25, // POSITION
         4,  // REAPPEAR
         8,  // FIRE

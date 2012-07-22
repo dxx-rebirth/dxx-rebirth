@@ -1074,7 +1074,7 @@ int check_segment_connections(void);
 #define LEVEL_FILE_VERSION		1
 
 #ifndef RELEASE
-char *Level_being_loaded=NULL;
+const char *Level_being_loaded=NULL;
 #endif
 
 #ifdef COMPACT_SEGS
@@ -1083,7 +1083,7 @@ extern void ncache_flush();
 
 //loads a level (.LVL) file from disk
 //returns 0 if success, else error code
-int load_level(char * filename_passed)
+int load_level(const char * filename_passed)
 {
 #ifdef EDITOR
 	int use_compiled_level=1;
