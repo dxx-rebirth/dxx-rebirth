@@ -1,5 +1,9 @@
 D2X-Rebirth Changelog
 
+20120724
+--------
+English.lproj/InfoPlist.strings, d2x-Info.plist, d2xgl-Info.plist: Increment version number for Mac files (should have committed this ages ago)
+
 20120723
 --------
 2d/font.c, 2d/pcx.c, 3d/points.c, arch/include/jukebox.h, arch/sdl/jukebox.c, iff/iff.c, include/3d.h, include/error.h, include/gr.h, include/iff.h, include/pcx.h, include/physfsx.h, include/vecmat.h, main/ai.c, main/ai.h, main/ai2.c, main/automap.c, main/config.c, main/dumpmine.c, main/endlevel.c, main/escort.c, main/gamefont.c, main/gamerend.c, main/gamesave.c, main/gamesave.h, main/gauges.c, main/gauges.h, main/kconfig.c, main/kconfig.h, main/menu.c, main/multi.c, main/multi.h, main/newdemo.c, main/newmenu.c, main/newmenu.h, maths/vecmat.c, misc/error.c, misc/physfsx.c: Redefined lotsa variables, functions and parameters as const and/or static - patch by Kp
