@@ -3,6 +3,7 @@ D2X-Rebirth Changelog
 20120724
 --------
 English.lproj/InfoPlist.strings, d2x-Info.plist, d2xgl-Info.plist: Increment version number for Mac files (should have committed this ages ago)
+main/bm.c, main/bmread.c: If bitmaps.tbl happens to be available, don't try and re-make the pig if EDITOR is defined because it would cause problems
 
 20120723
 --------
