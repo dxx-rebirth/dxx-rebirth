@@ -919,11 +919,8 @@
 		EBEEB1FD0D2B320B00FF39B4 /* script.h */ = {isa = PBXFileReference; fileEncoding = 30; lastKnownFileType = sourcecode.c.h; path = script.h; sourceTree = "<group>"; };
 		EBEEB2190D2B34DE00FF39B4 /* alsadigi.c */ = {isa = PBXFileReference; fileEncoding = 30; lastKnownFileType = sourcecode.c.c; path = alsadigi.c; sourceTree = "<group>"; };
 		EBEEB21A0D2B34DE00FF39B4 /* hmiplay.c */ = {isa = PBXFileReference; fileEncoding = 30; lastKnownFileType = sourcecode.c.c; path = hmiplay.c; sourceTree = "<group>"; };
-		EBEEB2220D2B34DE00FF39B4 /* ukali.c */ = {isa = PBXFileReference; fileEncoding = 30; lastKnownFileType = sourcecode.c.c; path = ukali.c; sourceTree = "<group>"; };
 		EBEEB2290D2B351400FF39B4 /* music.h */ = {isa = PBXFileReference; fileEncoding = 30; lastKnownFileType = sourcecode.c.h; path = music.h; sourceTree = "<group>"; };
-		EBEEB22A0D2B351400FF39B4 /* ukali.h */ = {isa = PBXFileReference; fileEncoding = 30; lastKnownFileType = sourcecode.c.h; path = ukali.h; sourceTree = "<group>"; };
 		EBEEB2540D2B35B000FF39B4 /* resource.h */ = {isa = PBXFileReference; fileEncoding = 30; lastKnownFileType = sourcecode.c.h; path = resource.h; sourceTree = "<group>"; };
-		EBEEB2550D2B35B000FF39B4 /* wsipx.h */ = {isa = PBXFileReference; fileEncoding = 30; lastKnownFileType = sourcecode.c.h; path = wsipx.h; sourceTree = "<group>"; };
 		EBEEB25B0D2B364300FF39B4 /* altsound.c */ = {isa = PBXFileReference; fileEncoding = 30; lastKnownFileType = sourcecode.c.c; path = altsound.c; sourceTree = "<group>"; };
 		EBEEB25C0D2B364300FF39B4 /* altsound.h */ = {isa = PBXFileReference; fileEncoding = 30; lastKnownFileType = sourcecode.c.h; path = altsound.h; sourceTree = "<group>"; };
 		EBEEB25E0D2B364300FF39B4 /* compbit.h */ = {isa = PBXFileReference; fileEncoding = 30; lastKnownFileType = sourcecode.c.h; path = compbit.h; sourceTree = "<group>"; };
@@ -934,9 +931,6 @@
 		EBEEB2680D2B364300FF39B4 /* snddecom.c */ = {isa = PBXFileReference; fileEncoding = 30; lastKnownFileType = sourcecode.c.c; path = snddecom.c; sourceTree = "<group>"; };
 		EBEEB2690D2B364300FF39B4 /* snddecom.h */ = {isa = PBXFileReference; fileEncoding = 30; lastKnownFileType = sourcecode.c.h; path = snddecom.h; sourceTree = "<group>"; };
 		EBEEB29B0D2B378B00FF39B4 /* compare.c */ = {isa = PBXFileReference; fileEncoding = 30; lastKnownFileType = sourcecode.c.c; path = compare.c; sourceTree = "<group>"; };
-		EBF658940F93684000CB5C73 /* ipx.c */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.c; path = ipx.c; sourceTree = "<group>"; };
-		EBF658950F93684000CB5C73 /* ipx_kali.c */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.c; path = ipx_kali.c; sourceTree = "<group>"; };
-		EBF658960F93686000CB5C73 /* ipx.c */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.c; path = ipx.c; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -1049,7 +1043,6 @@
 				67B4486406687E1000DF26D8 /* misc */,
 				67B4488506687E5E00DF26D8 /* texmap */,
 				EBC6518D0890CEAE004FCAA3 /* ui */,
-				EBFD396E0E3C1B6A00FED206 /* tracker */,
 				EB775A77105611720036C348 /* utilities */,
 			);
 			name = "Other Sources";
@@ -1078,7 +1071,6 @@
 			isa = PBXGroup;
 			children = (
 				EBEEB2290D2B351400FF39B4 /* music.h */,
-				EBEEB22A0D2B351400FF39B4 /* ukali.h */,
 			);
 			path = include;
 			sourceTree = "<group>";
@@ -1145,9 +1137,6 @@
 				EBEEB2190D2B34DE00FF39B4 /* alsadigi.c */,
 				EBEEB21A0D2B34DE00FF39B4 /* hmiplay.c */,
 				67603357066B3AE0008A67A3 /* include */,
-				EBF658940F93684000CB5C73 /* ipx.c */,
-				EBF658950F93684000CB5C73 /* ipx_kali.c */,
-				EBEEB2220D2B34DE00FF39B4 /* ukali.c */,
 			);
 			name = linux;
 			path = arch/linux;
@@ -1605,7 +1594,6 @@
 			children = (
 				EB092A3A12A21527004D9A79 /* messagebox.c */,
 				EBEEB24F0D2B35B000FF39B4 /* include */,
-				EBF658960F93686000CB5C73 /* ipx.c */,
 			);
 			name = win32;
 			path = arch/win32;
@@ -1615,32 +1603,8 @@
 			isa = PBXGroup;
 			children = (
 				EBEEB2540D2B35B000FF39B4 /* resource.h */,
-				EBEEB2550D2B35B000FF39B4 /* wsipx.h */,
 			);
 			path = include;
-			sourceTree = "<group>";
-		};
-		EBFD396E0E3C1B6A00FED206 /* tracker */ = {
-			isa = PBXGroup;
-			children = (
-				EBFD396F0E3C1B6A00FED206 /* client */,
-				EBFD39710E3C1B6A00FED206 /* server */,
-			);
-			path = tracker;
-			sourceTree = "<group>";
-		};
-		EBFD396F0E3C1B6A00FED206 /* client */ = {
-			isa = PBXGroup;
-			children = (
-			);
-			path = client;
-			sourceTree = "<group>";
-		};
-		EBFD39710E3C1B6A00FED206 /* server */ = {
-			isa = PBXGroup;
-			children = (
-			);
-			path = server;
 			sourceTree = "<group>";
 		};
 		EBFD39740E3C1C2300FED206 /* tracker */ = {
