@@ -767,7 +767,7 @@ void say_unused_walls(PHYSFS_file *my_file, int *tb)
 }
 
 //	-------------------------------------------------------------------------------------------------
-void say_totals(PHYSFS_file *my_file, char *level_name)
+static void say_totals(PHYSFS_file *my_file, const char *level_name)
 {
         int     i;// objnum;
 	int	total_robots = 0;

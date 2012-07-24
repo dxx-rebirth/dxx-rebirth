@@ -27,6 +27,7 @@ COPYRIGHT 1993-1998 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 #include "mouse.h"
 #include "key.h"
 #include "u_mem.h"
+#include "strutil.h"
 
 #define Middle(x) ((2*(x)+1)/4)
 

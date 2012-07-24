@@ -17,7 +17,9 @@ void removeext(const char *filename, char *out);
 //give a filename a new extension, doesn't work with paths with no extension already there
 extern void change_filename_extension( char *dest, const char *src, char *new_ext );
 
-extern void _splitpath(char *name, char *drive, char *path, char *base, char *ext);
+// split an MS-DOS path into drive, directory path, filename without the extension (base) and extension.
+// if it's just a filename with no directory specified, this function will get 'base' and 'ext'
+extern void d_splitpath(char *name, char *drive, char *path, char *base, char *ext);
 
 // create a growing 2D array with a single growing buffer for the text
 // this system is likely to cause less memory fragmentation than having one malloc'd buffer per string

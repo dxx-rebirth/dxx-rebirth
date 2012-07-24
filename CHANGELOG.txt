@@ -4,6 +4,7 @@ D1X-Rebirth Changelog
 --------
 main/bmread.c: No calling piggy_dump_all() when EDITOR is defined, it causes a failed Assert and causes it to exit when the PC Shareware descent.pig is used
 English.lproj/InfoPlist.strings, d1x-Info.plist, d1x-rebirth.xcodeproj/project.pbxproj, d1xgl-Info.plist: Increment version number for Mac files (should have committed this ages ago)
+include/strutil.h, main/collide.c, main/dumpmine.c, ui/gadget.c, ui/radio.c: Fix warnings (add d_splitpath prototype, no checking ubyte 'id' is < 0, fix say_totals prototype, include d_strdup prototype for radio.c and make sure that 'text' gets freed)
 
 20120723
 --------

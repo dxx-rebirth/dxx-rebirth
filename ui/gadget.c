@@ -107,6 +107,13 @@ void ui_gadget_delete_all( UI_DIALOG * dlg )
 				d_free( but1->text );
 		}
 
+		if (tmp->kind == 4 )    // Radio
+		{
+			UI_GADGET_RADIO * but1 = (UI_GADGET_RADIO *)tmp;
+			if (but1->text)
+				d_free( but1->text );
+		}
+		
 		if (tmp->kind == 6 )    // Inputbox
 		{
 			UI_GADGET_INPUTBOX * but1 = (UI_GADGET_INPUTBOX *)tmp;
