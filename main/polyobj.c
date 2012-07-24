@@ -534,6 +534,9 @@ void draw_polygon_model(vms_vector *pos,vms_matrix *orient,vms_angvec *anim_angl
 	polymodel *po;
 	int i;
 
+	if (model_num < 0)
+		return;
+
 	Assert(model_num < N_polygon_models);
 
 	po=&Polygon_models[model_num];
