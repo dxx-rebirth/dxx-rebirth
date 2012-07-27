@@ -1,5 +1,9 @@
 D2X-Rebirth Changelog
 
+20120728
+--------
+SConstruct, main/vers_id.h: Some Sconstruct lovin': Respect LDFLAGS; Made D2XMAJORi/MINORi/MICROi compile time constants; Do not pass CFLAGS to CXX; Mark some more warnings as errors - patches by Kp
+
 20120724
 --------
 English.lproj/InfoPlist.strings, d2x-Info.plist, d2xgl-Info.plist: Increment version number for Mac files (should have committed this ages ago)
