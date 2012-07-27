@@ -272,8 +272,8 @@ if (verbosebuild == 0):
 	env["RANLIBCOMSTR"] = "Indexing $TARGET ..."
 
 # Flags and stuff for all platforms...
-env.Append(CPPFLAGS = ['-Wall', '-funsigned-char', '-std=c99', '-pedantic'])
-env.Append(CPPDEFINES = [('PROGRAM_NAME', '\\"' + str(PROGRAM_NAME) + '\\"'), ('D1XMAJOR', '\\"' + str(D1XMAJOR) + '\\"'), ('D1XMINOR', '\\"' + str(D1XMINOR) + '\\"'), ('D1XMICRO', '\\"' + str(D1XMICRO) + '\\"')])
+env.Append(CPPFLAGS = ['-Wall', '-funsigned-char', '-Werror=implicit-int', '-Werror=implicit-function-declaration', '-std=c99', '-pedantic'])
+env.Append(CPPDEFINES = [('PROGRAM_NAME', '\\"' + str(PROGRAM_NAME) + '\\"'), ('D1XMAJORi', str(D1XMAJOR)), ('D1XMINORi', str(D1XMINOR)), ('D1XMICROi', str(D1XMICRO))])
 env.Append(CPPDEFINES = ['NETWORK', '_REENTRANT'])
 env.Append(CPPPATH = ['include', 'main', 'arch/include'])
 libs = ['physfs', 'm']
@@ -282,7 +282,7 @@ libs = ['physfs', 'm']
 if os.environ.has_key('CC'):
 	env['CC'] = os.environ['CC']
 if os.environ.has_key('CFLAGS'):
-	env['CCFLAGS'] += SCons.Util.CLVar(os.environ['CFLAGS'])
+	env['CFLAGS'] += SCons.Util.CLVar(os.environ['CFLAGS'])
 if os.environ.has_key('CXX'):
 	env['CXX'] = os.environ['CXX']
 if os.environ.has_key('CXXFLAGS'):
@@ -343,7 +343,7 @@ else:
 		ogllibs = ['GLES_CM', 'EGL']
 	else:
 		ogllibs = ['GL', 'GLU']
-	lflags = '-L/usr/X11R6/lib'
+	lflags = os.environ["LDFLAGS"] if os.environ.has_key('LDFLAGS') else ''
 
 # set endianess
 if (checkEndian() == "big"):
