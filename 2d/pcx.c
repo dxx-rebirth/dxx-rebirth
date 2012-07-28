@@ -99,17 +99,19 @@ int pcx_read_bitmap( char * filename, grs_bitmap * bmp,int bitmap_type ,ubyte * 
 	return result;
 }
 
+static int PCX_PHYSFS_read(struct PCX_PHYSFS_file *pcxphysfs, ubyte *data, unsigned size)
+{
+	return PHYSFS_read(pcxphysfs->PCXfile, data, size, sizeof(*data));
+}
+
 static int pcx_read_bitmap_file(struct PCX_PHYSFS_file *const pcxphysfs, grs_bitmap * bmp,int bitmap_type ,ubyte * palette)
 {
 	PCXHeader header;
-	PHYSFS_file * PCXfile;
 	int i, row, col, count, xsize, ysize;
 	ubyte data, *pixdata;
 
-	PCXfile = pcxphysfs->PCXfile;
-
 	// read 128 char PCX header
-	if (PCXHeader_read_n( &header, 1, PCXfile )!=1) {
+	if (PCXHeader_read_n( &header, 1, pcxphysfs->PCXfile )!=1) {
 		return PCX_ERROR_NO_HEADER;
 	}
 
@@ -132,12 +134,12 @@ static int pcx_read_bitmap_file(struct PCX_PHYSFS_file *const pcxphysfs, grs_bit
 		for (row=0; row< ysize ; row++)      {
 			pixdata = &bmp->bm_data[bmp->bm_rowsize*row];
 			for (col=0; col< xsize ; )      {
-				if (PHYSFS_read( PCXfile, &data, 1, 1 )!=1 )	{
+				if (PCX_PHYSFS_read(pcxphysfs, &data, 1) != 1)	{
 					return PCX_ERROR_READING;
 				}
 				if ((data & 0xC0) == 0xC0)     {
 					count =  data & 0x3F;
-					if (PHYSFS_read( PCXfile, &data, 1, 1 )!=1 )	{
+					if (PCX_PHYSFS_read(pcxphysfs, &data, 1) != 1)	{
 						return PCX_ERROR_READING;
 					}
 					memset( pixdata, data, count );
@@ -152,12 +154,12 @@ static int pcx_read_bitmap_file(struct PCX_PHYSFS_file *const pcxphysfs, grs_bit
 	} else {
 		for (row=0; row< ysize ; row++)      {
 			for (col=0; col< xsize ; )      {
-				if (PHYSFS_read( PCXfile, &data, 1, 1 )!=1 )	{
+				if (PCX_PHYSFS_read(pcxphysfs, &data, 1) != 1)	{
 					return PCX_ERROR_READING;
 				}
 				if ((data & 0xC0) == 0xC0)     {
 					count =  data & 0x3F;
-					if (PHYSFS_read( PCXfile, &data, 1, 1 )!=1 )	{
+					if (PCX_PHYSFS_read(pcxphysfs, &data, 1) != 1)	{
 						return PCX_ERROR_READING;
 					}
 					for (i=0;i<count;i++)
@@ -174,9 +176,9 @@ static int pcx_read_bitmap_file(struct PCX_PHYSFS_file *const pcxphysfs, grs_bit
 	// Read the extended palette at the end of PCX file
 	if ( palette != NULL )	{
 		// Read in a character which should be 12 to be extended palette file
-		if (PHYSFS_read( PCXfile, &data, 1, 1 )==1)	{
+		if (PCX_PHYSFS_read(pcxphysfs, &data, 1) == 1)	{
 			if ( data == 12 )	{
-				if (PHYSFS_read(PCXfile, palette,768, 1)!=1)	{
+				if (PCX_PHYSFS_read(pcxphysfs, palette, 768) != 1)	{
 					return PCX_ERROR_READING;
 				}
 				for (i=0; i<768; i++ )
