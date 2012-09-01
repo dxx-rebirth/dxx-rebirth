@@ -1,5 +1,9 @@
 D1X-Rebirth Changelog
 
+20120901
+--------
+main/vers_id.h: Fixed incorrect patch merge introduced in the last commit
+
 20120728
 --------
 SConstruct, main/vers_id.h: Some Sconstruct lovin': Respect LDFLAGS; Made D1XMAJORi/MINORi/MICROi compile time constants; Do not pass CFLAGS to CXX; Mark some more warnings as errors - patches by Kp
