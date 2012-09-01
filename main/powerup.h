@@ -24,64 +24,66 @@ COPYRIGHT 1993-1999 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 
 #include "vclip.h"
 
-#define POW_EXTRA_LIFE          0
-#define POW_ENERGY              1
-#define POW_SHIELD_BOOST        2
-#define POW_LASER               3
+enum powerup_type_t
+{
+	POW_EXTRA_LIFE = 0,
+	POW_ENERGY = 1,
+	POW_SHIELD_BOOST = 2,
+	POW_LASER = 3,
 
-#define POW_KEY_BLUE            4
-#define POW_KEY_RED             5
-#define POW_KEY_GOLD            6
+	POW_KEY_BLUE = 4,
+	POW_KEY_RED = 5,
+	POW_KEY_GOLD = 6,
 
-//#define POW_RADAR_ROBOTS        7
-//#define POW_RADAR_POWERUPS      8
+//	POW_RADAR_ROBOTS = 7,
+//	POW_RADAR_POWERUPS = 8,
 
-#define POW_MISSILE_1           10
-#define POW_MISSILE_4           11      // 4-pack MUST follow single missile
+	POW_MISSILE_1 = 10,
+	POW_MISSILE_4 = 11,      // 4-pack MUST follow single missile
 
-#define POW_QUAD_FIRE           12
+	POW_QUAD_FIRE = 12,
 
-#define POW_VULCAN_WEAPON       13
-#define POW_SPREADFIRE_WEAPON   14
-#define POW_PLASMA_WEAPON       15
-#define POW_FUSION_WEAPON       16
-#define POW_PROXIMITY_WEAPON    17
-#define POW_SMARTBOMB_WEAPON    20
-#define POW_MEGA_WEAPON         21
-#define POW_VULCAN_AMMO         22
-#define POW_HOMING_AMMO_1       18
-#define POW_HOMING_AMMO_4       19      // 4-pack MUST follow single missile
-#define POW_CLOAK               23
-#define POW_TURBO               24
-#define POW_INVULNERABILITY     25
-#define POW_MEGAWOW             27
+	POW_VULCAN_WEAPON = 13,
+	POW_SPREADFIRE_WEAPON = 14,
+	POW_PLASMA_WEAPON = 15,
+	POW_FUSION_WEAPON = 16,
+	POW_PROXIMITY_WEAPON = 17,
+	POW_HOMING_AMMO_1 = 18,
+	POW_HOMING_AMMO_4 = 19,      // 4-pack MUST follow single missile
+	POW_SMARTBOMB_WEAPON = 20,
+	POW_MEGA_WEAPON = 21,
+	POW_VULCAN_AMMO = 22,
+	POW_CLOAK = 23,
+	POW_TURBO = 24,
+	POW_INVULNERABILITY = 25,
+	POW_MEGAWOW = 27,
 
-#define POW_GAUSS_WEAPON        28
-#define POW_HELIX_WEAPON        29
-#define POW_PHOENIX_WEAPON      30
-#define POW_OMEGA_WEAPON        31
+	POW_GAUSS_WEAPON = 28,
+	POW_HELIX_WEAPON = 29,
+	POW_PHOENIX_WEAPON = 30,
+	POW_OMEGA_WEAPON = 31,
 
-#define POW_SUPER_LASER         32
-#define POW_FULL_MAP            33
-#define POW_CONVERTER           34
-#define POW_AMMO_RACK           35
-#define POW_AFTERBURNER         36
-#define POW_HEADLIGHT           37
+	POW_SUPER_LASER = 32,
+	POW_FULL_MAP = 33,
+	POW_CONVERTER = 34,
+	POW_AMMO_RACK = 35,
+	POW_AFTERBURNER = 36,
+	POW_HEADLIGHT = 37,
 
-#define POW_SMISSILE1_1         38
-#define POW_SMISSILE1_4         39      // 4-pack MUST follow single missile
-#define POW_GUIDED_MISSILE_1    40
-#define POW_GUIDED_MISSILE_4    41      // 4-pack MUST follow single missile
-#define POW_SMART_MINE          42
-#define POW_MERCURY_MISSILE_1   43
-#define POW_MERCURY_MISSILE_4   44      // 4-pack MUST follow single missile
-#define POW_EARTHSHAKER_MISSILE 45
+	POW_SMISSILE1_1 = 38,
+	POW_SMISSILE1_4 = 39,      // 4-pack MUST follow single missile
+	POW_GUIDED_MISSILE_1 = 40,
+	POW_GUIDED_MISSILE_4 = 41,      // 4-pack MUST follow single missile
+	POW_SMART_MINE = 42,
+	POW_MERCURY_MISSILE_1 = 43,
+	POW_MERCURY_MISSILE_4 = 44,      // 4-pack MUST follow single missile
+	POW_EARTHSHAKER_MISSILE = 45,
 
-#define POW_FLAG_BLUE           46
-#define POW_FLAG_RED            47
+	POW_FLAG_BLUE = 46,
+	POW_FLAG_RED = 47,
 
-#define POW_HOARD_ORB           7       // use unused slot
-
+	POW_HOARD_ORB = 7,       // use unused slot
+};
 
 #define VULCAN_AMMO_MAX             (392*4)
 #define VULCAN_WEAPON_AMMO_AMOUNT   196

@@ -37,23 +37,26 @@ COPYRIGHT 1993-1999 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 #define MAX_USED_OBJECTS	(MAX_OBJECTS-20)
 
 // Object types
-#define OBJ_NONE        255 // unused object
-#define OBJ_WALL        0   // A wall... not really an object, but used for collisions
-#define OBJ_FIREBALL    1   // a fireball, part of an explosion
-#define OBJ_ROBOT       2   // an evil enemy
-#define OBJ_HOSTAGE     3   // a hostage you need to rescue
-#define OBJ_PLAYER      4   // the player on the console
-#define OBJ_WEAPON      5   // a laser, missile, etc
-#define OBJ_CAMERA      6   // a camera to slew around with
-#define OBJ_POWERUP     7   // a powerup you can pick up
-#define OBJ_DEBRIS      8   // a piece of robot
-#define OBJ_CNTRLCEN    9   // the control center
-#define OBJ_FLARE       10  // a flare
-#define OBJ_CLUTTER     11  // misc objects
-#define OBJ_GHOST       12  // what the player turns into when dead
-#define OBJ_LIGHT       13  // a light source, & not much else
-#define OBJ_COOP        14  // a cooperative player object.
-#define OBJ_MARKER      15  // a map marker
+enum object_type_t
+{
+	OBJ_NONE	= 255, // unused object
+	OBJ_WALL	= 0,   // A wall... not really an object, but used for collisions
+	OBJ_FIREBALL	= 1,   // a fireball, part of an explosion
+	OBJ_ROBOT	= 2,   // an evil enemy
+	OBJ_HOSTAGE	= 3,   // a hostage you need to rescue
+	OBJ_PLAYER	= 4,   // the player on the console
+	OBJ_WEAPON	= 5,   // a laser, missile, etc
+	OBJ_CAMERA	= 6,   // a camera to slew around with
+	OBJ_POWERUP	= 7,   // a powerup you can pick up
+	OBJ_DEBRIS	= 8,   // a piece of robot
+	OBJ_CNTRLCEN	= 9,   // the control center
+	OBJ_FLARE	= 10,  // a flare
+	OBJ_CLUTTER	= 11,  // misc objects
+	OBJ_GHOST	= 12,  // what the player turns into when dead
+	OBJ_LIGHT	= 13,  // a light source, & not much else
+	OBJ_COOP	= 14,  // a cooperative player object.
+	OBJ_MARKER	= 15,  // a map marker
+};
 
 // WARNING!! If you add a type here, add its name to Object_type_names
 // in object.c
@@ -422,7 +425,7 @@ void obj_unlink(int objnum);
 
 // initialize a new object.  adds to the list for the given segment
 // returns the object number
-int obj_create(ubyte type, ubyte id, int segnum, vms_vector *pos,
+int obj_create(enum object_type_t type, ubyte id, int segnum, vms_vector *pos,
                vms_matrix *orient, fix size,
                ubyte ctype, ubyte mtype, ubyte rtype);
 

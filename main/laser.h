@@ -21,44 +21,53 @@ COPYRIGHT 1993-1999 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 #ifndef _LASER_H
 #define _LASER_H
 
-#define LASER_ID        0   //0..3 are lasers
-#define CONCUSSION_ID   8
-#define FLARE_ID        9   //  NOTE: This MUST correspond to the ID generated at bitmaps.tbl read time.
-#define VULCAN_ID       11  //  NOTE: This MUST correspond to the ID generated at bitmaps.tbl read time.
-#define SPREADFIRE_ID   12  //  NOTE: This MUST correspond to the ID generated at bitmaps.tbl read time.
-#define PLASMA_ID       13  //  NOTE: This MUST correspond to the ID generated at bitmaps.tbl read time.
-#define FUSION_ID       14  //  NOTE: This MUST correspond to the ID generated at bitmaps.tbl read time.
-#define HOMING_ID       15
-#define PROXIMITY_ID    16
-#define SMART_ID        17
-#define MEGA_ID         18
+enum weapon_type_t
+{
+	LASER_ID_L1,
+	LASER_ID = LASER_ID_L1, //0..3 are lasers
+	LASER_ID_L2,
+	LASER_ID_L3,
+	LASER_ID_L4,
+	CONCUSSION_ID = 8,
+	FLARE_ID = 9,   //  NOTE: This MUST correspond to the ID generated at bitmaps.tbl read time.
+	VULCAN_ID = 11,  //  NOTE: This MUST correspond to the ID generated at bitmaps.tbl read time.
+	SPREADFIRE_ID = 12,  //  NOTE: This MUST correspond to the ID generated at bitmaps.tbl read time.
+	PLASMA_ID = 13,  //  NOTE: This MUST correspond to the ID generated at bitmaps.tbl read time.
+	FUSION_ID = 14,  //  NOTE: This MUST correspond to the ID generated at bitmaps.tbl read time.
+	HOMING_ID = 15,
+	PROXIMITY_ID = 16,
+	SMART_ID = 17,
+	MEGA_ID = 18,
 
-#define PLAYER_SMART_HOMING_ID  19
-#define SUPER_MECH_MISS         21
-#define REGULAR_MECH_MISS       22
-#define SILENT_SPREADFIRE_ID    23
-#define ROBOT_SMART_HOMING_ID   29
-#define EARTHSHAKER_MEGA_ID     54
+	PLAYER_SMART_HOMING_ID = 19,
+	SUPER_MECH_MISS = 21,
+	REGULAR_MECH_MISS = 22,
+	SILENT_SPREADFIRE_ID = 23,
+	ROBOT_SMART_HOMING_ID = 29,
+	EARTHSHAKER_MEGA_ID = 54,
 
-#define SUPER_LASER_ID          30  // 30,31 are super lasers (level 5,6)
+	SUPER_LASER_ID = 30,  // 30,31 are super lasers (level 5,6)
+	LASER_ID_L5 = SUPER_LASER_ID,
+	LASER_ID_L6,
 
-#define GAUSS_ID                32  //  NOTE: This MUST correspond to the ID generated at bitmaps.tbl read time.
-#define HELIX_ID                33  //  NOTE: This MUST correspond to the ID generated at bitmaps.tbl read time.
-#define PHOENIX_ID              34  //  NOTE: This MUST correspond to the ID generated at bitmaps.tbl read time.
-#define OMEGA_ID                35  //  NOTE: This MUST correspond to the ID generated at bitmaps.tbl read time.
+	GAUSS_ID = 32,  //  NOTE: This MUST correspond to the ID generated at bitmaps.tbl read time.
+	HELIX_ID = 33,  //  NOTE: This MUST correspond to the ID generated at bitmaps.tbl read time.
+	PHOENIX_ID = 34,  //  NOTE: This MUST correspond to the ID generated at bitmaps.tbl read time.
+	OMEGA_ID = 35,  //  NOTE: This MUST correspond to the ID generated at bitmaps.tbl read time.
 
-#define FLASH_ID                36
-#define GUIDEDMISS_ID           37
-#define SUPERPROX_ID            38
-#define MERCURY_ID              39
-#define EARTHSHAKER_ID          40
+	FLASH_ID = 36,
+	GUIDEDMISS_ID = 37,
+	SUPERPROX_ID = 38,
+	MERCURY_ID = 39,
+	EARTHSHAKER_ID = 40,
 
-#define SMART_MINE_HOMING_ID        47
-#define ROBOT_SMART_MINE_HOMING_ID  49
-#define ROBOT_SUPERPROX_ID          53
-#define ROBOT_EARTHSHAKER_ID        58
+	SMART_MINE_HOMING_ID = 47,
+	ROBOT_SMART_MINE_HOMING_ID = 49,
+	ROBOT_SUPERPROX_ID = 53,
+	ROBOT_EARTHSHAKER_ID = 58,
 
-#define PMINE_ID                    51  //the mine that the designers can place
+	PMINE_ID = 51,  //the mine that the designers can place
+};
 
 // These are new defines for the value of 'flags' passed to do_laser_firing.
 // The purpose is to collect other flags like QUAD_LASER and Spreadfire_toggle
