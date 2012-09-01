@@ -20,23 +20,27 @@ COPYRIGHT 1993-1998 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 #ifndef _LASER_H
 #define _LASER_H
 
-#define	CONCUSSION_ID	8
-#define	FLARE_ID			9							//	NOTE: This MUST correspond to the ID generated at bitmaps.tbl read time.
-#define	LASER_ID			10
-#define	VULCAN_ID		11							//	NOTE: This MUST correspond to the ID generated at bitmaps.tbl read time.
-#define	XSPREADFIRE_ID	12							//	NOTE: This MUST correspond to the ID generated at bitmaps.tbl read time.
-#define	PLASMA_ID		13							//	NOTE: This MUST correspond to the ID generated at bitmaps.tbl read time.
-#define	FUSION_ID		14							//	NOTE: This MUST correspond to the ID generated at bitmaps.tbl read time.
-#define	HOMING_ID		15
-#define	PROXIMITY_ID	16
-#define	SMART_ID			17
-#define	MEGA_ID			18
-#define	PLAYER_SMART_HOMING_ID 19
-#define	SPREADFIRE_ID	20
-#define	SUPER_MECH_MISS	21
-#define	REGULAR_MECH_MISS	22
-#define	SILENT_SPREADFIRE_ID	23
-#define	ROBOT_SMART_HOMING_ID ((N_weapon_types<29)?(PLAYER_SMART_HOMING_ID):(29)) // NOTE: Shareware does not have it's own Smart structure for bots. It was introduced later to make Smart blobs from lvl 7 boss easier to dodge. So if we do not have this type, revert to player's Smart behaviour..
+enum weapon_type_t
+{
+	CONCUSSION_ID = 8,
+	FLARE_ID = 9,   //  NOTE: This MUST correspond to the ID generated at bitmaps.tbl read time.
+	LASER_ID = 10,
+	VULCAN_ID = 11,  //  NOTE: This MUST correspond to the ID generated at bitmaps.tbl read time.
+	XSPREADFIRE_ID = 12,  //  NOTE: This MUST correspond to the ID generated at bitmaps.tbl read time.
+	PLASMA_ID = 13,  //  NOTE: This MUST correspond to the ID generated at bitmaps.tbl read time.
+	FUSION_ID = 14,  //  NOTE: This MUST correspond to the ID generated at bitmaps.tbl read time.
+	HOMING_ID = 15,
+	PROXIMITY_ID = 16,
+	SMART_ID = 17,
+	MEGA_ID = 18,
+
+	PLAYER_SMART_HOMING_ID = 19,
+	SPREADFIRE_ID = 20,
+	SUPER_MECH_MISS = 21,
+	REGULAR_MECH_MISS = 22,
+	SILENT_SPREADFIRE_ID = 23,
+	ROBOT_SMART_HOMING_ID = 29, // NOTE: check create_smart_children()!!!
+};
 
 // These are new defines for the value of 'flags' passed to do_laser_firing.
 // The purpose is to collect other flags like QUAD_LASER and Spreadfire_toggle

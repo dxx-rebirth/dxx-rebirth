@@ -4,6 +4,7 @@ D1X-Rebirth Changelog
 --------
 main/vers_id.h: Fixed incorrect patch merge introduced in the last commit
 main/fireball.c, main/laser.c: Removed Assert in create_smart_children() which has been taken from D2X code but does not apply for D1X and only will let the Assert fail
+main/laser.c, main/laser.h, main/object.c, main/object.h, main/powerup.h: Use enum for object types, powerup types, weapon types
 
 20120728
 --------

@@ -1096,7 +1096,7 @@ void free_object_slots(int num_used)
 //note that segnum is really just a suggestion, since this routine actually
 //searches for the correct segment
 //returns the object number
-int obj_create(ubyte type,ubyte id,int segnum,vms_vector *pos,
+int obj_create(enum object_type_t type, ubyte id,int segnum,vms_vector *pos,
 				vms_matrix *orient,fix size,ubyte ctype,ubyte mtype,ubyte rtype)
 {
 	int objnum;

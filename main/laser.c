@@ -1355,7 +1355,7 @@ void create_smart_children(object *objp)
 			blob_id = PLAYER_SMART_HOMING_ID;
 			Assert(blob_id != -1);		//	Hmm, missing data in bitmaps.tbl.  Need "children=NN" parameter.
 		} else {
-			blob_id = ROBOT_SMART_HOMING_ID;
+			blob_id = ((N_weapon_types<ROBOT_SMART_HOMING_ID)?(PLAYER_SMART_HOMING_ID):(ROBOT_SMART_HOMING_ID)); // NOTE: Shareware & reg 1.0 do not have their own Smart structure for bots. It was introduced in 1.4 to make Smart blobs from lvl 7 boss easier to dodge. So if we do not have this type, revert to player's Smart behaviour..,
 		}
 
 		for (i=0; i<NUM_SMART_CHILDREN; i++) {
