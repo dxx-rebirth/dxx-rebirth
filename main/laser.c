@@ -1355,7 +1355,6 @@ void create_smart_children(object *objp)
 			blob_id = PLAYER_SMART_HOMING_ID;
 			Assert(blob_id != -1);		//	Hmm, missing data in bitmaps.tbl.  Need "children=NN" parameter.
 		} else {
-			Assert(objp->type == OBJ_ROBOT);
 			blob_id = ROBOT_SMART_HOMING_ID;
 		}
 
