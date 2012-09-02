@@ -233,6 +233,7 @@ void jukebox_hook_next()
 int jukebox_play()
 {
 	char *music_filename, *full_filename;
+	unsigned long size_full_filename = 0;
 
 	if (!JukeboxSongs.list)
 		return 0;
@@ -244,12 +245,13 @@ int jukebox_play()
 	if (!music_filename)
 		return 0;
 
-	MALLOC(full_filename, char, strlen(GameCfg.CMLevelMusicPath)+strlen(music_filename)+1);
-	memset(full_filename, '\0', strlen(GameCfg.CMLevelMusicPath)+strlen(music_filename)+1);
+	size_full_filename = strlen(GameCfg.CMLevelMusicPath)+strlen(music_filename)+1;
+	MALLOC(full_filename, char, size_full_filename);
+	memset(full_filename, '\0', size_full_filename);
 	if (!d_stricmp(&GameCfg.CMLevelMusicPath[strlen(GameCfg.CMLevelMusicPath) - 4], ".m3u"))	// if it's from an M3U playlist
 		strcpy(full_filename, music_filename);
 	else											// if it's from a specified path
-		snprintf(full_filename, strlen(GameCfg.CMLevelMusicPath)+strlen(music_filename)+1, "%s%s", GameCfg.CMLevelMusicPath, music_filename);
+		snprintf(full_filename, size_full_filename, "%s%s", GameCfg.CMLevelMusicPath, music_filename);
 
 	if (!songs_play_file(full_filename, ((GameCfg.CMLevelMusicPlayOrder == MUSIC_CM_PLAYORDER_LEVEL)?1:0), ((GameCfg.CMLevelMusicPlayOrder == MUSIC_CM_PLAYORDER_LEVEL)?NULL:jukebox_hook_next)))
 	{

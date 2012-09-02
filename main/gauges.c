@@ -2636,12 +2636,12 @@ void show_HUD_names()
 						snprintf( s, sizeof(s), "%s", Players[pnum].callsign );
 					if (show_typing && multi_sending_message[pnum])
 					{
-						if (strlen(s))
+						if (s[0])
 							strncat( s, ", typing", 8);
 						else
 							strncpy( s, "Typing", 6 );
 					}
-					if (strlen(s))
+					if (s[0])
 					{
 						gr_get_string_size(s, &w, &h, &aw);
 						gr_set_fontcolor(BM_XRGB(player_rgb[color_num].r,player_rgb[color_num].g,player_rgb[color_num].b),-1 );
