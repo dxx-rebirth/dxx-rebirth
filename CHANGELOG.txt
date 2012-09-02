@@ -1,5 +1,9 @@
 D1X-Rebirth Changelog
 
+20120903
+--------
+arch/sdl/jukebox.c, main/gauges.c: Avoid some unnecessary strlen's
+
 20120902
 --------
 include/u_mem.h: Compile out memory checker if not enabled - patch by Kp
