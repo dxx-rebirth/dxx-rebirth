@@ -2,7 +2,8 @@ D1X-Rebirth Changelog
 
 20120903
 --------
-arch/sdl/jukebox.c, main/gauges.c: Avoid some unnecessary strlen's
+arch/sdl/jukebox.c, main/gauges.c: Avoid some unnecessary strlen's - (slightly changed) patch by Kp
+misc/args.c: Made FindArg static - patch by Kp
 
 20120902
 --------
