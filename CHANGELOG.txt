@@ -1,5 +1,9 @@
 D2X-Rebirth Changelog
 
+20120902
+--------
+include/u_mem.h: Compile out memory checker if not enabled - patch by Kp
+
 20120901
 --------
 main/vers_id.h: Fixed incorrect patch merge introduced in the last commit
