@@ -1152,7 +1152,7 @@ void hud_show_weapons_mode(int type,int vertical,int x,int y){
 				x-=w+FSPACX(3);
 			gr_string(x, y, weapon_str);
 			if (i == 1 && Primary_weapon == i && PlayerCfg.CockpitMode[1]==CM_FULL_SCREEN)
-				gr_printf(x+FSPACX(20),y,"%i",f2i((unsigned int)Players[Player_num].primary_ammo[1] * VULCAN_AMMO_SCALE));
+				gr_printf(x,y-(LINE_SPACING*1),"V:%i",f2i((unsigned int)Players[Player_num].primary_ammo[1] * VULCAN_AMMO_SCALE));
 		}
 	} else {
 		for (i=4;i>=0;i--){
@@ -1222,7 +1222,7 @@ void hud_show_weapons_mode(int type,int vertical,int x,int y){
 				x-=w+FSPACX(3);
 			gr_string(x, y, weapon_str);
 			if (i == 6 && Primary_weapon == i && PlayerCfg.CockpitMode[1]==CM_FULL_SCREEN)
-				gr_printf(x+FSPACX(5),y,"%i",f2i((unsigned int)Players[Player_num].primary_ammo[1] * VULCAN_AMMO_SCALE));
+				gr_printf(x+FSPACX(9),y-(LINE_SPACING*2),"G:%i",f2i((unsigned int)Players[Player_num].primary_ammo[1] * VULCAN_AMMO_SCALE));
 		}
 	} else {
 		for (i=9;i>=5;i--){
