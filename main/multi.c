@@ -2650,7 +2650,6 @@ multi_send_player_explode(char type)
 		multi_strip_robots(Player_num);
 }
 
-extern ubyte Secondary_weapon_to_powerup[], Primary_weapon_to_powerup[];
 extern int Proximity_dropped, Smartmines_dropped;
 
 /*
