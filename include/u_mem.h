@@ -21,10 +21,9 @@ COPYRIGHT 1993-1998 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 #ifdef MACINTOSH
 extern ubyte virtual_memory_on;
 #endif
+void mem_init(void);
 
 #if !defined(NDEBUG)
-
-void mem_init(void);
 void mem_display_blocks();
 extern void * mem_malloc( unsigned int size, char * var, char * file, int line, int fill_zero );
 extern void * mem_realloc( void * buffer, unsigned int size, char * var, char * file, int line );
@@ -43,10 +42,6 @@ extern char * mem_strdup(char * str, char * var, char * file, int line );
 void mem_validate_heap();
 
 #else
-
-static inline void mem_init(void)
-{
-}
 
 #ifdef macintosh
 extern char *strdup(const char *str);

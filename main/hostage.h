@@ -148,7 +148,7 @@ extern vclip Hostage_face_clip[MAX_HOSTAGES];
 extern hostage_data Hostages[MAX_HOSTAGES];
 
 void draw_hostage(object *obj);
-void hostage_rescue( int hostage_num );
+void hostage_rescue( int hostage_number );
 void hostage_init();
 
 //returns true if something drew

@@ -1,5 +1,9 @@
 D1X-Rebirth Changelog
 
+20121031
+--------
+main/hostage.h, include/u_mem.h: Fixed inconsistency in hostage_rescue() definition and revoked recent patch for u_mem.h due to infinite loops in mem.c caused by this
+
 20120903
 --------
 arch/sdl/jukebox.c, main/gauges.c: Avoid some unnecessary strlen's - (slightly changed) patch by Kp
