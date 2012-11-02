@@ -27,6 +27,7 @@ COPYRIGHT 1993-1998 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 #ifdef OGL
 #include "ogl_init.h"
 #endif
+#include "bitmap.h"
 
 void gr_set_bitmap_data (grs_bitmap *bm, unsigned char *data)
 {
