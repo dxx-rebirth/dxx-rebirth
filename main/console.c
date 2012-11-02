@@ -20,12 +20,12 @@
 #include "vers_id.h"
 #include "timer.h"
 
-PHYSFS_file *gamelog_fp=NULL;
-struct console_buffer con_buffer[CON_LINES_MAX];
+static PHYSFS_file *gamelog_fp=NULL;
+static struct console_buffer con_buffer[CON_LINES_MAX];
 static int con_state = CON_STATE_CLOSED, con_scroll_offset = 0, con_size = 0;
 extern void game_flush_inputs();
 
-void con_add_buffer_line(int priority, char *buffer)
+static void con_add_buffer_line(int priority, char *buffer)
 {
 	int i=0;
 
@@ -47,7 +47,7 @@ void con_add_buffer_line(int priority, char *buffer)
 	}
 }
 
-void con_printf(int priority, char *fmt, ...)
+void con_printf(int priority, const char *fmt, ...)
 {
 	va_list arglist;
 	char buffer[CON_LINE_LENGTH];
@@ -105,7 +105,7 @@ void con_printf(int priority, char *fmt, ...)
 	}
 }
 
-void con_draw(void)
+static void con_draw(void)
 {
 	int i = 0, y = 0, done = 0;
 
@@ -158,7 +158,7 @@ void con_draw(void)
 	gr_printf(SWIDTH-FSPACX(110),FSPACY(1),"PAGE-UP/DOWN TO SCROLL");
 }
 
-int con_handler(window *wind, d_event *event)
+static int con_handler(window *wind, d_event *event)
 {
 	int key;
 	static fix64 last_scroll_time = 0;
@@ -260,7 +260,7 @@ void con_showup(void)
 	}
 }
 
-void con_close(void)
+static void con_close(void)
 {
 	if (gamelog_fp)
 		PHYSFS_close(gamelog_fp);
