@@ -104,7 +104,7 @@ void draw_segment(segment *seg)
 	med_get_vertex_list(seg,&nv,&svp);				// set nv = number of vertices, svp = pointer to vertex indices
 	cc=rotate_list(nv,svp);
 
-	if (! cc.and) {		//all off screen?
+	if (! cc.uand) {		//all off screen?
 		int i;
 
 		for (i=0;i<4;i++) draw_line(svp[i],svp[i+4]);
@@ -131,7 +131,7 @@ void check_segment(segment *seg)
 	med_get_vertex_list(seg,&nv,&svp);				// set nv = number of vertices, svp = pointer to vertex indices
 	cc=rotate_list(nv,svp);
 
-	if (! cc.and) {		//all off screen?
+	if (! cc.uand) {		//all off screen?
 		int fn;
 
 		gr_setcolor(0);
@@ -178,7 +178,7 @@ void draw_seg_side(segment *seg,int side)
 	med_get_vertex_list(seg,&nv,&svp);				// set nv = number of vertices, svp = pointer to vertex indices
 	cc=rotate_list(nv,svp);
 
-	if (! cc.and) {		//all off screen?
+	if (! cc.uand) {		//all off screen?
 		int i;
 
 		for (i=0;i<3;i++)
@@ -198,7 +198,7 @@ void draw_side_edge(segment *seg,int side,int edge)
 	med_get_vertex_list(seg,&nv,&svp);				// set nv = number of vertices, svp = pointer to vertex indices
 	cc=rotate_list(nv,svp);
 
-	if (! cc.and)		//on screen?
+	if (! cc.uand)		//on screen?
 		draw_line(svp[Side_to_verts[side][edge]],svp[Side_to_verts[side][(edge+1)%4]]);
 }
 
@@ -375,7 +375,7 @@ void add_edges(segment *seg)
 	med_get_vertex_list(seg,&nv,&svp);				// set nv = number of vertices, svp = pointer to vertex indices
 	cc=rotate_list(nv,svp);
 
-	if (! cc.and) {		//all off screen?
+	if (! cc.uand) {		//all off screen?
 		int	i,sn,fn,vn;
 		int	flag;
 		ubyte	edge_flags[N_EDGES_PER_SEGMENT];
@@ -440,7 +440,7 @@ void draw_trigger_side(segment *seg,int side)
 	med_get_vertex_list(seg,&nv,&svp);				// set nv = number of vertices, svp = pointer to vertex indices
 	cc=rotate_list(nv,svp);
 
-	if (! cc.and) {		//all off screen?
+	if (! cc.uand) {		//all off screen?
 		// Draw diagonals
 		draw_line(svp[Side_to_verts[side][0]],svp[Side_to_verts[side][2]]);
 		//g3_draw_line(svp[Side_to_verts[side][1]],svp[Side_to_verts[side][3]]);
@@ -457,7 +457,7 @@ void draw_wall_side(segment *seg,int side)
 	med_get_vertex_list(seg,&nv,&svp);				// set nv = number of vertices, svp = pointer to vertex indices
 	cc=rotate_list(nv,svp);
 
-	if (! cc.and) {		//all off screen?
+	if (! cc.uand) {		//all off screen?
 		// Draw diagonals
 		draw_line(svp[Side_to_verts[side][0]],svp[Side_to_verts[side][2]]);
 		draw_line(svp[Side_to_verts[side][1]],svp[Side_to_verts[side][3]]);

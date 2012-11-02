@@ -978,7 +978,7 @@ void draw_all_edges(automap *am)
 		if (min_distance>distance )
 			min_distance = distance;
 
-		if (!cc.and) {			//all off screen?
+		if (!cc.uand) {			//all off screen?
 			nfacing = nnfacing = 0;
 			tv1 = &Vertices[e->verts[0]];
 			j = 0;

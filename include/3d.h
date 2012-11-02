@@ -47,7 +47,7 @@ typedef struct g3s_lrgb {
 
 //Stucture to store clipping codes in a word
 typedef struct g3s_codes {
-	ubyte or,and;   //or is low byte, and is high byte
+	ubyte uor,uand;   //or is low byte, and is high byte
 } g3s_codes;
 
 //flags for point structure
