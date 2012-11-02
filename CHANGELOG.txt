@@ -12,6 +12,7 @@ include/console.h, main/console.c: Marked con_printf fmt as const, Increased con
 2d/font.c: Fixed test for font magic number; Consolidated grs_font_read() - patches by Kp
 main/menu.c, main/multi.h, main/net_udp.c: Moved vers_id.h inclusion to where it is needed - patch by Kp
 2d/bitmap.c: Include bitmap.h - patch by Kp
+2d/bitblt.c, include/rle.h: Move declaration of gr_rle_expand_scanline_generic() to rle.h - patch by Kp
 
 20121031
 --------
