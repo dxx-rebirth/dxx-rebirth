@@ -239,10 +239,7 @@ int gr_toggle_fullscreen(void)
 	return (sdl_video_flags & SDL_FULLSCREEN)?1:0;
 }
 
-extern void ogl_init_pixel_buffers(int w, int h);
-extern void ogl_close_pixel_buffers(void);
-
-void ogl_init_state(void)
+static void ogl_init_state(void)
 {
 	/* select clearing (background) color   */
 	glClearColor(0.0, 0.0, 0.0, 0.0);
