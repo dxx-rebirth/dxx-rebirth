@@ -58,9 +58,6 @@ static unsigned char SavedState[256];
 
 static int PlaybackSpeed = 1;
 
-extern void ui_draw_frame( short x1, short y1, short x2, short y2 );
-extern void save_screen_shot(int automap_flag);		// avoids conflict with FrameCount when including game.h
-
 // 1=1x faster, 2=2x faster, etc
 void ui_set_playback_speed( int speed )
 {
