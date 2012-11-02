@@ -48,6 +48,7 @@
 #include "rbaudio.h"
 #include "byteswap.h"
 #include "config.h"
+#include "vers_id.h"
 
 // Prototypes
 void net_udp_init();

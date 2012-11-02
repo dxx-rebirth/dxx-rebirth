@@ -23,7 +23,6 @@ COPYRIGHT 1993-1998 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 
 #include "gameseq.h"
 #include "piggy.h"
-#include "vers_id.h"
 #include "powerup.h"
 #include "newmenu.h"
 // Need these for non network builds too -Chris
