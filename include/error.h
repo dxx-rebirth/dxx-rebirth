@@ -24,10 +24,10 @@ COPYRIGHT 1993-1998 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 
 #ifdef __GNUC__
 #define __noreturn __attribute__ ((noreturn))
-#define __format __attribute__ ((format (printf, 1, 2)))
+#define __attribute_gcc_format(X) __attribute__ ((format X))
 #else
 #define __noreturn
-#define __format
+#define __attribute_gcc_format(X)
 #endif
 
 void warn_printf(char *s);
@@ -37,7 +37,7 @@ void Warning(char *fmt,...);				//print out warning message to user
 void set_warn_func(void (*f)(char *s));//specifies the function to call with warning messages
 void clear_warn_func(void (*f)(char *s));//say this function no longer valid
 void _Assert(int expr,char *expr_text,char *filename,int linenum);	//assert func
-void Error(const char *fmt,...) __noreturn __format;				//exit with error code=1, print message
+void Error(const char *fmt,...) __noreturn __attribute_gcc_format((printf, 1, 2));				//exit with error code=1, print message
 void Assert(int expr);
 void Int3();
 #ifndef NDEBUG		//macros for debugging
