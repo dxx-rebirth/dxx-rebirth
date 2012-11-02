@@ -530,9 +530,6 @@ void gr_bm_ubitblt00m_rle(int w, int h, int dx, int dy, int sx, int sy, grs_bitm
 
 // in rle.c
 
-extern void gr_rle_expand_scanline_generic( grs_bitmap * dest, int dx, int dy, ubyte *src,
-	int x1, int x2, int masked );
-
 
 void gr_bm_ubitblt0x_rle(int w, int h, int dx, int dy, int sx, int sy, grs_bitmap * src,
 						 grs_bitmap * dest, int masked )
@@ -550,8 +547,7 @@ void gr_bm_ubitblt0x_rle(int w, int h, int dx, int dy, int sx, int sy, grs_bitma
 		sbits += (int)(INTEL_SHORT(src->bm_data[4+(i*data_offset)]));
 
 	for (y1=0; y1 < h; y1++ )    {
-		gr_rle_expand_scanline_generic( dest, dx, dy+y1,  sbits, sx, sx+w-1,
-										masked );
+		gr_rle_expand_scanline_generic( dest, dx, dy+y1,  sbits, sx, sx+w-1);
 		if ( src->bm_flags & BM_FLAG_RLE_BIG )
 			sbits += (int)INTEL_SHORT(*((short *)&(src->bm_data[4+((y1+sy)*data_offset)])));
 		else
