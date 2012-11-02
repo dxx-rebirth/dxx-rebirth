@@ -413,7 +413,7 @@ int get_item_height(kc_item *item)
 	} else {
 		switch( item->type )	{
 			case BT_KEY:
-				strncpy( btext, key_text[item->value], 10 ); break;
+				strncpy( btext, key_properties[item->value].key_text, 10 ); break;
 			case BT_MOUSE_BUTTON:
 				strncpy( btext, mousebutton_text[item->value], 10); break;
 			case BT_MOUSE_AXIS:
@@ -933,7 +933,7 @@ void kc_drawitem( kc_item *item, int is_current )
 	} else {
 		switch( item->type )	{
 			case BT_KEY:
-				strncpy( btext, key_text[item->value], 10 ); break;
+				strncpy( btext, key_properties[item->value].key_text, 10 ); break;
 			case BT_MOUSE_BUTTON:
 				strncpy( btext, mousebutton_text[item->value], 10 ); break;
 			case BT_MOUSE_AXIS:
@@ -999,7 +999,7 @@ void kc_change_key( kc_menu *menu, d_event *event, kc_item * item )
 	Assert(event->type == EVENT_KEY_COMMAND);
 	keycode = event_key_get_raw(event);
 
-	if (strlen(key_text[keycode])<=0)
+	if (!(key_properties[keycode].key_text))
 		return;
 
 	for (n=0; n<(GameArg.CtlNoStickyKeys?sizeof(system_keys)-3:sizeof(system_keys)); n++ )

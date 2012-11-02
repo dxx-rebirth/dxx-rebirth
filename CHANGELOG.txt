@@ -1,5 +1,9 @@
 D1X-Rebirth Changelog
 
+20121102
+--------
+arch/include/key.h, arch/sdl/key.c, main/kconfig.c: Made key_properties readable in other files; Eliminated key_text variable; Marked unicode_frame_buffer as extern in header - patches by Kp
+
 20121031
 --------
 main/hostage.h, include/u_mem.h: Fixed inconsistency in hostage_rescue() definition and revoked recent patch for u_mem.h due to infinite loops in mem.c caused by this
