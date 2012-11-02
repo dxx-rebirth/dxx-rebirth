@@ -20,6 +20,7 @@ COPYRIGHT 1993-1999 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 #ifndef _KEY_H
 #define _KEY_H 
 
+#include <SDL/SDL_keysym.h>
 #include "pstypes.h"
 #include "fix.h"
 #include "event.h"
@@ -38,7 +39,7 @@ extern void key_close();
 extern fix64 keyd_time_when_last_pressed;
 
 // Stores Unicode values registered in one event_loop call
-unsigned char unicode_frame_buffer[KEY_BUFFER_SIZE];
+extern unsigned char unicode_frame_buffer[KEY_BUFFER_SIZE];
 
 extern void key_flush();    // Clears the 256 char buffer
 extern int event_key_get(d_event *event);	// Get the keycode from the EVENT_KEY_COMMAND event
@@ -51,8 +52,6 @@ extern volatile unsigned char keyd_last_pressed;
 extern volatile unsigned char keyd_last_released;
 
 extern void key_toggle_repeat(int enable);
-
-extern char * key_text[256];
 
 // for key_ismodlck
 #define KEY_ISMOD	1
@@ -184,5 +183,13 @@ extern char * key_text[256];
 #define KEY_PRINT_SCREEN	0xB7
 
 #define KEY_PAUSE			0x61
+
+typedef struct key_props {
+	const char *key_text;
+	unsigned char ascii_value;
+	SDLKey sym;
+} key_props;
+
+extern const key_props key_properties[256];
 
 #endif

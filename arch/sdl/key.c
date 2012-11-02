@@ -35,13 +35,7 @@ typedef struct keyboard	{
 
 static keyboard key_data;
 
-typedef struct key_props {
-	char *key_text;
-	unsigned char ascii_value;
-	SDLKey sym;
-} key_props;
-
-key_props key_properties[256] = {
+const key_props key_properties[256] = {
 { "",       255,    -1                 }, // 0
 { "ESC",    255,    SDLK_ESCAPE        },
 { "1",      '1',    SDLK_1             },
@@ -306,8 +300,6 @@ typedef struct d_event_keycommand
 	int			keycode;
 } d_event_keycommand;
 
-char *key_text[256];
-
 int key_ismodlck(int keycode)
 {
 	switch (keycode)
@@ -441,8 +433,6 @@ void key_close()
 
 void key_init()
 {
-	int i;
-	
 	if (Installed) return;
 
 	Installed=1;
@@ -450,10 +440,6 @@ void key_init()
 	key_toggle_repeat(1);
 
 	keyd_time_when_last_pressed = timer_query();
-	
-	for(i=0; i<256; i++)
-		key_text[i] = key_properties[i].key_text;
-	  
 	// Clear the keyboard array
 	key_flush();
 }
