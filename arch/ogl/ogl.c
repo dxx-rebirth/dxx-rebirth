@@ -104,7 +104,6 @@ void ogl_filltexbuf(unsigned char *data, GLubyte *texp, int truewidth, int width
 void ogl_loadbmtexture(grs_bitmap *bm);
 int ogl_loadtexture(unsigned char *data, int dxo, int dyo, ogl_texture *tex, int bm_flags, int data_format, int texfilt);
 void ogl_freetexture(ogl_texture *gltexture);
-void ogl_do_palfx(void);
 
 #ifdef OGLES
 // Replacement for gluPerspective

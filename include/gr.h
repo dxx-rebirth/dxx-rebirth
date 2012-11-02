@@ -184,7 +184,7 @@ void gr_init_canvas(grs_canvas *canv,unsigned char *pixdata,int pixtype, int w,i
 
 // Initialize the specified sub canvas. no memory allocation is performed.
 
-void gr_init_sub_canvas(grs_canvas *new,grs_canvas *src,int x,int y,int w, int h);
+void gr_init_sub_canvas(grs_canvas *,grs_canvas *src,int x,int y,int w, int h);
 
 // Free up the canvas and its pixel data.
 
@@ -320,7 +320,7 @@ grs_font * gr_init_font( const char * fontfile );
 void gr_close_font( grs_font * font );
 
 // Writes a string using current font. Returns the next column after last char.
-void gr_set_curfont( grs_font * new );
+void gr_set_curfont( grs_font * );
 void gr_set_fontcolor( int fg_color, int bg_color );
 int gr_string(int x, int y, const char *s );
 int gr_ustring(int x, int y, const char *s );
@@ -423,5 +423,8 @@ int gr_check_fullscreen(void);
  * check_fullscreen immediatly after)
  */
 int gr_toggle_fullscreen(void);
+void ogl_do_palfx(void);
+void ogl_init_pixel_buffers(int w, int h);
+void ogl_close_pixel_buffers(void);
 
 #endif /* def _GR_H */
