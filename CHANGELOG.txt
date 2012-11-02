@@ -8,7 +8,7 @@ include/maths.h, include/texmap.h, include/ui.h, main/object.c, maths/fixc.c, ma
 3d/clipper.c, 3d/draw.c, editor/meddraw.c, include/3d.h, main/automap.c, main/render.c: in g3s_codes renamed  or,and to uor,uand - patch by Kp
 main/object.h: use struct type explicitly - patch by Kp
 include/error.h: Renamed __format to __attribute_gcc_format due to possible C++ conflict; allow arguments - patch by Kp
-
+include/console.h, main/console.c: Marked con_printf fmt as const, Increased console lines from 512 to 2048; Marked console private entries as static - patches by Kp
 
 20121031
 --------
