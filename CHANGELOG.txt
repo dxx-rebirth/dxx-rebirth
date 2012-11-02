@@ -5,6 +5,8 @@ D1X-Rebirth Changelog
 arch/include/key.h, arch/sdl/key.c, main/kconfig.c: Made key_properties readable in other files; Eliminated key_text variable; Marked unicode_frame_buffer as extern in header - patches by Kp
 arch/ogl/gr.c, arch/ogl/ogl.c, include/gr.h: Removed 'new' from prototypes; Declared ogl_do_palfx(), ogl_close_pixel_buffers(), ogl_init_pixel_buffers() in gr.h - patches by Kp
 include/maths.h, include/texmap.h, include/ui.h, main/object.c, maths/fixc.c, maths/tables.c, texmap/ntmap.c, ui/dialog.c, ui/icon.c: Moved ui_draw_frame(), ui_draw_shad(), draw_tmap_flat(), math tables externs to headers - patches by Kp
+3d/clipper.c, 3d/draw.c, editor/meddraw.c, include/3d.h, main/automap.c, main/render.c: in g3s_codes renamed  or,and to uor,uand - patch by Kp
+
 
 20121031
 --------

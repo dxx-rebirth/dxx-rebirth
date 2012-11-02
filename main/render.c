@@ -628,7 +628,7 @@ g3s_codes rotate_list(int nv,int *pointnumlist)
 	g3s_point *pnt;
 	g3s_codes cc;
 
-	cc.and = 0xff;  cc.or = 0;
+	cc.uand = 0xff;  cc.uor = 0;
 
 	for (i=0;i<nv;i++) {
 
@@ -653,8 +653,8 @@ g3s_codes rotate_list(int nv,int *pointnumlist)
 			Rotated_last[pnum] = framecount;
 		}
 
-		cc.and &= pnt->p3_codes;
-		cc.or  |= pnt->p3_codes;
+		cc.uand &= pnt->p3_codes;
+		cc.uor  |= pnt->p3_codes;
 	}
 
 	return cc;
@@ -689,7 +689,7 @@ void render_segment(int segnum)
 
 	cc=rotate_list(8,seg->verts);
 
-	if (! cc.and) {		//all off screen?
+	if (! cc.uand) {		//all off screen?
 
 		Automap_visited[segnum]=1;
 
@@ -722,7 +722,7 @@ void render_segment(int segnum)
 // -- 
 // -- 	cc=g3_rotate_list(8,&seg->verts);
 // -- 
-// -- 	if (! cc.and) {		//all off screen?
+// -- 	if (! cc.uand) {		//all off screen?
 // -- 		int fn,pn,i;
 // -- 		side *s;
 // -- 		face *f;
@@ -763,7 +763,7 @@ void outline_seg_side(segment *seg,int _side,int edge,int vert)
 
 	cc=rotate_list(8,seg->verts);
 
-	if (! cc.and) {		//all off screen?
+	if (! cc.uand) {		//all off screen?
 		g3s_point *pnt;
 
 		//render curedge of curside of curseg in green
@@ -1863,7 +1863,7 @@ void render_mine(int start_seg_num,fix eye_offset)
 
 				cc=rotate_list(8,seg->verts);
 
-				if (! cc.and) {		//all off screen?
+				if (! cc.uand) {		//all off screen?
 
 				  if (Viewer->type!=OBJ_ROBOT)
 					Automap_visited[segnum]=1;
@@ -1974,7 +1974,7 @@ void render_mine(int start_seg_num,fix eye_offset)
 
 				cc=rotate_list(8,seg->verts);
 
-				if (! cc.and) {		//all off screen?
+				if (! cc.uand) {		//all off screen?
 
 				  if (Viewer->type!=OBJ_ROBOT)
 					Automap_visited[segnum]=1;

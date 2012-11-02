@@ -160,7 +160,7 @@ bool must_clip_flat_face(int nv,g3s_codes cc)
 
 	bufptr = clip_polygon(Vbuf0,Vbuf1,&nv,&cc);
 
-	if (nv>0 && !(cc.or&CC_BEHIND) && !cc.and) {
+	if (nv>0 && !(cc.uor&CC_BEHIND) && !cc.uand) {
 
 		for (i=0;i<nv;i++) {
 			g3s_point *p = bufptr[i];
@@ -204,7 +204,7 @@ bool g3_draw_poly(int nv,g3s_point **pointlist)
 	g3s_point **bufptr;
 	g3s_codes cc;
 
-	cc.or = 0; cc.and = 0xff;
+	cc.uor = 0; cc.uand = 0xff;
 
 	bufptr = Vbuf0;
 
@@ -212,14 +212,14 @@ bool g3_draw_poly(int nv,g3s_point **pointlist)
 
 		bufptr[i] = pointlist[i];
 
-		cc.and &= bufptr[i]->p3_codes;
-		cc.or  |= bufptr[i]->p3_codes;
+		cc.uand &= bufptr[i]->p3_codes;
+		cc.uor  |= bufptr[i]->p3_codes;
 	}
 
-	if (cc.and)
+	if (cc.uand)
 		return 1;	//all points off screen
 
-	if (cc.or)
+	if (cc.uor)
 		return must_clip_flat_face(nv,cc);
 
 	//now make list of 2d coords (& check for overflow)
@@ -252,7 +252,7 @@ bool g3_draw_tmap(int nv,g3s_point **pointlist,g3s_uvl *uvl_list,g3s_lrgb *light
 	g3s_point **bufptr;
 	g3s_codes cc;
 
-	cc.or = 0; cc.and = 0xff;
+	cc.uor = 0; cc.uand = 0xff;
 
 	bufptr = Vbuf0;
 
@@ -261,8 +261,8 @@ bool g3_draw_tmap(int nv,g3s_point **pointlist,g3s_uvl *uvl_list,g3s_lrgb *light
 
 		p = bufptr[i] = pointlist[i];
 
-		cc.and &= p->p3_codes;
-		cc.or  |= p->p3_codes;
+		cc.uand &= p->p3_codes;
+		cc.uor  |= p->p3_codes;
 
 		p->p3_u = uvl_list[i].u;
 		p->p3_v = uvl_list[i].v;
@@ -272,10 +272,10 @@ bool g3_draw_tmap(int nv,g3s_point **pointlist,g3s_uvl *uvl_list,g3s_lrgb *light
 
 	}
 
-	if (cc.and)
+	if (cc.uand)
 		return 1;	//all points off screen
 
-	if (cc.or)
+	if (cc.uor)
 		return must_clip_tmap_face(nv,cc,bm);
 
 	//now make list of 2d coords (& check for overflow)
@@ -305,7 +305,7 @@ bool must_clip_tmap_face(int nv,g3s_codes cc,grs_bitmap *bm)
 
 	bufptr = clip_polygon(Vbuf0,Vbuf1,&nv,&cc);
 
-	if (nv && !(cc.or&CC_BEHIND) && !cc.and) {
+	if (nv && !(cc.uor&CC_BEHIND) && !cc.uand) {
 
 		for (i=0;i<nv;i++) {
 			g3s_point *p = bufptr[i];
