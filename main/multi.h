@@ -23,7 +23,6 @@ COPYRIGHT 1993-1999 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 
 #include "gameseq.h"
 #include "piggy.h"
-#include "vers_id.h"
 #include "newmenu.h"
 
 #ifdef USE_UDP

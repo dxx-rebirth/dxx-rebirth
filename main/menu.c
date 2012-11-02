@@ -66,6 +66,7 @@ COPYRIGHT 1993-1999 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 #include "powerup.h"
 #include "strutil.h"
 #include "multi.h"
+#include "vers_id.h"
 #ifdef USE_UDP
 #include "net_udp.h"
 #endif
