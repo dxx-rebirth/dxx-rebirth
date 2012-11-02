@@ -112,6 +112,10 @@ extern fix compute_lighting_value(g3s_point *vertptr);
 //	vertbuf is a pointer to an array of vertex pointers
 extern void draw_tmap(grs_bitmap *bp, int nverts, g3s_point **vertbuf);
 
+//function that takes the same parms as draw_tmap, but renders as flat poly
+//we need this to do the cloaked effect
+extern void draw_tmap_flat(grs_bitmap *bp,int nverts,g3s_point **vertbuf);
+
 // -------------------------------------------------------------------------------------------------------
 // Texture map vertex.
 //	The fields r,g,b and l are mutually exclusive.  r,g,b are used for rgb lighting.
@@ -170,6 +174,8 @@ extern int Transparency_on,per2_flag;
 
 //	Set to !0 to enable Sim City 2000 (or Eric's Drive Through, or Eric's Game) specific code.
 extern	int	SC2000;
+
+extern int Window_clip_left, Window_clip_bot, Window_clip_right, Window_clip_top;
 
 // for ugly hack put in to be sure we don't overflow render buffer
 

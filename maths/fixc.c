@@ -23,12 +23,6 @@ COPYRIGHT 1993-1998 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 #include "error.h"
 #include "maths.h"
 
-extern ubyte guess_table[];
-extern short sincos_table[];
-extern ushort asin_table[];
-extern ushort acos_table[];
-extern fix isqrt_guess_table[];
-
 //negate a quad
 void fixquadnegate(quadint *q)
 {

@@ -231,10 +231,6 @@ extern fix Max_thrust;
 //used for robot engine glow
 #define MAX_VELOCITY i2f(50)
 
-//function that takes the same parms as draw_tmap, but renders as flat poly
-//we need this to do the cloaked effect
-extern void draw_tmap_flat();
-
 //what darkening level to use when cloaked
 #define CLOAKED_FADE_LEVEL		28
 

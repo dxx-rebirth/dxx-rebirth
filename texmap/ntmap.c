@@ -58,8 +58,6 @@ int	Current_seg_depth;		// HACK INTERFACE: how far away the current segment (& t
 int	Max_perspective_depth;
 int	Max_flat_depth;
 
-extern int Window_clip_left, Window_clip_bot, Window_clip_right, Window_clip_top;
-
 // These variables are the interface to assembler.  They get set for each texture map, which is a real waste of time.
 //	They should be set only when they change, which is generally when the window bounds change.  And, even still, it's
 //	a pretty bad interface.
@@ -175,7 +173,6 @@ void init_interface_vars_to_assembler(void)
 
 // -------------------------------------------------------------------------------------
 //                             VARIABLES
-extern g3ds_tmap Tmap1;
 
 // -------------------------------------------------------------------------------------
 //	Returns number preceding val modulo modulus.
@@ -903,8 +900,6 @@ void ntexture_map_lighted_linear(grs_bitmap *srcb, g3ds_tmap *t)
 }
 
 // fix	DivNum = F1_0*12;
-
-extern void draw_tmap_flat(grs_bitmap *bp,int nverts,g3s_point **vertbuf);
 
 // -------------------------------------------------------------------------------------
 // Interface from Matt's data structures to Mike's texture mapper.

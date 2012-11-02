@@ -112,4 +112,10 @@ fixang fix_atan2 (fix cos, fix sin);
 //for passed value a, returns 1/sqrt(a) 
 fix fix_isqrt (fix a);
 
+extern const ubyte guess_table[];
+extern const short sincos_table[];
+extern const ushort asin_table[];
+extern const ushort acos_table[];
+extern const fix isqrt_guess_table[];
+
 #endif

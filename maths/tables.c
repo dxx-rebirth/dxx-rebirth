@@ -1,3 +1,4 @@
+/* $Id: tables.c,v 1.1.1.1 2006/03/17 19:59:04 zicodxx Exp $ */
 /*
 THE COMPUTER CODE CONTAINED HEREIN IS THE SOLE PROPERTY OF PARALLAX
 SOFTWARE CORPORATION ("PARALLAX").  PARALLAX, IN DISTRIBUTING THE CODE TO
@@ -7,54 +8,38 @@ IN USING, DISPLAYING,  AND CREATING DERIVATIVE WORKS THEREOF, SO LONG AS
 SUCH USE, DISPLAY OR CREATION IS FOR NON-COMMERCIAL, ROYALTY OR REVENUE
 FREE PURPOSES.  IN NO EVENT SHALL THE END-USER USE THE COMPUTER CODE
 CONTAINED HEREIN FOR REVENUE-BEARING PURPOSES.  THE END-USER UNDERSTANDS
-AND AGREES TO THE TERMS HEREIN AND ACCEPTS THE SAME BY USE OF THIS FILE.  
+AND AGREES TO THE TERMS HEREIN AND ACCEPTS THE SAME BY USE OF THIS FILE.
 COPYRIGHT 1993-1998 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 */
+
 /*
- * $Source: /cvsroot/dxx-rebirth/d1x-rebirth/maths/tables.c,v $
- * $Revision: 1.1.1.1 $
- * $Author: zicodxx $
- * $Date: 2006/03/17 19:45:10 $
- * 
+ *
  * C version of fixed point library
- * 
- * $Log: tables.c,v $
- * Revision 1.1.1.1  2006/03/17 19:45:10  zicodxx
- * initial import
  *
- * Revision 1.1.1.1  1999/06/14 22:13:38  donut
- * Import of d1x 1.37 source.
- *
- * Revision 1.2  1995/08/31  15:44:36  allender
- * ..
- *
- * Revision 1.1  1995/04/17  11:38:04  allender
- * Initial revision
- *
-*/
+ */
 
 #include "maths.h"
 
-ubyte guess_table[] = {
-	1,				
-	1,1,1,		
-	2,2,2,2,2,	
-	3,3,3,3,3,3,3,	
-	4,4,4,4,4,4,4,4,4,	
-	5,5,5,5,5,5,5,5,5,5,5,	
-	6,6,6,6,6,6,6,6,6,6,6,6,6,	
-	7,7,7,7,7,7,7,7,7,7,7,7,7,7,7,	
-	8,8,8,8,8,8,8,8,8,8,8,8,8,8,8,8,8,	
-	9,9,9,9,9,9,9,9,9,9,9,9,9,9,9,9,9,9,9,	
-	10,10,10,10,10,10,10,10,10,10,10,10,10,10,10,10,10,10,10,10,10,	
-	11,11,11,11,11,11,11,11,11,11,11,11,11,11,11,11,11,11,11,11,11,11,11,	
-	12,12,12,12,12,12,12,12,12,12,12,12,12,12,12,12,12,12,12,12,12,12,12,12,12,		
-	13,13,13,13,13,13,13,13,13,13,13,13,13,13,13,13,13,13,13,13,13,13,13,13,13,13,13,			
-	14,14,14,14,14,14,14,14,14,14,14,14,14,14,14,14,14,14,14,14,14,14,14,14,14,14,14,14,14,	
+const ubyte guess_table[] = {
+	1,
+	1,1,1,
+	2,2,2,2,2,
+	3,3,3,3,3,3,3,
+	4,4,4,4,4,4,4,4,4,
+	5,5,5,5,5,5,5,5,5,5,5,
+	6,6,6,6,6,6,6,6,6,6,6,6,6,
+	7,7,7,7,7,7,7,7,7,7,7,7,7,7,7,
+	8,8,8,8,8,8,8,8,8,8,8,8,8,8,8,8,8,
+	9,9,9,9,9,9,9,9,9,9,9,9,9,9,9,9,9,9,9,
+	10,10,10,10,10,10,10,10,10,10,10,10,10,10,10,10,10,10,10,10,10,
+	11,11,11,11,11,11,11,11,11,11,11,11,11,11,11,11,11,11,11,11,11,11,11,
+	12,12,12,12,12,12,12,12,12,12,12,12,12,12,12,12,12,12,12,12,12,12,12,12,12,
+	13,13,13,13,13,13,13,13,13,13,13,13,13,13,13,13,13,13,13,13,13,13,13,13,13,13,13,
+	14,14,14,14,14,14,14,14,14,14,14,14,14,14,14,14,14,14,14,14,14,14,14,14,14,14,14,14,14,
 	15,15,15,15,15,15,15,15,15,15,15,15,15,15,15,15,15,15,15,15,15,15,15,15,15,15,15,15,15,15,15
 };
 
-short sincos_table[] = {
+const short sincos_table[] = {
 	0,
 	402,
 	804,
@@ -119,7 +104,7 @@ short sincos_table[] = {
 	16340,
 	16364,
 	16379,
-//cos_table
+	// cos_table
 	16384,
 	16379,
 	16364,
@@ -379,7 +364,7 @@ short sincos_table[] = {
 	16384
 };
 
-ushort asin_table[] = {
+const ushort asin_table[] = {
 	0,
 	41,
 	81,
@@ -637,10 +622,10 @@ ushort asin_table[] = {
 	15079,
 	15462,
 	16384,
-	16384			//extra for when exacty 1
+	16384   // extra for when exactly 1
 };
 
-ushort acos_table[] = {
+const ushort acos_table[] = {
 	16384,
 	16343,
 	16303,
@@ -898,11 +883,11 @@ ushort acos_table[] = {
 	1305,
 	922,
 	0,
-	0	//extra for when exacty 1
+	0   // extra for when exactly 1
 };
 
-fix isqrt_guess_table[] = {
-//	0,
+const fix isqrt_guess_table[] = {
+	// 0,
 	0x80000000,
 	16777216,11863283,9686330,8388608,7502999,6849269,6341191,
 	5931641,5592405,5305421,5058520,4843165,4653162,4483899,4331858,
@@ -1033,4 +1018,3 @@ fix isqrt_guess_table[] = {
 	528432,528170,527909,527648,527387,527126,526866,526607,
 	526348,526089,525830,525572,525315,525057,524800,524544
 };
-
