@@ -950,7 +950,7 @@ void gr_close_font( grs_font * font )
 /*
  * reads a grs_font structure from a PHYSFS_file
  */
-void grs_font_read(grs_font *gf, PHYSFS_file *fp)
+static void grs_font_read(grs_font *gf, PHYSFS_file *fp)
 {
 	gf->ft_w = PHYSFSX_readShort(fp);
 	gf->ft_h = PHYSFSX_readShort(fp);
@@ -959,10 +959,10 @@ void grs_font_read(grs_font *gf, PHYSFS_file *fp)
 	gf->ft_minchar = PHYSFSX_readByte(fp);
 	gf->ft_maxchar = PHYSFSX_readByte(fp);
 	gf->ft_bytewidth = PHYSFSX_readShort(fp);
-	gf->ft_data = (ubyte *)(size_t)PHYSFSX_readInt(fp);
+	gf->ft_data = (ubyte *)((size_t)PHYSFSX_readInt(fp) - GRS_FONT_SIZE);
 	gf->ft_chars = (ubyte **)(size_t)PHYSFSX_readInt(fp);
-	gf->ft_widths = (short *)(size_t)PHYSFSX_readInt(fp);
-	gf->ft_kerndata = (ubyte *)(size_t)PHYSFSX_readInt(fp);
+	gf->ft_widths = (short *)((size_t)PHYSFSX_readInt(fp) - GRS_FONT_SIZE);
+	gf->ft_kerndata = (ubyte *)((size_t)PHYSFSX_readInt(fp) - GRS_FONT_SIZE);
 }
 
 grs_font * gr_init_font( const char * fontname )
@@ -1001,7 +1001,7 @@ grs_font * gr_init_font( const char * fontname )
 	}
 
 	PHYSFS_read(fontfile, file_id, 4, 1);
-	if ( !strncmp( file_id, "NFSP", 4 ) ) {
+	if (memcmp( file_id, "PSFN", 4 )) {
 		con_printf(CON_NORMAL, "File %s is not a font file\n", fontname);
 		return NULL;
 	}
@@ -1017,11 +1017,6 @@ grs_font * gr_init_font( const char * fontname )
 
 	open_font[fontnum].ptr = font;
 	open_font[fontnum].dataptr = font_data;
-
-	// make these offsets relative to font_data
-	font->ft_data = (ubyte *)((size_t)font->ft_data - GRS_FONT_SIZE);
-	font->ft_widths = (short *)((size_t)font->ft_widths - GRS_FONT_SIZE);
-	font->ft_kerndata = (ubyte *)((size_t)font->ft_kerndata - GRS_FONT_SIZE);
 
 	nchars = font->ft_maxchar - font->ft_minchar + 1;
 
