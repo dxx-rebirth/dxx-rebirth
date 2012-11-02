@@ -276,17 +276,17 @@ typedef struct object {
 
 	// control info, determined by CONTROL_TYPE
 	union {
-		laser_info      laser_info;
-		explosion_info  expl_info;      // NOTE: debris uses this also
-		ai_static       ai_info;
-		light_info      light_info;     // why put this here?  Didn't know what else to do with it.
-		powerup_info    powerup_info;
+		struct laser_info      laser_info;
+		struct explosion_info  expl_info;      // NOTE: debris uses this also
+		struct ai_static       ai_info;
+		struct light_info      light_info;     // why put this here?  Didn't know what else to do with it.
+		struct powerup_info    powerup_info;
 	} __pack__ ctype ;
 
 	// render info, determined by RENDER_TYPE
 	union {
-		polyobj_info    pobj_info;      // polygon model
-		vclip_info      vclip_info;     // vclip
+		struct polyobj_info    pobj_info;      // polygon model
+		struct vclip_info      vclip_info;     // vclip
 	} __pack__ rtype ;
 
 #ifdef WORDS_NEED_ALIGNMENT
@@ -332,14 +332,14 @@ typedef struct object_rw {
 		laser_info_rw   laser_info;
 		explosion_info  expl_info;      // NOTE: debris uses this also
 		ai_static_rw    ai_info;
-		light_info      light_info;     // why put this here?  Didn't know what else to do with it.
+		struct light_info      light_info;     // why put this here?  Didn't know what else to do with it.
 		powerup_info_rw powerup_info;
 	} __pack__ ctype ;
 
 	// render info, determined by RENDER_TYPE
 	union {
 		polyobj_info    pobj_info;      // polygon model
-		vclip_info      vclip_info;     // vclip
+		struct vclip_info      vclip_info;     // vclip
 	} __pack__ rtype;
 
 #ifdef WORDS_NEED_ALIGNMENT
