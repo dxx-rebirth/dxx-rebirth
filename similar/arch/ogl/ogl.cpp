@@ -75,7 +75,7 @@ using std::max;
 static GLubyte *pixels = NULL;
 static GLubyte *texbuf = NULL;
 
-static unsigned char *ogl_pal=gr_palette;
+static ubyte (*ogl_pal)[256*3]=&gr_palette;
 
 unsigned last_width=~0u,last_height=~0u;
 int GL_TEXTURE_2D_enabled=-1;
@@ -1118,9 +1118,9 @@ bool ogl_ubitblt_i(int dw,int dh,int dx,int dy, int sw, int sh, int sx, int sy, 
 	
 	OGL_ENABLE(TEXTURE_2D);
 	
-	ogl_pal=gr_current_pal;
+	ogl_pal=&gr_current_pal;
 	ogl_loadtexture(src->bm_data, sx, sy, &tex, src->bm_flags, 0, texfilt);
-	ogl_pal=gr_palette;
+	ogl_pal=&gr_palette;
 	OGL_BINDTEXTURE(tex.handle);
 	
 	ogl_texwrap(&tex,GL_CLAMP_TO_EDGE);
@@ -1390,14 +1390,14 @@ static void ogl_filltexbuf(unsigned char *data, GLubyte *texp, unsigned truewidt
 						(*(texp++))=255;
 						break;
 					case GL_RGB:
-						(*(texp++)) = ogl_pal[c * 3] * 4;
-						(*(texp++)) = ogl_pal[c * 3 + 1] * 4;
-						(*(texp++)) = ogl_pal[c * 3 + 2] * 4;
+						(*(texp++)) = (*ogl_pal)[c * 3] * 4;
+						(*(texp++)) = (*ogl_pal)[c * 3 + 1] * 4;
+						(*(texp++)) = (*ogl_pal)[c * 3 + 2] * 4;
 						break;
 					case GL_RGBA:
-						(*(texp++))=ogl_pal[c*3]*4;
-						(*(texp++))=ogl_pal[c*3+1]*4;
-						(*(texp++))=ogl_pal[c*3+2]*4;
+						(*(texp++))=(*ogl_pal)[c*3]*4;
+						(*(texp++))=(*ogl_pal)[c*3+1]*4;
+						(*(texp++))=(*ogl_pal)[c*3+2]*4;
 						(*(texp++))=255;//not transparent
 						break;
 #ifndef OGLES
