@@ -607,7 +607,7 @@ class DXXArchive(DXXCommon):
 '2d/scalec.cpp',
 '3d/clipper.cpp',
 '3d/draw.cpp',
-'3d/globvars.c',
+'3d/globvars.cpp',
 '3d/instance.c',
 '3d/matrix.c',
 '3d/points.c',
