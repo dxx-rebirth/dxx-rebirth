@@ -804,7 +804,7 @@ class DXXProgram(DXXCommon):
 'main/titles.cpp',
 'main/vclip.cpp',
 'main/wall.cpp',
-'main/weapon.c',
+'main/weapon.cpp',
 'mem/mem.cpp',
 'misc/args.cpp',
 'misc/hash.c',
