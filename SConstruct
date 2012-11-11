@@ -1293,7 +1293,7 @@ class D2XProgram(DXXProgram):
 	# for editor
 	__objects_editor = DXXCommon.create_lazy_object_property([{
 		'source':[os.path.join(srcdir, f) for f in [
-'main/bmread.c',
+'main/bmread.cpp',
 ]
 ],
 	}])
