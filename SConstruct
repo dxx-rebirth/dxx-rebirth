@@ -1168,7 +1168,7 @@ class D2XProgram(DXXProgram):
 'main/gameseq.c',
 'main/movie.cpp',
 'main/piggy.c',
-'main/segment.c',
+'main/segment.cpp',
 'misc/physfsrwops.c',
 ]
 ],
