@@ -48,8 +48,8 @@ extern bitmap_index Gauges_hires[MAX_GAUGE_BMS];    // hires gauges
 
 // Flags for gauges/hud stuff
 
-extern void add_points_to_score();
-extern void add_bonus_points_to_score();
+extern void add_points_to_score(int points);
+extern void add_bonus_points_to_score(int points);
 
 void render_gauges(void);
 void init_gauges(void);

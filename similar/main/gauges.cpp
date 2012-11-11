@@ -17,6 +17,7 @@ COPYRIGHT 1993-1999 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
  *
  */
 
+#include <algorithm>
 #include <stdio.h>
 #include <string.h>
 #include <stdlib.h>
@@ -55,6 +56,8 @@ COPYRIGHT 1993-1999 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 #include "ogl_init.h"
 #endif
 #include "args.h"
+
+using std::min;
 
 //bitmap numbers for gauges
 #define GAUGE_SHIELDS			0		//0..9, in decreasing order (100%,90%...0%)
