@@ -732,7 +732,7 @@ class DXXProgram(DXXCommon):
 	}])
 	objects_similar_arch_sdlmixer = DXXCommon.create_lazy_object_property([{
 		'source':[os.path.join('similar', f) for f in [
-'arch/sdl/digi_mixer.c',
+'arch/sdl/digi_mixer.cpp',
 'arch/sdl/jukebox.c'
 ]
 ],
