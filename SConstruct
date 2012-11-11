@@ -615,7 +615,7 @@ class DXXArchive(DXXCommon):
 '3d/setup.cpp',
 'arch/sdl/joy.cpp',
 'arch/sdl/rbaudio.cpp',
-'arch/sdl/window.c',
+'arch/sdl/window.cpp',
 'maths/fixc.c',
 'maths/rand.c',
 'maths/tables.c',

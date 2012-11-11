@@ -15,6 +15,10 @@
 #include "gr.h"
 #include "console.h"
 
+#ifdef __cplusplus
+extern "C" {
+#endif
+
 typedef struct window window;
 
 extern window *window_create(grs_canvas *src, int x, int y, int w, int h, int (*event_callback)(window *wind, d_event *event, void *data), void *data);
@@ -39,5 +43,9 @@ do {	\
 	event.type = e;	\
 	window_send_event(w, &event);	\
 } while (0)
+
+#ifdef __cplusplus
+}
+#endif
 
 #endif
