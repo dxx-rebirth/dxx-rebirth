@@ -618,7 +618,7 @@ class DXXArchive(DXXCommon):
 'arch/sdl/window.cpp',
 'maths/fixc.cpp',
 'maths/rand.cpp',
-'maths/tables.c',
+'maths/tables.cpp',
 'maths/vecmat.c',
 'misc/error.c',
 'misc/hmp.c',
