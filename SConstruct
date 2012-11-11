@@ -826,7 +826,7 @@ class DXXProgram(DXXCommon):
 'main/credits.cpp',
 'main/digiobj.cpp',
 'main/effects.cpp',
-'main/endlevel.c',
+'main/endlevel.cpp',
 'main/fvi.cpp',
 'main/game.cpp',
 'main/gamecntl.cpp',

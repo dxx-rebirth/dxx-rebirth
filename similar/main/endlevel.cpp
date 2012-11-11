@@ -21,6 +21,7 @@ COPYRIGHT 1993-1999 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 
 //#define _MARK_ON
 
+#include <algorithm>
 #include <stdlib.h>
 
 
@@ -73,6 +74,9 @@ COPYRIGHT 1993-1999 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 #ifdef EDITOR
 #include "editor/editor.h"
 #endif
+
+using std::min;
+using std::max;
 
 typedef struct flythrough_data {
 	object		*obj;
