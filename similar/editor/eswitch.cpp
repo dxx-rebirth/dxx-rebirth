@@ -267,14 +267,6 @@ int remove_trigger(segment *seg, short side)
 	return remove_trigger_num(Walls[seg->sides[side].wall_num].trigger);
 }
 
-
-int add_trigger_control()
-{
-	trigger_flag_Markedside(TRIGGER_CONTROL_DOORS, 1);
-	Update_flags = UF_WORLD_CHANGED;
-	return 1;
-}
-
 int trigger_remove()
 {
 	remove_trigger(Markedsegp, Markedside);
