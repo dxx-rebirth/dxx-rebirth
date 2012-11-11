@@ -753,7 +753,7 @@ class DXXProgram(DXXCommon):
 'arch/sdl/timer.cpp',
 'main/aipath.cpp',
 'main/automap.cpp',
-'main/cntrlcen.c',
+'main/cntrlcen.cpp',
 'main/config.c',
 'main/console.c',
 'main/controls.c',

@@ -25,6 +25,10 @@ COPYRIGHT 1993-1999 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 #include "mission.h"
 #include "object.h"
 
+#ifdef __cplusplus
+extern "C" {
+#endif
+
 #define SUPER_MISSILE       0
 #define SUPER_SEEKER        1
 #define SUPER_SMARTBOMB     2
@@ -119,5 +123,9 @@ void do_cloak_invul_secret_stuff(fix64 old_gametime);
 void EnterSecretLevel(void);
 void copy_defaults_to_robot(struct object *objp);
 void init_player_stats_new_ship(ubyte pnum);
+
+#ifdef __cplusplus
+}
+#endif
 
 #endif /* _GAMESEQ_H */

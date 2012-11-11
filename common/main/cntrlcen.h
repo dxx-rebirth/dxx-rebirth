@@ -25,6 +25,10 @@ COPYRIGHT 1993-1999 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 #include "wall.h"
 #include "switch.h"
 
+#ifdef __cplusplus
+extern "C" {
+#endif
+
 #define CONTROLCEN_WEAPON_NUM   6
 
 #define MAX_CONTROLCEN_LINKS    10
@@ -128,5 +132,9 @@ extern int control_center_triggers_read_n(control_center_triggers *cct, int n, P
 extern void control_center_triggers_read_n_swap(control_center_triggers *cct, int n, int swap, PHYSFS_file *fp);
 
 extern int control_center_triggers_write(control_center_triggers *cct, PHYSFS_file *fp);
+
+#ifdef __cplusplus
+}
+#endif
 
 #endif /* _CNTRLCEN_H */

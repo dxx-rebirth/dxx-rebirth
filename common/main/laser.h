@@ -20,6 +20,10 @@ COPYRIGHT 1993-1999 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 #ifndef _LASER_H
 #define _LASER_H
 
+#ifdef __cplusplus
+extern "C" {
+#endif
+
 enum weapon_type_t
 {
 #if defined(DXX_BUILD_DESCENT_II)
@@ -195,5 +199,9 @@ static inline int is_proximity_bomb_or_smart_mine_or_placed_mine(enum weapon_typ
 #endif
 	return id == PROXIMITY_ID;
 }
+
+#ifdef __cplusplus
+}
+#endif
 
 #endif /* _LASER_H */
