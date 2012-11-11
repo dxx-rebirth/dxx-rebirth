@@ -782,7 +782,7 @@ class DXXProgram(DXXCommon):
 'main/morph.cpp',
 'main/multi.cpp',
 'main/multibot.cpp',
-'main/newdemo.c',
+'main/newdemo.cpp',
 'main/newmenu.c',
 'main/object.c',
 'main/paging.c',
