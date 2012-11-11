@@ -1271,7 +1271,7 @@ class D2XProgram(DXXProgram):
 		'source':[os.path.join(srcdir, f) for f in [
 'libmve/decoder8.cpp',
 'libmve/decoder16.cpp',
-'libmve/mve_audio.c',
+'libmve/mve_audio.cpp',
 'libmve/mvelib.c',
 'libmve/mveplay.c',
 'main/collide.c',
