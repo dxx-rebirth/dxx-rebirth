@@ -800,7 +800,7 @@ class DXXProgram(DXXCommon):
 'main/switch.cpp',
 'main/terrain.cpp',
 'main/texmerge.cpp',
-'main/text.c',
+'main/text.cpp',
 'main/titles.c',
 'main/vclip.c',
 'main/wall.c',
