@@ -623,7 +623,7 @@ class DXXArchive(DXXCommon):
 'misc/error.cpp',
 'misc/hmp.cpp',
 'misc/ignorecase.cpp',
-'misc/strio.c',
+'misc/strio.cpp',
 'misc/strutil.c',
 'texmap/ntmap.c',
 'texmap/scanline.c'
