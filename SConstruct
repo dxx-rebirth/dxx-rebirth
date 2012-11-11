@@ -745,7 +745,7 @@ class DXXProgram(DXXCommon):
 '2d/pcx.cpp',
 '3d/interp.cpp',
 'arch/sdl/digi.cpp',
-'arch/sdl/digi_audio.c',
+'arch/sdl/digi_audio.cpp',
 'arch/sdl/event.c',
 'arch/sdl/init.c',
 'arch/sdl/key.c',
