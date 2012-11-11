@@ -764,7 +764,7 @@ class DXXProgram(DXXCommon):
 'main/game.cpp',
 'main/gamecntl.cpp',
 'main/gamefont.cpp',
-'main/gamerend.c',
+'main/gamerend.cpp',
 'main/gamesave.c',
 'main/gameseg.c',
 'main/gauges.c',
