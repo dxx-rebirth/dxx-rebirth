@@ -1330,7 +1330,7 @@ typedef struct browser
 
 void list_dir_el(browser *b, const char *origdir, const char *fname)
 {
-	char *ext;
+	const char *ext;
 	const char *const *i = NULL;
 	
 	ext = strrchr(fname, '.');

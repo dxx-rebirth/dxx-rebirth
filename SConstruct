@@ -776,7 +776,7 @@ class DXXProgram(DXXCommon):
 'main/kmatrix.cpp',
 'main/laser.cpp',
 'main/lighting.cpp',
-'main/menu.c',
+'main/menu.cpp',
 'main/mglobal.c',
 'main/mission.c',
 'main/morph.c',
