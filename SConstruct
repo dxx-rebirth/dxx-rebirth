@@ -1167,7 +1167,7 @@ class D2XProgram(DXXProgram):
 'main/gamemine.c',
 'main/gamepal.c',
 'main/gameseq.c',
-'main/movie.c',
+'main/movie.cpp',
 'main/piggy.c',
 'main/segment.c',
 'misc/physfsrwops.c',

@@ -3,6 +3,10 @@
 
 #define MVE_ERR_EOF 1
 
+#ifdef __cplusplus
+extern "C" {
+#endif
+
 typedef struct{
 	int screenWidth;
 	int screenHeight;
@@ -36,5 +40,9 @@ void MVE_ioCallbacks(mve_cb_Read io_read);
 void MVE_memCallbacks(mve_cb_Alloc mem_alloc, mve_cb_Free mem_free);
 void MVE_sfCallbacks(mve_cb_ShowFrame showframe);
 void MVE_palCallbacks(mve_cb_SetPalette setpalette);
+
+#ifdef __cplusplus
+}
+#endif
 
 #endif /* _LIBMVE_H */
