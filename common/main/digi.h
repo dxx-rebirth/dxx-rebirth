@@ -25,6 +25,10 @@ COPYRIGHT 1993-1998 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 #include "pstypes.h"
 #include "vecmat.h"
 
+#ifdef __cplusplus
+extern "C" {
+#endif
+
 typedef struct digi_sound       {
         int bits;
         int freq;
@@ -125,6 +129,10 @@ int digi_win32_play_midi_song(const char * filename, int loop );
 void digi_win32_pause_midi_song();
 void digi_win32_resume_midi_song();
 void digi_win32_stop_midi_song();
+#endif
+
+#ifdef __cplusplus
+}
 #endif
 
 #endif
