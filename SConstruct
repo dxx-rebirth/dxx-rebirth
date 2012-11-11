@@ -923,7 +923,7 @@ class DXXProgram(DXXCommon):
 'main/ai.cpp',
 'main/aipath.cpp',
 'main/automap.cpp',
-'main/bm.c',
+'main/bm.cpp',
 'main/cntrlcen.cpp',
 'main/config.cpp',
 'main/console.cpp',
