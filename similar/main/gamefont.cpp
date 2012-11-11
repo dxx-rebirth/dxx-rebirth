@@ -68,13 +68,6 @@ typedef struct _gamefont_conf{
 
 gamefont_conf font_conf[MAX_FONTS];
 
-const char *gamefont_curfontname(int gf){
-	if (font_conf[gf].cur<0)
-		return Gamefont_filenames_l[gf];
-	else
-		return font_conf[gf].font[font_conf[gf].cur].f.name;
-}
-
 static void gamefont_unloadfont(int gf)
 {
 	if (Gamefonts[gf]){
