@@ -11,6 +11,10 @@
 #include "fix.h"
 #include <SDL.h>
 
+#ifdef __cplusplus
+extern "C" {
+#endif
+
 struct d_event;
 
 #define MAX_JOYSTICKS				8
@@ -29,5 +33,9 @@ extern int event_joystick_get_button(struct d_event *event);
 extern void joy_button_handler(SDL_JoyButtonEvent *jbe);
 extern void joy_hat_handler(SDL_JoyHatEvent *jhe);
 extern int joy_axis_handler(SDL_JoyAxisEvent *jae);
+
+#ifdef __cplusplus
+}
+#endif
 
 #endif // _JOY_H

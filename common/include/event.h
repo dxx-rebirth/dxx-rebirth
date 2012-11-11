@@ -4,6 +4,10 @@
 #define _EVENT_H
 #include "maths.h"
 
+#ifdef __cplusplus
+extern "C" {
+#endif
+
 typedef enum event_type
 {
 	EVENT_IDLE = 0,
@@ -65,5 +69,9 @@ void event_toggle_focus(int activate_focus);
 // See how long we were idle for
 void event_reset_idle_seconds();
 fix event_get_idle_seconds();
+
+#ifdef __cplusplus
+}
+#endif
 
 #endif

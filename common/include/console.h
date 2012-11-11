@@ -6,6 +6,10 @@
 #include "pstypes.h"
 #include "dxxsconf.h"
 
+#ifdef __cplusplus
+extern "C" {
+#endif
+
 /* Priority levels */
 #define CON_CRITICAL -3
 #define CON_URGENT   -2
@@ -33,6 +37,10 @@ typedef struct console_buffer
 void con_init(void);
 void con_printf(int level, const char *fmt, ...) __attribute_format_printf(2, 3);
 void con_showup(void);
+
+#ifdef __cplusplus
+}
+#endif
 
 #endif /* _CONSOLE_H_ */
 

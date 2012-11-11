@@ -24,6 +24,10 @@ COPYRIGHT 1993-1998 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 #include "dxxsconf.h"
 #include <assert.h>
 
+#ifdef __cplusplus
+extern "C" {
+#endif
+
 #ifdef __GNUC__
 #define __noreturn __attribute__ ((noreturn))
 #else
@@ -50,6 +54,10 @@ extern void Debugger(void);	// Avoids some name clashes
 
 //Changed Assert and Int3 because I couldn't get the macros to compile -KRB
 #define Int3() ((void)0)
+#endif
+
+#ifdef __cplusplus
+}
 #endif
 
 #endif /* _ERROR_H */
