@@ -70,13 +70,9 @@ COPYRIGHT 1993-1999 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 #include "net_udp.h"
 #endif
 
-void reset_player_object(void); // In object.c but not in object.h
-void multi_reset_player_object(object *objp);
 static void multi_reset_object_texture(object *objp);
 static void multi_add_lifetime_killed();
-void multi_add_lifetime_kills();
 static void multi_send_heartbeat();
-void multi_powcap_cap_objects();
 static void multi_powcap_adjust_remote_cap(int pnum);
 #if defined(DXX_BUILD_DESCENT_II)
 static void multi_send_play_by_play(int num,int spnum,int dpnum);
@@ -86,10 +82,6 @@ static void multi_do_orb_bonus(const ubyte *buf);
 static void multi_send_drop_flag(int objnum,int seed);
 static void multi_do_play_by_play(const ubyte *buf);
 #endif
-void multi_set_robot_ai(void);
-void multi_send_powcap_update();
-void init_hoard_data();
-void multi_apply_goal_textures();
 static void multi_send_ranking();
 static void multi_new_bounty_target( int pnum );
 static void multi_save_game(ubyte slot, uint id, char *desc);
@@ -102,13 +94,9 @@ static inline void vm_angvec_zero(vms_angvec *v)
 	(v)->p=(v)->b=(v)->h=0;
 }
 
-void drop_player_eggs(object *player); // from collide.c
-
 //
 // Global variables
 //
-
-extern fix StartingShields;
 
 int multi_protocol=0; // set and determinate used protocol
 int imulti_new_game=0; // to prep stuff for level only when starting new game
@@ -121,14 +109,6 @@ int Show_reticle_name = 1;
 fix Show_kill_list_timer = 0;
 
 #if defined(DXX_BUILD_DESCENT_II)
-extern fix64 Seismic_disturbance_start_time;
-extern fix64 Seismic_disturbance_end_time;
-
-extern int multi_who_is_master();
-extern char NameReturning;
-extern int force_cockpit_redraw;
-
-extern int Drop_afterburner_blob_flag;
 int PhallicLimit=0;
 int PhallicMan=-1;
 
@@ -215,7 +195,6 @@ bitmap_index multi_player_textures[MAX_PLAYERS][N_PLAYER_SHIP_TEXTURES];
 // Globals for protocol-bound Refuse-functions
 char RefuseThisPlayer=0,WaitForRefuseAnswer=0,RefuseTeam,RefusePlayerName[12];
 fix64 RefuseTimeLimit=0;
-extern void init_player_stats_new_ship(ubyte pnum);
 
 static const int message_length[] = {
 #define define_message_length(NAME,SIZE)	(SIZE),
@@ -223,7 +202,6 @@ static const int message_length[] = {
 };
 
 char PowerupsInMine[MAX_POWERUP_TYPES],MaxPowerupsAllowed[MAX_POWERUP_TYPES];
-extern fix ThisLevelTime;
 
 const char *const RankStrings[10]={"(unpatched) ","Cadet ","Ensign ","Lieutenant ","Lt.Commander ",
                      "Commander ","Captain ","Vice Admiral ","Admiral ","Demigod "};
@@ -609,7 +587,7 @@ multi_sort_kill_list(void)
 	}
 }
 
-extern object *obj_find_first_of_type (int);
+char Multi_killed_yourself=0;
 
 void multi_compute_kill(int killer, int killed)
 {
@@ -2704,8 +2682,6 @@ multi_send_player_explode(char type)
 	multi_strip_robots(Player_num);
 }
 
-extern int Proximity_dropped, Smartmines_dropped;
-
 /*
  * Powerup capping: Keep track of how many powerups are in level and kill these which would exceed initial limit.
  * NOTE: code encapsuled by OLDPOWCAP define is original and buggy Descent2 code. 
@@ -4598,8 +4574,6 @@ void multi_send_finish_game ()
 	multi_send_data (multibuf,2,2);
 }
 
-
-extern void do_final_boss_hacks();
 void multi_do_finish_game (const ubyte *buf)
 {
 	if (buf[0]!=MULTI_FINISH_GAME)
@@ -5100,7 +5074,6 @@ void init_hoard_data()
 	PHYSFS_file *ifile;
 	ubyte *bitmap_data1;
 	int i,save_pos;
-	extern int Num_bitmap_files,Num_effects,Num_sound_files;
 	int bitmap_num=Hoard_bm_idx=Num_bitmap_files;
 
 	if (!first_time)

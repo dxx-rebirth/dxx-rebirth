@@ -43,6 +43,9 @@ COPYRIGHT 1993-1999 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 #include "effects.h"
 #include "physics.h" 
 #include "byteswap.h"
+#if defined(DXX_BUILD_DESCENT_II)
+#include "escort.h"
+#endif
 
 static int multi_add_controlled_robot(int objnum, int agitation);
 static void multi_send_release_robot(int objnum);
@@ -67,8 +70,6 @@ static inline int multi_powerup_is_allowed(int id)
 #elif defined(DXX_BUILD_DESCENT_II)
 #define MIN_CONTROL_TIME	F1_0*1
 #define ROBOT_TIMEOUT		F1_0*2
-
-extern int multi_powerup_is_allowed (int);
 #endif
 
 #define MIN_TO_ADD	60
@@ -820,8 +821,6 @@ multi_do_robot_fire(const ubyte *buf)
 	}
 }
 
-extern void drop_stolen_items (object *);
-
 int
 multi_explode_robot_sub(int botnum, int killer,char isthief)
 {
@@ -931,8 +930,6 @@ multi_do_robot_explode(const ubyte *buf)
 	if (rval && (killer == Players[Player_num].objnum))
 		add_points_to_score(Robot_info[Objects[botnum].id].score_value);
 }
-
-extern object *create_morph_robot(segment *segp, vms_vector *object_pos, int object_id); // from fuelcen.c
 
 void
 multi_do_create_robot(const ubyte *buf)

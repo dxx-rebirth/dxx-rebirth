@@ -30,8 +30,6 @@ COPYRIGHT 1993-1998 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 
 char game_filename[PATH_MAX] = "*." DXX_LEVEL_FILE_EXTENSION;
 
-extern void checkforext( char * f, char *ext );
-
 void checkforgamext( char * f )
 {
 	int i;

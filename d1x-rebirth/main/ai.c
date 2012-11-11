@@ -392,15 +392,8 @@ void init_ai_objects(void)
 	Ai_initialized = 1;
 }
 
-//--debug-- #ifndef NDEBUG
-//--debug-- int	Total_turns=0;
-//--debug-- int	Prevented_turns=0;
-//--debug-- #endif
-
 #define	AI_TURN_SCALE	1
 #define	BABY_SPIDER_ID	14
-
-extern void physics_turn_towards_vector(vms_vector *goal_vector, object *obj, fix rate);
 
 //-------------------------------------------------------------------------------------------
 void ai_turn_towards_vector(vms_vector *goal_vector, object *objp, fix rate)
@@ -755,8 +748,6 @@ void do_ai_robot_hit_attack(object *robot, object *player, vms_vector *collision
 	}
 
 }
-
-extern int Player_exploded;
 
 // --------------------------------------------------------------------------------------------------------------------
 //	Note: Parameter vec_to_player is only passed now because guns which aren't on the forward vector from the

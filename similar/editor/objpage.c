@@ -51,8 +51,6 @@ vms_angvec objpage_view_orient;
 fix objpage_view_dist;
 
 //this is bad to have the extern, but this snapshot stuff is special
-extern int polyobj_lighting;
-
 
 //canvas set
 void draw_object_picture(int id, vms_angvec *orient_angles, int type)

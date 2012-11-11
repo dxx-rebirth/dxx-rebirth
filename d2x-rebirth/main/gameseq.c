@@ -128,23 +128,8 @@ obj_position	Player_init[MAX_PLAYERS];
 // Global variables telling what sort of game we have
 int NumNetPlayerPositions = -1;
 
-extern fix ThisLevelTime;
-
-// Extern from game.c to fix a bug in the cockpit!
-
-extern int Last_level_path_created;
-
-//	HUD_clear_messages external, declared in gauges.h
-#ifndef _GAUGES_H
-extern void HUD_clear_messages(); // From hud.c
-#endif
-
-//	Extra prototypes declared for the sake of LINT
-void init_player_stats_new_ship(ubyte pnum);
 
 int	Do_appearance_effect=0;
-
-extern int Rear_view;
 
 int	First_secret_visit = 1;
 
@@ -358,8 +343,6 @@ void init_player_stats_level(int secret_flag)
 	Missile_viewer = NULL;
 }
 
-extern	void init_ai_for_ship(void);
-
 // Setup player for a brand-new ship
 void init_player_stats_new_ship(ubyte pnum)
 {
@@ -411,14 +394,7 @@ void init_player_stats_new_ship(ubyte pnum)
 	digi_kill_sound_linked_to_object(Players[pnum].objnum);
 }
 
-extern void init_stuck_objects(void);
-
 #ifdef EDITOR
-
-extern int Slide_segs_computed;
-
-extern int game_handler(window *wind, d_event *event, void *data);
-
 //reset stuff so game is semi-normal when playing from editor
 void editor_reset_stuff_on_level()
 {
@@ -479,9 +455,6 @@ void update_player_stats()
 		Players[Player_num].hours_total++;
 	}
 }
-
-//hack to not start object when loading level
-extern int Dont_start_sound_objects;
 
 //go through this level and start any eclip sounds
 void set_sound_sources()
@@ -628,11 +601,6 @@ ushort netmisc_calc_checksum()
 	return ((sum1<<8)+ sum2);
 }
 
-void free_polygon_models();
-void load_robot_replacements(char *level_name);
-int read_hamfile();
-extern int Robot_replacements_loaded;
-
 // load just the hxm file
 void load_level_robots(int level_num)
 {
@@ -733,8 +701,6 @@ void InitPlayerObject()
 	ConsoleObject->control_type	= CT_FLYING;
 	ConsoleObject->movement_type	= MT_PHYSICS;
 }
-
-extern void init_seismic_disturbances(void);
 
 //starts a new game on the given level
 void StartNewGame(int start_level)
@@ -883,8 +849,6 @@ void StartSecretLevel()
 	Auto_fire_fusion_cannon_time = 0;
 	Fusion_charge = 0;
 }
-
-extern void set_pos_from_return_segment(void);
 
 //	Returns true if secret level has been destroyed.
 int p_secret_level_destroyed(void)
@@ -1190,8 +1154,6 @@ void PlayerFinishedLevel(int secret_flag)
 #define ENDMOVIE "end"
 #endif
 
-void show_order_form();
-
 //called when the player has finished the last level
 static void DoEndGame(void)
 {
@@ -1408,8 +1370,6 @@ void DoPlayerDead()
 	reset_time();
 }
 
-extern int BigWindowSwitch;
-
 //called when the player is starting a new level for normal game mode and restore state
 //	secret_flag set if came from a secret level
 void StartNewLevelSub(int level_num, int page_in_textures, int secret_flag)
@@ -1526,7 +1486,6 @@ void StartNewLevelSub(int level_num, int page_in_textures, int secret_flag)
 		game();
 }
 
-extern char PowerupsInMine[MAX_POWERUP_TYPES], MaxPowerupsAllowed[MAX_POWERUP_TYPES];
 void bash_to_shield (int i,const char *s)
 {
 	int type=Objects[i].id;
@@ -1564,9 +1523,6 @@ struct {
 							{24,"plg"}};
 
 #define NUM_INTRO_MOVIES (sizeof(intro_movie) / sizeof(*intro_movie))
-
-extern int robot_movies;	//0 means none, 1 means lowres, 2 means hires
-extern int intro_played;	//true if big intro movie played
 
 void ShowLevelIntro(int level_num)
 {
@@ -1746,8 +1702,6 @@ void copy_defaults_to_robot_all()
 			copy_defaults_to_robot(&Objects[i]);
 
 }
-
-extern void clear_stuck_objects(void);
 
 //	-----------------------------------------------------------------------------------------------------
 //called when the player is starting a level (new game or new ship)

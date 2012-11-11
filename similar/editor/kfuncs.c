@@ -28,24 +28,7 @@ COPYRIGHT 1993-1998 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 #include "gamesave.h"
 #include "editor/eobject.h"
 #include "editor/medwall.h"
-
-// Test function prototypes (replace Test1, 2 and 3 with whatever function you wish to test.)
-extern void test_create_path();
-extern void test_create_all_paths();
-extern void test_create_path_many();
-extern void create_all_paths();
-extern void test_create_all_anchors();
-// extern void make_curside_bottom_side();
-extern void move_object_to_mouse_click();
-extern void test_create_n_segment_path();
-
-extern void set_all_modes_to_hover(void);
-
-extern void check_for_overlapping_segments(void);
-extern void init_replacements();
-
-extern void do_replacements(void);
-extern void do_replacements_all(void);
+#include "editor/texpage.h"
 
 int Test1() 
 {

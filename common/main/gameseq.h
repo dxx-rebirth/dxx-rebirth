@@ -74,6 +74,7 @@ static inline void load_level_robots(int level_num)
 #elif defined(DXX_BUILD_DESCENT_II)
 // load just the hxm file
 void load_level_robots(int level_num);
+extern int	First_secret_visit;
 #endif
 
 // load a level off disk. level numbers start at 1.
@@ -107,7 +108,16 @@ extern void DoEndLevelScoreGlitz(int network);
 
 // stuff for multiplayer
 extern int NumNetPlayerPositions;
+extern fix StartingShields;
+extern int	Do_appearance_effect;
 
 void bash_to_shield(int, const char *);
+
+int p_secret_level_destroyed(void);
+void ExitSecretLevel(void);
+void do_cloak_invul_secret_stuff(fix64 old_gametime);
+void EnterSecretLevel(void);
+void copy_defaults_to_robot(struct object *objp);
+void init_player_stats_new_ship(ubyte pnum);
 
 #endif /* _GAMESEQ_H */

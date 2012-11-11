@@ -335,7 +335,6 @@ bitmap_index Gauges[MAX_GAUGE_BMS_MAC]; // Array of all gauge bitmaps.
 bitmap_index Gauges[MAX_GAUGE_BMS];   // Array of all gauge bitmaps.
 bitmap_index Gauges_hires[MAX_GAUGE_BMS];   // hires gauges
 int weapon_box_user[2]={WBU_WEAPON,WBU_WEAPON};		//see WBU_ constants in gauges.h
-extern fix Omega_charge;
 #endif
 grs_bitmap deccpt;
 grs_bitmap *WinBoxOverlay[2] = { NULL, NULL }; // Overlay subbitmaps for both weapon boxes
@@ -361,8 +360,6 @@ static int invulnerable_frame = 0;
 int weapon_box_states[2] = {WS_SET, WS_SET};
 fix weapon_box_fade_values[2];
 int	Color_0_31_0 = -1;
-extern fix ThisLevelTime;
-extern fix Cruise_speed;
 
 typedef struct gauge_box {
 	int left,top;
@@ -985,8 +982,6 @@ void hud_show_keys(void)
 }
 
 #if defined(DXX_BUILD_DESCENT_II)
-extern grs_bitmap Orb_icons[2];
-
 void hud_show_orbs (void)
 {
 	if (game_mode_hoard()) {
@@ -1531,9 +1526,6 @@ void sb_show_lives()
 }
 
 #ifndef RELEASE
-
-extern int Piggy_bitmap_cache_next;
-
 void show_time()
 {
 	int secs = f2i(Players[Player_num].time_level) % 60;
@@ -2354,10 +2346,6 @@ void draw_invulnerable_ship()
 	else
 		draw_shield_bar(f2ir(Players[Player_num].shields));
 }
-
-extern int Missile_gun;
-extern int allowed_to_fire_laser(void);
-extern int allowed_to_fire_missile(void);
 
 const rgb player_rgb[MAX_PLAYERS] = {
 							{15,15,23},

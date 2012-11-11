@@ -78,7 +78,6 @@ COPYRIGHT 1993-1999 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 
 struct player_config PlayerCfg;
 static int get_lifetime_checksum (int a,int b);
-extern void InitWeaponOrdering();
 
 int new_player_config()
 {

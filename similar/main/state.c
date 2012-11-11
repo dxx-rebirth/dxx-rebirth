@@ -54,6 +54,7 @@ COPYRIGHT 1993-1999 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 #include "text.h"
 #include "mission.h"
 #include "pcx.h"
+#include "collide.h"
 #include "u_mem.h"
 #include "args.h"
 #include "ai.h"
@@ -100,12 +101,6 @@ COPYRIGHT 1993-1999 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 #define THUMBNAIL_W 100
 #define THUMBNAIL_H 50
 #define DESC_LENGTH 20
-
-extern void apply_all_changed_light(void);
-
-extern int Do_appearance_effect;
-
-extern int First_secret_visit;
 
 int sc_last_item= 0;
 
@@ -895,8 +890,6 @@ int copy_file(const char *old_file, const char *new_file)
 }
 #endif
 
-extern int Final_boss_is_dead;
-
 //	-----------------------------------------------------------------------------------
 int state_save_all(int secret_save, const char *filename_override, int blind_save)
 {
@@ -992,9 +985,6 @@ int state_save_all(int secret_save, const char *filename_override, int blind_sav
 
 	return rval;
 }
-
-extern	fix	Flash_effect;
-extern fix64 Time_flash_last_played;
 
 
 int state_save_all_sub(const char *filename, const char *desc)
@@ -1312,11 +1302,7 @@ int state_save_all_sub(const char *filename, const char *desc)
 
 //	-----------------------------------------------------------------------------------
 //	Set the player's position from the globals Secret_return_segment and Secret_return_orient.
-#if defined(DXX_BUILD_DESCENT_I)
-static inline void set_pos_from_return_segment(void)
-{
-}
-#elif defined(DXX_BUILD_DESCENT_II)
+#if defined(DXX_BUILD_DESCENT_II)
 void set_pos_from_return_segment(void)
 {
 	int	plobjnum = Players[Player_num].objnum;
@@ -1408,11 +1394,6 @@ int state_restore_all(int in_game, int secret_restore, const char *filename_over
 
 	return state_restore_all_sub(filename, secret_restore);
 }
-
-extern void init_player_stats_new_ship(ubyte pnum);
-
-extern void do_cloak_invul_secret_stuff(fix64 old_gametime);
-extern void copy_defaults_to_robot(object *objp);
 
 int state_restore_all_sub(const char *filename, int secret_restore)
 {

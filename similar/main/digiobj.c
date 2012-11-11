@@ -23,6 +23,7 @@ COPYRIGHT 1993-1999 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 #include "timer.h"
 #include "joy.h"
 #include "digi.h"
+#include "digi_audio.h"
 #include "sounds.h"
 #include "args.h"
 #include "key.h"
@@ -218,8 +219,6 @@ void digi_init_sounds()
 	N_active_sound_objects = 0;
 	digi_sounds_initialized = 1;
 }
-
-extern int digi_max_channels;
 
 // plays a sample that loops forever.
 // Call digi_stop_channe(channel) to stop it.

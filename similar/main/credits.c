@@ -34,6 +34,7 @@ COPYRIGHT 1993-1999 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 #include "timer.h"
 #include "gamefont.h"
 #include "pcx.h"
+#include "credits.h"
 #include "u_mem.h"
 #include "screens.h"
 #include "digi.h"
@@ -210,7 +211,7 @@ int credits_handler(window *wind, d_event *event, credits *cr)
 }
 
 //if filename passed is NULL, show normal credits
-void credits_show(char *credits_filename)
+void credits_show(const char *credits_filename)
 {
 	credits *cr;
 	window *wind;

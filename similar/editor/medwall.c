@@ -44,6 +44,7 @@ COPYRIGHT 1993-1998 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 static int wall_add_door_flag(sbyte flag);
 static int wall_add_to_side(segment *segp, int side, sbyte type);
 static int wall_remove_door_flag(sbyte flag);
+
 //-------------------------------------------------------------------------
 // Variables for this module...
 //-------------------------------------------------------------------------

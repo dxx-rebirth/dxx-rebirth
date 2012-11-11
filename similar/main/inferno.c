@@ -104,9 +104,7 @@ int MacHog = 0;	// using a Mac hogfile?
 char	Auto_file[128] = "";
 #endif
 
-extern void piggy_init_pigfile(const char *filename);
 #endif
-extern void arch_init(void);
 
 //read help from a file & print to screen
 void print_commandline_help()

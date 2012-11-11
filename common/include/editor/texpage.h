@@ -28,6 +28,9 @@ extern int TextureLights;
 extern int TextureEffects;
 extern int TextureMetals;
 
+void init_replacements(void);
+void do_replacements(void);
+void do_replacements_all(void);
 int texpage_grab_current(int n);
 int texpage_goto_first();
 void texpage_init( UI_DIALOG * dlg );

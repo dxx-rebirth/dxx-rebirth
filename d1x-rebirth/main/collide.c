@@ -308,9 +308,6 @@ void collide_player_and_wall( object * player, fix hitspeed, short hitseg, short
 
 static fix64	Last_volatile_scrape_sound_time = 0;
 
-void collide_weapon_and_wall( object * weapon, fix hitspeed, short hitseg, short hitwall, vms_vector * hitpt);
-void collide_debris_and_wall( object * debris, fix hitspeed, short hitseg, short hitwall, vms_vector * hitpt);
-
 //this gets called when an object is scraping along the wall
 void scrape_player_on_wall(object *obj, short hitseg, short hitside, vms_vector * hitpt )
 {
@@ -1341,8 +1338,6 @@ void collide_robot_and_materialization_center(object *objp)
 //##void collide_player_and_camera( object * player, object * camera, vms_vector *collision_point ) {
 //##	return;
 //##}
-
-extern int Network_got_powerup; // HACK!!!
 
 void collide_player_and_powerup( object * player, object * powerup, vms_vector *collision_point ) {
 	if (!Endlevel_sequence && !Player_is_dead && (player->id == Player_num )) {

@@ -307,6 +307,7 @@ static int padnum=0;
 
 static void init_editor_screen();
 static void gamestate_restore_check();
+static int editor_handler(UI_DIALOG *dlg, d_event *event, void *data);
 
 void init_editor()
 {
@@ -422,8 +423,6 @@ int ShowAbout()
 									"OK");
 	return 0;
 }
-
-void move_player_2_segment(segment *seg,int side);
 
 int SetPlayerFromCurseg()
 {
@@ -604,8 +603,6 @@ int ToggleLighting(void)
 	return Lighting_on;
 }
 
-void find_concave_segs();
-
 int FindConcaveSegs()
 {
 	find_concave_segs();
@@ -718,8 +715,6 @@ int med_keypad_goto_8()	{	ui_pad_goto(8);	return 0;	}
 #define	PAD_WIDTH1	(PAD_WIDTH + 7)
 
 int editor_screen_open = 0;
-
-int editor_handler(UI_DIALOG *dlg, d_event *event, void *data);
 
 //setup the editors windows, canvases, gadgets, etc.
 void init_editor_screen()
@@ -1007,8 +1002,6 @@ int RestoreGameState() {
 	Update_flags |= UF_WORLD_CHANGED;
 	return 0;
 }
-
-extern void check_wall_validity(void);
 
 // Handler for the main editor dialog
 int editor_handler(UI_DIALOG *dlg, d_event *event, void *data)

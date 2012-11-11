@@ -86,9 +86,6 @@ COPYRIGHT 1993-1999 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 #include "editor/editor.h"
 #endif
 
-extern int init_hoard_data();
-extern void init_seismic_disturbances(void);
-
 #define ND_EVENT_EOF				0	// EOF
 #define ND_EVENT_START_DEMO			1	// Followed by 16 character, NULL terminated filename of .SAV file to use
 #define ND_EVENT_START_FRAME			2	// Followed by integer frame number, then a fix FrameTime
@@ -180,7 +177,7 @@ int Newdemo_num_written;
 #if defined(DXX_BUILD_DESCENT_II)
 ubyte DemoDoRight=0,DemoDoLeft=0;
 object DemoRightExtra,DemoLeftExtra;
-extern ubyte RenderingType;
+
 static void nd_render_extras (ubyte which,object *obj);
 #endif
 
@@ -232,8 +229,6 @@ static int shareware = 0;	// reading shareware demo?
 #elif defined(DXX_BUILD_DESCENT_II)
 static const int shareware = 0;
 #endif
-extern int digi_link_sound_to_object3( int org_soundnum, short objnum, int forever, fix max_volume, fix  max_distance, int loop_start, int loop_end );
-extern window *game_setup(void);
 
 int newdemo_get_percent_done()	{
 	if ( Newdemo_state == ND_STATE_PLAYBACK ) {
@@ -1844,9 +1839,6 @@ void newdemo_pop_ctrlcen_triggers()
 		}
 	}
 }
-
-void nd_render_extras (ubyte,object *);
-extern void multi_apply_goal_textures ();
 
 int newdemo_read_frame_information(int rewrite)
 {

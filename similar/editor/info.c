@@ -207,8 +207,6 @@ void info_display_segsize(int show_all)
 
 }
 
-extern int num_objects;
-
 //	---------------------------------------------------------------------------------------------------
 void info_display_default(int show_all)
 {

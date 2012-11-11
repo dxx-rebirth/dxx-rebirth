@@ -31,8 +31,6 @@ ubyte * scale_dest_ptr;
 
 ubyte scale_rle_data[640];
 
-void scale_up_bitmap(grs_bitmap *source_bmp, grs_bitmap *dest_bmp, int x0, int y0, int x1, int y1, fix u0, fix v0,  fix u1, fix v1, int orientation  );
-void scale_up_bitmap_rle(grs_bitmap *source_bmp, grs_bitmap *dest_bmp, int x0, int y0, int x1, int y1, fix u0, fix v0,  fix u1, fix v1, int orientation  );
 static void rls_stretch_scanline_setup( int XDelta, int YDelta );
 static void rls_stretch_scanline(void);
 

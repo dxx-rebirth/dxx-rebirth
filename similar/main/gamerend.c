@@ -62,8 +62,6 @@ static inline void game_draw_marker_message()
 {
 }
 #elif defined(DXX_BUILD_DESCENT_II)
-extern ubyte DefiningMarkerMessage;
-
 void game_draw_marker_message()
 {
 	if ( DefiningMarkerMessage)
@@ -354,7 +352,6 @@ void game_draw_hud_stuff()
 				gr_printf(0x8000, y, "%s (%d%% %s)", TXT_DEMO_PLAYBACK, newdemo_get_percent_done(), TXT_DONE);
 			}
 		} else {
-			extern int Newdemo_num_written;
 			gr_printf(0x8000, y, "%s (%dK)", TXT_DEMO_RECORDING, (Newdemo_num_written / 1024));
 		}
 	}
@@ -378,11 +375,8 @@ void game_draw_hud_stuff()
 
 #if defined(DXX_BUILD_DESCENT_II)
 
-extern int SW_drawn[2], SW_x[2], SW_y[2], SW_w[2], SW_h[2];
 ubyte RenderingType=0;
 ubyte DemoDoingRight=0,DemoDoingLeft=0;
-extern ubyte DemoDoRight,DemoDoLeft;
-extern object DemoRightExtra,DemoLeftExtra;
 
 char DemoWBUType[]={0,WBU_GUIDED,WBU_MISSILE,WBU_REAR,WBU_ESCORT,WBU_MARKER,0};
 char DemoRearCheck[]={0,0,0,1,0,0,0};
@@ -536,7 +530,6 @@ void show_extra_views()
 
 int BigWindowSwitch=0;
 #endif
-extern int force_cockpit_redraw;
 static void update_cockpits();
 
 //render a frame for the game

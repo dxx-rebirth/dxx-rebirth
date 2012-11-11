@@ -44,5 +44,12 @@ int state_restore_all_sub(const char *filename, int secret_restore);
 int state_get_save_file(char *fname, char * dsc, int blind_save);
 int state_get_restore_file(char *fname);
 int state_get_game_id(const char *filename);
+#if defined(DXX_BUILD_DESCENT_I)
+static inline void set_pos_from_return_segment(void)
+{
+}
+#elif defined(DXX_BUILD_DESCENT_II)
+void set_pos_from_return_segment(void);
+#endif
 
 #endif /* _STATE_H */

@@ -86,8 +86,6 @@ static void verify_textures();
 
 #define MAX_BITMAPS_PER_BRUSH 30
 
-extern player_ship only_player_ship;		// In bm.c
-
 static short		N_ObjBitmaps=0;
 static short		N_ObjBitmapPtrs=0;
 static int			Num_robot_ais = 0;
@@ -260,7 +258,7 @@ void ab_load(int skip, char * filename, bitmap_index bmp[], int *nframes )
 	}
 }
 
-int ds_load(int skip, char * filename )	{
+int ds_load(int skip, const char * filename )	{
 	int i;
 	PHYSFS_file * cfp;
 	digi_sound new;

@@ -22,6 +22,9 @@ extern void do_escort_menu(void);
 extern void detect_escort_goal_accomplished(int index);
 extern void set_escort_special_goal(int key);
 void recreate_thief(struct object *objp);
+void init_buddy_for_level(void);
 void invalidate_escort_goal(void);
+void drop_stolen_items (struct object *);
+extern fix64	Buddy_sorry_time;
 #endif
 #endif // _ESCORT_H

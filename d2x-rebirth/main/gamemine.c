@@ -134,8 +134,6 @@ struct mfi_v19 {
 };
 #endif // 0
 
-int CreateDefaultNewSegment();
-
 int New_file_format_load = 1; // "new file format" is everything newer than d1 shareware
 
 int d1_pig_present = 0; // can descent.pig from descent 1 be loaded?

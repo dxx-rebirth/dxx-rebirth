@@ -49,6 +49,7 @@ COPYRIGHT 1993-1999 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 #include "multi.h"
 #include "physics.h"
 #include "multi.h"
+#include "wall.h"
 
 #define NEWHOMER
 
@@ -59,12 +60,6 @@ int Guided_missile_sig[MAX_PLAYERS]={-1,-1,-1,-1,-1,-1,-1,-1};
 int Network_laser_track = -1;
 
 static int find_homing_object_complete(vms_vector *curpos, object *tracker, int track_obj_type1, int track_obj_type2);
-
-extern char Multi_is_guided;
-
-extern void newdemo_record_guided_end();
-extern void newdemo_record_guided_start();
-
 static int find_homing_object(vms_vector *curpos, object *tracker);
 
 //---------------------------------------------------------------------------------
@@ -293,8 +288,6 @@ int create_weapon_object(int weapon_type,int segnum,vms_vector *position)
 }
 
 #if defined(DXX_BUILD_DESCENT_II)
-extern int Doing_lighting_hack_flag;
-
 //	-------------------------------------------------------------------------------------------------------------------------------
 //	***** HEY ARTISTS!! *****
 //	Here are the constants you're looking for! --MK
@@ -1610,8 +1603,6 @@ void Laser_do_weapon_sequence(object *obj)
 
 fix64	Last_laser_fired_time = 0;
 
-extern int Player_fired_laser_this_frame;
-
 static inline int sufficient_energy(int energy_used, fix energy)
 {
 	return !energy_used || (energy >= energy_used);
@@ -1934,8 +1925,6 @@ int create_homing_missile(object *objp, int goal_obj, int objtype, int make_soun
 
 	return objnum;
 }
-
-extern void blast_nearby_glass(object *objp, fix damage);
 
 //-----------------------------------------------------------------------------
 // Create the children of a smart bomb, which is a bunch of homing missiles.

@@ -128,9 +128,6 @@ static void do_multi_player_menu();
 #ifndef RELEASE
 static void do_sandbox_menu();
 #endif
-extern void newmenu_free_background();
-extern void ReorderPrimary();
-extern void ReorderSecondary();
 
 // Hide all menus
 int hide_menus(void)
@@ -554,8 +551,6 @@ int DoMenu()
 
 	return 0;
 }
-
-extern void show_order_form(void);	// John didn't want this in inferno.h so I just externed it.
 
 //returns flag, true means quit menu
 int do_option ( int select)
@@ -1608,8 +1603,6 @@ static inline void nm_set_item_browse(newmenu_item *ni, const char *text)
 
 int opt_sm_digivol = -1, opt_sm_musicvol = -1, opt_sm_revstereo = -1, opt_sm_mtype0 = -1, opt_sm_mtype1 = -1, opt_sm_mtype2 = -1, opt_sm_mtype3 = -1, opt_sm_redbook_playorder = -1, opt_sm_mtype3_lmpath = -1, opt_sm_mtype3_lmplayorder1 = -1, opt_sm_mtype3_lmplayorder2 = -1, opt_sm_mtype3_lmplayorder3 = -1, opt_sm_cm_mtype3_file1_b = -1, opt_sm_cm_mtype3_file1 = -1, opt_sm_cm_mtype3_file2_b = -1, opt_sm_cm_mtype3_file2 = -1, opt_sm_cm_mtype3_file3_b = -1, opt_sm_cm_mtype3_file3 = -1, opt_sm_cm_mtype3_file4_b = -1, opt_sm_cm_mtype3_file4 = -1, opt_sm_cm_mtype3_file5_b = -1, opt_sm_cm_mtype3_file5 = -1;
 
-void set_extmusic_volume(int volume);
-
 int get_absolute_path(char *full_path, const char *rel_path)
 {
 	PHYSFSX_getRealPath(rel_path, full_path);
@@ -2128,7 +2121,6 @@ int gamebitmaps_viewer_handler(window *wind, d_event *event)
 #endif
 	bitmap_index bi;
 	grs_bitmap *bm;
-	extern int Num_bitmap_files;
 
 	switch (event->type)
 	{

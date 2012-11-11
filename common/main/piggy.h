@@ -23,6 +23,7 @@ COPYRIGHT 1993-1999 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 #include "physfsx.h"
 #include "digi.h"
 #include "sounds.h"
+#include "hash.h"
 #include "inferno.h"
 
 #ifdef __cplusplus
@@ -60,15 +61,19 @@ typedef struct bitmap_index {
 	ushort index;
 } __pack__ bitmap_index;
 
+typedef struct BitmapFile {
+	char    name[15];
+} BitmapFile;
+
 #if defined(DXX_BUILD_DESCENT_I)
 extern int MacPig;
 extern int PCSharePig;
 
-extern ubyte bogus_data[64 * 64];
 extern grs_bitmap bogus_bitmap;
 extern ubyte bogus_bitmap_initialized;
 extern digi_sound bogus_sound;
 #endif
+extern ubyte bogus_data[64 * 64];
 
 int properties_init();
 void piggy_close();
@@ -157,10 +162,21 @@ extern void remove_char( char * s, char c );	// in piggy.c
 #define REMOVE_COMMENTS(s)	remove_char((s),';')
 #define REMOVE_DOTS(s)  	remove_char((s),'.')
 
+extern int Num_bitmap_files;
+extern int Num_sound_files;
 extern ubyte bogus_bitmap_initialized;
 extern digi_sound bogus_sound;
 extern const char space[3];
 extern const char equal_space[4];
+#if defined(DXX_BUILD_DESCENT_I)
+extern hashtable AllBitmapsNames;
+extern hashtable AllDigiSndNames;
+#elif defined(DXX_BUILD_DESCENT_II)
+extern BitmapFile AllBitmaps[ MAX_BITMAP_FILES ];
+#endif
+void piggy_init_pigfile(const char *filename);
+int read_hamfile();
+void swap_0_255(grs_bitmap *bmp);
 
 #ifdef __cplusplus
 }

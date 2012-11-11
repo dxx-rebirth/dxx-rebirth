@@ -300,7 +300,6 @@ void set_average_light_on_all_fast(void)
 
 }
 
-extern int Doing_lighting_hack_flag;
 int set_average_light_on_all(void)
 {
 //	set_average_light_on_all_fast();

@@ -334,10 +334,6 @@ void do_il_off(sbyte trigger_num)
 }
 
 #if defined(DXX_BUILD_DESCENT_II)
-extern void EnterSecretLevel(void);
-extern void ExitSecretLevel(void);
-extern int p_secret_level_destroyed(void);
-
 int wall_is_forcefield(trigger *trig)
 {
 	int i;

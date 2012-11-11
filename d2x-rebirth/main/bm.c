@@ -50,6 +50,8 @@ COPYRIGHT 1993-1999 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 #include "interp.h"
 #include "console.h"
 #include "rle.h"
+#include "physfsx.h"
+#include "internal.h"
 
 ubyte Sounds[MAX_SOUNDS];
 ubyte AltSounds[MAX_SOUNDS];
@@ -229,7 +231,6 @@ void bm_read_all(PHYSFS_file * fp)
 #define N_D2_OBJBITMAPPTRS		502
 #define N_D2_WEAPON_TYPES		62
 
-extern int Num_bitmap_files;
 int extra_bitmap_num = 0;
 
 static void bm_free_extra_objbitmaps()

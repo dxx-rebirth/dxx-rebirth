@@ -100,8 +100,6 @@ void do_powerup_frame(object *obj)
 }
 
 #ifdef EDITOR
-extern grs_point blob_vertices[4];
-
 //	blob_vertices has 3 vertices in it, 4th must be computed
 void draw_blob_outline(void)
 {

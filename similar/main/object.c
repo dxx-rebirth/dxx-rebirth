@@ -232,8 +232,6 @@ void draw_object_tmap_rod(object *obj,bitmap_index bitmapi,int lighted)
 
 int	Linear_tmap_polygon_objects = 1;
 
-extern fix Max_thrust;
-
 //used for robot engine glow
 #define MAX_VELOCITY i2f(50)
 
@@ -779,8 +777,6 @@ void render_object(object *obj)
 
 }
 
-void check_and_fix_matrix(vms_matrix *m);
-
 #define vm_angvec_zero(v) (v)->p=(v)->b=(v)->h=0
 
 void reset_player_object()
@@ -1257,8 +1253,6 @@ int obj_create_copy(int objnum, vms_vector *new_pos, int newsegnum)
 }
 #endif
 
-extern void newdemo_record_guided_end();
-
 //remove object from the world
 void obj_delete(int objnum)
 {
@@ -1396,9 +1390,6 @@ void set_camera_pos(vms_vector *camera_pos, object *objp)
 		}
 	}
 }
-
-extern void drop_player_eggs(object *objp);
-extern int get_explosion_vclip(object *obj,int stage);
 
 //	------------------------------------------------------------------------------------------------------------------
 void dead_player_frame(void)
@@ -1675,12 +1666,8 @@ void spin_object(object *obj)
 
 #if defined(DXX_BUILD_DESCENT_II)
 int Drop_afterburner_blob_flag;		//ugly hack
-extern void multi_send_drop_blobs(char);
-extern void fuelcen_check_for_goal (segment *);
-
 //see if wall is volatile, and if so, cause damage to player
 //returns true if player is in lava
-int check_volatile_wall(object *obj,int segnum,int sidenum,vms_vector *hitpt);
 #endif
 
 //--------------------------------------------------------------------
@@ -2203,8 +2190,6 @@ int drop_marker_object(vms_vector *pos,int segnum,vms_matrix *orient, int marker
 
 	return objnum;	
 }
-
-extern int Ai_last_missile_camera;
 
 //	*viewer is a viewer, probably a missile.
 //	wake up all robots that were rendered last frame subject to some constraints.

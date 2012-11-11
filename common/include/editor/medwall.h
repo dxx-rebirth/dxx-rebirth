@@ -63,6 +63,7 @@ extern void do_wall_window();
 extern int wall_link_doors();
 extern int wall_unlink_door();
 extern void copy_group_walls(int old_group, int new_group);
+void check_wall_validity(void);
 
 #endif
 

@@ -16,6 +16,8 @@ extern "C" {
 
 struct d_event;
 struct window;
+struct SDL_MouseButtonEvent;
+struct SDL_MouseMotionEvent;
 
 #define MOUSE_MAX_BUTTONS       16
 #define Z_SENSITIVITY		100
@@ -50,6 +52,9 @@ extern void mouse_get_delta( int *dx, int *dy, int *dz );
 extern void event_mouse_get_delta(struct d_event *event, int *dx, int *dy, int *dz);
 extern int mouse_get_btns();
 extern void mouse_toggle_cursor(int activate);
+void mouse_button_handler(struct SDL_MouseButtonEvent *mbe);
+void mouse_motion_handler(struct SDL_MouseMotionEvent *mme);
+void mouse_cursor_autohide();
 
 #ifdef __cplusplus
 }

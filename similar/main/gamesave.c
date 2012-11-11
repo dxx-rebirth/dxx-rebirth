@@ -30,6 +30,7 @@ COPYRIGHT 1993-1999 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 #ifdef EDITOR
 #include "editor/editor.h"
 #include "editor/esegment.h"
+#include "editor/eswitch.h"
 #endif
 #include "dxxerror.h"
 #include "object.h"
@@ -54,6 +55,7 @@ COPYRIGHT 1993-1999 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 #include "gamefont.h"
 #include "gamesave.h"
 #include "gamepal.h"
+#include "physics.h"
 #include "laser.h"
 #include "byteswap.h"
 #include "multi.h"
@@ -168,21 +170,9 @@ struct {
 } game_fileinfo;
 #endif // EDITOR
 
-//  LINT: adding function prototypes
-#ifdef EDITOR
-void do_load_save_levels(int save);
-#endif
 #ifndef NDEBUG
 static void dump_mine_info(void);
 #endif
-
-#ifdef EDITOR
-extern char mine_filename[];
-extern int save_mine_data_compiled(PHYSFS_file *SaveFile);
-//--unused-- #else
-//--unused-- char mine_filename[128];
-#endif
-
 int Gamesave_num_org_robots = 0;
 //--unused-- grs_bitmap * Gamesave_saved_bitmap = NULL;
 
@@ -233,8 +223,6 @@ static int convert_polymod(int polymod) {
 int N_save_pof_names;
 char Save_pof_names[MAX_POLYGON_MODELS][FILENAME_LEN];
 #endif
-
-void check_and_fix_matrix(vms_matrix *m);
 
 void verify_object( object * obj )	{
 
@@ -412,8 +400,6 @@ void verify_object( object * obj )	{
 //	PHYSFSX_fseek(file,len,SEEK_CUR);
 //}
 
-
-extern int multi_powerup_is_4pack(int);
 //reads one object of the given version from the given file
 static void read_object(object *obj,PHYSFS_file *f,int version)
 {
@@ -827,8 +813,6 @@ static void write_object(object *obj, short version, PHYSFS_file *f)
 
 }
 #endif
-
-extern int remove_trigger_num(int trigger_num);
 
 // --------------------------------------------------------------------
 // Load game 
@@ -1344,11 +1328,6 @@ int load_game_data(PHYSFS_file *LoadFile)
 		return 0;
 }
 
-
-int check_segment_connections(void);
-
-extern void	set_ambient_sound_flags(void);
-
 // ----------------------------------------------------------------------------
 
 #if defined(DXX_BUILD_DESCENT_I)
@@ -1368,11 +1347,7 @@ extern void	set_ambient_sound_flags(void);
 const char *Level_being_loaded=NULL;
 #endif
 
-
 #if defined(DXX_BUILD_DESCENT_II)
-extern int Slide_segs_computed;
-extern int d1_pig_present;
-
 int no_old_level_file_error=0;
 #endif
 
@@ -1882,8 +1857,6 @@ int save_game_data(PHYSFS_file *SaveFile)
 	return 0;
 }
 
-int save_mine_data(PHYSFS_file * SaveFile);
-
 // -----------------------------------------------------------------------------
 // Save game
 static int save_level_sub(const char * filename, int compiled_version)
@@ -2036,10 +2009,6 @@ static int save_level_sub(const char * filename, int compiled_version)
 	return 0;
 
 }
-
-#if 0 //dunno - 3rd party stuff?
-extern void compress_uv_coordinates_all(void);
-#endif
 
 int save_level(const char * filename)
 {

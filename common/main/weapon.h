@@ -242,6 +242,11 @@ extern void select_weapon(int weapon_num, int secondary_flag, int print_message,
 #if defined(DXX_BUILD_DESCENT_I) || defined(DXX_BUILD_DESCENT_II)
 //for each Secondary weapon, which gun it fires out of
 extern const ubyte Secondary_weapon_to_gun_num[MAX_SECONDARY_WEAPONS];
+
+/*
+ * reads n weapon_info structs from a PHYSFS_file
+ */
+int weapon_info_read_n(weapon_info *wi, int n, PHYSFS_file *fp, int file_version);
 #endif
 
 #if defined(DXX_BUILD_DESCENT_II)
@@ -294,6 +299,18 @@ extern void smega_rock_stuff(void);
 extern void init_smega_detonates(void);
 #endif
 
+void InitWeaponOrdering();
+void CyclePrimary();
+void CycleSecondary();
+void ReorderPrimary();
+void ReorderSecondary();
+void check_to_use_primary(int);
+void init_seismic_disturbances(void);
+void process_super_mines_frame(void);
+void DropCurrentWeapon();
+void DropSecondaryWeapon();
+void do_seismic_stuff(void);
+
 //return which bomb will be dropped next time the bomb key is pressed
 #if defined(DXX_BUILD_DESCENT_I)
 static inline int which_bomb(void)
@@ -311,8 +328,8 @@ static inline int weapon_index_is_player_bomb(unsigned id)
 	return id == PROXIMITY_INDEX;
 }
 #elif defined(DXX_BUILD_DESCENT_II)
+extern fix64	Seismic_disturbance_start_time, Seismic_disturbance_end_time;
 int which_bomb(void);
-int check_to_use_primary(int weapon_index);
 
 static inline int weapon_index_uses_vulcan_ammo(unsigned id)
 {

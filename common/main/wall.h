@@ -287,10 +287,10 @@ extern void remove_obsolete_stuck_objects(void);
 //set the tmap_num or tmap_num2 field for a wall/door
 extern void wall_set_tmap_num(segment *seg,int side,segment *csegp,int cside,int anim_num,int frame_num);
 
-#if defined(DXX_BUILD_DESCENT_II)
 // Remove any flares from a wall
 void kill_stuck_objects(int wallnum);
 
+#if defined(DXX_BUILD_DESCENT_II)
 //start wall open <-> closed transitions
 void start_wall_cloak(segment *seg, int side);
 void start_wall_decloak(segment *seg, int side);
@@ -345,5 +345,9 @@ extern void active_door_read_n_swap(active_door *ad, int n, int swap, PHYSFS_fil
 
 extern void wall_write(wall *w, short version, PHYSFS_file *fp);
 void wall_close_door_num(int door_num);
+void init_stuck_objects(void);
+void clear_stuck_objects(void);
+void blast_nearby_glass(struct object *objp, fix damage);
+
 
 #endif

@@ -30,6 +30,8 @@ extern ubyte Automap_visited[MAX_SEGMENTS];
 #if defined(DXX_BUILD_DESCENT_II)
 #include "object.h"
 void DropBuddyMarker(object *objp);
+void InitMarkerInput();
+int MarkerInputMessage(int key);
 
 #define NUM_MARKERS         16
 #define MARKER_MESSAGE_LEN  40
@@ -37,6 +39,7 @@ void DropBuddyMarker(object *objp);
 extern char MarkerMessage[NUM_MARKERS][MARKER_MESSAGE_LEN];
 extern int  MarkerObject[NUM_MARKERS];
 extern vms_vector MarkerPoint[NUM_MARKERS];
+extern ubyte DefiningMarkerMessage;
 #endif
 
 #endif

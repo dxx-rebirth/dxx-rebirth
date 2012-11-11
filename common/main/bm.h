@@ -113,8 +113,10 @@ extern fix	ObjStrength[MAX_OBJTYPE];	// initial strength of each object
 
 //the model number of the marker object
 extern int Marker_model_num;
+extern int Robot_replacements_loaded;
 #define MAX_OBJ_BITMAPS     610
 extern int N_ObjBitmaps;
+extern int extra_bitmap_num;
 #endif
 
 extern int  Num_object_subtypes;     // Number of possible IDs for the current type of object to be placed
@@ -130,5 +132,13 @@ int gamedata_read_tbl(int pc_shareware);
 extern void bm_read_all(PHYSFS_file * fp);
 
 int load_exit_models();
+void load_robot_replacements(char *level_name);
+void bm_read_extra_robots(const char *fname,int type);
+#if defined(DXX_BUILD_DESCENT_I)
+void properties_read_cmp(PHYSFS_file * fp);
+#endif
+int ds_load(int skip, const char * filename );
+int compute_average_pixel(grs_bitmap *n);
+void bm_write_all(PHYSFS_file *fp);
 
 #endif /* _BM_H */

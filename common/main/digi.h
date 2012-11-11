@@ -50,9 +50,7 @@ extern int digi_link_sound_to_pos( int soundnum, short segnum, short sidenum, vm
 extern int digi_link_sound_to_object2( int soundnum, short objnum, int forever, fix max_volume, fix  max_distance );
 extern int digi_link_sound_to_pos2( int soundnum, short segnum, short sidenum, vms_vector * pos, int forever, fix max_volume, fix max_distance );
 
-#if defined(DXX_BUILD_DESCENT_II)
 extern int digi_link_sound_to_object3( int org_soundnum, short objnum, int forever, fix max_volume, fix  max_distance, int loop_start, int loop_end );
-#endif
 
 extern void digi_play_sample_3d( int soundno, int angle, int volume, int no_dups ); // Volume from 0-0x7fff
 
@@ -120,6 +118,8 @@ extern void digi_start_sound_queued( short soundnum, fix volume );
 
 extern int digi_volume;
 extern int digi_sample_rate;
+extern int SoundQ_channel;
+extern int Dont_start_sound_objects;
 void digi_select_system(int);
 
 #ifdef _WIN32
@@ -130,6 +130,9 @@ void digi_win32_pause_midi_song();
 void digi_win32_resume_midi_song();
 void digi_win32_stop_midi_song();
 #endif
+void digi_end_soundobj(int i);
+void SoundQ_end();
+int verify_sound_channel_free( int channel );
 
 #ifdef __cplusplus
 }

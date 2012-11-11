@@ -91,7 +91,6 @@ void digi_select_system(int n) {
 #ifndef NDEBUG
 static int digi_initialised = 0;
 #endif
-extern int digi_max_channels;
 #if defined(DXX_BUILD_DESCENT_I)
 int digi_sample_rate = SAMPLE_RATE_11K;
 #endif

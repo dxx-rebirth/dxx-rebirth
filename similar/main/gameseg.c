@@ -28,12 +28,17 @@ COPYRIGHT 1993-1999 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 #include "console.h"
 #include "vecmat.h"
 #include "gameseg.h"
+#include "gameseq.h"
 #include "wall.h"
 #include "fuelcen.h"
 #include "bm.h"
 #include "fvi.h"
 #include "byteswap.h"
+#include "lighting.h"
 #include "mission.h"
+#ifdef EDITOR
+#include "editor/editor.h"
+#endif
 
 // How far a point can be from a plane, and still be "in" the plane
 #define PLANE_DIST_TOLERANCE	250
@@ -313,7 +318,6 @@ segmasks get_seg_masks(const vms_vector *checkp, int segnum, fix rad, const char
 	int			num_faces;
 	int			vertex_list[6];
 	segment		*seg;
-	extern int Current_level_num;
 
 	if (segnum < 0 || segnum > Highest_segment_index)
 		Error("segnum == %i (%i) in get_seg_masks() \ncheckp: %i,%i,%i, rad: %i \nfrom file: %s, line: %i \nMission: %s (%i) \nPlease report this bug.\n",segnum,Highest_segment_index,checkp->x,checkp->y,checkp->z,rad,calling_file,calling_linenum, Current_mission_filename, Current_level_num);
@@ -1289,7 +1293,6 @@ int check_for_degenerate_side(segment *sp, int sidenum)
 
 }
 
-extern int Degenerate_segment_found;
 //	----
 //	See if a segment has gotten turned inside out, or something.
 //	If so, set global Degenerate_segment_found and return 1, else return 0.
@@ -1739,8 +1742,6 @@ void apply_light_to_segment(segment *segp,vms_vector *segment_center, fix light_
 
 }
 
-
-extern object *old_viewer;
 
 //update the static_light field in a segment, which is used for object lighting
 //this code is copied from the editor routine calim_process_all_lights()

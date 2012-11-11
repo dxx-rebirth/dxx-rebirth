@@ -33,9 +33,6 @@ COPYRIGHT 1993-1998 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 
 //Internal constants and structures for this library
 
-extern void gr_bm_bitblt(int w, int h, int dx, int dy, int sx, int sy, grs_bitmap * src, grs_bitmap * dest);
-
-
 //Type values for bitmaps
 #define TYPE_PBM		0
 #define TYPE_ILBM		1

@@ -57,10 +57,6 @@ char	Wall_names[7][10] = {
 };
 #endif
 
-void kill_stuck_objects(int wallnum);
-
-
-
 // This function determines whether the current segment/side is transparent
 //		1 = YES
 //		0 = NO
@@ -1602,7 +1598,6 @@ void kill_stuck_objects(int wallnum)
 		}
 	//	Ok, this is awful, but we need to do things whenever a door opens/closes/disappears, etc.
 #if defined(DXX_BUILD_DESCENT_II)
-	extern void flush_fcd_cache(void);
 	flush_fcd_cache();
 #endif
 
@@ -1842,7 +1837,7 @@ void wall_read_n_swap(wall *w, int n, int swap, PHYSFS_file *fp)
 /*
  * reads a v19_door structure from a PHYSFS_file
  */
-extern void v19_door_read(v19_door *d, PHYSFS_file *fp)
+void v19_door_read(v19_door *d, PHYSFS_file *fp)
 {
 	d->n_parts = PHYSFSX_readInt(fp);
 	d->seg[0] = PHYSFSX_readShort(fp);
@@ -1857,7 +1852,7 @@ extern void v19_door_read(v19_door *d, PHYSFS_file *fp)
 /*
  * reads an active_door structure from a PHYSFS_file
  */
-extern void active_door_read(active_door *ad, PHYSFS_file *fp)
+void active_door_read(active_door *ad, PHYSFS_file *fp)
 {
 	ad->n_parts = PHYSFSX_readInt(fp);
 	ad->front_wallnum[0] = PHYSFSX_readShort(fp);

@@ -99,7 +99,6 @@ COPYRIGHT 1993-1998 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 #include "segment.h"
 #include "gameseg.h"
 
-void init_player_stats_new_ship(ubyte pnum);
 static int AdvanceLevel(int secret_flag);
 static void StartLevel(int random);
 static void copy_defaults_to_robot_all(void);
@@ -122,16 +121,6 @@ obj_position	Player_init[MAX_PLAYERS];
 
 // Global variables telling what sort of game we have
 int NumNetPlayerPositions = -1;
-
-extern fix ThisLevelTime;
-
-// Extern from game.c to fix a bug in the cockpit!
-
-extern int last_drawn_cockpit;
-extern int Last_level_path_created;
-
-void HUD_clear_messages(); // From hud.c
-
 
 void verify_console_object()
 {
@@ -364,9 +353,6 @@ void init_player_stats_new_ship(ubyte pnum)
 }
 
 #ifdef EDITOR
-
-extern int game_handler(window *wind, d_event *event, void *data);
-
 //reset stuff so game is semi-normal when playing from editor
 void editor_reset_stuff_on_level()
 {
@@ -392,9 +378,6 @@ void editor_reset_stuff_on_level()
 		Game_wind = window_create(&grd_curscreen->sc_canvas, 0, 0, SWIDTH, SHEIGHT, game_handler, NULL);
 }
 #endif
-
-void reset_player_object();
-
 
 //do whatever needs to be done when a player dies in multiplayer
 
@@ -1111,7 +1094,6 @@ void StartNewLevelSub(int level_num, int page_in_textures, int secret_flag)
 		game();
 }
 
-extern char PowerupsInMine[MAX_POWERUP_TYPES], MaxPowerupsAllowed[MAX_POWERUP_TYPES];
 void bash_to_shield (int i,const char *s)
 {
 	int type=Objects[i].id;

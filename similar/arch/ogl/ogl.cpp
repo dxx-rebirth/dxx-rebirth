@@ -93,7 +93,6 @@ static GLfloat *sphere_va = NULL, *circle_va = NULL, *disk_va = NULL;
 static GLfloat *secondary_lva[3]={NULL, NULL, NULL};
 static int r_polyc,r_tpolyc,r_bitmapc,r_ubitbltc;
 int r_upixelc;
-extern int linedotscale;
 #define f2glf(x) (f2fl(x))
 
 #define OGL_BINDTEXTURE(a) glBindTexture(GL_TEXTURE_2D, a);
@@ -875,8 +874,6 @@ void gr_upoly_tmap(int, const int *){
 void draw_tmap_flat(grs_bitmap *,int,g3s_point **){
 		glmprintf((0,"draw_tmap_flat: unhandled\n"));//should never get called
 }
-
-extern void (*tmap_drawer_ptr)(grs_bitmap *bm,int nv,g3s_point **vertlist);
 
 /*
  * Everything texturemapped (walls, robots, ship)

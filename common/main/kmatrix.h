@@ -22,5 +22,6 @@ COPYRIGHT 1993-1999 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 #define _KMATRIX_H
 
 void kmatrix_view(int network);
+extern fix64 StartAbortMenuTime;
 
 #endif /* _KMATRIX_H */

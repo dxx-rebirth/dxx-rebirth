@@ -72,7 +72,6 @@ int mine_tiles_drawn;    //flags to tell if all 4 tiles under mine have drawn
 
 // LINT: adding function prototypes
 static void build_light_table(void);
-void free_light_table(void);
 
 // ------------------------------------------------------------------------
 void draw_cell(int i,int j,g3s_point *p0,g3s_point *p1,g3s_point *p2,g3s_point *p3)
@@ -142,8 +141,6 @@ void draw_cell(int i,int j,g3s_point *p0,g3s_point *p1,g3s_point *p2,g3s_point *
 
 vms_vector y_cache[256];
 ubyte yc_flags[256];
-
-extern vms_matrix surface_orient;
 
 vms_vector *get_dy_vec(int h)
 {

@@ -54,10 +54,6 @@ static int piggy_is_substitutable_bitmap( char * name, char * subst_name );
 ubyte *BitmapBits = NULL;
 ubyte *SoundBits = NULL;
 
-typedef struct BitmapFile {
-	char    name[15];
-} BitmapFile;
-
 typedef struct SoundFile {
 	char    name[15];
 } SoundFile;
@@ -262,11 +258,6 @@ ubyte bogus_bitmap_initialized=0;
 digi_sound bogus_sound;
 int MacPig = 0;	// using the Macintosh pigfile?
 int PCSharePig = 0; // using PC Shareware pigfile?
-
-extern void properties_read_cmp(PHYSFS_file * fp);
-#ifdef EDITOR
-extern void bm_write_all(PHYSFS_file * fp);
-#endif
 
 int properties_init()
 {
@@ -509,7 +500,6 @@ void piggy_read_sounds(int pc_shareware)
 	{
 		// Read Mac sounds converted to RAW format (too messy to read them directly from the resource fork code-wise)
 		char soundfile[32] = "Sounds/sounds.array";
-		extern int ds_load(int skip, char * filename );
 		PHYSFS_file *array = PHYSFSX_openReadBuffered(soundfile);	// hack for Mac Demo
 
 		if (!array && (PHYSFSX_fsize(DEFAULT_PIGFILE_REGISTERED) == D1_MAC_SHARE_PIGSIZE))

@@ -378,9 +378,6 @@ void collide_player_and_wall( object * playerobj, fix hitspeed, short hitseg, sh
 
 fix64	Last_volatile_scrape_sound_time = 0;
 
-void collide_weapon_and_wall( object * weapon, fix hitspeed, short hitseg, short hitwall, vms_vector * hitpt);
-void collide_debris_and_wall( object * debris, fix hitspeed, short hitseg, short hitwall, vms_vector * hitpt);
-
 //see if wall is volatile or water
 //if volatile, cause damage to player
 //returns 1=lava, 2=water
@@ -1185,8 +1182,6 @@ void collide_weapon_and_clutter( object * weapon, object *clutter, vms_vector *c
 
 //--mk, 121094 -- extern void spin_robot(object *robot, vms_vector *collision_point);
 
-extern object *explode_badass_object(object *objp, fix damage, fix distance, fix force);
-
 int	Final_boss_is_dead = 0;
 fix	Final_boss_countdown_time = 0;
 
@@ -1234,9 +1229,6 @@ void do_final_boss_hacks(void)
 
 	Final_boss_is_dead = 1;
 }
-
-extern int multi_all_players_alive();
-void multi_send_finish_game ();
 
 //	------------------------------------------------------------------------------------------------------
 //	Return 1 if robot died, else return 0
@@ -1344,8 +1336,6 @@ int apply_damage_to_robot(object *robot, fix damage, int killer_objnum)
 	} else
 		return 0;
 }
-
-extern int boss_spew_robot(object *objp, vms_vector *pos);
 
 //--ubyte	Boss_teleports[NUM_D2_BOSSES] = 				{1,1,1,1,1,1};		// Set byte if this boss can teleport
 //--ubyte	Boss_cloaks[NUM_D2_BOSSES] = 					{1,1,1,1,1,1};		// Set byte if this boss can cloak
@@ -2001,8 +1991,6 @@ void drop_player_eggs(object *playerobj)
 // -- removed, 09/06/95, MK --
 // -- removed, 09/06/95, MK -- #define	LOSE_WEAPON_THRESHOLD	(F1_0*30)
 
-extern fix64 Buddy_sorry_time;
-
 void apply_damage_to_player(object *playerobj, object *killer, fix damage, ubyte possibly_friendly)
 {
 	if (Player_is_dead)
@@ -2217,8 +2205,6 @@ void collide_robot_and_materialization_center(object *objp)
 //##void collide_player_and_camera( object * playerobj, object * camera, vms_vector *collision_point ) {
 //##	return;
 //##}
-
-extern int Network_got_powerup; // HACK!!!
 
 void collide_player_and_powerup( object * playerobj, object * powerup, vms_vector *collision_point ) {
 	if (!Endlevel_sequence && !Player_is_dead && (playerobj->id == Player_num )) {

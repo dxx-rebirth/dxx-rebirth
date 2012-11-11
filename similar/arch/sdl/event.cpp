@@ -16,11 +16,6 @@
 
 #include "joy.h"
 
-extern void key_handler(SDL_KeyboardEvent *event);
-extern void mouse_button_handler(SDL_MouseButtonEvent *mbe);
-extern void mouse_motion_handler(SDL_MouseMotionEvent *mme);
-extern void mouse_cursor_autohide();
-
 static int initialised=0;
 
 void event_poll()

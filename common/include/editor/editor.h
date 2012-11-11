@@ -511,6 +511,7 @@ extern editor_view RightView;
 
 extern void set_view_target_from_segment(struct segment *sp);
 extern int SafetyCheck();
+int save_mine_data_compiled(PHYSFS_file *SaveFile);
 
 void editor_status( const char *text);
 

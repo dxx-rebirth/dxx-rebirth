@@ -16,9 +16,6 @@
 
 //#define D2TMAP_CONV // used for testing
 
-extern hashtable AllBitmapsNames;
-extern hashtable AllDigiSndNames;
-
 struct snd_info
 {
 	unsigned int length;

@@ -21,6 +21,7 @@ extern "C" {
 
 typedef struct window window;
 
+void arch_init(void);
 extern window *window_create(grs_canvas *src, int x, int y, int w, int h, int (*event_callback)(window *wind, d_event *event, void *data), void *data);
 extern int window_close(window *wind);
 extern int window_exists(window *wind);

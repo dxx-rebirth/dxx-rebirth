@@ -27,6 +27,7 @@ extern char * get_briefing_screen( int level_num );
 #if defined(DXX_BUILD_DESCENT_II)
 extern void show_loading_screen(ubyte *title_pal);
 extern void show_endgame_briefing(void);
+extern int intro_played;
 #endif
 extern void show_order_form(void);
 

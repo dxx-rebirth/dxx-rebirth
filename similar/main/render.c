@@ -147,12 +147,6 @@ static void draw_outline(int nverts,g3s_point **pointlist)
 }
 #endif
 
-#if defined(DXX_BUILD_DESCENT_I)
-static const fix Seismic_tremor_magnitude = 0;
-#elif defined(DXX_BUILD_DESCENT_II)
-extern fix Seismic_tremor_magnitude;
-#endif
-
 fix flash_scale;
 
 #define FLASH_CYCLE_RATE f1_0
@@ -602,8 +596,6 @@ void render_object_search(object *obj)
 }
 #endif
 
-extern ubyte DemoDoingRight,DemoDoingLeft;
-
 void do_render_object(int objnum, int window_num)
 {
 	#ifdef EDITOR
@@ -962,8 +954,6 @@ void draw_window_box(int color,short left,short top,short right,short bot)
 
 }
 #endif
-
-int matt_find_connect_side(int seg0,int seg1);
 
 #ifndef NDEBUG
 char visited2[MAX_SEGMENTS];
@@ -1608,18 +1598,9 @@ void build_object_lists(int n_segs)
 
 vms_angvec Player_head_angles;
 
-extern int Num_tmaps_drawn;
-extern int Total_pixels;
 //--unused-- int Total_num_tmaps_drawn=0;
 
 int Rear_view=0;
-#if defined(DXX_BUILD_DESCENT_I)
-static const ubyte RenderingType = 0;
-#elif defined(DXX_BUILD_DESCENT_II)
-extern ubyte RenderingType;
-#endif
-
-void start_lighting_frame(object *viewer);
 
 #ifdef JOHN_ZOOM
 fix Zoom_factor=F1_0;
@@ -2324,9 +2305,6 @@ done_rendering:
 
 }
 #ifdef EDITOR
-
-extern int render_3d_in_big_window;
-
 //finds what segment is at a given x&y -  seg,side,face are filled in
 //works on last frame rendered. returns true if found
 //if seg<0, then an object was found, and the object number is -seg-1

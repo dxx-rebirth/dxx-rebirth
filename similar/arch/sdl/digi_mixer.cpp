@@ -219,8 +219,6 @@ void digi_mixer_stop_all_channels()
 	memset(channels, 0, MAX_SOUND_SLOTS);
 }
 
-extern void digi_end_soundobj(int channel);
-
 #ifndef NDEBUG
 void digi_mixer_debug() {}
 #endif

@@ -170,8 +170,6 @@ vms_angvec anim_angs[N_ANIM_STATES][MAX_SUBMODELS];
 
 //set the animation angles for this robot.  Gun fields of robot info must
 //be filled in.
-void robot_set_angles(robot_info *r,polymodel *pm,vms_angvec angs[N_ANIM_STATES][MAX_SUBMODELS]);
-
 #ifdef WORDS_NEED_ALIGNMENT
 ubyte * old_dest(chunk o) // return where chunk is (in unaligned struct)
 {

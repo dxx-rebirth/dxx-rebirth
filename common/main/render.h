@@ -74,6 +74,14 @@ int toggle_show_only_curside(void);
 // should access Render_viewer_object members.
 extern fix Render_zoom;     // the player's zoom factor
 
+#if defined(DXX_BUILD_DESCENT_I)
+static const fix Seismic_tremor_magnitude = 0;
+static const ubyte RenderingType = 0;
+#elif defined(DXX_BUILD_DESCENT_II)
+extern fix Seismic_tremor_magnitude;
+extern ubyte RenderingType;
+#endif
+
 #if defined(DXX_BUILD_DESCENT_I) || defined(DXX_BUILD_DESCENT_II)
 // This is used internally to render_frame(), but is included here so AI
 // can use it for its own purposes.
@@ -82,6 +90,8 @@ extern unsigned char visited[MAX_SEGMENTS];
 
 extern int N_render_segs;
 extern short Render_list[MAX_RENDER_SEGS];
+extern fix flash_scale;
+extern vms_vector Viewer_eye;
 
 #ifdef EDITOR
 extern int Render_only_bottom;

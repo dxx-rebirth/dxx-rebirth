@@ -80,5 +80,6 @@ extern void reset_cruise(void);
 
 extern char *joybutton_text[JOY_MAX_BUTTONS];
 extern char *joyaxis_text[JOY_MAX_AXES];
+extern fix Cruise_speed;
 
 #endif /* _KCONFIG_H */

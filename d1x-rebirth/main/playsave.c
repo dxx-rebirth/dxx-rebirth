@@ -60,7 +60,6 @@ static void plyr_read_stats();
 
 struct player_config PlayerCfg;
 saved_game_sw saved_games[N_SAVE_SLOTS];
-extern void InitWeaponOrdering();
 
 int new_player_config()
 {

@@ -84,6 +84,10 @@ typedef struct flythrough_data {
 	fix			offset_dist;	//how far currently off-center
 } flythrough_data;
 
+#define MAX_FLY_OBJECTS 2
+
+flythrough_data fly_objects[MAX_FLY_OBJECTS];
+
 //endlevel sequence states
 
 #define EL_OFF				0		//not in endlevel
@@ -98,8 +102,6 @@ typedef struct flythrough_data {
 //#define STATION_ENABLED	1		//if defined, load & use space station model
 
 int Endlevel_sequence = 0;
-
-extern fix player_speed;
 
 int transition_segnum,exit_segnum;
 
@@ -140,8 +142,6 @@ static const char movie_table_secret[] = {'a','d','g','j','m','p'};
 #define FLY_ACCEL i2f(5)
 
 fix cur_fly_speed,desired_fly_speed;
-
-extern int matt_find_connect_side(int seg0,int seg1);
 
 grs_bitmap *satellite_bitmap,*station_bitmap,*terrain_bitmap;	//!!*exit_bitmap,
 vms_vector satellite_pos,satellite_upvec;
@@ -185,8 +185,6 @@ int matt_find_connect_side(int seg0,int seg1)
 
 	return -1;
 }
-
-extern int Kmatrix_nomovie_message;
 
 #if defined(D2_OEM) || defined(COMPILATION)
 #define MOVIE_REQUIRED 0
@@ -272,8 +270,6 @@ void init_endlevel()
 
 object external_explosion;
 int ext_expl_playing,mine_destroyed;
-
-extern fix flash_scale;
 
 vms_angvec exit_angles={-0xa00,0,0};
 
@@ -428,10 +424,6 @@ void start_rendered_endlevel_sequence()
 	mine_destroyed=0;
 
 }
-
-extern flythrough_data fly_objects[];
-
-extern object *slew_obj;
 
 vms_angvec player_angles,player_dest_angles;
 vms_angvec camera_desired_angles,camera_cur_angles;
@@ -935,10 +927,6 @@ int find_exit_side(object *obj)
 	return best_side;
 }
 
-extern fix Render_zoom;							//the player's zoom factor
-
-extern vms_vector Viewer_eye;	//valid during render
-
 void draw_exit_model()
 {
 	vms_vector model_pos;
@@ -1162,18 +1150,7 @@ void render_endlevel_frame(fix eye_offset)
 ///////////////////////// copy of flythrough code for endlevel
 
 
-#define MAX_FLY_OBJECTS 2
-
-flythrough_data fly_objects[MAX_FLY_OBJECTS];
-
 flythrough_data *flydata;
-
-int matt_find_connect_side(int seg0,int seg1);
-
-void compute_segment_center(vms_vector *vp,segment *sp);
-
-fixang delta_ang(fixang a,fixang b);
-fixang interp_angle(fixang dest,fixang src,fixang step);
 
 #define DEFAULT_SPEED i2f(16)
 
@@ -1336,8 +1313,6 @@ void do_endlevel_flythrough(int n)
 #define JOY_NULL 15
 #define ROT_SPEED 8		//rate of rotation while key held down
 #define VEL_SPEED (15)	//rate of acceleration while key held down
-
-extern short old_joy_x,old_joy_y;	//position last time around
 
 #include "key.h"
 #include "joy.h"

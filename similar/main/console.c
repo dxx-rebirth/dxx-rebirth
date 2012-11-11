@@ -16,6 +16,7 @@
 #include "gr.h"
 #include "physfsx.h"
 #include "gamefont.h"
+#include "game.h"
 #include "key.h"
 #include "vers_id.h"
 #include "timer.h"
@@ -23,7 +24,6 @@
 static PHYSFS_file *gamelog_fp=NULL;
 static struct console_buffer con_buffer[CON_LINES_MAX];
 static int con_state = CON_STATE_CLOSED, con_scroll_offset = 0, con_size = 0;
-extern void game_flush_inputs();
 
 static void con_add_buffer_line(int priority, char *buffer)
 {

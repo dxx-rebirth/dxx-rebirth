@@ -501,7 +501,6 @@ int choose_drop_segment()
 
 }
 
-extern char PowerupsInMine[],MaxPowerupsAllowed[];
 //	------------------------------------------------------------------------------------------------------
 //	Drop cloak powerup if in a network game.
 void maybe_drop_net_powerup(int powerup_type)

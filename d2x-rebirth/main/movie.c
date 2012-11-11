@@ -54,8 +54,6 @@ COPYRIGHT 1993-1999 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 #endif
 #include "args.h"
 
-extern char CDROM_dir[];
-
 #define VID_PLAY 0
 #define VID_PAUSE 1
 
@@ -90,7 +88,6 @@ SDL_RWops *RoboFile;
 // Function Prototypes
 static int RunMovie(char *filename, int highres_flag, int allow_abort,int dx,int dy);
 
-void decode_text_line(char *p);
 static void draw_subtitles(int frame_num);
 
 // ----------------------------------------------------------------------

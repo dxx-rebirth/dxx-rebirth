@@ -56,8 +56,6 @@ static int LargestIndex = 0;
 
 int out_of_memory = 0;
 
-void mem_display_blocks();
-
 void mem_init()
 {
 	int i;
@@ -362,8 +360,6 @@ static int Initialized = 0;
 static unsigned int SmallestAddress = 0xFFFFFFF;
 static unsigned int LargestAddress = 0x0;
 static unsigned int BytesMalloced = 0;
-
-void mem_display_blocks();
 
 #define CHECKSIZE 16
 #define CHECKBYTE 0xFC

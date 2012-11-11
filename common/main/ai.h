@@ -60,6 +60,7 @@ extern const ubyte Boss_invulnerable_energy[NUM_D2_BOSSES];   // Set byte if bos
 extern const ubyte Boss_invulnerable_matter[NUM_D2_BOSSES];   // Set byte if boss is invulnerable to matter weapons.
 extern const ubyte Boss_invulnerable_spot[NUM_D2_BOSSES];     // Set byte if boss is invulnerable in all but a certain spot.  (Dot product fvec|vec_to_collision < BOSS_INVULNERABLE_DOT)
 extern int Believed_player_seg;
+extern int Ai_last_missile_camera;
 #endif
 
 extern fix64 Boss_cloak_start_time, Boss_cloak_end_time;
@@ -230,6 +231,9 @@ extern int   Max_escort_length;
 
 
 extern void  ai_multi_send_robot_position(int objnum, int force);
+int boss_spew_robot(struct object *objp, vms_vector *pos);
+void init_ai_for_ship(void);
+void do_boss_dying_frame(struct object *objp);
 
 // Amount of time since the current robot was last processed for things such as movement.
 // It is not valid to use FrameTime because robots do not get moved every frame.
@@ -323,5 +327,10 @@ extern void special_reactor_stuff(void);
 
 extern int ai_save_state(PHYSFS_file * fp);
 extern int ai_restore_state(PHYSFS_file *fp, int version, int swap);
+
+#ifdef EDITOR
+void player_follow_path(struct object *objp);
+void check_create_player_path(void);
+#endif
 
 #endif /* _AI_H */

@@ -437,6 +437,7 @@ extern int Player_exploded;
 extern int Player_eggs_dropped;
 extern int Death_sequence_aborted;
 extern int Player_fired_laser_this_frame;
+extern int Drop_afterburner_blob_flag;		//ugly hack
 
 /*
  * FUNCTIONS
@@ -584,6 +585,7 @@ void special_reset_objects(void);
 void obj_attach(object *parent,object *sub);
 
 extern void create_small_fireball_on_object(object *objp, fix size_scale, int sound_flag);
+void dead_player_frame(void);
 
 #if defined(DXX_BUILD_DESCENT_II)
 // returns object number
@@ -592,8 +594,12 @@ int drop_marker_object(vms_vector *pos, int segnum, vms_matrix *orient, int mark
 extern void wake_up_rendered_objects(object *gmissp, int window_num);
 
 void reset_player_object(void);
+
+void fuelcen_check_for_goal (segment *);
 #endif
+struct object *obj_find_first_of_type (int);
 
 extern void object_rw_swap(struct object_rw *obj_rw, int swap);
+void reset_player_object(void);
 
 #endif

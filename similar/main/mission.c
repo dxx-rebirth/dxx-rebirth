@@ -36,6 +36,11 @@ COPYRIGHT 1993-1999 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 #include "text.h"
 #include "u_mem.h"
 #include "ignorecase.h"
+#include "physfsx.h"
+#include "bm.h"
+#if defined(DXX_BUILD_DESCENT_II)
+#include "movie.h"
+#endif
 
 //values that describe where a mission is located
 enum mle_loc
@@ -696,15 +701,11 @@ void free_mission_list(mle *mission_list)
 	num_missions = 0;
 }
 
-void init_extra_robot_movie(char *filename);
 #if defined(DXX_BUILD_DESCENT_II)
-int read_hamfile();
-
 //values for built-in mission
 
 int load_mission_ham()
 {
-	void bm_read_extra_robots(const char *fname,int type);
 	read_hamfile();
 	if (Current_mission->enhanced == 3 && Current_mission->alternate_ham_file) {
 		/*

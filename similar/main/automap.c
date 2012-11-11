@@ -70,6 +70,7 @@ COPYRIGHT 1993-1999 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 #include "window.h"
 #include "playsave.h"
 #include "args.h"
+#include "physics.h"
 
 #define LEAVE_TIME 0x4000
 
@@ -187,8 +188,6 @@ ubyte Automap_visited[MAX_SEGMENTS];
 static void adjust_segment_limit(automap *am, int SegmentLimit);
 static void draw_all_edges(automap *am);
 static void automap_build_edge_list(automap *am);
-// extern
-void check_and_fix_matrix(vms_matrix *m);
 
 #define	MAX_DROP_MULTI	2
 #define	MAX_DROP_SINGLE	9
@@ -200,8 +199,6 @@ char MarkerMessage[NUM_MARKERS][MARKER_MESSAGE_LEN];
 float MarkerScale=2.0;
 int	MarkerObject[NUM_MARKERS];
 #endif
-
-extern vms_vector Matrix_scale; //how the matrix is currently scaled
 
 # define automap_draw_line g3_draw_line
 
@@ -602,8 +599,6 @@ void draw_automap(automap *am)
 	}
 	am->t1 = am->t2;
 }
-
-extern int set_segment_depths(int start_seg, ubyte *segbuf);
 
 #if defined(DXX_BUILD_DESCENT_I)
 #define MAP_BACKGROUND_FILENAME (((SWIDTH>=640&&SHEIGHT>=480) && PHYSFSX_exists("maph.pcx",1))?"MAPH.PCX":"MAP.PCX")
@@ -1246,10 +1241,6 @@ void add_one_unknown_edge( automap *am, int va, int vb )
 	if (found != -1) 	
 		e->flags|=EF_FRONTIER;		// Mark as a border edge
 }
-
-#ifndef _GAMESEQ_H
-extern obj_position Player_init[];
-#endif
 
 void add_segment_edges(automap *am, segment *seg)
 {

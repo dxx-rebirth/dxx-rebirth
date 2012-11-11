@@ -1135,8 +1135,6 @@ void do_debris_frame(object *obj)
 
 }
 
-extern void drop_stolen_items(object *objp);
-
 //do whatever needs to be done for this explosion for this frame
 void do_explosion_sequence(object *obj)
 {

@@ -160,8 +160,6 @@ void kmatrix_draw_coop_names(int *sorted)
 }
 
 #if defined(DXX_BUILD_DESCENT_II)
-extern int PhallicLimit,PhallicMan;
-
 void kmatrix_phallic ()
 {
 	int sw, sh, aw;

@@ -100,6 +100,7 @@ typedef struct span {
 } span;
 
 extern const span weapon_window_left[],weapon_window_left_hires[],weapon_window_right[],weapon_window_right_hires[];
+extern int	Color_0_31_0;
 
 
 #define WinBoxLeft (HIRESMODE?weapon_window_left_hires:weapon_window_left)

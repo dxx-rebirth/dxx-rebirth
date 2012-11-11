@@ -73,10 +73,6 @@ COPYRIGHT 1993-1999 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 ubyte *BitmapBits = NULL;
 ubyte *SoundBits = NULL;
 
-typedef struct BitmapFile {
-	char    name[15];
-} BitmapFile;
-
 typedef struct SoundFile {
 	char    name[15];
 } SoundFile;
@@ -336,14 +332,9 @@ int Pigfile_initialized=0;
 #define PIGFILE_ID              MAKE_SIG('G','I','P','P') //PPIG
 #define PIGFILE_VERSION         2
 
-extern char CDROM_dir[];
-
-int request_cd(void);
-
-
 //initialize a pigfile, reading headers
 //returns the size of all the bitmap data
-void piggy_init_pigfile(char *filename)
+void piggy_init_pigfile(const char *filename)
 {
 	int i;
 	char temp_name[16];
@@ -436,8 +427,6 @@ void piggy_init_pigfile(char *filename)
 }
 
 #define MAX_BITMAPS_PER_BRUSH 30
-
-extern int compute_average_pixel(grs_bitmap *new);
 
 ubyte *Bitmap_replacement_data = NULL;
 
@@ -695,8 +684,6 @@ digi_sound bogus_sound;
 
 #define SNDFILE_ID              MAKE_SIG('D','N','S','D') //DSND
 #define SNDFILE_VERSION 1
-
-int piggy_is_needed(int soundnum);
 
 int read_hamfile()
 {
@@ -1868,8 +1855,6 @@ void load_d1_bitmap_replacements()
 	texmerge_flush();       //for re-merging with new textures
 }
 
-
-extern int extra_bitmap_num;
 
 /*
  * Find and load the named bitmap from descent.pig

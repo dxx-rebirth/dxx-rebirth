@@ -1227,7 +1227,6 @@ static void free_briefing_screen(briefing *br);
 static int load_briefing_screen(briefing *br, const char *fname)
 {
 #if defined(DXX_BUILD_DESCENT_I)
-	extern void swap_0_255(grs_bitmap *bmp);
 	int pcx_error;
 	char fname2[PATH_MAX], forigin[PATH_MAX];
 

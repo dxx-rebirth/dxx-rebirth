@@ -99,7 +99,6 @@ static const int	Spew_bots[NUM_D2_BOSSES][MAX_SPEW_BOT] = {
 };
 
 static const int	Max_spew_bots[NUM_D2_BOSSES] = {2, 1, 2, 3, 3, 3,  3, 3};
-extern void init_buddy_for_level(void);
 static void init_boss_segments(short segptr[], int *num_segs, int size_check, int one_wall_hack);
 
 enum {
@@ -417,9 +416,6 @@ void init_ai_objects(void)
 		Boss_cloak_interval = F1_0*10;					//	Time between cloaks
 	}
 }
-
-extern void physics_turn_towards_vector(vms_vector *goal_vector, object *obj, fix rate);
-extern fix Seismic_tremor_magnitude;
 
 //-------------------------------------------------------------------------------------------
 void ai_turn_towards_vector(vms_vector *goal_vector, object *objp, fix rate)
@@ -3597,9 +3593,6 @@ void do_ai_frame_all(void)
 	}
 }
 
-
-extern int Final_boss_is_dead;
-extern fix Boss_invulnerable_dot;
 
 // Initializations to be performed for all robots for a new level.
 void init_robots_for_level(void)

@@ -855,8 +855,6 @@ void create_n_segment_path_to_door(object *objp, int path_length, int avoid_seg)
 	create_n_segment_path(objp, path_length, avoid_seg);
 }
 
-extern int Connected_segment_distance;
-
 #define Int3_if(cond) if (!cond) Int3();
 
 // -- too much work -- //	----------------------------------------------------------------------------------------------------------

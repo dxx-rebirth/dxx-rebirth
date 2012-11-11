@@ -30,8 +30,6 @@ COPYRIGHT 1993-1998 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 #include "maths.h"
 #include "palette.h"
 
-extern int gr_installed;
-
 #define SQUARE(x) ((x)*(x))
 
 #define	MAX_COMPUTED_COLORS	32

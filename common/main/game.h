@@ -219,6 +219,10 @@ static inline void game_init_render_buffers (int render_max_w, int render_max_h)
 {
 	game_init_render_sub_buffers( 0, 0, render_max_w, render_max_h );
 }
+
+extern int netplayerinfo_on;
+extern int	Slide_segs_computed;
+
 #if defined(DXX_BUILD_DESCENT_I)
 static inline int game_mode_capture_flag()
 {
@@ -252,6 +256,7 @@ typedef struct  {
 
 extern flickering_light Flickering_lights[MAX_FLICKERING_LIGHTS];
 extern int Num_flickering_lights;
+extern int BigWindowSwitch;
 
 // returns ptr to flickering light structure, or NULL if can't find
 flickering_light *find_flicker(int segnum, int sidenum);
@@ -313,6 +318,28 @@ typedef struct game_cheats
 } __pack__ game_cheats;
 extern game_cheats cheats;
 void game_disable_cheats();
+struct segment;
+void move_player_2_segment(struct segment *seg, int side);
+int allowed_to_fire_laser(void);
+int allowed_to_fire_flare(void);
+int allowed_to_fire_missile(void);
+void	check_rear_view(void);
+window *game_setup(void);
+int create_special_path(void);
+int ReadControls(d_event *event);
+void toggle_cockpit(void);
+void game_render_frame();
+extern fix Show_view_text_timer;
+extern fix ThisLevelTime;
+extern int	Last_level_path_created;
+extern int force_cockpit_redraw;
+extern ubyte DemoDoingRight,DemoDoingLeft;
+extern fix64	Time_flash_last_played;
+int game_handler(window *wind, d_event *event, void *data);
+
+#ifdef EDITOR
+void dump_used_textures_all();
+#endif
 
 #ifdef __cplusplus
 }

@@ -27,6 +27,7 @@ COPYRIGHT 1993-1999 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 
 extern fix Beam_brightness;
 extern g3s_lrgb Dynamic_light[MAX_VERTICES];
+extern object *old_viewer;
 
 extern void set_dynamic_light(void);
 
@@ -47,5 +48,6 @@ g3s_lrgb compute_object_light(object *obj,vms_vector *rotated_pnt);
 
 // turn headlight boost on & off
 void toggle_headlight_active(void);
+void start_lighting_frame(struct object *viewer);
 
 #endif /* _LIGHTING_H */

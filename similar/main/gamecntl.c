@@ -104,50 +104,12 @@ COPYRIGHT 1993-1999 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 
 int	Debug_spew;
 
-//	External Variables ---------------------------------------------------------
-
-extern char WaitForRefuseAnswer,RefuseThisPlayer,RefuseTeam;
-
-#ifndef NDEBUG
-extern int	Mark_count;
-#endif
-
-extern int	Global_missile_firing_count;
-
-extern int	*Toggle_var;
-
-extern fix	Show_view_text_timer;
-
-extern ubyte DefiningMarkerMessage;
-
 //	Function prototypes --------------------------------------------------------
-
-
-extern void CyclePrimary();
-extern void CycleSecondary();
-extern void InitMarkerInput();
-extern int  MarkerInputMessage(int key);
-extern int	allowed_to_fire_missile(void);
-extern int	allowed_to_fire_flare(void);
-extern void	check_rear_view(void);
-extern int	create_special_path(void);
-extern void move_player_2_segment(segment *seg, int side);
-extern void newdemo_strip_frames(char *, int);
-extern void toggle_cockpit(void);
-extern void dump_used_textures_all();
-extern void DropSecondaryWeapon();
-extern void DropCurrentWeapon();
-
-int FinalCheats(int key);
-
 #ifndef RELEASE
 static void do_cheat_menu();
 static void advance_sound();
 static void play_test_sound();
 #endif
-
-void advance_sound(void);
-void play_test_sound(void);
 
 #define key_isfunc(k) (((k&0xff)>=KEY_F1 && (k&0xff)<=KEY_F10) || (k&0xff)==KEY_F11 || (k&0xff)==KEY_F12)
 
@@ -190,9 +152,6 @@ static void transfer_energy_to_shield()
 
 }
 #endif
-
-void update_vcr_state();
-void do_weapon_n_item_stuff(void);
 
 
 // Control Functions
@@ -337,8 +296,6 @@ static void format_time(char *str, int secs_int)
 	s = s % 60;
 	sprintf(str, "%1d:%02d:%02d", h, m, s );
 }
-
-extern int netplayerinfo_on;
 
 //Process selected keys until game unpaused
 static int pause_handler(window *wind, d_event *event, char *msg)
@@ -962,8 +919,6 @@ static int HandleSystemKey(int key)
 
 	return 1;
 }
-
-extern void DropFlag();
 
 static int HandleGameKey(int key)
 {

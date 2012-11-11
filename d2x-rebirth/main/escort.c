@@ -61,7 +61,6 @@ COPYRIGHT 1993-1999 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 #include "editor/editor.h"
 #endif
 
-extern void multi_send_stolen_items();
 static void say_escort_goal(int goal_num);
 static void show_escort_menu(char *msg);
 
@@ -1166,8 +1165,6 @@ void do_snipe_frame(object *objp, fix dist_to_player, int player_visibility, vms
 
 #define	THIEF_DEPTH	20
 
-extern int pick_connected_segment(object *objp, int max_depth);
-
 //	------------------------------------------------------------------------------------------------------
 //	Choose segment to recreate thief in.
 int choose_thief_recreation_segment(void)
@@ -1190,8 +1187,6 @@ int choose_thief_recreation_segment(void)
 		return segnum;
 
 }
-
-extern object * create_morph_robot( segment *segp, vms_vector *object_pos, int object_id);
 
 fix64	Re_init_thief_time = 0x3f000000;
 

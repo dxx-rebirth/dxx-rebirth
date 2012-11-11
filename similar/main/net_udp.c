@@ -57,7 +57,6 @@ static void net_udp_request_game_info(struct _sockaddr game_addr, int lite);
 static void net_udp_listen();
 static int net_udp_show_game_info();
 static int net_udp_do_join_game();
-int net_udp_can_join_netgame(netgame_info *game);
 static void net_udp_flush();
 static void net_udp_update_netgame(void);
 static void net_udp_send_objects(void);
@@ -65,13 +64,10 @@ static void net_udp_send_rejoin_sync(int player_num);
 static void net_udp_send_game_info(struct _sockaddr sender_addr, ubyte info_upid);
 static void net_udp_do_refuse_stuff (UDP_sequence_packet *their);
 static void net_udp_read_sync_packet( ubyte * data, int data_len, struct _sockaddr sender_addr );
-void net_udp_read_object_packet( ubyte *data );
 static void net_udp_ping_frame(fix64 time);
 static void net_udp_process_ping(ubyte *data, int data_len, struct _sockaddr sender_addr);
 static void net_udp_process_pong(ubyte *data, int data_len, struct _sockaddr sender_addr);
-void net_udp_process_game_info(ubyte *data, int data_len, struct _sockaddr game_addr, int lite_info);
 static void net_udp_read_endlevel_packet( ubyte *data, int data_len, struct _sockaddr sender_addr );
-void net_udp_send_mdata_direct(ubyte *data, int data_len, int pnum, int needack);
 static void net_udp_send_mdata(int needack, fix64 time);
 static void net_udp_process_mdata (ubyte *data, int data_len, struct _sockaddr sender_addr, int needack);
 static void net_udp_send_pdata();
@@ -79,15 +75,11 @@ static void net_udp_process_pdata ( ubyte *data, int data_len, struct _sockaddr 
 static void net_udp_read_pdata_packet(UDP_frame_info *pd);
 static void net_udp_timeout_check(fix64 time);
 static int net_udp_get_new_player_num (UDP_sequence_packet *their);
-void net_udp_noloss_add_queue_pkt(uint32_t pkt_num, fix64 time, ubyte *data, ushort data_size, ubyte pnum, ubyte player_ack[MAX_PLAYERS]);
-int net_udp_noloss_validate_mdata(uint32_t pkt_num, ubyte sender_pnum, struct _sockaddr sender_addr);
 static void net_udp_noloss_got_ack(ubyte *data, int data_len);
 static void net_udp_noloss_init_mdata_queue(void);
 static void net_udp_noloss_clear_mdata_got(ubyte player_num);
 static void net_udp_noloss_process_queue(fix64 time);
 static void net_udp_send_extras ();
-extern void multi_reset_object_texture(object *objp);
-
 static void net_udp_broadcast_game_info(ubyte info_upid);
 static int net_udp_more_options_handler( newmenu *menu, d_event *event, void *userdata );
 static int net_udp_start_game(void);
@@ -112,7 +104,6 @@ struct _sockaddr GMcast_v6; // same for IPv6-only
 struct _sockaddr TrackerSocket;
 int iTrackerVerified = 0;
 #endif
-extern obj_position Player_init[MAX_PLAYERS];
 
 /* General UDP functions - START */
 ssize_t dxx_sendto(int sockfd, const void *msg, int len, unsigned int flags, const struct sockaddr *to, socklen_t tolen)
@@ -1099,7 +1090,6 @@ int net_udp_kmatrix_poll1( newmenu *menu, d_event *event, void *userdata )
 }
 
 // Same as above but used when player pressed ESC during kmatrix (host also does the packets for playing clients)
-extern fix64 StartAbortMenuTime;
 int net_udp_kmatrix_poll2( newmenu *menu, d_event *event, void *userdata )
 {
 	int rval = 0;
@@ -2162,8 +2152,6 @@ int net_udp_check_game_info_request(ubyte *data, int lite)
 		
 	return 1;
 }
-
-extern fix ThisLevelTime;
 
 void net_udp_send_game_info(struct _sockaddr sender_addr, ubyte info_upid)
 {

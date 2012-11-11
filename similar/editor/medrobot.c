@@ -40,6 +40,7 @@ COPYRIGHT 1993-1998 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 #include "hostage.h"
 #include "eobject.h"
 #include "medwall.h"
+#include "medrobot.h"
 #include "eswitch.h"
 #include "ehostage.h"
 #include "key.h"
@@ -50,7 +51,7 @@ COPYRIGHT 1993-1998 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 
 static int GoodyNextID();
 static int GoodyPrevID();
-void robot_close_window();
+
 //-------------------------------------------------------------------------
 // Variables for this module...
 //-------------------------------------------------------------------------

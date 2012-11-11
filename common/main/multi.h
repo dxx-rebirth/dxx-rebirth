@@ -294,6 +294,7 @@ void multi_send_score(void);
 void multi_send_trigger(int trigger);
 void multi_send_hostage_door_status(int wallnum);
 #if defined(DXX_BUILD_DESCENT_II)
+extern char Multi_is_guided;
 void multi_send_flags(char);
 void multi_send_drop_weapon (int objnum,int seed);
 void multi_send_drop_marker (int player,vms_vector position,char messagenum,char text[]);
@@ -301,8 +302,8 @@ void multi_send_markers();
 void multi_send_guided_info (object *miss,char);
 void multi_send_orb_bonus( char pnum );
 void multi_send_got_orb( char pnum );
-void multi_add_lifetime_kills(void);
 #endif
+void multi_add_lifetime_kills(void);
 void multi_send_bounty( void );
 
 void multi_endlevel_score(void);
@@ -346,6 +347,7 @@ void multi_send_got_flag (char);
 // Exported variables
 
 extern int Network_status;
+extern grs_bitmap Orb_icons[2];
 
 // IMPORTANT: These variables needed for player rejoining done by protocol-specific code
 extern int Network_send_objects;
@@ -479,12 +481,24 @@ extern void multi_powcap_cap_objects();
 extern void multi_do_powcap_update();
 extern void multi_send_powcap_update();
 extern void multi_send_kill_goal_counts();
+void multi_check_for_killgoal_winner();
 #if defined(DXX_BUILD_DESCENT_II)
 extern void multi_send_stolen_items();
 extern void multi_send_trigger_specific(char pnum,char trig);
 extern void multi_send_door_open_specific(int pnum,int segnum, int side,ubyte flag);
 extern void multi_send_wall_status_specific (int pnum,int wallnum,ubyte type,ubyte flags,ubyte state);
 extern void multi_send_light_specific (int pnum,int segnum,ubyte val);
+void multi_send_capture_bonus (char pnum);
+int multi_all_players_alive();
+void multi_send_seismic (fix64,fix64);
+void multi_send_drop_blobs(char);
+void multi_send_sound_function (char,char);
+void multi_send_got_flag (char);
+void DropFlag();
+int multi_powerup_is_allowed (int);
+void multi_send_finish_game ();
+void init_hoard_data();
+void multi_apply_goal_textures();
 
 int HoardEquipped();
 #ifdef EDITOR

@@ -43,7 +43,6 @@ COPYRIGHT 1993-1998 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 
 #define REMOVE_EXT(s)  (*(strchr( (s), '.' ))='\0')
 
-int CreateDefaultNewSegment();
 static int save_mine_data(PHYSFS_file * SaveFile);
 
 static char	 current_tmap_list[MAX_TEXTURES][13];

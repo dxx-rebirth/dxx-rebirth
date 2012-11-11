@@ -267,7 +267,7 @@ void ab_load(int skip, char * filename, bitmap_index bmp[], int *nframes )
 	}
 }
 
-int ds_load(int skip, char * filename )	{
+int ds_load(int skip, const char * filename )	{
 	int i;
 	PHYSFS_file * cfp;
 	digi_sound n;

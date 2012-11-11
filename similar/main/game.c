@@ -141,12 +141,6 @@ static void slide_textures(void);
 static void flicker_lights();
 #endif
 
-//	Other functions
-extern void multi_check_for_killgoal_winner();
-
-extern int ReadControls(d_event *event);		// located in gamecntl.c
-extern void do_final_boss_frame(void);
-
 // Cheats
 game_cheats cheats;
 
@@ -433,9 +427,6 @@ void move_player_2_segment(segment *seg,int side)
 
 }
 
-void do_photos();
-void level_with_floor();
-
 #ifndef OGL
 void save_screen_shot(int automap_flag)
 {
@@ -491,10 +482,6 @@ void fly_init(object *obj)
 	vm_vec_zero(&obj->mtype.phys_info.rotthrust);
 }
 
-void test_anim_states();
-
-extern int been_in_editor;
-
 //	------------------------------------------------------------------------------------
 void do_cloak_stuff(void)
 {
@@ -549,15 +536,10 @@ ubyte	Last_afterburner_state = 0;
 fix Last_afterburner_charge = 0;
 fix64	Time_flash_last_played;
 
-extern fix Flash_effect;
-
 #define AFTERBURNER_LOOP_START	((GameArg.SndDigiSampleRate==SAMPLE_RATE_22K)?32027:(32027/2))		//20098
 #define AFTERBURNER_LOOP_END		((GameArg.SndDigiSampleRate==SAMPLE_RATE_22K)?48452:(48452/2))		//25776
 
 int	Ab_scale = 4;
-
-//	------------------------------------------------------------------------------------
-extern void multi_send_sound_function (char,char);
 
 static void do_afterburner_stuff(void)
 {
@@ -736,8 +718,6 @@ void palette_restore(void)
 	Time_flash_last_played = 0;
 #endif
 }
-
-extern void dead_player_frame(void);
 
 //	--------------------------------------------------------------------------------------------------
 int allowed_to_fire_laser(void)
@@ -935,9 +915,6 @@ void show_newdemo_help()
 	newmenu_dotiny( NULL, "DEMO PLAYBACK CONTROLS", nitems, m, 0, free_help, NULL );
 }
 
-//temp function until Matt cleans up game sequencing
-extern void temp_reset_stuff_on_level();
-
 #define LEAVE_TIME 0x4000		//how long until we decide key is down	(Used to be 0x4000)
 
 //deal with rear view - switch it on, or off, or whatever
@@ -1009,12 +986,8 @@ void game_disable_cheats()
 	memset(&cheats, 0, sizeof(cheats));
 }
 
-extern int netplayerinfo_on;
-
 //	game_setup()
 // ----------------------------------------------------------------------------
-
-int game_handler(window *wind, d_event *event, void *data);
 
 window *game_setup(void)
 {
@@ -1064,8 +1037,6 @@ window *game_setup(void)
 
 	return game_wind;
 }
-
-void game_render_frame();
 
 window *Game_wind = NULL;
 
@@ -1186,14 +1157,6 @@ void close_game()
 	restore_effect_bitmap_icons();
 }
 
-
-#ifdef EDITOR
-extern void player_follow_path(object *objp);
-extern void check_create_player_path(void);
-#endif
-
-extern	int Do_appearance_effect;
-
 #if defined(DXX_BUILD_DESCENT_II)
 object *Missile_viewer=NULL;
 int Missile_viewer_sig=-1;
@@ -1213,10 +1176,6 @@ object *find_escort()
 
 	return NULL;
 }
-
-extern void process_super_mines_frame(void);
-extern void do_seismic_stuff(void);
-extern int Level_shake_duration;
 
 //if water or fire level, make occasional sound
 void do_ambient_sounds()
@@ -1242,12 +1201,6 @@ void do_ambient_sounds()
 		digi_play_sample(sound,volume);
 	}
 }
-
-// -- extern void lightning_frame(void);
-
-extern void omega_charge_frame(void);
-
-void flicker_lights();
 #endif
 
 void game_leave_menus(void)
