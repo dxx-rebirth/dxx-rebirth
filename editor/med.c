@@ -210,27 +210,6 @@ void diagnostic_message( const char *format, ... )
 }
 
 
-static char sub_status_line[DIAGNOSTIC_MESSAGE_MAX];
-
-void editor_sub_status( const char *format, ... )
-{
-	int w,h,aw;
-	va_list ap;
-
-	va_start(ap, format);
-	vsprintf(sub_status_line, format, ap);
-	va_end(ap);
-
-	gr_set_current_canvas( NULL );
-	gr_set_curfont(editor_font);
-	gr_set_fontcolor( BM_XRGB(0,0,31), CGREY );
-	gr_get_string_size( sub_status_line, &w, &h, &aw );
-	gr_string( 500, 583, sub_status_line );
-	gr_set_fontcolor( CBLACK, CWHITE );
-	gr_setcolor( CGREY );
-	gr_rect( 500+w, 583, 799, 599 );
-}
-
 int DropIntoDebugger()
 {
 	Int3();
