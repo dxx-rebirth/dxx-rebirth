@@ -799,7 +799,7 @@ class DXXProgram(DXXCommon):
 'main/state.cpp',
 'main/switch.cpp',
 'main/terrain.cpp',
-'main/texmerge.c',
+'main/texmerge.cpp',
 'main/text.c',
 'main/titles.c',
 'main/vclip.c',
