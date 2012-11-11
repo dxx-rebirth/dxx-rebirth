@@ -10,6 +10,10 @@
 
 #define D_RAND_MAX 32767
 
+#ifdef __cplusplus
+extern "C" {
+#endif
+
 void d_srand (unsigned int seed);
 int d_rand ();			// Random number function which returns in the range 0-0x7FFF
 
@@ -113,5 +117,9 @@ extern const ubyte guess_table[256];
 extern const short sincos_table[321];
 extern const ushort asin_table[258];
 extern const ushort acos_table[258];
+
+#ifdef __cplusplus
+}
+#endif
 
 #endif

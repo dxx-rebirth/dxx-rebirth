@@ -608,7 +608,7 @@ class DXXArchive(DXXCommon):
 '2d/circle.cpp',
 '2d/disc.cpp',
 '2d/gpixel.cpp',
-'2d/line.c',
+'2d/line.cpp',
 '2d/pixel.c',
 '2d/rect.c',
 '2d/rle.c',
