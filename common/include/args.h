@@ -21,6 +21,10 @@ COPYRIGHT 1993-1998 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 #ifndef _ARGS_H
 #define _ARGS_H
 
+#ifdef __cplusplus
+extern "C" {
+#endif
+
 extern void InitArgs(int argc, char **argv);
 extern void args_exit();
 
@@ -111,5 +115,9 @@ typedef struct Arg
 #endif
 
 extern struct Arg GameArg;
+
+#ifdef __cplusplus
+}
+#endif
 
 #endif

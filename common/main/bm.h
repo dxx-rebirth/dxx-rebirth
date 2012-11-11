@@ -23,6 +23,10 @@ COPYRIGHT 1993-1999 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 #include "gr.h"
 #include "piggy.h"
 
+#ifdef __cplusplus
+extern "C" {
+#endif
+
 #if defined(DXX_BUILD_DESCENT_I)
 #define MAX_TEXTURES		800
 #elif defined(DXX_BUILD_DESCENT_II)
@@ -140,5 +144,9 @@ void properties_read_cmp(PHYSFS_file * fp);
 int ds_load(int skip, const char * filename );
 int compute_average_pixel(grs_bitmap *n);
 void bm_write_all(PHYSFS_file *fp);
+
+#ifdef __cplusplus
+}
+#endif
 
 #endif /* _BM_H */

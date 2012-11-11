@@ -770,7 +770,7 @@ class DXXProgram(DXXCommon):
 'main/gauges.cpp',
 'main/hostage.cpp',
 'main/hud.cpp',
-'main/inferno.c',
+'main/inferno.cpp',
 'main/kconfig.c',
 'main/kmatrix.c',
 'main/laser.c',
