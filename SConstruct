@@ -808,7 +808,7 @@ class DXXProgram(DXXCommon):
 'mem/mem.cpp',
 'misc/args.cpp',
 'misc/hash.cpp',
-'misc/physfsx.c',
+'misc/physfsx.cpp',
 ]
 ],
 		'transform_target':_apply_target_name,
