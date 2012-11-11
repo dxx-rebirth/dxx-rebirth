@@ -793,7 +793,7 @@ class DXXProgram(DXXCommon):
 'main/powerup.cpp',
 'main/render.cpp',
 'main/robot.cpp',
-'main/scores.c',
+'main/scores.cpp',
 'main/slew.c',
 'main/songs.c',
 'main/state.c',
