@@ -221,9 +221,9 @@ extern void  ai_multi_send_robot_position(int objnum, int force);
 // It is not valid to use FrameTime because robots do not get moved every frame.
 
 extern int   Num_boss_teleport_segs;
-extern short Boss_teleport_segs[];
+extern short Boss_teleport_segs[MAX_BOSS_TELEPORT_SEGS];
 extern int   Num_boss_gate_segs;
-extern short Boss_gate_segs[];
+extern short Boss_gate_segs[MAX_BOSS_TELEPORT_SEGS];
 
 
 // --------- John: These variables must be saved as part of gamesave. ---------

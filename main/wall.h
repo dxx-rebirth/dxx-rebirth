@@ -186,7 +186,8 @@ extern int Num_walls;                   // Number of walls
 extern active_door ActiveDoors[MAX_DOORS];  //  Master doors array
 extern int Num_open_doors;              // Number of open doors
 
-extern cloaking_wall CloakingWalls[];
+#define MAX_CLOAKING_WALLS 10
+extern cloaking_wall CloakingWalls[MAX_CLOAKING_WALLS];
 extern int Num_cloaking_walls;
 
 extern wclip WallAnims[MAX_WALL_ANIMS];

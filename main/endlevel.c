@@ -45,6 +45,7 @@ COPYRIGHT 1993-1999 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 #include "endlevel.h"
 #include "object.h"
 #include "game.h"
+#include "gamepal.h"
 #include "screens.h"
 #include "gauges.h"
 #include "wall.h"

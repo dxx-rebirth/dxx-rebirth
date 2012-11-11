@@ -132,4 +132,9 @@ extern void remove_char( char * s, char c );	// in piggy.c
 #define REMOVE_COMMENTS(s)	remove_char((s),';')
 #define REMOVE_DOTS(s)  	remove_char((s),'.')
 
+extern ubyte bogus_bitmap_initialized;
+extern digi_sound bogus_sound;
+extern const char space[3];
+extern const char equal_space[4];
+
 #endif //_PIGGY_H

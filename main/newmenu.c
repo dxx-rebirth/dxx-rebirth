@@ -33,6 +33,7 @@ COPYRIGHT 1993-1999 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 #include "mouse.h"
 #include "palette.h"
 #include "game.h"
+#include "gamepal.h"
 #include "text.h"
 #include "menu.h"
 #include "newmenu.h"

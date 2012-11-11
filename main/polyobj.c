@@ -47,7 +47,6 @@ polymodel Polygon_models[MAX_POLYGON_MODELS];	// = {&bot11,&bot17,&robot_s2,&rob
 
 int N_polygon_models = 0;
 
-#define MAX_POLYGON_VECS 1000
 g3s_point robot_points[MAX_POLYGON_VECS];
 
 #define PM_COMPATIBLE_VERSION 6

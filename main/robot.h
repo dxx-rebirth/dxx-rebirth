@@ -139,7 +139,7 @@ typedef struct robot_info {
 extern char Robot_names[MAX_ROBOT_TYPES][ROBOT_NAME_LENGTH];
 
 //the array of robots types
-extern robot_info Robot_info[];     // Robot info for AI system, loaded from bitmaps.tbl.
+extern robot_info Robot_info[MAX_ROBOT_TYPES];     // Robot info for AI system, loaded from bitmaps.tbl.
 
 //how many kinds of robots
 extern  int N_robot_types;      // Number of robot types.  We used to assume this was the same as N_polygon_models.

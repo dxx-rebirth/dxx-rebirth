@@ -19,7 +19,7 @@ COPYRIGHT 1993-1998 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 
 #include "maths.h"
 
-const ubyte guess_table[] = {
+const ubyte guess_table[256] = {
 	1,
 	1,1,1,
 	2,2,2,2,2,
@@ -38,7 +38,7 @@ const ubyte guess_table[] = {
 	15,15,15,15,15,15,15,15,15,15,15,15,15,15,15,15,15,15,15,15,15,15,15,15,15,15,15,15,15,15,15
 };
 
-const short sincos_table[] = {
+const short sincos_table[321] = {
 	0,
 	402,
 	804,
@@ -363,7 +363,7 @@ const short sincos_table[] = {
 	16384
 };
 
-const ushort asin_table[] = {
+const ushort asin_table[258] = {
 	0,
 	41,
 	81,
@@ -624,7 +624,7 @@ const ushort asin_table[] = {
 	16384   // extra for when exactly 1
 };
 
-const ushort acos_table[] = {
+const ushort acos_table[258] = {
 	16384,
 	16343,
 	16303,

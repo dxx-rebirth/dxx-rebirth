@@ -28,7 +28,7 @@ int get_level_name(void);
 extern int load_level(const char *filename);
 extern int save_level(char *filename);
 
-extern char Gamesave_current_filename[];
+extern char Gamesave_current_filename[PATH_MAX];
 
 extern int Gamesave_current_version;
 

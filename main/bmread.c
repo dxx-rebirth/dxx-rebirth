@@ -78,9 +78,6 @@ COPYRIGHT 1993-1999 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 
 #define MAX_BITMAPS_PER_BRUSH 30
 
-extern player_ship only_player_ship;		// In bm.c
-
-extern short		N_ObjBitmaps;			// in bm.c
 short		N_ObjBitmapPtrs=0;
 static int			Num_robot_ais = 0;
 int	TmapList[MAX_TEXTURES];
@@ -119,10 +116,6 @@ int	linenum;		//line int table currently being parsed
 //------------------- Useful macros and variables ---------------
 
 #define IFTOK(str) if (!strcmp(arg, str))
-extern char *space;			// in piggy.c
-//--unused-- char *equal = { "=" };
-extern char *equal_space;	// in piggy.c
-
 
 //	For the sake of LINT, defining prototypes to module's functions
 void bm_read_alias(void);
@@ -213,9 +206,6 @@ bitmap_index bm_load_sub(int skip, char * filename )
 	d_free( n );
 	return bitmap_num;
 }
-
-extern ubyte bogus_bitmap_initialized;
-extern digi_sound bogus_sound;
 
 void ab_load(int skip, char * filename, bitmap_index bmp[], int *nframes )
 {

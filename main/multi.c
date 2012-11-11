@@ -39,7 +39,6 @@ COPYRIGHT 1993-1999 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 #include "console.h"
 #include "wall.h"
 #include "cntrlcen.h"
-#include "powerup.h"
 #include "polyobj.h"
 #include "bm.h"
 #include "endlevel.h"
@@ -200,7 +199,7 @@ static const int message_length[] = {
 char PowerupsInMine[MAX_POWERUP_TYPES],MaxPowerupsAllowed[MAX_POWERUP_TYPES];
 extern fix ThisLevelTime;
 
-char *RankStrings[]={"(unpatched) ","Cadet ","Ensign ","Lieutenant ","Lt.Commander ",
+const char *const RankStrings[10]={"(unpatched) ","Cadet ","Ensign ","Lieutenant ","Lt.Commander ",
                      "Commander ","Captain ","Vice Admiral ","Admiral ","Demigod "};
 
 char *multi_allow_powerup_text[MULTI_ALLOW_POWERUP_MAX] =
@@ -4639,8 +4638,6 @@ void multi_do_start_trigger (const ubyte *buf)
 {
 	Triggers[(int)buf[1]].flags |=TF_DISABLED;
 }
-
-extern char *RankStrings[];
 
 void multi_add_lifetime_kills ()
 {

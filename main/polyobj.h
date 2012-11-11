@@ -33,6 +33,10 @@ COPYRIGHT 1993-1999 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 #define MAX_POLYGON_MODELS 200
 #define MAX_SUBMODELS 10
 
+//for each model, a model number for dying & dead variants, or -1 if none
+extern int Dying_modelnums[MAX_POLYGON_MODELS];
+extern int Dead_modelnums[MAX_POLYGON_MODELS];
+
 //used to describe a polygon model
 typedef struct polymodel {
 	int     n_models;
@@ -55,7 +59,7 @@ typedef struct polymodel {
 } __pack__ polymodel;
 
 // array of pointers to polygon objects
-extern polymodel Polygon_models[];
+extern polymodel Polygon_models[MAX_POLYGON_MODELS];
 
 // how many polygon objects there are
 extern int N_polygon_models;
@@ -90,7 +94,8 @@ void free_model(polymodel *po);
 #define MAX_POLYOBJ_TEXTURES 100
 extern grs_bitmap *texture_list[MAX_POLYOBJ_TEXTURES];
 extern bitmap_index texture_list_index[MAX_POLYOBJ_TEXTURES];
-extern g3s_point robot_points[];
+#define MAX_POLYGON_VECS 1000
+extern g3s_point robot_points[MAX_POLYGON_VECS];
 
 /*
  * reads a polymodel structure from a PHYSFS_file

@@ -47,7 +47,7 @@ extern int event_key_get_raw(d_event *event);	// same as above but without mod s
 extern unsigned char key_ascii();
 
 // Set to 1 if the key is currently down, else 0
-extern volatile unsigned char keyd_pressed[];
+extern volatile unsigned char keyd_pressed[256];
 extern volatile unsigned char keyd_last_pressed;
 extern volatile unsigned char keyd_last_released;
 

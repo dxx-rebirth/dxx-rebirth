@@ -37,6 +37,7 @@ COPYRIGHT 1993-1999 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 #include "args.h"
 #include "palette.h"
 #include "gamefont.h"
+#include "gamepal.h"
 #include "rle.h"
 #include "screens.h"
 #include "piggy.h"
@@ -1542,8 +1543,6 @@ int piggy_is_substitutable_bitmap( char * name, char * subst_name )
  *  2) From descent.pig (for loading d1 levels)
  */
 
-extern char last_palette_loaded_pig[];
-
 void free_bitmap_replacements()
 {
 	if (Bitmap_replacement_data) {
@@ -1744,8 +1743,8 @@ void remove_char( char * s, char c )
 	if (p) *p = '\0';
 }
 
-char *space = { " \t" };
-char *equal_space = { " \t=" };
+const char space[3] = " \t";
+const char equal_space[4] = " \t=";
 
 // this function is at the same position in the d1 shareware piggy loading 
 // algorithm as bm_load_sub in main/bmread.c

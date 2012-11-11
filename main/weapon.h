@@ -155,7 +155,7 @@ typedef struct weapon_info {
 
 #define NUM_SMART_CHILDREN  6   // Number of smart children created by default.
 
-extern weapon_info Weapon_info[];
+extern weapon_info Weapon_info[MAX_WEAPON_TYPES];
 extern int N_weapon_types;
 extern void do_weapon_select(int weapon_num, int secondary_flag);
 extern void show_weapon_status(void);

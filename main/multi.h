@@ -23,6 +23,7 @@ COPYRIGHT 1993-1999 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 #include "gameseq.h"
 #include "piggy.h"
 #include "newmenu.h"
+#include "powerup.h"
 
 #ifdef USE_UDP
 #ifdef _WIN32
@@ -357,7 +358,9 @@ extern int Bounty_target;
 
 extern bitmap_index multi_player_textures[MAX_PLAYERS][N_PLAYER_SHIP_TEXTURES];
 
-extern char *RankStrings[];
+extern const char *const RankStrings[10];
+extern char PowerupsInMine[MAX_POWERUP_TYPES],
+	MaxPowerupsAllowed[MAX_POWERUP_TYPES];
 
 // Globals for protocol-bound Refuse-functions
 extern char RefuseThisPlayer,WaitForRefuseAnswer,RefuseTeam,RefusePlayerName[12];
