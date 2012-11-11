@@ -613,7 +613,7 @@ class DXXArchive(DXXCommon):
 '2d/rect.cpp',
 '2d/rle.cpp',
 '2d/scalec.cpp',
-'3d/clipper.c',
+'3d/clipper.cpp',
 '3d/draw.c',
 '3d/globvars.c',
 '3d/instance.c',
