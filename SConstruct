@@ -794,7 +794,7 @@ class DXXProgram(DXXCommon):
 'main/render.cpp',
 'main/robot.cpp',
 'main/scores.cpp',
-'main/slew.c',
+'main/slew.cpp',
 'main/songs.c',
 'main/state.c',
 'main/switch.c',
