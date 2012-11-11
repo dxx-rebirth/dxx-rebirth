@@ -23,6 +23,10 @@ COPYRIGHT 1993-1999 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 
 #include "dxxsconf.h"
 
+#ifdef __cplusplus
+extern "C" {
+#endif
+
 //Symbolic constants for all the strings
 
 #define TXT_NEW_GAME            dxx_gettext(0, "New game")
@@ -1289,5 +1293,9 @@ static inline const char *dxx_gettext(unsigned expr, const char *fmt)
 	return Text_string[expr];
 #endif
 }
+
+#ifdef __cplusplus
+}
+#endif
 
 #endif /* _TEXT_H */
