@@ -34,6 +34,7 @@ COPYRIGHT 1993-1999 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 #include "endlevel.h"
 #include "fireball.h"
 #include "render.h"
+#include "terrain.h"
 
 #define GRID_MAX_SIZE   64
 #define GRID_SCALE      i2f(2*20)
@@ -332,7 +333,7 @@ void free_height_array()
 		d_free(height_array);
 }
 
-void load_terrain(char *filename)
+void load_terrain(const char *filename)
 {
 	grs_bitmap height_bitmap;
 	int iff_error;
