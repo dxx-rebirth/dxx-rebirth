@@ -787,7 +787,7 @@ class DXXProgram(DXXCommon):
 'main/object.cpp',
 'main/paging.cpp',
 'main/physics.cpp',
-'main/player.c',
+'main/player.cpp',
 'main/playsave.c',
 'main/polyobj.c',
 'main/powerup.c',
