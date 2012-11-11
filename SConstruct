@@ -388,7 +388,7 @@ class DXXArchive(DXXCommon):
 	# governed by these arguments.
 	ARGUMENTS = argumentIndirection(['common'])
 	__objects_common = DXXCommon.create_lazy_object_property([os.path.join(srcdir, f) for f in [
-'2d/2dsline.c',
+'2d/2dsline.cpp',
 '2d/bitblt.c',
 '2d/bitmap.c',
 '2d/box.c',

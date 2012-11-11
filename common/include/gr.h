@@ -156,6 +156,10 @@ typedef struct _grs_screen {    // This is a video screen
 // grd_curscreen to point to it.  grs_curcanv points to this screen's
 // canvas.  Saves the current VGA state and screen mode.
 
+#ifdef __cplusplus
+extern "C" {
+#endif
+
 int gr_init(int mode);
 
 int gr_list_modes( u_int32_t gsmodes[] );
@@ -440,5 +444,9 @@ int gr_toggle_fullscreen(void);
 void ogl_do_palfx(void);
 void ogl_init_pixel_buffers(int w, int h);
 void ogl_close_pixel_buffers(void);
+
+#ifdef __cplusplus
+}
+#endif
 
 #endif /* def _GR_H */
