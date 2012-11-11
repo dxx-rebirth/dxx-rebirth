@@ -7,6 +7,10 @@
 #ifndef _SONGS_H
 #define _SONGS_H
 
+#ifdef __cplusplus
+extern "C" {
+#endif
+
 typedef struct bim_song_info {
 	char    filename[16];
 } bim_song_info;
@@ -44,6 +48,10 @@ void songs_pause_resume(void);
 void songs_set_volume(int volume);
 
 void songs_uninit();
+
+#ifdef __cplusplus
+}
+#endif
 
 #endif
 
