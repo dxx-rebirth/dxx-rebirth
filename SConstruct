@@ -617,7 +617,7 @@ class DXXArchive(DXXCommon):
 'arch/sdl/rbaudio.cpp',
 'arch/sdl/window.cpp',
 'maths/fixc.cpp',
-'maths/rand.c',
+'maths/rand.cpp',
 'maths/tables.c',
 'maths/vecmat.c',
 'misc/error.c',
