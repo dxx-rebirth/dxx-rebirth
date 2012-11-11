@@ -658,7 +658,7 @@ class DXXArchive(DXXCommon):
 ]
 ])
 	objects_arch_sdlmixer = DXXCommon.create_lazy_object_property([os.path.join(srcdir, f) for f in [
-'arch/sdl/digi_mixer_music.c',
+'arch/sdl/digi_mixer_music.cpp',
 ]
 ])
 	class Win32PlatformSettings(LazyObjectConstructor, DXXCommon.Win32PlatformSettings):
