@@ -780,9 +780,11 @@ int read_player_file()
 	PHYSFS_file *file;
 #if defined(DXX_BUILD_DESCENT_I)
 	int shareware_file = -1;
+	int player_file_size;
 #elif defined(DXX_BUILD_DESCENT_II)
 	int rewrite_it=0;
 	int swap = 0;
+	short player_file_version;
 #endif
 
 	Assert(Player_num>=0 && Player_num<MAX_PLAYERS);
@@ -811,7 +813,7 @@ int read_player_file()
 	// sizeof the player file to determine what kinda player file we are
 	// dealing with so that we can do the right thing
 	PHYSFS_seek(file, 0);
-	int player_file_size = PHYSFS_fileLength(file);
+	player_file_size = PHYSFS_fileLength(file);
 #endif
 	int id;
 	PHYSFS_readSLE32(file, &id);
@@ -823,7 +825,7 @@ int read_player_file()
 	PlayerCfg.DefaultDifficulty = PHYSFSX_readInt(file);
 	PlayerCfg.AutoLeveling = PHYSFSX_readInt(file);
 #elif defined(DXX_BUILD_DESCENT_II)
-	short player_file_version = PHYSFSX_readShort(file);
+	player_file_version = PHYSFSX_readShort(file);
 #endif
 
 	if (id!=SAVE_FILE_ID) {
