@@ -626,7 +626,7 @@ class DXXArchive(DXXCommon):
 'misc/strio.cpp',
 'misc/strutil.cpp',
 'texmap/ntmap.cpp',
-'texmap/scanline.c'
+'texmap/scanline.cpp'
 ]
 ])
 	objects_editor = DXXCommon.create_lazy_object_property([os.path.join(srcdir, f) for f in [
