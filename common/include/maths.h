@@ -113,6 +113,8 @@ fixang fix_acos (fix v);
 //NOTE: this is different from the standard C atan2, since it is left-handed.
 fixang fix_atan2 (fix cos, fix sin);
 
+int checkmuldiv(fix *r,fix a,fix b,fix c);
+
 extern const ubyte guess_table[256];
 extern const short sincos_table[321];
 extern const ushort asin_table[258];

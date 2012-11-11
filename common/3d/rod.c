@@ -125,10 +125,6 @@ bool g3_draw_rod_tmap(grs_bitmap *bitmap,g3s_point *bot_point,fix bot_width,g3s_
 	return g3_draw_tmap(4,rod_point_list,uvl_list,lrgb_list,bitmap);
 }
 
-#ifndef __powerc
-int checkmuldiv(fix *r,fix a,fix b,fix c);
-#endif
-
 #ifndef OGL
 //draws a bitmap with the specified 3d width & height 
 //returns 1 if off screen, 0 if drew

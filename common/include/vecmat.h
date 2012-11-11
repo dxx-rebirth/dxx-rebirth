@@ -22,6 +22,10 @@ COPYRIGHT 1993-1998 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 
 #include "maths.h"
 
+#ifdef __cplusplus
+extern "C" {
+#endif
+
 //#define INLINE 1              //are some of these functions inline?
 
 //The basic fixed-point vector.  Access elements by name or position
@@ -433,4 +437,9 @@ fix vm_dist_to_plane (const vms_vector * checkp, const vms_vector * norm, const 
 // convert from quaternion to vector matrix and back
 void vms_quaternion_from_matrix(vms_quaternion * q, const vms_matrix * m);
 void vms_matrix_from_quaternion(vms_matrix * m, const vms_quaternion * q);
+
+#ifdef __cplusplus
+}
+#endif
+
 #endif  /* !_VECMAT_H */
