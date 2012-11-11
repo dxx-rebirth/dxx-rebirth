@@ -139,16 +139,6 @@ void plot_parametric(vms_equation *coeffs, fix min_t, fix max_t, fix del_t) {
 
 }
 
-
-vms_vector *vm_vec_interp(vms_vector *result, vms_vector *v0, vms_vector *v1, fix scale) {
-    vms_vector tvec;
-
-	vm_vec_sub(&tvec, v1, v0);
-    vm_vec_scale_add(result, v0, &tvec, scale);
-    vm_vec_normalize(result);
-    return result;
-}
-
 vms_vector p1, p4, r1, r4;
 vms_vector r4t, r1save;
 
