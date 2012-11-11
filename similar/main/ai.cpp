@@ -17,7 +17,7 @@ COPYRIGHT 1993-1999 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
  *
  */
 
-
+#include <algorithm>
 #include <stdio.h>
 #include <stdlib.h>
 #include <time.h>
@@ -69,6 +69,8 @@ COPYRIGHT 1993-1999 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 //added 05/17/99 Matt Mueller
 #include "u_mem.h"
 //end addition -MM
+
+using std::min;
 
 #define	AI_TURN_SCALE	1
 #define	BABY_SPIDER_ID	14
@@ -1232,7 +1234,7 @@ player_led: ;
 			weapon_type = robptr->weapon_type2;
 #endif
 
-	Laser_create_new_easy( &fire_vec, fire_point, obj-Objects, weapon_type, 1);
+	Laser_create_new_easy( &fire_vec, fire_point, obj-Objects, static_cast<weapon_type_t>(weapon_type), 1);
 
 	if (Game_mode & GM_MULTI)
 	{
