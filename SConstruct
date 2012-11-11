@@ -718,7 +718,7 @@ class DXXProgram(DXXCommon):
 		return os.path.join(os.path.dirname(name), '.%s.%s' % (self.target, os.path.splitext(os.path.basename(name))[0]))
 	objects_similar_arch_ogl = DXXCommon.create_lazy_object_property([{
 		'source':[os.path.join('similar', f) for f in [
-'arch/ogl/gr.c',
+'arch/ogl/gr.cpp',
 'arch/ogl/ogl.c',
 ]
 ],

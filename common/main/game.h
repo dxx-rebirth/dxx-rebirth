@@ -25,8 +25,13 @@ COPYRIGHT 1993-1999 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 #include "window.h"
 #include "vecmat.h"
 
+#ifdef __cplusplus
+extern "C" {
+#endif
+
 #define DESIGNATED_GAME_FPS 30 // assuming the original intended Framerate was 30
 #define DESIGNATED_GAME_FRAMETIME (F1_0/DESIGNATED_GAME_FPS) 
+
 #ifdef NDEBUG
 #define MINIMUM_FPS DESIGNATED_GAME_FPS
 #define MAXIMUM_FPS 200
@@ -287,5 +292,9 @@ typedef struct game_cheats
 } __pack__ game_cheats;
 extern game_cheats cheats;
 void game_disable_cheats();
+
+#ifdef __cplusplus
+}
+#endif
 
 #endif /* _GAME_H */

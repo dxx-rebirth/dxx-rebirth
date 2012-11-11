@@ -23,6 +23,10 @@ COPYRIGHT 1993-1999 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 
 #include "gr.h"
 
+#ifdef __cplusplus
+extern "C" {
+#endif
+
 // When adding a new font, don't forget to change the filename in
 // gamefont.c!!!!!!!!!!!!!!!!!!!!!!!!!!!
 
@@ -59,5 +63,9 @@ extern grs_font *Gamefonts[MAX_FONTS];
 void gamefont_init();
 void gamefont_close();
 void gamefont_choose_game_font(int scrx,int scry);
+
+#ifdef __cplusplus
+}
+#endif
 
 #endif /* _GAMEFONT_H */

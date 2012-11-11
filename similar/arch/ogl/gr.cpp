@@ -27,6 +27,7 @@
 #include <fcntl.h>
 #endif
 
+#include <algorithm>
 #include <errno.h>
 #include <SDL.h>
 #include "hudmsg.h"
@@ -64,6 +65,8 @@
 #include <GL/glu.h>
 #endif
 #endif
+
+using std::max;
 
 #ifdef OGLES
 int sdl_video_flags = 0;
