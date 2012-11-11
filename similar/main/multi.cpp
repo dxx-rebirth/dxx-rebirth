@@ -1246,7 +1246,7 @@ void multi_send_message_end()
 	{
 		if ((Game_mode & GM_NETWORK) && (Game_mode & GM_TEAM))
 		{
-			int name_index=7;
+			unsigned name_index=7;
 			if (strlen(Network_message) > 7)
 				while (Network_message[name_index] == ' ')
 					name_index++;
@@ -1300,7 +1300,7 @@ void multi_send_message_end()
 
 	else if (!d_strnicmp (Network_message,"/kick: ",7) && (Game_mode & GM_NETWORK))
 	{
-		int name_index=7;
+		unsigned name_index=7;
 		if (strlen(Network_message) > 7)
 			while (Network_message[name_index] == ' ')
 				name_index++;
@@ -1603,7 +1603,7 @@ void
 multi_do_message(const ubyte *cbuf)
 {
 	const char *buf = (const char *)cbuf;
-	char *colon;
+	const char *colon;
 	char mesbuf[100];
 	int t;
 
