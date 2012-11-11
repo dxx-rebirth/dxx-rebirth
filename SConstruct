@@ -750,7 +750,7 @@ class DXXProgram(DXXCommon):
 'arch/sdl/init.cpp',
 'arch/sdl/key.cpp',
 'arch/sdl/mouse.cpp',
-'arch/sdl/timer.c',
+'arch/sdl/timer.cpp',
 'main/aipath.c',
 'main/automap.c',
 'main/cntrlcen.c',
