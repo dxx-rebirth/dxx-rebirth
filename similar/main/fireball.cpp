@@ -17,6 +17,7 @@ COPYRIGHT 1993-1999 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
  *
  */
 
+#include <algorithm>
 #include <stdlib.h>
 #include <stdio.h>
 #include <string.h>
@@ -55,6 +56,8 @@ COPYRIGHT 1993-1999 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 #include "gameseg.h"
 #include "automap.h"
 #include "byteswap.h"
+
+using std::min;
 
 #define EXPLOSION_SCALE (F1_0*5/2)		//explosion is the obj size times this 
 
@@ -840,7 +843,7 @@ int drop_powerup(int type, int id, int num, vms_vector *init_vel, vms_vector *po
 					 return (-1);
 #endif
 				}
-				objnum = obj_create( type, id, segnum, &new_pos, &vmd_identity_matrix, Powerup_info[id].size, CT_POWERUP, MT_PHYSICS, RT_POWERUP);
+				objnum = obj_create( OBJ_POWERUP, id, segnum, &new_pos, &vmd_identity_matrix, Powerup_info[id].size, CT_POWERUP, MT_PHYSICS, RT_POWERUP);
 
 				if (objnum < 0 ) {
 					Int3();

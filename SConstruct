@@ -932,7 +932,7 @@ class DXXProgram(DXXCommon):
 'main/digiobj.cpp',
 'main/effects.cpp',
 'main/endlevel.cpp',
-'main/fireball.c',
+'main/fireball.cpp',
 'main/fuelcen.cpp',
 'main/fvi.cpp',
 'main/game.cpp',
