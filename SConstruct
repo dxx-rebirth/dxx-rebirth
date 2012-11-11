@@ -792,7 +792,7 @@ class DXXProgram(DXXCommon):
 'main/polyobj.cpp',
 'main/powerup.cpp',
 'main/render.cpp',
-'main/robot.c',
+'main/robot.cpp',
 'main/scores.c',
 'main/slew.c',
 'main/songs.c',
