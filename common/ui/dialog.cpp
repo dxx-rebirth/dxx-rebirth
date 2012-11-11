@@ -294,6 +294,7 @@ void ui_close_dialog( UI_DIALOG * dlg )
 	window_close(dlg->wind);
 }
 
+#if 0
 void restore_state()
 {
 	int i;
@@ -306,7 +307,6 @@ void restore_state()
 }
 
 
-#if 0
 void ui_mega_process()
 {
 	int mx, my, mz;
