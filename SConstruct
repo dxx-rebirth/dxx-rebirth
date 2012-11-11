@@ -802,7 +802,7 @@ class DXXProgram(DXXCommon):
 'main/texmerge.cpp',
 'main/text.cpp',
 'main/titles.cpp',
-'main/vclip.c',
+'main/vclip.cpp',
 'main/wall.c',
 'main/weapon.c',
 'mem/mem.cpp',
