@@ -130,6 +130,8 @@ extern Mission *Current_mission; // current mission
 #define BIMD2_BRIEFING_FILE_SHARE	"brief2.txb"
 #define BIMD2_ENDING_FILE_OEM		"end2oem.txb"
 #define BIMD2_ENDING_FILE_SHARE		"ending2.txb"
+
+int load_mission_ham();
 #endif
 
 //loads the named mission if it exists.

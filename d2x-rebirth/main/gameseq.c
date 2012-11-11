@@ -614,7 +614,6 @@ void load_level_robots(int level_num)
 		level_name = Level_names[level_num-1];
 
 	if (Robot_replacements_loaded) {
-		int load_mission_ham();
 		free_polygon_models();
 		load_mission_ham();
 		Robot_replacements_loaded = 0;
