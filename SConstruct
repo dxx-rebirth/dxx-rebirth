@@ -756,7 +756,7 @@ class DXXProgram(DXXCommon):
 'main/cntrlcen.cpp',
 'main/config.cpp',
 'main/console.cpp',
-'main/controls.c',
+'main/controls.cpp',
 'main/credits.c',
 'main/digiobj.c',
 'main/effects.c',

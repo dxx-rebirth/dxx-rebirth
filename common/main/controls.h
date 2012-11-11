@@ -21,10 +21,18 @@ COPYRIGHT 1993-1999 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 #ifndef _CONTROLS_H
 #define _CONTROLS_H
 
+#ifdef __cplusplus
+extern "C" {
+#endif
+
 void read_flying_controls( object * obj );
 
 #if defined(DXX_BUILD_DESCENT_II)
 extern fix Afterburner_charge;
+#endif
+
+#ifdef __cplusplus
+}
 #endif
 
 #endif
