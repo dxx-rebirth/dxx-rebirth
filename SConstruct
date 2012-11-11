@@ -779,7 +779,7 @@ class DXXProgram(DXXCommon):
 'main/menu.cpp',
 'main/mglobal.cpp',
 'main/mission.cpp',
-'main/morph.c',
+'main/morph.cpp',
 'main/multi.c',
 'main/multibot.c',
 'main/newdemo.c',
