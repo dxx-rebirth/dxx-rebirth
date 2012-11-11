@@ -1,3 +1,4 @@
+#pragma once
 /*
 THE COMPUTER CODE CONTAINED HEREIN IS THE SOLE PROPERTY OF PARALLAX
 SOFTWARE CORPORATION ("PARALLAX").  PARALLAX, IN DISTRIBUTING THE CODE TO
@@ -18,6 +19,10 @@ COPYRIGHT 1993-1998 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
  */
 
 //	Local include file for texture map library.
+
+#ifdef __cplusplus
+extern "C" {
+#endif
 
 extern	int prevmod(int val,int modulus);
 extern	int succmod(int val,int modulus);
@@ -84,4 +89,8 @@ extern ubyte tmap_flat_shade_value;
 extern fix fix_recip[];
 
 extern int prevmod(int val,int modulus);
+
+#ifdef __cplusplus
+}
+#endif
 

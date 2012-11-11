@@ -50,7 +50,6 @@ g3ds_tmap Tmap1;
 int	Interpolation_method=0;	// 0 = choose best method
 int     Lighting_on=1;                  // initialize to no lighting
 int	Current_seg_depth;		// HACK INTERFACE: how far away the current segment (& thus texture) is
-int	Max_perspective_depth;
 
 // These variables are the interface to assembler.  They get set for each texture map, which is a real waste of time.
 //	They should be set only when they change, which is generally when the window bounds change.  And, even still, it's
