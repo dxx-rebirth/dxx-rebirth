@@ -816,7 +816,7 @@ class DXXProgram(DXXCommon):
 'editor/autosave.cpp',
 'editor/centers.cpp',
 'editor/curves.cpp',
-'main/dumpmine.c',
+'main/dumpmine.cpp',
 'editor/eglobal.cpp',
 'editor/elight.cpp',
 'editor/eobject.cpp',
