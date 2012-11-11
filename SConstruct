@@ -655,7 +655,7 @@ class DXXArchive(DXXCommon):
 ])
 	# for non-ogl
 	objects_arch_sdl = DXXCommon.create_lazy_object_property([os.path.join(srcdir, f) for f in [
-'texmap/tmapflat.c'
+'texmap/tmapflat.cpp'
 ]
 ])
 	objects_arch_sdlmixer = DXXCommon.create_lazy_object_property([os.path.join(srcdir, f) for f in [
