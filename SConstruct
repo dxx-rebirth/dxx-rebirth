@@ -1106,7 +1106,7 @@ class D1XProgram(DXXProgram):
 'main/gamemine.c',
 'main/gameseq.c',
 'main/piggy.c',
-'main/snddecom.c',
+'main/snddecom.cpp',
 #'tracker/client/tracker_client.c'
 ]
 ],
