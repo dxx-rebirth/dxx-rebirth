@@ -773,7 +773,7 @@ class DXXProgram(DXXCommon):
 'main/hud.cpp',
 'main/inferno.cpp',
 'main/kconfig.cpp',
-'main/kmatrix.c',
+'main/kmatrix.cpp',
 'main/laser.c',
 'main/lighting.c',
 'main/menu.c',

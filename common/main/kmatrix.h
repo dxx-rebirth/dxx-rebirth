@@ -21,7 +21,15 @@ COPYRIGHT 1993-1999 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 #ifndef _KMATRIX_H
 #define _KMATRIX_H
 
+#ifdef __cplusplus
+extern "C" {
+#endif
+
 void kmatrix_view(int network);
 extern fix64 StartAbortMenuTime;
+
+#ifdef __cplusplus
+}
+#endif
 
 #endif /* _KMATRIX_H */
