@@ -153,19 +153,6 @@ void print_status_bar( char message[DIAGNOSTIC_MESSAGE_MAX] ) {
 	gr_rect( 4+w, 583, 799, 599 );
 }
 
-void print_diagnostic( char message[DIAGNOSTIC_MESSAGE_MAX] ) {
-	int w,h,aw;
-
-	gr_set_current_canvas( NULL );
-	gr_set_curfont(editor_font);
-	gr_set_fontcolor( CBLACK, CGREY );
-	gr_get_string_size( message, &w, &h, &aw );
-	gr_string( 4, 583, message );
-	gr_set_fontcolor( CBLACK, CWHITE );
-	gr_setcolor( CGREY );
-	gr_rect( 4+w, 583, 799, 599 );
-}
-
 static char status_line[DIAGNOSTIC_MESSAGE_MAX] = "";
 
 struct tm	Editor_status_last_time;
