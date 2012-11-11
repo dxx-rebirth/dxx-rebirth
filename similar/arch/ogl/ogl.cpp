@@ -53,6 +53,9 @@
 #include "playsave.h"
 #include "args.h"
 
+#include <algorithm>
+using std::max;
+
 //change to 1 for lots of spew.
 #if 0
 #define glmprintf(0,a) con_printf(CON_DEBUG, a)
@@ -865,11 +868,11 @@ bool g3_draw_poly(int nv,g3s_point **pointlist)
 	return 0;
 }
 
-void gr_upoly_tmap(int nverts, const int *vert ){
+void gr_upoly_tmap(int, const int *){
 		glmprintf((0,"gr_upoly_tmap: unhandled\n"));//should never get called
 }
 
-void draw_tmap_flat(grs_bitmap *bm,int nv,g3s_point **vertlist){
+void draw_tmap_flat(grs_bitmap *,int,g3s_point **){
 		glmprintf((0,"draw_tmap_flat: unhandled\n"));//should never get called
 }
 
@@ -1291,7 +1294,7 @@ void ogl_close_pixel_buffers(void)
 
 static void ogl_filltexbuf(unsigned char *data, GLubyte *texp, unsigned truewidth, unsigned width, unsigned height, int dxo, int dyo, unsigned twidth, unsigned theight, int type, int bm_flags, int data_format)
 {
-	if ((width > max(grd_curscreen->sc_w, 1024)) || (height > max(grd_curscreen->sc_h, 256)))
+	if ((width > max(static_cast<unsigned>(grd_curscreen->sc_w), 1024u)) || (height > max(static_cast<unsigned>(grd_curscreen->sc_h), 256u)))
 		Error("Texture is too big: %ix%i", width, height);
 
 	for (unsigned y=0;y<theight;y++)

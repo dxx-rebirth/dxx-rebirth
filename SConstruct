@@ -719,7 +719,7 @@ class DXXProgram(DXXCommon):
 	objects_similar_arch_ogl = DXXCommon.create_lazy_object_property([{
 		'source':[os.path.join('similar', f) for f in [
 'arch/ogl/gr.cpp',
-'arch/ogl/ogl.c',
+'arch/ogl/ogl.cpp',
 ]
 ],
 		'transform_target':_apply_target_name,

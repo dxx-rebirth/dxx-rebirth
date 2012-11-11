@@ -402,6 +402,7 @@ int gr_toggle_fullscreen(void);
 void ogl_do_palfx(void);
 void ogl_init_pixel_buffers(unsigned w, unsigned h);
 void ogl_close_pixel_buffers(void);
+void ogl_cache_polymodel_textures(int model_num);;
 
 #ifdef __cplusplus
 }

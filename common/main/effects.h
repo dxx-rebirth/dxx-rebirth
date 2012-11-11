@@ -23,6 +23,10 @@ COPYRIGHT 1993-1999 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 
 #include "vclip.h"
 
+#ifdef __cplusplus
+extern "C" {
+#endif
+
 #if defined(DXX_BUILD_DESCENT_I)
 #define MAX_EFFECTS 60
 #elif defined(DXX_BUILD_DESCENT_II)
@@ -82,5 +86,9 @@ void restart_effect(int effect_num);
  * reads n eclip structs from a PHYSFS_file
  */
 extern int eclip_read_n(eclip *ec, int n, PHYSFS_file *fp);
+
+#ifdef __cplusplus
+}
+#endif
 
 #endif /* _EFFECTS_H */
