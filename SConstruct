@@ -925,7 +925,7 @@ class DXXProgram(DXXCommon):
 'main/automap.cpp',
 'main/bm.cpp',
 'main/cntrlcen.cpp',
-'main/collide.c',
+'main/collide.cpp',
 'main/config.cpp',
 'main/console.cpp',
 'main/controls.cpp',

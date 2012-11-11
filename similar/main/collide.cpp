@@ -17,6 +17,7 @@ COPYRIGHT 1993-1999 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
  *
  */
 
+#include <algorithm>
 #include <stdlib.h>
 #include <stdio.h>
 
@@ -71,6 +72,8 @@ COPYRIGHT 1993-1999 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 #endif
 #include "collide.h"
 #include "escort.h"
+
+using std::min;
 
 #define WALL_DAMAGE_SCALE (128) // Was 32 before 8:55 am on Thursday, September 15, changed by MK, walls were hurting me more than robots!
 #define WALL_DAMAGE_THRESHOLD (F1_0/3)
@@ -1570,7 +1573,7 @@ static int do_boss_weapon_collision(object *robot, object *weapon, vms_vector *c
 			//	Cause weapon to bounce.
 			//	Make a copy of this weapon, because the physics wants to destroy it.
 			if (!Weapon_info[get_weapon_id(weapon)].matter) {
-				new_obj = obj_create(weapon->type, get_weapon_id(weapon), weapon->segnum, &weapon->pos,
+				new_obj = obj_create(OBJ_WEAPON, get_weapon_id(weapon), weapon->segnum, &weapon->pos,
 					&weapon->orient, weapon->size, weapon->control_type, weapon->movement_type, weapon->render_type);
 
 				if (new_obj != -1) {
@@ -2040,7 +2043,7 @@ void drop_player_eggs(object *playerobj)
 
 			int max_count,i;
 
-			max_count = min(Players[pnum].secondary_ammo[PROXIMITY_INDEX], 12);
+			max_count = min(Players[pnum].secondary_ammo[PROXIMITY_INDEX], (unsigned short) 12);
 			for (i=0; i<max_count; i++)
 				call_object_create_egg(playerobj, 1, OBJ_POWERUP, POW_HOARD_ORB);
 		}
