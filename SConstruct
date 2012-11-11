@@ -725,7 +725,7 @@ class DXXProgram(DXXCommon):
 	}])
 	objects_similar_arch_sdl = DXXCommon.create_lazy_object_property([{
 		'source':[os.path.join('similar', f) for f in [
-'arch/sdl/gr.c',
+'arch/sdl/gr.cpp',
 ]
 ],
 		'transform_target':_apply_target_name,
