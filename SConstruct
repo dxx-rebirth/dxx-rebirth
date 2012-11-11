@@ -743,7 +743,7 @@ class DXXProgram(DXXCommon):
 '2d/font.cpp',
 '2d/palette.cpp',
 '2d/pcx.cpp',
-'3d/interp.c',
+'3d/interp.cpp',
 'arch/sdl/digi.c',
 'arch/sdl/digi_audio.c',
 'arch/sdl/event.c',
