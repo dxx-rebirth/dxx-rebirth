@@ -22,6 +22,10 @@ COPYRIGHT 1993-1998 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 #include "pstypes.h"
 #include "gr.h"
 
+#ifdef __cplusplus
+extern "C" {
+#endif
+
 void gr_rle_decode( ubyte * src, ubyte * dest );
 int gr_rle_encode( int org_size, ubyte *src, ubyte *dest );
 int gr_rle_getsize( int org_size, ubyte *src );
@@ -35,5 +39,9 @@ void rle_cache_flush();
 void rle_swap_0_255(grs_bitmap *bmp);
 void rle_remap(grs_bitmap *bmp, ubyte *colormap);
 void gr_rle_expand_scanline_generic( grs_bitmap * dest, int dx, int dy, ubyte *src, int x1, int x2 );
+
+#ifdef __cplusplus
+}
+#endif
 
 #endif

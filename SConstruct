@@ -601,7 +601,7 @@ class DXXArchive(DXXCommon):
 	target = 'dxx-common'
 	__objects_common = DXXCommon.create_lazy_object_property([os.path.join(srcdir, f) for f in [
 '2d/2dsline.cpp',
-'2d/bitblt.c',
+'2d/bitblt.cpp',
 '2d/bitmap.c',
 '2d/box.c',
 '2d/canvas.c',
