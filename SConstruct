@@ -619,7 +619,7 @@ class DXXArchive(DXXCommon):
 'maths/fixc.cpp',
 'maths/rand.cpp',
 'maths/tables.cpp',
-'maths/vecmat.c',
+'maths/vecmat.cpp',
 'misc/error.c',
 'misc/hmp.c',
 'misc/ignorecase.c',
