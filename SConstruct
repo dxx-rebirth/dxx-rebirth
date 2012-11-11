@@ -755,7 +755,7 @@ class DXXProgram(DXXCommon):
 'main/automap.cpp',
 'main/cntrlcen.cpp',
 'main/config.cpp',
-'main/console.c',
+'main/console.cpp',
 'main/controls.c',
 'main/credits.c',
 'main/digiobj.c',
