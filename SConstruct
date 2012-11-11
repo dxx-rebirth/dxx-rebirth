@@ -748,7 +748,7 @@ class DXXProgram(DXXCommon):
 'arch/sdl/digi_audio.cpp',
 'arch/sdl/event.cpp',
 'arch/sdl/init.cpp',
-'arch/sdl/key.c',
+'arch/sdl/key.cpp',
 'arch/sdl/mouse.c',
 'arch/sdl/timer.c',
 'main/aipath.c',
