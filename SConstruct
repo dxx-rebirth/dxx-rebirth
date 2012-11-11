@@ -663,7 +663,7 @@ class DXXArchive(DXXCommon):
 ])
 	class Win32PlatformSettings(LazyObjectConstructor, DXXCommon.Win32PlatformSettings):
 		platform_objects = LazyObjectConstructor.create_lazy_object_property([
-'common/arch/win32/messagebox.c'
+'common/arch/win32/messagebox.cpp'
 ])
 		def __init__(self,program,user_settings):
 			LazyObjectConstructor.__init__(self)
