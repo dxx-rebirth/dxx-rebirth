@@ -603,7 +603,7 @@ class DXXArchive(DXXCommon):
 '2d/2dsline.cpp',
 '2d/bitblt.cpp',
 '2d/bitmap.cpp',
-'2d/box.c',
+'2d/box.cpp',
 '2d/canvas.c',
 '2d/circle.c',
 '2d/disc.c',
