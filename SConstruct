@@ -746,7 +746,7 @@ class DXXProgram(DXXCommon):
 '3d/interp.cpp',
 'arch/sdl/digi.cpp',
 'arch/sdl/digi_audio.cpp',
-'arch/sdl/event.c',
+'arch/sdl/event.cpp',
 'arch/sdl/init.c',
 'arch/sdl/key.c',
 'arch/sdl/mouse.c',
