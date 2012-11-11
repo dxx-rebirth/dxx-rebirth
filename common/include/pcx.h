@@ -20,6 +20,10 @@ COPYRIGHT 1993-1998 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 #ifndef _PCX_H
 #define _PCX_H
 
+#ifdef __cplusplus
+extern "C" {
+#endif
+
 #define PCX_ERROR_NONE          0
 #define PCX_ERROR_OPENING       1
 #define PCX_ERROR_NO_HEADER     2
@@ -45,5 +49,9 @@ extern int pcx_read_bitmap( const char * filename, grs_bitmap * bmp, int bitmap_
 extern int pcx_write_bitmap( const char * filename, grs_bitmap * bmp, ubyte * palette );
 
 extern const char *pcx_errormsg(int error_number);
+
+#ifdef __cplusplus
+}
+#endif
 
 #endif

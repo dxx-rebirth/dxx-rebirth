@@ -742,7 +742,7 @@ class DXXProgram(DXXCommon):
 		'source':[os.path.join('similar', f) for f in [
 '2d/font.cpp',
 '2d/palette.cpp',
-'2d/pcx.c',
+'2d/pcx.cpp',
 '3d/interp.c',
 'arch/sdl/digi.c',
 'arch/sdl/digi_audio.c',
