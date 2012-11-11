@@ -1280,7 +1280,7 @@ class D2XProgram(DXXProgram):
 'main/gamepal.cpp',
 'main/movie.cpp',
 'main/segment.cpp',
-'misc/physfsrwops.c',
+'misc/physfsrwops.cpp',
 ]
 ],
 	}])
