@@ -769,7 +769,7 @@ class DXXProgram(DXXCommon):
 'main/gameseg.cpp',
 'main/gauges.cpp',
 'main/hostage.cpp',
-'main/hud.c',
+'main/hud.cpp',
 'main/inferno.c',
 'main/kconfig.c',
 'main/kmatrix.c',
