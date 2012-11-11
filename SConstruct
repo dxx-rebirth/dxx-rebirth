@@ -1219,7 +1219,7 @@ class D1XProgram(DXXProgram):
 	__objects_common = DXXCommon.create_lazy_object_property([{
 		'source':[os.path.join(srcdir, f) for f in [
 'iff/iff.c',
-'main/bmread.c',
+'main/bmread.cpp',
 'main/collide.c',
 'main/custom.cpp',
 'main/fireball.c',
