@@ -856,7 +856,7 @@ class DXXProgram(DXXCommon):
 
 	objects_use_udp = DXXCommon.create_lazy_object_property([{
 		'source':[os.path.join('similar', f) for f in [
-'main/net_udp.c',
+'main/net_udp.cpp',
 ]
 ],
 		'transform_target':_apply_target_name,
