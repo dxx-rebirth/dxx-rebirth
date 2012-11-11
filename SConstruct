@@ -803,7 +803,7 @@ class DXXProgram(DXXCommon):
 'main/vclip.c',
 'main/wall.c',
 'main/weapon.c',
-'mem/mem.c',
+'mem/mem.cpp',
 'misc/args.c',
 'misc/hash.c',
 'misc/physfsx.c',
