@@ -801,7 +801,7 @@ class DXXProgram(DXXCommon):
 'main/terrain.cpp',
 'main/texmerge.cpp',
 'main/text.cpp',
-'main/titles.c',
+'main/titles.cpp',
 'main/vclip.c',
 'main/wall.c',
 'main/weapon.c',

@@ -34,6 +34,7 @@ COPYRIGHT 1993-1999 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 #include "pcx.h"
 #include "u_mem.h"
 #include "joy.h"
+#include "titles.h"
 #include "gamefont.h"
 #include "dxxerror.h"
 #include "polyobj.h"
@@ -499,11 +500,11 @@ static void briefing_init(briefing *br, short level_num)
 
 //-----------------------------------------------------------------------------
 //	Load Descent briefing text.
-static int load_screen_text(char *filename, char **buf)
+static int load_screen_text(const char *filename, char **buf)
 {
 	PHYSFS_file *tfile;
 	int len, have_binary = 0;
-	char *ext;
+	const char *ext;
 
 	if ((ext = strrchr(filename, '.')) == NULL)
 		return (0);
@@ -1578,7 +1579,7 @@ static int briefing_handler(window *wind, d_event *event, briefing *br)
 	return 0;
 }
 
-void do_briefing_screens(char *filename, int level_num)
+void do_briefing_screens(const char *filename, int level_num)
 {
 	briefing *br;
 	window *wind;
@@ -1637,7 +1638,7 @@ void do_briefing_screens(char *filename, int level_num)
 		event_process();
 }
 
-void do_end_briefing_screens(char *filename)
+void do_end_briefing_screens(const char *filename)
 {
 	int level_num_screen = Current_level_num, showorder = 0;
 
