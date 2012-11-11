@@ -1272,7 +1272,7 @@ class D2XProgram(DXXProgram):
 'libmve/decoder8.cpp',
 'libmve/decoder16.cpp',
 'libmve/mve_audio.cpp',
-'libmve/mvelib.c',
+'libmve/mvelib.cpp',
 'libmve/mveplay.c',
 'main/collide.c',
 'main/escort.cpp',

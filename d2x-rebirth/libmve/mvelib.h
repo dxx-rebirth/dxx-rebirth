@@ -6,6 +6,10 @@
 
 #include "libmve.h"
 
+#ifdef __cplusplus
+extern "C" {
+#endif
+
 extern mve_cb_Read mve_read;
 extern mve_cb_Alloc mve_alloc;
 extern mve_cb_Free mve_free;
@@ -109,5 +113,9 @@ void mve_set_handler_context(MVESTREAM *movie, void *context);
  * play next chunk
  */
 int mve_play_next_chunk(MVESTREAM *movie);
+
+#ifdef __cplusplus
+}
+#endif
 
 #endif /* INCLUDED_MVELIB_H */
