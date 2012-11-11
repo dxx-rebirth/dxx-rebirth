@@ -401,22 +401,6 @@ int SyncLargeView()
 }
 #endif
 
-int DeleteCurSegment()
-{
-	// Delete current segment.
-    med_delete_segment(Cursegp);
-    autosave_mine(mine_filename);
-    strcpy(undo_status[Autosave_count], "Delete segment UNDONE.");
-    if (Lock_view_to_cursegp)
-		set_view_target_from_segment(Cursegp);
-    Update_flags |= UF_WORLD_CHANGED;
-    mine_changed = 1;
-    diagnostic_message("Segment deleted.");
-    warn_if_concave_segments();     // This could be faster -- just check if deleted segment was concave, warn accordingly
-
-    return 1;
-}
-
 int CreateDefaultNewSegment()
 {
 	// Create a default segment for New_segment.
