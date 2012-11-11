@@ -807,7 +807,7 @@ class DXXProgram(DXXCommon):
 'main/weapon.cpp',
 'mem/mem.cpp',
 'misc/args.cpp',
-'misc/hash.c',
+'misc/hash.cpp',
 'misc/physfsx.c',
 ]
 ],
