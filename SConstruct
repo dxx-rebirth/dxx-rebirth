@@ -797,7 +797,7 @@ class DXXProgram(DXXCommon):
 'main/slew.cpp',
 'main/songs.cpp',
 'main/state.cpp',
-'main/switch.c',
+'main/switch.cpp',
 'main/terrain.c',
 'main/texmerge.c',
 'main/text.c',
