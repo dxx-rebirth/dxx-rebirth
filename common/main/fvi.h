@@ -25,6 +25,10 @@ COPYRIGHT 1993-1999 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 #include "segment.h"
 #include "object.h"
 
+#ifdef __cplusplus
+extern "C" {
+#endif
+
 //return values for find_vector_intersection() - what did we hit?
 #define HIT_NONE		0		//we hit nothing
 #define HIT_WALL		1		//we hit - guess - a wall
@@ -82,6 +86,10 @@ void find_hitpoint_uv(fix *u,fix *v,fix *l, const vms_vector *pnt,const segment 
 //Returns true if the object is through any walls
 int object_intersects_wall(object *objp);
 int object_intersects_wall_d(object *objp,int *hseg,int *hside,int *hface); // same as above but more detailed
+
+#ifdef __cplusplus
+}
+#endif
 
 #endif
 

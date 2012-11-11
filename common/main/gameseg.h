@@ -26,6 +26,10 @@ COPYRIGHT 1993-1999 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 #include "vecmat.h"
 #include "segment.h"
 
+#ifdef __cplusplus
+extern "C" {
+#endif
+
 //figure out what seg the given point is in, tracing through segments
 int get_new_seg(vms_vector *p0,int startseg);
 
@@ -136,6 +140,10 @@ void flush_fcd_cache(void);
 int set_segment_depths(int start_seg, ubyte *segbuf);
 void apply_all_changed_light(void);
 void	set_ambient_sound_flags(void);
+
+#ifdef __cplusplus
+}
+#endif
 
 #endif
 
