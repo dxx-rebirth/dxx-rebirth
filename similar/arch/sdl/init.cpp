@@ -10,6 +10,7 @@
 #include "dxxerror.h"
 #include "text.h"
 #include "args.h"
+#include "window.h"
 
 void arch_close(void)
 {
