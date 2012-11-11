@@ -1270,7 +1270,7 @@ class D2XProgram(DXXProgram):
 	__objects_common = DXXCommon.create_lazy_object_property([{
 		'source':[os.path.join(srcdir, f) for f in [
 'libmve/decoder8.c',
-'libmve/decoder16.c',
+'libmve/decoder16.cpp',
 'libmve/mve_audio.c',
 'libmve/mvelib.c',
 'libmve/mveplay.c',
