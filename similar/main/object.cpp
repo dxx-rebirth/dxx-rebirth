@@ -17,6 +17,7 @@ COPYRIGHT 1993-1999 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
  *
  */
 
+#include <algorithm>
 #include <string.h>	// for memset
 #include <stdio.h>
 
@@ -71,6 +72,9 @@ COPYRIGHT 1993-1999 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 #ifdef EDITOR
 #include "editor/editor.h"
 #endif
+
+using std::min;
+using std::max;
 
 static void obj_detach_all(object *parent);
 static void obj_detach_one(object *sub);

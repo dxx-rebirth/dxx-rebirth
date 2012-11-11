@@ -784,7 +784,7 @@ class DXXProgram(DXXCommon):
 'main/multibot.cpp',
 'main/newdemo.cpp',
 'main/newmenu.cpp',
-'main/object.c',
+'main/object.cpp',
 'main/paging.c',
 'main/physics.c',
 'main/player.c',
