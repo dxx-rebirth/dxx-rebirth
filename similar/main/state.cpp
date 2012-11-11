@@ -104,7 +104,7 @@ COPYRIGHT 1993-1999 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 
 int sc_last_item= 0;
 
-static const char dgss_id[4] = "DGSS";
+static const char dgss_id[4] = {'D', 'G', 'S', 'S'};
 
 uint state_game_id;
 
@@ -839,7 +839,7 @@ int state_save_old_game(int slotnum, const char * sg_name, player_rw * sg_player
 
 //	-----------------------------------------------------------------------------------
 //	Imagine if C had a function to copy a file...
-int copy_file(const char *old_file, const char *new_file)
+static int copy_file(const char *old_file, const char *new_file)
 {
 	sbyte	*buf;
 	int		buf_size;
