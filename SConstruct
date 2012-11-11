@@ -610,7 +610,7 @@ class DXXArchive(DXXCommon):
 '3d/globvars.cpp',
 '3d/instance.cpp',
 '3d/matrix.cpp',
-'3d/points.c',
+'3d/points.cpp',
 '3d/rod.c',
 '3d/setup.c',
 'arch/sdl/joy.c',
