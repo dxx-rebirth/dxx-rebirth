@@ -20,6 +20,10 @@ COPYRIGHT 1993-1999 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 #ifndef _MENU_H
 #define _MENU_H
 
+#ifdef __cplusplus
+extern "C" {
+#endif
+
 extern int hide_menus(void);
 extern void show_menus(void);
 
@@ -43,6 +47,10 @@ extern int select_demo(void);
 // name of background bitmap
 #define Menu_pcx_name (PHYSFSX_exists(MENU_PCX_FULL,1)?MENU_PCX_FULL:(PHYSFSX_exists(MENU_PCX_OEM,1)?MENU_PCX_OEM:PHYSFSX_exists(MENU_PCX_SHAREWARE,1)?MENU_PCX_SHAREWARE:MENU_PCX_MAC_SHARE))
 #define STARS_BACKGROUND ((HIRESMODE && PHYSFSX_exists("starsb.pcx",1))?"starsb.pcx":PHYSFSX_exists("stars.pcx",1)?"stars.pcx":"starsb.pcx")
+#endif
+
+#ifdef __cplusplus
+}
 #endif
 
 #endif /* _MENU_H */

@@ -25,6 +25,10 @@ COPYRIGHT 1993-1999 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 #include "game.h"
 #include "piggy.h"
 
+#ifdef __cplusplus
+extern "C" {
+#endif
+
 #if defined(DXX_BUILD_DESCENT_I) || defined(DXX_BUILD_DESCENT_II)
 typedef struct weapon_info {
 	sbyte   render_type;        // How to draw 0=laser, 1=blob, 2=object
@@ -334,6 +338,10 @@ static inline int weapon_index_uses_vulcan_ammo(unsigned id)
 static inline int weapon_index_is_player_bomb(unsigned id)
 {
 	return id == PROXIMITY_INDEX || id == SMART_MINE_INDEX;
+}
+#endif
+
+#ifdef __cplusplus
 }
 #endif
 

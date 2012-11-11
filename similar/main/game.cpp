@@ -1479,7 +1479,7 @@ static void flicker_lights()
 		if (! (TmapInfo[segp->sides[f->sidenum].tmap_num].lighting | TmapInfo[segp->sides[f->sidenum].tmap_num2 & 0x3fff].lighting))
 			continue;
 
-		if (f->timer == 0x80000000)		//disabled
+		if (static_cast<unsigned>(f->timer) == 0x80000000)		//disabled
 			continue;
 
 		if ((f->timer -= FrameTime) < 0) {

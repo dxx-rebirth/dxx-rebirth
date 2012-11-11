@@ -23,6 +23,10 @@ COPYRIGHT 1993-1999 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 
 #include "playsave.h"
 
+#ifdef __cplusplus
+extern "C" {
+#endif
+
 void collide_init();
 void collide_two_objects(object * A, object * B, vms_vector *collision_point);
 void collide_object_with_wall(object * A, fix hitspeed, short hitseg, short hitwall, vms_vector * hitpt);
@@ -56,6 +60,10 @@ void do_final_boss_frame(void);
 void do_final_boss_hacks(void);
 int check_volatile_wall(object *obj,int segnum,int sidenum,vms_vector *hitpt);
 extern int	Final_boss_is_dead;
+#endif
+
+#ifdef __cplusplus
+}
 #endif
 
 #endif /* _COLLIDE_H */

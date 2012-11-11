@@ -21,6 +21,10 @@ COPYRIGHT 1993-1999 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 #ifndef _FIREBALL_H
 #define _FIREBALL_H
 
+#ifdef __cplusplus
+extern "C" {
+#endif
+
 // explosion types
 #define ET_SPARKS       0   //little sparks, like when laser hits wall
 #define ET_MULTI_START  1   //first part of multi-part explosion
@@ -79,5 +83,9 @@ extern fix	Flash_effect;
 #endif
 
 int pick_connected_segment(struct object *objp, int max_depth);
+
+#ifdef __cplusplus
+}
+#endif
 
 #endif /* _FIREBALL_H */

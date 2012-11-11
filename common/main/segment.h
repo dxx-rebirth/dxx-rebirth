@@ -25,6 +25,10 @@ COPYRIGHT 1993-1999 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 #include "maths.h"
 #include "vecmat.h"
 
+#ifdef __cplusplus
+extern "C" {
+#endif
+
 // Version 1 - Initial version
 // Version 2 - Mike changed some shorts to bytes in segments, so incompatible!
 
@@ -247,6 +251,10 @@ void dl_index_read(dl_index *di, PHYSFS_file *fp);
 void segment2_write(segment2 *s2, PHYSFS_file *fp);
 void delta_light_write(delta_light *dl, PHYSFS_file *fp);
 void dl_index_write(dl_index *di, PHYSFS_file *fp);
+#endif
+
+#ifdef __cplusplus
+}
 #endif
 
 #endif

@@ -761,7 +761,7 @@ class DXXProgram(DXXCommon):
 'main/digiobj.cpp',
 'main/effects.cpp',
 'main/fvi.cpp',
-'main/game.c',
+'main/game.cpp',
 'main/gamecntl.c',
 'main/gamefont.c',
 'main/gamerend.c',
