@@ -27,6 +27,10 @@ COPYRIGHT 1993-1999 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 #include "hudmsg.h"
 #include "player.h"
 
+#ifdef __cplusplus
+extern "C" {
+#endif
+
 //from gauges.c
 
 #if defined(DXX_BUILD_DESCENT_I)
@@ -121,5 +125,9 @@ extern int	Color_0_31_0;
 #define RET_COLOR_DEFAULT_G     32
 #define RET_COLOR_DEFAULT_B     0
 #define RET_COLOR_DEFAULT_A     0
+
+#ifdef __cplusplus
+}
+#endif
 
 #endif /* _GAUGES_H */

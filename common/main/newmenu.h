@@ -23,6 +23,10 @@ COPYRIGHT 1993-1999 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 
 #include "event.h"
 
+#ifdef __cplusplus
+extern "C" {
+#endif
+
 typedef struct newmenu newmenu;
 typedef struct listbox listbox;
 
@@ -274,6 +278,10 @@ static inline void nm_set_item_slider(newmenu_item *ni, const char *text, unsign
 #define DXX_READ_MENU(S,OPT)	/* handled specially */
 #define DXX_READ_TEXT(S,OPT)	/* handled specially */
 #define DXX_READ_INPUT(S,OPT,MAX_TEXT_LEN)	/* handled specially */
+
+#ifdef __cplusplus
+}
+#endif
 
 #endif /* _NEWMENU_H */
 

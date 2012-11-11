@@ -24,6 +24,10 @@ COPYRIGHT 1993-1999 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 #include "vecmat.h"
 #include "fvi.h"
 
+#ifdef __cplusplus
+extern "C" {
+#endif
+
 //#define FL_NORMAL  0
 //#define FL_TURBO   1
 //#define FL_HOVER   2
@@ -54,5 +58,9 @@ void phys_apply_rot(object *obj, vms_vector *force_vec);
 void set_thrust_from_velocity(object *obj);
 void check_and_fix_matrix(vms_matrix *m);
 void physics_turn_towards_vector(vms_vector *goal_vector, struct object *obj, fix rate);
+
+#ifdef __cplusplus
+}
+#endif
 
 #endif /* _PHYSICS_H */

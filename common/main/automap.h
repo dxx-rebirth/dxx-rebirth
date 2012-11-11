@@ -20,6 +20,10 @@ COPYRIGHT 1993-1999 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 #ifndef _AUTOMAP_H
 #define _AUTOMAP_H
 
+#ifdef __cplusplus
+extern "C" {
+#endif
+
 extern int Automap_active;
 
 extern char Marker_input[40];
@@ -40,6 +44,10 @@ extern char MarkerMessage[NUM_MARKERS][MARKER_MESSAGE_LEN];
 extern int  MarkerObject[NUM_MARKERS];
 extern vms_vector MarkerPoint[NUM_MARKERS];
 extern ubyte DefiningMarkerMessage;
+#endif
+
+#ifdef __cplusplus
+}
 #endif
 
 #endif

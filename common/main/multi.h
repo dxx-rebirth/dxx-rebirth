@@ -44,6 +44,10 @@ COPYRIGHT 1993-1999 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 #include <sys/time.h>
 #endif
 
+#ifdef __cplusplus
+extern "C" {
+#endif
+
 #ifdef IPv6
 #define _sockaddr sockaddr_in6
 #define _af AF_INET6
@@ -603,4 +607,8 @@ typedef struct netgame_info
 	ubyte						Tracker;
 #endif
 } __pack__ netgame_info;
+
+#ifdef __cplusplus
+}
+#endif
 #endif /* _MULTI_H */
