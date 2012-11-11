@@ -1775,7 +1775,7 @@ void StartNewLevelSub(int level_num, int page_in_textures, int secret_flag)
 
 void bash_to_shield (int i,const char *s)
 {
-	enum powerup_type_t type = get_powerup_id(&Objects[i]);
+	enum powerup_type_t type = (enum powerup_type_t) get_powerup_id(&Objects[i]);
 
 	PowerupsInMine[type]=MaxPowerupsAllowed[type]=0;
 
@@ -1799,10 +1799,13 @@ static void filter_objects_from_level()
 
  }
 
-struct {
+struct intro_movie_t {
 	int	level_num;
-	char	movie_name[FILENAME_LEN];
-} intro_movie[] = { 	{ 1,"pla"},
+	char	movie_name[4];
+};
+
+static const intro_movie_t intro_movie[] = {
+	{ 1,"pla"},
 							{ 5,"plb"},
 							{ 9,"plc"},
 							{13,"pld"},

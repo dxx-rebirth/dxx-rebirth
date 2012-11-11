@@ -836,7 +836,7 @@ class DXXProgram(DXXCommon):
 'main/gamerend.cpp',
 'main/gamesave.cpp',
 'main/gameseg.cpp',
-'main/gameseq.c',
+'main/gameseq.cpp',
 'main/gauges.cpp',
 'main/hostage.cpp',
 'main/hud.cpp',
