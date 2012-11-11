@@ -17,6 +17,7 @@ COPYRIGHT 1993-1999 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
  *
  */
 
+#include <algorithm>
 #include <stdio.h>
 #include <string.h>	// for memset()
 
@@ -45,6 +46,9 @@ COPYRIGHT 1993-1999 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 #include "bm.h"
 #include "rle.h"
 #include "wall.h"
+
+using std::min;
+using std::max;
 
 int	Do_dynamic_light=1;
 int use_fcd_lighting = 0;
