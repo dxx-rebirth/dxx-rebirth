@@ -1160,7 +1160,7 @@ class D2XProgram(DXXProgram):
 'main/ai.c',
 'main/bm.c',
 'main/collide.c',
-'main/escort.c',
+'main/escort.cpp',
 'main/fireball.c',
 'main/fuelcen.c',
 'main/gamemine.c',
