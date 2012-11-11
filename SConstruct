@@ -620,7 +620,7 @@ class DXXArchive(DXXCommon):
 'maths/rand.cpp',
 'maths/tables.cpp',
 'maths/vecmat.cpp',
-'misc/error.c',
+'misc/error.cpp',
 'misc/hmp.c',
 'misc/ignorecase.c',
 'misc/strio.c',
