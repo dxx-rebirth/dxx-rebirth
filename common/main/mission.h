@@ -23,6 +23,10 @@ COPYRIGHT 1993-1999 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 #include "pstypes.h"
 #include "inferno.h"
 
+#ifdef __cplusplus
+extern "C" {
+#endif
+
 #define MAX_MISSIONS                    5000 // ZICO - changed from 300 to get more levels in list
 #define MAX_LEVELS_PER_MISSION          127	// KREATOR - increased from 30 (limited by Demo and Multiplayer code)
 #define MAX_SECRET_LEVELS_PER_MISSION   127	// KREATOR - increased from 6 (limited by Demo and Multiplayer code)
@@ -140,6 +144,10 @@ void free_mission(void);
 
 #ifdef EDITOR
 void create_new_mission(void);
+#endif
+
+#ifdef __cplusplus
+}
 #endif
 
 #endif

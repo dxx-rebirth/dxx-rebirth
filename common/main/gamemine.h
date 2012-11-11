@@ -21,6 +21,10 @@ COPYRIGHT 1993-1999 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 #ifndef _GAMEMINE_H
 #define _GAMEMINE_H
 
+#ifdef __cplusplus
+extern "C" {
+#endif
+
 #if defined(DXX_BUILD_DESCENT_I)
 #define MINE_VERSION					17	// Current version expected
 #elif defined(DXX_BUILD_DESCENT_II)
@@ -135,6 +139,10 @@ extern vms_matrix Secret_return_orient;
 /* stuff for loading descent.pig of descent 1 */
 extern short convert_d1_tmap_num(short d1_tmap_num);
 extern int d1_tmap_num_unique(short d1_tmap_num); //is d1_tmap_num's texture only in d1?
+#endif
+
+#ifdef __cplusplus
+}
 #endif
 
 #endif /* _GAMEMINE_H */

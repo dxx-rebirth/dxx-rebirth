@@ -21,6 +21,10 @@ COPYRIGHT 1993-1999 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 #ifndef _HOSTAGE_H
 #define _HOSTAGE_H
 
+#ifdef __cplusplus
+extern "C" {
+#endif
+
 #define HOSTAGE_SIZE        i2f(5)  // 3d size of a hostage
 
 #define MAX_HOSTAGE_TYPES   1       //only one hostage bitmap
@@ -59,5 +63,9 @@ extern int Hostage_vclip_num[MAX_HOSTAGE_TYPES];    // for each type of hostage
 
 void draw_hostage(object *obj);
 void hostage_rescue( int hostage_number );
+
+#ifdef __cplusplus
+}
+#endif
 
 #endif /* _HOSTAGE_H */

@@ -21,6 +21,10 @@ COPYRIGHT 1993-1999 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 #ifndef _GAMESAVE_H
 #define _GAMESAVE_H
 
+#ifdef __cplusplus
+extern "C" {
+#endif
+
 #define D1X_LEVEL_FILE_EXTENSION	"RDL"
 #define D2X_LEVEL_FILE_EXTENSION	"RL2"
 
@@ -53,5 +57,9 @@ extern int Gamesave_num_org_robots;
 extern void write_game_text_file(const char *filename);
 
 extern int Errors_in_mine;
+
+#ifdef __cplusplus
+}
+#endif
 
 #endif /* _GAMESAVE_H */

@@ -20,6 +20,10 @@ COPYRIGHT 1993-1999 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 #ifndef _GAMEPAL_H
 #define _GAMEPAL_H
 
+#ifdef __cplusplus
+extern "C" {
+#endif
+
 #if defined(DXX_BUILD_DESCENT_I)
 #define MENU_PALETTE	""	// never used
 static inline int load_palette(const char *name, int used_for_level, int no_change_screen)
@@ -42,6 +46,10 @@ extern char last_palette_loaded_pig[FILENAME_LEN];
 // if no_change_screen is set, the current screen does not get
 // remapped, and the hardware palette does not get changed
 int load_palette(const char *name, int used_for_level, int no_change_screen);
+#endif
+
+#ifdef __cplusplus
+}
 #endif
 
 #endif /* _GAMEPAL_H */
