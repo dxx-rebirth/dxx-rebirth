@@ -944,7 +944,7 @@ class DXXProgram(DXXCommon):
 'main/gauges.cpp',
 'main/hostage.cpp',
 'main/hud.cpp',
-'main/iff.c',
+'main/iff.cpp',
 'main/inferno.cpp',
 'main/kconfig.cpp',
 'main/kmatrix.cpp',
