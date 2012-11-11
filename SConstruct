@@ -604,7 +604,7 @@ class DXXArchive(DXXCommon):
 '2d/bitblt.cpp',
 '2d/bitmap.cpp',
 '2d/box.cpp',
-'2d/canvas.c',
+'2d/canvas.cpp',
 '2d/circle.c',
 '2d/disc.c',
 '2d/gpixel.c',
