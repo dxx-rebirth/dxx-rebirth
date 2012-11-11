@@ -24,23 +24,6 @@ COPYRIGHT 1993-1999 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 #include "key.h"
 #include "mouse.h"
 
-// insert character c into string s at position p.
-void strcins(char *s, int p, char c)
-{
-	int n;
-	for (n=strlen(s)-p; n>=0; n-- )
-		*(s+p+n+1) = *(s+p+n);   // Move everything over
-	*(s+p) = c;         // then insert the character
-}
-
-// delete n character from string s starting at position p
-
-void strndel(char *s, int p, int n)
-{
-	for (; (*(s+p) = *(s+p+n)) != '\0'; s++ )
-		*(s+p+n) = '\0';    // Delete and zero fill
-}
-
 void ui_draw_inputbox( UI_DIALOG *dlg, UI_GADGET_INPUTBOX * inputbox )
 {
 	int w, h, aw;
