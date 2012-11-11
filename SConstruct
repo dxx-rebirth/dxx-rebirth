@@ -740,7 +740,7 @@ class DXXProgram(DXXCommon):
 	}])
 	__objects_common = DXXCommon.create_lazy_object_property([{
 		'source':[os.path.join('similar', f) for f in [
-'2d/font.c',
+'2d/font.cpp',
 '2d/palette.c',
 '2d/pcx.c',
 '3d/interp.c',
