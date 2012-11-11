@@ -18,6 +18,10 @@ COPYRIGHT 1993-1999 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 
 #define RBA_MEDIA_CHANGED	-1
 
+#ifdef __cplusplus
+extern "C" {
+#endif
+
 typedef struct _RBACHANNELCTL {
 	unsigned int out0in, out0vol;
 	unsigned int out1in, out1vol;
@@ -58,5 +62,9 @@ unsigned long RBAGetDiscID();
 
 // List the tracks on the CD
 void RBAList(void);
+
+#ifdef __cplusplus
+}
+#endif
 
 #endif

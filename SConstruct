@@ -614,7 +614,7 @@ class DXXArchive(DXXCommon):
 '3d/rod.cpp',
 '3d/setup.cpp',
 'arch/sdl/joy.cpp',
-'arch/sdl/rbaudio.c',
+'arch/sdl/rbaudio.cpp',
 'arch/sdl/window.c',
 'maths/fixc.c',
 'maths/rand.c',
