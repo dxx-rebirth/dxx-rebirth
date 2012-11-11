@@ -789,7 +789,7 @@ class DXXProgram(DXXCommon):
 'main/physics.cpp',
 'main/player.cpp',
 'main/playsave.cpp',
-'main/polyobj.c',
+'main/polyobj.cpp',
 'main/powerup.c',
 'main/render.c',
 'main/robot.c',
