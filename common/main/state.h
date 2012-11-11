@@ -32,6 +32,10 @@ extern int state_save_old_game(int slotnum, const char * sg_name, player_rw * sg
 #define SECRETC_FILENAME	GameArg.SysUsePlayersDir? "Players/secret.sgc" : "secret.sgc"
 #endif
 
+#ifdef __cplusplus
+extern "C" {
+#endif
+
 int state_save_all(int secret_save, const char *filename_override, int blind_save);
 int state_restore_all(int in_game, int secret_restore, const char *filename_override);
 
@@ -50,6 +54,10 @@ static inline void set_pos_from_return_segment(void)
 }
 #elif defined(DXX_BUILD_DESCENT_II)
 void set_pos_from_return_segment(void);
+#endif
+
+#ifdef __cplusplus
+}
 #endif
 
 #endif /* _STATE_H */

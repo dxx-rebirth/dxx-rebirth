@@ -26,6 +26,10 @@ COPYRIGHT 1993-1999 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 #include "inferno.h"
 #include "polyobj.h"
 
+#ifdef __cplusplus
+extern "C" {
+#endif
+
 #define GREEN_GUY   1
 
 #define MAX_SEGMENTS_PER_PATH       20
@@ -310,5 +314,9 @@ typedef struct {
 //extern vms_vector Last_uncloaked_position;
 
 extern void ai_do_cloak_stuff(void);
+
+#ifdef __cplusplus
+}
+#endif
 
 #endif /* _AISTRUCT_H */

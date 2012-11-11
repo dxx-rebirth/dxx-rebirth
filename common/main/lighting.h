@@ -21,6 +21,10 @@ COPYRIGHT 1993-1999 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 #ifndef _LIGHTING_H
 #define _LIGHTING_H
 
+#ifdef __cplusplus
+extern "C" {
+#endif
+
 #define MAX_LIGHT       0x10000     // max value
 
 #define MIN_LIGHT_DIST  (F1_0*4)
@@ -49,5 +53,9 @@ g3s_lrgb compute_object_light(object *obj,vms_vector *rotated_pnt);
 // turn headlight boost on & off
 void toggle_headlight_active(void);
 void start_lighting_frame(struct object *viewer);
+
+#ifdef __cplusplus
+}
+#endif
 
 #endif /* _LIGHTING_H */

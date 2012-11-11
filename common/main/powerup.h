@@ -24,6 +24,10 @@ COPYRIGHT 1993-1999 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 #include "dxxsconf.h"
 #include "vclip.h"
 
+#ifdef __cplusplus
+extern "C" {
+#endif
+
 enum powerup_type_t
 {
 	POW_EXTRA_LIFE = 0,
@@ -140,5 +144,9 @@ extern void powerup_basic(int redadd, int greenadd, int blueadd, int score, cons
  * reads n powerup_type_info structs from a PHYSFS_file
  */
 extern int powerup_type_info_read_n(powerup_type_info *pti, int n, PHYSFS_file *fp);
+
+#ifdef __cplusplus
+}
+#endif
 
 #endif /* _POWERUP_H */

@@ -31,6 +31,10 @@ COPYRIGHT 1993-1999 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 #include "escort.h"
 #endif
 
+#ifdef __cplusplus
+extern "C" {
+#endif
+
 #define N_SAVE_SLOTS    10
 #define GAME_NAME_LEN   25      // +1 for terminating zero = 26
 
@@ -135,5 +139,9 @@ int get_highest_level(void);
 struct netgame_info;
 void read_netgame_profile(struct netgame_info *ng);
 void write_netgame_profile(struct netgame_info *ng);
+
+#ifdef __cplusplus
+}
+#endif
 
 #endif /* _PLAYSAVE_H */

@@ -20,6 +20,10 @@ COPYRIGHT 1993-1999 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 #ifndef _MOVIE_H
 #define _MOVIE_H
 
+#ifdef __cplusplus
+extern "C" {
+#endif
+
 #define MOVIE_ABORT_ON  1
 #define MOVIE_ABORT_OFF 0
 
@@ -49,5 +53,9 @@ void close_subtitles();
 void init_extra_robot_movie(char *filename);
 
 extern int MovieHires;      // specifies whether movies use low or high res
+
+#ifdef __cplusplus
+}
+#endif
 
 #endif /* _MOVIE_H */
