@@ -1164,7 +1164,7 @@ class D2XProgram(DXXProgram):
 'main/fireball.c',
 'main/fuelcen.c',
 'main/gamemine.c',
-'main/gamepal.c',
+'main/gamepal.cpp',
 'main/gameseq.c',
 'main/movie.cpp',
 'main/piggy.c',
