@@ -621,7 +621,7 @@ class DXXArchive(DXXCommon):
 'maths/tables.cpp',
 'maths/vecmat.cpp',
 'misc/error.cpp',
-'misc/hmp.c',
+'misc/hmp.cpp',
 'misc/ignorecase.c',
 'misc/strio.c',
 'misc/strutil.c',

@@ -7,6 +7,10 @@
 #endif
 #include "physfsx.h"
 
+#ifdef __cplusplus
+extern "C" {
+#endif
+
 #define HMP_TRACKS 32
 #ifdef _WIN32
 #define MIDI_VOLUME_SCALE 128
@@ -86,6 +90,10 @@ int hmp_play(hmp_file *hmp, int bLoop);
 void hmp_pause(hmp_file *hmp);
 void hmp_resume(hmp_file *hmp);
 void hmp_reset();
+#endif
+
+#ifdef __cplusplus
+}
 #endif
 
 #endif
