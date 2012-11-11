@@ -791,7 +791,7 @@ class DXXProgram(DXXCommon):
 'main/playsave.cpp',
 'main/polyobj.cpp',
 'main/powerup.cpp',
-'main/render.c',
+'main/render.cpp',
 'main/robot.c',
 'main/scores.c',
 'main/slew.c',
