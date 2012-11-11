@@ -4,6 +4,10 @@
 #include "pstypes.h"
 #include "piggy.h"
 
+#ifdef __cplusplus
+extern "C" {
+#endif
+
 /* from piggy.c */
 #define DBM_FLAG_LARGE	128		// Flags added onto the flags struct in b
 #define DBM_FLAG_ABM            64
@@ -15,5 +19,9 @@ extern ubyte * Piggy_bitmap_cache_data;
 void load_custom_data(char *level_file);
 
 void custom_close();
+
+#ifdef __cplusplus
+}
+#endif
 
 #endif

@@ -1100,7 +1100,7 @@ class D1XProgram(DXXProgram):
 'main/bm.c',
 'main/bmread.c',
 'main/collide.c',
-'main/custom.c',
+'main/custom.cpp',
 'main/fireball.c',
 'main/fuelcen.c',
 'main/gamemine.c',
