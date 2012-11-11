@@ -774,7 +774,7 @@ class DXXProgram(DXXCommon):
 'main/inferno.cpp',
 'main/kconfig.cpp',
 'main/kmatrix.cpp',
-'main/laser.c',
+'main/laser.cpp',
 'main/lighting.c',
 'main/menu.c',
 'main/mglobal.c',
