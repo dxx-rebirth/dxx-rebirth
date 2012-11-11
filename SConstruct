@@ -759,7 +759,7 @@ class DXXProgram(DXXCommon):
 'main/controls.cpp',
 'main/credits.cpp',
 'main/digiobj.cpp',
-'main/effects.c',
+'main/effects.cpp',
 'main/fvi.c',
 'main/game.c',
 'main/gamecntl.c',
