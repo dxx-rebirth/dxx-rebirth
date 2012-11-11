@@ -687,26 +687,6 @@ int	ObjectMoveDown(void)
 }
 
 //	------------------------------------------------------------------------------------------------------
-int	ObjectMakeSmaller(void)
-{
-	fix	cur_size;
-
-	//update_due_to_new_segment();
-
-	cur_size = Objects[Cur_object_index].size;
-
-	cur_size -= OBJ_DEL_SIZE;
-	if (cur_size < OBJ_DEL_SIZE)
-		cur_size = OBJ_DEL_SIZE;
-
-	Objects[Cur_object_index].size = cur_size;
-	
-	Update_flags |= UF_WORLD_CHANGED;
-
-	return 1;
-}
-
-//	------------------------------------------------------------------------------------------------------
 int	ObjectMakeLarger(void)
 {
 	fix	cur_size;
