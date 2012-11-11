@@ -612,7 +612,7 @@ class DXXArchive(DXXCommon):
 '3d/matrix.cpp',
 '3d/points.cpp',
 '3d/rod.cpp',
-'3d/setup.c',
+'3d/setup.cpp',
 'arch/sdl/joy.c',
 'arch/sdl/rbaudio.c',
 'arch/sdl/window.c',
