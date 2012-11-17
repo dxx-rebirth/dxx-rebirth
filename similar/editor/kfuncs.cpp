@@ -32,6 +32,7 @@ COPYRIGHT 1993-1998 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 #include "editor/medmisc.h"
 #include "editor/texpage.h"
 #include "editor/ehostage.h"
+#include "kfuncs.h"
 
 int Test1() 
 {

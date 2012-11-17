@@ -828,7 +828,7 @@ class DXXProgram(DXXCommon):
 'editor/info.cpp',
 'editor/kbuild.cpp',
 'editor/kcurve.cpp',
-'editor/kfuncs.c',
+'editor/kfuncs.cpp',
 'editor/kgame.c',
 'editor/khelp.c',
 'editor/kmine.c',

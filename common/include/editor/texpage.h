@@ -22,6 +22,10 @@ COPYRIGHT 1993-1999 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 
 #include "ui.h"
 
+#ifdef __cplusplus
+extern "C" {
+#endif
+
 struct d_event;
 
 extern int TextureLights;
@@ -36,5 +40,9 @@ int texpage_goto_first();
 void texpage_init( UI_DIALOG * dlg );
 void texpage_close();
 int texpage_do(struct d_event *event);
+
+#ifdef __cplusplus
+}
+#endif
 
 #endif
