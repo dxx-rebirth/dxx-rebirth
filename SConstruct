@@ -643,7 +643,7 @@ class DXXArchive(DXXCommon):
 'ui/keytrap.cpp',
 'ui/listbox.cpp',
 'ui/menu.cpp',
-'ui/menubar.c',
+'ui/menubar.cpp',
 'ui/message.c',
 'ui/popup.c',
 'ui/radio.c',
