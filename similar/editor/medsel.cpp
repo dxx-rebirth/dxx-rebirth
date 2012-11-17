@@ -32,6 +32,8 @@ COPYRIGHT 1993-1998 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 #include "editor/medmisc.h"
 #include "segment.h"
 #include "object.h"
+#include "medsel.h"
+#include "kdefs.h"
 
 typedef struct sort_element {
 	short segnum;
@@ -65,7 +67,7 @@ void sort_seg_list(int n_segs,short *segnumlist,vms_vector *pos)
 	int i;
 	sort_element *sortlist;
 
-	sortlist = d_calloc(n_segs, sizeof(*sortlist));
+	CALLOC(sortlist, sort_element, n_segs);
 
 	for (i=0;i<n_segs;i++) {
 		sortlist[i].segnum = segnumlist[i];
