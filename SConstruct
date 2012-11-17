@@ -644,7 +644,7 @@ class DXXArchive(DXXCommon):
 'ui/listbox.cpp',
 'ui/menu.cpp',
 'ui/menubar.cpp',
-'ui/message.c',
+'ui/message.cpp',
 'ui/popup.c',
 'ui/radio.c',
 'ui/scroll.c',

@@ -173,7 +173,7 @@ int ui_messagebox_n( short xc, short yc, int NumButtons, const char * text, char
 		y = h - height;
 	}
 
-	dlg = ui_create_dialog( x, y, width, height, DF_DIALOG | DF_MODAL, (int (*)(UI_DIALOG *, d_event *, void *))messagebox_handler, m );
+	dlg = ui_create_dialog( x, y, width, height, static_cast<dialog_flags>(DF_DIALOG | DF_MODAL), (int (*)(UI_DIALOG *, d_event *, void *))messagebox_handler, m );
 
 	//ui_draw_line_in( MESSAGEBOX_BORDER, MESSAGEBOX_BORDER, width-MESSAGEBOX_BORDER, height-MESSAGEBOX_BORDER );
 
