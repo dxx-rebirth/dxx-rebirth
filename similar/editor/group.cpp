@@ -34,17 +34,18 @@ COPYRIGHT 1993-1998 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 #include "textures.h"
 #include "hash.h"
 #include "fuelcen.h"
+#include "kdefs.h"
 
 #include "medwall.h"
 
 static void validate_selected_segments(void);
 
-struct {
+struct group_top_fileinfo {
 	int     fileinfo_version;
 	int     fileinfo_sizeof;
 } group_top_fileinfo;    // Should be same as first two fields below...
 
-struct {
+struct group_fileinfo {
 	int     fileinfo_version;
 	int     fileinfo_sizeof;
 	int     header_offset;          	// Stuff common to game & editor
@@ -62,12 +63,12 @@ struct {
 	int     texture_sizeof;
 } group_fileinfo;
 
-struct {
+struct group_header {
 	int     num_vertices;
 	int     num_segments;
 } group_header;
 
-struct {
+struct group_editor {
 	int     current_seg;
 	int     newsegment_offset;
 	int     newsegment_size;
@@ -1602,7 +1603,7 @@ int Degroup( void )
 	return 1;
 }
 
-void NextGroup( void ) 
+int NextGroup( void ) 
 {
 
 	if (num_groups > 0)
@@ -1614,9 +1615,10 @@ void NextGroup( void )
 		mine_changed = 1;
 		}
 	else editor_status("No Next Group\n");
+	return 0;
 }
 
-void PrevGroup( void ) 
+int PrevGroup( void ) 
 {
 	if (num_groups > 0)
 		{
@@ -1627,6 +1629,7 @@ void PrevGroup( void )
 		mine_changed = 1;
 		}
 	else editor_status("No Previous Group\n");
+	return 0;
 }
 
 // Returns:

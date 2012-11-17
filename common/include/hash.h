@@ -16,6 +16,10 @@ COPYRIGHT 1993-1999 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 #ifndef _HASH_H
 #define _HASH_H
 
+#ifdef __cplusplus
+extern "C" {
+#endif
+
 typedef struct hashtable {
 	int 				bitsize;
 	int				and_mask;
@@ -29,5 +33,9 @@ int hashtable_init( hashtable *ht, int size );
 void hashtable_free( hashtable *ht );
 int hashtable_search( hashtable *ht, char *key );
 void hashtable_insert( hashtable *ht, char *key, int value );
+
+#ifdef __cplusplus
+}
+#endif
 
 #endif

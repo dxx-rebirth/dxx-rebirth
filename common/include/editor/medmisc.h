@@ -20,6 +20,10 @@ COPYRIGHT 1993-1998 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 #ifndef _MEDMISC_H
 #define _MEDMISC_H
 
+#ifdef __cplusplus
+extern "C" {
+#endif
+
 void GetMouseRotation( int idx, int idy, vms_matrix * RotMat );
 extern int Gameview_lockstep;                         //In medmisc.c
 int ToggleLockstep();
@@ -35,5 +39,8 @@ extern int    Big_depth;
 void set_chase_matrix(segment *sp);
 void set_view_target_from_segment(segment *sp);
 
+#ifdef __cplusplus
+}
+#endif
 
 #endif
