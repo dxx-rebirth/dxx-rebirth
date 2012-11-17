@@ -17,27 +17,12 @@ COPYRIGHT 1993-1998 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
  *
  */
 
-
-//#include <stdio.h>
-//#include <stdlib.h>
-//#include <math.h>
-//#include <string.h>
-
 #include "inferno.h"
 #include "editor.h"
 #include "editor/esegment.h"
+#include "kdefs.h"
 
-// -- old -- int SegOrientCommon(fixang *ang, fix val)
-// -- old -- {
-// -- old -- 	*ang += val;
-// -- old -- 	med_rotate_segment_ang(Cursegp,&Seg_orientation);
-// -- old -- 	Update_flags |= UF_WORLD_CHANGED;
-// -- old -- 	mine_changed = 1;
-// -- old -- 	warn_if_concave_segment(Cursegp);
-// -- old -- 	return 1;
-// -- old -- }
-
-int SegOrientCommon(fixang *ang, fix val)
+static int SegOrientCommon(fixang *ang, fix val)
 {
 	Seg_orientation.p = 0;
 	Seg_orientation.b = 0;

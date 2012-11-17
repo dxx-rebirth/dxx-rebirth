@@ -832,7 +832,7 @@ class DXXProgram(DXXCommon):
 'editor/kgame.cpp',
 'editor/khelp.cpp',
 'editor/kmine.cpp',
-'editor/ksegmove.c',
+'editor/ksegmove.cpp',
 'editor/ksegsel.c',
 'editor/ksegsize.c',
 'editor/ktmap.c',
