@@ -815,7 +815,7 @@ class DXXProgram(DXXCommon):
 		'source':[os.path.join('similar', f) for f in [
 'editor/autosave.cpp',
 'editor/centers.cpp',
-'editor/curves.c',
+'editor/curves.cpp',
 'editor/eglobal.c',
 'editor/elight.c',
 'editor/eobject.c',
