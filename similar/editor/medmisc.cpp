@@ -40,6 +40,7 @@ COPYRIGHT 1993-1998 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 #include "texpage.h"		// For texpage_goto_first
 #include "meddraw.h"		// For draw_World
 #include "game.h"
+#include "kdefs.h"
 
 //return 2d distance, i.e, sqrt(x*x + y*y)
 #ifdef __WATCOMC__
