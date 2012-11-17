@@ -813,7 +813,7 @@ class DXXProgram(DXXCommon):
 	}])
 	objects_editor = DXXCommon.create_lazy_object_property([{
 		'source':[os.path.join('similar', f) for f in [
-'editor/autosave.c',
+'editor/autosave.cpp',
 'editor/centers.c',
 'editor/curves.c',
 'editor/eglobal.c',
