@@ -11,6 +11,10 @@ AND AGREES TO THE TERMS HEREIN AND ACCEPTS THE SAME BY USE OF THIS FILE.
 COPYRIGHT 1993-1999 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 */
 
+#ifdef __cplusplus
+extern "C" {
+#endif
+
 // In khelp.c
 int DoHelp();
 
@@ -326,4 +330,8 @@ extern int goal_red_create_from_curseg();
 // In editor\robot.c
 extern int do_robot_dialog();
 extern int do_object_dialog();
+
+#ifdef __cplusplus
+}
+#endif
 
