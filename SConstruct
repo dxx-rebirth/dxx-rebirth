@@ -649,7 +649,7 @@ class DXXArchive(DXXCommon):
 'ui/radio.cpp',
 'ui/scroll.cpp',
 'ui/ui.cpp',
-'ui/uidraw.c',
+'ui/uidraw.cpp',
 'ui/userbox.c'
 ]
 ])
