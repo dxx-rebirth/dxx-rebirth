@@ -39,6 +39,7 @@ COPYRIGHT 1993-1998 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 #include "objpage.h"		// Object selection paging stuff
 #include "wall.h"
 #include "switch.h"
+#include "info.h"
 
 int init_info;
 
