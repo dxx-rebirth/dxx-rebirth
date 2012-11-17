@@ -638,7 +638,7 @@ class DXXArchive(DXXCommon):
 'ui/gadget.cpp',
 'ui/icon.cpp',
 'ui/inputbox.cpp',
-'ui/keypad.c',
+'ui/keypad.cpp',
 'ui/keypress.c',
 'ui/keytrap.c',
 'ui/listbox.c',

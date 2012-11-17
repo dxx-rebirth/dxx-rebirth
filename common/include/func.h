@@ -16,6 +16,10 @@ COPYRIGHT 1993-1999 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 #ifndef _FUNC_H
 #define _FUNC_H
 
+#ifdef __cplusplus
+extern "C" {
+#endif
+
 typedef struct {
 	char *  name;
 	int     nparams;
@@ -30,5 +34,9 @@ int (*func_nget( int func_number, int * numparams, char **name ))(void);
 void func_set_param( int n, int value );
 int func_get_param( int n );
 int func_get_index( char * name );
+
+#ifdef __cplusplus
+}
+#endif
 
 #endif
