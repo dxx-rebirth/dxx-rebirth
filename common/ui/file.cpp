@@ -306,7 +306,7 @@ int ui_get_filename( char * filename, const char * filespec, const char * messag
 		b->spaces[i] = ' ';
 	b->spaces[34] = 0;
 
-	dlg = ui_create_dialog( 200, 100, 400, 370, DF_DIALOG | DF_MODAL, (int (*)(UI_DIALOG *, d_event *, void *))browser_handler, b );
+	dlg = ui_create_dialog( 200, 100, 400, 370, static_cast<dialog_flags>(DF_DIALOG | DF_MODAL), (int (*)(UI_DIALOG *, d_event *, void *))browser_handler, b );
 
 	b->user_file  = ui_add_gadget_inputbox( dlg, 60, 30, PATH_MAX, 40, InputText );
 

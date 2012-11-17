@@ -634,7 +634,7 @@ class DXXArchive(DXXCommon):
 'ui/button.cpp',
 'ui/checkbox.cpp',
 'ui/dialog.cpp',
-'ui/file.c',
+'ui/file.cpp',
 'ui/gadget.c',
 'ui/icon.c',
 'ui/inputbox.c',
