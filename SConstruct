@@ -847,7 +847,7 @@ class DXXProgram(DXXCommon):
 'editor/objpage.cpp',
 'editor/segment.cpp',
 'editor/seguvs.cpp',
-'editor/texpage.c',
+'editor/texpage.cpp',
 'editor/texture.c',
 ]
 ],
