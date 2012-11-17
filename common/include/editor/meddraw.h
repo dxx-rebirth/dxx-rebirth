@@ -20,6 +20,10 @@ COPYRIGHT 1993-1998 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 #ifndef _MEDDRAW_H
 #define _MEDDRAW_H
 
+#ifdef __cplusplus
+extern "C" {
+#endif
+
 void meddraw_init_views( grs_canvas * canvas);
 void draw_world(grs_canvas *screen_canvas,editor_view *v,segment *mine_ptr,int depth);
 void find_segments(short x,short y,grs_canvas *screen_canvas,editor_view *v,segment *mine_ptr,int depth);
@@ -27,5 +31,9 @@ void find_segments(short x,short y,grs_canvas *screen_canvas,editor_view *v,segm
 //    segp = pointer to segments array, probably always Segments.
 //    automap_flag = 1 if this render is for the automap, else 0 (for editor)
 extern void draw_mine_all(segment *segp, int automap_flag);
+
+#ifdef __cplusplus
+}
+#endif
 
 #endif

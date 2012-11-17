@@ -22,6 +22,10 @@ COPYRIGHT 1993-1998 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 
 #include "ui.h"
 
+#ifdef __cplusplus
+extern "C" {
+#endif
+
 struct d_event;
 
 int objpage_grab_current(int n);
@@ -32,5 +36,9 @@ void objpage_close();
 int objpage_do(struct d_event *event);
 
 extern void draw_object_picture(int id, vms_angvec *orient_angles, int type);
+
+#ifdef __cplusplus
+}
+#endif
 
 #endif

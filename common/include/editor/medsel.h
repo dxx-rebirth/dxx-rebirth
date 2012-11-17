@@ -20,6 +20,14 @@ COPYRIGHT 1993-1998 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 #ifndef _MEDSEL_H
 #define _MEDSEL_H
 
+#ifdef __cplusplus
+extern "C" {
+#endif
+
 extern void sort_seg_list(int n_segs,short *segnumlist,vms_vector *pos);
+
+#ifdef __cplusplus
+}
+#endif
 
 #endif
