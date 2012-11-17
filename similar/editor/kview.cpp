@@ -22,6 +22,7 @@ COPYRIGHT 1993-1998 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 #include "editor.h"
 #include "editor/esegment.h"
 #include "editor/medmisc.h"
+#include "kdefs.h"
 
 // ---------- zoom control on current window ----------
 int ZoomIn()
