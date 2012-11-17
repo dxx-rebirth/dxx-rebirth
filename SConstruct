@@ -650,7 +650,7 @@ class DXXArchive(DXXCommon):
 'ui/scroll.cpp',
 'ui/ui.cpp',
 'ui/uidraw.cpp',
-'ui/userbox.c'
+'ui/userbox.cpp'
 ]
 ])
 	# for non-ogl
