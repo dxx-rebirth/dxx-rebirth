@@ -1099,7 +1099,7 @@ class D1XProgram(DXXProgram):
 	__objects_editor = DXXCommon.create_lazy_object_property([{
 		'source':[os.path.join(srcdir, f) for f in [
 'main/hostage.c',
-'editor/ehostage.c',
+'editor/ehostage.cpp',
 ]
 ],
 	}])
