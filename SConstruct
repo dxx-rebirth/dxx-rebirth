@@ -843,7 +843,7 @@ class DXXProgram(DXXCommon):
 'editor/medrobot.cpp',
 'editor/medsel.cpp',
 'editor/medwall.cpp',
-'editor/mine.c',
+'editor/mine.cpp',
 'editor/objpage.c',
 'editor/segment.c',
 'editor/seguvs.c',
