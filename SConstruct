@@ -632,7 +632,7 @@ class DXXArchive(DXXCommon):
 	objects_editor = DXXCommon.create_lazy_object_property([os.path.join(srcdir, f) for f in [
 'editor/func.c',
 'ui/button.cpp',
-'ui/checkbox.c',
+'ui/checkbox.cpp',
 'ui/dialog.c',
 'ui/file.c',
 'ui/gadget.c',
