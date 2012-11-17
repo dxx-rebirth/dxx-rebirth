@@ -136,7 +136,7 @@ int PopupMenu( int NumButtons, char * text[] )
 		//Mouse.y = y + (MENU_BORDER+3) + button_height/2;
 	}
 
-	dlg = ui_create_dialog( x, y, width, height, DF_DIALOG | DF_MODAL, (int (*)(UI_DIALOG *, d_event *, void *))popup_handler, p );
+	dlg = ui_create_dialog( x, y, width, height, static_cast<dialog_flags>(DF_DIALOG | DF_MODAL), (int (*)(UI_DIALOG *, d_event *, void *))popup_handler, p );
 
 	//mouse_set_pos(Mouse.x, Mouse.y);
 
