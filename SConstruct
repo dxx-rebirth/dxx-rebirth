@@ -818,7 +818,7 @@ class DXXProgram(DXXCommon):
 'editor/curves.cpp',
 'editor/eglobal.cpp',
 'editor/elight.cpp',
-'editor/eobject.c',
+'editor/eobject.cpp',
 'editor/eswitch.c',
 'editor/fixseg.c',
 'editor/group.c',

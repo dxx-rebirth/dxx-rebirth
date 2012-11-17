@@ -27,6 +27,7 @@ COPYRIGHT 1993-1998 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 #include "segment.h"
 #include "editor.h"
 #include "editor/esegment.h"
+#include "editor/eobject.h"
 
 #include "objpage.h"
 #include "maths.h"
