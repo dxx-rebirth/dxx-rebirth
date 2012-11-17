@@ -70,7 +70,7 @@ char **file_getdirlist(int *NumDirs, char *dir)
 	{
 		// Put the 'go to parent directory' sequence '..' first
 		(*NumDirs)++;
-		list = realloc(list, sizeof(char *)*(*NumDirs + 1));
+		list = (char **)realloc(list, sizeof(char *)*(*NumDirs + 1));
 		list[*NumDirs] = NULL;	// terminate
 		for (i = list + *NumDirs - 1; i != list; i--)
 			*i = i[-1];
