@@ -24,6 +24,10 @@ COPYRIGHT 1993-1998 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 #include "inferno.h"
 #include "segment.h"
 
+#ifdef __cplusplus
+extern "C" {
+#endif
+
 // Restores all the walls to original status
 extern int wall_restore_all();
 
@@ -62,6 +66,10 @@ extern int wall_link_doors();
 extern int wall_unlink_door();
 extern void copy_group_walls(int old_group, int new_group);
 void check_wall_validity(void);
+
+#ifdef __cplusplus
+}
+#endif
 
 #endif
 

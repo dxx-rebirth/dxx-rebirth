@@ -20,10 +20,18 @@ COPYRIGHT 1993-1998 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 #ifndef _MED_ROBOT_H
 #define _MED_ROBOT_H
 
+#ifdef __cplusplus
+extern "C" {
+#endif
+
 extern void robot_close_window();
 extern void do_robot_window();
 
 extern void object_close_window();
 extern void do_object_window();
+
+#ifdef __cplusplus
+}
+#endif
 
 #endif

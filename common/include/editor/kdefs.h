@@ -300,9 +300,6 @@ extern int delete_all_walls(void);
 extern int delete_all_controlcen_triggers(void);
 #endif
 
-// In centers.c
-extern int do_centers_dialog(void);
-
 // In switch.c
 //extern int trigger_add_damage(void);
 //extern int trigger_add_blank(void);

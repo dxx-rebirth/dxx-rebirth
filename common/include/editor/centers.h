@@ -24,9 +24,19 @@ COPYRIGHT 1993-1998 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 
 #include      "fuelcen.h"
 
+#ifdef __cplusplus
+extern "C" {
+#endif
+
 extern        char    Center_names[MAX_CENTER_TYPES][CENTER_STRING_LENGTH];
 
+// In centers.c
+int do_centers_dialog(void);
 void close_centers_window();
 void do_centers_window();
+
+#ifdef __cplusplus
+}
+#endif
 
 #endif

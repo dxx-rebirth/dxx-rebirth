@@ -26,6 +26,7 @@ COPYRIGHT 1993-1998 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 #include "dxxerror.h"
 #include "slew.h"
 #include "gamesave.h"
+#include "editor/centers.h"
 #include "editor/eobject.h"
 #include "editor/medwall.h"
 #include "editor/medmisc.h"
