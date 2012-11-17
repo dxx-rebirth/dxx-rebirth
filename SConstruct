@@ -819,7 +819,7 @@ class DXXProgram(DXXCommon):
 'editor/eglobal.cpp',
 'editor/elight.cpp',
 'editor/eobject.cpp',
-'editor/eswitch.c',
+'editor/eswitch.cpp',
 'editor/fixseg.c',
 'editor/group.c',
 'editor/info.c',
