@@ -29,6 +29,10 @@ COPYRIGHT 1993-1999 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 #define KEY_REPEAT_DELAY 400
 #define KEY_REPEAT_INTERVAL 50
 
+#ifdef __cplusplus
+extern "C" {
+#endif
+
 //==========================================================================
 // This installs the int9 vector and initializes the keyboard in buffered
 // ASCII mode. key_close simply undoes that.
@@ -191,5 +195,9 @@ typedef struct key_props {
 } key_props;
 
 extern const key_props key_properties[256];
+
+#ifdef __cplusplus
+}
+#endif
 
 #endif

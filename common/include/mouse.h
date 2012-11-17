@@ -10,6 +10,10 @@
 #include "pstypes.h"
 #include "fix.h"
 
+#ifdef __cplusplus
+extern "C" {
+#endif
+
 struct d_event;
 struct window;
 
@@ -46,5 +50,9 @@ extern void mouse_get_delta( int *dx, int *dy, int *dz );
 extern void event_mouse_get_delta(struct d_event *event, int *dx, int *dy, int *dz);
 extern int mouse_get_btns();
 extern void mouse_toggle_cursor(int activate);
+
+#ifdef __cplusplus
+}
+#endif
 
 #endif

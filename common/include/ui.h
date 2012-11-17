@@ -23,6 +23,10 @@ COPYRIGHT 1993-1999 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 #include "dxxsconf.h"
 #include "event.h"
 
+#ifdef __cplusplus
+extern "C" {
+#endif
+
 struct window;
 
 typedef struct {
@@ -354,6 +358,10 @@ void ui_barbox_update( int position );
 void ui_barbox_close();
 
 extern int ui_button_any_drawn;
+
+#ifdef __cplusplus
+}
+#endif
 
 #endif
 
