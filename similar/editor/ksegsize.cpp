@@ -23,6 +23,7 @@ COPYRIGHT 1993-1998 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 #include "editor/esegment.h"
 #include "dxxerror.h"
 #include "gameseg.h"
+#include "kdefs.h"
 
 #define XDIM	0
 #define YDIM	1
