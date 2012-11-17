@@ -848,7 +848,7 @@ class DXXProgram(DXXCommon):
 'editor/segment.cpp',
 'editor/seguvs.cpp',
 'editor/texpage.cpp',
-'editor/texture.c',
+'editor/texture.cpp',
 ]
 ],
 		'transform_target':_apply_target_name,
