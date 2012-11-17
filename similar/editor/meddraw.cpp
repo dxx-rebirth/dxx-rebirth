@@ -17,6 +17,7 @@ COPYRIGHT 1993-1998 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
  *
  */
 
+#include <algorithm>
 #include <stdio.h>
 #include <stdlib.h>
 #include <stdarg.h>
@@ -45,6 +46,9 @@ COPYRIGHT 1993-1998 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 #include "texmap.h"
 #include "object.h"
 #include "fuelcen.h"
+#include "meddraw.h"
+
+using std::min;
 
 //	Colors used in editor for indicating various kinds of segments.
 #define	SELECT_COLOR		BM_XRGB( 63/2 , 41/2 ,  0/2)

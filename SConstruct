@@ -838,7 +838,7 @@ class DXXProgram(DXXCommon):
 'editor/ktmap.cpp',
 'editor/kview.cpp',
 'editor/med.cpp',
-'editor/meddraw.c',
+'editor/meddraw.cpp',
 'editor/medmisc.c',
 'editor/medrobot.c',
 'editor/medsel.c',
