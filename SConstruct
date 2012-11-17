@@ -630,7 +630,7 @@ class DXXArchive(DXXCommon):
 ]
 ])
 	objects_editor = DXXCommon.create_lazy_object_property([os.path.join(srcdir, f) for f in [
-'editor/func.c',
+'editor/func.cpp',
 'ui/button.cpp',
 'ui/checkbox.cpp',
 'ui/dialog.cpp',
