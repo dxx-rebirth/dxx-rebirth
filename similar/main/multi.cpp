@@ -5197,10 +5197,11 @@ void save_hoard_data(void)
 	#define MAX_BITMAPS_PER_BRUSH 30
 	grs_bitmap * bm[MAX_BITMAPS_PER_BRUSH];
 	grs_bitmap icon;
-	int nframes;
+	unsigned nframes;
 	ubyte palette[256*3];
 	PHYSFS_file *ofile;
-	int iff_error,i;
+	int iff_error;
+	unsigned i;
 	static const char sounds[][13] = {"selforb.raw","selforb.r22",          //SOUND_YOU_GOT_ORB
 				"teamorb.raw","teamorb.r22",    //SOUND_FRIEND_GOT_ORB
 				"enemyorb.raw","enemyorb.r22",  //SOUND_OPPONENT_GOT_ORB

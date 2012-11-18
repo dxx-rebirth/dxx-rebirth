@@ -49,7 +49,7 @@ COPYRIGHT 1993-1999 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 
 typedef struct {
 	fix             play_time;          // total time (in seconds) of clip
-	int             num_frames;
+	unsigned        num_frames;
 	fix             frame_time;         // time (in seconds) of each frame
 	int             flags;
 	short           sound_num;

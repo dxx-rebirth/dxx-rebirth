@@ -832,13 +832,13 @@ void piggy_new_pigfile(char *pigname)
 
 			if (p) {   // this is an ABM == animated bitmap
 				char abmname[FILENAME_LEN];
-				int fnum;
+				unsigned fnum;
 				grs_bitmap * bm[MAX_BITMAPS_PER_BRUSH];
 				int iff_error;          //reference parm to avoid warning message
 				ubyte newpal[768];
 				char basename[FILENAME_LEN];
-				int nframes;
-			
+				unsigned nframes;
+
 				strcpy(basename,AllBitmaps[i].name);
 				basename[p-AllBitmaps[i].name] = 0;  //cut off "#nn" part
 				

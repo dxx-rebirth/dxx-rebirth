@@ -201,7 +201,7 @@ static bitmap_index bm_load_sub(int skip, char * filename )
 	return bitmap_num;
 }
 
-static void ab_load(int skip, char * filename, bitmap_index bmp[], int *nframes )
+static void ab_load(int skip, const char * filename, bitmap_index bmp[], unsigned *nframes )
 {
 	grs_bitmap * bm[MAX_BITMAPS_PER_BRUSH];
 	bitmap_index bi;
@@ -693,7 +693,7 @@ static void bm_read_eclip(int skip)
 static void bm_read_gauges(int skip)
 {
 	bitmap_index bitmap;
-	int i, num_abm_frames;
+	unsigned i, num_abm_frames;
 
 	if (!abm_flag)	{
 		bitmap = bm_load_sub(skip, arg);
@@ -744,7 +744,7 @@ static void bm_read_wclip(int skip)
 		if (clip_num >= Num_wall_anims) Num_wall_anims = clip_num+1;
 	} else {
 		bitmap_index bm[MAX_BITMAPS_PER_BRUSH];
-		int nframes;
+		unsigned nframes;
 		if ( (WallAnims[clip_num].num_frames>-1)  )
 			Error( "AB_Wall clip %d is already used!", clip_num );
 		abm_flag = 0;

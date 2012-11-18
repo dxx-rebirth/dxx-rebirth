@@ -936,7 +936,7 @@ int iff_write_bitmap(const char *ofilename,grs_bitmap *bm,ubyte *palette)
 
 //read in many brushes.  fills in array of pointers, and n_bitmaps.
 //returns iff error codes
-int iff_read_animbrush(const char *ifilename,grs_bitmap **bm_list,int max_bitmaps,int *n_bitmaps,ubyte *palette)
+int iff_read_animbrush(const char *ifilename,grs_bitmap **bm_list,unsigned max_bitmaps,unsigned *n_bitmaps,ubyte *palette)
 {
 	int ret = IFF_NO_ERROR;			//return code
 	PHYSFS_file *ifile;
