@@ -1187,9 +1187,9 @@ void gr_remap_font( grs_font *font, char * fontname, char *font_data )
 #endif
 }
 
-void gr_set_curfont( grs_font * new )
+void gr_set_curfont( grs_font * n)
 {
-	grd_curcanv->cv_font = new;
+	grd_curcanv->cv_font = n;
 }
 
 void gr_set_fontcolor( int fg_color, int bg_color )
