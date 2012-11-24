@@ -33,7 +33,7 @@ window *window_create(grs_canvas *src, int x, int y, int w, int h, int (*event_c
 	window *prev = window_get_front();
 	d_event event;
 	
-	wind = d_malloc(sizeof(window));
+	MALLOC(wind, window, 1);
 	if (wind == NULL)
 		return NULL;
 
