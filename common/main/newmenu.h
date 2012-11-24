@@ -187,6 +187,15 @@ static inline void nm_set_item_radio(newmenu_item *ni, const char *text, unsigne
 	ni->group = grp;
 }
 
+static inline void nm_set_item_slider(newmenu_item *ni, const char *text, unsigned now, unsigned low, unsigned high)
+{
+	ni->type = NM_TYPE_SLIDER;
+	ni->text = (char *)text;
+	ni->value = now;
+	ni->min_value = low;
+	ni->max_value = high;
+}
+
 #define NEWMENU_MOUSE
 
 // #define NORMAL_CHECK_BOX    "Å"
@@ -238,11 +247,7 @@ static inline void nm_set_item_radio(newmenu_item *ni, const char *text, unsigne
 #define DXX_ADD_CHECK(S,OPT,V)	\
 	nm_set_item_checkbox(&((DXX_NEWMENU_VARIABLE)[(OPT)]), (S), (V));
 #define DXX_ADD_SLIDER(S,OPT,V,MIN,MAX)	\
-	(DXX_NEWMENU_VARIABLE)[(OPT)].type=NM_TYPE_SLIDER;	\
-	(DXX_NEWMENU_VARIABLE)[(OPT)].value=V;	\
-	(DXX_NEWMENU_VARIABLE)[(OPT)].text=(S);	\
-	(DXX_NEWMENU_VARIABLE)[(OPT)].min_value=(MIN);	\
-	(DXX_NEWMENU_VARIABLE)[(OPT)].max_value=(MAX);
+	nm_set_item_slider(&((DXX_NEWMENU_VARIABLE)[(OPT)]), (S), (V), (MIN), (MAX));
 #define DXX_ADD_SCALE_SLIDER(S,OPT,V,MIN,MAX,SCALE)	\
 	DXX_ADD_SLIDER((S),(OPT),(V) / (SCALE),(MIN),(MAX))
 #define DXX_ADD_MENU(S,OPT)	\
