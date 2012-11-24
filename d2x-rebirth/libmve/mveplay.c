@@ -514,7 +514,8 @@ static int audio_data_handler(unsigned char major, unsigned char minor, unsigned
 static int videobuf_created = 0;
 static int video_initialized = 0;
 int g_width, g_height;
-void *g_vBuffers = NULL, *g_vBackBuf1, *g_vBackBuf2;
+static unsigned char *g_vBuffers;
+unsigned char *g_vBackBuf1, *g_vBackBuf2;
 
 static int g_destX, g_destY;
 static int g_screenWidth, g_screenHeight;
@@ -558,11 +559,11 @@ static int create_videobuf_handler(unsigned char major, unsigned char minor, uns
 	/* TODO: * 4 causes crashes on some files */
 	/* only malloc once */
 	if (g_vBuffers == NULL)
-		g_vBackBuf1 = g_vBuffers = mve_alloc(g_width * g_height * 8);
+		g_vBackBuf1 = g_vBuffers = (unsigned char *)mve_alloc(g_width * g_height * 8);
 	if (truecolor) {
-		g_vBackBuf2 = (unsigned short *)g_vBackBuf1 + (g_width * g_height);
+		g_vBackBuf2 = (unsigned char *)((unsigned short *)g_vBackBuf1) + (g_width * g_height);
 	} else {
-		g_vBackBuf2 = (unsigned char *)g_vBackBuf1 + (g_width * g_height);
+		g_vBackBuf2 = (g_vBackBuf1 + (g_width * g_height));
 	}
 
 	memset(g_vBackBuf1, 0, g_width * g_height * 4);
