@@ -1761,8 +1761,8 @@ void do_cheat_menu()
 	nm_set_item_checkbox(&mm[0],TXT_INVULNERABILITY,Players[Player_num].flags & PLAYER_FLAGS_INVULNERABLE);
 	nm_set_item_checkbox(&mm[1],TXT_CLOAKED,Players[Player_num].flags & PLAYER_FLAGS_CLOAKED);
 	nm_set_item_checkbox(&mm[2],"All keys",0);
-	mm[3].type=NM_TYPE_NUMBER; mm[3].value=f2i(Players[Player_num].energy); mm[3].text="% Energy"; mm[3].min_value=0; mm[3].max_value=200;
-	mm[4].type=NM_TYPE_NUMBER; mm[4].value=f2i(Players[Player_num].shields); mm[4].text="% Shields"; mm[4].min_value=0; mm[4].max_value=200;
+	nm_set_item_number(&mm[3], "% Energy", f2i(Players[Player_num].energy), 0, 200);
+	nm_set_item_number(&mm[4], "% Shields", f2i(Players[Player_num].shields), 0, 200);
 	nm_set_item_text(& mm[5], "Score:");
 	nm_set_item_input(&mm[6], 10, score_text);
 #if defined(DXX_BUILD_DESCENT_I)
@@ -1770,12 +1770,12 @@ void do_cheat_menu()
 	nm_set_item_radio(&mm[8], "Laser level 2", (Players[Player_num].laser_level==1), 0);
 	nm_set_item_radio(&mm[9], "Laser level 3", (Players[Player_num].laser_level==2), 0);
 	nm_set_item_radio(&mm[10], "Laser level 4", (Players[Player_num].laser_level==3), 0);
-	mm[11].type=NM_TYPE_NUMBER; mm[11].value=Players[Player_num].secondary_ammo[CONCUSSION_INDEX]; mm[11].text="Missiles"; mm[11].min_value=0; mm[11].max_value=200;
+	nm_set_item_number(&mm[11], "Missiles", Players[Player_num].secondary_ammo[CONCUSSION_INDEX], 0, 200);
 
 	mmn = newmenu_do("Wimp Menu",NULL,12, mm, NULL, NULL );
 #elif defined(DXX_BUILD_DESCENT_II)
-	mm[7].type=NM_TYPE_NUMBER; mm[7].value=Players[Player_num].laser_level+1; mm[7].text="Laser Level"; mm[7].min_value=0; mm[7].max_value=MAX_SUPER_LASER_LEVEL+1;
-	mm[8].type=NM_TYPE_NUMBER; mm[8].value=Players[Player_num].secondary_ammo[CONCUSSION_INDEX]; mm[8].text="Missiles"; mm[8].min_value=0; mm[8].max_value=200;
+	nm_set_item_number(&mm[7], "Laser Level", Players[Player_num].laser_level+1, 0, MAX_SUPER_LASER_LEVEL+1);
+	nm_set_item_number(&mm[8], "Missiles", Players[Player_num].secondary_ammo[CONCUSSION_INDEX], 0, 200);
 
 	mmn = newmenu_do("Wimp Menu",NULL,9, mm, NULL, NULL );
 #endif
