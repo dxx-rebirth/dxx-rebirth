@@ -942,7 +942,7 @@ void change_res()
 	nm_set_item_text(& m[mc], ""); mc++; // little space for overview
 	// fullscreen
 	opt_fullscr = mc;
-	m[mc].type = NM_TYPE_CHECK; m[mc].text = "Fullscreen"; m[mc].value = gr_check_fullscreen(); mc++;
+	nm_set_item_checkbox(&m[mc], "Fullscreen", gr_check_fullscreen()); mc++;
 
 	// create the menu
 	newmenu_do1(NULL, "Screen Resolution", mc, m, NULL, NULL, 0);
@@ -1121,9 +1121,9 @@ void input_config()
 	int nitems = 0;
 
 	opt_ic_usejoy = nitems;
-	m[nitems].type = NM_TYPE_CHECK; m[nitems].text = "USE JOYSTICK"; m[nitems].value = (PlayerCfg.ControlType&CONTROL_USING_JOYSTICK); nitems++;
+	nm_set_item_checkbox(&m[nitems], "USE JOYSTICK", (PlayerCfg.ControlType&CONTROL_USING_JOYSTICK)); nitems++;
 	opt_ic_usemouse = nitems;
-	m[nitems].type = NM_TYPE_CHECK; m[nitems].text = "USE MOUSE"; m[nitems].value = (PlayerCfg.ControlType&CONTROL_USING_MOUSE); nitems++;
+	nm_set_item_checkbox(&m[nitems], "USE MOUSE", (PlayerCfg.ControlType&CONTROL_USING_MOUSE)); nitems++;
 	nm_set_item_text(& m[nitems], ""); nitems++;
 	opt_ic_confkey = nitems;
 	nm_set_item_menu(&m[nitems], "CUSTOMIZE KEYBOARD"); nitems++;
@@ -1143,9 +1143,9 @@ void input_config()
 	nm_set_item_menu(&m[nitems], "SENSITIVITY & DEADZONE"); nitems++;
 	nm_set_item_text(& m[nitems], ""); nitems++;
 	opt_ic_grabinput = nitems;
-	m[nitems].type = NM_TYPE_CHECK; m[nitems].text= "Keep Keyboard/Mouse focus"; m[nitems].value = GameCfg.Grabinput; nitems++;
+	nm_set_item_checkbox(&m[nitems], "Keep Keyboard/Mouse focus", GameCfg.Grabinput); nitems++;
 	opt_ic_mousefsgauge = nitems;
-	m[nitems].type = NM_TYPE_CHECK; m[nitems].text= "Mouse FlightSim Indicator"; m[nitems].value = PlayerCfg.MouseFSIndicator; nitems++;
+	nm_set_item_checkbox(&m[nitems], "Mouse FlightSim Indicator", PlayerCfg.MouseFSIndicator); nitems++;
 	nm_set_item_text(& m[nitems], ""); nitems++;
 	opt_ic_help0 = nitems;
 	nm_set_item_menu(&m[nitems], "GAME SYSTEM KEYS"); nitems++;
@@ -1276,7 +1276,7 @@ void graphics_config()
 	m[nitems].type = NM_TYPE_RADIO; m[nitems].text = "Anisotropic"; m[nitems].value = 0; m[nitems].group = 0; nitems++;
 #if defined(DXX_BUILD_DESCENT_II)
 	opt_gr_movietexfilt = nitems;
-	m[nitems].type = NM_TYPE_CHECK; m[nitems].text = "Movie Filter"; m[nitems].value = GameCfg.MovieTexFilt; nitems++;
+	nm_set_item_checkbox(&m[nitems++], "Movie Filter", GameCfg.MovieTexFilt);
 #endif
 	nm_set_item_text(& m[nitems], ""); nitems++;
 #endif
@@ -1286,16 +1286,16 @@ void graphics_config()
 	nm_set_item_menu(&m[nitems], "Reticle Options"); nitems++;
 #ifdef OGL
 	opt_gr_alphafx = nitems;
-	m[nitems].type = NM_TYPE_CHECK; m[nitems].text = "Transparency Effects"; m[nitems].value = PlayerCfg.AlphaEffects; nitems++;
+	nm_set_item_checkbox(&m[nitems], "Transparency Effects", PlayerCfg.AlphaEffects); nitems++;
 	opt_gr_dynlightcolor = nitems;
-	m[nitems].type = NM_TYPE_CHECK; m[nitems].text = "Colored Dynamic Light"; m[nitems].value = PlayerCfg.DynLightColor; nitems++;
+	nm_set_item_checkbox(&m[nitems], "Colored Dynamic Light", PlayerCfg.DynLightColor); nitems++;
 	opt_gr_vsync = nitems;
-	m[nitems].type = NM_TYPE_CHECK; m[nitems].text="VSync"; m[nitems].value = GameCfg.VSync; nitems++;
+	nm_set_item_checkbox(&m[nitems],"VSync", GameCfg.VSync); nitems++;
 	opt_gr_multisample = nitems;
-	m[nitems].type = NM_TYPE_CHECK; m[nitems].text="4x multisampling"; m[nitems].value = GameCfg.Multisample; nitems++;
+	nm_set_item_checkbox(&m[nitems],"4x multisampling", GameCfg.Multisample); nitems++;
 #endif
 	opt_gr_fpsindi = nitems;
-	m[nitems].type = NM_TYPE_CHECK; m[nitems].text="FPS Counter"; m[nitems].value = GameCfg.FPSIndicator; nitems++;
+	nm_set_item_checkbox(&m[nitems],"FPS Counter", GameCfg.FPSIndicator); nitems++;
 #ifdef OGL
 	m[opt_gr_texfilt+GameCfg.TexFilt].value=1;
 #endif
@@ -1804,7 +1804,7 @@ void do_sound_menu()
 	m[nitems].type = NM_TYPE_SLIDER; m[nitems].text = "music volume"; m[nitems].value = GameCfg.MusicVolume; m[nitems].min_value = 0; m[nitems++].max_value = 8;
 
 	opt_sm_revstereo = nitems;
-	m[nitems].type = NM_TYPE_CHECK; m[nitems].text = TXT_REVERSE_STEREO; m[nitems++].value = GameCfg.ReverseStereo;
+	nm_set_item_checkbox(&m[nitems++], TXT_REVERSE_STEREO, GameCfg.ReverseStereo);
 
 	nm_set_item_text(& m[nitems++], "");
 
@@ -1840,7 +1840,7 @@ void do_sound_menu()
 #elif defined(DXX_BUILD_DESCENT_II)
 #define REDBOOK_PLAYORDER_TEXT	"force descent ][ cd track order"
 #endif
-	m[nitems].type = NM_TYPE_CHECK; m[nitems].text = REDBOOK_PLAYORDER_TEXT; m[nitems++].value = GameCfg.OrigTrackOrder;
+	nm_set_item_checkbox(&m[nitems++], REDBOOK_PLAYORDER_TEXT, GameCfg.OrigTrackOrder);
 
 #ifdef USE_SDLMIXER
 	nm_set_item_text(& m[nitems++], "");

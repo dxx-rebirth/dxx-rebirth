@@ -2953,7 +2953,7 @@ void net_udp_set_power (void)
 
 	for (i = 0; i < MULTI_ALLOW_POWERUP_MAX; i++)
 	{
-		m[i].type = NM_TYPE_CHECK; m[i].text = (char *)multi_allow_powerup_text[i]; m[i].value = (Netgame.AllowedItems >> i) & 1;
+		nm_set_item_checkbox(&m[i], multi_allow_powerup_text[i], (Netgame.AllowedItems >> i) & 1);
 	}
 
 	newmenu_do1( NULL, "Objects to allow", MULTI_ALLOW_POWERUP_MAX, m, NULL, NULL, 0 );
@@ -3646,7 +3646,7 @@ net_udp_select_players(void)
 		
 	for (i=0; i< MAX_PLAYERS+4; i++ ) {
 		sprintf( text[i], "%d.  %-20s", i+1, "" );
-		m[i].type = NM_TYPE_CHECK; m[i].text = text[i]; m[i].value = 0;
+		nm_set_item_checkbox(&m[i], text[i], 0);
 	}
 
 	m[0].value = 1;                         // Assume server will play...

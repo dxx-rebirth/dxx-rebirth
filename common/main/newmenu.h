@@ -166,6 +166,13 @@ static inline void nm_set_item_input(newmenu_item *ni, unsigned len, char *text)
 	ni->text_len = len;
 }
 
+static inline void nm_set_item_checkbox(newmenu_item *ni, const char *text, unsigned checked)
+{
+	ni->type = NM_TYPE_CHECK;
+	ni->text = (char *)text;
+	ni->value = checked;
+}
+
 static inline void nm_set_item_text(newmenu_item *ni, const char *text)
 {
 	ni->type = NM_TYPE_TEXT;
@@ -221,9 +228,7 @@ static inline void nm_set_item_text(newmenu_item *ni, const char *text)
 #define DXX_COUNT_TEXT(S,OPT)	+1
 #define DXX_COUNT_INPUT(S,OPT,MAX_TEXT_LEN)	+1
 #define DXX_ADD_CHECK(S,OPT,V)	\
-	(DXX_NEWMENU_VARIABLE)[(OPT)].type=NM_TYPE_CHECK;	\
-	(DXX_NEWMENU_VARIABLE)[(OPT)].text=(S);	\
-	(DXX_NEWMENU_VARIABLE)[(OPT)].value=V;
+	nm_set_item_checkbox(&((DXX_NEWMENU_VARIABLE)[(OPT)]), (S), (V));
 #define DXX_ADD_SLIDER(S,OPT,V,MIN,MAX)	\
 	(DXX_NEWMENU_VARIABLE)[(OPT)].type=NM_TYPE_SLIDER;	\
 	(DXX_NEWMENU_VARIABLE)[(OPT)].value=V;	\
