@@ -179,7 +179,7 @@ int MakeNewPlayerFile(int allow_abort)
 	strncpy(text, Players[Player_num].callsign,CALLSIGN_LEN);
 
 try_again:
-	m.type=NM_TYPE_INPUT; m.text_len = CALLSIGN_LEN; m.text = text;
+	nm_set_item_input(&m, CALLSIGN_LEN, text);
 
 	Newmenu_allowed_chars = playername_allowed_chars;
 	x = newmenu_do( NULL, TXT_ENTER_PILOT_NAME, 1, &m, NULL, NULL );
@@ -822,7 +822,7 @@ int do_new_game_menu()
 		{
 
 			nm_set_item_text(& m[0], info_text);
-			m[1].type=NM_TYPE_INPUT; m[1].text_len = 10; m[1].text = num_text;
+			nm_set_item_input(&m[1], 10, num_text);
 			n_items = 2;
 
 			strcpy(num_text,"1");
@@ -935,10 +935,10 @@ void change_res()
 	m[mc].type = NM_TYPE_RADIO; m[mc].text = "use custom values"; m[mc].value = (citem == -1); m[mc].group = 0; mc++;
 	nm_set_item_text(& m[mc], "resolution:"); mc++;
 	snprintf(crestext, sizeof(crestext), "%ix%i", SM_W(Game_screen_mode), SM_H(Game_screen_mode));
-	m[mc].type = NM_TYPE_INPUT; m[mc].text = crestext; m[mc].text_len = 11; modes[mc] = 0; mc++;
+	nm_set_item_input(&m[mc], 11, crestext); modes[mc] = 0; mc++;
 	nm_set_item_text(& m[mc], "aspect:"); mc++;
 	snprintf(casptext, sizeof(casptext), "%ix%i", GameCfg.AspectY, GameCfg.AspectX);
-	m[mc].type = NM_TYPE_INPUT; m[mc].text = casptext; m[mc].text_len = 11; modes[mc] = 0; mc++;
+	nm_set_item_input(&m[mc], 11, casptext); modes[mc] = 0; mc++;
 	nm_set_item_text(& m[mc], ""); mc++; // little space for overview
 	// fullscreen
 	opt_fullscr = mc;
@@ -1409,7 +1409,7 @@ int select_file_handler(listbox *menu, d_event *event, browser *b)
 				MALLOC(text, char, 2);
 				MALLOC(m, newmenu_item, 1);
 				snprintf(text, sizeof(char)*PATH_MAX, "c");
-				m->type=NM_TYPE_INPUT; m->text_len = 3; m->text = text;
+				nm_set_item_input(m, 3, text);
 				rval = newmenu_do( NULL, "Enter drive letter", 1, m, NULL, NULL );
 				text[1] = '\0'; 
 				snprintf(newpath, sizeof(char)*PATH_MAX, "%s:%s", text, sep);
@@ -1850,7 +1850,7 @@ void do_sound_menu()
 	opt_sm_mtype3_lmpath = nitems;
 	nm_set_item_browse(&m[nitems++], "path for level music" BROWSE_TXT);
 
-	m[nitems].type = NM_TYPE_INPUT; m[nitems].text = GameCfg.CMLevelMusicPath; m[nitems++].text_len = NM_MAX_TEXT_LEN-1;
+	nm_set_item_input(&m[nitems++], NM_MAX_TEXT_LEN-1, GameCfg.CMLevelMusicPath);
 
 	nm_set_item_text(& m[nitems++], "");
 
@@ -1873,31 +1873,31 @@ void do_sound_menu()
 	nm_set_item_browse(&m[nitems++], "main menu" BROWSE_TXT);
 
 	opt_sm_cm_mtype3_file1 = nitems;
-	m[nitems].type = NM_TYPE_INPUT; m[nitems].text = GameCfg.CMMiscMusic[SONG_TITLE]; m[nitems++].text_len = NM_MAX_TEXT_LEN-1;
+	nm_set_item_input(&m[nitems++], NM_MAX_TEXT_LEN-1, GameCfg.CMMiscMusic[SONG_TITLE]);
 
 	opt_sm_cm_mtype3_file2_b = nitems;
 	nm_set_item_browse(&m[nitems++], "briefing" BROWSE_TXT);
 
 	opt_sm_cm_mtype3_file2 = nitems;
-	m[nitems].type = NM_TYPE_INPUT; m[nitems].text = GameCfg.CMMiscMusic[SONG_BRIEFING]; m[nitems++].text_len = NM_MAX_TEXT_LEN-1;
+	nm_set_item_input(&m[nitems++], NM_MAX_TEXT_LEN-1, GameCfg.CMMiscMusic[SONG_BRIEFING]);
 
 	opt_sm_cm_mtype3_file3_b = nitems;
 	nm_set_item_browse(&m[nitems++], "credits" BROWSE_TXT);
 
 	opt_sm_cm_mtype3_file3 = nitems;
-	m[nitems].type = NM_TYPE_INPUT; m[nitems].text = GameCfg.CMMiscMusic[SONG_CREDITS]; m[nitems++].text_len = NM_MAX_TEXT_LEN-1;
+	nm_set_item_input(&m[nitems++], NM_MAX_TEXT_LEN-1, GameCfg.CMMiscMusic[SONG_CREDITS]);
 
 	opt_sm_cm_mtype3_file4_b = nitems;
 	nm_set_item_browse(&m[nitems++], "escape sequence" BROWSE_TXT);
 
 	opt_sm_cm_mtype3_file4 = nitems;
-	m[nitems].type = NM_TYPE_INPUT; m[nitems].text = GameCfg.CMMiscMusic[SONG_ENDLEVEL]; m[nitems++].text_len = NM_MAX_TEXT_LEN-1;
+	nm_set_item_input(&m[nitems++], NM_MAX_TEXT_LEN-1, GameCfg.CMMiscMusic[SONG_ENDLEVEL]);
 
 	opt_sm_cm_mtype3_file5_b = nitems;
 	nm_set_item_browse(&m[nitems++], "game ending" BROWSE_TXT);
 
 	opt_sm_cm_mtype3_file5 = nitems;
-	m[nitems].type = NM_TYPE_INPUT; m[nitems].text = GameCfg.CMMiscMusic[SONG_ENDGAME]; m[nitems++].text_len = NM_MAX_TEXT_LEN-1;
+	nm_set_item_input(&m[nitems++], NM_MAX_TEXT_LEN-1, GameCfg.CMMiscMusic[SONG_ENDGAME]);
 #endif
 
 	Assert(nitems == SOUND_MENU_NITEMS);

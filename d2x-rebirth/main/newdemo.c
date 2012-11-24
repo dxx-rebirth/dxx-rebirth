@@ -3443,11 +3443,11 @@ try_again:
 
 	Newmenu_allowed_chars = demoname_allowed_chars;
 	if (!nd_record_v_no_space) {
-		m[0].type=NM_TYPE_INPUT; m[0].text_len = PATH_MAX - 1; m[0].text = filename;
+		nm_set_item_input(&m[0], PATH_MAX - 1, filename);
 		exit = newmenu_do( NULL, TXT_SAVE_DEMO_AS, 1, &(m[0]), NULL, NULL );
 	} else if (nd_record_v_no_space == 2) {
 		nm_set_item_text(& m[ 0], TXT_DEMO_SAVE_NOSPACE);
-		m[ 1].type = NM_TYPE_INPUT;m[ 1].text_len = PATH_MAX - 1; m[1].text = filename;
+		nm_set_item_input(&m[ 1], PATH_MAX - 1, filename);
 		exit = newmenu_do( NULL, NULL, 2, m, NULL, NULL );
 	}
 	Newmenu_allowed_chars = NULL;

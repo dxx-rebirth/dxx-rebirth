@@ -159,6 +159,13 @@ static inline void nm_set_item_menu(newmenu_item *ni, const char *text)
 	ni->text = (char *)text;
 }
 
+static inline void nm_set_item_input(newmenu_item *ni, unsigned len, char *text)
+{
+	ni->type = NM_TYPE_INPUT;
+	ni->text = text;
+	ni->text_len = len;
+}
+
 static inline void nm_set_item_text(newmenu_item *ni, const char *text)
 {
 	ni->type = NM_TYPE_TEXT;
@@ -230,9 +237,7 @@ static inline void nm_set_item_text(newmenu_item *ni, const char *text)
 #define DXX_ADD_TEXT(S,OPT)	\
 	nm_set_item_text(&((DXX_NEWMENU_VARIABLE)[(OPT)]), (S));
 #define DXX_ADD_INPUT(S,OPT,MAX_TEXT_LEN)	\
-	(DXX_NEWMENU_VARIABLE)[(OPT)].type = NM_TYPE_INPUT;	\
-	(DXX_NEWMENU_VARIABLE)[(OPT)].text=(S);	\
-	(DXX_NEWMENU_VARIABLE)[(OPT)].text_len=MAX_TEXT_LEN;
+	nm_set_item_input(&((DXX_NEWMENU_VARIABLE)[(OPT)]),MAX_TEXT_LEN,(S));
 #define DXX_READ_CHECK(S,OPT,V)	\
 	V = (DXX_NEWMENU_VARIABLE)[(OPT)].value;
 #define DXX_READ_SLIDER(S,OPT,V,MIN,MAX)	\

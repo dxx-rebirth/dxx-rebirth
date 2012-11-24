@@ -1529,7 +1529,7 @@ multi_send_message_dialog(void)
 
 	Network_message[0] = 0;             // Get rid of old contents
 
-	m[0].type=NM_TYPE_INPUT; m[0].text = Network_message; m[0].text_len = MAX_MESSAGE_LEN-1;
+	nm_set_item_input(&m[0], MAX_MESSAGE_LEN-1, Network_message);
 	choice = newmenu_do( NULL, TXT_SEND_MESSAGE, 1, m, NULL, NULL );
 
 	if ((choice > -1) && (strlen(Network_message) > 0)) {
