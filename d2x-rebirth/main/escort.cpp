@@ -294,7 +294,6 @@ static int ok_for_buddy_to_talk(void)
 //	--------------------------------------------------------------------------------------------
 void detect_escort_goal_accomplished(int index)
 {
-	int	i,j;
 	int	detected = 0;
 
 	if (!Buddy_allowed_to_talk)
@@ -337,19 +336,6 @@ if ((Escort_goal_index <= ESCORT_GOAL_RED_KEY) && (index >= 0)) {
 		if (Escort_special_goal == ESCORT_GOAL_ENERGYCEN) {
 			if (index == -4)
 				detected = 1;
-			else {
-				for (i=0; i<MAX_SIDES_PER_SEGMENT; i++)
-					if (Segments[index].children[i] == Escort_goal_index) {
-						detected = 1;
-						goto dega_ok;
-					} else {
-						for (j=0; j<MAX_SIDES_PER_SEGMENT; j++)
-							if (Segments[i].children[j] == Escort_goal_index) {
-								detected = 1;
-								goto dega_ok;
-							}
-					}
-			}
 		} else if ((Objects[index].type == OBJ_POWERUP) && (Escort_special_goal == ESCORT_GOAL_POWERUP))
 			detected = 1;	//	Any type of powerup picked up will do.
 		else if ((Objects[index].type == Objects[Escort_goal_index].type) && (Objects[index].id == Objects[Escort_goal_index].id)) {
