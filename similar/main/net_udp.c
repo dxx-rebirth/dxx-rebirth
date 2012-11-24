@@ -3305,32 +3305,32 @@ int net_udp_setup_game()
 	nm_set_item_text(& m[optnum], TXT_OPTIONS); optnum++;
 
 	opt.mode = optnum;
-	m[optnum].type = NM_TYPE_RADIO; m[optnum].text = TXT_ANARCHY; m[optnum].value=(Netgame.gamemode == NETGAME_ANARCHY); m[optnum].group=0; opt.anarchy=optnum; optnum++;
-	m[optnum].type = NM_TYPE_RADIO; m[optnum].text = TXT_TEAM_ANARCHY; m[optnum].value=(Netgame.gamemode == NETGAME_TEAM_ANARCHY); m[optnum].group=0; opt.team_anarchy=optnum; optnum++;
-	m[optnum].type = NM_TYPE_RADIO; m[optnum].text = TXT_ANARCHY_W_ROBOTS; m[optnum].value=(Netgame.gamemode == NETGAME_ROBOT_ANARCHY); m[optnum].group=0; opt.robot_anarchy=optnum; optnum++;
-	m[optnum].type = NM_TYPE_RADIO; m[optnum].text = TXT_COOPERATIVE; m[optnum].value=(Netgame.gamemode == NETGAME_COOPERATIVE); m[optnum].group=0; opt.coop=optnum; optnum++;
+	nm_set_item_radio(&m[optnum], TXT_ANARCHY,(Netgame.gamemode == NETGAME_ANARCHY),0); opt.anarchy=optnum; optnum++;
+	nm_set_item_radio(&m[optnum], TXT_TEAM_ANARCHY,(Netgame.gamemode == NETGAME_TEAM_ANARCHY),0); opt.team_anarchy=optnum; optnum++;
+	nm_set_item_radio(&m[optnum], TXT_ANARCHY_W_ROBOTS,(Netgame.gamemode == NETGAME_ROBOT_ANARCHY),0); opt.robot_anarchy=optnum; optnum++;
+	nm_set_item_radio(&m[optnum], TXT_COOPERATIVE,(Netgame.gamemode == NETGAME_COOPERATIVE),0); opt.coop=optnum; optnum++;
 #if defined(DXX_BUILD_DESCENT_II)
-	m[optnum].type = NM_TYPE_RADIO; m[optnum].text = "Capture the flag"; m[optnum].value=(Netgame.gamemode == NETGAME_CAPTURE_FLAG); m[optnum].group=0; opt.capture=optnum; optnum++;
+	nm_set_item_radio(&m[optnum], "Capture the flag",(Netgame.gamemode == NETGAME_CAPTURE_FLAG),0); opt.capture=optnum; optnum++;
 
 	if (HoardEquipped())
 	{
-		m[optnum].type = NM_TYPE_RADIO; m[optnum].text = "Hoard"; m[optnum].value=(Netgame.gamemode == NETGAME_HOARD); m[optnum].group=0; opt.hoard=optnum; optnum++;
-		m[optnum].type = NM_TYPE_RADIO; m[optnum].text = "Team Hoard"; m[optnum].value=(Netgame.gamemode == NETGAME_TEAM_HOARD); m[optnum].group=0; opt.team_hoard=optnum; optnum++;
+		nm_set_item_radio(&m[optnum], "Hoard",(Netgame.gamemode == NETGAME_HOARD),0); opt.hoard=optnum; optnum++;
+		nm_set_item_radio(&m[optnum], "Team Hoard",(Netgame.gamemode == NETGAME_TEAM_HOARD),0); opt.team_hoard=optnum; optnum++;
 	}
 	else
 	{
 		opt.hoard = opt.team_hoard = 0; // NOTE: Make sure if you use these, use them in connection with HoardEquipped() only!
 	}
 #endif
-	m[optnum].type = NM_TYPE_RADIO; m[optnum].text = "Bounty"; m[optnum].value = ( Netgame.gamemode & NETGAME_BOUNTY ); m[optnum].group = 0; opt.mode_end=opt.bounty=optnum; optnum++;
+	nm_set_item_radio(&m[optnum], "Bounty", ( Netgame.gamemode & NETGAME_BOUNTY ), 0); opt.mode_end=opt.bounty=optnum; optnum++;
 
 	nm_set_item_text(& m[optnum], ""); optnum++;
 
-	m[optnum].type = NM_TYPE_RADIO; m[optnum].text = "Open game"; m[optnum].group=1; m[optnum].value=(!Netgame.RefusePlayers && !Netgame.game_flag.closed); optnum++;
+	nm_set_item_radio(&m[optnum], "Open game",(!Netgame.RefusePlayers && !Netgame.game_flag.closed),1); optnum++;
 	opt.closed = optnum;
-	m[optnum].type = NM_TYPE_RADIO; m[optnum].text = TXT_CLOSED_GAME; m[optnum].group=1; m[optnum].value=Netgame.game_flag.closed; optnum++;
+	nm_set_item_radio(&m[optnum], TXT_CLOSED_GAME,Netgame.game_flag.closed,1); optnum++;
 	opt.refuse = optnum;
-	m[optnum].type = NM_TYPE_RADIO; m[optnum].text = "Restricted Game              "; m[optnum].group=1; m[optnum].value=Netgame.RefusePlayers; optnum++;
+	nm_set_item_radio(&m[optnum], "Restricted Game              ",Netgame.RefusePlayers,1); optnum++;
 
 	opt.maxnet = optnum;
 	sprintf( srmaxnet, "Maximum players: %d", Netgame.max_numplayers);

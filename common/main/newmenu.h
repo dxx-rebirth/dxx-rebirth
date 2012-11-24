@@ -179,6 +179,14 @@ static inline void nm_set_item_text(newmenu_item *ni, const char *text)
 	ni->text = (char *)text;
 }
 
+static inline void nm_set_item_radio(newmenu_item *ni, const char *text, unsigned checked, unsigned grp)
+{
+	ni->type = NM_TYPE_RADIO;
+	ni->text = (char *)text;
+	ni->value = checked;
+	ni->group = grp;
+}
+
 #define NEWMENU_MOUSE
 
 // #define NORMAL_CHECK_BOX    "Å"
