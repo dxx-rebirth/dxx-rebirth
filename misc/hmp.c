@@ -53,7 +53,7 @@ hmp_file *hmp_open(const char *filename) {
 	if (!(fp = PHYSFSX_openReadBuffered((char *)filename)))
 		return NULL;
 
-	hmp = d_malloc(sizeof(hmp_file));
+	MALLOC(hmp, hmp_file, 1);
 	if (!hmp) {
 		PHYSFS_close(fp);
 		return NULL;
@@ -122,7 +122,8 @@ hmp_file *hmp_open(const char *filename) {
 		data -= 12;
 		hmp->trks[i].len = data;
 
-		if (!(p = hmp->trks[i].data = d_malloc(data)))
+		MALLOC(p, unsigned char, data);
+		if (!(hmp->trks[i].data = p))
 		{
 			PHYSFS_close(fp);
 			hmp_close(hmp);
@@ -640,7 +641,7 @@ static unsigned int hmptrk2mid(ubyte* data, int size, unsigned char **midbuf, un
 	{
 		if (data[0] & 0x80) {
 			ubyte b = (data[0] & 0x7F);
-			*midbuf = d_realloc(*midbuf, *midlen + 1);
+			*midbuf = (unsigned char *) d_realloc(*midbuf, *midlen + 1);
 			memcpy(&(*midbuf)[*midlen], &b, 1);
 			*midlen += 1;
 		}
@@ -662,7 +663,7 @@ static unsigned int hmptrk2mid(ubyte* data, int size, unsigned char **midbuf, un
 
 				if (n2 != n1)
 					b |= 0x80;
-				*midbuf = d_realloc(*midbuf, *midlen + 1);
+				*midbuf = (unsigned char *) d_realloc(*midbuf, *midlen + 1);
 				memcpy(&(*midbuf)[*midlen], &b, 1);
 				*midlen += 1;
 				}
@@ -670,7 +671,7 @@ static unsigned int hmptrk2mid(ubyte* data, int size, unsigned char **midbuf, un
 		}
 		data++;
 		if (*data == 0xFF) { //meta?
-			*midbuf = d_realloc(*midbuf, *midlen + 3 + data[2]);
+			*midbuf = (unsigned char *) d_realloc(*midbuf, *midlen + 3 + data[2]);
 			memcpy(&(*midbuf)[*midlen], data, 3 + data[2]);
 			*midlen += 3 + data[2];
 			if (data[1] == 0x2F)
@@ -688,11 +689,11 @@ static unsigned int hmptrk2mid(ubyte* data, int size, unsigned char **midbuf, un
 				case 0xE0:
 					if (lc1 != last_com)
 					{
-						*midbuf = d_realloc(*midbuf, *midlen + 1);
+						*midbuf = (unsigned char *) d_realloc(*midbuf, *midlen + 1);
 						memcpy(&(*midbuf)[*midlen], &lc1, 1);
 						*midlen += 1;
 					}
-					*midbuf = d_realloc(*midbuf, *midlen + 2);
+					*midbuf = (unsigned char *) d_realloc(*midbuf, *midlen + 2);
 					memcpy(&(*midbuf)[*midlen], data + 1, 2);
 					*midlen += 2;
 					data += 3;
@@ -701,11 +702,11 @@ static unsigned int hmptrk2mid(ubyte* data, int size, unsigned char **midbuf, un
 				case 0xD0:
 					if (lc1 != last_com)
 					{
-						*midbuf = d_realloc(*midbuf, *midlen + 1);
+						*midbuf = (unsigned char *) d_realloc(*midbuf, *midlen + 1);
 						memcpy(&(*midbuf)[*midlen], &lc1, 1);
 						*midlen += 1;
 					}
-					*midbuf = d_realloc(*midbuf, *midlen + 1);
+					*midbuf = (unsigned char *) d_realloc(*midbuf, *midlen + 1);
 					memcpy(&(*midbuf)[*midlen], data + 1, 1);
 					*midlen += 1;
 					data += 2;
@@ -735,26 +736,26 @@ void hmp2mid(char *hmp_name, unsigned char **midbuf, unsigned int *midlen)
 	time_div = hmp->tempo*1.6;
 
 	// write MIDI-header
-	*midbuf = d_realloc(*midbuf, *midlen + 4);
+	*midbuf = (unsigned char *) d_realloc(*midbuf, *midlen + 4);
 	memcpy(&(*midbuf)[*midlen], "MThd", 4);
 	*midlen += 4;
 	mi = MIDIINT(6);
-	*midbuf = d_realloc(*midbuf, *midlen + sizeof(mi));
+	*midbuf = (unsigned char *) d_realloc(*midbuf, *midlen + sizeof(mi));
 	memcpy(&(*midbuf)[*midlen], &mi, sizeof(mi));
 	*midlen += sizeof(mi);
 	ms = MIDISHORT(1);
-	*midbuf = d_realloc(*midbuf, *midlen + sizeof(ms));
+	*midbuf = (unsigned char *) d_realloc(*midbuf, *midlen + sizeof(ms));
 	memcpy(&(*midbuf)[*midlen], &ms, sizeof(ms));
 	*midlen += sizeof(ms);
 	ms = MIDISHORT(hmp->num_trks);
-	*midbuf = d_realloc(*midbuf, *midlen + sizeof(ms));
+	*midbuf = (unsigned char *) d_realloc(*midbuf, *midlen + sizeof(ms));
 	memcpy(&(*midbuf)[*midlen], &ms, sizeof(ms));
 	*midlen += sizeof(ms);
 	ms = MIDISHORT(time_div);
-	*midbuf = d_realloc(*midbuf, *midlen + sizeof(ms));
+	*midbuf = (unsigned char *) d_realloc(*midbuf, *midlen + sizeof(ms));
 	memcpy(&(*midbuf)[*midlen], &ms, sizeof(ms));
 	*midlen += sizeof(ms);
-	*midbuf = d_realloc(*midbuf, *midlen + sizeof(tempo));
+	*midbuf = (unsigned char *) d_realloc(*midbuf, *midlen + sizeof(tempo));
 	memcpy(&(*midbuf)[*midlen], &tempo, sizeof(tempo));
 	*midlen += sizeof(tempo);
 
@@ -763,12 +764,12 @@ void hmp2mid(char *hmp_name, unsigned char **midbuf, unsigned int *midlen)
 	{
 		int midtrklenpos = 0;
 
-		*midbuf = d_realloc(*midbuf, *midlen + 4);
+		*midbuf = (unsigned char *) d_realloc(*midbuf, *midlen + 4);
 		memcpy(&(*midbuf)[*midlen], "MTrk", 4);
 		*midlen += 4;
 		midtrklenpos = *midlen;
 		mi = 0;
-		*midbuf = d_realloc(*midbuf, *midlen + sizeof(mi));
+		*midbuf = (unsigned char *) d_realloc(*midbuf, *midlen + sizeof(mi));
 		*midlen += sizeof(mi);
 		mi = hmptrk2mid(hmp->trks[i].data, hmp->trks[i].len, midbuf, midlen);
 		mi = MIDIINT(mi);
