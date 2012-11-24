@@ -28,7 +28,7 @@ grs_canvas *gr_create_canvas(int w, int h)
 {
 	grs_canvas *n;
 	
-	n = (grs_canvas *)d_malloc( sizeof(grs_canvas) );
+	MALLOC(n, grs_canvas, 1);
 	gr_init_bitmap_alloc (&n->cv_bitmap, BM_LINEAR, 0, 0, w, h, w);
 
 	n->cv_color = 0;
@@ -45,7 +45,7 @@ grs_canvas *gr_create_sub_canvas(grs_canvas *canv, int x, int y, int w, int h)
 {
 	grs_canvas *n;
 
-	n = (grs_canvas *)d_malloc( sizeof(grs_canvas) );
+	MALLOC(n, grs_canvas, 1);
 	gr_init_sub_bitmap (&n->cv_bitmap, &canv->cv_bitmap, x, y, w, h);
 
 	n->cv_color = canv->cv_color;
