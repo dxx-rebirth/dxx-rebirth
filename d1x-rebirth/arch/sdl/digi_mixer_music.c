@@ -87,11 +87,16 @@ int mix_play_file(char *filename, int loop, void (*hook_finished_track)())
 		filehandle = PHYSFS_openRead(filename);
 		if (filehandle != NULL)
 		{
-			current_music_hndlbuf = d_realloc(current_music_hndlbuf, sizeof(char *)*PHYSFS_fileLength(filehandle));
-			bufsize = PHYSFS_read(filehandle, current_music_hndlbuf, sizeof(char), PHYSFS_fileLength(filehandle));
+			unsigned len = PHYSFS_fileLength(filehandle);
+			unsigned char *p = (unsigned char *)d_realloc(current_music_hndlbuf, sizeof(char)*len);
+			if (p)
+			{
+			current_music_hndlbuf = p;
+			bufsize = PHYSFS_read(filehandle, current_music_hndlbuf, sizeof(char), len);
 			rw = SDL_RWFromConstMem(current_music_hndlbuf,bufsize*sizeof(char));
-			PHYSFS_close(filehandle);
 			current_music = Mix_LoadMUS_RW(rw);
+			}
+			PHYSFS_close(filehandle);
 		}
 	}
 
