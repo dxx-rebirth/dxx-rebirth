@@ -38,7 +38,7 @@ bool g3_draw_morphing_model(void *model_ptr,grs_bitmap **model_bitmaps,vms_angve
 void g3_remap_interp_colors(void);
 
 // check a polymodel for it's color and return it
-int g3_poly_get_color(void *model_ptr);
+int g3_poly_get_color(ubyte *model_ptr);
 
 #ifdef WORDS_BIGENDIAN
 // routine to convert little to big endian in polygon model data

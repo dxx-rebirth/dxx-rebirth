@@ -307,9 +307,8 @@ void verify(ubyte *data)
 }
 
 // check a polymodel for it's color and return it
-int g3_poly_get_color(void *model_ptr)
+int g3_poly_get_color(ubyte *p)
 {
-	ubyte *p = model_ptr;
 	int color = 0;
 
 	while (w(p) != OP_EOF)
