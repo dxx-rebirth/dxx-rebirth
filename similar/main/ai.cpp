@@ -3250,7 +3250,7 @@ _exit_cheat:
 #endif
 					{
 						if (dist_to_player < F1_0*30)
-							create_n_segment_path(obj, 5, 1);
+							create_n_segment_path(obj, 5, -1);
 						else
 							create_path_to_player(obj, 20, 1);
 					}
