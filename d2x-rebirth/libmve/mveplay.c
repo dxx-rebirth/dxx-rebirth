@@ -83,11 +83,8 @@ static int get_int(unsigned char *data)
 	return value;
 }
 
-static unsigned int unhandled_chunks[32*256];
-
 static int default_seg_handler(unsigned char major, unsigned char minor, unsigned char *data, int len, void *context)
 {
-	unhandled_chunks[major<<8|minor]++;
 	//con_printf(CON_CRITICAL, "unknown chunk type %02x/%02x\n", major, minor);
 	return 1;
 }
