@@ -764,8 +764,7 @@ static void escort_create_path_to_goal(object *objp)
 				if (Escort_goal_index > -1) goal_seg = Objects[Escort_goal_index].segnum;
 				break;
 			case ESCORT_GOAL_SCRAM:
-				goal_seg = -3;		//	Kinda a hack.
-				Escort_goal_index = goal_seg;
+				Escort_goal_index = -3;		//	Kinda a hack.
 				break;
 			case ESCORT_GOAL_BOSS: {
 				int	boss_id;
@@ -798,7 +797,7 @@ static void escort_create_path_to_goal(object *objp)
 		Escort_goal_object = ESCORT_GOAL_UNSPECIFIED;
 		Escort_special_goal = -1;
 	} else {
-		if (goal_seg == -3) {
+		if (Escort_goal_object == ESCORT_GOAL_SCRAM) {
 			create_n_segment_path(objp, 16 + d_rand() * 16, -1);
 			aip->path_length = polish_path(objp, &Point_segs[aip->hide_index], aip->path_length);
 		} else {
