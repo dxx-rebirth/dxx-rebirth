@@ -239,7 +239,7 @@ void scores_maybe_add_player(int abort_flag)
 	} else {
 		if ( position==0 )	{
 			strcpy( text1,  "" );
-			m[0].type = NM_TYPE_TEXT; m[0].text = TXT_COOL_SAYING;
+			nm_set_item_text(& m[0], TXT_COOL_SAYING);
 			m[1].type = NM_TYPE_INPUT; m[1].text = text1; m[1].text_len = COOL_MESSAGE_LEN-5;
 			newmenu_do( TXT_HIGH_SCORE, TXT_YOU_PLACED_1ST, 2, m, NULL, NULL );
 			strncpy( scores.cool_saying, text1, COOL_MESSAGE_LEN );

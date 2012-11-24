@@ -631,7 +631,7 @@ static int state_get_savegame_filename(char * fname, char * dsc, const char * ca
 	int valid;
 
 	nsaves=0;
-	m[0].type = NM_TYPE_TEXT; m[0].text = "\n\n\n\n";
+	nm_set_item_text(& m[0], "\n\n\n\n");
 	for (i=0;i<NUM_SAVES; i++ )	{
 		sc_bmp[i] = NULL;
 		snprintf( filename[i], PATH_MAX, GameArg.SysUsePlayersDir? "Players/%s.%sg%x" : "%s.%sg%x", Players[Player_num].callsign, (Game_mode & GM_MULTI_COOP)?"m":"s", i );

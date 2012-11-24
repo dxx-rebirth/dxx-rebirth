@@ -577,9 +577,6 @@ int net_udp_game_connect(direct_join *dj)
 	return net_udp_do_join_game();
 }
 
-static char *connecting_txt = "Connecting...";
-static char *blank = "";
-
 static int manual_join_game_handler(newmenu *menu, d_event *event, direct_join *dj)
 {
 	newmenu_item *items = newmenu_get_items(menu);
@@ -590,7 +587,7 @@ static int manual_join_game_handler(newmenu *menu, d_event *event, direct_join *
 			if (dj->connecting && event_key_get(event) == KEY_ESC)
 			{
 				dj->connecting = 0;
-				items[6].text = blank;
+				nm_set_item_text(&items[6], "");
 				return 1;
 			}
 			break;
@@ -601,7 +598,7 @@ static int manual_join_game_handler(newmenu *menu, d_event *event, direct_join *
 				if (net_udp_game_connect(dj))
 					return -2;	// Success!
 				else if (!dj->connecting)
-					items[6].text = blank;
+					nm_set_item_text(&items[6], "");
 			}
 			break;
 
@@ -641,7 +638,7 @@ static int manual_join_game_handler(newmenu *menu, d_event *event, direct_join *
 				memcpy((struct _sockaddr *)&Netgame.players[0].protocol.udp.addr, (struct _sockaddr *)&dj->host_addr, sizeof(struct _sockaddr));
 				
 				dj->connecting = 1;
-				items[6].text = connecting_txt;
+				nm_set_item_text(&items[6], "Connecting...");
 				return 1;
 			}
 
@@ -686,14 +683,13 @@ void net_udp_manual_join_game()
 		snprintf (UDP_MyPort, sizeof(UDP_MyPort), "%d", UDP_PORT_DEFAULT);
 
 	nitems = 0;
-	
-	m[nitems].type = NM_TYPE_TEXT;  m[nitems].text="GAME ADDRESS OR HOSTNAME:";     	nitems++;
+	nm_set_item_text(& m[nitems++],"GAME ADDRESS OR HOSTNAME:");
 	m[nitems].type = NM_TYPE_INPUT; m[nitems].text=dj->addrbuf; m[nitems].text_len=128; 	nitems++;
-	m[nitems].type = NM_TYPE_TEXT;  m[nitems].text="GAME PORT:";                    	nitems++;
+	nm_set_item_text(& m[nitems++],"GAME PORT:");
 	m[nitems].type = NM_TYPE_INPUT; m[nitems].text=dj->portbuf; m[nitems].text_len=5;   	nitems++;
-	m[nitems].type = NM_TYPE_TEXT;  m[nitems].text="MY PORT:";	                    	nitems++;
+	nm_set_item_text(& m[nitems++],"MY PORT:");
 	m[nitems].type = NM_TYPE_INPUT; m[nitems].text=UDP_MyPort; m[nitems].text_len=5;	nitems++;
-	m[nitems].type = NM_TYPE_TEXT;  m[nitems].text=blank;								nitems++;	// for connecting_txt
+	nm_set_item_text(& m[nitems++],"");
 
 	newmenu_do1( NULL, "ENTER GAME ADDRESS", nitems, m, (int (*)(newmenu *, d_event *, void *))manual_join_game_handler, dj, 0 );
 }
@@ -987,22 +983,17 @@ void net_udp_list_join_game()
 
 	gr_set_fontcolor(BM_XRGB(15,15,23),-1);
 
-	m[0].text = ljtext;
-	m[0].type = NM_TYPE_TEXT;
+	nm_set_item_text(& m[0], ljtext);
 	snprintf( m[0].text, sizeof(char)*74, "\tF4/F5/F6: (Re)Scan for all/LAN/Tracker Games." );
-	m[1].text = ljtext + 74*1;
-	m[1].type = NM_TYPE_TEXT;
+	nm_set_item_text(& m[1], ljtext + 74*1);
 	snprintf( m[1].text, sizeof(char)*74, "\tPgUp/PgDn: Flip Pages." );
-	m[2].text = ljtext + 74*2;
-	m[2].type = NM_TYPE_TEXT;
+	nm_set_item_text(& m[2], ljtext + 74*2);
 	snprintf( m[2].text, sizeof(char)*74, " " );
-	m[3].text = ljtext + 74*3;
-	m[3].type = NM_TYPE_TEXT;
+	nm_set_item_text(& m[3], ljtext + 74*3);
 	snprintf (m[3].text, sizeof(char)*74, "\tGAME \tMODE \t#PLYRS \tMISSION \tLEV \tSTATUS");
 
 	for (i = 0; i < UDP_NETGAMES_PPAGE; i++) {
-		m[i+4].text = ljtext + 74 * (i+4);
-		m[i+4].type = NM_TYPE_MENU;
+		nm_set_item_menu(&m[i+4], ljtext + 74 * (i+4));
 		snprintf(m[i+4].text,sizeof(char)*74,"%d.                                                                      ", i+1);
 	}
 
@@ -3291,8 +3282,8 @@ int net_udp_setup_game()
 
 	optnum = 0;
 	opt.start_game=optnum;
-	m[optnum].type = NM_TYPE_MENU;  m[optnum].text = "Start Game"; optnum++;
-	m[optnum].type = NM_TYPE_TEXT; m[optnum].text = TXT_DESCRIPTION; optnum++;
+	nm_set_item_menu(&  m[optnum], "Start Game"); optnum++;
+	nm_set_item_text(& m[optnum], TXT_DESCRIPTION); optnum++;
 
 	opt.name = optnum;
 	m[optnum].type = NM_TYPE_INPUT; m[optnum].text = Netgame.game_name; m[optnum].text_len = NETGAME_NAME_LEN; optnum++;
@@ -3307,11 +3298,11 @@ int net_udp_setup_game()
 
 	Assert(strlen(level_text) < 32);
 
-	m[optnum].type = NM_TYPE_TEXT; m[optnum].text = level_text; optnum++;
+	nm_set_item_text(& m[optnum], level_text); optnum++;
 
 	opt.level = optnum;
 	m[optnum].type = NM_TYPE_INPUT; m[optnum].text = slevel; m[optnum].text_len=4; optnum++;
-	m[optnum].type = NM_TYPE_TEXT; m[optnum].text = TXT_OPTIONS; optnum++;
+	nm_set_item_text(& m[optnum], TXT_OPTIONS); optnum++;
 
 	opt.mode = optnum;
 	m[optnum].type = NM_TYPE_RADIO; m[optnum].text = TXT_ANARCHY; m[optnum].value=(Netgame.gamemode == NETGAME_ANARCHY); m[optnum].group=0; opt.anarchy=optnum; optnum++;
@@ -3333,7 +3324,7 @@ int net_udp_setup_game()
 #endif
 	m[optnum].type = NM_TYPE_RADIO; m[optnum].text = "Bounty"; m[optnum].value = ( Netgame.gamemode & NETGAME_BOUNTY ); m[optnum].group = 0; opt.mode_end=opt.bounty=optnum; optnum++;
 
-	m[optnum].type = NM_TYPE_TEXT; m[optnum].text = ""; optnum++;
+	nm_set_item_text(& m[optnum], ""); optnum++;
 
 	m[optnum].type = NM_TYPE_RADIO; m[optnum].text = "Open game"; m[optnum].group=1; m[optnum].value=(!Netgame.RefusePlayers && !Netgame.game_flag.closed); optnum++;
 	opt.closed = optnum;
@@ -3347,7 +3338,7 @@ int net_udp_setup_game()
 	m[optnum].max_value=Netgame.max_numplayers-2; optnum++;
 	
 	opt.moreopts=optnum;
-	m[optnum].type = NM_TYPE_MENU;  m[optnum].text = "Advanced Options"; optnum++;
+	nm_set_item_menu(&  m[optnum], "Advanced Options"); optnum++;
 
 	Assert(optnum <= 20);
 
@@ -3595,7 +3586,7 @@ menu:
 	{
 		if (!(team_vector & (1 << i)))
 		{
-			m[opt].type = NM_TYPE_MENU; m[opt].text = Netgame.players[i].callsign; pnums[opt] = i; opt++;
+			nm_set_item_menu(& m[opt], Netgame.players[i].callsign); pnums[opt] = i; opt++;
 		}
 	}
 	opt_team_b = opt;
@@ -3604,11 +3595,11 @@ menu:
 	{
 		if (team_vector & (1 << i))
 		{
-			m[opt].type = NM_TYPE_MENU; m[opt].text = Netgame.players[i].callsign; pnums[opt] = i; opt++;
+			nm_set_item_menu(& m[opt], Netgame.players[i].callsign); pnums[opt] = i; opt++;
 		}
 	}
-	m[opt].type = NM_TYPE_TEXT; m[opt].text = ""; opt++;
-	m[opt].type = NM_TYPE_MENU; m[opt].text = TXT_ACCEPT; opt++;
+	nm_set_item_text(& m[opt], ""); opt++;
+	nm_set_item_menu(& m[opt], TXT_ACCEPT); opt++;
 
 	Assert(opt <= MAX_PLAYERS+4);
 	
@@ -3830,9 +3821,8 @@ int net_udp_wait_for_sync(void)
 	
 	Network_status = NETSTAT_WAITING;
 
-	m[0].type=NM_TYPE_TEXT; m[0].text = text;
-	m[1].type=NM_TYPE_TEXT; m[1].text = TXT_NET_LEAVE;
-	
+	nm_set_item_text(& m[0], text);
+	nm_set_item_text(& m[1], TXT_NET_LEAVE);
 	i = net_udp_send_request();
 
 	if (i < 0)
@@ -3899,7 +3889,7 @@ int net_udp_wait_for_requests(void)
 	
 	Network_status = NETSTAT_WAITING;
 
-	m[0].type=NM_TYPE_TEXT; m[0].text = TXT_NET_LEAVE;
+	nm_set_item_text(& m[0], TXT_NET_LEAVE);
 
 
 	Network_status = NETSTAT_WAITING;

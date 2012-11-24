@@ -857,11 +857,8 @@ void DoEndLevelScoreGlitz(int network)
 	sprintf(m_str[c++], "%s%i", TXT_TOTAL_SCORE, Players[Player_num].score);
 
 	for (i=0; i<c; i++) {
-		m[i].type = NM_TYPE_TEXT;
-		m[i].text = m_str[i];
+		nm_set_item_text(& m[i], m_str[i]);
 	}
-
-	// m[c].type = NM_TYPE_MENU;	m[c++].text = "Ok";
 
 	if (Current_level_num < 0)
 		sprintf(title,"%s%s %d %s\n %s %s",is_last_level?"\n\n\n":"\n",TXT_SECRET_LEVEL, -Current_level_num, TXT_COMPLETE, Current_level_name, TXT_DESTROYED);

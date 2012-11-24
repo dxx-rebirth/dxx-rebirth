@@ -827,8 +827,7 @@ void PlayerFinishedLevel(int secret_flag)
 	if (!(Game_mode & GM_MULTI) && (secret_flag)) {
 		newmenu_item	m[1];
 
-		m[0].type = NM_TYPE_TEXT;
-		m[0].text = " ";			//TXT_SECRET_EXIT;
+		nm_set_item_text(&m[0], " ");			//TXT_SECRET_EXIT;
 
 		newmenu_do2(NULL, TXT_SECRET_EXIT, 1, m, NULL, NULL, 0, Menu_pcx_name);
 	}

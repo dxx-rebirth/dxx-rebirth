@@ -153,6 +153,18 @@ newmenu *nm_messagebox_fixedfont(const char *title, int nchoices, ...);
 //should be called whenever the palette changes
 extern void newmenu_free_background();
 
+static inline void nm_set_item_menu(newmenu_item *ni, const char *text)
+{
+	ni->type = NM_TYPE_MENU;
+	ni->text = (char *)text;
+}
+
+static inline void nm_set_item_text(newmenu_item *ni, const char *text)
+{
+	ni->type = NM_TYPE_TEXT;
+	ni->text = (char *)text;
+}
+
 #define NEWMENU_MOUSE
 
 // #define NORMAL_CHECK_BOX    "Å"
@@ -214,11 +226,9 @@ extern void newmenu_free_background();
 #define DXX_ADD_SCALE_SLIDER(S,OPT,V,MIN,MAX,SCALE)	\
 	DXX_ADD_SLIDER((S),(OPT),(V) / (SCALE),(MIN),(MAX))
 #define DXX_ADD_MENU(S,OPT)	\
-	(DXX_NEWMENU_VARIABLE)[(OPT)].type=NM_TYPE_MENU;	\
-	(DXX_NEWMENU_VARIABLE)[(OPT)].text=(S);
+	nm_set_item_menu(&((DXX_NEWMENU_VARIABLE)[(OPT)]), (S));
 #define DXX_ADD_TEXT(S,OPT)	\
-	(DXX_NEWMENU_VARIABLE)[(OPT)].type = NM_TYPE_TEXT;	\
-	(DXX_NEWMENU_VARIABLE)[(OPT)].text=(S);
+	nm_set_item_text(&((DXX_NEWMENU_VARIABLE)[(OPT)]), (S));
 #define DXX_ADD_INPUT(S,OPT,MAX_TEXT_LEN)	\
 	(DXX_NEWMENU_VARIABLE)[(OPT)].type = NM_TYPE_INPUT;	\
 	(DXX_NEWMENU_VARIABLE)[(OPT)].text=(S);	\
