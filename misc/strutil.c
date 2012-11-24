@@ -253,7 +253,7 @@ int string_array_add(char ***list, char **list_buf, int *num_str, int *max_str, 
 	// Need to grow an array?
 	if (*num_str >= *max_str)
 	{
-		char **new_list = d_realloc(*list, *max_str*sizeof(char *)*MEM_K);
+		char **new_list = (char **) d_realloc(*list, *max_str*sizeof(char *)*MEM_K);
 		if (new_list == NULL)
 			return 0;
 		*max_str *= MEM_K;
@@ -265,7 +265,7 @@ int string_array_add(char ***list, char **list_buf, int *num_str, int *max_str, 
 		int i;
 		char *new_buf;
 		
-		new_buf = d_realloc(*list_buf, *max_buf*sizeof(char)*MEM_K);
+		new_buf = (char *) d_realloc(*list_buf, *max_buf*sizeof(char)*MEM_K);
 		if (new_buf == NULL)
 			return 0;
 
@@ -295,7 +295,7 @@ void string_array_tidy(char ***list, char **list_buf, int *num_str, int *max_str
 	int i, j;
 	
 	// Reduce memory fragmentation
-	temp_list = d_realloc(*list, sizeof(char *)*(*num_str ? *num_str : 1));
+	temp_list = (char **) d_realloc(*list, sizeof(char *)*(*num_str ? *num_str : 1));
 	if (temp_list)
 	{
 		*list = temp_list;
@@ -303,7 +303,7 @@ void string_array_tidy(char ***list, char **list_buf, int *num_str, int *max_str
 	}
 	
 	j = *num_str ? (*list)[*num_str - 1] + strlen((*list)[*num_str - 1]) + 1 - *list_buf : 1;	// buffer size - a bit of variable recycling
-	temp_buf = d_realloc(*list_buf, j);
+	temp_buf = (char *) d_realloc(*list_buf, j);
 	if (temp_buf)
 	{
 		for (i = 0; i < *num_str; i++)
