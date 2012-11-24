@@ -448,7 +448,7 @@ int load_mine_data(PHYSFS_file *LoadFile)
 
 	fuelcen_reset();
 
-	for (i=0; i<MAX_TEXTURES; i++ )
+	for (i=0; i<sizeof(tmap_times_used)/sizeof(tmap_times_used[0]); i++ )
 		tmap_times_used[i] = 0;
 
 	#ifdef EDITOR

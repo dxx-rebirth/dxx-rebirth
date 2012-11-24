@@ -425,9 +425,7 @@ void cgl_aux(segment *segp, short *seglistp, int *num_segs, short *ignore_list, 
 //	Sets Been_visited[n] if n is reachable from segp
 void create_group_list(segment *segp, short *seglistp, int *num_segs, short *ignore_list, int num_ignore_segs)
 {
-	int	i;
-
-	for (i=0; i<MAX_SEGMENTS; i++)
+	for (unsigned i=0; i<sizeof(Been_visited)/sizeof(Been_visited[0]); i++)
 		Been_visited[i] = 0;
 
 	cgl_aux(segp, seglistp, num_segs, ignore_list, num_ignore_segs);
@@ -445,7 +443,7 @@ void duplicate_group(sbyte *vertex_ids, short *segment_ids, int num_segments)
 	int	new_vertex_ids[MAX_VERTICES];		// If new_vertex_ids[v] != -1, then vertex v has been remapped to new_vertex_ids[v]
 
 	//	duplicate vertices
-	for (v=0; v<MXV; v++)
+	for (v=0; v<sizeof(new_vertex_ids)/sizeof(new_vertex_ids[0]); v++)
 		new_vertex_ids[v] = -1;
 
 
@@ -503,14 +501,12 @@ void duplicate_group(sbyte *vertex_ids, short *segment_ids, int num_segments)
 	}
 
 	//	Now, copy new_vertex_ids into vertex_ids
-	for (v=0; v<MXV; v++)
+	for (v=0; v<sizeof(vertex_ids)/sizeof(vertex_ids[0]); v++)
 		vertex_ids[v] = 0;
 
-	for (v=0; v<MXV; v++) {
+	for (v=0; v<sizeof(new_vertex_ids)/sizeof(new_vertex_ids[0]); v++)
 		if (new_vertex_ids[v] != -1)
 			vertex_ids[new_vertex_ids[v]] = 1;
-
-	}
 }
 
 

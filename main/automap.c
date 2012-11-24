@@ -364,8 +364,7 @@ void ClearMarkers()
 
 void automap_clear_visited()	
 {
-	int i;
-	for (i=0; i<MAX_SEGMENTS; i++ )
+	for (unsigned i=0; i< sizeof(Automap_visited) / sizeof(Automap_visited[0]); i++ )
 		Automap_visited[i] = 0;
 		ClearMarkers();
 }

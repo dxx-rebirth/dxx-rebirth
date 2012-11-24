@@ -191,11 +191,11 @@ int segment_is_reachable(int curseg, int sidenum)
 //		length:		number of elements in bfs_list
 void create_bfs_list(int start_seg, short bfs_list[], int *length, int max_segs)
 {
-	int	i, head, tail;
+	int	head, tail;
 	sbyte   visited[MAX_SEGMENTS];
 
-	for (i=0; i<MAX_SEGMENTS; i++)
-		visited[i] = 0;
+	for (unsigned s=0; s<sizeof(visited)/sizeof(visited[0]); s++)
+		visited[s] = 0;
 
 	head = 0;
 	tail = 0;

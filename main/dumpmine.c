@@ -458,7 +458,7 @@ void write_wall_text(PHYSFS_file *my_file)
 			err_printf(my_file, "Error: Wall %i points at segment %i, side %i, but that segment doesn't point back (it's wall_num = %i)\n", i, segnum, sidenum, Segments[segnum].sides[sidenum].wall_num);
 	}
 
-	for (i=0; i<MAX_WALLS; i++)
+	for (i=0; i<sizeof(wall_flags)/sizeof(wall_flags[0]); i++)
 		wall_flags[i] = 0;
 
 	for (i=0; i<=Highest_segment_index; i++) {
