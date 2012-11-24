@@ -592,7 +592,6 @@ static void kconfig_draw(kc_menu *menu)
 {
 	grs_canvas * save_canvas = grd_curcanv;
 	grs_font * save_font;
-	char * p;
 	int i;
 	int w = FSPACX(290), h = FSPACY(170);
 
@@ -604,10 +603,8 @@ static void kconfig_draw(kc_menu *menu)
 	save_font = grd_curcanv->cv_font;
 	grd_curcanv->cv_font = MEDIUM3_FONT;
 
-	p = strchr( menu->title, '\n' );
-	if ( p ) *p = 32;
+	Assert(!strchr( menu->title, '\n' ));
 	gr_string( 0x8000, FSPACY(8), menu->title );
-	if ( p ) *p = '\n';
 
 	grd_curcanv->cv_font = GAME_FONT;
 	gr_set_fontcolor( BM_XRGB(28,28,28), -1 );
