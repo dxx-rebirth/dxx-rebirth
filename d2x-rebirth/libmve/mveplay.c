@@ -476,7 +476,7 @@ static int audio_data_handler(unsigned char major, unsigned char minor, unsigned
 					out_format, out_channels, out_freq);
 
 				clen = nsamp * cvt.len_mult;
-				cvt.buf = malloc(clen);
+				cvt.buf = (Uint8 *) malloc(clen);
 				cvt.len = nsamp;
 
 				// read the audio buffer into the conversion buffer
