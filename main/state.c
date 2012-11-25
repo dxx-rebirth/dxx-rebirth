@@ -1087,8 +1087,7 @@ int state_save_all_sub(char *filename, char *desc)
 	PHYSFS_write(fp, &PaletteBlueAdd, sizeof(int), 1);
 	if ( Highest_segment_index+1 > MAX_SEGMENTS_ORIGINAL )
 	{
-		for ( i = 0; i <= Highest_segment_index; i++ )
-			PHYSFS_write(fp, Light_subtracted, sizeof(Light_subtracted[0]), 1);
+		PHYSFS_write(fp, Light_subtracted, sizeof(Light_subtracted[0]), Highest_segment_index + 1);
 	}
 	else
 		PHYSFS_write(fp, Light_subtracted, sizeof(Light_subtracted[0]), MAX_SEGMENTS_ORIGINAL);
@@ -1579,8 +1578,7 @@ int state_restore_all_sub(char *filename, int secret_restore)
 		if ( Highest_segment_index+1 > MAX_SEGMENTS_ORIGINAL )
 		{
 			memset(&Light_subtracted, 0, sizeof(Light_subtracted[0])*MAX_SEGMENTS);
-			for ( i = 0; i <= Highest_segment_index; i++ )
-				PHYSFS_read(fp, Light_subtracted, sizeof(Light_subtracted[0]), 1);
+			PHYSFS_read(fp, Light_subtracted, sizeof(Light_subtracted[0]), Highest_segment_index + 1);
 		}
 		else
 			PHYSFS_read(fp, Light_subtracted, sizeof(Light_subtracted[0]), MAX_SEGMENTS_ORIGINAL);
