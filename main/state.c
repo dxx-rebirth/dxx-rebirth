@@ -1019,8 +1019,7 @@ int state_save_all_sub(char *filename, char *desc)
 // Save the automap visited info
 	if ( Highest_segment_index+1 > MAX_SEGMENTS_ORIGINAL )
 	{
-		for ( i = 0; i <= Highest_segment_index; i++ )
-			PHYSFS_write(fp, Automap_visited, sizeof(ubyte), 1);
+		PHYSFS_write(fp, Automap_visited, sizeof(ubyte), Highest_segment_index + 1);
 	}
 	else
 		PHYSFS_write(fp, Automap_visited, sizeof(ubyte), MAX_SEGMENTS_ORIGINAL);
@@ -1362,8 +1361,7 @@ RetryObjectLoading:
 	if ( Highest_segment_index+1 > MAX_SEGMENTS_ORIGINAL )
 	{
 		memset(&Automap_visited, 0, MAX_SEGMENTS);
-		for ( i = 0; i <= Highest_segment_index; i++ )
-			PHYSFS_read(fp, Automap_visited, sizeof(ubyte), 1);
+		PHYSFS_read(fp, Automap_visited, sizeof(ubyte), Highest_segment_index + 1);
 	}
 	else
 		PHYSFS_read(fp, Automap_visited, sizeof(ubyte), MAX_SEGMENTS_ORIGINAL);
