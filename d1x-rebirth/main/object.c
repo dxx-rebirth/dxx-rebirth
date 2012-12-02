@@ -938,7 +938,7 @@ int obj_get_signature()
 		sig++;
 		if (sig < 0)
 			sig = 0;
-		for (i = 0; i <= MAX_OBJECTS; i++)
+		for (i = 0; i < MAX_OBJECTS; i++)
 		{
 			if ((sig == Objects[i].signature) && (Objects[i].type != OBJ_NONE))
 			{
