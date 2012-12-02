@@ -1688,23 +1688,14 @@ void do_escort_menu(void)
 		return;
 	}
 
-	for (i=0; i<=Highest_object_index; i++) {
+	for (i=0;; i++) {
+		if (!(i <= Highest_object_index)) {
+			HUD_init_message_literal(HM_DEFAULT, "No Guide-Bot present in mine!");
+			return;
+		}
 		if (Objects[i].type == OBJ_ROBOT)
 			if (Robot_info[get_robot_id(&Objects[i])].companion)
 				break;
-	}
-
-	if (i > Highest_object_index) {
-
-		HUD_init_message_literal(HM_DEFAULT, "No Guide-Bot present in mine!");
-
-		#if 0	//ndef NDEBUG	// Just use HELPVISHNU!!
-		//	If no buddy bot, create one!
-		HUD_init_message(HM_DEFAULT, "Debug Version: Creating Guide-Bot!");
-		create_buddy_bot();
-		#else
-		return;
-		#endif
 	}
 
 	ok_for_buddy_to_talk();	//	Needed here or we might not know buddy can talk when he can.
