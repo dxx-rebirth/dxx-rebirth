@@ -278,9 +278,17 @@ protected:
 	struct base_maskproxy_t
 	{
 		unsigned m_shift;
+		unsigned shift() const
+		{
+			return m_shift * bits;
+		}
+		static unsigned bitmask_low_aligned()
+		{
+			return (1 << bits) - 1;
+		}
 		typename array_t::value_type mask() const
 		{
-			return ((1 << bits) - 1) << (m_shift * bits);
+			return bitmask_low_aligned() << shift();
 		}
 		base_maskproxy_t(unsigned shift) :
 			m_shift(shift)
@@ -356,6 +364,52 @@ public:
 	const_bitproxy_t operator[](size_type segnum) const
 	{
 		return make_maskproxy<const_bitproxy_t>(a, segnum);
+	}
+};
+
+template <unsigned bits>
+class visited_segment_multibit_array_t : public visited_segment_mask_t<unsigned, bits>
+{
+	typedef typename visited_segment_mask_t<unsigned, bits>::array_t array_t;
+	typedef typename visited_segment_mask_t<unsigned, bits>::size_type size_type;
+	template <typename R>
+	struct tmpl_multibit_proxy_t : public visited_segment_mask_t<unsigned, bits>::template tmpl_maskproxy_t<R>
+	{
+		tmpl_multibit_proxy_t(R byte, unsigned shift) :
+			visited_segment_mask_t<unsigned, bits>::template tmpl_maskproxy_t<R>(byte, shift)
+		{
+		}
+		dxx_explicit_operator_bool operator bool() const
+		{
+			return !!(this->m_byte & this->mask());
+		}
+		operator unsigned() const
+		{
+			return (this->m_byte >> this->shift()) & this->bitmask_low_aligned();
+		}
+	};
+	struct bitproxy_t : public tmpl_multibit_proxy_t<typename array_t::reference>
+	{
+		bitproxy_t(typename array_t::reference byte, unsigned shift) :
+			tmpl_multibit_proxy_t<typename array_t::reference>(byte, shift)
+		{
+		}
+		bitproxy_t& operator=(unsigned u)
+		{
+			assert(!(u & ~this->bitmask_low_aligned()));
+			this->m_byte = (this->m_byte & ~this->mask()) | (u << this->shift());
+			return *this;
+		}
+	};
+	typedef tmpl_multibit_proxy_t<typename array_t::const_reference> const_bitproxy_t;
+public:
+	bitproxy_t operator[](size_type segnum)
+	{
+		return this->template make_maskproxy<bitproxy_t>(this->a, segnum);
+	}
+	const_bitproxy_t operator[](size_type segnum) const
+	{
+		return this->template make_maskproxy<const_bitproxy_t>(this->a, segnum);
 	}
 };
 #endif

@@ -959,7 +959,7 @@ static void draw_window_box(int color,short left,short top,short right,short bot
 char visited2[MAX_SEGMENTS];
 #endif
 
-unsigned char visited[MAX_SEGMENTS];
+struct visited_twobit_array_t : visited_segment_multibit_array_t<2> {};
 short Render_list[MAX_RENDER_SEGS];
 short Seg_depth[MAX_RENDER_SEGS];		//depth for each seg in Render_list
 ubyte processed[MAX_RENDER_SEGS];		//whether each entry has been processed
@@ -1706,13 +1706,12 @@ void update_rendered_data(int window_num, object *viewer, int rear_view_flag)
 
 //build a list of segments to be rendered
 //fills in Render_list & N_render_segs
-static void build_segment_list(int start_seg_num, int window_num)
+static void build_segment_list(visited_twobit_array_t &visited, int start_seg_num, int window_num)
 {
 	int	lcnt,scnt,ecnt;
 	int	l,c;
 	int	ch;
 
-	memset(visited, 0, sizeof(visited[0])*(Highest_segment_index+1));
 	memset(render_pos, -1, sizeof(render_pos[0])*(Highest_segment_index+1));
 	//memset(no_render_flag, 0, sizeof(no_render_flag[0])*(MAX_RENDER_SEGS));
 	memset(processed, 0, sizeof(processed));
@@ -1965,6 +1964,7 @@ void render_mine(int start_seg_num,fix eye_offset, int window_num)
 
 	render_start_frame();
 
+	visited_twobit_array_t visited;
 
 	#if defined(EDITOR)
 	if (Show_only_curside) {
@@ -1988,7 +1988,7 @@ void render_mine(int start_seg_num,fix eye_offset, int window_num)
 	else
 	#endif
 		//NOTE LINK TO ABOVE!!
-		build_segment_list(start_seg_num, window_num);		//fills in Render_list & N_render_segs
+		build_segment_list(visited, start_seg_num, window_num);		//fills in Render_list & N_render_segs
 
 	//render away
 
@@ -2125,7 +2125,7 @@ void render_mine(int start_seg_num,fix eye_offset, int window_num)
 		Current_seg_depth = Seg_depth[nn];
 
 #if defined(DXX_BUILD_DESCENT_I)
-		if (segnum!=-1 && (_search_mode || eye_offset>0 || (unsigned char)visited[segnum]!=3))
+		if (segnum!=-1 && (_search_mode || eye_offset>0 || visited[segnum]!=3))
 #elif defined(DXX_BUILD_DESCENT_II)
 		if (segnum!=-1 && (_search_mode || visited[segnum]!=3))
 #endif
@@ -2173,8 +2173,8 @@ void render_mine(int start_seg_num,fix eye_offset, int window_num)
 		}
 	}
 
-	memset(visited, 0, sizeof(visited[0])*(Highest_segment_index+1));
-	
+	visited.clear();
+
 	// Second Pass: Objects
 	for (nn=N_render_segs;nn--;)
 	{
@@ -2185,7 +2185,7 @@ void render_mine(int start_seg_num,fix eye_offset, int window_num)
 		Current_seg_depth = Seg_depth[nn];
 
 #if defined(DXX_BUILD_DESCENT_I)
-		if (segnum!=-1 && (_search_mode || eye_offset>0 || (unsigned char)visited[segnum]!=3))
+		if (segnum!=-1 && (_search_mode || eye_offset>0 || visited[segnum]!=3))
 #elif defined(DXX_BUILD_DESCENT_II)
 		if (segnum!=-1 && (_search_mode || visited[segnum]!=3))
 #endif
@@ -2237,8 +2237,8 @@ void render_mine(int start_seg_num,fix eye_offset, int window_num)
 		}
 	}
 
-	memset(visited, 0, sizeof(visited[0])*(Highest_segment_index+1));
-	
+	visited.clear();
+
 	// Third Pass - Render Transculent level geometry with normal Alpha-Func
 	for (nn=N_render_segs;nn--;)
 	{
@@ -2248,7 +2248,7 @@ void render_mine(int start_seg_num,fix eye_offset, int window_num)
 		Current_seg_depth = Seg_depth[nn];
 
 #if defined(DXX_BUILD_DESCENT_I)
-		if (segnum!=-1 && (_search_mode || eye_offset>0 || (unsigned char)visited[segnum]!=3))
+		if (segnum!=-1 && (_search_mode || eye_offset>0 || visited[segnum]!=3))
 #elif defined(DXX_BUILD_DESCENT_II)
 		if (segnum!=-1 && (_search_mode || visited[segnum]!=3))
 #endif
