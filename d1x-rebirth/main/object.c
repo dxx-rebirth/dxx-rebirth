@@ -994,7 +994,18 @@ void obj_free(int objnum)
 	Assert(num_objects >= 0);
 
 	if (objnum == Highest_object_index)
-		while (Objects[--Highest_object_index].type == OBJ_NONE);
+	{
+		int o = Highest_object_index;
+		for (;;)
+		{
+			--o;
+			if (Objects[o].type != OBJ_NONE)
+				break;
+			if (o == 0)
+				break;
+		}
+		Highest_object_index = o;
+	}
 }
 
 //-----------------------------------------------------------------------------
