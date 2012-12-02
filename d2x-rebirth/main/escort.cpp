@@ -119,9 +119,10 @@ void init_buddy_for_level(void)
 
 	for (i=0; i<=Highest_object_index; i++)
 		if (Robot_info[get_robot_id(&Objects[i])].companion)
+		{
+			Buddy_objnum = i;
 			break;
-	if (i <= Highest_object_index)
-		Buddy_objnum = i;
+		}
 
 	Buddy_sorry_time = -F1_0;
 
@@ -252,13 +253,16 @@ static int ok_for_buddy_to_talk(void)
 		return 1;
 
 	if ((Objects[Buddy_objnum].type == OBJ_ROBOT) && (Buddy_objnum <= Highest_object_index) && !Robot_info[get_robot_id(&Objects[Buddy_objnum])].companion) {
-		for (i=0; i<=Highest_object_index; i++)
+		for (i=0;; i++)
+		{
+			if (!(i<=Highest_object_index))
+				return 0;
 			if (Robot_info[get_robot_id(&Objects[i])].companion)
+			{
+				Buddy_objnum = i;
 				break;
-		if (i > Highest_object_index)
-			return 0;
-		else
-			Buddy_objnum = i;
+			}
+		}
 	}
 
 	segp = &Segments[Objects[Buddy_objnum].segnum];
