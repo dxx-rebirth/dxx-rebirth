@@ -445,14 +445,18 @@ void set_escort_special_goal(int special_key)
 		if (!Buddy_allowed_to_talk) {
 			int	i;
 
-			for (i=0; i<=Highest_object_index; i++)
+			for (i=0;; i++)
+			{
+				if (!(i <= Highest_object_index))
+				{
+					HUD_init_message_literal(HM_DEFAULT, "No Guide-Bot in mine.");
+					break;
+				}
 				if ((Objects[i].type == OBJ_ROBOT) && Robot_info[get_robot_id(&Objects[i])].companion) {
 					HUD_init_message(HM_DEFAULT, "%s has not been released.",PlayerCfg.GuidebotName);
 					break;
 				}
-			if (i == Highest_object_index+1)
-				HUD_init_message_literal(HM_DEFAULT, "No Guide-Bot in mine.");
-
+			}
 			return;
 		}
 	}
