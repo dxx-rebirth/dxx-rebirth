@@ -304,6 +304,14 @@ static void record_escort_goal_accomplished()
 }
 
 //	--------------------------------------------------------------------------------------------
+void detect_escort_goal_fuelcen_accomplished()
+{
+	if (!Buddy_allowed_to_talk)
+		return;
+	if (Escort_special_goal == ESCORT_GOAL_ENERGYCEN)
+		record_escort_goal_accomplished();
+}
+
 void detect_escort_goal_accomplished(int index)
 {
 	if (!Buddy_allowed_to_talk)
@@ -344,8 +352,6 @@ if ((Escort_goal_index <= ESCORT_GOAL_RED_KEY) && (index >= 0)) {
 	if (Escort_special_goal != -1)
 	{
 		if (Escort_special_goal == ESCORT_GOAL_ENERGYCEN) {
-			if (index == -4)
-				record_escort_goal_accomplished();
 		} else if ((Objects[index].type == OBJ_POWERUP) && (Escort_special_goal == ESCORT_GOAL_POWERUP))
 			record_escort_goal_accomplished();	//	Any type of powerup picked up will do.
 		else if ((Objects[index].type == Objects[Escort_goal_index].type) && (Objects[index].id == Objects[Escort_goal_index].id)) {

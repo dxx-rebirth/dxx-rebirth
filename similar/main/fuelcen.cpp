@@ -579,7 +579,7 @@ fix fuelcen_give_fuel(segment *segp, fix MaxAmountCanTake )
 		fix amount;
 
 #if defined(DXX_BUILD_DESCENT_II)
-		detect_escort_goal_accomplished(-4);	//	UGLY! Hack! -4 means went through fuelcen.
+		detect_escort_goal_fuelcen_accomplished();
 #endif
 
 //		if (Station[segp->value].MaxCapacity<=0)	{
