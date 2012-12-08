@@ -589,6 +589,27 @@ static int exists_in_mine_2(int segnum, int objtype, int objid, int special)
 }
 
 //	-----------------------------------------------------------------------------
+static int exists_fuelcen_in_mine(int start_seg)
+{
+	int	segindex, segnum;
+	short	bfs_list[MAX_SEGMENTS];
+	int	length;
+
+	create_bfs_list(start_seg, bfs_list, &length, MAX_SEGMENTS);
+
+		for (segindex=0; segindex<length; segindex++) {
+			segnum = bfs_list[segindex];
+			if (Segment2s[segnum].special == SEGMENT_IS_FUELCEN)
+				return segnum;
+		}
+
+		for (segnum=segment_first; segnum<=Highest_segment_index; segnum++)
+			if (Segment2s[segnum].special == SEGMENT_IS_FUELCEN)
+				return -2;
+
+	return -1;
+}
+
 //	Return nearest object of interest.
 //	If special == ESCORT_GOAL_PLAYER_SPEW, then looking for any object spewed by player.
 //	-1 means object does not exist in mine.
@@ -601,13 +622,6 @@ static int exists_in_mine(int start_seg, int objtype, int objid, int special)
 
 	create_bfs_list(start_seg, bfs_list, &length, MAX_SEGMENTS);
 
-	if (objtype == FUELCEN_CHECK) {
-		for (segindex=0; segindex<length; segindex++) {
-			segnum = bfs_list[segindex];
-			if (Segment2s[segnum].special == SEGMENT_IS_FUELCEN)
-				return segnum;
-		}
-	} else {
 		for (segindex=0; segindex<length; segindex++) {
 			int	objnum;
 
@@ -618,24 +632,17 @@ static int exists_in_mine(int start_seg, int objtype, int objid, int special)
 				return objnum;
 
 		}
-	}
 
 	//	Couldn't find what we're looking for by looking at connectivity.
 	//	See if it's in the mine.  It could be hidden behind a trigger or switch
 	//	which the buddybot doesn't understand.
-	if (objtype == FUELCEN_CHECK) {
-		for (segnum=0; segnum<=Highest_segment_index; segnum++)
-			if (Segment2s[segnum].special == SEGMENT_IS_FUELCEN)
-				return object_guidebot_cannot_reach;
-	} else {
-		for (segnum=0; segnum<=Highest_segment_index; segnum++) {
+		for (segnum=segment_first; segnum<=Highest_segment_index; segnum++) {
 			int	objnum;
 
 			objnum = exists_in_mine_2(segnum, objtype, objid, special);
 			if (objnum != object_none)
 				return object_guidebot_cannot_reach;
 		}
-	}
 
 	return object_none;
 }
@@ -738,7 +745,7 @@ static void escort_create_path_to_goal(object *objp)
 				if (Escort_goal_index > -1) goal_seg = Objects[Escort_goal_index].segnum;
 				break;
 			case ESCORT_GOAL_ENERGYCEN:
-				goal_seg = exists_in_mine(objp->segnum, FUELCEN_CHECK, -1, -1);
+				goal_seg = exists_fuelcen_in_mine(objp->segnum);
 				Escort_goal_index = goal_seg;
 				break;
 			case ESCORT_GOAL_SHIELD:
