@@ -449,7 +449,7 @@ void ogl_cache_level_textures(void)
 		ogl_cache_polymodel_textures(Player_ship->model_num);
 		ogl_cache_vclipn_textures(Player_ship->expl_vclip_num);
 
-		for (i=0;i<Highest_object_index;i++){
+		for (i=0;i<=Highest_object_index;i++){
 			if(Objects[i].render_type==RT_POWERUP){
 				ogl_cache_vclipn_textures(Objects[i].rtype.vclip_info.vclip_num);
 				switch (Objects[i].id){
