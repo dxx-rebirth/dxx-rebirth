@@ -1704,7 +1704,8 @@ void do_escort_menu(void)
 {
 	int	i;
 	int	next_goal;
-	char	goal_str[32], tstr[32];
+	char	goal_str[32];
+	const char *tstr;
 	escort_menu *menu;
 	window *wind;
 
@@ -1794,9 +1795,9 @@ void do_escort_menu(void)
 	}
 			
 	if (!Buddy_messages_suppressed)
-		sprintf(tstr, "Suppress");
+		tstr =  "Suppress";
 	else
-		sprintf(tstr, "Enable");
+		tstr =  "Enable";
 
 	sprintf(menu->msg,	"Select Guide-Bot Command:\n\n\n"
 						"0.  Next Goal: %s" CC_LSPACING_S "3\n\n"
