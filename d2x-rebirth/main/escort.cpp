@@ -643,6 +643,9 @@ void say_escort_goal(int goal_num)
 		return;
 
 	switch (goal_num) {
+		default:
+		case ESCORT_GOAL_UNSPECIFIED:
+			break;
 		case ESCORT_GOAL_BLUE_KEY:		buddy_message("Finding BLUE KEY");			break;
 		case ESCORT_GOAL_GOLD_KEY:		buddy_message("Finding YELLOW KEY");		break;
 		case ESCORT_GOAL_RED_KEY:		buddy_message("Finding RED KEY");			break;
