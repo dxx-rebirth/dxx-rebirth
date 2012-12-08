@@ -1705,6 +1705,7 @@ void do_escort_menu(void)
 	int	i;
 	int	next_goal;
 	char	goal_str[32];
+	const char *goal_txt;
 	const char *tstr;
 	escort_menu *menu;
 	window *wind;
@@ -1755,30 +1756,28 @@ void do_escort_menu(void)
 	}
 
 	switch (next_goal) {
-	#ifndef NDEBUG
+		default:
 		case ESCORT_GOAL_UNSPECIFIED:
 			Int3();
-			sprintf(goal_str, "ERROR");
+			goal_txt = "ERROR";
 			break;
-	#endif
-			
 		case ESCORT_GOAL_BLUE_KEY:
-			sprintf(goal_str, "blue key");
+			goal_txt = "blue key";
 			break;
 		case ESCORT_GOAL_GOLD_KEY:
-			sprintf(goal_str, "yellow key");
+			goal_txt = "yellow key";
 			break;
 		case ESCORT_GOAL_RED_KEY:
-			sprintf(goal_str, "red key");
+			goal_txt = "red key";
 			break;
 		case ESCORT_GOAL_CONTROLCEN:
-			sprintf(goal_str, "reactor");
+			goal_txt = "reactor";
 			break;
 		case ESCORT_GOAL_BOSS:
-			sprintf(goal_str, "boss");
+			goal_txt = "boss";
 			break;
 		case ESCORT_GOAL_EXIT:
-			sprintf(goal_str, "exit");
+			goal_txt = "exit";
 			break;
 		case ESCORT_GOAL_MARKER1:
 		case ESCORT_GOAL_MARKER2:
@@ -1789,7 +1788,8 @@ void do_escort_menu(void)
 		case ESCORT_GOAL_MARKER7:
 		case ESCORT_GOAL_MARKER8:
 		case ESCORT_GOAL_MARKER9:
-			sprintf(goal_str, "marker %i", next_goal-ESCORT_GOAL_MARKER1+1);
+			goal_txt = goal_str;
+			snprintf(goal_str, sizeof(goal_str), "marker %i", next_goal-ESCORT_GOAL_MARKER1+1);
 			break;
 
 	}
@@ -1812,7 +1812,7 @@ void do_escort_menu(void)
 						"9.  Find the exit\n\n"
 						"T.  %s Messages"
 						// -- "9.	Find the exit" CC_LSPACING_S "3\n"
-				, goal_str, tstr);
+				, goal_txt, tstr);
 }
 
 //	-------------------------------------------------------------------------------
