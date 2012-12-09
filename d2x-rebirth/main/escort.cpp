@@ -292,11 +292,20 @@ static int ok_for_buddy_to_talk(void)
 	return 1;
 }
 
+static void record_escort_goal_accomplished()
+{
+	if (ok_for_buddy_to_talk()) {
+		digi_play_sample_once(SOUND_BUDDY_MET_GOAL, F1_0);
+		Escort_goal_index = -1;
+		Escort_goal_object = ESCORT_GOAL_UNSPECIFIED;
+		Escort_special_goal = -1;
+		Looking_for_marker = -1;
+	}
+}
+
 //	--------------------------------------------------------------------------------------------
 void detect_escort_goal_accomplished(int index)
 {
-	int	detected = 0;
-
 	if (!Buddy_allowed_to_talk)
 		return;
 
@@ -308,26 +317,26 @@ void detect_escort_goal_accomplished(int index)
 //	Note, no buddy_met_goal sound when blow up reactor or exit.  Not great, but ok
 //	since for reactor, noisy, for exit, buddy is disappearing.
 if ((Escort_special_goal == -1) && (Escort_goal_index == index)) {
-	detected = 1;
-	goto dega_ok;
+	record_escort_goal_accomplished();
+	return;
 }
 
 if ((Escort_goal_index <= ESCORT_GOAL_RED_KEY) && (index >= 0)) {
 	if (Objects[index].type == OBJ_POWERUP)  {
 		if (Objects[index].id == POW_KEY_BLUE) {
 			if (Escort_goal_index == ESCORT_GOAL_BLUE_KEY) {
-				detected = 1;
-				goto dega_ok;
+				record_escort_goal_accomplished();
+				return;
 			}
 		} else if (Objects[index].id == POW_KEY_GOLD) {
 			if (Escort_goal_index == ESCORT_GOAL_GOLD_KEY) {
-				detected = 1;
-				goto dega_ok;
+				record_escort_goal_accomplished();
+				return;
 			}
 		} else if (Objects[index].id == POW_KEY_RED) {
 			if (Escort_goal_index == ESCORT_GOAL_RED_KEY) {
-				detected = 1;
-				goto dega_ok;
+				record_escort_goal_accomplished();
+				return;
 			}
 		}
 	}
@@ -336,25 +345,15 @@ if ((Escort_goal_index <= ESCORT_GOAL_RED_KEY) && (index >= 0)) {
 	{
 		if (Escort_special_goal == ESCORT_GOAL_ENERGYCEN) {
 			if (index == -4)
-				detected = 1;
+				record_escort_goal_accomplished();
 		} else if ((Objects[index].type == OBJ_POWERUP) && (Escort_special_goal == ESCORT_GOAL_POWERUP))
-			detected = 1;	//	Any type of powerup picked up will do.
+			record_escort_goal_accomplished();	//	Any type of powerup picked up will do.
 		else if ((Objects[index].type == Objects[Escort_goal_index].type) && (Objects[index].id == Objects[Escort_goal_index].id)) {
 			//	Note: This will help a little bit in making the buddy believe a goal is satisfied.  Won't work for a general goal like "find any powerup"
 			// because of the insistence of both type and id matching.
-			detected = 1;
+			record_escort_goal_accomplished();
 		}
 	}
-
-dega_ok: ;
-	if (detected && ok_for_buddy_to_talk()) {
-		digi_play_sample_once(SOUND_BUDDY_MET_GOAL, F1_0);
-		Escort_goal_index = -1;
-		Escort_goal_object = ESCORT_GOAL_UNSPECIFIED;
-		Escort_special_goal = -1;
-		Looking_for_marker = -1;
-	}
-
 }
 
 void change_guidebot_name()
