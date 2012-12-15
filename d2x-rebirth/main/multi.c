@@ -3849,18 +3849,6 @@ void multi_do_stolen_items (const ubyte *buf)
 	}
 }
 
-void multi_send_wall_status (int wallnum,ubyte type,ubyte flags,ubyte state)
-{
-	int count=0;
-	multibuf[count]=MULTI_WALL_STATUS;        count++;
-	PUT_INTEL_SHORT(multibuf+count, wallnum);   count+=2;
-	multibuf[count]=type;                 count++;
-	multibuf[count]=flags;                count++;
-	multibuf[count]=state;                count++;
-
-	multi_send_data(multibuf, count, 2);
-}
-
 void multi_send_wall_status_specific (int pnum,int wallnum,ubyte type,ubyte flags,ubyte state)
 {
 	// Send wall states a specific rejoining player
@@ -4001,18 +3989,6 @@ void multi_do_seismic (const ubyte *buf)
 	digi_play_sample (SOUND_SEISMIC_DISTURBANCE_START, F1_0);
 }
 
-void multi_send_light (int segnum,ubyte val)
-{
-	int count=1,i;
-	multibuf[0]=MULTI_LIGHT;
-	PUT_INTEL_INT(multibuf+count, segnum); count+=(sizeof(int));
-	*(char *)(multibuf+count)=val; count++;
-	for (i=0;i<6;i++)
-	{
-		PUT_INTEL_SHORT(multibuf+count, Segments[segnum].sides[i].tmap_num2); count+=2;
-	}
-	multi_send_data(multibuf, count, 2);
-}
 void multi_send_light_specific (int pnum,int segnum,ubyte val)
 {
 	int count=1,i;
@@ -4715,20 +4691,6 @@ void multi_do_ranking (const ubyte *buf)
 
 	if (!PlayerCfg.NoRankings)
 		HUD_init_message(HM_MULTI, "%s has been %s to %s!",Players[(int)pnum].callsign,rankstr,RankStrings[(int)rank]);
-}
-
-void multi_quick_sound_hack (int num)
-{
-	int length,i;
-	num = digi_xlat_sound(num);
-	length=GameSounds[num].length;
-	ReversedSound.data=(ubyte *)d_malloc (length);
-	ReversedSound.length=length;
-
-	for (i=0;i<length;i++)
-		ReversedSound.data[i]=GameSounds[num].data[length-i-1];
-
-	SoundHacked=1;
 }
 
 void multi_send_play_by_play (int num,int spnum,int dpnum)
