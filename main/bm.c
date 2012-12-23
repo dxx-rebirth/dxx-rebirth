@@ -276,6 +276,11 @@ void bm_read_extra_robots(char *fname,int type)
 	int t,i,version;
 
 	fp = PHYSFSX_openReadBuffered(fname);
+	if (!fp)
+	{
+		Error("Failed to open HAM file \"%s\"", fname);
+		return;
+	}
 
 	if (type == 2) {
 		int sig;
