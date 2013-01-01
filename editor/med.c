@@ -195,21 +195,6 @@ void clear_editor_status(void)
 	}
 }
 
-
-void diagnostic_message( const char *format, ... )
-{
-	char diag_line[DIAGNOSTIC_MESSAGE_MAX];
-
-	va_list ap;
-
-	va_start(ap, format);
-	vsprintf(diag_line, format, ap);
-	va_end(ap);
-
-	editor_status(diag_line);
-}
-
-
 int DropIntoDebugger()
 {
 	Int3();
