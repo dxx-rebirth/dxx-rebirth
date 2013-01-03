@@ -5,7 +5,6 @@
  */
 
 #include <string.h>   // for memset
-#include <SDL/SDL.h>
 
 #include "joy.h"
 #include "error.h"
