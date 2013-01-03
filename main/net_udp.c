@@ -86,7 +86,6 @@ void net_udp_noloss_init_mdata_queue(void);
 void net_udp_noloss_clear_mdata_got(ubyte player_num);
 void net_udp_noloss_process_queue(fix64 time);
 void net_udp_send_extras ();
-extern void multi_send_kill_goal_counts();
 
 static void net_udp_broadcast_game_info(ubyte info_upid);
 

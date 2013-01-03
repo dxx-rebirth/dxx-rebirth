@@ -319,6 +319,7 @@ extern void multi_powcap_count_powerups_in_mine(void);
 extern void multi_powcap_cap_objects();
 extern void multi_do_powcap_update();
 extern void multi_send_powcap_update();
+extern void multi_send_kill_goal_counts();
 
 // Globals for protocol-bound Refuse-functions
 extern char RefuseThisPlayer,WaitForRefuseAnswer,RefuseTeam,RefusePlayerName[12];
