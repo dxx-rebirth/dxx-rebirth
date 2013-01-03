@@ -104,7 +104,7 @@ void HUD_render_message_frame()
 
 			if (i == startmsg && strlen(HUD_messages[i].message) > 38)
 				HUD_toolong = 1;
-			gr_printf(0x8000,y, &HUD_messages[i].message[0] );
+			gr_string(0x8000,y, &HUD_messages[i].message[0] );
 			y += LINE_SPACING;
 		}
 	}
@@ -222,13 +222,13 @@ void player_dead_message(void)
 			gr_rect( x, y, x+w, y+h );
 			gr_settransblend(GR_FADE_OFF, GR_BLEND_NORMAL);
 		
-			gr_printf(0x8000, (GHEIGHT - h)/2 + h/8, TXT_GAME_OVER );
+			gr_string(0x8000, (GHEIGHT - h)/2 + h/8, TXT_GAME_OVER );
 		}
 	
 		gr_set_curfont( GAME_FONT );
 		if (HUD_color == -1)
 			HUD_color = BM_XRGB(0,28,0);
 		gr_set_fontcolor( HUD_color, -1);
-		gr_printf(0x8000, GHEIGHT-LINE_SPACING, TXT_PRESS_ANY_KEY);
+		gr_string(0x8000, GHEIGHT-LINE_SPACING, TXT_PRESS_ANY_KEY);
 	}
 }

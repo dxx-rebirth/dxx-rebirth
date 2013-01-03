@@ -147,7 +147,7 @@ void kmatrix_draw_names(int *sorted)
 
 	x = FSPACX(72 + CENTERING_OFFSET(N_players) + N_players*25);
 	gr_set_fontcolor( BM_XRGB(31,31,31),-1 );
-	gr_printf( x, FSPACY(40), "K/E");
+	gr_string( x, FSPACY(40), "K/E");
 }
 
 void kmatrix_draw_coop_names(int *sorted)
@@ -155,9 +155,9 @@ void kmatrix_draw_coop_names(int *sorted)
 	sorted=sorted;
 
 	gr_set_fontcolor( BM_XRGB(63,31,31),-1 );
-	gr_printf( CENTERSCREEN, FSPACY(40), "SCORE");
+	gr_string( CENTERSCREEN, FSPACY(40), "SCORE");
 	gr_set_fontcolor( BM_XRGB(63,31,31),-1 );
-	gr_printf( CENTERSCREEN+FSPACX(50), FSPACY(40), "DEATHS");
+	gr_string( CENTERSCREEN+FSPACX(50), FSPACY(40), "DEATHS");
 }
 
 extern int PhallicLimit,PhallicMan;
@@ -175,7 +175,7 @@ void kmatrix_phallic ()
 	grd_curcanv->cv_font = GAME_FONT;
 	gr_set_fontcolor(gr_find_closest_color(63,63,63),-1);
 	gr_get_string_size(message, &sw, &sh, &aw);
-	gr_printf( CENTERSCREEN-(sw/2), FSPACY(55+72+3), message);
+	gr_string( CENTERSCREEN-(sw/2), FSPACY(55+72+3), message);
 }
 
 void kmatrix_status_msg (fix time, int reactor)

@@ -1422,14 +1422,14 @@ int newmenu_draw(window *wind, newmenu *menu)
 		gr_set_fontcolor( BM_XRGB(31,31,31), -1 );
 		gr_get_string_size(menu->title,&string_width,&string_height,&average_width );
 		th = string_height;
-		gr_printf( 0x8000, ty, menu->title );
+		gr_string( 0x8000, ty, menu->title );
 	}
 
 	if ( menu->subtitle )	{
 		gr_set_curfont(MEDIUM3_FONT);
 		gr_set_fontcolor( BM_XRGB(21,21,21), -1 );
 		gr_get_string_size(menu->subtitle,&string_width,&string_height,&average_width );
-		gr_printf( 0x8000, ty+th, menu->subtitle );
+		gr_string( 0x8000, ty+th, menu->subtitle );
 	}
 
 	gr_set_curfont(menu->tiny_mode?GAME_FONT:MEDIUM1_FONT);

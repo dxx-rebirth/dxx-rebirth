@@ -286,7 +286,7 @@ void scores_draw_item( int i, stats_info * stats )
 	y -= 3;
 
 	if (strlen(stats->name)==0) {
-		gr_printf( FSPACX(66), FSPACY(y), TXT_EMPTY );
+		gr_string( FSPACX(66), FSPACY(y), TXT_EMPTY );
 		return;
 	}
 	gr_printf( FSPACX(66), FSPACY(y), "%s", stats->name );

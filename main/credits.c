@@ -161,7 +161,7 @@ int credits_handler(window *wind, d_event *event, credits *cr)
 					int w, h, aw;
 					
 					gr_get_string_size( s, &w, &h, &aw);
-					gr_printf( 0x8000, y, s );
+					gr_string( 0x8000, y, s );
 				}
 				y += ROW_SPACING;
 			}
