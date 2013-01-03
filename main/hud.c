@@ -147,14 +147,6 @@ int HUD_init_message_va(int class_flag, char * format, va_list args)
 		}
 	}
 
-	// HACK!!!
-	// clean message if necessary.
-	// using placeholders may mess up message string and crash game(s).
-	// block them also to prevent attacks from other clients.
-	for (i = 0; i <= strlen(message); i++)
-		if (message[i] == '%')
-			message [i] = ' ';
-
 	if (HUD_nmessages >= HUD_MAX_NUM_STOR)
 	{
 		HUD_nmessages = HUD_MAX_NUM_STOR; // unnecessary but just in case it might be bigger... which is impossible
