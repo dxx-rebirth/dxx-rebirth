@@ -82,7 +82,6 @@ void LoadLevel(int level_num);
 
 extern void gameseq_remove_unused_players();
 
-extern void show_help();
 extern void update_player_stats();
 
 // from scores.c
