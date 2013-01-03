@@ -636,7 +636,8 @@ int robot_dialog_handler(UI_DIALOG *dlg, d_event *event, robot_dialog *r)
 	if (event->type == EVENT_UI_DIALOG_DRAW)
 	{
 		int	i;
-		char	type_text[STRING_LENGTH+1],id_text[STRING_LENGTH+1];
+		char	id_text[STRING_LENGTH+1];
+		const char *type_text;
 
 		if (Cur_object_index != -1) {
 			Cur_goody_type = Objects[Cur_object_index].contains_type;
@@ -656,18 +657,18 @@ int robot_dialog_handler(UI_DIALOG *dlg, d_event *event, robot_dialog *r)
 
 		switch (Cur_goody_type) {
 			case OBJ_ROBOT:
-				strcpy(type_text, "Robot  ");
+				type_text = "Robot  ";
 				strncpy(id_text, Robot_names[Cur_goody_id], strlen(Robot_names[Cur_goody_id]));
 				break;
 			case OBJ_POWERUP:
-				strcpy(type_text, "Powerup");
+				type_text = "Powerup";
 				strncpy(id_text, Powerup_names[Cur_goody_id], strlen(Powerup_names[Cur_goody_id]));
 				break;
 			default:
 				editor_status("Illegal contained object type (%i), changing to powerup.", Cur_goody_type);
 				Cur_goody_type = OBJ_POWERUP;
 				Cur_goody_id = 0;
-				strcpy(type_text, "Powerup");
+				type_text = "Powerup";
 				strncpy(id_text, Powerup_names[Cur_goody_id], strlen(Powerup_names[Cur_goody_id]));
 				break;
 		}
