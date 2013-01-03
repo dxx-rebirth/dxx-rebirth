@@ -248,8 +248,6 @@ int do_hostage_effects()
 #define LINEBUF_SIZE 100
 
 //------------------- Useful macros and variables ---------------
-#define REMOVE_EOL(s)		hostage_remove_char((s),'\n')
-#define REMOVE_COMMENTS(s)	hostage_remove_char((s),';')
 
 void hostage_remove_char( char * s, char c )
 {

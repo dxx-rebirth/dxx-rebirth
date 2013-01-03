@@ -129,5 +129,9 @@ void bitmap_index_read(bitmap_index *bi, PHYSFS_file *fp);
  */
 int bitmap_index_read_n(bitmap_index *bi, int n, PHYSFS_file *fp);
 
+#define REMOVE_EOL(s)		remove_char((s),'\n')
+#define REMOVE_COMMENTS(s)	remove_char((s),';')
+#define REMOVE_DOTS(s)  	remove_char((s),'.')
+
 #endif // _PIGGY_H
 

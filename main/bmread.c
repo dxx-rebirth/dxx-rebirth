@@ -131,9 +131,6 @@ static int			num_sounds=0;
 
 
 //------------------- Useful macros and variables ---------------
-#define REMOVE_EOL(s)		remove_char((s),'\n')
-#define REMOVE_COMMENTS(s)	remove_char((s),';')
-#define REMOVE_DOTS(s)  	remove_char((s),'.')
 
 #define IFTOK(str) if (!strcmp(arg, str))
 char *space = { " \t" };	
