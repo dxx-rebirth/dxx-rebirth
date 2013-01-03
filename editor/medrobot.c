@@ -705,8 +705,8 @@ int robot_dialog_handler(UI_DIALOG *dlg, d_event *event, robot_dialog *r)
 				break;
 		}
 
-		ui_dprintf_at( MainWindow, GOODY_X+108, GOODY_Y, type_text);
-		ui_dprintf_at( MainWindow, GOODY_X+108, GOODY_Y+24, id_text);
+		ui_dprintf_at( MainWindow, GOODY_X+108, GOODY_Y, "%s", type_text);
+		ui_dprintf_at( MainWindow, GOODY_X+108, GOODY_Y+24, "%s", id_text);
 		ui_dprintf_at( MainWindow, GOODY_X+108, GOODY_Y+48, "%i", Cur_goody_count);
 
 		if ( Cur_object_index > -1 )	{

@@ -130,7 +130,7 @@ static int browser_handler(UI_DIALOG *dlg, d_event *event, browser *b)
 
 	if (event->type == EVENT_UI_DIALOG_DRAW)
 	{
-		ui_dprintf_at( dlg, 10, 5, b->message );
+		ui_dprintf_at( dlg, 10, 5, "%s", b->message );
 
 		ui_dprintf_at( dlg, 20, 32,"N&ame" );
 		ui_dprintf_at( dlg, 20, 86,"&Files" );
