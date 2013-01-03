@@ -14,6 +14,8 @@ include/3d.h, main/gameseq.h, main/weapon.h: Removed redundant/obsolete declarat
 main/kconfig.h: Moved large control_info arrays to end - patch by Kp
 main/switch.c: Avoid -Wformat-nonliteral for trigger message; Reflect plurality in light trigger messages - patches by Kp
 medrobot.c: medrobot: avoid needless name copy - patch by Kp
+editor/centers.c, main/gamecntl.c, main/gamerend.c: Fixed argument specifier mismatches flagged by -Wformat - patch by Kp
+
 
 20121102
 --------
