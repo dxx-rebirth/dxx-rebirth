@@ -504,8 +504,6 @@ int gr_internal_color_string(int x, int y, char *s )
 
 #else //OGL
 
-int pow2ize(int x);//from ogl.c
-
 int get_font_total_width(grs_font * font){
 	if (font->ft_flags & FT_PROPORTIONAL){
 		int i,w=0,c=font->ft_minchar;
