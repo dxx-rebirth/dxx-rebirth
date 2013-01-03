@@ -19,6 +19,7 @@ arch/ogl/gr.c, main/game.c: Moved screenshot message formating to HUD_init_messa
 main/automap.c, main/credits.c, main/gamerend.c, main/gauges.c, main/hud.c, main/kmatrix.c, main/menu.c, main/newmenu.c, main/scores.c: Converted gr_printf to gr_string where needed - patch by Kp
 editor/medrobot.c, main/endlevel.c, main/fireball.c, main/gamecntl.c, main/hostage.c, main/multi.c, main/newdemo.c, main/powerup.c, main/wall.c, main/weapon.c, ui/file.c: Added dummy "%s" to prevent formatting untrusted literals - patch by Kp
 main/hud.c: Removed obsolete HUD cleaning code - patch by Kp
+editor/info.c: Use proper width in format specifier - patch by Kp
 
 20121102
 --------
