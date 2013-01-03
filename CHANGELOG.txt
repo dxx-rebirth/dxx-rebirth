@@ -13,6 +13,7 @@ editor/group.c, editor/medwall.c, editor/segment.c, main/gameseg.h, main/wall.h:
 include/3d.h, main/gameseq.h: Removed redundant/obsolete declarations - patch by Kp
 main/kconfig.h: Moved large control_info arrays to end - patch by Kp
 medrobot.c: medrobot: avoid needless name copy - patch by Kp
+editor/centers.c, main/gamecntl.c: Fixed argument specifier mismatches flagged by -Wformat - patch by Kp
 
 20121102
 --------
