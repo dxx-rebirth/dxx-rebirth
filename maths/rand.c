@@ -7,6 +7,7 @@
  */
 
 #include <stdlib.h>
+#include "maths.h"
 
 #ifdef NO_WATCOM_RAND
 
