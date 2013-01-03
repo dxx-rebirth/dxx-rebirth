@@ -610,7 +610,6 @@ int wall_dialog_handler(UI_DIALOG *dlg, d_event *event, wall_dialog *wd)
 
 
 //---------------------------------------------------------------------
-extern void wall_close_door_num(int door_num);
 
 // Restore all walls to original status (closed doors, repaired walls)
 int wall_restore_all()

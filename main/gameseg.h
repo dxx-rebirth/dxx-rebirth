@@ -226,6 +226,7 @@ extern	void extract_up_vector_from_segment(segment *sp,vms_vector *vp);
 extern void create_walls_on_side(segment *sp, int sidenum);
 
 extern void pick_random_point_in_seg(vms_vector *new_pos, int segnum);
+extern void validate_segment_side(segment *sp, int sidenum);
 
 #endif
  
