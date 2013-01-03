@@ -804,7 +804,6 @@ void write_bmp(char *savename,int w,int h,unsigned char *buf)
 
 void save_screen_shot(int automap_flag)
 {
-	char message[100];
 	static int savenum=0;
 	char savename[13+sizeof(SCRNS_DIR)];
 	unsigned char *buf;
@@ -825,10 +824,8 @@ void save_screen_shot(int automap_flag)
 		sprintf(savename, "%sscrn%04d.tga",SCRNS_DIR, savenum++);
 	} while (PHYSFSX_exists(savename,0));
 
-	sprintf( message, "%s 'scrn%04d.tga'", TXT_DUMPING_SCREEN, savenum-1 );
-
 	if (!automap_flag)
-		HUD_init_message(HM_DEFAULT, message);
+		HUD_init_message(HM_DEFAULT, "%s 'scrn%04d.tga'", TXT_DUMPING_SCREEN, savenum-1 );
 
 #ifndef OGLES
 	glReadBuffer(GL_FRONT);
