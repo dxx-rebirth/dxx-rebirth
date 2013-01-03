@@ -10,6 +10,8 @@ main/multi.h, main/net_udp.c: Moved multi_* declarations to multi.h - patch by K
 maths/rand.c: Included maths.h in rand.c to get d_rand prototype - patch by Kp
 arch/include/joy.h, arch/sdl/event.c, arch/sdl/joy.c: Moved joy_*_handler declarations to joy.h - patch by Kp
 editor/group.c, editor/medwall.c, editor/segment.c, main/gameseg.h, main/wall.h: Declared wall_close_door_num in wall.h; Declared validate_segment_side in gameseg.h - patches by Kp
+include/3d.h, main/gameseq.h, main/weapon.h: Removed redundant/obsolete declarations - patch by Kp
+
 
 20121102
 --------

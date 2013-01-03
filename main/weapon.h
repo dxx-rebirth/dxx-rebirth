@@ -29,8 +29,6 @@ COPYRIGHT 1993-1999 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 // weapon info flags
 #define WIF_PLACABLE        1   // can be placed by level designer
 
-struct object;
-
 typedef struct weapon_info {
 	sbyte   render_type;        // How to draw 0=laser, 1=blob, 2=object
 	sbyte   persistent;         // 0 = dies when it hits something, 1 = continues (eg, fusion cannon)
