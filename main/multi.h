@@ -379,6 +379,12 @@ extern void multi_powcap_count_powerups_in_mine(void);
 extern void multi_powcap_cap_objects();
 extern void multi_do_powcap_update();
 extern void multi_send_powcap_update();
+extern void multi_send_stolen_items();
+extern void multi_send_kill_goal_counts();
+extern void multi_send_trigger_specific(char pnum,char trig);
+extern void multi_send_door_open_specific(int pnum,int segnum, int side,ubyte flag);
+extern void multi_send_wall_status_specific (int pnum,int wallnum,ubyte type,ubyte flags,ubyte state);
+extern void multi_send_light_specific (int pnum,int segnum,ubyte val);
 
 //how to encode missiles & flares in weapon packets
 #define MISSILE_ADJUST  100

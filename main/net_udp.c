@@ -94,12 +94,6 @@ void net_udp_noloss_clear_mdata_got(ubyte player_num);
 void net_udp_noloss_process_queue(fix64 time);
 void net_udp_send_extras ();
 extern void multi_reset_object_texture(object *objp);
-extern void multi_send_stolen_items ();
-extern void multi_send_kill_goal_counts();
-extern void multi_send_door_open_specific(int pnum,int segnum, int side,ubyte flag);
-extern void multi_send_wall_status_specific (int pnum,int wallnum,ubyte type,ubyte flags,ubyte state);
-extern void multi_send_light_specific (int pnum,int segnum,ubyte val);
-extern void multi_send_trigger_specific (char pnum,char trig);
 
 static void net_udp_broadcast_game_info(ubyte info_upid);
 
