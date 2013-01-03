@@ -2,6 +2,7 @@
 // rand has different ranges on different machines...
 
 #include <stdlib.h>
+#include "maths.h"
 
 #ifdef NO_WATCOM_RAND
 void d_srand(unsigned int seed)

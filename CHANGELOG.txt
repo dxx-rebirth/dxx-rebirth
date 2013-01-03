@@ -7,6 +7,7 @@ editor/med.c: Deleted unnecessary drop-to-shell feature; commented out unused Re
 2d/font.c, include/ogl_init.h: Moved pow2ize declaration to ogl_init.h - patch by Kp
 main/bmread.c, main/hostage.c, main/piggy.h: Moved remove_char declaration to piggy.h - patch by Kp
 main/multi.h, main/net_udp.c: Moved multi_* declarations to multi.h - patch by Kp
+maths/rand.c: Included maths.h in rand.c to get d_rand prototype - patch by Kp
 
 20121102
 --------
