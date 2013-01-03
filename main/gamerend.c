@@ -301,7 +301,7 @@ void game_draw_hud_stuff()
 		if (PlayerCfg.CockpitMode[1] == CM_FULL_COCKPIT)
 			y = grd_curcanv->cv_bitmap.bm_h / 1.2 ;
 		if (PlayerCfg.CockpitMode[1] != CM_REAR_VIEW)
-			gr_printf(0x8000, y, message );
+			gr_string(0x8000, y, message );
 	}
 	
 	render_countdown_gauge();
@@ -484,7 +484,7 @@ void show_boxed_message(char *msg, int RenderFlag)
 	
 	nm_draw_background(x-BORDERX,y-BORDERY,x+w+BORDERX,y+h+BORDERY);
 	
-	gr_printf( 0x8000, y, msg );
+	gr_string( 0x8000, y, msg );
 	
 	// If we haven't drawn behind it, need to flip
 	if (!RenderFlag)

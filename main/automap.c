@@ -264,23 +264,23 @@ void draw_automap(automap *am)
 	gr_set_curfont(HUGE_FONT);
 	gr_set_fontcolor(BM_XRGB(20, 20, 20), -1);
 	if (!MacHog)
-		gr_printf((SWIDTH/8), (SHEIGHT/16), TXT_AUTOMAP);
+		gr_string((SWIDTH/8), (SHEIGHT/16), TXT_AUTOMAP);
 	else
-		gr_printf(80*(SWIDTH/640.0), 36*(SHEIGHT/480.0), TXT_AUTOMAP);
+		gr_string(80*(SWIDTH/640.0), 36*(SHEIGHT/480.0), TXT_AUTOMAP);
 	gr_set_curfont(GAME_FONT);
 	gr_set_fontcolor(BM_XRGB(20, 20, 20), -1);
 	if (!MacHog)
 	{
-		gr_printf((SWIDTH/4.923), (SHEIGHT/1.126), TXT_TURN_SHIP);
-		gr_printf((SWIDTH/4.923), (SHEIGHT/1.083), TXT_SLIDE_UPDOWN);
-		gr_printf((SWIDTH/4.923), (SHEIGHT/1.043), "F9/F10 Changes viewing distance");
+		gr_string((SWIDTH/4.923), (SHEIGHT/1.126), TXT_TURN_SHIP);
+		gr_string((SWIDTH/4.923), (SHEIGHT/1.083), TXT_SLIDE_UPDOWN);
+		gr_string((SWIDTH/4.923), (SHEIGHT/1.043), "F9/F10 Changes viewing distance");
 	}
 	else
 	{
 		// for the Mac automap they're shown up the top, hence the different layout
-		gr_printf(265*(SWIDTH/640.0), 27*(SHEIGHT/480.0), TXT_TURN_SHIP);
-		gr_printf(265*(SWIDTH/640.0), 44*(SHEIGHT/480.0), TXT_SLIDE_UPDOWN);
-		gr_printf(265*(SWIDTH/640.0), 61*(SHEIGHT/480.0), "F9/F10 Changes viewing distance");
+		gr_string(265*(SWIDTH/640.0), 27*(SHEIGHT/480.0), TXT_TURN_SHIP);
+		gr_string(265*(SWIDTH/640.0), 44*(SHEIGHT/480.0), TXT_SLIDE_UPDOWN);
+		gr_string(265*(SWIDTH/640.0), 61*(SHEIGHT/480.0), "F9/F10 Changes viewing distance");
 	}
 	
 	gr_set_current_canvas(&am->automap_view);
