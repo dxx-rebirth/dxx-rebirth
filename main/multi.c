@@ -1182,7 +1182,7 @@ multi_message_feedback(void)
 
 		Assert(strlen(feedback_result) < 200);
 
-		HUD_init_message(HM_MULTI, feedback_result);
+		HUD_init_message(HM_MULTI, "%s", feedback_result);
 		//sprintf (temp,"%s",colon);
 		//sprintf (Network_message,"%s",temp);
 
@@ -1211,7 +1211,7 @@ multi_send_macro(int key)
 
 	if (!PlayerCfg.NetworkMessageMacro[key][0])
 	{
-		HUD_init_message(HM_MULTI, TXT_NO_MACRO);
+		HUD_init_message(HM_MULTI, "%s", TXT_NO_MACRO);
 		return;
 	}
 
@@ -1878,9 +1878,9 @@ void multi_do_controlcen_destroy(char *buf)
 			HUD_init_message(HM_MULTI, "%s %s", Players[who].callsign, TXT_HAS_DEST_CONTROL);
 		}
 		else if (who == Player_num)
-			HUD_init_message(HM_MULTI, TXT_YOU_DEST_CONTROL);
+			HUD_init_message(HM_MULTI, "%s", TXT_YOU_DEST_CONTROL);
 		else
-			HUD_init_message(HM_MULTI, TXT_CONTROL_DESTROYED);
+			HUD_init_message(HM_MULTI, "%s", TXT_CONTROL_DESTROYED);
 
 		if (objnum != -1)
 			net_destroy_controlcen(Objects+objnum);
@@ -2492,11 +2492,11 @@ void
 multi_send_destroy_controlcen(int objnum, int player)
 {
 	if (player == Player_num)
-		HUD_init_message(HM_MULTI, TXT_YOU_DEST_CONTROL);
+		HUD_init_message(HM_MULTI, "%s", TXT_YOU_DEST_CONTROL);
 	else if ((player > 0) && (player < N_players))
 		HUD_init_message(HM_MULTI, "%s %s", Players[player].callsign, TXT_HAS_DEST_CONTROL);
 	else
-		HUD_init_message(HM_MULTI, TXT_CONTROL_DESTROYED);
+		HUD_init_message(HM_MULTI, "%s", TXT_CONTROL_DESTROYED);
 
 	multibuf[0] = (char)MULTI_CONTROLCEN;
 	PUT_INTEL_SHORT(multibuf+1, objnum);

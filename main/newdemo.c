@@ -2092,7 +2092,7 @@ int newdemo_read_frame_information(int rewrite)
 				break;
 			}
 			if (Newdemo_vcr_state != ND_STATE_PAUSED)
-				HUD_init_message( HM_DEFAULT, hud_msg );
+				HUD_init_message( HM_DEFAULT, "%s", hud_msg );
 			break;
 			}
 		case ND_EVENT_START_GUIDED:

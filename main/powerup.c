@@ -139,7 +139,7 @@ void powerup_basic(int redadd, int greenadd, int blueadd, int score, char *forma
 
 	PALETTE_FLASH_ADD(redadd,greenadd,blueadd);
 
-	HUD_init_message(HM_DEFAULT, text);
+	HUD_init_message(HM_DEFAULT, "%s", text);
 
 	add_points_to_score(score);
 
