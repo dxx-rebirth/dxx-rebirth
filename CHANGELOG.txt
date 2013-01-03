@@ -8,6 +8,7 @@ editor/med.c: Deleted unnecessary drop-to-shell feature; commented out unused Re
 main/bmread.c, main/piggy.c, main/piggy.h: Moved remove_char declaration to piggy.h - patch by Kp
 main/multi.h, main/net_udp.c: Moved multi_* declarations to multi.h - patch by Kp
 maths/rand.c: Included maths.h in rand.c to get d_rand prototype - patch by Kp
+arch/include/joy.h, arch/sdl/event.c, arch/sdl/joy.c: Moved joy_*_handler declarations to joy.h - patch by Kp
 
 20121102
 --------

@@ -9,6 +9,7 @@
 
 #include "pstypes.h"
 #include "fix.h"
+#include <SDL/SDL.h>
 
 struct d_event;
 
@@ -25,5 +26,8 @@ extern void joy_close();
 extern void event_joystick_get_axis(struct d_event *event, int *axis, int *value);
 extern void joy_flush();
 extern int event_joystick_get_button(struct d_event *event);
+extern void joy_button_handler(SDL_JoyButtonEvent *jbe);
+extern void joy_hat_handler(SDL_JoyHatEvent *jhe);
+extern int joy_axis_handler(SDL_JoyAxisEvent *jae);
 
 #endif // _JOY_H
