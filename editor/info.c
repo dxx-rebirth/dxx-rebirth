@@ -262,7 +262,7 @@ void info_display_default(int show_all)
 	//--------------- Current_side_number -------------
 
 	if (( old_Cursegp_num != Cursegp-Segments ) || ( old_Curside != Curside ))	{
-		gr_uprintf( 0, 48, "Cursegp/side: %3d/%1d", Cursegp-Segments, Curside);
+		gr_uprintf( 0, 48, "Cursegp/side: %3ld/%1d", Cursegp-Segments, Curside);
 		gr_uprintf( 0, 128, " tmap1,2,o: %3d/%3dx%1d", Cursegp->sides[Curside].tmap_num, Cursegp->sides[Curside].tmap_num2 & 0x3FFF, (Cursegp->sides[Curside].tmap_num2 >> 14) & 3);
 		old_Cursegp_num = Cursegp-Segments;
 		old_Curside = Curside;
