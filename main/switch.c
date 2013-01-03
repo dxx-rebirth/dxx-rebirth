@@ -301,17 +301,17 @@ int do_change_walls(sbyte trigger_num)
 	return ret;
 }
 
-void print_trigger_message (int pnum,int trig,int shot,char *message)
+#define print_trigger_message(pnum,trig,shot,message)	\
+	((void)((__print_trigger_message(pnum,trig,shot)) &&		\
+		(HUD_init_message(HM_DEFAULT, message, "s" + ((Triggers[trig].num_links>1)?0:1)))))
+
+static int __print_trigger_message(int pnum,int trig,int shot)
  {
-	char *pl;		//points to 's' or nothing for plural word
-
    if (pnum!=Player_num)
-		return;
-
-	pl = (Triggers[trig].num_links>1)?"s":"";
-
+		return 0;
     if (!(Triggers[trig].flags & TF_NO_MESSAGE) && shot)
-     HUD_init_message(HM_DEFAULT, message,pl);
+		return 1;
+	return 0;
  }
 
 
@@ -530,12 +530,12 @@ int check_trigger_sub(int trigger_num, int pnum,int shot)
 
 		case TT_LIGHT_OFF:
 			if (do_light_off(trigger_num))
-				print_trigger_message (pnum,trigger_num,shot,"Lights off!");
+				print_trigger_message (pnum,trigger_num,shot,"Light%s off!");
 			break;
 
 		case TT_LIGHT_ON:
 			if (do_light_on(trigger_num))
-				print_trigger_message (pnum,trigger_num,shot,"Lights on!");
+				print_trigger_message (pnum,trigger_num,shot,"Light%s on!");
 
 			break;
 
