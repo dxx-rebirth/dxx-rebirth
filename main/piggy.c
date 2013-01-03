@@ -1737,9 +1737,6 @@ void remove_char( char * s, char c )
 	if (p) *p = '\0';
 }
 
-#define REMOVE_EOL(s)           remove_char((s),'\n')
-#define REMOVE_COMMENTS(s)      remove_char((s),';')
-#define REMOVE_DOTS(s)          remove_char((s),'.')
 char *space = { " \t" };
 char *equal_space = { " \t=" };
 

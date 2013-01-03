@@ -118,10 +118,6 @@ static int			num_sounds=0;
 int	linenum;		//line int table currently being parsed
 
 //------------------- Useful macros and variables ---------------
-extern void remove_char( char * s, char c );	// in piggy.c
-#define REMOVE_EOL(s)		remove_char((s),'\n')
-#define REMOVE_COMMENTS(s)	remove_char((s),';')
-#define REMOVE_DOTS(s)  	remove_char((s),'.')
 
 #define IFTOK(str) if (!strcmp(arg, str))
 extern char *space;			// in piggy.c

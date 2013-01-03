@@ -127,4 +127,9 @@ int bitmap_index_read_n(bitmap_index *bi, int n, PHYSFS_file *fp);
  */
 bitmap_index read_extra_bitmap_d1_pig(char *name);
 
+extern void remove_char( char * s, char c );	// in piggy.c
+#define REMOVE_EOL(s)		remove_char((s),'\n')
+#define REMOVE_COMMENTS(s)	remove_char((s),';')
+#define REMOVE_DOTS(s)  	remove_char((s),'.')
+
 #endif //_PIGGY_H
