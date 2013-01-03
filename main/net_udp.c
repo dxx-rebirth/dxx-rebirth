@@ -88,6 +88,8 @@ void net_udp_noloss_process_queue(fix64 time);
 void net_udp_send_extras ();
 extern void multi_send_kill_goal_counts();
 
+static void net_udp_broadcast_game_info(ubyte info_upid);
+
 // Variables
 int UDP_num_sendto = 0, UDP_len_sendto = 0, UDP_num_recvfrom = 0, UDP_len_recvfrom = 0;
 UDP_mdata_info		UDP_MData;
@@ -2223,6 +2225,14 @@ void net_udp_send_game_info(struct _sockaddr sender_addr, ubyte info_upid)
 	}
 }
 
+static void net_udp_broadcast_game_info(ubyte info_upid)
+{
+	net_udp_send_game_info(GBcast, info_upid);
+#ifdef IPv6
+	net_udp_send_game_info(GMcast_v6, info_upid);
+#endif
+}
+
 /* Send game info to all players in this game. Also send lite_info for people watching the netlist */
 void net_udp_send_netgame_update()
 {
@@ -2234,10 +2244,7 @@ void net_udp_send_netgame_update()
 			continue;
 		net_udp_send_game_info(Netgame.players[i].protocol.udp.addr, UPID_GAME_INFO);
 	}
-	net_udp_send_game_info(GBcast, UPID_GAME_INFO_LITE);
-#ifdef IPv6
-	net_udp_send_game_info(GMcast_v6, UPID_GAME_INFO_LITE);
-#endif
+	net_udp_broadcast_game_info(UPID_GAME_INFO_LITE);
 }
 
 int net_udp_send_request(void)
@@ -3365,10 +3372,7 @@ int net_udp_send_sync(void)
 			net_udp_dump_player(Netgame.players[i].protocol.udp.addr, DUMP_ABORTED);
 			net_udp_send_game_info(Netgame.players[i].protocol.udp.addr, UPID_GAME_INFO);
 		}
-		net_udp_send_game_info(GBcast, UPID_GAME_INFO_LITE);
-#ifdef IPv6
-		net_udp_send_game_info(GMcast_v6, UPID_GAME_INFO_LITE);
-#endif
+		net_udp_broadcast_game_info(UPID_GAME_INFO_LITE);
 		return -1;
 	}
 
@@ -3558,10 +3562,7 @@ abort:
 			net_udp_dump_player(Netgame.players[i].protocol.udp.addr, DUMP_ABORTED);
 			net_udp_send_game_info(Netgame.players[i].protocol.udp.addr, UPID_GAME_INFO);
 		}
-		net_udp_send_game_info(GBcast, UPID_GAME_INFO_LITE);
-#ifdef IPv6
-		net_udp_send_game_info(GMcast_v6, UPID_GAME_INFO_LITE);
-#endif
+		net_udp_broadcast_game_info(UPID_GAME_INFO_LITE);
 		Netgame.numplayers = save_nplayers;
 
 		Network_status = NETSTAT_MENU;
@@ -3674,10 +3675,7 @@ int net_udp_start_game(void)
 		Game_mode = GM_GAME_OVER;
 		return 0;	// see if we want to tweak the game we setup
 	}
-	net_udp_send_game_info(GBcast, UPID_GAME_INFO_LITE); // game started. broadcast our current status to everyone who wants to know
-#ifdef IPv6
-	net_udp_send_game_info(GMcast_v6, UPID_GAME_INFO_LITE); // game started. broadcast our current status to everyone who wants to know
-#endif
+	net_udp_broadcast_game_info(UPID_GAME_INFO_LITE); // game started. broadcast our current status to everyone who wants to know
 
 	return 1;	// don't keep params menu or mission listbox (may want to join a game next time)
 }
@@ -3890,10 +3888,7 @@ void net_udp_leave_game()
 				continue;
 			net_udp_send_game_info(Netgame.players[i].protocol.udp.addr, UPID_GAME_INFO);
 		}
-		net_udp_send_game_info(GBcast, UPID_GAME_INFO_LITE);
-#ifdef IPv6
-		net_udp_send_game_info(GMcast_v6, UPID_GAME_INFO_LITE);
-#endif
+		net_udp_broadcast_game_info(UPID_GAME_INFO_LITE);
 		N_players=nsave;
 #ifdef USE_TRACKER
 		if( Netgame.Tracker )
@@ -4051,10 +4046,7 @@ void net_udp_do_frame(int force, int listen)
 	if (multi_i_am_master() && time>=last_bcast_time+(F1_0*10))
 	{
 		last_bcast_time = time;
-		net_udp_send_game_info(GBcast, UPID_GAME_INFO_LITE);
-#ifdef IPv6
-		net_udp_send_game_info(GMcast_v6, UPID_GAME_INFO_LITE);
-#endif
+		net_udp_broadcast_game_info(UPID_GAME_INFO_LITE);
 	}
 
 #ifdef USE_TRACKER

@@ -1,5 +1,9 @@
 D1X-Rebirth Changelog
 
+20130103
+--------
+main/net_udp.c: Centralized UDP Broadcast function for IPv4 and IPv6 calls - patch by Kp
+
 20121102
 --------
 arch/include/key.h, arch/sdl/key.c, main/kconfig.c: Made key_properties readable in other files; Eliminated key_text variable; Marked unicode_frame_buffer as extern in header - patches by Kp
