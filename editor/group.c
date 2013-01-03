@@ -80,8 +80,6 @@ int		Group_orientation[MAX_GROUPS+1];
 int		current_group=-1;
 int		num_groups=0;
 
-extern void validate_segment_side(segment *sp, int sidenum);
-
 // -- void swap_negate_columns(vms_matrix *rotmat, int col1, int col2)
 // -- {
 // -- 	fix	col1_1,col1_2,col1_3;

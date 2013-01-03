@@ -1082,8 +1082,6 @@ void delete_vertices_in_segment(segment *sp)
 	update_num_vertices();
 }
 
-extern void validate_segment_side(segment *sp, int sidenum);
-
 // -------------------------------------------------------------------------------
 //	Delete segment *sp in Segments array.
 // Return value:

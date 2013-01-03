@@ -306,5 +306,6 @@ extern void active_door_read_n_swap(active_door *ad, int n, int swap, PHYSFS_fil
 void cloaking_wall_read_n_swap(cloaking_wall *cw, int n, int swap, PHYSFS_file *fp);
 
 extern void wall_write(wall *w, short version, PHYSFS_file *fp);
+void wall_close_door_num(int door_num);
 
 #endif
