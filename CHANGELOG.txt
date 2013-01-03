@@ -4,6 +4,7 @@ D2X-Rebirth Changelog
 --------
 main/net_udp.c: Centralized UDP Broadcast function for IPv4 and IPv6 calls - patch by Kp
 editor/med.c: Deleted unnecessary drop-to-shell feature; commented out unused ReadLispMacro - patches by Kp
+2d/font.c, include/ogl_init.h: Moved pow2ize declaration to ogl_init.h - patch by Kp
 
 20121102
 --------
