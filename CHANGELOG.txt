@@ -12,6 +12,7 @@ arch/include/joy.h, arch/sdl/event.c, arch/sdl/joy.c: Moved joy_*_handler declar
 editor/group.c, editor/medwall.c, editor/segment.c, main/gameseg.h, main/wall.h: Declared wall_close_door_num in wall.h; Declared validate_segment_side in gameseg.h - patches by Kp
 include/3d.h, main/gameseq.h: Removed redundant/obsolete declarations - patch by Kp
 main/kconfig.h: Moved large control_info arrays to end - patch by Kp
+medrobot.c: medrobot: avoid needless name copy - patch by Kp
 
 20121102
 --------
