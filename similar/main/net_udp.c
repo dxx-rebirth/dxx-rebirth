@@ -108,7 +108,7 @@ int iTrackerVerified = 0;
 /* General UDP functions - START */
 ssize_t dxx_sendto(int sockfd, const void *msg, int len, unsigned int flags, const struct sockaddr *to, socklen_t tolen)
 {
-	ssize_t rv = sendto(sockfd, msg, len, flags, to, tolen);
+	ssize_t rv = sendto(sockfd, (const char *)msg, len, flags, to, tolen);
 
 	UDP_num_sendto++;
 	if (rv > 0)
@@ -119,7 +119,7 @@ ssize_t dxx_sendto(int sockfd, const void *msg, int len, unsigned int flags, con
 
 ssize_t dxx_recvfrom(int sockfd, void *buf, int len, unsigned int flags, struct sockaddr *from, socklen_t *fromlen)
 {
-	ssize_t rv = recvfrom(sockfd, buf, len, flags, from, fromlen);
+	ssize_t rv = recvfrom(sockfd, (char *)buf, len, flags, from, fromlen);
 
 	UDP_num_recvfrom++;
 	UDP_len_recvfrom += rv;
