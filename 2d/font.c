@@ -900,7 +900,7 @@ int gr_uprintf( int x, int y, const char * format, ... )
 	va_list args;
 
 	va_start(args, format );
-	vsprintf(buffer,format,args);
+	vsnprintf(buffer,sizeof(buffer),format,args);
 	return gr_ustring( x, y, buffer );
 }
 
@@ -910,7 +910,7 @@ int gr_printf( int x, int y, const char * format, ... )
 	va_list args;
 
 	va_start(args, format );
-	vsprintf(buffer,format,args);
+	vsnprintf(buffer,sizeof(buffer),format,args);
 	return gr_string( x, y, buffer );
 }
 
