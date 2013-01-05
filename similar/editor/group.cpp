@@ -1632,19 +1632,6 @@ int PrevGroup( void )
 	return 0;
 }
 
-// Returns:
-//	 0 = successfully selected
-//  1 = bad group number
-int select_group( int num )
-{
-	if ((num>=0) && (num<num_groups))
-		{
-		current_group = num;
-		return 0;
-		}
-	else return 1;
-}
-
 
 //	-----------------------------------------------------------------------------
 int MoveGroup(void)
