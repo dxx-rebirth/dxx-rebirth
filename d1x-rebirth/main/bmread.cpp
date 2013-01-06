@@ -148,9 +148,9 @@ int compute_average_pixel(grs_bitmap *n)
 	for (row=0; row<n->bm_h; row++)
 		for (column=0; column<n->bm_w; column++) {
 			color = gr_gpixel (n, column, row);
-			total_red += gr_palette[color*3];
-			total_green += gr_palette[color*3+1];
-			total_blue += gr_palette[color*3+2];
+			total_red += gr_palette[color].r;
+			total_green += gr_palette[color].g;
+			total_blue += gr_palette[color].b;
 		}
 
 	total_red /= (n->bm_h * n->bm_w);
@@ -167,7 +167,7 @@ int compute_average_pixel(grs_bitmap *n)
 static bitmap_index bm_load_sub(int skip, char * filename )
 {
 	bitmap_index bitmap_num;
-	ubyte newpal[256*3];
+	palette_array_t newpal;
 	int iff_error;		//reference parm to avoid warning message
 	char fname[20];
 

@@ -5130,7 +5130,7 @@ void init_hoard_data()
 	}
 
 	//Load and remap bitmap data for orb
-	PHYSFS_read(ifile,palette,3,256);
+	PHYSFS_read(ifile,&palette[0],sizeof(palette[0]),palette.size());
 	for (i=0;i<n_orb_frames;i++) {
 		grs_bitmap *bm = &GameBitmaps[Vclip[orb_vclip].frames[i].index];
 		PHYSFS_read(ifile,bm->bm_data,1,orb_w*orb_h);
@@ -5139,7 +5139,7 @@ void init_hoard_data()
 
 	//Load and remap bitmap data for goal texture
 	PHYSFSX_readShort(ifile);        //skip frame count
-	PHYSFS_read(ifile,palette,3,256);
+	PHYSFS_read(ifile,&palette[0],sizeof(palette[0]),palette.size());
 	for (i=0;i<n_goal_frames;i++) {
 		grs_bitmap *bm = &GameBitmaps[Effects[Hoard_goal_eclip].vc.frames[i].index];
 		PHYSFS_read(ifile,bm->bm_data,1,64*64);
@@ -5154,7 +5154,7 @@ void init_hoard_data()
 		MALLOC( bitmap_data2, ubyte, icon_w*icon_h );
 		gr_init_bitmap(&Orb_icons[i],BM_LINEAR,0,0,icon_w,icon_h,icon_w,bitmap_data2);
 		gr_set_transparent (&Orb_icons[i], 1);
-		PHYSFS_read(ifile,palette,3,256);
+		PHYSFS_read(ifile,&palette[0],sizeof(palette[0]),palette.size());
 		PHYSFS_read(ifile,Orb_icons[i].bm_data,1,icon_w*icon_h);
 		gr_remap_bitmap_good( &Orb_icons[i], palette, 255, -1 );
 	}
@@ -5214,7 +5214,7 @@ void save_hoard_data(void)
 	PHYSFS_writeULE16(ofile, nframes);
 	PHYSFS_writeULE16(ofile, bm[0]->bm_w);
 	PHYSFS_writeULE16(ofile, bm[0]->bm_h);
-	PHYSFS_write(ofile, palette, 3, 256);
+	PHYSFS_write(ofile, &palette[0], sizeof(palette[0]), palette.size());
 	for (i=0;i<nframes;i++)
 		PHYSFS_write(ofile, bm[i]->bm_data, bm[i]->bm_w*bm[i]->bm_h, 1);
 
@@ -5222,7 +5222,7 @@ void save_hoard_data(void)
 	Assert(iff_error == IFF_NO_ERROR);
 	Assert(bm[0]->bm_w == 64 && bm[0]->bm_h == 64);
 	PHYSFS_writeULE16(ofile, nframes);
-	PHYSFS_write(ofile, palette, 3, 256);
+	PHYSFS_write(ofile, &palette[0], sizeof(palette[0]), palette.size());
 	for (i=0;i<nframes;i++)
 		PHYSFS_write(ofile, bm[i]->bm_data, bm[i]->bm_w*bm[i]->bm_h, 1);
 
@@ -5232,7 +5232,7 @@ void save_hoard_data(void)
 		Assert(iff_error == IFF_NO_ERROR);
 		PHYSFS_writeULE16(ofile, icon.bm_w);
 		PHYSFS_writeULE16(ofile, icon.bm_h);
-		PHYSFS_write(ofile, palette, 3, 256);
+		PHYSFS_write(ofile, &palette[0], sizeof(palette[0]), palette.size());
 		PHYSFS_write(ofile, icon.bm_data, icon.bm_w*icon.bm_h, 1);
 	}
 	(void)iff_error;

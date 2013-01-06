@@ -267,11 +267,10 @@ static int pcx_read_bitmap_file(struct PCX_PHYSFS_file *const pcxphysfs, grs_bit
 	}
 
 	// Read the extended palette at the end of PCX file
-	if ( palette != NULL )	{
 		// Read in a character which should be 12 to be extended palette file
 		if (PCX_PHYSFS_read(pcxphysfs, &data, 1) == 1)	{
 			if ( data == 12 )	{
-				if (PCX_PHYSFS_read(pcxphysfs, palette, 768) != 1)	{
+				if (PCX_PHYSFS_read(pcxphysfs, reinterpret_cast<ubyte *>(&palette[0]), palette.size() * sizeof(palette[0])) != 1)	{
 					return PCX_ERROR_READING;
 				}
 				diminish_palette(palette);
@@ -279,7 +278,6 @@ static int pcx_read_bitmap_file(struct PCX_PHYSFS_file *const pcxphysfs, grs_bit
 		} else {
 			return PCX_ERROR_NO_PALETTE;
 		}
-	}
 	return PCX_ERROR_NONE;
 }
 
@@ -328,10 +326,14 @@ int pcx_write_bitmap(const char * filename, grs_bitmap * bmp, palette_array_t &p
 	}
 
 	// Write the extended palette
-	for (i=0; i<768; i++ )
-		palette[i] <<= 2;
+	for (i=0; i < palette.size(); i++ )
+	{
+		palette[i].r <<= 2;
+		palette[i].g <<= 2;
+		palette[i].b <<= 2;
+	}
 
-	retval = PHYSFS_write(PCXfile, palette, 768, 1);
+	retval = PHYSFS_write(PCXfile, &palette[0], sizeof(palette), 1);
 
 	diminish_palette(palette);
 

@@ -1239,13 +1239,13 @@ static int HandleTestKey(int key)
 #if defined(DXX_BUILD_DESCENT_II)
 	case KEY_Q + KEY_SHIFTED + KEY_DEBUGGED:
 		{
-			palette_array_t pal_save;
-			memcpy(pal_save,gr_palette,768);
+			palette_array_t save_pal;
+			save_pal = gr_palette;
 			PlayMovie ("end.tex", "end.mve",MOVIE_ABORT_ON);
 			Screen_mode = -1;
 			set_screen_mode(SCREEN_GAME);
 			reset_cockpit();
-			memcpy(gr_palette,pal_save,768);
+			gr_palette = save_pal;
 			gr_palette_load(gr_palette);
 			break;
 		}

@@ -664,7 +664,7 @@ static int state_get_savegame_filename(char * fname, char * dsc, const char * ca
 #if defined(DXX_BUILD_DESCENT_II)
 					if (version >= 9) {
 						palette_array_t pal;
-						PHYSFS_read(fp, pal, 3, 256);
+						PHYSFS_read(fp, &pal[0], sizeof(pal[0]), pal.size());
 						gr_remap_bitmap_good( sc_bmp[i], pal, -1, -1 );
 					}
 #endif
@@ -1077,7 +1077,7 @@ int state_save_all_sub(const char *filename, const char *desc)
 		gr_set_current_canvas(cnv_save);
 		gr_free_canvas( cnv );
 #if defined(DXX_BUILD_DESCENT_II)
-		PHYSFS_write(fp, gr_palette, 3, 256);
+		PHYSFS_write(fp, &gr_palette[0], sizeof(gr_palette[0]), gr_palette.size());
 #endif
 	}
 	else

@@ -1389,14 +1389,14 @@ static void ogl_filltexbuf(unsigned char *data, GLubyte *texp, unsigned truewidt
 						(*(texp++))=255;
 						break;
 					case GL_RGB:
-						(*(texp++)) = (*ogl_pal)[c * 3] * 4;
-						(*(texp++)) = (*ogl_pal)[c * 3 + 1] * 4;
-						(*(texp++)) = (*ogl_pal)[c * 3 + 2] * 4;
+						(*(texp++)) = (*ogl_pal)[c].r * 4;
+						(*(texp++)) = (*ogl_pal)[c].g * 4;
+						(*(texp++)) = (*ogl_pal)[c].b * 4;
 						break;
 					case GL_RGBA:
-						(*(texp++))=(*ogl_pal)[c*3]*4;
-						(*(texp++))=(*ogl_pal)[c*3+1]*4;
-						(*(texp++))=(*ogl_pal)[c*3+2]*4;
+						(*(texp++))=(*ogl_pal)[c].r*4;
+						(*(texp++))=(*ogl_pal)[c].g*4;
+						(*(texp++))=(*ogl_pal)[c].b*4;
 						(*(texp++))=255;//not transparent
 						break;
 #ifndef OGLES

@@ -183,15 +183,14 @@ void gr_set_super_transparent (grs_bitmap *pbm, int bTransparent)
 	}
 }
 
-void build_colormap_good( palette_array_t &pa, ubyte * colormap, int * freq )
+void build_colormap_good( palette_array_t &palette, ubyte * colormap, int * freq )
 {
 	int i, r, g, b;
-	ubyte *palette = pa;
 
-	for (i=0; i<256; i++ )	{
-		r = *palette++;
-		g = *palette++;
-		b = *palette++;
+	for (i=0; i < 256; i++ )	{
+		r = palette[i].r;
+		g = palette[i].g;
+		b = palette[i].b;
  		*colormap++ = gr_find_closest_color( r, g, b );
 		*freq++ = 0;
 	}

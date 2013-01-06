@@ -182,12 +182,12 @@ static void MovieShowFrame(ubyte *buf, int dstx, int dsty, int bufw, int bufh, i
 	static palette_array_t old_pal;
 	float scale = 1.0;
 
-	if (memcmp(old_pal,gr_palette,768))
+	if (old_pal != gr_palette)
 	{
-		memcpy(old_pal,gr_palette,768);
+		old_pal = gr_palette;
 		return;
 	}
-	memcpy(old_pal,gr_palette,768);
+	old_pal = gr_palette;
 
 	source_bm.bm_x = source_bm.bm_y = 0;
 	source_bm.bm_w = source_bm.bm_rowsize = bufw;
@@ -240,13 +240,13 @@ static void MovieSetPalette(unsigned char *p, unsigned start, unsigned count)
 	Assert(start>=1 && start+count-1<=254);
 
 	//Set color 0 to be black
-	gr_palette[0] = gr_palette[1] = gr_palette[2] = 0;
+	gr_palette[0].r = gr_palette[0].g = gr_palette[0].b = 0;
 
 	//Set color 255 to be our subtitle color
-	gr_palette[765] = gr_palette[766] = gr_palette[767] = 50;
+	gr_palette[255].r = gr_palette[255].g = gr_palette[255].b = 50;
 
 	//movie libs palette into our array
-	memcpy(gr_palette+start*3,p+start*3,count*3);
+	memcpy(&gr_palette[start],p+start*3,count*3);
 }
 
 

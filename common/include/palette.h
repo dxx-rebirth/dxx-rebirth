@@ -24,7 +24,16 @@ COPYRIGHT 1993-1998 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 #include "pstypes.h"
 
 #ifdef __cplusplus
-typedef ubyte palette_array_t[256*3];
+#include "dxxsconf.h"
+#include "compiler-array.h"
+
+struct rgb_t {
+	ubyte r,g,b;
+};
+
+static inline bool operator==(const rgb_t &a, const rgb_t &b) { return a.r == b.r && a.g == b.g && a.b == b.b; }
+
+struct palette_array_t : public array<rgb_t, 256> {};
 
 #ifdef DXX_BUILD_DESCENT_II
 #define DEFAULT_LEVEL_PALETTE "groupa.256" //don't confuse with D2_DEFAULT_PALETTE

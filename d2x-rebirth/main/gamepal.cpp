@@ -74,7 +74,7 @@ int load_palette(const char *name,int used_for_level,int no_change_screen)
 
 	if (d_stricmp(last_palette_loaded,name) != 0) {
 
-		memcpy(old_pal,gr_palette,sizeof(old_pal));
+		old_pal = gr_palette;
 
 		strncpy(last_palette_loaded,name,sizeof(last_palette_loaded));
 

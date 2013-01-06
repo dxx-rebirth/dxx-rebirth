@@ -213,13 +213,13 @@ static int start_endlevel_movie()
 		return 0;       //no escapes for secret level
 	}
 
-	memcpy(save_pal,gr_palette,768);
+	save_pal = gr_palette;
 
 	r=PlayMovie(NULL, movie_name,(Game_mode & GM_MULTI)?0:MOVIE_REQUIRED);
 
 	if (Newdemo_state == ND_STATE_PLAYBACK) {
 		set_screen_mode(SCREEN_GAME);
-		memcpy(gr_palette,save_pal,768);
+		gr_palette = save_pal;
 	}
 
 	return (r);

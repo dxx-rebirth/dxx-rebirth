@@ -402,9 +402,9 @@ static g3s_lrgb compute_light_emission(int objnum)
 					int color = g3_poly_get_color(po->model_data);
 					if (color)
 					{
-						obj_color.r = gr_current_pal[color*3];
-						obj_color.g = gr_current_pal[color*3+1];
-						obj_color.b = gr_current_pal[color*3+2];
+						obj_color.r = gr_current_pal[color].r;
+						obj_color.g = gr_current_pal[color].g;
+						obj_color.b = gr_current_pal[color].b;
 					}
 				}
 				else

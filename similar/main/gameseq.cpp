@@ -1832,7 +1832,7 @@ static void ShowLevelIntro(int level_num)
 
 		palette_array_t save_pal;
 
-		memcpy(save_pal,gr_palette,sizeof(gr_palette));
+		save_pal = gr_palette;
 
 		if (PLAYING_BUILTIN_MISSION) {
 
@@ -1866,7 +1866,7 @@ static void ShowLevelIntro(int level_num)
 			do_briefing_screens(Briefing_text_filename, level_num);
 		}
 
-		memcpy(gr_palette,save_pal,sizeof(gr_palette));
+		gr_palette = save_pal;
 	}
 }
 

@@ -1261,14 +1261,14 @@ static int load_briefing_screen(briefing *br, const char *fname)
 	}
 
 	// Hack: Make sure black parts of robot are shown black
-	if (MacPig && gr_palette[0] == 63 &&
+	if (MacPig && gr_palette[0].r == 63 &&
 		(!d_stricmp(fname2, "brief03.pcx") || !d_stricmp(fname2, "end01.pcx") ||
 		!d_stricmp(fname2, "brief03h.pcx") || !d_stricmp(fname2, "end01h.pcx")
 		))
 	{
 		swap_0_255(&br->background);
-		gr_palette[0] = gr_palette[1] = gr_palette[2] = 0;
-		gr_palette[765] = gr_palette[766] = gr_palette[767] = 63;
+		gr_palette[0].r = gr_palette[0].g = gr_palette[0].b = 0;
+		gr_palette[255].r = gr_palette[255].g = gr_palette[255].b = 63;
 	}
 
 	show_fullscr(&br->background);

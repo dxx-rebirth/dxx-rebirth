@@ -152,9 +152,9 @@ int compute_average_pixel(grs_bitmap *n)
 	for (row=0; row<n->bm_h; row++)
 		for (column=0; column<n->bm_w; column++) {
 			color = *pptr++;
-			total_red += gr_palette[color*3];
-			total_green += gr_palette[color*3+1];
-			total_blue += gr_palette[color*3+2];
+			total_red += gr_palette[color].r;
+			total_green += gr_palette[color].g;
+			total_blue += gr_palette[color].b;
 		}
 
 	total_red /= (n->bm_h * n->bm_w);

@@ -246,7 +246,7 @@ void gr_palette_step_up( int r, int g, int b )
 
 	for (i=0; i<256; i++)
 	{
-		temp = (int)(p[i * 3]) + r + gr_palette_gamma;
+		temp = (int)(p[i].r) + r + gr_palette_gamma;
 
 		if (temp<0)
 			temp=0;
@@ -254,7 +254,7 @@ void gr_palette_step_up( int r, int g, int b )
 			temp=63;
 
 		colors[i].r = temp * 4;
-		temp = (int)(p[i * 3 + 1]) + g + gr_palette_gamma;
+		temp = (int)(p[i].g) + g + gr_palette_gamma;
 
 		if (temp<0)
 			temp=0;
@@ -262,7 +262,7 @@ void gr_palette_step_up( int r, int g, int b )
 			temp=63;
 
 		colors[i].g = temp * 4;
-		temp = (int)(p[i * 3 + 2]) + b + gr_palette_gamma;
+		temp = (int)(p[i].b) + b + gr_palette_gamma;
 
 		if (temp<0)
 			temp=0;
@@ -285,7 +285,7 @@ void gr_palette_load( palette_array_t &pal )
 	SDL_Color colors[256];
 	ubyte gamma[64];
 
-	if (memcmp(pal,gr_current_pal,768))
+	if (pal != gr_current_pal)
 		SDL_FillRect(canvas, NULL, SDL_MapRGB(canvas->format, 0, 0, 0));
 
 	copy_bound_palette(gr_current_pal, pal);
@@ -304,11 +304,12 @@ void gr_palette_load( palette_array_t &pal )
 	for (i = 0, j = 0; j < 256; j++)
 	{
 		int c;
-		c = gr_find_closest_color(gamma[gr_palette[j*3]],gamma[gr_palette[j*3+1]],gamma[gr_palette[j*3+2]]);
+		c = gr_find_closest_color(gamma[gr_palette[j].r],gamma[gr_palette[j].g],gamma[gr_palette[j].b]);
 		gr_fade_table[14*256+j] = c;
-		colors[j].r = (min(gr_current_pal[i++] + gr_palette_gamma, 63)) * 4;
-		colors[j].g = (min(gr_current_pal[i++] + gr_palette_gamma, 63)) * 4;
-		colors[j].b = (min(gr_current_pal[i++] + gr_palette_gamma, 63)) * 4;
+		colors[j].r = (min(gr_current_pal[i].r + gr_palette_gamma, 63)) * 4;
+		colors[j].g = (min(gr_current_pal[i].g + gr_palette_gamma, 63)) * 4;
+		colors[j].b = (min(gr_current_pal[i].b + gr_palette_gamma, 63)) * 4;
+		i++;
 	}
 
 	SDL_SetColors(canvas, colors, 0, 256);
@@ -320,17 +321,17 @@ void gr_palette_load( palette_array_t &pal )
 void gr_palette_read(palette_array_t &pal)
 {
 	SDL_Palette *palette;
-	int i, j;
+	unsigned i;
 
 	palette = canvas->format->palette;
 
 	if (palette == NULL)
 		return; // Display is not palettised
 
-	for (i = 0, j=0; i < 256; i++)
+	for (i = 0; i < 256; i++)
 	{
-		pal[j++] = palette->colors[i].r / 4;
-		pal[j++] = palette->colors[i].g / 4;
-		pal[j++] = palette->colors[i].b / 4;
+		pal[i].r = palette->colors[i].r / 4;
+		pal[i].g = palette->colors[i].g / 4;
+		pal[i].b = palette->colors[i].b / 4;
 	}
 }

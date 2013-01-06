@@ -25,6 +25,7 @@ COPYRIGHT 1993-1998 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 #ifdef __cplusplus
 
 struct grs_bitmap;
+struct palette_array_t;
 
 #define PCX_ERROR_NONE          0
 #define PCX_ERROR_OPENING       1

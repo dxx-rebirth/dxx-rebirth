@@ -753,9 +753,9 @@ void compute_average_rgb(grs_bitmap *bm, fix *rgb)
 		for (y = 0; y < bm->bm_w; y++)
 		{
 			color = buf[i++];
-			t_rgb[0] = gr_palette[color*3];
-			t_rgb[1] = gr_palette[color*3+1];
-			t_rgb[2] = gr_palette[color*3+2];
+			t_rgb[0] = gr_palette[color].r;
+			t_rgb[1] = gr_palette[color].g;
+			t_rgb[2] = gr_palette[color].b;
 			if (!(color == TRANSPARENCY_COLOR || (t_rgb[0] == t_rgb[1] && t_rgb[0] == t_rgb[2])))
 			{
 				rgb[0] += t_rgb[0];
