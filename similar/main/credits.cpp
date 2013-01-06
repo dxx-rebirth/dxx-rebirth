@@ -219,7 +219,7 @@ void credits_show(const char *credits_filename)
 	int pcx_error;
 	char * tempp;
 	char filename[32];
-	ubyte backdrop_palette[768];
+	palette_array_t backdrop_palette;
 	
 	MALLOC(cr, credits, 1);
 	if (!cr)

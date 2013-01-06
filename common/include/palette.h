@@ -24,6 +24,7 @@ COPYRIGHT 1993-1998 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 #include "pstypes.h"
 
 #ifdef __cplusplus
+typedef ubyte palette_array_t[256*3];
 
 #ifdef DXX_BUILD_DESCENT_II
 #define DEFAULT_LEVEL_PALETTE "groupa.256" //don't confuse with D2_DEFAULT_PALETTE
@@ -31,17 +32,17 @@ COPYRIGHT 1993-1998 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 
 extern void gr_palette_set_gamma( int gamma );
 extern int gr_palette_get_gamma();
-extern void gr_palette_load( ubyte * pal );
+void gr_palette_load( palette_array_t &pal );
 extern void gr_make_cthru_table(ubyte * table, ubyte r, ubyte g, ubyte b );
 #ifdef DXX_BUILD_DESCENT_II
 extern void gr_palette_clear();
 extern void gr_make_blend_table(ubyte *blend_table, ubyte r, ubyte g, ubyte b);
 #endif
 extern int gr_find_closest_color_current( int r, int g, int b );
-extern void gr_palette_read(ubyte * palette);
+extern void gr_palette_read(palette_array_t &palette);
 extern void init_computed_colors(void);
 extern ubyte gr_palette_gamma;
-extern ubyte gr_current_pal[256*3];
+extern palette_array_t gr_current_pal;
 
 #endif
 

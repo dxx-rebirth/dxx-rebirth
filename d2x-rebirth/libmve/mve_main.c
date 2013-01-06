@@ -13,7 +13,7 @@
 #include "libmve.h"
 
 static SDL_Surface *g_screen;
-static unsigned char g_palette[768];
+static palette_array_t g_palette;
 static int g_truecolor;
 
 static int doPlay(const char *filename);

@@ -1239,7 +1239,7 @@ static int HandleTestKey(int key)
 #if defined(DXX_BUILD_DESCENT_II)
 	case KEY_Q + KEY_SHIFTED + KEY_DEBUGGED:
 		{
-			char pal_save[768];
+			palette_array_t pal_save;
 			memcpy(pal_save,gr_palette,768);
 			PlayMovie ("end.tex", "end.mve",MOVIE_ABORT_ON);
 			Screen_mode = -1;

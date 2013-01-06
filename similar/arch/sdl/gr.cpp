@@ -18,6 +18,7 @@
 #include "gamefont.h"
 #include "args.h"
 #include "config.h"
+#include "palette.h"
 
 int sdl_video_flags = SDL_SWSURFACE | SDL_HWPALETTE | SDL_DOUBLEBUF;
 SDL_Surface *screen,*canvas;
@@ -226,7 +227,7 @@ static int last_r=0, last_g=0, last_b=0;
 void gr_palette_step_up( int r, int g, int b )
 {
 	int i;
-	ubyte *p = gr_palette;
+	palette_array_t &p = gr_palette;
 	int temp;
 	SDL_Palette *palette;
 	SDL_Color colors[256];
@@ -245,7 +246,7 @@ void gr_palette_step_up( int r, int g, int b )
 
 	for (i=0; i<256; i++)
 	{
-		temp = (int)(*p++) + r + gr_palette_gamma;
+		temp = (int)(p[i * 3]) + r + gr_palette_gamma;
 
 		if (temp<0)
 			temp=0;
@@ -253,7 +254,7 @@ void gr_palette_step_up( int r, int g, int b )
 			temp=63;
 
 		colors[i].r = temp * 4;
-		temp = (int)(*p++) + g + gr_palette_gamma;
+		temp = (int)(p[i * 3 + 1]) + g + gr_palette_gamma;
 
 		if (temp<0)
 			temp=0;
@@ -261,7 +262,7 @@ void gr_palette_step_up( int r, int g, int b )
 			temp=63;
 
 		colors[i].g = temp * 4;
-		temp = (int)(*p++) + b + gr_palette_gamma;
+		temp = (int)(p[i * 3 + 2]) + b + gr_palette_gamma;
 
 		if (temp<0)
 			temp=0;
@@ -277,7 +278,7 @@ void gr_palette_step_up( int r, int g, int b )
 #undef min
 static inline int min(int x, int y) { return x < y ? x : y; }
 
-void gr_palette_load( ubyte *pal )
+void gr_palette_load( palette_array_t &pal )
 {
 	int i, j;
 	SDL_Palette *palette;
@@ -321,7 +322,7 @@ void gr_palette_load( ubyte *pal )
 	gr_remap_mono_fonts();
 }
 
-void gr_palette_read(ubyte * pal)
+void gr_palette_read(palette_array_t &pal)
 {
 	SDL_Palette *palette;
 	int i, j;

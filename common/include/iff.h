@@ -27,7 +27,7 @@ COPYRIGHT 1993-1999 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 
 //Prototypes for IFF library functions
 
-int iff_read_bitmap(const char *ifilename,grs_bitmap *bm,int bitmap_type,ubyte *palette);
+int iff_read_bitmap(const char *ifilename,grs_bitmap *bm,int bitmap_type,palette_array_t *palette);
 	//reads an IFF file into a grs_bitmap structure. fills in palette if not null
 	//returns error codes - see IFF.H.  see GR.H for bitmap_type
 	//MEM DETAILS:  This routines assumes that you already have the grs_bitmap
@@ -47,7 +47,7 @@ int iff_read_into_bitmap(const char *ifilename,grs_bitmap *bm, sbyte *palette);
 //read in animator brush (.abm) file
 //fills in array of pointers, and n_bitmaps.
 //returns iff error codes. max_bitmaps is size of array.
-int iff_read_animbrush(const char *ifilename,grs_bitmap **bm,unsigned max_bitmaps,unsigned *n_bitmaps,ubyte *palette);
+int iff_read_animbrush(const char *ifilename,grs_bitmap **bm,unsigned max_bitmaps,unsigned *n_bitmaps,palette_array_t &palette);
 
 // After a read
 extern ubyte iff_transparent_color;

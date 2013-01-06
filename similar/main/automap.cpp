@@ -898,7 +898,7 @@ static int automap_handler(window *wind, d_event *event, automap *am)
 void do_automap( int key_code )
 {
 	int pcx_error;
-	ubyte pal[256*3];
+	palette_array_t pal;
 	window *automap_wind = NULL;
 	automap *am;
 	

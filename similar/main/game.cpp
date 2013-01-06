@@ -434,7 +434,7 @@ void save_screen_shot(int automap_flag)
 	static int savenum=0;
 	grs_canvas *temp_canv,*save_canv;
         char savename[FILENAME_LEN+sizeof(SCRNS_DIR)];
-	ubyte pal[768];
+	palette_array_t pal;
 
 	stop_time();
 

@@ -74,8 +74,7 @@ using std::max;
 
 static GLubyte *pixels = NULL;
 static GLubyte *texbuf = NULL;
-
-static ubyte (*ogl_pal)[256*3]=&gr_palette;
+static palette_array_t *ogl_pal = &gr_palette;
 
 unsigned last_width=~0u,last_height=~0u;
 int GL_TEXTURE_2D_enabled=-1;

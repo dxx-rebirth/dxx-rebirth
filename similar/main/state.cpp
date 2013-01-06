@@ -663,7 +663,7 @@ static int state_get_savegame_filename(char * fname, char * dsc, const char * ca
 					PHYSFS_read(fp, sc_bmp[i]->bm_data, THUMBNAIL_W * THUMBNAIL_H, 1);
 #if defined(DXX_BUILD_DESCENT_II)
 					if (version >= 9) {
-						ubyte pal[256*3];
+						palette_array_t pal;
 						PHYSFS_read(fp, pal, 3, 256);
 						gr_remap_bitmap_good( sc_bmp[i], pal, -1, -1 );
 					}

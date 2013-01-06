@@ -149,7 +149,7 @@ void nm_draw_background(int x1, int y1, int x2, int y2 )
 	if (nm_background.bm_data == NULL)
 	{
 		int pcx_error;
-		ubyte background_palette[768];
+		palette_array_t background_palette;
 		gr_init_bitmap_data (&nm_background);
 		pcx_error = pcx_read_bitmap(MENU_BACKGROUND_BITMAP,&nm_background,BM_LINEAR,background_palette);
 		Assert(pcx_error == PCX_ERROR_NONE);

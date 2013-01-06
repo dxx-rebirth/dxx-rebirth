@@ -5061,7 +5061,7 @@ void init_hoard_data()
 	int n_orb_frames,n_goal_frames;
 	int orb_w,orb_h;
 	int icon_w,icon_h;
-	ubyte palette[256*3];
+	palette_array_t palette;
 	PHYSFS_file *ifile;
 	ubyte *bitmap_data1;
 	int i,save_pos;
@@ -5198,7 +5198,7 @@ void save_hoard_data(void)
 	grs_bitmap * bm[MAX_BITMAPS_PER_BRUSH];
 	grs_bitmap icon;
 	unsigned nframes;
-	ubyte palette[256*3];
+	palette_array_t palette;
 	PHYSFS_file *ofile;
 	int iff_error;
 	unsigned i;
@@ -5228,7 +5228,7 @@ void save_hoard_data(void)
 
 	for (i=0;i<2;i++)
 	{
-		iff_error = iff_read_bitmap(i?"orbb.bbm":"orb.bbm",&icon,BM_LINEAR,palette);
+		iff_error = iff_read_bitmap(i?"orbb.bbm":"orb.bbm",&icon,BM_LINEAR,&palette);
 		Assert(iff_error == IFF_NO_ERROR);
 		PHYSFS_writeULE16(ofile, icon.bm_w);
 		PHYSFS_writeULE16(ofile, icon.bm_h);

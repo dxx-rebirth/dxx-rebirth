@@ -22,6 +22,7 @@ COPYRIGHT 1993-1999 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 
 #include "pstypes.h"
 #include "maths.h"
+#include "palette.h"
 #include "dxxsconf.h"
 #include "fmtcheck.h"
 
@@ -315,7 +316,7 @@ static inline void gr_remap_mono_fonts() {}
 #elif defined(DXX_BUILD_DESCENT_II)
 #define DXX_SDL_WINDOW_CAPTION	"Descent II"
 #define DXX_SDL_WINDOW_ICON_BITMAP	"d2x-rebirth.bmp"
-void gr_copy_palette(ubyte *gr_palette, ubyte *pal, int size);
+void gr_copy_palette(palette_array_t &gr_palette, const palette_array_t &pal);
 
 //remap (by re-reading) all the color fonts
 void gr_remap_color_fonts();
@@ -349,7 +350,7 @@ extern void gr_set_current_canvas( grs_canvas *canv );
 #define FT_PROPORTIONAL 2
 #define FT_KERNED       4
 
-extern ubyte gr_palette[256*3];
+extern palette_array_t gr_palette;
 extern ubyte gr_fade_table[256*GR_FADE_LEVELS];
 extern ubyte gr_inverse_table[32*32*32];
 
@@ -367,13 +368,13 @@ extern ushort gr_fade_table_selector;
 //			gr_remap_bitmap( new, newpal, iff_transparent_color );
 //		else
 //			gr_remap_bitmap( new, newpal, -1 );
-extern void gr_remap_bitmap( grs_bitmap * bmp, ubyte * palette, int transparent_color, int super_transparent_color );
+void gr_remap_bitmap( grs_bitmap * bmp, palette_array_t &palette, int transparent_color, int super_transparent_color );
 
 // Same as above, but searches using gr_find_closest_color which uses
 // 18-bit accurracy instead of 15bit when translating colors.
-extern void gr_remap_bitmap_good( grs_bitmap * bmp, ubyte * palette, int transparent_color, int super_transparent_color );
+void gr_remap_bitmap_good( grs_bitmap * bmp, palette_array_t &palette, int transparent_color, int super_transparent_color );
 
-extern void gr_palette_step_up( int r, int g, int b );
+void gr_palette_step_up( int r, int g, int b );
 
 extern void gr_bitmap_check_transparency( grs_bitmap * bmp );
 

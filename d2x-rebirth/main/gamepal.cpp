@@ -48,7 +48,7 @@ char last_palette_loaded_pig[FILENAME_LEN]="";
 int load_palette(const char *name,int used_for_level,int no_change_screen)
 {
 	char pigname[FILENAME_LEN];
-	ubyte old_pal[256*3];
+	palette_array_t old_pal;
 
 	//special hack to tell that palette system about a pig that's been loaded elsewhere
 	if (used_for_level == -2) {

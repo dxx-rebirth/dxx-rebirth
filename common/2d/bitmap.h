@@ -4,8 +4,9 @@
 #include "pstypes.h"
 
 #ifdef __cplusplus
+#include "palette.h"
 
-void build_colormap_good( ubyte * palette, ubyte * colormap, int * freq );
+void build_colormap_good( palette_array_t &palette, ubyte * colormap, int * freq );
 void decode_data(ubyte *data, int num_pixels, ubyte * colormap, int * count );
 
 #endif

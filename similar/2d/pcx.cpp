@@ -84,7 +84,7 @@ static int PCXHeader_read_n(PCXHeader *ph, int n, PHYSFS_file *fp)
 }
 
 #if defined(DXX_BUILD_DESCENT_I)
-int bald_guy_load(const char * filename, grs_bitmap * bmp,int bitmap_type ,ubyte * palette )
+int bald_guy_load(const char * filename, grs_bitmap * bmp,int bitmap_type ,palette_array_t &palette )
 {
 	PCXHeader header;
 	PHYSFS_file * PCXfile;
@@ -170,7 +170,7 @@ int bald_guy_load(const char * filename, grs_bitmap * bmp,int bitmap_type ,ubyte
 	// Read in a character which should be 12 to be extended palette file
 	
 	p++;
-	if (palette != NULL) {
+	{
 		for (i = 0; i < 768; i++) {
 			palette[i] = *p;
 			palette[i] >>= 2;
@@ -186,9 +186,9 @@ struct PCX_PHYSFS_file
 	PHYSFS_file *PCXfile;
 };
 
-static int pcx_read_bitmap_file(struct PCX_PHYSFS_file *const pcxphysfs, grs_bitmap * bmp,int bitmap_type ,ubyte * palette);
+static int pcx_read_bitmap_file(struct PCX_PHYSFS_file *const pcxphysfs, grs_bitmap * bmp,int bitmap_type ,palette_array_t &palette);
 
-int pcx_read_bitmap(const char * filename, grs_bitmap * bmp,int bitmap_type ,ubyte * palette )
+int pcx_read_bitmap(const char * filename, grs_bitmap * bmp,int bitmap_type ,palette_array_t &palette )
 {
 	struct PCX_PHYSFS_file pcxphysfs;
 	int result;
@@ -205,7 +205,7 @@ static int PCX_PHYSFS_read(struct PCX_PHYSFS_file *pcxphysfs, ubyte *data, unsig
 	return PHYSFS_read(pcxphysfs->PCXfile, data, size, sizeof(*data));
 }
 
-static int pcx_read_bitmap_file(struct PCX_PHYSFS_file *const pcxphysfs, grs_bitmap * bmp,int bitmap_type ,ubyte * palette)
+static int pcx_read_bitmap_file(struct PCX_PHYSFS_file *const pcxphysfs, grs_bitmap * bmp,int bitmap_type ,palette_array_t &palette)
 {
 	PCXHeader header;
 	int i, row, col, count, xsize, ysize;
@@ -292,7 +292,7 @@ static int pcx_read_bitmap_file(struct PCX_PHYSFS_file *const pcxphysfs, grs_bit
 	return PCX_ERROR_NONE;
 }
 
-int pcx_write_bitmap(const char * filename, grs_bitmap * bmp, ubyte * palette )
+int pcx_write_bitmap(const char * filename, grs_bitmap * bmp, palette_array_t &palette )
 {
 	int retval;
 	int i;

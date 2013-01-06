@@ -818,7 +818,7 @@ static int briefing_process_char(briefing *br)
 #endif
 		} else if (ch == 'B') {
 			char		bitmap_name[32];
-			ubyte		temp_palette[768];
+			palette_array_t		temp_palette;
 			int		iff_error;
 
 			if (br->robot_canv != NULL)
@@ -830,7 +830,7 @@ static int briefing_process_char(briefing *br)
 			get_message_name(&br->message, bitmap_name);
 			strcat(bitmap_name, ".bbm");
 			gr_init_bitmap_data (&br->guy_bitmap);
-			iff_error = iff_read_bitmap(bitmap_name, &br->guy_bitmap, BM_LINEAR, temp_palette);
+			iff_error = iff_read_bitmap(bitmap_name, &br->guy_bitmap, BM_LINEAR, &temp_palette);
 			Assert(iff_error == IFF_NO_ERROR);
 			(void)iff_error;
 

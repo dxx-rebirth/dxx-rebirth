@@ -42,8 +42,8 @@ typedef struct {
 
 color_record Computed_colors[MAX_COMPUTED_COLORS];
 
-ubyte gr_palette[256*3];
-ubyte gr_current_pal[256*3];
+palette_array_t gr_palette;
+palette_array_t gr_current_pal;
 ubyte gr_fade_table[256*34];
 
 ubyte gr_palette_gamma = 0;
@@ -68,9 +68,9 @@ int gr_palette_get_gamma()
 
 
 #if defined(DXX_BUILD_DESCENT_II)
-void gr_copy_palette(ubyte *gr_palette, ubyte *pal, int size)
+void gr_copy_palette(palette_array_t &gr_palette, const palette_array_t &pal)
 {
-	        memcpy(gr_palette, pal, size);
+	        memcpy(gr_palette, pal, sizeof(gr_palette));
 
 	        Num_computed_colors = 0;
 }
