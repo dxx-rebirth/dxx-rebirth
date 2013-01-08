@@ -8,6 +8,7 @@ main/kconfig.c: Added default keys for weapon cycling similar to Descent 2 and r
 main/inferno.c: Disable fullscreen toggling via ALT+ENTER if Game_wind is on top so toggling cannot be done accidentially ingame
 arch/sdl/mouse.c, d1x.ini, include/args.h, main/inferno.c, misc/args.c: Added option to hide mouse cursor (without disabling the mouse completely)
 SConstruct: Patch by A Future Pilot to hopefully fix bug which prevented building source within MinGW if Visual Studio installed
+arch/ogl/ogl.c: Changed additive color blending func to GL_ONE, GL_ONE - patch by derhass
 
 20130103
 --------
