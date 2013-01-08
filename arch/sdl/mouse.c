@@ -237,7 +237,7 @@ int mouse_get_btns()
 
 void mouse_toggle_cursor(int activate)
 {
-	Mouse.cursor_enabled = (activate && !GameArg.CtlNoMouse);
+	Mouse.cursor_enabled = (activate && !GameArg.CtlNoMouse && !GameArg.CtlNoCursor);
 	if (!Mouse.cursor_enabled)
 		SDL_ShowCursor(SDL_DISABLE);
 }

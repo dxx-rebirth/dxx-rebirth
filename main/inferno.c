@@ -130,6 +130,7 @@ void print_commandline_help()
 	printf( "  -nomovies                     Don't play movies\n");
 
 	printf( "\n Controls:\n\n");
+	printf( "  -nocursor                     Hide mouse cursor\n");
 	printf( "  -nomouse                      Deactivate mouse\n");
 	printf( "  -nojoystick                   Deactivate joystick\n");
 	printf( "  -nostickykeys                 Make CapsLock and NumLock non-sticky\n");
