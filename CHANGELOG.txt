@@ -3,6 +3,7 @@ D1X-Rebirth Changelog
 20130108
 --------
 main/gamerend.c, main/multi.c, net_udp.c: Fixed some minor HUD-text related issues: For team assignment messages, joining player name would appear; team color assignment in netgame info screen could be wrong due to wrong syntax handling; when rewrapping text messages to specific player, game would not add space behind colon
+main/kmatrix.c: Defer free of kmatrix data until window is fully gone - patch by Kp
 
 20130103
 --------
