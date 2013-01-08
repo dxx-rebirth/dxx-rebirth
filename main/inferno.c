@@ -236,6 +236,9 @@ int standard_handler(d_event *event)
 
 				case KEY_ALTED+KEY_ENTER:
 				case KEY_ALTED+KEY_PADENTER:
+					if (Game_wind)
+						if (Game_wind == window_get_front())
+							return 0;
 					gr_toggle_fullscreen();
 					return 1;
 

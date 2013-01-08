@@ -5,6 +5,7 @@ D1X-Rebirth Changelog
 main/gamerend.c, main/multi.c, net_udp.c: Fixed some minor HUD-text related issues: For team assignment messages, joining player name would appear; team color assignment in netgame info screen could be wrong due to wrong syntax handling; when rewrapping text messages to specific player, game would not add space behind colon
 main/kmatrix.c: Defer free of kmatrix data until window is fully gone - patch by Kp
 main/kconfig.c: Added default keys for weapon cycling similar to Descent 2 and reverted default reverse key to Z as default as more convinient for the QUERTY keyboard layout
+main/inferno.c: Disable fullscreen toggling via ALT+ENTER if Game_wind is on top so toggling cannot be done accidentially ingame
 
 20130103
 --------
