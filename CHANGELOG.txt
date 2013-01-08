@@ -8,6 +8,7 @@ main/inferno.c: Disable fullscreen toggling via ALT+ENTER if Game_wind is on top
 arch/sdl/mouse.c, d2x.ini, include/args.h, main/inferno.c, misc/args.c: Added option to hide mouse cursor (without disabling the mouse completely)
 SConstruct: Patch by A Future Pilot to hopefully fix bug which prevented building source within MinGW if Visual Studio installed
 main/ai2.c: Corrected ai_fire_laser_at_player() syntax where boss should not fire when Boss_dying_start_time != 0 and boss flag is set - patch by derhass
+arch/ogl/ogl.c: Changed additive color blending func to GL_ONE, GL_ONE - patch by derhass
 
 20130103
 --------

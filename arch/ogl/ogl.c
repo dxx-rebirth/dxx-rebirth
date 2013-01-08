@@ -1183,7 +1183,7 @@ void ogl_set_blending()
 			glBlendFunc( GL_SRC_ALPHA, GL_ONE );
 			break;
 		case GR_BLEND_ADDITIVE_C:
-			glBlendFunc( GL_SRC_COLOR, GL_ONE );
+			glBlendFunc( GL_ONE, GL_ONE );
 			break;
 		case GR_BLEND_NORMAL:
 		default:
