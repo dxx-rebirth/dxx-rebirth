@@ -4813,7 +4813,7 @@ void net_udp_do_refuse_stuff (UDP_sequence_packet *their)
 		if (Game_mode & GM_TEAM)
 		{
 			HUD_init_message(HM_MULTI, "%s wants to join",their->player.callsign);
-			HUD_init_message(HM_MULTI, "Alt-1 assigns to team %s. Alt-2 to team %s",their->player.callsign,Netgame.team_name[0],Netgame.team_name[1]);
+			HUD_init_message(HM_MULTI, "Alt-1 assigns to team %s. Alt-2 to team %s",Netgame.team_name[0],Netgame.team_name[1]);
 		}
 		else
 		{

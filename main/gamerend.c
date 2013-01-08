@@ -200,11 +200,11 @@ void show_netplayerinfo()
 		gr_printf(x,y,"team");
 		gr_printf(x+FSPACX(8)*8,y,"score");
 		y+=LINE_SPACING;
-		gr_set_fontcolor(BM_XRGB(player_rgb[get_team(0)].r,player_rgb[get_team(0)].g,player_rgb[get_team(0)].b),-1 );
+		gr_set_fontcolor(BM_XRGB(player_rgb[0].r,player_rgb[0].g,player_rgb[0].b),-1 );
 		gr_printf(x,y,"%s:",Netgame.team_name[0]);
 		gr_printf(x+FSPACX(8)*8,y,"%i",team_kills[0]);
 		y+=LINE_SPACING;
-		gr_set_fontcolor(BM_XRGB(player_rgb[get_team(1)].r,player_rgb[get_team(1)].g,player_rgb[get_team(1)].b),-1 );
+		gr_set_fontcolor(BM_XRGB(player_rgb[1].r,player_rgb[1].g,player_rgb[1].b),-1 );
 		gr_printf(x,y,"%s:",Netgame.team_name[1]);
 		gr_printf(x+FSPACX(8)*8,y,"%i",team_kills[1]);
 		y+=LINE_SPACING*2;
