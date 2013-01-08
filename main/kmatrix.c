@@ -370,9 +370,6 @@ int kmatrix_handler(window *wind, d_event *event, kmatrix_screen *km)
 		case EVENT_WINDOW_CLOSE:
 			game_flush_inputs();
 			newmenu_free_background();
-			
-			gr_free_bitmap_data(&km->background);
-			d_free(km);
 			break;
 			
 		default:
@@ -419,4 +416,6 @@ void kmatrix_view(int network)
 	
 	while (window_exists(wind))
 		event_process();
+	gr_free_bitmap_data(&km->background);
+	d_free(km);
 }
