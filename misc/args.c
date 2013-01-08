@@ -146,6 +146,7 @@ void ReadCmdArgs(void)
 
 	// Control Options
 
+	GameArg.CtlNoCursor 		= FindArg("-nocursor");
 	GameArg.CtlNoMouse 		= FindArg("-nomouse");
 	GameArg.CtlNoJoystick 		= FindArg("-nojoystick");
 	GameArg.CtlNoStickyKeys		= FindArg("-nostickykeys");

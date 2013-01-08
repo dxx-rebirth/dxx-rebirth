@@ -114,6 +114,7 @@ void print_commandline_help()
 	printf( "  -noborders                    Do not show borders in window mode\n");
 
 	printf( "\n Controls:\n\n");
+	printf( "  -nocursor                     Hide mouse cursor\n");
 	printf( "  -nomouse                      Deactivate mouse\n");
 	printf( "  -nojoystick                   Deactivate joystick\n");
 	printf( "  -nostickykeys                 Make CapsLock and NumLock non-sticky\n");
