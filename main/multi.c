@@ -1485,7 +1485,7 @@ int multi_message_input_sub(int key)
 					if ( ptext )    {
 						multi_sending_message[Player_num] = 1;
 						multi_send_msgsend_state(1);
-						pcolon = strchr( Network_message, ':' );
+						pcolon = strstr( Network_message, ": " );
 						if ( pcolon )
 							strcpy( pcolon+1, ptext );
 						else
