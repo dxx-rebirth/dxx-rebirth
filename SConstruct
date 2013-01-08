@@ -269,7 +269,7 @@ asm_sources = [
 ]
 
 # Acquire environment object...
-env = Environment(ENV = os.environ)
+env = Environment(ENV = os.environ, tools = ['mingw'])
  
 # Prettier build messages......
 if (verbosebuild == 0):

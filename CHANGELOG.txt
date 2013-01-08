@@ -6,6 +6,7 @@ main/gamerend.c, main/multi.c, net_udp.c: Fixed some minor HUD-text related issu
 main/kmatrix.c: Defer free of kmatrix data until window is fully gone - patch by Kp
 main/inferno.c: Disable fullscreen toggling via ALT+ENTER if Game_wind is on top so toggling cannot be done accidentially ingame
 arch/sdl/mouse.c, d2x.ini, include/args.h, main/inferno.c, misc/args.c: Added option to hide mouse cursor (without disabling the mouse completely)
+SConstruct: Patch by A Future Pilot to hopefully fix bug which prevented building source within MinGW if Visual Studio installed
 
 20130103
 --------
