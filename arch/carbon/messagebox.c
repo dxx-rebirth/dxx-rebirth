@@ -29,7 +29,7 @@ void display_mac_alert(char *message, int error)
 	if ((wind = window_get_front()))
 		WINDOW_SEND_EVENT(wind, EVENT_WINDOW_DEACTIVATED);
 
-	if ((fullscreen = gr_check_fullscreen()))
+	if (grd_curscreen && (fullscreen = gr_check_fullscreen()))
 		gr_toggle_fullscreen();
 	
 	osX = ( Gestalt(gestaltSystemVersion, (long *) &response) == noErr)
@@ -76,7 +76,7 @@ void display_mac_alert(char *message, int error)
 	if ((wind = window_get_front()))
 		WINDOW_SEND_EVENT(wind, EVENT_WINDOW_ACTIVATED);
 	
-	if (!error && fullscreen)
+	if (grd_curscreen && !error && fullscreen)
 		gr_toggle_fullscreen();
 }
 
