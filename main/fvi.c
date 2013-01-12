@@ -787,7 +787,7 @@ int fvi_sub(vms_vector *intp,int *ints,vms_vector *p0,int startseg,vms_vector *p
 	int centermask;			//where the center point is
 	int objnum;
 	segmasks masks;
-	vms_vector hit_point,closest_hit_point = { 0, 0, 0 }; 	//where we hit
+	vms_vector hit_point,closest_hit_point = ZERO_VECTOR; 	//where we hit
 	fix d,closest_d=0x7fffffff;					//distance to hit point
 	int hit_type=HIT_NONE;							//what sort of hit
 	int hit_seg=-1;

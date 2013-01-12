@@ -105,7 +105,7 @@ window *Pad_info;		// Keypad text
 grs_font *editor_font=NULL;
 
 //where the editor is looking
-vms_vector Ed_view_target={0,0,0};
+vms_vector Ed_view_target=ZERO_VECTOR;
 
 int gamestate_not_restored = 0;
 
