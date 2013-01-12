@@ -6,13 +6,13 @@
 /* #undef CONSOLE */
 
 /* d2x major version */
-#define D2XMAJOR "0"
+#define D2XMAJORi 0
 
 /* d2x minor version */
-#define D2XMINOR "57"
+#define D2XMINORi 57
 
 /* d2x micro version */
-#define D2XMICRO "3"
+#define D2XMICROi 3
 
 /* Define if you want to build the editor */
 /* #undef EDITOR */
