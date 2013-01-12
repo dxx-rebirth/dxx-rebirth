@@ -62,7 +62,7 @@ editor_view *current_view;
 int         SegSizeMode = 1; // Mode = 0/1 = not/is legal to move bound vertices, 
 
 //the view for the different windows.
-editor_view LargeView = {0,1, NULL, i2f(100),{{f1_0,0,0},{0,f1_0,0},{0,0,f1_0}},f1_0};
+editor_view LargeView = {0,1, NULL, i2f(100),IDENTITY_MATRIX,f1_0};
 #if ORTHO_VIEWS
 editor_view TopView   = {1,1, NULL, i2f(100),{{f1_0,0,0},{0,0,-f1_0},{0,f1_0,0}},f1_0};
 editor_view FrontView = {2,1, NULL, i2f(100),{{f1_0,0,0},{0,f1_0,0},{0,0,f1_0}},f1_0};

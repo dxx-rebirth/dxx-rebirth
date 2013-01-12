@@ -26,10 +26,8 @@ COPYRIGHT 1993-1998 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 
 //#define USE_ISQRT 1
 
-vms_vector vmd_zero_vector = {0, 0, 0};
-vms_matrix vmd_identity_matrix = { { f1_0, 0, 0 },
-                                   { 0, f1_0, 0 },
-                                   { 0, 0, f1_0 } };
+vms_vector vmd_zero_vector = ZERO_VECTOR;
+vms_matrix vmd_identity_matrix = IDENTITY_MATRIX;
 
 //adds two vectors, fills in dest, returns ptr to dest
 //ok for dest to equal either source, but should use vm_vec_add2() if so
