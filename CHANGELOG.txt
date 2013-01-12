@@ -2,7 +2,8 @@ D1X-Rebirth Changelog
 
 20130112
 --------
-arch/carbon/conf.h: Use new D1XMAJORi / D1XMINORi / D1XMICROi version constants for Mac
+arch/carbon/conf.h: Used new D1XMAJORi / D1XMINORi / D1XMICROi version constants for Mac
+main/inferno.h, main/mission.c, main/mission.h: Increased the maximum number of levels and secret levels per mission to 127 each, using MALLOC'd arrays; defined 'd_fname' type (mainly for my pointers to arrays of 13 character filenames, but could be convenient elsewhere)
 
 20130108
 --------

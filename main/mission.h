@@ -1,3 +1,4 @@
+/* $Id: mission.h,v 1.1.1.1 2006/03/17 19:55:22 zicodxx Exp $ */
 /*
 THE COMPUTER CODE CONTAINED HEREIN IS THE SOLE PROPERTY OF PARALLAX
 SOFTWARE CORPORATION ("PARALLAX").  PARALLAX, IN DISTRIBUTING THE CODE TO
@@ -7,7 +8,7 @@ IN USING, DISPLAYING,  AND CREATING DERIVATIVE WORKS THEREOF, SO LONG AS
 SUCH USE, DISPLAY OR CREATION IS FOR NON-COMMERCIAL, ROYALTY OR REVENUE
 FREE PURPOSES.  IN NO EVENT SHALL THE END-USER USE THE COMPUTER CODE
 CONTAINED HEREIN FOR REVENUE-BEARING PURPOSES.  THE END-USER UNDERSTANDS
-AND AGREES TO THE TERMS HEREIN AND ACCEPTS THE SAME BY USE OF THIS FILE.  
+AND AGREES TO THE TERMS HEREIN AND ACCEPTS THE SAME BY USE OF THIS FILE.
 COPYRIGHT 1993-1998 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 */
 
@@ -24,9 +25,9 @@ COPYRIGHT 1993-1998 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 #include "inferno.h"
 
 #define MAX_MISSIONS                    5000 // ZICO - changed from 300 to get more levels in list
-#define MAX_LEVELS_PER_MISSION          30
-#define MAX_SECRET_LEVELS_PER_MISSION   6
-#define MISSION_NAME_LEN                21
+#define MAX_LEVELS_PER_MISSION          127	// KREATOR - increased from 30 (e.g. Total Domain has 57)
+#define MAX_SECRET_LEVELS_PER_MISSION   127	// KREATOR - increased from 6
+#define MISSION_NAME_LEN                25
 
 #define D1_MISSION_FILENAME             ""
 #define D1_MISSION_NAME                 "Descent: First Strike"
@@ -51,15 +52,15 @@ typedef struct {
 	char	mission_name[MISSION_NAME_LEN+1];
 	ubyte   anarchy_only_flag;  // if true, mission is only for anarchy
 	char	*path;				// relative file path
-	char	briefing_text_filename[FILENAME_LEN]; // name of briefing file
-	char	ending_text_filename[FILENAME_LEN]; // name of ending file
+	d_fname	briefing_text_filename; // name of briefing file
+	d_fname	ending_text_filename; // name of ending file
 	ubyte	last_level;
 	sbyte	last_secret_level;
 	ubyte	n_secret_levels;
-	ubyte	secret_level_table[MAX_SECRET_LEVELS_PER_MISSION]; // originating level no for each secret level 
+	ubyte	*secret_level_table; // originating level no for each secret level 
 	// arrays of names of the level files
-	char	level_names[MAX_LEVELS_PER_MISSION][FILENAME_LEN];
-	char	secret_level_names[MAX_SECRET_LEVELS_PER_MISSION][FILENAME_LEN];
+	d_fname	*level_names;
+	d_fname	*secret_level_names;
 } Mission;
 
 extern Mission *Current_mission; // current mission
@@ -101,4 +102,3 @@ void create_new_mission(void);
 #endif
 
 #endif
-

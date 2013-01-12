@@ -37,6 +37,13 @@ COPYRIGHT 1993-1998 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 #include "u_mem.h"
 #include "ignorecase.h"
 
+//values that describe where a mission is located
+enum mle_loc
+{
+	ML_CURDIR = 0,
+	ML_MISSIONDIR = 1
+};
+
 //mission list entry
 typedef struct mle {
 	char    *filename;          // filename without extension
@@ -44,16 +51,35 @@ typedef struct mle {
 	char    mission_name[MISSION_NAME_LEN+1];
 	ubyte   anarchy_only_flag;  // if true, mission is anarchy only
 	char	*path;				// relative file path
-	int		location;           // see defines below
+	enum mle_loc	location;           // where the mission is
 } mle;
 
-//values that describe where a mission is located
-#define ML_CURDIR       0
-#define ML_MISSIONDIR   1
-
-int num_missions = -1;
+static int num_missions = -1;
 
 Mission *Current_mission = NULL; // currently loaded mission
+
+// Allocate the Level_names, Secret_level_names and Secret_level_table arrays
+static int allocate_levels(void)
+{
+	MALLOC(Level_names, d_fname, Last_level);
+	if (!Level_names)
+		return 0;
+	
+	if (Last_secret_level)
+	{
+		N_secret_levels = -Last_secret_level;
+
+		MALLOC(Secret_level_names, d_fname, N_secret_levels);
+		if (!Secret_level_names)
+			return 0;
+		
+		MALLOC(Secret_level_table, ubyte, N_secret_levels);
+		if (!Secret_level_table)
+			return 0;
+	}
+	
+	return 1;
+}
 
 //
 //  Special versions of mission routines for d1 builtins
@@ -71,6 +97,12 @@ int load_mission_d1(void)
 	
 			Last_level = 7;
 			Last_secret_level = 0;
+			
+			if (!allocate_levels())
+			{
+				free_mission();
+				return 0;
+			}
 	
 			//build level names
 			for (i=0;i<Last_level;i++)
@@ -86,6 +118,12 @@ int load_mission_d1(void)
 			Last_level = 3;
 			Last_secret_level = 0;
 	
+			if (!allocate_levels())
+			{
+				free_mission();
+				return 0;
+			}
+			
 			//build level names
 			for (i=0;i<Last_level;i++)
 				sprintf(Level_names[i], "level%02d.sdl", i+1);
@@ -101,6 +139,12 @@ int load_mission_d1(void)
 			Last_level = 15;
 			Last_secret_level = -1;
 	
+			if (!allocate_levels())
+			{
+				free_mission();
+				return 0;
+			}
+			
 			//build level names
 			for (i=0; i < Last_level - 1; i++)
 				sprintf(Level_names[i], "level%02d.rdl", i+1);
@@ -124,6 +168,12 @@ int load_mission_d1(void)
 			Last_level = BIMD1_LAST_LEVEL;
 			Last_secret_level = BIMD1_LAST_SECRET_LEVEL;
 	
+			if (!allocate_levels())
+			{
+				free_mission();
+				return 0;
+			}
+
 			//build level names
 			for (i=0;i<Last_level;i++)
 				sprintf(Level_names[i], "level%02d.rdl", i+1);
@@ -380,14 +430,24 @@ void free_mission(void)
     // May become more complex with the editor
     if (Current_mission)
 	{
-		if (!PLAYING_BUILTIN_MISSION)
+		if (Current_mission->path && !PLAYING_BUILTIN_MISSION)
 		{
 			char hogpath[PATH_MAX];
 
 			sprintf(hogpath, MISSION_DIR "%s.hog", Current_mission->path);
 			PHYSFSX_contfile_close(hogpath);
 		}
-		d_free(Current_mission->path);
+
+		if (Current_mission->path)
+			d_free(Current_mission->path);
+
+		if (Level_names)
+			d_free(Level_names);
+		if(Secret_level_names)
+			d_free(Secret_level_names);
+		if(Secret_level_table)
+			d_free(Secret_level_table);
+		
         d_free(Current_mission);
     }
 }
@@ -481,6 +541,9 @@ int load_mission(mle *mission)
 	Last_secret_level = 0;
 	memset(&Briefing_text_filename, '\0', sizeof(Briefing_text_filename));
 	memset(&Ending_text_filename, '\0', sizeof(Ending_text_filename));
+	Secret_level_table = NULL;
+	Level_names = NULL;
+	Secret_level_names = NULL;
 
 	// for Descent 1 missions, load descent.hog
 	if (!PHYSFSX_contfile_init("descent.hog", 1))
@@ -583,6 +646,16 @@ int load_mission(mle *mission)
 				int n_levels,i;
 
 				n_levels = atoi(v);
+				
+				Assert(n_levels <= MAX_LEVELS_PER_MISSION);
+				n_levels = min(n_levels, MAX_LEVELS_PER_MISSION);
+				
+				MALLOC(Level_names, d_fname, n_levels);
+				if (!Level_names)
+				{
+					free_mission();
+					return 0;
+				}
 
 				for (i=0;i<n_levels;i++) {
 					PHYSFSX_fgets(buf,80,mfile);
@@ -604,7 +677,22 @@ int load_mission(mle *mission)
 				N_secret_levels = atoi(v);
 
 				Assert(N_secret_levels <= MAX_SECRET_LEVELS_PER_MISSION);
+				N_secret_levels = min(N_secret_levels, MAX_SECRET_LEVELS_PER_MISSION);
 
+				MALLOC(Secret_level_names, d_fname, N_secret_levels);
+				if (!Secret_level_names)
+				{
+					free_mission();
+					return 0;
+				}
+				
+				MALLOC(Secret_level_table, ubyte, N_secret_levels);
+				if (!Secret_level_table)
+				{
+					free_mission();
+					return 0;
+				}
+				
 				for (i=0;i<N_secret_levels;i++) {
 					char *t;
 
@@ -759,8 +847,21 @@ void create_new_mission(void)
 	memset(Current_mission, 0, sizeof(Mission));
 	
 	Current_mission->path = d_strdup("new_mission");
+	if (!Current_mission->path)
+	{
+		free_mission();
+		return;
+	}
+
 	Current_mission->filename = Current_mission->path;
 	
+	MALLOC(Level_names, d_fname, 1);
+	if (!Level_names)
+	{
+		free_mission();
+		return;
+	}
+
 	strcpy(Level_names[0], "GAMESAVE.LVL");
 }
 #endif
