@@ -25,8 +25,8 @@ COPYRIGHT 1993-1998 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 #include "inferno.h"
 
 #define MAX_MISSIONS                    5000 // ZICO - changed from 300 to get more levels in list
-#define MAX_LEVELS_PER_MISSION          127	// KREATOR - increased from 30 (e.g. Total Domain has 57)
-#define MAX_SECRET_LEVELS_PER_MISSION   127	// KREATOR - increased from 6
+#define MAX_LEVELS_PER_MISSION          127	// KREATOR - increased from 30 (limited by Demo and Multiplayer code)
+#define MAX_SECRET_LEVELS_PER_MISSION   127	// KREATOR - increased from 6 (limited by Demo and Multiplayer code)
 #define MISSION_NAME_LEN                25
 
 #define D1_MISSION_FILENAME             ""

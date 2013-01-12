@@ -4,6 +4,7 @@ D1X-Rebirth Changelog
 --------
 arch/carbon/conf.h: Used new D1XMAJORi / D1XMINORi / D1XMICROi version constants for Mac
 main/inferno.h, main/mission.c, main/mission.h: Increased the maximum number of levels and secret levels per mission to 127 each, using MALLOC'd arrays; defined 'd_fname' type (mainly for my pointers to arrays of 13 character filenames, but could be convenient elsewhere)
+arch/carbon/messagebox.c, arch/win32/messagebox.c: If there's a messagebox to show on exit, and we *were* in fullscreen, don't try to toggle fullscreen and crash
 
 20130108
 --------
