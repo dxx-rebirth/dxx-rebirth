@@ -54,6 +54,9 @@ struct d_event;
 // the maximum length of a filename
 #define FILENAME_LEN 13
 
+// a filename, useful for declaring arrays of filenames
+typedef char d_fname[FILENAME_LEN];
+
 /**
  **	Global variables
  **/
