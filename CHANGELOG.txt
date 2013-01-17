@@ -1,5 +1,9 @@
 D1X-Rebirth Changelog
 
+20130117
+--------
+main/render.c: Fix click-selection in the editor for OpenGL implementations that insist on point blending
+
 20130112
 --------
 arch/carbon/conf.h: Used new D1XMAJORi / D1XMINORi / D1XMICROi version constants for Mac
