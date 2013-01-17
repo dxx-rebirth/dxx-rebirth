@@ -576,13 +576,21 @@ void render_object_search(object *obj)
 	//what color the object draws in, so we try color 0, then color 1,
 	//in case the object itself is rendering color 0
 
-	gr_setcolor(0);
+	gr_setcolor(0);	//set our search pixel to color zero
 #ifdef OGL
 	ogl_end_frame();
-#endif
-	gr_pixel(_search_x,_search_y);	//set our search pixel to color zero
-#ifdef OGL
+
+	// For OpenGL we use gr_rect instead of gr_pixel,
+	// because in some implementations (like my Macbook Pro 5,1)
+	// point smoothing can't be turned off.
+	// Point smoothing would change the pixel to dark grey, but it MUST be black.
+	// Making a 3x3 rectangle wouldn't matter
+	// (but it only seems to draw a single pixel anyway)
+	gr_rect(_search_x - 1, _search_y - 1, _search_x + 1, _search_y + 1);
+
 	ogl_start_frame();
+#else
+	gr_pixel(_search_x,_search_y);
 #endif
 	render_object(obj);
 	if (gr_ugpixel(&grd_curcanv->cv_bitmap,_search_x,_search_y) != 0)
@@ -591,10 +599,10 @@ void render_object_search(object *obj)
 	gr_setcolor(1);
 #ifdef OGL
 	ogl_end_frame();
-#endif
-	gr_pixel(_search_x,_search_y);	//set our search pixel to color zero
-#ifdef OGL
+	gr_rect(_search_x - 1, _search_y - 1, _search_x + 1, _search_y + 1);
 	ogl_start_frame();
+#else
+	gr_pixel(_search_x,_search_y);
 #endif
 	render_object(obj);
 	if (gr_ugpixel(&grd_curcanv->cv_bitmap,_search_x,_search_y) != 1)
