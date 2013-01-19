@@ -483,9 +483,6 @@ int do_game_pause()
 	return 0 /*key*/;	// Keycode returning ripped out (kreatordxx)
 }
 
-extern char *RankStrings[];
-extern int PhallicLimit,PhallicMan;
-
 int HandleEndlevelKey(int key)
 {
 	switch (key)

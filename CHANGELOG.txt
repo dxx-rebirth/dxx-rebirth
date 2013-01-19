@@ -1,5 +1,9 @@
 D2X-Rebirth Changelog
 
+20130119
+--------
+main/multi.c, main/multi.h, main/gamecntl.c: Decrease personal score when killing multi buddy and don't increment towards kill goal; Killing off some old externs on which I don't wanna waste an extra commit
+
 20130117
 --------
 main/render.c: Fix click-selection in the editor for OpenGL implementations that insist on point blending

@@ -782,12 +782,18 @@ void multi_compute_kill(int killer, int killed)
 			if (Game_mode & GM_TEAM)
 			{
 				if (get_team(killed_pnum) == get_team(killer_pnum))
+				{
 					team_kills[get_team(killed_pnum)] -= 1;
+					Players[killer_pnum].net_kills_total -= 1;
+				}
 				else
+				{
 					team_kills[get_team(killer_pnum)] += 1;
+					Players[killer_pnum].net_kills_total += 1;
+					Players[killer_pnum].KillGoalCount +=1;
+				}
 			}
-			
-			if( Game_mode & GM_BOUNTY )
+			else if( Game_mode & GM_BOUNTY )
 			{
 				/* Did the target die?  Did the target get a kill? */
 				if( killed_pnum == Bounty_target || killer_pnum == Bounty_target )
