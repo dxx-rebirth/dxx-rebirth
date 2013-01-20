@@ -856,10 +856,13 @@ int copy_file(const char *old_file, const char *new_file)
 		return -2;
 
 	buf_size = PHYSFS_fileLength(in_file);
-	while (buf_size && !(buf = d_malloc(buf_size)))
+	for (;;) {
+		if (buf_size == 0)
+			return -5;	// likely to be an empty file
+		if ((MALLOC(buf, sbyte, (buf_size))) != NULL)
+			break;
 		buf_size /= 2;
-	if (buf_size == 0)
-		return -5;	// likely to be an empty file
+	}
 
 	while (!PHYSFS_eof(in_file))
 	{
