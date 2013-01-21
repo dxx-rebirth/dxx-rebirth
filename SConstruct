@@ -20,6 +20,10 @@ BIN_SUBDIR = '/bin'
 DATA_SUBDIR = '/share/games/d2x-rebirth'
 BIN_DIR = PREFIX + BIN_SUBDIR
 DATA_DIR = PREFIX + DATA_SUBDIR
+OGLES_LIB = 'GLES_CM'
+
+# Paths for the Videocore libs/includes on the Raspberry Pi
+RPI_DEFAULT_VC_PATH='/opt/vc'
 
 # command-line parms
 sharepath = str(ARGUMENTS.get('sharepath', DATA_DIR))
@@ -27,6 +31,7 @@ debug = int(ARGUMENTS.get('debug', 0))
 profiler = int(ARGUMENTS.get('profiler', 0))
 opengl = int(ARGUMENTS.get('opengl', 1))
 opengles = int(ARGUMENTS.get('opengles', 0))
+opengles_lib = str(ARGUMENTS.get('opengles_lib', OGLES_LIB))
 asm = int(ARGUMENTS.get('asm', 0))
 editor = int(ARGUMENTS.get('editor', 0))
 sdlmixer = int(ARGUMENTS.get('sdlmixer', 1))
@@ -34,7 +39,14 @@ ipv6 = int(ARGUMENTS.get('ipv6', 0))
 use_udp = int(ARGUMENTS.get('use_udp', 1))
 use_tracker = int(ARGUMENTS.get('use_tracker', 1))
 verbosebuild = int(ARGUMENTS.get('verbosebuild', 0))
+raspberrypi = int(ARGUMENTS.get('raspberrypi', 0))
+rpi_vc_path = str(ARGUMENTS.get('rpi_vc_path', RPI_DEFAULT_VC_PATH))
 
+# automatic setup for raspberrypi
+if (raspberrypi == 1):
+	opengles=1
+	opengles_lib='GLESv2'
+	
 # endianess-checker
 def checkEndian():
     import struct
@@ -349,7 +361,7 @@ else:
 	ogldefines = ['OGL']
 	libs += env['LIBS']
 	if (opengles == 1):
-		ogllibs = ['GLES_CM', 'EGL']
+		ogllibs = [ opengles_lib, 'EGL']
 	else:
 		ogllibs = ['GL', 'GLU']
 	lflags = os.environ["LDFLAGS"] if os.environ.has_key('LDFLAGS') else ''
@@ -365,7 +377,7 @@ elif (checkEndian() == "little"):
 # opengl or software renderer?
 if (opengl == 1) or (opengles == 1):
 	if (opengles == 1):
-		print "building with OpenGL ES"
+		print "building with OpenGL ES 1.x, library: %s" % opengles_lib
 		env.Append(CPPDEFINES = ['OGLES'])
 	else:
 		print "building with OpenGL"
@@ -424,6 +436,14 @@ if (use_udp == 1):
 	# Tracker support?  (Relies on UDP)
 	if( use_tracker == 1 ):
 		env.Append( CPPDEFINES = [ 'USE_TRACKER' ] )
+		
+# Raspberry Pi?
+if (raspberrypi == 1):
+	print "using Raspberry Pi vendor libs in %s" % rpi_vc_path
+	env.Append(CPPDEFINES = ['RPI', 'WORDS_NEED_ALIGNMENT'])
+	env.Append(CPPPATH = [rpi_vc_path+'/include', rpi_vc_path+'/include/interface/vcos/pthreads'])
+	lflags += ' -L'+rpi_vc_path+'/lib'
+	libs += ['bcm_host']
 
 print '\n'
 
@@ -455,6 +475,7 @@ Help(PROGRAM_NAME + ', SConstruct file help:' +
 	'sharepath=[DIR]' (non-Mac OS *NIX only) use [DIR] for shared game data. [default: /usr/local/share/games/d2x-rebirth]
 	'opengl=[0/1]'        build with OpenGL support [default: 1]
 	'opengles=[0/1]'      build with OpenGL ES support [default: 0]
+	'opengles_lib=[NAME]' specify the name of the OpenGL ES library to link against
 	'sdlmixer=[0/1]'      build with SDL_Mixer support for sound and music (includes external music support) [default: 1]
 	'asm=[0/1]'           build with ASSEMBLER code (only with opengl=0, requires NASM and x86) [default: 0]
 	'debug=[0/1]'         build DEBUG binary which includes asserts, debugging output, cheats and more output [default: 0]
@@ -464,10 +485,14 @@ Help(PROGRAM_NAME + ', SConstruct file help:' +
 	'use_udp=[0/1]'       enable UDP support [default: 1]
 	'use_tracker=[0/1]'   enable Tracker support (requires udp) [default :1]
 	'verbosebuild=[0/1]'  print out all compiler/linker messages during building [default: 0]
-	
-	Default values:
+	'raspberrypi=[0/1]'   build for Raspberry Pi (automatically sets opengles and opengles_lib) [default: 0]
+	'rpi_vc_path=[DIR]'   use [DIR] to look for VideoCore libraries/header files (RPi only)
+ 		
+ 	Default values:
 	""" + ' sharepath = ' + DATA_DIR + """
-
+	""" + ' opengles_lib = ' + OGLES_LIB + """
+	""" + ' rpi_vc_path = ' + RPI_DEFAULT_VC_PATH + """
+	
 	Some influential environment variables:
 	  CC          C compiler command
 	  CFLAGS      C compiler flags

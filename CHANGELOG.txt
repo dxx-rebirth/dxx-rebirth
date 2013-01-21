@@ -1,5 +1,9 @@
 D2X-Rebirth Changelog
 
+20130122
+--------
+README.RPi, SConstruct, arch/ogl/gr.c: Support for Raspberry Pi - patch by derhass
+
 20130119
 --------
 main/multi.c, main/multi.h, main/gamecntl.c: Decrease personal score when killing multi buddy and don't increment towards kill goal; Killing off some old externs on which I don't wanna waste an extra commit
