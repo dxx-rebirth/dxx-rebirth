@@ -1,0 +1,11 @@
+--- SConstruct	2008-12-30 21:47:01.000000000 +0100
++++ SConstruct.new	2008-12-30 21:47:44.000000000 +0100
+@@ -15,7 +15,7 @@
+ 
+ # installation path
+ PREFIX = str(ARGUMENTS.get('prefix', '/usr/local'))
+-BIN_SUBDIR = '/bin'
++BIN_SUBDIR = '/games'
+ DATA_SUBDIR = '/share/games/d2x-rebirth'
+ BIN_DIR = PREFIX + BIN_SUBDIR
+ DATA_DIR = PREFIX + DATA_SUBDIR

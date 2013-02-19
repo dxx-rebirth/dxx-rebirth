@@ -1,0 +1,44 @@
+Texture Mapping Functions
+ÚÄÄÄÄÄÄÄÄÂÄÄÄÄÄÄÄÄÂÄÄÄÄÄÄÄÄÂÄÄÄÄÄÄÄÄ¿
+³ Remap  ³ Flip   ³ Flip   ³ Remap  ³
+³ Crsd to³ in X   ³ in Y   ³ Tmap2  ³
+³ Current³        ³        ³ to Curr³
+ÃÄÄÄÄÄÄÄÄÅÄÄÄÄÄÄÄÄÅÄÄÄÄÄÄÄÄÅÄÄÄÄÄÄÄÄ´
+³ Stretch³ Slide  ³ Stretch³        ³
+³ Less   ³  Up    ³ More   ³  Set   ³
+³        ³        ³        ³ Default³
+ÃÄÄÄÄÄÄÄÄÅÄÄÄÄÄÄÄÄÅÄÄÄÄÄÄÄÄ´  in    ³
+³ Slide  ³ Set    ³ Slide  ³Selected³
+³  Left  ³ Default³ Right  ³  List  ³
+³        ³        ³        ³        ³
+ÃÄÄÄÄÄÄÄÄÅÄÄÄÄÄÄÄÄÅÄÄÄÄÄÄÄÄÅÄÄÄÄÄÄÄÄ´
+³ Rotate ³ Slide  ³ Rotate ³        ³
+³  Left  ³ Down   ³ Right  ³        ³
+³        ³        ³        ³ Select ³
+ÃÄÄÄÄÄÄÄÄÁÄÄÄÄÄÄÄÄÅÄÄÄÄÄÄÄÄ´ Active ³
+³ Rotate          ³ Next   ³ Edge   ³
+³ 90 degrees      ³ Edge   ³        ³
+³                 ³        ³        ³
+ÀÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÁÄÄÄÄÄÄÄÄÁÄÄÄÄÄÄÄÄÙ
+{Ctrl}{Pad/}		med-tass-flip-x
+{Ctrl}{Pad*}		med-tass-flip-y
+{Ctrl}{Pad8}		med-tass-slide-up
+{Ctrl}{Pad4}		med-tass-slide-left
+{Ctrl}{Pad5}		med-tass-set-default
+{Ctrl}{Pad6}		med-tass-slide-right
+{Ctrl}{Pad7}		med-tass-stretch-down
+{Ctrl}{Pad9}		med-tass-stretch-up
+{Ctrl}{Pad1}		med-tass-rotate-left
+{Ctrl}{Pad2}		med-tass-slide-down
+{Ctrl}{Pad3}		med-tass-rotate-right
+{Ctrl}{PadEnter}	med-tass-select-active-edge
+{Ctrl}{Pad0}		med-tass-rotate-90-degrees
+{Ctrl}{Pad.}		med-light-select-next-edge
+{Ctrl}{Shift}{Pad8}	med-tass-slide-up-big
+{Ctrl}{Shift}{Pad4}	med-tass-slide-left-big
+{Ctrl}{Shift}{Pad6}	med-tass-slide-right-big
+{Ctrl}{Shift}{Pad1}	med-tass-rotate-left-big
+{Ctrl}{Shift}{Pad2}	med-tass-slide-down-big
+{Ctrl}{Shift}{Pad3}	med-tass-rotate-right-big
+
+

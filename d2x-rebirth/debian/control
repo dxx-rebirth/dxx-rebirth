@@ -1,0 +1,19 @@
+Source: d2x-rebirth
+Section: games
+Priority: optional
+Maintainer: zico <zico@dxx-rebirth.com>
+Standards-Version: 3.6.1
+
+Package: d2x-rebirth
+Build-Depends: libsdl1.2-dev, libsdl-mixer1.2-dev, libphysfs-dev, scons
+Recommends: timidity, freepats
+Architecture: any
+Depends: ${shlibs:Depends}
+Description: Port of the 1996 classic game Descent 2: Counterstrike!
+ DXX-Rebirth is a Source Port of the Descent & Descent ][ Engines and
+ provides classical Gameplay combined with OpenGL graphics and effects, 
+ a bunch of improvements and new features.
+ .
+ For more information please visit the web site:
+ http://www.dxx-rebirth.com/
+

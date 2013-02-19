@@ -1,0 +1,10 @@
+[Desktop Entry]
+Name=Descent 2
+Comment=DXX-Rebirth source port of Descent 2: Counterstrike from 1996...
+Exec=d2x-rebirth
+Icon=d2x-rebirth
+Terminal=false
+Type=Application
+Categories=Game;ActionGame;
+StartupNotify=false
+
