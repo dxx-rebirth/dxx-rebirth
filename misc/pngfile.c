@@ -1,4 +1,3 @@
-/* $Id: pngfile.c,v 1.1.1.1 2006/03/17 19:58:50 zicodxx Exp $ */
 #include <stdio.h>
 #include <png.h>
 

@@ -1,4 +1,3 @@
-/* $Id: rand.c,v 1.1.1.1 2006/03/17 19:59:04 zicodxx Exp $ */
 /*
  *
  * Descent random number stuff...

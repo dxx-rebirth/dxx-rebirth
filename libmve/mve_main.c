@@ -1,4 +1,3 @@
-/* $Id: mve_main.c,v 1.1.1.1 2006/03/17 19:59:52 zicodxx Exp $ */
 
 #include <stdlib.h>
 #include <string.h>

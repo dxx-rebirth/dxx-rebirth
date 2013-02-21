@@ -1,4 +1,3 @@
-/* $Id: key.c,v 1.1.1.1 2006/03/17 19:53:40 zicodxx Exp $ */
 /*
  *
  * SDL keyboard input support

@@ -1,4 +1,3 @@
-/* $Id: music.h,v 1.1.1.1 2006/03/17 19:53:50 zicodxx Exp $ */
 
 #include <unistd.h>
 

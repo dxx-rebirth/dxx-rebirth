@@ -1,4 +1,3 @@
-/* $Id: gamestat.h,v 1.1.1.1 2006/03/17 19:57:28 zicodxx Exp $ */
 /*
  *
  * Game Status Definitions

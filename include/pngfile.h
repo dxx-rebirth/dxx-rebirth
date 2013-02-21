@@ -1,4 +1,3 @@
-/* $Id: pngfile.h,v 1.1.1.1 2006/03/17 20:01:26 zicodxx Exp $ */
 #ifndef PNGFILE_H
 #define PNGFILE_H
 

@@ -1,4 +1,3 @@
-/* $Id: interp.h,v 1.1.1.1 2006/03/17 20:01:40 zicodxx Exp $ */
 /*
  *
  * took out functions declarations from include/3d.h
