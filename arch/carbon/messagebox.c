@@ -36,7 +36,7 @@ void display_mac_alert(char *message, int error)
 		&& (response >= 0x01000 );
 
     ShowCursor();
-	
+
 	if (osX)
 	{
 #ifdef TARGET_API_MAC_CARBON

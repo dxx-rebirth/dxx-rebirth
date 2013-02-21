@@ -36,7 +36,7 @@ void gr_urect(int left,int top,int right,int bot)
 	}
 #else
 	int i;
-	
+
 	for ( i=top; i<=bot; i++ )
 		gr_uscanline( left, right, i );
 #endif

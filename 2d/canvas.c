@@ -44,7 +44,7 @@ grs_canvas *gr_create_canvas(int w, int h)
 
 grs_canvas *gr_create_sub_canvas(grs_canvas *canv, int x, int y, int w, int h)
 {
-    grs_canvas *new;
+	grs_canvas *new;
 
 	new = (grs_canvas *)d_malloc( sizeof(grs_canvas) );
 	gr_init_sub_bitmap (&new->cv_bitmap, &canv->cv_bitmap, x, y, w, h);
@@ -89,12 +89,12 @@ void gr_init_sub_canvas(grs_canvas *new, grs_canvas *src, int x, int y, int w, i
 void gr_free_canvas(grs_canvas *canv)
 {
 	gr_free_bitmap_data(&canv->cv_bitmap);
-    d_free(canv);
+	d_free(canv);
 }
 
 void gr_free_sub_canvas(grs_canvas *canv)
 {
-    d_free(canv);
+	d_free(canv);
 }
 
 void gr_set_current_canvas( grs_canvas *canv )

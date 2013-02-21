@@ -156,10 +156,10 @@ static void audio_mixcallback(void *userdata, ubyte *stream, int len)
      sldata = sl->samples;
     }
     v = *(sldata++) - 0x80;
-				*sp = mix8[*sp + fixmul(v, vl) + 0x80];
-				sp++;
-				*sp = mix8[*sp + fixmul(v, vr) + 0x80];
-				sp++;
+	*sp = mix8[*sp + fixmul(v, vl) + 0x80];
+	sp++;
+	*sp = mix8[*sp + fixmul(v, vr) + 0x80];
+	sp++;
    }
    sl->position = sldata - sl->samples;
   }
