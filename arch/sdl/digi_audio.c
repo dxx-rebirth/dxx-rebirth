@@ -1,4 +1,3 @@
-/* $Id: digi.c,v 1.1.1.1 2006/03/17 19:53:41 zicodxx Exp $ */
 /*
  *
  * SDL digital audio support
