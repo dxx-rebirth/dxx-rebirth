@@ -60,9 +60,9 @@ enum powerup_type_t
 	POW_MEGAWOW = 27,
 };
 
-#define	VULCAN_AMMO_MAX				(392*2)
-#define	VULCAN_WEAPON_AMMO_AMOUNT	196
-#define	VULCAN_AMMO_AMOUNT			(49*2)
+#define VULCAN_AMMO_MAX             (392*2)
+#define VULCAN_WEAPON_AMMO_AMOUNT   196
+#define VULCAN_AMMO_AMOUNT          (49*2)
 
 // What I picked up        What it said I picked up
 // ----------------        ------------------------
@@ -76,14 +76,14 @@ enum powerup_type_t
 
 #define MAX_POWERUP_TYPES			29
 
-#define	POWERUP_NAME_LENGTH	16		//	Length of a robot or powerup name.
-extern char	Powerup_names[MAX_POWERUP_TYPES][POWERUP_NAME_LENGTH];
+#define POWERUP_NAME_LENGTH 16      // Length of a robot or powerup name.
+extern char Powerup_names[MAX_POWERUP_TYPES][POWERUP_NAME_LENGTH];
 
 typedef struct powerup_type_info {
-	int	vclip_num;
-	int	hit_sound;
-	fix	size;			//3d size of longest dimension
-	fix	light;		//	amount of light cast by this powerup, set in bitmaps.tbl
+	int vclip_num;
+	int hit_sound;
+	fix size;       // 3d size of longest dimension
+	fix light;      // amount of light cast by this powerup, set in bitmaps.tbl
 } __pack__ powerup_type_info;
 
 extern int N_powerup_types;
@@ -97,7 +97,7 @@ int do_powerup(object *obj);
 //process (animate) a powerup for one frame
 void do_powerup_frame(object *obj);
 
-//	Diminish shields and energy towards max in case they exceeded it.
+// Diminish shields and energy towards max in case they exceeded it.
 extern void diminish_towards_max(void);
 
 extern void do_megawow_powerup(int quantity);

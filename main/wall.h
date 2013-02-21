@@ -133,7 +133,7 @@ typedef struct wall {
 	sbyte   clip_num;           // Which animation associated with the wall.
 	ubyte   keys;               // which keys are required
 	short	pad;					// keep longword aligned
-	} __pack__ wall;
+} __pack__ wall;
 
 typedef struct active_door {
 	int     n_parts;            // for linked walls

@@ -646,7 +646,7 @@ if ((aip->hide_index + aip->path_length > Point_segs_free_ptr - Point_segs) && (
 	if (aip->path_length < 2) {
 		if (ailp->mode == AIM_RUN_FROM_OBJECT) {
 			if (ConsoleObject->segnum == objp->segnum)
-				create_n_segment_path(objp, AVOID_SEG_LENGTH, -1);			//	Can't avoid segment player is in, robot is already in it! (That's what the -1 is for) 
+				create_n_segment_path(objp, AVOID_SEG_LENGTH, -1);			//	Can't avoid segment player is in, robot is already in it! (That's what the -1 is for)
 			else
 				create_n_segment_path(objp, AVOID_SEG_LENGTH, ConsoleObject->segnum);
 			ailp->mode = AIM_RUN_FROM_OBJECT;	//	It gets bashed in create_n_segment_path
@@ -1033,8 +1033,8 @@ void test_create_path_many(void)
 	int			i;
 
 	for (i=0; i<Test_size; i++) {
-                Cursegp = &Segments[(d_rand() * (Highest_segment_index + 1)) / D_RAND_MAX];
-                Markedsegp = &Segments[(d_rand() * (Highest_segment_index + 1)) / D_RAND_MAX];
+		Cursegp = &Segments[(d_rand() * (Highest_segment_index + 1)) / D_RAND_MAX];
+		Markedsegp = &Segments[(d_rand() * (Highest_segment_index + 1)) / D_RAND_MAX];
 		create_path_points(&Objects[0], Cursegp-Segments, Markedsegp-Segments, point_segs, &num_points, -1, 0, 0, -1);
 	}
 

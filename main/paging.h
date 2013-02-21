@@ -15,9 +15,9 @@ COPYRIGHT 1993-1998 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
  * $Revision: 1.1.1.1 $
  * $Author: zicodxx $
  * $Date: 2006/03/17 19:42:16 $
- * 
+ *
  * Prototypes for paging.
- * 
+ *
  * $Log: paging.h,v $
  * Revision 1.1.1.1  2006/03/17 19:42:16  zicodxx
  * initial import
@@ -28,14 +28,14 @@ COPYRIGHT 1993-1998 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
  * Revision 2.0  1995/02/27  11:30:12  john
  * New version 2.0, which has no anonymous unions, builds with
  * Watcom 10.0, and doesn't require parsing BITMAPS.TBL.
- * 
+ *
  * Revision 1.2  1995/01/15  11:56:39  john
  * Working version of paging.
- * 
+ *
  * Revision 1.1  1995/01/15  11:33:52  john
  * Initial revision
- * 
- * 
+ *
+ *
  */
 
 

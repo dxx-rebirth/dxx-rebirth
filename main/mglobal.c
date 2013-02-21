@@ -30,8 +30,8 @@ COPYRIGHT 1993-1998 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 vms_vector Vertices[MAX_VERTICES];
 g3s_point Segment_points[MAX_VERTICES];
 
-fix FrameTime = 0x1000;		// Time since last frame, in seconds
-fix64 GameTime64 = 0;		//	Time in game, in seconds
+fix FrameTime = 0x1000;	// Time since last frame, in seconds
+fix64 GameTime64 = 0;			//	Time in game, in seconds
 
 int d_tick_count = 0; // increments every 50ms
 int d_tick_step = 0;  // true once every 50ms
@@ -54,8 +54,8 @@ char	Side_opposite[MAX_SIDES_PER_SEGMENT] = {WRIGHT, WBOTTOM, WLEFT, WTOP, WFRON
 
 #ifdef PASSWORD
 #define encrypt(a,b,c,d)	{a ^ TOLOWER((((int) PASSWORD)>>24)&255), \
-				 b ^ TOLOWER((((int) PASSWORD)>>16)&255), \
-				 c ^ TOLOWER((((int) PASSWORD)>>8)&255), \
+									b ^ TOLOWER((((int) PASSWORD)>>16)&255), \
+									c ^ TOLOWER((((int) PASSWORD)>>8)&255), \
 				 d ^ TOLOWER((((int) PASSWORD))&255) }
 #else
 #define encrypt(a,b,c,d) { a,b,c,d }

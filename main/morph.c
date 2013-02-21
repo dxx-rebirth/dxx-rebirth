@@ -183,7 +183,7 @@ void update_points(polymodel *pm,int submodel_num,morph_data *md)
 	while (nverts--) {
 
 		if (md->morph_times[i])		//not done yet
-                 {
+		{
 			if ((md->morph_times[i] -= FrameTime) <= 0) {
 				md->morph_vecs[i] = *vp;
 				md->morph_times[i] = 0;
@@ -191,7 +191,7 @@ void update_points(polymodel *pm,int submodel_num,morph_data *md)
 			}
 			else
 				vm_vec_scale_add2(&md->morph_vecs[i],&md->morph_deltas[i],FrameTime);
-                 }
+		}
 		vp++; i++;
 	}
 }

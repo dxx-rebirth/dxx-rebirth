@@ -72,24 +72,24 @@ fix	ObjStrength[MAX_OBJTYPE];
 int Dying_modelnums[MAX_POLYGON_MODELS];
 int Dead_modelnums[MAX_POLYGON_MODELS];
 
-//right now there's only one player ship, but we can have another by 
+//right now there's only one player ship, but we can have another by
 //adding an array and setting the pointer to the active ship.
 player_ship only_player_ship,*Player_ship=&only_player_ship;
 
 //----------------- Miscellaneous bitmap pointers ---------------
-int					Num_cockpits = 0;
-bitmap_index		cockpit_bitmap[N_COCKPIT_BITMAPS];
+int             Num_cockpits = 0;
+bitmap_index    cockpit_bitmap[N_COCKPIT_BITMAPS];
 
 //---------------- Variables for wall textures ------------------
-int 					Num_tmaps;
-tmap_info 			TmapInfo[MAX_TEXTURES];
+int             Num_tmaps;
+tmap_info       TmapInfo[MAX_TEXTURES];
 
 //---------------- Variables for object textures ----------------
 
-int					First_multi_bitmap_num=-1;
+int             First_multi_bitmap_num=-1;
 
-bitmap_index		ObjBitmaps[MAX_OBJ_BITMAPS];
-ushort				ObjBitmapPtrs[MAX_OBJ_BITMAPS];		// These point back into ObjBitmaps, since some are used twice.
+bitmap_index    ObjBitmaps[MAX_OBJ_BITMAPS];
+ushort          ObjBitmapPtrs[MAX_OBJ_BITMAPS];     // These point back into ObjBitmaps, since some are used twice.
 
 /*
  * reads n tmap_info structs from a PHYSFS_file
@@ -97,7 +97,7 @@ ushort				ObjBitmapPtrs[MAX_OBJ_BITMAPS];		// These point back into ObjBitmaps, 
 int tmap_info_read_n(tmap_info *ti, int n, PHYSFS_file *fp)
 {
 	int i;
-	
+
 	for (i = 0; i < n; i++) {
 		PHYSFS_read(fp, TmapInfo[i].filename, 13, 1);
 		ti[i].flags = PHYSFSX_readByte(fp);
@@ -154,38 +154,38 @@ int gamedata_init()
 void properties_read_cmp(PHYSFS_file * fp)
 {
 	int i;
-	
+
 	//  bitmap_index is a short
 	
 	NumTextures = PHYSFSX_readInt(fp);
 	bitmap_index_read_n(Textures, MAX_TEXTURES, fp );
 	tmap_info_read_n(TmapInfo, MAX_TEXTURES, fp);
-	
+
 	PHYSFS_read( fp, Sounds, sizeof(ubyte), MAX_SOUNDS );
 	PHYSFS_read( fp, AltSounds, sizeof(ubyte), MAX_SOUNDS );
 	
 	Num_vclips = PHYSFSX_readInt(fp);
 	vclip_read_n(Vclip, VCLIP_MAXNUM, fp);
-	
+
 	Num_effects = PHYSFSX_readInt(fp);
 	eclip_read_n(Effects, MAX_EFFECTS, fp);
-	
+
 	Num_wall_anims = PHYSFSX_readInt(fp);
 	wclip_read_n(WallAnims, MAX_WALL_ANIMS, fp);
-	
+
 	N_robot_types = PHYSFSX_readInt(fp);
 	robot_info_read_n(Robot_info, MAX_ROBOT_TYPES, fp);
-	
+
 	N_robot_joints = PHYSFSX_readInt(fp);
 	jointpos_read_n(Robot_joints, MAX_ROBOT_JOINTS, fp);
-	
+
 	N_weapon_types = PHYSFSX_readInt(fp);
 	weapon_info_read_n(Weapon_info, MAX_WEAPON_TYPES, fp);
-	
+
 	N_powerup_types = PHYSFSX_readInt(fp);
 	powerup_type_info_read_n(Powerup_info, MAX_POWERUP_TYPES, fp);
-	
-	N_polygon_models = PHYSFSX_readInt(fp);	
+
+	N_polygon_models = PHYSFSX_readInt(fp);
 	polymodel_read_n(Polygon_models, N_polygon_models, fp);
 
 	for (i=0; i<N_polygon_models; i++ )
@@ -197,36 +197,36 @@ void properties_read_cmp(PHYSFS_file * fp)
 		Dying_modelnums[i] = PHYSFSX_readInt(fp);
 	for (i = 0; i < MAX_POLYGON_MODELS; i++)
 		Dead_modelnums[i] = PHYSFSX_readInt(fp);
-	
+
 	bitmap_index_read_n(ObjBitmaps, MAX_OBJ_BITMAPS, fp);
 	for (i = 0; i < MAX_OBJ_BITMAPS; i++)
 		ObjBitmapPtrs[i] = PHYSFSX_readShort(fp);
-	
+
 	player_ship_read(&only_player_ship, fp);
-	
+
 	Num_cockpits = PHYSFSX_readInt(fp);
 	bitmap_index_read_n(cockpit_bitmap, N_COCKPIT_BITMAPS, fp);
-	
+
 	PHYSFS_read( fp, Sounds, sizeof(ubyte), MAX_SOUNDS );
 	PHYSFS_read( fp, AltSounds, sizeof(ubyte), MAX_SOUNDS );
-	
+
 	Num_total_object_types = PHYSFSX_readInt(fp);
 	PHYSFS_read( fp, ObjType, sizeof(ubyte), MAX_OBJTYPE );
 	PHYSFS_read( fp, ObjId, sizeof(ubyte), MAX_OBJTYPE );
 	for (i = 0; i < MAX_OBJTYPE; i++)
 		ObjStrength[i] = PHYSFSX_readFix(fp);
-	
+
 	First_multi_bitmap_num = PHYSFSX_readInt(fp);
 	N_controlcen_guns = PHYSFSX_readInt(fp);
-	
+
 	for (i = 0; i < MAX_CONTROLCEN_GUNS; i++)
 		PHYSFSX_readVector(&controlcen_gun_points[i], fp);
 	for (i = 0; i < MAX_CONTROLCEN_GUNS; i++)
 		PHYSFSX_readVector(&controlcen_gun_dirs[i], fp);
-	
+
 	exit_modelnum = PHYSFSX_readInt(fp);	
 	destroyed_exit_modelnum = PHYSFSX_readInt(fp);
-	
+
         #ifdef EDITOR
         //Hardcoded flags
         TextureMetals = 156;

@@ -48,7 +48,7 @@ COPYRIGHT 1993-1998 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 
 void kill_stuck_objects(int wallnum);
 
-//  Special door on boss level which is locked if not in multiplayer...sorry for this awful solution --MK.
+//	Special door on boss level which is locked if not in multiplayer...sorry for this awful solution --MK.
 #define	BOSS_LOCKED_DOOR_LEVEL	7
 #define	BOSS_LOCKED_DOOR_SEG		595
 #define	BOSS_LOCKED_DOOR_SIDE	5
@@ -86,11 +86,11 @@ char	Wall_names[7][10] = {
 //		1 = YES
 //		0 = NO
 int check_transparency( segment * seg, int side )
-{	  
+{
 	if ( (seg->sides[side].tmap_num2 & 0x3FFF) == 0) {
 		if (GameBitmaps[Textures[seg->sides[side].tmap_num].index].bm_flags & BM_FLAG_TRANSPARENT )
 			return 1;
-		else 
+		else
 			return 0;
 		}
 
@@ -290,7 +290,7 @@ void wall_destroy(segment *seg, int side)
 }
 
 //-----------------------------------------------------------------
-// Deteriorate appearance of wall. (Changes bitmap (paste-ons)) 
+// Deteriorate appearance of wall. (Changes bitmap (paste-ons))
 void wall_damage(segment *seg, int side, fix damage)
 {
 	int a, i, n;
@@ -334,7 +334,7 @@ void wall_damage(segment *seg, int side, fix damage)
 
 
 //-----------------------------------------------------------------
-// Opens a door 
+// Opens a door
 void wall_open_door(segment *seg, int side)
 {
 	wall *w;
@@ -732,7 +732,7 @@ void do_door_close(int door_num)
 
 			ActiveDoors[Num_open_doors].time = 0;		//counts up
 
-		} else 
+		} else
 			wall_close_door(door_num);
 	}
 }
@@ -852,7 +852,7 @@ int wall_hit_process(segment *seg, int side, fix damage, int playernum, object *
 		}
 
 	if (w->type == WALL_DOOR)
-         {
+	{
 		if ((w->flags & WALL_DOOR_LOCKED ) && !(special_boss_opening_allowed(seg-Segments, side)) ) {
 			if ( playernum==Player_num )
 				if (show_message)
@@ -871,7 +871,7 @@ int wall_hit_process(segment *seg, int side, fix damage, int playernum, object *
 			return WHP_DOOR;
 			
 		}
-         }
+	}
 	return WHP_NOT_SPECIAL;		//default is treat like normal wall
 }
 
@@ -953,8 +953,8 @@ void wall_frame_process()
 				w->state = WALL_DOOR_CLOSING;
 				d->time = 0;
 			}
-		} 
-	} 
+		}
+	}
 }
 
 int	Num_stuck_objects=0;
@@ -972,7 +972,7 @@ void add_stuck_object(object *objp, int segnum, int sidenum)
 
 	if (wallnum != -1) {
 		if (Walls[wallnum].flags & WALL_BLASTED)
-			objp->flags |= OF_SHOULD_BE_DEAD;  
+			objp->flags |= OF_SHOULD_BE_DEAD;
 
 		for (i=0; i<MAX_STUCK_OBJECTS; i++) {
 			if (Stuck_objects[i].wallnum == -1) {
@@ -1033,7 +1033,7 @@ void kill_stuck_objects(int wallnum)
 int wclip_read_n(wclip *wc, int n, PHYSFS_file *fp)
 {
 	int i, j;
-	
+
 	for (i = 0; i < n; i++) {
 		WallAnims[i].play_time = PHYSFSX_readFix(fp);;
 		WallAnims[i].num_frames = PHYSFSX_readShort(fp);;
@@ -1044,7 +1044,7 @@ int wclip_read_n(wclip *wc, int n, PHYSFS_file *fp)
 		WallAnims[i].flags = PHYSFSX_readShort(fp);
 		PHYSFS_read(fp, WallAnims[i].filename, 13, 1);
 		WallAnims[i].pad = PHYSFSX_readByte(fp);
-	}		
+	}
 	return i;
 }
 
@@ -1183,7 +1183,7 @@ void wall_write(wall *w, short version, PHYSFS_file *fp)
 		PHYSFS_writeSLE32(fp, w->segnum);
 		PHYSFS_writeSLE32(fp, w->sidenum);
 	}
-	
+
 	if (version >= 20)
 	{
 		PHYSFSX_writeFix(fp, w->hps);

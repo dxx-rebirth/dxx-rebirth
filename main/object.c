@@ -247,8 +247,8 @@ fix	Cloak_fadeout_duration;
 void draw_cloaked_object(object *obj,g3s_lrgb light,fix *glow,fix64 cloak_start_time,fix64 cloak_end_time,bitmap_index * alt_textures)
 {
 	fix cloak_delta_time,total_cloaked_time;
-        fix light_scale=F1_0;
-        int cloak_value=0;
+	fix light_scale=F1_0;
+	int cloak_value=0;
 	int fading=0;		//if true, fading, else cloaking
 
 	total_cloaked_time = cloak_end_time-cloak_start_time;
@@ -378,10 +378,10 @@ void draw_polygon_object(object *obj)
 	else {
 		bitmap_index * alt_textures = NULL;
 	
-		#ifdef NETWORK
+#ifdef NETWORK
 		if ( obj->rtype.pobj_info.alt_textures > 0 )
 			alt_textures = multi_player_textures[obj->rtype.pobj_info.alt_textures-1];
-		#endif
+#endif
 
 		if (obj->type==OBJ_PLAYER && (Players[obj->id].flags&PLAYER_FLAGS_CLOAKED))
 			draw_cloaked_object(obj,light,&engine_glow_value,Players[obj->id].cloak_time,Players[obj->id].cloak_time+CLOAK_TIME_MAX,alt_textures);
@@ -426,7 +426,7 @@ void draw_polygon_object(object *obj)
 // the closet-robots list, it just sticks that object into the list along with its distance.
 // If the list already contains 3 robots, then it finds the robot in that list that is
 // farthest from the viewer. If that object is farther than the object currently being
-// rendered, then the new object takes over that far object's slot.  *Then* after all 
+// rendered, then the new object takes over that far object's slot.  *Then* after all
 // objects are rendered, object_render_targets is called an it draws a target on top
 // of all the objects.
 
@@ -439,11 +439,11 @@ void draw_polygon_object(object *obj)
 //091494: set_close_objects(object *obj)
 //091494: {
 //091494: 	fix dist;
-//091494: 
+//091494:
 //091494: 	if ( (obj->type != OBJ_ROBOT) || (Object_draw_lock_boxes==0) )	
 //091494: 		return;
-//091494: 
-//091494: 	// The following code keeps a list of the 10 closest robots to the 
+//091494:
+//091494: 	// The following code keeps a list of the 10 closest robots to the
 //091494: 	// viewer.  See comments in front of this function for how this works.
 //091494: 	dist = vm_vec_dist( &obj->pos, &Viewer->pos );
 //091494: 	if ( dist < i2f(20*10) )	{				
@@ -463,7 +463,7 @@ void draw_polygon_object(object *obj)
 //091494: 					farthest_robot = i;
 //091494: 				}
 //091494: 			}
-//091494: 			// If this object is closer to the viewer than 
+//091494: 			// If this object is closer to the viewer than
 //091494: 			// the farthest in the list, replace the farthest with this object.
 //091494: 			if ( farthest_distance > dist )	{
 //091494: 				Object_close_ones[farthest_robot] = obj;
@@ -564,7 +564,7 @@ void create_vclip_on_object(object *objp, fix size_scale, int vclip_num)
 }
 
 // -- mk, 02/05/95 -- #define	VCLIP_INVULNERABILITY_EFFECT	VCLIP_SMALL_EXPLOSION
-// -- mk, 02/05/95 -- 
+// -- mk, 02/05/95 --
 // -- mk, 02/05/95 -- // -----------------------------------------------------------------------------
 // -- mk, 02/05/95 -- void do_player_invulnerability_effect(object *objp)
 // -- mk, 02/05/95 -- {
@@ -582,7 +582,7 @@ void render_object(object *obj)
 	if ( obj == Viewer )
 		return;
 
-	if ( obj->type == OBJ_NONE )
+	if ( obj->type==OBJ_NONE )
 	{
 		#ifndef NDEBUG
 		Int3();
@@ -599,7 +599,7 @@ void render_object(object *obj)
 			break; //doesn't render, like the player
 
 		case RT_POLYOBJ:
-			draw_polygon_object(obj); 
+			draw_polygon_object(obj);
 
 			if (obj->type == OBJ_ROBOT) //"warn" robot if being shot at
 				set_robot_location_info(obj);
@@ -653,7 +653,7 @@ void render_object(object *obj)
 		default:
 			Error("Unknown render_type <%d>",obj->render_type);
 	}
- 
+
 	gr_settransblend( GR_FADE_OFF, GR_BLEND_NORMAL ); // revert any transparency/blending setting back to normal
 
 	if ( obj->render_type != RT_NONE && Newdemo_state == ND_STATE_RECORDING )
@@ -700,7 +700,7 @@ void reset_player_object()
 //make object0 the player, setting all relevant fields
 void init_player_object()
 {
-          ConsoleObject->type = OBJ_PLAYER;
+	ConsoleObject->type = OBJ_PLAYER;
 	ConsoleObject->id = 0;					//no sub-types for player
 
 	ConsoleObject->size = Polygon_models[Player_ship->model_num].rad;
@@ -1107,7 +1107,7 @@ int obj_create(enum object_type_t type, ubyte id,int segnum,vms_vector *pos,
 	if (type==OBJ_DEBRIS && Debris_object_count>=Max_debris_objects && !PERSISTENT_DEBRIS)
 		return -1;
 
-        if (get_seg_masks(pos,segnum,0,__FILE__,__LINE__).centermask!=0)
+	if (get_seg_masks(pos, segnum, 0, __FILE__, __LINE__).centermask != 0)
 		if ((segnum=find_point_seg(pos,segnum))==-1) {
 			return -1;		//don't create this object
 		}
@@ -1118,7 +1118,7 @@ int obj_create(enum object_type_t type, ubyte id,int segnum,vms_vector *pos,
 	if (objnum == -1)		//no free objects
 		return -1;
 
-	Assert(Objects[objnum].type == OBJ_NONE);		//make sure unused 
+	Assert(Objects[objnum].type == OBJ_NONE);		//make sure unused
 
 	obj = &Objects[objnum];
 
@@ -1299,7 +1299,7 @@ void dead_player_end(void)
 }
 
 //	------------------------------------------------------------------------------------------------------------------
-//	Camera is less than size of player away from 
+//	Camera is less than size of player away from
 void set_camera_pos(vms_vector *camera_pos, object *objp)
 {
 	int	count = 0;
@@ -1360,7 +1360,7 @@ void dead_player_frame(void)
 	vms_vector	fvec;
 
 	if (Player_is_dead)
-        {
+	{
 		time_dead += FrameTime;
 
 		//	If unable to create camera at time of death, create now.
@@ -1385,26 +1385,26 @@ void dead_player_frame(void)
 
 		set_camera_pos(&Dead_player_camera->pos, ConsoleObject);
 
-		//the following line uncommented by WraithX, 4-12-00
+		// the following line uncommented by WraithX, 4-12-00
 		if (time_dead < DEATH_SEQUENCE_EXPLODE_TIME+F1_0*2) {
 			vm_vec_sub(&fvec, &ConsoleObject->pos, &Dead_player_camera->pos);
 			vm_vector_2_matrix(&Dead_player_camera->orient, &fvec, NULL, NULL);
 			Dead_player_camera->mtype.phys_info = ConsoleObject->mtype.phys_info;
 
-			//the following "if" added by WraithX to get rid of camera "wiggle"
+			// the following "if" added by WraithX to get rid of camera "wiggle"
 			if (Dead_player_camera->mtype.phys_info.flags & PF_WIGGLE)
 			{
 				Dead_player_camera->mtype.phys_info.flags = (Dead_player_camera->mtype.phys_info.flags & ~PF_WIGGLE);
-			}//end "if" added by WraithX, 4/13/00
+			}// end "if" added by WraithX, 4/13/00
 
-		//the following line uncommented by WraithX, 4-12-00
+		// the following line uncommented by WraithX, 4-12-00
 		} else {
-			//the following line uncommented by WraithX, 4-11-00
+			// the following line uncommented by WraithX, 4-11-00
 			Dead_player_camera->movement_type = MT_PHYSICS;
 			//Dead_player_camera->mtype.phys_info.rotvel.y = F1_0/8;
-		//the following line uncommented by WraithX, 4-12-00
+		// the following line uncommented by WraithX, 4-12-00
 		}
-		//end addition by WX
+		// end addition by WX
 
 		if (time_dead > DEATH_SEQUENCE_EXPLODE_TIME) {
 			if (!Player_exploded) {
@@ -1494,7 +1494,7 @@ void start_player_death_sequence(object *player)
 	Death_sequence_aborted = 0;
 
 	#ifdef NETWORK
-	if (Game_mode & GM_MULTI) 
+	if (Game_mode & GM_MULTI)
 	{
 		multi_send_kill(Players[Player_num].objnum);
 	}
@@ -1637,8 +1637,8 @@ void object_move_one( object * obj )
 		}
 	}
 
-	if (obj->lifeleft != IMMORTAL_TIME)	//if not immortal...
-		obj->lifeleft -= FrameTime;		//...inevitable countdown towards death
+	if (obj->lifeleft != IMMORTAL_TIME) //if not immortal...
+		obj->lifeleft -= FrameTime; //...inevitable countdown towards death
 
 	switch (obj->control_type) {
 
@@ -1671,7 +1671,7 @@ void object_move_one( object * obj )
 		case CT_SLEW:
 			if ( keyd_pressed[KEY_PAD5] ) slew_stop( obj );
 			if ( keyd_pressed[KEY_NUMLOCK] ) 		{
-				slew_reset_orient( obj ); 
+				slew_reset_orient( obj );
 			}
 			slew_frame(0 );		// Does velocity addition for us.
 			break;
@@ -1687,7 +1687,7 @@ void object_move_one( object * obj )
 
 		case CT_LIGHT: break;		//doesn't do anything
 
-		case CT_REMOTE: break;     //doesn't do anything
+		case CT_REMOTE: break;		//doesn't do anything
 
 		case CT_CNTRLCEN: do_controlcen_frame(obj); break;
 
@@ -1706,7 +1706,7 @@ void object_move_one( object * obj )
 	}
 
 	if (obj->type == OBJ_NONE || obj->flags&OF_SHOULD_BE_DEAD)
-		return;			//object has been deleted
+		return;         // object has been deleted
 
 	switch (obj->movement_type) {
 
@@ -1782,9 +1782,9 @@ void object_move_all()
 //--unused-- {
 //--unused-- 	for (i=MAX_OBJECTS;--i>=0;)
 //--unused-- 		if (Objects[i].type != OBJ_NONE) break;
-//--unused-- 
+//--unused--
 //--unused-- 	return i;
-//--unused-- 
+//--unused--
 //--unused-- }
 
 
@@ -1828,7 +1828,7 @@ void compress_objects(void)
 
 }
 
-//called after load.  Takes number of objects,  and objects should be 
+//called after load.  Takes number of objects,  and objects should be
 //compressed.  resets free list, marks unused objects as unused
 void reset_objects(int n_objs)
 {
@@ -1858,7 +1858,7 @@ int find_object_seg(object * obj )
 
 //If an object is in a segment, set its segnum field and make sure it's
 //properly linked.  If not in any segment, returns 0, else 1.
-//callers should generally use find_vector_intersection()  
+//callers should generally use find_vector_intersection()
 int update_object_seg(object * obj )
 {
 	int newseg;
@@ -1893,19 +1893,19 @@ void fix_object_segs()
 //--unused-- {
 //--unused-- 	int i, segnum;
 //--unused-- 	object *obj;
-//--unused-- 
+//--unused--
 //--unused-- 	// First, unlink all the old objects for the segments array
 //--unused-- 	for (segnum=0; segnum <= Highest_segment_index; segnum++) {
 //--unused-- 		Segments[segnum].objects = -1;
 //--unused-- 	}
 //--unused-- 	// Then, erase all the objects
 //--unused-- 	reset_objects(1);
-//--unused-- 
+//--unused--
 //--unused-- 	// Fill in the object array
 //--unused-- 	memcpy( Objects, new_list, sizeof(object)*MAX_OBJECTS );
-//--unused-- 
+//--unused--
 //--unused-- 	Highest_object_index=-1;
-//--unused-- 
+//--unused--
 //--unused-- 	// Relink 'em
 //--unused-- 	for (i=0; i<MAX_OBJECTS; i++ )	{
 //--unused-- 		obj = &Objects[i];
@@ -1928,7 +1928,7 @@ void fix_object_segs()
 void clear_transient_objects(int clear_all)
 {
 	int objnum;
-	object *obj; 
+	object *obj;
 
 	for (objnum=0,obj=&Objects[0];objnum<=Highest_object_index;objnum++,obj++)
 		if (((obj->type == OBJ_WEAPON) && (clear_all || obj->id != PROXIMITY_ID)) ||
@@ -2066,13 +2066,13 @@ void object_rw_swap(object_rw *obj, int swap)
 	switch (obj->control_type)
 	{
 		case CT_WEAPON:
-			obj->ctype.laser_info.parent_type       = SWAPSHORT(obj->ctype.laser_info.parent_type);
-			obj->ctype.laser_info.parent_num        = SWAPSHORT(obj->ctype.laser_info.parent_num);
-			obj->ctype.laser_info.parent_signature  = SWAPINT(obj->ctype.laser_info.parent_signature);
-			obj->ctype.laser_info.creation_time     = SWAPINT(obj->ctype.laser_info.creation_time);
-			obj->ctype.laser_info.last_hitobj       = SWAPSHORT(obj->ctype.laser_info.last_hitobj);
-			obj->ctype.laser_info.track_goal        = SWAPSHORT(obj->ctype.laser_info.track_goal);
-			obj->ctype.laser_info.multiplier        = SWAPINT(obj->ctype.laser_info.multiplier);
+			obj->ctype.laser_info.parent_type      = SWAPSHORT(obj->ctype.laser_info.parent_type);
+			obj->ctype.laser_info.parent_num       = SWAPSHORT(obj->ctype.laser_info.parent_num);
+			obj->ctype.laser_info.parent_signature = SWAPINT(obj->ctype.laser_info.parent_signature);
+			obj->ctype.laser_info.creation_time    = SWAPINT(obj->ctype.laser_info.creation_time);
+			obj->ctype.laser_info.last_hitobj      = SWAPSHORT(obj->ctype.laser_info.last_hitobj);
+			obj->ctype.laser_info.track_goal       = SWAPSHORT(obj->ctype.laser_info.track_goal);
+			obj->ctype.laser_info.multiplier       = SWAPINT(obj->ctype.laser_info.multiplier);
 			break;
 			
 		case CT_EXPLOSION:
@@ -2100,7 +2100,7 @@ void object_rw_swap(object_rw *obj, int swap)
 			break;
 			
 		case CT_POWERUP:
-			obj->ctype.powerup_info.count = SWAPINT(obj->ctype.powerup_info.count);
+			obj->ctype.powerup_info.count         = SWAPINT(obj->ctype.powerup_info.count);
 			break;
 	}
 	

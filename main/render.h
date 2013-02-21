@@ -40,38 +40,38 @@ extern int Max_debris_objects; // How many debris objects to create
 #define DETRIANGULATION 1
 #endif
 
-extern int	Clear_window;			//	1 = Clear whole background window, 2 = clear view portals into rest of world, 0 = no clear
+extern int Clear_window;    // 1 = Clear whole background window, 2 = clear view portals into rest of world, 0 = no clear
 
 void render_frame(fix eye_offset);		//draws the world into the current canvas
 
-//cycle the flashing light for when mine destroyed
+// cycle the flashing light for when mine destroyed
 void flash_frame();
 
 int find_seg_side_face(short x,short y,int *seg,int *side,int *face,int *poly);
 
-//these functions change different rendering parameters
-//all return the new value of the parameter
+// these functions change different rendering parameters
+// all return the new value of the parameter
 
-//how may levels deep to render
+// how may levels deep to render
 int inc_render_depth(void);
 int dec_render_depth(void);
 int reset_render_depth(void);
 
-//how many levels deep to render in perspective
+// how many levels deep to render in perspective
 int inc_perspective_depth(void);
 int dec_perspective_depth(void);
 int reset_perspective_depth(void);
 
-//misc toggles
+// misc toggles
 int toggle_outline_mode(void);
 int toggle_show_only_curside(void);
 
 // When any render function needs to know what's looking at it, it should access
 // Render_viewer_object members.
-extern fix Render_zoom;		//the player's zoom factor
+extern fix Render_zoom;     // the player's zoom factor
 
-//This is used internally to render_frame(), but is included here so AI
-//can use it for its own purposes.
+// This is used internally to render_frame(), but is included here so AI
+// can use it for its own purposes.
 extern char visited[MAX_SEGMENTS];
 
 extern int N_render_segs;
@@ -82,17 +82,17 @@ extern int Render_only_bottom;
 #endif
 
 //
-//	Routines for conditionally rotating & projecting points
+// Routines for conditionally rotating & projecting points
 //
 
-//This must be called at the start of the frame if rotate_list() will be used
+// This must be called at the start of the frame if rotate_list() will be used
 void render_start_frame(void);
 
 //Given a lit of point numbers, rotate any that haven't been rotated this frame
-g3s_codes rotate_list(int nv,int *pointnumlist);
+g3s_codes rotate_list(int nv, int *pointnumlist);
 
 //Given a lit of point numbers, project any that haven't been projected
-void project_list(int nv,int *pointnumlist);
+void project_list(int nv, int *pointnumlist);
 
 
 #endif

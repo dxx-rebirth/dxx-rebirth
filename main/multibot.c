@@ -570,11 +570,11 @@ multi_send_create_robot_powerups(object *del_obj)
 	vms_vector swapped_vec;
 #endif
 
-	multibuf[loc] = MULTI_CREATE_ROBOT_POWERUPS;			loc += 1;
-	multibuf[loc] = Player_num;								loc += 1;
-	multibuf[loc] = del_obj->contains_count;				loc += 1;
-	multibuf[loc] = del_obj->contains_type; 				loc += 1;
-	multibuf[loc] = del_obj->contains_id;					loc += 1;
+	multibuf[loc] = MULTI_CREATE_ROBOT_POWERUPS;				loc += 1;
+	multibuf[loc] = Player_num;									loc += 1;
+	multibuf[loc] = del_obj->contains_count;					loc += 1;
+	multibuf[loc] = del_obj->contains_type; 					loc += 1;
+	multibuf[loc] = del_obj->contains_id;						loc += 1;
 	PUT_INTEL_SHORT(multibuf+loc, del_obj->segnum);		        loc += 2;
 #ifndef WORDS_BIGENDIAN
 	memcpy(multibuf+loc, &del_obj->pos, sizeof(vms_vector));	loc += 12;
@@ -715,7 +715,7 @@ multi_do_robot_position(char *buf)
 
 	set_thrust_from_velocity(&Objects[botnum]); // Try to smooth out movement
 //	Objects[botnum].phys_info.drag = Robot_info[Objects[botnum].id].drag >> 4; // Set drag to low
-	
+
 #ifndef WORDS_BIGENDIAN
 	extract_shortpos(&Objects[botnum], (shortpos *)(buf+loc), 0);
 #else

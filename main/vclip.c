@@ -73,7 +73,7 @@ void draw_weapon_vclip(object *obj)
 int vclip_read_n(vclip *vc, int n, PHYSFS_file *fp)
 {
 	int i, j;
-	
+
 	for (i = 0; i < n; i++) {
 		vc[i].play_time = PHYSFSX_readFix(fp);
 		vc[i].num_frames = PHYSFSX_readInt(fp);

@@ -460,7 +460,7 @@ void nd_read_object(object *obj)
 	nd_read_byte((sbyte *) &(obj->id));
 	nd_read_byte((sbyte *) &(obj->flags));
 	nd_read_short(&shortsig);
-	obj->signature = shortsig; // It's OKAY! We made sure, obj->signature is never has a value which short cannot handle!!! We cannot do this otherwise, without breaking the demo format!
+	obj->signature = shortsig;  // It's OKAY! We made sure, obj->signature is never has a value which short cannot handle!!! We cannot do this otherwise, without breaking the demo format!
 	nd_read_shortpos(obj);
 
 	obj->attached_obj = -1;

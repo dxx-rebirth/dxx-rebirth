@@ -323,17 +323,17 @@ int main(int argc, char *argv[])
 	if (! PHYSFSX_contfile_init("descent.hog", 1))
 		Error("Could not find a valid hog file (descent.hog)\nPossible locations are:\n"
 #if defined(__unix__) && !defined(__APPLE__)
-			  "\t$HOME/.d1x-rebirth\n"
-			  "\t" SHAREPATH "\n"
+			      "\t$HOME/.d1x-rebirth\n"
+			      "\t" SHAREPATH "\n"
 #else
-			  "\tDirectory containing D1X\n"
+				  "\tDirectory containing D1X\n"
 #endif
-			  "\tIn a subdirectory called 'Data'\n"
+				  "\tIn a subdirectory called 'Data'\n"
 #if (defined(__APPLE__) && defined(__MACH__)) || defined(macintosh)
-			  "\tIn 'Resources' inside the application bundle\n"
+				  "\tIn 'Resources' inside the application bundle\n"
 #endif
-			  "Or use the -hogdir option to specify an alternate location.");
-	
+				  "Or use the -hogdir option to specify an alternate location.");
+
 	switch (PHYSFSX_fsize("descent.hog"))
 	{
 		case D1_MAC_SHARE_MISSION_HOGSIZE:
@@ -394,35 +394,35 @@ int main(int argc, char *argv[])
 
 	key_flush();
 
-	if(GameArg.SysPilot)
-	{
-		char filename[32] = "";
-		int j;
-
-		if (GameArg.SysUsePlayersDir)
-			strcpy(filename, "Players/");
-		strncat(filename, GameArg.SysPilot, 12);
-		filename[8 + 12] = '\0';	// unfortunately strncat doesn't put the terminating 0 on the end if it reaches 'n'
-		for (j = GameArg.SysUsePlayersDir? 8 : 0; filename[j] != '\0'; j++) {
-			switch (filename[j]) {
-				case ' ':
-					filename[j] = '\0';
-			}
-		}
-		if(!strstr(filename,".plr")) // if player hasn't specified .plr extension in argument, add it
-			strcat(filename,".plr");
-		if(PHYSFSX_exists(filename,0))
+		if(GameArg.SysPilot)
 		{
-			strcpy(strstr(filename,".plr"),"\0");
-			strcpy(Players[Player_num].callsign, GameArg.SysUsePlayersDir? &filename[8] : filename);
-			read_player_file();
-			WriteConfigFile();
-		}
+			char filename[32] = "";
+			int j;
+
+			if (GameArg.SysUsePlayersDir)
+				strcpy(filename, "Players/");
+			strncat(filename, GameArg.SysPilot, 12);
+			filename[8 + 12] = '\0';	// unfortunately strncat doesn't put the terminating 0 on the end if it reaches 'n'
+			for (j = GameArg.SysUsePlayersDir? 8 : 0; filename[j] != '\0'; j++) {
+				switch (filename[j]) {
+					case ' ':
+						filename[j] = '\0';
+				}
+			}
+			if(!strstr(filename,".plr")) // if player hasn't specified .plr extension in argument, add it
+				strcat(filename,".plr");
+			if(PHYSFSX_exists(filename,0))
+			{
+				strcpy(strstr(filename,".plr"),"\0");
+				strcpy(Players[Player_num].callsign, GameArg.SysUsePlayersDir? &filename[8] : filename);
+				read_player_file();
+				WriteConfigFile();
+			}
 	}
 
 
-	Game_mode = GM_GAME_OVER;
-	DoMenu();
+		Game_mode = GM_GAME_OVER;
+		DoMenu();
 
 	setjmp(LeaveEvents);
 	while (window_get_front())

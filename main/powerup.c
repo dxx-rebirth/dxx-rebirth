@@ -257,7 +257,7 @@ int do_powerup(object *obj)
 			if (Players[Player_num].laser_level >= MAX_LASER_LEVEL) {
 				Players[Player_num].laser_level = MAX_LASER_LEVEL;
 				HUD_init_message(HM_DEFAULT|HM_REDUNDANT|HM_MAYDUPL, TXT_MAXED_OUT,TXT_LASER);
-                        } else {
+			} else {
 				if (Newdemo_state == ND_STATE_RECORDING)
 					newdemo_record_laser_level(Players[Player_num].laser_level, Players[Player_num].laser_level + 1);
 				Players[Player_num].laser_level++;
@@ -279,9 +279,9 @@ int do_powerup(object *obj)
 		case POW_KEY_BLUE:
 			if (Players[Player_num].flags & PLAYER_FLAGS_BLUE_KEY)
 				break;
-			#ifdef NETWORK
+#ifdef NETWORK
 			multi_send_play_sound(Powerup_info[obj->id].hit_sound, F1_0);
-			#endif
+#endif
 			digi_play_sample( Powerup_info[obj->id].hit_sound, F1_0 );
 			Players[Player_num].flags |= PLAYER_FLAGS_BLUE_KEY;
 			powerup_basic(0, 0, 15, KEY_SCORE, "%s %s",TXT_BLUE,TXT_ACCESS_GRANTED);
@@ -293,9 +293,9 @@ int do_powerup(object *obj)
 		case POW_KEY_RED:
 			if (Players[Player_num].flags & PLAYER_FLAGS_RED_KEY)
 				break;
-			#ifdef NETWORK
+#ifdef NETWORK
 			multi_send_play_sound(Powerup_info[obj->id].hit_sound, F1_0);
-			#endif
+#endif
 			digi_play_sample( Powerup_info[obj->id].hit_sound, F1_0 );
 			Players[Player_num].flags |= PLAYER_FLAGS_RED_KEY;
 			powerup_basic(15, 0, 0, KEY_SCORE, "%s %s",TXT_RED,TXT_ACCESS_GRANTED);
@@ -307,9 +307,9 @@ int do_powerup(object *obj)
 		case POW_KEY_GOLD:
 			if (Players[Player_num].flags & PLAYER_FLAGS_GOLD_KEY)
 				break;
-			#ifdef NETWORK
+#ifdef NETWORK
 			multi_send_play_sound(Powerup_info[obj->id].hit_sound, F1_0);
-			#endif
+#endif
 			digi_play_sample( Powerup_info[obj->id].hit_sound, F1_0 );
 			Players[Player_num].flags |= PLAYER_FLAGS_GOLD_KEY;
 			powerup_basic(15, 15, 7, KEY_SCORE, "%s %s",TXT_YELLOW,TXT_ACCESS_GRANTED);
@@ -452,7 +452,7 @@ int do_powerup(object *obj)
 int powerup_type_info_read_n(powerup_type_info *pti, int n, PHYSFS_file *fp)
 {
 	int i;
-	
+
 	for (i = 0; i < n; i++) {
 		pti[i].vclip_num = PHYSFSX_readInt(fp);
 		pti[i].hit_sound = PHYSFSX_readInt(fp);

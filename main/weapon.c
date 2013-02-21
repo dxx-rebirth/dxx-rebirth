@@ -30,7 +30,7 @@ COPYRIGHT 1993-1998 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 #include "newmenu.h"
 #include "playsave.h"
 
-// Convert primary weapons to indices in Weapon_info array.
+//	Convert primary weapons to indices in Weapon_info array.
 ubyte Primary_weapon_to_weapon_info[MAX_PRIMARY_WEAPONS] = {0, 11, 12, 13, 14};
 ubyte Secondary_weapon_to_weapon_info[MAX_SECONDARY_WEAPONS] = {8, 15, 16, 17, 18};
 //for each primary weapon, what kind of powerup gives weapon
@@ -41,7 +41,7 @@ int Primary_ammo_max[MAX_PRIMARY_WEAPONS] = {0, VULCAN_AMMO_MAX, 0, 0, 0};
 ubyte Secondary_ammo_max[MAX_SECONDARY_WEAPONS] = {20, 10, 10, 5, 5};
 weapon_info Weapon_info[MAX_WEAPON_TYPES];
 int	N_weapon_types=0;
-sbyte	Primary_weapon, Secondary_weapon;
+sbyte   Primary_weapon, Secondary_weapon;
 int POrderList (int num);
 int SOrderList (int num);
 ubyte DefaultPrimaryOrder[] = { 4, 3, 2, 1, 0, 255 };
@@ -189,7 +189,7 @@ void CycleSecondary ()
 }
 
 //	------------------------------------------------------------------------------------
-//	if message flag set, print message saying selected
+//if message flag set, print message saying selected
 void select_weapon(int weapon_num, int secondary_flag, int print_message, int wait_for_rearm)
 {
 	char	*weapon_name;
@@ -206,7 +206,7 @@ void select_weapon(int weapon_num, int secondary_flag, int print_message, int wa
                         Fusion_charge=0;
 			//end edit - Victor Rachels
 #endif
-                        if (wait_for_rearm) digi_play_sample_once( SOUND_GOOD_SELECTION_PRIMARY, F1_0 );
+			if (wait_for_rearm) digi_play_sample_once( SOUND_GOOD_SELECTION_PRIMARY, F1_0 );
 #ifdef NETWORK
 			if (Game_mode & GM_MULTI)	{
 				if (wait_for_rearm) multi_send_play_sound(SOUND_GOOD_SELECTION_PRIMARY, F1_0);
@@ -299,7 +299,7 @@ void do_weapon_select(int weapon_num, int secondary_flag)
 
 //	----------------------------------------------------------------------------------------
 //	Automatically select best available weapon if unable to fire current weapon.
-//	Weapon type: 0==primary, 1==secondary
+// Weapon type: 0==primary, 1==secondary
 void auto_select_weapon(int weapon_type)
 {
 	int	r;
@@ -395,8 +395,8 @@ void auto_select_weapon(int weapon_type)
 }
 
 //	---------------------------------------------------------------------
-//	called when one of these weapons is picked up
-//	when you pick up a secondary, you always get the weapon & ammo for it
+//called when one of these weapons is picked up
+//when you pick up a secondary, you always get the weapon & ammo for it
 //	Returns true if powerup picked up, else returns false.
 int pick_up_secondary(int weapon_index,int count)
 {
@@ -520,7 +520,7 @@ int pick_up_primary(int weapon_index)
 	PALETTE_FLASH_ADD(7,14,21);
 
    if (weapon_index!=LASER_INDEX)
-	HUD_init_message(HM_DEFAULT, "%s!",PRIMARY_WEAPON_NAMES(weapon_index));
+		HUD_init_message(HM_DEFAULT, "%s!",PRIMARY_WEAPON_NAMES(weapon_index));
 
 	return 1;
 }

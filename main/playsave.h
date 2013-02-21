@@ -27,8 +27,8 @@ COPYRIGHT 1993-1998 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 #include "multi.h"
 #include "player.h"
 
-#define N_SAVE_SLOTS		10
-#define GAME_NAME_LEN	25		//+1 for terminating zero = 26
+#define N_SAVE_SLOTS    10
+#define GAME_NAME_LEN   25      // +1 for terminating zero = 26
 
 // NOTE: Obsolete structure - only kept for compability of shareware plr file
 typedef struct saved_game_sw {
@@ -94,17 +94,17 @@ extern int Default_leveling_on;
 #define EZERO 0
 #endif
 
-//Used to save kconfig values to disk.
+// Used to save kconfig values to disk.
 int write_player_file();
 
 int new_player_config();
 
 int read_player_file();
 
-//set a new highest level for player for this mission
+// set a new highest level for player for this mission
 void set_highest_level(int levelnum);
 
-//gets the player's highest level from the file for this mission
+// gets the player's highest level from the file for this mission
 int get_highest_level(void);
 
 void plyr_read_stats();

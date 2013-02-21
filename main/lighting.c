@@ -217,16 +217,16 @@ g3s_lrgb compute_light_emission(int objnum)
 	float cscale = 255.0;
 	fix light_intensity = 0;
 	g3s_lrgb lemission, obj_color = { 255, 255, 255 };
-        
+
 	switch (obj->type)
 	{
 		case OBJ_PLAYER:
-		{
-			vms_vector sthrust = obj->mtype.phys_info.thrust;
-			fix k = fixmuldiv(obj->mtype.phys_info.mass,obj->mtype.phys_info.drag,(f1_0-obj->mtype.phys_info.drag));
-			// smooth thrust value like set_thrust_from_velocity()
-			vm_vec_copy_scale(&sthrust,&obj->mtype.phys_info.velocity,k);
-			light_intensity = max(vm_vec_mag_quick(&sthrust)/4, F1_0*2) + F1_0/2;
+			{
+				vms_vector sthrust = obj->mtype.phys_info.thrust;
+				fix k = fixmuldiv(obj->mtype.phys_info.mass,obj->mtype.phys_info.drag,(f1_0-obj->mtype.phys_info.drag));
+				// smooth thrust value like set_thrust_from_velocity()
+				vm_vec_copy_scale(&sthrust,&obj->mtype.phys_info.velocity,k);
+				light_intensity = max(vm_vec_mag_quick(&sthrust)/4, F1_0*2) + F1_0/2;
 			break;
 		}
 		case OBJ_FIREBALL:
@@ -394,7 +394,7 @@ void set_dynamic_light(void)
 	int	objnum;
 	int	n_render_vertices;
 	int	render_vertices[MAX_VERTICES];
-	int     vert_segnum_list[MAX_VERTICES];
+	int	vert_segnum_list[MAX_VERTICES];
 	sbyte   render_vertex_flags[MAX_VERTICES];
 	int	render_seg,segnum, v;
 

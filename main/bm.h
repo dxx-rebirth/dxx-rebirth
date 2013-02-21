@@ -27,7 +27,7 @@ COPYRIGHT 1993-1998 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 #define BM_MAX_ARGS		10
 
 //tmapinfo flags
-#define TMI_VOLATILE		1		//this material blows up when hit
+#define TMI_VOLATILE    1   //this material blows up when hit
 
 typedef struct {
 	char			filename[13];

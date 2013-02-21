@@ -179,8 +179,8 @@ void paging_touch_object( object * obj )
 			else
 				paging_touch_model(obj->rtype.pobj_info.model_num);
 			break;
-			
-		case RT_POWERUP: 
+
+		case RT_POWERUP:
 			if ( obj->rtype.vclip_info.vclip_num > -1 )
 				paging_touch_vclip(&Vclip[obj->rtype.vclip_info.vclip_num]);
 			break;
@@ -191,7 +191,7 @@ void paging_touch_object( object * obj )
 
 		case RT_WEAPON_VCLIP: break;
 
-		case RT_HOSTAGE: 
+		case RT_HOSTAGE:
 			paging_touch_vclip(&Vclip[obj->rtype.vclip_info.vclip_num]);
 			break;
 
@@ -247,14 +247,14 @@ void paging_touch_robot_maker( segment * segp )
 
 			robot_index = 0;
 			flags = RobotCenters[segp->matcen_num].robot_flags;
-			while (flags) {
-				if (flags & 1)	{
-					// Page in robot_index
-					paging_touch_robot( robot_index );
+				while (flags) {
+					if (flags & 1)	{
+						// Page in robot_index
+						paging_touch_robot( robot_index );
+					}
+					flags >>= 1;
+					robot_index++;
 				}
-				flags >>= 1;
-				robot_index++;
-			}
 		}
 	}
 }
@@ -351,15 +351,15 @@ void paging_touch_all()
 		else	
 			sprintf( fname, "level%02d.pag", Current_level_num );
 		fp = PHYSFSX_openWriteBuffered( fname );
-		for (i=0; i<MAX_BITMAP_FILES;i++ )	{
+		for (i=0; i<MAX_BITMAP_FILES;i++ ) {
 			int paged_in = 1;
 			piggy_get_bitmap_name(i,fname);
 
-			if (GameBitmaps[i].bm_flags & BM_FLAG_PAGED_OUT) 
+			if (GameBitmaps[i].bm_flags & BM_FLAG_PAGED_OUT)
 				paged_in = 0;
 			if (GameBitmapXlat[i]!=i)
 				paged_in = 0;
-			if ( (i==47) || (i==48) )		// Mark red mplayer ship textures as paged in.
+			if ( (i==47) || (i==48) )               // Mark red mplayer ship textures as paged in.
 				paged_in = 1;
 	
 			if ( !paged_in )

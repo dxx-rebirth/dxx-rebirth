@@ -15,9 +15,9 @@ COPYRIGHT 1993-1998 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
  * $Revision: 1.1.1.1 $
  * $Author: zicodxx $
  * $Date: 2006/03/17 19:43:11 $
- * 
+ *
  * Header file which contains string for id and timestamp information
- * 
+ *
  * $Log: desc_id.h,v $
  * Revision 1.1.1.1  2006/03/17 19:43:11  zicodxx
  * initial import
@@ -28,17 +28,17 @@ COPYRIGHT 1993-1998 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
  * Revision 2.0  1995/02/27  11:29:38  john
  * New version 2.0, which has no anonymous unions, builds with
  * Watcom 10.0, and doesn't require parsing BITMAPS.TBL.
- * 
+ *
  * Revision 1.3  1994/10/19  09:52:57  allender
  * Added variable for bogus error number return when game exits
- * 
+ *
  * Revision 1.2  1994/10/18  16:43:52  allender
  * Added constants for id and time stamping
- * 
+ *
  * Revision 1.1  1994/10/17  09:56:47  allender
  * Initial revision
- * 
- * 
+ *
+ *
  */
 
 

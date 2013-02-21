@@ -82,7 +82,7 @@ object *object_create_explosion_sub(object *objp, short segnum, vms_vector * pos
 		fix damage;
 		int i;
 		object * obj0p = &Objects[0];
-					  
+
 		// -- now legal for badass explosions on a wall. Assert(objp != NULL);
 
 		for (i=0; i<=Highest_object_index; i++ )	{
@@ -102,7 +102,7 @@ object *object_create_explosion_sub(object *objp, short segnum, vms_vector * pos
 					if (object_to_object_visibility(obj, obj0p, FQ_TRANSWALL)) {
 						damage = maxdamage - fixmuldiv( dist, maxdamage, maxdistance );
 						force = maxforce - fixmuldiv( dist, maxforce, maxdistance );
-						
+
 						// Find the force vector on the object
 						vm_vec_sub( &vforce, &obj0p->pos, &obj->pos );
 						vm_vec_normalize_quick(&vforce);
@@ -117,7 +117,7 @@ object *object_create_explosion_sub(object *objp, short segnum, vms_vector * pos
 
 								//	When a robot gets whacked by a badass force, he looks towards it because robots tend to get blasted from behind.
 								{
-									vms_vector neg_vforce; 
+									vms_vector neg_vforce;
 									neg_vforce.x = vforce.x * -2 * (7 - Difficulty_level)/8;
 									neg_vforce.y = vforce.y * -2 * (7 - Difficulty_level)/8;
 									neg_vforce.z = vforce.z * -2 * (7 - Difficulty_level)/8;
@@ -135,7 +135,7 @@ object *object_create_explosion_sub(object *objp, short segnum, vms_vector * pos
 								}
 								break;
 							case OBJ_PLAYER:	{
-								object * killer=NULL; 
+								object * killer=NULL;
 								vms_vector	vforce2;
 								if ((objp != NULL) && (Game_mode & GM_MULTI) && (objp->type == OBJ_PLAYER)) {
 									killer = objp;
@@ -205,11 +205,11 @@ object *explode_badass_weapon(object *obj)
 	digi_link_sound_to_object(SOUND_BADASS_EXPLOSION, obj-Objects, 0, F1_0);
 
 	return object_create_badass_explosion( obj, obj->segnum, &obj->pos, 
-					wi->impact_size, 
-					wi->robot_hit_vclip, 
-					wi->strength[Difficulty_level], 
-					wi->damage_radius,wi->strength[Difficulty_level],
-					obj->ctype.laser_info.parent_num );
+	                                      wi->impact_size,
+	                                      wi->robot_hit_vclip,
+	                                      wi->strength[Difficulty_level],
+	                                      wi->damage_radius,wi->strength[Difficulty_level],
+	                                      obj->ctype.laser_info.parent_num);
 
 }
 
@@ -254,7 +254,7 @@ object *object_create_debris(object *parent, int subobj_num)
 
 	Assert(subobj_num < 32);
 
-	//Set polygon-object-specific data 
+	//Set polygon-object-specific data
 
 	obj->rtype.pobj_info.model_num = parent->rtype.pobj_info.model_num;
 	obj->rtype.pobj_info.subobj_flags = 1<<subobj_num;
@@ -262,11 +262,11 @@ object *object_create_debris(object *parent, int subobj_num)
 
 	//Set physics data for this object
 
-        obj->mtype.phys_info.velocity.x = D_RAND_MAX/2 - d_rand();
-        obj->mtype.phys_info.velocity.y = D_RAND_MAX/2 - d_rand();
-        obj->mtype.phys_info.velocity.z = D_RAND_MAX/2 - d_rand();
+	obj->mtype.phys_info.velocity.x = D_RAND_MAX/2 - d_rand();
+	obj->mtype.phys_info.velocity.y = D_RAND_MAX/2 - d_rand();
+	obj->mtype.phys_info.velocity.z = D_RAND_MAX/2 - d_rand();
 	vm_vec_normalize_quick(&obj->mtype.phys_info.velocity);
-        vm_vec_scale(&obj->mtype.phys_info.velocity,i2f(10 + (30 * d_rand() / D_RAND_MAX)));
+	vm_vec_scale(&obj->mtype.phys_info.velocity,i2f(10 + (30 * d_rand() / D_RAND_MAX)));
 
 	vm_vec_add2(&obj->mtype.phys_info.velocity,&parent->mtype.phys_info.velocity);
 
@@ -329,9 +329,9 @@ int pick_connected_segment(object *objp, int max_depth)
 	int		start_seg;
 	int		head, tail;
 	int		seg_queue[QUEUE_SIZE*2];
-	sbyte		visited[MAX_SEGMENTS];
-	sbyte		depth[MAX_SEGMENTS];
-	sbyte		side_rand[MAX_SIDES_PER_SEGMENT];
+	sbyte   visited[MAX_SEGMENTS];
+	sbyte   depth[MAX_SEGMENTS];
+	sbyte   side_rand[MAX_SIDES_PER_SEGMENT];
 
 	memset(visited, 0, Highest_segment_index+1);
 	memset(depth, 0, Highest_segment_index+1);
@@ -641,7 +641,7 @@ void maybe_replace_powerup_with_energy(object *del_obj)
 int object_create_egg(object *objp)
 {
         int             objnum=0, count;
-	object		*obj;
+	object	*obj;
 	vms_vector	new_velocity, new_pos;
 	fix		old_mag;
 
@@ -675,7 +675,7 @@ int object_create_egg(object *objp)
 //				new_pos.y += (d_rand()-16384)*8;
 //				new_pos.z += (d_rand()-16384)*8;
 
-				#ifdef NETWORK
+#ifdef NETWORK
 				if (Game_mode & GM_MULTI)
 				{	
 					if (Net_create_loc >= MAX_NET_CREATE_OBJECTS)
@@ -683,7 +683,7 @@ int object_create_egg(object *objp)
 						return (-1);
 					}
 				}
-				#endif
+#endif
 
 				objnum = obj_create( objp->contains_type, objp->contains_id, objp->segnum, &new_pos, &vmd_identity_matrix, Powerup_info[objp->contains_id].size, CT_POWERUP, MT_PHYSICS, RT_POWERUP);
 
@@ -693,12 +693,12 @@ int object_create_egg(object *objp)
 				}
 
 
-				#ifdef NETWORK
+#ifdef NETWORK
 				if (Game_mode & GM_MULTI)
 				{
 					Net_create_objnums[Net_create_loc++] = objnum;
 				}
-				#endif
+#endif
 
 				obj = &Objects[objnum];
 
@@ -763,16 +763,16 @@ int object_create_egg(object *objp)
 					return objnum;
 				}
 
-				#ifdef NETWORK
+#ifdef NETWORK
 				if (Game_mode & GM_MULTI)
 				{
 					Net_create_objnums[Net_create_loc++] = objnum;
 				}
-				#endif
+#endif
 
 				obj = &Objects[objnum];
 
-				//Set polygon-object-specific data 
+				//Set polygon-object-specific data
 
 				obj->rtype.pobj_info.model_num = Robot_info[obj->id].model_num;
 				obj->rtype.pobj_info.subobj_flags = 0;
@@ -1191,8 +1191,8 @@ void do_exploding_wall_frame()
 				if (e & 3)		//3 of 4 are normal
 					object_create_explosion(expl_wall_list[i].segnum,&pos,size,VCLIP_SMALL_EXPLOSION);
 				else
-					object_create_badass_explosion( NULL, expl_wall_list[i].segnum, &pos, 
-					size, 
+					object_create_badass_explosion( NULL, expl_wall_list[i].segnum, &pos,
+					size,
 					VCLIP_SMALL_EXPLOSION,
 					i2f(4),		// damage strength
 					i2f(20),		//	damage radius

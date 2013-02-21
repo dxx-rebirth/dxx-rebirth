@@ -97,7 +97,7 @@ void fuelcen_reset()
 }
 
 #ifndef NDEBUG		//this is sometimes called by people from the debugger
-void reset_all_robot_centers() 
+void reset_all_robot_centers()
 {
 	int i;
 
@@ -112,7 +112,7 @@ void reset_all_robot_centers()
 
 //------------------------------------------------------------
 // Turns a segment into a fully charged up fuel center...
-void fuelcen_create( segment * segp)
+void fuelcen_create( segment *segp)
 {
 	int	station_type;
 
@@ -146,7 +146,7 @@ void fuelcen_create( segment * segp)
 //	Station[Num_fuelcenters].NextRobotType = -1;
 //	Station[Num_fuelcenters].last_created_obj=NULL;
 //	Station[Num_fuelcenters].last_created_sig = -1;
-	compute_segment_center(&Station[Num_fuelcenters].Center, segp );
+	compute_segment_center(&Station[Num_fuelcenters].Center, segp);
 
 //	if (station_type == SEGMENT_IS_ROBOTMAKER)
 //		Station[Num_fuelcenters].Capacity = i2f(Difficulty_level + 3);
@@ -157,7 +157,7 @@ void fuelcen_create( segment * segp)
 //------------------------------------------------------------
 // Adds a matcen that already is a special type into the Station array.
 // This function is separate from other fuelcens because we don't want values reset.
-void matcen_create( segment * segp)
+void matcen_create( segment *segp)
 {
 	int	station_type = segp->special;
 
@@ -276,7 +276,7 @@ Restart: ;
 							Segments[Station[j].segnum].matcen_num--;
 				}
 			}
-		
+
 			Num_fuelcenters--;
 			for (j=i; j<Num_fuelcenters; j++ )	{
 				Station[i] = Station[i+1];
@@ -312,7 +312,7 @@ object * create_morph_robot( segment *segp, vms_vector *object_pos, int object_i
 
 	obj = &Objects[objnum];
 
-	//Set polygon-object-specific data 
+	//Set polygon-object-specific data
 
 	obj->rtype.pobj_info.model_num = Robot_info[obj->id].model_num;
 	obj->rtype.pobj_info.subobj_flags = 0;
@@ -398,11 +398,11 @@ void robotmaker_proc( FuelCenter * robotcen )
 
 	switch( robotcen->Flag )	{
 	case 0:		// Wait until next robot can generate
-		if (Game_mode & GM_MULTI) 
+		if (Game_mode & GM_MULTI)
 		{
 			top_time = ROBOT_GEN_TIME;	
 		}
-		else 
+		else
 		{
 			dist_to_player = vm_vec_dist_quick( &ConsoleObject->pos, &robotcen->Center );
 			top_time = dist_to_player/64 + d_rand() * 2 + F1_0*2;
@@ -512,7 +512,7 @@ void robotmaker_proc( FuelCenter * robotcen )
 					//robotcen->last_created_sig = robotcen->last_created_obj->signature;
 				}
 			}
-  
+
 		}
 		break;
 	default:
@@ -539,7 +539,7 @@ void fuelcen_update_all()
 			if (! (Game_suspended & SUSP_ROBOTS))
 				robotmaker_proc( &Station[i] );
 // 		} else if ( Station[i].Type == SEGMENT_IS_CONTROLCEN )	{
-// 			controlcen_proc( &Station[i] );
+			//controlcen_proc( &Station[i] );
 // 	
 		} else if ( (Station[i].MaxCapacity > 0) && (PlayerSegment!=&Segments[Station[i].segnum]) )	{
 			if ( Station[i].Capacity < Station[i].MaxCapacity )	{
@@ -567,12 +567,12 @@ fix fuelcen_give_fuel(segment *segp, fix MaxAmountCanTake )
 		fix amount;
 
 //		if (Station[segp->value].MaxCapacity<=0)	{
-//			HUD_init_message(HM_DEFAULT,  "Fuelcenter %d is destroyed.", segp->value );
+//			HUD_init_message(HM_DEFAULT, "Fuelcenter %d is destroyed.", segp->value );
 //			return 0;
 //		}
 
 //		if (Station[segp->value].Capacity<=0)	{
-//			HUD_init_message(HM_DEFAULT,  "Fuelcenter %d is empty.", segp->value );
+//			HUD_init_message(HM_DEFAULT, "Fuelcenter %d is empty.", segp->value );
 //			return 0;
 //		}
 
@@ -600,13 +600,13 @@ fix fuelcen_give_fuel(segment *segp, fix MaxAmountCanTake )
 			last_play_time = GameTime64;
 			digi_play_sample( SOUND_REFUEL_STATION_GIVING_FUEL, F1_0/2 );
 
-			#ifdef NETWORK
+#ifdef NETWORK
 			if (Game_mode & GM_MULTI)
 				multi_send_play_sound(SOUND_REFUEL_STATION_GIVING_FUEL, F1_0/2);
-			#endif
+#endif
 		}
 
-		//HUD_init_message(HM_DEFAULT,  "Fuelcen %d has %d/%d fuel", segp->value,f2i(Station[segp->value].Capacity),f2i(Station[segp->value].MaxCapacity) );
+		//HUD_init_message(HM_DEFAULT, "Fuelcen %d has %d/%d fuel", segp->value,f2i(Station[segp->value].Capacity),f2i(Station[segp->value].MaxCapacity) );
 		return amount;
 
 	} else {

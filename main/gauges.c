@@ -81,7 +81,7 @@ COPYRIGHT 1993-1998 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 #define RETICLE_PRIMARY			48
 #define RETICLE_SECONDARY		51
 #define RETICLE_LAST			55
-#define GAUGE_HOMING_WARNING_ON		56
+#define GAUGE_HOMING_WARNING_ON	56
 #define GAUGE_HOMING_WARNING_OFF	57
 #define SML_RETICLE_CROSS		58
 #define SML_RETICLE_PRIMARY		60
@@ -299,7 +299,7 @@ COPYRIGHT 1993-1998 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 #define SB_SECONDARY_AMMO_X		HUD_SCALE_X(SB_SECONDARY_W_BOX_LEFT+(HIRESMODE?(14):11))	//(212+9)
 #define SB_SECONDARY_AMMO_Y		HUD_SCALE_Y(HIRESMODE?414:171)
 
-#define WS_SET				0 //in correct state
+#define WS_SET				0		//in correct state
 #define WS_FADING_OUT			1
 #define WS_FADING_IN			2
 #define FADE_SCALE			(2*i2f(GR_FADE_LEVELS)/REARM_TIME)		// fade out and back in REARM_TIME, in fade levels per seconds (int)
@@ -331,11 +331,11 @@ grs_bitmap *WinBoxOverlay[2] = { NULL, NULL }; // Overlay subbitmaps for both we
 
 static int score_display;
 static fix score_time;
-static int old_weapon[2]	= {-1, -1};
+static int old_weapon[2]		= {-1,-1};
 static int invulnerable_frame = 0;
 int weapon_box_states[2];
 fix weapon_box_fade_values[2];
-int Color_0_31_0 = -1;
+int	Color_0_31_0 = -1;
 extern fix ThisLevelTime;
 
 typedef struct gauge_box {
@@ -347,117 +347,117 @@ typedef struct gauge_box {
 //seconds two are the same for the status bar
 gauge_box gauge_boxes[] = {
 
-	// primary left/right low res
-	{PRIMARY_W_BOX_LEFT_L,PRIMARY_W_BOX_TOP_L,PRIMARY_W_BOX_RIGHT_L,PRIMARY_W_BOX_BOT_L},
-	{SECONDARY_W_BOX_LEFT_L,SECONDARY_W_BOX_TOP_L,SECONDARY_W_BOX_RIGHT_L,SECONDARY_W_BOX_BOT_L},
+// primary left/right low res
+		{PRIMARY_W_BOX_LEFT_L,PRIMARY_W_BOX_TOP_L,PRIMARY_W_BOX_RIGHT_L,PRIMARY_W_BOX_BOT_L},
+		{SECONDARY_W_BOX_LEFT_L,SECONDARY_W_BOX_TOP_L,SECONDARY_W_BOX_RIGHT_L,SECONDARY_W_BOX_BOT_L},
 
-	//sb left/right low res
-	{SB_PRIMARY_W_BOX_LEFT_L,SB_PRIMARY_W_BOX_TOP_L,SB_PRIMARY_W_BOX_RIGHT_L,SB_PRIMARY_W_BOX_BOT_L},
-	{SB_SECONDARY_W_BOX_LEFT_L,SB_SECONDARY_W_BOX_TOP_L,SB_SECONDARY_W_BOX_RIGHT_L,SB_SECONDARY_W_BOX_BOT_L},
+//sb left/right low res
+		{SB_PRIMARY_W_BOX_LEFT_L,SB_PRIMARY_W_BOX_TOP_L,SB_PRIMARY_W_BOX_RIGHT_L,SB_PRIMARY_W_BOX_BOT_L},
+		{SB_SECONDARY_W_BOX_LEFT_L,SB_SECONDARY_W_BOX_TOP_L,SB_SECONDARY_W_BOX_RIGHT_L,SB_SECONDARY_W_BOX_BOT_L},
 
-	// primary left/right hires
-	{PRIMARY_W_BOX_LEFT_H,PRIMARY_W_BOX_TOP_H,PRIMARY_W_BOX_RIGHT_H,PRIMARY_W_BOX_BOT_H},
-	{SECONDARY_W_BOX_LEFT_H,SECONDARY_W_BOX_TOP_H,SECONDARY_W_BOX_RIGHT_H,SECONDARY_W_BOX_BOT_H},
+// primary left/right hires
+		{PRIMARY_W_BOX_LEFT_H,PRIMARY_W_BOX_TOP_H,PRIMARY_W_BOX_RIGHT_H,PRIMARY_W_BOX_BOT_H},
+		{SECONDARY_W_BOX_LEFT_H,SECONDARY_W_BOX_TOP_H,SECONDARY_W_BOX_RIGHT_H,SECONDARY_W_BOX_BOT_H},
 
-	// sb left/right hires
-	{SB_PRIMARY_W_BOX_LEFT_H,SB_PRIMARY_W_BOX_TOP_H,SB_PRIMARY_W_BOX_RIGHT_H,SB_PRIMARY_W_BOX_BOT_H},
-	{SB_SECONDARY_W_BOX_LEFT_H,SB_SECONDARY_W_BOX_TOP_H,SB_SECONDARY_W_BOX_RIGHT_H,SB_SECONDARY_W_BOX_BOT_H},
-};
+// sb left/right hires
+		{SB_PRIMARY_W_BOX_LEFT_H,SB_PRIMARY_W_BOX_TOP_H,SB_PRIMARY_W_BOX_RIGHT_H,SB_PRIMARY_W_BOX_BOT_H},
+		{SB_SECONDARY_W_BOX_LEFT_H,SB_SECONDARY_W_BOX_TOP_H,SB_SECONDARY_W_BOX_RIGHT_H,SB_SECONDARY_W_BOX_BOT_H},
+	};
 
 //store delta x values from left of box
 span weapon_window_left[] = {
-		{71,114},
-		{69,116},
-		{68,117},
-		{66,118},
-		{66,119},
-		{66,119},
-		{65,119},
-		{65,119},
-		{65,119},
-		{65,119},
-		{65,119},
-		{65,119},
-		{65,119},
-		{65,119},
-		{65,119},
-		{64,119},
-		{64,119},
-		{64,119},
-		{64,119},
-		{64,119},
-		{64,119},
-		{64,119},
-		{64,119},
-		{64,119},
-		{63,119},
-		{63,118},
-		{63,118},
-		{63,118},
-		{63,118},
-		{63,118},
-		{63,118},
-		{63,118},
-		{63,118},
-		{63,118},
-		{63,118},
-		{63,118},
-		{63,118},
-		{63,117},
-		{63,117},
-		{64,116},
-		{65,115},
-		{66,113},
-		{68,111},
-	};
+	{71,114},
+	{69,116},
+	{68,117},
+	{66,118},
+	{66,119},
+	{66,119},
+	{65,119},
+	{65,119},
+	{65,119},
+	{65,119},
+	{65,119},
+	{65,119},
+	{65,119},
+	{65,119},
+	{65,119},
+	{64,119},
+	{64,119},
+	{64,119},
+	{64,119},
+	{64,119},
+	{64,119},
+	{64,119},
+	{64,119},
+	{64,119},
+	{63,119},
+	{63,118},
+	{63,118},
+	{63,118},
+	{63,118},
+	{63,118},
+	{63,118},
+	{63,118},
+	{63,118},
+	{63,118},
+	{63,118},
+	{63,118},
+	{63,118},
+	{63,117},
+	{63,117},
+	{64,116},
+	{65,115},
+	{66,113},
+	{68,111},
+};
 
 
 //store delta x values from left of box
 span weapon_window_right[] = {
-		{208,255},
-		{206,257},
-		{205,258},
-		{204,259},
-		{203,260},
-		{203,260},
-		{203,260},
-		{203,260},
-		{203,260},
-		{203,261},
-		{203,261},
-		{203,261},
-		{203,261},
-		{203,261},
-		{203,261},
-		{203,261},
-		{203,261},
-		{203,261},
-		{203,262},
-		{203,262},
-		{203,262},
-		{203,262},
-		{203,262},
-		{203,262},
-		{203,262},
-		{203,262},
-		{204,263},
-		{204,263},
-		{204,263},
-		{204,263},
-		{204,263},
-		{204,263},
-		{204,263},
-		{204,263},
-		{204,263},
-		{204,263},
-		{204,263},
-		{204,263},
-		{205,263},
-		{206,262},
-		{207,261},
-		{208,260},
-		{211,255},
-	};
+	{208,255},
+	{206,257},
+	{205,258},
+	{204,259},
+	{203,260},
+	{203,260},
+	{203,260},
+	{203,260},
+	{203,260},
+	{203,261},
+	{203,261},
+	{203,261},
+	{203,261},
+	{203,261},
+	{203,261},
+	{203,261},
+	{203,261},
+	{203,261},
+	{203,262},
+	{203,262},
+	{203,262},
+	{203,262},
+	{203,262},
+	{203,262},
+	{203,262},
+	{203,262},
+	{204,263},
+	{204,263},
+	{204,263},
+	{204,263},
+	{204,263},
+	{204,263},
+	{204,263},
+	{204,263},
+	{204,263},
+	{204,263},
+	{204,263},
+	{204,263},
+	{205,263},
+	{206,262},
+	{207,261},
+	{208,260},
+	{211,255},
+};
 
 
 //store delta x values from left of box
@@ -966,7 +966,7 @@ void hud_show_keys(void)
 
 void hud_show_energy(void)
 {
-	if (PlayerCfg.HudMode<2){
+	if (PlayerCfg.HudMode<2) {
 		gr_set_curfont( GAME_FONT );
 		gr_set_fontcolor(BM_XRGB(0,31,0),-1 );
 		if (Game_mode & GM_MULTI)
@@ -1020,31 +1020,31 @@ void hud_show_weapons_mode(int type,int vertical,int x,int y){
 	if (type==0){
 		for (i=4;i>=0;i--){
 			if (Primary_weapon==i)
-                             gr_set_fontcolor(BM_XRGB(20,0,0),-1);
+				gr_set_fontcolor(BM_XRGB(20,0,0),-1);
 			else{
 				if (player_has_weapon(i,0) & HAS_WEAPON_FLAG)
-				     gr_set_fontcolor(BM_XRGB(0,15,0),-1);
+					gr_set_fontcolor(BM_XRGB(0,15,0),-1);
 				else
-				     gr_set_fontcolor(BM_XRGB(3,3,3),-1);
+					gr_set_fontcolor(BM_XRGB(3,3,3),-1);
 			}
 			switch(i){
-			  case 0:
-				sprintf(weapon_str,"%c%i",
-					  (Players[Player_num].flags & PLAYER_FLAGS_QUAD_LASERS)?'Q':'L',
-					  Players[Player_num].laser_level+1);
-				break;
-			  case 1:
+				case 0:
+					sprintf(weapon_str,"%c%i",
+						(Players[Player_num].flags & PLAYER_FLAGS_QUAD_LASERS)?'Q':'L',
+						Players[Player_num].laser_level+1);
+					break;
+				case 1:
 				if (PlayerCfg.CockpitMode[1]==CM_FULL_SCREEN)
 					sprintf(weapon_str,"V%i", f2i(Players[Player_num].primary_ammo[1] * VULCAN_AMMO_SCALE));
 				else
 					sprintf(weapon_str,"V");
-				break;
-			  case 2:
-				sprintf(weapon_str,"S");break;
-			  case 3:
-				sprintf(weapon_str,"P");break;
-			  case 4:
-				sprintf(weapon_str,"F");break;
+					break;
+				case 2:
+					sprintf(weapon_str,"S");break;
+				case 3:
+					sprintf(weapon_str,"P");break;
+				case 4:
+					sprintf(weapon_str,"F");break;
 
 			}
 			gr_get_string_size(weapon_str, &w, &h, &aw );
@@ -1054,15 +1054,15 @@ void hud_show_weapons_mode(int type,int vertical,int x,int y){
 			     x-=w+FSPACY(3);
 			gr_string(x, y, weapon_str);
 		}
-	}else{
+	} else {
 		for (i=4;i>=0;i--){
 			if (Secondary_weapon==i)
-                             gr_set_fontcolor(BM_XRGB(20,0,0),-1);
+				gr_set_fontcolor(BM_XRGB(20,0,0),-1);
 			else{
 				if (Players[Player_num].secondary_ammo[i]>0)
-				     gr_set_fontcolor(BM_XRGB(0,15,0),-1);
+					gr_set_fontcolor(BM_XRGB(0,15,0),-1);
 				else
-				     gr_set_fontcolor(BM_XRGB(0,6,0),-1);
+					gr_set_fontcolor(BM_XRGB(0,6,0),-1);
 			}
 			sprintf(weapon_str,"%i",Players[Player_num].secondary_ammo[i]);
 			gr_get_string_size(weapon_str, &w, &h, &aw );
@@ -1094,7 +1094,7 @@ void hud_show_weapons(void)
 	}
 	else if (PlayerCfg.HudMode==2){
 		int x1,x2;
-		int	w, aw;
+		int w, aw;
 		gr_get_string_size("V1000", &w, &x1, &aw );
 		gr_get_string_size("0 ", &x2, &x1, &aw);
 		y=grd_curcanv->cv_bitmap.bm_h/1.75;
@@ -1150,7 +1150,7 @@ void hud_show_weapons(void)
 		}
 
 		sprintf(weapon_str, "%s %d",weapon_str,Players[Player_num].secondary_ammo[Secondary_weapon]);
-		gr_get_string_size(weapon_str, &w,&h, &aw );
+		gr_get_string_size(weapon_str, &w, &h, &aw );
 		gr_string(grd_curcanv->cv_bitmap.bm_w-w-FSPACX(1), y-LINE_SPACING, weapon_str);
 
 		show_bomb_count(grd_curcanv->cv_bitmap.bm_w-FSPACX(1), y-(LINE_SPACING*3),-1,1, 1);
@@ -1200,7 +1200,7 @@ void hud_show_cloak_invuln(void)
 
 void hud_show_shield(void)
 {
-	if (PlayerCfg.HudMode<2){
+	if (PlayerCfg.HudMode<2) {
 		gr_set_curfont( GAME_FONT );
 		gr_set_fontcolor(BM_XRGB(0,31,0),-1 );
 		if ( Players[Player_num].shields >= 0 )	{
@@ -1765,7 +1765,7 @@ void draw_secondary_ammo_info(int ammo_count)
 	if (PlayerCfg.CockpitMode[1] == CM_STATUS_BAR)
 		draw_ammo_info(SB_SECONDARY_AMMO_X,SB_SECONDARY_AMMO_Y,ammo_count,0);
 	else
-                draw_ammo_info(SECONDARY_AMMO_X,SECONDARY_AMMO_Y,ammo_count,0);
+		draw_ammo_info(SECONDARY_AMMO_X,SECONDARY_AMMO_Y,ammo_count,0);
 }
 
 void draw_weapon_box(int weapon_type,int weapon_num)
@@ -1866,7 +1866,7 @@ void draw_weapon_boxes()
 void sb_draw_energy_bar(int energy)
 {
 	int erase_height,i;
-	int ew,eh,eaw;
+	int ew, eh, eaw;
 
 	PIGGY_PAGE_IN(Gauges[SB_GAUGE_ENERGY]);
 	hud_bitblt( HUD_SCALE_X(SB_ENERGY_GAUGE_X), HUD_SCALE_Y(SB_ENERGY_GAUGE_Y), &GameBitmaps[Gauges[SB_GAUGE_ENERGY].index]);
@@ -1887,7 +1887,7 @@ void sb_draw_energy_bar(int energy)
 void sb_draw_shield_num(int shield)
 {
 	grs_bitmap *bm = &GameBitmaps[cockpit_bitmap[PlayerCfg.CockpitMode[1]].index];
-	int sw,sh,saw;
+	int sw, sh, saw;
 
 	//draw numbers
 	gr_set_curfont( GAME_FONT );
@@ -1904,7 +1904,7 @@ void sb_draw_shield_bar(int shield)
 {
 	int bm_num = shield>=100?9:(shield / 10);
 
-	gr_set_current_canvas( NULL );
+	gr_set_current_canvas(NULL);
 
 	PIGGY_PAGE_IN( Gauges[GAUGE_SHIELDS+9-bm_num] );
 	hud_bitblt( HUD_SCALE_X(SB_SHIELD_GAUGE_X), HUD_SCALE_Y(SB_SHIELD_GAUGE_Y), &GameBitmaps[Gauges[GAUGE_SHIELDS+9-bm_num].index]);
@@ -1915,7 +1915,7 @@ void sb_draw_keys()
 	grs_bitmap * bm;
 	int flags = Players[Player_num].flags;
 
-	gr_set_current_canvas( NULL );
+	gr_set_current_canvas(NULL);
 	bm = &GameBitmaps[Gauges[(flags&PLAYER_FLAGS_BLUE_KEY)?SB_GAUGE_BLUE_KEY:SB_GAUGE_BLUE_KEY_OFF].index];
 	PIGGY_PAGE_IN(Gauges[(flags&PLAYER_FLAGS_BLUE_KEY)?SB_GAUGE_BLUE_KEY:SB_GAUGE_BLUE_KEY_OFF]);
 	hud_bitblt( HUD_SCALE_X(SB_GAUGE_KEYS_X), HUD_SCALE_Y(SB_GAUGE_BLUE_KEY_Y), bm);
@@ -1927,12 +1927,12 @@ void sb_draw_keys()
 	hud_bitblt( HUD_SCALE_X(SB_GAUGE_KEYS_X), HUD_SCALE_Y(SB_GAUGE_RED_KEY_Y), bm);
 }
 
-// Draws invulnerable ship, or maybe the flashing ship, depending on invulnerability time left.
+//	Draws invulnerable ship, or maybe the flashing ship, depending on invulnerability time left.
 void draw_invulnerable_ship()
 {
 	static fix time=0;
 
-	gr_set_current_canvas( NULL );
+	gr_set_current_canvas(NULL);
 
 	if (Players[Player_num].invulnerable_time+INVULNERABLE_TIME_MAX-GameTime64 > F1_0*4 || GameTime64 & 0x8000)
 	{
@@ -1963,12 +1963,12 @@ extern int allowed_to_fire_laser(void);
 extern int allowed_to_fire_missile(void);
 
 rgb player_rgb[] = {	{15,15,23},
-			{27,0,0},
-			{0,23,0},
-			{30,11,31},
-			{31,16,0},
-			{24,17,6},
-			{14,21,12},
+							{27,0,0},
+							{0,23,0},
+							{30,11,31},
+							{31,16,0},
+							{24,17,6},
+							{14,21,12},
 			{29,29,0}, };
 
 typedef struct {
@@ -2387,7 +2387,7 @@ void show_HUD_names()
 
 void draw_hud()
 {
-	// Show score so long as not in rearview
+	//	Show score so long as not in rearview
 	if ( !Rear_view && PlayerCfg.CockpitMode[1]!=CM_REAR_VIEW && PlayerCfg.CockpitMode[1]!=CM_STATUS_BAR) {
 		hud_show_score();
 		if (score_time)
@@ -2397,7 +2397,7 @@ void draw_hud()
 	if ( !Rear_view && PlayerCfg.CockpitMode[1]!=CM_REAR_VIEW)
 		hud_show_timer_count();
 
-	// Show other stuff if not in rearview or letterbox.
+	//	Show other stuff if not in rearview or letterbox.
 	if (!Rear_view && PlayerCfg.CockpitMode[1]!=CM_REAR_VIEW)
 	{
 		show_HUD_names();

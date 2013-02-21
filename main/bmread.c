@@ -283,7 +283,7 @@ int ds_load(int skip, char * filename )	{
 		return piggy_register_sound( &bogus_sound, "bogus", 1 );
 	}
 
-	removeext( filename, fname );
+	removeext(filename, fname);
 	sprintf( rawname, "Sounds/%s.raw", fname );
 
 	i=piggy_find_sound( fname );
@@ -471,9 +471,9 @@ int gamedata_read_tbl(int pc_shareware)
 			else IFTOK("$EFFECTS")		{bm_flag = BM_EFFECTS;	clip_num = 0;}
 
 			#ifdef EDITOR
-			else IFTOK("!METALS_FLAG")              TextureMetals = texture_count;
-			else IFTOK("!LIGHTS_FLAG")              TextureLights = texture_count;
-			else IFTOK("!EFFECTS_FLAG")     TextureEffects = texture_count;
+			else IFTOK("!METALS_FLAG")		TextureMetals = texture_count;
+			else IFTOK("!LIGHTS_FLAG")		TextureLights = texture_count;
+			else IFTOK("!EFFECTS_FLAG")	TextureEffects = texture_count;
 			#else
 			else IFTOK("!METALS_FLAG") ;
 			else IFTOK("!LIGHTS_FLAG") ;
@@ -538,7 +538,7 @@ int gamedata_read_tbl(int pc_shareware)
 
 	NumTextures = texture_count;
 	Num_tmaps = tmap_count;
-	
+
 	PHYSFS_close( InfoFile );
 
 	Assert(N_robot_types == Num_robot_ais);		//should be one ai info per robot
@@ -549,7 +549,7 @@ int gamedata_read_tbl(int pc_shareware)
 	for (i=0; i<MAX_EFFECTS; i++ )
 		if (	(
 				  (Effects[i].changing_wall_texture!=-1) ||
-				  (Effects[i].changing_object_texture!=-1)     
+				  (Effects[i].changing_object_texture!=-1)
              )
 			 && (Effects[i].vc.num_frames==-1) )
 			Error("EClip %d referenced (by polygon object?), but not defined",i);
@@ -579,7 +579,7 @@ void verify_textures()
 		bmp = &GameBitmaps[Textures[i].index];
 		if ( (bmp->bm_w!=64)||(bmp->bm_h!=64)||(bmp->bm_rowsize!=64) )	{
 			j++;
-		} 
+		}
 	}
 	if (j) Error("There are game textures that are not 64x64");
 }
@@ -672,7 +672,7 @@ void bm_read_eclip(int skip)
 			ObjBitmaps[Effects[clip_num].changing_object_texture] = Effects[clip_num].vc.frames[0];
 		}
 
-		//if for an object, Effects_bm_ptrs set in object load 
+		//if for an object, Effects_bm_ptrs set in object load
 
 		for(clip_count=1;clip_count < Effects[clip_num].vc.num_frames; clip_count++) {
 			set_lighting_flag( &GameBitmaps[bm[clip_count].index].bm_flags);
@@ -726,7 +726,7 @@ void bm_read_gauges(int skip)
 	bitmap_index bitmap;
 	int i, num_abm_frames;
 
-	if (!abm_flag)	{ 
+	if (!abm_flag)	{
 		bitmap = bm_load_sub(skip, arg);
 		Assert(clip_count < MAX_GAUGE_BMS);
 		Gauges[clip_count] = bitmap;
@@ -1047,9 +1047,9 @@ void bm_read_robot(int skip)
 	first_bitmap_num[0] = N_ObjBitmapPtrs;
 	n_models = 1;
 
-	// Process bitmaps 
+	// Process bitmaps
 	bm_flag=BM_ROBOT;
-	arg = strtok( NULL, space ); 
+	arg = strtok( NULL, space );
 	while (arg!=NULL)	{
 		equal_ptr = strchr( arg, '=' );
 		if ( equal_ptr )	{
@@ -1123,7 +1123,7 @@ void bm_read_robot(int skip)
 
 	for (i=0;i<n_models;i++) {
 		int n_textures;
-                int model_num,last_model_num=0;
+		int model_num,last_model_num=0;
 
 		n_textures = first_bitmap_num[i+1] - first_bitmap_num[i];
 
@@ -1185,9 +1185,9 @@ void bm_read_object(int skip)
 
 	model_name = strtok( NULL, space );
 
-	// Process bitmaps 
+	// Process bitmaps
 	bm_flag = BM_NONE;
-	arg = strtok( NULL, space ); 
+	arg = strtok( NULL, space );
 	first_bitmap_num = N_ObjBitmapPtrs;
 
 	while (arg!=NULL)	{
@@ -1233,7 +1233,7 @@ void bm_read_object(int skip)
 
 	if (type == OL_CONTROL_CENTER)
 		N_controlcen_guns = read_model_guns(model_name,controlcen_gun_points,controlcen_gun_dirs,NULL);
- 
+
 	if ( model_name_dead )
 		Dead_modelnums[model_num]  = load_polygon_model(model_name_dead,N_ObjBitmapPtrs-first_bitmap_num_dead,first_bitmap_num_dead,NULL);
 	else
@@ -1245,7 +1245,7 @@ void bm_read_object(int skip)
 	ObjType[Num_total_object_types] = type;
 	ObjId[Num_total_object_types] = model_num;
 	ObjStrength[Num_total_object_types] = strength;
-	
+
 	Num_total_object_types++;
 
 	if (type == OL_EXIT) {
@@ -1265,10 +1265,10 @@ void bm_read_player_ship(int skip)
 	robot_info ri;
 	int last_multi_bitmap_num=-1;
 
-	// Process bitmaps 
+	// Process bitmaps
 	bm_flag = BM_NONE;
 
-	arg = strtok( NULL, space ); 
+	arg = strtok( NULL, space );
 
 	Player_ship->mass = Player_ship->drag = 0;	//stupid defaults
 	Player_ship->expl_vclip_num = -1;
@@ -1346,7 +1346,7 @@ void bm_read_player_ship(int skip)
 
 	for (i=0;i<n_models;i++) {
 		int n_textures;
-                int model_num,last_model_num=0;
+		int model_num,last_model_num=0;
 
 		n_textures = first_bitmap_num[i+1] - first_bitmap_num[i];
 
@@ -1511,7 +1511,7 @@ void bm_read_weapon(int skip, int unused_flag)
 	Weapon_info[n].homing_flag = 0;
 
 	// Process arguments
-	arg = strtok( NULL, space ); 
+	arg = strtok( NULL, space );
 
 	lighted = 1;			//assume first texture is lighted
 
@@ -1641,7 +1641,7 @@ void bm_read_weapon(int skip, int unused_flag)
 
 	for (i=0;i<n_models;i++) {
 		int n_textures;
-                int model_num,last_model_num=0;
+		int model_num,last_model_num=0;
 
 		n_textures = first_bitmap_num[i+1] - first_bitmap_num[i];
 
@@ -1693,7 +1693,7 @@ void bm_read_powerup(int unused_flag)
 	Powerup_names[n][0] = 0;
 
 	// Process arguments
-	arg = strtok( NULL, space ); 
+	arg = strtok( NULL, space );
 
 	while (arg!=NULL)	{
 		equal_ptr = strchr( arg, '=' );
@@ -1724,7 +1724,7 @@ void bm_read_powerup(int unused_flag)
 
 }
 
-void bm_read_hostage()	
+void bm_read_hostage()
 {
 	int n;
 	char 	*equal_ptr;
@@ -1735,7 +1735,7 @@ void bm_read_hostage()
 	N_hostage_types++;
 
 	// Process arguments
-	arg = strtok( NULL, space ); 
+	arg = strtok( NULL, space );
 
 	while (arg!=NULL)	{
 		equal_ptr = strchr( arg, '=' );
@@ -1831,7 +1831,7 @@ void bm_write_all(PHYSFS_file *fp)
 
 	PHYSFS_write( fp, &N_powerup_types, sizeof(int), 1);
 	PHYSFS_write( fp, Powerup_info, sizeof(powerup_type_info), MAX_POWERUP_TYPES);
-	
+
 	PHYSFS_write( fp, &N_polygon_models, sizeof(int), 1);
 	PHYSFS_write( fp, Polygon_models, sizeof(polymodel), N_polygon_models);
 

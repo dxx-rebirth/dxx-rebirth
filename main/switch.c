@@ -87,7 +87,7 @@ void do_link(sbyte trigger_num)
 
 	if (trigger_num != -1) {
 		for (i=0;i<Triggers[trigger_num].num_links;i++) {
-			wall_toggle(Triggers[trigger_num].seg[i], Triggers[trigger_num].side[i]); 
+			wall_toggle(Triggers[trigger_num].seg[i], Triggers[trigger_num].side[i]);
   		}
   	}
 }
@@ -98,19 +98,19 @@ void do_matcen(sbyte trigger_num)
 
 	if (trigger_num != -1) {
 		for (i=0;i<Triggers[trigger_num].num_links;i++) {
-			trigger_matcen(Triggers[trigger_num].seg[i] ); 
+			trigger_matcen(Triggers[trigger_num].seg[i] );
   		}
   	}
 }
 
-	
+
 void do_il_on(sbyte trigger_num)
 {
 	int i;
 
 	if (trigger_num != -1) {
 		for (i=0;i<Triggers[trigger_num].num_links;i++) {
-			wall_illusion_on(&Segments[Triggers[trigger_num].seg[i]], Triggers[trigger_num].side[i]); 
+			wall_illusion_on(&Segments[Triggers[trigger_num].seg[i]], Triggers[trigger_num].side[i]);
   		}
   	}
 }
@@ -118,7 +118,7 @@ void do_il_on(sbyte trigger_num)
 void do_il_off(sbyte trigger_num)
 {
 	int i;
-	
+
 	if (trigger_num != -1) {
 		for (i=0;i<Triggers[trigger_num].num_links;i++) {
 			wall_illusion_off(&Segments[Triggers[trigger_num].seg[i]], Triggers[trigger_num].side[i]); 
@@ -146,10 +146,10 @@ int check_trigger_sub(int trigger_num, int pnum)
 			if (Newdemo_state == ND_STATE_RECORDING)		// stop demo recording
 				Newdemo_state = ND_STATE_PAUSED;
 
-			#ifdef NETWORK
+#ifdef NETWORK
 			if (Game_mode & GM_MULTI)
 				multi_send_endlevel_start(1);
-			#endif
+#endif
 #ifdef NETWORK
 			if (Game_mode & GM_NETWORK)
 				multi_do_protocol_frame(1, 1);
@@ -204,7 +204,7 @@ void check_trigger(segment *seg, short side, short objnum)
 
 		wall_num = seg->sides[side].wall_num;
 		if ( wall_num == -1 ) return;
-		
+
 		trigger_num = Walls[wall_num].trigger;
 
 		if (trigger_num == -1)
@@ -235,7 +235,7 @@ void check_trigger(segment *seg, short side, short objnum)
 #endif
 	}
 }
-  
+
 void triggers_frame_process()
 {
 	int i;
@@ -251,7 +251,7 @@ void triggers_frame_process()
 extern void trigger_read(trigger *t, PHYSFS_file *fp)
 {
 	int i;
-	
+
 	t->type = PHYSFSX_readByte(fp);
 	t->flags = PHYSFSX_readShort(fp);
 	t->value = PHYSFSX_readFix(fp);
@@ -267,10 +267,10 @@ extern void trigger_read(trigger *t, PHYSFS_file *fp)
 void trigger_swap(trigger *t, int swap)
 {
 	int i;
-	
+
 	if (!swap)
 		return;
-	
+
 	t->flags = SWAPSHORT(t->flags);
 	t->value = SWAPINT(t->value);
 	t->time = SWAPINT(t->time);
@@ -287,9 +287,9 @@ void trigger_swap(trigger *t, int swap)
 void trigger_read_n_swap(trigger *t, int n, int swap, PHYSFS_file *fp)
 {
 	int i;
-	
+
 	PHYSFS_read(fp, t, sizeof(trigger), n);
-	
+
 	if (swap)
 		for (i = 0; i < n; i++)
 			trigger_swap(&t[i], swap);
@@ -300,7 +300,7 @@ void trigger_write(trigger *t, short version, PHYSFS_file *fp)
 	int i;
 
 	if (version <= 29)
-		PHYSFSX_writeU8(fp, 0);	// unused 'type'
+		PHYSFSX_writeU8(fp, 0);		// unused 'type'
 	else if (version >= 31)
 	{
 		if (t->flags & TRIGGER_CONTROL_DOORS)
@@ -321,22 +321,22 @@ void trigger_write(trigger *t, short version, PHYSFS_file *fp)
 		PHYSFS_writeSLE16(fp, t->flags);
 	else
 		PHYSFSX_writeU8(fp, (t->flags & TRIGGER_ONE_SHOT) ? 2 : 0);		// flags
-	
+
 	if (version >= 30)
 	{
 		PHYSFSX_writeU8(fp, t->num_links);
 		PHYSFSX_writeU8(fp, 0);	// t->pad
 	}
-	
+
 	PHYSFSX_writeFix(fp, t->value);
 	PHYSFSX_writeFix(fp, t->time);
-	
+
 	if (version <= 29)
 	{
 		PHYSFSX_writeU8(fp, t->link_num);
 		PHYSFS_writeSLE16(fp, t->num_links);
 	}
-	
+
 	for (i = 0; i < MAX_WALLS_PER_LINK; i++)
 		PHYSFS_writeSLE16(fp, t->seg[i]);
 	for (i = 0; i < MAX_WALLS_PER_LINK; i++)

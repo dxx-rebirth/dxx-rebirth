@@ -120,8 +120,8 @@ char	Current_level_name[LEVEL_NAME_LEN];
 // #endif
 
 // Global variables describing the player
-int 				N_players=1;						// Number of players ( >1 means a net game, eh?)
-int 				Player_num=0;						// The player number who is on the console.
+int	N_players=1;	// Number of players ( >1 means a net game, eh?)
+int 	Player_num=0;	// The player number who is on the console.
 player			Players[MAX_PLAYERS];			// Misc player info
 obj_position	Player_init[MAX_PLAYERS];
 
@@ -298,9 +298,9 @@ void init_player_stats_level()
 
 	Players[Player_num].level = Current_level_num;
 
-	#ifdef NETWORK
+#ifdef NETWORK
 	if (!Network_rejoined)
-	#endif
+#endif
 		Players[Player_num].time_level = 0;	//Note link to above if !!!!!!
 
 	init_ammo_and_energy();
@@ -315,18 +315,18 @@ void init_player_stats_level()
 	Players[Player_num].hostages_total += Players[Player_num].hostages_level;
 	Players[Player_num].hostages_on_board = 0;
 
-	Players[Player_num].flags &= (~KEY_BLUE);
-	Players[Player_num].flags &= (~KEY_RED);
-	Players[Player_num].flags &= (~KEY_GOLD);
+		Players[Player_num].flags &= (~KEY_BLUE);
+		Players[Player_num].flags &= (~KEY_RED);
+		Players[Player_num].flags &= (~KEY_GOLD);
 
 	Players[Player_num].flags &= (~PLAYER_FLAGS_INVULNERABLE);
 	Players[Player_num].flags &= (~PLAYER_FLAGS_CLOAKED);
 
-	Players[Player_num].cloak_time = 0;
-	Players[Player_num].invulnerable_time = 0;
+		Players[Player_num].cloak_time = 0;
+		Players[Player_num].invulnerable_time = 0;
 
-	if ((Game_mode & GM_MULTI) && !(Game_mode & GM_MULTI_COOP))
-		Players[Player_num].flags |= (KEY_BLUE | KEY_RED | KEY_GOLD);
+		if ((Game_mode & GM_MULTI) && !(Game_mode & GM_MULTI_COOP))
+			Players[Player_num].flags |= (KEY_BLUE | KEY_RED | KEY_GOLD);
 
 	Player_is_dead = 0; // Added by RH
 	Dead_player_camera = NULL;
@@ -628,17 +628,17 @@ void LoadLevel(int level_num)
 	timer_delay(F1_0);
 #endif
 
-	#ifdef NETWORK
+#ifdef NETWORK
 	my_segments_checksum = netmisc_calc_checksum();
-	#endif
+#endif
 
 	load_endlevel_data(level_num);
 	
 	load_custom_data(level_name);
 
-	#ifdef NETWORK
+#ifdef NETWORK
 	reset_network_objects();
-	#endif
+#endif
 
 	Players[Player_num] = save_player;
 
@@ -663,8 +663,8 @@ void InitPlayerObject()
 
 	ConsoleObject = &Objects[Players[Player_num].objnum];
 
-        ConsoleObject->type             = OBJ_PLAYER;
-        ConsoleObject->id               = Player_num;
+	ConsoleObject->type				= OBJ_PLAYER;
+	ConsoleObject->id					= Player_num;
 	ConsoleObject->control_type	= CT_FLYING;
 	ConsoleObject->movement_type	= MT_PHYSICS;
 }
@@ -865,7 +865,7 @@ void PlayerFinishedLevel(int secret_flag)
 	last_drawn_cockpit = -1;
 
 	if (Current_level_num == Last_level) {
-		#ifdef NETWORK
+#ifdef NETWORK
 		if ((Game_mode & GM_MULTI) && !(Game_mode & GM_MULTI_COOP))
 		{
 			was_multi = 1;
@@ -873,17 +873,17 @@ void PlayerFinishedLevel(int secret_flag)
 			rval = AdvanceLevel(secret_flag);				//now go on to the next one (if one)
 		}
 		else
-		#endif
+#endif
 		{	// Note link to above else!
 			rval = AdvanceLevel(secret_flag);				//now go on to the next one (if one)
 			DoEndLevelScoreGlitz(0);		//give bonuses
 		}
 	} else {
-		#ifdef NETWORK
+#ifdef NETWORK
 		if (Game_mode & GM_MULTI)
 			multi_endlevel_score();
 		else
-		#endif	// Note link!!
+#endif	// Note link!!
 			DoEndLevelScoreGlitz(0);		//give bonuses
 		rval = AdvanceLevel(secret_flag);				//now go on to the next one (if one)
 	}
@@ -924,7 +924,7 @@ int AdvanceLevel(int secret_flag)
 
 	key_flush();
 
-	#ifdef NETWORK
+#ifdef NETWORK
 	if (Game_mode & GM_MULTI)
 	{
 		int result;
@@ -934,7 +934,7 @@ int AdvanceLevel(int secret_flag)
 			return (Current_level_num == Last_level);
 		}
 	}
-	#endif
+#endif
 
 	key_flush();
 
@@ -1010,13 +1010,13 @@ void DoPlayerDead()
 	}
 	#endif
 
-	#ifdef NETWORK
+#ifdef NETWORK
 	if ( Game_mode&GM_MULTI )
 	{
 		multi_do_death(Players[Player_num].objnum);
 	}
 	else
-	#endif
+#endif
 	{				//Note link to above else!
 		Players[Player_num].lives--;
 		if (Players[Player_num].lives == 0)
@@ -1040,14 +1040,14 @@ void DoPlayerDead()
 		do_screen_message(TXT_DIED_IN_MINE); // Give them some indication of what happened
 
 		if (Current_level_num == Last_level) {
-			#ifdef NETWORK
+#ifdef NETWORK
 			if ((Game_mode & GM_MULTI) && !(Game_mode & GM_MULTI_COOP))
 			{
 				multi_endlevel_score();
 				rval = AdvanceLevel(0);			//if finished, go on to next level
 			}
 			else
-			#endif
+#endif
 			{			// Note link to above else!
 				rval = AdvanceLevel(0);			//if finished, go on to next level
 				DoEndLevelScoreGlitz(0);
@@ -1055,11 +1055,11 @@ void DoPlayerDead()
 			init_player_stats_new_ship(Player_num);
 			last_drawn_cockpit = -1;
 		} else {
-			#ifdef NETWORK
+#ifdef NETWORK
 			if (Game_mode & GM_MULTI)
 				multi_endlevel_score();
 			else
-			#endif
+#endif
 				DoEndLevelScoreGlitz(0);		// Note above link!
 
 			rval = AdvanceLevel(0);			//if finished, go on to next level
@@ -1221,7 +1221,7 @@ void StartNewLevel(int level_num)
 	hide_menus();
 
 	GameTime64 = 0;
-        ThisLevelTime=0;
+	ThisLevelTime=0;
 
 	if (!(Game_mode & GM_MULTI)) {
 		do_briefing_screens(Briefing_text_filename, level_num);
@@ -1233,7 +1233,7 @@ void StartNewLevel(int level_num)
 //initialize the player object position & orientation (at start of game, or new ship)
 void InitPlayerPosition(int random)
 {
-        int NewPlayer=0;
+	int NewPlayer=0;
 
 	if (! ((Game_mode & GM_MULTI) && !(Game_mode&GM_MULTI_COOP)) ) // If not deathmatch
 		NewPlayer = Player_num;

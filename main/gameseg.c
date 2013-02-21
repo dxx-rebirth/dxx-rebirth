@@ -12,9 +12,9 @@ COPYRIGHT 1993-1998 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 */
 
 /*
- * 
+ *
  * Functions moved from segment.c to make editor separable from game.
- * 
+ *
  */
 
 
@@ -106,7 +106,7 @@ int get_num_faces(side *sidep)
 void get_side_verts(int *vertlist,int segnum,int sidenum)
 {
 	int	i;
-	sbyte  *sv = Side_to_verts[sidenum];
+	sbyte   *sv = Side_to_verts[sidenum];
 	int	*vp = Segments[segnum].verts;
 
 	for (i=4; i--;)
@@ -173,7 +173,7 @@ void create_all_vertex_lists(int *num_faces, int *vertices, int segnum, int side
 			//CREATE_ABS_VERTEX_LISTS(), CREATE_ALL_VERTEX_LISTS(), CREATE_ALL_VERTNUM_LISTS()
 			break;
 		default:
-                        Error("Illegal side type(1), type = %i, segment # = %i, side # = %i\n Please report this bug.\n", sidep->type, segnum, sidenum);
+			Error("Illegal side type (1), type = %i, segment # = %i, side # = %i\n Please report this bug.\n", sidep->type, segnum, sidenum);
 			break;
 	}
 
@@ -182,7 +182,7 @@ void create_all_vertex_lists(int *num_faces, int *vertices, int segnum, int side
 
 // -----------------------------------------------------------------------------------
 // Like create all vertex lists, but returns the vertnums (relative to
-// the side) for each of the faces that make up the side.  
+// the side) for each of the faces that make up the side. 
 //	If there is one face, it has 4 vertices.
 //	If there are two faces, they both have three vertices, so face #0 is stored in vertices 0,1,2,
 //	face #1 is stored in vertices 3,4,5.
@@ -231,14 +231,14 @@ void create_all_vertnum_lists(int *num_faces, int *vertnums, int segnum, int sid
 			//CREATE_ABS_VERTEX_LISTS(), CREATE_ALL_VERTEX_LISTS(), CREATE_ALL_VERTNUM_LISTS()
 			break;
 		default:
-                        Error("Illegal side type(2), type = %i, segment # = %i, side # = %i\n Please report this bug.\n", sidep->type, segnum, sidenum);
+			Error("Illegal side type (2), type = %i, segment # = %i, side # = %i\n Please report this bug.\n", sidep->type, segnum, sidenum);
 			break;
 	}
 
 }
 
 // -----
-//like create_all_vertex_lists(), but generate absolute point numbers
+// like create_all_vertex_lists(), but generate absolute point numbers
 void create_abs_vertex_lists(int *num_faces, int *vertices, int segnum, int sidenum, const char *calling_file, int calling_linenum)
 {
 	int	*vp = Segments[segnum].verts;
@@ -286,7 +286,7 @@ void create_abs_vertex_lists(int *num_faces, int *vertices, int segnum, int side
 			//CREATE_ABS_VERTEX_LISTS(), CREATE_ALL_VERTEX_LISTS(), CREATE_ALL_VERTNUM_LISTS()
 			break;
 		default:
-                        Error("Illegal side type(3), type = %i, segment # = %i, side # = %i caller:%s:%i\n Please report this bug.\n", sidep->type, segnum, sidenum ,calling_file,calling_linenum);
+			Error("Illegal side type (3), type = %i, segment # = %i, side # = %i caller:%s:%i\n Please report this bug.\n", sidep->type, segnum, sidenum ,calling_file,calling_linenum);
 			break;
 	}
 
@@ -294,7 +294,7 @@ void create_abs_vertex_lists(int *num_faces, int *vertices, int segnum, int side
 
 
 //returns 3 different bitmasks with info telling if this sphere is in
-//this segment.  See segmasks structure for info on fields   
+//this segment.  See segmasks structure for info on fields
 segmasks get_seg_masks(const vms_vector *checkp, int segnum, fix rad, const char *calling_file, int calling_linenum)
 {
 	int			sn,facebit,sidebit;
@@ -321,11 +321,11 @@ segmasks get_seg_masks(const vms_vector *checkp, int segnum, fix rad, const char
 		#endif
 		int	side_pokes_out;
 		int	vertnum,fn;
-		
+
 		// Get number of faces on this side, and at vertex_list, store vertices.
 		//	If one face, then vertex_list indicates a quadrilateral.
 		//	If two faces, then 0,1,2 define one triangle, 3,4,5 define the second.
-                create_abs_vertex_lists( &num_faces, vertex_list, segnum, sn, calling_file, calling_linenum);
+		create_abs_vertex_lists(&num_faces, vertex_list, segnum, sn, calling_file, calling_linenum);
 
 		//ok...this is important.  If a side has 2 faces, we need to know if
 		//those faces form a concave or convex side.  If the side pokes out,
@@ -441,7 +441,7 @@ segmasks get_seg_masks(const vms_vector *checkp, int segnum, fix rad, const char
 
 //this was converted from get_seg_masks()...it fills in an array of 6
 //elements for the distace behind each side, or zero if not behind
-//only gets centermask, and assumes zero rad 
+//only gets centermask, and assumes zero rad
 ubyte get_side_dists(vms_vector *checkp,int segnum,fix *side_dists)
 {
 	int			sn,facebit,sidebit;
@@ -470,7 +470,7 @@ ubyte get_side_dists(vms_vector *checkp,int segnum,fix *side_dists)
 		// Get number of faces on this side, and at vertex_list, store vertices.
 		//	If one face, then vertex_list indicates a quadrilateral.
 		//	If two faces, then 0,1,2 define one triangle, 3,4,5 define the second.
-                create_abs_vertex_lists( &num_faces, vertex_list, segnum, sn, __FILE__, __LINE__);
+		create_abs_vertex_lists(&num_faces, vertex_list, segnum, sn, __FILE__, __LINE__);
 
 		//ok...this is important.  If a side has 2 faces, we need to know if
 		//those faces form a concave or convex side.  If the side pokes out,
@@ -613,7 +613,7 @@ int check_segment_connections(void)
 			int num_faces,csegnum,csidenum,con_num_faces;
 			int vertex_list[6],con_vertex_list[6];
 
-                        create_abs_vertex_lists( &num_faces, vertex_list, segnum, sidenum, __FILE__, __LINE__);
+			create_abs_vertex_lists(&num_faces, vertex_list, segnum, sidenum, __FILE__, __LINE__);
 
 			csegnum = seg->children[sidenum];
 
@@ -626,7 +626,7 @@ int check_segment_connections(void)
 					continue;
 				}
 
-                                create_abs_vertex_lists( &con_num_faces, con_vertex_list, csegnum, csidenum, __FILE__, __LINE__);
+				create_abs_vertex_lists(&con_num_faces, con_vertex_list, csegnum, csidenum, __FILE__, __LINE__);
 
 				if (con_num_faces != num_faces) {
 					errors = 1;
@@ -694,8 +694,8 @@ int	Doing_lighting_hack_flag=0;
 #define Doing_lighting_hack_flag 0
 #endif
 
-//figure out what seg the given point is in, tracing through segments
-//returns segment number, or -1 if can't find segment
+// figure out what seg the given point is in, tracing through segments
+// returns segment number, or -1 if can't find segment
 int trace_segs(vms_vector *p0, int oldsegnum, int recursion_count)
 {
 	int centermask;
@@ -760,7 +760,7 @@ int find_point_seg(vms_vector *p,int segnum)
 	Assert((segnum <= Highest_segment_index) && (segnum >= -1));
 
 	if (segnum != -1) {
-		newseg = trace_segs(p,segnum,0);
+		newseg = trace_segs(p, segnum, 0);
 
 		if (newseg != -1)			//we found a segment!
 			return newseg;
@@ -774,7 +774,7 @@ int find_point_seg(vms_vector *p,int segnum)
 	//	Matt: This really should be fixed, though.  We're probably screwing up our lighting in a few places.
 	if (!Doing_lighting_hack_flag) {
 		for (newseg=0;newseg <= Highest_segment_index;newseg++)
-                        if (get_seg_masks(p,newseg,0,__FILE__,__LINE__).centermask == 0)
+			if (get_seg_masks(p, newseg, 0, __FILE__, __LINE__).centermask == 0)
 				return newseg;
 		return -1;		//no segment found
 	} else
@@ -786,17 +786,17 @@ int find_point_seg(vms_vector *p,int segnum)
 //--repair-- void clsd_repair_center(int segnum)
 //--repair-- {
 //--repair-- 	int	sidenum;
-//--repair-- 
+//--repair--
 //--repair-- 	//	--- Set repair center bit for all repair center segments.
 //--repair-- 	if (Segments[segnum].special == SEGMENT_IS_REPAIRCEN) {
 //--repair-- 		Lsegments[segnum].special_type |= SS_REPAIR_CENTER;
 //--repair-- 		Lsegments[segnum].special_segment = segnum;
 //--repair-- 	}
-//--repair-- 
+//--repair--
 //--repair-- 	//	--- Set repair center bit for all segments adjacent to a repair center.
 //--repair-- 	for (sidenum=0; sidenum < MAX_SIDES_PER_SEGMENT; sidenum++) {
 //--repair-- 		int	s = Segments[segnum].children[sidenum];
-//--repair-- 
+//--repair--
 //--repair-- 		if ( (s != -1) && (Segments[s].special==SEGMENT_IS_REPAIRCEN) ) {
 //--repair-- 			Lsegments[segnum].special_type |= SS_REPAIR_CENTER;
 //--repair-- 			Lsegments[segnum].special_segment = s;
@@ -809,12 +809,12 @@ int find_point_seg(vms_vector *p,int segnum)
 //--repair-- void clsd_materialization_center(int segnum)
 //--repair-- {
 //--repair-- 	if (Segments[segnum].special == SEGMENT_IS_ROBOTMAKER) {
-//--repair-- 
+//--repair--
 //--repair-- 	}
 //--repair-- }
-//--repair-- 
+//--repair--
 //--repair-- int	Lsegment_highest_segment_index, Lsegment_highest_vertex_index;
-//--repair-- 
+//--repair--
 //--repair-- //	------------------------------------------------------------------------------
 //--repair-- //	Create data specific to mine which doesn't get written to disk.
 //--repair-- //	Highest_segment_index and Highest_object_index must be valid.
@@ -822,26 +822,26 @@ int find_point_seg(vms_vector *p,int segnum)
 //--repair-- void create_local_segment_data(void)
 //--repair-- {
 //--repair-- 	int	segnum;
-//--repair-- 
+//--repair--
 //--repair-- 	//	--- Initialize all Lsegments.
 //--repair-- 	for (segnum=0; segnum <= Highest_segment_index; segnum++) {
 //--repair-- 		Lsegments[segnum].special_type = 0;
 //--repair-- 		Lsegments[segnum].special_segment = -1;
 //--repair-- 	}
-//--repair-- 
+//--repair--
 //--repair-- 	for (segnum=0; segnum <= Highest_segment_index; segnum++) {
-//--repair-- 
+//--repair--
 //--repair-- 		clsd_repair_center(segnum);
 //--repair-- 		clsd_materialization_center(segnum);
 //--repair-- 	
 //--repair-- 	}
-//--repair-- 
+//--repair--
 //--repair-- 	//	Set check variables.
 //--repair-- 	//	In main game loop, make sure these are valid, else Lsegments is not valid.
 //--repair-- 	Lsegment_highest_segment_index = Highest_segment_index;
 //--repair-- 	Lsegment_highest_vertex_index = Highest_vertex_index;
 //--repair-- }
-//--repair-- 
+//--repair--
 //--repair-- //	------------------------------------------------------------------------------------------
 //--repair-- //	Sort of makes sure create_local_segment_data has been called for the currently executing mine.
 //--repair-- //	It is not failsafe, as you will see if you look at the code.
@@ -865,7 +865,7 @@ fix find_connected_distance(vms_vector *p0, int seg0, vms_vector *p1, int seg1, 
 	int		sidenum;
 	int		qtail = 0, qhead = 0;
 	int		i;
-	sbyte		visited[MAX_SEGMENTS];
+	sbyte   visited[MAX_SEGMENTS];
 	seg_seg	seg_queue[MAX_SEGMENTS];
 	short		depth[MAX_SEGMENTS];
 	int		cur_depth;
@@ -882,8 +882,8 @@ fix find_connected_distance(vms_vector *p0, int seg0, vms_vector *p1, int seg1, 
 		Connected_segment_distance = 0;
 		return vm_vec_dist_quick(p0, p1);
 	} else if (find_connect_side(&Segments[seg0], &Segments[seg1]) != -1) {
-		Connected_segment_distance = 1;
-		return vm_vec_dist_quick(p0, p1);
+				Connected_segment_distance = 1;
+				return vm_vec_dist_quick(p0, p1);
 	}
 
 	num_points = 0;
@@ -892,8 +892,8 @@ fix find_connected_distance(vms_vector *p0, int seg0, vms_vector *p1, int seg1, 
 //		visited[i] = 0;
 //		depth[i] = 0;
 //	}
-memset(visited, 0, Highest_segment_index+1);
-memset(depth, 0, Highest_segment_index+1);
+	memset(visited, 0, Highest_segment_index+1);
+	memset(depth, 0, Highest_segment_index+1);
 
 	cur_seg = seg0;
 	visited[cur_seg] = 1;
@@ -1357,7 +1357,7 @@ void get_verts_for_normal(int va, int vb, int vc, int vd, int *v0, int *v1, int 
 void add_side_as_2_triangles(segment *sp, int sidenum)
 {
 	vms_vector	norm;
-	sbyte			*vs = Side_to_verts[sidenum];
+	sbyte       *vs = Side_to_verts[sidenum];
 	fix			dot;
 	vms_vector	vec_13;		//	vector from vertex 1 to vertex 3
 
@@ -1486,7 +1486,7 @@ void create_walls_on_side(segment *sp, int sidenum)
 			int			vertnum;
 			side			*s;
 
-                        create_abs_vertex_lists( &num_faces, vertex_list, sp-Segments, sidenum, __FILE__, __LINE__);
+			create_abs_vertex_lists(&num_faces, vertex_list, sp - Segments, sidenum, __FILE__, __LINE__);
 
 			Assert(num_faces == 2);
 
@@ -1776,7 +1776,7 @@ void pick_random_point_in_seg(vms_vector *new_pos, int segnum)
 	compute_segment_center(new_pos, &Segments[segnum]);
 	vnum = (d_rand() * MAX_VERTICES_PER_SEGMENT) >> 15;
 	vm_vec_sub(&vec2, &Vertices[Segments[segnum].verts[vnum]], new_pos);
-	vm_vec_scale(&vec2, d_rand());			//	d_rand() always in 0..1/2
+	vm_vec_scale(&vec2, d_rand());          // d_rand() always in 0..1/2
 	vm_vec_add2(new_pos, &vec2);
 }
 
@@ -1791,7 +1791,7 @@ int set_segment_depths(int start_seg, ubyte *segbuf)
 	int	queue[MAX_SEGMENTS];
 	int	head, tail;
 	int	depth;
-        int     parent_depth=0;
+	int	parent_depth=0;
 
 	depth = 1;
 	head = 0;

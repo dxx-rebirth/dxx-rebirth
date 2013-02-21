@@ -82,7 +82,7 @@ COPYRIGHT 1993-1999 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 #define EF_TOO_FAR  64  // An edge that is too far away
 
 typedef struct Edge_info {
-	int verts[2];       // 8  bytes
+	int   verts[2];     // 8  bytes
 	ubyte sides[4];     // 4  bytes
 	int   segnum[4];    // 16 bytes  // This might not need to be stored... If you can access the normals of a side.
 	ubyte flags;        // 1  bytes  // See the EF_??? defines above.
@@ -254,7 +254,7 @@ void draw_automap(automap *am)
 	int color;
 	object * objp;
 	g3s_point sphere_point;
-	
+
 	if ( am->leave_mode==0 && am->controls.automap_state && (timer_query()-am->entry_time)>LEAVE_TIME)
 		am->leave_mode = 1;
 
@@ -601,7 +601,7 @@ int automap_handler(window *wind, d_event *event, automap *am)
 			return 0;
 			break;
 	}
-	
+
 	return 1;
 }
 
@@ -858,7 +858,7 @@ void draw_all_edges(automap *am)
 static int automap_find_edge(automap *am, int v0,int v1,Edge_info **edge_ptr)
 {
 	long vv, evv;
-	int hash,oldhash;
+	int hash, oldhash;
 	int ret, ev0, ev1;
 
 	vv = (v1<<16) + v0;

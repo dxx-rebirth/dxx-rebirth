@@ -81,7 +81,7 @@ struct newmenu
 	int				citem;
 	char			*filename;
 	int				tiny_mode;
-	int 			tabs_flag;
+	int			tabs_flag;
 	int			reorderitems;
 	int				scroll_offset, last_scroll_check, max_displayable;
 	int				all_text;		//set true if all text items
@@ -1479,7 +1479,7 @@ int newmenu_handler(window *wind, d_event *event, newmenu *menu)
 	if (menu->subfunction)
 	{
 		int rval = (*menu->subfunction)(menu, event, menu->userdata);
-		
+
 		if (!window_exists(wind))
 			return 1;	// some subfunction closed the window: bail!
 
@@ -2017,7 +2017,7 @@ int listbox_draw(window *wind, listbox *lb)
 					lb->marquee_lasttime = timer_query();
 					prev_citem = lb->citem;
 				}
-				
+
 				memset(shrtstr, '\0', lb->marquee_maxchars+1);
 				
 				if (i == lb->citem)

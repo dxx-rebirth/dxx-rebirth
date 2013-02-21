@@ -215,7 +215,7 @@ void do_physics_sim_rot(object *obj)
 		r = FrameTime % FT;
 		k = fixdiv(r,FT);
 
-                drag = (obj->mtype.phys_info.drag*5)/2;
+		drag = (obj->mtype.phys_info.drag*5)/2;
 
 		if (obj->mtype.phys_info.flags & PF_USES_THRUST) {
 
@@ -225,16 +225,16 @@ void do_physics_sim_rot(object *obj)
 
 				vm_vec_add2(&obj->mtype.phys_info.rotvel,&accel);
 
-                                vm_vec_scale(&obj->mtype.phys_info.rotvel,f1_0-drag);
+				vm_vec_scale(&obj->mtype.phys_info.rotvel,f1_0-drag);
 			}
 
 			//do linear scale on remaining bit of time
 
 			vm_vec_scale_add2(&obj->mtype.phys_info.rotvel,&accel,k);
-                        vm_vec_scale(&obj->mtype.phys_info.rotvel,f1_0-fixmul(k,drag));
+			vm_vec_scale(&obj->mtype.phys_info.rotvel,f1_0-fixmul(k,drag));
 		}
 		else {
-                        fix total_drag=f1_0;
+			fix total_drag=f1_0;
 
 			while (count--)
 				total_drag = fixmul(total_drag,f1_0-drag);
@@ -248,7 +248,7 @@ void do_physics_sim_rot(object *obj)
 
 	}
 
-	//now rotate object 
+	//now rotate object
 
 	//unrotate object for bank caused by turn
 	if (obj->mtype.phys_info.turnroll) {
@@ -322,7 +322,7 @@ void do_physics_sim(object *obj)
 	fix sim_time;
 	vms_vector start_pos;
 	int obj_stopped=0;
-	fix moved_time; 			//how long objected moved before hit something
+	fix moved_time;			//how long objected moved before hit something
 	physics_info *pi;
 	int orig_segnum = obj->segnum;
 	fix PhysTime = (FrameTime<F1_0/30?F1_0/30:FrameTime);
@@ -356,8 +356,8 @@ void do_physics_sim(object *obj)
 	//debug_obj = obj;
 
 #ifdef EXTRA_DEBUG
-	//check for correct object segment 
-        if(!get_seg_masks(&obj->pos,obj->segnum,0,__FILE__,__LINE__).centermask==0) {
+	//check for correct object segment
+	if(!get_seg_masks(&obj->pos, obj->segnum, 0, __FILE__, __LINE__).centermask == 0) {
 		//Int3();  Removed by Rob 10/5/94
 		if (!update_object_seg(obj)) {
 			if (!(Game_mode & GM_MULTI))
@@ -375,7 +375,7 @@ void do_physics_sim(object *obj)
 	Assert(obj->mtype.phys_info.brakes==0);		//brakes not used anymore?
 
 		//if uses thrust, cannot have zero drag
-        Assert(!(obj->mtype.phys_info.flags&PF_USES_THRUST) || obj->mtype.phys_info.drag!=0);
+	Assert(!(obj->mtype.phys_info.flags&PF_USES_THRUST) || obj->mtype.phys_info.drag!=0);
 
 	//do thrust & drag
 	// NOTE: this always must be dependent on FrameTime, if sim_time differs!
@@ -505,7 +505,7 @@ void do_physics_sim(object *obj)
 			obj_relink(objnum, iseg );
 
 		//if start point not in segment, move object to center of segment
-                if (get_seg_masks(&obj->pos,obj->segnum,0,__FILE__,__LINE__).centermask!=0) {
+		if (get_seg_masks(&obj->pos, obj->segnum, 0, __FILE__, __LINE__).centermask !=0 ) {
 			int n;
 
 			if ((n=find_object_seg(obj))==-1) {
@@ -569,7 +569,7 @@ void do_physics_sim(object *obj)
 
 			case HIT_WALL:		{
 				vms_vector moved_v;
-				fix hit_speed=0, wall_part=0;
+				fix hit_speed=0,wall_part=0;
 
 				// Find hit speed	
 
@@ -582,8 +582,8 @@ void do_physics_sim(object *obj)
 				if (obj->type == OBJ_PLAYER)
 					scrape_player_on_wall(obj, WallHitSeg, WallHitSide, &hit_info.hit_pnt );
 
-				Assert( WallHitSeg > -1 );				
-				Assert( WallHitSide > -1 );				
+				Assert( WallHitSeg > -1 );
+				Assert( WallHitSide > -1 );
 
 				if ( !(obj->flags&OF_SHOULD_BE_DEAD) )	{
 
@@ -741,7 +741,7 @@ void do_physics_sim(object *obj)
 
 				s = &Segments[orig_segnum].sides[sidenum];
 
-                                create_abs_vertex_lists( &num_faces, vertex_list, orig_segnum, sidenum, __FILE__,__LINE__);
+				create_abs_vertex_lists(&num_faces, vertex_list, orig_segnum, sidenum, __FILE__, __LINE__);
 
 				//let's pretend this wall is not triangulated
 				vertnum = vertex_list[0];
@@ -768,7 +768,7 @@ void do_physics_sim(object *obj)
 
 //--WE ALWYS WANT THIS IN, MATT AND MIKE DECISION ON 12/10/94, TWO MONTHS AFTER FINAL 	#ifndef NDEBUG
 	//if end point not in segment, move object to last pos, or segment center
-        if (get_seg_masks(&obj->pos,obj->segnum,0,__FILE__,__LINE__).centermask!=0) {
+	if (get_seg_masks(&obj->pos, obj->segnum, 0, __FILE__, __LINE__).centermask != 0) {
 		if (find_object_seg(obj)==-1) {
 			int n;
 

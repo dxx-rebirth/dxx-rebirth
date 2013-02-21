@@ -256,7 +256,7 @@ static int check_line_to_face(vms_vector *newp,const vms_vector *p0,const vms_ve
 		norm = seg->sides[side].normals[facenum];
 	#endif
 
-        create_abs_vertex_lists(&num_faces,vertex_list,seg-Segments,side ,__FILE__,__LINE__);
+	create_abs_vertex_lists(&num_faces, vertex_list, seg - Segments, side, __FILE__, __LINE__);
 
 	//use lowest point number
 	if (num_faces==2) {
@@ -296,7 +296,7 @@ fix calc_det_value(vms_matrix *det)
 			 	fixmul(det->rvec.z,fixmul(det->uvec.y,det->fvec.x));
 }
 
-//computes the parameters of closest approach of two lines 
+//computes the parameters of closest approach of two lines
 //fill in two parameters, t0 & t1.  returns 0 if lines are parallel, else 1
 static int check_line_to_line(fix *t1,fix *t2,vms_vector *p1,vms_vector *v1,const vms_vector *p2,vms_vector *v2)
 {
@@ -337,8 +337,8 @@ static int special_check_line_to_face(vms_vector *newp,const vms_vector *p0,cons
 	vms_vector closest_point_edge,closest_point_move;
 
 	//calc some basic stuff
- 
-        create_abs_vertex_lists(&num_faces,vertex_list,seg-Segments,side ,__FILE__,__LINE__);
+
+	create_abs_vertex_lists(&num_faces, vertex_list, seg - Segments, side, __FILE__, __LINE__);
 	vm_vec_sub(&move_vec,p1,p0);
 
 	//figure out which edge(s) to check against
@@ -414,7 +414,7 @@ static int special_check_line_to_face(vms_vector *newp,const vms_vector *p0,cons
 //maybe this routine should just return the distance and let the caller
 //decide it it's close enough to hit
 //determine if and where a vector intersects with a sphere
-//vector defined by p0,p1 
+//vector defined by p0,p1
 //returns dist if intersects, and fills in intp
 //else returns 0
 static int check_vector_to_sphere_1(vms_vector *intp,const vms_vector *p0,const vms_vector *p1,vms_vector *sphere_pos,fix sphere_rad)
@@ -520,7 +520,7 @@ static int check_vector_to_sphere_1(vms_vector *intp,const vms_vector *p0,const 
 //$$
 //$$
 //$$//determine if and where a vector intersects with a sphere
-//$$//vector defined by p0,p1 
+//$$//vector defined by p0,p1
 //$$//returns dist if intersects, and fills in intp. if no intersect, return 0
 //$$fix check_vector_to_sphere_2(vms_vector *intp,vms_vector *p0,vms_vector *p1,vms_vector *sphere_pos,fix sphere_rad)
 //$${
@@ -589,7 +589,7 @@ static fix check_vector_to_object(vms_vector *intp,const vms_vector *p0,const vm
 		size = (size*3)/4;
 
 	//if obj is player, and bumping into other player or a weapon of another coop player, reduce radius
-	if (obj->type == OBJ_PLAYER && 
+	if (obj->type == OBJ_PLAYER &&
 		 	((otherobj->type == OBJ_PLAYER) ||
 	 		((Game_mode&GM_MULTI_COOP) && otherobj->type == OBJ_WEAPON && otherobj->ctype.laser_info.parent_type == OBJ_PLAYER)))
 		size = size/2;
@@ -678,14 +678,14 @@ int find_vector_intersection(fvi_query *fq,fvi_info *hit_data)
 
 	hit_type = fvi_sub(&hit_pnt,&hit_seg2,fq->p0,fq->startseg,fq->p1,fq->rad,fq->thisobjnum,fq->ignore_obj_list,fq->flags,hit_data->seglist,&hit_data->n_segs,-2);
 	//!!hit_seg = find_point_seg(&hit_pnt,fq->startseg);
-        if (hit_seg2!=-1 && !get_seg_masks(&hit_pnt,hit_seg2,0,__FILE__,__LINE__).centermask)
+	if (hit_seg2 != -1 && !get_seg_masks(&hit_pnt, hit_seg2, 0, __FILE__, __LINE__).centermask)
 		hit_seg = hit_seg2;
 	else
 		hit_seg = find_point_seg(&hit_pnt,fq->startseg);
 
 //MATT: TAKE OUT THIS HACK AND FIX THE BUGS!
 	if (hit_type == HIT_WALL && hit_seg==-1)
-                if (fvi_hit_seg2!=-1 && get_seg_masks(&hit_pnt,fvi_hit_seg2,0,__FILE__,__LINE__).centermask==0)
+		if (fvi_hit_seg2 != -1 && get_seg_masks(&hit_pnt, fvi_hit_seg2, 0, __FILE__, __LINE__).centermask == 0)
 			hit_seg = fvi_hit_seg2;
 
 	if (hit_seg == -1) {
@@ -741,8 +741,8 @@ if (hit_seg!=-1 && fq->flags&FQ_GET_SEGLIST)
 //MATT: PUT THESE ASSERTS BACK IN AND FIX THE BUGS!
 //!!	Assert(hit_seg!=-1);
 //!!	Assert(!((hit_type==HIT_WALL) && (hit_seg == -1)));
-	//When this assert happens, get Matt.  Matt:  Look at hit_seg2 & 
-	//fvi_hit_seg.  At least one of these should be set.  Why didn't 
+	//When this assert happens, get Matt.  Matt:  Look at hit_seg2 &
+	//fvi_hit_seg.  At least one of these should be set.  Why didn't
 	//find_new_seg() find something?
 
 //	Assert(fvi_hit_seg==-1 || fvi_hit_seg == hit_seg);
@@ -757,7 +757,7 @@ if (hit_seg!=-1 && fq->flags&FQ_GET_SEGLIST)
 	hit_data->hit_object		= fvi_hit_object;	//looks at global
 	hit_data->hit_wallnorm	= wall_norm;		//looks at global
 
-//      if(hit_seg!=-1 && get_seg_masks(&hit_data->hit_pnt,hit_data->hit_seg,0,__FILE__,__LINE__).centermask!=0)
+//	if(hit_seg != -1 && get_seg_masks(&hit_data->hit_pnt, hit_data->hit_seg, 0, __FILE__, __LINE__).centermask != 0)
 //		Int3();
 
 	return hit_type;
@@ -801,7 +801,7 @@ static int fvi_sub(vms_vector *intp,int *ints,const vms_vector *p0,int startseg,
 	//fvi_hit_object = -1;
 
 	if (flags&FQ_GET_SEGLIST)
-		*seglist = startseg; 
+		*seglist = startseg;
 	*n_segs=1;
 
 	seg = &Segments[startseg];
@@ -830,7 +830,7 @@ static int fvi_sub(vms_vector *intp,int *ints,const vms_vector *p0,int startseg,
 					fudged_rad = (rad*3)/4;
 
 				//if obj is player, and bumping into other player or a weapon of another coop player, reduce radius
-				if (Objects[thisobjnum].type == OBJ_PLAYER && 
+				if (Objects[thisobjnum].type == OBJ_PLAYER &&
 						((Objects[objnum].type == OBJ_PLAYER) ||
 						((Game_mode&GM_MULTI_COOP) &&  Objects[objnum].type == OBJ_WEAPON && Objects[objnum].ctype.laser_info.parent_type == OBJ_PLAYER)))
 					fudged_rad = rad/2;	//(rad*3)/4;
@@ -839,10 +839,10 @@ static int fvi_sub(vms_vector *intp,int *ints,const vms_vector *p0,int startseg,
 
 				if (d)          //we have intersection
 					if (d < closest_d) {
-						fvi_hit_object = objnum; 
+						fvi_hit_object = objnum;
 						Assert(fvi_hit_object!=-1);
-						closest_d = d; 
-						closest_hit_point = hit_point; 
+						closest_d = d;
+						closest_hit_point = hit_point;
 						hit_type=HIT_OBJECT;
 					}
 			}
@@ -852,9 +852,9 @@ static int fvi_sub(vms_vector *intp,int *ints,const vms_vector *p0,int startseg,
 
 	//now, check segment walls
 
-        startmask = get_seg_masks(p0,startseg,rad,__FILE__,__LINE__).facemask;
+	startmask = get_seg_masks(p0, startseg, rad, __FILE__, __LINE__).facemask;
 
-        masks = get_seg_masks(p1,startseg,rad,__FILE__,__LINE__);    //on back of which faces?
+	masks = get_seg_masks(p1, startseg, rad, __FILE__, __LINE__);    //on back of which faces?
 	endmask = masks.facemask;
 	//@@sidemask = masks.sidemask;
 	centermask = masks.centermask;
@@ -907,7 +907,7 @@ static int fvi_sub(vms_vector *intp,int *ints,const vms_vector *p0,int startseg,
 
 						if ( (thisobjnum == Players[Player_num].objnum) && (cheats.ghostphysics) )	{
 							wid_flag = WALL_IS_DOORWAY(seg, side);
-							if (seg->children[side] >= 0 ) 
+							if (seg->children[side] >= 0 )
  								wid_flag |= WID_FLY_FLAG;
 						} else {
 							wid_flag = WALL_IS_DOORWAY(seg, side);
@@ -946,7 +946,7 @@ static int fvi_sub(vms_vector *intp,int *ints,const vms_vector *p0,int startseg,
 
 									if (d < closest_d) {
 
-										closest_d = d; 
+										closest_d = d;
 										closest_hit_point = sub_hit_point;
 										hit_type = sub_hit_type;
 										if (sub_hit_seg!=-1) hit_seg = sub_hit_seg;
@@ -986,7 +986,7 @@ static int fvi_sub(vms_vector *intp,int *ints,const vms_vector *p0,int startseg,
 								d = vm_vec_dist(&hit_point,p0);
 	
 								if (d < closest_d) {
-									closest_d = d; 
+									closest_d = d;
 									closest_hit_point = hit_point;
 									hit_type = HIT_WALL;
 									
@@ -997,7 +997,7 @@ static int fvi_sub(vms_vector *intp,int *ints,const vms_vector *p0,int startseg,
 									#endif
 									
 	
-                                                                        if (get_seg_masks(&hit_point,startseg,rad,__FILE__,__LINE__).centermask==0)
+										if (get_seg_masks(&hit_point, startseg, rad, __FILE__, __LINE__).centermask == 0)
 										hit_seg = startseg;             //hit in this segment
 									else
 										fvi_hit_seg2 = startseg;
@@ -1077,12 +1077,12 @@ quit_looking:
 //--unused-- fix normalize_2d(vec2d *v)
 //--unused-- {
 //--unused-- 	fix mag;
-//--unused-- 
+//--unused--
 //--unused-- 	mag = mag2d(v);
-//--unused-- 
+//--unused--
 //--unused-- 	v->i = fixdiv(v->i,mag);
 //--unused-- 	v->j = fixdiv(v->j,mag);
-//--unused-- 
+//--unused--
 //--unused-- 	return mag;
 //--unused-- }
 
@@ -1111,7 +1111,7 @@ void find_hitpoint_uv(fix *u,fix *v,vms_vector *pnt,segment *seg,int sidenum,int
 
 	//when do I return 0 & 1 for non-transparent walls?
 
-        create_abs_vertex_lists(&num_faces,vertex_list,segnum,sidenum ,__FILE__,__LINE__);
+	create_abs_vertex_lists(&num_faces, vertex_list, segnum, sidenum, __FILE__, __LINE__);
 	create_all_vertnum_lists(&num_faces,vertnum_list,segnum,sidenum);
 
 	//now the hard work.
@@ -1194,8 +1194,8 @@ int check_trans_wall(vms_vector *pnt,segment *seg,int sidenum,int facenum)
 	bmx = ((unsigned) f2i(u*bm->bm_w)) % bm->bm_w;
 	bmy = ((unsigned) f2i(v*bm->bm_h)) % bm->bm_h;
 
-//note: the line above had -v, but that was wrong, so I changed it.  if 
-//something doesn't work, and you want to make it negative again, you 
+//note: the line above had -v, but that was wrong, so I changed it.  if
+//something doesn't work, and you want to make it negative again, you
 //should figure out what's going on.
 
 	return (gr_gpixel (bm, bmx, bmy) == 255);
@@ -1210,7 +1210,7 @@ int sphere_intersects_wall(vms_vector *pnt,int segnum,fix rad,int *hseg,int *hsi
 
 	segs_visited[n_segs_visited++] = segnum;
 
-        facemask = get_seg_masks(pnt,segnum,rad,__FILE__,__LINE__).facemask;
+	facemask = get_seg_masks(pnt, segnum, rad, __FILE__, __LINE__).facemask;
 
 	seg = &Segments[segnum];
 
@@ -1230,7 +1230,7 @@ int sphere_intersects_wall(vms_vector *pnt,int segnum,fix rad,int *hseg,int *hsi
 
 					//did we go through this wall/door?
 
-                                        create_abs_vertex_lists(&num_faces,vertex_list,seg-Segments,side ,__FILE__,__LINE__);
+					create_abs_vertex_lists(&num_faces, vertex_list, seg - Segments, side, __FILE__, __LINE__);
 
 					face_hit_type = check_sphere_to_face( pnt,seg,&seg->sides[side],
 										face,((num_faces==1)?4:3),rad,vertex_list);

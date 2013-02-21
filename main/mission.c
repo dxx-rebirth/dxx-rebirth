@@ -130,7 +130,7 @@ int load_mission_d1(void)
 
 			strcpy(Briefing_text_filename,BIMD1_BRIEFING_FILE);
 			strcpy(Ending_text_filename,BIMD1_ENDING_FILE_SHARE);
-	
+
 			break;
 		case D1_OEM_MISSION_HOGSIZE:
 		case D1_OEM_10_MISSION_HOGSIZE:
@@ -156,7 +156,7 @@ int load_mission_d1(void)
 
 			strcpy(Briefing_text_filename,BIMD1_BRIEFING_FILE_OEM);
 			strcpy(Ending_text_filename,BIMD1_ENDING_FILE_OEM);
-	
+
 			break;
 		default:
 			Int3(); // fall through
@@ -186,7 +186,7 @@ int load_mission_d1(void)
 
 			strcpy(Briefing_text_filename,BIMD1_BRIEFING_FILE);
 			strcpy(Ending_text_filename,BIMD1_ENDING_FILE);
-	
+
 			break;
 	}
 
@@ -526,7 +526,7 @@ int load_mission(mle *mission)
 {
 	PHYSFS_file *mfile;
 	char buf[PATH_MAX], *v;
-	
+
 	if (Current_mission)
 		free_mission();
 	Current_mission = d_malloc(sizeof(Mission));
@@ -570,7 +570,7 @@ int load_mission(mle *mission)
 
 	mfile = PHYSFSX_openReadBuffered(buf);
 	if (mfile == NULL) {
-        	free_mission();
+		free_mission();
 		return 0;		//error!
 	}
 

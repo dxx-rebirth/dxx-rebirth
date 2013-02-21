@@ -470,7 +470,7 @@ void do_endlevel_frame()
 				// Move explosion to Viewer to draw it in front of mine exit model
 				vm_vec_normalized_dir_quick(&mov_vec,&Viewer->pos,&tobj->pos);
 				vm_vec_scale_add2(&tobj->pos,&mov_vec,i2f(30));
-				
+
 				if (tobj) {
 					external_explosion = *tobj;
 
@@ -482,7 +482,7 @@ void do_endlevel_frame()
 
 					ext_expl_playing = 1;
 				}
-	
+
 				digi_link_sound_to_pos( SOUND_BIG_ENDLEVEL_EXPLOSION, exit_segnum, 0, &mine_side_exit_point, 0, i2f(3)/4 );
 			}
 		}
@@ -494,8 +494,8 @@ void do_endlevel_frame()
 			static int sound_count;
 
 			vm_vec_scale_add(&tpnt,&ConsoleObject->pos,&ConsoleObject->orient.fvec,-ConsoleObject->size*5);
-                        vm_vec_scale_add2(&tpnt,&ConsoleObject->orient.rvec,(d_rand()-D_RAND_MAX/2)*15);
-                        vm_vec_scale_add2(&tpnt,&ConsoleObject->orient.uvec,(d_rand()-D_RAND_MAX/2)*15);
+			vm_vec_scale_add2(&tpnt,&ConsoleObject->orient.rvec,(d_rand()-D_RAND_MAX/2)*15);
+			vm_vec_scale_add2(&tpnt,&ConsoleObject->orient.uvec,(d_rand()-D_RAND_MAX/2)*15);
 
 			segnum = find_point_seg(&tpnt,ConsoleObject->segnum);
 
@@ -557,32 +557,32 @@ void do_endlevel_frame()
 			do_endlevel_flythrough(0);
 
 			if (ConsoleObject->segnum == transition_segnum) {
-				int objnum;
+					int objnum;
 
-				Endlevel_sequence = EL_LOOKBACK;
+					Endlevel_sequence = EL_LOOKBACK;
 
-				objnum = obj_create(OBJ_CAMERA, 0, 
-					ConsoleObject->segnum,&ConsoleObject->pos,&ConsoleObject->orient,0,
-					CT_NONE,MT_NONE,RT_NONE);
+					objnum = obj_create(OBJ_CAMERA, 0,
+					                    ConsoleObject->segnum,&ConsoleObject->pos,&ConsoleObject->orient,0,
+					                    CT_NONE,MT_NONE,RT_NONE);
 
-				if (objnum == -1) {				//can't get object, so abort
+					if (objnum == -1) { //can't get object, so abort
 					con_printf(CON_DEBUG, "Can't get object for endlevel sequence.  Aborting endlevel sequence.\n");
-					stop_endlevel_sequence();
-					return;
-				}
+						stop_endlevel_sequence();
+						return;
+					}
 
-				Viewer = endlevel_camera = &Objects[objnum];
+					Viewer = endlevel_camera = &Objects[objnum];
 
-				select_cockpit(CM_LETTERBOX);
+					select_cockpit(CM_LETTERBOX);
 
-				fly_objects[1] = fly_objects[0];
-				fly_objects[1].obj = endlevel_camera;
-				fly_objects[1].speed = (5*cur_fly_speed)/4;
-				fly_objects[1].offset_frac = 0x4000;
+					fly_objects[1] = fly_objects[0];
+					fly_objects[1].obj = endlevel_camera;
+					fly_objects[1].speed = (5*cur_fly_speed)/4;
+					fly_objects[1].offset_frac = 0x4000;
 
-				vm_vec_scale_add2(&endlevel_camera->pos,&endlevel_camera->orient.fvec,i2f(7));
+					vm_vec_scale_add2(&endlevel_camera->pos,&endlevel_camera->orient.fvec,i2f(7));
 
-				timer=0x20000;
+					timer=0x20000;
 			}
 
 			break;
@@ -624,7 +624,7 @@ void do_endlevel_frame()
  slew_obj = endlevel_camera;
 #endif
 			}
-				
+
 			break;
 		}
 
@@ -943,7 +943,7 @@ void draw_stars()
 		if ((i&63) == 0) {
 			gr_setcolor(BM_XRGB(intensity,intensity,intensity));
 			intensity-=3;
-		}			
+		}
 
 		//g3_rotate_point(&p,&stars[i]);
 		g3_rotate_delta_vec(&p.p3_vec,&stars[i]);
@@ -1123,9 +1123,9 @@ void do_endlevel_flythrough(int n)
 		vms_vector dest_point;		//where we are heading (center of exit_side)
 		vms_angvec dest_angles;		//where we want to be pointing
 		vms_matrix dest_orient;
-                int up_side=0;
+		int up_side=0;
 
-                entry_side=0;
+		entry_side=0;
 
 		//find new exit side
 
@@ -1163,7 +1163,7 @@ void do_endlevel_flythrough(int n)
 
 		//offset object sideways
 		if (flydata->offset_frac) {
-                        int s0=-1,s1=0,i;
+			int s0=-1,s1=0,i;
 			vms_vector s0p,s1p;
 			fix dist;
 
@@ -1197,7 +1197,7 @@ void do_endlevel_flythrough(int n)
 		compute_segment_center(&nextcenter,&Segments[pseg->children[exit_side]]);
 		vm_vec_sub(&flydata->headvec,&nextcenter,&curcenter);
 
-		#ifdef COMPACT_SEGS	
+		#ifdef COMPACT_SEGS
 		{
 			vms_vector _v1;
 			get_side_normal(pseg, up_side, 0, &_v1 );
@@ -1316,7 +1316,7 @@ void load_endlevel_data(int level_num)
 	char line[LINE_LEN],*p;
 	PHYSFS_file *ifile;
 	int var,segnum,sidenum;
-        int exit_side=0;
+	int exit_side = 0;
 	int have_binary = 0;
 
 	endlevel_data_loaded = 0;		//not loaded yet
@@ -1357,7 +1357,7 @@ try_again:
 				level_num = 1;
 				goto try_again;
 			}
-                 }
+		}
 		have_binary = 1;
 	}
 
@@ -1509,11 +1509,11 @@ try_again:
 		vm_vec_rotate(&tv,&station_pos,&tm);
 		vm_vec_scale_add(&station_pos,&mine_exit_point,&tv,STATION_DIST);
 
-vm_vec_rotate(&tv,&satellite_pos,&tm);
-vm_vec_scale_add(&satellite_pos,&mine_exit_point,&tv,SATELLITE_DIST);
+		vm_vec_rotate(&tv,&satellite_pos,&tm);
+		vm_vec_scale_add(&satellite_pos,&mine_exit_point,&tv,SATELLITE_DIST);
 
-vm_vector_2_matrix(&tm,&tv,&surface_orient.uvec,NULL);
-vm_vec_copy_scale(&satellite_upvec,&tm.uvec,SATELLITE_HEIGHT);
+		vm_vector_2_matrix(&tm,&tv,&surface_orient.uvec,NULL);
+		vm_vec_copy_scale(&satellite_upvec,&tm.uvec,SATELLITE_HEIGHT);
 
 
 	}

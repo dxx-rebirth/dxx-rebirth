@@ -258,7 +258,7 @@ void game_init_render_sub_buffers( int x, int y, int w, int h )
 
 
 // Sets up the canvases we will be rendering to
-void game_init_render_buffers(int render_w, int render_h )
+void game_init_render_buffers(int render_w, int render_h)
 {
 	game_init_render_sub_buffers( 0, 0, render_w, render_h );
 }

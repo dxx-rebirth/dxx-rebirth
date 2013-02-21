@@ -28,34 +28,34 @@ COPYRIGHT 1993-1998 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 
 //flags for eclips.  If no flags are set, always plays
 
-#define EF_CRITICAL		1		//this doesn't get played directly (only when mine critical)
-#define EF_ONE_SHOT		2		//this is a special that gets played once
-#define EF_STOPPED		4		//this has been stopped
+#define EF_CRITICAL 1   //this doesn't get played directly (only when mine critical)
+#define EF_ONE_SHOT 2   //this is a special that gets played once
+#define EF_STOPPED  4   //this has been stopped
 
 #define ECLIP_NUM_FUELCEN     2
 #define ECLIP_NUM_BOSS        53
 
 typedef struct eclip {
-	vclip 		vc;				//imbedded vclip
-	fix			time_left;		//for sequencing
-	int			frame_count;	//for sequencing
-	short			changing_wall_texture;			//Which element of Textures array to replace.
-	short			changing_object_texture;		//Which element of ObjBitmapPtrs array to replace.
-	int			flags;			//see above
-	int			crit_clip;		//use this clip instead of above one when mine critical
-	int			dest_bm_num;	//use this bitmap when monitor destroyed
-	int			dest_vclip;		//what vclip to play when exploding
-	int			dest_eclip;		//what eclip to play when exploding
-	fix			dest_size;		//3d size of explosion
-	int			sound_num;		//what sound this makes
-	int			segnum,sidenum;	//what seg & side, for one-shot clips
+	vclip   vc;             //imbedded vclip
+	fix     time_left;      //for sequencing
+	int     frame_count;    //for sequencing
+	short   changing_wall_texture;      //Which element of Textures array to replace.
+	short   changing_object_texture;    //Which element of ObjBitmapPtrs array to replace.
+	int     flags;          //see above
+	int     crit_clip;      //use this clip instead of above one when mine critical
+	int     dest_bm_num;    //use this bitmap when monitor destroyed
+	int     dest_vclip;     //what vclip to play when exploding
+	int     dest_eclip;     //what eclip to play when exploding
+	fix     dest_size;      //3d size of explosion
+	int     sound_num;      //what sound this makes
+	int     segnum,sidenum; //what seg & side, for one-shot clips
 } __pack__ eclip;
 
 extern int Num_effects;
 extern eclip Effects[MAX_EFFECTS];
 
 // Set up special effects.
-extern void init_special_effects(); 
+extern void init_special_effects();
 
 // Clear any active one-shots
 void reset_special_effects();

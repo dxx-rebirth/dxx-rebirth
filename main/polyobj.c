@@ -194,7 +194,7 @@ ubyte * new_dest(chunk o) // return where chunk is (in aligned struct)
 /*
  * find chunk with smallest address
  */
-int get_first_chunks_index(chunk *chunk_list, int no_chunks) 
+int get_first_chunks_index(chunk *chunk_list, int no_chunks)
 {
 	int i, first_index = 0;
 	Assert(no_chunks >= 1);
@@ -275,7 +275,7 @@ polymodel *read_model_file(polymodel *pm,char *filename,robot_info *r)
 	int id,len, next_chunk;
 	ubyte	model_buf[MODEL_BUF_SIZE];
 
-	if ((ifile=PHYSFSX_openReadBuffered(filename))==NULL) 
+	if ((ifile=PHYSFSX_openReadBuffered(filename))==NULL)
 		Error("Can't open file <%s>",filename);
 
 	Assert(PHYSFS_fileLength(ifile) <= MODEL_BUF_SIZE);
@@ -299,7 +299,7 @@ polymodel *read_model_file(polymodel *pm,char *filename,robot_info *r)
 		//id  = pof_read_int(model_buf);
 		len = pof_read_int(model_buf);
 		next_chunk = Pof_addr + len;
-						
+
 		switch (id) {
 
 			case ID_OHDR: {		//Object header
@@ -402,9 +402,9 @@ polymodel *read_model_file(polymodel *pm,char *filename,robot_info *r)
 			case ID_IDTA:		//Interpreter data
 				pm->model_data = d_malloc(len);
 				pm->model_data_size = len;
-			
+
 				pof_cfread(pm->model_data,1,len,model_buf);
-			
+
 				break;
 
 			default:
@@ -436,7 +436,7 @@ int read_model_guns(char *filename,vms_vector *gun_points, vms_vector *gun_dirs,
 	int n_guns=0;
 	ubyte	model_buf[MODEL_BUF_SIZE];
 
-	if ((ifile=PHYSFSX_openReadBuffered(filename))==NULL) 
+	if ((ifile=PHYSFSX_openReadBuffered(filename))==NULL)
 		Error("Can't open file <%s>",filename);
 
 	Assert(PHYSFS_fileLength(ifile) <= MODEL_BUF_SIZE);
@@ -451,7 +451,7 @@ int read_model_guns(char *filename,vms_vector *gun_points, vms_vector *gun_dirs,
 		Error("Bad ID in model file <%s>",filename);
 
 	version = pof_read_short(model_buf);
-	
+
 	Assert(version >= 7);		//must be 7 or higher for this data
 
 	if (version < PM_COMPATIBLE_VERSION || version > PM_OBJFILE_VERSION)

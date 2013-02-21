@@ -46,7 +46,7 @@ COPYRIGHT 1993-1999 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 typedef struct sound_object {
 	short			signature;		// A unique signature to this sound
 	ubyte			flags;			// Used to tell if this slot is used and/or currently playing, and how long.
-	ubyte			pad;		//	Keep alignment
+	ubyte			pad;				//	Keep alignment
 	fix			max_volume;		// Max volume that this sound is playing at
 	fix			max_distance;	// The max distance that this sound can be heard at...
 	int			volume;			// Volume that this sound is playing at

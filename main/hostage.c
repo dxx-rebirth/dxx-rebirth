@@ -38,8 +38,8 @@ COPYRIGHT 1993-1998 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 #include "playsave.h"
 
 //------------- Globaly used hostage variables --------------------------------------------------
-int 					N_hostage_types = 0;			  				// Number of hostage types
-int 					Hostage_vclip_num[MAX_HOSTAGE_TYPES];	//vclip num for each tpye of hostage
+int N_hostage_types = 0;		  			// Number of hostage types
+int Hostage_vclip_num[MAX_HOSTAGE_TYPES];	// vclip num for each tpye of hostage
 hostage_data 		Hostages[MAX_HOSTAGES];						// Data for each hostage in mine
 
 //------------- Internally used hostage variables --------------------------------------------------
@@ -159,7 +159,7 @@ void draw_hostage(object *obj)
 {
 	Assert( obj->id < MAX_HOSTAGES );
 
-	draw_object_tmap_rod(obj,Vclip[obj->rtype.vclip_info.vclip_num].frames[obj->rtype.vclip_info.framenum],1);
+	draw_object_tmap_rod(obj, Vclip[obj->rtype.vclip_info.vclip_num].frames[obj->rtype.vclip_info.framenum], 1);
 
 }
 
@@ -171,13 +171,13 @@ void hostage_rescue( int hostage_number )
 			return;
 	}
 
-	PALETTE_FLASH_ADD(0,0,25);		//small blue flash
+	PALETTE_FLASH_ADD(0, 0, 25);		//small blue flash
 
 	Players[Player_num].hostages_on_board++;
 
 	// Do an audio effect
-	if ( Newdemo_state != ND_STATE_PLAYBACK )
-		digi_play_sample( SOUND_HOSTAGE_RESCUED, F1_0 );
+	if (Newdemo_state != ND_STATE_PLAYBACK)
+		digi_play_sample(SOUND_HOSTAGE_RESCUED, F1_0);
 
  #ifndef HOSTAGE_FACES
 

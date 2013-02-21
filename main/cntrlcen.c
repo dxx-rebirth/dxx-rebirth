@@ -48,7 +48,7 @@ vms_vector	Gun_pos[MAX_CONTROLCEN_GUNS], Gun_dir[MAX_CONTROLCEN_GUNS];
 void do_countdown_frame();
 
 //	-----------------------------------------------------------------------------
-//return the position & orientation of a gun on the control center object 
+//return the position & orientation of a gun on the control center object
 void calc_controlcen_gun_point(vms_vector *gun_point,vms_vector *gun_dir,object *obj,int gun_num)
 {
 	vms_matrix m;
@@ -206,11 +206,11 @@ void do_countdown_frame()
 //	if objp == NULL that means the boss was the control center and don't set Dead_controlcen_object_num
 void do_controlcen_destroyed_stuff(object *objp)
 {
-	int	i;
+	int i;
 
 	// Must toggle walls whether it is a boss or control center.
 	for (i=0;i<ControlCenterTriggers.num_links;i++)
-		wall_toggle(ControlCenterTriggers.seg[i], ControlCenterTriggers.side[i]); 
+		wall_toggle(ControlCenterTriggers.seg[i], ControlCenterTriggers.side[i]);
 
 	// And start the countdown stuff.
 	Control_center_destroyed = 1;
@@ -259,7 +259,7 @@ void do_controlcen_frame(object *obj)
 			// the value of Believed_player_position that was set by the last
 			// person to go through ai_do_frame.  But since a no-robots game
 			// never goes through ai_do_frame, I'm making it so the control
-			// center can spot cloaked dudes.  
+			// center can spot cloaked dudes.
 #ifdef NETWORK
 			if (Game_mode & GM_MULTI)
 				Believed_player_pos = Objects[Players[Player_num].objnum].pos;
@@ -360,12 +360,12 @@ void init_controlcen_for_level(void)
 	for (i=0; i<=Highest_object_index; i++) {
 		objp = &Objects[i];
 		if (objp->type == OBJ_CNTRLCEN)
-                 {
+		{
 			if (cntrlcen_objnum != -1)
 				;
 			else
 				cntrlcen_objnum = i;
-                 }
+		}
 		if ((objp->type == OBJ_ROBOT) && (Robot_info[objp->id].boss_flag)) {
 			if (boss_objnum != -1)
 				;
@@ -420,7 +420,7 @@ void init_controlcen_for_level(void)
 extern int control_center_triggers_read_n(control_center_triggers *cct, int n, PHYSFS_file *fp)
 {
 	int i, j;
-	
+
 	for (i = 0; i < n; i++)
 	{
 		cct->num_links = PHYSFSX_readShort(fp);
@@ -463,12 +463,12 @@ void control_center_triggers_read_n_swap(control_center_triggers *cct, int n, in
 int control_center_triggers_write(control_center_triggers *cct, PHYSFS_file *fp)
 {
 	int j;
-	
+
 	PHYSFS_writeSLE16(fp, cct->num_links);
 	for (j = 0; j < MAX_CONTROLCEN_LINKS; j++)
 		PHYSFS_writeSLE16(fp, cct->seg[j]);
 	for (j = 0; j < MAX_CONTROLCEN_LINKS; j++)
 		PHYSFS_writeSLE16(fp, cct->side[j]);
-	
+
 	return 1;
 }

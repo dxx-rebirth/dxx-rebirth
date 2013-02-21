@@ -224,7 +224,7 @@ void bump_this_object(object *objp, object *other_objp, vms_vector *force, int d
 				}
 			}
 		}
-        }
+	}
 }
 
 //	-----------------------------------------------------------------------------
@@ -521,7 +521,7 @@ void collide_weapon_and_wall( object * weapon, fix hitspeed, short hitseg, short
 
 					case WHP_NOT_SPECIAL:
 						//should be handled above
-//						digi_link_sound_to_pos( Weapon_info[weapon->id].wall_hit_sound, weapon->segnum, 0, &weapon->pos, 0, F1_0 );
+						//digi_link_sound_to_pos( Weapon_info[weapon->id].wall_hit_sound, weapon->segnum, 0, &weapon->pos, 0, F1_0 );
 						break;
 
 					case WHP_NO_KEY:
@@ -531,7 +531,7 @@ void collide_weapon_and_wall( object * weapon, fix hitspeed, short hitseg, short
 
 					case WHP_BLASTABLE:
 						//play special blastable wall sound (if/when we get it)
-						digi_link_sound_to_pos( SOUND_WEAPON_HIT_BLASTABLE, weapon->segnum, 0, &weapon->pos, 0, F1_0 );
+							digi_link_sound_to_pos( SOUND_WEAPON_HIT_BLASTABLE, weapon->segnum, 0, &weapon->pos, 0, F1_0 );
 						break;
 
 					case WHP_DOOR:
@@ -546,7 +546,7 @@ void collide_weapon_and_wall( object * weapon, fix hitspeed, short hitseg, short
 
 	} else {
 		// This is a robot's laser
-		weapon->flags |= OF_SHOULD_BE_DEAD;
+			weapon->flags |= OF_SHOULD_BE_DEAD;
 	}
 
 	return;
@@ -952,7 +952,7 @@ void collide_robot_and_weapon( object * robot, object * weapon, vms_vector *coll
 		if (!(weapon->flags & OF_HARMLESS)) {
 			fix	damage = weapon->shields;
 
-			damage = fixmul(damage, weapon->ctype.laser_info.multiplier);
+				damage = fixmul(damage, weapon->ctype.laser_info.multiplier);
 
 			if (! apply_damage_to_robot(robot, damage, weapon->ctype.laser_info.parent_num))
 				bump_two_objects(robot, weapon, 0);		//only bump if not dead. no damage from bump
@@ -1154,7 +1154,7 @@ void drop_player_eggs(object *playerobj)
 		//	Drop the secondary weapons
 		//	Note, proximity weapon only comes in packets of 4.  So drop n/2, but a max of 3 (handled inside maybe_drop..)  Make sense?
 
-		maybe_drop_secondary_weapon_egg(playerobj, PROXIMITY_INDEX, (Players[playerobj->id].secondary_ammo[PROXIMITY_INDEX])/4);
+			maybe_drop_secondary_weapon_egg(playerobj, PROXIMITY_INDEX, (Players[playerobj->id].secondary_ammo[PROXIMITY_INDEX])/4);
 
 		maybe_drop_secondary_weapon_egg(playerobj, SMART_INDEX, Players[playerobj->id].secondary_ammo[SMART_INDEX]);
 		maybe_drop_secondary_weapon_egg(playerobj, MEGA_INDEX, Players[playerobj->id].secondary_ammo[MEGA_INDEX]);
@@ -1525,27 +1525,27 @@ void collide_weapon_and_debris( object * weapon, object * debris, vms_vector *co
 #define COLLISION_OF(a,b) (((a)<<8) + (b))
 
 // DPH: Put these macros on one long line to avoid CR/LF problems under Linux.
-#define DO_COLLISION(type1,type2,collision_function) case COLLISION_OF( (type1), (type2) ): (collision_function)( (A), (B), collision_point ); break; case COLLISION_OF( (type2), (type1) ): (collision_function)( (B), (A), collision_point ); break;
-#define DO_SAME_COLLISION(type1,type2,collision_function) case COLLISION_OF( (type1), (type1) ): (collision_function)( (A), (B), collision_point ); break;
+#define DO_COLLISION(type1,type2,collision_function)	case COLLISION_OF( (type1), (type2) ):	(collision_function)( (A), (B), collision_point ); break;   case COLLISION_OF( (type2), (type1) ):  (collision_function)( (B), (A), collision_point );  break;
+#define DO_SAME_COLLISION(type1,type2,collision_function)    case COLLISION_OF( (type1), (type1) ):  (collision_function)( (A), (B), collision_point ); break;
 
 //these next two macros define a case that does nothing
 #define NO_COLLISION(type1,type2,collision_function) case COLLISION_OF( (type1), (type2) ): case COLLISION_OF( (type2), (type1) ): break;
-#define NO_SAME_COLLISION(type1,type2,collision_function) case COLLISION_OF( (type1), (type1) ): break;
+#define NO_SAME_COLLISION(type1,type2,collision_function)    case COLLISION_OF( (type1), (type1) ):    break;
 
 // DPH: These ones are never used so I'm not going to bother.
 #ifndef __LINUX__
-#define IGNORE_COLLISION(type1,type2,collision_function)                                \
-	case COLLISION_OF( (type1), (type2) ):                                          \
-		break;                                                                  \
-	case COLLISION_OF( (type2), (type1) ):                                          \
+#define IGNORE_COLLISION(type1,type2,collision_function)					\
+	case COLLISION_OF( (type1), (type2) ):										\
+		break;																			\
+	case COLLISION_OF( (type2), (type1) ):										\
 		break;
 
-#define ERROR_COLLISION(type1,type2,collision_function)                                 \
-	case COLLISION_OF( (type1), (type2) ):                                          \
-		Error( "Error in collision type!" );                                    \
-		break;                                                                  \
-	case COLLISION_OF( (type2), (type1) ):                                          \
-		Error( "Error in collision type!" );                                    \
+#define ERROR_COLLISION(type1,type2,collision_function)					\
+	case COLLISION_OF( (type1), (type2) ):										\
+		Error( "Error in collision type!" );									\
+		break;																			\
+	case COLLISION_OF( (type2), (type1) ):										\
+		Error( "Error in collision type!" );									\
 		break;
 #endif
 

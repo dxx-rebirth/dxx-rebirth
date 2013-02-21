@@ -44,8 +44,8 @@ COPYRIGHT 1993-1998 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 #include "newdemo.h"
 #include "gauges.h"
 
-//version 5 -> 6: added new highest level information
-//version 6 -> 7: stripped out the old saved_game array.
+//version 5  ->  6: added new highest level information
+//version 6  ->  7: stripped out the old saved_game array.
 //version 7 -> 8: readded the old saved_game array since this is needed
 //                for shareware saved games
 //the shareware is level 4
@@ -121,10 +121,10 @@ int read_player_d1x(char *filename)
 	plyr_read_stats();
 
 	f = PHYSFSX_openReadBuffered(filename);
-	if(!f || PHYSFS_eof(f) ) 
+	if(!f || PHYSFS_eof(f))
 		return errno;
 
-	while( !Stop && !PHYSFS_eof(f) )
+	while(!Stop && !PHYSFS_eof(f))
 	{
 		PHYSFSX_fgets(line,50,f);
 		word=splitword(line,':');
@@ -391,7 +391,7 @@ int read_player_d1x(char *filename)
 				}
 			}
 		}
-	
+
 		if(word)
 			d_free(word);
 	}
@@ -577,7 +577,7 @@ int write_player_d1x(char *filename)
 	PHYSFS_file *fout;
 	int rc=0;
 	char tempfile[PATH_MAX];
-	
+
 	strcpy(tempfile,filename);
 	tempfile[strlen(tempfile)-4]=0;
 	strcat(tempfile,".pl$");
@@ -661,10 +661,10 @@ int write_player_d1x(char *filename)
 		PHYSFSX_printf(fout,"dynlightcolor=%i\n",PlayerCfg.DynLightColor);
 		PHYSFSX_printf(fout,"[end]\n");
 		PHYSFSX_printf(fout,"[plx version]\n");
-		PHYSFSX_printf(fout,"plx version=%s\n",VERSION);
+		PHYSFSX_printf(fout,"plx version=%s\n", VERSION);
 		PHYSFSX_printf(fout,"[end]\n");
 		PHYSFSX_printf(fout,"[end]\n");
-	
+
 		PHYSFS_close(fout);
 		if(rc==0)
 		{
@@ -806,14 +806,14 @@ int read_player_file()
 		int i;
 		int len = shareware_file? 25:35;
 
-		#ifdef NETWORK
+#ifdef NETWORK
 		for (i = 0; i < 4; i++)
 			if (PHYSFS_read(file, PlayerCfg.NetworkMessageMacro[i], len, 1) != 1)
 				goto read_player_file_failed;
-		#else
+#else
 		i = 0;
 		PHYSFS_seek( file, PHYSFS_tell(file)+4*len );
-		#endif
+#endif
 	}
 
 	//read kconfig data
@@ -830,7 +830,7 @@ int read_player_file()
 		PHYSFS_seek( file, PHYSFS_tell(file)+(sizeof(ubyte)*MAX_CONTROLS) ); // Skip obsolete Cyberman map field
 		if (PHYSFS_read(file, &PlayerCfg.ControlType, sizeof(ubyte), 1 )!=1)
 			goto read_player_file_failed;
-		else if (PHYSFS_read(file, &dummy_joy_sens, sizeof(ubyte), 1 )!=1)
+		else if (PHYSFS_read(file, &dummy_joy_sens, sizeof(ubyte), 1) !=1 )
 			goto read_player_file_failed;
 	}
 
@@ -946,7 +946,7 @@ int write_player_file()
 	errno_ret = WriteConfigFile();
 
 	memset(filename, '\0', PATH_MAX);
-        snprintf(filename, PATH_MAX, GameArg.SysUsePlayersDir? "Players/%.8s.plx" : "%.8s.plx", Players[Player_num].callsign);
+	snprintf(filename, PATH_MAX, GameArg.SysUsePlayersDir? "Players/%.8s.plx" : "%.8s.plx", Players[Player_num].callsign);
 	write_player_d1x(filename);
 
 	snprintf(filename, PATH_MAX, GameArg.SysUsePlayersDir? "Players/%.8s.plr" : "%.8s.plr", Players[Player_num].callsign);
@@ -976,13 +976,13 @@ int write_player_file()
 		return errno_ret;
 	}
 
-	#ifdef NETWORK
+#ifdef NETWORK
 	if ((PHYSFS_write( file, PlayerCfg.NetworkMessageMacro, MAX_MESSAGE_LEN, 4) != 4)) {
 		errno_ret = errno;
 		PHYSFS_close(file);
 		return errno_ret;
 	}
-	#else
+#else
 	{
 		//PHYSFS_seek( file, PHYSFS_tell(file)+MAX_MESSAGE_LEN * 4 );	// Seeking is bad for Mac OS 9
 		char dummy[MAX_MESSAGE_LEN][4];
@@ -993,7 +993,7 @@ int write_player_file()
 			return errno_ret;
 		}
 	}
-	#endif
+#endif
 
 	//write kconfig info
 	{

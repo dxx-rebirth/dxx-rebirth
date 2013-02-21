@@ -27,30 +27,30 @@ COPYRIGHT 1993-1998 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 //#define FL_HOVER   2
 //#define FL_REVERSE 3
 
-//these global vars are set after a call to do_physics_sim().  Ugly, I know.
-//list of segments went through
-extern int phys_seglist[MAX_FVI_SEGS],n_phys_segs;
+// these global vars are set after a call to do_physics_sim().  Ugly, I know.
+// list of segments went through
+extern int phys_seglist[MAX_FVI_SEGS], n_phys_segs;
 
 // Read contrls and set physics vars
-void read_flying_controls( object * obj );
+void read_flying_controls(object *obj);
 
-//Simulate a physics object for this frame
+// Simulate a physics object for this frame
 void do_physics_sim(object *obj);
 
-//tell us what the given object will do (as far as hiting walls) in
-//the given time (in seconds) t.  Igores acceleration (sorry) 
-//if check_objects is set, check with objects, else just with walls
-//returns fate, fills in hit time.  If fate==HIT_NONE, hit_time undefined
-//	Stuff hit_info with fvi data as set by find_vector_intersection.
-//for fvi_flags, refer to fvi.h for the fvi query flags
-int physics_lookahead(object *obj,fix t,int fvi_flags,fix *hit_time, fvi_info *hit_info);
+// tell us what the given object will do (as far as hiting walls) in
+// the given time (in seconds) t.  Igores acceleration (sorry)
+// if check_objects is set, check with objects, else just with walls
+// returns fate, fills in hit time.  If fate==HIT_NONE, hit_time undefined
+// Stuff hit_info with fvi data as set by find_vector_intersection.
+// for fvi_flags, refer to fvi.h for the fvi query flags
+int physics_lookahead(object *obj, fix t, int fvi_flags, fix *hit_time, fvi_info *hit_info);
 
-//Applies an instantaneous force on an object, resulting in an instantaneous
-//change in velocity.
-void phys_apply_force(object *obj,vms_vector *force_vec);
-void phys_apply_rot(object *obj,vms_vector *force_vec);
+// Applies an instantaneous force on an object, resulting in an instantaneous
+// change in velocity.
+void phys_apply_force(object *obj, vms_vector *force_vec);
+void phys_apply_rot(object *obj, vms_vector *force_vec);
 
-//this routine will set the thrust for an object to a value that will
-//(hopefully) maintain the object's current velocity
+// this routine will set the thrust for an object to a value that will
+// (hopefully) maintain the object's current velocity
 void set_thrust_from_velocity(object *obj);
 #endif

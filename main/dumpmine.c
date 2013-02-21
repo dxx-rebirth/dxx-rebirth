@@ -51,7 +51,7 @@ char	*object_types(int objnum)
 	int	type = Objects[objnum].type;
 
 	Assert((type == OBJ_NONE) || ((type >= 0) && (type < MAX_OBJECT_TYPES)));
-	return	Object_type_names[type];
+	return Object_type_names[type];
 }
 
 //	--------------------------------------------------------------------------------
@@ -422,7 +422,7 @@ void write_matcen_text(PHYSFS_file *my_file)
 void write_wall_text(PHYSFS_file *my_file)
 {
 	int	i, j;
-	sbyte	wall_flags[MAX_WALLS];
+	sbyte wall_flags[MAX_WALLS];
 
 	PHYSFSX_printf(my_file, "-----------------------------------------------------------------------------\n");
 	PHYSFSX_printf(my_file, "Walls:\n");
@@ -448,13 +448,13 @@ void write_wall_text(PHYSFS_file *my_file)
                  {
 			side	*sidep = &segp->sides[j];
 			if (sidep->wall_num != -1)
-                         {
+			{
 				if (wall_flags[sidep->wall_num])
 					err_printf(my_file, "Error: Wall %i appears in two or more segments, including segment %i, side %i.\n", sidep->wall_num, i, j);
 				else
 					wall_flags[sidep->wall_num] = 1;
-                         }
-                 }
+			}
+		}
 	}
 
 }

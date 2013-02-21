@@ -72,7 +72,7 @@ COPYRIGHT 1993-1998 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
  *
  */
 #define USE_2D_ASM 1
- 
+
 extern void gr_set_buffer(int w, int h, int r, int (*buffer_func)());
 
 extern void gr_pal_setblock( int start, int n, unsigned char * palette );

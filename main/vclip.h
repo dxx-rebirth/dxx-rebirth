@@ -24,34 +24,34 @@ COPYRIGHT 1993-1998 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 #include "object.h"
 #include "piggy.h"
 
-#define VCLIP_SMALL_EXPLOSION		2
-#define VCLIP_PLAYER_HIT			1
-#define VCLIP_MORPHING_ROBOT		10
-#define VCLIP_PLAYER_APPEARANCE	61
-#define VCLIP_POWERUP_DISAPPEARANCE	62
-#define VCLIP_VOLATILE_WALL_HIT	5
+#define VCLIP_SMALL_EXPLOSION       2
+#define VCLIP_PLAYER_HIT            1
+#define VCLIP_MORPHING_ROBOT        10
+#define VCLIP_PLAYER_APPEARANCE     61
+#define VCLIP_POWERUP_DISAPPEARANCE 62
+#define VCLIP_VOLATILE_WALL_HIT     5
 
 #define VCLIP_MAXNUM			70
-#define VCLIP_MAX_FRAMES	30
+#define VCLIP_MAX_FRAMES            30
 
-//vclip flags
-#define VF_ROD		1		//draw as a rod, not a blob
+// vclip flags
+#define VF_ROD      1       // draw as a rod, not a blob
 
 typedef struct {
-	fix				play_time;			//total time (in seconds) of clip
-	int				num_frames;
-	fix				frame_time;			//time (in seconds) of each frame
-	int				flags;
-	short				sound_num;
-	bitmap_index	frames[VCLIP_MAX_FRAMES];
-	fix				light_value;
+	fix             play_time;          // total time (in seconds) of clip
+	int             num_frames;
+	fix             frame_time;         // time (in seconds) of each frame
+	int             flags;
+	short           sound_num;
+	bitmap_index    frames[VCLIP_MAX_FRAMES];
+	fix             light_value;
 } __pack__ vclip;
 
 extern int Num_vclips;
 extern vclip Vclip[VCLIP_MAXNUM];
 
-//draw an object which renders as a vclip.
-void draw_vclip_object(object *obj,fix timeleft,int lighted, int vclip_num);
+// draw an object which renders as a vclip.
+void draw_vclip_object(object *obj, fix timeleft, int lighted, int vclip_num);
 extern void draw_weapon_vclip(object *obj);
 
 /*

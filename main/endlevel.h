@@ -12,9 +12,9 @@ COPYRIGHT 1993-1998 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 */
 
 /*
- * 
+ *
  * Header for endlevel.c
- * 
+ *
  */
 
 
@@ -45,6 +45,6 @@ extern int ext_expl_playing;
 //called for each level to load & setup the exit sequence
 void load_endlevel_data(int level_num);
 
-extern int exit_modelnum,destroyed_exit_modelnum;
+extern int exit_modelnum, destroyed_exit_modelnum;
 
 #endif

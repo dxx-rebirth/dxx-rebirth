@@ -21,7 +21,7 @@ COPYRIGHT 1993-1998 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 #define _TEXMERGE_H
 
 int texmerge_init(int num_cached_textures);
-grs_bitmap * texmerge_get_cached_bitmap( int tmap_bottom, int tmap_top );
+grs_bitmap *texmerge_get_cached_bitmap(int tmap_bottom, int tmap_top);
 void texmerge_close();
 void texmerge_flush();
 

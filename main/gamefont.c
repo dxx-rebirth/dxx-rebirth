@@ -126,7 +126,7 @@ void gamefont_choose_game_font(int scrx,int scry){
 			FNTScaleX = (float)scrx/font_conf[gf].font[m].x;
 			FNTScaleY = (float)scry/font_conf[gf].font[m].y;
 		}
-		
+
 		// keep proportions
 		if (FNTScaleY < FNTScaleX)
 			FNTScaleX = FNTScaleY;

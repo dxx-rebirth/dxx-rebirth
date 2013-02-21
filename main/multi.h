@@ -68,43 +68,43 @@ extern int multi_protocol; // set and determinate used protocol
 // PROTOCOL VARIABLES AND DEFINES - END
 
 
-#define MULTI_POSITION			0
-#define MULTI_REAPPEAR   		1
-#define MULTI_FIRE                      2
-#define MULTI_KILL                      3
-#define MULTI_REMOVE_OBJECT             4
-#define MULTI_PLAYER_EXPLODE            5
-#define MULTI_MESSAGE			6
-#define MULTI_QUIT                      7
-#define MULTI_PLAY_SOUND		8
-#define MULTI_BEGIN_SYNC		9
-#define MULTI_CONTROLCEN		10
-#define MULTI_ROBOT_CLAIM		11
-#define MULTI_END_SYNC			12
-#define MULTI_CLOAK                     13
-#define MULTI_ENDLEVEL_START            14
-#define MULTI_DOOR_OPEN			15
-#define MULTI_CREATE_EXPLOSION          16
-#define MULTI_CONTROLCEN_FIRE           17
-#define MULTI_PLAYER_DROP		18
-#define MULTI_CREATE_POWERUP            19
-#define MULTI_CONSISTENCY		20
-#define MULTI_DECLOAK			21
-#define MULTI_MENU_CHOICE		22
-#define MULTI_ROBOT_POSITION            23
-#define MULTI_ROBOT_EXPLODE             24
-#define MULTI_ROBOT_RELEASE             25
-#define MULTI_ROBOT_FIRE                26
-#define MULTI_SCORE                     27
-#define MULTI_CREATE_ROBOT		28
-#define MULTI_TRIGGER			29
-#define MULTI_BOSS_ACTIONS		30
-#define MULTI_CREATE_ROBOT_POWERUPS	31
-#define MULTI_HOSTAGE_DOOR		32
-#define MULTI_SAVE_GAME			33
-#define MULTI_RESTORE_GAME		34
-#define MULTI_REQ_PLAYER		35 // NEVER USED
-#define MULTI_SEND_PLAYER		36 // NEVER USED
+#define MULTI_POSITION          0
+#define MULTI_REAPPEAR          1
+#define MULTI_FIRE              2
+#define MULTI_KILL              3
+#define MULTI_REMOVE_OBJECT     4
+#define MULTI_PLAYER_EXPLODE    5
+#define MULTI_MESSAGE           6
+#define MULTI_QUIT              7
+#define MULTI_PLAY_SOUND        8
+#define MULTI_BEGIN_SYNC        9
+#define MULTI_CONTROLCEN        10
+#define MULTI_ROBOT_CLAIM       11
+#define MULTI_END_SYNC          12
+#define MULTI_CLOAK             13
+#define MULTI_ENDLEVEL_START    14
+#define MULTI_DOOR_OPEN         15
+#define MULTI_CREATE_EXPLOSION  16
+#define MULTI_CONTROLCEN_FIRE   17
+#define MULTI_PLAYER_DROP       18
+#define MULTI_CREATE_POWERUP    19
+#define MULTI_CONSISTENCY       20
+#define MULTI_DECLOAK           21
+#define MULTI_MENU_CHOICE       22
+#define MULTI_ROBOT_POSITION    23
+#define MULTI_ROBOT_EXPLODE     24
+#define MULTI_ROBOT_RELEASE     25
+#define MULTI_ROBOT_FIRE        26
+#define MULTI_SCORE             27
+#define MULTI_CREATE_ROBOT      28
+#define MULTI_TRIGGER           29
+#define MULTI_BOSS_ACTIONS      30
+#define MULTI_CREATE_ROBOT_POWERUPS 31
+#define MULTI_HOSTAGE_DOOR      32
+#define MULTI_SAVE_GAME         33 
+#define MULTI_RESTORE_GAME      34
+#define MULTI_REQ_PLAYER        35 // NEVER USED
+#define MULTI_SEND_PLAYER       36 // NEVER USED
 #define MULTI_POWCAP_UPDATE     	37
 #define MULTI_HEARTBEAT         	38
 #define MULTI_KILLGOALS			39
@@ -122,26 +122,26 @@ extern int multi_protocol; // set and determinate used protocol
 
 #define MISSILE_ADJUST 6
 
-#define NETGAME_ANARCHY                 0
-#define NETGAME_TEAM_ANARCHY            1
-#define NETGAME_ROBOT_ANARCHY           2
-#define NETGAME_COOPERATIVE             3
-#define NETGAME_BOUNTY                  7
+#define NETGAME_ANARCHY         0
+#define NETGAME_TEAM_ANARCHY    1
+#define NETGAME_ROBOT_ANARCHY   2
+#define NETGAME_COOPERATIVE     3
+#define NETGAME_BOUNTY		7
 
-#define NETSTAT_MENU                            0
-#define NETSTAT_PLAYING				1
-#define NETSTAT_BROWSING			2
-#define NETSTAT_WAITING				3
-#define NETSTAT_STARTING			4
-#define NETSTAT_ENDLEVEL			5
+#define NETSTAT_MENU                0
+#define NETSTAT_PLAYING             1
+#define NETSTAT_BROWSING            2
+#define NETSTAT_WAITING             3
+#define NETSTAT_STARTING            4
+#define NETSTAT_ENDLEVEL            5
 
-#define CONNECT_DISCONNECTED		0
-#define CONNECT_PLAYING				1
-#define CONNECT_WAITING				2
-#define CONNECT_DIED_IN_MINE		3
-#define CONNECT_FOUND_SECRET		4
-#define CONNECT_ESCAPE_TUNNEL		5
-#define CONNECT_END_MENU			6
+#define CONNECT_DISCONNECTED        0
+#define CONNECT_PLAYING             1
+#define CONNECT_WAITING             2
+#define CONNECT_DIED_IN_MINE        3
+#define CONNECT_FOUND_SECRET        4
+#define CONNECT_ESCAPE_TUNNEL       5
+#define CONNECT_END_MENU            6
 
 // reasons for a packet with type PID_DUMP
 #define DUMP_CLOSED     0 // no new players allowed after game started
@@ -220,7 +220,7 @@ int multi_endlevel_poll2( newmenu *menu, d_event *event, void *userdata );
 void multi_send_endlevel_packet();
 void multi_leave_game(void);
 void multi_process_data(char *dat, int len);
-void multi_process_bigdata(char *buf, int len);		
+void multi_process_bigdata(char *buf, int len);
 void multi_do_death(int objnum);
 void multi_send_message_dialog(void);
 int multi_delete_extra_objects(void);
@@ -279,7 +279,7 @@ extern fix Show_kill_list_timer;
 
 // Used to send network messages
 
-extern char	Network_message[MAX_MESSAGE_LEN];
+extern char Network_message[MAX_MESSAGE_LEN];
 extern int Network_message_reciever;
 
 // Used to map network to local object numbers
@@ -301,11 +301,11 @@ extern int Bounty_target;
 
 extern bitmap_index multi_player_textures[MAX_PLAYERS][N_PLAYER_SHIP_TEXTURES];
 
-#define NETGAME_FLAG_CLOSED 	1
-#define NETGAME_FLAG_SHOW_ID	2
-#define NETGAME_FLAG_SHOW_MAP 4
+#define NETGAME_FLAG_CLOSED             1
+#define NETGAME_FLAG_SHOW_ID            2
+#define NETGAME_FLAG_SHOW_MAP           4
 
-#define NETGAME_NAME_LEN				15
+#define NETGAME_NAME_LEN                15
 
 #define NETPLAYER_ORIG_SIZE	22
 #define NETPLAYER_D1X_SIZE	22 /* D1X version removes last char from callsign */

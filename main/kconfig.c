@@ -566,7 +566,7 @@ void kconfig_start_changing(kc_menu *menu)
 		kc_change_invert(menu, &menu->items[menu->citem]);
 		return;
 	}
-	
+
 	menu->q_fade_i = 0;	// start question mark flasher
 	menu->changing = 1;
 }
@@ -634,7 +634,7 @@ int kconfig_key_command(window *wind, d_event *event, kc_menu *menu)
 	// when changing, process no keys instead of ESC
 	if (menu->changing && (k != -2 && k != KEY_ESC))
 		return 0;
-	
+
 	switch (k)
 	{
 		case KEY_CTRLED+KEY_D:

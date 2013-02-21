@@ -163,16 +163,16 @@ void state_object_to_object_rw(object *obj, object_rw *obj_rw)
 	switch (obj_rw->control_type)
 	{
 		case CT_WEAPON:
-			obj_rw->ctype.laser_info.parent_type       = obj->ctype.laser_info.parent_type;
-			obj_rw->ctype.laser_info.parent_num        = obj->ctype.laser_info.parent_num;
-			obj_rw->ctype.laser_info.parent_signature  = obj->ctype.laser_info.parent_signature;
+			obj_rw->ctype.laser_info.parent_type      = obj->ctype.laser_info.parent_type;
+			obj_rw->ctype.laser_info.parent_num       = obj->ctype.laser_info.parent_num;
+			obj_rw->ctype.laser_info.parent_signature = obj->ctype.laser_info.parent_signature;
 			if (obj->ctype.laser_info.creation_time - GameTime64 < F1_0*(-18000))
 				obj_rw->ctype.laser_info.creation_time = F1_0*(-18000);
 			else
 				obj_rw->ctype.laser_info.creation_time = obj->ctype.laser_info.creation_time - GameTime64;
-			obj_rw->ctype.laser_info.last_hitobj       = obj->ctype.laser_info.last_hitobj;
-			obj_rw->ctype.laser_info.track_goal        = obj->ctype.laser_info.track_goal;
-			obj_rw->ctype.laser_info.multiplier        = obj->ctype.laser_info.multiplier;
+			obj_rw->ctype.laser_info.last_hitobj      = obj->ctype.laser_info.last_hitobj;
+			obj_rw->ctype.laser_info.track_goal       = obj->ctype.laser_info.track_goal;
+			obj_rw->ctype.laser_info.multiplier       = obj->ctype.laser_info.multiplier;
 			break;
 			
 		case CT_EXPLOSION:
@@ -206,7 +206,7 @@ void state_object_to_object_rw(object *obj, object_rw *obj_rw)
 			break;
 			
 		case CT_POWERUP:
-			obj_rw->ctype.powerup_info.count = obj->ctype.powerup_info.count;
+			obj_rw->ctype.powerup_info.count         = obj->ctype.powerup_info.count;
 			break;
 	}
 	
@@ -316,14 +316,14 @@ void state_object_rw_to_object(object_rw *obj_rw, object *obj)
 	switch (obj->control_type)
 	{
 		case CT_WEAPON:
-			obj->ctype.laser_info.parent_type       = obj_rw->ctype.laser_info.parent_type;
-			obj->ctype.laser_info.parent_num        = obj_rw->ctype.laser_info.parent_num;
-			obj->ctype.laser_info.parent_signature  = obj_rw->ctype.laser_info.parent_signature;
-			obj->ctype.laser_info.creation_time     = obj_rw->ctype.laser_info.creation_time;
-			obj->ctype.laser_info.last_hitobj       = obj_rw->ctype.laser_info.last_hitobj;
+			obj->ctype.laser_info.parent_type      = obj_rw->ctype.laser_info.parent_type;
+			obj->ctype.laser_info.parent_num       = obj_rw->ctype.laser_info.parent_num;
+			obj->ctype.laser_info.parent_signature = obj_rw->ctype.laser_info.parent_signature;
+			obj->ctype.laser_info.creation_time    = obj_rw->ctype.laser_info.creation_time;
+			obj->ctype.laser_info.last_hitobj      = obj_rw->ctype.laser_info.last_hitobj;
 			obj->ctype.laser_info.hitobj_list[obj->ctype.laser_info.last_hitobj] = 1; // restore most recent hitobj to hitobj_list
-			obj->ctype.laser_info.track_goal        = obj_rw->ctype.laser_info.track_goal;
-			obj->ctype.laser_info.multiplier        = obj_rw->ctype.laser_info.multiplier;
+			obj->ctype.laser_info.track_goal       = obj_rw->ctype.laser_info.track_goal;
+			obj->ctype.laser_info.multiplier       = obj_rw->ctype.laser_info.multiplier;
 			break;
 			
 		case CT_EXPLOSION:
@@ -357,7 +357,7 @@ void state_object_rw_to_object(object_rw *obj_rw, object *obj)
 			break;
 			
 		case CT_POWERUP:
-			obj->ctype.powerup_info.count = obj_rw->ctype.powerup_info.count;
+			obj->ctype.powerup_info.count         = obj_rw->ctype.powerup_info.count;
 			break;
 	}
 	
@@ -682,7 +682,7 @@ int state_save_old_game(int slotnum, char * sg_name, player_rw * sg_player,
 //Save description
 	strncpy( desc, sg_name, DESC_LENGTH );
 	PHYSFS_write(fp, desc, sizeof(char) * DESC_LENGTH, 1);
-	
+
 // Save the current screen shot...
 	cnv = gr_create_canvas( THUMBNAIL_W, THUMBNAIL_H );
 	if ( cnv )
@@ -845,7 +845,7 @@ int state_save_all_sub(char *filename, char *desc)
 
 //Save description
 	PHYSFS_write(fp, desc, sizeof(char) * DESC_LENGTH, 1);
-	
+
 // Save the current screen shot...
 
 	cnv = gr_create_canvas( THUMBNAIL_W, THUMBNAIL_H );
@@ -931,7 +931,7 @@ int state_save_all_sub(char *filename, char *desc)
 	PHYSFS_write(fp, &cheats.enabled, sizeof(int), 1);
 	PHYSFS_write(fp, &cheats.turbo, sizeof(int), 1);
 
-	//Finish all morph objects
+//Finish all morph objects
 	for (i=0; i<=Highest_object_index; i++ )	{
 		if ( (Objects[i].type != OBJ_NONE) && (Objects[i].render_type==RT_MORPH))	{
 			morph_data *md;
@@ -950,7 +950,7 @@ int state_save_all_sub(char *filename, char *desc)
 			}
 		}
 	}
-	
+
 //Save object info
 	i = Highest_object_index+1;
 	PHYSFS_write(fp, &i, sizeof(int), 1);
@@ -964,7 +964,7 @@ int state_save_all_sub(char *filename, char *desc)
 		PHYSFS_write(fp, obj_rw, sizeof(object_rw), 1);
 		d_free(obj_rw);
 	}
-		
+
 //Save wall info
 	i = Num_walls;
 	PHYSFS_write(fp, &i, sizeof(int), 1);
@@ -974,11 +974,11 @@ int state_save_all_sub(char *filename, char *desc)
 	i = Num_open_doors;
 	PHYSFS_write(fp, &i, sizeof(int), 1);
 	PHYSFS_write(fp, ActiveDoors, sizeof(active_door), i);
-	
+
 //Save trigger info
 	PHYSFS_write(fp, &Num_triggers, sizeof(int), 1);
 	PHYSFS_write(fp, Triggers, sizeof(trigger), Num_triggers);
-	
+
 //Save tmap info
 	for (i = 0; i <= Highest_segment_index; i++)
 	{
@@ -989,7 +989,7 @@ int state_save_all_sub(char *filename, char *desc)
 			PHYSFS_write(fp, &Segments[i].sides[j].tmap_num2, sizeof(short), 1);
 		}
 	}
-	
+
 // Save the fuelcen info
 	PHYSFS_write(fp, &Control_center_destroyed, sizeof(int), 1);
 	PHYSFS_write(fp, &Countdown_seconds_left, sizeof(int), 1);
@@ -1012,10 +1012,10 @@ int state_save_all_sub(char *filename, char *desc)
 	PHYSFS_write(fp, &Control_center_next_fire_time, sizeof(int), 1);
 	PHYSFS_write(fp, &Control_center_present, sizeof(int), 1);
 	PHYSFS_write(fp, &Dead_controlcen_object_num, sizeof(int), 1);
-	
+
 // Save the AI state
 	ai_save_state( fp );
-	
+
 // Save the automap visited info
 	if ( Highest_segment_index+1 > MAX_SEGMENTS_ORIGINAL )
 	{
@@ -1087,7 +1087,7 @@ int state_restore_all(int in_game)
 		return 0;
 	}
 
-	if ( in_game )		{
+	if ( in_game ) {
 		int choice;
 		choice =  nm_messagebox( NULL, 2, "Yes", "No", "Restore Game?" );
 		if ( choice != 0 )	{
@@ -1287,7 +1287,7 @@ RetryObjectLoading:
 			}
 			obj_link(i,segnum);
 		}
-	}	
+	}
 	special_reset_objects();
 
 	//Restore wall info

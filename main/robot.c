@@ -38,46 +38,46 @@ robot_info Robot_info[MAX_ROBOT_TYPES];
 jointpos Robot_joints[MAX_ROBOT_JOINTS] = {
 
 //gun 0
-					{2,{deg(-30),0,0}},		//rest (2 joints)
-					{3,{deg(-40),0,0}},
+	{2,{deg(-30),0,0}},         //rest (2 joints)
+	{3,{deg(-40),0,0}},
 
-					{2,{deg(0),0,0}},			//alert
-					{3,{deg(0),0,0}},
-		
-					{2,{deg(0),0,0}},			//fire
-					{3,{deg(0),0,0}},
-		
-					{2,{deg(50),0,0}},		//recoil
-					{3,{deg(-50),0,0}},
-		
-					{2,{deg(10),0,deg(70)}},		//flinch
-					{3,{deg(0),deg(20),0}},
-		
+	{2,{deg(0),0,0}},           //alert
+	{3,{deg(0),0,0}},
+
+	{2,{deg(0),0,0}},           //fire
+	{3,{deg(0),0,0}},
+
+	{2,{deg(50),0,0}},          //recoil
+	{3,{deg(-50),0,0}},
+
+	{2,{deg(10),0,deg(70)}},    //flinch
+	{3,{deg(0),deg(20),0}},
+
 //gun 1
-					{4,{deg(-30),0,0}},		//rest (2 joints)
-					{5,{deg(-40),0,0}},
+	{4,{deg(-30),0,0}},         //rest (2 joints)
+	{5,{deg(-40),0,0}},
 
-					{4,{deg(0),0,0}},			//alert
-					{5,{deg(0),0,0}},
-		
-					{4,{deg(0),0,0}},			//fire
-					{5,{deg(0),0,0}},
-		
-					{4,{deg(50),0,0}},		//recoil
-					{5,{deg(-50),0,0}},
-		
-					{4,{deg(20),0,deg(-50)}},	//flinch
-					{5,{deg(0),0,deg(20)}},
-		
+	{4,{deg(0),0,0}},           //alert
+	{5,{deg(0),0,0}},
+
+	{4,{deg(0),0,0}},           //fire
+	{5,{deg(0),0,0}},
+
+	{4,{deg(50),0,0}},          //recoil
+	{5,{deg(-50),0,0}},
+
+	{4,{deg(20),0,deg(-50)}},   //flinch
+	{5,{deg(0),0,deg(20)}},
+
 //rest of body (the head)
 
-					{1,{deg(70),0,0}},		//rest (1 joint, head)
+	{1,{deg(70),0,0}},          //rest (1 joint, head)
 
-					{1,{deg(0),0,0}},			//alert
-		
-					{1,{deg(0),0,0}},			//fire
-		
-					{1,{deg(0),0,0}},			//recoil
+	{1,{deg(0),0,0}},           //alert
+
+	{1,{deg(0),0,0}},           //fire
+
+	{1,{deg(0),0,0}},           //recoil
 
 					{1,{deg(-20),deg(15),0}},			//flinch
 
@@ -129,7 +129,7 @@ void calc_gun_point(vms_vector *gun_point,object *obj,int gun_num)
 	vm_copy_transpose_matrix(&m,&obj->orient);
 	vm_vec_rotate(gun_point,&pnt,&m);
 	vm_vec_add2(gun_point,&obj->pos);
-	
+
 }
 
 //fills in ptr to list of joints, and returns the number of joints in list
@@ -287,7 +287,7 @@ int robot_info_read_n(robot_info *ri, int n, PHYSFS_file *fp)
 int jointpos_read_n(jointpos *jp, int n, PHYSFS_file *fp)
 {
 	int i;
-	
+
 	for (i = 0; i < n; i++) {
 		jp[i].jointnum = PHYSFSX_readShort(fp);
 		PHYSFSX_readAngleVec(&jp[i].angles, fp);

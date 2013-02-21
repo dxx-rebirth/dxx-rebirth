@@ -27,19 +27,19 @@ COPYRIGHT 1993-1998 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 #define MAX_VECS 5000
 
 typedef struct morph_data {
-	object *obj;			//object which is morphing
+	object *obj;                                // object which is morphing
 	vms_vector morph_vecs[MAX_VECS];
 	vms_vector morph_deltas[MAX_VECS];
 	fix morph_times[MAX_VECS];
-	int submodel_active[MAX_SUBMODELS];		//which submodels are active
-	int n_morphing_points[MAX_SUBMODELS];	//how many active points in each part
-	int submodel_startpoints[MAX_SUBMODELS];	//first point for each submodel
+	int submodel_active[MAX_SUBMODELS];         // which submodels are active
+	int n_morphing_points[MAX_SUBMODELS];       // how many active points in each part
+	int submodel_startpoints[MAX_SUBMODELS];    // first point for each submodel
 	int n_submodels_active;
 	ubyte morph_save_control_type;
 	ubyte morph_save_movement_type;
 	physics_info morph_save_phys_info;
 	int Morph_sig;
- } morph_data;
+} morph_data;
 
 #define MAX_MORPH_OBJECTS 5
 

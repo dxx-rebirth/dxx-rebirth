@@ -42,7 +42,7 @@ typedef struct _control_info {
 } control_info;
 
 #define CONTROL_USING_JOYSTICK	1
-#define CONTROL_USING_MOUSE	2
+#define CONTROL_USING_MOUSE		2
 #define MOUSEFS_DELTA_RANGE 512
 #define NUM_D1X_CONTROLS    30
 #define MAX_D1X_CONTROLS    30

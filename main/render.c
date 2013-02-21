@@ -77,7 +77,7 @@ void render_mine(int start_seg_num,fix eye_offset);
 
 //used for checking if points have been rotated
 int	Clear_window_color=-1;
-int	Clear_window=2;			//	1 = Clear whole background window, 2 = clear view portals into rest of world, 0 = no clear
+int	Clear_window=2;	// 1 = Clear whole background window, 2 = clear view portals into rest of world, 0 = no clear
 
 int framecount=-1;
 short Rotated_last[MAX_VERTICES];
@@ -86,11 +86,11 @@ short Rotated_last[MAX_VERTICES];
 // access Viewer members.
 object * Viewer = NULL;
 
-vms_vector Viewer_eye;	//valid during render
+vms_vector Viewer_eye;  //valid during render
 
 int	N_render_segs;
 
-fix Render_zoom = 0x9000;							//the player's zoom factor
+fix Render_zoom = 0x9000;					//the player's zoom factor
 
 #ifndef NDEBUG
 ubyte object_rendered[MAX_OBJECTS];
@@ -183,14 +183,14 @@ extern int Current_level_num;
 //	tmap1, tmap2 are texture map ids.  tmap2 is the pasty one.
 void render_face(int segnum, int sidenum, int nv, int *vp, int tmap1, int tmap2, uvl *uvlp, vms_vector *norm)
 {
-	grs_bitmap	*bm;
+	grs_bitmap  *bm;
 #ifdef OGL
-	grs_bitmap	*bm2=NULL;
+	grs_bitmap  *bm2 = NULL;
 #endif
-	g3s_uvl		uvl_copy[8];
-	g3s_lrgb	dyn_light[8];
-	int		i;
-	g3s_point	*pointlist[8];
+	g3s_uvl			uvl_copy[8];
+	g3s_lrgb		dyn_light[8];
+	int			i;
+	g3s_point		*pointlist[8];
 
 	Assert(nv <= 8);
 
@@ -220,13 +220,13 @@ void render_face(int segnum, int sidenum, int nv, int *vp, int tmap1, int tmap2,
 		}
 	}else
 #endif
-	// New code for overlapping textures...
-	if (tmap2 != 0){
-		bm = texmerge_get_cached_bitmap( tmap1, tmap2 );
-	}else{
-		bm = &GameBitmaps[Textures[tmap1].index];
-		PIGGY_PAGE_IN(Textures[tmap1]);
-	}
+		// New code for overlapping textures...
+		if (tmap2 != 0) {
+			bm = texmerge_get_cached_bitmap( tmap1, tmap2 );
+		} else {
+			bm = &GameBitmaps[Textures[tmap1].index];
+			PIGGY_PAGE_IN(Textures[tmap1]);
+		}
 
 	Assert( !(bm->bm_flags & BM_FLAG_PAGED_OUT) );
 
@@ -297,9 +297,9 @@ void render_face(int segnum, int sidenum, int nv, int *vp, int tmap1, int tmap2,
 
 	gr_settransblend(GR_FADE_OFF, GR_BLEND_NORMAL); // revert any transparency/blending setting back to normal
 
-	#ifndef NDEBUG
+#ifndef NDEBUG
 	if (Outline_mode) draw_outline(nv, pointlist);
-	#endif
+#endif
 }
 
 #ifdef EDITOR
@@ -370,13 +370,13 @@ fix	Min_n0_n1_dot	= (F1_0*15/16);
 //	Check for normal facing.  If so, render faces on side dictated by sidep->type.
 void render_side(segment *segp, int sidenum)
 {
-	int			vertnum_list[4];
-	side			*sidep = &segp->sides[sidenum];
+	int		vertnum_list[4];
+	side		*sidep = &segp->sides[sidenum];
 	vms_vector	tvec;
-	fix			v_dot_n0, v_dot_n1;
-	uvl			temp_uvls[3];
-	fix			min_dot, max_dot;
-	vms_vector  normals[2];
+	fix		v_dot_n0, v_dot_n1;
+	uvl		temp_uvls[3];
+	fix		min_dot, max_dot;
+	vms_vector	normals[2];
 
 	if (!(WALL_IS_DOORWAY(segp,sidenum) & WID_RENDER_FLAG))		//if (WALL_IS_DOORWAY(segp, sidenum) == WID_NO_WALL)
 		return;
@@ -426,7 +426,7 @@ void render_side(segment *segp, int sidenum)
 		if (DETRIANGULATION && ((min_dot+F1_0/256 > max_dot) || ((Viewer->segnum != segp-Segments) &&  (min_dot > Tulate_min_dot) && (max_dot < min_dot*2)))) {
 			fix	n0_dot_n1;
 
-			// The other detriangulation code doesn't deal well with badly non-planar sides.
+			//	The other detriangulation code doesn't deal well with badly non-planar sides.
 			n0_dot_n1 = vm_vec_dot(&normals[0], &normals[1]);
 			if (n0_dot_n1 < Min_n0_n1_dot) {
 				goto im_so_ashamed;
@@ -445,7 +445,7 @@ im_so_ashamed: ;
 					check_face(segp-Segments, sidenum, 0, 3, vertnum_list, sidep->tmap_num, sidep->tmap_num2, sidep->uvls);
 					#endif
 				}
- 
+
 				if (v_dot_n1 >= 0) {
 					temp_uvls[0] = sidep->uvls[0];		temp_uvls[1] = sidep->uvls[2];		temp_uvls[2] = sidep->uvls[3];
 					vertnum_list[1] = vertnum_list[2];	vertnum_list[2] = vertnum_list[3];	// want to render from vertices 0, 2, 3 on side
@@ -529,7 +529,7 @@ void render_object_search(object *obj)
 void do_render_object(int objnum)
 {
 	#ifdef EDITOR
-        int save_3d_outline=0;
+	int save_3d_outline=0;
 	#endif
 	object *obj = &Objects[objnum];
 	int count = 0;
@@ -1269,7 +1269,7 @@ void build_object_lists(int n_segs)
 
 					did_migrate = 0;
 	
-                                        m = get_seg_masks(&obj->pos,new_segnum,obj->size,__FILE__,__LINE__);
+					m = get_seg_masks(&obj->pos, new_segnum, obj->size, __FILE__, __LINE__);
 	
 					if (m.sidemask) {
 						int sn,sf;
@@ -1737,15 +1737,15 @@ void render_mine(int start_seg_num,fix eye_offset)
 			segnum = Render_list[i];
 
 			if (segnum != -1)
-                         {
+			{
 				if (visited2[segnum]) {
 					Int3();		//get Matt
-				} else 
+				} else
 					visited2[segnum] = 1;
-                         }
+			}
 		}
 	}
-	#endif
+#endif
 
 //	if (!(_search_mode || eye_offset>0) && migrate_objects)
 	if (!(_search_mode))
