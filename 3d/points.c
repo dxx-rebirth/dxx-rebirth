@@ -16,9 +16,6 @@ COPYRIGHT 1993-1998 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
  * 
  */
 
-#ifdef RCS
-static char rcsid[] = "$Id: points.c,v 1.1.1.1 2006/03/17 19:52:10 zicodxx Exp $";
-#endif
 
 #include "3d.h"
 #include "globvars.h"
