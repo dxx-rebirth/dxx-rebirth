@@ -26,52 +26,52 @@ COPYRIGHT 1993-1998 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 
 //The basic fixed-point vector.  Access elements by name or position
 typedef struct vms_vector
-  {
-    
-    fix x, y, z;
-    
-  }
+{
+
+	fix x, y, z;
+
+}
 __pack__ vms_vector;
 
 
 typedef struct vms_vector_array
-  {
-    
-    fix xyz[3];
-    
-  }
+{
+
+	fix xyz[3];
+
+}
 __pack__ vms_vector_array;
 
 
-//Short vector, used for pre-rotation points. 
+//Short vector, used for pre-rotation points.
 //Access elements by name or position
 typedef struct vms_svec
-  {
-    
-    short sv_x, sv_y, sv_z;
-     
-  }
+{
+
+	short sv_x, sv_y, sv_z;
+
+}
 __pack__ vms_svec;
 
 
 //Angle vector.  Used to store orientations
 typedef struct vms_angvec
-  {
-    
-    fixang p, b, h;
-    
-  }
+{
+
+	fixang p, b, h;
+
+}
 __pack__ vms_angvec;
 
 
 //A 3x3 rotation matrix.  Sorry about the numbering starting with one.
 //Ordering is across then down, so <m1,m2,m3> is the first row
 typedef struct vms_matrix
-  {
-    
-    vms_vector rvec, uvec, fvec;
-    
-  }
+{
+
+	vms_vector rvec, uvec, fvec;
+
+}
 __pack__ vms_matrix;
 
 // Quaternion structure
@@ -86,7 +86,7 @@ typedef struct vms_quaternion
 //macro to check if vector is zero
 #define IS_VEC_NULL(v) (v->x == 0 && v->y == 0 && v->z == 0)
 
-//macro to set a vector to zero.  we could do this with an in-line assembly 
+//macro to set a vector to zero.  we could do this with an in-line assembly
 //macro, but it's probably better to let the compiler optimize it.
 //Note: NO RETURN VALUE
 #define vm_vec_zero(v) (v)->x=(v)->y=(v)->z=0
@@ -99,8 +99,8 @@ typedef struct vms_quaternion
 #ifdef __LINUX__
 static inline void vm_set_identity(vms_matrix *m)
 {
-  m->rvec.x = m->uvec.y = m->fvec.z = f1_0;
-  m->rvec.y = m->rvec.z = m->uvec.x = m->uvec.z = m->fvec.x = m->fvec.y = 0;
+	m->rvec.x = m->uvec.y = m->fvec.z = f1_0;
+	m->rvec.y = m->rvec.z = m->uvec.x = m->uvec.z = m->fvec.x = m->fvec.y = 0;
 }
 #else
 #define vm_set_identity(m) do {m->rvec.x = m->uvec.y = m->fvec.z = f1_0; \
@@ -166,15 +166,15 @@ extern vms_matrix vmd_identity_matrix;
    do { (m)->m1=(_m1); (m)->m2=(_m2); (m)->m3=(_m3); \
    (m)->m4=(_m4); (m)->m5=(_m5); (m)->m6=(_m6); \
    (m)->m7=(_m7); (m)->m8=(_m8); (m)->m9=(_m9);} while (0)
- */ 
+ */
 
-#if 0				//kill this, since bogus with new matrix ordering
+#if 0               //kill this, since bogus with new matrix ordering
 
 //macro to fill in elements of a matrix, also for Mike
 #define vm_mat_make(m,_m1,_m2,_m3,_m4,_m5,_m6,_m7,_m8,_m9) \
 (((m)->m1 = (_m1), (m)->m2 = (_m2), (m)->m3 = (_m3), \
   (m)->m4 = (_m4), (m)->m5 = (_m5), (m)->m6 = (_m6), \
-  (m)->m7 = (_m7), (m)->m8 = (_m8), (m)->m9 = (_m9)), (m)) 
+  (m)->m7 = (_m7), (m)->m8 = (_m8), (m)->m9 = (_m9)), (m))
 
 #endif	/* 
  */
@@ -212,7 +212,7 @@ vms_vector * vm_vec_sub2 (vms_vector * dest, const vms_vector * src);
 #else	/* 
  */
 
-#define vm_vec_add(dest,src0,src1) do {	\
+#define vm_vec_add(dest,src0,src1) do { \
 (dest)->x = (src0)->x + (src1)->x;
 \
 (dest)->y = (src0)->y + (src1)->y;
@@ -223,7 +223,7 @@ vms_vector * vm_vec_sub2 (vms_vector * dest, const vms_vector * src);
 while (0);
 
 
-#define vm_vec_sub(dest,src0,src1) do {	\
+#define vm_vec_sub(dest,src0,src1) do { \
 (dest)->x = (src0)->x - (src1)->x;
 \
 (dest)->y = (src0)->y - (src1)->y;
@@ -234,7 +234,7 @@ while (0);
 while (0);
 
 
-#define vm_vec_add2(dest,src) do {		\
+#define vm_vec_add2(dest,src) do {  \
 (dest)->x += (src)->x;
 \
 (dest)->y += (src)->y;
@@ -245,7 +245,7 @@ while (0);
 while (0);
 
 
-#define vm_vec_sub2(dest,src) do {		\
+#define vm_vec_sub2(dest,src) do {  \
 (dest)->x -= (src)->x;
 \
 (dest)->y -= (src)->y;
@@ -339,22 +339,22 @@ fix vm_vec_dotprod (const vms_vector * v0, const vms_vector * v1);
 #ifdef INLINE
 #ifdef __WATCOMC__
 #pragma aux vm_vec_dotprod parm [esi] [edi] value [eax] modify exact [eax ebx ecx edx] = \
-"mov	eax,[esi]" \
-"imul	dword ptr [edi]" \
-"mov	ebx,eax" \
-"mov	ecx,edx" \
+"mov    eax,[esi]" \
+"imul   dword ptr [edi]" \
+"mov    ebx,eax" \
+"mov    ecx,edx" \
 \
-"mov	eax,4[esi]" \
-"imul	dword ptr 4[edi]" \
-"add	ebx,eax" \
-"adc	ecx,edx" \
+"mov    eax,4[esi]" \
+"imul   dword ptr 4[edi]" \
+"add    ebx,eax" \
+"adc    ecx,edx" \
 \
-"mov	eax,8[esi]" \
-"imul	dword ptr 8[edi]" \
-"add	eax,ebx" \
-"adc	edx,ecx" \
+"mov    eax,8[esi]" \
+"imul   dword ptr 8[edi]" \
+"add    eax,ebx" \
+"adc    edx,ecx" \
 \
-"shrd	eax,edx,16";
+"shrd   eax,edx,16";
 
 #endif
 #endif	/* 
@@ -372,13 +372,13 @@ vms_vector * vm_vec_crossprod (vms_vector * dest, vms_vector * src0, vms_vector 
 vms_vector * vm_vec_normal (vms_vector * dest, vms_vector * p0, vms_vector * p1, vms_vector * p2);
 
 
-//computes non-normalized surface normal from three points. 
+//computes non-normalized surface normal from three points.
 //returns ptr to dest
 //dest CANNOT equal either source
 vms_vector * vm_vec_perp (vms_vector * dest, vms_vector * p0, vms_vector * p1, vms_vector * p2);
 
 
-//computes the delta angle between two vectors. 
+//computes the delta angle between two vectors.
 //vectors need not be normalized. if they are, call vm_vec_delta_ang_norm()
 //the forward vector (third parameter) can be NULL, in which case the absolute
 //value of the angle in returned.  Otherwise the angle around that vector is
@@ -386,7 +386,7 @@ vms_vector * vm_vec_perp (vms_vector * dest, vms_vector * p0, vms_vector * p1, v
 fixang vm_vec_delta_ang (vms_vector * v0, vms_vector * v1, vms_vector * fvec);
 
 
-//computes the delta angle between two normalized vectors. 
+//computes the delta angle between two normalized vectors.
 fixang vm_vec_delta_ang_norm (vms_vector * v0, vms_vector * v1, vms_vector * fvec);
 
 
@@ -432,7 +432,7 @@ vms_matrix * vm_copy_transpose_matrix (vms_matrix * dest, vms_matrix * src);
 vms_matrix * vm_matrix_x_matrix (vms_matrix * dest, vms_matrix * src0, vms_matrix * src1);
 
 
-//extract angles from a matrix 
+//extract angles from a matrix
 vms_angvec * vm_extract_angles_matrix (vms_angvec * a, vms_matrix * m);
 
 

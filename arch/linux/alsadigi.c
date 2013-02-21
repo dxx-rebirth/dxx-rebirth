@@ -199,11 +199,11 @@ static void audio_mixcallback(void *userdata, ubyte *stream, int len)
     }
     v = *(sldata++) - 0x80;
 
-    *sp = mix8[ *sp + fixmul(v, vl) + 0x80 ];
-    sp++;
+	*sp = mix8[*sp + fixmul(v, vl) + 0x80];
+	sp++;
 
-    *sp = mix8[ *sp + fixmul(v, vr) + 0x80 ];
-    sp++;
+	*sp = mix8[*sp + fixmul(v, vr) + 0x80];
+	sp++;
    }
    sl->position = sldata - sl->samples;
   }
@@ -212,45 +212,45 @@ static void audio_mixcallback(void *userdata, ubyte *stream, int len)
 //end changes by adb
 
 void *mixer_thread(void *data) {
- int err;
- ubyte buffer[SOUND_BUFFER_SIZE];
+	int err;
+	ubyte buffer[SOUND_BUFFER_SIZE];
 
- /* Allow ourselves to be asynchronously cancelled */
- pthread_setcanceltype(PTHREAD_CANCEL_ASYNCHRONOUS, NULL);
- while (1) {
+	/* Allow ourselves to be asynchronously cancelled */
+	pthread_setcanceltype(PTHREAD_CANCEL_ASYNCHRONOUS, NULL);
+	while (1) {
 
-   memset(buffer, 0x80, SOUND_BUFFER_SIZE);
-   LOCK();
-   audio_mixcallback(NULL,buffer,SOUND_BUFFER_SIZE);
-   UNLOCK();
+		memset(buffer, 0x80, SOUND_BUFFER_SIZE);
+		LOCK();
+		audio_mixcallback(NULL,buffer,SOUND_BUFFER_SIZE);
+		UNLOCK();
 again:
-   err = snd_pcm_writei(snd_devhandle, buffer, SOUND_BUFFER_SIZE/2);
+		err = snd_pcm_writei(snd_devhandle, buffer, SOUND_BUFFER_SIZE/2);
 
-   if (err == -EPIPE) {
-        // Sound buffer underrun
-        err = snd_pcm_prepare(snd_devhandle);
-        if (err < 0) {
-            con_printf(CON_CRITICAL, "Can't recover from underrun: %s\n",
-                    snd_strerror(err));
-        }
-   } else if (err == -EAGAIN) {
-        goto again;
-   } else if (err != SOUND_BUFFER_SIZE/2) {
-        // Each frame has size 2 bytes - hence we expect SOUND_BUFFER_SIZE/2
-        // frames to be written.
-        con_printf(CON_CRITICAL, "Unknown err %d: %s\n", err, snd_strerror(err));
-   }
- } 
- return 0;
+		if (err == -EPIPE) {
+			// Sound buffer underrun
+			err = snd_pcm_prepare(snd_devhandle);
+			if (err < 0) {
+				con_printf(CON_CRITICAL, "Can't recover from underrun: %s\n",
+						   snd_strerror(err));
+			}
+		} else if (err == -EAGAIN) {
+			goto again;
+		} else if (err != SOUND_BUFFER_SIZE/2) {
+			// Each frame has size 2 bytes - hence we expect SOUND_BUFFER_SIZE/2
+			// frames to be written.
+			con_printf(CON_CRITICAL, "Unknown err %d: %s\n", err, snd_strerror(err));
+		}
+	}
+	return 0;
 }
 
 
 /* Initialise audio devices. */
 int digi_init()
 {
- int err, tmp;
- char *device = "plughw:0,0";
- snd_pcm_hw_params_t *params;
+	int err, tmp;
+	char *device = "plughw:0,0";
+	snd_pcm_hw_params_t *params;
  pthread_attr_t attr;
  pthread_mutexattr_t mutexattr;
 
@@ -259,46 +259,46 @@ int digi_init()
  //end edit by adb
 
  /* Open the ALSA sound device */
- if ((err = snd_pcm_open(&snd_devhandle,device, SND_PCM_STREAM_PLAYBACK, 0)) < 0) {  
-     con_printf(CON_CRITICAL, "open failed: %s\n", snd_strerror( err ));  
-     return -1; 
- } 
+	if ((err = snd_pcm_open(&snd_devhandle, device, SND_PCM_STREAM_PLAYBACK, 0)) < 0) {  
+	 con_printf(CON_CRITICAL, "open failed: %s\n", snd_strerror( err ));  
+	 return -1; 
+	}
 
- snd_pcm_hw_params_alloca(&params);
- err = snd_pcm_hw_params_any(snd_devhandle, params);
- if (err < 0) {
-     con_printf(CON_CRITICAL,"ALSA: Error %s\n", snd_strerror(err));
-     return -1;
- }
- err = snd_pcm_hw_params_set_access(snd_devhandle, params, SND_PCM_ACCESS_RW_INTERLEAVED);
- if (err < 0) {
-     con_printf(CON_CRITICAL,"ALSA: Error %s\n", snd_strerror(err));
-     return -1;
- }
- err = snd_pcm_hw_params_set_format(snd_devhandle, params, SND_PCM_FORMAT_U8);
- if (err < 0) {
-     con_printf(CON_CRITICAL,"ALSA: Error %s\n", snd_strerror(err));
-     return -1;
- }
- err = snd_pcm_hw_params_set_channels(snd_devhandle, params, 2);
- if (err < 0) {
-     con_printf(CON_CRITICAL,"ALSA: Error %s\n", snd_strerror(err));
-     return -1;
- }
- tmp = 11025;
- err = snd_pcm_hw_params_set_rate_near(snd_devhandle, params, &tmp, NULL);
- if (err < 0) {
-     con_printf(CON_CRITICAL,"ALSA: Error %s\n", snd_strerror(err));
-     return -1;
- }
- snd_pcm_hw_params_set_periods(snd_devhandle, params, 3, 0);
- snd_pcm_hw_params_set_buffer_size(snd_devhandle,params, (SOUND_BUFFER_SIZE*3)/2);
+	snd_pcm_hw_params_alloca(&params);
+	err = snd_pcm_hw_params_any(snd_devhandle, params);
+	if (err < 0) {
+		con_printf(CON_CRITICAL,"ALSA: Error %s\n", snd_strerror(err));
+		return -1;
+	}
+	err = snd_pcm_hw_params_set_access(snd_devhandle, params, SND_PCM_ACCESS_RW_INTERLEAVED);
+	if (err < 0) {
+		con_printf(CON_CRITICAL,"ALSA: Error %s\n", snd_strerror(err));
+		return -1;
+	}
+	err = snd_pcm_hw_params_set_format(snd_devhandle, params, SND_PCM_FORMAT_U8);
+	if (err < 0) {
+		con_printf(CON_CRITICAL,"ALSA: Error %s\n", snd_strerror(err));
+		return -1;
+	}
+	err = snd_pcm_hw_params_set_channels(snd_devhandle, params, 2);
+	if (err < 0) {
+		con_printf(CON_CRITICAL,"ALSA: Error %s\n", snd_strerror(err));
+		return -1;
+	}
+	tmp = 11025;
+	err = snd_pcm_hw_params_set_rate_near(snd_devhandle, params, &tmp, NULL);
+	if (err < 0) {
+		con_printf(CON_CRITICAL,"ALSA: Error %s\n", snd_strerror(err));
+		return -1;
+	}
+	snd_pcm_hw_params_set_periods(snd_devhandle, params, 3, 0);
+	snd_pcm_hw_params_set_buffer_size(snd_devhandle,params, (SOUND_BUFFER_SIZE*3)/2);
 
- err = snd_pcm_hw_params(snd_devhandle, params);
- if (err < 0) {
-     con_printf(CON_CRITICAL,"ALSA: Error %s\n", snd_strerror(err));
-     return -1;
- }
+	err = snd_pcm_hw_params(snd_devhandle, params);
+	if (err < 0) {
+		con_printf(CON_CRITICAL,"ALSA: Error %s\n", snd_strerror(err));
+		return -1;
+	}
 
  /* Start the mixer thread */
 

@@ -72,7 +72,7 @@ COPYRIGHT 1993-1998 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 #include "gr.h"
 
 //Prototypes for IFF library functions
- 
+
 int iff_read_bitmap(char *ifilename,grs_bitmap *bm,int bitmap_type,ubyte *palette);
 	//reads an IFF file into a grs_bitmap structure. fills in palette if not null
 	//returns error codes - see IFF.H.  see GR.H for bitmap_type
@@ -87,8 +87,8 @@ int iff_read_bitmap(char *ifilename,grs_bitmap *bm,int bitmap_type,ubyte *palett
 	//   exit(0)
 
 //like iff_read_bitmap(), but reads into a bitmap that already exists,
-//without allocating memory for the bitmap. 
-int iff_read_into_bitmap(char *ifilename,grs_bitmap *bm,sbyte *palette);
+//without allocating memory for the bitmap.
+int iff_read_into_bitmap(char *ifilename,grs_bitmap *bm, sbyte *palette);
 
 //read in animator brush (.abm) file
 //fills in array of pointers, and n_bitmaps.
@@ -109,19 +109,19 @@ const char *iff_errormsg(int error_number);
 
 //Error codes for read & write routines
 
-#define IFF_NO_ERROR			0		//everything is fine, have a nice day
-#define IFF_NO_MEM			1		//not enough mem for loading or processing
-#define IFF_UNKNOWN_FORM	2		//IFF file, but not a bitmap
-#define IFF_NOT_IFF			3		//this isn't even an IFF file
-#define IFF_NO_FILE			4		//cannot find or open file
-#define IFF_BAD_BM_TYPE		5		//tried to save invalid type, like BM_RGB15
-#define IFF_CORRUPT			6		//bad data in file
-#define IFF_FORM_ANIM		7		//this is an anim, with non-anim load rtn
-#define IFF_FORM_BITMAP		8		//this is not an anim, with anim load rtn
-#define IFF_TOO_MANY_BMS	9		//anim read had more bitmaps than room for
-#define IFF_UNKNOWN_MASK	10		//unknown masking type
-#define IFF_READ_ERROR		11		//error reading from file
-#define IFF_BM_MISMATCH		12		//bm being loaded doesn't match bm loaded into
+#define IFF_NO_ERROR        0   //everything is fine, have a nice day
+#define IFF_NO_MEM          1   //not enough mem for loading or processing
+#define IFF_UNKNOWN_FORM    2   //IFF file, but not a bitmap
+#define IFF_NOT_IFF         3   //this isn't even an IFF file
+#define IFF_NO_FILE         4   //cannot find or open file
+#define IFF_BAD_BM_TYPE     5   //tried to save invalid type, like BM_RGB15
+#define IFF_CORRUPT         6   //bad data in file
+#define IFF_FORM_ANIM       7   //this is an anim, with non-anim load rtn
+#define IFF_FORM_BITMAP     8   //this is not an anim, with anim load rtn
+#define IFF_TOO_MANY_BMS    9   //anim read had more bitmaps than room for
+#define IFF_UNKNOWN_MASK    10  //unknown masking type
+#define IFF_READ_ERROR      11  //error reading from file
+#define IFF_BM_MISMATCH     12  //bm being loaded doesn't match bm loaded into
 
 #endif
 

@@ -48,21 +48,21 @@ COPYRIGHT 1993-1998 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 #ifndef _PCX_H
 #define _PCX_H
 
-#define PCX_ERROR_NONE 				0
-#define PCX_ERROR_OPENING			1
-#define PCX_ERROR_NO_HEADER		2
-#define PCX_ERROR_WRONG_VERSION	3
-#define PCX_ERROR_READING			4
-#define PCX_ERROR_NO_PALETTE		5
-#define PCX_ERROR_WRITING			6
-#define PCX_ERROR_MEMORY			7
+#define PCX_ERROR_NONE          0
+#define PCX_ERROR_OPENING       1
+#define PCX_ERROR_NO_HEADER     2
+#define PCX_ERROR_WRONG_VERSION 3
+#define PCX_ERROR_READING       4
+#define PCX_ERROR_NO_PALETTE    5
+#define PCX_ERROR_WRITING       6
+#define PCX_ERROR_MEMORY        7
 
 // Load bitmap for little-known 'baldguy' cheat.
 
 extern int bald_guy_load( char * filename, grs_bitmap * bmp,int bitmap_type ,ubyte * palette );
 
-// Reads filename into bitmap bmp, and fills in palette.  If bmp->bm_data==NULL, 
-// then bmp->bm_data is allocated and the w,h are filled.  
+// Reads filename into bitmap bmp, and fills in palette.  If bmp->bm_data==NULL,
+// then bmp->bm_data is allocated and the w,h are filled.
 // If palette==NULL the palette isn't read in.  Returns error code.
 
 extern int pcx_read_bitmap( char * filename, grs_bitmap * bmp, int bitmap_type, ubyte * palette );

@@ -12,9 +12,9 @@ COPYRIGHT 1993-1998 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 */
 
 /*
- * 
+ *
  * Header for terrain.c
- * 
+ *
  */
 
 
@@ -24,7 +24,7 @@ COPYRIGHT 1993-1998 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 void free_light_table();
 void free_height_array();
 void load_terrain(char *filename);
-void render_terrain(vms_vector *org,int org_i,int org_j);
+void render_terrain(vms_vector *org, int org_i, int org_j);
 
 
 #endif

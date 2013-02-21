@@ -40,7 +40,7 @@ char warn_message[MAX_MSG_LEN];
 //takes string in register, calls printf with string on stack
 void warn_printf(char *s)
 {
-	con_printf(CON_URGENT,"%s\n",s);
+	con_printf(CON_URGENT, "%s\n",s);
 }
 
 void (*warn_func)(char *s)=warn_printf;
@@ -84,7 +84,7 @@ void print_exit_message(void)
 		{
 			(*ErrorPrintFunc)(exit_message);
 		}
-		con_printf(CON_CRITICAL,"\n%s\n",exit_message);
+		con_printf(CON_CRITICAL, "\n%s\n",exit_message);
 	}
 }
 

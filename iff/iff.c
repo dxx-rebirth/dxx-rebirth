@@ -59,9 +59,9 @@ typedef struct iff_bitmap_header {
 	short type;						//see types above
 	short transparentcolor;		//which color is transparent (if any)
 	short pagewidth,pageheight; //width & height of source screen
-	sbyte nplanes;					//number of planes (8 for 256 color image)
-	sbyte masking,compression;	//see constants above
-	sbyte xaspect,yaspect;		//aspect ratio (usually 5/6)
+	sbyte nplanes;              //number of planes (8 for 256 color image)
+	sbyte masking,compression;  //see constants above
+	sbyte xaspect,yaspect;      //aspect ratio (usually 5/6)
 	pal_entry palette[256];		//the palette for this bitmap
 	ubyte *raw_data;				//ptr to array of data
 	short row_size;				//offset to next row
@@ -428,11 +428,11 @@ int iff_parse_ilbm_pbm(PHYSFS_file *ifile,long form_type,iff_bitmap_header *bmhe
 int convert_ilbm_to_pbm(iff_bitmap_header *bmheader)
 {
 	int x,y,p;
-	sbyte *new_data,*destptr,*rowptr;
+	sbyte *new_data, *destptr, *rowptr;
 	int bytes_per_row,byteofs;
 	ubyte checkmask,newbyte,setbit;
 
-	MALLOC( new_data, sbyte, bmheader->w * bmheader->h );
+	MALLOC(new_data, sbyte, bmheader->w * bmheader->h);
 	if (new_data == NULL) return IFF_NO_MEM;
 
 	destptr = new_data;
@@ -503,7 +503,7 @@ void copy_iff_to_grs(grs_bitmap *bm,iff_bitmap_header *bmheader)
 
 //if bm->bm_data is set, use it (making sure w & h are correct), else
 //allocate the memory
-int iff_parse_bitmap(PHYSFS_file *ifile,grs_bitmap *bm,int bitmap_type,sbyte *palette,grs_bitmap *prev_bm)
+int iff_parse_bitmap(PHYSFS_file *ifile, grs_bitmap *bm, int bitmap_type, sbyte *palette, grs_bitmap *prev_bm)
 {
 	int ret;			//return code
 	iff_bitmap_header bmheader;
@@ -540,7 +540,7 @@ int iff_parse_bitmap(PHYSFS_file *ifile,grs_bitmap *bm,int bitmap_type,sbyte *pa
 		ret = IFF_UNKNOWN_FORM;
 
 	if (ret != IFF_NO_ERROR) {		//got an error parsing
-		if (bmheader.raw_data) d_free(bmheader.raw_data); 
+		if (bmheader.raw_data) d_free(bmheader.raw_data);
 		goto done;
 	}
 
@@ -592,8 +592,8 @@ int iff_read_bitmap(char *ifilename,grs_bitmap *bm,int bitmap_type,ubyte *palett
 }
 
 //like iff_read_bitmap(), but reads into a bitmap that already exists,
-//without allocating memory for the bitmap. 
-int iff_read_into_bitmap(char *ifilename,grs_bitmap *bm,sbyte *palette)
+//without allocating memory for the bitmap.
+int iff_read_into_bitmap(char *ifilename, grs_bitmap *bm, sbyte *palette)
 {
 	int ret;			//return code
 	PHYSFS_file *ifile;
@@ -603,7 +603,7 @@ int iff_read_into_bitmap(char *ifilename,grs_bitmap *bm,sbyte *palette)
 		return IFF_NO_FILE;
 
 	ret = iff_parse_bitmap(ifile,bm,bm->bm_type,palette,NULL);
-	
+
 	PHYSFS_close(ifile);
 
 	return ret;

@@ -39,10 +39,10 @@ COPYRIGHT 1993-1998 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 #define _3D_H
 
 #include "fix.h"
-#include "vecmat.h"	//the vector/matrix library
+#include "vecmat.h" //the vector/matrix library
 #include "gr.h"
 
-extern int g3d_interp_outline;		//if on, polygon models outlined in white
+extern int g3d_interp_outline;      //if on, polygon models outlined in white
 extern vms_vector Matrix_scale;     //how the matrix is currently scaled
 extern short highest_texture_num;
 
@@ -59,32 +59,32 @@ typedef struct g3s_lrgb {
 
 //Stucture to store clipping codes in a word
 typedef struct g3s_codes {
-	ubyte uor,uand;	//or is low byte, and is high byte
+	ubyte uor,uand;   //or is low byte, and is high byte
 } g3s_codes;
 
 //flags for point structure
-#define PF_PROJECTED 	1	//has been projected, so sx,sy valid
-#define PF_OVERFLOW		2	//can't project
-#define PF_TEMP_POINT	4	//created during clip
-#define PF_UVS				8	//has uv values set
-#define PF_LS				16	//has lighting values set
+#define PF_PROJECTED    1   //has been projected, so sx,sy valid
+#define PF_OVERFLOW     2   //can't project
+#define PF_TEMP_POINT   4   //created during clip
+#define PF_UVS          8   //has uv values set
+#define PF_LS           16  //has lighting values set
 
 //clipping codes flags
 
-#define CC_OFF_LEFT	1
-#define CC_OFF_RIGHT	2
-#define CC_OFF_BOT	4
-#define CC_OFF_TOP	8
-#define CC_BEHIND		0x80
+#define CC_OFF_LEFT     1
+#define CC_OFF_RIGHT    2
+#define CC_OFF_BOT      4
+#define CC_OFF_TOP      8
+#define CC_BEHIND       0x80
 
 //Used to store rotated points for mines.  Has frame count to indictate
 //if rotated, and flag to indicate if projected.
 typedef struct g3s_point {
 	vms_vector p3_vec;         //reference as vector...
 	fix p3_u,p3_v,p3_l;
-	fix p3_sx,p3_sy;		//screen x&y
-	ubyte p3_codes;		//clipping codes
-	ubyte p3_flags;		//projected?
+	fix p3_sx,p3_sy;    //screen x&y
+	ubyte p3_codes;     //clipping codes
+	ubyte p3_flags;     //projected?
 	short p3_pad;			//keep structure longwork aligned
 } g3s_point;
 
@@ -225,7 +225,7 @@ bool g3_draw_rod_flat(g3s_point *bot_point,fix bot_width,g3s_point *top_point,fi
 //returns 1 if off screen, 0 if drew
 bool g3_draw_rod_tmap(grs_bitmap *bitmap,g3s_point *bot_point,fix bot_width,g3s_point *top_point,fix top_width,g3s_lrgb light);
 
-//draws a bitmap with the specified 3d width & height 
+//draws a bitmap with the specified 3d width & height
 //returns 1 if off screen, 0 if drew
 bool g3_draw_bitmap(vms_vector *pos,fix width,fix height,grs_bitmap *bm);
 

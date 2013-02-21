@@ -116,10 +116,10 @@ char Gamesave_current_filename[PATH_MAX];
 int Gamesave_current_version;
 
 #define GAME_VERSION					25
-#define GAME_COMPATIBLE_VERSION	22
+#define GAME_COMPATIBLE_VERSION 22
 
-#define MENU_CURSOR_X_MIN			MENU_X
-#define MENU_CURSOR_X_MAX			MENU_X+6
+#define MENU_CURSOR_X_MIN       MENU_X
+#define MENU_CURSOR_X_MAX       MENU_X+6
 
 #define HOSTAGE_DATA_VERSION	0
 
@@ -926,7 +926,7 @@ int load_game_data(PHYSFS_file *LoadFile)
 	}
 
 	//================ READ CONTROL CENTER TRIGGER INFO ===============
-	
+
 	control_center_triggers_read_n(&ControlCenterTriggers, 1, LoadFile);
 
 	//================ READ MATERIALOGRIFIZATIONATORS INFO ===============

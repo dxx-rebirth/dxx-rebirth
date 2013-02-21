@@ -77,9 +77,9 @@ int gr_circle(fix xc1,fix yc1,fix r1)
 		gr_pixel( xc-y, yc+x );
 		gr_pixel( xc+y, yc+x );
 
-		if (p<0) 
+		if (p<0)
 			p=p+(x<<2)+6;
-		else	{
+		else {
 			// Draw the second octant
 			gr_pixel( xc-x, yc-y );
 			gr_pixel( xc+x, yc-y );
@@ -90,7 +90,7 @@ int gr_circle(fix xc1,fix yc1,fix r1)
 		}
 		x++;
 	}
-	if(x==y)	{
+	if(x==y) {
 		gr_pixel( xc-x, yc-y );
 		gr_pixel( xc+x, yc-y );
 		gr_pixel( xc-x, yc+y );
@@ -118,9 +118,9 @@ int gr_ucircle(fix xc1,fix yc1,fix r1)
 		gr_upixel( xc-y, yc+x );
 		gr_upixel( xc+y, yc+x );
 
-		if (p<0) 
+		if (p<0)
 			p=p+(x<<2)+6;
-		else	{
+		else {
 			// Draw the second octant
 			gr_upixel( xc-x, yc-y );
 			gr_upixel( xc+x, yc-y );
@@ -131,7 +131,7 @@ int gr_ucircle(fix xc1,fix yc1,fix r1)
 		}
 		x++;
 	}
-	if(x==y)	{
+	if(x==y) {
 		gr_upixel( xc-x, yc-y );
 		gr_upixel( xc+x, yc-y );
 		gr_upixel( xc-x, yc+y );

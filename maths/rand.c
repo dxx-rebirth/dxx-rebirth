@@ -7,12 +7,12 @@
 #ifdef NO_WATCOM_RAND
 void d_srand(unsigned int seed)
 {
- srand(seed);
+	srand(seed);
 }
 
 int d_rand()
 {
- return rand()&0x7fff;
+	return rand() & 0x7fff;
 }
 #else
 static unsigned int d_rand_seed;

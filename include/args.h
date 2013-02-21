@@ -25,7 +25,7 @@ COPYRIGHT 1993-1998 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 #include "pstypes.h"
 
 extern int Num_args;
-extern char * Args[];
+extern char *Args[];
 extern void InitArgs( int argc, char **argv );
 extern void args_exit();
 

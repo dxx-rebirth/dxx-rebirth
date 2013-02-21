@@ -45,7 +45,7 @@ COPYRIGHT 1993-1998 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 typedef struct {
 	char *  name;
 	int     nparams;
-        int   (*cfunction)(void);
+	int  (*cfunction)(void);
 } FUNCTION;
 
 void func_init( FUNCTION * funtable, int size );

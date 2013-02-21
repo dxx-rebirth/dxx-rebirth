@@ -33,9 +33,9 @@ COPYRIGHT 1993-1998 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 #include "endlevel.h"
 #include "fireball.h"
 
-#define GRID_MAX_SIZE	64
-#define GRID_SCALE	i2f(2*20)
-#define HEIGHT_SCALE	f1_0
+#define GRID_MAX_SIZE   64
+#define GRID_SCALE      i2f(2*20)
+#define HEIGHT_SCALE    f1_0
 
 int grid_w,grid_h;
 
@@ -50,8 +50,8 @@ ubyte *light_array;
 #define HEIGHT(_i,_j) (height_array[(_i)*grid_w+(_j)])
 #define LIGHT(_i,_j) light_array[(_i)*grid_w+(_j)]
 
-//!!#define HEIGHT(_i,_j)	height_array[(grid_h-1-j)*grid_w+(_i)]
-//!!#define LIGHT(_i,_j)		light_array[(grid_h-1-j)*grid_w+(_i)]
+//!!#define HEIGHT(_i,_j)   height_array[(grid_h-1-j)*grid_w+(_i)]
+//!!#define LIGHT(_i,_j)    light_array[(grid_h-1-j)*grid_w+(_i)]
 
 #define LIGHTVAL(_i,_j) (((fix) LIGHT(_i,_j))<<8)
 
@@ -69,7 +69,7 @@ void render_mine(int start_seg_num,fix eye_offset);
 
 int org_i,org_j;
 
-int mine_tiles_drawn;		//flags to tell if all 4 tiles under mine have drawn
+int mine_tiles_drawn;    //flags to tell if all 4 tiles under mine have drawn
 
 void draw_cell(int i,int j,g3s_point *p0,g3s_point *p1,g3s_point *p2,g3s_point *p3)
 {
@@ -125,7 +125,7 @@ void draw_cell(int i,int j,g3s_point *p0,g3s_point *p1,g3s_point *p2,g3s_point *
 		mine_tiles_drawn |= 4;
 	if (i==org_i-1 && j==org_j-1)
 		mine_tiles_drawn |= 8;
-	
+
 	if (mine_tiles_drawn == 0xf) {
 		render_mine(exit_segnum,0);
 		//draw_exit_model();
@@ -462,7 +462,7 @@ void build_light_table()
 			if (min_l == max_l) {
 				LIGHT(i,j) = l>>8;
 				continue;
-			}				
+			}
 
 			l2 = fixdiv((l-min_l),(max_l-min_l));
 

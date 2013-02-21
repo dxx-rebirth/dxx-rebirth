@@ -33,16 +33,16 @@ COPYRIGHT 1993-1998 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 #define	MAX_WALL_LINKS				100
 
 // Trigger flags	  
-#define	TRIGGER_CONTROL_DOORS		1	// Control Trigger
-#define	TRIGGER_SHIELD_DAMAGE		2	// Shield Damage Trigger
-#define	TRIGGER_ENERGY_DRAIN	   	4	// Energy Drain Trigger
-#define	TRIGGER_EXIT					8	// End of level Trigger
-#define	TRIGGER_ON					  16	// Whether Trigger is active
-#define	TRIGGER_ONE_SHOT			  32	// If Trigger can only be triggered once
-#define	TRIGGER_MATCEN				  64	// Trigger for materialization centers
-#define	TRIGGER_ILLUSION_OFF		 128	// Switch Illusion OFF trigger
-#define	TRIGGER_SECRET_EXIT		 256	// Exit to secret level
-#define	TRIGGER_ILLUSION_ON		 512	// Switch Illusion ON trigger
+#define TRIGGER_CONTROL_DOORS      1    // Control Trigger
+#define TRIGGER_SHIELD_DAMAGE      2    // Shield Damage Trigger
+#define TRIGGER_ENERGY_DRAIN       4    // Energy Drain Trigger
+#define TRIGGER_EXIT               8    // End of level Trigger
+#define TRIGGER_ON                16    // Whether Trigger is active
+#define TRIGGER_ONE_SHOT          32    // If Trigger can only be triggered once
+#define TRIGGER_MATCEN            64    // Trigger for materialization centers
+#define TRIGGER_ILLUSION_OFF     128    // Switch Illusion OFF trigger
+#define TRIGGER_SECRET_EXIT      256    // Exit to secret level
+#define TRIGGER_ILLUSION_ON      512    // Switch Illusion ON trigger
 
 // Trigger delay times before they can be retriggered (Recharge time)
 #define	TRIGGER_DELAY_DOOR		F1_0*1	// 1 second for doors
@@ -57,13 +57,13 @@ COPYRIGHT 1993-1998 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 typedef struct trigger {
 	sbyte		type;
 	short		flags;
-	fix		value;
-	fix		time;
+	fix     value;
+	fix     time;
 	sbyte		link_num;
 	short 	num_links;
-	short 	seg[MAX_WALLS_PER_LINK];
-	short		side[MAX_WALLS_PER_LINK];
-	} __pack__ trigger;
+	short   seg[MAX_WALLS_PER_LINK];
+	short   side[MAX_WALLS_PER_LINK];
+} __pack__ trigger;
 
 //typedef struct link {
 //	short 	num_walls;

@@ -12,9 +12,9 @@ COPYRIGHT 1993-1998 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 */
 
 /*
- * 
+ *
  * Polygon object interpreter
- * 
+ *
  */
 
 #include <stdlib.h>
@@ -26,24 +26,24 @@ COPYRIGHT 1993-1998 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 #include "byteswap.h"
 #include "polyobj.h"
 
-#define OP_EOF				0	//eof
-#define OP_DEFPOINTS		1	//defpoints
-#define OP_FLATPOLY		2	//flat-shaded polygon
-#define OP_TMAPPOLY		3	//texture-mapped polygon
-#define OP_SORTNORM		4	//sort by normal
-#define OP_RODBM			5	//rod bitmap
-#define OP_SUBCALL		6	//call a subobject
-#define OP_DEFP_START	7	//defpoints with start
-#define OP_GLOW			8	//glow value for next poly
+#define OP_EOF          0   //eof
+#define OP_DEFPOINTS    1   //defpoints
+#define OP_FLATPOLY     2   //flat-shaded polygon
+#define OP_TMAPPOLY     3   //texture-mapped polygon
+#define OP_SORTNORM     4   //sort by normal
+#define OP_RODBM        5   //rod bitmap
+#define OP_SUBCALL      6   //call a subobject
+#define OP_DEFP_START   7   //defpoints with start
+#define OP_GLOW         8   //glow value for next poly
 
 #define N_OPCODES (sizeof(opcode_table) / sizeof(*opcode_table))
 
-#define MAX_POINTS_PER_POLY		25
+#define MAX_POINTS_PER_POLY 25
 
-short	highest_texture_num;
-int	g3d_interp_outline;
+short highest_texture_num;
+int g3d_interp_outline;
 
-g3s_point *Interp_point_list=NULL;
+g3s_point *Interp_point_list = NULL;
 
 #define MAX_INTERP_COLORS 100
 

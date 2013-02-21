@@ -44,7 +44,7 @@ void tmap_scanline_flat(int y, fix xleft, fix xright)
 	// setup to call assembler scanline renderer
 
 	fx_y = y;
-	fx_xleft = xleft/F1_0;          // (xleft >> 16) != xleft/F1_0 for negative numbers, f2i caused random crashes
+	fx_xleft = xleft/F1_0;		// (xleft >> 16) != xleft/F1_0 for negative numbers, f2i caused random crashes
 	fx_xright = xright/F1_0;
 
 	if ( grd_curcanv->cv_fade_level >= GR_FADE_OFF )
