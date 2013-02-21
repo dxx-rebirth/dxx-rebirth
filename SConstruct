@@ -257,7 +257,7 @@ arch_sdlmixer = [
 'arch/sdl/digi_mixer.c',
 'arch/sdl/digi_mixer_music.c',
 'arch/sdl/jukebox.c'
-]       
+]
 
 # for opengl
 arch_ogl_sources = [
@@ -282,7 +282,7 @@ asm_sources = [
 
 # Acquire environment object...
 env = Environment(ENV = os.environ, tools = ['mingw'])
- 
+
 # Prettier build messages......
 if (verbosebuild == 0):
 	env["CCCOMSTR"]     = "Compiling $SOURCE ..."
@@ -291,7 +291,7 @@ if (verbosebuild == 0):
 	env["ARCOMSTR"]     = "Archiving $TARGET ..."
 	env["RANLIBCOMSTR"] = "Indexing $TARGET ..."
 
-# flags and stuff for all platforms
+# Flags and stuff for all platforms...
 env.Append(CPPFLAGS = ['-Wall', '-funsigned-char', '-Werror=implicit-int', '-Werror=implicit-function-declaration', '-std=c99', '-pedantic'])
 env.Append(CPPDEFINES = [('PROGRAM_NAME', '\\"' + str(PROGRAM_NAME) + '\\"'), ('D2XMAJORi', str(D2XMAJOR)), ('D2XMINORi', str(D2XMINOR)), ('D2XMICROi', str(D2XMICRO))])
 env.Append(CPPDEFINES = ['NETWORK', '_REENTRANT'])
@@ -472,7 +472,7 @@ Help(PROGRAM_NAME + ', SConstruct file help:' +
 	
 	Extra options (add them to command line, like 'scons extraoption=value'):
 	
-	'sharepath=[DIR]' (non-Mac OS *NIX only) use [DIR] for shared game data. [default: /usr/local/share/games/d2x-rebirth]
+	'sharepath=[DIR]'     (non-Mac OS *NIX only) use [DIR] for shared game data. [default: /usr/local/share/games/d2x-rebirth]
 	'opengl=[0/1]'        build with OpenGL support [default: 1]
 	'opengles=[0/1]'      build with OpenGL ES support [default: 0]
 	'opengles_lib=[NAME]' specify the name of the OpenGL ES library to link against
@@ -487,12 +487,12 @@ Help(PROGRAM_NAME + ', SConstruct file help:' +
 	'verbosebuild=[0/1]'  print out all compiler/linker messages during building [default: 0]
 	'raspberrypi=[0/1]'   build for Raspberry Pi (automatically sets opengles and opengles_lib) [default: 0]
 	'rpi_vc_path=[DIR]'   use [DIR] to look for VideoCore libraries/header files (RPi only)
- 		
- 	Default values:
+
+	Default values:
 	""" + ' sharepath = ' + DATA_DIR + """
 	""" + ' opengles_lib = ' + OGLES_LIB + """
 	""" + ' rpi_vc_path = ' + RPI_DEFAULT_VC_PATH + """
-	
+
 	Some influential environment variables:
 	  CC          C compiler command
 	  CFLAGS      C compiler flags
@@ -502,4 +502,5 @@ Help(PROGRAM_NAME + ', SConstruct file help:' +
 	  CXX         C++ compiler command
 	  CXXFLAGS    C++ compiler flags
         """)
+
 #EOF
