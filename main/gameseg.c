@@ -33,9 +33,6 @@ COPYRIGHT 1993-1998 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 #include "byteswap.h"
 #include "mission.h"
 
-#ifdef RCS
-static char rcsid[] = "$Id: gameseg.c,v 1.1.1.1 2006/03/17 19:45:01 zicodxx Exp $";
-#endif
 
 // How far a point can be from a plane, and still be "in" the plane
 #define PLANE_DIST_TOLERANCE	250

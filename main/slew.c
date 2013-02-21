@@ -33,11 +33,6 @@ COPYRIGHT 1993-1998 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 #include "editor/editor.h"
 #endif
 
-#ifdef RCS
-#pragma off (unreferenced)
-static char rcsid[] = "$Id: slew.c,v 1.1.1.1 2006/03/17 19:43:42 zicodxx Exp $";
-#pragma on (unreferenced)
-#endif
 
 //variables for slew system
 

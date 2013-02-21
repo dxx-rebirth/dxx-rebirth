@@ -8,9 +8,6 @@
 #include "player.h"
 #include "byteswap.h"
 
-#ifdef RCS
-static char rcsid[] = "$Id: player.c,v 1.1.1.1 2006/03/17 19:56:48 zicodxx Exp $";
-#endif
 
 void player_rw_swap(player_rw *p, int swap)
 {

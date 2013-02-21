@@ -17,9 +17,6 @@ COPYRIGHT 1993-1998 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
  *
  */
 
-#ifdef RCS
-static char rcsid[] = "$Id: func.c,v 1.1.1.1 2006/03/17 19:58:25 zicodxx Exp $";
-#endif
 
 #include <stdlib.h>
 #include <string.h>
