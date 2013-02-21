@@ -232,6 +232,13 @@ editor_sources = [
 'ui/userbox.c'
 ]
 
+# SDL_mixer sound implementation
+arch_sdlmixer = [
+'arch/sdl/digi_mixer.c',
+'arch/sdl/digi_mixer_music.c',
+'arch/sdl/jukebox.c'
+]
+
 # for opengl
 arch_ogl_sources = [
 'arch/ogl/gr.c',
@@ -251,13 +258,6 @@ asm_sources = [
 'texmap/tmapfade.asm',
 'texmap/tmap_lin.asm',
 'texmap/tmap_per.asm'
-]
-
-# SDL_mixer sound implementation
-arch_sdlmixer = [
-'arch/sdl/digi_mixer.c',
-'arch/sdl/digi_mixer_music.c', 
-'arch/sdl/jukebox.c'
 ]
 
 # Acquire environment object...
