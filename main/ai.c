@@ -1672,7 +1672,7 @@ void ai_local_read_n_swap(ai_local *ail, int n, int swap, PHYSFS_file *fp)
 	{
 		int j;
 		fix tmptime32 = 0;
-		
+
 		ail->player_awareness_type = PHYSFSX_readSXE32(fp, swap);
 		ail->retry_count = PHYSFSX_readSXE32(fp, swap);
 		ail->consecutive_retries = PHYSFSX_readSXE32(fp, swap);

@@ -721,7 +721,7 @@ void play_hmi (void * arg)
 			do
 			{
 				if (t_info[i].status == PLAYING)
-				  low_chunk = i;
+					low_chunk = i;
 				i++;
 			}
 			while((low_chunk <=0) && (i<n_chunks));
@@ -734,7 +734,7 @@ void play_hmi (void * arg)
 			for(i=1;i<n_chunks;i++)
 			{
 				if ((t_info[i].time < low_dtime) &&
-				    (t_info[i].status == PLAYING))
+					(t_info[i].status == PLAYING))
 				{
 					low_dtime = t_info[i].time;
 					low_chunk = i;
@@ -742,7 +742,7 @@ void play_hmi (void * arg)
 			}
 
 			if (low_dtime < 0)
-			  con_printf(CON_URGENT,"Serious warning: d_time negative!!!!!!\n");
+				con_printf(CON_URGENT,"Serious warning: d_time negative!!!!!!\n");
 
 			csec = 0.86 * low_dtime;
 
@@ -777,7 +777,7 @@ void play_hmi (void * arg)
 			//Check if the song has reached the end
 			stop = t_info[0].status;
 			for(i=1;i<n_chunks;i++)
-			  stop &= t_info[i].status;
+				stop &= t_info[i].status;
 
 			if((do_ipc(qid,rcv,IPC_NOWAIT) > 0) && (rcv->mtext[0]=='p'))
 			{

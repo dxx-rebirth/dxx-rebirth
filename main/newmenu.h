@@ -67,13 +67,13 @@ extern int newmenu_do1(char *title, char *subtitle, int nitems, newmenu_item *it
 // Same as above, only you can pass through what background bitmap to use.
 extern int newmenu_do2(char *title, char *subtitle, int nitems, newmenu_item *item, int (*subfunction)(newmenu *menu, d_event *event, void *userdata), void *userdata, int citem, char *filename);
 
-// Same as above, but returns menu instead of citem 
+// Same as above, but returns menu instead of citem
 extern newmenu *newmenu_do3(char *title, char *subtitle, int nitems, newmenu_item *item, int (*subfunction)(newmenu *menu, d_event *event, void *userdata), void *userdata, int citem, char *filename);
 
 // Tiny menu with GAME_FONT
 extern newmenu *newmenu_dotiny(char * title, char * subtitle, int nitems, newmenu_item * item, int TabsFlag, int (*subfunction)(newmenu *menu, d_event *event, void *userdata), void *userdata);
 
-// Basically the same as do2 but sets reorderitems flag for weapon priority menu a bit redundant to get lose of a global variable but oh well... 
+// Basically the same as do2 but sets reorderitems flag for weapon priority menu a bit redundant to get lose of a global variable but oh well...
 extern int newmenu_doreorder(char * title, char * subtitle, int nitems, newmenu_item *item, int (*subfunction)(newmenu *menu, d_event *event, void *userdata), void *userdata);
 
 // Sample Code:

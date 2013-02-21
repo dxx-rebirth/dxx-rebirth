@@ -758,7 +758,7 @@ void multi_compute_kill(int killer, int killed)
 		}
 		else
 			HUD_init_message(HM_MULTI, "%s %s", killed_name, TXT_SUICIDE);
-		
+
 		/* Bounty mode needs some lovin' */
 		if( Game_mode & GM_BOUNTY && killed_pnum == Bounty_target && multi_i_am_master() )
 		{

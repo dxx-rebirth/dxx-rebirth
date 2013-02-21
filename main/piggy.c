@@ -220,7 +220,7 @@ bitmap_index piggy_register_bitmap( grs_bitmap * bmp, char * name, int in_file )
 
 	temp.index = Num_bitmap_files;
 
-	if (!in_file)   {
+	if (!in_file) {
 #ifdef EDITOR
 		if ( GameArg.EdiMacData )
 			swap_0_255( bmp );
@@ -446,7 +446,7 @@ void piggy_init_pigfile(char *filename)
 	Num_bitmap_files = 1;
 
 	for (i=0; i<N_bitmaps; i++ )
-    {
+	{
 		int width;
 		grs_bitmap *bm = &GameBitmaps[i + 1];
 		
@@ -1066,24 +1066,24 @@ void piggy_bitmap_page_in( bitmap_index bitmap )
 
 	bmp = &GameBitmaps[i];
 
-	if ( bmp->bm_flags & BM_FLAG_PAGED_OUT )        {
+	if ( bmp->bm_flags & BM_FLAG_PAGED_OUT ) {
 		stop_time();
 
 	ReDoIt:
 		descent_critical_error = 0;
 		PHYSFSX_fseek( Piggy_fp, GameBitmapOffset[i], SEEK_SET );
-		if ( descent_critical_error )   {
+		if ( descent_critical_error ) {
 			piggy_critical_error();
 			goto ReDoIt;
 		}
 
-		gr_set_bitmap_flags(bmp, GameBitmapFlags[i]);
+		gr_set_bitmap_flags (bmp, GameBitmapFlags[i]);
 
-		if ( bmp->bm_flags & BM_FLAG_RLE )      {
+		if ( bmp->bm_flags & BM_FLAG_RLE ) {
 			int zsize = 0, pigsize = PHYSFS_fileLength(Piggy_fp);
 			descent_critical_error = 0;
 			zsize = PHYSFSX_readInt(Piggy_fp);
-			if ( descent_critical_error )   {
+			if ( descent_critical_error ) {
 				piggy_critical_error();
 				goto ReDoIt;
 			}
@@ -1097,7 +1097,7 @@ void piggy_bitmap_page_in( bitmap_index bitmap )
 			}
 			descent_critical_error = 0;
 			PHYSFS_read( Piggy_fp, &Piggy_bitmap_cache_data[Piggy_bitmap_cache_next+4], 1, zsize-4 );
-			if ( descent_critical_error )   {
+			if ( descent_critical_error ) {
 				piggy_critical_error();
 				goto ReDoIt;
 			}
@@ -1139,7 +1139,7 @@ void piggy_bitmap_page_in( bitmap_index bitmap )
 			}
 			descent_critical_error = 0;
 			PHYSFS_read( Piggy_fp, &Piggy_bitmap_cache_data[Piggy_bitmap_cache_next], 1, bmp->bm_h*bmp->bm_w );
-			if ( descent_critical_error )   {
+			if ( descent_critical_error ) {
 				piggy_critical_error();
 				goto ReDoIt;
 			}
@@ -1202,8 +1202,8 @@ void piggy_bitmap_page_out_all()
 	texmerge_flush();
 	rle_cache_flush();
 
-	for (i=0; i<Num_bitmap_files; i++ )             {
-		if ( GameBitmapOffset[i] > 0 )  {       // Don't page out bitmaps read from disk!!!
+	for (i=0; i<Num_bitmap_files; i++ ) {
+		if ( GameBitmapOffset[i] > 0 ) {	// Don't page out bitmaps read from disk!!!
 			GameBitmaps[i].bm_flags = BM_FLAG_PAGED_OUT;
 			gr_set_bitmap_data(&GameBitmaps[i], NULL);
 		}
@@ -1230,7 +1230,7 @@ void piggy_write_pigfile(char *filename)
 	PHYSFS_file *fp1,*fp2;
 	char tname[FILENAME_LEN];
 
-	for (i=0; i < Num_bitmap_files; i++ )   {
+	for (i=0; i < Num_bitmap_files; i++ ) {
 		bitmap_index bi;
 		bi.index = i;
 		PIGGY_PAGE_IN( bi );
@@ -1257,11 +1257,11 @@ void piggy_write_pigfile(char *filename)
 	change_filename_extension(tname,filename,"all");
 	fp2 = PHYSFSX_openWriteBuffered( tname );
 
-	for (i=1; i < Num_bitmap_files; i++ )   {
+	for (i=1; i < Num_bitmap_files; i++ ) {
 		int *size;
 		grs_bitmap *bmp;
 
-		{               
+		{
 			char * p, *p1;
 			p = strchr(AllBitmaps[i].name, '#');
 			if (p) {   // this is an ABM == animated bitmap
@@ -1292,7 +1292,7 @@ void piggy_write_pigfile(char *filename)
 		bmh.offset = data_offset - bitmap_data_start;
 		PHYSFSX_fseek( pig_fp, data_offset, SEEK_SET );
 
-		if ( bmp->bm_flags & BM_FLAG_RLE )      {
+		if ( bmp->bm_flags & BM_FLAG_RLE ) {
 			size = (int *)bmp->bm_data;
 			PHYSFS_write( pig_fp, bmp->bm_data, sizeof(ubyte), *size );
 			data_offset += *size;
@@ -1312,16 +1312,16 @@ void piggy_write_pigfile(char *filename)
 		bmh.height = GameBitmaps[i].bm_h;
 		bmh.wh_extra |= ((GameBitmaps[i].bm_h >> 4) & 0xf0);
 		bmh.flags = GameBitmaps[i].bm_flags;
-		if (piggy_is_substitutable_bitmap( AllBitmaps[i].name, subst_name ))    {
+		if (piggy_is_substitutable_bitmap( AllBitmaps[i].name, subst_name )) {
 			bitmap_index other_bitmap;
 			other_bitmap = piggy_find_bitmap( subst_name );
 			GameBitmapXlat[i] = other_bitmap.index;
 			bmh.flags |= BM_FLAG_PAGED_OUT;
-		} else  {
+		} else {
 			bmh.flags &= ~BM_FLAG_PAGED_OUT;
 		}
 		bmh.avg_color=GameBitmaps[i].avg_color;
-		PHYSFS_write(pig_fp, &bmh, sizeof(DiskBitmapHeader), 1);  // Mark as a bitmap
+		PHYSFS_write(pig_fp, &bmh, sizeof(DiskBitmapHeader), 1);	// Mark as a bitmap
 	}
 
 	PHYSFS_close(pig_fp);
@@ -1465,7 +1465,7 @@ int piggy_does_bitmap_exist_slow( char * name )
 {
 	int i;
 
-	for (i=0; i<Num_bitmap_files; i++ )     {
+	for (i=0; i<Num_bitmap_files; i++ ) {
 		if ( !strcmp( AllBitmaps[i].name, name) )
 			return 1;
 	}
@@ -1493,12 +1493,12 @@ char * gauge_bitmap_names[NUM_GAUGE_BITMAPS] = {
 int piggy_is_gauge_bitmap( char * base_name )
 {
 	int i;
-	for (i=0; i<NUM_GAUGE_BITMAPS; i++ )    {
-		if ( !d_stricmp( base_name, gauge_bitmap_names[i] ))      
+	for (i=0; i<NUM_GAUGE_BITMAPS; i++ ) {
+		if ( !d_stricmp( base_name, gauge_bitmap_names[i] ))
 			return 1;
 	}
 
-	return 0;       
+	return 0;
 }
 
 int piggy_is_substitutable_bitmap( char * name, char * subst_name )
@@ -1509,13 +1509,13 @@ int piggy_is_substitutable_bitmap( char * name, char * subst_name )
 	
 	strcpy( subst_name, name );
 	p = strchr( subst_name, '#' );
-	if ( p )        {
+	if ( p ) {
 		frame = atoi( &p[1] );
 		*p = 0;
 		strcpy( base_name, subst_name );
-		if ( !piggy_is_gauge_bitmap( base_name ))       {
+		if ( !piggy_is_gauge_bitmap( base_name )) {
 			sprintf( subst_name, "%s#%d", base_name, frame+1 );
-			if ( piggy_does_bitmap_exist_slow( subst_name )  )      {
+			if ( piggy_does_bitmap_exist_slow( subst_name )  ) {
 				if ( frame & 1 ) {
 					sprintf( subst_name, "%s#%d", base_name, frame-1 );
 					return 1;

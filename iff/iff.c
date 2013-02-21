@@ -922,7 +922,7 @@ int iff_write_bitmap(char *ofilename,grs_bitmap *bm,ubyte *palette)
 	ret = write_pbm(ofile,&bmheader,compression_on);
 
 	PHYSFS_close(ofile);
-	
+
 	return ret;
 }
 

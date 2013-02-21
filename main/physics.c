@@ -42,7 +42,7 @@ COPYRIGHT 1993-1999 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 
 //Global variables for physics system
 
-#define ROLL_RATE 	0x2000
+#define ROLL_RATE	0x2000
 #define DAMP_ANG 	0x400 //min angle to bank
 #define TURNROLL_SCALE	(0x4ec4/2)
 #define MAX_OBJECT_VEL	i2f(100)
@@ -81,7 +81,7 @@ void do_physics_align_object( object * obj )
 			vms_vector _tv1;
 			get_side_normal( &Segments[obj->segnum], i, 0, &_tv1 );
 			d = vm_vec_dot(&_tv1,&obj->orient.uvec);
-#else					
+#else
 			d = vm_vec_dot(&Segments[obj->segnum].sides[i].normals[0],&obj->orient.uvec);
 #endif
 
@@ -206,7 +206,7 @@ void do_physics_sim_rot(object *obj)
 {
 	vms_angvec	tangles;
 	vms_matrix	rotmat,new_orient;
-	//fix			rotdrag_scale;
+	//fix		rotdrag_scale;
 	physics_info *pi;
 
 	Assert(FrameTime > 0);	//Get MATT if hit this!
@@ -274,7 +274,7 @@ void do_physics_sim_rot(object *obj)
 
 	tangles.p = fixmul(obj->mtype.phys_info.rotvel.x,FrameTime);
 	tangles.h = fixmul(obj->mtype.phys_info.rotvel.y,FrameTime);
-	tangles.b  = fixmul(obj->mtype.phys_info.rotvel.z,FrameTime);
+	tangles.b = fixmul(obj->mtype.phys_info.rotvel.z,FrameTime);
 
 	vm_angles_2_matrix(&rotmat,&tangles);
 	vm_matrix_x_matrix(&new_orient,&obj->orient,&rotmat);

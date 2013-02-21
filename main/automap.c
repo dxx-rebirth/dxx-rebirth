@@ -819,7 +819,7 @@ int automap_handler(window *wind, d_event *event, automap *am)
 			Automap_active = 0;
 			return 0;	// continue closing
 			break;
-			
+
 		default:
 			return 0;
 			break;

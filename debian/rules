@@ -30,7 +30,7 @@ build:  patch build-stamp
 build-stamp:
 	$(SCONS) $(SCONSFLAGS)
 	strip $(BINARY)
-	touch $@   
+	touch $@
 
 clean:
 	$(SCONS) -c

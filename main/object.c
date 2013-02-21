@@ -185,33 +185,33 @@ void object_goto_prev_viewer()
 #endif
 
 object *obj_find_first_of_type (int type)
- {
-  int i;
+{
+	int i;
 
-  for (i=0;i<=Highest_object_index;i++)
-	if (Objects[i].type==type)
-	 return (&Objects[i]);
-  return ((object *)NULL);
- }
+	for (i=0;i<=Highest_object_index;i++)
+		if (Objects[i].type==type)
+			return (&Objects[i]);
+	return ((object *)NULL);
+}
 
 int obj_return_num_of_type (int type)
- {
-  int i,count=0;
+{
+	int i,count=0;
 
-  for (i=0;i<=Highest_object_index;i++)
-	if (Objects[i].type==type)
-	 count++;
-  return (count);
- }
+	for (i=0;i<=Highest_object_index;i++)
+		if (Objects[i].type==type)
+			count++;
+	return (count);
+}
 int obj_return_num_of_typeid (int type,int id)
- {
-  int i,count=0;
+{
+	int i,count=0;
 
-  for (i=0;i<=Highest_object_index;i++)
-	if (Objects[i].type==type && Objects[i].id==id)
-	 count++;
-  return (count);
- }
+	for (i=0;i<=Highest_object_index;i++)
+		if (Objects[i].type==type && Objects[i].id==id)
+			count++;
+	return (count);
+}
 
 //draw an object that has one bitmap & doesn't rotate
 void draw_object_blob(object *obj,bitmap_index bmi)
@@ -246,7 +246,7 @@ void draw_object_tmap_rod(object *obj,bitmap_index bitmapi,int lighted)
 
 	PIGGY_PAGE_IN(bitmapi);
 
-   bitmap->bm_handle = bitmapi.index;
+	bitmap->bm_handle = bitmapi.index;
 
 	vm_vec_copy_scale(&delta,&obj->orient.uvec,obj->size);
 
@@ -499,10 +499,10 @@ void draw_polygon_object(object *obj)
 		} else {
 			bitmap_index * alt_textures = NULL;
 	
-			#ifdef NETWORK
+#ifdef NETWORK
 			if ( obj->rtype.pobj_info.alt_textures > 0 )
 				alt_textures = multi_player_textures[obj->rtype.pobj_info.alt_textures-1];
-			#endif
+#endif
 
 			//	Snipers get bright when they fire.
 			if (Ai_local_info[obj-Objects].next_fire < F1_0/8) {
@@ -1607,12 +1607,12 @@ void dead_player_frame(void)
 				
 				drop_player_eggs(ConsoleObject);
 				Player_eggs_dropped = 1;
-				#ifdef NETWORK
+#ifdef NETWORK
 				if (Game_mode & GM_MULTI)
 				{
 					multi_send_player_explode(MULTI_PLAYER_EXPLODE);
 				}
-				#endif
+#endif
 
 				explode_badass_player(ConsoleObject);
 
@@ -1644,12 +1644,12 @@ void dead_player_frame(void)
 				
 				drop_player_eggs(ConsoleObject);
 				Player_eggs_dropped = 1;
-				#ifdef NETWORK
+#ifdef NETWORK
 				if (Game_mode & GM_MULTI)
 				{
 					multi_send_player_explode(MULTI_PLAYER_EXPLODE);
 				}
-				#endif
+#endif
 			}
 
 			DoPlayerDead();		//kill_player();
@@ -2388,7 +2388,7 @@ void object_rw_swap(object_rw *obj, int swap)
 {
 	if (!swap)
 		return;
-	
+
 	obj->signature     = SWAPINT(obj->signature);
 	obj->next          = SWAPSHORT(obj->next);
 	obj->prev          = SWAPSHORT(obj->prev);

@@ -482,17 +482,17 @@ void DoGameOver()
 //update various information about the player
 void update_player_stats()
 {
-		Players[Player_num].time_level += FrameTime;	//the never-ending march of time...
-		if ( Players[Player_num].time_level > i2f(3600) )	{
-			Players[Player_num].time_level -= i2f(3600);
-			Players[Player_num].hours_level++;
-		}
+	Players[Player_num].time_level += FrameTime;	//the never-ending march of time...
+	if ( Players[Player_num].time_level > i2f(3600) )	{
+		Players[Player_num].time_level -= i2f(3600);
+		Players[Player_num].hours_level++;
+	}
 
-		Players[Player_num].time_total += FrameTime;	//the never-ending march of time...
-		if ( Players[Player_num].time_total > i2f(3600) )	{
-			Players[Player_num].time_total -= i2f(3600);
-			Players[Player_num].hours_total++;
-		}
+	Players[Player_num].time_total += FrameTime;	//the never-ending march of time...
+	if ( Players[Player_num].time_total > i2f(3600) )	{
+		Players[Player_num].time_total -= i2f(3600);
+		Players[Player_num].hours_total++;
+	}
 }
 
 //hack to not start object when loading level
@@ -964,9 +964,9 @@ void do_screen_message(char *fmt, ...)
 	gr_init_bitmap_data(&background);
 	if (pcx_read_bitmap(STARS_BACKGROUND, &background, BM_LINEAR, gr_palette) != PCX_ERROR_NONE)
 		return;
-	
+
 	gr_palette_load(gr_palette);
-	
+
 	va_start(arglist, fmt);
 	vsprintf(msg, fmt, arglist);
 	va_end(arglist);
@@ -1746,7 +1746,7 @@ void InitPlayerPosition(int random_flag)
 	Assert(NewPlayer < NumNetPlayerPositions);
 	ConsoleObject->pos = Player_init[NewPlayer].pos;
 	ConsoleObject->orient = Player_init[NewPlayer].orient;
- 	obj_relink(ConsoleObject-Objects,Player_init[NewPlayer].segnum);
+	obj_relink(ConsoleObject-Objects,Player_init[NewPlayer].segnum);
 	reset_player_object();
 	reset_cruise();
 }

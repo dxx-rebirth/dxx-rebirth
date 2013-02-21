@@ -12,10 +12,10 @@
 void player_rw_swap(player_rw *p, int swap)
 {
 	int i;
-	
+
 	if (!swap)
 		return;
-	
+
 	p->objnum = SWAPINT(p->objnum);
 	p->n_packets_got = SWAPINT(p->n_packets_got);
 	p->n_packets_sent = SWAPINT(p->n_packets_sent);

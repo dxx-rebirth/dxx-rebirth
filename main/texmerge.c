@@ -157,7 +157,7 @@ grs_bitmap * texmerge_get_cached_bitmap( int tmap_bottom, int tmap_top )
 		gr_free_bitmap(Cache[least_recently_used].bitmap);
 	Cache[least_recently_used].bitmap = gr_create_bitmap(bitmap_bottom->bm_w,  bitmap_bottom->bm_h);
 #ifdef OGL
-        ogl_freebmtexture(Cache[least_recently_used].bitmap);
+	ogl_freebmtexture(Cache[least_recently_used].bitmap);
 #endif
 
 	if (bitmap_top->bm_flags & BM_FLAG_SUPER_TRANSPARENT)	{

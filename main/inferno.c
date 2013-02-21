@@ -151,7 +151,7 @@ void print_commandline_help()
 	printf( "  -gl_fixedfont                 Do not scale fonts to current resolution\n");
 #endif // OGL
 
-#if  defined(USE_UDP)
+#if defined(USE_UDP)
 	printf( "\n Multiplayer:\n\n");
 	printf( "  -udp_hostaddr <s>             Use IP address/Hostname <s> for manual game joining\n\t\t\t\t(default: %s)\n", UDP_MANUAL_ADDR_DEFAULT);
 	printf( "  -udp_hostport <n>             Use UDP port <n> for manual game joining (default: %i)\n", UDP_PORT_DEFAULT);

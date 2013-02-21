@@ -21,7 +21,7 @@
 //gl extensions.
 #ifndef GL_ARB_multitexture
 #define GL_ARB_multitexture 1
-#define GL_TEXTURE0_ARB 0x84C0 
+#define GL_TEXTURE0_ARB 0x84C0
 #define GL_TEXTURE1_ARB 0x84C1
 #define GL_MAX_TEXTURE_UNITS_ARB 0x84E2
 #endif
@@ -494,7 +494,7 @@
 #define wglSwapMultipleBuffers dwglSwapMultipleBuffers
 #endif
 #endif
- 
+
 typedef void (OGLFUNCCALL *glAccum_fp)(GLenum op, GLfloat value);
 typedef void (OGLFUNCCALL *glAlphaFunc_fp)(GLenum func, GLclampf ref);
 typedef GLboolean (OGLFUNCCALL *glAreTexturesResident_fp)(GLsizei n, const GLuint *textures, GLboolean *residences);
@@ -1672,7 +1672,7 @@ bool OpenGL_LoadLibrary(bool load)
 		dglVertex4sv = (glVertex4sv_fp)dll_GetSymbol(OpenGLModuleHandle,"glVertex4sv");
 		dglVertexPointer = (glVertexPointer_fp)dll_GetSymbol(OpenGLModuleHandle,"glVertexPointer");
 		dglViewport = (glViewport_fp)dll_GetSymbol(OpenGLModuleHandle,"glViewport");
-	
+
 #ifdef _WIN32
 		dwglCopyContext = (wglCopyContext_fp)dll_GetSymbol(OpenGLModuleHandle,"wglCopyContext");
 		dwglCreateContext = (wglCreateContext_fp)dll_GetSymbol(OpenGLModuleHandle,"wglCreateContext");

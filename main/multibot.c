@@ -526,7 +526,7 @@ multi_send_robot_explode(int objnum, int killer,char isthief)
 
 	s = (short)objnum_local_to_remote(objnum, (sbyte *)&multibuf[loc+2]);
 	PUT_INTEL_SHORT(multibuf+loc, s);                       loc += 3;
-	
+
 	multibuf[loc]=isthief;   loc++;
 		
 	multi_send_data(multibuf, loc, 2);

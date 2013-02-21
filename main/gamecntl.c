@@ -1846,7 +1846,7 @@ int ReadControls(d_event *event)
 		if (HandleDeathInput(event))
 			return 1;
 
-	if (Newdemo_state == ND_STATE_PLAYBACK )
+	if (Newdemo_state == ND_STATE_PLAYBACK)
 		update_vcr_state();
 
 	if (event->type == EVENT_KEY_COMMAND)

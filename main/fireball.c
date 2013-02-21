@@ -92,7 +92,7 @@ object *object_create_explosion_sub(object *objp, short segnum, vms_vector * pos
 		fix damage;
 		int i;
 		object * obj0p = &Objects[0];
-					 
+
 		// -- now legal for badass explosions on a wall. Assert(objp != NULL);
 
 		for (i=0; i<=Highest_object_index; i++ )	{

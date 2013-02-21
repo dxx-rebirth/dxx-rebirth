@@ -15,18 +15,18 @@
 #include "loadgl.h"
 int ogl_init_load_library(void);
 #else
-#define GL_GLEXT_LEGACY
-#if defined(__APPLE__) && defined(__MACH__)
-#include <OpenGL/gl.h>
-#include <OpenGL/glu.h>
-#else
-#define GL_GLEXT_PROTOTYPES
+# define GL_GLEXT_LEGACY
+# if defined(__APPLE__) && defined(__MACH__)
+#  include <OpenGL/gl.h>
+#  include <OpenGL/glu.h>
+# else
+#  define GL_GLEXT_PROTOTYPES
 #  ifdef OGLES
 #  include <GLES/gl.h>
 #  else
 #  include <GL/gl.h>
 #  endif
-#endif
+# endif
 # ifndef GL_CLAMP_TO_EDGE	// hack for Mac OS 9, others?
 #  define GL_CLAMP_TO_EDGE GL_CLAMP
 # endif
