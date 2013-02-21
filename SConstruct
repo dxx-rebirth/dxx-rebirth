@@ -407,7 +407,7 @@ if (editor == 1):
 if (ipv6 == 1):
 	env.Append(CPPDEFINES = ['IPv6'])
 
-# UDP Support?
+# UDP support?
 if (use_udp == 1):
 	env.Append(CPPDEFINES = ['USE_UDP'])
 	common_sources += ['main/net_udp.c']
@@ -455,7 +455,7 @@ Help(PROGRAM_NAME + ', SConstruct file help:' +
 	'use_udp=[0/1]'       enable UDP support [default: 1]
 	'use_tracker=[0/1]'   enable Tracker support (requires udp) [default :1]
 	'verbosebuild=[0/1]'  print out all compiler/linker messages during building [default: 0]
-		
+
 	Default values:
 	""" + ' sharepath = ' + DATA_DIR + """
 
