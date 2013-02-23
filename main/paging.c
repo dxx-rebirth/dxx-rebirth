@@ -337,38 +337,4 @@ void paging_touch_all()
 
 	start_time();
 	reset_cockpit();		//force cockpit redraw next time
-
-#ifdef PSX_BUILD_TOOLS
-	{
-		extern int Current_level_num;
-		extern ushort GameBitmapXlat[MAX_BITMAP_FILES];
-		PHYSFS_file * fp;
-		char fname[128];
-		int i;
-
-		if ( Current_level_num < 0 )
-			sprintf( fname, "levels%d.pag", -Current_level_num );
-		else	
-			sprintf( fname, "level%02d.pag", Current_level_num );
-		fp = PHYSFSX_openWriteBuffered( fname );
-		for (i=0; i<MAX_BITMAP_FILES;i++ ) {
-			int paged_in = 1;
-			piggy_get_bitmap_name(i,fname);
-
-			if (GameBitmaps[i].bm_flags & BM_FLAG_PAGED_OUT)
-				paged_in = 0;
-			if (GameBitmapXlat[i]!=i)
-				paged_in = 0;
-			if ( (i==47) || (i==48) )               // Mark red mplayer ship textures as paged in.
-				paged_in = 1;
-	
-			if ( !paged_in )
-				PHYSFSX_printf( fp, "0,\t// Bitmap %d (%s)\n", i, fname );
-			else
-				PHYSFSX_printf( fp, "1,\t// Bitmap %d (%s)\n", i, fname );
-		}
-		PHYSFS_close(fp);
-	}
-#endif
-
 }
