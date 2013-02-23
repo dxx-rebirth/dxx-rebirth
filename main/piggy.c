@@ -35,9 +35,6 @@ COPYRIGHT 1993-1998 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 #include "gamefont.h"
 #include "rle.h"
 #include "screens.h"
-#ifdef BITMAP_SELECTOR
-#include "u_dpmi.h"
-#endif
 #include "snddecom.h"
 #include "console.h"
 #include "piggy.h"
@@ -691,13 +688,6 @@ void piggy_bitmap_page_in( bitmap_index bitmap )
 				swap_0_255(bmp);
 			Piggy_bitmap_cache_next+=bmp->bm_h*bmp->bm_w;
 		}
-
-#ifdef BITMAP_SELECTOR
-		if ( bmp->bm_selector ) {
-			if (!dpmi_modify_selector_base( bmp->bm_selector, bmp->bm_data ))
-				Error( "Error modifying selector base in piggy.c\n" );
-		}
-		#endif
 
 		compute_average_rgb(bmp, bmp->avg_color_rgb);
 

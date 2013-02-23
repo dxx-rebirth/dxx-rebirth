@@ -22,7 +22,6 @@ COPYRIGHT 1993-1998 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 #include "u_mem.h"
 #include "gr.h"
 #include "grdef.h"
-#include "u_dpmi.h"
 #include "error.h"
 #ifdef OGL
 #include "ogl_init.h"
@@ -68,9 +67,6 @@ void gr_init_bitmap( grs_bitmap *bm, int mode, int x, int y, int w, int h, int b
 	bm->bm_parent=NULL;bm->gltexture=NULL;
 #endif
 	gr_set_bitmap_data (bm, data);
-#ifdef BITMAP_SELECTOR
-	bm->bm_selector = 0;
-#endif
 }
 
 void gr_init_bitmap_alloc( grs_bitmap *bm, int mode, int x, int y, int w, int h, int bytesperline)
@@ -249,17 +245,6 @@ void gr_remap_bitmap_good( grs_bitmap * bmp, ubyte * palette, int transparent_co
 	if ( (super_transparent_color>=0) && (super_transparent_color<=255) && (freq[super_transparent_color]>0) )
 		gr_set_super_transparent (bmp, 1);
 }
-
-#ifdef BITMAP_SELECTOR
-int gr_bitmap_assign_selector( grs_bitmap * bmp )
-{
-	if (!dpmi_allocate_selector( bmp->bm_data, bmp->bm_w*bmp->bm_h, &bmp->bm_selector )) {
-		bmp->bm_selector = 0;
-		return 1;
-	}
-	return 0;
-}
-#endif
 
 void gr_bitmap_check_transparency( grs_bitmap * bmp )
 {

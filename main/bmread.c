@@ -197,9 +197,6 @@ bitmap_index bm_load_sub(int skip, char * filename )
 
 	MALLOC( new, grs_bitmap, 1 );
 	iff_error = iff_read_bitmap(filename,new,BM_LINEAR,newpal);
-#ifdef BITMAP_SELECTOR
-	new->bm_selector=0;
-#endif
 	if (iff_error != IFF_NO_ERROR)		{
 		Error("File %s - IFF error: %s",filename,iff_errormsg(iff_error));
 	}

@@ -13,9 +13,6 @@
 #include "hash.h"
 #include "u_mem.h"
 #include "error.h"
-#ifdef BITMAP_SELECTOR
-#include "u_dpmi.h"
-#endif
 #include "custom.h"
 
 //#define D2TMAP_CONV // used for testing
@@ -329,11 +326,6 @@ int load_pigpog(char *pogname)
 			gr_set_bitmap_flags(bmp, cip->flags & 255);
 			bmp->avg_color = cip->flags >> 8;
 
-#ifdef BITMAP_SELECTOR
-			if ( bmp->bm_selector )
-				if (!dpmi_modify_selector_base( bmp->bm_selector, bmp->bm_data ))
-					Error( "Error modifying selector base in custom.c\n" );
-#endif
 			if ( cip->flags & BM_FLAG_RLE )
 			{
 				int *ip = (int *)p;
@@ -639,12 +631,6 @@ void custom_remove()
 			else
 			{
 				gr_set_bitmap_flags(bmp, bmo->bm_flags & 0x7f);
-#ifdef BITMAP_SELECTOR
-				if ( bmp->bm_selector )
-					if (!dpmi_modify_selector_base( bmp->bm_selector, bmp->bm_data ))
-						Error( "Error modifying selector base in custom.c\n" );
-#endif
-
 			}
 			bmo->bm_flags = 0;
 		}

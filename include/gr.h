@@ -385,17 +385,6 @@ extern void gr_palette_step_up( int r, int g, int b );
 
 extern void gr_bitmap_check_transparency( grs_bitmap * bmp );
 
-#ifdef BITMAP_SELECTOR
-// Allocates a selector that has a base address at 'address' and length 'size'.
-// Returns 0 if successful... BE SURE TO CHECK the return value since there
-// is a limited number of selectors available!!!
-extern int get_selector( void * address, int size, unsigned int * selector );
-
-// Assigns a selector to a bitmap. Returns 0 if successful.  BE SURE TO CHECK
-// this return value since there is a limited number of selectors!!!!!!!
-extern int gr_bitmap_assign_selector( grs_bitmap * bmp );
-#endif
-
 #define BM_RGB(r,g,b) ( (((r)&31)<<10) | (((g)&31)<<5) | ((b)&31) )
 #define BM_XRGB(r,g,b) gr_find_closest_color( (r)*2,(g)*2,(b)*2 )
 

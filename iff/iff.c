@@ -496,9 +496,6 @@ int convert_rgb15(grs_bitmap *bm,iff_bitmap_header *bmheader)
 void copy_iff_to_grs(grs_bitmap *bm,iff_bitmap_header *bmheader)
 {
 	gr_init_bitmap (bm, bmheader->type, 0, 0, bmheader->w, bmheader->h, bmheader->w, bmheader->raw_data);
-#ifdef BITMAP_SELECTOR
-        bm->bm_selector = 0;
-#endif
 }
 
 //if bm->bm_data is set, use it (making sure w & h are correct), else
