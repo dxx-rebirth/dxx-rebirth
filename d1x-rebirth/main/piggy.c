@@ -855,9 +855,6 @@ void piggy_dump_all()
 			GameBitmapXlat[i] = other_bitmap.index;
 			bmh.flags |= BM_FLAG_PAGED_OUT;
 		} else {
-#ifdef BUILD_PSX_DATA
-			count_colors( i, &GameBitmaps[i] );
-#endif
 			bmh.flags &= ~BM_FLAG_PAGED_OUT;
 		}
 		bmh.avg_color=GameBitmaps[i].avg_color;
@@ -904,14 +901,6 @@ void piggy_dump_all()
 
 	PHYSFS_close(fp1);
 	PHYSFS_close(fp2);
-#endif
-
-#ifdef BUILD_PSX_DATA
-	fp = PHYSFSX_openWriteBuffered( "psx/descent.dat" );
-	PHYSFS_write( fp, &i, sizeof(int), 1 );	
-	bm_write_all(fp);
-	PHYSFS_write( fp, GameBitmapXlat, sizeof(ushort)*MAX_BITMAP_FILES, 1 );
-	PHYSFS_close(fp);
 #endif
 
 	// Never allow the game to run after building pig.
