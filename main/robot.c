@@ -277,7 +277,7 @@ int robot_info_read_n(robot_info *ri, int n, PHYSFS_file *fp)
 		for (j = 0; j < NDL; j++)
 			ri[i].max_speed[j] = PHYSFSX_readFix(fp);
 		for (j = 0; j < NDL; j++)
-			ri[i].circle_distance[i] = PHYSFSX_readFix(fp);
+			ri[i].circle_distance[j] = PHYSFSX_readFix(fp);
 		PHYSFS_read(fp, ri[i].rapidfire_count, NDL, 1);
 
 		PHYSFS_read(fp, ri[i].evade_speed, NDL, 1);
