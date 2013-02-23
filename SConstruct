@@ -9,10 +9,10 @@ PROGRAM_NAME = 'D2X-Rebirth'
 target = 'd2x-rebirth'
 
 # version number
-D2XMAJOR = 0
-D2XMINOR = 57
-D2XMICRO = 3
-VERSION_STRING = ' v' + str(D2XMAJOR) + '.' + str(D2XMINOR) + '.' + str(D2XMICRO)
+VERSION_MAJOR = 0
+VERSION_MINOR = 57
+VERSION_MICRO = 3
+VERSION_STRING = ' v' + str(VERSION_MAJOR) + '.' + str(VERSION_MINOR) + '.' + str(VERSION_MICRO)
 
 # installation path
 PREFIX = str(ARGUMENTS.get('prefix', '/usr/local'))
@@ -293,7 +293,7 @@ if (verbosebuild == 0):
 
 # Flags and stuff for all platforms...
 env.Append(CPPFLAGS = ['-Wall', '-funsigned-char', '-Werror=implicit-int', '-Werror=implicit-function-declaration', '-std=c99', '-pedantic'])
-env.Append(CPPDEFINES = [('PROGRAM_NAME', '\\"' + str(PROGRAM_NAME) + '\\"'), ('D2XMAJORi', str(D2XMAJOR)), ('D2XMINORi', str(D2XMINOR)), ('D2XMICROi', str(D2XMICRO))])
+env.Append(CPPDEFINES = [('PROGRAM_NAME', '\\"' + str(PROGRAM_NAME) + '\\"'), ('D2XMAJORi', str(VERSION_MAJOR)), ('D2XMINORi', str(VERSION_MINOR)), ('D2XMICROi', str(VERSION_MICRO))])
 env.Append(CPPDEFINES = ['NETWORK', '_REENTRANT'])
 env.Append(CPPPATH = ['include', 'main', 'arch/include'])
 libs = ['physfs', 'm']
@@ -343,9 +343,9 @@ elif sys.platform == 'darwin':
 		print "including SDL_mixer"
 		lflags += ' -framework SDL_mixer'
 	sys.path += ['./arch/cocoa']
-	VERSION = str(D2XMAJOR) + '.' + str(D2XMINOR)
-	if (D2XMICRO):
-		VERSION += '.' + str(D2XMICRO)
+	VERSION = str(VERSION_MAJOR) + '.' + str(VERSION_MINOR)
+	if (VERSION_MICRO):
+		VERSION += '.' + str(VERSION_MICRO)
 	env['VERSION_NUM'] = VERSION
 	env['VERSION_NAME'] = PROGRAM_NAME + ' v' + VERSION
 	import tool_bundle
