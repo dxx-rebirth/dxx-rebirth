@@ -308,7 +308,7 @@ elif sys.platform == 'darwin':
 	osdef = '__APPLE__'
 	sharepath = ''
 	env.Append(CPPDEFINES = ['__unix__'])
-	no_asm = 1
+	asm = 0
 	ogldefines = ['OGL']
 	common_sources += ['arch/cocoa/SDLMain.m', 'arch/carbon/messagebox.c']
 	ogllibs = ''
