@@ -115,8 +115,6 @@ COPYRIGHT 1993-1998 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 
 #include "vclip.h"
 
-//#define HOSTAGE_FACES	1		//if defined, hostage faces are in
-
 #define HOSTAGE_SIZE        i2f(5)  // 3d size of a hostage
 
 #define MAX_HOSTAGE_TYPES		1
@@ -143,8 +141,6 @@ extern int Num_hostages;
 
 extern int Hostage_vclip_num[MAX_HOSTAGE_TYPES];    // for each type of hostage
 
-extern vclip Hostage_face_clip[MAX_HOSTAGES];
-
 extern hostage_data Hostages[MAX_HOSTAGES];
 
 void draw_hostage(object *obj);
@@ -160,13 +156,5 @@ int hostage_get_next_slot();
 int hostage_is_valid( int hostage_num );
 int hostage_object_is_valid( int objnum  );
 void hostage_init_info( int objnum );
-
-#ifdef HOSTAGE_FACES
-int hostage_is_vclip_playing();
-void stop_all_hostage_clips();
-#else
-#define hostage_is_vclip_playing() (0)
-#endif
-
 
 #endif

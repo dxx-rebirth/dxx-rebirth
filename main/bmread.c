@@ -371,9 +371,6 @@ int gamedata_read_tbl(int pc_shareware)
 		TmapInfo[i].flags = 0;
 	}
 
-	for (i=0; i<MAX_HOSTAGES; i++ )
-		Hostage_face_clip[i].num_frames=0;
-
 	Num_effects = 0;
 	for (i=0; i<MAX_EFFECTS; i++ ) {
 		//Effects[i].bm_ptr = (grs_bitmap **) -1;
@@ -512,7 +509,6 @@ int gamedata_read_tbl(int pc_shareware)
 			else IFTOK("$POWERUP")			{bm_read_powerup(0);		continue;}
 			else IFTOK("$POWERUP_UNUSED")	{bm_read_powerup(1);		continue;}
 			else IFTOK("$HOSTAGE")			{bm_read_hostage();		continue;}
-			else IFTOK("$HOSTAGE_FACE")	{bm_read_hostage_face(skip, pc_shareware);continue;}
 			else IFTOK("$ROBOT")				{bm_read_robot(skip);			continue;}
 			else IFTOK("$WEAPON")			{bm_read_weapon(skip, 0);		continue;}
 			else IFTOK("$WEAPON_UNUSED")	{bm_read_weapon(skip, 1);		continue;}
@@ -1789,14 +1785,6 @@ void bm_read_hostage_face(int skip, int pc_shareware)
 	if (!pc_shareware)
 	{
 		Assert(clip_num>=0 && clip_num<MAX_HOSTAGES);
-
-		ab_load(skip, abm_name, Hostage_face_clip[clip_num].frames, &Hostage_face_clip[clip_num].num_frames );
-
-		Assert(Hostage_face_clip[clip_num].num_frames < MAX_BITMAPS_PER_BRUSH);
-
-		Hostage_face_clip[clip_num].play_time = time;
-		Hostage_face_clip[clip_num].sound_num = sound_num;
-		Hostage_face_clip[clip_num].frame_time = time/Hostage_face_clip[clip_num].num_frames;
 	}
 }
 

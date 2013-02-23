@@ -1192,10 +1192,6 @@ int load_level(const char * filename_passed)
 		return 3;
 	}
 
-	#ifdef HOSTAGE_FACES
-	PHYSFSX_fseek(LoadFile,hostagetext_offset,SEEK_SET);
-	load_hostage_data(LoadFile,(version>=1));
-	#endif
 	(void)hostagetext_offset;
 
 	//======================== CLOSE FILE =============================
@@ -1525,9 +1521,6 @@ int save_level_sub(char * filename, int compiled_version)
 	save_game_data(SaveFile);
 	hostagetext_offset = PHYSFS_tell(SaveFile);
 
-	#ifdef HOSTAGE_FACES
-	save_hostage_data(SaveFile);
-	#endif
 
 	PHYSFS_seek(SaveFile, sizeof(int) + sizeof(Gamesave_current_version));
 	PHYSFS_writeSLE32(SaveFile, minedata_offset);
@@ -1559,38 +1552,6 @@ int save_level(char * filename)
 
 	return r1;
 }
-
-
-#ifdef HOSTAGE_FACES
-void save_hostage_data(PHYSFS_file * fp)
-{
-	int i,num_hostages=0;
-
-	// Find number of hostages in mine...
-	for (i=0; i<=Highest_object_index; i++ )	{
-		int num;
-		if ( Objects[i].type == OBJ_HOSTAGE )	{
-			num = Objects[i].id;
-			#ifndef SHAREWARE
-			if (num<0 || num>=MAX_HOSTAGES || Hostage_face_clip[Hostages[num].vclip_num].num_frames<=0)
-				num=0;
-			#else
-			num = 0;
-			#endif
-			if (num+1 > num_hostages)
-				num_hostages = num+1;
-		}
-	}
-
-	cfile_write_int(HOSTAGE_DATA_VERSION,fp);
-
-	for (i=0; i<num_hostages; i++ )	{
-		cfile_write_int(Hostages[i].vclip_num,fp);
-		fputs(Hostages[i].text,fp);
-		fputc('\n',fp);		//fgets wants a newline
-	}
-}
-#endif	//HOSTAGE_FACES
 
 #endif	//EDITOR
 
@@ -1640,64 +1601,3 @@ void dump_mine_info(void)
 }
 
 #endif
-
-#ifdef HOSTAGE_FACES
-void load_hostage_data(PHYSFS_file * fp,int do_read)
-{
-	int version,i,num,num_hostages;
-
-	hostage_init_all();
-
-	num_hostages = 0;
-
-	// Find number of hostages in mine...
-	for (i=0; i<=Highest_object_index; i++ )	{
-		if ( Objects[i].type == OBJ_HOSTAGE )	{
-			num = Objects[i].id;
-			if (num+1 > num_hostages)
-				num_hostages = num+1;
-
-			if (Hostages[num].objnum != -1) {		//slot already used
-				num = hostage_get_next_slot();		//..so get new slot
-				if (num+1 > num_hostages)
-					num_hostages = num+1;
-				Objects[i].id = num;
-			}
-
-			if ( num > -1 && num < MAX_HOSTAGES )	{
-				Assert(Hostages[num].objnum == -1);		//make sure not used
-				// -- Matt -- commented out by MK on 11/19/94, hit often in level 3, level 4.  Assert(Hostages[num].objnum == -1);		//make sure not used
-				Hostages[num].objnum = i;
-				Hostages[num].objsig = Objects[i].signature;
-			}
-		}
-	}
-
-	if (do_read) {
-		version = PHYSFSX_readInt(fp);
-
-		for (i=0;i<num_hostages;i++) {
-
-			Assert(Hostages[i].objnum != -1);		//make sure slot filled in
-
-			Hostages[i].vclip_num = PHYSFSX_readInt(fp);
-
-			#ifndef SHAREWARE
-			if (Hostages[i].vclip_num<0 || Hostages[i].vclip_num>=MAX_HOSTAGES || Hostage_face_clip[Hostages[i].vclip_num].num_frames<=0)
-				Hostages[i].vclip_num=0;
-
-			Assert(Hostage_face_clip[Hostages[i].vclip_num].num_frames);
-			#endif
-
-			PHYSFSX_fgets(Hostages[i].text, HOSTAGE_MESSAGE_LEN, fp);
-		}
-	}
-	else
-		for (i=0;i<num_hostages;i++) {
-			Assert(Hostages[i].objnum != -1);		//make sure slot filled in
-			Hostages[i].vclip_num = 0;
-		}
-
-}
-#endif	//HOSTAGE_FACES
-

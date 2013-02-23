@@ -992,10 +992,6 @@ void DoPlayerDead()
 
 	dead_player_end();		//terminate death sequence (if playing)
 
-#ifdef HOSTAGE_FACES
-	stop_all_hostage_clips();
-#endif
-
 	#ifdef EDITOR
 	if (Game_mode == GM_EDITOR) {			//test mine, not real level
 		object * player = &Objects[Players[Player_num].objnum];

@@ -232,61 +232,6 @@ int CompressHostages()
 //@@	return 1;
 //@@}
 
-int SelectNextFace()
-{
-	int start = Hostages[CurrentHostageIndex].vclip_num;
-	
-	if (!hostage_is_valid( CurrentHostageIndex ) )	
-		return 0;
-
-	do {
-		Hostages[CurrentHostageIndex].vclip_num++;
-		if ( Hostages[CurrentHostageIndex].vclip_num >= MAX_HOSTAGES)
-			Hostages[CurrentHostageIndex].vclip_num = 0;
-
-		if (Hostages[CurrentHostageIndex].vclip_num == start)
-			return 0;
-
-	} while (Hostage_face_clip[Hostages[CurrentHostageIndex].vclip_num].num_frames == 0);
-
-	return 1;
-}
-
-int SelectPrevFace()
-{
-	int start = Hostages[CurrentHostageIndex].vclip_num;
-	
-	if (!hostage_is_valid( CurrentHostageIndex ) )	
-		return 0;
-
-	do {
-		Hostages[CurrentHostageIndex].vclip_num--;
-		if ( Hostages[CurrentHostageIndex].vclip_num < 0)
-			Hostages[CurrentHostageIndex].vclip_num = MAX_HOSTAGES-1;
-
-		if (Hostages[CurrentHostageIndex].vclip_num == start)
-			return 0;
-
-	} while (Hostage_face_clip[Hostages[CurrentHostageIndex].vclip_num].num_frames == 0);
-
-	return 1;
-}
-
-int PlayHostageSound()	{
-	int sound_num;
-
-	if (!hostage_is_valid( CurrentHostageIndex ) )	
-		return 0;
-
-	sound_num = Hostage_face_clip[Hostages[CurrentHostageIndex].vclip_num].sound_num;
-
-	if ( sound_num > -1 )	{
-		digi_play_sample( sound_num, F1_0 );
-	}
-
-	return 1;	
-}
-
 //@@int find_next_hostage_sound()	{
 //@@	int start=0,n;
 //@@
@@ -468,7 +413,6 @@ int hostage_dialog_handler(UI_DIALOG *dlg, d_event *event, hostage_dialog *h)
 			gr_set_current_canvas( h->hostageViewBox->canvas );
 
 			if ( vclip_num > -1 )	{
-				vclip_play( h, &Hostage_face_clip[vclip_num], DeltaTime );	
 			} else {
 				gr_clear_canvas( CGREY );
 			}
