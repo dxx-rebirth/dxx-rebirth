@@ -434,9 +434,6 @@ grs_bitmap char_bm = {
 				BM_FLAG_TRANSPARENT,	//flags
 				0,			//rowsize
 				NULL,			//data
-#ifdef BITMAP_SELECTOR
-				0,			//selector
-#endif
 				0,			//avg_color
 				0			//unused
 };
