@@ -310,7 +310,6 @@ if sys.platform == 'win32':
 	user_settings.sharepath = ''
 	env.Append(CPPDEFINES = ['_WIN32'])
 	env.Append(CPPPATH = ['arch/win32/include'])
-	ogldefines = ['OGL']
 	common_sources += ['arch/win32/messagebox.c']
 	ogllibs = ''
 	libs += ['glu32', 'wsock32', 'ws2_32', 'winmm', 'mingw32', 'SDLmain', 'SDL']
@@ -321,7 +320,6 @@ elif sys.platform == 'darwin':
 	user_settings.sharepath = ''
 	env.Append(CPPDEFINES = ['__unix__'])
 	user_settings.asm = 0
-	ogldefines = ['OGL']
 	common_sources += ['arch/cocoa/SDLMain.m', 'arch/carbon/messagebox.c']
 	ogllibs = ''
 	libs = ''
@@ -349,7 +347,6 @@ else:
 	env.ParseConfig('sdl-config --libs')
 	env.Append(CPPDEFINES = ['__LINUX__'])
 	env.Append(CPPPATH = ['arch/linux/include'])
-	ogldefines = ['OGL']
 	libs += env['LIBS']
 	if (user_settings.opengles == 1):
 		ogllibs = ['GLES_CM', 'EGL']
@@ -372,7 +369,7 @@ if (user_settings.opengl == 1) or (user_settings.opengles == 1):
 		env.Append(CPPDEFINES = ['OGLES'])
 	else:
 		print "building with OpenGL"
-	env.Append(CPPDEFINES = ogldefines)
+	env.Append(CPPDEFINES = ['OGL'])
 	common_sources += arch_ogl_sources
 	libs += ogllibs
 else:
