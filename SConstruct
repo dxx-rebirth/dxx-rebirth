@@ -273,7 +273,7 @@ if (verbosebuild == 0):
 
 # Flags and stuff for all platforms...
 env.Append(CPPFLAGS = ['-Wall', '-funsigned-char', '-Werror=implicit-int', '-Werror=implicit-function-declaration', '-std=c99', '-pedantic'])
-env.Append(CPPDEFINES = [('PROGRAM_NAME', '\\"' + str(PROGRAM_NAME) + '\\"'), ('D1XMAJORi', str(VERSION_MAJOR)), ('D1XMINORi', str(VERSION_MINOR)), ('D1XMICROi', str(VERSION_MICRO))])
+env.Append(CPPDEFINES = [('PROGRAM_NAME', '\\"' + str(PROGRAM_NAME) + '\\"'), ('DXX_VERSION_MAJORi', str(VERSION_MAJOR)), ('DXX_VERSION_MINORi', str(VERSION_MINOR)), ('DXX_VERSION_MICROi', str(VERSION_MICRO))])
 env.Append(CPPDEFINES = ['NETWORK', '_REENTRANT'])
 env.Append(CPPPATH = ['include', 'main', 'arch/include'])
 libs = ['physfs', 'm']

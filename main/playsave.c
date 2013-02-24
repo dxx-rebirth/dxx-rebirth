@@ -365,7 +365,7 @@ int read_player_d1x(char *filename)
 				d_strupr(word);
 			}
 			if (v1 == 0 && v2 == 56 && v3 == 0) // was 0.56.0
-				if (D1XMAJORi != v1 || D1XMINORi != v2 || D1XMICROi != v3) // newer (presumably)
+				if (DXX_VERSION_MAJORi != v1 || DXX_VERSION_MINORi != v2 || DXX_VERSION_MICROi != v3) // newer (presumably)
 				{
 					// reset mouse cycling fields
 					PlayerCfg.KeySettings[1][44] = 255;
