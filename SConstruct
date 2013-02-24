@@ -23,26 +23,29 @@ VERSION_MINOR = 57
 VERSION_MICRO = 3
 VERSION_STRING = ' v' + str(VERSION_MAJOR) + '.' + str(VERSION_MINOR) + '.' + str(VERSION_MICRO)
 
-# installation path
-PREFIX = str(ARGUMENTS.get('prefix', '/usr/local'))
-BIN_SUBDIR = '/bin'
-DATA_SUBDIR = '/share/games/d1x-rebirth'
-BIN_DIR = PREFIX + BIN_SUBDIR
-DATA_DIR = PREFIX + DATA_SUBDIR
+class DXXProgram:
+	class UserSettings:
+		def __init__(self,ARGUMENTS):
+			# installation path
+			PREFIX = str(ARGUMENTS.get('prefix', '/usr/local'))
+			self.BIN_DIR = PREFIX + '/bin'
+			self.DATA_DIR = PREFIX + '/share/games/d1x-rebirth'
 
-# command-line parms
-sharepath = str(ARGUMENTS.get('sharepath', DATA_DIR))
-debug = int(ARGUMENTS.get('debug', 0))
-profiler = int(ARGUMENTS.get('profiler', 0))
-opengl = int(ARGUMENTS.get('opengl', 1))
-opengles = int(ARGUMENTS.get('opengles', 0))
-asm = int(ARGUMENTS.get('asm', 0))
-editor = int(ARGUMENTS.get('editor', 0))
-sdlmixer = int(ARGUMENTS.get('sdlmixer', 1))
-ipv6 = int(ARGUMENTS.get('ipv6', 0))
-use_udp = int(ARGUMENTS.get('use_udp', 1))
-use_tracker = int(ARGUMENTS.get('use_tracker', 1))
-verbosebuild = int(ARGUMENTS.get('verbosebuild', 0))
+			# command-line parms
+			self.sharepath = str(ARGUMENTS.get('sharepath', self.DATA_DIR))
+			self.debug = int(ARGUMENTS.get('debug', 0))
+			self.profiler = int(ARGUMENTS.get('profiler', 0))
+			self.opengl = int(ARGUMENTS.get('opengl', 1))
+			self.opengles = int(ARGUMENTS.get('opengles', 0))
+			self.asm = int(ARGUMENTS.get('asm', 0))
+			self.editor = int(ARGUMENTS.get('editor', 0))
+			self.sdlmixer = int(ARGUMENTS.get('sdlmixer', 1))
+			self.ipv6 = int(ARGUMENTS.get('ipv6', 0))
+			self.use_udp = int(ARGUMENTS.get('use_udp', 1))
+			self.use_tracker = int(ARGUMENTS.get('use_tracker', 1))
+			self.verbosebuild = int(ARGUMENTS.get('verbosebuild', 0))
+
+user_settings = DXXProgram.UserSettings(ARGUMENTS)
 
 # endianess-checker
 def checkEndian():
@@ -273,7 +276,7 @@ asm_sources = [
 env = Environment(ENV = os.environ, tools = ['mingw'])
 
 # Prettier build messages......
-if (verbosebuild == 0):
+if (user_settings.verbosebuild == 0):
 	env["CCCOMSTR"]     = "Compiling $SOURCE ..."
 	env["CXXCOMSTR"]    = "Compiling $SOURCE ..."
 	env["LINKCOMSTR"]   = "Linking $TARGET ..."
@@ -304,7 +307,7 @@ if sys.platform == 'win32':
 	print "compiling on Windows"
 	osdef = '_WIN32'
 	osasmdef = 'win32'
-	sharepath = ''
+	user_settings.sharepath = ''
 	env.Append(CPPDEFINES = ['_WIN32'])
 	env.Append(CPPPATH = ['arch/win32/include'])
 	ogldefines = ['OGL']
@@ -315,9 +318,9 @@ if sys.platform == 'win32':
 elif sys.platform == 'darwin':
 	print "compiling on Mac OS X"
 	osdef = '__APPLE__'
-	sharepath = ''
+	user_settings.sharepath = ''
 	env.Append(CPPDEFINES = ['__unix__'])
-	asm = 0
+	user_settings.asm = 0
 	ogldefines = ['OGL']
 	common_sources += ['arch/cocoa/SDLMain.m', 'arch/carbon/messagebox.c']
 	ogllibs = ''
@@ -327,7 +330,7 @@ elif sys.platform == 'darwin':
 	libs += '../physfs/build/Debug/libphysfs.dylib'
 	if (sdl_only == 0):
 		lflags += ' -framework OpenGL'
-	if (sdlmixer == 1):
+	if (user_settings.sdlmixer == 1):
 		print "including SDL_mixer"
 		lflags += ' -framework SDL_mixer'
 	sys.path += ['./arch/cocoa']
@@ -341,14 +344,14 @@ else:
 	print "compiling on *NIX"
 	osdef = '__LINUX__'
 	osasmdef = 'elf'
-	sharepath += '/'
+	user_settings.sharepath += '/'
 	env.ParseConfig('sdl-config --cflags')
 	env.ParseConfig('sdl-config --libs')
 	env.Append(CPPDEFINES = ['__LINUX__'])
 	env.Append(CPPPATH = ['arch/linux/include'])
 	ogldefines = ['OGL']
 	libs += env['LIBS']
-	if (opengles == 1):
+	if (user_settings.opengles == 1):
 		ogllibs = ['GLES_CM', 'EGL']
 	else:
 		ogllibs = ['GL', 'GLU']
@@ -357,14 +360,14 @@ else:
 # set endianess
 if (checkEndian() == "big"):
 	print "BigEndian machine detected"
-	asm = 0
+	user_settings.asm = 0
 	env.Append(CPPDEFINES = ['WORDS_BIGENDIAN'])
 elif (checkEndian() == "little"):
 	print "LittleEndian machine detected"
 
 # opengl or software renderer?
-if (opengl == 1) or (opengles == 1):
-	if (opengles == 1):
+if (user_settings.opengl == 1) or (user_settings.opengles == 1):
+	if (user_settings.opengles == 1):
 		print "building with OpenGL ES"
 		env.Append(CPPDEFINES = ['OGLES'])
 	else:
@@ -377,7 +380,7 @@ else:
 	common_sources += arch_sdl_sources
 
 # assembler code?
-if (asm == 1) and (opengl == 0):
+if (user_settings.asm == 1) and (user_settings.opengl == 0):
 	print "including: ASSEMBLER"
 	env.Replace(AS = 'nasm')
 	env.Append(ASCOM = ' -f ' + str(osasmdef) + ' -d' + str(osdef) + ' -Itexmap/ ')
@@ -386,7 +389,7 @@ else:
 	env.Append(CPPDEFINES = ['NO_ASM'])
 
 # SDL_mixer support?
-if (sdlmixer == 1):
+if (user_settings.sdlmixer == 1):
 	print "including SDL_mixer"
 	env.Append(CPPDEFINES = ['USE_SDLMIXER'])
 	common_sources += arch_sdlmixer
@@ -394,7 +397,7 @@ if (sdlmixer == 1):
 		libs += ['SDL_mixer']
 
 # debug?
-if (debug == 1):
+if (user_settings.debug == 1):
 	print "including: DEBUG"
 	env.Append(CPPFLAGS = ['-g'])
 else:
@@ -402,37 +405,37 @@ else:
 	env.Append(CPPFLAGS = ['-O2'])
 
 # profiler?
-if (profiler == 1):
+if (user_settings.profiler == 1):
 	env.Append(CPPFLAGS = ['-pg'])
 	lflags += ' -pg'
 
 #editor build?
-if (editor == 1):
+if (user_settings.editor == 1):
 	env.Append(CPPDEFINES = ['EDITOR'])
 	env.Append(CPPPATH = ['include/editor'])
 	common_sources += editor_sources
 
 # IPv6 compability?
-if (ipv6 == 1):
+if (user_settings.ipv6 == 1):
 	env.Append(CPPDEFINES = ['IPv6'])
 
 # UDP support?
-if (use_udp == 1):
+if (user_settings.use_udp == 1):
 	env.Append(CPPDEFINES = ['USE_UDP'])
 	common_sources += ['main/net_udp.c']
 	
 	# Tracker support?  (Relies on UDP)
-	if( use_tracker == 1 ):
+	if( user_settings.use_tracker == 1 ):
 		env.Append( CPPDEFINES = [ 'USE_TRACKER' ] )
 
 print '\n'
 
-env.Append(CPPDEFINES = [('SHAREPATH', '\\"' + str(sharepath) + '\\"')])
+env.Append(CPPDEFINES = [('SHAREPATH', '\\"' + str(user_settings.sharepath) + '\\"')])
 # finally building program...
 env.Program(target=str(target), source = common_sources, LIBS = libs, LINKFLAGS = str(lflags))
 if (sys.platform != 'darwin'):
-	env.Install(BIN_DIR, str(target))
-	env.Alias('install', BIN_DIR)
+	env.Install(user_settings.BIN_DIR, str(target))
+	env.Alias('install', user_settings.BIN_DIR)
 else:
 	tool_bundle.TOOL_BUNDLE(env)
 	env.MakeBundle(PROGRAM_NAME + '.app', target,
@@ -466,7 +469,7 @@ Help(PROGRAM_NAME + ', SConstruct file help:' +
 	'verbosebuild=[0/1]'  print out all compiler/linker messages during building [default: 0]
 
 	Default values:
-	""" + ' sharepath = ' + DATA_DIR + """
+	""" + ' sharepath = ' + user_settings.DATA_DIR + """
 
 	Some influential environment variables:
 	  CC          C compiler command
