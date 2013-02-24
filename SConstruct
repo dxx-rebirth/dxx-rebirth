@@ -5,6 +5,15 @@ import sys
 import os
 import SCons.Util
 
+class argumentIndirection:
+	def __init__(self,prefix):
+		self.prefix = prefix
+		self.ARGUMENTS = ARGUMENTS
+	def get(self,name,value):
+		return self.ARGUMENTS.get('%s_%s' % (self.prefix, name), self.ARGUMENTS.get(name,value))
+
+ARGUMENTS = argumentIndirection('d2x')
+
 PROGRAM_NAME = 'D2X-Rebirth'
 target = 'd2x-rebirth'
 
