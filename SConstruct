@@ -347,10 +347,6 @@ for cc in ['CC', 'CXX']:
 for flags in ['CFLAGS', 'CXXFLAGS']:
 	if os.environ.has_key(flags):
 		env[flags] += SCons.Util.CLVar(os.environ[flags])
-# Special case because scons uses the name LINKFLAGS instead of the
-# standard LDFLAGS.
-if os.environ.has_key('LDFLAGS'):
-	env['LINKFLAGS'] += SCons.Util.CLVar(os.environ['LDFLAGS'])
 
 # windows or *nix?
 if sys.platform == 'win32':
