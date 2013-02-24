@@ -51,6 +51,57 @@ class DXXProgram:
 			self.verbosebuild = int(ARGUMENTS.get('verbosebuild', 0))
 			self.raspberrypi = int(ARGUMENTS.get('raspberrypi', 0))
 			self.rpi_vc_path = str(ARGUMENTS.get('rpi_vc_path', self.RPI_DEFAULT_VC_PATH))
+	# Base class for platform-specific settings processing
+	class _PlatformSettings:
+		def __init__(self):
+			self.ogllibs = ''
+			self.osasmdef = None
+	# Settings to apply to mingw32 builds
+	class Win32PlatformSettings(_PlatformSettings):
+		def __init__(self,user_settings):
+			DXXProgram._PlatformSettings.__init__(self)
+			self.osdef = '_WIN32'
+			self.osasmdef = 'win32'
+			user_settings.sharepath = ''
+			self.lflags = '-mwindows arch/win32/d2xr.res'
+			self.libs = ['glu32', 'wsock32', 'ws2_32', 'winmm', 'mingw32', 'SDLmain', 'SDL']
+		def adjust_environment(self,env):
+			env.Append(CPPDEFINES = ['_WIN32', 'HAVE_STRUCT_TIMEVAL'])
+			env.Append(CPPPATH = ['arch/win32/include'])
+	# Settings to apply to Apple builds
+	# This appears to be unused.  The reference to sdl_only fails to
+	# execute.
+	class DarwinPlatformSettings(_PlatformSettings):
+		def __init__(self,user_settings):
+			DXXProgram._PlatformSettings.__init__(self)
+			self.osdef = '__APPLE__'
+			if (user_settings.sdlmixer == 1):
+				print "including SDL_mixer"
+				platform_settings.lflags += ' -framework SDL_mixer'
+			user_settings.sharepath = ''
+			user_settings.asm = 0
+			# Ugly way of linking to frameworks, but kreator has seen uglier
+			self.lflags = '-framework ApplicationServices -framework Carbon -framework Cocoa -framework SDL'
+			if (sdl_only == 0):
+				self.lflags += ' -framework OpenGL'
+			self.libs = ['../physfs/build/Debug/libphysfs.dylib']
+		def adjust_environment(self,env):
+			env.Append(CPPDEFINES = ['HAVE_STRUCT_TIMESPEC', 'HAVE_STRUCT_TIMEVAL', '__unix__'])
+	# Settings to apply to Linux builds
+	class LinuxPlatformSettings(_PlatformSettings):
+		def __init__(self,user_settings):
+			DXXProgram._PlatformSettings.__init__(self)
+			self.osdef = '__LINUX__'
+			self.osasmdef = 'elf'
+			if (user_settings.opengles == 1):
+				self.ogllibs = [ user_settings.opengles_lib, 'EGL']
+			else:
+				self.ogllibs = ['GL', 'GLU']
+			self.lflags = os.environ["LDFLAGS"] if os.environ.has_key('LDFLAGS') else ''
+			self.libs = []
+		def adjust_environment(self,env):
+			env.Append(CPPDEFINES = ['__LINUX__', 'HAVE_STRUCT_TIMESPEC', 'HAVE_STRUCT_TIMEVAL'])
+			env.Append(CPPPATH = ['arch/linux/include'])
 
 user_settings = DXXProgram.UserSettings(ARGUMENTS)
 
@@ -308,7 +359,6 @@ env.Append(CPPFLAGS = ['-Wall', '-funsigned-char', '-Werror=implicit-int', '-Wer
 env.Append(CPPDEFINES = [('PROGRAM_NAME', '\\"' + str(PROGRAM_NAME) + '\\"'), ('DXX_VERSION_MAJORi', str(VERSION_MAJOR)), ('DXX_VERSION_MINORi', str(VERSION_MINOR)), ('DXX_VERSION_MICROi', str(VERSION_MICRO))])
 env.Append(CPPDEFINES = ['NETWORK', '_REENTRANT'])
 env.Append(CPPPATH = ['include', 'main', 'arch/include'])
-libs = ['physfs', 'm']
 
 # Get traditional compiler environment variables
 for cc in ['CC', 'CXX']:
@@ -325,33 +375,12 @@ if os.environ.has_key('LDFLAGS'):
 # windows or *nix?
 if sys.platform == 'win32':
 	print "compiling on Windows"
-	osdef = '_WIN32'
-	osasmdef = 'win32'
-	user_settings.sharepath = ''
-	env.Append(CPPDEFINES = ['_WIN32', 'HAVE_STRUCT_TIMEVAL'])
-	env.Append(CPPPATH = ['arch/win32/include'])
+	platform_settings = DXXProgram.Win32PlatformSettings(user_settings)
 	common_sources += ['arch/win32/messagebox.c']
-	ogllibs = ''
-	libs += ['glu32', 'wsock32', 'ws2_32', 'winmm', 'mingw32', 'SDLmain', 'SDL']
-	lflags = '-mwindows  arch/win32/d2xr.res'
 elif sys.platform == 'darwin':
 	print "compiling on Mac OS X"
-	osdef = '__APPLE__'
-	user_settings.sharepath = ''
-	env.Append(CPPDEFINES = ['HAVE_STRUCT_TIMESPEC', 'HAVE_STRUCT_TIMEVAL', '__unix__'])
-	user_settings.asm = 0
-	env.Append(CPPPATH = ['arch/linux/include'])
+	platform_settings = DXXProgram.DarwinPlatformSettings(user_settings)
 	common_sources += ['arch/cocoa/SDLMain.m', 'arch/carbon/messagebox.c']
-	ogllibs = ''
-	libs = ''
-	# Ugly way of linking to frameworks, but kreator has seen uglier
-	lflags = '-framework ApplicationServices -framework Carbon -framework Cocoa -framework SDL'
-	libs += '../physfs/build/Debug/libphysfs.dylib'
-	if (sdl_only == 0):
-		lflags += ' -framework OpenGL'
-	if (user_settings.sdlmixer == 1):
-		print "including SDL_mixer"
-		lflags += ' -framework SDL_mixer'
 	sys.path += ['./arch/cocoa']
 	VERSION = str(VERSION_MAJOR) + '.' + str(VERSION_MINOR)
 	if (VERSION_MICRO):
@@ -361,19 +390,13 @@ elif sys.platform == 'darwin':
 	import tool_bundle
 else:
 	print "compiling on *NIX"
-	osdef = '__LINUX__'
-	osasmdef = 'elf'
+	platform_settings = DXXProgram.LinuxPlatformSettings(user_settings)
 	user_settings.sharepath += '/'
 	env.ParseConfig('sdl-config --cflags')
 	env.ParseConfig('sdl-config --libs')
-	env.Append(CPPDEFINES = ['__LINUX__', 'HAVE_STRUCT_TIMESPEC', 'HAVE_STRUCT_TIMEVAL'])
-	env.Append(CPPPATH = ['arch/linux/include'])
-	libs += env['LIBS']
-	if (user_settings.opengles == 1):
-		ogllibs = [ user_settings.opengles_lib, 'EGL']
-	else:
-		ogllibs = ['GL', 'GLU']
-	lflags = os.environ["LDFLAGS"] if os.environ.has_key('LDFLAGS') else ''
+	platform_settings.libs += env['LIBS']
+platform_settings.adjust_environment(env)
+platform_settings.libs += ['physfs', 'm']
 
 # set endianess
 if (checkEndian() == "big"):
@@ -392,7 +415,7 @@ if (user_settings.opengl == 1) or (user_settings.opengles == 1):
 		print "building with OpenGL"
 	env.Append(CPPDEFINES = ['OGL'])
 	common_sources += arch_ogl_sources
-	libs += ogllibs
+	platform_settings.libs += platform_settings.ogllibs
 else:
 	print "building with Software Renderer"
 	common_sources += arch_sdl_sources
@@ -401,7 +424,7 @@ else:
 if (user_settings.asm == 1) and (user_settings.opengl == 0):
 	print "including: ASSEMBLER"
 	env.Replace(AS = 'nasm')
-	env.Append(ASCOM = ' -f ' + str(osasmdef) + ' -d' + str(osdef) + ' -Itexmap/ ')
+	env.Append(ASCOM = ' -f ' + str(platform_settings.osasmdef) + ' -d' + str(osdef) + ' -Itexmap/ ')
 	common_sources += asm_sources
 else:
 	env.Append(CPPDEFINES = ['NO_ASM'])
@@ -412,7 +435,7 @@ if (user_settings.sdlmixer == 1):
 	env.Append(CPPDEFINES = ['USE_SDLMIXER'])
 	common_sources += arch_sdlmixer
 	if (sys.platform != 'darwin'):
-		libs += ['SDL_mixer']
+		platform_settings.libs += ['SDL_mixer']
 
 # debug?
 if (user_settings.debug == 1):
@@ -425,7 +448,7 @@ else:
 # profiler?
 if (user_settings.profiler == 1):
 	env.Append(CPPFLAGS = ['-pg'])
-	lflags += ' -pg'
+	platform_settings.lflags += ' -pg'
 
 #editor build?
 if (user_settings.editor == 1):
@@ -458,7 +481,7 @@ print '\n'
 
 env.Append(CPPDEFINES = [('SHAREPATH', '\\"' + str(user_settings.sharepath) + '\\"')])
 # finally building program...
-env.Program(target=str(target), source = common_sources, LIBS = libs, LINKFLAGS = str(lflags))
+env.Program(target=str(target), source = common_sources, LIBS = platform_settings.libs, LINKFLAGS = str(platform_settings.lflags))
 if (sys.platform != 'darwin'):
 	env.Install(user_settings.BIN_DIR, str(target))
 	env.Alias('install', user_settings.BIN_DIR)
