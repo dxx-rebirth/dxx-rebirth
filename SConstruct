@@ -291,14 +291,14 @@ env.Append(CPPPATH = ['include', 'main', 'arch/include'])
 libs = ['physfs', 'm']
 
 # Get traditional compiler environment variables
-if os.environ.has_key('CC'):
-	env['CC'] = os.environ['CC']
-if os.environ.has_key('CFLAGS'):
-	env['CFLAGS'] += SCons.Util.CLVar(os.environ['CFLAGS'])
-if os.environ.has_key('CXX'):
-	env['CXX'] = os.environ['CXX']
-if os.environ.has_key('CXXFLAGS'):
-	env['CXXFLAGS'] += SCons.Util.CLVar(os.environ['CXXFLAGS'])
+for cc in ['CC', 'CXX']:
+	if os.environ.has_key(cc):
+		env[cc] = os.environ[cc]
+for flags in ['CFLAGS', 'CXXFLAGS']:
+	if os.environ.has_key(flags):
+		env[flags] += SCons.Util.CLVar(os.environ[flags])
+# Special case because scons uses the name LINKFLAGS instead of the
+# standard LDFLAGS.
 if os.environ.has_key('LDFLAGS'):
 	env['LINKFLAGS'] += SCons.Util.CLVar(os.environ['LDFLAGS'])
 
