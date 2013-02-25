@@ -12,24 +12,31 @@ class argumentIndirection:
 	def get(self,name,value):
 		return self.ARGUMENTS.get('%s_%s' % (self.prefix, name), self.ARGUMENTS.get(name,value))
 
-ARGUMENTS = argumentIndirection('d2x')
-
-PROGRAM_NAME = 'D2X-Rebirth'
-target = 'd2x-rebirth'
-
-# version number
-VERSION_MAJOR = 0
-VERSION_MINOR = 57
-VERSION_MICRO = 3
-VERSION_STRING = ' v' + str(VERSION_MAJOR) + '.' + str(VERSION_MINOR) + '.' + str(VERSION_MICRO)
+# endianess-checker
+def checkEndian():
+    import struct
+    array = struct.pack('cccc', '\x01', '\x02', '\x03', '\x04')
+    i = struct.unpack('i', array)
+    if i == struct.unpack('<i', array):
+        return "little"
+    elif i == struct.unpack('>i', array):
+        return "big"
+    return "unknown"
 
 class DXXProgram:
+	__endian = checkEndian()
+	# version number
+	VERSION_MAJOR = 0
+	VERSION_MINOR = 57
+	VERSION_MICRO = 3
+	common_sources = []
+	editor_sources = []
 	class UserSettings:
-		def __init__(self,ARGUMENTS):
+		def __init__(self,ARGUMENTS,target):
 			# installation path
 			PREFIX = str(ARGUMENTS.get('prefix', '/usr/local'))
 			self.BIN_DIR = PREFIX + '/bin'
-			self.DATA_DIR = PREFIX + '/share/games/d2x-rebirth'
+			self.DATA_DIR = PREFIX + '/share/games/' + target
 			self.OGLES_LIB = 'GLES_CM'
 
 			# Paths for the Videocore libs/includes on the Raspberry Pi
@@ -51,6 +58,10 @@ class DXXProgram:
 			self.verbosebuild = int(ARGUMENTS.get('verbosebuild', 0))
 			self.raspberrypi = int(ARGUMENTS.get('raspberrypi', 0))
 			self.rpi_vc_path = str(ARGUMENTS.get('rpi_vc_path', self.RPI_DEFAULT_VC_PATH))
+			# automatic setup for raspberrypi
+			if (self.raspberrypi == 1):
+				self.opengles=1
+				self.opengles_lib='GLESv2'
 	# Base class for platform-specific settings processing
 	class _PlatformSettings:
 		def __init__(self):
@@ -103,29 +114,174 @@ class DXXProgram:
 			env.Append(CPPDEFINES = ['__LINUX__', 'HAVE_STRUCT_TIMESPEC', 'HAVE_STRUCT_TIMEVAL'])
 			env.Append(CPPPATH = ['arch/linux/include'])
 
-user_settings = DXXProgram.UserSettings(ARGUMENTS)
+	def __init__(self):
+		self.user_settings = self.UserSettings(self.ARGUMENTS, self.target)
+		self.prepare_environment()
+		self.banner()
+		self.check_endian()
+		self.check_platform()
+		self.process_user_settings()
+		self.register_program()
 
-# automatic setup for raspberrypi
-if (user_settings.raspberrypi == 1):
-	user_settings.opengles=1
-	user_settings.opengles_lib='GLESv2'
-	
-# endianess-checker
-def checkEndian():
-    import struct
-    array = struct.pack('cccc', '\x01', '\x02', '\x03', '\x04')
-    i = struct.unpack('i', array)
-    if i == struct.unpack('<i', array):
-        return "little"
-    elif i == struct.unpack('>i', array):
-        return "big"
-    return "unknown"
+	def prepare_environment(self):
+		# Acquire environment object...
+		self.env = Environment(ENV = os.environ, tools = ['mingw'])
+		self.VERSION_STRING = ' v' + str(self.VERSION_MAJOR) + '.' + str(self.VERSION_MINOR) + '.' + str(self.VERSION_MICRO)
+		self.env.Append(CPPDEFINES = [('PROGRAM_NAME', '\\"' + str(self.PROGRAM_NAME) + '\\"'), ('DXX_VERSION_MAJORi', str(self.VERSION_MAJOR)), ('DXX_VERSION_MINORi', str(self.VERSION_MINOR)), ('DXX_VERSION_MICROi', str(self.VERSION_MICRO))])
 
+		# Prettier build messages......
+		if (self.user_settings.verbosebuild == 0):
+			self.env["CCCOMSTR"]     = "Compiling $SOURCE ..."
+			self.env["CXXCOMSTR"]    = "Compiling $SOURCE ..."
+			self.env["LINKCOMSTR"]   = "Linking $TARGET ..."
+			self.env["ARCOMSTR"]     = "Archiving $TARGET ..."
+			self.env["RANLIBCOMSTR"] = "Indexing $TARGET ..."
 
-print '\n===== ' + PROGRAM_NAME + VERSION_STRING + ' =====\n'
+		# Get traditional compiler environment variables
+		for cc in ['CC', 'CXX']:
+			if os.environ.has_key(cc):
+				self.env[cc] = os.environ[cc]
+		for flags in ['CFLAGS', 'CXXFLAGS']:
+			if os.environ.has_key(flags):
+				self.env[flags] += SCons.Util.CLVar(os.environ[flags])
 
-# general source files
-common_sources = [
+	def banner(self):
+		print '\n===== ' + self.PROGRAM_NAME + self.VERSION_STRING + ' =====\n'
+
+	def check_endian(self):
+		# set endianess
+		if (self.__endian == "big"):
+			print "%s: BigEndian machine detected" % self.PROGRAM_NAME
+			self.asm = 0
+			env.Append(CPPDEFINES = ['WORDS_BIGENDIAN'])
+		elif (self.__endian == "little"):
+			print "%s: LittleEndian machine detected" % self.PROGRAM_NAME
+
+	def check_platform(self):
+		env = self.env
+		# windows or *nix?
+		if sys.platform == 'win32':
+			print "%s: compiling on Windows" % self.PROGRAM_NAME
+			self.platform_settings = DXXProgram.Win32PlatformSettings(self.user_settings)
+			common_sources += ['arch/win32/messagebox.c']
+		elif sys.platform == 'darwin':
+			print "%s: compiling on Mac OS X" % self.PROGRAM_NAME
+			self.platform_settings = DXXProgram.DarwinPlatformSettings(self.user_settings)
+			common_sources += ['arch/cocoa/SDLMain.m', 'arch/carbon/messagebox.c']
+			sys.path += ['./arch/cocoa']
+			VERSION = str(VERSION_MAJOR) + '.' + str(VERSION_MINOR)
+			if (VERSION_MICRO):
+				VERSION += '.' + str(VERSION_MICRO)
+			env['VERSION_NUM'] = VERSION
+			env['VERSION_NAME'] = self.PROGRAM_NAME + ' v' + VERSION
+			import tool_bundle
+		else:
+			print "%s: compiling on *NIX" % self.PROGRAM_NAME
+			self.platform_settings = DXXProgram.LinuxPlatformSettings(self.user_settings)
+			self.user_settings.sharepath += '/'
+			env.ParseConfig('sdl-config --cflags')
+			env.ParseConfig('sdl-config --libs')
+			self.platform_settings.libs += env['LIBS']
+		self.platform_settings.adjust_environment(env)
+		self.platform_settings.libs += ['physfs', 'm']
+
+	def process_user_settings(self):
+		env = self.env
+		# opengl or software renderer?
+		if (self.user_settings.opengl == 1) or (self.user_settings.opengles == 1):
+			if (self.user_settings.opengles == 1):
+				print "%s: building with OpenGL ES" % self.PROGRAM_NAME
+				env.Append(CPPDEFINES = ['OGLES'])
+			else:
+				print "%s: building with OpenGL" % self.PROGRAM_NAME
+			env.Append(CPPDEFINES = ['OGL'])
+			self.common_sources += self.arch_ogl_sources
+			self.platform_settings.libs += self.platform_settings.ogllibs
+		else:
+			print "%s: building with Software Renderer" % self.PROGRAM_NAME
+			self.common_sources += self.arch_sdl_sources
+
+		# assembler code?
+		if (self.user_settings.asm == 1) and (self.user_settings.opengl == 0):
+			print "%s: including: ASSEMBLER" % self.PROGRAM_NAME
+			env.Replace(AS = 'nasm')
+			env.Append(ASCOM = ' -f ' + str(platform_settings.osasmdef) + ' -d' + str(platform_settings.osdef) + ' -Itexmap/ ')
+			self.common_sources += asm_sources
+		else:
+			env.Append(CPPDEFINES = ['NO_ASM'])
+
+		# SDL_mixer support?
+		if (self.user_settings.sdlmixer == 1):
+			print "%s: including SDL_mixer" % self.PROGRAM_NAME
+			env.Append(CPPDEFINES = ['USE_SDLMIXER'])
+			self.common_sources += self.arch_sdlmixer
+			if (sys.platform != 'darwin'):
+				self.platform_settings.libs += ['SDL_mixer']
+
+		# debug?
+		if (self.user_settings.debug == 1):
+			print "%s: including: DEBUG" % self.PROGRAM_NAME
+			env.Append(CPPFLAGS = ['-g'])
+		else:
+			env.Append(CPPDEFINES = ['NDEBUG', 'RELEASE'])
+			env.Append(CPPFLAGS = ['-O2'])
+
+		# profiler?
+		if (self.user_settings.profiler == 1):
+			env.Append(CPPFLAGS = ['-pg'])
+			self.platform_settings.lflags += ' -pg'
+
+		#editor build?
+		if (self.user_settings.editor == 1):
+			env.Append(CPPDEFINES = ['EDITOR'])
+			env.Append(CPPPATH = ['include/editor'])
+			self.common_sources += editor_sources
+
+		# IPv6 compability?
+		if (self.user_settings.ipv6 == 1):
+			env.Append(CPPDEFINES = ['IPv6'])
+
+		# UDP support?
+		if (self.user_settings.use_udp == 1):
+			env.Append(CPPDEFINES = ['USE_UDP'])
+			self.common_sources += ['main/net_udp.c']
+			# Tracker support?  (Relies on UDP)
+			if( self.user_settings.use_tracker == 1 ):
+				env.Append( CPPDEFINES = [ 'USE_TRACKER' ] )
+		print '\n'
+		env.Append(CPPDEFINES = [('SHAREPATH', '\\"' + str(self.user_settings.sharepath) + '\\"')])
+
+	def register_program(self):
+		env = self.env
+		# finally building program...
+		env.Program(target=str(self.target), source = self.common_sources, LIBS = self.platform_settings.libs, LINKFLAGS = str(self.platform_settings.lflags))
+		if (sys.platform != 'darwin'):
+			env.Install(self.user_settings.BIN_DIR, str(self.target))
+			env.Alias('install', self.user_settings.BIN_DIR)
+		else:
+			tool_bundle.TOOL_BUNDLE(env)
+			env.MakeBundle(self.PROGRAM_NAME + '.app', self.target,
+					'free.d2x-rebirth', 'd2xgl-Info.plist',
+					typecode='APPL', creator='DCNT',
+					icon_file='arch/cocoa/d2x-rebirth.icns',
+					subst_dict={'d2xgl' : self.target},	# This is required; manually update version for Xcode compatibility
+					resources=[['English.lproj/InfoPlist.strings', 'English.lproj/InfoPlist.strings']])
+
+class D2XProgram(DXXProgram):
+	PROGRAM_NAME = 'D2X-Rebirth'
+	target = 'd2x-rebirth'
+	ARGUMENTS = argumentIndirection('d2x')
+	def __init__(self):
+		DXXProgram.__init__(self)
+
+	def prepare_environment(self):
+		DXXProgram.prepare_environment(self)
+		# Flags and stuff for all platforms...
+		self.env.Append(CPPFLAGS = ['-Wall', '-funsigned-char', '-Werror=implicit-int', '-Werror=implicit-function-declaration', '-std=c99', '-pedantic'])
+		self.env.Append(CPPDEFINES = ['NETWORK', '_REENTRANT'])
+		self.env.Append(CPPPATH = ['include', 'main', 'arch/include'])
+	# general source files
+	DXXProgram.common_sources += [
 '2d/2dsline.c',
 '2d/bitblt.c',
 '2d/bitmap.c',
@@ -255,8 +411,8 @@ common_sources = [
 'texmap/scanline.c'
 ]
 
-# for editor
-editor_sources = [
+	# for editor
+	DXXProgram.editor_sources += [
 'editor/centers.c',
 'editor/curves.c',
 'editor/autosave.c',
@@ -315,27 +471,27 @@ editor_sources = [
 'ui/userbox.c'
 ]
 
-# SDL_mixer sound implementation
-arch_sdlmixer = [
+	# SDL_mixer sound implementation
+	arch_sdlmixer = [
 'arch/sdl/digi_mixer.c',
 'arch/sdl/digi_mixer_music.c',
 'arch/sdl/jukebox.c'
 ]
 
-# for opengl
-arch_ogl_sources = [
+	# for opengl
+	arch_ogl_sources = [
 'arch/ogl/gr.c',
 'arch/ogl/ogl.c',
 ]
 
-# for non-ogl
-arch_sdl_sources = [
+	# for non-ogl
+	arch_sdl_sources = [
 'arch/sdl/gr.c',
 'texmap/tmapflat.c'
 ]
 
-# assembler related
-asm_sources = [
+	# assembler related
+	asm_sources = [
 'texmap/tmap_ll.asm',
 'texmap/tmap_flt.asm',
 'texmap/tmapfade.asm',
@@ -343,155 +499,10 @@ asm_sources = [
 'texmap/tmap_per.asm'
 ]
 
-# Acquire environment object...
-env = Environment(ENV = os.environ, tools = ['mingw'])
-
-# Prettier build messages......
-if (user_settings.verbosebuild == 0):
-	env["CCCOMSTR"]     = "Compiling $SOURCE ..."
-	env["CXXCOMSTR"]    = "Compiling $SOURCE ..."
-	env["LINKCOMSTR"]   = "Linking $TARGET ..."
-	env["ARCOMSTR"]     = "Archiving $TARGET ..."
-	env["RANLIBCOMSTR"] = "Indexing $TARGET ..."
-
-# Flags and stuff for all platforms...
-env.Append(CPPFLAGS = ['-Wall', '-funsigned-char', '-Werror=implicit-int', '-Werror=implicit-function-declaration', '-std=c99', '-pedantic'])
-env.Append(CPPDEFINES = [('PROGRAM_NAME', '\\"' + str(PROGRAM_NAME) + '\\"'), ('DXX_VERSION_MAJORi', str(VERSION_MAJOR)), ('DXX_VERSION_MINORi', str(VERSION_MINOR)), ('DXX_VERSION_MICROi', str(VERSION_MICRO))])
-env.Append(CPPDEFINES = ['NETWORK', '_REENTRANT'])
-env.Append(CPPPATH = ['include', 'main', 'arch/include'])
-
-# Get traditional compiler environment variables
-for cc in ['CC', 'CXX']:
-	if os.environ.has_key(cc):
-		env[cc] = os.environ[cc]
-for flags in ['CFLAGS', 'CXXFLAGS']:
-	if os.environ.has_key(flags):
-		env[flags] += SCons.Util.CLVar(os.environ[flags])
-
-# windows or *nix?
-if sys.platform == 'win32':
-	print "compiling on Windows"
-	platform_settings = DXXProgram.Win32PlatformSettings(user_settings)
-	common_sources += ['arch/win32/messagebox.c']
-elif sys.platform == 'darwin':
-	print "compiling on Mac OS X"
-	platform_settings = DXXProgram.DarwinPlatformSettings(user_settings)
-	common_sources += ['arch/cocoa/SDLMain.m', 'arch/carbon/messagebox.c']
-	sys.path += ['./arch/cocoa']
-	VERSION = str(VERSION_MAJOR) + '.' + str(VERSION_MINOR)
-	if (VERSION_MICRO):
-		VERSION += '.' + str(VERSION_MICRO)
-	env['VERSION_NUM'] = VERSION
-	env['VERSION_NAME'] = PROGRAM_NAME + ' v' + VERSION
-	import tool_bundle
-else:
-	print "compiling on *NIX"
-	platform_settings = DXXProgram.LinuxPlatformSettings(user_settings)
-	user_settings.sharepath += '/'
-	env.ParseConfig('sdl-config --cflags')
-	env.ParseConfig('sdl-config --libs')
-	platform_settings.libs += env['LIBS']
-platform_settings.adjust_environment(env)
-platform_settings.libs += ['physfs', 'm']
-
-# set endianess
-if (checkEndian() == "big"):
-	print "BigEndian machine detected"
-	user_settings.asm = 0
-	env.Append(CPPDEFINES = ['WORDS_BIGENDIAN'])
-elif (checkEndian() == "little"):
-	print "LittleEndian machine detected"
-
-# opengl or software renderer?
-if (user_settings.opengl == 1) or (user_settings.opengles == 1):
-	if (user_settings.opengles == 1):
-		print "building with OpenGL ES 1.x, library: %s" % user_settings.opengles_lib
-		env.Append(CPPDEFINES = ['OGLES'])
-	else:
-		print "building with OpenGL"
-	env.Append(CPPDEFINES = ['OGL'])
-	common_sources += arch_ogl_sources
-	platform_settings.libs += platform_settings.ogllibs
-else:
-	print "building with Software Renderer"
-	common_sources += arch_sdl_sources
-
-# assembler code?
-if (user_settings.asm == 1) and (user_settings.opengl == 0):
-	print "including: ASSEMBLER"
-	env.Replace(AS = 'nasm')
-	env.Append(ASCOM = ' -f ' + str(platform_settings.osasmdef) + ' -d' + str(osdef) + ' -Itexmap/ ')
-	common_sources += asm_sources
-else:
-	env.Append(CPPDEFINES = ['NO_ASM'])
-
-# SDL_mixer support?
-if (user_settings.sdlmixer == 1):
-	print "including SDL_mixer"
-	env.Append(CPPDEFINES = ['USE_SDLMIXER'])
-	common_sources += arch_sdlmixer
-	if (sys.platform != 'darwin'):
-		platform_settings.libs += ['SDL_mixer']
-
-# debug?
-if (user_settings.debug == 1):
-	print "including: DEBUG"
-	env.Append(CPPFLAGS = ['-g'])
-else:
-	env.Append(CPPDEFINES = ['NDEBUG', 'RELEASE'])
-	env.Append(CPPFLAGS = ['-O2'])
-
-# profiler?
-if (user_settings.profiler == 1):
-	env.Append(CPPFLAGS = ['-pg'])
-	platform_settings.lflags += ' -pg'
-
-#editor build?
-if (user_settings.editor == 1):
-	env.Append(CPPDEFINES = ['EDITOR'])
-	env.Append(CPPPATH = ['include/editor'])
-	common_sources += editor_sources
-
-# IPv6 compability?
-if (user_settings.ipv6 == 1):
-	env.Append(CPPDEFINES = ['IPv6'])
-
-# UDP support?
-if (user_settings.use_udp == 1):
-	env.Append(CPPDEFINES = ['USE_UDP'])
-	common_sources += ['main/net_udp.c']
-	
-	# Tracker support?  (Relies on UDP)
-	if( user_settings.use_tracker == 1 ):
-		env.Append( CPPDEFINES = [ 'USE_TRACKER' ] )
-		
-# Raspberry Pi?
-if (user_settings.raspberrypi == 1):
-	print "using Raspberry Pi vendor libs in %s" % rpi_vc_path
-	env.Append(CPPDEFINES = ['RPI', 'WORDS_NEED_ALIGNMENT'])
-	env.Append(CPPPATH = [rpi_vc_path+'/include', rpi_vc_path+'/include/interface/vcos/pthreads'])
-	lflags += ' -L'+rpi_vc_path+'/lib'
-	libs += ['bcm_host']
-
-print '\n'
-
-env.Append(CPPDEFINES = [('SHAREPATH', '\\"' + str(user_settings.sharepath) + '\\"')])
-# finally building program...
-env.Program(target=str(target), source = common_sources, LIBS = platform_settings.libs, LINKFLAGS = str(platform_settings.lflags))
-if (sys.platform != 'darwin'):
-	env.Install(user_settings.BIN_DIR, str(target))
-	env.Alias('install', user_settings.BIN_DIR)
-else:
-	tool_bundle.TOOL_BUNDLE(env)
-	env.MakeBundle(PROGRAM_NAME + '.app', target,
-                       'free.d2x-rebirth', 'd2xgl-Info.plist',
-                       typecode='APPL', creator='DCT2',
-                       icon_file='arch/cocoa/d2x-rebirth.icns',
-                       subst_dict={'d2xgl' : target},	# This is required; manually update version for Xcode compatibility
-                       resources=[['English.lproj/InfoPlist.strings', 'English.lproj/InfoPlist.strings']])
+program = D2XProgram()
 
 # show some help when running scons -h
-Help(PROGRAM_NAME + ', SConstruct file help:' +
+Help(program.PROGRAM_NAME + ', SConstruct file help:' +
 	"""
 
 	Type 'scons' to build the binary.
@@ -517,9 +528,9 @@ Help(PROGRAM_NAME + ', SConstruct file help:' +
 	'rpi_vc_path=[DIR]'   use [DIR] to look for VideoCore libraries/header files (RPi only)
 
 	Default values:
-	""" + ' sharepath = ' + user_settings.DATA_DIR + """
-	""" + ' opengles_lib = ' + user_settings.OGLES_LIB + """
-	""" + ' rpi_vc_path = ' + user_settings.RPI_DEFAULT_VC_PATH + """
+	""" + ' sharepath = ' + program.user_settings.DATA_DIR + """
+	""" + ' opengles_lib = ' + program.user_settings.OGLES_LIB + """
+	""" + ' rpi_vc_path = ' + program.user_settings.RPI_DEFAULT_VC_PATH + """
 
 	Some influential environment variables:
 	  CC          C compiler command
