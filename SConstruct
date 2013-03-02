@@ -253,10 +253,261 @@ class DXXProgram:
 		print '\n'
 		env.Append(CPPDEFINES = [('SHAREPATH', '\\"' + str(self.user_settings.sharepath) + '\\"')])
 
+class D1XProgram(DXXProgram):
+	PROGRAM_NAME = 'D1X-Rebirth'
+	target = 'd1x-rebirth'
+	srcdir = 'd1x-rebirth'
+	ARGUMENTS = argumentIndirection('d1x')
+	def prepare_environment(self):
+		DXXProgram.prepare_environment(self)
+		# Flags and stuff for all platforms...
+		self.env.Append(CCFLAGS = ['-Wall', '-funsigned-char', '-Werror=implicit-int', '-Werror=implicit-function-declaration', '-pedantic', '-pthread'])
+		self.env.Append(CFLAGS = ['-std=c99'])
+		self.env.Append(CPPDEFINES = ['NETWORK'])
+		self.env.Append(CPPPATH = [os.path.join(self.srcdir, f) for f in ['include', 'main', 'arch/include']])
+
+	def __init__(self):
+	# general source files
+		self.common_sources = [os.path.join(self.srcdir, f) for f in [
+'2d/2dsline.c',
+'2d/bitblt.c',
+'2d/bitmap.c',
+'2d/box.c',
+'2d/canvas.c',
+'2d/circle.c',
+'2d/disc.c',
+'2d/font.c',
+'2d/gpixel.c',
+'2d/line.c',
+'2d/palette.c',
+'2d/pcx.c',
+'2d/pixel.c',
+'2d/poly.c',
+'2d/rect.c',
+'2d/rle.c',
+'2d/scalec.c',
+'3d/clipper.c',
+'3d/draw.c',
+'3d/globvars.c',
+'3d/instance.c',
+'3d/interp.c',
+'3d/matrix.c',
+'3d/points.c',
+'3d/rod.c',
+'3d/setup.c',
+'arch/sdl/event.c',
+'arch/sdl/init.c',
+'arch/sdl/joy.c',
+'arch/sdl/key.c',
+'arch/sdl/mouse.c',
+'arch/sdl/rbaudio.c',
+'arch/sdl/timer.c',
+'arch/sdl/window.c',
+'arch/sdl/digi.c',
+'arch/sdl/digi_audio.c',
+'iff/iff.c',
+'main/ai.c',
+'main/aipath.c',
+'main/automap.c',
+'main/bm.c',
+'main/bmread.c',
+'main/cntrlcen.c',
+'main/collide.c',
+'main/config.c',
+'main/console.c',
+'main/controls.c',
+'main/credits.c',
+'main/custom.c',
+'main/digiobj.c',
+'main/dumpmine.c',
+'main/effects.c',
+'main/endlevel.c',
+'main/fireball.c',
+'main/fuelcen.c',
+'main/fvi.c',
+'main/game.c',
+'main/gamecntl.c',
+'main/gamefont.c',
+'main/gamemine.c',
+'main/gamerend.c',
+'main/gamesave.c',
+'main/gameseg.c',
+'main/gameseq.c',
+'main/gauges.c',
+'main/hostage.c',
+'main/hud.c',
+'main/inferno.c',
+'main/kconfig.c',
+'main/kmatrix.c',
+'main/laser.c',
+'main/lighting.c',
+'main/menu.c',
+'main/mglobal.c',
+'main/mission.c',
+'main/morph.c',
+'main/multi.c',
+'main/multibot.c',
+'main/newdemo.c',
+'main/newmenu.c',
+'main/object.c',
+'main/paging.c',
+'main/physics.c',
+'main/piggy.c',
+'main/player.c',
+'main/playsave.c',
+'main/polyobj.c',
+'main/powerup.c',
+'main/render.c',
+'main/robot.c',
+'main/scores.c',
+'main/slew.c',
+'main/snddecom.c',
+'main/songs.c',
+'main/state.c',
+'main/switch.c',
+'main/terrain.c',
+'main/texmerge.c',
+'main/text.c',
+'main/titles.c',
+'main/vclip.c',
+'main/wall.c',
+'main/weapon.c',
+'maths/fixc.c',
+'maths/rand.c',
+'maths/tables.c',
+'maths/vecmat.c',
+'mem/mem.c',
+'misc/args.c',
+'misc/dl_list.c',
+'misc/error.c',
+'misc/hash.c',
+'misc/hmp.c',
+'misc/ignorecase.c',
+'misc/physfsx.c',
+'misc/strio.c',
+'misc/strutil.c',
+'texmap/ntmap.c',
+'texmap/scanline.c'
+#'tracker/client/tracker_client.c'
+]
+]
+
+	# for editor
+		self.editor_sources = [os.path.join(self.srcdir, f) for f in [
+'editor/centers.c',
+'editor/curves.c',
+'editor/autosave.c',
+'editor/eglobal.c',
+'editor/ehostage.c',
+'editor/elight.c',
+'editor/eobject.c',
+'editor/eswitch.c',
+'editor/fixseg.c',
+'editor/func.c',
+'editor/group.c',
+'editor/info.c',
+'editor/kbuild.c',
+'editor/kcurve.c',
+'editor/kfuncs.c',
+'editor/kgame.c',
+'editor/khelp.c',
+'editor/kmine.c',
+'editor/ksegmove.c',
+'editor/ksegsel.c',
+'editor/ksegsize.c',
+'editor/ktmap.c',
+'editor/kview.c',
+'editor/med.c',
+'editor/meddraw.c',
+'editor/medmisc.c',
+'editor/medrobot.c',
+'editor/medsel.c',
+'editor/medwall.c',
+'editor/mine.c',
+'editor/objpage.c',
+'editor/segment.c',
+'editor/seguvs.c',
+'editor/texpage.c',
+'editor/texture.c',
+'ui/button.c',
+'ui/checkbox.c',
+'ui/dialog.c',
+'ui/file.c',
+'ui/gadget.c',
+'ui/icon.c',
+'ui/inputbox.c',
+'ui/keypad.c',
+'ui/keypress.c',
+'ui/keytrap.c',
+'ui/listbox.c',
+'ui/menu.c',
+'ui/menubar.c',
+'ui/message.c',
+'ui/popup.c',
+'ui/radio.c',
+'ui/scroll.c',
+'ui/ui.c',
+'ui/uidraw.c',
+'ui/userbox.c'
+]
+]
+		DXXProgram.__init__(self)
+
+	sources_use_udp = [os.path.join(srcdir, 'main/net_udp.c')]
+
+	# SDL_mixer sound implementation
+	arch_sdlmixer = [os.path.join(srcdir, f) for f in [
+'arch/sdl/digi_mixer.c',
+'arch/sdl/digi_mixer_music.c',
+'arch/sdl/jukebox.c'
+]
+]
+
+	# for opengl
+	arch_ogl_sources = [os.path.join(srcdir, f) for f in [
+'arch/ogl/gr.c',
+'arch/ogl/ogl.c',
+]
+]
+
+	# for non-ogl
+	arch_sdl_sources = [os.path.join(srcdir, f) for f in [
+'arch/sdl/gr.c',
+'texmap/tmapflat.c'
+]
+]
+
+	# assembler related
+	asm_sources = [os.path.join(srcdir, f) for f in [
+'texmap/tmap_ll.asm',
+'texmap/tmap_flt.asm',
+'texmap/tmapfade.asm',
+'texmap/tmap_lin.asm',
+'texmap/tmap_per.asm'
+]
+]
+
+	def register_program(self):
+		env = self.env
+		exe_target = os.path.join(self.srcdir, self.target)
+		# finally building program...
+		env.Program(target=str(exe_target), source = self.common_sources, LIBS = self.platform_settings.libs, LINKFLAGS = str(self.platform_settings.lflags))
+		if (sys.platform != 'darwin'):
+			env.Install(self.user_settings.BIN_DIR, str(exe_target))
+			env.Alias('install', self.user_settings.BIN_DIR)
+		else:
+			tool_bundle.TOOL_BUNDLE(env)
+			env.MakeBundle(self.PROGRAM_NAME + '.app', exe_target,
+					'free.d1x-rebirth', 'd1xgl-Info.plist',
+					typecode='APPL', creator='DCNT',
+					icon_file='arch/cocoa/d1x-rebirth.icns',
+					subst_dict={'d1xgl' : exe_target},	# This is required; manually update version for Xcode compatibility
+					resources=[['English.lproj/InfoPlist.strings', 'English.lproj/InfoPlist.strings']])
+
 class D2XProgram(DXXProgram):
 	PROGRAM_NAME = 'D2X-Rebirth'
 	target = 'd2x-rebirth'
-	srcdir = ''
+	srcdir = 'd2x-rebirth'
 	ARGUMENTS = argumentIndirection('d2x')
 	def prepare_environment(self):
 		DXXProgram.prepare_environment(self)
@@ -512,10 +763,15 @@ class D2XProgram(DXXProgram):
 					subst_dict={'d2xgl' : exe_target},	# This is required; manually update version for Xcode compatibility
 					resources=[['English.lproj/InfoPlist.strings', 'English.lproj/InfoPlist.strings']])
 
-program = D2XProgram()
+program_d1x = None
+program_d2x = None
+if int(ARGUMENTS.get('d1x', 1)):
+	program_d1x = D1XProgram()
+if int(ARGUMENTS.get('d2x', 1)):
+	program_d2x = D2XProgram()
 
 # show some help when running scons -h
-Help(program.PROGRAM_NAME + ', SConstruct file help:' +
+Help('DXX-Rebirth, SConstruct file help:' +
 	"""
 
 	Type 'scons' to build the binary.
@@ -541,10 +797,12 @@ Help(program.PROGRAM_NAME + ', SConstruct file help:' +
 	'rpi_vc_path=[DIR]'   use [DIR] to look for VideoCore libraries/header files (RPi only)
 
 	Default values:
-	""" + ' sharepath = ' + program.user_settings.DATA_DIR + """
-	""" + ' opengles_lib = ' + program.user_settings.OGLES_LIB + """
-	""" + ' rpi_vc_path = ' + program.user_settings.RPI_DEFAULT_VC_PATH + """
-
+""" +
+	(('	 d1x sharepath = ' + program_d1x.user_settings.DATA_DIR + '\n') if program_d1x else '') +
+	(('	 d2x sharepath = ' + program_d2x.user_settings.DATA_DIR + '\n') if program_d2x else '') +
+	(('	 d2x opengles_lib = ' + program_d2x.user_settings.OGLES_LIB + '\n') if program_d2x else '') +
+	(('	 d2x rpi_vc_path = ' + program_d2x.user_settings.RPI_DEFAULT_VC_PATH + '\n') if program_d2x else '') +
+"""
 	Some influential environment variables:
 	  CC          C compiler command
 	  CFLAGS      C compiler flags
