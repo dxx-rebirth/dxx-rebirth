@@ -164,11 +164,11 @@ class DXXProgram:
 		if sys.platform == 'win32':
 			print "%s: compiling on Windows" % self.PROGRAM_NAME
 			self.platform_settings = DXXProgram.Win32PlatformSettings(self.user_settings)
-			common_sources += ['arch/win32/messagebox.c']
+			self.common_sources += ['arch/win32/messagebox.c']
 		elif sys.platform == 'darwin':
 			print "%s: compiling on Mac OS X" % self.PROGRAM_NAME
 			self.platform_settings = DXXProgram.DarwinPlatformSettings(self.user_settings)
-			common_sources += ['arch/cocoa/SDLMain.m', 'arch/carbon/messagebox.c']
+			self.common_sources += ['arch/cocoa/SDLMain.m', 'arch/carbon/messagebox.c']
 			sys.path += ['./arch/cocoa']
 			VERSION = str(VERSION_MAJOR) + '.' + str(VERSION_MINOR)
 			if (VERSION_MICRO):
@@ -236,7 +236,7 @@ class DXXProgram:
 		if (self.user_settings.editor == 1):
 			env.Append(CPPDEFINES = ['EDITOR'])
 			env.Append(CPPPATH = ['include/editor'])
-			self.common_sources += editor_sources
+			self.common_sources += self.editor_sources
 
 		# IPv6 compability?
 		if (self.user_settings.ipv6 == 1):
@@ -272,17 +272,16 @@ class D2XProgram(DXXProgram):
 	PROGRAM_NAME = 'D2X-Rebirth'
 	target = 'd2x-rebirth'
 	ARGUMENTS = argumentIndirection('d2x')
-	def __init__(self):
-		DXXProgram.__init__(self)
-
 	def prepare_environment(self):
 		DXXProgram.prepare_environment(self)
 		# Flags and stuff for all platforms...
 		self.env.Append(CPPFLAGS = ['-Wall', '-funsigned-char', '-Werror=implicit-int', '-Werror=implicit-function-declaration', '-std=c99', '-pedantic'])
 		self.env.Append(CPPDEFINES = ['NETWORK', '_REENTRANT'])
 		self.env.Append(CPPPATH = ['include', 'main', 'arch/include'])
+
+	def __init__(self):
 	# general source files
-	DXXProgram.common_sources += [
+		self.common_sources = [
 '2d/2dsline.c',
 '2d/bitblt.c',
 '2d/bitmap.c',
@@ -413,7 +412,7 @@ class D2XProgram(DXXProgram):
 ]
 
 	# for editor
-	DXXProgram.editor_sources += [
+		self.editor_sources = [
 'editor/centers.c',
 'editor/curves.c',
 'editor/autosave.c',
@@ -471,6 +470,7 @@ class D2XProgram(DXXProgram):
 'ui/uidraw.c',
 'ui/userbox.c'
 ]
+		DXXProgram.__init__(self)
 
 	# SDL_mixer sound implementation
 	arch_sdlmixer = [
