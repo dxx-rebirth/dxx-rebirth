@@ -253,22 +253,6 @@ class DXXProgram:
 		print '\n'
 		env.Append(CPPDEFINES = [('SHAREPATH', '\\"' + str(self.user_settings.sharepath) + '\\"')])
 
-	def register_program(self):
-		env = self.env
-		# finally building program...
-		env.Program(target=str(self.target), source = self.common_sources, LIBS = self.platform_settings.libs, LINKFLAGS = str(self.platform_settings.lflags))
-		if (sys.platform != 'darwin'):
-			env.Install(self.user_settings.BIN_DIR, str(self.target))
-			env.Alias('install', self.user_settings.BIN_DIR)
-		else:
-			tool_bundle.TOOL_BUNDLE(env)
-			env.MakeBundle(self.PROGRAM_NAME + '.app', self.target,
-					'free.d2x-rebirth', 'd2xgl-Info.plist',
-					typecode='APPL', creator='DCNT',
-					icon_file='arch/cocoa/d2x-rebirth.icns',
-					subst_dict={'d2xgl' : self.target},	# This is required; manually update version for Xcode compatibility
-					resources=[['English.lproj/InfoPlist.strings', 'English.lproj/InfoPlist.strings']])
-
 class D2XProgram(DXXProgram):
 	PROGRAM_NAME = 'D2X-Rebirth'
 	target = 'd2x-rebirth'
@@ -502,6 +486,23 @@ class D2XProgram(DXXProgram):
 'texmap/tmap_lin.asm',
 'texmap/tmap_per.asm'
 ]
+
+	def register_program(self):
+		env = self.env
+		exe_target = self.target
+		# finally building program...
+		env.Program(target=str(exe_target), source = self.common_sources, LIBS = self.platform_settings.libs, LINKFLAGS = str(self.platform_settings.lflags))
+		if (sys.platform != 'darwin'):
+			env.Install(self.user_settings.BIN_DIR, str(exe_target))
+			env.Alias('install', self.user_settings.BIN_DIR)
+		else:
+			tool_bundle.TOOL_BUNDLE(env)
+			env.MakeBundle(self.PROGRAM_NAME + '.app', exe_target,
+					'free.d2x-rebirth', 'd2xgl-Info.plist',
+					typecode='APPL', creator='DCNT',
+					icon_file='arch/cocoa/d2x-rebirth.icns',
+					subst_dict={'d2xgl' : exe_target},	# This is required; manually update version for Xcode compatibility
+					resources=[['English.lproj/InfoPlist.strings', 'English.lproj/InfoPlist.strings']])
 
 program = D2XProgram()
 
