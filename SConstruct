@@ -246,7 +246,7 @@ class DXXProgram:
 		# UDP support?
 		if (self.user_settings.use_udp == 1):
 			env.Append(CPPDEFINES = ['USE_UDP'])
-			self.common_sources += ['main/net_udp.c']
+			self.common_sources += self.sources_use_udp
 			# Tracker support?  (Relies on UDP)
 			if( self.user_settings.use_tracker == 1 ):
 				env.Append( CPPDEFINES = [ 'USE_TRACKER' ] )
@@ -472,6 +472,8 @@ class D2XProgram(DXXProgram):
 'ui/userbox.c'
 ]
 		DXXProgram.__init__(self)
+
+	sources_use_udp = ['main/net_udp.c']
 
 	# SDL_mixer sound implementation
 	arch_sdlmixer = [
