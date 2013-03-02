@@ -67,6 +67,7 @@ class DXXProgram:
 		def __init__(self):
 			self.ogllibs = ''
 			self.osasmdef = None
+			self.platform_sources = []
 	# Settings to apply to mingw32 builds
 	class Win32PlatformSettings(_PlatformSettings):
 		def __init__(self,user_settings):
@@ -80,6 +81,7 @@ class DXXProgram:
 			env.RES('arch/win32/%s.rc' % program.target)
 			env.Append(CPPDEFINES = ['_WIN32', 'HAVE_STRUCT_TIMEVAL'])
 			env.Append(CPPPATH = ['arch/win32/include'])
+			self.platform_sources = ['arch/win32/messagebox.c']
 	# Settings to apply to Apple builds
 	# This appears to be unused.  The reference to sdl_only fails to
 	# execute.
@@ -99,6 +101,7 @@ class DXXProgram:
 			self.libs = ['../physfs/build/Debug/libphysfs.dylib']
 		def adjust_environment(self,program,env):
 			env.Append(CPPDEFINES = ['HAVE_STRUCT_TIMESPEC', 'HAVE_STRUCT_TIMEVAL', '__unix__'])
+			self.platform_sources = ['arch/cocoa/SDLMain.m', 'arch/carbon/messagebox.c']
 	# Settings to apply to Linux builds
 	class LinuxPlatformSettings(_PlatformSettings):
 		def __init__(self,user_settings):
@@ -165,11 +168,9 @@ class DXXProgram:
 		if sys.platform == 'win32':
 			print "%s: compiling on Windows" % self.PROGRAM_NAME
 			platform = self.Win32PlatformSettings
-			self.common_sources += ['arch/win32/messagebox.c']
 		elif sys.platform == 'darwin':
 			print "%s: compiling on Mac OS X" % self.PROGRAM_NAME
 			platform = self.DarwinPlatformSettings
-			self.common_sources += ['arch/cocoa/SDLMain.m', 'arch/carbon/messagebox.c']
 			sys.path += ['./arch/cocoa']
 			VERSION = str(VERSION_MAJOR) + '.' + str(VERSION_MINOR)
 			if (VERSION_MICRO):
@@ -184,6 +185,7 @@ class DXXProgram:
 		self.platform_settings = platform(self.user_settings)
 		self.platform_settings.adjust_environment(self, env)
 		self.platform_settings.libs += ['physfs', 'm']
+		self.common_sources += self.platform_settings.platform_sources
 
 	def process_user_settings(self):
 		env = self.env
