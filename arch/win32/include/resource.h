@@ -1,18 +1,8 @@
 //{{NO_DEPENDENCIES}}
 // Microsoft Developer Studio generated include file.
-// Used by d1x.rc
+// Used by d2x-rebirth.rc
 //
-#define IDI_MAIN_ICON                   101
-#define IDR_MAIN_ACCEL                  113
-#define IDD_ABOUT                       142
-#define IDR_MENU                        143
-#define IDR_POPUP                       145
-#define IDM_EXIT                        40001
-#define IDM_CHANGEDEVICE                40010
-#define IDM_TOGGLEFULLSCREEN            40011
-#define IDM_HELP                        40012
-#define IDM_TOGGLESTART                 40013
-#define IDM_SINGLESTEP                  40014
+#define IDI_DXX_ICON                   101
 
 // Next default values for new objects
 // 

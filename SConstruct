@@ -74,9 +74,10 @@ class DXXProgram:
 			self.osdef = '_WIN32'
 			self.osasmdef = 'win32'
 			user_settings.sharepath = ''
-			self.lflags = '-mwindows arch/win32/d2xr.res'
+			self.lflags = '-mwindows'
 			self.libs = ['glu32', 'wsock32', 'ws2_32', 'winmm', 'mingw32', 'SDLmain', 'SDL']
-		def adjust_environment(self,env):
+		def adjust_environment(self,program,env):
+			env.RES('arch/win32/%s.rc' % program.target)
 			env.Append(CPPDEFINES = ['_WIN32', 'HAVE_STRUCT_TIMEVAL'])
 			env.Append(CPPPATH = ['arch/win32/include'])
 	# Settings to apply to Apple builds
@@ -96,7 +97,7 @@ class DXXProgram:
 			if (sdl_only == 0):
 				self.lflags += ' -framework OpenGL'
 			self.libs = ['../physfs/build/Debug/libphysfs.dylib']
-		def adjust_environment(self,env):
+		def adjust_environment(self,program,env):
 			env.Append(CPPDEFINES = ['HAVE_STRUCT_TIMESPEC', 'HAVE_STRUCT_TIMEVAL', '__unix__'])
 	# Settings to apply to Linux builds
 	class LinuxPlatformSettings(_PlatformSettings):
@@ -110,7 +111,7 @@ class DXXProgram:
 				self.ogllibs = ['GL', 'GLU']
 			self.lflags = os.environ["LDFLAGS"] if os.environ.has_key('LDFLAGS') else ''
 			self.libs = []
-		def adjust_environment(self,env):
+		def adjust_environment(self,program,env):
 			env.Append(CPPDEFINES = ['__LINUX__', 'HAVE_STRUCT_TIMESPEC', 'HAVE_STRUCT_TIMEVAL'])
 			env.Append(CPPPATH = ['arch/linux/include'])
 
@@ -182,7 +183,7 @@ class DXXProgram:
 			env.ParseConfig('sdl-config --cflags')
 			env.ParseConfig('sdl-config --libs')
 			self.platform_settings.libs += env['LIBS']
-		self.platform_settings.adjust_environment(env)
+		self.platform_settings.adjust_environment(self, env)
 		self.platform_settings.libs += ['physfs', 'm']
 
 	def process_user_settings(self):
