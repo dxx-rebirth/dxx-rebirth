@@ -61,7 +61,9 @@ COPYRIGHT 1993-1999 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 #include "text.h"
 #include "digi.h"
 #include "songs.h"
+#if defined(DXX_BUILD_DESCENT_II)
 #include "movie.h"
+#endif
 #include "render.h"
 #include "titles.h"
 #ifdef OGL
@@ -115,6 +117,7 @@ static int find_exit_side(object *obj);
 static void generate_starfield();
 static void start_endlevel_flythrough(int n,object *obj,fix speed);
 
+#if defined(DXX_BUILD_DESCENT_II)
 static const char movie_table[] =	{	'a','b','c',
 							'a',
 							'd','f','d','f',
@@ -129,6 +132,7 @@ static const char movie_table[] =	{	'a','b','c',
 static const char movie_table_secret[] = {'a','d','g','j','m','p'};
 #define N_MOVIES_SECRET (sizeof(movie_table_secret) / sizeof(*movie_table_secret))
 static int endlevel_movie_played = MOVIE_NOT_PLAYED;
+#endif
 
 
 #define FLY_ACCEL i2f(5)
@@ -178,6 +182,7 @@ static int matt_find_connect_side(int seg0,int seg1)
 	return -1;
 }
 
+#if defined(DXX_BUILD_DESCENT_II)
 #define MOVIE_REQUIRED 1
 
 //returns movie played status.  see movie.h
@@ -216,6 +221,7 @@ static int start_endlevel_movie()
 	return (r);
 
 }
+#endif
 
 void free_endlevel_data()
 {
@@ -271,6 +277,7 @@ void start_endlevel_sequence()
 		Newdemo_state = ND_STATE_PAUSED;
 
 	if (Newdemo_state == ND_STATE_PLAYBACK) {		// don't do this if in playback mode
+#if defined(DXX_BUILD_DESCENT_II)
 		if (PLAYING_BUILTIN_MISSION) // only play movie for built-in mission
 		{
 			window_set_visible(Game_wind, 0);	// suspend the game, including drawing
@@ -278,12 +285,14 @@ void start_endlevel_sequence()
 			window_set_visible(Game_wind, 1);
 		}
 		strcpy(last_palette_loaded,"");		//force palette load next time
+#endif
 		return;
 	}
 
 	if (Player_is_dead || ConsoleObject->flags&OF_SHOULD_BE_DEAD)
 		return;				//don't start if dead!
 
+#if defined(DXX_BUILD_DESCENT_II)
 	//	Dematerialize Buddy!
 	for (int i=0; i<=Highest_object_index; i++)
 		if (Objects[i].type == OBJ_ROBOT)
@@ -291,6 +300,7 @@ void start_endlevel_sequence()
 				object_create_explosion(Objects[i].segnum, &Objects[i].pos, F1_0*7/2, VCLIP_POWERUP_DISAPPEARANCE );
 				Objects[i].flags |= OF_SHOULD_BE_DEAD;
 			}
+#endif
 
 	Players[Player_num].homing_object_dist = -F1_0; // Turn off homing sound.
 
@@ -298,6 +308,10 @@ void start_endlevel_sequence()
 		multi_send_endlevel_start(0);
 		multi_do_protocol_frame(1, 1);
 	}
+
+#if defined(DXX_BUILD_DESCENT_I)
+	if (!endlevel_data_loaded)
+#elif defined(DXX_BUILD_DESCENT_II)
 
 	if (PLAYING_BUILTIN_MISSION) // only play movie for built-in mission
 		if (!(Game_mode & GM_MULTI))
@@ -308,10 +322,13 @@ void start_endlevel_sequence()
 		}
 
 	if (!(!(Game_mode & GM_MULTI) && (endlevel_movie_played == MOVIE_NOT_PLAYED) && endlevel_data_loaded))
+#endif
 	{
+
 		PlayerFinishedLevel(0);		//done with level
 		return;
 	}
+#if defined(DXX_BUILD_DESCENT_II)
 	int exit_models_loaded = 0;
 
 	if (Piggy_hamfile_version < 3)
@@ -322,6 +339,7 @@ void start_endlevel_sequence()
 
 	if (!exit_models_loaded)
 		return;
+#endif
 #ifndef NDEBUG
 	int last_segnum;
 #endif
@@ -640,9 +658,11 @@ void do_endlevel_frame()
 
 			if (ConsoleObject->segnum == transition_segnum) {
 
+#if defined(DXX_BUILD_DESCENT_II)
 				if (PLAYING_BUILTIN_MISSION && endlevel_movie_played != MOVIE_NOT_PLAYED)
 					stop_endlevel_sequence();
 				else
+#endif
 				{
 					int objnum;
 
@@ -1385,8 +1405,13 @@ try_again:
 	else					//normal level
 		strcpy(filename,Level_names[level_num-1]);
 
+#if defined(DXX_BUILD_DESCENT_I)
+	if (!convert_ext(filename,"end"))
+		return;
+#elif defined(DXX_BUILD_DESCENT_II)
 	if (!convert_ext(filename,"END"))
 		Error("Error converting filename <%s> for endlevel data\n",filename);
+#endif
 
 	ifile = PHYSFSX_openReadBuffered(filename);
 
@@ -1401,8 +1426,10 @@ try_again:
 
 		if (!ifile) {
 			if (level_num==1) {
+#if defined(DXX_BUILD_DESCENT_II)
 				con_printf(CON_DEBUG, "Cannot load file text of binary version of <%s>\n",filename);
 				endlevel_data_loaded = 0; // won't be able to play endlevel sequence
+#endif
 				return;
 			}
 			else {
