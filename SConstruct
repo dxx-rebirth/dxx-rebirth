@@ -237,6 +237,7 @@ class DXXArchive(DXXCommon):
 ]
 ]
 	editor_sources = [os.path.join(srcdir, f) for f in [
+'ui/keypress.c',
 'ui/keytrap.c',
 'ui/listbox.c',
 'ui/menu.c',
@@ -532,7 +533,6 @@ class D1XProgram(DXXProgram):
 'ui/icon.c',
 'ui/inputbox.c',
 'ui/keypad.c',
-'ui/keypress.c',
 ]
 ]
 		DXXProgram.__init__(self)
@@ -746,7 +746,6 @@ class D2XProgram(DXXProgram):
 'ui/icon.c',
 'ui/inputbox.c',
 'ui/keypad.c',
-'ui/keypress.c',
 ]
 ]
 		DXXProgram.__init__(self)
