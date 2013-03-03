@@ -21,17 +21,36 @@ COPYRIGHT 1993-1999 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 #ifndef _HOSTAGE_H
 #define _HOSTAGE_H
 
-//@@#include "vclip.h"
-
 #define HOSTAGE_SIZE        i2f(5)  // 3d size of a hostage
 
 #define MAX_HOSTAGE_TYPES   1       //only one hostage bitmap
+#if defined(DXX_BUILD_DESCENT_I)
+#define MAX_HOSTAGES				10		//max per any one level
+#define HOSTAGE_MESSAGE_LEN	30
+
+// 1 per hostage
+typedef struct hostage_data {
+	short		objnum;
+	int		objsig;
+} hostage_data;
+
+extern hostage_data Hostages[MAX_HOSTAGES];
+
+//returns true if something drew
+int do_hostage_effects();
+
+void hostage_init_all();
+void hostage_compress_all();
+int hostage_is_valid( int hostage_num );
+int hostage_object_is_valid( int objnum  );
+void hostage_init_info( int objnum );
+#endif
 
 extern int N_hostage_types;
 
 extern int Hostage_vclip_num[MAX_HOSTAGE_TYPES];    // for each type of hostage
 
 void draw_hostage(object *obj);
-void hostage_rescue(int blah);
+void hostage_rescue( int hostage_number );
 
 #endif /* _HOSTAGE_H */
