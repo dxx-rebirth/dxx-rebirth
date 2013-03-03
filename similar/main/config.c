@@ -8,7 +8,7 @@ SUCH USE, DISPLAY OR CREATION IS FOR NON-COMMERCIAL, ROYALTY OR REVENUE
 FREE PURPOSES.  IN NO EVENT SHALL THE END-USER USE THE COMPUTER CODE
 CONTAINED HEREIN FOR REVENUE-BEARING PURPOSES.  THE END-USER UNDERSTANDS
 AND AGREES TO THE TERMS HEREIN AND ACCEPTS THE SAME BY USE OF THIS FILE.
-COPYRIGHT 1993-1998 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
+COPYRIGHT 1993-1999 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 */
 
 /*
@@ -59,6 +59,10 @@ static const char AspectXStr[] ="AspectX";
 static const char AspectYStr[] ="AspectY";
 static const char WindowModeStr[] ="WindowMode";
 static const char TexFiltStr[] ="TexFilt";
+#if defined(DXX_BUILD_DESCENT_II)
+static const char MovieTexFiltStr[] ="MovieTexFilt";
+static const char MovieSubtitlesStr[] ="MovieSubtitles";
+#endif
 static const char VSyncStr[] ="VSync";
 static const char MultisampleStr[] ="Multisample";
 static const char FPSIndicatorStr[] ="FPSIndicator";
@@ -90,13 +94,19 @@ int ReadConfigFile()
 	memset(GameCfg.CMMiscMusic[SONG_CREDITS],0,PATH_MAX+1);
 #if defined(__APPLE__) && defined(__MACH__)
 	GameCfg.OrigTrackOrder = 1;
+#if defined(DXX_BUILD_DESCENT_I)
 	GameCfg.CMLevelMusicPlayOrder = MUSIC_CM_PLAYORDER_LEVEL;
 	snprintf(GameCfg.CMLevelMusicPath,				PATH_MAX, "%s", "descent.m3u");
 	snprintf(GameCfg.CMMiscMusic[SONG_TITLE],		PATH_MAX, "%s%s", PHYSFS_getUserDir(), "Music/iTunes/iTunes Music/Insanity/Descent/02 Primitive Rage.mp3");
+	snprintf(GameCfg.CMMiscMusic[SONG_CREDITS],		PATH_MAX, "%s%s", PHYSFS_getUserDir(), "Music/iTunes/iTunes Music/Insanity/Descent/05 The Darkness Of Space.mp3");
+#elif defined(DXX_BUILD_DESCENT_II)
+	snprintf(GameCfg.CMLevelMusicPath,				PATH_MAX, "%s", "descent2.m3u");
+	snprintf(GameCfg.CMMiscMusic[SONG_TITLE],		PATH_MAX, "%s%s", PHYSFS_getUserDir(), "Music/iTunes/iTunes Music/Redbook Soundtrack/Descent II, Macintosh CD-ROM/02 Title.mp3");
+	snprintf(GameCfg.CMMiscMusic[SONG_CREDITS],		PATH_MAX, "%s%s", PHYSFS_getUserDir(), "Music/iTunes/iTunes Music/Redbook Soundtrack/Descent II, Macintosh CD-ROM/03 Crawl.mp3");
+#endif
 	snprintf(GameCfg.CMMiscMusic[SONG_BRIEFING],	PATH_MAX, "%s%s", PHYSFS_getUserDir(), "Music/iTunes/iTunes Music/Insanity/Descent/03 Outerlimits.mp3");
 	snprintf(GameCfg.CMMiscMusic[SONG_ENDLEVEL],	PATH_MAX, "%s%s", PHYSFS_getUserDir(), "Music/iTunes/iTunes Music/Insanity/Descent/04 Close Call.mp3");
 	snprintf(GameCfg.CMMiscMusic[SONG_ENDGAME],		PATH_MAX, "%s%s", PHYSFS_getUserDir(), "Music/iTunes/iTunes Music/Insanity/Descent/14 Insanity.mp3");
-	snprintf(GameCfg.CMMiscMusic[SONG_CREDITS],		PATH_MAX, "%s%s", PHYSFS_getUserDir(), "Music/iTunes/iTunes Music/Insanity/Descent/05 The Darkness Of Space.mp3");
 #endif
 	GameCfg.GammaLevel = 0;
 	memset(GameCfg.LastPlayer,0,CALLSIGN_LEN+1);
@@ -107,10 +117,15 @@ int ReadConfigFile()
 	GameCfg.AspectY = 4;
 	GameCfg.WindowMode = 0;
 	GameCfg.TexFilt = 0;
+#if defined(DXX_BUILD_DESCENT_II)
+	GameCfg.MovieTexFilt = 0;
+	GameCfg.MovieSubtitles = 0;
+#endif
 	GameCfg.VSync = 0;
 	GameCfg.Multisample = 0;
 	GameCfg.FPSIndicator = 0;
 	GameCfg.Grabinput = 1;
+
 
 	infile = PHYSFSX_openReadBuffered("descent.cfg");
 
@@ -212,6 +227,12 @@ int ReadConfigFile()
 				GameCfg.WindowMode = strtol(value, NULL, 10);
 			else if (!strcmp(token, TexFiltStr))
 				GameCfg.TexFilt = strtol(value, NULL, 10);
+#if defined(DXX_BUILD_DESCENT_II)
+			else if (!strcmp(token, MovieTexFiltStr))
+				GameCfg.MovieTexFilt = strtol(value, NULL, 10);
+			else if (!strcmp(token, MovieSubtitlesStr))
+				GameCfg.MovieSubtitles = strtol(value, NULL, 10);
+#endif
 			else if (!strcmp(token, VSyncStr))
 				GameCfg.VSync = strtol(value, NULL, 10);
 			else if (!strcmp(token, MultisampleStr))
@@ -270,6 +291,10 @@ int WriteConfigFile()
 	PHYSFSX_printf(infile, "%s=%i\n", AspectYStr, GameCfg.AspectY);
 	PHYSFSX_printf(infile, "%s=%i\n", WindowModeStr, GameCfg.WindowMode);
 	PHYSFSX_printf(infile, "%s=%i\n", TexFiltStr, GameCfg.TexFilt);
+#if defined(DXX_BUILD_DESCENT_II)
+	PHYSFSX_printf(infile, "%s=%i\n", MovieTexFiltStr, GameCfg.MovieTexFilt);
+	PHYSFSX_printf(infile, "%s=%i\n", MovieSubtitlesStr, GameCfg.MovieSubtitles);
+#endif
 	PHYSFSX_printf(infile, "%s=%i\n", VSyncStr, GameCfg.VSync);
 	PHYSFSX_printf(infile, "%s=%i\n", MultisampleStr, GameCfg.Multisample);
 	PHYSFSX_printf(infile, "%s=%i\n", FPSIndicatorStr, GameCfg.FPSIndicator);
