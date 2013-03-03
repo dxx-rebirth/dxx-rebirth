@@ -20,11 +20,11 @@ COPYRIGHT 1993-1999 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 #ifndef _AI_H
 #define _AI_H
 
-#include <stdio.h>
-
 #include "object.h"
+#if defined(DXX_BUILD_DESCENT_II)
 #include "fvi.h"
 #include "robot.h"
+#endif
 
 #define PLAYER_AWARENESS_INITIAL_TIME   (3*F1_0)
 #define MAX_PATH_LENGTH                 30          // Maximum length of path in ai path following.
@@ -37,6 +37,9 @@ COPYRIGHT 1993-1999 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 
 #define ROBOT_FIRE_AGITATION 94
 
+#if defined(DXX_BUILD_DESCENT_I)
+extern	int	Boss_hit_this_frame;
+#elif defined(DXX_BUILD_DESCENT_II)
 #define BOSS_D2     21 // Minimum D2 boss value.
 #define BOSS_COOL   21
 #define BOSS_WATER  22
@@ -55,6 +58,8 @@ extern const ubyte Boss_spews_bots_matter[NUM_D2_BOSSES];     // Set byte if bos
 extern const ubyte Boss_invulnerable_energy[NUM_D2_BOSSES];   // Set byte if boss is invulnerable to energy weapons.
 extern const ubyte Boss_invulnerable_matter[NUM_D2_BOSSES];   // Set byte if boss is invulnerable to matter weapons.
 extern const ubyte Boss_invulnerable_spot[NUM_D2_BOSSES];     // Set byte if boss is invulnerable in all but a certain spot.  (Dot product fvec|vec_to_collision < BOSS_INVULNERABLE_DOT)
+extern int Believed_player_seg;
+#endif
 
 extern fix64 Boss_cloak_start_time, Boss_cloak_end_time;
 extern int Num_boss_teleport_segs;
@@ -65,7 +70,6 @@ extern int Boss_dying;
 
 extern ai_local Ai_local_info[MAX_OBJECTS];
 extern vms_vector Believed_player_pos;
-extern int Believed_player_seg;
 
 extern void move_towards_segment_center(object *objp);
 extern int gate_in_robot(int type, int segnum);
@@ -83,7 +87,11 @@ extern void reset_ai_states(object *objp);
 extern int create_path_points(object *objp, int start_seg, int end_seg, point_seg *point_segs, short *num_points, int max_depth, int random_flag, int safety_flag, int avoid_seg);
 extern void create_all_paths(void);
 extern void create_path_to_station(object *objp, int max_length);
+#if defined(DXX_BUILD_DESCENT_I)
+extern void ai_follow_path(object *objp, int player_visibility);
+#elif defined(DXX_BUILD_DESCENT_II)
 extern void ai_follow_path(object *objp, int player_visibility, int previous_visibility, vms_vector *vec_to_player);
+#endif
 extern void ai_turn_towards_vector(vms_vector *vec_to_player, object *obj, fix rate);
 extern void ai_turn_towards_vel_vec(object *objp, fix rate);
 extern void init_ai_objects(void);
@@ -93,10 +101,12 @@ extern void create_n_segment_path_to_door(object *objp, int path_length, int avo
 extern void make_random_vector(vms_vector *vec);
 extern void init_robots_for_level(void);
 extern int ai_behavior_to_mode(int behavior);
+#if defined(DXX_BUILD_DESCENT_II)
 extern void create_path_to_segment(object *objp, int goalseg, int max_length, int safety_flag);
 extern int ready_to_fire(robot_info *robptr, ai_local *ailp);
 extern int polish_path(object *objp, point_seg *psegs, int num_points);
 extern void move_towards_player(object *objp, vms_vector *vec_to_player);
+#endif
 
 // max_length is maximum depth of path to create.
 // If -1, use default: MAX_DEPTH_TO_SEARCH_FOR_PLAYER
@@ -111,10 +121,12 @@ extern int player_is_visible_from_object(object *objp, vms_vector *pos, fix fiel
 extern void ai_reset_all_paths(void);   // Reset all paths.  Call at the start of a level.
 extern int ai_multiplayer_awareness(object *objp, int awareness_level);
 
+#if defined(DXX_BUILD_DESCENT_II)
 // In escort.c
 extern void do_escort_frame(object *objp, fix dist_to_player, int player_visibility);
 extern void do_snipe_frame(object *objp, fix dist_to_player, int player_visibility, vms_vector *vec_to_player);
 extern void do_thief_frame(object *objp, fix dist_to_player, int player_visibility, vms_vector *vec_to_player);
+#endif
 
 #ifndef NDEBUG
 extern void force_dump_ai_objects_all(char *msg);
@@ -127,6 +139,7 @@ extern void ai_init_boss_for_ship(void);
 extern int Boss_been_hit;
 extern fix AI_proc_time;
 
+#if defined(DXX_BUILD_DESCENT_II)
 // Stuff moved from ai.c by MK on 05/25/95.
 #define ANIM_RATE       (F1_0/16)
 #define DELTA_ANG_SCALE 16
@@ -299,9 +312,6 @@ extern void init_thief_for_level();
 
 extern int Escort_goal_object;
 
-extern int ai_save_state(PHYSFS_file * fp);
-extern int ai_restore_state(PHYSFS_file *fp, int version, int swap);
-
 extern int Buddy_objnum, Buddy_allowed_to_talk;
 
 extern void start_robot_death_sequence(object *objp);
@@ -310,5 +320,9 @@ extern void buddy_message(char * format, ... );
 
 #define SPECIAL_REACTOR_ROBOT   65
 extern void special_reactor_stuff(void);
+#endif
+
+extern int ai_save_state(PHYSFS_file * fp);
+extern int ai_restore_state(PHYSFS_file *fp, int version, int swap);
 
 #endif /* _AI_H */
