@@ -937,6 +937,7 @@ class DXXProgram(DXXCommon):
 'main/game.cpp',
 'main/gamecntl.cpp',
 'main/gamefont.cpp',
+'main/gamemine.c',
 'main/gamerend.cpp',
 'main/gamesave.cpp',
 'main/gameseg.cpp',
@@ -1223,7 +1224,6 @@ class D1XProgram(DXXProgram):
 'main/collide.c',
 'main/custom.cpp',
 'main/fireball.c',
-'main/gamemine.c',
 'main/snddecom.cpp',
 #'tracker/client/tracker_client.c'
 ]
@@ -1277,7 +1277,6 @@ class D2XProgram(DXXProgram):
 'main/collide.c',
 'main/escort.cpp',
 'main/fireball.c',
-'main/gamemine.c',
 'main/gamepal.cpp',
 'main/movie.cpp',
 'main/segment.cpp',

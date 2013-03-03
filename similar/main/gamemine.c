@@ -48,6 +48,11 @@ COPYRIGHT 1993-1999 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 
 #define REMOVE_EXT(s)  (*(strchr( (s), '.' ))='\0')
 
+int New_file_format_load = 1; // "new file format" is everything newer than d1 shareware
+
+#if defined(DXX_BUILD_DESCENT_I)
+typedef segment v16_segment;
+#elif defined(DXX_BUILD_DESCENT_II)
 fix Level_shake_frequency = 0, Level_shake_duration = 0;
 int Secret_return_segment = 0;
 vms_matrix Secret_return_orient;
@@ -71,8 +76,6 @@ typedef struct v16_segment {
 	short   pad;                // make structure longword aligned
 	#endif
 } v16_segment;
-
-int New_file_format_load = 1; // "new file format" is everything newer than d1 shareware
 
 int d1_pig_present = 0; // can descent.pig from descent 1 be loaded?
 
@@ -364,6 +367,7 @@ short convert_d1_tmap_num(short d1_tmap_num) {
 		}
 	}
 }
+#endif
 
 #ifdef EDITOR
 short tmap_xlate_table[MAX_TEXTURES];
@@ -387,7 +391,7 @@ int load_mine_data(PHYSFS_file *LoadFile)
 
 	fuelcen_reset();
 
-	for (i=0; i<sizeof(tmap_times_used)/sizeof(tmap_times_used[0]); i++ )
+	for (i=0; i < sizeof(tmap_times_used)/sizeof(tmap_times_used[0]); i++ )
 		tmap_times_used[i] = 0;
 
 	#ifdef EDITOR
@@ -429,6 +433,7 @@ int load_mine_data(PHYSFS_file *LoadFile)
 	mine_fileinfo.object_howmany		=	1;
 	mine_fileinfo.object_sizeof		=	sizeof(object);  
 
+#if defined(DXX_BUILD_DESCENT_II)
 	mine_fileinfo.level_shake_frequency		=	0;
 	mine_fileinfo.level_shake_duration		=	0;
 
@@ -447,6 +452,7 @@ int load_mine_data(PHYSFS_file *LoadFile)
 	mine_fileinfo.segment2_offset		= -1;
 	mine_fileinfo.segment2_howmany	= 0;
 	mine_fileinfo.segment2_sizeof    = sizeof(segment2);
+#endif
 
 	// Read in mine_top_fileinfo to get size of saved fileinfo.
 	
@@ -472,6 +478,7 @@ int load_mine_data(PHYSFS_file *LoadFile)
 	if (PHYSFS_read( LoadFile, &mine_fileinfo, mine_top_fileinfo.fileinfo_sizeof, 1 )!=1)
 		Error( "Error reading mine_fileinfo in gamemine.c" );
 
+#if defined(DXX_BUILD_DESCENT_II)
 	if (mine_top_fileinfo.fileinfo_version < 18) {
 		Level_shake_frequency = 0;
 		Level_shake_duration = 0;
@@ -483,6 +490,7 @@ int load_mine_data(PHYSFS_file *LoadFile)
 		Secret_return_segment = mine_fileinfo.secret_return_segment;
 		Secret_return_orient = mine_fileinfo.secret_return_orient;
 	}
+#endif
 
 	//===================== READ HEADER INFO ========================
 
@@ -605,7 +613,9 @@ int load_mine_data(PHYSFS_file *LoadFile)
 	// New check added to make sure we don't read in too many segments.
 	if ( mine_fileinfo.segment_howmany > MAX_SEGMENTS ) {
 		mine_fileinfo.segment_howmany = MAX_SEGMENTS;
+#if defined(DXX_BUILD_DESCENT_II)
 		mine_fileinfo.segment2_howmany = MAX_SEGMENTS;
+#endif
 	}
 
 	// [commented out by mk on 11/20/94 (weren't we supposed to hit final in October?) because it looks redundant.  I think I'll test it now...]  fuelcen_reset();
@@ -623,12 +633,14 @@ int load_mine_data(PHYSFS_file *LoadFile)
 			// Set the default values for this segment (clear to zero )
 			//memset( &Segments[i], 0, sizeof(segment) );
 
+#if defined(DXX_BUILD_DESCENT_II)
 			if (mine_top_fileinfo.fileinfo_version >= 20)
 			{
 				if (PHYSFS_read( LoadFile, &Segments[i], mine_fileinfo.segment_sizeof, 1 )!=1)
 					Error("Unable to read segment %i\n", i);
 			}
 			else
+#endif
 			if (mine_top_fileinfo.fileinfo_version >= 16)
 			{
 				v16_segment v16_seg;
@@ -638,6 +650,9 @@ int load_mine_data(PHYSFS_file *LoadFile)
 				if (PHYSFS_read( LoadFile, &v16_seg, mine_fileinfo.segment_sizeof, 1 )!=1)
 					Error( "Error reading segments in gamemine.c" );
 
+#if defined(DXX_BUILD_DESCENT_I)
+				Segments[i] = v16_seg;
+#elif defined(DXX_BUILD_DESCENT_II)
 				#ifdef EDITOR
 				Segments[i].segnum = v16_seg.segnum;
 				// -- Segments[i].pad = v16_seg.pad;
@@ -657,10 +672,10 @@ int load_mine_data(PHYSFS_file *LoadFile)
 				Segment2s[i].s2_flags = 0;
 				Segment2s[i].matcen_num = v16_seg.matcen_num;
 				Segment2s[i].static_light = v16_seg.static_light;
+#endif
 				fuelcen_activate( &Segments[i], Segment2s[i].special );
-
 			}
-			else
+			else 
 				Error("Invalid mine version");
 
 			Segments[i].objects = -1;
@@ -693,12 +708,13 @@ int load_mine_data(PHYSFS_file *LoadFile)
 				}
 		}
 
-
+#if defined(DXX_BUILD_DESCENT_II)
 		if (mine_top_fileinfo.fileinfo_version >= 20)
 			for (i=0; i<=Highest_segment_index; i++) {
 				PHYSFS_read(LoadFile, &Segment2s[i], sizeof(segment2), 1);
 				fuelcen_activate( &Segments[i], Segment2s[i].special );
 			}
+#endif
 	}
 
 	//===================== READ NEWSEGMENT INFO =====================
@@ -837,6 +853,22 @@ static void read_special(int segnum,ubyte bit_mask,PHYSFS_file *LoadFile)
 	}
 }
 
+#if defined(DXX_BUILD_DESCENT_I)
+/*
+ * reads a segment2 structure from a PHYSFS_file
+ */
+static void segment2_read(segment *s2, PHYSFS_file *fp)
+{
+	s2->special = PHYSFSX_readByte(fp);
+	if (s2->special >= MAX_CENTER_TYPES)
+		s2->special = SEGMENT_IS_NOTHING; // remove goals etc.
+	s2->matcen_num = PHYSFSX_readByte(fp);
+	s2->value = PHYSFSX_readByte(fp);
+	/*s2->s2_flags =*/ PHYSFSX_readByte(fp);	// descent 2 ambient sound handling
+	s2->static_light = PHYSFSX_readFix(fp);
+}
+#endif
+
 int load_mine_data_compiled(PHYSFS_file *LoadFile)
 {
 	int     i, segnum, sidenum;
@@ -845,7 +877,9 @@ int load_mine_data_compiled(PHYSFS_file *LoadFile)
 	ushort  temp_ushort = 0;
 	ubyte   bit_mask;
 
+#if defined(DXX_BUILD_DESCENT_II)
 	d1_pig_present = PHYSFSX_exists(D1_PIGFILE,1);
+#endif
 	if (!strcmp(strchr(Gamesave_current_filename, '.'), ".sdl"))
 		New_file_format_load = 0; // descent 1 shareware
 	else
@@ -853,6 +887,9 @@ int load_mine_data_compiled(PHYSFS_file *LoadFile)
 
 	//	For compiled levels, textures map to themselves, prevent tmap_override always being gray,
 	//	bug which Matt and John refused to acknowledge, so here is Mike, fixing it.
+	// 
+	// Although in a cloud of arrogant glee, he forgot to ifdef it on EDITOR!
+	// (Matt told me to write that!)
 #ifdef EDITOR
 	for (i=0; i<MAX_TEXTURES; i++)
 		tmap_xlate_table[i] = i;
@@ -940,6 +977,19 @@ int load_mine_data_compiled(PHYSFS_file *LoadFile)
 			if ( (Segments[segnum].children[sidenum]==-1) || (Segments[segnum].sides[sidenum].wall_num!=-1) )	{
 				// Read short Segments[segnum].sides[sidenum].tmap_num;
 				temp_ushort = PHYSFSX_readShort(LoadFile);
+#if defined(DXX_BUILD_DESCENT_I)
+				Segments[segnum].sides[sidenum].tmap_num = convert_tmap(temp_ushort & 0x7fff);
+
+				if (New_file_format_load && !(temp_ushort & 0x8000))
+					Segments[segnum].sides[sidenum].tmap_num2 = 0;
+				else {
+					// Read short Segments[segnum].sides[sidenum].tmap_num2;
+					Segments[segnum].sides[sidenum].tmap_num2 = PHYSFSX_readShort(LoadFile);
+					Segments[segnum].sides[sidenum].tmap_num2 =
+						(convert_tmap(Segments[segnum].sides[sidenum].tmap_num2 & 0x3fff)) |
+						(Segments[segnum].sides[sidenum].tmap_num2 & 0xc000);
+				}
+#elif defined(DXX_BUILD_DESCENT_II)
 				if (New_file_format_load) {
 					Segments[segnum].sides[sidenum].tmap_num = temp_ushort & 0x7fff;
 				} else
@@ -956,6 +1006,7 @@ int load_mine_data_compiled(PHYSFS_file *LoadFile)
 					if (Gamesave_current_version <= 1 && Segments[segnum].sides[sidenum].tmap_num2 != 0)
 						Segments[segnum].sides[sidenum].tmap_num2 = convert_d1_tmap_num(Segments[segnum].sides[sidenum].tmap_num2);
 				}
+#endif
 
 				// Read uvl Segments[segnum].sides[sidenum].uvls[4] (u,v>>5, write as short, l>>1 write as short)
 				for (i=0; i<4; i++ )	{

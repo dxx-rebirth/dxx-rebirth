@@ -134,6 +134,8 @@ extern struct me mine_editor;
 int load_mine_data(PHYSFS_file *LoadFile);
 int load_mine_data_compiled(PHYSFS_file *LoadFile);
 
+#define TMAP_NUM_MASK 0x3FFF
+
 #if defined(DXX_BUILD_DESCENT_II)
 extern int d1_pig_present;
 extern fix Level_shake_frequency, Level_shake_duration;
