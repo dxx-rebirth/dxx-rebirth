@@ -8,7 +8,7 @@ SUCH USE, DISPLAY OR CREATION IS FOR NON-COMMERCIAL, ROYALTY OR REVENUE
 FREE PURPOSES.  IN NO EVENT SHALL THE END-USER USE THE COMPUTER CODE
 CONTAINED HEREIN FOR REVENUE-BEARING PURPOSES.  THE END-USER UNDERSTANDS
 AND AGREES TO THE TERMS HEREIN AND ACCEPTS THE SAME BY USE OF THIS FILE.
-COPYRIGHT 1993-1998 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
+COPYRIGHT 1993-1999 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 */
 
 /*
@@ -16,8 +16,6 @@ COPYRIGHT 1993-1998 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
  * Structure information for the player
  *
  */
-
-
 
 #ifndef _PLAYER_H
 #define _PLAYER_H
@@ -44,20 +42,41 @@ COPYRIGHT 1993-1998 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 #define PLAYER_FLAGS_BLUE_KEY       2       // Player has blue key
 #define PLAYER_FLAGS_RED_KEY        4       // Player has red key
 #define PLAYER_FLAGS_GOLD_KEY       8       // Player has gold key
+#if defined(DXX_BUILD_DESCENT_II)
+#define PLAYER_FLAGS_FLAG           16      // Player has his team's flag
+#endif
 #define PLAYER_FLAGS_MAP_ALL        64      // Player can see unvisited areas on map
+#if defined(DXX_BUILD_DESCENT_II)
+#define PLAYER_FLAGS_AMMO_RACK      128     // Player has ammo rack
+#define PLAYER_FLAGS_CONVERTER      256     // Player has energy->shield converter
+#endif
 #define PLAYER_FLAGS_QUAD_LASERS    1024    // Player shoots 4 at once
 #define PLAYER_FLAGS_CLOAKED        2048    // Player is cloaked for awhile
+#if defined(DXX_BUILD_DESCENT_II)
+#define PLAYER_FLAGS_AFTERBURNER    4096    // Player's afterburner is engaged
+#define PLAYER_FLAGS_HEADLIGHT      8192    // Player has headlight boost
+#define PLAYER_FLAGS_HEADLIGHT_ON   16384   // is headlight on or off?
 
+#define AFTERBURNER_MAX_TIME    (F1_0*5)    // Max time afterburner can be on.
+#endif
 #define CALLSIGN_LEN                8       // so can use as filename (was: 12)
 
 // Amount of time player is cloaked.
 #define CLOAK_TIME_MAX          (F1_0*30)
 #define INVULNERABLE_TIME_MAX   (F1_0*30)
 
+#if defined(DXX_BUILD_DESCENT_I)
 #define PLAYER_STRUCT_VERSION 	16		//increment this every time player struct changes
+#elif defined(DXX_BUILD_DESCENT_II)
+#define PLAYER_STRUCT_VERSION   17  // increment this every time player struct changes
 
-//When this structure changes, increment the constant SAVE_FILE_VERSION
-//in playsave.c
+// defines for teams
+#define TEAM_BLUE   0
+#define TEAM_RED    1
+#endif
+
+// When this structure changes, increment the constant
+// SAVE_FILE_VERSION in playsave.c
 typedef struct player {
 	// Who am I data
 	char    callsign[CALLSIGN_LEN+1];   // The callsign of this player, for net purposes.
@@ -78,11 +97,19 @@ typedef struct player {
 	ubyte   laser_level;            // Current level of the laser.
 	sbyte   starting_level;         // What level the player started on.
 	short   killer_objnum;          // Who killed me.... (-1 if no one)
+#if defined(DXX_BUILD_DESCENT_I)
 	ubyte		primary_weapon_flags;					//	bit set indicates the player has this weapon.
 	ubyte		secondary_weapon_flags;					//	bit set indicates the player has this weapon.
+#elif defined(DXX_BUILD_DESCENT_II)
+	ushort  primary_weapon_flags;   // bit set indicates the player has this weapon.
+	ushort  secondary_weapon_flags; // bit set indicates the player has this weapon.
+#endif
 	ushort  primary_ammo[MAX_PRIMARY_WEAPONS]; // How much ammo of each type.
 	ushort  secondary_ammo[MAX_SECONDARY_WEAPONS]; // How much ammo of each type.
 
+#if defined(DXX_BUILD_DESCENT_II)
+	ushort  pad; // Pad because increased weapon_flags from byte to short -YW 3/22/95
+#endif
 	//  -- make sure you're 4 byte aligned now
 
 	// Statistics...
@@ -131,12 +158,20 @@ typedef struct player_rw {
 	ubyte   laser_level;            // Current level of the laser.
 	sbyte   starting_level;         // What level the player started on.
 	short   killer_objnum;          // Who killed me.... (-1 if no one)
+#if defined(DXX_BUILD_DESCENT_I)
 	ubyte		primary_weapon_flags;					//	bit set indicates the player has this weapon.
 	ubyte		secondary_weapon_flags;					//	bit set indicates the player has this weapon.
+#elif defined(DXX_BUILD_DESCENT_II)
+	ushort  primary_weapon_flags;   // bit set indicates the player has this weapon.
+	ushort  secondary_weapon_flags; // bit set indicates the player has this weapon.
+#endif
 	ushort  primary_ammo[MAX_PRIMARY_WEAPONS]; // How much ammo of each type.
 	ushort  secondary_ammo[MAX_SECONDARY_WEAPONS]; // How much ammo of each type.
 
-	//	-- make sure you're 4 byte aligned now
+#if defined(DXX_BUILD_DESCENT_II)
+	ushort  pad; // Pad because increased weapon_flags from byte to short -YW 3/22/95
+#endif
+	//  -- make sure you're 4 byte aligned now
 
 	// Statistics...
 	int     last_score;             // Score at beginning of current level.
@@ -147,6 +182,9 @@ typedef struct player_rw {
 	fix     cloak_time;             // Time cloaked
 	fix     invulnerable_time;      // Time invulnerable
 
+#if defined(DXX_BUILD_DESCENT_II)
+	short   KillGoalCount;          // Num of players killed this level
+#endif
 	short   net_killed_total;       // Number of times killed total
 	short   net_kills_total;        // Number of net kills total
 	short   num_kills_level;        // Number of kills this level
@@ -173,12 +211,23 @@ typedef struct player_ship {
 	fix     wiggle;
 	fix     max_rotthrust;
 	vms_vector gun_points[N_PLAYER_GUNS];
-} __pack__ player_ship;
+}
+#if defined(DXX_BUILD_DESCENT_I)
+__pack__
+#endif
+player_ship;
 
 extern int N_players;   // Number of players ( >1 means a net game, eh?)
 extern int Player_num;  // The player number who is on the console.
 
-extern player Players[MAX_PLAYERS];				// Misc player info
+#if defined(DXX_BUILD_DESCENT_I)
+#define DXX_PLAYER_HEADER_ADD_EXTRA_PLAYERS	0
+#elif defined(DXX_BUILD_DESCENT_II)
+#define DXX_PLAYER_HEADER_ADD_EXTRA_PLAYERS	4
+#endif
+#if defined(DXX_BUILD_DESCENT_I) || defined(DXX_BUILD_DESCENT_II)
+extern player Players[MAX_PLAYERS + DXX_PLAYER_HEADER_ADD_EXTRA_PLAYERS];   // Misc player info
+#endif
 extern player_ship *Player_ship;
 
 /*
@@ -189,4 +238,3 @@ void player_ship_read(player_ship *ps, PHYSFS_file *fp);
 void player_rw_swap(player_rw *p, int swap);
 
 #endif
- 
