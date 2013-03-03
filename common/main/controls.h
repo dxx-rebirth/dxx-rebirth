@@ -28,6 +28,8 @@ void read_flying_controls( object * obj );
 extern ubyte Controls_stopped;
 extern ubyte Controls_always_move;
 
+#if defined(DXX_BUILD_DESCENT_II)
 extern fix Afterburner_charge;
+#endif
 
 #endif
