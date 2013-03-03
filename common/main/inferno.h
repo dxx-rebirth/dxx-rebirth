@@ -51,6 +51,9 @@ typedef char d_fname[FILENAME_LEN];
 extern jmp_buf LeaveEvents;
 extern int Quitting;
 extern int Screen_mode;			// editor screen or game screen?
+#ifdef DXX_BUILD_DESCENT_I
+extern int MacHog;
+#endif
 
 // Default event handler for everything except the editor
 int standard_handler(struct d_event *event);

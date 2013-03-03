@@ -100,10 +100,15 @@ class DXXCommon:
 			self.env["ARCOMSTR"]     = "Archiving $TARGET ..."
 			self.env["RANLIBCOMSTR"] = "Indexing $TARGET ..."
 
-		self.env.Append(CCFLAGS = ['-Wall', '-funsigned-char', '-Werror=implicit-int', '-Werror=implicit-function-declaration', '-pedantic', '-pthread'])
+		# Use -Wundef to catch when a shared source file includes a
+		# shared header that misuses conditional compilation.  Use
+		# -Werror=undef to make this fatal.  Both are needed, since
+		# gcc 4.5 silently ignores -Werror=undef.  On gcc 4.5, misuse
+		# produces a warning.  On gcc 4.7, misuse produces an error.
+		self.env.Append(CCFLAGS = ['-Wall', '-Wundef', '-Werror=undef', '-funsigned-char', '-Werror=implicit-int', '-Werror=implicit-function-declaration', '-pedantic', '-pthread'])
 		self.env.Append(CFLAGS = ['-std=c99'])
 		self.env.Append(CPPDEFINES = ['NETWORK'])
-		self.env.Append(CPPPATH = ['common/include'])
+		self.env.Append(CPPPATH = ['common/include', 'common/main'])
 		# Get traditional compiler environment variables
 		for cc in ['CC', 'CXX']:
 			if os.environ.has_key(cc):
@@ -317,6 +322,7 @@ class D1XProgram(DXXProgram):
 		DXXProgram.prepare_environment(self)
 		# Flags and stuff for all platforms...
 		self.env.Append(CPPPATH = [os.path.join(self.srcdir, f) for f in ['include', 'main', 'arch/include']])
+		self.env.Append(CPPDEFINES = [('DXX_BUILD_DESCENT_I', 1)])
 
 	def __init__(self):
 	# general source files
@@ -565,6 +571,7 @@ class D2XProgram(DXXProgram):
 		DXXProgram.prepare_environment(self)
 		# Flags and stuff for all platforms...
 		self.env.Append(CPPPATH = [os.path.join(self.srcdir, f) for f in ['include', 'main', 'arch/include']])
+		self.env.Append(CPPDEFINES = [('DXX_BUILD_DESCENT_II', 1)])
 
 	def __init__(self):
 	# general source files
