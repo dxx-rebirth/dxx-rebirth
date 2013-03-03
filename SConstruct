@@ -932,6 +932,7 @@ class DXXProgram(DXXCommon):
 'main/digiobj.cpp',
 'main/effects.cpp',
 'main/endlevel.cpp',
+'main/fireball.c',
 'main/fuelcen.cpp',
 'main/fvi.cpp',
 'main/game.cpp',
@@ -1223,7 +1224,6 @@ class D1XProgram(DXXProgram):
 'main/bmread.cpp',
 'main/collide.c',
 'main/custom.cpp',
-'main/fireball.c',
 'main/snddecom.cpp',
 #'tracker/client/tracker_client.c'
 ]
@@ -1276,7 +1276,6 @@ class D2XProgram(DXXProgram):
 'libmve/mveplay.cpp',
 'main/collide.c',
 'main/escort.cpp',
-'main/fireball.c',
 'main/gamepal.cpp',
 'main/movie.cpp',
 'main/segment.cpp',

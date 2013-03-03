@@ -230,6 +230,8 @@ enum secondary_weapon_index_t
 	PROXIMITY_INDEX = 2,
 	SMART_INDEX = 3,
 	MEGA_INDEX = 4,
+#define NUM_SMART_CHILDREN  6   // Number of smart children created by default.
+
 #if defined(DXX_BUILD_DESCENT_I)
 #define	NUM_SHAREWARE_WEAPONS	3		//in shareware, old get first 3 of each
 
@@ -244,8 +246,6 @@ enum secondary_weapon_index_t
 #define SUPER_WEAPON        5
 
 #define VULCAN_AMMO_SCALE   0xcc163 //(0x198300/2)      //multiply ammo by this before displaying
-
-#define NUM_SMART_CHILDREN  6   // Number of smart children created by default.
 
 #define HAS_FLASH_FLAG	HAS_SECONDARY_FLAG(SMISSILE1_INDEX)
 #define HAS_GUIDED_FLAG	HAS_SECONDARY_FLAG(GUIDED_INDEX)
