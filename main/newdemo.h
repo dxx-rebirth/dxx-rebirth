@@ -32,7 +32,7 @@ COPYRIGHT 1993-1998 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 
 #define DEMO_DIR                "demos/"
 #define DEMO_EXT		".dem"
-#if WORDS_BIGENDIAN
+#ifdef WORDS_BIGENDIAN
 #define DEMO_BACKUP_EXT			"386"
 #else
 #define DEMO_BACKUP_EXT			"ppc"
