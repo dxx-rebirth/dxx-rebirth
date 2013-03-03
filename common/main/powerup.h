@@ -36,6 +36,9 @@ enum powerup_type_t
 
 //	POW_RADAR_ROBOTS = 7,
 //	POW_RADAR_POWERUPS = 8,
+#if defined(DXX_BUILD_DESCENT_I)
+	POW_FULL_MAP = 9,
+#endif
 
 	POW_MISSILE_1 = 10,
 	POW_MISSILE_4 = 11,      // 4-pack MUST follow single missile
@@ -55,8 +58,11 @@ enum powerup_type_t
 	POW_CLOAK = 23,
 	POW_TURBO = 24,
 	POW_INVULNERABILITY = 25,
+#if defined(DXX_BUILD_DESCENT_I)
+	POW_HEADLIGHT = 26,
+#endif
 	POW_MEGAWOW = 27,
-
+#if defined(DXX_BUILD_DESCENT_II)
 	POW_GAUSS_WEAPON = 28,
 	POW_HELIX_WEAPON = 29,
 	POW_PHOENIX_WEAPON = 30,
@@ -82,15 +88,24 @@ enum powerup_type_t
 	POW_FLAG_RED = 47,
 
 	POW_HOARD_ORB = 7,       // use unused slot
+#endif
 };
 
+#if defined(DXX_BUILD_DESCENT_I)
+#define VULCAN_AMMO_MAX             (392*2)
+#elif defined(DXX_BUILD_DESCENT_II)
 #define VULCAN_AMMO_MAX             (392*4)
+#endif
 #define VULCAN_WEAPON_AMMO_AMOUNT   196
 #define VULCAN_AMMO_AMOUNT          (49*2)
 
+#if defined(DXX_BUILD_DESCENT_I)
+#define MAX_POWERUP_TYPES			29
+#elif defined(DXX_BUILD_DESCENT_II)
 #define GAUSS_WEAPON_AMMO_AMOUNT    392
 
 #define MAX_POWERUP_TYPES   50
+#endif
 
 #define POWERUP_NAME_LENGTH 16      // Length of a robot or powerup name.
 extern char Powerup_names[MAX_POWERUP_TYPES][POWERUP_NAME_LENGTH];
