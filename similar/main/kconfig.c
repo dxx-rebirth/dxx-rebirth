@@ -124,16 +124,27 @@ typedef struct kc_menu
 } kc_menu;
 
 const ubyte DefaultKeySettings[3][MAX_CONTROLS] = {
+#if defined(DXX_BUILD_DESCENT_I)
+{0xc8,0x48,0xd0,0x50,0xcb,0x4b,0xcd,0x4d,0x38,0xff,0xff,0x4f,0xff,0x51,0xff,0x4a,0xff,0x4e,0xff,0xff,0x10,0x47,0x12,0x49,0x1d,0x9d,0x39,0xff,0x21,0xff,0x1e,0xff,0x2c,0xff,0x30,0xff,0x13,0xff,0xff,0xff,0xff,0xff,0xff,0xff,0xf,0xff,0x33,0x0,0x34,0x0},
+{0x0,0x1,0xff,0xff,0xff,0xff,0xff,0xff,0xff,0xff,0xff,0xff,0xff,0x1,0x0,0x0,0x0,0xff,0x0,0xff,0x0,0xff,0x0,0xff,0x0,0xff,0xff,0xff,0xff,0xff,0xff,0xff,0xff,0xff,0xff,0xff,0xff,0xff,0xff,0xff,0xff,0xff,0xff,0xff,0xff,0xff,0xff,0xff,0x0,0x0},
+{0x0,0x1,0xff,0xff,0xff,0xff,0xff,0xff,0xff,0xff,0xff,0xff,0xff,0x1,0x0,0x0,0x0,0xff,0x0,0xff,0x0,0xff,0x0,0xff,0x0,0xff,0xff,0xff,0xff,0x0,0x0,0x0,0x0,0x0,0x0,0x0,0x0,0x0,0x0,0x0,0x0,0x0,0x0,0x0,0x0,0x0,0x0,0x0,0x0,0x0},
+#elif defined(DXX_BUILD_DESCENT_II)
 {0xc8,0x48,0xd0,0x50,0xcb,0x4b,0xcd,0x4d,0x38,0xff,0xff,0x4f,0xff,0x51,0xff,0x4a,0xff,0x4e,0xff,0xff,0x10,0x47,0x12,0x49,0x1d,0x9d,0x39,0xff,0x21,0xff,0x1e,0xff,0x2c,0xff,0x30,0xff,0x13,0xff,0xff,0xff,0xff,0xff,0xff,0xff,0xf,0xff,0x1f,0xff,0x33,0xff,0x34,0xff,0x23,0xff,0x14,0xff,0xff,0xff,0x0,0x0},
 {0x0,0x1,0xff,0xff,0xff,0xff,0xff,0xff,0xff,0xff,0xff,0xff,0xff,0x1,0x0,0x0,0x0,0xff,0x0,0xff,0x0,0xff,0x0,0xff,0x0,0xff,0xff,0xff,0xff,0xff,0xff,0xff,0xff,0xff,0xff,0xff,0xff,0xff,0xff,0xff,0xff,0xff,0xff,0xff,0xff,0xff,0xff,0xff,0xff,0xff,0xff,0xff,0xff,0xff,0xff,0xff,0x0,0x0,0x0,0x0},
 {0x0,0x1,0xff,0xff,0xff,0xff,0xff,0xff,0xff,0xff,0xff,0xff,0xff,0x1,0x0,0x0,0x0,0xff,0x0,0xff,0x0,0xff,0x0,0xff,0x0,0xff,0xff,0xff,0xff,0xff,0xff,0xff,0xff,0xff,0xff,0xff,0xff,0xff,0xff,0xff,0xff,0xff,0xff,0xff,0xff,0xff,0xff,0xff,0xff,0xff,0xff,0xff,0xff,0xff,0xff,0x0,0x0,0x0,0x0,0x0},
+#endif
 };
 const ubyte DefaultKeySettingsRebirth[MAX_DXX_REBIRTH_CONTROLS] = { 0x2,0xff,0xff,0x3,0xff,0xff,0x4,0xff,0xff,0x5,0xff,0xff,0x6,0xff,0xff,0x7,0xff,0xff,0x8,0xff,0xff,0x9,0xff,0xff,0xa,0xff,0xff,0xb,0xff,0xff };
 
 //	  id,  x,  y, w1, w2,  u,  d,   l, r,     text,   type, value
 kc_item kc_keyboard[NUM_KEY_CONTROLS] = {
+#if defined(DXX_BUILD_DESCENT_I)
+	{  0, 15, 49, 71, 26, 43,  2, 49,  1,"Pitch forward", BT_KEY, 255, &Controls.key_pitch_forward_state, STATE_BIT1, NULL },
+	{  1, 15, 49,100, 26, 48,  3,  0, 24,"Pitch forward", BT_KEY, 255, &Controls.key_pitch_forward_state, STATE_BIT2, NULL },
+#elif defined(DXX_BUILD_DESCENT_II)
 	{  0, 15, 49, 71, 26, 55,  2, 56,  1,"Pitch forward", BT_KEY, 255, &Controls.key_pitch_forward_state, STATE_BIT1, NULL },
 	{  1, 15, 49,100, 26, 50,  3,  0, 24,"Pitch forward", BT_KEY, 255, &Controls.key_pitch_forward_state, STATE_BIT2, NULL },
+#endif
 	{  2, 15, 57, 71, 26,  0,  4, 25,  3,"Pitch backward", BT_KEY, 255, &Controls.key_pitch_backward_state, STATE_BIT1, NULL },
 	{  3, 15, 57,100, 26,  1,  5,  2, 26,"Pitch backward", BT_KEY, 255, &Controls.key_pitch_backward_state, STATE_BIT2, NULL },
 	{  4, 15, 65, 71, 26,  2,  6, 27,  5,"Turn left", BT_KEY, 255, &Controls.key_heading_left_state, STATE_BIT1, NULL },
@@ -149,6 +160,17 @@ kc_item kc_keyboard[NUM_KEY_CONTROLS] = {
 	{ 14, 15,109, 71, 26, 12, 16, 31, 15,"Slide up", BT_KEY, 255, &Controls.key_slide_up_state, STATE_BIT1, NULL },
 	{ 15, 15,109,100, 26, 13, 17, 14, 32,"Slide up", BT_KEY, 255, &Controls.key_slide_up_state, STATE_BIT2, NULL },
 	{ 16, 15,117, 71, 26, 14, 18, 33, 17,"Slide down", BT_KEY, 255, &Controls.key_slide_down_state, STATE_BIT1, NULL },
+#if defined(DXX_BUILD_DESCENT_I)
+	{ 17, 15,117,100, 26, 15, 19, 16, 38,"Slide down", BT_KEY, 255, &Controls.key_slide_down_state, STATE_BIT2, NULL },
+	{ 18, 15,129, 71, 26, 16, 20, 39, 19,"Bank on", BT_KEY, 255, &Controls.bank_on_state, STATE_BIT1, NULL },
+	{ 19, 15,129,100, 26, 17, 21, 18, 40,"Bank on", BT_KEY, 255, &Controls.bank_on_state, STATE_BIT2, NULL },
+	{ 20, 15,137, 71, 26, 18, 22, 41, 21,"Bank left", BT_KEY, 255, &Controls.key_bank_left_state, STATE_BIT1, NULL },
+	{ 21, 15,137,100, 26, 19, 23, 20, 42,"Bank left", BT_KEY, 255, &Controls.key_bank_left_state, STATE_BIT2, NULL },
+	{ 22, 15,145, 71, 26, 20, 46, 43, 23,"Bank right", BT_KEY, 255, &Controls.key_bank_right_state, STATE_BIT1, NULL },
+	{ 23, 15,145,100, 26, 21, 47, 22, 46,"Bank right", BT_KEY, 255, &Controls.key_bank_right_state, STATE_BIT2, NULL },
+	{ 24,158, 49, 83, 26, 49, 26,  1, 25,"Fire primary", BT_KEY, 255, &Controls.fire_primary_state, STATE_BIT1, &Controls.fire_primary_count },
+	{ 25,158, 49,112, 26, 42, 27, 24,  2,"Fire primary", BT_KEY, 255, &Controls.fire_primary_state, STATE_BIT2, &Controls.fire_primary_count },
+#elif defined(DXX_BUILD_DESCENT_II)
 	{ 17, 15,117,100, 26, 15, 19, 16, 46,"Slide down", BT_KEY, 255, &Controls.key_slide_down_state, STATE_BIT2, NULL },
 	{ 18, 15,129, 71, 26, 16, 20, 47, 19,"Bank on", BT_KEY, 255, &Controls.bank_on_state, STATE_BIT1, NULL },
 	{ 19, 15,129,100, 26, 17, 21, 18, 38,"Bank on", BT_KEY, 255, &Controls.bank_on_state, STATE_BIT2, NULL },
@@ -158,26 +180,47 @@ kc_item kc_keyboard[NUM_KEY_CONTROLS] = {
 	{ 23, 15,145,100, 26, 21, 49, 22, 42,"Bank right", BT_KEY, 255, &Controls.key_bank_right_state, STATE_BIT2, NULL },
 	{ 24,158, 49, 83, 26, 51, 26,  1, 25,"Fire primary", BT_KEY, 255, &Controls.fire_primary_state, STATE_BIT1, &Controls.fire_primary_count },
 	{ 25,158, 49,112, 26, 56, 27, 24,  2,"Fire primary", BT_KEY, 255, &Controls.fire_primary_state, STATE_BIT2, &Controls.fire_primary_count },
+#endif
 	{ 26,158, 57, 83, 26, 24, 28,  3, 27,"Fire secondary", BT_KEY, 255, &Controls.fire_secondary_state, STATE_BIT1, &Controls.fire_secondary_count },
 	{ 27,158, 57,112, 26, 25, 29, 26,  4,"Fire secondary", BT_KEY, 255, &Controls.fire_secondary_state, STATE_BIT2, &Controls.fire_secondary_count },
 	{ 28,158, 65, 83, 26, 26, 34,  5, 29,"Fire flare", BT_KEY, 255, NULL, 0, &Controls.fire_flare_count },
 	{ 29,158, 65,112, 26, 27, 35, 28,  6,"Fire flare", BT_KEY, 255, NULL, 0, &Controls.fire_flare_count },
 	{ 30,158,105, 83, 26, 44, 32, 13, 31,"Accelerate", BT_KEY, 255, &Controls.accelerate_state, STATE_BIT1, NULL },
 	{ 31,158,105,112, 26, 45, 33, 30, 14,"Accelerate", BT_KEY, 255, &Controls.accelerate_state, STATE_BIT2, NULL },
+#if defined(DXX_BUILD_DESCENT_I)
+	{ 32,158,113, 83, 26, 30, 38, 15, 33,"Reverse", BT_KEY, 255, &Controls.reverse_state, STATE_BIT1, NULL },
+	{ 33,158,113,112, 26, 31, 39, 32, 16,"Reverse", BT_KEY, 255, &Controls.reverse_state, STATE_BIT2, NULL },
+#elif defined(DXX_BUILD_DESCENT_II)
 	{ 32,158,113, 83, 26, 30, 46, 15, 33,"reverse", BT_KEY, 255, &Controls.reverse_state, STATE_BIT1, NULL },
 	{ 33,158,113,112, 26, 31, 47, 32, 16,"reverse", BT_KEY, 255, &Controls.reverse_state, STATE_BIT2, NULL },
+#endif
 	{ 34,158, 73, 83, 26, 28, 36,  7, 35,"Drop Bomb", BT_KEY, 255, NULL, 0, &Controls.drop_bomb_count },
 	{ 35,158, 73,112, 26, 29, 37, 34,  8,"Drop Bomb", BT_KEY, 255, NULL, 0, &Controls.drop_bomb_count },
 	{ 36,158, 85, 83, 26, 34, 44,  9, 37,"REAR VIEW", BT_KEY, 255, &Controls.rear_view_state, STATE_BIT1, &Controls.rear_view_count },
 	{ 37,158, 85,112, 26, 35, 45, 36, 10,"REAR VIEW", BT_KEY, 255, &Controls.rear_view_state, STATE_BIT2, &Controls.rear_view_count },
+#if defined(DXX_BUILD_DESCENT_I)
+	{ 38,158,125, 83, 26, 32, 40, 17, 39,"Cruise faster", BT_KEY, 255, &Controls.cruise_plus_state, STATE_BIT1, NULL },
+	{ 39,158,125,112, 26, 33, 41, 38, 18,"Cruise faster", BT_KEY, 255, &Controls.cruise_plus_state, STATE_BIT2, NULL },
+	{ 40,158,133, 83, 26, 38, 42, 19, 41,"Cruise slower", BT_KEY, 255, &Controls.cruise_minus_state, STATE_BIT1, NULL },
+	{ 41,158,133,112, 26, 39, 43, 40, 20,"Cruise slower", BT_KEY, 255, &Controls.cruise_minus_state, STATE_BIT2, NULL },
+	{ 42,158,141, 83, 26, 40, 25, 21, 43,"Cruise off", BT_KEY, 255, NULL, 0, &Controls.cruise_off_count },
+	{ 43,158,141,112, 26, 41,  0, 42, 22,"Cruise off", BT_KEY, 255, NULL, 0, &Controls.cruise_off_count },
+#elif defined(DXX_BUILD_DESCENT_II)
 	{ 38,158,133, 83, 26, 46, 40, 19, 39,"Cruise Faster", BT_KEY, 255, &Controls.cruise_plus_state, STATE_BIT1, NULL },
 	{ 39,158,133,112, 26, 47, 41, 38, 20,"Cruise Faster", BT_KEY, 255, &Controls.cruise_plus_state, STATE_BIT2, NULL },
 	{ 40,158,141, 83, 26, 38, 42, 21, 41,"Cruise Slower", BT_KEY, 255, &Controls.cruise_minus_state, STATE_BIT1, NULL },
 	{ 41,158,141,112, 26, 39, 43, 40, 22,"Cruise Slower", BT_KEY, 255, &Controls.cruise_minus_state, STATE_BIT2, NULL },
 	{ 42,158,149, 83, 26, 40, 52, 23, 43,"Cruise Off", BT_KEY, 255, NULL, 0, &Controls.cruise_off_count },
 	{ 43,158,149,112, 26, 41, 53, 42, 48,"Cruise Off", BT_KEY, 255, NULL, 0, &Controls.cruise_off_count },
+#endif
 	{ 44,158, 93, 83, 26, 36, 30, 11, 45,"Automap", BT_KEY, 255, &Controls.automap_state, STATE_BIT1, &Controls.automap_count },
 	{ 45,158, 93,112, 26, 37, 31, 44, 12,"Automap", BT_KEY, 255, &Controls.automap_state, STATE_BIT2, &Controls.automap_count },
+#if defined(DXX_BUILD_DESCENT_I)
+	{ 46, 15,157, 71, 26, 22, 48, 23, 47,"Cycle Primary", BT_KEY, 255, NULL, 0, &Controls.cycle_primary_count },
+	{ 47, 15,157,100, 26, 23, 49, 46, 48,"Cycle Primary", BT_KEY, 255, NULL, 0, &Controls.cycle_primary_count },
+	{ 48, 15,165, 71, 26, 46,  1, 47, 49,"Cycle Second.", BT_KEY, 255, NULL, 0, &Controls.cycle_secondary_count },
+	{ 49, 15,165,100, 26, 47, 24, 48,  0,"Cycle Second.", BT_KEY, 255, NULL, 0, &Controls.cycle_secondary_count },
+#elif defined(DXX_BUILD_DESCENT_II)
 	{ 46,158,121, 83, 26, 32, 38, 17, 47,"Afterburner", BT_KEY, 255, &Controls.afterburner_state, STATE_BIT1, NULL },
 	{ 47,158,121,112, 26, 33, 39, 46, 18,"Afterburner", BT_KEY, 255, &Controls.afterburner_state, STATE_BIT2, NULL },
 	{ 48, 15,161, 71, 26, 22, 50, 43, 49,"Cycle Primary", BT_KEY, 255, NULL, 0, &Controls.cycle_primary_count },
@@ -189,8 +232,26 @@ kc_item kc_keyboard[NUM_KEY_CONTROLS] = {
 	{ 54,158,171, 83, 26, 52, 56, 51, 55,"Energy->Shield", BT_KEY, 255, &Controls.energy_to_shield_state, STATE_BIT1, NULL },
 	{ 55,158,171,112, 26, 53,  0, 54, 56,"Energy->Shield", BT_KEY, 255, &Controls.energy_to_shield_state, STATE_BIT2, NULL },
 	{ 56,158,179, 83, 26, 54, 25, 55,  0,"Toggle Bomb", BT_KEY, 255, NULL, 0, &Controls.toggle_bomb_count },
+#endif
 };
 kc_item kc_joystick[NUM_JOYSTICK_CONTROLS] = {
+#if defined(DXX_BUILD_DESCENT_I)
+	{  0, 22, 46, 82, 26, 15,  1, 24, 29,"Fire primary", BT_JOY_BUTTON, 255, &Controls.fire_primary_state, STATE_BIT3, &Controls.fire_primary_count },
+	{  1, 22, 54, 82, 26,  0,  4, 34, 30,"Fire secondary", BT_JOY_BUTTON, 255, &Controls.fire_secondary_state, STATE_BIT3, &Controls.fire_secondary_count },
+	{  2, 22, 78, 82, 26, 26,  3, 37, 31,"Accelerate", BT_JOY_BUTTON, 255, &Controls.accelerate_state, STATE_BIT3, NULL },
+	{  3, 22, 86, 82, 26,  2, 25, 38, 32,"Reverse", BT_JOY_BUTTON, 255, &Controls.reverse_state, STATE_BIT3, NULL },
+	{  4, 22, 62, 82, 26,  1, 26, 35, 33,"Fire flare", BT_JOY_BUTTON, 255, NULL, 0, &Controls.fire_flare_count },
+	{  5,174, 46, 74, 26, 23,  6, 29, 34,"Slide on", BT_JOY_BUTTON, 255, &Controls.slide_on_state, STATE_BIT3, NULL },
+	{  6,174, 54, 74, 26,  5,  7, 30, 35,"Slide left", BT_JOY_BUTTON, 255, &Controls.btn_slide_left_state, STATE_BIT3, NULL },
+	{  7,174, 62, 74, 26,  6,  8, 33, 36,"Slide right", BT_JOY_BUTTON, 255, &Controls.btn_slide_right_state, STATE_BIT3, NULL },
+	{  8,174, 70, 74, 26,  7,  9, 43, 37,"Slide up", BT_JOY_BUTTON, 255, &Controls.btn_slide_up_state, STATE_BIT3, NULL },
+	{  9,174, 78, 74, 26,  8, 10, 31, 38,"Slide down", BT_JOY_BUTTON, 255, &Controls.btn_slide_down_state, STATE_BIT3, NULL },
+	{ 10,174, 86, 74, 26,  9, 11, 32, 39,"Bank on", BT_JOY_BUTTON, 255, &Controls.bank_on_state, STATE_BIT3, NULL },
+	{ 11,174, 94, 74, 26, 10, 12, 42, 40,"Bank left", BT_JOY_BUTTON, 255, &Controls.btn_bank_left_state, STATE_BIT3, NULL },
+	{ 12,174,102, 74, 26, 11, 44, 28, 41,"Bank right", BT_JOY_BUTTON, 255, &Controls.btn_bank_right_state, STATE_BIT3, NULL },
+	{ 13, 22,154, 51, 26, 47, 15, 47, 14,"Pitch U/D", BT_JOY_AXIS, 255, NULL, 0, NULL },
+	{ 14, 22,154, 99,  8, 27, 16, 13, 17,"Pitch U/D", BT_INVERT, 255, NULL, 0, NULL },
+#elif defined(DXX_BUILD_DESCENT_II)
 	{  0, 22, 46, 80, 26, 15,  1, 24, 31,"Fire primary", BT_JOY_BUTTON, 255, &Controls.fire_primary_state, STATE_BIT3, &Controls.fire_primary_count },
 	{  1, 22, 54, 80, 26,  0,  4, 36, 32,"Fire secondary", BT_JOY_BUTTON, 255, &Controls.fire_secondary_state, STATE_BIT3, &Controls.fire_secondary_count },
 	{  2, 22, 78, 80, 26, 26,  3, 39, 33,"Accelerate", BT_JOY_BUTTON, 255, &Controls.accelerate_state, STATE_BIT3, NULL },
@@ -206,15 +267,48 @@ kc_item kc_joystick[NUM_JOYSTICK_CONTROLS] = {
 	{ 12,174,102, 74, 26, 11, 28, 46, 43,"Bank right", BT_JOY_BUTTON, 255, &Controls.btn_bank_right_state, STATE_BIT3, NULL },
 	{ 13, 22,154, 51, 26, 55, 15, 55, 14,"Pitch U/D", BT_JOY_AXIS, 255, NULL, 0, NULL },
 	{ 14, 22,154, 99,  8, 50, 16, 13, 17,"Pitch U/D", BT_INVERT, 255, NULL, 0, NULL },
+#endif
 	{ 15, 22,162, 51, 26, 13,  0, 18, 16,"Turn L/R", BT_JOY_AXIS, 255, NULL, 0, NULL },
+#if defined(DXX_BUILD_DESCENT_I)
+	{ 16, 22,162, 99,  8, 14, 29, 15, 19,"Turn L/R", BT_INVERT, 255, NULL, 0, NULL },
+	{ 17,164,154, 58, 26, 28, 19, 14, 18,"Slide L/R", BT_JOY_AXIS, 255, NULL, 0, NULL },
+	{ 18,164,154,106,  8, 45, 20, 17, 15,"Slide L/R", BT_INVERT, 255, NULL, 0, NULL },
+#elif defined(DXX_BUILD_DESCENT_II)
 	{ 16, 22,162, 99,  8, 14, 31, 15, 19,"Turn L/R", BT_INVERT, 255, NULL, 0, NULL },
 	{ 17,164,154, 58, 26, 51, 19, 14, 18,"Slide L/R", BT_JOY_AXIS, 255, NULL, 0, NULL },
 	{ 18,164,154,106,  8, 54, 20, 17, 15,"Slide L/R", BT_INVERT, 255, NULL, 0, NULL },
+#endif
 	{ 19,164,162, 58, 26, 17, 21, 16, 20,"Slide U/D", BT_JOY_AXIS, 255, NULL, 0, NULL },
 	{ 20,164,162,106,  8, 18, 22, 19, 21,"Slide U/D", BT_INVERT, 255, NULL, 0, NULL },
 	{ 21,164,170, 58, 26, 19, 23, 20, 22,"Bank L/R", BT_JOY_AXIS, 255, NULL, 0, NULL },
 	{ 22,164,170,106,  8, 20, 24, 21, 23,"Bank L/R", BT_INVERT, 255, NULL, 0, NULL },
 	{ 23,164,178, 58, 26, 21,  5, 22, 24,"throttle", BT_JOY_AXIS, 255, NULL, 0, NULL },
+#if defined(DXX_BUILD_DESCENT_I)
+	{ 24,164,178,106,  8, 22, 34, 23,  0,"Throttle", BT_INVERT, 255, NULL, 0, NULL },
+	{ 25, 22, 94, 82, 26,  3, 27, 39, 42,"Rear view", BT_JOY_BUTTON, 255, &Controls.rear_view_state, STATE_BIT3, &Controls.rear_view_count },
+	{ 26, 22, 70, 82, 26,  4,  2, 36, 43,"Drop bomb", BT_JOY_BUTTON, 255, NULL, 0, &Controls.drop_bomb_count },
+	{ 27, 22,102, 82, 26, 25, 14, 40, 28,"Automap", BT_JOY_BUTTON, 255, &Controls.automap_state, STATE_BIT3, &Controls.automap_count },
+	{ 28, 22,102,111, 26, 42, 17, 27, 12,"Automap", BT_JOY_BUTTON, 255, &Controls.automap_state, STATE_BIT4, &Controls.automap_count },
+	{ 29, 22, 46,111, 26, 16, 30,  0,  5,"Fire primary", BT_JOY_BUTTON, 255, &Controls.fire_primary_state, STATE_BIT4, &Controls.fire_primary_count },
+	{ 30, 22, 54,111, 26, 29, 33,  1,  6,"Fire secondary", BT_JOY_BUTTON, 255, &Controls.fire_secondary_state, STATE_BIT4, &Controls.fire_secondary_count },
+	{ 31, 22, 78,111, 26, 43, 32,  2,  9,"Accelerate", BT_JOY_BUTTON, 255, &Controls.accelerate_state, STATE_BIT4, NULL },
+	{ 32, 22, 86,111, 26, 31, 42,  3, 10,"Reverse", BT_JOY_BUTTON, 255, &Controls.reverse_state, STATE_BIT4, NULL },
+	{ 33, 22, 62,111, 26, 30, 43,  4,  7,"Fire flare", BT_JOY_BUTTON, 255, NULL, 0, &Controls.fire_flare_count },
+	{ 34,174, 46,104, 26, 24, 35,  5,  1,"Slide on", BT_JOY_BUTTON, 255, &Controls.slide_on_state, STATE_BIT4, NULL },
+	{ 35,174, 54,104, 26, 34, 36,  6,  4,"Slide left", BT_JOY_BUTTON, 255, &Controls.btn_slide_left_state, STATE_BIT4, NULL },
+	{ 36,174, 62,104, 26, 35, 37,  7, 26,"Slide right", BT_JOY_BUTTON, 255, &Controls.btn_slide_right_state, STATE_BIT4, NULL },
+	{ 37,174, 70,104, 26, 36, 38,  8,  2,"Slide up", BT_JOY_BUTTON, 255, &Controls.btn_slide_up_state, STATE_BIT4, NULL },
+	{ 38,174, 78,104, 26, 37, 39,  9,  3,"Slide down", BT_JOY_BUTTON, 255, &Controls.btn_slide_down_state, STATE_BIT4, NULL },
+	{ 39,174, 86,104, 26, 38, 40, 10, 25,"Bank on", BT_JOY_BUTTON, 255, &Controls.bank_on_state, STATE_BIT4, NULL },
+	{ 40,174, 94,104, 26, 39, 41, 11, 27,"Bank left", BT_JOY_BUTTON, 255, &Controls.btn_bank_left_state, STATE_BIT4, NULL },
+	{ 41,174,102,104, 26, 40, 46, 12, 44,"Bank right", BT_JOY_BUTTON, 255, &Controls.btn_bank_right_state, STATE_BIT4, NULL },
+	{ 42, 22, 94,111, 26, 32, 28, 25, 11,"Rear view", BT_JOY_BUTTON, 255, &Controls.rear_view_state, STATE_BIT4, &Controls.rear_view_count },
+	{ 43, 22, 70,111, 26, 33, 31, 26,  8,"Drop bomb", BT_JOY_BUTTON, 255, NULL, 0, &Controls.drop_bomb_count },
+	{ 44,174,110, 74, 26, 12, 45, 41, 46,"Cycle Primary", BT_JOY_BUTTON, 255, NULL, 0, &Controls.cycle_primary_count },
+	{ 45,174,118, 74, 26, 44, 18, 46, 47,"Cycle Secondary", BT_JOY_BUTTON, 255, NULL, 0, &Controls.cycle_secondary_count },
+	{ 46,174,110,104, 26, 41, 47, 44, 45,"Cycle Primary", BT_JOY_BUTTON, 255, NULL, 0, &Controls.cycle_primary_count },
+	{ 47,174,118,104, 26, 46, 13, 45, 13,"Cycle Secondary", BT_JOY_BUTTON, 255, NULL, 0, &Controls.cycle_secondary_count },
+#elif defined(DXX_BUILD_DESCENT_II)
 	{ 24,164,178,106,  8, 22, 36, 23,  0,"throttle", BT_INVERT, 255, NULL, 0, NULL },
 	{ 25, 22, 94, 80, 26,  3, 27, 41, 44,"REAR VIEW", BT_JOY_BUTTON, 255, &Controls.rear_view_state, STATE_BIT3, &Controls.rear_view_count },
 	{ 26, 22, 70, 80, 26,  4,  2, 38, 45,"Drop Bomb", BT_JOY_BUTTON, 255, NULL, 0, &Controls.drop_bomb_count },
@@ -247,6 +341,7 @@ kc_item kc_joystick[NUM_JOYSTICK_CONTROLS] = {
 	{ 53, 22,118,110, 26, 49, 51, 52, 29,"Energy->Shield", BT_JOY_BUTTON, 255, &Controls.energy_to_shield_state, STATE_BIT4, NULL },
 	{ 54,174,126, 74, 26, 29, 18, 51, 55,"Toggle Bomb", BT_JOY_BUTTON, 255, NULL, 0, &Controls.toggle_bomb_count },
 	{ 55,174,126,104, 26, 48, 13, 54, 13,"Toggle Bomb", BT_JOY_BUTTON, 255, NULL, 0, &Controls.toggle_bomb_count },
+#endif
 };
 kc_item kc_mouse[NUM_MOUSE_CONTROLS] = {
 	{  0, 25, 46, 85, 26, 19,  1, 20,  5,"Fire primary", BT_MOUSE_BUTTON, 255, &Controls.fire_primary_state, STATE_BIT5, &Controls.fire_primary_count },
@@ -262,8 +357,13 @@ kc_item kc_mouse[NUM_MOUSE_CONTROLS] = {
 	{ 10,180, 86, 59, 26,  9, 11,  3, 25,"Bank on", BT_MOUSE_BUTTON, 255, &Controls.bank_on_state, STATE_BIT5, NULL },
 	{ 11,180, 94, 59, 26, 10, 12, 25, 27,"Bank left", BT_MOUSE_BUTTON, 255, &Controls.btn_bank_left_state, STATE_BIT5, NULL },
 	{ 12,180,102, 59, 26, 11, 22, 27, 28,"Bank right", BT_MOUSE_BUTTON, 255, &Controls.btn_bank_right_state, STATE_BIT5, NULL },
+#if defined(DXX_BUILD_DESCENT_I)
+	{ 13, 25,154, 58, 26, 24, 15, 28, 14,"Pitch U/D", BT_MOUSE_AXIS, 255, NULL, 0, NULL },
+	{ 14, 25,154,106,  8, 28, 16, 13, 21,"Pitch U/D", BT_INVERT, 255, NULL, 0, NULL },
+#elif defined(DXX_BUILD_DESCENT_II)
 	{ 13, 25,154, 58, 26, 24, 15, 29, 14,"Pitch U/D", BT_MOUSE_AXIS, 255, NULL, 0, NULL },
 	{ 14, 25,154,106,  8, 29, 16, 13, 21,"Pitch U/D", BT_INVERT, 255, NULL, 0, NULL },
+#endif
 	{ 15, 25,162, 58, 26, 13, 17, 22, 16,"Turn L/R", BT_MOUSE_AXIS, 255, NULL, 0, NULL },
 	{ 16, 25,162,106,  8, 14, 18, 15, 23,"Turn L/R", BT_INVERT, 255, NULL, 0, NULL },
 	{ 17, 25,170, 58, 26, 15, 19, 24, 18,"Slide L/R", BT_MOUSE_AXIS, 255, NULL, 0, NULL },
@@ -276,12 +376,21 @@ kc_item kc_mouse[NUM_MOUSE_CONTROLS] = {
 	{ 24,180,162,106,  8, 22, 13, 23, 17,"Throttle", BT_INVERT, 255, NULL, 0, NULL },
 	{ 25, 25, 94, 85, 26,  3, 27, 10, 11,"REAR VIEW", BT_MOUSE_BUTTON, 255, &Controls.rear_view_state, STATE_BIT5, &Controls.rear_view_count },
 	{ 26, 25, 70, 85, 26,  4,  2,  7,  8,"Drop Bomb", BT_MOUSE_BUTTON, 255, NULL, 0, &Controls.drop_bomb_count },
+#if defined(DXX_BUILD_DESCENT_I)
+	{ 27, 25,102, 85, 26, 25, 28, 11, 12,"Cycle Primary", BT_MOUSE_BUTTON, 255, NULL, 0, &Controls.cycle_primary_count },
+	{ 28, 25,110, 85, 26, 27, 14, 12, 13,"Cycle Secondary", BT_MOUSE_BUTTON, 255, NULL, 0, &Controls.cycle_secondary_count },
+#elif defined(DXX_BUILD_DESCENT_II)
 	{ 27, 25,102, 85, 26, 25, 28, 11, 12,"Afterburner", BT_MOUSE_BUTTON, 255, &Controls.afterburner_state, STATE_BIT5, NULL },
 	{ 28, 25,110, 85, 26, 27, 29, 12, 29,"Cycle Primary", BT_MOUSE_BUTTON, 255, NULL, 0, &Controls.cycle_primary_count },
 	{ 29, 25,118, 85, 26, 28, 14, 28, 13,"Cycle Secondary", BT_MOUSE_BUTTON, 255, NULL, 0, &Controls.cycle_secondary_count },
+#endif
 };
 
+#if defined(DXX_BUILD_DESCENT_I)
+#define D2X_EXTENDED_WEAPON_STRING(X)
+#elif defined(DXX_BUILD_DESCENT_II)
 #define D2X_EXTENDED_WEAPON_STRING(X)	X
+#endif
 
 #define WEAPON_STRING_LASER	D2X_EXTENDED_WEAPON_STRING("(SUPER)") "LASER CANNON"
 #define WEAPON_STRING_VULCAN	"VULCAN" D2X_EXTENDED_WEAPON_STRING("/GAUSS") " CANNON"
@@ -782,12 +891,14 @@ int kconfig_key_command(window *wind, d_event *event, kc_menu *menu)
 				
 				PHYSFSX_printf( fp, "\nkc_item kc_joystick[NUM_JOYSTICK_CONTROLS] = {\n" );
 				for (i=0; i<NUM_JOYSTICK_CONTROLS; i++ )	{
+#if defined(DXX_BUILD_DESCENT_II)
 					if (kc_joystick[i].type == BT_JOY_BUTTON)
 						PHYSFSX_printf( fp, "\t{ %2d,%3d,%3d,%3d,%3d,%3d,%3d,%3d,%3d,%c%s%c, %s, 255 },\n", 
 								kc_joystick[i].id, kc_joystick[i].x, kc_joystick[i].y, kc_joystick[i].w1, kc_joystick[i].w2,
 								kc_joystick[i].u, kc_joystick[i].d, kc_joystick[i].l, kc_joystick[i].r,
 								34, kc_joystick[i].text, 34, btype_text[kc_joystick[i].type] );
 					else
+#endif
 						PHYSFSX_printf( fp, "\t{ %2d,%3d,%3d,%3d,%3d,%3d,%3d,%3d,%3d,%c%s%c, %s, 255 },\n", 
 								kc_joystick[i].id, kc_joystick[i].x, kc_joystick[i].y, kc_joystick[i].w1, kc_joystick[i].w2,
 								kc_joystick[i].u, kc_joystick[i].d, kc_joystick[i].l, kc_joystick[i].r,
@@ -844,7 +955,11 @@ int kconfig_handler(window *wind, d_event *event, kc_menu *menu)
 			
 		case EVENT_MOUSE_BUTTON_DOWN:
 		case EVENT_MOUSE_BUTTON_UP:
+#if defined(DXX_BUILD_DESCENT_I)
+			if (menu->changing && (menu->items[menu->citem].type == BT_MOUSE_BUTTON) && (event->type == EVENT_MOUSE_BUTTON_DOWN))
+#elif defined(DXX_BUILD_DESCENT_II)
 			if (menu->changing && (menu->items[menu->citem].type == BT_MOUSE_BUTTON) && (event->type == EVENT_MOUSE_BUTTON_UP))
+#endif
 			{
 				kc_change_mousebutton( menu, event, &menu->items[menu->citem] );
 				menu->mouse_state = (event->type == EVENT_MOUSE_BUTTON_DOWN);
@@ -991,7 +1106,10 @@ void kc_drawitem( kc_item *item, int is_current )
 				strncpy( btext, invert_text[item->value], 10 ); break;
 		}
 	}
-	if (item->w1) {
+#if defined(DXX_BUILD_DESCENT_II)
+	if (item->w1)
+#endif
+	{
 		gr_get_string_size(btext, &w, &h, &aw  );
 
 		if (is_current)
@@ -1015,7 +1133,13 @@ void kc_drawquestion( kc_menu *menu, kc_item *item )
 
 	gr_get_string_size("?", &w, &h, &aw  );
 
+#if defined(DXX_BUILD_DESCENT_I)
+	int c = BM_XRGB(21,0,24);
+
+	gr_setcolor( gr_fade_table[fades[menu->q_fade_i]*256+c] );
+#elif defined(DXX_BUILD_DESCENT_II)
 	gr_setcolor(BM_XRGB(21*fades[menu->q_fade_i]/31,0,24*fades[menu->q_fade_i]/31));
+#endif
 	menu->q_fade_i++;
 	if (menu->q_fade_i>63) menu->q_fade_i=0;
 
