@@ -20,8 +20,15 @@ COPYRIGHT 1993-1999 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 #ifndef _GAMEPAL_H
 #define _GAMEPAL_H
 
-#include "inferno.h"
-
+#if defined(DXX_BUILD_DESCENT_I)
+static inline int load_palette(const char *name, int used_for_level, int no_change_screen)
+{
+	(void)name;
+	(void)used_for_level;
+	(void)no_change_screen;
+	return 1;
+}
+#elif defined(DXX_BUILD_DESCENT_II)
 #define D2_DEFAULT_PALETTE "default.256"
 #define MENU_PALETTE    "default.256"
 
@@ -34,5 +41,6 @@ extern char last_palette_loaded_pig[FILENAME_LEN];
 // if no_change_screen is set, the current screen does not get
 // remapped, and the hardware palette does not get changed
 int load_palette(const char *name, int used_for_level, int no_change_screen);
+#endif
 
 #endif /* _GAMEPAL_H */
