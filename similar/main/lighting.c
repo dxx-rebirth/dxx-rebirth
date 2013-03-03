@@ -62,10 +62,16 @@ void apply_light(g3s_lrgb obj_light_emission, int obj_seg, vms_vector *obj_pos, 
 	if (((obj_light_emission.r+obj_light_emission.g+obj_light_emission.b)/3) > 0)
 	{
 		fix obji_64 = ((obj_light_emission.r+obj_light_emission.g+obj_light_emission.b)/3)*64;
+		sbyte is_marker = 0;
+#if defined(DXX_BUILD_DESCENT_II)
+		if (objnum != -1)
+			if (Objects[objnum].type == OBJ_MARKER)
+				is_marker = 1;
+#endif
 
 		// for pretty dim sources, only process vertices in object's own segment.
 		//	12/04/95, MK, markers only cast light in own segment.
-		if (abs(obji_64) <= F1_0*8) {
+		if ((abs(obji_64) <= F1_0*8) || is_marker) {
 			int *vp = Segments[obj_seg].verts;
 
 			for (vv=0; vv<MAX_VERTICES_PER_SEGMENT; vv++) {
@@ -92,6 +98,33 @@ void apply_light(g3s_lrgb obj_light_emission, int obj_seg, vms_vector *obj_pos, 
 			int	headlight_shift = 0;
 			fix	max_headlight_dist = F1_0*200;
 
+#if defined(DXX_BUILD_DESCENT_II)
+			if (objnum != -1)
+				if (Objects[objnum].type == OBJ_PLAYER)
+					if (Players[Objects[objnum].id].flags & PLAYER_FLAGS_HEADLIGHT_ON) {
+						headlight_shift = 3;
+						if (Objects[objnum].id != Player_num) {
+							vms_vector	tvec;
+							fvi_query	fq;
+							fvi_info		hit_data;
+							int			fate;
+
+							vm_vec_scale_add(&tvec, &Objects[objnum].pos, &Objects[objnum].orient.fvec, F1_0*200);
+
+							fq.startseg				= Objects[objnum].segnum;
+							fq.p0						= &Objects[objnum].pos;
+							fq.p1						= &tvec;
+							fq.rad					= 0;
+							fq.thisobjnum			= objnum;
+							fq.ignore_obj_list	= NULL;
+							fq.flags					= FQ_TRANSWALL;
+
+							fate = find_vector_intersection(&fq, &hit_data);
+							if (fate != HIT_NONE)
+								max_headlight_dist = vm_vec_mag_quick(vm_vec_sub(&tvec, &hit_data.hit_pnt, &Objects[objnum].pos)) + F1_0*4;
+						}
+					}
+#endif
 			// -- for (vv=light_frame_count&1; vv<n_render_vertices; vv+=2) {
 			for (vv=0; vv<n_render_vertices; vv++) {
 				int			vertnum, vsegnum;
@@ -204,8 +237,6 @@ fix Obj_light_xlate[16] = { 0x1234, 0x3321, 0x2468, 0x1735,
 			    0x0123, 0x19af, 0x3f03, 0x232a,
 			    0x2123, 0x39af, 0x0f03, 0x132a,
 			    0x3123, 0x29af, 0x1f03, 0x032a };
-// Flag array of objects lit last frame. Guaranteed to process this frame if lit last frame.
-sbyte   Lighting_objects[MAX_OBJECTS];
 #define MAX_HEADLIGHTS	8
 object *Headlights[MAX_HEADLIGHTS];
 int Num_headlights;
@@ -218,18 +249,38 @@ g3s_lrgb compute_light_emission(int objnum)
 	float cscale = 255.0;
 	fix light_intensity = 0;
 	g3s_lrgb lemission, obj_color = { 255, 255, 255 };
-
+        
 	switch (obj->type)
 	{
 		case OBJ_PLAYER:
+#if defined(DXX_BUILD_DESCENT_II)
+			if (Players[obj->id].flags & PLAYER_FLAGS_HEADLIGHT_ON)
+			{
+				if (Num_headlights < MAX_HEADLIGHTS)
+					Headlights[Num_headlights++] = obj;
+				light_intensity = HEADLIGHT_SCALE;
+			}
+			else if ((Game_mode & GM_HOARD) && Players[obj->id].secondary_ammo[PROXIMITY_INDEX]) // If hoard game and player, add extra light based on how many orbs you have Pulse as well.
+			{
+				fix s,hoardlight;
+				hoardlight=i2f(Players[obj->id].secondary_ammo[PROXIMITY_INDEX])/2; //i2f(12));
+				hoardlight++;
+				fix_sincos (((fix)(GameTime64/2)) & 0xFFFF,&s,NULL); // probably a bad way to do it
+				s+=F1_0; 
+				s>>=1;
+				hoardlight=fixmul (s,hoardlight);
+				light_intensity = (hoardlight);
+			}
+			else
+#endif
 			{
 				vms_vector sthrust = obj->mtype.phys_info.thrust;
 				fix k = fixmuldiv(obj->mtype.phys_info.mass,obj->mtype.phys_info.drag,(f1_0-obj->mtype.phys_info.drag));
 				// smooth thrust value like set_thrust_from_velocity()
 				vm_vec_copy_scale(&sthrust,&obj->mtype.phys_info.velocity,k);
 				light_intensity = max(vm_vec_mag_quick(&sthrust)/4, F1_0*2) + F1_0/2;
+			}
 			break;
-		}
 		case OBJ_FIREBALL:
 			if (obj->id != 0xff)
 			{
@@ -242,18 +293,43 @@ g3s_lrgb compute_light_emission(int objnum)
 				 light_intensity = 0;
 			break;
 		case OBJ_ROBOT:
+#if defined(DXX_BUILD_DESCENT_I)
 			light_intensity = F1_0/2;	// F1_0*Robot_info[obj->id].lightcast;
+#elif defined(DXX_BUILD_DESCENT_II)
+			light_intensity = F1_0*Robot_info[obj->id].lightcast;
+#endif
 			break;
 		case OBJ_WEAPON:
 		{
 			fix tval = Weapon_info[obj->id].light;
+#if defined(DXX_BUILD_DESCENT_II)
+			if (Game_mode & GM_MULTI)
+				if (obj->id == OMEGA_ID)
+					if (d_rand() > 8192)
+						light_intensity = 0; // 3/4 of time, omega blobs will cast 0 light!
+#endif
 
 			if (obj->id == FLARE_ID )
-				light_intensity = 2* (min(tval, obj->lifeleft) + ((((fix)GameTime64) ^ Obj_light_xlate[objnum&0x0f]) & 0x3fff));
+				light_intensity = 2*(min(tval, obj->lifeleft) + ((((fix)GameTime64) ^ Obj_light_xlate[objnum&0x0f]) & 0x3fff));
 			else
 				light_intensity = tval;
 			break;
 		}
+#if defined(DXX_BUILD_DESCENT_II)
+		case OBJ_MARKER:
+		{
+			fix lightval = obj->lifeleft;
+
+			lightval &= 0xffff;
+			lightval = 8 * abs(F1_0/2 - lightval);
+
+			if (obj->lifeleft < F1_0*1000)
+				obj->lifeleft += F1_0; // Make sure this object doesn't go out.
+
+			light_intensity = lightval;
+			break;
+		}
+#endif
 		case OBJ_POWERUP:
 			light_intensity = Powerup_info[obj->id].light;
 			break;
@@ -278,6 +354,9 @@ g3s_lrgb compute_light_emission(int objnum)
 		case OBJ_FIREBALL:
 		case OBJ_WEAPON:
 		case OBJ_FLARE:
+#if defined(DXX_BUILD_DESCENT_II)
+		case OBJ_MARKER:
+#endif
 			compute_color = 1;
 			break;
 		case OBJ_POWERUP:
@@ -292,6 +371,9 @@ g3s_lrgb compute_light_emission(int objnum)
 				case POW_KEY_GOLD:
 				case POW_CLOAK:
 				case POW_INVULNERABILITY:
+#if defined(DXX_BUILD_DESCENT_II)
+				case POW_HOARD_ORB:
+#endif
 					compute_color = 1;
 					break;
 				default:
@@ -457,6 +539,19 @@ void set_dynamic_light(void)
 }
 
 // ---------------------------------------------------------
+
+#if defined(DXX_BUILD_DESCENT_II)
+void toggle_headlight_active()
+{
+	if (Players[Player_num].flags & PLAYER_FLAGS_HEADLIGHT) {
+		Players[Player_num].flags ^= PLAYER_FLAGS_HEADLIGHT_ON;
+#ifdef NETWORK
+		if (Game_mode & GM_MULTI)
+			multi_send_flags(Player_num);
+#endif
+	}
+}
+#endif
 
 #define HEADLIGHT_BOOST_SCALE 8		//how much to scale light when have headlight boost
 
