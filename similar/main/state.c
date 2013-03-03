@@ -68,8 +68,13 @@ COPYRIGHT 1993-1999 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 #endif
 #include "physfsx.h"
 
+#if defined(DXX_BUILD_DESCENT_I)
+#define STATE_VERSION 7
+#define STATE_COMPATIBLE_VERSION 6
+#elif defined(DXX_BUILD_DESCENT_II)
 #define STATE_VERSION 22
 #define STATE_COMPATIBLE_VERSION 20
+#endif
 // 0 - Put DGSS (Descent Game State Save) id at tof.
 // 1 - Added Difficulty level save
 // 2 - Added cheats.enabled flag
@@ -100,10 +105,7 @@ extern void apply_all_changed_light(void);
 
 extern int Do_appearance_effect;
 
-extern int Physics_cheat_flag;
-
 int state_save_all_sub(char *filename, char *desc);
-int state_restore_all_sub(char *filename, int secret_restore);
 
 extern int First_secret_visit;
 
@@ -214,13 +216,18 @@ void state_object_to_object_rw(object *obj, object_rw *obj_rw)
 			obj_rw->ctype.ai_info.hide_index             = obj->ctype.ai_info.hide_index;
 			obj_rw->ctype.ai_info.path_length            = obj->ctype.ai_info.path_length;
 			obj_rw->ctype.ai_info.cur_path_index         = obj->ctype.ai_info.cur_path_index;
-			obj_rw->ctype.ai_info.dying_sound_playing    = obj->ctype.ai_info.dying_sound_playing;
 			obj_rw->ctype.ai_info.danger_laser_num       = obj->ctype.ai_info.danger_laser_num;
 			obj_rw->ctype.ai_info.danger_laser_signature = obj->ctype.ai_info.danger_laser_signature;
+#if defined(DXX_BUILD_DESCENT_I)
+			obj_rw->ctype.ai_info.follow_path_start_seg  = obj->ctype.ai_info.follow_path_start_seg;
+			obj_rw->ctype.ai_info.follow_path_end_seg    = obj->ctype.ai_info.follow_path_end_seg;
+#elif defined(DXX_BUILD_DESCENT_II)
+			obj_rw->ctype.ai_info.dying_sound_playing    = obj->ctype.ai_info.dying_sound_playing;
 			if (obj->ctype.ai_info.dying_start_time == 0) // if bot not dead, anything but 0 will kill it
 				obj_rw->ctype.ai_info.dying_start_time = 0;
 			else
 				obj_rw->ctype.ai_info.dying_start_time = obj->ctype.ai_info.dying_start_time - GameTime64;
+#endif
 			break;
 		}
 			
@@ -230,11 +237,13 @@ void state_object_to_object_rw(object *obj, object_rw *obj_rw)
 			
 		case CT_POWERUP:
 			obj_rw->ctype.powerup_info.count         = obj->ctype.powerup_info.count;
+#if defined(DXX_BUILD_DESCENT_II)
 			if (obj->ctype.powerup_info.creation_time - GameTime64 < F1_0*(-18000))
 				obj_rw->ctype.powerup_info.creation_time = F1_0*(-18000);
 			else
 				obj_rw->ctype.powerup_info.creation_time = obj->ctype.powerup_info.creation_time - GameTime64;
 			obj_rw->ctype.powerup_info.flags         = obj->ctype.powerup_info.flags;
+#endif
 			break;
 	}
 	
@@ -373,10 +382,15 @@ void state_object_rw_to_object(object_rw *obj_rw, object *obj)
 			obj->ctype.ai_info.hide_index             = obj_rw->ctype.ai_info.hide_index;
 			obj->ctype.ai_info.path_length            = obj_rw->ctype.ai_info.path_length;
 			obj->ctype.ai_info.cur_path_index         = obj_rw->ctype.ai_info.cur_path_index;
-			obj->ctype.ai_info.dying_sound_playing    = obj_rw->ctype.ai_info.dying_sound_playing;
 			obj->ctype.ai_info.danger_laser_num       = obj_rw->ctype.ai_info.danger_laser_num;
 			obj->ctype.ai_info.danger_laser_signature = obj_rw->ctype.ai_info.danger_laser_signature;
+#if defined(DXX_BUILD_DESCENT_I)
+			obj->ctype.ai_info.follow_path_start_seg  = obj_rw->ctype.ai_info.follow_path_start_seg;
+			obj->ctype.ai_info.follow_path_end_seg    = obj_rw->ctype.ai_info.follow_path_end_seg;
+#elif defined(DXX_BUILD_DESCENT_II)
+			obj->ctype.ai_info.dying_sound_playing    = obj_rw->ctype.ai_info.dying_sound_playing;
 			obj->ctype.ai_info.dying_start_time       = obj_rw->ctype.ai_info.dying_start_time;
+#endif
 			break;
 		}
 			
@@ -386,8 +400,10 @@ void state_object_rw_to_object(object_rw *obj_rw, object *obj)
 			
 		case CT_POWERUP:
 			obj->ctype.powerup_info.count         = obj_rw->ctype.powerup_info.count;
+#if defined(DXX_BUILD_DESCENT_II)
 			obj->ctype.powerup_info.creation_time = obj_rw->ctype.powerup_info.creation_time;
 			obj->ctype.powerup_info.flags         = obj_rw->ctype.powerup_info.flags;
+#endif
 			break;
 	}
 	
@@ -465,7 +481,9 @@ void state_player_to_player_rw(player *pl, player_rw *pl_rw)
 		pl_rw->invulnerable_time = F1_0*(-18000);
 	else
 		pl_rw->invulnerable_time = pl->invulnerable_time - GameTime64;
+#if defined(DXX_BUILD_DESCENT_II)
 	pl_rw->KillGoalCount             = pl->KillGoalCount;
+#endif
 	pl_rw->net_killed_total          = pl->net_killed_total;
 	pl_rw->net_kills_total           = pl->net_kills_total;
 	pl_rw->num_kills_level           = pl->num_kills_level;
@@ -511,7 +529,9 @@ void state_player_rw_to_player(player_rw *pl_rw, player *pl)
 	pl->time_total                = pl_rw->time_total;
 	pl->cloak_time                = pl_rw->cloak_time;
 	pl->invulnerable_time         = pl_rw->invulnerable_time;
+#if defined(DXX_BUILD_DESCENT_II)
 	pl->KillGoalCount             = pl_rw->KillGoalCount;
+#endif
 	pl->net_killed_total          = pl_rw->net_killed_total;
 	pl->net_kills_total           = pl_rw->net_kills_total;
 	pl->num_kills_level           = pl_rw->num_kills_level;
@@ -626,11 +646,13 @@ int state_get_savegame_filename(char * fname, char * dsc, char * caption, int bl
 					// Read thumbnail
 					sc_bmp[i] = gr_create_bitmap(THUMBNAIL_W,THUMBNAIL_H );
 					PHYSFS_read(fp, sc_bmp[i]->bm_data, THUMBNAIL_W * THUMBNAIL_H, 1);
+#if defined(DXX_BUILD_DESCENT_II)
 					if (version >= 9) {
 						ubyte pal[256*3];
 						PHYSFS_read(fp, pal, 3, 256);
 						gr_remap_bitmap_good( sc_bmp[i], pal, -1, -1 );
 					}
+#endif
 					nsaves++;
 					valid = 1;
 				}
@@ -688,7 +710,131 @@ int state_get_restore_file(char * fname)
 	return state_get_savegame_filename(fname, NULL, "Select Game to Restore", 0);
 }
 
-#define	DESC_OFFSET	8
+#if defined(DXX_BUILD_DESCENT_I)
+int state_save_old_game(int slotnum, char * sg_name, player_rw * sg_player, 
+                        int sg_difficulty_level, int sg_primary_weapon, 
+                        int sg_secondary_weapon, int sg_next_level_num  	)
+{
+	int i;
+	int temp_int;
+	ubyte temp_byte;
+	char desc[DESC_LENGTH+1];
+	char filename[PATH_MAX];
+	char mission_filename[9];
+	grs_canvas * cnv;
+	PHYSFS_file * fp;
+#ifdef OGL
+	int j;
+	GLint gl_draw_buffer;
+#endif
+
+	snprintf( filename, PATH_MAX, (GameArg.SysUsePlayersDir?"Players/%s.sg%d":"%s.sg%d"), sg_player->callsign, slotnum );
+	fp = PHYSFSX_openWriteBuffered(filename);
+	if ( !fp ) return 0;
+
+//Save id
+	PHYSFS_write(fp, dgss_id, sizeof(char) * 4, 1);
+
+//Save version
+	temp_int = STATE_VERSION;
+	PHYSFS_write(fp, &temp_int, sizeof(int), 1);
+
+//Save description
+	strncpy( desc, sg_name, DESC_LENGTH );
+	PHYSFS_write(fp, desc, sizeof(char) * DESC_LENGTH, 1);
+
+// Save the current screen shot...
+	cnv = gr_create_canvas( THUMBNAIL_W, THUMBNAIL_H );
+	if ( cnv )
+	{
+#ifdef OGL
+		ubyte *buf;
+		int k;
+#endif
+		grs_canvas * cnv_save;
+		cnv_save = grd_curcanv;
+
+		gr_set_current_canvas( cnv );
+
+		render_frame(0, 0);
+
+#ifdef OGL
+		buf = d_malloc(THUMBNAIL_W * THUMBNAIL_H * 4);
+#ifndef OGLES
+ 		glGetIntegerv(GL_DRAW_BUFFER, &gl_draw_buffer);
+ 		glReadBuffer(gl_draw_buffer);
+#endif
+		glReadPixels(0, SHEIGHT - THUMBNAIL_H, THUMBNAIL_W, THUMBNAIL_H, GL_RGBA, GL_UNSIGNED_BYTE, buf);
+		k = THUMBNAIL_H;
+		for (i = 0; i < THUMBNAIL_W * THUMBNAIL_H; i++) {
+			if (!(j = i % THUMBNAIL_W))
+				k--;
+			cnv->cv_bitmap.bm_data[THUMBNAIL_W * k + j] =
+				gr_find_closest_color(buf[4*i]/4, buf[4*i+1]/4, buf[4*i+2]/4);
+		}
+		d_free(buf);
+#endif
+		PHYSFS_write(fp, cnv->cv_bitmap.bm_data, THUMBNAIL_W * THUMBNAIL_H, 1);
+
+		gr_set_current_canvas(cnv_save);
+		gr_free_canvas( cnv );
+	}
+	else
+	{
+	 	ubyte color = 0;
+	 	for ( i=0; i<THUMBNAIL_W*THUMBNAIL_H; i++ )
+			PHYSFS_write(fp, &color, sizeof(ubyte), 1);		
+	}
+
+// Save the Between levels flag...
+	temp_int = 1;
+	PHYSFS_write(fp, &temp_int, sizeof(int), 1);
+
+// Save the mission info...
+	memset(&mission_filename, '\0', 9);
+	snprintf(mission_filename, 9, "%s", Current_mission_filename); // Current_mission_filename is not necessarily 9 bytes long so for saving we use a proper string - preventing corruptions
+	PHYSFS_write(fp, &mission_filename, 9 * sizeof(char), 1);
+
+//Save level info
+	temp_int = sg_player->level;
+	PHYSFS_write(fp, &temp_int, sizeof(int), 1);
+	temp_int = sg_next_level_num;
+	PHYSFS_write(fp, &temp_int, sizeof(int), 1);
+
+//Save GameTime
+	temp_int = 0;
+	PHYSFS_write(fp, &temp_int, sizeof(fix), 1);
+
+//Save player info
+	PHYSFS_write(fp, &sg_player, sizeof(player_rw), 1);
+
+// Save the current weapon info
+	temp_byte = sg_primary_weapon;
+	PHYSFS_write(fp, &temp_byte, sizeof(sbyte), 1);
+	temp_byte = sg_secondary_weapon;
+	PHYSFS_write(fp, &temp_byte, sizeof(sbyte), 1);
+
+// Save the difficulty level
+	temp_int = sg_difficulty_level;
+	PHYSFS_write(fp, &temp_int, sizeof(int), 1);
+
+// Save the cheats.enabled
+	temp_int = 0;
+	PHYSFS_write(fp, &cheats.enabled, sizeof(int), 1);
+	PHYSFS_write( fp, &cheats.turbo, sizeof(int), 1);
+	PHYSFS_write( fp, &state_game_id, sizeof(uint), 1 );
+	PHYSFS_write( fp, &cheats.rapidfire, sizeof(int), 1 );
+	PHYSFS_write( fp, &temp_int, sizeof(int), 1 ); // was Ugly_robot_cheat
+	PHYSFS_write( fp, &temp_int, sizeof(int), 1 ); // Ugly_robot_texture
+	PHYSFS_write( fp, &cheats.ghostphysics, sizeof(int), 1 );
+	PHYSFS_write( fp, &temp_int, sizeof(int), 1 ); // was Lunacy
+
+	PHYSFS_close(fp);
+
+	return 1;
+}
+
+#elif defined(DXX_BUILD_DESCENT_II)
 
 //	-----------------------------------------------------------------------------------
 //	Imagine if C had a function to copy a file...
@@ -741,6 +887,7 @@ int copy_file(char *old_file, char *new_file)
 
 	return 0;
 }
+#endif
 
 extern int Final_boss_is_dead;
 
@@ -750,6 +897,9 @@ int state_save_all(int secret_save, char *filename_override, int blind_save)
 	int	rval, filenum = -1;
 	char	filename[PATH_MAX], desc[DESC_LENGTH+1];
 
+#if defined(DXX_BUILD_DESCENT_I)
+	secret_save = 0;
+#elif defined(DXX_BUILD_DESCENT_II)
 	if ((Current_level_num < 0) && (secret_save == 0)) {
 		HUD_init_message(HM_DEFAULT,  "Can't save in secret level!" );
 		return 0;
@@ -757,6 +907,7 @@ int state_save_all(int secret_save, char *filename_override, int blind_save)
 
 	if (Final_boss_is_dead)		//don't allow save while final boss is dying
 		return 0;
+#endif
 
 	if ( Game_mode & GM_MULTI )
 	{
@@ -765,31 +916,36 @@ int state_save_all(int secret_save, char *filename_override, int blind_save)
 		return 0;
 	}
 
+#if defined(DXX_BUILD_DESCENT_II)
 	//	If this is a secret save and the control center has been destroyed, don't allow
 	//	return to the base level.
 	if (secret_save && (Control_center_destroyed)) {
 		PHYSFS_delete(SECRETB_FILENAME);
 		return 0;
 	}
+#endif
 
 	stop_time();
 
 	memset(&filename, '\0', PATH_MAX);
 	memset(&desc, '\0', DESC_LENGTH+1);
+#if defined(DXX_BUILD_DESCENT_II)
 	if (secret_save == 1) {
 		filename_override = filename;
 		sprintf(filename_override, SECRETB_FILENAME);
 	} else if (secret_save == 2) {
 		filename_override = filename;
 		sprintf(filename_override, SECRETC_FILENAME);
-	} else {
+	} else
+#endif
+	{
 		if (!(filenum = state_get_save_file(filename, desc, blind_save)))
 		{
 			start_time();
 			return 0;
 		}
 	}
-		
+#if defined(DXX_BUILD_DESCENT_II)
 	//	MK, 1/1/96
 	//	Do special secret level stuff.
 	//	If secret.sgc exists, then copy it to Nsecret.sgc (where N = filenum).
@@ -821,6 +977,7 @@ int state_save_all(int secret_save, char *filename_override, int blind_save)
 			}
 		}
 	}
+#endif
 
 	rval = state_save_all_sub(filename, desc);
 
@@ -839,7 +996,6 @@ int state_save_all_sub(char *filename, char *desc)
 	int i,j;
 	PHYSFS_file *fp;
 	grs_canvas * cnv;
-	ubyte *pal;
 	char mission_filename[9];
 #ifdef OGL
 	GLint gl_draw_buffer;
@@ -907,13 +1063,14 @@ int state_save_all_sub(char *filename, char *desc)
 		}
 		d_free(buf);
 #endif
-		pal = gr_palette;
 
 		PHYSFS_write(fp, cnv->cv_bitmap.bm_data, THUMBNAIL_W * THUMBNAIL_H, 1);
 
 		gr_set_current_canvas(cnv_save);
 		gr_free_canvas( cnv );
-		PHYSFS_write(fp, pal, 3, 256);
+#if defined(DXX_BUILD_DESCENT_II)
+		PHYSFS_write(fp, gr_palette, 3, 256);
+#endif
 	}
 	else
 	{
@@ -960,6 +1117,9 @@ int state_save_all_sub(char *filename, char *desc)
 
 // Save cheats enabled
 	PHYSFS_write(fp, &cheats.enabled, sizeof(int), 1);
+#if defined(DXX_BUILD_DESCENT_I)
+	PHYSFS_write(fp, &cheats.turbo, sizeof(int), 1);
+#endif
 
 //Finish all morph objects
 	for (i=0; i<=Highest_object_index; i++ )	{
@@ -1000,20 +1160,24 @@ int state_save_all_sub(char *filename, char *desc)
 	PHYSFS_write(fp, &i, sizeof(int), 1);
 	PHYSFS_write(fp, Walls, sizeof(wall), i);
 
+#if defined(DXX_BUILD_DESCENT_II)
 //Save exploding wall info
 	i = MAX_EXPLODING_WALLS;
 	PHYSFS_write(fp, &i, sizeof(int), 1);
 	PHYSFS_write(fp, expl_wall_list, sizeof(*expl_wall_list), i);
+#endif
 
 //Save door info
 	i = Num_open_doors;
 	PHYSFS_write(fp, &i, sizeof(int), 1);
 	PHYSFS_write(fp, ActiveDoors, sizeof(active_door), i);
 
+#if defined(DXX_BUILD_DESCENT_II)
 //Save cloaking wall info
 	i = Num_cloaking_walls;
 	PHYSFS_write(fp, &i, sizeof(int), 1);
 	PHYSFS_write(fp, CloakingWalls, sizeof(cloaking_wall), i);
+#endif
 
 //Save trigger info
 	PHYSFS_write(fp, &Num_triggers, sizeof(int), 1);
@@ -1032,11 +1196,23 @@ int state_save_all_sub(char *filename, char *desc)
 
 // Save the fuelcen info
 	PHYSFS_write(fp, &Control_center_destroyed, sizeof(int), 1);
+#if defined(DXX_BUILD_DESCENT_I)
+	PHYSFS_write(fp, &Countdown_seconds_left, sizeof(int), 1);
+#elif defined(DXX_BUILD_DESCENT_II)
 	PHYSFS_write(fp, &Countdown_timer, sizeof(int), 1);
+#endif
 	PHYSFS_write(fp, &Num_robot_centers, sizeof(int), 1);
 	PHYSFS_write(fp, RobotCenters, sizeof(matcen_info), Num_robot_centers);
 	PHYSFS_write(fp, &ControlCenterTriggers, sizeof(control_center_triggers), 1);
 	PHYSFS_write(fp, &Num_fuelcenters, sizeof(int), 1);
+#if defined(DXX_BUILD_DESCENT_I)
+	for (i = 0; i < Num_fuelcenters; i++)
+	{
+		// NOTE: Usually Descent1 handles countdown by Timer value of the Reactor Station. Since we now use Descent2 code to handle countdown (which we do in case there IS NO Reactor Station which causes potential trouble in Multiplayer), let's find the Reactor here and store the timer in it.
+		if (Station[i].Type == SEGMENT_IS_CONTROLCEN)
+			Station[i].Timer = Countdown_timer;
+	}
+#endif
 	PHYSFS_write(fp, Station, sizeof(FuelCenter), Num_fuelcenters);
 
 // Save the control cen info
@@ -1060,7 +1236,13 @@ int state_save_all_sub(char *filename, char *desc)
 	PHYSFS_write(fp, &state_game_id, sizeof(uint), 1);
 	i = 0;
 	PHYSFS_write(fp, &cheats.rapidfire, sizeof(int), 1);
+#if defined(DXX_BUILD_DESCENT_I)
+	PHYSFS_write(fp, &i, sizeof(int), 1); // was Ugly_robot_cheat
+	PHYSFS_write(fp, &i, sizeof(int), 1); // was Ugly_robot_texture
+	PHYSFS_write(fp, &cheats.ghostphysics, sizeof(int), 1);
+#endif
 	PHYSFS_write(fp, &i, sizeof(int), 1); // was Lunacy
+#if defined(DXX_BUILD_DESCENT_II)
 	PHYSFS_write(fp, &i, sizeof(int), 1); // was Lunacy, too... and one was Ugly robot stuff a long time ago...
 
 	// Save automap marker info
@@ -1093,6 +1275,7 @@ int state_save_all_sub(char *filename, char *desc)
 		PHYSFS_write(fp, Light_subtracted, sizeof(Light_subtracted[0]), MAX_SEGMENTS_ORIGINAL);
 	PHYSFS_write(fp, &First_secret_visit, sizeof(First_secret_visit), 1);
 	PHYSFS_write(fp, &Omega_charge, sizeof(Omega_charge), 1);
+#endif
 
 // Save Coop Info
 	if (Game_mode & GM_MULTI_COOP)
@@ -1126,6 +1309,11 @@ int state_save_all_sub(char *filename, char *desc)
 
 //	-----------------------------------------------------------------------------------
 //	Set the player's position from the globals Secret_return_segment and Secret_return_orient.
+#if defined(DXX_BUILD_DESCENT_I)
+static inline void set_pos_from_return_segment(void)
+{
+}
+#elif defined(DXX_BUILD_DESCENT_II)
 void set_pos_from_return_segment(void)
 {
 	int	plobjnum = Players[Player_num].objnum;
@@ -1135,6 +1323,7 @@ void set_pos_from_return_segment(void)
 	reset_player_object();
 	Objects[plobjnum].orient = Secret_return_orient;
 }
+#endif
 
 //	-----------------------------------------------------------------------------------
 int state_restore_all(int in_game, int secret_restore, char *filename_override)
@@ -1142,10 +1331,14 @@ int state_restore_all(int in_game, int secret_restore, char *filename_override)
 	char filename[PATH_MAX];
 	int	filenum = -1;
 
+#if defined(DXX_BUILD_DESCENT_I)
+	secret_restore = 0;
+#elif defined(DXX_BUILD_DESCENT_II)
 	if (in_game && (Current_level_num < 0) && (secret_restore == 0)) {
 		HUD_init_message(HM_DEFAULT,  "Can't restore in secret level!" );
 		return 0;
 	}
+#endif
 
 	if ( Newdemo_state == ND_STATE_RECORDING )
 		newdemo_stop_recording();
@@ -1162,14 +1355,17 @@ int state_restore_all(int in_game, int secret_restore, char *filename_override)
 
 	stop_time();
 
+#if defined(DXX_BUILD_DESCENT_II)
 	if (filename_override) {
 		strcpy(filename, filename_override);
 		filenum = NUM_SAVES+1; // place outside of save slots
-	} else if (!(filenum = state_get_restore_file(filename)))	{
+	} else
+#endif
+	if (!(filenum = state_get_restore_file(filename)))	{
 		start_time();
 		return 0;
 	}
-	
+#if defined(DXX_BUILD_DESCENT_II)
 	//	MK, 1/1/96
 	//	Do special secret level stuff.
 	//	If Nsecret.sgc (where N = filenum) exists, then copy it to secret.sgc.
@@ -1195,7 +1391,7 @@ int state_restore_all(int in_game, int secret_restore, char *filename_override)
 				PHYSFS_delete(SECRETC_FILENAME);
 		}
 	}
-
+#endif
 	if ( !secret_restore && in_game ) {
 		int choice;
 		choice =  nm_messagebox( NULL, 2, "Yes", "No", "Restore Game?" );
@@ -1211,8 +1407,6 @@ int state_restore_all(int in_game, int secret_restore, char *filename_override)
 }
 
 extern void init_player_stats_new_ship(ubyte pnum);
-
-void ShowLevelIntro(int level_num);
 
 extern void do_cloak_invul_secret_stuff(fix64 old_gametime);
 extern void copy_defaults_to_robot(object *objp);
@@ -1232,6 +1426,10 @@ int state_restore_all_sub(char *filename, int secret_restore)
 	fix64	old_gametime = GameTime64;
 	short TempTmapNum[MAX_SEGMENTS][MAX_SIDES_PER_SEGMENT];
 	short TempTmapNum2[MAX_SEGMENTS][MAX_SIDES_PER_SEGMENT];
+
+#if defined(DXX_BUILD_DESCENT_I)
+	secret_restore = 0;
+#endif
 
 	#ifndef NDEBUG
 	if (GameArg.SysUsePlayersDir && strncmp(filename, "Players/", 8))
@@ -1280,10 +1478,10 @@ int state_restore_all_sub(char *filename, int secret_restore)
 
 // Skip the current screen shot...
 	PHYSFS_seek(fp, PHYSFS_tell(fp) + THUMBNAIL_W * THUMBNAIL_H);
-
+#if defined(DXX_BUILD_DESCENT_II)
 // And now...skip the goddamn palette stuff that somebody forgot to add
 	PHYSFS_seek(fp, PHYSFS_tell(fp) + 768);
-
+#endif
 // Read the Between levels flag...
 	i = PHYSFSX_readSXE32(fp, swap);
 	i = 0;
@@ -1334,6 +1532,7 @@ int state_restore_all_sub(char *filename, int secret_restore)
 	{
 		StartNewLevelSub(current_level, 1, secret_restore);
 
+#if defined(DXX_BUILD_DESCENT_II)
 		if (secret_restore) {
 			player	dummy_player;
 			player_rw *pl_rw;
@@ -1360,7 +1559,9 @@ int state_restore_all_sub(char *filename, int secret_restore)
 			} else {
 				Players[Player_num] = dummy_player;
 			}
-		} else {
+		} else
+#endif
+		{
 			player_rw *pl_rw;
 			MALLOC(pl_rw, player_rw, 1);
 			PHYSFS_read(fp, pl_rw, sizeof(player_rw), 1);
@@ -1386,6 +1587,9 @@ int state_restore_all_sub(char *filename, int secret_restore)
 // Restore the cheats enabled flag
 	game_disable_cheats(); // disable cheats first
 	cheats.enabled = PHYSFSX_readSXE32(fp, swap);
+#if defined(DXX_BUILD_DESCENT_I)
+	cheats.turbo = PHYSFSX_readSXE32(fp, swap);
+#endif
 
 	Do_appearance_effect = 0;			// Don't do this for middle o' game stuff.
 
@@ -1416,7 +1620,7 @@ int state_restore_all_sub(char *filename, int secret_restore)
 		if ( obj->type != OBJ_NONE )	{
 			obj_link(i,segnum);
 		}
-
+#if defined(DXX_BUILD_DESCENT_II)
 		//look for, and fix, boss with bogus shields
 		if (obj->type == OBJ_ROBOT && Robot_info[obj->id].boss_flag) {
 			fix save_shields = obj->shields;
@@ -1429,6 +1633,7 @@ int state_restore_all_sub(char *filename, int secret_restore)
 			else
 				obj->shields /= 2;  //give player a break
 		}
+#endif
 	}
 	special_reset_objects();
 
@@ -1444,6 +1649,7 @@ int state_restore_all_sub(char *filename, int secret_restore)
 	Num_walls = PHYSFSX_readSXE32(fp, swap);
 	wall_read_n_swap(Walls, Num_walls, swap, fp);
 
+#if defined(DXX_BUILD_DESCENT_II)
 	//now that we have the walls, check if any sounds are linked to
 	//walls that are now open
 	for (i=0;i<Num_walls;i++) {
@@ -1456,15 +1662,18 @@ int state_restore_all_sub(char *filename, int secret_restore)
 		i = PHYSFSX_readSXE32(fp, swap);
 		expl_wall_read_n_swap(expl_wall_list, i, swap, fp);
 	}
+#endif
 
 	//Restore door info
 	Num_open_doors = PHYSFSX_readSXE32(fp, swap);
 	active_door_read_n_swap(ActiveDoors, Num_open_doors, swap, fp);
 
+#if defined(DXX_BUILD_DESCENT_II)
 	if (version >= 14) {		//Restore cloaking wall info
 		Num_cloaking_walls = PHYSFSX_readSXE32(fp, swap);
 		cloaking_wall_read_n_swap(CloakingWalls, Num_cloaking_walls, swap, fp);
 	}
+#endif
 
 	//Restore trigger info
 	Num_triggers = PHYSFSX_readSXE32(fp, swap);
@@ -1481,12 +1690,25 @@ int state_restore_all_sub(char *filename, int secret_restore)
 
 	//Restore the fuelcen info
 	Control_center_destroyed = PHYSFSX_readSXE32(fp, swap);
+#if defined(DXX_BUILD_DESCENT_I)
+	Countdown_seconds_left = PHYSFSX_readSXE32(fp, swap);
+#elif defined(DXX_BUILD_DESCENT_II)
 	Countdown_timer = PHYSFSX_readSXE32(fp, swap);
+#endif
 	Num_robot_centers = PHYSFSX_readSXE32(fp, swap);
 	matcen_info_read_n_swap(RobotCenters, Num_robot_centers, swap, fp);
 	control_center_triggers_read_n_swap(&ControlCenterTriggers, 1, swap, fp);
 	Num_fuelcenters = PHYSFSX_readSXE32(fp, swap);
 	fuelcen_read_n_swap(Station, Num_fuelcenters, swap, fp);
+#if defined(DXX_BUILD_DESCENT_I)
+	Countdown_timer = 0;
+	for (i = 0; i < Num_fuelcenters; i++)
+	{
+		// NOTE: Usually Descent1 handles countdown by Timer value of the Reactor Station. Since we now use Descent2 code to handle countdown (which we do in case there IS NO Reactor Station which causes potential trouble in Multiplayer), let's find the Reactor here and read the timer from it.
+		if (Station[i].Type == SEGMENT_IS_CONTROLCEN)
+			Countdown_timer = Station[i].Timer;
+	}
+#endif
 
 	// Restore the control cen info
 	Control_center_been_hit = PHYSFSX_readSXE32(fp, swap);
@@ -1523,8 +1745,13 @@ int state_restore_all_sub(char *filename, int secret_restore)
 		cheats.rapidfire = PHYSFSX_readSXE32(fp, swap);
 		PHYSFS_seek(fp, PHYSFS_tell(fp) + sizeof(PHYSFS_sint32)); // PHYSFSX_readSXE32(fp, swap); // was Lunacy
 		PHYSFS_seek(fp, PHYSFS_tell(fp) + sizeof(PHYSFS_sint32)); // PHYSFSX_readSXE32(fp, swap); // was Lunacy, too... and one was Ugly robot stuff a long time ago...
+#if defined(DXX_BUILD_DESCENT_I)
+		cheats.ghostphysics = PHYSFSX_readSXE32(fp, swap);
+		PHYSFS_seek(fp, PHYSFS_tell(fp) + sizeof(PHYSFS_sint32)); // PHYSFSX_readSXE32(fp, swap);
+#endif
 	}
 
+#if defined(DXX_BUILD_DESCENT_II)
 	if (version >= 17) {
 		for (i = 0; i < NUM_MARKERS; i++)
 			MarkerObject[i] = PHYSFSX_readSXE32(fp, swap);
@@ -1612,6 +1839,7 @@ int state_restore_all_sub(char *filename, int secret_restore)
 		else
 			PHYSFSX_readSXE32(fp, swap);
 	}
+#endif
 
 // Read Coop Info
 	if (Game_mode & GM_MULTI_COOP)

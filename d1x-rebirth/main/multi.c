@@ -3786,7 +3786,7 @@ void multi_restore_game(ubyte slot, uint id)
 		return;
 	}
   
-	state_restore_all_sub( filename );
+	state_restore_all_sub( filename, 0 );
 	multi_send_score(); // send my restored scores. I sent 0 when I loaded the level anyways...
 }
 
