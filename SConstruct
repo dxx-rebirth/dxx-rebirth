@@ -376,6 +376,7 @@ class DXXProgram(DXXCommon):
 'editor/kmine.c',
 'editor/ksegmove.c',
 'editor/ksegsel.c',
+'editor/ksegsize.c',
 'editor/ktmap.c',
 'editor/kview.c',
 'editor/medmisc.c',
@@ -626,7 +627,6 @@ class D1XProgram(DXXProgram):
 'editor/centers.c',
 'editor/ehostage.c',
 'editor/group.c',
-'editor/ksegsize.c',
 'editor/med.c',
 'editor/meddraw.c',
 'editor/medrobot.c',
@@ -764,7 +764,6 @@ class D2XProgram(DXXProgram):
 	editor_sources = [os.path.join(srcdir, f) for f in [
 'editor/centers.c',
 'editor/group.c',
-'editor/ksegsize.c',
 'editor/med.c',
 'editor/meddraw.c',
 'editor/medrobot.c',
