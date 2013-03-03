@@ -34,7 +34,11 @@ COPYRIGHT 1993-1998 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 #endif
 
 #define MAX_ARGS 1000
+#if defined(DXX_BUILD_DESCENT_I)
+#define INI_FILENAME "d1x.ini"
+#elif defined(DXX_BUILD_DESCENT_II)
 #define INI_FILENAME "d2x.ini"
+#endif
 
 int Num_args=0;
 char * Args[MAX_ARGS];
@@ -142,7 +146,11 @@ void ReadCmdArgs(void)
 	GameArg.SysPilot 		= get_str_arg("-pilot", NULL);
 	GameArg.SysWindow 		= FindArg("-window");
 	GameArg.SysNoBorders 		= FindArg("-noborders");
+#if defined(DXX_BUILD_DESCENT_I)
+	GameArg.SysNoTitles 		= FindArg("-notitles");
+#elif defined(DXX_BUILD_DESCENT_II)
 	GameArg.SysNoMovies 		= FindArg("-nomovies");
+#endif
 	GameArg.SysAutoDemo 		= FindArg("-autodemo");
 
 	// Control Options
@@ -160,7 +168,9 @@ void ReadCmdArgs(void)
 
 	GameArg.SndNoSound 		= FindArg("-nosound");
 	GameArg.SndNoMusic 		= FindArg("-nomusic");
+#if defined(DXX_BUILD_DESCENT_II)
 	GameArg.SndDigiSampleRate 	= (FindArg("-sound11k") ? SAMPLE_RATE_11K : SAMPLE_RATE_22K);
+#endif
 
 #ifdef USE_SDLMIXER
 	GameArg.SndDisableSdlMixer 	= FindArg("-nosdlmixer");
@@ -171,9 +181,11 @@ void ReadCmdArgs(void)
 
 	// Graphics Options
 
-	GameArg.GfxHiresGFXAvailable	= !FindArg("-lowresgraphics");
 	GameArg.GfxHiresFNTAvailable	= !FindArg("-lowresfont");
+#if defined(DXX_BUILD_DESCENT_II)
+	GameArg.GfxHiresGFXAvailable	= !FindArg("-lowresgraphics");
 	GameArg.GfxMovieHires 		= !FindArg( "-lowresmovies" );
+#endif
 
 #ifdef OGL
 	// OpenGL Options
@@ -193,12 +205,16 @@ void ReadCmdArgs(void)
 #endif
 #endif
 
+#if defined(DXX_BUILD_DESCENT_I)
+	GameArg.EdiNoBm 		= FindArg("-nobm");
+#elif defined(DXX_BUILD_DESCENT_II)
 #ifdef EDITOR
 	// Editor Options
 
 	GameArg.EdiAutoLoad 		= get_str_arg("-autoload", NULL);
 	GameArg.EdiMacData 		= FindArg("-macdata");
 	GameArg.EdiSaveHoardData 	= FindArg("-hoarddata");
+#endif
 #endif
 
 	// Debug Options
