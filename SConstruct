@@ -307,6 +307,7 @@ class DXXProgram(DXXCommon):
 ]
 	similar_common_sources = [os.path.join('similar', f) for f in [
 'arch/sdl/timer.c',
+'mem/mem.c',
 ]
 ]
 	class UserSettings(DXXCommon.UserSettings):
@@ -546,7 +547,6 @@ class D1XProgram(DXXProgram):
 'main/vclip.c',
 'main/wall.c',
 'main/weapon.c',
-'mem/mem.c',
 'misc/args.c',
 'misc/hash.c',
 'misc/physfsx.c',
@@ -729,7 +729,6 @@ class D2XProgram(DXXProgram):
 'main/vclip.c',
 'main/wall.c',
 'main/weapon.c',
-'mem/mem.c',
 'misc/args.c',
 'misc/hash.c',
 'misc/physfsrwops.c',
