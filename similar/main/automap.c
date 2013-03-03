@@ -160,7 +160,9 @@ void init_automap_colors(automap *am)
 	am->wall_door_blue = K_WALL_DOOR_BLUE;
 	am->wall_door_gold = K_WALL_DOOR_GOLD;
 	am->wall_door_red = K_WALL_DOOR_RED;
+#if defined(DXX_BUILD_DESCENT_II)
 	am->wall_revealed_color = K_WALL_REVEALED_COLOR;
+#endif
 	am->hostage_color = K_HOSTAGE_COLOR;
 	am->font_color_20 = K_FONT_COLOR_20;
 	am->green_31 = K_GREEN_31;
@@ -193,11 +195,13 @@ void check_and_fix_matrix(vms_matrix *m);
 #define	MAX_DROP_MULTI	2
 #define	MAX_DROP_SINGLE	9
 
+#if defined(DXX_BUILD_DESCENT_II)
 vms_vector MarkerPoint[NUM_MARKERS]; //these are only used in multi.c, and I'd get rid of them there, but when I tried to do that once, I caused some horrible bug. -MT
 int HighlightMarker=-1;
 char MarkerMessage[NUM_MARKERS][MARKER_MESSAGE_LEN];
 float MarkerScale=2.0;
 int	MarkerObject[NUM_MARKERS];
+#endif
 
 extern vms_vector Matrix_scale; //how the matrix is currently scaled
 
@@ -205,6 +209,16 @@ extern vms_vector Matrix_scale; //how the matrix is currently scaled
 
 // -------------------------------------------------------------
 
+#if defined(DXX_BUILD_DESCENT_I)
+static inline void DrawMarkers (automap *am)
+{
+	(void)am;
+}
+
+static inline void ClearMarkers()
+{
+}
+#elif defined(DXX_BUILD_DESCENT_II)
 void DrawMarkerNumber (automap *am, int num)
 {
 	int i;
@@ -361,6 +375,7 @@ void ClearMarkers()
 		MarkerObject[i]=-1;
 	}
 }
+#endif
 
 void automap_clear_visited()	
 {
@@ -401,6 +416,7 @@ void draw_player( object * obj )
 	automap_draw_line(&sphere_point, &arrow_point);
 }
 
+#if defined(DXX_BUILD_DESCENT_II)
 //name for each group.  maybe move somewhere else
 static const char *const system_name[] = {
 			"Zeta Aquilae",
@@ -409,9 +425,24 @@ static const char *const system_name[] = {
 			"Limefrost Spiral",
 			"Baloris Prime",
 			"Omega System"};
+#endif
 
 void name_frame(automap *am)
 {
+#if defined(DXX_BUILD_DESCENT_I)
+	char		name_level[128];
+	
+	if (Current_level_num > 0)
+		sprintf(name_level, "%s %i: ",TXT_LEVEL, Current_level_num);
+	else
+		name_level[0] = 0;
+
+	strcat(name_level, Current_level_name);
+
+	gr_set_curfont(GAME_FONT);
+	gr_set_fontcolor(am->green_31,-1);
+	gr_printf((SWIDTH/64),(SHEIGHT/48),"%s", name_level);
+#elif defined(DXX_BUILD_DESCENT_II)
 	char	name_level_left[128],name_level_right[128];
 	int wr,h,aw;
 
@@ -432,6 +463,7 @@ void name_frame(automap *am)
 	gr_string((SWIDTH/64),(SHEIGHT/48),name_level_left);
 	gr_get_string_size(name_level_right,&wr,&h,&aw);
 	gr_string(grd_curcanv->cv_bitmap.bm_w-wr-(SWIDTH/64),(SHEIGHT/48),name_level_right);
+#endif
 }
 
 void draw_automap(automap *am)
@@ -448,12 +480,33 @@ void draw_automap(automap *am)
 	show_fullscr(&am->automap_background);
 	gr_set_curfont(HUGE_FONT);
 	gr_set_fontcolor(BM_XRGB(20, 20, 20), -1);
-	gr_string((SWIDTH/8), (SHEIGHT/16), TXT_AUTOMAP);
+#if defined(DXX_BUILD_DESCENT_I)
+	if (MacHog)
+		gr_string(80*(SWIDTH/640.0), 36*(SHEIGHT/480.0), TXT_AUTOMAP);
+	else
+#endif
+		gr_string((SWIDTH/8), (SHEIGHT/16), TXT_AUTOMAP);
 	gr_set_curfont(GAME_FONT);
 	gr_set_fontcolor(BM_XRGB(20, 20, 20), -1);
+#if defined(DXX_BUILD_DESCENT_I)
+	if (!MacHog)
+	{
+		gr_string((SWIDTH/4.923), (SHEIGHT/1.126), TXT_TURN_SHIP);
+		gr_string((SWIDTH/4.923), (SHEIGHT/1.083), TXT_SLIDE_UPDOWN);
+		gr_string((SWIDTH/4.923), (SHEIGHT/1.043), "F9/F10 Changes viewing distance");
+	}
+	else
+	{
+		// for the Mac automap they're shown up the top, hence the different layout
+		gr_string(265*(SWIDTH/640.0), 27*(SHEIGHT/480.0), TXT_TURN_SHIP);
+		gr_string(265*(SWIDTH/640.0), 44*(SHEIGHT/480.0), TXT_SLIDE_UPDOWN);
+		gr_string(265*(SWIDTH/640.0), 61*(SHEIGHT/480.0), "F9/F10 Changes viewing distance");
+	}
+#elif defined(DXX_BUILD_DESCENT_II)
 	gr_string((SWIDTH/10.666), (SHEIGHT/1.126), TXT_TURN_SHIP);
 	gr_printf((SWIDTH/10.666), (SHEIGHT/1.083), "F9/F10 Changes viewing distance");
 	gr_string((SWIDTH/10.666), (SHEIGHT/1.043), TXT_AUTOMAP_MARKER);
+#endif
 
 	gr_set_current_canvas(&am->automap_view);
 
@@ -530,12 +583,14 @@ void draw_automap(automap *am)
 
 	name_frame(am);
 
+#if defined(DXX_BUILD_DESCENT_II)
 	if (HighlightMarker>-1 && MarkerMessage[HighlightMarker][0]!=0)
 	{
 		char msg[10+MARKER_MESSAGE_LEN+1];
 		sprintf(msg,"Marker %d: %s",HighlightMarker+1,MarkerMessage[(Player_num*2)+HighlightMarker]);
 		gr_printf((SWIDTH/64),(SHEIGHT/18),"%s", msg);
 	}
+#endif
 
 	if (PlayerCfg.MouseFlightSim && PlayerCfg.MouseFSIndicator)
 		show_mousefs_indicator(am->controls.raw_mouse_axis[0], am->controls.raw_mouse_axis[1], am->controls.raw_mouse_axis[2], GWIDTH-(GHEIGHT/8), GHEIGHT-(GHEIGHT/8), GHEIGHT/5);
@@ -558,13 +613,19 @@ void draw_automap(automap *am)
 
 extern int set_segment_depths(int start_seg, ubyte *segbuf);
 
+#if defined(DXX_BUILD_DESCENT_I)
+#define MAP_BACKGROUND_FILENAME (((SWIDTH>=640&&SHEIGHT>=480) && PHYSFSX_exists("maph.pcx",1))?"MAPH.PCX":"MAP.PCX")
+#elif defined(DXX_BUILD_DESCENT_II)
 #define MAP_BACKGROUND_FILENAME ((HIRESMODE && PHYSFSX_exists("mapb.pcx",1))?"MAPB.PCX":"MAP.PCX")
+#endif
 
 int automap_key_command(window *wind, d_event *event, automap *am)
 {
 	int c = event_key_get(event);
+#if defined(DXX_BUILD_DESCENT_II)
 	int marker_num;
 	char maxdrop;
+#endif
 
 	switch (c)
 	{
@@ -582,6 +643,15 @@ int automap_key_command(window *wind, d_event *event, automap *am)
 			}
 			return 1;
 			
+#if defined(DXX_BUILD_DESCENT_I)
+		case KEY_ALTED+KEY_F:           // Alt+F shows full map, if cheats enabled
+			if (cheats.enabled) 	 
+			{
+				cheats.fullautomap = !cheats.fullautomap;
+				automap_build_edge_list(am);
+			}
+			return 1;
+#endif
 #ifndef NDEBUG
 		case KEY_DEBUGGED+KEY_F: 	{
 				int i;
@@ -608,6 +678,7 @@ int automap_key_command(window *wind, d_event *event, automap *am)
 				adjust_segment_limit(am, am->segment_limit);
 			}
 			return 1;
+#if defined(DXX_BUILD_DESCENT_II)
 		case KEY_1:
 		case KEY_2:
 		case KEY_3:
@@ -653,6 +724,7 @@ int automap_key_command(window *wind, d_event *event, automap *am)
 			if (MarkerScale<30.0)
 				MarkerScale+=.5;
 			return 1;
+#endif
 #endif
 	}
 	
@@ -921,7 +993,12 @@ void do_automap( int key_code )
 	if (pcx_error != PCX_ERROR_NONE)
 		Error("File %s - PCX error: %s", MAP_BACKGROUND_FILENAME, pcx_errormsg(pcx_error));
 	gr_remap_bitmap_good(&am->automap_background, pal, -1, -1);
-	gr_init_sub_canvas(&am->automap_view, &grd_curscreen->sc_canvas, (SWIDTH/23), (SHEIGHT/6), (SWIDTH/1.1), (SHEIGHT/1.45));
+#if defined(DXX_BUILD_DESCENT_I)
+	if (MacHog)
+		gr_init_sub_canvas(&am->automap_view, &grd_curscreen->sc_canvas, 38*(SWIDTH/640.0), 77*(SHEIGHT/480.0), 564*(SWIDTH/640.0), 381*(SHEIGHT/480.0));
+	else
+#endif
+		gr_init_sub_canvas(&am->automap_view, &grd_curscreen->sc_canvas, (SWIDTH/23), (SHEIGHT/6), (SWIDTH/1.1), (SHEIGHT/1.45));
 
 	gr_palette_load( gr_palette );
 	Automap_active = 1;
@@ -1140,7 +1217,9 @@ void add_one_edge( automap *am, int va, int vb, ubyte color, ubyte side, int seg
 		am->num_edges++;
 	} else {
 		if ( color != am->wall_normal_color )
+#if defined(DXX_BUILD_DESCENT_II)
 			if (color != am->wall_revealed_color)
+#endif
 				e->color = color;
 
 		if ( e->num_faces < 4 ) {
@@ -1187,7 +1266,6 @@ void add_segment_edges(automap *am, segment *seg)
 	int	sn;
 	int	segnum = seg-Segments;
 	int	hidden_flag;
-	int ttype,trigger_num;
 	
 	for (sn=0;sn<MAX_SIDES_PER_SEGMENT;sn++) {
 		int	vertex_list[4];
@@ -1202,7 +1280,7 @@ void add_segment_edges(automap *am, segment *seg)
 			color = am->wall_normal_color;
 		}
 
-		switch( Segment2s[segnum].special )	{
+		switch( seg->special )	{
 		case SEGMENT_IS_FUELCEN:
 			color = BM_XRGB( 29, 27, 13 );
 			break;
@@ -1217,14 +1295,16 @@ void add_segment_edges(automap *am, segment *seg)
 
 		if (seg->sides[sn].wall_num > -1)	{
 		
-			trigger_num = Walls[seg->sides[sn].wall_num].trigger;
-			ttype = Triggers[trigger_num].type;
+#if defined(DXX_BUILD_DESCENT_II)
+			int trigger_num = Walls[seg->sides[sn].wall_num].trigger;
+			int ttype = Triggers[trigger_num].type;
 			if (ttype==TT_SECRET_EXIT)
 				{
 			    color = BM_XRGB( 29, 0, 31 );
 				 no_fade=1;
 				 goto Here;
 				} 	
+#endif
 
 			switch( Walls[seg->sides[sn].wall_num].type )	{
 			case WALL_DOOR:
@@ -1280,9 +1360,13 @@ void add_segment_edges(automap *am, segment *seg)
 		if ( color != 255 )	{
 			// If they have a map powerup, draw unvisited areas in dark blue.
 			if (Players[Player_num].flags & PLAYER_FLAGS_MAP_ALL && (!Automap_visited[segnum]))	
+#if defined(DXX_BUILD_DESCENT_I)
+				color = K_WALL_REVEALED_COLOR;
+#elif defined(DXX_BUILD_DESCENT_II)
 				color = am->wall_revealed_color;
 
 			Here:
+#endif
 
 			get_side_verts(vertex_list,segnum,sn);
 			add_one_edge( am, vertex_list[0], vertex_list[1], color, sn, segnum, hidden_flag, 0, no_fade );
@@ -1382,6 +1466,7 @@ void automap_build_edge_list(automap *am)
 	}
 }
 
+#if defined(DXX_BUILD_DESCENT_II)
 char Marker_input [40];
 int Marker_index=0;
 ubyte DefiningMarkerMessage=0;
@@ -1463,3 +1548,4 @@ int MarkerInputMessage(int key)
 	
 	return 1;
 }
+#endif
