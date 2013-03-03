@@ -29,7 +29,9 @@ COPYRIGHT 1993-1999 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 #define SCREEN_MENU		0	// viewing the menu screen
 #define SCREEN_GAME		1	// viewing the menu screen
 #define SCREEN_EDITOR		2	// viewing the editor screen
+#if defined(DXX_BUILD_DESCENT_II)
 #define SCREEN_MOVIE		3	// viewing a movie
+#endif
 
 //from editor.c
 extern grs_canvas *Canv_editor;		// the full on-scrren editor canvas
