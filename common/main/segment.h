@@ -8,7 +8,7 @@ SUCH USE, DISPLAY OR CREATION IS FOR NON-COMMERCIAL, ROYALTY OR REVENUE
 FREE PURPOSES.  IN NO EVENT SHALL THE END-USER USE THE COMPUTER CODE
 CONTAINED HEREIN FOR REVENUE-BEARING PURPOSES.  THE END-USER UNDERSTANDS
 AND AGREES TO THE TERMS HEREIN AND ACCEPTS THE SAME BY USE OF THIS FILE.
-COPYRIGHT 1993-1998 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
+COPYRIGHT 1993-1999 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 */
 
 /*
@@ -98,17 +98,33 @@ struct segment {
 	short   group;      // group number to which the segment belongs.
 #endif
 	short   objects;    // pointer to objects in this segment
-	short   value;
 	short   children[MAX_SIDES_PER_SEGMENT];    // indices of 6 children segments, front, left, top, right, bottom, back
 	side    sides[MAX_SIDES_PER_SEGMENT];       // 6 sides
 	int     verts[MAX_VERTICES_PER_SEGMENT];    // vertex ids of 4 front and 4 back vertices
 	ubyte   special;    // what type of center this is
 	sbyte   matcen_num; // which center segment is associated with.
-	fix     static_light; //average static light in segment
+	fix     static_light;
 	int     degenerated; // true if this segment has gotten turned inside out, or something.
+#if defined(DXX_BUILD_DESCENT_I)
+	short   value;
+#elif defined(DXX_BUILD_DESCENT_II)
+	sbyte   value;
+	ubyte   s2_flags;
+#endif
 };
 
 typedef struct segment segment;
+
+#if defined(DXX_BUILD_DESCENT_II)
+#define segment2 segment
+
+#define Segment2s Segments
+// Get pointer to the segment2 for the given segment pointer
+#define s2s2(segp) (segp)
+
+#define S2F_AMBIENT_WATER   0x01
+#define S2F_AMBIENT_LAVA    0x02
+#endif
 
 //values for special field
 #define SEGMENT_IS_NOTHING      0
@@ -116,7 +132,13 @@ typedef struct segment segment;
 #define SEGMENT_IS_REPAIRCEN    2
 #define SEGMENT_IS_CONTROLCEN   3
 #define SEGMENT_IS_ROBOTMAKER   4
+#if defined(DXX_BUILD_DESCENT_I)
 #define MAX_CENTER_TYPES        5
+#elif defined(DXX_BUILD_DESCENT_II)
+#define SEGMENT_IS_GOAL_BLUE    5
+#define SEGMENT_IS_GOAL_RED     6
+#define MAX_CENTER_TYPES        7
+#endif
 
 #ifdef COMPACT_SEGS
 extern void get_side_normal(segment *sp, int sidenum, int normal_num, vms_vector * vm );
@@ -145,7 +167,6 @@ typedef struct {
 // Globals from mglobal.c
 extern vms_vector   Vertices[];
 extern segment      Segments[];
-//--repair-- extern	lsegment		Lsegments[];
 extern int          Num_segments;
 extern int          Num_vertices;
 
@@ -154,6 +175,41 @@ extern int  Side_to_verts_int[MAX_SIDES_PER_SEGMENT][4];    // Side_to_verts[my_
 extern char Side_opposite[];                                // Side_opposite[my_side] returns side opposite cube from my_side.
 
 #define SEG_PTR_2_NUM(segptr) (Assert((unsigned) (segptr-Segments)<MAX_SEGMENTS),(segptr)-Segments)
+
+#if defined(DXX_BUILD_DESCENT_II)
+// New stuff, 10/14/95: For shooting out lights and monitors.
+// Light cast upon vert_light vertices in segnum:sidenum by some light
+typedef struct {
+	short   segnum;
+	sbyte   sidenum;
+	sbyte   dummy;
+	ubyte   vert_light[4];
+} delta_light;
+
+// Light at segnum:sidenum casts light on count sides beginning at index (in array Delta_lights)
+typedef struct {
+	short   segnum;
+	sbyte   sidenum;
+	sbyte   count;
+	short   index;
+} dl_index;
+
+#define MAX_DL_INDICES      500
+#define MAX_DELTA_LIGHTS    10000
+
+#define DL_SCALE            2048    // Divide light to allow 3 bits integer, 5 bits fraction.
+
+extern dl_index     Dl_indices[MAX_DL_INDICES];
+extern delta_light  Delta_lights[MAX_DELTA_LIGHTS];
+extern int          Num_static_lights;
+
+extern int subtract_light(int segnum, int sidenum);
+extern int add_light(int segnum, int sidenum);
+extern void restore_all_lights_in_mine(void);
+extern void clear_light_subtracted(void);
+
+extern ubyte Light_subtracted[MAX_SEGMENTS];
+#endif
 
 // ----------------------------------------------------------------------------
 // --------------------- Segment interrogation functions ----------------------
@@ -187,5 +243,25 @@ extern void add_segment_to_group(int segment_num, int group_num);
 // Verify that all vertices are legal.
 extern void med_check_all_vertices();
 
+#if defined(DXX_BUILD_DESCENT_II)
+/*
+ * reads a segment2 structure from a PHYSFS_file
+ */
+void segment2_read(segment2 *s2, PHYSFS_file *fp);
+
+/*
+ * reads a delta_light structure from a PHYSFS_file
+ */
+void delta_light_read(delta_light *dl, PHYSFS_file *fp);
+
+/*
+ * reads a dl_index structure from a PHYSFS_file
+ */
+void dl_index_read(dl_index *di, PHYSFS_file *fp);
+
+void segment2_write(segment2 *s2, PHYSFS_file *fp);
+void delta_light_write(delta_light *dl, PHYSFS_file *fp);
+void dl_index_write(dl_index *di, PHYSFS_file *fp);
 #endif
 
+#endif
