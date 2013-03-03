@@ -166,15 +166,11 @@ void pof_read_angs(vms_angvec *angs,int n,ubyte *bufp)
 #define ID_IDTA 0x41544449 // 'ATDI'  //Interpreter data
 #define ID_TXTR 0x52545854 // 'RTXT'  //Texture filename list
 
-#ifdef DRIVE
-#define robot_info void
-#else
 vms_angvec anim_angs[N_ANIM_STATES][MAX_SUBMODELS];
 
 //set the animation angles for this robot.  Gun fields of robot info must
 //be filled in.
 void robot_set_angles(robot_info *r,polymodel *pm,vms_angvec angs[N_ANIM_STATES][MAX_SUBMODELS]);
-#endif
 
 #ifdef WORDS_NEED_ALIGNMENT
 ubyte * old_dest(chunk o) // return where chunk is (in unaligned struct)
@@ -510,7 +506,6 @@ void draw_polygon_model(vms_vector *pos,vms_matrix *orient,vms_angvec *anim_angl
 	//check if should use simple model
 	if (po->simpler_model )					//must have a simpler model
 		if (flags==0)							//can't switch if this is debris
-			//!!if (!alt_textures) {				//alternate textures might not match
 			//alt textures might not match, but in the one case we're using this
 			//for on 11/14/94, they do match.  So we leave it in.
 			{
@@ -652,17 +647,11 @@ void polyobj_find_min_max(polymodel *pm)
 	}
 }
 
-extern short highest_texture_num;	//from the 3d
-
 char Pof_names[MAX_POLYGON_MODELS][FILENAME_LEN];
 
 //returns the number of this model
 int load_polygon_model(const char *filename,int n_textures,int first_texture,robot_info *r)
 {
-	#ifdef DRIVE
-	#define r NULL
-	#endif
-
 	Assert(N_polygon_models < MAX_POLYGON_MODELS);
 	Assert(n_textures < MAX_POLYOBJ_TEXTURES);
 
@@ -730,7 +719,8 @@ void draw_model_picture(int mn,vms_angvec *orient_angles)
 /*
  * reads a polymodel structure from a PHYSFS_file
  */
-extern void polymodel_read(polymodel *pm, PHYSFS_file *fp)
+#if defined(DXX_BUILD_DESCENT_II)
+void polymodel_read(polymodel *pm, PHYSFS_file *fp)
 {
 	int i;
 
@@ -759,6 +749,7 @@ extern void polymodel_read(polymodel *pm, PHYSFS_file *fp)
 	pm->first_texture = PHYSFSX_readShort(fp);
 	pm->simpler_model = PHYSFSX_readByte(fp);
 }
+#endif
 
 /*
  * reads n polymodel structs from a PHYSFS_file
@@ -810,6 +801,8 @@ void polygon_model_data_read(polymodel *pm, PHYSFS_file *fp)
 #ifdef WORDS_BIGENDIAN
 	swap_polygon_model_data(pm->model_data);
 #endif
+#if defined(DXX_BUILD_DESCENT_II)
 	//verify(pm->model_data);
 	g3_init_polygon_model(pm->model_data);
+#endif
 }
