@@ -787,6 +787,7 @@ class DXXProgram(DXXCommon):
 'main/paging.c',
 'main/physics.c',
 'main/player.c',
+'main/playsave.c',
 'main/polyobj.c',
 'main/powerup.c',
 'main/render.c',
@@ -1036,7 +1037,6 @@ class D1XProgram(DXXProgram):
 'main/gamemine.c',
 'main/gameseq.c',
 'main/piggy.c',
-'main/playsave.c',
 'main/snddecom.c',
 #'tracker/client/tracker_client.c'
 ]
@@ -1100,7 +1100,6 @@ class D2XProgram(DXXProgram):
 'main/gameseq.c',
 'main/movie.c',
 'main/piggy.c',
-'main/playsave.c',
 'main/segment.c',
 'misc/physfsrwops.c',
 ]
