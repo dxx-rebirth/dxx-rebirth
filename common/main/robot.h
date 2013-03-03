@@ -1,4 +1,17 @@
 /*
+THE COMPUTER CODE CONTAINED HEREIN IS THE SOLE PROPERTY OF PARALLAX
+SOFTWARE CORPORATION ("PARALLAX").  PARALLAX, IN DISTRIBUTING THE CODE TO
+END-USERS, AND SUBJECT TO ALL OF THE TERMS AND CONDITIONS HEREIN, GRANTS A
+ROYALTY-FREE, PERPETUAL LICENSE TO SUCH END-USERS FOR USE BY SUCH END-USERS
+IN USING, DISPLAYING,  AND CREATING DERIVATIVE WORKS THEREOF, SO LONG AS
+SUCH USE, DISPLAY OR CREATION IS FOR NON-COMMERCIAL, ROYALTY OR REVENUE
+FREE PURPOSES.  IN NO EVENT SHALL THE END-USER USE THE COMPUTER CODE
+CONTAINED HEREIN FOR REVENUE-BEARING PURPOSES.  THE END-USER UNDERSTANDS
+AND AGREES TO THE TERMS HEREIN AND ACCEPTS THE SAME BY USE OF THIS FILE.
+COPYRIGHT 1993-1999 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
+*/
+
+/*
  *
  * Header for robot.c
  *
@@ -9,8 +22,6 @@
 
 #include "vecmat.h"
 #include "game.h"
-
-struct object;
 
 #define MAX_GUNS 8      //should be multiple of 4 for ubyte array
 
@@ -26,6 +37,8 @@ struct object;
 #define RI_CLOAKED_ALWAYS           1
 #define RI_CLOAKED_EXCEPT_FIRING    2
 
+struct object;
+
 //describes the position of a certain joint
 typedef struct jointpos {
 	short jointnum;
@@ -38,22 +51,45 @@ typedef struct jointlist {
 	short offset;
 } jointlist;
 
-//	Robot information
+#if defined(DXX_BUILD_DESCENT_II)
+//robot info flags
+#define RIF_BIG_RADIUS  1   //pad the radius to fix robots firing through walls
+#define RIF_THIEF       2   //this guy steals!
+#endif
+
+//  Robot information
 typedef struct robot_info {
 	int     model_num;                  // which polygon model?
+#if defined(DXX_BUILD_DESCENT_I)
 	int			n_guns;								// how many different gun positions
+#endif
 	vms_vector  gun_points[MAX_GUNS];   // where each gun model is
 	ubyte   gun_submodels[MAX_GUNS];    // which submodel is each gun in?
 	short   exp1_vclip_num;
 	short   exp1_sound_num;
 	short   exp2_vclip_num;
 	short   exp2_sound_num;
+#if defined(DXX_BUILD_DESCENT_I)
 	short			weapon_type;
+#elif defined(DXX_BUILD_DESCENT_II)
+	sbyte   weapon_type;
+	sbyte   weapon_type2;   //  Secondary weapon number, -1 means none, otherwise gun #0 fires this weapon.
+	sbyte   n_guns;         // how many different gun positions
+#endif
 	sbyte   contains_id;    //  ID of powerup this robot can contain.
+
 	sbyte   contains_count; //  Max number of things this instance can contain.
 	sbyte   contains_prob;  //  Probability that this instance will contain something in N/16
 	sbyte   contains_type;  //  Type of thing contained, robot or powerup, in bitmaps.tbl, !0=robot, 0=powerup
+#if defined(DXX_BUILD_DESCENT_I)
 	int			score_value;						//	Score from this robot.
+#elif defined(DXX_BUILD_DESCENT_II)
+	sbyte   kamikaze;       //  !0 means commits suicide when hits you, strength thereof. 0 means no.
+
+	short   score_value;    //  Score from this robot.
+	sbyte   badass;         //  Dies with badass explosion, and strength thereof, 0 means NO.
+	sbyte   energy_drain;   //  Points of energy drained at each collision.
+#endif
 	fix     lighting;       // should this be here or with polygon model?
 	fix     strength;       // Initial shields of robot
 
@@ -62,6 +98,9 @@ typedef struct robot_info {
 
 	fix     field_of_view[NDL]; // compare this value with forward_vector.dot.vector_to_player, if field_of_view <, then robot can see player
 	fix     firing_wait[NDL];   //  time in seconds between shots
+#if defined(DXX_BUILD_DESCENT_II)
+	fix     firing_wait2[NDL];  //  time in seconds between shots
+#endif
 	fix     turn_time[NDL];     // time in seconds to rotate 360 degrees in a dimension
 	fix     max_speed[NDL];         //  maximum speed attainable by this robot
 	fix     circle_distance[NDL];   //  distance at which robot circles player
@@ -70,10 +109,32 @@ typedef struct robot_info {
 	sbyte   evade_speed[NDL];       //  rate at which robot can evade shots, 0=none, 4=very fast
 	sbyte   cloak_type;     //  0=never, 1=always, 2=except-when-firing
 	sbyte   attack_type;    //  0=firing, 1=charge (like green guy)
-	sbyte		boss_flag;								//	0 = not boss, 1 = boss.  Is that surprising?
+
 	ubyte   see_sound;      //  sound robot makes when it first sees the player
 	ubyte   attack_sound;   //  sound robot makes when it attacks the player
 	ubyte   claw_sound;     //  sound robot makes as it claws you (attack_type should be 1)
+	sbyte   boss_flag;      //  0 = not boss, 1 = boss.  Is that surprising?
+#if defined(DXX_BUILD_DESCENT_II)
+	ubyte   taunt_sound;    //  sound robot makes after you die
+
+	sbyte   companion;      //  Companion robot, leads you to things.
+	sbyte   smart_blobs;    //  how many smart blobs are emitted when this guy dies!
+	sbyte   energy_blobs;   //  how many smart blobs are emitted when this guy gets hit by energy weapon!
+
+	sbyte   thief;          //  !0 means this guy can steal when he collides with you!
+	sbyte   pursuit;        //  !0 means pursues player after he goes around a corner.  4 = 4/2 pursue up to 4/2 seconds after becoming invisible if up to 4 segments away
+	sbyte   lightcast;      //  Amount of light cast. 1 is default.  10 is very large.
+	sbyte   death_roll;     //  0 = dies without death roll. !0 means does death roll, larger = faster and louder
+
+	//boss_flag, companion, thief, & pursuit probably should also be bits in the flags byte.
+	ubyte   flags;          // misc properties
+	ubyte   pad[3];         // alignment
+
+	ubyte   deathroll_sound;    // if has deathroll, what sound?
+	ubyte   glow;               // apply this light to robot itself. stored as 4:4 fixed-point
+	ubyte   behavior;           //  Default behavior.
+	ubyte   aim;                //  255 = perfect, less = more likely to miss.  0 != random, would look stupid.  0=45 degree spread.  Specify in bitmaps.tbl in range 0.0..1.0
+#endif
 
 	//animation info
 	jointlist anim_states[MAX_GUNS+1][N_ANIM_STATES];
@@ -83,10 +144,16 @@ typedef struct robot_info {
 } __pack__ robot_info;
 
 
+#if defined(DXX_BUILD_DESCENT_I)
 #define	MAX_ROBOT_TYPES	30				// maximum number of robot types
+#elif defined(DXX_BUILD_DESCENT_II)
+#define MAX_ROBOT_TYPES 85      // maximum number of robot types
+#endif
 
 #define ROBOT_NAME_LENGTH   16
+#if defined(DXX_BUILD_DESCENT_I) || defined(DXX_BUILD_DESCENT_II)
 extern char Robot_names[MAX_ROBOT_TYPES][ROBOT_NAME_LENGTH];
+#endif
 
 //the array of robots types
 extern robot_info Robot_info[];     // Robot info for AI system, loaded from bitmaps.tbl.
@@ -95,7 +162,11 @@ extern robot_info Robot_info[];     // Robot info for AI system, loaded from bit
 extern  int N_robot_types;      // Number of robot types.  We used to assume this was the same as N_polygon_models.
 
 //test data for one robot
+#if defined(DXX_BUILD_DESCENT_I)
 #define MAX_ROBOT_JOINTS 600
+#elif defined(DXX_BUILD_DESCENT_II)
+#define MAX_ROBOT_JOINTS 1600
+#endif
 extern jointpos Robot_joints[MAX_ROBOT_JOINTS];
 extern int  N_robot_joints;
 
@@ -136,4 +207,3 @@ extern int robot_info_read_n(robot_info *ri, int n, PHYSFS_file *fp);
 extern int jointpos_read_n(jointpos *jp, int n, PHYSFS_file *fp);
 
 #endif
-
