@@ -8,7 +8,7 @@ SUCH USE, DISPLAY OR CREATION IS FOR NON-COMMERCIAL, ROYALTY OR REVENUE
 FREE PURPOSES.  IN NO EVENT SHALL THE END-USER USE THE COMPUTER CODE
 CONTAINED HEREIN FOR REVENUE-BEARING PURPOSES.  THE END-USER UNDERSTANDS
 AND AGREES TO THE TERMS HEREIN AND ACCEPTS THE SAME BY USE OF THIS FILE.
-COPYRIGHT 1993-1998 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
+COPYRIGHT 1993-1999 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 */
 
 /*
@@ -29,15 +29,6 @@ COPYRIGHT 1993-1998 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 #define SUPER_SEEKER        1
 #define SUPER_SMARTBOMB     2
 #define SUPER_SHOCKWAVE     3
-
-#ifdef SHAREWARE
-#define Last_level			7			//the number of the very last level for shareware
-#define Last_secret_level	0 			// No secret levels!
-// #else
-// extern int Last_level,Last_secret_level;	//set by mission code
-#endif
-
-// extern int Secret_level_table[MAX_SECRET_LEVELS_PER_MISSION];
 
 #define LEVEL_NAME_LEN 36       //make sure this is multiple of 4!
 
@@ -75,9 +66,19 @@ void PlayerFinishedLevel(int secret_flag);
 // called when the player has died
 void DoPlayerDead(void);
 
+#if defined(DXX_BUILD_DESCENT_I)
+static inline void load_level_robots(int level_num)
+{
+	(void)level_num;
+}
+#elif defined(DXX_BUILD_DESCENT_II)
+// load just the hxm file
+void load_level_robots(int level_num);
+#endif
+
 // load a level off disk. level numbers start at 1.
 // Secret levels are -1,-2,-3
-void LoadLevel(int level_num,int page_in_textures);
+void LoadLevel(int level_num, int page_in_textures);
 
 extern void gameseq_remove_unused_players();
 
@@ -97,9 +98,6 @@ void close_message_window(void);
 
 // create flash for player appearance
 extern void create_player_appearance_effect(object *player_obj);
-
-// goto whatever secrect level is appropriate given the current level
-//extern int goto_secret_level();
 
 // reset stuff so game is semi-normal when playing from editor
 void editor_reset_stuff_on_level();
