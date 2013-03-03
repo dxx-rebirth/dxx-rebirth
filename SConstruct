@@ -399,6 +399,7 @@ class DXXProgram(DXXCommon):
 ], _apply_target_name)
 	objects_similar_editor = DXXCommon.create_lazy_object_property([os.path.join('similar', f) for f in [
 'editor/autosave.c',
+'editor/centers.c',
 'editor/curves.c',
 'editor/eglobal.c',
 'editor/elight.c',
@@ -647,7 +648,6 @@ class D1XProgram(DXXProgram):
 
 	# for editor
 	objects_editor = DXXCommon.create_lazy_object_property([os.path.join(srcdir, f) for f in [
-'editor/centers.c',
 'editor/ehostage.c',
 'editor/medrobot.c',
 'editor/texpage.c',
@@ -761,7 +761,6 @@ class D2XProgram(DXXProgram):
 
 	# for editor
 	objects_editor = DXXCommon.create_lazy_object_property([os.path.join(srcdir, f) for f in [
-'editor/centers.c',
 'editor/medrobot.c',
 'editor/texpage.c',
 'main/bmread.c',

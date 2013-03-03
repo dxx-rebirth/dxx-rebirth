@@ -94,22 +94,34 @@ int do_centers_dialog()
 		return 0;
 
 	// Open a window with a quit button
+#if defined(DXX_BUILD_DESCENT_I)
+	MainWindow = ui_create_dialog( TMAPBOX_X+20, TMAPBOX_Y+20, 765-TMAPBOX_X, 545-TMAPBOX_Y, DF_DIALOG, (int (*)(UI_DIALOG *, d_event *, void *))centers_dialog_handler, c );
+	i = 80;
+#elif defined(DXX_BUILD_DESCENT_II)
 	MainWindow = ui_create_dialog( 20, TMAPBOX_Y+20, 740, 545-TMAPBOX_Y, DF_DIALOG, (int (*)(UI_DIALOG *, d_event *, void *))centers_dialog_handler, c );
+	i = 40;
+#endif
 	c->quitButton = ui_add_gadget_button( MainWindow, 20, 252, 48, 40, "Done", NULL );
 
 	// These are the checkboxes for each door flag.
-	i = 40;
 	c->centerFlag[0] = ui_add_gadget_radio( MainWindow, 18, i, 16, 16, 0, "NONE" ); 			i += 24;
 	c->centerFlag[1] = ui_add_gadget_radio( MainWindow, 18, i, 16, 16, 0, "FuelCen" );		i += 24;
 	c->centerFlag[2] = ui_add_gadget_radio( MainWindow, 18, i, 16, 16, 0, "RepairCen" );	i += 24;
 	c->centerFlag[3] = ui_add_gadget_radio( MainWindow, 18, i, 16, 16, 0, "ControlCen" );	i += 24;
 	c->centerFlag[4] = ui_add_gadget_radio( MainWindow, 18, i, 16, 16, 0, "RobotCen" );		i += 24;
+#if defined(DXX_BUILD_DESCENT_II)
 	c->centerFlag[5] = ui_add_gadget_radio( MainWindow, 18, i, 16, 16, 0, "Blue Goal" );		i += 24;
 	c->centerFlag[6] = ui_add_gadget_radio( MainWindow, 18, i, 16, 16, 0, "Red Goal" );		i += 24;
+#endif
 
 	// These are the checkboxes for each robot flag.
+#if defined(DXX_BUILD_DESCENT_I)
+	const unsigned d = 2;
+#elif defined(DXX_BUILD_DESCENT_II)
+	const unsigned d = 6;
+#endif
 	for (i=0; i<N_robot_types; i++)
-		c->robotMatFlag[i] = ui_add_gadget_checkbox( MainWindow, 128 + (i%6)*92, 20+(i/6)*24, 16, 16, 0, Robot_names[i]);
+		c->robotMatFlag[i] = ui_add_gadget_checkbox( MainWindow, 128 + (i%d)*92, 20+(i/d)*24, 16, 16, 0, Robot_names[i]);
 																									  
 	c->old_seg_num = -2;		// Set to some dummy value so everything works ok on the first frame.
 
@@ -150,12 +162,12 @@ int centers_dialog_handler(UI_DIALOG *dlg, d_event *event, centers_dialog *c)
 		for (i = 0; i < MAX_CENTER_TYPES; i++)
 			ui_radio_set_value(c->centerFlag[i], 0);
 
-		Assert(Curseg2p->special < MAX_CENTER_TYPES);
-		ui_radio_set_value(c->centerFlag[Curseg2p->special], 1);
+		Assert(Cursegp->special < MAX_CENTER_TYPES);
+		ui_radio_set_value(c->centerFlag[Cursegp->special], 1);
 
 		//	Read materialization center robot bit flags
 		for (i = 0; i < N_robot_types; i++)
-			ui_checkbox_check(c->robotMatFlag[i], RobotCenters[Curseg2p->matcen_num].robot_flags[i >= 32 ? 1 : 0] & (1 << (i % 32)));
+			ui_checkbox_check(c->robotMatFlag[i], RobotCenters[Cursegp->matcen_num].robot_flags[i / 32] & (1 << (i % 32)));
 	}
 
 	//------------------------------------------------------------
@@ -169,7 +181,7 @@ int centers_dialog_handler(UI_DIALOG *dlg, d_event *event, centers_dialog *c)
 		{
 			if ( i == 0)
 				fuelcen_delete(Cursegp);
-			else if (Curseg2p->special != i)
+			else if (Cursegp->special != i)
 			{
 				fuelcen_delete(Cursegp);
 				Update_flags |= UF_WORLD_CHANGED;
@@ -184,9 +196,9 @@ int centers_dialog_handler(UI_DIALOG *dlg, d_event *event, centers_dialog *c)
 		if ( GADGET_PRESSED(c->robotMatFlag[i]) )
 		{
 			if (c->robotMatFlag[i]->flag)
-				RobotCenters[Curseg2p->matcen_num].robot_flags[i >= 32 ? 1 : 0] |= (1 << (i % 32));
+				RobotCenters[Cursegp->matcen_num].robot_flags[i / 32] |= (1 << (i % 32));
 			else
-				RobotCenters[Curseg2p->matcen_num].robot_flags[i >= 32 ? 1 : 0] &= ~(1 << (i % 32));
+				RobotCenters[Cursegp->matcen_num].robot_flags[i / 32] &= ~(1 << (i % 32));
 			rval = 1;
 		}
 	}
