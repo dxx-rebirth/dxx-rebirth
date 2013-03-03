@@ -843,7 +843,7 @@ void multi_do_frame(void)
 }
 
 void
-multi_send_data(unsigned char *buf, int len, int priority)
+multi_send_data(const ubyte *buf, int len, int priority)
 {
 	if (len != message_length[(int)buf[0]])
 		Error("multi_send_data: Packet type %i length: %i, expected: %i\n", buf[0], len, message_length[(int)buf[0]]);

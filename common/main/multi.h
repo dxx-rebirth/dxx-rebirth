@@ -8,25 +8,22 @@ SUCH USE, DISPLAY OR CREATION IS FOR NON-COMMERCIAL, ROYALTY OR REVENUE
 FREE PURPOSES.  IN NO EVENT SHALL THE END-USER USE THE COMPUTER CODE
 CONTAINED HEREIN FOR REVENUE-BEARING PURPOSES.  THE END-USER UNDERSTANDS
 AND AGREES TO THE TERMS HEREIN AND ACCEPTS THE SAME BY USE OF THIS FILE.
-COPYRIGHT 1993-1998 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
+COPYRIGHT 1993-1999 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 */
+
 /*
  *
  * Defines and exported variables for multi.c
  *
  */
 
-
-
 #ifndef _MULTI_H
 #define _MULTI_H
 
 #include "gameseq.h"
 #include "piggy.h"
-#include "powerup.h"
 #include "newmenu.h"
-// Need these for non network builds too -Chris
-#define MAX_MESSAGE_LEN 35
+#include "powerup.h"
 
 #ifdef USE_UDP
 #ifdef _WIN32
@@ -58,7 +55,6 @@ COPYRIGHT 1993-1998 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 #endif
 #endif
 
-
 // PROTOCOL VARIABLES AND DEFINES
 extern int multi_protocol; // set and determinate used protocol
 #define MULTI_PROTO_UDP 1 // UDP protocol
@@ -68,18 +64,21 @@ extern int multi_protocol; // set and determinate used protocol
 // PROTOCOL VARIABLES AND DEFINES - END
 
 
+#define MAX_MESSAGE_LEN 35
+
 #define define_multiplayer_command(NAME,SIZE)	NAME,
 
+#if defined(DXX_BUILD_DESCENT_I) || defined(DXX_BUILD_DESCENT_II)
 #define for_each_multiplayer_command(BEFORE,VALUE,AFTER)	\
 	BEFORE	\
-	VALUE(MULTI_POSITION             , 25)	\
-	VALUE(MULTI_REAPPEAR             , 4)	\
-	VALUE(MULTI_FIRE                 , 8)	\
-	VALUE(MULTI_KILL                 , 5)	\
-	VALUE(MULTI_REMOVE_OBJECT        , 4)	\
-	VALUE(MULTI_MESSAGE              , 37)	/* (MAX_MESSAGE_LENGTH = 40) */	\
-	VALUE(MULTI_QUIT                 , 2)	\
-	VALUE(MULTI_PLAY_SOUND           , 4)	\
+	VALUE(MULTI_POSITION              , 25)	\
+	VALUE(MULTI_REAPPEAR              , 4)	\
+	VALUE(MULTI_FIRE                  , 8)	\
+	VALUE(MULTI_KILL                  , 5)	\
+	VALUE(MULTI_REMOVE_OBJECT         , 4)	\
+	VALUE(MULTI_MESSAGE               , 37)	/* (MAX_MESSAGE_LENGTH = 40) */	\
+	VALUE(MULTI_QUIT                  , 2)	\
+	VALUE(MULTI_PLAY_SOUND            , 4)	\
 	VALUE(MULTI_CONTROLCEN           , 4)	\
 	VALUE(MULTI_ROBOT_CLAIM          , 5)	\
 	VALUE(MULTI_END_SYNC             , 4)	\
@@ -91,11 +90,11 @@ extern int multi_protocol; // set and determinate used protocol
 	VALUE(MULTI_DECLOAK              , 2)	\
 	VALUE(MULTI_MENU_CHOICE          , 2)	\
 	VALUE(MULTI_ROBOT_POSITION       , 5+sizeof(shortpos))	\
-	VALUE(MULTI_PLAYER_EXPLODE       , 57)	\
-	VALUE(MULTI_BEGIN_SYNC           , 37)	\
-	VALUE(MULTI_DOOR_OPEN            , 4)	\
-	VALUE(MULTI_PLAYER_DROP          , 57)	\
-	VALUE(MULTI_ROBOT_EXPLODE        , 8)	\
+	VALUE(MULTI_PLAYER_EXPLODE       , DXX_MP_SIZE_PLAYER_RELATED)	\
+	VALUE(MULTI_BEGIN_SYNC           , DXX_MP_SIZE_BEGIN_SYNC)	\
+	VALUE(MULTI_DOOR_OPEN            , DXX_MP_SIZE_DOOR_OPEN)	\
+	VALUE(MULTI_PLAYER_DROP          , DXX_MP_SIZE_PLAYER_RELATED)	\
+	VALUE(MULTI_ROBOT_EXPLODE        , DXX_MP_SIZE_ROBOT_EXPLODE)	\
 	VALUE(MULTI_ROBOT_RELEASE        , 5)	\
 	VALUE(MULTI_ROBOT_FIRE           , 18)	\
 	VALUE(MULTI_SCORE                , 6)	\
@@ -115,19 +114,62 @@ extern int multi_protocol; // set and determinate used protocol
 	VALUE(MULTI_KILL_HOST            , 7)	\
 	VALUE(MULTI_KILL_CLIENT          , 5)	\
 	VALUE(MULTI_RANK                 , 3)	\
+	D2X_MP_COMMANDS(BEFORE,VALUE,AFTER)	\
 	AFTER
-for_each_multiplayer_command(enum {, define_multiplayer_command, });
 
-#define MAX_MULTI_MESSAGE_LEN  90 //didn't change it, just moved it up
-
+#if defined(DXX_BUILD_DESCENT_I)
 #define MAX_NET_CREATE_OBJECTS 20
+#define MAX_MULTI_MESSAGE_LEN  90 //didn't change it, just moved it up
+#define DXX_MP_SIZE_PLAYER_RELATED	57
+#define DXX_MP_SIZE_BEGIN_SYNC	37
+#define DXX_MP_SIZE_DOOR_OPEN	4
+#define DXX_MP_SIZE_ROBOT_EXPLODE	8
+#define D2X_MP_COMMANDS(BEFORE,VALUE,AFTER)
+#elif defined(DXX_BUILD_DESCENT_II)
+#define MAX_NET_CREATE_OBJECTS  40
+#define MAX_MULTI_MESSAGE_LEN   120
+#define DXX_MP_SIZE_PLAYER_RELATED	(97+9)
+#define DXX_MP_SIZE_BEGIN_SYNC	41
+#define DXX_MP_SIZE_DOOR_OPEN	5
+#define DXX_MP_SIZE_ROBOT_EXPLODE	9
+#define D2X_MP_COMMANDS(BEFORE,VALUE,AFTER)	\
+	VALUE(MULTI_MARKER               , 55)	\
+	VALUE(MULTI_DROP_WEAPON          , 12)	\
+	VALUE(MULTI_GUIDED               , 3+sizeof(shortpos))	\
+	VALUE(MULTI_STOLEN_ITEMS         , 11)	\
+	VALUE(MULTI_WALL_STATUS          , 6)	/* send to new players */	\
+	VALUE(MULTI_SEISMIC              , 9)	\
+	VALUE(MULTI_LIGHT                , 18)	\
+	VALUE(MULTI_START_TRIGGER        , 2)	\
+	VALUE(MULTI_FLAGS                , 6)	\
+	VALUE(MULTI_DROP_BLOB            , 2)	\
+	VALUE(MULTI_ACTIVE_DOOR          , sizeof(active_door)+3)	\
+	VALUE(MULTI_SOUND_FUNCTION       , 4)	\
+	VALUE(MULTI_CAPTURE_BONUS        , 2)	\
+	VALUE(MULTI_GOT_FLAG             , 2)	\
+	VALUE(MULTI_DROP_FLAG            , 12)	\
+	VALUE(MULTI_ROBOT_CONTROLS       , 1)	/* UNUSED */	\
+	VALUE(MULTI_FINISH_GAME          , 2)	\
+	VALUE(MULTI_MODEM_PING           , 1)	\
+	VALUE(MULTI_MODEM_PING_RETURN    , 1)	\
+	VALUE(MULTI_ORB_BONUS            , 3)	\
+	VALUE(MULTI_GOT_ORB              , 2)	\
+	VALUE(MULTI_DROP_ORB             , 12)	\
+	VALUE(MULTI_PLAY_BY_PLAY         , 4)	\
 
-#define MISSILE_ADJUST 6
+#endif
+for_each_multiplayer_command(enum {, define_multiplayer_command, });
+#endif
 
 #define NETGAME_ANARCHY         0
 #define NETGAME_TEAM_ANARCHY    1
 #define NETGAME_ROBOT_ANARCHY   2
 #define NETGAME_COOPERATIVE     3
+#if defined(DXX_BUILD_DESCENT_II)
+#define NETGAME_CAPTURE_FLAG    4
+#define NETGAME_HOARD           5
+#define NETGAME_TEAM_HOARD      6
+#endif
 #define NETGAME_BOUNTY		7
 
 #define NETSTAT_MENU                0
@@ -144,6 +186,9 @@ for_each_multiplayer_command(enum {, define_multiplayer_command, });
 #define CONNECT_FOUND_SECRET        4
 #define CONNECT_ESCAPE_TUNNEL       5
 #define CONNECT_END_MENU            6
+#if defined(DXX_BUILD_DESCENT_II)
+#define CONNECT_KMATRIX_WAITING     7 // Like CONNECT_WAITING but used especially in kmatrix.c to seperate "escaped" and "waiting"
+#endif
 
 // reasons for a packet with type PID_DUMP
 #define DUMP_CLOSED     0 // no new players allowed after game started
@@ -156,19 +201,48 @@ for_each_multiplayer_command(enum {, define_multiplayer_command, });
 #define DUMP_KICKED     7
 #define DUMP_PKTTIMEOUT 8
 
+#if defined(DXX_BUILD_DESCENT_I) || defined(DXX_BUILD_DESCENT_II)
 #define for_each_netflag_value(VALUE)	\
 	VALUE(NETFLAG_DOLASER, "Laser upgrade")	\
-	VALUE(NETFLAG_DOQUAD, "Quad lasers")	\
+	VALUE(NETFLAG_DOQUAD, "Quad Lasers")	\
 	VALUE(NETFLAG_DOVULCAN, "Vulcan cannon")	\
 	VALUE(NETFLAG_DOSPREAD, "Spreadfire cannon")	\
 	VALUE(NETFLAG_DOPLASMA, "Plasma cannon")	\
 	VALUE(NETFLAG_DOFUSION, "Fusion cannon")	\
-	VALUE(NETFLAG_DOHOMING, "Homing missiles")	\
-	VALUE(NETFLAG_DOPROXIM, "Smart missiles")	\
-	VALUE(NETFLAG_DOSMART, "Mega missiles")	\
-	VALUE(NETFLAG_DOMEGA, "Proximity bombs")	\
+	VALUE(NETFLAG_DOHOMING, "Homing Missiles")	\
+	VALUE(NETFLAG_DOPROXIM, "Proximity Bombs")	\
+	VALUE(NETFLAG_DOSMART, "Smart Missiles")	\
+	VALUE(NETFLAG_DOMEGA, "Mega Missiles")	\
 	VALUE(NETFLAG_DOCLOAK, "Cloaking")	\
 	VALUE(NETFLAG_DOINVUL, "Invulnerability")	\
+	D2X_MP_NETFLAGS(VALUE)	\
+
+#define MULTI_GAME_TYPE_COUNT	8
+#if defined(DXX_BUILD_DESCENT_I)
+#define MULTI_GAME_NAME_LENGTH	13
+#define MULTI_ALLOW_POWERUP_MAX 12
+#define D2X_MP_NETFLAGS(VALUE)
+#elif defined(DXX_BUILD_DESCENT_II)
+#define MULTI_GAME_NAME_LENGTH	17
+#define MULTI_ALLOW_POWERUP_MAX 26
+#define D2X_MP_NETFLAGS(VALUE)	\
+	VALUE(NETFLAG_DOSUPERLASER, "Super lasers")	\
+	VALUE(NETFLAG_DOGAUSS, "Gauss cannon")	\
+	VALUE(NETFLAG_DOHELIX, "Helix cannon")	\
+	VALUE(NETFLAG_DOPHOENIX, "Phoenix cannon")	\
+	VALUE(NETFLAG_DOOMEGA, "Omega cannon")	\
+	VALUE(NETFLAG_DOFLASH, "Flash Missiles")	\
+	VALUE(NETFLAG_DOGUIDED, "Guided Missiles")	\
+	VALUE(NETFLAG_DOSMARTMINE, "Smart Mines")	\
+	VALUE(NETFLAG_DOMERCURY, "Mercury Missiles")	\
+	VALUE(NETFLAG_DOSHAKER, "EarthShaker Missiles")	\
+	VALUE(NETFLAG_DOAFTERBURNER, "Afterburners")	\
+	VALUE(NETFLAG_DOAMMORACK, "Ammo rack")	\
+	VALUE(NETFLAG_DOCONVERTER, "Energy Converter")	\
+	VALUE(NETFLAG_DOHEADLIGHT, "Headlight")	\
+
+#endif
+#endif
 
 #define define_netflag_bit_enum(NAME,STR)	BIT_##NAME,
 #define define_netflag_bit_mask(NAME,STR)	NAME = (1 << BIT_##NAME),
@@ -178,9 +252,6 @@ enum { for_each_netflag_value(define_netflag_bit_enum) };
 enum { for_each_netflag_value(define_netflag_bit_mask) };
 enum { NETFLAG_DOPOWERUP = 0 for_each_netflag_value(define_netflag_powerup_mask) };
 
-#define MULTI_GAME_TYPE_COUNT	8
-#define MULTI_GAME_NAME_LENGTH	13
-#define MULTI_ALLOW_POWERUP_MAX 12
 extern const char *const multi_allow_powerup_text[MULTI_ALLOW_POWERUP_MAX];
 extern const char GMNames[MULTI_GAME_TYPE_COUNT][MULTI_GAME_NAME_LENGTH];
 extern const char GMNamesShrt[MULTI_GAME_TYPE_COUNT][8];
@@ -223,8 +294,18 @@ void multi_send_audio_taunt(int taunt_num);
 void multi_send_score(void);
 void multi_send_trigger(int trigger);
 void multi_send_hostage_door_status(int wallnum);
-
+#if defined(DXX_BUILD_DESCENT_II)
+void multi_send_flags(char);
+void multi_send_drop_weapon (int objnum,int seed);
+void multi_send_drop_marker (int player,vms_vector position,char messagenum,char text[]);
+void multi_send_markers();
+void multi_send_guided_info (object *miss,char);
+void multi_send_orb_bonus( char pnum );
+void multi_send_got_orb( char pnum );
+void multi_add_lifetime_kills(void);
+#endif
 void multi_send_bounty( void );
+
 void multi_endlevel_score(void);
 void multi_consistency_error(int reset);
 void multi_prep_level(void);
@@ -248,7 +329,7 @@ int multi_get_kill_list(int *plist);
 void multi_new_game(void);
 void multi_sort_kill_list(void);
 void multi_reset_stuff(void);
-void multi_send_data(unsigned char *buf, int len, int priority);
+void multi_send_data(const ubyte *buf, int len, int priority);
 int get_team(int pnum);
 int multi_maybe_disable_friendly_fire(object *killer);
 void multi_initiate_save_game();
@@ -256,6 +337,7 @@ void multi_initiate_restore_game();
 void multi_disconnect_player(int pnum);
 void multi_object_to_object_rw(object *obj, object_rw *obj_rw);
 void multi_object_rw_to_object(object_rw *obj_rw, object *obj);
+
 
 // Exported variables
 
@@ -295,9 +377,8 @@ extern fix Show_kill_list_timer;
 extern char Network_message[MAX_MESSAGE_LEN];
 extern int Network_message_reciever;
 
-// Used to map network to local object numbers
-
-extern sbyte object_owner[MAX_OBJECTS]; // Who 'owns' each local object for network purposes
+// Which player 'owns' each local object for network purposes
+extern sbyte object_owner[MAX_OBJECTS];
 
 extern int multi_quit_game;
 
@@ -306,22 +387,34 @@ extern int multi_defining_message;
 extern int multi_message_input_sub(int key);
 extern void multi_send_message_start();
 extern int multi_powerup_is_4pack(int);
-extern void multi_message_feedback();
 
+extern int PhallicLimit,PhallicMan;
 extern int Bounty_target;
 
 extern bitmap_index multi_player_textures[MAX_PLAYERS][N_PLAYER_SHIP_TEXTURES];
 
-extern const char *const RankStrings[];
+extern const char *const RankStrings[10];
+extern char PowerupsInMine[MAX_POWERUP_TYPES],
+	MaxPowerupsAllowed[MAX_POWERUP_TYPES];
+
+// Globals for protocol-bound Refuse-functions
+extern char RefuseThisPlayer,WaitForRefuseAnswer,RefuseTeam,RefusePlayerName[12];
+extern fix64 RefuseTimeLimit;
+#define REFUSE_INTERVAL (F1_0*8)
 
 #define NETGAME_FLAG_CLOSED             1
 #define NETGAME_FLAG_SHOW_ID            2
 #define NETGAME_FLAG_SHOW_MAP           4
+#if defined(DXX_BUILD_DESCENT_II)
+#define NETGAME_FLAG_HOARD              8
+#define NETGAME_FLAG_TEAM_HOARD         16
+#define NETGAME_FLAG_REALLY_ENDLEVEL    32
+#define NETGAME_FLAG_REALLY_FORMING     64
+#endif
 
 #define NETGAME_NAME_LEN                15
 
-#define NETPLAYER_ORIG_SIZE	22
-#define NETPLAYER_D1X_SIZE	22 /* D1X version removes last char from callsign */
+extern struct netgame_info Netgame;
 
 int multi_i_am_master(void);
 int multi_who_is_master(void);
@@ -333,13 +426,24 @@ extern void multi_powcap_cap_objects();
 extern void multi_do_powcap_update();
 extern void multi_send_powcap_update();
 extern void multi_send_kill_goal_counts();
+#if defined(DXX_BUILD_DESCENT_I)
+#define MISSILE_ADJUST  6
+#elif defined(DXX_BUILD_DESCENT_II)
+extern void multi_send_stolen_items();
+extern void multi_send_trigger_specific(char pnum,char trig);
+extern void multi_send_door_open_specific(int pnum,int segnum, int side,ubyte flag);
+extern void multi_send_wall_status_specific (int pnum,int wallnum,ubyte type,ubyte flags,ubyte state);
+extern void multi_send_light_specific (int pnum,int segnum,ubyte val);
 
-// Globals for protocol-bound Refuse-functions
-extern char RefuseThisPlayer,WaitForRefuseAnswer,RefuseTeam,RefusePlayerName[12];
-extern fix64 RefuseTimeLimit;
-#define REFUSE_INTERVAL (F1_0*8)
+//how to encode missiles & flares in weapon packets
+#define MISSILE_ADJUST  100
+#define FLARE_ADJUST    127
 
-extern struct netgame_info Netgame;
+int HoardEquipped();
+#ifdef EDITOR
+void save_hoard_data(void);
+#endif
+#endif
 
 /*
  * The Network Players structure
@@ -403,8 +507,13 @@ typedef struct netgame_info
 	ubyte   					game_flags;
 	ubyte   					team_vector;
 	u_int32_t					AllowedItems;
-	short						Allow_marker_view; // (unused in D1 - no markers in game)
-	short						AlwaysLighting; // (unused in D1 - cannot destroy lights after all)
+	/*
+	 * Only used in Descent II, but defined in both for historical
+	 * reasons
+	 */
+	short						Allow_marker_view;
+	short						AlwaysLighting;
+	/* End Descent II */
 	short						ShowEnemyNames;
 	short						BrightPlayers;
 	short						InvulAppear;
