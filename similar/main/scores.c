@@ -54,6 +54,12 @@ COPYRIGHT 1993-1999 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 #define COOL_MESSAGE_LEN 	50
 #define MAX_HIGH_SCORES 	10
 
+#if defined(DXX_BUILD_DESCENT_I)
+#define DXX_SCORE_STRUCT_PACK	__pack__
+#elif defined(DXX_BUILD_DESCENT_II)
+#define DXX_SCORE_STRUCT_PACK
+#endif
+
 typedef struct stats_info {
   	char	name[CALLSIGN_LEN+1];
 	int		score;
@@ -63,21 +69,15 @@ typedef struct stats_info {
 	short 	kill_ratio;		// 0-100
 	short	hostage_ratio;  // 
 	int		seconds;		// How long it took in seconds...
-} stats_info;
+} DXX_SCORE_STRUCT_PACK stats_info;
 
 typedef struct all_scores {
 	char			signature[3];			// DHS
 	sbyte           version;				// version
 	char			cool_saying[COOL_MESSAGE_LEN];
 	stats_info	stats[MAX_HIGH_SCORES];
-} all_scores;
+} DXX_SCORE_STRUCT_PACK all_scores;
 
-
-#ifndef D2_OEM
-#define COOL_SAYING TXT_REGISTER_DESCENT
-#else
-#define COOL_SAYING "Get all 30 levels of D2 from 1-800-INTERPLAY"
-#endif
 
 void scores_read(all_scores *scores)
 {
@@ -92,7 +92,7 @@ void scores_read(all_scores *scores)
 		int i;
 
 	 	// No error message needed, code will work without a scores file
-		sprintf( scores->cool_saying, "%s", COOL_SAYING );
+		sprintf( scores->cool_saying, "%s", TXT_REGISTER_DESCENT );
 		sprintf( scores->stats[0].name, "Parallax" );
 		sprintf( scores->stats[1].name, "Matt" );
 		sprintf( scores->stats[2].name, "Mike" );
