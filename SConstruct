@@ -361,6 +361,7 @@ class DXXProgram(DXXCommon):
 ]
 	similar_editor_sources = [os.path.join('similar', f) for f in [
 'editor/autosave.c',
+'editor/curves.c',
 'editor/elight.c',
 'editor/fixseg.c',
 'editor/info.c',
@@ -619,7 +620,6 @@ class D1XProgram(DXXProgram):
 	# for editor
 	editor_sources = [os.path.join(srcdir, f) for f in [
 'editor/centers.c',
-'editor/curves.c',
 'editor/eglobal.c',
 'editor/ehostage.c',
 'editor/eobject.c',
@@ -763,7 +763,6 @@ class D2XProgram(DXXProgram):
 	# for editor
 	editor_sources = [os.path.join(srcdir, f) for f in [
 'editor/centers.c',
-'editor/curves.c',
 'editor/eglobal.c',
 'editor/eobject.c',
 'editor/eswitch.c',
