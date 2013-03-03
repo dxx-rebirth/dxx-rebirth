@@ -36,6 +36,7 @@ extern void args_exit();
 //   Mpl - Multiplayer Options
 //   Edi - Editor Options
 //   Dbg - Debugging/Undocumented Options
+#if defined(DXX_BUILD_DESCENT_I) || defined(DXX_BUILD_DESCENT_II)
 typedef struct Arg
 {
 	int SysShowCmdHelp;
@@ -49,7 +50,12 @@ typedef struct Arg
 	int SysWindow;
 	int SysNoBorders;
 	int SysAutoDemo;
+#ifdef DXX_BUILD_DESCENT_I
+	int SysNoTitles;
+#endif
+#ifdef DXX_BUILD_DESCENT_II
 	int SysNoMovies;
+#endif
 	int CtlNoCursor;
 	int CtlNoMouse;
 	int CtlNoJoystick;
@@ -57,9 +63,11 @@ typedef struct Arg
 	int SndNoSound;
 	int SndNoMusic;
 	int SndDisableSdlMixer;
+#ifdef DXX_BUILD_DESCENT_II
 	int SndDigiSampleRate;
 	int GfxMovieHires;
 	int GfxHiresGFXAvailable;
+#endif
 	int GfxHiresFNTAvailable;
 #ifdef OGL
 	int OglFixedFont;
@@ -71,9 +79,14 @@ typedef struct Arg
 	const char *MplTrackerAddr;
 	int MplTrackerPort;
 #endif
+#ifdef DXX_BUILD_DESCENT_I
+	int EdiNoBm;
+#endif
+#ifdef DXX_BUILD_DESCENT_II
 	char *EdiAutoLoad;
 	int EdiSaveHoardData;
 	int EdiMacData; // also used for some read routines in non-editor build
+#endif
 	int DbgVerbose;
 	int DbgSafelog;
 	int DbgNoRun;
@@ -96,6 +109,7 @@ typedef struct Arg
 	int DbgSdlASyncBlit;
 #endif
 } Arg;
+#endif
 
 extern struct Arg GameArg;
 
