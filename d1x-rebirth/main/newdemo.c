@@ -2154,7 +2154,7 @@ int newdemo_read_frame_information(int rewrite)
 				break;
 			}
 			if (Newdemo_vcr_state != ND_STATE_PAUSED)
-				check_effect_blowup(&(Segments[segnum]), side, &pnt);
+				check_effect_blowup(&(Segments[segnum]), side, &pnt, NULL, 0);
 			break;
 		}
 

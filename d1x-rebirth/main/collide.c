@@ -355,8 +355,10 @@ void scrape_player_on_wall(object *obj, short hitseg, short hitside, vms_vector 
 
 //if an effect is hit, and it can blow up, then blow it up
 //returns true if it blew up
-int check_effect_blowup(segment *seg,int side,vms_vector *pnt)
+int check_effect_blowup(segment *seg,int side,vms_vector *pnt, object *blower, int force_blowup_flag)
 {
+	(void)blower;
+	(void)force_blowup_flag;
 	int tm,ec,db;
 
 	if ((tm=seg->sides[side].tmap_num2) != 0)
@@ -457,7 +459,7 @@ void collide_weapon_and_wall( object * weapon, fix hitspeed, short hitseg, short
 		return;
 	}
 
-	blew_up = check_effect_blowup(seg,hitwall,hitpt);
+	blew_up = check_effect_blowup(seg,hitwall,hitpt, NULL, 0);
 
 	//if ((seg->sides[hitwall].tmap_num2==0) && (TmapInfo[seg->sides[hitwall].tmap_num].flags & TMI_VOLATILE)) {
 
