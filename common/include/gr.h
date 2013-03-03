@@ -8,7 +8,7 @@ SUCH USE, DISPLAY OR CREATION IS FOR NON-COMMERCIAL, ROYALTY OR REVENUE
 FREE PURPOSES.  IN NO EVENT SHALL THE END-USER USE THE COMPUTER CODE
 CONTAINED HEREIN FOR REVENUE-BEARING PURPOSES.  THE END-USER UNDERSTANDS
 AND AGREES TO THE TERMS HEREIN AND ACCEPTS THE SAME BY USE OF THIS FILE.
-COPYRIGHT 1993-1998 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
+COPYRIGHT 1993-1999 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 */
 
 /*
@@ -23,7 +23,9 @@ COPYRIGHT 1993-1998 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 #include "pstypes.h"
 #include "fix.h"
 
+#ifdef DXX_BUILD_DESCENT_I
 extern int HiresGFXAvailable;
+#endif
 
 // some defines for transparency and blending
 #define TRANSPARENCY_COLOR   255            // palette entry of transparency color -- 255 on the PC
@@ -38,7 +40,12 @@ extern int HiresGFXAvailable;
 #define SWIDTH  (grd_curscreen->sc_w)
 #define SHEIGHT (grd_curscreen->sc_h)
 
+#if defined(DXX_BUILD_DESCENT_I)
 #define HIRESMODE HiresGFXAvailable		// descent.pig either contains hires or lowres graphics, not both
+#endif
+#if defined(DXX_BUILD_DESCENT_II)
+#define HIRESMODE (SWIDTH >= 640 && SHEIGHT >= 480 && GameArg.GfxHiresGFXAvailable)
+#endif
 #define MAX_BMP_SIZE(width, height) (4 + ((width) + 2) * (height))
 
 #define SCRNS_DIR "screenshots/"
@@ -317,6 +324,17 @@ void gr_uscanline( int x1, int x2, int y );
 // Reads in a font file... current font set to this one.
 grs_font * gr_init_font( const char * fontfile );
 void gr_close_font( grs_font * font );
+
+#ifdef DXX_BUILD_DESCENT_II
+void gr_copy_palette(ubyte *gr_palette, ubyte *pal, int size);
+
+//remap a font, re-reading its data & palette
+void gr_remap_font( grs_font *font, char * fontname, char *font_data );
+
+//remap (by re-reading) all the color fonts
+void gr_remap_color_fonts();
+void gr_remap_mono_fonts();
+#endif
 
 // Writes a string using current font. Returns the next column after last char.
 void gr_set_curfont( grs_font * );
