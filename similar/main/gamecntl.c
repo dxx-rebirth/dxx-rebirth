@@ -87,6 +87,10 @@ COPYRIGHT 1993-1999 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 #include "ai.h"
 #include "rbaudio.h"
 #include "switch.h"
+#if defined(DXX_BUILD_DESCENT_II)
+#include "escort.h"
+#include "movie.h"
+#endif
 #include "window.h"
 
 #ifdef EDITOR
@@ -114,11 +118,15 @@ extern int	*Toggle_var;
 
 extern fix	Show_view_text_timer;
 
+extern ubyte DefiningMarkerMessage;
+
 //	Function prototypes --------------------------------------------------------
 
 
 extern void CyclePrimary();
 extern void CycleSecondary();
+extern void InitMarkerInput();
+extern int  MarkerInputMessage(int key);
 extern int	allowed_to_fire_missile(void);
 extern int	allowed_to_fire_flare(void);
 extern void	check_rear_view(void);
@@ -127,6 +135,8 @@ extern void move_player_2_segment(segment *seg, int side);
 extern void newdemo_strip_frames(char *, int);
 extern void toggle_cockpit(void);
 extern void dump_used_textures_all();
+extern void DropSecondaryWeapon();
+extern void DropCurrentWeapon();
 
 int FinalCheats(int key);
 
@@ -141,6 +151,46 @@ void advance_sound(void);
 void play_test_sound(void);
 
 #define key_isfunc(k) (((k&0xff)>=KEY_F1 && (k&0xff)<=KEY_F10) || (k&0xff)==KEY_F11 || (k&0xff)==KEY_F12)
+
+// Functions ------------------------------------------------------------------
+
+#if defined(DXX_BUILD_DESCENT_II)
+#define CONVERTER_RATE  20		//10 units per second xfer rate
+#define CONVERTER_SCALE  2		//2 units energy -> 1 unit shields
+
+#define CONVERTER_SOUND_DELAY (f1_0/2)		//play every half second
+
+void transfer_energy_to_shield()
+{
+	fix e;		//how much energy gets transfered
+	static fix64 last_play_time=0;
+
+	e = min(min(FrameTime*CONVERTER_RATE,Players[Player_num].energy - INITIAL_ENERGY),(MAX_SHIELDS-Players[Player_num].shields)*CONVERTER_SCALE);
+
+	if (e <= 0) {
+
+		if (Players[Player_num].energy <= INITIAL_ENERGY) {
+			HUD_init_message(HM_DEFAULT, "Need more than %i energy to enable transfer", f2i(INITIAL_ENERGY));
+		}
+		else if (Players[Player_num].shields == 200) {
+			HUD_init_message(HM_DEFAULT, "No transfer: Shields already at max");
+		}
+		return;
+	}
+
+	Players[Player_num].energy  -= e;
+	Players[Player_num].shields += e/CONVERTER_SCALE;
+
+	if (last_play_time > GameTime64)
+		last_play_time = 0;
+
+	if (GameTime64 > last_play_time+CONVERTER_SOUND_DELAY) {
+		digi_play_sample_once(SOUND_CONVERT_ENERGY, F1_0);
+		last_play_time = GameTime64;
+	}
+
+}
+#endif
 
 void update_vcr_state();
 void do_weapon_n_item_stuff(void);
@@ -163,6 +213,34 @@ void update_vcr_state(void)
 	else if ((Newdemo_vcr_state == ND_STATE_FASTFORWARD) || (Newdemo_vcr_state == ND_STATE_REWINDING))
 		Newdemo_vcr_state = ND_STATE_PLAYBACK;
 }
+
+#if defined(DXX_BUILD_DESCENT_II)
+//returns which bomb will be dropped next time the bomb key is pressed
+int which_bomb()
+{
+	int bomb;
+
+	//use the last one selected, unless there aren't any, in which case use
+	//the other if there are any
+
+
+   // If hoard game, only let the player drop smart mines
+   if (Game_mode & GM_HOARD)
+		return SMART_MINE_INDEX;
+
+	bomb = Secondary_last_was_super[PROXIMITY_INDEX]?SMART_MINE_INDEX:PROXIMITY_INDEX;
+
+	if (Players[Player_num].secondary_ammo[bomb] == 0 &&
+			Players[Player_num].secondary_ammo[SMART_MINE_INDEX+PROXIMITY_INDEX-bomb] != 0) {
+		bomb = SMART_MINE_INDEX+PROXIMITY_INDEX-bomb;
+		Secondary_last_was_super[bomb%SUPER_WEAPON] = (bomb == SMART_MINE_INDEX);
+	}
+
+
+
+	return bomb;
+}
+#endif
 
 void do_weapon_n_item_stuff()
 {
@@ -201,6 +279,15 @@ void do_weapon_n_item_stuff()
 		do_weapon_select(Controls.select_weapon_count>4?Controls.select_weapon_count-5:Controls.select_weapon_count,Controls.select_weapon_count>4?1:0);
 		Controls.select_weapon_count = 0;
 	}
+#if defined(DXX_BUILD_DESCENT_II)
+	if (Controls.headlight_count > 0)
+	{
+		for (i=0;i<Controls.headlight_count;i++)
+			toggle_headlight_active ();
+		Controls.headlight_count = 0;
+	}
+#endif
+
 	if (Global_missile_firing_count < 0)
 		Global_missile_firing_count = 0;
 
@@ -210,10 +297,36 @@ void do_weapon_n_item_stuff()
 		do_missile_firing(1);
 		Controls.drop_bomb_count--;
 	}
+#if defined(DXX_BUILD_DESCENT_II)
+	if (Controls.toggle_bomb_count > 0)
+	{
+		int bomb = Secondary_last_was_super[PROXIMITY_INDEX]?PROXIMITY_INDEX:SMART_MINE_INDEX;
+	
+		if (!Players[Player_num].secondary_ammo[PROXIMITY_INDEX] && !Players[Player_num].secondary_ammo[SMART_MINE_INDEX])
+		{
+			digi_play_sample_once( SOUND_BAD_SELECTION, F1_0 );
+			HUD_init_message(HM_DEFAULT, "No bombs available!");
+		}
+		else
+		{	
+			if (Players[Player_num].secondary_ammo[bomb]==0)
+			{
+				digi_play_sample_once( SOUND_BAD_SELECTION, F1_0 );
+				HUD_init_message(HM_DEFAULT, "No %s available!",(bomb==SMART_MINE_INDEX)?"Smart mines":"Proximity bombs");
+			}
+			else
+			{
+				Secondary_last_was_super[PROXIMITY_INDEX]=!Secondary_last_was_super[PROXIMITY_INDEX];
+				digi_play_sample_once( SOUND_GOOD_SELECTION_SECONDARY, F1_0 );
+			}
+		}
+		Controls.toggle_bomb_count = 0;
+	}
+
+	if (Controls.energy_to_shield_state && (Players[Player_num].flags & PLAYER_FLAGS_CONVERTER))
+		transfer_energy_to_shield();
+#endif
 }
-
-
-extern void game_render_frame();
 
 void format_time(char *str, int secs_int)
 {
@@ -364,7 +477,10 @@ int HandleDemoKey(int key)
 		KEY_MAC(case KEY_COMMAND+KEY_2:)
 		case KEY_F2:	do_options_menu();	break;
 		KEY_MAC(case KEY_COMMAND+KEY_3:)
-		case KEY_F3:	toggle_cockpit();	break;
+		case KEY_F3:
+			 if (Viewer->type == OBJ_PLAYER)
+				toggle_cockpit();
+			 break;
 		KEY_MAC(case KEY_COMMAND+KEY_4:)
 		case KEY_F4:	Newdemo_show_percentage = !Newdemo_show_percentage; break;
 		KEY_MAC(case KEY_COMMAND+KEY_7:)
@@ -477,6 +593,153 @@ int HandleDemoKey(int key)
 	return 1;
 }
 
+#if defined(DXX_BUILD_DESCENT_II)
+//switch a cockpit window to the next function
+int select_next_window_function(int w)
+{
+	Assert(w==0 || w==1);
+
+	switch (PlayerCfg.Cockpit3DView[w]) {
+		case CV_NONE:
+			PlayerCfg.Cockpit3DView[w] = CV_REAR;
+			break;
+		case CV_REAR:
+			if (find_escort()) {
+				PlayerCfg.Cockpit3DView[w] = CV_ESCORT;
+				break;
+			}
+			//if no ecort, fall through
+		case CV_ESCORT:
+			Coop_view_player[w] = -1;		//force first player
+#ifdef NETWORK
+			//fall through
+		case CV_COOP:
+			Marker_viewer_num[w] = -1;
+			if ((Game_mode & GM_MULTI_COOP) || (Game_mode & GM_TEAM)) {
+				PlayerCfg.Cockpit3DView[w] = CV_COOP;
+				while (1) {
+					Coop_view_player[w]++;
+					if (Coop_view_player[w] == N_players) {
+						PlayerCfg.Cockpit3DView[w] = CV_MARKER;
+						goto case_marker;
+					}
+					if (Coop_view_player[w]==Player_num)
+						continue;
+
+					if (Game_mode & GM_MULTI_COOP)
+						break;
+					else if (get_team(Coop_view_player[w]) == get_team(Player_num))
+						break;
+				}
+				break;
+			}
+			//if not multi, fall through
+		case CV_MARKER:
+		case_marker:;
+			if ((Game_mode & GM_MULTI) && !(Game_mode & GM_MULTI_COOP) && Netgame.Allow_marker_view) {	//anarchy only
+				PlayerCfg.Cockpit3DView[w] = CV_MARKER;
+				if (Marker_viewer_num[w] == -1)
+					Marker_viewer_num[w] = Player_num * 2;
+				else if (Marker_viewer_num[w] == Player_num * 2)
+					Marker_viewer_num[w]++;
+				else
+					PlayerCfg.Cockpit3DView[w] = CV_NONE;
+			}
+			else
+#endif
+				PlayerCfg.Cockpit3DView[w] = CV_NONE;
+			break;
+	}
+	write_player_file();
+
+	return 1;	 //screen_changed
+}
+#endif
+
+#ifdef DOOR_DEBUGGING
+dump_door_debugging_info()
+{
+	object *obj;
+	vms_vector new_pos;
+	fvi_query fq;
+	fvi_info hit_info;
+	int fate;
+	PHYSFS_file *dfile;
+	int wall_num;
+
+	obj = &Objects[Players[Player_num].objnum];
+	vm_vec_scale_add(&new_pos,&obj->pos,&obj->orient.fvec,i2f(100));
+
+	fq.p0						= &obj->pos;
+	fq.startseg				= obj->segnum;
+	fq.p1						= &new_pos;
+	fq.rad					= 0;
+	fq.thisobjnum			= Players[Player_num].objnum;
+	fq.ignore_obj_list	= NULL;
+	fq.flags					= 0;
+
+	fate = find_vector_intersection(&fq,&hit_info);
+
+	dfile = PHYSFSX_openWriteBuffered("door.out");
+
+	PHYSFSX_printf(dfile,"FVI hit_type = %d\n",fate);
+	PHYSFSX_printf(dfile,"    hit_seg = %d\n",hit_info.hit_seg);
+	PHYSFSX_printf(dfile,"    hit_side = %d\n",hit_info.hit_side);
+	PHYSFSX_printf(dfile,"    hit_side_seg = %d\n",hit_info.hit_side_seg);
+	PHYSFSX_printf(dfile,"\n");
+
+	if (fate == HIT_WALL) {
+
+		wall_num = Segments[hit_info.hit_seg].sides[hit_info.hit_side].wall_num;
+		PHYSFSX_printf(dfile,"wall_num = %d\n",wall_num);
+
+		if (wall_num != -1) {
+			wall *wall = &Walls[wall_num];
+			active_door *d;
+			int i;
+
+			PHYSFSX_printf(dfile,"    segnum = %d\n",wall->segnum);
+			PHYSFSX_printf(dfile,"    sidenum = %d\n",wall->sidenum);
+			PHYSFSX_printf(dfile,"    hps = %x\n",wall->hps);
+			PHYSFSX_printf(dfile,"    linked_wall = %d\n",wall->linked_wall);
+			PHYSFSX_printf(dfile,"    type = %d\n",wall->type);
+			PHYSFSX_printf(dfile,"    flags = %x\n",wall->flags);
+			PHYSFSX_printf(dfile,"    state = %d\n",wall->state);
+			PHYSFSX_printf(dfile,"    trigger = %d\n",wall->trigger);
+			PHYSFSX_printf(dfile,"    clip_num = %d\n",wall->clip_num);
+			PHYSFSX_printf(dfile,"    keys = %x\n",wall->keys);
+			PHYSFSX_printf(dfile,"    controlling_trigger = %d\n",wall->controlling_trigger);
+			PHYSFSX_printf(dfile,"    cloak_value = %d\n",wall->cloak_value);
+			PHYSFSX_printf(dfile,"\n");
+
+
+			for (i=0;i<Num_open_doors;i++) {		//find door
+				d = &ActiveDoors[i];
+				if (d->front_wallnum[0]==wall-Walls || d->back_wallnum[0]==wall-Walls || (d->n_parts==2 && (d->front_wallnum[1]==wall-Walls || d->back_wallnum[1]==wall-Walls)))
+					break;
+			}
+
+			if (i>=Num_open_doors)
+				PHYSFSX_printf(dfile,"No active door.\n");
+			else {
+				PHYSFSX_printf(dfile,"Active door %d:\n",i);
+				PHYSFSX_printf(dfile,"    n_parts = %d\n",d->n_parts);
+				PHYSFSX_printf(dfile,"    front_wallnum = %d,%d\n",d->front_wallnum[0],d->front_wallnum[1]);
+				PHYSFSX_printf(dfile,"    back_wallnum = %d,%d\n",d->back_wallnum[0],d->back_wallnum[1]);
+				PHYSFSX_printf(dfile,"    time = %x\n",d->time);
+			}
+
+		}
+	}
+
+	PHYSFSX_printf(dfile,"\n");
+	PHYSFSX_printf(dfile,"\n");
+
+	PHYSFS_close(dfile);
+
+}
+#endif
+
 //this is for system-level keys, such as help, etc.
 //returns 1 if screen changed
 int HandleSystemKey(int key)
@@ -484,6 +747,13 @@ int HandleSystemKey(int key)
 	if (!Player_is_dead)
 		switch (key)
 		{
+
+			#ifdef DOOR_DEBUGGING
+			case KEY_LAPOSTRO+KEY_SHIFTED:
+				dump_door_debugging_info();
+				return 1;
+			#endif
+
 			case KEY_ESC:
 			{
 				int choice;
@@ -493,6 +763,18 @@ int HandleSystemKey(int key)
 
 				return 1;
 			}
+#if defined(DXX_BUILD_DESCENT_II)
+// fleshed these out because F1 and F2 aren't sequenctial keycodes on mac -- MWA
+
+			KEY_MAC(case KEY_COMMAND+KEY_SHIFTED+KEY_1:)
+			case KEY_SHIFTED+KEY_F1:
+				select_next_window_function(0);
+				return 1;
+			KEY_MAC(case KEY_COMMAND+KEY_SHIFTED+KEY_2:)
+			case KEY_SHIFTED+KEY_F2:
+				select_next_window_function(1);
+				return 1;
+#endif
 		}
 
 	switch (key)
@@ -538,9 +820,12 @@ int HandleSystemKey(int key)
 
 
 		KEY_MAC(case KEY_COMMAND+KEY_3:)
+
 		case KEY_F3:
-			if (!Player_is_dead)
+			if (!Player_is_dead && Viewer->type==OBJ_PLAYER) //if (!(Guided_missile[Player_num] && Guided_missile[Player_num]->type==OBJ_WEAPON && Guided_missile[Player_num]->id==GUIDEDMISS_ID && Guided_missile[Player_num]->signature==Guided_missile_sig[Player_num] && PlayerCfg.GuidedInBigWindow))
+			{
 				toggle_cockpit();
+			}
 			break;
 
 		KEY_MAC(case KEY_COMMAND+KEY_5:)
@@ -618,7 +903,7 @@ int HandleSystemKey(int key)
 		KEY_MAC(case KEY_COMMAND+KEY_ALTED+KEY_2:)
 		case KEY_ALTED+KEY_F2:
 			if (!Player_is_dead)
-				state_save_all( 0, NULL, 0 );
+				state_save_all(0, NULL, 0); // 0 means not between levels.
 			break;
 
 		KEY_MAC(case KEY_COMMAND+KEY_S:)
@@ -632,6 +917,19 @@ int HandleSystemKey(int key)
 			if (!((Game_mode & GM_MULTI) && !(Game_mode & GM_MULTI_COOP)))
 				state_restore_all(1, 0, NULL);
 			break;
+
+#if defined(DXX_BUILD_DESCENT_II)
+		KEY_MAC(case KEY_COMMAND+KEY_SHIFTED+KEY_4:)
+		case KEY_F4 + KEY_SHIFTED:
+			do_escort_menu();
+			break;
+
+
+		KEY_MAC(case KEY_COMMAND+KEY_SHIFTED+KEY_ALTED+KEY_4:)
+		case KEY_F4 + KEY_SHIFTED + KEY_ALTED:
+			change_guidebot_name();
+			break;
+#endif
 
 			/*
 			 * Jukebox hotkeys -- MD2211, 2007
@@ -672,9 +970,35 @@ int HandleSystemKey(int key)
 	return 1;
 }
 
+extern void DropFlag();
+
 int HandleGameKey(int key)
 {
 	switch (key) {
+#if defined(DXX_BUILD_DESCENT_II)
+		case KEY_1 + KEY_SHIFTED:
+		case KEY_2 + KEY_SHIFTED:
+		case KEY_3 + KEY_SHIFTED:
+		case KEY_4 + KEY_SHIFTED:
+		case KEY_5 + KEY_SHIFTED:
+		case KEY_6 + KEY_SHIFTED:
+		case KEY_7 + KEY_SHIFTED:
+		case KEY_8 + KEY_SHIFTED:
+		case KEY_9 + KEY_SHIFTED:
+		case KEY_0 + KEY_SHIFTED:
+			if (PlayerCfg.EscortHotKeys)
+			{
+				if (!(Game_mode & GM_MULTI))
+					set_escort_special_goal(key);
+				else
+					HUD_init_message(HM_DEFAULT, "No Guide-Bot in Multiplayer!");
+				game_flush_inputs();
+				return 1;
+			}
+			else
+				return 0;
+#endif
+
 		case KEY_ALTED+KEY_F7:
 		KEY_MAC(case KEY_COMMAND+KEY_ALTED+KEY_7:)
 			PlayerCfg.HudMode=(PlayerCfg.HudMode+1)%GAUGE_HUD_NUMMODES;
@@ -686,17 +1010,17 @@ int HandleGameKey(int key)
 				case 2: HUD_init_message(HM_DEFAULT, "Alternative HUD #2"); break;
 				case 3: HUD_init_message(HM_DEFAULT, "No HUD"); break;
 			}
-			break;
+			return 1;
 
 #ifdef NETWORK
 		KEY_MAC(case KEY_COMMAND+KEY_6:)
 		case KEY_F6:
-			if (Netgame.RefusePlayers && WaitForRefuseAnswer)
+			if (Netgame.RefusePlayers && WaitForRefuseAnswer && !(Game_mode & GM_TEAM))
 			{
 				RefuseThisPlayer=1;
 				HUD_init_message(HM_MULTI, "Player accepted!");
 			}
-			break;
+			return 1;
 		case KEY_ALTED + KEY_1:
 			if (Netgame.RefusePlayers && WaitForRefuseAnswer && (Game_mode & GM_TEAM))
 				{
@@ -705,26 +1029,98 @@ int HandleGameKey(int key)
 					RefuseTeam=1;
 					game_flush_inputs();
 				}
-			break;
+			return 1;
 		case KEY_ALTED + KEY_2:
 			if (Netgame.RefusePlayers && WaitForRefuseAnswer && (Game_mode & GM_TEAM))
 				{
 					RefuseThisPlayer=1;
-					HUD_init_message (HM_MULTI,"Player accepted!");
+					HUD_init_message(HM_MULTI, "Player accepted!");
 					RefuseTeam=2;
 					game_flush_inputs();
 				}
-			break;
+			return 1;
 #endif
 
 		default:
+#if defined(DXX_BUILD_DESCENT_I)
 			return 0;
+#endif
 			break;
 
 	}	 //switch (key)
 
+#if defined(DXX_BUILD_DESCENT_II)
+	if (!Player_is_dead)
+		switch (key)
+		{
+				KEY_MAC(case KEY_COMMAND+KEY_SHIFTED+KEY_5:)
+			case KEY_F5 + KEY_SHIFTED:
+				DropCurrentWeapon();
+				break;
+
+			KEY_MAC(case KEY_COMMAND+KEY_SHIFTED+KEY_6:)
+			case KEY_F6 + KEY_SHIFTED:
+				DropSecondaryWeapon();
+				break;
+
+#ifdef NETWORK
+			case KEY_0 + KEY_ALTED:
+				DropFlag ();
+				game_flush_inputs();
+				break;
+#endif
+
+			KEY_MAC(case KEY_COMMAND+KEY_4:)
+			case KEY_F4:
+				if (!DefiningMarkerMessage)
+					InitMarkerInput();
+				break;
+
+			default:
+				return 0;
+		}
+	else
+		return 0;
+#endif
+
 	return 1;
 }
+
+#if defined(DXX_BUILD_DESCENT_II)
+void kill_all_robots(void)
+{
+	int	i, dead_count=0;
+	//int	boss_index = -1;
+
+	// Kill all bots except for Buddy bot and boss.  However, if only boss and buddy left, kill boss.
+	for (i=0; i<=Highest_object_index; i++)
+		if (Objects[i].type == OBJ_ROBOT) {
+			if (!Robot_info[Objects[i].id].companion && !Robot_info[Objects[i].id].boss_flag) {
+				dead_count++;
+				Objects[i].flags |= OF_EXPLODING|OF_SHOULD_BE_DEAD;
+			}
+		}
+
+// --		// Now, if more than boss and buddy left, un-kill boss.
+// --		if ((dead_count > 2) && (boss_index != -1)) {
+// --			Objects[boss_index].flags &= ~(OF_EXPLODING|OF_SHOULD_BE_DEAD);
+// --			dead_count--;
+// --		} else if (boss_index != -1)
+// --			HUD_init_message(HM_DEFAULT, "Toasted the BOSS!");
+
+	// Toast the buddy if nothing else toasted!
+	if (dead_count == 0)
+		for (i=0; i<=Highest_object_index; i++)
+			if (Objects[i].type == OBJ_ROBOT)
+				if (Robot_info[Objects[i].id].companion) {
+					Objects[i].flags |= OF_EXPLODING|OF_SHOULD_BE_DEAD;
+					HUD_init_message(HM_DEFAULT, "Toasted the Buddy! *sniff*");
+					dead_count++;
+				}
+
+	HUD_init_message(HM_DEFAULT, "%i robots toasted!", dead_count);
+}
+#endif
 
 //	--------------------------------------------------------------------------
 //	Detonate reactor.
@@ -752,7 +1148,7 @@ void kill_and_so_forth(void)
 	do_controlcen_destroyed_stuff(NULL);
 
 	for (i=0; i<Num_triggers; i++) {
-		if (Triggers[i].flags == TRIGGER_EXIT) {
+		if (trigger_is_exit(&Triggers[i])) {
 			for (j=0; j<Num_walls; j++) {
 				if (Walls[j].trigger == i) {
 					compute_segment_center(&ConsoleObject->pos, &Segments[Walls[j].segnum]);
@@ -768,6 +1164,49 @@ kasf_done: ;
 }
 
 #ifndef RELEASE
+#if defined(DXX_BUILD_DESCENT_II)
+void kill_all_snipers(void)
+{
+	int     i, dead_count=0;
+
+	//	Kill all snipers.
+	for (i=0; i<=Highest_object_index; i++)
+		if (Objects[i].type == OBJ_ROBOT)
+			if (Objects[i].ctype.ai_info.behavior == AIB_SNIPE) {
+				dead_count++;
+				Objects[i].flags |= OF_EXPLODING|OF_SHOULD_BE_DEAD;
+			}
+
+	HUD_init_message(HM_DEFAULT, "%i robots toasted!", dead_count);
+}
+
+void kill_thief(void)
+{
+	int     i;
+
+	//	Kill thief.
+	for (i=0; i<=Highest_object_index; i++)
+		if (Objects[i].type == OBJ_ROBOT)
+			if (Robot_info[Objects[i].id].thief) {
+				Objects[i].flags |= OF_EXPLODING|OF_SHOULD_BE_DEAD;
+				HUD_init_message(HM_DEFAULT, "Thief toasted!");
+			}
+}
+
+void kill_buddy(void)
+{
+	int     i;
+
+	//	Kill buddy.
+	for (i=0; i<=Highest_object_index; i++)
+		if (Objects[i].type == OBJ_ROBOT)
+			if (Robot_info[Objects[i].id].companion) {
+				Objects[i].flags |= OF_EXPLODING|OF_SHOULD_BE_DEAD;
+				HUD_init_message(HM_DEFAULT, "Buddy toasted!");
+			}
+}
+#endif
+
 int HandleTestKey(int key)
 {
 	switch (key)
@@ -780,6 +1219,20 @@ int HandleTestKey(int key)
 		case KEY_DEBUGGED+KEY_Y:
 			do_controlcen_destroyed_stuff(NULL);
 			break;
+
+#if defined(DXX_BUILD_DESCENT_II)
+#ifdef NETWORK
+	case KEY_DEBUGGED+KEY_ALTED+KEY_D:
+			PlayerCfg.NetlifeKills=4000; PlayerCfg.NetlifeKilled=5;
+			multi_add_lifetime_kills();
+			break;
+#endif
+
+		case KEY_DEBUGGED+KEY_R+KEY_SHIFTED:
+			kill_all_robots();
+			break;
+#endif
+
 		case KEY_BACKSP:
 		case KEY_CTRLED+KEY_BACKSP:
 		case KEY_ALTED+KEY_BACKSP:
@@ -832,6 +1285,22 @@ int HandleTestKey(int key)
 			init_editor();
 			window_close(Game_wind);
 			break;
+#if defined(DXX_BUILD_DESCENT_II)
+	case KEY_Q + KEY_SHIFTED + KEY_DEBUGGED:
+		{
+			char pal_save[768];
+			memcpy(pal_save,gr_palette,768);
+			init_subtitles("end.tex");	//ingore errors
+			PlayMovie ("end.mve",MOVIE_ABORT_ON);
+			close_subtitles();
+			Screen_mode = -1;
+			set_screen_mode(SCREEN_GAME);
+			reset_cockpit();
+			memcpy(gr_palette,pal_save,768);
+			gr_palette_load(gr_palette);
+			break;
+		}
+#endif
 		case KEY_C + KEY_SHIFTED + KEY_DEBUGGED:
 			if (!Player_is_dead && !( Game_mode & GM_MULTI ))
 				move_player_2_segment(Cursegp,Curside);
@@ -847,6 +1316,12 @@ int HandleTestKey(int key)
 		case KEY_DEBUGGED+KEY_O: toggle_outline_mode(); break;
 		case KEY_DEBUGGED+KEY_T:
 			*Toggle_var = !*Toggle_var;
+#if defined(DXX_BUILD_DESCENT_II)
+			if (*Toggle_var)
+				GameArg.SysMaxFPS = 300;
+			else
+				GameArg.SysMaxFPS = 30;
+#endif
 			break;
 		case KEY_DEBUGGED + KEY_L:
 			if (++Lighting_on >= 2) Lighting_on = 0; break;
@@ -940,17 +1415,15 @@ int HandleTestKey(int key)
 }
 #endif		//#ifndef RELEASE
 
-//	Cheat functions ------------------------------------------------------------
 #define CHEAT_MAX_LEN 15
-#define NUM_CHEATS    16
-
 typedef struct cheat_code
 {
 	char *string;
 	int *stateptr;
 } __pack__ cheat_code;
 
-cheat_code cheat_codes[NUM_CHEATS] = {
+static const cheat_code cheat_codes[] = {
+#if defined(DXX_BUILD_DESCENT_I)
 	{ "gabbagabbahey", &cheats.enabled },
 	{ "scourge", &cheats.wowie },
 	{ "bigred", &cheats.wowie2 },
@@ -959,13 +1432,39 @@ cheat_code cheat_codes[NUM_CHEATS] = {
 	{ "guile", &cheats.cloak },
 	{ "twilight", &cheats.shields },
 	{ "poboys", &cheats.killreactor },
-	{ "flash", &cheats.exitpath },
 	{ "farmerjoe", &cheats.levelwarp },
 	{ "bruin", &cheats.extralife },
-	{ "astral", &cheats.ghostphysics },
 	{ "porgys", &cheats.rapidfire },
-	{ "buggin", &cheats.turbo },
 	{ "ahimsa", &cheats.robotfiringsuspended },
+#elif defined(DXX_BUILD_DESCENT_II)
+	{ "gabbagabbahey", &cheats.lamer },
+	{ "motherlode", &cheats.lamer },
+	{ "currygoat", &cheats.lamer },
+	{ "zingermans", &cheats.lamer },
+	{ "eatangelos", &cheats.lamer },
+	{ "ericaanne", &cheats.lamer },
+	{ "joshuaakira", &cheats.lamer },
+	{ "whammazoom", &cheats.lamer },
+	{ "honestbob", &cheats.wowie },
+	{ "algroove", &cheats.allkeys },
+	{ "alifalafel", &cheats.accessory },
+	{ "almighty", &cheats.invul },
+	{ "blueorb", &cheats.shields },
+	{ "delshiftb", &cheats.killreactor },
+	{ "freespace", &cheats.levelwarp },
+	{ "rockrgrl", &cheats.fullautomap },
+	{ "wildfire", &cheats.rapidfire },
+	{ "duddaboo", &cheats.bouncyfire },
+	{ "imagespace", &cheats.robotfiringsuspended },
+	{ "spaniard", &cheats.killallrobots },
+	{ "silkwing", &cheats.robotskillrobots },
+	{ "godzilla", &cheats.monsterdamage },
+	{ "helpvishnu", &cheats.buddyclone },
+	{ "gowingnut", &cheats.buddyangry },
+#endif
+	{ "flash", &cheats.exitpath },
+	{ "astral", &cheats.ghostphysics },
+	{ "buggin", &cheats.turbo },
 	{ "bittersweet", &cheats.acid },
 };
 
@@ -980,16 +1479,18 @@ int FinalCheats(int key)
 	for (i = 1; i < CHEAT_MAX_LEN; i++)
 		cheat_buffer[i-1] = cheat_buffer[i];
 	cheat_buffer[CHEAT_MAX_LEN-1] = key_ascii();
-	for (i = 0; i < NUM_CHEATS; i++)
+	for (i = 0; i < sizeof(cheat_codes) / sizeof(cheat_codes[0]); i++)
 	{
 		int cheatlen = strlen(cheat_codes[i].string);
 		Assert(cheatlen <= CHEAT_MAX_LEN);
 		if (d_strnicmp(cheat_codes[i].string, cheat_buffer+CHEAT_MAX_LEN-cheatlen, cheatlen)==0)
 		{
+#if defined(DXX_BUILD_DESCENT_I)
 			if (!cheats.enabled && *cheat_codes[i].stateptr != cheats.enabled)
 				break;
 			if (!cheats.enabled)
 				HUD_init_message(HM_DEFAULT, TXT_CHEATS_ENABLED);
+#endif
 			*cheat_codes[i].stateptr = !*cheat_codes[i].stateptr;
 			cheats.enabled = 1;
 			digi_play_sample( SOUND_CHEATER, F1_0);
@@ -1002,6 +1503,7 @@ int FinalCheats(int key)
 	if (!gotcha)
 		return 0;
 
+#if defined(DXX_BUILD_DESCENT_I)
 	if (cheat_codes[gotcha].stateptr == &cheats.wowie)
 	{
 		HUD_init_message(HM_DEFAULT, "%s", TXT_WOWIE_ZOWIE);
@@ -1043,6 +1545,58 @@ int FinalCheats(int key)
 		Players[Player_num].flags |= PLAYER_FLAGS_QUAD_LASERS;
 		update_laser_weapon_info();
 	}
+#elif defined(DXX_BUILD_DESCENT_II)
+	if (cheat_codes[gotcha].stateptr == &cheats.lamer)
+	{
+		Players[Player_num].shields=Players[Player_num].energy=i2f(1);
+		HUD_init_message(HM_DEFAULT, "Take that...cheater!");
+	}
+
+	if (cheat_codes[gotcha].stateptr == &cheats.wowie)
+	{
+		HUD_init_message(HM_DEFAULT, "%s", TXT_WOWIE_ZOWIE);
+
+		if (Piggy_hamfile_version < 3) // SHAREWARE
+		{
+			Players[Player_num].primary_weapon_flags = ~((1<<PHOENIX_INDEX) | (1<<OMEGA_INDEX) | (1<<FUSION_INDEX) | HAS_FLAG(SUPER_LASER_INDEX));
+			Players[Player_num].secondary_weapon_flags = ~((1<<SMISSILE4_INDEX) | (1<<MEGA_INDEX) | (1<<SMISSILE5_INDEX));
+		}
+		else
+		{
+			Players[Player_num].primary_weapon_flags = 0xffff ^ HAS_FLAG(SUPER_LASER_INDEX); //no super laser
+			Players[Player_num].secondary_weapon_flags = 0xffff;
+		}
+
+		for (i=0; i<MAX_PRIMARY_WEAPONS; i++)
+			Players[Player_num].primary_ammo[i] = Primary_ammo_max[i];
+		for (i=0; i<MAX_SECONDARY_WEAPONS; i++)
+			Players[Player_num].secondary_ammo[i] = Secondary_ammo_max[i];
+
+		if (Piggy_hamfile_version < 3) // SHAREWARE
+		{
+			Players[Player_num].secondary_ammo[SMISSILE4_INDEX] = 0;
+			Players[Player_num].secondary_ammo[SMISSILE5_INDEX] = 0;
+			Players[Player_num].secondary_ammo[MEGA_INDEX] = 0;
+		}
+
+		if (Newdemo_state == ND_STATE_RECORDING)
+			newdemo_record_laser_level(Players[Player_num].laser_level, MAX_LASER_LEVEL);
+
+		Players[Player_num].energy = MAX_ENERGY;
+		Players[Player_num].laser_level = MAX_SUPER_LASER_LEVEL;
+		Players[Player_num].flags |= PLAYER_FLAGS_QUAD_LASERS;
+		update_laser_weapon_info();
+	}
+
+	if (cheat_codes[gotcha].stateptr == &cheats.accessory)
+	{
+		Players[Player_num].flags |=PLAYER_FLAGS_HEADLIGHT;
+		Players[Player_num].flags |=PLAYER_FLAGS_AFTERBURNER;
+		Players[Player_num].flags |=PLAYER_FLAGS_AMMO_RACK;
+		Players[Player_num].flags |=PLAYER_FLAGS_CONVERTER;
+		HUD_init_message(HM_DEFAULT, "Accessories!!");
+	}
+#endif
 
 	if (cheat_codes[gotcha].stateptr == &cheats.allkeys)
 	{
@@ -1057,6 +1611,13 @@ int FinalCheats(int key)
 		Players[Player_num].invulnerable_time = GameTime64+i2f(1000);
 	}
 
+	if (cheat_codes[gotcha].stateptr == &cheats.shields)
+	{
+		HUD_init_message(HM_DEFAULT, "%s", TXT_FULL_SHIELDS);
+		Players[Player_num].shields = MAX_SHIELDS;
+	}
+
+#if defined(DXX_BUILD_DESCENT_I)
 	if (cheat_codes[gotcha].stateptr == &cheats.cloak)
 	{
 		Players[Player_num].flags ^= PLAYER_FLAGS_CLOAKED;
@@ -1068,12 +1629,6 @@ int FinalCheats(int key)
 		}
 	}
 
-	if (cheat_codes[gotcha].stateptr == &cheats.shields)
-	{
-		HUD_init_message(HM_DEFAULT, "%s", TXT_FULL_SHIELDS);
-		Players[Player_num].shields = MAX_SHIELDS;
-	}
-
 	if (cheat_codes[gotcha].stateptr == &cheats.extralife)
 	{
 		if (Players[Player_num].lives<50)
@@ -1082,6 +1637,7 @@ int FinalCheats(int key)
 			HUD_init_message(HM_DEFAULT, "Extra life!");
 		}
 	}
+#endif
 
 	if (cheat_codes[gotcha].stateptr == &cheats.killreactor)
 	{
@@ -1090,10 +1646,8 @@ int FinalCheats(int key)
 
 	if (cheat_codes[gotcha].stateptr == &cheats.exitpath)
 	{
-#ifdef SHOW_EXIT_PATH
 		if (create_special_path())
 			HUD_init_message(HM_DEFAULT, "Exit path illuminated!");
-#endif
 	}
 
 	if (cheat_codes[gotcha].stateptr == &cheats.levelwarp)
@@ -1102,13 +1656,12 @@ int FinalCheats(int key)
 		char text[10]="";
 		int new_level_num;
 		int item;
-		*cheat_codes[gotcha].stateptr = 0;
+		
 		m.type=NM_TYPE_INPUT; m.text_len = 10; m.text = text;
 		item = newmenu_do( NULL, TXT_WARP_TO_LEVEL, 1, &m, NULL, NULL );
 		if (item != -1) {
 			new_level_num = atoi(m.text);
-			if (new_level_num!=0 && new_level_num>=0 && new_level_num<=Last_level)
-			{
+			if (new_level_num!=0 && new_level_num>=0 && new_level_num<=Last_level) {
 				window_set_visible(Game_wind, 0);
 				StartNewLevel(new_level_num);
 				window_set_visible(Game_wind, 1);
@@ -1122,9 +1675,21 @@ int FinalCheats(int key)
 	}
 
 	if (cheat_codes[gotcha].stateptr == &cheats.rapidfire)
+#if defined(DXX_BUILD_DESCENT_I)
 	{
 		do_megawow_powerup(200);
 	}
+#elif defined(DXX_BUILD_DESCENT_II)
+	{
+		HUD_init_message(HM_DEFAULT, "Rapid fire %s!", cheats.rapidfire?TXT_ON:TXT_OFF);
+	}
+
+	if (cheat_codes[gotcha].stateptr == &cheats.bouncyfire)
+	{
+		
+		HUD_init_message(HM_DEFAULT, "Bouncing weapons %s!", cheats.bouncyfire?TXT_ON:TXT_OFF);
+	}
+#endif
 
 	if (cheat_codes[gotcha].stateptr == &cheats.turbo)
 	{
@@ -1135,6 +1700,44 @@ int FinalCheats(int key)
 	{
 		HUD_init_message(HM_DEFAULT, "Robot firing %s!", cheats.robotfiringsuspended?TXT_OFF:TXT_ON);
 	}
+
+#if defined(DXX_BUILD_DESCENT_II)
+	if (cheat_codes[gotcha].stateptr == &cheats.killallrobots)
+	{
+		kill_all_robots();
+	}
+
+	if (cheat_codes[gotcha].stateptr == &cheats.robotskillrobots)
+	{
+		HUD_init_message(HM_DEFAULT, cheats.robotskillrobots?"Rabid robots!":"Kill the player!");
+	}
+
+	if (cheat_codes[gotcha].stateptr == &cheats.monsterdamage)
+	{
+		HUD_init_message(HM_DEFAULT, cheats.monsterdamage?"Oh no, there goes Tokyo!":"What have you done, I'm shrinking!!");
+	}
+
+	if (cheat_codes[gotcha].stateptr == &cheats.buddyclone)
+	{
+		HUD_init_message(HM_DEFAULT, "What's this? Another buddy bot!");
+		create_buddy_bot();
+	}
+
+	if (cheat_codes[gotcha].stateptr == &cheats.buddyangry)
+	{
+		
+		if (cheats.buddyangry)
+		{
+			HUD_init_message(HM_DEFAULT, "%s gets angry!",PlayerCfg.GuidebotName);
+			strcpy(PlayerCfg.GuidebotName,"Wingnut");
+		}
+		else
+		{
+			strcpy(PlayerCfg.GuidebotName,PlayerCfg.GuidebotNameReal);
+			HUD_init_message(HM_DEFAULT, "%s calms down",PlayerCfg.GuidebotName);
+		}
+	}
+#endif
 
 	if (cheat_codes[gotcha].stateptr == &cheats.acid)
 	{
@@ -1161,6 +1764,7 @@ void do_cheat_menu()
 	mm[4].type=NM_TYPE_NUMBER; mm[4].value=f2i(Players[Player_num].shields); mm[4].text="% Shields"; mm[4].min_value=0; mm[4].max_value=200;
 	mm[5].type=NM_TYPE_TEXT; mm[5].text = "Score:";
 	mm[6].type=NM_TYPE_INPUT; mm[6].text_len = 10; mm[6].text = score_text;
+#if defined(DXX_BUILD_DESCENT_I)
 	mm[7].type=NM_TYPE_RADIO; mm[7].value=(Players[Player_num].laser_level==0); mm[7].group=0; mm[7].text="Laser level 1";
 	mm[8].type=NM_TYPE_RADIO; mm[8].value=(Players[Player_num].laser_level==1); mm[8].group=0; mm[8].text="Laser level 2";
 	mm[9].type=NM_TYPE_RADIO; mm[9].value=(Players[Player_num].laser_level==2); mm[9].group=0; mm[9].text="Laser level 3";
@@ -1168,6 +1772,12 @@ void do_cheat_menu()
 	mm[11].type=NM_TYPE_NUMBER; mm[11].value=Players[Player_num].secondary_ammo[CONCUSSION_INDEX]; mm[11].text="Missiles"; mm[11].min_value=0; mm[11].max_value=200;
 
 	mmn = newmenu_do("Wimp Menu",NULL,12, mm, NULL, NULL );
+#elif defined(DXX_BUILD_DESCENT_II)
+	mm[7].type=NM_TYPE_NUMBER; mm[7].value=Players[Player_num].laser_level+1; mm[7].text="Laser Level"; mm[7].min_value=0; mm[7].max_value=MAX_SUPER_LASER_LEVEL+1;
+	mm[8].type=NM_TYPE_NUMBER; mm[8].value=Players[Player_num].secondary_ammo[CONCUSSION_INDEX]; mm[8].text="Missiles"; mm[8].min_value=0; mm[8].max_value=200;
+
+	mmn = newmenu_do("Wimp Menu",NULL,9, mm, NULL, NULL );
+#endif
 
 	if (mmn > -1 )  {
 		if ( mm[0].value )  {
@@ -1192,11 +1802,16 @@ void do_cheat_menu()
 		Players[Player_num].energy=i2f(mm[3].value);
 		Players[Player_num].shields=i2f(mm[4].value);
 		Players[Player_num].score = atoi(mm[6].text);
+#if defined(DXX_BUILD_DESCENT_I)
 		if (mm[7].value) Players[Player_num].laser_level=0;
 		if (mm[8].value) Players[Player_num].laser_level=1;
 		if (mm[9].value) Players[Player_num].laser_level=2;
 		if (mm[10].value) Players[Player_num].laser_level=3;
 		Players[Player_num].secondary_ammo[CONCUSSION_INDEX] = mm[11].value;
+#elif defined(DXX_BUILD_DESCENT_II)
+		Players[Player_num].laser_level = mm[7].value-1;
+		Players[Player_num].secondary_ammo[CONCUSSION_INDEX] = mm[8].value;
+#endif
 		init_gauges();
 	}
 }
@@ -1259,7 +1874,12 @@ int ReadControls(d_event *event)
 	if (event->type == EVENT_KEY_COMMAND)
 	{
 		key = event_key_get(event);
-
+#if defined(DXX_BUILD_DESCENT_II)
+		if (DefiningMarkerMessage)
+		{
+			return MarkerInputMessage(key);
+		}
+#endif
 #ifdef NETWORK
 		if ( (Game_mode & GM_MULTI) && (multi_sending_message[Player_num] || multi_defining_message) )
 		{
@@ -1304,6 +1924,7 @@ int ReadControls(d_event *event)
 
 	if (!Endlevel_sequence && !Player_is_dead && (Newdemo_state != ND_STATE_PLAYBACK))
 	{
+
 		kconfig_read_controls(event, 0);
 
 		check_rear_view();

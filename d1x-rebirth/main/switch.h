@@ -95,5 +95,10 @@ extern void trigger_read_n_swap(trigger *t, int n, int swap, PHYSFS_file *fp);
 
 extern void trigger_write(trigger *t, short version, PHYSFS_file *fp);
 
+static inline int trigger_is_exit(const trigger *t)
+{
+	return t->flags == TRIGGER_EXIT;
+}
+
 #endif
  

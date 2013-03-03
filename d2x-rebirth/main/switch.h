@@ -113,6 +113,11 @@ extern void check_trigger(segment *seg, short side, short objnum,int shot);
 extern int check_trigger_sub(int trigger_num, int player_num,int shot);
 extern void triggers_frame_process();
 
+static inline int trigger_is_exit(const trigger *t)
+{
+	return t->type == TT_EXIT;
+}
+
 /*
  * reads a v29_trigger structure from a PHYSFS_file
  */
