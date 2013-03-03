@@ -791,6 +791,7 @@ class DXXProgram(DXXCommon):
 'main/slew.c',
 'main/songs.c',
 'main/state.c',
+'main/switch.c',
 'main/terrain.c',
 'main/texmerge.c',
 'main/text.c',
@@ -1032,7 +1033,6 @@ class D1XProgram(DXXProgram):
 'main/playsave.c',
 'main/powerup.c',
 'main/snddecom.c',
-'main/switch.c',
 'main/titles.c',
 #'tracker/client/tracker_client.c'
 ]
@@ -1105,7 +1105,6 @@ class D2XProgram(DXXProgram):
 'main/playsave.c',
 'main/powerup.c',
 'main/segment.c',
-'main/switch.c',
 'main/titles.c',
 'misc/physfsrwops.c',
 ]

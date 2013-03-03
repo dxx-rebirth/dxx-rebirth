@@ -66,7 +66,11 @@ void trigger_init()
 		{
 		Triggers[i].type = 0;
 		Triggers[i].flags = 0;
+#if defined(DXX_BUILD_DESCENT_I)
+		Triggers[i].link_num = -1;
+#elif defined(DXX_BUILD_DESCENT_II)
 		Triggers[i].num_links = 0;
+#endif
 		Triggers[i].value = 0;
 		Triggers[i].time = -1;
 		}
@@ -88,6 +92,7 @@ void do_link(sbyte trigger_num)
   	}
 }
 
+#if defined(DXX_BUILD_DESCENT_II)
 //close a door
 void do_close_door(sbyte trigger_num)
 {
@@ -283,7 +288,7 @@ static int __print_trigger_message(int pnum,int trig,int shot)
 		return 1;
 	return 0;
  }
-
+#endif
 
 void do_matcen(sbyte trigger_num)
 {
@@ -314,19 +319,21 @@ void do_il_off(sbyte trigger_num)
 
 	if (trigger_num != -1) {
 		for (i=0;i<Triggers[trigger_num].num_links;i++) {
-			vms_vector	cp;
 			segment		*seg = &Segments[Triggers[trigger_num].seg[i]];
 			int			side = Triggers[trigger_num].side[i];
 
 			wall_illusion_off(seg, side);
 
+#if defined(DXX_BUILD_DESCENT_II)
+			vms_vector	cp;
 			compute_center_point_on_side(&cp, seg, side );
 			digi_link_sound_to_pos( SOUND_WALL_REMOVED, seg-Segments, side, &cp, 0, F1_0 );
-
+#endif
   		}
   	}
 }
 
+#if defined(DXX_BUILD_DESCENT_II)
 extern void EnterSecretLevel(void);
 extern void ExitSecretLevel(void);
 extern int p_secret_level_destroyed(void);
@@ -341,15 +348,66 @@ int wall_is_forcefield(trigger *trig)
 
 	return (i<trig->num_links);
 }
+#endif
 
 int check_trigger_sub(int trigger_num, int pnum,int shot)
 {
-	trigger *trig = &Triggers[trigger_num];
-
 	if (pnum < 0 || pnum > MAX_PLAYERS)
 		return 1;
 	if ((Game_mode & GM_MULTI) && (Players[pnum].connected != CONNECT_PLAYING)) // as a host we may want to handle triggers for our clients. to do that properly we must check wether we (host) or client is actually playing.
 		return 1;
+
+#if defined(DXX_BUILD_DESCENT_I)
+	(void)shot;
+	if (pnum == Player_num) {
+		if (Triggers[trigger_num].flags & TRIGGER_SHIELD_DAMAGE) {
+			Players[Player_num].shields -= Triggers[trigger_num].value;
+		}
+
+		if (Triggers[trigger_num].flags & TRIGGER_EXIT) {
+			start_endlevel_sequence();
+		}
+
+		if (Triggers[trigger_num].flags & TRIGGER_SECRET_EXIT) {
+			if (Newdemo_state == ND_STATE_RECORDING)		// stop demo recording
+				Newdemo_state = ND_STATE_PAUSED;
+
+#ifdef NETWORK
+			if (Game_mode & GM_MULTI)
+				multi_send_endlevel_start(1);
+#endif
+#ifdef NETWORK
+			if (Game_mode & GM_NETWORK)
+				multi_do_protocol_frame(1, 1);
+#endif
+			PlayerFinishedLevel(1);		//1 means go to secret level
+			Control_center_destroyed = 0;
+			return 1;
+		}
+
+		if (Triggers[trigger_num].flags & TRIGGER_ENERGY_DRAIN) {
+			Players[Player_num].energy -= Triggers[trigger_num].value;
+		}
+	}
+
+	if (Triggers[trigger_num].flags & TRIGGER_CONTROL_DOORS) {
+		do_link(trigger_num);
+	}
+
+	if (Triggers[trigger_num].flags & TRIGGER_MATCEN) {
+		if (!(Game_mode & GM_MULTI) || (Game_mode & GM_MULTI_ROBOTS))
+			do_matcen(trigger_num);
+	}
+
+	if (Triggers[trigger_num].flags & TRIGGER_ILLUSION_ON) {
+		do_il_on(trigger_num);
+	}
+
+	if (Triggers[trigger_num].flags & TRIGGER_ILLUSION_OFF) {
+		do_il_off(trigger_num);
+	}
+#elif defined(DXX_BUILD_DESCENT_II)
+	trigger *trig = &Triggers[trigger_num];
 
 	if (trig->flags & TF_DISABLED)
 		return 1;		//1 means don't send trigger hit to other players
@@ -513,6 +571,7 @@ int check_trigger_sub(int trigger_num, int pnum,int shot)
 			Int3();
 			break;
 	}
+#endif
 
 	return 0;
 }
@@ -522,16 +581,24 @@ int check_trigger_sub(int trigger_num, int pnum,int shot)
 void check_trigger(segment *seg, short side, short objnum,int shot)
 {
 	int wall_num, trigger_num;	//, ctrigger_num;
-	//segment *csegp;
- 	//short cside;
 
 	if ((Game_mode & GM_MULTI) && (Players[Player_num].connected != CONNECT_PLAYING)) // as a host we may want to handle triggers for our clients. so this function may be called when we are not playing.
 		return;
 
-	if ((objnum == Players[Player_num].objnum) || ((Objects[objnum].type == OBJ_ROBOT) && (Robot_info[Objects[objnum].id].companion))) {
+#if defined(DXX_BUILD_DESCENT_I)
+	if (objnum == Players[Player_num].objnum)
+#elif defined(DXX_BUILD_DESCENT_II)
+	if ((objnum == Players[Player_num].objnum) || ((Objects[objnum].type == OBJ_ROBOT) && (Robot_info[Objects[objnum].id].companion)))
+#endif
+	{
 
+#if defined(DXX_BUILD_DESCENT_I)
+		if ( Newdemo_state == ND_STATE_PLAYBACK )
+			return;
+#elif defined(DXX_BUILD_DESCENT_II)
 		if ( Newdemo_state == ND_STATE_RECORDING )
 			newdemo_record_trigger( seg-Segments, side, objnum,shot);
+#endif
 
 		wall_num = seg->sides[side].wall_num;
 		if ( wall_num == -1 ) return;
@@ -544,6 +611,25 @@ void check_trigger(segment *seg, short side, short objnum,int shot)
 		if (check_trigger_sub(trigger_num, Player_num,shot))
 			return;
 
+#if defined(DXX_BUILD_DESCENT_I)
+		if (Triggers[trigger_num].flags & TRIGGER_ONE_SHOT) {
+			int ctrigger_num;
+			segment *csegp;
+			short cside;
+			Triggers[trigger_num].flags &= ~TRIGGER_ON;
+	
+			csegp = &Segments[seg->children[side]];
+			cside = find_connect_side(seg, csegp);
+			Assert(cside != -1);
+		
+			wall_num = csegp->sides[cside].wall_num;
+			if ( wall_num == -1 ) return;
+			
+			ctrigger_num = Walls[wall_num].trigger;
+	
+			Triggers[ctrigger_num].flags &= ~TRIGGER_ON;
+		}
+#endif
 #ifdef NETWORK
 		if (Game_mode & GM_MULTI)
 			multi_send_trigger(trigger_num);
@@ -563,7 +649,11 @@ void triggers_frame_process()
 /*
  * reads a v29_trigger structure from a PHYSFS_file
  */
+#if defined(DXX_BUILD_DESCENT_I)
+extern void trigger_read(trigger *t, PHYSFS_file *fp)
+#elif defined(DXX_BUILD_DESCENT_II)
 extern void v29_trigger_read(v29_trigger *t, PHYSFS_file *fp)
+#endif
 {
 	int i;
 
@@ -579,6 +669,7 @@ extern void v29_trigger_read(v29_trigger *t, PHYSFS_file *fp)
 		t->side[i] = PHYSFSX_readShort(fp);
 }
 
+#if defined(DXX_BUILD_DESCENT_II)
 /*
  * reads a v30_trigger structure from a PHYSFS_file
  */
@@ -615,6 +706,7 @@ extern void trigger_read(trigger *t, PHYSFS_file *fp)
 	for (i=0; i<MAX_WALLS_PER_LINK; i++ )
 		t->side[i] = PHYSFSX_readShort(fp);
 }
+#endif
 
 void trigger_swap(trigger *t, int swap)
 {
@@ -623,6 +715,10 @@ void trigger_swap(trigger *t, int swap)
 	if (!swap)
 		return;
 
+#if defined(DXX_BUILD_DESCENT_I)
+	t->flags = SWAPSHORT(t->flags);
+	t->num_links = SWAPSHORT(t->num_links);
+#endif
 	t->value = SWAPINT(t->value);
 	t->time = SWAPINT(t->time);
 	for (i=0; i<MAX_WALLS_PER_LINK; i++ )
@@ -652,9 +748,31 @@ void trigger_write(trigger *t, short version, PHYSFS_file *fp)
 	if (version <= 29)
 		PHYSFSX_writeU8(fp, 0);		// unused 'type'
 	else if (version >= 31)
+	{
+#if defined(DXX_BUILD_DESCENT_I)
+		if (t->flags & TRIGGER_CONTROL_DOORS)
+			PHYSFSX_writeU8(fp, 0); // door
+		else if (t->flags & TRIGGER_MATCEN)
+			PHYSFSX_writeU8(fp, 2); // matcen
+		else if (t->flags & TRIGGER_EXIT)
+			PHYSFSX_writeU8(fp, 3); // exit
+		else if (t->flags & TRIGGER_SECRET_EXIT)
+			PHYSFSX_writeU8(fp, 4); // secret exit
+		else if (t->flags & TRIGGER_ILLUSION_OFF)
+			PHYSFSX_writeU8(fp, 5); // illusion off
+		else if (t->flags & TRIGGER_ILLUSION_ON)
+			PHYSFSX_writeU8(fp, 6); // illusion on
+#elif defined(DXX_BUILD_DESCENT_II)
 		PHYSFSX_writeU8(fp, t->type);
+#endif
+	}
 
 	if (version <= 30)
+#if defined(DXX_BUILD_DESCENT_I)
+		PHYSFS_writeSLE16(fp, t->flags);
+	else
+		PHYSFSX_writeU8(fp, (t->flags & TRIGGER_ONE_SHOT) ? 2 : 0);		// flags
+#elif defined(DXX_BUILD_DESCENT_II)
 		switch (t->type)
 		{
 			case TT_OPEN_DOOR:
@@ -704,11 +822,16 @@ void trigger_write(trigger *t, short version, PHYSFS_file *fp)
 		}
 	else
 		PHYSFSX_writeU8(fp, t->flags);
+#endif
 
 	if (version >= 30)
 	{
 		PHYSFSX_writeU8(fp, t->num_links);
+#if defined(DXX_BUILD_DESCENT_I)
+		PHYSFSX_writeU8(fp, 0);	// t->pad
+#elif defined(DXX_BUILD_DESCENT_II)
 		PHYSFSX_writeU8(fp, t->pad);
+#endif
 	}
 
 	PHYSFSX_writeFix(fp, t->value);
@@ -716,7 +839,11 @@ void trigger_write(trigger *t, short version, PHYSFS_file *fp)
 
 	if (version <= 29)
 	{
+#if defined(DXX_BUILD_DESCENT_I)
+		PHYSFSX_writeU8(fp, t->link_num);
+#elif defined(DXX_BUILD_DESCENT_II)
 		PHYSFSX_writeU8(fp, -1);	//t->link_num
+#endif
 		PHYSFS_writeSLE16(fp, t->num_links);
 	}
 
