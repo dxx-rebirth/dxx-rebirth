@@ -8,7 +8,7 @@ SUCH USE, DISPLAY OR CREATION IS FOR NON-COMMERCIAL, ROYALTY OR REVENUE
 FREE PURPOSES.  IN NO EVENT SHALL THE END-USER USE THE COMPUTER CODE
 CONTAINED HEREIN FOR REVENUE-BEARING PURPOSES.  THE END-USER UNDERSTANDS
 AND AGREES TO THE TERMS HEREIN AND ACCEPTS THE SAME BY USE OF THIS FILE.
-COPYRIGHT 1993-1998 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
+COPYRIGHT 1993-1999 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 */
 
 /*
@@ -22,7 +22,6 @@ COPYRIGHT 1993-1998 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 
 #include "segment.h"
 #include "object.h"
-#include "switch.h"
 
 //------------------------------------------------------------
 // A refueling center is one segment... to identify it in the
@@ -66,7 +65,7 @@ void fuelcen_replentish_all();
 // Create a matcen robot
 extern object *create_morph_robot(segment *segp, vms_vector *object_pos, int object_id);
 
-// Returns the amount of fuel this segment can give up.
+// Returns the amount of fuel/shields this segment can give up.
 // Can be from 0 to 100.
 fix fuelcen_give_fuel(segment *segp, fix MaxAmountCanTake );
 
@@ -79,7 +78,12 @@ void fuelcen_damage(segment *segp, fix AmountOfDamage );
 // Called to repair an object
 //--repair-- int refuel_do_repair_effect( object * obj, int first_time, int repair_seg );
 
+#if defined(DXX_BUILD_DESCENT_I)
 #define MAX_NUM_FUELCENS	50
+#elif defined(DXX_BUILD_DESCENT_II)
+fix repaircen_give_shields(segment *segp, fix MaxAmountCanTake );
+#define MAX_NUM_FUELCENS    70
+#endif
 
 extern char Special_names[MAX_CENTER_TYPES][11];
 
@@ -114,18 +118,27 @@ typedef struct FuelCenter {
 
 extern int Num_robot_centers;
 
-typedef struct matcen_info {
+typedef struct  {
 	int     robot_flags[1];    // Up to 32 different robots
 	fix     hit_points;     // How hard it is to destroy this particular matcen
 	fix     interval;       // Interval between materialogrifizations
 	short   segnum;         // Segment this is attached to.
 	short   fuelcen_num;    // Index in fuelcen array.
+} __pack__ d1_matcen_info;
+
+#if defined(DXX_BUILD_DESCENT_I)
+typedef d1_matcen_info matcen_info;
+#elif defined(DXX_BUILD_DESCENT_II)
+typedef struct matcen_info {
+	int     robot_flags[2]; // Up to 64 different robots
+	fix     hit_points;     // How hard it is to destroy this particular matcen
+	fix     interval;       // Interval between materialogrifizations
+	short   segnum;         // Segment this is attached to.
+	short   fuelcen_num;    // Index in fuelcen array.
 } __pack__ matcen_info;
+#endif
 
 extern matcen_info RobotCenters[MAX_ROBOT_CENTERS];
-
-extern int Fuelcen_control_center_dead_modelnum;
-extern fix Fuelcen_control_center_strength;
 
 //--repair-- extern object *RepairObj;  // which object getting repaired, or NULL
 
@@ -142,10 +155,24 @@ extern void init_all_matcens(void);
 
 extern fix EnergyToCreateOneRobot;
 
+#if defined(DXX_BUILD_DESCENT_I)
 /*
  * reads a matcen_info structure from a PHYSFS_file
  */
 void matcen_info_read(matcen_info *ps, PHYSFS_file *fp, int version);
+#elif defined(DXX_BUILD_DESCENT_II)
+void fuelcen_check_for_hoard_goal(segment *segp);
+
+/*
+ * reads an d1_matcen_info structure from a PHYSFS_file
+ */
+void d1_matcen_info_read(d1_matcen_info *mi, PHYSFS_file *fp);
+
+/*
+ * reads a matcen_info structure from a PHYSFS_file
+ */
+void matcen_info_read(matcen_info *ps, PHYSFS_file *fp);
+#endif
 
 /*
  * reads n matcen_info structs from a PHYSFS_file and swaps if specified
@@ -155,7 +182,7 @@ void matcen_info_read_n_swap(matcen_info *mi, int n, int swap, PHYSFS_file *fp);
 void matcen_info_write(matcen_info *mi, short version, PHYSFS_file *fp);
 
 /*
- * reads n FuelCenter structs from a PHYSFS_file and swaps if specified
+ * reads n Station structs from a PHYSFS_file and swaps if specified
  */
 void fuelcen_read_n_swap(FuelCenter *fc, int n, int swap, PHYSFS_file *fp);
 
