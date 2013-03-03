@@ -25,8 +25,6 @@ COPYRIGHT 1993-1999 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 #include "sounds.h"
 #include "inferno.h"
 
-#define D1_PIGFILE              "descent.pig"
-
 #define D1_SHARE_BIG_PIGSIZE    5092871 // v1.0 - 1.4 before RLE compression
 #define D1_SHARE_10_PIGSIZE     2529454 // v1.0 - 1.2
 #define D1_SHARE_PIGSIZE        2509799 // v1.4
@@ -37,6 +35,8 @@ COPYRIGHT 1993-1999 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 #define D1_MAC_PIGSIZE          3975533
 #define D1_MAC_SHARE_PIGSIZE    2714487
 
+#if defined(DXX_BUILD_DESCENT_II)
+#define D1_PIGFILE              "descent.pig"
 #define MAX_ALIASES 20
 
 typedef struct alias {
@@ -48,11 +48,23 @@ extern alias alias_list[MAX_ALIASES];
 extern int Num_aliases;
 
 extern int Piggy_hamfile_version;
+extern int Pigfile_initialized;
+#endif
 
 // an index into the bitmap collection of the piggy file
 typedef struct bitmap_index {
 	ushort index;
 } __pack__ bitmap_index;
+
+#if defined(DXX_BUILD_DESCENT_I)
+extern int MacPig;
+extern int PCSharePig;
+
+extern ubyte bogus_data[64 * 64];
+extern grs_bitmap bogus_bitmap;
+extern ubyte bogus_bitmap_initialized;
+extern digi_sound bogus_sound;
+#endif
 
 int properties_init();
 void piggy_close();
@@ -62,8 +74,6 @@ int piggy_register_sound( digi_sound * snd, char * name, int in_file );
 bitmap_index piggy_find_bitmap( char * name );
 int piggy_find_sound( char * name );
 
-extern int Pigfile_initialized;
-
 void piggy_read_bitmap_data(grs_bitmap * bmp);
 void piggy_read_sound_data(digi_sound *snd);
 
@@ -71,17 +81,28 @@ void piggy_load_level_data();
 
 char* piggy_game_bitmap_name(grs_bitmap *bmp);
 
+#if defined(DXX_BUILD_DESCENT_I)
+#ifdef SHAREWARE
+#define MAX_BITMAP_FILES	1500
+#define MAX_SOUND_FILES     MAX_SOUNDS
+#else
+#define MAX_BITMAP_FILES	1800
+#define MAX_SOUND_FILES     MAX_SOUNDS
+#endif
+#define PIGGY_PC_SHAREWARE 2
+#elif defined(DXX_BUILD_DESCENT_II)
 #define MAX_BITMAP_FILES    2620 // Upped for CD Enhanced
 #define MAX_SOUND_FILES     MAX_SOUNDS
-
-extern digi_sound GameSounds[MAX_SOUND_FILES];
-extern grs_bitmap GameBitmaps[MAX_BITMAP_FILES];
+#endif
 
 
 extern void piggy_bitmap_page_in( bitmap_index bmp );
 extern void piggy_bitmap_page_out_all();
 extern int piggy_page_flushed;
 
+#if defined(DXX_BUILD_DESCENT_I) || defined(DXX_BUILD_DESCENT_II)
+extern digi_sound GameSounds[MAX_SOUND_FILES];
+extern grs_bitmap GameBitmaps[MAX_BITMAP_FILES];
 /* Make GNUC use static inline function as #define with backslash continuations causes problems with dos linefeeds */
 # ifdef __GNUC__
 #  define  PIGGY_PAGE_IN(bmp) _piggy_page_in(bmp)
@@ -100,8 +121,12 @@ do {					\
 	}				\
 } while(0)
 # endif /* __GNUC__ */
+#endif
 
-void piggy_read_sounds();
+#if defined(DXX_BUILD_DESCENT_I)
+void piggy_read_sounds(int pc_shareware);
+#elif defined(DXX_BUILD_DESCENT_II)
+void piggy_read_sounds(void);
 
 //reads in a new pigfile (for new palette)
 //returns the size of all the bitmap data
@@ -113,6 +138,12 @@ void load_bitmap_replacements(char *level_name);
 void load_d1_bitmap_replacements();
 
 /*
+ * Find and load the named bitmap from descent.pig
+ */
+bitmap_index read_extra_bitmap_d1_pig(char *name);
+#endif
+
+/*
  * reads a bitmap_index structure from a PHYSFS_file
  */
 void bitmap_index_read(bitmap_index *bi, PHYSFS_file *fp);
@@ -121,11 +152,6 @@ void bitmap_index_read(bitmap_index *bi, PHYSFS_file *fp);
  * reads n bitmap_index structs from a PHYSFS_file
  */
 int bitmap_index_read_n(bitmap_index *bi, int n, PHYSFS_file *fp);
-
-/*
- * Find and load the named bitmap from descent.pig
- */
-bitmap_index read_extra_bitmap_d1_pig(char *name);
 
 extern void remove_char( char * s, char c );	// in piggy.c
 #define REMOVE_EOL(s)		remove_char((s),'\n')
