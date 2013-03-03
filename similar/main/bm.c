@@ -53,6 +53,10 @@ COPYRIGHT 1993-1999 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 #include "physfsx.h"
 #include "internal.h"
 
+#ifdef EDITOR
+#include "editor/texpage.h"
+#endif
+
 ubyte Sounds[MAX_SOUNDS];
 ubyte AltSounds[MAX_SOUNDS];
 
@@ -60,10 +64,18 @@ ubyte AltSounds[MAX_SOUNDS];
 int Num_object_subtypes = 1;
 #endif
 
+#if defined(DXX_BUILD_DESCENT_I)
+int Num_total_object_types;
+
+sbyte	ObjType[MAX_OBJTYPE];
+sbyte	ObjId[MAX_OBJTYPE];
+fix	ObjStrength[MAX_OBJTYPE];
+#elif defined(DXX_BUILD_DESCENT_II)
 //the polygon model number to use for the marker
 int	Marker_model_num = -1;
 int             N_ObjBitmaps;
 static void bm_free_extra_objbitmaps();
+#endif
 
 //for each model, a model number for dying & dead variants, or -1 if none
 int Dying_modelnums[MAX_POLYGON_MODELS];
@@ -91,6 +103,134 @@ ushort          ObjBitmapPtrs[MAX_OBJ_BITMAPS];     // These point back into Obj
 /*
  * reads n tmap_info structs from a PHYSFS_file
  */
+#if defined(DXX_BUILD_DESCENT_I)
+static int tmap_info_read_n(tmap_info *ti, int n, PHYSFS_file *fp)
+{
+	int i;
+
+	for (i = 0; i < n; i++) {
+		PHYSFS_read(fp, TmapInfo[i].filename, 13, 1);
+		ti[i].flags = PHYSFSX_readByte(fp);
+		ti[i].lighting = PHYSFSX_readFix(fp);
+		ti[i].damage = PHYSFSX_readFix(fp);
+		ti[i].eclip_num = PHYSFSX_readInt(fp);
+	}
+	return i;
+}
+
+void gamedata_close()
+{
+	free_polygon_models();
+	free_endlevel_data();
+	rle_cache_close();
+	piggy_close();
+}
+
+//-----------------------------------------------------------------
+// Initializes game properties data (including texture caching system) and sound data.
+int gamedata_init()
+{
+	int retval;
+	
+	init_polygon_models();
+	init_endlevel();//adb: added, is also in bm_init_use_tbl (Chris: *Was* in bm_init_use_tbl)
+	retval = properties_init();				// This calls properties_read_cmp if appropriate
+	if (retval)
+		gamedata_read_tbl(retval == PIGGY_PC_SHAREWARE);
+
+	piggy_read_sounds(retval == PIGGY_PC_SHAREWARE);
+	
+	return 0;
+}
+
+// Read compiled properties data from descent.pig
+void properties_read_cmp(PHYSFS_file * fp)
+{
+	int i;
+
+	//  bitmap_index is a short
+	
+	NumTextures = PHYSFSX_readInt(fp);
+	bitmap_index_read_n(Textures, MAX_TEXTURES, fp );
+	tmap_info_read_n(TmapInfo, MAX_TEXTURES, fp);
+
+	PHYSFS_read( fp, Sounds, sizeof(ubyte), MAX_SOUNDS );
+	PHYSFS_read( fp, AltSounds, sizeof(ubyte), MAX_SOUNDS );
+	
+	Num_vclips = PHYSFSX_readInt(fp);
+	vclip_read_n(Vclip, VCLIP_MAXNUM, fp);
+
+	Num_effects = PHYSFSX_readInt(fp);
+	eclip_read_n(Effects, MAX_EFFECTS, fp);
+
+	Num_wall_anims = PHYSFSX_readInt(fp);
+	wclip_read_n(WallAnims, MAX_WALL_ANIMS, fp);
+
+	N_robot_types = PHYSFSX_readInt(fp);
+	robot_info_read_n(Robot_info, MAX_ROBOT_TYPES, fp);
+
+	N_robot_joints = PHYSFSX_readInt(fp);
+	jointpos_read_n(Robot_joints, MAX_ROBOT_JOINTS, fp);
+
+	N_weapon_types = PHYSFSX_readInt(fp);
+	weapon_info_read_n(Weapon_info, MAX_WEAPON_TYPES, fp, 0);
+
+	N_powerup_types = PHYSFSX_readInt(fp);
+	powerup_type_info_read_n(Powerup_info, MAX_POWERUP_TYPES, fp);
+
+	N_polygon_models = PHYSFSX_readInt(fp);
+	polymodel_read_n(Polygon_models, N_polygon_models, fp);
+
+	for (i=0; i<N_polygon_models; i++ )
+		polygon_model_data_read(&Polygon_models[i], fp);
+
+	bitmap_index_read_n(Gauges, MAX_GAUGE_BMS, fp);
+	
+	for (i = 0; i < MAX_POLYGON_MODELS; i++)
+		Dying_modelnums[i] = PHYSFSX_readInt(fp);
+	for (i = 0; i < MAX_POLYGON_MODELS; i++)
+		Dead_modelnums[i] = PHYSFSX_readInt(fp);
+
+	bitmap_index_read_n(ObjBitmaps, MAX_OBJ_BITMAPS, fp);
+	for (i = 0; i < MAX_OBJ_BITMAPS; i++)
+		ObjBitmapPtrs[i] = PHYSFSX_readShort(fp);
+
+	player_ship_read(&only_player_ship, fp);
+
+	Num_cockpits = PHYSFSX_readInt(fp);
+	bitmap_index_read_n(cockpit_bitmap, N_COCKPIT_BITMAPS, fp);
+
+	PHYSFS_read( fp, Sounds, sizeof(ubyte), MAX_SOUNDS );
+	PHYSFS_read( fp, AltSounds, sizeof(ubyte), MAX_SOUNDS );
+
+	Num_total_object_types = PHYSFSX_readInt(fp);
+	PHYSFS_read( fp, ObjType, sizeof(ubyte), MAX_OBJTYPE );
+	PHYSFS_read( fp, ObjId, sizeof(ubyte), MAX_OBJTYPE );
+	for (i = 0; i < MAX_OBJTYPE; i++)
+		ObjStrength[i] = PHYSFSX_readFix(fp);
+
+	First_multi_bitmap_num = PHYSFSX_readInt(fp);
+	Reactors[0].n_guns = PHYSFSX_readInt(fp);
+
+	for (i = 0; i < MAX_CONTROLCEN_GUNS; i++)
+		PHYSFSX_readVector(&Reactors[0].gun_points[i], fp);
+	for (i = 0; i < MAX_CONTROLCEN_GUNS; i++)
+		PHYSFSX_readVector(&Reactors[0].gun_dirs[i], fp);
+
+	exit_modelnum = PHYSFSX_readInt(fp);	
+	destroyed_exit_modelnum = PHYSFSX_readInt(fp);
+
+        #ifdef EDITOR
+        //Build tmaplist
+        Num_tmaps = 0;
+         for (i=0; i < TextureEffects; i++)
+          TmapList[Num_tmaps++] = i;
+         for (i=0; i < Num_effects; i++)
+          if (Effects[i].changing_wall_texture >= 0)
+           TmapList[Num_tmaps++] = Effects[i].changing_wall_texture;
+        #endif
+}
+#elif defined(DXX_BUILD_DESCENT_II)
 static int tmap_info_read_n(tmap_info *ti, int n, PHYSFS_file *fp)
 {
 	int i;
@@ -567,6 +707,7 @@ int load_exit_models()
 
 	return 1;
 }
+#endif
 
 void compute_average_rgb(grs_bitmap *bm, fix *rgb)
 {
