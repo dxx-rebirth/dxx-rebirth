@@ -237,6 +237,7 @@ class DXXArchive(DXXCommon):
 ]
 ]
 	editor_sources = [os.path.join(srcdir, f) for f in [
+'ui/uidraw.c',
 'ui/userbox.c'
 ]
 ]
@@ -532,7 +533,6 @@ class D1XProgram(DXXProgram):
 'ui/radio.c',
 'ui/scroll.c',
 'ui/ui.c',
-'ui/uidraw.c',
 ]
 ]
 		DXXProgram.__init__(self)
@@ -756,7 +756,6 @@ class D2XProgram(DXXProgram):
 'ui/radio.c',
 'ui/scroll.c',
 'ui/ui.c',
-'ui/uidraw.c',
 ]
 ]
 		DXXProgram.__init__(self)
