@@ -131,6 +131,8 @@ typedef struct ai_static {
 	short   danger_laser_num;
 } __pack__ ai_static;
 
+typedef ai_static ai_static_rw;
+
 // Rather temporal AI stuff.
 typedef struct ai_local {
 // These used to be bytes, changed to ints so I could set watchpoints on them.

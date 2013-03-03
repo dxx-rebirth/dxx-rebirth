@@ -8,7 +8,7 @@ SUCH USE, DISPLAY OR CREATION IS FOR NON-COMMERCIAL, ROYALTY OR REVENUE
 FREE PURPOSES.  IN NO EVENT SHALL THE END-USER USE THE COMPUTER CODE
 CONTAINED HEREIN FOR REVENUE-BEARING PURPOSES.  THE END-USER UNDERSTANDS
 AND AGREES TO THE TERMS HEREIN AND ACCEPTS THE SAME BY USE OF THIS FILE.
-COPYRIGHT 1993-1998 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
+COPYRIGHT 1993-1999 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 */
 
 /*
@@ -54,11 +54,18 @@ enum object_type_t
 	OBJ_GHOST	= 12,  // what the player turns into when dead
 	OBJ_LIGHT	= 13,  // a light source, & not much else
 	OBJ_COOP	= 14,  // a cooperative player object.
+#if defined(DXX_BUILD_DESCENT_II)
+	OBJ_MARKER	= 15,  // a map marker
+#endif
 };
 
 // WARNING!! If you add a type here, add its name to Object_type_names
 // in object.c
+#if defined(DXX_BUILD_DESCENT_I)
 #define MAX_OBJECT_TYPES	15
+#elif defined(DXX_BUILD_DESCENT_II)
+#define MAX_OBJECT_TYPES    16
+#endif
 
 // Result types
 #define RESULT_NOTHING  0   // Ignore this collision
@@ -102,6 +109,9 @@ enum object_type_t
 #define OF_SILENT           8   // this makes no sound when it hits a wall.  Added by MK for weapons, if you extend it to other types, do it completely!
 #define OF_ATTACHED         16  // this object is a fireball attached to another object
 #define OF_HARMLESS         32  // this object does no damage.  Added to make quad lasers do 1.5 damage as normal lasers.
+#if defined(DXX_BUILD_DESCENT_II)
+#define OF_PLAYER_DROPPED   64  // this object was dropped by the player...
+#endif
 
 // Different Weapon ID types...
 #define WEAPON_ID_LASER         0
@@ -119,6 +129,13 @@ enum object_type_t
 #define PF_STICK            0x10    // object sticks (stops moving) when hits wall
 #define PF_PERSISTENT       0x20    // object keeps going even after it hits another object (eg, fusion cannon)
 #define PF_USES_THRUST      0x40    // this object uses its thrust
+#if defined(DXX_BUILD_DESCENT_II)
+#define PF_BOUNCED_ONCE     0x80    // Weapon has bounced once.
+#define PF_FREE_SPINNING    0x100   // Drag does not apply to rotation of this object
+#define PF_BOUNCES_TWICE    0x200   // This weapon bounces twice, then dies
+
+#define PF_SPAT_BY_PLAYER   1   //this powerup was spat by the player
+#endif
 
 #define IMMORTAL_TIME   0x3fffffff  // Time assigned to immortal objects, about 32768 seconds, or about 9 hours.
 
@@ -132,7 +149,13 @@ extern char Object_type_names[MAX_OBJECT_TYPES][9];
  * STRUCTURES
  */
 
+#if defined(DXX_BUILD_DESCENT_I)
 #define MAX_CONTROLCEN_GUNS     4
+#define MAX_RENDERED_WINDOWS    1
+#elif defined(DXX_BUILD_DESCENT_II)
+#define MAX_CONTROLCEN_GUNS     8
+#define MAX_RENDERED_WINDOWS    3
+#endif
 
 struct reactor_static {
 	/* Location of the gun on the reactor object */
@@ -156,7 +179,6 @@ typedef struct quaternionpos {
 	vms_vector vel;
 	vms_vector rotvel;
 } __pack__ quaternionpos;
-
 
 // This is specific to the shortpos extraction routines in gameseg.c.
 #define RELPOS_PRECISION    10
@@ -217,7 +239,22 @@ typedef struct light_info {
 
 typedef struct powerup_info {
 	int     count;          // how many/much we pick up (vulcan cannon only?)
+#if defined(DXX_BUILD_DESCENT_II)
+	fix64   creation_time;  // Absolute time of creation.
+	int     flags;          // spat by player?
+#endif
 } __pack__ powerup_info;
+
+#if defined(DXX_BUILD_DESCENT_I)
+typedef powerup_info powerup_info_rw;
+#elif defined(DXX_BUILD_DESCENT_II)
+// Same as above but structure Savegames/Multiplayer objects expect
+typedef struct powerup_info_rw {
+	int     count;          // how many/much we pick up (vulcan cannon only?)
+	fix     creation_time;  // Absolute time of creation.
+	int     flags;          // spat by player?
+} __pack__ powerup_info_rw;
+#endif
 
 typedef struct vclip_info {
 	int     vclip_num;
@@ -323,16 +360,16 @@ typedef struct object_rw {
 
 	// control info, determined by CONTROL_TYPE
 	union {
-		struct laser_info_rw   laser_info;
-		struct explosion_info  expl_info;      // NOTE: debris uses this also
-		struct ai_static    ai_info;
+		laser_info_rw   laser_info;
+		explosion_info  expl_info;      // NOTE: debris uses this also
+		ai_static_rw    ai_info;
 		struct light_info      light_info;     // why put this here?  Didn't know what else to do with it.
-		struct powerup_info powerup_info;
+		powerup_info_rw powerup_info;
 	} __pack__ ctype ;
 
 	// render info, determined by RENDER_TYPE
 	union {
-		struct polyobj_info    pobj_info;      // polygon model
+		polyobj_info    pobj_info;      // polygon model
 		struct vclip_info      vclip_info;     // vclip
 	} __pack__ rtype;
 
@@ -347,12 +384,17 @@ typedef struct obj_position {
 	short       segnum;     // segment number containing object
 } obj_position;
 
+#if defined(DXX_BUILD_DESCENT_I) || defined(DXX_BUILD_DESCENT_II)
 typedef struct {
+#if defined(DXX_BUILD_DESCENT_II)
+	fix64   time;
+	object  *viewer;
+	int     rear_view;
+#endif
 	int     num_objects;
 	short   rendered_objects[MAX_RENDERED_OBJECTS];
 } window_rendered_data;
-
-#define MAX_RENDERED_WINDOWS    1
+#endif
 
 extern window_rendered_data Window_rendered_data[MAX_RENDERED_WINDOWS];
 
@@ -531,7 +573,15 @@ void obj_attach(object *parent,object *sub);
 
 extern void create_small_fireball_on_object(object *objp, fix size_scale, int sound_flag);
 
+#if defined(DXX_BUILD_DESCENT_II)
+// returns object number
+int drop_marker_object(vms_vector *pos, int segnum, vms_matrix *orient, int marker_num);
+
+extern void wake_up_rendered_objects(object *gmissp, int window_num);
+
+void reset_player_object(void);
+#endif
+
 extern void object_rw_swap(object_rw *obj_rw, int swap);
 
 #endif
- 
