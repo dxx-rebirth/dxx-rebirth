@@ -297,7 +297,7 @@ class DXXProgram(DXXCommon):
 			DXXCommon.Win32PlatformSettings.adjust_environment(self, program, env)
 			env.RES('arch/win32/%s.rc' % program.target)
 			env.Append(CPPPATH = [os.path.join(self.srcdir, 'arch/win32/include')])
-			self.platform_sources = [os.path.join(program.srcdir, 'arch/win32/messagebox.c')]
+			self.platform_sources = ['common/arch/win32/messagebox.c']
 	# Settings to apply to Apple builds
 	# This appears to be unused.  The reference to sdl_only fails to
 	# execute.
