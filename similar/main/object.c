@@ -133,7 +133,9 @@ char	Object_type_names[MAX_OBJECT_TYPES][9] = {
 	"GHOST   ",
 	"LIGHT   ",
 	"COOP    ",
+#if defined(DXX_BUILD_DESCENT_II)
 	"MARKER  ",
+#endif
 };
 #endif
 
@@ -160,6 +162,7 @@ void object_goto_next_viewer()
 
 }
 
+#if defined(DXX_BUILD_DESCENT_II)
 //set viewer object to next object in array
 void object_goto_prev_viewer()
 {
@@ -182,6 +185,7 @@ void object_goto_prev_viewer()
 
 }
 #endif
+#endif
 
 object *obj_find_first_of_type (int type)
 {
@@ -193,6 +197,7 @@ object *obj_find_first_of_type (int type)
 	return ((object *)NULL);
 }
 
+#if defined(DXX_BUILD_DESCENT_II)
 int obj_return_num_of_type (int type)
 {
 	int i,count=0;
@@ -211,6 +216,7 @@ int obj_return_num_of_typeid (int type,int id)
 			count++;
 	return (count);
 }
+#endif
 
 //draw an object that has one bitmap & doesn't rotate
 void draw_object_blob(object *obj,bitmap_index bmi)
@@ -245,7 +251,9 @@ void draw_object_tmap_rod(object *obj,bitmap_index bitmapi,int lighted)
 
 	PIGGY_PAGE_IN(bitmapi);
 
+#if defined(DXX_BUILD_DESCENT_II)
 	bitmap->bm_handle = bitmapi.index;
+#endif
 
 	vm_vec_copy_scale(&delta,&obj->orient.uvec,obj->size);
 
@@ -284,7 +292,7 @@ extern fix Max_thrust;
 #define	CLOAK_FADEOUT_DURATION_ROBOT	F1_0
 
 //do special cloaked render
-void draw_cloaked_object(object *obj,g3s_lrgb light,fix *glow,fix64 cloak_start_time,fix64 cloak_end_time)
+static void draw_cloaked_object(object *obj,g3s_lrgb light,fix *glow,fix64 cloak_start_time,fix64 cloak_end_time)
 {
 	fix cloak_delta_time,total_cloaked_time;
 	fix light_scale=F1_0;
@@ -313,13 +321,21 @@ void draw_cloaked_object(object *obj,g3s_lrgb light,fix *glow,fix64 cloak_start_
 
 	if (cloak_delta_time < Cloak_fadein_duration/2) {
 
+#if defined(DXX_BUILD_DESCENT_I)
+		light_scale = Cloak_fadein_duration/2 - cloak_delta_time;
+#elif defined(DXX_BUILD_DESCENT_II)
 		light_scale = fixdiv(Cloak_fadein_duration/2 - cloak_delta_time,Cloak_fadein_duration/2);
+#endif
 		fading = 1;
 
 	}
 	else if (cloak_delta_time < Cloak_fadein_duration) {
 
+#if defined(DXX_BUILD_DESCENT_I)
+		cloak_value = f2i((cloak_delta_time - Cloak_fadein_duration/2) * CLOAKED_FADE_LEVEL);
+#elif defined(DXX_BUILD_DESCENT_II)
 		cloak_value = f2i(fixdiv(cloak_delta_time - Cloak_fadein_duration/2,Cloak_fadein_duration/2) * CLOAKED_FADE_LEVEL);
+#endif
 
 	} else if (GameTime64 < cloak_end_time-Cloak_fadeout_duration) {
 		static int cloak_delta=0,cloak_dir=1;
@@ -343,24 +359,36 @@ void draw_cloaked_object(object *obj,g3s_lrgb light,fix *glow,fix64 cloak_start_
 	
 	} else if (GameTime64 < cloak_end_time-Cloak_fadeout_duration/2) {
 
+#if defined(DXX_BUILD_DESCENT_I)
+		cloak_value = f2i((total_cloaked_time - Cloak_fadeout_duration/2 - cloak_delta_time) * CLOAKED_FADE_LEVEL);
+#elif defined(DXX_BUILD_DESCENT_II)
 		cloak_value = f2i(fixdiv(total_cloaked_time - Cloak_fadeout_duration/2 - cloak_delta_time,Cloak_fadeout_duration/2) * CLOAKED_FADE_LEVEL);
+#endif
 
 	} else {
 
+#if defined(DXX_BUILD_DESCENT_I)
+		light_scale = Cloak_fadeout_duration/2 - (total_cloaked_time - cloak_delta_time);
+#elif defined(DXX_BUILD_DESCENT_II)
 		light_scale = fixdiv(Cloak_fadeout_duration/2 - (total_cloaked_time - cloak_delta_time),Cloak_fadeout_duration/2);
+#endif
 		fading = 1;
 	}
 
+	bitmap_index * alt_textures = NULL;
+#if defined(DXX_BUILD_DESCENT_II)
+	if (fading)
+#endif
+	{
+		if ( obj->rtype.pobj_info.alt_textures > 0 )
+		{
+			alt_textures = multi_player_textures[obj->rtype.pobj_info.alt_textures-1];
+		}
+	}
 
 	if (fading) {
 		fix save_glow;
 		g3s_lrgb new_light;
-		bitmap_index * alt_textures = NULL;
-
-#ifdef NETWORK
-		if ( obj->rtype.pobj_info.alt_textures > 0 )
-			alt_textures = multi_player_textures[obj->rtype.pobj_info.alt_textures-1];
-#endif
 
 		new_light.r = fixmul(light.r,light_scale);
 		new_light.g = fixmul(light.g,light_scale);
@@ -369,7 +397,7 @@ void draw_cloaked_object(object *obj,g3s_lrgb light,fix *glow,fix64 cloak_start_
 		glow[0] = fixmul(glow[0],light_scale);
 		draw_polygon_model(&obj->pos,
 				   &obj->orient,
-				   (vms_angvec *)&obj->rtype.pobj_info.anim_angles,
+				   obj->rtype.pobj_info.anim_angles,
 				   obj->rtype.pobj_info.model_num,obj->rtype.pobj_info.subobj_flags,
 				   new_light,
 				   glow,
@@ -382,11 +410,11 @@ void draw_cloaked_object(object *obj,g3s_lrgb light,fix *glow,fix64 cloak_start_
 		g3_set_special_render(draw_tmap_flat,NULL,NULL);		//use special flat drawer
 		draw_polygon_model(&obj->pos,
 				   &obj->orient,
-				   (vms_angvec *)&obj->rtype.pobj_info.anim_angles,
+				   obj->rtype.pobj_info.anim_angles,
 				   obj->rtype.pobj_info.model_num,obj->rtype.pobj_info.subobj_flags,
 				   light,
 				   glow,
-				   NULL );
+				   alt_textures );
 		g3_set_special_render(NULL,NULL,NULL);
 		gr_settransblend(GR_FADE_OFF, GR_BLEND_NORMAL);
 	}
@@ -398,17 +426,20 @@ void draw_polygon_object(object *obj)
 {
 	g3s_lrgb light;
 	int	imsave;
+#if defined(DXX_BUILD_DESCENT_I)
+	fix engine_glow_value[1];
+#elif defined(DXX_BUILD_DESCENT_II)
 	fix engine_glow_value[2];		//element 0 is for engine glow, 1 for headlight
+#endif
 
 	light = compute_object_light(obj,NULL);
 
 	//	If option set for bright players in netgame, brighten them!
-#ifdef NETWORK
 	if (Game_mode & GM_MULTI)
 		if (Netgame.BrightPlayers)
 			light.r = light.g = light.b = F1_0*2;
-#endif
 
+#if defined(DXX_BUILD_DESCENT_II)
 	//make robots brighter according to robot glow field
 	if (obj->type == OBJ_ROBOT)
 	{
@@ -433,7 +464,7 @@ void draw_polygon_object(object *obj)
 		light.g += F1_0*2;
 		light.b += F1_0*2;
 	}
-
+#endif
 
 	imsave = Interpolation_method;
 	if (Linear_tmap_polygon_objects)
@@ -449,10 +480,15 @@ void draw_polygon_object(object *obj)
 		}
 		else {
 			fix speed = vm_vec_mag_quick(&obj->mtype.phys_info.velocity);
+#if defined(DXX_BUILD_DESCENT_I)
+			engine_glow_value[0] += (fixdiv(speed,MAX_VELOCITY)*4)/5;
+#elif defined(DXX_BUILD_DESCENT_II)
 			engine_glow_value[0] += (fixdiv(speed,MAX_VELOCITY)*3)/5;
+#endif
 		}
 	}
 
+#if defined(DXX_BUILD_DESCENT_II)
 	//set value for player headlight
 	if (obj->type == OBJ_PLAYER) {
 		if (Players[obj->id].flags & PLAYER_FLAGS_HEADLIGHT && !Endlevel_sequence)
@@ -463,6 +499,7 @@ void draw_polygon_object(object *obj)
 		else
 			engine_glow_value[1] = -3;			//don't draw
 	}
+#endif
 
 	if (obj->rtype.pobj_info.tmap_override != -1) {
 #ifndef NDEBUG
@@ -479,7 +516,7 @@ void draw_polygon_object(object *obj)
 
 		draw_polygon_model(&obj->pos,
 				   &obj->orient,
-				   (vms_angvec *)&obj->rtype.pobj_info.anim_angles,
+				   obj->rtype.pobj_info.anim_angles,
 				   obj->rtype.pobj_info.model_num,
 				   obj->rtype.pobj_info.subobj_flags,
 				   light,
@@ -497,12 +534,10 @@ void draw_polygon_object(object *obj)
 				draw_cloaked_object(obj,light,engine_glow_value, GameTime64-F1_0*10, GameTime64+F1_0*10);
 		} else {
 			bitmap_index * alt_textures = NULL;
-	
-#ifdef NETWORK
 			if ( obj->rtype.pobj_info.alt_textures > 0 )
 				alt_textures = multi_player_textures[obj->rtype.pobj_info.alt_textures-1];
-#endif
 
+#if defined(DXX_BUILD_DESCENT_II)
 			//	Snipers get bright when they fire.
 			if (Ai_local_info[obj-Objects].next_fire < F1_0/8) {
 				if (obj->ctype.ai_info.behavior == AIB_SNIPE)
@@ -512,6 +547,7 @@ void draw_polygon_object(object *obj)
 					light.b = 2*light.b + F1_0;
 				}
 			}
+#endif
 
 			if (obj->type == OBJ_WEAPON && (Weapon_info[obj->id].model_num_inner > -1 )) {
 				fix dist_to_eye = vm_vec_dist_quick(&Viewer->pos, &obj->pos);
@@ -519,7 +555,7 @@ void draw_polygon_object(object *obj)
 				if (dist_to_eye < Simple_model_threshhold_scale * F1_0*2)
 					draw_polygon_model(&obj->pos,
 							   &obj->orient,
-							   (vms_angvec *)&obj->rtype.pobj_info.anim_angles,
+							   obj->rtype.pobj_info.anim_angles,
 							   Weapon_info[obj->id].model_num_inner,
 							   obj->rtype.pobj_info.subobj_flags,
 							   light,
@@ -529,7 +565,7 @@ void draw_polygon_object(object *obj)
 			
 			draw_polygon_model(&obj->pos,
 					   &obj->orient,
-					   (vms_angvec *)&obj->rtype.pobj_info.anim_angles,obj->rtype.pobj_info.model_num,
+					   obj->rtype.pobj_info.anim_angles,obj->rtype.pobj_info.model_num,
 					   obj->rtype.pobj_info.subobj_flags,
 					   light,
 					   engine_glow_value,
@@ -542,7 +578,7 @@ void draw_polygon_object(object *obj)
 				if (dist_to_eye < Simple_model_threshhold_scale * F1_0*2)
 					draw_polygon_model(&obj->pos,
 							   &obj->orient,
-							   (vms_angvec *)&obj->rtype.pobj_info.anim_angles,
+							   obj->rtype.pobj_info.anim_angles,
 							   Weapon_info[obj->id].model_num_inner,
 							   obj->rtype.pobj_info.subobj_flags,
 							   light,
@@ -658,7 +694,11 @@ void create_small_fireball_on_object(object *objp, fix size_scale, int sound_fla
 
 	vm_vec_add2(&pos, &rand_vec);
 
+#if defined(DXX_BUILD_DESCENT_I)
+	size = fixmul(size_scale, F1_0 + d_rand()*4);
+#elif defined(DXX_BUILD_DESCENT_II)
 	size = fixmul(size_scale, F1_0/2 + d_rand()*4/2);
+#endif
 
 	segnum = find_point_seg(&pos, objp->segnum);
 	if (segnum != -1) {
@@ -743,9 +783,10 @@ void render_object(object *obj)
 			break; //doesn't render, like the player
 
 		case RT_POLYOBJ:
+#if defined(DXX_BUILD_DESCENT_II)
 			if ( PlayerCfg.AlphaEffects && obj->type == OBJ_MARKER ) // set nice transparency/blending for certrain objects
 				gr_settransblend( 10, GR_BLEND_ADDITIVE_A );
-
+#endif
 			draw_polygon_object(obj);
 
 			if (obj->type == OBJ_ROBOT) //"warn" robot if being shot at
@@ -783,7 +824,9 @@ void render_object(object *obj)
 					case POW_SHIELD_BOOST:
 					case POW_CLOAK:
 					case POW_INVULNERABILITY:
+#if defined(DXX_BUILD_DESCENT_II)
 					case POW_HOARD_ORB:
+#endif
 						gr_settransblend( 7, GR_BLEND_ADDITIVE_A );
 						break;
 				}
@@ -853,8 +896,9 @@ void init_player_object()
 	ConsoleObject->type = OBJ_PLAYER;
 	ConsoleObject->id = 0;					//no sub-types for player
 
+#if defined(DXX_BUILD_DESCENT_II)
 	ConsoleObject->signature = 0;			//player has zero, others start at 1
-
+#endif
 	ConsoleObject->size = Polygon_models[Player_ship->model_num].rad;
 
 	ConsoleObject->control_type = CT_SLEW;			//default is player slewing
@@ -1351,8 +1395,10 @@ int obj_create(enum object_type_t type, ubyte id,int segnum,const vms_vector *po
 		obj->ctype.laser_info.multiplier = F1_0;
 	}
 
+#if defined(DXX_BUILD_DESCENT_II)
 	if (obj->control_type == CT_POWERUP)
 		obj->ctype.powerup_info.creation_time = GameTime64;
+#endif
 
 	if (obj->control_type == CT_EXPLOSION)
 		obj->ctype.expl_info.next_attach = obj->ctype.expl_info.prev_attach = obj->ctype.expl_info.attach_parent = -1;
@@ -1400,7 +1446,6 @@ extern void newdemo_record_guided_end();
 //remove object from the world
 void obj_delete(int objnum)
 {
-	int pnum;
 	object *obj = &Objects[objnum];
 
 	Assert(objnum != -1);
@@ -1408,9 +1453,10 @@ void obj_delete(int objnum)
 	Assert(obj->type != OBJ_NONE);
 	Assert(obj != ConsoleObject);
 
+#if defined(DXX_BUILD_DESCENT_II)
 	if (obj->type==OBJ_WEAPON && obj->id==GUIDEDMISS_ID && obj->ctype.laser_info.parent_type==OBJ_PLAYER)
 	{
-		pnum=Objects[obj->ctype.laser_info.parent_num].id;
+		int pnum=Objects[obj->ctype.laser_info.parent_num].id;
 
 		if (pnum!=Player_num) {
 			Guided_missile[pnum]=NULL;
@@ -1419,6 +1465,7 @@ void obj_delete(int objnum)
 			newdemo_record_guided_end();
 		
 	}
+#endif
 
 	if (obj == Viewer)		//deleting the viewer?
 		Viewer = ConsoleObject;						//..make the player the viewer
@@ -1438,7 +1485,6 @@ void obj_delete(int objnum)
 
 	obj->type = OBJ_NONE;		//unused!
 	obj->signature = -1;
-	obj->segnum=-1;				// zero it!
 
 	obj_free(objnum);
 }
@@ -1537,7 +1583,6 @@ void set_camera_pos(vms_vector *camera_pos, object *objp)
 
 extern void drop_player_eggs(object *objp);
 extern int get_explosion_vclip(object *obj,int stage);
-extern void multi_cap_objects();
 
 //	------------------------------------------------------------------------------------------------------------------
 void dead_player_frame(void)
@@ -1628,7 +1673,9 @@ void dead_player_frame(void)
 				ConsoleObject->flags &= ~OF_SHOULD_BE_DEAD;		//don't really kill player
 				ConsoleObject->render_type = RT_NONE;				//..just make him disappear
 				ConsoleObject->type = OBJ_GHOST;						//..and kill intersections
+#if defined(DXX_BUILD_DESCENT_II)
 				Players[Player_num].flags &= ~PLAYER_FLAGS_HEADLIGHT_ON;
+#endif
 			}
 		} else {
 			if (d_rand() < FrameTime*4) {
@@ -1641,7 +1688,8 @@ void dead_player_frame(void)
 		}
 
 
-		if (Death_sequence_aborted) { //time_dead > DEATH_SEQUENCE_LENGTH) {
+		if (Death_sequence_aborted)
+		{
 			if (!Player_eggs_dropped) {
 			
 #ifdef NETWORK
@@ -1685,9 +1733,9 @@ void start_player_death_sequence(object *player)
 
 	Death_sequence_aborted = 0;
 
-	#ifdef NETWORK
 	if (Game_mode & GM_MULTI)
 	{
+#if defined(DXX_BUILD_DESCENT_II)
 		int killer_pnum = Player_num;
 		if (Players[Player_num].killer_objnum > 0 && Players[Player_num].killer_objnum < Highest_object_index)
 			killer_pnum = Objects[Players[Player_num].killer_objnum].id;
@@ -1697,14 +1745,12 @@ void start_player_death_sequence(object *player)
 			if (Players[Player_num].secondary_ammo[PROXIMITY_INDEX]<12)
 				if (!(Players[Player_num].killer_objnum == Players[Player_num].objnum || ((Game_mode & GM_TEAM) && get_team(Player_num) == get_team(killer_pnum))))
 					Players[Player_num].secondary_ammo[PROXIMITY_INDEX]++;
+#endif
 		multi_send_kill(Players[Player_num].objnum);
 	}
-	#endif
 	
 	PaletteRedAdd = 40;
 	Player_is_dead = 1;
-
-	//Players[Player_num].flags &= ~(PLAYER_FLAGS_AFTERBURNER);
 
 	vm_vec_zero(&player->mtype.phys_info.rotthrust);
 	vm_vec_zero(&player->mtype.phys_info.thrust);
@@ -1802,8 +1848,7 @@ void obj_relink_all(void)
 }
 
 //process a continuously-spinning object
-void
-spin_object(object *obj)
+void spin_object(object *obj)
 {
 	vms_angvec rotangs;
 	vms_matrix rotmat, new_pm;
@@ -1822,6 +1867,7 @@ spin_object(object *obj)
 	check_and_fix_matrix(&obj->orient);
 }
 
+#if defined(DXX_BUILD_DESCENT_II)
 int Drop_afterburner_blob_flag;		//ugly hack
 extern void multi_send_drop_blobs(char);
 extern void fuelcen_check_for_goal (segment *);
@@ -1832,19 +1878,18 @@ int check_volatile_wall(object *obj,int segnum,int sidenum,vms_vector *hitpt);
 
 //	Time at which this object last created afterburner blobs.
 fix64	Last_afterburner_time[MAX_OBJECTS];
+#endif
 
 //--------------------------------------------------------------------
 //move an object for the current frame
 void object_move_one( object * obj )
 {
-
-	#ifndef DEMO_ONLY
 	int	previous_segment = obj->segnum;
 
 	obj->last_pos = obj->pos;			// Save the current position
 
 	if ((obj->type==OBJ_PLAYER) && (Player_num==obj->id))	{
-#ifdef NETWORK
+#if defined(DXX_BUILD_DESCENT_II)
       if (Game_mode & GM_CAPTURE)
 			 fuelcen_check_for_goal (&Segments[obj->segnum]);
       if (Game_mode & GM_HOARD)
@@ -1855,17 +1900,20 @@ void object_move_one( object * obj )
 		if (fuel > 0 )	{
 			Players[Player_num].energy += fuel;
 		}
-
+#if defined(DXX_BUILD_DESCENT_II)
 		fix shields = repaircen_give_shields( &Segments[obj->segnum], INITIAL_SHIELDS-Players[Player_num].shields );
 		if (shields > 0) {
 			Players[Player_num].shields += shields;
 		}
+#endif
 	}
 
 	if (obj->lifeleft != IMMORTAL_TIME) //if not immortal...
 		obj->lifeleft -= FrameTime; //...inevitable countdown towards death
 
+#if defined(DXX_BUILD_DESCENT_II)
 	Drop_afterburner_blob_flag = 0;
+#endif
 
 	switch (obj->control_type) {
 
@@ -1904,7 +1952,6 @@ void object_move_one( object * obj )
 			break;
 		#endif
 
-
 //		case CT_FLYTHROUGH:
 //			do_flythrough(obj,0);			// HACK:do_flythrough should operate on an object!!!!
 //			//check_object_seg(obj);
@@ -1921,11 +1968,7 @@ void object_move_one( object * obj )
 
 		default:
 
-#ifdef __DJGPP__
-			Error("Unknown control type %d in object %li, sig/type/id = %i/%i/%i",obj->control_type, obj-Objects, obj->signature, obj->type, obj->id);
-#else
 			Error("Unknown control type %d in object %i, sig/type/id = %i/%i/%i",obj->control_type, (int)(obj-Objects), obj->signature, obj->type, obj->id);
-#endif
 
 			break;
 
@@ -1935,8 +1978,10 @@ void object_move_one( object * obj )
 		obj->flags |= OF_SHOULD_BE_DEAD;
 		if ( obj->type==OBJ_WEAPON && Weapon_info[obj->id].damage_radius )
 			explode_badass_weapon(obj,&obj->pos);
+#if defined(DXX_BUILD_DESCENT_II)
 		else if ( obj->type==OBJ_ROBOT)	//make robots explode
 			explode_object(obj,0);
+#endif
 	}
 
 	if (obj->type == OBJ_NONE || obj->flags&OF_SHOULD_BE_DEAD)
@@ -1958,22 +2003,21 @@ void object_move_one( object * obj )
 
 		if (previous_segment != obj->segnum) {
 			int	connect_side,i;
-#ifdef NETWORK
+#if defined(DXX_BUILD_DESCENT_II)
 			int	old_level = Current_level_num;
 #endif
 			for (i=0;i<n_phys_segs-1;i++) {
 				connect_side = find_connect_side(&Segments[phys_seglist[i+1]], &Segments[phys_seglist[i]]);
 				if (connect_side != -1)
 					check_trigger(&Segments[phys_seglist[i]], connect_side, obj-Objects,0);
-
+#if defined(DXX_BUILD_DESCENT_II)
 				//maybe we've gone on to the next level.  if so, bail!
-#ifdef NETWORK
 				if (Current_level_num != old_level)
 					return;
 #endif
 			}
 		}
-
+#if defined(DXX_BUILD_DESCENT_II)
 		{
 			int sidemask,under_lavafall=0;
 			static int lavafall_hiss_playing[MAX_PLAYERS]={0};
@@ -2001,8 +2045,10 @@ void object_move_one( object * obj )
 				lavafall_hiss_playing[obj->id] = 0;
 			}
 		}
+#endif
 	}
 
+#if defined(DXX_BUILD_DESCENT_II)
 	//see if guided missile has flown through exit trigger
 	if (obj==Guided_missile[Player_num] && obj->signature==Guided_missile_sig[Player_num]) {
 		if (previous_segment != obj->segnum) {
@@ -2054,10 +2100,7 @@ void object_move_one( object * obj )
 			Last_afterburner_time[objnum] = GameTime64;
 		}
 	}
-
-	#else
-		obj++;		//kill warning
-	#endif		//DEMO_ONLY
+#endif
 }
 
 //--------------------------------------------------------------------
@@ -2198,8 +2241,7 @@ int update_object_seg(object * obj )
 
 
 //go through all objects and make sure they have the correct segment numbers
-void
-fix_object_segs()
+void fix_object_segs()
 {
 	int i;
 
@@ -2245,6 +2287,17 @@ fix_object_segs()
 //--unused-- 	
 //--unused-- }
 
+static int object_is_clearable_weapon(object *obj, int clear_all)
+{
+	if (!(obj->type == OBJ_WEAPON))
+		return 0;
+#if defined(DXX_BUILD_DESCENT_II)
+	if (Weapon_info[obj->id].flags&WIF_PLACABLE)
+		return 0;
+#endif
+	return (clear_all || !is_proximity_bomb_or_smart_mine(obj->id));
+}
+
 //delete objects, such as weapons & explosions, that shouldn't stay between levels
 //	Changed by MK on 10/15/94, don't remove proximity bombs.
 //if clear_all is set, clear even proximity bombs
@@ -2254,7 +2307,7 @@ void clear_transient_objects(int clear_all)
 	object *obj;
 
 	for (objnum=0,obj=&Objects[0];objnum<=Highest_object_index;objnum++,obj++)
-		if (((obj->type == OBJ_WEAPON) && !(Weapon_info[obj->id].flags&WIF_PLACABLE) && (clear_all || !is_proximity_bomb_or_smart_mine(obj->id))) ||
+		if (object_is_clearable_weapon(obj, clear_all) ||
 			 obj->type == OBJ_FIREBALL ||
 			 obj->type == OBJ_DEBRIS ||
 			 obj->type == OBJ_DEBRIS ||
@@ -2326,6 +2379,7 @@ void obj_detach_all(object *parent)
 		obj_detach_one(&Objects[parent->attached_obj]);
 }
 
+#if defined(DXX_BUILD_DESCENT_II)
 //creates a marker object in the world.  returns the object number
 int drop_marker_object(vms_vector *pos,int segnum,vms_matrix *orient, int marker_num)
 {
@@ -2387,6 +2441,7 @@ void wake_up_rendered_objects(object *viewer, int window_num)
 		}
 	}
 }
+#endif
 
 // Swap endianess of given object_rw if swap == 1
 void object_rw_swap(object_rw *obj, int swap)
@@ -2472,9 +2527,15 @@ void object_rw_swap(object_rw *obj, int swap)
 			obj->ctype.ai_info.hide_segment           = SWAPSHORT(obj->ctype.ai_info.hide_segment);
 			obj->ctype.ai_info.hide_index             = SWAPSHORT(obj->ctype.ai_info.hide_index);
 			obj->ctype.ai_info.path_length            = SWAPSHORT(obj->ctype.ai_info.path_length);
+#if defined(DXX_BUILD_DESCENT_I)
+			obj->ctype.ai_info.cur_path_index         = SWAPSHORT(obj->ctype.ai_info.cur_path_index);
+			obj->ctype.ai_info.follow_path_start_seg  = SWAPSHORT(obj->ctype.ai_info.follow_path_start_seg);
+			obj->ctype.ai_info.follow_path_end_seg    = SWAPSHORT(obj->ctype.ai_info.follow_path_end_seg);
+#elif defined(DXX_BUILD_DESCENT_II)
+			obj->ctype.ai_info.dying_start_time       = SWAPINT(obj->ctype.ai_info.dying_start_time);
+#endif
 			obj->ctype.ai_info.danger_laser_num       = SWAPSHORT(obj->ctype.ai_info.danger_laser_num);
 			obj->ctype.ai_info.danger_laser_signature = SWAPINT(obj->ctype.ai_info.danger_laser_signature);
-			obj->ctype.ai_info.dying_start_time       = SWAPINT(obj->ctype.ai_info.dying_start_time);
 			break;
 			
 		case CT_LIGHT:
@@ -2483,8 +2544,10 @@ void object_rw_swap(object_rw *obj, int swap)
 			
 		case CT_POWERUP:
 			obj->ctype.powerup_info.count         = SWAPINT(obj->ctype.powerup_info.count);
+#if defined(DXX_BUILD_DESCENT_II)
 			obj->ctype.powerup_info.creation_time = SWAPINT(obj->ctype.powerup_info.creation_time);
 			obj->ctype.powerup_info.flags         = SWAPINT(obj->ctype.powerup_info.flags);
+#endif
 			break;
 	}
 	
