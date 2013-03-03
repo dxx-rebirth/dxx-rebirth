@@ -196,11 +196,32 @@ class DXXCommon:
 			if( self.user_settings.use_tracker == 1 ):
 				env.Append( CPPDEFINES = [ 'USE_TRACKER' ] )
 
+class DXXArchive(DXXCommon):
+	srcdir = 'common'
+	target = 'dxx-common'
+	common_sources = [os.path.join('common', f) for f in [
+'maths/fixc.c',
+]
+]
+	editor_sources = []
+	def __init__(self):
+		self.PROGRAM_NAME = 'DXX-Archive'
+		DXXCommon.__init__(self)
+		self.user_settings = self.UserSettings(ARGUMENTS)
+		self.prepare_environment()
+		self.check_endian()
+		self.check_platform()
+		self.process_user_settings()
+		self.register_library()
+	def register_library(self):
+		self.objects = self.env.StaticObject(source = self.common_sources)
+
 class DXXProgram(DXXCommon):
 	# version number
 	VERSION_MAJOR = 0
 	VERSION_MINOR = 57
 	VERSION_MICRO = 3
+	static_archive_construction = None
 	class UserSettings(DXXCommon.UserSettings):
 		def __init__(self,ARGUMENTS,target):
 			DXXCommon.UserSettings.__init__(self, ARGUMENTS.ARGUMENTS)
@@ -252,6 +273,8 @@ class DXXProgram(DXXCommon):
 			env.Append(CPPPATH = [os.path.join(program.srcdir, 'arch/linux/include')])
 
 	def __init__(self):
+		if DXXProgram.static_archive_construction is None:
+			DXXProgram.static_archive_construction = DXXArchive()
 		DXXCommon.__init__(self)
 		self.user_settings = self.UserSettings(self.ARGUMENTS, self.target)
 		self.prepare_environment()
@@ -430,8 +453,6 @@ class D1XProgram(DXXProgram):
 'main/vclip.c',
 'main/wall.c',
 'main/weapon.c',
-'maths/fixc.c',
-'maths/rand.c',
 'maths/tables.c',
 'maths/vecmat.c',
 'mem/mem.c',
@@ -549,7 +570,7 @@ class D1XProgram(DXXProgram):
 		env = self.env
 		exe_target = os.path.join(self.srcdir, self.target)
 		# finally building program...
-		env.Program(target=str(exe_target), source = self.common_sources, LIBS = self.platform_settings.libs, LINKFLAGS = str(self.platform_settings.lflags))
+		env.Program(target=str(exe_target), source = self.common_sources + self.static_archive_construction.objects, LIBS = self.platform_settings.libs, LINKFLAGS = str(self.platform_settings.lflags))
 		if (sys.platform != 'darwin'):
 			env.Install(self.user_settings.BIN_DIR, str(exe_target))
 			env.Alias('install', self.user_settings.BIN_DIR)
@@ -686,8 +707,6 @@ class D2XProgram(DXXProgram):
 'main/vclip.c',
 'main/wall.c',
 'main/weapon.c',
-'maths/fixc.c',
-'maths/rand.c',
 'maths/tables.c',
 'maths/vecmat.c',
 'mem/mem.c',
@@ -806,7 +825,7 @@ class D2XProgram(DXXProgram):
 		env = self.env
 		exe_target = os.path.join(self.srcdir, self.target)
 		# finally building program...
-		env.Program(target=str(exe_target), source = self.common_sources, LIBS = self.platform_settings.libs, LINKFLAGS = str(self.platform_settings.lflags))
+		env.Program(target=str(exe_target), source = self.common_sources + self.static_archive_construction.objects, LIBS = self.platform_settings.libs, LINKFLAGS = str(self.platform_settings.lflags))
 		if (sys.platform != 'darwin'):
 			env.Install(self.user_settings.BIN_DIR, str(exe_target))
 			env.Alias('install', self.user_settings.BIN_DIR)
