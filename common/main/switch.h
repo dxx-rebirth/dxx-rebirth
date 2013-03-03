@@ -26,6 +26,7 @@ COPYRIGHT 1993-1999 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 #define MAX_TRIGGERS        100
 #define MAX_WALLS_PER_LINK  10
 
+#if defined(DXX_BUILD_DESCENT_II)
 // Trigger types
 
 #define TT_OPEN_DOOR        0   // Open a door
@@ -74,6 +75,7 @@ typedef struct v30_trigger {
 	short   seg[MAX_WALLS_PER_LINK];
 	short   side[MAX_WALLS_PER_LINK];
 } __pack__ v30_trigger;
+#endif
 
 //flags for V30 & below triggers
 #define TRIGGER_CONTROL_DOORS      1    // Control Trigger
@@ -86,23 +88,36 @@ typedef struct v30_trigger {
 #define TRIGGER_ILLUSION_OFF     128    // Switch Illusion OFF trigger
 #define TRIGGER_SECRET_EXIT      256    // Exit to secret level
 #define TRIGGER_ILLUSION_ON      512    // Switch Illusion ON trigger
+#if defined(DXX_BUILD_DESCENT_II)
 #define TRIGGER_UNLOCK_DOORS    1024    // Unlocks a door
 #define TRIGGER_OPEN_WALL       2048    // Makes a wall open
 #define TRIGGER_CLOSE_WALL      4096    // Makes a wall closed
 #define TRIGGER_ILLUSORY_WALL   8192    // Makes a wall illusory
+#endif
 
 //the trigger really should have both a type & a flags, since most of the
 //flags bits are exclusive of the others.
+#if defined(DXX_BUILD_DESCENT_I) || defined(DXX_BUILD_DESCENT_II)
 typedef struct trigger {
+#if defined(DXX_BUILD_DESCENT_I)
+	sbyte		type;
+	short		flags;
+#elif defined(DXX_BUILD_DESCENT_II)
 	ubyte   type;       //what this trigger does
 	ubyte   flags;      //currently unused
 	sbyte   num_links;  //how many doors, etc. linked to this
 	sbyte   pad;        //keep alignment
+#endif
 	fix     value;
 	fix     time;
+#if defined(DXX_BUILD_DESCENT_I)
+	sbyte		link_num;
+	short 	num_links;
+#endif
 	short   seg[MAX_WALLS_PER_LINK];
 	short   side[MAX_WALLS_PER_LINK];
 } __pack__ trigger;
+#endif
 
 extern trigger Triggers[MAX_TRIGGERS];
 
@@ -115,9 +130,14 @@ extern void triggers_frame_process();
 
 static inline int trigger_is_exit(const trigger *t)
 {
+#if defined(DXX_BUILD_DESCENT_I)
+	return t->flags == TRIGGER_EXIT;
+#elif defined(DXX_BUILD_DESCENT_II)
 	return t->type == TT_EXIT;
+#endif
 }
 
+#if defined(DXX_BUILD_DESCENT_II)
 /*
  * reads a v29_trigger structure from a PHYSFS_file
  */
@@ -127,6 +147,7 @@ extern void v29_trigger_read(v29_trigger *t, PHYSFS_file *fp);
  * reads a v30_trigger structure from a PHYSFS_file
  */
 extern void v30_trigger_read(v30_trigger *t, PHYSFS_file *fp);
+#endif
 
 /*
  * reads a trigger structure from a PHYSFS_file
