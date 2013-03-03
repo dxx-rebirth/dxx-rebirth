@@ -31,7 +31,6 @@ COPYRIGHT 1993-1999 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 #include "mouse.h"
 #include "palette.h"
 #include "game.h"
-#include "gamepal.h"
 #include "timer.h"
 #include "gamefont.h"
 #include "pcx.h"
@@ -42,14 +41,21 @@ COPYRIGHT 1993-1999 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 #include "text.h"
 #include "songs.h"
 #include "menu.h"
-#include "mission.h"
 #include "config.h"
+#if defined(DXX_BUILD_DESCENT_II)
+#include "mission.h"
+#include "gamepal.h"
 #include "args.h"
+#endif
 
 #define ROW_SPACING			(SHEIGHT / 17)
 #define NUM_LINES			20 //14
+#if defined(DXX_BUILD_DESCENT_I)
+#define CREDITS_FILE 			"credits.tex"
+#elif defined(DXX_BUILD_DESCENT_II)
 #define CREDITS_FILE    		(PHYSFSX_exists("mcredits.tex",1)?"mcredits.tex":PHYSFSX_exists("ocredits.tex",1)?"ocredits.tex":"credits.tex")
 #define ALLOWED_CHAR			(is_SHAREWARE ? 'S' : 'R')
+#endif
 
 typedef struct credits
 {
@@ -94,17 +100,27 @@ int credits_handler(window *wind, d_event *event, credits *cr)
 			break;
 			
 		case EVENT_WINDOW_DRAW:
+#if defined(DXX_BUILD_DESCENT_I)
+			timer_delay(F1_0/17);
+#elif defined(DXX_BUILD_DESCENT_II)
 			timer_delay(F1_0/28);
+#endif
 			
 			if (cr->row == 0)
 			{
 				do {
 					cr->buffer_line = (cr->buffer_line+1) % NUM_LINES;
+#if defined(DXX_BUILD_DESCENT_II)
 				get_line:;
+#endif
 					if (PHYSFSX_fgets( cr->buffer[cr->buffer_line], 80, cr->file ))	{
 						char *p;
 						if (cr->have_bin_file) // is this a binary tbl file
 							decode_text_line (cr->buffer[cr->buffer_line]);
+#if defined(DXX_BUILD_DESCENT_I)
+						p = strchr(&cr->buffer[cr->buffer_line][0],'\n');
+						if (p) *p = '\0';
+#elif defined(DXX_BUILD_DESCENT_II)
 						p = cr->buffer[cr->buffer_line];
 						if (p[0] == ';')
 							goto get_line;
@@ -116,7 +132,7 @@ int credits_handler(window *wind, d_event *event, credits *cr)
 							else
 								goto get_line;
 						}
-						
+#endif	
 					} else	{
 						//fseek( file, 0, SEEK_SET);
 						cr->buffer[cr->buffer_line][0] = 0;
@@ -239,7 +255,9 @@ void credits_show(char *credits_filename)
 	}
 
 	set_screen_mode(SCREEN_MENU);
+#if defined(DXX_BUILD_DESCENT_II)
 	gr_use_palette_table( "credits.256" );
+#endif
 	cr->backdrop.bm_data=NULL;
 
 	pcx_error = pcx_read_bitmap(STARS_BACKGROUND,&cr->backdrop, BM_LINEAR,backdrop_palette);
