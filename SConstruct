@@ -203,6 +203,7 @@ class DXXArchive(DXXCommon):
 'maths/fixc.c',
 'maths/rand.c',
 'maths/tables.c',
+'maths/vecmat.c',
 ]
 ]
 	editor_sources = []
@@ -455,7 +456,6 @@ class D1XProgram(DXXProgram):
 'main/vclip.c',
 'main/wall.c',
 'main/weapon.c',
-'maths/vecmat.c',
 'mem/mem.c',
 'misc/args.c',
 'misc/dl_list.c',
@@ -708,7 +708,6 @@ class D2XProgram(DXXProgram):
 'main/vclip.c',
 'main/wall.c',
 'main/weapon.c',
-'maths/vecmat.c',
 'mem/mem.c',
 'misc/args.c',
 'misc/dl_list.c',
