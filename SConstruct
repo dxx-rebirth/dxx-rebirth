@@ -429,6 +429,7 @@ class DXXProgram(DXXCommon):
 'editor/objpage.c',
 'editor/segment.c',
 'editor/seguvs.c',
+'editor/texpage.c',
 'editor/texture.c',
 ]
 ], _apply_target_name)
@@ -650,7 +651,6 @@ class D1XProgram(DXXProgram):
 	# for editor
 	objects_editor = DXXCommon.create_lazy_object_property([os.path.join(srcdir, f) for f in [
 'editor/ehostage.c',
-'editor/texpage.c',
 ]
 ])
 
@@ -761,7 +761,6 @@ class D2XProgram(DXXProgram):
 
 	# for editor
 	objects_editor = DXXCommon.create_lazy_object_property([os.path.join(srcdir, f) for f in [
-'editor/texpage.c',
 'main/bmread.c',
 ]
 ])
