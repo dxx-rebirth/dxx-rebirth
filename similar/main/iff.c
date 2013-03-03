@@ -81,7 +81,7 @@ ubyte iff_has_transparency;	// 0=no transparency, 1=iff_transparent_color is val
 #define anim_sig MAKE_SIG('A','N','I','M')
 #define dlta_sig MAKE_SIG('D','L','T','A')
 
-static int get_sig(PHYSFS_file *f)
+static int32_t get_sig(PHYSFS_file *f)
 {
 	int s;
 
@@ -226,6 +226,19 @@ static int parse_body(PHYSFS_file *ifile,long len,iff_bitmap_header *bmheader)
 
 		}
 
+#if defined(DXX_BUILD_DESCENT_I)
+	if (bmheader->masking==mskHasMask && p==data_end && PHYSFS_tell(ifile)==end_pos-2)		//I don't know why...
+		PHYSFSX_fseek(ifile, 1, SEEK_CUR);		//...but if I do this it works
+
+	if (p==data_end && PHYSFS_tell(ifile)==end_pos-1)		//must be a pad byte
+		//ignore = PHYSFSX_fgetc(ifile);		//get pad byte
+		PHYSFSX_fseek(ifile, 1, SEEK_CUR);
+	else
+		if (PHYSFS_tell(ifile)!=end_pos || p!=data_end) {
+//			debug("IFF Error: p=%x, data_end=%x, cnt=%d\n",p,data_end,cnt);
+			return IFF_CORRUPT;
+		}
+#elif defined(DXX_BUILD_DESCENT_II)
 	if (p!=data_end)				//if we don't have the whole bitmap...
 		return IFF_CORRUPT;		//...the give an error
 
@@ -233,6 +246,7 @@ static int parse_body(PHYSFS_file *ifile,long len,iff_bitmap_header *bmheader)
 	//we didn't read the last mask like or the last rle record for padding
 	//or whatever and it's not important, because we check to make sure
 	//we got the while bitmap, and that's what really counts.
+#endif
 
 	return IFF_NO_ERROR;
 }
@@ -386,15 +400,11 @@ static int iff_parse_ilbm_pbm(PHYSFS_file *ifile,long form_type,iff_bitmap_heade
 							r=PHYSFSX_fgetc(ifile);
 							g=PHYSFSX_fgetc(ifile);
 							b=PHYSFSX_fgetc(ifile);
-//							r = ifile->data[ifile->position++];
-//							g = ifile->data[ifile->position++];
-//							b = ifile->data[ifile->position++];
 							r >>= 2; bmheader->palette[cnum].r = r;
 							g >>= 2; bmheader->palette[cnum].g = g;
 							b >>= 2; bmheader->palette[cnum].b = b;
 						}
 						if (len & 1) PHYSFSX_fgetc(ifile);
-						//if (len & 1 ) ifile->position++;
 
 						break;
 					}
@@ -475,19 +485,25 @@ static int convert_ilbm_to_pbm(iff_bitmap_header *bmheader)
 
 static int convert_rgb15(grs_bitmap *bm,iff_bitmap_header *bmheader)
 {
-	ushort *new_data;
 	int x,y;
-	int newptr = 0;
 	pal_entry *palptr;
 
 	palptr = bmheader->palette;
 
-//        if ((new_data = d_malloc(bm->bm_w * bm->bm_h * 2)) == NULL)
-//            {ret=IFF_NO_MEM; goto done;}
-       MALLOC(new_data, ushort, bm->bm_w * bm->bm_h * 2);
-       if (new_data == NULL)
-           return IFF_NO_MEM;
+#if defined(DXX_BUILD_DESCENT_I)
+	gr_init_bitmap (bm, bm->bm_type, 0, 0, bm->bm_w, bm->bm_h, bm->bm_rowsize, 0);
 
+	for (y=0; y<bm->bm_h; y++) {
+		for (x=0; x<bmheader->w; x++)
+			gr_bm_pixel (bm, x, y, INDEX_TO_15BPP(bmheader->raw_data[y*bmheader->w+x]));
+	}
+#elif defined(DXX_BUILD_DESCENT_II)
+	ushort *new_data;
+	MALLOC(new_data, ushort, bm->bm_w * bm->bm_h * 2);
+	if (new_data == NULL)
+		return IFF_NO_MEM;
+
+	unsigned newptr = 0;
 	for (y=0; y<bm->bm_h; y++) {
 
 		for (x=0; x<bmheader->w; x++)
@@ -499,7 +515,7 @@ static int convert_rgb15(grs_bitmap *bm,iff_bitmap_header *bmheader)
 	bm->bm_data = (ubyte *) new_data;			//..and point to new data
 
 	bm->bm_rowsize *= 2;				//two bytes per row
-
+#endif
 	return IFF_NO_ERROR;
 
 }
@@ -507,15 +523,7 @@ static int convert_rgb15(grs_bitmap *bm,iff_bitmap_header *bmheader)
 //copy an iff header structure to a grs_bitmap structure
 static void copy_iff_to_grs(grs_bitmap *bm,iff_bitmap_header *bmheader)
 {
-	bm->bm_x = bm->bm_y = 0;
-	bm->bm_w = bmheader->w;
-	bm->bm_h = bmheader->h;
-	bm->bm_type = bmheader->type;
-	bm->bm_rowsize = bmheader->w;
-	bm->bm_data = bmheader->raw_data;
-
-	bm->bm_flags = bm->bm_handle = 0;
-	
+	gr_init_bitmap (bm, bmheader->type, 0, 0, bmheader->w, bmheader->h, bmheader->w, bmheader->raw_data);
 }
 
 //if bm->bm_data is set, use it (making sure w & h are correct), else
@@ -532,6 +540,9 @@ static int iff_parse_bitmap(PHYSFS_file *ifile, grs_bitmap *bm, int bitmap_type,
 	if (bmheader.raw_data) {
 		bmheader.w = bm->bm_w;
 		bmheader.h = bm->bm_h;
+	}//added 05/17/99 Matt Mueller - don't just leave them unitialized
+	else{
+		bmheader.w=bmheader.h=0;
 	}
 
 	sig=get_sig(ifile);
@@ -753,7 +764,6 @@ static int write_body(PHYSFS_file *ofile,iff_bitmap_header *bitmap_header,int co
 	save_pos = PHYSFS_tell(ofile);
 	PHYSFS_writeSBE32(ofile, len);
 
-    //if (! (new_span = d_malloc(bitmap_header->w+(bitmap_header->w/128+2)*2))) return IFF_NO_MEM;
 	MALLOC( new_span, ubyte, bitmap_header->w + (bitmap_header->w/128+2)*2);
 	if (new_span == NULL) return IFF_NO_MEM;
 
@@ -963,7 +973,7 @@ int iff_read_animbrush(const char *ifilename,grs_bitmap **bm_list,int max_bitmap
 			prev_bm = *n_bitmaps>0?bm_list[*n_bitmaps-1]:NULL;
 
 			MALLOC(bm_list[*n_bitmaps] , grs_bitmap, 1 );
-			bm_list[*n_bitmaps]->bm_data = NULL;
+			gr_init_bitmap_data (bm_list[*n_bitmaps]);
 
 			ret = iff_parse_bitmap(ifile,bm_list[*n_bitmaps],form_type,*n_bitmaps>0?NULL:(signed char *)palette,prev_bm);
 

@@ -944,6 +944,7 @@ class DXXProgram(DXXCommon):
 'main/gauges.cpp',
 'main/hostage.cpp',
 'main/hud.cpp',
+'main/iff.c',
 'main/inferno.cpp',
 'main/kconfig.cpp',
 'main/kmatrix.cpp',
@@ -1218,7 +1219,6 @@ class D1XProgram(DXXProgram):
 	# general source files
 	__objects_common = DXXCommon.create_lazy_object_property([{
 		'source':[os.path.join(srcdir, f) for f in [
-'iff/iff.c',
 'main/bmread.cpp',
 'main/collide.c',
 'main/custom.cpp',
@@ -1269,7 +1269,6 @@ class D2XProgram(DXXProgram):
 	# general source files
 	__objects_common = DXXCommon.create_lazy_object_property([{
 		'source':[os.path.join(srcdir, f) for f in [
-'iff/iff.c',
 'libmve/decoder8.c',
 'libmve/decoder16.c',
 'libmve/mve_audio.c',
