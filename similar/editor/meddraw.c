@@ -674,7 +674,7 @@ void draw_special_segments(void)
 	// Highlight matcens, fuelcens, etc.
 	for (seg=0;seg<=Highest_segment_index;seg++)
 		if (Segments[seg].segnum != -1)
-			switch(Segment2s[seg].special)
+			switch(Segments[seg].special)
 			{
 			case SEGMENT_IS_FUELCEN:
 				color = BM_XRGB( 29, 27, 13 );
@@ -935,10 +935,12 @@ void find_segments(short x,short y,grs_canvas *screen_canvas,editor_view *v,segm
 
 void meddraw_init_views( grs_canvas * canvas)
 {
+#if defined(DXX_BUILD_DESCENT_II)
 	// sticking these here so the correct D2 colors are used
 	edge_colors[0] = BM_XRGB(45/2,45/2,45/2);
 	edge_colors[1] = BM_XRGB(45/3,45/3,45/3);		//BM_RGB(0,0,45),	//
 	edge_colors[2] = BM_XRGB(45/4,45/4,45/4);	//BM_RGB(0,45,0)};	//
+#endif
 
 	Views[0]->ev_canv = canvas;
 #if ORTHO_VIEWS
