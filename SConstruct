@@ -385,6 +385,7 @@ class DXXProgram(DXXCommon):
 'editor/medmisc.c',
 'editor/medsel.c',
 'editor/medwall.c',
+'editor/mine.c',
 'editor/texture.c',
 ]
 ]
@@ -631,7 +632,6 @@ class D1XProgram(DXXProgram):
 'editor/centers.c',
 'editor/ehostage.c',
 'editor/medrobot.c',
-'editor/mine.c',
 'editor/objpage.c',
 'editor/segment.c',
 'editor/seguvs.c',
@@ -764,7 +764,6 @@ class D2XProgram(DXXProgram):
 	editor_sources = [os.path.join(srcdir, f) for f in [
 'editor/centers.c',
 'editor/medrobot.c',
-'editor/mine.c',
 'editor/objpage.c',
 'editor/segment.c',
 'editor/seguvs.c',
