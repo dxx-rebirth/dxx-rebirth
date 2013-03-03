@@ -31,6 +31,7 @@ COPYRIGHT 1993-1998 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 #include "newdemo.h"
 #include "piggy.h"
 #include "bm.h"
+#include "interp.h"
 
 morph_data morph_objects[MAX_MORPH_OBJECTS];
 

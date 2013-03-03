@@ -31,6 +31,7 @@ COPYRIGHT 1993-1999 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 #include "vclip.h"
 #include "lighting.h"
 #include "3d.h"
+#include "interp.h"
 #include "laser.h"
 #include "timer.h"
 #include "player.h"

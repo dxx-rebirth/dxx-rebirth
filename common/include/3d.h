@@ -216,27 +216,4 @@ bool g3_draw_bitmap(vms_vector *pos,fix width,fix height,grs_bitmap *bm);
 //NULL for either or both restores defaults
 void g3_set_special_render(void (*tmap_drawer)(),void (*flat_drawer)(),int (*line_drawer)(fix, fix, fix, fix));
 
-#ifdef DXX_BUILD_DESCENT_I
-//Object functions:
-
-//gives the interpreter an array of points to use
-void g3_set_interp_points(g3s_point *pointlist);
-
-//calls the object interpreter to render an object.  The object renderer
-//is really a seperate pipeline. returns true if drew
-bool g3_draw_polygon_model(void *model_ptr,grs_bitmap **model_bitmaps,vms_angvec *anim_angles,g3s_lrgb light,fix *glow_values);
-
-//init code for bitmap models
-void g3_init_polygon_model(void *model_ptr);
-
-//alternate interpreter for morphing object
-bool g3_draw_morphing_model(void *model_ptr,grs_bitmap **model_bitmaps,vms_angvec *anim_angles,g3s_lrgb light,vms_vector *new_points);
-
-// check a polymodel for it's color and return it
-int g3_poly_get_color(void *model_ptr);
-
-// routine to convert little to big endian in polygon model data
-void swap_polygon_model_data(ubyte *data);
-#endif
-
 #endif
