@@ -629,6 +629,10 @@ class DXXProgram(DXXCommon):
 		if (self.user_settings.editor == 1):
 			objects.extend(self.objects_editor)
 			objects.extend(static_archive_construction.objects_editor)
+		versid_cppdefines=self.env['CPPDEFINES'][:]
+		if self.user_settings.extra_version:
+			versid_cppdefines.append(('DESCENT_VERSION_EXTRA', '\\"%s\\"' % self.user_settings.extra_version))
+		objects.extend([self.env.StaticObject(target='%s%s%s' % (self.user_settings.builddir, self._apply_target_name(s), self.env["OBJSUFFIX"]), source=s, CPPDEFINES=versid_cppdefines) for s in ['similar/main/vers_id.c']])
 		# finally building program...
 		env.Program(target='%s%s' % (self.user_settings.builddir, str(exe_target)), source = self.sources + objects, LIBS = self.platform_settings.libs, LINKFLAGS = str(self.platform_settings.lflags))
 		if (sys.platform != 'darwin'):
@@ -737,11 +741,7 @@ class D1XProgram(DXXProgram):
 ]
 ])
 	def register_program(self):
-		versid_cppdefines=self.env['CPPDEFINES'][:]
-		if self.user_settings.extra_version:
-			versid_cppdefines.append(('DESCENT_VERSION_EXTRA', '\\"%s\\"' % self.user_settings.extra_version))
-		versid_sources = [self.env.StaticObject(target='%s%s%s' % (self.user_settings.builddir, self._apply_target_name(s), self.env["OBJSUFFIX"]), source=os.path.join(self.srcdir, s), CPPDEFINES=versid_cppdefines) for s in ['main/vers_id.c']]
-		self._register_program('d1x', versid_sources)
+		self._register_program('d1x')
 
 class D2XProgram(DXXProgram):
 	PROGRAM_NAME = 'D2X-Rebirth'
@@ -842,11 +842,7 @@ class D2XProgram(DXXProgram):
 ])
 
 	def register_program(self):
-		versid_cppdefines=self.env['CPPDEFINES'][:]
-		if self.user_settings.extra_version:
-			versid_cppdefines.append(('DESCENT_VERSION_EXTRA', '\\"%s\\"' % self.user_settings.extra_version))
-		versid_sources = [self.env.StaticObject(target='%s%s%s' % (self.user_settings.builddir, self._apply_target_name(s), self.env["OBJSUFFIX"]), source=os.path.join(self.srcdir, s), CPPDEFINES=versid_cppdefines) for s in ['main/vers_id.c']]
-		self._register_program('d2x', versid_sources)
+		self._register_program('d2x')
 
 program_d1x = None
 program_d2x = None
