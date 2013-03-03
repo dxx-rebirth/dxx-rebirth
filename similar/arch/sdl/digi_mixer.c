@@ -55,10 +55,15 @@ ubyte channels[MAX_SOUND_SLOTS];
 /* Initialise audio */
 int digi_mixer_init()
 {
+#if defined(DXX_BUILD_DESCENT_II)
+	unsigned
+#endif
+	digi_sample_rate = SAMPLE_RATE_44K;
+
 	if (MIX_DIGI_DEBUG) con_printf(CON_DEBUG,"digi_init %d (SDL_Mixer)\n", MAX_SOUNDS);
 	if (SDL_InitSubSystem(SDL_INIT_AUDIO) < 0) Error("SDL audio initialisation failed: %s.", SDL_GetError());
 
-	if (Mix_OpenAudio(SAMPLE_RATE_44K, MIX_OUTPUT_FORMAT, MIX_OUTPUT_CHANNELS, SOUND_BUFFER_SIZE))
+	if (Mix_OpenAudio(digi_sample_rate, MIX_OUTPUT_FORMAT, MIX_OUTPUT_CHANNELS, SOUND_BUFFER_SIZE))
 	{
 		//edited on 10/05/98 by Matt Mueller - should keep running, just with no sound.
 		con_printf(CON_URGENT,"\nError: Couldn't open audio: %s\n", SDL_GetError());
@@ -109,18 +114,26 @@ void mixdigi_convert_sound(int i)
 	SDL_AudioCVT cvt;
 	Uint8 *data = GameSounds[i].data;
 	Uint32 dlen = GameSounds[i].length;
+	int freq;
 	int out_freq;
 	Uint16 out_format;
 	int out_channels;
-
+#if defined(DXX_BUILD_DESCENT_I)
+	out_freq = digi_sample_rate;
+	out_format = MIX_OUTPUT_FORMAT;
+	out_channels = MIX_OUTPUT_CHANNELS;
+	freq = GameSounds[i].freq;
+#elif defined(DXX_BUILD_DESCENT_II)
 	Mix_QuerySpec(&out_freq, &out_format, &out_channels); // get current output settings
+	freq = GameArg.SndDigiSampleRate;
+#endif
 
 	if (SoundChunks[i].abuf) return; //proceed only if not converted yet
 
 	if (data)
 	{
 		if (MIX_DIGI_DEBUG) con_printf(CON_DEBUG,"converting %d (%d)\n", i, dlen);
-		SDL_BuildAudioCVT(&cvt, AUDIO_U8, 1, GameArg.SndDigiSampleRate, out_format, out_channels, out_freq);
+		SDL_BuildAudioCVT(&cvt, AUDIO_U8, 1, freq, out_format, out_channels, out_freq);
 
 		cvt.buf = malloc(dlen * cvt.len_mult);
 		cvt.len = dlen;

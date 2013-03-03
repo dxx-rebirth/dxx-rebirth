@@ -366,6 +366,7 @@ class DXXProgram(DXXCommon):
 ]
 ])
 	objects_similar_arch_sdlmixer = DXXCommon.create_lazy_object_property([os.path.join('similar', f) for f in [
+'arch/sdl/digi_mixer.c',
 'arch/sdl/jukebox.c'
 ]
 ], _apply_target_name)
@@ -543,7 +544,6 @@ class DXXProgram(DXXCommon):
 		objects = static_archive_construction.objects_common[:]
 		objects.extend(program_specific_objects)
 		if (self.user_settings.sdlmixer == 1):
-			objects.extend(self.objects_arch_sdlmixer)
 			objects.extend(static_archive_construction.objects_arch_sdlmixer)
 			objects.extend(self.objects_similar_arch_sdlmixer)
 		if (self.user_settings.opengl == 1) or (self.user_settings.opengles == 1):
@@ -656,12 +656,6 @@ class D1XProgram(DXXProgram):
 
 	objects_use_udp = DXXCommon.create_lazy_object_property([os.path.join(srcdir, 'main/net_udp.c')])
 
-	# SDL_mixer sound implementation
-	objects_arch_sdlmixer = DXXCommon.create_lazy_object_property([os.path.join(srcdir, f) for f in [
-'arch/sdl/digi_mixer.c',
-]
-])
-
 	# assembler related
 	objects_asm = DXXCommon.create_lazy_object_property([os.path.join(srcdir, f) for f in [
 'texmap/tmap_ll.asm',
@@ -766,12 +760,6 @@ class D2XProgram(DXXProgram):
 ])
 
 	objects_use_udp = DXXCommon.create_lazy_object_property([os.path.join(srcdir, 'main/net_udp.c')])
-
-	# SDL_mixer sound implementation
-	objects_arch_sdlmixer = DXXCommon.create_lazy_object_property([os.path.join(srcdir, f) for f in [
-'arch/sdl/digi_mixer.c',
-]
-])
 
 	# assembler related
 	objects_asm = DXXCommon.create_lazy_object_property([os.path.join(srcdir, f) for f in [
