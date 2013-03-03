@@ -147,7 +147,11 @@ static void draw_outline(int nverts,g3s_point **pointlist)
 }
 #endif
 
+#if defined(DXX_BUILD_DESCENT_I)
+static const fix Seismic_tremor_magnitude = 0;
+#elif defined(DXX_BUILD_DESCENT_II)
 extern fix Seismic_tremor_magnitude;
+#endif
 
 fix flash_scale;
 
@@ -170,6 +174,7 @@ void flash_frame()
 		return;
 
 //	flash_ang += fixmul(FLASH_CYCLE_RATE,FrameTime);
+#if defined(DXX_BUILD_DESCENT_II)
 	if (Seismic_tremor_magnitude) {
 		fix	added_flash;
 
@@ -180,12 +185,16 @@ void flash_frame()
 		flash_ang += fixmul(Flash_rate, fixmul(FrameTime, added_flash+F1_0));
 		fix_fastsincos(flash_ang,&flash_scale,NULL);
 		flash_scale = (flash_scale + F1_0*3)/4;	//	gets in range 0.5 to 1.0
-	} else {
+	} else
+#endif
+	{
 		flash_ang += fixmul(Flash_rate,FrameTime);
 		fix_fastsincos(flash_ang,&flash_scale,NULL);
 		flash_scale = (flash_scale + f1_0)/2;
+#if defined(DXX_BUILD_DESCENT_II)
 		if (Difficulty_level == 0)
 			flash_scale = (flash_scale+F1_0*3)/4;
+#endif
 	}
 
 
@@ -193,8 +202,10 @@ void flash_frame()
 
 static inline int is_alphablend_eclip(int eclip_num)
 {
+#if defined(DXX_BUILD_DESCENT_II)
 	if (eclip_num == ECLIP_NUM_FORCE_FIELD)
 		return 1;
+#endif
 	return eclip_num == ECLIP_NUM_FUELCEN;
 }
 
@@ -225,6 +236,7 @@ void render_face(int segnum, int sidenum, int nv, int *vp, int tmap1, int tmap2,
 		pointlist[i] = &Segment_points[vp[i]];
 	}
 
+#if defined(DXX_BUILD_DESCENT_II)
 	//handle cloaked walls
 	if (wid_flags & WID_CLOAKED_FLAG) {
 		int wall_num = Segments[segnum].sides[sidenum].wall_num;
@@ -238,6 +250,7 @@ void render_face(int segnum, int sidenum, int nv, int *vp, int tmap1, int tmap2,
 
 		return;
 	}
+#endif
 
 	if (tmap1 >= NumTextures) {
 #ifndef RELEASE
@@ -405,9 +418,6 @@ fix	Tulate_min_dot = (F1_0/4);
 //--unused-- fix	Tulate_min_ratio = (2*F1_0);
 fix	Min_n0_n1_dot	= (F1_0*15/16);
 
-extern int contains_flare(segment *segp, int sidenum);
-extern fix	Obj_light_xlate[16];
-
 // -----------------------------------------------------------------------------------
 //	Render a side.
 //	Check for normal facing.  If so, render faces on side dictated by sidep->type.
@@ -432,60 +442,27 @@ void render_side(segment *segp, int sidenum)
 	normals[1] = segp->sides[sidenum].normals[1];
 	get_side_verts(vertnum_list,segp-Segments,sidenum);
 
+#if defined(DXX_BUILD_DESCENT_I)
+	//	Regardless of whether this side is comprised of a single quad, or two triangles, we need to know one normal, so
+	//	deal with it, get the dot product.
+	if (sidep->type == SIDE_IS_TRI_13) {
+		vm_vec_normalized_dir(&tvec, &Viewer_eye, &Vertices[vertnum_list[1]]);
+	} else {
+		vm_vec_normalized_dir(&tvec, &Viewer_eye, &Vertices[vertnum_list[0]]);
+	}
+
+	v_dot_n0 = vm_vec_dot(&tvec, &normals[0]);
+#endif
+
 	//	========== Mark: Here is the change...beginning here: ==========
 
 	if (sidep->type == SIDE_IS_QUAD) {
 
+#if defined(DXX_BUILD_DESCENT_II)
 		vm_vec_sub(&tvec, &Viewer_eye, &Vertices[vertnum_list[0]]);
 
-		// -- Old, slow way --	//	Regardless of whether this side is comprised of a single quad, or two triangles, we need to know one normal, so
-		// -- Old, slow way --	//	deal with it, get the dot product.
-		// -- Old, slow way --	if (sidep->type == SIDE_IS_TRI_13)
-		// -- Old, slow way --		vm_vec_normalized_dir(&tvec, &Viewer_eye, &Vertices[segp->verts[Side_to_verts[sidenum][1]]]);
-		// -- Old, slow way --	else
-		// -- Old, slow way --		vm_vec_normalized_dir(&tvec, &Viewer_eye, &Vertices[segp->verts[Side_to_verts[sidenum][0]]]);
-
 		v_dot_n0 = vm_vec_dot(&tvec, &normals[0]);
-
-// -- flare creates point -- {
-// -- flare creates point -- 	int	flare_index;
-// -- flare creates point -- 
-// -- flare creates point -- 	flare_index = contains_flare(segp, sidenum);
-// -- flare creates point -- 
-// -- flare creates point -- 	if (flare_index != -1) {
-// -- flare creates point -- 		int			tri;
-// -- flare creates point -- 		fix			u, v, l;
-// -- flare creates point -- 		vms_vector	*hit_point;
-// -- flare creates point -- 		short			vertnum_list[4];
-// -- flare creates point -- 
-// -- flare creates point -- 		hit_point = &Objects[flare_index].pos;
-// -- flare creates point -- 
-// -- flare creates point -- 		find_hitpoint_uv( &u, &v, &l, hit_point, segp, sidenum, 0);	//	last parm means always use face 0.
-// -- flare creates point -- 
-// -- flare creates point -- 		get_side_verts(vertnum_list, segp-Segments, sidenum);
-// -- flare creates point -- 
-// -- flare creates point -- 		g3_rotate_point(&Segment_points[MAX_VERTICES-1], hit_point);
-// -- flare creates point -- 
-// -- flare creates point -- 		for (tri=0; tri<4; tri++) {
-// -- flare creates point -- 			short	tri_verts[3];
-// -- flare creates point -- 			uvl	tri_uvls[3];
-// -- flare creates point -- 
-// -- flare creates point -- 			tri_verts[0] = vertnum_list[tri];
-// -- flare creates point -- 			tri_verts[1] = vertnum_list[(tri+1) % 4];
-// -- flare creates point -- 			tri_verts[2] = MAX_VERTICES-1;
-// -- flare creates point -- 
-// -- flare creates point -- 			tri_uvls[0] = sidep->uvls[tri];
-// -- flare creates point -- 			tri_uvls[1] = sidep->uvls[(tri+1)%4];
-// -- flare creates point -- 			tri_uvls[2].u = u;
-// -- flare creates point -- 			tri_uvls[2].v = v;
-// -- flare creates point -- 			tri_uvls[2].l = F1_0;
-// -- flare creates point -- 
-// -- flare creates point -- 			render_face(segp-Segments, sidenum, 3, tri_verts, sidep->tmap_num, sidep->tmap_num2, tri_uvls, &normals[0]);
-// -- flare creates point -- 		}
-// -- flare creates point -- 
-// -- flare creates point -- 	return;
-// -- flare creates point -- 	}
-// -- flare creates point -- }
+#endif
 
 		if (v_dot_n0 >= 0) {
 			render_face(segp-Segments, sidenum, 4, vertnum_list, sidep->tmap_num, sidep->tmap_num2, sidep->uvls, wid_flags);
@@ -494,6 +471,7 @@ void render_side(segment *segp, int sidenum)
 			#endif
 		}
 	} else {
+#if defined(DXX_BUILD_DESCENT_II)
 		//	Regardless of whether this side is comprised of a single quad, or two triangles, we need to know one normal, so
 		//	deal with it, get the dot product.
 		if (sidep->type == SIDE_IS_TRI_13)
@@ -502,6 +480,7 @@ void render_side(segment *segp, int sidenum)
 			vm_vec_normalized_dir_quick(&tvec, &Viewer_eye, &Vertices[vertnum_list[0]]);
 
 		v_dot_n0 = vm_vec_dot(&tvec, &normals[0]);
+#endif
 
 		//	========== Mark: The change ends here. ==========
 
@@ -568,11 +547,7 @@ im_so_ashamed: ;
 				}
 
 			} else
-#ifdef __DJGPP__
-				Error("Illegal side type in render_side, type = %i, segment # = %li, side # = %i\n", sidep->type, segp-Segments, sidenum);
-#else
 				Error("Illegal side type in render_side, type = %i, segment # = %i, side # = %i\n", sidep->type, (int)(segp-Segments), sidenum);
-#endif
 		}
 	}
 
@@ -649,6 +624,7 @@ void do_render_object(int objnum, int window_num)
 	object_rendered[objnum] = 1;
 	#endif
 
+#if defined(DXX_BUILD_DESCENT_II)
    if (Newdemo_state==ND_STATE_PLAYBACK)  
 	 {
 	  if ((DemoDoingLeft==6 || DemoDoingRight==6) && Objects[objnum].type==OBJ_PLAYER)
@@ -659,6 +635,7 @@ void do_render_object(int objnum, int window_num)
   			return; 
 		}
 	 }
+#endif
 
 	//	Added by MK on 09/07/94 (at about 5:28 pm, CDT, on a beautiful, sunny late summer day!) so
 	//	that the guided missile system will know what objects to look at.
@@ -817,7 +794,9 @@ void render_segment(int segnum, int window_num)
 
 	if (! cc.uand) {		//all off screen?
 
+#if defined(DXX_BUILD_DESCENT_II)
       if (Viewer->type!=OBJ_ROBOT)
+#endif
   	   	Automap_visited[segnum]=1;
 
 		for (sn=0; sn<MAX_SIDES_PER_SEGMENT; sn++)
@@ -1407,7 +1386,11 @@ void qsort(void *basep, size_t nelems, size_t size,
 }
 #endif // __sun__ qsort drop-in replacement
 
+#if defined(DXX_BUILD_DESCENT_I)
+#define SORT_LIST_SIZE 50
+#elif defined(DXX_BUILD_DESCENT_II)
 #define SORT_LIST_SIZE 100
+#endif
 
 typedef struct sort_item {
 	int objnum;
@@ -1421,9 +1404,10 @@ int n_sort_items;
 int sort_func(const sort_item *a,const sort_item *b)
 {
 	fix delta_dist;
-	object *obj_a,*obj_b;
-
 	delta_dist = a->dist - b->dist;
+
+#if defined(DXX_BUILD_DESCENT_II)
+	object *obj_a,*obj_b;
 
 	obj_a = &Objects[a->objnum];
 	obj_b = &Objects[b->objnum];
@@ -1444,7 +1428,7 @@ int sort_func(const sort_item *a,const sort_item *b)
 
 		//no special case, fall through to normal return
 	}
-
+#endif
 	return delta_dist;	//return distance
 }
 
@@ -1480,10 +1464,19 @@ void build_object_lists(int n_segs)
 				new_segnum = segnum;
 				list_pos = nn;
 
+#if defined(DXX_BUILD_DESCENT_I)
+				int did_migrate;
+				if (obj->type != OBJ_CNTRLCEN)		//don't migrate controlcen
+#elif defined(DXX_BUILD_DESCENT_II)
+				const int did_migrate = 0;
 				if (obj->type != OBJ_CNTRLCEN && !(obj->type==OBJ_ROBOT && obj->id==65))		//don't migrate controlcen
+#endif
 				do {
 					segmasks m;
 
+#if defined(DXX_BUILD_DESCENT_I)
+					did_migrate = 0;
+#endif
 					m = get_seg_masks(&obj->pos, new_segnum, obj->size, __FILE__, __LINE__);
 	
 					if (m.sidemask) {
@@ -1491,7 +1484,11 @@ void build_object_lists(int n_segs)
 
 						for (sn=0,sf=1;sn<6;sn++,sf<<=1)
 							if (m.sidemask & sf) {
+#if defined(DXX_BUILD_DESCENT_I)
+								segment *seg = &Segments[obj->segnum];
+#elif defined(DXX_BUILD_DESCENT_II)
 								segment *seg = &Segments[new_segnum];
+#endif
 		
 								if (WALL_IS_DOORWAY(seg,sn) & WID_FLY_FLAG) {		//can explosion migrate through
 									int child = seg->children[sn];
@@ -1501,12 +1498,15 @@ void build_object_lists(int n_segs)
 										if (Render_list[checknp] == child) {
 											new_segnum = child;
 											list_pos = checknp;
+#if defined(DXX_BUILD_DESCENT_I)
+											did_migrate = 1;
+#endif
 										}
 								}
 							}
 					}
 	
-				} while (0);
+				} while (did_migrate);
 
 				add_obj_to_seglist(objnum,list_pos);
 	
@@ -1538,6 +1538,7 @@ void build_object_lists(int n_segs)
 						sort_list[n_sort_items].dist = vm_vec_dist(&Objects[t].pos,&Viewer_eye);
 						n_sort_items++;
 					}
+#if defined(DXX_BUILD_DESCENT_II)
 					else {			//no room for object
 						int ii;
 
@@ -1584,16 +1585,11 @@ void build_object_lists(int n_segs)
 
 						Int3();	//still couldn't find a slot
 					}
-
+#endif
 
 			//now call qsort
-		#if defined(__WATCOMC__)
-			qsort(sort_list,n_sort_items,sizeof(*sort_list),
-				   sort_func);
-		#else
 			qsort(sort_list,n_sort_items,sizeof(*sort_list),
 					(int (*)(const void*,const void*))sort_func);
-		#endif	
 
 			//now copy back into list
 
@@ -1617,7 +1613,11 @@ extern int Total_pixels;
 //--unused-- int Total_num_tmaps_drawn=0;
 
 int Rear_view=0;
+#if defined(DXX_BUILD_DESCENT_I)
+static const ubyte RenderingType = 0;
+#elif defined(DXX_BUILD_DESCENT_II)
 extern ubyte RenderingType;
+#endif
 
 void start_lighting_frame(object *viewer);
 
@@ -1694,10 +1694,12 @@ void render_frame(fix eye_offset, int window_num)
 			Clear_window_color = BM_XRGB(0, 0, 0);	//BM_XRGB(31, 15, 7);
 		gr_clear_canvas(Clear_window_color);
 	}
+#if defined(DXX_BUILD_DESCENT_II)
 	#ifndef NDEBUG
 	if (Show_only_curside)
 		gr_clear_canvas(Clear_window_color);
 	#endif
+#endif
 
 	render_mine(start_seg_num, eye_offset, window_num);
 
@@ -1710,6 +1712,7 @@ void render_frame(fix eye_offset, int window_num)
 
 int first_terminal_seg;
 
+#if defined(DXX_BUILD_DESCENT_II)
 void update_rendered_data(int window_num, object *viewer, int rear_view_flag)
 {
 	Assert(window_num < MAX_RENDERED_WINDOWS);
@@ -1717,6 +1720,7 @@ void update_rendered_data(int window_num, object *viewer, int rear_view_flag)
 	Window_rendered_data[window_num].viewer = viewer;
 	Window_rendered_data[window_num].rear_view = rear_view_flag;
 }
+#endif
 
 //build a list of segments to be rendered
 //fills in Render_list & N_render_segs
@@ -1990,7 +1994,12 @@ void render_mine(int start_seg_num,fix eye_offset, int window_num)
 
 
 	#ifdef EDITOR
-	if (_search_mode)	{
+#if defined(DXX_BUILD_DESCENT_I)
+	if (_search_mode || eye_offset>0)
+#elif defined(DXX_BUILD_DESCENT_II)
+	if (_search_mode)
+#endif
+	{
 		//lcnt = lcnt_save;
 		//scnt = scnt_save;
 	}
@@ -2010,7 +2019,12 @@ void render_mine(int start_seg_num,fix eye_offset, int window_num)
 	#endif
 
 	#ifndef NDEBUG
-	if (!(_search_mode)) {
+#if defined(DXX_BUILD_DESCENT_I)
+	if (!(_search_mode || eye_offset>0))
+#elif defined(DXX_BUILD_DESCENT_II)
+	if (!(_search_mode))
+#endif
+	{
 		int i;
 
 		for (i=0;i<N_render_segs;i++) {
@@ -2128,7 +2142,11 @@ void render_mine(int start_seg_num,fix eye_offset, int window_num)
 		segnum = Render_list[nn];
 		Current_seg_depth = Seg_depth[nn];
 
+#if defined(DXX_BUILD_DESCENT_I)
+		if (segnum!=-1 && (_search_mode || eye_offset>0 || (unsigned char)visited[segnum]!=255))
+#elif defined(DXX_BUILD_DESCENT_II)
 		if (segnum!=-1 && (_search_mode || visited[segnum]!=255))
+#endif
 		{
 			//set global render window vars
 
@@ -2155,8 +2173,11 @@ void render_mine(int start_seg_num,fix eye_offset, int window_num)
 					Automap_visited[segnum]=1;
 
 					for (sn=0; sn<MAX_SIDES_PER_SEGMENT; sn++)
-						if (WALL_IS_DOORWAY(seg,sn) == WID_TRANSPARENT_WALL || WALL_IS_DOORWAY(seg,sn) == WID_TRANSILLUSORY_WALL ||
-						WALL_IS_DOORWAY(seg,sn) & WID_CLOAKED_FLAG)
+						if (WALL_IS_DOORWAY(seg,sn) == WID_TRANSPARENT_WALL || WALL_IS_DOORWAY(seg,sn) == WID_TRANSILLUSORY_WALL
+#if defined(DXX_BUILD_DESCENT_II)
+							|| WALL_IS_DOORWAY(seg,sn) & WID_CLOAKED_FLAG
+#endif
+							)
 						{
 							glAlphaFunc(GL_GEQUAL,0.8);
 							render_side(seg, sn);
@@ -2181,7 +2202,11 @@ void render_mine(int start_seg_num,fix eye_offset, int window_num)
 		segnum = Render_list[nn];
 		Current_seg_depth = Seg_depth[nn];
 
+#if defined(DXX_BUILD_DESCENT_I)
+		if (segnum!=-1 && (_search_mode || eye_offset>0 || (unsigned char)visited[segnum]!=255))
+#elif defined(DXX_BUILD_DESCENT_II)
 		if (segnum!=-1 && (_search_mode || visited[segnum]!=255))
+#endif
 		{
 			//set global render window vars
 
@@ -2240,7 +2265,11 @@ void render_mine(int start_seg_num,fix eye_offset, int window_num)
 		segnum = Render_list[nn];
 		Current_seg_depth = Seg_depth[nn];
 
+#if defined(DXX_BUILD_DESCENT_I)
+		if (segnum!=-1 && (_search_mode || eye_offset>0 || (unsigned char)visited[segnum]!=255))
+#elif defined(DXX_BUILD_DESCENT_II)
 		if (segnum!=-1 && (_search_mode || visited[segnum]!=255))
+#endif
 		{
 			//set global render window vars
 
@@ -2267,8 +2296,11 @@ void render_mine(int start_seg_num,fix eye_offset, int window_num)
 					Automap_visited[segnum]=1;
 
 					for (sn=0; sn<MAX_SIDES_PER_SEGMENT; sn++)
-						if (WALL_IS_DOORWAY(seg,sn) == WID_TRANSPARENT_WALL || WALL_IS_DOORWAY(seg,sn) == WID_TRANSILLUSORY_WALL ||
-						WALL_IS_DOORWAY(seg,sn) & WID_CLOAKED_FLAG)
+						if (WALL_IS_DOORWAY(seg,sn) == WID_TRANSPARENT_WALL || WALL_IS_DOORWAY(seg,sn) == WID_TRANSILLUSORY_WALL
+#if defined(DXX_BUILD_DESCENT_II)
+							|| WALL_IS_DOORWAY(seg,sn) & WID_CLOAKED_FLAG
+#endif
+							)
 							render_side(seg, sn);
 				}
 			}
