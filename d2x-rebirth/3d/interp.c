@@ -21,7 +21,7 @@ COPYRIGHT 1993-1998 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 #include "dxxerror.h"
 
 #include "interp.h"
-#include "globvars.h"
+#include "common/3d/globvars.h"
 #include "gr.h"
 #include "byteswap.h"
 #include "u_mem.h"
