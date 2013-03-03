@@ -386,6 +386,7 @@ class DXXProgram(DXXCommon):
 'editor/medsel.c',
 'editor/medwall.c',
 'editor/mine.c',
+'editor/segment.c',
 'editor/texture.c',
 ]
 ]
@@ -633,7 +634,6 @@ class D1XProgram(DXXProgram):
 'editor/ehostage.c',
 'editor/medrobot.c',
 'editor/objpage.c',
-'editor/segment.c',
 'editor/seguvs.c',
 'editor/texpage.c',
 ]
@@ -765,7 +765,6 @@ class D2XProgram(DXXProgram):
 'editor/centers.c',
 'editor/medrobot.c',
 'editor/objpage.c',
-'editor/segment.c',
 'editor/seguvs.c',
 'editor/texpage.c',
 'main/bmread.c',
