@@ -323,6 +323,7 @@ class DXXProgram(DXXCommon):
 ]
 ]
 	similar_editor_sources = [os.path.join('similar', f) for f in [
+'editor/kcurve.c',
 'editor/kfuncs.c',
 'editor/khelp.c',
 ]
@@ -584,7 +585,6 @@ class D1XProgram(DXXProgram):
 'editor/group.c',
 'editor/info.c',
 'editor/kbuild.c',
-'editor/kcurve.c',
 'editor/kgame.c',
 'editor/kmine.c',
 'editor/ksegmove.c',
@@ -750,7 +750,6 @@ class D2XProgram(DXXProgram):
 'editor/group.c',
 'editor/info.c',
 'editor/kbuild.c',
-'editor/kcurve.c',
 'editor/kgame.c',
 'editor/kmine.c',
 'editor/ksegmove.c',
