@@ -441,6 +441,7 @@ class DXXProgram(DXXCommon):
 	objects_common = DXXCommon.create_lazy_object_property([{
 		'source':[os.path.join('similar', f) for f in [
 '2d/font.c',
+'2d/palette.c',
 '2d/pcx.c',
 '3d/interp.c',
 'arch/sdl/event.c',
@@ -703,7 +704,6 @@ class D1XProgram(DXXProgram):
 	# general source files
 	__objects_common = DXXCommon.create_lazy_object_property([{
 		'source':[os.path.join(srcdir, f) for f in [
-'2d/palette.c',
 'arch/sdl/digi.c',
 'arch/sdl/digi_audio.c',
 'iff/iff.c',
@@ -790,7 +790,6 @@ class D2XProgram(DXXProgram):
 	# general source files
 	__objects_common = DXXCommon.create_lazy_object_property([{
 		'source':[os.path.join(srcdir, f) for f in [
-'2d/palette.c',
 'arch/sdl/digi.c',
 'arch/sdl/digi_audio.c',
 'iff/iff.c',

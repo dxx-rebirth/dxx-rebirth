@@ -19,6 +19,7 @@ COPYRIGHT 1993-1998 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 
 #include <stdlib.h>
 #include <stdio.h>
+#include <string.h>
 
 #include "physfsx.h"
 #include "pstypes.h"
@@ -27,8 +28,21 @@ COPYRIGHT 1993-1998 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 #include "grdef.h"
 #include "dxxerror.h"
 #include "fix.h"
+#include "palette.h"
 
 extern int gr_installed;
+
+#define SQUARE(x) ((x)*(x))
+
+#define	MAX_COMPUTED_COLORS	32
+
+int	Num_computed_colors=0;
+
+typedef struct {
+	ubyte	r,g,b,color_num;
+} color_record;
+
+color_record Computed_colors[MAX_COMPUTED_COLORS];
 
 ubyte gr_palette[256*3];
 ubyte gr_current_pal[256*3];
@@ -36,8 +50,6 @@ ubyte gr_fade_table[256*34];
 
 ubyte gr_palette_gamma = 0;
 int gr_palette_gamma_param = 0;
-
-extern void gr_palette_load( ubyte * pal );
 
 void gr_palette_set_gamma( int gamma )
 {
@@ -57,14 +69,35 @@ int gr_palette_get_gamma()
 }
 
 
+#if defined(DXX_BUILD_DESCENT_II)
+void gr_copy_palette(ubyte *gr_palette, ubyte *pal, int size)
+{
+	        memcpy(gr_palette, pal, size);
+
+	        Num_computed_colors = 0;
+}
+#endif
+
 void gr_use_palette_table( char * filename )
 {
 	PHYSFS_file *fp;
 	int i,fsize;
 
 	fp = PHYSFSX_openReadBuffered( filename );
+#if defined(DXX_BUILD_DESCENT_I)
+#define FAILURE_FORMAT	"Can't open palette file <%s>"
+#elif defined(DXX_BUILD_DESCENT_II)
+#define FAILURE_FORMAT	"Can open neither palette file <%s> nor default palette file <" DEFAULT_LEVEL_PALETTE ">"
+	// the following is a hack to enable the loading of d2 levels
+	// even if only the d2 mac shareware datafiles are present.
+	// However, if the pig file is present but the palette file isn't,
+	// the textures in the level will look wierd...
 	if ( fp==NULL)
-		Error("Can't open palette file <%s>",filename);
+		fp = PHYSFSX_openReadBuffered( DEFAULT_LEVEL_PALETTE );
+#endif
+	if ( fp==NULL)
+		Error(FAILURE_FORMAT,
+		      filename);
 
 	fsize	= PHYSFS_fileLength( fp );
 	Assert( fsize == 9472 );
@@ -77,19 +110,27 @@ void gr_use_palette_table( char * filename )
 	for (i=0; i<GR_FADE_LEVELS; i++ )	{
 		gr_fade_table[i*256+255] = 255;
 	}
+#if defined(DXX_BUILD_DESCENT_II)
+	Num_computed_colors = 0;	//	Flush palette cache.
+// swap colors 0 and 255 of the palette along with fade table entries
+
+#ifdef SWAP_0_255
+	for (i = 0; i < 3; i++) {
+		ubyte c;
+		c = gr_palette[i];
+		gr_palette[i] = gr_palette[765+i];
+		gr_palette[765+i] = c;
+	}
+
+	for (i = 0; i < GR_FADE_LEVELS * 256; i++) {
+		if (gr_fade_table[i] == 0)
+			gr_fade_table[i] = 255;
+	}
+	for (i=0; i<GR_FADE_LEVELS; i++)
+		gr_fade_table[i*256] = TRANSPARENCY_COLOR;
+#endif
+#endif
 }
-
-#define SQUARE(x) ((x)*(x))
-
-#define	MAX_COMPUTED_COLORS	32
-
-int	Num_computed_colors=0;
-
-typedef struct {
-	ubyte	r,g,b,color_num;
-} color_record;
-
-color_record Computed_colors[MAX_COMPUTED_COLORS];
 
 //	Add a computed color (by gr_find_closest_color) to list of computed colors in Computed_colors.
 //	If list wasn't full already, increment Num_computed_colors.
@@ -220,3 +261,24 @@ void gr_make_cthru_table(ubyte * table, ubyte r, ubyte g, ubyte b )
 	}
 }
 
+#if defined(DXX_BUILD_DESCENT_II)
+void gr_make_blend_table(ubyte *blend_table, ubyte r, ubyte g, ubyte b)
+{
+	int i, j;
+	float alpha;
+	ubyte r1, g1, b1;
+
+	for (j = 0; j < GR_FADE_LEVELS; j++)
+	{
+		alpha = 1.0 - (float)j / ((float)GR_FADE_LEVELS - 1);
+		for (i = 0; i < 255; i++)
+		{
+			r1 = (ubyte)((1.0 - alpha) * (float)gr_palette[i * 3 + 0] + (alpha * (float)r));
+			g1 = (ubyte)((1.0 - alpha) * (float)gr_palette[i * 3 + 1] + (alpha * (float)g));
+			b1 = (ubyte)((1.0 - alpha) * (float)gr_palette[i * 3 + 2] + (alpha * (float)b));
+			blend_table[i + j * 256] = gr_find_closest_color(r1, g1, b1);
+		}
+		blend_table[i + j * 256] = 255; // leave white alone
+	}
+}
+#endif
