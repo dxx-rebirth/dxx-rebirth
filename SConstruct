@@ -201,7 +201,7 @@ class DXXCommon:
 class DXXArchive(DXXCommon):
 	srcdir = 'common'
 	target = 'dxx-common'
-	common_sources = [os.path.join('common', f) for f in [
+	common_sources = [os.path.join(srcdir, f) for f in [
 '2d/2dsline.c',
 '2d/bitblt.c',
 '2d/bitmap.c',
@@ -236,7 +236,10 @@ class DXXArchive(DXXCommon):
 'misc/strutil.c',
 ]
 ]
-	editor_sources = []
+	editor_sources = [os.path.join(srcdir, f) for f in [
+'ui/userbox.c'
+]
+]
 	def __init__(self):
 		self.PROGRAM_NAME = 'DXX-Archive'
 		DXXCommon.__init__(self)
@@ -530,7 +533,6 @@ class D1XProgram(DXXProgram):
 'ui/scroll.c',
 'ui/ui.c',
 'ui/uidraw.c',
-'ui/userbox.c'
 ]
 ]
 		DXXProgram.__init__(self)
@@ -755,7 +757,6 @@ class D2XProgram(DXXProgram):
 'ui/scroll.c',
 'ui/ui.c',
 'ui/uidraw.c',
-'ui/userbox.c'
 ]
 ]
 		DXXProgram.__init__(self)
