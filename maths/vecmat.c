@@ -220,7 +220,7 @@ fix vm_vec_mag(vms_vector *v)
 }
 
 //computes the distance between two points. (does sub and mag)
-fix vm_vec_dist(vms_vector *v0,vms_vector *v1)
+fix vm_vec_dist(const vms_vector *v0,const vms_vector *v1)
 {
 	vms_vector t;
 
@@ -888,7 +888,7 @@ vms_angvec *vm_extract_angles_vector(vms_angvec *a,vms_vector *v)
 //of the plane (ebx), a point on the plane (edi), and the point to check (esi).
 //returns distance in eax
 //distance is signed, so negative dist is on the back of the plane
-fix vm_dist_to_plane(vms_vector *checkp,vms_vector *norm,vms_vector *planep)
+fix vm_dist_to_plane(const vms_vector *checkp,const vms_vector *norm,const vms_vector *planep)
 {
 	vms_vector t;
 
