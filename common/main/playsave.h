@@ -25,23 +25,51 @@ COPYRIGHT 1993-1999 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 #include "mission.h"
 #include "weapon.h"
 #include "multi.h"
+#if defined(DXX_BUILD_DESCENT_I)
+#include "pstypes.h"
+#include "player.h"
+#elif defined(DXX_BUILD_DESCENT_II)
 #include "escort.h"
+#endif
 
 #define N_SAVE_SLOTS    10
 #define GAME_NAME_LEN   25      // +1 for terminating zero = 26
+
+#if defined(DXX_BUILD_DESCENT_I)
+// NOTE: Obsolete structure - only kept for compability of shareware plr file
+typedef struct saved_game_sw {
+	char		name[GAME_NAME_LEN+1];		//extra char for terminating zero
+	struct player_rw sg_player;
+	int		difficulty_level;		//which level game is played at
+	int		primary_weapon;		//which weapon selected
+	int		secondary_weapon;		//which weapon selected
+	int		cockpit_mode;			//which cockpit mode selected
+	int		window_w,window_h;	//size of player's window
+	int		next_level_num;		//which level we're going to
+	int		auto_leveling_on;		//does player have autoleveling on?
+} __pack__ saved_game_sw;
+
+void plyr_read_stats();
+void plyr_save_stats();
+#endif
 
 typedef struct hli {
 	char	Shortname[9];
 	ubyte	LevelNum;
 } hli;
 
+#if defined(DXX_BUILD_DESCENT_I) || defined(DXX_BUILD_DESCENT_II)
 typedef struct player_config
 {
 	ubyte ControlType;
 	ubyte PrimaryOrder[MAX_PRIMARY_WEAPONS+1];
 	ubyte SecondaryOrder[MAX_SECONDARY_WEAPONS+1];
 	ubyte KeySettings[3][MAX_CONTROLS];
+#if defined(DXX_BUILD_DESCENT_I)
+	ubyte KeySettingsD1X[MAX_D1X_CONTROLS];
+#elif defined(DXX_BUILD_DESCENT_II)
 	ubyte KeySettingsD2X[MAX_D2X_CONTROLS];
+#endif
 	int DefaultDifficulty;
 	int AutoLeveling;
 	short NHighestLevels;
@@ -54,39 +82,47 @@ typedef struct player_config
 	int MouseFSDead;
 	int MouseFSIndicator;
 	int CockpitMode[2]; // 0 saves the "real" cockpit, 1 also saves letterbox and rear. Used to properly switch between modes and restore the real one.
+#if defined(DXX_BUILD_DESCENT_II)
 	int Cockpit3DView[2];
+#endif
 	char NetworkMessageMacro[4][MAX_MESSAGE_LEN];
 	int NetlifeKills;
 	int NetlifeKilled;
 	ubyte ReticleType;
 	int ReticleRGBA[4];
 	int ReticleSize;
+#if defined(DXX_BUILD_DESCENT_II)
 	int MissileViewEnabled;
 	int HeadlightActiveDefault;
 	int GuidedInBigWindow;
 	char GuidebotName[GUIDEBOT_NAME_LEN+1];
 	char GuidebotNameReal[GUIDEBOT_NAME_LEN+1];
+#endif
 	int HudMode;
+#if defined(DXX_BUILD_DESCENT_II)
 	int EscortHotKeys;
+#endif
 	int PersistentDebris;
 	int PRShot;
 	ubyte NoRedundancy;
 	ubyte MultiMessages;
 	ubyte NoRankings;
+#if defined(DXX_BUILD_DESCENT_I)
+	ubyte BombGauge;
+#endif
 	ubyte AutomapFreeFlight;
 	ubyte NoFireAutoselect;
 	ubyte CycleAutoselectOnly;
 	int AlphaEffects;
 	int DynLightColor;
 } __pack__ player_config;
+#endif
 
 extern struct player_config PlayerCfg;
 
 #ifndef EZERO
 #define EZERO 0
 #endif
-
-extern int Default_leveling_on;
 
 // Used to save kconfig values to disk.
 int write_player_file();
