@@ -103,6 +103,7 @@ class DXXCommon:
 		self.env.Append(CCFLAGS = ['-Wall', '-funsigned-char', '-Werror=implicit-int', '-Werror=implicit-function-declaration', '-pedantic', '-pthread'])
 		self.env.Append(CFLAGS = ['-std=c99'])
 		self.env.Append(CPPDEFINES = ['NETWORK'])
+		self.env.Append(CPPPATH = ['common/include'])
 		# Get traditional compiler environment variables
 		for cc in ['CC', 'CXX']:
 			if os.environ.has_key(cc):
