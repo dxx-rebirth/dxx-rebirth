@@ -165,8 +165,10 @@ void write_exit_text(PHYSFS_file *my_file)
 	if (count == 0)
 		err_printf(my_file, "Error: No external wall in this mine.\n");
 	else if (count != 1) {
-		// -- warning_printf(my_file, "Warning: %i external walls in this mine.\n", count);
-		// -- warning_printf(my_file, "(If %i are secret exits, then no problem.)\n", count-1);
+#if defined(DXX_BUILD_DESCENT_I)
+		warning_printf(my_file, "Warning: %i external walls in this mine.\n", count);
+		warning_printf(my_file, "(If %i are secret exits, then no problem.)\n", count-1); 
+#endif
 	} else
 		PHYSFSX_printf(my_file, "\n");
 }
@@ -447,8 +449,10 @@ void write_wall_text(PHYSFS_file *my_file)
 		PHYSFSX_printf(my_file, "Wall %03i: seg=%3i, side=%2i, linked_wall=%3i, type=%s, flags=%4x, hps=%3i, trigger=%2i, clip_num=%2i, keys=%2i, state=%i\n", i,
 			Walls[i].segnum, Walls[i].sidenum, Walls[i].linked_wall, Wall_names[Walls[i].type], Walls[i].flags, Walls[i].hps >> 16, Walls[i].trigger, Walls[i].clip_num, Walls[i].keys, Walls[i].state);
 
+#if defined(DXX_BUILD_DESCENT_II)
 		if (Walls[i].trigger >= Num_triggers)
 			PHYSFSX_printf(my_file, "Wall %03d points to invalid trigger %d\n",i,Walls[i].trigger);
+#endif
 
 		segnum = Walls[i].segnum;
 		sidenum = Walls[i].sidenum;
@@ -457,7 +461,7 @@ void write_wall_text(PHYSFS_file *my_file)
 			err_printf(my_file, "Error: Wall %i points at segment %i, side %i, but that segment doesn't point back (it's wall_num = %i)\n", i, segnum, sidenum, Segments[segnum].sides[sidenum].wall_num);
 	}
 
-	for (i=0; i<sizeof(wall_flags)/sizeof(wall_flags[0]); i++)
+	for (unsigned i=0; i<sizeof(wall_flags)/sizeof(wall_flags[0]); i++)
 		wall_flags[i] = 0;
 
 	for (i=0; i<=Highest_segment_index; i++) {
@@ -476,17 +480,6 @@ void write_wall_text(PHYSFS_file *my_file)
 
 }
 
-//typedef struct trigger {
-//	sbyte   type;
-//	short		flags;
-//	fix		value;
-//	fix		time;
-//	sbyte   link_num;
-//	short 	num_links;
-//	short 	seg[MAX_WALLS_PER_LINK];
-//	short		side[MAX_WALLS_PER_LINK];
-//	} trigger;
-
 // ----------------------------------------------------------------------------
 void write_player_text(PHYSFS_file *my_file)
 {
@@ -501,8 +494,10 @@ void write_player_text(PHYSFS_file *my_file)
 		}
 	}
 
+#if defined(DXX_BUILD_DESCENT_II)
 	if (num_players != MAX_PLAYERS)
 		err_printf(my_file, "Error: %i player objects.  %i are required.\n", num_players, MAX_PLAYERS);
+#endif
 	if (num_players > MAX_MULTI_PLAYERS)
 		err_printf(my_file, "Error: %i player objects.  %i are required.\n", num_players, MAX_PLAYERS);
 }
@@ -515,8 +510,13 @@ void write_trigger_text(PHYSFS_file *my_file)
 	PHYSFSX_printf(my_file, "-----------------------------------------------------------------------------\n");
 	PHYSFSX_printf(my_file, "Triggers:\n");
 	for (i=0; i<Num_triggers; i++) {
+#if defined(DXX_BUILD_DESCENT_I)
+		PHYSFSX_printf(my_file, "Trigger %03i: type=%3i flags=%04x, value=%08x, time=%8x, linknum=%i, num_links=%i ", i, 
+                        Triggers[i].type, Triggers[i].flags, (unsigned int) (Triggers[i].value), (unsigned int) (Triggers[i].time), Triggers[i].link_num, Triggers[i].num_links);
+#elif defined(DXX_BUILD_DESCENT_II)
 		PHYSFSX_printf(my_file, "Trigger %03i: type=%02x flags=%04x, value=%08x, time=%8x, num_links=%i ", i,
 			Triggers[i].type, Triggers[i].flags, Triggers[i].value, Triggers[i].time, Triggers[i].num_links);
+#endif
 
 		for (j=0; j<Triggers[i].num_links; j++)
 			PHYSFSX_printf(my_file, "[%03i:%i] ", Triggers[i].seg[j], Triggers[i].side[j]);
@@ -604,95 +604,7 @@ void write_game_text_file(const char *filename)
 	}
 }
 
-// -- //	---------------
-// -- //	Note: This only works for a loaded level because the objects array must be valid.
-// -- void determine_used_textures_robots(int *tmap_buf)
-// -- {
-// -- 	int	i, objnum;
-// -- 	polymodel	*po;
-// --
-// -- 	Assert(N_polygon_models);
-// --
-// -- 	for (objnum=0; objnum <= Highest_object_index; objnum++) {
-// -- 		int	model_num;
-// --
-// -- 		if (Objects[objnum].render_type == RT_POLYOBJ) {
-// -- 			model_num = Objects[objnum].rtype.pobj_info.model_num;
-// --
-// -- 			po=&Polygon_models[model_num];
-// --
-// -- 			for (i=0;i<po->n_textures;i++)	{
-// -- 				int	tli;
-// --
-// -- 				tli = ObjBitmaps[ObjBitmapPtrs[po->first_texture+i]];
-// -- 				Assert((tli>=0) && (tli<= Num_tmaps));
-// -- 				tmap_buf[tli]++;
-// -- 			}
-// -- 		}
-// -- 	}
-// --
-// -- }
-
-// --05/17/95--//	-----------------------------------------------------------------------------
-// --05/17/95--void determine_used_textures_level(int load_level_flag, int shareware_flag, int level_num, int *tmap_buf, int *wall_buf, sbyte *level_tmap_buf, int max_tmap)
-// --05/17/95--{
-// --05/17/95--	int	segnum, sidenum;
-// --05/17/95--	int	i, j;
-// --05/17/95--
-// --05/17/95--	for (i=0; i<max_tmap; i++)
-// --05/17/95--		tmap_buf[i] = 0;
-// --05/17/95--
-// --05/17/95--	if (load_level_flag) {
-// --05/17/95--		if (shareware_flag)
-// --05/17/95--			load_level(Shareware_level_names[level_num]);
-// --05/17/95--		else
-// --05/17/95--			load_level(Registered_level_names[level_num]);
-// --05/17/95--	}
-// --05/17/95--
-// --05/17/95--	for (segnum=0; segnum<=Highest_segment_index; segnum++) {
-// --05/17/95--		segment	*segp = &Segments[segnum];
-// --05/17/95--
-// --05/17/95--		for (sidenum=0; sidenum<MAX_SIDES_PER_SEGMENT; sidenum++) {
-// --05/17/95--			side	*sidep = &segp->sides[sidenum];
-// --05/17/95--
-// --05/17/95--			if (sidep->wall_num != -1) {
-// --05/17/95--				int clip_num = Walls[sidep->wall_num].clip_num;
-// --05/17/95--				if (clip_num != -1) {
-// --05/17/95--
-// --05/17/95--					int num_frames = WallAnims[clip_num].num_frames;
-// --05/17/95--
-// --05/17/95--					wall_buf[clip_num] = 1;
-// --05/17/95--
-// --05/17/95--					for (j=0; j<num_frames; j++) {
-// --05/17/95--						int	tmap_num;
-// --05/17/95--
-// --05/17/95--						tmap_num = WallAnims[clip_num].frames[j];
-// --05/17/95--						tmap_buf[tmap_num]++;
-// --05/17/95--						if (level_tmap_buf[tmap_num] == -1)
-// --05/17/95--							level_tmap_buf[tmap_num] = level_num + (!shareware_flag) * NUM_SHAREWARE_LEVELS;
-// --05/17/95--					}
-// --05/17/95--				}
-// --05/17/95--			}
-// --05/17/95--
-// --05/17/95--			if (sidep->tmap_num >= 0)
-// --05/17/95--				if (sidep->tmap_num < max_tmap) {
-// --05/17/95--					tmap_buf[sidep->tmap_num]++;
-// --05/17/95--					if (level_tmap_buf[sidep->tmap_num] == -1)
-// --05/17/95--						level_tmap_buf[sidep->tmap_num] = level_num + (!shareware_flag) * NUM_SHAREWARE_LEVELS;
-// --05/17/95--				} else
-// --05/17/95--					Int3();	//	Error, bogus texture map.  Should not be greater than max_tmap.
-// --05/17/95--
-// --05/17/95--			if ((sidep->tmap_num2 & 0x3fff) != 0)
-// --05/17/95--				if ((sidep->tmap_num2 & 0x3fff) < max_tmap) {
-// --05/17/95--					tmap_buf[sidep->tmap_num2 & 0x3fff]++;
-// --05/17/95--					if (level_tmap_buf[sidep->tmap_num2 & 0x3fff] == -1)
-// --05/17/95--						level_tmap_buf[sidep->tmap_num2 & 0x3fff] = level_num + (!shareware_flag) * NUM_SHAREWARE_LEVELS;
-// --05/17/95--				} else
-// --05/17/95--					Int3();	//	Error, bogus texture map.  Should not be greater than max_tmap.
-// --05/17/95--		}
-// --05/17/95--	}
-// --05/17/95--}
-
+#if defined(DXX_BUILD_DESCENT_II)
 //	Adam: Change NUM_ADAM_LEVELS to the number of levels.
 #define	NUM_ADAM_LEVELS	30
 
@@ -736,13 +648,79 @@ static const char *const Adam_level_names[NUM_ADAM_LEVELS] = {
 };
 
 int	Ignore_tmap_num2_error;
+#endif
 
 // ----------------------------------------------------------------------------
 void determine_used_textures_level(int load_level_flag, int shareware_flag, int level_num, int *tmap_buf, int *wall_buf, sbyte *level_tmap_buf, int max_tmap)
 {
-	int	segnum, sidenum, objnum=max_tmap;
+	int	segnum, sidenum;
 	int	i, j;
 
+#if defined(DXX_BUILD_DESCENT_I)
+	for (i=0; i<max_tmap; i++)
+		tmap_buf[i] = 0;
+
+	if (load_level_flag) {
+		if (shareware_flag)
+			load_level(Shareware_level_names[level_num]);
+		else
+			load_level(Registered_level_names[level_num]);
+	}
+
+	for (segnum=0; segnum<=Highest_segment_index; segnum++)
+         {
+		segment	*segp = &Segments[segnum];
+
+		for (sidenum=0; sidenum<MAX_SIDES_PER_SEGMENT; sidenum++)
+                 {
+			side	*sidep = &segp->sides[sidenum];
+
+			if (sidep->wall_num != -1) {
+				int clip_num = Walls[sidep->wall_num].clip_num;
+				if (clip_num != -1) {
+
+					int num_frames = WallAnims[clip_num].num_frames;
+
+					wall_buf[clip_num] = 1;
+
+					for (j=0; j<num_frames; j++) {
+						int	tmap_num;
+
+						tmap_num = WallAnims[clip_num].frames[j];
+						tmap_buf[tmap_num]++;
+						if (level_tmap_buf[tmap_num] == -1)
+							level_tmap_buf[tmap_num] = level_num + (!shareware_flag) * NUM_SHAREWARE_LEVELS;
+					}
+				}
+			}
+
+			if (sidep->tmap_num >= 0)
+                         {
+				if (sidep->tmap_num < max_tmap)
+                                 {
+					tmap_buf[sidep->tmap_num]++;
+					if (level_tmap_buf[sidep->tmap_num] == -1)
+						level_tmap_buf[sidep->tmap_num] = level_num + (!shareware_flag) * NUM_SHAREWARE_LEVELS;
+                                 }
+                                else
+                                 {
+					Int3(); //	Error, bogus texture map.  Should not be greater than max_tmap.
+                                 }
+                         }
+
+			if ((sidep->tmap_num2 & 0x3fff) != 0)
+                         {
+				if ((sidep->tmap_num2 & 0x3fff) < max_tmap) {
+					tmap_buf[sidep->tmap_num2 & 0x3fff]++;
+					if (level_tmap_buf[sidep->tmap_num2 & 0x3fff] == -1)
+						level_tmap_buf[sidep->tmap_num2 & 0x3fff] = level_num + (!shareware_flag) * NUM_SHAREWARE_LEVELS;
+				} else
+					Int3();	//	Error, bogus texture map.  Should not be greater than max_tmap.
+                         }
+                 }
+         }
+#elif defined(DXX_BUILD_DESCENT_II)
+	int objnum=max_tmap;
 	Assert(shareware_flag != -17);
 
 	for (i=0; i<MAX_BITMAP_FILES; i++)
@@ -833,6 +811,7 @@ void determine_used_textures_level(int load_level_flag, int shareware_flag, int 
 			}
 		}
 	}
+#endif
 }
 
 // ----------------------------------------------------------------------------
@@ -849,38 +828,47 @@ void merge_buffers(int *dest, int *src, int num)
 void say_used_tmaps(PHYSFS_file *my_file, int *tb)
 {
 	int	i;
-// -- mk, 08/14/95 -- 	int	count = 0;
+#if defined(DXX_BUILD_DESCENT_I)
+	int	count = 0;
 
+	for (i=0; i<Num_tmaps; i++)
+		if (tb[i]) {
+			PHYSFSX_printf(my_file, "[%3i %8s (%4i)] ", i, TmapInfo[i].filename, tb[i]);
+			if (count++ >= 4) {
+				PHYSFSX_printf(my_file, "\n");
+				count = 0;
+			}
+		}
+#elif defined(DXX_BUILD_DESCENT_II)
 	for (i=0; i<MAX_BITMAP_FILES; i++)
 		if (tb[i]) {
 			PHYSFSX_printf(my_file, "[%3i %8s (%4i)]\n", i, AllBitmaps[i].name, tb[i]);
-// -- mk, 08/14/95 -- 			if (count++ >= 4) {
-// -- mk, 08/14/95 -- 				PHYSFSX_printf(my_file, "\n");
-// -- mk, 08/14/95 -- 				count = 0;
-// -- mk, 08/14/95 -- 			}
 		}
+#endif
 }
 
-// --05/17/95--//	-----------------------------------------------------------------------------
-// --05/17/95--void say_used_once_tmaps(PHYSFS_file *my_file, int *tb, sbyte *tb_lnum)
-// --05/17/95--{
-// --05/17/95--	int	i;
-// --05/17/95--	char	*level_name;
-// --05/17/95--
-// --05/17/95--	for (i=0; i<Num_tmaps; i++)
-// --05/17/95--		if (tb[i] == 1) {
-// --05/17/95--			int	level_num = tb_lnum[i];
-// --05/17/95--			if (level_num >= NUM_SHAREWARE_LEVELS) {
-// --05/17/95--				Assert((level_num - NUM_SHAREWARE_LEVELS >= 0) && (level_num - NUM_SHAREWARE_LEVELS < NUM_REGISTERED_LEVELS));
-// --05/17/95--				level_name = Registered_level_names[level_num - NUM_SHAREWARE_LEVELS];
-// --05/17/95--			} else {
-// --05/17/95--				Assert((level_num >= 0) && (level_num < NUM_SHAREWARE_LEVELS));
-// --05/17/95--				level_name = Shareware_level_names[level_num];
-// --05/17/95--			}
-// --05/17/95--
-// --05/17/95--			PHYSFSX_printf(my_file, "Texture %3i %8s used only once on level %s\n", i, TmapInfo[i].filename, level_name);
-// --05/17/95--		}
-// --05/17/95--}
+#if defined(DXX_BUILD_DESCENT_I)
+//	-----------------------------------------------------------------------------
+void say_used_once_tmaps(PHYSFS_file *my_file, int *tb, sbyte *tb_lnum)
+{
+	int	i;
+	const char	*level_name;
+
+	for (i=0; i<Num_tmaps; i++)
+		if (tb[i] == 1) {
+			int	level_num = tb_lnum[i];
+			if (level_num >= NUM_SHAREWARE_LEVELS) {
+				Assert((level_num - NUM_SHAREWARE_LEVELS >= 0) && (level_num - NUM_SHAREWARE_LEVELS < NUM_REGISTERED_LEVELS));
+				level_name = Registered_level_names[level_num - NUM_SHAREWARE_LEVELS];
+			} else {
+				Assert((level_num >= 0) && (level_num < NUM_SHAREWARE_LEVELS));
+				level_name = Shareware_level_names[level_num];
+			}
+
+			PHYSFSX_printf(my_file, "Texture %3i %8s used only once on level %s\n", i, TmapInfo[i].filename, level_name);
+		}
+}
+#endif
 
 // ----------------------------------------------------------------------------
 void say_unused_tmaps(PHYSFS_file *my_file, int *tb)
@@ -888,14 +876,22 @@ void say_unused_tmaps(PHYSFS_file *my_file, int *tb)
 	int	i;
 	int	count = 0;
 
+#if defined(DXX_BUILD_DESCENT_I)
+	for (i=0; i<Num_tmaps; i++)
+#elif defined(DXX_BUILD_DESCENT_II)
 	for (i=0; i<MAX_BITMAP_FILES; i++)
+#endif
 		if (!tb[i]) {
 			if (GameBitmaps[Textures[i].index].bm_data == bogus_data)
 				PHYSFSX_printf(my_file, "U");
 			else
 				PHYSFSX_printf(my_file, " ");
 
+#if defined(DXX_BUILD_DESCENT_I)
+			PHYSFSX_printf(my_file, "[%3i %8s] ", i, TmapInfo[i].filename);
+#elif defined(DXX_BUILD_DESCENT_II)
 			PHYSFSX_printf(my_file, "[%3i %8s] ", i, AllBitmaps[i].name);
+#endif
 			if (count++ >= 4) {
 				PHYSFSX_printf(my_file, "\n");
 				count = 0;
@@ -903,7 +899,17 @@ void say_unused_tmaps(PHYSFS_file *my_file, int *tb)
 		}
 }
 
+#if defined(DXX_BUILD_DESCENT_I)
 // ----------------------------------------------------------------------------
+void say_unused_walls(PHYSFS_file *my_file, int *tb)
+{
+	int	i;
+	for (i=0; i<Num_wall_anims; i++)
+		if (!tb[i])
+			PHYSFSX_printf(my_file, "Wall %3i is unused.\n", i);
+}
+#endif
+
 static void say_totals(PHYSFS_file *my_file, const char *level_name)
 {
 	int	i;		//, objnum;
@@ -966,8 +972,10 @@ static void say_totals(PHYSFS_file *my_file, const char *level_name)
 	PHYSFSX_printf(my_file, "Total robots = %3i\n", total_robots);
 }
 
+#if defined(DXX_BUILD_DESCENT_II)
 int	First_dump_level = 0;
 int	Last_dump_level = NUM_ADAM_LEVELS-1;
+#endif
 
 // ----------------------------------------------------------------------------
 void say_totals_all(void)
@@ -987,19 +995,37 @@ void say_totals_all(void)
 		return;
 	}
 
+#if defined(DXX_BUILD_DESCENT_I)
+	for (i=0; i<NUM_SHAREWARE_LEVELS; i++) {
+		load_level(Shareware_level_names[i]);
+		say_totals(my_file, Shareware_level_names[i]);
+	}
+
+	for (i=0; i<NUM_REGISTERED_LEVELS; i++) {
+		load_level(Registered_level_names[i]);
+		say_totals(my_file, Registered_level_names[i]);
+	}
+#elif defined(DXX_BUILD_DESCENT_II)
 	for (i=First_dump_level; i<=Last_dump_level; i++) {
 		load_level(Adam_level_names[i]);
 		say_totals(my_file, Adam_level_names[i]);
 	}
+#endif
 
 	PHYSFS_close(my_file);
 }
 
 static void dump_used_textures_level(PHYSFS_file *my_file, int level_num)
 {
+#if defined(DXX_BUILD_DESCENT_I)
+	int	temp_tmap_buf[MAX_TEXTURES];
+	sbyte	level_tmap_buf[MAX_TEXTURES];
+	int	temp_wall_buf[MAX_WALL_ANIMS];
+#elif defined(DXX_BUILD_DESCENT_II)
 	int	temp_tmap_buf[MAX_BITMAP_FILES];
 	sbyte level_tmap_buf[MAX_BITMAP_FILES];
 	int	temp_wall_buf[MAX_BITMAP_FILES];
+#endif
 
 	for (unsigned i=0; i<(sizeof(level_tmap_buf)/sizeof(level_tmap_buf[0])); i++)
 		level_tmap_buf[i] = -1;
@@ -1014,10 +1040,18 @@ void dump_used_textures_all(void)
 {
 	PHYSFS_file	*my_file;
 	int	i;
+#if defined(DXX_BUILD_DESCENT_I)
+	int	temp_tmap_buf[MAX_TEXTURES];
+	int	perm_tmap_buf[MAX_TEXTURES];
+	sbyte	level_tmap_buf[MAX_TEXTURES];
+	int	temp_wall_buf[MAX_WALL_ANIMS];
+	int	perm_wall_buf[MAX_WALL_ANIMS];
+#elif defined(DXX_BUILD_DESCENT_II)
 	int	temp_tmap_buf[MAX_BITMAP_FILES];
 	int	perm_tmap_buf[MAX_BITMAP_FILES];
 	sbyte level_tmap_buf[MAX_BITMAP_FILES];
 	int	temp_wall_buf[MAX_BITMAP_FILES];
+#endif
 
 say_totals_all();
 
@@ -1033,15 +1067,47 @@ say_totals_all();
 		return;
 	}
 
-	for (i=0; i<sizeof(perm_tmap_buf)/sizeof(perm_tmap_buf[0]); i++) {
+	for (unsigned i=0; i<sizeof(perm_tmap_buf)/sizeof(perm_tmap_buf[0]); i++) {
 		perm_tmap_buf[i] = 0;
 		level_tmap_buf[i] = -1;
 	}
 
+#if defined(DXX_BUILD_DESCENT_I)
+	for (i=0; i<MAX_WALL_ANIMS; i++) {
+		perm_wall_buf[i] = 0;
+	}
+
+	for (i=0; i<NUM_SHAREWARE_LEVELS; i++) {
+		determine_used_textures_level(1, 1, i, temp_tmap_buf, temp_wall_buf, level_tmap_buf, sizeof(level_tmap_buf)/sizeof(level_tmap_buf[0]));
+		PHYSFSX_printf(my_file, "\nTextures used in [%s]\n", Shareware_level_names[i]);
+		say_used_tmaps(my_file, temp_tmap_buf);
+		merge_buffers(perm_tmap_buf, temp_tmap_buf, MAX_TEXTURES);
+		merge_buffers(perm_wall_buf, temp_wall_buf, MAX_WALL_ANIMS);
+	}
+
+	PHYSFSX_printf(my_file, "\n\nUsed textures in all shareware mines:\n");
+	say_used_tmaps(my_file, perm_tmap_buf);
+
+	PHYSFSX_printf(my_file, "\nUnused textures in all shareware mines:\n");
+	say_unused_tmaps(my_file, perm_tmap_buf);
+
+	PHYSFSX_printf(my_file, "\nTextures used exactly once in all shareware mines:\n");
+	say_used_once_tmaps(my_file, perm_tmap_buf, level_tmap_buf);
+
+	PHYSFSX_printf(my_file, "\nWall anims (eg, doors) unused in all shareware mines:\n");
+	say_unused_walls(my_file, perm_wall_buf);
+
+	for (i=0; i<NUM_REGISTERED_LEVELS; i++)
+#elif defined(DXX_BUILD_DESCENT_II)
 	for (i=First_dump_level; i<=Last_dump_level; i++)
+#endif
 	{
 		determine_used_textures_level(1, 0, i, temp_tmap_buf, temp_wall_buf, level_tmap_buf, sizeof(level_tmap_buf)/sizeof(level_tmap_buf[0]));
+#if defined(DXX_BUILD_DESCENT_I)
+		PHYSFSX_printf(my_file, "\nTextures used in [%s]\n", Registered_level_names[i]);
+#elif defined(DXX_BUILD_DESCENT_II)
 		PHYSFSX_printf(my_file, "\nTextures used in [%s]\n", Adam_level_names[i]);
+#endif
 		say_used_tmaps(my_file, temp_tmap_buf);
 		merge_buffers(perm_tmap_buf, temp_tmap_buf, sizeof(perm_tmap_buf)/sizeof(perm_tmap_buf[0]));
 	}
