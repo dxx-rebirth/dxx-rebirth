@@ -37,7 +37,6 @@ COPYRIGHT 1993-1999 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 #include "menu.h"
 #include "player.h"
 #include "screens.h"
-#include "gamefont.h"
 #include "cntrlcen.h"
 #include "mouse.h"
 #include "joy.h"
@@ -57,7 +56,6 @@ COPYRIGHT 1993-1999 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 #define CENTERING_OFFSET(x) ((300 - (70 + (x)*25 ))/2)
 #define CENTERSCREEN (SWIDTH/2)
 #define KMATRIX_VIEW_SEC 7 // Time after reactor explosion until new level - in seconds
-void kmatrix_phallic ();
 void kmatrix_redraw_coop();
 fix64 StartAbortMenuTime;
 
@@ -161,6 +159,7 @@ void kmatrix_draw_coop_names(int *sorted)
 	gr_string( CENTERSCREEN+FSPACX(50), FSPACY(40), "DEATHS");
 }
 
+#if defined(DXX_BUILD_DESCENT_II)
 extern int PhallicLimit,PhallicMan;
 
 void kmatrix_phallic ()
@@ -178,6 +177,7 @@ void kmatrix_phallic ()
 	gr_get_string_size(message, &sw, &sh, &aw);
 	gr_string( CENTERSCREEN-(sw/2), FSPACY(55+72+3), message);
 }
+#endif
 
 void kmatrix_status_msg (fix time, int reactor)
 {
@@ -215,11 +215,13 @@ void kmatrix_redraw(kmatrix_screen *km)
 		multi_sort_kill_list();
 		grd_curcanv->cv_font = MEDIUM3_FONT;
 
+#if defined(DXX_BUILD_DESCENT_II)
 		if (Game_mode & GM_CAPTURE)
 			gr_string( 0x8000, FSPACY(10), "CAPTURE THE FLAG SUMMARY");
 		else if (Game_mode & GM_HOARD)
 			gr_string( 0x8000, FSPACY(10), "HOARD SUMMARY");
 		else
+#endif
 			gr_string( 0x8000, FSPACY(10), TXT_KILL_MATRIX_TITLE);
 
 		grd_curcanv->cv_font = GAME_FONT;
@@ -339,6 +341,7 @@ int kmatrix_handler(window *wind, d_event *event, kmatrix_screen *km)
 				if (km->network)
 					multi_send_endlevel_packet();  // make sure
 				
+#if defined(DXX_BUILD_DESCENT_II)
 				if (is_D2_OEM)
 				{
 					if (Current_level_num==8)
@@ -355,7 +358,7 @@ int kmatrix_handler(window *wind, d_event *event, kmatrix_screen *km)
 						return 0;
 					}
 				}
-				
+#endif
 				window_close(wind);
 				break;
 			}
