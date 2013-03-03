@@ -83,6 +83,10 @@ COPYRIGHT 1993-1998 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 #include "gameseq.h"
 #include "newmenu.h"
 
+#if defined(DXX_BUILD_DESCENT_II)
+#include "gamepal.h"
+#endif
+
 //#define _MARK_ON 1
 //#include <wsample.h>		//should come after inferno.h to get mark setting //Not included here.
 
@@ -424,10 +428,12 @@ void init_editor()
 		show_menus();			//force back into menu
 		return;
 	}
-	
+#if defined(DXX_BUILD_DESCENT_I)
 	gr_use_palette_table( "palette.256" );
-	
 	gr_palette_load( gr_palette );
+#elif defined(DXX_BUILD_DESCENT_II)
+	load_palette(Current_level_palette,1,0);
+#endif
 	
 	//Editor renders into full (320x200) game screen 
 	
