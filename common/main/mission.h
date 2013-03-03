@@ -8,7 +8,7 @@ SUCH USE, DISPLAY OR CREATION IS FOR NON-COMMERCIAL, ROYALTY OR REVENUE
 FREE PURPOSES.  IN NO EVENT SHALL THE END-USER USE THE COMPUTER CODE
 CONTAINED HEREIN FOR REVENUE-BEARING PURPOSES.  THE END-USER UNDERSTANDS
 AND AGREES TO THE TERMS HEREIN AND ACCEPTS THE SAME BY USE OF THIS FILE.
-COPYRIGHT 1993-1998 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
+COPYRIGHT 1993-1999 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 */
 
 /*
@@ -28,7 +28,11 @@ COPYRIGHT 1993-1998 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 #define MAX_SECRET_LEVELS_PER_MISSION   127	// KREATOR - increased from 6 (limited by Demo and Multiplayer code)
 #define MISSION_NAME_LEN                25
 
+#if defined(DXX_BUILD_DESCENT_I)
 #define D1_MISSION_FILENAME             ""
+#elif defined(DXX_BUILD_DESCENT_II)
+#define D1_MISSION_FILENAME             "descent"
+#endif
 #define D1_MISSION_NAME                 "Descent: First Strike"
 #define D1_MISSION_HOGSIZE              6856701 // v1.4 - 1.5
 #define D1_MISSION_HOGSIZE2             6856183 // v1.4 - 1.5 - different patch-way
@@ -42,6 +46,22 @@ COPYRIGHT 1993-1998 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 #define D1_SHAREWARE_10_MISSION_HOGSIZE 2365676 // v1.0 - 1.2
 #define D1_MAC_SHARE_MISSION_HOGSIZE    3370339
 
+#if defined(DXX_BUILD_DESCENT_II)
+#define SHAREWARE_MISSION_FILENAME  "d2demo"
+#define SHAREWARE_MISSION_NAME      "Descent 2 Demo"
+#define SHAREWARE_MISSION_HOGSIZE   2292566 // v1.0 (d2demo.hog)
+#define MAC_SHARE_MISSION_HOGSIZE   4292746
+
+#define OEM_MISSION_FILENAME        "d2"
+#define OEM_MISSION_NAME            "D2 Destination:Quartzon"
+#define OEM_MISSION_HOGSIZE         6132957 // v1.1
+
+#define FULL_MISSION_FILENAME       "d2"
+#define FULL_MISSION_HOGSIZE        7595079 // v1.1 - 1.2
+#define FULL_10_MISSION_HOGSIZE     7107354 // v1.0
+#define MAC_FULL_MISSION_HOGSIZE    7110007 // v1.1 - 1.2
+#endif
+
 //where the missions go
 #define MISSION_DIR "missions/"
 
@@ -53,13 +73,17 @@ typedef struct {
 	char	*path;				// relative file path
 	d_fname	briefing_text_filename; // name of briefing file
 	d_fname	ending_text_filename; // name of ending file
-	ubyte	last_level;
-	sbyte	last_secret_level;
-	ubyte	n_secret_levels;
 	ubyte	*secret_level_table; // originating level no for each secret level 
 	// arrays of names of the level files
 	d_fname	*level_names;
 	d_fname	*secret_level_names;
+	ubyte	last_level;
+	sbyte	last_secret_level;
+	ubyte	n_secret_levels;
+#if defined(DXX_BUILD_DESCENT_II)
+	ubyte	descent_version;	// descent 1 or descent 2?
+	ubyte	enhanced;	// 0: mission has "name", 1:"xname", 2:"zname"
+#endif
 } Mission;
 
 extern Mission *Current_mission; // current mission
@@ -75,9 +99,17 @@ extern Mission *Current_mission; // current mission
 #define Level_names			Current_mission->level_names
 #define Secret_level_names		Current_mission->secret_level_names
 
+#if defined(DXX_BUILD_DESCENT_II)
+#define is_SHAREWARE (Current_mission->builtin_hogsize == SHAREWARE_MISSION_HOGSIZE)
+#define is_MAC_SHARE (Current_mission->builtin_hogsize == MAC_SHARE_MISSION_HOGSIZE)
+#define is_D2_OEM (Current_mission->builtin_hogsize == OEM_MISSION_HOGSIZE)
+
+#define EMULATING_D1		(Current_mission->descent_version == 1)
+#endif
 #define PLAYING_BUILTIN_MISSION	(Current_mission->builtin_hogsize != 0)
 #define ANARCHY_ONLY_MISSION	(Current_mission->anarchy_only_flag == 1)
 
+//values for d1 built-in mission
 #define BIMD1_LAST_LEVEL		27
 #define BIMD1_LAST_SECRET_LEVEL		-3
 #define BIMD1_BRIEFING_FILE		"briefing.txb"
@@ -85,6 +117,15 @@ extern Mission *Current_mission; // current mission
 #define BIMD1_ENDING_FILE		"endreg.txb"
 #define BIMD1_ENDING_FILE_OEM		"endsat.txb"
 #define BIMD1_ENDING_FILE_SHARE		"ending.txb"
+
+#if defined(DXX_BUILD_DESCENT_II)
+//values for d2 built-in mission
+#define BIMD2_BRIEFING_FILE		"robot.txb"
+#define BIMD2_BRIEFING_FILE_OEM		"brief2o.txb"
+#define BIMD2_BRIEFING_FILE_SHARE	"brief2.txb"
+#define BIMD2_ENDING_FILE_OEM		"end2oem.txb"
+#define BIMD2_ENDING_FILE_SHARE		"ending2.txb"
+#endif
 
 //loads the named mission if it exists.
 //Returns true if mission loaded ok, else false.
