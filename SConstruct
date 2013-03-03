@@ -371,6 +371,7 @@ class DXXProgram(DXXCommon):
 ]
 ], _apply_target_name)
 	objects_similar_common = DXXCommon.create_lazy_object_property([os.path.join('similar', f) for f in [
+'3d/interp.c',
 'arch/sdl/event.c',
 'arch/sdl/init.c',
 'arch/sdl/key.c',
@@ -594,7 +595,6 @@ class D1XProgram(DXXProgram):
 '2d/font.c',
 '2d/palette.c',
 '2d/pcx.c',
-'3d/interp.c',
 'arch/sdl/digi.c',
 'arch/sdl/digi_audio.c',
 'iff/iff.c',
@@ -689,7 +689,6 @@ class D2XProgram(DXXProgram):
 '2d/font.c',
 '2d/palette.c',
 '2d/pcx.c',
-'3d/interp.c',
 'arch/sdl/digi.c',
 'arch/sdl/digi_audio.c',
 'iff/iff.c',

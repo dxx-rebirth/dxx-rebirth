@@ -20,11 +20,11 @@ COPYRIGHT 1993-1998 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 #include <stdlib.h>
 #include "dxxerror.h"
 
-#include "3d.h"
+#include "interp.h"
 #include "common/3d/globvars.h"
 #include "gr.h"
 #include "byteswap.h"
-#include "polyobj.h"
+#include "u_mem.h"
 
 #define OP_EOF          0   //eof
 #define OP_DEFPOINTS    1   //defpoints
@@ -35,8 +35,6 @@ COPYRIGHT 1993-1998 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 #define OP_SUBCALL      6   //call a subobject
 #define OP_DEFP_START   7   //defpoints with start
 #define OP_GLOW         8   //glow value for next poly
-
-#define N_OPCODES (sizeof(opcode_table) / sizeof(*opcode_table))
 
 #define MAX_POINTS_PER_POLY 25
 
@@ -75,6 +73,239 @@ g3s_point *point_list[MAX_POINTS_PER_POLY];
 
 int glow_num = -1;
 
+#ifdef WORDS_BIGENDIAN
+void short_swap(short *s)
+{
+	*s = SWAPSHORT(*s);
+}
+
+void fix_swap(fix *f)
+{
+	*f = (fix)SWAPINT((int)*f);
+}
+
+void vms_vector_swap(vms_vector *v)
+{
+	fix_swap(fp(&v->x));
+	fix_swap(fp(&v->y));
+	fix_swap(fp(&v->z));
+}
+
+void fixang_swap(fixang *f)
+{
+	*f = (fixang)SWAPSHORT((short)*f);
+}
+
+void vms_angvec_swap(vms_angvec *v)
+{
+	fixang_swap(&v->p);
+	fixang_swap(&v->b);
+	fixang_swap(&v->h);
+}
+
+void swap_polygon_model_data(ubyte *data)
+{
+	int i;
+	short n;
+	g3s_uvl *uvl_val;
+	ubyte *p = data;
+
+	short_swap(wp(p));
+
+	while (w(p) != OP_EOF) {
+		switch (w(p)) {
+			case OP_DEFPOINTS:
+				short_swap(wp(p + 2));
+				n = w(p+2);
+				for (i = 0; i < n; i++)
+					vms_vector_swap(vp((p + 4) + (i * sizeof(vms_vector))));
+				p += n*sizeof(struct vms_vector) + 4;
+				break;
+
+			case OP_DEFP_START:
+				short_swap(wp(p + 2));
+				short_swap(wp(p + 4));
+				n = w(p+2);
+				for (i = 0; i < n; i++)
+					vms_vector_swap(vp((p + 8) + (i * sizeof(vms_vector))));
+				p += n*sizeof(struct vms_vector) + 8;
+				break;
+
+			case OP_FLATPOLY:
+				short_swap(wp(p+2));
+				n = w(p+2);
+				vms_vector_swap(vp(p + 4));
+				vms_vector_swap(vp(p + 16));
+				short_swap(wp(p+28));
+				for (i=0; i < n; i++)
+					short_swap(wp(p + 30 + (i * 2)));
+				p += 30 + ((n&~1)+1)*2;
+				break;
+
+			case OP_TMAPPOLY:
+				short_swap(wp(p+2));
+				n = w(p+2);
+				vms_vector_swap(vp(p + 4));
+				vms_vector_swap(vp(p + 16));
+				for (i=0;i<n;i++) {
+					uvl_val = (g3s_uvl *)((p+30+((n&~1)+1)*2) + (i * sizeof(g3s_uvl)));
+					fix_swap(&uvl_val->u);
+					fix_swap(&uvl_val->v);
+				}
+				short_swap(wp(p+28));
+				for (i=0;i<n;i++)
+					short_swap(wp(p + 30 + (i * 2)));
+				p += 30 + ((n&~1)+1)*2 + n*12;
+				break;
+
+			case OP_SORTNORM:
+				vms_vector_swap(vp(p + 4));
+				vms_vector_swap(vp(p + 16));
+				short_swap(wp(p + 28));
+				short_swap(wp(p + 30));
+				swap_polygon_model_data(p + w(p+28));
+				swap_polygon_model_data(p + w(p+30));
+				p += 32;
+				break;
+
+			case OP_RODBM:
+				vms_vector_swap(vp(p + 20));
+				vms_vector_swap(vp(p + 4));
+				short_swap(wp(p+2));
+				fix_swap(fp(p + 16));
+				fix_swap(fp(p + 32));
+				p+=36;
+				break;
+
+			case OP_SUBCALL:
+				short_swap(wp(p+2));
+				vms_vector_swap(vp(p+4));
+				short_swap(wp(p+16));
+				swap_polygon_model_data(p + w(p+16));
+				p += 20;
+				break;
+
+			case OP_GLOW:
+				short_swap(wp(p + 2));
+				p += 4;
+				break;
+
+			default:
+				Error("invalid polygon model\n"); //Int3();
+		}
+		short_swap(wp(p));
+	}
+}
+#endif
+
+#ifdef WORDS_NEED_ALIGNMENT
+void add_chunk(ubyte *old_base, ubyte *new_base, int offset,
+	       chunk *chunk_list, int *no_chunks)
+{
+	Assert(*no_chunks + 1 < MAX_CHUNKS); //increase MAX_CHUNKS if you get this
+	chunk_list[*no_chunks].old_base = old_base;
+	chunk_list[*no_chunks].new_base = new_base;
+	chunk_list[*no_chunks].offset = offset;
+	chunk_list[*no_chunks].correction = 0;
+	(*no_chunks)++;
+}
+
+/*
+ * finds what chunks the data points to, adds them to the chunk_list, 
+ * and returns the length of the current chunk
+ */
+int get_chunks(ubyte *data, ubyte *new_data, chunk *list, int *no)
+{
+	short n;
+	ubyte *p = data;
+
+	while (INTEL_SHORT(w(p)) != OP_EOF) {
+		switch (INTEL_SHORT(w(p))) {
+		case OP_DEFPOINTS:
+			n = INTEL_SHORT(w(p+2));
+			p += n*sizeof(struct vms_vector) + 4;
+			break;
+		case OP_DEFP_START:
+			n = INTEL_SHORT(w(p+2));
+			p += n*sizeof(struct vms_vector) + 8;
+			break;
+		case OP_FLATPOLY:
+			n = INTEL_SHORT(w(p+2));
+			p += 30 + ((n&~1)+1)*2;
+			break;
+		case OP_TMAPPOLY:
+			n = INTEL_SHORT(w(p+2));
+			p += 30 + ((n&~1)+1)*2 + n*12;
+			break;
+		case OP_SORTNORM:
+			add_chunk(p, p - data + new_data, 28, list, no);
+			add_chunk(p, p - data + new_data, 30, list, no);
+			p += 32;
+			break;
+		case OP_RODBM:
+			p+=36;
+			break;
+		case OP_SUBCALL:
+			add_chunk(p, p - data + new_data, 16, list, no);
+			p+=20;
+			break;
+		case OP_GLOW:
+			p += 4;
+			break;
+		default:
+			Error("invalid polygon model\n");
+		}
+	}
+	return p + 2 - data;
+}
+#endif //def WORDS_NEED_ALIGNMENT
+
+#if defined(DXX_BUILD_DESCENT_II)
+void verify(ubyte *data)
+{
+	short n;
+	ubyte *p = data;
+
+	while (w(p) != OP_EOF) {
+		switch (w(p)) {
+		case OP_DEFPOINTS:
+			n = (w(p+2));
+			p += n*sizeof(struct vms_vector) + 4;
+			break;
+		case OP_DEFP_START:
+			n = (w(p+2));
+			p += n*sizeof(struct vms_vector) + 8;
+			break;
+		case OP_FLATPOLY:
+			n = (w(p+2));
+			p += 30 + ((n&~1)+1)*2;
+			break;
+		case OP_TMAPPOLY:
+			n = (w(p+2));
+			p += 30 + ((n&~1)+1)*2 + n*12;
+			break;
+		case OP_SORTNORM:
+			verify(p + w(p + 28));
+			verify(p + w(p + 30));
+			p += 32;
+			break;
+		case OP_RODBM:
+			p+=36;
+			break;
+		case OP_SUBCALL:
+			verify(p + w(p + 16));
+			p+=20;
+			break;
+		case OP_GLOW:
+			p += 4;
+			break;
+		default:
+			Error("invalid polygon model\n");
+		}
+	}
+}
+#endif
+
 // check a polymodel for it's color and return it
 int g3_poly_get_color(void *model_ptr)
 {
@@ -91,8 +322,28 @@ int g3_poly_get_color(void *model_ptr)
 				break;
 			case OP_FLATPOLY: {
 				int nv = w(p+2);
-				if (g3_check_normal_facing(vp(p+4),vp(p+16)) > 0)
+				Assert( nv < MAX_POINTS_PER_POLY );
+				if (g3_check_normal_facing(vp(p+4),vp(p+16)) > 0) {
+#if defined(DXX_BUILD_DESCENT_I)
 					color = (w(p+28));
+#elif defined(DXX_BUILD_DESCENT_II)
+#ifdef FADE_FLATPOLY
+					short c;
+					unsigned char cc;
+					int l;
+#endif
+#ifndef FADE_FLATPOLY
+					color = gr_find_closest_color_15bpp(w(p + 28));
+#else
+					//l = (32 * model_light) >> 16;
+					l = f2i(fixmul(i2f(32), (model_light.r+model_light.g+model_light.b)/3));
+					if (l<0) l = 0;
+					else if (l>32) l = 32;
+					cc = gr_find_closest_color_15bpp(w(p+28));
+					color = gr_fade_table[(l<<8)|cc];
+#endif
+#endif
+				}
 				p += 30 + ((nv&~1)+1)*2;
 				break;
 			}
@@ -102,7 +353,7 @@ int g3_poly_get_color(void *model_ptr)
 				break;
 			}
 			case OP_SORTNORM:
-				if (g3_check_normal_facing(vp(p+16),vp(p+4)) > 0)  //facing
+				if (g3_check_normal_facing(vp(p+16),vp(p+4)) > 0) //facing
 					color = g3_poly_get_color(p+w(p+28));
 				else //not facing
 					color = g3_poly_get_color(p+w(p+30));
@@ -112,7 +363,9 @@ int g3_poly_get_color(void *model_ptr)
 				p+=36;
 				break;
 			case OP_SUBCALL:
+#if defined(DXX_BUILD_DESCENT_I)
 				color = g3_poly_get_color(p+w(p+16));
+#endif
 				p += 20;
 				break;
 			case OP_GLOW:
@@ -120,7 +373,11 @@ int g3_poly_get_color(void *model_ptr)
 				break;
 
 			default:
-			;
+#if defined(DXX_BUILD_DESCENT_I)
+				;
+#elif defined(DXX_BUILD_DESCENT_II)
+				Error("invalid polygon model\n");
+#endif
 		}
 	return color;
 }
@@ -163,7 +420,27 @@ bool g3_draw_polygon_model(void *model_ptr,grs_bitmap **model_bitmaps,vms_angvec
 				if (g3_check_normal_facing(vp(p+4),vp(p+16)) > 0) {
 					int i;
 
+//					DPH: Now we treat this color as 15bpp
+#if defined(DXX_BUILD_DESCENT_I)
 					gr_setcolor(w(p+28));
+#elif defined(DXX_BUILD_DESCENT_II)
+#ifdef FADE_FLATPOLY
+					short c;
+					unsigned char cc;
+					int l;
+#endif
+#ifndef FADE_FLATPOLY
+					gr_setcolor(gr_find_closest_color_15bpp(w(p + 28)));
+#else
+					//l = (32 * model_light) >> 16;
+					l = f2i(fixmul(i2f(32), (model_light.r+model_light.g+model_light.b)/3));
+					if (l<0) l = 0;
+					else if (l>32) l = 32;
+					cc = gr_find_closest_color_15bpp(w(p+28));
+					c = gr_fade_table[(l<<8)|cc];
+					gr_setcolor(c);
+#endif
+#endif
 
 					for (i=0;i<nv;i++)
 						point_list[i] = Interp_point_list + wp(p+30)[i];
@@ -288,7 +565,11 @@ bool g3_draw_polygon_model(void *model_ptr,grs_bitmap **model_bitmaps,vms_angvec
 				break;
 
 			default:
+#if defined(DXX_BUILD_DESCENT_I)
 			;
+#elif defined(DXX_BUILD_DESCENT_II)
+				Error("invalid polygon model\n");
+#endif
 		}
 	return 1;
 }
@@ -332,7 +613,11 @@ bool g3_draw_morphing_model(void *model_ptr,grs_bitmap **model_bitmaps,vms_angve
 				int nv = w(p+2);
 				int i,ntris;
 
+#if defined(DXX_BUILD_DESCENT_I)
 				gr_setcolor(55/*w(p+28)*/);
+#elif defined(DXX_BUILD_DESCENT_II)
+				gr_setcolor(w(p+28));
+#endif
 				
 				for (i=0;i<2;i++)
 					point_list[i] = Interp_point_list + wp(p+30)[i];
@@ -509,7 +794,9 @@ void init_model_sub(ubyte *p)
 
 				Assert(nv > 2);		//must have 3 or more points
 
+#if defined(DXX_BUILD_DESCENT_I)
 				*wp(p+28) = (short)gr_find_closest_color_15bpp(w(p+28));
+#endif
 
 				p += 30 + ((nv&~1)+1)*2;
 					
@@ -553,6 +840,10 @@ void init_model_sub(ubyte *p)
 			case OP_GLOW:
 				p += 4;
 				break;
+#if defined(DXX_BUILD_DESCENT_II)
+			default:
+				Error("invalid polygon model\n");
+#endif
 		}
 	}
 }
@@ -568,191 +859,3 @@ void g3_init_polygon_model(void *model_ptr)
 
 	init_model_sub((ubyte *) model_ptr);
 }
-
-#ifdef WORDS_BIGENDIAN
-void short_swap(short *s)
-{
-	*s = SWAPSHORT(*s);
-}
-
-void fix_swap(fix *f)
-{
-	*f = (fix)SWAPINT((int)*f);
-}
-
-void vms_vector_swap(vms_vector *v)
-{
-	fix_swap(fp(&v->x));
-	fix_swap(fp(&v->y));
-	fix_swap(fp(&v->z));
-}
-
-void fixang_swap(fixang *f)
-{
-	*f = (fixang)SWAPSHORT((short)*f);
-}
-
-void vms_angvec_swap(vms_angvec *v)
-{
-	fixang_swap(&v->p);
-	fixang_swap(&v->b);
-	fixang_swap(&v->h);
-}
-
-void swap_polygon_model_data(ubyte *data)
-{
-	int i;
-	short n;
-	g3s_uvl *uvl_val;
-	ubyte *p = data;
-	
-	short_swap(wp(p));
-	
-	while (w(p) != OP_EOF) {
-		switch (w(p)) {
-			case OP_DEFPOINTS:
-				short_swap(wp(p + 2));
-				n = w(p+2);
-				for (i = 0; i < n; i++)
-					vms_vector_swap(vp((p + 4) + (i * sizeof(vms_vector))));
-					p += n*sizeof(struct vms_vector) + 4;
-				break;
-				
-			case OP_DEFP_START:
-				short_swap(wp(p + 2));
-				short_swap(wp(p + 4));
-				n = w(p+2);
-				for (i = 0; i < n; i++)
-					vms_vector_swap(vp((p + 8) + (i * sizeof(vms_vector))));
-					p += n*sizeof(struct vms_vector) + 8;
-				break;
-				
-			case OP_FLATPOLY:
-				short_swap(wp(p+2));
-				n = w(p+2);
-				vms_vector_swap(vp(p + 4));
-				vms_vector_swap(vp(p + 16));
-				short_swap(wp(p+28));
-				for (i=0; i < n; i++)
-					short_swap(wp(p + 30 + (i * 2)));
-					p += 30 + ((n&~1)+1)*2;
-				break;
-				
-			case OP_TMAPPOLY:
-				short_swap(wp(p+2));
-				n = w(p+2);
-				vms_vector_swap(vp(p + 4));
-				vms_vector_swap(vp(p + 16));
-				for (i=0;i<n;i++) {
-					uvl_val = (g3s_uvl *)((p+30+((n&~1)+1)*2) + (i * sizeof(g3s_uvl)));
-					fix_swap(&uvl_val->u);
-					fix_swap(&uvl_val->v);
-				}
-					short_swap(wp(p+28));
-				for (i=0;i<n;i++)
-					short_swap(wp(p + 30 + (i * 2)));
-					p += 30 + ((n&~1)+1)*2 + n*12;
-				break;
-				
-			case OP_SORTNORM:
-				vms_vector_swap(vp(p + 4));
-				vms_vector_swap(vp(p + 16));
-				short_swap(wp(p + 28));
-				short_swap(wp(p + 30));
-				swap_polygon_model_data(p + w(p+28));
-				swap_polygon_model_data(p + w(p+30));
-				p += 32;
-				break;
-				
-			case OP_RODBM:
-				vms_vector_swap(vp(p + 20));
-				vms_vector_swap(vp(p + 4));
-				short_swap(wp(p+2));
-				fix_swap(fp(p + 16));
-				fix_swap(fp(p + 32));
-				p+=36;
-				break;
-				
-			case OP_SUBCALL:
-				short_swap(wp(p+2));
-				vms_vector_swap(vp(p+4));
-				short_swap(wp(p+16));
-				swap_polygon_model_data(p + w(p+16));
-				p += 20;
-				break;
-				
-			case OP_GLOW:
-				short_swap(wp(p + 2));
-				p += 4;
-				break;
-				
-			default:
-				Error("invalid polygon model\n"); //Int3();
-		}
-		short_swap(wp(p));
-	}
-}
-#endif
-
-#ifdef WORDS_NEED_ALIGNMENT
-void add_chunk(ubyte *old_base, ubyte *new_base, int offset,
-	       chunk *chunk_list, int *no_chunks)
-{
-	Assert(*no_chunks + 1 < MAX_CHUNKS); //increase MAX_CHUNKS if you get this
-	chunk_list[*no_chunks].old_base = old_base;
-	chunk_list[*no_chunks].new_base = new_base;
-	chunk_list[*no_chunks].offset = offset;
-	chunk_list[*no_chunks].correction = 0;
-	(*no_chunks)++;
-}
-
-/*
- * finds what chunks the data points to, adds them to the chunk_list, 
- * and returns the length of the current chunk
- */
-int get_chunks(ubyte *data, ubyte *new_data, chunk *list, int *no)
-{
-	short n;
-	ubyte *p = data;
-	
-	while (INTEL_SHORT(w(p)) != OP_EOF) {
-		switch (INTEL_SHORT(w(p))) {
-			case OP_DEFPOINTS:
-				n = INTEL_SHORT(w(p+2));
-				p += n*sizeof(struct vms_vector) + 4;
-				break;
-			case OP_DEFP_START:
-				n = INTEL_SHORT(w(p+2));
-				p += n*sizeof(struct vms_vector) + 8;
-				break;
-			case OP_FLATPOLY:
-				n = INTEL_SHORT(w(p+2));
-				p += 30 + ((n&~1)+1)*2;
-				break;
-			case OP_TMAPPOLY:
-				n = INTEL_SHORT(w(p+2));
-				p += 30 + ((n&~1)+1)*2 + n*12;
-				break;
-			case OP_SORTNORM:
-				add_chunk(p, p - data + new_data, 28, list, no);
-				add_chunk(p, p - data + new_data, 30, list, no);
-				p += 32;
-				break;
-			case OP_RODBM:
-				p+=36;
-				break;
-			case OP_SUBCALL:
-				add_chunk(p, p - data + new_data, 16, list, no);
-				p+=20;
-				break;
-			case OP_GLOW:
-				p += 4;
-				break;
-			default:
-				Error("invalid polygon model\n");
-		}
-	}
-	return p + 2 - data;
-}
-#endif //def WORDS_NEED_ALIGNMENT
-
