@@ -21,6 +21,7 @@ COPYRIGHT 1993-1999 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 #define _GAMEPAL_H
 
 #if defined(DXX_BUILD_DESCENT_I)
+#define MENU_PALETTE	""	// never used
 static inline int load_palette(const char *name, int used_for_level, int no_change_screen)
 {
 	(void)name;

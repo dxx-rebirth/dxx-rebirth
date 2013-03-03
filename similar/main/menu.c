@@ -8,7 +8,7 @@ SUCH USE, DISPLAY OR CREATION IS FOR NON-COMMERCIAL, ROYALTY OR REVENUE
 FREE PURPOSES.  IN NO EVENT SHALL THE END-USER USE THE COMPUTER CODE
 CONTAINED HEREIN FOR REVENUE-BEARING PURPOSES.  THE END-USER UNDERSTANDS
 AND AGREES TO THE TERMS HEREIN AND ACCEPTS THE SAME BY USE OF THIS FILE.
-COPYRIGHT 1993-1998 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
+COPYRIGHT 1993-1999 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 */
 
 /*
@@ -60,8 +60,12 @@ COPYRIGHT 1993-1998 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 #include "jukebox.h" // for jukebox_exts
 #endif
 #include "config.h"
+#if defined(DXX_BUILD_DESCENT_II)
+#include "movie.h"
+#endif
+#include "gamepal.h"
 #include "gauges.h"
-#include "hudmsg.h" //for HUD_max_num_disp
+#include "powerup.h"
 #include "strutil.h"
 #include "multi.h"
 #include "vers_id.h"
@@ -407,6 +411,7 @@ void draw_copyright()
 	gr_string(0x8000,SHEIGHT-(LINE_SPACING*2),DESCENT_VERSION);
 }
 
+// ------------------------------------------------------------------------
 int main_menu_handler(newmenu *menu, d_event *event, int *menu_choice )
 {
 	newmenu_item *items = newmenu_get_items(menu);
@@ -414,6 +419,8 @@ int main_menu_handler(newmenu *menu, d_event *event, int *menu_choice )
 	switch (event->type)
 	{
 		case EVENT_WINDOW_ACTIVATED:
+			load_palette(MENU_PALETTE,0,1);		//get correct palette
+
 			if ( Players[Player_num].callsign[0]==0 )
 				RegisterPlayer();
 			else
@@ -434,11 +441,37 @@ int main_menu_handler(newmenu *menu, d_event *event, int *menu_choice )
 			break;
 
 		case EVENT_IDLE:
+#if defined(DXX_BUILD_DESCENT_I)
 #define DXX_DEMO_KEY_DELAY	45
+#elif defined(DXX_BUILD_DESCENT_II)
+#define DXX_DEMO_KEY_DELAY	25
+#endif
 			if ( keyd_time_when_last_pressed+i2f(DXX_DEMO_KEY_DELAY) < timer_query() || GameArg.SysAutoDemo  )
 			{
 				keyd_time_when_last_pressed = timer_query();			// Reset timer so that disk won't thrash if no demos.
-				newdemo_start_playback(NULL);		// Randomly pick a file
+
+#if defined(DXX_BUILD_DESCENT_II)
+				int n_demos = newdemo_count_demos();
+				if (((d_rand() % (n_demos+1)) == 0) && !GameArg.SysAutoDemo)
+				{
+#ifdef OGL
+					Screen_mode = -1;
+#endif
+					init_subtitles("intro.tex");
+					PlayMovie("intro.mve",0);
+					close_subtitles();
+					songs_play_song(SONG_TITLE,1);
+					set_screen_mode(SCREEN_MENU);
+				}
+				else
+#endif
+				{
+					newdemo_start_playback(NULL);		// Randomly pick a file, assume native endian (crashes if not)
+#if defined(DXX_BUILD_DESCENT_II)
+					if (Newdemo_state == ND_STATE_PLAYBACK)
+						return 0;
+#endif
+				}
 			}
 			break;
 
@@ -482,7 +515,11 @@ void create_main_menu(newmenu_item *m, int *menu_choice, int *callers_num_option
 	ADD_ITEM(TXT_CHANGE_PILOTS,MENU_NEW_PLAYER,unused);
 	ADD_ITEM(TXT_VIEW_DEMO,MENU_DEMO_PLAY,0);
 	ADD_ITEM(TXT_VIEW_SCORES,MENU_VIEW_SCORES,KEY_V);
+#if defined(DXX_BUILD_DESCENT_I)
 	if (!PHYSFSX_exists("warning.pcx",1)) /* SHAREWARE */
+#elif defined(DXX_BUILD_DESCENT_II)
+	if (PHYSFSX_exists("orderd2.pcx",1)) /* SHAREWARE */
+#endif
 		ADD_ITEM(TXT_ORDERING_INFO,MENU_ORDER_INFO,-1);
 	ADD_ITEM(TXT_CREDITS,MENU_SHOW_CREDITS,-1);
 	#endif
@@ -510,18 +547,15 @@ int DoMenu()
 	newmenu_item *m;
 	int num_options = 0;
 
-	MALLOC(menu_choice, int, 25);
+	CALLOC(menu_choice, int, 25);
 	if (!menu_choice)
 		return -1;
-	MALLOC(m, newmenu_item, 25);
+	CALLOC(m, newmenu_item, 25);
 	if (!m)
 	{
 		d_free(menu_choice);
 		return -1;
 	}
-
-	memset(menu_choice, 0, sizeof(int)*25);
-	memset(m, 0, sizeof(newmenu_item)*25);
 
 	create_main_menu(m, menu_choice, &num_options); // may have to change, eg, maybe selected pilot and no save games.
 
@@ -1183,6 +1217,9 @@ void reticle_config()
 }
 
 int opt_gr_texfilt, opt_gr_brightness, opt_gr_reticlemenu, opt_gr_alphafx, opt_gr_dynlightcolor, opt_gr_vsync, opt_gr_multisample, opt_gr_fpsindi;
+#if defined(DXX_BUILD_DESCENT_II)
+int opt_gr_movietexfilt;
+#endif
 int graphics_config_menuset(newmenu *menu, d_event *event, void *userdata)
 {
 	newmenu_item *items = newmenu_get_items(menu);
@@ -1223,7 +1260,11 @@ int graphics_config_menuset(newmenu *menu, d_event *event, void *userdata)
 void graphics_config()
 {
 #ifdef OGL
+#if defined(DXX_BUILD_DESCENT_I)
 	newmenu_item m[13];
+#elif defined(DXX_BUILD_DESCENT_II)
+	newmenu_item m[14];
+#endif
 	int i = 0;
 #else
 	newmenu_item m[3];
@@ -1237,6 +1278,10 @@ void graphics_config()
 	m[nitems].type = NM_TYPE_RADIO; m[nitems].text = "Bilinear"; m[nitems].value = 0; m[nitems].group = 0; nitems++;
 	m[nitems].type = NM_TYPE_RADIO; m[nitems].text = "Trilinear"; m[nitems].value = 0; m[nitems].group = 0; nitems++;
 	m[nitems].type = NM_TYPE_RADIO; m[nitems].text = "Anisotropic"; m[nitems].value = 0; m[nitems].group = 0; nitems++;
+#if defined(DXX_BUILD_DESCENT_II)
+	opt_gr_movietexfilt = nitems;
+	m[nitems].type = NM_TYPE_CHECK; m[nitems].text = "Movie Filter"; m[nitems].value = GameCfg.MovieTexFilt; nitems++;
+#endif
 	m[nitems].type = NM_TYPE_TEXT; m[nitems].text = ""; nitems++;
 #endif
 	opt_gr_brightness = nitems;
@@ -1268,6 +1313,9 @@ void graphics_config()
 	for (i = 0; i <= 3; i++)
 		if (m[i+opt_gr_texfilt].value)
 			GameCfg.TexFilt = i;
+#if defined(DXX_BUILD_DESCENT_II)
+	GameCfg.MovieTexFilt = m[opt_gr_movietexfilt].value;
+#endif
 	PlayerCfg.AlphaEffects = m[opt_gr_alphafx].value;
 	PlayerCfg.DynLightColor = m[opt_gr_dynlightcolor].value;
 	GameCfg.VSync = m[opt_gr_vsync].value;
@@ -1785,7 +1833,11 @@ void do_sound_menu()
 #endif
 
 	opt_sm_redbook_playorder = nitems;
+#if defined(DXX_BUILD_DESCENT_I)
 #define REDBOOK_PLAYORDER_TEXT	"force mac cd track order"
+#elif defined(DXX_BUILD_DESCENT_II)
+#define REDBOOK_PLAYORDER_TEXT	"force descent ][ cd track order"
+#endif
 	m[nitems].type = NM_TYPE_CHECK; m[nitems].text = REDBOOK_PLAYORDER_TEXT; m[nitems++].value = GameCfg.OrigTrackOrder;
 
 #ifdef USE_SDLMIXER
@@ -1863,6 +1915,19 @@ void do_sound_menu()
 #endif
 }
 
+#if defined(DXX_BUILD_DESCENT_I)
+#define DXX_GAME_SPECIFIC_OPTIONS(VERB)	\
+	DXX_##VERB##_CHECK("Show D2-style Prox. Bomb Gauge",opt_d2bomb,PlayerCfg.BombGauge)	\
+
+#elif defined(DXX_BUILD_DESCENT_II)
+#define DXX_GAME_SPECIFIC_OPTIONS(VERB)	\
+	DXX_##VERB##_CHECK("Missile view",opt_missileview, PlayerCfg.MissileViewEnabled)	\
+	DXX_##VERB##_CHECK("Headlight on when picked up", opt_headlighton,PlayerCfg.HeadlightActiveDefault )	\
+	DXX_##VERB##_CHECK("Show guided missile in main display", opt_guidedbigview,PlayerCfg.GuidedInBigWindow )	\
+	DXX_##VERB##_CHECK("Escort robot hot keys",opt_escorthotkey,PlayerCfg.EscortHotKeys)	\
+	DXX_##VERB##_CHECK("Movie Subtitles",opt_moviesubtitle,GameCfg.MovieSubtitles)	\
+
+#endif
 #define DXX_MISC_MENU_OPTIONS(VERB)	\
 	DXX_##VERB##_CHECK("Ship auto-leveling",opt_autolevel, PlayerCfg.AutoLeveling)	\
 	DXX_##VERB##_CHECK("Persistent Debris",opt_persist_debris,PlayerCfg.PersistentDebris)	\
@@ -1873,7 +1938,8 @@ void do_sound_menu()
 	DXX_##VERB##_CHECK("Free Flight controls in Automap",opt_freeflight, PlayerCfg.AutomapFreeFlight)	\
 	DXX_##VERB##_CHECK("No Weapon Autoselect when firing",opt_noautoselect,PlayerCfg.NoFireAutoselect)	\
 	DXX_##VERB##_CHECK("Only Cycle Autoselect Weapons",opt_only_autoselect,PlayerCfg.CycleAutoselectOnly)	\
-	DXX_##VERB##_CHECK("Show D2-style Prox. Bomb Gauge",opt_d2bomb,PlayerCfg.BombGauge)	\
+	DXX_GAME_SPECIFIC_OPTIONS(VERB)	\
+
 
 void do_misc_menu()
 {
@@ -1979,6 +2045,9 @@ int polygon_models_viewer_handler(window *wind, d_event *event)
 	switch (event->type)
 	{
 		case EVENT_WINDOW_ACTIVATED:
+#if defined(DXX_BUILD_DESCENT_II)
+			gr_use_palette_table("groupa.256");
+#endif
 			key_toggle_repeat(1);
 			view_idx = 0;
 			ang.p = ang.b = 0;
@@ -2033,6 +2102,7 @@ int polygon_models_viewer_handler(window *wind, d_event *event)
 			gr_printf(FSPACX(1), FSPACY(1), "ESC: leave\nSPACE/BACKSP: next/prev model (%i/%i)\nA/D: rotate y\nW/S: rotate x\nQ/E: rotate z\nR: reset orientation",view_idx,N_polygon_models-1);
 			break;
 		case EVENT_WINDOW_CLOSE:
+			load_palette(MENU_PALETTE,0,1);
 			key_toggle_repeat(0);
 			break;
 		default:
@@ -2070,6 +2140,9 @@ int gamebitmaps_viewer_handler(window *wind, d_event *event)
 	switch (event->type)
 	{
 		case EVENT_WINDOW_ACTIVATED:
+#if defined(DXX_BUILD_DESCENT_II)
+			gr_use_palette_table("groupa.256");
+#endif
 			key_toggle_repeat(1);
 			view_idx = 0;
 			break;
@@ -2109,6 +2182,7 @@ int gamebitmaps_viewer_handler(window *wind, d_event *event)
 			gr_printf(FSPACX(1), FSPACY(1), "ESC: leave\nSPACE/BACKSP: next/prev bitmap (%i/%i)",view_idx,Num_bitmap_files-1);
 			break;
 		case EVENT_WINDOW_CLOSE:
+			load_palette(MENU_PALETTE,0,1);
 			key_toggle_repeat(0);
 			break;
 		default:
