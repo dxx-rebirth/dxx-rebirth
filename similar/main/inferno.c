@@ -23,7 +23,11 @@ COPYRIGHT 1993-1999 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
  *
  */
 
+#if defined(DXX_BUILD_DESCENT_I)
+char copyright[] = "DESCENT   COPYRIGHT (C) 1994,1995 PARALLAX SOFTWARE CORPORATION";
+#elif defined(DXX_BUILD_DESCENT_II)
 char copyright[] = "DESCENT II  COPYRIGHT (C) 1994-1996 PARALLAX SOFTWARE CORPORATION";
+#endif
 
 #include <stdio.h>
 #include <stdlib.h>
@@ -66,8 +70,10 @@ char copyright[] = "DESCENT II  COPYRIGHT (C) 1994-1996 PARALLAX SOFTWARE CORPOR
 #include "multi.h"
 #include "songs.h"
 #include "gameseq.h"
+#if defined(DXX_BUILD_DESCENT_II)
 #include "gamepal.h"
 #include "movie.h"
+#endif
 #include "playsave.h"
 #include "collide.h"
 #include "newdemo.h"
@@ -88,18 +94,21 @@ char copyright[] = "DESCENT II  COPYRIGHT (C) 1994-1996 PARALLAX SOFTWARE CORPOR
 #include "net_udp.h"
 #endif
 
-//Current version number
-
 int Screen_mode=-1;					//game screen or editor screen?
 int descent_critical_error = 0;
 unsigned int descent_critical_deverror = 0;
 unsigned int descent_critical_errcode = 0;
 
+#if defined(DXX_BUILD_DESCENT_I)
+int HiresGFXAvailable = 0;
+int MacHog = 0;	// using a Mac hogfile?
+#elif defined(DXX_BUILD_DESCENT_II)
 #ifdef	EDITOR
 char	Auto_file[128] = "";
 #endif
 
 extern void piggy_init_pigfile(char *filename);
+#endif
 extern void arch_init(void);
 
 //read help from a file & print to screen
@@ -116,7 +125,11 @@ void print_commandline_help()
 	printf( "  -autodemo                     Start in demo mode\n");
 	printf( "  -window                       Run the game in a window\n");
 	printf( "  -noborders                    Do not show borders in window mode\n");
+#if defined(DXX_BUILD_DESCENT_I)
+	printf( "  -notitles                     Skip title screens\n");
+#elif defined(DXX_BUILD_DESCENT_II)
 	printf( "  -nomovies                     Don't play movies\n");
+#endif
 
 	printf( "\n Controls:\n\n");
 	printf( "  -nocursor                     Hide mouse cursor\n");
@@ -127,15 +140,19 @@ void print_commandline_help()
 	printf( "\n Sound:\n\n");
 	printf( "  -nosound                      Disables sound output\n");
 	printf( "  -nomusic                      Disables music output\n");
+#if defined(DXX_BUILD_DESCENT_II)
 	printf( "  -sound11k                     Use 11KHz sounds\n");
+#endif
 #ifdef    USE_SDLMIXER
 	printf( "  -nosdlmixer                   Disable Sound output via SDL_mixer\n");
 #endif // USE SDLMIXER
 
 	printf( "\n Graphics:\n\n");
 	printf( "  -lowresfont                   Force to use LowRes fonts\n");
+#if defined(DXX_BUILD_DESCENT_II)
 	printf( "  -lowresgraphics               Force to use LowRes graphics\n");
 	printf( "  -lowresmovies                 Play low resolution movies if available (for slow machines)\n");
+#endif
 #ifdef    OGL
 	printf( "  -gl_fixedfont                 Do not scale fonts to current resolution\n");
 #endif // OGL
@@ -153,9 +170,13 @@ void print_commandline_help()
 
 #ifdef    EDITOR
 	printf( "\n Editor:\n\n");
+#if defined(DXX_BUILD_DESCENT_I)
+	printf( "  -nobm                         Don't load BITMAPS.TBL and BITMAPS.BIN - use internal data\n");
+#elif defined(DXX_BUILD_DESCENT_II)
 	printf( "  -autoload <s>                 Autoload level <s> in the editor\n");
 	printf( "  -macdata                      Read and write mac data files in editor (swap colors)\n");
 	printf( "  -hoarddata                    Make the hoard ham file from some files, then exit\n");
+#endif
 #endif // EDITOR
 
 	printf( "\n Debug (use only if you know what you're doing):\n\n");
@@ -294,7 +315,9 @@ int standard_handler(d_event *event)
 jmp_buf LeaveEvents;
 #define PROGNAME argv[0]
 
+//	DESCENT by Parallax Software
 //	DESCENT II by Parallax Software
+//	(varies based on preprocessor options)
 //		Descent Main
 
 int main(int argc, char *argv[])
@@ -329,10 +352,16 @@ int main(int argc, char *argv[])
 	if (!PHYSFSX_checkSupportedArchiveTypes())
 		return(0);
 
-	if (! PHYSFSX_contfile_init("descent2.hog", 1)) {
-		if (! PHYSFSX_contfile_init("d2demo.hog", 1))
+#if defined(DXX_BUILD_DESCENT_I)
+	if (! PHYSFSX_contfile_init("descent.hog", 1))
+#define DXX_NAME_NUMBER	"1"
+#define DXX_HOGFILE_NAMES	"descent.hog"
+#elif defined(DXX_BUILD_DESCENT_II)
+	if (! PHYSFSX_contfile_init("descent2.hog", 1) && ! PHYSFSX_contfile_init("d2demo.hog", 1))
 #define DXX_NAME_NUMBER	"2"
 #define DXX_HOGFILE_NAMES	"descent2.hog or d2demo.hog"
+#endif
+	{
 #if defined(__unix__) && !defined(__APPLE__)
 #define DXX_HOGFILE_PROGRAM_DATA_DIRECTORY	\
 			      "\t$HOME/.d" DXX_NAME_NUMBER "x-rebirth\n"	\
@@ -356,13 +385,30 @@ int main(int argc, char *argv[])
 		Error(DXX_MISSING_HOGFILE_ERROR_TEXT);
 	}
 
+#if defined(DXX_BUILD_DESCENT_I)
+	switch (PHYSFSX_fsize("descent.hog"))
+	{
+		case D1_MAC_SHARE_MISSION_HOGSIZE:
+		case D1_MAC_MISSION_HOGSIZE:
+			MacHog = 1;	// used for fonts and the Automap
+			break;
+	}
+#endif
+
 	load_text();
 
 	//print out the banner title
+#if defined(DXX_BUILD_DESCENT_I)
+	con_printf(CON_NORMAL, "%s  %s\n", DESCENT_VERSION, g_descent_build_datetime); // D1X version
+	con_printf(CON_NORMAL, "This is a MODIFIED version of Descent, based on %s.\n", BASED_VERSION);
+	con_printf(CON_NORMAL, "%s\n%s\n",TXT_COPYRIGHT,TXT_TRADEMARK);
+	con_printf(CON_NORMAL, "Copyright (C) 2005-2011 Christian Beckhaeuser\n\n");
+#elif defined(DXX_BUILD_DESCENT_II)
 	con_printf(CON_NORMAL, "%s%s  %s\n", DESCENT_VERSION, PHYSFSX_exists(MISSION_DIR "d2x.hog",1) ? "  Vertigo Enhanced" : "", g_descent_build_datetime); // D2X version
 	con_printf(CON_NORMAL, "This is a MODIFIED version of Descent 2, based on %s.\n", BASED_VERSION);
 	con_printf(CON_NORMAL, "%s\n%s\n",TXT_COPYRIGHT,TXT_TRADEMARK);
 	con_printf(CON_NORMAL, "Copyright (C) 1999 Peter Hawkins, 2002 Bradley Bell, 2005-2011 Christian Beckhaeuser\n\n");
+#endif
 
 	if (GameArg.DbgVerbose)
 		con_printf(CON_VERBOSE,"%s%s", TXT_VERBOSE_1, "\n");
@@ -375,22 +421,30 @@ int main(int argc, char *argv[])
 
 	select_tmap(GameArg.DbgTexMap);
 
+#if defined(DXX_BUILD_DESCENT_II)
 	Lighting_on = 1;
+#endif
 
 	con_printf(CON_VERBOSE, "Going into graphics mode...\n");
 	gr_set_mode(Game_screen_mode);
 
 	// Load the palette stuff. Returns non-zero if error.
 	con_printf(CON_DEBUG, "Initializing palette system...\n" );
+#if defined(DXX_BUILD_DESCENT_I)
+	gr_use_palette_table( "PALETTE.256" );
+#elif defined(DXX_BUILD_DESCENT_II)
 	gr_use_palette_table(D2_DEFAULT_PALETTE );
+#endif
 
 	con_printf(CON_DEBUG, "Initializing font system...\n" );
 	gamefont_init();	// must load after palette data loaded.
 
 	set_default_handler(standard_handler);
 
+#if defined(DXX_BUILD_DESCENT_II)
 	con_printf( CON_DEBUG, "Initializing movie libraries...\n" );
 	init_movies();		//init movie libraries
+#endif
 
 	show_titles();
 
@@ -399,12 +453,14 @@ int main(int argc, char *argv[])
 	con_printf( CON_DEBUG, "\nDoing gamedata_init..." );
 	gamedata_init();
 
+#if defined(DXX_BUILD_DESCENT_II)
 	#ifdef EDITOR
 	if (GameArg.EdiSaveHoardData) {
 		save_hoard_data();
 		exit(1);
 	}
 	#endif
+#endif
 
 	if (GameArg.DbgNoRun)
 		return(0);
@@ -412,13 +468,18 @@ int main(int argc, char *argv[])
 	con_printf( CON_DEBUG, "\nInitializing texture caching system..." );
 	texmerge_init( 10 );		// 10 cache bitmaps
 
+#if defined(DXX_BUILD_DESCENT_II)
 	piggy_init_pigfile("groupa.pig");	//get correct pigfile
+#endif
 
 	con_printf( CON_DEBUG, "\nRunning game...\n" );
 	init_game();
 
 	Players[Player_num].callsign[0] = '\0';
 
+#if defined(DXX_BUILD_DESCENT_I)
+	key_flush();
+#elif defined(DXX_BUILD_DESCENT_II)
 	//	If built with editor, option to auto-load a level and quit game
 	//	to write certain data.
 	#ifdef	EDITOR
@@ -427,6 +488,7 @@ int main(int argc, char *argv[])
 		strcpy(Players[0].callsign, "dummy");
 	} else
 	#endif
+#endif
 	{
 		if(GameArg.SysPilot)
 		{
@@ -455,12 +517,14 @@ int main(int argc, char *argv[])
 		}
 	}
 
+#if defined(DXX_BUILD_DESCENT_II)
 #ifdef EDITOR
 	if (GameArg.EdiAutoLoad) {
 		strcpy((char *)&Level_names[0], Auto_file);
 		LoadLevel(1, 1);
 	}
 	else
+#endif
 #endif
 	{
 		Game_mode = GM_GAME_OVER;
