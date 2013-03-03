@@ -110,10 +110,11 @@ class DXXProgram:
 			else:
 				self.ogllibs = ['GL', 'GLU']
 			self.lflags = os.environ["LDFLAGS"] if os.environ.has_key('LDFLAGS') else ''
-			self.libs = []
 		def adjust_environment(self,program,env):
 			env.Append(CPPDEFINES = ['__LINUX__', 'HAVE_STRUCT_TIMESPEC', 'HAVE_STRUCT_TIMEVAL'])
 			env.Append(CPPPATH = ['arch/linux/include'])
+			env.ParseConfig('pkg-config --cflags --libs sdl')
+			self.libs = env['LIBS']
 
 	def __init__(self):
 		self.user_settings = self.UserSettings(self.ARGUMENTS, self.target)
@@ -163,11 +164,11 @@ class DXXProgram:
 		# windows or *nix?
 		if sys.platform == 'win32':
 			print "%s: compiling on Windows" % self.PROGRAM_NAME
-			self.platform_settings = DXXProgram.Win32PlatformSettings(self.user_settings)
+			platform = self.Win32PlatformSettings
 			self.common_sources += ['arch/win32/messagebox.c']
 		elif sys.platform == 'darwin':
 			print "%s: compiling on Mac OS X" % self.PROGRAM_NAME
-			self.platform_settings = DXXProgram.DarwinPlatformSettings(self.user_settings)
+			platform = self.DarwinPlatformSettings
 			self.common_sources += ['arch/cocoa/SDLMain.m', 'arch/carbon/messagebox.c']
 			sys.path += ['./arch/cocoa']
 			VERSION = str(VERSION_MAJOR) + '.' + str(VERSION_MINOR)
@@ -178,10 +179,9 @@ class DXXProgram:
 			import tool_bundle
 		else:
 			print "%s: compiling on *NIX" % self.PROGRAM_NAME
-			self.platform_settings = DXXProgram.LinuxPlatformSettings(self.user_settings)
+			platform = self.LinuxPlatformSettings
 			self.user_settings.sharepath += '/'
-			env.ParseConfig('pkg-config --cflags --libs sdl')
-			self.platform_settings.libs += env['LIBS']
+		self.platform_settings = platform(self.user_settings)
 		self.platform_settings.adjust_environment(self, env)
 		self.platform_settings.libs += ['physfs', 'm']
 
