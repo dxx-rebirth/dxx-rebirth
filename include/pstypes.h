@@ -90,15 +90,11 @@ defined(__LITTLE_ENDIAN__)	// from physfs_internal.h
 # pragma options align=packed
 # define __pack__
 #else
-# error d2x will not work without packed structures
+# error "This program will not work without packed structures"
 #endif
 
 #ifdef _MSC_VER
 # define inline __inline
-#endif
-
-#ifndef PACKAGE_STRING
-# define PACKAGE_STRING "d2x"
 #endif
 
 #endif //_TYPES_H
