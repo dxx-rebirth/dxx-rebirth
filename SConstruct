@@ -200,6 +200,7 @@ class DXXArchive(DXXCommon):
 	srcdir = 'common'
 	target = 'dxx-common'
 	common_sources = [os.path.join('common', f) for f in [
+'2d/canvas.c',
 '2d/circle.c',
 '2d/disc.c',
 '2d/gpixel.c',
@@ -366,7 +367,6 @@ class D1XProgram(DXXProgram):
 '2d/bitblt.c',
 '2d/bitmap.c',
 '2d/box.c',
-'2d/canvas.c',
 '2d/font.c',
 '2d/palette.c',
 '2d/pcx.c',
@@ -602,7 +602,6 @@ class D2XProgram(DXXProgram):
 '2d/bitblt.c',
 '2d/bitmap.c',
 '2d/box.c',
-'2d/canvas.c',
 '2d/font.c',
 '2d/palette.c',
 '2d/pcx.c',
