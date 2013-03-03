@@ -202,6 +202,7 @@ class DXXArchive(DXXCommon):
 	common_sources = [os.path.join('common', f) for f in [
 'maths/fixc.c',
 'maths/rand.c',
+'maths/tables.c',
 ]
 ]
 	editor_sources = []
@@ -454,7 +455,6 @@ class D1XProgram(DXXProgram):
 'main/vclip.c',
 'main/wall.c',
 'main/weapon.c',
-'maths/tables.c',
 'maths/vecmat.c',
 'mem/mem.c',
 'misc/args.c',
@@ -708,7 +708,6 @@ class D2XProgram(DXXProgram):
 'main/vclip.c',
 'main/wall.c',
 'main/weapon.c',
-'maths/tables.c',
 'maths/vecmat.c',
 'mem/mem.c',
 'misc/args.c',
