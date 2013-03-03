@@ -85,16 +85,16 @@ class DXXCommon:
 			env.Append(CPPDEFINES = ['__LINUX__', 'HAVE_STRUCT_TIMESPEC', 'HAVE_STRUCT_TIMEVAL'])
 			env.ParseConfig('pkg-config --cflags --libs sdl')
 
-	def __lazy_objects(self,name,source):
+	def __lazy_objects(self,name,source,transform_target):
 		try:
 			return self.__lazy_object_cache[name]
 		except KeyError as e:
-			value = self.env.StaticObject(source=source)
+			value = [self.env.StaticObject(target=None if transform_target is None else '%s%s' % (transform_target(s), self.env["OBJSUFFIX"]), source=s) for s in source]
 			self.__lazy_object_cache[name] = value
 			return value
 
-	def create_lazy_object_property(self,name):
-		l = lambda s: s.__lazy_objects(name, getattr(s, name))
+	def create_lazy_object_property(self,name,transform_target=None):
+		l = lambda s: s.__lazy_objects(name, getattr(s, name), transform_target)
 		setattr(self.__class__, 'objects_%s' % name, property(l))
 
 	def __init__(self):
@@ -297,6 +297,10 @@ class DXXProgram(DXXCommon):
 	VERSION_MINOR = 57
 	VERSION_MICRO = 3
 	static_archive_construction = None
+	similar_arch_ogl_sources = [os.path.join('similar', f) for f in [
+'arch/ogl/ogl.c',
+]
+]
 	class UserSettings(DXXCommon.UserSettings):
 		def __init__(self,ARGUMENTS,target):
 			DXXCommon.UserSettings.__init__(self, ARGUMENTS.ARGUMENTS)
@@ -347,9 +351,15 @@ class DXXProgram(DXXCommon):
 			self.libs = env['LIBS']
 			env.Append(CPPPATH = [os.path.join(program.srcdir, 'arch/linux/include')])
 
+	def _apply_target_name(self,name):
+		return os.path.join(os.path.dirname(name), '.%s.%s' % (self.target, os.path.splitext(os.path.basename(name))[0]))
+
 	def __init__(self):
 		if DXXProgram.static_archive_construction is None:
 			DXXProgram.static_archive_construction = DXXArchive()
+		apply_target_name = lambda n: self._apply_target_name(n)
+		for t in ['similar_arch_ogl_sources']:
+			self.create_lazy_object_property(t, apply_target_name)
 		DXXCommon.__init__(self)
 		self.user_settings = self.UserSettings(self.ARGUMENTS, self.target)
 		self.prepare_environment()
@@ -418,6 +428,8 @@ class DXXProgram(DXXCommon):
 		objects.extend(program_specific_objects)
 		if (self.user_settings.sdlmixer == 1):
 			objects.extend(self.static_archive_construction.objects_arch_sdlmixer)
+		if (self.user_settings.opengl == 1) or (self.user_settings.opengles == 1):
+			objects.extend(self.objects_similar_arch_ogl_sources)
 		# finally building program...
 		env.Program(target=str(exe_target), source = self.common_sources + objects, LIBS = self.platform_settings.libs, LINKFLAGS = str(self.platform_settings.lflags))
 		if (sys.platform != 'darwin'):
@@ -588,7 +600,6 @@ class D1XProgram(DXXProgram):
 	# for opengl
 	arch_ogl_sources = [os.path.join(srcdir, f) for f in [
 'arch/ogl/gr.c',
-'arch/ogl/ogl.c',
 ]
 ]
 
@@ -775,7 +786,6 @@ class D2XProgram(DXXProgram):
 	# for opengl
 	arch_ogl_sources = [os.path.join(srcdir, f) for f in [
 'arch/ogl/gr.c',
-'arch/ogl/ogl.c',
 ]
 ]
 
