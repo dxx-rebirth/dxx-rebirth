@@ -630,6 +630,7 @@ class DXXProgram(DXXCommon):
 'main/robot.c',
 'main/scores.c',
 'main/slew.c',
+'main/songs.c',
 'main/state.c',
 'main/terrain.c',
 'main/texmerge.c',
@@ -882,7 +883,6 @@ class D1XProgram(DXXProgram):
 'main/powerup.c',
 'main/render.c',
 'main/snddecom.c',
-'main/songs.c',
 'main/switch.c',
 'main/titles.c',
 #'tracker/client/tracker_client.c'
@@ -966,7 +966,6 @@ class D2XProgram(DXXProgram):
 'main/powerup.c',
 'main/render.c',
 'main/segment.c',
-'main/songs.c',
 'main/switch.c',
 'main/titles.c',
 'misc/physfsrwops.c',

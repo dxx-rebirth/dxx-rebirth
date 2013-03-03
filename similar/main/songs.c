@@ -8,7 +8,7 @@ SUCH USE, DISPLAY OR CREATION IS FOR NON-COMMERCIAL, ROYALTY OR REVENUE
 FREE PURPOSES.  IN NO EVENT SHALL THE END-USER USE THE COMPUTER CODE
 CONTAINED HEREIN FOR REVENUE-BEARING PURPOSES.  THE END-USER UNDERSTANDS
 AND AGREES TO THE TERMS HEREIN AND ACCEPTS THE SAME BY USE OF THIS FILE.
-COPYRIGHT 1993-1998 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
+COPYRIGHT 1993-1999 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 */
 
 /*
@@ -132,7 +132,7 @@ void songs_init()
 						i++;
 			}
 		}
-
+#if defined(DXX_BUILD_DESCENT_I)
 		// HACK: If Descent.hog is patched from 1.0 to 1.5, descent.sng is turncated. So let's patch it up here
 		if (i==12 && PHYSFSX_fsize("descent.sng")==422)
 		{
@@ -140,6 +140,7 @@ void songs_init()
 			for (i = 12; i <= 26; i++)
 				snprintf(BIMSongs[i].filename, sizeof(BIMSongs[i].filename), "game%02d.hmp", i-4);
 		}
+#endif
 	}
 
 	Num_bim_songs = i;
@@ -233,6 +234,7 @@ void songs_pause_resume(void)
 #endif
 }
 
+#if defined(DXX_BUILD_DESCENT_I)
 /*
  * This list may not be exhaustive!!
  */
@@ -240,11 +242,31 @@ void songs_pause_resume(void)
 
 #define REDBOOK_ENDLEVEL_TRACK		4
 #define REDBOOK_ENDGAME_TRACK		(RBAGetNumberOfTracks())
-#define REDBOOK_FIRST_LEVEL_TRACK	(songs_haved1_cd() ? 6 : 1)
+#define REDBOOK_FIRST_LEVEL_TRACK	(songs_have_cd() ? 6 : 1)
+#elif defined(DXX_BUILD_DESCENT_II)
+/*
+ * Some of these have different Track listings!
+ * Which one is the "correct" order?
+ */
+#define D2_1_DISCID         0x7d0ff809 // Descent II
+#define D2_2_DISCID         0xe010a30e // Descent II
+#define D2_3_DISCID         0xd410070d // Descent II
+#define D2_4_DISCID         0xc610080d // Descent II
+#define D2_DEF_DISCID       0x87102209 // Definitive collection Disc 2
+#define D2_OEM_DISCID       0xac0bc30d // Destination: Quartzon
+#define D2_OEM2_DISCID      0xc40c0a0d // Destination: Quartzon
+#define D2_VERTIGO_DISCID   0x53078208 // Vertigo
+#define D2_VERTIGO2_DISCID  0x64071408 // Vertigo + DMB
+#define D2_MAC_DISCID       0xb70ee40e // Macintosh
+#define D2_IPLAY_DISCID     0x22115710 // iPlay for Macintosh
 
-// songs_haved1_cd returns 1 if the descent 1 Mac CD is in the drive and
+#define REDBOOK_TITLE_TRACK         2
+#define REDBOOK_CREDITS_TRACK       3
+#define REDBOOK_FIRST_LEVEL_TRACK   (songs_have_cd() ? 4 : 1)
+#endif
+
 // 0 otherwise
-int songs_haved1_cd()
+static int songs_have_cd()
 {
 	int discid;
 
@@ -257,19 +279,43 @@ int songs_haved1_cd()
 	discid = RBAGetDiscID();
 
 	switch (discid) {
+#if defined(DXX_BUILD_DESCENT_I)
 		case D1_MAC_OEM_DISCID:	// Doesn't work with your Mac Descent CD? Please tell!
 			return 1;
+#elif defined(DXX_BUILD_DESCENT_II)
+	case D2_1_DISCID:
+	case D2_2_DISCID:
+	case D2_3_DISCID:
+	case D2_4_DISCID:
+	case D2_DEF_DISCID:
+	case D2_OEM_DISCID:
+	case D2_OEM2_DISCID:
+	case D2_VERTIGO_DISCID:
+	case D2_VERTIGO2_DISCID:
+	case D2_MAC_DISCID:
+	case D2_IPLAY_DISCID:
+		return 1;
+#endif
 		default:
 			return 0;
 	}
 }
 
-void redbook_repeat_func()
+#if defined(DXX_BUILD_DESCENT_I)
+static void redbook_repeat_func()
 {
 	stop_time();
 	RBAPlayTracks(Redbook_playing, 0, redbook_repeat_func);
 	start_time();
 }
+#elif defined(DXX_BUILD_DESCENT_II)
+static void play_credits_track()
+{
+	stop_time();
+	songs_play_song(SONG_CREDITS, 1);
+	start_time();
+}
+#endif
 
 // play a filename as music, depending on filename extension.
 int songs_play_file(const char *filename, int repeat, void (*hook_finished_track)())
@@ -316,6 +362,7 @@ int songs_play_song( int songnum, int repeat )
 			// EXCEPTION: If SONG_ENDLEVEL is not available, continue playing level song.
 			if (Song_playing >= SONG_FIRST_LEVEL_SONG && songnum == SONG_ENDLEVEL && !PHYSFSX_exists(BIMSongs[songnum].filename, 1))
 				return Song_playing;
+
 			Song_playing = -1;
 			if (songs_play_file(BIMSongs[songnum].filename, repeat, NULL))
 				Song_playing = songnum;
@@ -325,6 +372,7 @@ int songs_play_song( int songnum, int repeat )
 		{
 			int num_tracks = RBAGetNumberOfTracks();
 
+#if defined(DXX_BUILD_DESCENT_I)
 			Song_playing = -1;
 			if ((songnum < SONG_ENDGAME) && (songnum + 2 <= num_tracks))
 			{
@@ -350,6 +398,25 @@ int songs_play_song( int songnum, int repeat )
 					Song_playing = songnum;
 				}
 			}
+#elif defined(DXX_BUILD_DESCENT_II)
+			//Song_playing = -1;		// keep playing current music if chosen song is unavailable (e.g. SONG_ENDLEVEL)
+			if ((songnum == SONG_TITLE) && (REDBOOK_TITLE_TRACK <= num_tracks))
+			{
+				if (RBAPlayTracks(REDBOOK_TITLE_TRACK, REDBOOK_TITLE_TRACK, repeat ? play_credits_track : NULL))
+				{
+					Redbook_playing = REDBOOK_TITLE_TRACK;
+					Song_playing = songnum;
+				}
+			}
+			else if ((songnum == SONG_CREDITS) && (REDBOOK_CREDITS_TRACK <= num_tracks))
+			{
+				if (RBAPlayTracks(REDBOOK_CREDITS_TRACK, REDBOOK_CREDITS_TRACK, repeat ? play_credits_track : NULL))
+				{
+					Redbook_playing = REDBOOK_CREDITS_TRACK;
+					Song_playing = songnum;
+				}
+			}
+#endif
 			break;
 		}
 #ifdef USE_SDLMIXER
@@ -360,7 +427,16 @@ int songs_play_song( int songnum, int repeat )
 				return Song_playing;
 
 			Song_playing = -1;
-			if (songs_play_file(GameCfg.CMMiscMusic[songnum], repeat, NULL))
+#if defined(DXX_BUILD_DESCENT_I)
+			int play = songs_play_file(GameCfg.CMMiscMusic[songnum], repeat, NULL);
+#elif defined(DXX_BUILD_DESCENT_II)
+			int use_credits_track = (songnum == SONG_TITLE && GameCfg.OrigTrackOrder);
+			int play = songs_play_file(GameCfg.CMMiscMusic[songnum],
+							  // Play the credits track after the title track and loop the credits track if original CD track order was chosen
+							  use_credits_track ? 0 : repeat,
+							  use_credits_track ? play_credits_track : NULL);
+#endif
+			if (play)
 				Song_playing = songnum;
 			break;
 		}
@@ -421,7 +497,12 @@ int songs_play_level_song( int levelnum, int offset )
 				if (Song_playing >= SONG_FIRST_LEVEL_SONG && songnum + SONG_FIRST_LEVEL_SONG == Song_playing)
 					return Song_playing;
 
-				tracknum = REDBOOK_FIRST_LEVEL_TRACK + ((n_tracks<=REDBOOK_FIRST_LEVEL_TRACK) ? 0 : (songnum % (n_tracks-REDBOOK_FIRST_LEVEL_TRACK)));
+#if defined(DXX_BUILD_DESCENT_I)
+				int bn_tracks = n_tracks;
+#elif defined(DXX_BUILD_DESCENT_II)
+				int bn_tracks = n_tracks + 1;
+#endif
+				tracknum = REDBOOK_FIRST_LEVEL_TRACK + ((bn_tracks<=REDBOOK_FIRST_LEVEL_TRACK) ? 0 : (songnum % (bn_tracks-REDBOOK_FIRST_LEVEL_TRACK)));
 			}
 			else
 			{
@@ -435,7 +516,13 @@ int songs_play_level_song( int levelnum, int offset )
 			Song_playing = -1;
 			if (RBAEnabled() && (tracknum <= n_tracks))
 			{
-				if (RBAPlayTracks(tracknum, !songs_haved1_cd()?n_tracks:tracknum, songs_haved1_cd() ? redbook_repeat_func : redbook_first_song_func))
+#if defined(DXX_BUILD_DESCENT_I)
+				int have_cd = songs_have_cd();
+				int play = RBAPlayTracks(tracknum, !have_cd?n_tracks:tracknum, have_cd ? redbook_repeat_func : redbook_first_song_func);
+#elif defined(DXX_BUILD_DESCENT_II)
+				int play = RBAPlayTracks(tracknum, n_tracks, redbook_first_song_func);
+#endif
+				if (play)
 				{
 					Song_playing = songnum + SONG_FIRST_LEVEL_SONG;
 					Redbook_playing = tracknum;
@@ -486,10 +573,11 @@ int songs_play_level_song( int levelnum, int offset )
 			break;
 	}
 
+#if defined(DXX_BUILD_DESCENT_I)
 	// If we couldn't play the song, most likely because it wasn't specified, play no music.
 	if (Song_playing == -1)
 		songs_stop_all();
-	
+#endif
 	return Song_playing;
 }
 
