@@ -48,7 +48,13 @@ COPYRIGHT 1993-1999 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 //@@vms_vector controlcen_gun_dirs[MAX_CONTROLCEN_GUNS];
 
 reactor Reactors[MAX_REACTORS];
+#if defined(DXX_BUILD_DESCENT_II)
 int Num_reactors=0;
+//how long to blow up on insane
+int Base_control_center_explosion_time=DEFAULT_CONTROL_CENTER_EXPLOSION_TIME;
+fix64	Last_time_cc_vis_check = 0;
+int Reactor_strength=-1;		//-1 mean not set by designer
+#endif
 
 control_center_triggers ControlCenterTriggers;
 
@@ -121,14 +127,15 @@ int calc_best_gun(int num_guns, const object *objreactor, const vms_vector *objp
 
 int	Dead_controlcen_object_num=-1;
 
-//how long to blow up on insane
-int Base_control_center_explosion_time=DEFAULT_CONTROL_CENTER_EXPLOSION_TIME;
-
 int Control_center_destroyed = 0;
 fix Countdown_timer=0;
 int Countdown_seconds_left=0, Total_countdown_time=0;		//in whole seconds
 
+#if defined(DXX_BUILD_DESCENT_I)
+int	Alan_pavlish_reactor_times[NDL] = {50, 45, 40, 35, 30};
+#elif defined(DXX_BUILD_DESCENT_II)
 int	Alan_pavlish_reactor_times[NDL] = {90, 60, 45, 35, 30};
+#endif
 
 //	-----------------------------------------------------------------------------
 //	Called every frame.  If control center been destroyed, then actually do something.
@@ -139,7 +146,12 @@ void do_controlcen_dead_frame(void)
 
 	if ((Dead_controlcen_object_num != -1) && (Countdown_seconds_left > 0))
 		if (d_rand() < FrameTime*4)
-			create_small_fireball_on_object(&Objects[Dead_controlcen_object_num], F1_0, 1);
+#if defined(DXX_BUILD_DESCENT_I)
+#define CC_FIREBALL_SCALE	F1_0*3
+#elif defined(DXX_BUILD_DESCENT_II)
+#define CC_FIREBALL_SCALE	F1_0
+#endif
+			create_small_fireball_on_object(&Objects[Dead_controlcen_object_num], CC_FIREBALL_SCALE, 1);
 
 	if (Control_center_destroyed && !Endlevel_sequence)
 		do_countdown_frame();
@@ -154,6 +166,7 @@ void do_countdown_frame()
 
 	if (!Control_center_destroyed)	return;
 
+#if defined(DXX_BUILD_DESCENT_II)
 	if (!is_D2_OEM && !is_MAC_SHARE && !is_SHAREWARE)   // get countdown in OEM and SHAREWARE only
 	{
 		// On last level, we don't want a countdown.
@@ -165,6 +178,7 @@ void do_countdown_frame()
 				return;
 		}
 	}
+#endif
 
 	//	Control center destroyed, rock the player's ship.
 	fc = Countdown_seconds_left;
@@ -239,8 +253,10 @@ void do_controlcen_destroyed_stuff(object *objp)
 {
 	int i;
 
+#if defined(DXX_BUILD_DESCENT_II)
 	if ((Game_mode & GM_MULTI_ROBOTS) && Control_center_destroyed)
 		return; // Don't allow resetting if control center and boss on same level
+#endif
 
 	// Must toggle walls whether it is a boss or control center.
 	for (i=0;i<ControlCenterTriggers.num_links;i++)
@@ -249,6 +265,7 @@ void do_controlcen_destroyed_stuff(object *objp)
 	// And start the countdown stuff.
 	Control_center_destroyed = 1;
 
+#if defined(DXX_BUILD_DESCENT_II)
 	// If a secret level, delete secret.sgc to indicate that we can't return to our secret level.
 	if (Current_level_num < 0)
 		PHYSFS_delete(SECRETC_FILENAME);
@@ -256,6 +273,7 @@ void do_controlcen_destroyed_stuff(object *objp)
 	if (Base_control_center_explosion_time != DEFAULT_CONTROL_CENTER_EXPLOSION_TIME)
 		Total_countdown_time = Base_control_center_explosion_time + Base_control_center_explosion_time * (NDL-Difficulty_level-1)/2;
 	else
+#endif
 		Total_countdown_time = Alan_pavlish_reactor_times[Difficulty_level];
 
 	Countdown_timer = i2f(Total_countdown_time);
@@ -265,8 +283,6 @@ void do_controlcen_destroyed_stuff(object *objp)
 
 	Dead_controlcen_object_num = objp-Objects;
 }
-
-fix64	Last_time_cc_vis_check = 0;
 
 //	-----------------------------------------------------------------------------
 //do whatever this thing does in a frame
@@ -324,6 +340,7 @@ void do_controlcen_frame(object *obj)
 		return;
 	}
 
+#if defined(DXX_BUILD_DESCENT_II)
 	//	Periodically, make the reactor fall asleep if player not visible.
 	if (Control_center_been_hit || Control_center_player_been_seen) {
 		if ((Last_time_cc_vis_check + F1_0*5 < GameTime64) || (Last_time_cc_vis_check > GameTime64)) {
@@ -341,6 +358,7 @@ void do_controlcen_frame(object *obj)
 		}
 
 	}
+#endif
 
 	if (Player_is_dead)
 		controlcen_death_silence += FrameTime;
@@ -355,7 +373,6 @@ void do_controlcen_frame(object *obj)
 			best_gun_num = calc_best_gun(reactor->n_guns, obj, &ConsoleObject->pos);
 
 		if (best_gun_num != -1) {
-			int			rand_prob, count;
 			vms_vector	vec_to_goal;
 			fix			dist_to_player;
 			fix			delta_fire_time;
@@ -381,26 +398,36 @@ void do_controlcen_frame(object *obj)
 			#endif
 			Laser_create_new_easy( &vec_to_goal, &obj->ctype.reactor_info.gun_pos[best_gun_num], obj-Objects, CONTROLCEN_WEAPON_NUM, 1);
 
+			int count = 0;
+#if defined(DXX_BUILD_DESCENT_I)
+			const unsigned scale_divisor = 4;
+			if (d_rand() < 32767/4)
+#elif defined(DXX_BUILD_DESCENT_II)
+			const unsigned scale_divisor = 6;
+			int			rand_prob;
 			//	some of time, based on level, fire another thing, not directly at player, so it might hit him if he's constantly moving.
 			rand_prob = F1_0/(abs(Current_level_num)/4+2);
-			count = 0;
-			while ((d_rand() > rand_prob) && (count < 4)) {
+			while ((d_rand() > rand_prob) && (count < 4))
+#endif
+			{
 				vms_vector	randvec;
 
 				make_random_vector(&randvec);
-				vm_vec_scale_add2(&vec_to_goal, &randvec, F1_0/6);
+				vm_vec_scale_add2(&vec_to_goal, &randvec, F1_0/scale_divisor);
 				vm_vec_normalize_quick(&vec_to_goal);
 				#ifdef NETWORK
 				if (Game_mode & GM_MULTI)
 					multi_send_controlcen_fire(&vec_to_goal, best_gun_num, obj-Objects);
 				#endif
-				Laser_create_new_easy( &vec_to_goal, &obj->ctype.reactor_info.gun_pos[best_gun_num], obj-Objects, CONTROLCEN_WEAPON_NUM, 0);
+				Laser_create_new_easy( &vec_to_goal, &obj->ctype.reactor_info.gun_pos[best_gun_num], obj-Objects, CONTROLCEN_WEAPON_NUM, count == 0);
 				count++;
 			}
 
 			delta_fire_time = (NDL - Difficulty_level) * F1_0/4;
+#if defined(DXX_BUILD_DESCENT_II)
 			if (Difficulty_level == 0)
 				delta_fire_time += F1_0/2;
+#endif
 
 			if (Game_mode & GM_MULTI) // slow down rate of fire in multi player
 				delta_fire_time *= 2;
@@ -412,8 +439,6 @@ void do_controlcen_frame(object *obj)
 		Control_center_next_fire_time -= FrameTime;
 
 }
-
-int Reactor_strength=-1;		//-1 mean not set by designer
 
 //	-----------------------------------------------------------------------------
 //	This must be called at the start of each level.
@@ -464,17 +489,21 @@ void init_controlcen_for_level(void)
 			calc_controlcen_gun_point(reactor, objp, i);
 		Control_center_present = 1;
 
-		if (Reactor_strength == -1) {		//use old defaults
+#if defined(DXX_BUILD_DESCENT_I)
+		const unsigned secret_level_shield_multiplier = 100;
+#elif defined(DXX_BUILD_DESCENT_II)
+		const unsigned secret_level_shield_multiplier = 150;
+		if (Reactor_strength != -1)
+			objp->shields = i2f(Reactor_strength);
+		else
+#endif
+		{		//use old defaults
 			//	Boost control center strength at higher levels.
 			if (Current_level_num >= 0)
 				objp->shields = F1_0*200 + (F1_0*200/4) * Current_level_num;
 			else
-				objp->shields = F1_0*200 - Current_level_num*F1_0*150;
+				objp->shields = F1_0*200 - Current_level_num*F1_0*secret_level_shield_multiplier;
 		}
-		else {
-			objp->shields = i2f(Reactor_strength);
-		}
-
 	}
 
 	//	Say the control center has not yet been hit.
@@ -485,6 +514,7 @@ void init_controlcen_for_level(void)
 	Dead_controlcen_object_num = -1;
 }
 
+#if defined(DXX_BUILD_DESCENT_II)
 void special_reactor_stuff(void)
 {
 	if (Control_center_destroyed) {
@@ -496,7 +526,7 @@ void special_reactor_stuff(void)
 /*
  * reads n reactor structs from a PHYSFS_file
  */
-extern int reactor_read_n(reactor *r, int n, PHYSFS_file *fp)
+int reactor_read_n(reactor *r, int n, PHYSFS_file *fp)
 {
 	int i, j;
 
@@ -510,6 +540,7 @@ extern int reactor_read_n(reactor *r, int n, PHYSFS_file *fp)
 	}
 	return i;
 }
+#endif
 
 /*
  * reads a control_center_triggers structure from a PHYSFS_file
@@ -521,9 +552,9 @@ extern int control_center_triggers_read_n(control_center_triggers *cct, int n, P
 	for (i = 0; i < n; i++)
 	{
 		cct->num_links = PHYSFSX_readShort(fp);
-		for (j = 0; j < MAX_CONTROLCEN_LINKS; j++)
+		for (j = 0; j < sizeof(cct->seg) / sizeof(cct->seg[0]); j++)
 			cct->seg[j] = PHYSFSX_readShort(fp);
-		for (j = 0; j < MAX_CONTROLCEN_LINKS; j++)
+		for (j = 0; j < sizeof(cct->side) / sizeof(cct->side[0]); j++)
 			cct->side[j] = PHYSFSX_readShort(fp);
 	}
 	return i;
@@ -537,9 +568,9 @@ void control_center_triggers_swap(control_center_triggers *cct, int swap)
 		return;
 	
 	cct->num_links = SWAPSHORT(cct->num_links);
-	for (i = 0; i < MAX_CONTROLCEN_LINKS; i++)
+	for (i = 0; i < sizeof(cct->seg) / sizeof(cct->seg[0]); i++)
 		cct->seg[i] = SWAPSHORT(cct->seg[i]);
-	for (i = 0; i < MAX_CONTROLCEN_LINKS; i++)
+	for (i = 0; i < sizeof(cct->side) / sizeof(cct->side[0]); i++)
 		cct->side[i] = SWAPSHORT(cct->side[i]);
 }
 
