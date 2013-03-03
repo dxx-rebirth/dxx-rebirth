@@ -367,6 +367,7 @@ class DXXProgram(DXXCommon):
 'editor/kcurve.c',
 'editor/kfuncs.c',
 'editor/khelp.c',
+'editor/texture.c',
 ]
 ]
 	class UserSettings(DXXCommon.UserSettings):
@@ -634,7 +635,6 @@ class D1XProgram(DXXProgram):
 'editor/segment.c',
 'editor/seguvs.c',
 'editor/texpage.c',
-'editor/texture.c',
 ]
 ]
 
@@ -782,7 +782,6 @@ class D2XProgram(DXXProgram):
 'editor/segment.c',
 'editor/seguvs.c',
 'editor/texpage.c',
-'editor/texture.c',
 'main/bmread.c',
 ]
 ]
