@@ -55,11 +55,13 @@ COPYRIGHT 1993-1999 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 #include "ogl_init.h"
 #endif
 
-extern int LinearSVGABuffer;
-
-extern void newmenu_free_background();
 int netplayerinfo_on=0;
 
+#if defined(DXX_BUILD_DESCENT_I)
+static inline void game_draw_marker_message()
+{
+}
+#elif defined(DXX_BUILD_DESCENT_II)
 extern ubyte DefiningMarkerMessage;
 extern char Marker_input[];
 
@@ -73,6 +75,7 @@ void game_draw_marker_message()
 	}
 
 }
+#endif
 
 #ifdef NETWORK
 void game_draw_multi_message()
@@ -232,6 +235,7 @@ void show_netplayerinfo()
 	if (eff<0)
 		eff=0;
 
+#if defined(DXX_BUILD_DESCENT_II)
 	if (Game_mode & GM_HOARD)
 	{
 		if (PhallicMan==-1)
@@ -239,7 +243,9 @@ void show_netplayerinfo()
 		else
 			gr_printf(0x8000,y,"%s has the record at %d points.",Players[PhallicMan].callsign,PhallicLimit);
 	}
-	else if (!PlayerCfg.NoRankings)
+	else
+#endif
+	if (!PlayerCfg.NoRankings)
 	{
 		gr_printf(0x8000,y,"Your lifetime efficiency of %d%% (%d/%d)",eff,PlayerCfg.NetlifeKills,PlayerCfg.NetlifeKilled);
 		y+=LINE_SPACING;
@@ -309,7 +315,7 @@ void draw_window_label()
 void render_countdown_gauge()
 {
 	if (!Endlevel_sequence && Control_center_destroyed  && (Countdown_seconds_left>-1)) { // && (Countdown_seconds_left<127))	{
-
+#if defined(DXX_BUILD_DESCENT_II)
 		if (!is_D2_OEM && !is_MAC_SHARE && !is_SHAREWARE)    // no countdown on registered only
 		{
 			//	On last level, we don't want a countdown.
@@ -321,7 +327,7 @@ void render_countdown_gauge()
 					return;
 			}
 		}
-
+#endif
 		gr_set_curfont(GAME_FONT);
 		gr_set_fontcolor(BM_XRGB(0,63,0),-1);
 		gr_printf(0x8000, (LINE_SPACING*6)+FSPACY(1), "T-%d s", Countdown_seconds_left );
@@ -386,26 +392,7 @@ void game_draw_hud_stuff()
 extern int gr_bitblt_dest_step_shift;
 extern int gr_bitblt_double;
 
-#if 0
-void expand_row(ubyte * dest, ubyte * src, int num_src_pixels );
-#pragma aux expand_row parm [edi] [esi] [ecx] modify exact [ecx esi edi eax ebx] = \
-	"add	esi, ecx"			\
-	"dec	esi"					\
-	"add	edi, ecx"			\
-	"add	edi, ecx"			\
-	"dec	edi"					\
-	"dec	edi"					\
-"nextpixel:"					\
-	"mov	al,[esi]"			\
-	"mov	ah, al"				\
-	"dec	esi"					\
-	"mov	[edi], ax"			\
-	"dec	edi"					\
-	"dec	edi"					\
-	"dec	ecx"					\
-	"jnz	nextpixel"			\
-"done:"
-#else
+#if defined(DXX_BUILD_DESCENT_II)
 void expand_row(ubyte * dest, ubyte * src, int num_src_pixels )
 {
 	int i;
@@ -415,7 +402,6 @@ void expand_row(ubyte * dest, ubyte * src, int num_src_pixels )
 		*dest++ = *src++;
 	}
 }
-#endif
 
 // doubles the size in x or y of a bitmap in place.
 void game_expand_bitmap( grs_bitmap * bmp, uint flags )
@@ -621,6 +607,7 @@ void show_extra_views()
 }
 
 int BigWindowSwitch=0;
+#endif
 extern int force_cockpit_redraw;
 void update_cockpits();
 
@@ -630,7 +617,7 @@ void game_render_frame_mono(int flip)
 	int no_draw_hud=0;
 
 	gr_set_current_canvas(&Screen_3d_window);
-	
+#if defined(DXX_BUILD_DESCENT_II)
 	if (Guided_missile[Player_num] && Guided_missile[Player_num]->type==OBJ_WEAPON && Guided_missile[Player_num]->id==GUIDEDMISS_ID && Guided_missile[Player_num]->signature==Guided_missile_sig[Player_num] && PlayerCfg.GuidedInBigWindow) {
 		object *viewer_save = Viewer;
 
@@ -664,7 +651,9 @@ void game_render_frame_mono(int flip)
 		no_draw_hud=1;
 	}
 	else
+#endif
 	{
+#if defined(DXX_BUILD_DESCENT_II)
 		if (BigWindowSwitch)
 		{
 			force_cockpit_redraw=1;
@@ -673,10 +662,13 @@ void game_render_frame_mono(int flip)
 			return;
 		}
 		update_rendered_data(0, Viewer, Rear_view);
+#endif
 		render_frame(0, 0);
 	}
 
+#if defined(DXX_BUILD_DESCENT_II)
 	gr_set_current_canvas(&Screen_3d_window);
+#endif
 
 	update_cockpits();
 
@@ -693,9 +685,11 @@ void game_render_frame_mono(int flip)
 	if (!no_draw_hud)
 		game_draw_hud_stuff();
 
+#if defined(DXX_BUILD_DESCENT_II)
 	gr_set_current_canvas(NULL);
 
 	show_extra_views();		//missile view, buddy bot, etc.
+#endif
 
 #ifdef NETWORK
 	if (netplayerinfo_on && Game_mode & GM_MULTI)
@@ -736,9 +730,12 @@ extern void ogl_loadbmtexture(grs_bitmap *bm);
 void update_cockpits()
 {
 	grs_bitmap *bm;
-
-	PIGGY_PAGE_IN(cockpit_bitmap[PlayerCfg.CockpitMode[1]+(HIRESMODE?(Num_cockpits/2):0)]);
-	bm=&GameBitmaps[cockpit_bitmap[PlayerCfg.CockpitMode[1]+(HIRESMODE?(Num_cockpits/2):0)].index];
+	int mode = PlayerCfg.CockpitMode[1];
+#if defined(DXX_BUILD_DESCENT_II)
+	mode += (HIRESMODE?(Num_cockpits/2):0);
+#endif
+	PIGGY_PAGE_IN(cockpit_bitmap[mode]);
+	bm=&GameBitmaps[cockpit_bitmap[mode].index];
 
 	switch( PlayerCfg.CockpitMode[1] )	{
 		case CM_FULL_COCKPIT:
