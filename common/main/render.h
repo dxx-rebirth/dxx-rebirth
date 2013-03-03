@@ -99,6 +99,8 @@ void project_list(int nv, int *pointnumlist);
 
 extern void render_mine(int start_seg_num, fix eye_offset, int window_num);
 
+#if defined(DXX_BUILD_DESCENT_II)
 extern void update_rendered_data(int window_num, object *viewer, int rear_view_flag);
+#endif
 
 #endif /* _RENDER_H */
