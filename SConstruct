@@ -200,6 +200,7 @@ class DXXArchive(DXXCommon):
 	srcdir = 'common'
 	target = 'dxx-common'
 	common_sources = [os.path.join('common', f) for f in [
+'2d/scalec.c',
 'maths/fixc.c',
 'maths/rand.c',
 'maths/tables.c',
@@ -369,7 +370,6 @@ class D1XProgram(DXXProgram):
 '2d/poly.c',
 '2d/rect.c',
 '2d/rle.c',
-'2d/scalec.c',
 '3d/clipper.c',
 '3d/draw.c',
 '3d/globvars.c',
@@ -614,7 +614,6 @@ class D2XProgram(DXXProgram):
 '2d/poly.c',
 '2d/rect.c',
 '2d/rle.c',
-'2d/scalec.c',
 '3d/clipper.c',
 '3d/draw.c',
 '3d/globvars.c',
