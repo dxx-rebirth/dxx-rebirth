@@ -217,7 +217,6 @@ int pick_up_vulcan_ammo(void)
 	return used;
 }
 
-extern void invalidate_escort_goal(void);
 extern char GetKeyValue(char);
 extern void check_to_use_primary(int);
 extern void multi_send_got_flag (char);
