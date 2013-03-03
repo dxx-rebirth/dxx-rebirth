@@ -180,8 +180,7 @@ class DXXProgram:
 			print "%s: compiling on *NIX" % self.PROGRAM_NAME
 			self.platform_settings = DXXProgram.LinuxPlatformSettings(self.user_settings)
 			self.user_settings.sharepath += '/'
-			env.ParseConfig('sdl-config --cflags')
-			env.ParseConfig('sdl-config --libs')
+			env.ParseConfig('pkg-config --cflags --libs sdl')
 			self.platform_settings.libs += env['LIBS']
 		self.platform_settings.adjust_environment(self, env)
 		self.platform_settings.libs += ['physfs', 'm']
