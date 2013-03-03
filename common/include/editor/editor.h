@@ -164,12 +164,18 @@ extern grs_font *editor_font;
 
 
 extern	segment  *Cursegp;				// Pointer to current segment in the mine, the one to which things happen.
+#ifdef DXX_BUILD_DESCENT_II
 #define Curseg2p s2s2(Cursegp)          // Pointer to segment2 for Cursegp
+#endif
 
 extern	vms_vector Ed_view_target;		// what editor is looking at
 
+#if defined(DXX_BUILD_DESCENT_I)
+extern        segment  New_segment;                   // The segment which can be added to the mine.
+#elif defined(DXX_BUILD_DESCENT_II)
 // -- extern	segment  New_segment;			// The segment which can be added to the mine.
 #define	New_segment	(Segments[MAX_SEGMENTS-1])
+#endif
 
 extern	int		Curside;					// Side index in 0..MAX_SIDES_PER_SEGMENT of active side.
 extern	int		Curedge;					//	Current edge on current side, in 0..3
@@ -260,6 +266,12 @@ extern	int med_rotate_segment_ang(segment *seg, vms_angvec *ang);
 // to the segment.  x scales in the dimension of the right vector, y of the up vector, z of the forward vector.
 // The dimension of the vectors is determined by averaging appropriate sets of 4 of the 8 points.
 extern void med_scale_segment(segment *sp);
+
+//    Create a wall which can be removed.
+//    Creates wall at sp->sides[side], making it part of segment sp
+//    Removable walls must be placed between two connected segments.  You should add the removable
+//    wall on both sides.  In fact, you really must.
+extern void create_removable_wall(segment *sp, int side, int tmap_num);
 
 // Loads mine *name from disk, updating global variables:
 //    Segments, Vertices
@@ -645,6 +657,9 @@ extern void med_point_2_vec(grs_canvas *canv,vms_vector *v,short sx,short sy);
 
 //shutdown ui on the editor screen
 void close_editor_screen(void);
+
+//    From eobject.c
+extern int place_object(segment *segp, vms_vector *object_pos, short object_type, short object_id);
 
 // from ksegsize.c
 extern void med_extract_up_vector_from_segment_side(segment *sp, int sidenum, vms_vector *vp);
