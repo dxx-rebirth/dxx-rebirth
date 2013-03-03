@@ -35,7 +35,11 @@ void net_udp_send_netgame_update();
 #define TRACKER_ADDR_DEFAULT "dxxtracker.reenigne.net"
 #define TRACKER_PORT_DEFAULT 42420
 #endif
+#if defined(DXX_BUILD_DESCENT_I)
+#define UDP_REQ_ID "D1XR" // ID string for a request packet
+#elif defined(DXX_BUILD_DESCENT_II)
 #define UDP_REQ_ID "D2XR" // ID string for a request packet
+#endif
 #define UDP_MAX_NETGAMES 900
 #define UDP_NETGAMES_PPAGE 12 // Netgames on one page of Netlist
 #define UDP_NETGAMES_PAGES 75 // Pages available on Netlist (UDP_MAX_NETGAMES/UDP_NETGAMES_PPAGE)
@@ -49,10 +53,15 @@ void net_udp_send_netgame_update();
 #define UPID_GAME_INFO_REQ_SIZE			 13
 #define UPID_GAME_INFO_LITE_REQ_SIZE		 11
 #define UPID_GAME_INFO				  3 // Packet containing all info about a netgame.
-#define UPID_GAME_INFO_SIZE			510
 #define UPID_GAME_INFO_LITE_REQ			  4 // Requesting lite info about a netgame. Used for discovering games.
 #define UPID_GAME_INFO_LITE			  5 // Packet containing lite netgame info.
+#if defined(DXX_BUILD_DESCENT_I)
+#define UPID_GAME_INFO_SIZE			506
+#define UPID_GAME_INFO_LITE_SIZE		 69
+#elif defined(DXX_BUILD_DESCENT_II)
+#define UPID_GAME_INFO_SIZE			510
 #define UPID_GAME_INFO_LITE_SIZE		 73
+#endif
 #define UPID_DUMP				  6 // Packet containing why player cannot join this game.
 #define UPID_DUMP_SIZE				  2
 #define UPID_ADDPLAYER				  7 // Packet from Host containing info about a new player.
@@ -89,7 +98,7 @@ typedef struct UDP_netgame_info_lite
 	char                            game_name[NETGAME_NAME_LEN+1];
 	char                            mission_title[MISSION_NAME_LEN+1];
 	char                            mission_name[9];
-	int                             levelnum;
+	int32_t                         levelnum;
 	ubyte                           gamemode;
 	ubyte                           RefusePlayers;
 	ubyte                           difficulty;

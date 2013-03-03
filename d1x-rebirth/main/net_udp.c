@@ -63,7 +63,6 @@ void net_udp_update_netgame(void);
 void net_udp_send_objects(void);
 void net_udp_send_rejoin_sync(int player_num);
 void net_udp_send_game_info(struct _sockaddr sender_addr, ubyte info_upid);
-void net_udp_send_netgame_update();
 void net_udp_do_refuse_stuff (UDP_sequence_packet *their);
 void net_udp_read_sync_packet( ubyte * data, int data_len, struct _sockaddr sender_addr );
 void net_udp_read_object_packet( ubyte *data );
