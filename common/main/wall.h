@@ -24,9 +24,15 @@ COPYRIGHT 1993-1999 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 #include "segment.h"
 #include "object.h"
 
+#if defined(DXX_BUILD_DESCENT_I)
+#define MAX_WALLS					175	// Maximum number of walls
+#define MAX_WALL_ANIMS			30		// Maximum different types of doors
+#define MAX_DOORS					50		// Maximum number of open doors
+#elif defined(DXX_BUILD_DESCENT_II)
 #define MAX_WALLS               254 // Maximum number of walls
 #define MAX_WALL_ANIMS          60  // Maximum different types of doors
 #define MAX_DOORS               90  // Maximum number of open doors
+#endif
 
 // Various wall types.
 #define WALL_NORMAL             0   // Normal wall
@@ -35,8 +41,10 @@ COPYRIGHT 1993-1999 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 #define WALL_ILLUSION           3   // Wall that appears to be there, but you can fly thru
 #define WALL_OPEN               4   // Just an open side. (Trigger)
 #define WALL_CLOSED             5   // Wall.  Used for transparent walls.
+#if defined(DXX_BUILD_DESCENT_II)
 #define WALL_OVERLAY            6   // Goes over an actual solid side.  For triggers
 #define WALL_CLOAKED            7   // Can see it, and see through it
+#endif
 
 // Various wall flags.
 #define WALL_BLASTED            1   // Blasted out wall.
@@ -44,17 +52,21 @@ COPYRIGHT 1993-1999 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 #define WALL_DOOR_LOCKED        8   // Door is locked.
 #define WALL_DOOR_AUTO          16  // Door automatically closes after time.
 #define WALL_ILLUSION_OFF       32  // Illusionary wall is shut off.
+#if defined(DXX_BUILD_DESCENT_II)
 #define WALL_WALL_SWITCH        64  // This wall is openable by a wall switch.
 #define WALL_BUDDY_PROOF        128 // Buddy assumes he cannot get through this wall.
+#endif
 
 // Wall states
 #define WALL_DOOR_CLOSED        0       // Door is closed
 #define WALL_DOOR_OPENING       1       // Door is opening.
 #define WALL_DOOR_WAITING       2       // Waiting to close
 #define WALL_DOOR_CLOSING       3       // Door is closing
+#if defined(DXX_BUILD_DESCENT_II)
 #define WALL_DOOR_OPEN          4       // Door is open, and staying open
 #define WALL_DOOR_CLOAKING      5       // Wall is going from closed -> open
 #define WALL_DOOR_DECLOAKING    6       // Wall is going from open -> closed
+#endif
 
 //note: a door is considered opened (i.e., it has WALL_OPENED set) when it
 //is more than half way open.  Thus, it can have any of OPENING, CLOSING,
@@ -71,14 +83,20 @@ COPYRIGHT 1993-1999 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 #define DOOR_OPEN_TIME          i2f(2)      // How long takes to open
 #define DOOR_WAIT_TIME          i2f(5)      // How long before auto door closes
 
+#if defined(DXX_BUILD_DESCENT_I)
+#define MAX_CLIP_FRAMES			20
+#elif defined(DXX_BUILD_DESCENT_II)
 #define MAX_CLIP_FRAMES         50
+#endif
 
 // WALL_IS_DOORWAY flags.
 #define WID_FLY_FLAG            1
 #define WID_RENDER_FLAG         2
 #define WID_RENDPAST_FLAG       4
 #define WID_EXTERNAL_FLAG       8
+#if defined(DXX_BUILD_DESCENT_II)
 #define WID_CLOAKED_FLAG        16
+#endif
 
 //  WALL_IS_DOORWAY return values          F/R/RP
 #define WID_WALL                    2   // 0/1/0        wall
@@ -127,6 +145,7 @@ typedef struct v19_door {
 
 //End old wall structures
 
+#if defined(DXX_BUILD_DESCENT_I) || defined(DXX_BUILD_DESCENT_II)
 typedef struct wall {
 	int     segnum,sidenum;     // Seg & side for this wall
 	fix     hps;                // "Hit points" of the wall.
@@ -137,10 +156,15 @@ typedef struct wall {
 	sbyte   trigger;            // Which trigger is associated with the wall.
 	sbyte   clip_num;           // Which animation associated with the wall.
 	ubyte   keys;               // which keys are required
+#if defined(DXX_BUILD_DESCENT_I)
+	short	pad;					// keep longword aligned
+#elif defined(DXX_BUILD_DESCENT_II)
 	sbyte   controlling_trigger;// which trigger causes something to happen here.  Not like "trigger" above, which is the trigger on this wall.
                                 //  Note: This gets stuffed at load time in gamemine.c.  Don't try to use it in the editor.  You will be sorry!
 	sbyte   cloak_value;        // if this wall is cloaked, the fade value
+#endif
 } __pack__ wall;
+#endif
 
 typedef struct active_door {
 	int     n_parts;            // for linked walls
@@ -149,6 +173,7 @@ typedef struct active_door {
 	fix     time;               // how long been opening, closing, waiting
 } __pack__ active_door;
 
+#if defined(DXX_BUILD_DESCENT_II)
 typedef struct cloaking_wall {
 	short       front_wallnum;  // front wall numbers for this door
 	short       back_wallnum;   // back wall numbers for this door
@@ -156,6 +181,7 @@ typedef struct cloaking_wall {
 	fix     back_ls[4];         // back wall saved light values
 	fix     time;               // how long been cloaking or decloaking
 } __pack__ cloaking_wall;
+#endif
 
 //wall clip flags
 #define WCF_EXPLODES    1       //door explodes when opening
@@ -178,16 +204,20 @@ extern char Wall_names[7][10];
 
 //#define WALL_IS_DOORWAY(seg,side) wall_is_doorway(seg, side)
 
+#if defined(DXX_BUILD_DESCENT_I)
+#define WALL_IS_DOORWAY(seg,side) (((seg)->children[(side)] == -1) ? WID_WALL : ((seg)->children[(side)] == -2) ? WID_EXTERNAL_FLAG : ((seg)->sides[(side)].wall_num == -1) ? WID_NO_WALL : wall_is_doorway((seg), (side)))
+#elif defined(DXX_BUILD_DESCENT_II)
 #define WALL_IS_DOORWAY(seg,side) (((seg)->children[(side)] == -1) ? WID_RENDER_FLAG : ((seg)->children[(side)] == -2) ? WID_EXTERNAL_FLAG : ((seg)->sides[(side)].wall_num == -1) ? (WID_FLY_FLAG|WID_RENDPAST_FLAG) : wall_is_doorway((seg), (side)))
+
+extern cloaking_wall CloakingWalls[];
+extern int Num_cloaking_walls;
+#endif
 
 extern wall Walls[MAX_WALLS];           // Master walls array
 extern int Num_walls;                   // Number of walls
 
 extern active_door ActiveDoors[MAX_DOORS];  //  Master doors array
 extern int Num_open_doors;              // Number of open doors
-
-extern cloaking_wall CloakingWalls[];
-extern int Num_cloaking_walls;
 
 extern wclip WallAnims[MAX_WALL_ANIMS];
 extern int Num_wall_anims;
@@ -219,8 +249,13 @@ void do_door_close(int door_num);
 // Opens a door
 extern void wall_open_door(segment *seg, int side);
 
+#if defined(DXX_BUILD_DESCENT_I)
+// Closes a door (called after given interval)
+extern void wall_close_door(int wall_num);
+#elif defined(DXX_BUILD_DESCENT_II)
 // Closes a door
 extern void wall_close_door(segment *seg, int side);
+#endif
 
 //return codes for wall_hit_process()
 #define WHP_NOT_SPECIAL     0       //wasn't a quote-wall-unquote
@@ -251,6 +286,7 @@ extern void remove_obsolete_stuck_objects(void);
 //set the tmap_num or tmap_num2 field for a wall/door
 extern void wall_set_tmap_num(segment *seg,int side,segment *csegp,int cside,int anim_num,int frame_num);
 
+#if defined(DXX_BUILD_DESCENT_II)
 // Remove any flares from a wall
 void kill_stuck_objects(int wallnum);
 
@@ -259,6 +295,12 @@ void start_wall_cloak(segment *seg, int side);
 void start_wall_decloak(segment *seg, int side);
 
 extern int wclip_read_n_d1(wclip *wc, int n, PHYSFS_file *fp);
+
+/*
+ * reads n cloaking_wall structs from a PHYSFS_file and swaps if specified
+ */
+void cloaking_wall_read_n_swap(cloaking_wall *cw, int n, int swap, PHYSFS_file *fp);
+#endif
 
 /*
  * reads n wclip structs from a PHYSFS_file
@@ -299,11 +341,6 @@ extern void active_door_read(active_door *ad, PHYSFS_file *fp);
  * reads n active_door structs from a PHYSFS_file and swaps if specified
  */
 extern void active_door_read_n_swap(active_door *ad, int n, int swap, PHYSFS_file *fp);
-
-/*
- * reads n cloaking_wall structs from a PHYSFS_file and swaps if specified
- */
-void cloaking_wall_read_n_swap(cloaking_wall *cw, int n, int swap, PHYSFS_file *fp);
 
 extern void wall_write(wall *w, short version, PHYSFS_file *fp);
 void wall_close_door_num(int door_num);
