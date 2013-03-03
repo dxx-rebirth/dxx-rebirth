@@ -367,6 +367,7 @@ class DXXProgram(DXXCommon):
 'editor/kcurve.c',
 'editor/kfuncs.c',
 'editor/khelp.c',
+'editor/medsel.c',
 'editor/texture.c',
 ]
 ]
@@ -628,7 +629,6 @@ class D1XProgram(DXXProgram):
 'editor/meddraw.c',
 'editor/medmisc.c',
 'editor/medrobot.c',
-'editor/medsel.c',
 'editor/medwall.c',
 'editor/mine.c',
 'editor/objpage.c',
@@ -775,7 +775,6 @@ class D2XProgram(DXXProgram):
 'editor/meddraw.c',
 'editor/medmisc.c',
 'editor/medrobot.c',
-'editor/medsel.c',
 'editor/medwall.c',
 'editor/mine.c',
 'editor/objpage.c',
