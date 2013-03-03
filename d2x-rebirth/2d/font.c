@@ -30,7 +30,7 @@ COPYRIGHT 1993-1999 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 #include "grdef.h"
 #include "dxxerror.h"
 #include "byteswap.h"
-#include "bitmap.h"
+#include "common/2d/bitmap.h"
 #include "makesig.h"
 #include "gamefont.h"
 #include "console.h"

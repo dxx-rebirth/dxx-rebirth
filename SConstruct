@@ -108,7 +108,7 @@ class DXXCommon:
 		self.env.Append(CCFLAGS = ['-Wall', '-Wundef', '-Werror=undef', '-funsigned-char', '-Werror=implicit-int', '-Werror=implicit-function-declaration', '-pedantic', '-pthread'])
 		self.env.Append(CFLAGS = ['-std=c99'])
 		self.env.Append(CPPDEFINES = ['NETWORK'])
-		self.env.Append(CPPPATH = ['common/include', 'common/main'])
+		self.env.Append(CPPPATH = ['common/include', 'common/main', '.'])
 		# Get traditional compiler environment variables
 		for cc in ['CC', 'CXX']:
 			if os.environ.has_key(cc):
@@ -200,6 +200,7 @@ class DXXArchive(DXXCommon):
 	srcdir = 'common'
 	target = 'dxx-common'
 	common_sources = [os.path.join('common', f) for f in [
+'2d/bitmap.c',
 '2d/box.c',
 '2d/canvas.c',
 '2d/circle.c',
@@ -366,7 +367,6 @@ class D1XProgram(DXXProgram):
 		self.common_sources = [os.path.join(self.srcdir, f) for f in [
 '2d/2dsline.c',
 '2d/bitblt.c',
-'2d/bitmap.c',
 '2d/font.c',
 '2d/palette.c',
 '2d/pcx.c',
@@ -600,7 +600,6 @@ class D2XProgram(DXXProgram):
 		self.common_sources = [os.path.join(self.srcdir, f) for f in [
 '2d/2dsline.c',
 '2d/bitblt.c',
-'2d/bitmap.c',
 '2d/font.c',
 '2d/palette.c',
 '2d/pcx.c',
