@@ -226,6 +226,7 @@ class DXXArchive(DXXCommon):
 'maths/rand.c',
 'maths/tables.c',
 'maths/vecmat.c',
+'misc/strio.c',
 'misc/strutil.c',
 ]
 ]
@@ -465,7 +466,6 @@ class D1XProgram(DXXProgram):
 'misc/hmp.c',
 'misc/ignorecase.c',
 'misc/physfsx.c',
-'misc/strio.c',
 'texmap/ntmap.c',
 'texmap/scanline.c'
 #'tracker/client/tracker_client.c'
@@ -695,7 +695,6 @@ class D2XProgram(DXXProgram):
 'misc/ignorecase.c',
 'misc/physfsrwops.c',
 'misc/physfsx.c',
-'misc/strio.c',
 'texmap/ntmap.c',
 'texmap/scanline.c'
 ]
