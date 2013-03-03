@@ -20,13 +20,14 @@ COPYRIGHT 1993-1999 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 #ifndef _AUTOMAP_H
 #define _AUTOMAP_H
 
-#include "player.h"
-
 extern int Automap_active;
 
 extern void do_automap(int key_code);
 extern void automap_clear_visited();
 extern ubyte Automap_visited[MAX_SEGMENTS];
+
+#if defined(DXX_BUILD_DESCENT_II)
+#include "object.h"
 void DropBuddyMarker(object *objp);
 
 #define NUM_MARKERS         16
@@ -35,5 +36,6 @@ void DropBuddyMarker(object *objp);
 extern char MarkerMessage[NUM_MARKERS][MARKER_MESSAGE_LEN];
 extern int  MarkerObject[NUM_MARKERS];
 extern vms_vector MarkerPoint[NUM_MARKERS];
+#endif
 
 #endif
