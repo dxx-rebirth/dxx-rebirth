@@ -57,8 +57,10 @@ COPYRIGHT 1993-1999 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 #include "playsave.h"
 #include "automap.h"
 #include "rbaudio.h"
+#if defined(DXX_BUILD_DESCENT_II)
 #include "args.h"
 #include "gamepal.h"
+#endif
 
 #ifdef OGL
 #include "ogl_init.h"
@@ -130,8 +132,9 @@ void nm_draw_background1(char * filename)
 		gr_palette_load( gr_palette );
 		show_fullscr(&nm_background1);
 	}
-
+#if defined(DXX_BUILD_DESCENT_II)
 	strcpy(last_palette_loaded,"");		//force palette load next time
+#endif
 }
 
 #define MENU_BACKGROUND_BITMAP_HIRES (PHYSFSX_exists("scoresb.pcx",1)?"scoresb.pcx":"scores.pcx")
@@ -1512,7 +1515,12 @@ int newmenu_handler(window *wind, d_event *event, newmenu *menu)
 
 		case EVENT_WINDOW_DEACTIVATED:
 			//event_toggle_focus(1);	// No cursor recentering
-			key_toggle_repeat(1);
+#if defined(DXX_BUILD_DESCENT_I)
+#define DXX_KEY_TOGGLE_REPEAT_VALUE	0
+#elif defined(DXX_BUILD_DESCENT_II)
+#define DXX_KEY_TOGGLE_REPEAT_VALUE	1
+#endif
+			key_toggle_repeat(DXX_KEY_TOGGLE_REPEAT_VALUE);
 			menu->mouse_state = 0;
 			break;
 
