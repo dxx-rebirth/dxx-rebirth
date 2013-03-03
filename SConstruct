@@ -298,6 +298,7 @@ class DXXProgram(DXXCommon):
 	VERSION_MICRO = 3
 	static_archive_construction = None
 	similar_arch_ogl_sources = [os.path.join('similar', f) for f in [
+'arch/ogl/gr.c',
 'arch/ogl/ogl.c',
 ]
 ]
@@ -407,7 +408,6 @@ class DXXProgram(DXXCommon):
 		# opengl or software renderer?
 		if (self.user_settings.opengl == 1) or (self.user_settings.opengles == 1):
 			self.platform_settings.libs += self.platform_settings.ogllibs
-			self.common_sources += self.arch_ogl_sources
 		else:
 			print "%s: building with Software Renderer" % self.PROGRAM_NAME
 			self.common_sources += self.arch_sdl_sources
@@ -605,12 +605,6 @@ class D1XProgram(DXXProgram):
 ]
 ]
 
-	# for opengl
-	arch_ogl_sources = [os.path.join(srcdir, f) for f in [
-'arch/ogl/gr.c',
-]
-]
-
 	# for non-ogl
 	arch_sdl_sources = [os.path.join(srcdir, f) for f in [
 'arch/sdl/gr.c',
@@ -783,12 +777,6 @@ class D2XProgram(DXXProgram):
 	# SDL_mixer sound implementation
 	arch_sdlmixer_sources = [os.path.join(srcdir, f) for f in [
 'arch/sdl/digi_mixer.c',
-]
-]
-
-	# for opengl
-	arch_ogl_sources = [os.path.join(srcdir, f) for f in [
-'arch/ogl/gr.c',
 ]
 ]
 

@@ -325,7 +325,15 @@ void gr_uscanline( int x1, int x2, int y );
 grs_font * gr_init_font( const char * fontfile );
 void gr_close_font( grs_font * font );
 
-#ifdef DXX_BUILD_DESCENT_II
+#if defined(DXX_BUILD_DESCENT_I)
+#define DXX_SDL_WINDOW_CAPTION	"Descent"
+#define DXX_SDL_WINDOW_ICON_BITMAP	"d1x-rebirth.bmp"
+
+static inline void gr_remap_color_fonts() {}
+static inline void gr_remap_mono_fonts() {}
+#elif defined(DXX_BUILD_DESCENT_II)
+#define DXX_SDL_WINDOW_CAPTION	"Descent II"
+#define DXX_SDL_WINDOW_ICON_BITMAP	"d2x-rebirth.bmp"
 void gr_copy_palette(ubyte *gr_palette, ubyte *pal, int size);
 
 //remap a font, re-reading its data & palette
