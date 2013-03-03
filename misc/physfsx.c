@@ -15,6 +15,7 @@
 #endif
 
 #include "physfsx.h"
+#include "args.h"
 #include "object.h"
 #include "newdemo.h"
 
