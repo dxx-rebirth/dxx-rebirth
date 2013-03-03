@@ -1710,7 +1710,7 @@ void object_move_one( object * obj )
 	if (obj->lifeleft < 0 ) {		// We died of old age
 		obj->flags |= OF_SHOULD_BE_DEAD;
 		if ( Weapon_info[obj->id].damage_radius )
-			explode_badass_weapon(obj);
+			explode_badass_weapon(obj,&obj->pos);
 	}
 
 	if (obj->type == OBJ_NONE || obj->flags&OF_SHOULD_BE_DEAD)

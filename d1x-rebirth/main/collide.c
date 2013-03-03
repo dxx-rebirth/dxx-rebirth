@@ -498,7 +498,7 @@ void collide_weapon_and_wall( object * weapon, fix hitspeed, short hitseg, short
 
 		if ( Weapon_info[weapon->id].wall_hit_vclip > -1 )	{
 			if ( Weapon_info[weapon->id].damage_radius )
-				explode_badass_weapon(weapon);
+				explode_badass_weapon(weapon, &weapon->pos);
 			else
 				object_create_explosion( weapon->segnum, &weapon->pos, Weapon_info[weapon->id].impact_size, Weapon_info[weapon->id].wall_hit_vclip );
 		}
@@ -796,7 +796,7 @@ void collide_weapon_and_controlcen( object * weapon, object *controlcen, vms_vec
 			Control_center_been_hit = 1;
 
 		if ( Weapon_info[weapon->id].damage_radius )
-			explode_badass_weapon(weapon);
+			explode_badass_weapon(weapon, &weapon->pos);
 		else
 			object_create_explosion( controlcen->segnum, collision_point, ((controlcen->size/3)*3)/4, VCLIP_SMALL_EXPLOSION );
 
@@ -915,7 +915,7 @@ void collide_robot_and_weapon( object * robot, object * weapon, vms_vector *coll
 		return;
 
 	if ( Weapon_info[weapon->id].damage_radius )
-		explode_badass_weapon(weapon);
+		explode_badass_weapon(weapon, &weapon->pos);
 
 	if ( (weapon->ctype.laser_info.parent_type==OBJ_PLAYER) && !(robot->flags & OF_EXPLODING) )	{
 		object *expl_obj=NULL;
@@ -1271,7 +1271,7 @@ void collide_player_and_weapon( object * player, object * weapon, vms_vector *co
 
 	object_create_explosion( player->segnum, collision_point, i2f(10)/2, VCLIP_PLAYER_HIT );
 	if ( Weapon_info[weapon->id].damage_radius )
-		explode_badass_weapon(weapon);
+		explode_badass_weapon(weapon, &weapon->pos);
 
 	maybe_kill_weapon(weapon,player);
 
@@ -1436,7 +1436,7 @@ int maybe_detonate_weapon(object *weapon1, object *weapon2, vms_vector *collisio
 		if (dist < F1_0*5) {
 			maybe_kill_weapon(weapon1,weapon2);
 			if (weapon1->flags & OF_SHOULD_BE_DEAD) {
-				explode_badass_weapon(weapon1);
+				explode_badass_weapon(weapon1, &weapon1->pos);
 				digi_link_sound_to_pos( Weapon_info[weapon1->id].robot_hit_sound, weapon1->segnum , 0, collision_point, 0, F1_0 );
 			}
 			return 1;
@@ -1485,7 +1485,7 @@ void collide_weapon_and_debris( object * weapon, object * debris, vms_vector *co
 
 		explode_object(debris,0);
 		if ( Weapon_info[weapon->id].damage_radius )
-			explode_badass_weapon(weapon);
+			explode_badass_weapon(weapon, &weapon->pos);
 		maybe_kill_weapon(weapon,debris);
 		if (!(weapon->mtype.phys_info.flags & PF_PERSISTENT))
 			weapon->flags |= OF_SHOULD_BE_DEAD;

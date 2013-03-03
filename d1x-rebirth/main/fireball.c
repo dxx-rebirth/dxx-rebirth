@@ -197,7 +197,7 @@ object *object_create_badass_explosion(object *objp, short segnum, vms_vector * 
 
 //blows up a badass weapon, creating the badass explosion
 //return the explosion object
-object *explode_badass_weapon(object *obj)
+object *explode_badass_weapon(object *obj,vms_vector *pos)
 {
 	weapon_info *wi = &Weapon_info[obj->id];
 
@@ -205,7 +205,7 @@ object *explode_badass_weapon(object *obj)
 
 	digi_link_sound_to_object(SOUND_BADASS_EXPLOSION, obj-Objects, 0, F1_0);
 
-	return object_create_badass_explosion( obj, obj->segnum, &obj->pos, 
+	return object_create_badass_explosion( obj, obj->segnum, pos, 
 	                                      wi->impact_size,
 	                                      wi->robot_hit_vclip,
 	                                      wi->strength[Difficulty_level],
@@ -1066,12 +1066,6 @@ void do_explosion_sequence(object *obj)
 	}
 }
 
-typedef struct expl_wall {
-	int segnum,sidenum;
-	fix time;
-} expl_wall;
-
-#define MAX_EXPLODING_WALLS 			10
 #define EXPL_WALL_TIME					(f1_0)
 #define EXPL_WALL_TOTAL_FIREBALLS	32
 #define EXPL_WALL_FIREBALL_SIZE 		0x48000	//smallest size

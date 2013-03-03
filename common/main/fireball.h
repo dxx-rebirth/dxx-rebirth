@@ -8,71 +8,14 @@ SUCH USE, DISPLAY OR CREATION IS FOR NON-COMMERCIAL, ROYALTY OR REVENUE
 FREE PURPOSES.  IN NO EVENT SHALL THE END-USER USE THE COMPUTER CODE
 CONTAINED HEREIN FOR REVENUE-BEARING PURPOSES.  THE END-USER UNDERSTANDS
 AND AGREES TO THE TERMS HEREIN AND ACCEPTS THE SAME BY USE OF THIS FILE.
-COPYRIGHT 1993-1998 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
+COPYRIGHT 1993-1999 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 */
+
 /*
- * $Source: /cvsroot/dxx-rebirth/d1x-rebirth/main/fireball.h,v $
- * $Revision: 1.1.1.1 $
- * $Author: zicodxx $
- * $Date: 2006/03/17 19:41:27 $
  *
  * Header for fireball.c
  *
- * $Log: fireball.h,v $
- * Revision 1.1.1.1  2006/03/17 19:41:27  zicodxx
- * initial import
- *
- * Revision 1.1.1.1  1999/06/14 22:12:17  donut
- * Import of d1x 1.37 source.
- *
- * Revision 2.0  1995/02/27  11:27:03  john
- * New version 2.0, which has no anonymous unions, builds with
- * Watcom 10.0, and doesn't require parsing BITMAPS.TBL.
- *
- * Revision 1.13  1995/01/17  12:14:38  john
- * Made walls, object explosion vclips load at level start.
- *
- * Revision 1.12  1995/01/13  15:41:52  rob
- * Added prototype for maybe_replace_powerup_with_energy
- *
- * Revision 1.11  1994/11/17  16:28:36  rob
- * Changed maybe_drop_cloak_powerup to maybe_drop_net_powerup (more
- * generic and useful)
- *
- * Revision 1.10  1994/10/12  08:03:42  mike
- * Prototype maybe_drop_cloak_powerup.
- *
- * Revision 1.9  1994/10/11  12:24:39  matt
- * Cleaned up/change badass explosion calls
- *
- * Revision 1.8  1994/09/07  16:00:34  mike
- * Add object pointer to parameter list of object_create_badass_explosion.
- *
- * Revision 1.7  1994/09/02  14:00:39  matt
- * Simplified explode_object() & mutliple-stage explosions
- *
- * Revision 1.6  1994/08/17  16:49:58  john
- * Added damaging fireballs, missiles.
- *
- * Revision 1.5  1994/07/14  22:39:19  matt
- * Added exploding doors
- *
- * Revision 1.4  1994/06/08  10:56:36  matt
- * Improved debris: now get submodel size from new POF files; debris now has
- * limited life; debris can now be blown up.
- *
- * Revision 1.3  1994/04/01  13:35:44  matt
- * Added multiple-stage explosions
- *
- * Revision 1.2  1994/02/17  11:33:32  matt
- * Changes in object system
- *
- * Revision 1.1  1994/02/16  22:41:15  matt
- * Initial revision
- *
- *
  */
-
 
 
 #ifndef _FIREBALL_H
@@ -83,6 +26,16 @@ COPYRIGHT 1993-1998 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 #define ET_MULTI_START  1   //first part of multi-part explosion
 #define ET_MULTI_SECOND 2   //second part of multi-part explosion
 
+typedef struct expl_wall {
+	int segnum,sidenum;
+	fix time;
+} expl_wall;
+
+// data for exploding walls (such as hostage door)
+
+#define MAX_EXPLODING_WALLS     10
+extern expl_wall expl_wall_list[MAX_EXPLODING_WALLS];
+
 object *object_create_explosion(short segnum, vms_vector *position, fix size, int vclip_type);
 object *object_create_muzzle_flash(short segnum, vms_vector *position, fix size, int vclip_type);
 
@@ -92,7 +45,7 @@ object *object_create_badass_explosion(object *objp, short segnum,
 
 // blows up a badass weapon, creating the badass explosion
 // return the explosion object
-object *explode_badass_weapon(object *obj);
+object *explode_badass_weapon(object *obj,vms_vector *pos);
 
 // blows up the player with a badass explosion
 // return the explosion object
@@ -112,5 +65,16 @@ extern void maybe_replace_powerup_with_energy(object *del_obj);
 
 extern int get_explosion_vclip(object *obj, int stage);
 
+#if defined(DXX_BUILD_DESCENT_II)
+extern int drop_powerup(int type, int id, int num, vms_vector *init_vel, vms_vector *pos, int segnum);
+
+// creates afterburner blobs behind the specified object
+void drop_afterburner_blobs(object *obj, int count, fix size_scale, fix lifetime);
+
+/*
+ * reads n expl_wall structs from a PHYSFS_file and swaps if specified
+ */
+extern void expl_wall_read_n_swap(expl_wall *ew, int n, int swap, PHYSFS_file *fp);
 #endif
- 
+
+#endif /* _FIREBALL_H */
