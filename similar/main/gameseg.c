@@ -38,9 +38,11 @@ COPYRIGHT 1993-1999 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 // How far a point can be from a plane, and still be "in" the plane
 #define PLANE_DIST_TOLERANCE	250
 
+#if defined(DXX_BUILD_DESCENT_II)
 dl_index		Dl_indices[MAX_DL_INDICES];
 delta_light Delta_lights[MAX_DELTA_LIGHTS];
 int	Num_static_lights;
+#endif
 
 // ------------------------------------------------------------------------------------------
 // Compute the center point of a side of a segment.
@@ -461,9 +463,6 @@ ubyte get_side_dists(vms_vector *checkp,int segnum,fix *side_dists)
 
 	Assert((segnum <= Highest_segment_index) && (segnum >= 0));
 
-	if (segnum==-1)
-		Error("segnum == -1 in get_seg_dists()");
-
 	seg = &Segments[segnum];
 
 	//check point against each side of segment. return bitmask
@@ -702,7 +701,11 @@ int check_segment_connections(void)
 // Used to become a constant based on editor, but I wanted to be able to set
 // this for omega blob find_point_seg calls.
 // Would be better to pass a paremeter to the routine...--MK, 01/17/96
+#if defined(DXX_BUILD_DESCENT_II) || defined(EDITOR)
 int	Doing_lighting_hack_flag=0;
+#else
+#define Doing_lighting_hack_flag 0
+#endif
 
 // figure out what seg the given point is in, tracing through segments
 // returns segment number, or -1 if can't find segment
@@ -866,6 +869,12 @@ int find_point_seg(vms_vector *p,int segnum)
 
 int	Connected_segment_distance;
 
+#if defined(DXX_BUILD_DESCENT_I)
+static inline void add_to_fcd_cache(int seg0, int seg1, int depth, fix dist)
+{
+	(void)(seg0||seg1||depth||dist);
+}
+#elif defined(DXX_BUILD_DESCENT_II)
 #define	MIN_CACHE_FCD_DIST	(F1_0*80)	//	Must be this far apart for cache lookup to succeed.  Recognizes small changes in distance matter at small distances.
 #define	MAX_FCD_CACHE	8
 
@@ -915,6 +924,7 @@ void add_to_fcd_cache(int seg0, int seg1, int depth, fix dist)
 	}
 
 }
+#endif
 
 //	----------------------------------------------------------------------------------------------------------
 //	Determine whether seg0 and seg1 are reachable in a way that allows sound to pass.
@@ -949,13 +959,17 @@ fix find_connected_distance(vms_vector *p0, int seg0, vms_vector *p1, int seg1, 
 	} else {
 		int	conn_side;
 		if ((conn_side = find_connect_side(&Segments[seg0], &Segments[seg1])) != -1) {
-			if (WALL_IS_DOORWAY(&Segments[seg1], conn_side) & wid_flag) {
+#if defined(DXX_BUILD_DESCENT_II)
+			if (WALL_IS_DOORWAY(&Segments[seg1], conn_side) & wid_flag)
+#endif
+			{
 				Connected_segment_distance = 1;
 				return vm_vec_dist_quick(p0, p1);
 			}
 		}
 	}
 
+#if defined(DXX_BUILD_DESCENT_II)
 	//	Periodically flush cache.
 	if ((GameTime64 - Last_fcd_flush_time > F1_0*2) || (GameTime64 < Last_fcd_flush_time)) {
 		flush_fcd_cache();
@@ -968,6 +982,7 @@ fix find_connected_distance(vms_vector *p0, int seg0, vms_vector *p1, int seg1, 
 			Connected_segment_distance = Fcd_cache[i].csd;
 			return Fcd_cache[i].dist;
 		}
+#endif
 
 	num_points = 0;
 
@@ -1913,6 +1928,7 @@ int set_segment_depths(int start_seg, ubyte *segbuf)
 	return parent_depth+1;
 }
 
+#if defined(DXX_BUILD_DESCENT_II)
 //these constants should match the ones in seguvs
 #define	LIGHT_DISTANCE_THRESHOLD	(F1_0*80)
 #define	Magical_light_constant  (F1_0*16)
@@ -2214,3 +2230,4 @@ void set_ambient_sound_flags(void)
 	set_ambient_sound_flags_common(TMI_VOLATILE, S2F_AMBIENT_LAVA);
 	set_ambient_sound_flags_common(TMI_WATER, S2F_AMBIENT_WATER);
 }
+#endif
