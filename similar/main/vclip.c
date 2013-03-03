@@ -8,7 +8,7 @@ SUCH USE, DISPLAY OR CREATION IS FOR NON-COMMERCIAL, ROYALTY OR REVENUE
 FREE PURPOSES.  IN NO EVENT SHALL THE END-USER USE THE COMPUTER CODE
 CONTAINED HEREIN FOR REVENUE-BEARING PURPOSES.  THE END-USER UNDERSTANDS
 AND AGREES TO THE TERMS HEREIN AND ACCEPTS THE SAME BY USE OF THIS FILE.
-COPYRIGHT 1993-1998 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
+COPYRIGHT 1993-1999 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 */
 
 /*
@@ -18,10 +18,14 @@ COPYRIGHT 1993-1998 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
  */
 
 
+#include <stdlib.h>
 #include "dxxerror.h"
 #include "inferno.h"
 #include "vclip.h"
 #include "weapon.h"
+#if defined(DXX_BUILD_DESCENT_II)
+#include "laser.h"
+#endif
 
 //----------------- Variables for video clips -------------------
 int 					Num_vclips = 0;
@@ -56,12 +60,36 @@ void draw_vclip_object(object *obj,fix timeleft,int lighted, int vclip_num)
 void draw_weapon_vclip(object *obj)
 {
 	int	vclip_num;
-	fix	modtime;
+	fix	modtime,play_time;
+
+	Assert(obj->type == OBJ_WEAPON);
 
 	vclip_num = Weapon_info[obj->id].weapon_vclip;
+
 	modtime = obj->lifeleft;
-	while (modtime > Vclip[vclip_num].play_time)
-		modtime -= Vclip[vclip_num].play_time;
+	play_time = Vclip[vclip_num].play_time;
+
+#if defined(DXX_BUILD_DESCENT_II)
+	//	Special values for modtime were causing enormous slowdown for omega blobs.
+	if (modtime == IMMORTAL_TIME)
+		modtime = play_time;
+
+	if (obj->id == PROXIMITY_ID) {		//make prox bombs spin out of sync
+		int objnum = obj-Objects;
+
+		modtime += (modtime * (objnum&7)) / 16;	//add variance to spin rate
+
+		while (modtime > play_time)
+			modtime -= play_time;
+
+		if ((objnum&1) ^ ((objnum>>1)&1))			//make some spin other way
+			modtime = play_time - modtime;
+
+	}
+	else
+#endif
+		while (modtime > play_time)
+			modtime -= play_time;
 
 	draw_vclip_object(obj, modtime, 0, vclip_num);
 
