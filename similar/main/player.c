@@ -23,8 +23,10 @@ void player_rw_swap(player_rw *p, int swap)
 	p->energy = SWAPINT(p->energy);
 	p->shields = SWAPINT(p->shields);
 	p->killer_objnum = SWAPSHORT(p->killer_objnum);
+#if defined(DXX_BUILD_DESCENT_II)
 	p->primary_weapon_flags = SWAPSHORT(p->primary_weapon_flags);
 	p->secondary_weapon_flags = SWAPSHORT(p->secondary_weapon_flags);
+#endif
 	for (i = 0; i < MAX_PRIMARY_WEAPONS; i++)
 		p->primary_ammo[i] = SWAPSHORT(p->primary_ammo[i]);
 	for (i = 0; i < MAX_SECONDARY_WEAPONS; i++)
@@ -35,7 +37,9 @@ void player_rw_swap(player_rw *p, int swap)
 	p->time_total = SWAPINT(p->time_total);
 	p->cloak_time = SWAPINT(p->cloak_time);
 	p->invulnerable_time = SWAPINT(p->invulnerable_time);
+#if defined(DXX_BUILD_DESCENT_II)
 	p->KillGoalCount = SWAPSHORT(p->KillGoalCount);
+#endif
 	p->net_killed_total = SWAPSHORT(p->net_killed_total);
 	p->net_kills_total = SWAPSHORT(p->net_kills_total);
 	p->num_kills_level = SWAPSHORT(p->num_kills_level);
