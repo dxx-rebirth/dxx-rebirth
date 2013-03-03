@@ -312,6 +312,7 @@ static inline int weapon_index_is_player_bomb(unsigned id)
 }
 #elif defined(DXX_BUILD_DESCENT_II)
 int which_bomb(void);
+int check_to_use_primary(int weapon_index);
 
 static inline int weapon_index_uses_vulcan_ammo(unsigned id)
 {
