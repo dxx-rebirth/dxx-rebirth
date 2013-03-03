@@ -22,18 +22,6 @@ COPYRIGHT 1993-1999 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 
 #include <setjmp.h>
 
-#include "pstypes.h"
-
-
-// MACRO for single line #ifdef WINDOWS #else DOS
-#ifdef WINDOWS
-#define WINDOS(x,y) x
-#define WIN(x) x
-#else
-#define WINDOS(x,y) y
-#define WIN(x)
-#endif
-
 struct d_event;
 
 #if defined(__APPLE__) || defined(macintosh)
@@ -68,5 +56,3 @@ extern int Screen_mode;			// editor screen or game screen?
 int standard_handler(struct d_event *event);
 
 #endif
-
-
