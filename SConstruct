@@ -795,6 +795,7 @@ class DXXProgram(DXXCommon):
 'main/terrain.c',
 'main/texmerge.c',
 'main/text.c',
+'main/titles.c',
 'main/vclip.c',
 'main/wall.c',
 'main/weapon.c',
@@ -1041,7 +1042,6 @@ class D1XProgram(DXXProgram):
 'main/playsave.c',
 'main/powerup.c',
 'main/snddecom.c',
-'main/titles.c',
 #'tracker/client/tracker_client.c'
 ]
 ],
@@ -1111,7 +1111,6 @@ class D2XProgram(DXXProgram):
 'main/playsave.c',
 'main/powerup.c',
 'main/segment.c',
-'main/titles.c',
 'misc/physfsrwops.c',
 ]
 ],

@@ -48,18 +48,26 @@ COPYRIGHT 1993-1999 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 #include "songs.h"
 #include "newmenu.h"
 #include "state.h"
+#if defined(DXX_BUILD_DESCENT_II)
 #include "movie.h"
+#endif
 #include "menu.h"
 #include "mouse.h"
 #include "console.h"
 #include "args.h"
 
+#if defined(DXX_BUILD_DESCENT_I)
+static const int EMULATING_D1 = 1;
+#elif defined(DXX_BUILD_DESCENT_II)
 struct briefing;
 static void set_briefing_fontcolor (struct briefing *br);
 static int DefineBriefingBox (char **buf);
+#endif
 
 #define MAX_BRIEFING_COLORS     7
+#if defined(DXX_BUILD_DESCENT_II)
 #define	SHAREWARE_ENDING_FILENAME	"ending.tex"
+#endif
 #define DEFAULT_BRIEFING_BKG		"brief03.pcx"
 
 static int	Briefing_text_colors[MAX_BRIEFING_COLORS];
@@ -176,10 +184,30 @@ static int show_title_screen( char * filename, int allow_keys, int from_hog_only
 	return 0;
 }
 
+#if defined(DXX_BUILD_DESCENT_II)
 int intro_played = 0;
+#endif
 
 void show_titles(void)
 {
+#if defined(DXX_BUILD_DESCENT_I)
+	char    publisher[PATH_MAX];
+
+	songs_play_song( SONG_TITLE, 1 );
+
+	if (GameArg.SysNoTitles)
+		return;
+
+	strcpy(publisher, "macplay.pcx");	// Mac Shareware
+	if (!PHYSFSX_exists(publisher,1))
+		strcpy(publisher, "mplaycd.pcx");	// Mac Registered
+	if (!PHYSFSX_exists(publisher,1))
+		strcpy(publisher, "iplogo1.pcx");	// PC. Only down here because it's lowres ;-)
+
+	show_title_screen( publisher, 1, 1 );
+	show_title_screen( (((SWIDTH>=640&&SHEIGHT>=480) && PHYSFSX_exists("logoh.pcx",1))?"logoh.pcx":"logo.pcx"), 1, 1 );
+	show_title_screen( (((SWIDTH>=640&&SHEIGHT>=480) && PHYSFSX_exists("descenth.pcx",1))?"descenth.pcx":"descent.pcx"), 1, 1 );
+#elif defined(DXX_BUILD_DESCENT_II)
 	char filename[PATH_MAX];
 	int played=MOVIE_NOT_PLAYED;    //default is not played
 	int song_playing = 0;
@@ -273,10 +301,24 @@ void show_titles(void)
 	strcpy(filename, HIRESMODE?"descentb.pcx":"descent.pcx");
 	if (PHYSFSX_exists(filename,1))
 		show_title_screen(filename, 1, 1);
+#endif
 }
 
 void show_order_form()
 {
+#if defined(DXX_BUILD_DESCENT_I)
+	char    exit_screen[PATH_MAX];
+
+	if (GameArg.SysNoTitles)
+		return;
+
+	strcpy(exit_screen, "warning.pcx");	// D1 Registered
+	if (! PHYSFSX_exists(exit_screen,1))
+		strcpy(exit_screen, "apple.pcx");	// D1 Mac OEM Demo
+	if (! PHYSFSX_exists(exit_screen,1))
+		strcpy(exit_screen, "order01.pcx"); // D1 Demo
+	show_title_screen(exit_screen, 1, 1);
+#elif defined(DXX_BUILD_DESCENT_II)
 #ifndef EDITOR
 	char    exit_screen[PATH_MAX];
 
@@ -294,6 +336,7 @@ void show_order_form()
 
 	show_title_screen(exit_screen,1,0);
 
+#endif
 #endif
 }
 
@@ -313,10 +356,12 @@ typedef struct {
 #define	ENDING_LEVEL_NUM_OEMSHARE 0x7f
 #define	ENDING_LEVEL_NUM_REGISTER 0x7e
 
+#if defined(DXX_BUILD_DESCENT_II)
 #define MAX_BRIEFING_SCREENS 60
 
 static briefing_screen Briefing_screens[MAX_BRIEFING_SCREENS]=
  {{"brief03.pcx",0,3,8,8,257,177}}; // default=0!!!
+#endif
 
 static const briefing_screen D1_Briefing_screens_full[] = {
 	{ "brief01.pcx",   0,  1,  13, 140, 290,  59 },
@@ -398,8 +443,10 @@ typedef struct briefing
 	briefing_screen	*screen;
 	grs_bitmap background;
 	char	background_name[PATH_MAX];
+#if defined(DXX_BUILD_DESCENT_II)
 	int		got_z;
 	int		hum_channel, printing_channel;
+#endif
 	char	*text;
 	char	*message;
 	int		text_x, text_y;
@@ -409,15 +456,17 @@ typedef struct briefing
 	ubyte	flashing_cursor;
 	ubyte	new_page;
 	int		new_screen;
+#if defined(DXX_BUILD_DESCENT_II)
 	ubyte	dumb_adjust;
 	ubyte	line_adjustment;
+	char	robot_playing;
 	short	chattering;
+#endif
 	fix64		start_time;
 	fix64		delay_count;
 	int		robot_num;
 	grs_canvas	*robot_canv;
 	vms_angvec	robot_angles;
-	char	robot_playing;
 	char    bitmap_name[32];
 	grs_bitmap  guy_bitmap;
 	sbyte	guy_bitmap_show;
@@ -435,11 +484,13 @@ static void briefing_init(briefing *br, short level_num)
 	br->screen = NULL;
 	gr_init_bitmap_data (&br->background);
 	strncpy(br->background_name, DEFAULT_BRIEFING_BKG, sizeof(br->background_name));
+#if defined(DXX_BUILD_DESCENT_II)
 	br->hum_channel = br->printing_channel = -1;
+	br->robot_playing = 0;
+#endif
 	br->robot_num = 0;
 	br->robot_canv = NULL;
 	br->robot_angles.p = br->robot_angles.b = br->robot_angles.h = 0;
-	br->robot_playing = 0;
 	br->bitmap_name[0] = '\0';
 	br->door_dir = 1;
 	br->door_div_count = 0;
@@ -451,7 +502,7 @@ static void briefing_init(briefing *br, short level_num)
 static int load_screen_text(char *filename, char **buf)
 {
 	PHYSFS_file *tfile;
-	int len, i, x, have_binary = 0;
+	int len, have_binary = 0;
 	char *ext;
 
 	if ((ext = strrchr(filename, '.')) == NULL)
@@ -464,11 +515,15 @@ static int load_screen_text(char *filename, char **buf)
 
 	len = PHYSFS_fileLength(tfile);
 	MALLOC(*buf, char, len+1);
-	for (x=0, i=0; i < len; i++, x++) {
+#if defined(DXX_BUILD_DESCENT_I)
+	PHYSFS_read(tfile, *buf, 1, len);
+#elif defined(DXX_BUILD_DESCENT_II)
+	for (int x=0, i=0; i < len; i++, x++) {
 		PHYSFS_read(tfile,*buf+x,1,1);
 		if (*(*buf+x)==13)
 			x--;
 	}
+#endif
 	PHYSFS_close(tfile);
 
 	if (have_binary)
@@ -497,6 +552,7 @@ static int get_message_num(char **message)
 	return num;
 }
 
+#if defined(DXX_BUILD_DESCENT_II)
 static int get_new_message_num(char **message)
 {
 	int	num=0;
@@ -513,6 +569,7 @@ static int get_new_message_num(char **message)
 
 	return num;
 }
+#endif
 
 static void get_message_name(char **message, char *result)
 {
@@ -604,10 +661,12 @@ static void put_char_delay(briefing *br, int ch)
 	gr_get_string_size(str, &w, &h, &aw );
 	br->text_x += w;
 
+#if defined(DXX_BUILD_DESCENT_II)
 	if (!br->chattering) {
 		br->printing_channel  = digi_start_sound( digi_xlat_sound(SOUND_BRIEFING_PRINTING), F1_0, 0xFFFF/2, 1, -1, -1, -1 );
 		br->chattering=1;
 	}
+#endif
 
 	br->start_time = timer_query();
 }
@@ -627,6 +686,7 @@ static int briefing_process_char(briefing *br)
 	ch = *br->message++;
 	if (ch == '$') {
 		ch = *br->message++;
+#if defined(DXX_BUILD_DESCENT_II)
 		if (ch=='D') {
 			br->cur_screen=DefineBriefingBox (&br->message);
 			br->screen = &Briefing_screens[br->cur_screen];
@@ -638,7 +698,9 @@ static int briefing_process_char(briefing *br)
 			br->screen = &Briefing_screens[br->cur_screen];
 			init_char_pos(br, br->screen->text_ulx, br->screen->text_uly);
 			br->prev_ch = 10;                                   // read to eoln
-		} else if (ch == 'C') {
+		} else
+#endif
+		if (ch == 'C') {
 			Current_color = get_message_num(&br->message)-1;
 			if (Current_color < 0)
 				Current_color = 0;
@@ -659,17 +721,22 @@ static int briefing_process_char(briefing *br)
 				d_free(br->robot_canv);
 				br->robot_canv=NULL;
 			}
+#if defined(DXX_BUILD_DESCENT_II)
 			if (br->robot_playing) {
 				DeInitRobotMovie();
 				br->robot_playing=0;
 			}
+#endif
 
 			if (EMULATING_D1) {
 				init_spinning_robot(br);
 				br->robot_num = get_message_num(&br->message);
+#if defined(DXX_BUILD_DESCENT_II)
 				while (*br->message++ != 10)
 					;
+#endif
 			} else {
+#if defined(DXX_BUILD_DESCENT_II)
 				char spinRobotName[]="rba.mve",kludge;  // matt don't change this!
 
 				kludge=*br->message++;
@@ -683,6 +750,7 @@ static int briefing_process_char(briefing *br)
 					RotateRobot();
 					set_briefing_fontcolor (br);
 				}
+#endif
 			}
 			br->prev_ch = 10;                           // read to eoln
 		} else if (ch == 'N') {
@@ -708,8 +776,11 @@ static int briefing_process_char(briefing *br)
 			br->animating_bitmap_type = 1;
 			br->prev_ch = 10;
 		} else if (ch=='A') {
+#if defined(DXX_BUILD_DESCENT_II)
 			br->line_adjustment=1-br->line_adjustment;
+#endif
 		} else if (ch=='Z') {
+#if defined(DXX_BUILD_DESCENT_II)
 			char fname[15];
 			int i;
 
@@ -745,6 +816,7 @@ static int briefing_process_char(briefing *br)
 				load_briefing_screen (br, fname);
 			}
 
+#endif
 		} else if (ch == 'B') {
 			char		bitmap_name[32];
 			ubyte		temp_palette[768];
@@ -766,14 +838,17 @@ static int briefing_process_char(briefing *br)
 			br->guy_bitmap_show=1;
 			br->prev_ch = 10;
 		} else if (ch == 'S') {
+#if defined(DXX_BUILD_DESCENT_II)
 			br->chattering = 0;
 			if (br->printing_channel >- 1)
 				digi_stop_sound(br->printing_channel);
 			br->printing_channel =- 1;
+#endif
 
 			br->new_screen = 1;
 			return 1;
 		} else if (ch == 'P') {		//	New page.
+#if defined(DXX_BUILD_DESCENT_II)
 			if (!br->got_z) {
 				Int3(); // Hey ryan!!!! You gotta load a screen before you start
 				// printing to it! You know, $Z !!!
@@ -784,6 +859,7 @@ static int briefing_process_char(briefing *br)
 			if (br->printing_channel >- 1)
 				digi_stop_sound(br->printing_channel);
 			br->printing_channel =- 1;
+#endif
 
 			br->new_page = 1;
 
@@ -808,13 +884,19 @@ static int briefing_process_char(briefing *br)
 	} else if (ch == 10) {
 		if (br->prev_ch != '\\') {
 			br->prev_ch = ch;
-			if (br->dumb_adjust==0)
-				br->text_y += FSPACY(5)+FSPACY(5)*3/5;
-			else
+#if defined(DXX_BUILD_DESCENT_II)
+			if (br->dumb_adjust)
 				br->dumb_adjust--;
+			else
+#endif
+				br->text_y += FSPACY(5)+FSPACY(5)*3/5;
 			br->text_x = br->screen->text_ulx;
 			if (br->text_y > br->screen->text_uly + br->screen->text_height) {
+#if defined(DXX_BUILD_DESCENT_I)
+				load_briefing_screen(br, D1_Briefing_screens[br->cur_screen].bs_name);
+#elif defined(DXX_BUILD_DESCENT_II)
 				load_briefing_screen(br, Briefing_screens[br->cur_screen].bs_name);
+#endif
 				br->text_x = br->screen->text_ulx;
 				br->text_y = br->screen->text_uly;
 			}
@@ -824,11 +906,13 @@ static int briefing_process_char(briefing *br)
 			br->prev_ch = ch;
 		}
 	} else {
+#if defined(DXX_BUILD_DESCENT_II)
 		if (!br->got_z) {
 			Int3(); // Hey ryan!!!! You gotta load a screen before you start
 			// printing to it! You know, $Z !!!
 			load_briefing_screen (br, HIRESMODE?"end01b.pcx":"end01.pcx");
 		}
+#endif
 
 		put_char_delay(br, ch);
 	}
@@ -852,10 +936,14 @@ static void set_briefing_fontcolor (briefing *br)
 		Briefing_text_colors[2] = gr_find_closest_color_current( 63, 0, 0);
 	}
 
+#if defined(DXX_BUILD_DESCENT_I)
+	(void)br;
+#elif defined(DXX_BUILD_DESCENT_II)
 	if (br->robot_playing)
 	{
 		Briefing_text_colors[0] = gr_find_closest_color_current( 0, 31, 0);
 	}
+#endif
 
 	//blue
 	Briefing_text_colors[3] = gr_find_closest_color_current( 0, 0, 54);
@@ -1086,16 +1174,19 @@ static void init_new_page(briefing *br)
 		br->guy_bitmap_show=0;
 	}
 
+#if defined(DXX_BUILD_DESCENT_II)
 	if (br->robot_playing)
 	{
 		DeInitRobotMovie();
 		br->robot_playing=0;
 	}
+#endif
 
 	br->start_time = 0;
 	br->delay_count = KEY_DELAY_DEFAULT;
 }
 
+#if defined(DXX_BUILD_DESCENT_II)
 static int DefineBriefingBox (char **buf)
 {
 	int n,i=0;
@@ -1127,6 +1218,7 @@ static int DefineBriefingBox (char **buf)
 
 	return (n);
 }
+#endif
 
 static void free_briefing_screen(briefing *br);
 
@@ -1134,6 +1226,72 @@ static void free_briefing_screen(briefing *br);
 //	loads a briefing screen
 static int load_briefing_screen(briefing *br, const char *fname)
 {
+#if defined(DXX_BUILD_DESCENT_I)
+	extern void swap_0_255(grs_bitmap *bmp);
+	int pcx_error;
+	char fname2[PATH_MAX], forigin[PATH_MAX];
+
+	free_briefing_screen(br);
+
+	snprintf(fname2, sizeof(char)*PATH_MAX, "%s", fname);
+	snprintf(forigin, sizeof(char)*PATH_MAX, "%s", PHYSFS_getRealDir(fname));
+	d_strlwr(forigin);
+
+	// check if we have a hires version of this image (not included in PC-version by default)
+	// Also if this hires image comes via external AddOn pack, only apply if requested image would be loaded from descent.hog - not a seperate mission which might want to show something else.
+	if (SWIDTH >= 640 && SHEIGHT >= 480 && (strstr(forigin,"descent.hog") != NULL))
+	{
+		char *ptr;
+		if ((ptr = strrchr(fname2,'.')))
+			*ptr = '\0';
+		strncat(fname2, "h.pcx", sizeof(char)*PATH_MAX);
+		if (!PHYSFSX_exists(fname2,1))
+			snprintf(fname2, sizeof(char)*PATH_MAX, "%s", fname);
+	}
+
+	gr_init_bitmap_data(&br->background);
+	if (d_stricmp(br->background_name, fname2))
+		strncpy (br->background_name,fname2, sizeof(br->background_name));
+
+	if ((!d_stricmp(fname2, "brief02.pcx") || !d_stricmp(fname2, "brief02h.pcx")) && cheats.baldguy)
+		if ( bald_guy_load("btexture.xxx", &br->background, BM_LINEAR, gr_palette) == 0)
+		{
+			return 0;
+		}
+
+	if ((pcx_error = pcx_read_bitmap(fname2, &br->background, BM_LINEAR, gr_palette))!=PCX_ERROR_NONE)
+	{
+		Error( "Error loading briefing screen <%s>, PCX load error: %s (%i)\n",fname2, pcx_errormsg(pcx_error), pcx_error);
+	}
+
+	// Hack: Make sure black parts of robot are shown black
+	if (MacPig && gr_palette[0] == 63 &&
+		(!d_stricmp(fname2, "brief03.pcx") || !d_stricmp(fname2, "end01.pcx") ||
+		!d_stricmp(fname2, "brief03h.pcx") || !d_stricmp(fname2, "end01h.pcx")
+		))
+	{
+		swap_0_255(&br->background);
+		gr_palette[0] = gr_palette[1] = gr_palette[2] = 0;
+		gr_palette[765] = gr_palette[766] = gr_palette[767] = 63;
+	}
+
+	show_fullscr(&br->background);
+
+	gr_palette_load(gr_palette);
+
+	set_briefing_fontcolor(NULL);
+
+	MALLOC(br->screen, briefing_screen, 1);
+	if (!br->screen)
+		return 0;
+
+	memcpy(br->screen, &D1_Briefing_screens[br->cur_screen], sizeof(briefing_screen));
+	br->screen->text_ulx = rescale_x(br->screen->text_ulx);
+	br->screen->text_uly = rescale_y(br->screen->text_uly);
+	br->screen->text_width = rescale_x(br->screen->text_width);
+	br->screen->text_height = rescale_y(br->screen->text_height);
+	init_char_pos(br, br->screen->text_ulx, br->screen->text_uly);
+#elif defined(DXX_BUILD_DESCENT_II)
 	int pcx_error;
 
 	free_briefing_screen(br);
@@ -1169,21 +1327,26 @@ static int load_briefing_screen(briefing *br, const char *fname)
 		init_char_pos(br, br->screen->text_ulx, br->screen->text_uly);
 	}
 
+#endif
 	return 1;
 }
 
 static void free_briefing_screen(briefing *br)
 {
+#if defined(DXX_BUILD_DESCENT_II)
 	if (br->robot_playing)
 	{
 		DeInitRobotMovie();
 		br->robot_playing=0;
 	}
+#endif
 	if (br->robot_canv != NULL)
 		d_free(br->robot_canv);
 
+#if defined(DXX_BUILD_DESCENT_II)
 	if (br->printing_channel>-1)
 		digi_stop_sound( br->printing_channel );
+#endif
 
 	if (EMULATING_D1 && br->screen)
 		d_free(br->screen);
@@ -1196,9 +1359,31 @@ static void free_briefing_screen(briefing *br)
 
 static int new_briefing_screen(briefing *br, int first)
 {
-	int i;
-
 	br->new_screen = 0;
+#if defined(DXX_BUILD_DESCENT_I)
+
+	if (!first)
+		br->cur_screen++;
+
+	while ((br->cur_screen < NUM_D1_BRIEFING_SCREENS) && (D1_Briefing_screens[br->cur_screen].level_num != br->level_num))
+	{
+		br->cur_screen++;
+		if ((br->cur_screen == NUM_D1_BRIEFING_SCREENS) && (br->level_num == 0))
+		{
+			// Showed the pre-game briefing, now show level 1 briefing
+			br->level_num++;
+			br->cur_screen = 0;
+		}
+	}
+
+	if (br->cur_screen == NUM_D1_BRIEFING_SCREENS)
+		return 0;		// finished
+
+	if (!load_briefing_screen(br, D1_Briefing_screens[br->cur_screen].bs_name))
+		return 0;
+
+	br->message = get_briefing_message(br, D1_Briefing_screens[br->cur_screen].message_num);
+#elif defined(DXX_BUILD_DESCENT_II)
 	br->got_z = 0;
 
 	if (EMULATING_D1)
@@ -1206,7 +1391,7 @@ static int new_briefing_screen(briefing *br, int first)
 		if (!first)
 			br->cur_screen++;
 		else
-			for (i = 0; i < NUM_D1_BRIEFING_SCREENS; i++)
+			for (int i = 0; i < NUM_D1_BRIEFING_SCREENS; i++)
 				memcpy(&Briefing_screens[i], &D1_Briefing_screens[i], sizeof(briefing_screen));
 
 		while ((br->cur_screen < NUM_D1_BRIEFING_SCREENS) && (Briefing_screens[br->cur_screen].level_num != br->level_num))
@@ -1236,29 +1421,32 @@ static int new_briefing_screen(briefing *br, int first)
 		return 0;	// finished
 
 	br->message = get_briefing_message(br, EMULATING_D1 ? Briefing_screens[br->cur_screen].message_num : br->cur_screen);
+	br->printing_channel = -1;
+	br->dumb_adjust = 0;
+	br->line_adjustment = 1;
+	br->chattering = 0;
+	br->robot_playing=0;
+#endif
 
 	if (br->message==NULL)
 		return 0;
 
-	br->printing_channel = -1;
 	Current_color = 0;
 	br->streamcount = 0;
 	br->tab_stop = 0;
 	br->flashing_cursor = 0;
 	br->new_page = 0;
-	br->dumb_adjust = 0;
-	br->line_adjustment = 1;
-	br->chattering = 0;
 	br->start_time = 0;
 	br->delay_count = KEY_DELAY_DEFAULT;
 	br->robot_num = -1;
-	br->robot_playing=0;
 	br->bitmap_name[0] = 0;
 	br->guy_bitmap_show = 0;
 	br->prev_ch = -1;
 
+#if defined(DXX_BUILD_DESCENT_II)
 	if ((songs_is_playing() == -1) && (br->hum_channel == -1))
 		br->hum_channel  = digi_start_sound( digi_xlat_sound(SOUND_BRIEFING_HUM), F1_0/2, 0xFFFF/2, 1, -1, -1, -1 );
+#endif
 
 	return 1;
 }
@@ -1300,6 +1488,11 @@ static int briefing_handler(window *wind, d_event *event, briefing *br)
 
 			switch (key)
 			{
+#if defined(DXX_BUILD_DESCENT_I)
+				case KEY_ALTED + KEY_B: // B - ALTED... BALT... BALD... get it? 
+					cheats.baldguy = !cheats.baldguy;
+					break;
+#endif
 				case KEY_ESC:
 					window_close(wind);
 					return 1;
@@ -1348,8 +1541,10 @@ static int briefing_handler(window *wind, d_event *event, briefing *br)
 				show_briefing_bitmap(&br->guy_bitmap);
 			if (br->bitmap_name[0] != 0)
 				show_animated_bitmap(br);
+#if defined(DXX_BUILD_DESCENT_II)
 			if (br->robot_playing)
 				RotateRobot();
+#endif
 			if (br->robot_num != -1)
 				show_spinning_robot_frame(br, br->robot_num);
 
@@ -1366,11 +1561,13 @@ static int briefing_handler(window *wind, d_event *event, briefing *br)
 
 		case EVENT_WINDOW_CLOSE:
 			free_briefing_screen(br);
+#if defined(DXX_BUILD_DESCENT_II)
 			if (br->hum_channel>-1)
 			{
 				digi_stop_sound( br->hum_channel );
 				br->hum_channel = -1;
 			}
+#endif
 			d_free(br->text);
 			d_free(br);
 			break;
@@ -1410,16 +1607,22 @@ void do_briefing_screens(char *filename, int level_num)
 		return;
 	}
 
-	if (EMULATING_D1 || is_SHAREWARE || is_MAC_SHARE || is_D2_OEM || !PLAYING_BUILTIN_MISSION)
+#if defined(DXX_BUILD_DESCENT_II)
+	if (!(EMULATING_D1 || is_SHAREWARE || is_MAC_SHARE || is_D2_OEM || !PLAYING_BUILTIN_MISSION))
+		songs_stop_all();
+	else
+#endif
 	{
 		if ((songs_is_playing() != SONG_BRIEFING) && (songs_is_playing() != SONG_ENDGAME))
 			songs_play_song( SONG_BRIEFING, 1 );
 	}
-	else
-		songs_stop_all();
 
+#if defined(DXX_BUILD_DESCENT_I)
+	set_screen_mode( SCREEN_MENU );
+#elif defined(DXX_BUILD_DESCENT_II)
 	// set screen correctly for robot movies
 	set_screen_mode( SCREEN_MOVIE );
+#endif
 
 	gr_set_current_canvas(NULL);
 
@@ -1448,11 +1651,17 @@ void do_end_briefing_screens(char *filename)
 		{
 			songs_play_song( SONG_ENDGAME, 1 );
 			level_num_screen = ENDING_LEVEL_NUM_OEMSHARE;
+#if defined(DXX_BUILD_DESCENT_I)
+			showorder = 1;
+#endif
 		}
 		else if (d_stricmp(filename, BIMD1_ENDING_FILE_SHARE) == 0)
 		{
 			songs_play_song( SONG_BRIEFING, 1 );
 			level_num_screen = ENDING_LEVEL_NUM_OEMSHARE;
+#if defined(DXX_BUILD_DESCENT_I)
+			showorder = 1;
+#endif
 		}
 		else
 		{
@@ -1460,6 +1669,7 @@ void do_end_briefing_screens(char *filename)
 			level_num_screen = ENDING_LEVEL_NUM_REGISTER;
 		}
 	}
+#if defined(DXX_BUILD_DESCENT_II)
 	else if (PLAYING_BUILTIN_MISSION)
 	{
 		if (d_stricmp(filename, BIMD2_ENDING_FILE_OEM) == 0)
@@ -1480,6 +1690,7 @@ void do_end_briefing_screens(char *filename)
 		songs_play_song( SONG_ENDGAME, 1 );
 		level_num_screen = Last_level + 1;
 	}
+#endif
 
 	do_briefing_screens(filename, level_num_screen);
 	if (showorder)
