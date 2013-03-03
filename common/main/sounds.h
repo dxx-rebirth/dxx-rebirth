@@ -21,7 +21,6 @@ COPYRIGHT 1993-1999 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 #ifndef _SOUNDS_H
 #define _SOUNDS_H
 
-#include "vecmat.h"
 #include "digi.h"
 
 //------------------- List of sound effects --------------------
@@ -33,13 +32,10 @@ COPYRIGHT 1993-1999 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 #define SOUND_BADASS_EXPLOSION                  11  // need something different for this if possible
 
 #define SOUND_ROBOT_HIT_PLAYER                  17
-#define SOUND_ROBOT_SUCKED_PLAYER               SOUND_ROBOT_HIT_PLAYER // Robot sucked energy from player.
 
 #define SOUND_ROBOT_HIT                         20
 #define SOUND_ROBOT_DESTROYED                   21
 #define SOUND_VOLATILE_WALL_HIT                 21
-#define SOUND_LASER_HIT_WATER                   232
-#define SOUND_MISSILE_HIT_WATER                 233
 
 #define SOUND_LASER_HIT_CLUTTER                 30
 #define SOUND_CONTROL_CENTER_HIT                30
@@ -50,6 +46,10 @@ COPYRIGHT 1993-1999 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 #define SOUND_MINE_BLEW_UP                      33
 
 #define SOUND_FUSION_WARMUP                     34
+#ifdef DXX_BUILD_DESCENT_II
+#define SOUND_ROBOT_SUCKED_PLAYER               SOUND_ROBOT_HIT_PLAYER // Robot sucked energy from player.
+#define SOUND_LASER_HIT_WATER                   232
+#define SOUND_MISSILE_HIT_WATER                 233
 #define SOUND_DROP_WEAPON                       39
 
 #define SOUND_FORCEFIELD_BOUNCE_PLAYER          40
@@ -60,15 +60,16 @@ COPYRIGHT 1993-1999 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 #define SOUND_MARKER_HIT                        50
 #define SOUND_BUDDY_MET_GOAL                    51
 
+#define SOUND_BRIEFING_HUM                      94
+#define SOUND_BRIEFING_PRINTING                 95
+#endif
+
 #define SOUND_REFUEL_STATION_GIVING_FUEL        62
 
 #define SOUND_PLAYER_HIT_WALL                   70
 #define SOUND_PLAYER_GOT_HIT                    71
 
 #define SOUND_HOSTAGE_RESCUED                   91
-
-#define SOUND_BRIEFING_HUM                      94
-#define SOUND_BRIEFING_PRINTING                 95
 
 #define SOUND_COUNTDOWN_0_SECS                  100 // countdown 100..114
 #define SOUND_COUNTDOWN_13_SECS                 113
@@ -79,6 +80,7 @@ COPYRIGHT 1993-1999 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 
 #define SOUND_HOMING_WARNING                    122 // Warning beep: You are being tracked by a missile! Borrowed from old repair center sounds.
 
+#ifdef DXX_BUILD_DESCENT_II
 #define SOUND_HUD_JOIN_REQUEST                  123
 #define SOUND_HUD_BLUE_GOT_FLAG                 124
 #define SOUND_HUD_RED_GOT_FLAG                  125
@@ -88,17 +90,28 @@ COPYRIGHT 1993-1999 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 #define SOUND_HUD_YOU_GOT_GOAL                  129
 
 #define SOUND_LAVAFALL_HISS                     150 // under a lavafall
-#define SOUND_VOLATILE_WALL_HISS                151 // need a hiss sound here.
 #define SOUND_SHIP_IN_WATER                     152 // sitting (or moving though) water
 #define SOUND_SHIP_IN_WATERFALL                 158 // under a waterfall
+#endif
+#define SOUND_VOLATILE_WALL_HISS                151 // need a hiss sound here.
 
-#define SOUND_GOOD_SELECTION_PRIMARY            153
 #define SOUND_BAD_SELECTION                     156
-
-#define SOUND_GOOD_SELECTION_SECONDARY          154 // Adam: New sound number here! MK, 01/30/95
 #define SOUND_ALREADY_SELECTED                  155 // Adam: New sound number here! MK, 01/30/95
 
+#if defined(DXX_BUILD_DESCENT_I)
+#define SOUND_GOOD_SELECTION_PRIMARY    (PCSharePig?155:153)
+#define SOUND_GOOD_SELECTION_SECONDARY  (PCSharePig?155:154)    //      Adam: New sound number here! MK, 01/30/95
+#define SOUND_CHEATER                   (PCSharePig?156:200) // moved by Victor Rachels
+#define SOUND_BOSS_SHARE_ATTACK         184
+
+#define SOUND_NASTY_ROBOT_HIT_1         190     //      ding.raw        ; tearing metal 1
+#define SOUND_NASTY_ROBOT_HIT_2         191     //      ding.raw        ; tearing metal 2
+#elif defined(DXX_BUILD_DESCENT_II)
+#define SOUND_GOOD_SELECTION_PRIMARY            153
+#define SOUND_GOOD_SELECTION_SECONDARY          154 // Adam: New sound number here! MK, 01/30/95
 #define SOUND_CLOAK_ON                          160 // USED FOR WALL CLOAK
+#endif
+
 #define SOUND_CLOAK_OFF                         161 // sound when cloak goes away
 #define SOUND_INVULNERABILITY_OFF               163 // sound when invulnerability goes away
 
@@ -114,6 +127,9 @@ COPYRIGHT 1993-1999 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 
 #define SOUND_DROP_BOMB                         26
 
+#if defined(DXX_BUILD_DESCENT_I)
+#define MAX_SOUNDS                      250
+#elif defined(DXX_BUILD_DESCENT_II)
 #define SOUND_CHEATER                           200
 
 #define SOUND_AMBIENT_LAVA                      222
@@ -142,11 +158,14 @@ COPYRIGHT 1993-1999 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 
 //--------------------------------------------------------------
 #define MAX_SOUNDS  254     // bad to have sound 255!
+#endif
 
 // I think it would be nice to have a scrape sound...
 //#define SOUND_PLAYER_SCRAPE_WALL                72
 
+#if defined(DXX_BUILD_DESCENT_I) || defined(DXX_BUILD_DESCENT_II)
 extern ubyte Sounds[MAX_SOUNDS];
 extern ubyte AltSounds[MAX_SOUNDS];
+#endif
 
 #endif /* _SOUNDS_H */
