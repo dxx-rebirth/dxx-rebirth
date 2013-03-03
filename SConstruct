@@ -301,6 +301,10 @@ class DXXProgram(DXXCommon):
 'arch/ogl/ogl.c',
 ]
 ]
+	similar_arch_sdlmixer_sources = [os.path.join('similar', f) for f in [
+'arch/sdl/jukebox.c'
+]
+]
 	class UserSettings(DXXCommon.UserSettings):
 		def __init__(self,ARGUMENTS,target):
 			DXXCommon.UserSettings.__init__(self, ARGUMENTS.ARGUMENTS)
@@ -358,7 +362,7 @@ class DXXProgram(DXXCommon):
 		if DXXProgram.static_archive_construction is None:
 			DXXProgram.static_archive_construction = DXXArchive()
 		apply_target_name = lambda n: self._apply_target_name(n)
-		for t in ['similar_arch_ogl_sources']:
+		for t in ['similar_arch_ogl_sources', 'similar_arch_sdlmixer_sources']:
 			self.create_lazy_object_property(t, apply_target_name)
 		DXXCommon.__init__(self)
 		self.user_settings = self.UserSettings(self.ARGUMENTS, self.target)
@@ -428,6 +432,7 @@ class DXXProgram(DXXCommon):
 		objects.extend(program_specific_objects)
 		if (self.user_settings.sdlmixer == 1):
 			objects.extend(self.static_archive_construction.objects_arch_sdlmixer)
+			objects.extend(self.objects_similar_arch_sdlmixer_sources)
 		if (self.user_settings.opengl == 1) or (self.user_settings.opengles == 1):
 			objects.extend(self.objects_similar_arch_ogl_sources)
 		# finally building program...
@@ -593,7 +598,6 @@ class D1XProgram(DXXProgram):
 	# SDL_mixer sound implementation
 	arch_sdlmixer_sources = [os.path.join(srcdir, f) for f in [
 'arch/sdl/digi_mixer.c',
-'arch/sdl/jukebox.c'
 ]
 ]
 
@@ -779,7 +783,6 @@ class D2XProgram(DXXProgram):
 	# SDL_mixer sound implementation
 	arch_sdlmixer_sources = [os.path.join(srcdir, f) for f in [
 'arch/sdl/digi_mixer.c',
-'arch/sdl/jukebox.c'
 ]
 ]
 
