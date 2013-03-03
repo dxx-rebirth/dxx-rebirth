@@ -8,7 +8,7 @@ SUCH USE, DISPLAY OR CREATION IS FOR NON-COMMERCIAL, ROYALTY OR REVENUE
 FREE PURPOSES.  IN NO EVENT SHALL THE END-USER USE THE COMPUTER CODE
 CONTAINED HEREIN FOR REVENUE-BEARING PURPOSES.  THE END-USER UNDERSTANDS
 AND AGREES TO THE TERMS HEREIN AND ACCEPTS THE SAME BY USE OF THIS FILE.
-COPYRIGHT 1993-1998 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
+COPYRIGHT 1993-1999 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 */
 
 /*
@@ -49,6 +49,9 @@ typedef struct mle {
 	char    *filename;          // filename without extension
 	int     builtin_hogsize;    // if it's the built-in mission, used for determining the version
 	char    mission_name[MISSION_NAME_LEN+1];
+#if defined(DXX_BUILD_DESCENT_II)
+	ubyte   descent_version;    // descent 1 or descent 2?
+#endif
 	ubyte   anarchy_only_flag;  // if true, mission is anarchy only
 	char	*path;				// relative file path
 	enum mle_loc	location;           // where the mission is
@@ -193,6 +196,103 @@ int load_mission_d1(void)
 	return 1;
 }
 
+#if defined(DXX_BUILD_DESCENT_II)
+//
+//  Special versions of mission routines for shareware
+//
+
+int load_mission_shareware(void)
+{
+    strcpy(Current_mission->mission_name, SHAREWARE_MISSION_NAME);
+    Current_mission->descent_version = 2;
+    Current_mission->anarchy_only_flag = 0;
+    
+    switch (Current_mission->builtin_hogsize)
+	{
+		case MAC_SHARE_MISSION_HOGSIZE:
+			N_secret_levels = 1;
+
+			Last_level = 4;
+			Last_secret_level = -1;
+
+			if (!allocate_levels())
+			{
+				free_mission();
+				return 0;
+			}
+			
+			// mac demo is using the regular hog and rl2 files
+			strcpy(Level_names[0],"d2leva-1.rl2");
+			strcpy(Level_names[1],"d2leva-2.rl2");
+			strcpy(Level_names[2],"d2leva-3.rl2");
+			strcpy(Level_names[3],"d2leva-4.rl2");
+			strcpy(Secret_level_names[0],"d2leva-s.rl2");
+			break;
+		default:
+			Int3(); // fall through
+		case SHAREWARE_MISSION_HOGSIZE:
+			N_secret_levels = 0;
+
+			Last_level = 3;
+			Last_secret_level = 0;
+
+			if (!allocate_levels())
+			{
+				free_mission();
+				return 0;
+			}
+			
+			strcpy(Level_names[0],"d2leva-1.sl2");
+			strcpy(Level_names[1],"d2leva-2.sl2");
+			strcpy(Level_names[2],"d2leva-3.sl2");
+	}
+
+	return 1;
+}
+
+
+//
+//  Special versions of mission routines for Diamond/S3 version
+//
+
+int load_mission_oem(void)
+{
+    strcpy(Current_mission->mission_name, OEM_MISSION_NAME);
+    Current_mission->descent_version = 2;
+    Current_mission->anarchy_only_flag = 0;
+    
+	N_secret_levels = 2;
+
+	Last_level = 8;
+	Last_secret_level = -2;
+
+	if (!allocate_levels())
+	{
+		free_mission();
+		return 0;
+	}
+	
+	strcpy(Level_names[0],"d2leva-1.rl2");
+	strcpy(Level_names[1],"d2leva-2.rl2");
+	strcpy(Level_names[2],"d2leva-3.rl2");
+	strcpy(Level_names[3],"d2leva-4.rl2");
+
+	strcpy(Secret_level_names[0],"d2leva-s.rl2");
+
+	strcpy(Level_names[4],"d2levb-1.rl2");
+	strcpy(Level_names[5],"d2levb-2.rl2");
+	strcpy(Level_names[6],"d2levb-3.rl2");
+	strcpy(Level_names[7],"d2levb-4.rl2");
+
+	strcpy(Secret_level_names[1],"d2levb-s.rl2");
+
+	Secret_level_table[0] = 1;
+	Secret_level_table[1] = 5;
+
+	return 1;
+}
+#endif
+
 //compare a string for a token. returns true if match
 int istok(char *buf,char *tok)
 {
@@ -280,7 +380,10 @@ int read_mission_file(mle *mission, char *filename, int location)
 		
 		if ((ext = strchr(p, '.')) == NULL)
 			return 0;	//missing extension
-
+#if defined(DXX_BUILD_DESCENT_II)
+		// look if it's .mn2 or .msn
+		mission->descent_version = (ext[3] == '2') ? 2 : 1;
+#endif
 		*ext = 0;			//kill extension
 
 		mission->path = d_strdup(temp);
@@ -289,6 +392,23 @@ int read_mission_file(mle *mission, char *filename, int location)
 		mission->location = location;
 
 		p = get_parm_value("name",mfile);
+
+#if defined(DXX_BUILD_DESCENT_II)
+		if (!p) {		//try enhanced mission
+			PHYSFSX_fseek(mfile,0,SEEK_SET);
+			p = get_parm_value("xname",mfile);
+		}
+
+		if (!p) {       //try super-enhanced mission!
+			PHYSFSX_fseek(mfile,0,SEEK_SET);
+			p = get_parm_value("zname",mfile);
+		}
+
+		if (!p) {       //try extensible-enhanced mission!
+			PHYSFSX_fseek(mfile,0,SEEK_SET);
+			p = get_parm_value("!name",mfile);
+		}
+#endif
 
 		if (p) {
 			char *t;
@@ -358,10 +478,55 @@ void add_d1_builtin_mission_to_list(mle *mission)
 	}
 
 	mission->anarchy_only_flag = 0;
+#if defined(DXX_BUILD_DESCENT_I)
 	mission->builtin_hogsize = size;
+#elif defined(DXX_BUILD_DESCENT_II)
+	mission->descent_version = 1;
+	mission->builtin_hogsize = 0;
+#endif
 	mission->path = mission->filename;
 	num_missions++;
 }
+
+#if defined(DXX_BUILD_DESCENT_II)
+void add_builtin_mission_to_list(mle *mission, char *name)
+{
+    int size = PHYSFSX_fsize("descent2.hog");
+    
+	if (size == -1)
+		size = PHYSFSX_fsize("d2demo.hog");
+
+	switch (size) {
+	case SHAREWARE_MISSION_HOGSIZE:
+	case MAC_SHARE_MISSION_HOGSIZE:
+		mission->filename = d_strdup(SHAREWARE_MISSION_FILENAME);
+		strcpy(mission->mission_name,SHAREWARE_MISSION_NAME);
+		mission->anarchy_only_flag = 0;
+		break;
+	case OEM_MISSION_HOGSIZE:
+		mission->filename = d_strdup(OEM_MISSION_FILENAME);
+		strcpy(mission->mission_name,OEM_MISSION_NAME);
+		mission->anarchy_only_flag = 0;
+		break;
+	default:
+		Warning("Unknown hogsize %d, trying %s\n", size, FULL_MISSION_FILENAME ".mn2");
+		Int3(); //fall through
+	case FULL_MISSION_HOGSIZE:
+	case FULL_10_MISSION_HOGSIZE:
+	case MAC_FULL_MISSION_HOGSIZE:
+		if (!read_mission_file(mission, FULL_MISSION_FILENAME ".mn2", ML_CURDIR))
+			Error("Could not find required mission file <%s>", FULL_MISSION_FILENAME ".mn2");
+	}
+
+	mission->path = mission->filename;
+	strcpy(name, mission->filename);
+    mission->builtin_hogsize = size;
+	mission->descent_version = 2;
+	mission->anarchy_only_flag = 0;
+	num_missions++;
+}
+#endif
+
 
 void add_missions_to_list(mle *mission_list, char *path, char *rel_path, int anarchy_mode)
 {
@@ -447,6 +612,10 @@ void free_mission(void)
 			d_free(Secret_level_names);
 		if(Secret_level_table)
 			d_free(Secret_level_table);
+#if defined(DXX_BUILD_DESCENT_II)
+		if (Current_mission->alternate_ham_file)
+			d_free(Current_mission->alternate_ham_file);
+#endif
 		
         d_free(Current_mission);
     }
@@ -461,6 +630,9 @@ mle *build_mission_list(int anarchy_mode)
 {
 	mle *mission_list;
 	int top_place;
+#if defined(DXX_BUILD_DESCENT_II)
+    char	builtin_mission_filename[FILENAME_LEN];
+#endif
 	char	search_str[PATH_MAX] = MISSION_DIR;
 
 	//now search for levels on disk
@@ -480,13 +652,22 @@ mle *build_mission_list(int anarchy_mode)
 	MALLOC(mission_list, mle, MAX_MISSIONS);
 	num_missions = 0;
 	
+#if defined(DXX_BUILD_DESCENT_II)
+	add_builtin_mission_to_list(mission_list + num_missions, builtin_mission_filename);  //read built-in first
+#endif
 	add_d1_builtin_mission_to_list(mission_list + num_missions);
 	add_missions_to_list(mission_list, search_str, search_str + strlen(search_str), anarchy_mode);
 	
 	// move original missions (in story-chronological order)
 	// to top of mission list
 	top_place = 0;
+#if defined(DXX_BUILD_DESCENT_I)
 	promote(mission_list, "", &top_place); // original descent 1 mission
+#elif defined(DXX_BUILD_DESCENT_II)
+	promote(mission_list, "descent", &top_place); // original descent 1 mission
+	promote(mission_list, builtin_mission_filename, &top_place); // d2 or d2demo
+	promote(mission_list, "d2x", &top_place); // vertigo
+#endif
 
 	if (num_missions > top_place)
 		qsort(&mission_list[top_place],
@@ -516,8 +697,49 @@ void free_mission_list(mle *mission_list)
 }
 
 void init_extra_robot_movie(char *filename);
+#if defined(DXX_BUILD_DESCENT_II)
+int read_hamfile();
 
 //values for built-in mission
+
+int load_mission_ham()
+{
+	void bm_read_extra_robots(const char *fname,int type);
+	read_hamfile();
+	if (Current_mission->enhanced == 3 && Current_mission->alternate_ham_file) {
+		/*
+		 * If an alternate HAM is specified, map a HOG of the same name
+		 * (if it exists) so that users can reference a HAM within a
+		 * HOG.  This is required to let users reference the D2X.HAM
+		 * file provided by Descent II: Vertigo.
+		 *
+		 * Try both plain NAME and missions/NAME, in that order.
+		 */
+		d_fname *altham = Current_mission->alternate_ham_file;
+		unsigned l = strlen(*altham);
+		char althog[PATH_MAX];
+		snprintf(althog, sizeof(althog), MISSION_DIR "%.*s.hog", l - 4, *altham);
+		char *p = althog + sizeof(MISSION_DIR) - 1;
+		int exists = PHYSFSX_exists(p,1);
+		if (!exists) {
+			p = althog;
+			exists = PHYSFSX_exists(p,1);
+		}
+		if (exists)
+			PHYSFSX_contfile_init(p, 0);
+		bm_read_extra_robots(*Current_mission->alternate_ham_file, 2);
+		if (exists)
+			PHYSFSX_contfile_close(p);
+		return 1;
+	} else if (Current_mission->enhanced) {
+		char t[50];
+		snprintf(t,sizeof(t),"%s.ham",Current_mission_filename);
+		bm_read_extra_robots(t, Current_mission->enhanced);
+		return 1;
+	} else
+		return 0;
+}
+#endif
 
 //loads the specfied mission from the mission list.
 //build_mission_list() must have been called.
@@ -529,12 +751,21 @@ int load_mission(mle *mission)
 
 	if (Current_mission)
 		free_mission();
-	Current_mission = d_malloc(sizeof(Mission));
+	MALLOC(Current_mission, Mission, 1);
 	if (!Current_mission) return 0;
-	*(mle *) Current_mission = *mission;
+	Current_mission->builtin_hogsize = mission->builtin_hogsize;
+	strcpy(Current_mission->mission_name, mission->mission_name);
+#if defined(DXX_BUILD_DESCENT_II)
+	Current_mission->descent_version = mission->descent_version;
+#endif
+	Current_mission->anarchy_only_flag = mission->anarchy_only_flag;
 	Current_mission->path = d_strdup(mission->path);
 	Current_mission->filename = Current_mission->path + (mission->filename - mission->path);
 	Current_mission->n_secret_levels = 0;
+#if defined(DXX_BUILD_DESCENT_II)
+	Current_mission->enhanced = 0;
+	Current_mission->alternate_ham_file = NULL;
+#endif
 
 	//init vars
 	Last_level = 0;
@@ -546,10 +777,45 @@ int load_mission(mle *mission)
 	Secret_level_names = NULL;
 
 	// for Descent 1 missions, load descent.hog
-	if (!PHYSFSX_contfile_init("descent.hog", 1))
-		Error("descent.hog not available!\n");
-	if (!d_stricmp(Current_mission_filename, D1_MISSION_FILENAME))
-		return load_mission_d1();
+#if defined(DXX_BUILD_DESCENT_II)
+	if (EMULATING_D1)
+#endif
+	{
+		if (!PHYSFSX_contfile_init("descent.hog", 1))
+#if defined(DXX_BUILD_DESCENT_I)
+			Error("descent.hog not available!\n");
+#elif defined(DXX_BUILD_DESCENT_II)
+			Warning("descent.hog not available, this mission may be missing some files required for briefings and exit sequence\n");
+#endif
+		if (!d_stricmp(Current_mission_filename, D1_MISSION_FILENAME))
+			return load_mission_d1();
+	}
+
+#if defined(DXX_BUILD_DESCENT_II)
+	if (PLAYING_BUILTIN_MISSION) {
+		switch (Current_mission->builtin_hogsize) {
+		case SHAREWARE_MISSION_HOGSIZE:
+		case MAC_SHARE_MISSION_HOGSIZE:
+			strcpy(Briefing_text_filename,BIMD2_BRIEFING_FILE_SHARE);
+			strcpy(Ending_text_filename,BIMD2_ENDING_FILE_SHARE);
+			return load_mission_shareware();
+			break;
+		case OEM_MISSION_HOGSIZE:
+			strcpy(Briefing_text_filename,BIMD2_BRIEFING_FILE_OEM);
+			strcpy(Ending_text_filename,BIMD2_ENDING_FILE_OEM);
+			return load_mission_oem();
+			break;
+		default:
+			Int3(); // fall through
+		case FULL_MISSION_HOGSIZE:
+		case FULL_10_MISSION_HOGSIZE:
+		case MAC_FULL_MISSION_HOGSIZE:
+			strcpy(Briefing_text_filename,BIMD2_BRIEFING_FILE);
+			// continue on... (use d2.mn2 from hogfile)
+			break;
+		}
+	}
+#endif
 
 	//read mission from file
 
@@ -564,7 +830,12 @@ int load_mission(mle *mission)
 		break;
 	}
 	strcat(buf, mission->path);
-	strcat(buf,".msn");
+#if defined(DXX_BUILD_DESCENT_II)
+	if (mission->descent_version == 2)
+		strcat(buf,".mn2");
+	else
+#endif
+		strcat(buf,".msn");
 
 	PHYSFSEXT_locateCorrectCase(buf);
 
@@ -575,19 +846,42 @@ int load_mission(mle *mission)
 	}
 
 	//for non-builtin missions, load HOG
-	strcpy(buf+strlen(buf)-4,".hog");		//change extension
-	PHYSFSEXT_locateCorrectCase(buf);
-	if (PHYSFSX_exists(buf,1))
-		PHYSFSX_contfile_init(buf, 0);
+#if defined(DXX_BUILD_DESCENT_II)
+	if (!PLAYING_BUILTIN_MISSION)
+#endif
+	{
+		strcpy(buf+strlen(buf)-4,".hog");		//change extension
+		PHYSFSEXT_locateCorrectCase(buf);
+		if (PHYSFSX_exists(buf,1))
+			PHYSFSX_contfile_init(buf, 0);
 
-	snprintf(Briefing_text_filename, sizeof(Briefing_text_filename), "%s.tex",Current_mission_filename);
-	if (!PHYSFSX_exists(Briefing_text_filename,1))
-		snprintf(Briefing_text_filename, sizeof(Briefing_text_filename), "%s.txb",Current_mission_filename);
-	snprintf(Ending_text_filename, sizeof(Ending_text_filename), "%s.tex",Current_mission_filename);
-	if (!PHYSFSX_exists(Ending_text_filename,1))
-		snprintf(Ending_text_filename, sizeof(Ending_text_filename), "%s.txb",Current_mission_filename);
+		snprintf(Briefing_text_filename, sizeof(Briefing_text_filename), "%s.tex",Current_mission_filename);
+		if (!PHYSFSX_exists(Briefing_text_filename,1))
+			snprintf(Briefing_text_filename, sizeof(Briefing_text_filename), "%s.txb",Current_mission_filename);
+		snprintf(Ending_text_filename, sizeof(Ending_text_filename), "%s.tex",Current_mission_filename);
+		if (!PHYSFSX_exists(Ending_text_filename,1))
+			snprintf(Ending_text_filename, sizeof(Ending_text_filename), "%s.txb",Current_mission_filename);
+	}
 
 	while (PHYSFSX_fgets(buf,sizeof(buf),mfile)) {
+#if defined(DXX_BUILD_DESCENT_II)
+		if (istok(buf,"name") && !Current_mission->enhanced) {
+			Current_mission->enhanced = 0;
+			continue;						//already have name, go to next line
+		}
+		if (istok(buf,"xname") && !Current_mission->enhanced) {
+			Current_mission->enhanced = 1;
+			continue;						//already have name, go to next line
+		}
+		if (istok(buf,"zname") && !Current_mission->enhanced) {
+			Current_mission->enhanced = 2;
+			continue;						//already have name, go to next line
+		}
+		if (istok(buf,"!name") && !Current_mission->enhanced) {
+			Current_mission->enhanced = 3;
+			continue;						//already have name, go to next line
+		}
+#endif
 		if (istok(buf,"type"))
 			continue;						//already have name, go to next line
 		else if (istok(buf,"briefing")) {
@@ -715,6 +1009,33 @@ int load_mission(mle *mission)
 
 			}
 		}
+#if defined(DXX_BUILD_DESCENT_II)
+		else if (Current_mission->enhanced == 3 && buf[0] == '!') {
+			if (istok(buf+1,"ham")) {
+				if (!Current_mission->alternate_ham_file) {
+					MALLOC(Current_mission->alternate_ham_file, d_fname, 1);
+				}
+				if ((v=get_value(buf))!=NULL) {
+					unsigned l = strlen(v);
+					if (l <= 4)
+						con_printf(CON_URGENT, "Mission %s has short HAM \"%s\".\n", Current_mission->path, v);
+					else if (l >= sizeof(*Current_mission->alternate_ham_file))
+						con_printf(CON_URGENT, "Mission %s has excessive HAM \"%s\".\n", Current_mission->path, v);
+					else {
+						memcpy(*Current_mission->alternate_ham_file, v, l + 1);
+						con_printf(CON_VERBOSE, "Mission %s will use HAM %s.\n", Current_mission->path, (*Current_mission->alternate_ham_file));
+					}
+				}
+				else
+					con_printf(CON_URGENT, "Mission %s has no HAM.\n", Current_mission->path);
+			}
+			else {
+				con_printf(CON_URGENT, "Mission %s uses unsupported critical directive \"%s\".\n", Current_mission->path, buf);
+				Last_level = 0;
+				break;
+			}
+		}
+#endif
 
 	}
 
@@ -724,6 +1045,14 @@ int load_mission(mle *mission)
 		free_mission();		//no valid mission loaded
 		return 0;
 	}
+
+#if defined(DXX_BUILD_DESCENT_II)
+	// re-read default HAM file, in case this mission brings it's own version of it
+	free_polygon_models();
+
+	if (load_mission_ham())
+		init_extra_robot_movie(Current_mission_filename);
+#endif
 
 	return 1;
 }
@@ -841,10 +1170,9 @@ void create_new_mission(void)
 	if (Current_mission)
 		free_mission();
 	
-	Current_mission = d_malloc(sizeof(Mission));
+	CALLOC(Current_mission, Mission, 1);
 	if (!Current_mission)
 		return;
-	memset(Current_mission, 0, sizeof(Mission));
 	
 	Current_mission->path = d_strdup("new_mission");
 	if (!Current_mission->path)
