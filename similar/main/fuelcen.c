@@ -77,8 +77,10 @@ const char	Special_names[MAX_CENTER_TYPES][11] = {
 	"REPAIRCEN ",
 	"CONTROLCEN",
 	"ROBOTMAKER",
+#if defined(DXX_BUILD_DESCENT_II)
 	"GOAL_RED",
 	"GOAL_BLUE",
+#endif
 };
 #endif
 
@@ -87,7 +89,6 @@ const char	Special_names[MAX_CENTER_TYPES][11] = {
 void fuelcen_reset()
 {
 	Num_fuelcenters = 0;
-
 	for(unsigned i=0; i<sizeof(Segments)/sizeof(Segments[0]); i++ )
 		Segments[i].special = SEGMENT_IS_NOTHING;
 
@@ -120,8 +121,10 @@ void fuelcen_create( segment *segp)
 
 	switch( station_type )	{
 	case SEGMENT_IS_NOTHING:
+#if defined(DXX_BUILD_DESCENT_II)
 	case SEGMENT_IS_GOAL_BLUE:
 	case SEGMENT_IS_GOAL_RED:
+#endif
 		return;
 	case SEGMENT_IS_FUELCEN:
 	case SEGMENT_IS_REPAIRCEN:
@@ -228,8 +231,10 @@ void trigger_matcen(int segnum)
 	if (!robotcen->Lives)
 		return;
 
+#if defined(DXX_BUILD_DESCENT_II)
 	//	MK: 11/18/95, At insane, matcens work forever!
 	if (Difficulty_level+1 < NDL)
+#endif
 		robotcen->Lives--;
 
 	robotcen->Timer = F1_0*1000;	//	Make sure the first robot gets emitted right away.
@@ -279,11 +284,12 @@ Restart: ;
 				}
 			}
 
+#if defined(DXX_BUILD_DESCENT_II)
 			//fix RobotCenters so they point to correct fuelcenter
 			for (j=0; j<Num_robot_centers; j++ )
 				if (RobotCenters[j].fuelcen_num > i)		//this robotcenter's fuelcen is changing
 					RobotCenters[j].fuelcen_num--;
-
+#endif
 			Assert(Num_fuelcenters > 0);
 			Num_fuelcenters--;
 			for (j=i; j<Num_fuelcenters; j++ )	{
@@ -333,13 +339,24 @@ object * create_morph_robot( segment *segp, vms_vector *object_pos, int object_i
 
 	obj->shields = Robot_info[get_robot_id(obj)].strength;
 	
+#if defined(DXX_BUILD_DESCENT_I)
+	default_behavior = AIB_NORMAL;
+	if (object_id == 10)						//	This is a toaster guy!
+		default_behavior = AIB_RUN_FROM;
+#elif defined(DXX_BUILD_DESCENT_II)
 	default_behavior = Robot_info[get_robot_id(obj)].behavior;
+#endif
 
 	init_ai_object(obj-Objects, default_behavior, -1 );		//	Note, -1 = segment this robot goes to to hide, should probably be something useful
 
 	create_n_segment_path(obj, 6, -1);		//	Create a 6 segment path from creation point.
 
+#if defined(DXX_BUILD_DESCENT_I)
+	if (default_behavior == AIB_RUN_FROM)
+		Ai_local_info[objnum].mode = AIM_RUN_FROM_OBJECT;
+#elif defined(DXX_BUILD_DESCENT_II)
 	Ai_local_info[objnum].mode = ai_behavior_to_mode(default_behavior);
+#endif
 
 	return obj;
 }
@@ -547,7 +564,11 @@ void fuelcen_update_all()
 	}
 }
 
+#if defined(DXX_BUILD_DESCENT_I)
+#define FUELCEN_SOUND_DELAY (F1_0/3)
+#elif defined(DXX_BUILD_DESCENT_II)
 #define FUELCEN_SOUND_DELAY (f1_0/4)		//play every half second
+#endif
 
 //-------------------------------------------------------------
 fix fuelcen_give_fuel(segment *segp, fix MaxAmountCanTake )
@@ -561,7 +582,9 @@ fix fuelcen_give_fuel(segment *segp, fix MaxAmountCanTake )
 	if ( (segp) && (segp->special==SEGMENT_IS_FUELCEN) )	{
 		fix amount;
 
+#if defined(DXX_BUILD_DESCENT_II)
 		detect_escort_goal_accomplished(-4);	//	UGLY! Hack! -4 means went through fuelcen.
+#endif
 
 //		if (Station[segp->value].MaxCapacity<=0)	{
 //			HUD_init_message(HM_DEFAULT, "Fuelcenter %d is destroyed.", segp->value );
@@ -607,6 +630,7 @@ fix fuelcen_give_fuel(segment *segp, fix MaxAmountCanTake )
 	}
 }
 
+#if defined(DXX_BUILD_DESCENT_II)
 //-------------------------------------------------------------
 // DM/050904
 // Repair centers
@@ -656,6 +680,7 @@ fix repaircen_give_shields(segment *segp, fix MaxAmountCanTake )
 		return 0;
 	}
 }
+#endif
 
 //	--------------------------------------------------------------------------------------------
 void disable_matcens(void)
@@ -706,6 +731,7 @@ void init_all_matcens(void)
 
 }
 
+#if defined(DXX_BUILD_DESCENT_II)
 void fuelcen_check_for_goal(segment *segp)
 {
 	Assert( segp != NULL );
@@ -763,14 +789,24 @@ void d1_matcen_info_read(d1_matcen_info *mi, PHYSFS_file *fp)
 	mi->segnum = PHYSFSX_readShort(fp);
 	mi->fuelcen_num = PHYSFSX_readShort(fp);
 }
+#endif
 
 /*
  * reads a matcen_info structure from a PHYSFS_file
  */
+#if defined(DXX_BUILD_DESCENT_I)
+void matcen_info_read(matcen_info *mi, PHYSFS_file *fp, int version)
+#elif defined(DXX_BUILD_DESCENT_II)
 void matcen_info_read(matcen_info *mi, PHYSFS_file *fp)
+#endif
 {
 	mi->robot_flags[0] = PHYSFSX_readInt(fp);
+#if defined(DXX_BUILD_DESCENT_I)
+	if (version > 25)
+		/*mi->robot_flags2 =*/ PHYSFSX_readInt(fp);
+#elif defined(DXX_BUILD_DESCENT_II)
 	mi->robot_flags[1] = PHYSFSX_readInt(fp);
+#endif
 	mi->hit_points = PHYSFSX_readFix(fp);
 	mi->interval = PHYSFSX_readFix(fp);
 	mi->segnum = PHYSFSX_readShort(fp);
@@ -783,7 +819,9 @@ static void matcen_info_swap(matcen_info *mi, int swap)
 		return;
 	
 	mi->robot_flags[0] = SWAPINT(mi->robot_flags[0]);
+#if defined(DXX_BUILD_DESCENT_II)
 	mi->robot_flags[1] = SWAPINT(mi->robot_flags[1]);
+#endif
 	mi->hit_points = SWAPINT(mi->hit_points);
 	mi->interval = SWAPINT(mi->interval);
 	mi->segnum = SWAPSHORT(mi->segnum);
@@ -808,7 +846,11 @@ void matcen_info_write(matcen_info *mi, short version, PHYSFS_file *fp)
 {
 	PHYSFS_writeSLE32(fp, mi->robot_flags[0]);
 	if (version >= 27)
+#if defined(DXX_BUILD_DESCENT_I)
+		PHYSFS_writeSLE32(fp, 0 /*mi->robot_flags[1]*/);
+#elif defined(DXX_BUILD_DESCENT_II)
 		PHYSFS_writeSLE32(fp, mi->robot_flags[1]);
+#endif
 	PHYSFSX_writeFix(fp, mi->hit_points);
 	PHYSFSX_writeFix(fp, mi->interval);
 	PHYSFS_writeSLE16(fp, mi->segnum);
