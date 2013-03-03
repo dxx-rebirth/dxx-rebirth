@@ -303,6 +303,10 @@ class DXXProgram(DXXCommon):
 'arch/ogl/ogl.c',
 ]
 ]
+	similar_arch_sdl_sources = [os.path.join('similar', f) for f in [
+'arch/sdl/gr.c',
+]
+]
 	similar_arch_sdlmixer_sources = [os.path.join('similar', f) for f in [
 'arch/sdl/jukebox.c'
 ]
@@ -375,7 +379,7 @@ class DXXProgram(DXXCommon):
 		if DXXProgram.static_archive_construction is None:
 			DXXProgram.static_archive_construction = DXXArchive()
 		apply_target_name = lambda n: self._apply_target_name(n)
-		for t in ['similar_arch_ogl_sources', 'similar_arch_sdlmixer_sources', 'similar_common_sources']:
+		for t in ['similar_arch_ogl_sources', 'similar_arch_sdl_sources', 'similar_arch_sdlmixer_sources', 'similar_common_sources']:
 			self.create_lazy_object_property(t, apply_target_name)
 		DXXCommon.__init__(self)
 		self.user_settings = self.UserSettings(self.ARGUMENTS, self.target)
@@ -447,6 +451,8 @@ class DXXProgram(DXXCommon):
 			objects.extend(self.objects_similar_arch_sdlmixer_sources)
 		if (self.user_settings.opengl == 1) or (self.user_settings.opengles == 1):
 			objects.extend(self.objects_similar_arch_ogl_sources)
+		else:
+			objects.extend(self.objects_similar_arch_sdl_sources)
 		objects.extend(self.objects_similar_common_sources)
 		# finally building program...
 		env.Program(target=str(exe_target), source = self.common_sources + objects, LIBS = self.platform_settings.libs, LINKFLAGS = str(self.platform_settings.lflags))
@@ -607,7 +613,6 @@ class D1XProgram(DXXProgram):
 
 	# for non-ogl
 	arch_sdl_sources = [os.path.join(srcdir, f) for f in [
-'arch/sdl/gr.c',
 'texmap/tmapflat.c'
 ]
 ]
@@ -777,7 +782,6 @@ class D2XProgram(DXXProgram):
 
 	# for non-ogl
 	arch_sdl_sources = [os.path.join(srcdir, f) for f in [
-'arch/sdl/gr.c',
 'texmap/tmapflat.c'
 ]
 ]
