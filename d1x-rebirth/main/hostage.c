@@ -37,40 +37,7 @@ COPYRIGHT 1993-1998 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 #include "piggy.h"
 #include "playsave.h"
 
-//------------- Globaly used hostage variables --------------------------------------------------
-int N_hostage_types = 0;		  			// Number of hostage types
-int Hostage_vclip_num[MAX_HOSTAGE_TYPES];	// vclip num for each tpye of hostage
 hostage_data 		Hostages[MAX_HOSTAGES];						// Data for each hostage in mine
-
-//-------------- Renders a hostage ----------------------------------------------------------------
-void draw_hostage(object *obj)
-{
-	Assert( obj->id < MAX_HOSTAGES );
-
-	draw_object_tmap_rod(obj, Vclip[obj->rtype.vclip_info.vclip_num].frames[obj->rtype.vclip_info.framenum], 1);
-
-}
-
-//------------- Called once when a hostage is rescued ------------------------------------------
-void hostage_rescue( int hostage_number )
-{
-	if ( (hostage_number<0) || (hostage_number>=MAX_HOSTAGES) )	{
-			Int3();		// Get John!
-			return;
-	}
-
-	PALETTE_FLASH_ADD(0, 0, 25);		//small blue flash
-
-	Players[Player_num].hostages_on_board++;
-
-	// Do an audio effect
-	if (Newdemo_state != ND_STATE_PLAYBACK)
-		digi_play_sample(SOUND_HOSTAGE_RESCUED, F1_0);
-
-	HUD_init_message(HM_DEFAULT, TXT_HOSTAGE_RESCUED);
- }
-
-#define LINEBUF_SIZE 100
 
 //------------------- Useful macros and variables ---------------
 
