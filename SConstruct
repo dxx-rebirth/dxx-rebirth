@@ -371,6 +371,7 @@ class DXXProgram(DXXCommon):
 'editor/kbuild.c',
 'editor/kcurve.c',
 'editor/kfuncs.c',
+'editor/kgame.c',
 'editor/khelp.c',
 'editor/kmine.c',
 'editor/ksegmove.c',
@@ -625,7 +626,6 @@ class D1XProgram(DXXProgram):
 'editor/centers.c',
 'editor/ehostage.c',
 'editor/group.c',
-'editor/kgame.c',
 'editor/ksegsize.c',
 'editor/med.c',
 'editor/meddraw.c',
@@ -764,7 +764,6 @@ class D2XProgram(DXXProgram):
 	editor_sources = [os.path.join(srcdir, f) for f in [
 'editor/centers.c',
 'editor/group.c',
-'editor/kgame.c',
 'editor/ksegsize.c',
 'editor/med.c',
 'editor/meddraw.c',
