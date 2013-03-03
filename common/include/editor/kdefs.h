@@ -8,7 +8,7 @@ SUCH USE, DISPLAY OR CREATION IS FOR NON-COMMERCIAL, ROYALTY OR REVENUE
 FREE PURPOSES.  IN NO EVENT SHALL THE END-USER USE THE COMPUTER CODE
 CONTAINED HEREIN FOR REVENUE-BEARING PURPOSES.  THE END-USER UNDERSTANDS
 AND AGREES TO THE TERMS HEREIN AND ACCEPTS THE SAME BY USE OF THIS FILE.
-COPYRIGHT 1993-1998 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
+COPYRIGHT 1993-1999 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 */
 
 // In khelp.c
@@ -61,6 +61,10 @@ int RotateGroup();
 // In segment.c
 int ToggleBottom();
 void make_curside_bottom_side();
+#ifdef DXX_BUILD_DESCENT_II
+int select_segment_by_number();
+int select_segment_with_powerup();
+#endif
 
 // In editor.c
 int UndoCommand();
@@ -159,6 +163,9 @@ int CallLisp();
 int ExitEditor();
 int ShowAbout();
 int ExchangeMarkandCurseg();
+#ifdef DXX_BUILD_DESCENT_II
+int CopySegtoMarked();
+#endif
 int med_keypad_goto_prev();
 int med_keypad_goto_next();
 int med_keypad_goto();
@@ -174,6 +181,9 @@ int	TexFlipY();
 int	TexSlideUp();
 int	TexSlideLeft();
 int	TexSetDefault();
+#ifdef DXX_BUILD_DESCENT_II
+int	TexSetDefaultSelected();
+#endif
 int	TexSlideRight();
 int	TexRotateLeft();
 int	TexSlideDown();
@@ -190,6 +200,10 @@ int	TexSlideDownBig();
 int	TexRotateRightBig();
 int	TexStretchDown();
 int	TexStretchUp();
+#ifdef DXX_BUILD_DESCENT_II
+int	TexChangeAll();
+int	TexChangeAll2();
+#endif
 
 //	object.c
 int	ObjectPlaceObject();
@@ -295,6 +309,9 @@ extern int do_wall_dialog(void);
 extern int do_trigger_dialog(void);
 extern int check_walls(void);
 extern int delete_all_walls(void);
+#ifdef DXX_BUILD_DESCENT_II
+extern int delete_all_controlcen_triggers(void);
+#endif
 
 // In centers.c
 extern int do_centers_dialog(void);
@@ -317,6 +334,10 @@ extern int robotmaker_create_from_curseg();
 extern int fuelcen_reset_all();
 extern int RestoreGameState();
 extern int fuelcen_delete_from_curseg();
+#ifdef DXX_BUILD_DESCENT_II
+extern int goal_blue_create_from_curseg();
+extern int goal_red_create_from_curseg();
+#endif
 
 // In editor\robot.c
 extern int do_robot_dialog();
