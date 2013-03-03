@@ -8,7 +8,7 @@ SUCH USE, DISPLAY OR CREATION IS FOR NON-COMMERCIAL, ROYALTY OR REVENUE
 FREE PURPOSES.  IN NO EVENT SHALL THE END-USER USE THE COMPUTER CODE
 CONTAINED HEREIN FOR REVENUE-BEARING PURPOSES.  THE END-USER UNDERSTANDS
 AND AGREES TO THE TERMS HEREIN AND ACCEPTS THE SAME BY USE OF THIS FILE.
-COPYRIGHT 1993-1998 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
+COPYRIGHT 1993-1999 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 */
 
 /*
@@ -46,6 +46,20 @@ extern fix64 Next_missile_fire_time;  // Time at which player can next fire his 
 extern fix64 Next_flare_fire_time;
 extern fix Laser_delay_time;        // Delay between laser fires.
 
+#if defined(DXX_BUILD_DESCENT_II)
+extern struct object *Missile_viewer;
+extern int Missile_viewer_sig;
+
+#define CV_NONE     0
+#define CV_ESCORT   1
+#define CV_REAR     2
+#define CV_COOP     3
+#define CV_MARKER   4
+
+extern int Coop_view_player[2];     // left & right
+extern int Marker_viewer_num[2];    // left & right
+#endif
+
 // constants for ft_preference
 #define FP_RIGHT        0
 #define FP_UP           1
@@ -66,7 +80,13 @@ extern int ft_preference;
 #define GM_UNKNOWN      64      // You are not in any mode, kind of dangerous...
 #define GM_GAME_OVER    128     // Game has been finished
 #define GM_TEAM         256     // Team mode for network play
+#if defined(DXX_BUILD_DESCENT_I)
 #define GM_BOUNTY       512     // New bounty mode by Matt1360
+#elif defined(DXX_BUILD_DESCENT_II)
+#define GM_CAPTURE      512     // Capture the flag mode for D2
+#define GM_HOARD        1024    // New hoard mode for D2 Christmas
+#define GM_BOUNTY	2048	/* New bounty mode by Matt1360 */
+#endif
 #define GM_NORMAL       0       // You are in normal play mode, no multiplayer stuff
 #define GM_MULTI        38      // You are in some type of multiplayer game
 
@@ -169,6 +189,9 @@ void reset_cockpit(void);       // called if you've trashed the screen
 void palette_save(void);
 void reset_palette_add(void);
 void palette_restore(void);
+#if defined(DXX_BUILD_DESCENT_II)
+void full_palette_save(void);	// all of the above plus gr_palette_load(gr_palette)
+#endif
 
 // put up the help message
 void show_help();
@@ -181,7 +204,49 @@ void show_boxed_message(char *msg, int RenderFlag);
 // turns off rear view & rear view cockpit
 void reset_rear_view(void);
 
+#if defined(DXX_BUILD_DESCENT_I)
 void game_init_render_buffers (int render_max_w, int render_max_h);
+#elif defined(DXX_BUILD_DESCENT_II)
+// returns ptr to escort robot, or NULL
+struct object *find_escort();
+
+extern void apply_modified_palette(void);
+
+//Flickering light system
+typedef struct  {
+	short segnum, sidenum;
+	unsigned long mask;     // determines flicker pattern
+	fix timer;              // time until next change
+	fix delay;              // time between changes
+} flickering_light;
+
+#define MAX_FLICKERING_LIGHTS 100
+
+extern flickering_light Flickering_lights[MAX_FLICKERING_LIGHTS];
+extern int Num_flickering_lights;
+
+// returns ptr to flickering light structure, or NULL if can't find
+flickering_light *find_flicker(int segnum, int sidenum);
+
+// turn flickering off (because light has been turned off)
+void disable_flicker(int segnum, int sidenum);
+
+// turn flickering off (because light has been turned on)
+void enable_flicker(int segnum, int sidenum);
+
+// returns 1 if ok, 0 if error
+int add_flicker(int segnum, int sidenum, fix delay, unsigned long mask);
+
+int gr_toggle_fullscreen(void);
+
+/*
+ * reads a flickering_light structure from a PHYSFS_file
+ */
+void flickering_light_read(flickering_light *fl, PHYSFS_file *fp);
+
+void flickering_light_write(flickering_light *fl, PHYSFS_file *fp);
+#endif
+
 void game_render_frame_mono(int flip);
 void game_leave_menus(void);
 
@@ -190,12 +255,9 @@ typedef struct game_cheats
 {
 	int enabled;
 	int wowie;
-	int wowie2;
 	int allkeys;
 	int invul;
-	int cloak;
 	int shields;
-	int extralife;
 	int killreactor;
 	int exitpath;
 	int levelwarp;
@@ -204,11 +266,24 @@ typedef struct game_cheats
 	int rapidfire;
 	int turbo;
 	int robotfiringsuspended;
-	int baldguy;
 	int acid;
+#if defined(DXX_BUILD_DESCENT_I)
+	int wowie2;
+	int cloak;
+	int extralife;
+	int baldguy;
+#elif defined(DXX_BUILD_DESCENT_II)
+	int lamer;
+	int accessory;
+	int bouncyfire;
+	int killallrobots;
+	int robotskillrobots;
+	int monsterdamage;
+	int buddyclone;
+	int buddyangry;
+#endif
 } __pack__ game_cheats;
 extern game_cheats cheats;
 void game_disable_cheats();
 
-#endif
-
+#endif /* _GAME_H */
