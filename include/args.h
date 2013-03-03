@@ -25,7 +25,6 @@ COPYRIGHT 1993-1998 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 
 extern int Num_args;
 extern char *Args[];
-extern void AppendIniArgs(void);
 extern void InitArgs(int argc, char **argv);
 extern void args_exit();
 
