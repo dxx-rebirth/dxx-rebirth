@@ -44,6 +44,7 @@ COPYRIGHT 1993-1999 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 #include "fuelcen.h"
 #include "cntrlcen.h"
 #include "powerup.h"
+#include "hostage.h"
 #include "weapon.h"
 #include "newdemo.h"
 #include "gameseq.h"
@@ -57,12 +58,57 @@ COPYRIGHT 1993-1999 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 #include "byteswap.h"
 #include "multi.h"
 #include "makesig.h"
+#include "textures.h"
+
+#if defined(DXX_BUILD_DESCENT_I)
+#ifdef EDITOR
+char *Shareware_level_names[NUM_SHAREWARE_LEVELS] = {
+	"level01.rdl",
+	"level02.rdl",
+	"level03.rdl",
+	"level04.rdl",
+	"level05.rdl",
+	"level06.rdl",
+	"level07.rdl"
+};
+
+char *Registered_level_names[NUM_REGISTERED_LEVELS] = {
+	"level08.rdl",
+	"level09.rdl",
+	"level10.rdl",
+	"level11.rdl",
+	"level12.rdl",
+	"level13.rdl",
+	"level14.rdl",
+	"level15.rdl",
+	"level16.rdl",
+	"level17.rdl",
+	"level18.rdl",
+	"level19.rdl",
+	"level20.rdl",
+	"level21.rdl",
+	"level22.rdl",
+	"level23.rdl",
+	"level24.rdl",
+	"level25.rdl",
+	"level26.rdl",
+	"level27.rdl",
+	"levels1.rdl",
+	"levels2.rdl",
+	"levels3.rdl"
+};
+#endif
+#endif
 
 char Gamesave_current_filename[PATH_MAX];
 
 int Gamesave_current_version;
 
+#if defined(DXX_BUILD_DESCENT_I)
+#define GAME_VERSION					25
+#elif defined(DXX_BUILD_DESCENT_II)
 #define GAME_VERSION            32
+#endif
 #define GAME_COMPATIBLE_VERSION 22
 
 //version 28->29  add delta light support
@@ -111,12 +157,14 @@ struct {
 	int     matcen_offset;
 	int     matcen_howmany;
 	int     matcen_sizeof;
+#if defined(DXX_BUILD_DESCENT_II)
 	int     dl_indices_offset;
 	int     dl_indices_howmany;
 	int     dl_indices_sizeof;
 	int     delta_light_offset;
 	int     delta_light_howmany;
 	int     delta_light_sizeof;
+#endif
 } game_fileinfo;
 #endif // EDITOR
 
@@ -161,8 +209,32 @@ static int is_real_level(const char *filename)
 
 int Gamesave_num_players=0;
 
+#if defined(DXX_BUILD_DESCENT_I)
+int N_save_pof_names=25;
+#define MAX_POLYGON_MODELS_NEW 167
+char Save_pof_names[MAX_POLYGON_MODELS_NEW][FILENAME_LEN];
+
+static int convert_vclip(int vc) {
+	if (vc < 0)
+		return vc;
+	if ((vc < VCLIP_MAXNUM) && (Vclip[vc].num_frames >= 0))
+		return vc;
+	return 0;
+}
+static int convert_wclip(int wc) {
+	return (wc < Num_wall_anims) ? wc : wc % Num_wall_anims;
+}
+int convert_tmap(int tmap)
+{
+    return (tmap >= NumTextures) ? tmap % NumTextures : tmap;
+}
+static int convert_polymod(int polymod) {
+    return (polymod >= N_polygon_models) ? polymod % N_polygon_models : polymod;
+}
+#elif defined(DXX_BUILD_DESCENT_II)
 int N_save_pof_names;
 char Save_pof_names[MAX_POLYGON_MODELS][FILENAME_LEN];
+#endif
 
 void check_and_fix_matrix(vms_matrix *m);
 
@@ -179,6 +251,7 @@ void verify_object( object * obj )	{
 
 		// Make sure model number & size are correct...
 		if ( obj->render_type == RT_POLYOBJ ) {
+#if defined(DXX_BUILD_DESCENT_II)
 			Assert(Robot_info[obj->id].model_num != -1);
 				//if you fail this assert, it means that a robot in this level
 				//hasn't been loaded, possibly because he's marked as
@@ -189,6 +262,7 @@ void verify_object( object * obj )	{
 				//a robot in this level hasn't been loaded, possibly because
 				//it's marked as non-shareware.  To see what robot number,
 				//print obj->id.
+#endif
 
 			obj->rtype.pobj_info.model_num = Robot_info[obj->id].model_num;
 			obj->size = Polygon_models[obj->rtype.pobj_info.model_num].rad;
@@ -207,8 +281,10 @@ void verify_object( object * obj )	{
 			//@@	obj->size = obj->size*3/4;
 		}
 
+#if defined(DXX_BUILD_DESCENT_II)
 		if (obj->id == 65)						//special "reactor" robots
 			obj->movement_type = MT_NONE;
+#endif
 
 		if (obj->movement_type == MT_PHYSICS) {
 			obj->mtype.phys_info.mass = Robot_info[obj->id].mass;
@@ -236,9 +312,10 @@ void verify_object( object * obj )	{
 		}
 		obj->control_type = CT_POWERUP;
 		obj->size = Powerup_info[obj->id].size;
+#if defined(DXX_BUILD_DESCENT_II)
 		obj->ctype.powerup_info.creation_time = 0;
+#endif
 
-#ifdef NETWORK
 		if (Game_mode & GM_NETWORK)
 		{
 			if (multi_powerup_is_4pack(obj->id))
@@ -252,7 +329,6 @@ void verify_object( object * obj )	{
 				MaxPowerupsAllowed[obj->id]++;
 			}
 		}
-#endif
 
 	}
 
@@ -262,6 +338,7 @@ void verify_object( object * obj )	{
 			Assert( obj->render_type != RT_POLYOBJ );
 		}
 
+#if defined(DXX_BUILD_DESCENT_II)
 		if (obj->id == PMINE_ID) {		//make sure pmines have correct values
 
 			obj->mtype.phys_info.mass = Weapon_info[obj->id].mass;
@@ -274,6 +351,7 @@ void verify_object( object * obj )	{
 			obj->rtype.pobj_info.model_num = Weapon_info[obj->id].model_num;
 			obj->size = Polygon_models[obj->rtype.pobj_info.model_num].rad;
 		}
+#endif
 	}
 
 	if ( obj->type == OBJ_CNTRLCEN ) {
@@ -281,6 +359,15 @@ void verify_object( object * obj )	{
 		obj->render_type = RT_POLYOBJ;
 		obj->control_type = CT_CNTRLCEN;
 
+#if defined(DXX_BUILD_DESCENT_I)
+		// Make model number is correct...	
+		for (int i=0; i<Num_total_object_types; i++ )	
+			if ( ObjType[i] == OL_CONTROL_CENTER )		{
+				obj->rtype.pobj_info.model_num = ObjId[i];
+				obj->shields = ObjStrength[i];
+				break;		
+			}
+#elif defined(DXX_BUILD_DESCENT_II)
 		if (Gamesave_current_version <= 1) { // descent 1 reactor
 			obj->id = 0;                         // used to be only one kind of reactor
 			obj->rtype.pobj_info.model_num = Reactors[0].model_num;// descent 1 reactor
@@ -288,6 +375,7 @@ void verify_object( object * obj )	{
 
 		// Make sure model number is correct...
 		//obj->rtype.pobj_info.model_num = Reactors[obj->id].model_num;
+#endif
 	}
 
 	if ( obj->type == OBJ_PLAYER )	{
@@ -309,8 +397,10 @@ void verify_object( object * obj )	{
 
 	if (obj->type == OBJ_HOSTAGE) {
 
-		//@@if (obj->id > N_hostage_types)
-		//@@	obj->id = 0;
+#if defined(DXX_BUILD_DESCENT_I)
+		if (obj->id > N_hostage_types)
+			obj->id = 0;
+#endif
 
 		obj->render_type = RT_HOSTAGE;
 		obj->control_type = CT_POWERUP;
@@ -333,6 +423,11 @@ void read_object(object *obj,PHYSFS_file *f,int version)
 	obj->type           = PHYSFSX_readByte(f);
 	obj->id             = PHYSFSX_readByte(f);
 
+#if defined(DXX_BUILD_DESCENT_I)
+	if (obj->type == OBJ_ROBOT && obj->id > 23) {
+		obj->id = obj->id % 24;
+	}
+#endif
 	obj->control_type   = PHYSFSX_readByte(f);
 	obj->movement_type  = PHYSFSX_readByte(f);
 	obj->render_type    = PHYSFSX_readByte(f);
@@ -400,8 +495,13 @@ void read_object(object *obj,PHYSFS_file *f,int version)
 			obj->ctype.ai_info.cur_path_index		= PHYSFSX_readShort(f);
 
 			if (version <= 25) {
+#if defined(DXX_BUILD_DESCENT_I)
+				obj->ctype.ai_info.follow_path_start_seg = PHYSFSX_readShort(f);
+				obj->ctype.ai_info.follow_path_end_seg	 = PHYSFSX_readShort(f);
+#elif defined(DXX_BUILD_DESCENT_II)
 				PHYSFSX_readShort(f);	//				obj->ctype.ai_info.follow_path_start_seg	= 
 				PHYSFSX_readShort(f);	//				obj->ctype.ai_info.follow_path_end_seg		= 
+#endif
 			}
 
 			break;
@@ -423,7 +523,9 @@ void read_object(object *obj,PHYSFS_file *f,int version)
 			obj->ctype.laser_info.parent_type		= PHYSFSX_readShort(f);
 			obj->ctype.laser_info.parent_num		= PHYSFSX_readShort(f);
 			obj->ctype.laser_info.parent_signature	= PHYSFSX_readInt(f);
+#if defined(DXX_BUILD_DESCENT_II)
 			obj->ctype.laser_info.last_afterburner_time = 0;
+#endif
 
 			break;
 
@@ -442,11 +544,13 @@ void read_object(object *obj,PHYSFS_file *f,int version)
 			if (obj->id == POW_VULCAN_WEAPON)
 					obj->ctype.powerup_info.count = VULCAN_WEAPON_AMMO_AMOUNT;
 
+#if defined(DXX_BUILD_DESCENT_II)
 			if (obj->id == POW_GAUSS_WEAPON)
 					obj->ctype.powerup_info.count = VULCAN_WEAPON_AMMO_AMOUNT;
 
 			if (obj->id == POW_OMEGA_WEAPON)
 					obj->ctype.powerup_info.count = MAX_OMEGA_CHARGE;
+#endif
 
 			break;
 
@@ -479,7 +583,11 @@ void read_object(object *obj,PHYSFS_file *f,int version)
 		case RT_POLYOBJ: {
 			int i,tmo;
 
+#if defined(DXX_BUILD_DESCENT_I)
+			obj->rtype.pobj_info.model_num		= convert_polymod(PHYSFSX_readInt(f));
+#elif defined(DXX_BUILD_DESCENT_II)
 			obj->rtype.pobj_info.model_num		= PHYSFSX_readInt(f);
+#endif
 
 			for (i=0;i<MAX_SUBMODELS;i++)
 				PHYSFSX_readAngleVec(&obj->rtype.pobj_info.anim_angles[i],f);
@@ -489,7 +597,11 @@ void read_object(object *obj,PHYSFS_file *f,int version)
 			tmo = PHYSFSX_readInt(f);
 
 			#ifndef EDITOR
+#if defined(DXX_BUILD_DESCENT_I)
+			obj->rtype.pobj_info.tmap_override	= convert_tmap(tmo);
+#elif defined(DXX_BUILD_DESCENT_II)
 			obj->rtype.pobj_info.tmap_override	= tmo;
+#endif
 			#else
 			if (tmo==-1)
 				obj->rtype.pobj_info.tmap_override	= -1;
@@ -513,7 +625,11 @@ void read_object(object *obj,PHYSFS_file *f,int version)
 		case RT_POWERUP:
 		case RT_FIREBALL:
 
+#if defined(DXX_BUILD_DESCENT_I)
+			obj->rtype.vclip_info.vclip_num	= convert_vclip(PHYSFSX_readInt(f));
+#elif defined(DXX_BUILD_DESCENT_II)
 			obj->rtype.vclip_info.vclip_num	= PHYSFSX_readInt(f);
+#endif
 			obj->rtype.vclip_info.frametime	= PHYSFSX_readFix(f);
 			obj->rtype.vclip_info.framenum	= PHYSFSX_readByte(f);
 
@@ -534,6 +650,9 @@ void read_object(object *obj,PHYSFS_file *f,int version)
 //writes one object to the given file
 void write_object(object *obj, short version, PHYSFS_file *f)
 {
+#if defined(DXX_BUILD_DESCENT_I)
+	(void)version;
+#endif
 	PHYSFSX_writeU8(f, obj->type);
 	PHYSFSX_writeU8(f, obj->id);
 
@@ -602,11 +721,16 @@ void write_object(object *obj, short version, PHYSFS_file *f)
 			PHYSFS_writeSLE16(f, obj->ctype.ai_info.path_length);
 			PHYSFS_writeSLE16(f, obj->ctype.ai_info.cur_path_index);
 
+#if defined(DXX_BUILD_DESCENT_I)
+			PHYSFS_writeSLE16(f, obj->ctype.ai_info.follow_path_start_seg);
+			PHYSFS_writeSLE16(f, obj->ctype.ai_info.follow_path_end_seg);
+#elif defined(DXX_BUILD_DESCENT_II)
 			if (version <= 25)
 			{
 				PHYSFS_writeSLE16(f, -1);	//obj->ctype.ai_info.follow_path_start_seg
 				PHYSFS_writeSLE16(f, -1);	//obj->ctype.ai_info.follow_path_end_seg
 			}
+#endif
 
 			break;
 		}
@@ -636,8 +760,12 @@ void write_object(object *obj, short version, PHYSFS_file *f)
 
 		case CT_POWERUP:
 
+#if defined(DXX_BUILD_DESCENT_I)
+			PHYSFS_writeSLE32(f, obj->ctype.powerup_info.count);
+#elif defined(DXX_BUILD_DESCENT_II)
 			if (version >= 25)
 				PHYSFS_writeSLE32(f, obj->ctype.powerup_info.count);
+#endif
 			break;
 
 		case CT_NONE:
@@ -756,6 +884,9 @@ int load_game_data(PHYSFS_file *LoadFile)
 	Num_robot_centers = PHYSFSX_readInt(LoadFile);
 	PHYSFSX_fseek(LoadFile, 4, SEEK_CUR);
 
+#if defined(DXX_BUILD_DESCENT_I)
+	(void)num_delta_lights;
+#elif defined(DXX_BUILD_DESCENT_II)
 	if (game_top_fileinfo_version >= 29) {
 		PHYSFSX_fseek(LoadFile, 4, SEEK_CUR);
 		Num_static_lights = PHYSFSX_readInt(LoadFile);
@@ -766,6 +897,7 @@ int load_game_data(PHYSFS_file *LoadFile)
 		Num_static_lights = 0;
 		num_delta_lights = 0;
 	}
+#endif
 
 	if (game_top_fileinfo_version >= 31) //load mine filename
 		// read newline-terminated string, not sure what version this changed.
@@ -824,7 +956,11 @@ int load_game_data(PHYSFS_file *LoadFile)
 			Walls[i].flags		= w.flags;
 			Walls[i].hps		= w.hps;
 			Walls[i].trigger	= w.trigger;
+#if defined(DXX_BUILD_DESCENT_I)
+			Walls[i].clip_num	= convert_wclip(w.clip_num);
+#elif defined(DXX_BUILD_DESCENT_II)
 			Walls[i].clip_num	= w.clip_num;
+#endif
 			Walls[i].keys		= w.keys;
 			Walls[i].state		= WALL_DOOR_CLOSED;
 		} else {
@@ -835,7 +971,11 @@ int load_game_data(PHYSFS_file *LoadFile)
 			Walls[i].flags		= w.flags;
 			Walls[i].hps		= w.hps;
 			Walls[i].trigger	= w.trigger;
+#if defined(DXX_BUILD_DESCENT_I)
+			Walls[i].clip_num	= convert_wclip(w.clip_num);
+#elif defined(DXX_BUILD_DESCENT_II)
 			Walls[i].clip_num	= w.clip_num;
+#endif
 			Walls[i].keys		= w.keys;
 		}
 	}
@@ -879,6 +1019,51 @@ int load_game_data(PHYSFS_file *LoadFile)
 
 	for (i = 0; i < Num_triggers; i++)
 	{
+#if defined(DXX_BUILD_DESCENT_I)
+		if (game_top_fileinfo_version <= 25)
+			trigger_read(&Triggers[i], LoadFile);
+		else {
+			int type;
+			switch ((type = PHYSFSX_readByte(LoadFile)))
+			{
+				case 0: // door
+					Triggers[i].type = 0;
+					Triggers[i].flags = TRIGGER_CONTROL_DOORS;
+					break;
+				case 2: // matcen
+					Triggers[i].type = 0;
+					Triggers[i].flags = TRIGGER_MATCEN;
+					break;
+				case 3: // exit
+					Triggers[i].type = 0;
+					Triggers[i].flags = TRIGGER_EXIT;
+					break;
+				case 4: // secret exit
+					Triggers[i].type = 0;
+					Triggers[i].flags = TRIGGER_SECRET_EXIT;
+					break;
+				case 5: // illusion off
+					Triggers[i].type = 0;
+					Triggers[i].flags = TRIGGER_ILLUSION_OFF;
+					break;
+				case 6: // illusion on
+					Triggers[i].type = 0;
+					Triggers[i].flags = TRIGGER_ILLUSION_ON;
+					break;
+				default:
+					con_printf(CON_URGENT,"Warning: unsupported trigger type %d (%d)\n", type, i);
+			}
+			if (PHYSFSX_readByte(LoadFile) & 2)	// one shot
+				Triggers[i].flags |= TRIGGER_ONE_SHOT;
+			Triggers[i].num_links = PHYSFSX_readShort(LoadFile);
+			Triggers[i].value = PHYSFSX_readInt(LoadFile);
+			Triggers[i].time = PHYSFSX_readInt(LoadFile);
+			for (j=0; j<MAX_WALLS_PER_LINK; j++ )	
+				Triggers[i].seg[j] = PHYSFSX_readShort(LoadFile);
+			for (j=0; j<MAX_WALLS_PER_LINK; j++ )
+				Triggers[i].side[j] = PHYSFSX_readShort(LoadFile);
+		}
+#elif defined(DXX_BUILD_DESCENT_II)
 		if (game_top_fileinfo_version < 31)
 		{
 			v30_trigger trig;
@@ -950,6 +1135,7 @@ int load_game_data(PHYSFS_file *LoadFile)
 		}
 		else
 			trigger_read(&Triggers[i], LoadFile);
+#endif
 	}
 
 	//================ READ CONTROL CENTER TRIGGER INFO ===============
@@ -959,6 +1145,15 @@ int load_game_data(PHYSFS_file *LoadFile)
 	//================ READ MATERIALOGRIFIZATIONATORS INFO ===============
 
 	for (i = 0; i < Num_robot_centers; i++) {
+#if defined(DXX_BUILD_DESCENT_I)
+		matcen_info_read(&RobotCenters[i], LoadFile, game_top_fileinfo_version);
+		
+		//	Set links in RobotCenters to Station array
+		for (j = 0; j <= Highest_segment_index; j++)
+			if (Segments[j].special == SEGMENT_IS_ROBOTMAKER)
+				if (Segments[j].matcen_num == i)
+					RobotCenters[i].fuelcen_num = Segments[j].value;
+#elif defined(DXX_BUILD_DESCENT_II)
 		if (game_top_fileinfo_version < 27) {
 			d1_matcen_info m;
 			d1_matcen_info_read(&m, LoadFile);
@@ -976,8 +1171,10 @@ int load_game_data(PHYSFS_file *LoadFile)
 			if (Segment2s[j].special == SEGMENT_IS_ROBOTMAKER)
 				if (Segment2s[j].matcen_num == i)
 					RobotCenters[i].fuelcen_num = Segment2s[j].value;
+#endif
 	}
 
+#if defined(DXX_BUILD_DESCENT_II)
 	//================ READ DL_INDICES INFO ===============
 
 	for (i = 0; i < Num_static_lights; i++) {
@@ -998,6 +1195,7 @@ int load_game_data(PHYSFS_file *LoadFile)
 		} else
 			delta_light_read(&Delta_lights[i], LoadFile);
 	}
+#endif
 
 	//========================= UPDATE VARIABLES ======================
 
@@ -1068,31 +1266,39 @@ int load_game_data(PHYSFS_file *LoadFile)
 	{
 		int t;
 
+#if defined(DXX_BUILD_DESCENT_II)
 		for (i=0; i<Num_walls; i++)
 			Walls[i].controlling_trigger = -1;
+#endif
 
 		for (t=0; t<Num_triggers; t++) {
 			int	l;
 			for (l=0; l<Triggers[t].num_links; l++) {
-				int	seg_num, side_num, wall_num;
+				int	seg_num;
 
 				seg_num = Triggers[t].seg[l];
-				side_num = Triggers[t].side[l];
-				wall_num = Segments[seg_num].sides[side_num].wall_num;
 
 				//check to see that if a trigger requires a wall that it has one,
 				//and if it requires a matcen that it has one
 
-				if (Triggers[t].type == TT_MATCEN) {
+#if defined(DXX_BUILD_DESCENT_I)
+				if (Triggers[t].type == TRIGGER_MATCEN)
+#elif defined(DXX_BUILD_DESCENT_II)
+				if (Triggers[t].type == TT_MATCEN)
+#endif
+				{
 					if (Segment2s[seg_num].special != SEGMENT_IS_ROBOTMAKER)
 						Int3();		//matcen trigger doesn't point to matcen
 				}
+#if defined(DXX_BUILD_DESCENT_II)
 				else if (Triggers[t].type != TT_LIGHT_OFF && Triggers[t].type != TT_LIGHT_ON) {	//light triggers don't require walls
+					int side_num = Triggers[t].side[l], wall_num = Segments[seg_num].sides[side_num].wall_num;
 					if (wall_num == -1)
 						Int3();	//	This is illegal.  This trigger requires a wall
 					else
 						Walls[wall_num].controlling_trigger = t;
 				}
+#endif
 			}
 		}
 	}
@@ -1131,7 +1337,10 @@ int load_game_data(PHYSFS_file *LoadFile)
 	#endif
 
 	if (game_top_fileinfo_version < GAME_VERSION
-	    && !(game_top_fileinfo_version == 25 && GAME_VERSION == 26))
+#if defined(DXX_BUILD_DESCENT_II)
+	    && !(game_top_fileinfo_version == 25 && GAME_VERSION == 26)
+#endif
+		)
 		return 1;		//means old version
 	else
 		return 0;
@@ -1144,7 +1353,11 @@ extern void	set_ambient_sound_flags(void);
 
 // ----------------------------------------------------------------------------
 
+#if defined(DXX_BUILD_DESCENT_I)
+#define LEVEL_FILE_VERSION		1
+#elif defined(DXX_BUILD_DESCENT_II)
 #define LEVEL_FILE_VERSION      8
+#endif
 //1 -> 2  add palette name
 //2 -> 3  add control center explosion time
 //3 -> 4  add reactor strength
@@ -1158,10 +1371,12 @@ const char *Level_being_loaded=NULL;
 #endif
 
 
+#if defined(DXX_BUILD_DESCENT_II)
 extern int Slide_segs_computed;
 extern int d1_pig_present;
 
 int no_old_level_file_error=0;
+#endif
 
 //loads a level (.LVL) file from disk
 //returns 0 if success, else error code
@@ -1174,13 +1389,12 @@ int load_level(const char * filename_passed)
 	char filename[PATH_MAX];
 	int sig, minedata_offset, gamedata_offset;
 	int mine_err, game_err;
-#ifdef NETWORK
 	int i;
+
+#if defined(DXX_BUILD_DESCENT_II)
+	Slide_segs_computed = 0;
 #endif
 
-	Slide_segs_computed = 0;
-
-#ifdef NETWORK
    if (Game_mode & GM_NETWORK)
 	 {
 	  for (i=0;i<MAX_POWERUP_TYPES;i++)
@@ -1189,7 +1403,6 @@ int load_level(const char * filename_passed)
 			PowerupsInMine[i]=0;
 		}
 	 }
-#endif
 
 
 	#ifndef RELEASE
@@ -1213,7 +1426,7 @@ int load_level(const char * filename_passed)
 		if (d_stricmp(p, ".lvl"))
 			strcpy(filename, filename_passed);	// set to what was passed
 		else
-			change_filename_extension(filename, filename, ".rl2");
+			change_filename_extension(filename, filename, "." DXX_LEVEL_FILE_EXTENSION);
 		use_compiled_level = 1;
 	}		
 #endif
@@ -1241,14 +1454,14 @@ int load_level(const char * filename_passed)
 	Assert(sig == MAKE_SIG('P','L','V','L'));
 	(void)sig;
 
+	if (Gamesave_current_version < 5)
+		PHYSFSX_readInt(LoadFile);       //was hostagetext_offset
+#if defined(DXX_BUILD_DESCENT_II)
 	if (Gamesave_current_version >= 8) {    //read dummy data
 		PHYSFSX_readInt(LoadFile);
 		PHYSFSX_readShort(LoadFile);
 		PHYSFSX_readByte(LoadFile);
 	}
-
-	if (Gamesave_current_version < 5)
-		PHYSFSX_readInt(LoadFile);       //was hostagetext_offset
 
 	if (Gamesave_current_version > 1)
 		PHYSFSX_fgets(Current_level_palette,sizeof(Current_level_palette),LoadFile);
@@ -1299,6 +1512,7 @@ int load_level(const char * filename_passed)
 		Secret_return_orient.uvec.y = PHYSFSX_readInt(LoadFile);
 		Secret_return_orient.uvec.z = PHYSFSX_readInt(LoadFile);
 	}
+#endif
 
 	PHYSFSX_fseek(LoadFile,minedata_offset,SEEK_SET);
 	#ifdef EDITOR
@@ -1319,6 +1533,7 @@ int load_level(const char * filename_passed)
 	 */
 	if (Current_mission && !d_stricmp("Descent: First Strike",Current_mission_longname) && !d_stricmp("level19.rdl",filename) && PHYSFS_fileLength(LoadFile) == 136706)
 		Vertices[1905].z =-385*F1_0;
+#if defined(DXX_BUILD_DESCENT_II)
 	/* !!!HACK!!!
 	 * Descent 2 - Level 12: MAGNACORE STATION has a segment (104) with illegal dimensions.
 	 * HACK to fix this by moving the Vertex and fixing the associated Normals.
@@ -1347,6 +1562,7 @@ int load_level(const char * filename_passed)
 			Segments[104].sides[2].normals[1].z = -18688;
 			// I feel so dirty now ...
 	}
+#endif
 
 	if (mine_err == -1) {   //error!!
 		PHYSFS_close(LoadFile);
@@ -1365,9 +1581,24 @@ int load_level(const char * filename_passed)
 
 	PHYSFS_close( LoadFile );
 
+#if defined(DXX_BUILD_DESCENT_II)
 	set_ambient_sound_flags();
+#endif
 
 	#ifdef EDITOR
+#if defined(DXX_BUILD_DESCENT_I)
+	//If an old version, ask the use if he wants to save as new version
+	if (((LEVEL_FILE_VERSION>1) && Gamesave_current_version<LEVEL_FILE_VERSION) || mine_err==1 || game_err==1) {
+		char  ErrorMessage[200];
+
+		sprintf( ErrorMessage, "You just loaded a old version level.  Would\n"
+						"you like to save it as a current version level?");
+
+		gr_palette_load(gr_palette);
+		if (nm_messagebox( NULL, 2, "Don't Save", "Save", ErrorMessage )==1)
+			save_level(filename);
+	}
+#elif defined(DXX_BUILD_DESCENT_II)
 	//If a Descent 1 level and the Descent 1 pig isn't present, pretend it's a Descent 2 level.
 	if (EditorWindow && (Gamesave_current_version <= 3) && !d1_pig_present)
 	{
@@ -1379,6 +1610,7 @@ int load_level(const char * filename_passed)
 
 		Gamesave_current_version = LEVEL_FILE_VERSION;
 	}
+#endif
 	#endif
 
 	#ifdef EDITOR
@@ -1427,15 +1659,21 @@ int create_new_mine(void)
 	
 	// Clear refueling center code
 	fuelcen_reset();
-	//	hostage_init_all();
+#if defined(DXX_BUILD_DESCENT_I)
+	hostage_init_all();
+#endif
 	
 	init_all_vertices();
 	
 	Current_level_num = 0;		//0 means not a real level
 	Current_level_name[0] = 0;
+#if defined(DXX_BUILD_DESCENT_I)
+	Gamesave_current_version = LEVEL_FILE_VERSION;
+#elif defined(DXX_BUILD_DESCENT_II)
 	Gamesave_current_version = GAME_VERSION;
 	
 	strcpy(Current_level_palette, DEFAULT_LEVEL_PALETTE);
+#endif
 	
 	Cur_object_index = -1;
 	reset_objects(1);		//just one object, the player
@@ -1486,7 +1724,8 @@ int create_new_mine(void)
 int	Errors_in_mine;
 
 // -----------------------------------------------------------------------------
-int compute_num_delta_light_records(void)
+#if defined(DXX_BUILD_DESCENT_II)
+static int compute_num_delta_light_records(void)
 {
 	int	i;
 	int	total = 0;
@@ -1498,14 +1737,19 @@ int compute_num_delta_light_records(void)
 	return total;
 
 }
+#endif
 
 // -----------------------------------------------------------------------------
 // Save game
 int save_game_data(PHYSFS_file *SaveFile)
 {
+#if defined(DXX_BUILD_DESCENT_I)
+	short game_top_fileinfo_version = Gamesave_current_version >= 5 ? 31 : GAME_VERSION;
+#elif defined(DXX_BUILD_DESCENT_II)
 	short game_top_fileinfo_version = Gamesave_current_version >= 5 ? 31 : 25;
 	int	dl_indices_offset=0, delta_light_offset=0;
 	int num_delta_lights=0;
+#endif
 	int  player_offset=0, object_offset=0, walls_offset=0, doors_offset=0, triggers_offset=0, control_offset=0, matcen_offset=0; //, links_offset;
 	int offset_offset=0, end_offset=0;
 	int i;
@@ -1531,6 +1775,7 @@ int save_game_data(PHYSFS_file *SaveFile)
 	WRITE_HEADER_ENTRY(control_center_triggers, 1);
 	WRITE_HEADER_ENTRY(matcen_info, Num_robot_centers);
 
+#if defined(DXX_BUILD_DESCENT_II)
 	if (game_top_fileinfo_version >= 29)
 	{
 		WRITE_HEADER_ENTRY(dl_index, Num_static_lights);
@@ -1539,11 +1784,14 @@ int save_game_data(PHYSFS_file *SaveFile)
 
 	// Write the mine name
 	if (game_top_fileinfo_version >= 31)
+#endif
 		PHYSFSX_printf(SaveFile, "%s\n", Current_level_name);
+#if defined(DXX_BUILD_DESCENT_II)
 	else if (game_top_fileinfo_version >= 14)
 		PHYSFSX_writeString(SaveFile, Current_level_name);
 
 	if (game_top_fileinfo_version >= 19)
+#endif
 	{
 		PHYSFS_writeSLE16(SaveFile, N_polygon_models);
 		PHYSFS_write(SaveFile, Pof_names, sizeof(*Pof_names), N_polygon_models);
@@ -1596,6 +1844,7 @@ int save_game_data(PHYSFS_file *SaveFile)
 		matcen_info_write(&RobotCenters[i], game_top_fileinfo_version, SaveFile);
 
 	//================ SAVE DELTA LIGHT INFO ===============
+#if defined(DXX_BUILD_DESCENT_II)
 	if (game_top_fileinfo_version >= 29)
 	{
 		dl_indices_offset = PHYSFS_tell(SaveFile);
@@ -1606,6 +1855,7 @@ int save_game_data(PHYSFS_file *SaveFile)
 		for (i = 0; i < num_delta_lights; i++)
 			delta_light_write(&Delta_lights[i], SaveFile);
 	}
+#endif
 
 	//============= SAVE OFFSETS ===============
 
@@ -1622,11 +1872,13 @@ int save_game_data(PHYSFS_file *SaveFile)
 	WRITE_OFFSET(triggers, 6);
 	WRITE_OFFSET(control, 3);
 	WRITE_OFFSET(matcen, 3);
+#if defined(DXX_BUILD_DESCENT_II)
 	if (game_top_fileinfo_version >= 29)
 	{
 		WRITE_OFFSET(dl_indices, 3);
 		WRITE_OFFSET(delta_light, 0);
 	}
+#endif
 
 	// Go back to end of data
 	PHYSFS_seek(SaveFile, end_offset);
@@ -1664,9 +1916,11 @@ static int save_level_sub(const char * filename, int compiled_version)
 	}
 //	else
 	{
+#if defined(DXX_BUILD_DESCENT_II)
 		if (Gamesave_current_version > 3)
 			change_filename_extension(temp_filename, filename, "." D2X_LEVEL_FILE_EXTENSION);
 		else
+#endif
 			change_filename_extension(temp_filename, filename, "." D1X_LEVEL_FILE_EXTENSION);
 	}
 
@@ -1705,9 +1959,14 @@ static int save_level_sub(const char * filename, int compiled_version)
 	//save placeholders
 	PHYSFS_writeSLE32(SaveFile, minedata_offset);
 	PHYSFS_writeSLE32(SaveFile, gamedata_offset);
+#if defined(DXX_BUILD_DESCENT_I)
+	int hostagetext_offset = 0;
+	PHYSFS_writeSLE32(SaveFile, hostagetext_offset);
+#endif
 
 	//Now write the damn data
 
+#if defined(DXX_BUILD_DESCENT_II)
 	if (Gamesave_current_version >= 8)
 	{
 		//write the version 8 data (to make file unreadable by 1.0 & 1.1)
@@ -1744,6 +2003,7 @@ static int save_level_sub(const char * filename, int compiled_version)
 		PHYSFSX_writeVector(SaveFile, &Secret_return_orient.fvec);
 		PHYSFSX_writeVector(SaveFile, &Secret_return_orient.uvec);
 	}
+#endif
 
 	minedata_offset = PHYSFS_tell(SaveFile);
 #if 0	// only save compiled mine data
@@ -1754,13 +2014,19 @@ static int save_level_sub(const char * filename, int compiled_version)
 		save_mine_data_compiled(SaveFile);
 	gamedata_offset = PHYSFS_tell(SaveFile);
 	save_game_data(SaveFile);
+#if defined(DXX_BUILD_DESCENT_I)
+	hostagetext_offset = PHYSFS_tell(SaveFile);
+#endif
 
 	PHYSFS_seek(SaveFile, sizeof(int) + sizeof(Gamesave_current_version));
 	PHYSFS_writeSLE32(SaveFile, minedata_offset);
 	PHYSFS_writeSLE32(SaveFile, gamedata_offset);
-
+#if defined(DXX_BUILD_DESCENT_I)
+	PHYSFS_writeSLE32(SaveFile, hostagetext_offset);
+#elif defined(DXX_BUILD_DESCENT_II)
 	if (Gamesave_current_version < 5)
 		PHYSFS_writeSLE32(SaveFile, PHYSFS_fileLength(SaveFile));
+#endif
 
 	//==================== CLOSE THE FILE =============================
 	PHYSFS_close(SaveFile);
@@ -1841,6 +2107,7 @@ void dump_mine_info(void)
 
 #endif
 
+#if defined(DXX_BUILD_DESCENT_II)
 #ifdef EDITOR
 
 void do_load_save_levels(int save)
@@ -1870,4 +2137,5 @@ void do_load_save_levels(int save)
 
 }
 
+#endif
 #endif
