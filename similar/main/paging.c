@@ -17,8 +17,6 @@ COPYRIGHT 1993-1999 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
  *
  */
 
-//#define PSX_BUILD_TOOLS
-
 #include <stdio.h>
 #include <stdlib.h>
 #include <math.h>
@@ -104,10 +102,6 @@ void paging_touch_model( int modelnum )
 	for (i=0;i<pm->n_textures;i++)	{
 		PIGGY_PAGE_IN( ObjBitmaps[ObjBitmapPtrs[pm->first_texture+i]] );
 		paging_touch_object_effects( ObjBitmapPtrs[pm->first_texture+i] );
-		#ifdef PSX_BUILD_TOOLS
-		// cmp added
-		paging_touch_object_effects( pm->first_texture+i );
-		#endif
 	}
 }
 
@@ -245,40 +239,19 @@ void paging_touch_side( segment * segp, int sidenum )
 	} else	{
 		PIGGY_PAGE_IN( Textures[tmap1] );
 	}
-
-	// PSX STUFF
-	#ifdef PSX_BUILD_TOOLS
-		// If there is water on the level, then force the water splash into memory
-		if(!(TmapInfo[tmap1].flags & TMI_VOLATILE) && (TmapInfo[tmap1].flags & TMI_WATER)) {
-			bitmap_index Splash;
-			Splash.index = 1098;
-			PIGGY_PAGE_IN(Splash);
-			Splash.index = 1099;
-			PIGGY_PAGE_IN(Splash);
-			Splash.index = 1100;
-			PIGGY_PAGE_IN(Splash);
-			Splash.index = 1101;
-			PIGGY_PAGE_IN(Splash);
-			Splash.index = 1102;
-			PIGGY_PAGE_IN(Splash);
-		}
-	#endif
-
 }
 
 void paging_touch_robot_maker( segment * segp )
 {
-	segment2	*seg2p = &Segment2s[segp-Segments];
-
-	if ( seg2p->special == SEGMENT_IS_ROBOTMAKER )	{
+	if ( segp->special == SEGMENT_IS_ROBOTMAKER )	{
 		paging_touch_vclip(&Vclip[VCLIP_MORPHING_ROBOT]);
 			int	i;
 			uint	flags;
 			int	robot_index;
 
-			for (i=0;i<2;i++) {
+			for (i=0;i<sizeof(RobotCenters[0].robot_flags)/sizeof(RobotCenters[0].robot_flags[0]);i++) {
 				robot_index = i*32;
-				flags = RobotCenters[seg2p->matcen_num].robot_flags[i];
+				flags = RobotCenters[segp->matcen_num].robot_flags[i];
 				while (flags) {
 					if (flags & 1)	{
 						// Page in robot_index
@@ -296,9 +269,8 @@ void paging_touch_segment(segment * segp)
 {
 	int sn;
 	int objnum;
-	segment2	*seg2p = &Segment2s[segp-Segments];
 
-	if ( seg2p->special == SEGMENT_IS_ROBOTMAKER )	
+	if ( segp->special == SEGMENT_IS_ROBOTMAKER )
 		paging_touch_robot_maker(segp);
 
 //	paging_draw_orb();
@@ -337,6 +309,9 @@ void paging_touch_all()
 	
 	stop_time();
 
+#if defined(DXX_BUILD_DESCENT_I)
+	show_boxed_message(TXT_LOADING, 0);
+#endif
 	for (s=0; s<=Highest_segment_index; s++)	{
 		paging_touch_segment( &Segments[s] );
 	}	
@@ -364,100 +339,6 @@ void paging_touch_all()
 	}
 	paging_touch_vclip( &Vclip[VCLIP_PLAYER_APPEARANCE] );
 	paging_touch_vclip( &Vclip[VCLIP_POWERUP_DISAPPEARANCE] );
-
-
-#ifdef PSX_BUILD_TOOLS
-
-	//PSX STUFF
-	paging_touch_walls();
-	for(s=0; s<=Highest_object_index; s++) {
-		paging_touch_object(&Objects[s]);
-	}
-
-
-	{
-		char * p;
-		extern int Current_level_num;
-		extern ushort GameBitmapXlat[MAX_BITMAP_FILES];
-		short Used[MAX_BITMAP_FILES];
-		PHYSFS_file * fp;
-		char fname[128];
-		int i;
-
-		if (Current_level_num<0)                //secret level
-			strcpy( fname, Secret_level_names[-Current_level_num-1] );
-		else                                    //normal level
-			strcpy( fname, Level_names[Current_level_num-1] );
-		p = strchr( fname, '.' );
-		if ( p ) *p = 0;
-		strcat( fname, ".pag" );
-
-		fp = PHYSFSX_openWriteBuffered( fname );
-		for (i=0; i<MAX_BITMAP_FILES;i++ ) {
-			Used[i] = 0;
-		}
-		for (i=0; i<MAX_BITMAP_FILES;i++ ) {
-			Used[GameBitmapXlat[i]]++;
-		}
-
-		//cmp added so that .damage bitmaps are included for paged-in lights of the current level
-		for (i=0; i<MAX_TEXTURES;i++) {
-			if(Textures[i].index > 0 && Textures[i].index < MAX_BITMAP_FILES &&
-				Used[Textures[i].index] > 0 &&
-				TmapInfo[i].destroyed > 0 && TmapInfo[i].destroyed < MAX_BITMAP_FILES) {
-				Used[Textures[TmapInfo[i].destroyed].index] += 1;
-				PIGGY_PAGE_IN(Textures[TmapInfo[i].destroyed]);
-
-			}
-		}
-
-		//	Force cockpit to be paged in.
-		{
-			bitmap_index bonk;
-			bonk.index = 109;
-			PIGGY_PAGE_IN(bonk);
-		}
-
-		// Force in the frames for markers
-		{
-			bitmap_index bonk2;
-			bonk2.index = 2014;
-			PIGGY_PAGE_IN(bonk2);
-			bonk2.index = 2015;
-			PIGGY_PAGE_IN(bonk2);
-			bonk2.index = 2016;
-			PIGGY_PAGE_IN(bonk2);
-			bonk2.index = 2017;
-			PIGGY_PAGE_IN(bonk2);
-			bonk2.index = 2018;
-			PIGGY_PAGE_IN(bonk2);
-		}
-
-		for (i=0; i<MAX_BITMAP_FILES;i++ ) {
-			int paged_in = 1;
-			// cmp debug
-			//piggy_get_bitmap_name(i,fname);
-
-			if (GameBitmaps[i].bm_flags & BM_FLAG_PAGED_OUT)
-				paged_in = 0;
-
-//                      if (GameBitmapXlat[i]!=i)
-//                              paged_in = 0;
-
-			if ( !Used[i] )
-				paged_in = 0;
-			if ( (i==47) || (i==48) )               // Mark red mplayer ship textures as paged in.
-				paged_in = 1;
-	
-			if ( !paged_in )
-				PHYSFSX_printf( fp, "0,\t// Bitmap %d (%s)\n", i, "test\0"); // cmp debug fname );
-			else
-				PHYSFSX_printf( fp, "1,\t// Bitmap %d (%s)\n", i, "test\0"); // cmp debug fname );
-		}
-
-		PHYSFS_close(fp);
-	}
-#endif
 
 	start_time();
 	reset_cockpit();		//force cockpit redraw next time
