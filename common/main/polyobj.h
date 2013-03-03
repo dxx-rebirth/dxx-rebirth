@@ -30,7 +30,11 @@ COPYRIGHT 1993-1999 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 #endif
 #include "piggy.h"
 
+#if defined(DXX_BUILD_DESCENT_I)
+#define MAX_POLYGON_MODELS 85
+#elif defined(DXX_BUILD_DESCENT_II)
 #define MAX_POLYGON_MODELS 200
+#endif
 #define MAX_SUBMODELS 10
 
 //used to describe a polygon model
@@ -84,18 +88,47 @@ int read_model_guns(char *filename,vms_vector *gun_points, vms_vector *gun_dirs,
 // canvas.
 void draw_model_picture(int mn,vms_angvec *orient_angles);
 
+#if defined(DXX_BUILD_DESCENT_I)
+#define MAX_POLYOBJ_TEXTURES 50
+#elif defined(DXX_BUILD_DESCENT_II)
 // free up a model, getting rid of all its memory
 void free_model(polymodel *po);
 
 #define MAX_POLYOBJ_TEXTURES 100
+#endif
 extern grs_bitmap *texture_list[MAX_POLYOBJ_TEXTURES];
 extern bitmap_index texture_list_index[MAX_POLYOBJ_TEXTURES];
 extern g3s_point robot_points[];
 
+#if defined(DXX_BUILD_DESCENT_I)
+#ifdef WORDS_NEED_ALIGNMENT
+/*
+ * A chunk struct (as used for alignment) contains all relevant data
+ * concerning a piece of data that may need to be aligned.
+ * To align it, we need to copy it to an aligned position,
+ * and update all pointers  to it.
+ * (Those pointers are actually offsets
+ * relative to start of model_data) to it.
+ */
+typedef struct chunk {
+	ubyte *old_base; // where the offset sets off from (relative to beginning of model_data)
+	ubyte *new_base; // where the base is in the aligned structure
+	short offset; // how much to add to base to get the address of the offset
+	short correction; // how much the value of the offset must be shifted for alignment
+} chunk;
+#define MAX_CHUNKS 100 // increase if insufficent
+/*
+ * finds what chunks the data points to, adds them to the chunk_list, 
+ * and returns the length of the current chunk
+ */
+int get_chunks(ubyte *data, ubyte *new_data, chunk *list, int *no);
+#endif //def WORDS_NEED_ALIGNMENT
+#elif defined(DXX_BUILD_DESCENT_II)
 /*
  * reads a polymodel structure from a PHYSFS_file
  */
 extern void polymodel_read(polymodel *pm, PHYSFS_file *fp);
+#endif
 
 /*
  * reads n polymodel structs from a PHYSFS_file
