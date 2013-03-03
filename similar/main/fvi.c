@@ -821,14 +821,19 @@ static int fvi_sub(vms_vector *intp,int *ints,const vms_vector *p0,int startseg,
 			 	 		(CollisionResult[Objects[objnum].type][Objects[thisobjnum].type] == RESULT_NOTHING ))) {
 				int fudged_rad = rad;
 
+#if defined(DXX_BUILD_DESCENT_II)
 				//	If this is a powerup, don't do collision if flag FQ_IGNORE_POWERUPS is set
 				if (Objects[objnum].type == OBJ_POWERUP)
 					if (flags & FQ_IGNORE_POWERUPS)
 						continue;
+#endif
 
 				//	If this is a robot:robot collision, only do it if both of them have attack_type != 0 (eg, green guy)
 				if (Objects[thisobjnum].type == OBJ_ROBOT)
 					if (Objects[objnum].type == OBJ_ROBOT)
+#if defined(DXX_BUILD_DESCENT_I)
+						if (!(Robot_info[Objects[objnum].id].attack_type && Robot_info[Objects[thisobjnum].id].attack_type))
+#endif
 						// -- MK: 11/18/95, 4claws glomming together...this is easy.  -- if (!(Robot_info[Objects[objnum].id].attack_type && Robot_info[Objects[thisobjnum].id].attack_type))
 							continue;
 
@@ -920,7 +925,12 @@ static int fvi_sub(vms_vector *intp,int *ints,const vms_vector *p0,int startseg,
 						}
 
 						if ((wid_flag & WID_FLY_FLAG) ||
-							(((wid_flag & WID_RENDER_FLAG) && (wid_flag & WID_RENDPAST_FLAG)) &&
+							(
+#if defined(DXX_BUILD_DESCENT_I)
+								(wid_flag == WID_TRANSPARENT_WALL) && 
+#elif defined(DXX_BUILD_DESCENT_II)
+								((wid_flag & WID_RENDER_FLAG) && (wid_flag & WID_RENDPAST_FLAG)) &&
+#endif
 								((flags & FQ_TRANSWALL) || (flags & FQ_TRANSPOINT && check_trans_wall(&hit_point,seg,side,face))))) {
 
 							int newsegnum;
@@ -1144,16 +1154,16 @@ void find_hitpoint_uv(fix *u,fix *v,fix *l,const vms_vector *pnt,const segment *
 	//2. compute u,v of intersection point
 
 	//vec from 1 -> 0
-	pnt_array = (vms_vector_array *)&Vertices[vertex_list[facenum*3+1]];
+	pnt_array = (const vms_vector_array *)&Vertices[vertex_list[facenum*3+1]];
 	p1.i = pnt_array->xyz[ii];
 	p1.j = pnt_array->xyz[jj];
 
-	pnt_array = (vms_vector_array *)&Vertices[vertex_list[facenum*3+0]];
+	pnt_array = (const vms_vector_array *)&Vertices[vertex_list[facenum*3+0]];
 	vec0.i = pnt_array->xyz[ii] - p1.i;
 	vec0.j = pnt_array->xyz[jj] - p1.j;
 
 	//vec from 1 -> 2
-	pnt_array = (vms_vector_array *)&Vertices[vertex_list[facenum*3+2]];
+	pnt_array = (const vms_vector_array *)&Vertices[vertex_list[facenum*3+2]];
 	vec1.i = pnt_array->xyz[ii] - p1.i;
 	vec1.j = pnt_array->xyz[jj] - p1.j;
 
@@ -1166,7 +1176,11 @@ void find_hitpoint_uv(fix *u,fix *v,fix *l,const vms_vector *pnt,const segment *
 	//@@checkv.j = checkp.j - p1.j;
 
 	k1 = -fixdiv(cross(&checkp,&vec0) + cross(&vec0,&p1),cross(&vec0,&vec1));
+#if defined(DXX_BUILD_DESCENT_I)
+	if (vec0.i)
+#elif defined(DXX_BUILD_DESCENT_II)
 	if (abs(vec0.i) > abs(vec0.j))
+#endif
 		k0 = fixdiv(fixmul(-k1,vec1.i) + checkp.i - p1.i,vec0.i);
 	else
 		k0 = fixdiv(fixmul(-k1,vec1.j) + checkp.j - p1.j,vec0.j);
@@ -1176,9 +1190,12 @@ void find_hitpoint_uv(fix *u,fix *v,fix *l,const vms_vector *pnt,const segment *
 
 	*u = uvls[1].u + fixmul( k0,uvls[0].u - uvls[1].u) + fixmul(k1,uvls[2].u - uvls[1].u);
 	*v = uvls[1].v + fixmul( k0,uvls[0].v - uvls[1].v) + fixmul(k1,uvls[2].v - uvls[1].v);
-
+#if defined(DXX_BUILD_DESCENT_I)
+	(void)l;
+#elif defined(DXX_BUILD_DESCENT_II)
 	if (l)
 		*l = uvls[1].l + fixmul( k0,uvls[0].l - uvls[1].l) + fixmul(k1,uvls[2].l - uvls[1].l);
+#endif
 }
 
 //check if a particular point on a wall is a transparent pixel
@@ -1190,7 +1207,9 @@ int check_trans_wall(vms_vector *pnt,segment *seg,int sidenum,int facenum)
 	int bmx,bmy;
 	fix u,v;
 
-//	Assert(WALL_IS_DOORWAY(seg,sidenum) == WID_TRANSPARENT_WALL);
+#if defined(DXX_BUILD_DESCENT_I)
+	Assert(WALL_IS_DOORWAY(seg,sidenum) == WID_TRANSPARENT_WALL);
+#endif
 
 	find_hitpoint_uv(&u,&v,NULL,pnt,seg,sidenum,facenum);	//	Don't compute light value.
 
@@ -1211,7 +1230,11 @@ int check_trans_wall(vms_vector *pnt,segment *seg,int sidenum,int facenum)
 //something doesn't work, and you want to make it negative again, you
 //should figure out what's going on.
 
+#if defined(DXX_BUILD_DESCENT_I)
+	return (gr_gpixel (bm, bmx, bmy) == 255);
+#elif defined(DXX_BUILD_DESCENT_II)
 	return (bm->bm_data[bmy*bm->bm_w+bmx] == TRANSPARENCY_COLOR);
+#endif
 }
 
 //new function for Mike
