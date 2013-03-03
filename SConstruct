@@ -817,6 +817,7 @@ class DXXProgram(DXXCommon):
 'arch/sdl/key.cpp',
 'arch/sdl/mouse.cpp',
 'arch/sdl/timer.cpp',
+'main/ai.c',
 'main/aipath.cpp',
 'main/automap.cpp',
 'main/cntrlcen.cpp',
@@ -1098,7 +1099,6 @@ class D1XProgram(DXXProgram):
 	__objects_common = DXXCommon.create_lazy_object_property([{
 		'source':[os.path.join(srcdir, f) for f in [
 'iff/iff.c',
-'main/ai.c',
 'main/bm.c',
 'main/bmread.c',
 'main/collide.c',
@@ -1157,7 +1157,6 @@ class D2XProgram(DXXProgram):
 'libmve/mve_audio.c',
 'libmve/mvelib.c',
 'libmve/mveplay.c',
-'main/ai.c',
 'main/bm.c',
 'main/collide.c',
 'main/escort.cpp',
