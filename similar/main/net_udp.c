@@ -4,12 +4,6 @@
  * 
  */
 
-#ifdef HAVE_CONFIG_H
-#include <conf.h>
-#endif
-
-#define PATCH12
-
 #include <stdio.h>
 #include <string.h>
 #include <stdlib.h>
@@ -434,7 +428,11 @@ int udp_tracker_register()
 	pBuf[1] = TRACKER_SYS_VERSION;
 	
 	// Write the game version (d1 = 1, d2 = 2, x = oshiii)
+#if defined(DXX_BUILD_DESCENT_I)
+	pBuf[2] = 0x01;
+#elif defined(DXX_BUILD_DESCENT_II)
 	pBuf[2] = 0x02;
+#endif
 	
 	// Write the port we're running on
 	PUT_INTEL_SHORT( pBuf+3, atoi( UDP_MyPort ) );
@@ -461,8 +459,13 @@ int udp_tracker_reqgames()
 	// Put the opcode
 	pBuf[0] = TRACKER_PKT_GAMELIST;
 	
+#if defined(DXX_BUILD_DESCENT_I)
+// 	// Put the game version (d1)
+	pBuf[1] = 0x01;
+#elif defined(DXX_BUILD_DESCENT_II)
 	// Put the game version (d2)
-	pBuf[1] = 2;
+	pBuf[1] = 0x02;
+#endif
 	
 	// If we're IPv6 ready, send that too
 #ifdef IPv6
@@ -1129,7 +1132,9 @@ int net_udp_endlevel(int *secret)
 
 	int i;
 
+#if defined(DXX_BUILD_DESCENT_II)
 	if (EMULATING_D1)
+#endif
 	{
 		// We do not really check if a player has actually found a secret level... yeah, I am too lazy! So just go there and pretend we did!
 		for (i = 0; i < N_secret_levels; i++)
@@ -1141,8 +1146,10 @@ int net_udp_endlevel(int *secret)
 			}
 		}
 	}
+#if defined(DXX_BUILD_DESCENT_II)
 	else
 		*secret = 0;
+#endif
 
 	Network_status = NETSTAT_ENDLEVEL; // We are between levels
 	net_udp_listen();
@@ -1280,7 +1287,9 @@ net_udp_new_player(UDP_sequence_packet *their)
 	multi_make_ghost_player(pnum);
 
 	multi_send_score();
+#if defined(DXX_BUILD_DESCENT_II)
 	multi_sort_kill_list();
+#endif
 
 	net_udp_noloss_clear_mdata_got(pnum);
 }
@@ -1453,15 +1462,30 @@ int net_udp_objnum_is_past(int objnum)
 		return 0;
 }
 
+#if defined(DXX_BUILD_DESCENT_I)
+void net_udp_send_door_updates(void)
+{
+	// Send door status when new player joins
+	
+	int i;
+
+	for (i = 0; i < Num_walls; i++)
+	{
+		if ((Walls[i].type == WALL_DOOR) && ((Walls[i].state == WALL_DOOR_OPENING) || (Walls[i].state == WALL_DOOR_WAITING)))
+			multi_send_door_open(Walls[i].segnum, Walls[i].sidenum,0);
+		else if ((Walls[i].type == WALL_BLASTABLE) && (Walls[i].flags & WALL_BLASTED))
+			multi_send_door_open(Walls[i].segnum, Walls[i].sidenum,0);
+		else if ((Walls[i].type == WALL_BLASTABLE) && (Walls[i].hps != WALL_HPS))
+			multi_send_hostage_door_status(i);
+	}
+
+}
+#elif defined(DXX_BUILD_DESCENT_II)
 void net_udp_send_door_updates(int pnum)
 {
 	// Send door status when new player joins
 	
 	int i;
-   
-   pnum=pnum;
-
-//   Assert (pnum>-1 && pnum<N_players);
 
 	for (i = 0; i < Num_walls; i++)
 	{
@@ -1475,6 +1499,7 @@ void net_udp_send_door_updates(int pnum)
 			multi_send_wall_status_specific(pnum,i,Walls[i].type,Walls[i].flags,Walls[i].state);
 	}
 }
+#endif
 
 void net_udp_process_monitor_vector(int vector)
 {
@@ -1508,7 +1533,11 @@ int net_udp_create_monitor_vector(void)
 	int i, j, k;
 	int num_blown_bitmaps = 0;
 	int monitor_num = 0;
-	#define NUM_BLOWN_BITMAPS 20
+#if defined(DXX_BUILD_DESCENT_I)
+#define NUM_BLOWN_BITMAPS 7
+#elif defined(DXX_BUILD_DESCENT_II)
+#define NUM_BLOWN_BITMAPS 20
+#endif
 	int blown_bitmaps[NUM_BLOWN_BITMAPS];
 	int vector = 0;
 	segment *seg;
@@ -1520,8 +1549,8 @@ int net_udp_create_monitor_vector(void)
 				if (blown_bitmaps[j] == Effects[i].dest_bm_num)
 					break;
 			if (j == num_blown_bitmaps) {
+				Assert(num_blown_bitmaps < (sizeof(blown_bitmaps) / sizeof(blown_bitmaps[0])));
 				blown_bitmaps[num_blown_bitmaps++] = Effects[i].dest_bm_num;
-				Assert(num_blown_bitmaps < NUM_BLOWN_BITMAPS);
 			}
 		}
 	}
@@ -1619,8 +1648,11 @@ void net_udp_send_objects(void)
 	{
 		if ((Objects[i].type != OBJ_POWERUP) && (Objects[i].type != OBJ_PLAYER) &&
 				(Objects[i].type != OBJ_CNTRLCEN) && (Objects[i].type != OBJ_GHOST) &&
-				(Objects[i].type != OBJ_ROBOT) && (Objects[i].type != OBJ_HOSTAGE) &&
-				!(Objects[i].type==OBJ_WEAPON && Objects[i].id==PMINE_ID))
+				(Objects[i].type != OBJ_ROBOT) && (Objects[i].type != OBJ_HOSTAGE)
+#if defined(DXX_BUILD_DESCENT_II)
+				&& !(Objects[i].type==OBJ_WEAPON && Objects[i].id==PMINE_ID)
+#endif
+				)
 			continue;
 		if ((Network_send_object_mode == 0) && ((object_owner[i] != -1) && (object_owner[i] != player_num)))
 			continue;
@@ -1684,7 +1716,11 @@ void net_udp_send_objects(void)
 			Network_send_objects = 0;
 			obj_count = 0;
 
+#if defined(DXX_BUILD_DESCENT_I)
+			Network_sending_extras=3; // start to send extras
+#elif defined(DXX_BUILD_DESCENT_II)
 			Network_sending_extras=9; // start to send extras
+#endif
 			VerifyPlayerJoined = Player_joining_extras = player_num;
 
 			return;
@@ -1850,6 +1886,9 @@ void net_udp_send_rejoin_sync(int player_num)
 	Netgame.monitor_vector = net_udp_create_monitor_vector();
 
 	net_udp_send_game_info(UDP_sync_player.player.protocol.udp.addr, UPID_SYNC);
+#if defined(DXX_BUILD_DESCENT_I)
+	net_udp_send_door_updates();
+#endif
 
 	return;
 }
@@ -1973,6 +2012,7 @@ void net_udp_update_netgame(void)
 		if (Players[i].connected)
 			Netgame.numconnected++;
 
+#if defined(DXX_BUILD_DESCENT_II)
 // This is great: D2 1.0 and 1.1 ignore upper part of the game_flags field of
 //	the lite_info struct when you're sitting on the join netgame screen.  We can
 //	"sneak" Hoard information into this field.  This is better than sending 
@@ -1991,7 +2031,7 @@ void net_udp_update_netgame(void)
 			Netgame.game_flag.team_hoard = 0;
 		}
 	}
-	
+#endif
 	if (Network_status == NETSTAT_STARTING)
 		return;
 
@@ -2006,8 +2046,10 @@ void net_udp_update_netgame(void)
 
 		Netgame.killed[i] = Players[i].net_killed_total;
 		Netgame.player_kills[i] = Players[i].net_kills_total;
+#if defined(DXX_BUILD_DESCENT_II)
 		Netgame.player_score[i] = Players[i].score;
 		Netgame.player_flags[i] = (Players[i].flags & (PLAYER_FLAGS_BLUE_KEY | PLAYER_FLAGS_RED_KEY | PLAYER_FLAGS_GOLD_KEY));
+#endif
 	}
 	Netgame.team_kills[0] = team_kills[0];
 	Netgame.team_kills[1] = team_kills[1];
@@ -2359,7 +2401,7 @@ void net_udp_process_game_info(ubyte *data, int data_len, struct _sockaddr game_
 		}
 		
 		memcpy(&Active_udp_games[i], &recv_game, sizeof(UDP_netgame_info_lite));
-		
+#if defined(DXX_BUILD_DESCENT_II)
 		// See if this is really a Hoard game
 		// If so, adjust all the data accordingly
 		if (HoardEquipped())
@@ -2377,7 +2419,7 @@ void net_udp_process_game_info(ubyte *data, int data_len, struct _sockaddr game_
 					Active_udp_games[i].game_status=NETSTAT_STARTING;
 			}
 		}
-		
+#endif
 		if (i == num_active_udp_games)
 			num_active_udp_games++;
 
@@ -2847,7 +2889,9 @@ int net_udp_start_poll( newmenu *menu, d_event *event, void *userdata )
 	{
 		// One got removed...
 
+#if defined(DXX_BUILD_DESCENT_II)
       digi_play_sample (SOUND_HUD_KILL,F1_0);
+#endif
   
 		for (i=0; i<N_players; i++ )
 		{
@@ -2878,9 +2922,15 @@ int net_udp_start_poll( newmenu *menu, d_event *event, void *userdata )
 #define DXX_UDP_MENU_TRACKER_OPTION(VERB)
 #endif
 
+#if defined(DXX_BUILD_DESCENT_I)
+#define D2X_UDP_MENU_OPTIONS(VERB)	\
+
+#elif defined(DXX_BUILD_DESCENT_II)
 #define D2X_UDP_MENU_OPTIONS(VERB)	\
 	DXX_##VERB##_CHECK("Allow Marker camera views", opt_marker_view, Netgame.Allow_marker_view)	\
 	DXX_##VERB##_CHECK("Indestructible lights", opt_light, Netgame.AlwaysLighting)	\
+
+#endif
 
 #define DXX_UDP_MENU_OPTIONS(VERB)	\
 	DXX_##VERB##_SLIDER(TXT_DIFFICULTY, opt_difficulty, Netgame.difficulty, 0, (NDL-1))	\
@@ -3024,7 +3074,10 @@ int net_udp_more_options_handler( newmenu *menu, d_event *event, void *userdata 
 typedef struct param_opt
 {
 	int start_game, name, level, mode, mode_end, moreopts;
-	int closed, refuse, maxnet, anarchy, team_anarchy, robot_anarchy, coop, capture, hoard, team_hoard, bounty;
+	int closed, refuse, maxnet, anarchy, team_anarchy, robot_anarchy, coop, bounty;
+#if defined(DXX_BUILD_DESCENT_II)
+	int capture, hoard, team_hoard;
+#endif
 } param_opt;
 
 int net_udp_start_game(void);
@@ -3037,12 +3090,21 @@ int net_udp_game_param_handler( newmenu *menu, d_event *event, param_opt *opt )
 	switch (event->type)
 	{
 		case EVENT_NEWMENU_CHANGED:
+#if defined(DXX_BUILD_DESCENT_I)
+			if (citem == opt->team_anarchy)
+			{
+				menus[opt->closed].value = 1;
+				menus[opt->closed-1].value = 0;
+				menus[opt->closed+1].value = 0;
+			}
+#elif defined(DXX_BUILD_DESCENT_II)
 			if (((HoardEquipped() && (citem == opt->team_hoard)) || ((citem == opt->team_anarchy) || (citem == opt->capture))) && !menus[opt->closed].value && !menus[opt->refuse].value) 
 			{
 				menus[opt->refuse].value = 1;
 				menus[opt->refuse-1].value = 0;
 				menus[opt->refuse-2].value = 0;
 			}
+#endif
 			
 			if (menus[opt->coop].value)
 			{
@@ -3081,7 +3143,12 @@ int net_udp_game_param_handler( newmenu *menu, d_event *event, param_opt *opt )
 			if (citem == opt->level)
 			{
 				char *slevel = menus[opt->level].text;
-				Netgame.levelnum = atoi(slevel);
+#if defined(DXX_BUILD_DESCENT_I)
+				if (!d_strnicmp(slevel, "s", 1))
+					Netgame.levelnum = -atoi(slevel+1);
+				else
+#endif
+					Netgame.levelnum = atoi(slevel);
 			}
 			
 			if (citem == opt->maxnet)
@@ -3098,6 +3165,7 @@ int net_udp_game_param_handler( newmenu *menu, d_event *event, param_opt *opt )
 				else if (menus[opt->team_anarchy].value) {
 					Netgame.gamemode = NETGAME_TEAM_ANARCHY;
 				}
+#if defined(DXX_BUILD_DESCENT_II)
 		 		else if (ANARCHY_ONLY_MISSION) {
 					int i = 0;
 		 			nm_messagebox(NULL, 1, TXT_OK, TXT_ANARCHY_ONLY_MISSION);
@@ -3106,16 +3174,19 @@ int net_udp_game_param_handler( newmenu *menu, d_event *event, param_opt *opt )
 					menus[opt->anarchy].value = 1;
 		 			return 0;
 		 		}
+#endif
 				else if ( menus[opt->robot_anarchy].value ) 
 					Netgame.gamemode = NETGAME_ROBOT_ANARCHY;
 				else if ( menus[opt->coop].value ) 
 					Netgame.gamemode = NETGAME_COOPERATIVE;
+#if defined(DXX_BUILD_DESCENT_II)
 				else if (menus[opt->capture].value)
 					Netgame.gamemode = NETGAME_CAPTURE_FLAG;
 				else if (HoardEquipped() && menus[opt->hoard].value)
 					Netgame.gamemode = NETGAME_HOARD;
 				else if (HoardEquipped() && menus[opt->team_hoard].value)
 					Netgame.gamemode = NETGAME_TEAM_HOARD;
+#endif
 				else if( menus[opt->bounty].value )
 					Netgame.gamemode = NETGAME_BOUNTY;
 				else Int3(); // Invalid mode -- see Rob
@@ -3126,7 +3197,11 @@ int net_udp_game_param_handler( newmenu *menu, d_event *event, param_opt *opt )
 			break;
 			
 		case EVENT_NEWMENU_SELECTED:
+#if defined(DXX_BUILD_DESCENT_I)
+			if ((Netgame.levelnum < Last_secret_level) || (Netgame.levelnum > Last_level) || (Netgame.levelnum == 0))
+#elif defined(DXX_BUILD_DESCENT_II)
 			if ((Netgame.levelnum < 1) || (Netgame.levelnum > Last_level))
+#endif
 			{
 				char *slevel = menus[opt->level].text;
 				nm_messagebox(TXT_ERROR, 1, TXT_OK, TXT_LEVEL_OUT_RANGE );
@@ -3177,7 +3252,11 @@ int net_udp_setup_game()
 	Netgame.max_numplayers = MAX_PLAYERS;
 	Netgame.KillGoal=0;
 	Netgame.PlayTimeAllowed=0;
+#if defined(DXX_BUILD_DESCENT_I)
+	Netgame.RefusePlayers=0;
+#elif defined(DXX_BUILD_DESCENT_II)
 	Netgame.Allow_marker_view=1;
+#endif
 	Netgame.difficulty=PlayerCfg.DefaultDifficulty;
 	Netgame.PacketsPerSec=10;
 	Netgame.ShortPackets=1;
@@ -3200,8 +3279,10 @@ int net_udp_setup_game()
 
 	if (Netgame.gamemode == NETGAME_COOPERATIVE) // did we restore Coop as default? then fix max players right now!
 		Netgame.max_numplayers = 4;
+#if defined(DXX_BUILD_DESCENT_II)
 	if (!HoardEquipped() && (Netgame.gamemode == NETGAME_HOARD || Netgame.gamemode == NETGAME_TEAM_HOARD)) // did we restore a hoard mode but don't have hoard installed right now? then fall back to anarchy!
 		Netgame.gamemode = NETGAME_ANARCHY;
+#endif
 
 	strcpy(Netgame.mission_name, Current_mission_filename);
 	strcpy(Netgame.mission_title, Current_mission_longname);
@@ -3217,6 +3298,12 @@ int net_udp_setup_game()
 	m[optnum].type = NM_TYPE_INPUT; m[optnum].text = Netgame.game_name; m[optnum].text_len = NETGAME_NAME_LEN; optnum++;
 
 	sprintf(level_text, "%s (1-%d)", TXT_LEVEL_, Last_level);
+#if defined(DXX_BUILD_DESCENT_I)
+	if (Last_secret_level < -1)
+		sprintf(level_text+strlen(level_text)-1, ", S1-S%d)", -Last_secret_level);
+	else if (Last_secret_level == -1)
+		sprintf(level_text+strlen(level_text)-1, ", S1)");
+#endif
 
 	Assert(strlen(level_text) < 32);
 
@@ -3231,6 +3318,7 @@ int net_udp_setup_game()
 	m[optnum].type = NM_TYPE_RADIO; m[optnum].text = TXT_TEAM_ANARCHY; m[optnum].value=(Netgame.gamemode == NETGAME_TEAM_ANARCHY); m[optnum].group=0; opt.team_anarchy=optnum; optnum++;
 	m[optnum].type = NM_TYPE_RADIO; m[optnum].text = TXT_ANARCHY_W_ROBOTS; m[optnum].value=(Netgame.gamemode == NETGAME_ROBOT_ANARCHY); m[optnum].group=0; opt.robot_anarchy=optnum; optnum++;
 	m[optnum].type = NM_TYPE_RADIO; m[optnum].text = TXT_COOPERATIVE; m[optnum].value=(Netgame.gamemode == NETGAME_COOPERATIVE); m[optnum].group=0; opt.coop=optnum; optnum++;
+#if defined(DXX_BUILD_DESCENT_II)
 	m[optnum].type = NM_TYPE_RADIO; m[optnum].text = "Capture the flag"; m[optnum].value=(Netgame.gamemode == NETGAME_CAPTURE_FLAG); m[optnum].group=0; opt.capture=optnum; optnum++;
 
 	if (HoardEquipped())
@@ -3242,7 +3330,7 @@ int net_udp_setup_game()
 	{
 		opt.hoard = opt.team_hoard = 0; // NOTE: Make sure if you use these, use them in connection with HoardEquipped() only!
 	}
-	
+#endif
 	m[optnum].type = NM_TYPE_RADIO; m[optnum].text = "Bounty"; m[optnum].value = ( Netgame.gamemode & NETGAME_BOUNTY ); m[optnum].group = 0; opt.mode_end=opt.bounty=optnum; optnum++;
 
 	m[optnum].type = NM_TYPE_TEXT; m[optnum].text = ""; optnum++;
@@ -3284,6 +3372,7 @@ net_udp_set_game_mode(int gamemode)
 		Game_mode = GM_NETWORK | GM_MULTI_ROBOTS;
 	else if ( gamemode == NETGAME_COOPERATIVE ) 
 		Game_mode = GM_NETWORK | GM_MULTI_COOP | GM_MULTI_ROBOTS;
+#if defined(DXX_BUILD_DESCENT_II)
 	else if (gamemode == NETGAME_CAPTURE_FLAG)
 		{
 		 Game_mode = GM_NETWORK | GM_TEAM | GM_CAPTURE;
@@ -3297,6 +3386,7 @@ net_udp_set_game_mode(int gamemode)
 		  Game_mode = GM_NETWORK | GM_HOARD | GM_TEAM;
  		  Show_kill_list=3;
 		 }
+#endif
 	else if( gamemode == NETGAME_BOUNTY )
 		Game_mode = GM_NETWORK | GM_BOUNTY;
 	else if ( gamemode == NETGAME_TEAM_ANARCHY )
@@ -3375,6 +3465,11 @@ void net_udp_read_sync_packet( ubyte * data, int data_len, struct _sockaddr send
 	if (Network_rejoined)
 		for (i=0; i<N_players;i++)
 			Players[i].net_killed_total = Netgame.killed[i];
+
+#if defined(DXX_BUILD_DESCENT_I)
+	PlayerCfg.NetlifeKills -= Players[Player_num].net_kills_total;
+	PlayerCfg.NetlifeKilled -= Players[Player_num].net_killed_total;
+#endif
 
 	if (Network_rejoined)
 	{
@@ -3665,9 +3760,13 @@ abort:
 		Netgame.players[i].rank=0;
 	}
 
+#if defined(DXX_BUILD_DESCENT_I)
+	if (Netgame.gamemode == NETGAME_TEAM_ANARCHY)
+#elif defined(DXX_BUILD_DESCENT_II)
 	if (Netgame.gamemode == NETGAME_TEAM_ANARCHY ||
 	    Netgame.gamemode == NETGAME_CAPTURE_FLAG ||
 		 Netgame.gamemode == NETGAME_TEAM_HOARD)
+#endif
 		 if (!net_udp_select_teams())
 			goto abort;
 
@@ -3890,6 +3989,7 @@ int net_udp_do_join_game()
 		return 0;
 	}
 
+#if defined(DXX_BUILD_DESCENT_II)
 	if (is_D2_OEM)
 	{
 		if (Netgame.levelnum>8)
@@ -3915,6 +4015,7 @@ int net_udp_do_join_game()
 	}
 
 	Network_status = NETSTAT_BROWSING; // We are looking at a game menu
+#endif
 
 	if (!net_udp_can_join_netgame(&Netgame))
 	{
@@ -3969,7 +4070,9 @@ void net_udp_leave_game()
 
 	Players[Player_num].connected = CONNECT_DISCONNECTED;
 	change_playernum_to(0);
+#if defined(DXX_BUILD_DESCENT_II)
 	write_player_file();
+#endif
 
 	net_udp_flush();
 	net_udp_close();
@@ -4786,6 +4889,7 @@ void net_udp_read_pdata_packet(UDP_frame_info *pd)
 		set_thrust_from_velocity(TheirObj);
 }
 
+#if defined(DXX_BUILD_DESCENT_II)
 void net_udp_send_smash_lights (int pnum) 
  {
   // send the lights that have been blown out
@@ -4817,6 +4921,7 @@ void net_udp_send_player_flags()
   for (i=0;i<N_players;i++)
 	multi_send_flags(i);
  }
+#endif
 
 // Send the ping list in regular intervals
 void net_udp_ping_frame(fix64 time)
@@ -4921,7 +5026,11 @@ void net_udp_do_refuse_stuff (UDP_sequence_packet *their)
 			}
 		}
 	
+#if defined(DXX_BUILD_DESCENT_I)
+		digi_play_sample (SOUND_CONTROL_CENTER_WARNING_SIREN,F1_0*2);
+#elif defined(DXX_BUILD_DESCENT_II)
 		digi_play_sample (SOUND_HUD_JOIN_REQUEST,F1_0*2);
+#endif
 	
 		if (Game_mode & GM_TEAM)
 		{
@@ -5039,6 +5148,9 @@ void net_udp_send_extras ()
 
 	Assert (Player_joining_extras>-1);
 
+#if defined(DXX_BUILD_DESCENT_I)
+	if (Network_sending_extras==3 && (Netgame.PlayTimeAllowed || Netgame.KillGoal))
+#elif defined(DXX_BUILD_DESCENT_II)
 	if (Network_sending_extras==9)
 		net_udp_send_fly_thru_triggers(Player_joining_extras);
 	if (Network_sending_extras==8)
@@ -5048,11 +5160,14 @@ void net_udp_send_extras ()
 	if (Network_sending_extras==6 && (Game_mode & GM_MULTI_ROBOTS))
 		multi_send_stolen_items();
 	if (Network_sending_extras==5 && (Netgame.PlayTimeAllowed || Netgame.KillGoal))
+#endif
 		multi_send_kill_goal_counts();
+#if defined(DXX_BUILD_DESCENT_II)
 	if (Network_sending_extras==4)
 		net_udp_send_smash_lights(Player_joining_extras);
 	if (Network_sending_extras==3)
 		net_udp_send_player_flags();    
+#endif
 	if (Network_sending_extras==2)
 		multi_send_powcap_update();
 	if (Network_sending_extras==1 && Game_mode & GM_BOUNTY)
@@ -5066,7 +5181,11 @@ void net_udp_send_extras ()
 static int show_game_rules_handler(window *wind, d_event *event, netgame_info *netgame)
 {
 	int k;
+#if defined(DXX_BUILD_DESCENT_I)
+	int w = FSPACX(280), h = FSPACY(130);
+#elif defined(DXX_BUILD_DESCENT_II)
 	int w = FSPACX(280), h = FSPACY(170);
+#endif
 	
 	switch (event->type)
 	{
@@ -5097,6 +5216,56 @@ static int show_game_rules_handler(window *wind, d_event *event, netgame_info *n
 			grd_curcanv->cv_font = MEDIUM3_FONT;
 			
 			gr_set_fontcolor(gr_find_closest_color_current(29,29,47),-1);
+#if defined(DXX_BUILD_DESCENT_I)
+			gr_string( 0x8000, FSPACY(35), "NETGAME INFO" );
+			
+			grd_curcanv->cv_font = GAME_FONT;
+			gr_printf( FSPACX( 25),FSPACY( 55), "Reactor Life:");
+			gr_printf( FSPACX( 25),FSPACY( 61), "Max Time:");
+			gr_printf( FSPACX( 25),FSPACY( 67), "Kill Goal:");
+			gr_printf( FSPACX( 25),FSPACY( 73), "Packets per sec.:");
+			gr_printf( FSPACX(155),FSPACY( 55), "Invul when reappearing:");
+			gr_printf( FSPACX(155),FSPACY( 61), "Bright player ships:");
+			gr_printf( FSPACX(155),FSPACY( 67), "Show enemy names on hud:");
+			gr_printf( FSPACX(155),FSPACY( 73), "Show players on automap:");
+			gr_printf( FSPACX(155),FSPACY( 79), "No friendly Fire:");
+			gr_printf( FSPACX( 25),FSPACY(100), "Allowed Objects");
+			gr_printf( FSPACX( 25),FSPACY(110), "Laser Upgrade:");
+			gr_printf( FSPACX( 25),FSPACY(116), "Quad Laser:");
+			gr_printf( FSPACX( 25),FSPACY(122), "Vulcan Cannon:");
+			gr_printf( FSPACX( 25),FSPACY(128), "Spreadfire Cannon:");
+			gr_printf( FSPACX( 25),FSPACY(134), "Plasma Cannon:");
+			gr_printf( FSPACX( 25),FSPACY(140), "Fusion Cannon:");
+			gr_printf( FSPACX(170),FSPACY(110), "Homing Missile:");
+			gr_printf( FSPACX(170),FSPACY(116), "Proximity Bomb:");
+			gr_printf( FSPACX(170),FSPACY(122), "Smart Missile:");
+			gr_printf( FSPACX(170),FSPACY(128), "Mega Missile:");
+			gr_printf( FSPACX( 25),FSPACY(150), "Invulnerability:");
+			gr_printf( FSPACX( 25),FSPACY(156), "Cloak:");
+			
+			gr_set_fontcolor(gr_find_closest_color_current(255,255,255),-1);
+			gr_printf( FSPACX(115),FSPACY( 55), "%i Min", netgame->control_invul_time/F1_0/60);
+			gr_printf( FSPACX(115),FSPACY( 61), "%i Min", netgame->PlayTimeAllowed*5);
+			gr_printf( FSPACX(115),FSPACY( 67), "%i", netgame->KillGoal*5);
+			gr_printf( FSPACX(115),FSPACY( 73), "%i", netgame->PacketsPerSec);
+			gr_printf( FSPACX(275),FSPACY( 55), netgame->InvulAppear?"ON":"OFF");
+			gr_printf( FSPACX(275),FSPACY( 61), netgame->BrightPlayers?"ON":"OFF");
+			gr_printf( FSPACX(275),FSPACY( 67), netgame->ShowEnemyNames?"ON":"OFF");
+			gr_printf( FSPACX(275),FSPACY( 73), netgame->game_flag.show_on_map?"ON":"OFF");
+			gr_printf( FSPACX(275),FSPACY( 79), netgame->NoFriendlyFire?"ON":"OFF");
+			gr_printf( FSPACX(130),FSPACY(110), netgame->AllowedItems&NETFLAG_DOLASER?"YES":"NO");
+			gr_printf( FSPACX(130),FSPACY(116), netgame->AllowedItems&NETFLAG_DOQUAD?"YES":"NO");
+			gr_printf( FSPACX(130),FSPACY(122), netgame->AllowedItems&NETFLAG_DOVULCAN?"YES":"NO");
+			gr_printf( FSPACX(130),FSPACY(128), netgame->AllowedItems&NETFLAG_DOSPREAD?"YES":"NO");
+			gr_printf( FSPACX(130),FSPACY(134), netgame->AllowedItems&NETFLAG_DOPLASMA?"YES":"NO");
+			gr_printf( FSPACX(130),FSPACY(140), netgame->AllowedItems&NETFLAG_DOFUSION?"YES":"NO");
+			gr_printf( FSPACX(275),FSPACY(110), netgame->AllowedItems&NETFLAG_DOHOMING?"YES":"NO");
+			gr_printf( FSPACX(275),FSPACY(116), netgame->AllowedItems&NETFLAG_DOPROXIM?"YES":"NO");
+			gr_printf( FSPACX(275),FSPACY(122), netgame->AllowedItems&NETFLAG_DOSMART?"YES":"NO");
+			gr_printf( FSPACX(275),FSPACY(128), netgame->AllowedItems&NETFLAG_DOMEGA?"YES":"NO");
+			gr_printf( FSPACX(130),FSPACY(150), netgame->AllowedItems&NETFLAG_DOINVUL?"YES":"NO");
+			gr_printf( FSPACX(130),FSPACY(156), netgame->AllowedItems&NETFLAG_DOCLOAK?"YES":"NO");
+#elif defined(DXX_BUILD_DESCENT_II)
 			gr_string( 0x8000, FSPACY(15), "NETGAME INFO");
 			
 			grd_curcanv->cv_font = GAME_FONT;
@@ -5138,7 +5307,6 @@ static int show_game_rules_handler(window *wind, d_event *event, netgame_info *n
 			gr_printf( FSPACX(170),FSPACY(160), "Invulnerability:");
 			gr_printf( FSPACX(170),FSPACY(166), "Cloaking Device:");
 			gr_printf( FSPACX(170),FSPACY(172), "Ammo Rack:");
-			
 			gr_set_fontcolor(BM_XRGB(255,255,255),-1);
 			gr_printf( FSPACX(115),FSPACY( 35), "%i Min", netgame->control_invul_time/F1_0/60);
 			gr_printf( FSPACX(115),FSPACY( 41), "%i Min", netgame->PlayTimeAllowed*5);
@@ -5177,6 +5345,7 @@ static int show_game_rules_handler(window *wind, d_event *event, netgame_info *n
 			gr_printf( FSPACX(275),FSPACY(160), netgame->AllowedItems & NETFLAG_DOINVUL?"YES":"NO");
 			gr_printf( FSPACX(275),FSPACY(166), netgame->AllowedItems & NETFLAG_DOCLOAK?"YES":"NO");
 			gr_printf( FSPACX(275),FSPACY(172), netgame->AllowedItems & NETFLAG_DOAMMORACK?"YES":"NO");
+#endif
 			gr_set_current_canvas(NULL);
 			break;
 
@@ -5219,15 +5388,34 @@ int net_udp_show_game_info()
 	info+=sprintf(info,"\nConnected to\n\"%s\"\n",netgame->game_name);
 
 	if(!netgame->mission_title)
+#if defined(DXX_BUILD_DESCENT_I)
+		info+=sprintf(info,"Descent: First Strike");
+#elif defined(DXX_BUILD_DESCENT_II)
 		info+=sprintf(info,"Descent2: CounterStrike");
+#endif
 	else
 		info+=sprintf(info,"%s",netgame->mission_title);
 
+#if defined(DXX_BUILD_DESCENT_I)
+   if( netgame->levelnum >= 0 )
+   {
+	   info+=sprintf (info," - Lvl %i",netgame->levelnum);
+   }
+   else
+   {
+      info+=sprintf (info," - Lvl S%i",(netgame->levelnum*-1));
+   }
+#elif defined(DXX_BUILD_DESCENT_II)
 	info+=sprintf (info," - Lvl %i",netgame->levelnum);
+#endif
 	info+=sprintf (info,"\n\nDifficulty: %s",MENU_DIFFICULTY_TEXT(netgame->difficulty));
 	unsigned gamemode = netgame->gamemode;
 	info+=sprintf (info,"\nGame Mode: %s",gamemode < (sizeof(GMNames) / sizeof(GMNames[0])) ? GMNames[gamemode] : "INVALID");
+#if defined(DXX_BUILD_DESCENT_I)
+	info+=sprintf (info,"\nPlayers: %i/%i",netgame->numplayers,netgame->max_numplayers);
+#elif defined(DXX_BUILD_DESCENT_II)
 	info+=sprintf (info,"\nPlayers: %i/%i",netgame->numconnected,netgame->max_numplayers);
+#endif
 
 	c=nm_messagebox1("WELCOME", (int (*)(newmenu *, d_event *, void *))show_game_info_handler, netgame, 2, "JOIN GAME", "GAME INFO", rinfo);
 	if (c==0)

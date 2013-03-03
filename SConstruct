@@ -845,6 +845,14 @@ class DXXProgram(DXXCommon):
 ],
 		'transform_target':_apply_target_name,
 	}])
+
+	objects_use_udp = DXXCommon.create_lazy_object_property([{
+		'source':[os.path.join('similar', f) for f in [
+'main/net_udp.c',
+]
+],
+		'transform_target':_apply_target_name,
+	}])
 	class UserSettings(DXXCommon.UserSettings):
 		@property
 		def BIN_DIR(self):
@@ -1053,8 +1061,6 @@ class D1XProgram(DXXProgram):
 	def objects_editor(self):
 		return self.__objects_editor + DXXProgram.objects_editor.fget(self)
 
-	objects_use_udp = DXXCommon.create_lazy_object_property([os.path.join(srcdir, 'main/net_udp.c')])
-
 	# assembler related
 	objects_asm = DXXCommon.create_lazy_object_property([os.path.join(srcdir, f) for f in [
 'texmap/tmap_ll.asm',
@@ -1124,8 +1130,6 @@ class D2XProgram(DXXProgram):
 	@property
 	def objects_editor(self):
 		return self.__objects_editor + DXXProgram.objects_editor.fget(self)
-
-	objects_use_udp = DXXCommon.create_lazy_object_property([os.path.join(srcdir, 'main/net_udp.c')])
 
 	# assembler related
 	objects_asm = DXXCommon.create_lazy_object_property([os.path.join(srcdir, f) for f in [
