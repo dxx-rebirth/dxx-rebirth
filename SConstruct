@@ -237,6 +237,7 @@ class DXXArchive(DXXCommon):
 ]
 ]
 	editor_sources = [os.path.join(srcdir, f) for f in [
+'ui/dialog.c',
 'ui/file.c',
 'ui/gadget.c',
 'ui/icon.c',
@@ -532,7 +533,6 @@ class D1XProgram(DXXProgram):
 'editor/texture.c',
 'ui/button.c',
 'ui/checkbox.c',
-'ui/dialog.c',
 ]
 ]
 		DXXProgram.__init__(self)
@@ -740,7 +740,6 @@ class D2XProgram(DXXProgram):
 'main/bmread.c',
 'ui/button.c',
 'ui/checkbox.c',
-'ui/dialog.c',
 ]
 ]
 		DXXProgram.__init__(self)
