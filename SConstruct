@@ -322,6 +322,10 @@ class DXXProgram(DXXCommon):
 'misc/physfsx.c',
 ]
 ]
+	similar_editor_sources = [os.path.join('similar', f) for f in [
+'editor/khelp.c',
+]
+]
 	class UserSettings(DXXCommon.UserSettings):
 		def __init__(self,ARGUMENTS,target):
 			DXXCommon.UserSettings.__init__(self, ARGUMENTS.ARGUMENTS)
@@ -379,7 +383,7 @@ class DXXProgram(DXXCommon):
 		if DXXProgram.static_archive_construction is None:
 			DXXProgram.static_archive_construction = DXXArchive()
 		apply_target_name = lambda n: self._apply_target_name(n)
-		for t in ['similar_arch_ogl_sources', 'similar_arch_sdl_sources', 'similar_arch_sdlmixer_sources', 'similar_common_sources']:
+		for t in ['similar_arch_ogl_sources', 'similar_arch_sdl_sources', 'similar_arch_sdlmixer_sources', 'similar_common_sources', 'similar_editor_sources']:
 			self.create_lazy_object_property(t, apply_target_name)
 		DXXCommon.__init__(self)
 		self.user_settings = self.UserSettings(self.ARGUMENTS, self.target)
@@ -454,6 +458,8 @@ class DXXProgram(DXXCommon):
 		else:
 			objects.extend(self.objects_similar_arch_sdl_sources)
 		objects.extend(self.objects_similar_common_sources)
+		if (self.user_settings.editor == 1):
+			objects.extend(self.objects_similar_editor_sources)
 		# finally building program...
 		env.Program(target=str(exe_target), source = self.common_sources + objects, LIBS = self.platform_settings.libs, LINKFLAGS = str(self.platform_settings.lflags))
 		if (sys.platform != 'darwin'):
@@ -580,7 +586,6 @@ class D1XProgram(DXXProgram):
 'editor/kcurve.c',
 'editor/kfuncs.c',
 'editor/kgame.c',
-'editor/khelp.c',
 'editor/kmine.c',
 'editor/ksegmove.c',
 'editor/ksegsel.c',
@@ -748,7 +753,6 @@ class D2XProgram(DXXProgram):
 'editor/kcurve.c',
 'editor/kfuncs.c',
 'editor/kgame.c',
-'editor/khelp.c',
 'editor/kmine.c',
 'editor/ksegmove.c',
 'editor/ksegsel.c',
