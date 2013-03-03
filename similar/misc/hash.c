@@ -26,7 +26,13 @@ int hashtable_init( hashtable *ht, int size )	{
 
 	ht->size=0;
 
-	for (i=1; i<13; i++ )	{
+#if defined(DXX_BUILD_DESCENT_I)
+#define ITERATION_COUNT	12
+#elif defined(DXX_BUILD_DESCENT_II)
+#define ITERATION_COUNT 13
+#endif
+
+	for (i=1; i<ITERATION_COUNT; i++ )	{
 		if ( (1<<i) >= size )	{
 			ht->bitsize = i;
 			ht->size = 1<<i;

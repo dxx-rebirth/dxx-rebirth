@@ -308,6 +308,7 @@ class DXXProgram(DXXCommon):
 	similar_common_sources = [os.path.join('similar', f) for f in [
 'arch/sdl/timer.c',
 'mem/mem.c',
+'misc/hash.c',
 'misc/physfsx.c',
 ]
 ]
@@ -549,7 +550,6 @@ class D1XProgram(DXXProgram):
 'main/wall.c',
 'main/weapon.c',
 'misc/args.c',
-'misc/hash.c',
 'texmap/ntmap.c',
 'texmap/scanline.c'
 #'tracker/client/tracker_client.c'
@@ -730,7 +730,6 @@ class D2XProgram(DXXProgram):
 'main/wall.c',
 'main/weapon.c',
 'misc/args.c',
-'misc/hash.c',
 'misc/physfsrwops.c',
 'texmap/ntmap.c',
 'texmap/scanline.c'
