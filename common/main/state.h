@@ -21,8 +21,16 @@ COPYRIGHT 1993-1999 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 #ifndef _STATE_H
 #define _STATE_H
 
+#if defined(DXX_BUILD_DESCENT_I)
+#include "playsave.h"
+
+extern int state_save_old_game(int slotnum, char * sg_name, player_rw * sg_player, 
+                        int sg_difficulty_level, int sg_primary_weapon, 
+                        int sg_secondary_weapon, int sg_next_level_num );
+#elif defined(DXX_BUILD_DESCENT_II)
 #define SECRETB_FILENAME	GameArg.SysUsePlayersDir? "Players/secret.sgb" : "secret.sgb"
 #define SECRETC_FILENAME	GameArg.SysUsePlayersDir? "Players/secret.sgc" : "secret.sgc"
+#endif
 
 int state_save_all(int secret_save, char *filename_override, int blind_save);
 int state_restore_all(int in_game, int secret_restore, char *filename_override);
