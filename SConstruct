@@ -925,6 +925,7 @@ class DXXProgram(DXXCommon):
 'main/automap.cpp',
 'main/bm.cpp',
 'main/cntrlcen.cpp',
+'main/collide.c',
 'main/config.cpp',
 'main/console.cpp',
 'main/controls.cpp',
@@ -1226,7 +1227,6 @@ class D1XProgram(DXXProgram):
 	__objects_common = DXXCommon.create_lazy_object_property([{
 		'source':[os.path.join(srcdir, f) for f in [
 'main/bmread.cpp',
-'main/collide.c',
 'main/custom.cpp',
 'main/snddecom.cpp',
 #'tracker/client/tracker_client.c'
@@ -1277,7 +1277,6 @@ class D2XProgram(DXXProgram):
 'libmve/mve_audio.cpp',
 'libmve/mvelib.cpp',
 'libmve/mveplay.cpp',
-'main/collide.c',
 'main/escort.cpp',
 'main/gamepal.cpp',
 'main/movie.cpp',
