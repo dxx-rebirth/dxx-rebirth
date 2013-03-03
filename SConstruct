@@ -367,6 +367,7 @@ class DXXProgram(DXXCommon):
 'editor/eobject.c',
 'editor/eswitch.c',
 'editor/fixseg.c',
+'editor/group.c',
 'editor/info.c',
 'editor/kbuild.c',
 'editor/kcurve.c',
@@ -626,7 +627,6 @@ class D1XProgram(DXXProgram):
 	editor_sources = [os.path.join(srcdir, f) for f in [
 'editor/centers.c',
 'editor/ehostage.c',
-'editor/group.c',
 'editor/med.c',
 'editor/meddraw.c',
 'editor/medrobot.c',
@@ -763,7 +763,6 @@ class D2XProgram(DXXProgram):
 	# for editor
 	editor_sources = [os.path.join(srcdir, f) for f in [
 'editor/centers.c',
-'editor/group.c',
 'editor/med.c',
 'editor/meddraw.c',
 'editor/medrobot.c',
