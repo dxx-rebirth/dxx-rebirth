@@ -80,6 +80,111 @@ int PCXHeader_read_n(PCXHeader *ph, int n, PHYSFS_file *fp)
 	return i;
 }
 
+#if defined(DXX_BUILD_DESCENT_I)
+int bald_guy_load( char * filename, grs_bitmap * bmp,int bitmap_type ,ubyte * palette )
+{
+	PCXHeader header;
+	PHYSFS_file * PCXfile;
+	int i, row, col, count, fsize;
+	ubyte data, c, xor_value, *pixdata;
+	ubyte *bguy_data, *bguy_data1, *p;
+	unsigned int xsize;
+	unsigned int ysize;
+	
+	PCXfile = PHYSFSX_openReadBuffered( filename );
+	if ( !PCXfile )
+		return PCX_ERROR_OPENING;
+	
+	PHYSFSX_fseek(PCXfile, -1, SEEK_END);
+	fsize = PHYSFS_tell(PCXfile);
+	PHYSFS_read(PCXfile, &xor_value, 1, 1);
+	xor_value--;
+	PHYSFSX_fseek(PCXfile, 0, SEEK_SET);
+	
+	bguy_data = (ubyte *)d_malloc(fsize);
+	bguy_data1 = (ubyte *)d_malloc(fsize);
+	
+	PHYSFS_read(PCXfile, bguy_data1, 1, fsize);
+	
+	for (i = 0; i < fsize; i++) {
+		c = bguy_data1[fsize - i - 1] ^ xor_value;
+		bguy_data[i] = c;
+		xor_value--;
+	}
+	PHYSFS_close(PCXfile);
+	d_free(bguy_data1);
+	
+	p = bguy_data;
+	memcpy( &header, p, sizeof(PCXHeader) );
+	p += sizeof(PCXHeader);
+	
+	// Is it a 256 color PCX file?
+	if ((header.Manufacturer != 10)||(header.Encoding != 1)||(header.Nplanes != 1)||(header.BitsPerPixel != 8)||(header.Version != 5))	{
+		d_free(bguy_data);
+		return PCX_ERROR_WRONG_VERSION;
+	}
+	header.Xmin= INTEL_SHORT(header.Xmin);
+	header.Xmax = INTEL_SHORT(header.Xmax);
+	header.Ymin = INTEL_SHORT(header.Ymin);
+	header.Ymax = INTEL_SHORT(header.Ymax);
+	
+	// Find the size of the image
+	xsize = header.Xmax - header.Xmin + 1;
+	ysize = header.Ymax - header.Ymin + 1;
+	
+	if ( bmp->bm_data == NULL )	{
+		memset( bmp, 0, sizeof( grs_bitmap ) );
+		bmp->bm_data = d_malloc( xsize * ysize );
+		if ( bmp->bm_data == NULL )	{
+			d_free(bguy_data);
+			return PCX_ERROR_MEMORY;
+		}
+		bmp->bm_w = bmp->bm_rowsize = xsize;
+		bmp->bm_h = ysize;
+		bmp->bm_type = bitmap_type;
+	}
+	
+	for (row=0; row< ysize ; row++)      {
+		for (row=0; row< ysize ; row++)      {
+			pixdata = &bmp->bm_data[bmp->bm_rowsize*row];
+			for (col=0; col< xsize ; )      {
+				data = *p;
+				p++;
+				if ((data & 0xC0) == 0xC0)     {
+					count =  data & 0x3F;
+					data = *p;
+					p++;
+					memset( pixdata, data, count );
+					pixdata += count;
+					col += count;
+				} else {
+					*pixdata++ = data;
+					col++;
+				}
+			}
+		}
+	}
+	
+	
+	// Read the extended palette at the end of PCX file
+	// Read in a character which should be 12 to be extended palette file
+	
+	p++;
+	if (palette != NULL) {
+		for (i = 0; i < 768; i++) {
+			palette[i] = *p;
+			palette[i] >>= 2;
+			p++;
+		}
+	}
+	
+	
+	d_free(bguy_data);
+	
+	return PCX_ERROR_NONE;
+}
+#endif
+
 struct PCX_PHYSFS_file
 {
 	PHYSFS_file *PCXfile;
