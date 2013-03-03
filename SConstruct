@@ -109,6 +109,8 @@ class DXXCommon:
 		self.env.Append(CFLAGS = ['-std=gnu99'])
 		self.env.Append(CPPDEFINES = ['NETWORK'])
 		self.env.Append(CPPPATH = ['common/include', 'common/main', '.'])
+		if (self.user_settings.editor == 1):
+			self.env.Append(CPPPATH = ['common/include/editor'])
 		# Get traditional compiler environment variables
 		for cc in ['CC', 'CXX']:
 			if os.environ.has_key(cc):
