@@ -129,7 +129,11 @@ int place_object(segment *segp, vms_vector *object_pos, short object_type, short
 			obj = &Objects[objnum];
 
 			// Fill in obj->id and other hostage info
+#if defined(DXX_BUILD_DESCENT_I)
+			hostage_init_info( objnum );
+#elif defined(DXX_BUILD_DESCENT_II)
 			// hostage_init_info( objnum );	//don't need to anymore
+#endif
 		
 			obj->control_type = CT_POWERUP;
 			
@@ -214,7 +218,11 @@ int place_object(segment *segp, vms_vector *object_pos, short object_type, short
 
 			//Set polygon-object-specific data 
 			obj->shields = 0;	// stored in Reactor_strength or calculated
+#if defined(DXX_BUILD_DESCENT_I)
+			obj->rtype.pobj_info.model_num = ObjId[object_type];
+#elif defined(DXX_BUILD_DESCENT_II)
 			obj->rtype.pobj_info.model_num = Reactors[object_id].model_num;
+#endif
 			obj->rtype.pobj_info.subobj_flags = 0;
 
 			break;
