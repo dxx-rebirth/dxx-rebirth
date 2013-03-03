@@ -24,15 +24,22 @@ COPYRIGHT 1993-1999 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 #include "fix.h"
 #include "gr.h"
 #include "piggy.h"
-#include "object.h"
 #include "hudmsg.h"
 
 //from gauges.c
 
+#if defined(DXX_BUILD_DESCENT_I)
+#define MAX_GAUGE_BMS_PC 80		//	increased from 56 to 80 by a very unhappy MK on 10/24/94.
+#define MAX_GAUGE_BMS_MAC 85
+#define MAX_GAUGE_BMS (MacPig ? MAX_GAUGE_BMS_MAC : MAX_GAUGE_BMS_PC)
+
+extern bitmap_index Gauges[MAX_GAUGE_BMS_MAC];   // Array of all gauge bitmaps.
+#elif defined(DXX_BUILD_DESCENT_II)
 #define MAX_GAUGE_BMS 100   // increased from 56 to 80 by a very unhappy MK on 10/24/94.
 
 extern bitmap_index Gauges[MAX_GAUGE_BMS];      // Array of all gauge bitmaps.
 extern bitmap_index Gauges_hires[MAX_GAUGE_BMS];    // hires gauges
+#endif
 
 // Flags for gauges/hud stuff
 
@@ -43,7 +50,10 @@ void render_gauges(void);
 void init_gauges(void);
 void close_gauges(void);
 void cockpit_decode_alpha(grs_bitmap *bm);
+#if defined(DXX_BUILD_DESCENT_II)
 void show_reticle(int reticle_type, int secondary_display);
+void show_HUD_names();
+#endif
 void show_mousefs_indicator(int mx, int my, int mz, int x, int y, int size);
 
 extern void draw_hud();     // draw all the HUD stuff
@@ -55,7 +65,6 @@ extern void player_dead_message(void);
 
 extern void update_laser_weapon_info(void);
 extern void play_homing_warning(void);
-extern void show_HUD_names();
 
 typedef struct {
 	ubyte r,g,b;
@@ -63,6 +72,7 @@ typedef struct {
 
 extern rgb player_rgb[];
 
+#if defined(DXX_BUILD_DESCENT_II)
 #define WBU_WEAPON      0       // the weapons display
 #define WBU_MISSILE     1       // the missile view
 #define WBU_ESCORT      2       // the "buddy bot"
@@ -72,12 +82,15 @@ extern rgb player_rgb[];
 #define WBU_MARKER      6       // a dropped marker
 #define WBU_STATIC      7       // playing static after missile hits
 
+struct object;
+
 // draws a 3d view into one of the cockpit windows.  win is 0 for
 // left, 1 for right.  viewer is object.  NULL object means give up
 // window user is one of the WBU_ constants.  If rear_view_flag is
 // set, show a rear view.  If label is non-NULL, print the label at
 // the top of the window.
-void do_cockpit_window_view(int win, object *viewer, int rear_view_flag, int user, const char *label);
+void do_cockpit_window_view(int win, struct object *viewer, int rear_view_flag, int user, const char *label);
+#endif
 
 #define GAUGE_HUD_NUMMODES 3
 
