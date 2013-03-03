@@ -85,8 +85,20 @@ class DXXCommon:
 			env.Append(CPPDEFINES = ['__LINUX__', 'HAVE_STRUCT_TIMESPEC', 'HAVE_STRUCT_TIMEVAL'])
 			env.ParseConfig('pkg-config --cflags --libs sdl')
 
+	def __lazy_objects(self,name,source):
+		try:
+			return self.__lazy_object_cache[name]
+		except KeyError as e:
+			value = self.env.StaticObject(source=source)
+			self.__lazy_object_cache[name] = value
+			return value
+
+	def create_lazy_object_property(self,name):
+		l = lambda s: s.__lazy_objects(name, getattr(s, name))
+		setattr(self.__class__, 'objects_%s' % name, property(l))
+
 	def __init__(self):
-		pass
+		self.__lazy_object_cache = {}
 
 	def prepare_environment(self):
 		# Acquire environment object...
@@ -261,8 +273,14 @@ class DXXArchive(DXXCommon):
 'ui/userbox.c'
 ]
 ]
+	arch_sdlmixer_sources = [os.path.join(srcdir, f) for f in [
+'arch/sdl/digi_mixer_music.c',
+]
+]
 	def __init__(self):
 		self.PROGRAM_NAME = 'DXX-Archive'
+		for t in ['arch_sdlmixer_sources']:
+			self.create_lazy_object_property(t)
 		DXXCommon.__init__(self)
 		self.user_settings = self.UserSettings(ARGUMENTS)
 		self.prepare_environment()
@@ -375,7 +393,7 @@ class DXXProgram(DXXCommon):
 
 		# SDL_mixer support?
 		if (self.user_settings.sdlmixer == 1):
-			self.common_sources += self.arch_sdlmixer
+			self.common_sources += self.arch_sdlmixer_sources
 			if (sys.platform != 'darwin'):
 				self.platform_settings.libs += ['SDL_mixer']
 
@@ -398,6 +416,8 @@ class DXXProgram(DXXCommon):
 		exe_target = os.path.join(self.srcdir, self.target)
 		objects = self.static_archive_construction.objects[:]
 		objects.extend(program_specific_objects)
+		if (self.user_settings.sdlmixer == 1):
+			objects.extend(self.static_archive_construction.objects_arch_sdlmixer)
 		# finally building program...
 		env.Program(target=str(exe_target), source = self.common_sources + objects, LIBS = self.platform_settings.libs, LINKFLAGS = str(self.platform_settings.lflags))
 		if (sys.platform != 'darwin'):
@@ -559,9 +579,8 @@ class D1XProgram(DXXProgram):
 	sources_use_udp = [os.path.join(srcdir, 'main/net_udp.c')]
 
 	# SDL_mixer sound implementation
-	arch_sdlmixer = [os.path.join(srcdir, f) for f in [
+	arch_sdlmixer_sources = [os.path.join(srcdir, f) for f in [
 'arch/sdl/digi_mixer.c',
-'arch/sdl/digi_mixer_music.c',
 'arch/sdl/jukebox.c'
 ]
 ]
@@ -747,9 +766,8 @@ class D2XProgram(DXXProgram):
 	sources_use_udp = [os.path.join(srcdir, 'main/net_udp.c')]
 
 	# SDL_mixer sound implementation
-	arch_sdlmixer = [os.path.join(srcdir, f) for f in [
+	arch_sdlmixer_sources = [os.path.join(srcdir, f) for f in [
 'arch/sdl/digi_mixer.c',
-'arch/sdl/digi_mixer_music.c',
 'arch/sdl/jukebox.c'
 ]
 ]
