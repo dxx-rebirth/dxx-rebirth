@@ -58,11 +58,11 @@ typedef struct Arg
 	int CtlNoStickyKeys;
 	int SndNoSound;
 	int SndNoMusic;
-	int SndDigiSampleRate;
 	int SndDisableSdlMixer;
+	int SndDigiSampleRate;
+	int GfxMovieHires;
 	int GfxHiresGFXAvailable;
 	int GfxHiresFNTAvailable;
-	int GfxMovieHires;
 #ifdef OGL
 	int OglFixedFont;
 #endif
