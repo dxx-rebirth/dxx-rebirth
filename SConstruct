@@ -307,6 +307,7 @@ class DXXProgram(DXXCommon):
 ]
 ]
 	similar_common_sources = [os.path.join('similar', f) for f in [
+'arch/sdl/mouse.c',
 'arch/sdl/timer.c',
 'mem/mem.c',
 'misc/hash.c',
@@ -479,7 +480,6 @@ class D1XProgram(DXXProgram):
 'arch/sdl/init.c',
 'arch/sdl/joy.c',
 'arch/sdl/key.c',
-'arch/sdl/mouse.c',
 'arch/sdl/digi.c',
 'arch/sdl/digi_audio.c',
 'iff/iff.c',
@@ -646,7 +646,6 @@ class D2XProgram(DXXProgram):
 'arch/sdl/init.c',
 'arch/sdl/joy.c',
 'arch/sdl/key.c',
-'arch/sdl/mouse.c',
 'arch/sdl/digi.c',
 'arch/sdl/digi_audio.c',
 'iff/iff.c',
