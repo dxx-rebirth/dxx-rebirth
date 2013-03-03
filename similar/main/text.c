@@ -8,7 +8,7 @@ SUCH USE, DISPLAY OR CREATION IS FOR NON-COMMERCIAL, ROYALTY OR REVENUE
 FREE PURPOSES.  IN NO EVENT SHALL THE END-USER USE THE COMPUTER CODE
 CONTAINED HEREIN FOR REVENUE-BEARING PURPOSES.  THE END-USER UNDERSTANDS
 AND AGREES TO THE TERMS HEREIN AND ACCEPTS THE SAME BY USE OF THIS FILE.
-COPYRIGHT 1993-1998 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
+COPYRIGHT 1993-1999 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 */
 
 /*
@@ -29,13 +29,20 @@ COPYRIGHT 1993-1998 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 #include "text.h"
 #include "args.h"
 
+#if defined(DXX_BUILD_DESCENT_I)
+#define IDX_TEXT_OVERWRITTEN	330
+#elif defined(DXX_BUILD_DESCENT_II)
+#define IDX_TEXT_OVERWRITTEN	350
+#define SHAREWARE_TEXTSIZE  14677
+#endif
+
 char *text;
 
 char *Text_string[N_TEXT_STRINGS];
 
 void free_text()
 {
-	d_free(Text_string[330]);
+	d_free(Text_string[IDX_TEXT_OVERWRITTEN]);
 	d_free(text);
 }
 
@@ -90,7 +97,8 @@ void load_text()
 	int len,i, have_binary = 0;
 	char *tptr;
 	char *filename="descent.tex";
-	char *extra_strings[] = {
+#if defined(DXX_BUILD_DESCENT_I)
+	static char *const extra_strings[] = {
 		"done",
 		"I am a",
 		"CHEATER!",
@@ -199,6 +207,7 @@ void load_text()
 		"Robot painting OFF",
 		"Robot painting with texture %d"
 	};
+#endif
 
 	if (GameArg.DbgAltTex)
 		filename = GameArg.DbgAltTex;
@@ -247,6 +256,7 @@ void load_text()
 		char *p;
 		char *buf;
 
+#if defined(DXX_BUILD_DESCENT_I)
 		if (!tptr && i >= N_TEXT_STRINGS_MIN)	// account for non-registered 1.4/1.5 text files
 		{
 			Text_string[i-1] = extra_strings[i - N_TEXT_STRINGS_MIN - 1];
@@ -257,11 +267,19 @@ void load_text()
 		{
 			Error("Not enough strings in text file - expecting %d (or at least %d), found %d",N_TEXT_STRINGS,N_TEXT_STRINGS_MIN,i);
 		}
-		
+#endif
 		Text_string[i] = tptr;
 
 		tptr = strchr(tptr,'\n');
 
+#if defined(DXX_BUILD_DESCENT_II)
+		if (!tptr)
+		{
+			if (i == 644) break;    /* older datafiles */
+
+			Error("Not enough strings in text file - expecting %d, found %d\n", N_TEXT_STRINGS, i);
+		}
+#endif
 		if ( tptr ) *tptr++ = 0;
 
 		if (have_binary)
@@ -289,7 +307,7 @@ void load_text()
           switch(i) {
 				  char *extra;
 				  char *str;
-
+#if defined(DXX_BUILD_DESCENT_I)
 			case 116:
 				if (!d_stricmp(Text_string[i], "SPREADFIRE")) // This string is too long to fit in the cockpit-box
 				{
@@ -297,8 +315,9 @@ void load_text()
 					strncpy(Text_string[i], "SPREAD", sizeof(char)*6);
 				}
 				break;
+#endif
 				  
-			  case 330:
+			  case IDX_TEXT_OVERWRITTEN:
 				  extra = "\n<Ctrl-C> converts format\nIntel <-> PowerPC";
 				  str = d_malloc(strlen(Text_string[i]) + strlen(extra) + 1);
 				  if (!str)
@@ -308,9 +327,31 @@ void load_text()
 				  Text_string[i] = str;
 				  break;
           }
+
 	}
 
+#if defined(DXX_BUILD_DESCENT_II)
+	if (i == 644)
+	{
+		if (len == SHAREWARE_TEXTSIZE)
+		{
+			Text_string[173] = Text_string[172];
+			Text_string[172] = Text_string[171];
+			Text_string[171] = Text_string[170];
+			Text_string[170] = Text_string[169];
+			Text_string[169] = "Windows Joystick";
+		}
+
+		Text_string[644] = "Z1";
+		Text_string[645] = "UN";
+		Text_string[646] = "P1";
+		Text_string[647] = "R1";
+		Text_string[648] = "Y1";
+	}
+#endif
+
 	//Assert(tptr==text+len || tptr==text+len-2);
+
 }
 
 
