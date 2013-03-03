@@ -365,6 +365,7 @@ class DXXProgram(DXXCommon):
 'editor/eglobal.c',
 'editor/elight.c',
 'editor/eobject.c',
+'editor/eswitch.c',
 'editor/fixseg.c',
 'editor/info.c',
 'editor/kbuild.c',
@@ -623,7 +624,6 @@ class D1XProgram(DXXProgram):
 	editor_sources = [os.path.join(srcdir, f) for f in [
 'editor/centers.c',
 'editor/ehostage.c',
-'editor/eswitch.c',
 'editor/group.c',
 'editor/kgame.c',
 'editor/ksegsize.c',
@@ -763,7 +763,6 @@ class D2XProgram(DXXProgram):
 	# for editor
 	editor_sources = [os.path.join(srcdir, f) for f in [
 'editor/centers.c',
-'editor/eswitch.c',
 'editor/group.c',
 'editor/kgame.c',
 'editor/ksegsize.c',
