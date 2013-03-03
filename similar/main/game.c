@@ -79,7 +79,6 @@ COPYRIGHT 1993-1999 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 #include "controls.h"
 #include "songs.h"
 #include "rbaudio.h"
-#include "gamepal.h"
 
 #include "multi.h"
 #include "cntrlcen.h"
@@ -93,7 +92,10 @@ COPYRIGHT 1993-1999 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 #include "playsave.h"
 #include "fix.h"
 #include "hudmsg.h"
+#if defined(DXX_BUILD_DESCENT_II)
+#include "gamepal.h"
 #include "movie.h"
+#endif
 #include "event.h"
 #include "window.h"
 
@@ -131,7 +133,6 @@ int	Game_mode = GM_GAME_OVER;
 int	Global_laser_firing_count = 0;
 int	Global_missile_firing_count = 0;
 fix64	Next_flare_fire_time = 0;
-#define	FLARE_BIG_DELAY	(F1_0*2)
 
 //	Function prototypes for GAME.C exclusively.
 
@@ -146,12 +147,6 @@ extern void multi_check_for_killgoal_winner();
 
 extern int ReadControls(d_event *event);		// located in gamecntl.c
 extern void do_final_boss_frame(void);
-
-
-// text functions
-
-extern ubyte DefiningMarkerMessage;
-extern char Marker_input[];
 
 // Cheats
 game_cheats cheats;
@@ -194,7 +189,10 @@ void init_cockpit()
 		PlayerCfg.CockpitMode[1] = CM_FULL_SCREEN;
 
 #ifndef OGL
-	if ( Game_screen_mode != (GameArg.GfxHiresGFXAvailable? SM(640,480) : SM(320,200)) && PlayerCfg.CockpitMode[1] != CM_LETTERBOX) {
+#if defined(DXX_BUILD_DESCENT_II)
+	int HiresGFXAvailable = Game_screen_mode.GfxHiresGFXAvailable;
+#endif
+	if ( Game_screen_mode != (HiresGFXAvailable? SM(640,480) : SM(320,200)) && PlayerCfg.CockpitMode[1] != CM_LETTERBOX) {
 		PlayerCfg.CockpitMode[1] = CM_FULL_SCREEN;
 	}
 #endif
@@ -209,9 +207,13 @@ void init_cockpit()
 		case CM_REAR_VIEW:
 		{	int x1 = 0, y1 = 0, x2 = SWIDTH, y2 = (SHEIGHT*2)/3;
 			grs_bitmap *bm;
+			int mode = PlayerCfg.CockpitMode[1];
+#if defined(DXX_BUILD_DESCENT_II)
+			mode += (HIRESMODE?(Num_cockpits/2):0);
+#endif
 
-			PIGGY_PAGE_IN(cockpit_bitmap[PlayerCfg.CockpitMode[1]+(HIRESMODE?(Num_cockpits/2):0)]);
-			bm=&GameBitmaps[cockpit_bitmap[PlayerCfg.CockpitMode[1]+(HIRESMODE?(Num_cockpits/2):0)].index];
+			PIGGY_PAGE_IN(cockpit_bitmap[mode]);
+			bm=&GameBitmaps[cockpit_bitmap[mode].index];
 			gr_bitblt_find_transparent_area(bm, &x1, &y1, &x2, &y2);
 			game_init_render_sub_buffers(x1*((float)SWIDTH/bm->bm_w), y1*((float)SHEIGHT/bm->bm_h), (x2-x1+1)*((float)SWIDTH/bm->bm_w), (y2-y1+2)*((float)SHEIGHT/bm->bm_h));
 			break;
@@ -313,12 +315,14 @@ int set_screen_mode(int sm)
 			}
 			break;
 #endif
+#if defined(DXX_BUILD_DESCENT_II)
 		case SCREEN_MOVIE:
 			if (grd_curscreen->sc_mode != SM(MOVIE_WIDTH,MOVIE_HEIGHT))	{
 				if (gr_set_mode(SM(MOVIE_WIDTH,MOVIE_HEIGHT))) Error("Cannot set screen mode for game!");
 				gr_palette_load( gr_palette );
 			}
 			break;
+#endif
 		default:
 			Error("Invalid screen mode %d",sm);
 	}
@@ -548,8 +552,16 @@ void do_invulnerable_stuff(void)
 	}
 }
 
+#if defined(DXX_BUILD_DESCENT_I)
+static inline void do_afterburner_stuff()
+{
+}
+#elif defined(DXX_BUILD_DESCENT_II)
 ubyte	Last_afterburner_state = 0;
 fix Last_afterburner_charge = 0;
+fix64	Time_flash_last_played;
+
+extern fix Flash_effect;
 
 #define AFTERBURNER_LOOP_START	((GameArg.SndDigiSampleRate==SAMPLE_RATE_22K)?32027:(32027/2))		//20098
 #define AFTERBURNER_LOOP_END		((GameArg.SndDigiSampleRate==SAMPLE_RATE_22K)?48452:(48452/2))		//25776
@@ -610,23 +622,10 @@ void do_afterburner_stuff(void)
 	Last_afterburner_state = Controls.afterburner_state;
 	Last_afterburner_charge = Afterburner_charge;
 }
-
-// -- //	------------------------------------------------------------------------------------
-// -- //	if energy < F1_0/2, recharge up to F1_0/2
-// -- void recharge_energy_frame(void)
-// -- {
-// -- 	if (Players[Player_num].energy < Weapon_info[0].energy_usage) {
-// -- 		Players[Player_num].energy += FrameTime/4;
-// --
-// -- 		if (Players[Player_num].energy > Weapon_info[0].energy_usage)
-// -- 			Players[Player_num].energy = Weapon_info[0].energy_usage;
-// -- 	}
-// -- }
+#endif
 
 //	Amount to diminish guns towards normal, per second.
 #define	DIMINISH_RATE 16 // gots to be a power of 2, else change the code in diminish_palette_towards_normal
-
-extern fix Flash_effect;
 
  //adds to rgb values for palette flash
 void PALETTE_FLASH_ADD(int _dr, int _dg, int _db)
@@ -637,9 +636,11 @@ void PALETTE_FLASH_ADD(int _dr, int _dg, int _db)
 	PaletteGreenAdd += _dg;
 	PaletteBlueAdd += _db;
 
+#if defined(DXX_BUILD_DESCENT_II)
 	if (Flash_effect)
 		maxval = 60;
 	else
+#endif
 		maxval = MAX_PALETTE_ADD;
 
 	if (PaletteRedAdd > maxval)
@@ -661,8 +662,6 @@ void PALETTE_FLASH_ADD(int _dr, int _dg, int _db)
 		PaletteBlueAdd = -maxval;
 }
 
-fix64	Time_flash_last_played;
-
 //	------------------------------------------------------------------------------------
 //	Diminish palette effects towards normal.
 void diminish_palette_towards_normal(void)
@@ -680,6 +679,7 @@ void diminish_palette_towards_normal(void)
 			dec_amount++;				// make sure we decrement by something
 	}
 
+#if defined(DXX_BUILD_DESCENT_II)
 	if (Flash_effect) {
 		int	force_do = 0;
 
@@ -708,6 +708,7 @@ void diminish_palette_towards_normal(void)
 		}
 
 	}
+#endif
 
 	if (PaletteRedAdd > 0 ) { PaletteRedAdd -= dec_amount; if (PaletteRedAdd < 0 ) PaletteRedAdd = 0; }
 	if (PaletteRedAdd < 0 ) { PaletteRedAdd += dec_amount; if (PaletteRedAdd > 0 ) PaletteRedAdd = 0; }
@@ -736,8 +737,10 @@ void palette_restore(void)
 	PaletteRedAdd = Redsave; PaletteBlueAdd = Bluesave; PaletteGreenAdd = Greensave;
 	gr_palette_step_up( PaletteRedAdd, PaletteGreenAdd, PaletteBlueAdd );
 
+#if defined(DXX_BUILD_DESCENT_II)
 	//	Forces flash effect to fixup palette next frame.
 	Time_flash_last_played = 0;
+#endif
 }
 
 extern void dead_player_frame(void);
@@ -762,10 +765,13 @@ int allowed_to_fire_flare(void)
 	if (Next_flare_fire_time > GameTime64)
 		return 0;
 
-	if (Players[Player_num].energy >= Weapon_info[FLARE_ID].energy_usage)
-		Next_flare_fire_time = GameTime64 + F1_0/4;
-	else
+#if defined(DXX_BUILD_DESCENT_II)
+	if (Players[Player_num].energy < Weapon_info[FLARE_ID].energy_usage)
+#define	FLARE_BIG_DELAY	(F1_0*2)
 		Next_flare_fire_time = GameTime64 + FLARE_BIG_DELAY;
+	else
+#endif
+		Next_flare_fire_time = GameTime64 + F1_0/4;
 
 	return 1;
 }
@@ -782,11 +788,11 @@ int allowed_to_fire_missile(void)
 void full_palette_save(void)
 {
 	palette_save();
+#if defined(DXX_BUILD_DESCENT_II)
 	reset_palette_add();
 	gr_palette_load( gr_palette );
+#endif
 }
-
-extern int Death_sequence_aborted;
 
 #ifdef USE_SDLMIXER
 #define EXT_MUSIC_TEXT "Jukebox/Audio CD"
@@ -828,7 +834,9 @@ void show_help()
 	m[nitems].type = NM_TYPE_TEXT; m[nitems++].text = "Alt-F1 (\x85-s)\t  Fast Save";
 #endif
 	m[nitems].type = NM_TYPE_TEXT; m[nitems++].text = "F3\t  SWITCH COCKPIT MODES";
+#if defined(DXX_BUILD_DESCENT_II)
 	m[nitems].type = NM_TYPE_TEXT; m[nitems++].text = TXT_HELP_F4;
+#endif
 	m[nitems].type = NM_TYPE_TEXT; m[nitems++].text = TXT_HELP_F5;
 	m[nitems].type = NM_TYPE_TEXT; m[nitems++].text = "ALT-F7\t  SWITCH HUD MODES";
 #if !(defined(__APPLE__) || defined(macintosh))
@@ -839,11 +847,13 @@ void show_help()
 	m[nitems].type = NM_TYPE_TEXT; m[nitems++].text = TXT_HELP_PRTSCN;
 	m[nitems].type = NM_TYPE_TEXT; m[nitems++].text = TXT_HELP_1TO5;
 	m[nitems].type = NM_TYPE_TEXT; m[nitems++].text = TXT_HELP_6TO10;
+#if defined(DXX_BUILD_DESCENT_II)
 	m[nitems].type = NM_TYPE_TEXT; m[nitems++].text = "Shift-F1/F2\t  Cycle left/right window";
 	m[nitems].type = NM_TYPE_TEXT; m[nitems++].text = "Shift-F4\t  GuideBot menu";
 	m[nitems].type = NM_TYPE_TEXT; m[nitems++].text = "Alt-Shift-F4\t  Rename GuideBot";
 	m[nitems].type = NM_TYPE_TEXT; m[nitems++].text = "Shift-F5/F6\t  Drop primary/secondary";
 	m[nitems].type = NM_TYPE_TEXT; m[nitems++].text = "Shift-number\t  GuideBot commands";
+#endif
 #if !(defined(__APPLE__) || defined(macintosh))
 	m[nitems].type = NM_TYPE_TEXT; m[nitems++].text = "Alt-Shift-F9\t  Eject Audio CD";
 	m[nitems].type = NM_TYPE_TEXT; m[nitems++].text = "Alt-Shift-F10\t  Play/Pause " EXT_MUSIC_TEXT;
@@ -871,7 +881,9 @@ void show_netgame_help()
 		return;
 
 	m[nitems].type = NM_TYPE_TEXT; m[nitems++].text = "F1\t  THIS SCREEN";
+#if defined(DXX_BUILD_DESCENT_II)
 	m[nitems].type = NM_TYPE_TEXT; m[nitems++].text = "ALT-0\t  DROP FLAG";
+#endif
 #if !(defined(__APPLE__) || defined(macintosh))
 	m[nitems].type = NM_TYPE_TEXT; m[nitems++].text = "Alt-F2/F3\t  SAVE/LOAD COOP GAME";
 #else
@@ -996,8 +1008,6 @@ void reset_rear_view(void)
 }
 
 int Config_menu_flag;
-
-extern char AcidCheatOn,old_IntMethod;
 
 //turns off all cheats & resets cheater flag
 void game_disable_cheats()
@@ -1192,6 +1202,7 @@ extern void check_create_player_path(void);
 
 extern	int Do_appearance_effect;
 
+#if defined(DXX_BUILD_DESCENT_II)
 object *Missile_viewer=NULL;
 int Missile_viewer_sig=-1;
 
@@ -1245,6 +1256,7 @@ void do_ambient_sounds()
 extern void omega_charge_frame(void);
 
 void flicker_lights();
+#endif
 
 void game_leave_menus(void)
 {
@@ -1268,6 +1280,7 @@ void GameProcessFrame(void)
 	do_cloak_stuff();
 	do_invulnerable_stuff();
 	remove_obsolete_stuck_objects();
+#if defined(DXX_BUILD_DESCENT_II)
 	init_ai_frame();
 	do_final_boss_frame();
 
@@ -1296,7 +1309,7 @@ void GameProcessFrame(void)
 #endif
 		}
 	}
-
+#endif
 
 #ifdef EDITOR
 	check_create_player_path();
@@ -1316,9 +1329,11 @@ void GameProcessFrame(void)
 	if (Newdemo_state != ND_STATE_PLAYBACK)
 		do_controlcen_dead_frame();
 
+#if defined(DXX_BUILD_DESCENT_II)
 	process_super_mines_frame();
 	do_seismic_stuff();
 	do_ambient_sounds();
+#endif
 
 #ifdef NETWORK
 	if ((Game_mode & GM_MULTI) && Netgame.PlayTimeAllowed)
@@ -1425,6 +1440,7 @@ void GameProcessFrame(void)
 #endif
 	}
 
+#if defined(DXX_BUILD_DESCENT_II)
 	omega_charge_frame();
 	slide_textures();
 	flicker_lights();
@@ -1432,6 +1448,7 @@ void GameProcessFrame(void)
 	//if the player is taking damage, give up guided missile control
 	if (Players[Player_num].shields != player_shields)
 		release_guided_missile(Player_num);
+#endif
 
 	// Check if we have to close in-game menus for multiplayer
 	if ((Game_mode & GM_MULTI) && (Players[Player_num].connected == CONNECT_PLAYING))
@@ -1442,30 +1459,7 @@ void GameProcessFrame(void)
 	}
 }
 
-//!!extern int Goal_blue_segnum,Goal_red_segnum;
-//!!extern int Hoard_goal_eclip;
-//!!
-//!!//do cool pulsing lights in hoard goals
-//!!hoard_light_pulse()
-//!!{
-//!!	if (Game_mode & GM_HOARD) {
-//!!		fix light;
-//!!		int frame;
-//!!
-//!!		frame = Effects[Hoard_goal_eclip].frame_count;
-//!!
-//!!		frame++;
-//!!
-//!!		if (frame >= Effects[Hoard_goal_eclip].vc.num_frames)
-//!!			frame = 0;
-//!!
-//!!		light = abs(frame - 5) * f1_0 / 5;
-//!!
-//!!		Segment2s[Goal_red_segnum].static_light = Segment2s[Goal_blue_segnum].static_light = light;
-//!!	}
-//!!}
-
-
+#if defined(DXX_BUILD_DESCENT_II)
 ubyte	Slide_segs[MAX_SEGMENTS];
 int	Slide_segs_computed;
 
@@ -1646,6 +1640,7 @@ int add_flicker(int segnum, int sidenum, fix delay, unsigned long mask)
 
 	return 1;
 }
+#endif
 
 #endif
 
@@ -1686,6 +1681,10 @@ void FireLaser()
 			if (Fusion_next_sound_time < GameTime64) {
 				if (Fusion_charge > F1_0*2) {
 					digi_play_sample( 11, F1_0 );
+#if defined(DXX_BUILD_DESCENT_I)
+					if(Game_mode & GM_MULTI)
+						multi_send_play_sound(11, F1_0);
+#endif
 					apply_damage_to_player(ConsoleObject, ConsoleObject, d_rand() * 4, 0);
 				} else {
 					create_awareness_event(ConsoleObject, PA_WEAPON_ROBOT_COLLISION);
@@ -1844,6 +1843,7 @@ void show_free_objects(void)
 
 #endif
 
+#if defined(DXX_BUILD_DESCENT_II)
 /*
  * reads a flickering_light structure from a PHYSFS_file
  */
@@ -1864,3 +1864,4 @@ void flickering_light_write(flickering_light *fl, PHYSFS_file *fp)
 	PHYSFSX_writeFix(fp, fl->timer);
 	PHYSFSX_writeFix(fp, fl->delay);
 }
+#endif
