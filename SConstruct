@@ -226,6 +226,7 @@ class DXXArchive(DXXCommon):
 'maths/rand.c',
 'maths/tables.c',
 'maths/vecmat.c',
+'misc/ignorecase.c',
 'misc/strio.c',
 'misc/strutil.c',
 ]
@@ -464,7 +465,6 @@ class D1XProgram(DXXProgram):
 'misc/error.c',
 'misc/hash.c',
 'misc/hmp.c',
-'misc/ignorecase.c',
 'misc/physfsx.c',
 'texmap/ntmap.c',
 'texmap/scanline.c'
@@ -692,7 +692,6 @@ class D2XProgram(DXXProgram):
 'misc/error.c',
 'misc/hash.c',
 'misc/hmp.c',
-'misc/ignorecase.c',
 'misc/physfsrwops.c',
 'misc/physfsx.c',
 'texmap/ntmap.c',
