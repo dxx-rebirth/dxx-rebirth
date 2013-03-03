@@ -305,6 +305,10 @@ class DXXProgram(DXXCommon):
 'arch/sdl/jukebox.c'
 ]
 ]
+	similar_common_sources = [os.path.join('similar', f) for f in [
+'arch/sdl/timer.c',
+]
+]
 	class UserSettings(DXXCommon.UserSettings):
 		def __init__(self,ARGUMENTS,target):
 			DXXCommon.UserSettings.__init__(self, ARGUMENTS.ARGUMENTS)
@@ -362,7 +366,7 @@ class DXXProgram(DXXCommon):
 		if DXXProgram.static_archive_construction is None:
 			DXXProgram.static_archive_construction = DXXArchive()
 		apply_target_name = lambda n: self._apply_target_name(n)
-		for t in ['similar_arch_ogl_sources', 'similar_arch_sdlmixer_sources']:
+		for t in ['similar_arch_ogl_sources', 'similar_arch_sdlmixer_sources', 'similar_common_sources']:
 			self.create_lazy_object_property(t, apply_target_name)
 		DXXCommon.__init__(self)
 		self.user_settings = self.UserSettings(self.ARGUMENTS, self.target)
@@ -435,6 +439,7 @@ class DXXProgram(DXXCommon):
 			objects.extend(self.objects_similar_arch_sdlmixer_sources)
 		if (self.user_settings.opengl == 1) or (self.user_settings.opengles == 1):
 			objects.extend(self.objects_similar_arch_ogl_sources)
+		objects.extend(self.objects_similar_common_sources)
 		# finally building program...
 		env.Program(target=str(exe_target), source = self.common_sources + objects, LIBS = self.platform_settings.libs, LINKFLAGS = str(self.platform_settings.lflags))
 		if (sys.platform != 'darwin'):
@@ -472,7 +477,6 @@ class D1XProgram(DXXProgram):
 'arch/sdl/joy.c',
 'arch/sdl/key.c',
 'arch/sdl/mouse.c',
-'arch/sdl/timer.c',
 'arch/sdl/digi.c',
 'arch/sdl/digi_audio.c',
 'iff/iff.c',
@@ -649,7 +653,6 @@ class D2XProgram(DXXProgram):
 'arch/sdl/joy.c',
 'arch/sdl/key.c',
 'arch/sdl/mouse.c',
-'arch/sdl/timer.c',
 'arch/sdl/digi.c',
 'arch/sdl/digi_audio.c',
 'iff/iff.c',
