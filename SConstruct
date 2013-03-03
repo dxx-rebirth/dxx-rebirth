@@ -68,8 +68,8 @@ class DXXProgram:
 		def adjust_environment(self,program,env):
 			env.RES('arch/win32/%s.rc' % program.target)
 			env.Append(CPPDEFINES = ['_WIN32'])
-			env.Append(CPPPATH = ['arch/win32/include'])
-			self.platform_sources = ['arch/win32/messagebox.c']
+			env.Append(CPPPATH = [os.path.join(self.srcdir, 'arch/win32/include')])
+			self.platform_sources = [os.path.join(program.srcdir, 'arch/win32/messagebox.c')]
 	# Settings to apply to Apple builds
 	# This appears to be unused.  The reference to sdl_only fails to
 	# execute.
@@ -89,7 +89,7 @@ class DXXProgram:
 			self.libs = ['../physfs/build/Debug/libphysfs.dylib']
 		def adjust_environment(self,program,env):
 			env.Append(CPPDEFINES = ['__unix__'])
-			self.platform_sources = ['arch/cocoa/SDLMain.m', 'arch/carbon/messagebox.c']
+			self.platform_sources = [os.path.join(program.srcdir, f) for f in ['arch/cocoa/SDLMain.m', 'arch/carbon/messagebox.c']]
 	# Settings to apply to Linux builds
 	class LinuxPlatformSettings(_PlatformSettings):
 		def __init__(self,user_settings):
@@ -103,9 +103,9 @@ class DXXProgram:
 			self.lflags = os.environ["LDFLAGS"] if os.environ.has_key('LDFLAGS') else ''
 		def adjust_environment(self,program,env):
 			env.Append(CPPDEFINES = ['__LINUX__'])
-			env.Append(CPPPATH = ['arch/linux/include'])
 			env.ParseConfig('pkg-config --cflags --libs sdl')
 			self.libs = env['LIBS']
+			env.Append(CPPPATH = [os.path.join(program.srcdir, 'arch/linux/include')])
 
 	def __init__(self):
 		self.user_settings = self.UserSettings(self.ARGUMENTS, self.target)
@@ -224,7 +224,7 @@ class DXXProgram:
 		#editor build?
 		if (self.user_settings.editor == 1):
 			env.Append(CPPDEFINES = ['EDITOR'])
-			env.Append(CPPPATH = ['include/editor'])
+			env.Append(CPPPATH = [os.path.join(self.srcdir, 'include/editor')])
 			self.common_sources += self.editor_sources
 
 		# IPv6 compability?
@@ -244,17 +244,18 @@ class DXXProgram:
 class D1XProgram(DXXProgram):
 	PROGRAM_NAME = 'D1X-Rebirth'
 	target = 'd1x-rebirth'
+	srcdir = ''
 	ARGUMENTS = argumentIndirection('d1x')
 	def prepare_environment(self):
 		DXXProgram.prepare_environment(self)
 		# Flags and stuff for all platforms...
 		self.env.Append(CPPFLAGS = ['-Wall', '-funsigned-char', '-Werror=implicit-int', '-Werror=implicit-function-declaration', '-std=c99', '-pedantic'])
 		self.env.Append(CPPDEFINES = ['NETWORK', '_REENTRANT'])
-		self.env.Append(CPPPATH = ['include', 'main', 'arch/include'])
+		self.env.Append(CPPPATH = [os.path.join(self.srcdir, f) for f in ['include', 'main', 'arch/include']])
 
 	def __init__(self):
 	# general source files
-		self.common_sources = [
+		self.common_sources = [os.path.join(self.srcdir, f) for f in [
 '2d/2dsline.c',
 '2d/bitblt.c',
 '2d/bitmap.c',
@@ -376,9 +377,10 @@ class D1XProgram(DXXProgram):
 'texmap/scanline.c'
 #'tracker/client/tracker_client.c'
 ]
+]
 
 	# for editor
-		self.editor_sources = [
+		self.editor_sources = [os.path.join(self.srcdir, f) for f in [
 'editor/centers.c',
 'editor/curves.c',
 'editor/autosave.c',
@@ -435,41 +437,46 @@ class D1XProgram(DXXProgram):
 'ui/uidraw.c',
 'ui/userbox.c'
 ]
+]
 		DXXProgram.__init__(self)
 
-	sources_use_udp = ['main/net_udp.c']
+	sources_use_udp = [os.path.join(srcdir, 'main/net_udp.c')]
 
 	# SDL_mixer sound implementation
-	arch_sdlmixer = [
+	arch_sdlmixer = [os.path.join(srcdir, f) for f in [
 'arch/sdl/digi_mixer.c',
 'arch/sdl/digi_mixer_music.c',
 'arch/sdl/jukebox.c'
 ]
+]
 
 	# for opengl
-	arch_ogl_sources = [
+	arch_ogl_sources = [os.path.join(srcdir, f) for f in [
 'arch/ogl/gr.c',
 'arch/ogl/ogl.c',
 ]
+]
 
 	# for non-ogl
-	arch_sdl_sources = [
+	arch_sdl_sources = [os.path.join(srcdir, f) for f in [
 'arch/sdl/gr.c',
 'texmap/tmapflat.c'
 ]
+]
 
 	# assembler related
-	asm_sources = [
+	asm_sources = [os.path.join(srcdir, f) for f in [
 'texmap/tmap_ll.asm',
 'texmap/tmap_flt.asm',
 'texmap/tmapfade.asm',
 'texmap/tmap_lin.asm',
 'texmap/tmap_per.asm'
 ]
+]
 
 	def register_program(self):
 		env = self.env
-		exe_target = self.target
+		exe_target = os.path.join(self.srcdir, self.target)
 		# finally building program...
 		env.Program(target=str(exe_target), source = self.common_sources, LIBS = self.platform_settings.libs, LINKFLAGS = str(self.platform_settings.lflags))
 		if (sys.platform != 'darwin'):
