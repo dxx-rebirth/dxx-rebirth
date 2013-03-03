@@ -49,6 +49,7 @@ COPYRIGHT 1993-1999 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 #include "automap.h"
 #include "mission.h"
 #include "gameseq.h"
+#include "args.h"
 
 #ifdef OGL
 #include "ogl_init.h"

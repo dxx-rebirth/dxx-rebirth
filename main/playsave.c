@@ -47,6 +47,7 @@ COPYRIGHT 1993-1999 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 #include "u_mem.h"
 #include "strio.h"
 #include "physfsx.h"
+#include "args.h"
 #include "vers_id.h"
 #include "newdemo.h"
 #include "gauges.h"

@@ -71,6 +71,7 @@ COPYRIGHT 1993-1999 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 #include "rbaudio.h"
 #include "window.h"
 #include "playsave.h"
+#include "args.h"
 
 #define LEAVE_TIME 0x4000
 

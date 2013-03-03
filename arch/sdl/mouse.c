@@ -13,6 +13,7 @@
 #include "window.h"
 #include "mouse.h"
 #include "playsave.h"
+#include "args.h"
 
 static struct mouseinfo {
 	ubyte  button_state[MOUSE_MAX_BUTTONS];

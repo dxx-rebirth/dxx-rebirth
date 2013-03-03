@@ -22,6 +22,7 @@
 #include "newdemo.h"
 #include "kconfig.h"
 #include "config.h"
+#include "args.h"
 
 //changed on 980905 by adb to increase number of concurrent sounds
 #define MAX_SOUND_SLOTS 32

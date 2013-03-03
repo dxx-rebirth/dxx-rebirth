@@ -51,6 +51,7 @@
 #include "internal.h"
 #include "gauges.h"
 #include "playsave.h"
+#include "args.h"
 
 //change to 1 for lots of spew.
 #if 0

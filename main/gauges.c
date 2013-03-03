@@ -55,6 +55,7 @@ COPYRIGHT 1993-1999 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 #ifdef OGL
 #include "ogl_init.h"
 #endif
+#include "args.h"
 
 //bitmap numbers for gauges
 #define GAUGE_SHIELDS			0		//0..9, in decreasing order (100%,90%...0%)

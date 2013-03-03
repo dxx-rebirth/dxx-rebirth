@@ -52,6 +52,7 @@ COPYRIGHT 1993-1999 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 #include "menu.h"
 #include "mouse.h"
 #include "console.h"
+#include "args.h"
 
 extern unsigned RobSX,RobSY,RobDX,RobDY; // Robot movie coords
 

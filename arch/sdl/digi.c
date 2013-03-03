@@ -17,6 +17,7 @@
 #include "console.h"
 #include "rbaudio.h"
 #include "jukebox.h"
+#include "args.h"
 #include <stdlib.h>
 #include <stdio.h>
 #include <string.h>

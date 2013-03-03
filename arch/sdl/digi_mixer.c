@@ -28,6 +28,7 @@
 #include "digi_mixer_music.h"
 #include "console.h"
 #include "config.h"
+#include "args.h"
 
 #include "fix.h"
 #include "gr.h" // needed for piggy.h

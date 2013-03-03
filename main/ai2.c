@@ -56,6 +56,7 @@ COPYRIGHT 1993-1999 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 #include "powerup.h"
 #include "gauges.h"
 #include "text.h"
+#include "args.h"
 
 #ifdef EDITOR
 #include "editor/editor.h"
