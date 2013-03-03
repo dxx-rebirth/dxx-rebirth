@@ -18,10 +18,7 @@ COPYRIGHT 1993-1999 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
  */
 
 
-#include <stdio.h>
 #include <stdlib.h>
-
-#include "pstypes.h"
 #include "key.h"
 #include "joy.h"
 #include "timer.h"
@@ -36,10 +33,9 @@ COPYRIGHT 1993-1999 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 #include "palette.h"
 #include "mouse.h"
 #include "kconfig.h"
+#if defined(DXX_BUILD_DESCENT_II)
 #include "laser.h"
-#ifdef NETWORK
 #include "multi.h"
-#endif
 #include "vclip.h"
 #include "fireball.h"
 
@@ -54,6 +50,7 @@ fix Afterburner_charge=f1_0;
 extern int Drop_afterburner_blob_flag;		//ugly hack
 
 extern fix	Seismic_tremor_magnitude;
+#endif
 
 void read_flying_controls( object * obj )
 {
@@ -61,14 +58,7 @@ void read_flying_controls( object * obj )
 
 	Assert(FrameTime > 0); 		//Get MATT if hit this!
 
-// this section commented and moved to the bottom by WraithX
-//	if (Player_is_dead) {
-//		vm_vec_zero(&obj->mtype.phys_info.rotthrust);
-//		vm_vec_zero(&obj->mtype.phys_info.thrust);
-//		return;
-//	}
-// end of section to be moved.
-
+#if defined(DXX_BUILD_DESCENT_II)
 	if ((obj->type!=OBJ_PLAYER) || (obj->id!=Player_num)) return;	//references to player_ship require that this obj be the player
 
 	if (Guided_missile[Player_num] && Guided_missile[Player_num]->signature==Guided_missile_sig[Player_num]) {
@@ -100,7 +90,9 @@ void read_flying_controls( object * obj )
 #endif
 
 	}
-	else {
+	else
+#endif
+	{
 		obj->mtype.phys_info.rotthrust.x = Controls.pitch_time;
 		obj->mtype.phys_info.rotthrust.y = Controls.heading_time;
 		obj->mtype.phys_info.rotthrust.z = Controls.bank_time;
@@ -108,10 +100,10 @@ void read_flying_controls( object * obj )
 
 	forward_thrust_time = Controls.forward_thrust_time;
 
+#if defined(DXX_BUILD_DESCENT_II)
 	if (Players[Player_num].flags & PLAYER_FLAGS_AFTERBURNER)
 	{
 		if (Controls.afterburner_state) {			//player has key down
-			//if (forward_thrust_time >= 0) { 		//..and isn't moving backward
 			{
 				fix afterburner_scale;
 				int old_count,new_count;
@@ -150,6 +142,7 @@ void read_flying_controls( object * obj )
 			Players[Player_num].energy -= charge_up * 100 / 10;	//full charge uses 10% of energy
 		}
 	}
+#endif
 
 	// Set object's thrust vector for forward/backward
 	vm_vec_copy_scale(&obj->mtype.phys_info.thrust,&obj->orient.fvec, forward_thrust_time );
