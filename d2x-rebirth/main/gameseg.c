@@ -248,7 +248,7 @@ void create_all_vertnum_lists(int *num_faces, int *vertnums, int segnum, int sid
 
 // -----
 // like create_all_vertex_lists(), but generate absolute point numbers
-void create_abs_vertex_lists(int *num_faces, int *vertices, int segnum, int sidenum, char *calling_file, int calling_linenum)
+void create_abs_vertex_lists(int *num_faces, int *vertices, int segnum, int sidenum, const char *calling_file, int calling_linenum)
 {
 	int	*vp = Segments[segnum].verts;
 	side	*sidep = &Segments[segnum].sides[sidenum];
@@ -304,7 +304,7 @@ void create_abs_vertex_lists(int *num_faces, int *vertices, int segnum, int side
 
 //returns 3 different bitmasks with info telling if this sphere is in
 //this segment.  See segmasks structure for info on fields  
-segmasks get_seg_masks(vms_vector *checkp, int segnum, fix rad, char *calling_file, int calling_linenum)
+segmasks get_seg_masks(const vms_vector *checkp, int segnum, fix rad, const char *calling_file, int calling_linenum)
 {
 	int			sn,facebit,sidebit;
 	segmasks		masks;
