@@ -21,8 +21,6 @@ COPYRIGHT 1993-1998 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 #ifndef _ARGS_H
 #define _ARGS_H
 
-#include "pstypes.h"	// for __packed__ definition (varies with compiler)
-
 extern int Num_args;
 extern char *Args[];
 extern void InitArgs(int argc, char **argv);
@@ -97,7 +95,7 @@ typedef struct Arg
 	int DbgSdlHWSurface;
 	int DbgSdlASyncBlit;
 #endif
-} __pack__ Arg;
+} Arg;
 
 extern struct Arg GameArg;
 
