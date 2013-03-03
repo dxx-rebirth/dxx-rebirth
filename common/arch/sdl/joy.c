@@ -11,9 +11,8 @@
 #include "timer.h"
 #include "console.h"
 #include "event.h"
-#include "text.h"
 #include "u_mem.h"
-#include "playsave.h"
+#include "strutil.h"
 
 extern char *joybutton_text[]; //from kconfig.c
 extern char *joyaxis_text[]; //from kconfig.c
