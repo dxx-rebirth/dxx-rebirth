@@ -177,8 +177,13 @@ extern void newmenu_free_background();
 #define SLIDER_RIGHT        "\204"  // 132
 #define SLIDER_MIDDLE       "\205"  // 133
 #define SLIDER_MARKER       "\206"  // 134
+#if defined(DXX_BUILD_DESCENT_I)
+#define UP_ARROW_MARKER     "+"  // 135
+#define DOWN_ARROW_MARKER   "+"  // 136
+#elif defined(DXX_BUILD_DESCENT_II)
 #define UP_ARROW_MARKER     ((grd_curcanv->cv_font==GAME_FONT)?"\202":"\207")  // 135
 #define DOWN_ARROW_MARKER   ((grd_curcanv->cv_font==GAME_FONT)?"\200":"\210")  // 136
+#endif
 
 #define BORDERX (15*(SWIDTH/320))
 #define BORDERY (15*(SHEIGHT/200))
