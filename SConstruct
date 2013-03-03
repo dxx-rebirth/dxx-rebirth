@@ -751,6 +751,7 @@ class DXXProgram(DXXCommon):
 'arch/sdl/key.c',
 'arch/sdl/mouse.c',
 'arch/sdl/timer.c',
+'main/aipath.c',
 'main/automap.c',
 'main/cntrlcen.c',
 'main/config.c',
@@ -1013,7 +1014,6 @@ class D1XProgram(DXXProgram):
 		'source':[os.path.join(srcdir, f) for f in [
 'iff/iff.c',
 'main/ai.c',
-'main/aipath.c',
 'main/bm.c',
 'main/bmread.c',
 'main/collide.c',
@@ -1087,7 +1087,6 @@ class D2XProgram(DXXProgram):
 'libmve/mveplay.c',
 'main/ai.c',
 'main/ai2.c',
-'main/aipath.c',
 'main/bm.c',
 'main/collide.c',
 'main/dumpmine.c',

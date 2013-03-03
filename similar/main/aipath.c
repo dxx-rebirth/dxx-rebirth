@@ -52,7 +52,11 @@ COPYRIGHT 1993-1999 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 #endif
 
 void validate_all_paths(void);
-void ai_path_set_orient_and_vel(object *objp, vms_vector* goal_point, int player_visibility, vms_vector *vec_to_player);
+void ai_path_set_orient_and_vel(object *objp, vms_vector* goal_point
+#if defined(DXX_BUILD_DESCENT_II)
+								, int player_visibility, vms_vector *vec_to_player
+#endif
+								);
 void maybe_ai_path_garbage_collect(void);
 void ai_path_garbage_collect(void);
 #if PATH_VALIDATION
@@ -85,13 +89,13 @@ void create_random_xlate(sbyte *xt)
 // at the end of the list and go backwards.
 void insert_center_points(point_seg *psegs, int *num_points)
 {
-	int	i, j, last_point;
+	int	i, last_point;
 	int	count=*num_points;
 
 	last_point = *num_points-1;
 
 	for (i=last_point; i>0; i--) {
-		int			connect_side, temp_segnum;
+		int			connect_side;
 		vms_vector	center_point, new_point;
 
 		psegs[2*i] = psegs[i];
@@ -105,16 +109,21 @@ void insert_center_points(point_seg *psegs, int *num_points)
 		new_point.y /= 16;
 		new_point.z /= 16;
 		vm_vec_sub(&psegs[2*i-1].point, &center_point, &new_point);
-		temp_segnum = find_point_seg(&psegs[2*i-1].point, psegs[2*i].segnum);
+#if defined(DXX_BUILD_DESCENT_II)
+		int temp_segnum = find_point_seg(&psegs[2*i-1].point, psegs[2*i].segnum);
 		if (temp_segnum == -1) {
 			psegs[2*i-1].point = center_point;
 			find_point_seg(&psegs[2*i-1].point, psegs[2*i].segnum);
 		}
+#endif
 
 		psegs[2*i-1].segnum = psegs[2*i].segnum;
 		count++;
 	}
 
+#if defined(DXX_BUILD_DESCENT_I)
+	*num_points = count;
+#elif defined(DXX_BUILD_DESCENT_II)
 	//	Now, remove unnecessary center points.
 	//	A center point is unnecessary if it is close to the line between the two adjacent points.
 	//	MK, OPTIMIZE!  Can get away with about half the math since every vector gets computed twice.
@@ -130,14 +139,15 @@ void insert_center_points(point_seg *psegs, int *num_points)
 	}
 
 	//	Now, scan for points with segnum == -1
-	j = 0;
+	int j = 0;
 	for (i=0; i<count; i++)
 		if (psegs[i].segnum != -1)
 			psegs[j++] = psegs[i];
-
 	*num_points = j;
+#endif
 }
 
+#if defined(DXX_BUILD_DESCENT_II)
 //	-----------------------------------------------------------------------------------------------------------
 //	Move points halfway to outside of segment.
 void move_towards_outside(point_seg *psegs, int *num_points, object *objp, int rand_flag)
@@ -253,6 +263,7 @@ if (vm_vec_mag_quick(&e) < F1_0/2)
 	for (i=1; i<*num_points-1; i++)
 		psegs[i] = new_psegs[i];
 }
+#endif
 
 
 //	-----------------------------------------------------------------------------------------------------------
@@ -322,9 +333,11 @@ if ((objp->type == OBJ_ROBOT) && (objp->ctype.ai_info.behavior == AIB_RUN_FROM))
 	while (cur_seg != end_seg) {
 		segment	*segp = &Segments[cur_seg];
 
+#if defined(DXX_BUILD_DESCENT_II)
 		if (random_flag)
 			if (d_rand() < 8192)
 				create_random_xlate(random_xlate);
+#endif
 
 		for (sidenum = 0; sidenum < MAX_SIDES_PER_SEGMENT; sidenum++) {
 
@@ -333,8 +346,14 @@ if ((objp->type == OBJ_ROBOT) && (objp->ctype.ai_info.behavior == AIB_RUN_FROM))
 			if (random_flag)
 				snum = random_xlate[sidenum];
 
-			if (IS_CHILD(segp->children[snum]) && ((WALL_IS_DOORWAY(segp, snum) & WID_FLY_FLAG) || (ai_door_is_openable(objp, segp, snum)))) {
+#if defined(DXX_BUILD_DESCENT_I)
+			if ((WALL_IS_DOORWAY(segp, snum) & WID_FLY_FLAG) || (ai_door_is_openable(objp, segp, snum)))
+#elif defined(DXX_BUILD_DESCENT_II)
+			if (IS_CHILD(segp->children[snum]) && ((WALL_IS_DOORWAY(segp, snum) & WID_FLY_FLAG) || (ai_door_is_openable(objp, segp, snum))))
+#endif
+			{
 				int			this_seg = segp->children[snum];
+#if defined(DXX_BUILD_DESCENT_II)
 				Assert(this_seg != -1);
 				if (((cur_seg == avoid_seg) || (this_seg == avoid_seg)) && (ConsoleObject->segnum == avoid_seg)) {
 					vms_vector	center_point;
@@ -358,6 +377,7 @@ if ((objp->type == OBJ_ROBOT) && (objp->ctype.ai_info.behavior == AIB_RUN_FROM))
 						goto dont_add;
 					}
 				}
+#endif
 
 				if (!visited[this_seg]) {
 					seg_queue[qtail].start = cur_seg;
@@ -370,7 +390,9 @@ if ((objp->type == OBJ_ROBOT) && (objp->ctype.ai_info.behavior == AIB_RUN_FROM))
 					}	// end if (depth[...
 				}	// end if (!visited...
 			}	// if (WALL_IS_DOORWAY(...
+#if defined(DXX_BUILD_DESCENT_II)
 dont_add: ;
+#endif
 		}	//	for (sidenum...
 
 		if (qtail <= 0)
@@ -401,9 +423,11 @@ cpp_done1: ;
 	else
 		qtail = -1;
 
+#if defined(DXX_BUILD_DESCENT_I)
 	#ifdef EDITOR
-	// -- N_selected_segs = 0;
+	N_selected_segs = 0;
 	#endif
+#endif
 
 	while (qtail >= 0) {
 		int	parent_seg, this_seg;
@@ -415,9 +439,11 @@ cpp_done1: ;
 		compute_segment_center(&psegs->point,&Segments[this_seg]);
 		psegs++;
 		l_num_points++;
+#if defined(DXX_BUILD_DESCENT_I)
 		#ifdef EDITOR
-		// -- Selected_segs[N_selected_segs++] = this_seg;
+		Selected_segs[N_selected_segs++] = this_seg;
 		#endif
+#endif
 
 		if (parent_seg == start_seg)
 			break;
@@ -456,7 +482,6 @@ cpp_done1: ;
 			*num_points = l_num_points;
 			return -1;
 		} else {
-			// int	old_num_points = l_num_points;
 			insert_center_points(original_psegs, &l_num_points);
 		}
 	}
@@ -465,12 +490,14 @@ cpp_done1: ;
 	validate_path(3, original_psegs, l_num_points);
 #endif
 
+#if defined(DXX_BUILD_DESCENT_II)
 // -- MK, 10/30/95 -- This code causes apparent discontinuities in the path, moving a point
 //	into a new segment.  It is not necessarily bad, but it makes it hard to track down actual
 //	discontinuity problems.
 	if (objp->type == OBJ_ROBOT)
 		if (Robot_info[objp->id].companion)
 			move_towards_outside(original_psegs, &l_num_points, objp, 0);
+#endif
 
 #if PATH_VALIDATION
 	validate_path(4, original_psegs, l_num_points);
@@ -480,6 +507,7 @@ cpp_done1: ;
 	return 0;
 }
 
+#if defined(DXX_BUILD_DESCENT_II)
 int	Last_buddy_polish_path_tick;
 
 //	-------------------------------------------------------------------------------------------------------
@@ -508,7 +536,7 @@ int polish_path(object *objp, point_seg *psegs, int num_points)
 			Last_buddy_polish_path_tick = d_tick_count;
 	}
 
-	// -- MK: 10/18/95: for (i=0; i<num_points-3; i++) {
+	// -- MK: 10/18/95: for (i=0; i<num_points-3; i++)
 	for (i=0; i<2; i++) {
 		fvi_query	fq;
 		fvi_info		hit_data;
@@ -538,6 +566,7 @@ int polish_path(object *objp, point_seg *psegs, int num_points)
 
 	return num_points - first_point;
 }
+#endif
 
 #ifndef NDEBUG
 //	-------------------------------------------------------------------------------------------------------
@@ -633,7 +662,11 @@ void create_path_to_player(object *objp, int max_length, int safety_flag)
 		max_length = MAX_DEPTH_TO_SEARCH_FOR_PLAYER;
 
 	ailp->time_player_seen = GameTime64;			//	Prevent from resetting path quickly.
+#if defined(DXX_BUILD_DESCENT_I)
+	ailp->goal_segment = ConsoleObject->segnum;
+#elif defined(DXX_BUILD_DESCENT_II)
 	ailp->goal_segment = Believed_player_seg;
+#endif
 
 	start_seg = objp->segnum;
 	end_seg = ailp->goal_segment;
@@ -642,9 +675,16 @@ void create_path_to_player(object *objp, int max_length, int safety_flag)
 		;
 	} else {
 		create_path_points(objp, start_seg, end_seg, Point_segs_free_ptr, &aip->path_length, max_length, 1, safety_flag, -1);
+#if defined(DXX_BUILD_DESCENT_II)
 		aip->path_length = polish_path(objp, Point_segs_free_ptr, aip->path_length);
+#endif
 		aip->hide_index = Point_segs_free_ptr - Point_segs;
 		aip->cur_path_index = 0;
+#if defined(DXX_BUILD_DESCENT_I)
+#ifndef NDEBUG
+		validate_path(6, Point_segs_free_ptr, aip->path_length);
+#endif
+#endif
 		Point_segs_free_ptr += aip->path_length;
 		if (Point_segs_free_ptr - Point_segs + MAX_PATH_LENGTH*2 > MAX_POINT_SEGS) {
 			//Int3();	//	Contact Mike: This is stupid.  Should call maybe_ai_garbage_collect before the add.
@@ -654,7 +694,9 @@ void create_path_to_player(object *objp, int max_length, int safety_flag)
 		}
 //		Assert(Point_segs_free_ptr - Point_segs + MAX_PATH_LENGTH*2 < MAX_POINT_SEGS);
 		aip->PATH_DIR = 1;		//	Initialize to moving forward.
-		// -- UNUSED! aip->SUBMODE = AISM_GOHIDE;		//	This forces immediate movement.
+#if defined(DXX_BUILD_DESCENT_I)
+		aip->SUBMODE = AISM_GOHIDE;		//	This forces immediate movement.
+#endif
 		ailp->mode = AIM_FOLLOW_PATH;
 		ailp->player_awareness_type = 0;		//	If robot too aware of player, will set mode to chase
 	}
@@ -663,6 +705,7 @@ void create_path_to_player(object *objp, int max_length, int safety_flag)
 
 }
 
+#if defined(DXX_BUILD_DESCENT_II)
 //	-------------------------------------------------------------------------------------------------------
 //	Creates a path from the object's current segment (objp->segnum) to segment goalseg.
 void create_path_to_segment(object *objp, int goalseg, int max_length, int safety_flag)
@@ -700,6 +743,7 @@ void create_path_to_segment(object *objp, int goalseg, int max_length, int safet
 	maybe_ai_path_garbage_collect();
 
 }
+#endif
 
 //	-------------------------------------------------------------------------------------------------------
 //	Creates a path from the objects current segment (objp->segnum) to the specified segment for the object to
@@ -725,10 +769,16 @@ void create_path_to_station(object *objp, int max_length)
 		;
 	} else {
 		create_path_points(objp, start_seg, end_seg, Point_segs_free_ptr, &aip->path_length, max_length, 1, 1, -1);
+#if defined(DXX_BUILD_DESCENT_II)
 		aip->path_length = polish_path(objp, Point_segs_free_ptr, aip->path_length);
+#endif
 		aip->hide_index = Point_segs_free_ptr - Point_segs;
 		aip->cur_path_index = 0;
-
+#if defined(DXX_BUILD_DESCENT_I)
+#ifndef NDEBUG
+		validate_path(7, Point_segs_free_ptr, aip->path_length);
+#endif
+#endif
 		Point_segs_free_ptr += aip->path_length;
 		if (Point_segs_free_ptr - Point_segs + MAX_PATH_LENGTH*2 > MAX_POINT_SEGS) {
 			//Int3();	//	Contact Mike: Stupid.
@@ -776,9 +826,12 @@ void create_n_segment_path(object *objp, int path_length, int avoid_seg)
 	}
 
 	aip->PATH_DIR = 1;		//	Initialize to moving forward.
-	// -- UNUSED! aip->SUBMODE = -1;		//	Don't know what this means.
+#if defined(DXX_BUILD_DESCENT_I)
+	aip->SUBMODE = -1;		//	Don't know what this means.
+#endif
 	ailp->mode = AIM_FOLLOW_PATH;
 
+#if defined(DXX_BUILD_DESCENT_II)
 	//	If this robot is visible (player_visibility is not available) and it's running away, move towards outside with
 	//	randomness to prevent a stream of bots from going away down the center of a corridor.
 	if (Ai_local_info[objp-Objects].previous_visibility) {
@@ -788,6 +841,7 @@ void create_n_segment_path(object *objp, int path_length, int avoid_seg)
 			aip->path_length = t_num_points;
 		}
 	}
+#endif
 
 	maybe_ai_path_garbage_collect();
 
@@ -833,15 +887,65 @@ extern int Connected_segment_distance;
 // -- too much work -- 		return 0;
 // -- too much work -- }
 
+//	-------------------------------------------------------------------------------------------------------
+//	Creates a path from the objects current segment (objp->segnum) to the specified segment for the object to
+//	hide in Ai_local_info[objnum].goal_segment.
+//	Sets	objp->ctype.ai_info.hide_index,		a pointer into Point_segs, the first point_seg of the path.
+//			objp->ctype.ai_info.path_length,		length of path
+//			Point_segs_free_ptr				global pointer into Point_segs array
+#if defined(DXX_BUILD_DESCENT_I)
+static void create_path(object *objp)
+{
+	ai_static	*aip = &objp->ctype.ai_info;
+	ai_local		*ailp = &Ai_local_info[objp-Objects];
+	int			start_seg, end_seg;
+
+	start_seg = objp->segnum;
+	end_seg = ailp->goal_segment;
+
+	if (end_seg == -1)
+		create_n_segment_path(objp, 3, -1);
+
+	if (end_seg == -1) {
+		;
+	} else {
+		create_path_points(objp, start_seg, end_seg, Point_segs_free_ptr, &aip->path_length, -1, 0, 0, -1);
+		aip->hide_index = Point_segs_free_ptr - Point_segs;
+		aip->cur_path_index = 0;
+#ifndef NDEBUG
+		validate_path(5, Point_segs_free_ptr, aip->path_length);
+#endif
+		Point_segs_free_ptr += aip->path_length;
+		if (Point_segs_free_ptr - Point_segs + MAX_PATH_LENGTH*2 > MAX_POINT_SEGS) {
+			//Int3();	//	Contact Mike: This is curious, though not deadly. /eip++;g
+			//force_dump_ai_objects_all("Error in create_path");
+			ai_reset_all_paths();
+		}
+		aip->PATH_DIR = 1;		//	Initialize to moving forward.
+		aip->SUBMODE = AISM_HIDING;		//	Pretend we are hiding, so we sit here until bothered.
+	}
+
+	maybe_ai_path_garbage_collect();
+
+}
+#endif
+
+
 //	----------------------------------------------------------------------------------------------------------
 //	Optimization: If current velocity will take robot near goal, don't change velocity
+#if defined(DXX_BUILD_DESCENT_I)
+void ai_follow_path(object *objp, int player_visibility)
+#elif defined(DXX_BUILD_DESCENT_II)
 void ai_follow_path(object *objp, int player_visibility, int previous_visibility, vms_vector *vec_to_player)
+#endif
 {
 	ai_static		*aip = &objp->ctype.ai_info;
 
 	vms_vector	goal_point, new_goal_point;
 	fix			dist_to_goal;
+#if defined(DXX_BUILD_DESCENT_II)
 	robot_info	*robptr = &Robot_info[objp->id];
+#endif
 	int			forced_break, original_dir, original_index;
 	ai_local		*ailp = &Ai_local_info[objp-Objects];
 	fix			threshold_distance;
@@ -854,22 +958,33 @@ void ai_follow_path(object *objp, int player_visibility, int previous_visibility
 			//--Int3_if((aip->path_length != 0));
 			ailp->mode = AIM_RUN_FROM_OBJECT;
 		} else {
+#if defined(DXX_BUILD_DESCENT_I)
+			create_path(objp);
+#elif defined(DXX_BUILD_DESCENT_II)
 			create_n_segment_path(objp, 5, -1);
+#endif
 			//--Int3_if((aip->path_length != 0));
 		}
 	}
 
 	if ((aip->hide_index + aip->path_length > Point_segs_free_ptr - Point_segs) && (aip->path_length>0)) {
+#if defined(DXX_BUILD_DESCENT_II)
 		Int3();	//	Contact Mike: Bad.  Path goes into what is believed to be free space.
 		//	This is debugging code.  Figure out why garbage collection
 		//	didn't compress this object's path information.
 		ai_path_garbage_collect();
+#endif
 		//force_dump_ai_objects_all("Error in ai_follow_path");
 		ai_reset_all_paths();
 	}
 
 	if (aip->path_length < 2) {
-		if ((aip->behavior == AIB_SNIPE) || (ailp->mode == AIM_RUN_FROM_OBJECT)) {
+#if defined(DXX_BUILD_DESCENT_I)
+		if (ailp->mode == AIM_RUN_FROM_OBJECT)
+#elif defined(DXX_BUILD_DESCENT_II)
+		if ((aip->behavior == AIB_SNIPE) || (ailp->mode == AIM_RUN_FROM_OBJECT))
+#endif
+		{
 			if (ConsoleObject->segnum == objp->segnum) {
 				create_n_segment_path(objp, AVOID_SEG_LENGTH, -1);			//	Can't avoid segment player is in, robot is already in it! (That's what the -1 is for)
 				//--Int3_if((aip->path_length != 0));
@@ -877,23 +992,38 @@ void ai_follow_path(object *objp, int player_visibility, int previous_visibility
 				create_n_segment_path(objp, AVOID_SEG_LENGTH, ConsoleObject->segnum);
 				//--Int3_if((aip->path_length != 0));
 			}
+#if defined(DXX_BUILD_DESCENT_II)
 			if (aip->behavior == AIB_SNIPE) {
 				if (robptr->thief)
 					ailp->mode = AIM_THIEF_ATTACK;	//	It gets bashed in create_n_segment_path
 				else
 					ailp->mode = AIM_SNIPE_FIRE;	//	It gets bashed in create_n_segment_path
-			} else {
+			} else
+#endif
+			{
 				ailp->mode = AIM_RUN_FROM_OBJECT;	//	It gets bashed in create_n_segment_path
 			}
-		} else if (robptr->companion == 0) {
+		}
+#if defined(DXX_BUILD_DESCENT_I)
+		else {
+			ailp->mode = AIM_STILL;
+		}
+		return;
+#elif defined(DXX_BUILD_DESCENT_II)
+		else if (robptr->companion == 0) {
 			ailp->mode = AIM_STILL;
 			aip->path_length = 0;
 			return;
 		}
+#endif
 	}
 
-	//--Int3_if(((aip->PATH_DIR == -1) || (aip->PATH_DIR == 1)));
-	//--Int3_if(((aip->cur_path_index >= 0) && (aip->cur_path_index < aip->path_length)));
+#if defined(DXX_BUILD_DESCENT_I)
+	Assert((aip->PATH_DIR == -1) || (aip->PATH_DIR == 1));
+
+	if ((aip->SUBMODE == AISM_HIDING) && (aip->behavior == AIB_HIDE))
+		return;
+#endif
 
 	goal_point = Point_segs[aip->hide_index + aip->cur_path_index].point;
 	dist_to_goal = vm_vec_dist_quick(&goal_point, &objp->pos);
@@ -910,7 +1040,11 @@ void ai_follow_path(object *objp, int player_visibility, int previous_visibility
 			vm_vec_scale(&objp->mtype.phys_info.velocity, vel_scale);
 
 			return;
-		} else if (!(d_tick_count ^ ((objp-Objects) & 0x07))) {		//	Done 1/8 ticks.
+		} else
+#if defined(DXX_BUILD_DESCENT_II)
+			if (!(d_tick_count ^ ((objp-Objects) & 0x07)))
+#endif
+			{		//	Done 1/8 ticks.
 			//	If player on path (beyond point robot is now at), then create a new path.
 			point_seg	*curpsp = &Point_segs[aip->hide_index];
 			int			player_segnum = ConsoleObject->segnum;
@@ -924,7 +1058,9 @@ void ai_follow_path(object *objp, int player_visibility, int previous_visibility
 					} else {
 						create_n_segment_path(objp, AVOID_SEG_LENGTH, -1);
 					}
+#if defined(DXX_BUILD_DESCENT_I)
 					Assert(aip->path_length != 0);
+#endif
 					ailp->mode = AIM_RUN_FROM_OBJECT;	//	It gets bashed in create_n_segment_path
 					break;
 				}
@@ -936,15 +1072,15 @@ void ai_follow_path(object *objp, int player_visibility, int previous_visibility
 		}
 	}
 
-	//--Int3_if(((aip->cur_path_index >= 0) && (aip->cur_path_index < aip->path_length)));
-
 	if (aip->cur_path_index < 0) {
 		aip->cur_path_index = 0;
 	} else if (aip->cur_path_index >= aip->path_length) {
 		if (ailp->mode == AIM_RUN_FROM_OBJECT) {
 			create_n_segment_path(objp, AVOID_SEG_LENGTH, ConsoleObject->segnum);
 			ailp->mode = AIM_RUN_FROM_OBJECT;	//	It gets bashed in create_n_segment_path
+#if defined(DXX_BUILD_DESCENT_II)
 			Assert(aip->path_length != 0);
+#endif
 		} else {
 			aip->cur_path_index = aip->path_length-1;
 		}
@@ -958,9 +1094,11 @@ void ai_follow_path(object *objp, int player_visibility, int previous_visibility
 	original_index = aip->cur_path_index;
 	threshold_distance = fixmul(vm_vec_mag_quick(&objp->mtype.phys_info.velocity), FrameTime)*2 + F1_0*2;
 
+#if defined(DXX_BUILD_DESCENT_II)
 	new_goal_point = Point_segs[aip->hide_index + aip->cur_path_index].point;
 
 	//--Int3_if(((aip->cur_path_index >= 0) && (aip->cur_path_index < aip->path_length)));
+#endif
 
 	while ((dist_to_goal < threshold_distance) && !forced_break) {
 
@@ -969,6 +1107,7 @@ void ai_follow_path(object *objp, int player_visibility, int previous_visibility
 
 		//	See if next point wraps past end of path (in either direction), and if so, deal with it based on mode.
 		if ((aip->cur_path_index >= aip->path_length) || (aip->cur_path_index < 0)) {
+#if defined(DXX_BUILD_DESCENT_II)
 			//	Buddy bot.  If he's in mode to get away from player and at end of line,
 			//	if player visible, then make a new path, else just return.
 			if (robptr->companion) {
@@ -990,29 +1129,45 @@ void ai_follow_path(object *objp, int player_visibility, int previous_visibility
 					}
 				}
 			}
+#endif
 
+#if defined(DXX_BUILD_DESCENT_I)
+			if (ailp->mode == AIM_HIDE) {
+				ailp->mode = AIM_STILL;
+				return;		// Stay here until bonked or hit by player.
+			}
+#elif defined(DXX_BUILD_DESCENT_II)
 			if (aip->behavior == AIB_FOLLOW) {
 				create_n_segment_path(objp, 10, ConsoleObject->segnum);
 				//--Int3_if(((aip->cur_path_index >= 0) && (aip->cur_path_index < aip->path_length)));
-			} else if (aip->behavior == AIB_STATION) {
+			}
+#endif
+			else if (aip->behavior == AIB_STATION) {
 				create_path_to_station(objp, 15);
-				if ((aip->hide_segment != Point_segs[aip->hide_index+aip->path_length-1].segnum) || (aip->path_length == 0)) {
+				if ((aip->hide_segment != Point_segs[aip->hide_index+aip->path_length-1].segnum)
+#if defined(DXX_BUILD_DESCENT_II)
+					|| (aip->path_length == 0)
+#endif
+					) {
 					ailp->mode = AIM_STILL;
-				} else {
-					//--Int3_if(((aip->cur_path_index >= 0) && (aip->cur_path_index < aip->path_length)));
 				}
 				return;
-			} else if (ailp->mode == AIM_FOLLOW_PATH) {
+			} else if ((ailp->mode == AIM_FOLLOW_PATH)
+#if defined(DXX_BUILD_DESCENT_I)
+					   && (aip->behavior != AIB_FOLLOW_PATH)
+#endif
+					   ) {
 				create_path_to_player(objp, 10, 1);
+#if defined(DXX_BUILD_DESCENT_II)
 				if (aip->hide_segment != Point_segs[aip->hide_index+aip->path_length-1].segnum) {
 					ailp->mode = AIM_STILL;
 					return;
-				} else {
-					//--Int3_if(((aip->cur_path_index >= 0) && (aip->cur_path_index < aip->path_length)));
 				}
+#endif
 			} else if (ailp->mode == AIM_RUN_FROM_OBJECT) {
 				create_n_segment_path(objp, AVOID_SEG_LENGTH, ConsoleObject->segnum);
 				ailp->mode = AIM_RUN_FROM_OBJECT;	//	It gets bashed in create_n_segment_path
+#if defined(DXX_BUILD_DESCENT_II)
 				if (aip->path_length < 1) {
 					create_n_segment_path(objp, AVOID_SEG_LENGTH, ConsoleObject->segnum);
 					ailp->mode = AIM_RUN_FROM_OBJECT;	//	It gets bashed in create_n_segment_path
@@ -1023,6 +1178,7 @@ void ai_follow_path(object *objp, int player_visibility, int previous_visibility
 					}
 				}
 				//--Int3_if(((aip->cur_path_index >= 0) && (aip->cur_path_index < aip->path_length)));
+#endif
 			} else {
 				//	Reached end of the line.  First see if opposite end point is reachable, and if so, go there.
 				//	If not, turn around.
@@ -1040,8 +1196,6 @@ void ai_follow_path(object *objp, int player_visibility, int previous_visibility
 					//	Nearer to 0 end, so try to reach far end.
 					opposite_end_index = aip->path_length-1;
 				}
-
-				//--Int3_if(((opposite_end_index >= 0) && (opposite_end_index < aip->path_length)));
 
 				opposite_end_point = &Point_segs[aip->hide_index + opposite_end_index].point;
 
@@ -1061,31 +1215,31 @@ void ai_follow_path(object *objp, int player_visibility, int previous_visibility
 					aip->cur_path_index = opposite_end_index;
 				} else {
 					aip->PATH_DIR = -aip->PATH_DIR;
+#if defined(DXX_BUILD_DESCENT_II)
 					aip->cur_path_index += aip->PATH_DIR;
+#endif
 				}
-				//--Int3_if(((aip->cur_path_index >= 0) && (aip->cur_path_index < aip->path_length)));
 			}
 			break;
 		} else {
 			new_goal_point = Point_segs[aip->hide_index + aip->cur_path_index].point;
 			goal_point = new_goal_point;
 			dist_to_goal = vm_vec_dist_quick(&goal_point, &objp->pos);
-			//--Int3_if(((aip->cur_path_index >= 0) && (aip->cur_path_index < aip->path_length)));
 		}
 
 		//	If went all the way around to original point, in same direction, then get out of here!
 		if ((aip->cur_path_index == original_index) && (aip->PATH_DIR == original_dir)) {
 			create_path_to_player(objp, 3, 1);
-			//--Int3_if(((aip->cur_path_index >= 0) && (aip->cur_path_index < aip->path_length)));
 			forced_break = 1;
 		}
-		//--Int3_if(((aip->cur_path_index >= 0) && (aip->cur_path_index < aip->path_length)));
 	}	//	end while
 
 	//	Set velocity (objp->mtype.phys_info.velocity) and orientation (objp->orient) for this object.
-	//--Int3_if(((aip->cur_path_index >= 0) && (aip->cur_path_index < aip->path_length)));
-	ai_path_set_orient_and_vel(objp, &goal_point, player_visibility, vec_to_player);
-	//--Int3_if(((aip->cur_path_index >= 0) && (aip->cur_path_index < aip->path_length)));
+	ai_path_set_orient_and_vel(objp, &goal_point
+#if defined(DXX_BUILD_DESCENT_II)
+							   , player_visibility, vec_to_player
+#endif
+							   );
 
 }
 
@@ -1105,7 +1259,11 @@ int path_index_compare(obj_path *i1, obj_path *i2)
 
 //	----------------------------------------------------------------------------------------------------------
 //	Set orientation matrix and velocity for objp based on its desire to get to a point.
-void ai_path_set_orient_and_vel(object *objp, vms_vector *goal_point, int player_visibility, vms_vector *vec_to_player)
+void ai_path_set_orient_and_vel(object *objp, vms_vector *goal_point
+#if defined(DXX_BUILD_DESCENT_II)
+								, int player_visibility, vms_vector *vec_to_player
+#endif
+								)
 {
 	vms_vector	cur_vel = objp->mtype.phys_info.velocity;
 	vms_vector	norm_cur_vel;
@@ -1119,7 +1277,11 @@ void ai_path_set_orient_and_vel(object *objp, vms_vector *goal_point, int player
 
 	//	If evading player, use highest difficulty level speed, plus something based on diff level
 	max_speed = robptr->max_speed[Difficulty_level];
-	if ((Ai_local_info[objp-Objects].mode == AIM_RUN_FROM_OBJECT) || (objp->ctype.ai_info.behavior == AIB_SNIPE))
+	if ((Ai_local_info[objp-Objects].mode == AIM_RUN_FROM_OBJECT)
+#if defined(DXX_BUILD_DESCENT_II)
+		|| (objp->ctype.ai_info.behavior == AIB_SNIPE)
+#endif
+		)
 		max_speed = max_speed*3/2;
 
 	vm_vec_sub(&norm_vec_to_goal, goal_point, &cur_pos);
@@ -1152,22 +1314,30 @@ void ai_path_set_orient_and_vel(object *objp, vms_vector *goal_point, int player
 	if (dot < 0)
 		dot /= -4;
 
+#if defined(DXX_BUILD_DESCENT_II)
 	//	If in snipe mode, can move fast even if not facing that direction.
 	if (objp->ctype.ai_info.behavior == AIB_SNIPE)
 		if (dot < F1_0/2)
 			dot = (dot + F1_0)/2;
+#endif
 
 	speed_scale = fixmul(max_speed, dot);
 	vm_vec_scale(&norm_cur_vel, speed_scale);
 	objp->mtype.phys_info.velocity = norm_cur_vel;
 
-	if ((Ai_local_info[objp-Objects].mode == AIM_RUN_FROM_OBJECT) || (robptr->companion == 1) || (objp->ctype.ai_info.behavior == AIB_SNIPE)) {
+	if ((Ai_local_info[objp-Objects].mode == AIM_RUN_FROM_OBJECT)
+#if defined(DXX_BUILD_DESCENT_II)
+		|| (robptr->companion == 1) || (objp->ctype.ai_info.behavior == AIB_SNIPE)
+#endif
+		) {
+#if defined(DXX_BUILD_DESCENT_II)
 		if (Ai_local_info[objp-Objects].mode == AIM_SNIPE_RETREAT_BACKWARDS) {
 			if ((player_visibility) && (vec_to_player != NULL))
 				norm_vec_to_goal = *vec_to_player;
 			else
 				vm_vec_negate(&norm_vec_to_goal);
 		}
+#endif
 		ai_turn_towards_vector(&norm_vec_to_goal, objp, robptr->turn_time[NDL-1]/2);
 	} else
 		ai_turn_towards_vector(&norm_vec_to_goal, objp, robptr->turn_time[Difficulty_level]);
@@ -1199,7 +1369,11 @@ void ai_path_garbage_collect(void)
 	for (objnum=0; objnum <= Highest_object_index; objnum++) {
 		object	*objp = &Objects[objnum];
 
-		if ((objp->type == OBJ_ROBOT) && ((objp->control_type == CT_AI) || (objp->control_type == CT_MORPH))) {
+		if ((objp->type == OBJ_ROBOT) && ((objp->control_type == CT_AI)
+#if defined(DXX_BUILD_DESCENT_II)
+			|| (objp->control_type == CT_MORPH)
+#endif
+										  )) {
 			ai_static	*aip = &objp->ctype.ai_info;
 
 			if (aip->path_length) {
@@ -1299,7 +1473,11 @@ void attempt_to_resume_path(object *objp)
 	ai_static *aip = &objp->ctype.ai_info;
 	int new_path_index;
 
-	if ((aip->behavior == AIB_STATION) && (Robot_info[objp->id].companion != 1))
+	if ((aip->behavior == AIB_STATION)
+#if defined(DXX_BUILD_DESCENT_II)
+		&& (Robot_info[objp->id].companion != 1)
+#endif
+		)
 		if (d_rand() > 8192) {
 			ai_local *ailp = &Ai_local_info[objp-Objects];
 
@@ -1386,7 +1564,11 @@ void player_path_set_orient_and_vel(object *objp, vms_vector *goal_point)
 	fix			dot;
 	fix			max_speed;
 
+#if defined(DXX_BUILD_DESCENT_I)
+	max_speed = F1_0*50;
+#elif defined(DXX_BUILD_DESCENT_II)
 	max_speed = Robot_info[objp->id].max_speed[Difficulty_level];
+#endif
 
 	vm_vec_sub(&norm_vec_to_goal, goal_point, &cur_pos);
 	vm_vec_normalize_quick(&norm_vec_to_goal);
@@ -1398,9 +1580,11 @@ void player_path_set_orient_and_vel(object *objp, vms_vector *goal_point)
 	vm_vec_normalize_quick(&norm_fvec);
 
 	dot = vm_vec_dot(&norm_vec_to_goal, &norm_fvec);
+#if defined(DXX_BUILD_DESCENT_II)
 	if (Ai_local_info[objp-Objects].mode == AIM_SNIPE_RETREAT_BACKWARDS) {
 		dot = -dot;
 	}
+#endif
 
 	//	If very close to facing opposite desired vector, perturb vector
 	if (dot < -15*F1_0/16) {
