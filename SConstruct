@@ -201,6 +201,7 @@ class DXXArchive(DXXCommon):
 	target = 'dxx-common'
 	common_sources = [os.path.join('common', f) for f in [
 'maths/fixc.c',
+'maths/rand.c',
 ]
 ]
 	editor_sources = []
