@@ -64,6 +64,7 @@ COPYRIGHT 1993-1998 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 #include "piggy.h"
 #include "robot.h"
 #include "gameseq.h"
+#include "switch.h"
 #include "playsave.h"
 #ifdef EDITOR
 #include "editor/editor.h"

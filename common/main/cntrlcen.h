@@ -8,7 +8,7 @@ SUCH USE, DISPLAY OR CREATION IS FOR NON-COMMERCIAL, ROYALTY OR REVENUE
 FREE PURPOSES.  IN NO EVENT SHALL THE END-USER USE THE COMPUTER CODE
 CONTAINED HEREIN FOR REVENUE-BEARING PURPOSES.  THE END-USER UNDERSTANDS
 AND AGREES TO THE TERMS HEREIN AND ACCEPTS THE SAME BY USE OF THIS FILE.
-COPYRIGHT 1993-1998 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
+COPYRIGHT 1993-1999 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 */
 
 /*
@@ -23,7 +23,6 @@ COPYRIGHT 1993-1998 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 #include "vecmat.h"
 #include "object.h"
 #include "wall.h"
-#include "switch.h"
 
 #define CONTROLCEN_WEAPON_NUM   6
 
@@ -37,32 +36,64 @@ typedef struct control_center_triggers {
 
 extern control_center_triggers ControlCenterTriggers;
 
+#if defined(DXX_BUILD_DESCENT_I) || defined(DXX_BUILD_DESCENT_II)
 typedef struct reactor {
+	int model_num;
 	int n_guns;
+	/* Location of the gun on the reactor model */
 	vms_vector gun_points[MAX_CONTROLCEN_GUNS];
+	/* Orientation of the gun on the reactor model */
 	vms_vector gun_dirs[MAX_CONTROLCEN_GUNS];
 } reactor;
 
+#if defined(DXX_BUILD_DESCENT_I)
 #define MAX_REACTORS	1
+#elif defined(DXX_BUILD_DESCENT_II)
+#define MAX_REACTORS 7
+#define DEFAULT_CONTROL_CENTER_EXPLOSION_TIME 30    // Note: Usually uses Alan_pavlish_reactor_times, but can be overridden in editor.
+
+extern int Num_reactors;
+extern int Base_control_center_explosion_time;      // how long to blow up on insane
+extern int Reactor_strength;
+
+/*
+ * reads n reactor structs from a PHYSFS_file
+ */
+extern int reactor_read_n(reactor *r, int n, PHYSFS_file *fp);
+#endif
 
 extern reactor Reactors[MAX_REACTORS];
 
 static inline int get_num_reactor_models()
 {
+#if defined(DXX_BUILD_DESCENT_I)
 	return 1;
+#elif defined(DXX_BUILD_DESCENT_II)
+	return Num_reactors;
+#endif
 }
 
 static inline int get_reactor_model_number(int id)
 {
+#if defined(DXX_BUILD_DESCENT_I)
 	return id;
+#elif defined(DXX_BUILD_DESCENT_II)
+	return Reactors[id].model_num;
+#endif
 }
 
 static inline reactor *get_reactor_definition(int id)
 {
+#if defined(DXX_BUILD_DESCENT_I)
 	(void)id;
 	return &Reactors[0];
+#elif defined(DXX_BUILD_DESCENT_II)
+	return &Reactors[id];
+#endif
 }
+#endif
 
+//@@extern int N_controlcen_guns;
 extern int Control_center_been_hit;
 extern int Control_center_player_been_seen;
 extern int Control_center_next_fire_time;
@@ -90,9 +121,8 @@ extern int control_center_triggers_read_n(control_center_triggers *cct, int n, P
 /*
  * reads n control_center_triggers structs from a PHYSFS_file and swaps if specified
  */
-void control_center_triggers_read_n_swap(control_center_triggers *cct, int n, int swap, PHYSFS_file *fp);
+extern void control_center_triggers_read_n_swap(control_center_triggers *cct, int n, int swap, PHYSFS_file *fp);
 
 extern int control_center_triggers_write(control_center_triggers *cct, PHYSFS_file *fp);
 
-#endif
- 
+#endif /* _CNTRLCEN_H */
