@@ -17,14 +17,12 @@ COPYRIGHT 1993-1999 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
  *
  */
 
-#include <stdio.h>
 
 #include "gr.h"
 #include "dxxerror.h"
 #include "game.h"
 #include "textures.h"
 #include "rle.h"
-#include "piggy.h"
 #include "timer.h"
 
 #ifdef OGL
@@ -162,7 +160,7 @@ grs_bitmap * texmerge_get_cached_bitmap( int tmap_bottom, int tmap_top )
 
 	if (bitmap_top->bm_flags & BM_FLAG_SUPER_TRANSPARENT)	{
 		merge_textures_super_xparent( orient, bitmap_bottom, bitmap_top, Cache[least_recently_used].bitmap->bm_data );
-		Cache[least_recently_used].bitmap->bm_flags = BM_FLAG_TRANSPARENT;
+		gr_set_bitmap_flags (Cache[least_recently_used].bitmap, BM_FLAG_TRANSPARENT);
 		Cache[least_recently_used].bitmap->avg_color = bitmap_top->avg_color;
 	} else	{
 		merge_textures_new( orient, bitmap_bottom, bitmap_top, Cache[least_recently_used].bitmap->bm_data );
