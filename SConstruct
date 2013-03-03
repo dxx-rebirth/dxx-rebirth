@@ -853,6 +853,7 @@ class DXXProgram(DXXCommon):
 'main/object.cpp',
 'main/paging.cpp',
 'main/physics.cpp',
+'main/piggy.c',
 'main/player.cpp',
 'main/playsave.cpp',
 'main/polyobj.cpp',
@@ -1105,7 +1106,6 @@ class D1XProgram(DXXProgram):
 'main/fuelcen.c',
 'main/gamemine.c',
 'main/gameseq.c',
-'main/piggy.c',
 'main/snddecom.cpp',
 #'tracker/client/tracker_client.c'
 ]
@@ -1167,7 +1167,6 @@ class D2XProgram(DXXProgram):
 'main/gamepal.cpp',
 'main/gameseq.c',
 'main/movie.cpp',
-'main/piggy.c',
 'main/segment.cpp',
 'misc/physfsrwops.c',
 ]
