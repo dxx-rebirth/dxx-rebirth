@@ -8,14 +8,22 @@ SUCH USE, DISPLAY OR CREATION IS FOR NON-COMMERCIAL, ROYALTY OR REVENUE
 FREE PURPOSES.  IN NO EVENT SHALL THE END-USER USE THE COMPUTER CODE
 CONTAINED HEREIN FOR REVENUE-BEARING PURPOSES.  THE END-USER UNDERSTANDS
 AND AGREES TO THE TERMS HEREIN AND ACCEPTS THE SAME BY USE OF THIS FILE.
-COPYRIGHT 1993-1998 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
+COPYRIGHT 1993-1999 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 */
+
+/*
+ *
+ * Code for flying through the mines
+ *
+ */
+
 
 #include <stdio.h>
 #include <stdlib.h>
 
 #include "joy.h"
 #include "dxxerror.h"
+
 #include "inferno.h"
 #include "segment.h"
 #include "object.h"
@@ -29,6 +37,11 @@ COPYRIGHT 1993-1998 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 #include "ai.h"
 #include "wall.h"
 #include "laser.h"
+#if defined(DXX_BUILD_DESCENT_II)
+#include "bm.h"
+#include "player.h"
+#define MAX_OBJECT_VEL	i2f(100)
+#endif
 
 //Global variables for physics system
 
@@ -231,6 +244,9 @@ void do_physics_sim_rot(object *obj)
 			vm_vec_scale(&obj->mtype.phys_info.rotvel,f1_0-fixmul(k,drag));
 		}
 		else
+#if defined(DXX_BUILD_DESCENT_II)
+			if (! (obj->mtype.phys_info.flags & PF_FREE_SPINNING))
+#endif
 		{
 			fix total_drag=f1_0;
 
@@ -585,14 +601,22 @@ void do_physics_sim(object *obj)
 				if ( !(obj->flags&OF_SHOULD_BE_DEAD) )	{
 					int forcefield_bounce;		//bounce off a forcefield
 
-					Assert(! (obj->mtype.phys_info.flags & PF_STICK && obj->mtype.phys_info.flags & PF_BOUNCE));	//can't be bounce and stick
+#if defined(DXX_BUILD_DESCENT_II)
+					if (!cheats.bouncyfire)
+#endif
+					Assert(!(obj->mtype.phys_info.flags & PF_STICK && obj->mtype.phys_info.flags & PF_BOUNCE));	//can't be bounce and stick
 
+#if defined(DXX_BUILD_DESCENT_I)
 					/*
 					 * Force fields are not supported in Descent 1.  Use
 					 * this as a placeholder to make the code match the
 					 * force field handling in Descent 2.
 					 */
 					forcefield_bounce = 0;
+#elif defined(DXX_BUILD_DESCENT_II)
+					forcefield_bounce = (TmapInfo[Segments[WallHitSeg].sides[WallHitSide].tmap_num].flags & TMI_FORCE_FIELD);
+					int check_vel=0;
+#endif
 
 					if (!forcefield_bounce && (obj->mtype.phys_info.flags & PF_STICK)) {		//stop moving
 
@@ -604,9 +628,6 @@ void do_physics_sim(object *obj)
 					}
 					else {					// Slide object along wall
 
-						//We're constrained by wall, so subtract wall part from 
-						//velocity vector
-
 						wall_part = vm_vec_dot(&hit_info.hit_wallnorm,&obj->mtype.phys_info.velocity);
 
 						// if wall_part, make sure the value is sane enough to get usable velocity computed
@@ -615,9 +636,39 @@ void do_physics_sim(object *obj)
 
 						if (forcefield_bounce || (obj->mtype.phys_info.flags & PF_BOUNCE)) {		//bounce off wall
 							wall_part *= 2;	//Subtract out wall part twice to achieve bounce
+
+#if defined(DXX_BUILD_DESCENT_II)
+							if (forcefield_bounce) {
+								check_vel = 1;				//check for max velocity
+								if (obj->type == OBJ_PLAYER)
+									wall_part *= 2;		//player bounce twice as much
+							}
+
+							if ( obj->mtype.phys_info.flags & PF_BOUNCES_TWICE) {
+								Assert(obj->mtype.phys_info.flags & PF_BOUNCE);
+								if (obj->mtype.phys_info.flags & PF_BOUNCED_ONCE)
+									obj->mtype.phys_info.flags &= ~(PF_BOUNCE+PF_BOUNCED_ONCE+PF_BOUNCES_TWICE);
+								else
+									obj->mtype.phys_info.flags |= PF_BOUNCED_ONCE;
+							}
+
+							bounced = 1;		//this object bounced
+#endif
 						}
 
 						vm_vec_scale_add2(&obj->mtype.phys_info.velocity,&hit_info.hit_wallnorm,-wall_part);
+
+#if defined(DXX_BUILD_DESCENT_II)
+						if (check_vel) {
+							fix vel = vm_vec_mag_quick(&obj->mtype.phys_info.velocity);
+
+							if (vel > MAX_OBJECT_VEL)
+								vm_vec_scale(&obj->mtype.phys_info.velocity,fixdiv(MAX_OBJECT_VEL,vel));
+						}
+
+						if (bounced && obj->type == OBJ_WEAPON)
+							vm_vector_2_matrix(&obj->orient,&obj->mtype.phys_info.velocity,&obj->orient.uvec,NULL);
+#endif
 
 						try_again = 1;
 					}
@@ -711,7 +762,7 @@ void do_physics_sim(object *obj)
 	}
 
 	// After collision with objects and walls, set velocity from actual movement
-	if (!obj_stopped && !bounced
+	if (!obj_stopped && !bounced 
 		&& ((obj->type == OBJ_PLAYER) || (obj->type == OBJ_ROBOT) || (obj->type == OBJ_DEBRIS)) 
 		&& ((fate == HIT_WALL) || (fate == HIT_OBJECT) || (fate == HIT_BAD_P0))
 		)
@@ -799,8 +850,12 @@ void do_physics_sim(object *obj)
 //change in velocity.
 void phys_apply_force(object *obj,vms_vector *force_vec)
 {
-
 	if (obj->movement_type != MT_PHYSICS)
+		return;
+
+	//	Put in by MK on 2/13/96 for force getting applied to Omega blobs, which have 0 mass,
+	//	in collision with crazy reactor robot thing on d2levf-s.
+	if (obj->mtype.phys_info.mass == 0)
 		return;
 
 	//Add in acceleration due to force
@@ -905,7 +960,23 @@ void phys_apply_rot(object *obj,vms_vector *force_vec)
 		if (obj->type == OBJ_ROBOT) {
 			if (rate < F1_0/4)
 				rate = F1_0/4;
+#if defined(DXX_BUILD_DESCENT_I)
 			obj->ctype.ai_info.SKIP_AI_COUNT = 2;
+#elif defined(DXX_BUILD_DESCENT_II)
+			//	Changed by mk, 10/24/95, claw guys should not slow down when attacking!
+			if (!Robot_info[obj->id].thief && !Robot_info[obj->id].attack_type) {
+				if (obj->ctype.ai_info.SKIP_AI_COUNT * FrameTime < 3*F1_0/4) {
+					fix	tval = fixdiv(F1_0, 8*FrameTime);
+					int	addval;
+
+					addval = f2i(tval);
+
+					if ( (d_rand() * 2) < (tval & 0xffff))
+						addval++;
+					obj->ctype.ai_info.SKIP_AI_COUNT += addval;
+				}
+			}
+#endif
 		} else {
 			if (rate < F1_0/2)
 				rate = F1_0/2;
