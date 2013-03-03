@@ -23,7 +23,11 @@ COPYRIGHT 1993-1999 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 
 #include "vclip.h"
 
+#if defined(DXX_BUILD_DESCENT_I)
+#define MAX_EFFECTS 60
+#elif defined(DXX_BUILD_DESCENT_II)
 #define MAX_EFFECTS 110
+#endif
 
 //flags for eclips.  If no flags are set, always plays
 
@@ -33,7 +37,9 @@ COPYRIGHT 1993-1999 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 
 #define ECLIP_NUM_FUELCEN     2
 #define ECLIP_NUM_BOSS        53
+#ifdef DXX_BUILD_DESCENT_II
 #define ECLIP_NUM_FORCE_FIELD 78
+#endif
 
 typedef struct eclip {
 	vclip   vc;             //imbedded vclip
