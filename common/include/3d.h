@@ -10,28 +10,11 @@ CONTAINED HEREIN FOR REVENUE-BEARING PURPOSES.  THE END-USER UNDERSTANDS
 AND AGREES TO THE TERMS HEREIN AND ACCEPTS THE SAME BY USE OF THIS FILE.
 COPYRIGHT 1993-1998 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 */
+
 /*
- * $Source: /cvsroot/dxx-rebirth/d1x-rebirth/include/3d.h,v $
- * $Revision: 1.1.1.1 $
- * $Author: zicodxx $
- * $Date: 2006/03/17 19:46:06 $
  *
  * Header file for 3d library
- *
- * $Log: 3d.h,v $
- * Revision 1.1.1.1  2006/03/17 19:46:06  zicodxx
- * initial import
- *
- * Revision 1.1.1.1  1999/06/14 22:02:03  donut
- * Import of d1x 1.37 source.
- *
- * Revision 1.2  1995/09/14  14:08:58  allender
- * return value for g3_draw_sphere
- *
- * Revision 1.1  1995/05/05  08:48:41  allender
- * Initial revision
- *
- * 
+ * except for functions implemented in interp.c
  *
  */
 
@@ -43,7 +26,9 @@ COPYRIGHT 1993-1998 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 #include "gr.h"
 
 extern int g3d_interp_outline;      //if on, polygon models outlined in white
+
 extern vms_vector Matrix_scale;     //how the matrix is currently scaled
+
 extern short highest_texture_num;
 
 //Structure for storing u,v,light values.  This structure doesn't have a
@@ -80,12 +65,12 @@ typedef struct g3s_codes {
 //Used to store rotated points for mines.  Has frame count to indictate
 //if rotated, and flag to indicate if projected.
 typedef struct g3s_point {
-	vms_vector p3_vec;         //reference as vector...
-	fix p3_u,p3_v,p3_l;
+	vms_vector p3_vec;  //x,y,z of rotated point
+	fix p3_u,p3_v,p3_l; //u,v,l coords
 	fix p3_sx,p3_sy;    //screen x&y
 	ubyte p3_codes;     //clipping codes
 	ubyte p3_flags;     //projected?
-	short p3_pad;			//keep structure longwork aligned
+	short p3_pad;       //keep structure longword aligned
 } g3s_point;
 
 //macros to reference x,y,z elements of a 3d point
@@ -105,8 +90,6 @@ typedef struct g3s_object {
 } g3s_object;
 
 //Functions in library
-
-//3d system startup and shutdown:
 
 //Frame setup functions:
 
@@ -233,6 +216,7 @@ bool g3_draw_bitmap(vms_vector *pos,fix width,fix height,grs_bitmap *bm);
 //NULL for either or both restores defaults
 void g3_set_special_render(void (*tmap_drawer)(),void (*flat_drawer)(),int (*line_drawer)(fix, fix, fix, fix));
 
+#ifdef DXX_BUILD_DESCENT_I
 //Object functions:
 
 //gives the interpreter an array of points to use
@@ -253,6 +237,6 @@ int g3_poly_get_color(void *model_ptr);
 
 // routine to convert little to big endian in polygon model data
 void swap_polygon_model_data(ubyte *data);
-
 #endif
 
+#endif
