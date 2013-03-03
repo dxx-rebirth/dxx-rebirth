@@ -17,6 +17,7 @@
 #include "console.h"
 #include "rbaudio.h"
 #include "jukebox.h"
+#include "args.h"
 #include <stdlib.h>
 #include <stdio.h>
 #include <string.h>
@@ -91,7 +92,9 @@ void digi_select_system(int n) {
 static int digi_initialised = 0;
 #endif
 extern int digi_max_channels;
+#if defined(DXX_BUILD_DESCENT_I)
 int digi_sample_rate = SAMPLE_RATE_11K;
+#endif
 int digi_volume = SOUND_MAX_VOLUME;
 
 void digi_set_volume(int dvolume) {
@@ -99,7 +102,13 @@ void digi_set_volume(int dvolume) {
 	if (fptr_set_digi_volume) digi_set_digi_volume(dvolume);
 }
 
-void digi_set_sample_rate(int r) { digi_sample_rate = r; }
+void digi_set_sample_rate(int r) {
+#if defined(DXX_BUILD_DESCENT_I)
+	digi_sample_rate = r;
+#elif defined(DXX_BUILD_DESCENT_II)
+	GameArg.SndDigiSampleRate = r;
+#endif
+}
 
 /* Stub functions */
 
