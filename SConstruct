@@ -445,6 +445,7 @@ class DXXProgram(DXXCommon):
 '2d/pcx.c',
 '3d/interp.c',
 'arch/sdl/digi.c',
+'arch/sdl/digi_audio.c',
 'arch/sdl/event.c',
 'arch/sdl/init.c',
 'arch/sdl/key.c',
@@ -705,7 +706,6 @@ class D1XProgram(DXXProgram):
 	# general source files
 	__objects_common = DXXCommon.create_lazy_object_property([{
 		'source':[os.path.join(srcdir, f) for f in [
-'arch/sdl/digi_audio.c',
 'iff/iff.c',
 'main/ai.c',
 'main/aipath.c',
@@ -790,7 +790,6 @@ class D2XProgram(DXXProgram):
 	# general source files
 	__objects_common = DXXCommon.create_lazy_object_property([{
 		'source':[os.path.join(srcdir, f) for f in [
-'arch/sdl/digi_audio.c',
 'iff/iff.c',
 'libmve/decoder8.c',
 'libmve/decoder16.c',

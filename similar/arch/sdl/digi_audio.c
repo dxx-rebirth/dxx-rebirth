@@ -22,6 +22,7 @@
 #include "newdemo.h"
 #include "kconfig.h"
 #include "config.h"
+#include "args.h"
 
 //changed on 980905 by adb to increase number of concurrent sounds
 #define MAX_SOUND_SLOTS 32
@@ -171,7 +172,11 @@ int digi_audio_init()
 		Error("SDL audio initialisation failed: %s.",SDL_GetError());
 	}
 
+#if defined(DXX_BUILD_DESCENT_I)
 	WaveSpec.freq = digi_sample_rate;
+#elif defined(DXX_BUILD_DESCENT_II)
+	WaveSpec.freq = GameArg.SndDigiSampleRate;
+#endif
 	//added/changed by Sam Lantinga on 12/01/98 for new SDL version
 	WaveSpec.format = AUDIO_U8;
 	WaveSpec.channels = 2;
@@ -191,7 +196,6 @@ int digi_audio_init()
 	digi_initialised = 1;
 
 	digi_audio_set_digi_volume( (GameCfg.DigiVolume*32768)/8 );
-
 	return 0;
 }
 
