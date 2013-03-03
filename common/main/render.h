@@ -23,7 +23,9 @@ COPYRIGHT 1993-1999 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 
 #include "3d.h"
 
+#if defined(DXX_BUILD_DESCENT_I) || defined(DXX_BUILD_DESCENT_II)
 #include "object.h"
+#endif
 
 #define MAX_RENDER_SEGS     500
 #define OBJS_PER_SEG          5
@@ -72,9 +74,11 @@ int toggle_show_only_curside(void);
 // should access Render_viewer_object members.
 extern fix Render_zoom;     // the player's zoom factor
 
+#if defined(DXX_BUILD_DESCENT_I) || defined(DXX_BUILD_DESCENT_II)
 // This is used internally to render_frame(), but is included here so AI
 // can use it for its own purposes.
 extern unsigned char visited[MAX_SEGMENTS];
+#endif
 
 extern int N_render_segs;
 extern short Render_list[MAX_RENDER_SEGS];

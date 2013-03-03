@@ -36,6 +36,7 @@ COPYRIGHT 1993-1998 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 #include "texmapl.h"
 #include "rle.h"
 #include "scanline.h"
+#include "u_mem.h"
 
 #ifdef EDITOR
 #define EDITOR_TMAP 1       //if in, include extra stuff

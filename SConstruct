@@ -278,6 +278,8 @@ class DXXArchive(DXXCommon):
 'misc/ignorecase.c',
 'misc/strio.c',
 'misc/strutil.c',
+'texmap/ntmap.c',
+'texmap/scanline.c'
 ]
 ]
 	editor_sources = [os.path.join(srcdir, f) for f in [
@@ -304,13 +306,18 @@ class DXXArchive(DXXCommon):
 'ui/userbox.c'
 ]
 ]
+	# for non-ogl
+	arch_sdl_sources = [os.path.join(srcdir, f) for f in [
+'texmap/tmapflat.c'
+]
+]
 	arch_sdlmixer_sources = [os.path.join(srcdir, f) for f in [
 'arch/sdl/digi_mixer_music.c',
 ]
 ]
 	def __init__(self,builddir):
 		self.PROGRAM_NAME = 'DXX-Archive'
-		for t in ['arch_sdlmixer', 'common', 'editor']:
+		for t in ['arch_sdl', 'arch_sdlmixer', 'common', 'editor']:
 			self.create_lazy_object_property(t)
 		DXXCommon.__init__(self)
 		self.user_settings = self.UserSettings(ARGUMENTS)
@@ -455,11 +462,6 @@ class DXXProgram(DXXCommon):
 		DXXCommon.process_user_settings(self)
 		env = self.env
 		# opengl or software renderer?
-		if (self.user_settings.opengl == 1) or (self.user_settings.opengles == 1):
-			self.platform_settings.libs += self.platform_settings.ogllibs
-		else:
-			print "%s: building with Software Renderer" % self.PROGRAM_NAME
-			self.sources += self.arch_sdl_sources
 
 		# SDL_mixer support?
 		if (self.user_settings.sdlmixer == 1):
@@ -491,8 +493,11 @@ class DXXProgram(DXXCommon):
 			objects.extend(static_archive_construction.objects_arch_sdlmixer)
 			objects.extend(self.objects_similar_arch_sdlmixer)
 		if (self.user_settings.opengl == 1) or (self.user_settings.opengles == 1):
+			self.platform_settings.libs += self.platform_settings.ogllibs
 			objects.extend(self.objects_similar_arch_ogl)
 		else:
+			print "%s: building with Software Renderer" % self.PROGRAM_NAME
+			objects.extend(static_archive_construction.objects_arch_sdl)
 			objects.extend(self.objects_similar_arch_sdl)
 		objects.extend(self.objects_similar_common)
 		if (self.user_settings.editor == 1):
@@ -598,8 +603,6 @@ class D1XProgram(DXXProgram):
 'main/wall.c',
 'main/weapon.c',
 'misc/args.c',
-'texmap/ntmap.c',
-'texmap/scanline.c'
 #'tracker/client/tracker_client.c'
 ]
 ]
@@ -640,12 +643,6 @@ class D1XProgram(DXXProgram):
 	# SDL_mixer sound implementation
 	arch_sdlmixer_sources = [os.path.join(srcdir, f) for f in [
 'arch/sdl/digi_mixer.c',
-]
-]
-
-	# for non-ogl
-	arch_sdl_sources = [os.path.join(srcdir, f) for f in [
-'texmap/tmapflat.c'
 ]
 ]
 
@@ -755,8 +752,6 @@ class D2XProgram(DXXProgram):
 'main/weapon.c',
 'misc/args.c',
 'misc/physfsrwops.c',
-'texmap/ntmap.c',
-'texmap/scanline.c'
 ]
 ]
 
@@ -797,12 +792,6 @@ class D2XProgram(DXXProgram):
 	# SDL_mixer sound implementation
 	arch_sdlmixer_sources = [os.path.join(srcdir, f) for f in [
 'arch/sdl/digi_mixer.c',
-]
-]
-
-	# for non-ogl
-	arch_sdl_sources = [os.path.join(srcdir, f) for f in [
-'texmap/tmapflat.c'
 ]
 ]
 
