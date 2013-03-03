@@ -32,6 +32,8 @@ COPYRIGHT 1993-1998 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 #define	ROBOT_BRAIN	7
 #define	ROBOT_BOSS1	17
 
+#define ROBOT_FIRE_AGITATION 94
+
 extern fix64 Boss_cloak_start_time, Boss_cloak_end_time;
 extern	int	Boss_hit_this_frame;
 extern int	Num_boss_teleport_segs;
