@@ -422,6 +422,7 @@ class DXXProgram(DXXCommon):
 'editor/med.c',
 'editor/meddraw.c',
 'editor/medmisc.c',
+'editor/medrobot.c',
 'editor/medsel.c',
 'editor/medwall.c',
 'editor/mine.c',
@@ -649,7 +650,6 @@ class D1XProgram(DXXProgram):
 	# for editor
 	objects_editor = DXXCommon.create_lazy_object_property([os.path.join(srcdir, f) for f in [
 'editor/ehostage.c',
-'editor/medrobot.c',
 'editor/texpage.c',
 ]
 ])
@@ -761,7 +761,6 @@ class D2XProgram(DXXProgram):
 
 	# for editor
 	objects_editor = DXXCommon.create_lazy_object_property([os.path.join(srcdir, f) for f in [
-'editor/medrobot.c',
 'editor/texpage.c',
 'main/bmread.c',
 ]

@@ -84,8 +84,10 @@ void call_init_ai_object(object *objp, int behavior)
 	init_ai_object(objp-Objects, behavior, hide_segment);
 
 	if (behavior == AIB_STATION) {
-		//objp->ctype.ai_info.follow_path_start_seg = Cursegp-Segments;
-		//objp->ctype.ai_info.follow_path_end_seg = Markedsegp-Segments;
+#if defined(DXX_BUILD_DESCENT_I)
+		objp->ctype.ai_info.follow_path_start_seg = Cursegp-Segments;
+		objp->ctype.ai_info.follow_path_end_seg = Markedsegp-Segments;
+#endif
 	}
 }
 
