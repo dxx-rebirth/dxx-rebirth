@@ -8,7 +8,7 @@ SUCH USE, DISPLAY OR CREATION IS FOR NON-COMMERCIAL, ROYALTY OR REVENUE
 FREE PURPOSES.  IN NO EVENT SHALL THE END-USER USE THE COMPUTER CODE
 CONTAINED HEREIN FOR REVENUE-BEARING PURPOSES.  THE END-USER UNDERSTANDS
 AND AGREES TO THE TERMS HEREIN AND ACCEPTS THE SAME BY USE OF THIS FILE.
-COPYRIGHT 1993-1998 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
+COPYRIGHT 1993-1999 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 */
 
 /*
@@ -23,12 +23,23 @@ COPYRIGHT 1993-1998 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 #include "gr.h"
 #include "piggy.h"
 
+#if defined(DXX_BUILD_DESCENT_I)
 #define MAX_TEXTURES		800
-#define BM_MAX_ARGS		10
+#elif defined(DXX_BUILD_DESCENT_II)
+#define MAX_TEXTURES    1200
+#endif
 
 //tmapinfo flags
 #define TMI_VOLATILE    1   //this material blows up when hit
+#if defined(DXX_BUILD_DESCENT_II)
+#define TMI_WATER       2   //this material is water
+#define TMI_FORCE_FIELD 4   //this is force field - flares don't stick
+#define TMI_GOAL_BLUE   8   //this is used to remap the blue goal
+#define TMI_GOAL_RED    16  //this is used to remap the red goal
+#define TMI_GOAL_HOARD  32  //this is used to remap the goals
+#endif
 
+#if defined(DXX_BUILD_DESCENT_I)
 typedef struct {
 	char			filename[13];
 	ubyte			flags;
@@ -36,10 +47,28 @@ typedef struct {
 	fix			damage;			//how much damage being against this does
 	int			eclip_num;		//if not -1, the eclip that changes this   
 } __pack__ tmap_info;
+#define N_COCKPIT_BITMAPS 4
+#elif defined(DXX_BUILD_DESCENT_II)
+typedef struct {
+	ubyte   flags;     //values defined above
+	ubyte   pad[3];    //keep alignment
+	fix     lighting;  //how much light this casts
+	fix     damage;    //how much damage being against this does (for lava)
+	short   eclip_num; //the eclip that changes this, or -1
+	short   destroyed; //bitmap to show when destroyed, or -1
+	short   slide_u,slide_v;    //slide rates of texture, stored in 8:8 fix
+	#ifdef EDITOR
+	char    filename[13];       //used by editor to remap textures
+	char    pad2[3];
+	#endif
+} __pack__ tmap_info;
+
+#define TMAP_INFO_SIZE 20   // how much space it takes up on disk
+#define N_COCKPIT_BITMAPS 6
+#endif
 
 extern int Num_object_types;
 
-#define N_COCKPIT_BITMAPS 4
 extern int Num_cockpits;
 extern bitmap_index cockpit_bitmap[N_COCKPIT_BITMAPS];
 
@@ -54,14 +83,15 @@ extern tmap_info TmapInfo[MAX_TEXTURES];
 extern int Dying_modelnums[];
 extern int Dead_modelnums[];
 
-// Initializes properties, bitmap system, sounds...
-int gamedata_read_tbl(int pc_shareware);
+// Initializes the palette, bitmap system...
 void gamedata_close();
 int gamedata_init();
 void bm_close();
 
 // Initializes the Texture[] array of bmd_bitmap structures.
 void init_textures();
+
+#if defined(DXX_BUILD_DESCENT_I)
 
 #define OL_ROBOT 				1
 #define OL_HOSTAGE 			2
@@ -80,6 +110,13 @@ extern fix	ObjStrength[MAX_OBJTYPE];	// initial strength of each object
 
 #define MAX_OBJ_BITMAPS				210
 
+#elif defined(DXX_BUILD_DESCENT_II)
+
+//the model number of the marker object
+extern int Marker_model_num;
+#define MAX_OBJ_BITMAPS     610
+#endif
+
 extern int  Num_object_subtypes;     // Number of possible IDs for the current type of object to be placed
 
 extern bitmap_index ObjBitmaps[MAX_OBJ_BITMAPS];
@@ -87,6 +124,11 @@ extern ushort ObjBitmapPtrs[MAX_OBJ_BITMAPS];
 extern int First_multi_bitmap_num;
 void compute_average_rgb(grs_bitmap *bm, fix *rgb);
 
+// Initializes all bitmaps from BITMAPS.TBL file.
+int gamedata_read_tbl(int pc_shareware);
 
-#endif
- 
+extern void bm_read_all(PHYSFS_file * fp);
+
+int load_exit_models();
+
+#endif /* _BM_H */

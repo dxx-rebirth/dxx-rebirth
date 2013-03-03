@@ -87,6 +87,8 @@ int             N_ObjBitmaps;
 bitmap_index    ObjBitmaps[MAX_OBJ_BITMAPS];
 ushort          ObjBitmapPtrs[MAX_OBJ_BITMAPS];     // These point back into ObjBitmaps, since some are used twice.
 
+static void bm_free_extra_objbitmaps();
+
 /*
  * reads n tmap_info structs from a PHYSFS_file
  */
@@ -246,7 +248,7 @@ void bm_read_all(PHYSFS_file * fp)
 extern int Num_bitmap_files;
 int extra_bitmap_num = 0;
 
-void bm_free_extra_objbitmaps()
+static void bm_free_extra_objbitmaps()
 {
 	int i;
 
