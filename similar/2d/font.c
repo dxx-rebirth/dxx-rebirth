@@ -8,7 +8,7 @@ SUCH USE, DISPLAY OR CREATION IS FOR NON-COMMERCIAL, ROYALTY OR REVENUE
 FREE PURPOSES.  IN NO EVENT SHALL THE END-USER USE THE COMPUTER CODE
 CONTAINED HEREIN FOR REVENUE-BEARING PURPOSES.  THE END-USER UNDERSTANDS
 AND AGREES TO THE TERMS HEREIN AND ACCEPTS THE SAME BY USE OF THIS FILE.
-COPYRIGHT 1993-1998 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
+COPYRIGHT 1993-1999 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 */
 
 /*
@@ -51,7 +51,7 @@ typedef struct openfont {
 	char *dataptr;
 } openfont;
 
-//list of open fonts
+//list of open fonts, for use (for now) for palette remapping
 openfont open_font[MAX_OPEN_FONTS];
 
 #define BITS_TO_BYTES(x)    (((x)+7)>>3)
@@ -942,6 +942,35 @@ void gr_close_font( grs_font * font )
 	}
 }
 
+#if defined(DXX_BUILD_DESCENT_II)
+//remap (by re-reading) all the color fonts
+void gr_remap_color_fonts()
+{
+	int fontnum;
+
+	for (fontnum=0;fontnum<MAX_OPEN_FONTS;fontnum++) {
+		grs_font *font;
+
+		font = open_font[fontnum].ptr;
+
+		if (font && (font->ft_flags & FT_COLOR))
+			gr_remap_font(font, open_font[fontnum].filename, open_font[fontnum].dataptr);
+	}
+}
+
+void gr_remap_mono_fonts()
+{
+	int fontnum;
+	con_printf (CON_DEBUG, "gr_remap_mono_fonts ()\n");
+	for (fontnum=0;fontnum<MAX_OPEN_FONTS;fontnum++) {
+		grs_font *font;
+		font = open_font[fontnum].ptr;
+		if (font && !(font->ft_flags & FT_COLOR))
+			gr_remap_font(font, open_font[fontnum].filename, open_font[fontnum].dataptr);
+	}
+}
+#endif
+
 /*
  * reads a grs_font structure from a PHYSFS_file
  */
@@ -1071,8 +1100,96 @@ grs_font * gr_init_font( const char * fontname )
 #endif
 
 	return font;
-	
 }
+
+#if defined(DXX_BUILD_DESCENT_II)
+//remap a font by re-reading its data & palette
+void gr_remap_font( grs_font *font, char * fontname, char *font_data )
+{
+	int i;
+	int nchars;
+	PHYSFS_file *fontfile;
+	char file_id[4];
+	int datasize;        //size up to (but not including) palette
+	unsigned char *ptr;
+
+	if (! (font->ft_flags & FT_COLOR))
+		return;
+
+	fontfile = PHYSFSX_openReadBuffered(fontname);
+
+	if (!fontfile)
+		Error( "Can't open font file %s", fontname );
+
+	PHYSFS_read(fontfile, file_id, 4, 1);
+	if ( !strncmp( file_id, "NFSP", 4 ) )
+		Error( "File %s is not a font file", fontname );
+
+	datasize = PHYSFSX_readInt(fontfile);
+	datasize -= GRS_FONT_SIZE; // subtract the size of the header.
+
+	d_free(font->ft_chars);
+	grs_font_read(font, fontfile); // have to reread in case mission hogfile overrides font.
+
+	PHYSFS_read(fontfile, font_data, 1, datasize);  //read raw data
+
+	nchars = font->ft_maxchar - font->ft_minchar + 1;
+
+	if (font->ft_flags & FT_PROPORTIONAL) {
+
+		font->ft_widths = (short *) &font_data[(size_t)font->ft_widths];
+		font->ft_data = (unsigned char *) &font_data[(size_t)font->ft_data];
+		font->ft_chars = (unsigned char **)d_malloc( nchars * sizeof(unsigned char *));
+
+		ptr = font->ft_data;
+
+		for (i=0; i< nchars; i++ ) {
+			font->ft_widths[i] = INTEL_SHORT(font->ft_widths[i]);
+			font->ft_chars[i] = ptr;
+			if (font->ft_flags & FT_COLOR)
+				ptr += font->ft_widths[i] * font->ft_h;
+			else
+				ptr += BITS_TO_BYTES(font->ft_widths[i]) * font->ft_h;
+		}
+
+	} else  {
+
+		font->ft_data   = (unsigned char *) font_data;
+		font->ft_chars  = NULL;
+		font->ft_widths = NULL;
+
+		ptr = font->ft_data + (nchars * font->ft_w * font->ft_h);
+	}
+
+	if (font->ft_flags & FT_KERNED)
+		font->ft_kerndata = (unsigned char *) &font_data[(size_t)font->ft_kerndata];
+
+	if (font->ft_flags & FT_COLOR) {		//remap palette
+		ubyte palette[256*3];
+		ubyte colormap[256];
+		int freq[256];
+
+		PHYSFS_read(fontfile,palette,3,256);		//read the palette
+
+		build_colormap_good( (ubyte *)&palette, colormap, freq );
+
+		colormap[TRANSPARENCY_COLOR] = TRANSPARENCY_COLOR;              // changed from colormap[255] = 255 to this for macintosh
+
+		decode_data(font->ft_data, ptr - font->ft_data, colormap, freq );
+
+	}
+
+	PHYSFS_close(fontfile);
+
+#ifdef OGL
+	if (font->ft_bitmaps)
+		d_free( font->ft_bitmaps );
+	gr_free_bitmap_data(&font->ft_parent_bitmap);
+
+	ogl_init_font(font);
+#endif
+}
+#endif
 
 void gr_set_curfont( grs_font * new )
 {
