@@ -60,10 +60,15 @@ void PHYSFSX_init(int argc, char *argv[])
 #endif
 	
 #if defined(__unix__)
+#if defined(DXX_BUILD_DESCENT_I)
+#define DESCENT_PATH_NUMBER	"1"
+#elif defined(DXX_BUILD_DESCENT_II)
+#define DESCENT_PATH_NUMBER	"2"
+#endif
 # if !(defined(__APPLE__) && defined(__MACH__))
-	path = "~/.d1x-rebirth/";
+	path = "~/.d" DESCENT_PATH_NUMBER "x-rebirth/";
 # else
-	path = "~/Library/Preferences/D1X Rebirth/";
+	path = "~/Library/Preferences/D" DESCENT_PATH_NUMBER "X Rebirth/";
 # endif
 	
 	if (path[0] == '~') // yes, this tilde can be put before non-unix paths.
@@ -233,6 +238,9 @@ int PHYSFSX_checkSupportedArchiveTypes()
 {
 	const PHYSFS_ArchiveInfo **i;
 	int hog_sup = 0;
+#ifdef DXX_BUILD_DESCENT_II
+	int mvl_sup = 0;
+#endif
 
 	con_printf(CON_DEBUG, "PHYSFS: Checking supported archive types.\n");
 	for (i = PHYSFS_supportedArchiveTypes(); *i != NULL; i++)
@@ -240,10 +248,18 @@ int PHYSFSX_checkSupportedArchiveTypes()
 		con_printf(CON_DEBUG, "PHYSFS: Supported archive: [%s], which is [%s].\n", (*i)->extension, (*i)->description);
 		if (!d_stricmp((*i)->extension, "HOG"))
 			hog_sup = 1;
+#ifdef DXX_BUILD_DESCENT_II
+		if (!d_stricmp((*i)->extension, "MVL"))
+			mvl_sup = 1;
+#endif
 	}
 
 	if (!hog_sup)
 		con_printf(CON_CRITICAL, "PHYSFS: HOG not supported. The game will not work without!\n");
+#ifdef DXX_BUILD_DESCENT_II
+	if (!mvl_sup)
+		con_printf(CON_URGENT, "PHYSFS: MVL not supported. Won't be able to play movies!\n");
+#endif
 
 	return hog_sup;
 }
@@ -383,7 +399,7 @@ char **PHYSFSX_findabsoluteFiles(const char *path, const char *realpath, const c
 // Gets bytes free in current write dir
 PHYSFS_sint64 PHYSFSX_getFreeDiskSpace()
 {
-#if defined(__LINUX__) || (defined(__MACH__) && defined(__APPLE__))
+#if defined(__linux__) || (defined(__MACH__) && defined(__APPLE__))
 	struct statfs sfs;
 	
 	if (!statfs(PHYSFS_getWriteDir(), &sfs))
