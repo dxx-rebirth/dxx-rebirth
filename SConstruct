@@ -561,6 +561,7 @@ class DXXProgram(DXXCommon):
 'main/text.c',
 'main/vclip.c',
 'main/wall.c',
+'main/weapon.c',
 'mem/mem.c',
 'misc/args.c',
 'misc/hash.c',
@@ -819,7 +820,6 @@ class D1XProgram(DXXProgram):
 'main/songs.c',
 'main/switch.c',
 'main/titles.c',
-'main/weapon.c',
 #'tracker/client/tracker_client.c'
 ]
 ],
@@ -908,7 +908,6 @@ class D2XProgram(DXXProgram):
 'main/songs.c',
 'main/switch.c',
 'main/titles.c',
-'main/weapon.c',
 'misc/physfsrwops.c',
 ]
 ],
