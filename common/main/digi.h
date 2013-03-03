@@ -46,6 +46,10 @@ extern int digi_link_sound_to_pos( int soundnum, short segnum, short sidenum, vm
 extern int digi_link_sound_to_object2( int soundnum, short objnum, int forever, fix max_volume, fix  max_distance );
 extern int digi_link_sound_to_pos2( int soundnum, short segnum, short sidenum, vms_vector * pos, int forever, fix max_volume, fix max_distance );
 
+#if defined(DXX_BUILD_DESCENT_II)
+extern int digi_link_sound_to_object3( int org_soundnum, short objnum, int forever, fix max_volume, fix  max_distance, int loop_start, int loop_end );
+#endif
+
 extern void digi_play_sample_3d( int soundno, int angle, int volume, int no_dups ); // Volume from 0-0x7fff
 
 extern void digi_init_sounds();
