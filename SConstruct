@@ -252,6 +252,7 @@ class DXXArchive(DXXCommon):
 ]
 ]
 	editor_sources = [os.path.join(srcdir, f) for f in [
+'editor/func.c',
 'ui/button.c',
 'ui/checkbox.c',
 'ui/dialog.c',
@@ -583,7 +584,6 @@ class D1XProgram(DXXProgram):
 'editor/eobject.c',
 'editor/eswitch.c',
 'editor/fixseg.c',
-'editor/func.c',
 'editor/group.c',
 'editor/kgame.c',
 'editor/kmine.c',
@@ -746,7 +746,6 @@ class D2XProgram(DXXProgram):
 'editor/eobject.c',
 'editor/eswitch.c',
 'editor/fixseg.c',
-'editor/func.c',
 'editor/group.c',
 'editor/kgame.c',
 'editor/kmine.c',
