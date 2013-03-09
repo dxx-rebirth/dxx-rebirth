@@ -97,9 +97,6 @@ COPYRIGHT 1993-1998 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 #include "editor/editor.h"
 #endif
 #include "custom.h"
-#ifdef SCRIPT
-#include "script.h"
-#endif
 #include "byteswap.h"
 #include "segment.h"
 #include "gameseg.h"
@@ -682,11 +679,6 @@ void StartNewGame(int start_level)
 	init_player_stats_game(Player_num);		//clear all stats
 
 	N_players = 1;
-
-#ifdef SCRIPT
-	script_reset();
-	script_load("default.scr");
-#endif
 
 	StartNewLevel(start_level);
 
