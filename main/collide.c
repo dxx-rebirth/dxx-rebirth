@@ -67,9 +67,6 @@ COPYRIGHT 1993-1998 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 #include "editor/editor.h"
 #endif
 #include "collide.h"
-#ifdef SCRIPT
-#include "script.h"
-#endif
 
 #define WALL_DAMAGE_SCALE (128) // Was 32 before 8:55 am on Thursday, September 15, changed by MK, walls were hurting me more than robots!
 #define WALL_DAMAGE_THRESHOLD (F1_0/3)
@@ -850,10 +847,6 @@ int apply_damage_to_robot(object *robot, fix damage, int killer_objnum)
 	robot->shields -= damage;
 
 	if (robot->shields < 0) {
-
-#ifdef SCRIPT
-		script_notify(NT_ROBOT_DIED, robot - Objects);
-#endif
 
 #ifndef SHAREWARE
 #ifdef NETWORK
