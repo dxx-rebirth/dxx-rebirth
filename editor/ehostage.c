@@ -318,9 +318,6 @@ int do_hostage_dialog()
 //@@	ui_add_gadget_button( MainWindow,155,i,70, 26, "<< Sound",  find_prev_hostage_sound );
 //@@	ui_add_gadget_button( MainWindow,155+70,i,70, 26, "Sound >>", find_next_hostage_sound );i += 29;		
 
-	ui_add_gadget_button( MainWindow,155,i,70, 26, "<< Face", SelectPrevFace );
-	ui_add_gadget_button( MainWindow,155+70,i,70, 26, "Face >>", SelectNextFace );i += 29;		
-	ui_add_gadget_button( MainWindow,155,i,140, 26, "Play sound", PlayHostageSound );i += 29;		
 	ui_add_gadget_button( MainWindow,155,i,140, 26, "Next Hostage", SelectNextHostage );	i += 29;		
 	ui_add_gadget_button( MainWindow,155,i,140, 26, "Prev Hostage", SelectPrevHostage ); i += 29;		
 	ui_add_gadget_button( MainWindow,155,i,140, 26, "Compress All", CompressHostages ); i += 29;		
