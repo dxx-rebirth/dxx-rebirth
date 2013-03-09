@@ -1023,7 +1023,7 @@ void endlevel_render_mine(fix eye_offset)
 	else
 		g3_set_view_matrix(&Viewer_eye,&Viewer->orient,Render_zoom);
 
-	render_mine(start_seg_num,eye_offset);
+	render_mine(start_seg_num,eye_offset,0);
 }
 
 void render_endlevel_frame(fix eye_offset)

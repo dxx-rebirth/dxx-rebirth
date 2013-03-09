@@ -127,8 +127,6 @@ extern char Object_type_names[MAX_OBJECT_TYPES][9];
 // List of objects rendered last frame in order.  Created at render
 // time, used by homing missiles in laser.c
 #define MAX_RENDERED_OBJECTS    50
-extern short Ordered_rendered_object_list[MAX_RENDERED_OBJECTS];
-extern int Num_rendered_objects;
 
 /*
  * STRUCTURES
@@ -338,6 +336,15 @@ typedef struct obj_position {
 	vms_matrix  orient;     // orientation of object in world
 	short       segnum;     // segment number containing object
 } obj_position;
+
+typedef struct {
+	int     num_objects;
+	short   rendered_objects[MAX_RENDERED_OBJECTS];
+} window_rendered_data;
+
+#define MAX_RENDERED_WINDOWS    1
+
+extern window_rendered_data Window_rendered_data[MAX_RENDERED_WINDOWS];
 
 /*
  * VARIABLES

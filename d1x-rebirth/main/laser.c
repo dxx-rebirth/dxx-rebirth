@@ -555,10 +555,10 @@ int find_homing_object(vms_vector *curpos, object *tracker)
 				best_objnum = ConsoleObject - Objects;
 		} else {
 			//	Not in network mode and fired by player.
-			for (i=Num_rendered_objects-1; i>=0; i--) {
+			for (i=Window_rendered_data[0].num_objects-1; i>=0; i--) {
 				fix			dot; //, dist;
 				vms_vector	vec_to_curobj;
-				int			objnum = Ordered_rendered_object_list[i];
+				int			objnum = Window_rendered_data[0].rendered_objects[i];
 				object		*curobjp = &Objects[objnum];
 
 				if (objnum == Players[Player_num].objnum)

@@ -419,7 +419,7 @@ int HandleDemoKey(int key)
 			if (PlayerCfg.PRShot)
 			{
 				gr_set_current_canvas(NULL);
-				render_frame(0);
+				render_frame(0, 0);
 				gr_set_curfont(MEDIUM2_FONT);
 				gr_printf(SWIDTH-FSPACX(92),SHEIGHT-LINE_SPACING,"DXX-Rebirth\n");
 				gr_flip();
@@ -510,7 +510,7 @@ int HandleSystemKey(int key)
 			if (PlayerCfg.PRShot)
 			{
 				gr_set_current_canvas(NULL);
-				render_frame(0);
+				render_frame(0, 0);
 				gr_set_curfont(MEDIUM2_FONT);
 				gr_printf(SWIDTH-FSPACX(92),SHEIGHT-LINE_SPACING,"DXX-Rebirth\n");
 				gr_flip();

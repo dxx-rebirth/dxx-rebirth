@@ -525,7 +525,7 @@ void render_object_search(object *obj)
 }
 #endif
 
-void do_render_object(int objnum)
+void do_render_object(int objnum, int window_num)
 {
 	#ifdef EDITOR
 	int save_3d_outline=0;
@@ -550,11 +550,11 @@ void do_render_object(int objnum)
 		//Assert(Num_rendered_objects < MAX_RENDERED_OBJECTS);
 		//	This peculiar piece of code makes us keep track of the most recently rendered objects, which
 		//	are probably the higher priority objects, without overflowing the buffer
-		if (Num_rendered_objects >= MAX_RENDERED_OBJECTS) {
+		if (Window_rendered_data[window_num].num_objects >= MAX_RENDERED_OBJECTS) {
 			Int3();
-			Num_rendered_objects /= 2;
+			Window_rendered_data[window_num].num_objects /= 2;
 		}
-		Ordered_rendered_object_list[Num_rendered_objects++] = objnum;
+		Window_rendered_data[window_num].rendered_objects[Window_rendered_data[window_num].num_objects++] = objnum;
 	}
 
 	if ((count++ > MAX_OBJECTS) || (obj->next == objnum)) {
@@ -686,7 +686,7 @@ void project_list(int nv,int *pointnumlist)
 
 
 // -----------------------------------------------------------------------------------
-void render_segment(int segnum)
+void render_segment(int segnum, int window_num)
 {
 	segment		*seg = &Segments[segnum];
 	g3s_codes 	cc;
@@ -713,7 +713,7 @@ void render_segment(int segnum)
 	if (!migrate_objects) {
 		int objnum;
 		for (objnum=seg->objects;objnum!=-1;objnum=Objects[objnum].next)
-			do_render_object(objnum);
+			do_render_object(objnum, window_num);
 	}
 	#endif
 
@@ -1359,7 +1359,7 @@ void start_lighting_frame(object *viewer);
 fix Zoom_factor=F1_0;
 #endif
 //renders onto current canvas
-void render_frame(fix eye_offset)
+void render_frame(fix eye_offset, int window_num)
 {
 	int start_seg_num;
 
@@ -1426,7 +1426,7 @@ void render_frame(fix eye_offset)
 		gr_clear_canvas(Clear_window_color);
 	}
 
-	render_mine(start_seg_num,eye_offset);
+	render_mine(start_seg_num, eye_offset, window_num);
 
 	g3_end_frame();
 }
@@ -1435,7 +1435,7 @@ int first_terminal_seg;
 
 //build a list of segments to be rendered
 //fills in Render_list & N_render_segs
-void build_segment_list(int start_seg_num)
+void build_segment_list(int start_seg_num, int window_num)
 {
 	int	lcnt,scnt,ecnt;
 	int	l,c;
@@ -1460,7 +1460,7 @@ void build_segment_list(int start_seg_num)
 
 	#ifndef NDEBUG
 	if (pre_draw_segs)
-		render_segment(start_seg_num);
+		render_segment(start_seg_num, window_num);
 	#endif
 
 	render_windows[0].left=render_windows[0].top=0;
@@ -1642,7 +1642,7 @@ void build_segment_list(int start_seg_num)
 
 							#ifndef NDEBUG
 							if (pre_draw_segs)
-								render_segment(ch);
+								render_segment(ch, window_num);
 							#endif
 no_add:
 	;
@@ -1675,11 +1675,13 @@ done_list:
 }
 
 //renders onto current canvas
-void render_mine(int start_seg_num,fix eye_offset)
+void render_mine(int start_seg_num,fix eye_offset, int window_num)
 {
 	int		nn;
 	static fix64 dynlight_time = 0;
 
+	//	Initialize number of objects (actually, robots!) rendered this frame.
+	Window_rendered_data[window_num].num_objects = 0;
 //moved 9/2/98 by Victor Rachels to remove warning/unused var
 	#ifndef NDEBUG
         int i;
@@ -1687,10 +1689,6 @@ void render_mine(int start_seg_num,fix eye_offset)
 		object_rendered[i] = 0;
 	#endif
 //end move - Victor Rachels
-
-
-	//	Initialize number of objects (actually, robots!) rendered this frame.
-	Num_rendered_objects = 0;
 
 	//set up for rendering
 
@@ -1714,7 +1712,7 @@ void render_mine(int start_seg_num,fix eye_offset)
 	else
 	#endif
 		//NOTE LINK TO ABOVE!!
-		build_segment_list(start_seg_num);		//fills in Render_list & N_render_segs
+		build_segment_list(start_seg_num, window_num);		//fills in Render_list & N_render_segs
 
 	//render away
 
@@ -1799,7 +1797,7 @@ void render_mine(int start_seg_num,fix eye_offset)
 				Window_clip_bot   = render_windows[nn].bot;
 			}
 
-			render_segment(segnum); 
+			render_segment(segnum, window_num);
 			visited[segnum]=255;
 
 			if (window_check) {		//reset for objects
@@ -1821,7 +1819,7 @@ void render_mine(int start_seg_num,fix eye_offset)
 					int ObjNumber = render_obj_list[listnum][objnp];
 
 					if (ObjNumber >= 0) {
-						do_render_object(ObjNumber);	// note link to above else
+						do_render_object(ObjNumber, window_num);	// note link to above else
 						objnp++;
 					}
 					else {
@@ -1935,7 +1933,7 @@ void render_mine(int start_seg_num,fix eye_offset)
 
 					if (ObjNumber >= 0)
 					{
-						do_render_object(ObjNumber);	// note link to above else
+						do_render_object(ObjNumber, window_num);	// note link to above else
 						objnp++;
 					}
 					else
@@ -2028,11 +2026,11 @@ int find_seg_side_face(short x,short y,int *seg,int *side,int *face,int *poly)
 	if (render_3d_in_big_window) {
 		gr_set_current_canvas(LargeView.ev_canv);
 
-		render_frame(0);
+		render_frame(0, 0);
 	}
 	else {
 		gr_set_current_canvas(Canv_editor_game);
-		render_frame(0);
+		render_frame(0, 0);
 	}
 
 	_search_mode = 0;

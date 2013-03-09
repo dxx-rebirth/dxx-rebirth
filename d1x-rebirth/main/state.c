@@ -696,7 +696,7 @@ int state_save_old_game(int slotnum, char * sg_name, player_rw * sg_player,
 
 		gr_set_current_canvas( cnv );
 
-		render_frame(0);
+		render_frame(0, 0);
 
 #ifdef OGL
 		buf = d_malloc(THUMBNAIL_W * THUMBNAIL_H * 4);
@@ -860,7 +860,7 @@ int state_save_all_sub(char *filename, char *desc)
 
 		gr_set_current_canvas( cnv );
 
-		render_frame(0);
+		render_frame(0, 0);
 
 #if defined(OGL)
 		buf = d_malloc(THUMBNAIL_W * THUMBNAIL_H * 4);

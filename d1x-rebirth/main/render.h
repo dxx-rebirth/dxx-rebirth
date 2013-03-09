@@ -42,7 +42,7 @@ extern int Max_debris_objects; // How many debris objects to create
 
 extern int Clear_window;    // 1 = Clear whole background window, 2 = clear view portals into rest of world, 0 = no clear
 
-void render_frame(fix eye_offset);		//draws the world into the current canvas
+void render_frame(fix eye_offset, int window_num);  //draws the world into the current canvas
 
 // cycle the flashing light for when mine destroyed
 void flash_frame();
@@ -94,7 +94,7 @@ g3s_codes rotate_list(int nv, int *pointnumlist);
 //Given a lit of point numbers, project any that haven't been projected
 void project_list(int nv, int *pointnumlist);
 
-void render_mine(int start_seg_num,fix eye_offset);
+extern void render_mine(int start_seg_num, fix eye_offset, int window_num);
 
 #endif
 

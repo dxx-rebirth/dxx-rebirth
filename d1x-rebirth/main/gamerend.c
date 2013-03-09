@@ -361,7 +361,7 @@ void game_render_frame_mono(int flip)
 {
 	gr_set_current_canvas(&Screen_3d_window);
 	
-	render_frame(0);
+	render_frame(0, 0);
 
 	update_cockpits();
 

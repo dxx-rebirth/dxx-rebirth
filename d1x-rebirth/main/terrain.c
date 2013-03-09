@@ -126,7 +126,7 @@ void draw_cell(int i,int j,g3s_point *p0,g3s_point *p1,g3s_point *p2,g3s_point *
 		mine_tiles_drawn |= 8;
 
 	if (mine_tiles_drawn == 0xf) {
-		render_mine(exit_segnum,0);
+		render_mine(exit_segnum,0,0);
 		//draw_exit_model();
 		mine_tiles_drawn=-1;
 		//if (ext_expl_playing)
