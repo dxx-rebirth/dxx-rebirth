@@ -55,7 +55,6 @@ COPYRIGHT 1993-1998 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 #include "fireball.h"
 #include "text.h"
 #include "digi.h"
-#include "compbit.h"
 #include "songs.h"
 #include "titles.h"
 #ifdef OGL
