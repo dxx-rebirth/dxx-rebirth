@@ -262,7 +262,7 @@ class D2XProgram(DXXProgram):
 		DXXProgram.prepare_environment(self)
 		# Flags and stuff for all platforms...
 		self.env.Append(CCFLAGS = ['-Wall', '-funsigned-char', '-Werror=implicit-int', '-Werror=implicit-function-declaration', '-pedantic', '-pthread'])
-		self.env.Append(CFLAGS = ['-std=c99'])
+		self.env.Append(CFLAGS = ['-std=gnu99'])
 		self.env.Append(CPPDEFINES = ['NETWORK'])
 		self.env.Append(CPPPATH = [os.path.join(self.srcdir, f) for f in ['include', 'main', 'arch/include']])
 
