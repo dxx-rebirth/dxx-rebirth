@@ -872,7 +872,7 @@ int matt_find_connect_side(int seg0,int seg1);
 char visited2[MAX_SEGMENTS];
 #endif
 
-char visited[MAX_SEGMENTS];
+unsigned char visited[MAX_SEGMENTS];
 short Render_list[MAX_RENDER_SEGS];
 short Seg_depth[MAX_RENDER_SEGS];		//depth for each seg in Render_list
 ubyte processed[MAX_RENDER_SEGS];		//whether each entry has been processed
