@@ -674,7 +674,7 @@ void game_render_frame_mono(int flip)
 
 		Viewer = Guided_missile[Player_num];
 
-		update_rendered_data(0, Viewer, 0, 0);
+		update_rendered_data(0, Viewer, 0);
 		render_frame(0, 0);
 
 		wake_up_rendered_objects(Viewer, 0);
@@ -702,7 +702,7 @@ void game_render_frame_mono(int flip)
 			BigWindowSwitch=0;
 			return;
 		}
-		update_rendered_data(0, Viewer, Rear_view, 0);
+		update_rendered_data(0, Viewer, Rear_view);
 		render_frame(0, 0);
 	}
 

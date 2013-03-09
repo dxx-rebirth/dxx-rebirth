@@ -1705,13 +1705,12 @@ void render_frame(fix eye_offset, int window_num)
 
 int first_terminal_seg;
 
-void update_rendered_data(int window_num, object *viewer, int rear_view_flag, int user)
+void update_rendered_data(int window_num, object *viewer, int rear_view_flag)
 {
 	Assert(window_num < MAX_RENDERED_WINDOWS);
 	Window_rendered_data[window_num].time = timer_query();
 	Window_rendered_data[window_num].viewer = viewer;
 	Window_rendered_data[window_num].rear_view = rear_view_flag;
-	Window_rendered_data[window_num].user = user;
 }
 
 //build a list of segments to be rendered

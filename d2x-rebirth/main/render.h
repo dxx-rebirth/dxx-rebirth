@@ -99,6 +99,6 @@ void project_list(int nv, int *pointnumlist);
 
 extern void render_mine(int start_seg_num, fix eye_offset, int window_num);
 
-extern void update_rendered_data(int window_num, object *viewer, int rear_view_flag, int user);
+extern void update_rendered_data(int window_num, object *viewer, int rear_view_flag);
 
 #endif /* _RENDER_H */

@@ -356,7 +356,6 @@ typedef struct {
 	fix64   time;
 	object  *viewer;
 	int     rear_view;
-	int     user;
 	int     num_objects;
 	short   rendered_objects[MAX_RENDERED_OBJECTS];
 } window_rendered_data;

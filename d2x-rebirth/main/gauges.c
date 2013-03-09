@@ -2888,7 +2888,7 @@ void do_cockpit_window_view(int win,object *viewer,int rear_view_flag,int user,c
 		return;
 	}
 
-	update_rendered_data(win+1, viewer, rear_view_flag, user);
+	update_rendered_data(win+1, viewer, rear_view_flag);
 
 	weapon_box_user[win] = user;						//say who's using window
 
