@@ -22,7 +22,6 @@ COPYRIGHT 1993-1999 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 #define _KCONFIG_H
 
 #include "config.h"
-#include "gamestat.h"
 #include "event.h"
 #include "key.h"
 #include "joy.h"
