@@ -79,7 +79,6 @@ COPYRIGHT 1993-1999 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 #include "scores.h"
 
 #include "multi.h"
-#include "desc_id.h"
 #include "cntrlcen.h"
 #include "fuelcen.h"
 #include "pcx.h"
