@@ -61,7 +61,6 @@ char copyright[] = "DESCENT   COPYRIGHT (C) 1994,1995 PARALLAX SOFTWARE CORPORAT
 #include "gamefont.h"
 #include "kconfig.h"
 #include "newmenu.h"
-#include "desc_id.h"
 #include "config.h"
 #include "multi.h"
 #include "songs.h"
@@ -86,7 +85,6 @@ char copyright[] = "DESCENT   COPYRIGHT (C) 1994,1995 PARALLAX SOFTWARE CORPORAT
 #include "net_udp.h"
 #endif
 
-char desc_id_exit_num = 0;
 int Screen_mode=-1;					//game screen or editor screen?
 int descent_critical_error = 0;
 unsigned int descent_critical_deverror = 0;
