@@ -230,4 +230,7 @@ extern void init_smega_detonates(void);
  */
 extern int weapon_info_read_n(weapon_info *wi, int n, PHYSFS_file *fp, int file_version);
 
+//return which bomb will be dropped next time the bomb key is pressed
+int which_bomb(void);
+
 #endif

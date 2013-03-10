@@ -1989,8 +1989,6 @@ void release_guided_missile(int player_num)
 
 int Proximity_dropped=0,Smartmines_dropped=0;
 
-extern int which_bomb();
-
 //	-------------------------------------------------------------------------------------------
 //changed on 31/3/10 by kreatordxx to distinguish between drop bomb and secondary fire
 void do_missile_firing(int drop_bomb)
