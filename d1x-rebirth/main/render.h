@@ -72,7 +72,7 @@ extern fix Render_zoom;     // the player's zoom factor
 
 // This is used internally to render_frame(), but is included here so AI
 // can use it for its own purposes.
-extern char visited[MAX_SEGMENTS];
+extern unsigned char visited[MAX_SEGMENTS];
 
 extern int N_render_segs;
 extern short Render_list[MAX_RENDER_SEGS];
@@ -94,6 +94,7 @@ g3s_codes rotate_list(int nv, int *pointnumlist);
 //Given a lit of point numbers, project any that haven't been projected
 void project_list(int nv, int *pointnumlist);
 
+void render_mine(int start_seg_num,fix eye_offset);
 
 #endif
 

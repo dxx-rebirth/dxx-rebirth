@@ -51,6 +51,7 @@ COPYRIGHT 1993-1998 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 #include "newdemo.h"
 #include "multi.h"
 #include "vclip.h"
+#include "render.h"
 #include "fireball.h"
 #include "text.h"
 #include "digi.h"
@@ -820,8 +821,6 @@ extern fix Render_zoom;							//the player's zoom factor
 
 extern vms_vector Viewer_eye;	//valid during render
 
-void render_mine(int start_seg_num,fix eye_offset);
-
 void draw_exit_model()
 {
 	vms_vector model_pos;
@@ -1158,6 +1157,10 @@ void do_endlevel_flythrough(int n)
 		//update target point & angles
 
 		compute_center_point_on_side(&dest_point,pseg,exit_side);
+		if (pseg->children[exit_side] == -2)
+			nextcenter = dest_point;
+		else
+			compute_segment_center(&nextcenter,&Segments[pseg->children[exit_side]]);
 
 		//update target point and movement points
 
@@ -1194,7 +1197,6 @@ void do_endlevel_flythrough(int n)
 		vm_vec_scale(&flydata->step,flydata->speed);
 
 		compute_segment_center(&curcenter,pseg);
-		compute_segment_center(&nextcenter,&Segments[pseg->children[exit_side]]);
 		vm_vec_sub(&flydata->headvec,&nextcenter,&curcenter);
 
 		#ifdef COMPACT_SEGS

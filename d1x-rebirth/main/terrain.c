@@ -29,6 +29,7 @@ COPYRIGHT 1993-1998 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 #include "u_mem.h"
 #include "inferno.h"
 #include "textures.h"
+#include "render.h"
 #include "object.h"
 #include "endlevel.h"
 #include "fireball.h"
@@ -64,8 +65,6 @@ grs_bitmap *terrain_bm;
 void build_light_table();
 
 int terrain_outline=0;
-
-void render_mine(int start_seg_num,fix eye_offset);
 
 int org_i,org_j;
 
