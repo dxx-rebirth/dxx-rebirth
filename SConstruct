@@ -326,6 +326,31 @@ class DXXProgram(DXXCommon):
 
 		env.Append(CPPDEFINES = [('SHAREPATH', '\\"' + str(self.user_settings.sharepath) + '\\"')])
 
+	def _register_program(self,dxxstr,program_specific_objects=[]):
+		env = self.env
+		exe_target = os.path.join(self.srcdir, self.target)
+		objects = [self.env.StaticObject(target='%s%s%s' % (self.user_settings.builddir, os.path.splitext(s)[0], self.env["OBJSUFFIX"]), source=s) for s in self.common_sources]
+		objects.extend(program_specific_objects)
+		versid_cppdefines=env['CPPDEFINES'][:]
+		if self.user_settings.extra_version:
+			versid_cppdefines.append(('DESCENT_VERSION_EXTRA', '\\"%s\\"' % self.user_settings.extra_version))
+		objects.append(self.env.StaticObject(target='%s%s%s' % (self.user_settings.builddir, 'main/vers_id', self.env["OBJSUFFIX"]), source='main/vers_id.c', CPPDEFINES=versid_cppdefines))
+		# finally building program...
+		env.Program(target='%s%s' % (self.user_settings.builddir, str(exe_target)), source = objects, LIBS = self.platform_settings.libs, LINKFLAGS = str(self.platform_settings.lflags))
+		if (sys.platform != 'darwin'):
+			env.Install(self.user_settings.BIN_DIR, str(exe_target))
+			env.Alias('install', self.user_settings.BIN_DIR)
+		else:
+			sys.path += ['./arch/cocoa']
+			import tool_bundle
+			tool_bundle.TOOL_BUNDLE(env)
+			env.MakeBundle(self.PROGRAM_NAME + '.app', exe_target,
+					'free.%s-rebirth' % dxxstr, '%sgl-Info.plist' % dxxstr,
+					typecode='APPL', creator='DCNT',
+					icon_file='arch/cocoa/%s-rebirth.icns' % dxxstr,
+					subst_dict={'%sgl' % dxxstr : exe_target},	# This is required; manually update version for Xcode compatibility
+					resources=[['English.lproj/InfoPlist.strings', 'English.lproj/InfoPlist.strings']])
+
 class D1XProgram(DXXProgram):
 	PROGRAM_NAME = 'D1X-Rebirth'
 	target = 'd1x-rebirth'
@@ -558,28 +583,7 @@ class D1XProgram(DXXProgram):
 ]
 
 	def register_program(self):
-		env = self.env
-		exe_target = os.path.join(self.srcdir, self.target)
-		objects = [self.env.StaticObject(target='%s%s%s' % (self.user_settings.builddir, os.path.splitext(s)[0], self.env["OBJSUFFIX"]), source=s) for s in self.common_sources]
-		versid_cppdefines=env['CPPDEFINES'][:]
-		if self.user_settings.extra_version:
-			versid_cppdefines.append(('DESCENT_VERSION_EXTRA', '\\"%s\\"' % self.user_settings.extra_version))
-		objects.append(self.env.StaticObject(target='%s%s%s' % (self.user_settings.builddir, 'main/vers_id', self.env["OBJSUFFIX"]), source='main/vers_id.c', CPPDEFINES=versid_cppdefines))
-		# finally building program...
-		env.Program(target='%s%s' % (self.user_settings.builddir, str(exe_target)), source = objects, LIBS = self.platform_settings.libs, LINKFLAGS = str(self.platform_settings.lflags))
-		if (sys.platform != 'darwin'):
-			env.Install(self.user_settings.BIN_DIR, str(exe_target))
-			env.Alias('install', self.user_settings.BIN_DIR)
-		else:
-			sys.path += ['./arch/cocoa']
-			import tool_bundle
-			tool_bundle.TOOL_BUNDLE(env)
-			env.MakeBundle(self.PROGRAM_NAME + '.app', exe_target,
-					'free.d1x-rebirth', 'd1xgl-Info.plist',
-					typecode='APPL', creator='DCNT',
-					icon_file='arch/cocoa/d1x-rebirth.icns',
-					subst_dict={'d1xgl' : exe_target},	# This is required; manually update version for Xcode compatibility
-					resources=[['English.lproj/InfoPlist.strings', 'English.lproj/InfoPlist.strings']])
+		self._register_program('d1x')
 
 program = D1XProgram()
 
