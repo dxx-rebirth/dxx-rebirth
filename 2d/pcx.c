@@ -80,26 +80,6 @@ int PCXHeader_read_n(PCXHeader *ph, int n, PHYSFS_file *fp)
 	return i;
 }
 
-int pcx_get_dimensions( char *filename, int *width, int *height)
-{
-	PHYSFS_file *PCXfile;
-	PCXHeader header;
-
-	PCXfile = PHYSFSX_openReadBuffered(filename);
-	if (!PCXfile) return PCX_ERROR_OPENING;
-
-	if (PCXHeader_read_n(&header, 1, PCXfile) != 1) {
-		PHYSFS_close(PCXfile);
-		return PCX_ERROR_NO_HEADER;
-	}
-	PHYSFS_close(PCXfile);
-
-	*width = header.Xmax - header.Xmin+1;
-	*height = header.Ymax - header.Ymin+1;
-
-	return PCX_ERROR_NONE;
-}
-
 int pcx_read_bitmap( char * filename, grs_bitmap * bmp,int bitmap_type ,ubyte * palette )
 {
 	PCXHeader header;
