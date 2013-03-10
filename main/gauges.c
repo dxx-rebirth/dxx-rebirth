@@ -1070,9 +1070,6 @@ char *d2_very_short_secondary_weapon_names[] =
 	((weapon_num <= MEGA_INDEX)?(*(&TXT_CONCUSSION + (weapon_num))):	\
 	d2_very_short_secondary_weapon_names[weapon_num-SMISSILE1_INDEX])
 
-//return which bomb will be dropped next time the bomb key is pressed
-extern int which_bomb();
-
 void show_bomb_count(int x,int y,int bg_color,int always_show,int right_align)
 {
 	int bomb,count,w=0,h=0,aw=0;
