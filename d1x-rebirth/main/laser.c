@@ -1383,7 +1383,8 @@ int Missile_gun=0, Proximity_dropped = 0;
 //changed on 9/16/98 by adb to distinguish between drop bomb and secondary fire
 void do_missile_firing(int drop_bomb)
 {
-	int weapon = (drop_bomb) ? PROXIMITY_INDEX : Secondary_weapon;
+	int bomb = which_bomb();
+	int weapon = (drop_bomb) ? bomb : Secondary_weapon;
 
 	Network_laser_track = -1;
 
