@@ -987,7 +987,7 @@ void show_bomb_count(int x,int y,int bg_color,int always_show,int right_align)
 	if (!PlayerCfg.BombGauge)
 		return;
 
-	bomb = PROXIMITY_INDEX;
+	bomb = which_bomb();
 	count = Players[Player_num].secondary_ammo[bomb];
 
 	count = min(count,99);	//only have room for 2 digits - cheating give 200

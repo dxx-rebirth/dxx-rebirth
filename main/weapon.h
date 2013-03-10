@@ -179,4 +179,10 @@ extern void maybe_select_secondary(int weapon_index);
  */
 extern int weapon_info_read_n(weapon_info *wi, int n, PHYSFS_file *fp);
 
+//return which bomb will be dropped next time the bomb key is pressed
+static inline int which_bomb(void)
+{
+	return PROXIMITY_INDEX;
+}
+
 #endif
