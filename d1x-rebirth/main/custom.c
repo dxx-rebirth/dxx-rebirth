@@ -65,8 +65,8 @@ struct custom_info
 	int width, height;
 };
 
-grs_bitmap BitmapOriginal[MAX_BITMAP_FILES];
-struct snd_info SoundOriginal[MAX_SOUND_FILES];
+static grs_bitmap BitmapOriginal[MAX_BITMAP_FILES];
+static struct snd_info SoundOriginal[MAX_SOUND_FILES];
 
 static void change_ext(char *filename, const char *newext, int filename_size)
 {
@@ -88,7 +88,7 @@ static void change_ext(char *filename, const char *newext, int filename_size)
 	}
 }
 
-int load_pig1(PHYSFS_file *f, int num_bitmaps, int num_sounds, int *num_custom, struct custom_info **ci)
+static int load_pig1(PHYSFS_file *f, int num_bitmaps, int num_sounds, int *num_custom, struct custom_info **ci)
 {
 	int data_ofs;
 	int i;
@@ -168,7 +168,7 @@ int load_pig1(PHYSFS_file *f, int num_bitmaps, int num_sounds, int *num_custom, 
 	return 0;
 }
 
-int load_pog(PHYSFS_file *f, int pog_sig, int pog_ver, int *num_custom, struct custom_info **ci)
+static int load_pog(PHYSFS_file *f, int pog_sig, int pog_ver, int *num_custom, struct custom_info **ci)
 {
 	int data_ofs;
 	int num_bitmaps;
@@ -256,7 +256,7 @@ int load_pog(PHYSFS_file *f, int pog_sig, int pog_ver, int *num_custom, struct c
 
 // load custom textures/sounds from pog/pig file
 // returns 0 if ok, <0 on error
-int load_pigpog(char *pogname)
+static int load_pigpog(char *pogname)
 {
 	int num_custom;
 	grs_bitmap *bmp;
@@ -395,7 +395,7 @@ int load_pigpog(char *pogname)
 	return rc;
 }
 
-int read_d2_robot_info(PHYSFS_file *fp, robot_info *ri)
+static int read_d2_robot_info(PHYSFS_file *fp, robot_info *ri)
 {
 	int j, k;
 
@@ -484,7 +484,7 @@ int read_d2_robot_info(PHYSFS_file *fp, robot_info *ri)
 	return 1;
 }
 
-void load_hxm(char *hxmname)
+static void load_hxm(char *hxmname)
 {
 	unsigned int repl_num;
 	int i;
@@ -610,7 +610,7 @@ void load_hxm(char *hxmname)
 }
 
 // undo customized items
-void custom_remove()
+static void custom_remove()
 {
 	int i;
 	grs_bitmap *bmo = BitmapOriginal;
