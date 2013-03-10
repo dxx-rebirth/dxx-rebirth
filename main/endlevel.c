@@ -51,6 +51,7 @@ COPYRIGHT 1993-1998 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 #include "newdemo.h"
 #include "multi.h"
 #include "vclip.h"
+#include "render.h"
 #include "fireball.h"
 #include "text.h"
 #include "digi.h"
@@ -819,8 +820,6 @@ int find_exit_side(object *obj)
 extern fix Render_zoom;							//the player's zoom factor
 
 extern vms_vector Viewer_eye;	//valid during render
-
-void render_mine(int start_seg_num,fix eye_offset);
 
 void draw_exit_model()
 {

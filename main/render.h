@@ -94,6 +94,7 @@ g3s_codes rotate_list(int nv, int *pointnumlist);
 //Given a lit of point numbers, project any that haven't been projected
 void project_list(int nv, int *pointnumlist);
 
+void render_mine(int start_seg_num,fix eye_offset);
 
 #endif
 
