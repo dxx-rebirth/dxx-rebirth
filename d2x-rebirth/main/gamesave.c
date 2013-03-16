@@ -29,6 +29,7 @@ COPYRIGHT 1993-1999 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 #include "inferno.h"
 #ifdef EDITOR
 #include "editor/editor.h"
+#include "editor/esegment.h"
 #endif
 #include "dxxerror.h"
 #include "object.h"

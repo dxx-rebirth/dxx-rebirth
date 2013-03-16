@@ -37,6 +37,7 @@ COPYRIGHT 1993-1998 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 #include "messagebox.h"
 #include "ui.h"
 #include "editor.h"
+#include "editor/esegment.h"
 #include "gamesave.h"
 #include "gameseg.h"
 #include "key.h"
