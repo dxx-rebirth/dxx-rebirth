@@ -116,7 +116,7 @@ class DXXCommon:
 			return value
 
 	def create_lazy_object_property(self,name,transform_target=None):
-		l = lambda s: s.__lazy_objects(name, getattr(s, name), transform_target)
+		l = lambda s: s.__lazy_objects(name, getattr(s, '%s_sources' % name), transform_target)
 		setattr(self.__class__, 'objects_%s' % name, property(l))
 
 	def __init__(self):
@@ -309,7 +309,7 @@ class DXXArchive(DXXCommon):
 ]
 	def __init__(self,builddir):
 		self.PROGRAM_NAME = 'DXX-Archive'
-		for t in ['arch_sdlmixer_sources', 'common_sources']:
+		for t in ['arch_sdlmixer', 'common']:
 			self.create_lazy_object_property(t)
 		DXXCommon.__init__(self)
 		self.user_settings = self.UserSettings(ARGUMENTS)
@@ -415,7 +415,7 @@ class DXXProgram(DXXCommon):
 
 	def __init__(self):
 		apply_target_name = lambda n: self._apply_target_name(n)
-		for t in ['similar_arch_ogl_sources', 'similar_arch_sdl_sources', 'similar_arch_sdlmixer_sources', 'similar_common_sources', 'similar_editor_sources']:
+		for t in ['similar_arch_ogl', 'similar_arch_sdl', 'similar_arch_sdlmixer', 'similar_common', 'similar_editor']:
 			self.create_lazy_object_property(t, apply_target_name)
 		DXXCommon.__init__(self)
 		self.user_settings = self.UserSettings(self.ARGUMENTS, self.target)
@@ -475,7 +475,7 @@ class DXXProgram(DXXCommon):
 
 		# UDP support?
 		if (self.user_settings.use_udp == 1):
-			self.common_sources += self.sources_use_udp
+			self.common_sources += self.use_udp_sources
 
 		env.Append(CPPDEFINES = [('SHAREPATH', '\\"' + str(self.user_settings.sharepath) + '\\"')])
 
@@ -483,18 +483,18 @@ class DXXProgram(DXXCommon):
 		env = self.env
 		exe_target = os.path.join(self.srcdir, self.target)
 		static_archive_construction = self.static_archive_construction[self.user_settings.builddir]
-		objects = static_archive_construction.objects_common_sources[:]
+		objects = static_archive_construction.objects_common[:]
 		objects.extend(program_specific_objects)
 		if (self.user_settings.sdlmixer == 1):
 			objects.extend(static_archive_construction.objects_arch_sdlmixer)
-			objects.extend(self.objects_similar_arch_sdlmixer_sources)
+			objects.extend(self.objects_similar_arch_sdlmixer)
 		if (self.user_settings.opengl == 1) or (self.user_settings.opengles == 1):
-			objects.extend(self.objects_similar_arch_ogl_sources)
+			objects.extend(self.objects_similar_arch_ogl)
 		else:
-			objects.extend(self.objects_similar_arch_sdl_sources)
-		objects.extend(self.objects_similar_common_sources)
+			objects.extend(self.objects_similar_arch_sdl)
+		objects.extend(self.objects_similar_common)
 		if (self.user_settings.editor == 1):
-			objects.extend(self.objects_similar_editor_sources)
+			objects.extend(self.objects_similar_editor)
 		# finally building program...
 		env.Program(target='%s%s' % (self.user_settings.builddir, str(exe_target)), source = [('%s%s' % (self.user_settings.builddir, s)) for s in self.common_sources] + objects, LIBS = self.platform_settings.libs, LINKFLAGS = str(self.platform_settings.lflags))
 		if (sys.platform != 'darwin'):
@@ -635,7 +635,7 @@ class D1XProgram(DXXProgram):
 ]
 		DXXProgram.__init__(self)
 
-	sources_use_udp = [os.path.join(srcdir, 'main/net_udp.c')]
+	use_udp_sources = [os.path.join(srcdir, 'main/net_udp.c')]
 
 	# SDL_mixer sound implementation
 	arch_sdlmixer_sources = [os.path.join(srcdir, f) for f in [
@@ -795,7 +795,7 @@ class D2XProgram(DXXProgram):
 ]
 		DXXProgram.__init__(self)
 
-	sources_use_udp = [os.path.join(srcdir, 'main/net_udp.c')]
+	use_udp_sources = [os.path.join(srcdir, 'main/net_udp.c')]
 
 	# SDL_mixer sound implementation
 	arch_sdlmixer_sources = [os.path.join(srcdir, f) for f in [
