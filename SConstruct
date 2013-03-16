@@ -51,6 +51,29 @@ class DXXCommon:
 				self.default_OGLES_LIB='GLESv2'
 			self.opengles = int(ARGUMENTS.get('opengles', self.default_opengles))
 			self.opengles_lib = str(ARGUMENTS.get('opengles_lib', self.default_OGLES_LIB))
+			default_builddir = ''
+			builddir_prefix = ARGUMENTS.get('builddir_prefix', None)
+			builddir_suffix = ARGUMENTS.get('builddir_suffix', None)
+			if builddir_prefix is not None or builddir_suffix is not None:
+				if builddir_prefix is not None:
+					default_builddir = builddir_prefix
+				if os.environ.has_key('CC'):
+					default_builddir += '%s-' % os.path.basename(os.environ['CC'])
+				for a in [
+					('debug', 'dbg'),
+					('profiler', 'prf'),
+					('editor', 'ed'),
+					('opengl', 'ogl'),
+					('opengles', 'es'),
+					('raspberrypi', 'rpi'),
+				]:
+					if getattr(self, a[0]):
+						default_builddir += a[1]
+				if builddir_suffix is not None:
+					default_builddir += builddir_prefix
+			self.builddir = str(ARGUMENTS.get('builddir', default_builddir))
+			if self.builddir != '' and self.builddir[-1:] != '/':
+				self.builddir += '/'
 	# Base class for platform-specific settings processing
 	class _PlatformSettings:
 		def __init__(self):
@@ -90,7 +113,9 @@ class DXXCommon:
 		try:
 			return self.__lazy_object_cache[name]
 		except KeyError as e:
-			value = [self.env.StaticObject(target=None if transform_target is None else '%s%s' % (transform_target(s), self.env["OBJSUFFIX"]), source=s) for s in source]
+			if transform_target is None:
+				transform_target = lambda n: os.path.splitext(n)[0]
+			value = [self.env.StaticObject(target='%s%s%s' % (self.user_settings.builddir, transform_target(s), self.env["OBJSUFFIX"]), source=s) for s in source]
 			self.__lazy_object_cache[name] = value
 			return value
 
@@ -104,6 +129,8 @@ class DXXCommon:
 	def prepare_environment(self):
 		# Acquire environment object...
 		self.env = Environment(ENV = os.environ, tools = ['mingw'])
+		if self.user_settings.builddir != '':
+			self.env.VariantDir(self.user_settings.builddir, '.', duplicate=0)
 
 		# Prettier build messages......
 		if (self.user_settings.verbosebuild == 0):
@@ -470,7 +497,7 @@ class DXXProgram(DXXCommon):
 		if (self.user_settings.editor == 1):
 			objects.extend(self.objects_similar_editor_sources)
 		# finally building program...
-		env.Program(target=str(exe_target), source = self.common_sources + objects, LIBS = self.platform_settings.libs, LINKFLAGS = str(self.platform_settings.lflags))
+		env.Program(target='%s%s' % (self.user_settings.builddir, str(exe_target)), source = [('%s%s' % (self.user_settings.builddir, s)) for s in self.common_sources] + objects, LIBS = self.platform_settings.libs, LINKFLAGS = str(self.platform_settings.lflags))
 		if (sys.platform != 'darwin'):
 			env.Install(self.user_settings.BIN_DIR, str(exe_target))
 			env.Alias('install', self.user_settings.BIN_DIR)
