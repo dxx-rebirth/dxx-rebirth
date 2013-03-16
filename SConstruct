@@ -76,35 +76,31 @@ class DXXCommon:
 				self.builddir += '/'
 	# Base class for platform-specific settings processing
 	class _PlatformSettings:
-		def __init__(self):
-			self.ogllibs = ''
-			self.osasmdef = None
-			self.platform_sources = []
+		ogllibs = ''
+		osasmdef = None
+		platform_sources = []
 	# Settings to apply to mingw32 builds
 	class Win32PlatformSettings(_PlatformSettings):
-		def __init__(self,user_settings):
-			DXXCommon._PlatformSettings.__init__(self)
-			self.osdef = '_WIN32'
-			self.osasmdef = 'win32'
+		osdef = '_WIN32'
+		osasmdef = 'win32'
 		def adjust_environment(self,program,env):
 			env.Append(CPPDEFINES = ['_WIN32', 'HAVE_STRUCT_TIMEVAL'])
 	class DarwinPlatformSettings(_PlatformSettings):
+		osdef = '__APPLE__'
 		def __init__(self,user_settings):
-			DXXCommon._PlatformSettings.__init__(self)
-			self.osdef = '__APPLE__'
 			user_settings.asm = 0
 		def adjust_environment(self,program,env):
 			env.Append(CPPDEFINES = ['HAVE_STRUCT_TIMESPEC', 'HAVE_STRUCT_TIMEVAL', '__unix__'])
 	# Settings to apply to Linux builds
 	class LinuxPlatformSettings(_PlatformSettings):
+		osdef = '__LINUX__'
+		osasmdef = 'elf'
+		__opengl_libs = ['GL', 'GLU']
 		def __init__(self,user_settings):
-			DXXCommon._PlatformSettings.__init__(self)
-			self.osdef = '__LINUX__'
-			self.osasmdef = 'elf'
 			if (user_settings.opengles == 1):
 				self.ogllibs = [ user_settings.opengles_lib, 'EGL']
 			else:
-				self.ogllibs = ['GL', 'GLU']
+				self.ogllibs = self.__opengl_libs
 		def adjust_environment(self,program,env):
 			env.Append(CPPDEFINES = ['__LINUX__', 'HAVE_STRUCT_TIMESPEC', 'HAVE_STRUCT_TIMEVAL'])
 			env.ParseConfig('pkg-config --cflags --libs sdl')
