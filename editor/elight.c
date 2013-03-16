@@ -21,6 +21,7 @@ COPYRIGHT 1993-1998 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 #include "inferno.h"
 #include "segment.h"
 #include "editor.h"
+#include "editor/esegment.h"
 #include "seguvs.h"
 #include "wall.h"
 #include "textures.h"

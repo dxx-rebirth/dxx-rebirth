@@ -60,6 +60,7 @@ COPYRIGHT 1993-1999 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 
 #ifdef EDITOR
 #include "editor/editor.h"
+#include "editor/esegment.h"
 #endif
 
 // (former) "detail level" values

@@ -37,6 +37,7 @@ COPYRIGHT 1993-1999 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 #include "newmenu.h"
 #ifdef EDITOR
 #include "editor/editor.h"
+#include "editor/esegment.h"
 #endif
 #include "fuelcen.h"
 #include "hash.h"
