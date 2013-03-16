@@ -92,26 +92,23 @@ typedef struct side {
 } side;
 #endif
 
-typedef struct segment {
+struct segment {
 #ifdef EDITOR
 	short   segnum;     // segment number, not sure what it means
-#endif
-	side    sides[MAX_SIDES_PER_SEGMENT];       // 6 sides
-	short   children[MAX_SIDES_PER_SEGMENT];    // indices of 6 children segments, front, left, top, right, bottom, back
-	int     verts[MAX_VERTICES_PER_SEGMENT];    // vertex ids of 4 front and 4 back vertices
-#ifdef EDITOR
 	short   group;      // group number to which the segment belongs.
 #endif
 	short   objects;    // pointer to objects in this segment
+	short   value;
+	short   children[MAX_SIDES_PER_SEGMENT];    // indices of 6 children segments, front, left, top, right, bottom, back
+	side    sides[MAX_SIDES_PER_SEGMENT];       // 6 sides
+	int     verts[MAX_VERTICES_PER_SEGMENT];    // vertex ids of 4 front and 4 back vertices
 	ubyte   special;    // what type of center this is
 	sbyte   matcen_num; // which center segment is associated with.
-	short   value;
 	fix     static_light; //average static light in segment
 	int     degenerated; // true if this segment has gotten turned inside out, or something.
-#ifndef EDITOR
-	short   pad;        //make structure longword aligned
-#endif
-} __pack__ segment;
+};
+
+typedef struct segment segment;
 
 //values for special field
 #define SEGMENT_IS_NOTHING      0
