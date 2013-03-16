@@ -311,12 +311,13 @@ class DXXArchive(DXXCommon):
 'arch/sdl/digi_mixer_music.c',
 ]
 ]
-	def __init__(self):
+	def __init__(self,builddir):
 		self.PROGRAM_NAME = 'DXX-Archive'
 		for t in ['arch_sdlmixer_sources', 'common_sources']:
 			self.create_lazy_object_property(t)
 		DXXCommon.__init__(self)
 		self.user_settings = self.UserSettings(ARGUMENTS)
+		self.user_settings.builddir = builddir
 		self.prepare_environment()
 		self.check_endian()
 		self.check_platform()
@@ -327,7 +328,7 @@ class DXXProgram(DXXCommon):
 	VERSION_MAJOR = 0
 	VERSION_MINOR = 57
 	VERSION_MICRO = 3
-	static_archive_construction = None
+	static_archive_construction = {}
 	similar_arch_ogl_sources = [os.path.join('similar', f) for f in [
 'arch/ogl/gr.c',
 'arch/ogl/ogl.c',
@@ -365,7 +366,7 @@ class DXXProgram(DXXCommon):
 ]
 	class UserSettings(DXXCommon.UserSettings):
 		def __init__(self,ARGUMENTS,target):
-			DXXCommon.UserSettings.__init__(self, ARGUMENTS.ARGUMENTS)
+			DXXCommon.UserSettings.__init__(self, ARGUMENTS)
 			# installation path
 			PREFIX = str(ARGUMENTS.get('prefix', '/usr/local'))
 			self.BIN_DIR = PREFIX + '/bin'
@@ -417,13 +418,13 @@ class DXXProgram(DXXCommon):
 		return os.path.join(os.path.dirname(name), '.%s.%s' % (self.target, os.path.splitext(os.path.basename(name))[0]))
 
 	def __init__(self):
-		if DXXProgram.static_archive_construction is None:
-			DXXProgram.static_archive_construction = DXXArchive()
 		apply_target_name = lambda n: self._apply_target_name(n)
 		for t in ['similar_arch_ogl_sources', 'similar_arch_sdl_sources', 'similar_arch_sdlmixer_sources', 'similar_common_sources', 'similar_editor_sources']:
 			self.create_lazy_object_property(t, apply_target_name)
 		DXXCommon.__init__(self)
 		self.user_settings = self.UserSettings(self.ARGUMENTS, self.target)
+		if not DXXProgram.static_archive_construction.has_key(self.user_settings.builddir):
+			DXXProgram.static_archive_construction[self.user_settings.builddir] = DXXArchive(self.user_settings.builddir)
 		self.prepare_environment()
 		self.banner()
 		self.check_endian()
@@ -485,10 +486,11 @@ class DXXProgram(DXXCommon):
 	def _register_program(self,dxxstr,program_specific_objects=[]):
 		env = self.env
 		exe_target = os.path.join(self.srcdir, self.target)
-		objects = self.static_archive_construction.objects_common_sources[:]
+		static_archive_construction = self.static_archive_construction[self.user_settings.builddir]
+		objects = static_archive_construction.objects_common_sources[:]
 		objects.extend(program_specific_objects)
 		if (self.user_settings.sdlmixer == 1):
-			objects.extend(self.static_archive_construction.objects_arch_sdlmixer)
+			objects.extend(static_archive_construction.objects_arch_sdlmixer)
 			objects.extend(self.objects_similar_arch_sdlmixer_sources)
 		if (self.user_settings.opengl == 1) or (self.user_settings.opengles == 1):
 			objects.extend(self.objects_similar_arch_ogl_sources)
