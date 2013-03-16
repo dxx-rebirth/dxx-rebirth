@@ -594,13 +594,8 @@ ushort netmisc_calc_checksum()
 		do_checksum_calc((ubyte *)&s, 2, &sum1, &sum2);
 		t = INTEL_INT(((int)Segments[i].static_light));
 		do_checksum_calc((ubyte *)&t, 4, &sum1, &sum2);
-#ifndef EDITOR
-		s = INTEL_SHORT(Segments[i].pad);	// necessary? If this isn't set to 0 it won't work Intel-Intel anyway.
-		do_checksum_calc((ubyte *)&s, 2, &sum1, &sum2);
-#else
 		s = INTEL_SHORT(0); // no matter if we need alignment on our platform, if we have editor we MUST consider this integer to get the same checksum as non-editor games calculate
 		do_checksum_calc((ubyte *)&s, 2, &sum1, &sum2);
-#endif
 	}
 	sum2 %= 255;
 	return ((sum1<<8)+ sum2);
