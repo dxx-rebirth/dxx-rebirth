@@ -121,6 +121,7 @@ class DXXCommon:
 
 	def __init__(self):
 		self.__lazy_object_cache = {}
+		self.sources = self.common_sources[:]
 
 	def prepare_environment(self):
 		# Acquire environment object...
@@ -180,7 +181,7 @@ class DXXCommon:
 			platform = self.LinuxPlatformSettings
 		self.platform_settings = platform(self.user_settings)
 		self.platform_settings.adjust_environment(self, env)
-		self.common_sources += self.platform_settings.platform_sources
+		self.sources += self.platform_settings.platform_sources
 
 	def process_user_settings(self):
 		env = self.env
@@ -198,7 +199,7 @@ class DXXCommon:
 			print "%s: including: ASSEMBLER" % self.PROGRAM_NAME
 			env.Replace(AS = 'nasm')
 			env.Append(ASCOM = ' -f ' + str(platform_settings.osasmdef) + ' -d' + str(platform_settings.osdef) + ' -Itexmap/ ')
-			self.common_sources += asm_sources
+			self.sources += asm_sources
 		else:
 			env.Append(CPPDEFINES = ['NO_ASM'])
 
@@ -222,7 +223,7 @@ class DXXCommon:
 		#editor build?
 		if (self.user_settings.editor == 1):
 			env.Append(CPPDEFINES = ['EDITOR'])
-			self.common_sources += self.editor_sources
+			self.sources += self.editor_sources
 
 		# IPv6 compability?
 		if (self.user_settings.ipv6 == 1):
@@ -309,7 +310,7 @@ class DXXArchive(DXXCommon):
 ]
 	def __init__(self,builddir):
 		self.PROGRAM_NAME = 'DXX-Archive'
-		for t in ['arch_sdlmixer', 'common']:
+		for t in ['arch_sdlmixer', 'common', 'editor']:
 			self.create_lazy_object_property(t)
 		DXXCommon.__init__(self)
 		self.user_settings = self.UserSettings(ARGUMENTS)
@@ -457,11 +458,11 @@ class DXXProgram(DXXCommon):
 			self.platform_settings.libs += self.platform_settings.ogllibs
 		else:
 			print "%s: building with Software Renderer" % self.PROGRAM_NAME
-			self.common_sources += self.arch_sdl_sources
+			self.sources += self.arch_sdl_sources
 
 		# SDL_mixer support?
 		if (self.user_settings.sdlmixer == 1):
-			self.common_sources += self.arch_sdlmixer_sources
+			self.sources += self.arch_sdlmixer_sources
 			if (sys.platform != 'darwin'):
 				self.platform_settings.libs += ['SDL_mixer']
 
@@ -475,7 +476,7 @@ class DXXProgram(DXXCommon):
 
 		# UDP support?
 		if (self.user_settings.use_udp == 1):
-			self.common_sources += self.use_udp_sources
+			self.sources += self.use_udp_sources
 
 		env.Append(CPPDEFINES = [('SHAREPATH', '\\"' + str(self.user_settings.sharepath) + '\\"')])
 
@@ -495,8 +496,9 @@ class DXXProgram(DXXCommon):
 		objects.extend(self.objects_similar_common)
 		if (self.user_settings.editor == 1):
 			objects.extend(self.objects_similar_editor)
+			objects.extend(static_archive_construction.objects_editor)
 		# finally building program...
-		env.Program(target='%s%s' % (self.user_settings.builddir, str(exe_target)), source = [('%s%s' % (self.user_settings.builddir, s)) for s in self.common_sources] + objects, LIBS = self.platform_settings.libs, LINKFLAGS = str(self.platform_settings.lflags))
+		env.Program(target='%s%s' % (self.user_settings.builddir, str(exe_target)), source = [('%s%s' % (self.user_settings.builddir, s)) for s in self.sources] + objects, LIBS = self.platform_settings.libs, LINKFLAGS = str(self.platform_settings.lflags))
 		if (sys.platform != 'darwin'):
 			env.Install(self.user_settings.BIN_DIR, str(exe_target))
 			env.Alias('install', self.user_settings.BIN_DIR)
@@ -520,9 +522,8 @@ class D1XProgram(DXXProgram):
 		self.env.Append(CPPPATH = [os.path.join(self.srcdir, f) for f in ['include', 'main', 'arch/include']])
 		self.env.Append(CPPDEFINES = [('DXX_BUILD_DESCENT_I', 1)])
 
-	def __init__(self):
 	# general source files
-		self.common_sources = [os.path.join(self.srcdir, f) for f in [
+	common_sources = [os.path.join(srcdir, f) for f in [
 '2d/font.c',
 '2d/palette.c',
 '2d/pcx.c',
@@ -604,7 +605,7 @@ class D1XProgram(DXXProgram):
 ]
 
 	# for editor
-		self.editor_sources = [os.path.join(self.srcdir, f) for f in [
+	editor_sources = [os.path.join(srcdir, f) for f in [
 'editor/centers.c',
 'editor/curves.c',
 'editor/eglobal.c',
@@ -633,7 +634,6 @@ class D1XProgram(DXXProgram):
 'editor/texture.c',
 ]
 ]
-		DXXProgram.__init__(self)
 
 	use_udp_sources = [os.path.join(srcdir, 'main/net_udp.c')]
 
@@ -672,9 +672,8 @@ class D2XProgram(DXXProgram):
 		self.env.Append(CPPPATH = [os.path.join(self.srcdir, f) for f in ['include', 'main', 'arch/include']])
 		self.env.Append(CPPDEFINES = [('DXX_BUILD_DESCENT_II', 1)])
 
-	def __init__(self):
 	# general source files
-		self.common_sources = [os.path.join(self.srcdir, f) for f in [
+	common_sources = [os.path.join(srcdir, f) for f in [
 '2d/font.c',
 '2d/palette.c',
 '2d/pcx.c',
@@ -763,7 +762,7 @@ class D2XProgram(DXXProgram):
 ]
 
 	# for editor
-		self.editor_sources = [os.path.join(self.srcdir, f) for f in [
+	editor_sources = [os.path.join(srcdir, f) for f in [
 'editor/centers.c',
 'editor/curves.c',
 'editor/eglobal.c',
@@ -793,7 +792,6 @@ class D2XProgram(DXXProgram):
 'main/bmread.c',
 ]
 ]
-		DXXProgram.__init__(self)
 
 	use_udp_sources = [os.path.join(srcdir, 'main/net_udp.c')]
 
