@@ -214,6 +214,9 @@ class DXXCommon:
 class DXXArchive(DXXCommon):
 	srcdir = 'common'
 	target = 'dxx-common'
+	# Use a prefix of "common" since that is the source directory
+	# governed by these arguments.
+	ARGUMENTS = argumentIndirection('common')
 	common_sources = [os.path.join(srcdir, f) for f in [
 '2d/2dsline.c',
 '2d/bitblt.c',
