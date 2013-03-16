@@ -31,6 +31,7 @@ COPYRIGHT 1993-1998 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 #include "editor.h"
 #include "u_mem.h"
 #include "ui.h"
+#include "strutil.h"
 
 #define AUTOSAVE_PERIOD 5			// Number of minutes for timed autosave
 

@@ -34,6 +34,7 @@ COPYRIGHT 1993-1998 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 #include "wall.h"
 #ifdef EDITOR
 #include "editor/editor.h"
+#include "editor/esegment.h"
 #endif
 #include "player.h"
 #include "fireball.h"

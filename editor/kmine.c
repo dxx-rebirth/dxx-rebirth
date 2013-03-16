@@ -24,6 +24,7 @@ COPYRIGHT 1993-1998 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 #include "strutil.h"
 #include "inferno.h"
 #include "editor.h"
+#include "editor/esegment.h"
 #include "ui.h"
 #include "texpage.h"		// For texpage_goto_first
 #include "segment.h"

@@ -28,6 +28,7 @@ COPYRIGHT 1993-1998 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 #include "gr.h"
 #include "ui.h"
 #include "editor/editor.h"
+#include "editor/esegment.h"
 #include "wall.h"
 #include "switch.h"
 #include "key.h"

@@ -28,6 +28,7 @@ COPYRIGHT 1993-1998 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 #include "gr.h"
 #include "key.h"
 #include "editor.h"
+#include "editor/esegment.h"
 #include "gameseg.h"
 #include "console.h"
 #define ONE_OVER_SQRT2 F1_0 * 0.707106781
