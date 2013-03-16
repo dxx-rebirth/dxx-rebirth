@@ -134,9 +134,10 @@ class DXXCommon:
 
 		# Prettier build messages......
 		if (self.user_settings.verbosebuild == 0):
-			self.env["CCCOMSTR"]     = "Compiling $SOURCE ..."
-			self.env["CXXCOMSTR"]    = "Compiling $SOURCE ..."
-			self.env["LINKCOMSTR"]   = "Linking $TARGET ..."
+			builddir = self.user_settings.builddir if self.user_settings.builddir != '' else '.'
+			self.env["CCCOMSTR"]     = "Compiling %s %s $SOURCE" % (self.target, builddir)
+			self.env["CXXCOMSTR"]    = "Compiling %s %s $SOURCE" % (self.target, builddir)
+			self.env["LINKCOMSTR"]   = "Linking %s $TARGET" % self.target
 			self.env["ARCOMSTR"]     = "Archiving $TARGET ..."
 			self.env["RANLIBCOMSTR"] = "Indexing $TARGET ..."
 
