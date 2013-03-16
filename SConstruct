@@ -51,6 +51,26 @@ class DXXProgram:
 			self.use_udp = int(ARGUMENTS.get('use_udp', 1))
 			self.use_tracker = int(ARGUMENTS.get('use_tracker', 1))
 			self.verbosebuild = int(ARGUMENTS.get('verbosebuild', 0))
+			builddir_prefix = ARGUMENTS.get('builddir_prefix', None)
+			builddir_suffix = ARGUMENTS.get('builddir_suffix', None)
+			default_builddir = builddir_prefix or ''
+			if builddir_prefix is not None or builddir_suffix is not None:
+				if os.environ.has_key('CC'):
+					default_builddir += '%s-' % os.path.basename(os.environ['CC'])
+				for a in (
+					('debug', 'dbg'),
+					('profiler', 'prf'),
+					('editor', 'ed'),
+					('opengl', 'ogl'),
+					('opengles', 'es'),
+				):
+					if getattr(self, a[0]):
+						default_builddir += a[1]
+				if builddir_suffix is not None:
+					default_builddir += builddir_prefix
+			self.builddir = ARGUMENTS.get('builddir', default_builddir)
+			if self.builddir != '' and self.builddir[-1:] != '/':
+				self.builddir += '/'
 	# Base class for platform-specific settings processing
 	class _PlatformSettings:
 		def __init__(self):
@@ -118,6 +138,8 @@ class DXXProgram:
 		self.env = Environment(ENV = os.environ, tools = ['mingw'])
 		self.VERSION_STRING = ' v' + str(self.VERSION_MAJOR) + '.' + str(self.VERSION_MINOR) + '.' + str(self.VERSION_MICRO)
 		self.env.Append(CPPDEFINES = [('PROGRAM_NAME', '\\"' + str(self.PROGRAM_NAME) + '\\"'), ('DXX_VERSION_MAJORi', str(self.VERSION_MAJOR)), ('DXX_VERSION_MINORi', str(self.VERSION_MINOR)), ('DXX_VERSION_MICROi', str(self.VERSION_MICRO))])
+		if self.user_settings.builddir != '':
+			self.env.VariantDir(self.user_settings.builddir, '.', duplicate=0)
 
 		# Prettier build messages......
 		if (self.user_settings.verbosebuild == 0):
@@ -478,13 +500,13 @@ class D1XProgram(DXXProgram):
 	def register_program(self):
 		env = self.env
 		exe_target = os.path.join(self.srcdir, self.target)
+		objects = [self.env.StaticObject(target='%s%s%s' % (self.user_settings.builddir, os.path.splitext(s)[0], self.env["OBJSUFFIX"]), source=s) for s in self.common_sources]
 		versid_cppdefines=env['CPPDEFINES'][:]
 		if self.user_settings.extra_version:
 			versid_cppdefines.append(('DESCENT_VERSION_EXTRA', '\\"%s\\"' % self.user_settings.extra_version))
-		env.Object(source = ['main/vers_id.c'], CPPDEFINES=versid_cppdefines)
-		versid_sources = ['main/vers_id%s' % env['OBJSUFFIX']]
+		objects.append(self.env.StaticObject(target='%s%s%s' % (self.user_settings.builddir, 'main/vers_id', self.env["OBJSUFFIX"]), source='main/vers_id.c', CPPDEFINES=versid_cppdefines))
 		# finally building program...
-		env.Program(target=str(exe_target), source = self.common_sources + versid_sources, LIBS = self.platform_settings.libs, LINKFLAGS = str(self.platform_settings.lflags))
+		env.Program(target='%s%s' % (self.user_settings.builddir, str(exe_target)), source = objects, LIBS = self.platform_settings.libs, LINKFLAGS = str(self.platform_settings.lflags))
 		if (sys.platform != 'darwin'):
 			env.Install(self.user_settings.BIN_DIR, str(exe_target))
 			env.Alias('install', self.user_settings.BIN_DIR)
