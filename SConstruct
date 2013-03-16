@@ -285,7 +285,7 @@ class DXXArchive(DXXCommon):
 ]
 	def __init__(self):
 		self.PROGRAM_NAME = 'DXX-Archive'
-		for t in ['arch_sdlmixer_sources']:
+		for t in ['arch_sdlmixer_sources', 'common_sources']:
 			self.create_lazy_object_property(t)
 		DXXCommon.__init__(self)
 		self.user_settings = self.UserSettings(ARGUMENTS)
@@ -293,9 +293,6 @@ class DXXArchive(DXXCommon):
 		self.check_endian()
 		self.check_platform()
 		self.process_user_settings()
-		self.register_library()
-	def register_library(self):
-		self.objects = self.env.StaticObject(source = self.common_sources)
 
 class DXXProgram(DXXCommon):
 	# version number
@@ -460,7 +457,7 @@ class DXXProgram(DXXCommon):
 	def _register_program(self,dxxstr,program_specific_objects=[]):
 		env = self.env
 		exe_target = os.path.join(self.srcdir, self.target)
-		objects = self.static_archive_construction.objects[:]
+		objects = self.static_archive_construction.objects_common_sources[:]
 		objects.extend(program_specific_objects)
 		if (self.user_settings.sdlmixer == 1):
 			objects.extend(self.static_archive_construction.objects_arch_sdlmixer)
