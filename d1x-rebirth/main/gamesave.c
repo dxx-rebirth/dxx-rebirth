@@ -1464,7 +1464,7 @@ int save_level_sub(char * filename, int compiled_version)
 	}
 //	else
 	{
-		change_filename_extension(temp_filename, filename, ".RDL");
+		change_filename_extension(temp_filename, filename, "." DXX_LEVEL_FILE_EXTENSION);
 	}
 
 	SaveFile = PHYSFSX_openWriteBuffered(temp_filename);

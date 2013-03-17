@@ -28,7 +28,7 @@ COPYRIGHT 1993-1998 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 #include "gamesave.h"
 #include "gameseq.h"
 
-char game_filename[PATH_MAX] = "*.RDL";
+char game_filename[PATH_MAX] = "*." DXX_LEVEL_FILE_EXTENSION;
 
 extern void checkforext( char * f, char *ext );
 
@@ -92,7 +92,7 @@ int SaveGameData()
 			return 0;
 		}
 		
-   if (ui_get_filename( game_filename, "*.RDL", "SAVE GAME" )) {
+   if (ui_get_filename( game_filename, "*." DXX_LEVEL_FILE_EXTENSION, "SAVE GAME" )) {
 		int saved_flag;
 		vms_vector save_pos = ConsoleObject->pos;
 		vms_matrix save_orient = ConsoleObject->orient;
@@ -142,7 +142,7 @@ int SaveGameData()
 int LoadGameData()
 {
 if (SafetyCheck())  {
-	if (ui_get_filename( game_filename, "*.RDL", "LOAD GAME" ))
+	if (ui_get_filename( game_filename, "*." DXX_LEVEL_FILE_EXTENSION, "LOAD GAME" ))
 		{
 		checkforgamext(game_filename);
 		if (load_level(game_filename))

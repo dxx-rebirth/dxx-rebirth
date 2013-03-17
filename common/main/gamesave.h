@@ -21,6 +21,9 @@ COPYRIGHT 1993-1999 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 #ifndef _GAMESAVE_H
 #define _GAMESAVE_H
 
+#define D1X_LEVEL_FILE_EXTENSION	"RDL"
+#define D2X_LEVEL_FILE_EXTENSION	"RL2"
+
 #if defined(DXX_BUILD_DESCENT_I)
 #define	NUM_SHAREWARE_LEVELS	7
 #define	NUM_REGISTERED_LEVELS	23
@@ -29,6 +32,9 @@ extern char *Shareware_level_names[NUM_SHAREWARE_LEVELS];
 extern char *Registered_level_names[NUM_REGISTERED_LEVELS];
 
 int convert_tmap(int tmap);	// for gamemine.c
+#define DXX_LEVEL_FILE_EXTENSION	D1X_LEVEL_FILE_EXTENSION
+#elif defined(DXX_BUILD_DESCENT_II)
+#define DXX_LEVEL_FILE_EXTENSION	D2X_LEVEL_FILE_EXTENSION
 #endif
 void LoadGame(void);
 void SaveGame(void);

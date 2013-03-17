@@ -1686,9 +1686,9 @@ int save_level_sub(char * filename, int compiled_version)
 //	else
 	{
 		if (Gamesave_current_version <= 3)
-			change_filename_extension(temp_filename, filename, ".RDL");
+			change_filename_extension(temp_filename, filename, "." D1X_LEVEL_FILE_EXTENSION);
 		else
-			change_filename_extension(temp_filename, filename, ".RL2");
+			change_filename_extension(temp_filename, filename, "." D2X_LEVEL_FILE_EXTENSION);
 	}
 
 	SaveFile = PHYSFSX_openWriteBuffered(temp_filename);
