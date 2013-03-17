@@ -105,6 +105,7 @@ class DXXCommon:
 		osdef = '__LINUX__'
 		osasmdef = 'elf'
 		__opengl_libs = ['GL', 'GLU']
+		__pkg_config_sdl = {}
 		def __init__(self,user_settings):
 			if (user_settings.opengles == 1):
 				self.ogllibs = [ user_settings.opengles_lib, 'EGL']
@@ -112,7 +113,22 @@ class DXXCommon:
 				self.ogllibs = self.__opengl_libs
 		def adjust_environment(self,program,env):
 			env.Append(CPPDEFINES = ['__LINUX__', 'HAVE_STRUCT_TIMESPEC', 'HAVE_STRUCT_TIMEVAL'])
-			env.ParseConfig('pkg-config --cflags --libs sdl')
+			try:
+				pkgconfig = os.environ['PKG_CONFIG']
+			except KeyError as e:
+				try:
+					pkgconfig = '%s-pkg-config' % os.environ['CHOST']
+				except KeyError as e:
+					pkgconfig = 'pkg-config'
+			cmd = '%s --cflags --libs sdl' % pkgconfig
+			try:
+				flags = self.__pkg_config_sdl[cmd]
+			except KeyError as e:
+				if (program.user_settings.verbosebuild != 0):
+					print "%s: reading SDL settings from `%s`" % (program.PROGRAM_NAME, cmd)
+				self.__pkg_config_sdl[cmd] = env.backtick(cmd)
+				flags = self.__pkg_config_sdl[cmd]
+			env.MergeFlags(flags)
 
 	def __init__(self):
 		pass
