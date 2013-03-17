@@ -108,8 +108,11 @@ typedef struct segment {
 	int     degenerated; // true if this segment has gotten turned inside out, or something.
 
 	// -- Moved to segment2 to make this struct 512 bytes long --
-	//ubyte   special;    // what type of center this is
-	//sbyte   matcen_num; // which center segment is associated with.
+	ubyte   special;    // what type of center this is
+	sbyte   matcen_num; // which center segment is associated with.
+	sbyte   value;
+	ubyte   s2_flags;
+	fix     static_light;
 	//short   value;
 	//fix     static_light; //average static light in segment
 	//#ifndef EDITOR
@@ -117,16 +120,10 @@ typedef struct segment {
 	//#endif
 } segment;
 
+#define segment2 segment
+
 #define S2F_AMBIENT_WATER   0x01
 #define S2F_AMBIENT_LAVA    0x02
-
-typedef struct segment2 {
-	ubyte   special;
-	sbyte   matcen_num;
-	sbyte   value;
-	ubyte   s2_flags;
-	fix     static_light;
-} segment2;
 
 //values for special field
 #define SEGMENT_IS_NOTHING      0
@@ -165,12 +162,12 @@ typedef struct {
 // Globals from mglobal.c
 extern vms_vector   Vertices[];
 extern segment      Segments[];
-extern segment2     Segment2s[];
+#define Segment2s Segments
 extern int          Num_segments;
 extern int          Num_vertices;
 
 // Get pointer to the segment2 for the given segment pointer
-#define s2s2(segp) (&Segment2s[(segp) - Segments])
+#define s2s2(segp) (segp)
 
 extern sbyte Side_to_verts[MAX_SIDES_PER_SEGMENT][4];       // Side_to_verts[my_side] is list of vertices forming side my_side.
 extern int  Side_to_verts_int[MAX_SIDES_PER_SEGMENT][4];    // Side_to_verts[my_side] is list of vertices forming side my_side.
