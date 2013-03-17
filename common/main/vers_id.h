@@ -1,0 +1,22 @@
+/* Version defines */
+
+#ifndef _VERS_ID
+#define _VERS_ID
+
+#define __stringize2(X)	#X
+#define __stringize(X)	__stringize2(X)
+
+#define DXX_VERSION_MAJOR __stringize(DXX_VERSION_MAJORi)
+#define DXX_VERSION_MINOR __stringize(DXX_VERSION_MINORi)
+#define DXX_VERSION_MICRO __stringize(DXX_VERSION_MICROi)
+
+#define VERSION DXX_VERSION_MAJOR "." DXX_VERSION_MINOR "." DXX_VERSION_MICRO
+#if defined(DXX_BUILD_DESCENT_I)
+#define BASED_VERSION "Registered v1.5 Jan 5, 1996"
+#define DESCENT_VERSION "D1X-Rebirth v" VERSION
+#elif defined(DXX_BUILD_DESCENT_II)
+#define BASED_VERSION "Full Version v1.2"
+#define DESCENT_VERSION "D2X-Rebirth v" VERSION
+#endif
+
+#endif /* _VERS_ID */

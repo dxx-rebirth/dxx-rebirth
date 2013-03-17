@@ -1,0 +1,174 @@
+Compiling D2X-Rebirth Sourcecode
+
+This file describes how to compile D2X-Rebirth from Source.
+
+
+Requirements:
+=============
+
+   1. C/C++ compiler (gcc/g++)
+   2. SCons (to compile in *NIX/Win32) / XCode (to compile on MacOS)
+   3. SDL(-devel)
+   4. PhysFS(-devel)
+   5. GLU/GL
+   6. NASM (optional for Assembler-based Texture-mapper in non-OpenGL Build)
+   7. SDL_mixer(-devel) (+ dependencies) for external music support
+
+
+Compiling:
+==========
+
+   *NIX:
+   -----
+   Type 'scons' to compile the source.
+   You can also give additional options like 'scons use_udp=0'. See 'scons -h' for available options.
+   To install, use 'scons install' but remember to use all your options as well or SCons will re-compile and
+   install without any options given to prior compiling. However it's STRONGLY recommended NOT to use the
+   'install' argument but to create a package for your Linux distribution or operating system. 'install' will
+   compile the resulting binary (d2x-rebirth) to /usr/local/bin/ by default so to uninstall, just
+   delete the binary.
+
+   MacOS:
+   ------ 
+   For Mac OS X, an Xcode project is available (requires Xcode 2.1 or later). Xcode includes the compiler
+   and OpenGL. The standard SDL and SDL_mixer libraries from the SDL website may be used, these go in
+   /Library/Frameworks or ~/Library/Frameworks. However, to fix MP3 support for the 'Release' build I used
+   SDL 1.2.8 with Diedel's modified SMPEG library from his D2X-XL website. To debug these libraries compile
+   the frameworks from source as 'Debug' builds, then use these instead. PhysicsFS must be compiled from
+   source. Put its enclosing folder 'physfs', renaming if necessary, next to D1X's (typically d1x-rebirth).
+   In CMake ensure the build path points to 'build' inside 'physfs'. Specify 'i386;ppc' as the architecture
+   for a universal binary. In Xcode, build 'Debug' and 'Release' from the dynamic library target.
+   SCons also works on MacOS X, but it's recommended to use XCode instead.
+
+   For Mac OS 9, an MPW Makefile is available. MPW includes the compiler. As for the shared libraries,
+   compile PhysicsFS version 1.0 and the latest SDL and SDL_mixer (as of writing) from source. For SDL_mixer
+   1.2.11 you will need to disable MikMod support, from SDL_mixer.make, otherwise use SDL_mixer 1.2.8.
+   For any sources to compile, they will need to be made into text files using a typecode changing program,
+   if they were downloaded outside of Mac OS 9 (including Mac OS X). This will also need to be done after any
+   Terminal command (diff, svn update etc) edits the source files.
+
+   Note that there are ready-to-go packages on http://www.dxx-rebirth.com   
+
+   Win32:
+   ------
+   Use the SCons way like described in the *NIX-instructions from an MSYS/MinGW environment. However you will
+   not need to use 'install' but just drag the resulting binary to your Descent-folder.
+   Note that there are ready-to-go packages on http://www.dxx-rebirth.com 
+   
+
+Needed files:
+=============
+
+   Since D2X-Rebirth is a Sourceport of the Descent2-Engine you will need the Game-Content data files to run
+   the game. You don't own the full game, yet?
+   Just visit GOOD OLD GAMES via:
+   http://www.gog.com/en/gamecard/descent_1_descent_2/pp/fc074d501302eb2b93e2554793fcaf50b3bf7291
+   and download it for a very low price! DRM-FREE!
+
+   Following files are needed to run the game:
+   descent2.ham
+   descent2.hog
+   descent2.s11
+   descent2.s22
+   alien1.pig
+   alien2.pig
+   fire.pig
+   groupa.pig
+   ice.pig
+   water.pig
+   intro-h.mvl and/or intro-l.mvl
+   other-h.mvl and/or other-l.mvl
+   robots-h.mvl and/or robots-l.mvl
+
+   With the PC version, these files - except the Movies (*.mvl) - are archived in the file
+   'descent2.sow' on the Descent2 CD-Rom.
+   This is an ARJ-archive and can be extracted with an adapted archiver like ‘unarj’ or by installing the
+   game on a Windows/DOS system.
+
+   Note that the above files must be lowercase if you use an operating system with case-sensitive file management.
+
+   For the Mac CD-ROM, download The Unarchiver (http://wakaba.c3.cx/s/apps/unarchiver.html) and drag the
+   installer program onto it. Alternatively, for Mac OS 9 or earlier simply run the installer.
+   Unfortunately the movies do not work; if you want the movies consider purchasing Descent 2 for PC
+   (e.g. from Good Old Games) and extract that installer with The Unarchiver. Hey, then you'll have
+   another license for multiplayer. ;)
+
+   Of course you can also use the Interactive Demo game content with D2X-Rebirth which you can find here:
+   http://www.dxx-rebirth.com/game-content/
+
+
+Where to put these files:
+=========================
+
+   *NIX
+   ----
+   The Sharepath (/usr/local/share/games/d1x-rebirth/ by default - if not reconfigured via SCons) or
+   ~/.d1x-rebirth or
+   another directory specified by -hogdir via d1x.ini
+
+   MacOS
+   -----
+   Same directory as where the binary is located or
+   another directory specified by -hogdir via d1x.ini
+
+   Win32
+   -----
+   Same directory as where the binary is located
+   another directory specified by -hogdir via d1x.ini
+   
+
+Optional files:
+===============
+
+   D2X-Rebirth is expandable. You can add additional content to the game.
+
+   Vertigo series AddOn
+   --------------------
+   Can be added by copying the files
+   d2x-h.mvl and/or d2x-l.mvl, hoard.ham to your game-directory/Sharepath and
+   d2x.hog, d2x.mn2 to 'missions/' subdirectory.
+   All these files should be located on the ‘Vertigo Series’ CD-Rom
+
+   Missions:
+   ---------
+   Those can be found on several websites. Add them to the game by copying them to subdirectory
+   ‘missions/’. They can also go in subdirectories of 'missions/', unlike with the original version.
+   A good place to find additional mission might be the Descent mission Database:
+   http://www.dxx-rebirth.com/descent-mission-database/
+
+   Custom Music (MP3, OGG, AIF, etc.):
+   -----------------------------------
+   Custom Music can be played via the CUSTOM MUSIC options by specifying it in the Sound Options menu.
+   Please note that all custom music has to be in 44Khz format. Supported formats depend on the capabilities of SDL_mixer.
+
+   AddOn Packs:
+   ------------
+   Custom AddOn packs will expand the game in many differnt ways. These are usually provided as ZIP or 7Z and can easily
+   be installed by putting them to where your game content resides (OS-dependent - see above).
+   NO EXTRACTION OR ADDITIONAL CONFIGURATION NEEDED.
+   You can find all official AddOns here:
+   http://www.dxx-rebirth.com/addons/
+   
+
+Launching the program
+=====================
+
+   *NIX
+   ----
+   After compiling and installing, the program can be launched with the command: d2x-rebirth
+
+   MacOS
+   -----
+   Simply double-click "D2X-Rebirth".
+
+   Win32
+   -----
+   Doubleclick d2x-rebirth.exe
+
+   To see a full list of available command-line options append ‘-h’, ‘-?’ to the command or refer file
+   d2x.ini
+
+
+Appendix
+========
+   http://DXX-Rebirth.com
