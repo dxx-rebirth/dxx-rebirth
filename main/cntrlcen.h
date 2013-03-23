@@ -39,15 +39,22 @@ typedef struct control_center_triggers {
 
 extern control_center_triggers ControlCenterTriggers;
 
-extern int N_controlcen_guns;
+typedef struct reactor {
+	int n_guns;
+	vms_vector gun_points[MAX_CONTROLCEN_GUNS];
+	vms_vector gun_dirs[MAX_CONTROLCEN_GUNS];
+} reactor;
+
+#define MAX_REACTORS	1
+
+extern reactor Reactors[MAX_REACTORS];
+
 extern int Control_center_been_hit;
 extern int Control_center_player_been_seen;
 extern int Control_center_next_fire_time;
 extern int Control_center_present;
 extern int Dead_controlcen_object_num;
 
-extern vms_vector controlcen_gun_points[MAX_CONTROLCEN_GUNS];
-extern vms_vector controlcen_gun_dirs[MAX_CONTROLCEN_GUNS];
 extern vms_vector Gun_pos[MAX_CONTROLCEN_GUNS];
 
 //return the position & orientation of a gun on the control center object 

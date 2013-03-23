@@ -217,12 +217,12 @@ void properties_read_cmp(PHYSFS_file * fp)
 		ObjStrength[i] = PHYSFSX_readFix(fp);
 
 	First_multi_bitmap_num = PHYSFSX_readInt(fp);
-	N_controlcen_guns = PHYSFSX_readInt(fp);
+	Reactors[0].n_guns = PHYSFSX_readInt(fp);
 
 	for (i = 0; i < MAX_CONTROLCEN_GUNS; i++)
-		PHYSFSX_readVector(&controlcen_gun_points[i], fp);
+		PHYSFSX_readVector(&Reactors[0].gun_points[i], fp);
 	for (i = 0; i < MAX_CONTROLCEN_GUNS; i++)
-		PHYSFSX_readVector(&controlcen_gun_dirs[i], fp);
+		PHYSFSX_readVector(&Reactors[0].gun_dirs[i], fp);
 
 	exit_modelnum = PHYSFSX_readInt(fp);	
 	destroyed_exit_modelnum = PHYSFSX_readInt(fp);

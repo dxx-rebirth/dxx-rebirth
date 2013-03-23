@@ -1224,7 +1224,7 @@ void bm_read_object(int skip)
 	model_num = load_polygon_model(model_name,n_normal_bitmaps,first_bitmap_num,NULL);
 
 	if (type == OL_CONTROL_CENTER)
-		N_controlcen_guns = read_model_guns(model_name,controlcen_gun_points,controlcen_gun_dirs,NULL);
+		Reactors[0].n_guns = read_model_guns(model_name,Reactors[0].gun_points,Reactors[0].gun_dirs,NULL);
 
 	if ( model_name_dead )
 		Dead_modelnums[model_num]  = load_polygon_model(model_name_dead,N_ObjBitmapPtrs-first_bitmap_num_dead,first_bitmap_num_dead,NULL);
@@ -1846,9 +1846,9 @@ void bm_write_all(PHYSFS_file *fp)
 
 	PHYSFS_write( fp, &First_multi_bitmap_num, sizeof(int), 1);
 
-	PHYSFS_write( fp, &N_controlcen_guns, sizeof(int), 1);
-	PHYSFS_write( fp, controlcen_gun_points, sizeof(vms_vector), MAX_CONTROLCEN_GUNS);
-	PHYSFS_write( fp, controlcen_gun_dirs, sizeof(vms_vector), MAX_CONTROLCEN_GUNS);
+	PHYSFS_write( fp, &Reactors[0].n_guns, sizeof(int), 1);
+	PHYSFS_write( fp, Reactors[0].gun_points, sizeof(vms_vector), MAX_CONTROLCEN_GUNS);
+	PHYSFS_write( fp, Reactors[0].gun_dirs, sizeof(vms_vector), MAX_CONTROLCEN_GUNS);
 	PHYSFS_write( fp, &exit_modelnum, sizeof(int), 1);
 	PHYSFS_write( fp, &destroyed_exit_modelnum, sizeof(int), 1);
 }

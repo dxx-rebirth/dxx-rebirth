@@ -32,12 +32,10 @@ COPYRIGHT 1993-1998 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 #include "endlevel.h"
 #include "byteswap.h"
 
-vms_vector controlcen_gun_points[MAX_CONTROLCEN_GUNS];
-vms_vector controlcen_gun_dirs[MAX_CONTROLCEN_GUNS];
+reactor Reactors[MAX_REACTORS];
 
 control_center_triggers ControlCenterTriggers;
 
-int	N_controlcen_guns;
 int	Control_center_been_hit;
 int	Control_center_player_been_seen;
 int	Control_center_next_fire_time;
@@ -51,20 +49,21 @@ void do_countdown_frame();
 //return the position & orientation of a gun on the control center object
 void calc_controlcen_gun_point(vms_vector *gun_point,vms_vector *gun_dir,object *obj,int gun_num)
 {
+	reactor *reactor = &Reactors[0];
 	vms_matrix m;
 
 	Assert(obj->type == OBJ_CNTRLCEN);
 	Assert(obj->render_type==RT_POLYOBJ);
 
-	Assert(gun_num < N_controlcen_guns);
+	Assert(gun_num < reactor->n_guns);
 
 	//instance gun position & orientation
 
 	vm_copy_transpose_matrix(&m,&obj->orient);
 
-	vm_vec_rotate(gun_point,&controlcen_gun_points[gun_num],&m);
+	vm_vec_rotate(gun_point,&reactor->gun_points[gun_num],&m);
 	vm_vec_add2(gun_point,&obj->pos);
-	vm_vec_rotate(gun_dir,&controlcen_gun_dirs[gun_num],&m);
+	vm_vec_rotate(gun_dir,&reactor->gun_dirs[gun_num],&m);
 }
 
 //	-----------------------------------------------------------------------------
@@ -290,9 +289,9 @@ void do_controlcen_frame(object *obj)
 
 	if ((Control_center_next_fire_time < 0) && !(controlcen_death_silence > F1_0*2)) {
 		if (Players[Player_num].flags & PLAYER_FLAGS_CLOAKED)
-			best_gun_num = calc_best_gun(N_controlcen_guns, Gun_pos, Gun_dir, &Believed_player_pos);
+			best_gun_num = calc_best_gun(Reactors[0].n_guns, Gun_pos, Gun_dir, &Believed_player_pos);
 		else
-			best_gun_num = calc_best_gun(N_controlcen_guns, Gun_pos, Gun_dir, &ConsoleObject->pos);
+			best_gun_num = calc_best_gun(Reactors[0].n_guns, Gun_pos, Gun_dir, &ConsoleObject->pos);
 
 		if (best_gun_num != -1) {
 			vms_vector	vec_to_goal;
@@ -395,7 +394,7 @@ void init_controlcen_for_level(void)
 	} else {
 		//	Compute all gun positions.
 		objp = &Objects[cntrlcen_objnum];
-		for (i=0; i<N_controlcen_guns; i++)
+		for (i=0; i<Reactors[0].n_guns; i++)
 			calc_controlcen_gun_point(&Gun_pos[i], &Gun_dir[i], objp, i);
 		Control_center_present = 1;
 
