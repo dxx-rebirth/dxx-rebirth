@@ -778,7 +778,7 @@ void StartNewGame(int start_level)
 	if (start_level < 0)
 		StartNewLevelSecret(start_level, 0);
 	else
-		StartNewLevel(start_level, 0);
+		StartNewLevel(start_level);
 
 	Players[Player_num].starting_level = start_level;		// Mark where they started
 
@@ -1100,7 +1100,7 @@ void ExitSecretLevel(void)
 			DoEndGame();
 		else {
 			do_screen_message(TXT_SECRET_ADVANCE);
-			StartNewLevel(Entered_from_level+1, 0);
+			StartNewLevel(Entered_from_level+1);
 		}
 	}
 
@@ -1171,7 +1171,7 @@ void EnterSecretLevel(void)
 	{
 		set_screen_mode(SCREEN_MENU);
 		do_screen_message("Alternate Exit Found!\n\nProceeding to Secret Level!");
-		StartNewLevel(Next_level_num, 0);
+		StartNewLevel(Next_level_num);
 	} else {
  	   	StartNewLevelSecret(Next_level_num, 1);
 	}
@@ -1335,7 +1335,7 @@ void AdvanceLevel(int secret_flag)
                 }
 		// END NMN
 
-		StartNewLevel(Next_level_num, 0);
+		StartNewLevel(Next_level_num);
 
 	}
 }
@@ -1408,7 +1408,7 @@ void DoPlayerDead()
 					DoEndGame();
 				else {
 					do_screen_message(TXT_SECRET_ADVANCE);
-					StartNewLevel(Entered_from_level+1, 0);
+					StartNewLevel(Entered_from_level+1);
 					init_player_stats_new_ship(Player_num);	//	New, MK, 05/29/96!, fix bug with dying in secret level, advance to next level, keep powerups!
 				}
 			}
@@ -1435,7 +1435,7 @@ void DoPlayerDead()
 				DoEndGame();
 			else {
 				do_screen_message(TXT_SECRET_ADVANCE);
-				StartNewLevel(Entered_from_level+1, 0);
+				StartNewLevel(Entered_from_level+1);
 				init_player_stats_new_ship(Player_num);	//	New, MK, 05/29/96!, fix bug with dying in secret level, advance to next level, keep powerups!
 			}
 		}
@@ -1688,20 +1688,20 @@ void maybe_set_first_secret_visit(int level_num)
 
 //called when the player is starting a new level for normal game model
 //	secret_flag if came from a secret level
-void StartNewLevel(int level_num, int secret_flag)
+void StartNewLevel(int level_num)
 {
 	hide_menus();
 
 	GameTime64 = 0;
 	ThisLevelTime=0;
 
-	if ((level_num > 0) && (!secret_flag)) {
+	if (level_num > 0) {
 		maybe_set_first_secret_visit(level_num);
 	}
 
 	ShowLevelIntro(level_num);
 
-	StartNewLevelSub(level_num, 1, secret_flag );
+	StartNewLevelSub(level_num, 1, 0 );
 
 }
 

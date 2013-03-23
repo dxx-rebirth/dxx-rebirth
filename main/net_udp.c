@@ -3765,7 +3765,7 @@ int net_udp_start_game(void)
 	
 	if(net_udp_select_players())
 	{
-		StartNewLevel(Netgame.levelnum, 0);
+		StartNewLevel(Netgame.levelnum);
 	}
 	else
 	{
@@ -3985,7 +3985,7 @@ int net_udp_do_join_game()
 
 	net_udp_set_game_mode(Netgame.gamemode);
 
-	StartNewLevel(Netgame.levelnum, 0);
+	StartNewLevel(Netgame.levelnum);
 	
 	return 1;     // look ma, we're in a game!!!
 }
