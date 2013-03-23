@@ -975,8 +975,8 @@ int load_game_data(PHYSFS_file *LoadFile)
 
 	for (i = 0; i < Num_robot_centers; i++) {
 		if (game_top_fileinfo_version < 27) {
-			old_matcen_info m;
-			old_matcen_info_read(&m, LoadFile);
+			d1_matcen_info m;
+			d1_matcen_info_read(&m, LoadFile);
 			RobotCenters[i].robot_flags[0] = m.robot_flags[0];
 			RobotCenters[i].robot_flags[1] = 0;
 			RobotCenters[i].hit_points = m.hit_points;
