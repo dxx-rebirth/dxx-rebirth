@@ -14,6 +14,11 @@ class argumentIndirection:
 
 # endianess-checker
 def checkEndian():
+    if ARGUMENTS.has_key('endian'):
+        r = ARGUMENTS['endian']
+        if r == "little" or r == "big":
+            return r
+        raise SCons.Errors.UserError("Unknown endian value: %s" % r)
     import struct
     array = struct.pack('cccc', '\x01', '\x02', '\x03', '\x04')
     i = struct.unpack('i', array)
