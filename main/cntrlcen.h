@@ -25,8 +25,6 @@ COPYRIGHT 1993-1998 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 #include "wall.h"
 #include "switch.h"
 
-#define MAX_CONTROLCEN_GUNS     4
-
 #define CONTROLCEN_WEAPON_NUM   6
 
 #define MAX_CONTROLCEN_LINKS    10
@@ -54,11 +52,6 @@ extern int Control_center_player_been_seen;
 extern int Control_center_next_fire_time;
 extern int Control_center_present;
 extern int Dead_controlcen_object_num;
-
-extern vms_vector Gun_pos[MAX_CONTROLCEN_GUNS];
-
-//return the position & orientation of a gun on the control center object 
-extern void calc_controlcen_gun_point(vms_vector *gun_point,vms_vector *gun_dir,object *obj,int gun_num);
 
 // do whatever this thing does in a frame
 extern void do_controlcen_frame(object *obj);
