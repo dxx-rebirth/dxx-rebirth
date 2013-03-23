@@ -57,7 +57,6 @@ extern void newdemo_record_sound_3d_once( int soundno, int angle, int volume );
 extern void newdemo_record_sound_once( int soundno );
 extern void newdemo_record_sound( int soundno );
 extern void newdemo_record_wall_hit_process( int segnum, int side, int damage, int playernum );
-extern void newdemo_record_trigger( int segnum, int side, int objnum );
 extern void newdemo_record_hostage_rescued( int hostage_num );
 extern void newdemo_record_morph_frame();
 extern void newdemo_record_player_stats(int shields, int energy, int score );

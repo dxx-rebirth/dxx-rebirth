@@ -196,9 +196,6 @@ void check_trigger(segment *seg, short side, short objnum)
 
 	if (objnum == Players[Player_num].objnum) {
 
-//		if ( Newdemo_state == ND_STATE_RECORDING )
-//			newdemo_record_trigger( seg-Segments, side, objnum );
-
 		if ( Newdemo_state == ND_STATE_PLAYBACK )
 			return;
 
